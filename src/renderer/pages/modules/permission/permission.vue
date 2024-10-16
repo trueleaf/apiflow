@@ -1,7 +1,7 @@
 
 <template>
   <div class="s-permission">
-    <el-tabs v-model="activeName" @tab-click="handleChangeTabs">
+    <el-tabs v-model="activeName" @tab-change="handleChangeTabs">
       <el-tab-pane :label="t('用户')" name="SUser"></el-tab-pane>
       <el-tab-pane :label="t('角色维护')" name="SRole"></el-tab-pane>
       <el-tab-pane :label="t('菜单维护')" name="SMenu"></el-tab-pane>

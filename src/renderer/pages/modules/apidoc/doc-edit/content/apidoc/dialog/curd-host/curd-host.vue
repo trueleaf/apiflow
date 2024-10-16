@@ -91,7 +91,7 @@ import { axios } from '@/api/api'
 import { useApidoc } from '@/store/apidoc/apidoc'
 import { t } from 'i18next'
 import { config } from '@src/config/config'
-import { ref } from 'vue'
+import { Ref, ref } from 'vue'
 
 
 type HostInfo = ApidocProjectHost & {
@@ -100,8 +100,8 @@ type HostInfo = ApidocProjectHost & {
 };
 
 type HookThis = {
-  tableData: HostInfo[],
-  total: number,
+  tableData: Ref<HostInfo[]>,
+  total: Ref<number>,
 }
 
 defineProps({
@@ -140,8 +140,8 @@ const form = ref<FormInstance>()
 //返回钩子
 const handleHookResponse = (res: ResponseTable<HostInfo[]>, _this: HookThis) => {
   const localData = apidocCache.getApidocServer(projectId);
-  _this.tableData = res.data.rows.concat(localData);
-  _this.total = res.data.total + localData.length
+  _this.tableData.value = res.data.rows.concat(localData);
+  _this.total.value = res.data.total + localData.length
 }
 //获取data数据
 const getTableData = () => {

@@ -52,7 +52,7 @@ export default function initRules(slots: Slots): Record<string, unknown> {
           }
         }
         //填充email规则
-        const validateEmail = (rule: unknown, value: string, callback: (err?: Error) => void) => {
+        const validateEmail = (_: unknown, value: string, callback: (err?: Error) => void) => {
           if (value === null || value.match(/\w+@.*\.\w+/)) {
             callback();
           } else {
@@ -66,7 +66,7 @@ export default function initRules(slots: Slots): Record<string, unknown> {
           }
         }
         //填充手机号规则
-        const validatePhone = (rule: unknown, value: string, callback: (err?: Error) => void) => {
+        const validatePhone = (_: unknown, value: string, callback: (err?: Error) => void) => {
           if (value === null || value.match(/^\d{11}$/)) {
             callback();
           } else {

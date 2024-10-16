@@ -10,7 +10,7 @@
     </SForm>
     <el-divider content-position="left">{{ t("角色选择") }}</el-divider>
     <el-checkbox-group v-model="roleIds">
-      <el-checkbox v-for="(item, index) in roleEnum" :key="index" :label="item._id">{{ item.roleName }}</el-checkbox>
+      <el-checkbox v-for="(item, index) in roleEnum" :key="index" :value="item._id">{{ item.roleName }}</el-checkbox>
     </el-checkbox-group>
     <template #footer>
       <div>

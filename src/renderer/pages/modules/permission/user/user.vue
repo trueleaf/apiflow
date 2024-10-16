@@ -7,12 +7,12 @@
       <SSearchItem :label="t('手机号')" prop="phone"></SSearchItem>
       <template #operation>
         <el-button type="success" @click="addUserDialog = true">新增用户</el-button>
-        <s-download class="ml-2" url="/api/security/user_excel_template" @finish="loading = false">
+        <SDownload class="ml-2" url="/api/security/user_excel_template" @finish="loading = false">
           <el-button :loading="loading" type="primary" @click="loading = true">下载模板</el-button>
-        </s-download>
-        <s-upload-plain url="/api/security/add_user_by_excel" excel @success="handleImportSuccess" @upload="loading2 = true" @finish="loading2 = false">
+        </SDownload>
+        <SUploadPlain url="/api/security/add_user_by_excel" excel @success="handleImportSuccess" @upload="loading2 = true" @finish="loading2 = false">
           <el-button :loading="loading2" type="primary">导入用户</el-button>
-        </s-upload-plain>
+        </SUploadPlain>
       </template>
     </SSearch>
     <!-- 表格展示 -->
@@ -70,6 +70,8 @@ import { axios } from '@/api/api';
 import SSearch from '@/components/common/forms/search/g-search.vue'
 import SSearchItem from '@/components/common/forms/search/g-search-item.vue'
 import STable from '@/components/common/table/g-table.vue'
+import SDownload from '@/components/common/download/g-download.vue'
+import SUploadPlain from '@/components/common/upload/g-upload-plain.vue'
 
 const addUserDialog = ref(false) //------------------新增用户弹窗
 const editUserDialog = ref(false) //-----------------编辑用户弹窗
@@ -89,6 +91,7 @@ const getData = (params?: Record<string, unknown>) => {
 }
 //搜索用户
 const handleChange = (params: Record<string, unknown>) => {
+  console.log(params, 22)
   getData(params)
 }
 //禁用角色

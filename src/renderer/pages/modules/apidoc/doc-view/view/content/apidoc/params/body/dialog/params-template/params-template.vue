@@ -71,7 +71,7 @@ export default defineComponent({
     },
     //关闭弹窗
     handleClose() {
-      this.$emits('update:modelValue', false);
+      emits('update:modelValue', false);
     },
   },
 })

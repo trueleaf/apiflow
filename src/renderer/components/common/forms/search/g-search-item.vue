@@ -1,90 +1,57 @@
-/*
-    创建者：shuxiaokai
-    创建时间：2021-06-15 22:49
-    模块名称：搜索数据项
-    备注：
-*/
+
 <template>
   <!-- 普通输入框 -->
-  <s-col v-if="type === 'input'" v-bind="$attrs">
+  <SCol v-if="type === 'input'" v-bind="$attrs">
     <el-form-item :label="realLabel" :prop="prop">
-      <s-input v-model:value="formInfo[prop]" :placeholder="realPlaceholder" @input="handleChange" @change="handleChange"></s-input>
+      <SInput v-model:value="formInfo[prop]" :placeholder="realPlaceholder" @input="handleChange" @change="handleChange"></SInput>
     </el-form-item>
-  </s-col>
+  </SCol>
   <!-- 下拉搜索框 -->
-  <s-col v-if="type === 'select'" v-bind="$attrs">
+  <SCol v-if="type === 'select'" v-bind="$attrs">
     <el-form-item :label="realLabel" :prop="prop">
-      <s-select v-model:value="formInfo[prop]" v-bind="$attrs" :placeholder="realPlaceholder" @change="handleChange"></s-select>
+      <SSelect v-model:value="formInfo[prop]" v-bind="$attrs" :placeholder="realPlaceholder" @change="handleChange"></SSelect>
     </el-form-item>
-  </s-col>
+  </SCol>
 </template>
 
-<script lang="ts">
-import { defineComponent, inject } from 'vue'
+<script lang="ts" setup>
+import SCol from "@/components/common/forms/col/g-col.vue"
+import { computed, inject } from 'vue'
+import SSelect from '@/components/common/forms/inputs/g-select.vue'
+import SInput from '@/components/common/forms/inputs/g-input.vue'
 
-export default defineComponent({
-  name: 'SearchItem',
-  props: {
-    /**
-         * 表单组件类型 input select date daterange text
-         */
-    type: {
-      type: String,
-      default: 'input',
-    },
-    /**
-         * 文案
-         */
-    label: {
-      type: String,
-      default: ''
-    },
-    /**
-         * placeholder
-         */
-    placeholder: {
-      type: String,
-      default: '',
-    },
-    /**
-         * 绑定参数的字段名称
-         */
-    prop: {
-      type: [String],
-      default: '',
-    },
+const props = defineProps({
+  type: {
+    type: String,
+    default: 'input',
   },
-  emits: ['change'],
-  setup() {
-    const formInfo = inject<Record<string, unknown>>('formInfo', {})
-    return {
-      formInfo,
-    }
+  label: {
+    type: String,
+    default: ''
   },
-  data() {
-    return {};
+  placeholder: {
+    type: String,
+    default: '',
   },
-  computed: {
-    realLabel(): string { //实际label值，自动拼接
-      if (this.label.endsWith('：')) {
-        return this.label;
-      } if (this.label.endsWith(':')) {
-        return this.label.replace(':', '：');
-      }
-      return `${this.label}：`;
-    },
-    realPlaceholder(): string { //实际placeholder值
-      return this.placeholder ? this.placeholder : `请输入${this.label}`;
-    },
-  },
-  methods: {
-    handleChange(value: string) {
-      this.event.emits('searchItem/change', value);
-    },
-  },
+  prop: {
+    type: [String],
+    default: '',
+  }
 })
+const emits = defineEmits(['change'])
+const formInfo =inject<Record<string, string | number>>('formInfo', {})
+const realLabel = computed(() => {
+  if (props.label.endsWith('：')) {
+    return props.label;
+  } if (props.label.endsWith(':')) {
+    return props.label.replace(':', '：');
+  }
+  return `${props.label}：`;
+})
+const realPlaceholder = computed(() => {
+  return props.placeholder ? props.placeholder : `请输入${props.label}`;
+})
+const handleChange = (value: string) => {
+  emits('change', value);
+}
 </script>
-
-<style lang="scss" scoped>
-
-</style>

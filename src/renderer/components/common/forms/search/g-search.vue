@@ -1,11 +1,5 @@
-/*
-创建者：shuxiaokai
-创建时间：2021-06-15 22:16
-模块名称：搜索组件
-备注：
-*/
 <template>
-  <s-card class="s-search">
+  <SCard class="s-search">
     <div v-if="config.isDev && showTip">
       {{ formInfo }}
     </div>
@@ -29,171 +23,149 @@
         <slot name="operation" />
       </div>
     </template>
-  </s-card>
+  </SCard>
 </template>
 
-<script lang="ts">
-import { defineComponent, VNode } from 'vue'
+<script lang="ts" setup>
+import { nextTick, onMounted, onUnmounted, provide, ref, useSlots, VNode, watch } from 'vue'
 import { config } from '@/../config/config'
+import { FormInstance } from 'element-plus';
+import { forEachForest, getTextWidth, event } from '@/helper';
+import SCard from '@/components/common/card/g-card.vue'
 
-export default defineComponent({
-  provide() {
-    return {
-      formInfo: this.formInfo, //将formInfo注入到item中
-    };
+const props = defineProps({
+  editData: {
+    type: Object,
+    default: () => ({}),
   },
-  props: {
-    /**
-         * 传递进来得数据，会与组件内部formInfo进行合并
-         */
-    editData: {
-      type: Object,
-      default: () => ({}),
-    },
-    /**
-         * 是否formInfo打印,生产环境自动忽略当前值
-         */
-    showTip: {
-      type: Boolean,
-      default: true,
-    },
-    /**
-         * 是否触发自动请求
-         */
-    autoRequest: {
-      type: Boolean,
-      default: false
-    },
-    /**
-         * 折叠后显示高度
-         */
-    foldedHeight: {
-      type: Number,
-      default: 50,
-    },
+  showTip: {
+    type: Boolean,
+    default: true,
   },
-  emits: ['search', 'reset', 'change'],
-  data() {
-    return {
-      formInfo: {} as Record<string, unknown>, //---搜索参数
-      originFormInfo: {}, //------------------------原始formInfo值(reset时候会用到)
-      //=====================================其他参数====================================//
-      couldShowLoadMore: false, //------------------是否允许高级筛选
-      labelWidth: '100px', //-----------------------表单label宽度
-      config, //------------------------------------配置相关信息
-      isFold: false, //-----------------------------是否折叠
-      loading: false, //----------------------------是否正在加载
-    };
+  autoRequest: {
+    type: Boolean,
+    default: false
   },
-  watch: {
-    editData: {
-      handler(data) {
-        Object.keys(data).forEach((key) => {
-          this.formInfo[key] = data[key]
-        });
-      },
-      deep: true,
-      immediate: true,
-    },
-  },
-  mounted() {
-    this.initLabelWidth(); //初始化label的宽度
-    this.initFormData(); //初始化表单数据绑定
-    this.checkFormHeight(); //检查是否显示折叠按钮
-    this.event.on('searchItem/change', this.handleChangeEvent);
-  },
-  beforeUnmount() {
-    this.event.off('searchItem/change', this.handleChangeEvent);
-  },
-  methods: {
-    //处理change事件
-    handleChangeEvent() {
-      this.nextTick(() => {
-        this.$emits('change', this.formInfo);
-      });
-    },
-    //初始化label的宽度
-    initLabelWidth() {
-      const searchItems: VNode[] = [];
-      if (this.$slots.default) {
-        const allSlots = this.$slots.default();
-        this.forEachForest<VNode>(allSlots, (slot: VNode) => {
-          const slotType = slot.type;
-          if (typeof slotType === 'object' && (slotType as Record<string, unknown>).name) {
-            searchItems.push(slot);
-          }
-        })
-      }
-      const formDom: HTMLElement = this.$el;
-      console.log(3, this.$el)
-
-      const labelDom = formDom.querySelector('.el-form-item__label') || document.body;
-      const styleList = window.getComputedStyle(labelDom);
-      const { font } = styleList;
-      // eslint-disable-next-line prefer-spread
-      const maxLabelWidth = Math.max.apply(Math, searchItems.map((val) => {
-        const { props } = val;
-        const label: string = props ? (props.label || '') : '';
-        const labelWidth = this.getTextWidth(label, font)
-        return labelWidth;
-      }));
-      const realWidth = maxLabelWidth < 100 ? 100 : maxLabelWidth;
-      this.labelWidth = `${Math.ceil(realWidth)}px`
-    },
-    //初始化表单参数
-    initFormData() {
-      if (this.$slots.default) {
-        const allSlots = this.$slots.default();
-        this.forEachForest<VNode>(allSlots, (slot: VNode) => {
-          const slotType = slot.type;
-          const { props } = slot;
-          if (typeof slotType === 'object' && (slotType as Record<string, unknown>).name === 'SearchItem') {
-            if (props && props.prop) {
-              this.formInfo[props.prop] = null;
-            }
-          }
-        })
-        this.originFormInfo = JSON.parse(JSON.stringify(this.formInfo));
-      }
-    },
-    //检查是否显示折叠按钮
-    checkFormHeight() {
-      const { form } = this.$refs;
-      const formDom = form.$el;
-      const formHeight = formDom.getBoundingClientRect().height;
-      if (formHeight > this.foldedHeight * 2) {
-        this.couldShowLoadMore = true;
-        this.isFold = true;
-        formDom.style.height = `${this.foldedHeight}px`;
-        formDom.style.overflow = 'hidden';
-      }
-    },
-    //展开折叠项目
-    toggleExpand() {
-      const { form } = this.$refs;
-      const formDom = form.$el;
-      if (!this.isFold) {
-        formDom.style.height = `${this.foldedHeight}px`;
-        formDom.style.overflow = 'hidden';
-      } else {
-        formDom.style.height = 'auto';
-        formDom.style.overflow = 'visible';
-      }
-      this.isFold = !this.isFold;
-    },
-    //触发搜索事件
-    handleSearch() {
-      this.$emits('change', this.formInfo);
-      this.$emits('search', this.formInfo);
-    },
-    //触发重置事件
-    handleReset() {
-      Object.assign(this.formInfo, this.originFormInfo);
-      this.$emits('change', this.formInfo);
-      this.$emits('reset');
-    },
+  foldedHeight: {
+    type: Number,
+    default: 50,
   },
 })
+const emits = defineEmits(['search', 'reset', 'change'])
+const formInfo = ref<Record<string, unknown>>({});
+const originFormInfo = ref<Record<string, unknown>>({});
+const isFold = ref(false);
+const loading = ref(false);
+const couldShowLoadMore = ref(false);
+const labelWidth = ref('100px');
+const form = ref<FormInstance>();
+const slots = useSlots();
+
+watch(() => props.editData, (data) => {
+  Object.keys(data).forEach((key) => {
+    formInfo.value[key] = data[key]
+  });
+}, { deep: true, immediate: true })
+
+/*
+|--------------------------------------------------------------------------
+| 函数定义
+|--------------------------------------------------------------------------
+*/
+//处理change事件
+const handleChangeEvent = () => {
+  nextTick(() => {
+    emits('change', formInfo.value);
+  });
+}
+//初始化label的宽度
+const initLabelWidth = () => {
+  const searchItems: VNode[] = [];
+  if (slots.default) {
+    const allSlots = slots.default();
+    forEachForest<VNode>(allSlots, (slot: VNode) => {
+      const slotType = slot.type;
+      if (typeof slotType === 'object' && (slotType as Record<string, unknown>).name) {
+        searchItems.push(slot);
+      }
+    })
+  }
+
+  const labelDom = form.value?.$el.querySelector('.el-form-item__label') || document.body;
+  const styleList = window.getComputedStyle(labelDom);
+  const { font } = styleList;
+  // eslint-disable-next-line prefer-spread
+  const maxLabelWidth = Math.max.apply(Math, searchItems.map((val) => {
+    const { props } = val;
+    const label: string = props ? (props.label || '') : '';
+    const labelWidth = getTextWidth(label, font)
+    return labelWidth;
+  }));
+  const realWidth = maxLabelWidth < 100 ? 100 : maxLabelWidth;
+  labelWidth.value = `${Math.ceil(realWidth)}px`
+}
+//初始化表单参数
+const initFormData = () => {
+  if (slots.default) {
+    const allSlots = slots.default();
+    forEachForest<VNode>(allSlots, (slot: VNode) => {
+      const slotType = slot.type;
+      const { props } = slot;
+      if (typeof slotType === 'object' && (slotType as Record<string, unknown>).__name === 'g-search-item') {
+        if (props && props.prop) {
+          formInfo.value[props.prop] = null;
+        }
+      }
+    })
+    originFormInfo.value = JSON.parse(JSON.stringify(formInfo.value));
+  }
+}
+//检查是否显示折叠按钮
+const checkFormHeight = () => {
+  const formDom = form.value?.$el;
+  const formHeight = formDom.getBoundingClientRect().height;
+  if (formHeight > props.foldedHeight * 2) {
+    couldShowLoadMore.value = true;
+    isFold.value = true;
+    formDom.style.height = `${props.foldedHeight}px`;
+    formDom.style.overflow = 'hidden';
+  }
+}
+//展开折叠项目
+const toggleExpand = () => {
+  const formDom = form.value?.$el;
+  if (!isFold) {
+    formDom.style.height = `${props.foldedHeight}px`;
+    formDom.style.overflow = 'hidden';
+  } else {
+    formDom.style.height = 'auto';
+    formDom.style.overflow = 'visible';
+  }
+  isFold.value = !isFold;
+}
+//触发搜索事件
+const handleSearch = () => {
+  emits('change', formInfo.value);
+  emits('search', formInfo.value);
+}
+//触发重置事件
+const handleReset = () => {
+  console.log(originFormInfo.value)
+  Object.assign(formInfo.value, originFormInfo.value);
+  emits('change', formInfo.value);
+  emits('reset');
+}
+provide('formInfo', formInfo.value);
+onMounted(() => {
+  initLabelWidth(); //初始化label的宽度
+  initFormData(); //初始化表单数据绑定
+  checkFormHeight(); //检查是否显示折叠按钮
+  event.on('searchItem/change', handleChangeEvent);
+})
+onUnmounted(() => {
+  event.off('searchItem/change', handleChangeEvent)
+})
+
 </script>
 
 <style lang="scss" scoped>

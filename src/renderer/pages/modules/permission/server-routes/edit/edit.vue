@@ -1,9 +1,3 @@
-/*
-    创建者：shuxiaokai
-    创建时间：2021-06-28 21:04
-    模块名称：修改服务端路由
-    备注：
-*/
 <template>
   <SDialog :model-value="modelValue" top="10vh" :title="t('修改服务端路由')" @close="handleClose">
     <SForm ref="form" :edit-data="formInfo">
@@ -19,76 +13,70 @@
   </SDialog>
 </template>
 
-<script lang="ts">
-import { defineComponent, PropType, ref, watch } from 'vue'
+<script lang="ts" setup>
+import { nextTick, PropType, ref, watch } from 'vue'
 import type { PermissionServerRoute } from '@src/types/global'
 import SDialog from '@/components/common/dialog/g-dialog.vue'
 import SForm from '@/components/common/forms/form/g-form.vue'
 import SFormItem from '@/components/common/forms/form/g-form-item.vue'
-export default defineComponent({
-  props: {
-    modelValue: {
-      type: Boolean,
-      default: false,
-    },
-    editData: {
-      type: Object as PropType<PermissionServerRoute>,
-      default: () => ({})
-    },
+import { FormInstance } from 'element-plus'
+import { axios } from '@/api/api'
+import { t } from 'i18next'
+
+const props = defineProps({
+  modelValue: {
+    type: Boolean,
+    default: false,
   },
-  emits: ['update:modelValue', 'success'],
-  setup(props) {
-    const formInfo = ref({});
-    watch(props.editData, (val) => {
-      formInfo.value = val;
-    }, {
-      immediate: true
-    })
-    return {
-      formInfo
-    };
-  },
-  data() {
-    return {
-      //=========================================================================//
-      loading: false,
-    };
-  },
-  methods: {
-    handleSaveServerRoute() {
-      this.form.value?.validate((valid) => {
-        if (valid) {
-          const { formInfo } = this.form.value as any;
-          const params = {
-            ...formInfo,
-          };
-          this.loading = true;
-          this.axios.put('/api/security/server_routes', params).then(() => {
-            this.$emits('success');
-            this.handleClose();
-          }).catch((err) => {
-            console.error(err);
-          }).finally(() => {
-            this.loading = false;
-          });
-        } else {
-          this.nextTick(() => {
-            const input = document.querySelector('.el-form-item.is-error input');
-            if (input) {
-              (input as HTMLInputElement).focus();
-            }
-          });
-          this.loading = false;
-        }
-      });
-    },
-    //关闭弹窗
-    handleClose() {
-      this.$emits('update:modelValue', false);
-    },
+  editData: {
+    type: Object as PropType<PermissionServerRoute>,
+    default: () => ({})
   },
 })
-</script>
+const emits = defineEmits(['update:modelValue', 'success'])
+const formInfo = ref({});
+const loading = ref(false);
+const form = ref<FormInstance>()
+watch(props.editData, (val) => {
+  formInfo.value = val;
+}, {
+  immediate: true
+})
+/*
+|--------------------------------------------------------------------------
+| 函数定义
+|--------------------------------------------------------------------------
+*/
+//关闭弹窗
+const handleClose = () => {
+  emits('update:modelValue', false);
+}
+const handleSaveServerRoute = () => {
+  form.value?.validate((valid) => {
+    if (valid) {
+      const { formInfo } = form.value as any;
+      const params = {
+        ...formInfo,
+      };
+      loading.value = true;
+      axios.put('/api/security/server_routes', params).then(() => {
+        emits('success');
+        handleClose();
+      }).catch((err) => {
+        console.error(err);
+      }).finally(() => {
+        loading.value = false;
+      });
+    } else {
+      nextTick(() => {
+        const input = document.querySelector('.el-form-item.is-error input');
+        if (input) {
+          (input as HTMLInputElement).focus();
+        }
+      });
+      loading.value = false;
+    }
+  });
+}
 
-<style lang="scss" scoped>
-</style>
+</script>

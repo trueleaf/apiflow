@@ -165,7 +165,10 @@ const getData = (searchParams?: unknown) => {
       axios.get(props.url, { params }).then((res) => {
         responseData.value = res.data;
         if (props.resHook) {
-          props.resHook(res, this);
+          props.resHook(res, {
+            tableData,
+            total,
+          });
         } else if (props.paging) { //分页
           total.value = res.data.total;
           tableData.value = res.data.rows;
@@ -180,7 +183,10 @@ const getData = (searchParams?: unknown) => {
       }).finally(() => {
         loading.value = false;
         nextTick(() => {
-          emits('finish', responseData, this);
+          emits('finish', responseData, {
+            tableData,
+            total,
+          });
         })
       });
     })
@@ -246,6 +252,7 @@ onMounted(() => {
 
 defineExpose({
   getData,
+  tableData
 })
 
 </script>

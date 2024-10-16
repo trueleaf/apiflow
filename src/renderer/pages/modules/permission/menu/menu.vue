@@ -14,7 +14,7 @@
             <template #default="{ data }">
               <div class="tree-node">
                 <div class="label">
-                  <img :src="require('@/assets/imgs/apidoc/file.png')" width="14" height="14" class="mr-2" />
+                  <img :src="fileUrl" width="14" height="14" class="mr-2" />
                   <span>{{ data.name }}</span>
                 </div>
                 <div class="ml-auto mr-2">
@@ -54,7 +54,7 @@
     @success="getData"></SEditMenuDialog>
 </template>
 
-<script lang="ts">
+<script lang="ts" setup>
 import { t } from 'i18next'
 import type { Response, PermissionClientMenu } from '@src/types/global'
 import type Node from 'element-plus/lib/components/tree/src/model/node'
@@ -71,6 +71,7 @@ type TreeNode = Node & {
   data: PermissionClientMenu,
 }
 
+const fileUrl = new URL('@/assets/imgs/apidoc/file.png', import.meta.url).href;
 const treeData = ref<PermissionClientMenu[]>([])
 const defaultExpandKeys = ref<string[]>([])
 const currentEditNode = ref<PermissionClientMenu | null>(null)
@@ -81,7 +82,6 @@ const parentId = ref('')
 const addMenuDialogVisible = ref(false)
 const editMenuDialogVisible = ref(false)
 const loading = ref(false)
-
 
 /*
 |--------------------------------------------------------------------------

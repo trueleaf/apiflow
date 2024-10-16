@@ -52,6 +52,7 @@ const handleClose = () => {
 //新增菜单
 const handleAddMenu = () => {
   const formData = (form.value as any).formInfo;
+  console.log(form.value)
   form.value?.validate((valid) => {
     if (valid) {
       loading.value = true;

@@ -97,7 +97,7 @@ export default defineComponent({
     handleResizeMouseup() {
       this.isDragging = false;
       document.documentElement.removeEventListener('mousemove', this.handleResizeMousemove);
-      this.$emits('dragEnd');
+      emits('dragEnd');
     },
     //处理鼠标按下事件
     handleResizeMousedown(e: MouseEvent) {
@@ -105,7 +105,7 @@ export default defineComponent({
       this.wrapperHeight = (this.$refs.wrapper as HTMLElement).getBoundingClientRect().height;
       this.isDragging = true;
       document.documentElement.addEventListener('mousemove', this.handleResizeMousemove);
-      this.$emits('dragStart')
+      emits('dragStart')
     },
     //处理鼠标移动事件
     handleResizeMousemove(e: MouseEvent) {

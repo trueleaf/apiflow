@@ -1,141 +1,96 @@
 /*
-    创建者：shuxiaokai
-    创建时间：2021-06-24 22:57
-    模块名称：上传文件
-    备注：
+模块名称：上传文件
+备注：
 */
 <template>
-  <el-upload
-    class="s-download-plain"
-    :action="url"
-    :http-request="upload"
-    :show-file-list="false"
-    :before-upload="checkFileSizeAndType"
-  >
+  <el-upload class="s-download-plain" :action="url" :http-request="upload" :show-file-list="false"
+    :before-upload="checkFileSizeAndType">
     <slot />
   </el-upload>
 </template>
 
-<script lang="ts">
-import { defineComponent, PropType } from 'vue'
+<script lang="ts" setup>
+import { axios } from '@/api/api';
+import { PropType } from 'vue'
 // import { UploadFile } from "element-plus/lib/components/upload/src/upload.type";
 
-export default defineComponent({
-  props: {
-    /**
-         * 上传地址
-         */
-    url: {
-      type: String,
-      default: '',
-      required: true
-    },
-    /**
-         * 上传大小显示 10M
-         */
-    size: {
-      type: Number,
-      default: 10
-    },
-    /**
-         * 上传文件类型
-         * application/vnd.openxmlformats-officedocument.wordprocessingml.document => word  .docx文件
-         * pplication/msword => word  .doc文件
-         * application/vnd.openxmlformats-officedocument.spreadsheetml.sheet => excel
-         * application/x-zip-compressed => zip
-         */
-    type: {
-      type: Array as PropType<string[]>,
-      default: () => []
-    },
-    /**
-         * 是否上传pdf
-         */
-    pdf: {
-      type: Boolean,
-      default: false,
-    },
-    /**
-         * 是否上传excel
-         */
-    excel: {
-      type: Boolean,
-      default: false,
-    },
-    /**
-         * 是否上传word
-         */
-    word: {
-      type: Boolean,
-      default: false,
-    },
-    /**
-         * 是否上传zip
-         */
-    zip: {
-      type: Boolean,
-      default: false,
-    },
-    /**
-         * 额外参数,会合并到最后请求参数中
-         */
-    params: {
-      type: Object,
-      default: () => ({} as Record<string, unknown>),
-    },
+
+const props = defineProps({
+  url: {
+    type: String,
+    default: '',
+    required: true
   },
-  emits: ['start', 'finish', 'success'],
-  data() {
-    return {
-    };
+  size: {
+    type: Number,
+    default: 10
   },
-  methods: {
-    //上传文件
-    upload(file: { file: File }) {
-      this.$emits('start');
-      const formData = new FormData();
-      formData.append('file', file.file);
-      Object.keys(this.params).forEach((key) => {
-        formData.append(key, this.params[key]);
-      })
-      let response: string;
-      this.axios.post<{ data: string }, { data: string }>(this.url, formData).then((res) => {
-        response = res.data;
-        this.$emits('success', response);
-      }).catch((err) => {
-        console.error(err);
-      }).finally(() => {
-        this.$emits('finish', response);
-      });
-    },
-    checkFileSizeAndType() {
-      // const isLtnM = file.size > 1024 * 1024 * this.size;
-      // let isValidType = this.type.includes(file.type);
-      // //=========================================================================//
-      // if (this.pdf && file.type === "application/pdf") {
-      //     isValidType = true;
-      // }
-      // if (this.excel && (file.type === "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" || file.name.endsWith("xls") || file.name.endsWith("xlsx"))) {
-      //     isValidType = true;
-      // }
-      // if (this.word && (file.type === "application/vnd.openxmlformats-officedocument.wordprocessingml.document" || file.type === "application/msword")) {
-      //     isValidType = true;
-      // }
-      // if (this.zip && file.type === "application/x-zip-compressed") {
-      //     isValidType = true;
-      // }
-      // //=========================================================================//
-      // if (isLtnM) {
-      //     this.$message.warning(`每个文件大小限制为${this.size}M`);
-      // } else if (!isValidType) {
-      //     this.$message.warning("文件类型不正确");
-      // }
-      // return !isLtnM && isValidType;
-    },
+  type: {
+    type: Array as PropType<string[]>,
+    default: () => []
+  },
+  pdf: {
+    type: Boolean,
+    default: false,
+  },
+  excel: {
+    type: Boolean,
+    default: false,
+  },
+  word: {
+    type: Boolean,
+    default: false,
+  },
+  zip: {
+    type: Boolean,
+  },
+  params: {
+    type: Object,
+    default: () => ({} as Record<string, unknown>)
   },
 })
+const emits = defineEmits(['start', 'finish', 'success']);
+
+//上传文件
+const upload = (file: { file: File }) => {
+  emits('start');
+  const formData = new FormData();
+  formData.append('file', file.file);
+  Object.keys(props.params).forEach((key) => {
+    formData.append(key, props.params[key]);
+  })
+  let response: string;
+  axios.post<{ data: string }, { data: string }>(props.url, formData).then((res) => {
+    response = res.data;
+    emits('success', response);
+  }).catch((err) => {
+    console.error(err);
+  }).finally(() => {
+    emits('finish', response);
+  });
+}
+const checkFileSizeAndType = () => {
+  // const isLtnM = file.size > 1024 * 1024 * size;
+  // let isValidType = type.includes(file.type);
+  // //=========================================================================//
+  // if (pdf && file.type === "application/pdf") {
+  //     isValidType = true;
+  // }
+  // if (excel && (file.type === "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" || file.name.endsWith("xls") || file.name.endsWith("xlsx"))) {
+  //     isValidType = true;
+  // }
+  // if (word && (file.type === "application/vnd.openxmlformats-officedocument.wordprocessingml.document" || file.type === "application/msword")) {
+  //     isValidType = true;
+  // }
+  // if (zip && file.type === "application/x-zip-compressed") {
+  //     isValidType = true;
+  // }
+  // //=========================================================================//
+  // if (isLtnM) {
+  //     $message.warning(`每个文件大小限制为${size}M`);
+  // } else if (!isValidType) {
+  //     $message.warning("文件类型不正确");
+  // }
+  // return !isLtnM && isValidType;
+}
 </script>
-
-<style lang="scss" scoped>
-
-</style>

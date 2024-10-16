@@ -3,14 +3,14 @@
     <input v-model="query" class="remote-select-inner" type="text" :placeholder="placeholder" @input="handleInput">
     <div v-if="query" class="select-panel">
       <div v-if="dataLoading" class="loading">{{ t("加载中") }}...</div>
-      <div v-if="!dataLoading && !$slots.default" class="empty">{{ t("暂无数据") }}</div>
-      <slot v-if="!dataLoading && $slots.default" />
+      <div v-if="!dataLoading && !slots.default" class="empty">{{ t("暂无数据") }}</div>
+      <slot v-if="!dataLoading && slots.default" />
     </div>
   </div>
 </template>
 
 <script lang="ts" setup>
-import { PropType, ref, watch } from 'vue'
+import { PropType, ref, useSlots, watch } from 'vue'
 import { t } from 'i18next'
 import { debounce } from '@/helper';
 
@@ -37,6 +37,7 @@ const props = defineProps({
 const emits = defineEmits([
   "update:modelValue",
 ])
+const slots = useSlots()
 const query = ref('')
 const debounceFn = ref<DebounceFn | null>(null)
 const dataLoading = ref(false)

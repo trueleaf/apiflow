@@ -12,7 +12,7 @@
         >
         </el-checkbox>
         <el-checkbox-group v-model="selectedData" @change="handleSelectClientRoutes(item)">
-          <el-checkbox v-for="(item2, index) in item.values" :key="index" :label="item2._id">{{ item2.name }}</el-checkbox>
+          <el-checkbox v-for="(item2, index) in item.values" :key="index" :value="item2._id">{{ item2.name }}</el-checkbox>
         </el-checkbox-group>
       </div>
     </div>
@@ -23,6 +23,7 @@
 import { axios } from '@/api/api';
 import { PermissionClientRoute, Response } from '@src/types/global'
 import { t } from 'i18next'
+import SLoading from '@/components/common/loading/g-loading.vue'
 import { onMounted, ref, watch } from 'vue';
 
 type RouteInfo = {

@@ -33,7 +33,7 @@ import { Response, PermissionClientRoute } from '@src/types/global'
 import SAddClientRoute from './add/add.vue'
 import SEditClientRoute from './edit/edit.vue'
 import SMultiEditClientRoute from './edit/edit2.vue'
-import { ref } from 'vue';
+import { Ref, ref } from 'vue';
 import { uniqueByKey } from '@/helper';
 import { ElMessageBox } from 'element-plus';
 import { t } from 'i18next'
@@ -44,8 +44,8 @@ import STable from '@/components/common/table/g-table.vue'
 
 
 type HookThis = {
-  tableData: PermissionClientRoute[],
-  total: number,
+  tableData: Ref<PermissionClientRoute[]>,
+  total: Ref<number>,
 }
 const selectedData = ref<PermissionClientRoute[]>([]); //-------当前被选中的表单数据
 const editData = ref<PermissionClientRoute>({
@@ -83,8 +83,8 @@ const handleChange = (params: { name: string, groupName: string }) => {
 //获取前端路由信息
 const hookRequest = (res: Response<PermissionClientRoute[]>, _this: HookThis) => {
   originTableData.value = res.data;
-  _this.tableData = res.data;
-  _this.total = res.data.length;
+  _this.tableData.value = res.data;
+  _this.total.value = res.data.length;
   const uniqueData = uniqueByKey(res.data, 'groupName');
   groupEnum.value = uniqueData.map((v) => ({ id: v.groupName, name: v.groupName })).sort((a, b) => {
     const unicodeOfA = a.name.charCodeAt(0);

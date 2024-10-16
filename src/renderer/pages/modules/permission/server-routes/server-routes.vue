@@ -46,15 +46,19 @@ import type { Response, PermissionServerRoute } from '@src/types/global'
 import SAddServerRoute from './add/add.vue'
 import SEditServerRoute from './edit/edit.vue'
 import SMultiEditServerRoute from './edit/edit2.vue'
-import { ref } from 'vue';
+import SSearch from '@/components/common/forms/search/g-search.vue'
+import SSearchItem from '@/components/common/forms/search/g-search-item.vue'
+import STable from '@/components/common/table/g-table.vue'
+import { Ref, ref } from 'vue';
 import { t } from 'i18next'
 import { uniqueByKey } from '@/helper';
 import { ElMessageBox } from 'element-plus';
 import { axios } from '@/api/api';
 
+
 type HookThis = {
-  tableData: PermissionServerRoute[],
-  total: number,
+  tableData: Ref<PermissionServerRoute[]>,
+  total: Ref<number>,
 }
 
 const selectedData = ref<PermissionServerRoute[]>([]); //当前被选中的表单数据
@@ -94,8 +98,8 @@ const handleChange = (params: { name: string, groupName: string }) => {
 //获取前端路由信息
 const hookRequest = (res: Response<PermissionServerRoute[]>, _this: HookThis) => {
   originTableData.value = res.data;
-  _this.tableData = res.data;
-  _this.total = res.data.length;
+  _this.tableData.value = res.data;
+  _this.total.value = res.data.length;
   const uniqueData = uniqueByKey(res.data, 'groupName');
   groupEnum.value = uniqueData.map((v) => ({ id: v.groupName, name: v.groupName })).sort((a, b) => {
     const unicodeOfA = a.name.charCodeAt(0);

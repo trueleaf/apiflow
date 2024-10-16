@@ -167,7 +167,7 @@ export default defineComponent({
           this.axios.post('/api/project/doc_preset_params', params).then(() => {
             table.value?.getData();
             this.$store.commit('apidoc/addPresetParams', params);
-            this.$emits('success')
+            emits('success')
           }).catch((err) => {
             console.error(err);
           }).finally(() => {
