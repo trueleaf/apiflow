@@ -81,7 +81,7 @@ const banner = {
           shareId: payload.shareId,
           password: payload.password,
         };
-        axios.get<Response<ApidocBanner>, Response<ApidocBanner>>('/api/project/export/share_banner', { params }).then((res) => {
+        request.get<Response<ApidocBanner>, Response<ApidocBanner>>('/api/project/export/share_banner', { params }).then((res) => {
           if (res.code === 101005) {
             router.replace({
               path: '/check',

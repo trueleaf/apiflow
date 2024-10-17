@@ -39,7 +39,7 @@ import { event } from '@/helper';
 import { t } from 'i18next'
 import STable from '@/components/common/table/g-table.vue'
 import SDialog from '@/components/common/dialog/g-dialog.vue'
-import { axios } from '@/api/api';
+import { request } from '@/api/api';
 
 const projectId = ref(router.currentRoute.value.query.id as string); //项目id
 const table: Ref<{ getData: () => void } | null> = ref(null); //table实例
@@ -68,7 +68,7 @@ const handleDeleteCode = (row: ApidocCodeInfo) => {
       projectId: projectId.value,
       ids: [row._id],
     };
-    axios.delete('/api/apidoc/project/code', { data: params }).then(() => {
+    request.delete('/api/apidoc/project/code', { data: params }).then(() => {
       table.value?.getData();
     }).catch((err) => {
       console.error(err);

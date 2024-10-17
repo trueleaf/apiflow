@@ -42,7 +42,7 @@ import SServerRoutes from './components/server-routes.vue'
 import SDialog from '@/components/common/dialog/g-dialog.vue'
 import SForm from '@/components/common/forms/form/g-form.vue'
 import SFormItem from '@/components/common/forms/form/g-form-item.vue'
-import { axios } from '@/api/api'
+import { request } from '@/api/api'
 import { FormInstance } from 'element-plus'
 import { t } from 'i18next'
 import SFieldset from '@/components/common/fieldset/g-fieldset.vue'
@@ -95,7 +95,7 @@ const getRoleInfo = () => {
   const params = {
     _id: props.userId,
   };
-  axios.get<Response<RoleInfo>, Response<RoleInfo>>('/api/security/role_info', { params }).then((res) => {
+  request.get<Response<RoleInfo>, Response<RoleInfo>>('/api/security/role_info', { params }).then((res) => {
     // res.data.clientBanner.forEach((val) => {
     //     ($refs.clientMenu as { tree: TreeNodeOptions["store"] }).tree.setChecked(val, true, false);
     // });
@@ -141,7 +141,7 @@ const handleEditRole = () => {
         remark: formData.remark,
       };
       loading.value = true;
-      axios.put('/api/security/role', params).then(() => {
+      request.put('/api/security/role', params).then(() => {
         emits('success');
         handleClose();
       }).catch((err) => {

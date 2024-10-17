@@ -37,7 +37,7 @@ import { Ref, ref } from 'vue';
 import { uniqueByKey } from '@/helper';
 import { ElMessageBox } from 'element-plus';
 import { t } from 'i18next'
-import { axios } from '@/api/api';
+import { request } from '@/api/api';
 import SSearch from '@/components/common/forms/search/g-search.vue'
 import SSearchItem from '@/components/common/forms/search/g-search-item.vue'
 import STable from '@/components/common/table/g-table.vue'
@@ -104,7 +104,7 @@ const handleDeleteClientRoute = (row: PermissionClientRoute) => {
     type: 'warning',
   }).then(() => {
     const params = { ids: [row._id] };
-    axios.delete('/api/security/client_routes', { data: params }).then(() => {
+    request.delete('/api/security/client_routes', { data: params }).then(() => {
       table.value?.getData();
     }).catch((err) => {
       console.error(err);

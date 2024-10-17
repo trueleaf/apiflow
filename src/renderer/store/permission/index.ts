@@ -6,7 +6,7 @@ import layout from '@/pages/layout/layout.vue';
 import { RouteRecordRaw } from 'vue-router';
 import { ref } from 'vue';
 import { uniqueByKey } from '@/helper';
-import { axios } from '@/api/api';
+import { request } from '@/api/api';
 import { globalCache } from '@/cache/cache';
 
 type ResUserInfo = PermissionUserInfo & {
@@ -112,7 +112,7 @@ export const usePermissionStore = defineStore('permission', () => {
   //获取权限
   const getPermission = async (): Promise<ResUserInfo> => {
     return new Promise((resolve, reject) => {
-      axios.get<Response<ResUserInfo>, Response<ResUserInfo>>('/api/security/user_base_info').then((res) => {
+      request.get<Response<ResUserInfo>, Response<ResUserInfo>>('/api/security/user_base_info').then((res) => {
         changeUserInfo(res.data);
         changeMenus(res.data.clientBanner);
         changeRoutes(res.data.clientRoutes);

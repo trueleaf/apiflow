@@ -14,7 +14,7 @@
 </template>
 
 <script lang="ts" setup>
-import { axios } from '@/api/api';
+import { request } from '@/api/api';
 import { config } from '@src/config/config';
 import { ElMessage, FormInstance } from 'element-plus';
 import { t } from 'i18next'
@@ -61,7 +61,7 @@ const handleEditProject = () => {
         projectName: formInfo.value.projectName,
         _id: props.projectId,
       };
-      axios.put('/api/project/edit_project', params).then((res) => {
+      request.put('/api/project/edit_project', params).then((res) => {
         handleClose();
         emits('success', {
           id: res.data,

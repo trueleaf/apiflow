@@ -5,7 +5,7 @@ import html2canvas from 'html2canvas';
 import { apidocGenerateApidoc, apidocGenerateProperty, formatBytes } from '@/helper/index'
 import Mock from '@/server/mock/mock'
 import { router } from '@/router'
-import { axios } from '@/api/api'
+import { request } from '@/api/api'
 import { useApidocTas } from '@/store/apidoc/tabs';
 import { useApidocBaseInfo } from '@/store/apidoc/base-info';
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -442,7 +442,7 @@ class ApidocConverter {
       projectId,
       _id,
     }
-    const res = await axios.get('/api/project/doc_detail', { params })
+    const res = await request.get('/api/project/doc_detail', { params })
     console.log(res)
   }
 

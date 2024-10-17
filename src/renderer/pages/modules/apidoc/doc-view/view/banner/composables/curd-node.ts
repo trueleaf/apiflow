@@ -43,7 +43,7 @@ export function deleteNode(selectNodes: ApidocBanner[], silent?: boolean): void 
         ids: deleteIds,
       },
     };
-    axios.delete('/api/project/doc', params).then(() => {
+    request.delete('/api/project/doc', params).then(() => {
       selectNodes.forEach((node) => {
         const deletePid = node.pid;
         if (!deletePid) { //不存在pid代表在根元素删除
@@ -192,7 +192,7 @@ export function pasteNodes(currentOperationalNode: Ref<ApidocBanner | null>, pas
         pid: v.pid,
       })),
     };
-    axios.post<Response<MapId[]>, Response<MapId[]>>('/api/project/paste_docs', params).then((res) => {
+    request.post<Response<MapId[]>, Response<MapId[]>>('/api/project/paste_docs', params).then((res) => {
       const mapIds = res.data;
       forEachForest(copyPasteNodes, (node) => {
         const matchedIdInfo = mapIds.find((v) => v.oldId === node._id)
@@ -223,7 +223,7 @@ export function forkNode(currentOperationalNode: ApidocBanner): void {
     _id: currentOperationalNode._id,
     projectId,
   };
-  axios.post<Response<ApidocBanner>, Response<ApidocBanner>>('/api/project/copy_doc', params).then((res) => {
+  request.post<Response<ApidocBanner>, Response<ApidocBanner>>('/api/project/copy_doc', params).then((res) => {
     const pData = findParentById(banner, currentOperationalNode._id, { idKey: '_id' });
     if (!pData) {
       store.commit('apidoc/banner/splice', {
@@ -267,7 +267,7 @@ export function dragNode(dragData: ApidocBanner, dropData: ApidocBanner, type: '
     params.sort = (nextSiblingSort + previousSiblingSort) / 2;
     dragData.sort = (nextSiblingSort + previousSiblingSort) / 2;
   }
-  axios.put('/api/project/change_doc_pos', params).catch((err) => {
+  request.put('/api/project/change_doc_pos', params).catch((err) => {
     console.error(err);
   });
 }
@@ -308,7 +308,7 @@ export function renameNode(e: FocusEvent | KeyboardEvent, data: ApidocBanner): v
     projectId,
     name: iptValue,
   };
-  axios.put('/api/project/change_doc_info', params).catch((err) => {
+  request.put('/api/project/change_doc_info', params).catch((err) => {
     console.error(err);
     store.commit('apidoc/banner/changeBannerInfoById', {
       id: data._id,

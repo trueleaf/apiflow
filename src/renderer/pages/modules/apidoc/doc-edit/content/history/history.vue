@@ -192,7 +192,7 @@ import isToday from 'dayjs/plugin/isToday'
 import isYesterday from 'dayjs/plugin/isYesterday'
 import { ResponseTable, ApidocOperationRecord, ApidocProjectPermission } from '@src/types/global'
 import { debounce } from '@/helper'
-import { axios } from '@/api/api';
+import { request } from '@/api/api';
 import { router } from '@/router';
 import SFieldset from '@/components/common/fieldset/g-fieldset.vue'
 import SLoading from '@/components/common/loading/g-loading.vue'
@@ -236,7 +236,7 @@ const getOperatorEnum = () => {
   const params = {
     projectId: router.currentRoute.value.query.id as string,
   };
-  axios.get('/api/docs/docs_history_operator_enum', { params }).then((res) => {
+  request.get('/api/docs/docs_history_operator_enum', { params }).then((res) => {
     memberEnum.value = res.data as { name: string, permission: ApidocProjectPermission }[];
   }).catch((err) => {
     console.error(err);
@@ -322,7 +322,7 @@ const getData = () => {
     ...formInfo.value,
     projectId: router.currentRoute.value.query.id as string,
   };
-  axios.post<ResponseTable<ApidocOperationRecord[]>, ResponseTable<ApidocOperationRecord[]>>('/api/docs/docs_history', params).then((res) => {
+  request.post<ResponseTable<ApidocOperationRecord[]>, ResponseTable<ApidocOperationRecord[]>>('/api/docs/docs_history', params).then((res) => {
     historyInfo.value = {};
     res.data.rows.forEach((item) => {
       const { createdAt } = item;

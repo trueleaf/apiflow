@@ -21,7 +21,7 @@ import SFormItem from '@/components/common/forms/form/g-form-item.vue'
 import { nextTick, onMounted, ref } from 'vue';
 import { getRequestMethodEnum } from '@/helper';
 import { FormInstance } from 'element-plus';
-import { axios } from '@/api/api';
+import { request } from '@/api/api';
 import { t } from 'i18next'
 
 defineProps({
@@ -64,7 +64,7 @@ const handleSaveServerRoute = () => {
         ...formInfo,
       };
      loading.value = true;
-     axios.post('/api/security/server_routes', params).then(() => {
+     request.post('/api/security/server_routes', params).then(() => {
        emits('success');
        handleClose();
       }).catch((err) => {

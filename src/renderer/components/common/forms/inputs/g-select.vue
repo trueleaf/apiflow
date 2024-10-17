@@ -9,7 +9,7 @@
 
 <script lang="ts" setup>
 import { config } from '@/../config/config'
-import axios from 'axios';
+import { request } from '@/api/api';
 import { PropType, ref, watch } from 'vue';
 
 const props = defineProps({
@@ -63,7 +63,7 @@ watch(() => props.selectEnum, (val) => {
 */
 //获取下拉菜单枚举值
 const getSelectEnum = () => {
-  axios.get(props.url).then((res) => {
+  request.get(props.url).then((res) => {
     realSelectEnum.value = res.data;
   }).catch((err) => {
     console.error(err);

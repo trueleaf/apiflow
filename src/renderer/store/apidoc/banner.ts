@@ -1,4 +1,4 @@
-import { axios } from "@/api/api";
+import { request } from '@/api/api';
 import { findNodeById, forEachForest } from "@/helper";
 import { ApidocMockState } from "@src/types/apidoc/mock";
 import { ApidocBanner, Response } from "@src/types/global";
@@ -85,7 +85,7 @@ export const useApidocBanner = defineStore('apidocBanner', () => {
       const params = {
         projectId: payload.projectId,
       };
-      axios.get('/api/project/doc_tree_node', { params }).then((res) => {
+      request.get('/api/project/doc_tree_node', { params }).then((res) => {
         const result = res.data;
         changeAllDocBanner(result)
         const urlMap: ApidocMockState['urlMap'] = [];
@@ -117,7 +117,7 @@ export const useApidocBanner = defineStore('apidocBanner', () => {
         shareId: payload.shareId,
         password: payload.password,
       };
-      axios.get<Response<ApidocBanner[]>, Response<ApidocBanner[]>>('/api/project/export/share_banner', { params }).then((res) => {
+      request.get<Response<ApidocBanner[]>, Response<ApidocBanner[]>>('/api/project/export/share_banner', { params }).then((res) => {
         if (res.code === 101005) {
           //todo
           // shareRouter.replace({

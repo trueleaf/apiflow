@@ -37,7 +37,7 @@ import { ref, Ref, onMounted, nextTick } from 'vue'
 import { ApidocDetail } from '@src/types/global';
 import type { TreeNodeOptions } from 'element-plus/es/components/tree/src/tree.type';
 import { router } from '@/router';
-import { axios } from '@/api/api'
+import { request } from '@/api/api'
 import { event } from '@/helper';
 import SDialog from '@/components/common/dialog/g-dialog.vue'
 import SLoading from '@/components/common/loading/g-loading.vue'
@@ -95,7 +95,7 @@ onMounted(() => {
   const params = {
     projectId,
   };
-  axios.get('/api/project/doc_tree_folder_node', { params }).then((res) => {
+  request.get('/api/project/doc_tree_folder_node', { params }).then((res) => {
     navTreeData.value = res.data;
   }).catch((err) => {
     console.error(err);
@@ -118,7 +118,7 @@ const handleSaveDoc = () => {
     docInfo
   }
   loading.value = true;
-  axios.post('/api/project/save_doc', params).then((res) => {
+  request.post('/api/project/save_doc', params).then((res) => {
     apidocBannerStore.getDocBanner({ projectId });
     apidocStore.changeApidocId(res.data);
     apidocStore.changeApidocName(formInfo.value.name);

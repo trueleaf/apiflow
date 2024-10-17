@@ -27,7 +27,7 @@ import {
   apidocFormatResponseParams,
   copy,
 } from '@/helper';
-import { axios } from '@/api/api';
+import { request } from '@/api/api';
 import { router } from '@/router';
 import type { ApidocCodeInfo, Response } from '@src/types/global'
 import { ElMessage } from 'element-plus'
@@ -102,7 +102,7 @@ onMounted(() => {
   const params = {
     projectId,
   };
-  axios.get<Response<CodeInfo[]>, Response<CodeInfo[]>>('/api/apidoc/project/code_enum', { params }).then((res) => {
+  request.get<Response<CodeInfo[]>, Response<CodeInfo[]>>('/api/apidoc/project/code_enum', { params }).then((res) => {
     codeList.value = res.data;
   }).catch((err) => {
     console.error(err);

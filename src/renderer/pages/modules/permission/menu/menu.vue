@@ -64,7 +64,7 @@ import SLeftRight from '@/components/common/left-right/g-left-right.vue'
 import SLoading from '@/components/common/loading/g-loading.vue'
 import SCard from '@/components/common/card/g-card.vue'
 import { onMounted, onUnmounted, ref } from 'vue'
-import { axios } from '@/api/api'
+import { request } from '@/api/api'
 import { findParentById, forEachForest } from '@/helper'
 import { ElMessage, ElMessageBox } from 'element-plus'
 type TreeNode = Node & {
@@ -92,7 +92,7 @@ const loading = ref(false)
 //获取树形菜单结构
 const getData = () => {
   loading.value = true;
-  axios.get<Response<PermissionClientMenu[]>, Response<PermissionClientMenu[]>>('/api/security/client_menu_tree').then((res) => {
+  request.get<Response<PermissionClientMenu[]>, Response<PermissionClientMenu[]>>('/api/security/client_menu_tree').then((res) => {
     forEachForest(res.data, (val) => {
       val.id = val._id;
     })
@@ -137,7 +137,7 @@ const handleDeleteCurrentNode = (data: PermissionClientMenu | null) => {
     const params = {
       ids,
     };
-    axios.delete('/api/security/client_menu', { data: params }).then(() => {
+    request.delete('/api/security/client_menu', { data: params }).then(() => {
       getData();
       // currentEditNode = null;
     }).catch((err) => {
@@ -180,7 +180,7 @@ const handleNodeDropSuccess = (node: TreeNode, dropNode: TreeNode, type: 'inner'
   } else if (type === 'inner') {
     params.sort = Date.now();
   }
-  axios.put('/api/security/client_menu_position', params).catch((err) => {
+  request.put('/api/security/client_menu_position', params).catch((err) => {
     console.error(err);
   });
 }

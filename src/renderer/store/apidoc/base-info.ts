@@ -1,4 +1,4 @@
-import { axios } from "@/api/api";
+import { request } from '@/api/api';
 import {
   ApidocCookieInfo,
   ApidocProjectBaseInfoState,
@@ -206,7 +206,7 @@ export const useApidocBaseInfo = defineStore('apidocBaseInfo', () => {
       const params = {
         _id: payload.projectId,
       }
-      axios.get<Response<ApidocProjectBaseInfoState>, Response<ApidocProjectBaseInfoState>>('/api/project/project_full_info', { params }).then((res) => {
+      request.get<Response<ApidocProjectBaseInfoState>, Response<ApidocProjectBaseInfoState>>('/api/project/project_full_info', { params }).then((res) => {
         changeProjectBaseInfo(res.data);
         event.emit('apidoc/getBaseInfo', res.data);
         resolve()
@@ -225,7 +225,7 @@ export const useApidocBaseInfo = defineStore('apidocBaseInfo', () => {
         shareId: payload.shareId,
         password: payload.password,
       };
-      axios.get<Response<ApidocProjectBaseInfoState>, Response<ApidocProjectBaseInfoState>>('/api/project/export/share_project_info', { params }).then((res) => {
+      request.get<Response<ApidocProjectBaseInfoState>, Response<ApidocProjectBaseInfoState>>('/api/project/export/share_project_info', { params }).then((res) => {
         if (res.code === 101005) {
           //todo
           // shareRouter.replace({
@@ -254,7 +254,7 @@ export const useApidocBaseInfo = defineStore('apidocBaseInfo', () => {
       const params = {
         projectId
       }
-      axios.get<Response<ApidocProjectBaseInfoState['commonHeaders']>, Response<ApidocProjectBaseInfoState['commonHeaders']>>('/api/project/common_headers', { params }).then((res) => {
+      request.get<Response<ApidocProjectBaseInfoState['commonHeaders']>, Response<ApidocProjectBaseInfoState['commonHeaders']>>('/api/project/common_headers', { params }).then((res) => {
         changeCommonHeaders(res.data)
         resolve();
       }).catch((err) => {

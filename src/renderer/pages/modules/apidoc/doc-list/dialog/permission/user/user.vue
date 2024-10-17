@@ -54,7 +54,7 @@ import { computed, onMounted, ref } from 'vue';
 import { ElMessage, ElMessageBox } from 'element-plus';
 import { usePermissionStore } from '@/store/permission';
 import { config } from '@src/config/config';
-import { axios } from '@/api/api';
+import { request } from '@/api/api';
 import Loading from '@/components/common/loading/g-loading.vue'
 import RemoteSelector from '@/components/common/remote-select/g-remote-select.vue';
 import RemoteSelectorItem from '@/components/common/remote-select/g-remote-select-item.vue';
@@ -89,7 +89,7 @@ const selfLoginName = computed(() => userInfo.loginName);
 //获取项目成员信息
 const getApidocProjectMemberInfo = () => {
   loading.value = true;
-  axios.get<Response<ApidocProjectMemberInfo[]>, Response<ApidocProjectMemberInfo[]>>('/api/project/project_members', { params: { _id: props.id } }).then((res) => {
+  request.get<Response<ApidocProjectMemberInfo[]>, Response<ApidocProjectMemberInfo[]>>('/api/project/project_members', { params: { _id: props.id } }).then((res) => {
     selectedUserData.value = res.data.map((v) => ({
       ...v,
       _permission: v.permission,
@@ -106,7 +106,7 @@ const getRemoteUserByName = (query: string) => {
   const params = {
     name: query,
   };
-  axios.get('/api/security/userListByName', { params }).then((res) => {
+  request.get('/api/security/userListByName', { params }).then((res) => {
     remoteMembers.value = res.data;
   }).catch((err) => {
     console.error(err);
@@ -136,7 +136,7 @@ const handleSelectUser = (item: ApidocProjectMemberInfo) => {
     userId: item.userId,
     projectId: props.id,
   };
-  axios.post('/api/project/add_user', params).then(() => {
+  request.post('/api/project/add_user', params).then(() => {
     item.permission = 'readAndWrite';
     selectedUserData.value.push(item);
   }).catch((err) => {
@@ -154,7 +154,7 @@ const handleDeleteMember = (row: PermissionUserInfo, index: number) => {
       userId: row.userId,
       projectId: props.id,
     };
-    axios.delete('/api/project/delete_user', { data: params }).then(() => {
+    request.delete('/api/project/delete_user', { data: params }).then(() => {
       selectedUserData.value.splice(index, 1);
     }).catch((err) => {
       console.error(err);
@@ -187,7 +187,7 @@ const handleLeaveGroup = (row: PermissionUserInfo, index: number) => {
       userId: row.userId,
       projectId: props.id,
     };
-    axios.delete('/api/project/delete_user', { data: params }).then(() => {
+    request.delete('/api/project/delete_user', { data: params }).then(() => {
       selectedUserData.value.splice(index, 1);
       emits('leave');
     }).catch((err) => {
@@ -225,7 +225,7 @@ const handleChangePermission = (row: PermissionUserInfo) => {
         projectId: props.id,
         permission: row.permission,
       };
-      axios.put('/api/project/change_permission', params).then(() => {
+      request.put('/api/project/change_permission', params).then(() => {
         row._permission = row.permission;
       }).catch((err) => {
         row.permission = oldPermission;
@@ -244,7 +244,7 @@ const handleChangePermission = (row: PermissionUserInfo) => {
       projectId: props.id,
       permission: row.permission,
     };
-    axios.put('/api/project/change_permission', params).then(() => {
+    request.put('/api/project/change_permission', params).then(() => {
       row._permission = row.permission;
     }).catch((err) => {
       row.permission = oldPermission;

@@ -53,7 +53,7 @@ import { Ref, ref } from 'vue';
 import { t } from 'i18next'
 import { uniqueByKey } from '@/helper';
 import { ElMessageBox } from 'element-plus';
-import { axios } from '@/api/api';
+import { request } from '@/api/api';
 
 
 type HookThis = {
@@ -119,7 +119,7 @@ const handleDeleteServerRoute = (row: PermissionServerRoute) => {
     type: 'warning',
   }).then(() => {
     const params = { ids: [row._id] };
-    axios.delete('/api/security/server_routes', { data: params }).then(() => {
+    request.delete('/api/security/server_routes', { data: params }).then(() => {
       table.value?.getData();
     }).catch((err) => {
       console.error(err);

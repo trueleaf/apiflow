@@ -17,7 +17,7 @@ import SDialog from '@/components/common/dialog/g-dialog.vue'
 import SForm from '@/components/common/forms/form/g-form.vue'
 import SFormItem from '@/components/common/forms/form/g-form-item.vue'
 import { FormInstance } from 'element-plus'
-import { axios } from '@/api/api'
+import { request } from '@/api/api'
 import { t } from 'i18next'
 
 const props = defineProps({
@@ -47,7 +47,7 @@ const handleSaveServerRoute = () => {
         groupName: formInfo.groupName,
       };
       loading.value = true;
-      axios.put('/api/security/server_routes_type', params).then(() => {
+      request.put('/api/security/server_routes_type', params).then(() => {
         emits('success');
         handleClose();
       }).catch((err) => {

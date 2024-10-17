@@ -106,7 +106,7 @@ import 'element-plus/es/components/message-box/style/css';
 import { ElMessageBox } from 'element-plus'
 import type { ApidocHttpRequestMethod, ApidocType, ResponseTable, ApidocProjectPermission } from '@src/types/global'
 import { router } from '@/router/index'
-import { axios } from '@/api/api'
+import { request } from '@/api/api'
 import SFieldset from '@/components/common/fieldset/g-fieldset.vue'
 import SLoading from '@/components/common/loading/g-loading.vue'
 import { forEachForest, debounce } from '@/helper'
@@ -167,7 +167,7 @@ const deletedList: Ref<DeleteInfo[]> = ref([]); //已删除数据列表
 const getData = () => {
   loading.value = true;
   const params = formInfo.value;
-  axios.post<ResponseTable<DeleteInfo[]>, ResponseTable<DeleteInfo[]>>('/api/docs/docs_deleted_list', params).then((res) => {
+  request.post<ResponseTable<DeleteInfo[]>, ResponseTable<DeleteInfo[]>>('/api/docs/docs_deleted_list', params).then((res) => {
     deletedList.value = res.data.rows;
   }).catch((err) => {
     console.error(err);
@@ -189,7 +189,7 @@ const getOperatorEnum = () => {
   const params = {
     projectId,
   };
-  axios.get('/api/docs/docs_history_operator_enum', { params }).then((res) => {
+  request.get('/api/docs/docs_history_operator_enum', { params }).then((res) => {
     memberEnum.value = res.data as { name: string, permission:ApidocProjectPermission }[];
   }).catch((err) => {
     console.error(err);
@@ -327,7 +327,7 @@ const restoreDocDirectly = (docInfo: DeleteInfo) => {
       _id: docInfo._id,
       projectId,
     };
-    axios.put('/api/docs/docs_restore', params).then((res) => {
+    request.put('/api/docs/docs_restore', params).then((res) => {
       const delIds = res.data;
       for (let i = 0; i < delIds.length; i += 1) {
         const id = delIds[i];

@@ -49,7 +49,7 @@ import {
   apidocFormatResponseParams,
 } from '@/helper';
 import type { ApidocCodeInfo } from '@src/types/global'
-import { axios } from '@/api/api';
+import { request } from '@/api/api';
 import { router } from '@/router';
 import SEditor from '../editor/editor.vue'
 import { useApidoc } from '@/store/apidoc/apidoc';
@@ -134,7 +134,7 @@ const handleSaveCode = () => {
     remark: form.value?.formInfo.remark,
     code: code.value
   };
-  axios.put('/api/apidoc/project/code', params).then(() => {
+  request.put('/api/apidoc/project/code', params).then(() => {
     ElMessage.success('修改成功')
     dialogVisible.value = false;
   }).catch((err) => {

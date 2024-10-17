@@ -19,7 +19,7 @@ import {
 } from "@src/types/global"
 import { defineStore, storeToRefs } from "pinia"
 import axios, { Canceler } from 'axios'
-import { axios as axiosInstance } from '@/api/api'
+import { request as axiosInstance } from '@/api/api'
 import { ref } from "vue"
 import 'element-plus/es/components/message-box/style/css';
 import { ElMessageBox } from "element-plus"

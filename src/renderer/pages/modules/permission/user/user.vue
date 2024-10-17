@@ -66,7 +66,7 @@ import SResetPasswordDialog from './reset-pwd/reset-pwd.vue'
 import { ref } from 'vue';
 import { formatDate } from '@/helper'
 import { ElMessageBox } from 'element-plus';
-import { axios } from '@/api/api';
+import { request } from '@/api/api';
 import SSearch from '@/components/common/forms/search/g-search.vue'
 import SSearchItem from '@/components/common/forms/search/g-search-item.vue'
 import STable from '@/components/common/table/g-table.vue'
@@ -106,7 +106,7 @@ const handleForbidRole = (_id: string, enable: boolean) => {
       _id,
       enable: !enable,
     };
-    axios.put('/api/security/user_state', params).then(() => {
+    request.put('/api/security/user_state', params).then(() => {
       table.value?.getData();
     }).catch((err) => {
       console.error(err);

@@ -51,7 +51,7 @@
 </template>
 
 <script lang="ts" setup>
-import { axios } from '@/api/api';
+import { request } from '@/api/api';
 import { config } from '@src/config/config';
 import type { PermissionUserBaseInfo, ApidocProjectMemberInfo } from '@src/types/global'
 import { ElMessage, FormInstance } from 'element-plus';
@@ -92,7 +92,7 @@ const getRemoteUserByName = (query: string) => {
   const params = {
     name: query,
   };
-  axios.get('/api/security/userListByName', { params }).then((res) => {
+  request.get('/api/security/userListByName', { params }).then((res) => {
     remoteMembers.value = res.data;
   }).catch((err) => {
     console.error(err);
@@ -113,7 +113,7 @@ const handleAddProject = () => {
           realName: val.realName,
         })),
       };
-      axios.post('/api/project/add_project', params).then((res) => {
+      request.post('/api/project/add_project', params).then((res) => {
         handleClose();
         emits('success', res.data);
       }).catch((err) => {

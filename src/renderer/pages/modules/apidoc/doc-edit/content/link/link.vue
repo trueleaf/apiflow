@@ -40,7 +40,7 @@ import SFieldset from '@/components/common/fieldset/g-fieldset.vue'
 import STable from '@/components/common/table/g-table.vue'
 import 'element-plus/es/components/message-box/style/css';
 import { ElMessageBox } from 'element-plus'
-import { axios } from '@/api/api'
+import { request } from '@/api/api'
 import { CirclePlus } from '@element-plus/icons-vue'
 import { router } from '@/router'
 import { t } from 'i18next'
@@ -84,7 +84,7 @@ const handleDeleteItem = (pid: string, _id: string) => {
       projectId: pid,
       _id,
     };
-    axios.delete('/api/project/export/online', { data: params }).then(() => {
+    request.delete('/api/project/export/online', { data: params }).then(() => {
       table.value?.getData();
     }).catch((err) => {
       console.error(err);

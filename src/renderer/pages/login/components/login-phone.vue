@@ -23,7 +23,7 @@ import { User as IconUser } from '@element-plus/icons-vue'
 import { nextTick, reactive, ref } from 'vue';
 import {t} from 'i18next'
 import { ElMessage, FormInstance } from 'element-plus';
-import { axios } from '@/api/api';
+import { request } from '@/api/api';
 import { router } from '@/router';
 import { usePermissionStore } from '@/store/permission';
 import { config } from '@src/config/config';
@@ -55,7 +55,7 @@ const getSmsCode = () => {
   const params = {
     phone: userInfo.phone,
   };
-  axios.get('/api/security/sms', { params }).catch((err) => {
+  request.get('/api/security/sms', { params }).catch((err) => {
     console.error(err)
   });
 }
@@ -65,7 +65,7 @@ const handleLogin = () => {
   form.value?.validate((valid) => {
     if (valid) {
       loading.value = true;
-      axios.post<Response<PermissionUserInfo>, Response<PermissionUserInfo>>('/api/security/login_phone', userInfo).then((res) => {
+      request.post<Response<PermissionUserInfo>, Response<PermissionUserInfo>>('/api/security/login_phone', userInfo).then((res) => {
         if (res.code === 2006 || res.code === 2003) {
           ElMessage.warning(res.msg);
         } else {

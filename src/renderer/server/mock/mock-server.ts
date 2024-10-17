@@ -4,7 +4,7 @@ import cors from '@koa/cors'
 import { config } from '@/../config/config'
 import { store } from '@/store/index'
 import { apidocConvertValue, event, sleep } from '@/helper/index'
-import { axios } from '@/api/api'
+import { request } from '@/api/api'
 import { ApidocDetail } from '@src/types/global'
 import apidocConverter from '../request/utils'
 // import Mock from "./mock"
@@ -122,7 +122,7 @@ export const mockServer = (): void => {
           remoteMockInfo = localApi.mockInfo;
           realApidocDetail = localApi
         } else {
-          const res = await axios.get('/api/project/doc_detail', { params });
+          const res = await request.get('/api/project/doc_detail', { params });
           realApidocDetail = res.data as ApidocDetail;
           remoteMockInfo = res.data.mockInfo
         }

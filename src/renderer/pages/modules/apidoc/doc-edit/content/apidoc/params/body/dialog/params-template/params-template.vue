@@ -18,7 +18,7 @@ import { nextTick, ref } from 'vue';
 import { FormInstance } from 'element-plus';
 import { useApidoc } from '@/store/apidoc/apidoc';
 import { useRoute } from 'vue-router';
-import { axios } from '@/api/api';
+import { request } from '@/api/api';
 import { t } from 'i18next' 
 import { useApidocBaseInfo } from '@/store/apidoc/base-info';
 
@@ -47,7 +47,7 @@ const handleSave = () => {
         items: bodyParams,
       };
       loading.value = true;
-      axios.post('/api/project/doc_preset_params', params).then((res) => {
+      request.post('/api/project/doc_preset_params', params).then((res) => {
         apidocBaseStore.addParamsTemplate(res.data);
         handleClose();
       }).catch((err) => {

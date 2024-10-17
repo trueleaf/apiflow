@@ -12,7 +12,7 @@
 </template>
 
 <script lang="ts" setup>
-import { axios } from '@/api/api';
+import { request } from '@/api/api';
 import SLoading from '@/components/common/loading/g-loading.vue'
 import { forEachForest } from '@/helper';
 import { TreeInstance } from 'element-plus';
@@ -31,7 +31,7 @@ const tree = ref<TreeInstance>()
 //获取树形菜单结构
 const getClientMenu = () => {
   loading.value = true;
-  axios.get('/api/security/client_menu_tree').then((res) => {
+  request.get('/api/security/client_menu_tree').then((res) => {
     forEachForest(res.data, (val) => {
       val.id = val._id;
     })

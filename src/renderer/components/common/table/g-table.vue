@@ -52,7 +52,7 @@ import { t } from 'i18next'
 import SLoading from '@/components/common/loading/g-loading.vue'
 import { computed, nextTick, onMounted, ref } from 'vue';
 import { debounce } from '@/helper';
-import { axios } from '@/api/api';
+import { request } from '@/api/api';
 import { ElMessageBox } from 'element-plus';
 
 const props = defineProps({
@@ -162,7 +162,7 @@ const getData = (searchParams?: unknown) => {
       }
       const params = props.paging ? Object.assign(formInfo.value, p, props.params) : Object.assign(p, props.params);
       loading.value = true;
-      axios.get(props.url, { params }).then((res) => {
+      request.get(props.url, { params }).then((res) => {
         responseData.value = res.data;
         if (props.resHook) {
           props.resHook(res, {
@@ -231,7 +231,7 @@ const deleteData = () => {
     params[props.deleteKey] = selectData.value.map((val) => val[props.deleteDataKey]);
     Object.assign(params, props.deleteParams);
     loading2.value = true;
-    axios.delete(props.deleteUrl, { data: params }).then(() => {
+    request.delete(props.deleteUrl, { data: params }).then(() => {
       emits('deleteMany', params.ids);
     }).catch((err) => {
       console.error(err);

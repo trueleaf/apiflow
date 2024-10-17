@@ -73,7 +73,7 @@ export default defineComponent({
       const params = {
         shareId: this.$route.query.share_id,
       };
-      this.axios.get<Response<LinkInfo>, Response<LinkInfo>>('/api/project/share_info', { params }).then((res) => {
+      this.request.get<Response<LinkInfo>, Response<LinkInfo>>('/api/project/share_info', { params }).then((res) => {
         this.projectName = res.data.projectName;
         this.expire = res.data.expire;
         if (!res.data.needPassword) {
@@ -100,7 +100,7 @@ export default defineComponent({
         shareId: share_id,
         password: this.password,
       };
-      this.axios.get('/api/project/share_check', { params }).then(() => {
+      this.request.get('/api/project/share_check', { params }).then(() => {
         localStorage.setItem('share/password', this.password || '');
         // eslint-disable-next-line camelcase
         localStorage.setItem('share/shareId', share_id as string);

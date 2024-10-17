@@ -14,7 +14,7 @@
 </template>
 
 <script lang="ts" setup>
-import { axios } from '@/api/api';
+import { request } from '@/api/api';
 import { ElMessage, FormInstance } from 'element-plus';
 import { t } from 'i18next'
 import { nextTick, ref } from 'vue';
@@ -55,7 +55,7 @@ const handleEditUser = () => {
         password: formInfo.password,
       };
       loading.value = true;
-      axios.put('/api/security/reset_password', params).then(() => {
+      request.put('/api/security/reset_password', params).then(() => {
         emits('success');
         ElMessage.success('重置成功')
         handleClose();

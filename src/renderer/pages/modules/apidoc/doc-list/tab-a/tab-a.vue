@@ -191,7 +191,7 @@ import EditPermissionDialog from '../dialog/permission/permission.vue'
 import { t } from 'i18next'
 import type { Response, ApidocProjectListInfo, ApidocProjectInfo } from '@src/types/global';
 import { computed, onMounted, ref } from 'vue';
-import { axios } from '@/api/api';
+import { request } from '@/api/api';
 import 'element-plus/es/components/message-box/style/css';
 import { ElMessageBox } from 'element-plus';
 import { router } from '@/router';
@@ -250,7 +250,7 @@ const starProjects = computed(() => {
 //获取项目列表
 const getProjectList = () => {
   loading.value = true;
-  axios.get<Response<ApidocProjectListInfo>, Response<ApidocProjectListInfo>>('/api/project/project_list').then((res) => {
+  request.get<Response<ApidocProjectListInfo>, Response<ApidocProjectListInfo>>('/api/project/project_list').then((res) => {
     recentVisitProjectIds.value = res.data.recentVisitProjects;
     starProjectIds.value = res.data.starProjects;
     projectListCopy.value = res.data.list;
@@ -277,7 +277,7 @@ const handleStar = (item: ApidocProjectInfo) => {
     return;
   }
   starLoading.value = true;
-  axios.put('/api/project/star', { projectId: item._id }).then(() => {
+  request.put('/api/project/star', { projectId: item._id }).then(() => {
     item.isStared = true;
     starProjectIds.value.push(item._id);
   }).catch((err) => {
@@ -292,7 +292,7 @@ const handleUnStar = (item: ApidocProjectInfo) => {
     return;
   }
   unStarLoading.value = true;
-  axios.put('/api/project/unstar', { projectId: item._id }).then(() => {
+  request.put('/api/project/unstar', { projectId: item._id }).then(() => {
     item.isStared = true;
     const delIndex = starProjectIds.value.findIndex((val) => val === item._id);
     starProjectIds.value.splice(delIndex, 1);
@@ -309,7 +309,7 @@ const deleteProject = (_id: string) => {
     cancelButtonText: t('取消'),
     type: 'warning'
   }).then(() => {
-    axios.delete('/api/project/delete', { data: { _id } }).then(() => {
+    request.delete('/api/project/delete', { data: { _id } }).then(() => {
       getProjectList();
     }).catch((err) => {
       console.error(err);
@@ -332,7 +332,7 @@ const initCahce = () => {
 }
 //跳转到编辑
 const handleJumpToProject = (item: ApidocProjectInfo) => {
-  axios.put('/api/project/visited', { projectId: item._id }).catch((err) => {
+  request.put('/api/project/visited', { projectId: item._id }).catch((err) => {
     console.error(err);
   });
   router.push({
@@ -345,7 +345,7 @@ const handleJumpToProject = (item: ApidocProjectInfo) => {
 }
 //跳转到预览
 const handleJumpToView = (item: ApidocProjectInfo) => {
-  axios.put('/api/project/visited', { projectId: item._id }).catch((err) => {
+  request.put('/api/project/visited', { projectId: item._id }).catch((err) => {
     console.error(err);
   });
   router.push({
@@ -381,7 +381,7 @@ const debounceSearch = debounce(() => {
     loading.value = false
     return
   }
-  axios.get<Response<ApidocProjectListInfo>, Response<ApidocProjectListInfo>>('/api/project/project_list_by_keyword', {
+  request.get<Response<ApidocProjectListInfo>, Response<ApidocProjectListInfo>>('/api/project/project_list_by_keyword', {
     params: { keyword: projectKeyword.value }
   }).then((res) => {
     recentVisitProjectIds.value = res.data.recentVisitProjects;

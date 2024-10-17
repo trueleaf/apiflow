@@ -78,7 +78,7 @@ import { config } from '@src/config/config'
 import { t } from 'i18next'
 import { ref } from 'vue';
 import { ElMessage, ElMessageBox, FormInstance } from 'element-plus';
-import { axios } from '@/api/api';
+import { request } from '@/api/api';
 import { useRoute } from 'vue-router';
 
 type EditApidocVariable = ApidocVariable & {
@@ -123,7 +123,7 @@ const handleAddVariable = () => {
       const params = Object.assign(formInfo.value, {
         projectId: route.query.id,
       });
-      axios.post('/api/project/project_variable', params).then(() => {
+      request.post('/api/project/project_variable', params).then(() => {
         getData();
       }).catch((err) => {
         console.error(err);
@@ -146,7 +146,7 @@ const handleSubmitEdit = (row: EditApidocVariable) => {
     ...row,
     projectId: route.query.id,
   };
-  axios.put('/api/project/project_variable', params).then(() => {
+  request.put('/api/project/project_variable', params).then(() => {
     ElMessage.success(t('修改成功'));
     getData();
     isEditing.value = false;
@@ -172,7 +172,7 @@ const handleDelete = (_id: string) => {
       ids: [_id],
       projectId: route.query.id,
     };
-    axios.delete('/api/project/project_variable', { data: params }).then(() => {
+    request.delete('/api/project/project_variable', { data: params }).then(() => {
       ElMessage.success(t('删除成功'));
       getData();
     }).catch((err) => {

@@ -159,7 +159,7 @@ const baseInfo = {
         const params = {
           _id: payload.projectId,
         }
-        axios.get<Response<ApidocProjectBaseInfoState>, Response<ApidocProjectBaseInfoState>>('/api/project/project_full_info', { params }).then((res) => {
+        request.get<Response<ApidocProjectBaseInfoState>, Response<ApidocProjectBaseInfoState>>('/api/project/project_full_info', { params }).then((res) => {
           context.commit('changeProjectBaseInfo', res.data)
           resolve()
         }).catch((err) => {
@@ -177,7 +177,7 @@ const baseInfo = {
           shareId: payload.shareId,
           password: payload.password,
         };
-        axios.get<Response<ApidocProjectBaseInfoState>, Response<ApidocProjectBaseInfoState>>('/api/project/export/share_project_info', { params }).then((res) => {
+        request.get<Response<ApidocProjectBaseInfoState>, Response<ApidocProjectBaseInfoState>>('/api/project/export/share_project_info', { params }).then((res) => {
           if (res.code === 101005) {
             router.replace({
               path: '/check',
@@ -205,7 +205,7 @@ const baseInfo = {
         const params = {
           projectId
         }
-        axios.get<Response<ApidocProjectBaseInfoState['commonHeaders'][]>, Response<ApidocProjectBaseInfoState['commonHeaders'][]>>('/api/project/common_headers', { params }).then((res) => {
+        request.get<Response<ApidocProjectBaseInfoState['commonHeaders'][]>, Response<ApidocProjectBaseInfoState['commonHeaders'][]>>('/api/project/common_headers', { params }).then((res) => {
           context.commit('changeCommonHeaders', res.data)
           resolve();
         }).catch((err) => {

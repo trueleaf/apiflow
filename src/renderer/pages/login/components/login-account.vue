@@ -60,7 +60,7 @@ import { User, Lock } from '@element-plus/icons-vue'
 import { computed, nextTick, ref } from 'vue';
 import { t } from 'i18next';
 import { ElMessage, FormInstance } from 'element-plus';
-import { axios } from '@/api/api';
+import { request } from '@/api/api';
 import { router } from '@/router';
 
 const emits = defineEmits(['jumpToRegister', 'jumpToResetPassword'])
@@ -89,7 +89,7 @@ const handleLogin = async () => {
   form.value?.validate((valid: boolean) => {
     if (valid) {
       loading.value = true;
-      axios.post<Response<PermissionUserInfo>, Response<PermissionUserInfo>>('/api/security/login_password', userInfo.value).then((res) => {
+      request.post<Response<PermissionUserInfo>, Response<PermissionUserInfo>>('/api/security/login_password', userInfo.value).then((res) => {
         if (res.code === 2006 || res.code === 2003) {
           ElMessage.warning(res.msg);
           isShowCapture.value = true;
@@ -128,7 +128,7 @@ const handleJumpToResetPassword = () => {
 //体验账号登录
 const handleGuesttLogin = () => {
   loading.value = true;
-  axios.post('/api/security/login_guest', userInfo).then((res) => {
+  request.post('/api/security/login_guest', userInfo).then((res) => {
     router.push('/v1/apidoc/doc-list');
     localStorage.setItem('userInfo', JSON.stringify(res.data));
   }).catch((err) => {

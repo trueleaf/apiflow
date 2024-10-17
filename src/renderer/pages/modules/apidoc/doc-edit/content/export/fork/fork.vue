@@ -112,7 +112,7 @@ import type TreeStore from 'element-plus/lib/components/tree/src/model/tree-stor
 import type { DropType } from 'element-plus/lib/components/tree/src/tree.type'
 import type Node from 'element-plus/lib/components/tree/src/model/node'
 import { store } from '@/store/index'
-import { axios } from '@/api/api'
+import { request } from '@/api/api'
 import { router } from '@/router/index'
 import { findNextSiblingById, findParentById, findPreviousSiblingById, forEachForest, uuid } from '@/helper'
 import { t } from 'i18next'
@@ -154,7 +154,7 @@ const handleChangeProject = (pid: string | number | boolean) => {
   const params = {
     projectId: pid,
   };
-  axios.get('/api/project/doc_tree_node', { params }).then((res) => {
+  request.get('/api/project/doc_tree_node', { params }).then((res) => {
     targetTreeData.value = res.data;
   }).catch((err) => {
     console.error(err);
@@ -165,7 +165,7 @@ const handleChangeProject = (pid: string | number | boolean) => {
 //项目列表枚举
 const projectEnum: Ref<ApidocProjectEnum[]> = ref([]);
 const getProjectEnum = () => {
-  axios.get<Response<ApidocProjectEnum[]>, Response<ApidocProjectEnum[]>>('/api/project/project_enum').then((res) => {
+  request.get<Response<ApidocProjectEnum[]>, Response<ApidocProjectEnum[]>>('/api/project/project_enum').then((res) => {
     res.data.forEach((val) => {
       if (val._id !== projectId) { //过滤掉当前项目
         projectEnum.value.push(val);
@@ -256,7 +256,7 @@ const sortTargetTree = (node: Node, dropNode: Node, type: DropType) => {
     params.sort = (nextSiblingSort + previousSiblingSort) / 2;
     node.data.sort = (nextSiblingSort + previousSiblingSort) / 2;
   }
-  axios.put('/api/project/change_doc_pos', params).catch((err) => {
+  request.put('/api/project/change_doc_pos', params).catch((err) => {
     console.error(err)
   });
 }
@@ -299,7 +299,7 @@ const handleTargetDrop = (dragNode: Node, dropNode: Node, type: DropType) => {
       targetMountedId, //目标挂载节点id
       targetNodeSort,
     };
-    axios.post('/api/project/export/fork', params).then((res) => {
+    request.post('/api/project/export/fork', params).then((res) => {
       const docsIdMap = res.data;
       forEachForest(targetTreeData.value, (data) => {
         const { _id } = data;

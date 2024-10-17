@@ -94,7 +94,7 @@ import { ElMessageBox } from 'element-plus'
 import type { ApidocMindParam } from '@src/types/global'
 import { store } from '@/store/index'
 import { router } from '@/router/index'
-import { axios } from '@/api/api'
+import { request } from '@/api/api'
 import { t } from 'i18next'
 
 //搜索条件
@@ -150,7 +150,7 @@ const handleDeleteParams = (row: ApidocMindParam) => {
       projectId,
       ids: [row._id],
     };
-    axios.delete('/api/project/doc_params_mind', { data: params }).then(() => {
+    request.delete('/api/project/doc_params_mind', { data: params }).then(() => {
       store.commit('apidoc/baseInfo/deleteMindParamsById', row._id)
     }).catch((err) => {
       console.error(err);
@@ -174,7 +174,7 @@ const handleDeleteManyParams = () => {
       projectId,
       ids: selectData.value.map(v => v._id),
     };
-    axios.delete('/api/project/doc_params_mind', { data: params }).then(() => {
+    request.delete('/api/project/doc_params_mind', { data: params }).then(() => {
       selectData.value.forEach(v => {
         store.commit('apidoc/baseInfo/deleteMindParamsById', v._id)
       })

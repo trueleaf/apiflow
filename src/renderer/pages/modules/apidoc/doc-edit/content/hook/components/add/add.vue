@@ -49,7 +49,7 @@ import {
   apidocFormatResponseParams,
 } from '@/helper';
 // import type { ApidocCodeInfo } from "@src/types/global"
-import { axios } from '@/api/api';
+import { request } from '@/api/api';
 import { router } from '@/router';
 import { apidocCache } from '@/cache/apidoc';
 import SEditor from '../editor/editor.vue'
@@ -129,7 +129,7 @@ const handleSaveCode = () => {
     remark: form.value?.formInfo.remark,
     code: code.value
   };
-  axios.post('/api/apidoc/project/code', params).then(() => {
+  request.post('/api/apidoc/project/code', params).then(() => {
     ElMessage.success('保存成功');
     dialogVisible.value = false;
   }).catch((err) => {

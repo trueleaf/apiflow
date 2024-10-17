@@ -87,7 +87,7 @@ import { useRoute } from 'vue-router'
 import { useApidocBaseInfo } from '@/store/apidoc/base-info'
 import { ElMessage, ElMessageBox, FormInstance } from 'element-plus'
 import { uuid } from '@/helper'
-import { axios } from '@/api/api'
+import { request } from '@/api/api'
 import { useApidoc } from '@/store/apidoc/apidoc'
 import { t } from 'i18next'
 import { config } from '@src/config/config'
@@ -177,7 +177,7 @@ const handleAddHost = () => {
         projectId,
       };
       isSuccess.value = false;
-      axios.post('/api/project/doc_service', params).then(() => {
+      request.post('/api/project/doc_service', params).then(() => {
         isSuccess.value = true;
         getTableData();
       }).catch((err) => {
@@ -221,7 +221,7 @@ const handleSubmitEdit = (row: HostInfo) => {
       url: row.url,
       isLocal: row.isLocal
     };
-    axios.put('api/project/doc_service', params).then(() => {
+    request.put('api/project/doc_service', params).then(() => {
       ElMessage.success(t('修改成功'));
       apidocBaseInfoStore.updateHostById(params);
       if (isEditCurrenSelectedHost) { //同时修改本地server
@@ -254,7 +254,7 @@ const handleDeleteHost = (row: HostInfo) => {
       getTableData()
       return;
     }
-    axios.delete('/api/project/doc_service', { data: params }).then(() => {
+    request.delete('/api/project/doc_service', { data: params }).then(() => {
       getTableData();
     }).catch((err) => {
       console.error(err);

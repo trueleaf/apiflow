@@ -21,7 +21,7 @@
 </template>
 
 <script lang="ts" setup>
-import { axios } from '@/api/api';
+import { request } from '@/api/api';
 import { PermissionRoleEnum, Response } from '@src/types/global'
 import { ElMessage, FormInstance } from 'element-plus';
 import { t } from 'i18next'
@@ -48,7 +48,7 @@ const form = ref<FormInstance>();
 */
 //获取角色枚举信息
 const getRoleEnum = () => {
-  axios.get<Response<PermissionRoleEnum>, Response<PermissionRoleEnum>>('/api/security/role_enum').then((res) => {
+  request.get<Response<PermissionRoleEnum>, Response<PermissionRoleEnum>>('/api/security/role_enum').then((res) => {
     roleEnum.value = res.data;
   }).catch((err) => {
     console.error(err);
@@ -71,7 +71,7 @@ const handleAddUser = ()  => {
         roleNames,
       };
       loading.value = true;
-      axios.post('/api/security/useradd', params).then(() => {
+      request.post('/api/security/useradd', params).then(() => {
         emits('success');
         handleClose();
       }).catch((err) => {

@@ -25,7 +25,7 @@
 import { t } from 'i18next'
 import { PermissionRoleEnum, Response } from '@src/types/global'
 import { nextTick, onMounted, ref } from 'vue';
-import { axios } from '@/api/api';
+import { request } from '@/api/api';
 import { ElMessage, FormInstance } from 'element-plus';
 import SDialog from '@/components/common/dialog/g-dialog.vue'
 import SForm from '@/components/common/forms/form/g-form.vue'
@@ -63,7 +63,7 @@ const form = ref<FormInstance>()
 //获取用户基本信息
 const getUserInfo = () => {
   loading2.value = true;
-  axios.get('/api/security/user_info_by_id', { params: { _id: props.userId } }).then((res) => {
+  request.get('/api/security/user_info_by_id', { params: { _id: props.userId } }).then((res) => {
     formInfo.value = {
       loginName: res.data.loginName,
       realName: res.data.realName,
@@ -79,7 +79,7 @@ const getUserInfo = () => {
 }
 //获取角色枚举信息
 const getRoleEnum = () => {
-  axios.get<Response<PermissionRoleEnum>, Response<PermissionRoleEnum>>('/api/security/role_enum').then((res) => {
+  request.get<Response<PermissionRoleEnum>, Response<PermissionRoleEnum>>('/api/security/role_enum').then((res) => {
     roleEnum.value = res.data;
   }).catch((err) => {
     console.error(err);
@@ -103,7 +103,7 @@ const handleEditUser = () => {
         isAdmin: formInfo.isAdmin,
       };
       loading.value = true;
-      axios.put('/api/security/user_permission', params).then(() => {
+      request.put('/api/security/user_permission', params).then(() => {
         emits('success');
         handleClose();
       }).catch((err) => {

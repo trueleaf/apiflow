@@ -7,7 +7,7 @@ import { ElMessageBox } from "element-plus";
 import 'element-plus/es/components/message-box/style/css';
 import { t } from 'i18next'
 import { apidocCache } from "@/cache/apidoc";
-import { axios } from "@/api/api";
+import { request } from '@/api/api';
 import { useApidocBanner } from "./banner";
 
 type EditTabPayload<K extends keyof ApidocTab> = {
@@ -190,7 +190,7 @@ export const useApidocTas = defineStore('apidocTabs', () => {
             afterRequest: apidoc.afterRequest,
             mockInfo: apidoc.mockInfo,
           };
-          axios.post('/api/project/fill_doc', params).then(() => {
+          request.post('/api/project/fill_doc', params).then(() => {
             const deleteIndex = tabs.value[projectId].findIndex((tab) => tab._id === apidoc._id);
             deleteTabByIndex({
               projectId,

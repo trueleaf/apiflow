@@ -109,7 +109,7 @@ import SEmphasize from '@/components/common/emphasize/g-emphasize.vue'
 import SConfig from '@/components/common/config/g-config.vue'
 import { ApidocBanner } from '@src/types/global';
 import type { TreeNodeOptions } from 'element-plus/lib/components/tree/src/tree.type'
-import { axios } from '@/api/api'
+import { request } from '@/api/api'
 import { config } from '@/../config/config'
 import { router } from '@/router'
 import { useApidocBanner } from '@/store/apidoc/banner'
@@ -213,7 +213,7 @@ const handleEditLink = () => {
     password,
     selectedDocs: selectedIds,
   };
-  axios.put('/api/project/export/online', params).then(() => {
+  request.put('/api/project/export/online', params).then(() => {
     handleClose();
     emits('success');
   }).catch((err) => {

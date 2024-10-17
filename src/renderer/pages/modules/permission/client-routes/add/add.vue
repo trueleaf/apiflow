@@ -14,13 +14,13 @@
 </template>
 
 <script lang="ts" setup>
-import axios from 'axios';
 import { FormInstance } from 'element-plus';
 import { nextTick, ref } from 'vue';
 import { t } from 'i18next'
 import SDialog from '@/components/common/dialog/g-dialog.vue'
 import SForm from '@/components/common/forms/form/g-form.vue'
 import SFormItem from '@/components/common/forms/form/g-form-item.vue'
+import { request } from '@/api/api';
 
 
 defineProps({
@@ -54,7 +54,7 @@ const handleSaveClientRoute = () => {
         ...formInfo,
       };
       loading.value = true;
-      axios.post('/api/security/client_routes', params).then(() => {
+      request.post('/api/security/client_routes', params).then(() => {
         emits('success');
         handleClose();
       }).catch((err) => {

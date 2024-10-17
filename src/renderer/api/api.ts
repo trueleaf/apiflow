@@ -123,4 +123,4 @@ const axiosPlugin = {
   },
 }
 
-export { axiosPlugin, axiosInstance as axios };
+export { axiosPlugin, axiosInstance as request };

@@ -20,7 +20,7 @@
 </template>
 
 <script lang="ts" setup>
-import { axios } from '@/api/api';
+import { request } from '@/api/api';
 import type { PermissionServerRoute, Response } from '@src/types/global'
 import { t } from 'i18next'
 import { onMounted, ref, watch } from 'vue';
@@ -52,7 +52,7 @@ watch(selectedData, (val) => {
 //获取后端路由信息
 const getServerRoutes = () => {
   loading.value = true;
-  axios.get<Response<PermissionServerRoute[]>, Response<PermissionServerRoute[]>>('/api/security/server_routes').then((res) => {
+  request.get<Response<PermissionServerRoute[]>, Response<PermissionServerRoute[]>>('/api/security/server_routes').then((res) => {
     res.data.forEach((val) => {
       if (!serverRoutes.value[val.groupName || '__default']) {
         serverRoutes.value[val.groupName || '__default'] = {

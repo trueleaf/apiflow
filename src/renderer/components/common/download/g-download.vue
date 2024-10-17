@@ -5,7 +5,7 @@
 </template>
 
 <script lang="ts" setup>
-import { axios } from '@/api/api';
+import { request } from '@/api/api';
 import { t } from 'i18next'
 
 type DownloadResponse = {
@@ -38,7 +38,7 @@ const downloadFile = () => {
     emits('finish');
     return;
   }
-  axios.get<DownloadResponse, DownloadResponse>(props.url, {
+  request.get<DownloadResponse, DownloadResponse>(props.url, {
     responseType: 'blob',
     params: props.params,
   }).then((res) => {

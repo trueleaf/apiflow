@@ -20,7 +20,7 @@ import SFormItem from '@/components/common/forms/form/g-form-item.vue'
 import { nextTick, ref } from 'vue';
 import { t } from 'i18next'
 import { FormInstance } from 'element-plus';
-import { axios } from '@/api/api';
+import { request } from '@/api/api';
 
 const props = defineProps({
   modelValue: {
@@ -60,7 +60,7 @@ const handleAddMenu = () => {
         ...formData,
         pid: props.pid,
       };
-      axios.post<Response<{ _id: string }>, Response<{ _id: string }>>('/api/security/client_menu', params).then((res) => {
+      request.post<Response<{ _id: string }>, Response<{ _id: string }>>('/api/security/client_menu', params).then((res) => {
         handleClose();
         emits('success', res.data._id);
       }).catch((err) => {

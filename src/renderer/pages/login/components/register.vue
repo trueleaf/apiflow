@@ -30,7 +30,7 @@ import type { InternalRuleItem } from 'async-validator/dist-types/interface'
 import { nextTick, reactive, ref } from 'vue';
 import { t } from 'i18next'
 import { ElMessage, FormInstance } from 'element-plus';
-import { axios } from '@/api/api';
+import { request } from '@/api/api';
 import { router } from '@/router';
 import { config } from '@src/config/config';
 import SmsButton from '@/components/common/sms-button/g-sms-button.vue'
@@ -105,7 +105,7 @@ const getSmsCode = () => {
   const params = {
     phone: registerInfo.phone,
   };
-  axios.get('/api/security/sms', { params }).catch((err) => {
+  request.get('/api/security/sms', { params }).catch((err) => {
     console.error(err);
   });
 }
@@ -117,8 +117,8 @@ const handleRegister = () => {
         loginName: registerInfo.loginName,
         password: registerInfo.password,
       };
-      axios.post('/api/security/register', registerInfo).then(() => {
-        axios.post('/api/security/login_password', userInfo).then((res) => {
+      request.post('/api/security/register', registerInfo).then(() => {
+        request.post('/api/security/login_password', userInfo).then((res) => {
           router.push('/v1/apidoc/doc-list');
           sessionStorage.setItem('userInfo', JSON.stringify(res.data));
         }).catch((err) => {

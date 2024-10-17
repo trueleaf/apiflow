@@ -126,7 +126,7 @@ import { Upload } from '@element-plus/icons-vue'
 import type { ApidocDetail } from '@src/types/global'
 import { config } from '@/../config/config'
 import { router } from '@/router/index'
-import { axios } from '@/api/api'
+import { request } from '@/api/api'
 import { t } from 'i18next'
 import type { TreeNodeOptions } from 'element-plus/lib/components/tree/src/tree.type'
 import OpenApiTranslator from './openapi';
@@ -384,7 +384,7 @@ const handleToggleTargetFolder = (val: boolean) => {
     const params = {
       projectId,
     };
-    axios.get('/api/project/doc_tree_folder_node', { params }).then((res) => {
+    request.get('/api/project/doc_tree_folder_node', { params }).then((res) => {
       navTreeData.value = res.data;
     }).catch((err) => {
       console.error(err);
@@ -420,7 +420,7 @@ const handleSubmit = () => {
       },
     };
     console.log(params)
-    axios.post('/api/project/import/moyu', params).then(() => {
+    request.post('/api/project/import/moyu', params).then(() => {
       apidocBannerStore.getDocBanner({ projectId });
     }).catch((err) => {
       console.error(err);

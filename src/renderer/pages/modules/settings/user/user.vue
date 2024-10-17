@@ -59,7 +59,7 @@ import SCard from '@/components/common/card/g-card.vue'
 import { t } from 'i18next'
 import { nextTick, onMounted, ref } from 'vue';
 import { ElMessage, FormInstance } from 'element-plus';
-import { axios } from '@/api/api';
+import { request } from '@/api/api';
 import { useRouter } from 'vue-router';
 import { config } from '@src/config/config';
 import { formatDate } from '@/helper'
@@ -128,7 +128,7 @@ const validatePassword2 = (_: unknown, value: string, callback: (err?: Error) =>
 //=====================================获取远程数据==================================//
 const getUserBaseInfo = () => {
   loading.value = true;
-  axios.get<Response<UserInfo>, Response<UserInfo>>('/api/security/user_info').then((res) => {
+  request.get<Response<UserInfo>, Response<UserInfo>>('/api/security/user_info').then((res) => {
     userInfo.value = res.data;
   }).catch((err) => {
     console.error(err);
@@ -142,7 +142,7 @@ const handleChangePassword = () => {
   form.value?.validate((valid) => {
     if (valid) {
       loading2.value = true;
-      axios.put('/api/security/user_password', formInfo).then(() => {
+      request.put('/api/security/user_password', formInfo).then(() => {
         dialogVisible.value = false;
         ElMessage.success('修改成功');
       }).catch((err) => {

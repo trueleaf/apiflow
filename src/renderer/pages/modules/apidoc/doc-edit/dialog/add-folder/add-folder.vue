@@ -18,7 +18,7 @@ import SDialog from '@/components/common/dialog/g-dialog.vue'
 import { Response, ApidocBanner } from '@src/types/global'
 import { t } from 'i18next'
 import { ref } from 'vue';
-import { axios } from '@/api/api';
+import { request } from '@/api/api';
 import { useRoute } from 'vue-router';
 
 const props = defineProps({
@@ -52,7 +52,7 @@ const handleAddFolder = () => {
         projectId: route.query.id as string,
         pid: props.pid,
       };
-      axios.post<Response<ApidocBanner>, Response<ApidocBanner>>('/api/project/new_doc', params).then((res) => {
+      request.post<Response<ApidocBanner>, Response<ApidocBanner>>('/api/project/new_doc', params).then((res) => {
         emits('success', res.data); //一定要先成功然后才关闭弹窗,因为关闭弹窗会清除节点父元素id
         handleClose();
       }).catch((err) => {

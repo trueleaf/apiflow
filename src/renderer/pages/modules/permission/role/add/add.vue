@@ -42,7 +42,7 @@ import SForm from '@/components/common/forms/form/g-form.vue'
 import SFormItem from '@/components/common/forms/form/g-form-item.vue'
 import SFieldset from '@/components/common/fieldset/g-fieldset.vue'
 import { FormInstance } from 'element-plus'
-import { axios } from '@/api/api'
+import { request } from '@/api/api'
 import { t } from 'i18next'
 
 defineProps({
@@ -96,7 +96,7 @@ const handleSaveRole = () => {
         ...formInfo,
       };
       loading.value = true;
-      axios.post('/api/security/role', params).then(() => {
+      request.post('/api/security/role', params).then(() => {
         emits('success');
         handleClose();
       }).catch((err) => {

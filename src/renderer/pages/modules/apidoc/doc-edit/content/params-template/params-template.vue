@@ -164,7 +164,7 @@ export default defineComponent({
             ...this.addData,
           };
           this.loading2 = true;
-          this.axios.post('/api/project/doc_preset_params', params).then(() => {
+          this.request.post('/api/project/doc_preset_params', params).then(() => {
             table.value?.getData();
             this.$store.commit('apidoc/addPresetParams', params);
             emits('success')
@@ -187,7 +187,7 @@ export default defineComponent({
         projectId: this.$route.query.id,
         _id: row._id,
       };
-      this.axios.get<Response<EditInfo>, Response<EditInfo>>('/api/project/doc_preset_params', { params }).then((res) => {
+      this.request.get<Response<EditInfo>, Response<EditInfo>>('/api/project/doc_preset_params', { params }).then((res) => {
         this.editData.name = row.name;
         this.editData._id = res.data._id;
         this.editData.presetParamsType = row.presetParamsType;
@@ -216,7 +216,7 @@ export default defineComponent({
           ids: [id],
           projectId: this.$route.query.id,
         };
-        this.axios.delete('/api/project/doc_preset_params', { data: params }).then(() => {
+        this.request.delete('/api/project/doc_preset_params', { data: params }).then(() => {
           table.value?.getData();
           const allTemplate = this.$store.state['apidoc/baseInfo'].paramsTemplate;
           const delIndex = allTemplate.findIndex(v => v._id === id);

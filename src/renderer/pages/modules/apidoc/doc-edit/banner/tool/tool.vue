@@ -156,7 +156,7 @@ import type { Response, ApidocBanner, ApidocOperations, ApidocProjectListInfo, A
 import { forEachForest } from '@/helper/index'
 import { router } from '@/router/index'
 import { t } from 'i18next'
-import { axios } from '@/api/api'
+import { request } from '@/api/api'
 import { apidocCache } from '@/cache/apidoc'
 import SAddFileDialog from '../../dialog/add-file/add-file.vue'
 import SAddFolderDialog from '../../dialog/add-folder/add-folder.vue'
@@ -614,7 +614,7 @@ const projectList: Ref<ApidocProjectInfo[]> = ref([]); //项目列表
 const startProjectList: Ref<ApidocProjectInfo[]> = ref([]); //收藏项目列表
 const getProjectList = () => {
   loading.value = true;
-  axios.get<Response<ApidocProjectListInfo>, Response<ApidocProjectListInfo>>('/api/project/project_list').then((res) => {
+  request.get<Response<ApidocProjectListInfo>, Response<ApidocProjectListInfo>>('/api/project/project_list').then((res) => {
     projectList.value = res.data.list;
     startProjectList.value = res.data.list.filter(v => res.data.starProjects.find(v2 => v2 === v._id));
   }).catch((err) => {
@@ -628,7 +628,7 @@ const handleChangeProject = (item: ApidocProjectInfo) => {
   if (item._id === router.currentRoute.value.query.id) {
     return;
   }
-  axios.put('/api/project/visited', { projectId: item._id }).catch((err) => {
+  request.put('/api/project/visited', { projectId: item._id }).catch((err) => {
     console.error(err);
   });
   router.push({

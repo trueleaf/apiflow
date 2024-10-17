@@ -2,7 +2,7 @@ import { ActionContext } from 'vuex'
 import { RouteRecordRaw } from 'vue-router'
 import type { State as RootState, PermissionState } from '@src/types/store'
 import { Response, PermissionUserInfo, PermissionClientMenu, PermissionClientRoute, GlobalConfig } from '@src/types/global'
-import { axios } from '@/api/api'
+import { request } from '@/api/api'
 import { uniqueByKey } from '@/helper/index'
 import { router, routes } from '@/router/index'
 import { config } from '@/../config/config'
@@ -117,7 +117,7 @@ const permission = {
   actions: {
     async getPermission(context: ActionContext<PermissionState, RootState>): Promise<ResUserInfo> {
       return new Promise((resolve, reject) => {
-        axios.get<Response<ResUserInfo>, Response<ResUserInfo>>('/api/security/user_base_info').then((res) => {
+        request.get<Response<ResUserInfo>, Response<ResUserInfo>>('/api/security/user_base_info').then((res) => {
           context.commit('changeUserInfo', res.data);
           context.commit('changeMenus', res.data.clientBanner);
           context.commit('changeRoutes', res.data.clientRoutes);

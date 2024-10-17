@@ -19,7 +19,7 @@ import { nextTick, ref } from 'vue';
 import { FormInstance } from 'element-plus';
 import { useApidoc } from '@/store/apidoc/apidoc';
 import { useRoute } from 'vue-router';
-import { axios } from '@/api/api';
+import { request } from '@/api/api';
 import { useApidocBaseInfo } from '@/store/apidoc/base-info';
 
 const props = defineProps({
@@ -58,7 +58,7 @@ const handleSave = () => {
         items: responseParam.value.strJson,
       };
       loading.value = true;
-      axios.post('/api/project/doc_preset_params', params).then((res) => {
+      request.post('/api/project/doc_preset_params', params).then((res) => {
         apidocBaseInfoStore.addParamsTemplate(res.data);
         handleClose();
       }).catch((err) => {

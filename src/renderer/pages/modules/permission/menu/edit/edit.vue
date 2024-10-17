@@ -19,7 +19,7 @@ import SForm from '@/components/common/forms/form/g-form.vue'
 import SFormItem from '@/components/common/forms/form/g-form-item.vue'
 import { t } from 'i18next'
 import { FormInstance } from 'element-plus'
-import { axios } from '@/api/api'
+import { request } from '@/api/api'
 
 defineProps({
   modelValue: {
@@ -54,7 +54,7 @@ const handleEditMenu = () => {
         path: formData.path,
         _id: formData._id,
       };
-      axios.put('/api/security/client_menu', params).then(() => {
+      request.put('/api/security/client_menu', params).then(() => {
         handleClose();
         emits('success');
       }).catch((err) => {

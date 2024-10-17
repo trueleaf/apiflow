@@ -61,7 +61,7 @@
 <script lang="ts" setup>
 import { ref, Ref, onMounted } from 'vue'
 import { ApidocRequestParamTypes } from '@src/types/global'
-import { axios } from '@/api/api'
+import { request } from '@/api/api'
 import { router } from '@/router/index'
 import { event, apidocGenerateRequestParamTypes } from '@/helper'
 import { ApidocProjectBaseInfoState, ApidocProjectRules } from '@src/types/apidoc/base-info'
@@ -88,7 +88,7 @@ const saveConfig = () => {
     projectId,
     ...copyApiRules.value,
   };
-  axios.put('/api/apidoc/project/project_rules', params).then(() => {
+  request.put('/api/apidoc/project/project_rules', params).then(() => {
     apidocBaseInfoStore.changeProjectRules(JSON.parse(JSON.stringify(copyApiRules.value)))
   }).catch((err) => {
     console.error(err)

@@ -27,7 +27,7 @@ import { config } from '@src/config/config';
 import { nextTick, reactive, ref } from 'vue';
 import { t } from 'i18next'
 import { ElMessage, FormInstance } from 'element-plus';
-import { axios } from '@/api/api';
+import { request } from '@/api/api';
 import SmsButton from '@/components/common/sms-button/g-sms-button.vue'
 
 
@@ -98,7 +98,7 @@ const getSmsCode = () => {
   const params = {
     phone: userInfo.phone,
   };
-  axios.get('/api/security/sms', { params }).catch((err) => {
+  request.get('/api/security/sms', { params }).catch((err) => {
     console.error(err);
   });
 }
@@ -112,7 +112,7 @@ const handleResetPassword = () => {
         password: userInfo.password,
         smsCode: userInfo.smsCode,
       };
-      axios.post<Response<{ loginName: string }>, Response<{ loginName: string }>>('/api/security/user_reset_password', params).then((res) => {
+      request.post<Response<{ loginName: string }>, Response<{ loginName: string }>>('/api/security/user_reset_password', params).then((res) => {
         if (res.code === 2006 || res.code === 2003) {
           ElMessage.warning(res.msg);
         } else {

@@ -22,7 +22,7 @@ import { ElMessage } from 'element-plus'
 import 'element-plus/es/components/message/style/css';
 import { router } from '@/router'
 import { ApidocProperty, Response } from '@src/types/global';
-import { axios } from '@/api/api';
+import { request } from '@/api/api';
 import { apidocGenerateProperty } from '@/helper';
 import mindHeaders from '../apidoc/params/headers/mind-headers';
 import SFieldset from '@/components/common/fieldset/g-fieldset.vue'
@@ -55,7 +55,7 @@ const getCommonHeaderInfo = () => {
     projectId,
     id: currentSelectTab.value?._id
   }
-  axios.get<Response<CommonHeaderResponse>, Response<CommonHeaderResponse>>('/api/project/common_header_by_id', { params }).then((res) => {
+  request.get<Response<CommonHeaderResponse>, Response<CommonHeaderResponse>>('/api/project/common_header_by_id', { params }).then((res) => {
     headerData.value = res.data.commonHeaders || [];
     if (!headerData.value.length) {
       headerData.value.push(apidocGenerateProperty())
@@ -80,7 +80,7 @@ const handleEditCommonHeader = () => {
       select: v.select,
     })),
   }
-  axios.put('/api/project/common_header', params).then(() => {
+  request.put('/api/project/common_header', params).then(() => {
     ElMessage.success('修改成功');
     apidocBaseInfoStore.getCommonHeaders();
   }).catch((err) => {

@@ -103,7 +103,7 @@ import 'element-plus/es/components/message/style/css';
 import { ref, Ref, computed } from 'vue'
 import type { TreeNodeOptions } from 'element-plus/lib/components/tree/src/tree.type'
 import { ApidocBanner } from '@src/types/global';
-import { axios } from '@/api/api'
+import { request } from '@/api/api'
 import { router } from '@/router/index'
 import { t } from 'i18next'
 import { useApidocBaseInfo } from '@/store/apidoc/base-info';

@@ -98,7 +98,7 @@ import { ref, Ref, onMounted, computed } from 'vue'
 import { Close } from '@element-plus/icons-vue'
 import { ApidocDetail, Response } from '@src/types/global';
 import { router } from '@/router/index'
-import { axios } from '@/api/api'
+import { request } from '@/api/api'
 import { t } from 'i18next'
 import SLoading from '@/components/common/loading/g-loading.vue'
 import SLableValue from '@/components/common/label-value/g-label-value.vue'
@@ -133,7 +133,7 @@ const getDocDetail = () => {
     _id: props.id,
     projectId,
   };
-  axios.get<Response<ApidocDetail>, Response<ApidocDetail>>('/api/project/doc_detail', { params }).then((res) => {
+  request.get<Response<ApidocDetail>, Response<ApidocDetail>>('/api/project/doc_detail', { params }).then((res) => {
     docDetail.value = res.data
   }).catch((err) => {
     console.error(err);

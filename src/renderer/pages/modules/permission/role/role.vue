@@ -28,7 +28,7 @@ import SEditRole from './edit/edit.vue'
 import { ElMessageBox } from 'element-plus';
 import { t } from 'i18next'
 import STable from '@/components/common/table/g-table.vue'
-import { axios } from '@/api/api';
+import { request } from '@/api/api';
 import { formatDate } from '@/helper'
 
 const userId = ref('');
@@ -59,7 +59,7 @@ const handleDeleteRole = (_id: string) => {
     const params = {
       ids: [_id],
     };
-    axios.delete('/api/security/role', { data: params }).then(() => {
+    request.delete('/api/security/role', { data: params }).then(() => {
       table.value?.getData();
     }).catch((err) => {
       console.error(err);

@@ -10,7 +10,7 @@
 </template>
 
 <script lang="ts" setup>
-import { axios } from '@/api/api';
+import { request } from '@/api/api';
 import { PropType } from 'vue'
 // import { UploadFile } from "element-plus/lib/components/upload/src/upload.type";
 
@@ -60,7 +60,7 @@ const upload = (file: { file: File }) => {
     formData.append(key, props.params[key]);
   })
   let response: string;
-  axios.post<{ data: string }, { data: string }>(props.url, formData).then((res) => {
+  request.post<{ data: string }, { data: string }>(props.url, formData).then((res) => {
     response = res.data;
     emits('success', response);
   }).catch((err) => {

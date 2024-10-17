@@ -17,10 +17,10 @@
 import { ref, Ref, nextTick } from 'vue'
 import { router } from '@/router';
 import { FormInstance, FormRules } from 'element-plus';
-import axios from 'axios';
 import { t } from 'i18next'
 import { useApidoc } from '@/store/apidoc/apidoc';
 import { useApidocBaseInfo } from '@/store/apidoc/base-info';
+import { request } from '@/api/api';
 
 defineProps({
   modelValue: {
@@ -55,7 +55,7 @@ const handleSave = () => {
         items: bodyParams,
       };
       loading.value = true;
-      axios.post('/api/project/doc_preset_params', params).then((res) => {
+      request.post('/api/project/doc_preset_params', params).then((res) => {
         apidocBaseInfoStore.addParamsTemplate(res.data);
         handleClose();
       }).catch((err) => {
