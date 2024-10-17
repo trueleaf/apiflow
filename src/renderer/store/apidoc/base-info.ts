@@ -208,7 +208,7 @@ export const useApidocBaseInfo = defineStore('apidocBaseInfo', () => {
       }
       axios.get<Response<ApidocProjectBaseInfoState>, Response<ApidocProjectBaseInfoState>>('/api/project/project_full_info', { params }).then((res) => {
         changeProjectBaseInfo(res.data);
-        event.emits('apidoc/getBaseInfo', res.data);
+        event.emit('apidoc/getBaseInfo', res.data);
         resolve()
       }).catch((err) => {
         console.error(err);
