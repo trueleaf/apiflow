@@ -179,7 +179,7 @@ const handleChangePortEditState = () => {
 const handleChangePort = () => {
   apidocMockStroe.changeMockServerPort(_mockPort.value);
   if (mockServerInfo.value.serverState === 'connection') {
-    event.emits('apidoc/mock/restartMockServer')
+    event.emit('apidoc/mock/restartMockServer')
   }
   isEditingPort.value = false;
 }

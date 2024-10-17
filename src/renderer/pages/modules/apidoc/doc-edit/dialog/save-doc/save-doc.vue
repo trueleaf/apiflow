@@ -105,7 +105,7 @@ onMounted(() => {
 })
 const handleClose = () => {
   emits('update:modelValue', false)
-  event.emits('tabs/cancelSaveTab')
+  event.emit('tabs/cancelSaveTab')
 }
 const handleSaveDoc = () => {
   const docInfo = JSON.parse(JSON.stringify(apidocStore.apidoc))
@@ -138,12 +138,12 @@ const handleSaveDoc = () => {
         field: 'saved',
         value: true,
       })
-      event.emits('tabs/saveTabSuccess')
+      event.emit('tabs/saveTabSuccess')
     })
     emits('update:modelValue', false)
   }).catch((err) => {
     console.error(err);
-    event.emits('tabs/saveTabError')
+    event.emit('tabs/saveTabError')
   }).finally(() => {
     loading.value = false;
   });

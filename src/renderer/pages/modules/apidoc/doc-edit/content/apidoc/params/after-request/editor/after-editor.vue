@@ -55,7 +55,7 @@ onMounted(() => {
       return new EditorWorker()
     },
   }
-  event.emits('apidoc/editor/removePreEditor');
+  event.emit('apidoc/editor/removePreEditor');
   monaco.languages.typescript.javascriptDefaults.setCompilerOptions({ noLib: true, allowNonTsExtensions: true });
   monacoInstance = monaco.editor.create(afterEditor.value as HTMLElement, {
     value: props.modelValue,

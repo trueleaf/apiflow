@@ -67,7 +67,7 @@ const storeTabs = {
       const matchedTab = state.tabs[projectId].find((val) => val._id === _id) as ApidocTab;
       matchedTab.selected = true;
       localStorage.setItem('apidoc/editTabs', JSON.stringify(state.tabs));
-      event.emits('apidoc/tabs/addOrDeleteTab')
+      event.emit('apidoc/tabs/addOrDeleteTab')
       store.commit('apidoc/banner/changeExpandItems', [_id]);
     },
     //固定一个tab
@@ -82,7 +82,7 @@ const storeTabs = {
     //在异步回调中无法直接改变state的值
     deleteTabByIndex(state: ApidocTabsState, payload: { deleteIndex: number, projectId: string }): void {
       state.tabs[payload.projectId].splice(payload.deleteIndex, 1);
-      event.emits('apidoc/tabs/addOrDeleteTab')
+      event.emit('apidoc/tabs/addOrDeleteTab')
     },
     //根据id选中tab
     selectTabById(state: ApidocTabsState, payload: { id: string, projectId: string }): void {
@@ -117,7 +117,7 @@ const storeTabs = {
       deleteIds.forEach((id) => {
         const deleteIndex = state.tabs[projectId].findIndex((tab) => tab._id === id);
         state.tabs[projectId].splice(deleteIndex, 1);
-        event.emits('apidoc/tabs/addOrDeleteTab')
+        event.emit('apidoc/tabs/addOrDeleteTab')
       })
       localStorage.setItem('apidoc/editTabs', JSON.stringify(state.tabs));
     },

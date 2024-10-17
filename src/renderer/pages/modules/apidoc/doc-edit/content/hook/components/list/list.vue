@@ -50,7 +50,7 @@ const getTableData = () => {
 }
 //修改源码
 const handleJumpToEdit = (row: ApidocCodeInfo) => {
-  event.emits('apidoc/hook/jumpToEdit', row)
+  event.emit('apidoc/hook/jumpToEdit', row)
 }
 //查看代码
 const handleViewCode = (row: ApidocCodeInfo) => {

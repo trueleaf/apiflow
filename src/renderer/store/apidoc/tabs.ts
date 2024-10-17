@@ -56,7 +56,7 @@ export const useApidocTas = defineStore('apidocTabs', () => {
     const matchedTab = tabs.value[projectId].find((val) => val._id === _id) as ApidocTab;
     matchedTab.selected = true;
     localStorage.setItem('apidoc/editTabs', JSON.stringify(tabs.value));
-    event.emits('apidoc/tabs/addOrDeleteTab')
+    event.emit('apidoc/tabs/addOrDeleteTab')
     changeExpandItems([_id])
   }
   //更新全部的tab
@@ -76,7 +76,7 @@ export const useApidocTas = defineStore('apidocTabs', () => {
   //根据id删除tab
   const deleteTabByIndex = (payload: { deleteIndex: number, projectId: string }): void => {
     tabs.value[payload.projectId].splice(payload.deleteIndex, 1);
-    event.emits('apidoc/tabs/addOrDeleteTab')
+    event.emit('apidoc/tabs/addOrDeleteTab')
   }
   //根据id选中tab
   const selectTabById = (payload: { id: string, projectId: string }): void => {
@@ -92,7 +92,7 @@ export const useApidocTas = defineStore('apidocTabs', () => {
       }
     })
     localStorage.setItem('apidoc/editTabs', JSON.stringify(tabs.value));
-    event.emits('apidoc/tabs/addOrDeleteTab')
+    event.emit('apidoc/tabs/addOrDeleteTab')
   }
   //根据id改变节点属性
   const changeTabInfoById = <K extends keyof ApidocTab>(payload: EditTabPayload<K>): void => {
@@ -116,7 +116,7 @@ export const useApidocTas = defineStore('apidocTabs', () => {
     deleteIds.forEach((id) => {
       const deleteIndex = tabs.value[projectId].findIndex((tab) => tab._id === id);
       tabs.value[projectId].splice(deleteIndex, 1);
-      event.emits('apidoc/tabs/addOrDeleteTab')
+      event.emit('apidoc/tabs/addOrDeleteTab')
     })
     localStorage.setItem('apidoc/editTabs', JSON.stringify(tabs.value));
   }
