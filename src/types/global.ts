@@ -76,7 +76,7 @@ export type PermissionUserInfo = {
      */
   phone: string;
   /**
-     * 真实姓名
+     * 昵称
      */
   realName: string;
   /**
@@ -91,7 +91,7 @@ export type PermissionUserBaseInfo = {
      */
   loginName: string;
   /**
-     * 真实姓名
+     * 昵称
      */
   realName: string;
   /**
@@ -206,7 +206,7 @@ export type ApidocProjectMemberInfo = {
      */
   permission: ApidocProjectPermission;
   /**
-     * 真实姓名
+     * 昵称
      */
   realName: string;
   /**

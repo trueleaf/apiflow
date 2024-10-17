@@ -3,7 +3,7 @@
   <div>
     <SSearch @change="handleChange">
       <SSearchItem :label="t('登录名称')" prop="loginName"></SSearchItem>
-      <SSearchItem :label="t('真实姓名')" prop="realName"></SSearchItem>
+      <SSearchItem :label="t('昵称')" prop="realName"></SSearchItem>
       <SSearchItem :label="t('手机号')" prop="phone"></SSearchItem>
       <template #operation>
         <el-button type="success" @click="addUserDialog = true">新增用户</el-button>
@@ -18,7 +18,7 @@
     <!-- 表格展示 -->
     <STable ref="table" url="/api/security/user_list" class="mt-5">
       <el-table-column prop="loginName" :label="t('登录名称')" align="center"></el-table-column>
-      <el-table-column prop="realName" :label="t('真实姓名')" align="center"></el-table-column>
+      <el-table-column prop="realName" :label="t('昵称')" align="center"></el-table-column>
       <el-table-column prop="phone" :label="t('手机号')" align="center"></el-table-column>
       <el-table-column :label="t('创建日期')" align="center" width="200px">
         <template #default="scope">

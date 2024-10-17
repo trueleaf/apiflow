@@ -45,6 +45,8 @@ import SFormItem from '@/components/common/forms/form/g-form-item.vue'
 import { axios } from '@/api/api'
 import { FormInstance } from 'element-plus'
 import { t } from 'i18next'
+import SFieldset from '@/components/common/fieldset/g-fieldset.vue'
+
 type RoleInfo = {
   remark: string,
   roleName: string,
@@ -75,8 +77,12 @@ const clientMenu = ref<string[]>([])
 const activeName = ref('clientRoute')
 const loading = ref(false);
 const clientMenuRef = ref<{ tree: TreeNodeOptions['store'] }>();
-const clientRouteRef = ref<{ selectedData: string[] }>();
-const serverRouteRef = ref<{ selectedData: string[] }>();
+const clientRouteRef = ref<{ selectedData: string[] }>({
+  selectedData: []
+});
+const serverRouteRef = ref<{ selectedData: string[] }>({
+  selectedData: []
+});
 const form = ref<FormInstance>();
 /*
 |--------------------------------------------------------------------------

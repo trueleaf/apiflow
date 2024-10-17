@@ -3,11 +3,11 @@
     <div v-for="(item, title) in clientRoutes" :key="title">
       <el-divider content-position="left">{{ title }}</el-divider>
       <div class="pl-5">
-        <el-checkbox v-model="item.selected" :indeterminate="checkClientRoutesIsIndeterminate(item)" :label="t('全选')"
+        <el-checkbox v-model="item.selected" :indeterminate="checkClientRoutesIsIndeterminate(item)" :value="t('全选')"
           @change="handleSelectAllClientRoutes(item)">
         </el-checkbox>
         <el-checkbox-group v-model="selectedData" @change="handleSelectClientRoutes(item)">
-          <el-checkbox v-for="(item2, index) in item.values" :key="index" :label="item2._id">{{ item2.name
+          <el-checkbox v-for="(item2, index) in item.values" :key="index" :value="item2._id">{{ item2.name
             }}</el-checkbox>
         </el-checkbox-group>
       </div>
@@ -21,6 +21,8 @@ import { PermissionClientRoute, Response } from '@src/types/global'
 import { onMounted, watch } from 'vue';
 import { ref } from 'vue';
 import { t } from 'i18next'
+import SLoading from '@/components/common/loading/g-loading.vue'
+
 
 type RouteInfo = {
   selected: boolean,

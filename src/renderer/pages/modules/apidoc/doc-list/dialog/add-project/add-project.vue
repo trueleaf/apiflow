@@ -5,7 +5,7 @@
         <el-input v-model="formInfo.projectName" v-focus-select :size="config.renderConfig.layout.size" :placeholder="t('请输入项目名称')" @keydown.enter="handleAddProject"></el-input>
       </el-form-item>
       <el-form-item :label="`${t('选择成员')}：`">
-        <RemoteSelector v-model="remoteQueryName" :remote-methods="getRemoteUserByName" :loading="loading" :placeholder="t('输入用户名或真实姓名查找用户')">
+        <RemoteSelector v-model="remoteQueryName" :remote-methods="getRemoteUserByName" :loading="loading" :placeholder="t('输入用户名或昵称查找用户')">
           <RemoteSelectorItem v-for="(item, index) in remoteMembers" :key="index">
             <div class="d-flex a-center j-between w-100 h-100" @click="handleSelectUser(item)">
               <span>{{ item.loginName }}</span>
@@ -18,7 +18,7 @@
     <!-- 成员信息 -->
     <el-table :data="selectUserData" stripe border max-height="200px">
       <el-table-column prop="loginName" :label="t('用户名')" align="center"></el-table-column>
-      <el-table-column prop="realName" :label="t('真实姓名')" align="center"></el-table-column>
+      <el-table-column prop="realName" :label="t('昵称')" align="center"></el-table-column>
       <el-table-column :label="t('角色(权限)')" align="center">
         <template #default="scope">
           <el-select v-model="scope.row.permission" :size="config.renderConfig.layout.size">

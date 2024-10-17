@@ -45,8 +45,8 @@ const getData = () => {
   table.value?.getData();
 }
 //修改角色
-const handleOpenEditRole = (userId: string) => {
-  userId = userId;
+const handleOpenEditRole = (id: string) => {
+  userId.value = id;
   editRoleDialog.value = true;
 }
 //删除角色

@@ -2,7 +2,7 @@
   <div class="d-flex a-center mb-3">
     <span class="flex0">{{ t("添加用户") }}：</span>
     <RemoteSelector v-model="remoteQueryName" :remote-methods="getRemoteUserByName" :loading="loading2"
-      :placeholder="t('输入用户名或真实姓名查找用户')" class="w-300px">
+      :placeholder="t('输入用户名或昵称查找用户')" class="w-300px">
       <RemoteSelectorItem v-for="(item, index) in remoteMembers" :key="index">
         <div class="d-flex a-center j-between w-100 h-100" @click="handleSelectUser(item)">
           <span>{{ item.loginName }}</span>
@@ -15,7 +15,7 @@
   <Loading :loading="loading">
     <el-table :data="selectedUserData" stripe border max-height="300px">
       <el-table-column prop="loginName" :label="t('用户名')" align="center"></el-table-column>
-      <el-table-column prop="realName" :label="t('真实姓名')" align="center"></el-table-column>
+      <el-table-column prop="realName" :label="t('昵称')" align="center"></el-table-column>
       <el-table-column label="角色(权限)" align="center">
         <template #default="scope">
           <el-select v-model="scope.row.permission" :size="config.renderConfig.layout.size"

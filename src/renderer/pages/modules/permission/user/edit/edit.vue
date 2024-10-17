@@ -4,7 +4,7 @@
     <el-divider content-position="left">{{ t("基础信息") }}</el-divider>
     <SForm ref="form" v-loading="loading2" show-tips :edit-data="formInfo">
       <SFormItem :label="t('登录名称')" prop="loginName" required half-line></SFormItem>
-      <SFormItem :label="t('真实姓名')" prop="realName" required half-line></SFormItem>
+      <SFormItem :label="t('昵称')" prop="realName" required half-line></SFormItem>
       <SFormItem :label="t('查看范围')" prop="isAdmin" type="select" :select-enum="viewPermissionEnum" half-line></SFormItem>
       <!-- <SFormItem :label="t('手机号')" prop="phone" half-line phone required></SFormItem> -->
     </SForm>

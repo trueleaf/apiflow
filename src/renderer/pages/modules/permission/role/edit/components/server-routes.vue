@@ -7,12 +7,12 @@
         <el-checkbox
           v-model="item.selected"
           :indeterminate="checkServerRoutesIsIndeterminate(item)"
-          :label="t('全选')"
+          :value="t('全选')"
           @change="handleSelectAllServerRoutes(item)"
         >
         </el-checkbox>
         <el-checkbox-group v-model="selectedData" @change="handleSelectServerRoutes(item)">
-          <el-checkbox v-for="(item2, index) in item.values" :key="index" :label="item2._id">{{ item2.name }}</el-checkbox>
+          <el-checkbox v-for="(item2, index) in item.values" :key="index" :value="item2._id">{{ item2.name }}</el-checkbox>
         </el-checkbox-group>
       </div>
     </div>
@@ -24,6 +24,8 @@ import { axios } from '@/api/api';
 import type { PermissionServerRoute, Response } from '@src/types/global'
 import { t } from 'i18next'
 import { onMounted, ref, watch } from 'vue';
+import SLoading from '@/components/common/loading/g-loading.vue'
+
 type RouteInfo = {
   selected: boolean,
   values: PermissionServerRoute[]
