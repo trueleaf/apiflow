@@ -1,6 +1,6 @@
 
 <template>
-  <SDialog :model-value="modelValue" :title="t('新增用户(默认密码111111)')" @close="handleClose">
+  <SDialog :model-value="modelValue" :title="t('新增用户')" @close="handleClose">
     <el-divider content-position="left">{{ t('基础信息') }}</el-divider>
     <SForm ref="form">
       <SFormItem :label="t('登录名称')" prop="loginName" required half-line></SFormItem>
@@ -11,6 +11,7 @@
     <el-checkbox-group v-model="roleIds">
       <el-checkbox v-for="(item, index) in roleEnum" :key="index" :value="item._id">{{ item.roleName }}</el-checkbox>
     </el-checkbox-group>
+    <el-alert title="新添加用户默认密码：111111" type="warning" :closable="false" />
     <template #footer>
       <div>
         <el-button :loading="loading" type="primary" @click="handleAddUser">{{ t("确定") }}</el-button>

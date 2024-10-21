@@ -65,7 +65,7 @@ import { router } from '@/router';
 
 const emits = defineEmits(['jumpToRegister', 'jumpToResetPassword'])
 const userInfo = ref({
-  loginName: process.env.NODE_ENV === 'development' ? 'moyu' : '', //-----------登录名称
+  loginName: process.env.NODE_ENV === 'development' ? 'apiflow' : '', //-----------登录名称
   password: process.env.NODE_ENV === 'development' ? '111111aaa' : '', //---------密码
   captcha: '', //----------------验证码
 })

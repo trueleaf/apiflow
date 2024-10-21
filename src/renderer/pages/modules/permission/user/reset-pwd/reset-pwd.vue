@@ -1,7 +1,7 @@
 
 <template>
   <SDialog :model-value="modelValue" title="重置密码" @close="handleClose">
-    <SForm ref="form" v-loading="loading2" show-tips :edit-data="formInfo">
+    <SForm ref="form" v-loading="loading2" :edit-data="formInfo">
       <SFormItem label="新密码" prop="password" required :min-length="6" one-line></SFormItem>
     </SForm>
     <template #footer>

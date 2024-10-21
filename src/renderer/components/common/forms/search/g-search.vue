@@ -15,11 +15,11 @@
           @click="handleSearch">搜索</el-button>
         <el-button :size="config.renderConfig.layout.size" type="warning" :disabled="loading"
           @click="handleReset">重置</el-button>
-        <el-button v-show="couldShowLoadMore" :size="config.renderConfig.layout.size" type="primary" :disabled="loading"
+        <!-- <el-button v-show="couldShowLoadMore" :size="config.renderConfig.layout.size" type="primary" :disabled="loading"
           @click="toggleExpand">
           <span v-if="isFold">更多筛选</span>
           <span v-else>折叠筛选</span>
-        </el-button>
+        </el-button> -->
         <slot name="operation" />
       </div>
     </template>
@@ -159,7 +159,7 @@ provide('formInfo', formInfo.value);
 onMounted(() => {
   initLabelWidth(); //初始化label的宽度
   initFormData(); //初始化表单数据绑定
-  checkFormHeight(); //检查是否显示折叠按钮
+  // checkFormHeight(); //检查是否显示折叠按钮
   event.on('searchItem/change', handleChangeEvent);
 })
 onUnmounted(() => {

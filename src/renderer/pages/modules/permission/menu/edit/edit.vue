@@ -1,7 +1,7 @@
 
 <template>
   <SDialog :model-value="modelValue" top="10vh" :title="t('编辑菜单')" @close="handleClose">
-    <SForm ref="form" show-tips :edit-data="data">
+    <SForm ref="form" :edit-data="data">
       <SFormItem :label="t('菜单名称')" prop="name" one-line required></SFormItem>
       <SFormItem :label="t('路径')" prop="path" one-line required></SFormItem>
     </SForm>

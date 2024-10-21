@@ -22,7 +22,7 @@
             <div class="op-item a-center">
               <div class="flex0">{{ t("操作人员") }}：</div>
               <el-checkbox-group v-model="formInfo.maintainers">
-                <el-checkbox v-for="(item, index) in maintainerEnum" :key="index" :label="item"></el-checkbox>
+                <el-checkbox v-for="(item, index) in maintainerEnum" :key="index" :value="item"></el-checkbox>
                 <el-button link type="primary" text class="ml-2" @click="handleClearMaintainer">{{ t("清空") }}</el-button>
               </el-checkbox-group>
             </div>

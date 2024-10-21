@@ -2,11 +2,10 @@
 <template>
   <SDialog :model-value="modelValue" :title="t('修改')" @close="handleClose">
     <el-divider content-position="left">{{ t("基础信息") }}</el-divider>
-    <SForm ref="form" v-loading="loading2" show-tips :edit-data="formInfo">
+    <SForm ref="form" v-loading="loading2" :edit-data="formInfo">
       <SFormItem :label="t('登录名称')" prop="loginName" required half-line></SFormItem>
-      <SFormItem :label="t('昵称')" prop="realName" required half-line></SFormItem>
-      <SFormItem :label="t('查看范围')" prop="isAdmin" type="select" :select-enum="viewPermissionEnum" half-line></SFormItem>
-      <!-- <SFormItem :label="t('手机号')" prop="phone" half-line phone required></SFormItem> -->
+      <SFormItem :label="t('昵称')" prop="realName" half-line></SFormItem>
+      <SFormItem :label="t('手机号')" prop="phone" half-line></SFormItem>
     </SForm>
     <el-divider content-position="left">{{ t("角色选择") }}</el-divider>
     <el-checkbox-group v-model="roleIds">
@@ -45,13 +44,6 @@ const emits = defineEmits(['success', 'update:modelValue'])
 const formInfo = ref<Record<string, unknown>>({}) //用户基本信息
 const roleIds = ref<string[]>([]) //角色id列表
 const roleEnum = ref<PermissionRoleEnum>([]) //角色枚举信息
-const viewPermissionEnum = ref([{
-  id: true,
-  name: t('全部项目')
-}, {
-  id: false,
-  name: t('局部项目')
-}]) //是否允许查看所有项目
 const loading = ref(false) //用户信息加载
 const loading2 = ref(false) //修改用户加载
 const form = ref<FormInstance>()
@@ -68,7 +60,7 @@ const getUserInfo = () => {
       loginName: res.data.loginName,
       realName: res.data.realName,
       phone: res.data.phone,
-      isAdmin: res.data.isAdmin,
+      isAdmin: res.data.isAdmin2,
     };
     roleIds.value = res.data.roleIds;
   }).catch((err) => {
@@ -98,9 +90,9 @@ const handleEditUser = () => {
         _id: props.userId,
         loginName: formInfo.loginName,
         realName: formInfo.realName,
-        roleIds: roleIds,
+        roleIds: roleIds.value,
         roleNames,
-        isAdmin: formInfo.isAdmin,
+        phone: formInfo.phone,
       };
       loading.value = true;
       request.put('/api/security/user_permission', params).then(() => {

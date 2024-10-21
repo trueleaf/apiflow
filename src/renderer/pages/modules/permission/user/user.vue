@@ -7,7 +7,7 @@
       <SSearchItem :label="t('手机号')" prop="phone"></SSearchItem>
       <template #operation>
         <el-button type="success" @click="addUserDialog = true">新增用户</el-button>
-        <SDownload class="ml-2" url="/api/security/user_excel_template" @finish="loading = false">
+        <SDownload class="ml-2" url="/api/security/user_excel_template" @finish="handleDownloadFinish">
           <el-button :loading="loading" type="primary" @click="loading = true">下载模板</el-button>
         </SDownload>
         <SUploadPlain url="/api/security/add_user_by_excel" excel @success="handleImportSuccess" @upload="loading2 = true" @finish="loading2 = false">
@@ -65,7 +65,7 @@ import SEditUserDialog from './edit/edit.vue'
 import SResetPasswordDialog from './reset-pwd/reset-pwd.vue'
 import { ref } from 'vue';
 import { formatDate } from '@/helper'
-import { ElMessageBox } from 'element-plus';
+import { ElMessage, ElMessageBox } from 'element-plus';
 import { request } from '@/api/api';
 import SSearch from '@/components/common/forms/search/g-search.vue'
 import SSearchItem from '@/components/common/forms/search/g-search-item.vue'
@@ -91,7 +91,6 @@ const getData = (params?: Record<string, unknown>) => {
 }
 //搜索用户
 const handleChange = (params: Record<string, unknown>) => {
-  console.log(params, 22)
   getData(params)
 }
 //禁用角色
@@ -126,6 +125,10 @@ const handleOpenEditUser = (row: { _id: string }) => {
 const handleResetPassword = (row: { _id: string }) => {
   editUserId.value = row._id;
   resetPwdDialog.value = true;
+}
+//下载模板
+const handleDownloadFinish = () => {
+  loading.value = false;
 }
 //导入成功弹窗
 const handleImportSuccess = (data: { total: number, success: number }) => {

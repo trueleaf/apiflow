@@ -19,7 +19,7 @@
           <el-radio :value="86400000 * 90">1个季度后</el-radio>
           <el-radio :value="86400000 * 365 * 5">不过期</el-radio>
         </el-radio-group>
-        <el-checkbox v-model="customMaxAge" class="ml-5" :label="true">自定义</el-checkbox>
+        <el-checkbox v-model="customMaxAge" class="ml-5" :value="true">自定义</el-checkbox>
         <el-slider v-if="customMaxAge" v-model="formInfo.maxAge" :min="86400000" :step="86400000"
           :max="86400000 * 365 * 5" :format-tooltip="formatTooltip"></el-slider>
       </SConfig>
