@@ -1,15 +1,15 @@
-import { reactive, VNode, Slots } from 'vue'
+import {  VNode, Slots } from 'vue'
 import { forEachForest } from '@/helper/index'
 
 export default function initRules(slots: Slots): Record<string, unknown> {
-  const rules: Record<string, unknown[]> = reactive({});
+  const rules: Record<string, unknown[]> = {};
   if (slots.default) {
     const allSlots = slots.default();
     let rulePath: string;
     forEachForest<VNode>(allSlots, (slot: VNode) => {
       const slotType = slot.type;
       const propsData = slot.props;
-      if (typeof slotType === 'object' && (slotType as Record<string, unknown>).name === 'FormItem') {
+      if (typeof slotType === 'object' && (slotType as Record<string, unknown>).__name === 'g-form-item') {
         if (propsData && propsData.prop) {
           rules[propsData.prop] = [];
           rulePath = propsData.prop;
