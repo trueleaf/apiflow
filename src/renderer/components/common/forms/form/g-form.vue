@@ -1,5 +1,5 @@
 <template>
-  <el-form ref="form" v-bind="$attrs" :model="formInfo" :label-width="labelWidth" :rules="rules">
+  <el-form ref="form" v-bind="$attrs" :validate-on-rule-change="false" :model="formInfo" :label-width="labelWidth" :rules="rules">
     <div v-if="config.isDev && showTips">
       {{ formInfo }}
     </div>
@@ -96,7 +96,8 @@ const initFormData = () => {
 const validate = (fn: () => void) => {
   form.value?.validate(fn);
 }
-const rules = initRules(slots);
+
+const rules = ref({});
 
 defineExpose({
   validate,
@@ -105,6 +106,8 @@ defineExpose({
 onMounted(() => {
   initLabelWidth(); //初始化label的宽度
   initFormData(); //初始化表单数据绑定
+  form.value?.resetFields();
+  rules.value = initRules(slots); //初始化表单验证规则
 })
 </script>
 
