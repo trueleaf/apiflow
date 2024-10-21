@@ -28,10 +28,12 @@ const props = defineProps({
 })
 const ipt = ref<HTMLInputElement>()
 const emits = defineEmits(['update:value'])
-watch(() => props.focus, () => {
-  setTimeout(() => {
-    ipt.value?.focus();
-  })
+watch(() => props.focus, (isFocus) => {
+  if (isFocus) {
+    setTimeout(() => {
+      ipt.value?.focus();
+    })
+  }
 }, { immediate: true})
 
 const handleInput = (value: string) => {
