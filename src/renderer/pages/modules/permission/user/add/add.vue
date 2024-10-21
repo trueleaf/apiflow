@@ -4,8 +4,8 @@
     <el-divider content-position="left">{{ t('基础信息') }}</el-divider>
     <SForm ref="form">
       <SFormItem :label="t('登录名称')" prop="loginName" required half-line></SFormItem>
-      <SFormItem :label="t('昵称')" prop="realName" required half-line></SFormItem>
-      <!-- <SFormItem :label="t('手机号')" prop="phone" half-line phone></SFormItem> -->
+      <SFormItem :label="t('昵称')" prop="realName" half-line></SFormItem>
+      <SFormItem :label="t('手机号')" prop="phone" half-line></SFormItem>
     </SForm>
     <el-divider content-position="left">{{ t("角色选择") }}</el-divider>
     <el-checkbox-group v-model="roleIds">
