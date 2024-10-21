@@ -40,7 +40,7 @@ const props = defineProps({
   },
   showTip: {
     type: Boolean,
-    default: true,
+    default: false,
   },
   autoRequest: {
     type: Boolean,
