@@ -2,7 +2,7 @@
   <!-- 普通输入框 -->
   <SCol v-if="type === 'input'" v-bind="$attrs">
     <el-form-item :label="realLabel" :prop="prop">
-      <SInput v-model:value="formInfo[prop]" :placeholder="realPlaceholder"></SInput>
+      <SInput v-model:value="formInfo[prop]" focus :placeholder="realPlaceholder"></SInput>
     </el-form-item>
   </SCol>
   <!-- 下拉搜索框 -->
@@ -53,6 +53,10 @@ const props = defineProps({
     default: null,
   },
   phone: {
+    type: Boolean,
+    default: false,
+  },
+  focus: {
     type: Boolean,
     default: false,
   }
