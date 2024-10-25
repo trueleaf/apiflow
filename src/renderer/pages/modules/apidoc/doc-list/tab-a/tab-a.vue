@@ -80,7 +80,7 @@
           <div class="project-bottom d-flex">
             <div>
               <span class="f-sm">{{ t("接口数") }}:</span>
-              <span class="teal">{{ item.docNum }}</span>
+              <span class="teal">{{ item.docNum || 0 }}</span>
             </div>
             <div class="ml-auto">
               <el-button type="primary" @click="handleJumpToProject(item)">{{ t("编辑") }}</el-button>
@@ -150,7 +150,7 @@
           <div class="project-bottom d-flex">
             <div>
               <span class="f-sm">{{ t("接口数") }}:</span>
-              <span class="teal">{{ item.docNum }}</span>
+              <span class="teal">{{ item.docNum || 0 }}</span>
             </div>
             <div class="ml-auto">
               <el-button type="primary" @click="handleJumpToProject(item)">{{ t("编辑") }}</el-button>
