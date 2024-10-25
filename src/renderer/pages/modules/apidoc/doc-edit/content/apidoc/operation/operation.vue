@@ -1,7 +1,7 @@
 <template>
   <div class="api-operation">
     <!-- 环境、host、接口前缀 -->
-    <div v-if="hostEnum.length < 5" class="d-flex a-center">
+    <div v-if="showPrefixHelper && hostEnum.length < 5" class="d-flex a-center">
       <el-popover placement="top-start" :show-after="500" trigger="hover" width="auto" :content="mockServer"
         class="mr-2">
         <template #reference>
@@ -18,7 +18,7 @@
       </el-popover>
       <el-button type="primary" text @click="hostDialogVisible = true;">{{ t("接口前缀") }}</el-button>
     </div>
-    <div v-else class="d-flex a-center">
+    <div v-else-if="showPrefixHelper" class="d-flex a-center">
       <el-select v-model="host" placeholder="环境切换" clearable filterable @change="handleChangeHost">
         <el-option :value="mockServer" label="Mock服务器">
           <div class="env-item">
@@ -67,11 +67,10 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, onMounted } from 'vue'
+import { computed, ref } from 'vue'
 import { t } from 'i18next'
 import { Refresh } from '@element-plus/icons-vue'
 import { config } from '@/../config/config'
-import { apidocCache } from '@/cache/apidoc'
 import { router } from '@/router/index'
 import SSaveDocDialog from '@/pages/modules/apidoc/doc-edit/dialog/save-doc/save-doc.vue'
 import SCurdHostDialog from '../dialog/curd-host/curd-host.vue'
@@ -79,28 +78,16 @@ import getHostPart from './composables/host'
 import { handleFormatUrl, handleChangeUrl } from './composables/url'
 import getMethodPart from './composables/method'
 import getOperationPart from './composables/operation'
-import { useApidocBaseInfo } from '@/store/apidoc/base-info'
 import { useApidocTas } from '@/store/apidoc/tabs'
 import { useApidoc } from '@/store/apidoc/apidoc'
 import { useApidocResponse } from '@/store/apidoc/response'
 import { isElectron } from '@src/utils/utils'
 
-const apidocBaseInfoStore = useApidocBaseInfo()
 const apidocTabsStore = useApidocTas()
 const apidocStore = useApidoc()
 const apidocResponseStore = useApidocResponse()
-/*
-|--------------------------------------------------------------------------
-| web代理相关
-|--------------------------------------------------------------------------
-*/
 const projectId = router.currentRoute.value.query.id as string;
-onMounted(() => {
-  const localProxyState = apidocCache.getApidocProxyState(projectId);
-  if (localProxyState !== null) {
-    apidocBaseInfoStore.changeWebProxy(localProxyState);
-  }
-})
+const showPrefixHelper = ref(false)
 /*
 |--------------------------------------------------------------------------
 | host相关
@@ -187,8 +174,10 @@ const fullUrl = computed(() => {
   box-shadow: 0 3px 2px $gray-400;
   background: $white;
   z-index: $zIndex-request-info-wrap;
-  height: size(130);
-
+  height: size(100);
+  &.prefix {
+    height: size(130);
+  }
   .proxy-wrap {
     margin-left: auto;
   }

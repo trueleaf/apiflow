@@ -3,13 +3,8 @@
     <div class="d-flex a-center j-center">
       <h2 v-if="projectName" class="gray-700 f-lg text-center text-ellipsis" :title="projectName">{{ projectName }}</h2>
       <h2 v-else class="gray-700 f-lg text-center text-ellipsis" :title="projectName">/</h2>
-      <el-popover
-        v-model:visible="toggleProjectVisible"
-        transition="none"
-        placement="right"
-        trigger="mannal"
-        width="500px"
-      >
+      <el-popover v-model:visible="toggleProjectVisible" transition="none" placement="right" trigger="mannal"
+        width="500px">
         <template #reference>
           <div class="toggle-btn" title="切换项目" @click.stop="handleToggleProjectModel">
             <el-icon>
@@ -36,7 +31,8 @@
       </el-popover>
     </div>
     <div class="p-relative">
-      <el-input v-model="formInfo.iptValue" size="large" class="doc-search" :placeholder="t('文档名称、文档url')" clearable @change="handleFilterBanner"></el-input>
+      <el-input v-model="formInfo.iptValue" size="large" class="doc-search" :placeholder="t('文档名称、文档url')" clearable
+        @change="handleFilterBanner"></el-input>
       <el-badge :is-dot="hasFilterCondition" class="badge">
         <el-popover placement="right-end" :hide-after="0" transition="none" width="50vw" trigger="click">
           <template #reference>
@@ -50,7 +46,8 @@
               <div class="flex0">{{ t("操作人员") }}：</div>
               <el-checkbox-group v-model="formInfo.maintainers">
                 <el-checkbox v-for="(item, index) in maintainerEnum" :key="index" :value="item"></el-checkbox>
-                <el-button link type="primary" text class="ml-2" @click="handleClearMaintainer">{{ t("清空") }}</el-button>
+                <el-button link type="primary" text class="ml-2" @click="handleClearMaintainer">{{ t("清空")
+                  }}</el-button>
               </el-checkbox-group>
             </div>
             <!-- 日期范围 -->
@@ -65,16 +62,9 @@
                 <el-radio value="3d">{{ t("近三天") }}</el-radio>
                 <el-radio value="7d">{{ t("近七天") }}</el-radio>
                 <el-radio value="自定义">{{ t("自定义") }}</el-radio>
-                <el-date-picker
-                  v-if="dateRange === '自定义'"
-                  v-model="customDateRange"
-                  type="datetimerange"
-                  :range-separator="t('至')"
-                  value-format="x"
-                  :start-placeholder="t('开始日期')"
-                  class="mr-1"
-                  :end-placeholder="t('结束日期')"
-                >
+                <el-date-picker v-if="dateRange === '自定义'" v-model="customDateRange" type="datetimerange"
+                  :range-separator="t('至')" value-format="x" :start-placeholder="t('开始日期')" class="mr-1"
+                  :end-placeholder="t('结束日期')">
                 </el-date-picker>
                 <el-button link type="primary" text @click="handleClearDate">{{ t("清空") }}</el-button>
               </el-radio-group>
@@ -102,7 +92,8 @@
       <!-- 固定的工具栏操作 -->
       <SDraggable v-model="pinOperations" animation="150" item-key="name" class="operation" group="operation">
         <template #item="{ element }">
-          <div :title="t(element.name)" class="cursor-pointer" :class="{ 'cursor-not-allowed': isView && !element.viewOnly }">
+          <div :title="t(element.name)" class="cursor-pointer"
+            :class="{ 'cursor-not-allowed': isView && !element.viewOnly }">
             <svg class="svg-icon" aria-hidden="true" @click="handleEmit(element.op)">
               <use :xlink:href="element.icon"></use>
             </svg>
@@ -110,7 +101,8 @@
         </template>
       </SDraggable>
       <!-- 全部工具栏操作 -->
-      <el-popover v-model:visible="visible" popper-class="tool-panel" transition="none" placement="right" :width="320" trigger="manual">
+      <el-popover v-model:visible="visible" popper-class="tool-panel" transition="none" placement="right" :width="320"
+        trigger="manual">
         <template #reference>
           <div class="more" @click.stop="visible = !visible">
             <el-icon :size="16" :title="t('更多操作')" class="more-op">
@@ -126,7 +118,8 @@
         </div>
         <SDraggable v-model="operations" animation="150" item-key="name" group="operation2">
           <template #item="{ element }">
-            <div class="dropdown-item cursor-pointer" :class="{ 'cursor-not-allowed': isView && !element.viewOnly }" @click="handleEmit(element.op)">
+            <div class="dropdown-item cursor-pointer" :class="{ 'cursor-not-allowed': isView && !element.viewOnly }"
+              @click="handleEmit(element.op)">
               <svg class="svg-icon mr-2" aria-hidden="true">
                 <use :xlink:href="element.icon"></use>
               </svg>
@@ -144,8 +137,10 @@
       </el-popover>
     </div>
   </div>
-  <SAddFileDialog v-if="addFileDialogVisible" v-model="addFileDialogVisible" @success="handleAddFileAndFolderCb"></SAddFileDialog>
-  <SAddFolderDialog v-if="addFolderDialogVisible" v-model="addFolderDialogVisible" @success="handleAddFileAndFolderCb"></SAddFolderDialog>
+  <SAddFileDialog v-if="addFileDialogVisible" v-model="addFileDialogVisible" @success="handleAddFileAndFolderCb">
+  </SAddFileDialog>
+  <SAddFolderDialog v-if="addFolderDialogVisible" v-model="addFolderDialogVisible" @success="handleAddFileAndFolderCb">
+  </SAddFolderDialog>
 </template>
 
 <script lang="ts" setup>
@@ -278,152 +273,152 @@ const handleEmit = (op: ApidocOperations) => {
     return
   }
   switch (op) {
-  case 'addRootFolder': //新建文件夹
-    addFolderDialogVisible.value = true;
-    break;
-  case 'addRootFile': //新建文件
-    addFileDialogVisible.value = true;
-    break;
-  case 'freshBanner': //刷新页面
-    emits('fresh');
-    break;
-  case 'generateLink': //在线链接
-    apidocTabsStore.addTab({
-      _id: 'onlineLink',
-      projectId,
-      tabType: 'onlineLink',
-      label: t('在线链接'),
-      head: {
-        icon: '',
-        color: ''
-      },
-      saved: true,
-      fixed: true,
-      selected: true,
-    })
-    break;
-  case 'exportDoc': //导出文档
-    apidocTabsStore.addTab({
-      _id: 'exportDoc',
-      projectId,
-      tabType: 'exportDoc',
-      label: t('导出文档'),
-      head: {
-        icon: '',
-        color: ''
-      },
-      saved: true,
-      fixed: true,
-      selected: true,
-    })
-    break;
-  case 'importDoc': //导入文档
-  apidocTabsStore.addTab({
-      _id: 'importDoc',
-      projectId,
-      tabType: 'importDoc',
-      label: t('导入文档'),
-      head: {
-        icon: '',
-        color: ''
-      },
-      saved: true,
-      fixed: true,
-      selected: true,
-    })
-    break;
-  case 'recycler': //回收站
-    apidocTabsStore.addTab({
-      _id: 'recycler',
-      projectId,
-      tabType: 'recycler',
-      label: t('回收站'),
-      head: {
-        icon: '',
-        color: ''
-      },
-      saved: true,
-      fixed: true,
-      selected: true,
-    })
-    break;
-  case 'history': //操作审计
-    apidocTabsStore.addTab({
-      _id: 'history',
-      projectId,
-      tabType: 'history',
-      label: t('操作审计'),
-      head: {
-        icon: '',
-        color: ''
-      },
-      saved: true,
-      fixed: true,
-      selected: true,
-    })
-    break;
-  case 'config': //全局设置
-    apidocTabsStore.addTab({
-      _id: 'config',
-      projectId,
-      tabType: 'config',
-      label: t('全局设置'),
-      head: {
-        icon: '',
-        color: ''
-      },
-      saved: true,
-      fixed: true,
-      selected: true,
-    })
-    break;
-  case 'hook': //生成代码
-    apidocTabsStore.addTab({
-      _id: 'hook',
-      projectId,
-      tabType: 'hook',
-      label: t('生成代码'),
-      head: {
-        icon: '',
-        color: ''
-      },
-      saved: true,
-      fixed: true,
-      selected: true,
-    })
-    break;
-  case 'commonHeader': //公共请求头
-    apidocTabsStore.addTab({
-      _id: 'commonHeader',
-      projectId,
-      tabType: 'commonHeader',
-      label: t('公共请求头'),
-      head: {
-        icon: '',
-        color: ''
-      },
-      saved: true,
-      fixed: true,
-      selected: true,
-    })
-    break;
-  case 'apiflow': //接口编排
-    apidocTabsStore.addTab({
-      _id: 'apiflow',
-      projectId,
-      tabType: 'apiflow',
-      label: t('接口编排'),
-      head: {
-        icon: '',
-        color: ''
-      },
-      saved: true,
-      fixed: true,
-      selected: true,
-    })
-    break;
-  default:
-    break;
+    case 'addRootFolder': //新建文件夹
+      addFolderDialogVisible.value = true;
+      break;
+    case 'addRootFile': //新建文件
+      addFileDialogVisible.value = true;
+      break;
+    case 'freshBanner': //刷新页面
+      emits('fresh');
+      break;
+    case 'generateLink': //在线链接
+      apidocTabsStore.addTab({
+        _id: 'onlineLink',
+        projectId,
+        tabType: 'onlineLink',
+        label: t('在线链接'),
+        head: {
+          icon: '',
+          color: ''
+        },
+        saved: true,
+        fixed: true,
+        selected: true,
+      })
+      break;
+    case 'exportDoc': //导出文档
+      apidocTabsStore.addTab({
+        _id: 'exportDoc',
+        projectId,
+        tabType: 'exportDoc',
+        label: t('导出文档'),
+        head: {
+          icon: '',
+          color: ''
+        },
+        saved: true,
+        fixed: true,
+        selected: true,
+      })
+      break;
+    case 'importDoc': //导入文档
+      apidocTabsStore.addTab({
+        _id: 'importDoc',
+        projectId,
+        tabType: 'importDoc',
+        label: t('导入文档'),
+        head: {
+          icon: '',
+          color: ''
+        },
+        saved: true,
+        fixed: true,
+        selected: true,
+      })
+      break;
+    case 'recycler': //回收站
+      apidocTabsStore.addTab({
+        _id: 'recycler',
+        projectId,
+        tabType: 'recycler',
+        label: t('回收站'),
+        head: {
+          icon: '',
+          color: ''
+        },
+        saved: true,
+        fixed: true,
+        selected: true,
+      })
+      break;
+    case 'history': //操作审计
+      apidocTabsStore.addTab({
+        _id: 'history',
+        projectId,
+        tabType: 'history',
+        label: t('操作审计'),
+        head: {
+          icon: '',
+          color: ''
+        },
+        saved: true,
+        fixed: true,
+        selected: true,
+      })
+      break;
+    case 'config': //全局设置
+      apidocTabsStore.addTab({
+        _id: 'config',
+        projectId,
+        tabType: 'config',
+        label: t('全局设置'),
+        head: {
+          icon: '',
+          color: ''
+        },
+        saved: true,
+        fixed: true,
+        selected: true,
+      })
+      break;
+    case 'hook': //生成代码
+      apidocTabsStore.addTab({
+        _id: 'hook',
+        projectId,
+        tabType: 'hook',
+        label: t('生成代码'),
+        head: {
+          icon: '',
+          color: ''
+        },
+        saved: true,
+        fixed: true,
+        selected: true,
+      })
+      break;
+    case 'commonHeader': //公共请求头
+      apidocTabsStore.addTab({
+        _id: 'commonHeader',
+        projectId,
+        tabType: 'commonHeader',
+        label: t('公共请求头'),
+        head: {
+          icon: '',
+          color: ''
+        },
+        saved: true,
+        fixed: true,
+        selected: true,
+      })
+      break;
+    case 'apiflow': //接口编排
+      apidocTabsStore.addTab({
+        _id: 'apiflow',
+        projectId,
+        tabType: 'apiflow',
+        label: t('接口编排'),
+        head: {
+          icon: '',
+          color: ''
+        },
+        saved: true,
+        fixed: true,
+        selected: true,
+      })
+      break;
+    default:
+      break;
   }
   visible.value = false;
 }
@@ -472,30 +467,30 @@ watch(() => dateRange.value, (val) => {
   let startTime: number | null = new Date(new Date().setHours(0, 0, 0, 0)).valueOf();
   let endTime = null;
   switch (val) {
-  case '1d':
-    endTime = Date.now();
-    break;
-  case '2d':
-    endTime = Date.now();
-    startTime = endTime - 86400000;
-    break;
-  case '3d':
-    endTime = Date.now();
-    startTime = endTime - 3 * 86400000;
-    break;
-  case '7d':
-    endTime = Date.now();
-    startTime = endTime - 7 * 86400000;
-    break;
-  case 'yesterday':
-    endTime = startTime;
-    startTime -= 86400000;
-    break;
-  default: //自定义
-    startTime = null;
-    endTime = null;
-    customDateRange.value = [];
-    break;
+    case '1d':
+      endTime = Date.now();
+      break;
+    case '2d':
+      endTime = Date.now();
+      startTime = endTime - 86400000;
+      break;
+    case '3d':
+      endTime = Date.now();
+      startTime = endTime - 3 * 86400000;
+      break;
+    case '7d':
+      endTime = Date.now();
+      startTime = endTime - 7 * 86400000;
+      break;
+    case 'yesterday':
+      endTime = startTime;
+      startTime -= 86400000;
+      break;
+    default: //自定义
+      startTime = null;
+      endTime = null;
+      customDateRange.value = [];
+      break;
   }
   formInfo.value.startTime = startTime;
   formInfo.value.endTime = endTime;
@@ -661,190 +656,229 @@ const handleToggleProjectModel = () => {
 
 <style lang="scss" scoped>
 .tool {
-    position: relative;
-    padding: 0 size(20);
-    height: size(150);
-    background: $gray-200;
-    flex: 0 0 auto;
-    .toggle-btn {
-        height: size(30);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        flex: 0 0 size(30);
-        cursor: pointer;
-        &:hover {
-            color: $theme-color;
-        }
-    }
-    .badge {
-        width: size(25);
-        height: size(25);
-        position: absolute;
-        top: size(8);
-        right: size(25);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        .el-badge__content {
-            transition: none;
-        }
-    }
-    //高级筛选按钮
-    .advance {
-        &>i {
-            font-size: fz(14);
-            cursor: pointer;
-            color: $gray-600;
-        }
-    }
-    // 搜索框样式
-    .doc-search {
-        .el-input__wrapper {
-            border-radius: 20px;
-        }
-    }
-    // 快捷方式样式
-    .tool-icon {
-        position: relative;
-        align-items: center;
-        display: flex;
-        .item {
-            outline: none;
-        }
-        .operation {
-            width: 85%;
-            display: flex;
-            justify-content: space-between;
-        }
-        .more {
-            display: flex;
-            justify-content: center;
-            margin-left: auto;
-            width: 10%;
-            position: relative;
-        }
-        .svg-icon {
-            width: size(25);
-            height: size(25);
-            padding: size(5);
-            &:hover {
-                background: $gray-400;
-            }
-        }
-    }
-    .more-op {
-        width: size(25);
-        height: size(25);
-        line-height: size(25);
-        text-align: center;
-        cursor: pointer;
-        &:hover {
-            background: $gray-400;
-        }
-    }
-}
-.dropdown-item {
-    height: size(40);
-    width: 100%;
-    padding: 0 size(10) 0 size(20);
+  position: relative;
+  padding: 0 size(20);
+  height: size(150);
+  background: $gray-200;
+  flex: 0 0 auto;
+
+  .toggle-btn {
+    height: size(30);
     display: flex;
     align-items: center;
-    // cursor: default;
-    .label {
-        width: size(120);
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-        cursor: pointer;
-    }
-    .shortcut {
-        width: size(100);
-        color: $gray-500;
-    }
-    .svg-icon {
-        width: size(25);
-        height: size(25);
-        padding: size(5);
-    }
-    .pin {
-        cursor: pointer;
-        color: $gray-400;
-        &.active {
-            color: $theme-color;
-            &:hover {
-                color: $theme-color;
-            }
-        }
-    }
+    justify-content: center;
+    flex: 0 0 size(30);
+    cursor: pointer;
+
     &:hover {
-        background: $gray-200;
+      color: $theme-color;
     }
-}
-.toolbar-close {
-    @include rt-close;
-}
-.el-popover.el-popper.tool-panel {
-    padding: 0;
-}
-.search-panel {
-    flex: 0 0 auto;
-    .el-checkbox, .el-radio {
-        margin-right: size(15);
+  }
+
+  .badge {
+    width: size(25);
+    height: size(25);
+    position: absolute;
+    top: size(8);
+    right: size(25);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    .el-badge__content {
+      transition: none;
     }
-    .el-checkbox-group {
-      display: flex;
+  }
+
+  //高级筛选按钮
+  .advance {
+    &>i {
+      font-size: fz(14);
+      cursor: pointer;
+      color: $gray-600;
     }
-    .op-item {
-        min-height: size(40);
-        display: flex;
-        align-items: center;
-        margin-bottom: size(20);
-        &:not(:last-of-type) {
-            border-bottom: 1px dashed $gray-300;
-        }
-        .el-button--text {
-            padding-top: size(5);
-            padding-bottom: size(5);
-        }
-        .el-radio-group {
-            display: flex;
-            align-items: center;
-        }
+  }
+
+  // 搜索框样式
+  .doc-search {
+    .el-input__wrapper {
+      border-radius: 20px;
     }
-}
-.tool-toggle-project {
-    min-height: size(300);
-    h3 {
-        margin-top: size(5);
-        margin-bottom: size(5);
-    }
-    .project-wrap {
-        padding: 0 size(10) 0 size(20);
-        max-height: size(300);
-        overflow-y: auto;
-    }
+  }
+
+  // 快捷方式样式
+  .tool-icon {
+    position: relative;
+    align-items: center;
+    display: flex;
+
     .item {
-        height: size(35);
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        border-bottom: 1px solid $gray-300;
-        .item-title {
-            flex: 0 0 75%;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-            margin-right: size(25);
-        }
-        &:hover {
-            background-color: $theme-color;
-            color: $white;
-            cursor: pointer;
-            .item-content {
-                color: $white;
-            }
-        }
+      outline: none;
     }
+
+    .operation {
+      width: 85%;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .more {
+      display: flex;
+      justify-content: center;
+      margin-left: auto;
+      width: 10%;
+      position: relative;
+    }
+
+    .svg-icon {
+      width: size(25);
+      height: size(25);
+      padding: size(5);
+
+      &:hover {
+        background: $gray-400;
+      }
+    }
+  }
+
+  .more-op {
+    width: size(25);
+    height: size(25);
+    line-height: size(25);
+    text-align: center;
+    cursor: pointer;
+
+    &:hover {
+      background: $gray-400;
+    }
+  }
+}
+
+.dropdown-item {
+  height: size(40);
+  width: 100%;
+  padding: 0 size(10) 0 size(20);
+  display: flex;
+  align-items: center;
+
+  // cursor: default;
+  .label {
+    width: size(120);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    cursor: pointer;
+  }
+
+  .shortcut {
+    width: size(100);
+    color: $gray-500;
+  }
+
+  .svg-icon {
+    width: size(25);
+    height: size(25);
+    padding: size(5);
+  }
+
+  .pin {
+    cursor: pointer;
+    color: $gray-400;
+
+    &.active {
+      color: $theme-color;
+
+      &:hover {
+        color: $theme-color;
+      }
+    }
+  }
+
+  &:hover {
+    background: $gray-200;
+  }
+}
+
+.toolbar-close {
+  @include rt-close;
+}
+
+.el-popover.el-popper.tool-panel {
+  padding: 0;
+}
+
+.search-panel {
+  flex: 0 0 auto;
+
+  .el-checkbox,
+  .el-radio {
+    margin-right: size(15);
+  }
+
+  .el-checkbox-group {
+    display: flex;
+  }
+
+  .op-item {
+    min-height: size(40);
+    display: flex;
+    align-items: center;
+    margin-bottom: size(20);
+
+    &:not(:last-of-type) {
+      border-bottom: 1px dashed $gray-300;
+    }
+
+    .el-button--text {
+      padding-top: size(5);
+      padding-bottom: size(5);
+    }
+
+    .el-radio-group {
+      display: flex;
+      align-items: center;
+    }
+  }
+}
+
+.tool-toggle-project {
+  min-height: size(300);
+
+  h3 {
+    margin-top: size(5);
+    margin-bottom: size(5);
+  }
+
+  .project-wrap {
+    padding: 0 size(10) 0 size(20);
+    max-height: size(300);
+    overflow-y: auto;
+  }
+
+  .item {
+    height: size(35);
+    padding: size(10);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    .item-title {
+      flex: 0 0 75%;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      margin-right: size(25);
+    }
+
+    &:hover {
+      background-color: $theme-color;
+      color: $white;
+      cursor: pointer;
+
+      .item-content {
+        color: $white;
+      }
+    }
+  }
 }
 </style>
