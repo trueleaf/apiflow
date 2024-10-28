@@ -17,7 +17,7 @@ export const config: Config = {
     //权限相关
     permission: {
       free: false,
-      whiteList: ['/', '/login', '/test', '/check', 'view'],
+      whiteList: ['/', '/test', '/login'],
     },
     //http请求相关
     httpRequest: {
