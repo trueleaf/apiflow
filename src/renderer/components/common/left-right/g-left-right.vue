@@ -42,7 +42,7 @@ const rightDom = ref<HTMLElement>();
 */
 //初始化
 const init = () => {
-  leftDom.value!.style.width = `${leftDomWidth}px`;
+  leftDom.value!.style.width = `${leftDomWidth.value}px`;
   document.documentElement.addEventListener('mouseup', handleMouseup)
 }
 //处理全局鼠标松开
