@@ -75,6 +75,13 @@ export const usePermissionStore = defineStore('permission', () => {
           }
         });
       });
+      router.addRoute({
+        path: '/v1',
+        component: layout,
+        children: [
+          ...matchedRoutes,
+        ],
+      });
     }
   }
   //改变用户可访问路由
