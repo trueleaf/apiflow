@@ -3,7 +3,7 @@
     <div v-for="(item, title) in clientRoutes" :key="title">
       <el-divider content-position="left">{{ title }}</el-divider>
       <div class="pl-5">
-        <el-checkbox v-model="item.selected" :indeterminate="checkClientRoutesIsIndeterminate(item)" :value="t('全选')"
+        <el-checkbox v-model="item.selected" :indeterminate="checkClientRoutesIsIndeterminate(item)" :label="t('全选')"
           @change="handleSelectAllClientRoutes(item)">
         </el-checkbox>
         <el-checkbox-group v-model="selectedData" @change="handleSelectClientRoutes(item)">
@@ -96,6 +96,10 @@ const checkClientRoutesIsIndeterminate = (item: RouteInfo) => {
 onMounted(() => {
   getClientRoutes(); //获取前端路由
 })
+defineExpose({
+  selectedData
+})
+
 </script>
 
 <style lang="scss" scoped>

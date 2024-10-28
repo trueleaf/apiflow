@@ -52,6 +52,9 @@ const handleSelectClientMenu = () => {
 onMounted(() => {
   getClientMenu();
 })
+defineExpose({
+  tree
+})
 </script>
 
 <style lang="scss" scoped>

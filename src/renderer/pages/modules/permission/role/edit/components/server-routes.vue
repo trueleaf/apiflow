@@ -7,7 +7,7 @@
         <el-checkbox
           v-model="item.selected"
           :indeterminate="checkServerRoutesIsIndeterminate(item)"
-          :value="t('全选')"
+          :label="t('全选')"
           @change="handleSelectAllServerRoutes(item)"
         >
         </el-checkbox>
@@ -98,6 +98,9 @@ const checkServerRoutesIsIndeterminate = (item: RouteInfo) => {
 }
 onMounted(() => {
   getServerRoutes()
+})
+defineExpose({
+  selectedData
 })
 </script>
 

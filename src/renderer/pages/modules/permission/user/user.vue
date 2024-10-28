@@ -95,8 +95,8 @@ const handleChange = (params: Record<string, unknown>) => {
 }
 //禁用角色
 const handleForbidRole = (_id: string, enable: boolean) => {
-  const tipLabel = enable ? t('禁用') : t('启用');
-  ElMessageBox.confirm(t('确实要该用户吗', { msg: tipLabel }), t('提示'), {
+  const tipLabel = enable ? '禁用' : '启用';
+  ElMessageBox.confirm(t(`确实要${tipLabel}该用户吗`), t('提示'), {
     confirmButtonText: t('确定'),
     cancelButtonText: t('取消'),
     type: 'warning',

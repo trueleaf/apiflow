@@ -12,15 +12,15 @@
         <el-tabs v-model="activeName">
           <!-- 前端路由 -->
           <el-tab-pane name="clientRoute" :label="t('前端路由')">
-            <SClientRoutes ref="clientRoute" @change="handleChangeClientRoutes"></SClientRoutes>
+            <SClientRoutes ref="clientRouteRef" @change="handleChangeClientRoutes"></SClientRoutes>
           </el-tab-pane>
           <!-- 后端路由 -->
           <el-tab-pane name="serverRoute" :label="t('后端路由')">
-            <SServerRoutes ref="serverRoute" @change="handleChangeServerRoutes"></SServerRoutes>
+            <SServerRoutes ref="serverRouteRef" @change="handleChangeServerRoutes"></SServerRoutes>
           </el-tab-pane>
           <!-- 前端菜单 -->
           <el-tab-pane name="clientMenu" :label="t('前端菜单')">
-            <SClientMenus ref="clientMenu" @change="handleChangeClientMenus"></SClientMenus>
+            <SClientMenus ref="clientMenuRef" @change="handleChangeClientMenus"></SClientMenus>
           </el-tab-pane>
         </el-tabs>
       </SFieldset>
@@ -136,7 +136,7 @@ const handleEditRole = () => {
       const formData = (form.value as any).formInfo;
       const params = {
         _id: props.userId,
-        ...formInfo,
+        ...formInfo.value,
         roleName: formData.roleName,
         remark: formData.remark,
       };

@@ -93,7 +93,7 @@ const handleSaveRole = () => {
       const params = {
         roleName: formData.roleName,
         remark: formData.remark,
-        ...formInfo,
+        ...formInfo.value,
       };
       loading.value = true;
       request.post('/api/security/role', params).then(() => {

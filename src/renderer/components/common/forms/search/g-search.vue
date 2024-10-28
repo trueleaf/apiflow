@@ -54,9 +54,7 @@ const props = defineProps({
 const emits = defineEmits(['search', 'reset', 'change'])
 const formInfo = ref<Record<string, unknown>>({});
 const originFormInfo = ref<Record<string, unknown>>({});
-const isFold = ref(false);
 const loading = ref(false);
-const couldShowLoadMore = ref(false);
 const labelWidth = ref('100px');
 const form = ref<FormInstance>();
 const slots = useSlots();
@@ -120,29 +118,7 @@ const initFormData = () => {
     originFormInfo.value = JSON.parse(JSON.stringify(formInfo.value));
   }
 }
-//检查是否显示折叠按钮
-const checkFormHeight = () => {
-  const formDom = form.value?.$el;
-  const formHeight = formDom.getBoundingClientRect().height;
-  if (formHeight > props.foldedHeight * 2) {
-    couldShowLoadMore.value = true;
-    isFold.value = true;
-    formDom.style.height = `${props.foldedHeight}px`;
-    formDom.style.overflow = 'hidden';
-  }
-}
-//展开折叠项目
-const toggleExpand = () => {
-  const formDom = form.value?.$el;
-  if (!isFold) {
-    formDom.style.height = `${props.foldedHeight}px`;
-    formDom.style.overflow = 'hidden';
-  } else {
-    formDom.style.height = 'auto';
-    formDom.style.overflow = 'visible';
-  }
-  isFold.value = !isFold;
-}
+
 //触发搜索事件
 const handleSearch = () => {
   emits('change', formInfo.value);
@@ -150,7 +126,6 @@ const handleSearch = () => {
 }
 //触发重置事件
 const handleReset = () => {
-  console.log(originFormInfo.value)
   Object.assign(formInfo.value, originFormInfo.value);
   emits('change', formInfo.value);
   emits('reset');
