@@ -68,7 +68,7 @@ const permissionStore = usePermissionStore();
   }
   if (!hasPermission) {
     permissionStore.getPermission().then(() => {
-      next(to.path);
+      next(to.fullPath);
     }).catch((err) => {
       router.push('/login');
       console.error(err);
