@@ -1,20 +1,19 @@
 
-import { 
-  CustomRequestInfo, 
-  FlowNode, 
-  SendRequestOptions 
+import {
+  CustomRequestInfo,
+  FlowNode,
+  SendRequestOptions
 } from '@/../types/types';
-import got, { PlainResponse } from 'got';
-import { Method } from 'got/dist/source';
+import got, { Method, PlainResponse } from 'got';
 import json5 from 'json5';
 import type FormData from "form-data"
 import { fromBuffer } from 'file-type';
-import { 
-  convertQueryParamsToQueryString, 
-  convertPathParamsToPathString, 
-  convertStringValueToRealValue, 
-  convertPropertyToObject, 
-  generateEmptyResponse 
+import {
+  convertQueryParamsToQueryString,
+  convertPathParamsToPathString,
+  convertStringValueToRealValue,
+  convertPropertyToObject,
+  generateEmptyResponse
 } from '../utils/utils';
 
 
@@ -47,7 +46,7 @@ const getBody = (params: CustomRequestInfo, globalVariables: Record<string, any>
     try {
       return JSON.stringify(json5.parse(convertBody || "null", (_: string, value: any) => {
         if (!value) {
-            return value;
+          return value;
         }
         if (typeof value === 'string') {
           return convertStringValueToRealValue(value, globalVariables);
@@ -63,9 +62,13 @@ const getBody = (params: CustomRequestInfo, globalVariables: Record<string, any>
 }
 
 const gotInstance = got.extend({
-  timeout: 6000,
+  timeout: {
+    request: 60000, // 60s
+  },
   allowGetBody: true,
-  retry: 0,
+  retry: {
+    limit: 0,
+  },
 });
 export const sendRequest = (requestNode: FlowNode, options: SendRequestOptions) => {
   return new Promise((resolve, reject) => {
@@ -73,11 +76,6 @@ export const sendRequest = (requestNode: FlowNode, options: SendRequestOptions) 
     try {
       const { validVariables } = options;
       const { requestInfo } = requestNode.api;
-      // const gotInstance = got.extend({
-      //   timeout: requestNode.requestConfig.timeout || globalTimeout,
-      //   allowGetBody: true,
-      //   retry: 0,
-      // });
       const method = requestInfo.method as Method;
       const url = getFullUrl(requestInfo, validVariables);
       const headers = getHeaders(requestInfo, validVariables);
@@ -94,7 +92,7 @@ export const sendRequest = (requestNode: FlowNode, options: SendRequestOptions) 
         responseInfo.headers = response.headers;
         responseInfo.contentType = response.headers['content-type'] || '';
         responseInfo.body = response.body,
-        responseInfo.finalRequestUrl = response.url;
+          responseInfo.finalRequestUrl = response.url;
         responseInfo.originRequestUrl = response.requestUrl;
         responseInfo.ip = response.ip || '';
         responseInfo.isFromCache = response.isFromCache;
@@ -109,7 +107,7 @@ export const sendRequest = (requestNode: FlowNode, options: SendRequestOptions) 
       });
       requestStream.on("end", async () => {
         const bufData = Buffer.concat(streamData, streamSize);
-        const fileTypeResult  = await fromBuffer(bufData.buffer);
+        const fileTypeResult = await fromBuffer(bufData.buffer);
         responseInfo.bodySize = bufData.length;
         let mimeType = 'unknown';
         if (fileTypeResult) {
@@ -144,10 +142,29 @@ export const sendRequest = (requestNode: FlowNode, options: SendRequestOptions) 
       });
       requestStream.on("error", (error) => {
         reject(error)
-      });      
+      });
     } catch (error) {
       reject(error)
     }
-
   })
+}
+
+
+export type GotRequestOptions = {
+  url: string;
+  method: Method;
+  timeout: number;
+}
+
+export const gotRequest = (options: GotRequestOptions) => {
+  const gotInstance = got.extend({
+    stream: true,
+    allowGetBody: true,
+    timeout: {
+      request: 60000, // 60s
+    },
+    retry: {
+      limit: 0,
+    },
+  });
 }

@@ -49,7 +49,7 @@ export default (): OperationReturn => {
   });
     //发送请求
   const handleSendRequest = () => {
-    sendRequest();
+    sendRequest()
   }
   //停止请求
   const handleStopRequest = () => {
