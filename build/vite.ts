@@ -2,12 +2,12 @@ import { ViteDevServer } from 'vite';
 import { spawn, ChildProcess, exec } from 'child_process';
 import esbuild from 'esbuild';
 import electron from 'electron';
-import fs from 'fs'
 import path from 'path'
+import chokidar from 'chokidar';
 import type { AddressInfo } from 'net';
 
-const processWithElectron:  NodeJS.Process & {
-  electronProcess?: ChildProcess 
+const processWithElectron: NodeJS.Process & {
+  electronProcess?: ChildProcess
 } = process;
 
 let isKilling = false;
@@ -54,7 +54,14 @@ export const viteElectronPlugin = () => {
       server.httpServer?.once('listening', () => {
         buildElectron()
         startElectronProcess(server);
-        fs.watch(path.resolve(process.cwd(), './src/main'), { recursive: true }, (event, filename) => {
+        const watcher = chokidar.watch(
+          path.resolve(process.cwd(), './src/main'),
+          {
+            persistent: true,
+            depth: 10,
+          }
+        );
+        watcher.on('change', () => {
           sholdExistProcess = false;
           if (processWithElectron.electronProcess?.pid && !isKilling) {
             buildElectron()
@@ -63,7 +70,8 @@ export const viteElectronPlugin = () => {
             process.kill(processWithElectron.electronProcess.pid);
             startElectronProcess(server);
           }
-        });
+        })
+
       });
     },
   };
