@@ -77,7 +77,7 @@ const handleResizeMousemove = (e: MouseEvent) => {
   }
   wrapper.value.style.width = `${moveLeft + wWidth}px`;
   if (props.remember) {
-    localStorage.setItem(`dragBar/${name}`, `${moveLeft + wWidth}px`);
+    localStorage.setItem(`dragBar/${props.name}`, `${moveLeft + wWidth}px`);
   }
   realTimeWidth.value = moveLeft + wWidth;
 }
@@ -104,7 +104,7 @@ const handleResetWidth = () => {
   wrapper.value!.style.width = width;
   realTimeWidth.value = parseFloat(width);
   if (props.remember) {
-    localStorage.setItem(`dragBar/${name}`, width);
+    localStorage.setItem(`dragBar/${props.name}`, width);
   }
 }
 //初始化拖拽相关事件
@@ -112,7 +112,7 @@ const initDrag = () => {
   document.documentElement.addEventListener('mouseup', handleResizeMouseup);
   const width = props.width ? `${props.width}px` : `${wrapper.value!.getBoundingClientRect().width}px`;
   if (props.remember) {
-    const wrapperWidth = localStorage.getItem(`dragBar/${name}`) || width;
+    const wrapperWidth = localStorage.getItem(`dragBar/${props.name}`) || width;
     if (props.barLeft) {
       bar.value!.style.left = `${0}`;
     } else {
