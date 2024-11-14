@@ -39,6 +39,7 @@ function createWindow() {
   })
   mainWindow.loadURL('http://localhost:3000')
   mainWindow.webContents.openDevTools()
+  mainWindow.maximize()
   changeDevtoolsFont(mainWindow);
 }
 
