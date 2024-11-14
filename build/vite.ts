@@ -5,6 +5,7 @@ import electron from 'electron';
 import path from 'path'
 import chokidar from 'chokidar';
 import type { AddressInfo } from 'net';
+import { debounce } from 'lodash';
 
 const processWithElectron: NodeJS.Process & {
   electronProcess?: ChildProcess
@@ -42,6 +43,16 @@ const startElectronProcess = (server: ViteDevServer,) => {
   isKilling = false;
 }
 export const viteElectronPlugin = () => {
+  const debounceReloadMain = debounce((server: ViteDevServer) => {
+    sholdExistProcess = false;
+    if (processWithElectron.electronProcess?.pid && !isKilling) {
+      buildElectron()
+      console.log('重启主进程中...')
+      isKilling = true;
+      process.kill(processWithElectron.electronProcess.pid);
+      startElectronProcess(server);
+    }
+  })
   return {
     name: 'vite-electron-plugn',
     configureServer(server: ViteDevServer) {
@@ -61,17 +72,7 @@ export const viteElectronPlugin = () => {
             depth: 10,
           }
         );
-        watcher.on('change', () => {
-          sholdExistProcess = false;
-          if (processWithElectron.electronProcess?.pid && !isKilling) {
-            buildElectron()
-            console.log('重启主进程中...')
-            isKilling = true;
-            process.kill(processWithElectron.electronProcess.pid);
-            startElectronProcess(server);
-          }
-        })
-
+        watcher.on('change', debounceReloadMain)
       });
     },
   };
