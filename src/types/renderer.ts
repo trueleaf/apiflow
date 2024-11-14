@@ -1,11 +1,10 @@
-import type Got from 'got'
-import type { SendRequestOptions, ResponseInfo } from '@/types/types';
-
+import { Got } from 'got';
+import type {GotRequestOptions } from './types';
 
 export type ElectronAPI = {
   ip: string,
   got: Got;
-  sendRequest: (requestNode: FlowNode, options: SendRequestOptions) => Promise<ResponseInfo>,
+  sendRequest: (options: GotRequestOptions) => Promise<void>,
   openDevTools: () => void,
   readResponseLog: () => void;
 }
