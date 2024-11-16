@@ -1,5 +1,5 @@
+import { FlowNode, Property, ResponseInfo } from "@src/types/types";
 import Mock from "../mock/mock";
-import { Property, FlowNode, ResponseInfo } from "@/types/types";
 import JSON5 from 'json5'
 
 
