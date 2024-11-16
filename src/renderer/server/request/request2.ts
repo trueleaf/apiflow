@@ -1,40 +1,232 @@
-
+import FileType from 'file-type/browser';
+import type FormData from 'form-data'
+import type { Timings, IncomingMessageWithTimings } from '@szmarczak/http-timer';
+import config from './config'
+import apidocConverter from './utils'
+import { useApidocRequest } from '@/store/apidoc/request';
 import { useApidocResponse } from '@/store/apidoc/response';
 import { useApidoc } from '@/store/apidoc/apidoc';
-import { toRaw } from 'vue';
-import { ApidocDetail } from '@src/types/global';
-import { convertQueryParamsToQueryString } from '@src/utils/utils';
+import { getFileNameFromContentDisposition } from '@/helper';
+
+let got: Got | null = null;
+let gotInstance: Got | null = null;
+let requestStream: Request | null = null;
+let worker: Worker;
+
+
+//初始化请求
+function initGot() {
+  if (!got) {
+    return null;
+  }
+  if (gotInstance) {
+    return gotInstance;
+  }
+  const apidocRequestStore = useApidocRequest();
+  const initGotConfig = {
+    timeout: config.timeout || 60000, //超时时间
+    retry: 0,
+    throwHttpErrors: false,
+    followRedirect: true,
+    allowGetBody: true,
+    agent: {},
+    headers: {
+      'user-agent': 'https://github.com/trueleaf/moyu'
+    },
+    hooks: {
+      beforeRequest: [(options: NormalizedOptions) => {
+        const realHeaders: Record<string, string> = {
+          host: options.url.host,
+          ...options.headers,
+          connection: 'close',
+        };
+        apidocRequestStore.changeFinalRequestInfo({
+          url: options.url.href,
+          headers: realHeaders,
+          method: options.method,
+          // todo
+          body: options.body as any,
+        })
+      }]
+    },
+  }
+  // if (enabledProxy) {
+  //   initGotConfig.agent = {
+  //     http: new ProxyAgent(proxyPath),
+  //     https: new ProxyAgent(proxyPath),
+  //   }
+  // }
+  gotInstance = got.extend(initGotConfig);
+  return gotInstance;
+}
+
+//将buffer值转换为返回参数
+async function formatResponseBuffer(bufferData: Buffer, contentType?: string) {
+  const apidocResponseStore = useApidocResponse();
+  const apidocStore = useApidoc();
+  const typeInfo = await FileType.fromBuffer(bufferData.buffer);
+  const mimeType = typeInfo ? typeInfo.mime : 'text/plain' //无法解析数据按照文本显示
+  const mime = contentType || mimeType; //优先读取contentType
+  const textContentType = ['text/', 'application/json', 'application/javascript', 'application/xml'];
+  apidocResponseStore.changeResponseContentType(mime);
+  if (!contentType) { //没有contentType按照文本格式解析
+    apidocResponseStore.changeResponseTextValue(bufferData.toString());
+  } else if (textContentType.find(type => contentType.match(type))) {
+    apidocResponseStore.changeResponseTextValue(bufferData.toString());
+  } else {
+    const blobData = new Blob([bufferData], { type: mime });
+    const blobUrl = URL.createObjectURL(blobData);
+    const { path } = apidocStore.apidoc.item.url;
+    const headers = apidocResponseStore.header;
+    const contentDisposition = headers['content-disposition'] as string;
+    const headerFileName = getFileNameFromContentDisposition(contentDisposition);
+    const matchedUrlFileName = path.match(/[^/]+.[^.]$/);
+    const urlName = matchedUrlFileName ? matchedUrlFileName[0] : ''
+    const fileName = headerFileName || urlName;
+    apidocResponseStore.changeResponseFileInfo({
+      url: blobUrl,
+      mime,
+      ext: typeInfo?.ext || '',
+      name: fileName,
+    });
+   
+    // store.commit("apidoc/response/changeResponseFileUrl", blobUrl);
+    // store.commit("apidoc/response/changeResponseFileExt", (typeInfo ? typeInfo.ext : ""));
+  }
+}
+//electron发送请求
+function electronRequest() {
+  const apidocResponseStore = useApidocResponse();
+  const apidocStore = useApidoc()
+  const requestInstance = initGot();
+  if (!requestInstance) {
+    console.warn('当前环境无法获取Got实例');
+    return
+  }
+  try {
+    const requestUrl = apidocConverter.getUrlInfo().fullUrl;
+    const method = apidocConverter.getMethod();
+    let body: string | FormData = '';
+    // if (method === "GET") { //GET请求body为空，否则请求将被一直挂起
+    // } else {
+    //     body = apidocConverter.getRequestBody() as (string | FormData);
+    // }
+    body = apidocConverter.getRequestBody() as (string | FormData); //允许GET请求发送body数据
+    const headers = apidocConverter.getHeaders();
+    if (!requestUrl) { //请求url不存在
+      apidocResponseStore.changeLoading(false);
+      apidocResponseStore.changeIsResponse(true);
+      apidocResponseStore.changeResponseContentType('error');
+      apidocResponseStore.changeResponseTextValue('请求url不能为空');
+      return;
+    }
+    requestStream = requestInstance(requestUrl, {
+      isStream: true,
+      method,
+      body,
+      headers,
+    });
+    //=====================================数据处理====================================//
+    const streamData: Buffer[] = [];
+    let responseData: IncomingMessageWithTimings | null = null;
+    let streamSize = 0;
+    //收到返回
+    requestStream.on('response', (response: IncomingMessageWithTimings & { ip: string }) => {
+      responseData = response;
+      apidocResponseStore.changeResponseHeader(response.headers);
+      apidocResponseStore.changeResponseCookies(response.headers['set-cookie'] || []);
+      apidocResponseStore.changeResponseBaseInfo({
+        httpVersion: response.httpVersion,
+        ip: response.ip,
+        statusCode: response.statusCode ?? -1,
+        statusMessage: response.statusMessage ?? "",
+        contentType: response.headers['content-type'] ?? "",
+      })
+      apidocResponseStore.changeIsResponse(true)
+      // store.commit('apidoc/response/changeResponseHeader', response.headers);
+      // store.commit('apidoc/response/changeResponseCookies', response.headers['set-cookie'] || []);
+      // store.commit('apidoc/response/changeResponseBaseInfo', {
+      //   httpVersion: response.httpVersion,
+      //   ip: response.ip,
+      //   statusCode: response.statusCode,
+      //   statusMessage: response.statusMessage,
+      //   contentType: response.headers['content-type'],
+      // });
+      // store.commit('apidoc/response/changeIsResponse', true)
+    });
+    //数据获取完毕
+    requestStream.on('end', async () => {
+      const responseContentType = apidocResponseStore.contentType;
+      const bufData = Buffer.concat(streamData, streamSize);
+      await formatResponseBuffer(bufData, responseContentType);
+      const rt = (responseData?.timings as Timings).phases.total;
+      apidocResponseStore.changeResponseTime(rt || -1);
+      apidocResponseStore.changeResponseSize(streamSize);
+      apidocResponseStore.changeLoading(false);
+   
+      const responseInfo = apidocResponseStore;
+      // console.log(responseInfo)
+      worker.postMessage({
+        type: 'after-request-init-response',
+        value: JSON.parse(JSON.stringify({
+          headers: responseInfo.header,
+          cookies: responseInfo.cookies,
+          httpVersion: responseInfo.httpVersion,
+          ip: responseInfo.ip,
+          rt: responseInfo.rt,
+          size: responseInfo.size,
+          statusCode: responseInfo.statusCode,
+          statusMessage: responseInfo.statusMessage,
+          data: responseInfo.data,
+        }))
+      });
+      worker.postMessage(JSON.parse(JSON.stringify({
+        type: 'after-request-request',
+        value: apidocStore.apidoc.afterRequest.raw
+      })));
+    });
+    //获取流数据
+    requestStream.on('data', (chunk) => {
+      streamData.push(Buffer.from(chunk));
+      streamSize += chunk.length;
+    });
+    //错误处理
+    requestStream.on('error', (error) => {
+      apidocResponseStore.changeLoading(false);
+      apidocResponseStore.changeIsResponse(true)
+      apidocResponseStore.changeResponseContentType('error');
+      apidocResponseStore.changeResponseTextValue(error.message);
+      console.error(error);
+    });
+    //重定向
+    requestStream.on('redirect', () => {
+      console.log('重定向');
+    });
+    //下载进度
+    requestStream.on('downloadProgress', (process) => {
+      apidocResponseStore.changeResponseProgress(process)
+    });
+  } catch (error) {
+    apidocResponseStore.changeLoading(false);
+    apidocResponseStore.changeIsResponse(true)
+    apidocResponseStore.changeResponseContentType('error');
+    apidocResponseStore.changeResponseTextValue((error as Error).toString());
+    console.error(error);
+  }
+}
 
 /*
 |--------------------------------------------------------------------------
 | 发送请求
 |--------------------------------------------------------------------------
 */
-const getMethod = (apidoc: ApidocDetail) => {
-  return apidoc.item.method;
-}
-const getUrl = (apidoc: ApidocDetail) => {
-  const { url, queryParams, paths, } = apidoc.item;
-  const queryString = convertQueryParamsToQueryString(queryParams);
-  // const pathMap = getPathParamsMap(paths)
-  // const validPath = url.path.replace(/\{([^\\}]+)\}/g, (_, $2) => pathMap[$2] || $2);
-  // let fullUrl = url.host + validPath + queryString;
-  // if (!fullUrl.startsWith('http') && !fullUrl.startsWith('https')) {
-  //   fullUrl = `http://${fullUrl}`
-  // }
-  // if (fullUrl.includes('localhost')) {
-  //   fullUrl = fullUrl.replace('localhost', '127.0.0.1')
-  // }
-  return apidoc.item.url.path;
-}
-
 export function sendRequest(): void {
   // const apidocResponseStore = useApidocResponse();
   const apidocStore = useApidoc()
-  const rawApidoc = toRaw(apidocStore.$state.apidoc)
   // const apidocBaseInfoStore = useApidocBaseInfo();
   // const apidocTabsStore = useApidocTas();
   // const apidocWorkerStateStore = useApidocWorkerState()
+
   // apidocResponseStore.changeIsResponse(false);
   // apidocBaseInfoStore.clearTempVariables();
   // apidocResponseStore.changeLoading(true);
@@ -51,13 +243,12 @@ export function sendRequest(): void {
   // const localEnvs = apidocCache.getApidocServer(projectId);
   // const envs = apidocBaseInfoStore.hosts.concat(localEnvs);
 
-  const method = getMethod(rawApidoc);
-  const url = getUrl(rawApidoc);
+  const method = getMethod(apidocStore)
 
 
   window.electronAPI?.sendRequest({
     url: apidocStore.apidoc.item.url.path,
-    method,
+    method: 'get',
     timeout: 60000,
     signal() {
       
@@ -243,10 +434,10 @@ export function sendRequest(): void {
 }
 
 export function stopRequest(): void {
-  // const apidocResponseStore = useApidocResponse();
-  // apidocResponseStore.changeLoading(false);
-  // apidocResponseStore.changeIsResponse(true);
-  // if (requestStream) {
-  //   requestStream.destroy();
-  // }
+  const apidocResponseStore = useApidocResponse();
+  apidocResponseStore.changeLoading(false);
+  apidocResponseStore.changeIsResponse(true);
+  if (requestStream) {
+    requestStream.destroy();
+  }
 }

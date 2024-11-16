@@ -2,7 +2,7 @@
 import {contextBridge, ipcRenderer } from 'electron'
 import got from 'got'
 import ip from 'ip'
-import { sendRequest } from './sendRequest'
+import { gotRequest } from './sendRequest'
 import { readResponseLog } from './fileAccess'
 
 
@@ -13,7 +13,7 @@ const openDevTools = () => {
 contextBridge.exposeInMainWorld('electronAPI', {
   got,
   ip: ip.address(),
-  sendRequest,
+  sendRequest: gotRequest,
   readResponseLog,
   openDevTools,
 })
