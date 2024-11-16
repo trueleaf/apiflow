@@ -94,7 +94,7 @@ export type ResponseInfo = {
   finishTime: string;
   headers: IncomingHttpHeaders,
   contentType: string,
-  originRequestUrl: string;
+  originRequestUrl: URL;
   finalRequestUrl: string;
   statusCode: number;
   isFromCache: boolean;
@@ -104,7 +104,7 @@ export type ResponseInfo = {
    * 如果走缓存则没有ip值
    */
   ip: string;
-  redirectUrls: string[];
+  redirectUrls: URL[];
   timings: Timings;
   retryCount: number;
   bodySize: number;
@@ -305,4 +305,12 @@ export type Config = {
     maxLocalWebStorageResponseLogSize: number;
     canLogResponseBodySize: number;
   }
+}
+
+export type GotRequestOptions = {
+  url: string;
+  method: Method;
+  timeout: number;
+  signal: (abort: (reason?: string) => void) => void;
+  onResponse?: (responseInfo: ResponseInfo) => void;
 }
