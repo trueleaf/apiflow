@@ -197,7 +197,7 @@ onUnmounted(() => {
 
 </script>
 
-<style lang="scss" scoped>
+<style lang="scss">
 .valid-input {
   height: size(45);
   width: 100%;
@@ -211,7 +211,9 @@ onUnmounted(() => {
     width: 100%;
     // position: relative;
     height: size(29);
-
+    .el-textarea__inner {
+      font-size: fz(12);
+    }
     .ipt-inner {
       width: 100%;
       height: 100%;
