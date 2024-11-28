@@ -3,7 +3,8 @@ import { useApidocResponse } from '@/store/apidoc/response';
 import { useApidoc } from '@/store/apidoc/apidoc';
 import { toRaw } from 'vue';
 import { ApidocDetail } from '@src/types/global';
-import { convertQueryParamsToQueryString } from '@src/utils/utils';
+import { getObjectVariable, getQueryStringFromQueryParams } from '@src/utils/utils';
+import { useVariable } from '@/store/apidoc/variables';
 
 /*
 |--------------------------------------------------------------------------
@@ -14,8 +15,9 @@ const getMethod = (apidoc: ApidocDetail) => {
   return apidoc.item.method;
 }
 const getUrl = (apidoc: ApidocDetail) => {
+  const { variables } = useVariable()
   const { url, queryParams, paths, } = apidoc.item;
-  const queryString = convertQueryParamsToQueryString(queryParams);
+  const queryString = getQueryStringFromQueryParams(queryParams, toRaw(variables));
   // const pathMap = getPathParamsMap(paths)
   // const validPath = url.path.replace(/\{([^\\}]+)\}/g, (_, $2) => pathMap[$2] || $2);
   // let fullUrl = url.host + validPath + queryString;
@@ -32,6 +34,7 @@ export function sendRequest(): void {
   // const apidocResponseStore = useApidocResponse();
   const apidocStore = useApidoc()
   const rawApidoc = toRaw(apidocStore.$state.apidoc)
+  // console.log(rawApidoc, 2)
   // const apidocBaseInfoStore = useApidocBaseInfo();
   // const apidocTabsStore = useApidocTas();
   // const apidocWorkerStateStore = useApidocWorkerState()
@@ -56,7 +59,7 @@ export function sendRequest(): void {
 
 
   window.electronAPI?.sendRequest({
-    url: apidocStore.apidoc.item.url.path,
+    url,
     method,
     timeout: 60000,
     signal() {
