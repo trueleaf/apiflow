@@ -110,7 +110,7 @@ class ApidocConverter {
   /**
      * 将queryParams转换成字符串查询字符串
      */
-  private convertQueryParamsToQueryString(queryParams: ApidocProperty<'string'>[]): string {
+  private getQueryStringFromQueryParams(queryParams: ApidocProperty<'string'>[]): string {
     let queryString = '';
     queryParams.forEach((v) => {
       if (v.key && v.select) {
@@ -200,7 +200,7 @@ class ApidocConverter {
      */
   getUrlInfo(): UrlInfo {
     const { url, queryParams, paths, } = this.apidoc.item;
-    const queryString = this.convertQueryParamsToQueryString(queryParams);
+    const queryString = this.getQueryStringFromQueryParams(queryParams);
     const pathMap = this.getPathParamsMap(paths)
     const validPath = url.path.replace(/\{([^\\}]+)\}/g, (_, $2) => pathMap[$2] || $2);
     let fullUrl = url.host + validPath + queryString;

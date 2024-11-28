@@ -1,6 +1,8 @@
 import { FlowNode, Property, ResponseInfo } from "@src/types/types";
 import Mock from "../mock/mock";
 import JSON5 from 'json5'
+import { ApidocVariable, SandboxPostMessage } from "@src/types/global";
+import { reject } from "lodash";
 
 
 
@@ -24,153 +26,104 @@ export const updateObject = <T extends Partial<Record<string, unknown>>>(draft: 
    }
   })
 }
-export const convertStringValueToRealValue = (stringValue: string, context: Record<string, any>) => {
-  const cpContext = JSON.parse(JSON.stringify(context)) as Record<string, any>
-  let variableString = "";
-  const convertArray = (arr: any[]) => {
-    let tempStrValue = ""
-    arr.forEach(val => {
-      if (typeof val === 'string') {
-        tempStrValue += `"${val}",`
-      } else if (typeof val === 'number' || typeof val === 'boolean') {
-        tempStrValue += `${val},`
-      } else if (typeof val === 'object' && !Array.isArray(val)) {
-        tempStrValue += `{\n${convertObject(val)}\n},`
-      } else if (Array.isArray(val)) {
-        tempStrValue += `[\n${convertArray(val)}\n],`
+
+
+export const evalCode = (code: string) => {
+  const worker = new Worker(new URL('@/worker/sandbox.ts', import.meta.url));
+  return new Promise((resolve, reject) => {
+    worker.onmessage = (event: MessageEvent<SandboxPostMessage>) => {
+      if (event.data.type === 'error') {
+        reject(event.data.msg)
+      } else if (event.data.type === 'evalSuccess') {
+        resolve(event.data.data)
       }
-    })
-    return tempStrValue;
-  }
-  const convertObject = (obj: Record<string, any>, preStr = '') => {
-    Object.keys(obj).forEach(field => {
-      let value = obj[field];
-      if (typeof value === 'string') {
-        preStr += `${field}: "${value}",`
-      } else if (typeof value === 'number' || typeof value === 'boolean') {
-        preStr += `${field}: ${value},`
-      } else if (typeof value === 'object' && !Array.isArray(value)) {
-        preStr += `${field}: {\n${convertObject(value)}\n},`;
-      }
-      else if (Array.isArray(value)) {
-        let tempStrValue = ""
-        value.forEach(val => {
-          if (typeof val === 'string') {
-            tempStrValue += `"${val}",`
-          } else if (typeof val === 'number' || typeof val === 'boolean') {
-            tempStrValue += `${val},`
-          } else if (typeof val === 'object' && !Array.isArray(val)) {
-            tempStrValue += `{\n${convertObject(val)}\n}`
-          } else if (Array.isArray(val)) {
-            tempStrValue += `[\n${convertArray(val)}\n]`
-          }
-        })
-        preStr += `${field}: [\n${tempStrValue}\n]`;
-      }
-    })
-    return preStr
-  } 
-  if (Array.isArray(cpContext)) {
-    console.warn('context不能为数组')
-  } else {
-    Object.keys(cpContext).forEach(field => {
-      let value = cpContext[field];
-      if (typeof value === 'string') {
-        value = `"${value}"`
-      } else if (typeof value === 'number' || typeof value === 'boolean') {
-        value = `${value}`
-      } else if (typeof value === 'object' && !Array.isArray(value)) {
-        value = `{\n${convertObject(value)}\n}`;
-      } else if (Array.isArray(value)) {
-        let tempStrValue = ""
-        value.forEach(val => {
-          if (typeof val === 'string') {
-            tempStrValue += `"${val}",`
-          } else if (typeof val === 'number' || typeof val === 'boolean') {
-            tempStrValue += `${val},`
-          } else if (typeof val === 'object' && !Array.isArray(val)) {
-            tempStrValue += `{\n${convertObject(val)}\n},`
-          } else if (Array.isArray(val)) {
-            tempStrValue += `[\n${convertArray(val)}\n],`
-          }
-        })
-        value = `[\n${tempStrValue}\n]`;
-      }
-      variableString += `const ${field} = ${value};\n`
-    })
-  }
-  let isSingleExpression = false;
-  let isNumber = false;
-  let isBoolean = false;
-  let isArray = false;
-  let isObject = false;
-  if (stringValue.match(/\{\{[^}]*(\}\})$/)) {
-    isSingleExpression = true;
-  }
-  const replacedVariableString = stringValue.replace(/\{\{\s*(.*?)\s*\}\}/g, ($1, expression: string) => {
-    const withoutMockExpression = expression.replace(/([$@][^)]+\))|([$@][^\s+\-\*\/\?>=<]+)/g, (mockExpression) => {
-      if (mockExpression.startsWith("@")) {
-        return Mock.mock(mockExpression);
-      }
-      if (mockExpression.startsWith("$")) {
-        return Mock.mock(mockExpression.replace(/^\$/, "@"));
-      }
-      return ''
-    })
-    try {
-      const evalData = eval(`
-        (function () {
-          try {
-            ${variableString}
-            const result = ${withoutMockExpression}
-            return result;
-          } catch {
-            return "${$1}"
-          }
-        }())
-      `)
-      if (typeof evalData === 'number') {
-        isNumber = true;
-      }
-      if (typeof evalData === 'boolean') {
-        isNumber = true;
-      }
-      if (Array.isArray(evalData)) {
-        isArray = true;
-        return `[${convertArray(evalData)}]`
-      }
-      if (!Array.isArray(evalData) && typeof evalData === 'object') {
-        isObject = true;
-        return `{${convertObject(evalData)}}`
-      }
-      return evalData
-    } catch(error) {
-      console.error(error)
-      return $1;
     }
+    worker.onerror = (error) => {
+      reject(error.message)
+    }
+    worker.postMessage({
+      type: "eval",
+      code
+    })
   })
-  if (isSingleExpression && isNumber) {
-    return Number(replacedVariableString)
-  }
-  if (isSingleExpression && isBoolean && replacedVariableString === 'true') {
-    return true
-  }
-  if (isSingleExpression && isBoolean && replacedVariableString === 'false') {
-    return false
-  }
-  if (isSingleExpression && isObject) {
-    return JSON5.parse(replacedVariableString)
-  }
-  if (isSingleExpression && isArray) {
-    return JSON5.parse(replacedVariableString)
-  }
-  return replacedVariableString
 }
-export const convertQueryParamsToQueryString = (queryParams: Property[], globalVariables: Record<string, any>): string => {
+
+export const getObjectVariable = async (variables: ApidocVariable[]) => {
+  const objectVariable: Record<string, any> = {};
+  for (let i = 0; i < variables.length; i++) {
+    const varInfo = variables[i];
+    const { name, value, fileValue } = varInfo;
+    if (varInfo.type === 'string') {
+      objectVariable[name] = value;
+    } else if (varInfo.type === 'number') {
+      objectVariable[name] = Number(value);
+    } else if (varInfo.type === 'boolean') {
+      objectVariable[name] = value === 'true' ? true : false;
+    } else if (varInfo.type === 'null') {
+      objectVariable[name] = null;
+    } else if (varInfo.type === 'any') {
+      objectVariable[name] = await evalCode(value);
+    } else if (varInfo.type === 'file') {
+      // objectVariable[name] = JSON5.parse(fileValue);
+    }
+  }
+  return Promise.resolve(objectVariable);
+}
+export const convertTemplateValueToRealValue = (stringValue: string, variables: ApidocVariable[]) => {
+  getObjectVariable(variables).then((objectVariable) => {
+    console.log('obj', variables, objectVariable)
+  })
+  // const withoutMockExpression = expression.replace(/([$@][^)]+\))|([$@][^\s+\-\*\/\?>=<]+)/g, (mockExpression) => {
+  //   if (mockExpression.startsWith("@")) {
+  //     return Mock.mock(mockExpression);
+  //   }
+  //   if (mockExpression.startsWith("$")) {
+  //     return Mock.mock(mockExpression.replace(/^\$/, "@"));
+  //   }
+  //   return ''
+  // })
+  const replaceVariableString = stringValue.replace(/(?<!\\)\{\{\s*(.*?)\s*\}\}/g, ($1, variableName: string) => {
+    
+    // try {
+    //   const evalData = eval(`
+    //     (function () {
+    //       try {
+    //         ${variableString}
+    //         const result = ${withoutMockExpression}
+    //         return result;
+    //       } catch {
+    //         return "${$1}"
+    //       }
+    //     }())
+    //   `)
+    //   if (typeof evalData === 'number') {
+    //     isNumber = true;
+    //   }
+    //   if (typeof evalData === 'boolean') {
+    //     isNumber = true;
+    //   }
+    //   if (Array.isArray(evalData)) {
+    //     isArray = true;
+    //     return `[${convertArray(evalData)}]`
+    //   }
+    //   if (!Array.isArray(evalData) && typeof evalData === 'object') {
+    //     isObject = true;
+    //     return `{${convertObject(evalData)}}`
+    //   }
+    //   return evalData
+    // } catch(error) {
+    //   console.error(error)
+    //   return $1;
+    // }
+  })
+  
+  return replaceVariableString
+}
+export const getQueryStringFromQueryParams = (queryParams: Property[], variables: ApidocVariable[]): string => {
   let queryString = "";
   queryParams.forEach((v) => {
     if (v.key) {
-      queryString += `${v.key}=${convertStringValueToRealValue(v.value, globalVariables)}&`;
+      queryString += `${convertTemplateValueToRealValue(v.key, variables)}=${convertTemplateValueToRealValue(v.value, variables)}&`;
     }
   });
   queryString = queryString.replace(/&$/, "");
@@ -183,7 +136,7 @@ export const convertPathParamsToPathString = (pathParams: Property[], globalVari
   let pathString = "";
   pathParams.forEach((v) => {
     if (v.key) {
-      pathString += `${convertStringValueToRealValue(v.value, globalVariables)}/`;
+      pathString += `${convertTemplateValueToRealValue(v.value, globalVariables)}/`;
     }
   });
   pathString = pathString.replace(/\/$/, "");
@@ -194,7 +147,7 @@ export const convertPropertyToObject = (props: Property[], globalVariables: Reco
   for (let i = 0; i < props.length; i += 1) {
     const prop = props[i];
     if (prop.key) {
-      result[prop.key] = convertStringValueToRealValue(
+      result[prop.key] = convertTemplateValueToRealValue(
         prop.value,
         globalVariables
       );

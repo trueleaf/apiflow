@@ -879,22 +879,16 @@ export type ApidocASTInfo = {
 |--------------------------------------------------------------------------
 */
 export type ApidocVariable = {
-  /**
-     * 变量名称
-     */
-  name: string;
-  /**
-     * 变量类型
-     */
-  type: 'string' | 'number' | 'boolean';
-  /**
-     * 变量值
-     */
-  value: string;
-  /**
-     * 创建者名称
-     */
-  creator: string;
+   _id?: string;
+   projectId: string,
+   name: string,
+   value: string,
+   type: 'string' | 'number' | 'boolean' | 'null' | 'any' | 'file',
+   fileValue: {
+     name: string,
+     path: string,
+     fileType: string,
+   }
 };
 
 /*
@@ -1122,3 +1116,17 @@ export type ApidocCodeInfo = {
 };
 
 
+export type SandboxEvalMessage = {
+   type: "eval",
+   code: string;
+}
+export type SandboxEvalSuccessMessage = {
+   type: "evalSuccess",
+   data: string;
+}
+export type SandboxErrorMessage = {
+   type: "error",
+   msg: string;
+}
+export type SandboxReceiveMessage = SandboxEvalMessage
+export type SandboxPostMessage = SandboxErrorMessage | SandboxEvalSuccessMessage

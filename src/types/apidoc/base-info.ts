@@ -1,28 +1,6 @@
-import { ApidocMindParam, ApidocParamsType, ApidocProperty, ApidocPropertyType, ApidocRequestParamTypes } from "../global"
+import { ApidocMindParam, ApidocParamsType, ApidocProperty, ApidocPropertyType, ApidocRequestParamTypes, ApidocVariable } from "../global"
 
 
-export type ApidocVariable = {
-   /**
-    * 变量id
-   */
-   _id: string,
-   /**
-    * 变量名称
-   */
-   name: string,
-   /**
-    * 变量值类型
-   */
-   type: "string" | "number" | "boolean" | "null" | "any" | "file",
-   /**
-    * 变量值
-   */
-   value: string,
-   /**
-    * 描述
-   */
-   description?: string,
-}
 
 export type ApidocProjectVariable = {
    /**
@@ -180,11 +158,11 @@ export type ApidocProjectBaseInfoState = {
    /**
       * 项目变量信息
       */
-   variables: ApidocProjectVariable[],
+   variables: ApidocVariable[],
    /**
       * 临时变量，主要用于脚本中
       */
-   tempVariables: Omit<ApidocProjectVariable, '_id'>[],
+   tempVariables: Omit<ApidocVariable, '_id'>[],
    /**
       * 项目host信息
       */

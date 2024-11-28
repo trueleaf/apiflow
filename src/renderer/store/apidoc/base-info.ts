@@ -6,18 +6,19 @@ import {
   ApidocProjectHost,
   ApidocProjectParamsTemplate,
   ApidocProjectRules,
-  ApidocProjectVariable
+  ApidocVariable
 } from "@src/types/apidoc/base-info";
 import { event } from '@/helper'
 import { ApidocMindParam, ApidocProperty, Response } from "@src/types/global";
 import { defineStore } from "pinia"
 import { ref } from "vue";
 import { router } from "@/router";
+import { useVariable } from './variables';
 
 type ChangeProjectBaseInfo = {
   _id: string;
   projectName: string,
-  variables: ApidocProjectVariable[],
+  variables: ApidocVariable[],
   mindParams: ApidocMindParam[],
   paramsTemplate: ApidocProjectParamsTemplate[],
   rules: ApidocProjectRules,
@@ -64,8 +65,8 @@ const getMatchedHeaders = (data: ApidocProjectBaseInfoState['commonHeaders'], op
 export const useApidocBaseInfo = defineStore('apidocBaseInfo', () => {
   const _id = ref('');
   const projectName = ref('');
-  const variables = ref<ApidocProjectVariable[]>([]);
-  const tempVariables = ref<Omit<ApidocProjectVariable, '_id'>[]>([]);
+  const variables = ref<ApidocVariable[]>([]);
+  const tempVariables = ref<Omit<ApidocVariable, '_id'>[]>([]);
   const mindParams = ref<ApidocMindParam[]>([]);
   const paramsTemplate = ref<ApidocProjectParamsTemplate[]>([]);
   const rules = ref<ApidocProjectRules>({
@@ -160,7 +161,7 @@ export const useApidocBaseInfo = defineStore('apidocBaseInfo', () => {
     mode.value = modeOption;
   }
   //改变变量信息
-  const changeVariables = (variablesOption: ApidocProjectVariable[]): void => {
+  const changeVariables = (variablesOption: ApidocVariable[]): void => {
     variables.value = variablesOption;
   }
   //清空临时变量
@@ -168,7 +169,7 @@ export const useApidocBaseInfo = defineStore('apidocBaseInfo', () => {
     tempVariables.value = [];
   }
   //改版临时变量的值
-  const changeTempVariables = (tempVariablesOption: (Omit<ApidocProjectVariable, '_id'>[])): void => {
+  const changeTempVariables = (tempVariablesOption: (Omit<ApidocVariable, '_id'>[])): void => {
     tempVariables.value = tempVariablesOption;
   }
   //改变公共请求头信息
@@ -202,12 +203,14 @@ export const useApidocBaseInfo = defineStore('apidocBaseInfo', () => {
    * 获取项目基本信息
    */
   const getProjectBaseInfo = async (payload: { projectId: string }): Promise<void> => {
+    const { replaceVariables } = useVariable();
     return new Promise((resolve, reject) => {
       const params = {
         _id: payload.projectId,
       }
       request.get<Response<ApidocProjectBaseInfoState>, Response<ApidocProjectBaseInfoState>>('/api/project/project_full_info', { params }).then((res) => {
         changeProjectBaseInfo(res.data);
+        replaceVariables(res.data.variables)
         event.emit('apidoc/getBaseInfo', res.data);
         resolve()
       }).catch((err) => {
