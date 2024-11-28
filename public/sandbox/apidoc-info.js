@@ -13,7 +13,7 @@ Object.setPrototypeOf(apidocInfo, {
      */
     getUrlInfo() {
         const { url, queryParams, paths, } = apidocInfo.item;
-        const queryString = convertQueryParamsToQueryString(queryParams);
+        const queryString = getQueryStringFromQueryParams(queryParams);
         const pathMap = getPathParamsMap(paths)
         const validPath = url.path.replace(/\{([^\\}]+)\}/g, ($1, $2) => pathMap[$2] || $2);
         const fullUrl = url.host + validPath + queryString;

@@ -23,7 +23,7 @@ function forEachForest(forest, fn, options = { }) {
     foo(forest, fn);
 }
 // 转换queryString
-function convertQueryParamsToQueryString(queryParams) {
+function getQueryStringFromQueryParams(queryParams) {
     let queryString = "";
     queryParams.forEach((v) => {
         if (v.key && v.select) {
