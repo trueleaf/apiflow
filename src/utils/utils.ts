@@ -69,10 +69,9 @@ export const getObjectVariable = async (variables: ApidocVariable[]) => {
   }
   return Promise.resolve(objectVariable);
 }
-export const convertTemplateValueToRealValue = (stringValue: string, variables: ApidocVariable[]) => {
-  getObjectVariable(variables).then((objectVariable) => {
-    console.log('obj', variables, objectVariable)
-  })
+//将模板转换为字符串
+export const convertTemplateValueToStringValue = async (stringValue: string, variables: ApidocVariable[]) => {
+  const objectVariable = await getObjectVariable(variables)
   // const withoutMockExpression = expression.replace(/([$@][^)]+\))|([$@][^\s+\-\*\/\?>=<]+)/g, (mockExpression) => {
   //   if (mockExpression.startsWith("@")) {
   //     return Mock.mock(mockExpression);
@@ -82,63 +81,43 @@ export const convertTemplateValueToRealValue = (stringValue: string, variables: 
   //   }
   //   return ''
   // })
-  const replaceVariableString = stringValue.replace(/(?<!\\)\{\{\s*(.*?)\s*\}\}/g, ($1, variableName: string) => {
-    
-    // try {
-    //   const evalData = eval(`
-    //     (function () {
-    //       try {
-    //         ${variableString}
-    //         const result = ${withoutMockExpression}
-    //         return result;
-    //       } catch {
-    //         return "${$1}"
-    //       }
-    //     }())
-    //   `)
-    //   if (typeof evalData === 'number') {
-    //     isNumber = true;
-    //   }
-    //   if (typeof evalData === 'boolean') {
-    //     isNumber = true;
-    //   }
-    //   if (Array.isArray(evalData)) {
-    //     isArray = true;
-    //     return `[${convertArray(evalData)}]`
-    //   }
-    //   if (!Array.isArray(evalData) && typeof evalData === 'object') {
-    //     isObject = true;
-    //     return `{${convertObject(evalData)}}`
-    //   }
-    //   return evalData
-    // } catch(error) {
-    //   console.error(error)
-    //   return $1;
-    // }
+  const withoutVaribleString = stringValue.replace(/(?<!\\)\{\{\s*(.*?)\s*\}\}/g, ($1, variableName: string) => {
+    const isVariableExist = (variableName in objectVariable);
+    if (!isVariableExist) {
+      return $1
+    }
+    const value = objectVariable[variableName];
+    return value;
   })
   
-  return replaceVariableString
+  return withoutVaribleString
 }
-export const getQueryStringFromQueryParams = (queryParams: Property[], variables: ApidocVariable[]): string => {
+export const getQueryStringFromQueryParams = async (queryParams: Property[], variables: ApidocVariable[]): Promise<string> => {
   let queryString = "";
-  queryParams.forEach((v) => {
-    if (v.key) {
-      queryString += `${convertTemplateValueToRealValue(v.key, variables)}=${convertTemplateValueToRealValue(v.value, variables)}&`;
+  for (let i = 0; i < queryParams.length; i++) {
+    const queryParam = queryParams[i];
+    if (queryParam.key) {
+      const realKey = await convertTemplateValueToStringValue(queryParam.key, variables); 
+      const realValue = await convertTemplateValueToStringValue(queryParam.value, variables);
+      queryString += `${realKey}=${realValue}&`;
     }
-  });
+    
+  }
   queryString = queryString.replace(/&$/, "");
   if (queryString) {
     queryString = `?${queryString}`;
   }
   return queryString;
 }
-export const convertPathParamsToPathString = (pathParams: Property[], globalVariables: Record<string, any>): string => {
+export const getPathParamsStringFromPathParams = async (pathParams: Property[], variables: ApidocVariable[]): Promise<string> => {
   let pathString = "";
-  pathParams.forEach((v) => {
-    if (v.key) {
-      pathString += `${convertTemplateValueToRealValue(v.value, globalVariables)}/`;
+  for (let i = 0; i < pathParams.length; i++) {
+    const pathParam = pathParams[i];
+    if (pathParam.key) {
+      const realValue = await convertTemplateValueToStringValue(pathParam.value, variables);
+      pathString += `${realValue}/`;
     }
-  });
+  }
   pathString = pathString.replace(/\/$/, "");
   return pathString;
 }
@@ -147,7 +126,7 @@ export const convertPropertyToObject = (props: Property[], globalVariables: Reco
   for (let i = 0; i < props.length; i += 1) {
     const prop = props[i];
     if (prop.key) {
-      result[prop.key] = convertTemplateValueToRealValue(
+      result[prop.key] = convertTemplateValueToStringValue(
         prop.value,
         globalVariables
       );
