@@ -17,7 +17,7 @@ import { useApidoc } from '@/store/apidoc/apidoc';
 export const handleChangeUrl = (): void => {
   const apidocStore = useApidoc()
   const requestPath = apidocStore.apidoc.item.url.path;
-  const pathParamsReg = /(?<=\/){([^}]+)}/g; //path参数匹配
+  const pathParamsReg = /(?<!\{)\{([^{}]+)\}(?!\})/g; //path参数匹配
   let matchedPathParams = requestPath.match(pathParamsReg);
   if (matchedPathParams) {
     matchedPathParams = matchedPathParams.map((val) => val.replace(/[{}]+/g, '')) as RegExpMatchArray
