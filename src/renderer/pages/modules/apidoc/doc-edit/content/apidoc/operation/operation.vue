@@ -59,7 +59,7 @@
       <el-button :loading="loading3" type="primary" :icon="Refresh" @click="handleFreshApidoc">{{ t("刷新") }}</el-button>
     </div>
     <pre class="pre-url pre">
-  <span class="label">{{ t("实际发送请求地址") }}：</span><span>{{ fullUrl.replace('localhost', '127.0.0.1') }}</span>
+  <span class="label">{{ t("实际发送请求地址") }}：</span><span>{{ fullUrl }}</span>
 </pre>
   </div>
   <SCurdHostDialog v-if="hostDialogVisible" v-model="hostDialogVisible"></SCurdHostDialog>
@@ -67,7 +67,7 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, ref } from 'vue'
+import { computed, ref, toRaw, watch } from 'vue'
 import { t } from 'i18next'
 import { Refresh } from '@element-plus/icons-vue'
 import { config } from '@/../config/config'
@@ -82,6 +82,7 @@ import { useApidocTas } from '@/store/apidoc/tabs'
 import { useApidoc } from '@/store/apidoc/apidoc'
 import { useApidocResponse } from '@/store/apidoc/response'
 import { isElectron } from '@src/utils/utils'
+import { getUrl } from '@/server/request/request'
 
 const apidocTabsStore = useApidocTas()
 const apidocStore = useApidoc()
@@ -142,28 +143,16 @@ const requestPath = computed<string>({
     apidocStore.changeApidocUrl(path);
   },
 });
-const paths = computed(() => apidocStore.apidoc.item.paths)
-const fullUrl = computed(() => {
-  const { queryParams } = apidocStore.apidoc.item;
-  let queryString = '';
-  queryParams.forEach((v) => {
-    if (v.key && v.select) {
-      queryString += `${v.key}=${v.value}&`
-    }
-  })
-  queryString = queryString.replace(/&$/, '');
-  if (queryString) {
-    queryString = `?${queryString}`;
-  }
-  const pathMap: Record<string, string> = {};
-  paths.value.forEach((v) => {
-    if (v.key) {
-      pathMap[v.key] = v.value;
-    }
-  })
-  const validPath = requestPath.value.replace(/\{([^\\}]+)\}/g, (_, $2) => pathMap[$2] || $2)
-  return host.value + validPath + queryString
+const fullUrl = ref('');
+watch(() => {
+  return apidocStore.apidoc.item.url
+}, async () => {
+  fullUrl.value = await getUrl(toRaw(apidocStore.$state.apidoc))
+}, {
+  deep: true,
+  immediate: true
 })
+
 </script>
 
 <style lang="scss" scoped>
