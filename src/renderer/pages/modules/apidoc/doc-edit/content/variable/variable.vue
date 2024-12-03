@@ -142,8 +142,6 @@
 </template>
 
 <script lang="ts" setup>
-import { useApidocBaseInfo } from '@/store/apidoc/base-info';
-import { ApidocProjectVariable } from '@src/types/apidoc/base-info';
 import SFieldset from '@/components/common/fieldset/g-fieldset.vue'
 import STable from '@/components/common/table/g-table.vue'
 import { config } from '@src/config/config'
@@ -154,6 +152,8 @@ import { request } from '@/api/api';
 import { useRoute } from 'vue-router';
 import SJsonEditor from '@/components/common/json-editor/g-json-editor.vue'
 import EditDialog from './dialog/edit.vue'
+import { useVariable } from '@/store/apidoc/variables';
+import { ApidocVariable } from '@src/types/global';
 
 
 
@@ -207,12 +207,12 @@ const route = useRoute()
 const table = ref<{
   getData: () => Promise<{
     data: {
-      rows: ApidocProjectVariable[]
+      rows: ApidocVariable[]
     }
   }>
 }>();
 const form = ref<FormInstance>();
-const apidocBaseInfoStore = useApidocBaseInfo();
+const variableStore = useVariable()
 const upload = ref<UploadInstance>()
 /*
 |--------------------------------------------------------------------------
@@ -240,7 +240,7 @@ const handleExceed: UploadProps['onExceed'] = (files) => {
 }
 const getData = () => {
   table.value?.getData().then((res) => {
-    apidocBaseInfoStore.changeVariables(res.data.rows)
+    variableStore.replaceVariables(res.data.rows)
   });
 }
 //新增表格数据

@@ -50,8 +50,7 @@
         </template>
       </el-input>
       <el-button v-if="!loading" :loading="loading" :disabled="!isElectron()"
-        :title="isElectron() ? '' : `${t('由于浏览器限制，非electron环境无法模拟发送请求')}`" type="success"
-        @click="handleSendRequest">
+        :title="isElectron() ? '' : `${t('由于浏览器限制，非electron环境无法模拟发送请求')}`" type="success" @click="handleSendRequest">
         {{ t("发送请求") }}
       </el-button>
       <el-button v-if="loading" type="danger" @click="handleStopRequest">{{ t("取消请求") }}</el-button>
@@ -145,7 +144,7 @@ const requestPath = computed<string>({
 });
 const fullUrl = ref('');
 watch(() => {
-  return apidocStore.apidoc.item.url
+  return apidocStore.apidoc.item
 }, async () => {
   fullUrl.value = await getUrl(toRaw(apidocStore.$state.apidoc))
 }, {
@@ -164,9 +163,11 @@ watch(() => {
   background: $white;
   z-index: $zIndex-request-info-wrap;
   height: size(100);
+
   &.prefix {
     height: size(130);
   }
+
   .proxy-wrap {
     margin-left: auto;
   }
@@ -179,7 +180,7 @@ watch(() => {
     display: flex;
     margin-top: size(10);
 
-    .el-input__inner {
+    :deep(.el-input__inner) {
       font-size: fz(13);
     }
 
@@ -187,7 +188,7 @@ watch(() => {
       display: flex;
       align-items: center;
 
-      .el-select {
+      :deep(.el-select) {
         width: 100px;
       }
     }

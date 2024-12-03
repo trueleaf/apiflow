@@ -3,7 +3,7 @@ import { useApidocResponse } from '@/store/apidoc/response';
 import { useApidoc } from '@/store/apidoc/apidoc';
 import { toRaw } from 'vue';
 import { ApidocDetail } from '@src/types/global';
-import { getObjectVariable, getQueryStringFromQueryParams } from '@src/utils/utils';
+import { convertTemplateValueToStringValue, getObjectVariable, getPathParamsStringFromPathParams, getPathStringFromPathParams, getQueryStringFromQueryParams } from '@src/utils/utils';
 import { useVariable } from '@/store/apidoc/variables';
 
 /*
@@ -14,23 +14,25 @@ import { useVariable } from '@/store/apidoc/variables';
 const getMethod = (apidoc: ApidocDetail) => {
   return apidoc.item.method;
 }
-const getUrl = (apidoc: ApidocDetail) => {
+export const getUrl = async (apidoc: ApidocDetail) => {
   const { variables } = useVariable()
   const { url, queryParams, paths, } = apidoc.item;
-  const queryString = getQueryStringFromQueryParams(queryParams, toRaw(variables));
-  // const pathMap = getPathParamsMap(paths)
-  // const validPath = url.path.replace(/\{([^\\}]+)\}/g, (_, $2) => pathMap[$2] || $2);
-  // let fullUrl = url.host + validPath + queryString;
-  // if (!fullUrl.startsWith('http') && !fullUrl.startsWith('https')) {
-  //   fullUrl = `http://${fullUrl}`
-  // }
-  // if (fullUrl.includes('localhost')) {
-  //   fullUrl = fullUrl.replace('localhost', '127.0.0.1')
-  // }
-  return apidoc.item.url.path;
+  const queryString = await getQueryStringFromQueryParams(queryParams, toRaw(variables));
+  const pathParamsString = await getPathParamsStringFromPathParams(paths, toRaw(variables));
+  const replacedPathParamsString = url.path.replace(/(?<!\{)\{([^{}]+)\}(?!\})/g, ''); // 替换路径参数
+  const pathString = await convertTemplateValueToStringValue(replacedPathParamsString, toRaw(variables));
+
+  let fullUrl = pathString + pathParamsString + queryString;
+  if (!fullUrl.startsWith('http') && !fullUrl.startsWith('https')) {
+    fullUrl = `http://${fullUrl}`
+  }
+  if (fullUrl.includes('localhost')) {
+    fullUrl = fullUrl.replace('localhost', '127.0.0.1')
+  }
+  return fullUrl;
 }
 
-export function sendRequest(): void {
+export async function sendRequest() {
   // const apidocResponseStore = useApidocResponse();
   const apidocStore = useApidoc()
   const rawApidoc = toRaw(apidocStore.$state.apidoc)
@@ -55,7 +57,7 @@ export function sendRequest(): void {
   // const envs = apidocBaseInfoStore.hosts.concat(localEnvs);
 
   const method = getMethod(rawApidoc);
-  const url = getUrl(rawApidoc);
+  const url = await getUrl(rawApidoc);
 
 
   window.electronAPI?.sendRequest({
