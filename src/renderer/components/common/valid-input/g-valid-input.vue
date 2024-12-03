@@ -206,7 +206,7 @@ onUnmounted(() => {
   align-items: center;
   justify-content: center;
   position: relative;
-
+  font-size: fz(12);
   .ipt-wrap {
     width: 100%;
     // position: relative;
