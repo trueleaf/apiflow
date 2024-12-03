@@ -72,15 +72,7 @@ export const getObjectVariable = async (variables: ApidocVariable[]) => {
 //将模板转换为字符串
 export const convertTemplateValueToStringValue = async (stringValue: string, variables: ApidocVariable[]) => {
   const objectVariable = await getObjectVariable(variables)
-  // const withoutMockExpression = expression.replace(/([$@][^)]+\))|([$@][^\s+\-\*\/\?>=<]+)/g, (mockExpression) => {
-  //   if (mockExpression.startsWith("@")) {
-  //     return Mock.mock(mockExpression);
-  //   }
-  //   if (mockExpression.startsWith("$")) {
-  //     return Mock.mock(mockExpression.replace(/^\$/, "@"));
-  //   }
-  //   return ''
-  // })
+
   const withoutVaribleString = stringValue.replace(/(?<!\\)\{\{\s*(.*?)\s*\}\}/g, ($1, variableName: string) => {
     const isVariableExist = (variableName in objectVariable);
     if (!isVariableExist) {
@@ -89,8 +81,14 @@ export const convertTemplateValueToStringValue = async (stringValue: string, var
     const value = objectVariable[variableName];
     return value;
   })
-  
-  return withoutVaribleString
+  const withoutMockString = withoutVaribleString.replace(/(?<!\\)[@][^\s+\-\*\/\?>=<]+/g, (mockExpression) => {
+    if (mockExpression.startsWith("@")) {
+      return Mock.mock(mockExpression);
+    }
+    return ''
+  })
+  const withoutEscapeString = withoutMockString.replace(/((\\)(?=\{\{))|(\\)(?=@)/g, '')
+  return withoutEscapeString
 }
 export const getQueryStringFromQueryParams = async (queryParams: Property[], variables: ApidocVariable[]): Promise<string> => {
   let queryString = "";
