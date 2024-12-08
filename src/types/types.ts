@@ -1,4 +1,4 @@
-import type { Method } from "got";
+import type { BeforeErrorHook, BeforeRedirectHook, BeforeRequestHook, BeforeRetryHook, Method, Options, PlainResponse, RequestError } from "got";
 import { Timings } from '@szmarczak/http-timer';
 import type { IncomingHttpHeaders } from 'http'
 import { ComponentSize } from "element-plus";
@@ -313,4 +313,8 @@ export type GotRequestOptions = {
   timeout: number;
   signal: (abort: (reason?: string) => void) => void;
   onResponse?: (responseInfo: ResponseInfo) => void;
+  beforeError: (error: RequestError) => void,
+  beforeRedirect: (updatedOptions: Options, plainResponse: PlainResponse) => void,
+  beforeRequest: (options: Options) => void,
+  beforeRetry: (error: RequestError, retryCount: number) => void,
 }

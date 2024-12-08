@@ -6,7 +6,7 @@ import {
   SendRequestOptions
 } from '@/../types/types';
 import got, { Options } from 'got';
-import type { OptionsInit, Method, PlainResponse } from 'got'
+import type { OptionsInit, Method, PlainResponse, RequestError } from 'got'
 import json5 from 'json5';
 import type FormData from "form-data"
 import { fromBuffer } from 'file-type';
@@ -158,14 +158,30 @@ export const gotRequest = (options: GotRequestOptions) => {
     url: options.url,
     method: options.method,
     signal: abortController.signal,
+    allowGetBody: true,
     headers: {
       'user-agent': "xxx",
     },
+    hooks: {
+      beforeError: [(error: RequestError) => {
+        options.beforeError(error)
+        return Promise.reject(error)
+      }],
+      beforeRedirect: [(updatedOptions: Options, plainResponse: PlainResponse) => {
+        options.beforeRedirect(updatedOptions, plainResponse)
+      }],
+      beforeRequest: [(reqeustOptions: Options) => {
+        options.beforeRequest(JSON.parse(JSON.stringify(reqeustOptions)))
+      }],
+      beforeRetry: [(error: RequestError, retryCount: number) => {
+        options.beforeRetry(error, retryCount)
+      }],
+    }
   });
 
   //取消请求
   options.signal(abortController.abort)
-  console.log(gotOptions)
+  // console.log("gotOptions", gotOptions)
   const requestStream = got.stream(gotOptions);
   const streamData: Buffer[] = [];
   let streamSize = 0;

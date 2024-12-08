@@ -5,6 +5,8 @@ import { toRaw } from 'vue';
 import { ApidocDetail } from '@src/types/global';
 import { convertTemplateValueToStringValue, getObjectVariable, getPathParamsStringFromPathParams, getPathStringFromPathParams, getQueryStringFromQueryParams } from '@src/utils/utils';
 import { useVariable } from '@/store/apidoc/variables';
+import { useApidocRequest } from '@/store/apidoc/request';
+import { Options, RequestError } from 'got';
 
 /*
 |--------------------------------------------------------------------------
@@ -31,10 +33,14 @@ export const getUrl = async (apidoc: ApidocDetail) => {
   }
   return fullUrl;
 }
+const getBody = (apidoc: ApidocDetail) => {
+  console.log(123, apidoc)
+}
 
 export async function sendRequest() {
   // const apidocResponseStore = useApidocResponse();
   const apidocStore = useApidoc()
+  const { changeFinalRequestInfo } = useApidocRequest(); 
   const rawApidoc = toRaw(apidocStore.$state.apidoc)
   // console.log(rawApidoc, 2)
   // const apidocBaseInfoStore = useApidocBaseInfo();
@@ -58,6 +64,7 @@ export async function sendRequest() {
 
   const method = getMethod(rawApidoc);
   const url = await getUrl(rawApidoc);
+  const body = getBody(rawApidoc);
 
 
   window.electronAPI?.sendRequest({
@@ -66,6 +73,22 @@ export async function sendRequest() {
     timeout: 60000,
     signal() {
       
+    },
+    beforeError: () => {
+    },
+    beforeRedirect: () => {
+    },
+    beforeRequest: (options: Options) => {
+      changeFinalRequestInfo({
+        encodedUrl: options.url as string,
+        method: options.method,
+        headers: options.headers,
+        // body: options.body,
+        url: decodeURIComponent(options.url as string),
+      })
+      console.log("beforeRequest", options)
+    },
+    beforeRetry: () => {
     },
   })
 

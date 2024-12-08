@@ -57,9 +57,13 @@
       <el-button :loading="loading2" type="primary" @click="handleSaveApidoc">{{ t("保存接口") }}</el-button>
       <el-button :loading="loading3" type="primary" :icon="Refresh" @click="handleFreshApidoc">{{ t("刷新") }}</el-button>
     </div>
-    <pre class="pre-url pre">
-  <span class="label">{{ t("实际发送请求地址") }}：</span><span>{{ fullUrl }}</span>
-</pre>
+    <pre class="pre-url-wrap">
+      <span class="label">{{ t("请求地址") }}：</span>
+      <span class="url">{{ fullUrl }}</span>
+      <el-icon size="14" color="#f60" class="tip">
+        <Warning />
+      </el-icon>
+    </pre>
   </div>
   <SCurdHostDialog v-if="hostDialogVisible" v-model="hostDialogVisible"></SCurdHostDialog>
   <SSaveDocDialog v-if="saveDocDialogVisible" v-model="saveDocDialogVisible"></SSaveDocDialog>
@@ -82,6 +86,8 @@ import { useApidoc } from '@/store/apidoc/apidoc'
 import { useApidocResponse } from '@/store/apidoc/response'
 import { isElectron } from '@src/utils/utils'
 import { getUrl } from '@/server/request/request'
+import { Warning } from '@element-plus/icons-vue'
+import { debounce } from '@/helper'
 
 const apidocTabsStore = useApidocTas()
 const apidocStore = useApidoc()
@@ -143,10 +149,15 @@ const requestPath = computed<string>({
   },
 });
 const fullUrl = ref('');
+const getFullUrl = debounce(async () => {
+  fullUrl.value = await getUrl(toRaw(apidocStore.$state.apidoc));
+}, 500, {
+  leading: true,
+});
 watch(() => {
-  return apidocStore.apidoc.item
-}, async () => {
-  fullUrl.value = await getUrl(toRaw(apidocStore.$state.apidoc))
+  return apidocStore.apidoc.item;
+}, () => {
+  getFullUrl()
 }, {
   deep: true,
   immediate: true
@@ -199,19 +210,47 @@ watch(() => {
     }
   }
 
-  .pre-url {
+  .pre-url-wrap {
     height: size(30);
     width: 100%;
     white-space: nowrap;
-    overflow-x: auto;
-    overflow-y: hidden;
-
+    display: flex;
+    margin: 0;
+    align-items: center;
+    overflow: hidden;
+    padding: 0 size(10);
+    border: 1px solid #d1d5da;
+    border-radius: 4px;
+    background-color: #f0f0f0;
+    white-space: pre-wrap;
+    color: #212529;
+    font-size: size(12);
+    font-family: SFMono-Regular, Menlo, Monaco, Consolas, Liberation Mono,Courier New, monospace;
     &::-webkit-scrollbar {
       height: 0px;
     }
-
     .label {
       user-select: none;
+      flex: 0 0 auto;
+    }
+    .url {
+      display: flex;
+      align-items: center;
+      height: size(30);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      overflow-x: auto;
+      &::-webkit-scrollbar {
+        height: 0px;
+      }
+    }
+    .tip {
+      flex: 0 0 size(30);
+      height: size(30);
+      display: flex;
+      align-items: center;
+      margin-left: size(5);
     }
   }
 }
