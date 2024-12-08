@@ -46,7 +46,7 @@ const suggestions: Suggestions = [{
 }, {
   label: {
     label: 'url',
-    description: '实际发送请求地址,eg: http://demo.com/api/login'
+    description: '请求地址,eg: http://demo.com/api/login'
   },
   kind: monaco.languages.CompletionItemKind.Field,
   insertText: 'url',
