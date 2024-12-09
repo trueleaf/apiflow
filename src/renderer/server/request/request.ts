@@ -2,11 +2,13 @@
 import { useApidocResponse } from '@/store/apidoc/response';
 import { useApidoc } from '@/store/apidoc/apidoc';
 import { toRaw } from 'vue';
+import json5 from 'json5'
 import { ApidocDetail } from '@src/types/global';
 import { convertTemplateValueToStringValue, getObjectVariable, getPathParamsStringFromPathParams, getPathStringFromPathParams, getQueryStringFromQueryParams } from '@src/utils/utils';
 import { useVariable } from '@/store/apidoc/variables';
 import { useApidocRequest } from '@/store/apidoc/request';
 import { Options, RequestError } from 'got';
+import { GotRequestOptions, JsonValue } from '@src/types/types';
 
 /*
 |--------------------------------------------------------------------------
@@ -33,8 +35,26 @@ export const getUrl = async (apidoc: ApidocDetail) => {
   }
   return fullUrl;
 }
-const getBody = (apidoc: ApidocDetail) => {
-  console.log(123, apidoc)
+const getBody = (apidoc: ApidocDetail): GotRequestOptions['body'] => {
+  const { mode } = apidoc.item.requestBody;
+  if (mode === 'json') {
+    /*
+     * 情况1：json值存在超长数字，在js中会被截断 例如：{ num: 123456789087654321 } 会被转换为 { num: 123456789087654320 } 
+     * 情况2："{{ 变量名称 }}" 会被解析为实际变量值
+     * 情况3："{{ @xxx }}" 会被解析为mock值
+     * 情况4: "\{{ @xxx }}" 反斜杠转义，不会被解析
+     */
+    const strJsonBody = JSON.stringify(json5.parse(apidoc.item.requestBody.rawJson || 'null'), (_: string, value: JsonValue) => {
+      if (typeof value === 'string') {
+        
+      } else if (typeof value === 'number') {
+
+      }
+      return value;
+    });
+    console.log(strJsonBody)
+  }
+  return
 }
 
 export async function sendRequest() {
@@ -71,6 +91,7 @@ export async function sendRequest() {
     url,
     method,
     timeout: 60000,
+    body,
     signal() {
       
     },

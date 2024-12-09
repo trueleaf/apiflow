@@ -2,6 +2,7 @@ import type { BeforeErrorHook, BeforeRedirectHook, BeforeRequestHook, BeforeRetr
 import { Timings } from '@szmarczak/http-timer';
 import type { IncomingHttpHeaders } from 'http'
 import { ComponentSize } from "element-plus";
+import { type FormDataLike } from 'form-data-encoder';
 
 export type Property = {
   _id: string;
@@ -10,6 +11,7 @@ export type Property = {
   type: "string" | "file";
   description: string;
 };
+export type JsonValue = string | number | boolean | null | JsonValue[] | { [key: string]: JsonValue };
 export type CustomRequestInfo = {
   id: string;
   method: Method;
@@ -311,6 +313,7 @@ export type GotRequestOptions = {
   url: string;
   method: Method;
   timeout: number;
+  body: string | Buffer | FormDataLike | undefined;
   signal: (abort: (reason?: string) => void) => void;
   onResponse?: (responseInfo: ResponseInfo) => void;
   beforeError: (error: RequestError) => void,

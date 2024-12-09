@@ -159,6 +159,7 @@ export const gotRequest = (options: GotRequestOptions) => {
     method: options.method,
     signal: abortController.signal,
     allowGetBody: true,
+    body: options.body,
     headers: {
       'user-agent': "xxx",
     },
