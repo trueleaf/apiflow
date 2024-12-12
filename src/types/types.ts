@@ -11,7 +11,7 @@ export type Property = {
   type: "string" | "file";
   description: string;
 };
-export type JsonValue = string | number | boolean | null | JsonValue[] | { [key: string]: JsonValue };
+export type JsonData = string | number | boolean | null | JsonData[] | { [key: string]: JsonData };
 export type CustomRequestInfo = {
   id: string;
   method: Method;

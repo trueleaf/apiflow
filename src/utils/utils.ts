@@ -1,8 +1,6 @@
 import { FlowNode, Property, ResponseInfo } from "@src/types/types";
 import Mock from "../mock/mock";
-import JSON5 from 'json5'
 import { ApidocVariable, SandboxPostMessage } from "@src/types/global";
-import { reject } from "lodash";
 
 
 
@@ -70,24 +68,30 @@ export const getObjectVariable = async (variables: ApidocVariable[]) => {
   return Promise.resolve(objectVariable);
 }
 //将模板转换为字符串
-export const convertTemplateValueToStringValue = async (stringValue: string, variables: ApidocVariable[]) => {
-  const objectVariable = await getObjectVariable(variables)
-
+export const convertTemplateValueToRealValue = async (stringValue: string, variables: ApidocVariable[]) => {
+  const objectVariable = await getObjectVariable(variables);
+  const isSingleMustachTemplate = stringValue.match(/^\s*\{\{\s*([^}\s]+)\s*\}\}\s*$/); // 这种属于单模板，返回实际值，可能是数字、对象等"{{ variable }}"
+  if (isSingleMustachTemplate) {
+    const variableName = isSingleMustachTemplate[1];
+    if (variableName.startsWith("@")) {
+      return Mock.mock(variableName);
+    }
+    return objectVariable[variableName] 
+  }
+ 
   const withoutVaribleString = stringValue.replace(/(?<!\\)\{\{\s*(.*?)\s*\}\}/g, ($1, variableName: string) => {
     const isVariableExist = (variableName in objectVariable);
+    if (variableName.startsWith("@")) {
+      return Mock.mock(variableName);
+    }
     if (!isVariableExist) {
       return $1
     }
     const value = objectVariable[variableName];
     return value;
   })
-  const withoutMockString = withoutVaribleString.replace(/(?<!\\)[@][^\s+\-\*\/\?>=<]+/g, (mockExpression) => {
-    if (mockExpression.startsWith("@")) {
-      return Mock.mock(mockExpression);
-    }
-    return ''
-  })
-  const withoutEscapeString = withoutMockString.replace(/((\\)(?=\{\{))|(\\)(?=@)/g, '')
+
+  const withoutEscapeString = withoutVaribleString.replace(/((\\)(?=\{\{))|(\\)(?=@)/g, '')
   return withoutEscapeString
 }
 export const getQueryStringFromQueryParams = async (queryParams: Property[], variables: ApidocVariable[]): Promise<string> => {
@@ -95,8 +99,8 @@ export const getQueryStringFromQueryParams = async (queryParams: Property[], var
   for (let i = 0; i < queryParams.length; i++) {
     const queryParam = queryParams[i];
     if (queryParam.key) {
-      const realKey = await convertTemplateValueToStringValue(queryParam.key, variables); 
-      const realValue = await convertTemplateValueToStringValue(queryParam.value, variables);
+      const realKey = await convertTemplateValueToRealValue(queryParam.key, variables); 
+      const realValue = await convertTemplateValueToRealValue(queryParam.value, variables);
       queryString += `${realKey}=${realValue}&`;
     }
     
@@ -112,7 +116,7 @@ export const getPathParamsStringFromPathParams = async (pathParams: Property[], 
   for (let i = 0; i < pathParams.length; i++) {
     const pathParam = pathParams[i];
     if (pathParam.key) {
-      const realValue = await convertTemplateValueToStringValue(pathParam.value, variables);
+      const realValue = await convertTemplateValueToRealValue(pathParam.value, variables);
       pathString += `${realValue}/`;
     }
   }
@@ -124,7 +128,7 @@ export const convertPropertyToObject = (props: Property[], globalVariables: Reco
   for (let i = 0; i < props.length; i += 1) {
     const prop = props[i];
     if (prop.key) {
-      result[prop.key] = convertTemplateValueToStringValue(
+      result[prop.key] = convertTemplateValueToRealValue(
         prop.value,
         globalVariables
       );
