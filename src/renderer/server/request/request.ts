@@ -4,17 +4,62 @@ import { useApidoc } from '@/store/apidoc/apidoc';
 import { toRaw } from 'vue';
 import json5 from 'json5'
 import { ApidocDetail } from '@src/types/global';
-import { convertTemplateValueToStringValue, getObjectVariable, getPathParamsStringFromPathParams, getPathStringFromPathParams, getQueryStringFromQueryParams } from '@src/utils/utils';
+import { convertTemplateValueToRealValue, getObjectVariable, getPathParamsStringFromPathParams, getPathStringFromPathParams, getQueryStringFromQueryParams } from '@src/utils/utils';
 import { useVariable } from '@/store/apidoc/variables';
 import { useApidocRequest } from '@/store/apidoc/request';
 import { Options, RequestError } from 'got';
-import { GotRequestOptions, JsonValue } from '@src/types/types';
+import { GotRequestOptions, JsonData } from '@src/types/types';
+import { forEach, forOwn } from 'lodash';
 
 /*
 |--------------------------------------------------------------------------
 | 发送请求
 |--------------------------------------------------------------------------
 */
+const convertStringValueAsync = (data: JsonData) => {
+  const needConvertList: Promise<void>[] = [];
+  const { variables } = useVariable()
+  const loop = (jsonData: JsonData) => {
+    const isSimpleValue = (typeof jsonData === 'string' || typeof jsonData === 'number' || typeof jsonData === 'boolean' || jsonData === null);
+    const isArray = Array.isArray(jsonData);
+    const isObject = !isArray && !isSimpleValue;
+    if (isArray) {
+      for (let i = 0; i < jsonData.length; i++) {
+        const item = jsonData[i];
+        if (Array.isArray(item)) {
+          loop(item);
+        } else if (typeof item === 'object') {
+          loop(item);
+        } else if (typeof item === 'string') {
+          needConvertList.push(new Promise(resolve => {
+            convertTemplateValueToRealValue(item, toRaw(variables)).then((replacedValue) => {
+              jsonData[i] = replacedValue;
+              resolve()
+            });
+          }))
+        }
+      }
+    } else if (isObject) {
+      for (const key in jsonData) {
+        const value = (jsonData as { [key: string]: JsonData })[key];
+        if (Array.isArray(value)) {
+          loop(value)
+        } else if (typeof value === 'object') {
+          loop(value);
+        } else if (typeof value === 'string') {
+          needConvertList.push(new Promise(resolve => {
+            convertTemplateValueToRealValue(value, toRaw(variables)).then((replacedValue) => {
+              jsonData[key] = replacedValue;
+              resolve()
+            });
+          }))
+        }
+      }
+    }
+  }
+  loop(data);
+  return needConvertList;
+}
 const getMethod = (apidoc: ApidocDetail) => {
   return apidoc.item.method;
 }
@@ -24,7 +69,7 @@ export const getUrl = async (apidoc: ApidocDetail) => {
   const queryString = await getQueryStringFromQueryParams(queryParams, toRaw(variables));
   const pathParamsString = await getPathParamsStringFromPathParams(paths, toRaw(variables));
   const replacedPathParamsString = url.path.replace(/(?<!\{)\{([^{}]+)\}(?!\})/g, ''); // 替换路径参数
-  const pathString = await convertTemplateValueToStringValue(replacedPathParamsString, toRaw(variables));
+  const pathString = await convertTemplateValueToRealValue(replacedPathParamsString, toRaw(variables));
 
   let fullUrl = pathString + pathParamsString + queryString;
   if (!fullUrl.startsWith('http') && !fullUrl.startsWith('https')) {
@@ -35,7 +80,8 @@ export const getUrl = async (apidoc: ApidocDetail) => {
   }
   return fullUrl;
 }
-const getBody = (apidoc: ApidocDetail): GotRequestOptions['body'] => {
+const getBody = async (apidoc: ApidocDetail): Promise<GotRequestOptions['body']> => {
+  // const { variables } = useVariable()
   const { mode } = apidoc.item.requestBody;
   if (mode === 'json') {
     /*
@@ -44,17 +90,23 @@ const getBody = (apidoc: ApidocDetail): GotRequestOptions['body'] => {
      * 情况3："{{ @xxx }}" 会被解析为mock值
      * 情况4: "\{{ @xxx }}" 反斜杠转义，不会被解析
      */
-    const strJsonBody = JSON.stringify(json5.parse(apidoc.item.requestBody.rawJson || 'null'), (_: string, value: JsonValue) => {
-      if (typeof value === 'string') {
-        
-      } else if (typeof value === 'number') {
-
+    const bigNumberMap: Record<string, string> = {}; // 存储超长数字
+    const replacedRawJson = apidoc.item.requestBody.rawJson.replace(/([+-]?\d*\.?\d+)(?=\s*[,}\]])/g, ($1) => {
+      const replacedStr = `"${$1}n"`;
+      bigNumberMap[`${$1}n`] = `${$1}`;
+      return replacedStr;
+    })
+    const jsonObject = json5.parse(replacedRawJson || 'null');
+    await Promise.all(convertStringValueAsync(jsonObject))
+    const bodyString = JSON.stringify(jsonObject, (key: string, value: any) => {
+      if (typeof value === 'string' && value.endsWith('n')) {
+        return bigNumberMap[value].replace(/['"]*/g, '');
       }
       return value;
-    });
-    console.log(strJsonBody)
+    })
+    console.log(bodyString)
   }
-  return
+  return 
 }
 
 export async function sendRequest() {
@@ -84,7 +136,7 @@ export async function sendRequest() {
 
   const method = getMethod(rawApidoc);
   const url = await getUrl(rawApidoc);
-  const body = getBody(rawApidoc);
+  const body = await getBody(rawApidoc);
 
 
   window.electronAPI?.sendRequest({
