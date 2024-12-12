@@ -12,7 +12,7 @@ import type FormData from "form-data"
 import { fromBuffer } from 'file-type';
 import {
   getQueryStringFromQueryParams,
-  convertTemplateValueToStringValue,
+  convertTemplateValueToRealValue,
   convertPropertyToObject,
   generateEmptyResponse
 } from '../utils/utils';
@@ -23,7 +23,7 @@ import {
 const getFullUrl = (params: CustomRequestInfo, globalVariables: Record<string, any>) => {
   const queryString = getQueryStringFromQueryParams(params.queryParams, globalVariables);
   const pathString = convertPathParamsToPathString(params.paths, globalVariables);
-  const convertedUrl = convertTemplateValueToStringValue(params.url, globalVariables).toString().replace(/(\/*)$/, '');
+  const convertedUrl = convertTemplateValueToRealValue(params.url, globalVariables).toString().replace(/(\/*)$/, '');
   return `${convertedUrl}${pathString ? `/${pathString}` : ''}${queryString ? `/${queryString}` : ''}`;
 };
 const getHeaders = (params: CustomRequestInfo, globalVariables: Record<string, any>) => {
@@ -50,7 +50,7 @@ const getBody = (params: CustomRequestInfo, globalVariables: Record<string, any>
           return value;
         }
         if (typeof value === 'string') {
-          return convertTemplateValueToStringValue(value, globalVariables);
+          return convertTemplateValueToRealValue(value, globalVariables);
         }
         return value;
       }));
