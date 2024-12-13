@@ -98,13 +98,10 @@ const getBody = async (apidoc: ApidocDetail): Promise<GotRequestOptions['body']>
     })
     const jsonObject = json5.parse(replacedRawJson || 'null');
     await Promise.all(convertStringValueAsync(jsonObject))
-    const bodyString = JSON.stringify(jsonObject, (key: string, value: any) => {
-      if (typeof value === 'string' && value.endsWith('n')) {
-        return bigNumberMap[value].replace(/['"]*/g, '');
-      }
-      return value;
+    const stringBody = JSON.stringify(jsonObject).replace(/"([+-]?\d*\.?\d+n)"(?=\s*[,}\]])/g, ($1, $2) => {
+      return bigNumberMap[$2];
     })
-    console.log(bodyString)
+    console.log(bigNumberMap, stringBody)
   }
   return 
 }
