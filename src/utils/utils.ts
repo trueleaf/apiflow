@@ -25,9 +25,11 @@ export const updateObject = <T extends Partial<Record<string, unknown>>>(draft: 
   })
 }
 
-
+let worker: Worker;
 export const evalCode = (code: string) => {
-  const worker = new Worker(new URL('@/worker/sandbox.ts', import.meta.url));
+  if (!worker) {
+    worker = new Worker(new URL('@/worker/sandbox.ts', import.meta.url));
+  }
   return new Promise((resolve, reject) => {
     worker.onmessage = (event: MessageEvent<SandboxPostMessage>) => {
       if (event.data.type === 'error') {
@@ -123,6 +125,42 @@ export const getPathParamsStringFromPathParams = async (pathParams: Property[], 
   pathString = pathString.replace(/\/$/, "");
   return pathString;
 }
+export const getEncodedStringFromEncodedParams = async (encodedParams: Property[], variables: ApidocVariable[]): Promise<string> => {
+  let encodedString = "";
+  for (let i = 0; i < encodedParams.length; i++) {
+    const queryParam = encodedParams[i];
+    if (queryParam.key) {
+      const realKey = await convertTemplateValueToRealValue(queryParam.key, variables); 
+      const realValue = await convertTemplateValueToRealValue(queryParam.value, variables);
+      encodedString += `${realKey}=${realValue}&`;
+    }
+    
+  }
+  encodedString = encodedString.replace(/&$/, "");
+  return encodedString;
+}
+export const getFormDataFromFormDataParams = async (formDataParams: Property[], variables: ApidocVariable[]): Promise<FormData> => {
+  const formData = new FormData();
+  for (let i = 0; i < formDataParams.length; i++) {
+    const formDataParam = formDataParams[i];
+    if (formDataParam.key) {
+      const realKey = await convertTemplateValueToRealValue(formDataParam.key, variables); 
+      if (formDataParam.type === 'string') {
+        const realValue = await convertTemplateValueToRealValue(formDataParam.value, variables);
+        formData.append(realKey, realValue);
+      } else if (formDataParam.type === 'file') {
+        // const file = await convertTemplateValueToRealValue(formDataParam.value, variables);
+        // formData.append(realKey, file);
+        console.log(window.electronAPI)
+        window.electronAPI?.readFileAsBlob(formDataParam.value).then((file: Blob) => {
+          console.log('222', file)
+        })
+      }
+    }
+
+  }
+  return formData;
+}
 export const convertPropertyToObject = (props: Property[], globalVariables: Record<string, any>) => {
   const result: Record<string, any> = {};
   for (let i = 0; i < props.length; i += 1) {
@@ -200,3 +238,7 @@ export const randomInt = (start: number, end: number): number => {
   const range = end - start - 1;
   return Math.floor((Math.random() * range + 1))
 }
+
+export const uint8ArrayToBlob = (uint8Array: Uint8Array, mimeType: string): Blob => {
+  return new Blob([uint8Array], { type: mimeType });
+};
