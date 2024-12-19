@@ -7,7 +7,10 @@ import { readResponseLog } from './fileAccess'
 
 
 const openDevTools = () => {
-  ipcRenderer.invoke('open-dev-tools')
+  ipcRenderer.invoke('apiflow-open-dev-tools')
+}
+const readFileAsBlob = async (path: string): Promise<Blob> => {
+  return ipcRenderer.invoke('apiflow-read-file-as-blob', path)
 }
 
 contextBridge.exposeInMainWorld('electronAPI', {
@@ -16,4 +19,5 @@ contextBridge.exposeInMainWorld('electronAPI', {
   sendRequest: gotRequest,
   readResponseLog,
   openDevTools,
+  readFileAsBlob,
 })

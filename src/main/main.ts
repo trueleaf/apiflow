@@ -1,8 +1,9 @@
 import { config } from '../config/config'
-import { app, BrowserWindow, ipcMain } from 'electron'
+import { app, BrowserWindow, ipcMain, IpcMainInvokeEvent } from 'electron'
+import fs from 'fs/promises'
 import path from 'path'
-const isDevelopment = process.env.NODE_ENV !== 'production'
 
+const isDevelopment = process.env.NODE_ENV !== 'production'
 const changeDevtoolsFont = (win: BrowserWindow) => {
   win.webContents.on('devtools-opened', () => {
     const css = `
@@ -44,16 +45,16 @@ function createWindow() {
 }
 
 app.whenReady().then(() => {
-  ipcMain.on('counter-value', (_event, value) => {
-    console.log(value)
-  })
-  ipcMain.handle('open-dev-tools', () => {
+  ipcMain.handle('apiflow-open-dev-tools', () => {
     BrowserWindow.getAllWindows()?.forEach(win => {
       win.webContents.openDevTools()
     })
   })
+  ipcMain.handle('apiflow-read-file-as-blob', async (_: IpcMainInvokeEvent, path: string) => {
+    const buffer = await fs.readFile(path)
+    return buffer
+  })
   createWindow()
-
   app.on('activate', function () {
     if (BrowserWindow.getAllWindows().length === 0) createWindow()
   })
