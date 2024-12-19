@@ -7,6 +7,7 @@ export type ElectronAPI = {
   sendRequest: (options: GotRequestOptions) => Promise<void>,
   openDevTools: () => void,
   readResponseLog: () => void;
+  readFileAsBlob: (path: string) => Promise<Blob>;
 }
 
 declare global {

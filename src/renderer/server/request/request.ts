@@ -4,7 +4,7 @@ import { useApidoc } from '@/store/apidoc/apidoc';
 import { toRaw } from 'vue';
 import json5 from 'json5'
 import { ApidocDetail } from '@src/types/global';
-import { convertTemplateValueToRealValue, getObjectVariable, getPathParamsStringFromPathParams, getPathStringFromPathParams, getQueryStringFromQueryParams } from '@src/utils/utils';
+import { convertTemplateValueToRealValue, getEncodedStringFromEncodedParams, getFormDataFromFormDataParams, getObjectVariable, getPathParamsStringFromPathParams, getPathStringFromPathParams, getQueryStringFromQueryParams } from '@src/utils/utils';
 import { useVariable } from '@/store/apidoc/variables';
 import { useApidocRequest } from '@/store/apidoc/request';
 import { Options, RequestError } from 'got';
@@ -81,8 +81,8 @@ export const getUrl = async (apidoc: ApidocDetail) => {
   return fullUrl;
 }
 const getBody = async (apidoc: ApidocDetail): Promise<GotRequestOptions['body']> => {
-  // const { variables } = useVariable()
-  const { mode } = apidoc.item.requestBody;
+  const { variables } = useVariable()
+  const { mode, urlencoded } = apidoc.item.requestBody;
   if (mode === 'json') {
     /*
      * 情况1：json值存在超长数字，在js中会被截断 例如：{ num: 123456789087654321 } 会被转换为 { num: 123456789087654320 } 
@@ -101,9 +101,16 @@ const getBody = async (apidoc: ApidocDetail): Promise<GotRequestOptions['body']>
     const stringBody = JSON.stringify(jsonObject).replace(/"([+-]?\d*\.?\d+n)"(?=\s*[,}\]])/g, ($1, $2) => {
       return bigNumberMap[$2];
     })
-    console.log(bigNumberMap, stringBody)
+    return stringBody;
   }
-  return 
+  if (mode === 'urlencoded') {
+    const urlencodedString = await getEncodedStringFromEncodedParams(urlencoded, toRaw(variables));
+    return urlencodedString;
+  }
+  if (mode === 'formdata') {
+    const formDataString = await getFormDataFromFormDataParams(apidoc.item.requestBody.formdata, toRaw(variables));
+  }
+  return '??'
 }
 
 export async function sendRequest() {
@@ -130,11 +137,9 @@ export async function sendRequest() {
   // const commonHeaders = apidocBaseInfoStore.getCommonHeadersById(currentSelectTab?._id || '')
   // const localEnvs = apidocCache.getApidocServer(projectId);
   // const envs = apidocBaseInfoStore.hosts.concat(localEnvs);
-
   const method = getMethod(rawApidoc);
   const url = await getUrl(rawApidoc);
   const body = await getBody(rawApidoc);
-
 
   window.electronAPI?.sendRequest({
     url,
