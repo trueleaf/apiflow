@@ -22,7 +22,7 @@
     "dexie": "^4.0.8",
     "electron": "^31.3.1",
     "element-plus": "^2.8.3",
-    "file-type": "^16.5.3",
+    "file-type": "^19.6.0",
     "form-data": "^4.0.0",
     "got": "^14.4.3",
     "html2canvas": "^1.4.1",
