@@ -169,6 +169,13 @@ export const useApidoc = defineStore('apidoc', () => {
   const changeRawJson = (rawJson: string): void => {
     apidoc.value.item.requestBody.rawJson = rawJson;
   }
+  //改变body参数error信息
+  const changeFormDataErrorInfoById = (id: string, errorMsg: string): void => {
+    const index = apidoc.value.item.requestBody.formdata.findIndex((v) => v._id === id);
+    if (index !== -1) {
+      apidoc.value.item.requestBody.formdata[index]._error = errorMsg;
+    }
+  }
   /*
   |--------------------------------------------------------------------------
   | raw参数
@@ -339,6 +346,7 @@ export const useApidoc = defineStore('apidoc', () => {
   const changeSavedDocId = (id: string): void => {
     savedDocId.value = id;
   }
+
   /*
   |--------------------------------------------------------------------------
   | 预请求脚本
@@ -425,10 +433,15 @@ export const useApidoc = defineStore('apidoc', () => {
         console.warn('缺少tab信息');
         return;
       }
-      const apidocDetail = apidoc.value;
+      const apidocDetail = cloneDeep(apidoc.value);
       changeApidocSaveLoading(true)
       //todo
       // context.dispatch('saveMindParams');
+      //删除_error字段
+      apidocDetail.item.requestBody.formdata.forEach(v => {
+        delete v._error;
+        console.log(2)
+      })
       const params = {
         _id: currentSelectTab._id,
         projectId,
@@ -653,6 +666,7 @@ export const useApidoc = defineStore('apidoc', () => {
     changeMockFileType,
     changeMockTextValue,
     changeCustomResponseScript,
-    changeCustomFile
+    changeCustomFile,
+    changeFormDataErrorInfoById
   }
 })

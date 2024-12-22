@@ -1,5 +1,5 @@
 import { config } from '../config/config';
-import { randomInt } from '../utils/utils';
+import { randomInt } from '../renderer/utils/utils';
 import dayjs from 'dayjs';
 import Mock from 'mockjs';
 

@@ -313,6 +313,7 @@ export type ApidocProperty<T extends ApidocPropertyType = ApidocPropertyType> = 
      */
   select: boolean;
   children?: ApidocProperty[];
+  _error?: string;
 };
 //联想参数
 export type ApidocMindParam = ApidocProperty & {

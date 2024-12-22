@@ -1,7 +1,8 @@
 import { FlowNode, Property, ResponseInfo } from "@src/types/types";
-import Mock from "../mock/mock";
+import Mock from "../../mock/mock";
 import { ApidocVariable, SandboxPostMessage } from "@src/types/global";
 import { fileTypeFromBuffer } from 'file-type';
+import { useApidoc } from "@/store/apidoc/apidoc";
 
 export const isElectron = () => {
   if (typeof window !== 'undefined' && typeof window.process === 'object' && window.process.type === 'renderer') {
@@ -139,6 +140,7 @@ export const getEncodedStringFromEncodedParams = async (encodedParams: Property[
   return encodedString;
 }
 export const getFormDataFromFormDataParams = async (formDataParams: Property[], variables: ApidocVariable[]): Promise<FormData> => {
+  const { changeFormDataErrorInfoById } = useApidoc()
   const formData = new FormData();
   for (let i = 0; i < formDataParams.length; i++) {
     const formDataParam = formDataParams[i];
@@ -150,11 +152,15 @@ export const getFormDataFromFormDataParams = async (formDataParams: Property[], 
       } else if (formDataParam.type === 'file') {
         // const file = await convertTemplateValueToRealValue(formDataParam.value, variables);
         // formData.append(realKey, file);
-        const file = await window.electronAPI?.readFileAsUint8Array(formDataParam.value);
-        if (file) {
-          const fileType = await fileTypeFromBuffer(file);
-          const blob = new Blob([file], { type: fileType?.mime });
+        const result = await window.electronAPI?.readFileAsUint8Array(formDataParam.value);
+        if (result && result instanceof Uint8Array) {
+          const fileType = await fileTypeFromBuffer(result);
+          const blob = new Blob([result], { type: fileType?.mime });
+          changeFormDataErrorInfoById(formDataParam._id, '')
           console.log(fileType, blob);
+        } else if (result) { //读取错误
+          // console.dir(result, changeFormDataErrorInfoById)
+          changeFormDataErrorInfoById(formDataParam._id, result)
         }
       }
     }

@@ -9,7 +9,7 @@ import { readResponseLog } from './fileAccess'
 const openDevTools = () => {
   ipcRenderer.invoke('apiflow-open-dev-tools')
 }
-const readFileAsUint8Array = async (path: string): Promise<Blob> => {
+const readFileAsUint8Array = async (path: string): Promise<Uint8Array | string> => {
   return ipcRenderer.invoke('apiflow-read-file-as-blob', path)
 }
 

@@ -5,7 +5,7 @@ import electron from 'electron';
 import path from 'path'
 import chokidar from 'chokidar';
 import type { AddressInfo } from 'net';
-import { debounce } from 'lodash';
+import { debounce } from 'lodash-es';
 
 const processWithElectron: NodeJS.Process & {
   electronProcess?: ChildProcess
@@ -19,6 +19,7 @@ const buildElectron = () => {
     bundle: true,
     platform: 'node',
     outdir: 'dist',
+    format: 'esm',
     external: ['electron'],
   });
 }

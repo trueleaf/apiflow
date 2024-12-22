@@ -62,16 +62,26 @@
         </el-select>
         <!-- 文件类型参数录入 -->
         <div v-if="scope.data.type === 'file'" class="flex0 w-25">
-          <div class="fake-input" :class="{ active: scope.data.value }" @mouseenter="() => enableDrag = false"
-            @mouseleave="() => enableDrag = true">
+          <div 
+            class="fake-input" 
+            :class="{ active: scope.data.value }" 
+            @mouseenter="() => enableDrag = false"
+            @mouseleave="() => enableDrag = true"
+          >
             <label v-show="!scope.data.value" :for="scope.data.key" class="label">{{ t("选择文件") }}</label>
             <SEllipsisContent :value="scope.data.value" max-width="100%"></SEllipsisContent>
+            <div v-if="scope.data._error" class="red f-sm">{{scope.data._error}}</div>
             <el-icon v-if="scope.data.value" class="close" :size="16" @click="handleClearSelectType(scope.data)">
               <close />
             </el-icon>
           </div>
-          <input :id="scope.data.key" ref="fileInput" class="d-none" type="file"
-            @change="handleSelectFile($event, scope.data)">
+          <input 
+            :id="scope.data.key" 
+            ref="fileInput" 
+            class="d-none" 
+            type="file"
+            @change="handleSelectFile($event, scope.data)"
+          >
         </div>
         <!-- 参数是否必填 -->
         <el-checkbox v-if="!noRequiredCheckbox" :model-value="scope.data.required" :label="t('必有')" class="pr-2"

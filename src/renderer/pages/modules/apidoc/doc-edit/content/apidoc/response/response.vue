@@ -71,7 +71,7 @@ import SRequest from './request/request.vue'
 import { t } from 'i18next'
 import { useApidocResponse } from '@/store/apidoc/response'
 import { useApidocBaseInfo } from '@/store/apidoc/base-info'
-import { isElectron } from '@src/utils/utils'
+import { isElectron } from '@/utils/utils'
 import SLoading from '@/components/common/loading/g-loading.vue'
 
 
