@@ -145,6 +145,6 @@ const handleRegister = () => {
 }
 </script>
 
-<style  scoped>
+<style lang='scss' scoped>
 
 </style>

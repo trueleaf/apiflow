@@ -360,7 +360,7 @@ const clearContextmenu = () => {
 
 </script>
 
-<style  scoped>
+<style lang='scss' scoped>
 .fork {
     .el-divider--horizontal {
         margin: size(10) 0;

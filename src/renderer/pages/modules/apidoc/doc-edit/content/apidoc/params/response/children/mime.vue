@@ -30,7 +30,7 @@ const handleSelect = (mimeType: string) => {
 }
 </script>
 
-<style  scoped>
+<style lang='scss' scoped>
 .status {
   position: relative;
 

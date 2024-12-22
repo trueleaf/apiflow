@@ -76,7 +76,7 @@ const remoteResponse = computed(() => store.state['apidoc/response'])
 const requestLoading = computed(() => store.state['apidoc/response'].loading)
 </script>
 
-<style  scoped>
+<style lang='scss' scoped>
 .remote-response-wrap {
     height: calc(100vh - #{size(310)});
     .el-tabs__content {

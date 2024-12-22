@@ -6,7 +6,6 @@ export type ElectronAPI = {
   got: Got;
   sendRequest: (options: GotRequestOptions) => Promise<void>,
   openDevTools: () => void,
-  readResponseLog: () => void;
   readFileAsUint8Array: (path: string) => Promise<Uint8Array | string>;
 }
 

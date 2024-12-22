@@ -312,7 +312,7 @@ const handleDelete = (_id: string) => {
 }
 </script>
 
-<style  scoped>
+<style lang='scss' scoped>
 .s-variable {
   overflow-y: auto;
   height: calc(100vh - #{size(100)});

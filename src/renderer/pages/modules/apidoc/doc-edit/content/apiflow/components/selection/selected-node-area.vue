@@ -142,7 +142,7 @@ onMounted(() => {
 
 </script>
 
-<style  scoped>
+<style lang='scss' scoped>
 .selected-node-area {
     position: absolute;
     // border: 1px dashed #6eb1eb;

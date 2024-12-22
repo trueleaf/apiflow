@@ -35,7 +35,7 @@ defineProps({
 
 </script>
 
-<style  scoped>
+<style lang='scss' scoped>
 .s-fieldset {
   display: block;
   min-height: size(30);

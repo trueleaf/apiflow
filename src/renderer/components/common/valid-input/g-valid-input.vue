@@ -197,7 +197,7 @@ onUnmounted(() => {
 
 </script>
 
-<style >
+<style lang='scss'>
 .valid-input {
   height: size(45);
   width: 100%;

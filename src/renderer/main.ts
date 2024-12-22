@@ -2,7 +2,6 @@ import { createApp } from 'vue'
 import App from './App.vue'
 import { createPinia } from 'pinia'
 import zhCn from 'element-plus/es/locale/lang/zh-cn'
-import { axiosPlugin } from './api/api';
 import ElementPlus from 'element-plus';
 import { router } from './router'
 import '@/assets/css/index.css'
@@ -21,5 +20,5 @@ await i18next.use(Backend).init({
   fallbackLng: "zh",
 });
 app.use(pinia)
-app.use(axiosPlugin).use(customDirective).use(I18NextVue, { i18next }).use(ElementPlus, { locale: zhCn }).use(router);
+app.use(customDirective).use(I18NextVue, { i18next }).use(ElementPlus, { locale: zhCn }).use(router);
 app.mount('#app')

@@ -106,7 +106,7 @@ onMounted(() => { //当组件还未创建时候，通过mounted生命周期确�
 
 </script>
 
-<style  scoped>
+<style lang='scss' scoped>
 .config {
   width: 90%;
   min-width: size(768);

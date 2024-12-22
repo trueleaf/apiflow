@@ -37,7 +37,7 @@ const handleClickItem = (e: MouseEvent) => {
 
 </script>
 
-<style  scoped>
+<style lang='scss' scoped>
 .s-contextmenu-item {
   line-height: 1.8em;
   padding: size(5) size(25);

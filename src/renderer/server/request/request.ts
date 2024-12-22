@@ -4,7 +4,7 @@ import { useApidoc } from '@/store/apidoc/apidoc';
 import { toRaw } from 'vue';
 import json5 from 'json5'
 import { ApidocDetail } from '@src/types/global';
-import { convertTemplateValueToRealValue, getEncodedStringFromEncodedParams, getFormDataFromFormDataParams, getObjectVariable, getPathParamsStringFromPathParams, getPathStringFromPathParams, getQueryStringFromQueryParams } from '@/utils/utils';
+import { convertTemplateValueToRealValue, getEncodedStringFromEncodedParams, getFormDataFromFormDataParams, getObjectVariable, getPathParamsStringFromPathParams, getQueryStringFromQueryParams } from '@/utils/utils';
 import { useVariable } from '@/store/apidoc/variables';
 import { useApidocRequest } from '@/store/apidoc/request';
 import { Options, RequestError } from 'got';
@@ -108,7 +108,8 @@ const getBody = async (apidoc: ApidocDetail): Promise<GotRequestOptions['body']>
     return urlencodedString;
   }
   if (mode === 'formdata') {
-    const formDataString = await getFormDataFromFormDataParams(apidoc.item.requestBody.formdata.filter(formData => formData.select && formData.key !== ''), toRaw(variables));
+    const valudFormData = apidoc.item.requestBody.formdata.filter(formData => formData.select && formData.key !== '');
+    const formDataString = await getFormDataFromFormDataParams(valudFormData, toRaw(variables));
   }
   return '??'
 }

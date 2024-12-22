@@ -701,7 +701,7 @@ const checkDescriptionDisable = ({ node }: { node: TreeNode }) => {
 }
 </script>
 
-<style  scoped>
+<style lang='scss' scoped>
 .custom-params-tree-node2 {
     display: flex;
     align-items: center;

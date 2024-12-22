@@ -8,7 +8,7 @@
 
 </script>
 
-<style  scoped>
+<style lang='scss' scoped>
 .remote-select-item {
   height: size(38);
   display: flex;

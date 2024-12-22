@@ -45,7 +45,7 @@ export default defineComponent({
 })
 </script>
 
-<style  scoped>
+<style lang='scss' scoped>
 .cookie-view {
     width: 100%;
     height: calc(100vh - #{size(370)});

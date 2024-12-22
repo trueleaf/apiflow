@@ -223,7 +223,7 @@ onUnmounted(() => {
 })
 </script>
 
-<style  scoped>
+<style lang='scss' scoped>
 .apiflow {
     overflow: auto;
     position: absolute;

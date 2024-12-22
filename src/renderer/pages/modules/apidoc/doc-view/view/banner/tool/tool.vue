@@ -266,7 +266,7 @@ const handleFilterBanner = () => {
 }
 </script>
 
-<style  scoped>
+<style lang='scss' scoped>
 .tool {
     position: relative;
     padding: 0 size(20);

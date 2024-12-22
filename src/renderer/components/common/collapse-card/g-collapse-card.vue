@@ -98,7 +98,7 @@ onMounted(() => {
 })
 </script>
 
-<style  scoped>
+<style lang='scss' scoped>
 .collapse-card {
   width: 100%;
   background: $white;

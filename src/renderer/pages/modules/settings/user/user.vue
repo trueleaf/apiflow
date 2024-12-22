@@ -189,7 +189,7 @@ onMounted(() => {
 })
 </script>
 
-<style  scoped>
+<style lang='scss' scoped>
 .user-setting {
   max-width: size(1440);
   margin: auto;

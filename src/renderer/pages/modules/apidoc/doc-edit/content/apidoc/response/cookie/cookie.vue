@@ -30,7 +30,7 @@ const layout = computed(() => apidocBaseInfoStore.layout);
 
 </script>
 
-<style  scoped>
+<style lang='scss' scoped>
 .cookie-view {
   width: 100%;
   height: calc(100vh - #{size(370)});

@@ -488,7 +488,7 @@ onUnmounted(() => {
 
 </script>
 
-<style  scoped>
+<style lang='scss' scoped>
 .api-params {
   padding: size(0) size(0) size(10);
   height: calc(100vh - #{size(220)});

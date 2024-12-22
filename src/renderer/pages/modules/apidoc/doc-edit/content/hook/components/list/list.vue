@@ -87,6 +87,6 @@ const handleClose = () => {
 
 </script>
 
-<style  scoped>
+<style lang='scss' scoped>
 
 </style>

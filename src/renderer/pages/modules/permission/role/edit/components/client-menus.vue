@@ -57,7 +57,7 @@ defineExpose({
 })
 </script>
 
-<style  scoped>
+<style lang='scss' scoped>
 .client-menus {
   .custom-tree-node {
     @include custom-tree-node;

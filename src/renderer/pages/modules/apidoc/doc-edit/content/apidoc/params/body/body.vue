@@ -218,7 +218,7 @@ onMounted(async () => {
 });
 </script>
 
-<style  scoped>
+<style lang='scss' scoped>
 .body-params {
   .body-type {
     margin-top: size(-10);

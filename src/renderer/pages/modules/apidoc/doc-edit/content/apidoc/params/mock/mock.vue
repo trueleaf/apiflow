@@ -254,7 +254,7 @@ const hasCustomHeaders = computed(() => {
 
 </script>
 
-<style  scoped>
+<style lang='scss' scoped>
 .mock-wrap {
   font-size: fz(15);
   height: calc(100vh - #{size(310)});

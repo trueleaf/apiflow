@@ -49,7 +49,7 @@ const apidocInfo = computed(() => apidocStore.apidoc);
 const validRequestMethods = computed(() => apidocBaseInfoStore.rules.requestMethods?.filter((val) => val.enabled));
 </script>
 
-<style  scoped>
+<style lang='scss' scoped>
 .request-view {
   flex-grow: 0;
   flex-shrink: 0;

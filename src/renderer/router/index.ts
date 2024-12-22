@@ -1,28 +1,28 @@
 import { createRouter, createWebHashHistory, RouteRecordRaw } from 'vue-router'
 import NProgress from 'nprogress';
 import 'nprogress/nprogress.css';
-import docEdit from '@/pages/modules/apidoc/doc-edit/doc-edit.vue'
+// import docEdit from '@/pages/modules/apidoc/doc-edit/doc-edit.vue'
 import { config } from '@/../config/config'
 import { usePermissionStore } from '@/store/permission';
 
 const lastVisitPage = localStorage.getItem('history/lastVisitePage'); //回复上次访问的页面
 
 const routes: Array<RouteRecordRaw> = [ 
-  {
-  path: '/v1/permission/permission',
-  name: 'Permission',
-  component: () => import('@/pages/modules/permission/permission.vue'),
-}, 
+//   {
+//   path: '/v1/permission/permission',
+//   name: 'Permission',
+//   component: () => import('@/pages/modules/permission/permission.vue'),
+// }, 
 {
   path: '/v1/apidoc/doc-list',
   name: 'DocList',
   component: () => import('@/pages/modules/apidoc/doc-list/doc-list.vue'),
 }, 
-{
-  path: '/v1/apidoc/doc-edit',
-  name: 'DocEdit',
-  component: docEdit,
-},
+// {
+//   path: '/v1/apidoc/doc-edit',
+//   name: 'DocEdit',
+//   component: docEdit,
+// },
 // {
 //   path: '/v1/apidoc/doc-view',
 //   name: 'DocView',

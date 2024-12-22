@@ -86,7 +86,7 @@ const handleJumpToLogin = () => {
 
 </script>
 
-<style  scoped>
+<style lang='scss' scoped>
 .login-container {
   width: 100vw;
   height: 100vh;

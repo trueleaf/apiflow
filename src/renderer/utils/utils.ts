@@ -142,6 +142,7 @@ export const getEncodedStringFromEncodedParams = async (encodedParams: Property[
 export const getFormDataFromFormDataParams = async (formDataParams: Property[], variables: ApidocVariable[]): Promise<FormData> => {
   const { changeFormDataErrorInfoById } = useApidoc()
   const formData = new FormData();
+  console.log(2233)
   for (let i = 0; i < formDataParams.length; i++) {
     const formDataParam = formDataParams[i];
     if (formDataParam.key) {
@@ -153,12 +154,14 @@ export const getFormDataFromFormDataParams = async (formDataParams: Property[], 
         // const file = await convertTemplateValueToRealValue(formDataParam.value, variables);
         // formData.append(realKey, file);
         const result = await window.electronAPI?.readFileAsUint8Array(formDataParam.value);
+        console.log('读取文件', formDataParam.value)
         if (result && result instanceof Uint8Array) {
           const fileType = await fileTypeFromBuffer(result);
           const blob = new Blob([result], { type: fileType?.mime });
           changeFormDataErrorInfoById(formDataParam._id, '')
           console.log(fileType, blob);
         } else if (result) { //读取错误
+          console.log('读取文件错误', result)
           // console.dir(result, changeFormDataErrorInfoById)
           changeFormDataErrorInfoById(formDataParam._id, result)
         }
@@ -166,21 +169,8 @@ export const getFormDataFromFormDataParams = async (formDataParams: Property[], 
     }
 
   }
-  return formData;
+  return Promise.resolve(formData);
 }
-export const convertPropertyToObject = (props: Property[], globalVariables: Record<string, any>) => {
-  const result: Record<string, any> = {};
-  for (let i = 0; i < props.length; i += 1) {
-    const prop = props[i];
-    if (prop.key) {
-      result[prop.key] = convertTemplateValueToRealValue(
-        prop.value,
-        globalVariables
-      );
-    }
-  }
-  return result;
-};
 export const getNodeById = (nodes: FlowNode[], nodeId: string): FlowNode | null => {
   let result = null
   const foo = (flowNodes: FlowNode[]) => {
@@ -201,7 +191,7 @@ export const generateEmptyResponse = (): ResponseInfo => {
     requestId: '',
     headers: {},
     contentType: '',
-    originRequestUrl: '',
+    originRequestUrl: new URL(''),
     finalRequestUrl: '',
     redirectUrls: [],
     ip: '',

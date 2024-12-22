@@ -9,7 +9,7 @@
 
 </script>
 
-<style  scoped>
+<style lang='scss' scoped>
 .container-test {
    width: 80vw;
    height: 80vh;

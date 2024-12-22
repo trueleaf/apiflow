@@ -21,7 +21,7 @@ const afterRequest = computed<string>({
 
 </script>
 
-<style  scoped>
+<style lang='scss' scoped>
 .editor-wrap {
   position: relative;
   width: 100%;

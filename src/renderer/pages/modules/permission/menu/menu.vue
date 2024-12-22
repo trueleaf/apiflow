@@ -219,7 +219,7 @@ onUnmounted(() => {
 })
 </script>
 
-<style  scoped>
+<style lang='scss' scoped>
 .menu-tree {
   min-height: 70vh;
 

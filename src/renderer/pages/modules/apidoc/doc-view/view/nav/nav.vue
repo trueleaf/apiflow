@@ -299,7 +299,7 @@ export default defineComponent({
 })
 </script>
 
-<style  scoped>
+<style lang='scss' scoped>
 .nav {
     width: 100%;
     height: size(40);

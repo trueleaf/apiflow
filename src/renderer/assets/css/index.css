@@ -14,6 +14,66 @@
   colorThemeColor: #409EFF; }
 
 :root {
+    /* 基础颜色 */
+    --white: #fff;
+    --gray-100: #f8f9fa;
+    --gray-200: rgb(244, 244, 244);
+    --gray-300: #dee2e6;
+    --gray-400: #ced4da;
+    --gray-500: #adb5bd;
+    --gray-600: #6c757d;
+    --gray-700: #495057;
+    --gray-800: #343a40;
+    --gray-900: #212529;
+    --black: #000;
+    /* 常见颜色 */
+    --blue: #409eff;
+    --red: #f56c6c;
+    --orange: #fd7e14;
+    --yellow: #ffc107;
+    --green: #28a745;
+    --teal: #20c997;
+    /* 主题色 */
+    --theme-color: #409eff;
+    /* 提示色 */
+    --primary: var(--blue);
+    --secondary: var(--gray-600);
+    --success: var(--green);
+    --info: var(--cyan);
+    --warning: var(--yellow);
+    --danger: var(--red);
+    --light: var(--gray-100);
+    --dark: var(--gray-800);
+    /* 字体 */
+    --font-size-base: 16px;
+    --font-size-sm: 14px;
+    --font-size-xs: 12px;
+    --font-size-lg: 16px;
+    --font-size-ex: 20px;
+    /* 圆角 */
+    --border-radius-xs: 2px;
+    --border-radius-sm: 4px;
+    --border-radius-base: 5px;
+    --border-radius: 5px;
+    --border-radius-bg: 10px;
+    --border-radius-lg: 15px;
+    --border-radius-round: 50%;
+    /* 阴影 */
+    --box-shadow-sm: 0 0 4px rgba(0, 0, 0, 0.1);
+    --box-shadow-base: 0 0 8px rgba(0, 0, 0, 0.1);
+    --box-shadow: 0 0 12px rgba(0, 0, 0, 0.1);
+    --box-shadow-bg: 0 0 16px rgba(0, 0, 0, 0.1);
+    /* zIndex */
+    --zIndex-fieldset: 2;
+    --zIndex-header: 1995;
+    --zIndex-tabs: 1995;
+    --zIndex-panel: 1996;
+    --zIndex-editor: 1994;
+    --zIndex-request-info-wrap: 1995;
+    --zIndex-drag-bar: 1996;
+    --zIndex-contextmenu: 1996;
+    --zIndex-loading-text: 2222;
+    --zIndex-copy: 2599;
   --el-transition-duration: 0, ; }
 
 * {

@@ -146,7 +146,7 @@ const hasHeaders = computed(() => {
 
 </script>
 
-<style  scoped>
+<style lang='scss' scoped>
 .params-view {
   width: 100%;
 

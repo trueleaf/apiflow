@@ -434,7 +434,7 @@ const handleSubmit = () => {
 }
 </script>
 
-<style  scoped>
+<style lang='scss' scoped>
 .doc-import {
   overflow-y: auto;
   height: calc(100vh - #{size(120)});

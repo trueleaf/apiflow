@@ -155,7 +155,7 @@ const nodeInfo = computed(() => {
 
 </script>
 
-<style  scoped>
+<style lang='scss' scoped>
 .node {
     position: absolute;
     background-color: $white;

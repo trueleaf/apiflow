@@ -36,7 +36,7 @@ const activeName = ref('tab-a'); //当前激活选项卡
 
 </script>
 
-<style  scoped>
+<style lang='scss' scoped>
 .doc-list {
   width: 70%;
   margin-top: 20px;

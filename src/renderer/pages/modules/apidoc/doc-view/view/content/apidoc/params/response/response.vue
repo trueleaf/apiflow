@@ -192,7 +192,7 @@ const responseData = computed(() => store.state['apidoc/apidoc'].apidoc.item.res
 const layout = computed(() => store.state['apidoc/baseInfo'].layout)
 </script>
 
-<style  scoped>
+<style lang='scss' scoped>
 .response-params {
     .info-wrap {
         display: flex;

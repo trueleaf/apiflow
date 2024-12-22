@@ -36,7 +36,7 @@ const handleSelect = (code: number) => {
 
 </script>
 
-<style  scoped>
+<style lang='scss' scoped>
 .status {
   position: relative;
 

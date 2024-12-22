@@ -33,6 +33,6 @@ const defaultHeaders = computed(() => store.state['apidoc/apidoc'].defaultHeader
 const defaultHeaderKeys = computed(() => store.state['apidoc/apidoc'].defaultHeaders.map(v => v.key))
 </script>
 
-<style  scoped>
+<style lang='scss' scoped>
 
 </style>

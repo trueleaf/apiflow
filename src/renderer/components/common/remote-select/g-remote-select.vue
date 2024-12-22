@@ -70,7 +70,7 @@ watch(() => props.modelValue, (val) => {
 })
 </script>
 
-<style  scoped>
+<style lang='scss' scoped>
 .remote-select {
   width: 100%;
   position: relative;

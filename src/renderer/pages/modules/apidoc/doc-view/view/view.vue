@@ -110,7 +110,7 @@ export default defineComponent({
 })
 </script>
 
-<style  scoped>
+<style lang='scss' scoped>
 .doc-view {
     display: flex;
     overflow: hidden;

@@ -8,7 +8,7 @@ import Components from 'unplugin-vue-components/vite'
 import { ElementPlusResolver } from 'unplugin-vue-components/resolvers'
 
 // https://vitejs.dev/config/
-export default defineConfig(() => {
+export default defineConfig(({}) => {
   return {
     plugins: [
       viteElectronPlugin(),
@@ -32,6 +32,14 @@ export default defineConfig(() => {
     },
     define: {
       __APP_BUILD_TIME__: JSON.stringify(dayjs().format('YYYY-MM-DD HH:mm:ss'))
+    },
+    css: {
+      preprocessorOptions: {
+        scss: {
+          silenceDeprecations: ['mixed-decls', 'color-functions', 'global-builtin', 'import'],
+          additionalData: `@import "/src/renderer/scss/index.scss";`
+        }
+      }
     },
     optimizeDeps: {
       include: [

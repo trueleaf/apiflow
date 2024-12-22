@@ -254,7 +254,7 @@ const formData = computed(() => store.state['apidoc/apidoc'].apidoc.item.request
 
 </script>
 
-<style  scoped>
+<style lang='scss' scoped>
 .body-params {
     .body-type {
         margin-top: size(-10);

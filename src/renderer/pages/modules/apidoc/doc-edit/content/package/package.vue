@@ -158,7 +158,7 @@ onMounted(() => {
 })
 </script>
 
-<style  scoped>
+<style lang='scss' scoped>
 .package-wrap {
     display: flex;
     height: calc(100vh - #{size(100)});

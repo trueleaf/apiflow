@@ -150,7 +150,7 @@ const handleSaveDoc = () => {
 }
 </script>
 
-<style  scoped>
+<style lang='scss' scoped>
 .save-doc {
   max-height: 70vh;
   margin: 0 auto;

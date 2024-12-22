@@ -104,7 +104,7 @@ defineExpose({
 })
 </script>
 
-<style  scoped>
+<style lang='scss' scoped>
 .server-routes {
     min-height: size(300);
     height: 40vh;

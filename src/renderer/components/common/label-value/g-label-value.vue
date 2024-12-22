@@ -54,7 +54,7 @@ const slots = useSlots()
 
 </script>
 
-<style  scoped>
+<style lang='scss' scoped>
 .label-value {
   display: inline-flex;
   align-items: center;

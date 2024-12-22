@@ -87,7 +87,7 @@ onBeforeUnmount(() => {
 
 </script>
 
-<style  scoped>
+<style lang='scss' scoped>
 .editor {
   width: 100%;
   height: 100%;

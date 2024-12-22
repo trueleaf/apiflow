@@ -24,7 +24,7 @@ watch(() => props.loading, () => {
 })
 </script>
 
-<style  scoped>
+<style lang='scss' scoped>
 .s-loading {
   .loading-text {
     position: absolute;

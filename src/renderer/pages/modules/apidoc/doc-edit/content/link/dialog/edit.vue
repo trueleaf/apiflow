@@ -234,7 +234,7 @@ const formatTooltip = (val: number) => `${(Math.floor(val / 86400000))}天后`
 
 </script>
 
-<style  scoped>
+<style lang='scss' scoped>
 .link-wrap {
     width: 100%;
     max-height: 65vh;
