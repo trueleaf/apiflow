@@ -65,7 +65,7 @@ onMounted(() => {
 
 </script>
 
-<style lang="scss" scoped>
+<style  scoped>
 .s-ellipsis {
   display: flex;
   align-items: center;

@@ -405,7 +405,7 @@ onMounted(() => {
 
 </script>
 
-<style lang="scss" scoped>
+<style  scoped>
 .tab-a {
   .project-wrap {
     display: flex;

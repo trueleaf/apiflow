@@ -97,7 +97,7 @@ const process = computed(() => apidocResponseStore.process)
 
 </script>
 
-<style lang="scss" scoped>
+<style  scoped>
 .remote-response-wrap {
   height: calc(100vh - #{size(310)});
 

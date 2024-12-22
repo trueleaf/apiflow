@@ -139,7 +139,7 @@ defineExpose({
 
 </script>
 
-<style lang="scss" scoped>
+<style  scoped>
 .s-json-editor {
     width: 100%;
     height: 100%;

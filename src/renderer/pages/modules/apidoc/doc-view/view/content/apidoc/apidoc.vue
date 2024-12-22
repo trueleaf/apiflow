@@ -105,7 +105,7 @@ export default defineComponent({
 })
 </script>
 
-<style lang="scss" scoped>
+<style  scoped>
 .apidoc {
     overflow-y: auto;
     height: calc(100vh - #{size(40)});

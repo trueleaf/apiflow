@@ -101,7 +101,7 @@ onMounted(() => {
 })
 </script>
 
-<style lang="scss" scoped>
+<style  scoped>
 .client-routes {
     min-height: size(300);
     height: 40vh;

@@ -395,7 +395,7 @@ onMounted(() => {
 })
 </script>
 
-<style lang="scss" scoped>
+<style  scoped>
 .recycler {
     padding: 0 size(20) size(10);
     height: calc(100vh - #{size(100)});

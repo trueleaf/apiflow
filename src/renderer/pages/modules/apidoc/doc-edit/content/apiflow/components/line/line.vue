@@ -32,7 +32,7 @@ const lineStateStore = useFlowLineStateStore()
 
 </script>
 
-<style lang="scss" scoped>
+<style  scoped>
 .line {
     position: absolute;
 }

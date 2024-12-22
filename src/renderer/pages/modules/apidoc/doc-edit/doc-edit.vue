@@ -116,7 +116,7 @@ if (routerMode === 'view') {
 apidocBaseInfoStroe.changeMode(mode);
 </script>
 
-<style lang="scss" scoped>
+<style  scoped>
 .doc-view {
   display: flex;
   overflow: hidden;

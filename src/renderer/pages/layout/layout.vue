@@ -238,7 +238,7 @@ onMounted(() => {
 
 </script>
 
-<style lang="scss" scoped>
+<style  scoped>
 .s-content {
   width: 100%;
   height: 100%;

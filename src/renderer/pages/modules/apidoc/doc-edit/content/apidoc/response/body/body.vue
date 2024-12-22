@@ -191,7 +191,7 @@ const handleDownload = () => {
 
 </script>
 
-<style lang="scss" scoped>
+<style  scoped>
 .body-view {
     width: 100%;
     height: calc(100vh - #{size(370)});

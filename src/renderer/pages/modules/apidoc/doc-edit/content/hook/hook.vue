@@ -37,7 +37,7 @@ onUnmounted(() => {
 
 </script>
 
-<style lang="scss" scoped>
+<style  scoped>
 .hook-wrap {
     padding: size(20);
 }

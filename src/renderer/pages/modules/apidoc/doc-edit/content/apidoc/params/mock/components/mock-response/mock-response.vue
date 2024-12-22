@@ -347,7 +347,7 @@ onBeforeUnmount(() => {
 
 </script>
 
-<style lang="scss" scoped>
+<style  scoped>
 .mock-response {
   .editor-wrap {
     height: calc(100vh - #{size(610)});

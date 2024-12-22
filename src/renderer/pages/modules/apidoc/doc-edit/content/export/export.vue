@@ -246,7 +246,7 @@ const handleExport = () => {
 }
 </script>
 
-<style lang="scss" scoped>
+<style  scoped>
 .doc-export {
     overflow-y: auto;
     height: calc(100vh - #{size(100)});

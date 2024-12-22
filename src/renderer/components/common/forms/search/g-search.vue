@@ -143,7 +143,7 @@ onUnmounted(() => {
 
 </script>
 
-<style lang="scss" scoped>
+<style  scoped>
 .s-search {
   .el-form-item {
     margin-bottom: size(10);

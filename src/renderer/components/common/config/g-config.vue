@@ -57,7 +57,7 @@ const enabled = ref(false);
 
 </script>
 
-<style lang="scss" scoped>
+<style  scoped>
 .config-item {
   padding: size(10) size(20);
 

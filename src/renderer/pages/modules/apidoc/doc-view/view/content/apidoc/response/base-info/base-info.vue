@@ -45,7 +45,7 @@ const validRequestMethods = computed(() => store.state['apidoc/baseInfo'].rules.
 
 </script>
 
-<style lang="scss" scoped>
+<style  scoped>
     .request-view {
         flex-grow: 0;
         flex-shrink: 0;

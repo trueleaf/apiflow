@@ -67,7 +67,7 @@ const layout = computed(() => apidocBaseInfoStore.layout)
 
 </script>
 
-<style lang="scss" scoped>
+<style  scoped>
 .request-info {
   width: 100%;
   word-break: break-all;

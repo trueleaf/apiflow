@@ -124,7 +124,7 @@ const handleRedo = () => {
 }
 </script>
 
-<style lang="scss" scoped>
+<style  scoped>
 .toolbar {
     position: absolute;
     background-color: #fff;

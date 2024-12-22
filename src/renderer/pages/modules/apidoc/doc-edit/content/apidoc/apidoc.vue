@@ -105,7 +105,7 @@ watch(currentSelectTab, (val, oldVal) => {
 
 </script>
 
-<style lang="scss" scoped>
+<style  scoped>
 .apidoc {
   overflow-y: auto;
   height: calc(100vh - #{size(100)});

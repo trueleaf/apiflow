@@ -246,7 +246,7 @@ export default defineComponent({
 })
 </script>
 
-<style lang="scss" scoped>
+<style  scoped>
 .params-template {
     overflow: hidden;
     display: flex;

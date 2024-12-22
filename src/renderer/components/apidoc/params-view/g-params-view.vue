@@ -128,7 +128,7 @@ const handleCheckBraceMatch = (item: ApidocASTInfo) => {
 
 </script>
 
-<style lang="scss" scoped>
+<style  scoped>
 $theme-color: #282c34;
 
 .s-array-view {

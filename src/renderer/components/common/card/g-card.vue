@@ -38,7 +38,7 @@ defineProps({
 
 </script>
 
-<style lang="scss" scoped>
+<style  scoped>
 .s-card {
   width: 100%;
   border: 1px solid $gray-300;

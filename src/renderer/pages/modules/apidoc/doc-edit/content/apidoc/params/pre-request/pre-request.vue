@@ -21,7 +21,7 @@ const preRequest = computed<string>({
 
 </script>
 
-<style lang="scss" scoped>
+<style  scoped>
 .editor-wrap {
   position: relative;
   width: 100%;

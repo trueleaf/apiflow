@@ -55,7 +55,7 @@ onMounted(() => {
 
 </script>
 
-<style lang="scss" scoped>
+<style  scoped>
 .client-menus {
   .custom-tree-node {
     @include custom-tree-node;

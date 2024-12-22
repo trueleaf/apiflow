@@ -334,7 +334,7 @@ onUnmounted(() => {
 })
 </script>
 
-<style lang="scss" scoped>
+<style  scoped>
 .nav {
   width: 100%;
   height: size(40);

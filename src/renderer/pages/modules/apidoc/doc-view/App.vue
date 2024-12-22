@@ -53,7 +53,7 @@ export default defineComponent({
 })
 </script>
 
-<style lang="scss" scoped>
+<style  scoped>
 #app {
     width: 100vw;
     height: 100vh;

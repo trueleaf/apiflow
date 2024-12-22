@@ -512,7 +512,7 @@ onUnmounted(() => {
 })
 </script>
 
-<style lang="scss">
+<style >
 .banner {
   flex: 0 0 auto;
   height: 100%;

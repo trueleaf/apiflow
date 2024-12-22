@@ -66,6 +66,6 @@ const formatedBytes = computed(() => formatBytes(remoteResponse.value.size))
 const formatedMs = computed(() => formatMs(remoteResponse.value.rt))
 </script>
 
-<style lang="scss" scoped>
+<style  scoped>
 
 </style>

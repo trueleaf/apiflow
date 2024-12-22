@@ -22,7 +22,7 @@ const configStore = useFlowConfigStore()
 
 </script>
 
-<style lang="scss" scoped>
+<style  scoped>
 .selection {
     position: absolute;
     background-color: rgba(22,145,232,.1);

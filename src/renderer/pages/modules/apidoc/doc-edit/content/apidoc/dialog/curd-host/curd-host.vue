@@ -277,7 +277,7 @@ const handleClose = () => {
 
 </script>
 
-<style lang="scss" scoped>
+<style  scoped>
 .host-wrap {
   display: flex;
 

@@ -111,7 +111,7 @@ onUnmounted(() => {
 })
 </script>
 
-<style lang="scss" scoped>
+<style  scoped>
 #editor {
   width: 100%;
   height: 100%;

@@ -165,7 +165,7 @@ watch(() => {
 
 </script>
 
-<style lang="scss" scoped>
+<style  scoped>
 .api-operation {
   position: sticky;
   top: 0;

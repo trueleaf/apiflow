@@ -151,7 +151,7 @@ const filterNode = (filterInfo: SearchData, data: Record<string, unknown>): bool
 }
 </script>
 
-<style lang="scss" scoped>
+<style  scoped>
 .banner {
     flex: 0 0 auto;
     height: 100%;

@@ -113,7 +113,7 @@ onMounted(() => {
 
 </script>
 
-<style lang="scss" scoped>
+<style  scoped>
 .hook-popover {
   position: relative;
 

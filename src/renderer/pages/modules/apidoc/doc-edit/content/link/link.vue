@@ -112,7 +112,7 @@ const handleEditSuccess = () => {
 
 </script>
 
-<style lang="scss" scoped>
+<style  scoped>
 .online-link {
     overflow-y: auto;
     height: calc(100vh - #{size(100)});

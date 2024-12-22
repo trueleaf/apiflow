@@ -654,7 +654,7 @@ const handleToggleProjectModel = () => {
 }
 </script>
 
-<style lang="scss" scoped>
+<style  scoped>
 .tool {
   position: relative;
   padding: 0 size(20);

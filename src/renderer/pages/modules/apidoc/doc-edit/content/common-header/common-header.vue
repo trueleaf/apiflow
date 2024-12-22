@@ -103,7 +103,7 @@ onMounted(() => {
 const mindHeaderParams: Ref<ApidocProperty[]> = ref(mindHeaders);
 </script>
 
-<style lang="scss" scoped>
+<style  scoped>
 .common-header {
   padding: size(20);
 }

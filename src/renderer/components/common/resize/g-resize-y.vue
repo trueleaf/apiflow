@@ -117,7 +117,7 @@ onUnmounted(() => {
 })
 </script>
 
-<style lang="scss" scoped>
+<style  scoped>
 .drag-wrap-y {
   position: relative;
 

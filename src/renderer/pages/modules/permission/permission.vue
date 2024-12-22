@@ -58,7 +58,7 @@ onMounted(() => {
 
 </script>
 
-<style lang="scss" scoped>
+<style  scoped>
 .s-permission {
     width: 70%;
     margin-top: 20px;

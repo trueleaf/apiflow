@@ -45,7 +45,7 @@ watch(() => props.top, (topVal) => {
 })
 </script>
 
-<style lang="scss" scoped>
+<style  scoped>
 .s-contextmenu {
   position: fixed;
   background: $white;

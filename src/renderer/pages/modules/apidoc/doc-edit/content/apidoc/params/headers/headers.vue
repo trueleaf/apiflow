@@ -75,7 +75,7 @@ const mindHeaderParams: Ref<ApidocProperty[]> = ref(mindHeaders);
 
 </script>
 
-<style lang="scss" scoped>
+<style  scoped>
 .header-info {
   .value-wrap {
     max-height: size(140);

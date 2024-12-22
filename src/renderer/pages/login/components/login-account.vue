@@ -140,7 +140,7 @@ const handleGuesttLogin = () => {
 
 </script>
 
-<style lang="scss" scoped>
+<style  scoped>
 .login-account {
     .svg-icon {
         width: size(35);

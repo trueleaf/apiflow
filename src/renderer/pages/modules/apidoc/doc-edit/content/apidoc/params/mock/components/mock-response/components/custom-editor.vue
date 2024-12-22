@@ -70,7 +70,7 @@ onBeforeUnmount(() => {
 })
 </script>
 
-<style lang="scss" scoped>
+<style  scoped>
 .s-monaco-editor {
     width: 100%;
     height: 100%;

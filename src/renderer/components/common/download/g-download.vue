@@ -59,7 +59,7 @@ const downloadFile = () => {
 }
 </script>
 
-<style lang="scss" scoped>
+<style  scoped>
 .s-download {
   &>button {
     height: 100%;

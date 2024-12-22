@@ -335,7 +335,7 @@ export default defineComponent({
 })
 </script>
 
-<style lang="scss" scoped>
+<style  scoped>
 .api-params {
     padding: size(0) size(0) size(10);
     height: calc(100vh - #{size(180)});

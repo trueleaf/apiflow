@@ -195,7 +195,7 @@ onUnmounted(() => {
 
 </script>
 
-<style lang="scss" scoped>
+<style  scoped>
 .s-mock-select {
   width: size(800);
   height: size(250);

@@ -7,6 +7,6 @@
 import { t } from 'i18next'
 </script>
 
-<style lang="scss">
+<style >
 
 </style>
