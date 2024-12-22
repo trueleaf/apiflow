@@ -1,11 +1,11 @@
 {
   "name": "apiflow",
   "description": "Apiflow is a visual API design tool that allows users to create, manage, and visualize APIs in a graphical way.",
-  "author": "Apiflow Team",
+  "author": "TrueLeaf Team",
   "license": "MIT",
   "private": true,
   "version": "0.9.0",
-  "type": "commonjs",
+  "type": "module",
   "scripts": {
     "dev": "vite --host",
     "web": "vite --host -- -- web",
@@ -13,9 +13,6 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@types/got": "^9.6.12",
-    "@types/ip": "^1.1.3",
-    "@types/set-cookie-parser": "^2.4.10",
     "axios": "^1.7.3",
     "brace": "^0.11.1",
     "dayjs": "^1.11.12",
@@ -36,7 +33,7 @@
     "json5": "^2.2.3",
     "jsontoxml": "^1.0.1",
     "koa": "^2.15.3",
-    "lodash": "^4.17.21",
+    "lodash-es": "^4.17.21",
     "mitt": "^3.0.1",
     "mockjs": "^1.1.0",
     "monaco-editor": "^0.51.0",
@@ -44,12 +41,14 @@
     "nprogress": "^0.2.0",
     "pinia": "^2.2.0",
     "set-cookie-parser": "^2.7.0",
-    "vue": "^3.5.4",
+    "vue": "^3.5.13",
     "vue-router": "^4.4.2",
     "vuedraggable": "^4.1.0",
     "vuex": "^4.1.0"
   },
   "devDependencies": {
+    "@types/got": "^9.6.12",
+    "@types/ip": "^1.1.3",
     "@types/js-beautify": "^1.14.3",
     "@types/js-cookie": "^3.0.6",
     "@types/js-yaml": "^4.0.9",
@@ -57,15 +56,18 @@
     "@types/lodash": "^4.17.7",
     "@types/mockjs": "^1.0.10",
     "@types/nprogress": "^0.2.3",
-    "@vitejs/plugin-vue": "^5.0.5",
+    "@types/set-cookie-parser": "^2.4.10",
+    "@vitejs/plugin-vue": "^5.2.1",
+    "@vue/tsconfig": "^0.7.0",
     "chokidar": "^4.0.1",
     "eslint": "^9.8.0",
     "openapi-types": "^12.1.3",
-    "sass": "1.26.5",
-    "typescript": "^5.2.2",
+    "sass": "^1.83.0",
+    "sass-embedded": "^1.83.0",
+    "typescript": "~5.6.2",
     "unplugin-auto-import": "^0.18.3",
     "unplugin-vue-components": "^0.27.4",
-    "vite": "^5.3.4",
-    "vue-tsc": "^2.0.24"
+    "vite": "^6.0.3",
+    "vue-tsc": "^2.1.10"
   }
 }
