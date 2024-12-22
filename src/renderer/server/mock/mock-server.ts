@@ -181,7 +181,7 @@ export const mockServer = (): void => {
           ctx.body = fileData
         } else if (responseType === 'file' && file.type === 'custom' && file.filePath) {
           const bufferFile = await fs.readFile(file.filePath);
-          const fileTypeInfo = await FileType.fromBuffer(bufferFile);
+          const fileTypeInfo = await FileType.fileTypeFromBuffer(bufferFile);
           ctx.set('Content-Type', fileTypeInfo?.mime || '');
           ctx.body = bufferFile;
         } else if (responseType === 'file' && file.type === 'custom' && !file.filePath) {

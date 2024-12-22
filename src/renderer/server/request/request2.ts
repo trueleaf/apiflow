@@ -64,7 +64,7 @@ function initGot() {
 async function formatResponseBuffer(bufferData: Buffer, contentType?: string) {
   const apidocResponseStore = useApidocResponse();
   const apidocStore = useApidoc();
-  const typeInfo = await FileType.fromBuffer(bufferData.buffer);
+  const typeInfo = await FileType.fileTypeFromBuffer(bufferData.buffer);
   const mimeType = typeInfo ? typeInfo.mime : 'text/plain' //无法解析数据按照文本显示
   const mime = contentType || mimeType; //优先读取contentType
   const textContentType = ['text/', 'application/json', 'application/javascript', 'application/xml'];

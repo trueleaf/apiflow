@@ -9,7 +9,7 @@ import got, { Options } from 'got';
 import type { OptionsInit, Method, PlainResponse, RequestError } from 'got'
 import json5 from 'json5';
 import type FormData from "form-data"
-import { fromBuffer } from 'file-type';
+import { fileTypeFromBuffer } from 'file-type';
 import {
   getQueryStringFromQueryParams,
   convertTemplateValueToRealValue,
@@ -108,7 +108,7 @@ export const sendRequest = (requestNode: FlowNode, options: SendRequestOptions) 
       });
       requestStream.on("end", async () => {
         const bufData = Buffer.concat(streamData, streamSize);
-        const fileTypeResult = await fromBuffer(bufData.buffer);
+        const fileTypeResult = await fileTypeFromBuffer(bufData.buffer);
         responseInfo.bodySize = bufData.length;
         let mimeType = 'unknown';
         if (fileTypeResult) {
@@ -208,7 +208,7 @@ export const gotRequest = (options: GotRequestOptions) => {
   });
   requestStream.on("end", async () => {
     const bufData = Buffer.concat(streamData, streamSize);
-    const fileTypeResult = await fromBuffer(bufData.buffer);
+    const fileTypeResult = await fileTypeFromBuffer(bufData.buffer);
     responseInfo.bodySize = bufData.length;
     let mimeType = 'unknown';
     if (fileTypeResult) {

@@ -1,8 +1,7 @@
 import { FlowNode, Property, ResponseInfo } from "@src/types/types";
 import Mock from "../mock/mock";
 import { ApidocVariable, SandboxPostMessage } from "@src/types/global";
-
-
+import { fileTypeFromBuffer } from 'file-type';
 
 export const isElectron = () => {
   if (typeof window !== 'undefined' && typeof window.process === 'object' && window.process.type === 'renderer') {
@@ -151,10 +150,12 @@ export const getFormDataFromFormDataParams = async (formDataParams: Property[], 
       } else if (formDataParam.type === 'file') {
         // const file = await convertTemplateValueToRealValue(formDataParam.value, variables);
         // formData.append(realKey, file);
-        console.log(window.electronAPI)
-        window.electronAPI?.readFileAsBlob(formDataParam.value).then((file: Blob) => {
-          console.log('222', file)
-        })
+        const file = await window.electronAPI?.readFileAsUint8Array(formDataParam.value);
+        if (file) {
+          const fileType = await fileTypeFromBuffer(file);
+          const blob = new Blob([file], { type: fileType?.mime });
+          console.log(fileType, blob);
+        }
       }
     }
 
