@@ -64,13 +64,13 @@
         <div v-if="scope.data.type === 'file'" class="flex0 w-25">
           <div class="fake-input" :class="{ active: scope.data.value }" @mouseenter="() => enableDrag = false"
             @mouseleave="() => enableDrag = true">
-            <label v-show="!scope.data.value" for="fileInput" class="label">{{ t("选择文件") }}</label>
+            <label v-show="!scope.data.value" :for="scope.data.key" class="label">{{ t("选择文件") }}</label>
             <SEllipsisContent :value="scope.data.value" max-width="100%"></SEllipsisContent>
             <el-icon v-if="scope.data.value" class="close" :size="16" @click="handleClearSelectType(scope.data)">
               <close />
             </el-icon>
           </div>
-          <input id="fileInput" ref="fileInput" class="d-none" type="file"
+          <input :id="scope.data.key" ref="fileInput" class="d-none" type="file"
             @change="handleSelectFile($event, scope.data)">
         </div>
         <!-- 参数是否必填 -->
