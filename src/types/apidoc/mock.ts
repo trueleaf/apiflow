@@ -1,4 +1,4 @@
-import { ApidocHttpRequestMethod } from "../global";
+import type { ApidocHttpRequestMethod } from "../global";
 
 /*
 |--------------------------------------------------------------------------

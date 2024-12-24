@@ -1,4 +1,4 @@
-import { ApidocCookieInfo } from "./base-info";
+import type { ApidocCookieInfo } from "./base-info";
 
 
 export type ApidocResponseState = {

@@ -1,4 +1,4 @@
-import { Got } from 'got';
+import type { Got } from 'got';
 import type {GotRequestOptions } from './types';
 
 export type ElectronAPI = {
