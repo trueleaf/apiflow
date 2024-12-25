@@ -18,7 +18,7 @@
     "dayjs": "^1.11.12",
     "dexie": "^4.0.8",
     "electron": "^33.2.1",
-    "element-plus": "^2.8.3",
+    "element-plus": "^2.9.1",
     "file-type": "^19.6.0",
     "form-data": "^4.0.0",
     "got": "^14.4.3",
