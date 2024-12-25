@@ -56,7 +56,6 @@ app.whenReady().then(() => {
     })
   })
   ipcMain.handle('apiflow-read-file-as-blob', async (_: IpcMainInvokeEvent, path: string) => {
-    console.log(path)
     try {
       await fs.access(path, fs.constants.F_OK)
     } catch {
