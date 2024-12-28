@@ -1,17 +1,15 @@
 
 import {
   GotRequestOptions,
+  RendererFormDataBody,
 } from '@/../types/types';
-import { Options } from 'got';
+import { Options, got} from 'got';
 import type { OptionsInit, PlainResponse, RequestError } from 'got'
-// import {
-//   getQueryStringFromQueryParams,
-//   convertTemplateValueToRealValue,
-//   convertPropertyToObject,
-//   generateEmptyResponse
-// } from '../renderer/utils/utils';
-
-
+import FormData from 'form-data';
+import { fileTypeFromBuffer } from 'file-type';
+import mime from "mime";
+import fs from 'fs/promises';
+import { basename } from 'path';
 
 
 // const getFullUrl = (params: CustomRequestInfo, globalVariables: Record<string, any>) => {
@@ -102,7 +100,7 @@ import type { OptionsInit, PlainResponse, RequestError } from 'got'
 //       });
 //       requestStream.on("end", async () => {
 //         const bufData = Buffer.concat(streamData, streamSize);
-//         const fileTypeResult = await fileTypeFromBuffer(bufData.buffer);
+//         const fileTypeResult = await fileTypeFromBlob(bufData.buffer);
 //         responseInfo.bodySize = bufData.length;
 //         let mimeType = 'unknown';
 //         if (fileTypeResult) {
@@ -144,16 +142,82 @@ import type { OptionsInit, PlainResponse, RequestError } from 'got'
 //   })
 // }
 
+const getFormDataFromRendererFormData = async (rendererFormDataList: RendererFormDataBody) => {
+  const formData = new FormData();
+  for (let i = 0; i < rendererFormDataList.length; i++) {
+    const formDataParam = rendererFormDataList[i];
+    const { id, key, type, value } = formDataParam;
+    if (type === 'string') {
+      formData.append(key, value);
+    } else if (type === 'file') {
+      try {
+        await fs.access(value, fs.constants.F_OK)
+      } catch {
+        return {
+          id,
+          msg: '文件不存在(发送被终止)'
+        }
+      }
+      try {
+        const fsStat = await fs.stat(value);
+        if (!fsStat.isFile) {
+          return {
+            id,
+            msg: '不是文件无法读取(发送被终止)'
+          }
+        }
+        if (fsStat.size > 1024 * 1024 * 10) {
+          return {
+            id,
+            msg: '文件大小超过10MB(发送被终止)'
+          }
+        }
+      } catch (error) {
+        return {
+          id,
+          msg: (error as Error).message
+        }
+      }
+      const buffer = await fs.readFile(value);
+      const fileType = await fileTypeFromBuffer(buffer.buffer as ArrayBuffer);
+      const filename = basename(value);
+      let mimeType = fileType?.mime || ""
+      if (!mimeType && formDataParam.value.match(/\.ts$/)) { //.ts以纯文本处理，不然会被当做视频处理
+        mimeType = 'text/plain';
+      } else if (!mimeType) {
+        mimeType = mime.getType(formDataParam.value) || 'text/plain';
+      }
+      formData.append(key, buffer, {
+        contentType: mimeType,
+        filename: filename
+      });
+    }
+  }
+  return Promise.resolve(formData);
+}
 
 
-export const gotRequest = (options: GotRequestOptions) => {
+export const gotRequest = async (options: GotRequestOptions) => {
   const abortController = new AbortController();
+  let reqeustBody: FormData | {
+    id: string,
+    msg: string
+  } |  null = null;
+  const isFormDataBody = Array.isArray(options.body)
+  if (isFormDataBody) {
+    reqeustBody = await getFormDataFromRendererFormData(options.body as RendererFormDataBody);
+    if (!(reqeustBody instanceof FormData)) {
+      options.onReadFileFormDataError?.(reqeustBody);
+      return
+    }
+  }
+
   const gotOptions: Omit<OptionsInit, 'isStream'>  = ({
     url: options.url,
     method: options.method,
     signal: abortController.signal,
     allowGetBody: true,
-    body: options.body,
+    body: (isFormDataBody && reqeustBody) ? reqeustBody : (options.body as string),
     headers: {
       'user-agent': "xxx",
     },
@@ -176,7 +240,7 @@ export const gotRequest = (options: GotRequestOptions) => {
 
   //取消请求
   options.signal(abortController.abort)
-  // console.log("gotOptions", gotOptions)
+  console.log("gotOptions", options.body, reqeustBody)
   // const requestStream = got.stream(gotOptions);
   // const streamData: Buffer[] = [];
   // let streamSize = 0;
