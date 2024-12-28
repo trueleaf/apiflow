@@ -4,11 +4,11 @@ import { useApidoc } from '@/store/apidoc/apidoc';
 import { toRaw } from 'vue';
 import json5 from 'json5'
 import { ApidocDetail } from '@src/types/global';
-import { convertTemplateValueToRealValue, getEncodedStringFromEncodedParams, getFormDataFromFormDataParams, getObjectVariable, getPathParamsStringFromPathParams, getQueryStringFromQueryParams } from '@/utils/utils';
+import { convertTemplateValueToRealValue, evalCode, getEncodedStringFromEncodedParams, getPathParamsStringFromPathParams, getQueryStringFromQueryParams } from '@/utils/utils';
 import { useVariable } from '@/store/apidoc/variables';
 import { useApidocRequest } from '@/store/apidoc/request';
 import { Options, RequestError } from 'got';
-import { GotRequestOptions, JsonData } from '@src/types/types';
+import { GotRequestOptions, JsonData, RendererFormDataBody } from '@src/types/types';
 import { forEach, forOwn } from 'lodash';
 
 /*
@@ -18,7 +18,7 @@ import { forEach, forOwn } from 'lodash';
 */
 const convertStringValueAsync = (data: JsonData) => {
   const needConvertList: Promise<void>[] = [];
-  const { variables } = useVariable()
+  const { objectVariable } = useVariable()
   const loop = (jsonData: JsonData) => {
     const isSimpleValue = (typeof jsonData === 'string' || typeof jsonData === 'number' || typeof jsonData === 'boolean' || jsonData === null);
     const isArray = Array.isArray(jsonData);
@@ -32,7 +32,7 @@ const convertStringValueAsync = (data: JsonData) => {
           loop(item);
         } else if (typeof item === 'string') {
           needConvertList.push(new Promise(resolve => {
-            convertTemplateValueToRealValue(item, toRaw(variables)).then((replacedValue) => {
+            convertTemplateValueToRealValue(item, objectVariable).then((replacedValue) => {
               jsonData[i] = replacedValue;
               resolve()
             });
@@ -48,7 +48,7 @@ const convertStringValueAsync = (data: JsonData) => {
           loop(value);
         } else if (typeof value === 'string') {
           needConvertList.push(new Promise(resolve => {
-            convertTemplateValueToRealValue(value, toRaw(variables)).then((replacedValue) => {
+            convertTemplateValueToRealValue(value, objectVariable).then((replacedValue) => {
               jsonData[key] = replacedValue;
               resolve()
             });
@@ -64,12 +64,12 @@ const getMethod = (apidoc: ApidocDetail) => {
   return apidoc.item.method;
 }
 export const getUrl = async (apidoc: ApidocDetail) => {
-  const { variables } = useVariable()
+  const { objectVariable } = useVariable()
   const { url, queryParams, paths, } = apidoc.item;
-  const queryString = await getQueryStringFromQueryParams(queryParams, toRaw(variables));
-  const pathParamsString = await getPathParamsStringFromPathParams(paths, toRaw(variables));
+  const queryString = await getQueryStringFromQueryParams(queryParams, objectVariable);
+  const pathParamsString = await getPathParamsStringFromPathParams(paths, objectVariable);
   const replacedPathParamsString = url.path.replace(/(?<!\{)\{([^{}]+)\}(?!\})/g, ''); // 替换路径参数
-  const pathString = await convertTemplateValueToRealValue(replacedPathParamsString, toRaw(variables));
+  const pathString = await convertTemplateValueToRealValue(replacedPathParamsString, objectVariable);
 
   let fullUrl = pathString + pathParamsString + queryString;
   if (!fullUrl.startsWith('http') && !fullUrl.startsWith('https')) {
@@ -78,10 +78,12 @@ export const getUrl = async (apidoc: ApidocDetail) => {
   if (fullUrl.includes('localhost')) {
     fullUrl = fullUrl.replace('localhost', '127.0.0.1')
   }
+  fullUrl = await convertTemplateValueToRealValue(fullUrl, objectVariable);
   return fullUrl;
 }
-const getBody = async (apidoc: ApidocDetail): Promise<GotRequestOptions['body']> => {
-  const { variables } = useVariable()
+const getBody = async (apidoc: ApidocDetail): Promise<RendererFormDataBody | string | undefined> => {
+  const { objectVariable } = useVariable()
+  const { changeFormDataErrorInfoById } = useApidoc()
   const { mode, urlencoded } = apidoc.item.requestBody;
   if (mode === 'json') {
     /*
@@ -104,12 +106,25 @@ const getBody = async (apidoc: ApidocDetail): Promise<GotRequestOptions['body']>
     return stringBody;
   }
   if (mode === 'urlencoded') {
-    const urlencodedString = await getEncodedStringFromEncodedParams(urlencoded, toRaw(variables));
+    const urlencodedString = await getEncodedStringFromEncodedParams(urlencoded, objectVariable);
     return urlencodedString;
   }
   if (mode === 'formdata') {
-    const valudFormData = apidoc.item.requestBody.formdata.filter(formData => formData.select && formData.key !== '');
-    const formDataString = await getFormDataFromFormDataParams(valudFormData, toRaw(variables));
+    const validFormData = apidoc.item.requestBody.formdata.filter(formData => formData.select && formData.key !== '');
+    return validFormData.map(formData => {
+      changeFormDataErrorInfoById(formData._id, '')
+      return {
+        id: formData._id,
+        key: formData.key,
+        type: formData.type,
+        value: formData.value,
+      }
+    })
+  }
+  if (mode === 'raw') {
+    const { data } = apidoc.item.requestBody.raw;
+    const realData = await convertTemplateValueToRealValue(data, objectVariable);
+    return realData;
   }
   return '??'
 }
@@ -141,12 +156,17 @@ export async function sendRequest() {
   const method = getMethod(rawApidoc);
   const url = await getUrl(rawApidoc);
   const body = await getBody(rawApidoc);
+  let formDataBody: RendererFormDataBody = []
+  const isFormData = rawApidoc.item.requestBody.mode === 'formdata';
+  if (isFormData) {
+    formDataBody = body as RendererFormDataBody;
+  }
 
   window.electronAPI?.sendRequest({
     url,
     method,
     timeout: 60000,
-    body,
+    body: isFormData ? formDataBody : (body as string),
     signal() {
       
     },
@@ -166,6 +186,9 @@ export async function sendRequest() {
     },
     beforeRetry: () => {
     },
+    onReadFileFormDataError(options: {id: string, msg: string}) {
+      apidocStore.changeFormDataErrorInfoById(options.id, options.msg)
+    }
   })
 
 

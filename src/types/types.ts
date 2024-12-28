@@ -309,13 +309,20 @@ export type Config = {
   }
 }
 
+export type RendererFormDataBody = {
+  id: string;
+  key: string;
+  type: 'string' | 'file';
+  value: string;
+}[]
 export type GotRequestOptions = {
   url: string;
   method: Method;
   timeout: number;
-  body: string | Buffer | FormDataLike | undefined;
+  body: string | RendererFormDataBody | undefined;
   signal: (abort: (reason?: string) => void) => void;
   onResponse?: (responseInfo: ResponseInfo) => void;
+  onReadFileFormDataError?: (options: {id: string, msg: string}) => void;
   beforeError: (error: RequestError) => void,
   beforeRedirect: (updatedOptions: Options, plainResponse: PlainResponse) => void,
   beforeRequest: (options: Options) => void,

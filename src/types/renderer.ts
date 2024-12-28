@@ -7,6 +7,7 @@ export type ElectronAPI = {
   sendRequest: (options: GotRequestOptions) => Promise<void>,
   openDevTools: () => void,
   readFileAsUint8Array: (path: string) => Promise<Uint8Array | string>;
+  getFilePath: (file: File) => string;
 }
 
 declare global {

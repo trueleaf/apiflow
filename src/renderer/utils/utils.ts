@@ -1,8 +1,6 @@
 import { FlowNode, Property, ResponseInfo } from "@src/types/types";
 import Mock from "../../mock/mock";
 import { ApidocVariable, SandboxPostMessage } from "@src/types/global";
-import { fileTypeFromBuffer } from 'file-type';
-import { useApidoc } from "@/store/apidoc/apidoc";
 
 export const isElectron = () => {
   if (typeof window !== 'undefined' && typeof window.process === 'object' && window.process.type === 'renderer') {
@@ -25,12 +23,9 @@ export const updateObject = <T extends Partial<Record<string, unknown>>>(draft: 
   })
 }
 
-let worker: Worker;
 export const evalCode = (code: string) => {
-  if (!worker) {
-    worker = new Worker(new URL('@/worker/sandbox.ts', import.meta.url));
-  }
   return new Promise((resolve, reject) => {
+    const worker = new Worker(new URL('@/worker/sandbox.ts', import.meta.url));
     worker.onmessage = (event: MessageEvent<SandboxPostMessage>) => {
       if (event.data.type === 'error') {
         reject(event.data.msg)
@@ -70,8 +65,7 @@ export const getObjectVariable = async (variables: ApidocVariable[]) => {
   return Promise.resolve(objectVariable);
 }
 //将模板转换为字符串
-export const convertTemplateValueToRealValue = async (stringValue: string, variables: ApidocVariable[]) => {
-  const objectVariable = await getObjectVariable(variables);
+export const convertTemplateValueToRealValue = async (stringValue: string, objectVariable: Record<string, any>) => {
   const isSingleMustachTemplate = stringValue.match(/^\s*\{\{\s*([^}\s]+)\s*\}\}\s*$/); // 这种属于单模板，返回实际值，可能是数字、对象等"{{ variable }}"
   if (isSingleMustachTemplate) {
     const variableName = isSingleMustachTemplate[1];
@@ -96,13 +90,13 @@ export const convertTemplateValueToRealValue = async (stringValue: string, varia
   const withoutEscapeString = withoutVaribleString.replace(/((\\)(?=\{\{))|(\\)(?=@)/g, '')
   return withoutEscapeString
 }
-export const getQueryStringFromQueryParams = async (queryParams: Property[], variables: ApidocVariable[]): Promise<string> => {
+export const getQueryStringFromQueryParams = async (queryParams: Property[], objectVariable: Record<string, any>): Promise<string> => {
   let queryString = "";
   for (let i = 0; i < queryParams.length; i++) {
     const queryParam = queryParams[i];
     if (queryParam.key) {
-      const realKey = await convertTemplateValueToRealValue(queryParam.key, variables); 
-      const realValue = await convertTemplateValueToRealValue(queryParam.value, variables);
+      const realKey = await convertTemplateValueToRealValue(queryParam.key, objectVariable); 
+      const realValue = await convertTemplateValueToRealValue(queryParam.value, objectVariable);
       queryString += `${realKey}=${realValue}&`;
     }
     
@@ -113,25 +107,25 @@ export const getQueryStringFromQueryParams = async (queryParams: Property[], var
   }
   return queryString;
 }
-export const getPathParamsStringFromPathParams = async (pathParams: Property[], variables: ApidocVariable[]): Promise<string> => {
+export const getPathParamsStringFromPathParams = async (pathParams: Property[], objectVariable: Record<string, any>): Promise<string> => {
   let pathString = "";
   for (let i = 0; i < pathParams.length; i++) {
     const pathParam = pathParams[i];
     if (pathParam.key) {
-      const realValue = await convertTemplateValueToRealValue(pathParam.value, variables);
+      const realValue = await convertTemplateValueToRealValue(pathParam.value, objectVariable);
       pathString += `${realValue}/`;
     }
   }
   pathString = pathString.replace(/\/$/, "");
   return pathString;
 }
-export const getEncodedStringFromEncodedParams = async (encodedParams: Property[], variables: ApidocVariable[]): Promise<string> => {
+export const getEncodedStringFromEncodedParams = async (encodedParams: Property[], objectVariable: Record<string, any>): Promise<string> => {
   let encodedString = "";
   for (let i = 0; i < encodedParams.length; i++) {
     const queryParam = encodedParams[i];
     if (queryParam.key) {
-      const realKey = await convertTemplateValueToRealValue(queryParam.key, variables); 
-      const realValue = await convertTemplateValueToRealValue(queryParam.value, variables);
+      const realKey = await convertTemplateValueToRealValue(queryParam.key, objectVariable); 
+      const realValue = await convertTemplateValueToRealValue(queryParam.value, objectVariable);
       encodedString += `${realKey}=${realValue}&`;
     }
     
@@ -139,38 +133,38 @@ export const getEncodedStringFromEncodedParams = async (encodedParams: Property[
   encodedString = encodedString.replace(/&$/, "");
   return encodedString;
 }
-export const getFormDataFromFormDataParams = async (formDataParams: Property[], variables: ApidocVariable[]): Promise<FormData> => {
-  const { changeFormDataErrorInfoById } = useApidoc()
-  const formData = new FormData();
-  console.log(2233)
-  for (let i = 0; i < formDataParams.length; i++) {
-    const formDataParam = formDataParams[i];
-    if (formDataParam.key) {
-      const realKey = await convertTemplateValueToRealValue(formDataParam.key, variables); 
-      if (formDataParam.type === 'string') {
-        const realValue = await convertTemplateValueToRealValue(formDataParam.value, variables);
-        formData.append(realKey, realValue);
-      } else if (formDataParam.type === 'file') {
-        // const file = await convertTemplateValueToRealValue(formDataParam.value, variables);
-        // formData.append(realKey, file);
-        const result = await window.electronAPI?.readFileAsUint8Array(formDataParam.value);
-        console.log('读取文件', formDataParam.value)
-        if (result && result instanceof Uint8Array) {
-          const fileType = await fileTypeFromBuffer(result);
-          const blob = new Blob([result], { type: fileType?.mime });
-          changeFormDataErrorInfoById(formDataParam._id, '')
-          console.log(fileType, blob);
-        } else if (result) { //读取错误
-          console.log('读取文件错误', result)
-          // console.dir(result, changeFormDataErrorInfoById)
-          changeFormDataErrorInfoById(formDataParam._id, result)
-        }
-      }
-    }
-
-  }
-  return Promise.resolve(formData);
-}
+// export const getFormDataFromFormDataParams = async (formDataParams: Property[], objectVariable: Record<string, any>): Promise<RendererFormDataBody> => {
+//   const { changeFormDataErrorInfoById } = useApidoc()
+//   const rendererFormDataBody: RendererFormDataBody = [];
+//   for (let i = 0; i < formDataParams.length; i++) {
+//     const formDataParam = formDataParams[i];
+//     if (formDataParam.key) {
+//       const realKey = await convertTemplateValueToRealValue(formDataParam.key, objectVariable); 
+//       if (formDataParam.type === 'string') {
+//         const realValue = await convertTemplateValueToRealValue(formDataParam.value, objectVariable);
+//         formData.append(realKey, realValue);
+//         rendererFormDataBody.push
+//       } else if (formDataParam.type === 'file') {
+//         const result = await window.electronAPI?.readFileAsUint8Array(formDataParam.value);
+//         if (result && result instanceof Uint8Array) {
+//           const fileType = await fileTypeFromBuffer(result);
+//           let mimeType = fileType?.mime || ""
+//           if (!mimeType && formDataParam.value.match(/\.ts$/)) { //.ts以纯文本处理，不然会被当做视频处理
+//             mimeType = 'text/plain';
+//           } else if (!mimeType) {
+//             mimeType = mime.getType(formDataParam.value) || 'text/plain';
+//           }
+//           const blob = new Blob([result], { type: mimeType});
+//           formData.append(realKey, blob);
+//           changeFormDataErrorInfoById(formDataParam._id, '')
+//         } else if (result) { //读取错误
+//           changeFormDataErrorInfoById(formDataParam._id, result)
+//         }
+//       }
+//     }
+//   }
+//   return Promise.resolve(formData);
+// }
 export const getNodeById = (nodes: FlowNode[], nodeId: string): FlowNode | null => {
   let result = null
   const foo = (flowNodes: FlowNode[]) => {
