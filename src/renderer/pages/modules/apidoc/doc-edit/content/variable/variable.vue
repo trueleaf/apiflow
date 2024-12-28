@@ -293,7 +293,7 @@ const handleEdit = (row: AddProjectVariableParams) => {
 //=====================================删除====================================//
 //删除一个数据
 const handleDelete = (_id: string) => {
-  ElMessageBox.confirm(t('此操作将永久删除该域名, 是否继续?'), t('提示'), {
+  ElMessageBox.confirm(t('此操作将永久删除该变量, 是否继续?'), t('提示'), {
     confirmButtonText: t('确定'),
     cancelButtonText: t('取消'),
     type: 'warning',

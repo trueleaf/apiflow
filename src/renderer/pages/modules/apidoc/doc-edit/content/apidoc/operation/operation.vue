@@ -60,7 +60,7 @@
     <pre class="pre-url-wrap">
       <span class="label">{{ t("请求地址") }}：</span>
       <span class="url">{{ fullUrl }}</span>
-      <el-icon size="14" color="#f60" class="tip">
+      <el-icon v-if='fullUrl' size="14" color="#f60" class="tip">
         <Warning />
       </el-icon>
     </pre>
@@ -88,10 +88,12 @@ import { isElectron } from '@/utils/utils'
 import { getUrl } from '@/server/request/request'
 import { Warning } from '@element-plus/icons-vue'
 import { debounce } from '@/helper'
+import { useVariable } from '@/store/apidoc/variables'
 
 const apidocTabsStore = useApidocTas()
 const apidocStore = useApidoc()
 const apidocResponseStore = useApidocResponse()
+const apidocVaribleStore = useVariable()
 const projectId = router.currentRoute.value.query.id as string;
 const showPrefixHelper = ref(false)
 /*
@@ -161,6 +163,13 @@ watch(() => {
 }, {
   deep: true,
   immediate: true
+})
+watch(() => {
+  return apidocVaribleStore.objectVariable;
+}, () => {
+  getFullUrl()
+}, {
+  deep: true
 })
 
 </script>

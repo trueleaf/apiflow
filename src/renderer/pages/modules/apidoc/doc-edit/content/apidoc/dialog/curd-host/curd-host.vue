@@ -31,7 +31,7 @@
       </SResizeX>
       <!-- 右侧数据展示 -->
       <div class="flex1">
-        <STable ref="table" url="/api/project/doc_service" :params="{ projectId: $route.query.id }" delete-many
+        <STable ref="table" url="/api/project/doc_service" :params="{ projectId}" delete-many
           delete-url="/api/project/doc_service" :res-hook="handleHookResponse" @deleteMany="getTableData">
           <el-table-column :label="t('前缀名称')" align="center">
             <template #default="scope">
