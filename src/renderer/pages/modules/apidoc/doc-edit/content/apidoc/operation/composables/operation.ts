@@ -71,7 +71,7 @@ export default (): OperationReturn => {
     apidocStore.getApidocDetail({
       id: currentSelectTab.value?._id || "",
       projectId,
-    }).then(() => {
+    }).finally(() => {
       loading3.value = false;
     })
   };
