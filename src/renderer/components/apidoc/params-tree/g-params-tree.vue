@@ -41,13 +41,12 @@
         </el-select>
         <!-- 参数值录入 -->
         <el-popover v-if="scope.data.type !== 'boolean' && scope.data.type !== 'file'"
-          :visible="scope.data._id === currentOpData?._id" placement="top-start" trigger="manual" width="auto">
+          :visible="scope.data._id === currentOpData?._id" placement="top-start" width="auto">
           <SMock v-if="scope.data.type !== 'boolean' && scope.data.type !== 'file'" :search-value="scope.data.value"
             @close="handleCloseMockModel" @select="handleSelectMockValue($event, scope.data)">
           </SMock>
           <template #reference>
-            <SValidInput :model-value="scope.data.value" :disabled="checkDisableValue(scope.data)"
-              :title="t('对象和数组不必填写参数值')" class="w-25" :placeholder="getValuePlaceholder(scope.data)"
+            <SValidInput :model-value="scope.data.value" :disabled="checkDisableValue(scope.data)" class="w-25 mr-2" :placeholder="getValuePlaceholder(scope.data)"
               @update:modelValue="handleChangeValue($event, scope.data)" @focus="handleFocusValue(scope.data)"
               @blur="handleBlurValue">
             </SValidInput>
