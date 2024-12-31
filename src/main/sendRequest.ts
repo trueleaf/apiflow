@@ -211,18 +211,25 @@ export const gotRequest = async (options: GotRequestOptions) => {
       return
     }
   }
-
+  const headers: Record<string, string | undefined> = {};
+  Object.keys(options.headers).forEach(key => {
+    const value = options.headers[key];
+    if (value === null) { //渲染进程和主进程传递undefined会被忽略
+      headers[key] = undefined;
+    } else {
+      headers[key] = value;
+    }
+  });
   const gotOptions: Omit<OptionsInit, 'isStream'>  = ({
     url: options.url,
     method: options.method,
     signal: abortController.signal,
     allowGetBody: true,
     body: (isFormDataBody && reqeustBody) ? reqeustBody : (options.body as string),
-    headers: {
-      'user-agent': "xxx",
-    },
+    headers,
     hooks: {
       beforeError: [(error: RequestError) => {
+        console.log('beforeError', error)
         options.beforeError(error)
         return Promise.reject(error)
       }],
@@ -240,8 +247,8 @@ export const gotRequest = async (options: GotRequestOptions) => {
 
   //取消请求
   options.signal(abortController.abort)
-  console.log("gotOptions", options.body, reqeustBody)
-  // const requestStream = got.stream(gotOptions);
+  console.log("gotOptions", options)
+  const requestStream = got.stream(gotOptions);
   // const streamData: Buffer[] = [];
   // let streamSize = 0;
   // const responseInfo = generateEmptyResponse()
