@@ -1,7 +1,16 @@
 <template>
-  <el-tree ref="tree" :data="data" :indent="50" node-key="_id" :expand-on-click-node="false"
-    :draggable="drag && enableDrag" :allow-drop="handleCheckNodeCouldDrop" :show-checkbox="showCheckbox"
-    :default-expanded-keys="defaultExpandedKeys" :default-checked-keys="defaultCheckedKeys" @node-drop="handleNodeDrop"
+  <el-tree 
+    ref="tree" 
+    :data="data" 
+    :indent="50" 
+    node-key="_id" 
+    :expand-on-click-node="false"
+    :draggable="drag && enableDrag" 
+    :allow-drop="handleCheckNodeCouldDrop" 
+    :show-checkbox="showCheckbox"
+    :default-expanded-keys="defaultExpandedKeys" 
+    :default-checked-keys="defaultCheckedKeys" 
+    @node-drop="handleNodeDrop"
     @check-change="handleCheckChange">
     <template #default="scope">
       <div class="custom-params-tree-node">
@@ -16,8 +25,12 @@
         </el-button>
         <!-- 参数key值录入 -->
         <div class="w-15 flex0 mr-2 d-flex a-center">
-          <SValidInput :model-value="scope.data.key" :disabled="checkKeyInputDisable(scope)"
-            :title="convertKeyPlaceholder(scope)" :placeholder="convertKeyPlaceholder(scope)" :select-data="mindParams"
+          <SValidInput 
+            :model-value="scope.data.key"
+            :disabled="checkKeyInputDisable(scope)"
+            :title="convertKeyPlaceholder(scope)" 
+            :placeholder="convertKeyPlaceholder(scope)" 
+            :select-data="mindParams"
             one-line @remote-select="handleRemoteSelectKey($event, scope.data)"
             @update:modelValue="handleChangeKeyData($event, scope)" @focus="enableDrag = false; currentOpData = null"
             @blur="handleCheckKeyField(scope); enableDrag = true">
@@ -25,7 +38,7 @@
           <!-- <div v-else class="readonly-key" @mouseover="() => enableDrag = false" @mouseout="() => enableDrag = true">{{ scope.data.key }}</div> -->
         </div>
         <!-- 请求参数类型 -->
-        <el-select :model-value="scope.data.type" :disabled="!nest && !enableFile" :title="typeTip"
+        <el-select :model-value="scope.data.type" :disabled="!nest && !enableFile"
           :placeholder="t('类型')" class="w-15 flex0 mr-2" :size="config.renderConfig.layout.size"
           @click="currentOpData = null" @update:modelValue="handleChangeParamsType($event, scope.data)">
           <el-option :disabled="scope.data.children && scope.data.children.length > 0" label="String"
@@ -128,86 +141,80 @@ type RootTreeNode = {
   parent: RootTreeNode
 }
 const props = defineProps({
-  /**
-     * 参数数据
-     */
   data: {
     type: Array as PropType<ApidocProperty[]>,
     default: () => [],
   },
-  /**
-     * 是否展示checkbox
-     */
   showCheckbox: {
     type: Boolean,
     default: false,
   },
   /**
-     * 是否允许添加子参数，eg：当请求方式为GET时，请求参数只能为扁平数据
-     */
+   * 是否允许添加子参数，eg：当请求方式为GET时，请求参数只能为扁平数据
+   */
   nest: {
     type: Boolean,
     default: false,
   },
   /**
-     * 字段field是否只读，Path参数字段值不允许修改
-     */
+   * 字段field是否只读，Path参数字段值不允许修改
+   */
   readonlyKey: {
     type: Boolean,
     default: false,
   },
   /**
-     * 禁止新增，Path参数字段值不允许新增
-     */
+   * 禁止新增，Path参数字段值不允许新增
+   */
   disableAdd: {
     type: Boolean,
     default: false,
   },
   /**
-     * 禁止新增，Path参数字段值不允许删除
-     */
+   * 禁止新增，Path参数字段值不允许删除
+   */
   disableDelete: { //禁止删除
     type: Boolean,
     default: false,
   },
   /**
-     * 不显示必有checkbox
-     */
+   * 不显示必有checkbox
+   */
   noRequiredCheckbox: {
     type: Boolean,
     default: false,
   },
   /**
-     * 是否允许file类型
-     */
+   * 是否允许file类型
+   */
   enableFile: {
     type: Boolean,
     default: false,
   },
   /**
-     * 展开的节点key值
-     */
+   * 展开的节点key值
+   */
   expandKeys: {
     type: Array as PropType<string[]>,
     default: () => [],
   },
   /**
-     * 只读的key值
-     */
+   * 只读的key值
+   */
   readonlyKeys: {
     type: Array as PropType<string[]>,
     default: () => [],
   },
   /**
-     * 是否允许拖拽
-     */
+   * 是否允许拖拽
+   */
   drag: {
     type: Boolean,
     default: true,
   },
   /**
-     * 联想参数
-     */
+   * 联想参数
+   */
   mindParams: {
     type: Array as PropType<ApidocProperty[]>,
     default: () => []
@@ -243,7 +250,6 @@ watch(() => props.data, (data) => {
 |--------------------------------------------------------------------------
 | 拖拽相关处理
 |--------------------------------------------------------------------------
-|
 */
 const enableDrag = ref(true);
 const handleCheckNodeCouldDrop = (_: TreeNode, dropNode: TreeNode, type: 'inner' | 'prev') => {
@@ -318,6 +324,9 @@ const handleDeleteParams = ({ node, data }: { node: TreeNode | RootTreeNode, dat
 };
 //是否禁用删除按钮
 const checkDeleteDisable = ({ node }: { node: TreeNode }) => {
+  if (node.data._disabledEdit) {
+    return true;
+  }
   const isReadOnly = !!props.readonlyKeys.find(key => key === node.data.key);
   return (!node.nextSibling && node.level === 1) || isReadOnly;
 }
@@ -359,6 +368,9 @@ const handleChangeKeyData = (val: string, { node, data }: { node: TreeNode | Roo
 //检查key输入框是否被禁用
 const checkKeyInputDisable = ({ node }: { node: TreeNode }) => {
   // const isComplex = node.data.type === "object" || node.data.type === "array"
+  if (node.data._disabledEdit) {
+    return true;
+  }
   const isReadOnly = !!props.readonlyKeys.find(key => key === node.data.key);
   const parentIsArray = node.parent.data.type === 'array';
   const isRootObject = props.nest && node.level === 1;
@@ -366,12 +378,18 @@ const checkKeyInputDisable = ({ node }: { node: TreeNode }) => {
 }
 //转换key输入框placeholder值
 const convertKeyPlaceholder = ({ node }: { node: TreeNode }) => {
-  // const isComplex = node.data.type === "array" || node.data.type === "object";
   if (node.level === 1 && props.nest) {
     return t('根元素');
   }
   if (node.parent.data.type === 'array') {
     return t('父元素为数组不必填写参数名称');
+  }
+  if (node.data._disabledEdit && !node.data.disabled) {
+    return t('不推荐修改该请求头，如需修改可以在下方新增一个请求头覆盖当前请求头');
+  }
+  if (node.data.disabled) {
+    return t('该请求头无法修改，也无法取消发送');
+
   }
   return t('输入参数名称自动换行');
 }
@@ -411,13 +429,6 @@ const handleRemoteSelectKey = (item: ApidocProperty, data: ApidocProperty) => {
 | 参数类型选择
 |--------------------------------------------------------------------------
 */
-// 禁用参数类型提示
-const typeTip = computed(() => {
-  if (!props.nest) {
-    return t('参数类型不允许改变，eg：当请求方式为get时，请求参数类型只能为string')
-  }
-  return '';
-})
 //改变参数类型
 const handleChangeParamsType = (value: string, data: ApidocProperty) => {
   apidocStore.changePropertyValue({
@@ -554,6 +565,9 @@ const handleSelectFile = (e: Event, data: ApidocProperty) => {
 }
 //判断是否禁用value输入
 const checkDisableValue = (data: ApidocProperty) => {
+  if (data._disabledEdit) {
+    return true;
+  }
   const isReadOnly = !!props.readonlyKeys.find(key => key === data.key);
   return data.type === 'object' || isReadOnly
 }
@@ -601,6 +615,9 @@ const handleCheckChange = (data: ApidocProperty, select: boolean) => {
 }
 //备注是否禁止
 const checkDescriptionDisable = ({ node }: { node: TreeNode }) => {
+  if (node.data._disabledEdit) {
+    return true;
+  }
   const isReadOnly = !!props.readonlyKeys.find(key => key === node.data.key);
   return node.parent.data.type === 'array' || isReadOnly;
 }
