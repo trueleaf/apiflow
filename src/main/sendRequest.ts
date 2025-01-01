@@ -9,6 +9,8 @@ import FormData from 'form-data';
 import { fileTypeFromBuffer } from 'file-type';
 import mime from "mime";
 import fs from 'fs/promises';
+import http from 'node:http';
+import http2 from 'node:http';
 import { basename } from 'path';
 
 
@@ -212,19 +214,25 @@ export const gotRequest = async (options: GotRequestOptions) => {
     }
   }
   const headers: Record<string, string | undefined> = {};
-  Object.keys(options.headers).forEach(key => {
-    const value = options.headers[key];
-    if (value === null) { //渲染进程和主进程传递undefined会被忽略
-      headers[key] = undefined;
+  for (const key in options.headers) {
+    if (options.headers[key] === null) { //undefined代表未设置值，null代表取消发送
+      headers[key] = undefined
     } else {
-      headers[key] = value;
+      headers[key] = options.headers[key]
     }
-  });
+  }
+  const isConnectionKeepAlive = options.headers['Connection'] == undefined || options.headers['Connection'] === 'keep-alive';
+  const needDecompress = options.headers['Accept-Encoding'] === undefined || options.headers['Accept-Encoding'] === 'gzip, deflate, br';
   const gotOptions: Omit<OptionsInit, 'isStream'>  = ({
     url: options.url,
     method: options.method,
     signal: abortController.signal,
     allowGetBody: true,
+    decompress: needDecompress ? true : false,
+    agent: {
+      http: new http.Agent({ keepAlive: isConnectionKeepAlive }),
+      http2: new http2.Agent({ keepAlive: isConnectionKeepAlive }),
+    },
     body: (isFormDataBody && reqeustBody) ? reqeustBody : (options.body as string),
     headers,
     hooks: {
