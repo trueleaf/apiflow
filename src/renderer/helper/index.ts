@@ -13,10 +13,7 @@ import lodashDebounce from 'lodash/debounce';
 import lodashThrottle from 'lodash/throttle';
 import dayjs from 'dayjs';
 import mitt from 'mitt'
-import Mock from '@/server/mock/mock'
 import tips from './tips'
-import { useApidocBaseInfo } from '@/store/apidoc/base-info';
-import { storeToRefs } from 'pinia';
 import { ApidocProjectBaseInfoState } from '@src/types/apidoc/base-info';
 
 type Data = Record<string, unknown>
@@ -365,28 +362,7 @@ type JsonArr = JSON[]
 type JsonObj = {
   [x: string]: JSON
 }
-/**
- * @description        apidoc转换value值
- * @author             shuxiaokai
- * @create             2021-8-26 21:56
- * @param {string}     value - 需要转换的值
- * @return {String}    返回转换后的字符串
- * @remark             这个方法具有强耦合性
- */
-export function apidocConvertValue(value: string): string {
-  const { variables, tempVariables } = storeToRefs(useApidocBaseInfo())
-  const matchdVariable = value.toString().match(/\{\{\s*([^} ]+)\s*\}\}/);
-  const globalVariables = variables.value.map(v => ({ name: v.name, value: v.value }));
-  const scriptVariables = tempVariables.value;
-  if (value.toString().startsWith('@')) {
-    return Mock.mock(value);
-  }
-  if (matchdVariable) {
-    const varInfo = globalVariables.concat(scriptVariables).find((v) => v.name === matchdVariable[1]);
-    return varInfo?.value || value;
-  }
-  return value;
-}
+
 
 /**
  * 将录入参数转换为json参数
@@ -610,19 +586,6 @@ export async function sleep(delay: number): Promise<void> {
   })
 }
 
-//将非嵌套参数转换为JSON5字符串
-export function apidocPropertyToJson5Str(queryParams: ApidocProperty<'string' | 'file'>[]): string {
-  let result = '';
-  queryParams.forEach(param => {
-    const key = param.key.trim();
-    const value = apidocConvertValue(param.value.trim());
-    if (key) {
-      result += `${key}: ${value}${param.description ? ` //${param.description}` : ''}\n`;
-    }
-  })
-  result += '';
-  return result;
-}
 
 export function getFileNameFromContentDisposition(contentDisposition: string) {
   if (!contentDisposition) {
