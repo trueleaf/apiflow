@@ -4,15 +4,15 @@
       <span class="cursor-pointer no-select" @click="hideDefaultHeader = true">
         <span>{{ t("点击隐藏默认") }}</span>
       </span>
-      <SParamsTree :drag="false" show-checkbox :readonly-keys="defaultHeaderKeys" :data="defaultHeaders"></SParamsTree>
+      <SParamsTree :drag="false" show-checkbox :data="defaultHeaders" no-add></SParamsTree>
     </div>
     <div v-else class="cursor-pointer no-select d-flex a-center" @click="hideDefaultHeader = false">
-      <span>{{ t("个隐藏", { msg: defaultHeaders.length.toString() }) }}</span>
+      <span>{{ defaultHeaders.length }}{{ t("个隐藏") }}</span>
       <el-icon :size="16" class="ml-1">
         <View />
       </el-icon>
     </div>
-    <SParamsTree :drag="false" show-checkbox :data="headerData" :mind-params="mindHeaderParams"></SParamsTree>
+    <SParamsTree :drag="false" show-checkbox :data="headerData" :mind-params="mindHeaderParams" no-add></SParamsTree>
     <template v-if="commonHeaders.length > 0">
       <el-divider content-position="left">{{ t('公共请求头') }}</el-divider>
       <el-table :data="commonHeaders" stripe border size="small">
@@ -58,7 +58,6 @@ const currentSelectTab = computed(() => { //当前选中的doc
 const hideDefaultHeader = ref(true);
 const headerData = computed(() => apidocStore.apidoc.item.headers)
 const defaultHeaders = computed(() => apidocStore.defaultHeaders)
-const defaultHeaderKeys = computed(() => apidocStore.defaultHeaders.map(v => v.key));
 const commonHeaders = computed(() => {
   const data = apidocBaseInfoStore.getCommonHeadersById(currentSelectTab.value?._id || "")
   return data.map(v => {
