@@ -10,6 +10,8 @@ import { useApidocRequest } from '@/store/apidoc/request';
 import { Options, RequestError } from 'got';
 import { GotRequestOptions, JsonData, RendererFormDataBody } from '@src/types/types';
 import { forEach, forOwn } from 'lodash';
+import { useApidocBaseInfo } from '@/store/apidoc/base-info';
+import { useApidocTas } from '@/store/apidoc/tabs';
 
 /*
 |--------------------------------------------------------------------------
@@ -128,6 +130,54 @@ const getBody = async (apidoc: ApidocDetail): Promise<RendererFormDataBody | str
   }
   return '??'
 }
+/*
+  * 1.从用户定义请求头中获取请求头
+  * 2.从公共请求头中获取请求头 
+ */
+const getHeaders = async (apidoc: ApidocDetail) => {
+  const { objectVariable } = useVariable()
+  const apidocBaseInfoStore = useApidocBaseInfo();
+  const { defaultHeaders } = useApidoc();
+  const apidocTabsStore = useApidocTas();
+  const projectId = apidoc.projectId;
+  const tabs = apidocTabsStore.tabs[projectId];
+  const currentSelectTab = tabs?.find((tab) => tab.selected) || null;
+  if (!currentSelectTab) {
+    console.warn('未匹配到当前选中tab')
+    return {}
+  }
+  const commonHeaders = apidocBaseInfoStore.getCommonHeadersById(currentSelectTab?._id || "")
+  const headers = apidoc.item.headers;
+  const headersObject: Record<string, string | null> = {};
+  for(let i = 0; i < headers.length; i++) {
+    const header = headers[i];
+    const realKey = await convertTemplateValueToRealValue(header.key, objectVariable);
+    if (realKey.trim() === '') {
+      continue;
+    }
+    const realValue = await convertTemplateValueToRealValue(header.value, objectVariable);
+    headersObject[realKey] = realValue
+  }
+  for(let i = 0; i < commonHeaders.length; i++) {
+    const header = commonHeaders[i];
+    const realKey = await convertTemplateValueToRealValue(header.key, objectVariable);
+    if (realKey.trim() === '') {
+      continue;
+    }
+    const realValue = await convertTemplateValueToRealValue(header.value, objectVariable);
+    headersObject[realKey] = realValue
+  }
+  for(let i = 0; i < defaultHeaders.length; i++) {
+    const header = defaultHeaders[i];
+    if (!header.disabled && !header.select) { //当前请求头可以被取消
+      headersObject[header.key] = null;
+    } else if (!header._disableValue && header.value) {
+      const realValue = await convertTemplateValueToRealValue(header.value, objectVariable);
+      headersObject[header.key] = realValue;
+    }
+  }
+  return headersObject;
+}
 
 export async function sendRequest() {
   // const apidocResponseStore = useApidocResponse();
@@ -156,17 +206,18 @@ export async function sendRequest() {
   const method = getMethod(rawApidoc);
   const url = await getUrl(rawApidoc);
   const body = await getBody(rawApidoc);
+  const headers = await getHeaders(rawApidoc);
   let formDataBody: RendererFormDataBody = []
   const isFormData = rawApidoc.item.requestBody.mode === 'formdata';
   if (isFormData) {
     formDataBody = body as RendererFormDataBody;
   }
-
   window.electronAPI?.sendRequest({
     url,
     method,
     timeout: 60000,
     body: isFormData ? formDataBody : (body as string),
+    headers,
     signal() {
       
     },
