@@ -1,8 +1,7 @@
-import type { BeforeErrorHook, BeforeRedirectHook, BeforeRequestHook, BeforeRetryHook, Method, Options, PlainResponse, RequestError } from "got";
+import type { Method, Options, PlainResponse, RequestError } from "got";
 import type { Timings } from '@szmarczak/http-timer';
 import type { IncomingHttpHeaders } from 'http'
 import type { ComponentSize } from "element-plus";
-import { type FormDataLike } from 'form-data-encoder';
 
 export type Property = {
   _id: string;

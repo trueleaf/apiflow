@@ -1,15 +1,13 @@
 
-import { useApidocResponse } from '@/store/apidoc/response';
 import { useApidoc } from '@/store/apidoc/apidoc';
 import { toRaw } from 'vue';
 import json5 from 'json5'
 import { ApidocDetail } from '@src/types/global';
-import { convertTemplateValueToRealValue, evalCode, getEncodedStringFromEncodedParams, getPathParamsStringFromPathParams, getQueryStringFromQueryParams } from '@/utils/utils';
+import { convertTemplateValueToRealValue, getEncodedStringFromEncodedParams, getPathParamsStringFromPathParams, getQueryStringFromQueryParams } from '@/utils/utils';
 import { useVariable } from '@/store/apidoc/variables';
 import { useApidocRequest } from '@/store/apidoc/request';
-import { Options, RequestError } from 'got';
-import { GotRequestOptions, JsonData, RendererFormDataBody } from '@src/types/types';
-import { forEach, forOwn } from 'lodash';
+import { Options } from 'got';
+import { JsonData, RendererFormDataBody } from '@src/types/types';
 import { useApidocBaseInfo } from '@/store/apidoc/base-info';
 import { useApidocTas } from '@/store/apidoc/tabs';
 
@@ -102,7 +100,7 @@ const getBody = async (apidoc: ApidocDetail): Promise<RendererFormDataBody | str
     })
     const jsonObject = json5.parse(replacedRawJson || 'null');
     await Promise.all(convertStringValueAsync(jsonObject))
-    const stringBody = JSON.stringify(jsonObject).replace(/"([+-]?\d*\.?\d+n)"(?=\s*[,}\]])/g, ($1, $2) => {
+    const stringBody = JSON.stringify(jsonObject).replace(/"([+-]?\d*\.?\d+n)"(?=\s*[,}\]])/g, (_, $2) => {
       return bigNumberMap[$2];
     })
     return stringBody;
