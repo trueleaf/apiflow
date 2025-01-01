@@ -15,25 +15,37 @@
     <template #default="scope">
       <div class="custom-params-tree-node">
         <!-- 新增嵌套数据按钮 -->
-        <el-button v-if="!disableAdd" :title="addNestTip" :icon="Plus" text :disabled="!nest"
+        <el-button 
+          v-if="!props.noAdd && !disableAdd" 
+          :title="addTip(scope.data)" 
+          :icon="Plus" text 
+          :disabled="!nest"
           @click="addNestTreeData(scope.data)">
         </el-button>
         <!-- 删除一行数据按钮 -->
-        <el-button v-if="!disableDelete" class="mr-2" :disabled="checkDeleteDisable(scope)"
-          :title="`${(!scope.node.nextSibling && scope.node.level === 1) ? t('此项不允许删除') : t('删除当前行')}`" text
+        <el-button 
+          v-if="!disableDelete" 
+          class="mr-2" 
+          :disabled="checkDeleteDisable(scope)"
+          :title="deleteTip(scope)" 
+          text
           :icon="Close" @click="handleDeleteParams(scope)">
         </el-button>
         <!-- 参数key值录入 -->
         <div class="w-15 flex0 mr-2 d-flex a-center">
           <SValidInput 
             :model-value="scope.data.key"
-            :disabled="checkKeyInputDisable(scope)"
-            :title="convertKeyPlaceholder(scope)" 
+            :disabled="checkKeyDisable(scope)"
+            :title="keyTip(scope)" 
             :placeholder="convertKeyPlaceholder(scope)" 
             :select-data="mindParams"
-            one-line @remote-select="handleRemoteSelectKey($event, scope.data)"
-            @update:modelValue="handleChangeKeyData($event, scope)" @focus="enableDrag = false; currentOpData = null"
-            @blur="handleCheckKeyField(scope); enableDrag = true">
+            one-line 
+            @remote-select="handleRemoteSelectKey($event, scope.data)"
+            @update:modelValue="handleChangeKeyData($event, scope)" 
+            @focus="enableDrag = false; 
+            currentOpData = null"
+            @blur="handleCheckKeyField(scope); 
+            enableDrag = true">
           </SValidInput>
           <!-- <div v-else class="readonly-key" @mouseover="() => enableDrag = false" @mouseout="() => enableDrag = true">{{ scope.data.key }}</div> -->
         </div>
@@ -59,7 +71,11 @@
             @close="handleCloseMockModel" @select="handleSelectMockValue($event, scope.data)">
           </SMock>
           <template #reference>
-            <SValidInput :model-value="scope.data.value" :disabled="checkDisableValue(scope.data)" class="w-25 mr-2" :placeholder="getValuePlaceholder(scope.data)"
+            <SValidInput 
+              :model-value="scope.data.value" 
+              class="w-25 mr-2" 
+              :disabled="checkValueDisable(scope.data)" 
+              :placeholder="getValuePlaceholder(scope.data)"
               @update:modelValue="handleChangeValue($event, scope.data)" @focus="handleFocusValue(scope.data)"
               @blur="handleBlurValue">
             </SValidInput>
@@ -96,13 +112,22 @@
           >
         </div>
         <!-- 参数是否必填 -->
-        <el-checkbox v-if="!noRequiredCheckbox" :model-value="scope.data.required" :label="t('必有')" class="pr-2"
+        <el-checkbox 
+          v-if="!noRequiredCheckbox" 
+          :model-value="scope.data.required" 
+          :label="t('必有')" 
+          class="pr-2"
           :disabled="checkRequiredDisable(scope.data)" @click="currentOpData = null"
           @update:modelValue="handleChangeIsRequired($event as string, scope.data)">
         </el-checkbox>
         <!-- 参数描述 -->
-        <SValidInput :model-value="scope.data.description" :disabled="checkDescriptionDisable(scope)" class="w-40"
-          :placeholder="t('参数描述与备注')" @focus="enableDrag = false; currentOpData = null" @blur="handleDescriptionBlur"
+        <SValidInput 
+          :model-value="scope.data.description" 
+          :disabled="checkDescriptionDisable(scope)" 
+          class="w-40"
+          :placeholder="t('参数描述与备注')"
+          @focus="enableDrag = false; currentOpData = null"
+          @blur="handleDescriptionBlur"
           @update:modelValue="handleChangeDescription($event, scope.data)">
         </SValidInput>
       </div>
@@ -115,10 +140,10 @@ import {
   ref,
   Ref,
   PropType,
-  computed,
   watch
 } from 'vue'
 import { Plus, Close } from '@element-plus/icons-vue'
+import type Node from 'element-plus/es/components/tree/src/model/node'
 import type { TreeNodeOptions } from 'element-plus/lib/components/tree/src/tree.type'
 import type { ApidocProperty, ApidocPropertyType, MockItem } from '@src/types/global'
 import { apidocGenerateProperty, forEachForest } from '@/helper/index'
@@ -134,6 +159,7 @@ type TreeNode = {
   data: ApidocProperty,
   parent: TreeNode,
   nextSibling: TreeNode,
+  node: Node,
 }
 type RootTreeNode = {
   level: number,
@@ -219,6 +245,20 @@ const props = defineProps({
     type: Array as PropType<ApidocProperty[]>,
     default: () => []
   },
+  /**
+   * 移除新增按钮
+   */
+  noAdd: {
+    type: Boolean,
+    default: false,
+  },
+  /**
+   * 移除删除按钮
+   */
+  noDelete: {
+    type: Boolean,
+    default: false,
+  },
 });
 const emits = defineEmits(['change'])
 /*
@@ -275,12 +315,26 @@ const handleNodeDrop = (_: TreeNode, dropNode: TreeNode, type: 'inner' | 'prev')
 */
 const apidocStore = useApidoc()
 //新增按钮title提示信息
-const addNestTip = computed(() => {
+const addTip = (data: ApidocProperty) => {
+  if (data._disableAdd) {
+    return t(data._disableAddTip ?? '不允许新增数据');
+  }
   if (!props.nest) {
     return t('参数不允许嵌套，例如：当请求方式为get时，请求参数只能为扁平数据');
   }
   return t('添加一条嵌套数据');
-})
+}
+const deleteTip = (scope: TreeNode) => {
+  if (scope.data._disableDelete) {
+    return t(scope.data._disableDeleteTip ?? '不允许删除数据');
+  }
+  if (!scope.node.nextSibling && scope.node.level === 1) {
+    return t('此项不允许删除')
+  }
+  return t('删除当前行');
+}
+
+
 //新增嵌套数据
 const addNestTreeData = (data: ApidocProperty) => {
   const params = apidocGenerateProperty();
@@ -324,7 +378,7 @@ const handleDeleteParams = ({ node, data }: { node: TreeNode | RootTreeNode, dat
 };
 //是否禁用删除按钮
 const checkDeleteDisable = ({ node }: { node: TreeNode }) => {
-  if (node.data._disabledEdit) {
+  if (node.data._disableDelete) {
     return true;
   }
   const isReadOnly = !!props.readonlyKeys.find(key => key === node.data.key);
@@ -366,15 +420,31 @@ const handleChangeKeyData = (val: string, { node, data }: { node: TreeNode | Roo
   }
 }
 //检查key输入框是否被禁用
-const checkKeyInputDisable = ({ node }: { node: TreeNode }) => {
-  // const isComplex = node.data.type === "object" || node.data.type === "array"
-  if (node.data._disabledEdit) {
+const checkKeyDisable = ({ node }: { node: TreeNode }) => {
+  if (node.data._disableKey) {
     return true;
   }
   const isReadOnly = !!props.readonlyKeys.find(key => key === node.data.key);
   const parentIsArray = node.parent.data.type === 'array';
   const isRootObject = props.nest && node.level === 1;
   return parentIsArray || isRootObject || props.disableAdd || isReadOnly;
+}
+const keyTip = ({ node }: { node: TreeNode }) => {
+  if (node.data._disableKeyTip) {
+    return t(node.data._disableKeyTip);
+  }
+
+  if (node.level === 1 && props.nest) {
+    return t('根元素');
+  }
+  if (node.parent.data.type === 'array') {
+    return t('父元素为数组不必填写参数名称');
+  }
+  if (node.data.disabled) {
+    return t('该请求头无法修改，也无法取消发送');
+
+  }
+  return t('输入参数名称自动换行');
 }
 //转换key输入框placeholder值
 const convertKeyPlaceholder = ({ node }: { node: TreeNode }) => {
@@ -383,9 +453,6 @@ const convertKeyPlaceholder = ({ node }: { node: TreeNode }) => {
   }
   if (node.parent.data.type === 'array') {
     return t('父元素为数组不必填写参数名称');
-  }
-  if (node.data._disabledEdit && !node.data.disabled) {
-    return t('不推荐修改该请求头，如需修改可以在下方新增一个请求头覆盖当前请求头');
   }
   if (node.data.disabled) {
     return t('该请求头无法修改，也无法取消发送');
@@ -485,6 +552,9 @@ const handleChangeParamsType = (value: string, data: ApidocProperty) => {
 const currentOpData: Ref<ApidocProperty | null> = ref(null);
 //value值placeholder处理
 const getValuePlaceholder = (data: ApidocProperty) => {
+  if (data._valuePlaceholder) {
+    return data._valuePlaceholder;
+  }
   if (data.type === 'object') {
     return t('对象类型不必填写')
   }
@@ -564,8 +634,8 @@ const handleSelectFile = (e: Event, data: ApidocProperty) => {
   }
 }
 //判断是否禁用value输入
-const checkDisableValue = (data: ApidocProperty) => {
-  if (data._disabledEdit) {
+const checkValueDisable = (data: ApidocProperty) => {
+  if (data._disableValue) {
     return true;
   }
   const isReadOnly = !!props.readonlyKeys.find(key => key === data.key);
@@ -615,7 +685,7 @@ const handleCheckChange = (data: ApidocProperty, select: boolean) => {
 }
 //备注是否禁止
 const checkDescriptionDisable = ({ node }: { node: TreeNode }) => {
-  if (node.data._disabledEdit) {
+  if (node.data._disableDescription) {
     return true;
   }
   const isReadOnly = !!props.readonlyKeys.find(key => key === node.data.key);
