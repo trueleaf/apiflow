@@ -320,6 +320,7 @@ export type GotRequestOptions = {
   method: Method;
   timeout: number;
   body: string | RendererFormDataBody | undefined;
+  headers: Record<string, string | null>;
   signal: (abort: (reason?: string) => void) => void;
   onResponse?: (responseInfo: ResponseInfo) => void;
   onReadFileFormDataError?: (options: {id: string, msg: string}) => void;

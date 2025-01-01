@@ -314,6 +314,20 @@ export type ApidocProperty<T extends ApidocPropertyType = ApidocPropertyType> = 
   select: boolean;
   children?: ApidocProperty[];
   _error?: string;
+  _disableSelect?: boolean;
+  _disableKey?: boolean;
+  _disableKeyTip?: string;
+  _disableValue?: boolean;
+  _disableValueTip?: string;
+  _disableDescription?: boolean;
+  _disableDescriptionTip?: string;
+  _disableAdd?: boolean;
+  _disableAddTip?: string;
+  _disableDelete?: boolean;
+  _disableDeleteTip?: string;
+  _valuePlaceholder?: string;
+  _keyPlaceholder?: string;
+  disabled?: boolean; //是否禁止checkbox
 };
 //联想参数
 export type ApidocMindParam = ApidocProperty & {

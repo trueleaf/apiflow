@@ -6,7 +6,6 @@ import {
   ApidocProjectHost,
   ApidocProjectParamsTemplate,
   ApidocProjectRules,
-  ApidocVariable
 } from "@src/types/apidoc/base-info";
 import { event } from '@/helper'
 import { ApidocMindParam, ApidocProperty, Response } from "@src/types/global";
@@ -18,7 +17,6 @@ import { useVariable } from './variables';
 type ChangeProjectBaseInfo = {
   _id: string;
   projectName: string,
-  variables: ApidocVariable[],
   mindParams: ApidocMindParam[],
   paramsTemplate: ApidocProjectParamsTemplate[],
   rules: ApidocProjectRules,
@@ -65,8 +63,6 @@ const getMatchedHeaders = (data: ApidocProjectBaseInfoState['commonHeaders'], op
 export const useApidocBaseInfo = defineStore('apidocBaseInfo', () => {
   const _id = ref('');
   const projectName = ref('');
-  const variables = ref<ApidocVariable[]>([]);
-  const tempVariables = ref<Omit<ApidocVariable, '_id'>[]>([]);
   const mindParams = ref<ApidocMindParam[]>([]);
   const paramsTemplate = ref<ApidocProjectParamsTemplate[]>([]);
   const rules = ref<ApidocProjectRules>({
@@ -88,7 +84,6 @@ export const useApidocBaseInfo = defineStore('apidocBaseInfo', () => {
   const changeProjectBaseInfo = (payload: ChangeProjectBaseInfo): void => {
     _id.value = payload._id;
     projectName.value = payload.projectName;
-    variables.value = payload.variables;
     mindParams.value = payload.mindParams;
     paramsTemplate.value = payload.paramsTemplate;
     rules.value = payload.rules;
@@ -159,18 +154,6 @@ export const useApidocBaseInfo = defineStore('apidocBaseInfo', () => {
   //改变操作模式
   const changeMode = (modeOption: 'edit' | 'view'): void => {
     mode.value = modeOption;
-  }
-  //改变变量信息
-  const changeVariables = (variablesOption: ApidocVariable[]): void => {
-    variables.value = variablesOption;
-  }
-  //清空临时变量
-  const clearTempVariables = (): void => {
-    tempVariables.value = [];
-  }
-  //改版临时变量的值
-  const changeTempVariables = (tempVariablesOption: (Omit<ApidocVariable, '_id'>[])): void => {
-    tempVariables.value = tempVariablesOption;
   }
   //改变公共请求头信息
   const changeCommonHeaders = (headers: ApidocProjectCommonHeader[]): void => {
@@ -273,8 +256,6 @@ export const useApidocBaseInfo = defineStore('apidocBaseInfo', () => {
     webProxy,
     projectName,
     mode,
-    variables,
-    tempVariables,
     commonHeaders,
     rules,
     mindParams,
@@ -289,9 +270,6 @@ export const useApidocBaseInfo = defineStore('apidocBaseInfo', () => {
     deleteParamsTemplate,
     changeWebProxy,
     changeMode,
-    changeVariables,
-    clearTempVariables,
-    changeTempVariables,
     changeCommonHeaders,
     changeProjectRules,
     changeMindParams,
