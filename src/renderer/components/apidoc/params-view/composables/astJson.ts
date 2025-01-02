@@ -3,7 +3,6 @@
  */
 
 import { ApidocProperty, ApidocASTInfo } from '@src/types/global'
-import { apidocConvertValue } from '@/helper/index'
 
 //生成语法树基本数据结构
 function generateAstInfo(): ApidocASTInfo {
@@ -49,7 +48,7 @@ export const astJson = (data: ApidocProperty[], indent = 4): ApidocASTInfo[] => 
     const parentIsArray = (parent && parent.type === 'array');
     for (let i = 0; i < arrayData.length; i += 1) {
       const item = arrayData[i];
-      const itemValue = apidocConvertValue(item.value);
+      // const itemValue = apidocConvertValue(item.value);
       const itemType = item.type;
       const hasItemValue = (itemType === 'string' && item.value != null) || item.value; //字符串可以为空""
       const itemPath = item.key;
