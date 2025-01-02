@@ -1,12 +1,12 @@
 <template>
   <div class="header-info">
     <div v-if="!hideDefaultHeader">
-      <span class="cursor-pointer no-select" @click="hideDefaultHeader = true">
-        <span>{{ t("点击隐藏默认") }}</span>
+      <span class="cursor-pointer no-select gray-600" @click="hideDefaultHeader = true">
+        <span>{{ t("点击隐藏自动生成的请求头") }}</span>
       </span>
       <SParamsTree :drag="false" show-checkbox :data="defaultHeaders" no-add></SParamsTree>
     </div>
-    <div v-else class="cursor-pointer no-select d-flex a-center" @click="hideDefaultHeader = false">
+    <div v-else class="cursor-pointer no-select d-flex a-center gray-600" @click="hideDefaultHeader = false">
       <span>{{ defaultHeaders.length }}{{ t("个隐藏") }}</span>
       <el-icon :size="16" class="ml-1">
         <View />
@@ -16,6 +16,11 @@
     <template v-if="commonHeaders.length > 0">
       <el-divider content-position="left">{{ t('公共请求头') }}</el-divider>
       <el-table :data="commonHeaders" stripe border size="small">
+        <el-table-column :label="t('是否发送')" align="center">
+          <template #default="scope">
+            <el-checkbox v-model="scope.row.select"></el-checkbox>
+          </template>
+        </el-table-column>
         <el-table-column prop="key" :label="t('键')" align="center"></el-table-column>
         <el-table-column prop="type" :label="t('类型')" align="center"></el-table-column>
         <el-table-column prop="value" :label="t('值')" align="center">
@@ -35,7 +40,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, computed, Ref, } from 'vue'
+import { ref, computed, Ref, watchEffect, } from 'vue'
 import { router } from '@/router'
 import { View } from '@element-plus/icons-vue'
 import { ApidocProperty } from '@src/types/global';
@@ -58,20 +63,27 @@ const currentSelectTab = computed(() => { //当前选中的doc
 const hideDefaultHeader = ref(true);
 const headerData = computed(() => apidocStore.apidoc.item.headers)
 const defaultHeaders = computed(() => apidocStore.defaultHeaders)
-const commonHeaders = computed(() => {
-  const data = apidocBaseInfoStore.getCommonHeadersById(currentSelectTab.value?._id || "")
-  return data.map(v => {
+const commonHeaders = ref<{
+  select: boolean;
+  key: string;
+  value: string;
+  description: string;
+}[]>([]);
+const mindHeaderParams: Ref<ApidocProperty[]> = ref(mindHeaders);
+watchEffect(() => {
+  if (currentSelectTab.value?.tabType !== 'doc') {
+    return
+  }
+  const defaultCommonHeader = apidocBaseInfoStore.getCommonHeadersById(currentSelectTab.value?._id || "");
+  commonHeaders.value = defaultCommonHeader.map(v => {
     const property = apidocGenerateProperty();
+    property.select = true;
     property.key = v.key;
     property.value = v.value;
     property.description = v.description;
     return property;
   })
-});
-
-const mindHeaderParams: Ref<ApidocProperty[]> = ref(mindHeaders);
-
-
+})
 </script>
 
 <style lang='scss' scoped>
