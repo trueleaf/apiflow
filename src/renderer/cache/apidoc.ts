@@ -2,8 +2,9 @@
  * apidoc文档缓存
  */
 
+import { ApidocProjectHost } from '@src/types/apidoc/base-info';
+import { ApidocResponseState } from '@src/types/apidoc/response';
 import { ApidocDetail } from '@src/types/global';
-import type { ApidocProjectHost, ApidocResponseState } from '@src/types/store'
 
 type ServerInfo = ApidocProjectHost & {
   isLocal?: boolean,
@@ -443,8 +444,8 @@ class ApidocCache {
   }
 
   /**
-     * 获取mock编辑 json返回数据提示信息
-     */
+   * 获取mock编辑 json返回数据提示信息
+   */
   getIsShowApidocMockParamsJsonTip(): boolean {
     try {
       const localData = JSON.parse(localStorage.getItem('apidoc/mock/isShowJsonTip') || 'true');
@@ -456,14 +457,77 @@ class ApidocCache {
   }
 
   /**
-     * 设置 json返回数据提示信息
-     */
+   * 设置 json返回数据提示信息
+   */
   setIsShowApidocMockParamsJsonTip(isShow: boolean) {
     try {
       localStorage.setItem('apidoc/mock/isShowJsonTip', JSON.stringify(isShow));
     } catch (error) {
       console.error(error);
       localStorage.setItem('apidoc/mock/isShowJsonTip', 'true');
+    }
+  }
+
+  /**
+   * 根据tabId获取不发送公共请求头
+   */
+  getIgnoredCommonHeaderByTabId(projectId: string, tabId: string): string[] | null {
+    try {
+      const localData = JSON.parse(localStorage.getItem('apidoc/commonHeaders/ignore') || '{}') as Record<string, Record<string, string[]>>;
+      if (localData[projectId] == null) {
+        return [];
+      }
+      if (localData[projectId][tabId] == null) {
+        return [];
+      }
+      return localData[projectId][tabId];
+    } catch (error) {
+      console.error(error);
+      return []
+    }
+  }
+
+  /**
+   * 设置不发送的公共请求头
+   */
+  setIgnoredCommonHeader(options: { projectId: string; tabId: string; ignoreHeaderId: string }) {
+    try {
+      const { projectId, tabId, ignoreHeaderId } = options;
+      const localData = JSON.parse(localStorage.getItem('apidoc/commonHeaders/ignore') || '{}') as Record<string, Record<string, string[]>>;
+      if (localData[projectId] == null) {
+        localData[projectId] = {}
+      }
+      if (localData[projectId][tabId] == null) {
+        localData[projectId][tabId] = []
+      }
+      const matchedTab = localData[projectId][tabId];
+      matchedTab.push(ignoreHeaderId);
+      localStorage.setItem('apidoc/commonHeaders/ignore', JSON.stringify(localData));
+    } catch (error) {
+      console.error(error);
+      localStorage.setItem('apidoc/commonHeaders/ignore', '{}');
+    }
+  }
+  /**
+   * 删除不发送的公共请求头
+   */
+  removeIgnoredCommonHeader(options: { projectId: string; tabId: string; ignoreHeaderId: string }) {
+    try {
+      const { projectId, tabId, ignoreHeaderId } = options;
+      const localData = JSON.parse(localStorage.getItem('apidoc/commonHeaders/ignore') || '{}') as Record<string, Record<string, string[]>>;
+      if (localData[projectId] == null) {
+        return false;
+      }
+      if (localData[projectId][tabId] == null) {
+        return false;
+      }
+      const matchedTab = localData[projectId][tabId];
+      const deleteIndex = matchedTab.findIndex(id => ignoreHeaderId === id);
+      matchedTab.splice(deleteIndex, 1)
+      localStorage.setItem('apidoc/commonHeaders/ignore', JSON.stringify(localData));
+    } catch (error) {
+      console.error(error);
+      localStorage.setItem('apidoc/commonHeaders/ignore', '{}');
     }
   }
 }

@@ -22,7 +22,7 @@ type ChangeProjectBaseInfo = {
   rules: ApidocProjectRules,
   hosts: ApidocProjectHost[],
 }
-type HeaderInfo = Pick<ApidocProperty, 'key' | 'value' | 'description'>
+type HeaderInfo = Pick<ApidocProperty, '_id' | 'key' | 'value' | 'description'>
 type CommonHeaderResult = {
   matched: boolean,
   data: HeaderInfo[]
@@ -75,6 +75,7 @@ export const useApidocBaseInfo = defineStore('apidocBaseInfo', () => {
   const webProxy = ref(true);
   const mode = ref<'view' | 'edit'>('view');
   const commonHeaders = ref<ApidocProjectCommonHeader[]>([]);
+  const validCommonHeaders = ref<Pick<ApidocProperty, 'key' | 'value' | 'description' | 'select'>[]>([]);
   /*
   |--------------------------------------------------------------------------
   | 方法
@@ -158,6 +159,10 @@ export const useApidocBaseInfo = defineStore('apidocBaseInfo', () => {
   //改变公共请求头信息
   const changeCommonHeaders = (headers: ApidocProjectCommonHeader[]): void => {
     commonHeaders.value = headers
+  }
+  //改变实际发送的公共请求头
+  const changeValidCommonHeaders = (headers: Pick<ApidocProperty, 'key' | 'value' | 'description' | 'select'>[]) => {
+    validCommonHeaders.value = headers;
   }
   //根据文档id获取公共请求头
   const getCommonHeadersById = (id: string) => {
@@ -261,6 +266,7 @@ export const useApidocBaseInfo = defineStore('apidocBaseInfo', () => {
     mindParams,
     hosts,
     globalCookies,
+    validCommonHeaders,
     changeProjectBaseInfo,
     updateHostById,
     initCookies,
@@ -279,5 +285,6 @@ export const useApidocBaseInfo = defineStore('apidocBaseInfo', () => {
     getSharedProjectBaseInfo,
     getCommonHeaders,
     getCommonHeadersById,
+    changeValidCommonHeaders
   }
 })

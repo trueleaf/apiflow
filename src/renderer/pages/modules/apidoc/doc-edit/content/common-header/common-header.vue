@@ -74,6 +74,7 @@ const handleEditCommonHeader = () => {
     projectId,
     id: currentSelectTab.value?._id,
     commonHeaders: headerData.value.map(v => ({
+      _id: v._id,
       key: v.key,
       value: v.value,
       description: v.description,

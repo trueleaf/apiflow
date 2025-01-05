@@ -144,7 +144,7 @@ const getHeaders = async (apidoc: ApidocDetail) => {
     console.warn('未匹配到当前选中tab')
     return {}
   }
-  const commonHeaders = apidocBaseInfoStore.getCommonHeadersById(currentSelectTab?._id || "")
+  // const commonHeaders = apidocBaseInfoStore.getCommonHeadersById(currentSelectTab?._id || "")
   const headers = apidoc.item.headers;
   const headersObject: Record<string, string | null> = {};
   for(let i = 0; i < headers.length; i++) {
@@ -156,8 +156,8 @@ const getHeaders = async (apidoc: ApidocDetail) => {
     const realValue = await convertTemplateValueToRealValue(header.value, objectVariable);
     headersObject[realKey] = realValue
   }
-  for(let i = 0; i < commonHeaders.length; i++) {
-    const header = commonHeaders[i];
+  for(let i = 0; i < apidocBaseInfoStore.validCommonHeaders.length; i++) {
+    const header = apidocBaseInfoStore.validCommonHeaders[i];
     const realKey = await convertTemplateValueToRealValue(header.key, objectVariable);
     if (realKey.trim() === '') {
       continue;
