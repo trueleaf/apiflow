@@ -129,7 +129,7 @@ export const useApidoc = defineStore('apidoc', () => {
     //=========================================================================//
     if (contentType) {
       const params6 = apidocGenerateProperty();
-      params6.key = 'Content-type';
+      params6.key = 'Content-Type';
       params6.value = contentType;
       params6.description = '资源的原始媒体类型';
       params6._valuePlaceholder = '<根据body类型自动处理,不推荐修改>';

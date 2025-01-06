@@ -1,12 +1,12 @@
 <template>
   <div class="header-info">
     <div v-if="!hideDefaultHeader">
-      <span class="cursor-pointer no-select gray-600" @click="hideDefaultHeader = true">
-        <span>{{ t("点击隐藏自动生成的请求头") }}</span>
+      <span class="cursor-pointer no-select" @click="hideDefaultHeader = true">
+        <span>{{ t("点击隐藏") }}</span>
       </span>
       <SParamsTree :drag="false" show-checkbox :data="defaultHeaders" no-add></SParamsTree>
     </div>
-    <div v-else class="cursor-pointer no-select d-flex a-center gray-600" @click="hideDefaultHeader = false">
+    <div v-else class="cursor-pointer no-select d-flex a-center" @click="hideDefaultHeader = false">
       <span>{{ defaultHeaders.length }}{{ t("个隐藏") }}</span>
       <el-icon :size="16" class="ml-1">
         <View />
