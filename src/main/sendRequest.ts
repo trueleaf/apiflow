@@ -205,6 +205,8 @@ export const gotRequest = async (options: GotRequestOptions) => {
     id: string,
     msg: string
   } |  null = null;
+  const headers: Record<string, string | undefined> = {};
+  //formData数据单独处理
   const isFormDataBody = Array.isArray(options.body)
   if (isFormDataBody) {
     reqeustBody = await getFormDataFromRendererFormData(options.body as RendererFormDataBody);
@@ -213,10 +215,12 @@ export const gotRequest = async (options: GotRequestOptions) => {
       return
     }
   }
-  const headers: Record<string, string | undefined> = {};
+  //更新请求头信息
   for (const key in options.headers) {
     if (options.headers[key] === null) { //undefined代表未设置值，null代表取消发送
       headers[key] = undefined
+    } else if (isFormDataBody && key.toLowerCase() === 'content-type') {
+      headers[key] = reqeustBody?.getHeaders()['content-type'];
     } else {
       headers[key] = options.headers[key]
     }
