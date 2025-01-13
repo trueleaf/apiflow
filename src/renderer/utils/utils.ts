@@ -178,6 +178,20 @@ export const getNodeById = (nodes: FlowNode[], nodeId: string): FlowNode | null 
   foo(nodes);
   return result;
 };
+
+export const randomInt = (start: number, end: number): number => {
+  if (start > end) {
+    console.warn('第二个参数必须大于第一个');
+    return 0;
+  }
+  const range = end - start - 1;
+  return Math.floor((Math.random() * range + 1))
+}
+
+export const uint8ArrayToBlob = (uint8Array: Uint8Array, mimeType: string): Blob => {
+  return new Blob([uint8Array], { type: mimeType });
+};
+
 export const generateEmptyResponse = (): ResponseInfo => {
   return {
     id: '',
@@ -185,7 +199,8 @@ export const generateEmptyResponse = (): ResponseInfo => {
     requestId: '',
     headers: {},
     contentType: '',
-    originRequestUrl: new URL(''),
+    contentLength: 0,
+    originRequestUrl: new URL('https://github.com/trueleaf/moyu'),
     finalRequestUrl: '',
     redirectUrls: [],
     ip: '',
@@ -213,23 +228,19 @@ export const generateEmptyResponse = (): ResponseInfo => {
           total: 0,
       }
     },
-    mimeType: '',
-    dataType: 'unknown',
+    rt: 0,
     retryCount: 0,
     body: null,
     finishTime: '',
-    bodySize: 0
+    bodySize: 0,
+    responseData: {
+      canApiflowParseType:  'unknown',
+      jsonData: '',
+      textData: '',
+      fileData: {
+        url: '',
+        name: ''  
+      }
+    }
   }
 }
-export const randomInt = (start: number, end: number): number => {
-  if (start > end) {
-    console.warn('第二个参数必须大于第一个');
-    return 0;
-  }
-  const range = end - start - 1;
-  return Math.floor((Math.random() * range + 1))
-}
-
-export const uint8ArrayToBlob = (uint8Array: Uint8Array, mimeType: string): Blob => {
-  return new Blob([uint8Array], { type: mimeType });
-};
