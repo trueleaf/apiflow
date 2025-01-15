@@ -10,6 +10,7 @@ import { Options } from 'got';
 import { JsonData, RendererFormDataBody } from '@src/types/types';
 import { useApidocBaseInfo } from '@/store/apidoc/base-info';
 import { useApidocTas } from '@/store/apidoc/tabs';
+import { useApidocResponse } from '@/store/apidoc/response';
 
 /*
 |--------------------------------------------------------------------------
@@ -85,7 +86,7 @@ const getBody = async (apidoc: ApidocDetail): Promise<RendererFormDataBody | str
   const { objectVariable } = useVariable()
   const { changeFormDataErrorInfoById } = useApidoc()
   const { mode, urlencoded } = apidoc.item.requestBody;
-  if (mode === 'json') {
+  if (mode === 'json' && apidoc.item.requestBody.rawJson.trim()) {
     /*
      * 情况1：json值存在超长数字，在js中会被截断 例如：{ num: 123456789087654321 } 会被转换为 { num: 123456789087654320 } 
      * 情况2："{{ 变量名称 }}" 会被解析为实际变量值
@@ -126,7 +127,7 @@ const getBody = async (apidoc: ApidocDetail): Promise<RendererFormDataBody | str
     const realData = await convertTemplateValueToRealValue(data, objectVariable);
     return realData;
   }
-  return '??'
+  return ''
 }
 /*
   * 1.从用户定义请求头中获取请求头
@@ -181,26 +182,8 @@ export async function sendRequest() {
   // const apidocResponseStore = useApidocResponse();
   const apidocStore = useApidoc()
   const { changeFinalRequestInfo } = useApidocRequest(); 
+  const { changeResponseInfo, changeCookies, changeRequestState, changeLoadingProcess } = useApidocResponse()
   const rawApidoc = toRaw(apidocStore.$state.apidoc)
-  // console.log(rawApidoc, 2)
-  // const apidocBaseInfoStore = useApidocBaseInfo();
-  // const apidocTabsStore = useApidocTas();
-  // const apidocWorkerStateStore = useApidocWorkerState()
-  // apidocResponseStore.changeIsResponse(false);
-  // apidocBaseInfoStore.clearTempVariables();
-  // apidocResponseStore.changeLoading(true);
-  // const cpApidoc: ApidocDetail = JSON.parse(JSON.stringify(apidocStore.apidoc));
-  // const cpApidoc2: ApidocDetail = JSON.parse(JSON.stringify(apidocStore.apidoc));
-  // apidocConverter.setData(cpApidoc as ApidocDetail);
-  // apidocConverter.replaceUrl('');
-  // apidocConverter.clearTempVariables()
-  // const currentEnv = cpApidoc.item.url.host;
-  // const projectId = router.currentRoute.value.query.id as string;
-  // const tabs = apidocTabsStore.tabs[projectId];
-  // const currentSelectTab = tabs?.find((tab) => tab.selected) || null;
-  // const commonHeaders = apidocBaseInfoStore.getCommonHeadersById(currentSelectTab?._id || '')
-  // const localEnvs = apidocCache.getApidocServer(projectId);
-  // const envs = apidocBaseInfoStore.hosts.concat(localEnvs);
   const method = getMethod(rawApidoc);
   const url = await getUrl(rawApidoc);
   const body = await getBody(rawApidoc);
@@ -210,6 +193,7 @@ export async function sendRequest() {
   if (isFormData) {
     formDataBody = body as RendererFormDataBody;
   }
+  changeRequestState('sending')
   window.electronAPI?.sendRequest({
     url,
     method,
@@ -219,25 +203,40 @@ export async function sendRequest() {
     signal() {
       
     },
-    beforeError: () => {
+    onError: (err) => {
+      console.error(err)
+      changeResponseInfo({
+        responseData: {
+          canApiflowParseType: 'error',
+          errorData: err.message
+        }
+      });
+      changeRequestState('finish');
     },
     beforeRedirect: () => {
-    },
-    beforeRequest: (options: Options) => {
-      changeFinalRequestInfo({
-        encodedUrl: options.url as string,
-        method: options.method,
-        headers: options.headers,
-        // body: options.body,
-        url: decodeURIComponent(options.url as string),
-      })
-      console.log("beforeRequest", options)
     },
     beforeRetry: () => {
     },
     onReadFileFormDataError(options: {id: string, msg: string}) {
       apidocStore.changeFormDataErrorInfoById(options.id, options.msg)
-    }
+    },
+    onResponse(responseInfo) {
+      changeResponseInfo(responseInfo);
+      changeRequestState('finish');
+    },
+    onResponseData(loadedLength, totalLength) {
+      // console.log('data', loadedLength, totalLength, loadedLength / totalLength)
+      changeLoadingProcess({
+        total: totalLength,
+        transferred: loadedLength,
+        percent: Math.floor(loadedLength / totalLength)
+      })
+    },
+    onResponseEnd(responseInfo) {
+      changeRequestState('finish');
+      changeResponseInfo(responseInfo);
+      console.log('responseInfo', responseInfo)
+    },
   })
 
 

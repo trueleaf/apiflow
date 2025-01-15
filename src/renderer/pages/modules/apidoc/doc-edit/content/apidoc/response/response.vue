@@ -1,8 +1,8 @@
 <template>
   <SBaseInfo v-show="layout === 'horizontal'"></SBaseInfo>
   <SResInfo v-show="layout === 'horizontal'"></SResInfo>
-  <SLoading :loading="!isResponse" :class="{ 'h-100': layout === 'vertical' }" class="w-100">
-    <div v-show="remoteResponseType" class="remote-response-wrap px-3 w-100"
+  <SLoading :loading="requestState === 'sending'" :class="{ 'h-100': layout === 'vertical' }" class="w-100">
+    <div v-show="requestState !== 'waiting'" class="remote-response-wrap px-3 w-100"
       :class="{ vertical: layout === 'vertical' }">
       <el-tabs v-model="activeName" class="h-100 w-100">
         <el-tab-pane :label="t('返回值')" name="SBody" class="w-100">
@@ -28,9 +28,9 @@
         </el-tab-pane>
       </el-tabs>
     </div>
-    <el-empty v-show="!remoteResponseType">
+    <el-empty v-show="requestState === 'waiting'">
       <template #description>
-        <div v-if="!loading">
+        <div v-if="requestState === 'waiting'">
           <div v-if="isElectron()">{{ t("点击发送按钮发送请求") }}</div>
           <div v-else>
             <div>
@@ -45,13 +45,6 @@
             </div>
           </div>
         </div>
-        <div v-if="loading">
-          <span>{{ t("总大小") }}：{{ formatBytes(process.total) }}</span>
-          <el-divider direction="vertical"></el-divider>
-          <span>{{ t("已传输") }}：{{ formatBytes(process.transferred) }}</span>
-          <el-divider direction="vertical"></el-divider>
-          <span>{{ t("进度") }}：{{ (process.percent * 100).toFixed(2) + "%" }}</span>
-        </div>
       </template>
     </el-empty>
   </SLoading>
@@ -61,7 +54,7 @@
 import { computed, ref } from 'vue'
 import { Warning } from '@element-plus/icons-vue'
 import { config } from '@/../config/config'
-import { formatBytes } from '@/helper/index'
+// import { formatBytes } from '@/helper/index'
 import SBaseInfo from './base-info/base-info.vue'
 import SResInfo from './res-info/res-info.vue'
 import SCookie from './cookie/cookie.vue'
@@ -78,22 +71,19 @@ import SLoading from '@/components/common/loading/g-loading.vue'
 const activeName = ref('SBody');
 const apidocResponseStore = useApidocResponse();
 const apidocBaseInfoStore = useApidocBaseInfo();
-const cookies = computed(() => apidocResponseStore.cookies)
+const cookies = computed(() => apidocResponseStore.cookies);
 const headers = computed(() => {
   const result: { key: string, value: string }[] = [];
-  Object.keys(apidocResponseStore.header).forEach(key => {
+  Object.keys(apidocResponseStore.responseInfo.headers).forEach(key => {
     result.push({
       key,
-      value: apidocResponseStore.header[key] as string,
+      value: apidocResponseStore.responseInfo.headers[key] as string,
     });
   })
   return result
 })
-const layout = computed(() => apidocBaseInfoStore.layout)
-const remoteResponseType = computed(() => apidocResponseStore.data.type)
-const loading = computed(() => apidocResponseStore.loading) //数据是否完全返回
-const isResponse = computed(() => apidocResponseStore.isResponse) //接口是否响应
-const process = computed(() => apidocResponseStore.process)
+const layout = computed(() => apidocBaseInfoStore.layout);
+const requestState = computed(() => apidocResponseStore.requestState); //请求状态
 
 </script>
 

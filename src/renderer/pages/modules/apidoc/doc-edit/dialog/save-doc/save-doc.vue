@@ -15,7 +15,7 @@
             <template #default="scope">
               <div class="custom-tree-node" tabindex="0">
                 <!-- 文件夹渲染 -->
-                <img :src="require('@/assets/imgs/apidoc/folder.png')" width="16px" height="16px" />
+                <img :src="folderUrl" width="16px" height="16px" />
                 <span :title="scope.data.name" class="node-name text-ellipsis ml-1">{{ scope.data.name }}</span>
               </div>
             </template>
@@ -51,7 +51,7 @@ type FormInfo = {
   name: string, //接口名称
   pid: string, //需要挂载的目录
 }
-
+const folderUrl = new URL('@/assets/imgs/apidoc/folder.png', import.meta.url).href;
 defineProps({
   modelValue: {
     type: Boolean,

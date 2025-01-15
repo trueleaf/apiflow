@@ -86,11 +86,12 @@ const getApidocInfo = () => {
     }
   }
   //=====================================获取缓存的返回参数====================================//
-  const localResponse = apidocCache.getResponse(currentSelectTab.value._id);
-  apidocResponseStore.clearResponseInfo()
-  if (localResponse) {
-    apidocResponseStore.changeAll(localResponse)
-  }
+  //todo
+  // const localResponse = apidocCache.getResponse(currentSelectTab.value._id);
+  // apidocResponseStore.clearResponseInfo()
+  // if (localResponse) {
+  //   apidocResponseStore.changeAll(localResponse)
+  // }
 }
 
 watch(currentSelectTab, (val, oldVal) => {

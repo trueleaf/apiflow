@@ -39,7 +39,6 @@
             <!-- 文件夹渲染 -->
             <template v-if="scope.data.isFolder">
               <i class="iconfont folder-icon iconweibiaoti-_huabanfuben"></i>
-              <!-- <img :src="require('@/assets/imgs/apidoc/folder.png')" class="folder-icon" /> -->
               <div v-if="editNode?._id !== scope.data._id" class="node-label-wrap">
                 <SEmphasize class="node-top" :title="scope.data.name" :value="scope.data.name" :keyword="filterString">
                 </SEmphasize>
@@ -171,8 +170,6 @@ const projectInfo = computed(() => {
     paramsTemplate: apidocBaseInfoStore.paramsTemplate,
     webProxy: apidocBaseInfoStore.webProxy,
     mode: apidocBaseInfoStore.mode,
-    variables: apidocBaseInfoStore.variables,
-    tempVariables: apidocBaseInfoStore.tempVariables,
     commonHeaders: apidocBaseInfoStore.commonHeaders,
     rules: apidocBaseInfoStore.rules,
     mindParams: apidocBaseInfoStore.mindParams,

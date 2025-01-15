@@ -58,7 +58,8 @@ export default (): OperationReturn => {
     //刷新文档
   const handleFreshApidoc = () => {
     loading3.value = true;
-    apidocResponseStroe.clearResponseInfo()
+    // todo
+    // apidocResponseStroe.clearResponseInfo()
     if (currentSelectTab.value) {
       apidocCache.deleteResponse(currentSelectTab.value._id);
     }

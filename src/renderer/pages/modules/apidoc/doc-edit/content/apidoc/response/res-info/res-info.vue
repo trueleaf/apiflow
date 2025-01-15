@@ -3,10 +3,10 @@
   <div class="d-flex a-center px-3 text-ellipsis">
     <div class="flex0 d-flex a-center">
       <span>{{ t("状态码") }}：</span>
-      <template v-if="apidocResponseStore.statusCode">
-        <span v-show="apidocResponseStore.statusCode >= 100 && apidocResponseStore.statusCode < 300" class="green">{{ apidocResponseStore.statusCode }}</span>
-        <span v-show="apidocResponseStore.statusCode >= 300 && apidocResponseStore.statusCode < 400" class="orange">{{ apidocResponseStore.statusCode }}</span>
-        <span v-show="apidocResponseStore.statusCode >= 400" class="red">{{ apidocResponseStore.statusCode }}</span>
+      <template v-if="responseInfo.statusCode">
+        <span v-show="responseInfo.statusCode >= 100 && responseInfo.statusCode < 300" class="green">{{ responseInfo.statusCode }}</span>
+        <span v-show="responseInfo.statusCode >= 300 && responseInfo.statusCode < 400" class="orange">{{ responseInfo.statusCode }}</span>
+        <span v-show="responseInfo.statusCode >= 400" class="red">{{ responseInfo.statusCode }}</span>
       </template>
       <el-icon v-else :title="t('未请求数据')" :size="16" class="gray-500">
         <QuestionFilled />
@@ -15,10 +15,10 @@
     <el-divider direction="vertical"></el-divider>
     <div class="flex0 d-flex a-center">
       <span>{{ t("时长") }}：</span>
-      <template v-if="apidocResponseStore.rt">
-        <span v-show="apidocResponseStore.rt >= 0 && apidocResponseStore.rt < 2000" class="green">{{ formatedMs }}</span>
-        <span v-show="apidocResponseStore.rt >= 2000 && apidocResponseStore.rt < 5000" class="orange">{{ formatedMs }}</span>
-        <span v-show="apidocResponseStore.rt >= 5000" class="red">{{ formatedMs }}</span>
+      <template v-if="responseInfo.rt">
+        <span v-show="responseInfo.rt >= 0 && responseInfo.rt < 2000" class="green">{{ formatedMs }}</span>
+        <span v-show="responseInfo.rt >= 2000 && responseInfo.rt < 5000" class="orange">{{ formatedMs }}</span>
+        <span v-show="responseInfo.rt >= 5000" class="red">{{ formatedMs }}</span>
       </template>
       <el-icon v-else :title="t('未请求数据')" :size="16" class="gray-500">
         <QuestionFilled />
@@ -27,10 +27,10 @@
     <el-divider direction="vertical"></el-divider>
     <div class="flex0 d-flex a-center">
       <span>{{ t("大小") }}：</span>
-      <template v-if="apidocResponseStore.size">
-        <span v-show="apidocResponseStore.size >= 0 && apidocResponseStore.size < 10000" class="green">{{ formatedBytes }}</span>
-        <span v-show="apidocResponseStore.size >= 10000 && apidocResponseStore.size < 15000" class="orange">{{ formatedBytes }}</span>
-        <span v-show="apidocResponseStore.size >= 15000" class="red">{{ formatedBytes }}</span>
+      <template v-if="responseInfo.bodyByteLength">
+        <span v-show="responseInfo.bodyByteLength >= 0 && responseInfo.bodyByteLength < 10000" class="green">{{ formatedBytes }}</span>
+        <span v-show="responseInfo.bodyByteLength >= 10000 && responseInfo.bodyByteLength < 15000" class="orange">{{ formatedBytes }}</span>
+        <span v-show="responseInfo.bodyByteLength >= 15000" class="red">{{ formatedBytes }}</span>
       </template>
       <el-icon v-else :title="t('未请求数据')" :size="16" class="gray-500">
         <QuestionFilled />
@@ -39,7 +39,7 @@
     <el-divider direction="vertical"></el-divider>
     <div class="flex0 d-flex a-center j-center">
       <span>{{ t("格式") }}：</span>
-      <SEllipsisContent v-if="apidocResponseStore.data.type" :value="apidocResponseStore.data.type" max-width="200px" class="orange"></SEllipsisContent>
+      <SEllipsisContent v-if="responseInfo.contentType" :value="responseInfo.contentType" :title="responseInfo.contentType" max-width="200px" class="orange"></SEllipsisContent>
       <el-icon v-else :title="t('未请求数据')" :size="16" class="gray-500">
         <QuestionFilled />
       </el-icon>
@@ -56,10 +56,11 @@ import SEllipsisContent from '@/components/common/ellipsis-content/g-ellipsis-co
 import { useApidocResponse } from '@/store/apidoc/response';
 
 //远端返回值
-const apidocResponseStore = useApidocResponse()
+const apidocResponseStore = useApidocResponse();
+const responseInfo = computed(() => apidocResponseStore.responseInfo);
 //格式化返回值大小
-const formatedBytes = computed(() => formatBytes(apidocResponseStore.size))
+const formatedBytes = computed(() => formatBytes(responseInfo.value.bodyByteLength))
 //格式化返回时间
-const formatedMs = computed(() => formatMs(apidocResponseStore.rt))
+const formatedMs = computed(() => formatMs(responseInfo.value.rt))
 </script>
 

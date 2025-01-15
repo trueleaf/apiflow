@@ -49,11 +49,16 @@
           </div>
         </template>
       </el-input>
-      <el-button v-if="!loading" :loading="loading" :disabled="!isElectron()"
-        :title="isElectron() ? '' : `${t('由于浏览器限制，非electron环境无法模拟发送请求')}`" type="success" @click="handleSendRequest">
+      <el-button 
+        v-if="requestState === 'waiting' || requestState === 'finish'" 
+        :disabled="!isElectron()"
+        :title="isElectron() ? '' : `${t('由于浏览器限制，非electron环境无法模拟发送请求')}`" 
+        type="success" 
+        @click="handleSendRequest"
+      >
         {{ t("发送请求") }}
       </el-button>
-      <el-button v-if="loading" type="danger" @click="handleStopRequest">{{ t("取消请求") }}</el-button>
+      <el-button v-if="requestState === 'sending'" type="danger" @click="handleStopRequest">{{ t("取消请求") }}</el-button>
       <el-button :loading="loading2" type="primary" @click="handleSaveApidoc">{{ t("保存接口") }}</el-button>
       <el-button :loading="loading3" type="primary" :icon="Refresh" @click="handleFreshApidoc">{{ t("刷新") }}</el-button>
     </div>
@@ -120,7 +125,7 @@ const currentSelectTab = computed(() => {
   const currentTab = tabs?.find((tab) => tab.selected) || null;
   return currentTab;
 });
-const loading = computed(() => apidocResponseStore.loading)
+const requestState = computed(() => apidocResponseStore.requestState)
 const loading2 = computed(() => apidocStore.saveLoading)
 const saveDocDialogVisible = computed({
   get() {

@@ -22,11 +22,18 @@ const apidocResponseStore = useApidocResponse();
 const apidocBaseInfoStore = useApidocBaseInfo();
 const headers = computed(() => {
   const result: { key: string, value: string }[] = [];
-  Object.keys(apidocResponseStore.header).forEach(key => {
-    result.push({
-      key,
-      value: apidocResponseStore.header[key] as string,
-    });
+  Object.keys(apidocResponseStore.responseInfo.headers).forEach(key => {
+    if (key === 'set-cookie') {
+      result.push({
+        key,
+        value: apidocResponseStore.responseInfo.headers['set-cookie']!.join('\n'),
+      });
+    } else {
+      result.push({
+        key,
+        value: apidocResponseStore.responseInfo.headers[key] as string,
+      });
+    }
   })
   return result
 });
