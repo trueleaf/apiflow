@@ -111,6 +111,7 @@ export const gotRequest = async (options: GotRequestOptions) => {
       },
       body: (isFormDataBody && reqeustBody) ? reqeustBody : (options.body as string),
       headers,
+      throwHttpErrors: false,
       hooks: {
         beforeError: [(error: RequestError) => {
           options.onError(error)
@@ -129,12 +130,13 @@ export const gotRequest = async (options: GotRequestOptions) => {
     });
     //取消请求
     options.signal(abortController.abort)
-    // console.log("gotOptions", options)
+    console.log("gotOptions", options)
     const requestStream = got.stream(gotOptions);
     const bufferList: Buffer[] = [];
-    let streamSize = 0;
+    let streamByteLength = 0;
     let contentLength = 0;
     const responseInfo = generateEmptyResponse();
+   
     requestStream.on("response", (response: PlainResponse) => {
       const contentLengthStr = response.headers['content-length'] ?? '0';
       contentLength = isNaN(parseInt(contentLengthStr)) ? 0 : parseInt(contentLengthStr)
@@ -143,7 +145,6 @@ export const gotRequest = async (options: GotRequestOptions) => {
       responseInfo.contentLength = contentLength;
       responseInfo.body = response.body,
       responseInfo.finalRequestUrl = response.url;
-      responseInfo.originRequestUrl = response.requestUrl;
       responseInfo.ip = response.ip || '';
       responseInfo.isFromCache = response.isFromCache;
       responseInfo.redirectUrls = response.redirectUrls;
@@ -154,17 +155,50 @@ export const gotRequest = async (options: GotRequestOptions) => {
     });
     requestStream.on("data", (chunk: Buffer) => {
       bufferList.push(chunk);
-      streamSize += chunk.length;
-      options.onResponseData?.(streamSize, contentLength);
+      streamByteLength += chunk.byteLength;
+      options.onResponseData?.(streamByteLength, contentLength);
     });
     requestStream.on("end", async () => {
-      // const bufData = Buffer.concat(bufferList as Uint8Array[], streamSize);
-      // const fileTypeResult = await fileTypeFromBuffer(bufData.buffer as ArrayBuffer);
-      // responseInfo.bodySize = bufData.length;
+      const endTime = responseInfo.timings.end ?? 0;
+      const startTime = responseInfo.timings.start ?? 0;
+      const rt = endTime - startTime;
+      responseInfo.rt = rt;
+      const bufferData = Buffer.concat(bufferList as Uint8Array[]);
+      const fileTypeInfo = await fileTypeFromBuffer(bufferData.buffer as ArrayBuffer);
+      responseInfo.bodyByteLength = bufferData.byteLength;
+      responseInfo.body = bufferData
+      const isTextData = !fileTypeInfo; // 无法解析mimeType数据都当作文本展示
+      if (isTextData && responseInfo.contentType.includes('application/json')) {
+        responseInfo.responseData.canApiflowParseType = 'json';
+        responseInfo.responseData.jsonData = bufferData.toString();
+      } else if (isTextData && responseInfo.contentType.includes('application/xml')) {
+        responseInfo.responseData.canApiflowParseType = 'xml';
+        responseInfo.responseData.textData = bufferData.toString();
+      } else if (isTextData && responseInfo.contentType.includes('text/html')) {
+        responseInfo.responseData.canApiflowParseType = 'html';
+        responseInfo.responseData.textData = bufferData.toString();
+      } else if (isTextData && responseInfo.contentType.includes('application/css')) {
+        responseInfo.responseData.canApiflowParseType = 'css';
+        responseInfo.responseData.textData = bufferData.toString();
+      } else if (isTextData && responseInfo.contentType.includes('application/javascript')) {
+        responseInfo.responseData.canApiflowParseType = 'js';
+        responseInfo.responseData.textData = bufferData.toString();
+      } else if (isTextData && responseInfo.contentType.includes('text/')) {
+        responseInfo.responseData.canApiflowParseType = 'text';
+        responseInfo.responseData.textData = bufferData.toString();
+      } else if (!isTextData && fileTypeInfo.mime.includes('image/')) {
+        const blob = new Blob([bufferData], { type: fileTypeInfo.mime });
+        const blobUrl = URL.createObjectURL(blob);
+        responseInfo.responseData.canApiflowParseType = 'image';
+        responseInfo.responseData.fileData.url = blobUrl;
+      } else if (!isTextData && fileTypeInfo.mime.includes('application/pdf')) {
+        responseInfo.responseData.canApiflowParseType = 'pdf';
+        responseInfo.responseData.fileData.url = bufferData.toString('base64');
+      }
       // let mimeType = 'unknown';
-      // if (fileTypeResult) {
-      //   mimeType = fileTypeResult.mime
-      //   responseInfo.mimeType = fileTypeResult.mime
+      // if (fileTypeInfo) {
+      //   mimeType = fileTypeInfo.mime
+      //   responseInfo.mimeType = fileTypeInfo.mime
       // }
       // if (!mimeType && responseInfo.contentType) {
       //   mimeType = responseInfo.contentType;
@@ -192,8 +226,8 @@ export const gotRequest = async (options: GotRequestOptions) => {
       // }
       options.onResponseEnd?.(responseInfo);
     });
-    requestStream.on("error", (error) => {
-      console.error(error)
+    requestStream.once("error", (error) => {
+      options.onError(error as Error);
     });
   } catch (error) {
     options.onError(error as Error)
