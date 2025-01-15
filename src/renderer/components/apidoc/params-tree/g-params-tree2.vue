@@ -125,7 +125,6 @@
           v-if="scope.data.type !== 'boolean' && scope.data.type !== 'file'"
           :visible="scope.data._id === currentOpData?._id"
           placement="top-start"
-          trigger="manual"
           width="auto"
         >
           <s-mock

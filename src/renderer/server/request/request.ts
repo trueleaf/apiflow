@@ -11,6 +11,9 @@ import { JsonData, RendererFormDataBody } from '@src/types/types';
 import { useApidocBaseInfo } from '@/store/apidoc/base-info';
 import { useApidocTas } from '@/store/apidoc/tabs';
 import { useApidocResponse } from '@/store/apidoc/response';
+import { apidocCache } from '@/cache/apidoc';
+import { config } from '@src/config/config';
+import { cloneDeep } from '@/helper';
 
 /*
 |--------------------------------------------------------------------------
@@ -127,7 +130,7 @@ const getBody = async (apidoc: ApidocDetail): Promise<RendererFormDataBody | str
     const realData = await convertTemplateValueToRealValue(data, objectVariable);
     return realData;
   }
-  return ''
+  return '??'
 }
 /*
   * 1.从用户定义请求头中获取请求头
@@ -179,7 +182,9 @@ const getHeaders = async (apidoc: ApidocDetail) => {
 }
 
 export async function sendRequest() {
-  // const apidocResponseStore = useApidocResponse();
+  const apidocBaseInfoStore = useApidocBaseInfo();
+  const apidocTabsStore = useApidocTas();
+  const selectedTab = apidocTabsStore.getSelectedTab(apidocBaseInfoStore.projectId);
   const apidocStore = useApidoc()
   const { changeFinalRequestInfo } = useApidocRequest(); 
   const { changeResponseInfo, changeCookies, changeRequestState, changeLoadingProcess } = useApidocResponse()
@@ -225,17 +230,22 @@ export async function sendRequest() {
       changeRequestState('finish');
     },
     onResponseData(loadedLength, totalLength) {
-      // console.log('data', loadedLength, totalLength, loadedLength / totalLength)
       changeLoadingProcess({
         total: totalLength,
         transferred: loadedLength,
-        percent: Math.floor(loadedLength / totalLength)
+        percent: loadedLength / totalLength
       })
     },
     onResponseEnd(responseInfo) {
       changeRequestState('finish');
       changeResponseInfo(responseInfo);
       console.log('responseInfo', responseInfo)
+      const storedResponseInfo = cloneDeep(responseInfo);
+      if (responseInfo.bodyByteLength > config.requestConfig.maxStoreSingleBodySize) {
+        storedResponseInfo.body = [];
+        storedResponseInfo.responseData.canApiflowParseType = 'cachedBodyIsTooLarge'
+      }
+      apidocCache.setResponse(selectedTab?._id ?? '', storedResponseInfo);
     },
   })
 

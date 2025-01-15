@@ -12,9 +12,7 @@
         </el-image>
         <div v-else class="img-view-empty">图片加载中</div>
       </div>
-      <!-- 音频类型 -->
-      <!-- 视频类型 -->
-      <!-- 强制下载类型 -->
+      <!-- 音频类型、视频类型、流文件 -->
       <div v-else-if="responseInfo.contentType.includes('application/octet-stream')"
         class="d-flex flex-column a-center">
         <svg class="svg-icon" aria-hidden="true" :title="t('下载文件')">
@@ -60,12 +58,9 @@
       <!-- javascript -->
       <pre
         v-else-if="responseInfo.contentType.includes('application/javascript')">{{ responseInfo.responseData.textData }}</pre>
-      <!-- 请求错误 -->
-      <div v-else-if="responseInfo.contentType.includes('error')" class="red">{{ responseInfo.responseData.textData }}
-      </div>
       <!-- html -->
       <div v-else-if="responseInfo.contentType.includes('text/html')" class="text-wrap">
-        <SRawEditor :model-value="htmlResponse" readonly type="text/plain"></SRawEditor>
+        <SRawEditor :model-value="responseInfo.responseData.textData" readonly type="text/html"></SRawEditor>
       </div>
       <!-- 纯文本 -->
       <div v-else-if="responseInfo.contentType.includes('text/plain')" class="text-wrap">
@@ -94,15 +89,22 @@
         </div>
       </div>
     </template>
-    <div v-show="showProcess" class="d-flex j-center w-100">
+
+    <div v-show="showProcess" class="d-flex j-center w-100 gray-600">
       <span>{{ t("总大小") }}：{{ formatBytes(loadingProcess.total) }}</span>
       <el-divider direction="vertical"></el-divider>
       <span>{{ t("已传输") }}：{{ formatBytes(loadingProcess.transferred) }}</span>
       <el-divider direction="vertical"></el-divider>
       <span>{{ t("进度") }}：{{ (loadingProcess.percent * 100).toFixed(2) + "%" }}</span>
     </div>
+    <div 
+      v-if="responseInfo.responseData.canApiflowParseType === 'cachedBodyIsTooLarge'" 
+      class="d-flex a-center j-center red"
+    >
+      返回值大于{{ formatBytes(config.requestConfig.maxStoreSingleBodySize) }}，返回body值缓存失效。
+      需重新请求最新数据
+    </div>
     <div v-if="responseInfo.responseData.canApiflowParseType === 'error'" class="red">{{ responseInfo.responseData.errorData }}</div>
-    <!-- <div v-show="responseInfo.data.type.includes('application/json')" class="apply-response">应用为响应值</div> -->
   </div>
 </template>
 
@@ -113,6 +115,8 @@ import { computed, ref } from 'vue';
 import { t } from 'i18next'
 import { formatBytes } from '@/helper/index'
 import SRawEditor from '@/components/apidoc/raw-editor/g-raw-editor.vue'
+import { config } from '@/../config/config'
+
 
 
 const couldShowAllJsonStr = ref(false);
@@ -129,14 +133,19 @@ const requestState = computed(() => apidocResponseStore.requestState);
 */
 //是否展示加载进度
 const showProcess = computed(() => {
-  if (requestState.value === 'sending' || requestState.value === 'response') {
+  const { canApiflowParseType } = apidocResponseStore.responseInfo.responseData;
+  if (canApiflowParseType === 'none' && (requestState.value === 'sending' || requestState.value === 'response')) {
     return true;
   }
-  const { canApiflowParseType } = apidocResponseStore.responseInfo.responseData;
   const isError = canApiflowParseType === 'error';
   const isText = canApiflowParseType === 'text';
+  const isHtml = canApiflowParseType === 'html';
+  const isCes = canApiflowParseType === 'css';
+  const isJs = canApiflowParseType === 'js';
+  const isXml = canApiflowParseType === 'xml';
   const isUnknow = canApiflowParseType === 'unknown';
-  return !isError && !isText && !isUnknow;
+  const isTooLargeBody = canApiflowParseType === 'cachedBodyIsTooLarge';
+  return !isError && !isText && !isUnknow && !isHtml && !isCes && !isJs && !isXml && !isTooLargeBody;
 })
 //布局
 const layout = computed(() => {
@@ -269,6 +278,7 @@ const handleDownload = () => {
       display: flex;
       align-items: center;
       justify-content: center;
+      color: $gray-500;
     }
   }
 

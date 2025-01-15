@@ -1,8 +1,10 @@
 <template>
   <SBaseInfo v-show="layout === 'horizontal'"></SBaseInfo>
   <SResInfo v-show="layout === 'horizontal'"></SResInfo>
-  <SLoading :loading="requestState === 'sending'" :class="{ 'h-100': layout === 'vertical' }" class="w-100">
-    <div v-show="requestState !== 'waiting'" class="remote-response-wrap px-3 w-100"
+  <SLoading :loading="requestState === 'sending'" :class="{ 'h-100': layout === 'vertical' }" class="loading-wrap w-100">
+    <div 
+      v-show="responseInfo.bodyByteLength || requestState !== 'waiting'" 
+      class="remote-response-wrap px-3 w-100"
       :class="{ vertical: layout === 'vertical' }">
       <el-tabs v-model="activeName" class="h-100 w-100">
         <el-tab-pane :label="t('返回值')" name="SBody" class="w-100">
@@ -31,7 +33,7 @@
     <el-empty v-show="requestState === 'waiting'">
       <template #description>
         <div v-if="requestState === 'waiting'">
-          <div v-if="isElectron()">{{ t("点击发送按钮发送请求") }}</div>
+          <div v-if="isElectron()" class="no-select">{{ t("点击发送请求按钮发送请求") }}</div>
           <div v-else>
             <div>
               <el-icon :size="18" class="orange mr-2">
@@ -72,6 +74,8 @@ const activeName = ref('SBody');
 const apidocResponseStore = useApidocResponse();
 const apidocBaseInfoStore = useApidocBaseInfo();
 const cookies = computed(() => apidocResponseStore.cookies);
+const responseInfo = computed(() => apidocResponseStore.responseInfo);
+
 const headers = computed(() => {
   const result: { key: string, value: string }[] = [];
   Object.keys(apidocResponseStore.responseInfo.headers).forEach(key => {
@@ -88,6 +92,9 @@ const requestState = computed(() => apidocResponseStore.requestState); //请求�
 </script>
 
 <style lang='scss' scoped>
+.loading-wrap {
+  height: calc(100% - #{size(310)});
+}
 .remote-response-wrap {
   height: calc(100vh - #{size(310)});
 

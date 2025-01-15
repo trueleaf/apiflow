@@ -30,8 +30,7 @@
           <div class="status-code">
             <div class="d-flex a-center j-center">
               <span class="flex0">{{ t("状态码") }}：</span>
-              <el-popover v-model:visible="statusVisibleMap[item._id || '']" width="500px" placement="bottom"
-                trigger="manual">
+              <el-popover :visible="statusVisibleMap[item._id || '']" width="500px" placement="bottom">
                 <template #reference>
                   <span class="d-flex a-center cursor-pointer" @click.stop="toggleStatusModel(item)">
                     <span v-if="item.statusCode >= 100 && item.statusCode < 200" class="green">{{ item.statusCode
@@ -58,7 +57,7 @@
           <div class="content-type">
             <div class="d-flex a-center j-center">
               <!-- <span class="flex0">{{ t("返回格式") }}：</span> -->
-              <el-popover v-model:visible="mimeVisibleMap[item._id || '']" width="500px" placement="bottom" trigger="manual">
+              <el-popover :visible="mimeVisibleMap[item._id || '']" width="500px" placement="bottom">
                 <template #reference>
                   <span class="d-flex a-center cursor-pointer" @click.stop="toggleMimeModel(item)">
                     <el-tooltip :show-after="500" :content="item.value.dataType" placement="top" :effect="Effect.LIGHT">

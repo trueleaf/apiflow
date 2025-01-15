@@ -76,11 +76,16 @@ export const useApidocBaseInfo = defineStore('apidocBaseInfo', () => {
   const mode = ref<'view' | 'edit'>('view');
   const commonHeaders = ref<ApidocProjectCommonHeader[]>([]);
   const validCommonHeaders = ref<Pick<ApidocProperty, 'key' | 'value' | 'description' | 'select'>[]>([]);
+  const projectId = ref('');
   /*
   |--------------------------------------------------------------------------
   | 方法
   |--------------------------------------------------------------------------
   */
+  //改变项目id
+  const changeProjectId = (id: string): void => {
+    projectId.value = id;
+  }
   //改变项目基本信息
   const changeProjectBaseInfo = (payload: ChangeProjectBaseInfo): void => {
     _id.value = payload._id;
@@ -266,7 +271,9 @@ export const useApidocBaseInfo = defineStore('apidocBaseInfo', () => {
     mindParams,
     hosts,
     globalCookies,
+    projectId,
     validCommonHeaders,
+    changeProjectId,
     changeProjectBaseInfo,
     updateHostById,
     initCookies,

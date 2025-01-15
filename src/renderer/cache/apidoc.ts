@@ -3,8 +3,8 @@
  */
 
 import { ApidocProjectHost } from '@src/types/apidoc/base-info';
-import { ApidocResponseState } from '@src/types/apidoc/response';
 import { ApidocDetail } from '@src/types/global';
+import { ResponseInfo } from '@src/types/types';
 
 type ServerInfo = ApidocProjectHost & {
   isLocal?: boolean,
@@ -224,11 +224,11 @@ class ApidocCache {
   }
 
   /**
-         * @description        缓存返回值
-         * @author             shuxiaokai
-         * @create             2021-09-09 21:37
-         */
-  setResponse(id: string, response: ApidocResponseState) {
+   * @description        缓存返回值
+   * @author             shuxiaokai
+   * @create             2021-09-09 21:37
+   */
+  setResponse(id: string, response: ResponseInfo) {
     try {
       const localData = JSON.parse(localStorage.getItem('apidoc/response') || '{}');
       localData[id] = response;
@@ -240,14 +240,14 @@ class ApidocCache {
   }
 
   /**
-     * @description        获取已缓存得返回值
-     * @author             shuxiaokai
-     * @create             2021-09-09 21:37
-     * @param {string}     id 文档id
-     */
-  getResponse(id: string): ApidocResponseState | null {
+   * @description        获取已缓存得返回值
+   * @author             shuxiaokai
+   * @create             2021-09-09 21:37
+   * @param {string}     id 文档id
+   */
+  getResponse(id: string): ResponseInfo | null {
     try {
-      const localData: Record<string, ApidocResponseState> = JSON.parse(localStorage.getItem('apidoc/response') || '{}');
+      const localData: Record<string, ResponseInfo> = JSON.parse(localStorage.getItem('apidoc/response') || '{}');
       if (localData[id] == null) {
         return null;
       }

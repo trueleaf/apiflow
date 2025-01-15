@@ -3,7 +3,7 @@
     <div class="d-flex a-center j-center">
       <h2 v-if="projectName" class="gray-700 f-lg text-center text-ellipsis" :title="projectName">{{ projectName }}</h2>
       <h2 v-else class="gray-700 f-lg text-center text-ellipsis" :title="projectName">/</h2>
-      <el-popover v-model:visible="toggleProjectVisible" transition="none" placement="right" trigger="mannal"
+      <el-popover :visible="toggleProjectVisible" transition="none" placement="right"
         width="500px">
         <template #reference>
           <div class="toggle-btn" title="切换项目" @click.stop="handleToggleProjectModel">
@@ -101,8 +101,7 @@
         </template>
       </SDraggable>
       <!-- 全部工具栏操作 -->
-      <el-popover v-model:visible="visible" popper-class="tool-panel" transition="none" placement="right" :width="320"
-        trigger="manual">
+      <el-popover :visible="visible" popper-class="tool-panel" transition="none" placement="right" :width="320">
         <template #reference>
           <div class="more" @click.stop="visible = !visible">
             <el-icon :size="16" :title="t('更多操作')" class="more-op">
@@ -633,6 +632,7 @@ const handleChangeProject = (item: ApidocProjectInfo) => {
       mode: router.currentRoute.value.query.mode,
     },
   });
+  apidocBaseInfoStore.changeProjectId(item._id);
   apidocBaseInfoStore.getProjectBaseInfo({ projectId: item._id });
   apidocBaseInfoStore.getCommonHeaders()
   const localState = apidocCache.getApidocWorkerLocalStateById(item._id);

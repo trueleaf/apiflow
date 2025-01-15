@@ -26,7 +26,7 @@
         <span>{{ t("变量") }}</span>
       </div>
       <div class="d-flex a-center gray-700 cursor-pointer mr-3 hover-theme-color">
-        <el-popover v-model:visible="generateCodeVisible" width="300px" placement="bottom" trigger="manual">
+        <el-popover :visible="generateCodeVisible" width="300px" placement="bottom">
           <template #reference>
             <span @click.stop="generateCodeVisible = true">
               <i class="iconfont iconshengchengdaima"></i>

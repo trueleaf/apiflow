@@ -196,6 +196,7 @@ import 'element-plus/es/components/message-box/style/css';
 import { ElMessageBox } from 'element-plus';
 import { router } from '@/router';
 import { debounce, formatDate } from '@/helper';
+import { useApidocBaseInfo } from '@/store/apidoc/base-info'
 
 /*
 |--------------------------------------------------------------------------
@@ -241,7 +242,7 @@ const starProjects = computed(() => {
     };
   });
 });
-
+const apidocBaseInfo = useApidocBaseInfo()
 /*
 |--------------------------------------------------------------------------
 | 项目列表增删改查
@@ -332,6 +333,7 @@ const initCahce = () => {
 }
 //跳转到编辑
 const handleJumpToProject = (item: ApidocProjectInfo) => {
+
   request.put('/api/project/visited', { projectId: item._id }).catch((err) => {
     console.error(err);
   });
@@ -342,6 +344,7 @@ const handleJumpToProject = (item: ApidocProjectInfo) => {
       mode: 'edit',
     },
   });
+  apidocBaseInfo.changeProjectId(item._id);
 }
 //跳转到预览
 const handleJumpToView = (item: ApidocProjectInfo) => {
@@ -355,6 +358,7 @@ const handleJumpToView = (item: ApidocProjectInfo) => {
       mode: 'view',
     },
   });
+  apidocBaseInfo.changeProjectId(item._id);
 }
 //新增项目成功
 const handleAddSuccess = (id: string) => {

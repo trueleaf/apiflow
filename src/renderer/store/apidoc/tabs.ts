@@ -226,6 +226,10 @@ export const useApidocTas = defineStore('apidocTabs', () => {
     })
     checkSeletedTab();
   }
+  //获取当前选中的tab
+  const getSelectedTab = (projectId: string) => {
+    return tabs.value[projectId].find((tab) => tab.selected)
+  }
   return {
     tabs,
     initLocalTabs,
@@ -236,5 +240,6 @@ export const useApidocTas = defineStore('apidocTabs', () => {
     changeTabInfoById,
     forceDeleteAllTab,
     deleteTabByIds,
+    getSelectedTab,
   }
 })

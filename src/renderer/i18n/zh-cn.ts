@@ -211,7 +211,7 @@ export default {
   格式: '格式',
   返回值: '返回值',
   返回头: '返回头',
-  点击发送按钮发送请求: '点击发送按钮发送请求',
+  点击发送请求按钮发送请求: '点击发送请求按钮发送请求',
   '因浏览器限制，完整HTTP功能请下载Electron': '因浏览器限制，完整HTTP功能请下载Electron',
   '跨域、、请求头(user-agent,accept-encoding)等受限': '跨域、、请求头(user-agent,accept-encoding)等受限',
   下载Electron: '下载Electron',

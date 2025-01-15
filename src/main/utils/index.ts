@@ -40,9 +40,10 @@ export const generateEmptyResponse = (): ResponseInfo => {
     bodyByteLength: 0,
     rt: 0,
     responseData: {
-      canApiflowParseType: 'unknown',
+      canApiflowParseType: 'none',
       jsonData: '',
       textData: '',
+      errorData: '',
       fileData: {
         url: '',
         name: ''

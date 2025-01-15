@@ -96,6 +96,7 @@ const initWorkerLocalState = () => {
 }
 onMounted(() => {
   window.addEventListener('keydown', bindShortcut);
+  apidocBaseInfoStroe.changeProjectId(projectId);
   getProjectInfo();
   initCookies();
   initLayout();

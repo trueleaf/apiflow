@@ -232,7 +232,7 @@ export const generateEmptyResponse = (): ResponseInfo => {
     body: null,
     bodyByteLength: 0,
     responseData: {
-      canApiflowParseType:  'unknown',
+      canApiflowParseType:  'none',
       jsonData: '',
       textData: '',
       errorData: '',

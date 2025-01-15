@@ -66,7 +66,7 @@
                 <div class="op-area mr-4">
                   <el-button link type="primary" text :loading="loading2" @click="handleRestore(docInfo)">恢复</el-button>
                   <el-divider direction="vertical"></el-divider>
-                  <el-popover v-model:visible="docInfo._visible" placement="right" width="auto" trigger="manual" transition="none">
+                  <el-popover :visible="docInfo._visible" placement="right" width="auto" transition="none">
                     <doc-detail v-if="docInfo._visible" :id="docInfo._id" @close="docInfo._visible = false;"></doc-detail>
                     <template #reference>
                       <el-button link type="primary" text @click.stop="handleShowDetail(docInfo)">详情</el-button>

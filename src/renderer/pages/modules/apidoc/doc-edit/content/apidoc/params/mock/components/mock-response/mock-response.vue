@@ -13,7 +13,7 @@
     <div v-if="responseType === 'json'" class="editor-wrap">
       <SJsonEditor ref="jsonComponent" v-model="jsonValue"></SJsonEditor>
       <el-button class="mock" text @click.stop="showMockTip = !showMockTip">
-        <el-popover :visible="showMockTip" placement="top-start" trigger="manual" width="auto">
+        <el-popover :visible="showMockTip" placement="top-start" width="auto">
           <SMock auto-copy @select="handleSelectMockStr"></SMock>
           <template #reference>
             <span>Mock语法</span>

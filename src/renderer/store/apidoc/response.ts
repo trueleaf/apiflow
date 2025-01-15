@@ -32,6 +32,9 @@ export const useApidocResponse = defineStore('apidocResponse', () => {
   const changeLoadingProcess = (payload: Partial<typeof loadingProcess.value>) => {
     assign(loadingProcess.value, payload)
   }
+  const clearResponse = () => {
+    responseInfo.value = generateEmptyResponse()
+  }
   return {
     responseInfo,
     cookies,
@@ -41,4 +44,5 @@ export const useApidocResponse = defineStore('apidocResponse', () => {
     changeRequestState,
     changeCookies,
     changeLoadingProcess,
+    clearResponse,
 }})

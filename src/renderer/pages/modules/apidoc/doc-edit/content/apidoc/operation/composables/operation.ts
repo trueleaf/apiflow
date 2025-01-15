@@ -59,7 +59,8 @@ export default (): OperationReturn => {
   const handleFreshApidoc = () => {
     loading3.value = true;
     // todo
-    // apidocResponseStroe.clearResponseInfo()
+    apidocResponseStroe.changeRequestState('waiting');
+    apidocResponseStroe.clearResponse()
     if (currentSelectTab.value) {
       apidocCache.deleteResponse(currentSelectTab.value._id);
     }
