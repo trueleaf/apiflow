@@ -75,5 +75,8 @@ export const config: Config = {
     maxLocalResponseLogSize: 1024 * 1024 * 1024 * 10,
     maxLocalWebStorageResponseLogSize: 1024 * 1024 * 100,
     canLogResponsebodyByteLength: 1024 * 1024,
+  },
+  requestConfig: {
+    maxStoreSingleBodySize: 1024 * 1024 * 10, //最大可以缓存单个返回值大小为10M
   }
 }

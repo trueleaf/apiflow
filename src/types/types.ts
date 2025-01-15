@@ -112,7 +112,7 @@ export type ResponseInfo = {
   bodyByteLength: number;
   body?: unknown;
   responseData: {
-    canApiflowParseType: 'text' | 'json' | 'html' | 'xml' | 'js' | 'css' | 'pdf' | 'word' | 'excel' | 'ppt' | 'image' | 'zip' | 'unknown' | 'error',
+    canApiflowParseType: 'text' | 'json' | 'html' | 'xml' | 'js' | 'css' | 'pdf' | 'word' | 'excel' | 'ppt' | 'image' | 'zip' | 'unknown' | 'error' | 'none' | 'cachedBodyIsTooLarge',
     jsonData: string;
     textData: string;
     errorData: string;
@@ -316,6 +316,9 @@ export type Config = {
     maxLocalResponseLogSize: number;
     maxLocalWebStorageResponseLogSize: number;
     canLogResponsebodyByteLength: number;
+  },
+  requestConfig: {
+    maxStoreSingleBodySize: number;
   }
 }
 
