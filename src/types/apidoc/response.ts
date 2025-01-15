@@ -39,10 +39,6 @@ export type ApidocResponseState = {
   */
   loading: boolean,
   /**
-    * 是否已经接收到返回值
-  */
-  isResponse: boolean,
-  /**
     * cookie信息
   */
   cookies: ApidocCookieInfo[],

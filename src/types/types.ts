@@ -10,6 +10,9 @@ export type Property = {
   type: "string" | "file";
   description: string;
 };
+export type DeepPartial<T> = {
+  [P in keyof T]?: T[P] extends object ? DeepPartial<T[P]> : T[P];
+};
 export type JsonData = string | number | boolean | null | JsonData[] | { [key: string]: JsonData };
 export type CustomRequestInfo = {
   id: string;
@@ -92,24 +95,32 @@ export type ResponseInfo = {
   id: string;
   apiId: string;
   requestId: string;
-  finishTime: string;
   headers: IncomingHttpHeaders,
-  contentType: string,
-  originRequestUrl: URL;
+  contentLength: number;
   finalRequestUrl: string;
   statusCode: number;
   isFromCache: boolean;
-  dataType: 'text' | 'word' | 'excel' | 'ppt' | 'image' | 'zip' | 'unknown' | 'error',
-  mimeType: string;
+  contentType: string,
   /**
    * 如果走缓存则没有ip值
    */
   ip: string;
   redirectUrls: URL[];
   timings: Timings;
+  rt: number;
   retryCount: number;
-  bodySize: number;
+  bodyByteLength: number;
   body?: unknown;
+  responseData: {
+    canApiflowParseType: 'text' | 'json' | 'html' | 'xml' | 'js' | 'css' | 'pdf' | 'word' | 'excel' | 'ppt' | 'image' | 'zip' | 'unknown' | 'error',
+    jsonData: string;
+    textData: string;
+    errorData: string;
+    fileData: {
+      url: string;
+      name: string  
+    }
+  }
 }
 
 export type Config = {
@@ -304,7 +315,7 @@ export type Config = {
     autoSaveResponseLog: boolean;
     maxLocalResponseLogSize: number;
     maxLocalWebStorageResponseLogSize: number;
-    canLogResponseBodySize: number;
+    canLogResponsebodyByteLength: number;
   }
 }
 
@@ -322,9 +333,11 @@ export type GotRequestOptions = {
   headers: Record<string, string | null>;
   signal: (abort: (reason?: string) => void) => void;
   onResponse?: (responseInfo: ResponseInfo) => void;
+  onResponseEnd?: (responseInfo: ResponseInfo) => void;
+  onResponseData?: (loadedLength: number, totalLength: number) => void;
   onReadFileFormDataError?: (options: {id: string, msg: string}) => void;
-  beforeError: (error: RequestError) => void,
+  onError: (error: RequestError | Error) => void,
   beforeRedirect: (updatedOptions: Options, plainResponse: PlainResponse) => void,
-  beforeRequest: (options: Options) => void,
-  beforeRetry: (error: RequestError, retryCount: number) => void,
+  beforeRequest?: (options: Options) => void,
+  beforeRetry?: (error: RequestError, retryCount: number) => void,
 }

@@ -74,6 +74,6 @@ export const config: Config = {
     autoSaveResponseLog: false,
     maxLocalResponseLogSize: 1024 * 1024 * 1024 * 10,
     maxLocalWebStorageResponseLogSize: 1024 * 1024 * 100,
-    canLogResponseBodySize: 1024 * 1024,
+    canLogResponsebodyByteLength: 1024 * 1024,
   }
 }

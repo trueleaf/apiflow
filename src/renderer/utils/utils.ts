@@ -200,7 +200,6 @@ export const generateEmptyResponse = (): ResponseInfo => {
     headers: {},
     contentType: '',
     contentLength: 0,
-    originRequestUrl: new URL('https://github.com/trueleaf/moyu'),
     finalRequestUrl: '',
     redirectUrls: [],
     ip: '',
@@ -231,12 +230,12 @@ export const generateEmptyResponse = (): ResponseInfo => {
     rt: 0,
     retryCount: 0,
     body: null,
-    finishTime: '',
-    bodySize: 0,
+    bodyByteLength: 0,
     responseData: {
       canApiflowParseType:  'unknown',
       jsonData: '',
       textData: '',
+      errorData: '',
       fileData: {
         url: '',
         name: ''  
