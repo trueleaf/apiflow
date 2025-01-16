@@ -2,7 +2,7 @@
   <div class="body-view" :class="{ vertical: layout === 'vertical' }">
     <template v-if="responseInfo.contentType">
       <!-- 图片类型 -->
-      <div v-if="responseInfo.contentType.includes('image/')" class="img-view-wrap">
+      <div v-if="responseInfo.responseData.canApiflowParseType === 'image'" class="img-view-wrap">
         <el-image 
           v-if="responseInfo.responseData.fileData.url"
           class="img-view" 
@@ -13,7 +13,7 @@
         <div v-else class="img-view-empty">图片加载中</div>
       </div>
       <!-- 音频类型、视频类型、流文件 -->
-      <div v-else-if="responseInfo.contentType.includes('application/octet-stream')"
+      <div v-else-if="responseInfo.responseData.canApiflowParseType === 'octetStream'"
         class="d-flex flex-column a-center">
         <svg class="svg-icon" aria-hidden="true" :title="t('下载文件')">
           <use xlink:href="#iconicon_weizhiwenjian"></use>
@@ -21,7 +21,7 @@
         <div>{{ responseInfo.contentType }}</div>
         <el-button link type="primary" text @click="handleDownload">{{ t("下载文件") }}</el-button>
       </div>
-      <div v-else-if="responseInfo.contentType.includes('application/force-download')"
+      <div v-else-if="responseInfo.responseData.canApiflowParseType === 'forceDownload'"
         class="d-flex flex-column j-center">
         <svg class="svg-icon" aria-hidden="true" :title="t('下载文件')">
           <use xlink:href="#iconicon_weizhiwenjian"></use>
@@ -31,7 +31,7 @@
       </div>
       <!-- excel -->
       <div
-        v-else-if="responseInfo.contentType.includes('application/vnd.openxmlformats-officedocument.spreadsheetml.sheet') || responseInfo.contentType.includes('application/vnd.ms-excel')"
+        v-else-if="responseInfo.responseData.canApiflowParseType === 'excel'"
         class="d-flex flex-column j-center">
         <svg class="svg-icon" aria-hidden="true" :title="t('下载文件')">
           <use xlink:href="#iconexcel"></use>
@@ -41,7 +41,7 @@
       </div>
       <!-- word -->
       <div
-        v-else-if="responseInfo.contentType.includes('application/vnd.openxmlformats-officedocument.wordprocessingml.document') || responseInfo.contentType.includes('application/msword')"
+        v-else-if="responseInfo.responseData.canApiflowParseType === 'word'"
         class="d-flex flex-column j-center">
         <svg class="svg-icon" aria-hidden="true" :title="t('下载文件')">
           <use xlink:href="#iconWORD"></use>
@@ -50,33 +50,51 @@
         <el-button link type="primary" text @click="handleDownload">{{ t("下载文件") }}</el-button>
       </div>
       <!-- pdf -->
-      <iframe v-else-if="responseInfo.contentType.includes('application/pdf')"
+      <iframe v-else-if="responseInfo.responseData.canApiflowParseType === 'pdf'"
         :src="responseInfo.responseData.fileData.url" class="pdf-view"></iframe>
       <!-- xml -->
-      <pre
-        v-else-if="responseInfo.contentType.includes('application/xml')">{{ responseInfo.responseData.textData }}</pre>
+      <div v-else-if="responseInfo.responseData.canApiflowParseType === 'xml'" class="text-wrap">
+        <SJsonEditor :modelValue="responseInfo.responseData.textData" read-only :config="{ fontSize: 12, language: 'xml' }"></SJsonEditor>
+      </div>
       <!-- javascript -->
-      <pre
-        v-else-if="responseInfo.contentType.includes('application/javascript')">{{ responseInfo.responseData.textData }}</pre>
+      <div v-else-if="responseInfo.responseData.canApiflowParseType === 'js'" class="text-wrap">
+        <SRawEditor :model-value="prettyResponse" readonly type="application/javascript"></SRawEditor>
+      </div>
       <!-- html -->
-      <div v-else-if="responseInfo.contentType.includes('text/html')" class="text-wrap">
-        <SRawEditor :model-value="responseInfo.responseData.textData" readonly type="text/html"></SRawEditor>
+      <div v-else-if="responseInfo.responseData.canApiflowParseType === 'html'" class="text-wrap">
+        <SRawEditor :model-value="prettyResponse" readonly type="text/html"></SRawEditor>
+      </div>
+      <!-- css -->
+      <div v-else-if="responseInfo.responseData.canApiflowParseType === 'css'" class="text-wrap">
+        <SRawEditor :model-value="prettyResponse" readonly type="text/css"></SRawEditor>
       </div>
       <!-- 纯文本 -->
-      <div v-else-if="responseInfo.contentType.includes('text/plain')" class="text-wrap">
-        <SRawEditor :model-value="textResponse" readonly type="text/plain">
-        </SRawEditor>
+      <div v-else-if="responseInfo.responseData.canApiflowParseType === 'text'" class="text-wrap">
+        <SRawEditor :model-value="prettyResponse" readonly type="text/css"></SRawEditor>
       </div>
       <!-- 未知文件 -->
-      <div v-else-if="!responseInfo.contentType.includes('application/json')">
+      <!-- <div v-else-if="responseInfo.responseData.canApiflowParseType === 'unknown'" class="d-flex j-center flex-column">
         <svg class="svg-icon" aria-hidden="true" :title="t('下载文件')">
           <use xlink:href="#iconicon_weizhiwenjian"></use>
         </svg>
-        <div>{{ responseInfo.contentType }}</div>
-        <el-button link type="primary" text @click="handleDownload">{{ t("下载文件") }}</el-button>
+        <div class="d-flex a-center j-center">{{ responseInfo.contentType }}</div>
+        <div class="d-flex a-center j-center">
+          <el-button link type="primary" text @click="handleDownload">{{ t("下载文件") }}</el-button>
+        </div>
+      </div> -->
+      <!-- 无法解析的文件 -->
+      <div v-else-if="responseInfo.responseData.canApiflowParseType === 'unknown'" class="d-flex j-center flex-column">
+        <span>{{ responseInfo.responseData.textData }}</span>
+        <svg class="svg-icon" aria-hidden="true" :title="t('下载文件')">
+          <use xlink:href="#iconicon_weizhiwenjian"></use>
+        </svg>
+        <div class="d-flex a-center j-center">{{ responseInfo.contentType }}</div>
+        <div class="d-flex a-center j-center">
+          <el-button link type="primary" text @click="handleDownload">{{ t("下载文件") }}</el-button>
+        </div>
       </div>
       <!-- json -->
-      <div v-show="responseInfo.contentType.includes('application/json')">
+      <div v-show="responseInfo.responseData.canApiflowParseType === 'json'">
         <div class="json-wrap">
           <SRawEditor :model-value="jsonResponse" readonly type="application/json"></SRawEditor>
           <div v-show="showTip" class="tip">
@@ -116,6 +134,7 @@ import { t } from 'i18next'
 import { formatBytes } from '@/helper/index'
 import SRawEditor from '@/components/apidoc/raw-editor/g-raw-editor.vue'
 import { config } from '@/../config/config'
+import SJsonEditor from '@/components/common/json-editor/g-json-editor.vue'
 
 
 
@@ -173,30 +192,11 @@ const showTip = computed(() => {
   const formatCode = window?.js_beautify(jsonData, { indent_size: 4 });
   return formatCode.length > 1024 * 40
 });
-//HTML返回参数
-const htmlResponse = computed(() => {
+//返回参数
+const prettyResponse = computed(() => {
   const { textData } = apidocResponseStore.responseInfo.responseData;
-  return window?.js_beautify.html(textData, { indent_size: 4 });
+  return window?.js_beautify(textData, { indent_size: 4 });
 });
-//HTML返回时预览
-// const htmlPreview = computed(() => {
-//   const data = apidocResponseStore.data.text;
-//   const blob = new Blob([data], {
-//     type: 'text/html'
-//   });
-//   const url = URL.createObjectURL(blob);
-//   return url;
-// });
-//纯文本返回参数
-const textResponse = computed(() => {
-  const { textData } = apidocResponseStore.responseInfo.responseData;
-  return textData;
-});
-
-//美化html文件
-// const beautifyHtml = (str: string) => {
-//   return str;
-// };
 //下载文件
 const handleDownload = () => {
   const { fileData } = apidocResponseStore.responseInfo.responseData;
@@ -215,7 +215,7 @@ const handleDownload = () => {
 .body-view {
   width: 100%;
   height: calc(100vh - #{size(370)});
-  overflow-y: auto;
+  // overflow-y: auto;
   position: relative;
 
   &.vertical {

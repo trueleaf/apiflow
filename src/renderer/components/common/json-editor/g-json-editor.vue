@@ -100,6 +100,9 @@ onMounted(() => {
     renderLineHighlight: 'none',
     fontSize: 14,
     readOnly: props.readOnly,
+    readOnlyMessage: {
+      value: 'readOnly'
+    },
     ...props.config
   })
   // const container = document.querySelector(".s-json-editor")

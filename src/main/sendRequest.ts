@@ -130,7 +130,7 @@ export const gotRequest = async (options: GotRequestOptions) => {
     });
     //取消请求
     options.signal(abortController.abort)
-    console.log("gotOptions", options)
+    // console.log("gotOptions", options)
     const requestStream = got.stream(gotOptions);
     const bufferList: Buffer[] = [];
     let streamByteLength = 0;
@@ -171,13 +171,10 @@ export const gotRequest = async (options: GotRequestOptions) => {
       if (isTextData && responseInfo.contentType.includes('application/json')) {
         responseInfo.responseData.canApiflowParseType = 'json';
         responseInfo.responseData.jsonData = bufferData.toString();
-      } else if (isTextData && responseInfo.contentType.includes('application/xml')) {
-        responseInfo.responseData.canApiflowParseType = 'xml';
-        responseInfo.responseData.textData = bufferData.toString();
       } else if (isTextData && responseInfo.contentType.includes('text/html')) {
         responseInfo.responseData.canApiflowParseType = 'html';
         responseInfo.responseData.textData = bufferData.toString();
-      } else if (isTextData && responseInfo.contentType.includes('application/css')) {
+      } else if (isTextData && responseInfo.contentType.includes('text/css')) {
         responseInfo.responseData.canApiflowParseType = 'css';
         responseInfo.responseData.textData = bufferData.toString();
       } else if (isTextData && responseInfo.contentType.includes('application/javascript')) {
@@ -192,9 +189,28 @@ export const gotRequest = async (options: GotRequestOptions) => {
         responseInfo.responseData.canApiflowParseType = 'image';
         responseInfo.responseData.fileData.url = blobUrl;
       } else if (!isTextData && fileTypeInfo.mime.includes('application/pdf')) {
+        const blob = new Blob([bufferData], { type: fileTypeInfo.mime });
+        const blobUrl = URL.createObjectURL(blob);
         responseInfo.responseData.canApiflowParseType = 'pdf';
-        responseInfo.responseData.fileData.url = bufferData.toString('base64');
+        responseInfo.responseData.fileData.url = blobUrl;
+      } else if (!isTextData && (fileTypeInfo.mime.includes('application/vnd.openxmlformats-officedocument.spreadsheetml.sheet') || fileTypeInfo.mime.includes('application/vnd.ms-excel'))) {
+        const blob = new Blob([bufferData], { type: fileTypeInfo.mime });
+        const blobUrl = URL.createObjectURL(blob);
+        responseInfo.responseData.canApiflowParseType = 'excel';
+        responseInfo.responseData.fileData.url = blobUrl;
+      } else if (!isTextData && (fileTypeInfo.mime.includes('application/vnd.openxmlformats-officedocument.wordprocessingml.document') || fileTypeInfo.mime.includes('application/msword'))) {
+        const blob = new Blob([bufferData], { type: fileTypeInfo.mime });
+        const blobUrl = URL.createObjectURL(blob);
+        responseInfo.responseData.canApiflowParseType = 'word';
+        responseInfo.responseData.fileData.url = blobUrl;
+      } else if (!isTextData && responseInfo.contentType.includes('application/xml')) {
+        responseInfo.responseData.canApiflowParseType = 'xml';
+        responseInfo.responseData.textData = bufferData.toString();
+      } else {
+        responseInfo.responseData.canApiflowParseType = 'unknown';
+        responseInfo.responseData.textData = `无法解析的类型\ncontent-type=${responseInfo.contentType} \nfileType=${JSON.stringify(fileTypeInfo)}`
       }
+      console.log(fileTypeInfo)
       // let mimeType = 'unknown';
       // if (fileTypeInfo) {
       //   mimeType = fileTypeInfo.mime

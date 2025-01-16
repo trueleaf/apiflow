@@ -93,7 +93,7 @@ const requestState = computed(() => apidocResponseStore.requestState); //请求�
 
 <style lang='scss' scoped>
 .loading-wrap {
-  height: calc(100% - #{size(310)});
+  height: calc(100vh - #{size(310)});
 }
 .remote-response-wrap {
   height: calc(100vh - #{size(310)});

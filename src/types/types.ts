@@ -112,7 +112,25 @@ export type ResponseInfo = {
   bodyByteLength: number;
   body?: unknown;
   responseData: {
-    canApiflowParseType: 'text' | 'json' | 'html' | 'xml' | 'js' | 'css' | 'pdf' | 'word' | 'excel' | 'ppt' | 'image' | 'zip' | 'unknown' | 'error' | 'none' | 'cachedBodyIsTooLarge',
+    canApiflowParseType: 
+    'text' | 
+    'json' | 
+    'html' | 
+    'xml' | 
+    'js' | 
+    'css' | 
+    'pdf' | 
+    'word' | 
+    'excel' | 
+    'ppt' | 
+    'image' | 
+    'zip' | 
+    'unknown' | 
+    'error' | 
+    'none' | 
+    'cachedBodyIsTooLarge' |
+    'octetStream' |
+    'forceDownload',
     jsonData: string;
     textData: string;
     errorData: string;
