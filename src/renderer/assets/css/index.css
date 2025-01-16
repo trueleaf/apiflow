@@ -383,7 +383,9 @@ body .el-menu--horizontal {
   -webkit-line-clamp: 4;
   -webkit-box-orient: vertical;
   overflow: hidden; }
-
+.overflow-hidden {
+  overflow: hidden;
+}
 .text-center {
   text-align: center; }
 
