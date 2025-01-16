@@ -21,7 +21,7 @@ const TYPE_MAP: Record<string, string> = {
   'text/html': 'html',
   'application/xml': 'xml',
   'application/json': 'json',
-  'text/javascript': 'javascript'
+  'application/javascript': 'javascript',
 }
 const props = defineProps({
   type: {
@@ -72,9 +72,10 @@ const initEditor = () => {
   editorInstance.value.setTheme('ace/theme/github');
   // console.log(33, editorInstance.value.getOptions())
   editorInstance.value.getSession().setUseWrapMode(true);
+  editorInstance.value.getSession().setUseWorker(false); //禁用语法提示
   editorInstance.value.setOptions({
     fontSize: '13px',
-    wrapBehavioursEnabled: true
+    wrapBehavioursEnabled: true,
   });
   if (props.readonly) {
     editorInstance.value.setReadOnly(true);
