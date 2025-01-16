@@ -1,6 +1,6 @@
 
 <template>
-  <div class="d-flex a-center px-3 text-ellipsis">
+  <div class="d-flex a-center px-3 w-100 overflow-hidden">
     <div class="flex0 d-flex a-center">
       <span>{{ t("状态码") }}：</span>
       <template v-if="responseInfo.statusCode">
@@ -37,9 +37,9 @@
       </el-icon>
     </div>
     <el-divider direction="vertical"></el-divider>
-    <div class="flex0 d-flex a-center j-center">
+    <div class="flex0 d-flex a-center">
       <span>{{ t("格式") }}：</span>
-      <SEllipsisContent v-if="responseInfo.contentType" :value="responseInfo.contentType" :title="responseInfo.contentType" max-width="200px" class="orange"></SEllipsisContent>
+      <SEllipsisContent v-if="responseInfo.contentType" :value="responseInfo.contentType" :title="responseInfo.contentType" max-width="300px" class="orange"></SEllipsisContent>
       <el-icon v-else :title="t('未请求数据')" :size="16" class="gray-500">
         <QuestionFilled />
       </el-icon>
