@@ -12,7 +12,7 @@
         </el-image>
         <div v-else class="img-view-empty">图片加载中</div>
       </div>
-      <!-- 音频类型、视频类型、流文件 -->
+      <!-- 流文件 -->
       <div v-else-if="responseInfo.responseData.canApiflowParseType === 'octetStream'"
         class="d-flex flex-column a-center">
         <svg class="svg-icon" aria-hidden="true" :title="t('下载文件')">
@@ -21,6 +21,7 @@
         <div>{{ responseInfo.contentType }}</div>
         <el-button link type="primary" text @click="handleDownload">{{ t("下载文件") }}</el-button>
       </div>
+      <!-- 下载类型文件 -->
       <div v-else-if="responseInfo.responseData.canApiflowParseType === 'forceDownload'"
         class="d-flex flex-column j-center">
         <svg class="svg-icon" aria-hidden="true" :title="t('下载文件')">
@@ -29,10 +30,29 @@
         <div>{{ responseInfo.contentType }}</div>
         <el-button link type="primary" text @click="handleDownload">{{ t("下载文件") }}</el-button>
       </div>
+       <!-- xml -->
+       <div v-else-if="responseInfo.responseData.canApiflowParseType === 'xml'" class="text-wrap">
+        <SJsonEditor :modelValue="responseInfo.responseData.textData" read-only :config="{ fontSize: 13, language: 'xml' }"></SJsonEditor>
+      </div>
+      <!-- javascript -->
+      <div v-else-if="responseInfo.responseData.canApiflowParseType === 'js'" class="text-wrap">
+        <SJsonEditor :modelValue="prettyResponse" read-only :config="{ fontSize: 13, language: 'javascript' }"></SJsonEditor>
+        <!-- <div class="text-tool">
+          <div class="d-flex a-center j-center cursor-pointer hover-theme-color">格式化</div>
+        </div>
+        <div class="text-view">
+        </div> -->
+      </div>
+      <!-- html -->
+      <div v-else-if="responseInfo.responseData.canApiflowParseType === 'html'" class="text-wrap">
+        <SJsonEditor :modelValue="responseInfo.responseData.textData" read-only :config="{ fontSize: 13, language: 'html' }"></SJsonEditor>
+      </div>
+      <!-- css -->
+      <div v-else-if="responseInfo.responseData.canApiflowParseType === 'css'" class="text-wrap">
+        <SJsonEditor :modelValue="prettyResponse" read-only :config="{ fontSize: 13, language: 'css' }"></SJsonEditor>
+      </div>
       <!-- excel -->
-      <div
-        v-else-if="responseInfo.responseData.canApiflowParseType === 'excel'"
-        class="d-flex flex-column j-center">
+      <div v-else-if="responseInfo.responseData.canApiflowParseType === 'excel'" class="d-flex flex-column j-center">
         <svg class="svg-icon" aria-hidden="true" :title="t('下载文件')">
           <use xlink:href="#iconexcel"></use>
         </svg>
@@ -40,9 +60,7 @@
         <el-button link type="primary" text @click="handleDownload">{{ t("下载文件") }}</el-button>
       </div>
       <!-- word -->
-      <div
-        v-else-if="responseInfo.responseData.canApiflowParseType === 'word'"
-        class="d-flex flex-column j-center">
+      <div v-else-if="responseInfo.responseData.canApiflowParseType === 'word'" class="d-flex flex-column j-center">
         <svg class="svg-icon" aria-hidden="true" :title="t('下载文件')">
           <use xlink:href="#iconWORD"></use>
         </svg>
@@ -50,24 +68,8 @@
         <el-button link type="primary" text @click="handleDownload">{{ t("下载文件") }}</el-button>
       </div>
       <!-- pdf -->
-      <iframe v-else-if="responseInfo.responseData.canApiflowParseType === 'pdf'"
-        :src="responseInfo.responseData.fileData.url" class="pdf-view"></iframe>
-      <!-- xml -->
-      <div v-else-if="responseInfo.responseData.canApiflowParseType === 'xml'" class="text-wrap">
-        <SJsonEditor :modelValue="responseInfo.responseData.textData" read-only :config="{ fontSize: 12, language: 'xml' }"></SJsonEditor>
-      </div>
-      <!-- javascript -->
-      <div v-else-if="responseInfo.responseData.canApiflowParseType === 'js'" class="text-wrap">
-        <SRawEditor :model-value="prettyResponse" readonly type="application/javascript"></SRawEditor>
-      </div>
-      <!-- html -->
-      <div v-else-if="responseInfo.responseData.canApiflowParseType === 'html'" class="text-wrap">
-        <SRawEditor :model-value="prettyResponse" readonly type="text/html"></SRawEditor>
-      </div>
-      <!-- css -->
-      <div v-else-if="responseInfo.responseData.canApiflowParseType === 'css'" class="text-wrap">
-        <SRawEditor :model-value="prettyResponse" readonly type="text/css"></SRawEditor>
-      </div>
+      <iframe v-else-if="responseInfo.responseData.canApiflowParseType === 'pdf'" :src="responseInfo.responseData.fileData.url" class="pdf-view"></iframe>
+     
       <!-- 纯文本 -->
       <div v-else-if="responseInfo.responseData.canApiflowParseType === 'text'" class="text-wrap">
         <SRawEditor :model-value="prettyResponse" readonly type="text/css"></SRawEditor>
@@ -137,7 +139,6 @@ import { config } from '@/../config/config'
 import SJsonEditor from '@/components/common/json-editor/g-json-editor.vue'
 
 
-
 const couldShowAllJsonStr = ref(false);
 const apidocResponseStore = useApidocResponse();
 const apidocBaseInfoStore = useApidocBaseInfo();
@@ -195,6 +196,12 @@ const showTip = computed(() => {
 //返回参数
 const prettyResponse = computed(() => {
   const { textData } = apidocResponseStore.responseInfo.responseData;
+  // console.log(22, prettierPluginBabel)
+  // const prettierCode = await prettier.format(textData, {
+  //   parser: 'babel',
+  //   plugins: [prettierPluginBabel]
+  // });
+  // return prettierCode;
   return window?.js_beautify(textData, { indent_size: 4 });
 });
 //下载文件
@@ -250,6 +257,15 @@ const handleDownload = () => {
 
   .text-wrap {
     height: 100%;
+    .text-tool {
+      display: flex;
+      align-items: center;
+      height: size(20);
+      border-bottom: 1px solid $gray-200;
+    }
+    .text-view {
+      height: calc(100% - #{size(20)});
+    }
   }
 
   .operation {

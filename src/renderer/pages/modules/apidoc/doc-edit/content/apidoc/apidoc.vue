@@ -10,8 +10,16 @@
         @dragStart="isVerticalDrag = true" @dragEnd="isVerticalDrag = false">
         <SResponse></SResponse>
       </SResizeY>
-      <SResizeX v-if="layout === 'horizontal'" :min="500" :max="750" :width="500" name="response" bar-left
-        class="response-layout" tabindex="1">
+      <SResizeX 
+        v-if="layout === 'horizontal'" 
+        :min="500" 
+        :max="750"
+        :width="500" 
+        name="response" 
+        bar-left
+        class="response-layout" 
+        tabindex="1"
+      >
         <SResponse></SResponse>
       </SResizeX>
     </template>
@@ -87,7 +95,7 @@ const getApidocInfo = () => {
   }
   //=====================================获取缓存的返回参数====================================//
   const localResponse = apidocCache.getResponse(currentSelectTab.value._id);
-  apidocResponseStore.clearResponse()
+  apidocResponseStore.clearResponse();
   if (localResponse) {
     apidocResponseStore.changeResponseInfo(localResponse)
   }

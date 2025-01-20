@@ -30,7 +30,7 @@
         </el-tab-pane>
       </el-tabs>
     </div>
-    <el-empty v-show="requestState === 'waiting'">
+    <el-empty v-show="requestState === 'waiting' && !responseInfo.contentType">
       <template #description>
         <div v-if="requestState === 'waiting'">
           <div v-if="isElectron()" class="no-select">{{ t("点击发送请求按钮发送请求") }}</div>
@@ -97,7 +97,9 @@ const requestState = computed(() => apidocResponseStore.requestState); //请求�
 }
 .remote-response-wrap {
   height: calc(100vh - #{size(310)});
-
+  // :deep(.el-tabs__header) {
+  //   margin-bottom: size(5);
+  // }
   .el-tabs__content {
     height: calc(100% - 55px);
 

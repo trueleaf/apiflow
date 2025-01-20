@@ -208,7 +208,7 @@ export const gotRequest = async (options: GotRequestOptions) => {
         responseInfo.responseData.textData = bufferData.toString();
       } else {
         responseInfo.responseData.canApiflowParseType = 'unknown';
-        responseInfo.responseData.textData = `无法解析的类型\ncontent-type=${responseInfo.contentType} \nfileType=${JSON.stringify(fileTypeInfo)}`
+        responseInfo.responseData.textData = `无法解析的类型?\ncontent-type=${responseInfo.contentType} \nfileType=${JSON.stringify(fileTypeInfo)}`
       }
       console.log(fileTypeInfo)
       // let mimeType = 'unknown';
