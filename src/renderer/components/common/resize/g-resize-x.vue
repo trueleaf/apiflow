@@ -1,7 +1,12 @@
 <template>
   <div ref="wrapper" :style="{ 'userSelect': isDragging ? 'none' : 'auto' }" class="drag-wrap">
-    <div ref="bar" class="bar" :class="{ active: isDragging }" @mousedown="handleResizeMousedown"
-      @dblclick="handleResetWidth"></div>
+    <div 
+      ref="bar" 
+      class="bar" 
+      :class="{ active: isDragging }" 
+      @mousedown="handleResizeMousedown"
+      @dblclick="handleResetWidth">
+    </div>
     <div v-show="isDragging" class="indicator">
       <div class="left"></div>
       <div class="ct">
@@ -15,7 +20,7 @@
 
 <script lang="ts" setup>
 import { t } from 'i18next';
-import { onMounted, onUnmounted, ref } from 'vue';
+import { onMounted, onUnmounted, ref, watch } from 'vue';
 
 const props = defineProps({
   width: {
@@ -73,13 +78,13 @@ const handleResizeMousemove = (e: MouseEvent) => {
   if (props.barLeft) {
     bar.value.style.left = `${0}px`;
   } else {
-    bar.value.style.left = `${moveLeft + wWidth}px`;
+    bar.value.style.left = `${wWidth}px`;
   }
-  wrapper.value.style.width = `${moveLeft + wWidth}px`;
+  wrapper.value.style.width = `${wWidth}px`;
   if (props.remember) {
-    localStorage.setItem(`dragBar/${props.name}`, `${moveLeft + wWidth}px`);
+    localStorage.setItem(`dragBar/${props.name}`, `${wWidth}px`);
   }
-  realTimeWidth.value = moveLeft + wWidth;
+  realTimeWidth.value = wWidth;
 }
 //处理鼠标弹起事件
 const handleResizeMouseup = () => {
@@ -130,6 +135,13 @@ const initDrag = () => {
     realTimeWidth.value = parseFloat(width);
   }
 }
+watch(isDragging, (dragging) => {
+  if (dragging) {
+    document.body.classList.add('cursor-ew-resize');
+  } else {
+    document.body.classList.remove('cursor-ew-resize');
+  }
+})
 /*
 |--------------------------------------------------------------------------
 | 生命周期
