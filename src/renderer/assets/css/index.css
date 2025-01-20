@@ -889,7 +889,9 @@ body .el-menu--horizontal {
 
 .cursor-auto {
   cursor: auto; }
-
+.cursor-ew-resize {
+  cursor: ew-resize;
+}
 .cursor-crosshair {
   cursor: crosshair; }
 
