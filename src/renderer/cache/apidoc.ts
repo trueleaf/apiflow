@@ -2,15 +2,18 @@
  * apidoc文档缓存
  */
 
+import { config } from '@src/config/config';
 import { ApidocProjectHost } from '@src/types/apidoc/base-info';
 import { ApidocDetail } from '@src/types/global';
 import { ResponseInfo } from '@src/types/types';
+import { IDBPDatabase, openDB } from 'idb';
 
 type ServerInfo = ApidocProjectHost & {
   isLocal?: boolean,
 };
 
 class ApidocCache {
+  public responseCacheDb: IDBPDatabase | null = null;
   constructor() {
     if (!localStorage.getItem('apidoc/paramsConfig')) {
       localStorage.setItem('apidoc/paramsConfig', '{}');
@@ -18,8 +21,28 @@ class ApidocCache {
     if (!localStorage.getItem('apidoc/apidoc')) {
       localStorage.setItem('apidoc/apidoc', '{}');
     }
+    this.initApiflowIndexedDb();
   }
-
+  initApiflowIndexedDb() {
+    openDB(config.cacheConfig.apiflowCache.dbName, config.cacheConfig.apiflowCache.version, {
+      upgrade(db) {
+        db.createObjectStore('responseCache');
+      },
+      blocked(currentVersion, blockedVersion, event) {
+        console.log('blocked', currentVersion, blockedVersion, event)
+      },
+      blocking(currentVersion, blockedVersion, event) {
+        console.log('blocking', currentVersion, blockedVersion, event)
+      },
+      terminated() {
+        console.log('terminated')
+      },
+    }).then((db) => {
+      this.responseCacheDb = db;
+    }).catch(err => {
+      console.error(err)
+    })
+  }
   /**
      * @description        获取当前选中params tab的值
      * @author             shuxiaokai
@@ -228,14 +251,15 @@ class ApidocCache {
    * @author             shuxiaokai
    * @create             2021-09-09 21:37
    */
-  setResponse(id: string, response: ResponseInfo) {
+  async setResponse(id: string, response: ResponseInfo) {
+    if (!this.responseCacheDb) {
+      return
+    }
     try {
-      const localData = JSON.parse(localStorage.getItem('apidoc/response') || '{}');
-      localData[id] = response;
-      localStorage.setItem('apidoc/response', JSON.stringify(localData));
+      await this.responseCacheDb.put("responseCache", response, id)
     } catch (error) {
       console.error(error);
-      localStorage.setItem('apidoc/response', '{}');
+      await this.responseCacheDb.clear("responseCache")
     }
   }
 
@@ -245,17 +269,16 @@ class ApidocCache {
    * @create             2021-09-09 21:37
    * @param {string}     id 文档id
    */
-  getResponse(id: string): ResponseInfo | null {
+  async getResponse(id: string): Promise<ResponseInfo | null> {
+    if (!this.responseCacheDb) {
+      return Promise.resolve(null)
+    }
     try {
-      const localData: Record<string, ResponseInfo> = JSON.parse(localStorage.getItem('apidoc/response') || '{}');
-      if (localData[id] == null) {
-        return null;
-      }
-      return localData[id];
+      const localResponse = await this.responseCacheDb.get("responseCache", id);
+      return Promise.resolve(localResponse);
     } catch (error) {
       console.error(error);
-      localStorage.setItem('apidoc/response', '{}')
-      return null;
+      return Promise.resolve(null)
     }
   }
 
@@ -264,14 +287,16 @@ class ApidocCache {
      * @author             shuxiaokai
      * @create             2021-09-09 21:37
      */
-  deleteResponse(id: string) {
+  async deleteResponse(id: string) {
+    if (!this.responseCacheDb) {
+      return Promise.resolve(null)
+    }
     try {
-      const localData = JSON.parse(localStorage.getItem('apidoc/response') || '{}');
-      delete localData[id]
-      localStorage.setItem('apidoc/response', JSON.stringify(localData));
+      const localResponse = await this.responseCacheDb.delete("responseCache", id);
+      return Promise.resolve(localResponse);
     } catch (error) {
       console.error(error);
-      localStorage.setItem('apidoc/response', '{}');
+      return Promise.resolve(null)
     }
   }
 

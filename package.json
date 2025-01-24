@@ -26,6 +26,7 @@
     "i18next": "^23.12.2",
     "i18next-http-backend": "^2.6.1",
     "i18next-vue": "^5.0.0",
+    "idb": "^8.0.1",
     "ip": "^2.0.1",
     "js-beautify": "^1.15.1",
     "js-cookie": "^3.0.5",

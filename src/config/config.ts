@@ -78,5 +78,11 @@ export const config: Config = {
   },
   requestConfig: {
     maxStoreSingleBodySize: 1024 * 1024 * 10, //最大可以缓存单个返回值大小为10M
+  },
+  cacheConfig: {
+    apiflowCache: {
+      dbName: 'apiflowResponseCache',
+      version: 1,
+    }
   }
 }

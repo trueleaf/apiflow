@@ -337,6 +337,12 @@ export type Config = {
   },
   requestConfig: {
     maxStoreSingleBodySize: number;
+  },
+  cacheConfig: {
+    apiflowCache: {
+      dbName: string,
+      version: number,
+    }
   }
 }
 
