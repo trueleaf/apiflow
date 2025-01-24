@@ -93,10 +93,10 @@ const requestState = computed(() => apidocResponseStore.requestState); //请求�
 
 <style lang='scss' scoped>
 .loading-wrap {
-  height: calc(100vh - #{size(310)});
+  height: calc(100vh - #{size(300)});
 }
 .remote-response-wrap {
-  height: calc(100vh - #{size(310)});
+  height: calc(100vh - #{size(300)});
   // :deep(.el-tabs__header) {
   //   margin-bottom: size(5);
   // }

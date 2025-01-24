@@ -151,6 +151,31 @@ export const gotRequest = async (options: GotRequestOptions) => {
       responseInfo.timings = response.timings;
       responseInfo.retryCount = response.retryCount;
       responseInfo.statusCode = response.statusCode;
+      const contentTypeIsPdf = responseInfo.contentType.includes('application/pdf');
+      const contentTypeIsExcel = (responseInfo.contentType.includes('application/vnd.openxmlformats-officedocument.spreadsheetml.sheet') || responseInfo.contentType.includes('application/vnd.ms-excel'));
+      const contentTypeIsWord = (responseInfo.contentType.includes('application/vnd.openxmlformats-officedocument.wordprocessingml.document') || responseInfo.contentType.includes('application/msword'));
+      
+      if (responseInfo.contentType.includes('application/json')) {
+        responseInfo.responseData.canApiflowParseType = 'json';
+      } else if (responseInfo.contentType.includes('text/html')) {
+        responseInfo.responseData.canApiflowParseType = 'html';
+      } else if (responseInfo.contentType.includes('text/css')) {
+        responseInfo.responseData.canApiflowParseType = 'css';
+      } else if (responseInfo.contentType.includes('application/javascript')) {
+        responseInfo.responseData.canApiflowParseType = 'js';
+      } else if (responseInfo.contentType.includes('text/')) {
+        responseInfo.responseData.canApiflowParseType = 'text';
+      } else if (responseInfo.contentType.includes('image/')) {
+        responseInfo.responseData.canApiflowParseType = 'image';
+      } else if (contentTypeIsPdf) {
+        responseInfo.responseData.canApiflowParseType = 'pdf';
+      } else if (contentTypeIsExcel) {
+        responseInfo.responseData.canApiflowParseType = 'excel';
+      } else if (contentTypeIsWord) {
+        responseInfo.responseData.canApiflowParseType = 'word';
+      } else if (responseInfo.contentType.includes('application/xml')) {
+        responseInfo.responseData.canApiflowParseType = 'xml';
+      }
       options.onResponse?.(responseInfo);
     });
     requestStream.on("data", (chunk: Buffer) => {
@@ -167,50 +192,57 @@ export const gotRequest = async (options: GotRequestOptions) => {
       const fileTypeInfo = await fileTypeFromBuffer(bufferData.buffer as ArrayBuffer);
       responseInfo.bodyByteLength = bufferData.byteLength;
       responseInfo.body = bufferData
-      const isTextData = !fileTypeInfo; // 无法解析mimeType数据都当作文本展示
-      if (isTextData && responseInfo.contentType.includes('application/json')) {
+      const hasFileType = !fileTypeInfo;
+      const contentTypeIsPdf = responseInfo.contentType.includes('application/pdf');
+      const contentTypeIsExcel = (responseInfo.contentType.includes('application/vnd.openxmlformats-officedocument.spreadsheetml.sheet') || responseInfo.contentType.includes('application/vnd.ms-excel'));
+      const contentTypeIsWord = (responseInfo.contentType.includes('application/vnd.openxmlformats-officedocument.wordprocessingml.document') || responseInfo.contentType.includes('application/msword'));
+      const contentTypeIsXml = responseInfo.contentType.includes('application/xml')
+      const responseAsPdf = contentTypeIsPdf || fileTypeInfo?.mime?.includes('application/pdf');
+      const responseAsExcel = contentTypeIsExcel || fileTypeInfo?.mime?.includes('application/vnd.openxmlformats-officedocument.spreadsheetml.sheet') || fileTypeInfo?.mime?.includes('application/vnd.ms-excel')
+      const responseAsWord = contentTypeIsWord || (fileTypeInfo?.mime?.includes('application/vnd.openxmlformats-officedocument.wordprocessingml.document') || fileTypeInfo?.mime?.includes('application/msword'))
+      const responseAsXml = contentTypeIsXml || fileTypeInfo?.mime?.includes('application/xml')
+      if (hasFileType && responseInfo.contentType.includes('application/json')) {
         responseInfo.responseData.canApiflowParseType = 'json';
         responseInfo.responseData.jsonData = bufferData.toString();
-      } else if (isTextData && responseInfo.contentType.includes('text/html')) {
+      } else if (hasFileType && responseInfo.contentType.includes('text/html')) {
         responseInfo.responseData.canApiflowParseType = 'html';
         responseInfo.responseData.textData = bufferData.toString();
-      } else if (isTextData && responseInfo.contentType.includes('text/css')) {
+      } else if (hasFileType && responseInfo.contentType.includes('text/css')) {
         responseInfo.responseData.canApiflowParseType = 'css';
         responseInfo.responseData.textData = bufferData.toString();
-      } else if (isTextData && responseInfo.contentType.includes('application/javascript')) {
+      } else if (hasFileType && responseInfo.contentType.includes('application/javascript')) {
         responseInfo.responseData.canApiflowParseType = 'js';
         responseInfo.responseData.textData = bufferData.toString();
-      } else if (isTextData && responseInfo.contentType.includes('text/')) {
+      } else if (hasFileType && responseInfo.contentType.includes('text/')) {
         responseInfo.responseData.canApiflowParseType = 'text';
         responseInfo.responseData.textData = bufferData.toString();
-      } else if (!isTextData && fileTypeInfo.mime.includes('image/')) {
+      } else if (!hasFileType && fileTypeInfo.mime.includes('image/')) {
         const blob = new Blob([bufferData], { type: fileTypeInfo.mime });
         const blobUrl = URL.createObjectURL(blob);
         responseInfo.responseData.canApiflowParseType = 'image';
         responseInfo.responseData.fileData.url = blobUrl;
-      } else if (!isTextData && fileTypeInfo.mime.includes('application/pdf')) {
-        const blob = new Blob([bufferData], { type: fileTypeInfo.mime });
+      } else if (responseAsPdf) {
+        const blob = new Blob([bufferData], { type: fileTypeInfo?.mime ?? 'application/pdf' });
         const blobUrl = URL.createObjectURL(blob);
         responseInfo.responseData.canApiflowParseType = 'pdf';
         responseInfo.responseData.fileData.url = blobUrl;
-      } else if (!isTextData && (fileTypeInfo.mime.includes('application/vnd.openxmlformats-officedocument.spreadsheetml.sheet') || fileTypeInfo.mime.includes('application/vnd.ms-excel'))) {
-        const blob = new Blob([bufferData], { type: fileTypeInfo.mime });
+      } else if (responseAsExcel) {
+        const blob = new Blob([bufferData], { type: fileTypeInfo?.mime ?? 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
         const blobUrl = URL.createObjectURL(blob);
         responseInfo.responseData.canApiflowParseType = 'excel';
         responseInfo.responseData.fileData.url = blobUrl;
-      } else if (!isTextData && (fileTypeInfo.mime.includes('application/vnd.openxmlformats-officedocument.wordprocessingml.document') || fileTypeInfo.mime.includes('application/msword'))) {
-        const blob = new Blob([bufferData], { type: fileTypeInfo.mime });
+      } else if (responseAsWord) {
+        const blob = new Blob([bufferData], { type: fileTypeInfo?.mime ?? 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' });
         const blobUrl = URL.createObjectURL(blob);
         responseInfo.responseData.canApiflowParseType = 'word';
         responseInfo.responseData.fileData.url = blobUrl;
-      } else if (!isTextData && responseInfo.contentType.includes('application/xml')) {
+      } else if (responseAsXml) {
         responseInfo.responseData.canApiflowParseType = 'xml';
         responseInfo.responseData.textData = bufferData.toString();
       } else {
         responseInfo.responseData.canApiflowParseType = 'unknown';
         responseInfo.responseData.textData = `无法解析的类型?\ncontent-type=${responseInfo.contentType} \nfileType=${JSON.stringify(fileTypeInfo)}`
       }
-      console.log(fileTypeInfo)
       // let mimeType = 'unknown';
       // if (fileTypeInfo) {
       //   mimeType = fileTypeInfo.mime

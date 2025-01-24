@@ -64,12 +64,21 @@
           </span>
           <template #dropdown>
             <el-dropdown-menu>
-              <el-dropdown-item command="user-setting">{{ t('个人中心') }}</el-dropdown-item>
-              <el-dropdown-item v-if="isElectron()" :disabled="downloading" command="update">{{ t('检查更新')
-                }}</el-dropdown-item>
-              <el-dropdown-item command="version">{{ t('版本') }}</el-dropdown-item>
-              <el-dropdown-item command="clear-cache">{{ t('清除所有缓存') }}</el-dropdown-item>
-              <el-dropdown-item command="logout">{{ t('退出登录') }}</el-dropdown-item>
+              <el-dropdown-item command="user-setting">
+                <el-button text>{{ t('个人中心') }}</el-button>
+              </el-dropdown-item>
+              <el-dropdown-item v-if="isElectron()" :disabled="downloading" command="update">
+                <el-button text>{{ t('检查更新')}}</el-button>
+              </el-dropdown-item>
+              <el-dropdown-item command="version">
+                <el-button text>{{ t('版本') }}</el-button>
+              </el-dropdown-item>
+              <el-dropdown-item command="clear-cache">
+                <el-button text :loading="clearCacheLoading">{{ t('清除所有缓存') }}</el-button>
+              </el-dropdown-item>
+              <el-dropdown-item command="logout">
+                <el-button text>{{ t('退出登录') }}</el-button>
+              </el-dropdown-item>
             </el-dropdown-menu>
           </template>
         </el-dropdown>
@@ -84,6 +93,7 @@
 <script lang="ts" setup>
 import { usePermissionStore } from '@/store/permission';
 import { RefreshRight, Back, Right, ArrowDown } from '@element-plus/icons-vue'
+import { deleteDB, unwrap } from 'idb';
 import { useRouter } from 'vue-router';
 import i18next, { t } from 'i18next';
 import type { Language } from '@src/types/global'
@@ -92,12 +102,14 @@ import { config } from '@/../config/config'
 import { isElectron } from '@/utils/utils';
 import 'element-plus/es/components/message-box/style/css';
 import { ElMessageBox } from 'element-plus';
+import { apidocCache } from '@/cache/apidoc';
 
 const router = useRouter();
 const permissionStore = usePermissionStore();
 const activeMenuPath = ref('');
 const menus = computed(() => permissionStore.menus);
 const userInfo = computed(() => permissionStore.userInfo);
+const clearCacheLoading = ref(false)
 //辅助操作按钮(electron不具备浏览器前进、后退、刷新)
 const handleOpenDevTools = () => {
   window.electronAPI?.openDevTools();
@@ -198,23 +210,41 @@ const clearAllCache = () => {
   ElMessageBox.confirm(t('此操作将清空所有本地缓存, 是否继续?'), t('提示'), {
     confirmButtonText: t('确定'),
     cancelButtonText: t('取消'),
-    type: 'warning'
-  }).then(() => {
-    //移除serviceworker
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.getRegistrations().then((registrations) => {
-        registrations.forEach(registration => {
-          console.log(registration.unregister())
+    type: 'warning',
+    beforeClose: async (action, instance, done) => {
+      if (action === 'confirm') {
+        instance.confirmButtonLoading = true;
+        instance.confirmButtonText = t('执行中...');
+        clearCacheLoading.value = true;
+        //移除serviceworker
+        if ('serviceWorker' in navigator) {
+          navigator.serviceWorker.getRegistrations().then((registrations) => {
+            registrations.forEach(registration => {
+              console.log(registration.unregister())
+            })
+          })
+        }
+        //移除本地存储
+        localStorage.clear();
+        sessionStorage.clear();
+        //清空indexedDB
+        if (apidocCache.responseCacheDb) {
+          apidocCache.responseCacheDb.close()
+          deleteDB(config.cacheConfig.apiflowCache.dbName);
+        }
+        clearCacheLoading.value = false;
+        done()
+        //刷新页面
+        router.replace('/login');
+        setTimeout(() => {
+          freshPage()
         })
-      })
+      } else {
+        done()
+      }
     }
-    //移除本地存储
-    localStorage.clear();
-    sessionStorage.clear();
-    //清空indexedDB
-    indexedDB.deleteDatabase(config.renderConfig.indexedDB.dbName)
-    //刷新页面
-    router.replace('/login')
+  }).then(async () => {
+    
   }).catch((err: Error | 'cancel' | 'close') => {
     if (err === 'cancel' || err === 'close') {
       return;

@@ -68,7 +68,7 @@ const layout = computed(() => apidocBaseInfoStore.layout);
 |--------------------------------------------------------------------------
 */
 //获取api文档数据
-const getApidocInfo = () => {
+const getApidocInfo = async () => {
   if (!currentSelectTab.value) {
     return
   }
@@ -94,9 +94,10 @@ const getApidocInfo = () => {
     }
   }
   //=====================================获取缓存的返回参数====================================//
-  const localResponse = apidocCache.getResponse(currentSelectTab.value._id);
+  const localResponse = await apidocCache.getResponse(currentSelectTab.value._id);
   apidocResponseStore.clearResponse();
   if (localResponse) {
+    console.log(localResponse, 2)
     apidocResponseStore.changeResponseInfo(localResponse)
   }
 }

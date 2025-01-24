@@ -12,7 +12,6 @@ const processWithElectron: NodeJS.Process & {
 } = process;
 
 let isKilling = false;
-let sholdExistProcess = false;
 const buildElectron = () => {
   esbuild.buildSync({
     entryPoints: ['./src/main/**'],
@@ -35,11 +34,8 @@ const startElectronProcess = (server: ViteDevServer,) => {
     stdio: 'inherit',
   });
   processWithElectron.electronProcess.on('exit', () => {
-    if (sholdExistProcess) {
-      server.close();
-      process.exit();
-    }
-    sholdExistProcess = false;
+    server?.close();
+    process?.exit();
   });
   processWithElectron.electronProcess.on('error', (err) => {
     console.error(err)
@@ -48,7 +44,6 @@ const startElectronProcess = (server: ViteDevServer,) => {
 }
 export const viteElectronPlugin = () => {
   const debounceReloadMain = debounce((server: ViteDevServer) => {
-    sholdExistProcess = false;
     if (processWithElectron.electronProcess?.pid && !isKilling) {
       buildElectron()
       console.log('重启主进程中...')
@@ -61,7 +56,6 @@ export const viteElectronPlugin = () => {
     name: 'vite-electron-plugn',
     configureServer(server: ViteDevServer) {
       if (processWithElectron.electronProcess?.pid) {
-        sholdExistProcess = false;
         process.kill(processWithElectron.electronProcess.pid)
         processWithElectron.electronProcess.removeAllListeners()
         processWithElectron.electronProcess = undefined;
