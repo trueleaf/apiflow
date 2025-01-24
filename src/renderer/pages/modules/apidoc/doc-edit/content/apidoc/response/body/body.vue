@@ -18,7 +18,7 @@
         <svg class="svg-icon" aria-hidden="true" :title="t('下载文件')">
           <use xlink:href="#iconicon_weizhiwenjian"></use>
         </svg>
-        <div>{{ responseInfo.contentType }}</div>
+        <div class="text-center">{{ responseInfo.contentType }}</div>
         <el-button link type="primary" text @click="handleDownload">{{ t("下载文件") }}</el-button>
       </div>
       <!-- 下载类型文件 -->
@@ -27,16 +27,19 @@
         <svg class="svg-icon" aria-hidden="true" :title="t('下载文件')">
           <use xlink:href="#iconicon_weizhiwenjian"></use>
         </svg>
-        <div>{{ responseInfo.contentType }}</div>
+        <div  class="text-center">{{ responseInfo.contentType }}</div>
         <el-button link type="primary" text @click="handleDownload">{{ t("下载文件") }}</el-button>
       </div>
-       <!-- xml -->
-       <div v-else-if="responseInfo.responseData.canApiflowParseType === 'xml'" class="text-wrap">
+      <!--  -->
+      <!-- 纯文本类型 -->
+      <!--  -->
+      <!-- xml -->
+      <div v-else-if="responseInfo.responseData.canApiflowParseType === 'xml'" class="text-wrap">
         <SJsonEditor :modelValue="responseInfo.responseData.textData" read-only :config="{ fontSize: 13, language: 'xml' }"></SJsonEditor>
       </div>
       <!-- javascript -->
       <div v-else-if="responseInfo.responseData.canApiflowParseType === 'js'" class="text-wrap">
-        <SJsonEditor :modelValue="prettyResponse" read-only :config="{ fontSize: 13, language: 'javascript' }"></SJsonEditor>
+        <SJsonEditor :modelValue="responseInfo.responseData.textData" read-only :config="{ fontSize: 13, language: 'javascript' }"></SJsonEditor>
         <!-- <div class="text-tool">
           <div class="d-flex a-center j-center cursor-pointer hover-theme-color">格式化</div>
         </div>
@@ -49,14 +52,24 @@
       </div>
       <!-- css -->
       <div v-else-if="responseInfo.responseData.canApiflowParseType === 'css'" class="text-wrap">
-        <SJsonEditor :modelValue="prettyResponse" read-only :config="{ fontSize: 13, language: 'css' }"></SJsonEditor>
+        <SJsonEditor :modelValue="responseInfo.responseData.textData" read-only :config="{ fontSize: 13, language: 'css' }"></SJsonEditor>
       </div>
+      <!-- text/plain -->
+      <div v-else-if="responseInfo.responseData.canApiflowParseType === 'text'" class="text-wrap">
+        <SJsonEditor :model-value="responseInfo.responseData.textData" read-only :config="{ fontSize: 13, language: 'text' }"></SJsonEditor>
+      </div>
+      <!-- application/json -->
+      <div v-else-if="responseInfo.responseData.canApiflowParseType === 'json'" class="text-wrap">
+        <SJsonEditor :model-value="responseInfo.responseData.jsonData" read-only :config="{ fontSize: 13, language: 'json' }"></SJsonEditor>
+      </div>
+      <!--  -->
+      <!--  -->
       <!-- excel -->
       <div v-else-if="responseInfo.responseData.canApiflowParseType === 'excel'" class="d-flex flex-column j-center">
         <svg class="svg-icon" aria-hidden="true" :title="t('下载文件')">
           <use xlink:href="#iconexcel"></use>
         </svg>
-        <div>{{ responseInfo.contentType }}</div>
+        <div class="text-center">{{ responseInfo.contentType }}</div>
         <el-button link type="primary" text @click="handleDownload">{{ t("下载文件") }}</el-button>
       </div>
       <!-- word -->
@@ -64,16 +77,14 @@
         <svg class="svg-icon" aria-hidden="true" :title="t('下载文件')">
           <use xlink:href="#iconWORD"></use>
         </svg>
-        <div>{{ responseInfo.contentType }}</div>
+        <div class="text-center">{{ responseInfo.contentType }}</div>
         <el-button link type="primary" text @click="handleDownload">{{ t("下载文件") }}</el-button>
       </div>
       <!-- pdf -->
       <iframe v-else-if="responseInfo.responseData.canApiflowParseType === 'pdf'" :src="responseInfo.responseData.fileData.url" class="pdf-view"></iframe>
      
       <!-- 纯文本 -->
-      <div v-else-if="responseInfo.responseData.canApiflowParseType === 'text'" class="text-wrap">
-        <SRawEditor :model-value="prettyResponse" readonly type="text/css"></SRawEditor>
-      </div>
+     
       <!-- 未知文件 -->
       <!-- <div v-else-if="responseInfo.responseData.canApiflowParseType === 'unknown'" class="d-flex j-center flex-column">
         <svg class="svg-icon" aria-hidden="true" :title="t('下载文件')">
@@ -90,13 +101,13 @@
         <svg class="svg-icon" aria-hidden="true" :title="t('下载文件')">
           <use xlink:href="#iconicon_weizhiwenjian"></use>
         </svg>
-        <div class="d-flex a-center j-center">{{ responseInfo.contentType }}</div>
+        <div  class="text-center">{{ responseInfo.contentType }}</div>
         <div class="d-flex a-center j-center">
           <el-button link type="primary" text @click="handleDownload">{{ t("下载文件") }}</el-button>
         </div>
       </div>
       <!-- json -->
-      <div v-show="responseInfo.responseData.canApiflowParseType === 'json'">
+      <!-- <div v-show="responseInfo.responseData.canApiflowParseType === 'json'">
         <div class="json-wrap">
           <SRawEditor :model-value="jsonResponse" readonly type="application/json"></SRawEditor>
           <div v-show="showTip" class="tip">
@@ -107,15 +118,15 @@
               @click="couldShowAllJsonStr = !couldShowAllJsonStr">{{ t('显示部分') }}</span>
           </div>
         </div>
-      </div>
+      </div> -->
     </template>
 
-    <div v-show="showProcess" class="d-flex j-center w-100 gray-600">
+    <div v-show="showProcess" class="process">
       <span>{{ t("总大小") }}：{{ formatBytes(loadingProcess.total) }}</span>
       <el-divider direction="vertical"></el-divider>
       <span>{{ t("已传输") }}：{{ formatBytes(loadingProcess.transferred) }}</span>
       <el-divider direction="vertical"></el-divider>
-      <span>{{ t("进度") }}：{{ (loadingProcess.percent * 100).toFixed(2) + "%" }}</span>
+      <span>{{ t("进度") }}：{{ (loadingProcess.total === 0) ? 100 : (loadingProcess.percent * 100).toFixed(2) }}%</span>
     </div>
     <div 
       v-if="responseInfo.responseData.canApiflowParseType === 'cachedBodyIsTooLarge'" 
@@ -158,6 +169,7 @@ const showProcess = computed(() => {
     return true;
   }
   const isError = canApiflowParseType === 'error';
+  const isJson = canApiflowParseType === 'json';
   const isText = canApiflowParseType === 'text';
   const isHtml = canApiflowParseType === 'html';
   const isCes = canApiflowParseType === 'css';
@@ -165,7 +177,7 @@ const showProcess = computed(() => {
   const isXml = canApiflowParseType === 'xml';
   const isUnknow = canApiflowParseType === 'unknown';
   const isTooLargeBody = canApiflowParseType === 'cachedBodyIsTooLarge';
-  return !isError && !isText && !isUnknow && !isHtml && !isCes && !isJs && !isXml && !isTooLargeBody;
+  return !isError && !isText && !isUnknow && !isHtml && !isCes && !isJs && !isXml && !isTooLargeBody && !isJson;
 })
 //布局
 const layout = computed(() => {
@@ -221,7 +233,7 @@ const handleDownload = () => {
 <style lang='scss' scoped>
 .body-view {
   width: 100%;
-  height: calc(100vh - #{size(370)});
+  height: calc(100vh - #{size(400)});
   // overflow-y: auto;
   position: relative;
 
@@ -306,6 +318,13 @@ const handleDownload = () => {
   .res-icon {
     width: size(200);
     height: size(200);
+  }
+  .process {
+    height: size(30);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: $gray-600;
   }
 }
 </style>
