@@ -504,10 +504,7 @@ export function apidocGenerateRequestParamTypes(): ApidocRequestParamTypes {
  */
 export function formatBytes(byteNum: number): string {
   let result = '';
-  if (!byteNum) {
-    return '';
-  }
-  if (byteNum > 0 && byteNum < 1024) {
+  if (byteNum >= 0 && byteNum < 1024) {
     //b
     result = `${byteNum}B`;
   } else if (byteNum >= 1024 && byteNum < 1024 * 1024) {
