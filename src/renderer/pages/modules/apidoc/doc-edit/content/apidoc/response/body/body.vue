@@ -1,45 +1,45 @@
 <template>
   <div class="body-view" :class="{ vertical: layout === 'vertical' }">
-    <template v-if="responseInfo.contentType">
+    <template v-if="apidocResponseStore.responseInfo.contentType">
       <!-- 图片类型 -->
-      <div v-if="responseInfo.responseData.canApiflowParseType === 'image'" class="img-view-wrap">
+      <div v-if="apidocResponseStore.responseInfo.responseData.canApiflowParseType === 'image'" class="img-view-wrap">
         <el-image 
-          v-if="responseInfo.responseData.fileData.url"
+          v-if="apidocResponseStore.responseInfo.responseData.fileData.url"
           class="img-view" 
-          :src="responseInfo.responseData.fileData.url"
-          :preview-src-list="[responseInfo.responseData.fileData.url]" 
+          :src="apidocResponseStore.responseInfo.responseData.fileData.url"
+          :preview-src-list="[apidocResponseStore.responseInfo.responseData.fileData.url]" 
           fit="scale-down">
         </el-image>
         <div v-else class="img-view-empty">图片加载中</div>
       </div>
       <!-- 流文件 -->
-      <div v-else-if="responseInfo.responseData.canApiflowParseType === 'octetStream'"
+      <div v-else-if="apidocResponseStore.responseInfo.responseData.canApiflowParseType === 'octetStream'"
         class="d-flex flex-column a-center">
         <svg class="svg-icon" aria-hidden="true" :title="t('下载文件')">
           <use xlink:href="#iconicon_weizhiwenjian"></use>
         </svg>
-        <div class="text-center">{{ responseInfo.contentType }}</div>
+        <div class="text-center">{{ apidocResponseStore.responseInfo.contentType }}</div>
         <el-button link type="primary" text @click="handleDownload">{{ t("下载文件") }}</el-button>
       </div>
       <!-- 下载类型文件 -->
-      <div v-else-if="responseInfo.responseData.canApiflowParseType === 'forceDownload'"
+      <div v-else-if="apidocResponseStore.responseInfo.responseData.canApiflowParseType === 'forceDownload'"
         class="d-flex flex-column j-center">
         <svg class="svg-icon" aria-hidden="true" :title="t('下载文件')">
           <use xlink:href="#iconicon_weizhiwenjian"></use>
         </svg>
-        <div  class="text-center">{{ responseInfo.contentType }}</div>
+        <div  class="text-center">{{ apidocResponseStore.responseInfo.contentType }}</div>
         <el-button link type="primary" text @click="handleDownload">{{ t("下载文件") }}</el-button>
       </div>
       <!--  -->
       <!-- 纯文本类型 -->
       <!--  -->
       <!-- xml -->
-      <div v-else-if="responseInfo.responseData.canApiflowParseType === 'xml'" class="text-wrap">
-        <SJsonEditor :modelValue="responseInfo.responseData.textData" read-only :config="{ fontSize: 13, language: 'xml' }"></SJsonEditor>
+      <div v-else-if="apidocResponseStore.responseInfo.responseData.canApiflowParseType === 'xml'" class="text-wrap">
+        <SJsonEditor :modelValue="apidocResponseStore.responseInfo.responseData.textData" read-only :config="{ fontSize: 13, language: 'xml' }"></SJsonEditor>
       </div>
       <!-- javascript -->
-      <div v-else-if="responseInfo.responseData.canApiflowParseType === 'js'" class="text-wrap">
-        <SJsonEditor :modelValue="responseInfo.responseData.textData" read-only :config="{ fontSize: 13, language: 'javascript' }"></SJsonEditor>
+      <div v-else-if="apidocResponseStore.responseInfo.responseData.canApiflowParseType === 'js'" class="text-wrap">
+        <SJsonEditor :modelValue="apidocResponseStore.responseInfo.responseData.textData" read-only :config="{ fontSize: 13, language: 'javascript' }"></SJsonEditor>
         <!-- <div class="text-tool">
           <div class="d-flex a-center j-center cursor-pointer hover-theme-color">格式化</div>
         </div>
@@ -47,80 +47,80 @@
         </div> -->
       </div>
       <!-- html -->
-      <div v-else-if="responseInfo.responseData.canApiflowParseType === 'html'" class="text-wrap">
-        <SJsonEditor :modelValue="responseInfo.responseData.textData" read-only :config="{ fontSize: 13, language: 'html' }"></SJsonEditor>
+      <div v-else-if="apidocResponseStore.responseInfo.responseData.canApiflowParseType === 'html'" class="text-wrap">
+        <SJsonEditor :modelValue="formatedHtml || apidocResponseStore.responseInfo.responseData.textData" read-only :config="{ fontSize: 13, language: 'html' }"></SJsonEditor>
       </div>
       <!-- css -->
-      <div v-else-if="responseInfo.responseData.canApiflowParseType === 'css'" class="text-wrap">
-        <SJsonEditor :modelValue="responseInfo.responseData.textData" read-only :config="{ fontSize: 13, language: 'css' }"></SJsonEditor>
+      <div v-else-if="apidocResponseStore.responseInfo.responseData.canApiflowParseType === 'css'" class="text-wrap">
+        <SJsonEditor :modelValue="apidocResponseStore.responseInfo.responseData.textData" read-only :config="{ fontSize: 13, language: 'css' }"></SJsonEditor>
       </div>
       <!-- text/plain -->
-      <div v-else-if="responseInfo.responseData.canApiflowParseType === 'text'" class="text-wrap">
-        <SJsonEditor :model-value="responseInfo.responseData.textData" read-only :config="{ fontSize: 13, language: 'text' }"></SJsonEditor>
+      <div v-else-if="apidocResponseStore.responseInfo.responseData.canApiflowParseType === 'text'" class="text-wrap">
+        <SJsonEditor :model-value="apidocResponseStore.responseInfo.responseData.textData" read-only :config="{ fontSize: 13, language: 'text' }"></SJsonEditor>
       </div>
       <!-- application/json -->
-      <div v-else-if="responseInfo.responseData.canApiflowParseType === 'json'" class="text-wrap">
-        <SJsonEditor :model-value="responseInfo.responseData.jsonData" read-only :config="{ fontSize: 13, language: 'json' }"></SJsonEditor>
+      <div v-else-if="apidocResponseStore.responseInfo.responseData.canApiflowParseType === 'json'" class="text-wrap">
+        <SJsonEditor :model-value="formatedJson || apidocResponseStore.responseInfo.responseData.jsonData" read-only :config="{ fontSize: 13, language: 'json' }"></SJsonEditor>
       </div>
       <!--  -->
       <!--  -->
       <!-- excel -->
-      <div v-else-if="responseInfo.responseData.canApiflowParseType === 'excel'" class="d-flex flex-column j-center">
+      <div v-else-if="apidocResponseStore.responseInfo.responseData.canApiflowParseType === 'excel'" class="d-flex flex-column j-center">
         <svg class="svg-icon" aria-hidden="true" :title="t('下载文件')">
           <use xlink:href="#iconexcel"></use>
         </svg>
-        <div class="text-center">{{ responseInfo.contentType }}</div>
+        <div class="text-center">{{ apidocResponseStore.responseInfo.contentType }}</div>
         <el-button link type="primary" text @click="handleDownload">{{ t("下载文件") }}</el-button>
       </div>
       <!-- word -->
-      <div v-else-if="responseInfo.responseData.canApiflowParseType === 'word'" class="d-flex flex-column j-center">
+      <div v-else-if="apidocResponseStore.responseInfo.responseData.canApiflowParseType === 'word'" class="d-flex flex-column j-center">
         <svg class="svg-icon" aria-hidden="true" :title="t('下载文件')">
           <use xlink:href="#iconWORD"></use>
         </svg>
-        <div class="text-center">{{ responseInfo.contentType }}</div>
+        <div class="text-center">{{ apidocResponseStore.responseInfo.contentType }}</div>
+        <el-button link type="primary" text @click="handleDownload">{{ t("下载文件") }}</el-button>
+      </div>
+       <!-- ppt -->
+       <div v-else-if="apidocResponseStore.responseInfo.responseData.canApiflowParseType === 'ppt'" class="d-flex flex-column j-center">
+        <svg class="svg-icon" aria-hidden="true" :title="t('下载文件')">
+          <use xlink:href="#iconppt"></use>
+        </svg>
+        <div class="text-center">{{ apidocResponseStore.responseInfo.contentType }}</div>
         <el-button link type="primary" text @click="handleDownload">{{ t("下载文件") }}</el-button>
       </div>
       <!-- pdf -->
-      <iframe v-else-if="responseInfo.responseData.canApiflowParseType === 'pdf'" :src="responseInfo.responseData.fileData.url" class="pdf-view"></iframe>
-     
-      <!-- 纯文本 -->
-     
-      <!-- 未知文件 -->
-      <!-- <div v-else-if="responseInfo.responseData.canApiflowParseType === 'unknown'" class="d-flex j-center flex-column">
-        <svg class="svg-icon" aria-hidden="true" :title="t('下载文件')">
-          <use xlink:href="#iconicon_weizhiwenjian"></use>
-        </svg>
-        <div class="d-flex a-center j-center">{{ responseInfo.contentType }}</div>
-        <div class="d-flex a-center j-center">
-          <el-button link type="primary" text @click="handleDownload">{{ t("下载文件") }}</el-button>
-        </div>
-      </div> -->
-      <!-- 无法解析的文件 -->
-      <div v-else-if="responseInfo.responseData.canApiflowParseType === 'unknown'" class="d-flex j-center flex-column">
-        <span>{{ responseInfo.responseData.textData }}</span>
-        <svg class="svg-icon" aria-hidden="true" :title="t('下载文件')">
-          <use xlink:href="#iconicon_weizhiwenjian"></use>
-        </svg>
-        <div  class="text-center">{{ responseInfo.contentType }}</div>
+      <iframe v-else-if="apidocResponseStore.responseInfo.responseData.canApiflowParseType === 'pdf'" :src="apidocResponseStore.responseInfo.responseData.fileData.url" class="pdf-view"></iframe>
+      <!-- vidoe视频 -->
+      <div v-else-if="apidocResponseStore.responseInfo.responseData.canApiflowParseType === 'video'" class="d-flex flex-column j-center">
+        <video 
+          v-if="canPlayVideo"
+          :src="apidocResponseStore.responseInfo.responseData.fileData.url" 
+          controls 
+          class="video-view"
+        >
+        </video>
+        <template v-else>
+          <svg class="svg-icon" aria-hidden="true" :title="t('下载文件')">
+            <use xlink:href="#icontubiaozhizuomoban-"></use>
+          </svg>
+          <div class="text-center">{{ apidocResponseStore.responseInfo.contentType }}</div>
+        </template>
         <div class="d-flex a-center j-center">
           <el-button link type="primary" text @click="handleDownload">{{ t("下载文件") }}</el-button>
         </div>
       </div>
-      <!-- json -->
-      <!-- <div v-show="responseInfo.responseData.canApiflowParseType === 'json'">
-        <div class="json-wrap">
-          <SRawEditor :model-value="jsonResponse" readonly type="application/json"></SRawEditor>
-          <div v-show="showTip" class="tip">
-            <span>{{ t('由于性能原因，只能展示40kb数据') }}</span>
-            <span v-show="!couldShowAllJsonStr" class="white cursor-pointer ml-3"
-              @click="couldShowAllJsonStr = !couldShowAllJsonStr">{{ t('显示全部') }}</span>
-            <span v-show="couldShowAllJsonStr" class="white cursor-pointer ml-3"
-              @click="couldShowAllJsonStr = !couldShowAllJsonStr">{{ t('显示部分') }}</span>
-          </div>
+      <!-- 无法解析的文件 -->
+      <div v-else-if="apidocResponseStore.responseInfo.responseData.canApiflowParseType === 'unknown'" class="d-flex j-center flex-column">
+        <svg class="svg-icon" aria-hidden="true" :title="t('下载文件')">
+          <use xlink:href="#iconicon_weizhiwenjian"></use>
+        </svg>
+        <div class="text-center">{{ apidocResponseStore.responseInfo.contentType }}</div>
+        <!-- <span class="unknown-text">{{ apidocResponseStore.responseInfo.responseData.textData }}</span> -->
+        <div class="d-flex a-center j-center">
+          <el-button link type="primary" text @click="handleDownload">{{ t("下载文件") }}</el-button>
         </div>
-      </div> -->
+      </div>
     </template>
-
     <div v-show="showProcess" class="process">
       <span>{{ t("总大小") }}：{{ formatBytes(loadingProcess.total) }}</span>
       <el-divider direction="vertical"></el-divider>
@@ -129,34 +129,38 @@
       <span>{{ t("进度") }}：{{ (loadingProcess.total === 0) ? 100 : (loadingProcess.percent * 100).toFixed(2) }}%</span>
     </div>
     <div 
-      v-if="responseInfo.responseData.canApiflowParseType === 'cachedBodyIsTooLarge'" 
+      v-if="apidocResponseStore.responseInfo.responseData.canApiflowParseType === 'cachedBodyIsTooLarge'" 
       class="d-flex a-center j-center red"
     >
       返回值大于{{ formatBytes(config.requestConfig.maxStoreSingleBodySize) }}，返回body值缓存失效。
       需重新请求最新数据
     </div>
-    <div v-if="responseInfo.responseData.canApiflowParseType === 'error'" class="red">{{ responseInfo.responseData.errorData }}</div>
+    <div v-if="apidocResponseStore.responseInfo.responseData.canApiflowParseType === 'error'" class="red">{{ apidocResponseStore.responseInfo.responseData.errorData }}</div>
+    <video ref="videoRef" v-show="false"></video>
   </div>
 </template>
 
 <script lang="ts" setup>
 import { useApidocBaseInfo } from '@/store/apidoc/base-info';
 import { useApidocResponse } from '@/store/apidoc/response';
-import { computed, ref } from 'vue';
+import { computed, onUnmounted, ref, watch } from 'vue';
 import { t } from 'i18next'
 import { formatBytes } from '@/helper/index'
-import SRawEditor from '@/components/apidoc/raw-editor/g-raw-editor.vue'
 import { config } from '@/../config/config'
+import * as prettier from 'prettier/standalone';
+import esTreePlugin from 'prettier/plugins/estree';
+import babelPlugin from "prettier/plugins/babel";
+import htmlPlugin from "prettier/plugins/html";
 import SJsonEditor from '@/components/common/json-editor/g-json-editor.vue'
 
 
-const couldShowAllJsonStr = ref(false);
 const apidocResponseStore = useApidocResponse();
 const apidocBaseInfoStore = useApidocBaseInfo();
-const responseInfo = computed(() => apidocResponseStore.responseInfo);
 const loadingProcess = computed(() => apidocResponseStore.loadingProcess);
 const requestState = computed(() => apidocResponseStore.requestState);
-
+const videoRef = ref<HTMLVideoElement>()
+const formatedJson = ref('');
+const formatedHtml = ref('')
 /*
 |--------------------------------------------------------------------------
 | 方法定义
@@ -165,7 +169,7 @@ const requestState = computed(() => apidocResponseStore.requestState);
 //是否展示加载进度
 const showProcess = computed(() => {
   const { canApiflowParseType } = apidocResponseStore.responseInfo.responseData;
-  if (canApiflowParseType === 'none' && (requestState.value === 'sending' || requestState.value === 'response')) {
+  if (canApiflowParseType === 'unknown' && (requestState.value === 'sending' || requestState.value === 'response')) {
     return true;
   }
   const isError = canApiflowParseType === 'error';
@@ -183,39 +187,25 @@ const showProcess = computed(() => {
 const layout = computed(() => {
   return apidocBaseInfoStore.layout;
 });
-//json返回参数
-const jsonResponse = computed(() => {
-  const { jsonData } = apidocResponseStore.responseInfo.responseData;
-  const formatCode = window?.js_beautify(jsonData, { indent_size: 4 });
-  if (couldShowAllJsonStr.value) {
-    return formatCode;
+//返回参数格式化
+watch(() => apidocResponseStore.responseInfo.bodyByteLength, () => {
+  const { jsonData, textData } = apidocResponseStore.responseInfo.responseData;
+  if (apidocResponseStore.responseInfo.contentType.includes('application/json')) {
+    prettier.format(jsonData, {
+      parser: "json",
+      plugins: [babelPlugin, esTreePlugin],
+    }).then((formatedCode) => {
+      formatedJson.value = formatedCode;
+    })
+  } else if (apidocResponseStore.responseInfo.contentType.includes('text/html')) {
+    prettier.format(textData, {
+      parser: "html",
+      plugins: [htmlPlugin, esTreePlugin],
+    }).then((formatedCode) => {
+      formatedHtml.value = formatedCode;
+    })
   }
-  if (formatCode.length > 1024 * 40) {
-    return formatCode.slice(0, 1024 * 40);
-  }
-  try {
-    return JSON.stringify(JSON.parse(formatCode), null, 4)
-  } catch {
-    return ''
-  }
-});
-//json数据过大是否显示提示
-const showTip = computed(() => {
-  const { jsonData } = apidocResponseStore.responseInfo.responseData;
-  const formatCode = window?.js_beautify(jsonData, { indent_size: 4 });
-  return formatCode.length > 1024 * 40
-});
-//返回参数
-const prettyResponse = computed(() => {
-  const { textData } = apidocResponseStore.responseInfo.responseData;
-  // console.log(22, prettierPluginBabel)
-  // const prettierCode = await prettier.format(textData, {
-  //   parser: 'babel',
-  //   plugins: [prettierPluginBabel]
-  // });
-  // return prettierCode;
-  return window?.js_beautify(textData, { indent_size: 4 });
-});
+})
 //下载文件
 const handleDownload = () => {
   const { fileData } = apidocResponseStore.responseInfo.responseData;
@@ -227,7 +217,13 @@ const handleDownload = () => {
   document.body.removeChild(downloadElement); //下载完成移除元素
   window.URL.revokeObjectURL(fileData.url); //释放掉blob对象
 }
-
+const canPlayVideo = computed(() => {
+  const canPlayType = videoRef.value?.canPlayType(apidocResponseStore.responseInfo.contentType)
+  return canPlayType === 'maybe' || canPlayType === 'probably'
+})
+onUnmounted(() => {
+  console.log(2)
+})
 </script>
 
 <style lang='scss' scoped>
@@ -314,7 +310,10 @@ const handleDownload = () => {
     width: 100%;
     height: size(300);
   }
-
+  .video-view {
+    width: 100%;
+    height: size(300);
+  }
   .res-icon {
     width: size(200);
     height: size(200);
