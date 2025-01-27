@@ -10,6 +10,9 @@
         <el-tab-pane :label="t('返回值')" name="SBody" class="w-100">
           <SBody class="h-100"></SBody>
         </el-tab-pane>
+        <el-tab-pane :label="t('原始返回')" name="SRawBody" class="w-100">
+          <SRawBody class="h-100"></SRawBody>
+        </el-tab-pane>
         <el-tab-pane :label="t('请求信息')" name="SRequest">
           <SRequest class="h-100"></SRequest>
         </el-tab-pane>
@@ -62,6 +65,7 @@ import SResInfo from './res-info/res-info.vue'
 import SCookie from './cookie/cookie.vue'
 import SHeaders from './headers/headers.vue'
 import SBody from './body/body.vue'
+import SRawBody from './raw-body/raw-body.vue'
 import SRequest from './request/request.vue'
 import { t } from 'i18next'
 import { useApidocResponse } from '@/store/apidoc/response'

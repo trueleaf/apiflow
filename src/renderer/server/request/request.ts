@@ -243,6 +243,12 @@ export async function sendRequest() {
       const storedResponseInfo = cloneDeep(responseInfo);
       if (responseInfo.bodyByteLength > config.requestConfig.maxStoreSingleBodySize) {
         storedResponseInfo.body = [];
+        storedResponseInfo.responseData.textData = '';
+        storedResponseInfo.responseData.jsonData = '';
+        storedResponseInfo.responseData.fileData = {
+          url: "",
+          name: "",
+        };
         storedResponseInfo.responseData.canApiflowParseType = 'cachedBodyIsTooLarge'
       }
       apidocCache.setResponse(selectedTab?._id ?? '', storedResponseInfo);

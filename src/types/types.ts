@@ -130,6 +130,7 @@ export type ResponseInfo = {
     'none' | 
     'cachedBodyIsTooLarge' |
     'octetStream' |
+    'video' |
     'forceDownload',
     jsonData: string;
     textData: string;

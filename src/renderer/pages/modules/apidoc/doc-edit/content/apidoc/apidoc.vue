@@ -97,7 +97,7 @@ const getApidocInfo = async () => {
   const localResponse = await apidocCache.getResponse(currentSelectTab.value._id);
   apidocResponseStore.clearResponse();
   if (localResponse) {
-    console.log(localResponse, 2)
+    // console.log('localResponse', localResponse)
     apidocResponseStore.changeResponseInfo(localResponse)
   }
 }
