@@ -197,10 +197,16 @@ export const gotRequest = async (options: GotRequestOptions) => {
       const contentTypeIsExcel = (responseInfo.contentType.includes('application/vnd.openxmlformats-officedocument.spreadsheetml.sheet') || responseInfo.contentType.includes('application/vnd.ms-excel'));
       const contentTypeIsWord = (responseInfo.contentType.includes('application/vnd.openxmlformats-officedocument.wordprocessingml.document') || responseInfo.contentType.includes('application/msword'));
       const contentTypeIsXml = responseInfo.contentType.includes('application/xml')
+      const contentTypeIsPpt = (responseInfo.contentType.includes('application/vnd.ms-powerpoint') || responseInfo.contentType.includes('application/vnd.openxmlformats-officedocument.presentationml.presentation'))
+      const contentTypeIsVideo = responseInfo.contentType.includes('video/')
+      const contentTypeIsImage = responseInfo.contentType.includes('image/')
       const responseAsPdf = contentTypeIsPdf || fileTypeInfo?.mime?.includes('application/pdf');
       const responseAsExcel = contentTypeIsExcel || fileTypeInfo?.mime?.includes('application/vnd.openxmlformats-officedocument.spreadsheetml.sheet') || fileTypeInfo?.mime?.includes('application/vnd.ms-excel')
       const responseAsWord = contentTypeIsWord || (fileTypeInfo?.mime?.includes('application/vnd.openxmlformats-officedocument.wordprocessingml.document') || fileTypeInfo?.mime?.includes('application/msword'))
-      const responseAsXml = contentTypeIsXml || fileTypeInfo?.mime?.includes('application/xml')
+      const responseAsXml = contentTypeIsXml || fileTypeInfo?.mime?.includes('application/xml');
+      const responseAsPPT = contentTypeIsPpt || fileTypeInfo?.mime?.includes('application/vnd.ms-powerpoint') || fileTypeInfo?.mime?.includes('application/vnd.openxmlformats-officedocument.presentationml.presentation')
+      const responseAsVideo = contentTypeIsVideo || fileTypeInfo?.mime?.includes('video/');
+      const responseAsImage = contentTypeIsImage || fileTypeInfo?.mime?.includes('image/');
       if (hasFileType && responseInfo.contentType.includes('application/json')) {
         responseInfo.responseData.canApiflowParseType = 'json';
         responseInfo.responseData.jsonData = bufferData.toString();
@@ -216,62 +222,44 @@ export const gotRequest = async (options: GotRequestOptions) => {
       } else if (hasFileType && responseInfo.contentType.includes('text/')) {
         responseInfo.responseData.canApiflowParseType = 'text';
         responseInfo.responseData.textData = bufferData.toString();
-      } else if (!hasFileType && fileTypeInfo.mime.includes('image/')) {
-        const blob = new Blob([bufferData], { type: fileTypeInfo.mime });
+      } else if (responseAsImage) {
+        const blob = new Blob([bufferData], { type: fileTypeInfo?.mime ?? responseInfo.contentType });
         const blobUrl = URL.createObjectURL(blob);
         responseInfo.responseData.canApiflowParseType = 'image';
         responseInfo.responseData.fileData.url = blobUrl;
       } else if (responseAsPdf) {
         const blob = new Blob([bufferData], { type: fileTypeInfo?.mime ?? 'application/pdf' });
         const blobUrl = URL.createObjectURL(blob);
-        responseInfo.responseData.canApiflowParseType = 'pdf';
         responseInfo.responseData.fileData.url = blobUrl;
+        responseInfo.responseData.canApiflowParseType = 'pdf';
       } else if (responseAsExcel) {
         const blob = new Blob([bufferData], { type: fileTypeInfo?.mime ?? 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
         const blobUrl = URL.createObjectURL(blob);
+        responseInfo.responseData.fileData.url = blobUrl;
         responseInfo.responseData.canApiflowParseType = 'excel';
-        responseInfo.responseData.fileData.url = blobUrl;
       } else if (responseAsWord) {
-        const blob = new Blob([bufferData], { type: fileTypeInfo?.mime ?? 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' });
+        const blob = new Blob([bufferData], { type: fileTypeInfo?.mime ?? 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
         const blobUrl = URL.createObjectURL(blob);
-        responseInfo.responseData.canApiflowParseType = 'word';
         responseInfo.responseData.fileData.url = blobUrl;
+        responseInfo.responseData.canApiflowParseType = 'word';
+      } else if (responseAsPPT) {
+        const blob = new Blob([bufferData], { type: fileTypeInfo?.mime ?? 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+        const blobUrl = URL.createObjectURL(blob);
+        responseInfo.responseData.fileData.url = blobUrl;
+        responseInfo.responseData.canApiflowParseType = 'ppt';
       } else if (responseAsXml) {
         responseInfo.responseData.canApiflowParseType = 'xml';
         responseInfo.responseData.textData = bufferData.toString();
+      } else if (responseAsVideo) {
+        const blob = new Blob([bufferData], { type: fileTypeInfo?.mime ?? 'video/mp4' });
+        const blobUrl = URL.createObjectURL(blob);
+        responseInfo.responseData.fileData.url = blobUrl;
+        responseInfo.responseData.canApiflowParseType = 'video';
       } else {
         responseInfo.responseData.canApiflowParseType = 'unknown';
-        responseInfo.responseData.textData = `无法解析的类型?\ncontent-type=${responseInfo.contentType} \nfileType=${JSON.stringify(fileTypeInfo)}`
+        console.log('无法解析的类型\nContentType值为${responseInfo.contentType} \n读取到的文件类型为=${JSON.stringify(fileTypeInfo)}')
+        responseInfo.responseData.textData = `无法解析的类型\nContentType值为${responseInfo.contentType} \n读取到的文件类型为=${JSON.stringify(fileTypeInfo)}`
       }
-      // let mimeType = 'unknown';
-      // if (fileTypeInfo) {
-      //   mimeType = fileTypeInfo.mime
-      //   responseInfo.mimeType = fileTypeInfo.mime
-      // }
-      // if (!mimeType && responseInfo.contentType) {
-      //   mimeType = responseInfo.contentType;
-      // }
-      // const textMimes = ["text/", "application/json", "application/javascript", "application/xml"];
-      // const imageMimes = ["image/"];
-      // const zipMimes = ['application/zip', 'application/x-tar', 'application/x-rar-compressed', 'application/gzip', 'application/x-bzip2', 'application/x-7z-compressed'];
-      // const wordMimes = ['application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'application/msword'];
-      // const excelMimes = ['application/vnd.ms-excel', 'application/vnd.oasis.opendocument.spreadsheet'];
-      // const pptMimes = ['application/vnd.ms-powerpoint', 'application/vnd.openxmlformats-officedocument.presentationml.presentation']
-      // responseInfo.body = bufData;
-      // if (textMimes.find(mime => mimeType.match(mime))) {
-      //   responseInfo.dataType = 'text';
-      //   responseInfo.body = bufData.toString()
-      // } else if (imageMimes.find(mime => mimeType.match(mime))) {
-      //   responseInfo.dataType = 'image';
-      // } else if (zipMimes.find(mime => mimeType.match(mime))) {
-      //   responseInfo.dataType = 'zip';
-      // } else if (wordMimes.find(mime => mimeType.match(mime))) {
-      //   responseInfo.dataType = 'word';
-      // } else if (excelMimes.find(mime => mimeType.match(mime))) {
-      //   responseInfo.dataType = 'excel';
-      // } else if (pptMimes.find(mime => mimeType.match(mime))) {
-      //   responseInfo.dataType = 'ppt';
-      // }
       options.onResponseEnd?.(responseInfo);
     });
     requestStream.once("error", (error) => {
