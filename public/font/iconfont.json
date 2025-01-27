@@ -6,6 +6,13 @@
   "description": "",
   "glyphs": [
     {
+      "icon_id": "12600859",
+      "name": "ppt",
+      "font_class": "ppt",
+      "unicode": "e651",
+      "unicode_decimal": 58961
+    },
+    {
       "icon_id": "18498508",
       "name": "debug",
       "font_class": "debug",
@@ -356,53 +363,11 @@
       "unicode_decimal": 59481
     },
     {
-      "icon_id": "14556378",
-      "name": "表格",
-      "font_class": "biaoge1",
-      "unicode": "e7f9",
-      "unicode_decimal": 59385
-    },
-    {
-      "icon_id": "1300256",
-      "name": "图表 折线图",
-      "font_class": "tubiaozhexiantu",
-      "unicode": "e612",
-      "unicode_decimal": 58898
-    },
-    {
-      "icon_id": "6469457",
-      "name": "矩形树图",
-      "font_class": "juxingshutu",
-      "unicode": "e69e",
-      "unicode_decimal": 59038
-    },
-    {
-      "icon_id": "6722214",
-      "name": "饼图",
-      "font_class": "fsux_tubiao_bingtu",
-      "unicode": "e617",
-      "unicode_decimal": 58903
-    },
-    {
       "icon_id": "8802802",
       "name": "中国地图",
       "font_class": "AttackMap",
       "unicode": "e618",
       "unicode_decimal": 58904
-    },
-    {
-      "icon_id": "12141491",
-      "name": "线图蓝色",
-      "font_class": "xiantulanse",
-      "unicode": "e6a4",
-      "unicode_decimal": 59044
-    },
-    {
-      "icon_id": "14213529",
-      "name": "柱状图",
-      "font_class": "tubiaobeifen2",
-      "unicode": "e607",
-      "unicode_decimal": 58887
     },
     {
       "icon_id": "753362",

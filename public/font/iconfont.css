@@ -1,8 +1,8 @@
 @font-face {
   font-family: "iconfont"; /* Project id 1072300 */
-  src: url('iconfont.woff2?t=1694006642346') format('woff2'),
-       url('iconfont.woff?t=1694006642346') format('woff'),
-       url('iconfont.ttf?t=1694006642346') format('truetype');
+  src: url('iconfont.woff2?t=1737717507516') format('woff2'),
+       url('iconfont.woff?t=1737717507516') format('woff'),
+       url('iconfont.ttf?t=1737717507516') format('truetype');
 }
 
 .iconfont {
@@ -11,6 +11,10 @@
   font-style: normal;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+.iconppt:before {
+  content: "\e651";
 }
 
 .icondebug:before {
@@ -213,32 +217,8 @@
   content: "\e859";
 }
 
-.iconbiaoge1:before {
-  content: "\e7f9";
-}
-
-.icontubiaozhexiantu:before {
-  content: "\e612";
-}
-
-.iconjuxingshutu:before {
-  content: "\e69e";
-}
-
-.iconfsux_tubiao_bingtu:before {
-  content: "\e617";
-}
-
 .iconAttackMap:before {
   content: "\e618";
-}
-
-.iconxiantulanse:before {
-  content: "\e6a4";
-}
-
-.icontubiaobeifen2:before {
-  content: "\e607";
 }
 
 .iconsub:before {
