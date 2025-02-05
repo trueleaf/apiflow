@@ -198,12 +198,13 @@ export async function sendRequest() {
   if (isFormData) {
     formDataBody = body as RendererFormDataBody;
   }
+  const requestBody = isFormData ? formDataBody : (body as string);
   changeRequestState('sending')
   window.electronAPI?.sendRequest({
     url,
     method,
     timeout: 60000,
-    body: isFormData ? formDataBody : (body as string),
+    body: requestBody,
     headers,
     signal() {
       

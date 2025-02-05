@@ -21,11 +21,14 @@
 import { useApidocBaseInfo } from '@/store/apidoc/base-info';
 import { useApidocResponse } from '@/store/apidoc/response';
 import { computed } from 'vue';
+import { parse } from 'set-cookie-parser';
 
 
 const apidocResponseStore = useApidocResponse();
 const apidocBaseInfoStore = useApidocBaseInfo();
-const cookies = computed(() => apidocResponseStore.cookies);
+const cookies = computed(() => {
+  return parse(apidocResponseStore.responseInfo.headers['set-cookie'] || [])
+});
 const layout = computed(() => apidocBaseInfoStore.layout);
 
 </script>

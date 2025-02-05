@@ -10,7 +10,7 @@
         <el-tab-pane :label="t('返回值')" name="SBody" class="w-100">
           <SBody class="h-100"></SBody>
         </el-tab-pane>
-        <el-tab-pane :label="t('原始返回')" name="SRawBody" class="w-100">
+        <el-tab-pane :label="t('原始值')" name="SRawBody" class="w-100">
           <SRawBody class="h-100"></SRawBody>
         </el-tab-pane>
         <el-tab-pane :label="t('请求信息')" name="SRequest">
@@ -26,7 +26,7 @@
         <el-tab-pane name="SCookie">
           <template #label>
             <span>Cookie&nbsp;</span>
-            <span v-if="cookies.length > 0" class="orange">({{ cookies.length }})</span>
+            <span v-if="cookies?.length" class="orange">({{ cookies?.length }})</span>
           </template>
           <!-- fix: 文字隐藏组件获取dom宽度失败 -->
           <SCookie v-if="activeName === 'SCookie'"></SCookie>
@@ -77,7 +77,9 @@ import SLoading from '@/components/common/loading/g-loading.vue'
 const activeName = ref('SBody');
 const apidocResponseStore = useApidocResponse();
 const apidocBaseInfoStore = useApidocBaseInfo();
-const cookies = computed(() => apidocResponseStore.cookies);
+const cookies = computed(() => {
+  return apidocResponseStore.responseInfo.headers['set-cookie']
+});
 const responseInfo = computed(() => apidocResponseStore.responseInfo);
 
 const headers = computed(() => {
@@ -90,6 +92,7 @@ const headers = computed(() => {
   })
   return result
 })
+
 const layout = computed(() => apidocBaseInfoStore.layout);
 const requestState = computed(() => apidocResponseStore.requestState); //请求状态
 
