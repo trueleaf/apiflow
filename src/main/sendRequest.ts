@@ -9,7 +9,7 @@ import FormData from 'form-data';
 import { fileTypeFromBuffer } from 'file-type';
 import mime from "mime";
 import fs from 'fs/promises';
-import http from 'node:http';
+import http, { ClientRequest } from 'node:http';
 import http2 from 'node:http';
 import { basename } from 'path';
 import { generateEmptyResponse } from './utils';
@@ -72,6 +72,7 @@ const getFormDataFromRendererFormData = async (rendererFormDataList: RendererFor
 
 export const gotRequest = async (options: GotRequestOptions) => {
   try {
+    const responseInfo = generateEmptyResponse();
     const abortController = new AbortController();
     let reqeustBody: FormData | {
       id: string,
@@ -86,6 +87,8 @@ export const gotRequest = async (options: GotRequestOptions) => {
         options.onReadFileFormDataError?.(reqeustBody);
         return
       }
+      responseInfo.requestData.body = reqeustBody.getBuffer().toString();
+      // console.log(reqeustBody, reqeustBody.getBuffer().toString(), 22)
     }
     //更新请求头信息
     for (const key in options.headers) {
@@ -135,9 +138,14 @@ export const gotRequest = async (options: GotRequestOptions) => {
     const bufferList: Buffer[] = [];
     let streamByteLength = 0;
     let contentLength = 0;
-    const responseInfo = generateEmptyResponse();
-   
+    requestStream.on('request', (req: ClientRequest) => {
+      responseInfo.requestData.url = `${req.protocol}//${req.path}`;
+      responseInfo.requestData.method = req.method;
+      responseInfo.requestData.headers = req.getHeaders();
+    })
     requestStream.on("response", (response: PlainResponse) => {
+      // console.log(reqeustBody?.getBuffer())
+      // responseInfo.requestData.body = response.request.options.body;
       const contentLengthStr = response.headers['content-length'] ?? '0';
       contentLength = isNaN(parseInt(contentLengthStr)) ? 0 : parseInt(contentLengthStr)
       responseInfo.headers = response.headers;

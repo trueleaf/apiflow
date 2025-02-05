@@ -2,6 +2,9 @@ import type { Method, Options, PlainResponse, RequestError } from "got";
 import type { Timings } from '@szmarczak/http-timer';
 import type { IncomingHttpHeaders } from 'http'
 import type { ComponentSize } from "element-plus";
+import { OutgoingHttpHeaders } from "http2";
+import type FormData from 'form-data';
+
 
 export type Property = {
   _id: string;
@@ -111,6 +114,12 @@ export type ResponseInfo = {
   retryCount: number;
   bodyByteLength: number;
   body?: unknown;
+  requestData: {
+    url: string;
+    method: string;
+    headers: OutgoingHttpHeaders;
+    body: string | FormData;
+  },
   responseData: {
     canApiflowParseType: 
     'text' | 

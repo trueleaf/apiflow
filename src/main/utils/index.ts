@@ -39,6 +39,12 @@ export const generateEmptyResponse = (): ResponseInfo => {
     body: null,
     bodyByteLength: 0,
     rt: 0,
+    requestData: {
+      url: "",
+      method: "get",
+      body: "",
+      headers: {},
+    },
     responseData: {
       canApiflowParseType: 'none',
       jsonData: '',
