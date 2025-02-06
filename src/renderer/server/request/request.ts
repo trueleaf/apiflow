@@ -5,8 +5,6 @@ import json5 from 'json5'
 import { ApidocDetail } from '@src/types/global';
 import { convertTemplateValueToRealValue, getEncodedStringFromEncodedParams, getPathParamsStringFromPathParams, getQueryStringFromQueryParams } from '@/utils/utils';
 import { useVariable } from '@/store/apidoc/variables';
-import { useApidocRequest } from '@/store/apidoc/request';
-import { Options } from 'got';
 import { JsonData, RendererFormDataBody } from '@src/types/types';
 import { useApidocBaseInfo } from '@/store/apidoc/base-info';
 import { useApidocTas } from '@/store/apidoc/tabs';
@@ -186,8 +184,7 @@ export async function sendRequest() {
   const apidocTabsStore = useApidocTas();
   const selectedTab = apidocTabsStore.getSelectedTab(apidocBaseInfoStore.projectId);
   const apidocStore = useApidoc()
-  const { changeFinalRequestInfo } = useApidocRequest(); 
-  const { changeResponseInfo, changeCookies, changeRequestState, changeLoadingProcess } = useApidocResponse()
+  const { changeResponseInfo, changeRequestState, changeLoadingProcess } = useApidocResponse()
   const rawApidoc = toRaw(apidocStore.$state.apidoc)
   const method = getMethod(rawApidoc);
   const url = await getUrl(rawApidoc);

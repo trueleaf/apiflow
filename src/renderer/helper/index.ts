@@ -446,6 +446,7 @@ export function apidocGenerateApidoc(id?: string): ApidocDetail {
         },
       },
       responseParams: [{
+        _id: nanoid(),
         title: '成功返回',
         statusCode: 200,
         value: {
