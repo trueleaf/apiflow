@@ -102,6 +102,14 @@ export const gotRequest = async (options: GotRequestOptions) => {
     }
     const isConnectionKeepAlive = options.headers['Connection'] == undefined || options.headers['Connection'] === 'keep-alive';
     const needDecompress = options.headers['Accept-Encoding'] === undefined || options.headers['Accept-Encoding'] === 'gzip, deflate, br';
+    let willSendBody: undefined | string | FormData = undefined;
+    if (options.method.toLowerCase() === 'head') {
+      willSendBody = undefined
+    } else if (isFormDataBody && reqeustBody instanceof FormData) {
+      willSendBody = reqeustBody
+    } else if (options.body) {
+      willSendBody = options.body as string;
+    }
     const gotOptions: Omit<OptionsInit, 'isStream'>  = ({
       url: options.url,
       method: options.method,
@@ -112,7 +120,7 @@ export const gotRequest = async (options: GotRequestOptions) => {
         http: new http.Agent({ keepAlive: isConnectionKeepAlive }),
         http2: new http2.Agent({ keepAlive: isConnectionKeepAlive }),
       },
-      body: (isFormDataBody && reqeustBody) ? reqeustBody : (options.body as string),
+      body: willSendBody,
       headers,
       throwHttpErrors: false,
       hooks: {
