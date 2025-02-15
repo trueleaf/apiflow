@@ -494,7 +494,6 @@ export const useApidoc = defineStore('apidoc', () => {
       //删除_error字段
       apidocDetail.item.requestBody.formdata.forEach(v => {
         delete v._error;
-        console.log(2)
       })
       const params = {
         _id: currentSelectTab._id,

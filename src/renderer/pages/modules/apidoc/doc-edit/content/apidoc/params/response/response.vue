@@ -1,5 +1,7 @@
 <template>
   <div class="response-params">
+    {{mimeVisibleMap}}
+
     <SCollapseCard v-for="(item, index) in responseData" :key="index" :fold="collapseState[item._id || ''] === false"
       @change="handleChangeCollapseState($event, item)">
       <!-- 操作区域 -->
@@ -57,7 +59,7 @@
           <div class="content-type">
             <div class="d-flex a-center j-center">
               <!-- <span class="flex0">{{ t("返回格式") }}：</span> -->
-              <el-popover :visible="mimeVisibleMap[item._id || '']" width="500px" placement="bottom">
+              <el-popover :visible="mimeVisibleMap[item._id || '']" trigger="click" width="500px" placement="bottom">
                 <template #reference>
                   <span class="d-flex a-center cursor-pointer" @click.stop="toggleMimeModel(item)">
                     <el-tooltip :show-after="500" :content="item.value.dataType" placement="top" :effect="Effect.LIGHT">
@@ -72,11 +74,6 @@
               </el-popover>
             </div>
           </div>
-          <el-divider direction="vertical"></el-divider>
-          <el-tooltip :show-after="500" content="是否应用当前返回参数为mock值" placement="top" :effect="Effect.LIGHT">
-            <span class="cursor-pointer ml-1" :class="{ active: item.isMock }"
-              @click="handleSelectMock(index)">Mock</span>
-          </el-tooltip>
         </div>
       </template>
       <template #tail>
@@ -265,6 +262,7 @@ const handleSelectStatusCode = (code: number, index: number) => {
 }
 //打开和关闭contentType弹窗
 const toggleMimeModel = (item: ApidocResponseParams) => {
+  console.log(item)
   mimeVisibleMap.value[item._id!] = !mimeVisibleMap.value[item._id!];
 }
 //关闭contentType弹窗
