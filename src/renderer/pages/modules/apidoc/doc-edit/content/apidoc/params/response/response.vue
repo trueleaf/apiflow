@@ -262,7 +262,6 @@ const handleSelectStatusCode = (code: number, index: number) => {
 }
 //打开和关闭contentType弹窗
 const toggleMimeModel = (item: ApidocResponseParams) => {
-  console.log(item)
   mimeVisibleMap.value[item._id!] = !mimeVisibleMap.value[item._id!];
 }
 //关闭contentType弹窗

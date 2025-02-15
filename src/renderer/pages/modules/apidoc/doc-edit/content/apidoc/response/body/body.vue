@@ -194,6 +194,8 @@ watch(() => apidocResponseStore.responseInfo.bodyByteLength, () => {
     prettier.format(jsonData, {
       parser: "json",
       plugins: [babelPlugin, esTreePlugin],
+      printWidth: 50,
+      tabWidth: 4
     }).then((formatedCode) => {
       formatedJson.value = formatedCode;
     })
