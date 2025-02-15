@@ -102,8 +102,8 @@ export const gotRequest = async (options: GotRequestOptions) => {
     }
     const isConnectionKeepAlive = options.headers['Connection'] == undefined || options.headers['Connection'] === 'keep-alive';
     const needDecompress = options.headers['Accept-Encoding'] === undefined || options.headers['Accept-Encoding'] === 'gzip, deflate, br';
-    let willSendBody: undefined | string | FormData = undefined;
-    if (options.method.toLowerCase() === 'head') {
+    let willSendBody: undefined | string | FormData = '';
+    if (options.method.toLowerCase() === 'head') { //只有head请求body值为undefined,head请求不挟带body
       willSendBody = undefined
     } else if (isFormDataBody && reqeustBody instanceof FormData) {
       willSendBody = reqeustBody
@@ -139,8 +139,7 @@ export const gotRequest = async (options: GotRequestOptions) => {
         }],
       }
     });
-    //取消请求
-    options.signal(abortController.abort)
+
     // console.log("gotOptions", options)
     const requestStream = got.stream(gotOptions);
     const bufferList: Buffer[] = [];
@@ -273,15 +272,22 @@ export const gotRequest = async (options: GotRequestOptions) => {
         responseInfo.responseData.canApiflowParseType = 'video';
       } else {
         responseInfo.responseData.canApiflowParseType = 'unknown';
-        console.log('无法解析的类型\nContentType值为${responseInfo.contentType} \n读取到的文件类型为=${JSON.stringify(fileTypeInfo)}')
+        console.log(`无法解析的类型\nContentType值为${responseInfo.contentType} \n读取到的文件类型为=${JSON.stringify(fileTypeInfo)}`)
         responseInfo.responseData.textData = `无法解析的类型\nContentType值为${responseInfo.contentType} \n读取到的文件类型为=${JSON.stringify(fileTypeInfo)}`
       }
       options.onResponseEnd?.(responseInfo);
     });
     requestStream.once("error", (error) => {
+      console.error(error);
       options.onError(error as Error);
     });
+    //取消请求
+    options.signal(() => {
+      abortController.abort()
+      requestStream.destroy();
+    });
   } catch (error) {
+    console.error(error)
     options.onError(error as Error)
   }
 
