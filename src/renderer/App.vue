@@ -6,6 +6,7 @@
 import { config } from '@/../config/config';
 import { onMounted } from 'vue';
 import { t } from 'i18next';
+import { bindGlobalShortCut } from './shortcut';
 onMounted(() => {
   if (!config.isDev && config.localization.consoleWelcome) {
     console.log(`
@@ -27,6 +28,7 @@ onMounted(() => {
     `)
   }
   document.title = `${config.isDev ? `${config.localization.title}(本地)` : config.localization.title} `;
+  bindGlobalShortCut();
 })
 </script>
 

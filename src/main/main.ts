@@ -1,4 +1,4 @@
-import { app, BrowserWindow, ipcMain, IpcMainInvokeEvent } from 'electron'
+import { app, BrowserWindow, ipcMain, IpcMainInvokeEvent, Menu, MenuItem } from 'electron'
 import fs from 'fs/promises'
 import path from 'path'
 import { fileURLToPath } from 'url';
@@ -63,7 +63,7 @@ const changeDevtoolsFont = (win: BrowserWindow) => {
   });
 }
 
-function createWindow() {
+const createWindow = () => {
   const mainWindow = new BrowserWindow({
     webPreferences: {
       preload: path.join(__dirname, 'preload.mjs'),
@@ -75,8 +75,10 @@ function createWindow() {
   mainWindow.maximize()
   changeDevtoolsFont(mainWindow);
 }
-
-app.whenReady().then(() => {
+const rebuildMenu = () => {
+  Menu.setApplicationMenu(null)
+}
+const bindIpcMainHandle = () => {
   ipcMain.handle('apiflow-open-dev-tools', () => {
     BrowserWindow.getAllWindows()?.forEach(win => {
       win.webContents.openDevTools()
@@ -103,7 +105,25 @@ app.whenReady().then(() => {
       return (error as Error).message
     }
   })
+  ipcMain.handle('apiflow-reload-ignoring-cache', () => {
+    const win = BrowserWindow.getFocusedWindow();
+    if (win) {
+      win.webContents.reloadIgnoringCache();
+    }
+  })
+  ipcMain.handle('apiflow-reload', () => {
+    const win = BrowserWindow.getFocusedWindow();
+    if (win) {
+      win.webContents.reload();
+    }
+  })
+}
+
+app.whenReady().then(() => {
+
+  bindIpcMainHandle()
   createWindow()
+  rebuildMenu();
   app.on('activate', function () {
     if (BrowserWindow.getAllWindows().length === 0) createWindow()
   })

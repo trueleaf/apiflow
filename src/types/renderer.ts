@@ -8,6 +8,8 @@ export type ElectronAPI = {
   openDevTools: () => void,
   readFileAsUint8Array: (path: string) => Promise<Uint8Array | string>;
   getFilePath: (file: File) => string;
+  reload: () => void;
+  reloadIgnoringCache: () => void;
 }
 
 declare global {
