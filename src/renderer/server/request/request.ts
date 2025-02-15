@@ -84,6 +84,7 @@ export const getUrl = async (apidoc: ApidocDetail) => {
   return fullUrl;
 }
 const getBody = async (apidoc: ApidocDetail): Promise<RendererFormDataBody | string | undefined> => {
+  const { changeResponseInfo } = useApidocResponse()
   const { objectVariable } = useVariable()
   const { changeFormDataErrorInfoById } = useApidoc()
   const { mode, urlencoded } = apidoc.item.requestBody;
@@ -100,12 +101,24 @@ const getBody = async (apidoc: ApidocDetail): Promise<RendererFormDataBody | str
       bigNumberMap[`${$1}n`] = `${$1}`;
       return replacedStr;
     })
-    const jsonObject = json5.parse(replacedRawJson || 'null');
-    await Promise.all(convertStringValueAsync(jsonObject))
-    const stringBody = JSON.stringify(jsonObject).replace(/"([+-]?\d*\.?\d+n)"(?=\s*[,}\]])/g, (_, $2) => {
-      return bigNumberMap[$2];
-    })
-    return stringBody;
+    try {
+      const jsonObject = json5.parse(replacedRawJson || 'null');
+      await Promise.all(convertStringValueAsync(jsonObject))
+      const stringBody = JSON.stringify(jsonObject).replace(/"([+-]?\d*\.?\d+n)"(?=\s*[,}\]])/g, (_, $2) => {
+        return bigNumberMap[$2];
+      })
+      return stringBody;
+    } catch (error) {
+      changeResponseInfo({
+        responseData: {
+          canApiflowParseType: 'error',
+          errorData: `Body参数JSON数据格式解析错误\n${(error as Error).message}`
+        }
+      });
+      throw new Error((error as Error).message)
+    }
+  } else if (mode === 'json' && !apidoc.item.requestBody.rawJson.trim()) {
+    return
   }
   if (mode === 'urlencoded') {
     const urlencodedString = await getEncodedStringFromEncodedParams(urlencoded, objectVariable);
