@@ -2,16 +2,16 @@
 <template>
   <el-form ref="form" :model="registerInfo" :rules="rules" @submit.stop.prevent="handleRegister">
     <el-form-item prop="loginName">
-      <el-input v-model="registerInfo.loginName" :size="config.renderConfig.layout.size" name="loginName" type="text" :placeholder="`${t('请输入登录名称')}...`"></el-input>
+      <el-input v-model="registerInfo.loginName" :size="config.renderConfig.layout.size" name="loginName" type="text" :placeholder="`${t('请输入登录名称')}`"></el-input>
     </el-form-item>
     <el-form-item prop="password">
-      <el-input v-model="registerInfo.password" :size="config.renderConfig.layout.size" show-password name="password" type="text" :placeholder="`${t('请输入密码')}...`"></el-input>
+      <el-input v-model="registerInfo.password" :size="config.renderConfig.layout.size" show-password name="password" type="text" :placeholder="`${t('请输入密码')}`"></el-input>
     </el-form-item>
     <el-form-item prop="password2">
-      <el-input v-model="registerInfo.password2" :size="config.renderConfig.layout.size" show-password name="password2" type="text" :placeholder="`${t('请再次输入密码')}...`"></el-input>
+      <el-input v-model="registerInfo.password2" :size="config.renderConfig.layout.size" show-password name="password2" type="text" :placeholder="`${t('请再次输入密码')}`"></el-input>
     </el-form-item>
     <el-form-item prop="phone">
-      <el-input v-model="registerInfo.phone" :size="config.renderConfig.layout.size" name="phone" type="text" :placeholder="`${t('请输入手机号')}...`"></el-input>
+      <el-input v-model="registerInfo.phone" :size="config.renderConfig.layout.size" name="phone" type="text" :placeholder="`${t('请输入手机号')}`"></el-input>
     </el-form-item>
     <el-form-item prop="smsCode">
       <div class="d-flex w-100">
