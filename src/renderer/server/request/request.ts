@@ -12,6 +12,7 @@ import { useApidocResponse } from '@/store/apidoc/response';
 import { apidocCache } from '@/cache/apidoc';
 import { config } from '@src/config/config';
 import { cloneDeep } from '@/helper';
+import { useApidocRequest } from '@/store/apidoc/request';
 
 /*
 |--------------------------------------------------------------------------
@@ -197,6 +198,7 @@ export async function sendRequest() {
   const apidocTabsStore = useApidocTas();
   const selectedTab = apidocTabsStore.getSelectedTab(apidocBaseInfoStore.projectId);
   const apidocStore = useApidoc()
+  const { changeCancelRequestRef, cancelRequest } = useApidocRequest()
   const { changeResponseInfo, changeRequestState, changeLoadingProcess } = useApidocResponse()
   const rawApidoc = toRaw(apidocStore.$state.apidoc)
   const method = getMethod(rawApidoc);
@@ -216,8 +218,8 @@ export async function sendRequest() {
     timeout: 60000,
     body: requestBody,
     headers,
-    signal() {
-      
+    signal(cancelRequest) {
+      changeCancelRequestRef(cancelRequest);
     },
     onError: (err) => {
       console.error(err)
@@ -445,9 +447,10 @@ export async function sendRequest() {
 }
 
 export function stopRequest(): void {
-  // const apidocResponseStore = useApidocResponse();
-  // apidocResponseStore.changeLoading(false);
-  // apidocResponseStore.changeIsResponse(true);
+  const { changeRequestState } = useApidocResponse()
+  const { cancelRequest } = useApidocRequest()
+  changeRequestState('waiting');
+  cancelRequest();
   // if (requestStream) {
   //   requestStream.destroy();
   // }

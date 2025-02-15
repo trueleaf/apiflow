@@ -140,6 +140,7 @@ import { event, uuid } from '@/helper'
 import { useApidocBaseInfo } from '@/store/apidoc/base-info';
 import SContextmenu from '@/components/common/contextmenu/g-contextmenu.vue'
 import SContextmenuItem from '@/components/common/contextmenu/g-contextmenu-item.vue'
+import { useApidocBanner } from '@/store/apidoc/banner';
 
 
 /*
@@ -282,11 +283,13 @@ const handleForceCloseAllTab = () => {
 }
 //选中当前tab
 const selectCurrentTab = (element: ApidocTab) => {
+  const { changeExpandItems } = useApidocBanner()
   const projectId = router.currentRoute.value.query.id as string;
   apidocTabsStore.selectTabById({
     projectId,
     id: element._id
   });
+  changeExpandItems([element._id])
 }
 //固定当前tab
 const fixCurrentTab = (element: ApidocTab) => {

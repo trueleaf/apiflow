@@ -368,7 +368,7 @@ export type GotRequestOptions = {
   timeout: number;
   body: string | RendererFormDataBody | undefined;
   headers: Record<string, string | null>;
-  signal: (abort: (reason?: string) => void) => void;
+  signal: (cancelRequest: () => void) => void;
   onResponse?: (responseInfo: ResponseInfo) => void;
   onResponseEnd?: (responseInfo: ResponseInfo) => void;
   onResponseData?: (loadedLength: number, totalLength: number) => void;

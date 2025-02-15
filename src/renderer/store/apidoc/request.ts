@@ -7,7 +7,14 @@ export const useApidocRequest = defineStore('apidocRequest', () => {
   const encodedUrl = ref('');
   const headers = ref<ApidocRequest['headers']>({})
   const method = ref('')
-  const body = ref<string | FormData>('')
+  const body = ref<string | FormData>('');
+  const cancelRequestRef = ref<(() => void) | null>(null);
+  const cancelRequest = () => {
+    cancelRequestRef.value?.();
+    if (cancelRequestRef.value) {
+      cancelRequestRef.value = null;
+    }
+  }
   const changeFinalRequestInfo = (payload: Partial<ApidocRequest>): void => {
     if (payload.url != null) {
       url.value = payload.url;
@@ -25,12 +32,17 @@ export const useApidocRequest = defineStore('apidocRequest', () => {
       encodedUrl.value = payload.encodedUrl;
     }
   }
+  const changeCancelRequestRef = (cancelRequest: () => void | null) => {
+    cancelRequestRef.value = cancelRequest;
+  }
   return {
     url,
     headers,
     method,
     body,
     encodedUrl,
-    changeFinalRequestInfo
+    changeFinalRequestInfo,
+    cancelRequest,
+    changeCancelRequestRef
   }
 })
