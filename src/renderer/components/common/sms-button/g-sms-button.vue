@@ -52,7 +52,7 @@ const changeState = () => {
   clearInterval(timer.value); //清除上次的定时器
   disableBtn.value = true;
   emits('click');
-  tip.value = `${time}秒后${props.endLabel}`
+  tip.value = `${time.value}秒后${props.endLabel}`
   timer.value = window.setInterval(() => {
     time.value -= 1;
     if (time.value === 0) {
@@ -61,7 +61,7 @@ const changeState = () => {
       clearInterval(timer.value);
       time.value = props.countdown;
     } else {
-      tip.value = `${time}秒后${props.endLabel}`
+      tip.value = `${time.value}秒后${props.endLabel}`
     }
   }, speed);
 }
