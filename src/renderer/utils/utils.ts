@@ -59,7 +59,7 @@ export const getObjectVariable = async (variables: ApidocVariable[]) => {
     } else if (varInfo.type === 'any') {
       objectVariable[name] = await evalCode(value);
     } else if (varInfo.type === 'file') {
-      // objectVariable[name] = JSON5.parse(fileValue);
+      objectVariable[name] = fileValue.path;
     }
   }
   return Promise.resolve(objectVariable);
