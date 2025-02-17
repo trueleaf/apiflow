@@ -252,7 +252,7 @@ onMounted(() => {
 
 defineExpose({
   getData,
-  tableData
+  tableData,
 })
 
 </script>

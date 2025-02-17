@@ -41,21 +41,25 @@
           <el-upload ref="upload" class="upload-demo" @change="handleSelectFile" @exceed="handleExceed" :limit="1"
             :auto-upload="false" :show-file-list="false">
             <template #trigger>
-              <el-button size='small'>选择文件</el-button>
+              <el-button size='small'>{{ t('选择文件') }}</el-button>
             </template>
             <template #default>
               <div v-if="formInfo.fileValue.name">
                 <div class="d-flex a-center">
-                  <span class="flex0 theme-color">文件名称：</span>
-                  <span :title="formInfo.fileValue.name" class="text-ellipsis">{{ formInfo.fileValue.name }}</span>
+                  <span class="flex0 theme-color">{{ t('文件名称：') }}</span>
+                  <span :title="formInfo.fileValue.name" class="text-ellipsis gray-600">{{ formInfo.fileValue.name }}</span>
                 </div>
                 <div class="d-flex a-center">
-                  <span class="flex0 theme-color">文件路径：</span>
-                  <span :title="formInfo.fileValue.path" class="text-ellipsis">{{ formInfo.fileValue.path }}</span>
+                  <span class="flex0 theme-color">{{ t('文件路径：') }}</span>
+                  <span :title="formInfo.fileValue.path" class="text-ellipsis gray-600">{{ formInfo.fileValue.path }}</span>
                 </div>
                 <div class="d-flex a-center">
-                  <span class="flex0 theme-color">mime类型：</span>
-                  <span :title="formInfo.fileValue.fileType" class="text-ellipsis">{{ formInfo.fileValue.fileType }}</span>
+                  <span class="flex0 theme-color">{{ t('mime类型：') }}</span>
+                  <span :title="formInfo.fileValue.fileType" class="text-ellipsis gray-600">{{ formInfo.fileValue.fileType }}</span>
+                </div>
+                <div class="d-flex a-center">
+                  <span class="flex0 theme-color">{{ t('注意：') }}&nbsp;&nbsp;&nbsp;</span>
+                  <span class="file-notice gray-600">{{ t('若file类型变量大于10kb则会自动转换为本地文件地址\n若协作者无此路径附件则会导致无法获取附件变量\n这也可能导致隐私泄露，请仅添加授信成员') }}</span>
                 </div>
               </div>
             </template>
@@ -86,8 +90,14 @@
     </SFieldset>
     <!-- 变量列表 -->
     <SFieldset :title="t('变量列表')" class="right">
-      <STable ref="table" url="/api/project/project_variable" delete-many delete-url="/api/project/project_variable"
-        :delete-params="{ projectId: route.query.id }" :params="{ projectId: route.query.id }">
+      <STable 
+        ref="table" 
+        url="/api/project/project_variable" 
+        delete-many 
+        delete-url="/api/project/project_variable"
+        @delete-many="getData"
+        :delete-params="{ projectId: route.query.id }" 
+        :params="{ projectId: route.query.id }">
         <el-table-column :label="t('变量名称')" align="center">
           <template #default="scope">
             <el-input v-if="scope.row.__active" v-model="scope.row.name" :size="config.renderConfig.layout.size"
@@ -153,8 +163,8 @@ import { useRoute } from 'vue-router';
 import SJsonEditor from '@/components/common/json-editor/g-json-editor.vue'
 import EditDialog from './dialog/edit.vue'
 import { useVariable } from '@/store/apidoc/variables';
-import { ApidocVariable } from '@src/types/global';
-
+import { Response, ApidocVariable } from '@src/types/global';
+import { request as axiosInstance } from '@/api/api'
 
 
 export type AddProjectVariableParams = {
@@ -220,9 +230,10 @@ const upload = ref<UploadInstance>()
 |--------------------------------------------------------------------------
 */
 const handleSelectFile = (file: UploadFile) => {
+  const filePath = window.electronAPI?.getFilePath(file.raw as File);
   formInfo.value.fileValue = {
     name: file.name,
-    path: file.raw!.path,
+    path: filePath || '',
     fileType: file.raw!.type,
   }
   return false;
@@ -231,17 +242,27 @@ const handleExceed: UploadProps['onExceed'] = (files) => {
   upload.value!.clearFiles();
   const file = files[0] as UploadRawFile
   file.uid = genFileId()
+  const filePath = window.electronAPI?.getFilePath(file);
   upload.value!.handleStart(file)
   formInfo.value.fileValue = {
     name: file.name,
-    path: file.path,
+    path: filePath || '',
     fileType: file.type,
   }
 }
 const getData = () => {
-  table.value?.getData().then((res) => {
-    variableStore.replaceVariables(res.data.rows)
-  });
+  table.value?.getData()
+  getVariableEnum();
+}
+//获取变量枚举用于更新全部变量值
+const getVariableEnum = () => {
+  axiosInstance.get<Response<ApidocVariable[]>, Response<ApidocVariable[]>>('/api/project/project_variable_enum', { params: {
+    projectId: route.query.id as string
+  } }).then((res) => {
+    variableStore.replaceVariables(res.data)
+  }).catch((err) => {
+    console.error(err);
+  })
 }
 //新增表格数据
 const handleAddVariable = () => {
@@ -315,6 +336,7 @@ const handleDelete = (_id: string) => {
 <style lang='scss' scoped>
 .s-variable {
   overflow-y: auto;
+  overflow-x: hidden;
   height: calc(100vh - #{size(100)});
   width: 100%;
   padding: size(20) size(30);
@@ -323,6 +345,10 @@ const handleDelete = (_id: string) => {
   .left {
     flex: 0 0 size(500);
     margin-right: size(10);
+    .file-notice {
+      white-space: pre-line;
+      line-height: 1.2;
+    }
   }
 
   .right {
