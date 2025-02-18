@@ -4,8 +4,14 @@
     <SFieldset :title="t('新增变量')" class="left">
       <el-form ref="form" :model="formInfo" :rules="rules" label-width="120px">
         <el-form-item :label="`${t('变量名称')}：`" prop="name">
-          <el-input v-model="formInfo.name" :size="config.renderConfig.layout.size" :placeholder="t('请输入变量名称')"
-            class="w-100" show-word-limit maxlength="100" clearable>
+          <el-input 
+            v-model="formInfo.name" 
+            :size="config.renderConfig.layout.size" 
+            :placeholder="t('请输入变量名称')"
+            class="w-100" 
+            show-word-limit 
+            maxlength="100" 
+            clearable>
           </el-input>
         </el-form-item>
         <el-form-item :label="`${t('值类型')}：`" prop="type">
@@ -19,20 +25,20 @@
           </el-select>
         </el-form-item>
         <!-- 字符串 -->
-        <el-form-item v-if="formInfo.type === 'string'" :label="`${t('变量值')}：`" prop="value">
+        <el-form-item v-if="formInfo.type === 'string'" :label="`${t('变量值')}：`" prop="stringValue">
           <el-input v-model="formInfo.stringValue" type="textarea" :autosize="{ minRows: 10, maxRows: 10 }"
             :size="config.renderConfig.layout.size" show-word-limit :placeholder="t('请输入任意字符')" class="w-100"
             maxlength="9999" clearable>
           </el-input>
         </el-form-item>
         <!-- 数字 -->
-        <el-form-item v-if="formInfo.type === 'number'" :label="`${t('变量值')}：`" prop="value">
+        <el-form-item v-if="formInfo.type === 'number'" :label="`${t('变量值')}：`" prop="numberValue">
           <el-input-number v-model="formInfo.numberValue" :size="config.renderConfig.layout.size"
             :placeholder="t('请输入任意数字')" class="w-100" :controls="false">
           </el-input-number>
         </el-form-item>
         <!-- 布尔值 -->
-        <el-form-item v-if="formInfo.type === 'boolean'" :label="`${t('变量值')}：`" prop="value">
+        <el-form-item v-if="formInfo.type === 'boolean'" :label="`${t('变量值')}：`" prop="booleanValue">
           <el-radio v-model="formInfo.booleanValue" :label="true">ture</el-radio>
           <el-radio v-model="formInfo.booleanValue" :label="false">false</el-radio>
         </el-form-item>
@@ -209,6 +215,7 @@ const formInfo = ref<AddProjectVariableFormInfo>({
 })
 const rules = ref({
   name: [{ required: true, message: t('请输入变量名称'), trigger: 'blur' }],
+  stringValue: [{ required: true, message: t('请输入变量值'), trigger: 'blur' }],
 })
 const oldEditingData = ref<AddProjectVariableParams | null>(null);
 const isShowEditDialog = ref(false);
