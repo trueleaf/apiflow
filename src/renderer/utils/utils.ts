@@ -64,7 +64,15 @@ export const getObjectVariable = async (variables: ApidocVariable[]) => {
   }
   return Promise.resolve(objectVariable);
 }
-//将模板转换为字符串
+/*
+|--------------------------------------------------------------------------
+| 将模板转换为字符串
+| 变量类型一：{{ variable }}
+| 变量类型二：{{ @variable }} mock类型
+| 变量类型三：@xxx mock类型
+|--------------------------------------------------------------------------
+|
+*/
 export const convertTemplateValueToRealValue = async (stringValue: string, objectVariable: Record<string, any>) => {
   const isSingleMustachTemplate = stringValue.match(/^\s*\{\{\s*([^}\s]+)\s*\}\}\s*$/); // 这种属于单模板，返回实际值，可能是数字、对象等"{{ variable }}"
   if (isSingleMustachTemplate) {
@@ -87,7 +95,11 @@ export const convertTemplateValueToRealValue = async (stringValue: string, objec
     return value;
   })
 
-  const withoutEscapeString = withoutVaribleString.replace(/((\\)(?=\{\{))|(\\)(?=@)/g, '')
+  const withoutMockString = withoutVaribleString.replace(/(@[^@]+)/g, ($1, variableName: string) => {
+    return Mock.mock(variableName);
+  })
+
+  const withoutEscapeString = withoutMockString.replace(/((\\)(?=\{\{))|(\\)(?=@)/g, '')
   return withoutEscapeString
 }
 export const getQueryStringFromQueryParams = async (queryParams: Property[], objectVariable: Record<string, any>): Promise<string> => {
@@ -107,17 +119,16 @@ export const getQueryStringFromQueryParams = async (queryParams: Property[], obj
   }
   return queryString;
 }
-export const getPathParamsStringFromPathParams = async (pathParams: Property[], objectVariable: Record<string, any>): Promise<string> => {
-  let pathString = "";
+export const getObjectPathParams = async (pathParams: Property[], objectVariable: Record<string, any>): Promise<Record<string, string>> => {
+  const objectPathParams: Record<string, string> = {};
   for (let i = 0; i < pathParams.length; i++) {
     const pathParam = pathParams[i];
     if (pathParam.key) {
       const realValue = await convertTemplateValueToRealValue(pathParam.value, objectVariable);
-      pathString += `${realValue}/`;
+      objectPathParams[pathParam.key] = realValue;
     }
   }
-  pathString = pathString.replace(/\/$/, "");
-  return pathString;
+  return objectPathParams;
 }
 export const getEncodedStringFromEncodedParams = async (encodedParams: Property[], objectVariable: Record<string, any>): Promise<string> => {
   let encodedString = "";

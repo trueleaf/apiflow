@@ -3,7 +3,7 @@ import { useApidoc } from '@/store/apidoc/apidoc';
 import { toRaw } from 'vue';
 import json5 from 'json5'
 import { ApidocDetail } from '@src/types/global';
-import { convertTemplateValueToRealValue, getEncodedStringFromEncodedParams, getPathParamsStringFromPathParams, getQueryStringFromQueryParams } from '@/utils/utils';
+import { convertTemplateValueToRealValue, getEncodedStringFromEncodedParams, getObjectPathParams, getQueryStringFromQueryParams } from '@/utils/utils';
 import { useVariable } from '@/store/apidoc/variables';
 import { JsonData, RendererFormDataBody } from '@src/types/types';
 import { useApidocBaseInfo } from '@/store/apidoc/base-info';
@@ -70,11 +70,12 @@ export const getUrl = async (apidoc: ApidocDetail) => {
   const { objectVariable } = useVariable()
   const { url, queryParams, paths, } = apidoc.item;
   const queryString = await getQueryStringFromQueryParams(queryParams, objectVariable);
-  const pathParamsString = await getPathParamsStringFromPathParams(paths, objectVariable);
-  const replacedPathParamsString = url.path.replace(/(?<!\{)\{([^{}]+)\}(?!\})/g, ''); // 替换路径参数
+  const objectPathParams = await getObjectPathParams(paths, objectVariable);
+  const replacedPathParamsString = url.path.replace(/(?<!\{)\{([^{}]+)\}(?!\})/g, (_, variableName) => {
+    return objectPathParams[variableName] || ''
+  }); // 替换路径参数
   const pathString = await convertTemplateValueToRealValue(replacedPathParamsString, objectVariable);
-
-  let fullUrl = pathString + pathParamsString + queryString;
+  let fullUrl = pathString + queryString;
   if (!fullUrl.startsWith('http') && !fullUrl.startsWith('https')) {
     fullUrl = `http://${fullUrl}`
   }
