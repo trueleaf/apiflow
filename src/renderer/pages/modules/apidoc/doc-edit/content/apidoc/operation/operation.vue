@@ -37,7 +37,7 @@
     </div>
     <!-- 请求地址，发送请求 -->
     <div class="op-wrap">
-      <el-input v-model="requestPath" :placeholder="t('输入请求url')" @input="handleChangeUrl" @blur="handleFormatUrl"
+      <el-input v-model="requestPath" :placeholder="t('path参数') + ' eg: http://test.com/{id}'" @input="handleChangeUrl" @blur="handleFormatUrl"
         @keyup.enter.stop="handleFormatUrl">
         <template #prepend>
           <div class="request-method">
