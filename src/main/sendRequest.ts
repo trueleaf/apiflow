@@ -89,6 +89,8 @@ export const gotRequest = async (options: GotRequestOptions) => {
       }
       responseInfo.requestData.body = reqeustBody.getBuffer().toString();
       // console.log(reqeustBody, reqeustBody.getBuffer().toString(), 22)
+    } else if (options.body) {
+      responseInfo.requestData.body = options.body as string;
     }
     //更新请求头信息
     for (const key in options.headers) {
