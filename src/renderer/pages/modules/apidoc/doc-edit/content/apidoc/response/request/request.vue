@@ -21,7 +21,15 @@
         <span>{{ t('请求body') }}</span>
         <span v-if="contentType">({{ contentType }})</span>
       </template>
-      <pre v-if="contentType === 'application/json'" class="pl-1 pre">{{ formatJsonStr(responseInfo.requestData.body as string) }}</pre>
+      <div v-if="contentType === 'application/json'" class="body-wrap">
+        <SJsonEditor 
+          :modelValue="formatJsonStr(responseInfo.requestData.body as string)" 
+          read-only 
+          :config="{ fontSize: 13, language: 'json', lineNumbers: 'off' }"
+        >
+        </SJsonEditor>
+      </div>
+      <!-- <pre v-if="contentType === 'application/json'" class="pl-1 pre">{{ formatJsonStr(responseInfo.requestData.body as string) }}</pre> -->
       <pre v-else-if="contentType?.includes('multipart/')" class="pl-1 pre">{{ responseInfo.requestData.body }}</pre>
       <pre v-else-if="contentType === 'application/x-www-form-urlencoded'" class="pre">{{ responseInfo.requestData.body }}</pre>
       <pre v-else-if="contentType === 'text/html'" class="pre">{{ responseInfo.requestData.body }}</pre>
@@ -42,6 +50,7 @@ import SCollapse from '@/components/common/collapse/g-collapse.vue'
 import { useApidocBaseInfo } from '@/store/apidoc/base-info';
 import { useApidocResponse } from '@/store/apidoc/response';
 import { storeToRefs } from 'pinia';
+import SJsonEditor from '@/components/common/json-editor/g-json-editor.vue'
 
 const apidocStore = useApidoc();
 const apidocBaseInfoStore = useApidocBaseInfo();
@@ -77,6 +86,9 @@ const layout = computed(() => apidocBaseInfoStore.layout)
 
   &.vertical {
     height: 100%;
+  }
+  .body-wrap {
+    height: size(200);
   }
 }
 </style>
