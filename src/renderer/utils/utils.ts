@@ -80,7 +80,10 @@ export const convertTemplateValueToRealValue = async (stringValue: string, objec
     if (variableName.startsWith("@")) {
       return Mock.mock(variableName);
     }
-    return objectVariable[variableName] 
+    if (objectVariable[variableName]  !== undefined) {
+      return objectVariable[variableName]
+    }
+    return isSingleMustachTemplate[0] 
   }
  
   const withoutVaribleString = stringValue.replace(/(?<!\\)\{\{\s*(.*?)\s*\}\}/g, ($1, variableName: string) => {
