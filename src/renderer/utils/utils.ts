@@ -1,4 +1,4 @@
-import { FlowNode, Property, ResponseInfo } from "@src/types/types";
+import { FlowNode, Property } from "@src/types/types";
 import Mock from "../../mock/mock";
 import { ApidocVariable, SandboxPostMessage } from "@src/types/global";
 
@@ -95,7 +95,7 @@ export const convertTemplateValueToRealValue = async (stringValue: string, objec
     return value;
   })
 
-  const withoutMockString = withoutVaribleString.replace(/(@[^@]+)/g, ($1, variableName: string) => {
+  const withoutMockString = withoutVaribleString.replace(/(@[^@]+)/g, (_, variableName: string) => {
     return Mock.mock(variableName);
   })
 

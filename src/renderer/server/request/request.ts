@@ -199,7 +199,7 @@ export async function sendRequest() {
   const apidocTabsStore = useApidocTas();
   const selectedTab = apidocTabsStore.getSelectedTab(apidocBaseInfoStore.projectId);
   const apidocStore = useApidoc()
-  const { changeCancelRequestRef, cancelRequest } = useApidocRequest()
+  const { changeCancelRequestRef } = useApidocRequest()
   const { changeResponseInfo, changeRequestState, changeLoadingProcess } = useApidocResponse()
   const rawApidoc = toRaw(apidocStore.$state.apidoc)
   const method = getMethod(rawApidoc);
