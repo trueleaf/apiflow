@@ -16,7 +16,7 @@
       <span v-if="!slots.title" class="ml-1">{{ title }}</span>
       <slot v-else name="title" />
     </div>
-    <div v-show="isActive" class="pr-2 pl-5 gray-700">
+    <div v-show="isActive" :class="noPaddingX ? 'pr-2 gray-700' : 'pr-2 pl-5 gray-700'">
       <slot />
     </div>
   </div>
@@ -40,6 +40,10 @@ const props = defineProps({
   active: {
     type: Boolean,
     default: true,
+  },
+  noPaddingX: {
+    type: Boolean,
+    default: false,
   },
   disabled: {
     type: Boolean,

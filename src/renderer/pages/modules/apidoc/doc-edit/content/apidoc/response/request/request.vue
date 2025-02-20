@@ -16,7 +16,7 @@
         <div>{{ value }}</div>
       </div>
     </SCollapse>
-    <SCollapse bold>
+    <SCollapse bold no-padding-x>
       <template #title>
         <span>{{ t('请求body') }}</span>
         <span v-if="contentType">({{ contentType }})</span>
