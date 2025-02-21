@@ -3,7 +3,7 @@ import { useApidoc } from '@/store/apidoc/apidoc';
 import { toRaw } from 'vue';
 import json5 from 'json5'
 import { ApidocDetail } from '@src/types/global';
-import { convertTemplateValueToRealValue, getEncodedStringFromEncodedParams, getObjectPathParams, getQueryStringFromQueryParams } from '@/utils/utils';
+import { convertTemplateValueToRealValue, getEncodedStringFromEncodedParams, getFormDataFromFormDataParams, getObjectPathParams, getQueryStringFromQueryParams } from '@/utils/utils';
 import { useVariable } from '@/store/apidoc/variables';
 import { JsonData, RendererFormDataBody } from '@src/types/types';
 import { useApidocBaseInfo } from '@/store/apidoc/base-info';
@@ -13,6 +13,7 @@ import { apidocCache } from '@/cache/apidoc';
 import { config } from '@src/config/config';
 import { cloneDeep } from '@/helper';
 import { useApidocRequest } from '@/store/apidoc/request';
+import { t } from 'i18next';
 
 /*
 |--------------------------------------------------------------------------
@@ -105,7 +106,7 @@ const getBody = async (apidoc: ApidocDetail): Promise<RendererFormDataBody | str
     })
     try {
       const jsonObject = json5.parse(replacedRawJson || 'null');
-      await Promise.all(convertStringValueAsync(jsonObject))
+      await Promise.all(convertStringValueAsync(jsonObject));
       const stringBody = JSON.stringify(jsonObject).replace(/"([+-]?\d*\.?\d+n)"(?=\s*[,}\]])/g, (_, $2) => {
         return bigNumberMap[$2];
       })
@@ -128,15 +129,11 @@ const getBody = async (apidoc: ApidocDetail): Promise<RendererFormDataBody | str
   }
   if (mode === 'formdata') {
     const validFormData = apidoc.item.requestBody.formdata.filter(formData => formData.select && formData.key !== '');
-    return validFormData.map(formData => {
-      changeFormDataErrorInfoById(formData._id, '')
-      return {
-        id: formData._id,
-        key: formData.key,
-        type: formData.type,
-        value: formData.value,
-      }
+    validFormData.forEach(formData => {
+      changeFormDataErrorInfoById(formData._id, ''); //每次请求前清空错误信息
     })
+    const formData = await getFormDataFromFormDataParams(validFormData, objectVariable);
+    return formData;
   }
   if (mode === 'raw') {
     const { data } = apidoc.item.requestBody.raw;
@@ -236,8 +233,15 @@ export async function sendRequest() {
     },
     beforeRetry: () => {
     },
-    onReadFileFormDataError(options: {id: string, msg: string}) {
-      apidocStore.changeFormDataErrorInfoById(options.id, options.msg)
+    onReadFileFormDataError(options: {id: string, msg: string, fullMsg: string}) {
+      apidocStore.changeFormDataErrorInfoById(options.id, options.msg);
+      changeResponseInfo({
+        responseData: {
+          canApiflowParseType: 'error',
+          errorData: options.fullMsg
+        }
+      });
+      changeRequestState('finish');
     },
     onResponse(responseInfo) {
       changeResponseInfo(responseInfo);
@@ -448,10 +452,16 @@ export async function sendRequest() {
 }
 
 export function stopRequest(): void {
-  const { changeRequestState } = useApidocResponse()
+  const { changeRequestState, changeResponseInfo } = useApidocResponse()
   const { cancelRequest } = useApidocRequest()
   changeRequestState('waiting');
   cancelRequest();
+  changeResponseInfo({
+    responseData: {
+      canApiflowParseType: 'error',
+      errorData: t('请求被手动取消')
+    }
+  })
   // if (requestStream) {
   //   requestStream.destroy();
   // }

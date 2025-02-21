@@ -64,7 +64,7 @@
           <el-option :disabled="!enableFile" :title="t('传输数据类型为formData才能使用file类型')" label="File"
             value="file"></el-option>
         </el-select>
-        <!-- 参数值录入 -->
+        <!-- 字符串类型录入 -->
         <el-popover v-if="scope.data.type !== 'boolean' && scope.data.type !== 'file'"
           :visible="scope.data._id === currentOpData?._id" placement="top-start" width="auto">
           <SMock v-if="scope.data.type !== 'boolean' && scope.data.type !== 'file'" :search-value="scope.data.value"
@@ -89,27 +89,56 @@
           <el-option label="false" value="false"></el-option>
         </el-select>
         <!-- 文件类型参数录入 -->
-        <div v-if="scope.data.type === 'file'" class="flex0 w-25">
-          <div 
-            class="fake-input" 
-            :class="{ active: scope.data.value }" 
-            @mouseenter="() => enableDrag = false"
-            @mouseleave="() => enableDrag = true"
-          >
-            <label v-show="!scope.data.value" :for="scope.data.key" class="label">{{ t("选择文件") }}</label>
-            <SEllipsisContent :value="scope.data.value" max-width="100%"></SEllipsisContent>
-            <div v-if="scope.data._error" class="red f-sm">{{scope.data._error}}</div>
-            <el-icon v-if="scope.data.value" class="close" :size="16" @click="handleClearSelectType(scope.data)">
-              <close />
-            </el-icon>
+        <div 
+          v-if="scope.data.type === 'file'" 
+          class="w-25 mr-2"
+          :class="{ active: scope.data.value, 'no-border': (scope.data.fileValueType === 'var' || scope.data.fileValueType === 'file') }" 
+          @mouseenter="() => enableDrag = false"
+          @mouseleave="() => enableDrag = true"
+        >
+          <div class="file-input-wrap">
+            <!-- 模式切换提示 -->
+            <div v-if="scope.data.fileValueType !== 'file' && scope.data.fileValueType !== 'var'" class="mode-list">
+              <span class="var-mode" @click="() => scope.data.fileValueType = 'var'">变量模式</span>
+              <span class="px-3"></span>
+              <span class="file-mode" @click="() => scope.data.fileValueType = 'file'">文件模式</span>
+            </div>
+            <!-- 变量模式 -->
+            <SValidInput 
+              v-if="scope.data.fileValueType === 'var'"
+              :model-value="scope.data.value" 
+              class="w-100" 
+              :disabled="checkValueDisable(scope.data)" 
+              placeholder="eg: {{ fileValue }}"
+              @update:modelValue="handleChangeValue($event, scope.data)" 
+              @focus="handleFocusValue(scope.data)"
+              @blur="handleBlurValue">
+            </SValidInput>
+            <div v-if="scope.data.fileValueType === 'file'" class="file-mode-wrap">
+              <label v-show="!scope.data.value" :for="scope.data.key" class="label">{{ t("选择文件") }}</label>
+              <span class="text-wrap">{{ scope.data.value }}</span>
+              <el-icon v-if="scope.data.value" class="close" :size="16" @click="handleClearSelectType(scope.data)">
+                <close />
+              </el-icon>
+            </div>
+            <div 
+              v-if="scope.data.fileValueType === 'file' || scope.data.fileValueType === 'var'" 
+              :title="t('切换变量选择模式，支持变量或者直接选择文件')" 
+              class="toggle-mode"
+              @click="handleChangeFileValueType(scope.data)"
+            >
+              <el-icon><Switch /></el-icon>
+            </div>
+            <input 
+              :id="scope.data.key" 
+              ref="fileInput" 
+              class="d-none" 
+              type="file"
+              @change="handleSelectFile($event, scope.data)"
+            ></input>
           </div>
-          <input 
-            :id="scope.data.key" 
-            ref="fileInput" 
-            class="d-none" 
-            type="file"
-            @change="handleSelectFile($event, scope.data)"
-          >
+          <!-- 错误提示 -->
+          <div v-if="scope.data._error" class="file-error">{{scope.data._error}}</div>
         </div>
         <!-- 参数是否必填 -->
         <el-checkbox 
@@ -142,7 +171,7 @@ import {
   PropType,
   watch
 } from 'vue'
-import { Plus, Close } from '@element-plus/icons-vue'
+import { Plus, Close, Switch } from '@element-plus/icons-vue'
 import type Node from 'element-plus/es/components/tree/src/model/node'
 import type { TreeNodeOptions } from 'element-plus/lib/components/tree/src/tree.type'
 import type { ApidocProperty, ApidocPropertyType, MockItem } from '@src/types/global'
@@ -151,7 +180,6 @@ import { t } from 'i18next'
 import { useApidoc } from '@/store/apidoc/apidoc'
 import SValidInput from '@/components/common/valid-input/g-valid-input.vue'
 import SMock from '@/components/apidoc/mock/g-mock.vue'
-import SEllipsisContent from '@/components/common/ellipsis-content/g-ellipsis-content.vue'
 import { config } from '@src/config/config'
 
 type TreeNode = {
@@ -599,6 +627,14 @@ const handleBlurValue = () => {
 const handleCloseMockModel = () => {
   currentOpData.value = null;
 }
+const handleChangeFileValueType = (data: ApidocProperty) => {
+  data.value = '';
+  if (data.fileValueType === 'file') {
+    data.fileValueType = 'var'
+  } else {
+    data.fileValueType = 'file'
+  }
+}
 //选择某个mock类型数据
 const handleSelectMockValue = (item: MockItem, data: ApidocProperty) => {
   apidocStore.changePropertyValue({
@@ -730,7 +766,9 @@ const checkDescriptionDisable = ({ node }: { node: TreeNode }) => {
     font-size: fz(12);
     box-shadow: none;
   }
-
+  .el-select__wrapper {
+    font-size: fz(12);
+  }
   .el-input__wrapper {
     &:focus {
       border-bottom: 2px solid $theme-color;
@@ -749,38 +787,88 @@ const checkDescriptionDisable = ({ node }: { node: TreeNode }) => {
     //     margin-bottom: -1px;
     // }
   }
-
-  .fake-input {
-    cursor: pointer;
-    background: $gray-300;
-    height: size(25);
-    line-height: size(25);
-    text-indent: 1em;
-    width: 98%;
+  .file-error {
+    color: $red;
+    font-size: fz(12);
+  }
+  .file-input-wrap {
+    cursor: default;
+    border: 1px dashed $gray-300;
+    display: flex;
+    align-items: center;
+    height: size(30);
     position: relative;
-
+    font-size: fz(13);
     &.active {
       background: none;
       border: 1px solid $gray-300;
       cursor: auto;
     }
-
-    .label {
+    &.no-border {
+      border: none;
+    }
+    .mode-list {
       width: 100%;
       height: 100%;
-      display: inline-block;
-      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
     }
-
-    .close {
-      position: absolute;
-      right: size(3);
-      top: size(4);
-      font-size: fz(16);
+    .var-mode,.file-mode {
       cursor: pointer;
-
       &:hover {
-        color: $red;
+        color: $theme-color;
+      }
+    }
+    .file-mode-wrap {
+      // flex: 0 0 auto;
+      width: calc(100% - #{size(20)});
+      height: 100%;
+      position: relative;
+      // display: flex;
+      // align-items: center;
+      .text-wrap {
+        text-indent: size(8);
+        display: inline-block;
+        height: 100%;
+        line-height: size(30);
+        width: calc(100% - #{size(30)});
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+      .label {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: $gray-300;
+        cursor: pointer;
+      }
+      .close {
+        position: absolute;
+        right: size(3);
+        top: 50%;
+        transform: translateY(-50%);
+        font-size: fz(16);
+        cursor: pointer;
+
+        &:hover {
+          color: $red;
+        }
+      }
+    }
+    .toggle-mode {
+      flex: 0 0 size(20);
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      &:hover {
+        cursor: pointer;
+        color: $theme-color;
       }
     }
   }
