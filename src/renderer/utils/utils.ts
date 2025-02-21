@@ -1,6 +1,7 @@
-import { FlowNode, Property } from "@src/types/types";
+import { FlowNode, Property, RendererFormDataBody } from "@src/types/types";
 import Mock from "../../mock/mock";
 import { ApidocVariable, SandboxPostMessage } from "@src/types/global";
+import { useVariable } from "@/store/apidoc/variables";
 
 export const isElectron = () => {
   if (typeof window !== 'undefined' && typeof window.process === 'object' && window.process.type === 'renderer') {
@@ -146,6 +147,27 @@ export const getEncodedStringFromEncodedParams = async (encodedParams: Property[
   }
   encodedString = encodedString.replace(/&$/, "");
   return encodedString;
+}
+export const getFormDataFromFormDataParams = async (formDataParams: Property[], objectVariable: Record<string, any>): Promise<RendererFormDataBody> => {
+  const renderedFormDataBody: RendererFormDataBody = [];
+  const { variables } = useVariable()
+  for (let i = 0; i < formDataParams.length; i++) {
+    const formData = formDataParams[i];
+    if (formData.key) {
+      const realKey = await convertTemplateValueToRealValue(formData.key, objectVariable); 
+      const realValue = await convertTemplateValueToRealValue(formData.value, objectVariable);
+      if (formData.type === 'file') {
+        console.log(variables, formData.value)
+      }
+      renderedFormDataBody.push({
+        id: formData._id,
+        key: realKey,
+        type: formData.type,
+        value: realValue === null ? 'null' : realValue?.toString(),
+      })
+    }
+  }
+  return renderedFormDataBody;
 }
 // export const getFormDataFromFormDataParams = async (formDataParams: Property[], objectVariable: Record<string, any>): Promise<RendererFormDataBody> => {
 //   const { changeFormDataErrorInfoById } = useApidoc()
