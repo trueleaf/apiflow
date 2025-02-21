@@ -26,30 +26,33 @@ const getFormDataFromRendererFormData = async (rendererFormDataList: RendererFor
       try {
         await fs.access(value, fs.constants.F_OK)
       } catch {
-        return {
+        return Promise.resolve({
           id,
-          msg: '文件不存在(发送被终止)'
-        }
+          msg: '文件不存在(发送被终止)',
+          fullMsg: `formData参数${key}对应的文件在磁盘上未找到，发送被终止`
+        });
       }
       try {
         const fsStat = await fs.stat(value);
         if (!fsStat.isFile) {
-          return {
+          return Promise.resolve({
             id,
-            msg: '不是文件无法读取(发送被终止)'
-          }
+            msg: '不是文件无法读取(发送被终止)',
+            fullMsg: `formData参数${key}对应的非文件类型文件，发送被终止`
+          })
         }
         if (fsStat.size > 1024 * 1024 * 10) {
-          return {
+          return Promise.resolve({
             id,
-            msg: '文件大小超过10MB(发送被终止)'
-          }
+            msg: '文件大小超过10MB(发送被终止)',
+            fullMsg: `formData参数${key}对应的文件大小超过10MB，发送被终止，如需更改可以前往设置页面(ctrl+,)`
+          })
         }
       } catch (error) {
-        return {
+        return Promise.resolve({
           id,
           msg: (error as Error).message
-        }
+        })
       }
       const buffer = await fs.readFile(value);
       const fileType = await fileTypeFromBuffer(buffer.buffer as ArrayBuffer);
