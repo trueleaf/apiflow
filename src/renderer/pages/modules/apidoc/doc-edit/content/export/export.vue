@@ -111,9 +111,11 @@ import { useApidocBanner } from '@/store/apidoc/banner';
 import SFieldset from '@/components/common/fieldset/g-fieldset.vue'
 import SConfig from '@/components/common/config/g-config.vue'
 import SEmphasize from '@/components/common/emphasize/g-emphasize.vue'
+import { useRoute } from 'vue-router';
 
 const apidocBaseInfoStore = useApidocBaseInfo();
 const apidocBannerStore = useApidocBanner();
+const route = useRoute()
 //可导出数据类型
 const selectedType: Ref<'html' | 'pdf' | 'word' | 'moyu' | 'otherProject'> = ref('html')
 //项目基本信息
@@ -154,10 +156,10 @@ const handleExportAsHTML = () => {
   const selectedIds = allCheckedNodes.value.map((val) => val._id);
   loading.value = true;
   const params = {
-    projectId: router.currentRoute.value.query.id,
+    projectId: route.query.id as string,
     selectedNodes: selectedIds,
   };
-  axios.request({
+  request.request({
     method: 'post',
     url: '/api/project/export/html',
     responseType: 'blob',
@@ -173,10 +175,10 @@ const handleExportAsMoyu = () => {
   const selectedIds = allCheckedNodes.value.map((val) => val._id);
   loading.value = true;
   const params = {
-    projectId: router.currentRoute.value.query.id,
+    projectId: route.query.id as string,
     selectedNodes: selectedIds,
   };
-  axios.request({
+  request.request({
     method: 'post',
     url: '/api/project/export/moyu',
     responseType: 'blob',
@@ -192,10 +194,10 @@ const handleExportAsPdf = () => {
   const selectedIds = allCheckedNodes.value.map((val) => val._id);
   loading.value = true;
   const params = {
-    projectId: router.currentRoute.value.query.id,
+    projectId: route.query.id as string,
     selectedNodes: selectedIds,
   };
-  axios.request({
+  request.request({
     method: 'post',
     url: '/api/project/export/pdf',
     responseType: 'blob',
@@ -211,10 +213,10 @@ const handleExportAsWord = () => {
   const selectedIds = allCheckedNodes.value.map((val) => val._id);
   loading.value = true;
   const params = {
-    projectId: router.currentRoute.value.query.id,
+    projectId: route.query.id as string,
     selectedNodes: selectedIds,
   };
-  axios.request({
+  request.request({
     method: 'post',
     url: '/api/project/export/word',
     responseType: 'blob',
