@@ -1,4 +1,4 @@
-import { app, BrowserWindow, ipcMain, IpcMainInvokeEvent, Menu, MenuItem } from 'electron'
+import { app, BrowserWindow, globalShortcut, ipcMain, IpcMainInvokeEvent, Menu, MenuItem } from 'electron'
 import fs from 'fs/promises'
 import path from 'path'
 import { fileURLToPath } from 'url';
@@ -6,6 +6,7 @@ import { fileURLToPath } from 'url';
 const isDevelopment = process.env.NODE_ENV !== 'production'
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+let isShortcutRegistered = false; //
 
 
 
@@ -74,6 +75,7 @@ const createWindow = () => {
   mainWindow.webContents.openDevTools()
   mainWindow.maximize()
   changeDevtoolsFont(mainWindow);
+  bindMainProcessGlobalShortCut(mainWindow)
 }
 const rebuildMenu = () => {
   Menu.setApplicationMenu(null)
@@ -105,23 +107,37 @@ const bindIpcMainHandle = () => {
       return (error as Error).message
     }
   })
-  ipcMain.handle('apiflow-reload-ignoring-cache', () => {
-    const win = BrowserWindow.getFocusedWindow();
-    if (win) {
-      win.webContents.reloadIgnoringCache();
+}
+//防止web页面卡死时候无法刷新页面
+const bindMainProcessGlobalShortCut = (win: BrowserWindow) => {
+  win.on('focus', () => {
+    if (!isShortcutRegistered) {
+      globalShortcut.register('CommandOrControl+R', () => {
+        const wins = BrowserWindow.getAllWindows();
+        wins.forEach(win => {
+          win.reload(); // 重新加载当前窗口
+        })
+      });
+      globalShortcut.register('CommandOrControl+Shift+R', () => {
+        const wins = BrowserWindow.getAllWindows();
+        wins.forEach(win => {
+          win.webContents.reloadIgnoringCache();
+        })
+      });
+      isShortcutRegistered = true;
     }
-  })
-  ipcMain.handle('apiflow-reload', () => {
-    const win = BrowserWindow.getFocusedWindow();
-    if (win) {
-      win.webContents.reload();
+  });
+  win.on('blur', () => {
+    if (isShortcutRegistered) {
+      globalShortcut.unregister('CommandOrControl+R');
+      globalShortcut.unregister('CommandOrControl+Shift+R');
+      isShortcutRegistered = false;
     }
-  })
+  });
 }
 
 app.whenReady().then(() => {
-
-  bindIpcMainHandle()
+  bindIpcMainHandle();
   createWindow()
   rebuildMenu();
   app.on('activate', function () {
