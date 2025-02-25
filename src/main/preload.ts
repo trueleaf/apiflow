@@ -7,12 +7,7 @@ import { gotRequest } from './sendRequest'
 const openDevTools = () => {
   ipcRenderer.invoke('apiflow-open-dev-tools')
 }
-const reload = () => {
-  ipcRenderer.invoke('apiflow-reload')
-}
-const reloadIgnoringCache = () => {
-  ipcRenderer.invoke('apiflow-reload-ignoring-cache')
-}
+
 const readFileAsUint8Array = async (path: string): Promise<Uint8Array | string> => {
   const result = await ipcRenderer.invoke('apiflow-read-file-as-blob', path);
   return result;
@@ -28,6 +23,4 @@ contextBridge.exposeInMainWorld('electronAPI', {
   openDevTools,
   readFileAsUint8Array,
   getFilePath,
-  reload,
-  reloadIgnoringCache,
 })
