@@ -440,9 +440,14 @@ export function apidocGenerateApidoc(id?: string): ApidocDetail {
           data: '',
           dataType: 'text/plain'
         },
-        file: {
-          url: '',
-          raw: ''
+        binary: {
+          mode: '',
+          varValue: '',
+          binaryValue: {
+            path: "",
+            id: "",
+            raw: ""
+          }
         },
       },
       responseParams: [{

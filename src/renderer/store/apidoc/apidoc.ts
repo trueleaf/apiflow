@@ -15,7 +15,8 @@ import {
   ApidocDetail, 
   ApidocHttpRequestMethod, 
   ApidocMindParam, 
-  ApidocProperty 
+  ApidocProperty, 
+  ApidocBodyParams
 } from "@src/types/global"
 import { defineStore, storeToRefs } from "pinia"
 import axios, { Canceler } from 'axios'
@@ -27,6 +28,7 @@ import { router } from "@/router"
 import { apidocCache } from "@/cache/apidoc"
 import { useApidocTas } from "./tabs"
 import { useApidocBanner } from "./banner"
+import assign from "lodash/assign"
 
 type EditApidocPropertyPayload<K extends keyof ApidocProperty> = {
   data: ApidocProperty,
@@ -256,6 +258,14 @@ export const useApidoc = defineStore('apidoc', () => {
       defaultHeaders.value.splice(matchedIndex, 1)
     }
   }
+  /*
+  |--------------------------------------------------------------------------
+  | binary类型参数
+  |--------------------------------------------------------------------------
+  */
+  const handleChangeBinaryInfo = (payload: Partial<ApidocBodyParams['binary']>) => {
+    assign(apidoc.value.item.requestBody.binary, payload)
+  } 
   /*
     |--------------------------------------------------------------------------
     | response参数
@@ -720,6 +730,7 @@ export const useApidoc = defineStore('apidoc', () => {
     changeMockTextValue,
     changeCustomResponseScript,
     changeCustomFile,
-    changeFormDataErrorInfoById
+    changeFormDataErrorInfoById,
+    handleChangeBinaryInfo
   }
 })

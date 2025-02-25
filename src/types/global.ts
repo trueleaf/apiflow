@@ -462,11 +462,16 @@ export type ApidocBodyParams = {
     dataType: ApidocBodyRawType;
   };
   /**
-     * file类型参数
-     */
-  file: {
-    url: string;
-    raw: string;
+    * binary类型参数
+    */
+  binary: {
+   mode: 'var' | 'file' | '',
+   varValue: string;
+   binaryValue: {
+      path: string;
+      raw: string;
+      id: string;
+   };
   };
 };
 //api文档返回参数
