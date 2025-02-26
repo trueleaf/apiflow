@@ -135,9 +135,17 @@ const format = () => {
 const focus = () => {
   monacoInstance?.focus()
 }
+const changeLanguage = (lang: string) => {
+  const model = monacoInstance?.getModel();
+    if (model) {
+      monaco.editor.setModelLanguage(model, lang);
+    }
+}
+
 defineExpose({
   format,
-  focus
+  focus,
+  changeLanguage
 });
 
 </script>
