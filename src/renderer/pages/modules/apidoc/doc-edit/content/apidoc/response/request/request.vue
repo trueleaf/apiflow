@@ -29,9 +29,15 @@
         >
         </SJsonEditor>
       </div>
-      <!-- <pre v-if="contentType === 'application/json'" class="pl-1 pre">{{ formatJsonStr(responseInfo.requestData.body as string) }}</pre> -->
+      <div v-if="contentType === 'application/x-www-form-urlencoded'" class="body-wrap">
+        <SJsonEditor 
+          :modelValue="formatJsonStr(responseInfo.requestData.body as string)" 
+          read-only 
+          :config="{ fontSize: 13, language: 'text/plain', lineNumbers: 'off', wordWrap: 'on' }"
+        >
+        </SJsonEditor>
+      </div>
       <pre v-else-if="contentType?.includes('multipart/')" class="pl-1 pre">{{ responseInfo.requestData.body }}</pre>
-      <pre v-else-if="contentType === 'application/x-www-form-urlencoded'" class="pre">{{ responseInfo.requestData.body }}</pre>
       <pre v-else-if="contentType === 'text/html'" class="pre">{{ responseInfo.requestData.body }}</pre>
       <pre v-else-if="contentType === 'text/javascript'" class="pre">{{ responseInfo.requestData.body }}</pre>
       <pre v-else-if="contentType === 'text/plain'" class="pre">{{ responseInfo.requestData.body }}</pre>

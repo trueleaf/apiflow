@@ -7,10 +7,11 @@
         <el-radio value="formdata">form-data</el-radio>
         <el-radio value="urlencoded">x-www-form-urlencoded</el-radio>
         <el-radio value="raw">raw</el-radio>
+        <el-radio value="binary">binary</el-radio>
         <el-radio value="none">none</el-radio>
       </el-radio-group>
     </div>
-    <div v-if="bodyType !== 'raw'" class="params-wrap" @click="handleFocus">
+    <div v-if="bodyType === 'json' || bodyType === 'formdata' || bodyType === 'urlencoded'" class="params-wrap" @click="handleFocus">
       <SJsonEditor v-show="bodyType === 'json'" ref="jsonComponent" v-model="rawJsonData" :config="jsonEditorConfig"
         class="json-wrap" @ready="handleJsonEditorReady" @change="checkContentType"></SJsonEditor>
       <SParamsTree v-if="bodyType === 'formdata'" enable-file show-checkbox :data="formData"
@@ -28,10 +29,18 @@
         <div class="no-tip" @click="handleHideTip">不再提示</div>
       </div>
     </div>
-    <div v-if="bodyType === 'raw'" class="raw">
-      <SRawEditor v-model="rawValue" :type="rawType" @change="handleChangeRawData"></SRawEditor>
+    <div v-else-if="bodyType === 'raw'" class="raw-wrap">
+      <SJsonEditor
+        ref="rawEditor"
+        v-model="rawValue" 
+        @change="handleChangeRawData"
+        :config="{ fontSize: 13, language: rawType }">
+      </SJsonEditor>
       <div class="raw-type">
-        <el-select v-model="rawType" :size="config.renderConfig.layout.size" class="w-100"
+        <el-select 
+          v-model="rawType" 
+          :size="config.renderConfig.layout.size" 
+          class="w-100"
           @change="handleChangeRawType">
           <el-option label="text" value="text/plain"></el-option>
           <el-option label="html" value="text/html"></el-option>
@@ -40,24 +49,48 @@
         </el-select>
       </div>
     </div>
+    <div v-else-if="bodyType === 'binary'" class="binary-wrap">
+      <el-radio-group :model-value="apidocStore.apidoc.item.requestBody?.binary?.mode" @update:model-value="handleChangeBinaryMode">
+        <el-radio value="var">变量模式</el-radio>
+        <el-radio value="file">文件模式</el-radio>
+      </el-radio-group>
+      <div v-if="apidocStore.apidoc.item.requestBody?.binary?.mode === 'var'" class="var-mode">
+        <el-input
+          :model-value="apidocStore.apidoc.item.requestBody?.binary?.varValue" 
+          :placeholder="t('输入变量；eg: {{ fileValue }}')" 
+          class="w-20"
+          @input="handleChangeBinaryVarValue">
+        </el-input>
+      </div>
+      <div v-if="apidocStore.apidoc.item.requestBody?.binary?.mode === 'file'" class="file-mode">
+        <label for="binaryValue" class="label w-20">{{ t("选择文件") }}</label>
+        <input 
+          id="binaryValue" 
+          ref="fileInput" 
+          class="d-none" 
+          type="file"
+          @change="handleSelectFile"
+        ></input>
+      </div>
+    </div>
     <!-- <s-body-use-case-dialog v-model="bodyUseVisible"></s-body-use-case-dialog> -->
   </div>
 </template>
 
 <script lang="ts" setup>
 import { computed, ref, onMounted, Ref } from 'vue'
-import type { ApidocBodyMode, ApidocBodyRawType } from '@src/types/global'
+import type { ApidocBodyMode, ApidocBodyParams, ApidocBodyRawType } from '@src/types/global'
 import { t } from 'i18next'
 import { apidocCache } from '@/cache/apidoc'
 import { useApidoc } from '@/store/apidoc/apidoc';
 import { config } from '@src/config/config';
 import SJsonEditor from '@/components/common/json-editor/g-json-editor.vue'
 import SParamsTree from '@/components/apidoc/params-tree/g-params-tree.vue'
-import SRawEditor from '@/components/apidoc/raw-editor/g-raw-editor.vue'
-
+import { Switch } from '@element-plus/icons-vue'
 // import sBodyUseCaseDialog from "./dialog/body-use-case/body-use-case.vue"
 
 const bodyTipUrl = new URL('@/assets/imgs/apidoc/body-tip.png', import.meta.url).href
+const rawEditor = ref<InstanceType<typeof SJsonEditor> | null>(null)
 const apidocStore = useApidoc()
 const jsonComponent: Ref<null | {
   format: () => void,
@@ -185,6 +218,7 @@ const handleChangeRawType = () => {
     apidocStore.changeContentType('');
     return
   }
+  rawEditor.value?.changeLanguage(raw.dataType);
   if (rawType.value === 'text/plain') {
     apidocStore.changeContentType('text/plain');
   } else if (rawType.value === 'text/html') {
@@ -207,7 +241,29 @@ const handleChangeRawType = () => {
 */
 //formData格式body参数
 const formData = computed(() => apidocStore.apidoc.item.requestBody.formdata)
-
+/*
+|--------------------------------------------------------------------------
+| binary类型参数
+|--------------------------------------------------------------------------
+*/
+const handleChangeBinaryMode = (binaryMode: string | number | boolean | undefined) => {
+  apidocStore.handleChangeBinaryInfo({ mode: binaryMode as ApidocBodyParams['binary']['mode'] })
+}
+const handleChangeBinaryVarValue = (value: string) => {
+  apidocStore.handleChangeBinaryInfo({ varValue: value })
+}
+const handleSelectFile = (e: Event) => {
+  const { files } = (e.target as HTMLInputElement);
+  if (files) {
+    const file = files[0];
+    const path = window.electronAPI?.getFilePath(file) || ""
+    // apidocStore.handleChangeBinaryInfo({ binaryValue: {
+    //   path,
+    //   raw: file,
+      
+    // } })
+  }
+}
 /*
 |--------------------------------------------------------------------------
 | 生命周期相关
@@ -233,17 +289,17 @@ onMounted(async () => {
     position: relative;
   }
 
-  .raw {
+  .raw-wrap {
     height: size(300);
     position: relative;
-
+    height: calc(100vh - #{size(350)});
+    border: 1px solid $gray-300;
     .raw-type {
       position: absolute;
       right: size(0);
-      bottom: size(20);
+      bottom: size(0);
       width: size(100);
     }
-
     .tip {
       width: calc(100% - #{size(140)});
       height: size(20);
@@ -305,7 +361,32 @@ onMounted(async () => {
       }
     }
   }
-
+  .binary-wrap {
+    border-top: 1px dashed $gray-400;
+    position: relative;
+    height: calc(100vh - #{size(350)});
+ 
+    .var-mode {
+      padding: size(5) size(5);
+      height: size(30);
+      display: flex;
+      align-items: center;
+      margin-top: size(10);
+    }
+    .file-mode {
+      padding: size(5) size(5);
+      height: size(30);
+      display: flex;
+      align-items: center;
+      margin-top: size(10);
+      .label {
+        padding: size(5) size(5);
+        height: size(30);
+        cursor: pointer;
+        background-color: $gray-300;
+      }
+    }
+  }
   .template-wrap {
     top: size(30);
     left: size(-200);

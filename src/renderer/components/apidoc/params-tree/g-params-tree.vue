@@ -109,7 +109,7 @@
               :model-value="scope.data.value" 
               class="w-100" 
               :disabled="checkValueDisable(scope.data)" 
-              placeholder="eg: {{ fileValue }}"
+              placeholder="变量模式 eg: {{ fileValue }}"
               @update:modelValue="handleChangeValue($event, scope.data)" 
               @focus="handleFocusValue(scope.data)"
               @blur="handleBlurValue">
@@ -793,7 +793,7 @@ const checkDescriptionDisable = ({ node }: { node: TreeNode }) => {
   }
   .file-input-wrap {
     cursor: default;
-    border: 1px dashed $gray-300;
+    border: 1px dashed $gray-400;
     display: flex;
     align-items: center;
     height: size(30);

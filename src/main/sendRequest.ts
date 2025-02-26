@@ -51,7 +51,8 @@ const getFormDataFromRendererFormData = async (rendererFormDataList: RendererFor
       } catch (error) {
         return Promise.resolve({
           id,
-          msg: (error as Error).message
+          msg: (error as Error).message,
+          fullMsg: (error as Error).message,
         })
       }
       const buffer = await fs.readFile(value);
@@ -79,7 +80,8 @@ export const gotRequest = async (options: GotRequestOptions) => {
     const abortController = new AbortController();
     let reqeustBody: FormData | {
       id: string,
-      msg: string
+      msg: string,
+      fullMsg: string
     } |  null = null;
     const headers: Record<string, string | undefined> = {};
     //formData数据单独处理
