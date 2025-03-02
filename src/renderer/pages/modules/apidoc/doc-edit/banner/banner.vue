@@ -2,10 +2,18 @@
   <SResizeX :min="280" :max="450" :width="300" name="banner" class="banner" tabindex="1">
     <STool @fresh="getBannerData" @filter="handleFilterNode" @changeProject="handleChangeProject"></STool>
     <SLoading :loading="loading" class="tree-wrap" @contextmenu.prevent="handleWrapContextmenu">
-      <el-tree ref="docTree" :class="{ 'show-more': showMoreNodeInfo }" :data="bannerData"
-        :default-expanded-keys="defaultExpandedKeys" node-key="_id" :empty-text="t('点击工具栏按钮新建接口或者鼠标右键新增')"
-        :draggable="enableDrag" :allow-drop="handleCheckNodeCouldDrop" :filter-node-method="filterNode"
-        @node-drop="handleNodeDropSuccess" @node-contextmenu="handleShowContextmenu">
+      <el-tree 
+        ref="docTree" 
+        :class="{ 'show-more': showMoreNodeInfo }" 
+        :data="bannerData"
+        :default-expanded-keys="defaultExpandedKeys" 
+        node-key="_id" 
+        :empty-text="t('点击工具栏按钮新建接口或者鼠标右键新增')"
+        :draggable="enableDrag" 
+        :allow-drop="handleCheckNodeCouldDrop" 
+        :filter-node-method="filterNode"
+        @node-drop="handleNodeDropSuccess" 
+        @node-contextmenu="handleShowContextmenu">
         <template #default="scope">
           <div class="custom-tree-node" :class="{
             'select-node': selectNodes.find(v => v._id === scope.data._id),
