@@ -32,7 +32,7 @@ watch(() => props.focus, (isFocus) => {
   if (isFocus) {
     setTimeout(() => {
       ipt.value?.focus();
-    })
+    }, 200)
   }
 }, { immediate: true})
 
