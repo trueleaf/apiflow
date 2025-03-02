@@ -5,7 +5,7 @@
 <template>
   <div class="config-item">
     <div v-if="hasCheck && !slots.label">
-      <el-checkbox v-model="enabled" :disabled="disabled" @change="handleEnabled">
+      <el-checkbox v-model="isEnabled" :disabled="disabled" @change="handleEnabled">
         <span class="label">{{ label }}</span>
       </el-checkbox>
     </div>
@@ -18,7 +18,7 @@
     </div>
     <div v-show="description" class="mt-1 description">{{ description }}</div>
     <div class="mt-2">
-      <slot :enabled="enabled" />
+      <slot :isEnabled="isEnabled" />
     </div>
   </div>
 </template>
@@ -51,9 +51,9 @@ defineProps({
 })
 const emits = defineEmits(['change']);
 const handleEnabled = () => {
-  emits('change', enabled.value);
+  emits('change', isEnabled.value);
 }
-const enabled = ref(false);
+const isEnabled = ref(false);
 
 </script>
 

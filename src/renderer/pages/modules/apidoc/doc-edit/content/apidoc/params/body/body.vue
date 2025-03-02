@@ -14,7 +14,7 @@
     <div v-if="bodyType === 'json' || bodyType === 'formdata' || bodyType === 'urlencoded'" class="params-wrap" @click="handleFocus">
       <SJsonEditor v-show="bodyType === 'json'" ref="jsonComponent" v-model="rawJsonData" :config="jsonEditorConfig"
         class="json-wrap" @ready="handleJsonEditorReady" @change="checkContentType"></SJsonEditor>
-      <SParamsTree v-if="bodyType === 'formdata'" enable-file show-checkbox :data="formData"
+      <SParamsTree v-if="bodyType === 'formdata'" isEnabled-file show-checkbox :data="formData"
         @change="checkContentType"></SParamsTree>
       <SParamsTree v-if="bodyType === 'urlencoded'" show-checkbox :data="urlencodedData"
         @change="checkContentType"></SParamsTree>

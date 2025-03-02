@@ -81,10 +81,10 @@ onMounted(() => {
     language: 'json',
     automaticLayout: true,
     parameterHints: {
-      enabled: true
+      isEnabled: true
     },
     minimap: {
-      enabled: false,
+      isEnabled: false,
     },
     // wordWrap: "bounded",
     wrappingStrategy: 'advanced',
@@ -94,7 +94,7 @@ onMounted(() => {
       alwaysConsumeMouseWheel: false
     },
     hover: {
-      enabled: true,
+      isEnabled: true,
       above: false,
     },
     renderLineHighlight: 'none',

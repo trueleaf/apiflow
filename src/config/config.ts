@@ -28,7 +28,7 @@ export const config: Config = {
     },
     //mock相关配置
     mock: {
-      enabled: true,
+      isEnabled: true,
       port: 55555,
     },
     //全局组件配置
@@ -62,7 +62,7 @@ export const config: Config = {
     title: 'apiflow', //项目名称
     consoleWelcome: true, //是否打印欢迎信息
     download: {
-      enabled: false, //是否允许提示用户下载electron
+      isEnabled: false, //是否允许提示用户下载electron
       url: 'https://gitee.com/shuzhikai/moyu/releases', //下载地址
     },
     enableRegister: true, //是否允许用户自主注册账号

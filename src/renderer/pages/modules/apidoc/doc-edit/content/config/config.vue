@@ -14,7 +14,7 @@
           <template #head>
             <span :style="{ color: item.iconColor }" class="w-130px">
               <span class="mr-2">{{ item.name }}</span>
-              <span v-if="item.enabled" class="ml-auto green">(已启用)</span>
+              <span v-if="item.isEnabled" class="ml-auto green">(已启用)</span>
               <span v-else class="ml-auto gray-500">(已禁用)</span>
             </span>
           </template>
@@ -28,7 +28,7 @@
             </div>
           </template>
           <SConfig :has-check="false" label="是否启用" :description="`禁用后则无法录入${item.name}请求`">
-            <el-radio-group v-model="item.enabled">
+            <el-radio-group v-model="item.isEnabled">
               <el-radio :value="true">启用</el-radio>
               <el-radio :value="false">禁用</el-radio>
             </el-radio-group>

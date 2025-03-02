@@ -63,7 +63,7 @@ const bindShortcut = (e: KeyboardEvent) => {
     } else if (!apidocStore.saveLoading) {
       apidocStore.saveApidoc();
     }
-  } else if (hasTabs && currentTabIsDoc && e.ctrlKey && (e.key === 'W' || e.key === 'w')) {
+  } else if (hasTabs && e.ctrlKey && (e.key === 'W' || e.key === 'w')) {
     const selectedTab = currentTabs.find(tab => tab.selected)
     if (selectedTab) {
       apidocTabsStore.deleteTabByIds({ projectId, ids: [selectedTab._id] });

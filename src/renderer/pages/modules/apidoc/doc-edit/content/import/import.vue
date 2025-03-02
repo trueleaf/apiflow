@@ -79,7 +79,7 @@
         <SConfig :label="t('目标目录')" :description="t('选择需要挂载的节点，不选择则默认挂载到根目录')" @change="handleToggleTargetFolder">
           <template #default="prop">
             <SLoading :loading="loading2">
-              <div v-show="prop.enabled" class="doc-nav">
+              <div v-show="prop.isEnabled" class="doc-nav">
                 <el-tree ref="docTree2" :data="navTreeData" node-key="_id" show-checkbox :expand-on-click-node="true"
                   :check-strictly="true" @check="handleCheckChange">
                   <template #default="scope">

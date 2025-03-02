@@ -39,7 +39,7 @@
       </SConfig>
       <SConfig ref="configShare" label="选择分享" description="开启后可以自由选择需要分享的文档">
         <template #default="scope">
-          <div v-if="scope.enabled" class="doc-nav">
+          <div v-if="scope.isEnabled" class="doc-nav">
             <div>
               <span>总数：</span>
               <span>{{ allCheckedNodes.length }}</span>
@@ -152,14 +152,14 @@ const allCheckedNodes: Ref<ApidocBanner[]> = ref([]);
 //树形数据
 const docTree: Ref<TreeNodeOptions['store'] | null> = ref(null);
 const navTreeData = computed(() => apidocBannerStore.banner)
-const configShare: Ref<{ enabled: boolean } | null> = ref(null); //配置组件实例
+const configShare: Ref<{ isEnabled: boolean } | null> = ref(null); //配置组件实例
 onMounted(() => {
   formInfo.value.shareName = props.data.shareName;
   formInfo.value.password = props.data.password;
   formInfo.value.maxAge = (props.data.expire - Date.now()) > 0 ? (props.data.expire - Date.now()) : 86400000;
   nextTick(() => {
     if (props.data.selectedDocs.length > 0 && configShare.value) {
-      configShare.value.enabled = true;
+      configShare.value.isEnabled = true;
       nextTick(() => {
         docTree.value?.setCheckedKeys(props.data.selectedDocs)
       })
@@ -192,7 +192,7 @@ const handleClose = () => {
 }
 //修改在线链接
 const handleEditLink = () => {
-  const enableCustomExport = configShare.value?.enabled;
+  const enableCustomExport = configShare.value?.isEnabled;
   const customExportIsEmpty = allCheckedNodes.value.length === 0;
   const { maxAge, password, shareName } = formInfo.value; //默认一个月过期
   if (enableCustomExport && customExportIsEmpty) { //允许自定义分享并且数据为空

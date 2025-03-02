@@ -45,7 +45,7 @@
               <span>{{ t("因浏览器限制，完整HTTP功能请下载Electron") }}</span>
             </div>
             <div class="mb-2">{{ t("跨域、、请求头(user-agent,accept-encoding)等受限") }}</div>
-            <div v-if="config.localization.download.enabled">
+            <div v-if="config.localization.download.isEnabled">
               <a :href="config.localization.download.url">{{ t("下载Electron") }}</a>
             </div>
           </div>

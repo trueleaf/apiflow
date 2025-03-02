@@ -12,7 +12,7 @@ import apidocConverter from '../request/utils'
 let app: Koa | null = null;
 
 export const mockServer = (): void => {
-  if (!config.renderConfig.mock.enabled) {
+  if (!config.renderConfig.mock.isEnabled) {
     return;
   }
   if (!window.require) {

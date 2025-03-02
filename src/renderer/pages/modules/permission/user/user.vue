@@ -38,7 +38,7 @@
       </el-table-column>
       <el-table-column :label="t('状态')" align="center" width="80px">
         <template #default="scope">
-          <el-tag v-if="scope.row.enable" type="success">{{ t("启用") }}</el-tag>
+          <el-tag v-if="scope.row.isEnabled" type="success">{{ t("启用") }}</el-tag>
           <el-tag v-else type="warning">{{ t("禁用") }}</el-tag>
         </template>
       </el-table-column>
@@ -46,8 +46,8 @@
         <template #default="scope">
           <el-button link type="primary" text @click="handleOpenEditUser(scope.row)">{{ t('修改') }}</el-button>
           <el-button link type="primary" text @click="handleResetPassword(scope.row)">重置密码</el-button>
-          <el-button link type="primary" text @click="handleForbidRole(scope.row._id, scope.row.enable)">
-            {{ scope.row.enable ? t("禁用") : t("启用") }}
+          <el-button link type="primary" text @click="handleForbidRole(scope.row._id, scope.row.isEnabled)">
+            {{ scope.row.isEnabled ? t("禁用") : t("启用") }}
           </el-button>
         </template>
       </el-table-column>
@@ -94,8 +94,8 @@ const handleChange = (params: Record<string, unknown>) => {
   getData(params)
 }
 //禁用角色
-const handleForbidRole = (_id: string, enable: boolean) => {
-  const tipLabel = enable ? '禁用' : '启用';
+const handleForbidRole = (_id: string, isEnabled: boolean) => {
+  const tipLabel = isEnabled ? '禁用' : '启用';
   ElMessageBox.confirm(t(`确实要${tipLabel}该用户吗`), t('提示'), {
     confirmButtonText: t('确定'),
     cancelButtonText: t('取消'),
@@ -103,7 +103,7 @@ const handleForbidRole = (_id: string, enable: boolean) => {
   }).then(() => {
     const params = {
       _id,
-      enable: !enable,
+      isEnabled: !isEnabled,
     };
     request.put('/api/security/user_state', params).then(() => {
       table.value?.getData();

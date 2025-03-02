@@ -79,7 +79,7 @@ export type ApidocRequestMethodRule = {
    /**
     * 是否启用
    */
-   enabled: boolean,
+   isEnabled: boolean,
 };
 //项目规则
 export type ApidocProjectRules = {
@@ -202,7 +202,7 @@ export type ApidocProjectBaseInfoState = {
       /**
            * 是否启用代理
            */
-      enabled: boolean
+      isEnabled: boolean
    },
    /**
       * 模式，view,edit

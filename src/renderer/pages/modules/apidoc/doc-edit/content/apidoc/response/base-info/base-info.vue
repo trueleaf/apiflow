@@ -46,7 +46,7 @@ import SLabelValue from '@/components/common/label-value/g-label-value.vue'
 const apidocStore = useApidoc();
 const apidocBaseInfoStore = useApidocBaseInfo();
 const apidocInfo = computed(() => apidocStore.apidoc);
-const validRequestMethods = computed(() => apidocBaseInfoStore.rules.requestMethods?.filter((val) => val.enabled));
+const validRequestMethods = computed(() => apidocBaseInfoStore.rules.requestMethods?.filter((val) => val.isEnabled));
 </script>
 
 <style lang='scss' scoped>

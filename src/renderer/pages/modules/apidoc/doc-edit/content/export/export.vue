@@ -41,7 +41,7 @@
     <SFieldset v-if="selectedType !== 'otherProject'" :title="t('额外配置')">
       <SConfig ref="config" label="选择导出" :description="t('开启后可以自由选择需要导出的文档')">
         <template #default="prop">
-          <div v-if="prop.enabled" class="doc-nav">
+          <div v-if="prop.isEnabled" class="doc-nav">
             <div>
               <span>{{ t("总数") }}：</span>
               <span>{{ allCheckedNodes.length }}</span>
@@ -150,7 +150,7 @@ const handleCheckChange = () => {
 //=====================================导出操作====================================//
 //数据加载状态
 const loading = ref(false);
-const config: Ref<{ enabled: boolean } | null> = ref(null)
+const config: Ref<{ isEnabled: boolean } | null> = ref(null)
 //导出为html
 const handleExportAsHTML = () => {
   const selectedIds = allCheckedNodes.value.map((val) => val._id);
@@ -228,7 +228,7 @@ const handleExportAsWord = () => {
   });
 }
 const handleExport = () => {
-  const enableCustomExport = config.value?.enabled;
+  const enableCustomExport = config.value?.isEnabled;
   const customExportIsEmpty = allCheckedNodes.value.length === 0;
   if (enableCustomExport && customExportIsEmpty) { //允许自定义导出并且数据为空
     ElMessage.warning(t('请至少选择一个文档导出'));

@@ -224,7 +224,7 @@ export type Config = {
       /**
        * 是否启动mock功能
        */
-      enabled: boolean,
+      isEnabled: boolean,
       /**
        * mock服务器默认端口
        */
@@ -323,7 +323,7 @@ export type Config = {
       /**
        * 是否允许下载
        */
-      enabled: boolean,
+      isEnabled: boolean,
     },
     /**
      * 是否允许用户自主注册账号
