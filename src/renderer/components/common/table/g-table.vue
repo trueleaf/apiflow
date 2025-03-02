@@ -11,7 +11,7 @@
       @selection-change="handleSelectionChange"
     >
       <el-table-column v-if="selection || deleteMany" type="selection" align="center" :reserve-selection="reserveSelection"></el-table-column>
-      <el-table-column v-if="index" type="index" label="序号" align="center"></el-table-column>
+      <el-table-column v-if="index" type="index" label="序号" width="60" align="center"></el-table-column>
       <slot />
     </el-table>
     <div v-if="!plain" class="d-flex j-end mt-1">
