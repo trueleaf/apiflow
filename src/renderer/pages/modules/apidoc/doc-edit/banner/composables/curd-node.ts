@@ -13,6 +13,7 @@ import { t } from 'i18next'
 import { useApidocBanner } from '@/store/apidoc/banner';
 import { useApidocTas } from '@/store/apidoc/tabs';
 import { useApidoc } from '@/store/apidoc/apidoc';
+import { useApidocBaseInfo } from '@/store/apidoc/base-info.ts';
 
 type MapId = {
   oldId: string, //历史id
@@ -112,6 +113,7 @@ export function deleteNode(selectNodes: ApidocBannerWithProjectId[], silent?: bo
  */
 export function addFileAndFolderCb(currentOperationalNode: Ref<ApidocBanner | null>, data: ApidocBanner): void {
   const apidocBannerStore = useApidocBanner();
+  const apidocBaseInfoStore = useApidocBaseInfo();
   const apidocTabsStore = useApidocTas()
   if (currentOperationalNode.value) { //插入到某个节点下面
     if (data.type === 'folder') {
@@ -131,7 +133,7 @@ export function addFileAndFolderCb(currentOperationalNode: Ref<ApidocBanner | nu
           opData: currentOperationalNode.value.children,
         })
       }
-    } else { //如果是文本
+    } else { //如果是文档
       apidocBannerStore.splice({
         start: currentOperationalNode.value.children.length,
         deleteCount: 0,
@@ -162,6 +164,27 @@ export function addFileAndFolderCb(currentOperationalNode: Ref<ApidocBanner | nu
         item: data,
       })
     }
+  }
+  if (data.pid) { //查找
+    // 变量找出父节点
+    const parentNode = findNodeById(apidocBaseInfoStore.commonHeaders, data.pid, {
+      idKey: '_id',
+    });
+    parentNode?.children.push({
+      _id: data._id,
+      pid: data.pid,
+      isFolder: data.isFolder,
+      commonHeaders: [],
+      children: [],
+    });
+  } else {
+    apidocBaseInfoStore.commonHeaders.push({
+      _id: data._id,
+      pid: '',
+      isFolder: data.isFolder,
+      commonHeaders: [],
+      children: [],
+    });
   }
   if (!data.isFolder) {
     const projectId = router.currentRoute.value.query.id as string;
