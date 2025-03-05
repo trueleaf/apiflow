@@ -137,6 +137,10 @@ export type ApidocProjectCommonHeader = {
       */
    isFolder: boolean,
    /**
+    * pid
+    */
+   pid: string,
+   /**
       * 公共请求头信息
       */
    commonHeaders: Pick<ApidocProperty, '_id' | 'key' | 'value' | 'description'>[],
