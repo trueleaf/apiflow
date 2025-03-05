@@ -130,6 +130,7 @@ import { TreeNodeOptions } from 'element-plus/es/components/tree/src/tree.type.m
 import { useApidocBaseInfo } from '@/store/apidoc/base-info'
 import { useApidocBanner } from '@/store/apidoc/banner'
 import { useApidocTas } from '@/store/apidoc/tabs'
+import { nanoid } from 'nanoid/non-secure'
 
 
 //树节点信息
@@ -331,21 +332,19 @@ const handleAddFileAndFolderCb = (data: ApidocBanner) => {
 const handleJumpToCommonHeader = (e: MouseEvent) => {
   e.stopPropagation();
   showContextmenu.value = false;
-  if (currentOperationalNode.value) {
-    apidocTabsStore.addTab({
-      _id: currentOperationalNode.value._id,
-      projectId: projectId.value,
-      tabType: 'commonHeader',
-      label: `【公共头】${currentOperationalNode.value.name}`,
-      saved: true,
-      fixed: true,
-      selected: true,
-      head: {
-        icon: '',
-        color: ''
-      },
-    })
-  }
+  apidocTabsStore.addTab({
+    _id: currentOperationalNode.value?._id || nanoid(),
+    projectId: projectId.value,
+    tabType: 'commonHeader',
+    label: `【公共头】${currentOperationalNode.value ? currentOperationalNode.value.name : t('全局')}`,
+    saved: true,
+    fixed: true,
+    selected: true,
+    head: {
+      icon: '',
+      color: ''
+    },
+  })
 }
 //删除节点
 const handleDeleteNodes = () => {
