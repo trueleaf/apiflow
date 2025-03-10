@@ -1,7 +1,4 @@
-/*
-模块名称：折叠卡片
-备注：
-*/
+
 <template>
   <div class="collapse-card" :class="{ shadow: shadow }" :style="{ width: width }">
     <header v-if="slots.operation || title || slots.head" :class="{ disabled: disabled }"
@@ -77,7 +74,9 @@ const props = defineProps({
     default: '',
   },
 })
-const emits = defineEmits(['change']);
+const emits = defineEmits<{
+  change: [showContent: boolean]
+}>();
 const showContent = ref(true);
 
 watch(() => props.fold, () => {
@@ -90,8 +89,8 @@ watch(() => props.fold, () => {
 */
 
 const toggleCollapse = () => {
-  showContent.value = !showContent
-  emits('change', showContent);
+  showContent.value = !showContent.value
+  emits('change', showContent.value);
 }
 onMounted(() => {
   showContent.value = !props.fold;
