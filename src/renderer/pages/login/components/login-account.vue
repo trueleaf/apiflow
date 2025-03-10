@@ -4,7 +4,7 @@
       <el-input v-model="userInfo.loginName" :prefix-icon="User" name="loginName" type="text" :placeholder="`${t('请输入用户名')}...`"></el-input>
     </el-form-item>
     <el-form-item prop="password">
-      <el-input v-model="userInfo.password" :prefix-icon="Lock" name="password" type="password" :placeholder="`${t('请输入密码')}...`"></el-input>
+      <el-input v-model="userInfo.password" :prefix-icon="Lock" name="password" type="password" :placeholder="`${t('请输入密码')}...`" show-password></el-input>
     </el-form-item>
     <el-form-item v-if="isShowCapture" prop="captcha">
       <div class="captcha">
