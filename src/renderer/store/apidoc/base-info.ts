@@ -22,7 +22,7 @@ type ChangeProjectBaseInfo = {
   rules: ApidocProjectRules,
   hosts: ApidocProjectHost[],
 }
-type HeaderInfo = Pick<ApidocProperty, '_id' | 'key' | 'value' | 'description'>
+type HeaderInfo = Pick<ApidocProperty, '_id' | 'key' | 'value' | 'description' | "select">
 type CommonHeaderResult = {
   matched: boolean,
   data: HeaderInfo[]
@@ -33,6 +33,7 @@ type MatchedHeaderOptions = {
   result: CommonHeaderResult,
   deep: number
 }
+type GlobalCommonHeader = Pick<ApidocProperty, "_id" | "key" | "value" | "description" | "select">;
 
 const getMatchedHeaders = (data: ApidocProjectBaseInfoState['commonHeaders'], options: MatchedHeaderOptions) => {
   for (let i = 0; i < data.length; i += 1) {
@@ -75,6 +76,7 @@ export const useApidocBaseInfo = defineStore('apidocBaseInfo', () => {
   const webProxy = ref(true);
   const mode = ref<'view' | 'edit'>('view');
   const commonHeaders = ref<ApidocProjectCommonHeader[]>([]);
+  const globalCommonHeaders = ref<GlobalCommonHeader[]>([]);
   const validCommonHeaders = ref<Pick<ApidocProperty, 'key' | 'value' | 'description' | 'select'>[]>([]);
   const projectId = ref('');
   /*
@@ -166,9 +168,9 @@ export const useApidocBaseInfo = defineStore('apidocBaseInfo', () => {
     commonHeaders.value = headers
   }
   //改变实际发送的公共请求头
-  const changeValidCommonHeaders = (headers: Pick<ApidocProperty, 'key' | 'value' | 'description' | 'select'>[]) => {
-    validCommonHeaders.value = headers;
-  }
+  // const changeValidCommonHeaders = (headers: Pick<ApidocProperty, 'key' | 'value' | 'description' | 'select'>[]) => {
+  //   validCommonHeaders.value = headers;
+  // }
   //根据文档id获取公共请求头
   const getCommonHeadersById = (id: string) => {
     if (!id) {
@@ -185,7 +187,10 @@ export const useApidocBaseInfo = defineStore('apidocBaseInfo', () => {
       deep: 1,
       result,
     });
-    return result.data?.filter(v => v.key) || [];
+    const validCommonHeaders = result.data?.filter(v => v.key && v.select) || [];
+    const validGlobalCommonHeaders = globalCommonHeaders.value?.filter(v => v.key && v.select) || [];
+    // console.log('comm', [...validCommonHeaders, ...validGlobalCommonHeaders]);
+    return [...validCommonHeaders, ...validGlobalCommonHeaders];
   }
   /*
   |--------------------------------------------------------------------------
@@ -259,6 +264,23 @@ export const useApidocBaseInfo = defineStore('apidocBaseInfo', () => {
       });
     });
   }
+  /**
+   * 获取全局公共请求头
+   */
+  const getGlobalCommonHeaders = async (): Promise<void> => {
+    return new Promise((resolve, reject) => {
+      const params = {
+        projectId: router.currentRoute.value.query.id as string
+      }
+      request.get<Response<GlobalCommonHeader[]>, Response<GlobalCommonHeader[]>>('/api/project/global_common_headers', {params}).then((res) => {
+        globalCommonHeaders.value = res.data;
+        resolve();
+      }).catch((err) => {
+        console.error(err);
+        reject(err);
+      });
+    });
+  }
   return {
     _id,
     layout,
@@ -272,6 +294,7 @@ export const useApidocBaseInfo = defineStore('apidocBaseInfo', () => {
     hosts,
     globalCookies,
     projectId,
+    globalCommonHeaders,
     validCommonHeaders,
     changeProjectId,
     changeProjectBaseInfo,
@@ -292,6 +315,7 @@ export const useApidocBaseInfo = defineStore('apidocBaseInfo', () => {
     getSharedProjectBaseInfo,
     getCommonHeaders,
     getCommonHeadersById,
-    changeValidCommonHeaders
+    getGlobalCommonHeaders,
+    // changeValidCommonHeaders
   }
 })
