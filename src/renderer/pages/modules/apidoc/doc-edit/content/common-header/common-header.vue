@@ -56,7 +56,7 @@ const getCommonHeaderInfo = () => {
       projectId,
     }
     request.get<Response<CommonHeaderResponse>, Response<CommonHeaderResponse>>('/api/project/global_common_headers', { params }).then((res) => {
-      headerData.value = res.data.commonHeaders || [];
+      headerData.value = res.data || [];
       if (!headerData.value.length) {
         headerData.value.push(apidocGenerateProperty())
       }
@@ -97,7 +97,7 @@ const handleEditCommonHeader = () => {
         select: v.select,
       })),
     }
-    request.post('/api/project/replace_global_common_headers', params).then(() => {
+    request.put('/api/project/replace_global_common_headers', params).then(() => {
       ElMessage.success('修改成功');
       // apidocBaseInfoStore.getCommonHeaders();
     }).catch((err) => {
