@@ -86,6 +86,7 @@ const initLayout = () => {
 //初始化header信息
 const initCommonHeaders = () => {
   apidocBaseInfoStroe.getCommonHeaders()
+  apidocBaseInfoStroe.getGlobalCommonHeaders()
 }
 //初始化worker本地状态
 const initWorkerLocalState = () => {

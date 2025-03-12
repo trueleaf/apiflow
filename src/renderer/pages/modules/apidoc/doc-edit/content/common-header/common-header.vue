@@ -51,44 +51,81 @@ const currentSelectTab = computed(() => { //当前选中的doc
 const loading = ref(false);
 const getCommonHeaderInfo = () => {
   loading.value = true;
-  const params = {
-    projectId,
-    id: currentSelectTab.value?._id
-  }
-  request.get<Response<CommonHeaderResponse>, Response<CommonHeaderResponse>>('/api/project/common_header_by_id', { params }).then((res) => {
-    headerData.value = res.data.commonHeaders || [];
-    if (!headerData.value.length) {
-      headerData.value.push(apidocGenerateProperty())
+  if (currentSelectTab.value?._id === projectId) { //代表添加全局公共请求头
+    const params = {
+      projectId,
     }
-  }).catch((err) => {
-    console.error(err);
-  }).finally(() => {
-    loading.value = false;
-  });
+    request.get<Response<CommonHeaderResponse>, Response<CommonHeaderResponse>>('/api/project/global_common_headers', { params }).then((res) => {
+      headerData.value = res.data.commonHeaders || [];
+      if (!headerData.value.length) {
+        headerData.value.push(apidocGenerateProperty())
+      }
+    }).catch((err) => {
+      console.error(err);
+    }).finally(() => {
+      loading.value = false;
+    });
+  } else {
+    const params = {
+      projectId,
+      id: currentSelectTab.value?._id
+    }
+    request.get<Response<CommonHeaderResponse>, Response<CommonHeaderResponse>>('/api/project/common_header_by_id', { params }).then((res) => {
+      headerData.value = res.data.commonHeaders || [];
+      if (!headerData.value.length) {
+        headerData.value.push(apidocGenerateProperty())
+      }
+    }).catch((err) => {
+      console.error(err);
+    }).finally(() => {
+      loading.value = false;
+    });
+  }
 }
 //修改公共请求头
 const loading2 = ref(false);
 const handleEditCommonHeader = () => {
   loading2.value = true;
-  const params = {
-    projectId,
-    id: currentSelectTab.value?._id,
-    commonHeaders: headerData.value.map(v => ({
-      _id: v._id,
-      key: v.key,
-      value: v.value,
-      description: v.description,
-      select: v.select,
-    })),
+  if (currentSelectTab.value?._id === projectId) { //代表添加全局公共请求头
+    const params = {
+      projectId,
+      commonHeaders: headerData.value.map(v => ({
+        _id: v._id,
+        key: v.key,
+        value: v.value,
+        description: v.description,
+        select: v.select,
+      })),
+    }
+    request.post('/api/project/replace_global_common_headers', params).then(() => {
+      ElMessage.success('修改成功');
+      // apidocBaseInfoStore.getCommonHeaders();
+    }).catch((err) => {
+      console.error(err);
+    }).finally(() => {
+      loading2.value = false;
+    });
+  } else {
+    const params = {
+      projectId,
+      id: currentSelectTab.value?._id,
+      commonHeaders: headerData.value.map(v => ({
+        _id: v._id,
+        key: v.key,
+        value: v.value,
+        description: v.description,
+        select: v.select,
+      })),
+    }
+    request.put('/api/project/common_header', params).then(() => {
+      ElMessage.success('修改成功');
+      apidocBaseInfoStore.getCommonHeaders();
+    }).catch((err) => {
+      console.error(err);
+    }).finally(() => {
+      loading2.value = false;
+    });
   }
-  request.put('/api/project/common_header', params).then(() => {
-    ElMessage.success('修改成功');
-    apidocBaseInfoStore.getCommonHeaders();
-  }).catch((err) => {
-    console.error(err);
-  }).finally(() => {
-    loading2.value = false;
-  });
 }
 watch(currentSelectTab, (newVal) => {
   if (newVal?.tabType === 'commonHeader') {

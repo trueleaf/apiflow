@@ -104,16 +104,16 @@ watch([currentSelectTab, cHeaders], () => {
   deep: true,
   immediate: true
 })
-watch(commonHeaders, () => {
-  if (currentSelectTab.value?.tabType !== 'doc') {
-    return
-  }
-  const validCOmmonHeaders = commonHeaders.value.filter(header => header.select);
-  apidocBaseInfoStore.changeValidCommonHeaders(validCOmmonHeaders)
-}, {
-  deep: true,
-  immediate: true
-})
+// watch(commonHeaders, () => {
+//   if (currentSelectTab.value?.tabType !== 'doc') {
+//     return
+//   }
+//   const validCOmmonHeaders = commonHeaders.value.filter(header => header.select);
+//   apidocBaseInfoStore.changeValidCommonHeaders(validCOmmonHeaders)
+// }, {
+//   deep: true,
+//   immediate: true
+// })
 </script>
 
 <style lang='scss' scoped>

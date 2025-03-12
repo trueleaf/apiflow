@@ -333,7 +333,7 @@ const handleJumpToCommonHeader = (e: MouseEvent) => {
   e.stopPropagation();
   showContextmenu.value = false;
   apidocTabsStore.addTab({
-    _id: currentOperationalNode.value?._id || nanoid(),
+    _id: currentOperationalNode.value?._id || projectId.value,
     projectId: projectId.value,
     tabType: 'commonHeader',
     label: `【公共头】${currentOperationalNode.value ? currentOperationalNode.value.name : t('全局')}`,
