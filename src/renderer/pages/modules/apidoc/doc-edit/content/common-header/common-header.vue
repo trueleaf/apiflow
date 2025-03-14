@@ -97,7 +97,7 @@ const handleEditCommonHeader = () => {
         select: v.select,
       })),
     }
-    request.post('/api/project/replace_global_common_headers', params).then(() => {
+    request.put('/api/project/replace_global_common_headers', params).then(() => {
       ElMessage.success('修改成功');
       // apidocBaseInfoStore.getCommonHeaders();
     }).catch((err) => {
