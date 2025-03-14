@@ -790,6 +790,7 @@ export type ApidocOperations =
   | 'config'
   | 'hook'
   | 'commonHeader'
+  | 'variable'
   | 'apiflow';
 
 /*
