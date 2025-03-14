@@ -55,7 +55,7 @@ const getCommonHeaderInfo = () => {
     const params = {
       projectId,
     }
-    request.get<Response<CommonHeaderResponse>, Response<CommonHeaderResponse>>('/api/project/global_common_headers', { params }).then((res) => {
+    request.get<Response<ApidocProperty[]>, Response<ApidocProperty[]>>('/api/project/global_common_headers', { params }).then((res) => {
       headerData.value = res.data || [];
       if (!headerData.value.length) {
         headerData.value.push(apidocGenerateProperty())
