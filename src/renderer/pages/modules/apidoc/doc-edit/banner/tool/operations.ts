@@ -62,7 +62,14 @@ export default [{
   shortcut: ['Ctrl', 'H'],
   pin: false,
   viewOnly: true,
-}, {
+},{
+  name: '全局变量',
+  icon: '#iconvariable',
+  op: 'variable',
+  shortcut: [],
+  pin: false,
+  viewOnly: true,
+},{
   name: '接口编排',
   icon: '#iconbianpaixin',
   op: 'apiflow',
