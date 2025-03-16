@@ -158,7 +158,9 @@ const getHeaders = async (apidoc: ApidocDetail) => {
     console.warn('未匹配到当前选中tab')
     return {}
   }
-  const commonHeaders = apidocBaseInfoStore.getCommonHeadersById(currentSelectTab?._id || "")
+  const defaultCommonHeaders = apidocBaseInfoStore.getCommonHeadersById(currentSelectTab?._id || "");
+  const ignoreHeaderIds = apidocCache.getIgnoredCommonHeaderByTabId(projectId, currentSelectTab?._id ?? "") || [];
+  const commonHeaders = defaultCommonHeaders.filter(header => !ignoreHeaderIds.includes(header._id));
   const headers = apidoc.item.headers;
   const headersObject: Record<string, string | null> = {};
   for(let i = 0; i < headers.length; i++) {
