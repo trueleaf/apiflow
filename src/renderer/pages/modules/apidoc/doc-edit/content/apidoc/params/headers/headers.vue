@@ -58,7 +58,7 @@ import { CheckboxValueType } from 'element-plus';
 const apidocTabsStore = useApidocTas()
 const apidocStore = useApidoc()
 const apidocBaseInfoStore = useApidocBaseInfo()
-const { commonHeaders: cHeaders } = storeToRefs(apidocBaseInfoStore)
+const { commonHeaders: cHeaders, globalCommonHeaders } = storeToRefs(apidocBaseInfoStore)
 const projectId = router.currentRoute.value.query.id as string;
 const currentSelectTab = computed(() => { //当前选中的doc
   const tabs = apidocTabsStore.tabs[projectId];
@@ -84,7 +84,7 @@ const handleChangeCommonHeaderIsSend = (isSend: CheckboxValueType, header: Pick<
     })
   }
 }
-watch([currentSelectTab, cHeaders], () => {
+watch([currentSelectTab, cHeaders, globalCommonHeaders], () => {
   if (currentSelectTab.value?.tabType !== 'doc') {
     return
   }
@@ -104,6 +104,7 @@ watch([currentSelectTab, cHeaders], () => {
   deep: true,
   immediate: true
 })
+// 公共请求头在单独接口里面可能会取消勾选，所以需要监听，最终发送请求时候以validCommonHeaders为准
 // watch(commonHeaders, () => {
 //   if (currentSelectTab.value?.tabType !== 'doc') {
 //     return

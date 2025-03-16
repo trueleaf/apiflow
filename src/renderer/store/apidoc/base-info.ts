@@ -77,7 +77,7 @@ export const useApidocBaseInfo = defineStore('apidocBaseInfo', () => {
   const mode = ref<'view' | 'edit'>('view');
   const commonHeaders = ref<ApidocProjectCommonHeader[]>([]);
   const globalCommonHeaders = ref<GlobalCommonHeader[]>([]);
-  const validCommonHeaders = ref<Pick<ApidocProperty, 'key' | 'value' | 'description' | 'select'>[]>([]);
+  // const validCommonHeaders = ref<Pick<ApidocProperty, 'key' | 'value' | 'description' | 'select'>[]>([]);
   const projectId = ref('');
   /*
   |--------------------------------------------------------------------------
@@ -295,7 +295,7 @@ export const useApidocBaseInfo = defineStore('apidocBaseInfo', () => {
     globalCookies,
     projectId,
     globalCommonHeaders,
-    validCommonHeaders,
+    // validCommonHeaders,
     changeProjectId,
     changeProjectBaseInfo,
     updateHostById,

@@ -143,7 +143,7 @@ export type ApidocProjectCommonHeader = {
    /**
       * 公共请求头信息
       */
-   commonHeaders: Pick<ApidocProperty, '_id' | 'key' | 'value' | 'description'>[],
+   commonHeaders: Pick<ApidocProperty, '_id' | 'key' | 'value' | 'description' | 'select'>[],
    /**
       * 子元素
       */
