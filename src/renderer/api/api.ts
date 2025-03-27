@@ -1,8 +1,9 @@
-import jsCookie from 'js-cookie';
 import Axios, { AxiosResponse, AxiosError } from 'axios';
 import { config } from '@/../config/config'
 import { router } from '@/router';
 import { ElMessage, ElMessageBox } from 'element-plus';
+import stringify from 'json-stable-stringify';
+import { nanoid } from 'nanoid/non-secure';
 
 const axiosInstance = Axios.create();
 axiosInstance.defaults.withCredentials = config.renderConfig.httpRequest.withCredentials;//允许携带cookie
@@ -10,16 +11,95 @@ axiosInstance.defaults.timeout = config.renderConfig.httpRequest.timeout;//超�
 axiosInstance.defaults.baseURL = config.renderConfig.httpRequest.url;//请求地址
 let isExpire = false; //是否登录过期
 
+//url参数解析
+const parseUrl = (url: string) => {
+  const [urlPart, queryPart] = url.split('?', 2);
+  const queryParams: Record<string, string> = {};
+  if (queryPart) {
+    const pairs = queryPart.split('&');
+    for (const pair of pairs) {
+      const [key, value] = pair.split('=', 2);
+      const decodedKey = decodeURIComponent(key || '');
+      const decodedValue = decodeURIComponent((value === undefined ? '' : value).replace(/\+/g, ' '));
+      queryParams[decodedKey] = decodedValue;
+    }
+  }
+  return {
+    url: urlPart,
+    queryParams: queryParams
+  };
+}
+//获取加签后的请求参数
+const getStrParams = (params: Record<string, string> = {}) => {
+  let strParams = '';
+  const sortedKeys = Object.keys(params).filter(key => params[key] != null).sort();
+  sortedKeys.forEach((key, index) => {
+    if (index === sortedKeys.length - 1) {
+      strParams += `${key}=${params[key]}`;
+      return;
+    }
+    strParams += `${key}=${params[key]}&`;
+  })
+  return strParams;
+}
+//获取加签后header
+const getStrHeader = (headers: Record<string, string> = {}) => {
+  let strHeader = '';
+  const sortedHeaderKeys = Object.keys(headers).filter(key => headers[key] != null).sort();
+  sortedHeaderKeys.forEach((key, index) => {
+    if (index === sortedHeaderKeys.length - 1) {
+      strHeader += `${key.toLowerCase()}:${headers[key]}`;
+      return;
+    }
+    strHeader += `${key.toLowerCase()}:${headers[key]}\n`;
+  })
+  return {
+    strHeader,
+    sortedHeaderKeys
+  };
+}
+//获取加签后的请求body
+const getStrJsonBody = async (data: Record<string, string>) => {
+  if (Object.prototype.toString.call(data) === '[object Object]') {
+    const sortedJson = stringify(data);
+    const encoder = new TextEncoder();
+    const encodedData = encoder.encode(sortedJson);
+    const hashBuffer = await crypto.subtle.digest('SHA-256', encodedData);
+    return getHashedContent(hashBuffer);
+  }
+}
+const getHashedContent = (hashBuffer: ArrayBuffer) => {
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+}
 //===============================axiosInstance请求钩子==========================================//
-axiosInstance.interceptors.request.use((reqConfig) => {
-  reqConfig.headers['x-csrf-token'] = jsCookie.get('csrfToken');
+axiosInstance.interceptors.request.use(async (reqConfig) => {
   const userInfoStr = localStorage.getItem('userInfo') || '{}';
   try {
     const userInfo = JSON.parse(userInfoStr);
     if (!userInfo.token) {
       router.push('/login');
     }
-    reqConfig.headers.Authorization = userInfo.token
+    //接口加签
+    const timestamp = Date.now();
+    const nonce = nanoid(); // 生成16位随机字符串
+    reqConfig.headers.Authorization = userInfo.token;
+    const method = reqConfig.method!.toLowerCase();
+    const parsedUrlInfo = parseUrl(reqConfig.url!);
+    const url = parsedUrlInfo.url;
+    const strParams = getStrParams(Object.assign({}, parsedUrlInfo.queryParams,reqConfig.params));
+    const strBody = await getStrJsonBody(reqConfig.data);
+    const { strHeader, sortedHeaderKeys } = getStrHeader(reqConfig.headers);
+    const signContent = `${method}\n${url}\n${strParams}\n${strBody}\n${strHeader}\n${timestamp}\n${nonce}`;
+    const hashedContent = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(signContent));
+    reqConfig.headers['x-sign'] = getHashedContent(hashedContent);
+    reqConfig.headers['x-sign-headers'] = sortedHeaderKeys.join(',');
+    reqConfig.headers['x-sign-timestamp'] = timestamp;
+    reqConfig.headers['x-sign-nonce'] = nonce;
+    // console.log(reqConfig, parsedUrlInfo);
+    // console.log(signContent)
+    return reqConfig;
+
   } catch (error) {
     Promise.reject(error)
   }
