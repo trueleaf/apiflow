@@ -224,7 +224,7 @@ const canPlayVideo = computed(() => {
   return canPlayType === 'maybe' || canPlayType === 'probably'
 })
 onUnmounted(() => {
-  console.log(2)
+  // console.log(2)
 })
 </script>
 

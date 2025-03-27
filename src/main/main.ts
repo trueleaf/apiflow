@@ -1,4 +1,4 @@
-import { app, BrowserWindow, globalShortcut, ipcMain, IpcMainInvokeEvent, Menu, MenuItem } from 'electron'
+import { app, BrowserWindow, globalShortcut, ipcMain, IpcMainInvokeEvent, Menu, MenuItem, session } from 'electron'
 import fs from 'fs/promises'
 import path from 'path'
 import { fileURLToPath } from 'url';
@@ -63,12 +63,11 @@ const changeDevtoolsFont = (win: BrowserWindow) => {
     `);
   });
 }
-
 const createWindow = () => {
   const mainWindow = new BrowserWindow({
     webPreferences: {
       preload: path.join(__dirname, 'preload.mjs'),
-      nodeIntegration: true
+      nodeIntegration: true,
     }
   })
   mainWindow.loadURL('http://localhost:3000')
