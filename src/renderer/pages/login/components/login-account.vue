@@ -1,22 +1,27 @@
 <template>
   <el-form ref="form" class="login-account" :model="userInfo" :rules="rules" @submit.stop.prevent="handleLogin">
     <el-form-item prop="loginName">
-      <el-input v-model="userInfo.loginName" :prefix-icon="User" name="loginName" type="text" :placeholder="`${t('请输入用户名')}...`"></el-input>
+      <el-input v-model="userInfo.loginName" :prefix-icon="User" name="loginName" type="text"
+        :placeholder="`${t('请输入用户名')}...`"></el-input>
     </el-form-item>
     <el-form-item prop="password">
-      <el-input v-model="userInfo.password" :prefix-icon="Lock" name="password" type="password" :placeholder="`${t('请输入密码')}...`" show-password></el-input>
+      <el-input v-model="userInfo.password" :prefix-icon="Lock" name="password" type="password"
+        :placeholder="`${t('请输入密码')}...`" show-password></el-input>
     </el-form-item>
     <el-form-item v-if="isShowCapture" prop="captcha">
       <div class="captcha">
-        <el-input v-model="userInfo.captcha" :size="config.renderConfig.layout.size" name="captcha" type="text" :placeholder="t('验证码')"></el-input>
+        <el-input v-model="userInfo.captcha" :size="config.renderConfig.layout.size" name="captcha" type="text"
+          :placeholder="t('验证码')"></el-input>
         <img :src="captchaUrl" @click="freshCapchaUrl" />
       </div>
     </el-form-item>
     <el-form-item v-if="config.localization.enableGuest" class="mb-1">
-      <el-button :loading="loading" class="w-100" type="primary" @click="handleGuesttLogin">{{ t("直接登录(体验账号，数据不会被保存)") }}</el-button>
+      <el-button :loading="loading" class="w-100" type="primary" @click="handleGuesttLogin">{{ t("直接登录(体验账号，数据不会被保存)")
+        }}</el-button>
     </el-form-item>
     <el-form-item class="mb-1">
-      <el-button :loading="loading" :type="config.localization.enableGuest ? '' : 'primary'" native-type="submit" class="w-100">{{ t("登录") }}</el-button>
+      <el-button :loading="loading" :type="config.localization.enableGuest ? '' : 'primary'" native-type="submit"
+        class="w-100">{{ t("登录") }}</el-button>
     </el-form-item>
     <el-form-item v-if="config.localization.enableRegister" class="mb-1">
       <el-button class="w-100" @click="handleJumpToRegister">{{ t("注册账号") }}</el-button>
@@ -43,7 +48,8 @@
         </svg>
         <div class="mt-1">{{ t("完整文档") }}</div>
       </a>
-      <a :href="config.localization.download.url" target="__blank" class="d-flex flex-column j-center a-center cursor-pointer hover-theme-color">
+      <a :href="config.localization.download.url" target="__blank"
+        class="d-flex flex-column j-center a-center cursor-pointer hover-theme-color">
         <svg class="svg-icon" aria-hidden="true" :title="t('客户端下载')">
           <use xlink:href="#iconkehuduan"></use>
         </svg>
@@ -142,21 +148,23 @@ const handleGuesttLogin = () => {
 
 <style lang='scss' scoped>
 .login-account {
-    .svg-icon {
-        width: size(35);
-        height: size(35);
-        cursor: pointer;
+  .svg-icon {
+    width: size(35);
+    height: size(35);
+    cursor: pointer;
+  }
+
+  .forget-pwd-wrap {
+    // margin-top: size(-20);
+    display: flex;
+    justify-content: center;
+    margin-bottom: size(10);
+
+    .el-button {
+      margin: 0;
+      padding: 0;
+      min-height: size(20);
     }
-    .forget-pwd-wrap {
-        // margin-top: size(-20);
-        display: flex;
-        justify-content: center;
-        margin-bottom: size(10);
-        .el-button {
-            margin: 0;
-            padding: 0;
-            min-height: size(20);
-        }
-    }
+  }
 }
 </style>

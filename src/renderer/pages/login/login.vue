@@ -39,28 +39,27 @@
         <el-tabs v-model="activeName" class="w-100">
           <!-- 账号登录 -->
           <el-tab-pane :label="t('账号登录')" name="loginAccount">
-            <LoginAccount @jumpToRegister="handleJumpToRegister" @jumpToResetPassword="handleJumpToResetPassword"></LoginAccount>
           </el-tab-pane>
           <!-- 手机号登录 -->
-          <el-tab-pane :label="t('手机登录')" name="loginPassword">
-            <LoginPhone></LoginPhone>
+          <el-tab-pane :label="t('手机登录')" name="loginPhone">
           </el-tab-pane>
           <!-- 注册 -->
           <el-tab-pane v-if="config.localization.enableRegister" :label="t('账号注册')" name="register">
-            <Register></Register>
           </el-tab-pane>
           <!-- 忘记密码 -->
           <el-tab-pane :label="t('忘记密码')" name="reset">
-            <ResetPassword @jumpToLogin="handleJumpToLogin"></ResetPassword>
           </el-tab-pane>
         </el-tabs>
+        <keep-alive>
+          <component :is="getComponent()" v-on="eventListeners"></component>
+        </keep-alive>
       </div>
     </div>
   </div>
 </template>
 
 <script lang="ts" setup>
-import { ref } from 'vue';
+import { computed, ref } from 'vue';
 import { config as globalConfig } from '@/../config/config'
 import LoginAccount from './components/login-account.vue';
 import LoginPhone from './components/login-phone.vue';
@@ -83,7 +82,29 @@ const handleJumpToResetPassword = () => {
 const handleJumpToLogin = () => {
   activeName.value = 'login'
 }
-
+const getComponent = () => {
+  if (activeName.value === 'loginAccount') {
+    return LoginAccount;
+  } else if (activeName.value === 'loginPhone') {
+    return LoginPhone;
+  } else if (activeName.value === 'register') {
+    return Register;
+  } else if (activeName.value === 'reset') {
+    return ResetPassword;
+  }
+}
+const eventListeners = computed(() => {
+  if (activeName.value === 'loginAccount') {
+    return {
+      'jumpToRegister': handleJumpToRegister,
+      'jumpToResetPassword': handleJumpToResetPassword
+    };
+  } else if (activeName.value === 'reset') {
+    return {
+      'jumpToLogin': handleJumpToLogin
+    };
+  }
+});
 </script>
 
 <style lang='scss' scoped>

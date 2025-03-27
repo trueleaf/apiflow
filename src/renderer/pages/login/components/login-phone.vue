@@ -4,6 +4,12 @@
     <el-form-item prop="phone">
       <el-input v-model="userInfo.phone" :prefix-icon="IconUser" name="phone" type="text" :placeholder="`${t('请输入手机号')}...`"></el-input>
     </el-form-item>
+    <el-form-item prop="captcha">
+      <div class="d-flex w-100">
+        <el-input v-model="userInfo.captcha" :size="config.renderConfig.layout.size" name="captcha" type="text" :placeholder="t('图形验证码')"></el-input>
+        <div v-html="captchaData" class="w-100px h-30px" @click="getCaptcha"></div>
+      </div>
+    </el-form-item>
     <el-form-item prop="smsCode">
       <div class="d-flex w-100">
         <el-input v-model="userInfo.smsCode" :size="config.renderConfig.layout.size" name="smsCode" type="text" :placeholder="t('验证码')"></el-input>
@@ -20,7 +26,7 @@
 import { PermissionUserInfo, Response } from '@src/types/global';
 import SmsButton from '@/components/common/sms-button/g-sms-button.vue'
 import { User as IconUser } from '@element-plus/icons-vue'
-import { nextTick, reactive, ref } from 'vue';
+import { nextTick, onMounted, reactive, ref } from 'vue';
 import {t} from 'i18next'
 import { ElMessage, FormInstance } from 'element-plus';
 import { request } from '@/api/api';
@@ -31,13 +37,16 @@ import { config } from '@src/config/config';
 const userInfo = reactive({
   phone: '', //------------------手机号码
   smsCode: '', //----------------短信验证码
+  captcha: '', //-----------------图形验证码
 })
 const rules = reactive({
   phone: [{ required: true, message: `${t('请输入手机号')}`, trigger: 'blur' }],
-  smsCode: [{ required: true, message: `${t('请输入验证码')}`, trigger: 'blur' }]
+  smsCode: [{ required: true, message: `${t('请输入验证码')}`, trigger: 'blur' }],
+  captcha: [{ required: true, message: `${t('请输入验证码')}`, trigger: 'blur' }],
 })
 const loading = ref(false);
 const form = ref<FormInstance>();
+const captchaData = ref('');
 const permissionStore = usePermissionStore()
 
 
@@ -50,10 +59,24 @@ const smsCodeHook = () => {
   return true
 }
 
+//获取图形验证码
+const getCaptcha = () => {
+  userInfo.captcha = '';
+  request.get('/api/security/captcha?width=100&height=35').then((res) => {
+    captchaData.value = res.data;
+  }).catch((err) => {
+    console.error(err)
+  });
+}
 //获取短信验证码
 const getSmsCode = () => {
+  if (!userInfo.captcha) {
+    ElMessage.warning(t('请输入图形验证码'))
+    return
+  }
   const params = {
     phone: userInfo.phone,
+    captcha: userInfo.captcha
   };
   request.get('/api/security/sms', { params }).catch((err) => {
     console.error(err)
@@ -89,4 +112,8 @@ const handleLogin = () => {
     }
   });
 }
+
+onMounted(() => {
+  getCaptcha();
+})
 </script>
