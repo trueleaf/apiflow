@@ -31,6 +31,7 @@
     "js-beautify": "^1.15.1",
     "js-cookie": "^3.0.5",
     "js-yaml": "^4.1.0",
+    "json-stable-stringify": "^1.2.1",
     "json5": "^2.2.3",
     "jsontoxml": "^1.0.1",
     "koa": "^2.15.3",
