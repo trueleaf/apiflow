@@ -98,6 +98,7 @@ const rules = reactive({
     { validator: validatePassword2, trigger: 'blur' },
   ],
   phone: [{ required: true, message: t('请输入手机号'), trigger: 'blur' }],
+  captcha: [{ required: true, message: t('请输入图形验证码'), trigger: 'blur' }],
   smsCode: [{ required: true, message: t('请输入验证码'), trigger: 'blur' }],
 })
 const form = ref<FormInstance>()
@@ -150,7 +151,10 @@ const handleRegister = () => {
         loginName: registerInfo.loginName,
         password: registerInfo.password,
       };
-      request.post('/api/security/register', registerInfo).then(() => {
+      const params: Record<string, string> = Object.assign({}, registerInfo);
+      delete params.password2;
+      delete params.captcha;
+      request.post('/api/security/register', params).then(() => {
         request.post('/api/security/login_password', userInfo).then((res) => {
           router.push('/v1/apidoc/doc-list');
           sessionStorage.setItem('userInfo', JSON.stringify(res.data));
