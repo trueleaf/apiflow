@@ -59,7 +59,7 @@ const getStrHeader = (headers: Record<string, string> = {}) => {
   };
 }
 //获取加签后的请求body
-const getStrJsonBody = async (data: Record<string, string>) => {
+const getStrJsonBody = async (data: Record<string, string> = {}) => {
   if (Object.prototype.toString.call(data) === '[object Object]') {
     const sortedJson = stringify(data);
     const encoder = new TextEncoder();
@@ -97,7 +97,7 @@ axiosInstance.interceptors.request.use(async (reqConfig) => {
     reqConfig.headers['x-sign-timestamp'] = timestamp;
     reqConfig.headers['x-sign-nonce'] = nonce;
     // console.log(reqConfig, parsedUrlInfo);
-    // console.log(signContent)
+    // console.log(signContent, strBody)
     return reqConfig;
 
   } catch (error) {
@@ -110,6 +110,10 @@ axiosInstance.interceptors.response.use(
   async (res: AxiosResponse) => {
     const result = res.data;
     const headers = res.headers || {};
+    const clientKey = headers['x-client-key'];
+    if (clientKey) {
+      sessionStorage.setItem('apiflow/x-client-key', clientKey)
+    }
     const contentType = headers['content-type'];
     const contentDisposition = headers['content-disposition'];
     let fileName = contentDisposition ? contentDisposition.match(/filename=(.*)/) : '';
@@ -132,6 +136,7 @@ axiosInstance.interceptors.response.use(
         case 2006: //输入验证码
           break;
         case 2003: //验证码错误
+        case 4005: //图形验证码错误
           break;
         case 101005: //无效的的id和密码,跳转到验证页面
           break;
