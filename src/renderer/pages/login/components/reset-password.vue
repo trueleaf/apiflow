@@ -3,10 +3,16 @@
     <el-form-item prop="phone">
       <el-input v-model="userInfo.phone" :size="config.renderConfig.layout.size" name="phone" type="text" :placeholder="`${t('请输入手机号')}...`"></el-input>
     </el-form-item>
+    <el-form-item prop="captcha">
+      <div class="d-flex w-100 a-center">
+        <el-input v-model="userInfo.captcha" :size="config.renderConfig.layout.size" class="h-30" name="captcha" type="text" :placeholder="t('图形验证码')"></el-input>
+        <div v-html="captchaData" class="w-100px h-50px" @click="getCaptcha"></div>
+      </div>
+    </el-form-item>
     <el-form-item prop="smsCode">
       <div class="d-flex w-100">
         <el-input v-model="userInfo.smsCode" :size="config.renderConfig.layout.size" name="smsCode" type="text" :placeholder="t('验证码')"></el-input>
-        <SmsButton :hook="smsCodeHook" @click="getSmsCode"></SmsButton>
+        <SmsButton ref="smsRef" :hook="smsCodeHook" @click="getSmsCode"></SmsButton>
       </div>
     </el-form-item>
     <el-form-item prop="password">
@@ -24,7 +30,7 @@
 <script lang="ts" setup>
 import { Response } from '@src/types/global'
 import { config } from '@src/config/config';
-import { nextTick, reactive, ref } from 'vue';
+import { nextTick, onMounted, reactive, ref } from 'vue';
 import { t } from 'i18next'
 import { ElMessage, FormInstance } from 'element-plus';
 import { request } from '@/api/api';
@@ -38,7 +44,10 @@ const userInfo = reactive({
   password: '', //----密码
   password2: '', //---确认密码
   phone: '', //-------手机号码
+  captcha: '', //-----图形验证码
 });
+const captchaData = ref('');
+const smsRef = ref<{ resetState: () => void } | null>(null)
 const validatePassword = (_: unknown, value: string, callback: (err?: Error) => void) => {
   const matchString = /[a-zA-Z]/;
   const matchNumber = /\d/;
@@ -80,6 +89,7 @@ const rules = reactive({
   ],
   password2: [{ required: true, message: '请再次输入密码', trigger: 'blur' }, { validator: validatePassword2, trigger: 'blur' }],
   phone: [{ required: true, message: '请输入手机号', trigger: 'blur' }],
+  captcha: [{ required: true, message: t('请输入图形验证码'), trigger: 'blur' }],
   smsCode: [{ required: true, message: '请输入验证码', trigger: 'blur' }],
 });
 const loading = ref(false);
@@ -91,14 +101,33 @@ const smsCodeHook = () => {
     ElMessage.warning(t('请填写正确手机号'));
     return false;
   }
+  if (!userInfo.captcha) {
+    ElMessage.warning(t('请输入图形验证码'))
+    return
+  }
   return true;
+}
+//获取图形验证码
+const getCaptcha = () => {
+  userInfo.captcha = '';
+  request.get('/api/security/captcha?width=100&height=50').then((res) => {
+    captchaData.value = res.data;
+  }).catch((err) => {
+    console.error(err)
+  });
 }
 //获取短信验证码
 const getSmsCode = () => {
   const params = {
     phone: userInfo.phone,
   };
-  request.get('/api/security/sms', { params }).catch((err) => {
+  request.get<Response<any>, Response<any>>('/api/security/sms', { params }).then(res => {
+    if (res.code === 4005) {
+      getCaptcha();
+      smsRef.value?.resetState();
+      ElMessage.warning(res.msg);
+    }
+  }).catch((err) => {
     console.error(err);
   });
 }
@@ -136,6 +165,9 @@ const handleResetPassword = () => {
     }
   });
 }
+onMounted(() => {
+  getCaptcha();
+})
 </script>
 
 <style lang='scss' scoped>
