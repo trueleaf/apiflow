@@ -5,15 +5,15 @@
       <el-input v-model="userInfo.phone" :prefix-icon="IconUser" name="phone" type="text" :placeholder="`${t('请输入手机号')}...`"></el-input>
     </el-form-item>
     <el-form-item prop="captcha">
-      <div class="d-flex w-100">
-        <el-input v-model="userInfo.captcha" :size="config.renderConfig.layout.size" name="captcha" type="text" :placeholder="t('图形验证码')"></el-input>
-        <div v-html="captchaData" class="w-100px h-30px" @click="getCaptcha"></div>
+      <div class="d-flex w-100 a-center">
+        <el-input v-model="userInfo.captcha" :size="config.renderConfig.layout.size" class="h-30" name="captcha" type="text" :placeholder="t('图形验证码')"></el-input>
+        <div v-html="captchaData" class="w-100px h-50px" @click="getCaptcha"></div>
       </div>
     </el-form-item>
     <el-form-item prop="smsCode">
       <div class="d-flex w-100">
         <el-input v-model="userInfo.smsCode" :size="config.renderConfig.layout.size" name="smsCode" type="text" :placeholder="t('验证码')"></el-input>
-        <SmsButton :hook="smsCodeHook" @click="getSmsCode"></SmsButton>
+        <SmsButton ref="smsRef" :hook="smsCodeHook" @click="getSmsCode"></SmsButton>
       </div>
     </el-form-item>
     <el-form-item>
@@ -46,6 +46,7 @@ const rules = reactive({
 })
 const loading = ref(false);
 const form = ref<FormInstance>();
+const smsRef = ref<{ resetState: () => void } | null>(null)
 const captchaData = ref('');
 const permissionStore = usePermissionStore()
 
@@ -56,13 +57,17 @@ const smsCodeHook = () => {
     ElMessage.warning(t('请填写正确手机号'))
     return false
   }
+  if (!userInfo.captcha) {
+    ElMessage.warning(t('请输入图形验证码'))
+    return
+  }
   return true
 }
 
 //获取图形验证码
 const getCaptcha = () => {
   userInfo.captcha = '';
-  request.get('/api/security/captcha?width=100&height=35').then((res) => {
+  request.get('/api/security/captcha?width=100&height=50').then((res) => {
     captchaData.value = res.data;
   }).catch((err) => {
     console.error(err)
@@ -70,16 +75,23 @@ const getCaptcha = () => {
 }
 //获取短信验证码
 const getSmsCode = () => {
-  if (!userInfo.captcha) {
-    ElMessage.warning(t('请输入图形验证码'))
-    return
-  }
+  const clientKey = sessionStorage.getItem('apiflow/x-client-key')
   const params = {
     phone: userInfo.phone,
-    captcha: userInfo.captcha
+    captcha: userInfo.captcha,
+    clientKey
   };
-  request.get('/api/security/sms', { params }).catch((err) => {
-    console.error(err)
+  request.get<Response<any>, Response<any>>('/api/security/sms', { 
+    params,
+   }).then(res => {
+    if (res.code === 4005) {
+      getCaptcha();
+      smsRef.value?.resetState();
+      ElMessage.warning(res.msg);
+    }
+   }).catch((err) => {
+    console.error(err);
+    getCaptcha()
   });
 }
 

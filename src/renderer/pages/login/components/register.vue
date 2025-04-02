@@ -13,10 +13,16 @@
     <el-form-item prop="phone">
       <el-input v-model="registerInfo.phone" :size="config.renderConfig.layout.size" name="phone" type="text" :placeholder="`${t('请输入手机号')}`"></el-input>
     </el-form-item>
+    <el-form-item prop="captcha">
+      <div class="d-flex w-100 a-center">
+        <el-input v-model="registerInfo.captcha" :size="config.renderConfig.layout.size" class="h-30" name="captcha" type="text" :placeholder="t('图形验证码')"></el-input>
+        <div v-html="captchaData" class="w-100px h-50px" @click="getCaptcha"></div>
+      </div>
+    </el-form-item>
     <el-form-item prop="smsCode">
       <div class="d-flex w-100">
         <el-input v-model="registerInfo.smsCode" :size="config.renderConfig.layout.size" name="smsCode" type="text" :placeholder="t('请输入验证码')"></el-input>
-        <SmsButton :hook="smsCodeHook" @click="getSmsCode"></SmsButton>
+        <SmsButton ref="smsRef" :hook="smsCodeHook" @click="getSmsCode"></SmsButton>
       </div>
     </el-form-item>
     <el-form-item>
@@ -27,7 +33,8 @@
 
 <script lang="ts" setup>
 import type { InternalRuleItem } from 'async-validator/dist-types/interface'
-import { nextTick, reactive, ref } from 'vue';
+import { nextTick, onMounted, reactive, ref } from 'vue';
+import type { Response } from '@src/types/global'
 import { t } from 'i18next'
 import { ElMessage, FormInstance } from 'element-plus';
 import { request } from '@/api/api';
@@ -41,8 +48,11 @@ const registerInfo = reactive({
   password: '', //----密码
   password2: '', //---确认密码
   phone: '', //-------手机号码
+  captcha: '', //-----图形验证码
 })
-const loading = ref(false)
+const loading = ref(false);
+const captchaData = ref('');
+const smsRef = ref<{ resetState: () => void } | null>(null)
 const validatePassword = (_: InternalRuleItem, value: string, callback: (err?: Error | string) => void) => {
   const matchString = /[a-zA-Z]/;
   const matchNumber = /\d/;
@@ -98,15 +108,38 @@ const smsCodeHook = () => {
     ElMessage.warning(t('请填写正确手机号'));
     return false;
   }
+  if (!registerInfo.captcha) {
+    ElMessage.warning(t('请输入图形验证码'))
+    return
+  }
   return true;
 }
 //获取短信验证码
 const getSmsCode = () => {
+  const clientKey = sessionStorage.getItem('apiflow/x-client-key')
   const params = {
     phone: registerInfo.phone,
+    captcha: registerInfo.captcha,
+    clientKey
   };
-  request.get('/api/security/sms', { params }).catch((err) => {
+  request.get<Response<any>, Response<any>>('/api/security/sms', { params }).then(res => {
+    if (res.code === 4005) {
+      getCaptcha();
+      smsRef.value?.resetState();
+      ElMessage.warning(res.msg);
+    }
+  }).catch((err) => {
     console.error(err);
+    getCaptcha()
+  });
+}
+//获取图形验证码
+const getCaptcha = () => {
+  registerInfo.captcha = '';
+  request.get('/api/security/captcha?width=100&height=50').then((res) => {
+    captchaData.value = res.data;
+  }).catch((err) => {
+    console.error(err)
   });
 }
 //用户注册
@@ -143,6 +176,9 @@ const handleRegister = () => {
     }
   });
 }
+onMounted(() => {
+  getCaptcha();
+})
 </script>
 
 <style lang='scss' scoped>
