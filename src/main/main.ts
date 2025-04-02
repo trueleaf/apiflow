@@ -1,4 +1,4 @@
-import { app, BrowserWindow, globalShortcut, ipcMain, IpcMainInvokeEvent, Menu, MenuItem, session } from 'electron'
+import { app, BrowserWindow, globalShortcut, ipcMain, IpcMainInvokeEvent, Menu, MenuItem, session, shell } from 'electron'
 import fs from 'fs/promises'
 import path from 'path'
 import { fileURLToPath } from 'url';
@@ -73,6 +73,10 @@ const createWindow = () => {
   mainWindow.loadURL('http://localhost:3000')
   mainWindow.webContents.openDevTools()
   mainWindow.maximize()
+  mainWindow.webContents.setWindowOpenHandler(({ url }) => {
+    shell.openExternal(url)
+    return { action: 'deny' }
+  })
   changeDevtoolsFont(mainWindow);
   bindMainProcessGlobalShortCut(mainWindow)
 }
