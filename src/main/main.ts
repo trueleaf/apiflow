@@ -1,4 +1,4 @@
-import { app, BrowserWindow, globalShortcut, ipcMain, IpcMainInvokeEvent, Menu, MenuItem, session, shell } from 'electron'
+import { app, BrowserWindow, globalShortcut, ipcMain, IpcMainInvokeEvent, Menu, shell } from 'electron'
 import fs from 'fs/promises'
 import path from 'path'
 import { fileURLToPath } from 'url';
