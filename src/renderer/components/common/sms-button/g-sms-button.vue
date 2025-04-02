@@ -65,6 +65,16 @@ const changeState = () => {
     }
   }, speed);
 }
+const resetState = () => {
+  tip.value = props.startLabel;
+  disableBtn.value = false;
+  time.value = props.countdown;
+  clearInterval(timer.value);
+}
+defineExpose({
+  resetState
+})
+
 onUnmounted(() => {
   clearInterval(timer.value);
 })
