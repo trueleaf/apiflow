@@ -118,8 +118,11 @@ const getCaptcha = () => {
 }
 //获取短信验证码
 const getSmsCode = () => {
+  const clientKey = sessionStorage.getItem('apiflow/x-client-key')
   const params = {
     phone: userInfo.phone,
+    captcha: userInfo.captcha,
+    clientKey
   };
   request.get<Response<any>, Response<any>>('/api/security/sms', { params }).then(res => {
     if (res.code === 4005) {
