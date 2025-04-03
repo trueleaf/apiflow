@@ -57,7 +57,7 @@ watch(query, (val) => {
     if (!debounceFn.value) {
       debounceFn.value = debounce<DebounceFn>((query) => {
         getData(query);
-      });
+      }, 800);
     }
     debounceFn.value(val);
   }
@@ -83,8 +83,6 @@ watch(() => props.modelValue, (val) => {
     border: 1px solid $gray-300;
     border-radius: $border-radius-sm;
     color: $gray-700;
-    font-size: fz(12);
-
     &::-webkit-input-placeholder {
       color: $gray-500;
     }
@@ -95,7 +93,8 @@ watch(() => props.modelValue, (val) => {
     left: 0;
     top: size(36);
     z-index: $zIndex-panel;
-    overflow-y: scroll;
+    overflow-y: auto;
+    min-height: size(40);
     // padding: size(10) size(20);
     width: 100%;
     max-height: size(200);
