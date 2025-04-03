@@ -2,7 +2,7 @@
   <div class="d-flex a-center mb-3">
     <span class="flex0">{{ t("添加用户") }}：</span>
     <RemoteSelector v-model="remoteQueryName" :remote-methods="getRemoteUserByName" :loading="loading2"
-      :placeholder="t('输入用户名或昵称查找用户')" class="w-300px">
+      :placeholder="t('输入用户名或完整手机号查找用户')" class="w-300px">
       <RemoteSelectorItem v-for="(item, index) in remoteMembers" :key="index">
         <div class="d-flex a-center j-between w-100 h-100" @click="handleSelectUser(item)">
           <span>{{ item.loginName }}</span>

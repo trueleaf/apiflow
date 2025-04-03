@@ -21,8 +21,19 @@
         class="w-50 mr-3" 
         clearable
         :placeholder="t('输入接口url eg: 接口url')"  
+        @keyup.enter="() => { loading = true; debounceSearch() }"
         @change="() => { loading = true; debounceSearch() }"
         @input="() => { loading = true; debounceSearch() }">
+        <template #append>
+          <el-button 
+            type="primary" 
+            :loading="loading"
+            @click="() => { loading = true; debounceSearch() }"
+          >
+          <el-icon class="el-icon--right"><SearchIcon /></el-icon>
+            <span>搜索</span>
+          </el-button>
+        </template>
       </el-input>
     </div>
     <!-- 项目列表 -->

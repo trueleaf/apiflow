@@ -1,8 +1,19 @@
 <template>
-  <Dialog :model-value="modelValue" top="10vh" :title="t('新增项目')" @close="handleClose">
+  <Dialog :model-value="modelValue" top="10vh" :title="t('创建团队')" @close="handleClose">
     <el-form ref="form" :model="formInfo" :rules="rules" label-width="150px">
-      <el-form-item :label="`${t('项目名称')}：`" prop="projectName">
-        <el-input v-model="formInfo.projectName" v-focus-select :size="config.renderConfig.layout.size" :placeholder="t('请输入项目名称')" @keydown.enter="handleAddProject"></el-input>
+      <el-form-item :label="`${t('团队名称')}：`" prop="groupName">
+        <el-input v-model="formInfo.groupName" :size="config.renderConfig.layout.size" :placeholder="t('请输入团队名称')" @keydown.enter="handleAddGroup"></el-input>
+      </el-form-item>
+      <el-form-item :label="`${t('团队描述/备注')}：`" prop="description">
+        <el-input 
+          v-model="formInfo.description" 
+          type="textarea" 
+          :size="config.renderConfig.layout.size" 
+          :placeholder="t('请输入备注')"
+          show-word-limit
+          maxlength="100"
+        >
+        </el-input>
       </el-form-item>
       <el-form-item :label="`${t('选择成员')}：`">
         <RemoteSelector v-model="remoteQueryName" :remote-methods="getRemoteUserByName" :loading="loading" :placeholder="t('输入用户名或完整手机号查找用户')">
@@ -12,8 +23,11 @@
               <span>{{ item.realName }}</span>
             </div>
           </RemoteSelectorItem>
+          <div v-if="remoteMembers.length === 0" class="d-flex a-center j-center w-100 h-40px gray-500">{{ t('暂无数据') }}</div>
         </RemoteSelector>
+        <div class="f-sm gray-500">用户必须开启允许邀请才能检索到，可以在个人设置中开启被检索功能</div>
       </el-form-item>
+      
     </el-form>
     <!-- 成员信息 -->
     <el-table :data="selectUserData" stripe border max-height="200px">
@@ -44,7 +58,7 @@
       </el-table-column>
     </el-table>
     <template #footer>
-      <el-button :loading="loading" type="primary" @click="handleAddProject">{{ t("确定") }}</el-button>
+      <el-button :loading="loading" type="primary" @click="handleAddGroup">{{ t("确定") }}</el-button>
       <el-button type="warning" @click="handleClose">{{ t("取消") }}</el-button>
     </template>
   </Dialog>
@@ -70,17 +84,17 @@ defineProps({
 const form = ref<FormInstance>()
 const emits = defineEmits(['update:modelValue', 'success'])
 const formInfo = ref({
-  projectName: '', //-------------------------项目名称
-  remark: '', //------------------------------项目备注
+  groupName: '', //-------------------------团队名称
+  description: '', //------------------------------团队备注
 })
 const rules = ref({
-  projectName: [{ required: true, trigger: 'blur', message: t('请填写项目名称') }],
+  groupName: [{ required: true, trigger: 'blur', message: t('请填写团队名称') }],
 })
 const remoteMembers = ref<PermissionUserBaseInfo[]>([]) //------远程用户列表
 const selectUserData = ref<ApidocProjectMemberInfo[]>([]) //-----已选中的用户
 const remoteQueryName = ref('') //-------------------------用户名称
 const loading = ref(false) //------------------------------成员数据加载状态
-const loading2 = ref(false) //-----------------------------新增项目
+const loading2 = ref(false) //-----------------------------新增团队
 /*
 |--------------------------------------------------------------------------
 | 
@@ -88,7 +102,9 @@ const loading2 = ref(false) //-----------------------------新增项目
 */
 //根据名称查询用户列表
 const getRemoteUserByName = (query: string) => {
-  if (!query.trim()) return;
+  if (!query.trim()) {
+    return
+  }
   loading.value = true;
   const params = {
     name: query,
@@ -101,7 +117,8 @@ const getRemoteUserByName = (query: string) => {
     loading.value = false;
   });
 }
-const handleAddProject = () => {
+//确认添加
+const handleAddGroup = () => {
   form.value?.validate((valid) => {
     if (valid) {
       loading2.value = true;
@@ -114,7 +131,7 @@ const handleAddProject = () => {
           realName: val.realName,
         })),
       };
-      request.post('/api/project/add_project', params).then((res) => {
+      request.post('/api/group/create', params).then((res) => {
         handleClose();
         emits('success', res.data);
       }).catch((err) => {
