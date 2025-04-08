@@ -12,21 +12,38 @@
 
       <el-button :icon="Plus" @click="dialogVisible = true" type="success">{{ t('创建团队') }}</el-button>
     </div>
-    <div>
+    <div class="d-flex">
+      <!-- banner -->
       <div class="side-menu-container">
-        <div class="menu-title">团队列表</div>
+        <div class="menu-title f-mid">团队列表</div>
         <div class="search-box">
           <el-input v-model="searchText" placeholder="搜索团队" clearable :prefix-icon="Search" />
         </div>
+        <div class="group-title f-mid">
+          <div>全部团队</div>
+          <el-icon title="创建团队" class="create-icon" @click="dialogVisible = true">
+            <Plus />
+          </el-icon>
+        </div>
         <el-menu :default-active="selectedGroup" class="vertical-menu" @select="handleSelectGroup">
-          <el-menu-item v-for="item in [{ title: 'xxxx', index: '1' }, { title: 'aaa', index: '2' }]" :key="item.index"
-            :index="item.index">
-            <el-icon>
-              <!-- <component :is="item.icon" /> -->
-            </el-icon>
-            <span>{{ item.title }}</span>
+          <el-menu-item v-for="item in groupList" :key="item._id" :index="item._id">
+            <span>{{ item.groupName }}</span>
           </el-menu-item>
         </el-menu>
+      </div>
+      <!-- content -->
+      <div>
+        <el-form v-if="groupInfo" :mode="groupInfo" label-width="auto" label-position='top' size="small">
+          <el-form-item label="团队名称">
+            <el-input v-model="groupInfo.groupName" />
+          </el-form-item>
+          <el-form-item label="团队成员">
+            asdsad
+          </el-form-item>
+          <el-form-item>
+            <el-button type="primary">保存修改</el-button>
+          </el-form-item>
+        </el-form>
       </div>
     </div>
     <AddProjectDialog v-if="dialogVisible" v-model="dialogVisible"></AddProjectDialog>
@@ -58,10 +75,12 @@ const selectedGroup = ref('1')
 const groupList = ref<GroupItem[]>([]);
 const loading = ref(false);
 const dialogVisible = ref(false);
-
+const groupInfo = ref<GroupItem | null>(null)
 
 //
-const handleSelectGroup = () => { }
+const handleSelectGroup = (group) => {
+  console.log(group, 2)
+}
 
 const getGroupList = () => {
   loading.value = true
@@ -120,30 +139,48 @@ onMounted(() => {
   width: size(250);
   height: calc(100vh - #{size(150)});
   box-shadow: $box-shadow-sm;
-  padding: size(10);
+  padding: size(10) size(0);
+
   .menu-title {
-    font-size: fz(15);
+    padding: 0 size(15);
+    margin-bottom: size(10);
+  }
+
+  .search-box {
+    padding: 0 size(15);
+  }
+
+  .group-title {
+    padding: 0 size(15);
+    margin-top: size(10);
+    display: flex;
+    align-items: center;
+    height: size(40);
+
+    .create-icon {
+      margin-left: auto;
+      cursor: pointer;
+      width: size(20);
+      height: size(20);
+      border-radius: 50%;
+
+      &:hover {
+        background-color: $gray-200;
+      }
+    }
   }
 
   .el-menu-item {
-    height: 48px;
-    margin: 4px 8px;
-    border-radius: 4px;
-  }
+    height: size(35);
 
-  .el-menu-item.is-active {
-    background-color: #f5f7ff;
-    color: #409eff;
-    font-weight: 500;
-  }
+    &:hover {
+      background-color: $gray-200;
+    }
 
-  .el-menu-item:hover {
-    background-color: #f5f5f5;
-  }
-
-  .el-menu-item span {
-    margin-left: 8px;
+    &.is-active {
+      background-color: lighten($theme-color, 30%);
+      color: $gray-800;
+    }
   }
 }
-
 </style>
