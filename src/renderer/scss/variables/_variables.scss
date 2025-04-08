@@ -14,78 +14,72 @@ $gray-600: #6c757d !default;
 $gray-700: #495057 !default;
 $gray-800: #343a40 !default;
 $gray-900: #212529 !default;
-$black:    #000 !default;
+$black: #000 !default;
 
-$grays: () !default;
-$grays: map-merge(
-    (
-        "gray-100": $gray-100,
-        "gray-200": $gray-200,
-        "gray-300": $gray-300,
-        "gray-400": $gray-400,
-        "gray-500": $gray-500,
-        "gray-600": $gray-600,
-        "gray-700": $gray-700,
-        "gray-800": $gray-800,
-        "gray-900": $gray-900
-    ),
-    $grays
+$grays: (
+    ) !default;
+$grays: map-merge(("gray-100": $gray-100,
+            "gray-200": $gray-200,
+            "gray-300": $gray-300,
+            "gray-400": $gray-400,
+            "gray-500": $gray-500,
+            "gray-600": $gray-600,
+            "gray-700": $gray-700,
+            "gray-800": $gray-800,
+            "gray-900": $gray-900 ),
+        $grays
 );
 //===================================常见颜色定义======================================//
 
-$blue:    #409EFF !default;
-$red:     #f56c6c !default;
-$orange:  #fd7e14 !default;
-$yellow:  #ffc107 !default;
-$green:   #28a745 !default;
-$purple:  #6f42c1 !default;
-$indigo:  #6610f2 !default;//靛蓝色
-$pink:    #f9a2c4 !default;
-$teal:    #20c997 !default;//青色
-$cyan:    #17a2b8 !default;//蓝绿色
+$blue: #409EFF !default;
+$red: #f56c6c !default;
+$orange: #fd7e14 !default;
+$yellow: #ffc107 !default;
+$green: #28a745 !default;
+$purple: #6f42c1 !default;
+$indigo: #6610f2 !default; //靛蓝色
+$pink: #f9a2c4 !default;
+$teal: #20c997 !default; //青色
+$cyan: #17a2b8 !default; //蓝绿色
 
-$theme-color:   #409EFF !default;//主题色定义
-$colors: () !default;
-$colors: map-merge(
-    (
-        "blue":       $blue,
-        "indigo":     $indigo,
-        "purple":     $purple,
-        "pink":       $pink,
-        "red":        $red,
-        "orange":     $orange,
-        "yellow":     $yellow,
-        "green":      $green,
-        "teal":       $teal,
-        "cyan":       $cyan,
-        "black":      $black,
-        "white":      $white,
-        "theme-color": $theme-color
-    ),
-    $colors
+$theme-color: #409EFF !default; //主题色定义
+$colors: (
+    ) !default;
+$colors: map-merge(("blue": $blue,
+            "indigo": $indigo,
+            "purple": $purple,
+            "pink": $pink,
+            "red": $red,
+            "orange": $orange,
+            "yellow": $yellow,
+            "green": $green,
+            "teal": $teal,
+            "cyan": $cyan,
+            "black": $black,
+            "white": $white,
+            "theme-color": $theme-color ),
+        $colors
 );
 //=====================================提示色，主题色====================================//
-$primary:       $blue !default;//主要的
-$secondary:     $gray-600 !default;//次要的颜色
-$success:       $green !default;//成功绿
-$info:          $cyan !default;//信息蓝
-$warning:       $yellow !default;//警告黄
-$danger:        $red !default;//危险红
-$light:         $gray-100 !default;//明亮
-$dark:          $gray-800 !default;//暗淡
-$theme-colors: () !default;
-$theme-colors: map-merge(
-    (
-        "primary":    $primary,
-        "secondary":  $secondary,
-        "success":    $success,
-        "info":       $info,
-        "warning":    $warning,
-        "danger":     $danger,
-        "light":      $light,
-        "dark":       $dark
-    ),
-    $theme-colors
+$primary: $blue !default; //主要的
+$secondary: $gray-600 !default; //次要的颜色
+$success: $green !default; //成功绿
+$info: $cyan !default; //信息蓝
+$warning: $yellow !default; //警告黄
+$danger: $red !default; //危险红
+$light: $gray-100 !default; //明亮
+$dark: $gray-800 !default; //暗淡
+$theme-colors: (
+    ) !default;
+$theme-colors: map-merge(("primary": $primary,
+            "secondary": $secondary,
+            "success": $success,
+            "info": $info,
+            "warning": $warning,
+            "danger": $danger,
+            "light": $light,
+            "dark": $dark ),
+        $theme-colors
 );
 
 $all-colors: map-merge(map-merge($theme-colors, $colors), $grays); //所有颜色
@@ -109,8 +103,9 @@ $font-weights: (
 //==========================================字体大小============================================//
 
 $font-size-base-px: 16;
-$font-size-base: fz($font-size-base-px) !default; 
+$font-size-base: fz($font-size-base-px) !default;
 $font-size-sm: fz($font-size-base-px * 0.875) !default;
+$font-size-mid: fz($font-size-base-px * 0.9375) !default;
 $font-size-xs: fz($font-size-base-px * .75) !default;
 $font-size-bg: fz($font-size-base-px * 1.25) !default;
 $font-size-lg: fz($font-size-base-px * 1.35) !default;
@@ -120,6 +115,7 @@ $font-size-ex: fz($font-size-base-px * 2) !default;
 $fonts: (
     f-base: $font-size-base,
     f-sm: $font-size-sm,
+    f-mid: $font-size-mid,
     f-xs: $font-size-xs,
     f-bg: $font-size-bg,
     f-lg: $font-size-lg,
@@ -139,35 +135,28 @@ $border-radius-base: size(5);
 $border-radius: size(5);
 $border-radius-bg: size(10);
 $border-radius-lg: size(15);
-$border-radius: map-merge(
-    (
-        "radius-xs": $border-radius-xs,
-        "radius-sm": $border-radius-sm,
-        "radius-base": $border-radius-base, //radius-base与radius等价
-        "radius": $border-radius-base, //radius-base与radius等价
-        "radius-bg": $border-radius-bg,
-        "radius-lg": $border-radius-lg,
-        "radius-round": 50%
-    ),
-    ()
-);
+$border-radius: map-merge(("radius-xs": $border-radius-xs,
+            "radius-sm": $border-radius-sm,
+            "radius-base": $border-radius-base, //radius-base与radius等价
+            "radius": $border-radius-base, //radius-base与radius等价
+            "radius-bg": $border-radius-bg,
+            "radius-lg": $border-radius-lg,
+            "radius-round": 50%),
+        ());
 
 
 //============================阴影==============================================//
-$box-shadow-sm:               rgba(0, 0, 0, 0.1) 0px 0px 4px 0px, !default;
-$box-shadow-base:             rgba(0, 0, 0, 0.1) 0px 0px 8px 0px, !default;
-$box-shadow:                  rgba(0, 0, 0, 0.1) 0px 0px 12px 0px, !default;
-$box-shadow-bg:               rgba(0, 0, 0, 0.1) 0px 0px 16px 0px, !default;
+$box-shadow-sm: rgba(0, 0, 0, 0.1) 0px 0px 4px 0px, !default;
+$box-shadow-base: rgba(0, 0, 0, 0.1) 0px 0px 8px 0px, !default;
+$box-shadow: rgba(0, 0, 0, 0.1) 0px 0px 12px 0px, !default;
+$box-shadow-bg: rgba(0, 0, 0, 0.1) 0px 0px 16px 0px, !default;
 
-$box-shadows: map-merge(
-    (
-        "box-shadow-sm": $box-shadow-sm,
-        "box-shadow-base": $box-shadow-base, //box-shadow-base与box-shadow等价
-        "box-shadow": $box-shadow-base, //box-shadow-base与box-shadow等价
-        "box-shadow-bg": $box-shadow-bg,
-    ),
-    ()
-);
+$box-shadows: map-merge(("box-shadow-sm": $box-shadow-sm,
+            "box-shadow-base": $box-shadow-base, //box-shadow-base与box-shadow等价
+            "box-shadow": $box-shadow-base, //box-shadow-base与box-shadow等价
+            "box-shadow-bg": $box-shadow-bg,
+        ),
+        ());
 
 //=====================================间距====================================//
 $space-direction: (
@@ -198,7 +187,8 @@ $flex-justify: (
     "j-between": space-between,
     "j-evenly": space-evenly,
 
-    "justify-start": flex-start, //向后兼容
+    "justify-start": flex-start,
+    //向后兼容
     "justify-center": center,
     "justify-end": flex-end,
     "justify-around": space-around,
@@ -229,28 +219,29 @@ $cursors: (
 );
 
 //=====================================zIndex====================================//
-$zIndex-fieldset: 2!default; //fieldset组件zIndex
-$zIndex-header: 1995!default;
-$zIndex-tabs: 1995!default;
-$zIndex-panel: 1996!default; //下拉面板层级
-$zIndex-editor: 1994!default; //富文本编辑器
-$zIndex-request-info-wrap: 1995!default; //请求操作区域
-$zIndex-drag-bar: 1996!default; //拖拽bar
-$zIndex-contextmenu: 1996!default; //contextmenu弹窗
-$zIndex-loading-text: 2222!default; //loading文案
-$zIndex-copy: 2599!default; //拷贝文案层级,高于UI组件库所有层级
+$zIndex-fieldset: 2 !default; //fieldset组件zIndex
+$zIndex-header: 1995 !default;
+$zIndex-tabs: 1995 !default;
+$zIndex-panel: 1996 !default; //下拉面板层级
+$zIndex-editor: 1994 !default; //富文本编辑器
+$zIndex-request-info-wrap: 1995 !default; //请求操作区域
+$zIndex-drag-bar: 1996 !default; //拖拽bar
+$zIndex-contextmenu: 1996 !default; //contextmenu弹窗
+$zIndex-loading-text: 2222 !default; //loading文案
+$zIndex-copy: 2599 !default; //拷贝文案层级,高于UI组件库所有层级
+
 :export {
     zIndexEditor: $zIndex-editor;
     zIndexCopy: $zIndex-copy;
     colorBlue: $blue;
-    colorRed: $red;     
-    colorOrange: $orange;  
-    colorYellow: $yellow;  
-    colorGreen: $green;   
-    colorPurple: $purple;  
-    colorIndigo: $indigo;  
-    colorPink: $pink;    
-    colorTeal: $teal;    
-    colorCyan: $cyan;    
+    colorRed: $red;
+    colorOrange: $orange;
+    colorYellow: $yellow;
+    colorGreen: $green;
+    colorPurple: $purple;
+    colorIndigo: $indigo;
+    colorPink: $pink;
+    colorTeal: $teal;
+    colorCyan: $cyan;
     colorThemeColor: $theme-color;
 }

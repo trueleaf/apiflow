@@ -50,7 +50,6 @@ const activeComponent = computed(() => {
   margin-top: 20px;
   margin-left: auto;
   margin-right: auto;
-
   @media only screen and (max-width: 720px) {
     width: 100%;
     padding: 0 20px;

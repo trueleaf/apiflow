@@ -1,53 +1,59 @@
 @charset "utf-8";
+
 //=====================================清除一些常见的样式====================================//
 :root {
-    --el-transition-duration: 0;
+  --el-transition-duration: 0;
 }
+
 * {
-    box-sizing: border-box;
+  box-sizing: border-box;
 }
+
 html {
-    font-size: 14px;
-    height: 100%;
-    font-family: Helvetica Neue, Helvetica, PingFang SC, Hiragino Sans GB,
-        Microsoft YaHei, SimSun, sans-serif;
+  font-size: 14px;
+  height: 100%;
+  font-family: Helvetica Neue, Helvetica, PingFang SC, Hiragino Sans GB,
+    Microsoft YaHei, SimSun, sans-serif;
 }
+
 body {
-    margin: 0;
-    padding: 0;
-    width: 100%;
-    height: 100%;
-    overflow-x: hidden;
-    color: $gray-700;
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  overflow-x: hidden;
+  color: $gray-700;
 }
+
 button,
 input,
 div,
 span,
 textarea {
-    outline: none;
-    padding: 0;
+  outline: none;
+  padding: 0;
 }
+
 pre.pre {
-    margin: 0;
-    overflow-x: auto;
-    padding: 7px 10px;
-    border: 1px solid #d1d5da;
-    border-radius: 4px;
-    background-color: #f0f0f0;
-    white-space: pre-wrap;
-    display: block;
-    color: #212529;
-    font-size: 87.5%;
-    font-family: SFMono-Regular, Menlo, Monaco, Consolas, Liberation Mono,
-        Courier New, monospace;
+  margin: 0;
+  overflow-x: auto;
+  padding: 7px 10px;
+  border: 1px solid #d1d5da;
+  border-radius: 4px;
+  background-color: #f0f0f0;
+  white-space: pre-wrap;
+  display: block;
+  color: #212529;
+  font-size: 87.5%;
+  font-family: SFMono-Regular, Menlo, Monaco, Consolas, Liberation Mono,
+    Courier New, monospace;
 }
 
 .iconfont {
-    font-family: "iconfont" !important;
-    font-size: 16px;
-    font-style: normal;
-    -webkit-font-smoothing: antialiased;
-    -webkit-text-stroke-width: 0.2px;
-    -moz-osx-font-smoothing: grayscale;
+  font-family: "iconfont" !important;
+  font-size: 16px;
+  font-style: normal;
+  -webkit-font-smoothing: antialiased;
+  -webkit-text-stroke-width: 0.2px;
+  -moz-osx-font-smoothing: grayscale;
 }
