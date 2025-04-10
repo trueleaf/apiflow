@@ -1,7 +1,7 @@
 <template>
   <div class="doc-list">
-    <el-tabs v-model="activeName">
-      <el-tab-pane name="tab-a">
+    <el-tabs :model-value="activeName" @update:model-value="handleChangeActiveTab">
+      <el-tab-pane name="projectList">
         <template #label>
           <span class="d-flex a-center">
             <el-icon :size="16" class="mr-1">
@@ -11,7 +11,7 @@
           </span>
         </template>
       </el-tab-pane>
-      <el-tab-pane name="tab-b">
+      <el-tab-pane name="groupList">
         <template #label>
           <span class="d-flex a-center">
             <el-icon :size="16" class="mr-1">
@@ -27,21 +27,30 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { Tickets, School } from '@element-plus/icons-vue'
 import tabA from './tab-a/tab-a.vue'
 import tabB from './tab-b/tab-b.vue'
 import { t } from 'i18next'
+import { TabPaneName } from 'element-plus'
+import { apidocCache } from '@/cache/apidoc'
 
-const activeName = ref('tab-a'); //当前激活选项卡
+const { getActiveApidocTab, setActiveApidocTab } = apidocCache
+const activeName = ref('projectList'); //当前激活选项卡
 const activeComponent = computed(() => {
-  if (activeName.value === 'tab-a') {
+  if (activeName.value === 'projectList') {
     return tabA
-  } else if (activeName.value === 'tab-b'){
+  } else if (activeName.value === 'groupList'){
     return tabB
   }
 })
-
+const handleChangeActiveTab = (tabName: TabPaneName) => {
+  setActiveApidocTab(tabName as string)
+  activeName.value = tabName as string;
+}
+onMounted(() => {
+  activeName.value = getActiveApidocTab()
+})
 </script>
 
 <style lang='scss' scoped>

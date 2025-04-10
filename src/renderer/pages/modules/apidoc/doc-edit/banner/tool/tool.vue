@@ -205,7 +205,7 @@ const projectName = computed(() => apidocBaseInfoStore.projectName)
 //初始化缓存数据
 const initCacheOperation = () => {
   const localToolbarOperations = localStorage.getItem('apidoc/toolbarOperations');
-  const localPinToolbarOperations = localStorage.getItem('apidoc/PinToolbarOperations');
+  const localPinToolbarOperations = localStorage.getItem('apidoc/pinToolbarOperations');
   if (localToolbarOperations) {
     const localData: Operation[] = JSON.parse(localToolbarOperations);
     localOriginOperations.forEach((data) => {
@@ -243,7 +243,7 @@ watch(operations, (v) => {
 })
 //缓存工具栏操作
 watch(pinOperations, (v) => {
-  localStorage.setItem('apidoc/PinToolbarOperations', JSON.stringify(v))
+  localStorage.setItem('apidoc/pinToolbarOperations', JSON.stringify(v))
 }, {
   deep: true
 })

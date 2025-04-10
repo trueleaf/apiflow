@@ -555,6 +555,27 @@ class ApidocCache {
       localStorage.setItem('apidoc/commonHeaders/ignore', '{}');
     }
   }
+  /**
+   * 项目列表和团队列表切换缓存
+   */
+  getActiveApidocTab(): string {
+    try {
+      const localData = localStorage.getItem('apidoc/activeApidocTab') || 'projectList';
+      return localData;
+    } catch (error) {
+      console.error(error);
+      return 'projectList'
+    }
+  }
+
+  setActiveApidocTab(activeTab: string) {
+    try {
+      localStorage.setItem('apidoc/activeApidocTab', activeTab);
+    } catch (error) {
+      console.error(error);
+      localStorage.setItem('apidoc/activeApidocTab', 'projectList');
+     }
+  }
 }
 
 export const apidocCache = new ApidocCache();
