@@ -1,7 +1,7 @@
 <template>
   <div class="remote-select">
     <input v-model="query" class="remote-select-inner" type="text" :placeholder="placeholder" @input="handleInput">
-    <div v-if="query" class="select-panel">
+    <div v-if="query" class="select-panel" :class="{ 'embedded': embedded }">
       <div v-if="dataLoading" class="loading">{{ t("加载中") }}...</div>
       <div v-if="!dataLoading && !slots.default" class="empty">{{ t("暂无数据") }}</div>
       <slot v-if="!dataLoading && slots.default" />
@@ -33,6 +33,14 @@ const props = defineProps({
     type: String,
     default: '',
   },
+  // scrollThumb: {
+  //   type: String as PropType<'normal' | 'small'>,
+  //   default: 'normal',
+  // },
+  embedded: {
+    type: Boolean,
+    default: false,
+  }
 })
 const emits = defineEmits([
   "update:modelValue",
@@ -95,7 +103,6 @@ watch(() => props.modelValue, (val) => {
     z-index: $zIndex-panel;
     overflow-y: auto;
     min-height: size(40);
-    // padding: size(10) size(20);
     width: 100%;
     max-height: size(200);
     background: $white;
@@ -103,7 +110,12 @@ watch(() => props.modelValue, (val) => {
     border-radius: $border-radius-base;
     line-height: normal;
     box-shadow: $box-shadow-sm;
-
+    
+    &.embedded {
+      border: none;
+      box-shadow: none;
+      position: static;
+    }
     .empty,
     .loading {
       font-size: fz(12);
