@@ -165,10 +165,15 @@ export const customDirective = {
     })
     //=====================================focus指令====================================//
     app.directive('focus-select', { //如果当前元素不是input则递归查找
-      mounted(el: HTMLElement) {
+      mounted(el: HTMLElement, binding) {
+        if (!binding.value) {
+          return
+        }
         if (el.tagName === 'INPUT') {
-          el.focus();
-          (el as HTMLInputElement).select();
+          setTimeout(() => {
+            el.focus();
+            (el as HTMLInputElement).select();
+          });
         } else {
           const ipt = el.querySelector('input');
           setTimeout(() => {
@@ -176,7 +181,7 @@ export const customDirective = {
             ipt?.focus()
           });
         }
-      },
+      }
     })
   }
 }

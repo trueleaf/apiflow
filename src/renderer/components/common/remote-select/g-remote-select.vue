@@ -1,6 +1,6 @@
 <template>
   <div class="remote-select">
-    <input v-model="query" class="remote-select-inner" type="text" :placeholder="placeholder" @input="handleInput">
+    <input v-model="query" v-focus-select="autoFocus" class="remote-select-inner" type="text" :placeholder="placeholder" @input="handleInput">
     <div v-if="query" class="select-panel" :class="{ 'embedded': embedded }">
       <div v-if="dataLoading" class="loading">{{ t("加载中") }}...</div>
       <div v-if="!dataLoading && !slots.default" class="empty">{{ t("暂无数据") }}</div>
@@ -33,10 +33,10 @@ const props = defineProps({
     type: String,
     default: '',
   },
-  // scrollThumb: {
-  //   type: String as PropType<'normal' | 'small'>,
-  //   default: 'normal',
-  // },
+  autoFocus: {
+    type: Boolean,
+    default: false,
+  },
   embedded: {
     type: Boolean,
     default: false,
@@ -118,7 +118,10 @@ watch(() => props.modelValue, (val) => {
     }
     .empty,
     .loading {
-      font-size: fz(12);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      // font-size: fz(12);
       color: $gray-500;
       padding: size(10) size(20);
     }
