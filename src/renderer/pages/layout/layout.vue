@@ -93,7 +93,7 @@
 <script lang="ts" setup>
 import { usePermissionStore } from '@/store/permission';
 import { RefreshRight, Back, Right, ArrowDown } from '@element-plus/icons-vue'
-import { deleteDB, unwrap } from 'idb';
+import { deleteDB } from 'idb';
 import { useRouter } from 'vue-router';
 import i18next, { t } from 'i18next';
 import type { Language } from '@src/types/global'

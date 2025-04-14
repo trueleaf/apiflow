@@ -198,21 +198,21 @@ export type ApidocProjectPermission = 'readAndWrite' | 'readOnly' | 'admin';
 //项目成员基本信息
 export type ApidocProjectMemberInfo = {
    /**
-   * 登录名称
+   * 用户或组名称
    */
-   loginName: string;
+   name: string;
    /**
    * 用户权限 "readAndWrite" | "readOnly" | "admin"
    */
-   permission: ApidocProjectPermission;
+   permission?: ApidocProjectPermission;
    /**
-   * 昵称
+    * 类型
+    */
+   type: "user" | "group",
+   /**
+   * 用户或组id
    */
-   realName: string;
-   /**
-      * 用户id
-      */
-   userId: string;
+   id: string;
 };
 //项目成员基本信息
 export type ApidocProjectInfo = {
