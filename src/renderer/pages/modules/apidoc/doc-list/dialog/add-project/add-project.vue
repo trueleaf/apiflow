@@ -4,24 +4,31 @@
       <el-form-item :label="`${t('项目名称')}：`" prop="projectName">
         <el-input v-model="formInfo.projectName" v-focus-select :size="config.renderConfig.layout.size" :placeholder="t('请输入项目名称')" @keydown.enter="handleAddProject"></el-input>
       </el-form-item>
-      <el-form-item :label="`${t('选择成员')}：`">
-        <RemoteSelector v-model="remoteQueryName" :remote-methods="getRemoteUserByName" :loading="loading" :placeholder="t('输入用户名或完整手机号查找用户')">
-          <RemoteSelectorItem v-for="(item, index) in remoteMembers" :key="index">
+      <el-form-item :label="`${t('选择成员或组')}：`">
+        <RemoteSelector v-model="remoteQueryName" :remote-methods="getRemoteUserOrGroupByName" :loading="loading" :placeholder="t('输入【用户名】| 【完整手机号】 | 【组名称】')">
+          <RemoteSelectorItem v-for="(item, index) in remoteUserOrGroupList" :key="index">
             <div class="d-flex a-center j-between w-100 h-100" @click="handleSelectUser(item)">
-              <span>{{ item.loginName }}</span>
-              <span>{{ item.realName }}</span>
+              <span>{{ item.name }}</span>
+              <el-tag v-if="item.type === 'user'">用户</el-tag>
+              <el-tag v-if="item.type === 'group'" type="success">组</el-tag>
             </div>
           </RemoteSelectorItem>
+          <div v-if="remoteUserOrGroupList.length === 0" class="d-flex a-center j-center w-100 h-40px gray-500">{{ t('暂无数据') }}</div>
         </RemoteSelector>
       </el-form-item>
     </el-form>
     <!-- 成员信息 -->
-    <el-table :data="selectUserData" stripe border max-height="200px">
-      <el-table-column prop="loginName" :label="t('用户名')" align="center"></el-table-column>
-      <el-table-column prop="realName" :label="t('昵称')" align="center"></el-table-column>
+    <el-table :data="selectMemberData" stripe border max-height="200px">
+      <el-table-column prop="name" :label="t('名称')" align="center"></el-table-column>
+      <el-table-column prop="type" :label="t('类型')" align="center">
+        <template #default="{ row }">
+          <el-tag v-if="row.type === 'user'">用户</el-tag>
+          <el-tag v-if="row.type === 'group'" type="success">组</el-tag>
+        </template>
+      </el-table-column>
       <el-table-column :label="t('角色(权限)')" align="center">
         <template #default="scope">
-          <el-select v-model="scope.row.permission" :size="config.renderConfig.layout.size">
+          <el-select v-if="scope.row.type === 'user'" v-model="scope.row.permission" :size="config.renderConfig.layout.size">
             <el-option :label="t('只读')" value="readOnly">
               <span>{{ t("只读") }}</span>
               <span class="gray-500">({{ t("仅查看项目") }})</span>
@@ -35,6 +42,7 @@
               <span class="gray-500">({{ t("添加新成员") }})</span>
             </el-option>
           </el-select>
+          <span v-else>/</span>
         </template>
       </el-table-column>
       <el-table-column :label="t('操作')" align="center" width="200px">
@@ -53,13 +61,16 @@
 <script lang="ts" setup>
 import { request } from '@/api/api';
 import { config } from '@src/config/config';
-import type { PermissionUserBaseInfo, ApidocProjectMemberInfo } from '@src/types/global'
+import type { ApidocProjectMemberInfo } from '@src/types/global'
 import { ElMessage, FormInstance } from 'element-plus';
 import { t } from 'i18next'
 import { nextTick, ref } from 'vue';
 import RemoteSelector from '@/components/common/remote-select/g-remote-select.vue';
 import RemoteSelectorItem from '@/components/common/remote-select/g-remote-select-item.vue';
 import Dialog from '@/components/common/dialog/g-dialog.vue';
+
+
+
 
 defineProps({
   modelValue: {
@@ -76,8 +87,8 @@ const formInfo = ref({
 const rules = ref({
   projectName: [{ required: true, trigger: 'blur', message: t('请填写项目名称') }],
 })
-const remoteMembers = ref<PermissionUserBaseInfo[]>([]) //------远程用户列表
-const selectUserData = ref<ApidocProjectMemberInfo[]>([]) //-----已选中的用户
+const remoteUserOrGroupList = ref<ApidocProjectMemberInfo[]>([]) //------远程用户列表
+const selectMemberData = ref<ApidocProjectMemberInfo[]>([]) //-----已选中的用户
 const remoteQueryName = ref('') //-------------------------用户名称
 const loading = ref(false) //------------------------------成员数据加载状态
 const loading2 = ref(false) //-----------------------------新增项目
@@ -87,14 +98,14 @@ const loading2 = ref(false) //-----------------------------新增项目
 |--------------------------------------------------------------------------
 */
 //根据名称查询用户列表
-const getRemoteUserByName = (query: string) => {
+const getRemoteUserOrGroupByName = (query: string) => {
   if (!query.trim()) return;
   loading.value = true;
   const params = {
     name: query,
   };
-  request.get('/api/security/userListByName', { params }).then((res) => {
-    remoteMembers.value = res.data;
+  request.get('/api/security/userOrGroupListByName', { params }).then((res) => {
+    remoteUserOrGroupList.value = res.data;
   }).catch((err) => {
     console.error(err);
   }).finally(() => {
@@ -107,7 +118,7 @@ const handleAddProject = () => {
       loading2.value = true;
       const params = {
         ...formInfo.value,
-        members: selectUserData.value.map((val) => ({
+        members: selectMemberData.value.map((val) => ({
           userId: val.userId,
           permission: val.permission,
           loginName: val.loginName,
@@ -135,23 +146,26 @@ const handleAddProject = () => {
   });
 }
 //选取用户
-const handleSelectUser = (item: PermissionUserBaseInfo) => {
-  remoteMembers.value = [];
+const handleSelectUser = (item: ApidocProjectMemberInfo) => {
+  remoteUserOrGroupList.value = [];
   remoteQueryName.value = '';
-  const hasUser = selectUserData.value.find((val) => val.userId === item.userId);
-  if (hasUser) {
+  const matchedMember = selectMemberData.value.find((val) => val.id === item.id);
+  if (matchedMember) {
     ElMessage.warning(t('请勿重复添加'));
     return;
   }
-  const userInfo: ApidocProjectMemberInfo = {
+  const memberInfo: ApidocProjectMemberInfo = {
     ...item,
     permission: 'readAndWrite',
   }
-  selectUserData.value.push(userInfo);
+  if (item.type === 'group') {
+    delete memberInfo.permission;
+  }
+  selectMemberData.value.push(memberInfo);
 }
 //删除成员
 const handleDeleteMember = (index: number) => {
-  selectUserData.value.splice(index, 1);
+  selectMemberData.value.splice(index, 1);
 }
 //关闭弹窗
 const handleClose = () => {
