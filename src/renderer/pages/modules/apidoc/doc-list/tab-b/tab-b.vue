@@ -1,7 +1,5 @@
 <template>
   <div v-loading="loading" class="tab-b">
-    <!-- <el-button :icon="Plus" @click="dialogVisible = true" type="success">{{ t('创建团队') }}</el-button> -->
-
     <div class="d-flex">
       <!-- banner -->
       <div class="side-menu-container">
@@ -16,7 +14,7 @@
           </el-icon>
         </div>
         <el-menu :default-active="selectedGroupId" class="vertical-menu" @select="handleSelectGroup">
-          <el-menu-item v-for="item in groupList" :key="item._id" :index="item._id">
+          <el-menu-item v-for="item in groupList.filter(item => item.groupName.includes(searchText))" :key="item._id" :index="item._id">
             <div class="text-ellipsis" :title="item.groupName">{{ item.groupName }}</div>
           </el-menu-item>
         </el-menu>
@@ -32,7 +30,6 @@
           </div>
           <h2 class="prompt-title">开始创建您的第一个团队</h2>
           <p class="prompt-subtitle">点击下方按钮立即创建团队，开启协作之旅</p>
-
           <el-button :icon="Plus" @click="dialogVisible = true" type="success">{{ t('创建团队') }}</el-button>
         </div>
         <!-- 配置界面 -->
@@ -43,17 +40,22 @@
           <el-form-item :label="t('团队描述')">
             <el-input type="textarea" v-model="groupInfo.description" class="w-40" show-word-limit maxlength="255" />
           </el-form-item>
-          <el-form-item :label="t('团队创建者')">
-            <span class="gray-600">{{ groupInfo.creator.userName }}</span>
+          <el-form-item :label="t('团队信息')">
+            <div class="ml-2 gray-600">
+              <div>{{ `${t('由')}【${groupInfo.creator.userName}】${'创建于'} ${dayjs(groupInfo.createdAt).format('YYYY-MM-DD HH:mm')}` }}</div>
+              <div v-if="groupInfo.updator">{{ `${t('由')}【${groupInfo.updator.userName}】${'更新于'} ${dayjs(groupInfo.updatedAt).format('YYYY-MM-DD HH:mm')}` }}</div>
+            </div>
           </el-form-item>
           <el-form-item>
             <template #label>
-              <div class="d-flex a-center">
-                <span>团队成员</span>
-                <span class="f-xs gray-500">({{ t('权限修改和成员增加不需要保存，修改后立即生效') }})</span>
+              <div>
+                <span>{{ t('团队成员') }}</span>
+                <!-- <span class="f-xs ml-1 theme-color cursor-pointer" @click="() => {memberMode = memberMode === 'card' ? 'list' : 'card'}">{{ t('切换列表展示') }}</span> -->
               </div>
+              <div class="f-xs gray-500 mb-1">{{ t('权限修改和成员增加不需要保存，修改后立即生效') }}</div>
             </template>
-            <div v-for="member in groupInfo.members" :key="member.userId" class="user-item">
+            <!-- 卡片权限修改 -->
+            <div v-if="memberMode === 'card'" v-for="member in groupInfo.members" :key="member.userId" class="user-item">
               <el-avatar :size="40" shape="circle" class="flex0">
                 <span class="f-bg">{{ member.loginName.charAt(0) }}</span>
               </el-avatar>
@@ -61,7 +63,7 @@
                 <div class="name">{{ member.loginName }}</div>
                 <el-popover :visible="(popoverVisibleId === member.userId)" placement="bottom-start" :popper-style="{ padding: '0' }" :hide-after="0" :width="200" >
                   <template #reference>
-                    <div class="permission" @click.stop="() => {popoverVisibleId = member.userId, popoverVisible = false}">
+                    <div class="permission" @click.stop="() => {popoverVisibleId  === member.userId ? (popoverVisibleId = '') : popoverVisibleId = member.userId, popoverVisible = false}">
                       <span v-if="member.permission === 'readOnly'" class="f-xs">只读</span>
                       <span v-if="member.permission === 'readAndWrite'" class="f-xs">可编辑</span>
                       <span v-if="member.permission === 'admin'" class="f-xs">管理员</span>
@@ -98,6 +100,65 @@
                 </el-popover>
               </div>
             </div>
+            <!-- 列表形式权限修改 -->
+            <div v-if="memberMode === 'list'">
+              <el-table :data="groupInfo.members" border max-height="400px" >
+                <el-table-column prop="loginName" label="成员名称" width="180" sortable/>
+                <el-table-column prop="permission" label="权限" width="180" sortable>
+                  <template #default="{ row }">
+                    <el-popover :visible="(popoverVisibleId === row.userId)" placement="bottom-start" :popper-style="{ padding: '0' }" :hide-after="0" :width="200" >
+                      <template #reference>
+                        <div class="permission d-flex a-center" @click.stop="() => {popoverVisibleId  === row.userId ? (popoverVisibleId = '') : popoverVisibleId = row.userId, popoverVisible = false}">
+                          <span v-if="row.permission === 'readOnly'" class="f-xs cursor-pointer">只读</span>
+                          <span v-if="row.permission === 'readAndWrite'" class="f-xs cursor-pointer">可编辑</span>
+                          <span v-if="row.permission === 'admin'" class="f-xs cursor-pointer">管理员</span>
+                          <el-icon class="ml-1 cursor-pointer">
+                            <ArrowDown />
+                          </el-icon>
+                        </div>
+                      </template>
+                      <template #default>
+                        <div class="permission-list">
+                          <div class="permission-item" :class="{ active: row.permission === 'readOnly' }"
+                            @click="() => handleChangePermission(groupInfo!._id, row.userId, 'readOnly')">
+                            <span>只读</span>
+                            <el-icon v-if="row.permission === 'readOnly'">
+                              <Check />
+                            </el-icon>
+                          </div>
+                          <div class="permission-item" :class="{ active: row.permission === 'readAndWrite' }"
+                            @click="() => handleChangePermission(groupInfo!._id, row.userId, 'readAndWrite')">
+                            <span>可编辑</span>
+                            <el-icon v-if="row.permission === 'readAndWrite'">
+                              <Check />
+                            </el-icon>
+                          </div>
+                          <div class="permission-item" :class="{ active: row.permission === 'admin' }"
+                            @click="() => handleChangePermission(groupInfo!._id, row.userId, 'admin')">
+                            <span>管理员</span>
+                            <el-icon v-if="row.permission === 'admin'">
+                              <Check />
+                            </el-icon>
+                          </div>
+                        </div>
+                      </template>
+                    </el-popover>
+                  </template>
+                </el-table-column>
+                <!-- <el-table-column prop="expireAt" label="过期时间" width="200" sortable>
+                  <template #default="{ row }">
+                    <span v-if="row.expireAt">{{ dayjs(row.expireAt).format('YYYY-MM-DD HH:mm') }}</span>
+                    <span v-else>/</span>
+                  </template>
+                </el-table-column> -->
+                <el-table-column prop="expireAt" label="操作" width="70" align="center">
+                  <template #default="{ row }">
+                    <el-button v-if="row.userId === permissionStore.userInfo.id" link type="primary" @click="() => handleRemoveMember(groupInfo!._id, row.userId)">退出</el-button>
+                    <el-button v-else link type="primary" @click="() => handleRemoveMember(groupInfo!._id, row.userId)">删除</el-button>
+                  </template>
+                </el-table-column>
+            </el-table>
+            </div>
             <el-popover
               :visible="popoverVisible"
               placement="right"
@@ -112,23 +173,22 @@
               </template>
               <template #default>
                 <div @click.stop="">
-                  <!-- <el-input prefix-icon="Search" v-model="searchText" :placeholder="t('输入用户名或完整手机号查找用户')" clearable @change="handleSearchUser"></el-input>
-                  <div class="user-list">
-
-                  </div> -->
                   <RemoteSelector 
+                    v-if="popoverVisible"
                     v-model="remoteQueryName" 
                     :remote-methods="getRemoteUserByName" 
                     :loading="loading2" 
                     embedded
+                    auto-focus
                     :placeholder="t('输入用户名或完整手机号查找用户')"
                   >
                     <RemoteSelectorItem v-for="(item, index) in remoteMembers" :key="index">
-                      <div class="d-flex a-center j-between w-100 h-100" @click="handleSelectUser(item)">
+                      <div class="d-flex a-center j-between w-100 h-100" @click="handleAddUser(item)">
                         <span>{{ item.loginName }}</span>
                         <span>{{ item.realName }}</span>
                       </div>
                     </RemoteSelectorItem>
+                    <div v-if="remoteMembers.length === 0" class="d-flex a-center j-center w-100 h-40px gray-500">{{ t('暂无数据') }}</div>
                   </RemoteSelector>
                 </div>
               </template>
@@ -152,11 +212,13 @@ import { computed, onMounted, ref } from 'vue';
 import AddProjectDialog from './dialog/add-group/add-group.vue'
 import { request } from '@/api/api';
 import { ApidocProjectMemberInfo, PermissionUserBaseInfo, Response } from '@src/types/global';
-import { cloneDeep } from '@/helper';
-import { ElMessage } from 'element-plus';
+import { cloneDeep, uuid } from '@/helper';
+import { ElMessage, ElMessageBox } from 'element-plus';
 import RemoteSelector from '@/components/common/remote-select/g-remote-select.vue';
 import RemoteSelectorItem from '@/components/common/remote-select/g-remote-select-item.vue';
 import { useGlobalClick } from '@/hooks/use-global-click';
+import dayjs from 'dayjs'
+import { usePermissionStore } from '@/store/permission';
 
 type GroupItem = {
   _id: string;
@@ -167,6 +229,13 @@ type GroupItem = {
     userName: string;
     _id: string;
   },
+  updator: {
+    userId: string;
+    userName: string;
+    _id: string;
+  },
+  createdAt: string;
+  updatedAt: string;
   members: {
     loginName: string;
     userId: string;
@@ -186,11 +255,20 @@ const popoverVisibleId = ref('')
 const groupInfo = ref<GroupItem | null>(null)
 const originGroupInfo = ref<GroupItem | null>(null)
 const remoteQueryName = ref('');
-const remoteMembers = ref<PermissionUserBaseInfo[]>([])
+const memberMode = ref<'list' | 'card'>('list')
+const remoteMembers = ref<PermissionUserBaseInfo[]>([]);
+const permissionStore = usePermissionStore();
+const isEdited = computed(() => {
+  if (!groupInfo.value || !originGroupInfo.value) return false;
+  const isSameGroupName = groupInfo.value.groupName === originGroupInfo.value.groupName;
+  const isSameDescription = groupInfo.value.description === originGroupInfo.value.description;
+  if (!isSameGroupName || !isSameDescription) return true;
+  return false;
+})
 //选择组
 const handleSelectGroup = (groupId: string) => {
   const groupItem = groupList.value.find(item => item._id === groupId)!;
-  groupInfo.value = groupItem;
+  groupInfo.value = cloneDeep(groupItem);
   originGroupInfo.value = cloneDeep(groupItem);
 }
 //根据名称查询用户列表
@@ -208,8 +286,8 @@ const getRemoteUserByName = (query: string) => {
     loading2.value = false;
   });
 }
-//选取用户
-const handleSelectUser = (item: PermissionUserBaseInfo) => {
+//新增用户
+const handleAddUser = (item: PermissionUserBaseInfo) => {
   remoteMembers.value = [];
   remoteQueryName.value = '';
   const hasUser = groupInfo.value?.members.find((val) => val.userId === item.userId);
@@ -230,11 +308,35 @@ const handleSelectUser = (item: PermissionUserBaseInfo) => {
     permission: 'readAndWrite',
   
   }
-  request.post<Response<void>, Response<void>>('/api/group/member/add', params).then(res => {
-    
+  request.post<Response<void>, Response<void>>('/api/group/member/add', params).then(() => {
+    changeGroupInfo()
   }).catch(err => {
-    console.log(err)
+    console.error(err)
   })
+}
+//删除用户
+const handleRemoveMember = (groupId: string, userId: string) => {
+  const removeTip = userId === permissionStore.userInfo.id ? t('确认要退出当前团队吗') : t('确定要移除该用户吗？') 
+  ElMessageBox.confirm(removeTip, t('提示'), {
+    confirmButtonText: t('确定'),
+    cancelButtonText: t('取消') ,
+    type: 'warning',
+  }).then(() => {
+    const params = {
+      groupId,
+      userId,
+    }
+    request.delete<Response<void>, Response<void>>('/api/group/member/remove', { data: params }).then(() => {
+      const delIndex = groupInfo.value?.members.findIndex(item => item.userId === userId);
+      if (delIndex !== undefined) {
+        groupInfo.value?.members.splice(delIndex, 1);
+      }
+      ElMessage.success('移除成功');
+    }).catch(err => {
+      console.error(err)
+    })
+  }).catch(() => {
+  });
 }
 //获取分组列表
 const getGroupList = () => {
@@ -242,31 +344,44 @@ const getGroupList = () => {
   request.get<Response<GroupItem[]>, Response<GroupItem[]>>('/api/group/list').then(res => {
     groupList.value = res.data;
     selectedGroupId.value = res.data[0]._id;
-    groupInfo.value = res.data[0];
+    groupInfo.value = cloneDeep(res.data[0]);
     originGroupInfo.value = cloneDeep(res.data[0])
   }).catch(err => {
-    console.log(err)
+    console.error(err)
   }).finally(() => {
     loading.value = false
   })
 }
-
-const isEdited = computed(() => {
-  if (!groupInfo.value || !originGroupInfo.value) return false;
-  return JSON.stringify(groupInfo.value) !== JSON.stringify(originGroupInfo.value)
-})
+//更新修改信息
+const changeGroupInfo = () => {
+  const editGroup = groupList.value.find(item => item._id === groupInfo.value?._id);
+  if (editGroup) {
+    editGroup.groupName = groupInfo.value!.groupName;
+    editGroup.description = groupInfo.value!.description;
+  }
+  groupInfo.value!.updatedAt = dayjs().format('YYYY-MM-DD HH:mm');
+  if (!groupInfo.value?.updator) {
+    groupInfo.value!.updator = {
+      userId: uuid(),
+      userName: permissionStore.userInfo.loginName || permissionStore.userInfo.realName,
+      _id: uuid(),
+    }
+  } else {
+    groupInfo.value!.updator.userName = permissionStore.userInfo.loginName || permissionStore.userInfo.realName;
+  }
+}
 //保存修改
 const handleSaveGroupInfo = () => {
   if (!groupInfo.value) return;
-  const { _id, groupName, description, members } = groupInfo.value;
+  const { _id, groupName, description } = groupInfo.value;
   request.put<Response<GroupItem>, Response<GroupItem>>('/api/group/update', {
     _id,
     groupName,
     description,
-    members
-  }).then(res => {
+  }).then(() => {
     ElMessage.success('保存成功')
-    originGroupInfo.value = cloneDeep(groupInfo.value)
+    changeGroupInfo()
+    originGroupInfo.value = cloneDeep(groupInfo.value);
   }).catch(err => {
     console.error(err)
   })
@@ -280,6 +395,7 @@ const handleChangePermission = (groupId: string, userId: string, permission: "ad
   }
   request.put<Response<GroupItem>, Response<GroupItem>>('/api/group/member/permission', params).then(() => {
     ElMessage.success('修改成功');
+    changeGroupInfo()
     groupInfo.value?.members.forEach(member => {
       if (member.userId === userId){
         member.permission = permission
@@ -289,7 +405,6 @@ const handleChangePermission = (groupId: string, userId: string, permission: "ad
     console.error(err)
   })
 }
-
 useGlobalClick(() => {
   popoverVisibleId.value = '';
   popoverVisible.value = false;
@@ -372,7 +487,7 @@ onMounted(() => {
 
   .el-menu-item {
     height: size(35);
-
+    line-height: size(35);
     &:hover {
       background-color: $gray-200;
     }
@@ -387,6 +502,7 @@ onMounted(() => {
 .group-content {
   flex: 1;
   height: calc(100vh - #{size(150)});
+  overflow-y: auto;
   // box-shadow: $box-shadow-sm;
   border-top: 1px solid $gray-300;
   border-right: 1px solid $gray-300;
@@ -425,8 +541,6 @@ onMounted(() => {
         display: flex;
         align-items: center;
         cursor: pointer;
-
-        .icon {}
       }
     }
   }
