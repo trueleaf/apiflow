@@ -321,7 +321,7 @@ const deleteProject = (_id: string) => {
     cancelButtonText: t('取消'),
     type: 'warning'
   }).then(() => {
-    request.delete('/api/project/delete', { data: { _id } }).then(() => {
+    request.delete('/api/project/delete_project', { data: { ids: [_id] } }).then(() => {
       getProjectList();
     }).catch((err) => {
       console.error(err);

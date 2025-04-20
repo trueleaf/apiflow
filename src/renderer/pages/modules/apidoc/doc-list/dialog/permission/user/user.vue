@@ -1,25 +1,39 @@
 <template>
   <div class="d-flex a-center mb-3">
     <span class="flex0">{{ t("添加用户") }}：</span>
-    <RemoteSelector v-model="remoteQueryName" :remote-methods="getRemoteUserByName" :loading="loading2"
-      :placeholder="t('输入用户名或完整手机号查找用户')" class="w-300px">
-      <RemoteSelectorItem v-for="(item, index) in remoteMembers" :key="index">
-        <div class="d-flex a-center j-between w-100 h-100" @click="handleSelectUser(item)">
-          <span>{{ item.loginName }}</span>
-          <span>{{ item.realName }}</span>
+    <RemoteSelector v-model="remoteQueryName" :remote-methods="getRemoteUserOrGroupByName" :loading="loading2"
+      :placeholder="t('输入【用户名】| 【完整手机号】 | 【组名称】')">
+      <RemoteSelectorItem v-for="(item, index) in remoteUserOrGroupList" :key="index">
+        <div class="d-flex a-center j-between w-100 h-100" @click="handleAddMember(item)">
+          <span>{{ item.name }}</span>
+          <el-tag v-if="item.type === 'user'">用户</el-tag>
+          <el-tag v-if="item.type === 'group'" type="success">组</el-tag>
         </div>
       </RemoteSelectorItem>
+      <div v-if="remoteUserOrGroupList.length === 0" class="d-flex a-center j-center w-100 h-40px gray-500">{{ t('暂无数据')
+        }}</div>
     </RemoteSelector>
   </div>
   <!-- 表格展示 -->
   <Loading :loading="loading">
-    <el-table :data="selectedUserData" stripe border max-height="300px">
-      <el-table-column prop="loginName" :label="t('用户名')" align="center"></el-table-column>
-      <el-table-column prop="realName" :label="t('昵称')" align="center"></el-table-column>
-      <el-table-column label="角色(权限)" align="center">
+    <!-- 成员信息 -->
+    <el-table :data="memberList" stripe border max-height="50vh">
+      <el-table-column prop="name" :label="t('名称')" align="center"></el-table-column>
+      <el-table-column prop="type" :label="t('类型')" sortable align="center">
+        <template #default="{ row }">
+          <el-tag v-if="row.type === 'user'">用户</el-tag>
+          <el-tag v-if="row.type === 'group'" type="success">组</el-tag>
+        </template>
+      </el-table-column>
+      <el-table-column :label="t('角色(权限)')" align="center">
         <template #default="scope">
-          <el-select v-model="scope.row.permission" :size="config.renderConfig.layout.size"
-            @change="handleChangePermission(scope.row)">
+          <el-select 
+            v-if="scope.row.type === 'user'" 
+            :size="config.renderConfig.layout.size"
+            v-model="scope.row.permission"
+            @change="handleChangePermission(scope.row)"
+          
+          >
             <el-option :label="t('只读')" value="readOnly">
               <span>{{ t("只读") }}</span>
               <span class="gray-500">({{ t("仅查看项目") }})</span>
@@ -33,14 +47,15 @@
               <span class="gray-500">({{ t("添加新成员") }})</span>
             </el-option>
           </el-select>
+          <span v-else>/</span>
         </template>
       </el-table-column>
       <el-table-column :label="t('操作')" align="center" width="200px">
         <template #default="scope">
-          <el-button v-if="selfLoginName === scope.row.loginName" type="primary" text
+          <el-button v-if="userInfo.id === scope.row.id" type="primary" text
             @click="handleLeaveGroup(scope.row, scope.$index)">{{ t("退出") }}</el-button>
           <el-button v-else type="primary" text @click="handleDeleteMember(scope.row, scope.$index)">{{ t("删除")
-            }}</el-button>
+          }}</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -49,8 +64,8 @@
 
 <script lang="ts" setup>
 import { t } from 'i18next'
-import type { ApidocProjectInfo, Response, ApidocProjectMemberInfo, ApidocProjectPermission } from '@src/types/global'
-import { computed, onMounted, ref } from 'vue';
+import type { Response, ApidocProjectMemberInfo, ApidocProjectPermission, ApidocGroupUser } from '@src/types/global'
+import {  onMounted, ref } from 'vue';
 import { ElMessage, ElMessageBox } from 'element-plus';
 import { usePermissionStore } from '@/store/permission';
 import { config } from '@src/config/config';
@@ -59,7 +74,14 @@ import Loading from '@/components/common/loading/g-loading.vue'
 import RemoteSelector from '@/components/common/remote-select/g-remote-select.vue';
 import RemoteSelectorItem from '@/components/common/remote-select/g-remote-select-item.vue';
 
-type PermissionUserInfo = ApidocProjectMemberInfo & { _permission: ApidocProjectPermission };
+type MemberWithOldPermission = ApidocProjectMemberInfo & { _permission?: ApidocProjectPermission };
+type MemberInfo = {
+  groups: {
+    groupId: string;
+    groupName: string;
+  }[];
+  users: ApidocGroupUser[]
+}
 /*
 |--------------------------------------------------------------------------
 | 变量定义
@@ -74,12 +96,11 @@ const props = defineProps({
 })
 const emits = defineEmits(['leave']);
 const { userInfo } = usePermissionStore()
-const remoteMembers = ref<ApidocProjectMemberInfo[]>([]);
-const selectedUserData = ref<ApidocProjectInfo['members']>([]);
+const remoteUserOrGroupList = ref<ApidocProjectMemberInfo[]>([]) //------远程用户和组列表
+const memberList = ref<MemberWithOldPermission[]>([]);
 const remoteQueryName = ref('');
 const loading = ref(false);
 const loading2 = ref(false);
-const selfLoginName = computed(() => userInfo.loginName);
 /*
 |--------------------------------------------------------------------------
 | 初始化
@@ -87,33 +108,46 @@ const selfLoginName = computed(() => userInfo.loginName);
 |
 */
 //获取项目成员信息
-const getApidocProjectMemberInfo = () => {
+const getApidocProjectUserInfo = () => {
   loading.value = true;
-  request.get<Response<ApidocProjectMemberInfo[]>, Response<ApidocProjectMemberInfo[]>>('/api/project/project_members', { params: { _id: props.id } }).then((res) => {
-    selectedUserData.value = res.data.map((v) => ({
-      ...v,
-      _permission: v.permission,
-    })) || [];
+  request.get<Response<MemberInfo>, Response<MemberInfo>>('/api/project/project_members', { params: { _id: props.id } }).then((res) => {
+    res.data.users.forEach((userInfo) => {
+      memberList.value.push({
+        name: userInfo.userName,
+        type: 'user',
+        permission: userInfo.permission,
+        _permission: userInfo.permission,
+        id: userInfo.userId,
+      })
+    })
+    res.data.groups.forEach((groupInfo) => {
+      memberList.value.push({
+        name: groupInfo.groupName,
+        type: 'group',
+        id: groupInfo.groupId,
+      })
+    })
   }).catch((err) => {
     console.error(err);
   }).finally(() => {
     loading.value = false;
   });
 };
-//根据名称查询用户列表
-const getRemoteUserByName = (query: string) => {
+//根据用户名称或组查询用户列表
+const getRemoteUserOrGroupByName = (query: string) => {
+  if (!query.trim()) return;
   loading2.value = true;
   const params = {
     name: query,
   };
-  request.get('/api/security/userListByName', { params }).then((res) => {
-    remoteMembers.value = res.data;
+  request.get('/api/security/userOrGroupListByName', { params }).then((res) => {
+    remoteUserOrGroupList.value = res.data;
   }).catch((err) => {
     console.error(err);
   }).finally(() => {
     loading2.value = false;
   });
-};
+}
 
 /*
 |--------------------------------------------------------------------------
@@ -121,41 +155,49 @@ const getRemoteUserByName = (query: string) => {
 |--------------------------------------------------------------------------
 */
 //添加成员
-const handleSelectUser = (item: ApidocProjectMemberInfo) => {
-  remoteMembers.value = [];
+const handleAddMember = (item: ApidocProjectMemberInfo) => {
+  remoteUserOrGroupList.value = [];
   remoteQueryName.value = '';
-  const hasUser = selectedUserData.value.find((val) => val.userId === item.userId);
-  if (hasUser) {
+  const hasMember = memberList.value.find((memberInfo) => memberInfo.id === item.id);
+  if (hasMember) {
     ElMessage.warning(t('用户已经存在，请勿重复添加'));
     return;
   }
   const params = {
-    loginName: item.loginName,
-    realName: item.realName,
-    permission: 'readAndWrite',
-    userId: item.userId,
+    name: item.name,
+    permission: item.type === 'user' ? 'readAndWrite' : undefined,
+    id: item.id,
     projectId: props.id,
+    type: item.type,
   };
   request.post('/api/project/add_user', params).then(() => {
-    item.permission = 'readAndWrite';
-    selectedUserData.value.push(item);
+    const memberInfo: MemberWithOldPermission = {
+      ...item,
+      permission: 'readAndWrite',
+      _permission: 'readAndWrite',
+    }
+    if (item.type === 'group') {
+      delete memberInfo.permission;
+    }
+    memberList.value.push(memberInfo);
   }).catch((err) => {
     console.error(err);
   });
 };
 //删除成员
-const handleDeleteMember = (row: PermissionUserInfo, index: number) => {
+const handleDeleteMember = (row: MemberWithOldPermission, index: number) => {
   ElMessageBox.confirm(t('确认删除当前成员吗?'), t('提示'), {
     confirmButtonText: t('确定'),
     cancelButtonText: t('取消'),
     type: 'warning',
   }).then(() => {
     const params = {
-      userId: row.userId,
+      id: row.id,
       projectId: props.id,
+      memberType: row.type,
     };
     request.delete('/api/project/delete_user', { data: params }).then(() => {
-      selectedUserData.value.splice(index, 1);
+      memberList.value.splice(index, 1);
     }).catch((err) => {
       console.error(err);
     });
@@ -167,9 +209,9 @@ const handleDeleteMember = (row: PermissionUserInfo, index: number) => {
   });
 };
 //离开团队
-const handleLeaveGroup = (row: PermissionUserInfo, index: number) => {
-  const hasAdmin = selectedUserData.value.find((info) => {
-    if (info.userId !== userInfo.id && info.permission === 'admin') {
+const handleLeaveGroup = (row: MemberWithOldPermission, index: number) => {
+  const hasAdmin = memberList.value.find((member) => {
+    if (member.id !== userInfo.id && member.permission === 'admin') {
       return true
     }
     return false;
@@ -184,11 +226,11 @@ const handleLeaveGroup = (row: PermissionUserInfo, index: number) => {
     type: 'warning',
   }).then(() => {
     const params = {
-      userId: row.userId,
+      id: row.id,
       projectId: props.id,
     };
     request.delete('/api/project/delete_user', { data: params }).then(() => {
-      selectedUserData.value.splice(index, 1);
+      memberList.value.splice(index, 1);
       emits('leave');
     }).catch((err) => {
       console.error(err);
@@ -201,10 +243,10 @@ const handleLeaveGroup = (row: PermissionUserInfo, index: number) => {
   });
 };
 //改变成员权限
-const handleChangePermission = (row: PermissionUserInfo) => {
+const handleChangePermission = (row: MemberWithOldPermission) => {
   const oldPermission = row._permission
-  const hasAdmin = selectedUserData.value.find((info) => {
-    if (info.permission === 'admin') {
+  const hasAdmin = memberList.value.find((member) => {
+    if (member.permission === 'admin') {
       return true
     }
     return false;
@@ -221,7 +263,7 @@ const handleChangePermission = (row: PermissionUserInfo) => {
       type: 'warning',
     }).then(() => {
       const params = {
-        userId: row.userId,
+        id: row.id,
         projectId: props.id,
         permission: row.permission,
       };
@@ -240,7 +282,7 @@ const handleChangePermission = (row: PermissionUserInfo) => {
     });
   } else {
     const params = {
-      userId: row.userId,
+      id: row.id,
       projectId: props.id,
       permission: row.permission,
     };
@@ -253,6 +295,6 @@ const handleChangePermission = (row: PermissionUserInfo) => {
   }
 }
 onMounted(() => {
-  getApidocProjectMemberInfo();
+  getApidocProjectUserInfo();
 })
 </script>
