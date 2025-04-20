@@ -19,7 +19,7 @@
         <RemoteSelector v-model="remoteQueryName" :remote-methods="getRemoteUserByName" :loading="loading" :placeholder="t('输入用户名或完整手机号查找用户')">
           <RemoteSelectorItem v-for="(item, index) in remoteMembers" :key="index">
             <div class="d-flex a-center j-between w-100 h-100" @click="handleSelectUser(item)">
-              <span>{{ item.loginName }}</span>
+              <span>{{ item.userName }}</span>
               <span>{{ item.realName }}</span>
             </div>
           </RemoteSelectorItem>
@@ -31,7 +31,7 @@
     </el-form>
     <!-- 成员信息 -->
     <el-table :data="selectUserData" stripe border max-height="200px">
-      <el-table-column prop="loginName" :label="t('用户名')" align="center"></el-table-column>
+      <el-table-column prop="userName" :label="t('用户名')" align="center"></el-table-column>
       <el-table-column prop="realName" :label="t('昵称')" align="center"></el-table-column>
       <el-table-column :label="t('角色(权限)')" align="center">
         <template #default="scope">
@@ -67,7 +67,7 @@
 <script lang="ts" setup>
 import { request } from '@/api/api';
 import { config } from '@src/config/config';
-import type { PermissionUserBaseInfo, ApidocProjectMemberInfo } from '@src/types/global'
+import type { PermissionUserBaseInfo, ApidocGroupUser } from '@src/types/global'
 import { ElMessage, FormInstance } from 'element-plus';
 import { t } from 'i18next'
 import { nextTick, ref } from 'vue';
@@ -91,7 +91,12 @@ const rules = ref({
   groupName: [{ required: true, trigger: 'blur', message: t('请填写团队名称') }],
 })
 const remoteMembers = ref<PermissionUserBaseInfo[]>([]) //------远程用户列表
-const selectUserData = ref<ApidocProjectMemberInfo[]>([]) //-----已选中的用户
+const selectUserData = ref< {
+    userName: string;
+    userId: string;
+    permission: "admin" | "readOnly" | "readAndWrite",
+    expireAt?: string;
+  }[]>([]) //-----已选中的用户
 const remoteQueryName = ref('') //-------------------------用户名称
 const loading = ref(false) //------------------------------成员数据加载状态
 const loading2 = ref(false) //-----------------------------新增团队
@@ -127,8 +132,7 @@ const handleAddGroup = () => {
         members: selectUserData.value.map((val) => ({
           userId: val.userId,
           permission: val.permission,
-          loginName: val.loginName,
-          realName: val.realName,
+          userName: val.userName,
         })),
       };
       request.post('/api/group/create', params).then((res) => {
@@ -160,7 +164,7 @@ const handleSelectUser = (item: PermissionUserBaseInfo) => {
     ElMessage.warning(t('请勿重复添加'));
     return;
   }
-  const userInfo: ApidocProjectMemberInfo = {
+  const userInfo: ApidocGroupUser = {
     ...item,
     permission: 'readAndWrite',
   }
