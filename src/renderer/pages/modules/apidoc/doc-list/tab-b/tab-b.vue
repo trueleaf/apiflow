@@ -57,10 +57,10 @@
             <!-- 卡片权限修改 -->
             <div v-if="memberMode === 'card'" v-for="member in groupInfo.members" :key="member.userId" class="user-item">
               <el-avatar :size="40" shape="circle" class="flex0">
-                <span class="f-bg">{{ member.loginName.charAt(0) }}</span>
+                <span class="f-bg">{{ member.userName.charAt(0) }}</span>
               </el-avatar>
               <div class="user-info">
-                <div class="name">{{ member.loginName }}</div>
+                <div class="name">{{ member.userName }}</div>
                 <el-popover :visible="(popoverVisibleId === member.userId)" placement="bottom-start" :popper-style="{ padding: '0' }" :hide-after="0" :width="200" >
                   <template #reference>
                     <div class="permission" @click.stop="() => {popoverVisibleId  === member.userId ? (popoverVisibleId = '') : popoverVisibleId = member.userId, popoverVisible = false}">
@@ -103,7 +103,7 @@
             <!-- 列表形式权限修改 -->
             <div v-if="memberMode === 'list'">
               <el-table :data="groupInfo.members" border max-height="400px" >
-                <el-table-column prop="loginName" label="成员名称" width="180" sortable/>
+                <el-table-column prop="userName" label="成员名称" width="180" sortable/>
                 <el-table-column prop="permission" label="权限" width="180" sortable>
                   <template #default="{ row }">
                     <el-popover :visible="(popoverVisibleId === row.userId)" placement="bottom-start" :popper-style="{ padding: '0' }" :hide-after="0" :width="200" >
@@ -184,7 +184,7 @@
                   >
                     <RemoteSelectorItem v-for="(item, index) in remoteMembers" :key="index">
                       <div class="d-flex a-center j-between w-100 h-100" @click="handleAddUser(item)">
-                        <span>{{ item.loginName }}</span>
+                        <span>{{ item.userName }}</span>
                         <span>{{ item.realName }}</span>
                       </div>
                     </RemoteSelectorItem>
@@ -211,7 +211,7 @@ import { Plus, User, Search, ArrowDown, Check } from '@element-plus/icons-vue'
 import { computed, onMounted, ref } from 'vue';
 import AddProjectDialog from './dialog/add-group/add-group.vue'
 import { request } from '@/api/api';
-import { ApidocProjectMemberInfo, PermissionUserBaseInfo, Response } from '@src/types/global';
+import { ApidocGroupItem, ApidocGroupUser, PermissionUserBaseInfo, Response } from '@src/types/global';
 import { cloneDeep, uuid } from '@/helper';
 import { ElMessage, ElMessageBox } from 'element-plus';
 import RemoteSelector from '@/components/common/remote-select/g-remote-select.vue';
@@ -220,40 +220,18 @@ import { useGlobalClick } from '@/hooks/use-global-click';
 import dayjs from 'dayjs'
 import { usePermissionStore } from '@/store/permission';
 
-type GroupItem = {
-  _id: string;
-  groupName: string;
-  description: string;
-  creator: {
-    userId: string;
-    userName: string;
-    _id: string;
-  },
-  updator: {
-    userId: string;
-    userName: string;
-    _id: string;
-  },
-  createdAt: string;
-  updatedAt: string;
-  members: {
-    loginName: string;
-    userId: string;
-    permission: "admin" | "readOnly" | "readAndWrite",
-    expireAt?: string;
-  }[];
-}
+
 
 const searchText = ref('')
 const selectedGroupId = ref('')
-const groupList = ref<GroupItem[]>([]);
+const groupList = ref<ApidocGroupItem[]>([]);
 const loading = ref(false);
 const loading2 = ref(false);
 const dialogVisible = ref(false);
 const popoverVisible = ref(false)
 const popoverVisibleId = ref('')
-const groupInfo = ref<GroupItem | null>(null)
-const originGroupInfo = ref<GroupItem | null>(null)
+const groupInfo = ref<ApidocGroupItem | null>(null)
+const originGroupInfo = ref<ApidocGroupItem | null>(null)
 const remoteQueryName = ref('');
 const memberMode = ref<'list' | 'card'>('list')
 const remoteMembers = ref<PermissionUserBaseInfo[]>([]);
@@ -295,7 +273,7 @@ const handleAddUser = (item: PermissionUserBaseInfo) => {
     ElMessage.warning(t('请勿重复添加'));
     return;
   }
-  const userInfo: ApidocProjectMemberInfo = {
+  const userInfo: ApidocGroupUser = {
     ...item,
     permission: 'readAndWrite',
   }
@@ -304,7 +282,7 @@ const handleAddUser = (item: PermissionUserBaseInfo) => {
   const params = {
     groupId: groupInfo.value!._id,
     userId: item.userId,
-    loginName: item.loginName,
+    userName: item.userName,
     permission: 'readAndWrite',
   
   }
@@ -341,7 +319,7 @@ const handleRemoveMember = (groupId: string, userId: string) => {
 //获取分组列表
 const getGroupList = () => {
   loading.value = true
-  request.get<Response<GroupItem[]>, Response<GroupItem[]>>('/api/group/list').then(res => {
+  request.get<Response<ApidocGroupItem[]>, Response<ApidocGroupItem[]>>('/api/group/list').then(res => {
     groupList.value = res.data;
     selectedGroupId.value = res.data[0]._id;
     groupInfo.value = cloneDeep(res.data[0]);
@@ -374,7 +352,7 @@ const changeGroupInfo = () => {
 const handleSaveGroupInfo = () => {
   if (!groupInfo.value) return;
   const { _id, groupName, description } = groupInfo.value;
-  request.put<Response<GroupItem>, Response<GroupItem>>('/api/group/update', {
+  request.put<Response<ApidocGroupItem>, Response<ApidocGroupItem>>('/api/group/update', {
     _id,
     groupName,
     description,
@@ -393,7 +371,7 @@ const handleChangePermission = (groupId: string, userId: string, permission: "ad
     userId,
     permission
   }
-  request.put<Response<GroupItem>, Response<GroupItem>>('/api/group/member/permission', params).then(() => {
+  request.put<Response<ApidocGroupItem>, Response<ApidocGroupItem>>('/api/group/member/permission', params).then(() => {
     ElMessage.success('修改成功');
     changeGroupInfo()
     groupInfo.value?.members.forEach(member => {
