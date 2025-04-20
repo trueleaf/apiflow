@@ -18,7 +18,7 @@
       </el-form-item>
     </el-form>
     <!-- 成员信息 -->
-    <el-table :data="selectMemberData" stripe border max-height="200px">
+    <el-table :data="selectMemberData" stripe border max-height="50vh">
       <el-table-column prop="name" :label="t('名称')" align="center"></el-table-column>
       <el-table-column prop="type" :label="t('类型')" align="center">
         <template #default="{ row }">
@@ -52,7 +52,7 @@
       </el-table-column>
     </el-table>
     <template #footer>
-      <el-button :loading="loading" type="primary" @click="handleAddProject">{{ t("确定") }}</el-button>
+      <el-button :loading="loading2" type="primary" @click="handleAddProject">{{ t("确定") }}</el-button>
       <el-button type="warning" @click="handleClose">{{ t("取消") }}</el-button>
     </template>
   </Dialog>
@@ -87,7 +87,7 @@ const formInfo = ref({
 const rules = ref({
   projectName: [{ required: true, trigger: 'blur', message: t('请填写项目名称') }],
 })
-const remoteUserOrGroupList = ref<ApidocProjectMemberInfo[]>([]) //------远程用户列表
+const remoteUserOrGroupList = ref<ApidocProjectMemberInfo[]>([]) //------远程用户和组列表
 const selectMemberData = ref<ApidocProjectMemberInfo[]>([]) //-----已选中的用户
 const remoteQueryName = ref('') //-------------------------用户名称
 const loading = ref(false) //------------------------------成员数据加载状态
@@ -118,12 +118,17 @@ const handleAddProject = () => {
       loading2.value = true;
       const params = {
         ...formInfo.value,
-        members: selectMemberData.value.map((val) => ({
-          userId: val.userId,
+        users: selectMemberData.value.filter(v => v.type === 'user').map((val) => ({
+          userId: val.id,
+          userName: val.name,
           permission: val.permission,
-          loginName: val.loginName,
-          realName: val.realName,
         })),
+        groups: selectMemberData.value.filter(v => v.type === 'group').map(
+          (val) => ({
+            groupId: val.id,
+            groupName: val.name,
+          })
+        ),
       };
       request.post('/api/project/add_project', params).then((res) => {
         handleClose();
