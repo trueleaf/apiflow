@@ -89,7 +89,7 @@ export type PermissionUserBaseInfo = {
    /**
       * 登录名称
       */
-   loginName: string;
+   userName: string;
    /**
       * 昵称
       */
@@ -252,6 +252,7 @@ export type ApidocProjectInfo = {
       */
    isStared: boolean;
 };
+
 //项目列表信息
 export type ApidocProjectListInfo = {
    /**
@@ -267,6 +268,32 @@ export type ApidocProjectListInfo = {
       */
    starProjects: string[];
 };
+//组成员信息
+export type ApidocGroupUser = {
+   userName: string;
+   userId: string;
+   permission: "admin" | "readOnly" | "readAndWrite",
+   expireAt?: string;
+ }
+//组信息
+export type ApidocGroupItem = {
+   _id: string;
+   groupName: string;
+   description: string;
+   creator: {
+     userId: string;
+     userName: string;
+     _id: string;
+   },
+   updator: {
+     userId: string;
+     userName: string;
+     _id: string;
+   },
+   createdAt: string;
+   updatedAt: string;
+   members: ApidocGroupUser[];
+ }
 //接口文档相关类型声明
 export type ApidocPropertyType =
    | 'string'
