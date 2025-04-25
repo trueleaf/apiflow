@@ -293,6 +293,7 @@ export type ApidocGroupItem = {
    createdAt: string;
    updatedAt: string;
    members: ApidocGroupUser[];
+   isAllowInvite: boolean;
  }
 //接口文档相关类型声明
 export type ApidocPropertyType =

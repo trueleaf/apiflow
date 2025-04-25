@@ -16,6 +16,9 @@
         <el-menu :default-active="selectedGroupId" class="vertical-menu" @select="handleSelectGroup">
           <el-menu-item v-for="item in groupList.filter(item => item.groupName.includes(searchText))" :key="item._id" :index="item._id">
             <div class="text-ellipsis" :title="item.groupName">{{ item.groupName }}</div>
+            <el-icon class="del-icon" @click="() => handleDeleteGroup(item._id)">
+              <Delete />
+            </el-icon>
           </el-menu-item>
         </el-menu>
       </div>
@@ -33,12 +36,17 @@
           <el-button :icon="Plus" @click="dialogVisible = true" type="success">{{ t('创建团队') }}</el-button>
         </div>
         <!-- 配置界面 -->
-        <el-form v-else-if="groupInfo" :mode="groupInfo" label-width="auto" label-position='top'>
+        <el-form v-else-if="groupInfo" :mode="groupInfo" label-width="auto" label-position='top' @submit.prevent>
           <el-form-item :label="t('团队名称')">
             <el-input v-model="groupInfo.groupName" class="w-40" show-word-limit maxlength="30" />
           </el-form-item>
           <el-form-item :label="t('团队描述')">
             <el-input type="textarea" v-model="groupInfo.description" class="w-40" show-word-limit maxlength="255" />
+          </el-form-item>
+          <el-form-item :label="t('团队邀请限制')">
+            <el-checkbox v-model="groupInfo.isAllowInvite" label="允许被非项目成员邀请到项目中"/>
+            <div class="d-flex flex-column">
+            </div>
           </el-form-item>
           <el-form-item :label="t('团队信息')">
             <div class="ml-2 gray-600">
@@ -145,12 +153,6 @@
                     </el-popover>
                   </template>
                 </el-table-column>
-                <!-- <el-table-column prop="expireAt" label="过期时间" width="200" sortable>
-                  <template #default="{ row }">
-                    <span v-if="row.expireAt">{{ dayjs(row.expireAt).format('YYYY-MM-DD HH:mm') }}</span>
-                    <span v-else>/</span>
-                  </template>
-                </el-table-column> -->
                 <el-table-column prop="expireAt" label="操作" width="70" align="center">
                   <template #default="{ row }">
                     <el-button v-if="row.userId === permissionStore.userInfo.id" link type="primary" @click="() => handleRemoveMember(groupInfo!._id, row.userId)">退出</el-button>
@@ -195,9 +197,17 @@
             </el-popover>
           </el-form-item>
           <el-form-item>
-            <el-button type="primary" :title="isEdited ? '' : t('修改数据后可以保存')" :disabled="!isEdited" class="w-40"
-              @click="handleSaveGroupInfo">{{ t('保存修改') }}</el-button>
+            <el-button 
+              type="primary" 
+              :title="isEdited ? '' : t('修改数据后可以保存')" :disabled="!isEdited" 
+              class="w-40"
+              @click="handleSaveGroupInfo">{{ t('保存修改【添加、更新成员不需要保存，直接生效】') }}
+            </el-button>
           </el-form-item>
+          <el-form-item>
+            <el-button type="danger" class="w-40" @click="() => handleDeleteGroup(groupInfo!._id)">删除团队</el-button>
+          </el-form-item>
+
         </el-form>
       </div>
     </div>
@@ -207,7 +217,7 @@
 
 <script lang="ts" setup>
 import { t } from 'i18next'
-import { Plus, User, Search, ArrowDown, Check } from '@element-plus/icons-vue'
+import { Plus, User, Search, ArrowDown, Check, Delete } from '@element-plus/icons-vue'
 import { computed, onMounted, ref } from 'vue';
 import AddProjectDialog from './dialog/add-group/add-group.vue'
 import { request } from '@/api/api';
@@ -240,7 +250,8 @@ const isEdited = computed(() => {
   if (!groupInfo.value || !originGroupInfo.value) return false;
   const isSameGroupName = groupInfo.value.groupName === originGroupInfo.value.groupName;
   const isSameDescription = groupInfo.value.description === originGroupInfo.value.description;
-  if (!isSameGroupName || !isSameDescription) return true;
+  const isSameInvitedState = groupInfo.value.isAllowInvite === originGroupInfo.value.isAllowInvite;
+  if (!isSameGroupName || !isSameDescription || !isSameInvitedState) return true;
   return false;
 })
 //选择组
@@ -270,7 +281,7 @@ const handleAddUser = (item: PermissionUserBaseInfo) => {
   remoteQueryName.value = '';
   const hasUser = groupInfo.value?.members.find((val) => val.userId === item.userId);
   if (hasUser) {
-    ElMessage.warning(t('请勿重复添加'));
+    ElMessage.warning(t('用户已存在、请勿重复添加'));
     return;
   }
   const userInfo: ApidocGroupUser = {
@@ -316,7 +327,7 @@ const handleRemoveMember = (groupId: string, userId: string) => {
   }).catch(() => {
   });
 }
-//获取分组列表
+//获取团队列表
 const getGroupList = () => {
   loading.value = true
   request.get<Response<ApidocGroupItem[]>, Response<ApidocGroupItem[]>>('/api/group/list').then(res => {
@@ -351,11 +362,12 @@ const changeGroupInfo = () => {
 //保存修改
 const handleSaveGroupInfo = () => {
   if (!groupInfo.value) return;
-  const { _id, groupName, description } = groupInfo.value;
+  const { _id, groupName, description, isAllowInvite } = groupInfo.value;
   request.put<Response<ApidocGroupItem>, Response<ApidocGroupItem>>('/api/group/update', {
     _id,
     groupName,
     description,
+    isAllowInvite
   }).then(() => {
     ElMessage.success('保存成功')
     changeGroupInfo()
@@ -383,6 +395,22 @@ const handleChangePermission = (groupId: string, userId: string, permission: "ad
     console.error(err)
   })
 }
+// 删除团队
+const handleDeleteGroup = (groupId: string) => {
+  ElMessageBox.confirm(t('确定要删除该团队吗？'), t('提示'), {
+    confirmButtonText: t('确定'),
+    cancelButtonText: t('取消'),
+    type: 'warning',
+  }).then(() => {
+    request.delete<Response<void>, Response<void>>('/api/group/remove', { data: { ids: [groupId] } }).then(() => {
+      ElMessage.success('删除成功');
+      getGroupList();
+    }).catch(err => {
+      console.error(err)
+    })
+  }).catch(() => {
+  });
+}
 useGlobalClick(() => {
   popoverVisibleId.value = '';
   popoverVisible.value = false;
@@ -405,7 +433,7 @@ onMounted(() => {
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  height: calc(100vh - #{size(170)});
+  height: calc(100vh - #{size(175)});
 
   .illustration-wrapper {
     margin-bottom: 1.5rem;
@@ -442,7 +470,31 @@ onMounted(() => {
   .search-box {
     padding: 0 size(15);
   }
+  .el-menu-item {
+    .del-icon {
+      position: absolute;
+      right: size(0);
+      top: size(10);
+      font-size: fz(14);
+      cursor: pointer;
+      color: $gray-600;
+      display: none;
+      &:hover {
+        color: $gray-900;
+      }
+    }
+    &:hover {
+      .del-icon {
+        display: block;
+      }
+    }
+  }
 
+  .group-list {
+    height: calc(100vh - #{size(210)});
+    overflow-y: auto;
+    padding: size(10) size(15) size(10) size(0)
+  }
   .group-title {
     padding: 0 size(15);
     margin-top: size(10);
