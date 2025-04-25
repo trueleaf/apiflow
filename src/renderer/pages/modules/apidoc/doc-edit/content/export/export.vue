@@ -1,9 +1,3 @@
-/*
-    创建者：shuxiaokai
-    创建时间：2021-09-24 22:25
-    模块名称：导出文档
-    备注：
-*/
 <template>
   <div class="doc-export">
     <SFieldset :title="t('导出类型')">

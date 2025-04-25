@@ -1,9 +1,3 @@
-/*
-    创建者：shuxiaokai
-    创建时间：2021-12-12 12:27
-    模块名称：json-editor
-    备注：
-*/
 <template>
   <div ref="monacoDom" class="s-json-editor"></div>
 </template>

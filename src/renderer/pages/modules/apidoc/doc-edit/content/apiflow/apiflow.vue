@@ -1,8 +1,3 @@
-/*
-    创建者：shuxiaokai
-    模块名称：接口编排
-    备注：
-*/
 <template>
   <div
     ref="apiflow"

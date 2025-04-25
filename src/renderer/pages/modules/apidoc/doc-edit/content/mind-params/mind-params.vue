@@ -1,9 +1,4 @@
-/*
-    创建者：shuxiaokai
-    创建时间：2021-09-15 2:48
-    模块名称：联想参数
-    备注：
-*/
+
 <template>
   <div class="s-mind-params">
     <!-- 搜索条件 -->

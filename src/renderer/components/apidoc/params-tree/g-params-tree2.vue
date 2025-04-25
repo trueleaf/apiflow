@@ -1,9 +1,3 @@
-/*
-    创建者：shuxiaokai
-    创建时间：2021-08-20 21:57
-    模块名称：参数录入树形组件
-    备注：
-*/
 <template>
   <el-tree-v2
     ref="tree"

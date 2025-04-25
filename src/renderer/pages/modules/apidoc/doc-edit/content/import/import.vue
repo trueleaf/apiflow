@@ -1,9 +1,4 @@
-/*
-创建者：shuxiaokai
-创建时间：2021-09-28 22:00
-模块名称：导入文档
-备注：
-*/
+
 <template>
   <div class="doc-import">
     <!-- 文件选择 -->
@@ -419,7 +414,6 @@ const handleSubmit = () => {
         docs,
       },
     };
-    console.log(params)
     request.post('/api/project/import/moyu', params).then(() => {
       apidocBannerStore.getDocBanner({ projectId });
     }).catch((err) => {
@@ -434,7 +428,7 @@ const handleSubmit = () => {
 }
 </script>
 
-<style lang='scss' scoped>
+<style lang='scss'>
 .doc-import {
   overflow-y: auto;
   height: calc(100vh - #{size(120)});
