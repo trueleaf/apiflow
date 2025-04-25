@@ -298,7 +298,8 @@ const handleAddUser = (item: PermissionUserBaseInfo) => {
   
   }
   request.post<Response<void>, Response<void>>('/api/group/member/add', params).then(() => {
-    changeGroupInfo()
+    changeGroupInfo();
+    getGroupList();
   }).catch(err => {
     console.error(err)
   })
@@ -386,6 +387,7 @@ const handleChangePermission = (groupId: string, userId: string, permission: "ad
   request.put<Response<ApidocGroupItem>, Response<ApidocGroupItem>>('/api/group/member/permission', params).then(() => {
     ElMessage.success('修改成功');
     changeGroupInfo()
+    getGroupList();
     groupInfo.value?.members.forEach(member => {
       if (member.userId === userId){
         member.permission = permission
