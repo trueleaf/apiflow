@@ -3,7 +3,7 @@
     <div class="text-bold">{{ t("基本信息") }}</div>
     <div class="px-4">
       <SLabelValue :label="`${t('请求地址')}：`" class="mt-2" one-line>
-        <span class="text-ellipsis">{{ apidocInfo.item.url.host + apidocInfo.item.url.path }}</span>
+        <div class="text-ellipsis" :title="apidocRequestStore.fullUrl">{{ apidocRequestStore.fullUrl }}</div>
       </SLabelValue>
       <SLabelValue :label="`${t('请求方式')}：`" one-line>
         <template v-for="(req) in validRequestMethods">
@@ -40,12 +40,14 @@ import { t } from 'i18next'
 import { computed } from 'vue';
 import { formatDate } from '@/helper'
 import SLabelValue from '@/components/common/label-value/g-label-value.vue'
+import { useApidocRequest } from '@/store/apidoc/request';
 
 
 
 const apidocStore = useApidoc();
 const apidocBaseInfoStore = useApidocBaseInfo();
 const apidocInfo = computed(() => apidocStore.apidoc);
+const apidocRequestStore = useApidocRequest();
 const validRequestMethods = computed(() => apidocBaseInfoStore.rules.requestMethods?.filter((val) => val.isEnabled));
 </script>
 

@@ -12,7 +12,7 @@
           </template>
         </SLableValue>
         <SLableValue label="请求地址：" class="w-50 mt-2">
-          <span class="text-ellipsis">{{ apidocInfo?.item.url.path }}</span>
+          <span class="text-ellipsis">{{ apidocRequestStore.fullUrl }}</span>
         </SLableValue>
         <SLableValue label="接口名称：" class="w-50">
           <div>{{ apidocInfo?.info.name }}</div>
@@ -108,6 +108,7 @@ import SRawEditor from '@/components/apidoc/raw-editor/g-raw-editor.vue'
 import SJsonEditor from '@/components/common/json-editor/g-json-editor.vue'
 import { formatDate } from '@/helper'
 import { useApidocBaseInfo } from '@/store/apidoc/base-info';
+import { useApidocRequest } from '@/store/apidoc/request';
 
 const emits = defineEmits(['close'])
 const props = defineProps({
@@ -118,6 +119,7 @@ const props = defineProps({
 });
 
 const apidocBaseInfoStore = useApidocBaseInfo()
+const apidocRequestStore = useApidocRequest()
 /*
 |--------------------------------------------------------------------------
 | 获取文档详情
