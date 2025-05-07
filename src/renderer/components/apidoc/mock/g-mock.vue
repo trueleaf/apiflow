@@ -1,98 +1,90 @@
 <template>
   <div class="s-mock-select" @click.stop="() => { }">
     <el-tabs v-model="activeName">
-      <el-tab-pane :name="t('常用')">
+      <el-tab-pane name="常用">
         <template #label>
           <span>{{ t("常用") }}</span>
           <span>
             <span>(</span>
-            <span v-if="activeName === t('常用')">{{ mockEnum.length }}</span>
-            <span v-else>{{ cpMockEnum.filter(v => v.tags.find((tag) => tag === t("常用"))).length }}</span>
-            <span>/{{ cpMockEnum.filter(v => v.tags.find((tag) => tag === t("常用"))).length }}</span>
+            <span>{{ getMatchedMockDataLength(cpMockEnum.filter(v => v.tags.find((tag) => tag === '常用'))) }}</span>
+            <span>/{{ cpMockEnum.filter(v => v.tags.find((tag) => tag === '常用')).length }}</span>
             <span>)</span>
           </span>
         </template>
       </el-tab-pane>
-      <el-tab-pane :name="t('全部')">
+      <el-tab-pane name="全部">
         <template #label>
           <span>{{ t("全部") }}</span>
           <span>
             <span>(</span>
-            <span v-if="activeName === t('全部')">{{ mockEnum.length }}</span>
-            <span v-else>{{ cpMockEnum.length }}</span>
+            <span>{{ getMatchedMockDataLength(cpMockEnum) }}</span>
             <span>/{{ cpMockEnum.length }}</span>
             <span>)</span>
           </span>
         </template>
       </el-tab-pane>
-      <el-tab-pane :name="t('日期/时间')">
+      <el-tab-pane name="日期/时间">
         <template #label>
           <span>{{ t("日期/时间") }}</span>
           <span>
             <span>(</span>
-            <span v-if="activeName === t('日期/时间')">{{ mockEnum.length }}</span>
-            <span v-else>{{ cpMockEnum.filter(v => v.tags.find((tag) => tag === t("日期/时间"))).length }}</span>
-            <span>/{{ cpMockEnum.filter(v => v.tags.find((tag) => tag === t("日期/时间"))).length }}</span>
+            <span>{{ getMatchedMockDataLength(cpMockEnum.filter(v => v.tags.find((tag) => tag === '日期/时间'))) }}</span>
+            <span>/{{ cpMockEnum.filter(v => v.tags.find((tag) => tag === '日期/时间')).length }}</span>
             <span>)</span>
           </span>
         </template>
       </el-tab-pane>
-      <el-tab-pane :name="t('图片')">
+      <el-tab-pane name="图片">
         <template #label>
           <span>{{ t("图片") }}</span>
           <span>
             <span>(</span>
-            <span v-if="activeName === t('图片')">{{ mockEnum.length }}</span>
-            <span v-else>{{ cpMockEnum.filter(v => v.tags.find((tag) => tag === t("图片"))).length }}</span>
-            <span>/{{ cpMockEnum.filter(v => v.tags.find((tag) => tag === t("图片"))).length }}</span>
+            <span>{{ getMatchedMockDataLength(cpMockEnum.filter(v => v.tags.find((tag) => tag === '图片'))) }}</span>
+            <span>/{{ cpMockEnum.filter(v => v.tags.find((tag) => tag === '图片')).length }}</span>
             <span>)</span>
           </span>
         </template>
       </el-tab-pane>
-      <el-tab-pane :name="t('中文文本')">
+      <el-tab-pane name="中文文本">
         <template #label>
           <span>{{ t("中文文本") }}</span>
           <span>
             <span>(</span>
-            <span v-if="activeName === t('中文文本')">{{ mockEnum.length }}</span>
-            <span v-else>{{ cpMockEnum.filter(v => v.tags.find((tag) => tag === t("中文文本"))).length }}</span>
-            <span>/{{ cpMockEnum.filter(v => v.tags.find((tag) => tag === t("中文文本"))).length }}</span>
+            <span>{{ getMatchedMockDataLength(cpMockEnum.filter(v => v.tags.find((tag) => tag === '中文文本'))) }}</span>
+            <span>/{{ cpMockEnum.filter(v => v.tags.find((tag) => tag === '中文文本')).length }}</span>
             <span>)</span>
           </span>
         </template>
       </el-tab-pane>
-      <el-tab-pane :name="t('英文文本')">
+      <el-tab-pane name="英文文本">
         <template #label>
           <span>{{ t("英文文本") }}</span>
           <span>
             <span>(</span>
-            <span v-if="activeName === t('英文文本')">{{ mockEnum.length }}</span>
-            <span v-else>{{ cpMockEnum.filter(v => v.tags.find((tag) => tag === t("英文文本"))).length }}</span>
-            <span>/{{ cpMockEnum.filter(v => v.tags.find((tag) => tag === t("英文文本"))).length }}</span>
+            <span>{{ getMatchedMockDataLength(cpMockEnum.filter(v => v.tags.find((tag) => tag === '英文文本'))) }}</span>
+            <span>/{{ cpMockEnum.filter(v => v.tags.find((tag) => tag === '英文文本')).length }}</span>
             <span>)</span>
           </span>
         </template>
       </el-tab-pane>
-      <el-tab-pane :name="t('地区相关')">
+      <el-tab-pane name="地区相关">
         <template #label>
           <span>{{ t("地区相关") }}</span>
           <span>
             <span>(</span>
-            <span v-if="activeName === t('地区相关')">{{ mockEnum.length }}</span>
-            <span v-else>{{ cpMockEnum.filter(v => v.tags.find((tag) => tag === t("地区相关"))).length }}</span>
-            <span>/{{ cpMockEnum.filter(v => v.tags.find((tag) => tag === t("地区相关"))).length }}</span>
+            <span>{{ getMatchedMockDataLength(cpMockEnum.filter(v => v.tags.find((tag) => tag === '地区相关'))) }}</span>
+            <span>/{{ cpMockEnum.filter(v => v.tags.find((tag) => tag === '地区相关')).length }}</span>
             <span>)</span>
           </span>
         </template>
       </el-tab-pane>
-      <el-tab-pane :name="t('颜色')">
+      <el-tab-pane name="颜色">
         <template #label>
           <span>{{ t("颜色") }}</span>
           <span>
             <span>(</span>
-            <span v-if="activeName === t('颜色')">{{ mockEnum.length }}</span>
-            <span v-else>{{ cpMockEnum.filter(v => v.tags.find((tag) => tag === t("颜色"))).length }}</span>
-            <span>/{{ cpMockEnum.filter(v => v.tags.find((tag) => tag === t("颜色"))).length }}</span>
+            <span>{{ getMatchedMockDataLength(cpMockEnum.filter(v => v.tags.find((tag) => tag === '颜色'))) }}</span>
+            <span>/{{ cpMockEnum.filter(v => v.tags.find((tag) => tag === '颜色')).length }}</span>
             <span>)</span>
           </span>
         </template>
@@ -149,17 +141,24 @@ const props = defineProps({
 })
 const emits = defineEmits(['select', 'close']);
 const cpMockEnum = ref<MockItem[]>(JSON.parse(JSON.stringify(localMockEnum)));
-const activeName = ref(t('常用'));
+const activeName = ref('常用');
 const mockValue = ref('');
 const mockTags = ref<string[]>([]);
 const currentSelectMockData = ref<MockItem | null>(null);
+const getMatchedMockDataLength = (currentList: MockItem[]) => {
+  return currentList.filter((mock) => {
+    const mockValue = mock.value;
+    const searchValue = props.searchValue.toString().replace('@', '')
+    return mockValue.includes(searchValue)
+  }).length;
+}
 const mockEnum = computed(() => {
   const matchedMockData = localMockEnum.filter((mock) => {
     const mockValue = mock.value;
     const searchValue = props.searchValue.toString().replace('@', '')
     return mockValue.includes(searchValue)
   });
-  if (activeName.value === t('全部')) {
+  if (activeName.value === '全部') {
     return matchedMockData;
   }
   return matchedMockData.filter((val) => val.tags.find((tag) => tag === activeName.value))
@@ -198,7 +197,7 @@ onUnmounted(() => {
 <style lang='scss' scoped>
 .s-mock-select {
   width: size(800);
-  height: size(250);
+  height: size(260);
   background: $white;
 
   .wrap {
