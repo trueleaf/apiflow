@@ -83,6 +83,7 @@ export function handleFormatUrl():void {
     //  * 用例：http://255.255.0.1
     //  * 用例：https://www.baidu.com
     //  * 用例：demo.google.com
+    //  * 用例：demo.google.com/ 保留末尾/
     //  * 用例：{{ testUrl }}/api/test
     //  */
   convertQueryToParams(requestPath.value);
@@ -107,7 +108,8 @@ export function handleFormatUrl():void {
       formatPath = `/${formatPath}`;
     }
   }
-  const queryReg = /(\?.*$)|(\/*$)/;
+  console.log(2, formatPath)
+  const queryReg = /(\?.*$)/;
   formatPath = formatPath.replace(queryReg, '');
   requestPath.value = formatPath;
 }
