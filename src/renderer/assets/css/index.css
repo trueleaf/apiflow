@@ -457,6 +457,7 @@ body .el-menu--horizontal {
 }
 
 .text-ellipsis {
+  white-space: nowrap;
   word-break: break-all;
   text-overflow: ellipsis;
   overflow: hidden;
