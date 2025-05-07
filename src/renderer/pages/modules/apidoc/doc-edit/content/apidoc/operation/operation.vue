@@ -64,8 +64,8 @@
     </div>
     <pre class="pre-url-wrap">
       <span class="label">{{ t("请求地址") }}：</span>
-      <span class="url">{{ fullUrl }}</span>
-      <el-icon v-if='fullUrl' size="14" color="#f60" class="tip">
+      <span class="url">{{ apidocRequestStore.fullUrl }}</span>
+      <el-icon v-if='apidocRequestStore.fullUrl' size="14" color="#f60" class="tip">
         <Warning />
       </el-icon>
     </pre>
@@ -75,7 +75,7 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, ref, toRaw, watch } from 'vue'
+import { computed, ref } from 'vue'
 import { t } from 'i18next'
 import { Refresh } from '@element-plus/icons-vue'
 import { config } from '@/../config/config'
@@ -90,15 +90,13 @@ import { useApidocTas } from '@/store/apidoc/tabs'
 import { useApidoc } from '@/store/apidoc/apidoc'
 import { useApidocResponse } from '@/store/apidoc/response'
 import { isElectron } from '@/utils/utils'
-import { getUrl } from '@/server/request/request'
 import { Warning } from '@element-plus/icons-vue'
-import { debounce } from '@/helper'
-import { useVariable } from '@/store/apidoc/variables'
+import { useApidocRequest } from '@/store/apidoc/request'
 
 const apidocTabsStore = useApidocTas()
 const apidocStore = useApidoc()
 const apidocResponseStore = useApidocResponse()
-const apidocVaribleStore = useVariable()
+const apidocRequestStore = useApidocRequest()
 const projectId = router.currentRoute.value.query.id as string;
 const showPrefixHelper = ref(false)
 /*
@@ -155,27 +153,22 @@ const requestPath = computed<string>({
     apidocStore.changeApidocUrl(path);
   },
 });
-const fullUrl = ref('');
-const getFullUrl = debounce(async () => {
-  fullUrl.value = await getUrl(toRaw(apidocStore.$state.apidoc));
-}, 500, {
-  leading: true,
-});
-watch(() => {
-  return apidocStore.apidoc.item;
-}, () => {
-  getFullUrl()
-}, {
-  deep: true,
-  immediate: true
-})
-watch(() => {
-  return apidocVaribleStore.objectVariable;
-}, () => {
-  getFullUrl()
-}, {
-  deep: true
-})
+// const fullUrl = ref('');
+// const getFullUrl = debounce(async () => {
+//   fullUrl.value = await getUrl(toRaw(apidocStore.$state.apidoc));
+// }, 500, {
+//   leading: true,
+// });
+// watch([() => {
+//   return apidocStore.apidoc.item;
+// }, () => {
+//   return apidocVaribleStore.objectVariable;
+// }], () => {
+//   getFullUrl()
+// }, {
+//   deep: true,
+//   immediate: true
+// })
 
 </script>
 
