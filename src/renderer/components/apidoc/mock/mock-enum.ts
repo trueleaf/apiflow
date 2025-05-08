@@ -1,9 +1,3 @@
-/**
- * @description        mock数据
- * @author             shuxiaokai
- * @create             2021-04-29 21:50
- */
-import { t } from 'i18next';
 
 export default [
   //=====================================中文文本====================================//
