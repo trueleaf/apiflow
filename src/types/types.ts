@@ -347,6 +347,8 @@ export type Config = {
   },
   requestConfig: {
     maxStoreSingleBodySize: number;
+    maxJsonBodySize: number;
+    maxTextBodySize: number;
   },
   cacheConfig: {
     apiflowCache: {
@@ -366,13 +368,14 @@ export type GotRequestOptions = {
   url: string;
   method: Method;
   timeout: number;
-  body: string | RendererFormDataBody | undefined;
+  body: string | RendererFormDataBody | { type: "binary", path: string } | undefined;
   headers: Record<string, string | null>;
   signal: (cancelRequest: () => void) => void;
   onResponse?: (responseInfo: ResponseInfo) => void;
   onResponseEnd?: (responseInfo: ResponseInfo) => void;
   onResponseData?: (loadedLength: number, totalLength: number) => void;
   onReadFileFormDataError?: (options: {id: string, msg: string, fullMsg: string}) => void;
+  onReadBinaryDataError?: (options: {msg: string, fullMsg: string}) => void;
   onError: (error: RequestError | Error) => void,
   beforeRedirect: (updatedOptions: Options, plainResponse: PlainResponse) => void,
   beforeRequest?: (options: Options) => void,

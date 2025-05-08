@@ -33,7 +33,6 @@ export const useApidocResponse = defineStore('apidocResponse', () => {
     loadingProcess.value.percent = 1
     loadingProcess.value.transferred = payload.bodyByteLength || 0
     loadingProcess.value.total = payload.bodyByteLength || 0
-
   }
   const changeRequestState = (payload: 'waiting' | 'sending' | 'response' | 'finish') => {
     requestState.value = payload
