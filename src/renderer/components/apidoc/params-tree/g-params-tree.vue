@@ -50,17 +50,23 @@
           <!-- <div v-else class="readonly-key" @mouseover="() => enableDrag = false" @mouseout="() => enableDrag = true">{{ scope.data.key }}</div> -->
         </div>
         <!-- 请求参数类型 -->
-        <el-select :model-value="scope.data.type" :disabled="!nest && !enableFile"
-          :placeholder="t('类型')" class="w-15 flex0 mr-2" :size="config.renderConfig.layout.size"
-          @click="currentOpData = null" @update:modelValue="handleChangeParamsType($event, scope.data)">
+        <el-select 
+          :model-value="scope.data.type" 
+          :disabled="!nest && !enableFile"
+          :placeholder="t('类型')" 
+          class="w-15 flex0 mr-2" 
+          :size="config.renderConfig.layout.size"
+          @click="currentOpData = null" 
+          @update:modelValue="handleChangeParamsType($event, scope.data)"
+        >
           <el-option :disabled="scope.data.children && scope.data.children.length > 0" label="String"
             value="string"></el-option>
-          <el-option :disabled="!nest || (scope.data.children && scope.data.children.length > 0)" label="Number"
+          <el-option v-if="!enableFile" :disabled="!nest || (scope.data.children && scope.data.children.length > 0)" label="Number"
             value="number"></el-option>
-          <el-option :disabled="!nest || (scope.data.children && scope.data.children.length > 0)" label="Boolean"
+          <el-option v-if="!enableFile" :disabled="!nest || (scope.data.children && scope.data.children.length > 0)" label="Boolean"
             value="boolean"></el-option>
-          <el-option :disabled="!nest" label="Object" value="object"></el-option>
-          <el-option :disabled="!nest" label="List | Array" value="array"></el-option>
+          <el-option v-if="!enableFile" :disabled="!nest" label="Object" value="object"></el-option>
+          <el-option v-if="!enableFile" :disabled="!nest" label="List | Array" value="array"></el-option>
           <el-option :disabled="!enableFile" :title="t('传输数据类型为formData才能使用file类型')" label="File"
             value="file"></el-option>
         </el-select>
