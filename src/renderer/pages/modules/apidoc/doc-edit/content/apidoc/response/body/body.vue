@@ -30,40 +30,86 @@
         <div  class="text-center">{{ apidocResponseStore.responseInfo.contentType }}</div>
         <el-button link type="primary" text @click="handleDownload">{{ t("下载文件") }}</el-button>
       </div>
-      <!--  -->
-      <!-- 纯文本类型 -->
-      <!--  -->
       <!-- xml -->
       <div v-else-if="apidocResponseStore.responseInfo.responseData.canApiflowParseType === 'xml'" class="text-wrap">
-        <SJsonEditor :modelValue="apidocResponseStore.responseInfo.responseData.textData" read-only :config="{ fontSize: 13, language: 'xml' }"></SJsonEditor>
+        <div v-if="apidocResponseStore.responseInfo.responseData.textData.length > config.requestConfig.maxTextBodySize">
+          <span>{{ t('数据大小为') }}</span>
+          <span class="orange mr-3 ml-1">{{ formatBytes(apidocResponseStore.responseInfo.responseData.textData.length) }}</span>
+          <span>{{ t('超过最大限制') }}</span>
+          <span class="ml-1 mr-3">{{ formatBytes(config.requestConfig.maxJsonBodySize) }}</span>
+          <el-button link type="primary" text @click="() => downloadStringAsText(apidocResponseStore.responseInfo.responseData.textData, 'response.xml')">{{ t("下载为文件") }}</el-button>
+        </div>
+        <SJsonEditor v-else :modelValue="apidocResponseStore.responseInfo.responseData.textData" read-only :config="{ fontSize: 13, language: 'xml' }"></SJsonEditor>
       </div>
       <!-- javascript -->
       <div v-else-if="apidocResponseStore.responseInfo.responseData.canApiflowParseType === 'js'" class="text-wrap">
-        <SJsonEditor :modelValue="apidocResponseStore.responseInfo.responseData.textData" read-only :config="{ fontSize: 13, language: 'javascript' }"></SJsonEditor>
-        <!-- <div class="text-tool">
-          <div class="d-flex a-center j-center cursor-pointer hover-theme-color">格式化</div>
+        <div v-if="apidocResponseStore.responseInfo.responseData.textData.length > config.requestConfig.maxTextBodySize">
+          <span>{{ t('数据大小为') }}</span>
+          <span class="orange mr-3 ml-1">{{ formatBytes(apidocResponseStore.responseInfo.responseData.textData.length) }}</span>
+          <span>{{ t('超过最大限制') }}</span>
+          <span class="ml-1 mr-3">{{ formatBytes(config.requestConfig.maxJsonBodySize) }}</span>
+          <el-button link type="primary" text @click="() => downloadStringAsText(apidocResponseStore.responseInfo.responseData.textData, 'response.js')">{{ t("下载为文件") }}</el-button>
         </div>
-        <div class="text-view">
-        </div> -->
+        <SJsonEditor v-else :modelValue="apidocResponseStore.responseInfo.responseData.textData" read-only :config="{ fontSize: 13, language: 'javascript' }"></SJsonEditor>
       </div>
       <!-- html -->
       <div v-else-if="apidocResponseStore.responseInfo.responseData.canApiflowParseType === 'html'" class="text-wrap">
-        <SJsonEditor :modelValue="formatedHtml || apidocResponseStore.responseInfo.responseData.textData" read-only :config="{ fontSize: 13, language: 'html' }"></SJsonEditor>
+        <div v-if="formatedHtml.length > config.requestConfig.maxTextBodySize">
+          <span>{{ t('数据大小为') }}</span>
+          <span class="orange mr-3 ml-1">{{ formatBytes(formatedHtml.length) }}</span>
+          <span>{{ t('超过最大限制') }}</span>
+          <span class="ml-1 mr-3">{{ formatBytes(config.requestConfig.maxJsonBodySize) }}</span>
+          <el-button link type="primary" text @click="() => downloadStringAsText(formatedHtml, 'response.html')">{{ t("下载为文件") }}</el-button>
+        </div>
+        <div v-else-if="apidocResponseStore.responseInfo.responseData.textData.length > config.requestConfig.maxTextBodySize">
+          <span>{{ t('数据大小为') }}</span>
+          <span class="orange mr-3 ml-1">{{ formatBytes(apidocResponseStore.responseInfo.responseData.textData.length) }}</span>
+          <span>{{ t('超过最大限制') }}</span>
+          <span class="ml-1 mr-3">{{ formatBytes(config.requestConfig.maxJsonBodySize) }}</span>
+          <el-button link type="primary" text @click="() => downloadStringAsText(apidocResponseStore.responseInfo.responseData.textData, 'response.html')">{{ t("下载为文件") }}</el-button>
+        </div>
+        <SJsonEditor v-else :modelValue="formatedHtml || apidocResponseStore.responseInfo.responseData.textData" read-only :config="{ fontSize: 13, language: 'html' }"></SJsonEditor>
       </div>
       <!-- css -->
       <div v-else-if="apidocResponseStore.responseInfo.responseData.canApiflowParseType === 'css'" class="text-wrap">
-        <SJsonEditor :modelValue="apidocResponseStore.responseInfo.responseData.textData" read-only :config="{ fontSize: 13, language: 'css' }"></SJsonEditor>
+        <div v-if="apidocResponseStore.responseInfo.responseData.textData.length > config.requestConfig.maxTextBodySize">
+          <span>{{ t('数据大小为') }}</span>
+          <span class="orange mr-3 ml-1">{{ formatBytes(apidocResponseStore.responseInfo.responseData.textData.length) }}</span>
+          <span>{{ t('超过最大限制') }}</span>
+          <span class="ml-1 mr-3">{{ formatBytes(config.requestConfig.maxJsonBodySize) }}</span>
+          <el-button link type="primary" text @click="() => downloadStringAsText(apidocResponseStore.responseInfo.responseData.textData, 'response.css')">{{ t("下载为文件") }}</el-button>
+        </div>
+        <SJsonEditor v-else :modelValue="apidocResponseStore.responseInfo.responseData.textData" read-only :config="{ fontSize: 13, language: 'css' }"></SJsonEditor>
       </div>
       <!-- text/plain -->
       <div v-else-if="apidocResponseStore.responseInfo.responseData.canApiflowParseType === 'text'" class="text-wrap">
-        <SJsonEditor :model-value="apidocResponseStore.responseInfo.responseData.textData" read-only :config="{ fontSize: 13, language: 'text' }"></SJsonEditor>
+        <div v-if="apidocResponseStore.responseInfo.responseData.textData.length > config.requestConfig.maxTextBodySize">
+          <span>{{ t('数据大小为') }}</span>
+          <span class="orange mr-3 ml-1">{{ formatBytes(apidocResponseStore.responseInfo.responseData.textData.length) }}</span>
+          <span>{{ t('超过最大限制') }}</span>
+          <span class="ml-1 mr-3">{{ formatBytes(config.requestConfig.maxJsonBodySize) }}</span>
+          <el-button link type="primary" text @click="() => downloadStringAsText(apidocResponseStore.responseInfo.responseData.textData, 'response.txt')">{{ t("下载为文件") }}</el-button>
+        </div>
+        <SJsonEditor v-else :model-value="apidocResponseStore.responseInfo.responseData.textData" read-only :config="{ fontSize: 13, language: 'text' }"></SJsonEditor>
       </div>
       <!-- application/json -->
       <div v-else-if="apidocResponseStore.responseInfo.responseData.canApiflowParseType === 'json'" class="text-wrap">
-        <SJsonEditor :model-value="formatedJson || apidocResponseStore.responseInfo.responseData.jsonData" read-only :config="{ fontSize: 13, language: 'json' }"></SJsonEditor>
+        <div v-if="formatedJson.length > config.requestConfig.maxJsonBodySize">
+          <span>{{ t('数据大小为') }}</span>
+          <span class="orange mr-3 ml-1">{{ formatBytes(formatedJson.length) }}</span>
+          <span>{{ t('超过最大限制') }}</span>
+          <span class="ml-1 mr-3">{{ formatBytes(config.requestConfig.maxJsonBodySize) }}</span>
+          <el-button link type="primary" text @click="() => downloadStringAsText(formatedJson, 'response.json')">{{ t("下载为文件") }}</el-button>
+        </div>
+        <div v-else-if="apidocResponseStore.responseInfo.responseData.jsonData.length > config.requestConfig.maxJsonBodySize">
+          <span>{{ t('数据大小为') }}</span>
+          <span class="orange mr-3 ml-1">{{ formatBytes(apidocResponseStore.responseInfo.responseData.jsonData.length) }}</span>
+          <span>{{ t('超过最大限制') }}</span>
+          <span class="ml-1 mr-3">{{ formatBytes(config.requestConfig.maxJsonBodySize) }}</span>
+          <el-button link type="primary" text @click="() => downloadStringAsText(apidocResponseStore.responseInfo.responseData.jsonData, 'response.json')">{{ t("下载为文件") }}</el-button>
+        </div>
+        <SJsonEditor v-else :model-value="formatedJson || apidocResponseStore.responseInfo.responseData.jsonData" read-only :config="{ fontSize: 13, language: 'json' }"></SJsonEditor>
       </div>
-      <!--  -->
-      <!--  -->
       <!-- excel -->
       <div v-else-if="apidocResponseStore.responseInfo.responseData.canApiflowParseType === 'excel'" class="d-flex flex-column j-center">
         <svg class="svg-icon" aria-hidden="true" :title="t('下载文件')">
@@ -145,7 +191,7 @@ import { useApidocBaseInfo } from '@/store/apidoc/base-info';
 import { useApidocResponse } from '@/store/apidoc/response';
 import { computed, onUnmounted, ref, watch } from 'vue';
 import { t } from 'i18next'
-import { formatBytes } from '@/helper/index'
+import { formatBytes, downloadStringAsText } from '@/helper/index'
 import { config } from '@/../config/config'
 import * as prettier from 'prettier/standalone';
 import esTreePlugin from 'prettier/plugins/estree';
