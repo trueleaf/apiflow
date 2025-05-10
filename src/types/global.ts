@@ -410,6 +410,7 @@ export type ApidocContentType =
    | 'multipart/form-data'
    | 'text/plain'
    | 'application/xml'
+   | 'application/octet-stream'
    | 'text/html';
 // eslint-disable-next-line max-len
 export type ApidocResponseContentType =
