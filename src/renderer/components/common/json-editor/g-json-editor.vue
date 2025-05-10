@@ -45,6 +45,19 @@ watch(() => props.readOnly, (readOnly) => {
     readOnly,
   });
 })
+const initResizeLister = () => {
+  document.querySelectorAll('.s-json-editor').forEach((item) => {
+    const resizeObserver = new ResizeObserver((entries) => {
+      entries.forEach((entry) => {
+        const { width, height } = entry.contentRect;
+        if (width && height) {
+          monacoInstance?.layout(); //修复切换tab时候，宽高为0导致卡顿问题
+        }
+      });
+    });
+    resizeObserver.observe(item);
+  });
+};
 onMounted(() => {
   self.MonacoEnvironment = {
     getWorker(_: string, label: string) {
@@ -79,7 +92,7 @@ onMounted(() => {
   monacoInstance = monaco.editor.create(monacoDom.value as HTMLElement, {
     value: props.modelValue,
     language: 'json',
-    automaticLayout: true,
+    // automaticLayout: false, //开启后卡顿
     parameterHints: {
       enabled: true,
     },
@@ -118,6 +131,7 @@ onMounted(() => {
     emits('update:modelValue', monacoInstance?.getValue())
     emits('change', monacoInstance?.getValue())
   })
+  initResizeLister()
   emits('ready')
 })
 onActivated(() => {
