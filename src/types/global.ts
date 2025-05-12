@@ -343,7 +343,7 @@ export type ApidocProperty<T extends ApidocPropertyType = ApidocPropertyType> = 
    /**
     * 文件变量类型，可以是变量也可以是直接选择文件
     */
-   fileValueType: 'var' | 'file';
+   fileValueType?: 'var' | 'file';
    children?: ApidocProperty[];
    _error?: string;
    _disableSelect?: boolean;

@@ -29,6 +29,7 @@ import { apidocCache } from "@/cache/apidoc"
 import { useApidocTas } from "./tabs"
 import { useApidocBanner } from "./banner"
 import assign from "lodash/assign"
+import { DeepPartial } from "@src/types/types.ts"
 
 type EditApidocPropertyPayload<K extends keyof ApidocProperty> = {
   data: ApidocProperty,
@@ -244,13 +245,13 @@ export const useApidoc = defineStore('apidoc', () => {
   //改变contentType值
   const changeContentType = (contentType: ApidocContentType): void => {
     apidoc.value.item.contentType = contentType;
-    const matchedValue = defaultHeaders.value.find((val) => val.key === 'Content-type');
-    const matchedIndex = defaultHeaders.value.findIndex((val) => val.key === 'Content-type');
+    const matchedValue = defaultHeaders.value.find((val) => val.key === 'Content-Type');
+    const matchedIndex = defaultHeaders.value.findIndex((val) => val.key === 'Content-Type');
     if (contentType && matchedValue) { //存在contentType并且默认header值也有
       matchedValue.value = contentType
     } else if (contentType && !matchedValue) { //存在contentType但是默认header没有
       const params = apidocGenerateProperty();
-      params.key = 'Content-type';
+      params.key = 'Content-Type';
       params.value = contentType;
       params.description = '<根据body类型自动处理>';
       defaultHeaders.value.push(params);
@@ -263,7 +264,7 @@ export const useApidoc = defineStore('apidoc', () => {
   | binary类型参数
   |--------------------------------------------------------------------------
   */
-  const handleChangeBinaryInfo = (payload: Partial<ApidocBodyParams['binary']>) => {
+  const handleChangeBinaryInfo = (payload: DeepPartial<ApidocBodyParams['binary']>) => {
     assign(apidoc.value.item.requestBody.binary, payload)
   } 
   /*
