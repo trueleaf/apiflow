@@ -72,7 +72,38 @@ const getFormDataFromRendererFormData = async (rendererFormDataList: RendererFor
   }
   return Promise.resolve(formData);
 }
-
+const getFileBufferByPath = async (path: string) => {
+  try {
+    await fs.access(path, fs.constants.F_OK)
+  } catch {
+    return Promise.resolve({
+      msg: '文件不存在(发送被终止)',
+      fullMsg: `文件${path}在磁盘上未找到，发送被终止`
+    });
+  }
+  try {
+    const fsStat = await fs.stat(path);
+    if (!fsStat.isFile) {
+      return Promise.resolve({
+        msg: '不是文件无法读取(发送被终止)',
+        fullMsg: `文件${path}对应的非文件类型文件，发送被终止`
+      })
+    }
+    if (fsStat.size > 1024 * 1024 * 10) {
+      return Promise.resolve({
+        msg: '文件大小超过10MB(发送被终止)',
+        fullMsg: `文件${path}大小超过10MB，发送被终止，如需更改可以前往设置页面(ctrl+,)`
+      })
+    }
+    const buffer = await fs.readFile(path);
+    return Promise.resolve(buffer);
+  } catch (error) {
+    return Promise.resolve({
+      msg: (error as Error).message,
+      fullMsg: (error as Error).message,
+    })
+  }
+}
 
 export const gotRequest = async (options: GotRequestOptions) => {
   try {
@@ -82,10 +113,14 @@ export const gotRequest = async (options: GotRequestOptions) => {
       id: string,
       msg: string,
       fullMsg: string
-    } |  null = null;
+    } | Buffer | null = null;
     const headers: Record<string, string | undefined> = {};
     //formData数据单独处理
-    const isFormDataBody = Array.isArray(options.body)
+    const isFormDataBody = Array.isArray(options.body);
+    const isBinaryBody = (options.body as {
+      type: "binary";
+      path: string;
+    })?.type === 'binary';
     if (isFormDataBody) {
       reqeustBody = await getFormDataFromRendererFormData(options.body as RendererFormDataBody);
       if (!(reqeustBody instanceof FormData)) {
@@ -93,7 +128,17 @@ export const gotRequest = async (options: GotRequestOptions) => {
         return
       }
       responseInfo.requestData.body = reqeustBody.getBuffer().toString();
-      // console.log(reqeustBody, reqeustBody.getBuffer().toString(), 22)
+    } else if (isBinaryBody) {
+      const { path } = options.body as {
+        type: "binary";
+        path: string;
+      };
+      reqeustBody = await getFileBufferByPath(path) as Buffer;
+      if (!Buffer.isBuffer(reqeustBody)) {
+        options.onReadBinaryDataError?.(reqeustBody);
+        return
+      }
+      responseInfo.requestData.body = reqeustBody.toString();
     } else if (options.body) {
       responseInfo.requestData.body = options.body as string;
     }
@@ -101,19 +146,28 @@ export const gotRequest = async (options: GotRequestOptions) => {
     for (const key in options.headers) {
       if (options.headers[key] === null) { //undefined代表未设置值，null代表取消发送
         headers[key] = undefined
-      } else if (isFormDataBody && key.toLowerCase() === 'content-type') {
-        headers[key] = reqeustBody?.getHeaders()['content-type'];
+      } else if (isFormDataBody && key === 'Content-Type') {
+        headers[key] = (reqeustBody as FormData)?.getHeaders()['content-type'];
+      } else if (isBinaryBody && key === 'Content-Type') {
+        const fileTypeInfo = await fileTypeFromBuffer(reqeustBody as Buffer);
+        if (fileTypeInfo?.mime) {
+          headers[key] = fileTypeInfo.mime;
+        } else {
+          headers[key] = options.headers[key]
+        }
       } else {
         headers[key] = options.headers[key]
       }
     }
     const isConnectionKeepAlive = options.headers['Connection'] == undefined || options.headers['Connection'] === 'keep-alive';
     const needDecompress = options.headers['Accept-Encoding'] === undefined || options.headers['Accept-Encoding'] === 'gzip, deflate, br';
-    let willSendBody: undefined | string | FormData = '';
+    let willSendBody: undefined | string | FormData | Buffer = '';
     if (options.method.toLowerCase() === 'head') { //只有head请求body值为undefined,head请求不挟带body
       willSendBody = undefined
     } else if (isFormDataBody && reqeustBody instanceof FormData) {
       willSendBody = reqeustBody
+    } else if (isBinaryBody) {
+      willSendBody = reqeustBody as Buffer;
     } else if (options.body) {
       willSendBody = options.body as string;
     }

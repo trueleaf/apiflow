@@ -5,7 +5,7 @@ import json5 from 'json5'
 import { ApidocDetail } from '@src/types/global';
 import { convertTemplateValueToRealValue, getEncodedStringFromEncodedParams, getFormDataFromFormDataParams, getObjectPathParams, getQueryStringFromQueryParams } from '@/utils/utils';
 import { useVariable } from '@/store/apidoc/variables';
-import { JsonData, RendererFormDataBody } from '@src/types/types';
+import { GotRequestOptions, JsonData, RendererFormDataBody } from '@src/types/types';
 import { useApidocBaseInfo } from '@/store/apidoc/base-info';
 import { useApidocTas } from '@/store/apidoc/tabs';
 import { useApidocResponse } from '@/store/apidoc/response';
@@ -86,7 +86,7 @@ export const getUrl = async (apidoc: ApidocDetail) => {
   fullUrl = await convertTemplateValueToRealValue(fullUrl, objectVariable);
   return fullUrl;
 }
-const getBody = async (apidoc: ApidocDetail): Promise<RendererFormDataBody | string | undefined> => {
+const getBody = async (apidoc: ApidocDetail): Promise<GotRequestOptions['body']> => {
   const { changeResponseInfo } = useApidocResponse()
   const { objectVariable } = useVariable()
   const { changeFormDataErrorInfoById } = useApidoc()
@@ -140,6 +140,23 @@ const getBody = async (apidoc: ApidocDetail): Promise<RendererFormDataBody | str
     const realData = await convertTemplateValueToRealValue(data, objectVariable);
     return realData;
   }
+  if (mode === 'binary') {
+    const { mode, varValue, binaryValue } = apidoc.item.requestBody.binary;
+    if (mode === 'var') {
+      const filePath = await convertTemplateValueToRealValue(varValue, objectVariable);
+      return {
+        type: 'binary',
+        path: filePath
+      };
+    } else {
+      const filePath = binaryValue.path;
+      return {
+        type: 'binary',
+        path: filePath
+      };
+    }
+  }
+  console.warn(`${t('未知的请求body类型')}`)
   return '??'
 }
 /*
@@ -237,6 +254,15 @@ export async function sendRequest() {
     },
     onReadFileFormDataError(options: {id: string, msg: string, fullMsg: string}) {
       apidocStore.changeFormDataErrorInfoById(options.id, options.msg);
+      changeResponseInfo({
+        responseData: {
+          canApiflowParseType: 'error',
+          errorData: options.fullMsg
+        }
+      });
+      changeRequestState('finish');
+    },
+    onReadBinaryDataError(options: {msg: string, fullMsg: string}) {
       changeResponseInfo({
         responseData: {
           canApiflowParseType: 'error',
