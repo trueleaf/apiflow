@@ -151,10 +151,17 @@ const focus = () => {
 }
 const changeLanguage = (lang: string) => {
   const model = monacoInstance?.getModel();
-    if (model) {
-      monaco.editor.setModelLanguage(model, lang);
-    }
+  if (model) {
+    monaco.editor.setModelLanguage(model, lang);
+  }
 }
+watch(() => props.config?.language, () => {
+  if (props.config?.language) {
+    changeLanguage(props.config.language)
+  }
+}, {
+  immediate: true
+})
 
 defineExpose({
   format,
