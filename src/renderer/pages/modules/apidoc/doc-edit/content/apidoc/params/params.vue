@@ -349,6 +349,19 @@ const checkApidocIsEqual = (apidoc: ApidocDetail, originApidoc: ApidocDetail) =>
     if (!rawDataIsEqual) {
       return false;
     }
+  } else if (cpApidoc.item.requestBody.mode === 'binary') {
+    const binaryDataIsEqual = cpApidoc.item.requestBody.binary.mode === cpOriginApidoc.item.requestBody.binary.mode
+    const binaryPathIsEqual = cpApidoc.item.requestBody.binary.binaryValue.path === cpOriginApidoc.item.requestBody.binary.binaryValue.path;
+    const binaryVarIsEqual = cpApidoc.item.requestBody.binary.varValue === cpOriginApidoc.item.requestBody.binary.varValue;
+    if (!binaryDataIsEqual) {
+      return false;
+    }
+    if (!binaryPathIsEqual) {
+      return false;
+    }
+    if (!binaryVarIsEqual) {
+      return false;
+    }
   }
   //=====================================Response====================================//
   if (cpApidoc.item.responseParams.length !== cpOriginApidoc.item.responseParams.length) { //返回参数长度不相等
