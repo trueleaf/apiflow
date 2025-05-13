@@ -14,6 +14,7 @@ import http2 from 'node:http';
 import { basename } from 'path';
 import { generateEmptyResponse } from './utils';
 import { Buffer } from 'node:buffer';
+import { config } from '../config/config';
 
 const getFormDataFromRendererFormData = async (rendererFormDataList: RendererFormDataBody) => {
   const formData = new FormData();
@@ -142,6 +143,10 @@ export const gotRequest = async (options: GotRequestOptions) => {
     } else if (options.body) {
       responseInfo.requestData.body = options.body as string;
     }
+
+    //更user-agent和accept，不能放在for循环后面，否则参数勾选将无效
+    headers['User-Agent'] = options.headers['User-Agent'] ?? config.requestConfig.userAgent;
+    headers['Accept'] = options.headers['Accept'] ?? '*/*';
     //更新请求头信息
     for (const key in options.headers) {
       if (options.headers[key] === null) { //undefined代表未设置值，null代表取消发送
@@ -159,6 +164,9 @@ export const gotRequest = async (options: GotRequestOptions) => {
         headers[key] = options.headers[key]
       }
     }
+
+
+
     const isConnectionKeepAlive = options.headers['Connection'] == undefined || options.headers['Connection'] === 'keep-alive';
     const needDecompress = options.headers['Accept-Encoding'] === undefined || options.headers['Accept-Encoding'] === 'gzip, deflate, br';
     let willSendBody: undefined | string | FormData | Buffer = '';
@@ -171,6 +179,8 @@ export const gotRequest = async (options: GotRequestOptions) => {
     } else if (options.body) {
       willSendBody = options.body as string;
     }
+    console.log('will send headers', headers, options.headers)
+    
     const gotOptions: Omit<OptionsInit, 'isStream'>  = ({
       url: options.url,
       method: options.method,

@@ -80,6 +80,7 @@ export const config: Config = {
     maxStoreSingleBodySize: 1024 * 1024 * 10, //最大可以缓存单个返回值大小为10M
     maxJsonBodySize: 1024 * 1024 * 1, //最大可以显示0.2M的JSON返回值
     maxTextBodySize: 1024 * 1024 * 1, //最大可以显示0.2M的文本类型返回值
+    userAgent: "https://github.com/trueleaf/apiflow",
   },
   cacheConfig: {
     apiflowCache: {

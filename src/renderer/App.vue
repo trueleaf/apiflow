@@ -20,7 +20,7 @@ onMounted(() => {
 
         ${t('基于Vue和Electron的接口文档工具')}
       
-        ${t('GitHub地址')}：https://github.com/trueleaf/moyu
+        ${t('GitHub地址')}：https://github.com/trueleaf/apiflow
       
         ${t('Gitee地址')}：https://gitee.com/shuzhikai/apiflow
 

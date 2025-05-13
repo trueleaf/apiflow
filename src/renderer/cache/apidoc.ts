@@ -43,12 +43,6 @@ class ApidocCache {
       console.error(err)
     })
   }
-  /**
-     * @description        获取当前选中params tab的值
-     * @author             shuxiaokai
-     * @create             2021-09-06 21:50
-     * @param {string}     id - 当前tab的id
-     */
   getActiveParamsTab(id: string): string | null {
     try {
       const localActiveTab: Record<string, string> = JSON.parse(localStorage.getItem('apidoc/paramsActiveTab') || '{}');
@@ -63,13 +57,6 @@ class ApidocCache {
     }
   }
 
-  /**
-     * @description        设置当前选中params tab的值
-     * @author             shuxiaokai
-     * @create             2021-09-06 21:50
-     * @param {string}     id - 当前tab的id
-     * @param {string}     val - 需要设置的值
-     */
   setActiveParamsTab(id: string, val: string) {
     try {
       const localActiveTab = JSON.parse(localStorage.getItem('apidoc/paramsActiveTab') || '{}');
@@ -85,8 +72,6 @@ class ApidocCache {
 
   /**
      * @description        缓存接口信息
-     * @author             shuxiaokai
-     * @create             2021-09-09 21:37
      */
   setApidoc(val: ApidocDetail) {
     try {
