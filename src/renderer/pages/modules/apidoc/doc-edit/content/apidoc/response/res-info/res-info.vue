@@ -58,7 +58,6 @@ import { computed } from 'vue'
 import { QuestionFilled } from '@element-plus/icons-vue'
 import { formatBytes, formatMs } from '@/helper/index'
 import { t } from 'i18next'
-import SEllipsisContent from '@/components/common/ellipsis-content/g-ellipsis-content.vue'
 import { useApidocResponse } from '@/store/apidoc/response';
 
 //远端返回值

@@ -38,6 +38,9 @@ const standarHeaders = [{
 }, {
   name: 'Cookie',
   description: 'Cookie',
+}, {
+  name: 'Content-Type',
+  description: '系统会自动计算并添加，无需手动添加',
 }]
 
 const headers: ApidocProperty[] = [{

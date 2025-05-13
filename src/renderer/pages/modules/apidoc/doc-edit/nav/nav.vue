@@ -290,6 +290,7 @@ const selectCurrentTab = (element: ApidocTab) => {
     id: element._id
   });
   changeExpandItems([element._id])
+
 }
 //固定当前tab
 const fixCurrentTab = (element: ApidocTab) => {

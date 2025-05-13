@@ -155,9 +155,10 @@ watch(() => props.editData, (val) => {
 |--------------------------------------------------------------------------
 */
 const handleSelectFile = (file: UploadFile) => {
+  const filePath = window.electronAPI?.getFilePath(file.raw as File);
   formInfo.value.fileValue = {
     name: file.name,
-    path: file.raw!.path,
+    path: filePath || '',
     fileType: file.raw!.type,
   }
   return false;
@@ -165,11 +166,12 @@ const handleSelectFile = (file: UploadFile) => {
 const handleExceed: UploadProps['onExceed'] = (files) => {
   uploadInstance.value!.clearFiles();
   const file = files[0] as UploadRawFile
+  const filePath = window.electronAPI?.getFilePath(file);
   file.uid = genFileId()
   uploadInstance.value!.handleStart(file)
   formInfo.value.fileValue = {
     name: file.name,
-    path: file.path,
+    path: filePath || '',
     fileType: file.type,
   }
 }

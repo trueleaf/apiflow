@@ -14,7 +14,7 @@
     <div v-if="bodyType === 'json' || bodyType === 'formdata' || bodyType === 'urlencoded'" class="params-wrap" @click="handleFocus">
       <SJsonEditor v-show="bodyType === 'json'" ref="jsonComponent" v-model="rawJsonData" :config="jsonEditorConfig"
         class="json-wrap" @ready="handleJsonEditorReady" @change="checkContentType"></SJsonEditor>
-      <SParamsTree v-if="bodyType === 'formdata'" isEnabled-file show-checkbox :data="formData"
+      <SParamsTree v-if="bodyType === 'formdata'" enable-file show-checkbox :data="formData"
         @change="checkContentType"></SParamsTree>
       <SParamsTree v-if="bodyType === 'urlencoded'" show-checkbox :data="urlencodedData"
         @change="checkContentType"></SParamsTree>
@@ -50,20 +50,20 @@
       </div>
     </div>
     <div v-else-if="bodyType === 'binary'" class="binary-wrap">
-      <el-radio-group :model-value="apidocStore.apidoc.item.requestBody?.binary?.mode" @update:model-value="handleChangeBinaryMode">
+      <el-radio-group :model-value="requestBody?.binary?.mode" @update:model-value="handleChangeBinaryMode">
         <el-radio value="var">变量模式</el-radio>
         <el-radio value="file">文件模式</el-radio>
       </el-radio-group>
-      <div v-if="apidocStore.apidoc.item.requestBody?.binary?.mode === 'var'" class="var-mode">
+      <div v-if="requestBody?.binary?.mode === 'var'" class="var-mode">
         <el-input
-          :model-value="apidocStore.apidoc.item.requestBody?.binary?.varValue" 
+          :model-value="requestBody?.binary?.varValue" 
           :placeholder="t('输入变量；eg: {{ fileValue }}')" 
           class="w-20"
           @input="handleChangeBinaryVarValue">
         </el-input>
       </div>
-      <div v-if="apidocStore.apidoc.item.requestBody?.binary?.mode === 'file'" class="file-mode">
-        <label for="binaryValue" class="label w-20">{{ t("选择文件") }}</label>
+      <div v-if="requestBody?.binary?.mode === 'file'" class="file-mode">
+        <label v-if="!requestBody?.binary.binaryValue.path"  for="binaryValue" class="label w-20">{{ t("选择文件") }}</label>
         <input 
           id="binaryValue" 
           ref="fileInput" 
@@ -71,6 +71,12 @@
           type="file"
           @change="handleSelectFile"
         ></input>
+        <div class="d-flex a-center w-100">
+          <div v-if="requestBody?.binary.binaryValue.path" :title="requestBody?.binary.binaryValue.path" class="path text-ellipsis">{{ requestBody?.binary.binaryValue.path }}</div>
+          <el-icon v-if="requestBody?.binary.binaryValue.path" class="close" :size="16" @click="handleClearSelectFile">
+            <Close />
+          </el-icon>
+        </div>
       </div>
     </div>
     <!-- <s-body-use-case-dialog v-model="bodyUseVisible"></s-body-use-case-dialog> -->
@@ -79,14 +85,19 @@
 
 <script lang="ts" setup>
 import { computed, ref, onMounted, Ref } from 'vue'
-import type { ApidocBodyMode, ApidocBodyParams, ApidocBodyRawType } from '@src/types/global'
+import type { ApidocBodyMode, ApidocBodyParams, ApidocBodyRawType, ApidocContentType } from '@src/types/global'
 import { t } from 'i18next'
 import { apidocCache } from '@/cache/apidoc'
+import { useVariable } from '@/store/apidoc/variables';
 import { useApidoc } from '@/store/apidoc/apidoc';
 import { config } from '@src/config/config';
 import SJsonEditor from '@/components/common/json-editor/g-json-editor.vue'
 import SParamsTree from '@/components/apidoc/params-tree/g-params-tree.vue'
-import { Switch } from '@element-plus/icons-vue'
+import { Close } from '@element-plus/icons-vue'
+import { convertTemplateValueToRealValue } from '@/utils/utils';
+import mime from 'mime';
+
+// import { Switch } from '@element-plus/icons-vue'
 // import sBodyUseCaseDialog from "./dialog/body-use-case/body-use-case.vue"
 
 const bodyTipUrl = new URL('@/assets/imgs/apidoc/body-tip.png', import.meta.url).href
@@ -99,11 +110,14 @@ const jsonComponent: Ref<null | {
 //根据参数内容校验对应的contentType值
 const checkContentType = () => {
   const type = apidocStore.apidoc.item.requestBody.mode
-  const { formdata, urlencoded, raw, rawJson } = apidocStore.apidoc.item.requestBody;
+  const { formdata, urlencoded, raw, rawJson, binary } = apidocStore.apidoc.item.requestBody;
   // const converJsonData = apidocConvertParamsToJsonData(json, true);
   const hasJsonData = rawJson?.length > 0;
   const hasFormData = formdata.filter(p => p.select).some((data) => data.key);
   const hasUrlencodedData = urlencoded.filter(p => p.select).some((data) => data.key);
+  const hasBinaryVarValue = !!(binary.mode === 'var' && binary.varValue);
+  const hasBinaryFileValue = !!(binary.mode === 'file' && binary.binaryValue.path);
+  const hasBinaryData = hasBinaryVarValue || hasBinaryFileValue;
   const hasRawData = raw.data;
   if (type === 'raw' && hasRawData) {
     apidocStore.changeContentType(raw.dataType || 'text/plain');
@@ -123,6 +137,8 @@ const checkContentType = () => {
     apidocStore.changeContentType('multipart/form-data');
   } else if (type === 'formdata' && !hasFormData) {
     apidocStore.changeContentType('');
+  } else if (type === 'binary' && hasBinaryData) {
+    apidocStore.changeContentType('application/octet-stream')
   }
 }
 //改变bodytype类型
@@ -145,7 +161,9 @@ const bodyType = computed<ApidocBodyMode>({
     apidocStore.changeBodyMode(val);
   },
 });
-
+const requestBody = computed<ApidocBodyParams>(() => {
+  return apidocStore.apidoc.item.requestBody
+})
 /*
 |--------------------------------------------------------------------------
 | json类型操作
@@ -250,19 +268,40 @@ const handleChangeBinaryMode = (binaryMode: string | number | boolean | undefine
   apidocStore.handleChangeBinaryInfo({ mode: binaryMode as ApidocBodyParams['binary']['mode'] })
 }
 const handleChangeBinaryVarValue = (value: string) => {
+  const { objectVariable } = useVariable()
+  convertTemplateValueToRealValue(value, objectVariable).then(result => {
+    const mimeType = mime.getType(result.split('\\').pop()) as ApidocContentType;
+    apidocStore.changeContentType(mimeType || 'application/octet-stream')
+  }).catch(error => {
+    console.log(error)
+  })
   apidocStore.handleChangeBinaryInfo({ varValue: value })
 }
 const handleSelectFile = (e: Event) => {
   const { files } = (e.target as HTMLInputElement);
-  if (files) {
+  if (files?.length) {
     const file = files[0];
-    const path = window.electronAPI?.getFilePath(file) || ""
-    // apidocStore.handleChangeBinaryInfo({ binaryValue: {
-    //   path,
-    //   raw: file,
-      
-    // } })
+    const path = window.electronAPI?.getFilePath(file) || "";
+    apidocStore.handleChangeBinaryInfo({ 
+      binaryValue: {
+        path,
+    }})
+    const { objectVariable } = useVariable()
+    convertTemplateValueToRealValue(path, objectVariable).then(result => {
+    const mimeType = mime.getType(result.split('\\').pop()) as ApidocContentType;
+    apidocStore.changeContentType(mimeType || 'application/octet-stream')
+    }).catch(error => {
+      console.log(error)
+    })
   }
+}
+const handleClearSelectFile = () => {
+  apidocStore.handleChangeBinaryInfo({ 
+    binaryValue: {
+      path: '',
+    }
+  })
+  apidocStore.changeContentType('application/octet-stream');
 }
 /*
 |--------------------------------------------------------------------------
@@ -384,6 +423,22 @@ onMounted(async () => {
         height: size(30);
         cursor: pointer;
         background-color: $gray-300;
+      }
+      .path {
+        max-width: 75%;
+        padding: size(3) size(5);
+        border: 1px dashed $gray-400;
+      }
+      .close {
+        // position: absolute;
+        // right: size(3);
+        // top: 50%;
+        // transform: translateY(-50%);
+        font-size: fz(16);
+        cursor: pointer;
+        &:hover {
+          color: $red;
+        }
       }
     }
   }

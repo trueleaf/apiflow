@@ -1,8 +1,8 @@
 <template>
   <div class="raw-body" :class="{ vertical: layout === 'vertical' }">
-    <SJsonEditor v-if="apidocResponseStore.responseInfo.responseData.canApiflowParseType !== 'cachedBodyIsTooLarge'"
-      :modelValue="textResponse" read-only :config="{ fontSize: 13, language: 'text' }"></SJsonEditor>
-    <!-- <span v-if="apidocResponseStore.responseInfo.responseData.canApiflowParseType !== 'cachedBodyIsTooLarge'" class="str-wrap">{{ textResponse }}</span> -->
+    <!-- <SJsonEditor v-if="apidocResponseStore.responseInfo.responseData.canApiflowParseType !== 'cachedBodyIsTooLarge'"
+      :modelValue="textResponse" read-only :config="{ fontSize: 13, language: 'text' }"></SJsonEditor> -->
+    <span v-if="apidocResponseStore.responseInfo.responseData.canApiflowParseType !== 'cachedBodyIsTooLarge'" class="str-wrap">{{ textResponse }}</span>
     <div v-else class="d-flex a-center j-center red">
       返回值大于{{ formatBytes(config.requestConfig.maxStoreSingleBodySize) }}，返回body值缓存失效。
       需重新请求最新数据
@@ -13,7 +13,7 @@
 <script lang="ts" setup>
 import { useApidocBaseInfo } from '@/store/apidoc/base-info';
 import { useApidocResponse } from '@/store/apidoc/response';
-import SJsonEditor from '@/components/common/json-editor/g-json-editor.vue'
+// import SJsonEditor from '@/components/common/json-editor/g-json-editor.vue'
 import { computed, ref, watch } from 'vue';
 import { config } from '@/../config/config'
 import { formatBytes } from '@/helper/index'

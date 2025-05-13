@@ -30,7 +30,7 @@
       <el-button text link type="primary" @click="handleJumpToResetPassword">{{ t("已有账号，忘记密码?") }}</el-button>
     </div>
     <div v-if="config.localization.enableDocLink" class="mt-2 d-flex j-around">
-      <a href="https://github.com/trueleaf/moyu" target="_blank" class="d-flex flex-column j-center a-center">
+      <a href="https://github.com/trueleaf/apiflow" target="_blank" class="d-flex flex-column j-center a-center">
         <svg class="svg-icon" aria-hidden="true" :title="t('跳转github')">
           <use xlink:href="#icongithub"></use>
         </svg>
