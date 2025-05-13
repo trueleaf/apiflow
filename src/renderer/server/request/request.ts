@@ -180,8 +180,20 @@ const getHeaders = async (apidoc: ApidocDetail) => {
   const commonHeaders = defaultCommonHeaders.filter(header => !ignoreHeaderIds.includes(header._id));
   const headers = apidoc.item.headers;
   const headersObject: Record<string, string | null> = {};
+  for(let i = 0; i < defaultHeaders.length; i++) {
+    const header = defaultHeaders[i];
+    if (!header.disabled && !header.select) { //当前请求头可以被取消
+      headersObject[header.key] = null;
+    } else if (!header._disableValue && header.value) {
+      const realValue = await convertTemplateValueToRealValue(header.value, objectVariable);
+      headersObject[header.key] = realValue;
+    }
+  }
   for(let i = 0; i < headers.length; i++) {
     const header = headers[i];
+    if (!header.disabled && !header.select) {
+      continue
+    }
     const realKey = await convertTemplateValueToRealValue(header.key, objectVariable);
     if (realKey.trim() === '') {
       continue;
@@ -198,15 +210,7 @@ const getHeaders = async (apidoc: ApidocDetail) => {
     const realValue = await convertTemplateValueToRealValue(header.value, objectVariable);
     headersObject[realKey] = realValue
   }
-  for(let i = 0; i < defaultHeaders.length; i++) {
-    const header = defaultHeaders[i];
-    if (!header.disabled && !header.select) { //当前请求头可以被取消
-      headersObject[header.key] = null;
-    } else if (!header._disableValue && header.value) {
-      const realValue = await convertTemplateValueToRealValue(header.value, objectVariable);
-      headersObject[header.key] = realValue;
-    }
-  }
+
   return headersObject;
 }
 
