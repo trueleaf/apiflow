@@ -13,11 +13,11 @@
       </SLabelValue>
       <div class="base-info">
         <SLabelValue :label="`${t('维护人员：')}`" :title="apidocInfo.info.maintainer || apidocInfo.info.creator"
-          label-width="auto" class="w-30">
+          label-width="auto" class="w-50">
           <span class="text-ellipsis">{{ apidocInfo.info.maintainer || apidocInfo.info.creator }}</span>
         </SLabelValue>
         <SLabelValue :label="`${t('创建人员：')}`" :title="apidocInfo.info.creator || apidocInfo.info.maintainer"
-          label-width="auto" class="w-30">
+          label-width="auto" class="w-50">
           <span class="text-ellipsis">{{ apidocInfo.info.creator || apidocInfo.info.maintainer }}</span>
         </SLabelValue>
         <SLabelValue :label="`${t('更新日期：')}`" :title="formatDate(apidocInfo.updatedAt)" label-width="auto"
