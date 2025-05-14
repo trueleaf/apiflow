@@ -187,7 +187,7 @@ export const useApidocBaseInfo = defineStore('apidocBaseInfo', () => {
         if (level === 0) {
           path.length = 0;
         }
-        path[level] = data.name;
+        path[level] = data.name as string;
         for (let j = 0; j < data.commonHeaders.length; j++) {
           const header = data.commonHeaders[j];
           if (header._id === id) {

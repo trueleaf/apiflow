@@ -189,11 +189,8 @@ const getHeaders = async (apidoc: ApidocDetail) => {
       headersObject[header.key] = realValue;
     }
   }
-  for(let i = 0; i < headers.length; i++) {
-    const header = headers[i];
-    if (!header.disabled && !header.select) {
-      continue
-    }
+  for(let i = 0; i < commonHeaders.length; i++) {
+    const header = commonHeaders[i];
     const realKey = await convertTemplateValueToRealValue(header.key, objectVariable);
     if (realKey.trim() === '') {
       continue;
@@ -201,8 +198,11 @@ const getHeaders = async (apidoc: ApidocDetail) => {
     const realValue = await convertTemplateValueToRealValue(header.value, objectVariable);
     headersObject[realKey] = realValue
   }
-  for(let i = 0; i < commonHeaders.length; i++) {
-    const header = commonHeaders[i];
+  for(let i = 0; i < headers.length; i++) {
+    const header = headers[i];
+    if (!header.disabled && !header.select) {
+      continue
+    }
     const realKey = await convertTemplateValueToRealValue(header.key, objectVariable);
     if (realKey.trim() === '') {
       continue;

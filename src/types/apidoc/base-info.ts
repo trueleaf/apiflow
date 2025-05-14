@@ -137,6 +137,10 @@ export type ApidocProjectCommonHeader = {
       */
    isFolder: boolean,
    /**
+    * 名称
+    */
+   name?: string;
+   /**
     * pid
     */
    pid: string,

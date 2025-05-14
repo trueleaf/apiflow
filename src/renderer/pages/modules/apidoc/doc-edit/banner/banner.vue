@@ -130,7 +130,6 @@ import { TreeNodeOptions } from 'element-plus/es/components/tree/src/tree.type.m
 import { useApidocBaseInfo } from '@/store/apidoc/base-info'
 import { useApidocBanner } from '@/store/apidoc/banner'
 import { useApidocTas } from '@/store/apidoc/tabs'
-import { nanoid } from 'nanoid/non-secure'
 
 
 //树节点信息

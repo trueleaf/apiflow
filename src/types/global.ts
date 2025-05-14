@@ -345,6 +345,7 @@ export type ApidocProperty<T extends ApidocPropertyType = ApidocPropertyType> = 
     */
    fileValueType?: 'var' | 'file';
    children?: ApidocProperty[];
+   nodeId?: string; //公共请求头会用到
    _error?: string;
    _disableSelect?: boolean;
    _disableKey?: boolean;
