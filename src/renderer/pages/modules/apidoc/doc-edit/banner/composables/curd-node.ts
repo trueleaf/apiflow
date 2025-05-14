@@ -317,6 +317,7 @@ export function renameNode(e: FocusEvent | KeyboardEvent, data: ApidocBanner): v
   const apidocBannerStore = useApidocBanner();
   const apidocTabsStore = useApidocTas()
   const apidocStpre = useApidoc()
+  const { getCommonHeaders } = useApidocBaseInfo()
   if (isRename) {
     return;
   }
@@ -348,7 +349,11 @@ export function renameNode(e: FocusEvent | KeyboardEvent, data: ApidocBanner): v
     projectId,
     name: iptValue,
   };
-  request.put('/api/project/change_doc_info', params).catch((err) => {
+  request.put('/api/project/change_doc_info', params).then(() => {
+    if (data.type === 'folder') { //如果是文件夹，需要重新拉取一次公共请求头
+      getCommonHeaders()
+    }
+  }).catch((err) => {
     console.error(err);
     apidocBannerStore.changeBannerInfoById({
       id: data._id,
