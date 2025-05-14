@@ -22,9 +22,10 @@ type ChangeProjectBaseInfo = {
   rules: ApidocProjectRules,
   hosts: ApidocProjectHost[],
 }
-type HeaderInfo = Pick<ApidocProperty, '_id' | 'key' | 'value' | 'description' | "select">
+type HeaderInfo = Pick<ApidocProperty, '_id' | 'key' | 'value' | 'description' | "select"> & { path?: string[], nodeId?: string }
 type CommonHeaderResult = {
   matched: boolean,
+  nodeId: string;
   data: HeaderInfo[]
 };
 type MatchedHeaderOptions = {
@@ -33,7 +34,7 @@ type MatchedHeaderOptions = {
   result: CommonHeaderResult,
   deep: number
 }
-type GlobalCommonHeader = Pick<ApidocProperty, "_id" | "key" | "value" | "description" | "select">;
+type GlobalCommonHeader = Pick<ApidocProperty, "_id" | "key" | "value" | "description" | "select"> & { path?: string[], nodeId?: string };
 
 const getMatchedHeaders = (data: ApidocProjectBaseInfoState['commonHeaders'], options: MatchedHeaderOptions) => {
   for (let i = 0; i < data.length; i += 1) {
@@ -43,6 +44,7 @@ const getMatchedHeaders = (data: ApidocProjectBaseInfoState['commonHeaders'], op
     if (_id === options.id) {
       options.result.matched = true;
       options.result.data = options.preCommonHeaders;
+      options.result.nodeId = currentItem.pid;
       return;
     }
     //当前headers覆盖老的headers
@@ -51,6 +53,7 @@ const getMatchedHeaders = (data: ApidocProjectBaseInfoState['commonHeaders'], op
         currentHeaders.push(JSON.parse(JSON.stringify(header)))
       }
     })
+    
     if (children?.length > 0) {
       getMatchedHeaders(children, {
         id: options.id,
@@ -171,13 +174,44 @@ export const useApidocBaseInfo = defineStore('apidocBaseInfo', () => {
   // const changeValidCommonHeaders = (headers: Pick<ApidocProperty, 'key' | 'value' | 'description' | 'select'>[]) => {
   //   validCommonHeaders.value = headers;
   // }
+  const getCommonHeaderPathById = (headerItemId: string) => {
+    const path: string[] = [];
+    const cpComonHeaders = commonHeaders.value;
+    let isMatched = false;
+    const loop = (loopData: ApidocProjectCommonHeader[], id: string, level: number) => {
+      for (let i = 0; i < loopData.length; i++) {
+        if (isMatched) {
+          return
+        }
+        const data = loopData[i];
+        if (level === 0) {
+          path.length = 0;
+        }
+        path[level] = data.name;
+        for (let j = 0; j < data.commonHeaders.length; j++) {
+          const header = data.commonHeaders[j];
+          if (header._id === id) {
+            isMatched = true;
+            return;
+          }
+        }
+        if (data.children.length) {
+          loop(data.children, id, level + 1)
+        }
+      }
+    }
+    loop(cpComonHeaders, headerItemId, 0);
+    return path
+  }
   //根据文档id获取公共请求头
   const getCommonHeadersById = (id: string) => {
+    
     if (!id) {
       return [];
     }
     const result: CommonHeaderResult = {
       matched: false,
+      nodeId: '',
       data: []
     };
     getMatchedHeaders(commonHeaders.value, {
@@ -187,6 +221,10 @@ export const useApidocBaseInfo = defineStore('apidocBaseInfo', () => {
       result,
     });
     const validCommonHeaders = result.data?.filter(v => v.key && v.select) || [];
+    validCommonHeaders.forEach(header => {
+      header.path = getCommonHeaderPathById(header._id);
+      header.nodeId = result.nodeId;
+    })
     const validGlobalCommonHeaders = globalCommonHeaders.value?.filter(v => v.key && v.select) || [];
     // console.log('comm', [...validCommonHeaders, ...validGlobalCommonHeaders]);
     return [...validCommonHeaders, ...validGlobalCommonHeaders];
