@@ -8,8 +8,13 @@
           <div class="label">
             <div class="d-flex a-center">
               <span class="flex0">{{ t("名称") }}：</span>
-              <span v-if="(!currentEditNode || currentEditNode.index !== index)" class="edit-title">{{ item.title
-                }}</span>
+              <span 
+                v-if="(!currentEditNode || currentEditNode.index !== index)" 
+                class="edit-title text-ellipsis"
+                :title="item.title"
+              >
+                {{ item.title }}
+              </span>
               <input v-if="currentEditNode && currentEditNode.index === index" :ref="bindRef"
                 v-model="currentEditNode._title" class="edit-input"
                 :class="{ error: currentEditNode._title.length === 0 }" type="text" :placeholder="t('不能为空')"
