@@ -48,17 +48,16 @@
           <el-badge :is-dot="hasBodyParams">Body</el-badge>
         </template>
       </el-tab-pane>
-      <el-tab-pane name="SResponseParams">
-        <template #label>
-          <el-badge :is-dot="!!responseNum">{{ t("返回参数") }}</el-badge>
-        </template>
-      </el-tab-pane>
       <el-tab-pane name="SRequestHeaders">
         <template #label>
           <el-badge :is-dot="hasHeaders">{{ t("请求头") }}</el-badge>
         </template>
       </el-tab-pane>
-      <el-tab-pane :label="t('备注信息')" name="SRemarks"></el-tab-pane>
+      <el-tab-pane name="SResponseParams">
+        <template #label>
+          <el-badge :is-dot="!!responseNum">{{ t("返回参数") }}</el-badge>
+        </template>
+      </el-tab-pane>
       <el-tab-pane name="SPreRequest">
         <template #label>
           <el-badge :is-dot="hasPreRequest">{{ t("前置脚本") }}</el-badge>
@@ -69,6 +68,7 @@
           <el-badge :is-dot="hasAfterRequest">{{ t("后置脚本") }}</el-badge>
         </template>
       </el-tab-pane>
+      <el-tab-pane :label="t('备注信息')" name="SRemarks"></el-tab-pane>
       <el-tab-pane name="SMock">
         <template #label>
           <el-badge :is-dot="hasCustomMockInfo">Mock</el-badge>
@@ -111,8 +111,11 @@ const apidocTabsStore = useApidocTas()
 const apidocMock = useApidocMock();
 const activeName = ref<ActiceName>('SParams');
 const generateCodeVisible = ref(false);
+import { router } from '@/router'
 const debounceFn = ref(null as (null | DebouncedFunc<(apidoc: ApidocDetail) => void>))
 const route = useRoute()
+
+const projectId = router.currentRoute.value.query.id as string;
 const mode = computed(() => {
   return apidocBaseInfoStore.mode
 })
@@ -196,7 +199,14 @@ const currentSelectTab = computed(() => {
 const hasHeaders = computed(() => {
   const { headers } = apidocStore.apidoc.item;
   const commonHeaders = apidocBaseInfoStore.getCommonHeadersById(currentSelectTab.value?._id || "");
-  const hasHeaders = headers.concat(commonHeaders.map(v => ({ ...v, select: true })) as ApidocProperty<'string'>[]).filter(p => p.select).some((data) => data.key);
+  const cpCommonHeaders = JSON.parse(JSON.stringify(commonHeaders)) as (typeof commonHeaders);
+  cpCommonHeaders.forEach(header => {
+    const ignoreHeaderIds = apidocCache.getIgnoredCommonHeaderByTabId(projectId, currentSelectTab.value?._id ?? "");
+    const isSelect = ignoreHeaderIds?.find(headerId => headerId === header._id) ? false : true;
+    header.select = isSelect;
+  })
+  const allHeaders = headers.concat(cpCommonHeaders.map(v => ({ ...v })) as ApidocProperty<'string'>[]);
+  const hasHeaders = allHeaders.filter(header => header.select).some((data) => data.key);
   return hasHeaders;
 })
 const layout = computed(() => {
