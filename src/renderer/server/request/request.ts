@@ -183,10 +183,10 @@ const getHeaders = async (apidoc: ApidocDetail) => {
   for(let i = 0; i < defaultHeaders.length; i++) {
     const header = defaultHeaders[i];
     if (!header.disabled && !header.select) { //当前请求头可以被取消
-      headersObject[header.key] = null;
+      headersObject[header.key.toLowerCase()] = null;
     } else if (!header._disableValue && header.value) {
       const realValue = await convertTemplateValueToRealValue(header.value, objectVariable);
-      headersObject[header.key] = realValue;
+      headersObject[header.key.toLowerCase()] = realValue;
     }
   }
   for(let i = 0; i < commonHeaders.length; i++) {
@@ -196,8 +196,9 @@ const getHeaders = async (apidoc: ApidocDetail) => {
       continue;
     }
     const realValue = await convertTemplateValueToRealValue(header.value, objectVariable);
-    headersObject[realKey] = realValue
+    headersObject[realKey.toLowerCase()] = realValue
   }
+  //用户填写的请求头会覆盖公共请求头
   for(let i = 0; i < headers.length; i++) {
     const header = headers[i];
     if (!header.disabled && !header.select) {
@@ -208,9 +209,8 @@ const getHeaders = async (apidoc: ApidocDetail) => {
       continue;
     }
     const realValue = await convertTemplateValueToRealValue(header.value, objectVariable);
-    headersObject[realKey] = realValue
+    headersObject[realKey.toLowerCase()] = realValue
   }
-
   return headersObject;
 }
 
@@ -494,7 +494,4 @@ export function stopRequest(): void {
       errorData: t('请求被手动取消')
     }
   })
-  // if (requestStream) {
-  //   requestStream.destroy();
-  // }
 }
