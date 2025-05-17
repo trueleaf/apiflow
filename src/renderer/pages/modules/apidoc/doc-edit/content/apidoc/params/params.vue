@@ -76,7 +76,7 @@
       </el-tab-pane>
     </el-tabs>
     <keep-alive>
-      <component :is="getComponent()" class="workbench"></component>
+      <component :is="getComponent()" class="workbench" @changeCommonHeaderSendStatus="freshHasHeaders"></component>
     </keep-alive>
   </div>
 </template>
@@ -96,7 +96,7 @@ import SAfterRequestParams from './after-request/after-request.vue';
 import SRemark from './remarks/remarks.vue';
 import SHook from './hook/hook.vue'
 import SMock from './mock/mock.vue'
-import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
+import { computed, onMounted, onUnmounted, ref, watch, watchEffect } from 'vue'
 import { useApidocBaseInfo } from '@/store/apidoc/base-info'
 import { useApidoc } from '@/store/apidoc/apidoc'
 import { useRoute } from 'vue-router'
@@ -160,7 +160,7 @@ const responseNum = computed(() => {
 const hasCustomMockInfo = computed(() => {
   const { mockInfo } = apidocStore.apidoc;
   const { responseHeaders } = apidocStore.apidoc.mockInfo;
-  const hasHeaders = responseHeaders.filter(p => p.select).some((data) => data.key);
+  const hasCustomMockHeaders = responseHeaders.filter(p => p.select).some((data) => data.key);
   if (mockInfo.responseType === 'json' && mockInfo.json.trim() !== '') {
     return true;
   }
@@ -176,7 +176,7 @@ const hasCustomMockInfo = computed(() => {
   if (mockInfo.responseType === 'customJson' && mockInfo.customResponseScript.trim() !== '') {
     return true;
   }
-  if (hasHeaders) { //存在自定义headers
+  if (hasCustomMockHeaders) { //存在自定义headers
     return true;
   }
   if (mockInfo.path !== '' && mockInfo.path !== '/') { //blur会在自动添加/，这种情况也属于未改变
@@ -196,7 +196,9 @@ const currentSelectTab = computed(() => {
   const currentSelectTab = tabs?.find((tab) => tab.selected) || null;
   return currentSelectTab;
 })
-const hasHeaders = computed(() => {
+
+const hasHeaders = ref(false);
+const freshHasHeaders = () => {
   const { headers } = apidocStore.apidoc.item;
   const commonHeaders = apidocBaseInfoStore.getCommonHeadersById(currentSelectTab.value?._id || "");
   const cpCommonHeaders = JSON.parse(JSON.stringify(commonHeaders)) as (typeof commonHeaders);
@@ -206,9 +208,12 @@ const hasHeaders = computed(() => {
     header.select = isSelect;
   })
   const allHeaders = headers.concat(cpCommonHeaders.map(v => ({ ...v })) as ApidocProperty<'string'>[]);
-  const hasHeaders = allHeaders.filter(header => header.select).some((data) => data.key);
-  return hasHeaders;
-})
+  const hasHeader = allHeaders.filter(header => header.select).some((data) => data.key);
+  console.log('fresh', hasHeader, cpCommonHeaders, )
+  hasHeaders.value = hasHeader;
+}
+watchEffect(freshHasHeaders, {
+});
 const layout = computed(() => {
   return apidocBaseInfoStore.layout;
 })

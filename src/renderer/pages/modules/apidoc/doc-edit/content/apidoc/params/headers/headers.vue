@@ -75,6 +75,7 @@ import { apidocCache } from '@/cache/apidoc';
 import { storeToRefs } from 'pinia';
 import { CheckboxValueType } from 'element-plus';
 
+const emits = defineEmits(['changeCommonHeaderSendStatus'])
 const apidocTabsStore = useApidocTas()
 const apidocStore = useApidoc()
 const apidocBaseInfoStore = useApidocBaseInfo()
@@ -103,6 +104,7 @@ const handleChangeCommonHeaderIsSend = (isSend: CheckboxValueType, header: Pick<
       ignoreHeaderId: header._id
     })
   }
+  emits('changeCommonHeaderSendStatus')
 }
 watch([currentSelectTab, cHeaders, globalCommonHeaders], () => {
   if (currentSelectTab.value?.tabType !== 'doc') {
