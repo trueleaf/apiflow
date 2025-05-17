@@ -145,26 +145,25 @@ export const gotRequest = async (options: GotRequestOptions) => {
     }
 
     //更user-agent和accept，不能放在for循环后面，否则参数勾选将无效
-    headers['User-Agent'] = options.headers['User-Agent'] ?? config.requestConfig.userAgent;
-    headers['Accept'] = options.headers['Accept'] ?? '*/*';
+    headers['user-agent'] = options.headers['user-agent'] ?? config.requestConfig.userAgent;
+    headers['accept'] = options.headers['accept'] ?? '*/*';
     //更新请求头信息
     for (const key in options.headers) {
-      if (options.headers[key] === null) { //undefined代表未设置值，null代表取消发送
-        headers[key] = undefined
+      if (options.headers[key.toLowerCase()] === null) { //undefined代表未设置值，null代表取消发送
+        headers[key.toLowerCase()] = undefined
       } else if (isFormDataBody && key === 'Content-Type') {
-        headers[key] = (reqeustBody as FormData)?.getHeaders()['content-type'];
+        headers[key.toLowerCase()] = (reqeustBody as FormData)?.getHeaders()['content-type'];
       } else if (isBinaryBody && key === 'Content-Type') {
         const fileTypeInfo = await fileTypeFromBuffer(reqeustBody as Buffer);
         if (fileTypeInfo?.mime) {
-          headers[key] = fileTypeInfo.mime;
+          headers[key.toLowerCase()] = fileTypeInfo.mime;
         } else {
-          headers[key] = options.headers[key]
+          headers[key.toLowerCase()] = options.headers[key.toLowerCase()]!;
         }
       } else {
-        headers[key] = options.headers[key]
+        headers[key.toLowerCase()] = options.headers[key.toLowerCase()]!;
       }
     }
-
 
 
     const isConnectionKeepAlive = options.headers['Connection'] == undefined || options.headers['Connection'] === 'keep-alive';
@@ -179,8 +178,6 @@ export const gotRequest = async (options: GotRequestOptions) => {
     } else if (options.body) {
       willSendBody = options.body as string;
     }
-    console.log('will send headers', headers, options.headers)
-    
     const gotOptions: Omit<OptionsInit, 'isStream'>  = ({
       url: options.url,
       method: options.method,
