@@ -79,7 +79,7 @@ const getFileBufferByPath = async (path: string) => {
   } catch {
     return Promise.resolve({
       msg: '文件不存在(发送被终止)',
-      fullMsg: `文件${path}在磁盘上未找到，发送被终止`
+      fullMsg: path ? `文件${path}在磁盘上未找到，发送被终止` : '请选择文件后再发起请求'
     });
   }
   try {

@@ -205,7 +205,6 @@ export const useApidocBaseInfo = defineStore('apidocBaseInfo', () => {
   }
   //根据文档id获取公共请求头
   const getCommonHeadersById = (id: string) => {
-    
     if (!id) {
       return [];
     }
