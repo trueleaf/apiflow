@@ -151,9 +151,9 @@ export const gotRequest = async (options: GotRequestOptions) => {
     for (const key in options.headers) {
       if (options.headers[key.toLowerCase()] === null) { //undefined代表未设置值，null代表取消发送
         headers[key.toLowerCase()] = undefined
-      } else if (isFormDataBody && key === 'Content-Type') {
+      } else if (isFormDataBody && key === 'content-type') {
         headers[key.toLowerCase()] = (reqeustBody as FormData)?.getHeaders()['content-type'];
-      } else if (isBinaryBody && key === 'Content-Type') {
+      } else if (isBinaryBody && key === 'content-type') {
         const fileTypeInfo = await fileTypeFromBuffer(reqeustBody as Buffer);
         if (fileTypeInfo?.mime) {
           headers[key.toLowerCase()] = fileTypeInfo.mime;
@@ -164,15 +164,16 @@ export const gotRequest = async (options: GotRequestOptions) => {
         headers[key.toLowerCase()] = options.headers[key.toLowerCase()]!;
       }
     }
-
-
     const isConnectionKeepAlive = options.headers['Connection'] == undefined || options.headers['Connection'] === 'keep-alive';
     const needDecompress = options.headers['Accept-Encoding'] === undefined || options.headers['Accept-Encoding'] === 'gzip, deflate, br';
+    const hasFormData = (options.body as RendererFormDataBody).some(item => (item.key));
     let willSendBody: undefined | string | FormData | Buffer = '';
     if (options.method.toLowerCase() === 'head') { //只有head请求body值为undefined,head请求不挟带body
       willSendBody = undefined
-    } else if (isFormDataBody && reqeustBody instanceof FormData) {
+    } else if (isFormDataBody && reqeustBody instanceof FormData && hasFormData) {
       willSendBody = reqeustBody
+    } else if (isFormDataBody && !hasFormData) {
+      willSendBody = ''
     } else if (isBinaryBody) {
       willSendBody = reqeustBody as Buffer;
     } else if (options.body) {

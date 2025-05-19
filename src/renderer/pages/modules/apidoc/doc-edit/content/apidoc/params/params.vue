@@ -209,7 +209,7 @@ const freshHasHeaders = () => {
   })
   const allHeaders = headers.concat(cpCommonHeaders.map(v => ({ ...v })) as ApidocProperty<'string'>[]);
   const hasHeader = allHeaders.filter(header => header.select).some((data) => data.key);
-  console.log('fresh', hasHeader, cpCommonHeaders, )
+  // console.log('fresh', hasHeader, allHeaders, )
   hasHeaders.value = hasHeader;
 }
 watchEffect(freshHasHeaders, {
