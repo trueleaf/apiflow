@@ -38,20 +38,19 @@
         >
         </SJsonEditor>
       </div>
-      <pre v-else-if="contentType?.includes('multipart/')" class="pl-1 pre">
-          <div 
-       class="theme-color cursor-pointer d-flex j-end" 
-       @click="() => downloadStringAsText(responseInfo.requestData.body, 'multiPartBody.txt')"
-     >
-      <span>{{t('下载完整数据')}}</span>
-      <span>({{ formatBytes(responseInfo.requestData.body.length) }})</span>
-     </div>
-        {{ safedMultipart(responseInfo.requestData.body) }}
+      <pre v-else-if="contentType?.includes('multipart/')" class="pl-1 pre pre-body">
+        <div 
+          class="theme-color cursor-pointer d-flex j-end mb-2 download" 
+          @click="() => downloadStringAsText(responseInfo.requestData.body as string, 'multiPartBody.txt')"
+        >
+          <span>{{t('下载完整数据')}}</span>
+          <span>({{ formatBytes((responseInfo.requestData.body as string).length) }})</span>
+        </div>{{ safedMultipart((responseInfo.requestData.body as string)) }}
       </pre>
-      <pre v-else-if="contentType === 'text/html'" class="pre">{{ responseInfo.requestData.body }}</pre>
-      <pre v-else-if="contentType === 'text/javascript'" class="pre">{{ responseInfo.requestData.body }}</pre>
-      <pre v-else-if="contentType === 'text/plain'" class="pre">{{ responseInfo.requestData.body }}</pre>
-      <pre v-else-if="contentType === 'application/xml'" class="pre">{{ responseInfo.requestData.body }}</pre>
+      <pre v-else-if="contentType === 'text/html'" class="pre pre-body">{{ responseInfo.requestData.body }}</pre>
+      <pre v-else-if="contentType === 'text/javascript'" class="pre pre-body">{{ responseInfo.requestData.body }}</pre>
+      <pre v-else-if="contentType === 'text/plain'" class="pre pre-body">{{ responseInfo.requestData.body }}</pre>
+      <pre v-else-if="contentType === 'application/xml'" class="pre pre-body">{{ responseInfo.requestData.body }}</pre>
     </SCollapse>
   </div>
   <div v-else class="d-flex a-center j-center">{{ t('等待发送请求') }}</div>
@@ -90,7 +89,7 @@ const contentType = computed(() => apidocStore.apidoc.item.contentType); //conte
 const formatJsonStr = (code: string) => beautify(code, { indent_size: 4 });
 const upperHeaderKey = (key: string) => key.replace(/(^\w)|(-\w)/g, ($1) => $1.toUpperCase());
 const safedMultipart = (strBody: string) => {
-  const boundary = contentType.value.match(/boundary=(.*?);/)?.[1];
+  const boundary = contentType.value.match(/boundary=(.*?);/)?.[1] as string;
   const arrBody = strBody.split(boundary);
   let result = ''
   arrBody.forEach((item) => {
@@ -118,6 +117,12 @@ const layout = computed(() => apidocBaseInfoStore.layout)
   }
   .body-wrap {
     height: size(200);
+  }
+  .pre-body {
+    margin-left: size(25);
+    .download {
+      margin-top: size(-14);
+    }
   }
 }
 </style>

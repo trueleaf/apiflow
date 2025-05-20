@@ -122,7 +122,7 @@
             </SValidInput>
             <div v-if="scope.data.fileValueType === 'file'" class="file-mode-wrap">
               <label v-show="!scope.data.value" :for="scope.data.key" class="label">{{ t("选择文件") }}</label>
-              <span class="text-wrap">{{ scope.data.value }}</span>
+              <span class="text-wrap" :title="scope.data.value">{{ scope.data.value }}</span>
               <el-icon v-if="scope.data.value" class="close" :size="16" @click="handleClearSelectType(scope.data)">
                 <close />
               </el-icon>
