@@ -166,7 +166,7 @@ export const gotRequest = async (options: GotRequestOptions) => {
     }
     const isConnectionKeepAlive = options.headers['Connection'] == undefined || options.headers['Connection'] === 'keep-alive';
     const needDecompress = options.headers['Accept-Encoding'] === undefined || options.headers['Accept-Encoding'] === 'gzip, deflate, br';
-    const hasFormData = (options.body as RendererFormDataBody).some(item => (item.key));
+    const hasFormData = isFormDataBody && (options.body as RendererFormDataBody).some(item => (item.key));
     let willSendBody: undefined | string | FormData | Buffer = '';
     if (options.method.toLowerCase() === 'head') { //只有head请求body值为undefined,head请求不挟带body
       willSendBody = undefined
@@ -179,6 +179,7 @@ export const gotRequest = async (options: GotRequestOptions) => {
     } else if (options.body) {
       willSendBody = options.body as string;
     }
+    // console.log(willSendBody, headers, hasFormData)
     const gotOptions: Omit<OptionsInit, 'isStream'>  = ({
       url: options.url,
       method: options.method,
