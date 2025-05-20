@@ -21,6 +21,7 @@
         <span>{{ t('请求body') }}</span>
         <span v-if="contentType">({{ contentType }})</span>
       </template>
+  
       <div v-if="contentType === 'application/json'" class="body-wrap">
         <SJsonEditor 
           :modelValue="formatJsonStr(responseInfo.requestData.body as string)" 
@@ -37,7 +38,16 @@
         >
         </SJsonEditor>
       </div>
-      <pre v-else-if="contentType?.includes('multipart/')" class="pl-1 pre">{{ responseInfo.requestData.body }}</pre>
+      <pre v-else-if="contentType?.includes('multipart/')" class="pl-1 pre">
+          <div 
+       class="theme-color cursor-pointer d-flex j-end" 
+       @click="() => downloadStringAsText(responseInfo.requestData.body, 'multiPartBody.txt')"
+     >
+      <span>{{t('下载完整数据')}}</span>
+      <span>({{ formatBytes(responseInfo.requestData.body.length) }})</span>
+     </div>
+        {{ safedMultipart(responseInfo.requestData.body) }}
+      </pre>
       <pre v-else-if="contentType === 'text/html'" class="pre">{{ responseInfo.requestData.body }}</pre>
       <pre v-else-if="contentType === 'text/javascript'" class="pre">{{ responseInfo.requestData.body }}</pre>
       <pre v-else-if="contentType === 'text/plain'" class="pre">{{ responseInfo.requestData.body }}</pre>
@@ -55,6 +65,7 @@ import { useApidoc } from '@/store/apidoc/apidoc';
 import SCollapse from '@/components/common/collapse/g-collapse.vue'
 import { useApidocBaseInfo } from '@/store/apidoc/base-info';
 import { useApidocResponse } from '@/store/apidoc/response';
+import { formatBytes, downloadStringAsText } from '@/helper/index'
 import { storeToRefs } from 'pinia';
 import SJsonEditor from '@/components/common/json-editor/g-json-editor.vue'
 
@@ -77,7 +88,19 @@ const headers = computed(() => {
 
 const contentType = computed(() => apidocStore.apidoc.item.contentType); //contentType
 const formatJsonStr = (code: string) => beautify(code, { indent_size: 4 });
-const upperHeaderKey = (key: string) => key.replace(/(^\w)|(-\w)/g, ($1) => $1.toUpperCase())
+const upperHeaderKey = (key: string) => key.replace(/(^\w)|(-\w)/g, ($1) => $1.toUpperCase());
+const safedMultipart = (strBody: string) => {
+  const boundary = contentType.value.match(/boundary=(.*?);/)?.[1];
+  const arrBody = strBody.split(boundary);
+  let result = ''
+  arrBody.forEach((item) => {
+    if (item.length > 1024) {
+      item = item.slice(0, 1024) + `<...>${t('超长部分被截断')}`;
+    }
+    result += item + '\n';
+  })
+  return result;
+};
 //布局
 const layout = computed(() => apidocBaseInfoStore.layout)
 
