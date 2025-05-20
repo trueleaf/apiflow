@@ -20,7 +20,7 @@
             'active-node': activeNode && activeNode._id === scope.data._id,
             'cut-node': cutNodes.find(v => v._id === scope.data._id),
             'readonly': scope.data.readonly
-          }" tabindex="0" @keydown.stop="handleNodeKeydown($event)" @keyup.stop="handleNodeKeyUp"
+          }" tabindex="0" @keydown.stop="handleNodeKeydown($event)"
             @mouseenter.stop="handleNodeHover" @click="handleClickNode($event, scope.data)"
             @dblclick="handleDbclickNode(scope.data)">
             <!-- file渲染 -->
@@ -509,9 +509,11 @@ const handleGlobalClick = () => {
 onMounted(() => {
   getBannerData();
   document.documentElement.addEventListener('click', handleGlobalClick);
+  document.addEventListener('keyup', handleNodeKeyUp);
 })
 onUnmounted(() => {
   document.documentElement.removeEventListener('click', handleGlobalClick);
+  document.removeEventListener('keyup', handleNodeKeyUp);
 })
 </script>
 
