@@ -103,12 +103,12 @@ export function handleFormatUrl():void {
     // const pathReg = /\/(?!\/)[^#\\?:]+/; //查询路径正则
     //路径处理
     if (formatPath.trim() === '') {
-      formatPath = '/';
+      formatPath = '';
     } else if (!formatPath.startsWith('/')) {
       formatPath = `/${formatPath}`;
     }
   }
-  console.log(2, formatPath)
+  // console.log(2, formatPath)
   const queryReg = /(\?.*$)/;
   formatPath = formatPath.replace(queryReg, '');
   requestPath.value = formatPath;
