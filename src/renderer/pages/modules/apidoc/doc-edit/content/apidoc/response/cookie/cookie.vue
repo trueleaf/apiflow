@@ -1,6 +1,10 @@
 <template>
   <div class="cookie-view" :class="{ vertical: layout === 'vertical' }">
-    <el-table :data="cookies" stripe border height="100%">
+    <div class='mb-2 d-flex a-center theme-color cursor-pointer' @click="dialogVisible = true">
+      <el-icon><FullScreen /></el-icon>
+      <span class="ml-1">{{ t('展开') }}</span>
+    </div>
+    <el-table :data="cookies" stripe border height="100%" size="small">
       <el-table-column align="center" prop="name" label="Name"></el-table-column>
       <el-table-column align="center" prop="value" label="Value">
         <template #default="scope">
@@ -14,22 +18,50 @@
       <el-table-column align="center" prop="secure" label="Secure"></el-table-column>
       <el-table-column align="center" prop="sameSite" label="SameSite"></el-table-column>
     </el-table>
+    <el-dialog v-model="dialogVisible" :title="`【${currentSelectTab?.label}】${t('cookie值')}`" width="80%" :close-on-click-modal="false">
+       <el-table :data="cookies" stripe border height="65vh" size="small">
+        <el-table-column align="center" prop="name" label="Name"></el-table-column>
+        <el-table-column align="center" prop="value" width='500' label="Value">
+          <template #default="scope">
+            <div class="value-wrap">{{ scope.row.value }}</div>
+          </template>
+        </el-table-column>
+        <el-table-column align="center" prop="domin" label="Domin"></el-table-column>
+        <el-table-column align="center" prop="path" label="Path"></el-table-column>
+        <el-table-column align="center" prop="expires" label="Expires"></el-table-column>
+        <el-table-column align="center" prop="httpOnly" label="HttpOnly"></el-table-column>
+        <el-table-column align="center" prop="secure" label="Secure"></el-table-column>
+        <el-table-column align="center" prop="sameSite" label="SameSite"></el-table-column>
+      </el-table>
+    </el-dialog>
   </div>
 </template>
 
 <script lang="ts" setup>
 import { useApidocBaseInfo } from '@/store/apidoc/base-info';
 import { useApidocResponse } from '@/store/apidoc/response';
-import { computed } from 'vue';
+import { computed, ref, } from 'vue';
+import { FullScreen } from '@element-plus/icons-vue';
 import { parse } from 'set-cookie-parser';
+import { useApidocTas } from '@/store/apidoc/tabs'
+import { t } from 'i18next';
+import { useRoute } from 'vue-router'
 
-
+const route = useRoute()
 const apidocResponseStore = useApidocResponse();
 const apidocBaseInfoStore = useApidocBaseInfo();
 const cookies = computed(() => {
   return parse(apidocResponseStore.responseInfo.headers['set-cookie'] || [])
 });
+const apidocTabsStore = useApidocTas();
+const currentSelectTab = computed(() => {
+  const projectId = route.query.id as string;
+  const tabs = apidocTabsStore.tabs[projectId];
+  const currentSelectTab = tabs?.find((tab) => tab.selected) || null;
+  return currentSelectTab;
+});
 const layout = computed(() => apidocBaseInfoStore.layout);
+const dialogVisible = ref(false)
 
 </script>
 
