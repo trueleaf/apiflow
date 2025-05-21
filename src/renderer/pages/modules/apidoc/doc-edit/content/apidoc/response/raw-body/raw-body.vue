@@ -1,8 +1,13 @@
 <template>
   <div class="raw-body" :class="{ vertical: layout === 'vertical' }">
-    <!-- <SJsonEditor v-if="apidocResponseStore.responseInfo.responseData.canApiflowParseType !== 'cachedBodyIsTooLarge'"
-      :modelValue="textResponse" read-only :config="{ fontSize: 13, language: 'text' }"></SJsonEditor> -->
-    <span v-if="apidocResponseStore.responseInfo.responseData.canApiflowParseType !== 'cachedBodyIsTooLarge'" class="str-wrap">{{ textResponse }}</span>
+    <div v-if="rawResponseIsOverflow" class="tip">
+      <span>{{ t('数据大小为') }}</span>
+      <span class="orange mr-3 ml-1">{{ formatBytes(textResponse.length) }}</span>
+      <span>{{ t('超过最大限制') }}</span>
+      <span class="ml-1 mr-3">{{ formatBytes(config.requestConfig.maxRawBodySize) }}</span>
+      <el-button link type="primary" text @click="() => downloadStringAsText(textResponse, 'raw.txt')">{{ t("下载到本地预览") }}</el-button>
+    </div>
+    <pre v-else-if="apidocResponseStore.responseInfo.responseData.canApiflowParseType !== 'cachedBodyIsTooLarge'" class="str-wrap pre">{{ textResponse }}</pre>
     <div v-else class="d-flex a-center j-center red">
       返回值大于{{ formatBytes(config.requestConfig.maxStoreSingleBodySize) }}，返回body值缓存失效。
       需重新请求最新数据
@@ -13,14 +18,15 @@
 <script lang="ts" setup>
 import { useApidocBaseInfo } from '@/store/apidoc/base-info';
 import { useApidocResponse } from '@/store/apidoc/response';
-// import SJsonEditor from '@/components/common/json-editor/g-json-editor.vue'
 import { computed, ref, watch } from 'vue';
 import { config } from '@/../config/config'
-import { formatBytes } from '@/helper/index'
+import { formatBytes, downloadStringAsText } from '@/helper/index'
+import { t } from 'i18next'
 
 const apidocBaseInfoStore = useApidocBaseInfo();
 const apidocResponseStore = useApidocResponse();
 const textResponse = ref('');
+const rawResponseIsOverflow = ref(false);
 
 watch(() => apidocResponseStore.responseInfo.bodyByteLength, () => {
   if (apidocResponseStore.responseInfo.responseData.canApiflowParseType === 'cachedBodyIsTooLarge') {
@@ -30,6 +36,11 @@ watch(() => apidocResponseStore.responseInfo.bodyByteLength, () => {
   if (apidocResponseStore.responseInfo.body) {
     const text = decoder.decode(apidocResponseStore.responseInfo.body as Uint8Array);
     textResponse.value = text;
+    if (text.length > config.requestConfig.maxRawBodySize) {
+      rawResponseIsOverflow.value = true;
+    } else {
+      rawResponseIsOverflow.value = false;
+    }
   }
 }, {
   deep: true,

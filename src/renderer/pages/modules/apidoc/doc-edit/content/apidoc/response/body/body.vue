@@ -37,7 +37,7 @@
           <span class="orange mr-3 ml-1">{{ formatBytes(apidocResponseStore.responseInfo.responseData.textData.length) }}</span>
           <span>{{ t('超过最大限制') }}</span>
           <span class="ml-1 mr-3">{{ formatBytes(config.requestConfig.maxJsonBodySize) }}</span>
-          <el-button link type="primary" text @click="() => downloadStringAsText(apidocResponseStore.responseInfo.responseData.textData, 'response.xml')">{{ t("下载为文件") }}</el-button>
+          <el-button link type="primary" text @click="() => downloadStringAsText(apidocResponseStore.responseInfo.responseData.textData, 'response.xml')">{{ t("下载到本地预览") }}</el-button>
         </div>
         <SJsonEditor v-else :modelValue="apidocResponseStore.responseInfo.responseData.textData" read-only :config="{ fontSize: 13, language: 'xml' }"></SJsonEditor>
       </div>
@@ -48,7 +48,7 @@
           <span class="orange mr-3 ml-1">{{ formatBytes(apidocResponseStore.responseInfo.responseData.textData.length) }}</span>
           <span>{{ t('超过最大限制') }}</span>
           <span class="ml-1 mr-3">{{ formatBytes(config.requestConfig.maxJsonBodySize) }}</span>
-          <el-button link type="primary" text @click="() => downloadStringAsText(apidocResponseStore.responseInfo.responseData.textData, 'response.js')">{{ t("下载为文件") }}</el-button>
+          <el-button link type="primary" text @click="() => downloadStringAsText(apidocResponseStore.responseInfo.responseData.textData, 'response.js')">{{ t("下载到本地预览") }}</el-button>
         </div>
         <SJsonEditor v-else :modelValue="apidocResponseStore.responseInfo.responseData.textData" read-only :config="{ fontSize: 13, language: 'javascript' }"></SJsonEditor>
       </div>
@@ -59,14 +59,14 @@
           <span class="orange mr-3 ml-1">{{ formatBytes(formatedHtml.length) }}</span>
           <span>{{ t('超过最大限制') }}</span>
           <span class="ml-1 mr-3">{{ formatBytes(config.requestConfig.maxJsonBodySize) }}</span>
-          <el-button link type="primary" text @click="() => downloadStringAsText(formatedHtml, 'response.html')">{{ t("下载为文件") }}</el-button>
+          <el-button link type="primary" text @click="() => downloadStringAsText(formatedHtml, 'response.html')">{{ t("下载到本地预览") }}</el-button>
         </div>
         <div v-else-if="apidocResponseStore.responseInfo.responseData.textData.length > config.requestConfig.maxTextBodySize">
           <span>{{ t('数据大小为') }}</span>
           <span class="orange mr-3 ml-1">{{ formatBytes(apidocResponseStore.responseInfo.responseData.textData.length) }}</span>
           <span>{{ t('超过最大限制') }}</span>
           <span class="ml-1 mr-3">{{ formatBytes(config.requestConfig.maxJsonBodySize) }}</span>
-          <el-button link type="primary" text @click="() => downloadStringAsText(apidocResponseStore.responseInfo.responseData.textData, 'response.html')">{{ t("下载为文件") }}</el-button>
+          <el-button link type="primary" text @click="() => downloadStringAsText(apidocResponseStore.responseInfo.responseData.textData, 'response.html')">{{ t("下载到本地预览") }}</el-button>
         </div>
         <SJsonEditor v-else :modelValue="formatedHtml || apidocResponseStore.responseInfo.responseData.textData" read-only :config="{ fontSize: 13, language: 'html' }"></SJsonEditor>
       </div>
@@ -77,7 +77,7 @@
           <span class="orange mr-3 ml-1">{{ formatBytes(apidocResponseStore.responseInfo.responseData.textData.length) }}</span>
           <span>{{ t('超过最大限制') }}</span>
           <span class="ml-1 mr-3">{{ formatBytes(config.requestConfig.maxJsonBodySize) }}</span>
-          <el-button link type="primary" text @click="() => downloadStringAsText(apidocResponseStore.responseInfo.responseData.textData, 'response.css')">{{ t("下载为文件") }}</el-button>
+          <el-button link type="primary" text @click="() => downloadStringAsText(apidocResponseStore.responseInfo.responseData.textData, 'response.css')">{{ t("下载到本地预览") }}</el-button>
         </div>
         <SJsonEditor v-else :modelValue="apidocResponseStore.responseInfo.responseData.textData" read-only :config="{ fontSize: 13, language: 'css' }"></SJsonEditor>
       </div>
@@ -88,7 +88,7 @@
           <span class="orange mr-3 ml-1">{{ formatBytes(apidocResponseStore.responseInfo.responseData.textData.length) }}</span>
           <span>{{ t('超过最大限制') }}</span>
           <span class="ml-1 mr-3">{{ formatBytes(config.requestConfig.maxJsonBodySize) }}</span>
-          <el-button link type="primary" text @click="() => downloadStringAsText(apidocResponseStore.responseInfo.responseData.textData, 'response.txt')">{{ t("下载为文件") }}</el-button>
+          <el-button link type="primary" text @click="() => downloadStringAsText(apidocResponseStore.responseInfo.responseData.textData, 'response.txt')">{{ t("下载到本地预览") }}</el-button>
         </div>
         <SJsonEditor v-else :model-value="apidocResponseStore.responseInfo.responseData.textData" read-only :config="{ fontSize: 13, language: 'text' }"></SJsonEditor>
       </div>
@@ -99,14 +99,14 @@
           <span class="orange mr-3 ml-1">{{ formatBytes(formatedJson.length) }}</span>
           <span>{{ t('超过最大限制') }}</span>
           <span class="ml-1 mr-3">{{ formatBytes(config.requestConfig.maxJsonBodySize) }}</span>
-          <el-button link type="primary" text @click="() => downloadStringAsText(formatedJson, 'response.json')">{{ t("下载为文件") }}</el-button>
+          <el-button link type="primary" text @click="() => downloadStringAsText(formatedJson, 'response.json')">{{ t("下载到本地预览") }}</el-button>
         </div>
         <div v-else-if="apidocResponseStore.responseInfo.responseData.jsonData.length > config.requestConfig.maxJsonBodySize">
           <span>{{ t('数据大小为') }}</span>
           <span class="orange mr-3 ml-1">{{ formatBytes(apidocResponseStore.responseInfo.responseData.jsonData.length) }}</span>
           <span>{{ t('超过最大限制') }}</span>
           <span class="ml-1 mr-3">{{ formatBytes(config.requestConfig.maxJsonBodySize) }}</span>
-          <el-button link type="primary" text @click="() => downloadStringAsText(apidocResponseStore.responseInfo.responseData.jsonData, 'response.json')">{{ t("下载为文件") }}</el-button>
+          <el-button link type="primary" text @click="() => downloadStringAsText(apidocResponseStore.responseInfo.responseData.jsonData, 'response.json')">{{ t("下载到本地预览") }}</el-button>
         </div>
         <SJsonEditor v-else :model-value="formatedJson || apidocResponseStore.responseInfo.responseData.jsonData" read-only :config="{ fontSize: 13, language: 'json' }"></SJsonEditor>
       </div>

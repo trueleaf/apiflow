@@ -349,6 +349,7 @@ export type Config = {
     maxStoreSingleBodySize: number;
     maxJsonBodySize: number;
     maxTextBodySize: number;
+    maxRawBodySize: number
     userAgent: string;
   },
   cacheConfig: {

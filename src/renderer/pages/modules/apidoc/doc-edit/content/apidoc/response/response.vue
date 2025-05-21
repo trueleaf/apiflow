@@ -10,9 +10,6 @@
         <el-tab-pane :label="t('返回值')" name="SBody" class="w-100">
           <SBody class="h-100"></SBody>
         </el-tab-pane>
-        <el-tab-pane :label="t('原始值')" name="SRawBody" class="w-100">
-          <SRawBody class="h-100"></SRawBody>
-        </el-tab-pane>
         <el-tab-pane :label="t('请求信息')" name="SRequest">
           <SRequest class="h-100"></SRequest>
         </el-tab-pane>
@@ -30,6 +27,9 @@
           </template>
           <!-- fix: 文字隐藏组件获取dom宽度失败 -->
           <SCookie v-if="activeName === 'SCookie'"></SCookie>
+        </el-tab-pane>
+        <el-tab-pane :label="t('原始值')" name="SRawBody" class="w-100">
+          <SRawBody class="h-100"></SRawBody>
         </el-tab-pane>
       </el-tabs>
     </div>
