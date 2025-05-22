@@ -1,7 +1,8 @@
 /**
  * 提示信息
  */
+import { t } from 'i18next';
 export default [
-  '【接口管理】Ctrl+鼠标左键可以对banner进行批量操作',
-  '【接口管理】按住ctrl移动到菜单上可以查看菜单详情',
+  t('Ctrl+鼠标左键可以对banner进行批量操作'),
+  t('Ctrl+R可以刷新页面'),
 ];
