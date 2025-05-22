@@ -3,7 +3,7 @@
     <div v-if="rawResponseIsOverflow" class="tip">
       <span>{{ t('数据大小为') }}</span>
       <span class="orange mr-3 ml-1">{{ formatBytes(textResponse.length) }}</span>
-      <span>{{ t('超过最大限制') }}</span>
+      <span>{{ t('超过最大预览限制') }}</span>
       <span class="ml-1 mr-3">{{ formatBytes(config.requestConfig.maxRawBodySize) }}</span>
       <el-button link type="primary" text @click="() => downloadStringAsText(textResponse, 'raw.txt')">{{ t("下载到本地预览") }}</el-button>
     </div>
@@ -18,7 +18,7 @@
 <script lang="ts" setup>
 import { useApidocBaseInfo } from '@/store/apidoc/base-info';
 import { useApidocResponse } from '@/store/apidoc/response';
-import { computed, ref, watch } from 'vue';
+import { computed, ref, watch, onMounted } from 'vue';
 import { config } from '@/../config/config'
 import { formatBytes, downloadStringAsText } from '@/helper/index'
 import { t } from 'i18next'
@@ -33,8 +33,8 @@ watch(() => apidocResponseStore.responseInfo.bodyByteLength, () => {
     return
   }
   const decoder = new TextDecoder("utf-8");
-  if (apidocResponseStore.responseInfo.body) {
-    const text = decoder.decode(apidocResponseStore.responseInfo.body as Uint8Array);
+  if (apidocResponseStore.rawResponseBody) {
+    const text = decoder.decode(apidocResponseStore.rawResponseBody as Uint8Array);
     textResponse.value = text;
     if (text.length > config.requestConfig.maxRawBodySize) {
       rawResponseIsOverflow.value = true;
@@ -45,35 +45,13 @@ watch(() => apidocResponseStore.responseInfo.bodyByteLength, () => {
 }, {
   deep: true,
 })
-// const handleFormat = async () => {
-//   try {
-//     if (!textResponse.value) {
-//       return
-//     }
-//     formatLoading.value = true;
-//     if (apidocResponseStore.responseInfo.contentType?.includes('application/json')) {
-//       const formatedCode = await prettier.format(textResponse.value, {
-//         parser: "json",
-//         // plugins: [jsonPlugin],
-//       });
-//       textResponse.value = formatedCode;
-//     } else if (apidocResponseStore.responseInfo.contentType?.includes('text/html')) {
-//       const formatedCode = await prettier.format(textResponse.value, {
-//         parser: "html",
-//         plugins: [htmlPlugin],
-//       });
-//       textResponse.value = formatedCode;
-//     }
-//     formatLoading.value = false;
-//   } catch (error) {
-//     console.error(error);
-//     formatLoading.value = false;
-//   }
-// }
 //布局
 const layout = computed(() => {
   return apidocBaseInfoStore.layout;
 });
+onMounted(() => {
+  console.log('raw-body mounted');
+})
 </script>
 
 <style lang='scss' scoped>

@@ -44,8 +44,7 @@
     <el-divider direction="vertical"></el-divider>
     <div class="content-type-wrap d-flex a-center">
       <span class="flex0">{{ t("格式") }}：</span>
-      <div v-if="responseInfo.contentType" :title="responseInfo.contentType" class="content-type">{{
-        responseInfo.contentType }}{{ responseInfo.contentType }}{{ responseInfo.contentType }}</div>
+      <div v-if="responseInfo.contentType" :title="responseInfo.contentType" class="content-type">{{ responseInfo.contentType }}</div>
       <el-icon v-else :title="t('未请求数据')" :size="16" class="gray-500">
         <QuestionFilled />
       </el-icon>
