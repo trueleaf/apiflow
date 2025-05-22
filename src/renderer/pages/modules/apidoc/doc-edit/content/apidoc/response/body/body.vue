@@ -35,7 +35,7 @@
         <div v-if="apidocResponseStore.responseInfo.responseData.textData.length > config.requestConfig.maxTextBodySize">
           <span>{{ t('数据大小为') }}</span>
           <span class="orange mr-3 ml-1">{{ formatBytes(apidocResponseStore.responseInfo.responseData.textData.length) }}</span>
-          <span>{{ t('超过最大限制') }}</span>
+          <span>{{ t('超过最大预览限制') }}</span>
           <span class="ml-1 mr-3">{{ formatBytes(config.requestConfig.maxJsonBodySize) }}</span>
           <el-button link type="primary" text @click="() => downloadStringAsText(apidocResponseStore.responseInfo.responseData.textData, 'response.xml')">{{ t("下载到本地预览") }}</el-button>
         </div>
@@ -46,7 +46,7 @@
         <div v-if="apidocResponseStore.responseInfo.responseData.textData.length > config.requestConfig.maxTextBodySize">
           <span>{{ t('数据大小为') }}</span>
           <span class="orange mr-3 ml-1">{{ formatBytes(apidocResponseStore.responseInfo.responseData.textData.length) }}</span>
-          <span>{{ t('超过最大限制') }}</span>
+          <span>{{ t('超过最大预览限制') }}</span>
           <span class="ml-1 mr-3">{{ formatBytes(config.requestConfig.maxJsonBodySize) }}</span>
           <el-button link type="primary" text @click="() => downloadStringAsText(apidocResponseStore.responseInfo.responseData.textData, 'response.js')">{{ t("下载到本地预览") }}</el-button>
         </div>
@@ -57,14 +57,14 @@
         <div v-if="formatedHtml.length > config.requestConfig.maxTextBodySize">
           <span>{{ t('数据大小为') }}</span>
           <span class="orange mr-3 ml-1">{{ formatBytes(formatedHtml.length) }}</span>
-          <span>{{ t('超过最大限制') }}</span>
+          <span>{{ t('超过最大预览限制') }}</span>
           <span class="ml-1 mr-3">{{ formatBytes(config.requestConfig.maxJsonBodySize) }}</span>
           <el-button link type="primary" text @click="() => downloadStringAsText(formatedHtml, 'response.html')">{{ t("下载到本地预览") }}</el-button>
         </div>
         <div v-else-if="apidocResponseStore.responseInfo.responseData.textData.length > config.requestConfig.maxTextBodySize">
           <span>{{ t('数据大小为') }}</span>
           <span class="orange mr-3 ml-1">{{ formatBytes(apidocResponseStore.responseInfo.responseData.textData.length) }}</span>
-          <span>{{ t('超过最大限制') }}</span>
+          <span>{{ t('超过最大预览限制') }}</span>
           <span class="ml-1 mr-3">{{ formatBytes(config.requestConfig.maxJsonBodySize) }}</span>
           <el-button link type="primary" text @click="() => downloadStringAsText(apidocResponseStore.responseInfo.responseData.textData, 'response.html')">{{ t("下载到本地预览") }}</el-button>
         </div>
@@ -75,18 +75,18 @@
         <div v-if="apidocResponseStore.responseInfo.responseData.textData.length > config.requestConfig.maxTextBodySize">
           <span>{{ t('数据大小为') }}</span>
           <span class="orange mr-3 ml-1">{{ formatBytes(apidocResponseStore.responseInfo.responseData.textData.length) }}</span>
-          <span>{{ t('超过最大限制') }}</span>
-          <span class="ml-1 mr-3">{{ formatBytes(config.requestConfig.maxJsonBodySize) }}</span>
+          <span>{{ t('超过最大预览限制') }}</span>
+          <span class="ml-1 mr-3">{{ formatBytes(config.requestConfig.maxTextBodySize) }}</span>
           <el-button link type="primary" text @click="() => downloadStringAsText(apidocResponseStore.responseInfo.responseData.textData, 'response.css')">{{ t("下载到本地预览") }}</el-button>
         </div>
-        <SJsonEditor v-else :modelValue="apidocResponseStore.responseInfo.responseData.textData" read-only :config="{ fontSize: 13, language: 'css' }"></SJsonEditor>
+        <SJsonEditor v-else :modelValue="formatedCss || apidocResponseStore.responseInfo.responseData.textData" read-only :config="{ fontSize: 13, language: 'css' }"></SJsonEditor>
       </div>
       <!-- text/plain -->
       <div v-else-if="apidocResponseStore.responseInfo.responseData.canApiflowParseType === 'text'" class="text-wrap">
         <div v-if="apidocResponseStore.responseInfo.responseData.textData.length > config.requestConfig.maxTextBodySize">
           <span>{{ t('数据大小为') }}</span>
           <span class="orange mr-3 ml-1">{{ formatBytes(apidocResponseStore.responseInfo.responseData.textData.length) }}</span>
-          <span>{{ t('超过最大限制') }}</span>
+          <span>{{ t('超过最大预览限制') }}</span>
           <span class="ml-1 mr-3">{{ formatBytes(config.requestConfig.maxJsonBodySize) }}</span>
           <el-button link type="primary" text @click="() => downloadStringAsText(apidocResponseStore.responseInfo.responseData.textData, 'response.txt')">{{ t("下载到本地预览") }}</el-button>
         </div>
@@ -97,14 +97,14 @@
         <div v-if="formatedJson.length > config.requestConfig.maxJsonBodySize">
           <span>{{ t('数据大小为') }}</span>
           <span class="orange mr-3 ml-1">{{ formatBytes(formatedJson.length) }}</span>
-          <span>{{ t('超过最大限制') }}</span>
+          <span>{{ t('超过最大预览限制') }}</span>
           <span class="ml-1 mr-3">{{ formatBytes(config.requestConfig.maxJsonBodySize) }}</span>
           <el-button link type="primary" text @click="() => downloadStringAsText(formatedJson, 'response.json')">{{ t("下载到本地预览") }}</el-button>
         </div>
         <div v-else-if="apidocResponseStore.responseInfo.responseData.jsonData.length > config.requestConfig.maxJsonBodySize">
           <span>{{ t('数据大小为') }}</span>
           <span class="orange mr-3 ml-1">{{ formatBytes(apidocResponseStore.responseInfo.responseData.jsonData.length) }}</span>
-          <span>{{ t('超过最大限制') }}</span>
+          <span>{{ t('超过最大预览限制') }}</span>
           <span class="ml-1 mr-3">{{ formatBytes(config.requestConfig.maxJsonBodySize) }}</span>
           <el-button link type="primary" text @click="() => downloadStringAsText(apidocResponseStore.responseInfo.responseData.jsonData, 'response.json')">{{ t("下载到本地预览") }}</el-button>
         </div>
@@ -197,6 +197,7 @@ import * as prettier from 'prettier/standalone';
 import esTreePlugin from 'prettier/plugins/estree';
 import babelPlugin from "prettier/plugins/babel";
 import htmlPlugin from "prettier/plugins/html";
+import cssPlugin from "prettier/plugins/postcss";
 import SJsonEditor from '@/components/common/json-editor/g-json-editor.vue'
 
 
@@ -206,7 +207,8 @@ const loadingProcess = computed(() => apidocResponseStore.loadingProcess);
 const requestState = computed(() => apidocResponseStore.requestState);
 const videoRef = ref<HTMLVideoElement>()
 const formatedJson = ref('');
-const formatedHtml = ref('')
+const formatedHtml = ref('');
+const formatedCss = ref('');
 /*
 |--------------------------------------------------------------------------
 | 方法定义
@@ -252,7 +254,16 @@ watch(() => apidocResponseStore.responseInfo.bodyByteLength, () => {
     }).then((formatedCode) => {
       formatedHtml.value = formatedCode;
     })
+  } else if (apidocResponseStore.responseInfo.contentType.includes('text/css')) {
+    console.log('format')
+    // prettier.format(textData, {
+    //   parser: "css",
+    //   plugins: [cssPlugin],
+    // }).then((formatedCode) => {
+    //   formatedCss.value = formatedCode;
+    // })
   }
+  formatedCss.value = textData;
 })
 //下载文件
 const handleDownload = () => {
