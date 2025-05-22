@@ -8,7 +8,7 @@
       :class="{ vertical: layout === 'vertical' }">
       <el-tabs v-model="activeName" class="h-100 w-100">
         <el-tab-pane :label="t('返回值')" name="SBody" class="w-100">
-          <SBody class="h-100"></SBody>
+          <SBody v-if="activeName === 'SBody'" class="h-100"></SBody>
         </el-tab-pane>
         <el-tab-pane :label="t('请求信息')" name="SRequest">
           <SRequest class="h-100"></SRequest>
@@ -18,7 +18,7 @@
             <span>{{ t("返回头") }}&nbsp;</span>
             <span v-if="headers.length > 0" class="orange">({{ headers.length }})</span>
           </template>
-          <SHeaders></SHeaders>
+          <SHeaders v-if="activeName === 'Sheaders'"></SHeaders>
         </el-tab-pane>
         <el-tab-pane name="SCookie">
           <template #label>
@@ -29,7 +29,7 @@
           <SCookie v-if="activeName === 'SCookie'"></SCookie>
         </el-tab-pane>
         <el-tab-pane :label="t('原始值')" name="SRawBody" class="w-100">
-          <SRawBody class="h-100"></SRawBody>
+          <SRawBody v-if="activeName === 'SRawBody'" class="h-100"></SRawBody>
         </el-tab-pane>
       </el-tabs>
     </div>
@@ -104,9 +104,6 @@ const requestState = computed(() => apidocResponseStore.requestState); //请求�
 }
 .remote-response-wrap {
   height: calc(100vh - #{size(300)});
-  // :deep(.el-tabs__header) {
-  //   margin-bottom: size(5);
-  // }
   .el-tabs__content {
     height: calc(100% - 55px);
 
