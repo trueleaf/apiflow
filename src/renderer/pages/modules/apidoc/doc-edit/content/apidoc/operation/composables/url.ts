@@ -38,8 +38,12 @@ export const handleChangeUrl = (): void => {
 const convertQueryToParams = (requestPath: string): void => {
   const apidocStore = useApidoc()
   const stringParams = requestPath.split('?')[1] || '';
-  const urlSearchParams = new URLSearchParams(stringParams);
-  const objectParams = Object.fromEntries(urlSearchParams.entries());
+
+  const objectParams: Record<string, string> = {};
+  stringParams.split('&').forEach(pair => {
+    const [encodedKey, encodedValue] = pair.split(/=(.*)/s);
+    objectParams[encodedKey] = encodedValue;
+  });
   const newParams: ApidocProperty<'string'>[] = [];
   Object.keys(objectParams).forEach(field => {
     const property = apidocGenerateProperty();
@@ -50,8 +54,12 @@ const convertQueryToParams = (requestPath: string): void => {
   const uniqueData: ApidocProperty<'string'>[] = [];
   const originParams = apidocStore.apidoc.item.queryParams;
   newParams.forEach(item => { //过滤重复的query值
+    const matchedItem = originParams.find(v => v.key === item.key);
     if (originParams.every(v => v.key !== item.key)) {
       uniqueData.push(item);
+    }
+    if (matchedItem) {
+      matchedItem.value = item.value;
     }
   })
   apidocStore.unshiftQueryParams(uniqueData)
