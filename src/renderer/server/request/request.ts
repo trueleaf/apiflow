@@ -220,7 +220,7 @@ export async function sendRequest() {
   const selectedTab = apidocTabsStore.getSelectedTab(apidocBaseInfoStore.projectId);
   const apidocStore = useApidoc()
   const { changeCancelRequestRef } = useApidocRequest()
-  const { changeResponseInfo, changeRequestState, changeLoadingProcess } = useApidocResponse()
+  const { changeResponseInfo, changeResponseBody, changeRequestState, changeLoadingProcess } = useApidocResponse()
   const rawApidoc = toRaw(apidocStore.$state.apidoc)
   const method = getMethod(rawApidoc);
   const url = await getUrl(rawApidoc);
@@ -288,6 +288,8 @@ export async function sendRequest() {
     },
     onResponseEnd(responseInfo) {
       changeRequestState('finish');
+      changeResponseBody(responseInfo.body)
+      responseInfo.body = null; // 不存储body防止数据量过大
       changeResponseInfo(responseInfo);
       console.log('responseInfo', responseInfo)
       const storedResponseInfo = cloneDeep(responseInfo);

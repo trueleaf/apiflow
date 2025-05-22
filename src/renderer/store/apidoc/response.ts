@@ -8,6 +8,7 @@ import assign from "lodash/assign"
 export const useApidocResponse = defineStore('apidocResponse', () => {
   const responseInfo = ref<ResponseInfo>(generateEmptyResponse())
   const requestState = ref<'waiting' | 'sending' | 'response' | 'finish'>('waiting'); //请求状态
+  const rawResponseBody = ref<Uint8Array | string>(''); //响应体
   const cookies = ref<ApidocCookieInfo[]>([])
   const loadingProcess = ref({
     percent: 0,
@@ -20,6 +21,9 @@ export const useApidocResponse = defineStore('apidocResponse', () => {
   | 方法
   |--------------------------------------------------------------------------
   */
+  const changeResponseBody = (body: unknown) => {
+    rawResponseBody.value = body as Uint8Array | string
+  }
   const changeResponseInfo = (payload: DeepPartial<ResponseInfo>) => {
     //重新生成blobUrl
     const type = payload.responseData?.canApiflowParseType;
@@ -51,7 +55,9 @@ export const useApidocResponse = defineStore('apidocResponse', () => {
     cookies,
     loadingProcess,
     requestState,
+    rawResponseBody,
     changeResponseInfo,
+    changeResponseBody,
     changeRequestState,
     changeCookies,
     changeLoadingProcess,
