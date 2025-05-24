@@ -7,7 +7,15 @@
       <span class="ml-1 mr-3">{{ formatBytes(config.requestConfig.maxRawBodySize) }}</span>
       <el-button link type="primary" text @click="() => downloadStringAsText(textResponse, 'raw.txt')">{{ t("下载到本地预览") }}</el-button>
     </div>
-    <pre v-else-if="apidocResponseStore.responseInfo.responseData.canApiflowParseType !== 'cachedBodyIsTooLarge'" class="str-wrap pre">{{ textResponse }}</pre>
+    <SJsonEditor 
+      v-else-if="apidocResponseStore.responseInfo.responseData.canApiflowParseType !== 'cachedBodyIsTooLarge'"  
+      read-only 
+      :config="{ fontSize: 13, language: 'plaintext' }"
+      :modelValue="textResponse"
+    >
+    </SJsonEditor>
+
+    <!-- <pre v-else-if="apidocResponseStore.responseInfo.responseData.canApiflowParseType !== 'cachedBodyIsTooLarge'" class="str-wrap pre">{{ textResponse }}</pre> -->
     <div v-else class="d-flex a-center j-center red">
       返回值大于{{ formatBytes(config.requestConfig.maxStoreSingleBodySize) }}，返回body值缓存失效。
       需重新请求最新数据
@@ -22,6 +30,7 @@ import { computed, ref, watch, onMounted } from 'vue';
 import { config } from '@/../config/config'
 import { formatBytes, downloadStringAsText } from '@/helper/index'
 import { t } from 'i18next'
+import SJsonEditor from '@/components/common/json-editor/g-json-editor.vue'
 
 const apidocBaseInfoStore = useApidocBaseInfo();
 const apidocResponseStore = useApidocResponse();
@@ -29,6 +38,15 @@ const textResponse = ref('');
 const rawResponseIsOverflow = ref(false);
 
 watch(() => apidocResponseStore.responseInfo.bodyByteLength, () => {
+  handleCheckRawSize();
+}, {
+  deep: true,
+})
+//布局
+const layout = computed(() => {
+  return apidocBaseInfoStore.layout;
+});
+const handleCheckRawSize = () => {
   if (apidocResponseStore.responseInfo.responseData.canApiflowParseType === 'cachedBodyIsTooLarge') {
     return
   }
@@ -42,15 +60,9 @@ watch(() => apidocResponseStore.responseInfo.bodyByteLength, () => {
       rawResponseIsOverflow.value = false;
     }
   }
-}, {
-  deep: true,
-})
-//布局
-const layout = computed(() => {
-  return apidocBaseInfoStore.layout;
-});
+}
 onMounted(() => {
-  console.log('raw-body mounted');
+  handleCheckRawSize();
 })
 </script>
 

@@ -189,18 +189,13 @@
 <script lang="ts" setup>
 import { useApidocBaseInfo } from '@/store/apidoc/base-info';
 import { useApidocResponse } from '@/store/apidoc/response';
-import { computed, onUnmounted, ref, watch } from 'vue';
+import { computed, onMounted, onUnmounted, ref, watch } from 'vue';
 import { t } from 'i18next'
 import { formatBytes, downloadStringAsText } from '@/helper/index'
 import { config } from '@/../config/config'
-import * as prettier from 'prettier/standalone';
-import esTreePlugin from 'prettier/plugins/estree';
-import babelPlugin from "prettier/plugins/babel";
-import htmlPlugin from "prettier/plugins/html";
-import cssPlugin from "prettier/plugins/postcss";
 import SJsonEditor from '@/components/common/json-editor/g-json-editor.vue'
 
-
+const prettierWorker = new Worker(new URL('@/worker/prettier.worker.ts', import.meta.url), { type: 'module' });
 const apidocResponseStore = useApidocResponse();
 const apidocBaseInfoStore = useApidocBaseInfo();
 const loadingProcess = computed(() => apidocResponseStore.loadingProcess);
@@ -238,33 +233,46 @@ const layout = computed(() => {
 //返回参数格式化
 watch(() => apidocResponseStore.responseInfo.bodyByteLength, () => {
   const { jsonData, textData } = apidocResponseStore.responseInfo.responseData;
+  // json 格式化
   if (apidocResponseStore.responseInfo.contentType.includes('application/json')) {
-    prettier.format(jsonData, {
-      parser: "json",
-      plugins: [babelPlugin, esTreePlugin],
-      printWidth: 50,
-      tabWidth: 4
-    }).then((formatedCode) => {
-      formatedJson.value = formatedCode;
-    })
-  } else if (apidocResponseStore.responseInfo.contentType.includes('text/html')) {
-    prettier.format(textData, {
-      parser: "html",
-      plugins: [htmlPlugin, esTreePlugin],
-    }).then((formatedCode) => {
-      formatedHtml.value = formatedCode;
-    })
-  } else if (apidocResponseStore.responseInfo.contentType.includes('text/css')) {
-    console.log('format')
-    // prettier.format(textData, {
-    //   parser: "css",
-    //   plugins: [cssPlugin],
-    // }).then((formatedCode) => {
-    //   formatedCss.value = formatedCode;
-    // })
+    prettierWorker?.postMessage({
+      type: 'format-json',
+      code: jsonData
+    });
   }
+  // html 格式化
+  if (apidocResponseStore.responseInfo.contentType.includes('text/html')) {
+    prettierWorker?.postMessage({
+      type: 'format-html',
+      code: textData
+    });
+  }
+  // css 格式化
+  if (apidocResponseStore.responseInfo.contentType.includes('text/css')) {
+    prettierWorker?.postMessage({
+      type: 'format-css',
+      code: textData
+    });
+  }
+  // js 格式化
+  if (apidocResponseStore.responseInfo.contentType.includes('application/javascript') || apidocResponseStore.responseInfo.contentType.includes('text/javascript')) {
+    prettierWorker?.postMessage({
+      type: 'format-js',
+      code: textData
+    });
+  }
+  // xml 格式化
+  if (apidocResponseStore.responseInfo.contentType.includes('application/xml') || apidocResponseStore.responseInfo.contentType.includes('text/xml')) {
+    prettierWorker?.postMessage({
+      type: 'format-xml',
+      code: textData
+    });
+  }
+  // 兜底
+  formatedJson.value = jsonData;
+  formatedHtml.value = textData;
   formatedCss.value = textData;
-})
+});
 //下载文件
 const handleDownload = () => {
   const { fileData } = apidocResponseStore.responseInfo.responseData;
@@ -280,8 +288,26 @@ const canPlayVideo = computed(() => {
   const canPlayType = videoRef.value?.canPlayType(apidocResponseStore.responseInfo.contentType)
   return canPlayType === 'maybe' || canPlayType === 'probably'
 })
+onMounted(() => {
+  prettierWorker.onmessage = (event) => {
+    if (event.data.type === 'format-css-result') {
+      formatedCss.value = event.data.formatted;
+    } else if (event.data.type === 'format-html-result') {
+      formatedHtml.value = event.data.formatted;
+    } else if (event.data.type === 'format-js-result') {
+      formatedJson.value = event.data.formatted;
+    } else if (event.data.type === 'format-xml-result') {
+      formatedJson.value = event.data.formatted;
+    } else if (event.data.type === 'format-json-result') {
+      formatedJson.value = event.data.formatted;
+    }
+  };
+});
 onUnmounted(() => {
-  // console.log(2)
+  if (prettierWorker) {
+    prettierWorker.terminate();
+    prettierWorker != null;
+  }
 })
 </script>
 
