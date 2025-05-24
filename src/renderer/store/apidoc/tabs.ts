@@ -121,9 +121,9 @@ export const useApidocTas = defineStore('apidocTabs', () => {
     localStorage.setItem('apidoc/editTabs', JSON.stringify(tabs.value));
   }
   //根据id删除tab
-  const deleteTabByIds = async(payload: { ids: string[], projectId: string }): Promise<void> => {
-    const { ids, projectId } = payload;
-    const checkSeletedTab = () => {
+  const deleteTabByIds = async(payload: { ids: string[], projectId: string, force?: boolean }): Promise<void> => {
+    const { ids, projectId, force } = payload;
+    const freshNewSeletedTab = () => {
       const selectTab = tabs.value[projectId].find((tab) => tab.selected);
       const hasTab = tabs.value[projectId].length > 0;
       if (!selectTab && hasTab) {
@@ -145,17 +145,19 @@ export const useApidocTas = defineStore('apidocTabs', () => {
     if (!tabs.value[projectId]) {
       return;
     }
+    if (force) {
+      ids.forEach((id) => {
+        const deleteIndex = tabs.value[projectId].findIndex((tab) => tab._id === id);
+        deleteTabByIndex({
+          projectId,
+          deleteIndex,
+        })
+      })
+      freshNewSeletedTab();
+      return
+    }
     const unsavedTabs: ApidocTab[] = tabs.value[projectId].filter(tab => !tab.saved && ids.find(v => v === tab._id));
     for (let i = 0; i < unsavedTabs.length; i += 1) {
-      //todo  预览模式直接删除
-      // if (store.state['apidoc/baseInfo'].mode === 'view') {
-      //   const deleteIndex = tabs.value[projectId].findIndex((tab) => tab._id === unsavedTabs[i]._id);
-      //   context.commit('deleteTabByIndex', {
-      //     projectId,
-      //     deleteIndex,
-      //   });
-      //   continue;
-      // }
       const unsavedTab = unsavedTabs[i];
       try {
         // eslint-disable-next-line no-await-in-loop
@@ -178,7 +180,7 @@ export const useApidocTas = defineStore('apidocTabs', () => {
           //     projectId,
           //     deleteIndex,
           //   })
-          //   checkSeletedTab();
+          //   freshNewSeletedTab();
           // }
         } else {
           const params = {
@@ -196,7 +198,7 @@ export const useApidocTas = defineStore('apidocTabs', () => {
               projectId,
               deleteIndex,
             })
-            checkSeletedTab();
+            freshNewSeletedTab();
           }).catch((err) => {
             console.error(err);
           })
@@ -224,7 +226,7 @@ export const useApidocTas = defineStore('apidocTabs', () => {
         })
       }
     })
-    checkSeletedTab();
+    freshNewSeletedTab();
   }
   //获取当前选中的tab
   const getSelectedTab = (projectId: string) => {

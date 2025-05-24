@@ -84,7 +84,8 @@ export function deleteNode(selectNodes: ApidocBannerWithProjectId[], silent?: bo
       })
       apidocTabsStore.deleteTabByIds({
         projectId: nodeProjectId,
-        ids: delNodeIds
+        ids: delNodeIds,
+        force: true,
       })
     }).catch((err) => {
       console.error(err);
