@@ -48,7 +48,7 @@ const convertQueryToParams = (requestPath: string): void => {
   Object.keys(objectParams).forEach(field => {
     const property = apidocGenerateProperty();
     property.key = field;
-    property.value = objectParams[field];
+    property.value = objectParams[field] || ''; //防止undefined导致字段缺失
     newParams.push(property)
   })
   const uniqueData: ApidocProperty<'string'>[] = [];
