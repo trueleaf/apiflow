@@ -2,47 +2,29 @@
  * apidoc文档缓存
  */
 
-import { config } from '@src/config/config';
 import { ApidocProjectHost } from '@src/types/apidoc/base-info';
 import { ApidocDetail } from '@src/types/global';
-import { ResponseInfo } from '@src/types/types';
-import { IDBPDatabase, openDB } from 'idb';
+import { ResponseCache } from './responseCache';
 
 type ServerInfo = ApidocProjectHost & {
   isLocal?: boolean,
 };
 
-class ApidocCache {
-  public responseCacheDb: IDBPDatabase | null = null;
+class ApidocCache extends ResponseCache {
   constructor() {
+    super();
     if (!localStorage.getItem('apidoc/paramsConfig')) {
       localStorage.setItem('apidoc/paramsConfig', '{}');
     }
     if (!localStorage.getItem('apidoc/apidoc')) {
       localStorage.setItem('apidoc/apidoc', '{}');
     }
-    this.initApiflowIndexedDb();
+    this.initApiflowResponseCache();
   }
-  initApiflowIndexedDb() {
-    openDB(config.cacheConfig.apiflowCache.dbName, config.cacheConfig.apiflowCache.version, {
-      upgrade(db) {
-        db.createObjectStore('responseCache');
-      },
-      blocked(currentVersion, blockedVersion, event) {
-        console.log('blocked', currentVersion, blockedVersion, event)
-      },
-      blocking(currentVersion, blockedVersion, event) {
-        console.log('blocking', currentVersion, blockedVersion, event)
-      },
-      terminated() {
-        console.log('terminated')
-      },
-    }).then((db) => {
-      this.responseCacheDb = db;
-    }).catch(err => {
-      console.error(err)
-    })
-  }
+
+  /**
+   * 获取当前被选中的tab
+   */
   getActiveParamsTab(id: string): string | null {
     try {
       const localActiveTab: Record<string, string> = JSON.parse(localStorage.getItem('apidoc/paramsActiveTab') || '{}');
@@ -56,7 +38,9 @@ class ApidocCache {
       return null;
     }
   }
-
+  /**
+   * 设置当前被选中的tab
+   */
   setActiveParamsTab(id: string, val: string) {
     try {
       const localActiveTab = JSON.parse(localStorage.getItem('apidoc/paramsActiveTab') || '{}');
@@ -69,10 +53,9 @@ class ApidocCache {
       localStorage.setItem('apidoc/paramsActiveTab', JSON.stringify(data));
     }
   }
-
-  /**
-     * @description        缓存接口信息
-     */
+  /*
+   * 缓存接口信息
+   */
   setApidoc(val: ApidocDetail) {
     try {
       const localApidoc = JSON.parse(localStorage.getItem('apidoc/apidoc') || '{}');
@@ -86,12 +69,9 @@ class ApidocCache {
     }
   }
 
-  /**
-     * @description        获取缓存接口信息
-     * @author             shuxiaokai
-     * @create             2021-09-09 21:37
-     * @param {string}     id 接口id
-     */
+  /*
+   * 获取缓存接口信息
+   */
   getApidoc(id: string): ApidocDetail | null {
     try {
       const localApidoc: Record<string, ApidocDetail> = JSON.parse(localStorage.getItem('apidoc/apidoc') || '{}');
@@ -106,11 +86,9 @@ class ApidocCache {
     }
   }
 
-  /**
-     * @description        缓存服务器地址
-     * @author             shuxiaokai
-     * @create             2021-09-09 21:37
-     */
+  /*
+   * 缓存服务器地址
+   */
   addApidocServer(serverInfo: ServerInfo, projectId: string) {
     try {
       const localData = JSON.parse(localStorage.getItem('apidoc/apidocServer') || '{}');
@@ -130,11 +108,9 @@ class ApidocCache {
     }
   }
 
-  /**
-     * @description        删除缓存服务器地址
-     * @author             shuxiaokai
-     * @create             2021-09-09 21:37
-     */
+  /*
+   * 删除缓存服务器地址
+   */
   deleteApidocServer(host: string, projectId: string) {
     try {
       const localData = JSON.parse(localStorage.getItem('apidoc/apidocServer') || '{}');
@@ -154,33 +130,9 @@ class ApidocCache {
     }
   }
 
-  /**
-     * @description        更新缓存服务器地址
-     * @author             shuxiaokai
-     * @create             2021-09-09 21:37
-     */
-  // updateApidocServer(serverInfo: ServerInfo, projectId: string) {
-  //     try {
-  //         const localData = JSON.parse(localStorage.getItem("apidoc/apidocServer") || "{}");
-  //         if (!localData[projectId]) {
-  //             localData[projectId] = [];
-  //         }
-  //         localData[projectId].push(serverInfo);
-  //         localStorage.setItem("apidoc/apidocServer", JSON.stringify(localData));
-  //     } catch (error) {
-  //         console.error(error);
-  //         const data: Record<string, ServerInfo[]> = {};
-  //         data[projectId] = [serverInfo];
-  //         localStorage.setItem("apidoc/apidocServer", JSON.stringify(data));
-  //     }
-  // }
-
-  /**
-     * @description        获取缓存服务器地址
-     * @author             shuxiaokai
-     * @create             2021-09-09 21:37
-     * @param {string}     projectId 项目id
-     */
+  /*
+   * 获取缓存服务器地址
+   */
   getApidocServer(projectId: string): ServerInfo[] | [] {
     try {
       const localData: Record<string, ServerInfo[]> = JSON.parse(localStorage.getItem('apidoc/apidocServer') || '{}');
@@ -195,12 +147,9 @@ class ApidocCache {
     }
   }
 
-  /**
-     * @description        获取是否开启代理缓存
-     * @author             shuxiaokai
-     * @create             2021-09-09 21:37
-     * @param {string}     projectId 项目id
-     */
+  /*
+   * 获取是否开启代理缓存
+   */
   getApidocProxyState(projectId: string): boolean | null {
     try {
       const localData: Record<string, boolean> = JSON.parse(localStorage.getItem('apidoc/apidocCacheState') || '{}');
@@ -215,11 +164,9 @@ class ApidocCache {
     }
   }
 
-  /**
-     * @description        设置是否开启代理服务器
-     * @author             shuxiaokai
-     * @create             2021-09-09 21:37
-     */
+  /*
+   * 设置是否开启代理服务器
+   */
   setApidocProxyState(cacheState: boolean, projectId: string) {
     try {
       const localData = JSON.parse(localStorage.getItem('apidoc/apidocCacheState') || '{}');
@@ -231,66 +178,9 @@ class ApidocCache {
     }
   }
 
-  /**
-   * @description        缓存返回值
-   * @author             shuxiaokai
-   * @create             2021-09-09 21:37
+  /*
+   * 缓存上一次选择的server
    */
-  async setResponse(id: string, response: ResponseInfo) {
-    if (!this.responseCacheDb) {
-      return
-    }
-    try {
-      await this.responseCacheDb.put("responseCache", response, id)
-    } catch (error) {
-      console.error(error);
-      await this.responseCacheDb.clear("responseCache")
-    }
-  }
-
-  /**
-   * @description        获取已缓存得返回值
-   * @author             shuxiaokai
-   * @create             2021-09-09 21:37
-   * @param {string}     id 文档id
-   */
-  async getResponse(id: string): Promise<ResponseInfo | null> {
-    if (!this.responseCacheDb) {
-      return Promise.resolve(null)
-    }
-    try {
-      const localResponse = await this.responseCacheDb.get("responseCache", id);
-      return Promise.resolve(localResponse);
-    } catch (error) {
-      console.error(error);
-      return Promise.resolve(null)
-    }
-  }
-
-  /**
-     * @description        删除response缓存
-     * @author             shuxiaokai
-     * @create             2021-09-09 21:37
-     */
-  async deleteResponse(id: string) {
-    if (!this.responseCacheDb) {
-      return Promise.resolve(null)
-    }
-    try {
-      const localResponse = await this.responseCacheDb.delete("responseCache", id);
-      return Promise.resolve(localResponse);
-    } catch (error) {
-      console.error(error);
-      return Promise.resolve(null)
-    }
-  }
-
-  /**
-     * @description        缓存上一次选择的server
-     * @author             shuxiaokai
-     * @create             2021-11-09 21:37
-     * @param {string}     projectId 项目id
-     */
   setPreviousServer(projectId: string, server: string) {
     try {
       const localData = JSON.parse(localStorage.getItem('apidoc/previousServer') || '{}');
@@ -302,12 +192,9 @@ class ApidocCache {
     }
   }
 
-  /**
-     * @description        获取上一次选择的server
-     * @author             shuxiaokai
-     * @create             2021-11-09 21:37
-     * @param {string}     projectId 项目id
-     */
+  /*
+   * 获取上一次选择的server
+   */
   getPreviousServer(projectId: string): string | null {
     try {
       const localData: Record<string, string> = JSON.parse(localStorage.getItem('apidoc/previousServer') || '{}');
@@ -322,12 +209,9 @@ class ApidocCache {
     }
   }
 
-  /**
-     * @description        获取返回参数状态
-     * @author             shuxiaokai
-     * @create             2021-11-09 21:37
-     * @remark             true代表显示 false代表折叠
-     */
+  /*
+   * 获取返回参数状态
+   */
   getAllResponseCollapseState(): Record<string, boolean> {
     try {
       const localData: Record<string, boolean> = JSON.parse(localStorage.getItem('apidoc/responseCollapse') || '{}');
@@ -338,13 +222,9 @@ class ApidocCache {
     }
   }
 
-  /**
-     * @description        设置返回参数状态
-     * @author             shuxiaokai
-     * @create             2021-11-09 21:37
-     * @param {string}     id 项目id
-     * @param {string}     isShow 是否展示
-     */
+  /*
+   * 设置返回参数状态
+   */
   setResponseCollapseState(id: string, isShow: boolean) {
     try {
       const localData = JSON.parse(localStorage.getItem('apidoc/responseCollapse') || '{}');
@@ -356,13 +236,9 @@ class ApidocCache {
     }
   }
 
-  /**
-     * @description        获取缓存的代码钩子
-     * @author             shuxiaokai
-     * @param {string}     projectId 项目id
-     * @create             2021-11-09 21:37
-     * @remark
-     */
+  /*
+   * 获取缓存的代码钩子
+   */
   getHookCodeById(projectId: string): string | null {
     try {
       const localData: Record<string, string> = JSON.parse(localStorage.getItem('apidoc/hookCode') || '{}');
@@ -376,13 +252,9 @@ class ApidocCache {
     }
   }
 
-  /**
-     * @description        设置缓存的代码钩子
-     * @author             shuxiaokai
-     * @create             2021-11-09 21:37
-     * @param {string}     projectId 项目id
-     * @param {string}     code 缓存代码
-     */
+  /*
+   * 设置缓存的代码钩子
+   */
   setHookCode(projectId: string, code: string) {
     try {
       const localData = JSON.parse(localStorage.getItem('apidoc/hookCode') || '{}');
@@ -394,11 +266,9 @@ class ApidocCache {
     }
   }
 
-  /**
-     * @description        隐藏body参数提示信息
-     * @author             shuxiaokai
-     * @create             2021-11-09 21:37
-     */
+  /*
+   * 隐藏body参数提示信息
+   */
   hideJsonBodyTip() {
     try {
       localStorage.setItem('apidoc/hideJsonBodyTip', JSON.stringify(true));
@@ -408,11 +278,9 @@ class ApidocCache {
     }
   }
 
-  /**
-     * @description        获取是否显示body提示
-     * @author             shuxiaokai
-     * @create             2021-11-09 21:37
-     */
+  /*
+   * 获取是否显示body提示
+   */
   getCouldShowJsonBodyTip(): boolean {
     try {
       const isHidden = JSON.parse(localStorage.getItem('apidoc/hideJsonBodyTip') || 'false');
@@ -423,9 +291,9 @@ class ApidocCache {
     }
   }
 
-  /**
-     * 获取worker全局local状态
-     */
+  /*
+   * 获取worker全局local状态
+   */
   getApidocWorkerLocalStateById(projectId: string): null | Record<string, unknown> {
     try {
       const localData: Record<string, Record<string, unknown>> = JSON.parse(localStorage.getItem('apidoc/worker/localState') || '{}');
@@ -439,9 +307,9 @@ class ApidocCache {
     }
   }
 
-  /**
-     * 设置worker全局local状态
-     */
+  /*
+   * 设置worker全局local状态
+   */
   setApidocWorkerLocalState(projectId: string, state: Record<string, unknown>) {
     try {
       const localData = JSON.parse(localStorage.getItem('apidoc/worker/localState') || '{}');
@@ -453,7 +321,7 @@ class ApidocCache {
     }
   }
 
-  /**
+  /*
    * 获取mock编辑 json返回数据提示信息
    */
   getIsShowApidocMockParamsJsonTip(): boolean {
@@ -466,7 +334,7 @@ class ApidocCache {
     }
   }
 
-  /**
+  /*
    * 设置 json返回数据提示信息
    */
   setIsShowApidocMockParamsJsonTip(isShow: boolean) {
@@ -478,7 +346,7 @@ class ApidocCache {
     }
   }
 
-  /**
+  /*
    * 根据tabId获取不发送公共请求头
    */
   getIgnoredCommonHeaderByTabId(projectId: string, tabId: string): string[] | null {
@@ -497,7 +365,7 @@ class ApidocCache {
     }
   }
 
-  /**
+  /*
    * 设置不发送的公共请求头
    */
   setIgnoredCommonHeader(options: { projectId: string; tabId: string; ignoreHeaderId: string }) {
@@ -518,7 +386,7 @@ class ApidocCache {
       localStorage.setItem('apidoc/commonHeaders/ignore', '{}');
     }
   }
-  /**
+  /*
    * 删除不发送的公共请求头
    */
   removeIgnoredCommonHeader(options: { projectId: string; tabId: string; ignoreHeaderId: string }) {
@@ -540,7 +408,7 @@ class ApidocCache {
       localStorage.setItem('apidoc/commonHeaders/ignore', '{}');
     }
   }
-  /**
+  /*
    * 项目列表和团队列表切换缓存
    */
   getActiveApidocTab(): string {

@@ -98,7 +98,10 @@ const getApidocInfo = async () => {
   apidocResponseStore.clearResponse();
   if (localResponse) {
     // console.log('localResponse', localResponse)
+    const rawBody = localResponse.body;
+    localResponse.body = null;
     apidocResponseStore.changeResponseInfo(localResponse)
+    apidocResponseStore.changeFileBlobUrl(rawBody as Uint8Array, localResponse.responseData.canApiflowParseType, localResponse.contentType)
   }
 }
 
