@@ -18,9 +18,11 @@
           class="img-view" 
           :src="apidocResponseStore.responseInfo.responseData.fileData.url"
           :preview-src-list="[apidocResponseStore.responseInfo.responseData.fileData.url]" 
-          fit="scale-down">
+          fit="contain">
         </el-image>
         <div v-else class="img-view-empty">图片加载中</div>
+        <div class="text-center">{{ apidocResponseStore.responseInfo.contentType }}</div>
+        <el-button link type="primary" text @click="handleDownload">{{ t("下载文件") }}</el-button>
       </div>
       <!-- 流文件 -->
       <div v-else-if="apidocResponseStore.responseInfo.responseData.canApiflowParseType === 'octetStream'"
@@ -394,8 +396,10 @@ onUnmounted(() => {
     display: flex;
     align-items: center;
     justify-content: center;
+    flex-direction: column;
     .img-view {
-      width: size(250);
+      border: 1px solid $gray-400;
+      width: 80%;
       height: size(250);
     }
     .img-view-empty {
