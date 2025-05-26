@@ -35,9 +35,17 @@
                 <SEmphasize v-show="showMoreNodeInfo" class="node-bottom" :title="scope.data.url"
                   :value="scope.data.url" :keyword="filterString"></SEmphasize>
               </div>
-              <input v-else :value="scope.data.name" :placeholder="t('不能为空')" type="text" class="rename-ipt"
-                :class="{ error: scope.data.name.trim() === '' }" @blur="handleChangeNodeName($event, scope.data)"
-                @input="handleWatchNodeInput($event)" @keydown.stop.enter="handleChangeNodeName($event, scope.data)">
+              <input 
+                v-else 
+                :value="scope.data.name" 
+                :placeholder="t('不能为空')" 
+                type="text" 
+                class="rename-ipt"
+                :class="{ error: scope.data.name.trim() === '' }" 
+                @blur="handleChangeNodeName($event, scope.data)"
+                @input="handleWatchNodeInput($event)" 
+                @keydown.stop.enter="handleChangeNodeName($event, scope.data)"
+              >
               <div class="more" @click.stop="handleShowContextmenu($event, scope.data)">
                 <el-icon class="more-op" :title="t('更多操作')" :size="16">
                   <more-filled />
