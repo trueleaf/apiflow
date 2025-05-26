@@ -114,6 +114,7 @@ export type CanApiflowParseType =
   'cachedBodyIsTooLarge' |
   'octetStream' |
   'video' |
+  'audio' |
   'forceDownload';
 export type ResponseInfo = {
   id: string;

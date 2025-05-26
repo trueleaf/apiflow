@@ -144,7 +144,11 @@
         <el-button link type="primary" text @click="handleDownload">{{ t("下载文件") }}</el-button>
       </div>
       <!-- pdf -->
-      <iframe v-else-if="apidocResponseStore.responseInfo.responseData.canApiflowParseType === 'pdf'" :src="apidocResponseStore.responseInfo.responseData.fileData.url" class="pdf-view"></iframe>
+      <div v-else-if="apidocResponseStore.responseInfo.responseData.canApiflowParseType === 'pdf'" class="d-flex flex-column j-center">
+        <iframe :src="apidocResponseStore.responseInfo.responseData.fileData.url" class="pdf-view"></iframe>
+        <div class="text-center">{{ apidocResponseStore.responseInfo.contentType }}</div>
+        <el-button link type="primary" text @click="handleDownload">{{ t('下载文件') }}</el-button>
+      </div>
       <!-- vidoe视频 -->
       <div v-else-if="apidocResponseStore.responseInfo.responseData.canApiflowParseType === 'video'" class="d-flex flex-column j-center">
         <video 
@@ -160,9 +164,21 @@
           </svg>
           <div class="text-center">{{ apidocResponseStore.responseInfo.contentType }}</div>
         </template>
-        <div class="d-flex a-center j-center">
+        <div class="d-flex a-center j-center mt-2">
           <el-button link type="primary" text @click="handleDownload">{{ t("下载文件") }}</el-button>
         </div>
+      </div>
+      <!-- audio 音频文件 -->
+      <div v-else-if="apidocResponseStore.responseInfo.responseData.canApiflowParseType === 'audio'" class="d-flex flex-column a-center j-center">
+        <audio
+          v-if="apidocResponseStore.responseInfo.responseData.fileData.url"
+          :src="apidocResponseStore.responseInfo.responseData.fileData.url"
+          controls
+          class="audio-view"
+        ></audio>
+        <div v-else class="text-center">音频加载中</div>
+        <div class="text-center">{{ apidocResponseStore.responseInfo.contentType }}</div>
+        <el-button link type="primary" text @click="handleDownload">{{ t('下载文件') }}</el-button>
       </div>
       <!-- 无法解析的文件 -->
       <div v-else-if="apidocResponseStore.responseInfo.responseData.canApiflowParseType === 'unknown'" class="d-flex j-center flex-column">
@@ -401,6 +417,7 @@ onUnmounted(() => {
       border: 1px solid $gray-400;
       width: 80%;
       height: size(250);
+      padding: 0 size(5);
     }
     .img-view-empty {
       width: size(250);
