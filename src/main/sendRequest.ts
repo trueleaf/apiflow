@@ -285,6 +285,7 @@ export const gotRequest = async (options: GotRequestOptions) => {
       const contentTypeIsXml = responseInfo.contentType.includes('application/xml')
       const contentTypeIsPpt = (responseInfo.contentType.includes('application/vnd.ms-powerpoint') || responseInfo.contentType.includes('application/vnd.openxmlformats-officedocument.presentationml.presentation'))
       const contentTypeIsVideo = responseInfo.contentType.includes('video/')
+      const contentTypeIsAudio = responseInfo.contentType.includes('audio/')
       const contentTypeIsImage = responseInfo.contentType.includes('image/')
       const responseAsPdf = contentTypeIsPdf || fileTypeInfo?.mime?.includes('application/pdf');
       const responseAsExcel = contentTypeIsExcel || fileTypeInfo?.mime?.includes('application/vnd.openxmlformats-officedocument.spreadsheetml.sheet') || fileTypeInfo?.mime?.includes('application/vnd.ms-excel')
@@ -292,6 +293,7 @@ export const gotRequest = async (options: GotRequestOptions) => {
       const responseAsXml = contentTypeIsXml || fileTypeInfo?.mime?.includes('application/xml') || fileTypeInfo?.mime?.includes('text/xml');
       const responseAsPPT = contentTypeIsPpt || fileTypeInfo?.mime?.includes('application/vnd.ms-powerpoint') || fileTypeInfo?.mime?.includes('application/vnd.openxmlformats-officedocument.presentationml.presentation')
       const responseAsVideo = contentTypeIsVideo || fileTypeInfo?.mime?.includes('video/');
+      const responseAsAudio = contentTypeIsAudio || fileTypeInfo?.mime?.includes('audio/');
       const responseAsImage = contentTypeIsImage || fileTypeInfo?.mime?.includes('image/');
       if (noFileType && responseInfo.contentType.includes('application/json')) {
         responseInfo.responseData.canApiflowParseType = 'json';
@@ -344,6 +346,12 @@ export const gotRequest = async (options: GotRequestOptions) => {
         const blobUrl = URL.createObjectURL(blob);
         responseInfo.responseData.fileData.url = blobUrl;
         responseInfo.responseData.canApiflowParseType = 'video';
+      } else if (responseAsAudio) {
+        console.log(fileTypeInfo?.mime)
+        const blob = new Blob([bufferData], { type: fileTypeInfo?.mime ?? 'audio/mpeg' });
+        const blobUrl = URL.createObjectURL(blob);
+        responseInfo.responseData.fileData.url = blobUrl;
+        responseInfo.responseData.canApiflowParseType = 'audio';
       } else {
         responseInfo.responseData.canApiflowParseType = 'unknown';
         console.log(`无法解析的类型\nContentType值为${responseInfo.contentType} \n读取到的文件类型为=${JSON.stringify(fileTypeInfo)}`)
