@@ -239,13 +239,14 @@ export const gotRequest = async (options: GotRequestOptions) => {
       const contentTypeIsPdf = responseInfo.contentType.includes('application/pdf');
       const contentTypeIsExcel = (responseInfo.contentType.includes('application/vnd.openxmlformats-officedocument.spreadsheetml.sheet') || responseInfo.contentType.includes('application/vnd.ms-excel'));
       const contentTypeIsWord = (responseInfo.contentType.includes('application/vnd.openxmlformats-officedocument.wordprocessingml.document') || responseInfo.contentType.includes('application/msword'));
-      
       if (responseInfo.contentType.includes('application/json')) {
         responseInfo.responseData.canApiflowParseType = 'json';
       } else if (responseInfo.contentType.includes('text/html')) {
         responseInfo.responseData.canApiflowParseType = 'html';
       } else if (responseInfo.contentType.includes('text/css')) {
         responseInfo.responseData.canApiflowParseType = 'css';
+      } else if (responseInfo.contentType.includes('text/csv')) {
+        responseInfo.responseData.canApiflowParseType = 'csv';
       } else if (responseInfo.contentType.includes('application/javascript')) {
         responseInfo.responseData.canApiflowParseType = 'js';
       } else if (responseInfo.contentType.includes('text/')) {
@@ -277,7 +278,7 @@ export const gotRequest = async (options: GotRequestOptions) => {
       const fileTypeInfo = await fileTypeFromBuffer(bufferData.buffer as ArrayBuffer);
       responseInfo.bodyByteLength = bufferData.byteLength;
       responseInfo.body = bufferData
-      const hasFileType = !fileTypeInfo;
+      const noFileType = !fileTypeInfo;
       const contentTypeIsPdf = responseInfo.contentType.includes('application/pdf');
       const contentTypeIsExcel = (responseInfo.contentType.includes('application/vnd.openxmlformats-officedocument.spreadsheetml.sheet') || responseInfo.contentType.includes('application/vnd.ms-excel'));
       const contentTypeIsWord = (responseInfo.contentType.includes('application/vnd.openxmlformats-officedocument.wordprocessingml.document') || responseInfo.contentType.includes('application/msword'));
@@ -288,23 +289,26 @@ export const gotRequest = async (options: GotRequestOptions) => {
       const responseAsPdf = contentTypeIsPdf || fileTypeInfo?.mime?.includes('application/pdf');
       const responseAsExcel = contentTypeIsExcel || fileTypeInfo?.mime?.includes('application/vnd.openxmlformats-officedocument.spreadsheetml.sheet') || fileTypeInfo?.mime?.includes('application/vnd.ms-excel')
       const responseAsWord = contentTypeIsWord || (fileTypeInfo?.mime?.includes('application/vnd.openxmlformats-officedocument.wordprocessingml.document') || fileTypeInfo?.mime?.includes('application/msword'))
-      const responseAsXml = contentTypeIsXml || fileTypeInfo?.mime?.includes('application/xml');
+      const responseAsXml = contentTypeIsXml || fileTypeInfo?.mime?.includes('application/xml') || fileTypeInfo?.mime?.includes('text/xml');
       const responseAsPPT = contentTypeIsPpt || fileTypeInfo?.mime?.includes('application/vnd.ms-powerpoint') || fileTypeInfo?.mime?.includes('application/vnd.openxmlformats-officedocument.presentationml.presentation')
       const responseAsVideo = contentTypeIsVideo || fileTypeInfo?.mime?.includes('video/');
       const responseAsImage = contentTypeIsImage || fileTypeInfo?.mime?.includes('image/');
-      if (hasFileType && responseInfo.contentType.includes('application/json')) {
+      if (noFileType && responseInfo.contentType.includes('application/json')) {
         responseInfo.responseData.canApiflowParseType = 'json';
         responseInfo.responseData.jsonData = bufferData.toString();
-      } else if (hasFileType && responseInfo.contentType.includes('text/html')) {
+      } else if (noFileType && responseInfo.contentType.includes('text/html')) {
         responseInfo.responseData.canApiflowParseType = 'html';
         responseInfo.responseData.textData = bufferData.toString();
-      } else if (hasFileType && responseInfo.contentType.includes('text/css')) {
+      } else if (noFileType && responseInfo.contentType.includes('text/css')) {
         responseInfo.responseData.canApiflowParseType = 'css';
         responseInfo.responseData.textData = bufferData.toString();
-      } else if (hasFileType && responseInfo.contentType.includes('application/javascript')) {
+      } else if (noFileType && responseInfo.contentType.includes('text/csv')) {
+        responseInfo.responseData.canApiflowParseType = 'csv';
+        responseInfo.responseData.textData = bufferData.toString();
+      } else if (noFileType && responseInfo.contentType.includes('application/javascript')) {
         responseInfo.responseData.canApiflowParseType = 'js';
         responseInfo.responseData.textData = bufferData.toString();
-      } else if (hasFileType && responseInfo.contentType.includes('text/')) {
+      } else if (noFileType && responseInfo.contentType.includes('text/')) {
         responseInfo.responseData.canApiflowParseType = 'text';
         responseInfo.responseData.textData = bufferData.toString();
       } else if (responseAsImage) {
