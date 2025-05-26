@@ -12,10 +12,8 @@ class GlobalCache {
   }
 
   /**
-     * @description        获取全局配置信息
-     * @author             shuxiaokai
-     * @create             2021-09-06 21:50
-     */
+   * 获取全局配置信息
+   */
   getGlobalConfig(): Partial<GlobalConfig> {
     try {
       const localData: Partial<GlobalConfig> = JSON.parse(localStorage.getItem('cache/globalConfig') || '{}');
@@ -28,11 +26,8 @@ class GlobalCache {
   }
 
   /**
-     * @description        重置全局配置
-     * @author             shuxiaokai
-     * @create             2021-09-06 21:50
-     * @param {GlobalConfig}     config - 全局配置信息
-     */
+   * 重置全局配置
+   */
   changeGlobalConfig(config: GlobalConfig): void {
     try {
       localStorage.setItem('cache/globalConfig', JSON.stringify(config));
