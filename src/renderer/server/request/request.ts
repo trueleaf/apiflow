@@ -220,7 +220,7 @@ export async function sendRequest() {
   const selectedTab = apidocTabsStore.getSelectedTab(apidocBaseInfoStore.projectId);
   const apidocStore = useApidoc()
   const { changeCancelRequestRef } = useApidocRequest()
-  const { changeResponseInfo, changeResponseBody, changeRequestState, changeLoadingProcess } = useApidocResponse()
+  const { changeResponseInfo, changeResponseBody, changeResponseCacheAllowed, changeRequestState, changeLoadingProcess, changeFileBlobUrl } = useApidocResponse()
   const rawApidoc = toRaw(apidocStore.$state.apidoc)
   const method = getMethod(rawApidoc);
   const url = await getUrl(rawApidoc);
@@ -287,13 +287,16 @@ export async function sendRequest() {
       })
     },
     onResponseEnd(responseInfo) {
+      const rawBody = responseInfo.body;
       changeRequestState('finish');
       changeResponseBody(responseInfo.body)
       responseInfo.body = null; // 不存储body防止数据量过大
       changeResponseInfo(responseInfo);
+      changeFileBlobUrl(rawBody as Uint8Array, responseInfo.responseData.canApiflowParseType, responseInfo.contentType);
       console.log('responseInfo', responseInfo)
       const storedResponseInfo = cloneDeep(responseInfo);
-      if (responseInfo.bodyByteLength > config.requestConfig.maxStoreSingleBodySize) {
+      storedResponseInfo.body = rawBody;
+      if (responseInfo.bodyByteLength > config.cacheConfig.apiflowResponseCache.singleResponseBodySize) {
         storedResponseInfo.body = [];
         storedResponseInfo.responseData.textData = '';
         storedResponseInfo.responseData.jsonData = '';
@@ -301,7 +304,10 @@ export async function sendRequest() {
           url: "",
           name: "",
         };
-        storedResponseInfo.responseData.canApiflowParseType = 'cachedBodyIsTooLarge'
+        storedResponseInfo.responseData.canApiflowParseType = 'cachedBodyIsTooLarge';
+        changeResponseCacheAllowed(selectedTab?._id ?? '', false);
+      } else {
+        changeResponseCacheAllowed(selectedTab?._id ?? '', true);
       }
       apidocCache.setResponse(selectedTab?._id ?? '', storedResponseInfo);
     },

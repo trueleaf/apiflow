@@ -8,7 +8,7 @@
       :class="{ vertical: layout === 'vertical' }">
       <el-tabs v-model="activeName" class="h-100 w-100">
         <el-tab-pane :label="t('返回值')" name="SBody" class="w-100">
-          <SBody v-if="activeName === 'SBody'" class="h-100"></SBody>
+          <SBody class="h-100"></SBody>
         </el-tab-pane>
         <el-tab-pane :label="t('请求信息')" name="SRequest">
           <SRequest class="h-100"></SRequest>
