@@ -77,14 +77,14 @@ export const config: Config = {
     canLogResponsebodyByteLength: 1024 * 1024,
   },
   requestConfig: {
-    maxStoreSingleBodySize: 1024 * 5 * 1, //最大可以缓存单个返回值大小
-    maxJsonBodySize: 1024 * 5000 * 1, //最大可展示json大小
-    maxTextBodySize: 1024 * 5000 * 1, //最大可展示文本大小
-    maxRawBodySize: 1024 * 10 * 1, //最大可以显示原始值类型
+    maxTextBodySize: 1024 * 1024 * 50, //最大可展示文本格式数大小
+    maxRawBodySize: 1024 * 1024 * 50, //最大可以显示原始值类型
     userAgent: "https://github.com/trueleaf/apiflow",
   },
   cacheConfig: {
-    apiflowCache: {
+    apiflowResponseCache: {
+      singleResponseBodySize: 1024 * 1024 * 2000, //单个返回值大小
+      maxResponseBodySize: 1024 * 1024 * 1024 * 10, //最大可以缓存的返回值大小
       dbName: 'apiflowResponseCache',
       version: 1,
     }

@@ -94,6 +94,27 @@ export type SendRequestOptions = {
   validVariables: Record<string, any>,
   globalTimeout: number;
 }
+export type CanApiflowParseType =
+  'text' |
+  'json' |
+  'html' |
+  'xml' |
+  'js' |
+  'css' |
+  'pdf' |
+  'word' |
+  'excel' |
+  'ppt' |
+  'image' |
+  'csv' |
+  'zip' |
+  'unknown' |
+  'error' |
+  'none' |
+  'cachedBodyIsTooLarge' |
+  'octetStream' |
+  'video' |
+  'forceDownload';
 export type ResponseInfo = {
   id: string;
   apiId: string;
@@ -121,32 +142,13 @@ export type ResponseInfo = {
     body: string | FormData;
   },
   responseData: {
-    canApiflowParseType: 
-    'text' | 
-    'json' | 
-    'html' | 
-    'xml' | 
-    'js' | 
-    'css' | 
-    'pdf' | 
-    'word' | 
-    'excel' | 
-    'ppt' | 
-    'image' | 
-    'zip' | 
-    'unknown' | 
-    'error' | 
-    'none' | 
-    'cachedBodyIsTooLarge' |
-    'octetStream' |
-    'video' |
-    'forceDownload',
+    canApiflowParseType: CanApiflowParseType,
     jsonData: string;
     textData: string;
     errorData: string;
     fileData: {
       url: string;
-      name: string  
+      name: string
     }
   }
 }
@@ -346,14 +348,20 @@ export type Config = {
     canLogResponsebodyByteLength: number;
   },
   requestConfig: {
-    maxStoreSingleBodySize: number;
-    maxJsonBodySize: number;
     maxTextBodySize: number;
     maxRawBodySize: number
     userAgent: string;
   },
   cacheConfig: {
-    apiflowCache: {
+    apiflowResponseCache: {
+      /**
+       * 单个最大可缓存返回body大小
+       */
+      singleResponseBodySize: number;
+      /**
+       * 最大可以缓存的返回值大小
+       */
+      maxResponseBodySize: number;
       dbName: string,
       version: number,
     }
@@ -376,8 +384,8 @@ export type GotRequestOptions = {
   onResponse?: (responseInfo: ResponseInfo) => void;
   onResponseEnd?: (responseInfo: ResponseInfo) => void;
   onResponseData?: (loadedLength: number, totalLength: number) => void;
-  onReadFileFormDataError?: (options: {id: string, msg: string, fullMsg: string}) => void;
-  onReadBinaryDataError?: (options: {msg: string, fullMsg: string}) => void;
+  onReadFileFormDataError?: (options: { id: string, msg: string, fullMsg: string }) => void;
+  onReadBinaryDataError?: (options: { msg: string, fullMsg: string }) => void;
   onError: (error: RequestError | Error) => void,
   beforeRedirect: (updatedOptions: Options, plainResponse: PlainResponse) => void,
   beforeRequest?: (options: Options) => void,
