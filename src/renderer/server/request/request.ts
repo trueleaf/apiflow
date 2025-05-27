@@ -292,7 +292,7 @@ export async function sendRequest() {
       changeResponseBody(responseInfo.body)
       responseInfo.body = null; // 不存储body防止数据量过大
       changeResponseInfo(responseInfo);
-      changeFileBlobUrl(rawBody as Uint8Array, responseInfo.responseData.canApiflowParseType, responseInfo.contentType);
+      changeFileBlobUrl(rawBody as Uint8Array, responseInfo.contentType);
       console.log('responseInfo', responseInfo)
       const storedResponseInfo = cloneDeep(responseInfo);
       storedResponseInfo.body = rawBody;

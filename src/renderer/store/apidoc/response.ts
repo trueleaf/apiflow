@@ -40,12 +40,10 @@ export const useApidocResponse = defineStore('apidocResponse', () => {
     loadingProcess.value.transferred = payload.bodyByteLength || 0
     loadingProcess.value.total = payload.bodyByteLength || 0
   }
-  const changeFileBlobUrl = (rawBody: Uint8Array, type: CanApiflowParseType, contentType: string) => {
-    if (type === 'image' || type === 'word' || type === 'pdf' || type === 'excel' || type === 'ppt' || type === 'video') {
-      const blob = new Blob([rawBody], { type: contentType });
-      const blobUrl = URL.createObjectURL(blob);
-      responseInfo.value.responseData.fileData.url = blobUrl;
-    }
+  const changeFileBlobUrl = (rawBody: Uint8Array, contentType: string) => {
+    const blob = new Blob([rawBody], { type: contentType });
+    const blobUrl = URL.createObjectURL(blob);
+    responseInfo.value.responseData.fileData.url = blobUrl;
   }
   const changeRequestState = (payload: 'waiting' | 'sending' | 'response' | 'finish') => {
     requestState.value = payload
