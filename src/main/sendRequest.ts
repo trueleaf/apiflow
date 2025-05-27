@@ -1,4 +1,3 @@
-
 import {
   GotRequestOptions,
   RendererFormDataBody,
@@ -253,6 +252,17 @@ export const gotRequest = async (options: GotRequestOptions) => {
         responseInfo.responseData.canApiflowParseType = 'text';
       } else if (responseInfo.contentType.includes('image/')) {
         responseInfo.responseData.canApiflowParseType = 'image';
+      } else if (
+        responseInfo.contentType.includes('application/zip') ||
+        responseInfo.contentType.includes('application/x-zip-compressed') ||
+        responseInfo.contentType.includes('application/x-tar') ||
+        responseInfo.contentType.includes('application/x-rar-compressed') ||
+        responseInfo.contentType.includes('application/x-7z-compressed') ||
+        responseInfo.contentType.includes('application/x-7z') ||
+        responseInfo.contentType.includes('application/x-compressed') ||
+        responseInfo.contentType.includes('application/x-gtar')
+      ) {
+        responseInfo.responseData.canApiflowParseType = 'archive';
       } else if (contentTypeIsPdf) {
         responseInfo.responseData.canApiflowParseType = 'pdf';
       } else if (contentTypeIsExcel) {
@@ -287,6 +297,16 @@ export const gotRequest = async (options: GotRequestOptions) => {
       const contentTypeIsVideo = responseInfo.contentType.includes('video/')
       const contentTypeIsAudio = responseInfo.contentType.includes('audio/')
       const contentTypeIsImage = responseInfo.contentType.includes('image/')
+      const contentTypeIsArchive = responseInfo.contentType.includes('application/zip') ||  
+        responseInfo.contentType.includes('application/zip') ||
+        responseInfo.contentType.includes('application/x-zip-compressed') ||
+        responseInfo.contentType.includes('application/x-tar') ||
+        responseInfo.contentType.includes('application/x-rar-compressed') ||
+        responseInfo.contentType.includes('application/x-7z-compressed') ||
+        responseInfo.contentType.includes('application/x-7z') ||
+        responseInfo.contentType.includes('application/x-compressed') ||
+        responseInfo.contentType.includes('application/x-gtar');
+      
       const responseAsPdf = contentTypeIsPdf || fileTypeInfo?.mime?.includes('application/pdf');
       const responseAsExcel = contentTypeIsExcel || fileTypeInfo?.mime?.includes('application/vnd.openxmlformats-officedocument.spreadsheetml.sheet') || fileTypeInfo?.mime?.includes('application/vnd.ms-excel')
       const responseAsWord = contentTypeIsWord || (fileTypeInfo?.mime?.includes('application/vnd.openxmlformats-officedocument.wordprocessingml.document') || fileTypeInfo?.mime?.includes('application/msword'))
@@ -295,6 +315,15 @@ export const gotRequest = async (options: GotRequestOptions) => {
       const responseAsVideo = contentTypeIsVideo || fileTypeInfo?.mime?.includes('video/');
       const responseAsAudio = contentTypeIsAudio || fileTypeInfo?.mime?.includes('audio/');
       const responseAsImage = contentTypeIsImage || fileTypeInfo?.mime?.includes('image/');
+      const responseAsArchive = contentTypeIsArchive || fileTypeInfo?.mime?.includes('application/zip') ||
+        fileTypeInfo?.mime?.includes('application/zip') ||
+        fileTypeInfo?.mime?.includes('application/x-zip-compressed') ||
+        fileTypeInfo?.mime?.includes('application/x-tar') ||
+        fileTypeInfo?.mime?.includes('application/x-rar-compressed') ||
+        fileTypeInfo?.mime?.includes('application/x-7z-compressed') ||
+        fileTypeInfo?.mime?.includes('application/x-7z') ||
+        fileTypeInfo?.mime?.includes('application/x-compressed') ||
+        fileTypeInfo?.mime?.includes('application/x-gtar');
       if (noFileType && responseInfo.contentType.includes('application/json')) {
         responseInfo.responseData.canApiflowParseType = 'json';
         responseInfo.responseData.jsonData = bufferData.toString();
@@ -347,11 +376,15 @@ export const gotRequest = async (options: GotRequestOptions) => {
         responseInfo.responseData.fileData.url = blobUrl;
         responseInfo.responseData.canApiflowParseType = 'video';
       } else if (responseAsAudio) {
-        console.log(fileTypeInfo?.mime)
         const blob = new Blob([bufferData], { type: fileTypeInfo?.mime ?? 'audio/mpeg' });
         const blobUrl = URL.createObjectURL(blob);
         responseInfo.responseData.fileData.url = blobUrl;
         responseInfo.responseData.canApiflowParseType = 'audio';
+      } else if (responseAsArchive) {
+        const blob = new Blob([bufferData], { type: fileTypeInfo?.mime ?? 'application/zip' });
+        const blobUrl = URL.createObjectURL(blob);
+        responseInfo.responseData.fileData.url = blobUrl;
+        responseInfo.responseData.canApiflowParseType = 'archive';
       } else {
         responseInfo.responseData.canApiflowParseType = 'unknown';
         console.log(`无法解析的类型\nContentType值为${responseInfo.contentType} \n读取到的文件类型为=${JSON.stringify(fileTypeInfo)}`)
