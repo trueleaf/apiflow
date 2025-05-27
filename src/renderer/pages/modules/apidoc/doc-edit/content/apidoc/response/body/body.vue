@@ -180,6 +180,14 @@
         <div class="text-center">{{ apidocResponseStore.responseInfo.contentType }}</div>
         <el-button link type="primary" text @click="handleDownload">{{ t('下载文件') }}</el-button>
       </div>
+      <!-- 压缩包格式文件 -->
+      <div v-else-if="apidocResponseStore.responseInfo.responseData.canApiflowParseType === 'archive'" class="d-flex flex-column j-center">
+        <svg class="svg-icon" aria-hidden="true" :title="t('下载文件')">
+          <use xlink:href="#iconyasuobao"></use>
+        </svg>
+        <div class="text-center">{{ apidocResponseStore.responseInfo.contentType }}</div>
+        <el-button link type="primary" text @click="handleDownload">{{ t('下载文件') }}</el-button>
+      </div>
       <!-- 无法解析的文件 -->
       <div v-else-if="apidocResponseStore.responseInfo.responseData.canApiflowParseType === 'unknown'" class="d-flex j-center flex-column">
         <svg class="svg-icon" aria-hidden="true" :title="t('下载文件')">
@@ -316,7 +324,7 @@ const handleDownload = () => {
   window.URL.revokeObjectURL(fileData.url); //释放掉blob对象
 }
 const canPlayVideo = computed(() => {
-  const canPlayType = videoRef.value?.canPlayType(apidocResponseStore.responseInfo.contentType)
+  const canPlayType = videoRef.value?.canPlayType(apidocResponseStore.responseInfo.contentType);
   return canPlayType === 'maybe' || canPlayType === 'probably'
 })
 onMounted(() => {

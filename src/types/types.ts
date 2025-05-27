@@ -115,6 +115,7 @@ export type CanApiflowParseType =
   'octetStream' |
   'video' |
   'audio' |
+  'archive' |
   'forceDownload';
 export type ResponseInfo = {
   id: string;
