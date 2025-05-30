@@ -188,6 +188,22 @@
         <div class="text-center">{{ apidocResponseStore.responseInfo.contentType }}</div>
         <el-button link type="primary" text @click="handleDownload">{{ t('下载文件') }}</el-button>
       </div>
+      <!-- exe格式 -->
+      <div v-else-if="apidocResponseStore.responseInfo.responseData.canApiflowParseType === 'exe'" class="d-flex flex-column j-center">
+        <svg class="svg-icon" aria-hidden="true" :title="t('下载文件')">
+          <use xlink:href="#iconexe"></use>
+        </svg>
+        <div class="text-center">{{ apidocResponseStore.responseInfo.contentType }}</div>
+        <el-button link type="primary" text @click="handleDownload">{{ t('下载文件') }}</el-button>
+      </div>
+      <!-- epub -->
+      <div v-else-if="apidocResponseStore.responseInfo.responseData.canApiflowParseType === 'epub'" class="d-flex flex-column j-center">
+        <svg class="svg-icon" aria-hidden="true" :title="t('下载文件')">
+          <use xlink:href="#iconepub"></use>
+        </svg>
+        <div class="text-center">{{ apidocResponseStore.responseInfo.contentType }}</div>
+        <el-button link type="primary" text @click="handleDownload">{{ t('下载文件') }}</el-button>
+      </div>
       <!-- 无法解析的文件 -->
       <div v-else-if="apidocResponseStore.responseInfo.responseData.canApiflowParseType === 'unknown'" class="d-flex j-center flex-column">
         <svg class="svg-icon" aria-hidden="true" :title="t('下载文件')">
@@ -317,7 +333,7 @@ const handleDownload = () => {
   const { fileData } = apidocResponseStore.responseInfo.responseData;
   const downloadElement = document.createElement('a');
   downloadElement.href = fileData.url;
-  downloadElement.download = fileData.name || t('未命名'); //下载后文件名
+  downloadElement.download = fileData.name || `${t('未命名')}${fileData.ext ? `.${fileData.ext}` : ''}`; //下载后文件名
   document.body.appendChild(downloadElement);
   downloadElement.click(); //点击下载
   document.body.removeChild(downloadElement); //下载完成移除元素
