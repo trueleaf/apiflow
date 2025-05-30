@@ -238,6 +238,7 @@ export const gotRequest = async (options: GotRequestOptions) => {
       const contentTypeIsPdf = responseInfo.contentType.includes('application/pdf');
       const contentTypeIsExcel = (responseInfo.contentType.includes('application/vnd.openxmlformats-officedocument.spreadsheetml.sheet') || responseInfo.contentType.includes('application/vnd.ms-excel'));
       const contentTypeIsWord = (responseInfo.contentType.includes('application/vnd.openxmlformats-officedocument.wordprocessingml.document') || responseInfo.contentType.includes('application/msword'));
+
       if (responseInfo.contentType.includes('application/json')) {
         responseInfo.responseData.canApiflowParseType = 'json';
       } else if (responseInfo.contentType.includes('text/html')) {
@@ -306,7 +307,9 @@ export const gotRequest = async (options: GotRequestOptions) => {
         responseInfo.contentType.includes('application/x-7z') ||
         responseInfo.contentType.includes('application/x-compressed') ||
         responseInfo.contentType.includes('application/x-gtar');
-      
+      const contentTypeIsExe = responseInfo.contentType.includes('application/x-msdownload');
+      const contentTypeIsEpub = responseInfo.contentType.includes('application/epub+zip') || responseInfo.contentType.includes('application/x-epub+zip');
+
       const responseAsPdf = contentTypeIsPdf || fileTypeInfo?.mime?.includes('application/pdf');
       const responseAsExcel = contentTypeIsExcel || fileTypeInfo?.mime?.includes('application/vnd.openxmlformats-officedocument.spreadsheetml.sheet') || fileTypeInfo?.mime?.includes('application/vnd.ms-excel')
       const responseAsWord = contentTypeIsWord || (fileTypeInfo?.mime?.includes('application/vnd.openxmlformats-officedocument.wordprocessingml.document') || fileTypeInfo?.mime?.includes('application/msword'))
@@ -324,6 +327,9 @@ export const gotRequest = async (options: GotRequestOptions) => {
         fileTypeInfo?.mime?.includes('application/x-7z') ||
         fileTypeInfo?.mime?.includes('application/x-compressed') ||
         fileTypeInfo?.mime?.includes('application/x-gtar');
+      const responseAsExe = contentTypeIsExe || fileTypeInfo?.mime?.includes('application/x-msdownload');
+      const responseAsEpub = contentTypeIsEpub || fileTypeInfo?.mime?.includes('application/epub') || fileTypeInfo?.mime?.includes('application/x-epub');
+
       if (noFileType && responseInfo.contentType.includes('application/json')) {
         responseInfo.responseData.canApiflowParseType = 'json';
         responseInfo.responseData.jsonData = bufferData.toString();
@@ -347,25 +353,30 @@ export const gotRequest = async (options: GotRequestOptions) => {
         const blobUrl = URL.createObjectURL(blob);
         responseInfo.responseData.canApiflowParseType = 'image';
         responseInfo.responseData.fileData.url = blobUrl;
+        responseInfo.responseData.fileData.ext = ''; //不赋值，让浏览器自行推断
       } else if (responseAsPdf) {
         const blob = new Blob([bufferData], { type: fileTypeInfo?.mime ?? 'application/pdf' });
         const blobUrl = URL.createObjectURL(blob);
         responseInfo.responseData.fileData.url = blobUrl;
+        responseInfo.responseData.fileData.ext = fileTypeInfo?.ext || 'pdf';
         responseInfo.responseData.canApiflowParseType = 'pdf';
       } else if (responseAsExcel) {
         const blob = new Blob([bufferData], { type: fileTypeInfo?.mime ?? 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
         const blobUrl = URL.createObjectURL(blob);
         responseInfo.responseData.fileData.url = blobUrl;
+        responseInfo.responseData.fileData.ext = ''; //xls会被推断为application/x-cfb，不赋值，让浏览器自行推断
         responseInfo.responseData.canApiflowParseType = 'excel';
       } else if (responseAsWord) {
         const blob = new Blob([bufferData], { type: fileTypeInfo?.mime ?? 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
         const blobUrl = URL.createObjectURL(blob);
         responseInfo.responseData.fileData.url = blobUrl;
+        responseInfo.responseData.fileData.ext = ''; //word会被推断为application/x-cfb，不赋值，让浏览器自行推断
         responseInfo.responseData.canApiflowParseType = 'word';
       } else if (responseAsPPT) {
         const blob = new Blob([bufferData], { type: fileTypeInfo?.mime ?? 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
         const blobUrl = URL.createObjectURL(blob);
         responseInfo.responseData.fileData.url = blobUrl;
+        responseInfo.responseData.fileData.ext = ''; //ppt会被推断为application/x-cfb，不赋值，让浏览器自行推断
         responseInfo.responseData.canApiflowParseType = 'ppt';
       } else if (responseAsXml) {
         responseInfo.responseData.canApiflowParseType = 'xml';
@@ -374,17 +385,32 @@ export const gotRequest = async (options: GotRequestOptions) => {
         const blob = new Blob([bufferData], { type: fileTypeInfo?.mime ?? 'video/mp4' });
         const blobUrl = URL.createObjectURL(blob);
         responseInfo.responseData.fileData.url = blobUrl;
+        responseInfo.responseData.fileData.ext = fileTypeInfo?.ext || 'mp4';
         responseInfo.responseData.canApiflowParseType = 'video';
       } else if (responseAsAudio) {
         const blob = new Blob([bufferData], { type: fileTypeInfo?.mime ?? 'audio/mpeg' });
         const blobUrl = URL.createObjectURL(blob);
         responseInfo.responseData.fileData.url = blobUrl;
+        responseInfo.responseData.fileData.ext = fileTypeInfo?.ext || 'mp3';
         responseInfo.responseData.canApiflowParseType = 'audio';
       } else if (responseAsArchive) {
         const blob = new Blob([bufferData], { type: fileTypeInfo?.mime ?? 'application/zip' });
         const blobUrl = URL.createObjectURL(blob);
         responseInfo.responseData.fileData.url = blobUrl;
+        responseInfo.responseData.fileData.ext = fileTypeInfo?.ext || '';
         responseInfo.responseData.canApiflowParseType = 'archive';
+      } else if (responseAsExe) {
+        const blob = new Blob([bufferData], { type: fileTypeInfo?.mime ?? 'application/x-msdownload' });
+        const blobUrl = URL.createObjectURL(blob);
+        responseInfo.responseData.fileData.url = blobUrl;
+        responseInfo.responseData.fileData.ext = fileTypeInfo?.ext || 'exe';
+        responseInfo.responseData.canApiflowParseType = 'exe';
+      } else if (responseAsEpub) {
+        const blob = new Blob([bufferData], { type: fileTypeInfo?.mime ?? 'application/epub+zip' });
+        const blobUrl = URL.createObjectURL(blob);
+        responseInfo.responseData.fileData.url = blobUrl;
+        responseInfo.responseData.fileData.ext = fileTypeInfo?.ext || 'epub';
+        responseInfo.responseData.canApiflowParseType = 'epub';
       } else {
         responseInfo.responseData.canApiflowParseType = 'unknown';
         console.log(`无法解析的类型\nContentType值为${responseInfo.contentType} \n读取到的文件类型为=${JSON.stringify(fileTypeInfo)}`)

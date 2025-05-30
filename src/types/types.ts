@@ -116,6 +116,8 @@ export type CanApiflowParseType =
   'video' |
   'audio' |
   'archive' |
+  'exe'|
+  'epub' |
   'forceDownload';
 export type ResponseInfo = {
   id: string;
@@ -150,7 +152,8 @@ export type ResponseInfo = {
     errorData: string;
     fileData: {
       url: string;
-      name: string
+      name: string;
+      ext: string;
     }
   }
 }
