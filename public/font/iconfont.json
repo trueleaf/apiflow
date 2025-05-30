@@ -6,6 +6,20 @@
   "description": "",
   "glyphs": [
     {
+      "icon_id": "18613260",
+      "name": "epub",
+      "font_class": "epub",
+      "unicode": "e62b",
+      "unicode_decimal": 58923
+    },
+    {
+      "icon_id": "31260962",
+      "name": "exe",
+      "font_class": "exe",
+      "unicode": "e63b",
+      "unicode_decimal": 58939
+    },
+    {
       "icon_id": "12600859",
       "name": "ppt",
       "font_class": "ppt",

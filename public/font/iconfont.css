@@ -1,8 +1,8 @@
 @font-face {
   font-family: "iconfont"; /* Project id 1072300 */
-  src: url('iconfont.woff2?t=1737717507516') format('woff2'),
-       url('iconfont.woff?t=1737717507516') format('woff'),
-       url('iconfont.ttf?t=1737717507516') format('truetype');
+  src: url('iconfont.woff2?t=1748493874632') format('woff2'),
+       url('iconfont.woff?t=1748493874632') format('woff'),
+       url('iconfont.ttf?t=1748493874632') format('truetype');
 }
 
 .iconfont {
@@ -11,6 +11,14 @@
   font-style: normal;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+.iconepub:before {
+  content: "\e62b";
+}
+
+.iconexe:before {
+  content: "\e63b";
 }
 
 .iconppt:before {
