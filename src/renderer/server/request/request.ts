@@ -1,11 +1,11 @@
 
 import { useApidoc } from '@/store/apidoc/apidoc';
-import { toRaw } from 'vue';
+import { ref, toRaw } from 'vue';
 import json5 from 'json5'
 import { ApidocDetail } from '@src/types/global';
 import { convertTemplateValueToRealValue, getEncodedStringFromEncodedParams, getFormDataFromFormDataParams, getObjectPathParams, getQueryStringFromQueryParams } from '@/utils/utils';
 import { useVariable } from '@/store/apidoc/variables';
-import { GotRequestOptions, JsonData, RendererFormDataBody } from '@src/types/types';
+import { GotRequestOptions, JsonData, RedirectOptions, RendererFormDataBody, ResponseInfo } from '@src/types/types';
 import { useApidocBaseInfo } from '@/store/apidoc/base-info';
 import { useApidocTas } from '@/store/apidoc/tabs';
 import { useApidocResponse } from '@/store/apidoc/response';
@@ -14,6 +14,7 @@ import { config } from '@src/config/config';
 import { cloneDeep } from '@/helper';
 import { useApidocRequest } from '@/store/apidoc/request';
 import { t } from 'i18next';
+import { Options, PlainResponse } from 'got';
 
 /*
 |--------------------------------------------------------------------------
@@ -215,10 +216,11 @@ const getHeaders = async (apidoc: ApidocDetail) => {
 }
 
 export async function sendRequest() {
+  const redirectList = ref<ResponseInfo['redirectList']>([])
   const apidocBaseInfoStore = useApidocBaseInfo();
   const apidocTabsStore = useApidocTas();
   const selectedTab = apidocTabsStore.getSelectedTab(apidocBaseInfoStore.projectId);
-  const apidocStore = useApidoc()
+  const apidocStore = useApidoc();
   const { changeCancelRequestRef } = useApidocRequest()
   const { changeResponseInfo, changeResponseBody, changeResponseCacheAllowed, changeRequestState, changeLoadingProcess, changeFileBlobUrl } = useApidocResponse()
   const rawApidoc = toRaw(apidocStore.$state.apidoc)
@@ -252,7 +254,25 @@ export async function sendRequest() {
       });
       changeRequestState('finish');
     },
-    beforeRedirect: () => {
+    beforeRedirect: (options: RedirectOptions) => {
+      const { plainResponse, requestHeaders, method } = options;
+      const responseHeaders: Record<string, string> = {};
+      plainResponse.rawHeaders.forEach((value, index) => {
+        if (index % 2 === 0) {
+          responseHeaders[value.toLowerCase()] = plainResponse.rawHeaders[index + 1] || '';
+        }
+      });
+      redirectList.value.push({
+        responseHeaders,
+        requestHeaders,
+        statusCode: plainResponse.statusCode,
+        method,
+        url: plainResponse.url,
+      })
+      // changeResponseInfo({
+      //   redirectList: cloneDeep(redirectList)
+      // });
+      console.log('beforeRedirect', JSON.parse(JSON.stringify(redirectList.value)));
     },
     beforeRetry: () => {
     },
@@ -291,6 +311,7 @@ export async function sendRequest() {
       changeRequestState('finish');
       changeResponseBody(responseInfo.body)
       responseInfo.body = null; // 不存储body防止数据量过大
+      responseInfo.redirectList = cloneDeep(redirectList.value); // 记录重定向列表
       changeResponseInfo(responseInfo);
       changeFileBlobUrl(rawBody as Uint8Array, responseInfo.contentType);
       console.log('responseInfo', responseInfo)
@@ -303,6 +324,7 @@ export async function sendRequest() {
         storedResponseInfo.responseData.fileData = {
           url: "",
           name: "",
+          ext: ''
         };
         storedResponseInfo.responseData.canApiflowParseType = 'cachedBodyIsTooLarge';
         changeResponseCacheAllowed(selectedTab?._id ?? '', false);

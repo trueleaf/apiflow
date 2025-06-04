@@ -12,6 +12,8 @@ export type Property = {
   value: string;
   type: "string" | "file";
   description: string;
+  select: boolean
+
 };
 export type DeepPartial<T> = {
   [P in keyof T]?: T[P] extends object ? DeepPartial<T[P]> : T[P];
@@ -116,7 +118,7 @@ export type CanApiflowParseType =
   'video' |
   'audio' |
   'archive' |
-  'exe'|
+  'exe' |
   'epub' |
   'forceDownload';
 export type ResponseInfo = {
@@ -133,7 +135,13 @@ export type ResponseInfo = {
    * 如果走缓存则没有ip值
    */
   ip: string;
-  redirectUrls: URL[];
+  redirectList: {
+    url: string;
+    statusCode: number;
+    responseHeaders: IncomingHttpHeaders;
+    requestHeaders: OutgoingHttpHeaders;
+    method: Method;
+  }[];
   timings: Timings;
   rt: number;
   retryCount: number;
@@ -356,6 +364,8 @@ export type Config = {
     maxTextBodySize: number;
     maxRawBodySize: number
     userAgent: string;
+    followRedirect: boolean;
+    maxRedirects: number;
   },
   cacheConfig: {
     apiflowResponseCache: {
@@ -378,7 +388,13 @@ export type RendererFormDataBody = {
   key: string;
   type: 'string' | 'file';
   value: string;
-}[]
+}[];
+export type RedirectOptions = {
+  plainResponse: PlainResponse,
+  requestHeaders: OutgoingHttpHeaders,
+  method: Method,
+}
+
 export type GotRequestOptions = {
   url: string;
   method: Method;
@@ -392,7 +408,7 @@ export type GotRequestOptions = {
   onReadFileFormDataError?: (options: { id: string, msg: string, fullMsg: string }) => void;
   onReadBinaryDataError?: (options: { msg: string, fullMsg: string }) => void;
   onError: (error: RequestError | Error) => void,
-  beforeRedirect: (updatedOptions: Options, plainResponse: PlainResponse) => void,
+  beforeRedirect: (options: RedirectOptions) => void,
   beforeRequest?: (options: Options) => void,
   beforeRetry?: (error: RequestError, retryCount: number) => void,
 }

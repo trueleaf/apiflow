@@ -191,6 +191,8 @@ export const gotRequest = async (options: GotRequestOptions) => {
       },
       body: willSendBody,
       headers,
+      followRedirect: config.requestConfig.followRedirect,
+      maxRedirects: config.requestConfig.maxRedirects,
       throwHttpErrors: false,
       hooks: {
         beforeError: [(error: RequestError) => {
@@ -198,7 +200,11 @@ export const gotRequest = async (options: GotRequestOptions) => {
           return Promise.reject(error)
         }],
         beforeRedirect: [(updatedOptions: Options, plainResponse: PlainResponse) => {
-          options.beforeRedirect(updatedOptions, plainResponse)
+          options.beforeRedirect({
+            plainResponse,
+            requestHeaders: updatedOptions.headers,
+            method: updatedOptions.method,
+          })
         }],
         beforeRequest: [(reqeustOptions: Options) => {
           options.beforeRequest?.(JSON.parse(JSON.stringify(reqeustOptions)))
@@ -220,6 +226,7 @@ export const gotRequest = async (options: GotRequestOptions) => {
       responseInfo.requestData.headers = req.getHeaders();
     })
     requestStream.on("response", (response: PlainResponse) => {
+      console.log('response')
       // console.log(reqeustBody?.getBuffer())
       // responseInfo.requestData.body = response.request.options.body;
       const contentLengthStr = response.headers['content-length'] ?? '0';
@@ -231,7 +238,6 @@ export const gotRequest = async (options: GotRequestOptions) => {
       responseInfo.finalRequestUrl = response.url;
       responseInfo.ip = response.ip || '';
       responseInfo.isFromCache = response.isFromCache;
-      responseInfo.redirectUrls = response.redirectUrls;
       responseInfo.timings = response.timings;
       responseInfo.retryCount = response.retryCount;
       responseInfo.statusCode = response.statusCode;
