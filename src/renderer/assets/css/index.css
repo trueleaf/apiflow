@@ -455,7 +455,9 @@ body .el-menu--horizontal {
   content: "";
   clear: both;
 }
-
+.text-underline {
+  text-decoration: underline;
+}
 .text-ellipsis {
   white-space: nowrap;
   word-break: break-all;

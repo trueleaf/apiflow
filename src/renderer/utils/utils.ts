@@ -110,6 +110,9 @@ export const getQueryStringFromQueryParams = async (queryParams: Property[], obj
   let queryString = "";
   for (let i = 0; i < queryParams.length; i++) {
     const queryParam = queryParams[i];
+    if (!queryParam.select) {
+      continue; //如果没有选中，则跳过
+    }
     if (queryParam.key) {
       const realKey = await convertTemplateValueToRealValue(queryParam.key, objectVariable); 
       const realValue = await convertTemplateValueToRealValue(queryParam.value, objectVariable);
@@ -138,6 +141,9 @@ export const getEncodedStringFromEncodedParams = async (encodedParams: Property[
   let encodedString = "";
   for (let i = 0; i < encodedParams.length; i++) {
     const queryParam = encodedParams[i];
+    if (!queryParam.select) {
+      continue; //如果没有选中，则跳过
+    }
     if (queryParam.key) {
       const realKey = await convertTemplateValueToRealValue(queryParam.key, objectVariable); 
       const realValue = await convertTemplateValueToRealValue(queryParam.value, objectVariable);

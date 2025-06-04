@@ -8,7 +8,7 @@ export const generateEmptyResponse = (): ResponseInfo => {
     headers: {},
     contentLength: 0,
     finalRequestUrl: '',
-    redirectUrls: [],
+    redirectList: [],
     ip: '',
     isFromCache: false,
     statusCode: 0,
@@ -52,7 +52,8 @@ export const generateEmptyResponse = (): ResponseInfo => {
       errorData: '',
       fileData: {
         url: '',
-        name: ''
+        name: '',
+        ext: '',
       }
     },
   }
