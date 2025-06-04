@@ -10,6 +10,50 @@
       </div>
       <span class="">数据无法被缓存，切换tab或者刷新页面缓存值将会清空</span>
     </div>
+    <div v-if="redirectList.length > 0" class="mb-4 ml-5">
+      <span>{{ t('重定向') }}</span>
+      <span class="orange px-1 text-underline cursor-pointer" @click="showRedirectDialog = true">{{ redirectList.length }}</span>
+      <span>{{ t('次') }}</span>
+    </div>
+    <el-dialog
+      v-model="showRedirectDialog"
+      width="60vw"
+      height="80vh"
+      :title="t('重定向信息')"
+      class="redirect-dialog"
+      :close-on-click-modal="true"
+    >
+      <div v-for="(item, idx) in redirectList" :key="idx" class="mb-2 redirect-item">
+        <div class="mb-1">
+          <span class="text-bold">第{{ idx + 1 }}次重定向</span>
+        </div>
+        <div class="mb-1">
+          <span class="text-bold">{{ t('请求方法') }}:</span>
+          <span class="text-blue ml-2">{{ item.method }}</span>
+        </div>
+        <div class="mb-1">
+          <span class="text-bold">{{ t('请求URL') }}:</span>
+          <span class="text-blue ml-2">{{ item.url }}</span>
+        </div>
+        <div class="mb-1">
+          <span class="text-bold">{{ t('请求头') }}:</span>
+          <div class="redirect-headers">
+            <div v-for="(v, k) in item.requestHeaders" :key="k" class="header-row">
+              <span class="header-key">{{ k }}:</span> <span class="header-value">{{ v }}</span>
+            </div>
+          </div>
+        </div>
+        <div class="mb-1">
+          <span class="text-bold">{{ t('返回头') }}:</span>
+          <div class="redirect-headers">
+            <div v-for="(v, k) in item.responseHeaders" :key="k" class="header-row">
+              <span class="header-key">{{ k }}:</span> <span class="header-value">{{ v }}</span>
+            </div>
+          </div>
+        </div>
+        <el-divider v-if="idx !== redirectList.length - 1" />
+      </div>
+    </el-dialog>
     <template v-if="apidocResponseStore.responseInfo.contentType">
       <!-- 图片类型 -->
       <div v-if="apidocResponseStore.responseInfo.responseData.canApiflowParseType === 'image'" class="img-view-wrap">
@@ -244,16 +288,19 @@ import { formatBytes, downloadStringAsText } from '@/helper/index'
 import { config } from '@/../config/config'
 import SJsonEditor from '@/components/common/json-editor/g-json-editor.vue'
 import { useApidocTas } from '@/store/apidoc/tabs';
+import { ElDialog } from 'element-plus';
 
 const prettierWorker = new Worker(new URL('@/worker/prettier.worker.ts', import.meta.url), { type: 'module' });
 const apidocResponseStore = useApidocResponse();
 const apidocBaseInfoStore = useApidocBaseInfo();
 const loadingProcess = computed(() => apidocResponseStore.loadingProcess);
 const requestState = computed(() => apidocResponseStore.requestState);
+const redirectList = computed(() => apidocResponseStore.responseInfo.redirectList);
 const videoRef = ref<HTMLVideoElement>();
 const formatedText = ref('');
 const apidocTabsStore = useApidocTas();
 const selectedTab = apidocTabsStore.getSelectedTab(apidocBaseInfoStore.projectId);
+const showRedirectDialog = ref(false);
 /*
 |--------------------------------------------------------------------------
 | 方法定义
@@ -473,5 +520,45 @@ onUnmounted(() => {
     justify-content: center;
     color: $gray-600;
   }
+}
+:deep(.redirect-dialog) {
+  max-height: 70vh;
+  overflow-y: auto;
+}
+:deep(.redirect-dialog .el-dialog__body) {
+  padding: 16px 20px 16px 20px;
+  box-sizing: border-box;
+  max-height: 60vh;
+  overflow-y: auto;
+}
+.redirect-headers {
+  padding-left: 16px;
+  font-size: 13px;
+  color: #666;
+  background: #f8f8f8;
+  border-radius: 4px;
+  margin-bottom: 4px;
+  word-break: break-all;
+}
+.header-row {
+  line-height: 1.7;
+  display: flex;
+  gap: 8px;
+}
+.text-blue {
+  color: #409EFF;
+}
+.text-bold {
+  font-weight: 600;
+}
+.redirect-item {
+  margin-bottom: 18px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #eee;
+}
+.redirect-item:last-child {
+  border-bottom: none;
+  margin-bottom: 0;
+  padding-bottom: 0;
 }
 </style>
