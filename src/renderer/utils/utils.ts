@@ -17,10 +17,10 @@ export const isElectron = () => {
 }
 export const updateObject = <T extends Partial<Record<string, unknown>>>(draft: T, payload: T) => {
   (Object.keys(payload) as Array<keyof T>).forEach(field => {
-   const value = payload[field]
-   if (value != null) {
+    const value = payload[field]
+    if (value != null) {
       draft[field] = value
-   }
+    }
   })
 }
 
@@ -81,12 +81,12 @@ export const convertTemplateValueToRealValue = async (stringValue: string, objec
     if (variableName.startsWith("@")) {
       return Mock.mock(variableName);
     }
-    if (objectVariable[variableName]  !== undefined) {
+    if (objectVariable[variableName] !== undefined) {
       return objectVariable[variableName]
     }
-    return isSingleMustachTemplate[0] 
+    return isSingleMustachTemplate[0]
   }
- 
+
   const withoutVaribleString = stringValue.replace(/(?<!\\)\{\{\s*(.*?)\s*\}\}/g, ($1, variableName: string) => {
     const isVariableExist = (variableName in objectVariable);
     if (variableName.startsWith("@")) {
@@ -114,11 +114,11 @@ export const getQueryStringFromQueryParams = async (queryParams: Property[], obj
       continue; //如果没有选中，则跳过
     }
     if (queryParam.key) {
-      const realKey = await convertTemplateValueToRealValue(queryParam.key, objectVariable); 
+      const realKey = await convertTemplateValueToRealValue(queryParam.key, objectVariable);
       const realValue = await convertTemplateValueToRealValue(queryParam.value, objectVariable);
       queryString += `${realKey}=${realValue}&`;
     }
-    
+
   }
   queryString = queryString.replace(/&$/, "");
   if (queryString) {
@@ -145,11 +145,11 @@ export const getEncodedStringFromEncodedParams = async (encodedParams: Property[
       continue; //如果没有选中，则跳过
     }
     if (queryParam.key) {
-      const realKey = await convertTemplateValueToRealValue(queryParam.key, objectVariable); 
+      const realKey = await convertTemplateValueToRealValue(queryParam.key, objectVariable);
       const realValue = await convertTemplateValueToRealValue(queryParam.value, objectVariable);
       encodedString += `${realKey}=${realValue}&`;
     }
-    
+
   }
   encodedString = encodedString.replace(/&$/, "");
   return encodedString;
@@ -160,7 +160,7 @@ export const getFormDataFromFormDataParams = async (formDataParams: Property[], 
   for (let i = 0; i < formDataParams.length; i++) {
     const formData = formDataParams[i];
     if (formData.key) {
-      const realKey = await convertTemplateValueToRealValue(formData.key, objectVariable); 
+      const realKey = await convertTemplateValueToRealValue(formData.key, objectVariable);
       const realValue = await convertTemplateValueToRealValue(formData.value, objectVariable);
       if (formData.type === 'file') {
         console.log(variables, formData.value)

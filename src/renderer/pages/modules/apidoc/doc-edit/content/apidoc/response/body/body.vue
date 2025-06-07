@@ -23,9 +23,9 @@
       class="redirect-dialog"
       :close-on-click-modal="true"
     >
-      <div v-for="(item, idx) in redirectList" :key="idx" class="mb-2 redirect-item">
+      <div v-for="(item, idx) in (redirectList.slice(0, redirectList.length - 1))" :key="idx" class="mb-2 redirect-item">
         <div class="mb-1">
-          <span class="text-bold">第{{ idx + 1 }}次重定向</span>
+          <h3>第{{ idx + 1 }}次重定向</h3>
         </div>
         <div class="mb-1">
           <span class="text-bold">{{ t('请求方法') }}:</span>
@@ -36,22 +36,21 @@
           <span class="text-blue ml-2">{{ item.url }}</span>
         </div>
         <div class="mb-1">
-          <span class="text-bold">{{ t('请求头') }}:</span>
+          <div class="text-bold mb-2">{{ t('请求头') }}:</div>
           <div class="redirect-headers">
             <div v-for="(v, k) in item.requestHeaders" :key="k" class="header-row">
-              <span class="header-key">{{ k }}:</span> <span class="header-value">{{ v }}</span>
+              <span class="header-key">{{ formatHeader(k) }}:</span> <span class="header-value">{{ v }}</span>
             </div>
           </div>
         </div>
         <div class="mb-1">
-          <span class="text-bold">{{ t('返回头') }}:</span>
+          <div class="text-bold mb-2">{{ t('返回头') }}:</div>
           <div class="redirect-headers">
             <div v-for="(v, k) in item.responseHeaders" :key="k" class="header-row">
-              <span class="header-key">{{ k }}:</span> <span class="header-value">{{ v }}</span>
+              <span class="header-key">{{ formatHeader(k) }}:</span> <span class="header-value">{{ v }}</span>
             </div>
           </div>
         </div>
-        <el-divider v-if="idx !== redirectList.length - 1" />
       </div>
     </el-dialog>
     <template v-if="apidocResponseStore.responseInfo.contentType">
@@ -284,7 +283,7 @@ import { useApidocBaseInfo } from '@/store/apidoc/base-info';
 import { useApidocResponse } from '@/store/apidoc/response';
 import { computed, onMounted, onUnmounted, ref, watch } from 'vue';
 import { t } from 'i18next'
-import { formatBytes, downloadStringAsText } from '@/helper/index'
+import { formatBytes, downloadStringAsText, formatHeader } from '@/helper/index'
 import { config } from '@/../config/config'
 import SJsonEditor from '@/components/common/json-editor/g-json-editor.vue'
 import { useApidocTas } from '@/store/apidoc/tabs';
@@ -526,7 +525,7 @@ onUnmounted(() => {
   overflow-y: auto;
 }
 :deep(.redirect-dialog .el-dialog__body) {
-  padding: 16px 20px 16px 20px;
+  padding: 0 20px 16px 20px;
   box-sizing: border-box;
   max-height: 60vh;
   overflow-y: auto;
