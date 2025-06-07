@@ -247,6 +247,7 @@ export async function sendRequest() {
     onError: (err) => {
       console.error(err)
       changeResponseInfo({
+        redirectList: [],
         responseData: {
           canApiflowParseType: 'error',
           errorData: err.message

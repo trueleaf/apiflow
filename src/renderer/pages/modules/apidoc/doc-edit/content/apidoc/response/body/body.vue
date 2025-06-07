@@ -10,7 +10,7 @@
       </div>
       <span class="">数据无法被缓存，切换tab或者刷新页面缓存值将会清空</span>
     </div>
-    <div v-if="redirectList.length > 0" class="mb-4 ml-5">
+    <div v-if="redirectList.length > 0" class="mb-1 ml-5">
       <span>{{ t('重定向') }}</span>
       <span class="orange px-1 text-underline cursor-pointer" @click="showRedirectDialog = true">{{ redirectList.length }}</span>
       <span>{{ t('次') }}</span>
@@ -29,17 +29,21 @@
         </div>
         <div class="mb-1">
           <span class="text-bold">{{ t('请求方法') }}:</span>
-          <span class="text-blue ml-2">{{ item.method }}</span>
+          <span class="ml-2 green">{{ item.method }}</span>
+        </div>
+        <div class="mb-1">
+          <span class="text-bold">{{ t('状态码') }}:</span>
+          <span class="ml-2 orange">{{ item.statusCode }}</span>
         </div>
         <div class="mb-1">
           <span class="text-bold">{{ t('请求URL') }}:</span>
-          <span class="text-blue ml-2">{{ item.url }}</span>
+          <span class="ml-2">{{ item.url }}</span>
         </div>
         <div class="mb-1">
           <div class="text-bold mb-2">{{ t('请求头') }}:</div>
           <div class="redirect-headers">
             <div v-for="(v, k) in item.requestHeaders" :key="k" class="header-row">
-              <span class="header-key">{{ formatHeader(k) }}:</span> <span class="header-value">{{ v }}</span>
+              <span class="header-key">{{ formatHeader(k as string) }}:</span> <span class="header-value">{{ v }}</span>
             </div>
           </div>
         </div>
@@ -47,7 +51,7 @@
           <div class="text-bold mb-2">{{ t('返回头') }}:</div>
           <div class="redirect-headers">
             <div v-for="(v, k) in item.responseHeaders" :key="k" class="header-row">
-              <span class="header-key">{{ formatHeader(k) }}:</span> <span class="header-value">{{ v }}</span>
+              <span class="header-key">{{ formatHeader(k as string) }}:</span> <span class="header-value">{{ v }}</span>
             </div>
           </div>
         </div>
@@ -532,6 +536,8 @@ onUnmounted(() => {
 }
 .redirect-headers {
   padding-left: 16px;
+  padding-top: size(5);
+  padding-bottom: size(5);
   font-size: 13px;
   color: #666;
   background: #f8f8f8;
@@ -544,12 +550,7 @@ onUnmounted(() => {
   display: flex;
   gap: 8px;
 }
-.text-blue {
-  color: #409EFF;
-}
-.text-bold {
-  font-weight: 600;
-}
+
 .redirect-item {
   margin-bottom: 18px;
   padding-bottom: 10px;
