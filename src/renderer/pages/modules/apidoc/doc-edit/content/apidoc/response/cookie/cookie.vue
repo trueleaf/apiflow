@@ -2,7 +2,7 @@
   <div class="cookie-view" :class="{ vertical: layout === 'vertical' }">
     <div class='mb-2 d-flex a-center theme-color cursor-pointer' @click="dialogVisible = true">
       <el-icon><FullScreen /></el-icon>
-      <span class="ml-1">{{ t('展开') }}</span>
+      <span class="ml-1">{{ t('展开查看完整数据') }}</span>
     </div>
     <el-table :data="cookies" stripe border height="100%" size="small">
       <el-table-column align="center" prop="name" label="Name"></el-table-column>
@@ -11,12 +11,12 @@
           <div class="value-wrap">{{ scope.row.value }}</div>
         </template>
       </el-table-column>
-      <el-table-column align="center" prop="domain" label="Domain"></el-table-column>
+      <!-- <el-table-column align="center" prop="domain" label="Domain"></el-table-column>
       <el-table-column align="center" prop="path" label="Path"></el-table-column>
       <el-table-column align="center" prop="expires" label="Expires"></el-table-column>
       <el-table-column align="center" prop="httpOnly" label="HttpOnly"></el-table-column>
       <el-table-column align="center" prop="secure" label="Secure"></el-table-column>
-      <el-table-column align="center" prop="sameSite" label="SameSite"></el-table-column>
+      <el-table-column align="center" prop="sameSite" label="SameSite"></el-table-column> -->
     </el-table>
     <el-dialog v-model="dialogVisible" :title="`【${currentSelectTab?.label}】${t('cookie值')}`" width="80%" :close-on-click-modal="false">
        <el-table :data="cookies" stripe border height="65vh" size="small">
@@ -26,12 +26,47 @@
             <div class="value-wrap">{{ scope.row.value }}</div>
           </template>
         </el-table-column>
-        <el-table-column align="center" prop="domain" label="Domain"></el-table-column>
-        <el-table-column align="center" prop="path" label="Path"></el-table-column>
-        <el-table-column align="center" prop="expires" label="Expires"></el-table-column>
-        <el-table-column align="center" prop="httpOnly" label="HttpOnly"></el-table-column>
-        <el-table-column align="center" prop="secure" label="Secure"></el-table-column>
-        <el-table-column align="center" prop="sameSite" label="SameSite"></el-table-column>
+        <el-table-column align="center" prop="domain" label="Domain">
+          <template #default="scope">
+            <span v-if="!scope.row.domain || scope.row.domain === responseInfo.requestData.host">
+              {{ !scope.row.domain ? responseInfo.requestData.host : '' }}
+            </span>
+            <div v-else class="orange">
+              <div>{{ scope.row.domain }}</div>
+              <div>{{ t('已忽略，非本域名') }}</div>
+            </div>
+          </template>
+        </el-table-column>
+        <el-table-column align="center" prop="path" label="Path">
+          <template #default="scope">
+            <span v-if="scope.row.path">{{ scope.row.path }}</span>
+            <span v-else>/</span>
+          </template>
+        </el-table-column>
+        <el-table-column align="center" prop="expires" label="Expires">
+          <template #default="scope">
+            <span v-if="scope.row.expires">{{ scope.row.expires }}</span>
+            <span v-else>Session</span>
+          </template>
+        </el-table-column>
+        <el-table-column align="center" prop="httpOnly" label="HttpOnly">
+          <template #default="scope">
+            <span v-if="scope.row.httpOnly === true">✔</span>
+            <span v-else></span>
+          </template>
+        </el-table-column>
+        <el-table-column align="center" prop="secure" label="Secure">
+          <template #default="scope">
+            <span v-if="scope.row.secure === true">✔</span>
+            <span v-else></span>
+          </template>
+        </el-table-column>
+        <el-table-column align="center" prop="sameSite" label="SameSite">
+          <template #default="scope">
+            <span v-if="scope.row.sameSite">{{ scope.row.sameSite }}</span>
+            <span v-else>Lax</span>
+          </template>
+        </el-table-column>
       </el-table>
     </el-dialog>
   </div>
@@ -50,6 +85,7 @@ import { useRoute } from 'vue-router'
 const route = useRoute()
 const apidocResponseStore = useApidocResponse();
 const apidocBaseInfoStore = useApidocBaseInfo();
+const { responseInfo } = useApidocResponse();
 const cookies = computed(() => {
   return parse(apidocResponseStore.responseInfo.headers['set-cookie'] || [])
 });
