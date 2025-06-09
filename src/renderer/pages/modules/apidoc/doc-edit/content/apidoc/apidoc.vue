@@ -76,6 +76,7 @@ const getApidocInfo = async () => {
     if (currentSelectTab.value._id?.startsWith('local_')) {
       apidocStore.changeApidoc(apidocGenerateApidoc(currentSelectTab.value._id));
       apidocStore.changeOriginApidoc();
+      apidocResponseStore.clearResponse();
       return
     }
     apidocStore.getApidocDetail({
