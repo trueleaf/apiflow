@@ -11,7 +11,7 @@
           <div class="value-wrap">{{ scope.row.value }}</div>
         </template>
       </el-table-column>
-      <el-table-column align="center" prop="domin" label="Domin"></el-table-column>
+      <el-table-column align="center" prop="domain" label="Domain"></el-table-column>
       <el-table-column align="center" prop="path" label="Path"></el-table-column>
       <el-table-column align="center" prop="expires" label="Expires"></el-table-column>
       <el-table-column align="center" prop="httpOnly" label="HttpOnly"></el-table-column>
@@ -26,7 +26,7 @@
             <div class="value-wrap">{{ scope.row.value }}</div>
           </template>
         </el-table-column>
-        <el-table-column align="center" prop="domin" label="Domin"></el-table-column>
+        <el-table-column align="center" prop="domain" label="Domain"></el-table-column>
         <el-table-column align="center" prop="path" label="Path"></el-table-column>
         <el-table-column align="center" prop="expires" label="Expires"></el-table-column>
         <el-table-column align="center" prop="httpOnly" label="HttpOnly"></el-table-column>
