@@ -5,6 +5,7 @@
 import { ApidocProjectHost } from '@src/types/apidoc/base-info';
 import { ApidocDetail } from '@src/types/global';
 import { ResponseCache } from './responseCache';
+import type { ApidocCookie } from '@src/renderer/store/apidoc/cookies';
 
 type ServerInfo = ApidocProjectHost & {
   isLocal?: boolean,
@@ -428,6 +429,39 @@ class ApidocCache extends ResponseCache {
       console.error(error);
       localStorage.setItem('apidoc/activeApidocTab', 'projectList');
      }
+  }
+
+  /*
+   * 缓存cookie（ApidocCookie[]）
+   */
+  setApidocCookies(projectId: string, cookies: ApidocCookie[]) {
+    try {
+      const localData = JSON.parse(localStorage.getItem('apidoc/cookies') || '{}');
+      localData[projectId] = cookies;
+      localStorage.setItem('apidoc/cookies', JSON.stringify(localData));
+    } catch (error) {
+      console.error(error);
+      const data: Record<string, ApidocCookie[]> = {};
+      data[projectId] = cookies;
+      localStorage.setItem('apidoc/cookies', JSON.stringify(data));
+    }
+  }
+
+  /*
+   * 获取缓存cookie（ApidocCookie[]）
+   */
+  getApidocCookies(projectId: string): ApidocCookie[] {
+    try {
+      const localData: Record<string, ApidocCookie[]> = JSON.parse(localStorage.getItem('apidoc/cookies') || '{}');
+      if (!localData[projectId]) {
+        return [];
+      }
+      return localData[projectId];
+    } catch (error) {
+      console.error(error);
+      localStorage.setItem('apidoc/cookies', '{}');
+      return [];
+    }
   }
 }
 

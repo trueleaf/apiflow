@@ -104,7 +104,7 @@ export type ApidocCookieInfo = {
    /**
       * 有效域
       */
-   domin: string,
+   domain: string,
    /**
       * path
       */

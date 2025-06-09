@@ -14,7 +14,7 @@ import { config } from '@src/config/config';
 import { cloneDeep } from '@/helper';
 import { useApidocRequest } from '@/store/apidoc/request';
 import { t } from 'i18next';
-import { Options, PlainResponse } from 'got';
+import { useCookies } from '@/store/apidoc/cookies';
 
 /*
 |--------------------------------------------------------------------------
@@ -216,11 +216,15 @@ const getHeaders = async (apidoc: ApidocDetail) => {
 }
 
 export async function sendRequest() {
-  const redirectList = ref<ResponseInfo['redirectList']>([])
+  // const preRequestWorker = new Worker(new URL('@/worker/pre-request/pre-request.ts', import.meta.url));
+  const redirectList = ref<ResponseInfo['redirectList']>([]);
   const apidocBaseInfoStore = useApidocBaseInfo();
+  const projectId = apidocBaseInfoStore.projectId;
   const apidocTabsStore = useApidocTas();
   const selectedTab = apidocTabsStore.getSelectedTab(apidocBaseInfoStore.projectId);
   const apidocStore = useApidoc();
+  const { variables } = useVariable();
+  const { updateCookies } = useCookies();
   const { changeCancelRequestRef } = useApidocRequest()
   const { changeResponseInfo, changeResponseBody, changeResponseCacheAllowed, changeRequestState, changeLoadingProcess, changeFileBlobUrl } = useApidocResponse()
   const rawApidoc = toRaw(apidocStore.$state.apidoc)
@@ -235,6 +239,19 @@ export async function sendRequest() {
   }
   const requestBody = isFormData ? formDataBody : (body as string);
   changeRequestState('sending')
+  // 处理前置脚本
+  // preRequestWorker.postMessage({
+  //   type: 'initData',
+  //   value: {
+  //     reqeustInfo: rawApidoc,
+  //     variables,
+  //     cookies: apidocStore.cookies,
+  //     localStorage: {},
+  //     sessionStorage: {}
+  //   }
+  // });
+
+
   window.electronAPI?.sendRequest({
     url,
     method,
@@ -270,10 +287,6 @@ export async function sendRequest() {
         method,
         url: plainResponse.url,
       })
-      // changeResponseInfo({
-      //   redirectList: cloneDeep(redirectList)
-      // });
-      console.log('beforeRedirect', JSON.parse(JSON.stringify(redirectList.value)));
     },
     beforeRetry: () => {
     },
@@ -309,12 +322,14 @@ export async function sendRequest() {
     },
     onResponseEnd(responseInfo) {
       const rawBody = responseInfo.body;
+      const cookies = responseInfo.headers['set-cookie'] || [];
       changeRequestState('finish');
       changeResponseBody(responseInfo.body)
       responseInfo.body = null; // 不存储body防止数据量过大
       responseInfo.redirectList = cloneDeep(redirectList.value); // 记录重定向列表
       changeResponseInfo(responseInfo);
       changeFileBlobUrl(rawBody as Uint8Array, responseInfo.contentType);
+      updateCookies(cookies, responseInfo.requestData.host, projectId);
       console.log('responseInfo', responseInfo)
       const storedResponseInfo = cloneDeep(responseInfo);
       storedResponseInfo.body = rawBody;
