@@ -21,12 +21,14 @@ import { useApidoc } from '@/store/apidoc/apidoc'
 import { useApidocBaseInfo } from '@/store/apidoc/base-info'
 import { useApidocWorkerState } from '@/store/apidoc/worker-state'
 import { useRoute } from 'vue-router';
+import { useCookies } from '@/store/apidoc/cookies';
 
 const route = useRoute();
 const apidocTabsStore = useApidocTas();
 const apidocStore = useApidoc()
 const apidocBaseInfoStroe = useApidocBaseInfo();
 const apidocWorkerStateStore = useApidocWorkerState()
+const { initCookies } = useCookies();
 const projectId = route.query.id as string;
 //当前选中的tab
 const currentSelectTab = computed(() => {
@@ -75,10 +77,6 @@ const bindShortcut = (e: KeyboardEvent) => {
 const getProjectInfo = () => {
   apidocBaseInfoStroe.getProjectBaseInfo({ projectId });
 }
-//初始化cookie
-const initCookies = () => {
-  apidocBaseInfoStroe.initCookies()
-}
 //初始化布局
 const initLayout = () => {
   apidocBaseInfoStroe.initLayout()
@@ -99,7 +97,7 @@ onMounted(() => {
   window.addEventListener('keydown', bindShortcut);
   apidocBaseInfoStroe.changeProjectId(projectId);
   getProjectInfo();
-  initCookies();
+  initCookies(projectId);
   initLayout();
   initCommonHeaders();
   initWorkerLocalState();

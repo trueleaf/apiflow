@@ -12,7 +12,8 @@
     </div>
     <div v-if="redirectList.length > 0" class="mb-1 ml-5">
       <span>{{ t('重定向') }}</span>
-      <span class="orange px-1 text-underline cursor-pointer" @click="showRedirectDialog = true">{{ redirectList.length }}</span>
+      <span v-if="redirectList.length > 1" class="orange px-1 text-underline cursor-pointer" @click="showRedirectDialog = true">{{ redirectList.length }}</span>
+      <span v-else class="px-1">{{ redirectList.length }}</span>
       <span>{{ t('次') }}</span>
     </div>
     <el-dialog

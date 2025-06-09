@@ -2,7 +2,11 @@
   <div class="cookie-view" :class="{ vertical: layout === 'vertical' }">
     <div class='mb-2 d-flex a-center theme-color cursor-pointer' @click="dialogVisible = true">
       <el-icon><FullScreen /></el-icon>
-      <span class="ml-1">{{ t('展开查看完整数据') }}</span>
+      <span class="ml-1">{{ t('本次接口返回的cookie值') }}</span>
+    </div>
+    <div class='mb-2 d-flex a-center theme-color cursor-pointer' @click="dialogVisible = true">
+      <el-icon><FullScreen /></el-icon>
+      <span class="ml-1">{{ t('完整cookie值') }}</span>
     </div>
     <el-table :data="cookies" stripe border height="100%" size="small">
       <el-table-column align="center" prop="name" label="Name"></el-table-column>
@@ -18,7 +22,7 @@
       <el-table-column align="center" prop="secure" label="Secure"></el-table-column>
       <el-table-column align="center" prop="sameSite" label="SameSite"></el-table-column> -->
     </el-table>
-    <el-dialog v-model="dialogVisible" :title="`【${currentSelectTab?.label}】${t('cookie值')}`" width="80%" :close-on-click-modal="false">
+    <el-dialog v-model="dialogVisible" :title="`【${currentSelectTab?.label}】节点的 ${t('cookie值')}`" width="80%" :close-on-click-modal="false">
        <el-table :data="cookies" stripe border height="65vh" size="small">
         <el-table-column align="center" prop="name" label="Name"></el-table-column>
         <el-table-column align="center" prop="value" width='500' label="Value">
