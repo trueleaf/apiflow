@@ -2,6 +2,8 @@ import { defineStore } from "pinia";
 import { ref } from "vue";
 import { parse } from 'set-cookie-parser';
 import { apidocCache } from '@/cache/apidoc';
+import { getDomainFromUrl, getPathFromUrl } from "@/helper/index.ts";
+import dayjs from "dayjs";
 
 export interface ApidocCookie {
   _id: string;
@@ -20,7 +22,18 @@ export const useCookies = defineStore('apidocCookies', () => {
 
   // 初始化时从缓存加载
   const initCookies = (projectId: string) => {
+    const now = new Date();
+    const allCookies = apidocCache.getApidocCookies(projectId) || [];
+    const validCookies = allCookies.filter(cookie => {
+      if (!cookie.expires) return false; // 初始化时如果没有expires字段则清空
+      const expiresDate = new Date(cookie.expires);
+      return isNaN(expiresDate.getTime()) || expiresDate > now;
+    });
+    if (validCookies.length !== allCookies.length) {
+      apidocCache.setApidocCookies(projectId, validCookies);
+    }
     cookies.value = apidocCache.getApidocCookies(projectId) || [];
+    // console.log('Cookies initialized:', cookies.value);
   };
   const updateCookies = (setCookieStrList: string[], defaultDomain = '', projectId = '') => {
     const isSameCookie = (cookie: ApidocCookie) => {
@@ -80,10 +93,26 @@ export const useCookies = defineStore('apidocCookies', () => {
       apidocCache.setApidocCookies(projectId, newCookies);
     }
   };
-
+  const getMachtedCookies = (url: string) => {
+    const requestDomain = getDomainFromUrl(url);
+    const requestPath = getPathFromUrl(url);
+    const matchedCookies = cookies.value.filter(cookie => {
+      // 域名匹配，支持.开头的domain和子域名
+      const cookieDomain = cookie.domain.replace(/^\./, '');
+      const host = requestDomain.replace(/^\./, '');
+      const domainMatch = cookieDomain && (host === cookieDomain || host.endsWith('.' + cookieDomain));
+      // 路径匹配
+      const pathMatch = !cookie.path || requestPath.startsWith(cookie.path);
+      // 只发送未过期的cookie
+      const notExpired = !cookie.expires || dayjs(cookie.expires).isAfter(dayjs());
+      return domainMatch && pathMatch && notExpired;
+    });
+    return matchedCookies
+  }
   return {
     cookies,
     updateCookies,
     initCookies,
+    getMachtedCookies,
   };
 });

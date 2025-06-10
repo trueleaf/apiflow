@@ -22,7 +22,7 @@ import {
 import { defineStore, storeToRefs } from "pinia"
 import axios, { Canceler } from 'axios'
 import { request as axiosInstance } from '@/api/api'
-import { ref } from "vue"
+import { ref, watch, watchEffect } from "vue"
 import 'element-plus/es/components/message-box/style/css';
 import { ElMessageBox } from "element-plus"
 import { router } from "@/router"
@@ -31,6 +31,10 @@ import { useApidocTas } from "./tabs"
 import { useApidocBanner } from "./banner"
 import assign from "lodash/assign"
 import { DeepPartial } from "@src/types/types.ts"
+import { useCookies } from "./cookies.ts"
+import { t } from "i18next"
+import { getUrl } from "@/server/request/request.ts"
+import { useVariable } from "./variables.ts"
 
 type EditApidocPropertyPayload<K extends keyof ApidocProperty> = {
   data: ApidocProperty,
@@ -40,9 +44,12 @@ type EditApidocPropertyPayload<K extends keyof ApidocProperty> = {
 
 export const useApidoc = defineStore('apidoc', () => {
   const cancel: Canceler[] = [] //请求列表  
+  const apidocCookies = useCookies()
   const apidoc = ref<ApidocDetail>(apidocGenerateApidoc());
+  const apidocVaribleStore = useVariable()
   const originApidoc = ref<ApidocDetail>(apidocGenerateApidoc());
   const defaultHeaders = ref<ApidocProperty<"string">[]>([]);
+  const cookieHeader = ref<ApidocProperty<"string"> | null>(null)
   const loading = ref(false);
   const saveLoading = ref(false);
   const saveDocDialogVisible = ref(false);
@@ -53,7 +60,35 @@ export const useApidoc = defineStore('apidoc', () => {
   |--------------------------------------------------------------------------
   */
   //添加默认请求头
-
+  watch([() => {
+    return apidoc.value.item;
+  }, () => {
+    return apidocVaribleStore.objectVariable;
+  }, () => {
+    return apidocCookies.cookies;
+  }], async () => {
+    const fullUrl = await getUrl(apidoc.value);
+    const matchedCookies = apidocCookies.getMachtedCookies(fullUrl);
+    const property: ApidocProperty<'string'> = apidocGenerateProperty();
+    property.key = "Cookie";
+    let cookieValue = '';
+    if (matchedCookies.length > 0) {
+      cookieValue = matchedCookies.map(cookie => `${cookie.name}=${cookie.value}`).join('; ');
+      property.value = cookieValue;
+      property.description = t('<发送时候自动计算>');
+      property.select = true;
+      property.disabled = true;
+      property._disableKey = true;
+      property._disableValue = true;
+      property._disableDescription = true;
+      cookieHeader.value = property
+    } else {
+      cookieHeader.value = null;
+    }
+  }, {
+    deep: true,
+    immediate: true,
+  })
   //过滤合法的联想参数(string、number)
   const filterValidParams = (arrayParams: ApidocProperty[], type: ApidocMindParam['paramsPosition']) => {
     const result: ApidocMindParam[] = [];
@@ -319,7 +354,7 @@ export const useApidoc = defineStore('apidoc', () => {
   const changeSavedDocId = (id: string): void => {
     savedDocId.value = id;
   }
-
+  
   /*
   |--------------------------------------------------------------------------
   | 预请求脚本
@@ -586,6 +621,7 @@ export const useApidoc = defineStore('apidoc', () => {
     saveLoading,
     saveDocDialogVisible,
     savedDocId,
+    cookieHeader,
     getApidocDetail,
     changeApidocSaveLoading,
     addProperty,
