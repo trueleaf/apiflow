@@ -143,9 +143,10 @@ export const gotRequest = async (options: GotRequestOptions) => {
       responseInfo.requestData.body = options.body as string;
     }
 
-    //更user-agent和accept，不能放在for循环后面，否则参数勾选将无效
+    //更user-agent,accept-encoding和accept，不能放在for循环后面，否则参数勾选将无效
     headers['user-agent'] = options.headers['user-agent'] ?? config.requestConfig.userAgent;
     headers['accept'] = options.headers['accept'] ?? '*/*';
+    headers['accept-encoding'] = options.headers['accept-encoding'] ?? 'gzip, deflate, br';
     //更新请求头信息
     for (const key in options.headers) {
       if (options.headers[key.toLowerCase()] === null) { //undefined代表未设置值，null代表取消发送
@@ -164,7 +165,8 @@ export const gotRequest = async (options: GotRequestOptions) => {
       }
     }
     const isConnectionKeepAlive = options.headers['Connection'] == undefined || options.headers['Connection'] === 'keep-alive';
-    const needDecompress = options.headers['Accept-Encoding'] === undefined || options.headers['Accept-Encoding'] === 'gzip, deflate, br';
+    const needDecompress = options.headers['Accept-Encoding'] !== undefined;
+    // console.log(needDecompress, options.headers)
     const hasFormData = isFormDataBody && (options.body as RendererFormDataBody).some(item => (item.key));
     let willSendBody: undefined | string | FormData | Buffer = '';
     if (options.method.toLowerCase() === 'head') { //只有head请求body值为undefined,head请求不挟带body
@@ -224,9 +226,9 @@ export const gotRequest = async (options: GotRequestOptions) => {
       responseInfo.requestData.url = `${req.protocol}//${req.path}`;
       responseInfo.requestData.method = req.method;
       responseInfo.requestData.headers = req.getHeaders();
+      responseInfo.requestData.host = req.host;
     })
     requestStream.on("response", (response: PlainResponse) => {
-      console.log('response')
       // console.log(reqeustBody?.getBuffer())
       // responseInfo.requestData.body = response.request.options.body;
       const contentLengthStr = response.headers['content-length'] ?? '0';
