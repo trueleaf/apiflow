@@ -719,3 +719,29 @@ export const formatHeader = (header: string) => {
     )
     .join('-'); // 重新连接成字符串
 }
+/**
+ * 从url中获取domain信息（与cookie中的domain一致，仅主机名，不含端口和协议）
+ * @param url 输入的完整url字符串
+ * @returns domain主机名
+ */
+export function getDomainFromUrl(url: string): string {
+  try {
+    const { hostname } = new URL(url);
+    return hostname;
+  } catch {
+    return '';
+  }
+}
+/**
+ * 从url中获取路径信息（不包含协议、主机名、端口和查询参数）
+ * @param url 输入的完整url字符串
+ * @returns 路径字符串（以/开头）
+ */
+export function getPathFromUrl(url: string): string {
+  try {
+    const { pathname } = new URL(url);
+    return pathname;
+  } catch {
+    return '';
+  }
+}

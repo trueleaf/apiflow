@@ -44,6 +44,7 @@ export const generateEmptyResponse = (): ResponseInfo => {
       method: "get",
       body: "",
       headers: {},
+      host: "",
     },
     responseData: {
       canApiflowParseType: 'none',
