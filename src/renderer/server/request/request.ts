@@ -163,9 +163,10 @@ const getBody = async (apidoc: ApidocDetail): Promise<GotRequestOptions['body']>
 /*
   * 1.从用户定义请求头中获取请求头
   * 2.从公共请求头中获取请求头 
+  * 3.从cookie中读取请求头
  */
 const getHeaders = async (apidoc: ApidocDetail) => {
-  const { objectVariable } = useVariable()
+  const { objectVariable } = useVariable();
   const apidocBaseInfoStore = useApidocBaseInfo();
   const { defaultHeaders } = useApidoc();
   const apidocTabsStore = useApidocTas();
@@ -199,6 +200,11 @@ const getHeaders = async (apidoc: ApidocDetail) => {
     const realValue = await convertTemplateValueToRealValue(header.value, objectVariable);
     headersObject[realKey.toLowerCase()] = realValue
   }
+  // const matchedCookies = getMachtedCookies(url);
+  // if (matchedCookies.length > 0) {
+  //   const cookieHeader = matchedCookies.map(c => `${c.name}=${c.value}`).join('; ');
+  //   headersObject['cookie'] = cookieHeader;
+  // }
   //用户填写的请求头会覆盖公共请求头
   for(let i = 0; i < headers.length; i++) {
     const header = headers[i];
@@ -223,7 +229,6 @@ export async function sendRequest() {
   const apidocTabsStore = useApidocTas();
   const selectedTab = apidocTabsStore.getSelectedTab(apidocBaseInfoStore.projectId);
   const apidocStore = useApidoc();
-  const { variables } = useVariable();
   const { updateCookies } = useCookies();
   const { changeCancelRequestRef } = useApidocRequest()
   const { changeResponseInfo, changeResponseBody, changeResponseCacheAllowed, changeRequestState, changeLoadingProcess, changeFileBlobUrl } = useApidocResponse()
