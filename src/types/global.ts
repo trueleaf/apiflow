@@ -495,7 +495,7 @@ export type ApidocBodyParams = {
      * binary类型参数
      */
    binary: {
-      mode: 'var' | 'file' | '',
+      mode: 'var' | 'file',
       varValue: string;
       binaryValue: {
          path: string;
