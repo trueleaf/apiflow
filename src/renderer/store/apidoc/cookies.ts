@@ -107,7 +107,7 @@ export const useCookies = defineStore('apidocCookies', () => {
       const notExpired = !cookie.expires || dayjs(cookie.expires).isAfter(dayjs());
       return domainMatch && pathMatch && notExpired;
     });
-    return matchedCookies
+    return JSON.parse(JSON.stringify(matchedCookies)) as ApidocCookie[]; // 防止修改请求头导致原数据被修改
   }
   return {
     cookies,
