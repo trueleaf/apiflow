@@ -209,13 +209,13 @@ const handleSaveDoc = () => {
     }
   }
 
-  .el-tree-node__content {
+  :deep(.el-tree-node__content) {
     height: size(30);
     display: flex;
     align-items: center;
   }
 
-  .el-tree-node__content>.el-tree-node__expand-icon {
+  :deep(.el-tree-node__content > .el-tree-node__expand-icon) {
     transition: none; //去除所有动画
     padding-top: 0;
     padding-bottom: 0;

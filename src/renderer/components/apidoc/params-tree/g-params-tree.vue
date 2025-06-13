@@ -719,6 +719,7 @@ const handleChangeDescription = (value: string, data: ApidocProperty) => {
 }
 
 const handleCheckChange = (data: ApidocProperty, select: boolean) => {
+  console.log('handleCheckChange', data, select);
   apidocStore.changePropertyValue({
     data,
     field: 'select',

@@ -53,7 +53,6 @@
           </template>
         </el-table-column>
       </el-table>
-      
       <!-- <SParamsTree :drag="false" :readonly-keys="commonHeaderKeys" :data="commonHeaders"></SParamsTree> -->
     </template>
   </div>
@@ -87,7 +86,7 @@ const currentSelectTab = computed(() => { //当前选中的doc
 })
 const hideDefaultHeader = ref(true);
 const headerData = computed(() => apidocStore.apidoc.item.headers)
-const defaultHeaders = computed(() => apidocStore.defaultHeaders)
+const defaultHeaders = computed(() => apidocStore.defaultHeaders);
 const commonHeaders = ref<(Pick<ApidocProperty, "_id" | 'key' | 'value' | 'description' | 'select' & { path?: string[] }>)[]>([]);
 const mindHeaderParams: Ref<ApidocProperty[]> = ref(mindHeaders);
 const handleChangeCommonHeaderIsSend = (isSend: CheckboxValueType, header: Pick<ApidocProperty, "_id" | 'key' | 'value' | 'description' | 'select'>) => {
