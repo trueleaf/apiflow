@@ -1,28 +1,28 @@
-import { 
-  apidocGenerateApidoc, 
-  event, 
-  apidocGenerateProperty, 
-  cloneDeep, 
-  forEachForest, 
+import {
+  apidocGenerateApidoc,
+  event,
+  apidocGenerateProperty,
+  cloneDeep,
+  forEachForest,
   uuid,
   apidocGenerateMockInfo,
-  getDefaultHeaders
+  
 } from "@/helper"
-import { 
+import {
   ApidocBodyMode,
-  Response, 
-  ApidocBodyRawType, 
-  ApidocContentType, 
-  ApidocDetail, 
-  ApidocHttpRequestMethod, 
-  ApidocMindParam, 
-  ApidocProperty, 
+  Response,
+  ApidocBodyRawType,
+  ApidocContentType,
+  ApidocDetail,
+  ApidocHttpRequestMethod,
+  ApidocMindParam,
+  ApidocProperty,
   ApidocBodyParams
 } from "@src/types/global"
 import { defineStore, storeToRefs } from "pinia"
 import axios, { Canceler } from 'axios'
 import { request as axiosInstance } from '@/api/api'
-import { ref, watch, watchEffect } from "vue"
+import { ref, watch } from "vue"
 import 'element-plus/es/components/message-box/style/css';
 import { ElMessageBox } from "element-plus"
 import { router } from "@/router"
@@ -35,6 +35,7 @@ import { useCookies } from "./cookies.ts"
 import { t } from "i18next"
 import { getUrl } from "@/server/request/request.ts"
 import { useVariable } from "./variables.ts"
+import { config } from "@src/config/config.ts"
 
 type EditApidocPropertyPayload<K extends keyof ApidocProperty> = {
   data: ApidocProperty,
@@ -49,7 +50,6 @@ export const useApidoc = defineStore('apidoc', () => {
   const apidocVaribleStore = useVariable()
   const originApidoc = ref<ApidocDetail>(apidocGenerateApidoc());
   const defaultHeaders = ref<ApidocProperty<"string">[]>([]);
-  const cookieHeader = ref<ApidocProperty<"string"> | null>(null)
   const loading = ref(false);
   const saveLoading = ref(false);
   const saveDocDialogVisible = ref(false);
@@ -59,9 +59,9 @@ export const useApidoc = defineStore('apidoc', () => {
   | 通用方法
   |--------------------------------------------------------------------------
   */
-  //添加默认请求头
+  //更新cookie头
   watch([() => {
-    return apidoc.value.item;
+    return apidoc.value.item.url;
   }, () => {
     return apidocVaribleStore.objectVariable;
   }, () => {
@@ -72,18 +72,20 @@ export const useApidoc = defineStore('apidoc', () => {
     const property: ApidocProperty<'string'> = apidocGenerateProperty();
     property.key = "Cookie";
     let cookieValue = '';
+    // console.log('initDefaultHeaders', fullUrl, matchedCookies);
     if (matchedCookies.length > 0) {
       cookieValue = matchedCookies.map(cookie => `${cookie.name}=${cookie.value}`).join('; ');
       property.value = cookieValue;
       property.description = t('<发送时候自动计算>');
-      property.select = true;
-      property.disabled = true;
+      property._disableDelete = true;
       property._disableKey = true;
-      property._disableValue = true;
       property._disableDescription = true;
-      cookieHeader.value = property
-    } else {
-      cookieHeader.value = null;
+      const cookieIndex = defaultHeaders.value.findIndex(header => header.key === "Cookie");
+      if (cookieIndex !== -1) {
+        defaultHeaders.value[cookieIndex].value = cookieValue;
+      } else {
+        defaultHeaders.value.unshift(property);
+      }
     }
   }, {
     deep: true,
@@ -209,7 +211,7 @@ export const useApidoc = defineStore('apidoc', () => {
   */
   const handleChangeBinaryInfo = (payload: DeepPartial<ApidocBodyParams['binary']>) => {
     assign(apidoc.value.item.requestBody.binary, payload)
-  } 
+  }
   /*
     |--------------------------------------------------------------------------
     | response参数
@@ -280,6 +282,100 @@ export const useApidoc = defineStore('apidoc', () => {
     |--------------------------------------------------------------------------
     |
   */
+  const initDefaultHeaders = (contentType?: ApidocContentType) => {
+    defaultHeaders.value = [];
+    //=========================================================================//
+    const params3 = apidocGenerateProperty();
+    params3.key = 'Host';
+    params3.description = '<主机信息>';
+    params3._disableKey = true;
+    params3._disableKeyTip = '该请求头无法修改，也无法取消发送'
+    params3._disableDeleteTip = 'Host请求头无法删除';
+    params3._disableValue = true;
+    params3._valuePlaceholder = '<发送请求时候自动处理>';
+    params3._disableDescription = true;
+    params3._disableAdd = true;
+    params3._disableAddTip = ''
+    params3._disableDelete = true;
+    params3.disabled = true;
+    defaultHeaders.value.push(params3);
+    //=========================================================================//
+    const params5 = apidocGenerateProperty();
+    params5.key = 'Connection';
+    params5._valuePlaceholder = '<默认为：keep-alive>';
+    params5.description = '<当前的事务完成后，是否会关闭网络连接>';
+    params5._disableKey = true;
+    params3._disableValue = true;
+    params5._disableDescription = true;
+    params5._disableDescription = true;
+    params5._disableKeyTip = ''
+    params5._disableAdd = true;
+    params5._disableDelete = true;
+    params5.disabled = true;
+    defaultHeaders.value.push(params5);
+    //=========================================================================//
+    const params = apidocGenerateProperty();
+    params.key = 'Content-Length';
+    params._valuePlaceholder = '<发送请求时候自动计算,尽量不要手动填写>';
+    params.description = '<消息的长度>';
+    params._disableDeleteTip = 'Content-Length请求头无法删除';
+    params._disableKey = true;
+    params._disableKeyTip = ''
+    params._disableDescription = true;
+    params._disableAdd = true;
+    params._disableDelete = true;
+    params.disabled = true;
+    defaultHeaders.value.push(params);
+    //=========================================================================//
+    const params2 = apidocGenerateProperty();
+    params2.key = 'User-Agent';
+    params2._valuePlaceholder = config.requestConfig.userAgent;
+    params2.description = '<用户代理软件信息>';
+    params2._disableKey = true;
+    params2._disableKeyTip = ''
+    params2._disableDescription = true;
+    params2._disableAdd = true;
+    params2._disableDelete = true;
+    defaultHeaders.value.push(params2);
+    //=========================================================================//
+    const params7 = apidocGenerateProperty();
+    params7.key = 'Accept';
+    params7._valuePlaceholder = '*/*';
+    params7.description = '<工具支持解析所有类型返回>';
+    params7._disableKey = true;
+    params7._disableDescription = true;
+    params7._disableKeyTip = ''
+    params7._disableAdd = true;
+    params7._disableDelete = true;
+    defaultHeaders.value.push(params7);
+    //=========================================================================//
+    const params4 = apidocGenerateProperty();
+    params4.key = 'Accept-Encoding';
+    params4._valuePlaceholder = 'gzip, deflate, br';
+    params4.description = '<客户端理解的编码方式>';
+    params4._disableKey = true;
+    params4._disableDescription = true;
+    params4._disableKeyTip = ''
+    params4._disableAdd = true;
+    params4._disableDelete = true;
+    defaultHeaders.value.push(params4);
+    //=========================================================================//
+    if (contentType) {
+      const params6 = apidocGenerateProperty();
+      params6.key = 'Content-Type';
+      params6.value = contentType;
+      params6.description = '资源的原始媒体类型';
+      params6._valuePlaceholder = '<根据body类型自动处理,不推荐修改>';
+      params6._disableKey = true;
+      params6._disableDescription = true;
+      params6._disableKeyTip = ''
+      params6._disableAdd = true;
+      params6._disableDelete = true;
+      // params6.disabled = true;
+      defaultHeaders.value.push(params6);
+    }
+
+  }
   //重新赋值apidoc数据
   const changeApidoc = (payload: ApidocDetail): void => {
     // queryParams如果没有数据则默认添加一条空数据
@@ -298,7 +394,7 @@ export const useApidoc = defineStore('apidoc', () => {
     if (payload.item.headers.length === 0) {
       payload.item.headers.push(apidocGenerateProperty());
     }
-    defaultHeaders.value = getDefaultHeaders(payload.item.contentType);
+    initDefaultHeaders(payload.item.contentType)
     //若全部返回数据isMock都为false，则取第一条数据为mock数据
     if (payload.item.responseParams.every(v => !v.isMock)) {
       payload.item.responseParams[0].isMock = true;
@@ -354,7 +450,7 @@ export const useApidoc = defineStore('apidoc', () => {
   const changeSavedDocId = (id: string): void => {
     savedDocId.value = id;
   }
-  
+
   /*
   |--------------------------------------------------------------------------
   | 预请求脚本
@@ -468,7 +564,7 @@ export const useApidoc = defineStore('apidoc', () => {
             color: '',
           },
         })
-        
+
         //改变banner请求方法
         changeBannerInfoById({
           id: currentSelectTab._id,
@@ -621,7 +717,6 @@ export const useApidoc = defineStore('apidoc', () => {
     saveLoading,
     saveDocDialogVisible,
     savedDocId,
-    cookieHeader,
     getApidocDetail,
     changeApidocSaveLoading,
     addProperty,
