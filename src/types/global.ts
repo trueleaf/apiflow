@@ -821,6 +821,7 @@ export type ApidocOperations =
    | 'hook'
    | 'commonHeader'
    | 'variable'
+   | 'cookies'
    | 'apiflow';
 
 /*

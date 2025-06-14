@@ -222,14 +222,17 @@ const getHeaders = async (apidoc: ApidocDetail) => {
 }
 
 export async function sendRequest() {
-  // const preRequestWorker = new Worker(new URL('@/worker/pre-request/pre-request.ts', import.meta.url));
+  const preRequestWorker = new Worker(new URL('@/worker/pre-request/pre-request.ts', import.meta.url), {
+    type: 'module',
+  });
   const redirectList = ref<ResponseInfo['redirectList']>([]);
   const apidocBaseInfoStore = useApidocBaseInfo();
+  const { objectVariable } = useVariable();
   const projectId = apidocBaseInfoStore.projectId;
   const apidocTabsStore = useApidocTas();
   const selectedTab = apidocTabsStore.getSelectedTab(apidocBaseInfoStore.projectId);
   const apidocStore = useApidoc();
-  const { updateCookies } = useCookies();
+  const { updateCookies, cookies } = useCookies();
   const { changeCancelRequestRef } = useApidocRequest()
   const { changeResponseInfo, changeResponseBody, changeResponseCacheAllowed, changeRequestState, changeLoadingProcess, changeFileBlobUrl } = useApidocResponse()
   const rawApidoc = toRaw(apidocStore.$state.apidoc)
@@ -245,16 +248,16 @@ export async function sendRequest() {
   const requestBody = isFormData ? formDataBody : (body as string);
   changeRequestState('sending')
   // 处理前置脚本
-  // preRequestWorker.postMessage({
-  //   type: 'initData',
-  //   value: {
-  //     reqeustInfo: rawApidoc,
-  //     variables,
-  //     cookies: apidocStore.cookies,
-  //     localStorage: {},
-  //     sessionStorage: {}
-  //   }
-  // });
+  preRequestWorker.postMessage({
+    type: 'initData',
+    value: {
+      reqeustInfo: rawApidoc,
+      variables: toRaw(objectVariable),
+      cookies: toRaw(cookies),
+      localStorage: {},
+      sessionStorage: {}
+    }
+  });
 
 
   window.electronAPI?.sendRequest({
