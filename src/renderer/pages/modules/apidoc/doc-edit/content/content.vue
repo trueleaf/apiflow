@@ -12,6 +12,7 @@
     <SCommonHeader v-else-if="currentSelectTab.tabType === 'commonHeader'"></SCommonHeader>
     <SPackage v-else-if="currentSelectTab.tabType === 'package'"></SPackage>
     <SApidoc v-else-if="currentSelectTab.tabType === 'doc'"></SApidoc>
+    <SCookies v-else-if="currentSelectTab.tabType === 'cookies'"></SCookies>
   </keep-alive>
   <!-- 
   <s-params-template v-else-if="currentSelectTab.tabType === 'paramsTemplate'"></s-params-template>
@@ -40,6 +41,7 @@ import SVariable from './variable/variable.vue';
 // import SParamsTemplate from './params-template/params-template.vue';
 import SExportDoc from './export/export.vue';
 import SImportDoc from './import/import.vue'
+import SCookies from './cookies/cookies.vue'
 import SOnlineLink from './link/link.vue'
 import SRecycler from './recycler/recycler.vue'
 import SHistory from './history/history.vue'

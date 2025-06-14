@@ -6,6 +6,13 @@
   "description": "",
   "glyphs": [
     {
+      "icon_id": "17412105",
+      "name": "Cookies",
+      "font_class": "Cookies",
+      "unicode": "e655",
+      "unicode_decimal": 58965
+    },
+    {
       "icon_id": "18613260",
       "name": "epub",
       "font_class": "epub",

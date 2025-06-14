@@ -431,6 +431,21 @@ const handleEmit = (op: ApidocOperations) => {
         selected: true,
       })
       break;
+    case 'cookies': //cookies
+      apidocTabsStore.addTab({
+        _id: 'cookies',
+        projectId,
+        tabType: 'cookies',
+        label: t('Cookies'),
+        head: {
+          icon: '',
+          color: ''
+        },
+        saved: true,
+        fixed: true,
+        selected: true,
+      })
+      break;
     default:
       break;
   }

@@ -25,6 +25,12 @@ export default [{
   shortcut: ['Ctrl', ','],
   pin: true,
 }, {
+  name: 'Cookie管理',
+  icon: '#iconCookies',
+  op: 'cookies',
+  shortcut: ['Ctrl', 'Alt', 'C'],
+  pin: true,
+}, {
   name: '回收站',
   icon: '#iconhuishouzhan',
   op: 'recycler',
@@ -62,14 +68,14 @@ export default [{
   shortcut: ['Ctrl', 'H'],
   pin: false,
   viewOnly: true,
-},{
+}, {
   name: '全局变量',
   icon: '#iconvariable',
   op: 'variable',
   shortcut: [],
   pin: false,
   viewOnly: true,
-},{
+}, {
   name: '接口编排',
   icon: '#iconbianpaixin',
   op: 'apiflow',

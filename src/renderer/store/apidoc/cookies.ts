@@ -109,10 +109,18 @@ export const useCookies = defineStore('apidocCookies', () => {
     });
     return JSON.parse(JSON.stringify(matchedCookies)) as ApidocCookie[]; // 防止修改请求头导致原数据被修改
   }
+  // 根据 _id 修改 cookie
+  const changeCookieById = (id: string, cookieInfo: Partial<ApidocCookie>) => {
+    const idx = cookies.value.findIndex(c => c._id === id);
+    if (idx !== -1) {
+      cookies.value[idx] = { ...cookies.value[idx], ...cookieInfo };
+    }
+  };
   return {
     cookies,
     updateCookies,
     initCookies,
     getMachtedCookies,
+    changeCookieById,
   };
 });
