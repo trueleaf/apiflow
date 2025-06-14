@@ -1,4 +1,4 @@
-importScripts("../common/json5.js"); 
+importScripts("../common/json5.js");
 importScripts("./global/global.js"); //暴露 GlobalData(全局数据)   
 importScripts("./helper/helper.js"); //helper在global后面引入，因为helper会使用到global里面数据
 importScripts("./variables/variables.js")
@@ -54,7 +54,7 @@ self.addEventListener("message", async (e) => {
     try {
         //初始化所有请求信息
         if (e.data && e.data.type === "pre-request-init-apidoc") {
-            const data = e.data.value; 
+            const data = e.data.value;
             // console.log("data", data)
             GlobalData.apidocInfo = data.apidocInfo;
             GlobalData.commonHeaders = data.commonHeaders;
@@ -105,8 +105,16 @@ self.addEventListener("message", async (e) => {
             Object.assign(_urlencoded, objUrlencodedParams);
             //=====================================json参数====================================//
             if (data.apidocInfo.item.requestBody.rawJson) {
+
                 const parsedJson = JSON5.parse(data.apidocInfo.item.requestBody.rawJson);
-                Object.assign(json, parsedJson);
+                if (Array.isArray(parsedJson)) {
+                    parsedJson.forEach(data => {
+                        json.push(data);
+                    })
+                } else {
+                    Object.assign(json, parsedJson);
+                }
+                
             }
             //=====================================raw参数====================================//
             rawData.value = data.apidocInfo.item.requestBody.raw.data;
@@ -138,7 +146,7 @@ self.addEventListener("message", async (e) => {
             Object.assign(_sessionState, data.sessionState);
             Object.assign(_localState, data.localState);
             Object.assign(_remoteState, data.remoteState);
-        } 
+        }
         //发送请求
         if (e.data && e.data.type === "pre-request-request") {
             const replacedCode = `(async function(pm) { 
@@ -153,7 +161,7 @@ self.addEventListener("message", async (e) => {
                     requestUrls.push(matchedStr[0])
                 }
             })
-            for(let i = 0; i < requestUrls.length; i ++) {
+            for (let i = 0; i < requestUrls.length; i++) {
                 const result = await importScript(requestUrls[i]);
                 remoteScriptStr = remoteScriptStr + result + ";"
             }
@@ -182,14 +190,14 @@ self.addEventListener("message", async (e) => {
             self.postMessage({
                 type: "pre-request-finish",
             })
-        } 
+        }
         //请求失败
         if (e.data && e.data.type === "pre-request-request-error") {
             requestCb(e.data.value, null);
             self.postMessage({
                 type: "pre-request-finish",
             })
-        } 
+        }
         //返回参数赋值
         if (e.data && e.data.type === "after-request-init-response") {
             const objCookie = {};
@@ -205,7 +213,7 @@ self.addEventListener("message", async (e) => {
             pm.response.size = e.data.value.size;
             pm.response.statusCode = e.data.value.statusCode;
             pm.response.statusMessage = e.data.value.statusMessage;
-        } 
+        }
         //after request
         if (e.data && e.data.type === "after-request-request") {
             const replacedCode = `(async function(pm) { 
@@ -220,7 +228,7 @@ self.addEventListener("message", async (e) => {
                     requestUrls.push(matchedStr[0])
                 }
             })
-            for(let i = 0; i < requestUrls.length; i ++) {
+            for (let i = 0; i < requestUrls.length; i++) {
                 const result = await importScript(requestUrls[i]);
                 remoteScriptStr = remoteScriptStr + result + ";"
             }
