@@ -3,13 +3,13 @@
     <div class="mx-5">
       <!-- 搜索添加区域 -->
       <div class="d-flex a-center j-between mb-2">
-        <span class="title">Cookies 管理</span>
+        <span class="title">{{ t('Cookies 管理') }}</span>
         <div class="d-flex a-center" style="gap: 16px;">
-          <el-input v-model="filterName" placeholder="按名称搜索" clearable class="w-200px" />
-          <el-select v-model="filterDomain" placeholder="按域名筛选" clearable class="w-200px">
-            <el-option v-for="domain in domainOptions" :key="domain" :label="domain || 'HostOnly'" :value="domain" />
+          <el-input v-model="filterName" :placeholder="t('按名称搜索')" clearable class="w-200px" />
+          <el-select v-model="filterDomain" :placeholder="t('按域名筛选')" clearable class="w-200px">
+            <el-option v-for="domain in domainOptions" :key="domain" :label="domain || t('HostOnly')" :value="domain" />
           </el-select>
-          <el-button type="primary" @click="handleAddDialog">新增 Cookie</el-button>
+          <el-button type="primary" @click="handleOpenAddDialog">{{ t('新增 Cookie') }}</el-button>
         </div>
       </div>
       <!-- 表格展示 -->
@@ -34,23 +34,21 @@
         </el-table-column>
         <el-table-column align="center" prop="expires" label="Expires">
           <template #default="scope">
-            <div>
-              <div v-if="scope.row.expires">
-                <el-popover
-                  placement="top"
-                  trigger="click"
-                  :width="180"
-                  :show-after="0"
-                  :hide-after="0"
-                >
-                  <template #reference>
-                    <span style="cursor: pointer; border-bottom: 1px dashed #aaa;">{{ scope.row.expires }}</span>
-                  </template>
-                  <div style="font-size: 13px; color: #666;">{{ getExpiresCountdown(scope.row.expires) }}</div>
-                </el-popover>
-              </div>
-              <div v-else>Session</div>
+            <div v-if="scope.row.expires">
+              <el-popover
+                placement="top"
+                trigger="click"
+                :width="180"
+                :show-after="0"
+                :hide-after="0"
+              >
+                <template #reference>
+                  <span style="cursor: pointer; border-bottom: 1px dashed #aaa;">{{ scope.row.expires }}</span>
+                </template>
+                <div style="font-size: 13px; color: #666;">{{ getExpiresCountdown(scope.row.expires) }}</div>
+              </el-popover>
             </div>
+            <div v-else>Session</div>
           </template>
         </el-table-column>
         <el-table-column align="center" prop="httpOnly" label="HttpOnly">
@@ -73,14 +71,14 @@
         </el-table-column>
         <el-table-column align="center" label="操作" width="120">
           <template #default="scope">
-            <el-button type="primary" link size="small" @click="handleEditDialog(scope.row)">编辑</el-button>
-            <el-button type="danger" link size="small" @click="handleRemoveCookie(scope.row.id)">删除</el-button>
+            <el-button type="primary" link size="small" @click="handleOpenEditDialog(scope.row)">{{ t('编辑') }}</el-button>
+            <el-button type="danger" link size="small" @click="handleRemoveCookie(scope.row.id)">{{ t('删除') }}</el-button>
           </template>
         </el-table-column>
       </el-table>
     </div>
     <!-- 新增/编辑弹窗 -->
-    <el-dialog v-model="dialogVisible" :title="editMode ? '编辑 Cookie' : '新增 Cookie'" width="40vw">
+    <el-dialog v-model="dialogVisible" :title="editMode ? t('编辑 Cookie') : t('新增 Cookie')" width="40vw">
       <el-form :model="editCookie" label-width="80px" :rules="rules" ref="formRef">
         <el-form-item label="Name" prop="name">
           <el-input v-model="editCookie.name" />
@@ -99,14 +97,12 @@
             <el-date-picker
               v-model="expiresDate"
               type="datetime"
-              placeholder="选择过期时间"
+              :placeholder="t('选择过期时间')"
               :teleported="false"
-              :disabled-date="disabledExpiresDate"
               :shortcuts="expiresShortcuts"
-              @change="handleExpiresDateChange"
             />
             <div v-if="expiresDate" >
-              实际保存值：{{ formatCookieExpires(expiresDate) }}
+              {{ t('实际保存值') }}：{{ formatCookieExpires(expiresDate) }}
             </div>
           </div>
         </el-form-item>
@@ -125,29 +121,66 @@
         </el-form-item>
       </el-form>
       <template #footer>
-        <el-button @click="dialogVisible = false">取消</el-button>
-        <el-button type="primary" @click="handleSaveCookie">保存</el-button>
+        <el-button @click="dialogVisible = false">{{ t('取消') }}</el-button>
+        <el-button type="primary" @click="handleSaveCookie">{{ t('保存') }}</el-button>
       </template>
     </el-dialog>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, nextTick, watch, onMounted, onUnmounted } from 'vue';
+import { ref, computed, nextTick, onMounted, onUnmounted } from 'vue';
 import { useCookies } from '@/store/apidoc/cookies';
 import { ElMessage } from 'element-plus';
 import type { ApidocCookie } from '@/store/apidoc/cookies';
 import { t } from 'i18next';
 import { uuid } from '@/helper';
+import { useRoute } from 'vue-router'
 import dayjs from 'dayjs';
 
+const route = useRoute()
 const cookiesStore = useCookies();
 const cookies = computed(() => cookiesStore.cookies);
-
+const expiresShortcuts = [
+  {
+    text: t('12小时后'),
+    value: () => {
+      const d = new Date();
+      d.setHours(d.getHours() + 12);
+      return d;
+    }
+  },
+  {
+    text: t('24小时后'),
+    value: () => {
+      const d = new Date();
+      d.setHours(d.getHours() + 24);
+      return d;
+    }
+  },
+  {
+    text: t('7天后'),
+    value: () => {
+      const d = new Date();
+      d.setDate(d.getDate() + 7);
+      return d;
+    }
+  }
+];
 const dialogVisible = ref(false);
 const editMode = ref(false);
-const editCookie = ref<Partial<ApidocCookie>>({});
-
+const editCookie = ref<ApidocCookie>({
+  id: '',
+  name: '',
+  value: '',
+  domain: '',
+  path: '/',
+  expires: '',
+  httpOnly: false,
+  secure: false,
+  sameSite: ''
+});
+const projectId = route.query.id as string;
 const filterName = ref('');
 const filterDomain = ref('');
 
@@ -167,123 +200,60 @@ const filteredCookies = computed(() => {
 
 const formRef = ref();
 const rules = {
-  name: [{ required: true, message: '请输入名称', trigger: 'blur' }],
-  value: [{ required: true, message: '请输入值', trigger: 'blur' }],
+  name: [{ required: true, message: t('请输入名称'), trigger: 'blur' }],
+  value: [{ required: true, message: t('请输入值'), trigger: 'blur' }],
 };
-const showDatePicker = ref(false);
 const expiresDate = ref<Date | ''>('');
 const now = ref(new Date());
 let timer: number | null = null;
 
-watch(() => dialogVisible.value, (val) => {
-  if (!val) {
-    showDatePicker.value = false;
-    expiresDate.value = '';
-  } else if (editCookie.value.expires) {
-    try {
-      const d = new Date(editCookie.value.expires);
-      expiresDate.value = isNaN(d.getTime()) ? '' : d;
-    } catch {
-      expiresDate.value = '';
-    }
-  }
-});
-
-const handleExpiresDateChange = (val: Date | string) => {
-  if (val) {
-    let date: Date | null = null;
-    if (val instanceof Date) {
-      date = val;
-    } else if (typeof val === 'string') {
-      const parsed = new Date(val);
-      date = isNaN(parsed.getTime()) ? null : parsed;
-    }
-    expiresDate.value = date || '';
-  } else {
-    expiresDate.value = '';
-  }
-};
-
-const disabledExpiresDate = (date: Date) => {
-  const now = new Date();
-  // 只允许今天及以后
-  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-  if (date < today) return true;
-  // 如果是今天，小时和分钟限制
-  if (date.getFullYear() === now.getFullYear() && date.getMonth() === now.getMonth() && date.getDate() === now.getDate()) {
-    if (date.getHours() < now.getHours()) return true;
-    if (date.getHours() === now.getHours() && date.getMinutes() < now.getMinutes()) return true;
-  }
-  return false;
-};
-
-const expiresShortcuts = [
-  {
-    text: '12小时后',
-    value: () => {
-      const d = new Date();
-      d.setHours(d.getHours() + 12);
-      return d;
-    }
-  },
-  {
-    text: '24小时后',
-    value: () => {
-      const d = new Date();
-      d.setHours(d.getHours() + 24);
-      return d;
-    }
-  },
-  {
-    text: '7天后',
-    value: () => {
-      const d = new Date();
-      d.setDate(d.getDate() + 7);
-      return d;
-    }
-  }
-];
 
 const formatCookieExpires = (date: Date | null) => {
   if (!date) return '';
   if (isNaN(date.getTime())) return '';
   return date.toISOString().replace(/\.\d{3}Z$/, 'Z');
 };
-
-const handleAddDialog = () => {
+/*
+|--------------------------------------------------------------------------
+| cookie操作，新增修改删除
+|--------------------------------------------------------------------------
+|
+*/
+const handleOpenAddDialog = () => {
   editMode.value = false;
-  editCookie.value = { name: '', value: '', domain: '', path: '/', expires: '', httpOnly: false, secure: false, sameSite: '' };
+  editCookie.value = { id: uuid(), name: '', value: '', domain: '', path: '/', expires: '', httpOnly: false, secure: false, sameSite: '' };
   dialogVisible.value = true;
   nextTick(() => formRef.value?.clearValidate());
 };
-const handleEditDialog = (row: ApidocCookie) => {
+const handleOpenEditDialog = (row: ApidocCookie) => {
   editMode.value = true;
   editCookie.value = { ...row };
+  expiresDate.value = dayjs(row.expires).toDate();
   dialogVisible.value = true;
   nextTick(() => formRef.value?.clearValidate());
 };
 const handleSaveCookie = () => {
   formRef.value?.validate((valid: boolean) => {
     if (!valid) return;
+    const expires = expiresDate.value ? formatCookieExpires(expiresDate.value) : '';
     if (editMode.value) {
-      // 编辑
-      // changeCookieById(editCookie.value.id!, editCookie.value as ApidocCookie);
-      ElMessage.success('修改成功');
+      editCookie.value.expires = expires;
+      cookiesStore.updateCookiesById(projectId, editCookie.value.id, editCookie.value);
+      ElMessage.success(t('修改成功'));
     } else {
-      // 新增
       const newCookie: ApidocCookie = {
         id: uuid(),
         name: editCookie.value.name!,
         value: editCookie.value.value!,
         domain: editCookie.value.domain || '',
         path: editCookie.value.path || '/',
-        expires: expiresDate.value && typeof expiresDate.value !== 'string' && !isNaN(expiresDate.value.getTime()) ? formatCookieExpires(expiresDate.value) : '',
+        expires,
         httpOnly: !!editCookie.value.httpOnly,
         secure: !!editCookie.value.secure,
         sameSite: editCookie.value.sameSite || '',
       };
-      cookies.value.push(newCookie);
-      ElMessage.success('新增成功');
+      cookiesStore.addCookie(projectId, newCookie);
+      ElMessage.success(t('新增成功'));
     }
     dialogVisible.value = false;
   });
@@ -292,7 +262,7 @@ const handleRemoveCookie = (id: string) => {
   const idx = cookies.value.findIndex(c => c.id === id);
   if (idx !== -1) {
     cookies.value.splice(idx, 1);
-    ElMessage.success('删除成功');
+    ElMessage.success(t('删除成功'));
   }
 };
 const getExpiresCountdown = (expires: string) => {
@@ -300,12 +270,12 @@ const getExpiresCountdown = (expires: string) => {
   let expireDate: Date;
   try {
     expireDate = new Date(expires);
-    if (isNaN(expireDate.getTime())) return '无效时间';
+    if (isNaN(expireDate.getTime())) return t('无效时间');
   } catch {
-    return '无效时间';
+    return t('无效时间');
   }
   const diff = expireDate.getTime() - now.value.getTime();
-  if (diff <= 0) return '已过期';
+  if (diff <= 0) return t('已过期，发送请求不会生效，刷新页面后消失');
   const days = Math.floor(diff / (1000 * 60 * 60 * 24));
   const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
   const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));

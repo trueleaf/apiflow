@@ -1,12 +1,13 @@
 <template>
   <div class="cookie-view" :class="{ vertical: layout === 'vertical' }">
     <div class='mb-2 d-flex a-center theme-color cursor-pointer' @click="dialogVisible = false">
-      <el-icon><FullScreen /></el-icon>
+      <el-icon>
+        <FullScreen />
+      </el-icon>
       <span class="ml-1">{{ t('本次接口返回的cookie值') }}</span>
     </div>
-    <div class='mb-2 d-flex a-center theme-color cursor-pointer' @click="showGlobalCookieDialog = true">
-      <el-icon><FullScreen /></el-icon>
-      <span class="ml-1">{{ t('完整cookie值') }}</span>
+    <div class='mb-2 d-flex a-center theme-color cursor-pointer' @click="handleJumpToCookies">
+      <span class="ml-1">{{ t('Cookie管理') }}</span>
     </div>
     <el-table :data="cookies" stripe border height="100%" size="small">
       <el-table-column align="center" prop="name" label="Name"></el-table-column>
@@ -16,7 +17,8 @@
         </template>
       </el-table-column>
     </el-table>
-    <el-dialog v-model="dialogVisible" :title="`【${currentSelectTab?.label}】节点的 ${t('cookie值')}`" width="80%" :close-on-click-modal="false">
+    <el-dialog v-model="dialogVisible" :title="`【${currentSelectTab?.label}】节点的 ${t('cookie值')}`" width="80%"
+      :close-on-click-modal="false">
       <el-table :data="cookies" stripe border height="65vh" size="small">
         <el-table-column align="center" prop="name" label="Name"></el-table-column>
         <el-table-column align="center" prop="value" width='500' label="Value">
@@ -67,52 +69,7 @@
         </el-table-column>
       </el-table>
     </el-dialog>
-    <el-dialog v-model="showGlobalCookieDialog" :title="t('完整cookie值')" width="80%" :close-on-click-modal="false">
-      <el-table :data="globalCookies" stripe border height="65vh" size="small">
-        <el-table-column align="center" prop="name" label="Name"></el-table-column>
-        <el-table-column align="center" prop="value" width='500' label="Value">
-          <template #default="scope">
-            <div class="value-wrap">{{ scope.row.value }}</div>
-          </template>
-        </el-table-column>
-        <el-table-column align="center" prop="domain" label="Domain">
-          <template #default="scope">
-            <span v-if="scope.row.domain">{{ scope.row.domain }}</span>
-            <span v-else>{{ t('HostOnly') }}</span>
-          </template>
-        </el-table-column>
-        <el-table-column align="center" prop="path" label="Path">
-          <template #default="scope">
-            <span v-if="scope.row.path">{{ scope.row.path }}</span>
-            <span v-else>/</span>
-          </template>
-        </el-table-column>
-        <el-table-column align="center" prop="expires" label="Expires">
-          <template #default="scope">
-            <span v-if="scope.row.expires">{{ scope.row.expires }}</span>
-            <span v-else>Session</span>
-          </template>
-        </el-table-column>
-        <el-table-column align="center" prop="httpOnly" label="HttpOnly">
-          <template #default="scope">
-            <span v-if="scope.row.httpOnly === true">✔</span>
-            <span v-else></span>
-          </template>
-        </el-table-column>
-        <el-table-column align="center" prop="secure" label="Secure">
-          <template #default="scope">
-            <span v-if="scope.row.secure === true">✔</span>
-            <span v-else></span>
-          </template>
-        </el-table-column>
-        <el-table-column align="center" prop="sameSite" label="SameSite">
-          <template #default="scope">
-            <span v-if="scope.row.sameSite">{{ scope.row.sameSite }}</span>
-            <span v-else>Lax</span>
-          </template>
-        </el-table-column>
-      </el-table>
-    </el-dialog>
+
   </div>
 </template>
 
@@ -125,13 +82,11 @@ import { parse } from 'set-cookie-parser';
 import { useApidocTas } from '@/store/apidoc/tabs'
 import { t } from 'i18next';
 import { useRoute } from 'vue-router'
-import { useCookies } from '@/store/apidoc/cookies';
 
 const route = useRoute()
 const apidocResponseStore = useApidocResponse();
 const apidocBaseInfoStore = useApidocBaseInfo();
 const { responseInfo } = useApidocResponse();
-const { cookies: globalCookies } = useCookies();
 const cookies = computed(() => {
   return parse(apidocResponseStore.responseInfo.headers['set-cookie'] || [])
 });
@@ -143,8 +98,22 @@ const currentSelectTab = computed(() => {
   return currentSelectTab;
 });
 const layout = computed(() => apidocBaseInfoStore.layout);
-const dialogVisible = ref(false)
-const showGlobalCookieDialog = ref(false);
+const dialogVisible = ref(false);
+const handleJumpToCookies = () => {
+  apidocTabsStore.addTab({
+    _id: 'cookies',
+    projectId: apidocBaseInfoStore.projectId,
+    tabType: 'cookies',
+    label: t('Cookies'),
+    head: {
+      icon: '',
+      color: ''
+    },
+    saved: true,
+    fixed: true,
+    selected: true,
+  })
+}
 </script>
 
 <style lang='scss' scoped>
