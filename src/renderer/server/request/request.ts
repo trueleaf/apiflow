@@ -232,7 +232,7 @@ export async function sendRequest() {
   const apidocTabsStore = useApidocTas();
   const selectedTab = apidocTabsStore.getSelectedTab(apidocBaseInfoStore.projectId);
   const apidocStore = useApidoc();
-  const { updateCookies, cookies } = useCookies();
+  const { updateCookiesBySetCookieHeader, cookies } = useCookies();
   const { changeCancelRequestRef } = useApidocRequest()
   const { changeResponseInfo, changeResponseBody, changeResponseCacheAllowed, changeRequestState, changeLoadingProcess, changeFileBlobUrl } = useApidocResponse()
   const rawApidoc = toRaw(apidocStore.$state.apidoc)
@@ -330,14 +330,14 @@ export async function sendRequest() {
     },
     onResponseEnd(responseInfo) {
       const rawBody = responseInfo.body;
-      const cookies = responseInfo.headers['set-cookie'] || [];
+      const setCookieStrList = responseInfo.headers['set-cookie'] || [];
       changeRequestState('finish');
       changeResponseBody(responseInfo.body)
       responseInfo.body = null; // 不存储body防止数据量过大
       responseInfo.redirectList = cloneDeep(redirectList.value); // 记录重定向列表
       changeResponseInfo(responseInfo);
       changeFileBlobUrl(rawBody as Uint8Array, responseInfo.contentType);
-      updateCookies(cookies, responseInfo.requestData.host, projectId);
+      updateCookiesBySetCookieHeader(setCookieStrList, responseInfo.requestData.host, projectId);
       console.log('responseInfo', responseInfo)
       const storedResponseInfo = cloneDeep(responseInfo);
       storedResponseInfo.body = rawBody;

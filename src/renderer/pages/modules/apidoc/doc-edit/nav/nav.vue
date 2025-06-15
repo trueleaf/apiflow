@@ -72,6 +72,8 @@
                 <span v-if="element.tabType === 'package'" class="iconfont iconanzhuangbao f-base mr-2"></span>
                 <!-- 接口编排 -->
                 <span v-if="element.tabType === 'apiflow'" class="iconfont iconbianpaixin f-base mr-2"></span>
+                <!-- cookies管理 -->
+                <span v-if="element.tabType === 'cookies'" class="iconfont iconCookies f-base mr-2"></span>
               </template>
               <span class="item-text" :class="{ unfixed: !element.fixed }">{{ element.label }}</span>
               <span class="operaion">
