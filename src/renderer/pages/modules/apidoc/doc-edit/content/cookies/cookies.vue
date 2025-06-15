@@ -9,11 +9,19 @@
           <el-select v-model="filterDomain" :placeholder="t('按域名筛选')" clearable class="w-200px">
             <el-option v-for="domain in domainOptions" :key="domain" :label="domain || t('HostOnly')" :value="domain" />
           </el-select>
+          <el-button type="danger" :disabled="!selectedCookies.length" @click="handleBatchDelete">{{ t('批量删除') }}</el-button>
           <el-button type="primary" @click="handleOpenAddDialog">{{ t('新增 Cookie') }}</el-button>
         </div>
       </div>
       <!-- 表格展示 -->
-      <el-table :data="filteredCookies" border stripe size="small">
+      <el-table 
+        :data="filteredCookies" 
+        border 
+        stripe 
+        size="small"
+        @selection-change="handleSelectionChange"
+      >
+        <el-table-column type="selection" width="55" />
         <el-table-column align="center" prop="name" label="Name"></el-table-column>
         <el-table-column align="center" prop="value" width='500' label="Value">
           <template #default="scope">
@@ -131,7 +139,7 @@
 <script setup lang="ts">
 import { ref, computed, nextTick, onMounted, onUnmounted } from 'vue';
 import { useCookies } from '@/store/apidoc/cookies';
-import { ElMessage } from 'element-plus';
+import { ElMessage, ElMessageBox } from 'element-plus';
 import type { ApidocCookie } from '@/store/apidoc/cookies';
 import { t } from 'i18next';
 import { uuid } from '@/helper';
@@ -183,6 +191,7 @@ const editCookie = ref<ApidocCookie>({
 const projectId = route.query.id as string;
 const filterName = ref('');
 const filterDomain = ref('');
+const selectedCookies = ref<ApidocCookie[]>([]);
 
 const domainOptions = computed(() => {
   const set = new Set<string>();
@@ -258,12 +267,44 @@ const handleSaveCookie = () => {
     dialogVisible.value = false;
   });
 };
+const handleSelectionChange = (selection: ApidocCookie[]) => {
+  selectedCookies.value = selection;
+};
 const handleRemoveCookie = (id: string) => {
-  const idx = cookies.value.findIndex(c => c.id === id);
-  if (idx !== -1) {
-    cookies.value.splice(idx, 1);
+  ElMessageBox.confirm(
+    t('确定要删除这个 Cookie 吗？'),
+    t('删除确认'),
+    {
+      confirmButtonText: t('确定'),
+      cancelButtonText: t('取消'),
+      type: 'warning',
+    }
+  ).then(() => {
+    cookiesStore.deleteCookiesById(projectId, id);
     ElMessage.success(t('删除成功'));
-  }
+  }).catch(() => {
+    // 用户取消删除
+  });
+};
+const handleBatchDelete = () => {
+  if (!selectedCookies.value.length) return;
+  
+  ElMessageBox.confirm(
+    t(`确定要删除选中的 ${selectedCookies.value.length} 个 Cookie 吗？`),
+    t('批量删除确认'),
+    {
+      confirmButtonText: t('确定'),
+      cancelButtonText: t('取消'),
+      type: 'warning',
+    }
+  ).then(() => {
+    selectedCookies.value.forEach(cookie => {
+      cookiesStore.deleteCookiesById(projectId, cookie.id);
+    });
+    ElMessage.success(t('批量删除成功'));
+  }).catch(() => {
+    // 用户取消删除
+  });
 };
 const getExpiresCountdown = (expires: string) => {
   if (!expires) return '';
