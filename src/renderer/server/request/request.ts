@@ -1,11 +1,10 @@
-
 import { useApidoc } from '@/store/apidoc/apidoc';
 import { ref, toRaw } from 'vue';
 import json5 from 'json5'
-import { ApidocDetail } from '@src/types/global';
+import { ApidocDetail, ApidocProperty } from '@src/types/global';
 import { convertTemplateValueToRealValue, getEncodedStringFromEncodedParams, getFormDataFromFormDataParams, getObjectPathParams, getQueryStringFromQueryParams } from '@/utils/utils';
 import { useVariable } from '@/store/apidoc/variables';
-import { GotRequestOptions, JsonData, RedirectOptions, RendererFormDataBody, ResponseInfo } from '@src/types/types';
+import { GotRequestOptions, JsonData, RedirectOptions, ResponseInfo } from '@src/types/types';
 import { useApidocBaseInfo } from '@/store/apidoc/base-info';
 import { useApidocTas } from '@/store/apidoc/tabs';
 import { useApidocResponse } from '@/store/apidoc/response';
@@ -15,6 +14,7 @@ import { cloneDeep } from '@/helper';
 import { useApidocRequest } from '@/store/apidoc/request';
 import { t } from 'i18next';
 import { useCookies } from '@/store/apidoc/cookies';
+import { InitDataMessage, OnEvalSuccess, ReceivedEvent } from '@/worker/pre-request/types/types.ts';
 
 /*
 |--------------------------------------------------------------------------
@@ -111,7 +111,10 @@ const getBody = async (apidoc: ApidocDetail): Promise<GotRequestOptions['body']>
       const stringBody = JSON.stringify(jsonObject).replace(/"([+-]?\d*\.?\d+n)"(?=\s*[,}\]])/g, (_, $2) => {
         return bigNumberMap[$2];
       })
-      return stringBody;
+      return {
+        type: 'json',
+        value: stringBody
+      };
     } catch (error) {
       changeResponseInfo({
         responseData: {
@@ -122,11 +125,14 @@ const getBody = async (apidoc: ApidocDetail): Promise<GotRequestOptions['body']>
       throw new Error((error as Error).message)
     }
   } else if (mode === 'json' && !apidoc.item.requestBody.rawJson.trim()) {
-    return
+    return undefined;
   }
   if (mode === 'urlencoded') {
     const urlencodedString = await getEncodedStringFromEncodedParams(urlencoded, objectVariable);
-    return urlencodedString;
+    return {
+      type: 'urlencoded',
+      value: urlencodedString
+    };
   }
   if (mode === 'formdata') {
     const validFormData = apidoc.item.requestBody.formdata.filter(formData => formData.select && formData.key !== '');
@@ -134,12 +140,18 @@ const getBody = async (apidoc: ApidocDetail): Promise<GotRequestOptions['body']>
       changeFormDataErrorInfoById(formData._id, ''); //每次请求前清空错误信息
     })
     const formData = await getFormDataFromFormDataParams(validFormData, objectVariable);
-    return formData;
+    return {
+      type: 'formdata',
+      value: formData
+    };
   }
   if (mode === 'raw') {
     const { data } = apidoc.item.requestBody.raw;
     const realData = await convertTemplateValueToRealValue(data, objectVariable);
-    return realData;
+    return {
+      type: 'raw',
+      value: realData
+    };
   }
   if (mode === 'binary') {
     const { mode, varValue, binaryValue } = apidoc.item.requestBody.binary;
@@ -147,18 +159,24 @@ const getBody = async (apidoc: ApidocDetail): Promise<GotRequestOptions['body']>
       const filePath = await convertTemplateValueToRealValue(varValue, objectVariable);
       return {
         type: 'binary',
-        path: filePath
+        value: {
+          mode: 'var',
+          path: filePath
+        }
       };
     } else {
       const filePath = binaryValue.path;
       return {
         type: 'binary',
-        path: filePath
+        value: {
+          mode: 'file',
+          path: filePath
+        }
       };
     }
   }
   console.warn(`${t('未知的请求body类型')}`)
-  return '??'
+  return undefined;
 }
 /*
   * 1.从用户定义请求头中获取请求头
@@ -221,6 +239,19 @@ const getHeaders = async (apidoc: ApidocDetail) => {
   return headersObject;
 }
 
+const convertPropertyToObject = async (properties: ApidocProperty<'string'>[]): Promise<Record<string, string>> => {
+  const result: Record<string, string> = {};
+  const { objectVariable } = useVariable();
+  for (const prop of properties) {
+    if (prop.select && prop.key.trim() !== '') {
+      const realKey = await convertTemplateValueToRealValue(prop.key, objectVariable);
+      const realValue = await convertTemplateValueToRealValue(prop.value, objectVariable);
+      result[realKey] = realValue;
+    }
+  }
+  return result;
+};
+
 export async function sendRequest() {
   const preRequestWorker = new Worker(new URL('@/worker/pre-request/pre-request.ts', import.meta.url), {
     type: 'module',
@@ -232,39 +263,120 @@ export async function sendRequest() {
   const apidocTabsStore = useApidocTas();
   const selectedTab = apidocTabsStore.getSelectedTab(apidocBaseInfoStore.projectId);
   const apidocStore = useApidoc();
-  const { updateCookiesBySetCookieHeader, cookies } = useCookies();
+  const { updateCookiesBySetCookieHeader, getMachtedCookies } = useCookies();
   const { changeCancelRequestRef } = useApidocRequest()
   const { changeResponseInfo, changeResponseBody, changeResponseCacheAllowed, changeRequestState, changeLoadingProcess, changeFileBlobUrl } = useApidocResponse()
-  const rawApidoc = toRaw(apidocStore.$state.apidoc)
+  const rawApidoc = cloneDeep(toRaw(apidocStore.$state.apidoc));
+  const preSendMethod = getMethod(rawApidoc);
+  const preSendUrl = await getUrl(rawApidoc);
+  const preSendBody = await getBody(rawApidoc);
+  const objUrlencoded = await convertPropertyToObject(rawApidoc.item.requestBody.urlencoded);
+  const objPaths = await convertPropertyToObject(rawApidoc.item.paths);
+  const objQueryParams = await convertPropertyToObject(rawApidoc.item.queryParams);
+  const objHeaders = await convertPropertyToObject(rawApidoc.item.headers); 
+  changeRequestState('sending');
+  const matchedCookies = getMachtedCookies(preSendUrl);
+  const objCookies = await convertPropertyToObject(matchedCookies.map(cookie => ({ key: cookie.name, value: cookie.value, select: true })) as ApidocProperty<"string">[])
+  const preRequestSessionStorage = apidocCache.getPreRequestSessionStorage(projectId) || {};
+  const preRequestLocalStorage = apidocCache.getPreRequestLocalStorage(projectId) || {};
+  
+  console.log(preRequestSessionStorage, preRequestLocalStorage)
+  const initDataMessage: InitDataMessage = {
+    type: 'initData',
+    reqeustInfo: {
+      _id: rawApidoc._id,
+      projectId,
+      name: rawApidoc.info.name,
+      item: {
+        method: preSendMethod,
+        url: preSendUrl,
+        paths: objPaths,
+        queryParams: objQueryParams,
+        requestBody: {
+          json: preSendBody?.type === 'json' ? preSendBody.value : '',
+          formdata: preSendBody?.type === 'formdata' ? preSendBody.value : [],
+          urlencoded: preSendBody?.type === 'urlencoded' ? objUrlencoded : {},
+          raw: preSendBody?.type === 'raw' ? preSendBody.value : '',
+          binary: preSendBody?.type === 'binary' ? preSendBody.value : {
+            mode: 'var',
+            path: ''
+          },
+        },
+        headers: objHeaders,
+        bodyType: rawApidoc.item.requestBody.mode
+      }
+    },
+    variables: toRaw(objectVariable),
+    cookies: objCookies,
+    localStorage: preRequestLocalStorage,
+    sessionStorage: preRequestSessionStorage
+  }
+  // 处理前置脚本
+  preRequestWorker.postMessage(initDataMessage);
+
+  // 监听脚本处理
+  preRequestWorker.addEventListener('message', (e: MessageEvent<ReceivedEvent>) => {
+    if (e.data.type === 'pre-request-init-success') {
+      preRequestWorker.postMessage({
+        type: 'eval',
+        code: rawApidoc.preRequest.raw
+      })
+    }
+    if (e.data.type === 'pre-request-set-query-params') {
+      // console.log(e.data.type, e.data.value);
+    } else if (e.data.type === 'pre-request-delete-query-params') {
+      // console.log(e.data.type, e.data.value);
+    } else if (e.data.type === 'pre-request-set-header-params') {
+      // console.log(e.data.type, e.data.value);
+    }  else if (e.data.type === 'pre-request-delete-header-params') {
+      // console.log(e.data.type, e.data.value);
+    } else if (e.data.type === 'pre-request-set-path-params') {
+      // console.log(e.data.type, e.data.value);
+    }  else if (e.data.type === 'pre-request-delete-path-params') {
+      // console.log(e.data.type, e.data.value);
+    }  else if (e.data.type === 'pre-request-delete-json-params') {
+      // console.log(e.data.type, e.data.value);
+    }  else if (e.data.type === 'pre-request-set-json-params') {
+      // console.log(e.data.type, e.data.value);
+    } else if (e.data.type === 'pre-request-delete-urlencoded') {
+      // console.log(e.data.type, e.data.value);
+    } else if (e.data.type === 'pre-request-set-urlencoded') {
+      // console.log(e.data.type, e.data.value);
+    } else if (e.data.type === 'pre-request-set-method') {
+      // console.log(e.data.type, e.data.value);
+    } else if (e.data.type === 'pre-request-set-raw-body') {
+      // console.log(e.data.type, e.data.value);
+    } else if (e.data.type === 'pre-request-set-binary-body') {
+      // console.log(e.data.type, e.data.value);
+    } else if (e.data.type === 'pre-request-set-formdata') {
+      // console.log(e.data.type, e.data.value);
+    } else if (e.data.type === 'pre-request-set-url') {
+      // console.log(e.data.type, e.data.value);
+    } else if (e.data.type === 'pre-request-eval-success') {
+      console.log(e.data.type, e.data.value)
+    } else if (e.data.type === 'pre-request-set-cookie') {
+      // console.log(e.data.type, e.data.value);
+    } else if (e.data.type === 'pre-request-set-variable') {
+      // console.log(e.data.type, e.data.value);
+    } else if (e.data.type === 'pre-request-set-session-storage') {
+      
+    } else if (e.data.type === 'pre-request-delete-session-storage') {
+      
+    } else if (e.data.type === 'pre-request-set-local-storage') {
+     
+    } else if (e.data.type === 'pre-request-delete-local-storage') {
+      
+    }
+  })
   const method = getMethod(rawApidoc);
   const url = await getUrl(rawApidoc);
   const body = await getBody(rawApidoc);
   const headers = await getHeaders(rawApidoc);
-  let formDataBody: RendererFormDataBody = []
-  const isFormData = rawApidoc.item.requestBody.mode === 'formdata';
-  if (isFormData) {
-    formDataBody = body as RendererFormDataBody;
-  }
-  const requestBody = isFormData ? formDataBody : (body as string);
-  changeRequestState('sending')
-  // 处理前置脚本
-  preRequestWorker.postMessage({
-    type: 'initData',
-    value: {
-      reqeustInfo: rawApidoc,
-      variables: toRaw(objectVariable),
-      cookies: toRaw(cookies),
-      localStorage: {},
-      sessionStorage: {}
-    }
-  });
-
-
   window.electronAPI?.sendRequest({
     url,
     method,
     timeout: 60000,
-    body: requestBody,
+    body,
     headers,
     signal(cancelRequest) {
       changeCancelRequestRef(cancelRequest);

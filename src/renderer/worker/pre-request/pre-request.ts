@@ -1,6 +1,5 @@
 
 import { AF, InitDataMessage, EvalMessage } from './types/types.ts';
-import { merge } from 'lodash';
 import { createRequestProxy } from './request/index.ts'
 import { variables } from './variables/index.ts'
 import { cookies } from './cookies/index.ts'
@@ -9,6 +8,7 @@ import { sessionStorage } from './sessionStorage/index.ts'
 import axios from 'axios'
 
 const af: AF = new Proxy({
+  projectId: '',
   nodeId: '',
   request: createRequestProxy(),
   variables,
@@ -40,6 +40,7 @@ self.onmessage = (e: MessageEvent<InitDataMessage | EvalMessage>) => {
     const { reqeustInfo } = e.data;
     af.request.method = reqeustInfo.item.method;
     af.nodeId = reqeustInfo._id;
+    af.projectId = reqeustInfo.projectId;
     Object.assign(af.request.headers, reqeustInfo.item.headers)
     Object.assign(af.request.queryParams, reqeustInfo.item.queryParams)
     Object.assign(af.request.pathParams, reqeustInfo.item.paths);
@@ -49,11 +50,13 @@ self.onmessage = (e: MessageEvent<InitDataMessage | EvalMessage>) => {
     Object.assign(af.cookies, e.data.cookies);
     Object.assign(af.localStorage, e.data.localStorage);
     Object.assign(af.sessionStorage, e.data.sessionStorage);
-    merge(af.request.body.json, reqeustInfo.item.requestBody.json);
     af.request.body.raw = reqeustInfo.item.requestBody.raw;
     af.request.bodyType = reqeustInfo.item.bodyType;
     af.request.body.binary.mode = reqeustInfo.item.requestBody.binary.mode;
-    af.request.body.binary.value = reqeustInfo.item.requestBody.binary.value;
+    af.request.body.binary.path = reqeustInfo.item.requestBody.binary.path;
+    self.postMessage({
+      type: 'pre-request-init-success',
+    });
   }
   if (e.data.type === "eval") {
     const { code } = e.data;

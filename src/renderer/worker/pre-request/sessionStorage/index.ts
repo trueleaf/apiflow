@@ -1,6 +1,6 @@
 import { OnSetSessionStorageEvent, OnDeleteSessionStorageEvent } from '../types/types';
 
-const _sessionStorage: Record<string, string> = {};
+const _sessionStorage: Record<string, any> = {};
 const handler = {
   get(target: Record<string, string>, key: string) {
     return target[key];
