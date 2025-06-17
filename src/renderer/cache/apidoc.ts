@@ -463,6 +463,71 @@ class ApidocCache extends ResponseCache {
       return [];
     }
   }
+
+  /*
+   * 获取pre-request的sessionStorage
+   */
+  getPreRequestSessionStorage(projectId: string): Record<string, unknown> | null {
+    try {
+      const localData: Record<string, Record<string, unknown>> = JSON.parse(sessionStorage.getItem('apidoc/preRequest/sessionStorage') || '{}');
+      if (!localData[projectId]) {
+        return null;
+      }
+      return localData[projectId];
+    } catch (error) {
+      console.error(error);
+      sessionStorage.setItem('apidoc/preRequest/sessionStorage', '{}');
+      return null;
+    }
+  }
+  /*
+   * 设置pre-request的sessionStorage
+   */
+  setPreRequestSessionStorage(projectId: string, data: Record<string, unknown>) {
+    try {
+      const localData = JSON.parse(sessionStorage.getItem('apidoc/preRequest/sessionStorage') || '{}');
+      localData[projectId] = data;
+      sessionStorage.setItem('apidoc/preRequest/sessionStorage', JSON.stringify(localData));
+    } catch (error) {
+      console.error(error);
+      const newData: Record<string, Record<string, unknown>> = {};
+      newData[projectId] = data;
+      sessionStorage.setItem('apidoc/preRequest/sessionStorage', JSON.stringify(newData));
+    }
+  }
+
+  /*
+   * 获取pre-request的localStorage
+   */
+  getPreRequestLocalStorage(projectId: string): Record<string, any> | null {
+    try {
+      const localData: Record<string, Record<string, any>> = JSON.parse(localStorage.getItem('apidoc/preRequest/localStorage') || '{}');
+      if (!localData[projectId]) {
+        return null;
+      }
+      return localData[projectId];
+    } catch (error) {
+      console.error(error);
+      localStorage.setItem('apidoc/preRequest/localStorage', '{}');
+      return null;
+    }
+  }
+
+  /*
+   * 设置pre-request的localStorage
+   */
+  setPreRequestLocalStorage(projectId: string, data: Record<string, any>) {
+    try {
+      const localData = JSON.parse(localStorage.getItem('apidoc/preRequest/localStorage') || '{}');
+      localData[projectId] = data;
+      localStorage.setItem('apidoc/preRequest/localStorage', JSON.stringify(localData));
+    } catch (error) {
+      console.error(error);
+      const newData: Record<string, Record<string, any>> = {};
+      newData[projectId] = data;
+      localStorage.setItem('apidoc/preRequest/localStorage', JSON.stringify(newData));
+    }
+  }
 }
 
 export const apidocCache = new ApidocCache();
