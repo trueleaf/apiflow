@@ -19,7 +19,7 @@ const requestSuggestions = [{
   kind: monaco.languages.CompletionItemKind.Method,
   insertText: 'request',
   sortText: '3',
-  keyword: 'pm.request',
+  keyword: 'af.request',
 }, {
   label: {
     label: 'url',
@@ -28,7 +28,7 @@ const requestSuggestions = [{
   sortText: 'a',
   kind: monaco.languages.CompletionItemKind.Module,
   insertText: 'url',
-  keyword: 'pm.request.url',
+  keyword: 'af.request.url',
 }, {
   label: {
     label: 'prefix',
@@ -37,7 +37,7 @@ const requestSuggestions = [{
   sortText: '1',
   kind: monaco.languages.CompletionItemKind.Property,
   insertText: 'prefix',
-  keyword: 'pm.request.url.prefix',
+  keyword: 'af.request.url.prefix',
 }, {
   label: {
     label: 'path',
@@ -46,7 +46,7 @@ const requestSuggestions = [{
   sortText: '2',
   kind: monaco.languages.CompletionItemKind.Property,
   insertText: 'path',
-  keyword: 'pm.request.url.path',
+  keyword: 'af.request.url.path',
 }, {
   label: {
     label: 'url',
@@ -55,7 +55,7 @@ const requestSuggestions = [{
   sortText: '3',
   kind: monaco.languages.CompletionItemKind.Property,
   insertText: 'url',
-  keyword: 'pm.request.url.url',
+  keyword: 'af.request.url.url',
 }, {
   label: {
     label: 'headers',
@@ -64,7 +64,7 @@ const requestSuggestions = [{
   sortText: '3c',
   kind: monaco.languages.CompletionItemKind.Module,
   insertText: 'headers',
-  keyword: 'pm.request.headers',
+  keyword: 'af.request.headers',
 }, {
   label: {
     label: 'queryParams',
@@ -73,7 +73,7 @@ const requestSuggestions = [{
   sortText: 'd',
   kind: monaco.languages.CompletionItemKind.Module,
   insertText: 'queryParams',
-  keyword: 'pm.request.queryParams',
+  keyword: 'af.request.queryParams',
 }, {
   label: {
     label: 'pathParams',
@@ -82,7 +82,7 @@ const requestSuggestions = [{
   sortText: 'e',
   kind: monaco.languages.CompletionItemKind.Module,
   insertText: 'pathParams',
-  keyword: 'pm.request.pathParams',
+  keyword: 'af.request.pathParams',
 }, {
   label: {
     label: 'body',
@@ -91,7 +91,7 @@ const requestSuggestions = [{
   sortText: 'f',
   kind: monaco.languages.CompletionItemKind.Module,
   insertText: 'body',
-  keyword: 'pm.request.body',
+  keyword: 'af.request.body',
 }, {
   label: {
     label: 'json',
@@ -100,7 +100,7 @@ const requestSuggestions = [{
   sortText: '1',
   kind: monaco.languages.CompletionItemKind.Module,
   insertText: 'json',
-  keyword: 'pm.request.body.json',
+  keyword: 'af.request.body.json',
 }, {
   label: {
     label: 'formdata',
@@ -109,7 +109,7 @@ const requestSuggestions = [{
   sortText: '2',
   kind: monaco.languages.CompletionItemKind.Module,
   insertText: 'formdata',
-  keyword: 'pm.request.body.formdata',
+  keyword: 'af.request.body.formdata',
 }, {
   label: {
     label: 'urlencoded',
@@ -118,7 +118,7 @@ const requestSuggestions = [{
   sortText: '3',
   kind: monaco.languages.CompletionItemKind.Module,
   insertText: 'urlencoded',
-  keyword: 'pm.request.body.urlencoded',
+  keyword: 'af.request.body.urlencoded',
 }, {
   label: {
     label: 'raw',
@@ -127,7 +127,7 @@ const requestSuggestions = [{
   sortText: '4',
   kind: monaco.languages.CompletionItemKind.Property,
   insertText: 'raw',
-  keyword: 'pm.request.body.raw',
+  keyword: 'af.request.body.raw',
 }, {
   label: {
     label: 'method',
@@ -136,7 +136,7 @@ const requestSuggestions = [{
   sortText: 'g',
   kind: monaco.languages.CompletionItemKind.Property,
   insertText: 'method',
-  keyword: 'pm.request.method',
+  keyword: 'af.request.method',
 }, {
   label: {
     label: 'envs',
@@ -145,7 +145,7 @@ const requestSuggestions = [{
   kind: monaco.languages.CompletionItemKind.Property,
   insertText: 'envs',
   sortText: 'h',
-  keyword: 'pm.request.envs',
+  keyword: 'af.request.envs',
 }, {
   label: {
     label: 'currentEnv',
@@ -154,7 +154,7 @@ const requestSuggestions = [{
   kind: monaco.languages.CompletionItemKind.Property,
   insertText: 'currentEnv',
   sortText: 'i',
-  keyword: 'pm.request.currentEnv',
+  keyword: 'af.request.currentEnv',
 }, {
   label: {
     label: 'replaceUrl',
@@ -163,7 +163,7 @@ const requestSuggestions = [{
   sortText: 'j',
   kind: monaco.languages.CompletionItemKind.Method,
   insertText: 'replaceUrl("替换后的url eg:https://www.baidu.com")',
-  keyword: 'pm.request.replaceUrl',
+  keyword: 'af.request.replaceUrl',
 }]
 const httpSuggestions = [
   {
@@ -174,7 +174,7 @@ const httpSuggestions = [
     sortText: '2',
     kind: monaco.languages.CompletionItemKind.Method,
     insertText: 'http',
-    keyword: 'pm.http',
+    keyword: 'af.http',
   }, {
     label: {
       label: 'get',
@@ -183,7 +183,7 @@ const httpSuggestions = [
     sortText: '1',
     kind: monaco.languages.CompletionItemKind.Method,
     insertText: 'get("请求url", { headers: {}, params: {}, body: {} })',
-    keyword: 'pm.http.get',
+    keyword: 'af.http.get',
   }, {
     label: {
       label: 'post',
@@ -192,7 +192,7 @@ const httpSuggestions = [
     sortText: '2',
     kind: monaco.languages.CompletionItemKind.Method,
     insertText: 'post("请求url", { headers: {}, params: {}, body: {} })',
-    keyword: 'pm.http.post',
+    keyword: 'af.http.post',
   }, {
     label: {
       label: 'put',
@@ -201,7 +201,7 @@ const httpSuggestions = [
     sortText: '3',
     kind: monaco.languages.CompletionItemKind.Method,
     insertText: 'put("请求url", { headers: {}, params: {}, body: {} })',
-    keyword: 'pm.http.put',
+    keyword: 'af.http.put',
   }, {
     label: {
       label: 'delete',
@@ -210,7 +210,7 @@ const httpSuggestions = [
     sortText: '4',
     kind: monaco.languages.CompletionItemKind.Method,
     insertText: 'delete("请求url", { headers: {}, params: {}, body: {} })',
-    keyword: 'pm.http.delete',
+    keyword: 'af.http.delete',
   }
 ]
 const sessionStateSuggestions = [{
@@ -221,7 +221,7 @@ const sessionStateSuggestions = [{
   kind: monaco.languages.CompletionItemKind.Module,
   insertText: 'sessionState',
   sortText: '4',
-  keyword: 'pm.sessionState',
+  keyword: 'af.sessionState',
 }]
 const localStateSuggestions = [{
   label: {
@@ -231,7 +231,7 @@ const localStateSuggestions = [{
   kind: monaco.languages.CompletionItemKind.Module,
   insertText: 'localState',
   sortText: '5',
-  keyword: 'pm.localState',
+  keyword: 'af.localState',
 }]
 
 const suggestions: Suggestions = [{
