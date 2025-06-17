@@ -88,19 +88,19 @@
     <!-- 新增/编辑弹窗 -->
     <el-dialog v-model="dialogVisible" :title="editMode ? t('编辑 Cookie') : t('新增 Cookie')" width="40vw">
       <el-form :model="editCookie" label-width="80px" :rules="rules" ref="formRef">
-        <el-form-item label="Name" prop="name">
+        <el-form-item :label="t('名称')" prop="name">
           <el-input v-model="editCookie.name" />
         </el-form-item>
-        <el-form-item label="Value" prop="value">
+        <el-form-item :label="t('值')" prop="value">
           <el-input v-model="editCookie.value" type="textarea" :autosize="{ minRows: 3, maxRows: 8 }"/>
         </el-form-item>
-        <el-form-item label="Domain" prop="domain">
+        <el-form-item :label="t('域名')" prop="domain">
           <el-input v-model="editCookie.domain" />
         </el-form-item>
-        <el-form-item label="Path" prop="path">
+        <el-form-item :label="t('路径')" prop="path">
           <el-input v-model="editCookie.path" />
         </el-form-item>
-        <el-form-item label="Expires" prop="expires">
+        <el-form-item :label="t('过期时间')" prop="expires">
           <div class="d-flex flex-column">
             <el-date-picker
               v-model="expiresDate"
@@ -114,17 +114,17 @@
             </div>
           </div>
         </el-form-item>
-        <el-form-item label="HttpOnly" prop="httpOnly">
+        <el-form-item :label="t('HttpOnly')" prop="httpOnly">
           <el-switch v-model="editCookie.httpOnly" />
         </el-form-item>
-        <el-form-item label="Secure" prop="secure">
+        <el-form-item :label="t('Secure')" prop="secure">
           <el-switch v-model="editCookie.secure" />
         </el-form-item>
-        <el-form-item label="SameSite" prop="sameSite">
+        <el-form-item :label="t('SameSite')" prop="sameSite">
           <el-select v-model="editCookie.sameSite" clearable>
-            <el-option label="Lax" value="Lax" />
-            <el-option label="Strict" value="Strict" />
-            <el-option label="None" value="None" />
+            <el-option :label="t('Lax')" value="Lax" />
+            <el-option :label="t('Strict')" value="Strict" />
+            <el-option :label="t('None')" value="None" />
           </el-select>
         </el-form-item>
       </el-form>
