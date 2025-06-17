@@ -396,11 +396,21 @@ export type RedirectOptions = {
   method: Method,
 }
 
+export type GotRequestJsonBody = { type: "json", value: string }
+export type GotRequestFormdataBody = { type: "formdata", value: RendererFormDataBody }
+export type GotRequestBinaryBody = {
+  type: "binary", value: {
+    mode: 'var' | 'file';
+    path: string;
+  }
+}
+export type GotRequestUrlencodedBody = { type: "urlencoded", value: string };
+export type GotRequestRawBody = { type: "raw", value: string };
 export type GotRequestOptions = {
   url: string;
   method: Method;
   timeout: number;
-  body: string | RendererFormDataBody | { type: "binary", path: string } | undefined;
+  body: GotRequestJsonBody | GotRequestFormdataBody | GotRequestBinaryBody | GotRequestUrlencodedBody | GotRequestRawBody | undefined;
   headers: Record<string, string | null>;
   signal: (cancelRequest: () => void) => void;
   onResponse?: (responseInfo: ResponseInfo) => void;

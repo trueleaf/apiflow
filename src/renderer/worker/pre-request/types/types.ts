@@ -1,3 +1,5 @@
+import { ApidocBodyMode } from "@src/types/global.ts";
+import { RendererFormDataBody } from "@src/types/types.ts";
 
 type JsonPrimitive = string | number | boolean | null;
 type JsonValue = JsonPrimitive | JsonObject | JsonArray;
@@ -8,9 +10,9 @@ export type BasicJSON = JsonObject;
 export type InitDataMessage = {
   type: 'initData';
   variables: { [key: string]: BasicJSON | JsonValue };
-  sessionStorage: Record<string, string>;
-  localStorage: Record<string, string>;
-  cookies: { [key: string]: string };
+  sessionStorage: Record<string, unknown>;
+  localStorage: Record<string, unknown>;
+  cookies: Record<string, string>;
   reqeustInfo: {
     _id: string;
     projectId: string;
@@ -18,24 +20,20 @@ export type InitDataMessage = {
     item: {
       method: string;
       url: string;
-      prefixUrl: string;
       paths: Record<string, string>;
       queryParams: Record<string, string>;
       requestBody: {
-        json: Record<string, BasicJSON | JsonValue>;
-        formdata: Record<string, {
-          type: 'string' | 'file';
-          path: string;
-        }>;
+        json: string;
+        formdata: RendererFormDataBody;
         urlencoded: Record<string, string>;
         raw: string;
         binary: {
-          mode: 'variable' | 'file';
-          value: string;
+          mode: 'var' | 'file';
+          path: string;
         };
       };
       headers: Record<string, string>;
-      bodyType: 'json' | 'formdata' | 'urlencoded' | 'raw' | 'binary' | 'none';
+      bodyType: ApidocBodyMode;
     };
   };
 };
@@ -155,39 +153,44 @@ export type OnDeleteCookieEvent = {
 //========================================================================//
 export type OnEvalSuccess = {
   type: 'pre-request-eval-success';
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  value: any;
+};
+export type OnInitSuccess = {
+  type: 'pre-request-init-success';
   value: any;
 };
 
-export type ReceivedEvent = OnDeleteHeadersEvent 
-| OnDeletePathParamsEvent 
-| OnDeleteQueryParamsEvent 
-| OnDeleteHeadersEvent
-| OnSetHeadersEvent 
-| OnSetPathParamsEvent 
-| OnSetQueryParamsEvent 
-| OnSetJsonEvent
-| OnDeleteJsonEvent
-| OnSetUrlencodedEvent
-| OnDeleteUrlencodedEvent
-| OnSetMethodEvent
-| OnSetUrlEvent
-| OnSetRawBodyEvent
-| OnSetFormdataEvent
-| OnDeleteFormdataEvent
-| OnSetBinaryBodyEvent
-| OnSetVariableEvent
-| OnDeleteVariableEvent
-| OnSetSessionStorageEvent
-| OnDeleteSessionStorageEvent
-| OnSetLocalStorageEvent
-| OnDeleteLocalStorageEvent
-| OnSetCookieEvent
-| OnDeleteCookieEvent
-| OnDeleteBinaryBodyEvent
-| OnEvalSuccess;
+export type ReceivedEvent =
+  | OnDeletePathParamsEvent
+  | OnDeleteQueryParamsEvent
+  | OnDeleteHeadersEvent
+  | OnSetHeadersEvent
+  | OnSetPathParamsEvent
+  | OnSetQueryParamsEvent
+  | OnSetJsonEvent
+  | OnDeleteJsonEvent
+  | OnSetUrlencodedEvent
+  | OnDeleteUrlencodedEvent
+  | OnSetMethodEvent
+  | OnSetUrlEvent
+  | OnSetRawBodyEvent
+  | OnSetFormdataEvent
+  | OnDeleteFormdataEvent
+  | OnSetBinaryBodyEvent
+  | OnSetVariableEvent
+  | OnDeleteVariableEvent
+  | OnSetSessionStorageEvent
+  | OnDeleteSessionStorageEvent
+  | OnSetLocalStorageEvent
+  | OnDeleteLocalStorageEvent
+  | OnSetCookieEvent
+  | OnDeleteCookieEvent
+  | OnDeleteBinaryBodyEvent
+  | OnEvalSuccess
+  | OnInitSuccess;
 export type AF = {
   nodeId: string;
+  projectId: string;
   request: {
     method: string;
     url: string;
@@ -203,14 +206,14 @@ export type AF = {
       }>;
       raw: string;
       binary: {
-        mode: 'variable' | 'file',
-        value: string;
+        mode: 'var' | 'file',
+        path: string;
       };
     };
     bodyType: 'json' | 'urlencoded' | 'formdata' | 'raw' | 'binary' | 'none';
   };
   variables: { [key: string]: BasicJSON };
-  sessionStorage: Record<string, string>;
-  localStorage: Record<string, string>;
+  sessionStorage: Record<string, any>;
+  localStorage: Record<string, any>;
   cookies: { [key: string]: BasicJSON };
 };
