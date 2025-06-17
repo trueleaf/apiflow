@@ -1,4 +1,5 @@
 import {
+  GotRequestBinaryBody,
   GotRequestOptions,
   RendererFormDataBody,
 } from '@/../types/types';
@@ -116,31 +117,25 @@ export const gotRequest = async (options: GotRequestOptions) => {
     } | Buffer | null = null;
     const headers: Record<string, string | undefined> = {};
     //formData数据单独处理
-    const isFormDataBody = Array.isArray(options.body);
-    const isBinaryBody = (options.body as {
-      type: "binary";
-      path: string;
-    })?.type === 'binary';
+    const isFormDataBody = options.body?.type === 'formdata';
+    const isBinaryBody = options.body?.type === 'binary';
     if (isFormDataBody) {
-      reqeustBody = await getFormDataFromRendererFormData(options.body as RendererFormDataBody);
+      reqeustBody = await getFormDataFromRendererFormData(options.body!.value as RendererFormDataBody);
       if (!(reqeustBody instanceof FormData)) {
         options.onReadFileFormDataError?.(reqeustBody);
         return
       }
       responseInfo.requestData.body = reqeustBody.getBuffer().toString();
     } else if (isBinaryBody) {
-      const { path } = options.body as {
-        type: "binary";
-        path: string;
-      };
-      reqeustBody = await getFileBufferByPath(path) as Buffer;
+      const { value } = options.body as GotRequestBinaryBody
+      reqeustBody = await getFileBufferByPath(value.path) as Buffer;
       if (!Buffer.isBuffer(reqeustBody)) {
         options.onReadBinaryDataError?.(reqeustBody);
         return
       }
       responseInfo.requestData.body = reqeustBody.toString();
     } else if (options.body) {
-      responseInfo.requestData.body = options.body as string;
+      responseInfo.requestData.body = options.body.value as string;
     }
 
     //更user-agent,accept-encoding和accept，不能放在for循环后面，否则参数勾选将无效
@@ -167,7 +162,7 @@ export const gotRequest = async (options: GotRequestOptions) => {
     const isConnectionKeepAlive = options.headers['Connection'] == undefined || options.headers['Connection'] === 'keep-alive';
     const needDecompress = options.headers['Accept-Encoding'] !== undefined;
     // console.log(needDecompress, options.headers)
-    const hasFormData = isFormDataBody && (options.body as RendererFormDataBody).some(item => (item.key));
+    const hasFormData = isFormDataBody && (options.body!.value as RendererFormDataBody).some(item => (item.key));
     let willSendBody: undefined | string | FormData | Buffer = '';
     if (options.method.toLowerCase() === 'head') { //只有head请求body值为undefined,head请求不挟带body
       willSendBody = undefined
@@ -178,7 +173,7 @@ export const gotRequest = async (options: GotRequestOptions) => {
     } else if (isBinaryBody) {
       willSendBody = reqeustBody as Buffer;
     } else if (options.body) {
-      willSendBody = options.body as string;
+      willSendBody = options.body.value as string;
     }
     // console.log(willSendBody, headers, hasFormData)
     const gotOptions: Omit<OptionsInit, 'isStream'>  = ({
