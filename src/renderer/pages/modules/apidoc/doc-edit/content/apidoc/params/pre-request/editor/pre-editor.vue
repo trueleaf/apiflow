@@ -68,16 +68,16 @@ onMounted(() => {
     language: 'javascript',
     automaticLayout: true,
     parameterHints: {
-      isEnabled: true
+      enabled: true
     },
     minimap: {
-      isEnabled: false,
+      enabled: false,
     },
     wrappingStrategy: 'advanced',
     scrollBeyondLastLine: false,
     overviewRulerLanes: 0,
     hover: {
-      isEnabled: true,
+      enabled: true,
       above: false,
     },
     renderLineHighlight: 'none',
