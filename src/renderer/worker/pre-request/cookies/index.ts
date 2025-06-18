@@ -1,11 +1,11 @@
-import { OnSetCookieEvent, OnDeleteCookieEvent, BasicJSON } from '../types/types';
+import { OnSetCookieEvent, OnDeleteCookieEvent } from '../types/types';
 
-const _cookies: { [key: string]: BasicJSON } = {};
+const _cookies: Record<string, string> = {};
 const handler = {
-  get(target: { [key: string]: BasicJSON }, key: string) {
+  get(target: Record<string, string>, key: string) {
     return target[key];
   },
-  set(target: { [key: string]: BasicJSON }, key: string, value: BasicJSON) {
+  set(target: Record<string, string>, key: string, value: string) {
     if (typeof value !== 'string') {
       console.warn(`cookie参数在给 【${key}】 字段赋值时出错，cookie参数值类型只能为字符串，传入值类型为${Object.prototype.toString.call(value)}},此操作将被忽略`);
       return true;
@@ -17,7 +17,7 @@ const handler = {
     } as OnSetCookieEvent);
     return true;
   },
-  deleteProperty(target: { [key: string]: BasicJSON }, key: string) {
+  deleteProperty(target: Record<string, string>, key: string) {
     delete target[key];
     self.postMessage({
       type: 'pre-request-delete-cookie',

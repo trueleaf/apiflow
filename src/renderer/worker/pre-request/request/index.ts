@@ -2,7 +2,7 @@ import { queryParams } from './queryParams/index.ts'
 import { pathParams } from './pathParams/index.ts'
 import { headers } from './headers/index.ts'
 import { createBodyProxy } from './body/index.ts'
-import { AF, OnSetMethodEvent, OnSetUrlEvent } from '../types/types.ts'
+import { AF, OnSetBodyTypeEvent, OnSetMethodEvent, OnSetUrlEvent } from '../types/types.ts'
 
 
 export const createRequestProxy = () => {
@@ -33,7 +33,7 @@ export const createRequestProxy = () => {
         target[key] = value;
         self.postMessage({
           type: 'pre-request-set-method',
-          value: JSON.parse(JSON.stringify(target)),
+          value: value,
         } as OnSetMethodEvent);
         return true;
       }
@@ -45,7 +45,7 @@ export const createRequestProxy = () => {
         target[key] = value;
         self.postMessage({
           type: 'pre-request-set-url',
-          value: JSON.parse(JSON.stringify(target)),
+          value: value,
         } as OnSetUrlEvent);
         return true;
       }
@@ -56,9 +56,9 @@ export const createRequestProxy = () => {
         }
         target[key] = value;
         self.postMessage({
-          type: 'pre-request-set-url',
-          value: JSON.parse(JSON.stringify(target)),
-        } as OnSetUrlEvent);
+          type: 'pre-request-set-body-type',
+          value: value,
+        } as OnSetBodyTypeEvent);
         return true;
       }
       return Reflect.set(target, key, value, receiver);

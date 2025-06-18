@@ -32,7 +32,7 @@ export type InitDataMessage = {
           path: string;
         };
       };
-      headers: Record<string, string>;
+      headers: Record<string, string | null>;
       bodyType: ApidocBodyMode;
     };
   };
@@ -83,23 +83,26 @@ export type OnSetUrlencodedEvent = {
 };
 export type OnSetMethodEvent = {
   type: 'pre-request-set-method';
-  value: Record<string, string>;
+  value: string;
 };
 export type OnSetUrlEvent = {
   type: 'pre-request-set-url';
-  value: Record<string, string>;
+  value: string;
 };
 export type OnSetBodyTypeEvent = {
   type: 'pre-request-set-body-type';
-  value: Record<string, string>;
+  value: string;
 };
 export type OnSetRawBodyEvent = {
   type: 'pre-request-set-raw-body';
-  value: Record<string, string>;
+  value: string;
 };
 export type OnSetBinaryBodyEvent = {
   type: 'pre-request-set-binary-body';
-  value: Record<string, string>;
+  value: {
+    mode: "var" | "file";
+    path: string;
+  };
 };
 export type OnDeleteBinaryBodyEvent = {
   type: 'pre-request-delete-binary-body';
@@ -215,5 +218,5 @@ export type AF = {
   variables: { [key: string]: BasicJSON };
   sessionStorage: Record<string, any>;
   localStorage: Record<string, any>;
-  cookies: { [key: string]: BasicJSON };
+  cookies: Record<string, string>;
 };

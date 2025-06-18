@@ -30,24 +30,30 @@ export const createBodyProxy = () => {
           }
           self.postMessage({
             type: 'pre-request-set-raw-body',
-            value: JSON.parse(JSON.stringify(target)),
+            value,
           } as OnSetRawBodyEvent);
         }
         if (key === 'binary') {
           if (typeof value === 'string') {
-            target.binary.value = value;
-            target.binary.mode = 'variable'; 
+            target.binary.path = value;
+            target.binary.mode = 'var'; 
             self.postMessage({
               type: 'pre-request-set-binary-body',
-              value: JSON.parse(JSON.stringify(target)),
+              value: {
+                path: value,
+                mode: 'var'
+              },
             } as OnSetBinaryBodyEvent);
             return true;
           } else if (value?.mode && value?.value) {
-            target.binary.value = value.value;
+            target.binary.path = value.value;
             target.binary.mode = 'file'; 
             self.postMessage({
               type: 'pre-request-set-binary-body',
-              value: JSON.parse(JSON.stringify(target)),
+              value: {
+                path: value.value,
+                mode: 'file'
+              },
             } as OnSetBinaryBodyEvent);
             return true;
           } else {

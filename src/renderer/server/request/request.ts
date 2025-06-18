@@ -1,7 +1,7 @@
 import { useApidoc } from '@/store/apidoc/apidoc';
 import { ref, toRaw } from 'vue';
 import json5 from 'json5'
-import { ApidocDetail, ApidocProperty } from '@src/types/global';
+import { ApidocDetail, ApidocProperty, ApidocHttpRequestMethod } from '@src/types/global';
 import { convertTemplateValueToRealValue, getEncodedStringFromEncodedParams, getFormDataFromFormDataParams, getObjectPathParams, getQueryStringFromQueryParams } from '@/utils/utils';
 import { useVariable } from '@/store/apidoc/variables';
 import { GotRequestOptions, JsonData, RedirectOptions, ResponseInfo } from '@src/types/types';
@@ -10,11 +10,12 @@ import { useApidocTas } from '@/store/apidoc/tabs';
 import { useApidocResponse } from '@/store/apidoc/response';
 import { apidocCache } from '@/cache/apidoc';
 import { config } from '@src/config/config';
-import { cloneDeep } from '@/helper';
+import { cloneDeep, uuid } from '@/helper';
 import { useApidocRequest } from '@/store/apidoc/request';
 import { t } from 'i18next';
 import { useCookies } from '@/store/apidoc/cookies';
 import { InitDataMessage, OnEvalSuccess, ReceivedEvent } from '@/worker/pre-request/types/types.ts';
+import { Method } from 'got';
 
 /*
 |--------------------------------------------------------------------------
@@ -239,6 +240,7 @@ const getHeaders = async (apidoc: ApidocDetail) => {
   return headersObject;
 }
 
+
 const convertPropertyToObject = async (properties: ApidocProperty<'string'>[]): Promise<Record<string, string>> => {
   const result: Record<string, string> = {};
   const { objectVariable } = useVariable();
@@ -251,6 +253,22 @@ const convertPropertyToObject = async (properties: ApidocProperty<'string'>[]): 
   }
   return result;
 };
+
+const convertObjectToProperty = (objectParams: Record<string, any>) => {
+  const newQueryParams: ApidocProperty<'string'>[] = [];
+  Object.keys(objectParams).forEach(key => {
+    newQueryParams.push({
+      key,
+      value: objectParams[key],
+      select: true,
+      _id: uuid(),
+      type: 'string',
+      required: false,
+      description: ''
+    });
+  })
+  return newQueryParams;
+}
 
 export async function sendRequest() {
   const preRequestWorker = new Worker(new URL('@/worker/pre-request/pre-request.ts', import.meta.url), {
@@ -266,27 +284,28 @@ export async function sendRequest() {
   const { updateCookiesBySetCookieHeader, getMachtedCookies } = useCookies();
   const { changeCancelRequestRef } = useApidocRequest()
   const { changeResponseInfo, changeResponseBody, changeResponseCacheAllowed, changeRequestState, changeLoadingProcess, changeFileBlobUrl } = useApidocResponse()
-  const rawApidoc = cloneDeep(toRaw(apidocStore.$state.apidoc));
-  const preSendMethod = getMethod(rawApidoc);
-  const preSendUrl = await getUrl(rawApidoc);
-  const preSendBody = await getBody(rawApidoc);
-  const objUrlencoded = await convertPropertyToObject(rawApidoc.item.requestBody.urlencoded);
-  const objPaths = await convertPropertyToObject(rawApidoc.item.paths);
-  const objQueryParams = await convertPropertyToObject(rawApidoc.item.queryParams);
-  const objHeaders = await convertPropertyToObject(rawApidoc.item.headers); 
+  const copiedApidoc = cloneDeep(toRaw(apidocStore.$state.apidoc));
+  const preSendMethod = getMethod(copiedApidoc);
+  const preSendUrl = await getUrl(copiedApidoc);
+  const preSendBody = await getBody(copiedApidoc);
+  const preSendHeaders = await getHeaders(copiedApidoc);
+  const objUrlencoded = await convertPropertyToObject(copiedApidoc.item.requestBody.urlencoded);
+  const objPaths = await convertPropertyToObject(copiedApidoc.item.paths);
+  const objQueryParams = await convertPropertyToObject(copiedApidoc.item.queryParams);
   changeRequestState('sending');
   const matchedCookies = getMachtedCookies(preSendUrl);
   const objCookies = await convertPropertyToObject(matchedCookies.map(cookie => ({ key: cookie.name, value: cookie.value, select: true })) as ApidocProperty<"string">[])
   const preRequestSessionStorage = apidocCache.getPreRequestSessionStorage(projectId) || {};
   const preRequestLocalStorage = apidocCache.getPreRequestLocalStorage(projectId) || {};
-  
-  console.log(preRequestSessionStorage, preRequestLocalStorage)
+  let finalSendHeaders = preSendHeaders;
+  let finalCookies = objCookies;
+  // console.log(preRequestSessionStorage, preRequestLocalStorage)
   const initDataMessage: InitDataMessage = {
     type: 'initData',
     reqeustInfo: {
-      _id: rawApidoc._id,
+      _id: copiedApidoc._id,
       projectId,
-      name: rawApidoc.info.name,
+      name: copiedApidoc.info.name,
       item: {
         method: preSendMethod,
         url: preSendUrl,
@@ -302,8 +321,8 @@ export async function sendRequest() {
             path: ''
           },
         },
-        headers: objHeaders,
-        bodyType: rawApidoc.item.requestBody.mode
+        headers: preSendHeaders,
+        bodyType: copiedApidoc.item.requestBody.mode
       }
     },
     variables: toRaw(objectVariable),
@@ -313,163 +332,211 @@ export async function sendRequest() {
   }
   // 处理前置脚本
   preRequestWorker.postMessage(initDataMessage);
-
   // 监听脚本处理
-  preRequestWorker.addEventListener('message', (e: MessageEvent<ReceivedEvent>) => {
+  preRequestWorker.addEventListener('message', async (e: MessageEvent<ReceivedEvent>) => {
     if (e.data.type === 'pre-request-init-success') {
       preRequestWorker.postMessage({
         type: 'eval',
-        code: rawApidoc.preRequest.raw
+        code: copiedApidoc.preRequest.raw
       })
     }
     if (e.data.type === 'pre-request-set-query-params') {
-      // console.log(e.data.type, e.data.value);
+      const evaledParams = e.data.value;
+      const newParams = convertObjectToProperty(evaledParams);
+      copiedApidoc.item.queryParams = newParams;
     } else if (e.data.type === 'pre-request-delete-query-params') {
-      // console.log(e.data.type, e.data.value);
+      const evaledParams = e.data.value;
+      const newParams = convertObjectToProperty(evaledParams);
+      copiedApidoc.item.queryParams = newParams;
     } else if (e.data.type === 'pre-request-set-header-params') {
-      // console.log(e.data.type, e.data.value);
-    }  else if (e.data.type === 'pre-request-delete-header-params') {
-      // console.log(e.data.type, e.data.value);
+      const evaledParams = e.data.value;
+      finalSendHeaders = evaledParams;
+    } else if (e.data.type === 'pre-request-delete-header-params') {
+      const evaledParams = e.data.value;
+      finalSendHeaders = evaledParams;
     } else if (e.data.type === 'pre-request-set-path-params') {
+      const evaledParams = e.data.value;
+      const newParams = convertObjectToProperty(evaledParams);
+      copiedApidoc.item.paths = newParams;
+    } else if (e.data.type === 'pre-request-delete-path-params') {
+      const evaledParams = e.data.value;
+      const newParams = convertObjectToProperty(evaledParams);
+      copiedApidoc.item.paths = newParams;
+    } else if (e.data.type === 'pre-request-delete-json-params') {
       // console.log(e.data.type, e.data.value);
-    }  else if (e.data.type === 'pre-request-delete-path-params') {
-      // console.log(e.data.type, e.data.value);
-    }  else if (e.data.type === 'pre-request-delete-json-params') {
-      // console.log(e.data.type, e.data.value);
-    }  else if (e.data.type === 'pre-request-set-json-params') {
+    } else if (e.data.type === 'pre-request-set-json-params') {
       // console.log(e.data.type, e.data.value);
     } else if (e.data.type === 'pre-request-delete-urlencoded') {
-      // console.log(e.data.type, e.data.value);
+      const evaledParams = e.data.value;
+      const newParams = convertObjectToProperty(evaledParams);
+      copiedApidoc.item.requestBody.urlencoded = newParams;
     } else if (e.data.type === 'pre-request-set-urlencoded') {
-      // console.log(e.data.type, e.data.value);
+      const evaledParams = e.data.value;
+      const newParams = convertObjectToProperty(evaledParams);
+      copiedApidoc.item.requestBody.urlencoded = newParams;
     } else if (e.data.type === 'pre-request-set-method') {
-      // console.log(e.data.type, e.data.value);
+      copiedApidoc.item.method = e.data.value as Method;
     } else if (e.data.type === 'pre-request-set-raw-body') {
-      // console.log(e.data.type, e.data.value);
+      copiedApidoc.item.requestBody.raw.data = e.data.value;
     } else if (e.data.type === 'pre-request-set-binary-body') {
-      // console.log(e.data.type, e.data.value);
+      const { mode, path } = e.data.value;
+      copiedApidoc.item.requestBody.binary = {
+        mode,
+        varValue: mode === 'var' ? path : '',
+        binaryValue: mode === 'file' ? { path, raw: '', id: uuid() } : { path: '', raw: '', id: uuid() }
+      };
     } else if (e.data.type === 'pre-request-set-formdata') {
       // console.log(e.data.type, e.data.value);
     } else if (e.data.type === 'pre-request-set-url') {
-      // console.log(e.data.type, e.data.value);
-    } else if (e.data.type === 'pre-request-eval-success') {
-      console.log(e.data.type, e.data.value)
+      copiedApidoc.item.url.host = '';
+      copiedApidoc.item.url.path = e.data.value;
     } else if (e.data.type === 'pre-request-set-cookie') {
-      // console.log(e.data.type, e.data.value);
+      finalCookies = e.data.value;
+    } else if (e.data.type === 'pre-request-delete-cookie') {
+      finalCookies = e.data.value;
     } else if (e.data.type === 'pre-request-set-variable') {
       // console.log(e.data.type, e.data.value);
     } else if (e.data.type === 'pre-request-set-session-storage') {
-      
+      apidocCache.setPreRequestSessionStorage(projectId, e.data.value);
     } else if (e.data.type === 'pre-request-delete-session-storage') {
-      
+      apidocCache.setPreRequestSessionStorage(projectId, {});
     } else if (e.data.type === 'pre-request-set-local-storage') {
-     
+      apidocCache.setPreRequestLocalStorage(projectId, e.data.value);
     } else if (e.data.type === 'pre-request-delete-local-storage') {
-      
-    }
-  })
-  const method = getMethod(rawApidoc);
-  const url = await getUrl(rawApidoc);
-  const body = await getBody(rawApidoc);
-  const headers = await getHeaders(rawApidoc);
-  window.electronAPI?.sendRequest({
-    url,
-    method,
-    timeout: 60000,
-    body,
-    headers,
-    signal(cancelRequest) {
-      changeCancelRequestRef(cancelRequest);
-    },
-    onError: (err) => {
-      console.error(err)
-      changeResponseInfo({
-        redirectList: [],
-        responseData: {
-          canApiflowParseType: 'error',
-          errorData: err.message
-        }
-      });
-      changeRequestState('finish');
-    },
-    beforeRedirect: (options: RedirectOptions) => {
-      const { plainResponse, requestHeaders, method } = options;
-      const responseHeaders: Record<string, string> = {};
-      plainResponse.rawHeaders.forEach((value, index) => {
-        if (index % 2 === 0) {
-          responseHeaders[value.toLowerCase()] = plainResponse.rawHeaders[index + 1] || '';
-        }
-      });
-      redirectList.value.push({
-        responseHeaders,
-        requestHeaders,
-        statusCode: plainResponse.statusCode,
-        method,
-        url: plainResponse.url,
-      })
-    },
-    beforeRetry: () => {
-    },
-    onReadFileFormDataError(options: {id: string, msg: string, fullMsg: string}) {
-      apidocStore.changeFormDataErrorInfoById(options.id, options.msg);
-      changeResponseInfo({
-        responseData: {
-          canApiflowParseType: 'error',
-          errorData: options.fullMsg
-        }
-      });
-      changeRequestState('finish');
-    },
-    onReadBinaryDataError(options: {msg: string, fullMsg: string}) {
-      changeResponseInfo({
-        responseData: {
-          canApiflowParseType: 'error',
-          errorData: options.fullMsg
-        }
-      });
-      changeRequestState('finish');
-    },
-    onResponse(responseInfo) {
-      changeResponseInfo(responseInfo);
-      changeRequestState('finish');
-    },
-    onResponseData(loadedLength, totalLength) {
-      changeLoadingProcess({
-        total: totalLength,
-        transferred: loadedLength,
-        percent: loadedLength / totalLength
-      })
-    },
-    onResponseEnd(responseInfo) {
-      const rawBody = responseInfo.body;
-      const setCookieStrList = responseInfo.headers['set-cookie'] || [];
-      changeRequestState('finish');
-      changeResponseBody(responseInfo.body)
-      responseInfo.body = null; // 不存储body防止数据量过大
-      responseInfo.redirectList = cloneDeep(redirectList.value); // 记录重定向列表
-      changeResponseInfo(responseInfo);
-      changeFileBlobUrl(rawBody as Uint8Array, responseInfo.contentType);
-      updateCookiesBySetCookieHeader(setCookieStrList, responseInfo.requestData.host, projectId);
-      console.log('responseInfo', responseInfo)
-      const storedResponseInfo = cloneDeep(responseInfo);
-      storedResponseInfo.body = rawBody;
-      if (responseInfo.bodyByteLength > config.cacheConfig.apiflowResponseCache.singleResponseBodySize) {
-        storedResponseInfo.body = [];
-        storedResponseInfo.responseData.textData = '';
-        storedResponseInfo.responseData.jsonData = '';
-        storedResponseInfo.responseData.fileData = {
-          url: "",
-          name: "",
-          ext: ''
-        };
-        storedResponseInfo.responseData.canApiflowParseType = 'cachedBodyIsTooLarge';
-        changeResponseCacheAllowed(selectedTab?._id ?? '', false);
+      apidocCache.setPreRequestLocalStorage(projectId, {});
+    } else if (e.data.type === 'pre-request-eval-success') {
+      const method = getMethod(copiedApidoc);
+      const url = await getUrl(copiedApidoc);
+      const body = await getBody(copiedApidoc);
+      if (Object.values(finalCookies).length > 0) {
+        finalSendHeaders.cookie = Object.entries(finalCookies)
+          .map(([key, value]) => `${key}=${value}`)
+          .join('; ');
       } else {
-        changeResponseCacheAllowed(selectedTab?._id ?? '', true);
+        delete finalSendHeaders.cookie;
       }
-      apidocCache.setResponse(selectedTab?._id ?? '', storedResponseInfo);
-    },
+      window.electronAPI?.sendRequest({
+        url,
+        method,
+        timeout: 60000,
+        body,
+        headers: finalSendHeaders,
+        signal(cancelRequest) {
+          changeCancelRequestRef(cancelRequest);
+        },
+        onError: (err) => {
+          console.error(err)
+          changeResponseInfo({
+            redirectList: [],
+            responseData: {
+              canApiflowParseType: 'error',
+              errorData: err.message
+            }
+          });
+          changeRequestState('finish');
+        },
+        beforeRedirect: (options: RedirectOptions) => {
+          const { plainResponse, requestHeaders, method } = options;
+          const responseHeaders: Record<string, string> = {};
+          plainResponse.rawHeaders.forEach((value, index) => {
+            if (index % 2 === 0) {
+              responseHeaders[value.toLowerCase()] = plainResponse.rawHeaders[index + 1] || '';
+            }
+          });
+          redirectList.value.push({
+            responseHeaders,
+            requestHeaders,
+            statusCode: plainResponse.statusCode,
+            method,
+            url: plainResponse.url,
+          })
+        },
+        beforeRetry: () => {
+        },
+        onReadFileFormDataError(options: {id: string, msg: string, fullMsg: string}) {
+          apidocStore.changeFormDataErrorInfoById(options.id, options.msg);
+          changeResponseInfo({
+            responseData: {
+              canApiflowParseType: 'error',
+              errorData: options.fullMsg
+            }
+          });
+          changeRequestState('finish');
+        },
+        onReadBinaryDataError(options: {msg: string, fullMsg: string}) {
+          changeResponseInfo({
+            responseData: {
+              canApiflowParseType: 'error',
+              errorData: options.fullMsg
+            }
+          });
+          changeRequestState('finish');
+        },
+        onResponse(responseInfo) {
+          changeResponseInfo(responseInfo);
+          changeRequestState('finish');
+        },
+        onResponseData(loadedLength, totalLength) {
+          changeLoadingProcess({
+            total: totalLength,
+            transferred: loadedLength,
+            percent: loadedLength / totalLength
+          })
+        },
+        onResponseEnd(responseInfo) {
+          const rawBody = responseInfo.body;
+          const setCookieStrList = responseInfo.headers['set-cookie'] || [];
+          changeRequestState('finish');
+          changeResponseBody(responseInfo.body)
+          responseInfo.body = null; // 不存储body防止数据量过大
+          responseInfo.redirectList = cloneDeep(redirectList.value); // 记录重定向列表
+          changeResponseInfo(responseInfo);
+          changeFileBlobUrl(rawBody as Uint8Array, responseInfo.contentType);
+          updateCookiesBySetCookieHeader(setCookieStrList, responseInfo.requestData.host, projectId);
+          console.log('responseInfo', responseInfo)
+          const storedResponseInfo = cloneDeep(responseInfo);
+          storedResponseInfo.body = rawBody;
+          if (responseInfo.bodyByteLength > config.cacheConfig.apiflowResponseCache.singleResponseBodySize) {
+            storedResponseInfo.body = [];
+            storedResponseInfo.responseData.textData = '';
+            storedResponseInfo.responseData.jsonData = '';
+            storedResponseInfo.responseData.fileData = {
+              url: "",
+              name: "",
+              ext: ''
+            };
+            storedResponseInfo.responseData.canApiflowParseType = 'cachedBodyIsTooLarge';
+            changeResponseCacheAllowed(selectedTab?._id ?? '', false);
+          } else {
+            changeResponseCacheAllowed(selectedTab?._id ?? '', true);
+          }
+          apidocCache.setResponse(selectedTab?._id ?? '', storedResponseInfo);
+        },
+      })
+    } 
   })
+
+  // preRequestWorker.addEventListener('error', (error) => {
+  //   changeResponseInfo({
+  //     responseData: {
+  //       canApiflowParseType: 'error',
+  //       errorData: `Pre-request script error: ${error.message}`
+  //     }
+  //   });
+  //   changeRequestState('finish');
+  // });
+
+  // preRequestWorker.addEventListener('messageerror', () => {
+  //   changeResponseInfo({
+  //     responseData: {
+  //       canApiflowParseType: 'error',
+  //       errorData: 'Pre-request script message error: Failed to deserialize message'
+  //     }
+  //   });
+  //   changeRequestState('finish');
+  // });
+
+
 
 
 
@@ -487,7 +554,7 @@ export async function sendRequest() {
   //       _id: apidocBaseInfoStore._id,
   //       projectVaribles: JSON.parse(JSON.stringify(apidocBaseInfoStore.variables)),
   //       envs,
-  //       sessionState: JSON.parse(JSON.stringify(apidocWorkerStateStore.sessionState[projectId] || {})),
+  //       sessionStorage: JSON.parse(JSON.stringify(apidocWorkerStateStore.sessionStorage[projectId] || {})),
   //       localState: JSON.parse(JSON.stringify(apidocWorkerStateStore.localState[projectId] || {})),
   //       remoteState: JSON.parse(JSON.stringify(apidocWorkerStateStore.remoteState[projectId] || {})),
   //       packages: JSON.parse(JSON.stringify(scriptList))
@@ -622,8 +689,8 @@ export async function sendRequest() {
   //   if (res.data.type === 'pre-request-change-raw-params') { //改变raw body
   //     apidocConverter.changeRawBody(res.data.value);
   //   }
-  //   if (res.data.type === 'pre-request-change-sessionState') { //改变worker的sessionState
-  //     apidocWorkerStateStore.changeSessionState({
+  //   if (res.data.type === 'pre-request-change-sessionStorage') { //改变worker的sessionStorage
+  //     apidocWorkerStateStore.changesessionStorage({
   //       projectId,
   //       value: res.data.value
   //     })
