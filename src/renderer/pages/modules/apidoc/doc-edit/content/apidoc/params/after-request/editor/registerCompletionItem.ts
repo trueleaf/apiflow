@@ -304,35 +304,44 @@ const httpSuggestions = [
     keyword: 'af.http.delete',
   }
 ]
-const sessionStateSuggestions = [{
+const sessionStorageSuggestions = [{
   label: {
-    label: 'sessionState',
+    label: 'sessionStorage',
     description: '会话数据(刷新后消失)'
   },
   kind: monaco.languages.CompletionItemKind.Module,
-  insertText: 'sessionState',
+  insertText: 'sessionStorage',
   sortText: '4',
-  keyword: 'af.sessionState',
+  keyword: 'af.sessionStorage',
 }]
-const localStateSuggestions = [{
+const localStorageSuggestions = [{
   label: {
-    label: 'localState',
+    label: 'localStorage',
     description: '持久数据(清空缓存后消失)'
   },
   kind: monaco.languages.CompletionItemKind.Module,
-  insertText: 'localState',
+  insertText: 'localStorage',
   sortText: '5',
-  keyword: 'af.localState',
+  keyword: 'af.localStorage',
 }]
-
+const cookiesSuggestions = [{
+  label: {
+    label: 'cookies',
+    description: 'Cookie数据(浏览器cookie)'
+  },
+  kind: monaco.languages.CompletionItemKind.Module,
+  insertText: 'cookies',
+  sortText: '6',
+  keyword: 'af.cookies',
+}]
 const suggestions: Suggestions = [{
   label: {
-    label: 'pm',
+    label: 'af',
     description: '全局对象'
   },
   kind: monaco.languages.CompletionItemKind.Function,
-  insertText: 'pm',
-  keyword: 'pm',
+  insertText: 'af',
+  keyword: 'af',
 },
 {
   label: {
@@ -345,8 +354,9 @@ const suggestions: Suggestions = [{
 },
 ...httpSuggestions,
 ...responseSuggestions,
-...sessionStateSuggestions,
-...localStateSuggestions,
+...sessionStorageSuggestions,
+...localStorageSuggestions,
+...cookiesSuggestions,
 ...requestSuggestions]
 
 export function useCompletionItem(): monaco.IDisposable {

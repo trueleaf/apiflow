@@ -13,12 +13,12 @@ type Suggestions = {
 
 const suggestions: Suggestions = [{
   label: {
-    label: 'pm',
+    label: 'af',
     description: '全局对象'
   },
   kind: monaco.languages.CompletionItemKind.Function,
-  insertText: 'pm',
-  keyword: 'pm',
+  insertText: 'af',
+  keyword: 'af',
 },
 {
   label: {
