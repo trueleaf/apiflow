@@ -156,15 +156,11 @@ export const getEncodedStringFromEncodedParams = async (encodedParams: Property[
 }
 export const getFormDataFromFormDataParams = async (formDataParams: Property[], objectVariable: Record<string, any>): Promise<RendererFormDataBody> => {
   const renderedFormDataBody: RendererFormDataBody = [];
-  const { variables } = useVariable()
   for (let i = 0; i < formDataParams.length; i++) {
     const formData = formDataParams[i];
     if (formData.key) {
       const realKey = await convertTemplateValueToRealValue(formData.key, objectVariable);
       const realValue = await convertTemplateValueToRealValue(formData.value, objectVariable);
-      if (formData.type === 'file') {
-        console.log(variables, formData.value)
-      }
       renderedFormDataBody.push({
         id: formData._id,
         key: realKey,

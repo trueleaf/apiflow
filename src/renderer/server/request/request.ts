@@ -241,7 +241,7 @@ const getHeaders = async (apidoc: ApidocDetail) => {
 }
 
 
-const convertPropertyToObject = async (properties: ApidocProperty<'string'>[]): Promise<Record<string, string>> => {
+const convertPropertyToObject = async (properties: ApidocProperty<'string' | 'file'>[]): Promise<Record<string, string>> => {
   const result: Record<string, string> = {};
   const { objectVariable } = useVariable();
   for (const prop of properties) {
@@ -385,8 +385,22 @@ export async function sendRequest() {
         varValue: mode === 'var' ? path : '',
         binaryValue: mode === 'file' ? { path, raw: '', id: uuid() } : { path: '', raw: '', id: uuid() }
       };
-    } else if (e.data.type === 'pre-request-set-formdata') {
-      // console.log(e.data.type, e.data.value);
+    } else if (e.data.type === 'pre-request-set-formdata' || e.data.type === 'pre-request-delete-formdata') {
+      const evaledValue = e.data.value;
+      const newParams: ApidocProperty<'string' | 'file'>[] = [];
+      Object.keys(evaledValue).forEach(key => {
+        const value = evaledValue[key];
+        newParams.push({
+          select: true,
+          _id: uuid(),
+          required: false,
+          description: '',
+          key,
+          value: value.value,
+          type: value.type,
+        })
+      })
+      copiedApidoc.item.requestBody.formdata = newParams
     } else if (e.data.type === 'pre-request-set-url') {
       copiedApidoc.item.url.host = '';
       copiedApidoc.item.url.path = e.data.value;
@@ -395,7 +409,7 @@ export async function sendRequest() {
     } else if (e.data.type === 'pre-request-delete-cookie') {
       finalCookies = e.data.value;
     } else if (e.data.type === 'pre-request-set-variable') {
-      // console.log(e.data.type, e.data.value);
+      // 修改variable无意义 console.log(e.data.type, e.data.value);
     } else if (e.data.type === 'pre-request-set-session-storage') {
       apidocCache.setPreRequestSessionStorage(projectId, e.data.value);
     } else if (e.data.type === 'pre-request-delete-session-storage') {

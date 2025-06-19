@@ -27,7 +27,7 @@ const af: AF = new Proxy({
 const options = {
   getFile(path: string) {
     return {
-      mode: 'file',
+      type: 'file',
       value: path
     };
   },
@@ -45,11 +45,16 @@ self.onmessage = (e: MessageEvent<InitDataMessage | EvalMessage>) => {
     Object.assign(af.request.queryParams, reqeustInfo.item.queryParams)
     Object.assign(af.request.pathParams, reqeustInfo.item.paths);
     Object.assign(af.request.body.urlencoded, reqeustInfo.item.requestBody.urlencoded);
-    Object.assign(af.request.body.formdata, reqeustInfo.item.requestBody.formdata);
     Object.assign(af.variables, e.data.variables);
     Object.assign(af.cookies, e.data.cookies);
     Object.assign(af.localStorage, e.data.localStorage);
     Object.assign(af.sessionStorage, e.data.sessionStorage);
+    reqeustInfo.item.requestBody.formdata.forEach(formdata => {
+      af.request.body.formdata[formdata.key] = {
+        type: formdata.type,
+        value: formdata.value
+      }
+    })
     af.request.body.raw = reqeustInfo.item.requestBody.raw;
     af.request.bodyType = reqeustInfo.item.bodyType;
     af.request.body.binary.mode = reqeustInfo.item.requestBody.binary.mode;

@@ -4,10 +4,9 @@ type FormdataItem = AF['request']['body']['formdata'];
 const _formdata: FormdataItem = {};
 const handler = {
   get(target: FormdataItem, key: string) {
-    return target[key];
+    return target[key]?.value;
   },
-  set(target: FormdataItem, key: string, value: { type: 'file' | 'string', path: string } | string) {
-    // console.log(key, value, target[key], 1)
+  set(target: FormdataItem, key: string, value: { type: 'file' | 'string', value: string } | string) {
     if (typeof value === 'string') {
       if (!target[key]) {
         target[key] = {
@@ -24,7 +23,7 @@ const handler = {
     } else if (value.type === 'file') {
       target[key] = {
         type: 'file',
-        value: value.path,
+        value: value.value,
       };
       self.postMessage({
         type: 'pre-request-set-formdata',
@@ -33,7 +32,7 @@ const handler = {
     }  else if (value.type === 'string') {
       target[key] = {
         type: 'string',
-        value: value.path,
+        value: value.value,
       };
       self.postMessage({
         type: 'pre-request-set-formdata',

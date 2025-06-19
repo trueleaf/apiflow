@@ -110,11 +110,17 @@ export type OnDeleteBinaryBodyEvent = {
 };
 export type OnSetFormdataEvent = {
   type: 'pre-request-set-formdata';
-  value: Record<string, string>;
+  value: Record<string, {
+    type: "file" | "string",
+    value: string
+  }>;
 };
 export type OnDeleteFormdataEvent = {
   type: 'pre-request-delete-formdata';
-  value: Record<string, string>;
+  value: Record<string, {
+    type: "file" | "string",
+    value: string
+  }>;
 };
 /*
 |--------------------------------------------------------------------------
