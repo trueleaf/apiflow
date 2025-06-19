@@ -1,0 +1,311 @@
+import { Inject, Controller, All, Body } from '@midwayjs/core';
+import { Context } from '@midwayjs/koa';
+import { UserService } from '../service/security/user.js';
+import { InjectEntityModel } from '@midwayjs/typegoose';
+import { User } from '../entity/security/user.js';
+import { ReturnModelType } from '@typegoose/typegoose';
+// import { sleep } from '../utils/utils.js';
+import path, { dirname } from 'node:path';
+import fs from 'node:fs'
+import { fileURLToPath } from 'node:url';
+
+@Controller('/api')
+export class APIController {
+  @Inject()
+  ctx: Context;
+
+  @Inject()
+  userService: UserService;
+
+  @InjectEntityModel(User)
+  userModel: ReturnModelType<typeof User>;
+
+
+  @All('/test/request_method')
+  async methodTest() {
+    console.log('method test')
+    return {
+      method: this.ctx.method,
+    };
+  }
+  @All('/test/query_params/*')
+  async queryTest() {
+    console.log('query test', this.ctx.query)
+    return {
+      query: this.ctx.query,
+      path: this.ctx.path,
+    };
+  }
+  @All('/test/request_info/**')
+  async requestInfoTest() {
+    // const rawBody = await new Promise((resolve, reject) => {
+    //   let data = '';
+    //   this.ctx.req.setEncoding('utf8');
+    //   this.ctx.req.on('data', chunk => {
+    //     data += chunk
+    //   });
+    //   this.ctx.req.on('end', () => resolve(data));
+    // });
+    console.log('request_info test', this.ctx.fields)
+    return {
+      query: this.ctx.query,
+      path: this.ctx.path,
+      body: this.ctx.request.body,
+      // rawBody,
+      files: this.ctx.files,
+      fields: this.ctx.fields,
+      headers: this.ctx.headers,
+    };
+  }
+  @All('/test/raw_body')
+  async rawBodyTest() {
+    console.log('rawBody test')
+    const rawBody = await new Promise((resolve, reject) => {
+      let data = '';
+      this.ctx.req.setEncoding('utf8');
+      this.ctx.req.on('data', chunk => {
+        data += chunk
+      });
+      this.ctx.req.on('end', () => resolve(data));
+    });
+    return {
+      rawBody,
+    };
+  }
+  @All('/test/binary')
+  async binaryTest() {
+    console.log('binaryTest')
+    const rawBody = await new Promise((resolve, reject) => {
+      let data = '';
+      this.ctx.req.setEncoding('utf8');
+      this.ctx.req.on('data', chunk => {
+        data += chunk
+      });
+      this.ctx.req.on('end', () => resolve(data));
+    });
+    return {
+      path: this.ctx.path,
+      rawBody,
+      headers: this.ctx.headers,
+    };
+  }
+  @All('/test/response/**')
+  async responseTest(@Body() params: { type: string, size: "normal" | "large" }) {
+    const __dirname = dirname(fileURLToPath(import.meta.url));
+    // const data = await this.userModel.find();
+    if (params.type === 'json' && params.size === 'normal') {
+      const filePath = path.resolve(__dirname, `../../public/response_test/text/res.json`);
+      this.ctx.set('Content-Type', 'application/json; charset=utf-8');
+      const dataBuffer = fs.readFileSync(filePath);
+      return dataBuffer;
+    } else if (params.type === 'css' && params.size === 'normal') {
+      const filePath = path.resolve(__dirname, `../../public/response_test/text/res.css`);
+      this.ctx.set('Content-Type', 'text/css; charset=utf-8');
+      const dataBuffer = fs.readFileSync(filePath);
+      return dataBuffer;
+    } else if (params.type === 'js' && params.size === 'normal') {
+      const filePath = path.resolve(__dirname, `../../public/response_test/text/res.js`);
+      this.ctx.set('Content-Type', 'application/javascript; charset=utf-8');
+      const dataBuffer = fs.readFileSync(filePath);
+      return dataBuffer;
+    } else if (params.type === 'html' && params.size === 'normal') {
+      const filePath = path.resolve(__dirname, `../../public/response_test/text/res.html`);
+      this.ctx.set('Content-Type', 'text/html; charset=utf-8');
+      const dataBuffer = fs.readFileSync(filePath);
+      return dataBuffer;
+    } else if (params.type === 'txt' && params.size === 'normal') {
+      const filePath = path.resolve(__dirname, `../../public/response_test/text/res.txt`);
+      this.ctx.set('Content-Type', 'text/plain; charset=utf-8');
+      const dataBuffer = fs.readFileSync(filePath);
+      return dataBuffer;
+    } else if (params.type === 'xml' && params.size === 'normal') {
+      const filePath = path.resolve(__dirname, `../../public/response_test/text/res.xml`);
+      this.ctx.set('Content-Type', 'application/xml; charset=utf-8');
+      const dataBuffer = fs.readFileSync(filePath);
+      return dataBuffer;
+    } else if (params.type === 'csv' && params.size === 'normal') {
+      const filePath = path.resolve(__dirname, `../../public/response_test/text/res.csv`);
+      this.ctx.set('Content-Type', 'text/csv; charset=utf-8');
+      const dataBuffer = fs.readFileSync(filePath);
+      return dataBuffer;
+    } else if (params.type === 'doc') {
+      const filePath = path.resolve(__dirname, `../../public/response_test/office/res.doc`);
+      this.ctx.set('Content-Type', 'application/msword; charset=utf-8');
+      const dataBuffer = fs.readFileSync(filePath);
+      return dataBuffer;
+    } else if (params.type === 'docx') {
+      const filePath = path.resolve(__dirname, `../../public/response_test/office/res.docx`);
+      this.ctx.set('Content-Type', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document; charset=utf-8');
+      const dataBuffer = fs.readFileSync(filePath);
+      return dataBuffer;
+    } else if (params.type === 'pdf') {
+      const filePath = path.resolve(__dirname, `../../public/response_test/office/res.pdf`);
+      this.ctx.set('Content-Type', 'application/pdf; charset=utf-8');
+      const dataBuffer = fs.readFileSync(filePath);
+      return dataBuffer;
+    } else if (params.type === 'xls') {
+      const filePath = path.resolve(__dirname, `../../public/response_test/office/res.xls`);
+      this.ctx.set('Content-Type', 'application/vnd.ms-excel; charset=utf-8');
+      const dataBuffer = fs.readFileSync(filePath);
+      return dataBuffer;
+    } else if (params.type === 'xlsx') {
+      const filePath = path.resolve(__dirname, `../../public/response_test/office/res.xlsx`);
+      this.ctx.set('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet; charset=utf-8');
+      const dataBuffer = fs.readFileSync(filePath);
+      return dataBuffer;
+    } else if (params.type === 'ppt') {
+      const filePath = path.resolve(__dirname, `../../public/response_test/office/res.ppt`);
+      this.ctx.set('Content-Type', 'application/vnd.ms-powerpoint; charset=utf-8');
+      const dataBuffer = fs.readFileSync(filePath);
+      return dataBuffer;
+    } else if (params.type === 'pptx') {
+      const filePath = path.resolve(__dirname, `../../public/response_test/office/res.pptx`);
+      this.ctx.set('Content-Type', 'application/vnd.openxmlformats-officedocument.presentationml.presentation; charset=utf-8');
+      const dataBuffer = fs.readFileSync(filePath);
+      return dataBuffer;
+    } else if (params.type === 'jpg') {
+      const filePath = path.resolve(__dirname, `../../public/response_test/img/res.jpg`);
+      this.ctx.set('Content-Type', 'image/jpeg');
+      const dataBuffer = fs.readFileSync(filePath);
+      return dataBuffer;
+    } else if (params.type === 'png') {
+      const filePath = path.resolve(__dirname, `../../public/response_test/img/res.png`);
+      this.ctx.set('Content-Type', 'image/png');
+      const dataBuffer = fs.readFileSync(filePath);
+      return dataBuffer;
+    } else if (params.type === 'gif') {
+      const filePath = path.resolve(__dirname, `../../public/response_test/img/res.gif`);
+      this.ctx.set('Content-Type', 'image/gif');
+      const dataBuffer = fs.readFileSync(filePath);
+      return dataBuffer;
+    } else if (params.type === 'webp') {
+      const filePath = path.resolve(__dirname, `../../public/response_test/img/res.webp`);
+      this.ctx.set('Content-Type', 'image/webp');
+      const dataBuffer = fs.readFileSync(filePath);
+      return dataBuffer;
+    } else if (params.type === 'bmp') {
+      const filePath = path.resolve(__dirname, `../../public/response_test/img/res.bmp`);
+      this.ctx.set('Content-Type', 'image/bmp');
+      const dataBuffer = fs.readFileSync(filePath);
+      return dataBuffer;
+    } else if (params.type === 'svg') {
+      const filePath = path.resolve(__dirname, `../../public/response_test/img/res.svg`);
+      this.ctx.set('Content-Type', 'image/svg+xml');
+      const dataBuffer = fs.readFileSync(filePath);
+      return dataBuffer;
+    } else if (params.type === 'ico') {
+      const filePath = path.resolve(__dirname, `../../public/response_test/img/res.ico`);
+      this.ctx.set('Content-Type', 'image/x-icon');
+      const dataBuffer = fs.readFileSync(filePath);
+      return dataBuffer;
+    } else if (params.type === 'wav') {
+      const filePath = path.resolve(__dirname, `../../public/response_test/video_audio/res.wav`);
+      this.ctx.set('Content-Type', 'audio/wav');
+      const dataBuffer = fs.readFileSync(filePath);
+      return dataBuffer;
+    } else if (params.type === 'mp3') {
+      const filePath = path.resolve(__dirname, `../../public/response_test/video_audio/res.mp3`);
+      this.ctx.set('Content-Type', 'audio/mpeg');
+      const dataBuffer = fs.readFileSync(filePath);
+      return dataBuffer;
+    } else if (params.type === 'flac') {
+      const filePath = path.resolve(__dirname, `../../public/response_test/video_audio/res.flac`);
+      this.ctx.set('Content-Type', 'audio/flac');
+      const dataBuffer = fs.readFileSync(filePath);
+      return dataBuffer;
+    } else if (params.type === 'ogg') {
+      const filePath = path.resolve(__dirname, `../../public/response_test/video_audio/res.ogg`);
+      this.ctx.set('Content-Type', 'audio/ogg');
+      const dataBuffer = fs.readFileSync(filePath);
+      return dataBuffer;
+    } else if (params.type === 'mp4') {
+      const filePath = path.resolve(__dirname, `../../public/response_test/video_audio/res.mp4`);
+      this.ctx.set('Content-Type', 'video/mp4');
+      const dataBuffer = fs.readFileSync(filePath);
+      return dataBuffer;
+    } else if (params.type === 'avi') {
+      const filePath = path.resolve(__dirname, `../../public/response_test/video_audio/res.avi`);
+      this.ctx.set('Content-Type', 'video/x-msvideo');
+      const dataBuffer = fs.readFileSync(filePath);
+      return dataBuffer;
+    } else if (params.type === 'mkv') {
+      const filePath = path.resolve(__dirname, `../../public/response_test/video_audio/res.mkv`);
+      this.ctx.set('Content-Type', 'video/x-matroska');
+      const dataBuffer = fs.readFileSync(filePath);
+      return dataBuffer;
+    } else if (params.type === 'mov') {
+      const filePath = path.resolve(__dirname, `../../public/response_test/video_audio/res.mov`);
+      this.ctx.set('Content-Type', 'video/quicktime');
+      const dataBuffer = fs.readFileSync(filePath);
+      return dataBuffer;
+    } else if (params.type === 'webm') {
+      const filePath = path.resolve(__dirname, `../../public/response_test/video_audio/res.webm`);
+      this.ctx.set('Content-Type', 'video/webm');
+      const dataBuffer = fs.readFileSync(filePath);
+      return dataBuffer;
+    } else if (params.type === 'zip') {
+      const filePath = path.resolve(__dirname, `../../public/response_test/archive/res.zip`);
+      this.ctx.set('Content-Type', 'application/zip');
+      const dataBuffer = fs.readFileSync(filePath);
+      return dataBuffer;
+    } else if (params.type === 'rar') {
+      const filePath = path.resolve(__dirname, `../../public/response_test/archive/res.rar`);
+      this.ctx.set('Content-Type', 'application/vnd.rar');
+      const dataBuffer = fs.readFileSync(filePath);
+      return dataBuffer;
+    } else if (params.type === '7z') {
+      const filePath = path.resolve(__dirname, `../../public/response_test/archive/res.7z`);
+      this.ctx.set('Content-Type', 'application/x-7z-compressed');
+      const dataBuffer = fs.readFileSync(filePath);
+      return dataBuffer;
+    } else if (params.type === 'tar') {
+      const filePath = path.resolve(__dirname, `../../public/response_test/archive/res.tar`);
+      this.ctx.set('Content-Type', 'application/x-tar');
+      const dataBuffer = fs.readFileSync(filePath);
+      return dataBuffer;
+    } else if (params.type === 'exe') {
+      const filePath = path.resolve(__dirname, `../../public/response_test/other/res.exe`);
+      this.ctx.set('Content-Type', 'application/x-msdownload');
+      const dataBuffer = fs.readFileSync(filePath);
+      return dataBuffer;
+    } else if (params.type === 'epub') {
+      const filePath = path.resolve(__dirname, `../../public/response_test/other/res.epub`);
+      this.ctx.set('Content-Type', 'application/epub');
+      const dataBuffer = fs.readFileSync(filePath);
+      return dataBuffer;
+    }
+  }
+  @All('/test/redirect/**')
+  async redirectTest() {
+    console.log('redirect test')
+    const url = this.ctx.query.url;
+    if (!url) {
+      return { error: 'No URL provided for redirect' };
+    }
+    this.ctx.redirect(url as string);
+    return { message: 'Redirecting to ' + url };
+  }
+  @All('/test/redirect2/**')
+  async redirectTest2() {
+    this.ctx.redirect('https://www.baidu.com');
+    return { message: 'Redirecting to ' + 'https://www.baidu.com' };
+  }
+  @All('/test/cookies/**')
+  async cookiesTest() {
+    // 设置多种cookie，全部去除 signed
+    this.ctx.cookies.set('test_cookie', 'test_value', { httpOnly: false, signed: false });
+    this.ctx.cookies.set('domain_cookie', 'domain_value', { httpOnly: false, signed: false, domain: 'demo.com' });
+    this.ctx.cookies.set('http_only_cookie', 'http_only_value', { httpOnly: true, signed: false });
+    // this.ctx.cookies.set('secure_cookie', 'secure_value', { secure: true, signed: false });
+    this.ctx.cookies.set('path_cookie', 'path_value', { path: '/api/test/cookies', signed: false });
+    this.ctx.cookies.set('max_age_cookie', 'max_age_value', { maxAge: 60 * 1000, signed: false }); // 1分钟
+    this.ctx.cookies.set('same_site_lax', 'lax_value', { sameSite: 'lax', signed: false });
+    this.ctx.cookies.set('same_site_strict', 'strict_value', { sameSite: 'strict', signed: false });
+    // this.ctx.cookies.set('same_site_none', 'none_value', { sameSite: 'none', secure: true, signed: false });
+
+    // 返回所有请求中的cookie
+    return {
+       headers: this.ctx.headers,
+    };
+  }
+}

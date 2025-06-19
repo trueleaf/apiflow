@@ -1,0 +1,315 @@
+@charset "utf-8";
+//=====================================文字和背景颜色====================================//
+//文字颜色
+@each $key, $val in $all-colors {
+    .#{$key} {
+        color: $val;
+    }
+}
+//背景颜色
+@each $key, $val in $all-colors {
+    .bg-#{$key} {
+        background-color: $val;
+    }
+}
+
+//============================浮动=================================================//
+.fl {
+    float: left !important;
+}
+.fr {
+    float: right !important;
+}
+.clearfix {
+    &::after {
+        display: block;
+        content: "";
+        clear: both;
+    }
+}
+
+//===================================文字相关=====================================//
+$ellipsis: (
+    "ellipsis": 1,
+    "ellipsis2": 2,
+    "ellipsis3": 3,
+    "ellipsis4": 4
+);
+@each $key, $val in $ellipsis {
+    .text-#{$key} {
+        word-break: break-all;
+        display: -webkit-box;
+        -webkit-line-clamp: $val;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+}
+$text-direction: (
+    "center": center,
+    "left": left,
+    "right": right
+);
+@each $key, $val in $text-direction {
+    .text-#{$key} {
+        text-align: $val;
+    }
+}
+.text-nowrap {
+    white-space: nowrap;
+}
+//字重
+@each $key, $val in $font-weights {
+    .#{$key} {
+        font-weight: $val;
+    }
+}
+
+//=====================================定位相关====================================//
+$position: (
+    absolute: absolute,
+    relative: relative,
+    static: static,
+    sticky: sticky
+);
+@each $key, $value in $position {
+    .p-#{$key} {
+        position: $value;
+    }
+}
+
+//=====================================vertical-align====================================//
+$align: (
+    baseline: baseline,
+    top: top,
+    middle: middle,
+    text-bottom: text-bottom,
+    text-top: text-top
+);
+@each $pos, $val in $align {
+    .align-#{$pos} {
+        vertical-align: $val !important;
+    }
+}
+
+//============================border============================================//
+$border-direction: (
+    top: top,
+    bottom: bottom,
+    left: left,
+    right: right
+);
+@each $key, $val in $border-direction {
+    @each $key2, $val2 in $all-colors {
+        .border-#{$key}-#{$key2} {
+            border-#{$key}: 1px solid $val2;
+        }
+    }
+}
+@each $key, $val in $all-colors {
+    .border-#{$key} {
+        border: 1px solid $val;
+    }
+}
+
+//=====================================鼠标样式====================================//
+
+@each $key, $val in $cursors {
+    .cursor-#{$key} {
+        cursor: $val;
+    }
+}
+//=====================================阴影====================================//
+@each $key, $val in $box-shadows {
+    .#{$key} {
+        box-shadow: $val;
+    }
+}
+//=====================================圆角====================================//
+@each $key, $val in $border-radius {
+    .#{$key} {
+        border-radius: $val;
+    }
+}
+
+//============================常见间距====================================//
+.m-auto {
+    margin: auto;
+}
+.ml-auto {
+    margin-left: auto;
+}
+.mr-auto {
+    margin-right: auto;
+}
+.no-padding {
+    padding: 0 !important;
+}
+.no-margin {
+    margin: 0 !important;
+}
+@for $i from 0 through 5 {
+    @each $key, $val in $space-direction {
+        .m#{$val}-#{$i} {
+            margin-#{$key}: size($i * 5);
+        }
+        .p#{$val}-#{$i} {
+            padding-#{$key}: size($i * 5);
+        }
+    }
+}
+@for $i from 0 through 5 {
+    .mx-#{$i} {
+        margin-left: size($i * 5);
+        margin-right: size($i * 5);
+    }
+    .my-#{$i} {
+        margin-top: size($i * 5);
+        margin-bottom: size($i * 5);
+    }
+    .px-#{$i} {
+        padding-left: size($i * 5);
+        padding-right: size($i * 5);
+    }
+    .py-#{$i} {
+        padding-top: size($i * 5);
+        padding-bottom: size($i * 5);
+    }
+}
+//==========================================字体大小============================================//
+@each $key, $val in $fonts {
+    .#{$key} {
+        font-size: $val;
+    }
+}
+@for $i from 0 through 10 {
+    .f-#{$i * 10} {
+        font-size: size($i * 10)
+    }
+}
+
+//=================================display===========================================//
+
+@each $key, $val in $display {
+    .d-#{$key} {
+        display: $val;
+    }
+}
+
+@each $key, $val in $flex {
+    .d-#{$key} {
+        display: $val;
+        @each $key2, $val2 in $flex-justify {
+            &.#{$key2} {
+                justify-content: $val2;
+            }
+        }
+        @each $key3, $val3 in $flex-align {
+            &.#{$key3} {
+                align-items: $val3;
+            }
+        }
+        // 历史遗留，推荐center
+        &.flex-center {
+            align-items: center;
+            justify-content: center;
+        }
+        &.center {
+            align-items: center;
+            justify-content: center;
+        }
+        &.flex-row {
+            flex-direction: row;
+        }
+        &.flex-column {
+            flex-direction: column;
+        }
+        &.flex-wrap {
+            flex-wrap: wrap;
+        }
+    }
+}
+
+.flex1 {
+    flex: 1;
+}
+.flex0 {
+    flex: 0 0 auto;
+}
+
+//=====================================宽度和高度====================================//
+$i: 1;
+@while $i <= 100 {
+    .w-#{$i} {
+        width: percentage(math.div($i, 100));
+    }
+    .h-#{$i} {
+        height: percentage(math.div($i, 100));
+    }
+    .w-#{$i*10}px {
+        width: $i*10 + px;
+    }
+    .h-#{$i*10}px {
+        height: $i*10 + px;
+    }
+    .vw-#{$i} {
+        width: $i + vw;
+    }
+    .vh-#{$i} {
+        height: $i + vh;
+    }
+    $i: $i + 1;
+}
+
+//=====================================hover效果====================================//
+@each $key, $val in $all-colors {
+    .hover-bg-#{$key} {
+        &:hover {
+            background: $val;
+        }
+    }
+    .hover-#{$key} {
+        &:hover {
+            color: $val;
+        }
+    }
+}
+
+//=====================================常见旋转效果====================================//
+$i: 5;
+@while $i <= 360 {
+    .rotate-#{$i} {
+        transform: rotate(45deg);
+    }
+    $i: $i + 5;
+}
+//=====================================滚动条====================================//
+.x-scroll {
+    overflow-x: scroll;
+}
+.y-scroll {
+    overflow-y: scroll;
+}
+
+.x-auto {
+    overflow-x: auto;
+}
+.y-auto {
+    overflow-y: auto;
+}
+
+//=====================================文字选中====================================//
+.no-select {
+    user-select: none;
+}
+//=====================================溢出隐藏====================================//
+@for $i from 0 through 20 {
+    .scroll-y-#{$i * 50} {
+        max-height: size($i * 50);
+        overflow-y: auto;
+    }
+    .scroll-x-#{$i * 50} {
+        max-width: size($i * 50);
+        overflow-x: auto;
+    }
+}
+

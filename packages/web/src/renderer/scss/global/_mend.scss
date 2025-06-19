@@ -1,0 +1,63 @@
+@charset "utf-8";
+body {
+    .el-popper {
+        font-size: fz(14);
+    }
+    .el-dropdown-menu {
+        max-height: size(300);
+        overflow-y: auto;
+        box-shadow: rgba(0, 0, 0, 0.1) 0px 2px 4px 0px;
+        .popper__arrow {
+            display: none;
+        }
+    }
+    .el-dropdown-menu__item:focus, .el-dropdown-menu__item:not(.is-disabled):hover {
+        background: $gray-200;
+        color: $theme-color;
+    }
+    .el-table .cell {
+        line-height: size(24); //修复奇数高度文本错位
+    }
+    .el-image-viewer__close {
+        background-color: $white;
+        color: $red;
+    }
+    .el-form--label-top .el-form-item__label {
+        padding: 0;
+    }
+    .el-dialog__body {
+        padding-top: 0;
+        padding-bottom: size(10);
+    }
+    .el-dialog__headerbtn {
+        width: size(25);
+        height: size(25);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        right: size(10);
+        top: size(10);
+        &:hover {
+            background-color: $gray-300;
+        }
+        .el-dialog__close {
+            font-size: fz(20);
+            &:hover {
+                color: $red;
+            }
+        }
+    }
+    .el-input.is-disabled .el-input__inner {
+        box-shadow: none;
+    }
+    .el-menu--horizontal {
+        border-bottom: none;
+    }
+    .el-input.is-disabled {
+        .el-input__inner {
+            border-bottom: none;
+        }
+    }
+}
+

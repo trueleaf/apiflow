@@ -1,0 +1,87 @@
+<template>
+  <Dialog :model-value="modelValue" top="10vh" :title="t('修改项目')" @close="handleClose">
+    <el-form ref="form" :model="formInfo" :rules="rules" label-width="150px">
+      <el-form-item :label="`${t('项目名称')}`" prop="projectName">
+        <el-input v-model="formInfo.projectName" v-focus-select :size="config.renderConfig.layout.size"
+          :placeholder="t('请输入项目名称')" @keydown.enter="handleEditProject"></el-input>
+      </el-form-item>
+    </el-form>
+    <template #footer>
+      <el-button :loading="loading" type="primary" @click="handleEditProject">{{ t("确定") }}</el-button>
+      <el-button type="warning" @click="handleClose">{{ t("取消") }}</el-button>
+    </template>
+  </Dialog>
+</template>
+
+<script lang="ts" setup>
+import { request } from '@/api/api';
+import { config } from '@src/config/config';
+import { ElMessage, FormInstance } from 'element-plus';
+import { t } from 'i18next'
+import { nextTick, ref, watch } from 'vue';
+import Dialog from '@/components/common/dialog/g-dialog.vue';
+
+const props = defineProps({
+  modelValue: {
+    type: Boolean,
+    default: false,
+  },
+  projectId: {
+    type: String,
+    default: '',
+  },
+  projectName: {
+    type: String,
+    default: '',
+  },
+})
+const emits = defineEmits(['update:modelValue', 'success'])
+const formInfo = ref({
+  projectName: '',
+})
+const rules = ref({
+  projectName: [{ required: true, trigger: 'blur', message: t('请填写项目名称') }],
+})
+const loading = ref(false);
+const form = ref<FormInstance>();
+
+watch(() => props.projectName, (val) => {
+  formInfo.value.projectName = val
+}, { immediate: true })
+
+const handleClose = () => {
+  emits('update:modelValue', false)
+}
+//修改项目
+const handleEditProject = () => {
+  form.value?.validate((valid) => {
+    if (valid) {
+      loading.value = true;
+      const params = {
+        projectName: formInfo.value.projectName,
+        _id: props.projectId,
+      };
+      request.put('/api/project/edit_project', params).then((res) => {
+        handleClose();
+        emits('success', {
+          id: res.data,
+          name: formInfo.value.projectName,
+        });
+      }).catch((err) => {
+        console.error(err);
+      }).finally(() => {
+        loading.value = false;
+      });
+    } else {
+      nextTick(() => {
+        const input: HTMLInputElement = document.querySelector('.el-form-item.is-error input') as HTMLInputElement;
+        if (input) {
+          input.focus();
+        }
+      });
+      ElMessage.warning(t('请完善必填信息'));
+      loading.value = false;
+    }
+  })
+}
+</script>
