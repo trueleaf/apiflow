@@ -6,6 +6,8 @@ import { cookies } from './cookies/index.ts'
 import { localStorage } from './localStorage/index.ts'
 import { sessionStorage } from './sessionStorage/index.ts'
 import axios from 'axios'
+import JSONbig from 'json-bigint';
+
 
 const af: AF = new Proxy({
   projectId: '',
@@ -22,7 +24,7 @@ const af: AF = new Proxy({
     }
     return Reflect.deleteProperty(target, key);
   },
-}) 
+})
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const options = {
   getFile(path: string) {
@@ -59,6 +61,8 @@ self.onmessage = (e: MessageEvent<InitDataMessage | EvalMessage>) => {
     af.request.bodyType = reqeustInfo.item.bodyType;
     af.request.body.binary.mode = reqeustInfo.item.requestBody.binary.mode;
     af.request.body.binary.path = reqeustInfo.item.requestBody.binary.path;
+    const jsonBody = JSONbig.parse(reqeustInfo.item.requestBody.json);
+    Object.assign(af.request.body.json, jsonBody);
     self.postMessage({
       type: 'pre-request-init-success',
     });
@@ -81,10 +85,21 @@ self.onmessage = (e: MessageEvent<InitDataMessage | EvalMessage>) => {
           value: JSON.parse(JSON.stringify(af)),
         });
       }).catch((error: Error) => {
-        console.error(error)
+        console.error(error);
+        self.postMessage({
+          type: 'pre-request-eval-error',
+          value: {
+            message: error?.message,
+            stack: error?.stack,
+          }
+        });
       });
     } catch (error) {
-      console.error(error)
+      console.error(error);
+      self.postMessage({
+        type: 'pre-request-eval-error',
+        value: (error as Error)?.message,
+      });
     }
   }
 };

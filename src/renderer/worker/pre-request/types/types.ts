@@ -67,11 +67,11 @@ export type OnDeleteHeadersEvent = {
 };
 export type OnSetJsonEvent = {
   type: 'pre-request-set-json-params';
-  value: Record<string, string>;
+  value: string;
 };
 export type OnDeleteJsonEvent = {
   type: 'pre-request-delete-json-params';
-  value: Record<string, string>;
+  value: string;
 };
 export type OnDeleteUrlencodedEvent = {
   type: 'pre-request-delete-urlencoded';
@@ -164,6 +164,10 @@ export type OnEvalSuccess = {
   type: 'pre-request-eval-success';
   value: any;
 };
+export type onEvalError = {
+  type: 'pre-request-eval-error';
+  value: any;
+};
 export type OnInitSuccess = {
   type: 'pre-request-init-success';
   value: any;
@@ -196,6 +200,7 @@ export type ReceivedEvent =
   | OnDeleteCookieEvent
   | OnDeleteBinaryBodyEvent
   | OnEvalSuccess
+  | onEvalError
   | OnInitSuccess;
 export type AF = {
   nodeId: string;
