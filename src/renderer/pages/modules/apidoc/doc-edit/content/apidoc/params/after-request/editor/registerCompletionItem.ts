@@ -334,6 +334,16 @@ const cookiesSuggestions = [{
   sortText: '6',
   keyword: 'af.cookies',
 }]
+const variableSuggestions = [{
+  label: {
+    label: 'variables',
+    description: 'Cookie数据(浏览器cookie)'
+  },
+  kind: monaco.languages.CompletionItemKind.Module,
+  insertText: 'variables',
+  sortText: '7',
+  keyword: 'af.variables',
+}]
 const suggestions: Suggestions = [{
   label: {
     label: 'af',
@@ -357,6 +367,7 @@ const suggestions: Suggestions = [{
 ...sessionStorageSuggestions,
 ...localStorageSuggestions,
 ...cookiesSuggestions,
+...variableSuggestions,
 ...requestSuggestions]
 
 export function useCompletionItem(): monaco.IDisposable {
