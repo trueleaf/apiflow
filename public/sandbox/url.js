@@ -1,3 +1,0 @@
-Object.setPrototypeOf(url, {
-    
-})
