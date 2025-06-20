@@ -1,7 +1,6 @@
 import { FlowNode, Property, RendererFormDataBody } from "@src/types/types";
 import Mock from "../../mock/mock";
 import { ApidocVariable, SandboxPostMessage } from "@src/types/global";
-import { useVariable } from "@/store/apidoc/variables";
 
 export const isElectron = () => {
   if (typeof window !== 'undefined' && typeof window.process === 'object' && window.process.type === 'renderer') {
