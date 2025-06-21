@@ -30,7 +30,6 @@ import { getHashedContent, getStrHeader, getStrJsonBody, getStrParams, parseUrl,
 import { dirname, resolve } from 'path';
 import { fileURLToPath } from 'url';
 import { CachingFactory, MidwayCache } from '@midwayjs/cache-manager';
-import { Context } from 'koa';
 import * as staticFile from '@midwayjs/static-file';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -74,7 +73,7 @@ export class ContainerLifeCycle {
   @InjectClient(CachingFactory, 'default')
     cache: MidwayCache;
   @Config('signConfig')
-      config: GlobalConfig['signConfig'];
+    config: GlobalConfig['signConfig'];
 
 
   //接口限流
@@ -84,7 +83,7 @@ export class ContainerLifeCycle {
         around: async (joinPoint: JoinPoint) => {
           const { ttl, max, limitBy = 'user', limitExtraKey, errorMsg } = options.metadata as ReqLimit;
           const instance = joinPoint.target;
-          const ctx = instance[REQUEST_OBJ_CTX_KEY] as Context;
+          const ctx = instance[REQUEST_OBJ_CTX_KEY] as koa.Context;
           const reqBody = ctx.request.body;
           let limitKey = '';
           if (limitBy === 'user') {

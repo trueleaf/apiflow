@@ -17,7 +17,7 @@ services:
       context: .
       dockerfile: packages/server/Dockerfile
     environment:
-      - MONGO_URL=mongodb://mongodb:27017/mydb
+      - MONGO_URL=mongodb://127.0.0.1:27017/apiflow
     ports:
       - "7004:7004"
     depends_on:
@@ -30,8 +30,9 @@ services:
     volumes:
       - mongodb_data:/data/db
     environment:
-      MONGO_INITDB_ROOT_USERNAME: root
-      MONGO_INITDB_ROOT_PASSWORD: example
+      # 本地部署需要替换成你的mongod用户名和密码 
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: xQ3!p8L*9zR6#vN2 
     networks:
       - app-network
 
