@@ -1,6 +1,6 @@
 <template>
   <div class="cookie-view" :class="{ vertical: layout === 'vertical' }">
-    <div class='mb-2 d-flex a-center theme-color cursor-pointer' @click="dialogVisible = false">
+    <div class='mb-2 d-flex a-center theme-color cursor-pointer' @click="dialogVisible = true">
       <el-icon>
         <FullScreen />
       </el-icon>

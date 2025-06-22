@@ -367,6 +367,10 @@ export type Config = {
     userAgent: string;
     followRedirect: boolean;
     maxRedirects: number;
+    /**
+     * 最大请求头值展示长度,超过后点击展示完整数据
+     */
+    maxHeaderValueDisplayLength: number;
   },
   cacheConfig: {
     apiflowResponseCache: {

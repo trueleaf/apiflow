@@ -82,6 +82,7 @@ export const config: Config = {
     userAgent: "https://github.com/trueleaf/apiflow",
     followRedirect: true, //是否允许重定向
     maxRedirects: 10, //最大重定向次数
+    maxHeaderValueDisplayLength: 1024,
   },
   cacheConfig: {
     apiflowResponseCache: {

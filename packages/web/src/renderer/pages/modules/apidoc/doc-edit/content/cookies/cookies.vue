@@ -22,25 +22,25 @@
         @selection-change="handleSelectionChange"
       >
         <el-table-column type="selection" width="55" />
-        <el-table-column align="center" prop="name" label="Name"></el-table-column>
-        <el-table-column align="center" prop="value" width='500' label="Value">
+        <el-table-column align="center" prop="name" label="Name" sortable />
+        <el-table-column align="center" prop="value" width='500' label="Value" sortable>
           <template #default="scope">
             <div class="value-wrap">{{ scope.row.value }}</div>
           </template>
         </el-table-column>
-        <el-table-column align="center" prop="domain" label="Domain">
+        <el-table-column align="center" prop="domain" label="Domain" sortable>
           <template #default="scope">
             <span v-if="scope.row.domain">{{ scope.row.domain }}</span>
-            <span v-else>{{ t('HostOnly') }}</span>
+            <span v-else class="orange">{{ t('所有域名生效') }}</span>
           </template>
         </el-table-column>
-        <el-table-column align="center" prop="path" label="Path">
+        <el-table-column align="center" prop="path" label="Path" sortable>
           <template #default="scope">
             <span v-if="scope.row.path">{{ scope.row.path }}</span>
             <span v-else>/</span>
           </template>
         </el-table-column>
-        <el-table-column align="center" prop="expires" label="Expires">
+        <el-table-column align="center" prop="expires" label="Expires" sortable>
           <template #default="scope">
             <div v-if="scope.row.expires">
               <el-popover
@@ -59,22 +59,27 @@
             <div v-else>Session</div>
           </template>
         </el-table-column>
-        <el-table-column align="center" prop="httpOnly" label="HttpOnly">
+        <el-table-column align="center" prop="httpOnly" label="HttpOnly" sortable>
           <template #default="scope">
             <span v-if="scope.row.httpOnly === true">✔</span>
             <span v-else></span>
           </template>
         </el-table-column>
-        <el-table-column align="center" prop="secure" label="Secure">
+        <el-table-column align="center" prop="secure" label="Secure" sortable>
           <template #default="scope">
             <span v-if="scope.row.secure === true">✔</span>
             <span v-else></span>
           </template>
         </el-table-column>
-        <el-table-column align="center" prop="sameSite" label="SameSite">
+        <el-table-column align="center" prop="sameSite" label="SameSite" sortable>
           <template #default="scope">
             <span v-if="scope.row.sameSite">{{ scope.row.sameSite }}</span>
             <span v-else>Lax</span>
+          </template>
+        </el-table-column>
+        <el-table-column align="center" prop="size" label="Size" width="80" sortable>
+          <template #default="scope">
+            {{ getCookieSize(scope.row) }}
           </template>
         </el-table-column>
         <el-table-column align="center" label="操作" width="120">
@@ -95,10 +100,16 @@
           <el-input v-model="editCookie.value" type="textarea" :autosize="{ minRows: 3, maxRows: 8 }"/>
         </el-form-item>
         <el-form-item :label="t('域名')" prop="domain">
-          <el-input v-model="editCookie.domain" placeholder="eg: apiflow.cn  .apiflow.cn"/>
+          <el-input v-model="editCookie.domain" placeholder="eg: 127.0.0.1 apiflow.cn  .apiflow.cn"/>
+          <div class="orange f-xs">
+            {{ t('未填写则代表所有请求都会携带这个cookie') }}
+          </div>
         </el-form-item>
         <el-form-item :label="t('路径')" prop="path">
           <el-input v-model="editCookie.path" placeholder="eg: /api，如果不设置代表当前域名下的所有路径下都生效"/>
+          <div class="orange f-xs">
+            {{ t('路径必须以 / 开头，否则无效') }}
+          </div>
         </el-form-item>
         <el-form-item :label="t('过期时间')" prop="expires">
           <div class="d-flex flex-column">
@@ -247,13 +258,16 @@ const handleSaveCookie = () => {
     const expires = expiresDate.value ? formatCookieExpires(expiresDate.value) : '';
     if (editMode.value) {
       editCookie.value.expires = expires;
+      // encode name/value
+      editCookie.value.name = encodeURIComponent(editCookie.value.name!);
+      editCookie.value.value = encodeURIComponent(editCookie.value.value!);
       cookiesStore.updateCookiesById(projectId, editCookie.value.id, editCookie.value);
       ElMessage.success(t('修改成功'));
     } else {
       const newCookie: ApidocCookie = {
         id: uuid(),
-        name: editCookie.value.name!,
-        value: editCookie.value.value!,
+        name: encodeURIComponent(editCookie.value.name!),
+        value: encodeURIComponent(editCookie.value.value!),
         domain: editCookie.value.domain || '',
         path: editCookie.value.path || '/',
         expires,
@@ -328,6 +342,18 @@ const getExpiresCountdown = (expires: string) => {
   str += `${seconds}秒`;
   return `剩余${str}`;
 };
+const getCookieSize = (cookie: ApidocCookie) => {
+  // 计算 name=value;domain=...;path=...;expires=...;httpOnly;secure;sameSite=... 的字节长度
+  let str = `${cookie.name}=${cookie.value}`;
+  if (cookie.domain) str += `;domain=${cookie.domain}`;
+  if (cookie.path) str += `;path=${cookie.path}`;
+  if (cookie.expires) str += `;expires=${cookie.expires}`;
+  if (cookie.httpOnly) str += `;HttpOnly`;
+  if (cookie.secure) str += `;Secure`;
+  if (cookie.sameSite) str += `;SameSite=${cookie.sameSite}`;
+  // 按 utf-8 字节长度
+  return new TextEncoder().encode(str).length;
+};
 onMounted(() => {
   timer = window.setInterval(() => {
     now.value = new Date();
@@ -341,13 +367,13 @@ onUnmounted(() => {
 <style scoped lang="scss">
 .cookies-page {
   margin: 0 auto;
-  padding: 32px 0;
+  padding: size(16) 0;
   .expire-tip {
     border-bottom: 1px dashed $gray-500;
     cursor: pointer;
   }
   .title {
-    font-size: 20px;
+    font-size: fz(22);
     font-weight: bold;
   }
 }
