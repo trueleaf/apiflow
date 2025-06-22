@@ -94,16 +94,44 @@ export const useCookies = defineStore('apidocCookies', () => {
   const getMachtedCookies = (url: string) => {
     const requestDomain = getDomainFromUrl(url);
     const requestPath = getPathFromUrl(url);
+    // console.log(cookies.value)
     const matchedCookies = cookies.value.filter(cookie => {
-      // 域名匹配，支持.开头的domain和子域名
-      const cookieDomain = cookie.domain.replace(/^\./, '');
-      const host = requestDomain.replace(/^\./, '');
-      const domainMatch = cookieDomain && (host === cookieDomain || host.endsWith('.' + cookieDomain));
-      // 路径匹配
-      const pathMatch = !cookie.path || requestPath.startsWith(cookie.path);
-      // 只发送未过期的cookie
+      /**
+       * 域名匹配
+       * 如果是.开头的域名则匹配根域名和子域名
+       * 例如：.example.com 可以匹配 example.com 和 sub.example.com
+       * 如果非.开头的域名则只匹配完全相同的域名
+       * 例如：example.com 只匹配 example.com
+       */
+      const cookieIsDotDomain = cookie.domain.startsWith('.'); 
+      const withoutDotCookieDomain = cookie.domain.replace(/^\./, '');
+      let isDomainMatch = false;
+      if (cookieIsDotDomain) {
+        isDomainMatch = requestDomain === withoutDotCookieDomain || requestDomain.endsWith('.' + withoutDotCookieDomain);
+      } else {
+        isDomainMatch = requestDomain === cookie.domain;
+      }
+      /**
+       * 路径匹配（RFC6265）
+       * 1. 请求路径等于cookie path
+       * 2. 或请求路径以cookie path开头，且下一个字符是/（或cookie path为/）
+       * 例如：cookie path为/api，/api、/api/、/api/v1都匹配，/apix不匹配
+       */
+      let isPathMatch = false;
+      if (cookie.path === '/') {
+        isPathMatch = true;
+      } else if (requestPath === cookie.path) {
+        isPathMatch = true;
+      } else if (requestPath.startsWith(cookie.path)) {
+        const nextChar = requestPath.charAt(cookie.path.length);
+        isPathMatch = nextChar === '/' || nextChar === '';
+      }
+      /**
+       * 过期时间匹配
+       * 如果expires字段不存在则认为不过期
+       */
       const notExpired = !cookie.expires || dayjs(cookie.expires).isAfter(dayjs());
-      return domainMatch && pathMatch && notExpired;
+      return isDomainMatch && isPathMatch && notExpired;
     });
     return JSON.parse(JSON.stringify(matchedCookies)) as ApidocCookie[]; // 防止修改请求头导致原数据被修改
   }
