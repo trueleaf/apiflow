@@ -95,10 +95,10 @@
           <el-input v-model="editCookie.value" type="textarea" :autosize="{ minRows: 3, maxRows: 8 }"/>
         </el-form-item>
         <el-form-item :label="t('域名')" prop="domain">
-          <el-input v-model="editCookie.domain" />
+          <el-input v-model="editCookie.domain" placeholder="eg: apiflow.cn  .apiflow.cn"/>
         </el-form-item>
         <el-form-item :label="t('路径')" prop="path">
-          <el-input v-model="editCookie.path" />
+          <el-input v-model="editCookie.path" placeholder="eg: /api，如果不设置代表当前域名下的所有路径下都生效"/>
         </el-form-item>
         <el-form-item :label="t('过期时间')" prop="expires">
           <div class="d-flex flex-column">

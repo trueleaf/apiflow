@@ -24,9 +24,9 @@
     "noFallthroughCasesInSwitch": true,
     "baseUrl": ".",
     "paths": {
-      "@/*": ["packages/web/src/renderer/*"],
-      "@src/*": ["packages/web/src/*"],
+      "@/*": ["./src/renderer/*"],
+      "@src/*": ["./src/*"],
     },
   },
-  "include": ["packages/web/src/**/*.ts", "packages/web/src/**/*.tsx", "packages/web/src/**/*.vue", "components.d.ts"]
+  "include": ["./src/**/*.ts", "./src/**/*.tsx", "./src/**/*.vue", "components.d.ts"]
 }
