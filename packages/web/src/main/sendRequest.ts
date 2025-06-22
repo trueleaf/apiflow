@@ -159,9 +159,8 @@ export const gotRequest = async (options: GotRequestOptions) => {
         headers[key.toLowerCase()] = options.headers[key.toLowerCase()]!;
       }
     }
+    // undefined代表未设置值，null代表取消发送
     const isConnectionKeepAlive = options.headers['Connection'] == undefined || options.headers['Connection'] === 'keep-alive';
-    const needDecompress = options.headers['Accept-Encoding'] !== undefined;
-    // console.log(needDecompress, options.headers)
     const hasFormData = isFormDataBody && (options.body!.value as RendererFormDataBody).some(item => (item.key));
     let willSendBody: undefined | string | FormData | Buffer = '';
     if (options.method.toLowerCase() === 'head') { //只有head请求body值为undefined,head请求不挟带body
@@ -181,7 +180,6 @@ export const gotRequest = async (options: GotRequestOptions) => {
       method: options.method,
       signal: abortController.signal,
       allowGetBody: true,
-      decompress: needDecompress ? true : false,
       agent: {
         http: new http.Agent({ keepAlive: isConnectionKeepAlive }),
         http2: new http2.Agent({ keepAlive: isConnectionKeepAlive }),
@@ -332,13 +330,12 @@ export const gotRequest = async (options: GotRequestOptions) => {
         fileTypeInfo?.mime?.includes('application/x-gtar');
       const responseAsExe = contentTypeIsExe || fileTypeInfo?.mime?.includes('application/x-msdownload');
       const responseAsEpub = contentTypeIsEpub || fileTypeInfo?.mime?.includes('application/epub') || fileTypeInfo?.mime?.includes('application/x-epub');
-
       if (noFileType && responseInfo.contentType.includes('application/json')) {
         responseInfo.responseData.canApiflowParseType = 'json';
         responseInfo.responseData.jsonData = bufferData.toString();
       } else if (noFileType && responseInfo.contentType.includes('text/html')) {
         responseInfo.responseData.canApiflowParseType = 'html';
-        responseInfo.responseData.textData = bufferData.toString();
+        responseInfo.responseData.textData = bufferData.toString('utf-8');
       } else if (noFileType && responseInfo.contentType.includes('text/css')) {
         responseInfo.responseData.canApiflowParseType = 'css';
         responseInfo.responseData.textData = bufferData.toString();

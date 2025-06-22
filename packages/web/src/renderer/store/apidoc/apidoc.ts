@@ -300,6 +300,19 @@ export const useApidoc = defineStore('apidoc', () => {
     params3.disabled = true;
     defaultHeaders.value.push(params3);
     //=========================================================================//
+    const params4 = apidocGenerateProperty();
+    params4.key = 'Accept-Encoding';
+    params4._valuePlaceholder = 'gzip, deflate, br';
+    params4.description = '<客户端理解的编码方式>';
+    params4._disableKey = true;
+    params4._disableDescription = true;
+    params4._disableKeyTip = '';
+    params4._disableValue = true;
+    params4._disableAdd = true;
+    params4._disableDelete = true;
+    params4.disabled = true;
+    defaultHeaders.value.push(params4);
+    //=========================================================================//
     const params5 = apidocGenerateProperty();
     params5.key = 'Connection';
     params5._valuePlaceholder = '<默认为：keep-alive>';
@@ -348,17 +361,6 @@ export const useApidoc = defineStore('apidoc', () => {
     params7._disableAdd = true;
     params7._disableDelete = true;
     defaultHeaders.value.push(params7);
-    //=========================================================================//
-    const params4 = apidocGenerateProperty();
-    params4.key = 'Accept-Encoding';
-    params4._valuePlaceholder = 'gzip, deflate, br';
-    params4.description = '<客户端理解的编码方式>';
-    params4._disableKey = true;
-    params4._disableDescription = true;
-    params4._disableKeyTip = ''
-    params4._disableAdd = true;
-    params4._disableDelete = true;
-    defaultHeaders.value.push(params4);
     //=========================================================================//
     if (contentType) {
       const params6 = apidocGenerateProperty();
