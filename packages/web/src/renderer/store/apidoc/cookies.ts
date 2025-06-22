@@ -45,13 +45,18 @@ export const useCookies = defineStore('apidocCookies', () => {
       return res[0];
     });
     objCookies.forEach((objCookie) => {
-      if (!objCookie.domain) objCookie.domain = defaultDomain;
+      let realDomain = objCookie.domain
+      if (realDomain && /^[\w.-]+\.[a-zA-Z]{2,}$/.test(realDomain)) {
+        realDomain = '.' + realDomain.replace(/^\./, '');
+      } else {
+        realDomain = defaultDomain;
+      }
       if (!objCookie.path) objCookie.path = '/';
       const newCookie: ApidocCookie = {
         id: uuid(),
         name: objCookie.name,
         value: objCookie.value,
-        domain: objCookie.domain,
+        domain: realDomain,
         path: objCookie.path,
         expires: typeof objCookie.expires === 'string' ? objCookie.expires : (objCookie.expires ? objCookie.expires.toISOString() : ''),
         httpOnly: !!objCookie.httpOnly,
