@@ -127,6 +127,10 @@ const hasQueryOrPathsParams = computed(() => {
 })
 const hasBodyParams = computed(() => {
   const { contentType } = apidocStore.apidoc.item;
+  const isBinary = apidocStore.apidoc.item.requestBody.mode === 'binary';
+  if (isBinary) {
+    return true
+  }
   return !!contentType;
 })
 const hasPreRequest = computed(() => {
