@@ -150,7 +150,6 @@ export class CommonController {
     if (!matchedProject) {
       return throwError(4002, '暂无当前项目权限');
     }
-    
     const users = matchedProject.users;
     const groups = matchedProject.groups;
     const groupUsers: {

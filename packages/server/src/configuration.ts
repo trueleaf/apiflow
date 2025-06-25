@@ -104,7 +104,7 @@ export class ContainerLifeCycle {
   }
   //接口验签
   async registerReqSignDecorator() {
-    this.decoratorService.registerMethodHandler(REQ_SIGN_KEY, (options) => {
+    this.decoratorService.registerMethodHandler(REQ_SIGN_KEY, () => {
       return {
         around: async (joinPoint: JoinPoint) => {
           const target = joinPoint.target;

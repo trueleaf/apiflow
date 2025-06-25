@@ -1,4 +1,4 @@
-import { MidwayAppInfo, MidwayConfig } from '@midwayjs/core';
+import { MidwayConfig } from '@midwayjs/core';
 import { User } from '../entity/security/user.js';
 import { Sms } from '../entity/security/sms.js';
 import { ClientMenu } from '../entity/security/client_menu.js';
@@ -19,12 +19,15 @@ import { Attachment } from '../entity/attachment/attachment.js';
 import { Group } from '../entity/security/group.js';
 import { GlobalCommonHeader } from '../entity/project/project_common_headers.js';
 
-export default (appInfo: MidwayAppInfo): MidwayConfig => {
+export default (): MidwayConfig => {
   return {
     keys: 'apiflow',
     koa: {
       port: 7001,
       http2: false,
+    },
+    i18n: {
+      writeCookie: false,
     },
     cacheManager: {
       clients: {
