@@ -397,10 +397,6 @@ export type ApidocBaseInfo = {
       * 维护人员
       */
    maintainer: string;
-   /**
-      * 花费时间
-      */
-   spendTime: number;
 };
 //api文档ContentType
 export type ApidocContentType =

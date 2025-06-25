@@ -15,6 +15,7 @@ import dayjs from 'dayjs';
 import mitt from 'mitt'
 import tips from './tips'
 import { ApidocProjectBaseInfoState } from '@src/types/apidoc/base-info';
+import { ApidocTab } from '@src/types/apidoc/tabs.ts';
 
 type Data = Record<string, unknown>
 
@@ -51,6 +52,7 @@ const emitter = mitt<{
   'tabs/saveTabSuccess': void,
   'tabs/saveTabError': void,
   'tabs/cancelSaveTab': void,
+  'tabs/deleteTab': ApidocTab,
 }>()
 
 export const event = emitter;
@@ -415,7 +417,6 @@ export function apidocGenerateApidoc(id?: string): ApidocDetail {
       type: 'api',
       creator: '',
       maintainer: '',
-      spendTime: 0,
     },
     preRequest: {
       raw: ''

@@ -148,10 +148,12 @@ export const useApidocTas = defineStore('apidocTabs', () => {
     if (force) {
       ids.forEach((id) => {
         const deleteIndex = tabs.value[projectId].findIndex((tab) => tab._id === id);
-        deleteTabByIndex({
-          projectId,
-          deleteIndex,
-        })
+        if (deleteIndex !== -1) {
+          deleteTabByIndex({
+            projectId,
+            deleteIndex,
+          })
+        }
       })
       freshNewSeletedTab();
       return
