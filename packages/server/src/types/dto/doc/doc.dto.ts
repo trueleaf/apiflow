@@ -816,3 +816,11 @@ export class GetDeletedDocListDto {
   @Rule(RuleType.array().items(RuleType.string()))
   operators: string[];
 }
+
+export class GetDocHistoryOperatorsDto {
+  /**
+   * 项目id
+   */
+  @Rule(RuleType.string().required())
+    projectId: string;
+}

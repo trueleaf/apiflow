@@ -4,7 +4,20 @@ import { ReturnModelType } from '@typegoose/typegoose';
 import { Doc } from '../../entity/doc/doc.js';
 import { CommonController } from '../../controller/common/common.js';
 import { LoginTokenInfo, RequestMethod } from '../../types/types.js';
-import { AddEmptyDocDto, ChangeDocBaseInfoDto, ChangeDocPositionDto, CreateDocDto, DeleteDocDto, GenerateDocCopyDto, GetDocDetailDto, GetMockDataDto, PasteDocsDto, UpdateDoc, GetDocsAsTreeDto, GetDeletedDocListDto } from '../../types/dto/doc/doc.dto.js';
+import { AddEmptyDocDto,
+  ChangeDocBaseInfoDto,
+  ChangeDocPositionDto,
+  CreateDocDto,
+  DeleteDocDto,
+  GenerateDocCopyDto,
+  GetDocDetailDto,
+  GetMockDataDto,
+  PasteDocsDto,
+  UpdateDoc,
+  GetDocsAsTreeDto,
+  GetDeletedDocListDto,
+  GetDocHistoryOperatorsDto
+} from '../../types/dto/doc/doc.dto.js';
 import { throwError } from '../../utils/utils.js';
 import { Project } from '../../entity/project/project.js';
 import { Types } from 'mongoose';
@@ -435,26 +448,26 @@ export class DocService {
         pid: 1,
         isFolder: 1,
       })
-      .skip(skipNum)
-      .sort({ updatedAt: -1 })
-      .limit(limit)
-      .lean(),
+        .skip(skipNum)
+        .sort({ updatedAt: -1 })
+        .limit(limit)
+        .lean(),
       this.docModel.countDocuments(filter)
     ]);
     // 字段兼容处理
     const result = rows.map(data => {
-        return {
-            name: data.info.name,
-            type: data.info.type,
-            deletePerson: data.info.deletePerson,
-            isFolder: data.isFolder,
-            host: data.item.url.host,
-            path: data.item.url.path,
-            method: data.item.method,
-            updatedAt: data.updatedAt,
-            _id: data._id,
-            pid: data.pid,
-        };
+      return {
+        name: data.info.name,
+        type: data.info.type,
+        deletePerson: data.info.deletePerson,
+        isFolder: data.isFolder,
+        host: data.item.url.host,
+        path: data.item.url.path,
+        method: data.item.method,
+        updatedAt: data.updatedAt,
+        _id: data._id,
+        pid: data.pid,
+      };
     });
     return {
       rows: result,
@@ -464,16 +477,13 @@ export class DocService {
   /**
    * 获取文档操作人员信息
    */
-  async getDocHistoryOperators(projectId: string) {
+  async getDocHistoryOperators(params: GetDocHistoryOperatorsDto) {
+    const { projectId } = params;
     await this.commonControl.checkDocOperationPermissions(projectId);
-    const result = await this.projectModel.find({
-      _id: projectId,
-      isEnabled: true
-    }, {
-      owner: 1,
-      'user': 1,
-      'groups': 1,
+    const deletedDocs = await this.docModel.find({
+      projectId: projectId,
+      isEnabled: false
     }).lean();
-    return result;
+    return deletedDocs;
   }
 }

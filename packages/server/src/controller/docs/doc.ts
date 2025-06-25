@@ -1,5 +1,5 @@
 import { Inject, Controller, Body, Post, Del, Get, Put, Query } from '@midwayjs/core';
-import { AddEmptyDocDto, ChangeDocBaseInfoDto, ChangeDocPositionDto, UpdateDoc, GenerateDocCopyDto, PasteDocsDto, CreateDocDto, GetDocDetailDto, DeleteDocDto, GetMockDataDto, GetDocsAsTreeDto, GetDeletedDocListDto } from '../../types/dto/doc/doc.dto.js';
+import { AddEmptyDocDto, ChangeDocBaseInfoDto, ChangeDocPositionDto, UpdateDoc, GenerateDocCopyDto, PasteDocsDto, CreateDocDto, GetDocDetailDto, DeleteDocDto, GetMockDataDto, GetDocsAsTreeDto, GetDeletedDocListDto, GetDocHistoryOperatorsDto } from '../../types/dto/doc/doc.dto.js';
 import { DocService } from '../../service/doc/doc.js';
 import { ReqLimit } from '../../decorator/req_limit.decorator.js';
 
@@ -117,8 +117,8 @@ export class DocController {
    * 获取文档操作人员信息
    */
   @Get('/docs/docs_history_operator_enum')
-  async getDocHistoryOperators(@Query('projectId') projectId: string) {
-    const data = await this.docService.getDocHistoryOperators(projectId);
+  async getDocHistoryOperators(@Query() params: GetDocHistoryOperatorsDto) {
+    const data = await this.docService.getDocHistoryOperators(params);
     return data;
   }
 }

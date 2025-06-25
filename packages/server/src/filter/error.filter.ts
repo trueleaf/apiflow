@@ -20,25 +20,27 @@ export class ValidateErrorFilter {
 export class AllServerErrorFilter {
   async catch(err: MidwayHttpError & { isCustomError?: boolean }, ctx: Context) {
     const logStartTime = ctx.__logStartTime || Date.now();
-    ctx.logger.error(ctx.request.method, ctx.request.url, '耗时', Date.now() - logStartTime, ctx.origin);
+    ctx.logger.error(ctx.request.method, ctx.request.url, '耗时', Date.now() - logStartTime, ctx.origin, err.stack);
     if (err?.isCustomError) {
       return err;
     }
     if (err instanceof MultipartInvalidFilenameError) {
       return {
         code: 5000,
-        msg: `附件格式错误`,
+        msg: '附件格式错误',
       };
     }
     if (err instanceof jwt.JsonWebTokenError) {
       return {
         code: 4100,
-        msg: `登录已过期`,
+        msg: '登录已过期',
       };
     }
     return {
       code: 5000,
-      msg: `内部错误：${err.message}`,
+      msg: process.env.NODE_ENV === 'production'
+        ? '内部错误'
+        : `内部错误：${err.message}\n${err.stack}`,
     };
   }
 }
