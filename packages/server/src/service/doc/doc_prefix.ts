@@ -50,7 +50,7 @@ export class DocPrefixServer {
    */
   async getDocPrefixList(params: GetDocPrefixList) {
     const { pageNum, pageSize, startTime, endTime, projectId } = params;
-    await this.commonControl.checkDocOperationPermissions(projectId)
+    await this.commonControl.checkDocOperationPermissions(projectId, 'readOnly')
     const query = { isEnabled: true, projectId } as {
       projectId: string;
       isEnabled: boolean;
@@ -85,7 +85,7 @@ export class DocPrefixServer {
    */
   async getDocPrefixEnum(params: GetDocPrefixEnum) {
     const { projectId } = params;
-    await this.commonControl.checkDocOperationPermissions(projectId)
+    await this.commonControl.checkDocOperationPermissions(projectId, 'readOnly')
     const limit = 100;
     const result = await this.docPrefixModel.find({ projectId, isEnabled: true }, { name: 1, url: 1 }).limit(limit);
     return result;
@@ -95,7 +95,7 @@ export class DocPrefixServer {
    */
   async getDocPrefixInfo(params: GetDocPrefixInfo) {
     const { id, projectId } = params;
-    await this.commonControl.checkDocOperationPermissions(projectId)
+    await this.commonControl.checkDocOperationPermissions(projectId, 'readOnly')
     const result = await this.docPrefixModel.findOne({ id, projectId, isEnabled: true });
     return result;
   }

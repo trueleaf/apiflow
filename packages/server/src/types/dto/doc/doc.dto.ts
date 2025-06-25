@@ -195,11 +195,11 @@ class DocBaseInfo {
    */
   @Rule(RuleType.string().empty(''))
   deletePerson: string;
-  /**
-   * 录入接口花费时间
+    /**
+   * 删除文档的id
    */
-  @Rule(RuleType.number())
-  spendTime: number;
+    @Rule(RuleType.string().empty(''))
+  deletePersonId: string;
 }
 class FileInfo {
   @Rule(RuleType.string().allow(''))
@@ -678,11 +678,6 @@ export class UpdateDoc {
   @Rule(RuleType.string().required())
   projectId: string;
   /**
-   * 录入耗时
-   */
-  @Rule(RuleType.number())
-  spendTime: number;
-  /**
    * 文档信息
    */
   @Rule(getSchema(DocBaseInfo).required())
@@ -823,4 +818,20 @@ export class GetDocHistoryOperatorsDto {
    */
   @Rule(RuleType.string().required())
     projectId: string;
+}
+
+/**
+ * 恢复文档
+ */
+export class RestoreDocDto {
+  /**
+   * 文档id
+   */
+  @Rule(RuleType.string().required())
+  _id: string;
+  /**
+   * 项目id
+   */
+  @Rule(RuleType.string().required())
+  projectId: string;
 }

@@ -143,7 +143,7 @@ export class CommonController {
     }
     return false;
   }
-  async checkDocOperationPermissions(projectId: string, needPermission: 'admin' | 'readAndWrite' | 'readOnly' = 'admin') {
+  async checkDocOperationPermissions(projectId: string, needPermission: 'admin' | 'readAndWrite' | 'readOnly' = 'readAndWrite') {
     const method = this.ctx.request.method.toLowerCase();
     const URL = this.ctx.request.URL;
     const matchedProject = await this.projectModel.findById({ _id: projectId }).lean();

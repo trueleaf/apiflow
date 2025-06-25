@@ -1,5 +1,5 @@
 import { Inject, Controller, Body, Post, Del, Get, Put, Query } from '@midwayjs/core';
-import { AddEmptyDocDto, ChangeDocBaseInfoDto, ChangeDocPositionDto, UpdateDoc, GenerateDocCopyDto, PasteDocsDto, CreateDocDto, GetDocDetailDto, DeleteDocDto, GetMockDataDto, GetDocsAsTreeDto, GetDeletedDocListDto, GetDocHistoryOperatorsDto } from '../../types/dto/doc/doc.dto.js';
+import { AddEmptyDocDto, ChangeDocBaseInfoDto, ChangeDocPositionDto, UpdateDoc, GenerateDocCopyDto, PasteDocsDto, CreateDocDto, GetDocDetailDto, DeleteDocDto, GetMockDataDto, GetDocsAsTreeDto, GetDeletedDocListDto, GetDocHistoryOperatorsDto, RestoreDocDto } from '../../types/dto/doc/doc.dto.js';
 import { DocService } from '../../service/doc/doc.js';
 import { ReqLimit } from '../../decorator/req_limit.decorator.js';
 
@@ -119,6 +119,14 @@ export class DocController {
   @Get('/docs/docs_history_operator_enum')
   async getDocHistoryOperators(@Query() params: GetDocHistoryOperatorsDto) {
     const data = await this.docService.getDocHistoryOperators(params);
+    return data;
+  }
+  /**
+   * 恢复文档
+   */
+  @Put('/docs/docs_restore')
+  async restoreDoc(@Body() params: RestoreDocDto) {
+    const data = await this.docService.restoreDoc(params);
     return data;
   }
 }

@@ -206,12 +206,12 @@ class Info {
    * 删除文档的人
    */
   @prop()
-  public deletePerson?: string;
+  public deletePerson: string;
   /**
-   * 录入接口花费时间
+   * 删除文档的id
    */
   @prop()
-  public spendTime?: number;
+  public deletePersonId: string;
   /**
    * 备注信息
    */

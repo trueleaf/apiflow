@@ -20,7 +20,7 @@ export class DocMindParamsServer {
    */
   async addDocMindParams(params: AddDocMindParamsDto) {
     const { projectId, mindParams } = params;
-    await this.commonControl.checkDocOperationPermissions(projectId)
+    await this.commonControl.checkDocOperationPermissions(projectId, 'readOnly')
     const existMindParams = await this.docMindParamsModel.findOne({ projectId }).lean();
     const mapedExistMindParams = existMindParams?.mindParams.map(mindParams => {
       return {
@@ -73,7 +73,7 @@ export class DocMindParamsServer {
    */
   async getDocMindParamsList(params: GetDocMindParamsList) {
     const { pageNum, pageSize, startTime, endTime, projectId } = params;
-    await this.commonControl.checkDocOperationPermissions(projectId)
+    await this.commonControl.checkDocOperationPermissions(projectId, 'readOnly')
     const query = { isEnabled: true, projectId } as {
       projectId: string;
       isEnabled: boolean;

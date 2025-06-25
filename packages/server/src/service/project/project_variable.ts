@@ -88,7 +88,7 @@ export class ProjectVariableService {
    */
   async getProjectVariableList(params: GetProjectVariableListDto) {
     const { pageNum, pageSize, startTime, endTime, projectId } = params;
-    await this.commonControl.checkDocOperationPermissions(projectId);
+    await this.commonControl.checkDocOperationPermissions(projectId, 'readOnly');
     const query = {
       isEnabled: true,
       projectId,
@@ -124,7 +124,7 @@ export class ProjectVariableService {
    */
   async getProjectVariableEnum(params: GetProjectVariableEnumDto) {
     const { projectId } = params;
-    await this.commonControl.checkDocOperationPermissions(projectId);
+    await this.commonControl.checkDocOperationPermissions(projectId, 'readOnly');
     const result = await this.projectVariableModel.find({ projectId, isEnabled: true }, { name: 1, type: 1, value: 1, fileValue: 1});
     return result;
   }

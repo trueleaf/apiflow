@@ -100,7 +100,7 @@ export class ProjectService {
    */
   async addMemberToProject(params: AddMemberToProjectDto) {
     const { projectId, name, type, permission, id } = params;
-    const { projectInfo } = await this.commonControl.checkDocOperationPermissions(projectId);
+    const { projectInfo } = await this.commonControl.checkDocOperationPermissions(projectId, 'admin');
     const memberLength = projectInfo.users.length + projectInfo.groups.length;
     if (type === 'user') {
       if (memberLength >= this.config.projectMaxMembers) {
@@ -135,7 +135,7 @@ export class ProjectService {
    */
   async deleteMemberFromProject(params: DeleteMemberFromProjectDto) {
     const { projectId, id, memberType } = params;
-    const { projectInfo, uniqueUsers } = await this.commonControl.checkDocOperationPermissions(projectId);
+    const { projectInfo, uniqueUsers } = await this.commonControl.checkDocOperationPermissions(projectId, 'admin');
     const isDeleteSelf = this.ctx.tokenInfo.id === id;
     const hasAdminUser = (uniqueUsers.filter(v => v.permission === 'admin').length > 1); //删除自身时候，项目至少保留一个管理员
     if (!hasAdminUser && isDeleteSelf) {
@@ -172,7 +172,7 @@ export class ProjectService {
    */
   async changeMemberPermissionInProject(params: ChangeMemberPermissionInProjectDto) {
     const { projectId, id, permission } = params;
-    const { uniqueUsers } = await this.commonControl.checkDocOperationPermissions(projectId);
+    const { uniqueUsers } = await this.commonControl.checkDocOperationPermissions(projectId, 'admin');
     const isChangeSelf = this.ctx.tokenInfo.id === id;
     const hasAdminUser = (uniqueUsers.filter(v => v.permission === 'admin').length > 1); //删除自身时候，项目至少保留一个管理员
     if (!hasAdminUser && isChangeSelf) {
@@ -189,7 +189,7 @@ export class ProjectService {
     const { ids } = params;
     const deletedProjects: Project[] = []
     for(let i = 0; i < ids.length; i ++) {
-      const { projectInfo } = await this.commonControl.checkDocOperationPermissions(ids[i]);
+      const { projectInfo } = await this.commonControl.checkDocOperationPermissions(ids[i], 'admin');
       deletedProjects.push(projectInfo)
     }
 
@@ -217,7 +217,7 @@ export class ProjectService {
    */
   async editProject(params: EditProjectDto) {
     const { _id, projectName, remark } = params;
-    await this.commonControl.checkDocOperationPermissions(_id);
+    await this.commonControl.checkDocOperationPermissions(_id, 'admin');
     const updateDoc: Partial<Project> = {};
     if (projectName) {
       updateDoc.projectName = projectName;
@@ -286,7 +286,7 @@ export class ProjectService {
    */
   async getProjectInfoById(params: GetProjectInfoByIdDto) {
     const { _id } = params;
-    await this.commonControl.checkDocOperationPermissions(_id);
+    await this.commonControl.checkDocOperationPermissions(_id, 'readOnly');
     const result = await this.projectModel.findById(
       { _id, isEnabled: true },
       { createdAt: 0, updatedAt: 0, apidocs: 0, isEnabled: 0 }
@@ -298,7 +298,7 @@ export class ProjectService {
    */
   async getProjectFullInfoById(params: GetProjectFullInfoByIdDto) {
     const { _id } = params;
-    await this.commonControl.checkDocOperationPermissions(_id);
+    await this.commonControl.checkDocOperationPermissions(_id, 'readOnly');
     const mindParams = await this.docMindParamsService.geMindParams({ projectId: _id });
     const hosts = await this.docPrefixService.getDocPrefixEnum({ projectId: _id });
     const variables = await this.projectVariableService.getProjectVariableEnum({ projectId: _id });
