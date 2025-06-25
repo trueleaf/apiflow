@@ -1,8 +1,16 @@
-
 <template>
   <div class="recycler">
+    <!-- 头部 -->
+    <div class="recycler-header">
+      <div class="header-title mr-4 d-flex a-center">
+        <el-icon>
+          <Delete />
+        </el-icon>
+        <span class="title-text">接口回收站</span>
+      </div>
+    </div>
     <!-- 过滤条件 -->
-    <SFieldset title="过滤条件" class="search">
+    <div class="search">
       <!-- 操作人员 -->
       <div class="op-item">
         <div>操作人员：</div>
@@ -24,16 +32,8 @@
           <el-radio value="3d">近三天</el-radio>
           <el-radio value="7d">近七天</el-radio>
           <el-radio value="自定义">自定义</el-radio>
-          <el-date-picker
-            v-if="dateRange === '自定义'"
-            v-model="customDateRange"
-            type="datetimerange"
-            range-separator="至"
-            value-format="x"
-            start-placeholder="开始日期"
-            class="mr-1"
-            end-placeholder="结束日期"
-          >
+          <el-date-picker v-if="dateRange === '自定义'" v-model="customDateRange" type="datetimerange" range-separator="至"
+            value-format="x" start-placeholder="开始日期" class="mr-1" end-placeholder="结束日期">
           </el-date-picker>
           <el-button link type="primary" text @click="handleClearDate">清空</el-button>
         </el-radio-group>
@@ -42,18 +42,20 @@
       <div class="op-item">
         <div class="d-flex a-center mr-5">
           <div class="flex0">接口名称：</div>
-          <el-input v-model="formInfo.docName" :size="config.renderConfig.layout.size" placeholder="通过接口名称匹配" maxlength="100" clearable></el-input>
+          <el-input v-model="formInfo.docName" :size="config.renderConfig.layout.size" placeholder="通过接口名称匹配"
+            maxlength="100" clearable></el-input>
         </div>
         <div class="d-flex a-center mr-5">
           <div class="flex0">接口url：</div>
-          <el-input v-model="formInfo.url" :size="config.renderConfig.layout.size" placeholder="通过接口url匹配" maxlength="100" clearable></el-input>
+          <el-input v-model="formInfo.url" :size="config.renderConfig.layout.size" placeholder="通过接口url匹配"
+            maxlength="100" clearable></el-input>
         </div>
         <div>
           <el-button type="info" @click="clearAll">全部清空</el-button>
           <el-button :loading="loading" type="success" @click="getData">刷新</el-button>
         </div>
       </div>
-    </SFieldset>
+    </div>
     <!-- 列表展示 -->
     <SLoading v-if="deletedList.length > 0" :loading="loading" class="list">
       <div v-for="(item, index) in deletedInfo" :key="index" class="list-wrap">
@@ -67,7 +69,8 @@
                   <el-button link type="primary" text :loading="loading2" @click="handleRestore(docInfo)">恢复</el-button>
                   <el-divider direction="vertical"></el-divider>
                   <el-popover :visible="docInfo._visible" placement="right" width="auto" transition="none">
-                    <doc-detail v-if="docInfo._visible" :id="docInfo._id" @close="docInfo._visible = false;"></doc-detail>
+                    <doc-detail v-if="docInfo._visible" :id="docInfo._id"
+                      @close="docInfo._visible = false;"></doc-detail>
                     <template #reference>
                       <el-button link type="primary" text @click.stop="handleShowDetail(docInfo)">详情</el-button>
                     </template>
@@ -83,7 +86,8 @@
                   <img :src="fileUrl" width="16" height="16" class="mr-1" />
                   <span class="mr-2">{{ docInfo.name }}</span>
                   <template v-for="(req) in validRequestMethods">
-                    <span v-if="docInfo.method === req.value.toLowerCase()" :key="req.value" class="mr-1" :style="{color: req.iconColor}">{{ req.name }}</span>
+                    <span v-if="docInfo.method === req.value.toLowerCase()" :key="req.value" class="mr-1"
+                      :style="{ color: req.iconColor }">{{ req.name }}</span>
                   </template>
                   <span>{{ docInfo.path }}</span>
                 </div>
@@ -97,7 +101,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, Ref, onMounted, watch, computed } from 'vue'
+import { ref, Ref, onMounted, onUnmounted, watch, computed } from 'vue'
 import dayjs from 'dayjs'
 import isToday from 'dayjs/plugin/isToday'
 import isYesterday from 'dayjs/plugin/isYesterday'
@@ -107,7 +111,6 @@ import { ElMessageBox } from 'element-plus'
 import type { ApidocHttpRequestMethod, ApidocType, ResponseTable, ApidocProjectPermission } from '@src/types/global'
 import { router } from '@/router/index'
 import { request } from '@/api/api'
-import SFieldset from '@/components/common/fieldset/g-fieldset.vue'
 import SLoading from '@/components/common/loading/g-loading.vue'
 import { forEachForest, debounce } from '@/helper'
 import docDetail from './components/doc-detail.vue'
@@ -115,6 +118,7 @@ import { useApidocBanner } from '@/store/apidoc/banner'
 import { useApidocBaseInfo } from '@/store/apidoc/base-info'
 import { config } from '@src/config/config'
 import { formatDate } from '@/helper'
+import { Delete } from '@element-plus/icons-vue'
 
 
 dayjs.extend(isYesterday)
@@ -181,7 +185,7 @@ const getData = () => {
 | 搜索相关内容
 |--------------------------------------------------------------------------
 */
-const memberEnum: Ref<{ name: string, permission:ApidocProjectPermission }[]> = ref([]); //操作人员
+const memberEnum: Ref<{ name: string, permission: ApidocProjectPermission }[]> = ref([]); //操作人员
 const dateRange: Ref<string> = ref(''); //日期范围
 const customDateRange: Ref<number[]> = ref([]); //自定义日期范围
 //获取操作人员枚举
@@ -190,7 +194,7 @@ const getOperatorEnum = () => {
     projectId,
   };
   request.get('/api/docs/docs_history_operator_enum', { params }).then((res) => {
-    memberEnum.value = res.data as { name: string, permission:ApidocProjectPermission }[];
+    memberEnum.value = res.data as { name: string, permission: ApidocProjectPermission }[];
   }).catch((err) => {
     console.error(err);
   });
@@ -215,30 +219,30 @@ watch(() => dateRange.value, (val) => {
   let startTime: number | null = new Date(new Date().setHours(0, 0, 0, 0)).valueOf();
   let endTime: number | null = null;
   switch (val) {
-  case '1d':
-    endTime = Date.now();
-    break;
-  case '2d':
-    endTime = Date.now();
-    startTime = endTime - 86400000;
-    break;
-  case '3d':
-    endTime = Date.now();
-    startTime = endTime - 3 * 86400000;
-    break;
-  case '7d':
-    endTime = Date.now();
-    startTime = endTime - 7 * 86400000;
-    break;
-  case 'yesterday':
-    endTime = startTime;
-    startTime -= 86400000;
-    break;
-  default: //自定义
-    startTime = null;
-    endTime = null;
-    customDateRange.value = [];
-    break;
+    case '1d':
+      endTime = Date.now();
+      break;
+    case '2d':
+      endTime = Date.now();
+      startTime = endTime - 86400000;
+      break;
+    case '3d':
+      endTime = Date.now();
+      startTime = endTime - 3 * 86400000;
+      break;
+    case '7d':
+      endTime = Date.now();
+      startTime = endTime - 7 * 86400000;
+      break;
+    case 'yesterday':
+      endTime = startTime;
+      startTime -= 86400000;
+      break;
+    default: //自定义
+      startTime = null;
+      endTime = null;
+      customDateRange.value = [];
+      break;
   }
   formInfo.value.startTime = startTime;
   formInfo.value.endTime = endTime;
@@ -269,6 +273,10 @@ watch(() => formInfo.value, () => {
 onMounted(() => {
   getData();
   getOperatorEnum();
+  document.documentElement.addEventListener('click', closeAllDetailPopovers);
+})
+onUnmounted(() => {
+  document.documentElement.removeEventListener('click', closeAllDetailPopovers);
 })
 /*
 |--------------------------------------------------------------------------
@@ -367,8 +375,8 @@ const handleRestore = (docInfo: DeleteInfo) => {
     restoreDocDirectly(docInfo)
   }
 }
-//查看详情
-const handleShowDetail = (docInfo: DeleteInfo) => {
+//关闭所有详情popover
+const closeAllDetailPopovers = () => {
   Object.keys(deletedInfo.value).forEach((key) => {
     const el = deletedInfo.value[key];
     Object.keys(el.deleted).forEach((key2) => {
@@ -378,83 +386,124 @@ const handleShowDetail = (docInfo: DeleteInfo) => {
       })
     })
   })
+}
+//查看详情
+const handleShowDetail = (docInfo: DeleteInfo) => {
+  closeAllDetailPopovers();
   docInfo._visible = true;
 };
 onMounted(() => {
-  document.documentElement.addEventListener('click', () => {
-    Object.keys(deletedInfo.value).forEach((key) => {
-      const el = deletedInfo.value[key];
-      Object.keys(el.deleted).forEach((key2) => {
-        const el2 = el.deleted[key2];
-        el2.forEach((info) => {
-          info._visible = false;
-        })
-      })
-    })
-  })
+  document.documentElement.addEventListener('click', closeAllDetailPopovers);
 })
+onUnmounted(() => {
+  document.documentElement.removeEventListener('click', closeAllDetailPopovers);
+})
+
 </script>
 
 <style lang='scss' scoped>
 .recycler {
-    padding: 0 size(20) size(10);
-    height: calc(100vh - #{size(100)});
-    width: 100%;
-    overflow-y: auto;
+  padding: 0 size(20) size(10);
+  height: calc(100vh - #{size(100)});
+  width: 100%;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+
+  // 头部
+  .recycler-header {
     display: flex;
     flex-direction: column;
-    // 搜索
-    .search {
+    padding: size(15) 0;
+
+    .header-title {
+      font-size: 22px;
+      font-weight: bold;
+
+      .title-text {
+        font-size: 22px;
+        font-weight: bold;
+        margin-left: 4px;
+      }
+    }
+
+    .desc {
+      color: #888;
+      font-size: 14px;
+      margin-left: 12px;
+    }
+  }
+
+  // 搜索
+  .search {
+    flex: 0 0 auto;
+    box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+    border: 1px solid $gray-300;
+    border-radius: size(4);
+    padding: size(5) size(20);
+
+    .el-checkbox,
+    .el-radio {
+      margin-right: size(15);
+    }
+
+    .op-item {
+      min-height: size(40);
+      display: flex;
+      align-items: center;
+
+      .el-button--text {
+        padding-top: size(5);
+        padding-bottom: size(5);
+      }
+    }
+  }
+
+  // 列表展示
+  .list {
+    flex: 1;
+    overflow-y: auto;
+    // box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+    // border: 1px solid $gray-300;
+    // border-radius: size(4);
+    // margin-top: size(10);
+    // padding: size(5) size(20);
+    .item {
+      display: flex;
+      align-items: center;
+      height: size(40);
+      overflow: hidden;
+
+      .head {
         flex: 0 0 auto;
-        .el-checkbox, .el-radio {
-            margin-right: size(15);
-        }
-        .op-item {
-            min-height: size(50);
-            display: flex;
-            align-items: center;
-            &:not(:last-of-type) {
-                border-bottom: 1px dashed $gray-300;
-            }
-            .el-button--text {
-                padding-top: size(5);
-                padding-bottom: size(5);
-            }
-        }
+        width: size(80);
+      }
     }
-    // 列表展示
-    .list {
-        flex: 1;
-        overflow-y: auto;
-        .item {
-            display: flex;
-            align-items: center;
-            height: size(40);
-            overflow: hidden;
-            .head {
-                flex: 0 0 auto;
-                width: size(80);
-            }
+
+    .date-chunk {
+      margin-left: size(30);
+      display: flex;
+      flex-direction: column;
+
+      .date-list-wrap {
+        margin-left: size(30);
+
+        .docinfo {
+          display: flex;
+          align-items: center;
+          height: size(30);
+
+          &:hover {
+            background: $gray-200;
+          }
         }
-        .date-chunk {
-            margin-left: size(30);
-            display: flex;
-            flex-direction: column;
-            .date-list-wrap {
-                margin-left: size(30);
-                .docinfo {
-                    display: flex;
-                    align-items: center;
-                    height: size(30);
-                    &:hover {
-                        background: $gray-200;
-                    }
-                }
-                .op-area {
-                    width: size(100);
-                }
-            }
+
+        .op-area {
+          width: size(100);
         }
+      }
     }
+  }
+
 }
 </style>
