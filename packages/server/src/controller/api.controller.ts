@@ -299,11 +299,11 @@ export class APIController {
     this.ctx.cookies.set('local_domain_cookie', 'domain_value', { httpOnly: false, signed: false, domain: '127.0.0.1' });
     this.ctx.cookies.set('path_cookie', 'path_value', { path: '/api/test/cookies', httpOnly: false, signed: false });
     this.ctx.cookies.set('http_only_cookie', 'http_only_value', { httpOnly: true, signed: false });
-    // this.ctx.cookies.set('max_age_cookie', 'max_age_value', { maxAge: 60 * 1000, signed: false }); // 1分钟
-    // this.ctx.cookies.set('same_site_lax', 'lax_value', { sameSite: 'lax', signed: false });
-    // this.ctx.cookies.set('same_site_strict', 'strict_value', { sameSite: 'strict', signed: false });
-    // this.ctx.cookies.set('no_domain', 'no_domain', { maxAge: 60 * 2000, domain: '', signed: false });
-    // this.ctx.cookies.set('中文', '中文', { maxAge: 60 * 2000, domain: '', signed: false });
+    this.ctx.cookies.set('expires_cookie', 'expires_value', { maxAge: 60 * 1000, signed: false }); // 1分钟
+    // this.ctx.cookies.set('secure_cookie', 'secure_cookie', { secure: true, signed: false });
+    this.ctx.cookies.set('same_site_lax', 'lax_value', { sameSite: 'lax', signed: false });
+    this.ctx.cookies.set('same_site_strict', 'strict_value', { sameSite: 'strict', signed: false });
+    // this.ctx.cookies.set('same_site_none', 'none_value', { sameSite: 'none', signed: false, secure: true });
 
     // 返回所有请求中的cookie
     return {
