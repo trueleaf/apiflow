@@ -16,12 +16,14 @@ import { AddEmptyDocDto,
   UpdateDoc,
   GetDocsAsTreeDto,
   GetDeletedDocListDto,
-  GetDocHistoryOperatorsDto
+  GetDocHistoryOperatorsDto,
+  RestoreDocDto
 } from '../../types/dto/doc/doc.dto.js';
 import { throwError } from '../../utils/utils.js';
 import { Project } from '../../entity/project/project.js';
 import { Types } from 'mongoose';
 import lodash from 'lodash';
+import { User } from '../../entity/security/user.js';
 
 @Provide()
 export class DocService {
@@ -29,6 +31,8 @@ export class DocService {
     docModel: ReturnModelType<typeof Doc>;
   @InjectEntityModel(Project)
     projectModel: ReturnModelType<typeof Project>;
+  @InjectEntityModel(User)
+    userModel: ReturnModelType<typeof User>;
   @Inject()
     commonControl: CommonController
   @Inject()
@@ -193,7 +197,7 @@ export class DocService {
    * 改变文档请求相关数据
    */
   async updateDoc(params: UpdateDoc) {
-    const { _id, info, item, preRequest, afterRequest, projectId, mockInfo, spendTime = 0 } = params;
+    const { _id, info, item, preRequest, afterRequest, projectId, mockInfo} = params;
     await this.commonControl.checkDocOperationPermissions(projectId);
     const { tokenInfo } = this.ctx;
     const updateInfo = {
@@ -205,9 +209,6 @@ export class DocService {
         'info.description': info.description,
         'info.maintainer': tokenInfo.realName || tokenInfo.loginName,
       },
-      $inc: {
-        'info.spendTime': spendTime
-      }
     }
     await this.docModel.findByIdAndUpdate({ _id }, updateInfo);
     return;
@@ -228,7 +229,7 @@ export class DocService {
    */
   async getDocDetail(params: GetDocDetailDto) {
     const { _id, projectId } = params;
-    await this.commonControl.checkDocOperationPermissions(projectId);
+    await this.commonControl.checkDocOperationPermissions(projectId, 'readOnly');
     const result = await this.docModel.findOne({ _id }, { pid: 0, sort: 0, isEnabled: 0 }).lean();
     if (!result) {
       throwError(4001, '暂无文档信息')
@@ -253,7 +254,8 @@ export class DocService {
     }, {
       $set: {
         isEnabled: false,
-        'info.deletePerson': tokenInfo.realName || tokenInfo.loginName
+        'info.deletePerson': tokenInfo.realName || tokenInfo.loginName,
+        'info.deletePersonId': tokenInfo.id
       }
     }); //文档祖先包含删除元素，那么该文档也需要被删除
     const docLen = await this.docModel.find({ projectId, isFolder: false, isEnabled: true }).countDocuments();
@@ -275,7 +277,7 @@ export class DocService {
   async getDocsAsTree(params: GetDocsAsTreeDto, ignorePermission?: boolean) {
     const { projectId } = params;
     if (!ignorePermission) {
-      await this.commonControl.checkDocOperationPermissions(projectId);
+      await this.commonControl.checkDocOperationPermissions(projectId, 'readOnly');
     }
     const result: Partial<Doc>[] = [];
     const docsInfo = await this.docModel.find({
@@ -347,7 +349,7 @@ export class DocService {
    */
   async getFoldersAsTree(params: GetDocsAsTreeDto) {
     const { projectId } = params;
-    await this.commonControl.checkDocOperationPermissions(projectId);
+    await this.commonControl.checkDocOperationPermissions(projectId, 'readOnly');
     const result: Partial<Doc>[] = [];
     const docsInfo = await this.docModel.find({
       projectId: projectId,
@@ -412,15 +414,19 @@ export class DocService {
       startTime,
       endTime,
       url = '',
-      docName = ''
+      docName = '',
+      operators = []
     } = params;
-    await this.commonControl.checkDocOperationPermissions(projectId);
+    await this.commonControl.checkDocOperationPermissions(projectId, 'readOnly');
     let skipNum = 0;
     let limit = 100;
     const filter: Record<string, any> = {
       projectId,
       isEnabled: false
     };
+    if (operators.length > 0) {
+      filter['info.deletePersonId'] = { $in: operators };
+    }
     if (pageSize != null && pageNum != null) {
       skipNum = (pageNum - 1) * pageSize;
       limit = pageSize;
@@ -479,11 +485,36 @@ export class DocService {
    */
   async getDocHistoryOperators(params: GetDocHistoryOperatorsDto) {
     const { projectId } = params;
-    await this.commonControl.checkDocOperationPermissions(projectId);
+    await this.commonControl.checkDocOperationPermissions(projectId, 'readOnly');
     const deletedDocs = await this.docModel.find({
       projectId: projectId,
       isEnabled: false
     }).lean();
-    return deletedDocs;
+    const deletePersonIds = deletedDocs.map(doc => doc.info.deletePersonId);
+    const result = await this.userModel.find({
+      _id: { $in: deletePersonIds }
+    }, { loginName: 1, realName: 1 }).lean();
+    return result;
+  }
+  /**
+   * 恢复文档
+   */
+  async restoreDoc(params: RestoreDocDto): Promise<string[]> {
+    const { _id, projectId } = params;
+    await this.commonControl.checkDocOperationPermissions(projectId);
+    let currentId = _id;
+    const restoredIds: string[] = [];
+    while (currentId) {
+      const doc = await this.docModel.findById(currentId).lean();
+      if (!doc) break;
+      if (doc.isEnabled) break; // 已经恢复，无需再处理
+      await this.docModel.findByIdAndUpdate(currentId, { $set: { isEnabled: true } });
+      restoredIds.push(currentId);
+      currentId = doc.pid;
+    }
+
+    const docLen = await this.docModel.find({ projectId, isFolder: false, isEnabled: true }).countDocuments();
+    await this.projectModel.findByIdAndUpdate({ _id: projectId }, { $set: { docNum: docLen }});
+    return restoredIds;
   }
 }
