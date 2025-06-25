@@ -2,12 +2,13 @@
   <div class="cookies-page">
     <div class="mx-5">
       <!-- 搜索添加区域 -->
+      {{ filterDomain }}
       <div class="d-flex a-center j-between mb-2">
         <span class="title">{{ t('Cookies 管理') }}</span>
         <div class="d-flex a-center" style="gap: 16px;">
           <el-input v-model="filterName" :placeholder="t('按名称搜索')" clearable class="w-200px" />
           <el-select v-model="filterDomain" :placeholder="t('按域名筛选')" clearable class="w-200px">
-            <el-option v-for="domain in domainOptions" :key="domain" :label="domain || t('HostOnly')" :value="domain" />
+            <el-option v-for="domain in domainOptions" :key="domain" :label="domain || t('万能域名')" :value="domain" />
           </el-select>
           <el-button type="danger" :disabled="!selectedCookies.length" @click="handleBatchDelete">{{ t('批量删除') }}</el-button>
           <el-button type="primary" @click="handleOpenAddDialog">{{ t('新增 Cookie') }}</el-button>
@@ -206,14 +207,22 @@ const selectedCookies = ref<ApidocCookie[]>([]);
 
 const domainOptions = computed(() => {
   const set = new Set<string>();
-  cookies.value.forEach(c => set.add(c.domain));
+  cookies.value.forEach(c => {
+    if (c.domain) {
+      set.add(c.domain);
+    } else {
+      set.add('万能域名');
+    }
+  });
   return Array.from(set);
 });
 
 const filteredCookies = computed(() => {
   return cookies.value.filter(c => {
     const matchName = !filterName.value || c.name.toLowerCase().includes(filterName.value.toLowerCase());
-    const matchDomain = !filterDomain.value || c.domain === filterDomain.value;
+    // 万能域名：筛选条件为空或为万能域名时，domain为空字符串的cookie都应匹配
+    const isUniversalDomain = !c.domain || c.domain === '';
+    const matchDomain = !filterDomain.value || c.domain === filterDomain.value || (filterDomain.value === t('万能域名') && isUniversalDomain);
     return matchName && matchDomain;
   });
 });

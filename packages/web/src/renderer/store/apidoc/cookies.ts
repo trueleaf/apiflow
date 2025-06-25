@@ -110,8 +110,11 @@ export const useCookies = defineStore('apidocCookies', () => {
        */
       const cookieIsDotDomain = cookie.domain.startsWith('.'); 
       const withoutDotCookieDomain = cookie.domain.replace(/^\./, '');
+      const isEmptyDomain = withoutDotCookieDomain === '';
       let isDomainMatch = false;
-      if (cookieIsDotDomain) {
+      if (isEmptyDomain) {
+        isDomainMatch = true; // 空域名匹配所有域名,这种方式只能是用户手动创建的cookie才行
+      } else if (cookieIsDotDomain) {
         isDomainMatch = requestDomain === withoutDotCookieDomain || requestDomain.endsWith('.' + withoutDotCookieDomain);
       } else {
         isDomainMatch = requestDomain === cookie.domain;

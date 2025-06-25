@@ -175,7 +175,10 @@ const getBody = async (apidoc: ApidocDetail): Promise<GotRequestOptions['body']>
           path: filePath
         }
       };
-    }
+    } 
+  }
+  if (mode === 'none') {
+    return undefined;
   }
   console.warn(`${t('未知的请求body类型')}`)
   return undefined;

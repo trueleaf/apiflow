@@ -216,7 +216,10 @@ export const gotRequest = async (options: GotRequestOptions) => {
     let streamByteLength = 0;
     let contentLength = 0;
     requestStream.on('request', (req: ClientRequest) => {
-      responseInfo.requestData.url = `${req.protocol}//${req.path}`;
+      const host = req.getHeader('host');
+      const path = req.path;
+      const fullUrl = `${req.protocol}//${host}${path === '/' ? '' : path}`;
+      responseInfo.requestData.url = fullUrl;
       responseInfo.requestData.method = req.method;
       responseInfo.requestData.headers = req.getHeaders();
       responseInfo.requestData.host = req.host;
