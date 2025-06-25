@@ -5,7 +5,7 @@
     <SExportDoc v-else-if="currentSelectTab.tabType === 'exportDoc'"></SExportDoc>
     <SImportDoc v-else-if="currentSelectTab.tabType === 'importDoc'"></SImportDoc>
     <SOnlineLink v-else-if="currentSelectTab.tabType === 'onlineLink'"></SOnlineLink>
-    <SRecycler v-else-if="currentSelectTab.tabType === 'recycler'"></SRecycler>
+    <SRecycler v-else-if="currentSelectTab.tabType === 'recycler'" :key="recyclerKey.toString()"></SRecycler>
     <SHistory v-else-if="currentSelectTab.tabType === 'history'"></SHistory>
     <SConfig v-else-if="currentSelectTab.tabType === 'config'"></SConfig>
     <SHook v-else-if="currentSelectTab.tabType === 'hook'"></SHook>
@@ -31,8 +31,9 @@
 </template>
 
 <script lang="ts" setup>
-import { computed } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 import { useApidocTas } from '@/store/apidoc/tabs';
+import { event } from '@/helper'
 import { useRoute } from 'vue-router';
 import SApidoc from './apidoc/apidoc.vue';
 import SGuide from './guide/guide.vue';
@@ -57,5 +58,11 @@ const currentSelectTab = computed(() => {
   const tabs = apidocTabsStore.tabs[projectId];
   const currentSelectTab = tabs?.find((tab) => tab.selected) || null;
   return currentSelectTab;
+})
+const recyclerKey = ref(0);
+onMounted(() => {
+  event.on('tabs/deleteTab', () => {
+    recyclerKey.value++;
+  })
 })
 </script>

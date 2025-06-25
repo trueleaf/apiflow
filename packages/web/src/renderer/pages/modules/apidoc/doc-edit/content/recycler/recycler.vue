@@ -15,9 +15,9 @@
       <div class="op-item">
         <div>操作人员：</div>
         <el-checkbox-group v-model="formInfo.operators">
-          <el-checkbox v-for="(item, index) in memberEnum" :key="index" :value="item.name"></el-checkbox>
-          <el-button link type="primary" text @click="handleClearOperator">清空</el-button>
+          <el-checkbox v-for="(item, index) in memberEnum" :key="index" :value="item._id">{{ item.realName }}</el-checkbox>
         </el-checkbox-group>
+        <el-button link type="primary" text @click="handleClearOperator">清空</el-button>
       </div>
       <!-- 日期范围 -->
       <div class="op-item">
@@ -108,7 +108,7 @@ import isYesterday from 'dayjs/plugin/isYesterday'
 import 'dayjs/locale/zh-cn'
 import 'element-plus/es/components/message-box/style/css';
 import { ElMessageBox } from 'element-plus'
-import type { ApidocHttpRequestMethod, ApidocType, ResponseTable, ApidocProjectPermission } from '@src/types/global'
+import type { ApidocHttpRequestMethod, ApidocType, ResponseTable } from '@src/types/global'
 import { router } from '@/router/index'
 import { request } from '@/api/api'
 import SLoading from '@/components/common/loading/g-loading.vue'
@@ -129,6 +129,7 @@ dayjs.locale('zh-cn')
 type DeleteInfo = {
   _id: string, //项目id
   deletePerson: string, //删除人
+  deletePersonId: string, //删除人id
   host: string, //host信息
   isFolder: boolean, //是否为文件夹
   method: ApidocHttpRequestMethod, //请求方法
@@ -185,16 +186,16 @@ const getData = () => {
 | 搜索相关内容
 |--------------------------------------------------------------------------
 */
-const memberEnum: Ref<{ name: string, permission: ApidocProjectPermission }[]> = ref([]); //操作人员
+const memberEnum: Ref<{ loginName: string, realName: string, _id: string }[]> = ref([]); //操作人员
 const dateRange: Ref<string> = ref(''); //日期范围
-const customDateRange: Ref<number[]> = ref([]); //自定义日期范围
+const customDateRange: Ref<string[]> = ref([]); //自定义日期范围
 //获取操作人员枚举
 const getOperatorEnum = () => {
   const params = {
     projectId,
   };
   request.get('/api/docs/docs_history_operator_enum', { params }).then((res) => {
-    memberEnum.value = res.data as { name: string, permission: ApidocProjectPermission }[];
+    memberEnum.value = res.data;
   }).catch((err) => {
     console.error(err);
   });
@@ -252,8 +253,8 @@ watch(() => customDateRange.value, (val) => {
     formInfo.value.startTime = null;
     formInfo.value.endTime = null;
   } else {
-    formInfo.value.startTime = val[0];
-    formInfo.value.endTime = val[1];
+    formInfo.value.startTime = Number(val[0]);
+    formInfo.value.endTime = Number(val[1]);
   }
 })
 
@@ -273,11 +274,11 @@ watch(() => formInfo.value, () => {
 onMounted(() => {
   getData();
   getOperatorEnum();
-  document.documentElement.addEventListener('click', closeAllDetailPopovers);
-})
+});
+
 onUnmounted(() => {
   document.documentElement.removeEventListener('click', closeAllDetailPopovers);
-})
+});
 /*
 |--------------------------------------------------------------------------
 | 列表数据
@@ -392,12 +393,6 @@ const handleShowDetail = (docInfo: DeleteInfo) => {
   closeAllDetailPopovers();
   docInfo._visible = true;
 };
-onMounted(() => {
-  document.documentElement.addEventListener('click', closeAllDetailPopovers);
-})
-onUnmounted(() => {
-  document.documentElement.removeEventListener('click', closeAllDetailPopovers);
-})
 
 </script>
 

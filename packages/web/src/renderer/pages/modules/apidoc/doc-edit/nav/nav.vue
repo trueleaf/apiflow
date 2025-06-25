@@ -215,14 +215,17 @@ const handleContextmenu = (e: MouseEvent, item: ApidocTab) => {
   showContextmenu.value = true;
 }
 //关闭当前tab
-const handleCloseCurrentTab = (element?: ApidocTab) => {
+const handleCloseCurrentTab = (tab?: ApidocTab) => {
   const projectId = router.currentRoute.value.query.id as string;
   const currentOperationNodeId = currentOperationNode.value?._id || ''
-  const tabId: string = element ? element._id : currentOperationNodeId;
+  const tabId: string = tab ? tab._id : currentOperationNodeId;
   apidocTabsStore.deleteTabByIds({
     projectId,
     ids: [tabId]
   });
+  if (tab) {
+    event.emit('tabs/deleteTab', tab);
+  }
 }
 //关闭其他
 const handleCloseOtherTab = () => {
