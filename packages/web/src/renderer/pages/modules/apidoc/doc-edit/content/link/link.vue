@@ -1,47 +1,69 @@
 <template>
   <div class="online-link">
-    <div class="w-70 m-auto">
-      <SFieldset>
-        <template #title>
-          <span>{{ t("在线链接") }}</span>
-          <span class="orange f-sm ml-2 text-normal cursor-pointer d-inline-flex a-center" @click="dialogVisible = true">
-            <el-icon :size="16">
-              <circle-plus />
+    <!-- 头部 -->
+    <div class="online-link-header w-70 m-auto">
+      <div class="header-content d-flex j-between a-center">
+        <div class="header-left">
+          <div class="d-flex a-center">
+            <el-icon>
+              <Link />
             </el-icon>
-            <span>{{ t("生成链接") }}</span>
-          </span>
-        </template>
-        <STable ref="table" url="/api/project/export/online_list" :params="{ projectId }" plain>
+            <span class="title-text">{{ t('在线链接') }}</span>
+          </div>
+          <div class="desc">{{ t('管理项目的在线分享链接，方便团队成员和外部人员访问') }}</div>
+        </div>
+        <div class="header-right d-flex a-center">
+          <el-input
+            v-model="searchKeyword"
+            :placeholder="t('请输入链接名称')"
+            clearable
+            @input="handleSearch"
+          >
+            <template #prefix>
+              <el-icon><Search /></el-icon>
+            </template>
+          </el-input>
+          <el-button type="primary" @click="handleAdd">
+            {{ t('创建链接') }}
+          </el-button>
+        </div>
+      </div>
+    </div>
+    <!-- 内容区域 -->
+    <div class="content-area">
+      <div class="w-70 m-auto">
+        <el-table :data="filteredTableData" border  v-loading="loading">
           <el-table-column prop="shareName" :label="t('链接名称')" align="center"></el-table-column>
           <el-table-column prop="projectName" :label="t('项目名称')" align="center"></el-table-column>
-          <el-table-column :label="t('过期截至')" align="center">
+          <el-table-column :label="t('过期倒计时')" align="center">
             <template #default="scope">
               <span v-countdown="scope.row.expire"></span>
             </template>
           </el-table-column>
-          <el-table-column :label="t('操作')" align="center">
+          <el-table-column :label="t('操作')" width="200" align="center">
             <template #default="scope">
-              <el-button v-copy="generateUrlAndPassword(scope.row)" type="primary" text>{{ t("复制") }}</el-button>
-              <el-button link type="primary" text @click="handleOpenEditDialog(scope.row)">{{ t("修改") }}</el-button>
-              <el-button link type="primary" text @click="handleDeleteItem(scope.row.projectId, scope.row._id)">{{ t("删除") }}</el-button>
+              <div class="action-buttons">
+                <div class="action-btn" v-copy="generateUrlAndPassword(scope.row)">{{ t("复制") }}</div>
+                <div class="action-btn" @click="handleOpenEditDialog(scope.row)">{{ t("修改") }}</div>
+                <div class="action-btn" @click="handleDeleteItem(scope.row.projectId, scope.row._id)">{{ t("删除") }}</div>
+              </div>
             </template>
           </el-table-column>
-        </STable>
-      </SFieldset>
+        </el-table>
+      </div>
     </div>
+    
     <SAddDialog v-if="dialogVisible" v-model="dialogVisible" @success="handleAddSuccess"></SAddDialog>
     <SEditDialog v-if="dialogVisible2 && editData" v-model="dialogVisible2" :data="editData" @success="handleEditSuccess"></SEditDialog>
   </div>
 </template>
 
 <script lang="ts" setup>
-import { ref, Ref } from 'vue'
-import SFieldset from '@/components/common/fieldset/g-fieldset.vue'
-import STable from '@/components/common/table/g-table.vue'
+import { ref, Ref, computed, onMounted } from 'vue'
 import 'element-plus/es/components/message-box/style/css';
 import { ElMessageBox } from 'element-plus'
 import { request } from '@/api/api'
-import { CirclePlus } from '@element-plus/icons-vue'
+import { CirclePlus, Link, Search } from '@element-plus/icons-vue'
 import { router } from '@/router'
 import { t } from 'i18next'
 import SAddDialog from './dialog/add.vue'
@@ -58,12 +80,52 @@ type LinkInfo = {
   shareId: string,
   _id: string,
 }
+
 const projectId = router.currentRoute.value.query.id as string; //项目id
-const table: Ref<{ getData: () => void } | null> = ref(null); //table实例
 const editData: Ref<LinkInfo | null> = ref(null);
 const dialogVisible = ref(false); //是否显示弹窗
 const dialogVisible2 = ref(false); //编辑弹窗
 const permissionStore = usePermissionStore()
+
+// 新增状态管理
+const tableData = ref<LinkInfo[]>([]);
+const loading = ref(false);
+const searchKeyword = ref('');
+
+// 过滤后的表格数据
+const filteredTableData = computed(() => {
+  if (!searchKeyword.value) {
+    return tableData.value;
+  }
+  return tableData.value.filter(item => 
+    item.shareName.toLowerCase().includes(searchKeyword.value.toLowerCase())
+  );
+});
+
+// 获取表格数据
+const getTableData = async () => {
+  loading.value = true;
+  try {
+    const response = await request.get('/api/project/export/online_list', {
+      params: { projectId }
+    });
+    tableData.value = response.data.rows;
+  } catch (error) {
+    console.error('获取数据失败:', error);
+  } finally {
+    loading.value = false;
+  }
+};
+
+// 搜索处理
+const handleSearch = () => {
+  // 搜索逻辑已通过计算属性实现
+};
+
+// 新增按钮点击
+const handleAdd = () => {
+  dialogVisible.value = true;
+};
 
 //生成链接和密码
 const generateUrlAndPassword = (linkInfo: LinkInfo) => {
@@ -85,7 +147,7 @@ const handleDeleteItem = (pid: string, _id: string) => {
       _id,
     };
     request.delete('/api/project/export/online', { data: params }).then(() => {
-      table.value?.getData();
+      getTableData();
     }).catch((err) => {
       console.error(err);
     });
@@ -103,19 +165,80 @@ const handleOpenEditDialog = (row: LinkInfo) => {
 }
 //添加成功刷新页面
 const handleAddSuccess = () => {
-  table.value?.getData();
+  getTableData();
 }
 //编辑成功刷新页面
 const handleEditSuccess = () => {
-  table.value?.getData();
+  getTableData();
 }
+
+// 页面加载时获取数据
+onMounted(() => {
+  getTableData();
+});
 
 </script>
 
 <style lang='scss' scoped>
 .online-link {
+  padding: 0 size(20) size(10);
+  height: calc(100vh - #{size(100)});
+  width: 100%;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+
+  // 头部
+  .online-link-header {
+    display: flex;
+    flex-direction: column;
+    padding: size(15) 0;
+
+    .header-content {
+      .header-left {
+        .el-icon {
+          font-size: fz(26);
+        }
+
+        .title-text {
+          font-size: fz(22);
+          font-weight: bold;
+          margin-left: size(4);
+        }
+
+        .desc {
+          color: #888;
+          font-size: fz(14);
+          margin-left: size(12);
+        }
+      }
+
+      .header-right {
+        gap: size(12);
+      }
+    }
+  }
+
+  // 内容区域
+  .content-area {
+    flex: 1;
     overflow-y: auto;
-    height: calc(100vh - #{size(100)});
-    width: 100%;
+  }
+
+  // 操作按钮样式
+  .action-buttons {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    
+    .action-btn {
+      color: #409eff;
+      cursor: pointer;
+      margin-right: 8px;
+      &:last-child {
+        margin-right: 0;
+      }
+    }
+  }
 }
 </style>
