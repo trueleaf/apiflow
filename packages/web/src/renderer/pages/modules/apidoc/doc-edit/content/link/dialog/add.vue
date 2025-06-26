@@ -125,9 +125,6 @@ const projectInfo = computed(() => {
     layout: apidocBaseInfoStore.layout,
     paramsTemplate: apidocBaseInfoStore.paramsTemplate,
     webProxy: apidocBaseInfoStore.webProxy,
-    mode: apidocBaseInfoStore.mode,
-    variables: apidocBaseInfoStore.variables,
-    tempVariables: apidocBaseInfoStore.tempVariables,
     commonHeaders: apidocBaseInfoStore.commonHeaders,
     rules: apidocBaseInfoStore.rules,
     mindParams: apidocBaseInfoStore.mindParams,
@@ -212,7 +209,7 @@ const formatTooltip = (val: number) => `${val / 86400000}天后`
 }
 
 .doc-nav {
-  .el-tree-node__content {
+  :deep(.el-tree-node__content) {
     height: size(30);
   }
 
