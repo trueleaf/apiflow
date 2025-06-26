@@ -5,16 +5,19 @@
     </el-icon>
     <div class="params-view">
       <SFieldset v-if="apidocInfo?.item.url" :title="t('基本信息')">
-        <SLableValue label="请求方式：" class="w-50">
+        <SLableValue v-if="!apidocInfo?.isFolder" label="请求方式：" class="w-50">
           <template v-for="(req) in validRequestMethods">
             <span v-if="apidocInfo?.item.method.toLowerCase() === req.value.toLowerCase()" :key="req.name" class="label"
               :style="{ color: req.iconColor }">{{ req.name.toUpperCase() }}</span>
           </template>
         </SLableValue>
-        <SLableValue label="请求地址：" class="w-50 mt-2">
+        <SLableValue v-if="!apidocInfo?.isFolder" label="接口名称：" class="w-50">
+          <div>{{ apidocInfo?.info.name }}</div>
+        </SLableValue>
+        <SLableValue v-if="!apidocInfo?.isFolder" label="请求地址：" class="w-50 mt-2">
           <span class="text-ellipsis">{{ apidocRequestStore.fullUrl }}</span>
         </SLableValue>
-        <SLableValue label="接口名称：" class="w-50">
+        <SLableValue v-if="apidocInfo?.isFolder" label="目录名称：" class="w-50">
           <div>{{ apidocInfo?.info.name }}</div>
         </SLableValue>
         <div v-if="apidocInfo" class="base-info">

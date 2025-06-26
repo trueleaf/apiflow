@@ -68,7 +68,7 @@
                 <div class="op-area mr-4">
                   <el-button link type="primary" text :loading="loading2" @click="handleRestore(docInfo)">恢复</el-button>
                   <el-divider direction="vertical"></el-divider>
-                  <el-popover :visible="docInfo._visible" placement="right" width="auto" transition="none">
+                  <el-popover :visible="docInfo._visible" placement="right" width="auto" transition="none" trigger="click">
                     <doc-detail v-if="docInfo._visible" :id="docInfo._id"
                       @close="docInfo._visible = false;"></doc-detail>
                     <template #reference>
@@ -258,22 +258,23 @@ watch(() => customDateRange.value, (val) => {
   }
 })
 
-const debounceFn: Ref<(() => void) | null> = ref(null);
-watch(() => formInfo.value, () => {
-  if (!debounceFn.value) {
-    debounceFn.value = debounce(() => {
-      getData();
-    });
-  }
-  if (debounceFn.value) {
-    debounceFn.value();
-  }
-}, {
-  deep: true
-})
+const debounceGetData = debounce(getData, 500);
+// 监听接口名称和url，节流搜索
+watch(() => formInfo.value.docName, () => {
+  debounceGetData();
+});
+watch(() => formInfo.value.url, () => {
+  debounceGetData();
+});
+// 监听操作人员、日期等，实时搜索
+watch(() => formInfo.value.operators, () => {
+  getData();
+});
+
 onMounted(() => {
   getData();
   getOperatorEnum();
+  document.documentElement.addEventListener('click', closeAllDetailPopovers);
 });
 
 onUnmounted(() => {
@@ -378,15 +379,9 @@ const handleRestore = (docInfo: DeleteInfo) => {
 }
 //关闭所有详情popover
 const closeAllDetailPopovers = () => {
-  Object.keys(deletedInfo.value).forEach((key) => {
-    const el = deletedInfo.value[key];
-    Object.keys(el.deleted).forEach((key2) => {
-      const el2 = el.deleted[key2];
-      el2.forEach((info) => {
-        info._visible = false;
-      })
-    })
-  })
+  deletedList.value.forEach((item) => {
+    item._visible = false;
+  });
 }
 //查看详情
 const handleShowDetail = (docInfo: DeleteInfo) => {
