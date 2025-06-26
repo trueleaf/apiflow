@@ -441,7 +441,7 @@ export class DocService {
       filter['item.url.path'] = new RegExp(lodash.escapeRegExp(url));
     }
     if (docName) {
-      filter['info.name'] = new RegExp(lodash.escapeRegExp(url));
+      filter['info.name'] = new RegExp(lodash.escapeRegExp(docName));
     }
     const [rows, total] = await Promise.all([
       this.docModel.find(filter, {
