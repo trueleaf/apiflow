@@ -1,18 +1,4 @@
-:export {
-  zIndexEditor: 1994;
-  zIndexCopy: 2599;
-  colorBlue: #409EFF;
-  colorRed: #f56c6c;
-  colorOrange: #fd7e14;
-  colorYellow: #ffc107;
-  colorGreen: #28a745;
-  colorPurple: #6f42c1;
-  colorIndigo: #6610f2;
-  colorPink: #f9a2c4;
-  colorTeal: #20c997;
-  colorCyan: #17a2b8;
-  colorThemeColor: #409EFF;
-}
+
 
 :root {
   /* 基础颜色 */
