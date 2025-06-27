@@ -80,7 +80,7 @@ export const customDirective = {
       span.style.left = `${x}px`;
       span.style.top = `${y}px`;
       span.style.whiteSpace = 'nowrap';
-      // span.style.zIndex = scssData.zIndexCopy;
+      span.style.zIndex = 'var(--zIndex-copy)';
       span.style.transform = 'translate3D(0, -1em, 0)';
       document.documentElement.appendChild(span);
       requestAnimationFrame(() => {
