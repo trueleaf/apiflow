@@ -1,39 +1,39 @@
 <template>
-  <SDialog :model-value="modelValue" top="10vh" width="50%" title="生成链接" @close="handleClose">
+  <SDialog :model-value="modelValue" top="10vh" width="50%" :title="t('生成链接')" @close="handleClose">
     <div class="link-wrap">
-      <SConfig label="链接名称" :has-check="false" required>
-        <el-input v-model="formInfo.shareName" :size="config.renderConfig.layout.size" placeholder="请输入链接名称 eg:xxx团队"
+      <SConfig :label="t('链接名称')" :has-check="false" required>
+        <el-input v-model="formInfo.shareName" :size="config.renderConfig.layout.size" :placeholder="t('请输入链接名称 eg:xxx团队')"
           class="w-100" maxlength="100" clearable>
         </el-input>
       </SConfig>
-      <SConfig label="密码设置" :has-check="false" description="密码可不填写">
-        <el-input v-model="formInfo.password" :size="config.renderConfig.layout.size" placeholder="请输入密码" class="w-100"
+      <SConfig :label="t('密码设置')" :has-check="false" :description="t('密码可不填写')">
+        <el-input v-model="formInfo.password" :size="config.renderConfig.layout.size" :placeholder="t('请输入密码')" class="w-100"
           maxlength="100" type="password" show-password clearable>
         </el-input>
       </SConfig>
-      <SConfig :label="`过期时间(${formatTooltip(formInfo.maxAge)})`" :has-check="false" description="不填默认一个月后过期，最大日期为一年">
+      <SConfig :label="`${t('过期时间')}(${formatTooltip(formInfo.maxAge)})`" :has-check="false" :description="t('不填默认一个月后过期，最大日期为一年')">
         <el-radio-group v-model="formInfo.maxAge" :disabled="customMaxAge">
-          <el-radio :value="ONE_DAY_MS">1天后</el-radio>
-          <el-radio :value="ONE_WEEK_MS">1周后</el-radio>
-          <el-radio :value="ONE_MONTH_MS">1个月后</el-radio>
-          <el-radio :value="ONE_QUARTER_MS">1个季度后</el-radio>
-          <el-radio :value="FIVE_YEARS_MS">不过期</el-radio>
+          <el-radio :value="ONE_DAY_MS">{{ t('1天后') }}</el-radio>
+          <el-radio :value="ONE_WEEK_MS">{{ t('1周后') }}</el-radio>
+          <el-radio :value="ONE_MONTH_MS">{{ t('1个月后') }}</el-radio>
+          <el-radio :value="ONE_QUARTER_MS">{{ t('1个季度后') }}</el-radio>
+          <el-radio :value="FIVE_YEARS_MS">{{ t('不过期') }}</el-radio>
         </el-radio-group>
-        <el-checkbox v-model="customMaxAge" class="ml-5" :value="true">自定义</el-checkbox>
+        <el-checkbox v-model="customMaxAge" class="ml-5" :value="true">{{ t('自定义') }}</el-checkbox>
         <el-slider v-if="customMaxAge" v-model="formInfo.maxAge" :min="ONE_DAY_MS" :step="ONE_DAY_MS"
           :max="FIVE_YEARS_MS" :format-tooltip="formatTooltip"></el-slider>
       </SConfig>
-      <SConfig ref="configShare" label="选择分享" description="开启后可以自由选择需要分享的文档">
+      <SConfig ref="configShare" :label="t('选择分享')" :description="t('开启后可以自由选择需要分享的文档')">
         <template #default="scope">
           <div v-if="scope.isEnabled" class="doc-nav">
             <div>
-              <span>总数：</span>
+              <span>{{ t('总数') }}：</span>
               <span>{{ allCheckedNodes.length }}</span>
               <el-divider direction="vertical"></el-divider>
-              <span>文件夹数量：</span>
+              <span>{{ t('文件夹数量') }}：</span>
               <span>{{allCheckedNodes.filter(node => node.isFolder).length}}</span>
               <el-divider direction="vertical"></el-divider>
-              <span>文档数量：</span>
+              <span>{{ t('文档数量') }}：</span>
               <span>{{allCheckedNodes.filter(node => !node.isFolder).length}}</span>
             </div>
             <hr>
@@ -67,14 +67,14 @@
       <div v-if="shareLink" class="d-flex">
         <pre class="link w-70 pre">{{ shareLink }}</pre>
         <el-button-group class="flex0 w-200px">
-          <el-button v-copy="shareLink" :size="config.renderConfig.layout.size">复制</el-button>
+          <el-button v-copy="shareLink" :size="config.renderConfig.layout.size">{{ t('复制') }}</el-button>
         </el-button-group>
       </div>
     </div>
     <template #footer>
       <el-button :size="config.renderConfig.layout.size" :loading="loading" type="primary"
-        @click="handleEditLink">确认修改</el-button>
-      <el-button type="warning" @click="handleClose">取消</el-button>
+        @click="handleEditLink">{{ t('确认修改') }}</el-button>
+      <el-button type="warning" @click="handleClose">{{ t('取消') }}</el-button>
     </template>
   </SDialog>
 </template>
@@ -83,6 +83,7 @@
 import { ref, computed, Ref, PropType, onMounted, nextTick } from 'vue'
 import { ElMessage } from 'element-plus'
 import 'element-plus/es/components/message/style/css'
+import { t } from 'i18next'
 import SDialog from '@/components/common/dialog/g-dialog.vue'
 import SEmphasize from '@/components/common/emphasize/g-emphasize.vue'
 import SConfig from '@/components/common/config/g-config.vue'
@@ -188,11 +189,11 @@ const handleEditLink = () => {
   const customExportIsEmpty = allCheckedNodes.value.length === 0;
   const { maxAge, password, shareName } = formInfo.value; //默认一个月过期
   if (enableCustomExport && customExportIsEmpty) { //允许自定义分享并且数据为空
-    ElMessage.warning('请至少选择一个文档分享');
+    ElMessage.warning(t('请至少选择一个文档分享'));
     return;
   }
   if (!shareName) { //必须填写分享备注
-    ElMessage.warning('请输入链接名称');
+    ElMessage.warning(t('请输入链接名称'));
     return;
   }
   loading.value = true;
@@ -222,7 +223,7 @@ const handleCheckChange = () => {
   allCheckedNodes.value = checkedNodes.concat(halfCheckedNodes) as ApidocBanner[];
 }
 //格式化展示
-const formatTooltip = (val: number) => `${(Math.floor(val / ONE_DAY_MS))}天后`
+const formatTooltip = (val: number) => `${(Math.floor(val / ONE_DAY_MS))}${t('天后')}`
 
 </script>
 
