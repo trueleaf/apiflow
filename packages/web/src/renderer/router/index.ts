@@ -23,6 +23,7 @@ const routes: Array<RouteRecordRaw> = [
   name: 'DocEdit',
   component: docEdit,
 },
+
 // {
 //   path: '/v1/apidoc/doc-view',
 //   name: 'DocView',
@@ -48,6 +49,11 @@ const router = createRouter({
   {
     path: '/test',
     component: () => import('@/pages/test/test.vue'),
+  },
+  {
+    path: '/share',
+    name: 'Share',
+    component: () => import('@/pages/modules/apidoc/doc-share/share.vue'),
   },
   {
     path: '/:pathMatch(.*)*',

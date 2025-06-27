@@ -129,7 +129,7 @@ const handleAdd = () => {
 
 //生成链接和密码
 const generateUrlAndPassword = (linkInfo: LinkInfo) => {
-  const url = `${permissionStore.globalConfig.shareUrl}/#/?share_id=${linkInfo.shareId}&id=${projectId}`;
+  const url = `${location.origin}/#/share?share_id=${linkInfo.shareId}&id=${projectId}`;
   return `
     ${t('链接')}：${url}   
     ${t('密码')}：${linkInfo.password || `${t('不需要密码')}`}
