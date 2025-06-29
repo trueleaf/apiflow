@@ -16,13 +16,18 @@ export class GenerateSharedProjectLinkDto {
   /**
    * 密码
    */
-  @Rule(RuleType.string())
+  @Rule(RuleType.string().allow(''))
     password: string;
   /**
    * 过期时间
    */
   @Rule(RuleType.number())
     maxAge: number;
+  /**
+   * 是否自定义过期日期
+   */
+  @Rule(RuleType.boolean())
+    isCustomDate: boolean;
   /**
    * 被选中的节点
    */
@@ -50,13 +55,18 @@ export class EditSharedProjectLinkDto {
   /**
    * 密码
    */
-  @Rule(RuleType.string())
+  @Rule(RuleType.string().allow(''))
     password: string;
   /**
    * 过期时间
    */
   @Rule(RuleType.number())
     maxAge: number;
+  /**
+   * 是否自定义过期日期
+   */
+  @Rule(RuleType.boolean())
+    isCustomDate: boolean;
   /**
    * 被选中的节点
    */
@@ -155,4 +165,18 @@ export class GetSharedDocDetailDto {
    */
   @Rule(RuleType.string())
     password?: string;
+}
+
+//分享密码校验
+export class VerifySharePasswordDto {
+  /**
+   * 随机生成在线链接id
+   */
+  @Rule(RuleType.string().required())
+    shareId: string;
+  /**
+   * 密码
+   */
+  @Rule(RuleType.string().required())
+    password: string;
 }
