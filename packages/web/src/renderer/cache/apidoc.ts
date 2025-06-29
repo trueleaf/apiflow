@@ -528,6 +528,52 @@ class ApidocCache extends ResponseCache {
       localStorage.setItem('apidoc/preRequest/localStorage', JSON.stringify(newData));
     }
   }
+  /*
+   * 缓存分享密码
+   */
+  setSharePassword(shareId: string, password: string) {
+    try {
+      const localData = JSON.parse(localStorage.getItem('apidoc/sharePasswords') || '{}');
+      localData[shareId] = password;
+      localStorage.setItem('apidoc/sharePasswords', JSON.stringify(localData));
+    } catch (error) {
+      console.error(error);
+      const data: Record<string, string> = {};
+      data[shareId] = password;
+      localStorage.setItem('apidoc/sharePasswords', JSON.stringify(data));
+    }
+  }
+
+  /*
+   * 获取缓存的分享密码
+   */
+  getSharePassword(shareId: string): string | null {
+    try {
+      const localData: Record<string, string> = JSON.parse(localStorage.getItem('apidoc/sharePasswords') || '{}');
+      if (!localData[shareId]) {
+        return null;
+      }
+      return localData[shareId];
+    } catch (error) {
+      console.error(error);
+      localStorage.setItem('apidoc/sharePasswords', '{}');
+      return null;
+    }
+  }
+
+  /*
+   * 清除分享密码缓存
+   */
+  clearSharePassword(shareId: string) {
+    try {
+      const localData = JSON.parse(localStorage.getItem('apidoc/sharePasswords') || '{}');
+      delete localData[shareId];
+      localStorage.setItem('apidoc/sharePasswords', JSON.stringify(localData));
+    } catch (error) {
+      console.error(error);
+      localStorage.setItem('apidoc/sharePasswords', '{}');
+    }
+  }
 }
 
 export const apidocCache = new ApidocCache();
