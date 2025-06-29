@@ -8,8 +8,11 @@ import {
   CheckOnlineProjectPasswordDto, 
   GetSharedProjectBannerDto, 
   GetSharedProjectInfoDto, 
-  GetSharedDocDetailDto } from '../../types/dto/project/project.share.dto.js';
+  GetSharedDocDetailDto,
+  VerifySharePasswordDto } from '../../types/dto/project/project.share.dto.js';
 import { ProjectShareService } from '../../service/project/project_share.js';
+import { ReqSign } from '../../decorator/req_sign.decorator.js';
+import { ReqLimit } from '../../decorator/req_limit.decorator.js';
 
 @Controller('/api')
 export class ProjectShareController {
@@ -50,6 +53,12 @@ export class ProjectShareController {
   /**
    * 根据分享id获取分享项目链接基本信息
    */
+  @ReqSign()
+  @ReqLimit({
+    max: 5,
+    ttl: 1000 * 60,
+    limitBy: 'ip',
+  })
   @Get('/project/share_info')
   async getSharedLinkInfo(@Query() params: GetSharedLinkInfoDto) {
     const data = await this.projectShareService.getSharedLinkInfo(params);
@@ -58,11 +67,13 @@ export class ProjectShareController {
   /**
    * 分享链接密码校验
    */
+
   @Get('/project/share_check')
   async checkSharedProjectPassword(@Query() params: CheckOnlineProjectPasswordDto) {
     const data = await this.projectShareService.checkSharedProjectPassword(params);
     return data;
   }
+  
   /**
    * 获取分享文档的banner信息
    */
@@ -87,5 +98,18 @@ export class ProjectShareController {
     const data = await this.projectShareService.getSharedDocDetail(params);
     return data;
   }
-
+  /**
+   * 验证分享密码
+   */
+  @ReqSign()
+  @ReqLimit({
+    max: 5,
+    ttl: 1000 * 60,
+    limitBy: 'ip',
+  })
+  @Post('/project/verify_share_password')
+  async verifySharePassword(@Body() params: VerifySharePasswordDto) {
+    const data = await this.projectShareService.verifySharePassword(params);
+    return data;
+  }
 }
