@@ -103,7 +103,7 @@ export class ProjectShareController {
    */
   @ReqSign()
   @ReqLimit({
-    max: 5,
+    max: 10,
     ttl: 1000 * 60,
     limitBy: 'ip',
   })
