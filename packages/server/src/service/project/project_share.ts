@@ -4,7 +4,7 @@ import { ReturnModelType } from '@typegoose/typegoose';
 import { CommonController } from '../../controller/common/common.js';
 import { LoginTokenInfo } from '../../types/types.js';
 import { ProjectShare } from '../../entity/project/project_share.js';
-import { GenerateSharedProjectLinkDto, GetSharedProjectLinkListDto, DeleteSharedProjectLinkDto, GetSharedLinkInfoDto, CheckOnlineProjectPasswordDto, GetSharedProjectBannerDto, GetSharedProjectInfoDto, GetSharedDocDetailDto, EditSharedProjectLinkDto } from '../../types/dto/project/project.share.dto.js';
+import { GenerateSharedProjectLinkDto, GetSharedProjectLinkListDto, DeleteSharedProjectLinkDto, GetSharedLinkInfoDto, CheckOnlineProjectPasswordDto, GetSharedProjectBannerDto, GetSharedProjectInfoDto, GetSharedDocDetailDto, EditSharedProjectLinkDto, VerifySharePasswordDto } from '../../types/dto/project/project.share.dto.js';
 import { Project } from '../../entity/project/project.js';
 import { nanoid } from 'nanoid'
 import { throwError } from '../../utils/utils.js';
@@ -38,7 +38,7 @@ export class ProjectShareService {
    * 生成在线链接
    */
   async generateSharedProjectLink(params: GenerateSharedProjectLinkDto) {
-    const { shareName, projectId, password, maxAge = 86400000, selectedDocs = [] } = params;
+    const { shareName, projectId, password, maxAge = 86400000, selectedDocs = [], isCustomDate = false } = params;
     await this.commonControl.checkDocOperationPermissions(projectId);
     let expire = Date.now();
     if (!maxAge || maxAge > 31536000000 * 5) {
@@ -54,6 +54,7 @@ export class ProjectShareService {
       password,
       projectName: projectInfo.projectName,
       expire,
+      isCustomDate,
       selectedDocs
     }
     const result = await this.projectShareModel.create(shareInfo);
@@ -63,7 +64,7 @@ export class ProjectShareService {
    * 修改在线链接
    */
   async editSharedProjectLink(params: EditSharedProjectLinkDto) {
-    const { shareName, projectId, _id, password, maxAge = 86400000, selectedDocs = [] } = params;
+    const { shareName, projectId, _id, password, maxAge = 86400000, selectedDocs = [], isCustomDate = false } = params;
     await this.commonControl.checkDocOperationPermissions(projectId);
     let expire = Date.now();
     if (!maxAge || maxAge > 31536000000 * 5) {
@@ -76,6 +77,7 @@ export class ProjectShareService {
         shareName,
         password,
         expire,
+        isCustomDate,
         selectedDocs
       }
     });
@@ -110,7 +112,7 @@ export class ProjectShareService {
     const { shareId } = params;
     const result = await this.projectShareModel.findOne({ shareId, isEnabled: true }, { projectName: 1, shareName: 1, expire: 1, password: 1 }).lean();
     if (!result) {
-      throwError(101003, '文档不存在')
+      throwError(1020, '文档不存在')
     }
     return {
       projectName: result.projectName,
@@ -126,7 +128,7 @@ export class ProjectShareService {
     const { shareId, password } = params;
     const projectShare = await this.projectShareModel.findOne({ shareId }).lean();
     if (!projectShare) {
-      throwError(101003, '文档不存在')
+      throwError(1020, '文档不存在')
     }
     const projectPassword = projectShare.password;
     const expire = projectShare.expire;
@@ -135,13 +137,13 @@ export class ProjectShareService {
     const hasPassword = projectPassword != null && projectPassword !== '';
     const passwordIsEqual = password === projectPassword;
     if (hasPassword && !passwordIsEqual) { //密码错误
-      throwError(101001, '密码错误');
+      throwError(1023, '密码错误');
     }  else if (isExpire) { //文档过期
-      throwError(101002, '文档已过期')
+      throwError(1021, '文档已过期')
     } else if ((hasPassword && passwordIsEqual && !isExpire) || (!hasPassword && !isExpire)) {
       return true;
     } else {
-      throwError(101003, '文档错误')
+      throwError(1023, '文档错误')
     }
   }
   checkPassword(params: { expire: number; password: string; projectPassword: string; }) {
@@ -161,7 +163,7 @@ export class ProjectShareService {
   async getSharedProjectBanner(params: GetSharedProjectBannerDto) {
     const sharedProjectInfo = await this.projectShareModel.findOne({ shareId: params.shareId }).lean();
     if (!sharedProjectInfo) {
-      throwError(101005, '无效的的id和密码')
+      throwError(1023, '无效的的id和密码')
     }
     const checkParams = {
       expire: sharedProjectInfo.expire,
@@ -170,7 +172,7 @@ export class ProjectShareService {
     };
     const valid = this.checkPassword(checkParams);
     if (!valid) {
-      throwError(101005, '无效的的id和密码')
+      throwError(1023, '无效的的id和密码')
     }
     const result = await this.docService.getDocsAsTree({ projectId: sharedProjectInfo.projectId }, true);
     return result;
@@ -181,7 +183,7 @@ export class ProjectShareService {
   async getSharedProjectInfo(params: GetSharedProjectInfoDto) {
     const sharedProjectInfo = await this.projectShareModel.findOne({ shareId: params.shareId }).lean();
     if (!sharedProjectInfo) {
-      throwError(101005, '无效的的id和密码')
+      throwError(1023, '无效的的id和密码')
     }
     const checkParams = {
       expire: sharedProjectInfo.expire,
@@ -190,7 +192,7 @@ export class ProjectShareService {
     };
     const valid = await this.checkPassword(checkParams);
     if (!valid) {
-      throwError(101005, '无效的的id和密码')
+      throwError(1023, '无效的的id和密码')
     }
     const hosts = await this.docPrefixModel.find({ projectId: sharedProjectInfo.projectId, isEnabled: true }, { name: 1, url: 1 });
     const variables = await this.projectVariableModel.find({ projectId: sharedProjectInfo.projectId, isEnabled: true }, { name: 1, type: 1, value: 1 });
@@ -217,7 +219,7 @@ export class ProjectShareService {
   async getSharedDocDetail(params: GetSharedDocDetailDto) {
     const sharedProjectInfo = await this.projectShareModel.findOne({ shareId: params.shareId }).lean();
     if (!sharedProjectInfo) {
-      throwError(101005, '无效的的id和密码')
+      throwError(1023, '无效的的id和密码')
     }
     const checkParams = {
       expire: sharedProjectInfo.expire,
@@ -226,12 +228,43 @@ export class ProjectShareService {
     };
     const valid = await this.checkPassword(checkParams);
     if (!valid) {
-      throwError(101005, '无效的的id和密码')
+      throwError(1023, '无效的的id和密码')
     }
     const result = await this.docModel.findOne({ _id: params._id }, { pid: 0, isFolder: 0, sort: 0, isEnabled: 0 });
     if (!result) {
       throwError(4001, '暂无文档信息')
     }
     return result;
+  }
+  /**
+   * 验证分享密码
+   */
+  async verifySharePassword(params: VerifySharePasswordDto) {
+    const { shareId, password } = params;
+    const projectShare = await this.projectShareModel.findOne({ shareId, isEnabled: true }).lean();
+    if (!projectShare) {
+      throwError(1020, '分享链接不存在');
+    }
+    
+    const projectPassword = projectShare.password;
+    const expire = projectShare.expire;
+    const nowTime = Date.now();
+    const isExpire = nowTime > expire;
+    
+    if (isExpire) {
+      throwError(1021, '分享链接已过期');
+    }
+    
+    const hasPassword = projectPassword != null && projectPassword !== '';
+    if (!hasPassword) {
+      throwError(1022, '该分享链接无需密码');
+    }
+    
+    const passwordIsEqual = password === projectPassword;
+    if (!passwordIsEqual) {
+      throwError(1023, '密码错误');
+    }
+    
+    return;
   }
 }

@@ -70,6 +70,23 @@ export type GlobalConfig = {
   signConfig: {
     ttl: number
   }
+  /**
+   * 限流相关配置
+   */
+  rateLimitConfig: {
+    /**
+     * 全局最大请求次数阈值，超过此阈值将触发1天禁用
+     */
+    globalMaxRequests: number;
+    /**
+     * 禁用时长（毫秒）
+     */
+    banDuration: number;
+    /**
+     * 是否启用全局限制功能
+     */
+    enableGlobalLimit: boolean;
+  }
 };
 
 /**
@@ -120,5 +137,9 @@ export type ReqLimit = {
   limitBy?: 'user' | 'ip',
   //从requestBody中取某个字段作为额外key，与limitBy共同限制请求频率，例如：limitBy: 'ip', limitExtraKey: 'loginName'，代表一个ip地址一个loginName的请求频率
   limitExtraKey?: string;
-  errorMsg?: string
+  errorMsg?: string;
+  /**
+   * 是否启用全局限制功能（继承全局配置）
+   */
+  enableGlobalLimit?: boolean;
 }

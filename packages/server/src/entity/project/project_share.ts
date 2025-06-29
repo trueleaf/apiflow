@@ -35,6 +35,11 @@ export class ProjectShare {
   @prop()
   public expire: number;
   /**
+   * 是否自定义过期日期
+   */
+  @prop({ default: false })
+  public isCustomDate: boolean;
+  /**
    * 允许用户查看的文档，如果没有当前字段则代表所有数据都允许查看
    */
   @prop({ type: () => [String] })
