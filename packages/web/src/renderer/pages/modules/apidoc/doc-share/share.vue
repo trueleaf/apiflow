@@ -27,78 +27,52 @@
   </div>
   <div v-else-if="loading" class="loading-container">
     <div class="loading-content">
-      <el-icon class="loading-icon" :size="32">
-        <Loading />
-      </el-icon>
-      <p>正在验证分享链接...</p>
+      <div class="loading-circle">
+        <el-icon class="loading-icon" :size="32">
+          <Loading />
+        </el-icon>
+      </div>
+      <p class="loading-text">正在验证分享链接...</p>
+      <div class="loading-dots">
+        <span></span><span></span><span></span>
+      </div>
+      <div class="loading-progress">
+        <div class="loading-progress-bar"></div>
+      </div>
     </div>
   </div>
   <div v-else class="no-permission">
-    <div class="error-content">
-      <el-icon :size="48" color="#F56C6C">
-        <Warning />
-      </el-icon>
-      <h3>访问失败</h3>
-      <p>{{ errorMessage }}</p>
+    <div class="error-content" style="background: #fff; color: #333; box-shadow: 0 2px 8px rgba(0,0,0,0.05); padding: 40px 0; border-radius: 12px; min-width: 400px;">
+      <div style="text-align: center;">
+        <img src="@/assets/imgs/logo.png" alt="logo" style="width: 120px; height: 120px; margin-bottom: 20px;" />
+        <h2 class="mt-0">{{ shareInfo.shareName || '文档分享' }}</h2>
+        <el-form ref="passwordFormRef" :model="passwordFormData" :rules="passwordRules" class="d-flex j-center">
+          <el-form-item prop="password" style="margin-bottom: 0;">
+            <el-input
+              v-model="passwordFormData.password"
+              type="password"
+              placeholder="请输入密码"
+              style="width: 180px;"
+              @keyup.enter="handlePasswordSubmit"
+            />
+            <el-button :loading="passwordLoading" type="success" @click="handlePasswordSubmit">确认密码</el-button>
+          </el-form-item>
+        </el-form>
+        <div v-if="shareInfo.expire" class="mt-2">
+          过期倒计时：{{ expireCountdown }}
+        </div>
+      </div>
     </div>
   </div>
-
-  <!-- 密码输入弹窗 -->
-  <SDialog 
-    v-model="passwordDialogVisible" 
-    title="请输入访问密码" 
-    width="400px"
-    :close-on-click-modal="false"
-    :close-on-press-escape="false"
-    :show-close="false"
-  >
-    <div class="password-dialog-content">
-      <div class="password-header">
-        <el-icon :size="24" color="#409EFF">
-          <Lock />
-        </el-icon>
-        <h4>此文档需要密码访问</h4>
-        <p>请输入正确的访问密码以查看文档内容</p>
-      </div>
-      <el-form ref="passwordFormRef" :model="passwordFormData" :rules="passwordRules" class="password-form">
-        <el-form-item prop="password">
-          <el-input
-            v-model="passwordFormData.password"
-            type="password"
-            placeholder="请输入访问密码"
-            show-password
-            clearable
-            @keyup.enter="handlePasswordSubmit"
-            ref="passwordInput"
-          >
-            <template #prefix>
-              <el-icon><Key /></el-icon>
-            </template>
-          </el-input>
-        </el-form-item>
-      </el-form>
-    </div>
-    <template #footer>
-      <div class="password-dialog-footer">
-        <el-button 
-          :loading="passwordLoading" 
-          type="primary" 
-          @click="handlePasswordSubmit"
-        >
-          确认访问
-        </el-button>
-      </div>
-    </template>
-  </SDialog>
 </template>
 
 <script lang="ts" setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, onUnmounted, watch } from 'vue'
 import { router } from '@/router'
 import { request } from '@/api/api'
 import { ElMessage, FormInstance } from 'element-plus'
-import { Document, Loading, Warning, Lock, Key } from '@element-plus/icons-vue'
-import SDialog from '@/components/common/dialog/g-dialog.vue'
+import { Document, Loading, } from '@element-plus/icons-vue'
+import { Response } from '@src/types/global'
 
 // 分享信息类型定义
 interface ShareInfo {
@@ -112,7 +86,6 @@ interface ShareInfo {
 const hasPermission = ref(false)
 const loading = ref(true)
 const errorMessage = ref('认证中...')
-const projectId = ref(router.currentRoute.value.query.id as string)
 const shareId = ref(router.currentRoute.value.query.share_id as string)
 
 // 分享信息
@@ -157,8 +130,8 @@ const getShareInfo = async () => {
     loading.value = true
     errorMessage.value = '正在验证分享链接...'
     
-    const response = await request.get('/api/project/share_info', {
-      params: { share_id: shareId.value }
+    const response = await request.get<Response<ShareInfo>, Response<ShareInfo>>('/api/project/share_info', {
+      params: { shareId: shareId.value }
     })
     
     shareInfo.value = response.data
@@ -185,17 +158,16 @@ const getShareInfo = async () => {
 // 验证密码
 const verifyPassword = async (password: string) => {
   try {
-    const response = await request.post('/api/project/verify_share_password', {
-      share_id: shareId.value,
+    const response = await request.post<Response<{ code: number }>, Response<{ code: number }>>('/api/project/verify_share_password', {
+      shareId: shareId.value,
       password: password
     })
-    
-    if (response.data.code === 0) {
+    if (response.code === 0) {
       hasPermission.value = true
       passwordDialogVisible.value = false
       ElMessage.success('密码验证成功')
     } else {
-      ElMessage.error(response.data.msg || '密码错误')
+      ElMessage.error(response.msg || '密码错误')
     }
   } catch (error: any) {
     console.error('密码验证失败:', error)
@@ -229,6 +201,44 @@ onMounted(() => {
   
   getShareInfo()
 })
+
+// 倒计时逻辑
+const expireCountdown = ref('')
+let timer: any = null
+function updateCountdown() {
+  if (!shareInfo.value.expire) return
+  const expire = new Date(shareInfo.value.expire).getTime()
+  const now = Date.now()
+  let diff = Math.max(0, expire - now)
+  if (diff <= 0) {
+    expireCountdown.value = '已过期'
+    clearInterval(timer)
+    return
+  }
+  const days = Math.floor(diff / (1000 * 60 * 60 * 24))
+  diff -= days * (1000 * 60 * 60 * 24)
+  const hours = Math.floor(diff / (1000 * 60 * 60))
+  diff -= hours * (1000 * 60 * 60)
+  const minutes = Math.floor(diff / (1000 * 60))
+  diff -= minutes * (1000 * 60)
+  const seconds = Math.floor(diff / 1000)
+  expireCountdown.value = `${days}天${hours}小时${minutes}分${seconds}秒`
+}
+watch(
+  () => shareInfo.value.expire,
+  (val) => {
+    if (val) {
+      updateCountdown()
+      timer = setInterval(updateCountdown, 1000)
+    } else {
+      expireCountdown.value = ''
+      clearInterval(timer)
+    }
+  }
+)
+onUnmounted(() => {
+  clearInterval(timer)
+})
 </script>
 
 <style lang='scss' scoped>
@@ -244,7 +254,7 @@ onMounted(() => {
     flex-direction: column;
     background: white;
     margin: 20px;
-    border-radius: 12px;
+    border-radius: 12px 0 0 12px;
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
     overflow: hidden;
 
@@ -312,26 +322,85 @@ onMounted(() => {
   align-items: center;
   justify-content: center;
   height: 100vh;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: $gray-100;
+}
 
-  .loading-content {
-    text-align: center;
-    color: white;
-    background: rgba(255, 255, 255, 0.1);
-    padding: 40px;
-    border-radius: 12px;
-    backdrop-filter: blur(10px);
+.loading-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: rgba(255,255,255,0.7);
+  border-radius: 16px;
+  box-shadow: 0 4px 24px rgba(80,120,255,0.08);
+  padding: 48px 56px 40px 56px;
+}
 
-    .loading-icon {
-      animation: rotate 2s linear infinite;
-      margin-bottom: 20px;
-    }
+.loading-circle {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #e0e7ff 0%, #f3f8ff 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 12px rgba(80,120,255,0.10);
+  margin-bottom: 24px;
+}
 
-    p {
-      margin: 0;
-      font-size: 16px;
-    }
+.loading-icon {
+  animation: rotate 1.2s linear infinite;
+  color: #6c7eea;
+}
+
+.loading-text {
+  font-size: 20px;
+  font-weight: 600;
+  color: #333;
+  margin: 16px 0 12px 0;
+  letter-spacing: 1px;
+}
+
+.loading-dots {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 18px;
+  span {
+    width: 8px;
+    height: 8px;
+    background: #6c7eea;
+    border-radius: 50%;
+    display: inline-block;
+    opacity: 0.5;
+    animation: loading-dot 1.2s infinite;
+    &:nth-child(2) { animation-delay: 0.2s; }
+    &:nth-child(3) { animation-delay: 0.4s; }
   }
+}
+
+@keyframes loading-dot {
+  0%, 80%, 100% { opacity: 0.5; transform: scale(1);}
+  40% { opacity: 1; transform: scale(1.3);}
+}
+
+.loading-progress {
+  width: 120px;
+  height: 4px;
+  background: #e0e7ff;
+  border-radius: 2px;
+  overflow: hidden;
+  margin-top: 8px;
+}
+.loading-progress-bar {
+  width: 40%;
+  height: 100%;
+  background: linear-gradient(90deg, #6c7eea 0%, #764ba2 100%);
+  border-radius: 2px;
+  animation: loading-bar 1.2s infinite;
+}
+@keyframes loading-bar {
+  0% { margin-left: 0; width: 20%; }
+  50% { margin-left: 40%; width: 60%; }
+  100% { margin-left: 80%; width: 20%; }
 }
 
 .no-permission {
@@ -339,7 +408,7 @@ onMounted(() => {
   align-items: center;
   justify-content: center;
   height: 100vh;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: $gray-100;
 
   .error-content {
     text-align: center;
@@ -361,71 +430,12 @@ onMounted(() => {
   }
 }
 
-// 密码弹窗样式
-.password-dialog-content {
-  .password-header {
-    text-align: center;
-    margin-bottom: 30px;
-
-    h4 {
-      margin: 15px 0 8px 0;
-      color: #333;
-      font-size: 18px;
-    }
-
-    p {
-      margin: 0;
-      color: #666;
-      font-size: 14px;
-    }
-  }
-
-  .password-form {
-    .el-form-item {
-      margin-bottom: 0;
-    }
-  }
-}
-
-.password-dialog-footer {
-  text-align: center;
-  
-  .el-button {
-    min-width: 120px;
-  }
-}
-
 @keyframes rotate {
   from {
     transform: rotate(0deg);
   }
   to {
     transform: rotate(360deg);
-  }
-}
-
-// 响应式设计
-@media (max-width: 768px) {
-  .doc-share {
-    .share-info {
-      margin: 10px;
-
-      .share-header {
-        padding: 20px;
-        flex-direction: column;
-        gap: 15px;
-
-        .project-info {
-          .project-name {
-            font-size: 24px;
-          }
-        }
-      }
-
-      .share-content {
-        padding: 20px;
-      }
-    }
   }
 }
 </style>
