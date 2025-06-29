@@ -1,26 +1,12 @@
 <template>
   <div v-if="hasPermission" class="doc-share">
-    <div class="share-info">
-      <div class="share-header">
-        <div class="project-info">
-          <h1 class="project-name">{{ shareInfo.projectName }}</h1>
-          <p class="share-name">{{ shareInfo.shareName }}</p>
-        </div>
-        <div class="share-status">
-          <el-tag v-if="shareInfo.expire" type="warning" size="small">
-            过期时间: {{ formatExpireTime(shareInfo.expire) }}
-          </el-tag>
-          <el-tag v-else type="success" size="small">永久有效</el-tag>
-        </div>
-      </div>
-      <div class="share-content">
-        <!-- 这里可以放置实际的文档内容 -->
+    <div class="doc-share-container">
+      <SBanner class="doc-share-banner" />
+      <div class="doc-share-content">
+        <!-- 内容区域 -->
         <div class="content-placeholder">
-          <el-icon :size="48" color="#409EFF">
-            <Document />
-          </el-icon>
-          <h3>文档内容</h3>
-          <p>这里是分享的API文档内容</p>
+          <h3>{{ $t('文档分享') }}</h3>
+          <p>{{ $t('点击左侧接口查看详情') }}</p>
         </div>
       </div>
     </div>
@@ -32,7 +18,7 @@
           <Loading />
         </el-icon>
       </div>
-      <p class="loading-text">正在验证分享链接...</p>
+      <p class="loading-text">{{ $t('正在验证分享链接') }}</p>
       <div class="loading-dots">
         <span></span><span></span><span></span>
       </div>
@@ -45,21 +31,21 @@
     <div class="error-content" style="background: #fff; color: #333; box-shadow: 0 2px 8px rgba(0,0,0,0.05); padding: 40px 0; border-radius: 12px; min-width: 400px;">
       <div style="text-align: center;">
         <img src="@/assets/imgs/logo.png" alt="logo" style="width: 120px; height: 120px; margin-bottom: 20px;" />
-        <h2 class="mt-0">{{ shareInfo.shareName || '文档分享' }}</h2>
+        <h2 class="mt-0">{{ shareInfo.shareName || $t('文档分享') }}</h2>
         <el-form ref="passwordFormRef" :model="passwordFormData" :rules="passwordRules" class="d-flex j-center">
           <el-form-item prop="password" style="margin-bottom: 0;">
             <el-input
               v-model="passwordFormData.password"
               type="password"
-              placeholder="请输入密码"
+              :placeholder="$t('请输入访问密码')"
               style="width: 180px;"
               @keyup.enter="handlePasswordSubmit"
             />
-            <el-button :loading="passwordLoading" type="success" @click="handlePasswordSubmit">确认密码</el-button>
+            <el-button :loading="passwordLoading" type="success" @click="handlePasswordSubmit">{{ $t('确认密码') }}</el-button>
           </el-form-item>
         </el-form>
         <div v-if="shareInfo.expire" class="mt-2">
-          过期倒计时：{{ expireCountdown }}
+          {{ $t('过期倒计时') }}：{{ expireCountdown }}
         </div>
       </div>
     </div>
@@ -71,8 +57,11 @@ import { ref, onMounted, onUnmounted, watch } from 'vue'
 import { router } from '@/router'
 import { request } from '@/api/api'
 import { ElMessage, FormInstance } from 'element-plus'
-import { Document, Loading, } from '@element-plus/icons-vue'
+import { Loading, } from '@element-plus/icons-vue'
 import { Response } from '@src/types/global'
+import { $t } from '@/i18n/i18n'
+import { SBanner } from './banner'
+import { apidocCache } from '@/cache/apidoc'
 
 // 分享信息类型定义
 interface ShareInfo {
@@ -83,11 +72,9 @@ interface ShareInfo {
 }
 
 // 响应式数据
-const hasPermission = ref(false)
-const loading = ref(true)
-const errorMessage = ref('认证中...')
-const shareId = ref(router.currentRoute.value.query.share_id as string)
-
+const hasPermission = ref(false);
+const loading = ref(true);
+const shareId = ref(router.currentRoute.value.query.share_id as string);
 // 分享信息
 const shareInfo = ref<ShareInfo>({
   projectName: '',
@@ -95,66 +82,47 @@ const shareInfo = ref<ShareInfo>({
   expire: null,
   needPassword: false
 })
-
 // 密码弹窗相关
-const passwordDialogVisible = ref(false)
 const passwordLoading = ref(false)
 const passwordFormData = ref({
   password: ''
 })
 const passwordFormRef = ref<FormInstance>()
 const passwordInput = ref<HTMLInputElement>()
-
-// 密码验证规则
 const passwordRules = ref({
   password: [
-    { required: true, message: '请输入访问密码', trigger: 'blur' }
+    { required: true, message: $t('请输入访问密码'), trigger: 'blur' }
   ]
 })
-
-// 格式化过期时间
-const formatExpireTime = (expireTime: string) => {
-  const date = new Date(expireTime)
-  return date.toLocaleString('zh-CN', {
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-    hour: '2-digit',
-    minute: '2-digit'
-  })
-}
-
 // 获取分享信息
 const getShareInfo = async () => {
   try {
     loading.value = true
-    errorMessage.value = '正在验证分享链接...'
-    
     const response = await request.get<Response<ShareInfo>, Response<ShareInfo>>('/api/project/share_info', {
       params: { shareId: shareId.value }
     })
-    
     shareInfo.value = response.data
-    
     if (shareInfo.value.needPassword) {
-      // 需要密码，显示密码输入弹窗
-      passwordDialogVisible.value = true
-      // 等待DOM更新后聚焦输入框
-      setTimeout(() => {
-        passwordInput.value?.focus()
-      }, 100)
+      // 检查缓存中是否有密码
+      const cachedPassword = apidocCache.getSharePassword(shareId.value)
+      if (cachedPassword) {
+        // 如果有缓存密码，直接验证
+        await verifyPassword(cachedPassword)
+      } else {
+        // 没有缓存密码，显示密码输入框
+        setTimeout(() => {
+          passwordInput.value?.focus()
+        }, 100)
+      }
     } else {
-      // 不需要密码，直接设置权限
       hasPermission.value = true
     }
   } catch (error: any) {
-    console.error('获取分享信息失败:', error)
-    errorMessage.value = error.message || '获取分享信息失败，请检查链接是否正确'
+    console.error($t('获取分享信息失败'), ':', error)
   } finally {
     loading.value = false
   }
 }
-
 // 验证密码
 const verifyPassword = async (password: string) => {
   try {
@@ -163,26 +131,29 @@ const verifyPassword = async (password: string) => {
       password: password
     })
     if (response.code === 0) {
+      // 密码验证成功，保存到缓存
+      apidocCache.setSharePassword(shareId.value, password)
       hasPermission.value = true
-      passwordDialogVisible.value = false
-      ElMessage.success('密码验证成功')
     } else {
+      // 密码验证失败，清除缓存中的错误密码
+      apidocCache.clearSharePassword(shareId.value)
       ElMessage({
-        message: response.msg || '密码错误',
+        message: response.msg || $t('密码错误'),
         grouping: true,
         type: 'error',
       })
     }
   } catch (error: any) {
-    console.error('密码验证失败:', error)
+    // 网络错误或其他异常，清除缓存中的错误密码
+    apidocCache.clearSharePassword(shareId.value)
+    console.error($t('密码验证失败'), ':', error)
     ElMessage({
-      message: error.message || '密码验证失败',
+      message: error.message || $t('密码验证失败'),
       grouping: true,
       type: 'error',
     })
   }
 }
-
 // 处理密码提交
 const handlePasswordSubmit = async () => {
   if (!passwordFormRef.value) return
@@ -191,35 +162,23 @@ const handlePasswordSubmit = async () => {
     await passwordFormRef.value.validate()
     passwordLoading.value = true
     
+    // 用户手动输入密码时，先清除缓存中的旧密码
+    apidocCache.clearSharePassword(shareId.value)
+    
     await verifyPassword(passwordFormData.value.password)
   } catch (error) {
-    console.error('密码验证失败:', error)
+    console.error($t('密码验证失败'), ':', error)
   } finally {
     passwordLoading.value = false
   }
 }
-
-// 组件挂载时获取分享信息
-onMounted(() => {
-  if (!shareId.value) {
-    errorMessage.value = '分享链接无效，缺少分享ID'
-    loading.value = false
-    return
-  }
-  
-  getShareInfo()
-})
-
-// 倒计时逻辑
-const expireCountdown = ref('')
-let timer: any = null
-function updateCountdown() {
+const updateCountdown = () => {
   if (!shareInfo.value.expire) return
   const expire = new Date(shareInfo.value.expire).getTime()
   const now = Date.now()
   let diff = Math.max(0, expire - now)
   if (diff <= 0) {
-    expireCountdown.value = '已过期'
+    expireCountdown.value = $t('已过期')
     clearInterval(timer)
     return
   }
@@ -230,8 +189,14 @@ function updateCountdown() {
   const minutes = Math.floor(diff / (1000 * 60))
   diff -= minutes * (1000 * 60)
   const seconds = Math.floor(diff / 1000)
-  expireCountdown.value = `${days}天${hours}小时${minutes}分${seconds}秒`
+  expireCountdown.value = `${days}${$t('天')}${hours}${$t('小时')}${minutes}${$t('分')}${seconds}${$t('秒')}`
 }
+
+
+// 倒计时逻辑
+const expireCountdown = ref('')
+let timer: any = null
+
 watch(
   () => shareInfo.value.expire,
   (val) => {
@@ -244,6 +209,9 @@ watch(
     }
   }
 )
+onMounted(() => {
+  getShareInfo()
+})
 onUnmounted(() => {
   clearInterval(timer)
 })
@@ -251,74 +219,40 @@ onUnmounted(() => {
 
 <style lang='scss' scoped>
 .doc-share {
-  display: flex;
-  overflow: hidden;
   height: 100vh;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-
-  .share-info {
-    flex: 1;
+  display: flex;
+  
+  .doc-share-container {
     display: flex;
-    flex-direction: column;
-    background: white;
-    margin: 20px;
-    border-radius: 12px 0 0 12px;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-    overflow: hidden;
-
-    .share-header {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: white;
-      padding: 30px;
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-
-      .project-info {
-        flex: 1;
-
-        .project-name {
-          font-size: 28px;
-          font-weight: 600;
-          margin: 0 0 8px 0;
-          color: white;
-        }
-
-        .share-name {
-          font-size: 16px;
-          margin: 0;
-          opacity: 0.9;
-        }
-      }
-
-      .share-status {
-        .el-tag {
-          background: rgba(255, 255, 255, 0.2);
-          border: 1px solid rgba(255, 255, 255, 0.3);
-          color: white;
-        }
-      }
+    width: 100%;
+    height: 100%;
+    
+    .doc-share-banner {
+      flex: 0 0 auto;
     }
-
-    .share-content {
+    
+    .doc-share-content {
       flex: 1;
-      padding: 40px;
       display: flex;
       align-items: center;
       justify-content: center;
-
+      background: $gray-100;
+      
       .content-placeholder {
         text-align: center;
-        color: #666;
-
+        color: $gray-600;
+        
         h3 {
-          margin: 20px 0 10px 0;
-          color: #333;
+          margin: 0 0 16px 0;
+          font-size: 24px;
+          font-weight: 600;
+          color: $gray-800;
         }
-
+        
         p {
           margin: 0;
-          color: #999;
+          font-size: 16px;
+          color: $gray-500;
         }
       }
     }
