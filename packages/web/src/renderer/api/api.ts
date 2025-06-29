@@ -136,9 +136,16 @@ axiosInstance.interceptors.response.use(
         case 2006: //输入验证码
           break;
         case 2003: //验证码错误
+          break;
         case 4005: //图形验证码错误
           break;
-        case 101005: //无效的的id和密码,跳转到验证页面
+        case 1020: //分享链接不存在
+          break;
+        case 1021: //分享链接已过期
+          break;
+        case 1022: //分享链接无需密码
+          break;
+        case 1023: //密码错误
           break;
         case 4101: //登录有错
           router.replace('/login');
@@ -198,6 +205,13 @@ axiosInstance.interceptors.response.use(
     if (err.constructor && err.constructor.name === 'Cancel') {
       return;
     }
+    
+    // 处理超时错误
+    if (err.code === 'ECONNABORTED' || err.message.includes('timeout')) {
+      ElMessage.error('接口调用超时，请稍后重试');
+      return Promise.reject(err);
+    }
+    
     ElMessage.error('系统开小差了!');
     Promise.reject(err);
   },
