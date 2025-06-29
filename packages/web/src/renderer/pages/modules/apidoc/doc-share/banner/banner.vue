@@ -177,7 +177,6 @@ const handleDbclickNode = (data: ApidocBanner) => {
 | 节点过滤
 |--------------------------------------------------------------------------
 */
-const filterString = ref('');
 //过滤节点
 const filterNode = (value: string, data: Record<string, unknown>): boolean => {
   if (!value) {
