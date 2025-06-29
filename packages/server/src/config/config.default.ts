@@ -6,6 +6,7 @@ import { Role } from '../entity/security/role.js';
 import { ClientRoutes } from '../entity/security/client_routes.js';
 import { ServerRoutes } from '../entity/security/server_routes.js';
 import { LoginRecord } from '../entity/security/login_record.js';
+import { UserLimitRecord } from '../entity/security/user_limit_record.js';
 import { Project } from '../entity/project/project.js';
 import { ProjectVariable } from '../entity/project/project_variable.js';
 import { ProjectCode } from '../entity/project/project_code.js';
@@ -57,6 +58,7 @@ export default (): MidwayConfig => {
             Role,
             ServerRoutes,
             LoginRecord,
+            UserLimitRecord,
             Project,
             ProjectVariable,
             ProjectCode,
@@ -129,6 +131,7 @@ export default (): MidwayConfig => {
         '/api/project/export/share_banner',
         '/api/project/export/share_project_info',
         '/api/project/share_doc_detail',
+        '/api/project/verify_share_password',
       ],
     },
     security: {
@@ -156,6 +159,11 @@ export default (): MidwayConfig => {
     },
     signConfig: {
       ttl: 1000 * 60
+    },
+    rateLimitConfig: {
+      globalMaxRequests: 100,
+      banDuration: 1000 * 60 * 60 * 24, // 1天
+      enableGlobalLimit: true,
     },
   }
 };

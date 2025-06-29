@@ -13,6 +13,7 @@ import {
 import { ResponseWrapperMiddleware } from './middleware/response.middleware.js';
 import { PermissionMiddleware } from './middleware/permission.middleware.js';
 import { User } from './entity/security/user.js';
+import { UserLimitRecord } from './entity/security/user_limit_record.js';
 import { initClientMenus, initClientRoutes, initRoles, initServerRoutes, initUser } from './entity/init_entity.js';
 import { ServerRoutes } from './entity/security/server_routes.js';
 import { ClientRoutes } from './entity/security/client_routes.js';
@@ -68,33 +69,89 @@ export class ContainerLifeCycle {
     clientMenuModel: ReturnModelType<typeof ClientMenu>;
   @InjectEntityModel(Attachment)
     attachmentModel: ReturnModelType<typeof Attachment>;
+  @InjectEntityModel(UserLimitRecord)
+    userLimitRecordModel: ReturnModelType<typeof UserLimitRecord>;
   @Inject()
     decoratorService: MidwayDecoratorService;
   @InjectClient(CachingFactory, 'default')
     cache: MidwayCache;
   @Config('signConfig')
     config: GlobalConfig['signConfig'];
-
+  @Config('rateLimitConfig')
+    rateLimitConfig: GlobalConfig['rateLimitConfig'];
 
   //接口限流
   async registerReqLimitDecorator() {
     this.decoratorService.registerMethodHandler(REQ_LIMIT_KEY, (options) => {
       return {
         around: async (joinPoint: JoinPoint) => {
-          const { ttl, max, limitBy = 'user', limitExtraKey, errorMsg } = options.metadata as ReqLimit;
+          const { ttl, max, limitBy = 'user', limitExtraKey, errorMsg, enableGlobalLimit } = options.metadata as ReqLimit;
           const instance = joinPoint.target;
           const ctx = instance[REQUEST_OBJ_CTX_KEY] as koa.Context;
           const reqBody = ctx.request.body;
+          
           let limitKey = '';
+          let globalLimitKey = '';
+          let userId = '';
+          let ip = '';
+          
           if (limitBy === 'user') {
-            limitKey = limitExtraKey ? `reqLimit:${reqBody[limitExtraKey]}${ctx.tokenInfo.id}` : `reqLimit:${ctx.tokenInfo.id}`;
+            userId = ctx.tokenInfo?.id || '';
+            limitKey = limitExtraKey ? `reqLimit:${reqBody[limitExtraKey]}${userId}` : `reqLimit:${userId}`;
+            globalLimitKey = limitExtraKey ? `globalLimit:${reqBody[limitExtraKey]}${userId}` : `globalLimit:${userId}`;
           } else if (limitBy === 'ip') {
-            limitKey = limitExtraKey ? `reqLimit:${reqBody[limitExtraKey]}${ctx.ip}` : `reqLimit:${ctx.ip}`;
+            ip = ctx.ip;
+            limitKey = limitExtraKey ? `reqLimit:${reqBody[limitExtraKey]}${ip}` : `reqLimit:${ip}`;
+            globalLimitKey = limitExtraKey ? `globalLimit:${reqBody[limitExtraKey]}${ip}` : `globalLimit:${ip}`;
           }
+
+          // 检查是否已被禁用
+          const banKey = `ban:${limitKey}`;
+          const isBanned = await this.cache.get(banKey);
+          if (isBanned) {
+            return throwError(4030, '您的账户已被临时禁用，请稍后再试');
+          }
+
           const reqCount: number = await this.cache.get(limitKey) || 0;
+          const globalReqCount: number = await this.cache.get(globalLimitKey) || 0;
+          
+          // 检查是否超过单次限制
           if (reqCount >= max) {
-            return throwError(4029, errorMsg ?? '接口调用过于频繁')
+            await this.cache.set(globalLimitKey, globalReqCount + 1, ttl);
+            return throwError(4029, errorMsg ?? '接口调用过于频繁');
           }
+
+          // 检查是否启用全局限制功能
+          const shouldCheckGlobalLimit = enableGlobalLimit !== false && this.rateLimitConfig.enableGlobalLimit;
+          if (shouldCheckGlobalLimit) {
+            // 获取全局限制的请求次数
+            if (globalReqCount >= this.rateLimitConfig.globalMaxRequests) {
+              // 创建禁用记录
+              const banStartTime = new Date();
+              const banEndTime = new Date(banStartTime.getTime() + this.rateLimitConfig.banDuration);
+              
+              const limitRecord = new this.userLimitRecordModel({
+                userId: limitBy === 'user' ? userId : undefined,
+                ip: limitBy === 'ip' ? ip : undefined,
+                limitType: limitBy,
+                reason: `在${Math.ceil(ttl / 60000)}分钟内请求次数超过${this.rateLimitConfig.globalMaxRequests}次`,
+                startTime: banStartTime,
+                endTime: banEndTime,
+                triggerCount: globalReqCount + 1,
+                timeWindow: ttl,
+                maxRequests: this.rateLimitConfig.globalMaxRequests,
+                limitExtraKey,
+                limitExtraValue: limitExtraKey ? reqBody[limitExtraKey] : undefined,
+              });
+              
+              await limitRecord.save();
+              
+              // 设置禁用缓存
+              await this.cache.set(banKey, true, this.rateLimitConfig.banDuration);
+              return throwError(4030, '您的账户已被临时禁用，请稍后再试');
+            }
+          }
+
           await this.cache.set(limitKey, reqCount + 1, ttl);
           const result = await joinPoint.proceed(...joinPoint.args);
           return result;
@@ -108,24 +165,25 @@ export class ContainerLifeCycle {
       return {
         around: async (joinPoint: JoinPoint) => {
           const target = joinPoint.target;
-          const requestSign = target.ctx.headers['x-sign'] as string;
+          const ctx = target[REQUEST_OBJ_CTX_KEY] as koa.Context;
+          const requestSign = ctx.headers['x-sign'] as string;
           if (!requestSign) {
             return throwError(4002, '接口签名验证不通过');
           }
-          const method = target.ctx.request.method.toLowerCase();
-          const parsedUrlInfo = parseUrl(target.ctx.url);
+          const method = ctx.request.method.toLowerCase();
+          const parsedUrlInfo = parseUrl(ctx.url);
           const url = parsedUrlInfo.url;
-          const strParams = getStrParams(Object.assign({}, parsedUrlInfo.queryParams, target.ctx.query));
-          const body = target.ctx.request.body;
-          const timestamp = target.ctx.headers['x-sign-timestamp'] as string;
-          const nonce = target.ctx.headers['x-sign-nonce'] as string;
-          const signHeaders = target.ctx.headers['x-sign-headers'] as string;
-          const originSignContent = target.ctx.headers['x-sign'] as string;
-          const strBody = await getStrJsonBody(body);
+          const strParams = getStrParams(Object.assign({}, parsedUrlInfo.queryParams, ctx.query as Record<string, string>));
+          const body = ctx.request.body;
+          const timestamp = ctx.headers['x-sign-timestamp'] as string;
+          const nonce = ctx.headers['x-sign-nonce'] as string;
+          const signHeaders = ctx.headers['x-sign-headers'] as string;
+          const originSignContent = ctx.headers['x-sign'] as string;
+          const strBody = await getStrJsonBody(body as Record<string, string>);
           const arrSignHeaders = signHeaders.split(',');
           const objectHeader = arrSignHeaders.map((key: string) => {
             return {
-              [key.toLowerCase()]: target.ctx.headers[key.toLowerCase()] as string
+              [key.toLowerCase()]: ctx.headers[key.toLowerCase()] as string
             }
           }).reduce((prev, next) => {
             return {
@@ -133,7 +191,7 @@ export class ContainerLifeCycle {
               ...next
             }
           }
-          , {});
+          , {} as Record<string, string>);
           const { strHeader } = getStrHeader(objectHeader);
           const signContent = `${method}\n${url}\n${strParams}\n${strBody}\n${strHeader}\n${timestamp}\n${nonce}`;
           const hashedContent = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(signContent));
