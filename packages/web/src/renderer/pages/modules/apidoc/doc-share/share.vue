@@ -75,6 +75,8 @@ interface ShareInfo {
 const hasPermission = ref(false);
 const loading = ref(true);
 const shareId = ref(router.currentRoute.value.query.share_id as string);
+const expireCountdown = ref('')
+let timer: any = null
 // 分享信息
 const shareInfo = ref<ShareInfo>({
   projectName: '',
@@ -102,6 +104,14 @@ const getShareInfo = async () => {
       params: { shareId: shareId.value }
     })
     shareInfo.value = response.data
+    
+    // 获取到项目名称后，更新URL
+    if (shareInfo.value.projectName) {
+      const currentRoute = router.currentRoute.value
+      const newQuery = { ...currentRoute.query, projectName: shareInfo.value.projectName }
+      router.replace({ query: newQuery })
+    }
+    
     if (shareInfo.value.needPassword) {
       // 检查缓存中是否有密码
       const cachedPassword = apidocCache.getSharePassword(shareId.value)
@@ -191,11 +201,8 @@ const updateCountdown = () => {
   const seconds = Math.floor(diff / 1000)
   expireCountdown.value = `${days}${$t('天')}${hours}${$t('小时')}${minutes}${$t('分')}${seconds}${$t('秒')}`
 }
-
-
 // 倒计时逻辑
-const expireCountdown = ref('')
-let timer: any = null
+
 
 watch(
   () => shareInfo.value.expire,

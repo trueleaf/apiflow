@@ -1,6 +1,17 @@
 <template>
   <SResizeX :min="280" :max="450" :width="300" name="banner" class="banner" tabindex="1">
-    <SLoading :loading="loading" class="tree-wrap" @contextmenu.prevent="handleWrapContextmenu">
+    <!-- 添加项目名称和搜索框 -->
+    <div class="tool">
+      <div class="d-flex a-center j-center">
+        <h2 v-if="projectName" class="gray-700 f-lg text-center text-ellipsis" :title="projectName">{{ projectName }}</h2>
+        <h2 v-else class="gray-700 f-lg text-center text-ellipsis" :title="projectName">/</h2>
+      </div>
+      <div class="p-relative">
+        <el-input v-model="searchValue" size="large" class="doc-search" :placeholder="t('文档名称、文档url')" clearable
+          @change="handleFilterBanner"></el-input>
+      </div>
+    </div>
+    <SLoading :loading="loading" class="tree-wrap">
       <el-tree 
         ref="docTree" 
         :class="{ 'show-more': showMoreNodeInfo }" 
@@ -8,8 +19,7 @@
         :default-expanded-keys="defaultExpandedKeys" 
         node-key="_id" 
         :empty-text="t('暂无数据')"
-        :filter-node-method="filterNode"
-        @node-contextmenu="handleShowContextmenu">
+        :filter-node-method="filterNode">
         <template #default="scope">
           <div class="custom-tree-node" :class="{
             'select-node': selectNodes.find(v => v._id === scope.data._id),
@@ -20,13 +30,13 @@
             @dblclick="handleDbclickNode(scope.data)">
             <!-- file渲染 -->
             <template v-if="!scope.data.isFolder">
-              <template v-for="(req) in projectInfo.rules.requestMethods">
-                <span v-if="scope.data.method.toLowerCase() === req.value.toLowerCase()" :key="req.name"
+              <template v-for="(req) in requestMethods">
+                <span 
+                  v-if="scope.data.method.toLowerCase() === req.value.toLowerCase()" :key="req.name"
                   class="file-icon" :style="{ color: req.iconColor }">{{ req.name }}</span>
               </template>
               <div class="node-label-wrap">
-                <SEmphasize class="node-top" :title="scope.data.name" :value="scope.data.name" :keyword="filterString">
-                </SEmphasize>
+                <SEmphasize class="node-top" :title="scope.data.name" :value="scope.data.name" :keyword="filterString"></SEmphasize>
                 <SEmphasize v-show="showMoreNodeInfo" class="node-bottom" :title="scope.data.url"
                   :value="scope.data.url" :keyword="filterString"></SEmphasize>
               </div>
@@ -56,18 +66,9 @@ import SResizeX from '@/components/common/resize/g-resize-x.vue'
 import SLoading from '@/components/common/loading/g-loading.vue'
 import SEmphasize from '@/components/common/emphasize/g-emphasize.vue'
 import { TreeNodeOptions } from 'element-plus/es/components/tree/src/tree.type.mjs'
-import { useApidocBaseInfo } from '@/store/apidoc/base-info'
-import { useApidocBanner } from '@/store/apidoc/banner'
 import { useApidocTas } from '@/store/apidoc/tabs'
 import { useShareBannerData } from './composables/banner-data'
 
-//搜索数据
-type SearchData = {
-  //接口名称或者接口路径
-  iptValue: string,
-  //限制最近访问数据id集合
-  recentNumIds: string[] | null,
-};
 //带projectId的banner数据
 type ApidocBannerWithProjectId = ApidocBanner & { projectId: string }
 
@@ -83,10 +84,53 @@ const docTree: Ref<TreeNodeOptions['store'] | null | TreeNodeOptions> = ref(null
 const selectNodes: Ref<ApidocBannerWithProjectId[]> = ref([]); //当前选中节点
 const showMoreNodeInfo = ref(false); //banner是否显示更多内容
 const defaultExpandedKeys = ref<string[]>([]);
-
-const apidocBaseInfoStore = useApidocBaseInfo();
-const apidocBannerStore = useApidocBanner();
 const apidocTabsStore = useApidocTas();
+
+// 添加项目名称和搜索相关变量
+const projectName = ref(router.currentRoute.value.query.projectName as string || '');
+const searchValue = ref('');
+const requestMethods = ref([
+  {
+    "name": "GET",
+    "value": "GET",
+    "iconColor": "#28a745",
+  },
+  {
+    "name": "POST",
+    "value": "POST",
+    "iconColor": "#ffc107",
+  },
+  {
+    "name": "PUT",
+    "value": "PUT",
+    "iconColor": "#409EFF",
+  },
+  {
+    "name": "DEL",
+    "value": "DELETE",
+    "iconColor": "#f56c6c",
+  },
+  {
+    "name": "PATCH",
+    "value": "PATCH",
+    "iconColor": "#17a2b8",
+  },
+  {
+    "name": "HEAD",
+    "value": "HEAD",
+    "iconColor": "#17a2b8",
+  },
+  {
+    "name": "OPTIONS",
+    "value": "OPTIONS",
+    "iconColor": "#17a2b8",
+  },
+  {
+    "name": "Test",
+    "value": "Test",
+    "iconColor": "#17a2b8",
+  }
+])
 
 // 使用分享banner数据composable
 const { getBannerData, loading, bannerData } = useShareBannerData(shareId.value);
@@ -95,21 +139,6 @@ const { getBannerData, loading, bannerData } = useShareBannerData(shareId.value)
 watch(shareId, (newShareId) => {
   if (newShareId) {
     getBannerData();
-  }
-});
-
-const projectInfo = computed(() => {
-  return {
-    _id: apidocBaseInfoStore._id,
-    layout: apidocBaseInfoStore.layout,
-    paramsTemplate: apidocBaseInfoStore.paramsTemplate,
-    webProxy: apidocBaseInfoStore.webProxy,
-    mode: apidocBaseInfoStore.mode,
-    commonHeaders: apidocBaseInfoStore.commonHeaders,
-    rules: apidocBaseInfoStore.rules,
-    mindParams: apidocBaseInfoStore.mindParams,
-    hosts: apidocBaseInfoStore.hosts,
-    globalCookies: apidocBaseInfoStore.globalCookies,
   }
 });
 
@@ -127,26 +156,6 @@ const showContextmenu = ref(false); //是否显示contextmenu
 const contextmenuLeft = ref(0); //contextmenu left值
 const contextmenuTop = ref(0); //contextmenu top值
 
-const handleShowContextmenu = (e: MouseEvent, data: ApidocBanner) => {
-  if (selectNodes.value.length < 2) { //处理单个节点
-    selectNodes.value = [{
-      ...data,
-      projectId: shareId.value,
-    }];
-  }
-  showContextmenu.value = true;
-  contextmenuLeft.value = e.clientX;
-  contextmenuTop.value = e.clientY;
-  currentOperationalNode.value = data;
-}
-
-const handleWrapContextmenu = (e: MouseEvent) => {
-  selectNodes.value = [];
-  currentOperationalNode.value = null;
-  showContextmenu.value = true;
-  contextmenuLeft.value = e.clientX;
-  contextmenuTop.value = e.clientY;
-}
 
 /*
 |--------------------------------------------------------------------------
@@ -201,20 +210,15 @@ const handleNodeHover = (e: MouseEvent) => {
 */
 const filterString = ref('');
 //过滤节点
-const filterNode = (filterInfo: SearchData, data: Record<string, unknown>): boolean => {
-  if (!filterInfo.iptValue && !filterInfo.recentNumIds) {
-    const treeRef = docTree.value as TreeNodeOptions;
-    Object.keys(treeRef.store.nodesMap).map((key) => {
-      treeRef.store.nodesMap[key].expanded = false
-    })
+const filterNode = (value: string, data: Record<string, unknown>): boolean => {
+  if (!value) {
     showMoreNodeInfo.value = false;
     return true;
   }
-  const matchedUrl = filterInfo.iptValue ? (data as ApidocBanner).url?.match(filterInfo.iptValue) : false;
-  const matchedDocName = filterInfo.iptValue ? (data as ApidocBanner).name.match(filterInfo.iptValue) : false;
-  const matchedOthers = filterInfo.recentNumIds ? filterInfo.recentNumIds.find(v => v === (data as ApidocBanner)._id) : false;
+  const matchedUrl = (data as ApidocBanner).url?.toLowerCase().includes(value.toLowerCase());
+  const matchedDocName = (data as ApidocBanner).name.toLowerCase().includes(value.toLowerCase());
   showMoreNodeInfo.value = true;
-  return (!!matchedUrl || !!matchedDocName) || !!matchedOthers;
+  return !!matchedUrl || !!matchedDocName;
 }
 
 /*
@@ -232,6 +236,29 @@ const handleGlobalClick = () => {
   selectNodes.value = [];
 }
 
+// 添加搜索过滤功能
+const handleFilterBanner = () => {
+  filterString.value = searchValue.value;
+  // 使用 Element Plus Tree 组件的 filter 方法
+  if (docTree.value) {
+    (docTree.value as any).filter(searchValue.value);
+  }
+}
+
+// 监听URL中的projectName变化
+watch(() => router.currentRoute.value.query.projectName, (newProjectName) => {
+  if (newProjectName) {
+    projectName.value = newProjectName as string;
+  }
+});
+
+// 监听搜索值变化，自动触发过滤
+watch(searchValue, (newValue) => {
+  if (docTree.value) {
+    (docTree.value as any).filter(newValue);
+  }
+});
+
 onMounted(() => {
   getBannerData();
   document.documentElement.addEventListener('click', handleGlobalClick);
@@ -242,7 +269,7 @@ onUnmounted(() => {
 })
 </script>
 
-<style lang='scss'>
+<style lang='scss' scoped>
 .banner {
   flex: 0 0 auto;
   height: 100%;
@@ -251,9 +278,24 @@ onUnmounted(() => {
   flex-direction: column;
   position: relative;
 
+  // 添加tool区域样式
+  .tool {
+    position: relative;
+    padding: 0 size(20);
+    height: size(120);
+    background: $gray-200;
+    flex: 0 0 auto;
+    // 搜索框样式
+    .doc-search {
+      .el-input__wrapper {
+        border-radius: 20px;
+      }
+    }
+  }
+
   //树形组件包裹框
   .tree-wrap {
-    height: calc(100vh - #{size(150)});
+    height: calc(100vh - #{size(135)});
     overflow-y: auto;
   }
 
