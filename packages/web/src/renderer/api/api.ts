@@ -4,6 +4,7 @@ import { router } from '@/router';
 import { ElMessage, ElMessageBox } from 'element-plus';
 import stringify from 'json-stable-stringify';
 import { nanoid } from 'nanoid/non-secure';
+import { $t } from '@/i18n/i18n';
 
 const axiosInstance = Axios.create();
 axiosInstance.defaults.withCredentials = config.renderConfig.httpRequest.withCredentials;//允许携带cookie
@@ -208,11 +209,18 @@ axiosInstance.interceptors.response.use(
     
     // 处理超时错误
     if (err.code === 'ECONNABORTED' || err.message.includes('timeout')) {
-      ElMessage.error('接口调用超时，请稍后重试');
+      ElMessage({
+        message: $t('接口调用超时，请稍后重试'),
+        grouping: true,
+        type: 'error',
+      })
       return Promise.reject(err);
     }
-    
-    ElMessage.error('系统开小差了!');
+    ElMessage({
+      message: $t('系统开小差了!'),
+      grouping: true,
+      type: 'error',
+    })
     Promise.reject(err);
   },
 );

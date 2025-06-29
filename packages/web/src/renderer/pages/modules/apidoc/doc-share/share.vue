@@ -167,11 +167,19 @@ const verifyPassword = async (password: string) => {
       passwordDialogVisible.value = false
       ElMessage.success('密码验证成功')
     } else {
-      ElMessage.error(response.msg || '密码错误')
+      ElMessage({
+        message: response.msg || '密码错误',
+        grouping: true,
+        type: 'error',
+      })
     }
   } catch (error: any) {
     console.error('密码验证失败:', error)
-    ElMessage.error(error.message || '密码验证失败')
+    ElMessage({
+      message: error.message || '密码验证失败',
+      grouping: true,
+      type: 'error',
+    })
   }
 }
 

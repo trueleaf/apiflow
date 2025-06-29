@@ -73,6 +73,7 @@ import { request } from '@/api/api';
 import Loading from '@/components/common/loading/g-loading.vue'
 import RemoteSelector from '@/components/common/remote-select/g-remote-select.vue';
 import RemoteSelectorItem from '@/components/common/remote-select/g-remote-select-item.vue';
+import { $t } from '@/i18n/i18n';
 
 type MemberWithOldPermission = ApidocProjectMemberInfo & { _permission?: ApidocProjectPermission };
 type MemberInfo = {
@@ -217,7 +218,11 @@ const handleLeaveGroup = (row: MemberWithOldPermission, index: number) => {
     return false;
   });
   if (!hasAdmin) {
-    ElMessage.error(t('团队至少保留一个管理员'));
+    ElMessage({
+      message: $t('团队至少保留一个管理员'),
+      grouping: true,
+      type: 'error',
+    })
     return;
   }
   ElMessageBox.confirm(t('确认离开当前团队吗?'), t('提示'), {
@@ -252,7 +257,11 @@ const handleChangePermission = (row: MemberWithOldPermission) => {
     return false;
   });
   if (!hasAdmin) {
-    ElMessage.error(t('团队至少保留一个管理员'));
+    ElMessage({
+      message: $t('团队至少保留一个管理员'),
+      grouping: true,
+      type: 'error',
+    })
     row.permission = oldPermission;
     return;
   }

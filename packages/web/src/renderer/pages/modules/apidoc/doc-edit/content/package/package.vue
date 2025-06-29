@@ -53,6 +53,7 @@ import db from '@/cache/database';
 import SDialog from '@/components/common/dialog/g-dialog.vue'
 import SResizeX from '@/components/common/resize/g-resize-x.vue'
 import type { FormInstance } from 'element-plus/lib/components/form';
+import { $t } from '@/i18n/i18n';
 
 //获取脚本列表
 const tableInfo: Ref<{ name: string, code: string }[]> = ref([]);
@@ -81,15 +82,27 @@ const handleBeforeUpload = (file: File) => {
   const matchSuffix = file.name.match(/(?<=\.)[^.]+$/); //根据后缀获取类型
   const suffixFileType = matchSuffix ? matchSuffix[0] : '';
   if (!standerFileType && !suffixFileType) {
-    ElMessage.error('未知的文件格式，无法解析');
+    ElMessage({
+      message: $t('未知的文件格式，无法解析'),
+      grouping: true,
+      type: 'error',
+    })
     return false;
   }
   if (standerFileType !== 'text/javascript') {
-    ElMessage.error('仅支持js文件上传');
+    ElMessage({
+      message: $t('仅支持js文件上传'),
+      grouping: true,
+      type: 'error',
+    })
     return false;
   }
   if (file.size > 1024 * 1024 * 20) {
-    ElMessage.error('文件大小不超过20M');
+    ElMessage({
+      message: $t('文件大小不超过20M'),
+      grouping: true,
+      type: 'error',
+    })
     return false;
   }
   return true;
