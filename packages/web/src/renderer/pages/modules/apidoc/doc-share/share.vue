@@ -1,13 +1,10 @@
 <template>
   <div v-if="hasPermission" class="doc-share">
     <div class="doc-share-container">
-      <SBanner class="doc-share-banner" />
-      <div class="doc-share-content">
-        <!-- 内容区域 -->
-        <div class="content-placeholder">
-          <h3>{{ $t('文档分享') }}</h3>
-          <p>{{ $t('点击左侧接口查看详情') }}</p>
-        </div>
+      <SBanner class="doc-share-banner"></SBanner>
+      <div class="doc-share-main">
+        <SNav></SNav>
+        <SContent></SContent>
       </div>
     </div>
   </div>
@@ -15,7 +12,7 @@
     <div class="loading-content">
       <div class="loading-circle">
         <el-icon class="loading-icon" :size="32">
-          <Loading />
+          <Loading></Loading>
         </el-icon>
       </div>
       <p class="loading-text">{{ $t('正在验证分享链接') }}</p>
@@ -40,7 +37,7 @@
               :placeholder="$t('请输入访问密码')"
               style="width: 180px;"
               @keyup.enter="handlePasswordSubmit"
-            />
+            ></el-input>
             <el-button :loading="passwordLoading" type="success" @click="handlePasswordSubmit">{{ $t('确认密码') }}</el-button>
           </el-form-item>
         </el-form>
@@ -60,8 +57,10 @@ import { ElMessage, FormInstance } from 'element-plus'
 import { Loading, } from '@element-plus/icons-vue'
 import { Response } from '@src/types/global'
 import { $t } from '@/i18n/i18n'
-import { SBanner } from './banner'
 import { apidocCache } from '@/cache/apidoc'
+import SNav from './nav/nav.vue'
+import SBanner from './banner/banner.vue'
+import SContent from './content/content.vue'
 
 // 分享信息类型定义
 interface ShareInfo {
@@ -128,7 +127,7 @@ const getShareInfo = async () => {
       hasPermission.value = true
     }
   } catch (error: any) {
-    console.error($t('获取分享信息失败'), ':', error)
+    console.error( error)
   } finally {
     loading.value = false
   }
@@ -238,30 +237,11 @@ onUnmounted(() => {
       flex: 0 0 auto;
     }
     
-    .doc-share-content {
+    .doc-share-main {
       flex: 1;
       display: flex;
-      align-items: center;
-      justify-content: center;
+      flex-direction: column;
       background: $gray-100;
-      
-      .content-placeholder {
-        text-align: center;
-        color: $gray-600;
-        
-        h3 {
-          margin: 0 0 16px 0;
-          font-size: 24px;
-          font-weight: 600;
-          color: $gray-800;
-        }
-        
-        p {
-          margin: 0;
-          font-size: 16px;
-          color: $gray-500;
-        }
-      }
     }
   }
 }
