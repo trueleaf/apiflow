@@ -12,16 +12,26 @@
         </el-input>
       </SConfig>
       <SConfig :label="`${t('过期时间')}(${formatTooltip(formInfo.maxAge)})`" :has-check="false" :description="t('不填默认一个月后过期，最大日期为一年')">
-        <el-radio-group v-model="formInfo.maxAge" :disabled="customMaxAge">
+        <el-radio-group v-model="formInfo.maxAge" :disabled="isCustomDate">
           <el-radio :value="86400000">{{ t('1天后') }}</el-radio>
           <el-radio :value="86400000 * 7">{{ t('1周后') }}</el-radio>
           <el-radio :value="86400000 * 30">{{ t('1个月后') }}</el-radio>
           <el-radio :value="86400000 * 90">{{ t('1个季度后') }}</el-radio>
           <el-radio :value="86400000 * 365 * 5">{{ t('不过期') }}</el-radio>
         </el-radio-group>
-        <el-checkbox v-model="customMaxAge" class="ml-5" :value="true">{{ t('自定义') }}</el-checkbox>
-        <el-slider v-if="customMaxAge" v-model="formInfo.maxAge" :min="86400000" :step="86400000"
-          :max="86400000 * 365 * 5" :format-tooltip="formatTooltip"></el-slider>
+        <el-checkbox v-model="isCustomDate" class="ml-5" :value="true">{{ t('自定义') }}</el-checkbox>
+        <div v-if="isCustomDate">
+          <el-date-picker
+            v-model="customExpireDate"
+            type="datetime"
+            :placeholder="t('请选择过期时间')"
+            :size="config.renderConfig.layout.size"
+            format="YYYY-MM-DD HH:mm"
+            value-format="YYYY-MM-DD HH:mm:ss"
+            :disabled-date="disabledDate"
+            @change="handleCustomDateChange"
+          />
+        </div>
       </SConfig>
       <SConfig ref="configShare" :label="t('选择分享')" :description="t('开启后可以自由选择需要分享的文档')">
         <template #default="scope">
@@ -94,6 +104,7 @@ import { router } from '@/router'
 import { useApidocBanner } from '@/store/apidoc/banner';
 import { useApidocBaseInfo } from '@/store/apidoc/base-info';
 import { t } from 'i18next'
+import dayjs from 'dayjs'
 
 //=========================================================================//
 defineProps({
@@ -113,7 +124,9 @@ const formInfo = ref({
   maxAge: 86400000 * 30,
 })
 //自定义过期时间
-const customMaxAge = ref(false);
+const isCustomDate = ref(false);
+//自定义过期日期
+const customExpireDate = ref('');
 //当前选中需要分享的节点信息
 const allCheckedNodes: Ref<ApidocBanner[]> = ref([]);
 //树形数据
@@ -182,8 +195,32 @@ const handleCheckChange = () => {
   allCheckedNodes.value = checkedNodes.concat(halfCheckedNodes) as ApidocBanner[];
 }
 //格式化展示
-const formatTooltip = (val: number) => `${val / 86400000}${t('天后')}`
+const formatTooltip = (val: number) => {
+  const days = Math.max(0, Math.floor(val / 86400000));
+  const hours = Math.max(0, Math.floor((val % 86400000) / 3600000));
+  const minutes = Math.max(0, Math.floor((val % 3600000) / 60000));
+  
+  return `${days}${t('天')}${hours}${t('小时')}${minutes}${t('分钟')}`;
+}
 
+//=====================================自定义日期相关方法====================================//
+//禁用日期（不能选择过去的日期，但可以选择今天）
+const disabledDate = (time: Date) => {
+  const today = dayjs().startOf('day');
+  const selectedDate = dayjs(time).startOf('day');
+  // 如果选择的日期在今天之前，则禁用
+  return selectedDate.isBefore(today);
+}
+
+
+//处理自定义日期变化
+const handleCustomDateChange = (value: string) => {
+  if (value) {
+    const expireTime = new Date(value).getTime();
+    const now = Date.now();
+    formInfo.value.maxAge = expireTime - now;
+  }
+}
 </script>
 
 <style lang='scss' scoped>
@@ -218,4 +255,5 @@ const formatTooltip = (val: number) => `${val / 86400000}${t('天后')}`
     @include custom-tree-node;
   }
 }
+
 </style>
