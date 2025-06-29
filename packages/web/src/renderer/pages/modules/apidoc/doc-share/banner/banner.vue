@@ -7,8 +7,7 @@
         <h2 v-else class="gray-700 f-lg text-center text-ellipsis" :title="projectName">/</h2>
       </div>
       <div class="p-relative">
-        <el-input v-model="searchValue" size="large" class="doc-search" :placeholder="t('文档名称、文档url')" clearable
-          @change="handleFilterBanner"></el-input>
+        <el-input v-model="searchValue" size="large" class="doc-search" :placeholder="t('文档名称、文档url')" clearable></el-input>
       </div>
     </div>
     <SLoading :loading="loading" class="tree-wrap">
@@ -22,11 +21,10 @@
         :filter-node-method="filterNode">
         <template #default="scope">
           <div class="custom-tree-node" :class="{
-            'select-node': selectNodes.find(v => v._id === scope.data._id),
             'active-node': activeNode && activeNode._id === scope.data._id,
             'readonly': scope.data.readonly
-          }" tabindex="0" @keydown.stop="handleNodeKeydown($event)"
-            @mouseenter.stop="handleNodeHover" @click="handleClickNode($event, scope.data)"
+          }" tabindex="0"
+            @click="handleClickNode($event, scope.data)"
             @dblclick="handleDbclickNode(scope.data)">
             <!-- file渲染 -->
             <template v-if="!scope.data.isFolder">
@@ -36,16 +34,16 @@
                   class="file-icon" :style="{ color: req.iconColor }">{{ req.name }}</span>
               </template>
               <div class="node-label-wrap">
-                <SEmphasize class="node-top" :title="scope.data.name" :value="scope.data.name" :keyword="filterString"></SEmphasize>
+                <SEmphasize class="node-top" :title="scope.data.name" :value="scope.data.name" :keyword="searchValue"></SEmphasize>
                 <SEmphasize v-show="showMoreNodeInfo" class="node-bottom" :title="scope.data.url"
-                  :value="scope.data.url" :keyword="filterString"></SEmphasize>
+                  :value="scope.data.url" :keyword="searchValue"></SEmphasize>
               </div>
             </template>
             <!-- 文件夹渲染 -->
             <template v-if="scope.data.isFolder">
               <i class="iconfont folder-icon iconweibiaoti-_huabanfuben"></i>
               <div class="node-label-wrap">
-                <SEmphasize class="node-top" :title="scope.data.name" :value="scope.data.name" :keyword="filterString">
+                <SEmphasize class="node-top" :title="scope.data.name" :value="scope.data.name" :keyword="searchValue">
                 </SEmphasize>
                 <div v-show="showMoreNodeInfo" class="node-bottom">{{ scope.data.url }}</div>
               </div>
@@ -58,7 +56,7 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, ref, Ref, onMounted, onUnmounted, watch } from 'vue'
+import { computed, ref, Ref, onMounted, watch } from 'vue'
 import type { ApidocBanner } from '@src/types/global'
 import { router } from '@/router/index'
 import { t } from 'i18next'
@@ -69,9 +67,6 @@ import { TreeNodeOptions } from 'element-plus/es/components/tree/src/tree.type.m
 import { useApidocTas } from '@/store/apidoc/tabs'
 import { useShareBannerData } from './composables/banner-data'
 
-//带projectId的banner数据
-type ApidocBannerWithProjectId = ApidocBanner & { projectId: string }
-
 /*
 |--------------------------------------------------------------------------
 | 变量、函数等内容声明
@@ -81,7 +76,6 @@ type ApidocBannerWithProjectId = ApidocBanner & { projectId: string }
 */
 const shareId = ref(router.currentRoute.value.query.share_id as string);
 const docTree: Ref<TreeNodeOptions['store'] | null | TreeNodeOptions> = ref(null);
-const selectNodes: Ref<ApidocBannerWithProjectId[]> = ref([]); //当前选中节点
 const showMoreNodeInfo = ref(false); //banner是否显示更多内容
 const defaultExpandedKeys = ref<string[]>([]);
 const apidocTabsStore = useApidocTas();
@@ -146,30 +140,11 @@ const activeNode = computed(() => apidocTabsStore.tabs[shareId.value]?.find((v) 
 
 /*
 |--------------------------------------------------------------------------
-| 鼠标移动到banner节点，显示更多操作。
-| 鼠标右键显示更多操作
-| 鼠标左键选中节点
-|--------------------------------------------------------------------------
-*/
-const currentOperationalNode: Ref<ApidocBanner | null> = ref(null); //点击工具栏按钮或者空白处右键这个值为null
-const showContextmenu = ref(false); //是否显示contextmenu
-const contextmenuLeft = ref(0); //contextmenu left值
-const contextmenuTop = ref(0); //contextmenu top值
-
-
-/*
-|--------------------------------------------------------------------------
 | 节点点击和交互
 |--------------------------------------------------------------------------
 */
 //点击节点
 const handleClickNode = (e: MouseEvent, data: ApidocBanner) => {
-  showContextmenu.value = false;
-  currentOperationalNode.value = data;
-  selectNodes.value = [{
-    ...data,
-    projectId: shareId.value,
-  }];
   if (!data.isFolder) {
     apidocTabsStore.addTab({
       _id: data._id,
@@ -197,12 +172,6 @@ const handleDbclickNode = (data: ApidocBanner) => {
     projectId: shareId.value,
   })
 }
-
-//鼠标放到节点上面
-const handleNodeHover = (e: MouseEvent) => {
-  (e.currentTarget as HTMLElement).focus({ preventScroll: true }); //使其能够触发keydown事件
-}
-
 /*
 |--------------------------------------------------------------------------
 | 节点过滤
@@ -226,24 +195,6 @@ const filterNode = (value: string, data: Record<string, unknown>): boolean => {
 | 其他操作
 |--------------------------------------------------------------------------
 */
-//处理节点上面键盘事件
-const handleNodeKeydown = (e: KeyboardEvent) => {
-  // 分享模式下不处理编辑相关的快捷键
-}
-
-const handleGlobalClick = () => {
-  showContextmenu.value = false;
-  selectNodes.value = [];
-}
-
-// 添加搜索过滤功能
-const handleFilterBanner = () => {
-  filterString.value = searchValue.value;
-  // 使用 Element Plus Tree 组件的 filter 方法
-  if (docTree.value) {
-    (docTree.value as any).filter(searchValue.value);
-  }
-}
 
 // 监听URL中的projectName变化
 watch(() => router.currentRoute.value.query.projectName, (newProjectName) => {
@@ -261,12 +212,8 @@ watch(searchValue, (newValue) => {
 
 onMounted(() => {
   getBannerData();
-  document.documentElement.addEventListener('click', handleGlobalClick);
 })
 
-onUnmounted(() => {
-  document.documentElement.removeEventListener('click', handleGlobalClick);
-})
 </script>
 
 <style lang='scss' scoped>
