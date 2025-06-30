@@ -5,12 +5,9 @@
       <div class="header-content d-flex j-between a-center">
         <div class="header-left">
           <div class="d-flex a-center">
-            <el-icon>
-              <Link />
-            </el-icon>
             <span class="title-text">{{ t('在线链接') }}</span>
           </div>
-          <div class="desc">{{ t('管理项目的在线分享链接，方便团队成员和外部人员访问') }}</div>
+          <div class="desc">{{ t('管理项目的在线分享链接，方便外部人员访问') }}</div>
         </div>
         <div class="header-right d-flex a-center">
           <el-input
@@ -203,13 +200,12 @@ onMounted(() => {
         .title-text {
           font-size: fz(22);
           font-weight: bold;
-          margin-left: size(4);
+          margin-bottom: size(8);
         }
 
         .desc {
           color: #888;
           font-size: fz(14);
-          margin-left: size(12);
         }
       }
 

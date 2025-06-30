@@ -29,14 +29,13 @@
       <div style="text-align: center;">
         <img src="@/assets/imgs/logo.png" alt="logo" style="width: 120px; height: 120px; margin-bottom: 20px;" />
         <h2 class="mt-0">{{ shareInfo.shareName || $t('文档分享') }}</h2>
-        <el-form ref="passwordFormRef" :model="passwordFormData" :rules="passwordRules" class="d-flex j-center">
+        <el-form ref="passwordFormRef" :model="passwordFormData" :rules="passwordRules" class="d-flex j-center" @submit.prevent="handlePasswordSubmit">
           <el-form-item prop="password" style="margin-bottom: 0;">
             <el-input
               v-model="passwordFormData.password"
               type="password"
               :placeholder="$t('请输入访问密码')"
               style="width: 180px;"
-              @keyup.enter="handlePasswordSubmit"
             ></el-input>
             <el-button :loading="passwordLoading" type="success" @click="handlePasswordSubmit">{{ $t('确认密码') }}</el-button>
           </el-form-item>
@@ -238,6 +237,7 @@ onUnmounted(() => {
     }
     
     .doc-share-main {
+      height: 100%;
       flex: 1;
       display: flex;
       flex-direction: column;
