@@ -117,7 +117,35 @@ onMounted(() => { //当组件还未创建时候，通过mounted生命周期确�
 
   .api-rule {
     .tabs {
-      @include tabs;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      position: relative;
+      font-size: 12px;
+      flex: 0 0 auto;
+      width: 200px;
+      cursor: default;
+      padding: 0 10px;
+      .item-text {
+        margin-left: 5px;
+        display: inline-block;
+        max-width: 100px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+      background: rgb(222, 225, 230);
+      &:hover {
+        background: #e2e2e2;
+      }
+      .iconfont {
+        font-size: 16px;
+        display: flex;
+        align-items: center;
+      }
+      &.active {
+        background: #f0f3fa;
+      }
     }
 
     .el-form-item {

@@ -698,7 +698,26 @@ onUnmounted(() => {
 
 .banner-popover {
   .op-item {
-    @include contextmenu-item;
+    line-height: 2em;
+    padding: 5px 25px;
+    cursor: pointer;
+    display: flex;
+    &.disabled {
+      color: #adb5bd;
+      cursor: default;
+      &:hover {
+        background: inherit;
+        color: #adb5bd;
+      }
+    }
+    .hot-key {
+      margin-left: auto;
+      color: #adb5bd;
+    }
+    &:hover {
+      background: rgb(244, 244, 244);
+      color: #409EFF;
+    }
   }
 }
 </style>

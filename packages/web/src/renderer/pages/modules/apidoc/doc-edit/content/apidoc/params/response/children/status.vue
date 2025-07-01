@@ -57,7 +57,21 @@ const handleSelect = (code: number) => {
   }
 
   .close {
-    @include rt-close;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: absolute;
+    right: 5px;
+    top: 5px;
+    font-size: 18px;
+    width: 22px;
+    height: 22px;
+    color: #f56c6c;
+    cursor: pointer;
+    border-radius: 50%;
+    &:hover {
+      background: #dee2e6;
+    }
   }
 }
 </style>

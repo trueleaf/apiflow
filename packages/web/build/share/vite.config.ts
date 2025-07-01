@@ -15,14 +15,6 @@ export default defineConfig({
       "@src": path.resolve(__dirname, "../../src"),
     }
   },
-  css: {
-    preprocessorOptions: {
-      scss: {
-        silenceDeprecations: ['mixed-decls', 'color-functions', 'global-builtin', 'import'],
-        additionalData: `@import "${path.resolve(__dirname, '../../src/renderer/scss/index.scss')}";`
-      }
-    }
-  },
   build: {
     // 指定自定义入口
     rollupOptions: {

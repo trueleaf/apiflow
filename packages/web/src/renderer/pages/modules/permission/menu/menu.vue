@@ -244,6 +244,21 @@ onUnmounted(() => {
 
 .contextmenu {
   min-width: 240px;
-  @include contextmenu;
+  position: fixed;
+  background: #fff;
+  border-radius: 4px;
+  box-shadow: 0px 2px 8px 0px rgba(0,0,0,0.1);
+  z-index: 1996;
+  animation: ctx-fade .2s;
+}
+@keyframes ctx-fade {
+  from {
+    transform: scale(0.8);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
 }
 </style>

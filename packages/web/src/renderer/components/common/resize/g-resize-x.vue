@@ -187,7 +187,18 @@ onUnmounted(() => {
   }
 
   &>.bar {
-    @include bar;
+    position: absolute;
+    height: 100%;
+    width: 6px;
+    background: transparent;
+    left: 300px;
+    z-index: 1996;
+    box-sizing: content-box;
+    margin-left: -3px;
+    cursor: ew-resize;
+  }
+  .bar.active {
+    background: #409EFF;
   }
 }
 </style>

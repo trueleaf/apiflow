@@ -252,7 +252,77 @@ const handleCustomDateChange = (value: string) => {
   }
 
   .custom-tree-node {
-    @include custom-tree-node;
+    display: flex;
+    align-items: center;
+    width: 100%;
+    overflow: hidden;
+    min-height: 30px;
+    &:hover {
+      .more {
+        display: block;
+      }
+    }
+    .file-icon {
+      font-size: 14px;
+      margin-right: 5px;
+    }
+    .folder-icon {
+      color: #ffc107;
+      flex: 0 0 auto;
+      width: 16px;
+      height: 16px;
+      margin-right: 5px;
+    }
+    .node-label-wrap {
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+      overflow: hidden;
+      .node-top {
+        width: 100%;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+      .node-bottom {
+        color: #adb5bd;
+        width: 100%;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+    }
+    .rename-ipt {
+      flex: 0 0 75%;
+      height: 22px;
+      border: 1px solid #409EFF;
+      font-size: 1em;
+      margin-left: -1px;
+      &.error {
+        border: 2px solid #f56c6c;
+      }
+    }
+    .more {
+      display: none;
+      flex: 0 0 auto;
+      margin-left: auto;
+      padding: 5px 10px;
+    }
+    &.active-node {
+      background-color: #a6d2ff;
+    }
+    &.select-node {
+      background-color: #66b1ff;
+    }
+    &.cut-node {
+      color: #adb5bd;
+      .file-icon {
+        color: #adb5bd !important;
+      }
+      .folder-icon {
+        color: #dee2e6 !important;
+      }
+    }
   }
 }
 

@@ -60,7 +60,75 @@ defineExpose({
 <style lang='scss' scoped>
 .client-menus {
   .custom-tree-node {
-    @include custom-tree-node;
+    display: flex;
+    align-items: center;
+    width: 100%;
+    overflow: hidden;
+    min-height: 30px;
+  }
+  .custom-tree-node:hover .more {
+    display: block;
+  }
+  .custom-tree-node .file-icon {
+    font-size: 14px;
+    margin-right: 5px;
+  }
+  .custom-tree-node .folder-icon {
+    color: var(--yellow);
+    flex: 0 0 auto;
+    width: 16px;
+    height: 16px;
+    margin-right: 5px;
+  }
+  .custom-tree-node .node-label-wrap {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    overflow: hidden;
+  }
+  .custom-tree-node .node-label-wrap .node-top {
+    width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .custom-tree-node .node-label-wrap .node-bottom {
+    color: var(--gray-500);
+    width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .custom-tree-node .rename-ipt {
+    flex: 0 0 75%;
+    height: 22px;
+    border: 1px solid var(--theme-color);
+    font-size: 1em;
+    margin-left: -1px;
+  }
+  .custom-tree-node .rename-ipt.error {
+    border: 2px solid var(--red);
+  }
+  .custom-tree-node .more {
+    display: none;
+    flex: 0 0 auto;
+    margin-left: auto;
+    padding: 5px 10px;
+  }
+  .custom-tree-node.active-node {
+    background-color: #a6d2ff;
+  }
+  .custom-tree-node.select-node {
+    background-color: #66b1ff;
+  }
+  .custom-tree-node.cut-node {
+    color: var(--gray-500);
+  }
+  .custom-tree-node.cut-node .file-icon {
+    color: var(--gray-500)!important;
+  }
+  .custom-tree-node.cut-node .folder-icon {
+    color: var(--gray-300)!important;
   }
 
   .tree {
