@@ -264,26 +264,25 @@ const hasCustomHeaders = computed(() => {
 
   .dot {
     display: inline-block;
-    width: size(10);
-    height: size(10);
-    border-radius: 50%;
-    margin-right: size(5);
+    width: 10px;
+    height: 10px;
+    margin-right: 5px;
   }
 
   .text {
     display: inline-block;
-    height: size(30);
-    line-height: size(30);
+    height: 30px;
+    line-height: 30px;
   }
 
   .edit-ipt {
-    padding: 0 size(3);
-    height: size(22);
-    line-height: size(22);
+    padding: 0 3px;
+    height: 22px;
+    line-height: 22px;
     border: none;
     border-bottom: 1px solid var(--gray-500);
-    font-size: fz(15);
-    width: size(300);
+    font-size: 15px;
+    width: 300px;
   }
 
   .el-tabs {

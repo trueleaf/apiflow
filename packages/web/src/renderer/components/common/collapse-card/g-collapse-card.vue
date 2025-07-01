@@ -102,7 +102,7 @@ onMounted(() => {
   background: var(--white);
   display: flex;
   flex-direction: column;
-  margin-bottom: size(10);
+  margin-bottom: 10px;
 
   &.shadow {
     box-shadow: var(--box-shadow);
@@ -112,20 +112,20 @@ onMounted(() => {
     background: var(--gray-200);
     display: flex;
     align-items: center;
-    height: size(40);
+    height: 40px;
 
     // user-select: none;
     .head {
       // padding-left: size(10);
-      padding-right: size(20);
+      padding-right: 20px;
       display: flex;
       align-items: center;
       height: 100%;
-      min-width: size(150);
+      min-width: 150px;
       border-right: 1px solid var(--gray-300);
 
       .control {
-        width: size(40);
+        width: 40px;
         height: 100%;
         display: flex;
         align-items: center;
@@ -139,21 +139,21 @@ onMounted(() => {
     }
 
     .title {
-      max-width: size(300);
+      max-width: 300px;
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
-      height: size(40);
-      line-height: size(40);
+      height: 40px;
+      line-height: 40px;
     }
 
     .operation {
       flex: 1;
-      padding: 0 size(20);
+      padding: 0 20px;
     }
 
     .tail {
-      padding-right: size(20);
+      padding-right: 20px;
       margin-left: auto;
     }
 
@@ -172,8 +172,8 @@ onMounted(() => {
   }
 
   .disabled-icon {
-    width: size(15);
-    height: size(15);
+    width: 15px;
+    height: 15px;
   }
 
   // 内容区域

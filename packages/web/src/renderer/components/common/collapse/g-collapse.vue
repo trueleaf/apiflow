@@ -72,12 +72,12 @@ const toggleCollapse = () => {
 .s-collaps {
   &>.header {
     cursor: pointer;
-    height: size(25);
+    height: 25px;
     display: flex;
     align-items: center;
     user-select: none;
     color: var(--gray-800);
-    font-size: fz(14);
+    font-size: 14px;
 
     &.bold {
       font-weight: bold;

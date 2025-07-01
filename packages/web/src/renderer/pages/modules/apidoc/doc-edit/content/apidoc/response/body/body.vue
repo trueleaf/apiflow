@@ -420,23 +420,23 @@ onUnmounted(() => {
 <style lang='scss' scoped>
 .body-view {
   width: 100%;
-  height: calc(100vh - #{size(400)});
+  height: calc(100vh - 400px);
   position: relative;
   .response-tip {
     width: 100%;
-    padding: size(5) size(10);
+    padding: 5px 10px;
     background-color: #f19d1f;
     color: var(--white);
   }
   .json-wrap {
-    height: calc(100vh - #{size(400)});
+    height: calc(100vh - 400px);
     position: relative;
     .tip {
       width: 100%;
-      padding: size(5) size(10);
+      padding: 5px 10px;
       background-color: var(--orange);
       position: absolute;
-      bottom: -size(30);
+      bottom: -30px;
       z-index: var(--zIndex-contextmenu);
       color: var(--white);
       display: flex;
@@ -447,8 +447,8 @@ onUnmounted(() => {
   .apply-response {
     position: absolute;
     cursor: pointer;
-    right: size(15);
-    top: size(0);
+    right: 15px;
+    top: 0px;
     z-index: var(--zIndex-contextmenu);
   }
   .text-wrap {
@@ -456,13 +456,13 @@ onUnmounted(() => {
     .text-tool {
       display: flex;
       align-items: center;
-      height: size(20);
+      height: 20px;
       border-bottom: 1px solid var(--gray-200);
     }
   }
   .operation {
-    height: size(30);
-    padding: 0 size(20);
+    height: 30px;
+    padding: 0 20px;
     width: 100%;
     display: flex;
     align-items: center;
@@ -478,12 +478,12 @@ onUnmounted(() => {
     .img-view {
       border: 1px solid var(--gray-400);
       width: 80%;
-      height: size(250);
-      padding: 0 size(5);
+      height: 250px;
+      padding: 0 5px;
     }
     .img-view-empty {
-      width: size(250);
-      height: size(250);
+      width: 250px;
+      height: 250px;
       background-color: var(--el-fill-color-light);
       display: flex;
       align-items: center;
@@ -492,7 +492,7 @@ onUnmounted(() => {
     }
   }
   .process {
-    height: size(30);
+    height: 30px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -511,8 +511,8 @@ onUnmounted(() => {
 }
 .redirect-headers {
   padding-left: 16px;
-  padding-top: size(5);
-  padding-bottom: size(5);
+  padding-top: 5px;
+  padding-bottom: 5px;
   font-size: 13px;
   color: #666;
   background: #f8f8f8;

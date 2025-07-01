@@ -124,7 +124,9 @@ const handleOpenLocalScript = () => {
 .s-monaco-editor {
   width: 100%;
   height: 100%;
-  border: 1px solid $gray-300;
+  border: 1px solid var(--gray-300);
+  right: 20px;
+  top: 0px;
 }
 
 .operation-btn {

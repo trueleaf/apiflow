@@ -25,6 +25,6 @@ const preRequest = computed<string>({
 .editor-wrap {
   position: relative;
   width: 100%;
-  height: calc(100vh - #{size(320)});
+  height: calc(100vh - 320px);
 }
 </style>

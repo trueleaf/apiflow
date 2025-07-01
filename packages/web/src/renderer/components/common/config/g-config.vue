@@ -59,20 +59,20 @@ const isEnabled = ref(false);
 
 <style lang='scss' scoped>
 .config-item {
-  padding: size(10) size(20);
+  padding: 10px 20px;
 
   &:hover {
     background: var(--gray-200);
   }
 
   .description {
-    font-size: fz(12);
+    font-size: 12px;
     color: var(--gray-500);
   }
 
   .label {
     font-weight: bolder;
-    font-size: fz(15);
+    font-size: 15px;
 
     .required {
       color: var(--red);

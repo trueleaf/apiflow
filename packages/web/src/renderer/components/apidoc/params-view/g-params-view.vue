@@ -133,13 +133,13 @@ const handleCheckBraceMatch = (item: ApidocASTInfo) => {
   min-width: 100%;
   background: var(--gray-200);
   position: relative;
-  font-size: size(14);
+  font-size: 14px;
   background: #282c34;
   font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen, Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif;
 
   .header {
-    padding: 0 size(20);
-    height: size(30);
+    padding: 0 20px;
+    height: 30px;
     color: var(--gray-300);
     display: flex;
     align-items: center;
@@ -148,17 +148,17 @@ const handleCheckBraceMatch = (item: ApidocASTInfo) => {
 
     .search {
       &>input {
-        height: size(20);
-        line-height: size(20);
-        margin-right: size(20);
+        height: 20px;
+        line-height: 20px;
+        margin-right: 20px;
         border: #434857;
         background: #5e637a;
         color: var(--gray-300);
-        text-indent: size(5);
+        text-indent: 5px;
 
         &::placeholder {
           color: var(--gray-300);
-          font-size: fz(12);
+          font-size: 12px;
         }
       }
     }
@@ -168,8 +168,8 @@ const handleCheckBraceMatch = (item: ApidocASTInfo) => {
     display: inline-flex;
     width: 100%;
     overflow-y: auto;
-    max-height: size(400);
-    padding-bottom: size(15);
+    max-height: 400px;
+    padding-bottom: 15px;
 
     &::-webkit-scrollbar {
       background: #797e9d;
@@ -185,7 +185,7 @@ const handleCheckBraceMatch = (item: ApidocASTInfo) => {
 
     .code-banner {
       flex: 0 0 auto;
-      width: size(50);
+      width: 50px;
       border-right: 1px solid var(--gray-600);
       height: 100%;
 
@@ -202,8 +202,8 @@ const handleCheckBraceMatch = (item: ApidocASTInfo) => {
 
         .number-line {
           flex: 0 0 auto;
-          width: size(30);
-          height: size(20);
+          width: 30px;
+          height: 20px;
           color: var(--gray-500);
           display: inline-flex;
           align-items: center;
@@ -212,8 +212,8 @@ const handleCheckBraceMatch = (item: ApidocASTInfo) => {
         }
 
         .collapse {
-          width: size(20);
-          height: size(20);
+          width: 20px;
+          height: 20px;
           color: var(--gray-300);
           cursor: pointer;
           display: none;
@@ -239,7 +239,7 @@ const handleCheckBraceMatch = (item: ApidocASTInfo) => {
       width: 0;
 
       .line {
-        min-height: size(20);
+        min-height: 20px;
         display: flex;
         align-items: center;
         width: 100%;
@@ -273,9 +273,9 @@ const handleCheckBraceMatch = (item: ApidocASTInfo) => {
 
       .checkbox {
         display: inline-flex;
-        width: size(12);
-        height: size(12);
-        margin-right: size(5);
+        width: 12px;
+        height: 12px;
+        margin-right: 5px;
         background: var(--gray-800);
         border: 1px solid var(--gray-500);
         cursor: pointer;
@@ -289,15 +289,15 @@ const handleCheckBraceMatch = (item: ApidocASTInfo) => {
         }
 
         .icon {
-          font-size: fz(10);
+          font-size: 10px;
           color: var(--white);
         }
       }
 
       .indent {
         user-select: text;
-        height: size(20);
-        flex: 0 0 size(8);
+        height: 20px;
+        flex: 0 0 8px;
         display: inline-flex;
         align-items: center;
         justify-content: center;
@@ -316,7 +316,7 @@ const handleCheckBraceMatch = (item: ApidocASTInfo) => {
       }
 
       .colon {
-        margin-right: size(5);
+        margin-right: 5px;
       }
 
       .colon,

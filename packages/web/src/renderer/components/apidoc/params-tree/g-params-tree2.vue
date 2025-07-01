@@ -357,7 +357,7 @@ const handleNodeDrop = (draggingNode: TreeNode, dropNode: TreeNode, type: 'inner
 //新增按钮title提示信息
 const addNestTip = computed(() => {
   if (!props.nest) {
-    return t('参数不允许嵌套，例如：当请求方式为get时，请求参数只能为扁平数据');
+    return t('参数不允许嵌套，例如：当请求方式为get时，请请求参数只能为扁平数据');
   }
   return t('添加一条嵌套数据');
 })
@@ -714,7 +714,7 @@ const checkDescriptionDisable = ({ node }: { node: TreeNode }) => {
         border-radius: 0;
         border-color: var(--gray-400);
         border-bottom: 1px solid var(--gray-400);
-        font-size: fz(12);
+        font-size: 12px;
         &:focus {
             border-bottom: 2px solid var(--theme-color);
             margin-bottom: -1px;
@@ -723,8 +723,8 @@ const checkDescriptionDisable = ({ node }: { node: TreeNode }) => {
     .fake-input {
         cursor: pointer;
         background: var(--gray-300);
-        height: size(25);
-        line-height: size(25);
+        height: 25px;
+        line-height: 25px;
         text-indent: 1em;
         width: 98%;
         position: relative;
@@ -741,9 +741,9 @@ const checkDescriptionDisable = ({ node }: { node: TreeNode }) => {
         }
         .close {
             position: absolute;
-            right: size(3);
-            top: size(4);
-            font-size: fz(16);
+            right: 3px;
+            top: 4px;
+            font-size: 16px;
             cursor: pointer;
             &:hover {
                 color: var(--red);

@@ -48,8 +48,8 @@ defineProps({
   flex-direction: column;
 
   &>header {
-    font-size: fz(16);
-    height: size(35);
+    font-size: 16px;
+    height: 35px;
     display: flex;
     align-items: center;
     justify-content: space-between;

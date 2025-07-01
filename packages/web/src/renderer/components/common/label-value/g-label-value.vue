@@ -60,7 +60,7 @@ const slots = useSlots()
   align-items: center;
   flex: 0 0 auto;
   max-width: 100%;
-  margin-bottom: size(10);
+  margin-bottom: 10px;
 
   .label {
     color: var(--gray-800);
