@@ -524,27 +524,63 @@ onUnmounted(() => {
 .api-params {
   padding: 0 0 10px;
   height: calc(100vh - 220px);
-  // height: calc(100% - 130px);
-  // border-bottom: 1px solid var(--gray-500);
-  padding-right: 20px;
-  padding-left: 20px;
-  top: 10px;
-  top: 10px;
-  right: 3px;
-  top: 3px;
-  color: var(--gray-500);
-  padding: 0 20px;
-  height: 30px;
-  background: var(--white);
-  z-index: var(--zIndex-request-info-wrap);
-  color: var(--theme-color);
-  height: 30px;
-  line-height: 30px;
-  background: var(--theme-color);
-  color: var(--white);
-  background: var(--theme-color);
-  color: var(--white);
-  margin-right: 10px;
-  // color: var(--gray-500);
+  overflow-y: auto;
+  position: relative;
+
+  &.vertical {
+    height: auto;
+  }
+
+  .el-tabs,
+  .workbench {
+    padding-right: 20px;
+    padding-left: 20px;
+  }
+
+  .el-tabs__item {
+    user-select: none;
+  }
+
+  .el-badge__content {
+    transition: none;
+    top: 10px;
+
+    &.is-fixed.is-dot {
+      top: 10px;
+      right: 3px;
+    }
+  }
+
+  .view-type {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    position: sticky;
+    top: 3px;
+    color: var(--gray-500);
+    padding: 0 20px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    background: var(--white);
+    z-index: var(--zIndex-request-info-wrap);
+
+    &.vertical {
+      z-index: 1;
+    }
+
+    .active {
+      color: var(--theme-color);
+    }
+  }
+
+  .el-tabs__item {
+    height: 30px;
+    line-height: 30px;
+  }
+
+  .el-dropdown {
+    line-height: initial;
+  }
 }
 </style>
