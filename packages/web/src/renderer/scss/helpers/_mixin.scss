@@ -134,10 +134,10 @@
         padding: size(5) size(10);
     }
     &.active-node {
-        background-color: lighten($theme-color, 30%);
+        background-color: #a6d2ff;
     }
     &.select-node {
-        background-color: lighten($theme-color, 20%);
+        background-color: #66b1ff;
     }
     &.cut-node {
         color: $gray-500;

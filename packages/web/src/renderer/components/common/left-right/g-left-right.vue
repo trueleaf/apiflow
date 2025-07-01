@@ -96,7 +96,7 @@ onUnmounted(() => {
     flex: 0 0 3px;
     padding: 0 4px;
     cursor: col-resize;
-    background: $gray-300;
+    background: var(--gray-300);
   }
 
   .right-wrap {

@@ -45,28 +45,28 @@ const handleClickItem = (e: MouseEvent) => {
   display: flex;
 
   &.disabled {
-    color: $gray-400;
+    color: var(--gray-400);
     cursor: default;
 
     &:hover {
       background: inherit;
-      color: $gray-400;
+      color: var(--gray-400);
     }
   }
 
   .hot-key {
     margin-left: auto;
-    color: $gray-500;
+    color: var(--gray-500);
   }
 
   &:hover {
-    background: $gray-200;
-    color: $theme-color;
+    background: var(--gray-200);
+    color: var(--theme-color);
   }
 }
 
 .s-contextmenu-divider {
   margin: size(4) 0;
-  border-top: 1px solid $gray-200;
+  border-top: 1px solid var(--gray-200);
 }
 </style>

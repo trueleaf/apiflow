@@ -7,7 +7,7 @@
         <h2 v-else class="gray-700 f-lg text-center text-ellipsis" :title="projectName">/</h2>
       </div>
       <div class="p-relative">
-        <el-input v-model="searchValue" size="large" class="doc-search" :placeholder="t('文档名称、文档url')" clearable></el-input>
+        <el-input v-model="searchValue" size="large" class="doc-search" :placeholder="$t('文档名称、文档url')" clearable></el-input>
       </div>
     </div>
     <SLoading :loading="loading" class="tree-wrap">
@@ -17,7 +17,7 @@
         :data="bannerData"
         :default-expanded-keys="defaultExpandedKeys" 
         node-key="_id" 
-        :empty-text="t('暂无数据')"
+        :empty-text="$t('暂无数据')"
         :filter-node-method="filterNode">
         <template #default="scope">
           <div class="custom-tree-node" :class="{
@@ -59,13 +59,14 @@
 import { computed, ref, Ref, onMounted, watch } from 'vue'
 import type { ApidocBanner } from '@src/types/global'
 import { router } from '@/router/index'
-import { t } from 'i18next'
 import SResizeX from '@/components/common/resize/g-resize-x.vue'
 import SLoading from '@/components/common/loading/g-loading.vue'
 import SEmphasize from '@/components/common/emphasize/g-emphasize.vue'
 import { TreeNodeOptions } from 'element-plus/es/components/tree/src/tree.type.mjs'
 import { useApidocTas } from '@/store/apidoc/tabs'
 import { useShareBannerData } from './composables/banner-data'
+import { $t } from '@/i18n/i18n'
+import { defaultRequestMethods } from '../common'
 
 /*
 |--------------------------------------------------------------------------
@@ -83,48 +84,7 @@ const apidocTabsStore = useApidocTas();
 // 添加项目名称和搜索相关变量
 const projectName = ref(router.currentRoute.value.query.projectName as string || '');
 const searchValue = ref('');
-const requestMethods = ref([
-  {
-    "name": "GET",
-    "value": "GET",
-    "iconColor": "#28a745",
-  },
-  {
-    "name": "POST",
-    "value": "POST",
-    "iconColor": "#ffc107",
-  },
-  {
-    "name": "PUT",
-    "value": "PUT",
-    "iconColor": "#409EFF",
-  },
-  {
-    "name": "DEL",
-    "value": "DELETE",
-    "iconColor": "#f56c6c",
-  },
-  {
-    "name": "PATCH",
-    "value": "PATCH",
-    "iconColor": "#17a2b8",
-  },
-  {
-    "name": "HEAD",
-    "value": "HEAD",
-    "iconColor": "#17a2b8",
-  },
-  {
-    "name": "OPTIONS",
-    "value": "OPTIONS",
-    "iconColor": "#17a2b8",
-  },
-  {
-    "name": "Test",
-    "value": "Test",
-    "iconColor": "#17a2b8",
-  }
-])
+const requestMethods = ref(defaultRequestMethods);
 
 // 使用分享banner数据composable
 const { getBannerData, loading, bannerData } = useShareBannerData(shareId.value);
@@ -219,7 +179,7 @@ onMounted(() => {
 .banner {
   flex: 0 0 auto;
   height: 100%;
-  border-right: 1px solid $gray-400;
+  border-right: 1px solid var(--gray-400);
   display: flex;
   flex-direction: column;
   position: relative;
@@ -229,7 +189,7 @@ onMounted(() => {
     position: relative;
     padding: 0 size(20);
     height: size(120);
-    background: $gray-200;
+    background: var(--gray-200);
     flex: 0 0 auto;
     // 搜索框样式
     .doc-search {
@@ -259,7 +219,7 @@ onMounted(() => {
     }
 
     .folder-icon {
-      color: $yellow;
+      color: var(--yellow);
       flex: 0 0 auto;
       width: size(16);
       height: size(16);
@@ -280,7 +240,7 @@ onMounted(() => {
       }
 
       .node-bottom {
-        color: $gray-500;
+        color: var(--gray-500);
         width: 100%;
         overflow: hidden;
         text-overflow: ellipsis;
@@ -289,22 +249,22 @@ onMounted(() => {
     }
 
     &.active-node {
-      background-color: lighten($theme-color, 30%);
+      background-color: #a6d2ff;
     }
 
     &.select-node {
-      background-color: lighten($theme-color, 20%);
+      background-color: #66b1ff;
     }
 
     &.readonly {
-      color: $gray-600;
+      color: var(--gray-600);
 
       .file-icon {
-        color: $gray-600 !important;
+        color: var(--gray-600) !important;
       }
 
       .folder-icon {
-        color: $gray-500 !important;
+        color: var(--gray-500) !important;
       }
     }
   }

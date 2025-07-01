@@ -75,9 +75,8 @@ const toggleCollapse = () => {
     height: size(25);
     display: flex;
     align-items: center;
-    ;
     user-select: none;
-    color: $gray-800;
+    color: var(--gray-800);
     font-size: fz(14);
 
     &.bold {
@@ -85,7 +84,7 @@ const toggleCollapse = () => {
     }
 
     &:hover {
-      background: mix($theme-color, $white, 25%);
+      background: var(--gray-200);
     }
   }
 }

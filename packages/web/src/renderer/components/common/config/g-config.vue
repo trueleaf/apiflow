@@ -62,12 +62,12 @@ const isEnabled = ref(false);
   padding: size(10) size(20);
 
   &:hover {
-    background: $gray-200;
+    background: var(--gray-200);
   }
 
   .description {
     font-size: fz(12);
-    color: $gray-500;
+    color: var(--gray-500);
   }
 
   .label {
@@ -75,7 +75,7 @@ const isEnabled = ref(false);
     font-size: fz(15);
 
     .required {
-      color: $red;
+      color: var(--red);
     }
   }
 }

@@ -723,17 +723,17 @@ const checkDescriptionDisable = ({ node }: { node: TreeNode }) => {
     .valid-input .ipt-wrap .ipt-inner {
         border: none;
         border-radius: 0;
-        border-color: $gray-400;
-        border-bottom: 1px solid $gray-400;
+        border-color: var(--gray-400);
+        border-bottom: 1px solid var(--gray-400);
         font-size: fz(12);
         &:focus {
-            border-bottom: 2px solid $theme-color;
+            border-bottom: 2px solid var(--theme-color);
             margin-bottom: -1px;
         }
     }
     .fake-input {
         cursor: pointer;
-        background: $gray-300;
+        background: var(--gray-300);
         height: size(25);
         line-height: size(25);
         text-indent: 1em;
@@ -741,7 +741,7 @@ const checkDescriptionDisable = ({ node }: { node: TreeNode }) => {
         position: relative;
         &.active {
             background: none;
-            border: 1px solid $gray-300;
+            border: 1px solid var(--gray-300);
             cursor: auto;
         }
         .label {
@@ -757,7 +757,7 @@ const checkDescriptionDisable = ({ node }: { node: TreeNode }) => {
             font-size: fz(16);
             cursor: pointer;
             &:hover {
-                color: $red;
+                color: var(--red);
             }
         }
     }

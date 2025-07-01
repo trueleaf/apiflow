@@ -158,28 +158,27 @@ const nodeInfo = computed(() => {
 <style lang='scss' scoped>
 .node {
     position: absolute;
-    background-color: $white;
-    border: 1px solid $gray-400;
-    border-radius: $border-radius-xs;
+    background-color: var(--white);
+    border: 1px solid var(--gray-400);
+    border-radius: var(--border-radius-xs);
     .resize-dot {
-        border: 1px solid $theme-color;
+        border: 1px solid var(--theme-color);
         position: absolute;
-        background-color: $white;
+        background-color: var(--white);
         z-index: 2;
     }
     .create-line-dot {
         border-radius: 50%;
-        border: 1px solid $theme-color;
+        border: 1px solid var(--theme-color);
         position: absolute;
-        background-color: $white;
+        background-color: var(--white);
         z-index: 2;
     }
     .resize-border {
         position: absolute;
         left: 0;
         top: 0;
-        // z-index: 1;
-        border: 1px solid $theme-color;
+        border: 1px solid var(--theme-color);
         width: 100%;
         height: 100%;
     }
@@ -197,7 +196,7 @@ const nodeInfo = computed(() => {
       position: relative;
       width: 100%;
       height: 100%;
-      border-radius: $border-radius-sm;
+      border-radius: var(--border-radius-sm);
       display: flex;
       flex-direction: column;
       .header {

@@ -29,9 +29,9 @@ watch(() => props.loading, () => {
   .loading-text {
     position: absolute;
     top: 60%;
-    z-index: $zIndex-loading-text;
+    z-index: var(--zIndex-loading-text);
     font-size: fz(16);
-    color: $theme-color;
+    color: var(--theme-color);
     width: 100%;
     padding: 0 1em;
     text-align: center;

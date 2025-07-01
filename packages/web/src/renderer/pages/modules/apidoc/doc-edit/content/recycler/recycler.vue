@@ -259,15 +259,12 @@ watch(() => customDateRange.value, (val) => {
 })
 
 const debounceGetData = debounce(getData, 500);
-// 监听接口名称和url，节流搜索
-watch(() => formInfo.value.docName, () => {
+// 监听接口名称、url，节流搜索
+watch(() => [formInfo.value.docName, formInfo.value.url], () => {
   debounceGetData();
 });
-watch(() => formInfo.value.url, () => {
-  debounceGetData();
-});
-// 监听操作人员、日期等，实时搜索
-watch(() => formInfo.value.operators, () => {
+// 监听操作人员、开始和结束时间，实时搜索
+watch(() => [formInfo.value.operators, formInfo.value.startTime, formInfo.value.endTime], () => {
   getData();
 });
 
@@ -428,7 +425,7 @@ const handleShowDetail = (docInfo: DeleteInfo) => {
   .search {
     flex: 0 0 auto;
     box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
-    border: 1px solid $gray-300;
+    border: 1px solid var(--gray-300);
     border-radius: size(4);
     padding: size(5) size(20);
 
@@ -453,43 +450,19 @@ const handleShowDetail = (docInfo: DeleteInfo) => {
   .list {
     flex: 1;
     overflow-y: auto;
-    // box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
-    // border: 1px solid $gray-300;
-    // border-radius: size(4);
-    // margin-top: size(10);
-    // padding: size(5) size(20);
-    .item {
-      display: flex;
-      align-items: center;
-      height: size(40);
-      overflow: hidden;
-
-      .head {
-        flex: 0 0 auto;
-        width: size(80);
-      }
-    }
-
     .date-chunk {
       margin-left: size(30);
       display: flex;
       flex-direction: column;
-
       .date-list-wrap {
         margin-left: size(30);
-
         .docinfo {
           display: flex;
           align-items: center;
           height: size(30);
-
           &:hover {
-            background: $gray-200;
+            background: var(--gray-200);
           }
-        }
-
-        .op-area {
-          width: size(100);
         }
       }
     }

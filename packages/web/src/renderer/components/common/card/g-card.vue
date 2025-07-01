@@ -41,9 +41,9 @@ defineProps({
 <style lang='scss' scoped>
 .s-card {
   width: 100%;
-  border: 1px solid $gray-300;
-  background: $white;
-  border-radius: $border-radius-base;
+  border: 1px solid var(--gray-300);
+  background: var(--white);
+  border-radius: var(--border-radius-base);
   display: flex;
   flex-direction: column;
 
@@ -53,8 +53,8 @@ defineProps({
     display: flex;
     align-items: center;
     justify-content: space-between;
-    border-bottom: 1px solid $gray-300;
-    color: $theme-color;
+    border-bottom: 1px solid var(--gray-300);
+    color: var(--theme-color);
     padding: 0 1em;
 
     &.active {
@@ -62,7 +62,7 @@ defineProps({
       transition: background-color 0.3s;
 
       &:hover {
-        background: $gray-100;
+        background: var(--gray-100);
       }
     }
   }

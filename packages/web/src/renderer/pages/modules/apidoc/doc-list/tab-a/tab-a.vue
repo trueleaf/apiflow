@@ -439,8 +439,8 @@ onMounted(() => {
 
   .project-list {
     width: size(300);
-    border: 1px solid $gray-200;
-    box-shadow: $box-shadow-sm;
+    border: 1px solid var(--gray-200);
+    box-shadow: var(--box-shadow-sm);
     margin-right: size(30);
     margin-bottom: size(20);
     padding: 10px;
@@ -475,7 +475,7 @@ onMounted(() => {
           justify-content: center;
 
           &:hover {
-            background: $gray-200;
+            background: var(--gray-200);
           }
         }
       }
@@ -501,7 +501,7 @@ onMounted(() => {
       cursor: pointer;
 
       &:hover {
-        background: $gray-200;
+        background: var(--gray-200);
       }
 
       i {

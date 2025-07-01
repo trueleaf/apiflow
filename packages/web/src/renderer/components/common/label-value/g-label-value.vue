@@ -63,7 +63,7 @@ const slots = useSlots()
   margin-bottom: size(10);
 
   .label {
-    color: $gray-800;
+    color: var(--gray-800);
     display: inline-flex;
     align-items: center;
     justify-content: flex-start;
@@ -72,7 +72,7 @@ const slots = useSlots()
   }
 
   .value {
-    color: $gray-600;
+    color: var(--gray-600);
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;

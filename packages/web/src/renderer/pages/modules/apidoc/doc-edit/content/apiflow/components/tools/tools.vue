@@ -128,7 +128,7 @@ const handleRedo = () => {
 .toolbar {
     position: absolute;
     background-color: #fff;
-    box-shadow: 1px 1px 5px $gray-500;
+    box-shadow: 1px 1px 5px var(--gray-500);
     top: size(1);
     left: size(100);
     user-select: none;
@@ -145,14 +145,14 @@ const handleRedo = () => {
         justify-content: center;
         cursor: pointer;
         &.disabled {
-            color: $gray-300;
+            color: var(--gray-300);
             cursor: default;
             &:hover {
                 background-color: inherit;
             }
         }
         &:hover {
-            background-color: $gray-200;
+            background-color: var(--gray-200);
         }
     }
 }

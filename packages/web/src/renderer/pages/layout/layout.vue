@@ -274,7 +274,7 @@ onMounted(() => {
   height: 100%;
 
   .s-header {
-    background: $gray-800;
+    background: var(--gray-800);
     height: 60px;
     display: flex;
 
@@ -293,7 +293,7 @@ onMounted(() => {
       height: 100%;
       display: flex;
       align-items: center;
-      color: $white;
+      color: var(--white);
 
       .operation {
         margin-right: size(10);
@@ -312,7 +312,7 @@ onMounted(() => {
           border-radius: 50%;
 
           &:hover {
-            background: $gray-600;
+            background: var(--gray-600);
           }
         }
 
@@ -327,7 +327,7 @@ onMounted(() => {
           border-radius: 50%;
 
           &:hover {
-            background: $gray-600;
+            background: var(--gray-600);
           }
         }
       }
@@ -338,7 +338,7 @@ onMounted(() => {
     }
 
     .el-dropdown {
-      color: $white;
+      color: var(--white);
     }
   }
 

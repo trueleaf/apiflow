@@ -363,16 +363,16 @@ onUnmounted(() => {
       flex: 0 0 auto;
       height: size(40);
       width: size(25);
-      z-index: $zIndex-tabs;
-      background: $gray-200;
+      z-index: var(--zIndex-tabs);
+      background: var(--gray-200);
       display: flex;
       align-items: center;
       justify-content: center;
       cursor: pointer;
-      box-shadow: $box-shadow-base;
+      box-shadow: var(--box-shadow-base);
 
       &:hover {
-        background-color: $gray-300;
+        background-color: var(--gray-300);
       }
     }
   }
@@ -402,7 +402,7 @@ onUnmounted(() => {
     }
 
     &::-webkit-scrollbar-thumb {
-      background: $gray-500;
+      background: var(--gray-500);
     }
 
     .item {
@@ -414,7 +414,7 @@ onUnmounted(() => {
       width: 200px;
       cursor: default;
       padding: 0 size(10);
-      border-right: 1px solid $gray-400;
+      border-right: 1px solid var(--gray-400);
       background: rgb(222, 225, 230);
 
       .item-text {
@@ -500,7 +500,7 @@ onUnmounted(() => {
           width: size(10);
           height: size(10);
           border-radius: 50%;
-          background: mix($teal, $white, 90%);
+          background: #e6fbf8;
         }
       }
     }
@@ -520,7 +520,7 @@ onUnmounted(() => {
       border-radius: 50%;
 
       &:hover {
-        background-color: $gray-400;
+        background-color: var(--gray-400);
       }
     }
   }

@@ -529,7 +529,7 @@ onUnmounted(() => {
 .banner {
   flex: 0 0 auto;
   height: 100%;
-  border-right: 1px solid $gray-400;
+  border-right: 1px solid var(--gray-400);
   display: flex;
   flex-direction: column;
   position: relative;
@@ -543,11 +543,11 @@ onUnmounted(() => {
   //拖拽指示器样式
   .el-tree-node.is-drop-inner {
     >.el-tree-node__content {
-      background: mix($theme-color, $white, 20%);
+      background: #b3d6fd;
     }
 
     .custom-tree-node.select-node {
-      background-color: mix($theme-color, $white, 70%);
+      background-color: #d6e7fc;
     }
   }
 
@@ -575,7 +575,7 @@ onUnmounted(() => {
     }
 
     .folder-icon {
-      color: $yellow;
+      color: var(--yellow);
       flex: 0 0 auto;
       width: size(16);
       height: size(16);
@@ -596,7 +596,7 @@ onUnmounted(() => {
       }
 
       .node-bottom {
-        color: $gray-500;
+        color: var(--gray-500);
         width: 100%;
         overflow: hidden;
         text-overflow: ellipsis;
@@ -608,12 +608,12 @@ onUnmounted(() => {
     .rename-ipt {
       flex: 0 0 75%;
       height: size(22);
-      border: 1px solid $theme-color;
+      border: 1px solid var(--theme-color);
       font-size: 1em;
       margin-left: -1px;
 
       &.error {
-        border: 2px solid $red;
+        border: 2px solid var(--red);
       }
     }
 
@@ -625,34 +625,34 @@ onUnmounted(() => {
     }
 
     &.active-node {
-      background-color: lighten($theme-color, 30%);
+      background-color: #a6d2ff;
     }
 
     &.select-node {
-      background-color: lighten($theme-color, 20%);
+      background-color: #66b1ff;
     }
 
     &.cut-node {
-      color: $gray-500;
+      color: var(--gray-500);
 
       .file-icon {
-        color: $gray-500 !important;
+        color: var(--gray-500) !important;
       }
 
       .folder-icon {
-        color: $gray-300 !important;
+        color: var(--gray-300) !important;
       }
     }
 
     &.readonly {
-      color: $gray-600;
+      color: var(--gray-600);
 
       .file-icon {
-        color: $gray-600 !important;
+        color: var(--gray-600) !important;
       }
 
       .folder-icon {
-        color: $gray-500 !important;
+        color: var(--gray-500) !important;
       }
     }
   }

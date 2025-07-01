@@ -3,6 +3,7 @@ import { ref } from 'vue';
 import { ApidocBanner } from '@src/types/global';
 import { ElMessage } from 'element-plus';
 import { apidocCache } from '@/cache/apidoc.ts';
+import { $t } from '@/i18n/i18n';
 
 type ReturnData = {
   getBannerData: () => Promise<void>,
@@ -16,7 +17,7 @@ export function useShareBannerData(shareId: string): ReturnData {
   
   const getBannerData = async () => {
     if (!shareId) {
-      console.warn('shareId为空，无法获取banner数据');
+      console.warn($t('shareId为空，无法获取banner数据'));
       return;
     }
     
@@ -34,8 +35,8 @@ export function useShareBannerData(shareId: string): ReturnData {
       bannerData.value = response.data || [];
       loading.value = false
     } catch (error: any) {
-      console.error('获取分享banner数据失败:', error);
-      ElMessage.error('获取分享数据失败，请检查分享链接是否有效');
+      console.error($t('获取分享banner数据失败:'), error);
+      ElMessage.error($t('获取分享数据失败，请检查分享链接是否有效'));
       loading.value = false
     }
   }

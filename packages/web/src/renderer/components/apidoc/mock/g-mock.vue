@@ -198,7 +198,7 @@ onUnmounted(() => {
 .s-mock-select {
   width: size(800);
   height: size(260);
-  background: $white;
+  background: var(--white);
 
   .wrap {
     height: size(220);
@@ -218,11 +218,11 @@ onUnmounted(() => {
         padding: 0 size(10);
 
         &.active {
-          background: $gray-200;
+          background: var(--gray-200);
         }
 
         &:hover {
-          background: $gray-200;
+          background: var(--gray-200);
           cursor: pointer;
         }
       }
@@ -231,7 +231,7 @@ onUnmounted(() => {
     .bar {
       height: 100%;
       width: size(1);
-      background: $gray-400;
+      background: var(--gray-400);
     }
 
     .preview {

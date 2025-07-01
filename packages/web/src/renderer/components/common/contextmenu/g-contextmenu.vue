@@ -1,4 +1,3 @@
-
 <template>
   <div ref="contextmenu" class="s-contextmenu" :style="{ width: width, left: left + 'px', top: realTop + 'px' }">
     <slot></slot>
@@ -48,9 +47,9 @@ watch(() => props.top, (topVal) => {
 <style lang='scss' scoped>
 .s-contextmenu {
   position: fixed;
-  background: $white;
-  box-shadow: rgb(0 0 0 / 10%) 0px 2px 8px 0px; //墨刀弹窗样式
-  z-index: $zIndex-contextmenu;
+  background: var(--white);
+  box-shadow: rgb(0 0 0 / 10%) 0px 2px 8px 0px;
+  z-index: var(--zIndex-contextmenu);
   animation: ctx-fade .2s;
 
   &::-webkit-scrollbar {
@@ -58,7 +57,7 @@ watch(() => props.top, (topVal) => {
   }
 
   &::-webkit-scrollbar-thumb {
-    background: $gray-400;
+    background: var(--gray-400);
   }
 
   @keyframes ctx-fade {

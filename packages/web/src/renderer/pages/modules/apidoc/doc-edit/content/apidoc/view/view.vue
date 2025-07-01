@@ -167,12 +167,12 @@ const hasHeaders = computed(() => {
   .view-block {
     font-size: fz(18);
     font-weight: bold;
-    color: $gray-700;
+    color: var(--gray-700);
   }
 
   .title {
     font-size: fz(14);
-    color: $gray-600;
+    color: var(--gray-600);
     padding: size(5) 0;
   }
 

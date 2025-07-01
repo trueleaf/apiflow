@@ -219,7 +219,7 @@ onUnmounted(() => {
       height: 100%;
       display: flex;
       align-items: center;
-      border: 1px solid $gray-400;
+      border: 1px solid var(--gray-400);
       border-radius: size(4);
       padding: 0 size(10);
       font-size: fz(12);
@@ -234,11 +234,11 @@ onUnmounted(() => {
       }
 
       &::placeholder {
-        color: $gray-400;
+        color: var(--gray-400);
       }
 
       &.error {
-        border: 1px solid $red;
+        border: 1px solid var(--red);
       }
     }
 
@@ -262,11 +262,11 @@ onUnmounted(() => {
         }
 
         &::-webkit-scrollbar-thumb {
-          background: $gray-500;
+          background: var(--gray-500);
         }
 
         &::placeholder {
-          color: $gray-400;
+          color: var(--gray-400);
         }
       }
     }
@@ -274,7 +274,7 @@ onUnmounted(() => {
 
   .ipt-error {
     font-size: fz(12);
-    color: $red;
+    color: var(--red);
     line-height: 1.2;
     text-align: left;
   }
@@ -282,11 +282,11 @@ onUnmounted(() => {
   .mind-wrap {
     top: size(42);
     left: 0;
-    background: $white;
-    z-index: $zIndex-contextmenu;
+    background: var(--white);
+    z-index: var(--zIndex-contextmenu);
     position: fixed;
     min-width: size(200);
-    border: 1px solid $gray-200;
+    border: 1px solid var(--gray-200);
     // box-shadow: 0 0 5px rgb(0 0 0 / 10%);
     box-shadow: rgb(0 0 0 / 10%) 0px 2px 8px 0px; //墨刀弹窗样式
     max-height: size(220);
@@ -297,7 +297,7 @@ onUnmounted(() => {
     }
 
     &::-webkit-scrollbar-thumb {
-      background: $gray-400;
+      background: var(--gray-400);
     }
 
     // padding: size(10) 0;
@@ -308,13 +308,13 @@ onUnmounted(() => {
       display: flex;
 
       &:hover {
-        background: $theme-color;
-        color: $white;
+        background: var(--theme-color);
+        color: var(--white);
       }
 
       &.active {
-        background: $theme-color;
-        color: $white;
+        background: var(--theme-color);
+        color: var(--white);
       }
 
       .head {

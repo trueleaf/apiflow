@@ -32,18 +32,17 @@
   <teleport to="body">
     <!-- 单个节点操作 -->
     <SContextmenu v-if="showContextmenu" :left="contextmenuLeft" :top="contextmenuTop">
-      <SContextmenuItem :label="t('关闭')" hot-key="Ctrl + W" @click="handleCloseCurrentTab()"></SContextmenuItem>
-      <SContextmenuItem :label="t('关闭左侧')" @click="handleCloseLeftTab"></SContextmenuItem>
-      <SContextmenuItem :label="t('关闭右侧')" @click="handleCloseRightTab"></SContextmenuItem>
-      <SContextmenuItem :label="t('关闭其他')" @click="handleCloseOtherTab"></SContextmenuItem>
-      <SContextmenuItem :label="t('全部关闭')" @click="handleCloseAllTab"></SContextmenuItem>
+      <SContextmenuItem :label="$t('关闭')" hot-key="Ctrl + W" @click="handleCloseCurrentTab()"></SContextmenuItem>
+      <SContextmenuItem :label="$t('关闭左侧')" @click="handleCloseLeftTab"></SContextmenuItem>
+      <SContextmenuItem :label="$t('关闭右侧')" @click="handleCloseRightTab"></SContextmenuItem>
+      <SContextmenuItem :label="$t('关闭其他')" @click="handleCloseOtherTab"></SContextmenuItem>
+      <SContextmenuItem :label="$t('全部关闭')" @click="handleCloseAllTab"></SContextmenuItem>
     </SContextmenu>
   </teleport>
 </template>
 
 <script lang="ts" setup>
 import * as SDraggable from 'vuedraggable'
-import { t } from 'i18next'
 import {
   Close as IconClose,
 } from '@element-plus/icons-vue';
@@ -56,6 +55,7 @@ import SContextmenu from '@/components/common/contextmenu/g-contextmenu.vue'
 import SContextmenuItem from '@/components/common/contextmenu/g-contextmenu-item.vue'
 import { useApidocBanner } from '@/store/apidoc/banner';
 import { defaultRequestMethods } from '../common';
+import { $t } from '@/i18n/i18n';
 
 /*
 |--------------------------------------------------------------------------
@@ -271,7 +271,7 @@ onUnmounted(() => {
     }
 
     &::-webkit-scrollbar-thumb {
-      background: $gray-500;
+      background: var(--gray-500);
     }
 
     .item {
@@ -283,7 +283,7 @@ onUnmounted(() => {
       width: 200px;
       cursor: default;
       padding: 0 size(10);
-      border-right: 1px solid $gray-400;
+      border-right: 1px solid var(--gray-400);
       background: rgb(222, 225, 230);
 
       .item-text {

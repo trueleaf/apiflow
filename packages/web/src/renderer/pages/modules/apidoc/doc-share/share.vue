@@ -25,17 +25,17 @@
     </div>
   </div>
   <div v-else class="no-permission">
-    <div class="error-content" style="background: #fff; color: #333; box-shadow: 0 2px 8px rgba(0,0,0,0.05); padding: 40px 0; border-radius: 12px; min-width: 400px;">
-      <div style="text-align: center;">
-        <img src="@/assets/imgs/logo.png" alt="logo" style="width: 120px; height: 120px; margin-bottom: 20px;" />
+    <div class="error-content">
+      <div class="error-content-inner">
+        <img src="@/assets/imgs/logo.png" alt="logo" class="error-logo" />
         <h2 class="mt-0">{{ shareInfo.shareName || $t('文档分享') }}</h2>
         <el-form ref="passwordFormRef" :model="passwordFormData" :rules="passwordRules" class="d-flex j-center" @submit.prevent="handlePasswordSubmit">
-          <el-form-item prop="password" style="margin-bottom: 0;">
+          <el-form-item prop="password" class="password-form-item">
             <el-input
               v-model="passwordFormData.password"
               type="password"
               :placeholder="$t('请输入访问密码')"
-              style="width: 180px;"
+              class="password-input"
             ></el-input>
             <el-button :loading="passwordLoading" type="success" @click="handlePasswordSubmit">{{ $t('确认密码') }}</el-button>
           </el-form-item>
@@ -47,19 +47,19 @@
     </div>
   </div>
 </template>
-
 <script lang="ts" setup>
 import { ref, onMounted, onUnmounted, watch } from 'vue'
 import { router } from '@/router'
 import { request } from '@/api/api'
 import { ElMessage, FormInstance } from 'element-plus'
 import { Loading, } from '@element-plus/icons-vue'
-import { Response } from '@src/types/global'
+import { ApidocVariable, Response } from '@src/types/global'
 import { $t } from '@/i18n/i18n'
 import { apidocCache } from '@/cache/apidoc'
 import SNav from './nav/nav.vue'
 import SBanner from './banner/banner.vue'
 import SContent from './content/content.vue'
+import { useShareDocStore } from '@/store/apidoc/shareDoc'
 
 // 分享信息类型定义
 interface ShareInfo {
@@ -94,6 +94,7 @@ const passwordRules = ref({
     { required: true, message: $t('请输入访问密码'), trigger: 'blur' }
   ]
 })
+const shareDocStore = useShareDocStore();
 // 获取分享信息
 const getShareInfo = async () => {
   try {
@@ -134,23 +135,13 @@ const getShareInfo = async () => {
 // 验证密码
 const verifyPassword = async (password: string) => {
   try {
-    const response = await request.post<Response<{ code: number }>, Response<{ code: number }>>('/api/project/verify_share_password', {
+    const response = await request.post<{ data: ApidocVariable[] }, { data: ApidocVariable[] }>('/api/project/verify_share_password', {
       shareId: shareId.value,
       password: password
     })
-    if (response.code === 0) {
-      // 密码验证成功，保存到缓存
-      apidocCache.setSharePassword(shareId.value, password)
-      hasPermission.value = true
-    } else {
-      // 密码验证失败，清除缓存中的错误密码
-      apidocCache.clearSharePassword(shareId.value)
-      ElMessage({
-        message: response.msg || $t('密码错误'),
-        grouping: true,
-        type: 'error',
-      })
-    }
+    apidocCache.setSharePassword(shareId.value, password)
+    hasPermission.value = true;
+    shareDocStore.replaceVariables(response.data)
   } catch (error: any) {
     // 网络错误或其他异常，清除缓存中的错误密码
     apidocCache.clearSharePassword(shareId.value)
@@ -241,7 +232,7 @@ onUnmounted(() => {
       flex: 1;
       display: flex;
       flex-direction: column;
-      background: $gray-100;
+      background: var(--gray-100);
     }
   }
 }
@@ -251,52 +242,52 @@ onUnmounted(() => {
   align-items: center;
   justify-content: center;
   height: 100vh;
-  background: $gray-100;
+  background: var(--gray-100);
 }
 
 .loading-content {
   display: flex;
   flex-direction: column;
   align-items: center;
-  background: rgba(255,255,255,0.7);
-  border-radius: 16px;
-  box-shadow: 0 4px 24px rgba(80,120,255,0.08);
-  padding: 48px 56px 40px 56px;
+  background: rgba(var(--white), 0.7);
+  border-radius: var(--border-radius-lg);
+  box-shadow: var(--box-shadow-bg);
+  padding: size(48) size(56) size(40) size(56);
 }
 
 .loading-circle {
-  width: 72px;
-  height: 72px;
+  width: size(72);
+  height: size(72);
   border-radius: 50%;
   background: linear-gradient(135deg, #e0e7ff 0%, #f3f8ff 100%);
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 2px 12px rgba(80,120,255,0.10);
-  margin-bottom: 24px;
+  box-shadow: var(--box-shadow-base);
+  margin-bottom: size(24);
 }
 
 .loading-icon {
   animation: rotate 1.2s linear infinite;
-  color: #6c7eea;
+  color: var(--primary);
 }
 
 .loading-text {
-  font-size: 20px;
-  font-weight: 600;
-  color: #333;
-  margin: 16px 0 12px 0;
+  font-size: size(20);
+  font-weight: var(--font-weight-bold);
+  color: var(--gray-800);
+  margin: size(16) 0 size(12) 0;
   letter-spacing: 1px;
 }
 
 .loading-dots {
   display: flex;
-  gap: 6px;
-  margin-bottom: 18px;
+  gap: size(6);
+  margin-bottom: size(18);
   span {
-    width: 8px;
-    height: 8px;
-    background: #6c7eea;
+    width: size(8);
+    height: size(8);
+    background: var(--primary);
     border-radius: 50%;
     display: inline-block;
     opacity: 0.5;
@@ -312,18 +303,18 @@ onUnmounted(() => {
 }
 
 .loading-progress {
-  width: 120px;
-  height: 4px;
+  width: size(120);
+  height: size(4);
   background: #e0e7ff;
-  border-radius: 2px;
+  border-radius: var(--border-radius-xs);
   overflow: hidden;
-  margin-top: 8px;
+  margin-top: size(8);
 }
 .loading-progress-bar {
   width: 40%;
   height: 100%;
-  background: linear-gradient(90deg, #6c7eea 0%, #764ba2 100%);
-  border-radius: 2px;
+  background: linear-gradient(90deg, var(--primary) 0%, var(--purple) 100%);
+  border-radius: var(--border-radius-xs);
   animation: loading-bar 1.2s infinite;
 }
 @keyframes loading-bar {
@@ -334,22 +325,42 @@ onUnmounted(() => {
 
 .no-permission {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: center;
   height: 100vh;
-  background: $gray-100;
+  background: var(--gray-100);
 
   .error-content {
+    margin-top: 20vh;
     text-align: center;
-    color: white;
-    background: rgba(255, 255, 255, 0.1);
-    padding: 40px;
-    border-radius: 12px;
-    backdrop-filter: blur(10px);
+    background: var(--white);
+    color: var(--gray-800);
+    box-shadow: var(--box-shadow-base);
+    padding: size(40) 0;
+    border-radius: var(--border-radius-bg);
+    min-width: size(400);
+
+    .error-content-inner {
+      text-align: center;
+    }
+
+    .error-logo {
+      width: size(120);
+      height: size(120);
+      margin-bottom: size(20);
+    }
+
+    .password-form-item {
+      margin-bottom: 0;
+    }
+
+    .password-input {
+      width: size(180);
+    }
 
     h3 {
-      margin: 20px 0 10px 0;
-      color: white;
+      margin: size(20) 0 size(10) 0;
+      color: var(--gray-800);
     }
 
     p {

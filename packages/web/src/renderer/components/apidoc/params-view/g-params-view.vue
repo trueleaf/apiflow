@@ -129,20 +129,18 @@ const handleCheckBraceMatch = (item: ApidocASTInfo) => {
 </script>
 
 <style lang='scss' scoped>
-$theme-color: #282c34;
-
 .s-array-view {
   min-width: 100%;
-  background: $gray-200;
+  background: var(--gray-200);
   position: relative;
   font-size: size(14);
-  background: $theme-color;
+  background: #282c34;
   font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen, Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif;
 
   .header {
     padding: 0 size(20);
     height: size(30);
-    color: $gray-300;
+    color: var(--gray-300);
     display: flex;
     align-items: center;
     position: relative;
@@ -153,13 +151,13 @@ $theme-color: #282c34;
         height: size(20);
         line-height: size(20);
         margin-right: size(20);
-        border: lighten($theme-color, 10%);
-        background: lighten($theme-color, 20%);
-        color: $gray-300;
+        border: #434857;
+        background: #5e637a;
+        color: var(--gray-300);
         text-indent: size(5);
 
         &::placeholder {
-          color: $gray-300;
+          color: var(--gray-300);
           font-size: fz(12);
         }
       }
@@ -174,21 +172,21 @@ $theme-color: #282c34;
     padding-bottom: size(15);
 
     &::-webkit-scrollbar {
-      background: lighten($theme-color, 30%);
+      background: #797e9d;
     }
 
     &::-webkit-scrollbar-thumb {
-      background: $gray-600;
+      background: var(--gray-600);
     }
 
     &::-webkit-scrollbar-track {
-      background: $theme-color;
+      background: #282c34;
     }
 
     .code-banner {
       flex: 0 0 auto;
       width: size(50);
-      border-right: 1px solid $gray-600;
+      border-right: 1px solid var(--gray-600);
       height: 100%;
 
       &:hover {
@@ -206,7 +204,7 @@ $theme-color: #282c34;
           flex: 0 0 auto;
           width: size(30);
           height: size(20);
-          color: $gray-500;
+          color: var(--gray-500);
           display: inline-flex;
           align-items: center;
           justify-content: center;
@@ -216,7 +214,7 @@ $theme-color: #282c34;
         .collapse {
           width: size(20);
           height: size(20);
-          color: $gray-300;
+          color: var(--gray-300);
           cursor: pointer;
           display: none;
           align-items: center;
@@ -230,7 +228,7 @@ $theme-color: #282c34;
           }
 
           &:hover {
-            color: $gray-100;
+            color: var(--gray-100);
           }
         }
       }
@@ -250,11 +248,11 @@ $theme-color: #282c34;
         white-space: nowrap;
 
         &:hover {
-          background: lighten($theme-color, 10%);
+          background: #434857;
         }
 
         &.active {
-          background: $gray-700;
+          background: var(--gray-700);
         }
 
         &.error {
@@ -278,12 +276,12 @@ $theme-color: #282c34;
         width: size(12);
         height: size(12);
         margin-right: size(5);
-        background: $gray-800;
-        border: 1px solid $gray-500;
+        background: var(--gray-800);
+        border: 1px solid var(--gray-500);
         cursor: pointer;
 
         &:hover {
-          border: 1px solid $gray-300;
+          border: 1px solid var(--gray-300);
         }
 
         input[type=checkbox] {
@@ -292,7 +290,7 @@ $theme-color: #282c34;
 
         .icon {
           font-size: fz(10);
-          color: $white;
+          color: var(--white);
         }
       }
 
@@ -333,8 +331,8 @@ $theme-color: #282c34;
         border: 1px solid transparent;
 
         &.active {
-          color: $red;
-          border: 1px solid $gray-400;
+          color: var(--red);
+          border: 1px solid var(--gray-400);
         }
       }
 
@@ -342,8 +340,8 @@ $theme-color: #282c34;
         border: 1px solid transparent;
 
         &.active {
-          color: $orange;
-          border: 1px solid $gray-400;
+          color: var(--orange);
+          border: 1px solid var(--gray-400);
         }
       }
 

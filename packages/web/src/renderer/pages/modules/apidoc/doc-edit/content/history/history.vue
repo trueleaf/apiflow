@@ -394,7 +394,7 @@ onMounted(() => {
       align-items: center;
 
       &:not(:last-of-type) {
-        border-bottom: 1px dashed $gray-300;
+        border-bottom: 1px dashed var(--gray-300);
       }
 
       .el-button--text {
@@ -443,7 +443,7 @@ onMounted(() => {
           align-items: center;
           height: size(25);
           padding: size(2) size(10);
-          border: 1px solid $gray-300;
+          border: 1px solid var(--gray-300);
 
           &:not(:last-child) {
             margin-right: size(10);

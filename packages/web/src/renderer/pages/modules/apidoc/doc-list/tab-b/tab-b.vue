@@ -460,18 +460,8 @@ onMounted(() => {
 .side-menu-container {
   width: size(250);
   height: calc(100vh - #{size(150)});
-  // box-shadow: $box-shadow-sm;
-  border: 1px solid $gray-300;
+  border: 1px solid var(--gray-300);
   padding: size(10) size(0);
-
-  .menu-title {
-    padding: 0 size(15);
-    margin-bottom: size(10);
-  }
-
-  .search-box {
-    padding: 0 size(15);
-  }
   .el-menu-item {
     .del-icon {
       position: absolute;
@@ -479,23 +469,12 @@ onMounted(() => {
       top: size(10);
       font-size: fz(14);
       cursor: pointer;
-      color: $gray-600;
+      color: var(--gray-600);
       display: none;
       &:hover {
-        color: $gray-900;
+        color: var(--gray-900);
       }
     }
-    &:hover {
-      .del-icon {
-        display: block;
-      }
-    }
-  }
-
-  .group-list {
-    height: calc(100vh - #{size(210)});
-    overflow-y: auto;
-    padding: size(10) size(15) size(10) size(0)
   }
   .group-title {
     padding: 0 size(15);
@@ -503,71 +482,52 @@ onMounted(() => {
     display: flex;
     align-items: center;
     height: size(40);
-
     .create-icon {
       margin-left: auto;
       cursor: pointer;
       width: size(20);
       height: size(20);
       border-radius: 50%;
-
       &:hover {
-        background-color: $gray-200;
+        background-color: var(--gray-200);
       }
     }
   }
-
   .el-menu-item {
     height: size(35);
     line-height: size(35);
     &:hover {
-      background-color: $gray-200;
+      background-color: var(--gray-200);
     }
-
     &.is-active {
-      background-color: lighten($theme-color, 30%);
-      color: $gray-800;
+      background-color: #a6d2ff;
+      color: var(--gray-800);
     }
   }
 }
-
 .group-content {
   flex: 1;
   height: calc(100vh - #{size(150)});
   overflow-y: auto;
-  // box-shadow: $box-shadow-sm;
-  border-top: 1px solid $gray-300;
-  border-right: 1px solid $gray-300;
-  border-bottom: 1px solid $gray-300;
+  border-top: 1px solid var(--gray-300);
+  border-right: 1px solid var(--gray-300);
+  border-bottom: 1px solid var(--gray-300);
   padding: size(10) size(20);
-
   .user-item {
     display: flex;
     align-items: center;
     padding: size(5) size(20);
     width: size(150);
-    // border: 1px dashed $gray-300;
     margin-right: size(5);
-    border-radius: $border-radius-base;
+    border-radius: var(--border-radius-base);
     transition: all 0.3s;
     .user-info {
       margin-left: size(10);
-      .name {
-        width: calc(#{size(150)} - #{size(50)});
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-      
-        line-height: normal;
-        font-weight: bold;
-      }
-
       .permission {
         &:hover {
-          color: $gray-600;
+          color: var(--gray-600);
         }
-
-        color: $gray-500;
+        color: var(--gray-500);
         line-height: normal;
         height: size(25);
         display: flex;
@@ -585,33 +545,29 @@ onMounted(() => {
     display: flex;
     align-items: center;
     justify-content: center;
-    color: $gray-400;
+    color: var(--gray-400);
     margin-right: size(15);
     border-radius: 50%;
-    border: 1px dashed $gray-500;
+    border: 1px dashed var(--gray-500);
     cursor: pointer;
     &:hover {
-      background-color: $gray-100;
+      background-color: var(--gray-100);
     }
   }
 }
-
 .permission-list {
   padding: size(5) size(0);
-
   .permission-item {
     display: flex;
     align-items: center;
     justify-content: space-between;
     padding: size(6) size(10);
     cursor: pointer;
-
     &.active {
-      color: $theme-color;
+      color: var(--theme-color);
     }
-
     &:hover {
-      background-color: $gray-200;
+      background-color: var(--gray-200);
     }
   }
 }

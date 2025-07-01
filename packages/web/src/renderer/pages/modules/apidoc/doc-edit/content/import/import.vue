@@ -1,4 +1,3 @@
-
 <template>
   <div class="doc-import">
     <!-- 文件选择 -->
@@ -484,7 +483,7 @@ const handleSubmit = () => {
     }
 
     .folder-icon {
-      color: $yellow;
+      color: var(--yellow);
       flex: 0 0 auto;
       width: size(16);
       height: size(16);
@@ -505,7 +504,7 @@ const handleSubmit = () => {
       }
 
       .node-bottom {
-        color: $gray-500;
+        color: var(--gray-500);
         width: 100%;
         overflow: hidden;
         text-overflow: ellipsis;

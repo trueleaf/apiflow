@@ -111,14 +111,14 @@ const eventListeners = computed(() => {
 .login-container {
   width: 100vw;
   height: 100vh;
-  background: $gray-200;
+  background: var(--gray-200);
 
   .login-box {
     height: size(550);
     width: size(960);
-    background: $white;
-    box-shadow: $box-shadow-base;
-    border-radius: $border-radius-base;
+    background: var(--white);
+    box-shadow: var(--box-shadow-base);
+    border-radius: var(--border-radius-base);
 
     .left {
       flex: 0 0 50%;

@@ -1,4 +1,3 @@
-
 <template>
   <div class="collapse-card" :class="{ shadow: shadow }" :style="{ width: width }">
     <header v-if="slots.operation || title || slots.head" :class="{ disabled: disabled }"
@@ -100,17 +99,17 @@ onMounted(() => {
 <style lang='scss' scoped>
 .collapse-card {
   width: 100%;
-  background: $white;
+  background: var(--white);
   display: flex;
   flex-direction: column;
   margin-bottom: size(10);
 
   &.shadow {
-    box-shadow: $box-shadow;
+    box-shadow: var(--box-shadow);
   }
 
   &>header {
-    background: $gray-200;
+    background: var(--gray-200);
     display: flex;
     align-items: center;
     height: size(40);
@@ -123,7 +122,7 @@ onMounted(() => {
       align-items: center;
       height: 100%;
       min-width: size(150);
-      border-right: 1px solid $gray-300;
+      border-right: 1px solid var(--gray-300);
 
       .control {
         width: size(40);
@@ -134,7 +133,7 @@ onMounted(() => {
         cursor: pointer;
 
         &:hover {
-          background: $gray-300;
+          background: var(--gray-300);
         }
       }
     }
@@ -160,7 +159,7 @@ onMounted(() => {
 
     &.disabled {
       cursor: not-allowed;
-      background: $gray-100;
+      background: var(--gray-100);
 
       .head {
         cursor: not-allowed;

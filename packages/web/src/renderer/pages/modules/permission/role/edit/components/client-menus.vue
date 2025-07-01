@@ -89,7 +89,7 @@ defineExpose({
       }
 
       .bg-active {
-        background: $theme-color;
+        background: var(--theme-color);
         color: #fff;
       }
     }

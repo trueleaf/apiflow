@@ -132,7 +132,7 @@ onUnmounted(() => {
 
     .top,
     .bottom {
-      border-bottom: 1px dashed $red;
+      border-bottom: 1px dashed var(--red);
       flex: 1;
     }
 
@@ -140,7 +140,7 @@ onUnmounted(() => {
       width: size(150);
       flex: 0 0 auto;
       text-align: center;
-      color: $gray-600;
+      color: var(--gray-600);
     }
   }
 
@@ -149,13 +149,13 @@ onUnmounted(() => {
     height: size(6);
     width: 100%;
     background: transparent;
-    z-index: $zIndex-drag-bar;
+    z-index: var(--zIndex-drag-bar);
     box-sizing: content-box;
     cursor: ns-resize;
     left: 0;
 
     &.active {
-      background: $theme-color;
+      background: var(--theme-color);
     }
   }
 }

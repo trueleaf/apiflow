@@ -421,57 +421,45 @@ onUnmounted(() => {
 .body-view {
   width: 100%;
   height: calc(100vh - #{size(400)});
-  // overflow-y: auto;
   position: relative;
-
-  &.vertical {
-    height: 100%;
-  }
   .response-tip {
     width: 100%;
     padding: size(5) size(10);
     background-color: #f19d1f;
-    color: $white;
+    color: var(--white);
   }
   .json-wrap {
     height: calc(100vh - #{size(400)});
     position: relative;
-
     .tip {
       width: 100%;
       padding: size(5) size(10);
-      background-color: $orange;
+      background-color: var(--orange);
       position: absolute;
       bottom: -size(30);
-      z-index: $zIndex-contextmenu;
-      color: $white;
+      z-index: var(--zIndex-contextmenu);
+      color: var(--white);
       display: flex;
       align-items: center;
       justify-content: center;
     }
   }
-
   .apply-response {
     position: absolute;
     cursor: pointer;
     right: size(15);
     top: size(0);
-    z-index: $zIndex-contextmenu;
+    z-index: var(--zIndex-contextmenu);
   }
-
   .text-wrap {
     height: 100%;
     .text-tool {
       display: flex;
       align-items: center;
       height: size(20);
-      border-bottom: 1px solid $gray-200;
-    }
-    .text-view {
-      height: calc(100% - #{size(20)});
+      border-bottom: 1px solid var(--gray-200);
     }
   }
-
   .operation {
     height: size(30);
     padding: 0 size(20);
@@ -479,9 +467,8 @@ onUnmounted(() => {
     display: flex;
     align-items: center;
     justify-content: flex-end;
-    color: $gray-300;
+    color: var(--gray-300);
   }
-
   .img-view-wrap {
     width: 100%;
     display: flex;
@@ -489,7 +476,7 @@ onUnmounted(() => {
     justify-content: center;
     flex-direction: column;
     .img-view {
-      border: 1px solid $gray-400;
+      border: 1px solid var(--gray-400);
       width: 80%;
       height: size(250);
       padding: 0 size(5);
@@ -501,28 +488,15 @@ onUnmounted(() => {
       display: flex;
       align-items: center;
       justify-content: center;
-      color: $gray-500;
+      color: var(--gray-500);
     }
-  }
-
-  .pdf-view {
-    width: 100%;
-    height: size(300);
-  }
-  .video-view {
-    width: 100%;
-    height: size(300);
-  }
-  .res-icon {
-    width: size(200);
-    height: size(200);
   }
   .process {
     height: size(30);
     display: flex;
     align-items: center;
     justify-content: center;
-    color: $gray-600;
+    color: var(--gray-600);
   }
 }
 :deep(.redirect-dialog) {

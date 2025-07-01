@@ -243,7 +243,7 @@ const handleClose = () => {
       cursor: pointer;
 
       &:hover {
-        color: lighten($gray-300, 20%);
+        color: #f7f7fa;
       }
     }
   }

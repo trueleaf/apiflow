@@ -88,11 +88,11 @@ watch(() => props.modelValue, (val) => {
     outline: 0;
     padding: 0 size(15);
     height: size(28);
-    border: 1px solid $gray-300;
-    border-radius: $border-radius-sm;
-    color: $gray-700;
+    border: 1px solid var(--gray-300);
+    border-radius: var(--border-radius-sm);
+    color: var(--gray-700);
     &::-webkit-input-placeholder {
-      color: $gray-500;
+      color: var(--gray-500);
     }
   }
 
@@ -100,16 +100,16 @@ watch(() => props.modelValue, (val) => {
     position: absolute;
     left: 0;
     top: size(36);
-    z-index: $zIndex-panel;
+    z-index: var(--zIndex-panel);
     overflow-y: auto;
     min-height: size(40);
     width: 100%;
     max-height: size(200);
-    background: $white;
-    border: 1px solid $gray-300;
-    border-radius: $border-radius-base;
+    background: var(--white);
+    border: 1px solid var(--gray-300);
+    border-radius: var(--border-radius-base);
     line-height: normal;
-    box-shadow: $box-shadow-sm;
+    box-shadow: var(--box-shadow-sm);
     
     &.embedded {
       border: none;
@@ -122,7 +122,7 @@ watch(() => props.modelValue, (val) => {
       justify-content: center;
       align-items: center;
       // font-size: fz(12);
-      color: $gray-500;
+      color: var(--gray-500);
       padding: size(10) size(20);
     }
   }

@@ -689,7 +689,7 @@ const handleToggleProjectModel = () => {
   position: relative;
   padding: 0 size(20);
   height: size(150);
-  background: $gray-200;
+  background: var(--gray-200);
   flex: 0 0 auto;
 
   .toggle-btn {
@@ -701,7 +701,7 @@ const handleToggleProjectModel = () => {
     cursor: pointer;
 
     &:hover {
-      color: $theme-color;
+      color: var(--theme-color);
     }
   }
 
@@ -725,7 +725,7 @@ const handleToggleProjectModel = () => {
     &>i {
       font-size: fz(14);
       cursor: pointer;
-      color: $gray-600;
+      color: var(--gray-600);
     }
   }
 
@@ -766,7 +766,7 @@ const handleToggleProjectModel = () => {
       padding: size(5);
 
       &:hover {
-        background: $gray-400;
+        background: var(--gray-400);
       }
     }
   }
@@ -779,7 +779,7 @@ const handleToggleProjectModel = () => {
     cursor: pointer;
 
     &:hover {
-      background: $gray-400;
+      background: var(--gray-400);
     }
   }
 }

@@ -1,4 +1,3 @@
-
 <template>
   <div class="package-wrap">
     <SResizeX :min="600" :max="600" :width="600" name="package" tabindex="1">
@@ -177,7 +176,7 @@ onMounted(() => {
     height: calc(100vh - #{size(100)});
     overflow-y: auto;
     .drag-wrap {
-        border-right: 1px solid $gray-500;
+        border-right: 1px solid var(--gray-500);
     }
     .package-upload {
         padding: size(20);

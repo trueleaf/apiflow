@@ -98,10 +98,10 @@ import { ref, Ref, computed } from 'vue'
 import type { TreeNodeOptions } from 'element-plus/lib/components/tree/src/tree.type'
 import { ApidocBanner } from '@src/types/global';
 import { request } from '@/api/api'
-import { router } from '@/router/index'
 import { t } from 'i18next'
 import { useApidocBaseInfo } from '@/store/apidoc/base-info';
 import { useApidocBanner } from '@/store/apidoc/banner';
+import { useVariable } from '@/store/apidoc/variables';
 import SFieldset from '@/components/common/fieldset/g-fieldset.vue'
 import SConfig from '@/components/common/config/g-config.vue'
 import SEmphasize from '@/components/common/emphasize/g-emphasize.vue'
@@ -109,6 +109,7 @@ import { useRoute } from 'vue-router';
 
 const apidocBaseInfoStore = useApidocBaseInfo();
 const apidocBannerStore = useApidocBanner();
+const variableStore = useVariable();
 const route = useRoute()
 //可导出数据类型
 const selectedType: Ref<'html' | 'pdf' | 'word' | 'moyu' | 'otherProject'> = ref('html')
@@ -120,8 +121,8 @@ const projectInfo = computed(() => {
     paramsTemplate: apidocBaseInfoStore.paramsTemplate,
     webProxy: apidocBaseInfoStore.webProxy,
     mode: apidocBaseInfoStore.mode,
-    variables: apidocBaseInfoStore.variables,
-    tempVariables: apidocBaseInfoStore.tempVariables,
+    variables: variableStore.variables,
+    tempVariables: [], // tempVariables 在当前实现中为空数组
     commonHeaders: apidocBaseInfoStore.commonHeaders,
     rules: apidocBaseInfoStore.rules,
     mindParams: apidocBaseInfoStore.mindParams,
@@ -263,11 +264,11 @@ const handleExport = () => {
             flex-direction: column;
             border: 1px solid transparent;
             &.active {
-                border: 1px solid $gray-400;
-                box-shadow: $box-shadow-sm;
+                border: 1px solid var(--gray-400);
+                box-shadow: var(--box-shadow-sm);
             }
             &:hover {
-                border: 1px solid $gray-400;
+                border: 1px solid var(--gray-400);
             }
             .svg-icon {
                 width: size(70);
@@ -296,7 +297,7 @@ const handleExport = () => {
                 margin-right: size(5);
             }
             .folder-icon {
-                color: $yellow;
+                color: var(--yellow);
                 flex: 0 0 auto;
                 width: size(16);
                 height: size(16);
@@ -314,7 +315,7 @@ const handleExport = () => {
                     white-space: nowrap;
                 }
                 .node-bottom {
-                    color: $gray-500;
+                    color: var(--gray-500);
                     width: 100%;
                     overflow: hidden;
                     text-overflow: ellipsis;
@@ -322,12 +323,12 @@ const handleExport = () => {
                 }
             }
         }
-        .el-tree-node__content {
+        :deep(.el-tree-node__content) {
             height: size(30);
             display: flex;
             align-items: center;
         }
-        .el-tree-node__content>.el-tree-node__expand-icon {
+        :deep(.el-tree-node__content>.el-tree-node__expand-icon) {
             transition: none; //去除所有动画
             padding-top: 0;
             padding-bottom: 0;

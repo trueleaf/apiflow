@@ -168,11 +168,11 @@ onUnmounted(() => {
     display: flex;
     align-items: center;
     padding: 0 size(10);
-    z-index: $zIndex-drag-bar;
+    z-index: var(--zIndex-drag-bar);
 
     .left,
     .right {
-      border-bottom: 1px dashed $red;
+      border-bottom: 1px dashed var(--red);
       // width: 40%;
       flex: 1;
     }
@@ -181,7 +181,7 @@ onUnmounted(() => {
       width: size(150);
       flex: 0 0 auto;
       text-align: center;
-      color: $gray-600;
+      color: var(--gray-600);
       position: relative;
     }
   }

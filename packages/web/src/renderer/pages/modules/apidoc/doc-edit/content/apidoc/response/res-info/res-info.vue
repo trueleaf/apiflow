@@ -75,7 +75,7 @@ const formatedMs = computed(() => formatMs(responseInfo.value.rt))
   white-space: nowrap;
 
   .content-type {
-    color: $orange;
+    color: var(--orange);
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;

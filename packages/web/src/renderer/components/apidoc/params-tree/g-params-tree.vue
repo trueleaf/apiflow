@@ -769,7 +769,7 @@ const checkDescriptionDisable = ({ node }: { node: TreeNode }) => {
   .el-input__inner {
     border-radius: 0;
     border: none;
-    border-bottom: 1px solid $gray-400;
+    border-bottom: 1px solid var(--gray-400);
     font-size: fz(12);
     box-shadow: none;
   }
@@ -778,7 +778,7 @@ const checkDescriptionDisable = ({ node }: { node: TreeNode }) => {
   }
   .el-input__wrapper {
     &:focus {
-      border-bottom: 2px solid $theme-color;
+      border-bottom: 2px solid var(--theme-color);
       margin-bottom: -1px;
     }
   }
@@ -786,21 +786,17 @@ const checkDescriptionDisable = ({ node }: { node: TreeNode }) => {
   .valid-input .ipt-wrap .ipt-inner {
     border: none;
     border-radius: 0;
-    border-color: $gray-400;
-    border-bottom: 1px solid $gray-400;
+    border-color: var(--gray-400);
+    border-bottom: 1px solid var(--gray-400);
     font-size: fz(12);
-    // &:focus {
-    //     border-bottom: 2px solid $theme-color;
-    //     margin-bottom: -1px;
-    // }
   }
   .file-error {
-    color: $red;
+    color: var(--red);
     font-size: fz(12);
   }
   .file-input-wrap {
     cursor: default;
-    border: 1px dashed $gray-400;
+    border: 1px dashed var(--gray-400);
     display: flex;
     align-items: center;
     height: size(30);
@@ -808,7 +804,7 @@ const checkDescriptionDisable = ({ node }: { node: TreeNode }) => {
     font-size: fz(13);
     &.active {
       background: none;
-      border: 1px solid $gray-300;
+      border: 1px solid var(--gray-300);
       cursor: auto;
     }
     &.no-border {
@@ -825,33 +821,17 @@ const checkDescriptionDisable = ({ node }: { node: TreeNode }) => {
     .var-mode,.file-mode {
       cursor: pointer;
       &:hover {
-        color: $theme-color;
+        color: var(--theme-color);
       }
     }
     .file-mode-wrap {
-      // flex: 0 0 auto;
-      width: calc(100% - #{size(20)});
-      height: 100%;
-      position: relative;
-      // display: flex;
-      // align-items: center;
-      .text-wrap {
-        text-indent: size(8);
-        display: inline-block;
-        height: 100%;
-        line-height: size(30);
-        width: calc(100% - #{size(30)});
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-      }
       .label {
         width: 100%;
         height: 100%;
         display: flex;
         align-items: center;
         justify-content: center;
-        background-color: $gray-300;
+        background-color: var(--gray-300);
         cursor: pointer;
       }
       .close {
@@ -861,9 +841,8 @@ const checkDescriptionDisable = ({ node }: { node: TreeNode }) => {
         transform: translateY(-50%);
         font-size: fz(16);
         cursor: pointer;
-
         &:hover {
-          color: $red;
+          color: var(--red);
         }
       }
     }
@@ -875,7 +854,7 @@ const checkDescriptionDisable = ({ node }: { node: TreeNode }) => {
       justify-content: center;
       &:hover {
         cursor: pointer;
-        color: $theme-color;
+        color: var(--theme-color);
       }
     }
   }
@@ -889,7 +868,7 @@ const checkDescriptionDisable = ({ node }: { node: TreeNode }) => {
   height: size(50);
 
   &:hover {
-    background: $gray-200;
+    background: var(--gray-200);
   }
 }
 

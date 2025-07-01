@@ -111,7 +111,7 @@ onMounted(() => { //当组件还未创建时候，通过mounted生命周期确�
   width: 90%;
   min-width: size(768);
   margin: 0 auto;
-  border-radius: $border-radius-sm;
+  border-radius: var(--border-radius-sm);
   height: calc(100vh - #{size(100)});
   padding: size(10) size(0) size(10) size(20);
 
@@ -126,7 +126,7 @@ onMounted(() => { //当组件还未创建时候，通过mounted生命周期确�
 
     .request-config {
       .el-form-item {
-        border-bottom: 1px solid $gray-200;
+        border-bottom: 1px solid var(--gray-200);
       }
     }
   }

@@ -378,7 +378,7 @@ onUnmounted(() => {
   margin: 0 auto;
   padding: size(16) 0;
   .expire-tip {
-    border-bottom: 1px dashed $gray-500;
+    border-bottom: 1px dashed var(--gray-500);
     cursor: pointer;
   }
   .title {

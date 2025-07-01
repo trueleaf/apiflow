@@ -147,11 +147,11 @@ onMounted(() => {
     position: absolute;
     // border: 1px dashed #6eb1eb;
     .resize-dot {
-        border: 1px solid $theme-color;
+        border: 1px solid var(--theme-color);
         position: absolute;
-        background-color: $white;
+        background-color: var(--white);
         &:hover{
-            background-color: $theme-color;
+            background-color: var(--theme-color);
         }
     }
 }

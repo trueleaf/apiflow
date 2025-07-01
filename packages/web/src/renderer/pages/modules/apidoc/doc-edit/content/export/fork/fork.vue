@@ -361,7 +361,7 @@ const clearContextmenu = () => {
         display: flex;
         .left {
             flex: 0 0 50%;
-            border-right: 1px solid $gray-300;
+            border-right: 1px solid var(--gray-300);
         }
         .right {
             flex: 1;
@@ -388,7 +388,7 @@ const clearContextmenu = () => {
                 margin-right: size(5);
             }
             .folder-icon {
-                color: $yellow;
+                color: var(--yellow);
                 flex: 0 0 auto;
                 width: size(16);
                 height: size(16);
@@ -406,7 +406,7 @@ const clearContextmenu = () => {
                     white-space: nowrap;
                 }
                 .node-bottom {
-                    color: $gray-500;
+                    color: var(--gray-500);
                     width: 100%;
                     overflow: hidden;
                     text-overflow: ellipsis;
@@ -417,9 +417,9 @@ const clearContextmenu = () => {
     }
     //拖拽指示器样式
     .el-tree-node.is-drop-inner {
-        background: mix($theme-color, $white, 70%);
+        background: #d6e7fc;
         .custom-tree-node.select-node {
-            background-color: mix($theme-color, $white, 70%);
+            background-color: #d6e7fc;
         }
     }
     .el-tree__drop-indicator {

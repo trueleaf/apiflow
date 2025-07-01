@@ -17,7 +17,7 @@
   cursor: pointer;
 
   &:hover {
-    background: mix($white, $theme-color, 90%);
+    background: #eaf3fe;
   }
 }
 </style>

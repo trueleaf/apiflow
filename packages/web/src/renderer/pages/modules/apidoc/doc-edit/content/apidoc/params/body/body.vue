@@ -347,7 +347,7 @@ onMounted(async () => {
       position: absolute;
       bottom: size(20);
       left: size(40);
-      background: lighten($orange, 10%);
+      background: #ff9347;
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;

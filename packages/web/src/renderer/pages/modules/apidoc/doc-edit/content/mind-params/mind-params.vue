@@ -1,4 +1,3 @@
-
 <template>
   <div class="s-mind-params">
     <!-- 搜索条件 -->
@@ -195,7 +194,7 @@ const handleDeleteManyParams = () => {
     .left {
         padding-left: size(20);
         flex: 0 0 40%;
-        border-right: 1px solid $gray-600;
+        border-right: 1px solid var(--gray-600);
     }
     .right {
         flex: 0 0 50%;

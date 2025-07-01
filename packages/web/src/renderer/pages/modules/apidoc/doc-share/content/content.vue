@@ -12,8 +12,12 @@
               :style="{ backgroundColor: getMethodColor(apidocInfo.item.method)}">
               {{ apidocInfo.item.method.toUpperCase() }}
             </span>
-            <span class="api-url">{{ fullUrl }}</span>
-            <span v-if="apidocInfo.item.contentType" class="content-type-label">{{ apidocInfo.item.contentType }}</span>
+            <span class="api-url">{{ realFullUrl }}</span>
+          </div>
+          <div class="api-doc-base-info-inline">
+            <span class="mr-1">{{ apidocInfo.info.maintainer || apidocInfo.info.creator }}</span>
+            <span>{{ $t('更新于') }}:</span>
+            <span>{{ formatDate(apidocInfo.updatedAt) }}</span>
           </div>
         </div>
         
@@ -25,7 +29,7 @@
               <div class="collapse-button" :class="{ 'collapsed': !expandedBlocks.query }">
                 <el-icon><ArrowDown /></el-icon>
               </div>
-              <div class="api-doc-block-title">Query 参数</div>
+              <div class="api-doc-block-title">{{ $t('Query 参数') }}</div>
             </div>
             <div class="api-doc-block-content" v-show="expandedBlocks.query">
               <template v-if="hasQueryParams">
@@ -33,21 +37,21 @@
                   <table>
                     <thead>
                       <tr>
-                        <th>参数名</th>
-                        <th>参数值</th>
-                        <th>类型</th>
-                        <th>必填</th>
-                        <th>描述</th>
+                        <th>{{ $t('参数名') }}</th>
+                        <th>{{ $t('参数值') }}</th>
+                        <th>{{ $t('类型') }}</th>
+                        <th>{{ $t('必填') }}</th>
+                        <th>{{ $t('描述') }}</th>
                       </tr>
                     </thead>
                     <tbody>
-                      <tr v-for="param in filteredQueryParams" :key="param._id">
+                      <tr v-for="param in actualQueryParams" :key="param._id">
                         <td>{{ param.key }}</td>
                         <td>{{ param.value }}</td>
                         <td>{{ param.type }}</td>
                         <td>
                           <span :class="['required-badge', param.required ? 'required' : 'optional']">
-                            {{ param.required ? '是' : '否' }}
+                            {{ param.required ? $t('是') : $t('否') }}
                           </span>
                         </td>
                         <td>{{ param.description || '-' }}</td>
@@ -56,7 +60,7 @@
                   </table>
                 </div>
               </template>
-              <div v-else class="api-doc-empty">暂无 Query 参数</div>
+              <div v-else class="api-doc-empty">{{ $t('暂无 Query 参数') }}</div>
             </div>
           </div>
 
@@ -66,7 +70,7 @@
               <div class="collapse-button" :class="{ 'collapsed': !expandedBlocks.headers }">
                 <el-icon><ArrowDown /></el-icon>
               </div>
-              <div class="api-doc-block-title">请求头</div>
+              <div class="api-doc-block-title">{{ $t('请求头') }}</div>
             </div>
             <div class="api-doc-block-content" v-show="expandedBlocks.headers">
               <template v-if="hasHeaders">
@@ -74,21 +78,21 @@
                   <table>
                     <thead>
                       <tr>
-                        <th>参数名</th>
-                        <th>参数值</th>
-                        <th>类型</th>
-                        <th>必填</th>
-                        <th>描述</th>
+                        <th>{{ $t('参数名') }}</th>
+                        <th>{{ $t('参数值') }}</th>
+                        <th>{{ $t('类型') }}</th>
+                        <th>{{ $t('必填') }}</th>
+                        <th>{{ $t('描述') }}</th>
                       </tr>
                     </thead>
                     <tbody>
-                      <tr v-for="header in filteredHeaders" :key="header._id">
+                      <tr v-for="header in actualHeaders" :key="header._id">
                         <td>{{ header.key }}</td>
                         <td>{{ header.value }}</td>
                         <td>{{ header.type }}</td>
                         <td>
                           <span :class="['required-badge', header.required ? 'required' : 'optional']">
-                            {{ header.required ? '是' : '否' }}
+                            {{ header.required ? $t('是') : $t('否') }}
                           </span>
                         </td>
                         <td>{{ header.description || '-' }}</td>
@@ -97,7 +101,7 @@
                   </table>
                 </div>
               </template>
-              <div v-else class="api-doc-empty">暂无请求头</div>
+              <div v-else class="api-doc-empty">{{ $t('暂无请求头') }}</div>
             </div>
           </div>
 
@@ -107,26 +111,36 @@
               <div class="collapse-button" :class="{ 'collapsed': !expandedBlocks.body }">
                 <el-icon><ArrowDown /></el-icon>
               </div>
-              <div class="api-doc-block-title">Body参数</div>
+              <div class="api-doc-block-title">
+                {{ $t('Body参数') }}
+                <span v-if="apidocInfo?.item.contentType" class="content-format-label">{{ apidocInfo.item.contentType }}</span>
+              </div>
             </div>
             <div class="api-doc-block-content" v-show="expandedBlocks.body">
-              <template v-if="hasJsonBodyParams">
-                <div class="api-doc-subtitle">Body参数 (application/json)</div>
-                <!-- <SJsonEditor :value="apidocInfo.item.requestBody.rawJson" read-only /> -->
+              <template v-if="bodyType === 'json'">
+                <div class="border-gray-300">
+                  <SJsonEditor :modelValue="apidocInfo.item.requestBody.rawJson" auto-height min-height="30px" read-only />
+                </div>
               </template>
-              <template v-if="hasFormDataParams">
-                <div class="api-doc-subtitle">Body参数 (multipart/formdata)</div>
-                <!-- <SParamsView :data="apidocInfo.item.requestBody.formdata" plain /> -->
+              <template v-else-if="bodyType === 'formdata'">
+                <div class="api-doc-table">
+                  <SParamsView :data="apidocInfo.item.requestBody.formdata" plain />
+                </div>
               </template>
-              <template v-if="hasUrlEncodedParams">
-                <div class="api-doc-subtitle">Body参数 (x-www-form-urlencoded)</div>
-                <!-- <SParamsView :data="apidocInfo.item.requestBody.urlencoded" plain /> -->
+              <template v-else-if="bodyType === 'urlencoded'">
+                <div class="api-doc-table">
+                  <SParamsView :data="apidocInfo.item.requestBody.urlencoded" plain />
+                </div>
               </template>
-              <template v-if="hasRawParams">
-                <div class="api-doc-subtitle">Body参数 ({{ apidocInfo.item.requestBody.raw.dataType }})</div>
+              <template v-else-if="bodyType === 'raw'">
                 <pre class="pre api-doc-raw-body">{{ apidocInfo.item.requestBody.raw.data }}</pre>
               </template>
-              <div v-if="!hasJsonBodyParams && !hasFormDataParams && !hasUrlEncodedParams && !hasRawParams" class="api-doc-empty">暂无请求体参数</div>
+              <template v-else-if="bodyType === 'text'">
+                <div class="border-gray-300">
+                  <SJsonEditor :modelValue="apidocInfo.item.requestBody.raw?.data" read-only auto-height min-height="30px" :config="{ language: 'plaintext' }" />
+                </div>
+              </template>
+              <div v-if="!bodyType" class="api-doc-empty">{{ $t('暂无请求体参数') }}</div>
             </div>
           </div>
 
@@ -136,38 +150,43 @@
               <div class="collapse-button" :class="{ 'collapsed': !expandedBlocks.response }">
                 <el-icon><ArrowDown /></el-icon>
               </div>
-              <div class="api-doc-block-title">响应</div>
+              <div class="api-doc-block-title">{{ $t('响应') }}</div>
             </div>
             <div class="api-doc-block-content" v-show="expandedBlocks.response">
-              <div v-for="(item, index) in apidocInfo.item.responseParams" :key="index" class="api-doc-response-block">
-                <div class="api-doc-response-meta">
-                  <span class="api-doc-response-title">{{ item.title }}</span>
-                  <span class="status-code success">{{ item.statusCode }}</span>
-                  <span class="type-label">{{ item.value.dataType }}</span>
-                </div>
-                <!-- <SRawEditor v-if="item.value.dataType === 'application/json'" :data="item.value.strJson" readonly class="api-doc-response-example" /> -->
-                <div v-if="item.value.dataType === 'application/xml' || item.value.dataType === 'text/plain' || item.value.dataType === 'text/html'" class="h-150px">
-                  <!-- <SRawEditor :data="item.value.strJson" :type="item.value.dataType" readonly class="api-doc-response-example" /> -->
-                </div>
+              <div v-if="apidocInfo.item.responseParams.length > 0">
+                <el-tabs v-model="activeResponseTab" type="card" class="response-tabs">
+                  <el-tab-pane 
+                    v-for="(item, index) in apidocInfo.item.responseParams" 
+                    :key="index"
+                    :label="`${item.title} (${item.statusCode}) ${simplifyDataType(item.value.dataType)}`"
+                    :name="String(index)">
+                    <template v-if="getResponseLanguage(item.value.dataType) === 'json'">
+                      <div class="border-gray-300">
+                        <SJsonEditor :modelValue="item.value.strJson" read-only auto-height min-height="30px" :config="{ language: 'json' }" />
+                      </div>
+                    </template>
+                    <template v-else-if="getResponseLanguage(item.value.dataType) === 'xml'">
+                      <div class="border-gray-300">
+                        <SJsonEditor :modelValue="item.value.text" read-only auto-height min-height="30px" :config="{ language: 'xml' }" />
+                      </div>
+                    </template>
+                    <template v-else-if="getResponseLanguage(item.value.dataType) === 'html'">
+                      <div class="border-gray-300">
+                        <SJsonEditor :modelValue="item.value.text" read-only auto-height min-height="30px" :config="{ language: 'html' }" />
+                      </div>
+                    </template>
+                    <template v-else-if="getResponseLanguage(item.value.dataType) === 'plaintext'">
+                      <div class="border-gray-300">
+                        <SJsonEditor :modelValue="item.value.text" read-only auto-height min-height="30px" :config="{ language: 'plaintext' }" />
+                      </div>
+                    </template>
+                    <template v-else>
+                      <pre class="pre api-doc-raw-body">{{ item.value.text }}</pre>
+                    </template>
+                  </el-tab-pane>
+                </el-tabs>
               </div>
-            </div>
-          </div>
-
-          <!-- 基本信息块 -->
-          <div class="api-doc-block api-doc-base-info">
-            <div class="api-doc-block-header" @click="toggleBlock('baseInfo')">
-              <div class="collapse-button" :class="{ 'collapsed': !expandedBlocks.baseInfo }">
-                <el-icon><ArrowDown /></el-icon>
-              </div>
-              <div class="api-doc-block-title">基本信息</div>
-            </div>
-            <div class="api-doc-block-content" v-show="expandedBlocks.baseInfo">
-              <div class="api-doc-base-info-list">
-                <div class="api-doc-base-info-item"><span>维护人员：</span><span>{{ apidocInfo.info.maintainer || apidocInfo.info.creator }}</span></div>
-                <div class="api-doc-base-info-item"><span>创建人员：</span><span>{{ apidocInfo.info.creator }}</span></div>
-                <div class="api-doc-base-info-item"><span>更新日期：</span><span>{{ formatDate(apidocInfo.updatedAt) }}</span></div>
-                <div class="api-doc-base-info-item"><span>创建日期：</span><span>{{ formatDate(apidocInfo.createdAt) }}</span></div>
-              </div>
+              <div v-else class="api-doc-empty">{{ $t('暂无响应数据') }}</div>
             </div>
           </div>
         </div>
@@ -178,50 +197,65 @@
 
 <script lang="ts" setup>
 import { ref, Ref, onMounted, computed, watch } from 'vue';
-import { ApidocDetail, Response } from '@src/types/global';
+import { ApidocDetail, Response, ApidocProperty } from '@src/types/global';
 import { request } from '@/api/api';
 import SLoading from '@/components/common/loading/g-loading.vue';
 import { ArrowDown } from '@element-plus/icons-vue';
-// import SParamsView from '@/components/apidoc/params-view/g-params-view.vue';
-// import SRawEditor from '@/components/apidoc/raw-editor/g-raw-editor.vue';
-// import SJsonEditor from '@/components/common/json-editor/g-json-editor.vue';
+import SJsonEditor from '@/components/common/json-editor/g-json-editor.vue';
 import { formatDate } from '@/helper';
 import { router } from '@/router';
 import { apidocCache } from '@/cache/apidoc';
 import { useApidocTas } from '@/store/apidoc/tabs';
 import { defaultRequestMethods } from '../common';
+import { useShareDocStore } from '@/store/apidoc/shareDoc';
+import { convertTemplateValueToRealValue } from '@/utils/utils';
+import { $t } from '@/i18n/i18n';
+import SParamsView from '@/components/apidoc/params-view/g-params-view.vue';
 
+/*
+|--------------------------------------------------------------------------
+| 变量定义
+|--------------------------------------------------------------------------
+*/
 const loading = ref(false);
 const apidocInfo: Ref<ApidocDetail | null> = ref(null);
-const shareId = computed(() => router.currentRoute.value.query.share_id as string);
+const expandedBlocks = ref({
+  query: true,
+  headers: true,
+  body: true,
+  response: true, 
+});
+const actualQueryParams = ref<ApidocProperty[]>([]);
+const actualHeaders = ref<ApidocProperty[]>([]);
+const activeResponseTab = ref('0'); // 当前选中的响应 tab
+
+// Store 实例
+const shareDocStore = useShareDocStore();
 const apidocTabsStore = useApidocTas();
+const requestMethods = ref(defaultRequestMethods);
+
+// Computed 属性
+const shareId = computed(() => router.currentRoute.value.query.share_id as string);
 const tabId = computed(() => {
   const tabs = apidocTabsStore.tabs[shareId.value];
   const selectedTab = tabs?.find((tab) => tab.selected);
   return selectedTab?._id || '';
 });
-const fullUrl = computed(() => {
-  if (!apidocInfo.value) return '';
+
+const realFullUrl = ref('');
+watch([
+  apidocInfo,
+  () => shareDocStore.objectVariable
+], async () => {
+  if (!apidocInfo.value) {
+    realFullUrl.value = '';
+    return;
+  }
   const { host, path } = apidocInfo.value.item.url || { host: '', path: '' };
-  return `${host}${path}`;
-});
-const requestMethods = ref(defaultRequestMethods);
+  const rawUrl = `${host}${path}`;
+  realFullUrl.value = await convertTemplateValueToRealValue(rawUrl, shareDocStore.objectVariable);
+}, { immediate: true });
 
-// 折叠状态管理
-const expandedBlocks = ref({
-  query: true,
-  headers: true,
-  body: true,
-  response: true,
-  baseInfo: true
-});
-
-// 切换折叠状态
-const toggleBlock = (blockName: keyof typeof expandedBlocks.value) => {
-  expandedBlocks.value[blockName] = !expandedBlocks.value[blockName];
-};
-
-// 过滤出有效的 queryParams 和 headers
 const filteredQueryParams = computed(() => {
   if (!apidocInfo.value) return [];
   return apidocInfo.value.item.queryParams.filter(p => p.select && p.key);
@@ -232,17 +266,35 @@ const filteredHeaders = computed(() => {
   return apidocInfo.value.item.headers.filter(p => p.select && p.key);
 });
 
-onMounted(() => {
-  fetchShareDoc();
+const hasQueryParams = computed(() => apidocInfo.value?.item.queryParams?.filter(p => p.select).some(data => data.key));
+const hasHeaders = computed(() => apidocInfo.value?.item.headers?.filter(p => p.select).some(data => data.key));
+
+// Body参数类型优先级
+const bodyType = computed(() => {
+  if (!apidocInfo.value) return '';
+  const { contentType, requestBody } = apidocInfo.value.item;
+  if (contentType === 'application/json' && requestBody.mode === 'json') return 'json';
+  if (contentType === 'multipart/form-data') return 'formdata';
+  if (contentType === 'application/x-www-form-urlencoded') return 'urlencoded';
+  if (requestBody.mode === 'raw' && requestBody.raw?.data) return 'raw';
+  if (contentType && contentType.startsWith('text/')) return 'text';
+  return '';
 });
 
-// 监听 tabId 变化，当用户切换 tab 时重新获取数据
-watch(tabId, (newTabId) => {
-  if (newTabId) {
-    fetchShareDoc();
-  }
-});
+// 响应内容类型辅助
+function getResponseLanguage(type: string) {
+  if (type.includes('json')) return 'json';
+  if (type.includes('xml')) return 'xml';
+  if (type.includes('html')) return 'html';
+  if (type.includes('plain')) return 'plaintext';
+  return '';
+}
 
+/*
+|--------------------------------------------------------------------------
+| 初始化数据获取逻辑
+|--------------------------------------------------------------------------
+*/
 const fetchShareDoc = async () => {
   if (!tabId.value) return;
   loading.value = true;
@@ -258,27 +310,110 @@ const fetchShareDoc = async () => {
   }
 };
 
-const hasQueryParams = computed(() => apidocInfo.value?.item.queryParams?.filter(p => p.select).some(data => data.key));
-const hasPathsParams = computed(() => apidocInfo.value?.item.paths?.some(data => data.key));
-const hasJsonBodyParams = computed(() => {
-  if (!apidocInfo.value) return false;
-  const { contentType } = apidocInfo.value.item;
-  const { mode } = apidocInfo.value.item.requestBody;
-  return contentType === 'application/json' && mode === 'json';
-});
-const hasFormDataParams = computed(() => apidocInfo.value?.item.contentType === 'multipart/form-data');
-const hasUrlEncodedParams = computed(() => apidocInfo.value?.item.contentType === 'application/x-www-form-urlencoded');
-const hasRawParams = computed(() => {
-  if (!apidocInfo.value) return false;
-  const { mode, raw } = apidocInfo.value.item.requestBody;
-  return mode === 'raw' && raw.data;
-});
-const hasHeaders = computed(() => apidocInfo.value?.item.headers?.filter(p => p.select).some(data => data.key));
+// 初始化折叠状态
+const initCollapseState = () => {
+  if (!shareId.value) return;
+  const savedState = apidocCache.getShareCollapseState(shareId.value);
+  if (savedState) {
+    expandedBlocks.value = { ...expandedBlocks.value, ...savedState };
+  }
+};
 
+/*
+|--------------------------------------------------------------------------
+| 逻辑处理函数
+|--------------------------------------------------------------------------
+*/
+// 切换折叠状态
+const toggleBlock = (blockName: keyof typeof expandedBlocks.value) => {
+  expandedBlocks.value[blockName] = !expandedBlocks.value[blockName];
+  // 更新缓存
+  if (shareId.value) {
+    apidocCache.updateShareBlockCollapseState(
+      shareId.value, 
+      blockName, 
+      expandedBlocks.value[blockName]
+    );
+  }
+};
+
+// 获取方法颜色
 const getMethodColor = (method: string) => {
   const methodInfo = requestMethods.value.find(m => m.value.toLowerCase() === method.toLowerCase());
   return methodInfo?.iconColor || '#17a2b8'; // 默认颜色
 };
+
+// 简化数据类型显示
+const simplifyDataType = (dataType: string) => {
+  if (!dataType) return '';
+  if (dataType.includes('json')) return 'JSON';
+  if (dataType.includes('xml')) return 'XML';
+  if (dataType.includes('html')) return 'HTML';
+  if (dataType.includes('text/plain')) return 'TEXT';
+  if (dataType.includes('form-data')) return 'FORM';
+  if (dataType.includes('octet-stream')) return 'BINARY';
+  return dataType.split('/').pop()?.toUpperCase() || '';
+};
+
+/*
+|--------------------------------------------------------------------------
+| 监听器
+|--------------------------------------------------------------------------
+*/
+// 监听查询参数变化，更新变量替换
+watch([filteredQueryParams, () => shareDocStore.objectVariable], async () => {
+  const params = filteredQueryParams.value;
+  const objectVariable = shareDocStore.objectVariable;
+  
+  const result = [];
+  for (const param of params) {
+    result.push({
+      ...param,
+      key: await convertTemplateValueToRealValue(param.key, objectVariable),
+      value: await convertTemplateValueToRealValue(param.value, objectVariable)
+    });
+  }
+  actualQueryParams.value = result;
+}, { immediate: true });
+
+// 监听请求头变化，更新变量替换
+watch([filteredHeaders, () => shareDocStore.objectVariable], async () => {
+  const headers = filteredHeaders.value;
+  const objectVariable = shareDocStore.objectVariable;
+  
+  const result = [];
+  for (const header of headers) {
+    result.push({
+      ...header,
+      key: await convertTemplateValueToRealValue(header.key, objectVariable),
+      value: await convertTemplateValueToRealValue(header.value, objectVariable)
+    });
+  }
+  actualHeaders.value = result;
+}, { immediate: true });
+
+// 监听 tabId 变化，当用户切换 tab 时重新获取数据
+watch(tabId, (newTabId) => {
+  if (newTabId) {
+    fetchShareDoc();
+  }
+}, { immediate: true });
+
+// 当文档信息变更时，重置响应选项卡到第一个
+watch(() => apidocInfo.value, (newApidocInfo) => {
+  if (newApidocInfo && newApidocInfo.item.responseParams?.length > 0) {
+    activeResponseTab.value = '0';
+  }
+});
+
+/*
+|--------------------------------------------------------------------------
+| 生命周期函数
+|--------------------------------------------------------------------------
+*/
+onMounted(() => {
+  initCollapseState();
+});
 </script>
 
 <style lang='scss' scoped>
@@ -288,8 +423,7 @@ const getMethodColor = (method: string) => {
   
   .doc-detail {
     height: 100%;
-    padding: size(20);
-    background: $white;
+    background: var(--white);
     width: 100%;
     margin: 0 auto;
     overflow-y: auto;
@@ -298,99 +432,107 @@ const getMethodColor = (method: string) => {
 
 // API文档头部样式
 .api-doc-header {
-  margin-bottom: 6px;
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background-color: var(--white);
+  width: 100%;
+  border-bottom: 1px solid var(--gray-200);
+  padding: size(15) size(20) size(12);
   
   .api-doc-title {
     font-size: fz(24);
     font-weight: bold;
-    margin-bottom: 0.5rem;
+    margin-bottom: size(8);
   }
   
   .api-doc-meta {
     display: flex;
     align-items: center;
-    gap: 1rem;
+    gap: size(16);
     
     .method-label {
-      padding: 0.2em 0.8em;
-      border-radius: 4px;
-      color: #fff;
+      padding: size(3) size(12);
+      border-radius: var(--border-radius-sm);
+      color: var(--white);
       font-weight: bold;
     }
     
     .api-url {
-      font-family: 'Fira Mono', 'Consolas', monospace;
-      background: #f6f8fa;
-      padding: 0.2em 0.5em;
-      border-radius: 3px;
-      font-size: 1rem;
-      color: #333;
-      max-width: 420px;
+      font-family: SFMono-Regular, Menlo, Monaco, Consolas, Liberation Mono, Courier New, monospace;
+      background: var(--gray-100);
+      padding: size(3) size(8);
+      border-radius: var(--border-radius-sm);
+      font-size: fz(16);
+      color: var(--gray-800);
+      max-width: size(420);
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: normal;
       word-break: break-all;
       line-height: 1.4;
     }
-    
-    .content-type-label {
-      background: #e6e6fa;
-      color: #7c4dff;
-      border-radius: 3px;
-      padding: 0.2em 0.6em;
-      font-size: 0.95em;
-    }
   }
 }
 
 // API文档块容器
 .api-doc-blocks {
+  padding: size(0) size(20) size(10);
   display: flex;
   flex-direction: column;
 }
 
 // 单个API文档块样式
 .api-doc-block {
-  margin-bottom: 12px;
+  margin-bottom: size(12);
   
   .api-doc-block-header {
     display: inline-flex;
     align-items: center;
-    padding: 12px 0;
+    padding: size(6) 0;
     cursor: pointer;
     &:hover {
       .api-doc-block-title {
-        color: #409eff;
+        color: var(--primary);
       }
       .collapse-button {
-        color: #409eff;
+        color: var(--primary);
       }
+    }
+    
+    .content-format-label {
+      font-size: fz(13);
+      background: #e5d6f6;
+      color: var(--purple);
+      border-radius: var(--border-radius-sm);
+      padding: size(2) size(8);
+      margin-left: size(8);
+      font-weight: normal;
     }
     
     .collapse-button {
       display: flex;
       align-items: center;
       justify-content: center;
-      width: 16px;
-      height: 16px;
-      margin-right: 2px;
-      margin-top: 2px;
+      width: size(16);
+      height: size(16);
+      margin-right: size(2);
+      margin-top: size(2);
       transition: all 0.2s ease;
-      color: #606266;
+      color: var(--gray-600);
       
       &.collapsed {
         transform: rotate(-90deg);
       }
       
       .el-icon {
-        font-size: 14px;
+        font-size: fz(14);
       }
     }
     
     .api-doc-block-title {
-      font-size: 1.1rem;
-      font-weight: 600;
-      color: #303133;
+      font-size: fz(16);
+      color: var(--gray-900);
       margin: 0;
       flex: 1;
       transition: color 0.2s ease;
@@ -398,20 +540,20 @@ const getMethodColor = (method: string) => {
   }
   
   .api-doc-block-content {
-    padding-left: 28px;
-    margin-left: 10px;
+    padding-left: size(28);
+    margin-left: size(10);
+    margin-top: size(12);
   }
   
   .api-doc-subtitle {
-    font-size: 0.95rem;
-    color: #606266;
-    margin-bottom: 12px;
+    font-size: fz(15);
+    color: var(--gray-600);
+    margin-bottom: size(12);
     font-weight: 500;
   }
   
   .api-doc-empty {
-    color: #909399;
-    // padding: 16px 0;
+    color: var(--gray-500);
   }
 }
 
@@ -422,28 +564,28 @@ const getMethodColor = (method: string) => {
   table {
     width: 100%;
     border-collapse: collapse;
-    font-size: 0.9rem;
-    border: 1px solid #d1d5da;
+    font-size: fz(14);
+    border: 1px solid var(--gray-300);
     
     th, td {
-      padding: 8px 12px;
+      padding: size(8) size(12);
       text-align: left;
-      border: 1px solid #d1d5da;
+      border: 1px solid var(--gray-300);
     }
     
     th {
-      background-color: #f6f8fa;
-      color: #24292e;
-      font-size: 0.90rem;
+      background-color: var(--gray-100);
+      color: var(--gray-900);
+      font-size: fz(14);
       text-transform: uppercase;
       letter-spacing: 0.5px;
       font-weight: 600;
     }
     
     td {
-      color: #586069;
+      color: var(--gray-700);
       vertical-align: middle;
-      max-width: 200px;
+      max-width: size(200);
       word-wrap: break-word;
       overflow: hidden;
       max-height: 7em;
@@ -451,12 +593,12 @@ const getMethodColor = (method: string) => {
       
       &:first-child {
         font-weight: 500;
-        color: #24292e;
+        color: var(--gray-900);
       }
     }
     
     tr:hover {
-      background-color: #f6f8fa;
+      background-color: var(--gray-100);
     }
   }
 }
@@ -464,89 +606,90 @@ const getMethodColor = (method: string) => {
 // 必填/可选标签样式
 .required-badge {
   display: inline-block;
-  padding: 2px 6px;
-  border-radius: 3px;
-  font-size: 0.75rem;
+  padding: size(2) size(6);
+  border-radius: var(--border-radius-sm);
+  font-size: fz(12);
   font-weight: 500;
   
   &.required {
-    background-color: #d73a49;
-    color: white;
+    background-color: var(--danger);
+    color: var(--white);
   }
   
   &.optional {
-    background-color: #28a745;
-    color: white;
+    background-color: var(--success);
+    color: var(--white);
   }
 }
 
 // 响应块样式
 .api-doc-response-block {
-  margin-bottom: 1.5em;
+  margin-bottom: size(24);
   
   .api-doc-response-meta {
     display: flex;
     align-items: center;
-    gap: 1em;
-    margin-bottom: 0.5em;
+    gap: size(16);
+    margin-bottom: size(8);
     
     .api-doc-response-title {
       font-weight: bold;
-      color: #333;
+      color: var(--gray-900);
     }
     
     .status-code.success {
-      color: #28a745;
+      color: var(--success);
       font-weight: bold;
     }
     
     .type-label {
-      background: #f0f1f3;
-      color: #555;
-      border-radius: 3px;
-      padding: 0 0.5em;
-      font-size: 0.95em;
+      background: var(--gray-200);
+      color: var(--gray-700);
+      border-radius: var(--border-radius-sm);
+      padding: 0 size(8);
+      font-size: fz(15);
     }
-  }
-  
-  .api-doc-response-example {
-    background: #23272e;
-    color: #fff;
-    border-radius: 6px;
-    padding: 1em;
-    overflow-x: auto;
-    font-family: 'Fira Mono', 'Consolas', monospace;
-    margin-top: 0.5em;
   }
 }
 
 // 原始数据样式
 .api-doc-raw-body {
-  background: #23272e;
-  color: #fff;
-  border-radius: 6px;
-  padding: 1em;
+  background: var(--gray-900);
+  color: var(--white);
+  border-radius: var(--border-radius-lg);
+  padding: size(16);
   overflow-x: auto;
-  font-family: 'Fira Mono', 'Consolas', monospace;
-  margin-top: 0.5em;
+  font-family: SFMono-Regular, Menlo, Monaco, Consolas, Liberation Mono, Courier New, monospace;
+  margin-top: size(8);
 }
 
-// 基本信息块样式
-.api-doc-base-info {
-  .api-doc-base-info-list {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 1.5em 2em;
+.api-doc-base-info-inline {
+ color: var(--gray-600);
+ margin-top: size(5);
+}
+
+
+// 响应 tabs 样式
+.response-tabs {
+  width: 100%;
+  
+  :deep(.el-tabs__header) {
+    margin-bottom: size(16);
+  }
+  
+  :deep(.el-tabs__item) {
+    font-size: fz(14);
+    padding: size(8) size(16);
+    height: auto;
+    line-height: 1.5;
     
-    .api-doc-base-info-item {
-      min-width: 180px;
-      color: #666;
-      font-size: 1em;
-      
-      span:first-child {
-        color: #888;
-      }
+    &.is-active {
+      font-weight: bold;
     }
+  }
+  
+  .api-doc-response-meta {
+    margin-bottom: size(12);
   }
 }
 </style> 
