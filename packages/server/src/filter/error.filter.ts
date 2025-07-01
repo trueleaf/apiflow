@@ -40,7 +40,7 @@ export class AllServerErrorFilter {
       code: 5000,
       msg: process.env.NODE_ENV === 'production'
         ? '内部错误'
-        : `内部错误：${err.message}\n${err.stack}`,
+        : `内部错误：${err.message}`,
     };
   }
 }

@@ -265,6 +265,11 @@ export class ProjectShareService {
       throwError(1023, '密码错误');
     }
     
-    return;
+    // 密码校验通过，返回变量信息
+    const variables = await this.projectVariableModel.find(
+      { projectId: projectShare.projectId, isEnabled: true },
+      { name: 1, type: 1, value: 1, fileValue: 1 }
+    );
+    return variables;
   }
 }
