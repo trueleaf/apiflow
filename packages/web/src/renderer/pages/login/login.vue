@@ -114,8 +114,8 @@ const eventListeners = computed(() => {
   background: var(--gray-200);
 
   .login-box {
-    height: size(550);
-    width: size(960);
+    height: 550px;
+    width: 960px;
     background: var(--white);
     box-shadow: var(--box-shadow-base);
     border-radius: var(--border-radius-base);
@@ -131,12 +131,12 @@ const eventListeners = computed(() => {
         justify-content: space-around;
 
         .iconfont {
-          font-size: fz(30);
+          font-size: 30px;
         }
 
         .svg-icon {
-          width: size(32);
-          height: size(32);
+          width: 32px;
+          height: 32px;
         }
 
         a {
@@ -145,18 +145,18 @@ const eventListeners = computed(() => {
       }
 
       .featrue {
-        margin-top: size(25);
+        margin-top: 25px;
         margin-left: 10%;
 
         &>li {
-          margin-bottom: size(10);
-          font-size: fz(15);
+          margin-bottom: 10px;
+          font-size: 15px;
         }
       }
 
       .el-carousel__item,
       .item-wrap {
-        height: size(340);
+        height: 340px;
       }
     }
 
@@ -164,20 +164,20 @@ const eventListeners = computed(() => {
       flex: 1;
       display: flex;
       flex-direction: column;
-      padding: 0 size(40);
+      padding: 0 40px;
       position: relative;
       height: 100%;
 
       &>h2 {
-        margin-top: size(20);
+        margin-top: 20px;
       }
 
       .captcha {
         display: flex;
 
         &>img {
-          width: size(200);
-          height: size(40);
+          width: 200px;
+          height: 40px;
         }
       }
     }

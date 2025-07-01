@@ -425,7 +425,7 @@ onMounted(() => {
 
 <style lang='scss' scoped>
 .tab-b {
-  height: calc(100vh - #{size(150)});
+  height: calc(100vh - 150px);
 }
 
 .empty-state-card {
@@ -435,7 +435,7 @@ onMounted(() => {
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  height: calc(100vh - #{size(175)});
+  height: calc(100vh - 175px);
 
   .illustration-wrapper {
     margin-bottom: 1.5rem;
@@ -458,16 +458,16 @@ onMounted(() => {
 
 
 .side-menu-container {
-  width: size(250);
-  height: calc(100vh - #{size(150)});
+  width: 250px;
+  height: calc(100vh - 150px);
   border: 1px solid var(--gray-300);
-  padding: size(10) size(0);
+  padding: 10px 0;
   .el-menu-item {
     .del-icon {
       position: absolute;
-      right: size(0);
-      top: size(10);
-      font-size: fz(14);
+      right: 0px;
+      top: 10px;
+      font-size: 14px;
       cursor: pointer;
       color: var(--gray-600);
       display: none;
@@ -477,16 +477,16 @@ onMounted(() => {
     }
   }
   .group-title {
-    padding: 0 size(15);
-    margin-top: size(10);
+    padding: 0 15px;
+    margin-top: 10px;
     display: flex;
     align-items: center;
-    height: size(40);
+    height: 40px;
     .create-icon {
       margin-left: auto;
       cursor: pointer;
-      width: size(20);
-      height: size(20);
+      width: 20px;
+      height: 20px;
       border-radius: 50%;
       &:hover {
         background-color: var(--gray-200);
@@ -494,8 +494,8 @@ onMounted(() => {
     }
   }
   .el-menu-item {
-    height: size(35);
-    line-height: size(35);
+    height: 35px;
+    line-height: 35px;
     &:hover {
       background-color: var(--gray-200);
     }
@@ -507,29 +507,29 @@ onMounted(() => {
 }
 .group-content {
   flex: 1;
-  height: calc(100vh - #{size(150)});
+  height: calc(100vh - 150px);
   overflow-y: auto;
   border-top: 1px solid var(--gray-300);
   border-right: 1px solid var(--gray-300);
   border-bottom: 1px solid var(--gray-300);
-  padding: size(10) size(20);
+  padding: 10px 20px;
   .user-item {
     display: flex;
     align-items: center;
-    padding: size(5) size(20);
-    width: size(150);
-    margin-right: size(5);
+    padding: 5px 20px;
+    width: 150px;
+    margin-right: 5px;
     border-radius: var(--border-radius-base);
     transition: all 0.3s;
     .user-info {
-      margin-left: size(10);
+      margin-left: 10px;
       .permission {
         &:hover {
           color: var(--gray-600);
         }
         color: var(--gray-500);
         line-height: normal;
-        height: size(25);
+        height: 25px;
         display: flex;
         align-items: center;
         cursor: pointer;
@@ -539,14 +539,14 @@ onMounted(() => {
   .add-item {
     display: flex;
     align-items: center;
-    margin-left: size(20);
-    width: size(35);
-    height: size(35);
+    margin-left: 20px;
+    width: 35px;
+    height: 35px;
     display: flex;
     align-items: center;
     justify-content: center;
     color: var(--gray-400);
-    margin-right: size(15);
+    margin-right: 15px;
     border-radius: 50%;
     border: 1px dashed var(--gray-500);
     cursor: pointer;
@@ -556,12 +556,12 @@ onMounted(() => {
   }
 }
 .permission-list {
-  padding: size(5) size(0);
+  padding: 5px 0;
   .permission-item {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: size(6) size(10);
+    padding: 6px 10px;
     cursor: pointer;
     &.active {
       color: var(--theme-color);
@@ -572,7 +572,7 @@ onMounted(() => {
   }
 }
 .user-list {
-  min-height: size(35);
-  max-height: size(200);
+  min-height: 35px;
+  max-height: 200px;
 }
 </style>

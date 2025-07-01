@@ -199,20 +199,19 @@ onUnmounted(() => {
 
 <style lang='scss'>
 .valid-input {
-  height: size(45);
+  height: 45px;
   width: 100%;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   position: relative;
-  font-size: fz(12);
+  font-size: 12px;
   .ipt-wrap {
     width: 100%;
-    // position: relative;
-    height: size(29);
+    height: 29px;
     .el-textarea__inner {
-      font-size: fz(12);
+      font-size: 12px;
     }
     .ipt-inner {
       width: 100%;
@@ -220,9 +219,9 @@ onUnmounted(() => {
       display: flex;
       align-items: center;
       border: 1px solid var(--gray-400);
-      border-radius: size(4);
-      padding: 0 size(10);
-      font-size: fz(12);
+      border-radius: 4px;
+      padding: 0 10px;
+      font-size: 12px;
       color: var(--el-input-text-color, var(--el-text-color-regular));
 
       &.disabled {
@@ -249,16 +248,13 @@ onUnmounted(() => {
       .el-textarea__inner {
         text-indent: -1px;
         width: 100%;
-        font-size: fz(12);
+        font-size: 12px;
         color: var(--el-input-text-color, var(--el-text-color-regular));
-        // box-shadow: none;
-        // border: none;
-        // border-bottom: 1px solid $gray-400;
         border-radius: 0;
 
         &::-webkit-scrollbar {
-          width: size(3);
-          height: size(3);
+          width: 3px;
+          height: 3px;
         }
 
         &::-webkit-scrollbar-thumb {
@@ -273,27 +269,26 @@ onUnmounted(() => {
   }
 
   .ipt-error {
-    font-size: fz(12);
+    font-size: 12px;
     color: var(--red);
     line-height: 1.2;
     text-align: left;
   }
 
   .mind-wrap {
-    top: size(42);
+    top: 42px;
     left: 0;
     background: var(--white);
     z-index: var(--zIndex-contextmenu);
     position: fixed;
-    min-width: size(200);
+    min-width: 200px;
     border: 1px solid var(--gray-200);
-    // box-shadow: 0 0 5px rgb(0 0 0 / 10%);
     box-shadow: rgb(0 0 0 / 10%) 0px 2px 8px 0px; //墨刀弹窗样式
-    max-height: size(220);
+    max-height: 220px;
     overflow-y: auto;
 
     &::-webkit-scrollbar {
-      width: size(5);
+      width: 5px;
     }
 
     &::-webkit-scrollbar-thumb {
@@ -303,7 +298,7 @@ onUnmounted(() => {
     // padding: size(10) 0;
     .select-item {
       line-height: 1.8em;
-      padding: size(5) size(25);
+      padding: 5px 25px;
       cursor: pointer;
       display: flex;
 
@@ -318,7 +313,7 @@ onUnmounted(() => {
       }
 
       .head {
-        margin-right: size(10);
+        margin-right: 10px;
       }
 
       .tail {

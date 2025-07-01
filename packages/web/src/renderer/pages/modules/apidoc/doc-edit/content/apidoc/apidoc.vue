@@ -123,7 +123,7 @@ watch(currentSelectTab, (val, oldVal) => {
 <style lang='scss' scoped>
 .apidoc {
   overflow-y: auto;
-  height: calc(100vh - #{size(100)});
+  height: calc(100vh - 100px);
   display: flex;
 
   &.vertical {
@@ -131,7 +131,7 @@ watch(currentSelectTab, (val, oldVal) => {
     overflow: hidden;
 
     .el-divider--horizontal {
-      border-top: 1px dashed $gray-500;
+      border-top: 1px dashed var(--gray-500);
     }
   }
 
@@ -139,14 +139,14 @@ watch(currentSelectTab, (val, oldVal) => {
   .request-layout {
     flex: 1;
     overflow: hidden;
-    border-right: 1px solid $gray-400;
+    border-right: 1px solid var(--gray-400);
 
     &.vertical {
       flex: 1;
-      // border-bottom: 1px solid $gray-500;
+      // border-bottom: 1px solid var(--gray-500);
       overflow-y: auto;
       // margin-top: -2px;
-      // box-shadow: 0 3px 1px $gray-400;
+      // box-shadow: 0 3px 1px var(--gray-400);
     }
   }
 
@@ -154,14 +154,14 @@ watch(currentSelectTab, (val, oldVal) => {
   .response-layout {
     flex-grow: 0;
     flex-shrink: 0;
-    width: size(300);
-    // flex: 0 0 size(500);
+    width: 300px;
+    // flex: 0 0 500px;
   }
 
   .el-divider--horizontal {
     margin: 0;
-    z-index: $zIndex-drag-bar;
-    font-size: fz(14);
+    z-index: var(--zIndex-drag-bar);
+    font-size: 14px;
   }
 }
 </style>

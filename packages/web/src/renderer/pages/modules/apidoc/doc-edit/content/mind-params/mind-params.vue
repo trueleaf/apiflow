@@ -186,25 +186,25 @@ const handleDeleteManyParams = () => {
 
 <style lang='scss' scoped>
 .s-mind-params {
-    padding: size(20);
+    padding: 20px;
     .value-wrap {
-        max-height: size(140);
+        max-height: 140px;
         overflow-y: auto;
     }
     .left {
-        padding-left: size(20);
+        padding-left: 20px;
         flex: 0 0 40%;
         border-right: 1px solid var(--gray-600);
     }
     .right {
         flex: 0 0 50%;
-        padding-left: size(30);
+        padding-left: 30px;
     }
     .op-item {
         display: flex;
         align-items: center;
         .label {
-            flex: 0 0 size(80);
+            flex: 0 0 80px;
         }
     }
 }

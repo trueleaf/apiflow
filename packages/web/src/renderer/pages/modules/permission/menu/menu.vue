@@ -224,12 +224,12 @@ onUnmounted(() => {
   min-height: 70vh;
 
   .el-tree-node__content {
-    height: size(30);
+    height: 30px;
   }
 
   .tree-node {
     width: 100%;
-    height: size(30);
+    height: 30px;
     display: flex;
     align-items: center;
     overflow: hidden;
@@ -243,7 +243,7 @@ onUnmounted(() => {
 }
 
 .contextmenu {
-  min-width: size(240);
+  min-width: 240px;
   @include contextmenu;
 }
 </style>

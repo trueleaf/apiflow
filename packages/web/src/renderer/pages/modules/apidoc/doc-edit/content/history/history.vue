@@ -372,8 +372,8 @@ onMounted(() => {
 
 <style lang='scss' scoped>
 .history {
-  padding: 0 size(20) size(10);
-  height: calc(100vh - #{size(100)});
+  padding: 0 20px 10px;
+  height: calc(100vh - 100px);
   width: 100%;
   overflow-y: auto;
   display: flex;
@@ -385,11 +385,11 @@ onMounted(() => {
 
     .el-checkbox,
     .el-radio {
-      margin-right: size(15);
+      margin-right: 15px;
     }
 
     .op-item {
-      min-height: size(50);
+      min-height: 50px;
       display: flex;
       align-items: center;
 
@@ -398,8 +398,8 @@ onMounted(() => {
       }
 
       .el-button--text {
-        padding-top: size(5);
-        padding-bottom: size(5);
+        padding-top: 5px;
+        padding-bottom: 5px;
       }
     }
   }
@@ -412,12 +412,12 @@ onMounted(() => {
     .item {
       display: flex;
       align-items: center;
-      height: size(40);
+      height: 40px;
       overflow: hidden;
 
       .head {
         flex: 0 0 auto;
-        width: size(80);
+        width: 80px;
       }
 
       .operator {
@@ -441,12 +441,12 @@ onMounted(() => {
           flex: 0 0 auto;
           display: inline-flex;
           align-items: center;
-          height: size(25);
-          padding: size(2) size(10);
+          height: 25px;
+          padding: 2px 10px;
           border: 1px solid var(--gray-300);
 
           &:not(:last-child) {
-            margin-right: size(10);
+            margin-right: 10px;
           }
         }
       }

@@ -1,4 +1,3 @@
-
 <template>
   <div ref="afterEditor" class="s-monaco-editor"></div>
   <el-button type="primary" text class="format-btn" @click="handleFormat">格式化</el-button>
@@ -103,7 +102,7 @@ const handleFormat = () => {
 .s-monaco-editor {
     width: 100%;
     height: 100%;
-    border: 1px solid $gray-300;
+    border: 1px solid var(--gray-300);
 }
 .format-btn {
     position: absolute;

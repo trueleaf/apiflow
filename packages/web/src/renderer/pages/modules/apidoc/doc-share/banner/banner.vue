@@ -187,8 +187,8 @@ onMounted(() => {
   // 添加tool区域样式
   .tool {
     position: relative;
-    padding: 0 size(20);
-    height: size(120);
+    padding: 0 20px;
+    height: 120px;
     background: var(--gray-200);
     flex: 0 0 auto;
     // 搜索框样式
@@ -201,7 +201,7 @@ onMounted(() => {
 
   //树形组件包裹框
   .tree-wrap {
-    height: calc(100vh - #{size(135)});
+    height: calc(100vh - 135px);
     overflow-y: auto;
   }
 
@@ -211,19 +211,19 @@ onMounted(() => {
     align-items: center;
     width: 100%;
     overflow: hidden;
-    min-height: size(30);
+    min-height: 30px;
 
     .file-icon {
-      font-size: fz(14);
-      margin-right: size(5);
+      font-size: 14px;
+      margin-right: 5px;
     }
 
     .folder-icon {
       color: var(--yellow);
       flex: 0 0 auto;
-      width: size(16);
-      height: size(16);
-      margin-right: size(5);
+      width: 16px;
+      height: 16px;
+      margin-right: 5px;
     }
 
     .node-label-wrap {
@@ -281,7 +281,7 @@ onMounted(() => {
       align-items: flex-start;
 
       &>.el-tree-node__expand-icon {
-        padding-top: size(4);
+        padding-top: 4px;
       }
     }
 
@@ -290,7 +290,7 @@ onMounted(() => {
     }
 
     .file-icon {
-      margin-top: size(2);
+      margin-top: 2px;
     }
   }
 

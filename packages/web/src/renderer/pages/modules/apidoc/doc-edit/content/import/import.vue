@@ -443,9 +443,9 @@ const handleSubmit = () => {
 <style lang='scss'>
 .doc-import {
   overflow-y: auto;
-  height: calc(100vh - #{size(120)});
+  height: calc(100vh - 120px);
   width: 70%;
-  min-width: size(768);
+  min-width: 768px;
   margin: 0 auto;
 
   .el-upload {
@@ -464,7 +464,7 @@ const handleSubmit = () => {
     align-items: center;
     width: 100%;
     overflow: hidden;
-    height: size(30);
+    height: 30px;
 
     &:hover {
       .more {
@@ -473,21 +473,21 @@ const handleSubmit = () => {
     }
 
     &>img {
-      width: size(16);
-      height: size(16);
+      width: 16px;
+      height: 16px;
     }
 
     .file-icon {
-      font-size: fz(14);
-      margin-right: size(5);
+      font-size: 14px;
+      margin-right: 5px;
     }
 
     .folder-icon {
       color: var(--yellow);
       flex: 0 0 auto;
-      width: size(16);
-      height: size(16);
-      margin-right: size(5);
+      width: 16px;
+      height: 16px;
+      margin-right: 5px;
     }
 
     .node-label-wrap {
@@ -514,7 +514,7 @@ const handleSubmit = () => {
   }
 
   .el-tree-node__content {
-    height: size(30);
+    height: 30px;
     display: flex;
     align-items: center;
   }

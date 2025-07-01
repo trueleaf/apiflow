@@ -283,7 +283,7 @@ const fileInfo = ref({
 const uploadInstance = ref<UploadInstance>()
 //选择文件
 const handleSelectFile = async (file: UploadFile) => {
-  apidocStroe.changeCustomFile((file.raw as File).path)
+  apidocStroe.changeCustomFile((file.raw as File).name)
   fileInfo.value.name = file.name;
   fileInfo.value.size = file.size || 0;
 }
@@ -350,54 +350,54 @@ onBeforeUnmount(() => {
 <style lang='scss' scoped>
 .mock-response {
   .editor-wrap {
-    height: calc(100vh - #{size(610)});
-    min-height: size(200);
-    border: 1px solid $gray-500;
+    height: calc(100vh - 610px);
+    min-height: 200px;
+    border: 1px solid var(--gray-500);
     display: flex;
     position: relative;
 
     .mock-json-editor {
       height: 100%;
-      border-right: 1px solid $gray-500;
+      border-right: 1px solid var(--gray-500);
     }
 
     .tip {
       width: 100%;
-      bottom: size(0);
-      height: size(25);
+      bottom: 0;
+      height: 25px;
       display: flex;
       align-items: center;
-      background-color: $orange;
-      color: $white;
+      background-color: var(--orange);
+      color: var(--white);
       position: absolute;
       text-indent: 1em;
     }
 
     .mock {
       position: absolute;
-      top: size(0);
-      right: size(70);
+      top: 0;
+      right: 70px;
       z-index: 1;
-      background-color: $white;
-      color: $theme-color;
+      background-color: var(--white);
+      color: var(--theme-color);
       cursor: pointer;
     }
 
     .format-btn {
       position: absolute;
-      right: size(10);
-      top: size(0);
+      right: 10px;
+      top: 0;
     }
   }
 
   .raw-editor-wrap {
-    height: calc(100vh - #{size(610)});
-    min-height: size(200);
+    height: calc(100vh - 610px);
+    min-height: 200px;
   }
 
   .img-wrap {
     // height: calc(100vh - #{size(620)});
-    min-height: size(200);
+    min-height: 200px;
   }
 
   .image-demo {
@@ -414,10 +414,10 @@ onBeforeUnmount(() => {
     display: flex;
 
     .item {
-      width: size(70);
-      height: size(70);
-      padding: size(10);
-      margin-right: size(20);
+      width: 70px;
+      height: 70px;
+      padding: 10px;
+      margin-right: 20px;
       cursor: pointer;
       display: flex;
       align-items: center;
@@ -426,22 +426,22 @@ onBeforeUnmount(() => {
       border: 1px solid transparent;
 
       &.active {
-        border: 1px solid $gray-400;
-        box-shadow: $box-shadow-sm;
+        border: 1px solid var(--gray-400);
+        box-shadow: var(--box-shadow-sm);
       }
 
       &:hover {
-        border: 1px solid $gray-400;
+        border: 1px solid var(--gray-400);
       }
 
       .svg-icon {
-        width: size(40);
-        height: size(40);
+        width: 40px;
+        height: 40px;
       }
 
       .img {
-        width: size(28);
-        height: size(28);
+        width: 28px;
+        height: 28px;
       }
     }
   }

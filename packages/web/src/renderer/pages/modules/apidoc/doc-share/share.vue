@@ -252,19 +252,19 @@ onUnmounted(() => {
   background: rgba(var(--white), 0.7);
   border-radius: var(--border-radius-lg);
   box-shadow: var(--box-shadow-bg);
-  padding: size(48) size(56) size(40) size(56);
+  padding: 48px 56px 40px 56px;
 }
 
 .loading-circle {
-  width: size(72);
-  height: size(72);
+  width: 72px;
+  height: 72px;
   border-radius: 50%;
   background: linear-gradient(135deg, #e0e7ff 0%, #f3f8ff 100%);
   display: flex;
   align-items: center;
   justify-content: center;
   box-shadow: var(--box-shadow-base);
-  margin-bottom: size(24);
+  margin-bottom: 24px;
 }
 
 .loading-icon {
@@ -273,20 +273,20 @@ onUnmounted(() => {
 }
 
 .loading-text {
-  font-size: size(20);
+  font-size: 20px;
   font-weight: var(--font-weight-bold);
   color: var(--gray-800);
-  margin: size(16) 0 size(12) 0;
+  margin: 16px 0 12px 0;
   letter-spacing: 1px;
 }
 
 .loading-dots {
   display: flex;
-  gap: size(6);
-  margin-bottom: size(18);
+  gap: 6px;
+  margin-bottom: 18px;
   span {
-    width: size(8);
-    height: size(8);
+    width: 8px;
+    height: 8px;
     background: var(--primary);
     border-radius: 50%;
     display: inline-block;
@@ -303,12 +303,12 @@ onUnmounted(() => {
 }
 
 .loading-progress {
-  width: size(120);
-  height: size(4);
+  width: 120px;
+  height: 4px;
   background: #e0e7ff;
   border-radius: var(--border-radius-xs);
   overflow: hidden;
-  margin-top: size(8);
+  margin-top: 8px;
 }
 .loading-progress-bar {
   width: 40%;
@@ -336,18 +336,18 @@ onUnmounted(() => {
     background: var(--white);
     color: var(--gray-800);
     box-shadow: var(--box-shadow-base);
-    padding: size(40) 0;
+    padding: 40px 0;
     border-radius: var(--border-radius-bg);
-    min-width: size(400);
+    min-width: 400px;
 
     .error-content-inner {
       text-align: center;
     }
 
     .error-logo {
-      width: size(120);
-      height: size(120);
-      margin-bottom: size(20);
+      width: 120px;
+      height: 120px;
+      margin-bottom: 20px;
     }
 
     .password-form-item {
@@ -355,11 +355,12 @@ onUnmounted(() => {
     }
 
     .password-input {
-      width: size(180);
+      width: 180px;
     }
 
     h3 {
-      margin: size(20) 0 size(10) 0;
+      margin: 20px 0 10px 0;
+      margin: 20px 0 10px 0;
       color: var(--gray-800);
     }
 

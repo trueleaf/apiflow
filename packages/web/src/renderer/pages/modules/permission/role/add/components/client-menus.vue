@@ -62,8 +62,8 @@ onMounted(() => {
   }
 
   .tree {
-    min-height: size(200);
-    flex: 0 0 size(400);
+    min-height: 200px;
+    flex: 0 0 400px;
     display: flex;
     flex-direction: column;
 

@@ -100,10 +100,11 @@ const requestState = computed(() => apidocResponseStore.requestState); //请求�
 
 <style lang='scss' scoped>
 .loading-wrap {
-  height: calc(100vh - #{size(300)});
+  height: calc(100vh - 300px);
 }
 .remote-response-wrap {
-  height: calc(100vh - #{size(300)});
+  height: calc(100vh - 300px);
+  overflow-y: auto;
   .el-tabs__content {
     height: calc(100% - 55px);
 
@@ -114,7 +115,7 @@ const requestState = computed(() => apidocResponseStore.requestState); //请求�
 
   &.vertical {
     height: 100%;
-    margin-top: size(15);
+    margin-top: 15px;
 
     .el-tabs__content {
       height: calc(100% - 55px);

@@ -536,7 +536,7 @@ onUnmounted(() => {
 
   //树形组件包裹框
   .tree-wrap {
-    height: calc(100vh - #{size(150)});
+    height: calc(100vh - 150px);
     overflow-y: auto;
   }
 
@@ -552,7 +552,7 @@ onUnmounted(() => {
   }
 
   .el-tree__drop-indicator {
-    height: size(3);
+    height: 3px;
   }
 
   // 自定义节点
@@ -561,7 +561,7 @@ onUnmounted(() => {
     align-items: center;
     width: 100%;
     overflow: hidden;
-    min-height: size(30);
+    min-height: 30px;
 
     &:hover {
       .more {
@@ -570,16 +570,16 @@ onUnmounted(() => {
     }
 
     .file-icon {
-      font-size: fz(14);
-      margin-right: size(5);
+      font-size: 14px;
+      margin-right: 5px;
     }
 
     .folder-icon {
       color: var(--yellow);
       flex: 0 0 auto;
-      width: size(16);
-      height: size(16);
-      margin-right: size(5);
+      width: 16px;
+      height: 16px;
+      margin-right: 5px;
     }
 
     .node-label-wrap {
@@ -607,7 +607,7 @@ onUnmounted(() => {
     //重命名输入框
     .rename-ipt {
       flex: 0 0 75%;
-      height: size(22);
+      height: 22px;
       border: 1px solid var(--theme-color);
       font-size: 1em;
       margin-left: -1px;
@@ -621,7 +621,7 @@ onUnmounted(() => {
       display: none;
       flex: 0 0 auto;
       margin-left: auto;
-      padding: size(5) size(10);
+      padding: 5px 10px;
     }
 
     &.active-node {
@@ -669,7 +669,7 @@ onUnmounted(() => {
       align-items: flex-start;
 
       &>.el-tree-node__expand-icon {
-        padding-top: size(4);
+        padding-top: 4px;
       }
     }
 
@@ -678,7 +678,7 @@ onUnmounted(() => {
     }
 
     .file-icon {
-      margin-top: size(2);
+      margin-top: 2px;
     }
   }
 

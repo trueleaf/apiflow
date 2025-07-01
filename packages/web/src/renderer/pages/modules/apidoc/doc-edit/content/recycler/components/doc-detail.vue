@@ -229,15 +229,15 @@ const handleClose = () => {
 
 <style lang='scss' scoped>
 .doc-detail {
-  width: size(800);
+  width: 800px;
   overflow: hidden;
   position: relative;
 
   .params-view {
     max-height: 65vh;
     overflow-y: auto;
-    padding: 0 size(10);
-    margin-top: size(30);
+    padding: 0 10px;
+    margin-top: 30px;
 
     .copy-json {
       cursor: pointer;
@@ -250,7 +250,7 @@ const handleClose = () => {
 
   .close {
     @include rt-close;
-    font-size: fz(22);
+    font-size: 22px;
   }
 }
 </style>

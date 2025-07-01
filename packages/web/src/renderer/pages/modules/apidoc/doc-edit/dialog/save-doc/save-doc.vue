@@ -160,7 +160,7 @@ const handleSaveDoc = () => {
     align-items: center;
     width: 100%;
     overflow: hidden;
-    height: size(30);
+    height: 30px;
 
     &:hover {
       .more {
@@ -169,21 +169,21 @@ const handleSaveDoc = () => {
     }
 
     &>img {
-      width: size(16);
-      height: size(16);
+      width: 16px;
+      height: 16px;
     }
 
     .file-icon {
-      font-size: fz(14);
-      margin-right: size(5);
+      font-size: 14px;
+      margin-right: 5px;
     }
 
     .folder-icon {
       color: var(--yellow);
       flex: 0 0 auto;
-      width: size(16);
-      height: size(16);
-      margin-right: size(5);
+      width: 16px;
+      height: 16px;
+      margin-right: 5px;
     }
 
     .node-label-wrap {
@@ -210,7 +210,7 @@ const handleSaveDoc = () => {
   }
 
   :deep(.el-tree-node__content) {
-    height: size(30);
+    height: 30px;
     display: flex;
     align-items: center;
   }

@@ -355,7 +355,7 @@ const clearContextmenu = () => {
 <style lang='scss' scoped>
 .fork {
     .el-divider--horizontal {
-        margin: size(10) 0;
+        margin: 10px 0;
     }
     .fork-wrap {
         display: flex;
@@ -365,10 +365,11 @@ const clearContextmenu = () => {
         }
         .right {
             flex: 1;
-            padding: 0 size(15);
+            padding: 0 15px;
+            border-bottom: 1px solid var(--gray-200);
         }
         .el-tree-node__content {
-            height: size(30);
+            height: 30px;
             display: flex;
             align-items: center;
         }
@@ -377,22 +378,22 @@ const clearContextmenu = () => {
             align-items: center;
             width: 100%;
             overflow: hidden;
-            height: size(30);
+            height: 30px;
             &:hover {
                 .more {
                     display: block;
                 }
             }
             .file-icon {
-                font-size: fz(14);
-                margin-right: size(5);
+                font-size: 14px;
+                margin-right: 5px;
             }
             .folder-icon {
                 color: var(--yellow);
                 flex: 0 0 auto;
-                width: size(16);
-                height: size(16);
-                margin-right: size(5);
+                width: 16px;
+                height: 16px;
+                margin-right: 5px;
             }
             .node-label-wrap {
                 display: flex;
@@ -423,7 +424,7 @@ const clearContextmenu = () => {
         }
     }
     .el-tree__drop-indicator {
-        height: size(3);
+        height: 3px;
     }
 }
 </style>

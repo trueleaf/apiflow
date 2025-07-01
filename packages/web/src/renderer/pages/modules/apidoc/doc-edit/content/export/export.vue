@@ -246,17 +246,17 @@ const handleExport = () => {
 <style lang='scss' scoped>
 .doc-export {
     overflow-y: auto;
-    height: calc(100vh - #{size(100)});
+    height: calc(100vh - 100px);
     width: 70%;
-    min-width: size(768);
+    min-width: 768px;
     margin: 0 auto;
     .download-wrap {
         display: flex;
         .item {
-            width: size(130);
-            height: size(100);
-            padding: size(10);
-            margin-right: size(20);
+            width: 130px;
+            height: 100px;
+            padding: 10px;
+            margin-right: 20px;
             cursor: pointer;
             display: flex;
             align-items: center;
@@ -271,12 +271,12 @@ const handleExport = () => {
                 border: 1px solid var(--gray-400);
             }
             .svg-icon {
-                width: size(70);
-                height: size(70);
+                width: 70px;
+                height: 70px;
             }
             .img {
-                width: size(60);
-                height: size(60);
+                width: 60px;
+                height: 60px;
             }
         }
     }
@@ -286,22 +286,22 @@ const handleExport = () => {
             align-items: center;
             width: 100%;
             overflow: hidden;
-            height: size(30);
+            height: 30px;
             &:hover {
                 .more {
                     display: block;
                 }
             }
             .file-icon {
-                font-size: fz(14);
-                margin-right: size(5);
+                font-size: 14px;
+                margin-right: 5px;
             }
             .folder-icon {
                 color: var(--yellow);
                 flex: 0 0 auto;
-                width: size(16);
-                height: size(16);
-                margin-right: size(5);
+                width: 16px;
+                height: 16px;
+                margin-right: 5px;
             }
             .node-label-wrap {
                 display: flex;
@@ -324,7 +324,7 @@ const handleExport = () => {
             }
         }
         :deep(.el-tree-node__content) {
-            height: size(30);
+            height: 30px;
             display: flex;
             align-items: center;
         }

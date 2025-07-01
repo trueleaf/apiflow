@@ -104,7 +104,7 @@ defineExpose({
 
 <style lang='scss' scoped>
 .client-routes {
-  min-height: size(300);
+  min-height: 300px;
   height: 40vh;
   overflow-y: auto;
 }

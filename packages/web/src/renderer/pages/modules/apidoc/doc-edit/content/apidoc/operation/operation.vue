@@ -184,14 +184,14 @@ const requestPath = computed<string>({
 .api-operation {
   position: sticky;
   top: 0;
-  padding: size(10) size(20);
-  box-shadow: 0 3px 2px $gray-400;
-  background: $white;
-  z-index: $zIndex-request-info-wrap;
-  height: size(100);
+  padding: 10px 20px;
+  box-shadow: 0 3px 2px var(--gray-400);
+  background: var(--white);
+  z-index: var(--zIndex-request-info-wrap);
+  height: 100px;
 
   &.prefix {
-    height: size(130);
+    height: 130px;
   }
 
   .proxy-wrap {
@@ -199,15 +199,15 @@ const requestPath = computed<string>({
   }
 
   .el-checkbox {
-    margin-right: size(10);
+    margin-right: 10px;
   }
 
   .op-wrap {
     display: flex;
-    margin-top: size(10);
+    margin-top: 10px;
 
     :deep(.el-input__inner) {
-      font-size: fz(13);
+      font-size: 13px;
     }
 
     .request-method {
@@ -226,20 +226,20 @@ const requestPath = computed<string>({
   }
 
   .pre-url-wrap {
-    height: size(30);
+    height: 30px;
     width: 100%;
     white-space: nowrap;
     display: flex;
     margin: 0;
     align-items: center;
     overflow: hidden;
-    padding: 0 size(10);
+    padding: 0 10px;
     border: 1px solid #d1d5da;
     border-radius: 4px;
     background-color: #f0f0f0;
     white-space: pre-wrap;
     color: #212529;
-    font-size: size(12);
+    font-size: 12px;
     font-family: SFMono-Regular, Menlo, Monaco, Consolas, Liberation Mono,Courier New, monospace;
     &::-webkit-scrollbar {
       height: 0px;
@@ -251,7 +251,7 @@ const requestPath = computed<string>({
     .url {
       display: flex;
       align-items: center;
-      height: size(30);
+      height: 30px;
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
@@ -261,11 +261,11 @@ const requestPath = computed<string>({
       }
     }
     .tip {
-      flex: 0 0 size(30);
-      height: size(30);
+      flex: 0 0 30px;
+      height: 30px;
       display: flex;
       align-items: center;
-      margin-left: size(5);
+      margin-left: 5px;
     }
   }
 }

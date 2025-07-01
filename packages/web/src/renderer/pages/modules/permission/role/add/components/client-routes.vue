@@ -1,4 +1,3 @@
-
 <template>
   <SLoading :loading="loading" class="client-routes">
     <div v-for="(item, title) in clientRoutes" :key="title">
@@ -103,7 +102,7 @@ onMounted(() => {
 
 <style lang='scss' scoped>
 .client-routes {
-    min-height: size(300);
+    min-height: 300px;
     height: 40vh;
     overflow-y: auto;
 }

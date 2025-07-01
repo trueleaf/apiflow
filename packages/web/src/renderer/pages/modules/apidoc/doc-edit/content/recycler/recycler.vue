@@ -390,8 +390,8 @@ const handleShowDetail = (docInfo: DeleteInfo) => {
 
 <style lang='scss' scoped>
 .recycler {
-  padding: 0 size(20) size(10);
-  height: calc(100vh - #{size(100)});
+  padding: 0 20px 10px;
+  height: calc(100vh - 100px);
   width: 100%;
   overflow-y: auto;
   display: flex;
@@ -401,7 +401,7 @@ const handleShowDetail = (docInfo: DeleteInfo) => {
   .recycler-header {
     display: flex;
     flex-direction: column;
-    padding: size(15) 0;
+    padding: 15px 0;
 
     .header-title {
       font-size: 22px;
@@ -426,22 +426,22 @@ const handleShowDetail = (docInfo: DeleteInfo) => {
     flex: 0 0 auto;
     box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
     border: 1px solid var(--gray-300);
-    border-radius: size(4);
-    padding: size(5) size(20);
+    border-radius: 4px;
+    padding: 5px 20px;
 
     .el-checkbox,
     .el-radio {
-      margin-right: size(15);
+      margin-right: 15px;
     }
 
     .op-item {
-      min-height: size(40);
+      min-height: 40px;
       display: flex;
       align-items: center;
 
       .el-button--text {
-        padding-top: size(5);
-        padding-bottom: size(5);
+        padding-top: 5px;
+        padding-bottom: 5px;
       }
     }
   }
@@ -451,15 +451,15 @@ const handleShowDetail = (docInfo: DeleteInfo) => {
     flex: 1;
     overflow-y: auto;
     .date-chunk {
-      margin-left: size(30);
+      margin-left: 30px;
       display: flex;
       flex-direction: column;
       .date-list-wrap {
-        margin-left: size(30);
+        margin-left: 30px;
         .docinfo {
           display: flex;
           align-items: center;
-          height: size(30);
+          height: 30px;
           &:hover {
             background: var(--gray-200);
           }

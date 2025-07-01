@@ -376,7 +376,8 @@ onUnmounted(() => {
 <style scoped lang="scss">
 .cookies-page {
   margin: 0 auto;
-  padding: size(16) 0;
+  padding: 16px 0;
+  font-size: 22px;
   .expire-tip {
     border-bottom: 1px dashed var(--gray-500);
     cursor: pointer;

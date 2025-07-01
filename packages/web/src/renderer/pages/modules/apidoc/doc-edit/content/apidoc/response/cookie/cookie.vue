@@ -119,7 +119,8 @@ const handleJumpToCookies = () => {
 <style lang='scss' scoped>
 .cookie-view {
   width: 100%;
-  height: calc(100vh - #{size(370)});
+  height: calc(100vh - 370px);
+  max-height: 140px;
 
   .value-wrap {
     max-height: size(140);

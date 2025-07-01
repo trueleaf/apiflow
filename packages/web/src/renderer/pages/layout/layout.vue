@@ -296,19 +296,19 @@ onMounted(() => {
       color: var(--white);
 
       .operation {
-        margin-right: size(10);
+        margin-right: 10px;
         display: flex;
         height: 100%;
         align-items: center;
 
         .op_item {
-          width: size(30);
-          height: size(30);
+          width: 30px;
+          height: 30px;
           display: flex;
           align-items: center;
           justify-content: center;
           cursor: pointer;
-          font-size: size(20);
+          font-size: 20px;
           border-radius: 50%;
 
           &:hover {
@@ -317,13 +317,13 @@ onMounted(() => {
         }
 
         .language {
-          width: size(30);
-          height: size(30);
+          width: 30px;
+          height: 30px;
           display: flex;
           align-items: center;
           justify-content: center;
           cursor: pointer;
-          font-size: size(16);
+          font-size: 16px;
           border-radius: 50%;
 
           &:hover {
@@ -333,7 +333,7 @@ onMounted(() => {
       }
 
       .process {
-        margin-right: size(10);
+        margin-right: 10px;
       }
     }
 
@@ -344,7 +344,7 @@ onMounted(() => {
 
   .page-wrap {
     overflow-y: auto;
-    height: calc(100vh - #{size(60)});
+    height: calc(100vh - 60px);
   }
 }
 </style>

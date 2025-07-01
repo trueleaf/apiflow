@@ -143,6 +143,6 @@ const mindHeaderParams: Ref<ApidocProperty[]> = ref(mindHeaders);
 
 <style lang='scss' scoped>
 .common-header {
-  padding: size(20);
+  padding: 20px;
 }
 </style>

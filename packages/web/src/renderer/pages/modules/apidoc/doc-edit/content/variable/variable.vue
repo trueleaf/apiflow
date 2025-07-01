@@ -344,14 +344,14 @@ const handleDelete = (_id: string) => {
 .s-variable {
   overflow-y: auto;
   overflow-x: hidden;
-  height: calc(100vh - #{size(100)});
+  height: calc(100vh - 100px);
   width: 100%;
-  padding: size(20) size(30);
+  padding: 20px 30px;
   display: flex;
 
   .left {
-    flex: 0 0 size(500);
-    margin-right: size(10);
+    flex: 0 0 500px;
+    margin-right: 10px;
     .file-notice {
       white-space: pre-line;
       line-height: 1.2;

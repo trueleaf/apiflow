@@ -687,17 +687,17 @@ const handleToggleProjectModel = () => {
 <style lang='scss' scoped>
 .tool {
   position: relative;
-  padding: 0 size(20);
-  height: size(150);
+  padding: 0 20px;
+  height: 150px;
   background: var(--gray-200);
   flex: 0 0 auto;
 
   .toggle-btn {
-    height: size(30);
+    height: 30px;
     display: flex;
     align-items: center;
     justify-content: center;
-    flex: 0 0 size(30);
+    flex: 0 0 30px;
     cursor: pointer;
 
     &:hover {
@@ -706,11 +706,11 @@ const handleToggleProjectModel = () => {
   }
 
   .badge {
-    width: size(25);
-    height: size(25);
+    width: 25px;
+    height: 25px;
     position: absolute;
-    top: size(8);
-    right: size(25);
+    top: 8px;
+    right: 25px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -723,7 +723,7 @@ const handleToggleProjectModel = () => {
   //高级筛选按钮
   .advance {
     &>i {
-      font-size: fz(14);
+      font-size: 14px;
       cursor: pointer;
       color: var(--gray-600);
     }
@@ -761,9 +761,9 @@ const handleToggleProjectModel = () => {
     }
 
     .svg-icon {
-      width: size(25);
-      height: size(25);
-      padding: size(5);
+      width: 25px;
+      height: 25px;
+      padding: 5px;
 
       &:hover {
         background: var(--gray-400);
@@ -772,9 +772,9 @@ const handleToggleProjectModel = () => {
   }
 
   .more-op {
-    width: size(25);
-    height: size(25);
-    line-height: size(25);
+    width: 25px;
+    height: 25px;
+    line-height: 25px;
     text-align: center;
     cursor: pointer;
 
@@ -785,15 +785,15 @@ const handleToggleProjectModel = () => {
 }
 
 .dropdown-item {
-  height: size(40);
+  height: 40px;
   width: 100%;
-  padding: 0 size(10) 0 size(20);
+  padding: 0 10px 0 20px;
   display: flex;
   align-items: center;
 
   // cursor: default;
   .label {
-    width: size(120);
+    width: 120px;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -801,31 +801,31 @@ const handleToggleProjectModel = () => {
   }
 
   .shortcut {
-    width: size(100);
-    color: $gray-500;
+    width: 100px;
+    color: var(--gray-500);
   }
 
   .svg-icon {
-    width: size(25);
-    height: size(25);
-    padding: size(5);
+    width: 25px;
+    height: 25px;
+    padding: 5px;
   }
 
   .pin {
     cursor: pointer;
-    color: $gray-400;
+    color: var(--gray-400);
 
     &.active {
-      color: $theme-color;
+      color: var(--theme-color);
 
       &:hover {
-        color: $theme-color;
+        color: var(--theme-color);
       }
     }
   }
 
   &:hover {
-    background: $gray-200;
+    background: var(--gray-200);
   }
 }
 
@@ -842,7 +842,7 @@ const handleToggleProjectModel = () => {
 
   .el-checkbox,
   .el-radio {
-    margin-right: size(15);
+    margin-right: 15px;
   }
 
   .el-checkbox-group {
@@ -850,18 +850,18 @@ const handleToggleProjectModel = () => {
   }
 
   .op-item {
-    min-height: size(40);
+    min-height: 40px;
     display: flex;
     align-items: center;
-    margin-bottom: size(20);
+    margin-bottom: 20px;
 
     &:not(:last-of-type) {
-      border-bottom: 1px dashed $gray-300;
+      border-bottom: 1px dashed var(--gray-300);
     }
 
     .el-button--text {
-      padding-top: size(5);
-      padding-bottom: size(5);
+      padding-top: 5px;
+      padding-bottom: 5px;
     }
 
     .el-radio-group {
@@ -872,22 +872,22 @@ const handleToggleProjectModel = () => {
 }
 
 .tool-toggle-project {
-  min-height: size(300);
+  min-height: 300px;
 
   h3 {
-    margin-top: size(5);
-    margin-bottom: size(5);
+    margin-top: 5px;
+    margin-bottom: 5px;
   }
 
   .project-wrap {
-    padding: 0 size(10) 0 size(20);
-    max-height: size(300);
+    padding: 0 10px 0 20px;
+    max-height: 300px;
     overflow-y: auto;
   }
 
   .item {
-    height: size(35);
-    padding: size(10);
+    height: 35px;
+    padding: 10px;
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -897,16 +897,16 @@ const handleToggleProjectModel = () => {
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
-      margin-right: size(25);
+      margin-right: 25px;
     }
 
     &:hover {
-      background-color: $theme-color;
-      color: $white;
+      background-color: var(--theme-color);
+      color: var(--white);
       cursor: pointer;
 
       .item-content {
-        color: $white;
+        color: var(--white);
       }
     }
   }

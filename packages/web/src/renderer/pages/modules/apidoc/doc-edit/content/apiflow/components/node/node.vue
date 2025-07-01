@@ -236,14 +236,14 @@ const nodeInfo = computed(() => {
         height: 30px;
         display: flex;
         align-items: center;
-        font-size: size(13);
-        padding: 0 size(10);
+        font-size: 13px;
+        padding: 0 10px;
         width: 100%;
         .method {
           color: #f90;
         }
         .url {
-          font-size: size(14);
+          font-size: 14px;
           overflow: hidden;
           white-space: nowrap;
           text-overflow: ellipsis;

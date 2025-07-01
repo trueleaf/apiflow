@@ -1,4 +1,3 @@
-
 <template>
   <div class="query-path-params">
     <div class="title">Query&nbsp;{{ t("参数") }}</div>
@@ -37,8 +36,8 @@ const hasPathParams = computed(() => {
 <style lang='scss' scoped>
 .query-path-params {
   .title {
-    margin-left: size(15);
-    font-size: fz(14);
+    margin-left: 15px;
+    font-size: 14px;
   }
 }
 </style>

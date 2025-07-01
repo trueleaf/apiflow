@@ -223,8 +223,8 @@ onUnmounted(() => {
     overflow: auto;
     position: absolute;
     width: 100%;
-    height: calc(100vh - #{size(100)});
-
+    height: calc(100vh - 100px);
+    border-right: 1px solid var(--gray-400);
 }
 #renderArea {
     position: absolute;

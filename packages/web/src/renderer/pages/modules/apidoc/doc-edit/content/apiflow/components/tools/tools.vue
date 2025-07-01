@@ -129,17 +129,17 @@ const handleRedo = () => {
     position: absolute;
     background-color: #fff;
     box-shadow: 1px 1px 5px var(--gray-500);
-    top: size(1);
-    left: size(100);
+    top: 1px;
+    left: 100px;
     user-select: none;
-    padding: 0 size(20);
-    height: size(30);
+    padding: 0 20px;
+    height: 30px;
     display: flex;
     align-items: center;
     cursor: move;
     .op-item {
         height: 100%;
-        width: size(30);
+        width: 30px;
         display: flex;
         align-items: center;
         justify-content: center;

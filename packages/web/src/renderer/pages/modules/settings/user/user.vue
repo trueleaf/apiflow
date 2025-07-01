@@ -191,7 +191,7 @@ onMounted(() => {
 
 <style lang='scss' scoped>
 .user-setting {
-  max-width: size(1440);
+  max-width: 1440px;
   margin: auto;
 
   .base-info {

@@ -274,7 +274,7 @@ const handleCustomDateChange = (value: string) => {
   overflow-y: auto;
 
   .link {
-    height: size(28);
+    height: 28px;
     white-space: nowrap;
     overflow-y: auto;
     user-select: auto;
@@ -285,14 +285,14 @@ const handleCustomDateChange = (value: string) => {
   }
 
   .link-icon {
-    width: size(120);
-    height: size(120);
+    width: 120px;
+    height: 120px;
   }
 }
 
 .doc-nav {
   :deep(.el-tree-node__content) {
-    height: size(30);
+    height: 30px;
   } 
 
   .custom-tree-node {

@@ -419,7 +419,7 @@ onMounted(() => {
 <style lang='scss' scoped>
 // 主容器样式
 .share-doc-detail {
-  height: calc(100vh - size(40));
+  height: calc(100vh - 40px);
   
   .doc-detail {
     height: 100%;
@@ -438,21 +438,21 @@ onMounted(() => {
   background-color: var(--white);
   width: 100%;
   border-bottom: 1px solid var(--gray-200);
-  padding: size(15) size(20) size(12);
+  padding: 15px 20px 12px;
   
   .api-doc-title {
-    font-size: fz(24);
+    font-size: 24px;
     font-weight: bold;
-    margin-bottom: size(8);
+    margin-bottom: 8px;
   }
   
   .api-doc-meta {
     display: flex;
     align-items: center;
-    gap: size(16);
+    gap: 16px;
     
     .method-label {
-      padding: size(3) size(12);
+      padding: 3px 12px;
       border-radius: var(--border-radius-sm);
       color: var(--white);
       font-weight: bold;
@@ -461,11 +461,11 @@ onMounted(() => {
     .api-url {
       font-family: SFMono-Regular, Menlo, Monaco, Consolas, Liberation Mono, Courier New, monospace;
       background: var(--gray-100);
-      padding: size(3) size(8);
+      padding: 3px 8px;
       border-radius: var(--border-radius-sm);
-      font-size: fz(16);
+      font-size: 16px;
       color: var(--gray-800);
-      max-width: size(420);
+      max-width: 420px;
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: normal;
@@ -477,19 +477,19 @@ onMounted(() => {
 
 // API文档块容器
 .api-doc-blocks {
-  padding: size(0) size(20) size(10);
+  padding: 0 20px 10px;
   display: flex;
   flex-direction: column;
 }
 
 // 单个API文档块样式
 .api-doc-block {
-  margin-bottom: size(12);
+  margin-bottom: 12px;
   
   .api-doc-block-header {
     display: inline-flex;
     align-items: center;
-    padding: size(6) 0;
+    padding: 6px 0;
     cursor: pointer;
     &:hover {
       .api-doc-block-title {
@@ -501,12 +501,12 @@ onMounted(() => {
     }
     
     .content-format-label {
-      font-size: fz(13);
+      font-size: 13px;
       background: #e5d6f6;
       color: var(--purple);
       border-radius: var(--border-radius-sm);
-      padding: size(2) size(8);
-      margin-left: size(8);
+      padding: 2px 8px;
+      margin-left: 8px;
       font-weight: normal;
     }
     
@@ -514,10 +514,10 @@ onMounted(() => {
       display: flex;
       align-items: center;
       justify-content: center;
-      width: size(16);
-      height: size(16);
-      margin-right: size(2);
-      margin-top: size(2);
+      width: 16px;
+      height: 16px;
+      margin-right: 2px;
+      margin-top: 2px;
       transition: all 0.2s ease;
       color: var(--gray-600);
       
@@ -526,12 +526,12 @@ onMounted(() => {
       }
       
       .el-icon {
-        font-size: fz(14);
+        font-size: 14px;
       }
     }
     
     .api-doc-block-title {
-      font-size: fz(16);
+      font-size: 16px;
       color: var(--gray-900);
       margin: 0;
       flex: 1;
@@ -540,15 +540,15 @@ onMounted(() => {
   }
   
   .api-doc-block-content {
-    padding-left: size(28);
-    margin-left: size(10);
-    margin-top: size(12);
+    padding-left: 28px;
+    margin-left: 10px;
+    margin-top: 12px;
   }
   
   .api-doc-subtitle {
-    font-size: fz(15);
+    font-size: 15px;
     color: var(--gray-600);
-    margin-bottom: size(12);
+    margin-bottom: 12px;
     font-weight: 500;
   }
   
@@ -564,11 +564,11 @@ onMounted(() => {
   table {
     width: 100%;
     border-collapse: collapse;
-    font-size: fz(14);
+    font-size: 14px;
     border: 1px solid var(--gray-300);
     
     th, td {
-      padding: size(8) size(12);
+      padding: 8px 12px;
       text-align: left;
       border: 1px solid var(--gray-300);
     }
@@ -576,7 +576,7 @@ onMounted(() => {
     th {
       background-color: var(--gray-100);
       color: var(--gray-900);
-      font-size: fz(14);
+      font-size: 14px;
       text-transform: uppercase;
       letter-spacing: 0.5px;
       font-weight: 600;
@@ -585,7 +585,7 @@ onMounted(() => {
     td {
       color: var(--gray-700);
       vertical-align: middle;
-      max-width: size(200);
+      max-width: 200px;
       word-wrap: break-word;
       overflow: hidden;
       max-height: 7em;
@@ -606,9 +606,9 @@ onMounted(() => {
 // 必填/可选标签样式
 .required-badge {
   display: inline-block;
-  padding: size(2) size(6);
+  padding: 2px 6px;
   border-radius: var(--border-radius-sm);
-  font-size: fz(12);
+  font-size: 12px;
   font-weight: 500;
   
   &.required {
@@ -624,13 +624,13 @@ onMounted(() => {
 
 // 响应块样式
 .api-doc-response-block {
-  margin-bottom: size(24);
+  margin-bottom: 24px;
   
   .api-doc-response-meta {
     display: flex;
     align-items: center;
-    gap: size(16);
-    margin-bottom: size(8);
+    gap: 16px;
+    margin-bottom: 8px;
     
     .api-doc-response-title {
       font-weight: bold;
@@ -646,8 +646,8 @@ onMounted(() => {
       background: var(--gray-200);
       color: var(--gray-700);
       border-radius: var(--border-radius-sm);
-      padding: 0 size(8);
-      font-size: fz(15);
+      padding: 0 8px;
+      font-size: 15px;
     }
   }
 }
@@ -657,15 +657,15 @@ onMounted(() => {
   background: var(--gray-900);
   color: var(--white);
   border-radius: var(--border-radius-lg);
-  padding: size(16);
+  padding: 16px;
   overflow-x: auto;
   font-family: SFMono-Regular, Menlo, Monaco, Consolas, Liberation Mono, Courier New, monospace;
-  margin-top: size(8);
+  margin-top: 8px;
 }
 
 .api-doc-base-info-inline {
  color: var(--gray-600);
- margin-top: size(5);
+ margin-top: 5px;
 }
 
 
@@ -674,12 +674,12 @@ onMounted(() => {
   width: 100%;
   
   :deep(.el-tabs__header) {
-    margin-bottom: size(16);
+    margin-bottom: 16px;
   }
   
   :deep(.el-tabs__item) {
-    font-size: fz(14);
-    padding: size(8) size(16);
+    font-size: 14px;
+    padding: 8px 16px;
     height: auto;
     line-height: 1.5;
     
@@ -689,7 +689,7 @@ onMounted(() => {
   }
   
   .api-doc-response-meta {
-    margin-bottom: size(12);
+    margin-bottom: 12px;
   }
 }
 </style> 

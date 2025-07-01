@@ -55,15 +55,15 @@ const validRequestMethods = computed(() => apidocBaseInfoStore.rules.requestMeth
 .request-view {
   flex-grow: 0;
   flex-shrink: 0;
-  box-shadow: 0 3px 2px $gray-400;
-  margin-bottom: size(10);
-  padding: size(10);
-  height: size(170);
+  box-shadow: 0 3px 2px var(--gray-400);
+  margin-bottom: 10px;
+  padding: 10px;
+  height: 170px;
   overflow: hidden;
 
   .svg-icon {
-    width: size(15);
-    height: size(15);
+    width: 15px;
+    height: 15px;
     cursor: pointer;
   }
 }

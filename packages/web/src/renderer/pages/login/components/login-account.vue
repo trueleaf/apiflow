@@ -149,21 +149,21 @@ const handleGuesttLogin = () => {
 <style lang='scss' scoped>
 .login-account {
   .svg-icon {
-    width: size(35);
-    height: size(35);
+    width: 35px;
+    height: 35px;
     cursor: pointer;
   }
 
   .forget-pwd-wrap {
-    // margin-top: size(-20);
+    margin-top: -20px;
     display: flex;
     justify-content: center;
-    margin-bottom: size(10);
+    margin-bottom: 10px;
 
     .el-button {
       margin: 0;
       padding: 0;
-      min-height: size(20);
+      min-height: 20px;
     }
   }
 }

@@ -120,11 +120,11 @@ function getCollapsedValue(val: string) {
 <style lang='scss' scoped>
 .header-view {
   width: 100%;
-  height: calc(100vh - #{size(370)});
+  height: calc(100vh - 370px);
   overflow-y: auto;
 
   .value-wrap {
-    max-height: size(140);
+    max-height: 140px;
     overflow-y: auto;
   }
 

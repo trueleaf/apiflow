@@ -155,7 +155,7 @@ onMounted(() => {
   }
 
   .editor {
-    height: calc(100vh - #{size(240)});
+    height: calc(100vh - 240px);
   }
 
   .operation {
@@ -171,7 +171,7 @@ onMounted(() => {
   }
 
   .json-view-wrap {
-    height: calc(100vh - #{size(240)});
+    height: calc(100vh - 240px);
     // overflow-y: auto;
   }
 }

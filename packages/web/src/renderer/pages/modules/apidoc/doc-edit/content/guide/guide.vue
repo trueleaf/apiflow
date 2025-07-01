@@ -1,4 +1,3 @@
-
 <template>
   <div class="guide">
     <div class="wrap">
@@ -65,7 +64,7 @@ const docsOfToday = computed(() => {
 
 <style lang='scss' scoped>
 .guide {
-    height: calc(100vh - #{size(100)});
+    height: calc(100vh - 100px);
     position: relative;
     font-family: none;
     .wrap {

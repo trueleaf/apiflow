@@ -109,19 +109,19 @@ const layout = computed(() => apidocBaseInfoStore.layout)
 .request-info {
   width: 100%;
   word-break: break-all;
-  height: calc(100vh - #{size(370)});
+  height: calc(100vh - 370px);
   overflow-y: auto;
 
   &.vertical {
     height: 100%;
   }
   .body-wrap {
-    height: size(200);
+    height: 200px;
   }
   .pre-body {
-    margin-left: size(25);
+    margin-left: 25px;
     .download {
-      margin-top: size(-14);
+      margin-top: -14px;
     }
   }
 }

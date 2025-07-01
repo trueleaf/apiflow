@@ -1,4 +1,3 @@
-
 <template>
   <SLoading :loading="loading" class="server-routes">
     <div v-for="(item, title) in serverRoutes" :key="title">
@@ -106,7 +105,7 @@ defineExpose({
 
 <style lang='scss' scoped>
 .server-routes {
-    min-height: size(300);
+    min-height: 300px;
     height: 40vh;
     overflow-y: auto;
 }

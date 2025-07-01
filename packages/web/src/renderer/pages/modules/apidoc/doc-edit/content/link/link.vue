@@ -178,8 +178,8 @@ onMounted(() => {
 
 <style lang='scss' scoped>
 .online-link {
-  padding: 0 size(20) size(10);
-  height: calc(100vh - #{size(100)});
+  padding: 0 20px 10px;
+  height: calc(100vh - 100px);
   width: 100%;
   overflow-y: auto;
   display: flex;
@@ -189,28 +189,28 @@ onMounted(() => {
   .online-link-header {
     display: flex;
     flex-direction: column;
-    padding: size(15) 0;
+    padding: 15px 0;
 
     .header-content {
       .header-left {
         .el-icon {
-          font-size: fz(26);
+          font-size: 26px;
         }
 
         .title-text {
-          font-size: fz(22);
+          font-size: 22px;
           font-weight: bold;
-          margin-bottom: size(8);
+          margin-bottom: 8px;
         }
 
         .desc {
           color: #888;
-          font-size: fz(14);
+          font-size: 14px;
         }
       }
 
       .header-right {
-        gap: size(12);
+        gap: 12px;
       }
     }
   }

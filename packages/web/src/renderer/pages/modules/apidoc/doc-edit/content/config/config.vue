@@ -109,11 +109,11 @@ onMounted(() => { //当组件还未创建时候，通过mounted生命周期确�
 <style lang='scss' scoped>
 .config {
   width: 90%;
-  min-width: size(768);
+  min-width: 768px;
   margin: 0 auto;
   border-radius: var(--border-radius-sm);
-  height: calc(100vh - #{size(100)});
-  padding: size(10) size(0) size(10) size(20);
+  height: calc(100vh - 100px);
+  padding: 10px 0 10px 20px;
 
   .api-rule {
     .tabs {

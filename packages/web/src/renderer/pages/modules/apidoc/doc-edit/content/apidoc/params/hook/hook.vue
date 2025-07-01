@@ -120,7 +120,7 @@ onMounted(() => {
   .header {
     display: flex;
     justify-content: flex-end;
-    border-bottom: 1px dashed $gray-400;
+    border-bottom: 1px dashed var(--gray-400);
     margin-top: size(-10);
     // .close {
     //     @include rt-close;
@@ -137,8 +137,8 @@ onMounted(() => {
     cursor: pointer;
 
     &:hover {
-      color: $white;
-      background-color: $theme-color;
+      color: var(--white);
+      background-color: var(--theme-color);
     }
   }
 }

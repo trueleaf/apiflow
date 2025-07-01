@@ -426,7 +426,7 @@ onMounted(() => {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
-    margin-bottom: size(20);
+    margin-bottom: 20px;
 
     @media only screen and (max-width: 720px) {
       justify-content: center;
@@ -438,11 +438,11 @@ onMounted(() => {
   }
 
   .project-list {
-    width: size(300);
+    width: 300px;
     border: 1px solid var(--gray-200);
     box-shadow: var(--box-shadow-sm);
-    margin-right: size(30);
-    margin-bottom: size(20);
+    margin-right: 30px;
+    margin-bottom: 20px;
     padding: 10px;
     position: relative;
 
@@ -457,7 +457,7 @@ onMounted(() => {
       align-items: center;
 
       .title {
-        font-size: fz(16);
+        font-size: 16px;
         max-width: 150px;
       }
 

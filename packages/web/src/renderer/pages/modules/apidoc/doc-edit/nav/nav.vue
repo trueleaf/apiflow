@@ -346,7 +346,7 @@ onUnmounted(() => {
 <style lang='scss' scoped>
 .nav {
   width: 100%;
-  height: size(40);
+  height: 40px;
   background: #eee;
   display: flex;
 
@@ -361,8 +361,8 @@ onUnmounted(() => {
 
     .btn {
       flex: 0 0 auto;
-      height: size(40);
-      width: size(25);
+      height: 40px;
+      width: 25px;
       z-index: var(--zIndex-tabs);
       background: var(--gray-200);
       display: flex;
@@ -380,9 +380,9 @@ onUnmounted(() => {
   .tab-list {
     width: auto;
     max-width: calc(100% - 40px);
-    line-height: size(40);
+    line-height: 40px;
     display: flex;
-    height: size(40);
+    height: 40px;
     color: #5f6368;
     white-space: nowrap;
     transition: left .1s;
@@ -396,8 +396,8 @@ onUnmounted(() => {
     }
 
     &::-webkit-scrollbar {
-      width: size(5);
-      height: size(5);
+      width: 5px;
+      height: 5px;
       display: none;
     }
 
@@ -413,13 +413,13 @@ onUnmounted(() => {
       flex: 0 0 auto;
       width: 200px;
       cursor: default;
-      padding: 0 size(10);
+      padding: 0 10px;
       border-right: 1px solid var(--gray-400);
       background: rgb(222, 225, 230);
 
       .item-text {
         display: inline-block;
-        width: size(130);
+        width: 130px;
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
@@ -450,7 +450,7 @@ onUnmounted(() => {
     .operaion {
       position: absolute;
       right: 0;
-      width: size(25);
+      width: 25px;
       height: 100%;
       cursor: pointer;
 
@@ -469,14 +469,14 @@ onUnmounted(() => {
         transform: translate(-50%, -50%);
         cursor: pointer;
         line-height: 1.5;
-        width: size(20);
-        height: size(20);
+        width: 20px;
+        height: 20px;
         border-radius: 50%;
         display: inline-flex;
         align-items: center;
         justify-content: center;
         z-index: 1;
-        font-size: fz(16);
+        font-size: 16px;
 
         &:hover {
           background: #ccc;
@@ -488,8 +488,8 @@ onUnmounted(() => {
         left: 50%;
         top: 50%;
         transform: translate(-50%, -50%);
-        width: size(20);
-        height: size(20);
+        width: 20px;
+        height: 20px;
         cursor: pointer;
         display: inline-flex;
         align-items: center;
@@ -497,8 +497,8 @@ onUnmounted(() => {
         z-index: 2;
 
         .dot {
-          width: size(10);
-          height: size(10);
+          width: 10px;
+          height: 10px;
           border-radius: 50%;
           background: #e6fbf8;
         }
@@ -510,12 +510,12 @@ onUnmounted(() => {
     display: flex;
     align-items: center;
     justify-content: center;
-    width: size(40);
-    height: size(40);
+    width: 40px;
+    height: 40px;
 
     .el-icon {
-      width: size(30);
-      height: size(30);
+      width: 30px;
+      height: 30px;
       transition: background .3s;
       border-radius: 50%;
 

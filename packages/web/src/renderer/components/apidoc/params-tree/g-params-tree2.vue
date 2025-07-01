@@ -709,17 +709,6 @@ const checkDescriptionDisable = ({ node }: { node: TreeNode }) => {
     .el-input-number .el-input__inner {
         text-align: left;
     }
-    // .el-input__inner {
-    //     border-radius: 0;
-    //     border: none;
-    //     border-bottom: 1px solid $gray-400;
-    //     font-size: fz(12);
-    //     box-shadow: none;
-    //     &:focus {
-    //         border-bottom: 2px solid $theme-color;
-    //         margin-bottom: -1px;
-    //     }
-    // }
     .valid-input .ipt-wrap .ipt-inner {
         border: none;
         border-radius: 0;

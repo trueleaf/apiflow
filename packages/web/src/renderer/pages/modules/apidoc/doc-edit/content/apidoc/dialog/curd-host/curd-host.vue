@@ -286,7 +286,7 @@ const handleClose = () => {
     flex: 0 0 auto;
     padding-right: size(10);
     margin-right: size(10);
-    border-right: 1px solid $gray-400;
+    border-right: 1px solid var(--gray-400);
   }
 
   .url-wrap {

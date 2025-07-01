@@ -256,11 +256,11 @@ const hasCustomHeaders = computed(() => {
 
 <style lang='scss' scoped>
 .mock-wrap {
-  font-size: fz(15);
-  height: calc(100vh - #{size(310)});
+  font-size: 15px;
+  height: calc(100vh - 310px);
   overflow-y: auto;
-  margin-left: size(20);
-  margin-right: size(20);
+  margin-left: 20px;
+  margin-right: 20px;
 
   .dot {
     display: inline-block;
@@ -281,7 +281,7 @@ const hasCustomHeaders = computed(() => {
     height: size(22);
     line-height: size(22);
     border: none;
-    border-bottom: 1px solid $gray-500;
+    border-bottom: 1px solid var(--gray-500);
     font-size: fz(15);
     width: size(300);
   }

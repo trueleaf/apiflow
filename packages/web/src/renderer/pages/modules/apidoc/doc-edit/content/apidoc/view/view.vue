@@ -151,33 +151,62 @@ const hasHeaders = computed(() => {
   width: 100%;
 
   .api-name {
-    font-size: fz(24);
+    font-size: 24px;
     font-weight: bold;
-    margin-top: size(15);
+    color: var(--gray-800);
+    margin-top: 15px;
   }
 
   .method {
-    font-size: fz(20);
+    font-size: 20px;
   }
 
   .url {
-    font-size: fz(16);
+    font-size: 16px;
   }
 
   .view-block {
-    font-size: fz(18);
+    font-size: 18px;
     font-weight: bold;
     color: var(--gray-700);
   }
 
   .title {
-    font-size: fz(14);
+    font-size: 14px;
     color: var(--gray-600);
-    padding: size(5) 0;
+    padding: 5px 0;
   }
 
   .remark {
     white-space: pre;
+  }
+
+  .api-doc-subtitle {
+    font-size: 20px;
+    font-weight: bold;
+    color: var(--gray-700);
+    margin-bottom: 10px;
+  }
+
+  .api-doc-method {
+    font-size: 16px;
+    font-weight: bold;
+    color: var(--primary);
+    margin-bottom: 10px;
+  }
+
+  .api-doc-url {
+    font-size: 18px;
+    font-weight: bold;
+    color: var(--gray-600);
+    margin-bottom: 10px;
+  }
+
+  .api-doc-description {
+    font-size: 14px;
+    color: var(--gray-600);
+    margin-bottom: 10px;
+    padding: 5px 0;
   }
 }
 </style>

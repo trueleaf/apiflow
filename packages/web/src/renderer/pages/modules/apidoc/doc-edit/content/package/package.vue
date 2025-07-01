@@ -173,20 +173,21 @@ onMounted(() => {
 <style lang='scss' scoped>
 .package-wrap {
     display: flex;
-    height: calc(100vh - #{size(100)});
+    height: calc(100vh - 100px);
+    padding: 20px;
     overflow-y: auto;
     .drag-wrap {
         border-right: 1px solid var(--gray-500);
     }
     .package-upload {
-        padding: size(20);
+        padding: 20px;
         height: 100%;
     }
 }
 .code-wrap {
     width: 100%;
-    min-height: size(200);
-    max-height: size(400);
+    min-height: 200px;
+    max-height: 400px;
     overflow-y: auto;
 }
 </style>
