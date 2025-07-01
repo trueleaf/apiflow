@@ -86,8 +86,8 @@ watch(() => props.modelValue, (val) => {
   .remote-select-inner {
     width: 100%;
     outline: 0;
-    padding: 0 size(15);
-    height: size(28);
+    padding: 0 15px;
+    height: 28px;
     border: 1px solid var(--gray-300);
     border-radius: var(--border-radius-sm);
     color: var(--gray-700);
@@ -99,12 +99,12 @@ watch(() => props.modelValue, (val) => {
   .select-panel {
     position: absolute;
     left: 0;
-    top: size(36);
+    top: 36px;
     z-index: var(--zIndex-panel);
     overflow-y: auto;
-    min-height: size(40);
+    min-height: 40px;
     width: 100%;
-    max-height: size(200);
+    max-height: 200px;
     background: var(--white);
     border: 1px solid var(--gray-300);
     border-radius: var(--border-radius-base);
@@ -121,9 +121,9 @@ watch(() => props.modelValue, (val) => {
       display: flex;
       justify-content: center;
       align-items: center;
-      // font-size: fz(12);
+      // font-size: 12px;
       color: var(--gray-500);
-      padding: size(10) size(20);
+      padding: 10px 20px;
     }
   }
 }

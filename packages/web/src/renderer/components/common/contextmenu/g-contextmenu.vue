@@ -53,7 +53,7 @@ watch(() => props.top, (topVal) => {
   animation: ctx-fade .2s;
 
   &::-webkit-scrollbar {
-    width: size(5);
+    width: 5px;
   }
 
   &::-webkit-scrollbar-thumb {
@@ -80,5 +80,5 @@ watch(() => props.top, (topVal) => {
 //     right: 0;
 //     bottom: 0;
 //     background: rgba(0, 0, 0, 0);
-//     z-index: $zIndex-contextmenu - 1;
+//     z-index: var(--zIndex-contextmenu - 1);
 // }</style>

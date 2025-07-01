@@ -40,7 +40,7 @@ const handleClickItem = (e: MouseEvent) => {
 <style lang='scss' scoped>
 .s-contextmenu-item {
   line-height: 1.8em;
-  padding: size(5) size(25);
+  padding: 5px 25px;
   cursor: pointer;
   display: flex;
 
@@ -66,7 +66,7 @@ const handleClickItem = (e: MouseEvent) => {
 }
 
 .s-contextmenu-divider {
-  margin: size(4) 0;
+  margin: 4px 0;
   border-top: 1px solid var(--gray-200);
 }
 </style>

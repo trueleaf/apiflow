@@ -89,7 +89,7 @@ onUnmounted(() => {
 
   .left-wrap {
     flex: 0 0 auto;
-    padding: 0 size(10);
+    padding: 0 10px;
   }
 
   .resize-bar {
@@ -102,7 +102,7 @@ onUnmounted(() => {
   .right-wrap {
     flex-grow: 1;
     flex-shrink: 1;
-    padding: 0 size(10);
+    padding: 0 10px;
   }
 }
 </style>

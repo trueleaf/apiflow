@@ -76,11 +76,11 @@ onMounted(() => {
     text-overflow: ellipsis;
     vertical-align: -3px;
     display: inline-block;
-    margin-right: size(10);
+    margin-right: 10px;
   }
 
   .copy {
-    margin-right: size(10);
+    margin-right: 10px;
   }
 }
 </style>

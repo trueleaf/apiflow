@@ -10,10 +10,10 @@
 
 <style lang='scss' scoped>
 .remote-select-item {
-  height: size(38);
+  height: 38px;
   display: flex;
   align-items: center;
-  padding: 0 size(20);
+  padding: 0 20px;
   cursor: pointer;
 
   &:hover {

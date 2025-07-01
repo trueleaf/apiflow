@@ -318,7 +318,6 @@ onUnmounted(() => {
 
       .tail {
         margin-left: auto;
-        // color: $gray-500;
       }
     }
   }

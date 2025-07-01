@@ -167,7 +167,7 @@ onUnmounted(() => {
     top: 1px;
     display: flex;
     align-items: center;
-    padding: 0 size(10);
+    padding: 0 10px;
     z-index: var(--zIndex-drag-bar);
 
     .left,
@@ -178,7 +178,7 @@ onUnmounted(() => {
     }
 
     .ct {
-      width: size(150);
+      width: 150px;
       flex: 0 0 auto;
       text-align: center;
       color: var(--gray-600);

@@ -316,11 +316,11 @@ onMounted(async () => {
 <style lang='scss' scoped>
 .body-params {
   .body-type {
-    margin-top: size(-10);
+    margin-top: -10px;
   }
 
   .operation {
-    margin-top: size(-3);
+    margin-top: -3px;
     flex: 1;
     display: flex;
     align-items: center;
@@ -329,64 +329,64 @@ onMounted(async () => {
   }
 
   .raw-wrap {
-    height: size(300);
+    height: 300px;
     position: relative;
-    height: calc(100vh - #{size(350)});
-    border: 1px solid $gray-300;
+    height: calc(100vh - 350px);
+    border: 1px solid var(--gray-300);
     .raw-type {
       position: absolute;
-      right: size(0);
-      bottom: size(0);
-      width: size(100);
+      right: 0px;
+      bottom: 0px;
+      width: 100px;
     }
     .tip {
-      width: calc(100% - #{size(140)});
-      height: size(20);
+      width: calc(100% - 140px);
+      height: 20px;
       display: flex;
       align-items: center;
       position: absolute;
-      bottom: size(20);
-      left: size(40);
+      bottom: 20px;
+      left: 40px;
       background: #ff9347;
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
-      color: $white;
-      z-index: $zIndex-contextmenu;
+      color: var(--white);
+      z-index: var(--zIndex-contextmenu);
     }
   }
 
   .params-wrap {
-    border-top: 1px dashed $gray-400;
+    border-top: 1px dashed var(--gray-400);
     position: relative;
-    height: calc(100vh - #{size(350)});
+    height: calc(100vh - 350px);
 
     .json-wrap {
-      height: calc(100vh - #{size(350)});
+      height: calc(100vh - 350px);
       // height: calc(100vh - #{size(350)});
     }
 
     .body-op {
       position: absolute;
-      right: size(10);
-      top: size(5);
+      right: 10px;
+      top: 5px;
 
       .btn {
-        color: $theme-color;
+        color: var(--theme-color);
         cursor: pointer;
-        margin-right: size(10);
+        margin-right: 10px;
       }
     }
 
     .json-tip {
-      width: size(576);
-      height: size(194);
+      width: 576px;
+      height: 194px;
       position: absolute;
       left: 50%;
       top: 50%;
       transform: translate(-50%, -50%);
       user-select: none;
-      border: 1px solid $gray-400;
+      border: 1px solid var(--gray-400);
 
       &>img {
         opacity: 0.5;
@@ -394,79 +394,79 @@ onMounted(async () => {
 
       .no-tip {
         position: absolute;
-        right: size(5);
-        bottom: size(5);
+        right: 5px;
+        bottom: 5px;
         cursor: pointer;
       }
     }
   }
   .binary-wrap {
-    border-top: 1px dashed $gray-400;
+    border-top: 1px dashed var(--gray-400);
     position: relative;
-    height: calc(100vh - #{size(350)});
+    height: calc(100vh - 350px);
  
     .var-mode {
-      padding: size(5) size(5);
-      height: size(30);
+      padding: 5px 5px;
+      height: 30px;
       display: flex;
       align-items: center;
-      margin-top: size(10);
+      margin-top: 10px;
     }
     .file-mode {
-      padding: size(5) size(5);
-      height: size(30);
+      padding: 5px 5px;
+      height: 30px;
       display: flex;
       align-items: center;
-      margin-top: size(10);
+      margin-top: 10px;
       .label {
-        padding: size(5) size(5);
-        height: size(30);
+        padding: 5px 5px;
+        height: 30px;
         cursor: pointer;
-        background-color: $gray-300;
+        background-color: var(--gray-300);
       }
       .path {
         max-width: 75%;
-        padding: size(3) size(5);
-        border: 1px dashed $gray-400;
+        padding: 3px 5px;
+        border: 1px dashed var(--gray-400);
       }
       .close {
         // position: absolute;
         // right: size(3);
         // top: 50%;
         // transform: translateY(-50%);
-        font-size: fz(16);
+        font-size: 16px;
         cursor: pointer;
         &:hover {
-          color: $red;
+          color: var(--red);
         }
       }
     }
   }
   .template-wrap {
-    top: size(30);
-    left: size(-200);
-    background: $white;
-    z-index: $zIndex-contextmenu;
+    top: 30px;
+    left: -200px;
+    background: var(--white);
+    z-index: var(--zIndex-contextmenu);
     position: absolute;
-    min-width: size(250);
-    border: 1px solid $gray-200;
+    min-width: 250px;
+    border: 1px solid var(--gray-200);
     box-shadow: rgb(0 0 0 / 10%) 0px 2px 8px 0px; //墨刀弹窗样式
-    max-height: size(220);
+    max-height: 220px;
     overflow-y: auto;
 
     &::-webkit-scrollbar {
-      width: size(5);
+      width: 5px;
     }
 
     &::-webkit-scrollbar-thumb {
-      background: $gray-400;
+      background: var(--gray-400);
     }
 
     .header {
-      border-bottom: 1px solid $gray-300;
+      border-bottom: 1px solid var(--gray-300);
       display: flex;
       align-items: center;
-      padding: size(3) size(20) size(3) size(5);
+      padding: 3px 20px 3px 5px;
 
       .el-input__inner {
         border: none;
@@ -475,22 +475,22 @@ onMounted(async () => {
 
     .select-item {
       line-height: 1.8em;
-      padding: size(5) size(25);
+      padding: 5px 25px;
       cursor: pointer;
       display: flex;
 
       &:hover {
-        background: $theme-color;
-        color: $white;
+        background: var(--theme-color);
+        color: var(--white);
       }
 
       &.active {
-        background: $theme-color;
-        color: $white;
+        background: var(--theme-color);
+        color: var(--white);
       }
 
       .head {
-        margin-right: size(10);
+        margin-right: 10px;
       }
 
       .tail {

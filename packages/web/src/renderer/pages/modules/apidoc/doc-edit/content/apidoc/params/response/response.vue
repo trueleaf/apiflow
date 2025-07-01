@@ -371,18 +371,18 @@ onMounted(() => {
     align-items: center;
 
     .label {
-      width: size(230);
+      width: 230px;
     }
 
     .status-code {
-      width: size(140);
+      width: 140px;
     }
 
     .content-type {
-      max-width: size(200);
+      max-width: 200px;
 
       .type-text {
-        max-width: size(200);
+        max-width: 200px;
       }
     }
 
@@ -391,19 +391,19 @@ onMounted(() => {
     }
 
     .edit-input {
-      border: 1px solid $gray-600;
-      font-size: fz(14);
-      height: size(20);
-      line-height: size(20);
-      width: size(120);
+      border: 1px solid var(--gray-600);
+      font-size: 14px;
+      height: 20px;
+      line-height: 20px;
+      width: 120px;
 
       &.error {
-        border: 1px solid $red;
+        border: 1px solid var(--red);
       }
     }
 
     .active {
-      color: $theme-color;
+      color: var(--theme-color);
     }
   }
 
@@ -413,58 +413,58 @@ onMounted(() => {
     justify-content: center;
     height: 100%;
     cursor: pointer;
-    width: size(40);
-    margin-top: size(2);
+    width: 40px;
+    margin-top: 2px;
 
     &:hover {
-      color: $theme-color;
+      color: var(--theme-color);
     }
   }
 
   .editor-wrap {
     position: relative;
-    height: size(350);
+    height: 350px;
 
     &.vertical {
-      height: size(250);
+      height: 250px;
     }
 
     .editor {
-      height: size(350);
+      height: 350px;
     }
 
     .format-btn {
       position: absolute;
-      right: size(10);
-      top: size(0);
+      right: 10px;
+      top: 0px;
     }
   }
 
   .template-wrap {
-    top: size(30);
-    left: size(-200);
-    background: $white;
-    z-index: $zIndex-contextmenu;
+    top: 30px;
+    left: -200px;
+    background: var(--white);
+    z-index: var(--zIndex-contextmenu);
     position: absolute;
-    min-width: size(250);
-    border: 1px solid $gray-200;
+    min-width: 250px;
+    border: 1px solid var(--gray-200);
     box-shadow: rgb(0 0 0 / 10%) 0px 2px 8px 0px; //墨刀弹窗样式
-    max-height: size(220);
+    max-height: 220px;
     overflow-y: auto;
 
     &::-webkit-scrollbar {
-      width: size(5);
+      width: 5px;
     }
 
     &::-webkit-scrollbar-thumb {
-      background: $gray-400;
+      background: var(--gray-400);
     }
 
     .header {
-      border-bottom: 1px solid $gray-300;
+      border-bottom: 1px solid var(--gray-300);
       display: flex;
       align-items: center;
-      padding: size(3) size(20) size(3) size(5);
+      padding: 3px 20px 3px 5px;
     }
 
     .el-input__inner {
@@ -474,18 +474,18 @@ onMounted(() => {
 
     .select-item {
       line-height: 1.8em;
-      padding: size(5) size(25);
+      padding: 5px 25px;
       cursor: pointer;
       display: flex;
 
       &:hover {
-        background: $theme-color;
-        color: $white;
+        background: var(--theme-color);
+        color: var(--white);
       }
 
       &.active {
-        background: $theme-color;
-        color: $white;
+        background: var(--theme-color);
+        color: var(--white);
       }
 
       &.disabled {
@@ -494,12 +494,12 @@ onMounted(() => {
       }
 
       .head {
-        margin-right: size(10);
+        margin-right: 10px;
       }
 
       .tail {
         margin-left: auto;
-        // color: $gray-500;
+        // color: var(--gray-500);
       }
     }
   }

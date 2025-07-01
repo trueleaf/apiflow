@@ -30,7 +30,7 @@ watch(() => props.loading, () => {
     position: absolute;
     top: 60%;
     z-index: var(--zIndex-loading-text);
-    font-size: fz(16);
+    font-size: 16px;
     color: var(--theme-color);
     width: 100%;
     padding: 0 1em;

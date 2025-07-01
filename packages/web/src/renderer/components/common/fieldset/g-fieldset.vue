@@ -143,7 +143,7 @@ watch(() => props.maxHeight, () => {
 <style lang='scss' scoped>
 .s-fieldset {
   display: block;
-  min-height: size(30);
+  min-height: 30px;
   position: relative;
   border: 1px solid var(--gray-500);
   margin-top: 20px;
@@ -151,13 +151,13 @@ watch(() => props.maxHeight, () => {
 
   &>.legend {
     position: absolute;
-    height: size(30);
+    height: 30px;
     left: 20px;
     top: -10px;
     color: var(--gray-700);
     background: #fff;
     padding: 0 20px;
-    font-size: size(18);
+    font-size: 18px;
     font-weight: bolder;
     z-index: var(--zIndex-fieldset);
   }
@@ -165,7 +165,7 @@ watch(() => props.maxHeight, () => {
   &>.content {
     padding: 10px;
     width: 100%;
-    padding-top: size(25);
+    padding-top: 25px;
     overflow-y: auto;
     transition: height 0.3s ease;
     

@@ -35,13 +35,14 @@ const handleSelect = (mimeType: string) => {
   position: relative;
 
   .item {
-    padding: size(1) size(8);
-    border: 1px solid $gray-400;
-    border-radius: size(2);
-    margin-right: size(10);
-    cursor: pointer;
-    margin-top: size(5);
-    margin-bottom: size(10);
+    padding: 1px 8px;
+    border: 1px solid var(--gray-400);
+    border-radius: 2px;
+    margin-right: 10px;
+    margin-top: 5px;
+    margin-bottom: 10px;
+    color: var(--white);
+    background-color: var(--theme-color);
 
     &:hover {
       color: $white;
