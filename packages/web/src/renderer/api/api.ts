@@ -78,9 +78,9 @@ axiosInstance.interceptors.request.use(async (reqConfig) => {
   const userInfoStr = localStorage.getItem('userInfo') || '{}';
   try {
     const userInfo = JSON.parse(userInfoStr);
-    if (!userInfo.token) {
-      router.push('/login');
-    }
+    // if (!userInfo.token) {
+    //   router.push('/login');
+    // }
     //接口加签
     const timestamp = Date.now();
     const nonce = nanoid(); // 生成16位随机字符串

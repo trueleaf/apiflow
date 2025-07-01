@@ -533,14 +533,14 @@ class ApidocCache extends ResponseCache {
    */
   setSharePassword(shareId: string, password: string) {
     try {
-      const localData = JSON.parse(localStorage.getItem('apidoc/sharePasswords') || '{}');
+      const localData = JSON.parse(localStorage.getItem('apidoc/share/password') || '{}');
       localData[shareId] = password;
-      localStorage.setItem('apidoc/sharePasswords', JSON.stringify(localData));
+      localStorage.setItem('apidoc/share/password', JSON.stringify(localData));
     } catch (error) {
       console.error(error);
       const data: Record<string, string> = {};
       data[shareId] = password;
-      localStorage.setItem('apidoc/sharePasswords', JSON.stringify(data));
+      localStorage.setItem('apidoc/share/password', JSON.stringify(data));
     }
   }
 
@@ -549,14 +549,14 @@ class ApidocCache extends ResponseCache {
    */
   getSharePassword(shareId: string): string | null {
     try {
-      const localData: Record<string, string> = JSON.parse(localStorage.getItem('apidoc/sharePasswords') || '{}');
+      const localData: Record<string, string> = JSON.parse(localStorage.getItem('apidoc/share/password') || '{}');
       if (!localData[shareId]) {
         return null;
       }
       return localData[shareId];
     } catch (error) {
       console.error(error);
-      localStorage.setItem('apidoc/sharePasswords', '{}');
+      localStorage.setItem('apidoc/share/password', '{}');
       return null;
     }
   }
@@ -566,12 +566,64 @@ class ApidocCache extends ResponseCache {
    */
   clearSharePassword(shareId: string) {
     try {
-      const localData = JSON.parse(localStorage.getItem('apidoc/sharePasswords') || '{}');
+      const localData = JSON.parse(localStorage.getItem('apidoc/share/password') || '{}');
       delete localData[shareId];
-      localStorage.setItem('apidoc/sharePasswords', JSON.stringify(localData));
+      localStorage.setItem('apidoc/share/password', JSON.stringify(localData));
     } catch (error) {
       console.error(error);
-      localStorage.setItem('apidoc/sharePasswords', '{}');
+      localStorage.setItem('apidoc/share/password', '{}');
+    }
+  }
+
+  /*
+   * 设置分享文档参数块折叠状态
+   */
+  setShareCollapseState(shareId: string, blockStates: Record<string, boolean>) {
+    try {
+      const localData = JSON.parse(localStorage.getItem('apidoc/share/collapse') || '{}');
+      localData[shareId] = blockStates;
+      localStorage.setItem('apidoc/share/collapse', JSON.stringify(localData));
+    } catch (error) {
+      console.error(error);
+      const data: Record<string, Record<string, boolean>> = {};
+      data[shareId] = blockStates;
+      localStorage.setItem('apidoc/share/collapse', JSON.stringify(data));
+    }
+  }
+
+  /*
+   * 获取分享文档参数块折叠状态
+   */
+  getShareCollapseState(shareId: string): Record<string, boolean> | null {
+    try {
+      const localData: Record<string, Record<string, boolean>> = JSON.parse(localStorage.getItem('apidoc/share/collapse') || '{}');
+      if (!localData[shareId]) {
+        return null;
+      }
+      return localData[shareId];
+    } catch (error) {
+      console.error(error);
+      localStorage.setItem('apidoc/share/collapse', '{}');
+      return null;
+    }
+  }
+
+  /*
+   * 更新单个分享文档参数块折叠状态
+   */
+  updateShareBlockCollapseState(shareId: string, blockName: string, isExpanded: boolean) {
+    try {
+      const localData = JSON.parse(localStorage.getItem('apidoc/share/collapse') || '{}');
+      if (!localData[shareId]) {
+        localData[shareId] = {};
+      }
+      localData[shareId][blockName] = isExpanded;
+      localStorage.setItem('apidoc/share/collapse', JSON.stringify(localData));
+    } catch (error) {
+      console.error(error);
+      const data: Record<string, Record<string, boolean>> = {};
+      data[shareId] = { [blockName]: isExpanded };
+      localStorage.setItem('apidoc/share/collapse', JSON.stringify(data));
     }
   }
 }

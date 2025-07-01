@@ -12,6 +12,6 @@ export function registeGlobalComponent(app: App): void {
     } else {
       componentName = `s-${gName[1].replace(/g-/, '')}`;
     }
-    app.component(componentName, defineAsyncComponent(componentConfig))
+    app.component(componentName, defineAsyncComponent(componentConfig as any))
   });
 }
