@@ -45,8 +45,8 @@ const handleSelect = (mimeType: string) => {
     background-color: var(--theme-color);
 
     &:hover {
-      color: $white;
-      background-color: $theme-color;
+      color: var(--white);
+      background-color: var(--theme-color);
     }
   }
 

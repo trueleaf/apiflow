@@ -15,6 +15,10 @@ export default defineConfig({
       "@src": path.resolve(__dirname, "../../src"),
     }
   },
+  define: {
+    // 注入环境变量，用于控制是否为HTML模式
+    'import.meta.env.VITE_USE_FOR_HTML': JSON.stringify('true')
+  },
   build: {
     // 指定自定义入口
     rollupOptions: {

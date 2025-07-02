@@ -63,23 +63,31 @@ import SResizeX from '@/components/common/resize/g-resize-x.vue'
 import SLoading from '@/components/common/loading/g-loading.vue'
 import SEmphasize from '@/components/common/emphasize/g-emphasize.vue'
 import { TreeNodeOptions } from 'element-plus/es/components/tree/src/tree.type.mjs'
-import { useApidocTas } from '@/store/apidoc/tabs'
+import { useShareTabsStore } from '../store'
 import { useShareBannerData } from './composables/banner-data'
 import { $t } from '@/i18n/i18n'
 import { defaultRequestMethods } from '../common'
+import { useRoute } from 'vue-router';
 
 /*
 |--------------------------------------------------------------------------
-| 变量、函数等内容声明
-| 获取banner数据
-| 获取项目基本信息
+| 变量定义
 |--------------------------------------------------------------------------
 */
-const shareId = ref(router.currentRoute.value.query.share_id as string);
+// 检查是否为HTML模式
+const useForHtml = computed(() => {
+  try {
+    return !!(window as any).SHARE_DATA
+  } catch {
+    return false
+  }
+})
+const route = useRoute();
+const apidocTabsStore = useShareTabsStore();
+const shareId = ref(route.query.share_id as string);
 const docTree: Ref<TreeNodeOptions['store'] | null | TreeNodeOptions> = ref(null);
 const showMoreNodeInfo = ref(false); //banner是否显示更多内容
 const defaultExpandedKeys = ref<string[]>([]);
-const apidocTabsStore = useApidocTas();
 
 // 添加项目名称和搜索相关变量
 const projectName = ref(router.currentRoute.value.query.projectName as string || '');
@@ -87,8 +95,15 @@ const searchValue = ref('');
 const requestMethods = ref(defaultRequestMethods);
 
 // 使用分享banner数据composable
-const { getBannerData, loading, bannerData } = useShareBannerData(shareId.value);
+const { getBannerData, loading, bannerData } = useShareBannerData(shareId.value, useForHtml.value);
 
+const activeNode = computed(() => apidocTabsStore.tabs[shareId.value]?.find((v) => v.selected));
+
+/*
+|--------------------------------------------------------------------------
+| 初始化数据获取逻辑
+|--------------------------------------------------------------------------
+*/
 // 监听shareId变化，重新获取数据
 watch(shareId, (newShareId) => {
   if (newShareId) {
@@ -96,11 +111,9 @@ watch(shareId, (newShareId) => {
   }
 });
 
-const activeNode = computed(() => apidocTabsStore.tabs[shareId.value]?.find((v) => v.selected));
-
 /*
 |--------------------------------------------------------------------------
-| 节点点击和交互
+| 逻辑处理函数
 |--------------------------------------------------------------------------
 */
 //点击节点
@@ -129,14 +142,10 @@ const handleDbclickNode = (data: ApidocBanner) => {
   }
   apidocTabsStore.fixedTab({
     _id: data._id,
-    projectId: shareId.value,
+    shareId: shareId.value,
   })
 }
-/*
-|--------------------------------------------------------------------------
-| 节点过滤
-|--------------------------------------------------------------------------
-*/
+
 //过滤节点
 const filterNode = (value: string, data: Record<string, unknown>): boolean => {
   if (!value) {
@@ -151,10 +160,9 @@ const filterNode = (value: string, data: Record<string, unknown>): boolean => {
 
 /*
 |--------------------------------------------------------------------------
-| 其他操作
+| 监听器
 |--------------------------------------------------------------------------
 */
-
 // 监听URL中的projectName变化
 watch(() => router.currentRoute.value.query.projectName, (newProjectName) => {
   if (newProjectName) {
@@ -169,6 +177,11 @@ watch(searchValue, (newValue) => {
   }
 });
 
+/*
+|--------------------------------------------------------------------------
+| 生命周期函数
+|--------------------------------------------------------------------------
+*/
 onMounted(() => {
   getBannerData();
 })

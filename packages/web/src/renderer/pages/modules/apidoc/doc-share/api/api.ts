@@ -1,29 +1,21 @@
 import Axios, { AxiosResponse, AxiosError } from 'axios';
 import { config } from '@/../config/config'
-import { router } from '@/router';
 import { ElMessage, ElMessageBox } from 'element-plus';
 import { nanoid } from 'nanoid';
 import { $t } from '@/i18n/i18n';
-import { parseUrl, getStrParams, getStrHeader, getStrJsonBody, getHashedContent } from './sign';
+import { parseUrl, getStrParams, getStrHeader, getStrJsonBody, getHashedContent } from '@/api/sign';
 
 const axiosInstance = Axios.create();
 axiosInstance.defaults.withCredentials = config.renderConfig.httpRequest.withCredentials;//允许携带cookie
 axiosInstance.defaults.timeout = config.renderConfig.httpRequest.timeout;//超时时间
 axiosInstance.defaults.baseURL = config.renderConfig.httpRequest.url;//请求地址
-let isExpire = false; //是否登录过期
 
 //===============================axiosInstance请求钩子==========================================//
 axiosInstance.interceptors.request.use(async (reqConfig) => {
-  const userInfoStr = localStorage.getItem('userInfo') || '{}';
   try {
-    const userInfo = JSON.parse(userInfoStr);
-    // if (!userInfo.token) {
-    //   router.push('/login');
-    // }
     //接口加签
     const timestamp = Date.now();
     const nonce = nanoid(); // 生成16位随机字符串
-    reqConfig.headers.Authorization = userInfo.token;
     const method = reqConfig.method!.toLowerCase();
     const parsedUrlInfo = parseUrl(reqConfig.url!);
     const url = parsedUrlInfo.url;
@@ -71,12 +63,6 @@ axiosInstance.interceptors.response.use(
       switch (code) {
         case 0: //正确请求
           break;
-        case 2006: //输入验证码
-          break;
-        case 2003: //验证码错误
-          break;
-        case 4005: //图形验证码错误
-          break;
         case 1020: //分享链接不存在
           break;
         case 1021: //分享链接已过期
@@ -85,31 +71,6 @@ axiosInstance.interceptors.response.use(
           break;
         case 1023: //密码错误
           break;
-        case 4101: //登录有错
-          router.replace('/login');
-          ElMessage.warning($t('暂无权限'));
-          return Promise.reject(new Error($t('暂无权限')));
-        case 4100: //登录过期
-          if (!isExpire) {
-            isExpire = true;
-            ElMessageBox.confirm($t('登录已过期'), $t('提示'), {
-              confirmButtonText: $t('跳转登录'),
-              cancelButtonText: $t('取消'),
-              type: 'warning',
-            }).then(() => {
-              isExpire = false;
-              sessionStorage.clear();
-              router.replace('/login');
-            }).catch(() => {
-              isExpire = false;
-            });
-          }
-          return Promise.reject(new Error($t('登录已过期')));
-        case 4200: //代理错误
-          return Promise.reject(new Error(res.data.msg));
-        case 4002: //暂无权限
-          ElMessage.warning($t(res.data.msg || '暂无权限'));
-          return Promise.reject(new Error($t(res.data.msg || '暂无权限')));
         default:
           ElMessageBox.confirm($t(res.data.msg ? res.data.msg : '操作失败'), $t('提示'), {
             confirmButtonText: $t('确定'),

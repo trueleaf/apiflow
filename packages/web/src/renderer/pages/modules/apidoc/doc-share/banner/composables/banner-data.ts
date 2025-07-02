@@ -11,14 +11,36 @@ type ReturnData = {
   bannerData: any,
 };
 
-export function useShareBannerData(shareId: string): ReturnData {
+export function useShareBannerData(shareId: string, useForHtml: boolean = false): ReturnData {
   const loading = ref(false);
   const bannerData = ref<ApidocBanner[]>([]);
   
+  // 从 window.SHARE_DATA 获取 banner 数据
+  const getBannerDataFromWindow = () => {
+    try {
+      const shareData = (window as any).SHARE_DATA
+      if (shareData && shareData.docs && Array.isArray(shareData.docs)) {
+        bannerData.value = shareData.docs
+        return true
+      }
+    } catch (error) {
+      console.error('从 window.SHARE_DATA 获取 banner 数据失败:', error)
+    }
+    return false
+  }
+  
   const getBannerData = async () => {
-    if (!shareId) {
+    if (!shareId && !useForHtml) {
       console.warn($t('shareId为空，无法获取banner数据'));
       return;
+    }
+    
+    // 如果是HTML模式，从window.SHARE_DATA获取数据
+    if (useForHtml) {
+      const success = getBannerDataFromWindow()
+      if (success) {
+        return
+      }
     }
     
     try {

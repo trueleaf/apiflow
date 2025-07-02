@@ -8,6 +8,7 @@
     "web:dev": "npm run dev -w @apiflow/web",
     "web:web": "npm run web -w @apiflow/web",
     "web:build": "npm run build -w @apiflow/web",
+    "web:build:share": "npm run build:share -w @apiflow/web",
     "web:preview": "npm run preview -w @apiflow/web",
     "server:dev": "npm run dev -w @apiflow/server",
     "server:start": "npm run start -w @apiflow/server",

@@ -1,6 +1,11 @@
 <template>
   <div class="share-doc-detail">
-    <SLoading :loading="loading" class="doc-detail">
+    <!-- 当tabs为空时显示提示信息 -->
+    <div v-if="!tabId" class="empty-tabs">
+      <h2>{{ $t('暂无文档') }}</h2>
+    </div>
+    
+    <SLoading v-else :loading="loading" class="doc-detail">
       <template v-if="apidocInfo">
         <!-- 顶部标题和接口信息 -->
         <div class="api-doc-header">
@@ -203,20 +208,29 @@ import SLoading from '@/components/common/loading/g-loading.vue';
 import { ArrowDown } from '@element-plus/icons-vue';
 import SJsonEditor from '@/components/common/json-editor/g-json-editor.vue';
 import { formatDate } from '@/helper';
-import { router } from '@/router';
 import { apidocCache } from '@/cache/apidoc';
-import { useApidocTas } from '@/store/apidoc/tabs';
 import { defaultRequestMethods } from '../common';
-import { useShareDocStore } from '@/store/apidoc/shareDoc';
 import { convertTemplateValueToRealValue } from '@/utils/utils';
 import { $t } from '@/i18n/i18n';
 import SParamsView from '@/components/apidoc/params-view/g-params-view.vue';
+import { useShareTabsStore, useShareDocStore } from '../store';
+import { ApidocTab } from '@src/types/apidoc/tabs';
+import { useRoute } from 'vue-router';
 
 /*
 |--------------------------------------------------------------------------
 | 变量定义
 |--------------------------------------------------------------------------
 */
+// 检查是否为HTML模式
+const useForHtml = computed(() => {
+  try {
+    return !!(window as any).SHARE_DATA
+  } catch {
+    return false
+  }
+})
+
 const loading = ref(false);
 const apidocInfo: Ref<ApidocDetail | null> = ref(null);
 const expandedBlocks = ref({
@@ -228,20 +242,35 @@ const expandedBlocks = ref({
 const actualQueryParams = ref<ApidocProperty[]>([]);
 const actualHeaders = ref<ApidocProperty[]>([]);
 const activeResponseTab = ref('0'); // 当前选中的响应 tab
-
+const route = useRoute();
 // Store 实例
+const apidocTabsStore = useShareTabsStore();
 const shareDocStore = useShareDocStore();
-const apidocTabsStore = useApidocTas();
-const requestMethods = ref(defaultRequestMethods);
+const tabs = apidocTabsStore.tabs;
+const shareId = ref(route.query.share_id);
 
-// Computed 属性
-const shareId = computed(() => router.currentRoute.value.query.share_id as string);
+// 监听tabs变化，自动设置shareId为第一个key
+watch(
+  () => Object.keys(tabs.value),
+  (keys) => {
+    if (keys.length > 0) {
+      shareId.value = keys[0];
+    } else {
+      shareId.value = '';
+    }
+  },
+  { immediate: true }
+);
+
 const tabId = computed(() => {
-  const tabs = apidocTabsStore.tabs[shareId.value];
-  const selectedTab = tabs?.find((tab) => tab.selected);
+  const tabArr = (tabs.value[shareId.value] || []) as ApidocTab[];
+  const selectedTab = tabArr.find((tab: ApidocTab) => tab.selected);
   return selectedTab?._id || '';
 });
 
+const requestMethods = ref(defaultRequestMethods);
+
+// Computed 属性
 const realFullUrl = ref('');
 watch([
   apidocInfo,
@@ -295,8 +324,34 @@ function getResponseLanguage(type: string) {
 | 初始化数据获取逻辑
 |--------------------------------------------------------------------------
 */
+// 从 window.SHARE_DATA 获取文档详情
+const getDocDetailFromWindow = (docId: string) => {
+  try {
+    const shareData = (window as any).SHARE_DATA
+    if (shareData && shareData.docs && Array.isArray(shareData.docs)) {
+      const doc = shareData.docs.find((d: any) => d._id === docId)
+      if (doc) {
+        apidocInfo.value = doc
+        return true
+      }
+    }
+  } catch (error) {
+    console.error('从 window.SHARE_DATA 获取文档详情失败:', error)
+  }
+  return false
+}
+
 const fetchShareDoc = async () => {
   if (!tabId.value) return;
+  
+  // 如果是HTML模式，从window.SHARE_DATA获取数据
+  if (useForHtml.value) {
+    const success = getDocDetailFromWindow(tabId.value)
+    if (success) {
+      return
+    }
+  }
+  
   loading.value = true;
   try {
     const password = apidocCache.getSharePassword(shareId.value);
@@ -427,6 +482,21 @@ onMounted(() => {
     width: 100%;
     margin: 0 auto;
     overflow-y: auto;
+  }
+}
+
+.empty-tabs {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 200px;
+  background: var(--gray-100);
+  
+  h2 {
+    color: var(--gray-600);
+    font-size: 18px;
+    font-weight: 500;
+    margin: 0;
   }
 }
 

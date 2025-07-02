@@ -48,41 +48,32 @@ import {
 } from '@element-plus/icons-vue';
 import { ComponentPublicInstance, computed, onMounted, onUnmounted, ref } from 'vue';
 import { ApidocTab } from '@src/types/apidoc/tabs';
-import { router } from '@/router';
-import { useApidocTas } from '@/store/apidoc/tabs';
+import { useShareTabsStore } from '../store/shareTabs';
+import { useShareBannerStore } from '../store/shareBanner';
 import { event } from '@/helper'
 import SContextmenu from '@/components/common/contextmenu/g-contextmenu.vue'
 import SContextmenuItem from '@/components/common/contextmenu/g-contextmenu-item.vue'
-import { useApidocBanner } from '@/store/apidoc/banner';
 import { defaultRequestMethods } from '../common';
 import { $t } from '@/i18n/i18n';
+import { useRoute } from 'vue-router';
 
 /*
 |--------------------------------------------------------------------------
 | 变量定义
 |--------------------------------------------------------------------------
 */
+const route = useRoute();
 const showContextmenu = ref(false); //是否显示contextmenu
 const contextmenuLeft = ref(0); //鼠标右键x值
 const contextmenuTop = ref(0); //鼠标右键y值
 const currentOperationNode = ref<ApidocTab | null>(null); //当前被操作的节点信息
-const apidocTabsStore = useApidocTas();
 const tabListWrap = ref<ComponentPublicInstance | null>(null)
-
-// 获取shareId
-const shareId = computed(() => router.currentRoute.value.query.share_id as string);
-
+const apidocTabsStore = useShareTabsStore();
+const shareId = computed(() => route.query.share_id as string);
 const tabs = computed({
-  get() {
-    return apidocTabsStore.tabs[shareId.value] || []
-  },
-  set(tabs: ApidocTab[]) { //拖拽tabs会导致数据写入
-    apidocTabsStore.updateAllTabs({
-      projectId: shareId.value,
-      tabs,
-    })
-  }
-})
+  get: () => apidocTabsStore.tabs[shareId.value] || [],
+  set: (val) => apidocTabsStore.updateAllTabs({ shareId: shareId.value, tabs: val })
+});
 
 const ipAddress = computed(() => {
   return window.electronAPI?.ip;
@@ -128,7 +119,7 @@ const handleCloseCurrentTab = (tab?: ApidocTab) => {
   const currentOperationNodeId = currentOperationNode.value?._id || ''
   const tabId: string = tab ? tab._id : currentOperationNodeId;
   apidocTabsStore.deleteTabByIds({
-    projectId: shareId.value,
+    shareId: shareId.value,
     ids: [tabId]
   });
   if (tab) {
@@ -146,7 +137,7 @@ const handleCloseOtherTab = () => {
     }
   })
   apidocTabsStore.deleteTabByIds({
-    projectId: shareId.value,
+    shareId: shareId.value,
     ids: delTabs
   })
 }
@@ -163,7 +154,7 @@ const handleCloseLeftTab = () => {
     }
   }
   apidocTabsStore.deleteTabByIds({
-    projectId: shareId.value,
+    shareId: shareId.value,
     ids: delTabs
   })
 }
@@ -177,7 +168,7 @@ const handleCloseRightTab = () => {
     delTabs.push(tabs.value[i]._id);
   }
   apidocTabsStore.deleteTabByIds({
-    projectId: shareId.value,
+    shareId: shareId.value,
     ids: delTabs
   })
 }
@@ -185,26 +176,26 @@ const handleCloseRightTab = () => {
 //关闭全部
 const handleCloseAllTab = () => {
   apidocTabsStore.deleteTabByIds({
-    projectId: shareId.value,
+    shareId: shareId.value,
     ids: tabs.value.map((v) => v._id)
   })
 }
 
 //选中当前tab
 const selectCurrentTab = (element: ApidocTab) => {
-  const { changeExpandItems } = useApidocBanner()
+  const apidocBannerStore = useShareBannerStore();
   apidocTabsStore.selectTabById({
-    projectId: shareId.value,
+    shareId: shareId.value,
     id: element._id
   });
-  changeExpandItems([element._id])
+  apidocBannerStore.changeExpandItems([element._id]);
 }
 
 //固定当前tab
 const fixCurrentTab = (element: ApidocTab) => {
   apidocTabsStore.fixedTab({
     _id: element._id,
-    projectId: shareId.value,
+    shareId: shareId.value,
   })
 }
 
@@ -217,7 +208,7 @@ onMounted(() => {
   document.body.addEventListener('click', bindGlobalClick);
   document.body.addEventListener('contextmenu', bindGlobalClick);
   apidocTabsStore.initLocalTabs({
-    projectId: shareId.value
+    shareId: shareId.value
   })
   initViewTab();
 })

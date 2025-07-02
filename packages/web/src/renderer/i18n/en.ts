@@ -561,4 +561,5 @@ export default {
   暂无请求体参数: 'No Body Parameters',
   响应: 'Response',
   暂无响应数据: 'No Response Data',
+  暂无标签页: 'No Tabs',
 }
