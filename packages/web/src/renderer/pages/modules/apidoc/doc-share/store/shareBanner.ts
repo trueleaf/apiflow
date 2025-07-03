@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
-import { request } from '@/api/api';
-import { findNodeById, forEachForest } from '@/helper';
+import { request } from '../api/api';
+import { findNodeById, forEachForest } from '../helper';
 import { ApidocBanner, Response } from '@src/types/global';
 
 type SplicePayload = {

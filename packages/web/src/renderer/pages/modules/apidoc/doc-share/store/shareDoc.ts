@@ -11,6 +11,8 @@ export const useShareDocStore = defineStore('shareDoc', () => {
   */
   const variables = ref<ApidocVariable[]>([]);
   const objectVariable = ref<Record<string, any>>({});
+  const projectInfo = ref<any>({});
+  const docs = ref<any[]>([]);
 
   /*
   |--------------------------------------------------------------------------
@@ -34,6 +36,13 @@ export const useShareDocStore = defineStore('shareDoc', () => {
     objectVariable.value = {};
   };
 
+  const setProjectInfo = (info: any) => {
+    projectInfo.value = info || {};
+  };
+  const setDocs = (docsList: any[]) => {
+    docs.value = docsList || [];
+  };
+
   /*
   |--------------------------------------------------------------------------
   | 生命周期函数
@@ -45,5 +54,9 @@ export const useShareDocStore = defineStore('shareDoc', () => {
     objectVariable,
     replaceVariables,
     clearVariables,
+    projectInfo,
+    docs,
+    setProjectInfo,
+    setDocs,
   };
 }); 

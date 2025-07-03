@@ -578,15 +578,15 @@ class ApidocCache extends ResponseCache {
   /*
    * 设置分享文档参数块折叠状态
    */
-  setShareCollapseState(shareId: string, blockStates: Record<string, boolean>) {
+  setShareCollapseState(tabId: string, blockStates: Record<string, boolean>) {
     try {
       const localData = JSON.parse(localStorage.getItem('apidoc/share/collapse') || '{}');
-      localData[shareId] = blockStates;
+      localData[tabId] = blockStates;
       localStorage.setItem('apidoc/share/collapse', JSON.stringify(localData));
     } catch (error) {
       console.error(error);
       const data: Record<string, Record<string, boolean>> = {};
-      data[shareId] = blockStates;
+      data[tabId] = blockStates;
       localStorage.setItem('apidoc/share/collapse', JSON.stringify(data));
     }
   }
@@ -594,13 +594,13 @@ class ApidocCache extends ResponseCache {
   /*
    * 获取分享文档参数块折叠状态
    */
-  getShareCollapseState(shareId: string): Record<string, boolean> | null {
+  getShareCollapseState(tabId: string): Record<string, boolean> | null {
     try {
       const localData: Record<string, Record<string, boolean>> = JSON.parse(localStorage.getItem('apidoc/share/collapse') || '{}');
-      if (!localData[shareId]) {
+      if (!localData[tabId]) {
         return null;
       }
-      return localData[shareId];
+      return localData[tabId];
     } catch (error) {
       console.error(error);
       localStorage.setItem('apidoc/share/collapse', '{}');
@@ -611,18 +611,18 @@ class ApidocCache extends ResponseCache {
   /*
    * 更新单个分享文档参数块折叠状态
    */
-  updateShareBlockCollapseState(shareId: string, blockName: string, isExpanded: boolean) {
+  updateShareBlockCollapseState(tabId: string, blockName: string, isExpanded: boolean) {
     try {
       const localData = JSON.parse(localStorage.getItem('apidoc/share/collapse') || '{}');
-      if (!localData[shareId]) {
-        localData[shareId] = {};
+      if (!localData[tabId]) {
+        localData[tabId] = {};
       }
-      localData[shareId][blockName] = isExpanded;
+      localData[tabId][blockName] = isExpanded;
       localStorage.setItem('apidoc/share/collapse', JSON.stringify(localData));
     } catch (error) {
       console.error(error);
       const data: Record<string, Record<string, boolean>> = {};
-      data[shareId] = { [blockName]: isExpanded };
+      data[tabId] = { [blockName]: isExpanded };
       localStorage.setItem('apidoc/share/collapse', JSON.stringify(data));
     }
   }

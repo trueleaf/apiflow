@@ -6,7 +6,6 @@
 </template>
 
 <script lang="ts" setup>
-import { randomTip } from '@/helper/index'
 import { ref, watch } from 'vue';
 
 const props = defineProps({
@@ -18,7 +17,7 @@ const props = defineProps({
 const loadingText = ref('');
 
 watch(() => props.loading, () => {
-  loadingText.value = randomTip()
+  // loadingText.value = randomTip()
 }, {
   immediate: true
 })

@@ -155,7 +155,6 @@ const handleGuesttLogin = () => {
   }
 
   .forget-pwd-wrap {
-    margin-top: -20px;
     display: flex;
     justify-content: center;
     margin-bottom: 10px;

@@ -56,7 +56,7 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, ref, Ref, onMounted, watch } from 'vue'
+import { computed, ref, Ref, onMounted, watch, nextTick } from 'vue'
 import type { ApidocBanner } from '@src/types/global'
 import { router } from '@/router/index'
 import SResizeX from '@/components/common/resize/g-resize-x.vue'
@@ -64,10 +64,12 @@ import SLoading from '@/components/common/loading/g-loading.vue'
 import SEmphasize from '@/components/common/emphasize/g-emphasize.vue'
 import { TreeNodeOptions } from 'element-plus/es/components/tree/src/tree.type.mjs'
 import { useShareTabsStore } from '../store'
+import { useShareBannerStore } from '../store/shareBanner'
 import { useShareBannerData } from './composables/banner-data'
 import { $t } from '@/i18n/i18n'
 import { defaultRequestMethods } from '../common'
 import { useRoute } from 'vue-router';
+import { findNodeById, findParentById } from '../helper';
 
 /*
 |--------------------------------------------------------------------------
@@ -84,10 +86,10 @@ const useForHtml = computed(() => {
 })
 const route = useRoute();
 const apidocTabsStore = useShareTabsStore();
+const shareBannerStore = useShareBannerStore();
 const shareId = ref(route.query.share_id as string);
 const docTree: Ref<TreeNodeOptions['store'] | null | TreeNodeOptions> = ref(null);
 const showMoreNodeInfo = ref(false); //banner是否显示更多内容
-const defaultExpandedKeys = ref<string[]>([]);
 
 // 添加项目名称和搜索相关变量
 const projectName = ref(router.currentRoute.value.query.projectName as string || '');
@@ -98,6 +100,9 @@ const requestMethods = ref(defaultRequestMethods);
 const { getBannerData, loading, bannerData } = useShareBannerData(shareId.value, useForHtml.value);
 
 const activeNode = computed(() => apidocTabsStore.tabs[shareId.value]?.find((v) => v.selected));
+
+// 使用store中的展开状态
+const defaultExpandedKeys = computed(() => shareBannerStore.defaultExpandedKeys);
 
 /*
 |--------------------------------------------------------------------------
@@ -132,6 +137,10 @@ const handleClickNode = (e: MouseEvent, data: ApidocBanner) => {
         color: ""
       },
     })
+    
+    // 展开到该节点的完整路径
+    const nodePath = getNodePath(data._id);
+    shareBannerStore.changeExpandItems(nodePath);
   }
 }
 
@@ -157,6 +166,23 @@ const filterNode = (value: string, data: Record<string, unknown>): boolean => {
   showMoreNodeInfo.value = true;
   return !!matchedUrl || !!matchedDocName;
 }
+
+// 获取节点的完整路径（包括所有父节点）
+const getNodePath = (nodeId: string): string[] => {
+  const path: string[] = [];
+  let currentNode = findNodeById(bannerData.value, nodeId, { idKey: '_id' }) as ApidocBanner | null;
+  
+  while (currentNode) {
+    path.unshift(currentNode._id);
+    if (currentNode.pid) {
+      currentNode = findParentById(bannerData.value, currentNode._id, { idKey: '_id' }) as ApidocBanner | null;
+    } else {
+      break;
+    }
+  }
+  
+  return path;
+};
 
 /*
 |--------------------------------------------------------------------------

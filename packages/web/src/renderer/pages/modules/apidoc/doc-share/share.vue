@@ -49,7 +49,6 @@
 </template>
 <script lang="ts" setup>
 import { ref, onMounted, onUnmounted, watch } from 'vue'
-
 import { request } from './api/api'
 import { ElMessage, FormInstance } from 'element-plus'
 import { Loading, } from '@element-plus/icons-vue'
@@ -58,9 +57,10 @@ import { $t } from '@/i18n/i18n'
 import { apidocCache } from '@/cache/apidoc'
 import { useRoute, useRouter } from 'vue-router'
 import { useShareDocStore } from './store/shareDoc'
-import SNav from './nav/nav.vue'
 import SBanner from './banner/banner.vue'
+import SNav from './nav/nav.vue'
 import SContent from './content/content.vue'
+
 
 // 分享信息类型定义
 interface ShareInfo {

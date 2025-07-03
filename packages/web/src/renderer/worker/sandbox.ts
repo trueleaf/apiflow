@@ -3,7 +3,9 @@ import { SandboxReceiveMessage } from "@src/types/global";
 self.onmessage = (e: MessageEvent<SandboxReceiveMessage>) => {
  if (e.data.type === "eval") {
   try {
-    const data = eval(e.data.code);
+    // 使用 new Function 替代 eval，避免访问本地作用域
+    const fn = new Function(e.data.code);
+    const data = fn();
     self.postMessage({
       type: "evalSuccess",
       data

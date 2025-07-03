@@ -3,8 +3,8 @@
     <!-- 当tabs为空时显示提示信息 -->
     <div v-if="!tabId" class="empty-tabs">
       <h2>{{ $t('暂无文档') }}</h2>
+      {{ tabs }}
     </div>
-    
     <SLoading v-else :loading="loading" class="doc-detail">
       <template v-if="apidocInfo">
         <!-- 顶部标题和接口信息 -->
@@ -148,7 +148,6 @@
               <div v-if="!bodyType" class="api-doc-empty">{{ $t('暂无请求体参数') }}</div>
             </div>
           </div>
-
           <!-- 响应块 -->
           <div class="api-doc-block">
             <div class="api-doc-block-header" @click="toggleBlock('response')">
@@ -203,19 +202,20 @@
 <script lang="ts" setup>
 import { ref, Ref, onMounted, computed, watch } from 'vue';
 import { ApidocDetail, Response, ApidocProperty } from '@src/types/global';
-import { request } from '@/api/api';
+import { request } from '../api/api';
 import SLoading from '@/components/common/loading/g-loading.vue';
 import { ArrowDown } from '@element-plus/icons-vue';
 import SJsonEditor from '@/components/common/json-editor/g-json-editor.vue';
-import { formatDate } from '@/helper';
+import { formatDate } from '../helper';
 import { apidocCache } from '@/cache/apidoc';
 import { defaultRequestMethods } from '../common';
 import { convertTemplateValueToRealValue } from '@/utils/utils';
 import { $t } from '@/i18n/i18n';
 import SParamsView from '@/components/apidoc/params-view/g-params-view.vue';
-import { useShareTabsStore, useShareDocStore } from '../store';
 import { ApidocTab } from '@src/types/apidoc/tabs';
 import { useRoute } from 'vue-router';
+import { useShareTabsStore } from '../store/shareTabs';
+import { useShareDocStore } from '../store/shareDoc';
 
 /*
 |--------------------------------------------------------------------------
@@ -230,7 +230,7 @@ const useForHtml = computed(() => {
     return false
   }
 })
-
+const route = useRoute();
 const loading = ref(false);
 const apidocInfo: Ref<ApidocDetail | null> = ref(null);
 const expandedBlocks = ref({
@@ -242,28 +242,16 @@ const expandedBlocks = ref({
 const actualQueryParams = ref<ApidocProperty[]>([]);
 const actualHeaders = ref<ApidocProperty[]>([]);
 const activeResponseTab = ref('0'); // 当前选中的响应 tab
-const route = useRoute();
-// Store 实例
+const shareId = route.query.share_id as string;
 const apidocTabsStore = useShareTabsStore();
 const shareDocStore = useShareDocStore();
-const tabs = apidocTabsStore.tabs;
-const shareId = ref(route.query.share_id);
+const realFullUrl = ref('');
+const tabs = computed(() => apidocTabsStore.tabs);
 
-// 监听tabs变化，自动设置shareId为第一个key
-watch(
-  () => Object.keys(tabs.value),
-  (keys) => {
-    if (keys.length > 0) {
-      shareId.value = keys[0];
-    } else {
-      shareId.value = '';
-    }
-  },
-  { immediate: true }
-);
+
 
 const tabId = computed(() => {
-  const tabArr = (tabs.value[shareId.value] || []) as ApidocTab[];
+  const tabArr = (tabs.value as unknown as Record<string, ApidocTab[]>)?.[shareId] || [];
   const selectedTab = tabArr.find((tab: ApidocTab) => tab.selected);
   return selectedTab?._id || '';
 });
@@ -271,7 +259,6 @@ const tabId = computed(() => {
 const requestMethods = ref(defaultRequestMethods);
 
 // Computed 属性
-const realFullUrl = ref('');
 watch([
   apidocInfo,
   () => shareDocStore.objectVariable
@@ -300,7 +287,8 @@ const hasHeaders = computed(() => apidocInfo.value?.item.headers?.filter(p => p.
 
 // Body参数类型优先级
 const bodyType = computed(() => {
-  if (!apidocInfo.value) return '';
+  if (!apidocInfo.value) return ''; 
+  
   const { contentType, requestBody } = apidocInfo.value.item;
   if (contentType === 'application/json' && requestBody.mode === 'json') return 'json';
   if (contentType === 'multipart/form-data') return 'formdata';
@@ -342,7 +330,7 @@ const getDocDetailFromWindow = (docId: string) => {
 }
 
 const fetchShareDoc = async () => {
-  if (!tabId.value) return;
+  if (!tabId) return;
   
   // 如果是HTML模式，从window.SHARE_DATA获取数据
   if (useForHtml.value) {
@@ -354,8 +342,8 @@ const fetchShareDoc = async () => {
   
   loading.value = true;
   try {
-    const password = apidocCache.getSharePassword(shareId.value);
-    const params = { password, shareId: shareId.value, _id: tabId.value };
+    const password = apidocCache.getSharePassword(shareId);
+    const params = { password, shareId, _id: tabId.value };
     const res = await request.get<Response<ApidocDetail>, Response<ApidocDetail>>('/api/project/share_doc_detail', { params });
     apidocInfo.value = res.data;
   } catch (err) {
@@ -367,8 +355,8 @@ const fetchShareDoc = async () => {
 
 // 初始化折叠状态
 const initCollapseState = () => {
-  if (!shareId.value) return;
-  const savedState = apidocCache.getShareCollapseState(shareId.value);
+  if (!tabId.value) return;
+  const savedState = apidocCache.getShareCollapseState(tabId.value);
   if (savedState) {
     expandedBlocks.value = { ...expandedBlocks.value, ...savedState };
   }
@@ -383,9 +371,9 @@ const initCollapseState = () => {
 const toggleBlock = (blockName: keyof typeof expandedBlocks.value) => {
   expandedBlocks.value[blockName] = !expandedBlocks.value[blockName];
   // 更新缓存
-  if (shareId.value) {
+  if (tabId.value) {
     apidocCache.updateShareBlockCollapseState(
-      shareId.value, 
+      tabId.value, 
       blockName, 
       expandedBlocks.value[blockName]
     );
@@ -447,10 +435,19 @@ watch([filteredHeaders, () => shareDocStore.objectVariable], async () => {
   actualHeaders.value = result;
 }, { immediate: true });
 
-// 监听 tabId 变化，当用户切换 tab 时重新获取数据
+// 监听 tabId 变化，当用户切换 tab 时重新获取数据并刷新折叠状态
 watch(tabId, (newTabId) => {
   if (newTabId) {
     fetchShareDoc();
+    // 重置expandedBlocks为默认状态
+    expandedBlocks.value = {
+      query: true,
+      headers: true,
+      body: true,
+      response: true,
+    };
+    // 初始化折叠状态
+    initCollapseState();
   }
 }, { immediate: true });
 

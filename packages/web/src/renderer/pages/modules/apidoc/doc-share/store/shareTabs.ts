@@ -1,12 +1,12 @@
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
 import { ApidocTab } from '@src/types/apidoc/tabs';
-import { event, findNodeById } from '@/helper';
+import { event, findNodeById } from '../helper';
 import { ElMessageBox } from 'element-plus';
 import 'element-plus/es/components/message-box/style/css';
 import { t } from 'i18next';
 import { apidocCache } from '@/cache/apidoc';
-import { request } from '@/api/api';
+import { request } from '../api/api';
 
 export const useShareTabsStore = defineStore('shareTabs', () => {
   /*

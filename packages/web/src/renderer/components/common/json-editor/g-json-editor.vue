@@ -6,11 +6,11 @@
 import { ref, Ref, onMounted, onBeforeUnmount, onActivated, watch, computed } from 'vue'
 import beautify from 'js-beautify'
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
-import jsonWorker from 'monaco-editor/esm/vs/language/json/json.worker?worker'
-import cssWorker from 'monaco-editor/esm/vs/language/css/css.worker?worker'
-import htmlWorker from 'monaco-editor/esm/vs/language/html/html.worker?worker'
-import tsWorker from 'monaco-editor/esm/vs/language/typescript/ts.worker?worker'
-import EditorWorker from 'monaco-editor/esm/vs/editor/editor.worker?worker'
+import jsonWorker from 'monaco-editor/esm/vs/language/json/json.worker?worker&inline'
+import cssWorker from 'monaco-editor/esm/vs/language/css/css.worker?worker&inline'
+import htmlWorker from 'monaco-editor/esm/vs/language/html/html.worker?worker&inline'
+import tsWorker from 'monaco-editor/esm/vs/language/typescript/ts.worker?worker&inline'
+import EditorWorker from 'monaco-editor/esm/vs/editor/editor.worker?worker&inline'
 
 /*
 |--------------------------------------------------------------------------

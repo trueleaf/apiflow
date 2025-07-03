@@ -1,6 +1,7 @@
 import { FlowNode, Property, RendererFormDataBody } from "@src/types/types";
 import Mock from "../../mock/mock";
 import { ApidocVariable, SandboxPostMessage } from "@src/types/global";
+import SandboxWorker from '@/worker/sandbox.ts?worker&inline';
 
 export const isElectron = () => {
   if (typeof window !== 'undefined' && typeof window.process === 'object' && window.process.type === 'renderer') {
@@ -25,7 +26,7 @@ export const updateObject = <T extends Partial<Record<string, unknown>>>(draft: 
 
 export const evalCode = (code: string) => {
   return new Promise((resolve, reject) => {
-    const worker = new Worker(new URL('@/worker/sandbox.ts', import.meta.url));
+    const worker = new SandboxWorker();
     worker.onmessage = (event: MessageEvent<SandboxPostMessage>) => {
       if (event.data.type === 'error') {
         reject(event.data.msg)
