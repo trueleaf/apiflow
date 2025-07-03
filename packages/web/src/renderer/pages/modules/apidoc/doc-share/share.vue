@@ -8,7 +8,7 @@
       </div>
     </div>
   </div>
-  <div v-if="loading" class="loading-container">
+  <SLoading v-if="loading" :loading="loading" class="loading-container">
     <div class="loading-content">
       <div class="loading-circle">
         <el-icon class="loading-icon" :size="32">
@@ -23,7 +23,7 @@
         <div class="loading-progress-bar"></div>
       </div>
     </div>
-  </div>
+  </SLoading>
   <div v-else class="no-permission">
     <div class="error-content">
       <div class="error-content-inner">
@@ -60,42 +60,30 @@ import { useShareDocStore } from './store/shareDoc'
 import SBanner from './banner/banner.vue'
 import SNav from './nav/nav.vue'
 import SContent from './content/content.vue'
-
-
-// 分享信息类型定义
-interface ShareInfo {
-  projectName: string
-  shareName: string
-  expire: string | null
-  needPassword: boolean
-}
-// SHARE_DATA 类型定义
-interface ShareData {
-  projectInfo: any
-  docs: any[]
-}
+import { SharedProjectInfo } from '@src/types/types'
+import { LocalShareData } from '@src/types/types'
+import SLoading from '@/components/common/loading/g-loading.vue'
+import { getCountdown } from '@/helper/index'
+import { useShareStore } from './store'
 /*
 |--------------------------------------------------------------------------
 | 变量定义
 |--------------------------------------------------------------------------
 */
-// 是否为HTML打包模式 - 可以通过环境变量或构建时注入
-const useForHtml = ref(import.meta.env.VITE_USE_FOR_HTML === 'true' || !!(window as any).SHARE_DATA)
-const route = useRoute()
-const router = useRouter()
-const hasPermission = ref(false);
-const loading = ref(true);
+const isForHtml = ref(import.meta.env.VITE_USE_FOR_HTML === 'true');
+const route = useRoute();
+const router = useRouter();
 const shareId = ref(route.query.share_id as string);
+const hasPermission = ref(false);
+const loading = ref(true); //获取分享信息loading
 const expireCountdown = ref('')
 let timer: any = null
-// // 分享信息
-const shareInfo = ref<ShareInfo>({
+const shareInfo = ref<SharedProjectInfo>({
   projectName: '',
   shareName: '',
   expire: null,
   needPassword: false
 })
-// // 密码弹窗相关
 const passwordLoading = ref(false)
 const passwordFormData = ref({
   password: ''
@@ -107,191 +95,90 @@ const passwordRules = ref({
     { required: true, message: $t('请输入访问密码'), trigger: 'blur' }
   ]
 })
-const shareDocStore = useShareDocStore();
+const shareStore = useShareStore();
 
 /*
 |--------------------------------------------------------------------------
 | 初始化数据获取逻辑
 |--------------------------------------------------------------------------
 */
-// 从 window.SHARE_DATA 获取数据
-const getDataFromWindow = () => {
-  try {
-    const shareData = (window as any).SHARE_DATA as ShareData
-    if (shareData && shareData.projectInfo && shareData.docs) {
-      // 设置项目信息
-      shareInfo.value = {
-        projectName: shareData.projectInfo.name || '',
-        shareName: shareData.projectInfo.shareName || $t('文档分享'),
-        expire: shareData.projectInfo.expire || null,
-        needPassword: false // HTML模式下不需要密码验证
+const initShareData = () => {
+  if (isForHtml.value) {
+    try {
+      const shareData = (window as any).SHARE_DATA as LocalShareData;
+      if (shareData) {
+        // 设置项目基本信息
+        shareStore.setProject({
+          ...shareData.projectInfo,
+          shareName: $t('文档分享'),
+        });
+        // 设置变量
+        if (Array.isArray(shareData.variables)) {
+          shareStore.replaceVaribles(shareData.variables);
+        }
+        // 设置文档
+        if (Array.isArray(shareData.nodes)) {
+          shareStore.setDocs(shareData.nodes);
+        }
       }
-      
-      // 设置变量数据
-      if (shareData.projectInfo.variables) {
-        shareDocStore.replaceVariables(shareData.projectInfo.variables)
-      }
-      
-      // 直接设置权限为true
-      hasPermission.value = true
-      loading.value = false
-      
-      // 更新URL中的项目名称
-      if (shareInfo.value.projectName) {
-        const currentRoute = router.currentRoute.value
-        const newQuery = { ...currentRoute.query, projectName: shareInfo.value.projectName }
-        router.replace({ query: newQuery })
-      }
-      
-      return true
+    } catch (error) {
+      console.error('初始化 window.SHARE_DATA 失败:', error);
     }
-  } catch (error) {
-    console.error('从 window.SHARE_DATA 获取数据失败:', error)
-  }
-  return false
-}
-
-// 获取分享信息
-const getShareInfo = async () => {
-  // 检查是否为HTML模式
-  if (useForHtml.value) {
-    const success = getDataFromWindow()
-    if (success) {
-      return
-    }
-  }
-  
-  try {
-    loading.value = true
-    const response = await request.get<Response<ShareInfo>, Response<ShareInfo>>('/api/project/share_info', {
-      params: { shareId: shareId.value }
-    })
-    shareInfo.value = response.data
-    
-    // 获取到项目名称后，更新URL
-    if (shareInfo.value.projectName) {
-      const currentRoute = router.currentRoute.value
-      const newQuery = { ...currentRoute.query, projectName: shareInfo.value.projectName }
-      router.replace({ query: newQuery })
-    }
-    
-    if (shareInfo.value.needPassword) {
-      // 检查缓存中是否有密码
-      const cachedPassword = apidocCache.getSharePassword(shareId.value)
-      if (cachedPassword) {
-        // 如果有缓存密码，直接验证
-        await verifyPassword(cachedPassword)
-      } else {
-        // 没有缓存密码，显示密码输入框
-        setTimeout(() => {
-          passwordInput.value?.focus()
-        }, 100)
-      }
-    } else {
-      hasPermission.value = true
-    }
-  } catch (error: any) {
-    console.error( error)
-  } finally {
-    loading.value = false
+  } else {
+    getSharedProjectInfo();
   }
 }
 
-/*
-|--------------------------------------------------------------------------
-| 逻辑处理函数
-|--------------------------------------------------------------------------
-*/
-// 验证密码
-const verifyPassword = async (password: string) => {
+const getSharedProjectInfo = async () => {
+  loading.value = true;
   try {
-    const response = await request.post<{ data: ApidocVariable[] }, { data: ApidocVariable[] }>('/api/project/verify_share_password', {
+    const params = {
       shareId: shareId.value,
-      password: password
-    })
-    apidocCache.setSharePassword(shareId.value, password)
-    hasPermission.value = true;
-    shareDocStore.replaceVariables(response.data)
-  } catch (error: any) {
-    // 网络错误或其他异常，清除缓存中的错误密码
-    apidocCache.clearSharePassword(shareId.value)
-    console.error($t('密码验证失败'), ':', error)
-    ElMessage({
-      message: error.message || $t('密码验证失败'),
-      grouping: true,
-      type: 'error',
-    })
-  }
-}
-
-// 处理密码提交
-const handlePasswordSubmit = async () => {
-  if (!passwordFormRef.value) return
-  
-  try {
-    await passwordFormRef.value.validate()
-    passwordLoading.value = true
-    
-    // 用户手动输入密码时，先清除缓存中的旧密码
-    apidocCache.clearSharePassword(shareId.value)
-    await verifyPassword(passwordFormData.value.password)
-  } catch (error) {
-    console.error($t('密码验证失败'), ':', error)
-  } finally {
-    passwordLoading.value = false
-  }
-}
-
-const updateCountdown = () => {
-  if (!shareInfo.value.expire) return
-  const expire = new Date(shareInfo.value.expire).getTime()
-  const now = Date.now()
-  let diff = Math.max(0, expire - now)
-  if (diff <= 0) {
-    expireCountdown.value = $t('已过期')
-    clearInterval(timer)
-    return
-  }
-  const days = Math.floor(diff / (1000 * 60 * 60 * 24))
-  diff -= days * (1000 * 60 * 60 * 24)
-  const hours = Math.floor(diff / (1000 * 60 * 60))
-  diff -= hours * (1000 * 60 * 60)
-  const minutes = Math.floor(diff / (1000 * 60))
-  diff -= minutes * (1000 * 60)
-  const seconds = Math.floor(diff / 1000)
-  expireCountdown.value = `${days}${$t('天')}${hours}${$t('小时')}${minutes}${$t('分')}${seconds}${$t('秒')}`
-}
-
-/*
-|--------------------------------------------------------------------------
-| 监听器
-|--------------------------------------------------------------------------
-*/
-watch(
-  () => shareInfo.value.expire,
-  (val) => {
-    if (val) {
-      updateCountdown()
-      timer = setInterval(updateCountdown, 1000)
+      // password: passwordFormData.value.password, // 如有密码校验需求可加上
+    };
+    const res = await request.get('/api/project/export/share_project_info', { params });
+    if (res.code === 0) {
+      // 设置项目信息
+      shareStore.setProject({
+        projectName: res.data.projectName,
+        shareName: res.data.shareName || $t('文档分享'),
+        expire: res.data.expire,
+        needPassword: res.data.needPassword,
+      });
+      // 设置变量
+      if (Array.isArray(res.data.variables)) {
+        shareStore.replaceVaribles(res.data.variables);
+      }
+      // 设置文档
+      if (Array.isArray(res.data.nodes)) {
+        shareStore.setDocs(res.data.nodes);
+      }
+      hasPermission.value = true;
+    } else if (res.code === 1023) {
+      // 密码错误等特殊处理
+      hasPermission.value = false;
+      ElMessage.error($t('密码错误'));
     } else {
-      expireCountdown.value = ''
-      clearInterval(timer)
+      hasPermission.value = false;
+      ElMessage.error(res.msg || $t('获取分享信息失败'));
     }
+  } catch (err) {
+    hasPermission.value = false;
+    ElMessage.error($t('获取分享信息失败'));
+  } finally {
+    loading.value = false;
   }
-)
+};
 
 /*
 |--------------------------------------------------------------------------
-| 生命周期函数
+| 生命周期钩子
 |--------------------------------------------------------------------------
 */
 onMounted(() => {
-  getShareInfo()
-})
+  initShareData();
+});
 
-onUnmounted(() => {
-  clearInterval(timer)
-})
 </script>
 
 <style lang='scss' scoped>

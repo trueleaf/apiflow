@@ -6,7 +6,7 @@
  * @create             2021-06-15 22:55
  */
 import { nanoid } from 'nanoid/non-secure'
-import type { ApidocHttpRequestMethod, ApidocProperty, ApidocPropertyType, ApidocDetail, ApidocRequestParamTypes, ApidocCodeInfo } from '@src/types/global'
+import type { ApidocHttpRequestMethod, ApidocProperty, ApidocPropertyType, ApidocDetail, ApidocBanner, ApidocRequestParamTypes, ApidocCodeInfo } from '@src/types/global'
 import isEqual from 'lodash/isEqual';
 import lodashCloneDeep from 'lodash/cloneDeep';
 import lodashDebounce from 'lodash/debounce';
@@ -16,6 +16,7 @@ import mitt from 'mitt'
 import tips from './tips'
 import { ApidocProjectBaseInfoState } from '@src/types/apidoc/base-info';
 import { ApidocTab } from '@src/types/apidoc/tabs.ts';
+import { $t } from '@/i18n/i18n';
 
 type Data = Record<string, unknown>
 
@@ -649,4 +650,69 @@ export function getPathFromUrl(url: string): string {
   } catch {
     return '';
   }
+}
+export const getCountdown = (expire: string) => {
+  if (!expire) return '';
+  const expireDate = new Date(expire).getTime();
+  const now = Date.now();
+  let diff = expireDate - now;
+  if (diff <= 0) {
+    return $t('已过期');
+  }
+  const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+  diff -= days * (1000 * 60 * 60 * 24);
+  const hours = Math.floor(diff / (1000 * 60 * 60));
+  diff -= hours * (1000 * 60 * 60);
+  const minutes = Math.floor(diff / (1000 * 60));
+  diff -= minutes * (1000 * 60);
+  const seconds = Math.floor(diff / 1000);
+  // 国际化拼接
+  let result = '';
+  if (days > 0) result += days + $t('天');
+  if (hours > 0 || days > 0) result += hours + $t('小时');
+  if (minutes > 0 || hours > 0 || days > 0) result += minutes + $t('分钟');
+  result += seconds + $t('秒');
+  return result;
+}
+
+/*
+|--------------------------------------------------------------------------
+| docs转banner方法
+|--------------------------------------------------------------------------
+*/
+export function arrayToTree<T extends { _id: string; pid: string }>(list: T[]): (T & { children: T[] })[] {
+  const map = new Map<string, T & { children: T[] }>();
+  const roots: (T & { children: T[] })[] = [];
+  list.forEach(item => {
+    map.set(item._id, { ...item, children: [] });
+  });
+  map.forEach(node => {
+    if (node.pid && map.has(node.pid)) {
+      map.get(node.pid)!.children.push(node);
+    } else {
+      roots.push(node);
+    }
+  });
+  return roots;
+}
+
+export function convertDocsToBanner(docs: ApidocDetail[]): ApidocBanner[] {
+  return arrayToTree(docs).map((doc) => {
+    const banner: ApidocBanner = {
+      _id: doc._id,
+      updatedAt: doc.updatedAt || '',
+      type: doc.info.type,
+      sort: doc.sort,
+      pid: doc.pid,
+      name: doc.info.name,
+      isFolder: doc.isFolder,
+      maintainer: doc.info.maintainer,
+      method: doc.item?.method || 'GET',
+      url: doc.item?.url?.path || '',
+      commonHeaders: doc.commonHeaders || [],
+      readonly: false,
+      children: convertDocsToBanner(doc.children as ApidocDetail[]),
+    };
+    return banner;
+  });
 }

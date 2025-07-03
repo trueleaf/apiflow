@@ -14,17 +14,6 @@ export const useShareDocStore = defineStore('shareDoc', () => {
   const projectInfo = ref<any>({});
   const docs = ref<any[]>([]);
 
-  /*
-  |--------------------------------------------------------------------------
-  | 初始化数据获取逻辑
-  |--------------------------------------------------------------------------
-  */
-
-  /*
-  |--------------------------------------------------------------------------
-  | 逻辑处理函数
-  |--------------------------------------------------------------------------
-  */
   const replaceVariables = (varList: ApidocVariable[]) => {
     variables.value.splice(0, variables.value.length, ...varList);
     getObjectVariable(variables.value).then((value) => {

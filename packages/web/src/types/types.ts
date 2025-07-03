@@ -4,6 +4,7 @@ import type { IncomingHttpHeaders } from 'http'
 import type { ComponentSize } from "element-plus";
 import { OutgoingHttpHeaders } from "http2";
 import type FormData from 'form-data';
+import { ApidocDetail, ApidocVariable } from "./global.ts";
 
 
 export type Property = {
@@ -398,6 +399,20 @@ export type RedirectOptions = {
   plainResponse: PlainResponse,
   requestHeaders: OutgoingHttpHeaders,
   method: Method,
+}
+export type SharedProjectInfo = {
+  projectName: string
+  shareName: string
+  expire: string | null
+  needPassword: boolean
+}
+export type LocalShareData = {
+  projectInfo: {
+    projectName: string
+    projectId: string
+  },
+  nodes: ApidocDetail[],
+  variables: ApidocVariable[]
 }
 
 export type GotRequestJsonBody = { type: "json", value: string }
