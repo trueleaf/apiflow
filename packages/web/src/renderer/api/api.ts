@@ -78,13 +78,33 @@ axiosInstance.interceptors.response.use(
         case 4005: //图形验证码错误
           break;
         case 1020: //分享链接不存在
-          break;
+          ElMessage({
+            message: $t('分享链接不存在'),
+            grouping: true,
+            type: 'warning',
+          });
+          return Promise.reject(new Error($t('分享链接不存在'))); 
         case 1021: //分享链接已过期
-          break;
+          ElMessage({
+            message: $t('分享链接已过期'),
+            grouping: true,
+            type: 'warning',
+          });
+          return Promise.reject(new Error($t('分享链接已过期')));     
         case 1022: //分享链接无需密码
-          break;
+          ElMessage({
+            message: $t('分享链接无需密码'),
+            grouping: true,
+            type: 'warning',
+          });
+          return Promise.reject(new Error($t('分享链接无需密码')));
         case 1023: //密码错误
-          break;
+          ElMessage({
+            message: $t('密码错误'),
+            grouping: true,
+            type: 'warning',
+          });
+          return Promise.reject(new Error($t('密码错误')));
         case 4101: //登录有错
           router.replace('/login');
           ElMessage.warning($t('暂无权限'));

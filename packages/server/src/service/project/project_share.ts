@@ -270,6 +270,10 @@ export class ProjectShareService {
       { projectId: projectShare.projectId, isEnabled: true },
       { name: 1, type: 1, value: 1, fileValue: 1 }
     );
-    return variables;
+    const banner = await this.docService.getDocsAsTree({ projectId: projectShare.projectId }, true);
+    return {
+      variables,
+      banner
+    };
   }
 }

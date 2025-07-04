@@ -10,14 +10,14 @@
         <el-input v-model="searchValue" size="large" class="doc-search" :placeholder="$t('文档名称、文档url')" clearable></el-input>
       </div>
     </div>
-    <SLoading :loading="loading" class="tree-wrap">
+    <div class="tree-wrap">
       <el-tree 
         ref="docTree" 
         :class="{ 'show-more': showMoreNodeInfo }" 
         :data="bannerData"
-        :default-expanded-keys="defaultExpandedKeys" 
         node-key="_id" 
         :empty-text="$t('暂无数据')"
+        :default-expanded-keys="defaultExpandedKeys"
         :filter-node-method="filterNode">
         <template #default="scope">
           <div class="custom-tree-node" :class="{
@@ -51,80 +51,49 @@
           </div>
         </template>
       </el-tree>
-    </SLoading>
+    </div>
   </SResizeX>
 </template>
 
 <script lang="ts" setup>
-import { computed, ref, Ref, onMounted, watch, nextTick } from 'vue'
+import { computed, ref, Ref, watch } from 'vue'
 import type { ApidocBanner } from '@src/types/global'
 import { router } from '@/router/index'
 import SResizeX from '@/components/common/resize/g-resize-x.vue'
-import SLoading from '@/components/common/loading/g-loading.vue'
 import SEmphasize from '@/components/common/emphasize/g-emphasize.vue'
 import { TreeNodeOptions } from 'element-plus/es/components/tree/src/tree.type.mjs'
-import { useShareTabsStore } from '../store/shareTabs'
-import { useShareBannerStore } from '../store/shareBanner'
-import { useShareBannerData } from './composables/banner-data'
+import { useShareStore } from '../store/index'
 import { $t } from '@/i18n/i18n'
 import { defaultRequestMethods } from '../common'
 import { useRoute } from 'vue-router';
-import { findNodeById, findParentById } from '../helper';
 
 /*
 |--------------------------------------------------------------------------
 | 变量定义
 |--------------------------------------------------------------------------
 */
-// 检查是否为HTML模式
-const useForHtml = computed(() => {
-  try {
-    return !!(window as any).SHARE_DATA
-  } catch {
-    return false
-  }
-})
 const route = useRoute();
-const apidocTabsStore = useShareTabsStore();
-const shareBannerStore = useShareBannerStore();
+const shareStore = useShareStore();
 const shareId = ref(route.query.share_id as string);
 const docTree: Ref<TreeNodeOptions['store'] | null | TreeNodeOptions> = ref(null);
 const showMoreNodeInfo = ref(false); //banner是否显示更多内容
-
 // 添加项目名称和搜索相关变量
 const projectName = ref(router.currentRoute.value.query.projectName as string || '');
 const searchValue = ref('');
 const requestMethods = ref(defaultRequestMethods);
-
-// 使用分享banner数据composable
-const { getBannerData, loading, bannerData } = useShareBannerData(shareId.value, useForHtml.value);
-
-const activeNode = computed(() => apidocTabsStore.tabs[shareId.value]?.find((v) => v.selected));
-
-// 使用store中的展开状态
-const defaultExpandedKeys = computed(() => shareBannerStore.defaultExpandedKeys);
-
+const bannerData = computed(() => shareStore.banner);
+const activeNode = computed(() => shareStore.tabs[shareId.value]?.find((v) => v.selected));
+const defaultExpandedKeys = computed(() => activeNode.value ? [activeNode.value._id] : []);
 /*
 |--------------------------------------------------------------------------
 | 初始化数据获取逻辑
 |--------------------------------------------------------------------------
 */
-// 监听shareId变化，重新获取数据
-watch(shareId, (newShareId) => {
-  if (newShareId) {
-    getBannerData();
-  }
-});
 
-/*
-|--------------------------------------------------------------------------
-| 逻辑处理函数
-|--------------------------------------------------------------------------
-*/
 //点击节点
 const handleClickNode = (e: MouseEvent, data: ApidocBanner) => {
   if (!data.isFolder) {
-    apidocTabsStore.addTab({
+    shareStore.addTab({
       _id: data._id,
       projectId: shareId.value,
       tabType: 'doc',
@@ -137,24 +106,18 @@ const handleClickNode = (e: MouseEvent, data: ApidocBanner) => {
         color: ""
       },
     })
-    
-    // 展开到该节点的完整路径
-    const nodePath = getNodePath(data._id);
-    shareBannerStore.changeExpandItems(nodePath);
   }
 }
-
 //双击节点固定这个节点
 const handleDbclickNode = (data: ApidocBanner) => {
   if (data.isFolder) {
     return;
   }
-  apidocTabsStore.fixedTab({
+  shareStore.fixedTab({
     _id: data._id,
     shareId: shareId.value,
   })
 }
-
 //过滤节点
 const filterNode = (value: string, data: Record<string, unknown>): boolean => {
   if (!value) {
@@ -167,51 +130,12 @@ const filterNode = (value: string, data: Record<string, unknown>): boolean => {
   return !!matchedUrl || !!matchedDocName;
 }
 
-// 获取节点的完整路径（包括所有父节点）
-const getNodePath = (nodeId: string): string[] => {
-  const path: string[] = [];
-  let currentNode = findNodeById(bannerData.value, nodeId, { idKey: '_id' }) as ApidocBanner | null;
-  
-  while (currentNode) {
-    path.unshift(currentNode._id);
-    if (currentNode.pid) {
-      currentNode = findParentById(bannerData.value, currentNode._id, { idKey: '_id' }) as ApidocBanner | null;
-    } else {
-      break;
-    }
-  }
-  
-  return path;
-};
-
-/*
-|--------------------------------------------------------------------------
-| 监听器
-|--------------------------------------------------------------------------
-*/
-// 监听URL中的projectName变化
-watch(() => router.currentRoute.value.query.projectName, (newProjectName) => {
-  if (newProjectName) {
-    projectName.value = newProjectName as string;
-  }
-});
-
 // 监听搜索值变化，自动触发过滤
 watch(searchValue, (newValue) => {
   if (docTree.value) {
     (docTree.value as any).filter(newValue);
   }
 });
-
-/*
-|--------------------------------------------------------------------------
-| 生命周期函数
-|--------------------------------------------------------------------------
-*/
-onMounted(() => {
-  getBannerData();
-})
-
 </script>
 
 <style lang='scss' scoped>

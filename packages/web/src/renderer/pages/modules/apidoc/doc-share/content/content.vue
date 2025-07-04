@@ -3,7 +3,6 @@
     <!-- 当tabs为空时显示提示信息 -->
     <div v-if="!tabId" class="empty-tabs">
       <h2>{{ $t('暂无文档') }}</h2>
-      {{ tabs }}
     </div>
     <SLoading v-else :loading="loading" class="doc-detail">
       <template v-if="apidocInfo">
@@ -202,11 +201,11 @@
 <script lang="ts" setup>
 import { ref, Ref, onMounted, computed, watch } from 'vue';
 import { ApidocDetail, Response, ApidocProperty } from '@src/types/global';
-import { request } from '../api/api';
+import { request } from '@/api/api';
 import SLoading from '@/components/common/loading/g-loading.vue';
 import { ArrowDown } from '@element-plus/icons-vue';
 import SJsonEditor from '@/components/common/json-editor/g-json-editor.vue';
-import { formatDate } from '../helper';
+import { formatDate } from '@/helper';
 import { apidocCache } from '@/cache/apidoc';
 import { defaultRequestMethods } from '../common';
 import { convertTemplateValueToRealValue } from '@/utils/utils';
@@ -214,8 +213,7 @@ import { $t } from '@/i18n/i18n';
 import SParamsView from '@/components/apidoc/params-view/g-params-view.vue';
 import { ApidocTab } from '@src/types/apidoc/tabs';
 import { useRoute } from 'vue-router';
-import { useShareTabsStore } from '../store/shareTabs';
-import { useShareDocStore } from '../store/shareDoc';
+import { useShareStore } from '../store';
 
 /*
 |--------------------------------------------------------------------------
@@ -243,10 +241,9 @@ const actualQueryParams = ref<ApidocProperty[]>([]);
 const actualHeaders = ref<ApidocProperty[]>([]);
 const activeResponseTab = ref('0'); // 当前选中的响应 tab
 const shareId = route.query.share_id as string;
-const apidocTabsStore = useShareTabsStore();
-const shareDocStore = useShareDocStore();
+const shareStore = useShareStore();
 const realFullUrl = ref('');
-const tabs = computed(() => apidocTabsStore.tabs);
+const tabs = computed(() => shareStore.tabs);
 
 
 
@@ -261,7 +258,7 @@ const requestMethods = ref(defaultRequestMethods);
 // Computed 属性
 watch([
   apidocInfo,
-  () => shareDocStore.objectVariable
+  () => shareStore.objectVariable
 ], async () => {
   if (!apidocInfo.value) {
     realFullUrl.value = '';
@@ -269,7 +266,7 @@ watch([
   }
   const { host, path } = apidocInfo.value.item.url || { host: '', path: '' };
   const rawUrl = `${host}${path}`;
-  realFullUrl.value = await convertTemplateValueToRealValue(rawUrl, shareDocStore.objectVariable);
+  realFullUrl.value = await convertTemplateValueToRealValue(rawUrl, shareStore.objectVariable);
 }, { immediate: true });
 
 const filteredQueryParams = computed(() => {
@@ -404,9 +401,9 @@ const simplifyDataType = (dataType: string) => {
 |--------------------------------------------------------------------------
 */
 // 监听查询参数变化，更新变量替换
-watch([filteredQueryParams, () => shareDocStore.objectVariable], async () => {
+watch([filteredQueryParams, () => shareStore.objectVariable], async () => {
   const params = filteredQueryParams.value;
-  const objectVariable = shareDocStore.objectVariable;
+  const objectVariable = shareStore.objectVariable;
   
   const result = [];
   for (const param of params) {
@@ -420,9 +417,9 @@ watch([filteredQueryParams, () => shareDocStore.objectVariable], async () => {
 }, { immediate: true });
 
 // 监听请求头变化，更新变量替换
-watch([filteredHeaders, () => shareDocStore.objectVariable], async () => {
+  watch([filteredHeaders, () => shareStore.objectVariable], async () => {
   const headers = filteredHeaders.value;
-  const objectVariable = shareDocStore.objectVariable;
+  const objectVariable = shareStore.objectVariable;
   
   const result = [];
   for (const header of headers) {

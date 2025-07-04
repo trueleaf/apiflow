@@ -3,8 +3,8 @@ import { ref, computed } from 'vue';
 import { ApidocDetail, ApidocVariable, ApidocBanner } from '@src/types/global';
 import { ApidocTab } from '@src/types/apidoc/tabs';
 import { SharedProjectInfo } from '@src/types/types';
-import { convertDocsToBanner } from '@/helper/index';
 import { getObjectVariable } from '@/utils/utils';
+import { apidocCache } from '@/cache/apidoc';
 
 /*
 |--------------------------------------------------------------------------
@@ -20,8 +20,9 @@ const project = ref<SharedProjectInfo>({
 });
 const varibles = ref<ApidocVariable[]>([]);
 const tabs = ref<Record<string, ApidocTab[]>>({});
-const banner = computed<ApidocBanner[]>(() => convertDocsToBanner(docs.value));
+const banner = ref<ApidocBanner[]>([]);
 const objectVariable = ref<Record<string, any>>({});
+const defaultExpandedKeys = ref<string[]>([]);
 
 /*
 |--------------------------------------------------------------------------
@@ -52,12 +53,12 @@ const addTab = (payload: ApidocTab): void => {
   }
   const matchedTab = tabs.value[projectId].find((val) => val._id === _id) as ApidocTab;
   matchedTab.selected = true;
-  localStorage.setItem('apidoc/editTabs', JSON.stringify(tabs.value));
+  apidocCache.setEditTabs(tabs.value);
 };
 // 更新全部tab
 const updateAllTabs = (payload: { tabs: ApidocTab[]; shareId: string }): void => {
   tabs.value[payload.shareId] = payload.tabs;
-  localStorage.setItem('apidoc/editTabs', JSON.stringify(tabs.value));
+  apidocCache.setEditTabs(tabs.value);
 };
 // 固定tab
 const fixedTab = (payload: { _id: string; shareId: string }): void => {
@@ -66,7 +67,7 @@ const fixedTab = (payload: { _id: string; shareId: string }): void => {
   if (matchedTab) {
     matchedTab.fixed = true;
   }
-  localStorage.setItem('apidoc/editTabs', JSON.stringify(tabs.value));
+  apidocCache.setEditTabs(tabs.value);
 };
 // 根据索引删除tab
 const deleteTabByIndex = (payload: { deleteIndex: number; shareId: string }): void => {
@@ -81,7 +82,7 @@ const selectTabById = (payload: { id: string; shareId: string }): void => {
   tabs.value[shareId].forEach((tab) => {
     tab.selected = tab._id === id;
   });
-  localStorage.setItem('apidoc/editTabs', JSON.stringify(tabs.value));
+  apidocCache.setEditTabs(tabs.value);
 };
 // 修改tab属性
 const changeTabInfoById = (payload: { id: string; field: keyof ApidocTab; value: any; shareId: string }): void => {
@@ -90,7 +91,7 @@ const changeTabInfoById = (payload: { id: string; field: keyof ApidocTab; value:
   const editData = currentTabs?.find((tab) => tab._id === id);
   if (!editData) return;
   (editData as any)[field] = value;
-  localStorage.setItem('apidoc/editTabs', JSON.stringify(tabs.value));
+  apidocCache.setEditTabs(tabs.value);
 };
 // 强制删除所有tab
 const forceDeleteAllTab = (shareId: string): void => {
@@ -99,7 +100,7 @@ const forceDeleteAllTab = (shareId: string): void => {
     const deleteIndex = tabs.value[shareId].findIndex((tab) => tab._id === id);
     tabs.value[shareId].splice(deleteIndex, 1);
   });
-  localStorage.setItem('apidoc/editTabs', JSON.stringify(tabs.value));
+  apidocCache.setEditTabs(tabs.value);
 };
 // 根据id批量删除tab
 const deleteTabByIds = (payload: { ids: string[]; shareId: string; force?: boolean }): void => {
@@ -117,7 +118,7 @@ const deleteTabByIds = (payload: { ids: string[]; shareId: string; force?: boole
       });
       tabs.value[shareId][selectTabIndex].selected = true;
     }
-    localStorage.setItem('apidoc/editTabs', JSON.stringify(tabs.value));
+    apidocCache.setEditTabs(tabs.value);
   };
   if (!tabs.value[shareId]) {
     return;
@@ -149,6 +150,14 @@ const setDocs = (docsList: ApidocDetail[]) => {
   docs.value.splice(0, docs.value.length, ...docsList);
 };
 
+const setBanner = (bannerList: ApidocBanner[]) => {
+  banner.value.splice(0, banner.value.length, ...bannerList);
+};
+
+const setDefaultExpandedKeys = (keys: string[]) => {
+  defaultExpandedKeys.value = keys;
+};
+
 export const useShareStore = defineStore('shareStore', () => ({
   docs,
   project,
@@ -156,6 +165,7 @@ export const useShareStore = defineStore('shareStore', () => ({
   banner,
   tabs,
   objectVariable,
+  defaultExpandedKeys,
   addTab,
   updateAllTabs,
   fixedTab,
@@ -168,4 +178,6 @@ export const useShareStore = defineStore('shareStore', () => ({
   replaceVaribles,
   setProject,
   setDocs,
-}));  
+  setBanner,
+  setDefaultExpandedKeys,
+}));

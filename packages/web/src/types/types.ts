@@ -401,15 +401,15 @@ export type RedirectOptions = {
   method: Method,
 }
 export type SharedProjectInfo = {
-  projectName: string
-  shareName: string
-  expire: string | null
-  needPassword: boolean
+  projectName: string;
+  shareName: string;
+  expire: number | null;
+  needPassword: boolean;
 }
 export type LocalShareData = {
   projectInfo: {
-    projectName: string
-    projectId: string
+    projectName: string;
+    projectId: string;
   },
   nodes: ApidocDetail[],
   variables: ApidocVariable[]

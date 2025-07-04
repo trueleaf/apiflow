@@ -626,6 +626,35 @@ class ApidocCache extends ResponseCache {
       localStorage.setItem('apidoc/share/collapse', JSON.stringify(data));
     }
   }
+
+  /*
+   * 获取分享文档的编辑tabs
+   */
+  getEditTabs(): Record<string, any[]> {
+    try {
+      const localData = JSON.parse(localStorage.getItem('apidoc/share/tabs') || '{}');
+      return localData;
+    } catch (error) {
+      console.error(error);
+      localStorage.setItem('apidoc/share/tabs', '{}');
+      return {};
+    }
+  }
+
+  /*
+   * 设置分享文档的编辑tabs
+   */
+  setEditTabs(tabs: Record<string, any[]>) {
+    try {
+      localStorage.setItem('apidoc/share/tabs', JSON.stringify(tabs));
+    } catch (error) {
+      console.error(error);
+      localStorage.setItem('apidoc/share/tabs', '{}');
+    }
+  }
+
+
+  
 }
 
 export const apidocCache = new ApidocCache();

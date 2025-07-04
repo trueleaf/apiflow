@@ -651,7 +651,7 @@ export function getPathFromUrl(url: string): string {
     return '';
   }
 }
-export const getCountdown = (expire: string) => {
+export const getCountdown = (expire: number) => {
   if (!expire) return '';
   const expireDate = new Date(expire).getTime();
   const now = Date.now();
