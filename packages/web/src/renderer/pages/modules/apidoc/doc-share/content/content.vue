@@ -1,10 +1,10 @@
 <template>
   <div class="share-doc-detail">
     <!-- 当tabs为空时显示提示信息 -->
-    <div v-if="!tabId" class="empty-tabs">
+    <div v-if="!tabs?.length" class="empty-tabs">
       <h2>{{ $t('暂无文档') }}</h2>
     </div>
-    <SLoading v-else :loading="loading" class="doc-detail">
+    <div v-else class="doc-detail">
       <template v-if="apidocInfo">
         <!-- 顶部标题和接口信息 -->
         <div class="api-doc-header">
@@ -16,7 +16,7 @@
               :style="{ backgroundColor: getMethodColor(apidocInfo.item.method)}">
               {{ apidocInfo.item.method.toUpperCase() }}
             </span>
-            <span class="api-url">{{ realFullUrl }}</span>
+            <span class="api-url">{{ fullUrl }}</span>
           </div>
           <div class="api-doc-base-info-inline">
             <span class="mr-1">{{ apidocInfo.info.maintainer || apidocInfo.info.creator }}</span>
@@ -194,275 +194,124 @@
           </div>
         </div>
       </template>
-    </SLoading>
+    </div>
   </div>
 </template>
 
 <script lang="ts" setup>
-import { ref, Ref, onMounted, computed, watch } from 'vue';
-import { ApidocDetail, Response, ApidocProperty } from '@src/types/global';
-import { request } from '@/api/api';
-import SLoading from '@/components/common/loading/g-loading.vue';
+import { ref, computed, watchEffect } from 'vue';
 import { ArrowDown } from '@element-plus/icons-vue';
 import SJsonEditor from '@/components/common/json-editor/g-json-editor.vue';
 import { formatDate } from '@/helper';
-import { apidocCache } from '@/cache/apidoc';
 import { defaultRequestMethods } from '../common';
-import { convertTemplateValueToRealValue } from '@/utils/utils';
-import { $t } from '@/i18n/i18n';
 import SParamsView from '@/components/apidoc/params-view/g-params-view.vue';
-import { ApidocTab } from '@src/types/apidoc/tabs';
-import { useRoute } from 'vue-router';
 import { useShareStore } from '../store';
+import { useRoute } from 'vue-router';
+import { apidocCache } from '@/cache/apidoc';
+import { convertTemplateValueToRealValue } from '@/utils/utils';
 
+const route = useRoute();
+const shareId = computed(() => route.query.share_id as string);
+const shareStore = useShareStore();
+const apidocInfo = computed(() => shareStore.activeDocInfo);
+const tabs = computed(() => shareStore.tabs[shareId.value]);
+const activeResponseTab = ref('0');
+const fullUrl = ref('');
 /*
 |--------------------------------------------------------------------------
 | 变量定义
 |--------------------------------------------------------------------------
 */
-// 检查是否为HTML模式
-const useForHtml = computed(() => {
-  try {
-    return !!(window as any).SHARE_DATA
-  } catch {
-    return false
-  }
-})
-const route = useRoute();
-const loading = ref(false);
-const apidocInfo: Ref<ApidocDetail | null> = ref(null);
 const expandedBlocks = ref({
   query: true,
   headers: true,
   body: true,
-  response: true, 
-});
-const actualQueryParams = ref<ApidocProperty[]>([]);
-const actualHeaders = ref<ApidocProperty[]>([]);
-const activeResponseTab = ref('0'); // 当前选中的响应 tab
-const shareId = route.query.share_id as string;
-const shareStore = useShareStore();
-const realFullUrl = ref('');
-const tabs = computed(() => shareStore.tabs);
-
-
-
-const tabId = computed(() => {
-  const tabArr = (tabs.value as unknown as Record<string, ApidocTab[]>)?.[shareId] || [];
-  const selectedTab = tabArr.find((tab: ApidocTab) => tab.selected);
-  return selectedTab?._id || '';
+  response: true,
 });
 
-const requestMethods = ref(defaultRequestMethods);
-
-// Computed 属性
-watch([
-  apidocInfo,
-  () => shareStore.objectVariable
-], async () => {
-  if (!apidocInfo.value) {
-    realFullUrl.value = '';
-    return;
+watchEffect(() => {
+  if (apidocInfo.value?._id) {
+    const cache = apidocCache.getShareCollapseState(apidocInfo.value._id);
+    if (cache) {
+      expandedBlocks.value = { ...expandedBlocks.value, ...cache };
+    }
   }
-  const { host, path } = apidocInfo.value.item.url || { host: '', path: '' };
-  const rawUrl = `${host}${path}`;
-  realFullUrl.value = await convertTemplateValueToRealValue(rawUrl, shareStore.objectVariable);
-}, { immediate: true });
-
-const filteredQueryParams = computed(() => {
-  if (!apidocInfo.value) return [];
-  return apidocInfo.value.item.queryParams.filter(p => p.select && p.key);
 });
-
-const filteredHeaders = computed(() => {
-  if (!apidocInfo.value) return [];
-  return apidocInfo.value.item.headers.filter(p => p.select && p.key);
-});
-
-const hasQueryParams = computed(() => apidocInfo.value?.item.queryParams?.filter(p => p.select).some(data => data.key));
-const hasHeaders = computed(() => apidocInfo.value?.item.headers?.filter(p => p.select).some(data => data.key));
-
-// Body参数类型优先级
-const bodyType = computed(() => {
-  if (!apidocInfo.value) return ''; 
-  
-  const { contentType, requestBody } = apidocInfo.value.item;
-  if (contentType === 'application/json' && requestBody.mode === 'json') return 'json';
-  if (contentType === 'multipart/form-data') return 'formdata';
-  if (contentType === 'application/x-www-form-urlencoded') return 'urlencoded';
-  if (requestBody.mode === 'raw' && requestBody.raw?.data) return 'raw';
-  if (contentType && contentType.startsWith('text/')) return 'text';
-  return '';
-});
-
-// 响应内容类型辅助
-function getResponseLanguage(type: string) {
-  if (type.includes('json')) return 'json';
-  if (type.includes('xml')) return 'xml';
-  if (type.includes('html')) return 'html';
-  if (type.includes('plain')) return 'plaintext';
-  return '';
-}
 
 /*
 |--------------------------------------------------------------------------
 | 初始化数据获取逻辑
 |--------------------------------------------------------------------------
 */
-// 从 window.SHARE_DATA 获取文档详情
-const getDocDetailFromWindow = (docId: string) => {
-  try {
-    const shareData = (window as any).SHARE_DATA
-    if (shareData && shareData.docs && Array.isArray(shareData.docs)) {
-      const doc = shareData.docs.find((d: any) => d._id === docId)
-      if (doc) {
-        apidocInfo.value = doc
-        return true
-      }
-    }
-  } catch (error) {
-    console.error('从 window.SHARE_DATA 获取文档详情失败:', error)
-  }
-  return false
-}
+watchEffect(async () => {
+  if (!apidocInfo.value) return '';
+  const { host, path } = apidocInfo.value.item.url || { host: '', path: '' };
+  const rawUrl = `${host}${path}`;
+  fullUrl.value = await convertTemplateValueToRealValue(rawUrl, shareStore.objectVariable);
+});
 
-const fetchShareDoc = async () => {
-  if (!tabId) return;
-  
-  // 如果是HTML模式，从window.SHARE_DATA获取数据
-  if (useForHtml.value) {
-    const success = getDocDetailFromWindow(tabId.value)
-    if (success) {
-      return
-    }
-  }
-  
-  loading.value = true;
-  try {
-    const password = apidocCache.getSharePassword(shareId);
-    const params = { password, shareId, _id: tabId.value };
-    const res = await request.get<Response<ApidocDetail>, Response<ApidocDetail>>('/api/project/share_doc_detail', { params });
-    apidocInfo.value = res.data;
-  } catch (err) {
-    apidocInfo.value = null;
-  } finally {
-    loading.value = false;
-  }
-};
+const hasQueryParams = computed(() => {
+  return apidocInfo.value?.item.queryParams?.filter(p => p.select).some((data) => data.key);
+});
+const actualQueryParams = computed(() => {
+  return apidocInfo.value?.item.queryParams?.filter(p => p.select && p.key) || [];
+});
 
-// 初始化折叠状态
-const initCollapseState = () => {
-  if (!tabId.value) return;
-  const savedState = apidocCache.getShareCollapseState(tabId.value);
-  if (savedState) {
-    expandedBlocks.value = { ...expandedBlocks.value, ...savedState };
+const hasHeaders = computed(() => {
+  return apidocInfo.value?.item.headers?.filter(p => p.select).some((data) => data.key);
+});
+const actualHeaders = computed(() => {
+  return apidocInfo.value?.item.headers?.filter(p => p.select && p.key) || [];
+});
+
+const bodyType = computed(() => {
+  if (!apidocInfo.value) return '';
+  const { mode } = apidocInfo.value.item.requestBody;
+  if (mode === 'json') return 'json';
+  if (mode === 'formdata') return 'formdata';
+  if (mode === 'urlencoded') return 'urlencoded';
+  if (mode === 'raw') {
+    const dataType = apidocInfo.value.item.requestBody.raw?.dataType;
+    if (dataType === 'text/plain') return 'text';
+    return 'raw';
   }
-};
+  return '';
+});
 
 /*
 |--------------------------------------------------------------------------
 | 逻辑处理函数
 |--------------------------------------------------------------------------
 */
-// 切换折叠状态
-const toggleBlock = (blockName: keyof typeof expandedBlocks.value) => {
-  expandedBlocks.value[blockName] = !expandedBlocks.value[blockName];
-  // 更新缓存
-  if (tabId.value) {
-    apidocCache.updateShareBlockCollapseState(
-      tabId.value, 
-      blockName, 
-      expandedBlocks.value[blockName]
-    );
+const toggleBlock = (block: 'query' | 'headers' | 'body' | 'response') => {
+  expandedBlocks.value[block] = !expandedBlocks.value[block];
+  if (apidocInfo.value?._id) {
+    apidocCache.updateShareBlockCollapseState(apidocInfo.value._id, block, expandedBlocks.value[block]);
   }
-};
+}
 
-// 获取方法颜色
-const getMethodColor = (method: string) => {
-  const methodInfo = requestMethods.value.find(m => m.value.toLowerCase() === method.toLowerCase());
-  return methodInfo?.iconColor || '#17a2b8'; // 默认颜色
-};
-
-// 简化数据类型显示
 const simplifyDataType = (dataType: string) => {
   if (!dataType) return '';
   if (dataType.includes('json')) return 'JSON';
   if (dataType.includes('xml')) return 'XML';
   if (dataType.includes('html')) return 'HTML';
-  if (dataType.includes('text/plain')) return 'TEXT';
-  if (dataType.includes('form-data')) return 'FORM';
-  if (dataType.includes('octet-stream')) return 'BINARY';
-  return dataType.split('/').pop()?.toUpperCase() || '';
-};
+  if (dataType.includes('plain')) return 'Text';
+  return dataType.split('/').pop()?.toUpperCase() || dataType;
+}
 
-/*
-|--------------------------------------------------------------------------
-| 监听器
-|--------------------------------------------------------------------------
-*/
-// 监听查询参数变化，更新变量替换
-watch([filteredQueryParams, () => shareStore.objectVariable], async () => {
-  const params = filteredQueryParams.value;
-  const objectVariable = shareStore.objectVariable;
-  
-  const result = [];
-  for (const param of params) {
-    result.push({
-      ...param,
-      key: await convertTemplateValueToRealValue(param.key, objectVariable),
-      value: await convertTemplateValueToRealValue(param.value, objectVariable)
-    });
-  }
-  actualQueryParams.value = result;
-}, { immediate: true });
+const getResponseLanguage = (dataType: string) => {
+  if (!dataType) return '';
+  if (dataType.includes('json')) return 'json';
+  if (dataType.includes('xml')) return 'xml';
+  if (dataType.includes('html')) return 'html';
+  if (dataType.includes('plain')) return 'plaintext';
+  return '';
+}
 
-// 监听请求头变化，更新变量替换
-  watch([filteredHeaders, () => shareStore.objectVariable], async () => {
-  const headers = filteredHeaders.value;
-  const objectVariable = shareStore.objectVariable;
-  
-  const result = [];
-  for (const header of headers) {
-    result.push({
-      ...header,
-      key: await convertTemplateValueToRealValue(header.key, objectVariable),
-      value: await convertTemplateValueToRealValue(header.value, objectVariable)
-    });
-  }
-  actualHeaders.value = result;
-}, { immediate: true });
+const getMethodColor = (method: string) => {
+  return defaultRequestMethods.find(item => item.value === method)?.iconColor;
+}
 
-// 监听 tabId 变化，当用户切换 tab 时重新获取数据并刷新折叠状态
-watch(tabId, (newTabId) => {
-  if (newTabId) {
-    fetchShareDoc();
-    // 重置expandedBlocks为默认状态
-    expandedBlocks.value = {
-      query: true,
-      headers: true,
-      body: true,
-      response: true,
-    };
-    // 初始化折叠状态
-    initCollapseState();
-  }
-}, { immediate: true });
-
-// 当文档信息变更时，重置响应选项卡到第一个
-watch(() => apidocInfo.value, (newApidocInfo) => {
-  if (newApidocInfo && newApidocInfo.item.responseParams?.length > 0) {
-    activeResponseTab.value = '0';
-  }
-});
-
-/*
-|--------------------------------------------------------------------------
-| 生命周期函数
-|--------------------------------------------------------------------------
-*/
-onMounted(() => {
-  initCollapseState();
-});
 </script>
 
 <style lang='scss' scoped>
@@ -498,7 +347,7 @@ onMounted(() => {
 .api-doc-header {
   position: sticky;
   top: 0;
-  z-index: 1;
+  z-index: var(--zIndex-share-header);
   background-color: var(--white);
   width: 100%;
   border-bottom: 1px solid var(--gray-200);
@@ -529,7 +378,7 @@ onMounted(() => {
       border-radius: var(--border-radius-sm);
       font-size: 16px;
       color: var(--gray-800);
-      max-width: 420px;
+      max-width: calc(100% - 150px);
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: normal;

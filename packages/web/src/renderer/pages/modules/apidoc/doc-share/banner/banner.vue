@@ -91,7 +91,7 @@ const defaultExpandedKeys = computed(() => activeNode.value ? [activeNode.value.
 */
 
 //点击节点
-const handleClickNode = (e: MouseEvent, data: ApidocBanner) => {
+const handleClickNode = (_: MouseEvent, data: ApidocBanner) => {
   if (!data.isFolder) {
     shareStore.addTab({
       _id: data._id,

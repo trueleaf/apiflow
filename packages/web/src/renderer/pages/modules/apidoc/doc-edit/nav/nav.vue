@@ -409,7 +409,7 @@ onUnmounted(() => {
       display: flex;
       align-items: center;
       position: relative;
-      font-size: 12px;
+      font-size: 13px;
       flex: 0 0 auto;
       width: 200px;
       cursor: default;

@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia';
-import { ref, computed } from 'vue';
+import { ref } from 'vue';
 import { ApidocDetail, ApidocVariable, ApidocBanner } from '@src/types/global';
 import { ApidocTab } from '@src/types/apidoc/tabs';
 import { SharedProjectInfo } from '@src/types/types';
@@ -23,7 +23,8 @@ const tabs = ref<Record<string, ApidocTab[]>>({});
 const banner = ref<ApidocBanner[]>([]);
 const objectVariable = ref<Record<string, any>>({});
 const defaultExpandedKeys = ref<string[]>([]);
-
+const activeDocInfo = ref<ApidocDetail | null>(null);
+const contentLoading = ref(false);
 /*
 |--------------------------------------------------------------------------
 | 逻辑处理函数
@@ -158,6 +159,14 @@ const setDefaultExpandedKeys = (keys: string[]) => {
   defaultExpandedKeys.value = keys;
 };
 
+const setActiveDocInfo = (info: ApidocDetail) => {
+  activeDocInfo.value = info;
+};
+
+const setContentLoading = (loading: boolean) => {
+  contentLoading.value = loading;
+};
+
 export const useShareStore = defineStore('shareStore', () => ({
   docs,
   project,
@@ -166,6 +175,8 @@ export const useShareStore = defineStore('shareStore', () => ({
   tabs,
   objectVariable,
   defaultExpandedKeys,
+  activeDocInfo,
+  contentLoading,
   addTab,
   updateAllTabs,
   fixedTab,
@@ -180,4 +191,6 @@ export const useShareStore = defineStore('shareStore', () => ({
   setDocs,
   setBanner,
   setDefaultExpandedKeys,
+  setActiveDocInfo,
+  setContentLoading,
 }));

@@ -230,7 +230,7 @@ export class ProjectShareService {
     if (!valid) {
       throwError(1023, '无效的的id和密码')
     }
-    const result = await this.docModel.findOne({ _id: params._id }, { pid: 0, isFolder: 0, sort: 0, isEnabled: 0 });
+    const result = await this.docModel.findOne({ _id: params.docId }, { pid: 0, isFolder: 0, sort: 0, isEnabled: 0 });
     if (!result) {
       throwError(4001, '暂无文档信息')
     }

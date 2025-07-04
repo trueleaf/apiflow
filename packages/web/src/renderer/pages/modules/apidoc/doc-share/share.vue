@@ -8,7 +8,7 @@
       </div>
     </div>
   </div>
-  <div v-if="loading" class="loading-container">
+  <div v-else-if="loading" class="loading-container">
     <div class="loading-content">
       <div class="loading-circle">
         <el-icon class="loading-icon" :size="32">
@@ -48,11 +48,11 @@
   </div>
 </template>
 <script lang="ts" setup>
-import { ref, onMounted, onUnmounted, computed } from 'vue'
+import { ref, onMounted, onUnmounted, computed, watch } from 'vue'
 import { request } from '@/api/api'
 import { FormInstance } from 'element-plus'
 import { Loading, } from '@element-plus/icons-vue'
-import { ApidocBanner, ApidocVariable, Response } from '@src/types/global'
+import { ApidocBanner, ApidocDetail, ApidocVariable, Response } from '@src/types/global'
 import { $t } from '@/i18n/i18n'
 import { apidocCache } from '@/cache/apidoc'
 import { useRoute } from 'vue-router'
@@ -87,6 +87,8 @@ const passwordRules = ref({
 })
 const shareStore = useShareStore();
 const shareProjectInfo = computed(() => shareStore.project);
+const docs = computed(() => shareStore.docs);
+const tabs = computed(() => shareStore.tabs);
 /*
 |--------------------------------------------------------------------------
 | 初始化数据获取逻辑
@@ -156,7 +158,22 @@ const getSharedProjectInfo = async () => {
     loading.value = false;
   }
 };
-
+const getDocDetail = async (docId: string) => {
+  try {
+    shareStore.setContentLoading(true);
+    const params = {
+      docId,
+      shareId: shareId.value,
+      password: apidocCache.getSharePassword(shareId.value),
+    }
+    const res = await request.get<Response<ApidocDetail>, Response<ApidocDetail>>('/api/project/share_doc_detail', { params });
+    shareStore.setActiveDocInfo(res.data);
+  } catch (error) {
+    console.error(error)
+  } finally {
+    shareStore.setContentLoading(false);
+  }
+}
 // 验证密码
 const verifyPassword = async (password: string) => {
   try {
@@ -184,6 +201,30 @@ const handlePasswordSubmit = async () => {
   await passwordFormRef.value.validate();
   await verifyPassword(passwordFormData.value.password);
 };
+
+/*
+|--------------------------------------------------------------------------
+| 逻辑处理函数
+|--------------------------------------------------------------------------
+*/
+// 监听tabs变化并设置activeDocInfo
+watch([() => tabs.value[shareId.value], () => hasPermission.value],
+  () => {
+    const sharedTabs = tabs.value[shareId.value];
+    if (!sharedTabs || !hasPermission.value) return;
+    const selectedTab = sharedTabs.find(tab => tab.selected);
+    if (selectedTab && isForHtml.value) {
+      // 查找对应文档
+      const doc = docs.value.find(doc => doc._id === selectedTab._id);
+      if (doc) {
+        shareStore.setActiveDocInfo(doc);
+      }
+    } else if (selectedTab) {
+      getDocDetail(selectedTab._id);
+    }
+  },
+  { immediate: true, deep: true }
+);
 
 /*
 |--------------------------------------------------------------------------

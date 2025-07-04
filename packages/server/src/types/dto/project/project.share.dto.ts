@@ -151,10 +151,10 @@ export class GetSharedProjectInfoDto {
 //获取分享项目基本信息
 export class GetSharedDocDetailDto {
   /**
-   * 在线链接id
+   * 文档id
    */
   @Rule(RuleType.string().required())
-    _id: string;
+    docId: string;
   /**
    * 随机生成在线链接id
    */

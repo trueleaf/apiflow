@@ -52,6 +52,7 @@
   --box-shadow-bg: 0 0 16px rgba(0, 0, 0, 0.1);
   /* zIndex */
   --zIndex-fieldset: 2;
+  --zIndex-share-header: 1994;
   --zIndex-header: 1995;
   --zIndex-tabs: 1995;
   --zIndex-panel: 1996;
