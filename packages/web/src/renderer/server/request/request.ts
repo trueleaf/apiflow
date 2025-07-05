@@ -16,7 +16,7 @@ import { t } from 'i18next';
 import { useCookies } from '@/store/apidoc/cookies';
 import { InitDataMessage, OnEvalSuccess, ReceivedEvent } from '@/worker/pre-request/types/types.ts';
 import { Method } from 'got';
-
+import preRequestWorker from '@/worker/pre-request/pre-request.ts?worker&inline';
 /*
 |--------------------------------------------------------------------------
 | 发送请求
@@ -275,9 +275,7 @@ const convertObjectToProperty = (objectParams: Record<string, any>) => {
 }
 
 export async function sendRequest() {
-  const preRequestWorker = new Worker(new URL('@/worker/pre-request/pre-request.ts', import.meta.url), {
-    type: 'module',
-  });
+  const worker = new preRequestWorker();
   const redirectList = ref<ResponseInfo['redirectList']>([]);
   const apidocBaseInfoStore = useApidocBaseInfo();
   const { objectVariable } = useVariable();
@@ -451,11 +449,11 @@ export async function sendRequest() {
     sessionStorage: preRequestSessionStorage
   }
   // 处理前置脚本
-  preRequestWorker.postMessage(initDataMessage);
+  worker.postMessage(initDataMessage);
   // 监听脚本处理
-  preRequestWorker.addEventListener('message', async (e: MessageEvent<ReceivedEvent>) => {
+  worker.addEventListener('message', async (e: MessageEvent<ReceivedEvent>) => {
     if (e.data.type === 'pre-request-init-success') {
-      preRequestWorker.postMessage({
+      worker.postMessage({
         type: 'eval',
         code: copiedApidoc.preRequest.raw
       })
@@ -549,12 +547,12 @@ export async function sendRequest() {
       apidocCache.setPreRequestLocalStorage(projectId, {});
     } 
   })
-  preRequestWorker.addEventListener('message', async (e: MessageEvent<OnEvalSuccess>) => {
+  worker.addEventListener('message', async (e: MessageEvent<OnEvalSuccess>) => {
     if (e.data.type === 'pre-request-eval-success') {
       invokeRequest()
     } 
   });
-  preRequestWorker.addEventListener('error', (error) => {
+  worker.addEventListener('error', (error) => {
     changeResponseInfo({
       responseData: {
         canApiflowParseType: 'error',
@@ -563,7 +561,7 @@ export async function sendRequest() {
     });
     changeRequestState('finish');
   });
-  preRequestWorker.addEventListener('messageerror', () => {
+  worker.addEventListener('messageerror', () => {
     changeResponseInfo({
       responseData: {
         canApiflowParseType: 'error',

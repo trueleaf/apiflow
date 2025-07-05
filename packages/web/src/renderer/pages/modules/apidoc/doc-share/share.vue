@@ -1,5 +1,5 @@
 <template>
-  <div v-if="hasPermission" class="doc-share">
+  <div v-if="hasPermission || isForHtml" class="doc-share">
     <div class="doc-share-container">
       <SBanner class="doc-share-banner"></SBanner>
       <div class="doc-share-main">
@@ -55,24 +55,22 @@ import { Loading, } from '@element-plus/icons-vue'
 import { ApidocBanner, ApidocDetail, ApidocVariable, Response } from '@src/types/global'
 import { $t } from '@/i18n/i18n'
 import { apidocCache } from '@/cache/apidoc'
-import { useRoute } from 'vue-router'
+import { router } from '@/router'
 import SBanner from './banner/banner.vue'
 import SNav from './nav/nav.vue'
 import SContent from './content/content.vue'
-import { SharedProjectInfo } from '@src/types/types'
-import { LocalShareData } from '@src/types/types'
-import { getCountdown } from '@/helper/index'
-import { useShareStore } from './store'
+import { LocalShareData, SharedProjectInfo } from '@src/types/types'
+import { convertDocsToBanner, getCountdown } from '@/helper/index'
+import { useShareStore } from './store/index'
 /*
 |--------------------------------------------------------------------------
 | 变量定义
 |--------------------------------------------------------------------------
 */
 const isForHtml = ref(import.meta.env.VITE_USE_FOR_HTML === 'true');
-const route = useRoute();
-const shareId = ref(route.query.share_id as string);
+const shareId = router.currentRoute.value.query?.share_id as string || 'local_share';
 const hasPermission = ref(false);
-const loading = ref(true); //获取分享信息loading
+const loading = ref(false); //获取分享信息loading
 const expireCountdown = ref('')
 let timer: any = null
 const passwordLoading = ref(false)
@@ -98,6 +96,7 @@ const initShareData = () => {
   if (isForHtml.value) {
     try {
       const shareData = (window as any).SHARE_DATA as LocalShareData;
+      // const shareData = localShareDataTest;
       if (shareData) {
         // 设置项目基本信息
         shareStore.setProject({
@@ -112,6 +111,8 @@ const initShareData = () => {
         if (Array.isArray(shareData.nodes)) {
           shareStore.setDocs(shareData.nodes);
         }
+        shareStore.setBanner(convertDocsToBanner(shareData.nodes));
+        hasPermission.value = true;
       }
     } catch (error) {
       console.error('初始化 window.SHARE_DATA 失败:', error);
@@ -120,10 +121,10 @@ const initShareData = () => {
     getSharedProjectInfo();
   }
   const tabs = apidocCache.getEditTabs();
-  if (tabs[shareId.value]) {
+  if (tabs[shareId]) {
     shareStore.updateAllTabs({
-      tabs: tabs[shareId.value],
-      shareId: shareId.value,
+      tabs: tabs[shareId],
+      shareId: shareId,
     });
   }
 }
@@ -132,14 +133,14 @@ const getSharedProjectInfo = async () => {
   loading.value = true;
   try {
     const params = {
-      shareId: shareId.value,
+      shareId: shareId,
     };
     const res = await request.get<Response<SharedProjectInfo>, Response<SharedProjectInfo>>('/api/project/share_info', { params });
     shareStore.setProject(res.data);
     expireCountdown.value = getCountdown(res.data.expire ?? 0);
     if (res.data.needPassword) {
       // 检查是否有缓存的密码
-      const cachedPassword = apidocCache.getSharePassword(shareId.value);
+      const cachedPassword = apidocCache.getSharePassword(shareId);
       if (cachedPassword) {
         // 自动使用缓存的密码进行验证
         await verifyPassword(cachedPassword);
@@ -153,7 +154,7 @@ const getSharedProjectInfo = async () => {
   } catch (error) {
     console.error(error)
     // 发生异常时清空密码缓存
-    apidocCache.clearSharePassword(shareId.value);
+    apidocCache.clearSharePassword(shareId);
   } finally {
     loading.value = false;
   }
@@ -163,8 +164,8 @@ const getDocDetail = async (docId: string) => {
     shareStore.setContentLoading(true);
     const params = {
       docId,
-      shareId: shareId.value,
-      password: apidocCache.getSharePassword(shareId.value),
+      shareId: shareId,
+      password: apidocCache.getSharePassword(shareId),
     }
     const res = await request.get<Response<ApidocDetail>, Response<ApidocDetail>>('/api/project/share_doc_detail', { params });
     shareStore.setActiveDocInfo(res.data);
@@ -179,17 +180,17 @@ const verifyPassword = async (password: string) => {
   try {
     passwordLoading.value = true;
     const response = await request.post<{ data: { variables: ApidocVariable[], banner: ApidocBanner[] } }, { data: { variables: ApidocVariable[], banner: ApidocBanner[] } }>('/api/project/verify_share_password', {
-      shareId: shareId.value,
+      shareId: shareId,
       password: password
     })
     shareStore.replaceVaribles(response.data.variables);
     shareStore.setBanner(response.data.banner);
-    apidocCache.setSharePassword(shareId.value, password);
+    apidocCache.setSharePassword(shareId, password);
     hasPermission.value = true;
   } catch (error) {
     console.error('缓存密码验证失败:', error);
     // 缓存密码验证失败，清空缓存
-    apidocCache.clearSharePassword(shareId.value);
+    apidocCache.clearSharePassword(shareId);
     hasPermission.value = false;
   } finally {
     passwordLoading.value = false;
@@ -208,9 +209,9 @@ const handlePasswordSubmit = async () => {
 |--------------------------------------------------------------------------
 */
 // 监听tabs变化并设置activeDocInfo
-watch([() => tabs.value[shareId.value], () => hasPermission.value],
+watch([() => tabs.value[shareId], () => hasPermission.value],
   () => {
-    const sharedTabs = tabs.value[shareId.value];
+    const sharedTabs = tabs.value[shareId];
     if (!sharedTabs || !hasPermission.value) return;
     const selectedTab = sharedTabs.find(tab => tab.selected);
     if (selectedTab && isForHtml.value) {

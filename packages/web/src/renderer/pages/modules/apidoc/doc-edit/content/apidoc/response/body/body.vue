@@ -293,8 +293,9 @@ import { config } from '@/../config/config'
 import SJsonEditor from '@/components/common/json-editor/g-json-editor.vue'
 import { useApidocTas } from '@/store/apidoc/tabs';
 import { ElDialog } from 'element-plus';
+import worker from '@/worker/prettier.worker.ts?worker&inline';
 
-const prettierWorker = new Worker(new URL('@/worker/prettier.worker.ts', import.meta.url), { type: 'module' });
+const prettierWorker = new worker();
 const apidocResponseStore = useApidocResponse();
 const apidocBaseInfoStore = useApidocBaseInfo();
 const loadingProcess = computed(() => apidocResponseStore.loadingProcess);

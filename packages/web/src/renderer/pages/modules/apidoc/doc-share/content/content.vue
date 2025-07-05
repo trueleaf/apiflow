@@ -211,10 +211,10 @@ import { apidocCache } from '@/cache/apidoc';
 import { convertTemplateValueToRealValue } from '@/utils/utils';
 
 const route = useRoute();
-const shareId = computed(() => route.query.share_id as string);
+const shareId = route.query?.share_id as string || 'local_share';
 const shareStore = useShareStore();
 const apidocInfo = computed(() => shareStore.activeDocInfo);
-const tabs = computed(() => shareStore.tabs[shareId.value]);
+const tabs = computed(() => shareStore.tabs[shareId]);
 const activeResponseTab = ref('0');
 const fullUrl = ref('');
 /*
@@ -251,10 +251,10 @@ watchEffect(async () => {
 });
 
 const hasQueryParams = computed(() => {
-  return apidocInfo.value?.item.queryParams?.filter(p => p.select).some((data) => data.key);
+  return apidocInfo.value?.item?.queryParams?.filter(p => p.select).some((data) => data.key);
 });
 const actualQueryParams = computed(() => {
-  return apidocInfo.value?.item.queryParams?.filter(p => p.select && p.key) || [];
+  return apidocInfo.value?.item?.queryParams?.filter(p => p.select && p.key) || [];
 });
 
 const hasHeaders = computed(() => {

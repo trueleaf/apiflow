@@ -58,7 +58,6 @@
 <script lang="ts" setup>
 import { computed, ref, Ref, watch } from 'vue'
 import type { ApidocBanner } from '@src/types/global'
-import { router } from '@/router/index'
 import SResizeX from '@/components/common/resize/g-resize-x.vue'
 import SEmphasize from '@/components/common/emphasize/g-emphasize.vue'
 import { TreeNodeOptions } from 'element-plus/es/components/tree/src/tree.type.mjs'
@@ -74,15 +73,15 @@ import { useRoute } from 'vue-router';
 */
 const route = useRoute();
 const shareStore = useShareStore();
-const shareId = ref(route.query.share_id as string);
+const shareId = route.query?.share_id as string || 'local_share';
 const docTree: Ref<TreeNodeOptions['store'] | null | TreeNodeOptions> = ref(null);
 const showMoreNodeInfo = ref(false); //banner是否显示更多内容
 // 添加项目名称和搜索相关变量
-const projectName = ref(router.currentRoute.value.query.projectName as string || '');
 const searchValue = ref('');
 const requestMethods = ref(defaultRequestMethods);
 const bannerData = computed(() => shareStore.banner);
-const activeNode = computed(() => shareStore.tabs[shareId.value]?.find((v) => v.selected));
+const activeNode = computed(() => shareStore.tabs[shareId]?.find((v) => v.selected));
+const projectName = computed(() => shareStore.project.shareName);
 const defaultExpandedKeys = computed(() => activeNode.value ? [activeNode.value._id] : []);
 /*
 |--------------------------------------------------------------------------
@@ -95,7 +94,7 @@ const handleClickNode = (_: MouseEvent, data: ApidocBanner) => {
   if (!data.isFolder) {
     shareStore.addTab({
       _id: data._id,
-      projectId: shareId.value,
+      projectId: shareId,
       tabType: 'doc',
       label: data.name,
       saved: true,
@@ -115,7 +114,7 @@ const handleDbclickNode = (data: ApidocBanner) => {
   }
   shareStore.fixedTab({
     _id: data._id,
-    shareId: shareId.value,
+    shareId: shareId,
   })
 }
 //过滤节点

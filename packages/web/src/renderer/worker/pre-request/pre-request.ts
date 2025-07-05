@@ -69,16 +69,16 @@ self.onmessage = (e: MessageEvent<InitDataMessage | EvalMessage>) => {
   }
   if (e.data.type === "eval") {
     const { code } = e.data;
-    const wrappedCode = `
-      (async function() {
-        const getFile = options.getFile;
-        const axios = options.axios;
-        ${code}
-        return af;
-      })(af, options)
-    `
     try {
-      const evalPromise = eval(wrappedCode);
+      const wrappedFunction = new Function('af', 'options', `
+        return (async function() {
+          const getFile = options.getFile;
+          const axios = options.axios;
+          ${code}
+          return af;
+        })(af, options);
+      `);
+      const evalPromise = wrappedFunction(af, options);
       evalPromise.then(() => {
         self.postMessage({
           type: 'pre-request-eval-success',
