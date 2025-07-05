@@ -20,6 +20,7 @@ export default defineConfig({
     'import.meta.env.VITE_USE_FOR_HTML': JSON.stringify('true')
   },
   build: {
+    target: 'esnext', // 支持顶级 await
     // 指定自定义入口
     rollupOptions: {
       input: {
@@ -28,9 +29,11 @@ export default defineConfig({
     },
     // 内联所有资源
     cssCodeSplit: false,
-    assetsInlineLimit: 100000000, // 内联所有资源
+    assetsInlineLimit: 1000000000, // 内联所有资源
     // 输出单文件
-    outDir: 'dist/share',
-    emptyOutDir: true
+    outDir: 'dist',
+    emptyOutDir: true,
+    // 启用sourcemap
+    sourcemap: true
   }
 })
