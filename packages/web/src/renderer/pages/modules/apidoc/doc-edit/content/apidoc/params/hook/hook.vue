@@ -121,16 +121,11 @@ onMounted(() => {
     display: flex;
     justify-content: flex-end;
     border-bottom: 1px dashed var(--gray-400);
-    margin-top: size(-10);
-    // .close {
-    //     @include rt-close;
-    //     top: size(-5);
-    //     right: size(-5);
-    // }
+    margin-top: -10px;
   }
 
   .item {
-    padding: size(5) size(5);
+    padding: 5px 5px;
     display: flex;
     align-items: center;
     justify-content: space-between;

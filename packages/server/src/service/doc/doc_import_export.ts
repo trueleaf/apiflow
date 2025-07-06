@@ -16,6 +16,10 @@ import { Project } from '../../entity/project/project.js';
 import { DocPrefixServer } from './doc_prefix.js';
 import { Types } from 'mongoose';
 import { DocPrefix } from '../../entity/doc/doc_prefix.js';
+import { dirname } from 'path';
+import { fileURLToPath } from 'url';
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
 
 @Provide()
 export class DocImportAndExportService {
@@ -25,8 +29,6 @@ export class DocImportAndExportService {
     projectModel: ReturnModelType<typeof Project>;
   @InjectEntityModel(DocPrefix)
     docPrefixModel: ReturnModelType<typeof DocPrefix>;
-  @Inject()
-    appDir: string;
   @Inject()
     projectService: ProjectService;
   @Inject()
@@ -41,7 +43,7 @@ export class DocImportAndExportService {
   async exportAsHTML(params: ExportAsHTMLDto) {
     const { projectId, selectedNodes = [] } = params;
     await this.commonControl.checkDocOperationPermissions(projectId);
-    const projectInfo = await this.projectService.getProjectFullInfoById({ _id: projectId })
+    const projectInfo = await this.projectService.getProjectFullInfoById({ _id: projectId });
     let docs = [];
     if (selectedNodes.length > 0) { //选择导出
       docs = await this.docModel.find({
@@ -56,15 +58,31 @@ export class DocImportAndExportService {
       }).lean();
     }
     const result = {
-      projectInfo,
-      docs
+      projectInfo: {
+        projectName: projectInfo.projectName,
+        projectId: projectInfo._id,
+      },
+      nodes: docs.slice(0, 2).map(doc => {
+        return {
+          _id: doc._id,
+          pid: doc.pid,
+          projectId: doc.projectId,
+          isFolder: doc.isFolder,
+          sort: doc.sort,
+          info: doc.info,
+          item: doc.item,
+          isEnabled: doc.isEnabled,
+        };
+      }),
+      variables: projectInfo.variables,
     };
-    let file = await fsExtra.readFile(path.resolve(this.appDir, 'public/share-doc/index.html'), 'utf-8');
+    let file = await fsExtra.readFile(path.resolve(__dirname, '../../assets/index.html'), 'utf-8');
     file = file.replace(/window.SHARE_DATA = null/, `window.SHARE_DATA = ${JSON.stringify(result)}`);
-    file = file.replace(/<title>[^<]*<\/title>/, `<title>${projectInfo.projectName}</title>`);
+    // file = file.replace(/<title>[^<]*<\/title>/, `<title>${projectInfo.projectName}</title>`);
     this.ctx.set('content-type', 'application/force-download');
     this.ctx.set('content-disposition', `attachment;filename=${encodeURIComponent(`${projectInfo.projectName}.html`)}`);
     return Buffer.from(file, 'utf-8');
+    // return result;
   }
   /**
    * 导出为word

@@ -7,11 +7,23 @@ import { ref, Ref, onMounted, onBeforeUnmount, watch } from 'vue'
 import * as monaco from 'monaco-editor';
 import { useCompletionItem } from './registerCompletionItem'
 import { useHoverProvider } from './registerHoverProvider'
-import jsonWorker from 'monaco-editor/esm/vs/language/json/json.worker?worker&inline'
-import cssWorker from 'monaco-editor/esm/vs/language/css/css.worker?worker&inline'
-import htmlWorker from 'monaco-editor/esm/vs/language/html/html.worker?worker&inline'
-import tsWorker from 'monaco-editor/esm/vs/language/typescript/ts.worker?worker&inline'
-import EditorWorker from 'monaco-editor/esm/vs/editor/editor.worker?worker&inline'
+
+// 根据环境变量决定是否以inline方式引入worker
+const jsonWorkerPath = import.meta.env.VITE_USE_FOR_HTML === 'true' 
+  ? 'monaco-editor/esm/vs/language/json/json.worker?worker&inline'
+  : 'monaco-editor/esm/vs/language/json/json.worker?worker'
+const cssWorkerPath = import.meta.env.VITE_USE_FOR_HTML === 'true'
+  ? 'monaco-editor/esm/vs/language/css/css.worker?worker&inline'
+  : 'monaco-editor/esm/vs/language/css/css.worker?worker'
+const htmlWorkerPath = import.meta.env.VITE_USE_FOR_HTML === 'true'
+  ? 'monaco-editor/esm/vs/language/html/html.worker?worker&inline'
+  : 'monaco-editor/esm/vs/language/html/html.worker?worker'
+const tsWorkerPath = import.meta.env.VITE_USE_FOR_HTML === 'true'
+  ? 'monaco-editor/esm/vs/language/typescript/ts.worker?worker&inline'
+  : 'monaco-editor/esm/vs/language/typescript/ts.worker?worker'
+const EditorWorkerPath = import.meta.env.VITE_USE_FOR_HTML === 'true'
+  ? 'monaco-editor/esm/vs/editor/editor.worker?worker&inline'
+  : 'monaco-editor/esm/vs/editor/editor.worker?worker'
 
 
 const props = defineProps({
@@ -37,18 +49,18 @@ onMounted(() => {
   self.MonacoEnvironment = {
     getWorker(_: string, label: string) {
       if (label === 'json') {
-        return new jsonWorker()
+        return new Worker(jsonWorkerPath)
       }
       if (label === 'css' || label === 'scss' || label === 'less') {
-        return new cssWorker()
+        return new Worker(cssWorkerPath)
       }
       if (label === 'html' || label === 'handlebars' || label === 'razor') {
-        return new htmlWorker()
+        return new Worker(htmlWorkerPath)
       }
       if (['typescript', 'javascript'].includes(label)) {
-        return new tsWorker()
+        return new Worker(tsWorkerPath)
       }
-      return new EditorWorker()
+      return new Worker(EditorWorkerPath)
     },
   }
   monaco.languages.typescript.javascriptDefaults.setCompilerOptions({ noLib: true, allowNonTsExtensions: true });
@@ -57,16 +69,16 @@ onMounted(() => {
     language: 'javascript',
     automaticLayout: true,
     parameterHints: {
-      isEnabled: true
+      enabled: true
     },
     minimap: {
-      isEnabled: false,
+      enabled: false,
     },
     wrappingStrategy: 'advanced',
     scrollBeyondLastLine: false,
     overviewRulerLanes: 0,
     hover: {
-      isEnabled: true,
+      enabled: true,
       above: false,
     },
     renderLineHighlight: 'none',

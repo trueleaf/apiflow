@@ -59,9 +59,10 @@ import { router } from '@/router'
 import SBanner from './banner/banner.vue'
 import SNav from './nav/nav.vue'
 import SContent from './content/content.vue'
-import { LocalShareData, SharedProjectInfo } from '@src/types/types'
+import {  LocalShareData, SharedProjectInfo } from '@src/types/types'
 import { convertDocsToBanner, getCountdown } from '@/helper/index'
-import { useShareStore } from './store/index'
+import { useShareStore } from './store'
+// import localShareDataTest from './testData'
 /*
 |--------------------------------------------------------------------------
 | 变量定义

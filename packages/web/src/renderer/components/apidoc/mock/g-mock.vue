@@ -196,26 +196,26 @@ onUnmounted(() => {
 
 <style lang='scss' scoped>
 .s-mock-select {
-  width: size(800);
-  height: size(260);
+  width: 800px;
+  height: 260px;
   background: var(--white);
 
   .wrap {
-    height: size(220);
+    height: 220px;
     display: flex;
 
     .list {
-      padding: size(10) 0;
+      padding: 10px 0;
       flex: 0 0 75%;
       height: 100%;
       overflow-y: auto;
 
       .list-item {
-        height: size(30);
+        height: 30px;
         display: flex;
         align-items: center;
         justify-content: space-between;
-        padding: 0 size(10);
+        padding: 0 10px;
 
         &.active {
           background: var(--gray-200);
@@ -230,18 +230,18 @@ onUnmounted(() => {
 
     .bar {
       height: 100%;
-      width: size(1);
+      width: 1px;
       background: var(--gray-400);
     }
 
     .preview {
-      padding: size(10);
+      padding: 10px;
       height: 100%;
       flex: 1;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: fz(16);
+      font-size: 16px;
       overflow: hidden;
     }
   }

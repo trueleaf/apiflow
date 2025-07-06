@@ -108,7 +108,7 @@
       </div>
     </div>
     <div v-if="responseType === 'text'" class="raw-editor-wrap">
-      <SRawEditor v-model="rawText"></SRawEditor>
+      <!-- <SRawEditor v-model="rawText"></SRawEditor> -->
     </div>
     <div v-if="responseType === 'customJson'" class="editor-wrap">
       <SCustomEditor v-model="customResponseScript"></SCustomEditor>
@@ -145,7 +145,7 @@ import { apidocCache } from '@/cache/apidoc';
 import SCustomEditor from './components/custom-editor.vue'
 import SLabelValue from '@/components/common/label-value/g-label-value.vue'
 import SJsonEditor from '@/components/common/json-editor/g-json-editor.vue'
-import SRawEditor from '@/components/apidoc/raw-editor/g-raw-editor.vue'
+// import SRawEditor from '@/components/apidoc/raw-editor/g-raw-editor.vue'
 import { useApidoc } from '@/store/apidoc/apidoc';
 import SMock from '@/components/apidoc/mock/g-mock.vue'
 
@@ -396,7 +396,6 @@ onBeforeUnmount(() => {
   }
 
   .img-wrap {
-    // height: calc(100vh - #{size(620)});
     min-height: 200px;
   }
 

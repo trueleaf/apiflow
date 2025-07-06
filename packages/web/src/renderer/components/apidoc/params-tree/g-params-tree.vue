@@ -799,9 +799,9 @@ const checkDescriptionDisable = ({ node }: { node: TreeNode }) => {
     border: 1px dashed var(--gray-400);
     display: flex;
     align-items: center;
-    height: size(30);
+    height: 30px;
     position: relative;
-    font-size: fz(13);
+    font-size: 13px;
     &.active {
       background: none;
       border: 1px solid var(--gray-300);
@@ -836,10 +836,10 @@ const checkDescriptionDisable = ({ node }: { node: TreeNode }) => {
       }
       .close {
         position: absolute;
-        right: size(3);
+        right: 3px;
         top: 50%;
         transform: translateY(-50%);
-        font-size: fz(16);
+        font-size: 16px;
         cursor: pointer;
         &:hover {
           color: var(--red);
@@ -847,7 +847,7 @@ const checkDescriptionDisable = ({ node }: { node: TreeNode }) => {
       }
     }
     .toggle-mode {
-      flex: 0 0 size(20);
+      flex: 0 0 20px;
       height: 100%;
       display: flex;
       align-items: center;
@@ -865,7 +865,7 @@ const checkDescriptionDisable = ({ node }: { node: TreeNode }) => {
 }
 
 .el-tree-node__content {
-  height: size(50);
+  height: 50px;
 
   &:hover {
     background: var(--gray-200);
@@ -873,7 +873,7 @@ const checkDescriptionDisable = ({ node }: { node: TreeNode }) => {
 }
 
 .el-tree__drop-indicator {
-  height: size(3);
+  height: 3px;
 }
 
 // 禁用动画提高性能

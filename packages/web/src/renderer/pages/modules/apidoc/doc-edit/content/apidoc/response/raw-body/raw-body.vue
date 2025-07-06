@@ -69,7 +69,7 @@ onMounted(() => {
 <style lang='scss' scoped>
 .raw-body {
   width: 100%;
-  height: calc(100vh - #{size(400)});
+  height: calc(100vh - 400px);
   overflow: hidden;
   &.vertical {
     height: 100%;
@@ -81,7 +81,7 @@ onMounted(() => {
     display: flex;
   }
   .format {
-    height: size(30);
+    height: 30px;
     display: flex;
     align-items: self-start;
     justify-content: flex-end;

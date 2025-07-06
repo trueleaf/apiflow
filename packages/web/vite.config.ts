@@ -32,14 +32,6 @@ export default defineConfig(({}) => {
     define: {
       __APP_BUILD_TIME__: JSON.stringify(dayjs().format('YYYY-MM-DD HH:mm:ss'))
     },
-    css: {
-      preprocessorOptions: {
-        scss: {
-          silenceDeprecations: ['mixed-decls', 'color-functions', 'global-builtin', 'import'],
-          additionalData: `@import "/src/renderer/scss/index.scss";`
-        }
-      }
-    },
     optimizeDeps: {
       include: [
         `monaco-editor/esm/vs/language/json/json.worker`,

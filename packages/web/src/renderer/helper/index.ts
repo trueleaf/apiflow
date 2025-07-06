@@ -696,23 +696,44 @@ export function arrayToTree<T extends { _id: string; pid: string }>(list: T[]): 
   return roots;
 }
 
-export function convertDocsToBanner(docs: ApidocDetail[]): ApidocBanner[] {
-  return arrayToTree(docs).map((doc) => {
-    const banner: ApidocBanner = {
-      _id: doc._id,
-      updatedAt: doc.updatedAt || '',
-      type: doc.info.type,
-      sort: doc.sort,
-      pid: doc.pid,
-      name: doc.info.name,
-      isFolder: doc.isFolder,
-      maintainer: doc.info.maintainer,
-      method: doc.item?.method || 'GET',
-      url: doc.item?.url?.path || '',
-      commonHeaders: doc.commonHeaders || [],
-      readonly: false,
-      children: convertDocsToBanner(doc.children as ApidocDetail[]),
-    };
-    return banner;
-  });
+type ShareTreeNode = ApidocDetail & { children: ShareTreeNode[] }
+export function convertDocsToBanner(docs: ApidocDetail[] = []): ApidocBanner[] {
+  const treeData = arrayToTree(docs);
+  const copyTreeData = cloneDeep(treeData)
+  const banner: ApidocBanner[] = []
+  const foo = (nodes: ShareTreeNode[], banner: ApidocBanner[]): void => {
+    // 对节点进行排序：目录在前，文档在后
+    const sortedNodes = [...nodes].sort((a, b) => {
+      // 如果一个是目录一个是文档，目录排在前面
+      if (a.isFolder && !b.isFolder) return -1;
+      if (!a.isFolder && b.isFolder) return 1;
+      // 如果都是目录或都是文档，按sort字段排序
+      return (a.sort || 0) - (b.sort || 0);
+    });
+    
+    for (let i = 0; i < sortedNodes.length; i += 1) {
+      const node = sortedNodes[i];
+      const bannerNode: ApidocBanner = {
+        _id: node._id,
+        updatedAt: node.updatedAt || '',
+        type: node.info.type,
+        sort: node.sort,
+        pid: node.pid,
+        name: node.info.name,
+        isFolder: node.isFolder,
+        maintainer: node.info.maintainer,
+        method: node.item.method,
+        url: node.item.url.path,
+        commonHeaders: node.commonHeaders,
+        readonly: false,
+        children: [],
+      }
+      banner.push(bannerNode);
+      if (node.children.length > 0) {
+        foo(node.children, bannerNode.children)
+      }
+    }
+  }
+  foo(copyTreeData as ShareTreeNode[], banner)
+  return banner
 }

@@ -114,9 +114,7 @@ onMounted(() => {
     align-items: center;
     height: 40px;
 
-    // user-select: none;
     .head {
-      // padding-left: size(10);
       padding-right: 20px;
       display: flex;
       align-items: center;

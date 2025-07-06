@@ -4,10 +4,13 @@ import { createPinia } from 'pinia';
 import { zhCn } from 'element-plus/es/locale/index.mjs';
 import i18next from 'i18next';
 import I18NextVue from "i18next-vue";
-import '@/assets/css/index.css'
 import { customDirective } from '../../src/renderer/directive/directive';
 import ElementPlus from 'element-plus';
+import 'element-plus/dist/index.css'
 import { router } from '../../src/renderer/router';
+import '../../src/renderer/assets/css/index.css'
+import '../../src/renderer/assets/font/inline-font.css'
+import '../../src/renderer/assets/font/iconfont.js'
 
 // 直接导入翻译文件，避免使用http-backend
 import zhCnTranslations from '../../src/renderer/i18n/zh-cn';

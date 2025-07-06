@@ -17,11 +17,23 @@ import { t } from 'i18next'
 import { useApidocTas } from '@/store/apidoc/tabs';
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
 import 'monaco-editor/esm/vs/basic-languages/javascript/javascript.contribution'
-import jsonWorker from 'monaco-editor/esm/vs/language/json/json.worker?worker&inline'
-import cssWorker from 'monaco-editor/esm/vs/language/css/css.worker?worker&inline'
-import htmlWorker from 'monaco-editor/esm/vs/language/html/html.worker?worker&inline'
-import tsWorker from 'monaco-editor/esm/vs/language/typescript/ts.worker?worker&inline'
-import EditorWorker from 'monaco-editor/esm/vs/editor/editor.worker?worker&inline'
+
+// 根据环境变量决定是否以inline方式引入worker
+const jsonWorkerPath = import.meta.env.VITE_USE_FOR_HTML === 'true' 
+  ? 'monaco-editor/esm/vs/language/json/json.worker?worker&inline'
+  : 'monaco-editor/esm/vs/language/json/json.worker?worker'
+const cssWorkerPath = import.meta.env.VITE_USE_FOR_HTML === 'true'
+  ? 'monaco-editor/esm/vs/language/css/css.worker?worker&inline'
+  : 'monaco-editor/esm/vs/language/css/css.worker?worker'
+const htmlWorkerPath = import.meta.env.VITE_USE_FOR_HTML === 'true'
+  ? 'monaco-editor/esm/vs/language/html/html.worker?worker&inline'
+  : 'monaco-editor/esm/vs/language/html/html.worker?worker'
+const tsWorkerPath = import.meta.env.VITE_USE_FOR_HTML === 'true'
+  ? 'monaco-editor/esm/vs/language/typescript/ts.worker?worker&inline'
+  : 'monaco-editor/esm/vs/language/typescript/ts.worker?worker'
+const EditorWorkerPath = import.meta.env.VITE_USE_FOR_HTML === 'true'
+  ? 'monaco-editor/esm/vs/editor/editor.worker?worker&inline'
+  : 'monaco-editor/esm/vs/editor/editor.worker?worker'
 
 const props = defineProps({
   modelValue: {
@@ -47,18 +59,18 @@ onMounted(() => {
   self.MonacoEnvironment = {
     getWorker(_: string, label: string) {
       if (label === 'json') {
-        return new jsonWorker()
+        return new Worker(jsonWorkerPath)
       }
       if (label === 'css' || label === 'scss' || label === 'less') {
-        return new cssWorker()
+        return new Worker(cssWorkerPath)
       }
       if (label === 'html' || label === 'handlebars' || label === 'razor') {
-        return new htmlWorker()
+        return new Worker(htmlWorkerPath)
       }
       if (['typescript', 'javascript'].includes(label)) {
-        return new tsWorker()
+        return new Worker(tsWorkerPath)
       }
-      return new EditorWorker()
+      return new Worker(EditorWorkerPath)
     },
   }
   event.emit('apidoc/editor/removeAfterEditor');
@@ -131,8 +143,8 @@ const handleOpenLocalScript = () => {
 
 .operation-btn {
   position: absolute;
-  right: size(20);
-  top: size(0);
+  right: 20px;
+  top: 0px;
 
   .el-button+.el-button {
     margin-left: 0;

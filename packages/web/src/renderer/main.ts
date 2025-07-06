@@ -9,7 +9,8 @@ import i18next from 'i18next';
 import I18NextVue from "i18next-vue";
 import Backend from 'i18next-http-backend'
 import { customDirective } from './directive/directive';
-
+import '@/assets/font/iconfont.css'
+import '@/assets/font/iconfont.js'
 
 const pinia = createPinia();
 const app = createApp(App);

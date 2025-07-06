@@ -284,13 +284,13 @@ const handleClose = () => {
   // overflow-y: auto;
   .add-host {
     flex: 0 0 auto;
-    padding-right: size(10);
-    margin-right: size(10);
+    padding-right: 10px;
+    margin-right: 10px;
     border-right: 1px solid var(--gray-400);
   }
 
   .url-wrap {
-    height: size(45);
+    height: 45px;
     display: flex;
     align-items: center;
     justify-content: center;

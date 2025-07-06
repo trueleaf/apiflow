@@ -137,7 +137,7 @@ watch(searchValue, (newValue) => {
 });
 </script>
 
-<style lang='scss' scoped>
+<style lang='scss'>
 .banner {
   flex: 0 0 auto;
   height: 100%;

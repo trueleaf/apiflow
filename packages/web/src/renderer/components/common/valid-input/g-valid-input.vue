@@ -295,7 +295,6 @@ onUnmounted(() => {
       background: var(--gray-400);
     }
 
-    // padding: size(10) 0;
     .select-item {
       line-height: 1.8em;
       padding: 5px 25px;

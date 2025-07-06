@@ -123,7 +123,7 @@ const handleJumpToCookies = () => {
   max-height: 140px;
 
   .value-wrap {
-    max-height: size(140);
+    max-height: 140px;
     overflow-y: auto;
   }
 

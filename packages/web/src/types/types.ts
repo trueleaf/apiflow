@@ -412,7 +412,7 @@ export type LocalShareData = {
     projectId: string;
   },
   nodes: ApidocDetail[],
-  variables: ApidocVariable[]
+  variables: ApidocVariable[],
 }
 
 export type GotRequestJsonBody = { type: "json", value: string }

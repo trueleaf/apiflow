@@ -363,7 +363,6 @@ onMounted(async () => {
 
     .json-wrap {
       height: calc(100vh - 350px);
-      // height: calc(100vh - #{size(350)});
     }
 
     .body-op {
@@ -430,10 +429,6 @@ onMounted(async () => {
         border: 1px dashed var(--gray-400);
       }
       .close {
-        // position: absolute;
-        // right: size(3);
-        // top: 50%;
-        // transform: translateY(-50%);
         font-size: 16px;
         cursor: pointer;
         &:hover {
