@@ -81,7 +81,7 @@ const searchValue = ref('');
 const requestMethods = ref(defaultRequestMethods);
 const bannerData = computed(() => shareStore.banner);
 const activeNode = computed(() => shareStore.tabs[shareId]?.find((v) => v.selected));
-const projectName = computed(() => shareStore.project.shareName);
+const projectName = computed(() => shareStore.project.projectName);
 const defaultExpandedKeys = computed(() => activeNode.value ? [activeNode.value._id] : []);
 /*
 |--------------------------------------------------------------------------

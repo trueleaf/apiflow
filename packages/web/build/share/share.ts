@@ -11,6 +11,7 @@ import { router } from '../../src/renderer/router';
 import '../../src/renderer/assets/css/index.css'
 import '../../src/renderer/assets/font/inline-font.css'
 import '../../src/renderer/assets/font/iconfont.js'
+import '../../src/renderer/assets/js/beauty.min.js'
 
 // 直接导入翻译文件，避免使用http-backend
 import zhCnTranslations from '../../src/renderer/i18n/zh-cn';
