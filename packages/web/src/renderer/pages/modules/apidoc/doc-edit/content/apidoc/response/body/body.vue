@@ -82,11 +82,12 @@
         <el-button link type="primary" text @click="handleDownload">{{ t("下载文件") }}</el-button>
       </div>
       <!-- 下载类型文件 -->
+       
       <div v-else-if="apidocResponseStore.responseInfo.responseData.canApiflowParseType === 'forceDownload'"
         class="d-flex flex-column j-center">
-        <svg class="svg-icon" aria-hidden="true" :title="t('下载文件')">
-          <use xlink:href="#iconicon_weizhiwenjian"></use>
-        </svg>
+        <el-icon class="download-icon" :title="t('下载文件')">
+          <Download />
+        </el-icon>
         <div  class="text-center">{{ apidocResponseStore.responseInfo.contentType }}</div>
         <el-button link type="primary" text @click="handleDownload">{{ t("下载文件") }}</el-button>
       </div>
@@ -294,6 +295,7 @@ import SJsonEditor from '@/components/common/json-editor/g-json-editor.vue'
 import { useApidocTas } from '@/store/apidoc/tabs';
 import { ElDialog } from 'element-plus';
 import worker from '@/worker/prettier.worker.ts?worker&inline';
+import { Download } from '@element-plus/icons-vue';
 
 const prettierWorker = new worker();
 const apidocResponseStore = useApidocResponse();
@@ -536,5 +538,11 @@ onUnmounted(() => {
   border-bottom: none;
   margin-bottom: 0;
   padding-bottom: 0;
+}
+
+.download-icon {
+  width: 100%;
+  height: 150px;
+  font-size: 150px;
 }
 </style>

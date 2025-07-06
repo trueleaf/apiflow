@@ -16,6 +16,29 @@ import { generateEmptyResponse } from './utils';
 import { Buffer } from 'node:buffer';
 import { config } from '../config/config';
 
+/*
+|--------------------------------------------------------------------------
+| 工具函数
+|--------------------------------------------------------------------------
+*/
+
+// 从响应头中提取文件名
+const getFileNameFromHeaders = (headers: Record<string, string | string[] | undefined>, fileTypeInfo: any, defaultExt: string): string => {
+  const contentDisposition = headers['content-disposition'];
+  if (contentDisposition) {
+    const dispositionStr = Array.isArray(contentDisposition) ? contentDisposition[0] : contentDisposition;
+    const match = dispositionStr.match(/filename="?([^";]*)"?/);
+    if (match) {
+      return decodeURIComponent(match[1]);
+    }
+  }
+  
+  // 如果没有从响应头获取到文件名，则生成默认文件名
+  const timestamp = Date.now();
+  const ext = fileTypeInfo?.ext || defaultExt;
+  return `download_${timestamp}.${ext}`;
+};
+
 const getFormDataFromRendererFormData = async (rendererFormDataList: RendererFormDataBody) => {
   const formData = new FormData();
   for (let i = 0; i < rendererFormDataList.length; i++) {
@@ -333,6 +356,7 @@ export const gotRequest = async (options: GotRequestOptions) => {
         fileTypeInfo?.mime?.includes('application/x-gtar');
       const responseAsExe = contentTypeIsExe || fileTypeInfo?.mime?.includes('application/x-msdownload');
       const responseAsEpub = contentTypeIsEpub || fileTypeInfo?.mime?.includes('application/epub') || fileTypeInfo?.mime?.includes('application/x-epub');
+      const responseAsForceDownload = responseInfo.contentType.includes('application/force-download') || responseInfo.contentType.includes('application/octet-stream');
       if (noFileType && responseInfo.contentType.includes('application/json')) {
         responseInfo.responseData.canApiflowParseType = 'json';
         responseInfo.responseData.jsonData = bufferData.toString();
@@ -354,32 +378,42 @@ export const gotRequest = async (options: GotRequestOptions) => {
       } else if (responseAsImage) {
         const blob = new Blob([bufferData], { type: fileTypeInfo?.mime ?? responseInfo.contentType });
         const blobUrl = URL.createObjectURL(blob);
+        const fileName = getFileNameFromHeaders(responseInfo.headers, fileTypeInfo, 'jpg');
         responseInfo.responseData.canApiflowParseType = 'image';
         responseInfo.responseData.fileData.url = blobUrl;
-        responseInfo.responseData.fileData.ext = ''; //不赋值，让浏览器自行推断
+        responseInfo.responseData.fileData.name = fileName;
+        responseInfo.responseData.fileData.ext = fileTypeInfo?.ext || '';
       } else if (responseAsPdf) {
         const blob = new Blob([bufferData], { type: fileTypeInfo?.mime ?? 'application/pdf' });
         const blobUrl = URL.createObjectURL(blob);
+        const fileName = getFileNameFromHeaders(responseInfo.headers, fileTypeInfo, 'pdf');
         responseInfo.responseData.fileData.url = blobUrl;
+        responseInfo.responseData.fileData.name = fileName;
         responseInfo.responseData.fileData.ext = fileTypeInfo?.ext || 'pdf';
         responseInfo.responseData.canApiflowParseType = 'pdf';
       } else if (responseAsExcel) {
         const blob = new Blob([bufferData], { type: fileTypeInfo?.mime ?? 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
         const blobUrl = URL.createObjectURL(blob);
+        const fileName = getFileNameFromHeaders(responseInfo.headers, fileTypeInfo, 'xlsx');
         responseInfo.responseData.fileData.url = blobUrl;
-        responseInfo.responseData.fileData.ext = ''; //xls会被推断为application/x-cfb，不赋值，让浏览器自行推断
+        responseInfo.responseData.fileData.name = fileName;
+        responseInfo.responseData.fileData.ext = fileTypeInfo?.ext || 'xlsx';
         responseInfo.responseData.canApiflowParseType = 'excel';
       } else if (responseAsWord) {
-        const blob = new Blob([bufferData], { type: fileTypeInfo?.mime ?? 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+        const blob = new Blob([bufferData], { type: fileTypeInfo?.mime ?? 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' });
         const blobUrl = URL.createObjectURL(blob);
+        const fileName = getFileNameFromHeaders(responseInfo.headers, fileTypeInfo, 'docx');
         responseInfo.responseData.fileData.url = blobUrl;
-        responseInfo.responseData.fileData.ext = ''; //word会被推断为application/x-cfb，不赋值，让浏览器自行推断
+        responseInfo.responseData.fileData.name = fileName;
+        responseInfo.responseData.fileData.ext = fileTypeInfo?.ext || 'docx';
         responseInfo.responseData.canApiflowParseType = 'word';
       } else if (responseAsPPT) {
-        const blob = new Blob([bufferData], { type: fileTypeInfo?.mime ?? 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+        const blob = new Blob([bufferData], { type: fileTypeInfo?.mime ?? 'application/vnd.openxmlformats-officedocument.presentationml.presentation' });
         const blobUrl = URL.createObjectURL(blob);
+        const fileName = getFileNameFromHeaders(responseInfo.headers, fileTypeInfo, 'pptx');
         responseInfo.responseData.fileData.url = blobUrl;
-        responseInfo.responseData.fileData.ext = ''; //ppt会被推断为application/x-cfb，不赋值，让浏览器自行推断
+        responseInfo.responseData.fileData.name = fileName;
+        responseInfo.responseData.fileData.ext = fileTypeInfo?.ext || 'pptx';
         responseInfo.responseData.canApiflowParseType = 'ppt';
       } else if (responseAsXml) {
         responseInfo.responseData.canApiflowParseType = 'xml';
@@ -387,33 +421,51 @@ export const gotRequest = async (options: GotRequestOptions) => {
       } else if (responseAsVideo) {
         const blob = new Blob([bufferData], { type: fileTypeInfo?.mime ?? 'video/mp4' });
         const blobUrl = URL.createObjectURL(blob);
+        const fileName = getFileNameFromHeaders(responseInfo.headers, fileTypeInfo, 'mp4');
         responseInfo.responseData.fileData.url = blobUrl;
+        responseInfo.responseData.fileData.name = fileName;
         responseInfo.responseData.fileData.ext = fileTypeInfo?.ext || 'mp4';
         responseInfo.responseData.canApiflowParseType = 'video';
       } else if (responseAsAudio) {
         const blob = new Blob([bufferData], { type: fileTypeInfo?.mime ?? 'audio/mpeg' });
         const blobUrl = URL.createObjectURL(blob);
+        const fileName = getFileNameFromHeaders(responseInfo.headers, fileTypeInfo, 'mp3');
         responseInfo.responseData.fileData.url = blobUrl;
+        responseInfo.responseData.fileData.name = fileName;
         responseInfo.responseData.fileData.ext = fileTypeInfo?.ext || 'mp3';
         responseInfo.responseData.canApiflowParseType = 'audio';
       } else if (responseAsArchive) {
         const blob = new Blob([bufferData], { type: fileTypeInfo?.mime ?? 'application/zip' });
         const blobUrl = URL.createObjectURL(blob);
+        const fileName = getFileNameFromHeaders(responseInfo.headers, fileTypeInfo, 'zip');
         responseInfo.responseData.fileData.url = blobUrl;
-        responseInfo.responseData.fileData.ext = fileTypeInfo?.ext || '';
+        responseInfo.responseData.fileData.name = fileName;
+        responseInfo.responseData.fileData.ext = fileTypeInfo?.ext || 'zip';
         responseInfo.responseData.canApiflowParseType = 'archive';
       } else if (responseAsExe) {
         const blob = new Blob([bufferData], { type: fileTypeInfo?.mime ?? 'application/x-msdownload' });
         const blobUrl = URL.createObjectURL(blob);
+        const fileName = getFileNameFromHeaders(responseInfo.headers, fileTypeInfo, 'exe');
         responseInfo.responseData.fileData.url = blobUrl;
+        responseInfo.responseData.fileData.name = fileName;
         responseInfo.responseData.fileData.ext = fileTypeInfo?.ext || 'exe';
         responseInfo.responseData.canApiflowParseType = 'exe';
       } else if (responseAsEpub) {
         const blob = new Blob([bufferData], { type: fileTypeInfo?.mime ?? 'application/epub+zip' });
         const blobUrl = URL.createObjectURL(blob);
+        const fileName = getFileNameFromHeaders(responseInfo.headers, fileTypeInfo, 'epub');
         responseInfo.responseData.fileData.url = blobUrl;
+        responseInfo.responseData.fileData.name = fileName;
         responseInfo.responseData.fileData.ext = fileTypeInfo?.ext || 'epub';
         responseInfo.responseData.canApiflowParseType = 'epub';
+      } else if (responseAsForceDownload) {
+        responseInfo.responseData.canApiflowParseType = 'forceDownload';
+        const blob = new Blob([bufferData], { type: responseInfo.contentType });
+        const blobUrl = URL.createObjectURL(blob);
+        const fileName = getFileNameFromHeaders(responseInfo.headers, fileTypeInfo, 'forceDownload');
+        responseInfo.responseData.fileData.url = blobUrl;
+        responseInfo.responseData.fileData.name = fileName;
+        responseInfo.responseData.fileData.ext = fileTypeInfo?.ext || 'forceDownload';
       } else {
         responseInfo.responseData.canApiflowParseType = 'unknown';
         console.log(`无法解析的类型\nContentType值为${responseInfo.contentType} \n读取到的文件类型为=${JSON.stringify(fileTypeInfo)}`)

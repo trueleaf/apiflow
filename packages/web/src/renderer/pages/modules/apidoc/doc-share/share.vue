@@ -62,7 +62,7 @@ import SContent from './content/content.vue'
 import {  LocalShareData, SharedProjectInfo } from '@src/types/types'
 import { convertDocsToBanner, getCountdown } from '@/helper/index'
 import { useShareStore } from './store'
-// import localShareDataTest from './testData'
+import localShareDataTest from './testData'
 /*
 |--------------------------------------------------------------------------
 | 变量定义
@@ -96,13 +96,13 @@ const tabs = computed(() => shareStore.tabs);
 const initShareData = () => {
   if (isForHtml.value) {
     try {
-      const shareData = (window as any).SHARE_DATA as LocalShareData;
-      // const shareData = localShareDataTest;
+      
+      const shareData = process.env.NODE_ENV === 'development' ? localShareDataTest : (window as any).SHARE_DATA as LocalShareData;
+      console.log('shareData', shareData);
       if (shareData) {
         // 设置项目基本信息
         shareStore.setProject({
           ...shareData.projectInfo,
-          shareName: $t('文档分享'),
         });
         // 设置变量
         if (Array.isArray(shareData.variables)) {
@@ -116,7 +116,7 @@ const initShareData = () => {
         hasPermission.value = true;
       }
     } catch (error) {
-      console.error('初始化 window.SHARE_DATA 失败:', error);
+      console.error('初始化 SHARE_DATA 失败:', (error as Error).message);
     }
   } else {
     getSharedProjectInfo();
