@@ -62,7 +62,7 @@ export class DocImportAndExportService {
         projectName: projectInfo.projectName,
         projectId: projectInfo._id,
       },
-      nodes: docs.slice(0, 2).map(doc => {
+      nodes: docs.map(doc => {
         return {
           _id: doc._id,
           pid: doc.pid,
@@ -78,11 +78,10 @@ export class DocImportAndExportService {
     };
     let file = await fsExtra.readFile(path.resolve(__dirname, '../../assets/index.html'), 'utf-8');
     file = file.replace(/window.SHARE_DATA = null/, `window.SHARE_DATA = ${JSON.stringify(result)}`);
-    // file = file.replace(/<title>[^<]*<\/title>/, `<title>${projectInfo.projectName}</title>`);
+    file = file.replace(/<title>[^<]*<\/title>/, `<title>${projectInfo.projectName}</title>`);
     this.ctx.set('content-type', 'application/force-download');
     this.ctx.set('content-disposition', `attachment;filename=${encodeURIComponent(`${projectInfo.projectName}.html`)}`);
     return Buffer.from(file, 'utf-8');
-    // return result;
   }
   /**
    * 导出为word
