@@ -500,7 +500,7 @@ onUnmounted(() => {
           width: 10px;
           height: 10px;
           border-radius: 50%;
-          background: #e6fbf8;
+          background: #36cea1;
         }
       }
     }
