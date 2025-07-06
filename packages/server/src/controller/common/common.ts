@@ -68,7 +68,7 @@ const ReadOnlyUrl = [
     method: 'post',
   },
   {
-    url: '/api/project/export/moyu',
+    url: '/api/project/export/json',
     method: 'post',
   },
   {

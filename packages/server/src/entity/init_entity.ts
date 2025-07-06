@@ -854,7 +854,7 @@ const INITIAL_SERVER_ROUTES = [
     groupName: 'api文档-导入导出',
     method: 'post',
     name: '导出为摸鱼文档',
-    path: '/api/project/export/moyu',
+    path: '/api/project/export/json',
   },
   {
     _id: '603b9a9cc953e62b80e42e12',
@@ -924,7 +924,7 @@ const INITIAL_SERVER_ROUTES = [
     groupName: 'api文档-导入导出',
     method: 'post',
     name: '文档导入',
-    path: '/api/project/import/moyu',
+    path: '/api/project/import/json',
   },
   {
     _id: '6056ca3ec8731d1cd490e95d',

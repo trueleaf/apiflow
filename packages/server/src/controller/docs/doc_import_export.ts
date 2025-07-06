@@ -31,7 +31,7 @@ export class DocImportAndExport {
   /**
    * 导出为apiflow文档
    */
-  @Post('/project/export/moyu')
+  @Post('/project/export/json')
   async exportAsApiflow(@Body() params: ExportAsApiflowDto) {
     const data = await this.docImportAndExportService.exportAsApiflow(params);
     return data;
@@ -39,7 +39,7 @@ export class DocImportAndExport {
   /**
    * 导入文档
    */
-  @Post('/project/import/moyu')
+  @Post('/project/import/json')
   async importApiflow(@Body() params: ImportApiflowDto) {
     const data = await this.docImportAndExportService.importApiflow(params);
     return data;

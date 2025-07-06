@@ -180,7 +180,7 @@ export class DocImportAndExportService {
         const requestMethod = data.item.method;
         const methodText = new TextRun({
           text: `${requestMethod}`,
-          color: (requestMethod === 'GET') ? '28a745' : (requestMethod === 'POST') ? 'ffc107' : (requestMethod === 'PUT') ? 'orange' : (requestMethod === 'DELETE') ? 'f56c6c' : '444444'
+          color: (requestMethod === 'GET') ? '28a745' : (requestMethod === 'POST') ? 'ffc107' : (requestMethod === 'PUT') ? '#ff4400' : (requestMethod === 'DELETE') ? 'f56c6c' : '444444'
         })
         const method = new Paragraph({ //请求方法
           children: [new TextRun({ text: '请求方法：' }), methodText]
@@ -596,7 +596,7 @@ export class DocImportAndExportService {
       }).lean();
     }
     const result = {
-      type: 'moyu',
+      type: 'apiflow',
       info: {
         projectName: projectInfo.projectName,
       },
