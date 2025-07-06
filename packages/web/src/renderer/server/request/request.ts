@@ -1,7 +1,7 @@
 import { useApidoc } from '@/store/apidoc/apidoc';
 import { ref, toRaw } from 'vue';
 import json5 from 'json5'
-import { ApidocDetail, ApidocProperty, ApidocHttpRequestMethod } from '@src/types/global';
+import { ApidocDetail, ApidocProperty } from '@src/types/global';
 import { convertTemplateValueToRealValue, getEncodedStringFromEncodedParams, getFormDataFromFormDataParams, getObjectPathParams, getQueryStringFromQueryParams } from '@/utils/utils';
 import { useVariable } from '@/store/apidoc/variables';
 import { GotRequestOptions, JsonData, RedirectOptions, ResponseInfo } from '@src/types/types';
