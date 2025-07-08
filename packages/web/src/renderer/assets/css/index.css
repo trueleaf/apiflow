@@ -62,7 +62,13 @@
   --zIndex-contextmenu: 1996;
   --zIndex-loading-text: 2222;
   --zIndex-copy: 2599;
-  --el-transition-duration: 0, ;
+  --el-transition-duration: 0;
+  /* 业务变量 */
+  --apiflow-header-height: 35px;
+  --apiflow-doc-nav-height: 40px;
+  --apiflow-banner-tool-height: 150px;
+  --apiflow-apidoc-operation-height: 100px;
+  --apiflow-apidoc-request-view-height: 170px;
 }
 
 * {
