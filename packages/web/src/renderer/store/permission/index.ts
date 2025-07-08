@@ -7,7 +7,6 @@ import { RouteRecordRaw } from 'vue-router';
 import { ref } from 'vue';
 import { uniqueByKey } from '@/helper';
 import { request } from '@/api/api';
-import { globalCache } from '@/cache/cache';
 
 type ResUserInfo = PermissionUserInfo & {
   clientBanner: PermissionClientMenu[],
@@ -42,7 +41,6 @@ export const usePermissionStore = defineStore('permission', () => {
   //改变全局配置
   const changeGlobalConfig = (payload: GlobalConfig) => {
     globalConfig.value = payload;
-    globalCache.changeGlobalConfig(payload);
   }
   //改变用户信息
   const changeUserInfo = (payload: PermissionUserInfo): void => {
