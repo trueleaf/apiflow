@@ -6,7 +6,7 @@ import { Ref } from 'vue'
 import 'element-plus/es/components/message-box/style/css';
 import { ElMessageBox } from 'element-plus'
 import type { ApidocBanner, Response } from '@src/types/global'
-import { findNodeById, forEachForest, findParentById, flatTree, uniqueByKey, findPreviousSiblingById, findNextSiblingById } from '@/helper/index'
+import { findNodeById, forEachForest, findParentById, flatTree, uniqueByKey, findPreviousSiblingById, findNextSiblingById, event } from '@/helper/index'
 import { router } from '@/router/index'
 import { request } from '@/api/api'
 import { t } from 'i18next'
@@ -87,6 +87,7 @@ export function deleteNode(selectNodes: ApidocBannerWithProjectId[], silent?: bo
         ids: delNodeIds,
         force: true,
       })
+      event.emit('apidoc/deleteDocs')
     }).catch((err) => {
       console.error(err);
     });

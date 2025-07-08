@@ -3,9 +3,6 @@
     <!-- 头部 -->
     <div class="recycler-header">
       <div class="header-title mr-4 d-flex a-center">
-        <el-icon>
-          <Delete />
-        </el-icon>
         <span class="title-text">接口回收站</span>
       </div>
     </div>
@@ -112,7 +109,7 @@ import type { ApidocHttpRequestMethod, ApidocType, ResponseTable } from '@src/ty
 import { router } from '@/router/index'
 import { request } from '@/api/api'
 import SLoading from '@/components/common/loading/g-loading.vue'
-import { forEachForest, debounce } from '@/helper'
+import { forEachForest, debounce, event } from '@/helper'
 import docDetail from './components/doc-detail.vue'
 import { useApidocBanner } from '@/store/apidoc/banner'
 import { useApidocBaseInfo } from '@/store/apidoc/base-info'
@@ -272,6 +269,7 @@ onMounted(() => {
   getData();
   getOperatorEnum();
   document.documentElement.addEventListener('click', closeAllDetailPopovers);
+  event.on('apidoc/deleteDocs', getData);
 });
 
 onUnmounted(() => {
