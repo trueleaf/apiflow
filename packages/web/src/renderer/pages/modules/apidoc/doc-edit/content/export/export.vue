@@ -24,7 +24,7 @@
           <img src="@/assets/imgs/logo.png" alt="moyu" class="img">
           <div class="mt-1">{{ t('JSON文档') }}</div>
         </div>
-        <div v-if="0" class="item" :class="{active: selectedType === 'otherProject'}" @click="selectedType = 'otherProject'">
+        <div class="item" :class="{active: selectedType === 'otherProject'}" @click="selectedType = 'otherProject'">
           <svg class="svg-icon" aria-hidden="true">
             <use xlink:href="#icondaochu1"></use>
           </svg>
@@ -87,7 +87,7 @@
       </div>
     </SFieldset>
     <!-- todo -->
-    <!-- <s-fork v-else></s-fork> -->
+    <SFork v-else></SFork>
   </div>
 </template>
 
@@ -106,6 +106,7 @@ import SFieldset from '@/components/common/fieldset/g-fieldset.vue'
 import SConfig from '@/components/common/config/g-config.vue'
 import SEmphasize from '@/components/common/emphasize/g-emphasize.vue'
 import { useRoute } from 'vue-router';
+import SFork from './fork/fork.vue'
 
 const apidocBaseInfoStore = useApidocBaseInfo();
 const apidocBannerStore = useApidocBanner();

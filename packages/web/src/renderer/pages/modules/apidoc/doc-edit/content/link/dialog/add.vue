@@ -148,13 +148,13 @@ const projectInfo = computed(() => {
 }); //项目基本信息
 const configShare: Ref<{ isEnabled: boolean } | null> = ref(null); //配置组件实例
 const projectId = router.currentRoute.value.query.id as string; //项目id
-const loading = ref(false); //生成在线链接加载
-const shareLink = ref(''); //在线链接地址
+const loading = ref(false); //生成项目分享加载
+const shareLink = ref(''); //项目分享地址
 //关闭页面
 const handleClose = () => {
   emits('update:modelValue', false);
 }
-//生成在线链接
+//生成项目分享
 const handleGenerateLink = () => {
   const enableCustomExport = configShare.value?.isEnabled;
   const customExportIsEmpty = allCheckedNodes.value.length === 0;

@@ -5,7 +5,7 @@
       <div class="header-content d-flex j-between a-center">
         <div class="header-left">
           <div class="d-flex a-center">
-            <span class="title-text">{{ t('在线链接') }}</span>
+            <span class="title-text">{{ t('项目分享') }}</span>
           </div>
           <div class="desc">{{ t('管理项目的在线分享链接，方便外部人员访问') }}</div>
         </div>

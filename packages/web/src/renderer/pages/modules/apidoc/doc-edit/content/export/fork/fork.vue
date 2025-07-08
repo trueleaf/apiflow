@@ -7,24 +7,25 @@
           <span>{{ t("从左侧拖拽文档到右侧，右侧也可以进行简单的拖拽") }}</span>
         </span>
         <el-divider></el-divider>
-        <el-tree
-          ref="sourceTree"
-          class="mt-2"
-          :data="sourceTreeData"
-          node-key="_id"
-          draggable
+        <el-tree 
+          ref="sourceTree" 
+          class="mt-2" 
+          :data="sourceTreeData" 
+          node-key="_id" 
+          draggable 
           :allow-drop="() => false"
-          :expand-on-click-node="true"
+          :expand-on-click-node="true" 
           @node-drag-start="handleSourceDragstart"
-          @node-drag-over="handleSourceNodeDragOver"
-          @node-drag-end="handleSourceDragend"
-        >
+          @node-drag-over="handleSourceNodeDragOver" 
+          @node-drag-end="handleSourceDragend">
           <template #default="scope">
             <div class="custom-tree-node" tabindex="0">
               <!-- file渲染 -->
               <template v-if="!scope.data.isFolder">
-                <template v-for="(req) in projectInfo.rules.requestMethods">
-                  <span v-if="scope.data && scope.data.method && scope.data.method.toLowerCase() === req.value.toLowerCase()" :key="req.name" class="file-icon" :style="{color: req.iconColor}">{{ req.name }}</span>
+                <template v-for="(req) in projectRules.requestMethods">
+                  <span
+                    v-if="scope.data && scope.data.method && scope.data.method.toLowerCase() === req.value.toLowerCase()"
+                    :key="req.name" class="file-icon" :style="{ color: req.iconColor }">{{ req.name }}</span>
                 </template>
                 <div class="node-label-wrap">
                   <s-emphasize class="node-top" :title="scope.data.name" :value="scope.data.name"></s-emphasize>
@@ -46,34 +47,32 @@
           <div class="orange">
             <span>{{ t("鼠标右键可以新增文件夹或者删除文件夹") }}</span>
           </div>
-          <el-radio-group v-if="projectEnum.length < 4" v-model="targetProjectId" class="mt-2" @change="handleChangeProject">
-            <el-radio v-for="(item, index) in projectEnum" :key="index" :label="item._id">{{ item.projectName }}</el-radio>
+          <el-radio-group v-if="projectEnum.length < 4" v-model="targetProjectId" class="mt-2"
+            @change="handleChangeProject">
+            <el-radio v-for="(item, index) in projectEnum" :key="index" :value="item._id">{{ item.projectName
+              }}</el-radio>
           </el-radio-group>
-          <el-select v-else v-model="targetProjectId" :size="config.renderConfig.layout.size" class="mt-2" filterable @change="handleChangeProject">
-            <el-option v-for="(item,index) in projectEnum" :key="index" :value="item._id" :label="item.projectName"></el-option>
+          <el-select v-else v-model="targetProjectId" :size="config.renderConfig.layout.size" class="mt-2" filterable
+            @change="handleChangeProject">
+            <el-option v-for="(item, index) in projectEnum" :key="index" :value="item._id"
+              :label="item.projectName"></el-option>
           </el-select>
           <el-divider></el-divider>
           <SLoading :loading="loading" class="project-nav mt-2">
-            <el-tree
-              ref="targetTree"
-              :data="targetTreeData"
-              node-key="_id"
-              draggable
-              :allow-drop="checkTargetCouldDrop"
-              :expand-on-click-node="true"
-              :empty-text="t('暂无文档，请在项目中添加至少一个文档')"
+            <el-tree ref="targetTree" :data="targetTreeData" node-key="_id" draggable :allow-drop="checkTargetCouldDrop"
+              :expand-on-click-node="true" :empty-text="t('暂无文档，请在项目中添加至少一个文档')" 
               @node-drag-over="handleTargetNodeOver"
-              @node-drag-start="handleTargetDragStart"
-              @node-drop="handleTargetDrop"
+              @node-drag-start="handleTargetDragStart" 
+              @node-drop="handleTargetDrop" 
               @node-expand="clearContextmenu"
-              @node-collapse="clearContextmenu"
-            >
+              @node-collapse="clearContextmenu">
               <template #default="scope">
                 <div class="custom-tree-node" tabindex="0">
                   <!-- file渲染 -->
                   <template v-if="!scope.data.isFolder">
-                    <template v-for="(req) in projectInfo.rules.requestMethods">
-                      <span v-if="scope.data.method.toLowerCase() === req.value.toLowerCase()" :key="req.name" class="file-icon" :style="{color: req.iconColor}">{{ req.name }}</span>
+                    <template v-for="(req) in projectRules.requestMethods">
+                      <span v-if="scope.data.method.toLowerCase() === req.value.toLowerCase()" :key="req.name"
+                        class="file-icon" :style="{ color: req.iconColor }">{{ req.name }}</span>
                     </template>
                     <div class="node-label-wrap">
                       <s-emphasize class="node-top" :title="scope.data.name" :value="scope.data.name"></s-emphasize>
@@ -105,9 +104,14 @@ import type { ApidocBanner, ApidocProjectEnum, Response } from '@src/types/globa
 import type TreeStore from 'element-plus/lib/components/tree/src/model/tree-store'
 import type Node from 'element-plus/lib/components/tree/src/model/node'
 import { request } from '@/api/api'
-import { router } from '@/router/index'
 import { findNextSiblingById, findParentById, findPreviousSiblingById, forEachForest, uuid } from '@/helper'
 import { t } from 'i18next'
+import { useApidocBaseInfo } from '@/store/apidoc/base-info';
+import { useApidocBanner } from '@/store/apidoc/banner';
+import SFieldset from '@/components/common/fieldset/g-fieldset.vue'
+import SLoading from '@/components/common/loading/g-loading.vue'
+import SEmphasize from '@/components/common/emphasize/g-emphasize.vue'
+import config from '../../config/config.vue';
 // import type { TreeComponentProps }  from "element-plus/lib/components/tree/src/tree.type"
 
 type DragState = {
@@ -126,9 +130,10 @@ type TreeInstance = DragState & TreeStore & ComponentPublicInstance
 | 全局参数，生命周期
 |--------------------------------------------------------------------------
 */
-//项目id
-const projectId = router.currentRoute.value.query.id as string;
-const projectInfo = computed(() => store.state['apidoc/baseInfo'])
+const apidocBaseInfoStore = useApidocBaseInfo();
+const apidocBannerStore = useApidocBanner();
+const projectId = computed(() => apidocBaseInfoStore.projectId);
+const projectRules = computed(() => apidocBaseInfoStore.rules);
 /*
 |--------------------------------------------------------------------------
 | 项目列表信息
@@ -159,7 +164,7 @@ const projectEnum: Ref<ApidocProjectEnum[]> = ref([]);
 const getProjectEnum = () => {
   request.get<Response<ApidocProjectEnum[]>, Response<ApidocProjectEnum[]>>('/api/project/project_enum').then((res) => {
     res.data.forEach((val) => {
-      if (val._id !== projectId) { //过滤掉当前项目
+      if (val._id !== projectId.value) { //过滤掉当前项目
         projectEnum.value.push(val);
       }
     })
@@ -188,7 +193,7 @@ const sourceTree: Ref<(TreeInstance) | null> = ref(null);
 
 //源树数据
 const sourceTreeData = computed(() => {
-  const copyData: (ApidocBanner & { _isSource?: boolean })[] = JSON.parse(JSON.stringify(store.state['apidoc/banner'].banner));
+  const copyData: (ApidocBanner & { _isSource?: boolean })[] = JSON.parse(JSON.stringify(apidocBannerStore.banner));
   forEachForest(copyData, (data) => {
     data._isSource = true;
   });
@@ -314,6 +319,7 @@ const handleTargetDrop = (dragNode: Node, dropNode: Node, type: DropType) => {
 //拖拽开始(源)
 const handleSourceDragstart = (node: Node, event: Event) => {
   console.log('drag start', targetTree.value, event, node)
+  console.log(targetTree.value?.$el);
   if (targetTree.value) {
     // targetTree.value.dragState.draggingNode = { node };
   }
@@ -329,7 +335,7 @@ const handleSourceDragend = (draggingNode: Node, dropNode: Node, position: unkno
     _id: uuid(),
   };
   sourceTree.value?.insertBefore(emptyData, draggingNode);
-  targetTree.value?.$emits('node-drag-end', event);
+  // targetTree.value?.$emits('node-drag-end', event);
   nextTick(() => {
     if (sourceTree.value?.getNode(draggingNode.data)) { //没有在挂载点完成拖拽
       sourceTree.value?.remove(emptyData);
@@ -352,79 +358,93 @@ const clearContextmenu = () => {
 
 </script>
 
-<style lang='scss' scoped>
+<style lang='scss'>
 .fork {
-    .el-divider--horizontal {
-        margin: 10px 0;
+  .el-divider--horizontal {
+    margin: 10px 0;
+  }
+
+  .fork-wrap {
+    display: flex;
+
+    .left {
+      flex: 0 0 50%;
+      border-right: 1px solid var(--gray-300);
     }
-    .fork-wrap {
+
+    .right {
+      flex: 1;
+      padding: 0 15px;
+      border-bottom: 1px solid var(--gray-200);
+    }
+
+    .el-tree-node__content {
+      height: 30px;
+      display: flex;
+      align-items: center;
+    }
+
+    .custom-tree-node {
+      display: flex;
+      align-items: center;
+      width: 100%;
+      overflow: hidden;
+      height: 30px;
+
+      &:hover {
+        .more {
+          display: block;
+        }
+      }
+
+      .file-icon {
+        font-size: 14px;
+        margin-right: 5px;
+      }
+
+      .folder-icon {
+        color: var(--yellow);
+        flex: 0 0 auto;
+        width: 16px;
+        height: 16px;
+        margin-right: 5px;
+      }
+
+      .node-label-wrap {
         display: flex;
-        .left {
-            flex: 0 0 50%;
-            border-right: 1px solid var(--gray-300);
+        flex-direction: column;
+        flex: 1;
+        overflow: hidden;
+
+        .node-top {
+          width: 100%;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
         }
-        .right {
-            flex: 1;
-            padding: 0 15px;
-            border-bottom: 1px solid var(--gray-200);
+
+        .node-bottom {
+          color: var(--gray-500);
+          width: 100%;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
         }
-        .el-tree-node__content {
-            height: 30px;
-            display: flex;
-            align-items: center;
-        }
-        .custom-tree-node {
-           display: flex;
-            align-items: center;
-            width: 100%;
-            overflow: hidden;
-            height: 30px;
-            &:hover {
-                .more {
-                    display: block;
-                }
-            }
-            .file-icon {
-                font-size: 14px;
-                margin-right: 5px;
-            }
-            .folder-icon {
-                color: var(--yellow);
-                flex: 0 0 auto;
-                width: 16px;
-                height: 16px;
-                margin-right: 5px;
-            }
-            .node-label-wrap {
-                display: flex;
-                flex-direction: column;
-                flex: 1;
-                overflow: hidden;
-                .node-top {
-                    width: 100%;
-                    overflow: hidden;
-                    text-overflow: ellipsis;
-                    white-space: nowrap;
-                }
-                .node-bottom {
-                    color: var(--gray-500);
-                    width: 100%;
-                    overflow: hidden;
-                    text-overflow: ellipsis;
-                    white-space: nowrap;
-                }
-            }
-        }
+      }
     }
-    //拖拽指示器样式
-    .el-tree-node.is-drop-inner {
-        background: #d6e7fc;
-        .custom-tree-node.select-node {
-            background-color: #d6e7fc;
-        }
+  }
+
+  //拖拽指示器样式
+  .el-tree-node.is-drop-inner {
+    background: #d6e7fc;
+
+    .custom-tree-node.select-node {
+      background-color: #d6e7fc;
     }
-    .el-tree__drop-indicator {
-        height: 3px;
-    }
+  }
+
+  .el-tree__drop-indicator {
+    height: 3px;
+  }
 }
 </style>

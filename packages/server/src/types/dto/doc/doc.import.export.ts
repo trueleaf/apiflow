@@ -49,6 +49,38 @@ export class ExportAsApiflowDto {
     selectedNodes: string[];
 }
 
+/**
+ * 导出为OpenAPI 3.0
+ */
+export class ExportAsOpenApiDto {
+  /**
+   * 项目id
+   */
+  @Rule(RuleType.string().required())
+    projectId: string;
+  /**
+   * 当前选中文档
+   */
+  @Rule(RuleType.array().items(RuleType.string()))
+    selectedNodes: string[];
+}
+
+/**
+ * 导出为Markdown
+ */
+export class ExportAsMarkdownDto {
+  /**
+   * 项目id
+   */
+  @Rule(RuleType.string().required())
+    projectId: string;
+  /**
+   * 当前选中文档
+   */
+  @Rule(RuleType.array().items(RuleType.string()))
+    selectedNodes: string[];
+}
+
 class DocPrefixInfo {
   @Rule(RuleType.string().required())
     projectId: string;

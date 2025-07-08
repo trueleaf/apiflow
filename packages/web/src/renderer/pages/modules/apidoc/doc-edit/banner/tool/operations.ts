@@ -37,7 +37,7 @@ export default [{
   shortcut: ['Ctrl', 'Alt', 'R'],
   pin: true,
 }, {
-  name: '在线链接',
+  name: '项目分享',
   icon: '#iconlink',
   op: 'generateLink',
   shortcut: ['Ctrl', 'L'],

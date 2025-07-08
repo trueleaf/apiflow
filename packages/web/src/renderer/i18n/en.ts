@@ -61,7 +61,7 @@ export default {
   新增文件夹: 'New Folder',
   新增文件: 'New File',
   刷新banner: 'Refresh Banner',
-  在线链接: 'Online Link',
+  项目分享: 'Online Link',
   回收站: 'Recycle Bin',
   导出文档: 'Export Documentation',
   导入文档: 'Import Documentation',
@@ -562,4 +562,6 @@ export default {
   响应: 'Response',
   暂无响应数据: 'No Response Data',
   暂无标签页: 'No Tabs',
+  api_import_title: 'API Documentation Import',
+  api_import_desc: 'Import and validate your Swagger or OpenAPI 3.1 specifications',
 }

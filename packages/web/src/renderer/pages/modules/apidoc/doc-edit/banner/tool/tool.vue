@@ -281,12 +281,12 @@ const handleEmit = (op: ApidocOperations) => {
     case 'freshBanner': //刷新页面
       emits('fresh');
       break;
-    case 'generateLink': //在线链接
+    case 'generateLink': //项目分享
       apidocTabsStore.addTab({
         _id: 'onlineLink',
         projectId,
         tabType: 'onlineLink',
-        label: t('在线链接'),
+        label: t('项目分享'),
         head: {
           icon: '',
           color: ''
