@@ -1,9 +1,0 @@
-@charset "utf-8";
-//映射字体大小
-@function fz($px) {
-    @return $px + px; 
-}
-//映射dom大小(只要和大小相关的都可以通过该方法映射)
-@function size($size) {
-    @return $size + px;
-}
