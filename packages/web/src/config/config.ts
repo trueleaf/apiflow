@@ -91,5 +91,9 @@ export const config: Config = {
       dbName: 'apiflowResponseCache',
       version: 1,
     }
+  },
+  standaloneCacheConfig: {
+    dbName: 'standaloneCache',
+    version: 1,
   }
 }
