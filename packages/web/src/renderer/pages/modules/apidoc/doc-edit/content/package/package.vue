@@ -48,7 +48,6 @@
 <script lang="ts" setup>
 import { ElMessage, ElMessageBox, UploadRequestHandler, UploadRequestOptions } from 'element-plus';
 import { onMounted, Ref, ref } from 'vue';
-import db from '@/cache/database';
 import SDialog from '@/components/common/dialog/g-dialog.vue'
 import SResizeX from '@/components/common/resize/g-resize-x.vue'
 import type { FormInstance } from 'element-plus/lib/components/form';
@@ -57,9 +56,7 @@ import { $t } from '@/i18n/i18n';
 //获取脚本列表
 const tableInfo: Ref<{ name: string, code: string }[]> = ref([]);
 const getScriptList = () => {
-  db.scriptList.toArray().then(res => {
-    tableInfo.value = res;
-  })
+ 
 }
 /*
 |--------------------------------------------------------------------------

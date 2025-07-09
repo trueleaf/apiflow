@@ -123,7 +123,7 @@ watch(currentSelectTab, (val, oldVal) => {
 <style lang='scss' scoped>
 .apidoc {
   overflow-y: auto;
-  height: calc(100vh - 100px);
+  height: calc(100vh - var(--apiflow-doc-nav-height) - var(--apiflow-header-height));
   display: flex;
 
   &.vertical {

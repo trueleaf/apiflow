@@ -188,7 +188,7 @@ const requestPath = computed<string>({
   box-shadow: 0 3px 2px var(--gray-400);
   background: var(--white);
   z-index: var(--zIndex-request-info-wrap);
-  height: 100px;
+  height: var(--apiflow-apidoc-operation-height);
 
   &.prefix {
     height: 130px;

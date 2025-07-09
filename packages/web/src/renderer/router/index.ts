@@ -4,36 +4,37 @@ import 'nprogress/nprogress.css';
 import docEdit from '@/pages/modules/apidoc/doc-edit/doc-edit.vue'
 import { config } from '@/../config/config'
 import { usePermissionStore } from '@/store/permission';
+import layout from '@/pages/layout/layout.vue';
 
 const lastVisitPage = localStorage.getItem('history/lastVisitePage'); //回复上次访问的页面
 
-const routes: Array<RouteRecordRaw> = [ 
+const routes: Array<RouteRecordRaw> = [
   {
-  path: '/v1/permission/permission',
-  name: 'Permission',
-  component: () => import('@/pages/modules/permission/permission.vue'),
-}, 
-{
-  path: '/v1/apidoc/doc-list',
-  name: 'DocList',
-  component: () => import('@/pages/modules/apidoc/doc-list/doc-list.vue'),
-}, 
-{
-  path: '/v1/apidoc/doc-edit',
-  name: 'DocEdit',
-  component: docEdit,
-},
+    path: '/v1/permission/permission',
+    name: 'Permission',
+    component: () => import('@/pages/modules/permission/permission.vue'),
+  },
+  {
+    path: '/v1/apidoc/doc-list',
+    name: 'DocList',
+    component: () => import('@/pages/modules/apidoc/doc-list/doc-list.vue'),
+  },
+  {
+    path: '/v1/apidoc/doc-edit',
+    name: 'DocEdit',
+    component: docEdit,
+  },
 
-// {
-//   path: '/v1/apidoc/doc-view',
-//   name: 'DocView',
-//   component: () => import('@/pages/modules/apidoc/doc-view/view/view.vue'),
-// }, 
-// {
-//   path: '/v1/settings/user',
-//   name: 'UserSettings',
-//   component: () => import('@/pages/modules/settings/user/user.vue'),
-// }
+  // {
+  //   path: '/v1/apidoc/doc-view',
+  //   name: 'DocView',
+  //   component: () => import('@/pages/modules/apidoc/doc-view/view/view.vue'),
+  // }, 
+  // {
+  //   path: '/v1/settings/user',
+  //   name: 'UserSettings',
+  //   component: () => import('@/pages/modules/settings/user/user.vue'),
+  // }
 ]
 const router = createRouter({
   history: createWebHashHistory(),
@@ -63,32 +64,40 @@ const router = createRouter({
 })
 
 //=====================================路由守卫====================================//
-router.beforeEach((to, _, next) => {
-const permissionStore = usePermissionStore();
-  NProgress.start();
-  const hasPermission = permissionStore.routes.length > 0; //挂载了路由代表存在权限
-  if (config.renderConfig.permission.whiteList.find((val) => val === to.path)) {
-    //白名单内的路由直接放行
-    next();
-    return;
-  }
-  if (!hasPermission) {
-    permissionStore.getPermission().then(() => {
-      next(to.fullPath);
-    }).catch((err) => {
-      router.push('/login');
-      console.error(err);
-    }).finally(() => {
-      NProgress.done();
-    });
-  } else {
-    next();
-  }
-});
-router.afterEach((to) => {
-  localStorage.setItem('history/lastVisitePage', to.fullPath);
-  NProgress.done(); // 页面顶部的加载条
-});
+if(!__STANDALONE__){
+  router.beforeEach((to, _, next) => {
+    const permissionStore = usePermissionStore();
+    NProgress.start();
+    const hasPermission = permissionStore.routes.length > 0; //挂载了路由代表存在权限
+    if (config.renderConfig.permission.whiteList.find((val) => val === to.path)) {
+      //白名单内的路由直接放行
+      next();
+      return;
+    }
+    if (!hasPermission) {
+      permissionStore.getPermission().then(() => {
+        next(to.fullPath);
+      }).catch((err) => {
+        router.push('/login');
+        console.error(err);
+      }).finally(() => {
+        NProgress.done();
+      });
+    } else {
+      next();
+    }
+  });
+  router.afterEach((to) => {
+    localStorage.setItem('history/lastVisitePage', to.fullPath);
+    NProgress.done(); // 页面顶部的加载条
+  });
+} else {
+  router.addRoute({
+    path: '/v1',
+    component: layout,
+    children: routes,
+  });
+}
 export {
   routes,
   router,

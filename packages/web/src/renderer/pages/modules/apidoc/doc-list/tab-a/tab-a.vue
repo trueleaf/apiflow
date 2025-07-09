@@ -1,5 +1,6 @@
 <template>
   <div class="tab-a">
+    {{ starProjectIds }}
     <!-- 搜索条件 -->
     <div class="search-item d-flex a-center mb-3">
       <el-input v-model="projectName" :placeholder="t('项目名称')" :prefix-icon="SearchIcon" class="w-200px mr-3" clearable>
@@ -208,6 +209,7 @@ import { ElMessageBox } from 'element-plus';
 import { router } from '@/router';
 import { debounce, formatDate } from '@/helper';
 import { useApidocBaseInfo } from '@/store/apidoc/base-info'
+import { standaloneCache } from '@/cache/standalone'
 
 /*
 |--------------------------------------------------------------------------
@@ -261,6 +263,18 @@ const apidocBaseInfo = useApidocBaseInfo()
 */
 //获取项目列表
 const getProjectList = () => {
+  if(__STANDALONE__){
+    standaloneCache.getProjectList().then((projectList) => {
+      projectListCopy.value = projectList;
+      projectListCopy2.value = projectList;
+      recentVisitProjectIds.value = projectList.map((item) => item._id);
+      starProjectIds.value = projectList.filter((item) => item.isStared).map((item) => item._id);
+
+    }).catch((err) => {
+      console.error(err);
+    })
+    return;
+  }
   loading.value = true;
   request.get<Response<ApidocProjectListInfo>, Response<ApidocProjectListInfo>>('/api/project/project_list').then((res) => {
     recentVisitProjectIds.value = res.data.recentVisitProjects;
@@ -283,44 +297,22 @@ const handleOpenPermissionDialog = (item: ApidocProjectInfo) => {
   currentEditProjectId.value = item._id;
   dialogVisible4.value = true;
 }
-//收藏项目
-const handleStar = (item: ApidocProjectInfo) => {
-  if (starLoading.value) {
-    return;
-  }
-  starLoading.value = true;
-  request.put('/api/project/star', { projectId: item._id }).then(() => {
-    item.isStared = true;
-    starProjectIds.value.push(item._id);
-  }).catch((err) => {
-    console.error(err);
-  }).finally(() => {
-    starLoading.value = false;
-  });
-}
-//取消收藏项目
-const handleUnStar = (item: ApidocProjectInfo) => {
-  if (unStarLoading.value) {
-    return;
-  }
-  unStarLoading.value = true;
-  request.put('/api/project/unstar', { projectId: item._id }).then(() => {
-    item.isStared = true;
-    const delIndex = starProjectIds.value.findIndex((val) => val === item._id);
-    starProjectIds.value.splice(delIndex, 1);
-  }).catch((err) => {
-    console.error(err);
-  }).finally(() => {
-    unStarLoading.value = false;
-  });
-}
 //删除项目
 const deleteProject = (_id: string) => {
   ElMessageBox.confirm(t('此操作将永久删除此条记录, 是否继续?'), t('提示'), {
     confirmButtonText: t('确定'),
     cancelButtonText: t('取消'),
     type: 'warning'
-  }).then(() => {
+  }).then(async () => {
+    if(__STANDALONE__) {
+      try {
+        await standaloneCache.deleteProject(_id);
+        getProjectList();
+      } catch(err) {
+        console.error(err);
+      }
+      return;
+    }
     request.delete('/api/project/delete_project', { data: { ids: [_id] } }).then(() => {
       getProjectList();
     }).catch((err) => {
@@ -338,6 +330,72 @@ const deleteProject = (_id: string) => {
 | 其他操作
 |--------------------------------------------------------------------------
 */
+//收藏项目
+const handleStar = async (item: ApidocProjectInfo) => {
+  if (starLoading.value) {
+    return;
+  }
+  starLoading.value = true;
+  try {
+    if(__STANDALONE__) {
+      const projectList = await standaloneCache.getProjectList();
+      const project = projectList.find(p => p._id === item._id);
+      if(project) {
+        project.isStared = true;
+        await standaloneCache.setProjectList(projectList);
+        item.isStared = true;
+        starProjectIds.value.push(item._id);
+      }
+      starLoading.value = false;
+      return;
+    }
+    request.put('/api/project/star', { projectId: item._id }).then(() => {
+      item.isStared = true;
+      starProjectIds.value.push(item._id);
+    }).catch((err) => {
+      console.error(err);
+    }).finally(() => {
+      starLoading.value = false;
+    });
+  } catch(err) {
+    console.error(err);
+    starLoading.value = false;
+  }
+}
+//取消收藏项目
+const handleUnStar = async (item: ApidocProjectInfo) => {
+  if (unStarLoading.value) {
+    return;
+  }
+  unStarLoading.value = true;
+  try {
+    if(__STANDALONE__) {
+      const projectList = await standaloneCache.getProjectList();
+      const project = projectList.find(p => p._id === item._id);
+      if(project) {
+        project.isStared = false;
+        await standaloneCache.setProjectList(projectList);
+        item.isStared = false;
+        const delIndex = starProjectIds.value.findIndex((val) => val === item._id);
+        starProjectIds.value.splice(delIndex, 1);
+      }
+      unStarLoading.value = false;
+      return;
+    }
+    request.put('/api/project/unstar', { projectId: item._id }).then(() => {
+      item.isStared = false;
+      const delIndex = starProjectIds.value.findIndex((val) => val === item._id);
+      starProjectIds.value.splice(delIndex, 1);
+    }).catch((err) => {
+      console.error(err);
+    }).finally(() => {
+      unStarLoading.value = false;
+    });
+  } catch(err) {
+    console.error(err);
+    unStarLoading.value = false;
+  }
+}
 //初始化缓存
 const initCahce = () => {
   isFold.value = localStorage.getItem('doc-list/isFold') === 'close';

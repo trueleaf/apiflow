@@ -523,7 +523,7 @@ onUnmounted(() => {
 <style lang='scss' scoped>
 .api-params {
   padding: 0 0 10px;
-  height: calc(100vh - 220px);
+  height: calc(100vh - var(--apiflow-apidoc-operation-height) - var(--apiflow-doc-nav-height) - var(--apiflow-header-height));
   overflow-y: auto;
   position: relative;
 

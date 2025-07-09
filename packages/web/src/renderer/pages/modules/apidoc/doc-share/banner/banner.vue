@@ -163,7 +163,7 @@ watch(searchValue, (newValue) => {
 
   //树形组件包裹框
   .tree-wrap {
-    height: calc(100vh - 135px);
+    height: calc(100vh - 195px);
     overflow-y: auto;
   }
 

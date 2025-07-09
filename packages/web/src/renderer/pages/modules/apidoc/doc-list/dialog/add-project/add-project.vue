@@ -4,7 +4,7 @@
       <el-form-item :label="`${t('项目名称')}：`" prop="projectName">
         <el-input v-model="formInfo.projectName" v-focus-select :size="config.renderConfig.layout.size" :placeholder="t('请输入项目名称')" @keydown.enter="handleAddProject"></el-input>
       </el-form-item>
-      <el-form-item :label="`${t('选择成员或组')}：`">
+      <el-form-item v-if="!isStandalone" :label="`${t('选择成员或组')}：`">
         <RemoteSelector v-model="remoteQueryName" :remote-methods="getRemoteUserOrGroupByName" :loading="loading" :placeholder="t('输入【用户名】| 【完整手机号】 | 【组名称】')">
           <RemoteSelectorItem v-for="(item, index) in remoteUserOrGroupList" :key="index">
             <div class="d-flex a-center j-between w-100 h-100" @click="handleSelectUser(item)">
@@ -18,7 +18,7 @@
       </el-form-item>
     </el-form>
     <!-- 成员信息 -->
-    <el-table :data="selectMemberData" stripe border max-height="50vh">
+    <el-table v-if="!isStandalone" :data="selectMemberData" stripe border max-height="50vh">
       <el-table-column prop="name" :label="t('名称')" align="center"></el-table-column>
       <el-table-column prop="type" :label="t('类型')" align="center">
         <template #default="{ row }">
@@ -68,6 +68,8 @@ import { nextTick, ref } from 'vue';
 import RemoteSelector from '@/components/common/remote-select/g-remote-select.vue';
 import RemoteSelectorItem from '@/components/common/remote-select/g-remote-select-item.vue';
 import Dialog from '@/components/common/dialog/g-dialog.vue';
+import { standaloneCache } from '@/cache/standalone';
+import { generateEmptyProject } from '@/helper/standaloneUtils';
 
 
 
@@ -87,6 +89,7 @@ const formInfo = ref({
 const rules = ref({
   projectName: [{ required: true, trigger: 'blur', message: t('请填写项目名称') }],
 })
+const isStandalone = ref(__STANDALONE__)
 const remoteUserOrGroupList = ref<ApidocProjectMemberInfo[]>([]) //------远程用户和组列表
 const selectMemberData = ref<ApidocProjectMemberInfo[]>([]) //-----已选中的用户
 const remoteQueryName = ref('') //-------------------------用户名称
@@ -114,6 +117,14 @@ const getRemoteUserOrGroupByName = (query: string) => {
 }
 const handleAddProject = () => {
   form.value?.validate((valid) => {
+    if(isStandalone.value && valid){
+      const project = generateEmptyProject();
+      project.projectName = formInfo.value.projectName;
+      standaloneCache.addProject(project);
+      handleClose();
+      // emits('success', project);
+      return;
+    }
     if (valid) {
       loading2.value = true;
       const params = {
