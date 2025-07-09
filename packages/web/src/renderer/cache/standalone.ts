@@ -140,12 +140,15 @@ export class StandaloneCache {
   /**
    * 更新项目
    */
-  async updateProject(project: ApidocProjectInfo): Promise<boolean> {
+  async updateProject(projectId: string, project: Partial<ApidocProjectInfo>): Promise<boolean> {
     try {
       const projectList = await this.getProjectList();
-      const index = projectList.findIndex(p => p._id === project._id);
+      const index = projectList.findIndex(p => p._id === projectId);
       if (index === -1) return false;
-      projectList[index] = project;
+      projectList[index] = {
+        ...projectList[index],
+        ...project
+      };
       return await this.setProjectList(projectList);
     } catch (err) {
       console.error('Failed to update project:', err);
