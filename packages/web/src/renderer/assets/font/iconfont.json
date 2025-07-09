@@ -6,6 +6,20 @@
   "description": "",
   "glyphs": [
     {
+      "icon_id": "396197",
+      "name": "最大化",
+      "font_class": "miniScreen",
+      "unicode": "e612",
+      "unicode_decimal": 58898
+    },
+    {
+      "icon_id": "34978321",
+      "name": "Icon_最大化-29",
+      "font_class": "maxScreen",
+      "unicode": "e617",
+      "unicode_decimal": 58903
+    },
+    {
       "icon_id": "17412105",
       "name": "Cookies",
       "font_class": "Cookies",
