@@ -1,6 +1,5 @@
 <template>
   <div class="tab-a">
-    {{ starProjectIds }}
     <!-- 搜索条件 -->
     <div class="search-item d-flex a-center mb-3">
       <el-input v-model="projectName" :placeholder="t('项目名称')" :prefix-icon="SearchIcon" class="w-200px mr-3" clearable>
@@ -16,22 +15,14 @@
     </div>
     <!-- 高级搜索 -->
     <div v-if="isShowAdvanceSearch">
-      <el-input 
-        v-model="projectKeyword" 
-        :prefix-icon="SearchIcon" 
-        class="w-50 mr-3" 
-        clearable
-        :placeholder="t('输入接口url eg: 接口url')"  
-        @keyup.enter="() => { loading = true; debounceSearch() }"
-        @change="() => { loading = true; debounceSearch() }"
-        @input="() => { loading = true; debounceSearch() }">
+      <el-input v-model="projectKeyword" :prefix-icon="SearchIcon" class="w-50 mr-3" clearable
+        :placeholder="t('输入接口url eg: 接口url')" @keyup.enter="() => { debounceSearch() }"
+        @change="() => { debounceSearch() }" @input="() => { debounceSearch() }">
         <template #append>
-          <el-button 
-            type="primary" 
-            :loading="loading"
-            @click="() => { loading = true; debounceSearch() }"
-          >
-          <el-icon class="el-icon--right"><SearchIcon /></el-icon>
+          <el-button type="primary" :loading="loading" @click="() => { debounceSearch() }">
+            <el-icon class="el-icon--right">
+              <SearchIcon />
+            </el-icon>
             <span>搜索</span>
           </el-button>
         </template>
@@ -53,7 +44,7 @@
                   <EditIcon></EditIcon>
                 </el-icon>
               </div>
-              <div :title="t('成员管理')" @click="handleOpenPermissionDialog(item)">
+              <div v-if="!isStandalone" :title="t('成员管理')" @click="handleOpenPermissionDialog(item)">
                 <el-icon :size="16">
                   <UserIcon></UserIcon>
                 </el-icon>
@@ -123,7 +114,7 @@
                   <EditIcon></EditIcon>
                 </el-icon>
               </div>
-              <div :title="t('成员管理')" @click="handleOpenPermissionDialog(item)">
+              <div v-if="!isStandalone" :title="t('成员管理')" @click="handleOpenPermissionDialog(item)">
                 <el-icon :size="16">
                   <UserIcon></UserIcon>
                 </el-icon>
@@ -233,6 +224,7 @@ const dialogVisible = ref(false);
 const dialogVisible2 = ref(false);
 const dialogVisible3 = ref(false);
 const dialogVisible4 = ref(false);
+const isStandalone = ref(__STANDALONE__)
 const projectList = computed(() => {
   const list = (projectKeyword.value.trim().length > 0 && !loading.value && isShowAdvanceSearch.value) ? projectListCopy2.value : projectListCopy.value;
   const filteredProjectList = list.filter((val) => val.projectName.match(new RegExp(projectName.value, 'gi')))
@@ -263,7 +255,7 @@ const apidocBaseInfo = useApidocBaseInfo()
 */
 //获取项目列表
 const getProjectList = () => {
-  if(__STANDALONE__){
+  if (__STANDALONE__) {
     standaloneCache.getProjectList().then((projectList) => {
       projectListCopy.value = projectList;
       projectListCopy2.value = projectList;
@@ -304,11 +296,11 @@ const deleteProject = (_id: string) => {
     cancelButtonText: t('取消'),
     type: 'warning'
   }).then(async () => {
-    if(__STANDALONE__) {
+    if (__STANDALONE__) {
       try {
         await standaloneCache.deleteProject(_id);
         getProjectList();
-      } catch(err) {
+      } catch (err) {
         console.error(err);
       }
       return;
@@ -337,10 +329,10 @@ const handleStar = async (item: ApidocProjectInfo) => {
   }
   starLoading.value = true;
   try {
-    if(__STANDALONE__) {
+    if (__STANDALONE__) {
       const projectList = await standaloneCache.getProjectList();
       const project = projectList.find(p => p._id === item._id);
-      if(project) {
+      if (project) {
         project.isStared = true;
         await standaloneCache.setProjectList(projectList);
         item.isStared = true;
@@ -357,7 +349,7 @@ const handleStar = async (item: ApidocProjectInfo) => {
     }).finally(() => {
       starLoading.value = false;
     });
-  } catch(err) {
+  } catch (err) {
     console.error(err);
     starLoading.value = false;
   }
@@ -369,10 +361,10 @@ const handleUnStar = async (item: ApidocProjectInfo) => {
   }
   unStarLoading.value = true;
   try {
-    if(__STANDALONE__) {
+    if (__STANDALONE__) {
       const projectList = await standaloneCache.getProjectList();
       const project = projectList.find(p => p._id === item._id);
-      if(project) {
+      if (project) {
         project.isStared = false;
         await standaloneCache.setProjectList(projectList);
         item.isStared = false;
@@ -391,7 +383,7 @@ const handleUnStar = async (item: ApidocProjectInfo) => {
     }).finally(() => {
       unStarLoading.value = false;
     });
-  } catch(err) {
+  } catch (err) {
     console.error(err);
     unStarLoading.value = false;
   }
@@ -430,7 +422,12 @@ const handleJumpToView = (item: ApidocProjectInfo) => {
   apidocBaseInfo.changeProjectId(item._id);
 }
 //新增项目成功
-const handleAddSuccess = (id: string) => {
+const handleAddSuccess = async (id: string) => {
+  if (__STANDALONE__) {
+    await getProjectList();
+    dialogVisible.value = false;
+    return;
+  }
   router.push({
     path: '/v1/apidoc/doc-edit',
     query: {
@@ -448,11 +445,41 @@ const toggleCollapse = () => {
   isFold.value = !isFold.value;
   localStorage.setItem('doc-list/isFold', isFold.value ? 'close' : 'open');
 }
-const debounceSearch = debounce(() => {
+const debounceSearch = debounce(async () => {
+  loading.value = true;
   if (projectKeyword.value?.trim().length === 0) {
     projectListCopy2.value = [];
-    loading.value = false
+    starProjectIds.value = projectListCopy.value.filter((item) => item.isStared).map((item) => item._id);
+    setTimeout(() => {
+      loading.value = false;
+    }, 100)
     return
+  }
+  if (__STANDALONE__) {
+    const keyword = projectKeyword.value.toLowerCase().trim();
+    const docs = await standaloneCache.getDocsList();
+    const projectList = await standaloneCache.getProjectList();
+    const filteredDocs = docs.filter((doc) => {
+      const urlMatch = doc.item.url.path.toLowerCase().includes(keyword);
+      const docNameMatch = doc.info.name.toLowerCase().includes(keyword);
+      const creatorMatch = doc.info.creator.toLowerCase().includes(keyword);
+      const lastModifierMatch = doc.info.maintainer.toLowerCase().includes(keyword);
+      return (
+        urlMatch || docNameMatch || creatorMatch || lastModifierMatch
+      );
+    });
+    const filteredProjects = projectList.filter((project) => {
+      const projectNameMatch = project.projectName.toLowerCase().includes(keyword);
+      const hasMatchingDoc = filteredDocs.some((doc) => doc.projectId === project._id);
+      return projectNameMatch || hasMatchingDoc;
+    });
+    recentVisitProjectIds.value = filteredProjects.map((item) => item._id);
+    starProjectIds.value = filteredProjects.filter((item) => item.isStared).map((item) => item._id);
+    projectListCopy2.value = filteredProjects;
+    setTimeout(() => {
+      loading.value = false;
+    }, 300)
+    return;
   }
   request.get<Response<ApidocProjectListInfo>, Response<ApidocProjectListInfo>>('/api/project/project_list_by_keyword', {
     params: { keyword: projectKeyword.value }
@@ -462,10 +489,10 @@ const debounceSearch = debounce(() => {
     projectListCopy2.value = res.data.list;
   }).catch((err) => {
     console.error(err);
-  }).finally(() =>{ 
+  }).finally(() => {
     loading.value = false;
   });
-}, 1000)
+}, isStandalone.value ? 100 : 1000)
 /*
 |--------------------------------------------------------------------------
 | 生命周期

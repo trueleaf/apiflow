@@ -462,6 +462,11 @@ onMounted(() => {
   height: calc(100vh - 150px);
   border: 1px solid var(--gray-300);
   padding: 10px 0;
+  .menu-title {
+    padding: 0 10px 10px;
+    display: flex;
+    align-items: center;
+  }
   .el-menu-item {
     .del-icon {
       position: absolute;

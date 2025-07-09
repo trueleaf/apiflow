@@ -11,7 +11,7 @@
           </span>
         </template>
       </el-tab-pane>
-      <el-tab-pane name="groupList">
+      <el-tab-pane v-if="!isStandalone" name="groupList">
         <template #label>
           <span class="d-flex a-center">
             <el-icon :size="16" class="mr-1">
@@ -37,6 +37,7 @@ import { apidocCache } from '@/cache/apidoc'
 
 const { getActiveApidocTab, setActiveApidocTab } = apidocCache
 const activeName = ref('projectList'); //当前激活选项卡
+const isStandalone = ref(__STANDALONE__)
 const activeComponent = computed(() => {
   if (activeName.value === 'projectList') {
     return tabA

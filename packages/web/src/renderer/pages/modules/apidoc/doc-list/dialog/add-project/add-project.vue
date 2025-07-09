@@ -1,8 +1,8 @@
 <template>
   <Dialog :model-value="modelValue" top="10vh" :title="t('新增项目')" @close="handleClose">
-    <el-form ref="form" :model="formInfo" :rules="rules" label-width="150px">
+    <el-form ref="form" :model="formInfo" :rules="rules" label-width="150px" @submit.prevent="() => {}">
       <el-form-item :label="`${t('项目名称')}：`" prop="projectName">
-        <el-input v-model="formInfo.projectName" v-focus-select :size="config.renderConfig.layout.size" :placeholder="t('请输入项目名称')" @keydown.enter="handleAddProject"></el-input>
+        <el-input v-model="formInfo.projectName" v-focus-select="true" :size="config.renderConfig.layout.size" :placeholder="t('请输入项目名称')" @keydown.enter="handleAddProject"></el-input>
       </el-form-item>
       <el-form-item v-if="!isStandalone" :label="`${t('选择成员或组')}：`">
         <RemoteSelector v-model="remoteQueryName" :remote-methods="getRemoteUserOrGroupByName" :loading="loading" :placeholder="t('输入【用户名】| 【完整手机号】 | 【组名称】')">
@@ -70,6 +70,7 @@ import RemoteSelectorItem from '@/components/common/remote-select/g-remote-selec
 import Dialog from '@/components/common/dialog/g-dialog.vue';
 import { standaloneCache } from '@/cache/standalone';
 import { generateEmptyProject } from '@/helper/standaloneUtils';
+import { nanoid } from 'nanoid';
 
 
 
@@ -116,13 +117,13 @@ const getRemoteUserOrGroupByName = (query: string) => {
   });
 }
 const handleAddProject = () => {
-  form.value?.validate((valid) => {
+  form.value?.validate(async (valid) => {
     if(isStandalone.value && valid){
-      const project = generateEmptyProject();
+      const project = generateEmptyProject(nanoid());
       project.projectName = formInfo.value.projectName;
-      standaloneCache.addProject(project);
+      await standaloneCache.addProject(project);
       handleClose();
-      // emits('success', project);
+      emits('success', project);
       return;
     }
     if (valid) {

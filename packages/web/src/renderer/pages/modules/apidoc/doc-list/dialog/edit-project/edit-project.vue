@@ -1,6 +1,6 @@
 <template>
   <Dialog :model-value="modelValue" top="10vh" :title="t('修改项目')" @close="handleClose">
-    <el-form ref="form" :model="formInfo" :rules="rules" label-width="150px">
+    <el-form ref="form" :model="formInfo" :rules="rules" label-width="150px" @submit.prevent="() => {}">
       <el-form-item :label="`${t('项目名称')}`" prop="projectName">
         <el-input v-model="formInfo.projectName" v-focus-select :size="config.renderConfig.layout.size"
           :placeholder="t('请输入项目名称')" @keydown.enter="handleEditProject"></el-input>
@@ -20,6 +20,7 @@ import { ElMessage, FormInstance } from 'element-plus';
 import { t } from 'i18next'
 import { nextTick, ref, watch } from 'vue';
 import Dialog from '@/components/common/dialog/g-dialog.vue';
+import { standaloneCache } from '@/cache/standalone';
 
 const props = defineProps({
   modelValue: {
@@ -36,6 +37,7 @@ const props = defineProps({
   },
 })
 const emits = defineEmits(['update:modelValue', 'success'])
+const isStandalone = ref(__STANDALONE__)
 const formInfo = ref({
   projectName: '',
 })
@@ -54,7 +56,15 @@ const handleClose = () => {
 }
 //修改项目
 const handleEditProject = () => {
-  form.value?.validate((valid) => {
+  form.value?.validate(async (valid) => {
+    if(isStandalone.value && valid){
+      await standaloneCache.updateProject(props.projectId, {
+        projectName: formInfo.value.projectName,
+      });
+      handleClose();
+      emits('success');
+      return;
+    }
     if (valid) {
       loading.value = true;
       const params = {
