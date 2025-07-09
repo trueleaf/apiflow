@@ -8,6 +8,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite --host",
+    "dev:standalone": "vite --host --mode standalone",
     "web": "vite --host -- -- web",
     "share": "vite --host --config build/share/vite.config.ts",
     "build": "vite build",

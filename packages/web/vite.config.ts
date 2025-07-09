@@ -7,7 +7,8 @@ import AutoImport from 'unplugin-auto-import/vite'
 import Components from 'unplugin-vue-components/vite'
 import { ElementPlusResolver } from 'unplugin-vue-components/resolvers'
 
-export default defineConfig(({}) => {
+export default defineConfig(({ mode }) => {
+  const isStandalone = mode === 'standalone'
   return {
     plugins: [
       viteElectronPlugin(),
@@ -30,7 +31,8 @@ export default defineConfig(({}) => {
       }
     },
     define: {
-      __APP_BUILD_TIME__: JSON.stringify(dayjs().format('YYYY-MM-DD HH:mm:ss'))
+      __APP_BUILD_TIME__: JSON.stringify(dayjs().format('YYYY-MM-DD HH:mm:ss')),
+      __STANDALONE__: isStandalone
     },
     optimizeDeps: {
       include: [
