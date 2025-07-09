@@ -13,6 +13,7 @@ import { defineStore } from "pinia"
 import { ref } from "vue";
 import { router } from "@/router";
 import { useVariable } from './variables';
+import { standaloneCache } from '@/cache/standalone.ts';
 
 type ChangeProjectBaseInfo = {
   _id: string;
@@ -237,6 +238,13 @@ export const useApidocBaseInfo = defineStore('apidocBaseInfo', () => {
    * 获取项目基本信息
    */
   const getProjectBaseInfo = async (payload: { projectId: string }): Promise<void> => {
+    if(__STANDALONE__){
+      const projectInfo = await standaloneCache.getProjectInfo(payload.projectId);
+      if(projectInfo){
+        projectName.value = projectInfo.projectName;
+      }
+      return;
+    }
     const { replaceVariables } = useVariable();
     return new Promise((resolve, reject) => {
       const params = {
@@ -286,6 +294,10 @@ export const useApidocBaseInfo = defineStore('apidocBaseInfo', () => {
    * 获取全部公共请求头信息
    */
   const getCommonHeaders = async (): Promise<void> => {
+    if(__STANDALONE__){
+      // todo
+      return;
+    }
     return new Promise((resolve, reject) => {
       const projectId = router.currentRoute.value.query.id as string;
       const params = {

@@ -1,4 +1,4 @@
-import type { ApidocProjectInfo, ApidocDetail } from "./global";
+import type { ApidocProjectInfo, ApidocDetail, ApidocProperty } from "./global";
 
 export type Standalone = {
   /**
@@ -9,4 +9,8 @@ export type Standalone = {
    * 文档列表
    */
   docsList: ApidocDetail[];
+  /**
+   * 公共请求头列表
+   */
+  commonHeaders: ApidocProperty<'string'>[];
 };

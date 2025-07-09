@@ -1,7 +1,6 @@
 import { config } from "@src/config/config.ts";
 import { IDBPDatabase, openDB } from "idb";
-import type { Standalone } from "@src/types/standalone";
-import type { ApidocProjectInfo, ApidocDetail } from "@src/types/global";
+import type { ApidocProjectInfo, ApidocDetail, ApidocProperty } from "@src/types/global";
 
 export class StandaloneCache {
   
@@ -38,68 +37,17 @@ export class StandaloneCache {
   }
 
   /**
-   * 获取单机版数据
+   * 获取项目列表
    */
-  async getStandaloneData(): Promise<Standalone | null> {
+  async getProjectList(): Promise<ApidocProjectInfo[]> {
     try {
       if (!this.standaloneCacheDb) {
         await this.initStandaloneCache();
       }
       const tx = this.standaloneCacheDb!.transaction('standaloneCache', 'readonly');
       const store = tx.objectStore('standaloneCache');
-      const data = await store.get('standaloneData');
-      return data || null;
-    } catch (err) {
-      console.error('Failed to get standalone data:', err);
-      return null;
-    }
-  }
-
-  /**
-   * 设置单机版数据
-   */
-  async setStandaloneData(data: Standalone): Promise<boolean> {
-    try {
-      if (!this.standaloneCacheDb) {
-        await this.initStandaloneCache();
-      }
-      const tx = this.standaloneCacheDb!.transaction('standaloneCache', 'readwrite');
-      const store = tx.objectStore('standaloneCache');
-      await store.put(data, 'standaloneData');
-      await tx.done;
-      return true;
-    } catch (err) {
-      console.error('Failed to set standalone data:', err);
-      return false;
-    }
-  }
-
-  /**
-   * 清除单机版数据
-   */
-  async clearStandaloneData(): Promise<boolean> {
-    try {
-      if (!this.standaloneCacheDb) {
-        await this.initStandaloneCache();
-      }
-      const tx = this.standaloneCacheDb!.transaction('standaloneCache', 'readwrite');
-      const store = tx.objectStore('standaloneCache');
-      await store.delete('standaloneData');
-      await tx.done;
-      return true;
-    } catch (err) {
-      console.error('Failed to clear standalone data:', err);
-      return false;
-    }
-  }
-
-  /**
-   * 获取项目列表
-   */
-  async getProjectList(): Promise<ApidocProjectInfo[]> {
-    try {
-      const data = await this.getStandaloneData();
-      return data?.projectList || [];
+      const data = await store.get('projectList');
+      return data || [];
     } catch (err) {
       console.error('Failed to get project list:', err);
       return [];
@@ -111,16 +59,26 @@ export class StandaloneCache {
    */
   async setProjectList(projectList: ApidocProjectInfo[]): Promise<boolean> {
     try {
-      const data = await this.getStandaloneData();
-      const newData: Standalone = {
-        projectList,
-        docsList: data?.docsList || []
-      };
-      return await this.setStandaloneData(newData);
+      if (!this.standaloneCacheDb) {
+        await this.initStandaloneCache();
+      }
+      const tx = this.standaloneCacheDb!.transaction('standaloneCache', 'readwrite');
+      const store = tx.objectStore('standaloneCache');
+      await store.put(projectList, 'projectList');
+      await tx.done;
+      return true;
     } catch (err) {
       console.error('Failed to set project list:', err);
       return false;
     }
+  }
+
+  /**
+   * 根据项目ID获取项目信息
+   */
+  async getProjectInfo(projectId: string): Promise<ApidocProjectInfo | null> {
+    const projectList = await this.getProjectList();
+    return projectList.find(p => p._id === projectId) || null;
   }
 
   /**
@@ -163,7 +121,12 @@ export class StandaloneCache {
     try {
       const projectList = await this.getProjectList();
       const newProjectList = projectList.filter(p => p._id !== projectId);
-      return await this.setProjectList(newProjectList);
+      const success = await this.setProjectList(newProjectList);
+      if (success) {
+        // 删除项目时同时删除相关文档
+        await this.deleteDocsByProjectId(projectId);
+      }
+      return success;
     } catch (err) {
       console.error('Failed to delete project:', err);
       return false;
@@ -175,8 +138,13 @@ export class StandaloneCache {
    */
   async getDocsList(): Promise<ApidocDetail[]> {
     try {
-      const data = await this.getStandaloneData();
-      return data?.docsList || [];
+      if (!this.standaloneCacheDb) {
+        await this.initStandaloneCache();
+      }
+      const tx = this.standaloneCacheDb!.transaction('standaloneCache', 'readonly');
+      const store = tx.objectStore('standaloneCache');
+      const data = await store.get('docsList');
+      return data || [];
     } catch (err) {
       console.error('Failed to get docs list:', err);
       return [];
@@ -188,12 +156,14 @@ export class StandaloneCache {
    */
   async setDocsList(docsList: ApidocDetail[]): Promise<boolean> {
     try {
-      const data = await this.getStandaloneData();
-      const newData: Standalone = {
-        projectList: data?.projectList || [],
-        docsList
-      };
-      return await this.setStandaloneData(newData);
+      if (!this.standaloneCacheDb) {
+        await this.initStandaloneCache();
+      }
+      const tx = this.standaloneCacheDb!.transaction('standaloneCache', 'readwrite');
+      const store = tx.objectStore('standaloneCache');
+      await store.put(docsList, 'docsList');
+      await tx.done;
+      return true;
     } catch (err) {
       console.error('Failed to set docs list:', err);
       return false;
@@ -267,6 +237,62 @@ export class StandaloneCache {
       return await this.setDocsList(newDocsList);
     } catch (err) {
       console.error('Failed to delete docs by project id:', err);
+      return false;
+    }
+  }
+
+  /**
+   * 获取公共请求头列表
+   */
+  async getCommonHeaders(): Promise<ApidocProperty<'string'>[]> {
+    try {
+      if (!this.standaloneCacheDb) {
+        await this.initStandaloneCache();
+      }
+      const tx = this.standaloneCacheDb!.transaction('standaloneCache', 'readonly');
+      const store = tx.objectStore('standaloneCache');
+      const data = await store.get('commonHeaders');
+      return data || [];
+    } catch (err) {
+      console.error('Failed to get common headers:', err);
+      return [];
+    }
+  }
+
+  /**
+   * 设置公共请求头列表
+   */
+  async setCommonHeaders(commonHeaders: ApidocProperty<'string'>[]): Promise<boolean> {
+    try {
+      if (!this.standaloneCacheDb) {
+        await this.initStandaloneCache();
+      }
+      const tx = this.standaloneCacheDb!.transaction('standaloneCache', 'readwrite');
+      const store = tx.objectStore('standaloneCache');
+      await store.put(commonHeaders, 'commonHeaders');
+      await tx.done;
+      return true;
+    } catch (err) {
+      console.error('Failed to set common headers:', err);
+      return false;
+    }
+  }
+
+  /**
+   * 清除所有数据
+   */
+  async clearAllData(): Promise<boolean> {
+    try {
+      if (!this.standaloneCacheDb) {
+        await this.initStandaloneCache();
+      }
+      const tx = this.standaloneCacheDb!.transaction('standaloneCache', 'readwrite');
+      const store = tx.objectStore('standaloneCache');
+      await store.clear();
+      await tx.done;
+      return true;
+    } catch (err) {
+      console.error('Failed to clear all data:', err);
       return false;
     }
   }
