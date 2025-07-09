@@ -1,5 +1,6 @@
 import { request } from '@/api/api';
-import { findNodeById, forEachForest } from "@/helper";
+import { standaloneCache } from '@/cache/standalone.ts';
+import { convertDocsToBanner, findNodeById, forEachForest } from "@/helper";
 import { ApidocMockState } from "@src/types/apidoc/mock";
 import { ApidocBanner, Response } from "@src/types/global";
 import { defineStore } from "pinia";
@@ -80,8 +81,16 @@ export const useApidocBanner = defineStore('apidocBanner', () => {
    /**
    * 获取文档左侧导航数据
    */
-  const getDocBanner = async(payload: { projectId: string }): Promise<ApidocBanner> => {
-    return new Promise((resolve, reject) => {
+  const getDocBanner = async(payload: { projectId: string }): Promise<void> => {
+    return new Promise(async (resolve, reject) => {
+      if(__STANDALONE__){
+        const docs = await standaloneCache.getDocsList();
+        const projectDocs = docs.filter((doc) => doc.projectId === payload.projectId);
+        const banner = convertDocsToBanner(projectDocs);
+        changeAllDocBanner(banner)
+        resolve()
+        return
+      }
       const params = {
         projectId: payload.projectId,
       };
@@ -102,7 +111,7 @@ export const useApidocBanner = defineStore('apidocBanner', () => {
         })
         //todo
         // store.commit('apidoc/mock/changeMockUrlMap', urlMap);
-        resolve(result);
+        resolve();
       }).catch((err) => {
         reject(err);
       });

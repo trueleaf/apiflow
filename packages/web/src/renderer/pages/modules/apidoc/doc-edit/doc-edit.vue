@@ -10,7 +10,7 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, onMounted, onBeforeUnmount } from 'vue'
+import { computed, onMounted, onBeforeUnmount, ref } from 'vue'
 import { apidocCache } from '@/cache/apidoc'
 import SaveDocDialog from '@/pages/modules/apidoc/doc-edit/dialog/save-doc/save-doc.vue'
 import Banner from './banner/banner.vue';
@@ -30,6 +30,7 @@ const apidocBaseInfoStroe = useApidocBaseInfo();
 const apidocWorkerStateStore = useApidocWorkerState()
 const { initCookies } = useCookies();
 const projectId = route.query.id as string;
+const isStandalone = ref(__STANDALONE__)
 //当前选中的tab
 const currentSelectTab = computed(() => {
   const currentTabs = apidocTabsStore.tabs[projectId];
