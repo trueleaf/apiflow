@@ -386,6 +386,10 @@ export type Config = {
       dbName: string,
       version: number,
     }
+  },
+  standaloneCacheConfig: {
+    dbName: string,
+    version: number,
   }
 }
 
