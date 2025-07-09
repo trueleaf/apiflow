@@ -87,7 +87,7 @@
             </div>
             <div class="ml-auto">
               <el-button type="primary" @click="handleJumpToProject(item)">{{ t("编辑") }}</el-button>
-              <el-button type="primary" @click="handleJumpToView(item)">{{ t("预览") }}</el-button>
+              <el-button v-if="!isStandalone" type="primary" @click="handleJumpToView(item)">{{ t("预览") }}</el-button>
             </div>
           </div>
         </div>
@@ -394,7 +394,9 @@ const initCahce = () => {
 }
 //跳转到编辑
 const handleJumpToProject = (item: ApidocProjectInfo) => {
-
+  if(__STANDALONE__){
+    return;
+  }
   request.put('/api/project/visited', { projectId: item._id }).catch((err) => {
     console.error(err);
   });
