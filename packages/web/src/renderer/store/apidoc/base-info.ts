@@ -316,7 +316,13 @@ export const useApidocBaseInfo = defineStore('apidocBaseInfo', () => {
    * 获取全局公共请求头
    */
   const getGlobalCommonHeaders = async (): Promise<void> => {
-    return new Promise((resolve, reject) => {
+    return new Promise(async (resolve, reject) => {
+      if(__STANDALONE__){
+        const commonHeaders = await standaloneCache.getCommonHeaders();
+        globalCommonHeaders.value = commonHeaders;
+        resolve();
+        return;
+      }
       const params = {
         projectId: router.currentRoute.value.query.id as string
       }

@@ -47,9 +47,28 @@ export class StandaloneCache {
       const tx = this.standaloneCacheDb!.transaction('standaloneCache', 'readonly');
       const store = tx.objectStore('standaloneCache');
       const data = await store.get('projectList');
-      return data || [];
+      // Filter out deleted projects
+      return (data || []).filter((project: ApidocProjectInfo) => !project.isDeleted);
     } catch (err) {
       console.error('Failed to get project list:', err);
+      return [];
+    }
+  }
+
+  /**
+   * 获取所有项目（包括已删除的）
+   */
+  private async getAllProjects(): Promise<ApidocProjectInfo[]> {
+    try {
+      if (!this.standaloneCacheDb) {
+        await this.initStandaloneCache();
+      }
+      const tx = this.standaloneCacheDb!.transaction('standaloneCache', 'readonly');
+      const store = tx.objectStore('standaloneCache');
+      const data = await store.get('projectList');
+      return data || [];
+    } catch (err) {
+      console.error('Failed to get all projects:', err);
       return [];
     }
   }
@@ -119,11 +138,15 @@ export class StandaloneCache {
    */
   async deleteProject(projectId: string): Promise<boolean> {
     try {
-      const projectList = await this.getProjectList();
-      const newProjectList = projectList.filter(p => p._id !== projectId);
-      const success = await this.setProjectList(newProjectList);
+      const allProjects = await this.getAllProjects(); // Get all projects including deleted ones
+      const index = allProjects.findIndex(p => p._id === projectId);
+      if (index === -1) return false;
+      allProjects[index] = {
+        ...allProjects[index],
+        isDeleted: true
+      };
+      const success = await this.setProjectList(allProjects);
       if (success) {
-        // 删除项目时同时删除相关文档
         await this.deleteDocsByProjectId(projectId);
       }
       return success;
@@ -144,9 +167,28 @@ export class StandaloneCache {
       const tx = this.standaloneCacheDb!.transaction('standaloneCache', 'readonly');
       const store = tx.objectStore('standaloneCache');
       const data = await store.get('docsList');
-      return data || [];
+      // Filter out deleted docs
+      return (data || []).filter((doc: ApidocDetail) => !doc.isDeleted);
     } catch (err) {
       console.error('Failed to get docs list:', err);
+      return [];
+    }
+  }
+
+  /**
+   * 获取所有文档（包括已删除的）
+   */
+  private async getAllDocs(): Promise<ApidocDetail[]> {
+    try {
+      if (!this.standaloneCacheDb) {
+        await this.initStandaloneCache();
+      }
+      const tx = this.standaloneCacheDb!.transaction('standaloneCache', 'readonly');
+      const store = tx.objectStore('standaloneCache');
+      const data = await store.get('docsList');
+      return data || [];
+    } catch (err) {
+      console.error('Failed to get all docs:', err);
       return [];
     }
   }
@@ -205,9 +247,17 @@ export class StandaloneCache {
    */
   async deleteDoc(docId: string): Promise<boolean> {
     try {
-      const docsList = await this.getDocsList();
-      const newDocsList = docsList.filter(d => d._id !== docId);
-      return await this.setDocsList(newDocsList);
+      const allDocs = await this.getAllDocs();
+      const index = allDocs.findIndex(d => d._id === docId);
+      if (index === -1) return false;
+      
+      // Soft delete by setting isDeleted flag
+      allDocs[index] = {
+        ...allDocs[index],
+        isDeleted: true
+      };
+      
+      return await this.setDocsList(allDocs);
     } catch (err) {
       console.error('Failed to delete doc:', err);
       return false;
@@ -220,7 +270,7 @@ export class StandaloneCache {
   async getDocsByProjectId(projectId: string): Promise<ApidocDetail[]> {
     try {
       const docsList = await this.getDocsList();
-      return docsList.filter(doc => doc.projectId === projectId);
+      return docsList.filter(doc => doc.projectId === projectId && !doc.isDeleted);
     } catch (err) {
       console.error('Failed to get docs by project id:', err);
       return [];
@@ -232,9 +282,17 @@ export class StandaloneCache {
    */
   async deleteDocsByProjectId(projectId: string): Promise<boolean> {
     try {
-      const docsList = await this.getDocsList();
-      const newDocsList = docsList.filter(doc => doc.projectId !== projectId);
-      return await this.setDocsList(newDocsList);
+      const allDocs = await this.getAllDocs();
+      const updatedDocs = allDocs.map(doc => {
+        if (doc.projectId === projectId) {
+          return {
+            ...doc,
+            isDeleted: true
+          };
+        }
+        return doc;
+      });
+      return await this.setDocsList(updatedDocs);
     } catch (err) {
       console.error('Failed to delete docs by project id:', err);
       return false;
