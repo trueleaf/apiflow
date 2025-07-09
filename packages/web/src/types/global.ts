@@ -9,31 +9,31 @@ import type { Method } from "got"
 //基础返回类型
 export type Response<T> = {
    /**
-      * 状态码
-      */
+    * 状态码
+    */
    code: number;
    /**
-      * 登录名称
-      */
+    * 登录名称
+    */
    msg: string;
    /**
-      * 返回数据
-      */
+    * 返回数据
+    */
    data: T;
 };
 //表单返回
 export type ResponseTable<T> = {
    /**
-      * 状态码
-      */
+    * 状态码
+    */
    code: number;
    /**
-      * 登录名称
-      */
+    * 登录名称
+    */
    msg: string;
    /**
-      * 返回数据
-      */
+    * 返回数据
+    */
    data: {
       rows: T;
       total: number;
@@ -64,58 +64,58 @@ export type PermissionRoleEnum = { _id: string; roleName: string }[];
 //用户信息
 export type PermissionUserInfo = {
    /**
-      * 用户id
-      */
+    * 用户id
+    */
    id: string;
    /**
-      * 登录名称
-      */
+    * 登录名称
+    */
    loginName: string;
    /**
-      * 手机号码
-      */
+    * 手机号码
+    */
    phone: string;
    /**
-      * 昵称
-      */
+    * 昵称
+    */
    realName: string;
    /**
-      * 角色id列表
-      */
+    * 角色id列表
+    */
    roleIds: string[];
 };
 //用户基本信息
 export type PermissionUserBaseInfo = {
    /**
-      * 登录名称
-      */
+    * 登录名称
+    */
    userName: string;
    /**
-      * 昵称
-      */
+    * 昵称
+    */
    realName: string;
    /**
-      * 用户id
-      */
+    * 用户id
+    */
    userId: string;
 };
 //前端路由列表
 export type PermissionClientRoute = {
    /**
-      * 分组名称
-      */
+    * 分组名称
+    */
    groupName: string;
    /**
-      * 路由名称
-      */
+    * 路由名称
+    */
    name: string;
    /**
-      * 路径
-      */
+    * 路径
+    */
    path: string;
    /**
-      * 路由id
-      */
+    * 路由id
+    */
    _id: string;
 };
 //后端路由列表
@@ -198,59 +198,63 @@ export type ApidocProjectPermission = 'readAndWrite' | 'readOnly' | 'admin';
 //项目成员基本信息
 export type ApidocProjectMemberInfo = {
    /**
-   * 用户或组名称
-   */
+    * 用户或组名称
+    */
    name: string;
    /**
-   * 用户权限 "readAndWrite" | "readOnly" | "admin"
-   */
+    * 用户权限 "readAndWrite" | "readOnly" | "admin"
+    */
    permission?: ApidocProjectPermission;
    /**
     * 类型
     */
    type: "user" | "group",
    /**
-   * 用户或组id
-   */
+    * 用户或组id
+    */
    id: string;
 };
 //项目成员基本信息
 export type ApidocProjectInfo = {
    /**
-      * 项目id
-      */
+    * 项目id
+    */
    _id: string;
    /**
-      * 项目接口数量
-      */
+    * 项目接口数量
+    */
    docNum: number;
    /**
-      * 项目创建者
-      */
+    * 项目创建者
+    */
    owner: {
       id: string;
       name: string;
    };
    /**
-      * 项目成员信息
-      */
+    * 项目成员信息
+    */
    members: ApidocProjectMemberInfo[];
    /**
-      * 项目名称
-      */
+    * 项目名称
+    */
    projectName: string;
    /**
-      * 备注
-      */
+    * 备注
+    */
    remark: string;
    /**
-      * 最近一次更新日期
-      */
+    * 最近一次更新日期
+    */
    updatedAt: string;
    /**
-      * 是否被收藏
-      */
+    * 是否被收藏
+    */
    isStared: boolean;
+   /**
+    * 是否被删除
+    */
+   isDeleted?: boolean;
 };
 
 //项目列表信息
@@ -270,31 +274,70 @@ export type ApidocProjectListInfo = {
 };
 //组成员信息
 export type ApidocGroupUser = {
+   /**
+    * 用户名称
+    */
    userName: string;
+   /**
+    * 用户id
+    */
    userId: string;
+   /**
+    * 权限
+    */
    permission: "admin" | "readOnly" | "readAndWrite",
+   /**
+    * 过期时间
+    */
    expireAt?: string;
- }
+}
 //组信息
 export type ApidocGroupItem = {
+   /**
+    * 组id
+    */
    _id: string;
+   /**
+    * 组名称
+    */
    groupName: string;
+   /**
+    * 组描述
+    */
    description: string;
+   /**
+    * 创建者
+    */
    creator: {
-     userId: string;
-     userName: string;
-     _id: string;
+      userId: string;
+      userName: string;
+      _id: string;
    },
+   /**
+    * 更新者
+    */
    updator: {
-     userId: string;
-     userName: string;
-     _id: string;
+      userId: string;
+      userName: string;
+      _id: string;
    },
+   /**
+    * 创建时间
+    */
    createdAt: string;
+   /**
+    * 更新时间
+    */
    updatedAt: string;
+   /**
+    * 成员列表
+    */
    members: ApidocGroupUser[];
+   /**
+    * 是否允许邀请
+    */
    isAllowInvite: boolean;
- }
+}
 //接口文档相关类型声明
 export type ApidocPropertyType =
    | 'string'
@@ -464,32 +507,32 @@ export type ApidocRequestParamTypes = (
 //api文档请求body
 export type ApidocBodyParams = {
    /**
-      * 模式，对应相关的content-type值
-      * json类型、formdata类型、urlencoded类型、binary类型需要单独处理，其余均为字符串(特殊类型可以做一些客户端校验，但本质上都是字符串)
-      */
+    * 模式，对应相关的content-type值
+    * json类型、formdata类型、urlencoded类型、binary类型需要单独处理，其余均为字符串(特殊类型可以做一些客户端校验，但本质上都是字符串)
+    */
    mode: ApidocBodyMode;
    /**
-      * 原始json值
-      */
+    * 原始json值
+    */
    rawJson: string;
    /**
-      * formData类型参数
-      */
+    * formData类型参数
+    */
    formdata: ApidocProperty<'string' | 'file'>[];
    /**
-      * urlencoded类型参数
-      */
+    * urlencoded类型参数
+    */
    urlencoded: ApidocProperty<'string'>[];
    /**
-      * raw类型参数
-      */
+    * raw类型参数
+    */
    raw: {
       data: string;
       dataType: ApidocBodyRawType;
    };
    /**
-     * binary类型参数
-     */
+    * binary类型参数
+    */
    binary: {
       mode: 'var' | 'file',
       varValue: string;
@@ -503,241 +546,245 @@ export type ApidocBodyParams = {
 //api文档返回参数
 export type ApidocResponseParams = {
    /**
-      * id
-      */
+    * id
+    */
    _id?: string;
    /**
-      * 返回参数表述
-      */
+    * 返回参数表述
+    */
    title: string;
    /**
-      * 状态码
-      */
+    * 状态码
+    */
    statusCode: number;
    /**
-      * 返回值
-      */
+    * 返回值
+    */
    value: {
       /**
-           * 返回参数类型
-           */
+       * 返回参数类型
+       */
       dataType: ApidocResponseContentType;
       /**
-           * 字符串json数据
-           */
+       * 字符串json数据
+       */
       strJson: string,
       /**
-           * 文本类型返回数据
-           */
+       * 文本类型返回数据
+       */
       text: string;
       /**
-           * 文件类型返回数据
-           */
+       * 文件类型返回数据
+       */
       file: {
          /**
-                * 转换为可访问本地路径
-                */
+          * 转换为可访问本地路径
+          */
          url: string;
          /**
-                * 原始值
-                */
+          * 原始值
+          */
          raw: string;
       };
    };
    /**
-      * 是否mock
-      */
+    * 是否mock
+    */
    isMock?: boolean;
 };
 //完整文档信息
 export type ApidocDetail = {
    /**
-      * 当前文档id
-      */
+    * 当前文档id
+    */
    _id: string;
    /**
-      * 父元素id
-      */
+    * 父元素id
+    */
    pid: string;
    /**
-      * 项目id
-      */
+    * 项目id
+    */
    projectId: string;
    /**
-      * 是否为文件夹
-      */
+    * 是否为文件夹
+    */
    isFolder: boolean;
    /**
-      * 排序
-      */
+    * 排序
+    */
    sort: number;
    /**
-      * 基本信息
-      */
+    * 基本信息
+    */
    info: ApidocBaseInfo;
    /**
-      * 接口信息
-      */
+    * 接口信息
+    */
    item: {
       /**
-           * 请求方法
-           */
+       * 请求方法
+       */
       method: ApidocHttpRequestMethod;
       /**
-           * 请求地址
-           */
+       * 请求地址
+       */
       url: {
          /**
-                * 接口前缀
-                */
+          * 接口前缀
+          */
          host: string;
          /**
-                * 请求路径
-                */
+          * 请求路径
+          */
          path: string;
       };
       /**
-           * restful请求路径
-           */
+       * restful请求路径
+       */
       paths: ApidocProperty<'string'>[];
       /**
-           * 查询字符串
-           */
+       * 查询字符串
+       */
       queryParams: ApidocProperty<'string'>[];
       /**
-           * 请求body
-           */
+       * 请求body
+       */
       requestBody: ApidocBodyParams;
       /**
-           * 返回参数
-           */
+       * 返回参数
+       */
       responseParams: ApidocResponseParams[];
       /**
-           * 请求头
-           */
+       * 请求头
+       */
       headers: ApidocProperty<'string'>[];
       /**
-           * ContentType类型
-           */
+       * ContentType类型
+       */
       contentType: ApidocContentType;
    };
    /**
-      * 公共请求头
-      */
+    * 公共请求头
+    */
    commonHeaders?: {
       /**
-           * 请求头名称
-           */
+       * 请求头名称
+       */
       key: string;
       /**
-           * 请求头值
-           */
+       * 请求头值
+       */
       value: string;
       /**
-           * 请求头描述
-           */
+       * 请求头描述
+       */
       description: string;
    }[];
    /**
-      * 前置脚本
-      */
+    * 前置脚本
+    */
    preRequest: {
       raw: string;
    };
    /**
-      * 后置脚本
-      */
+    * 后置脚本
+    */
    afterRequest: {
       raw: string;
    };
    /**
-      * 创建时间
-      */
+    * 创建时间
+    */
    createdAt?: string;
    /**
-      * 更新时间
-      */
+    * 更新时间
+    */
    updatedAt?: string;
    mockInfo: {
       /**
-           * mock地址
-           */
+       * mock地址
+       */
       path: string,
       /**
-           * http状态码
-           */
+       * http状态码
+       */
       httpStatusCode: number;
       /**
-           * 返回延时
-           */
+       * 返回延时
+       */
       responseDelay: number;
       /**
-           * 返回数据类型
-           */
+       * 返回数据类型
+       */
       responseType: 'json' | 'image' | 'file' | 'text' | 'customJson';
       /**
-           * 自定义返回头
-           */
+       * 自定义返回头
+       */
       responseHeaders: ApidocProperty<'string'>[];
       /**
-           * json数据信息
-           */
+       * json数据信息
+       */
       json: string;
       /**
-           * 图片相关信息
-           */
+       * 图片相关信息
+       */
       image: {
          /**
-                * 图片类型
-                */
+          * 图片类型
+          */
          type: 'png' | 'jpg' | 'gif' | 'svg';
          /**
-                * 图片宽度
-                */
+          * 图片宽度
+          */
          width: number;
          /**
-                * 图片高度
-                */
+          * 图片高度
+          */
          height: number;
          /**
-                * 图片大小
-                */
+          * 图片大小
+          */
          size: number;
          /**
-                * 文字大小
-                */
+          * 文字大小
+          */
          fontSize: number;
          /**
-                * 文字颜色
-                */
+          * 文字颜色
+          */
          color: string;
          /**
-                * 背景颜色
-                */
+          * 背景颜色
+          */
          backgroundColor: string;
       };
       /**
-           * 文件相关数据
-           */
+       * 文件相关数据
+       */
       file: {
          /**
-                * 文件类型
-                */
+          * 文件类型
+          */
          type: 'doc' | 'docx' | 'xls' | 'xlsx' | 'pdf' | 'zip' | 'custom';
          /**
-                * 文件地址
-                */
+          * 文件地址
+          */
          filePath: string;
       };
       /**
-           * 纯文本，html，css等
-           */
+       * 纯文本，html，css等
+       */
       text: string;
       /**
-           * 自定义json返回
-           */
+       * 自定义json返回
+       */
       customResponseScript: string;
    };
+   /**
+    * 是否被删除
+    */
+   isDeleted?: boolean;
 };
 
 //=========================================================================//
@@ -746,60 +793,60 @@ export type ApidocDetail = {
 //文档banner信息
 export type ApidocBanner = {
    /**
-      * 文档id
-      */
+    * 文档id
+    */
    _id: string;
    /**
-      * 最近一次更新日期
-      */
+    * 最近一次更新日期
+    */
    updatedAt: string;
    /**
-      * 文档类型
-      */
+    * 文档类型
+    */
    type: 'folder' | 'api' | 'markdown';
    /**
-      * 排序值
-      */
+    * 排序值
+    */
    sort: number;
    /**
-      * 父元素id
-      */
+    * 父元素id
+    */
    pid: string;
    /**
-      * 名称
-      */
+    * 名称
+    */
    name: string;
    /**
-      * 是否为文件夹
-      */
+    * 是否为文件夹
+    */
    isFolder: boolean;
    /**
-      * 更新人
-      */
+    * 更新人
+    */
    maintainer: string;
    /**
-      * 请求方法
-      */
+    * 请求方法
+    */
    method: ApidocHttpRequestMethod;
    /**
-      * 请求url
-      */
+    * 请求url
+    */
    url?: string;
    /**
-      * 公共请求头
-      */
+    * 公共请求头
+    */
    commonHeaders?: {
       key: string;
       value: string;
       description: string;
    }[];
    /**
-      * 是否只读
-      */
+    * 是否只读
+    */
    readonly: boolean;
    /**
-      * 子节点
-      */
+    * 子节点
+    */
    children: ApidocBanner[];
 };
 //工具栏操作
@@ -827,97 +874,97 @@ export type ApidocOperations =
 */
 export type ApidocASTInfo = {
    /**
-      * id值
-      */
+    * id值
+    */
    id: string;
    /**
-      * 缩进
-      */
+    * 缩进
+    */
    indent: number;
    /**
-      * 行号
-      */
+    * 行号
+    */
    line: number; //行号
    /**
-      * 键
-      */
+    * 键
+    */
    path: {
       /**
-           * 键对应的值
-           */
+       * 键对应的值
+       */
       value: string;
       /**
-           * 键是否存在双引号
-           */
+       * 键是否存在双引号
+       */
       widthQuote: boolean;
    };
    /**
-      * 值
-      */
+    * 值
+    */
    value: string;
    /**
-      * 值类型
-      */
+    * 值类型
+    */
    valueType: string;
    /**
-      * 冒号
-      */
+    * 冒号
+    */
    colon: string;
    /**
-      * 逗号
-      */
+    * 逗号
+    */
    comma: string;
    /**
-      * 备注信息
-      */
+    * 备注信息
+    */
    description: string;
    /**
-      * 是否必填
-      */
+    * 是否必填
+    */
    required: boolean;
    /**
-      * 左花括号
-      */
+    * 左花括号
+    */
    leftCurlBrace: {
       /**
-           * 与之相匹配的另一个括号id
-           */
+       * 与之相匹配的另一个括号id
+       */
       pairId: string;
       /**
-           * 值
-           */
+       * 值
+       */
       value: string;
    };
    /**
-      * 右花括号
-      */
+    * 右花括号
+    */
    rightCurlBrace: {
       /**
-           * 与之相匹配的另一个括号id
-           */
+       * 与之相匹配的另一个括号id
+       */
       pairId: string;
       /**
-           * 值
-           */
+       * 值
+       */
       value: string;
    };
    /**
-      * 左中括号
-      */
+    * 左中括号
+    */
    leftBracket: {
       /**
-           * 与之相匹配的另一个括号id
-           */
+       * 与之相匹配的另一个括号id
+       */
       pairId: string;
       value: string;
    };
    /**
-      * 右中括号
-      */
+    * 右中括号
+    */
    rightBracket: {
       /**
-           * 与之相匹配的另一个括号id
-           */
+       * 与之相匹配的另一个括号id
+       */
       pairId: string;
       value: string;
    };
@@ -931,14 +978,41 @@ export type ApidocASTInfo = {
 |--------------------------------------------------------------------------
 */
 export type ApidocVariable = {
+   /**
+    * 变量id
+    */
    _id?: string;
+   /**
+    * 项目id
+    */
    projectId: string,
+   /**
+    * 变量名称
+    */
    name: string,
+   /**
+    * 变量值
+    */
    value: string,
+   /**
+    * 变量类型
+    */
    type: 'string' | 'number' | 'boolean' | 'null' | 'any' | 'file',
+   /**
+    * 文件值
+    */
    fileValue: {
+      /**
+       * 文件名称
+       */
       name: string,
+      /**
+       * 文件路径
+       */
       path: string,
+      /**
+       * 文件类型
+       */
       fileType: string,
    }
 };
@@ -950,91 +1024,91 @@ export type ApidocVariable = {
 */
 export type ApidocOperationDeleteInfo = {
    /**
-      * 节点名称
-      */
+    * 节点名称
+    */
    nodeName: string;
    /**
-      * 节点id
-      */
+    * 节点id
+    */
    nodeId: string;
    /**
-      * 是否为文件夹
-      */
+    * 是否为文件夹
+    */
    isFolder: boolean;
    /**
-      * 请求方法
-      */
+    * 请求方法
+    */
    method: ApidocHttpRequestMethod;
    /**
-      * 请求url
-      */
+    * 请求url
+    */
    url: string;
 };
 export type ApidocOperationRecord = {
    /**
-      * 项目id
-      */
+    * 项目id
+    */
    projectId: string;
    /**
-      * 变量类型
-      */
+    * 变量类型
+    */
    recordInfo: {
       /**
-           * 节点id
-           */
+       * 节点id
+       */
       nodeId?: string;
       /**
-           * 节点名称
-           */
+       * 节点名称
+       */
       nodeName?: string;
       /**
-           * 请求方法
-           */
+       * 请求方法
+       */
       method?: ApidocHttpRequestMethod;
       /**
-           * 请求url
-           */
+       * 请求url
+       */
       url?: string;
       /**
-           * 节点快照
-           */
+       * 节点快照
+       */
       nodeSnapshot?: ApidocDetail['item'];
       /**
-           * 拖拽到的节点id
-           */
+       * 拖拽到的节点id
+       */
       dropNodeId?: string;
       /**
-           * 拖拽到的节点名称
-           */
+       * 拖拽到的节点名称
+       */
       dropNodeName?: 'before' | 'after' | 'inner';
       /**
-           * 拖拽方式
-           */
+       * 拖拽方式
+       */
       dropType?: string;
       /**
-           * 原始节点名称
-           */
+       * 原始节点名称
+       */
       orginNodeName?: string;
       /**
-           * 被删除节点信息
-           */
+       * 被删除节点信息
+       */
       deleteNodes: ApidocOperationDeleteInfo[];
       /**
-           * 导出类型
-           */
+       * 导出类型
+       */
       exportType?: string;
       /**
-           * 导入文档数量
-           */
+       * 导入文档数量
+       */
       importNum?: string;
       /**
-           * 是否是覆盖导入
-           */
+       * 是否是覆盖导入
+       */
       importIsCover?: string;
    };
    /**
-      * 操作类型
-      */
+    * 操作类型
+    */
    operation:
    | 'addFolder'
    | 'addDoc'
@@ -1052,16 +1126,16 @@ export type ApidocOperationRecord = {
    | 'deleteServer'
    | 'editServer';
    /**
-      * 操作者
-      */
+    * 操作者
+    */
    operator: string;
    /**
-      * 操作者id
-      */
+    * 操作者id
+    */
    operatorId: string;
    /**
-      * 创建日期
-      */
+    * 创建日期
+    */
    createdAt: string;
 };
 
@@ -1084,40 +1158,40 @@ export type MockItem = {
 //全局配置信息
 export type GlobalConfig = {
    /**
-      * 工具标题
-      */
+    * 工具标题
+    */
    title: string;
    /**
-      * 版本信息
-      */
+    * 版本信息
+    */
    version: string;
    /**
-      * 是否打印欢迎信息
-      */
+    * 是否打印欢迎信息
+    */
    consoleWelcome: boolean;
    /**
-      * 是否允许用户注册
-      */
+    * 是否允许用户注册
+    */
    enableRegister: boolean;
    /**
-      * 是否允许来宾用户访问
-      */
+    * 是否允许来宾用户访问
+    */
    enableGuest: boolean;
    /**
-      * 是否允许显示文档链接
-      */
+    * 是否允许显示文档链接
+    */
    enableDocLink: boolean;
    /**
-      * 分享url
-      */
+    * 分享url
+    */
    shareUrl: string;
    /**
-      * 是否开启自动更新
-      */
+    * 是否开启自动更新
+    */
    autoUpdate: boolean;
    /**
-      * 客户端更新地址
-      */
+    * 客户端更新地址
+    */
    updateUrl: string;
 };
 /*
