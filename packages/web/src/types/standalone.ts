@@ -10,7 +10,7 @@ export type Standalone = {
    */
   docsList: ApidocDetail[];
   /**
-   * 公共请求头列表
+   * 全局公共请求头列表
    */
   commonHeaders: ApidocProperty<'string'>[];
 };
