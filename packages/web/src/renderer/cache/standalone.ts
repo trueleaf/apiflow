@@ -525,6 +525,39 @@ export class StandaloneCache {
       return false;
     }
   }
+
+  /**
+   * 根据项目ID获取树形banner数据
+   */
+  async getDocTree(projectId: string) {
+    try {
+      const docsList = await this.getDocsList();
+      const projectDocs = docsList.filter(doc => doc.projectId === projectId && !doc.isDeleted);
+      // 动态引入 convertDocsToBanner，避免循环依赖
+      const { convertDocsToBanner } = await import('@/helper/index');
+      return convertDocsToBanner(projectDocs);
+    } catch (err) {
+      console.error('Failed to get banner tree by project id:', err);
+      return [];
+    }
+  }
+
+  /**
+   * 根据项目ID获取树形目录（仅文件夹）
+   */
+  async getFolderTree(projectId: string) {
+    try {
+      const docsList = await this.getDocsList();
+      // 仅保留属于该项目且未被删除且为文件夹的文档
+      const folderDocs = docsList.filter(doc => doc.projectId === projectId && !doc.isDeleted && doc.isFolder);
+      // 动态引入 convertDocsToBanner，避免循环依赖
+      const { convertDocsToBanner } = await import('@/helper/index');
+      return convertDocsToBanner(folderDocs);
+    } catch (err) {
+      console.error('Failed to get folder tree by project id:', err);
+      return [];
+    }
+  }
 }
 
 export const standaloneCache = new StandaloneCache();
