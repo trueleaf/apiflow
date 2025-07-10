@@ -14,6 +14,7 @@ import { useApidocBanner } from '@/store/apidoc/banner';
 import { useApidocTas } from '@/store/apidoc/tabs';
 import { useApidoc } from '@/store/apidoc/apidoc';
 import { useApidocBaseInfo } from '@/store/apidoc/base-info.ts';
+import { standaloneCache } from '@/cache/standalone.ts';
 
 type MapId = {
   oldId: string, //历史id
@@ -43,7 +44,25 @@ export function deleteNode(selectNodes: ApidocBannerWithProjectId[], silent?: bo
     }
   })
   const deleteTip = selectNodes.length > 1 ? `${t('确定批量删除')} ${deleteIds.length} ${t('个节点?')}` : `${t('确定删除')} ${selectNodes[0].name} ${t('节点')}`
-  const deleteOperation = () => {
+  const deleteOperation = async () => {
+    if(__STANDALONE__){
+      await standaloneCache.deleteDocs(deleteIds);
+      await apidocBannerStore.getDocBanner({ projectId: nodeProjectId });
+      //删除所有nav节点
+      const delNodeIds: string[] = [];
+      forEachForest(selectNodes, (node) => {
+        if (!node.isFolder) {
+          delNodeIds.push(node._id);
+        }
+      })
+      apidocTabsStore.deleteTabByIds({
+        projectId: nodeProjectId,
+        ids: delNodeIds,
+        force: true,
+      })
+      event.emit('apidoc/deleteDocs')
+      return
+    }
     const params = {
       data: {
         projectId: nodeProjectId,

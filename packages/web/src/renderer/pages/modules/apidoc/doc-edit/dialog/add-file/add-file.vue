@@ -23,6 +23,7 @@ import { useRoute } from 'vue-router';
 import { generateEmptyNode } from '@/helper/standaloneUtils';
 import { standaloneCache } from '@/cache/standalone';
 import { nanoid } from 'nanoid';
+import { useApidocBanner } from '@/store/apidoc/banner';
 
 const props = defineProps({
   modelValue: {
@@ -45,6 +46,7 @@ const route = useRoute()
 |--------------------------------------------------------------------------
 */
 const handleAddFile = () => {
+  const apidocBannerStore = useApidocBanner();
   form.value?.validate(async (valid) => {
     if(__STANDALONE__ && valid){
       const { formInfo } = form.value as any;
@@ -55,7 +57,9 @@ const handleAddFile = () => {
       nodeInfo.sort = Date.now()
       nodeInfo.isDeleted = false;
       await standaloneCache.addDoc(nodeInfo)
-      emits('success', nodeInfo); //一定要先成功然后才关闭弹窗,因为关闭弹窗会清除节点父元素id
+      const banner = await apidocBannerStore.getDocBanner({ projectId: nodeInfo.projectId });
+      const bannerNode = banner.find(v => v._id === nodeInfo._id);
+      emits('success', bannerNode); //一定要先成功然后才关闭弹窗,因为关闭弹窗会清除节点父元素id
       handleClose();
       return;
     }
