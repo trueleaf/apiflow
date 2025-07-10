@@ -476,7 +476,6 @@ export const useApidoc = defineStore('apidoc', () => {
 
     if (__STANDALONE__) {
       const doc = await standaloneCache.getDocById(payload.id);
-      console.log(doc, 2)
       if (!doc) {
         ElMessageBox.confirm('当前接口不存在，可能已经被删除!', '提示', {
           confirmButtonText: '关闭接口',
@@ -558,7 +557,7 @@ export const useApidoc = defineStore('apidoc', () => {
     const { tabs } = storeToRefs(useApidocTas());
     const { changeTabInfoById } = useApidocTas();
     const { changeBannerInfoById } = useApidocBanner()
-    return new Promise((resolve, reject) => {
+    return new Promise(async (resolve, reject) => {
       //todo
       // const projectId = router.currentRoute.value.query.id as string || shareRouter.currentRoute.value.query.id as string;
       const projectId = router.currentRoute.value.query.id as string;
@@ -569,7 +568,6 @@ export const useApidoc = defineStore('apidoc', () => {
         return;
       }
       const apidocDetail = cloneDeep(apidoc.value);
-      changeApidocSaveLoading(true)
       //todo
       // context.dispatch('saveMindParams');
       //删除_error字段
@@ -585,6 +583,36 @@ export const useApidoc = defineStore('apidoc', () => {
         afterRequest: apidocDetail.afterRequest,
         mockInfo: apidocDetail.mockInfo,
       };
+      if (__STANDALONE__) {
+        apidocDetail.updatedAt = new Date().toISOString();
+        await standaloneCache.updateDoc(apidocDetail);
+        //改变tab请求方法
+        changeTabInfoById({
+          id: currentSelectTab._id,
+          field: 'head',
+          value: {
+            icon: params.item.method,
+            color: '',
+          },
+        })
+        //改变banner请求方法
+        changeBannerInfoById({
+          id: currentSelectTab._id,
+          field: 'method',
+          value: params.item.method,
+        })
+        //改变origindoc的值
+        changeOriginApidoc();
+        //改变tab未保存小圆点
+        changeTabInfoById({
+          id: currentSelectTab._id,
+          field: 'saved',
+          value: true,
+        })
+        return
+      }
+      changeApidocSaveLoading(true)
+
       axiosInstance.post('/api/project/fill_doc', params).then(() => {
         //改变tab请求方法
         changeTabInfoById({

@@ -83,7 +83,7 @@ export class DocService {
       maintainer: result.info.maintainer,
       updatedAt: result.updatedAt,
       isFolder: result.isFolder,
-      children: [] as [],
+      children: [],
     };
   }
   /**

@@ -178,7 +178,7 @@ export function addFileAndFolderCb(currentOperationalNode: Ref<ApidocBanner | nu
           item: data,
         })
       }
-    } else { //如果是文本
+    } else { //如果是api
       apidocBannerStore.splice({
         start: apidocBannerStore.banner.length,
         deleteCount: 0,
@@ -223,6 +223,8 @@ export function addFileAndFolderCb(currentOperationalNode: Ref<ApidocBanner | nu
       }
     })
   }
+  // const banner = await standaloneCache.getDocTree(currentOperationalNode.value);
+  // apidocBannerStore.changeAllDocBanner(banner);
 }
 /**
  * 粘贴某个节点
