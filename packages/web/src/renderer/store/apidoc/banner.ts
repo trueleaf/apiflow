@@ -81,14 +81,14 @@ export const useApidocBanner = defineStore('apidocBanner', () => {
    /**
    * 获取文档左侧导航数据
    */
-  const getDocBanner = async(payload: { projectId: string }): Promise<void> => {
+  const getDocBanner = async(payload: { projectId: string }): Promise<ApidocBanner[]> => {
     return new Promise(async (resolve, reject) => {
-      if(__STANDALONE__){
+      if (__STANDALONE__) {
         const docs = await standaloneCache.getDocsList();
         const projectDocs = docs.filter((doc) => doc.projectId === payload.projectId);
         const banner = convertDocsToBanner(projectDocs);
         changeAllDocBanner(banner)
-        resolve()
+        resolve(banner)
         return
       }
       const params = {
@@ -111,7 +111,7 @@ export const useApidocBanner = defineStore('apidocBanner', () => {
         })
         //todo
         // store.commit('apidoc/mock/changeMockUrlMap', urlMap);
-        resolve();
+        resolve(result)
       }).catch((err) => {
         reject(err);
       });
