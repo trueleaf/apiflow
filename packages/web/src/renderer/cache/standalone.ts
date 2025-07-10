@@ -215,13 +215,42 @@ export class StandaloneCache {
   }
 
   /**
+   * 更新项目文档数量
+   */
+  private async updateProjectDocNum(projectId: string): Promise<boolean> {
+    try {
+      const docsList = await this.getDocsList();
+      const projectDocs = docsList.filter(doc => doc.projectId === projectId && !doc.isDeleted);
+      const docNum = projectDocs.length;
+
+      const projectList = await this.getAllProjects();
+      const projectIndex = projectList.findIndex(p => p._id === projectId);
+      if (projectIndex === -1) return false;
+
+      projectList[projectIndex] = {
+        ...projectList[projectIndex],
+        docNum
+      };
+
+      return await this.setProjectList(projectList);
+    } catch (err) {
+      console.error('Failed to update project doc num:', err);
+      return false;
+    }
+  }
+
+  /**
    * 添加文档
    */
   async addDoc(doc: ApidocDetail): Promise<boolean> {
     try {
       const docsList = await this.getDocsList();
       docsList.push(doc);
-      return await this.setDocsList(docsList);
+      const success = await this.setDocsList(docsList);
+      if (success) {
+        await this.updateProjectDocNum(doc.projectId);
+      }
+      return success;
     } catch (err) {
       console.error('Failed to add doc:', err);
       return false;
@@ -253,15 +282,64 @@ export class StandaloneCache {
       const index = allDocs.findIndex(d => d._id === docId);
       if (index === -1) return false;
       
+      const projectId = allDocs[index].projectId;
+      
       // Soft delete by setting isDeleted flag
       allDocs[index] = {
         ...allDocs[index],
         isDeleted: true
       };
       
-      return await this.setDocsList(allDocs);
+      const success = await this.setDocsList(allDocs);
+      if (success) {
+        await this.updateProjectDocNum(projectId);
+      }
+      return success;
     } catch (err) {
       console.error('Failed to delete doc:', err);
+      return false;
+    }
+  }
+
+  /**
+   * 批量删除文档
+   * @param docIds 要删除的文档ID数组
+   * @returns 是否全部删除成功
+   */
+  async deleteDocs(docIds: string[]): Promise<boolean> {
+    try {
+      const docList = await this.getDocsList();
+      let hasChanges = false;
+      const affectedProjects = new Set<string>();
+
+      docIds.forEach(docId => {
+        const index = docList.findIndex(d => d._id === docId);
+        if (index !== -1) {
+          // Soft delete by setting isDeleted flag
+          docList[index] = {
+            ...docList[index],
+            isDeleted: true
+          };
+          hasChanges = true;
+          affectedProjects.add(docList[index].projectId);
+        }
+      });
+
+      // 如果没有任何文档被修改，返回 true（因为所有请求的删除都已经完成）
+      if (!hasChanges) {
+        return true;
+      }
+
+      const success = await this.setDocsList(docList);
+      if (success) {
+        // 更新所有受影响项目的文档数量
+        for (const projectId of affectedProjects) {
+          await this.updateProjectDocNum(projectId);
+        }
+      }
+      return success;
+    } catch (err) {
+      console.error('Failed to delete docs:', err);
       return false;
     }
   }
@@ -276,6 +354,19 @@ export class StandaloneCache {
     } catch (err) {
       console.error('Failed to get docs by project id:', err);
       return [];
+    }
+  }
+
+  /**
+   * 根据文档ID获取单个文档
+   */
+  async getDocById(docId: string): Promise<ApidocDetail | null> {
+    try {
+      const docsList = await this.getDocsList();
+      return docsList.find(doc => doc._id === docId && !doc.isDeleted) || null;
+    } catch (err) {
+      console.error('Failed to get doc by id:', err);
+      return null;
     }
   }
 
