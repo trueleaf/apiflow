@@ -191,10 +191,6 @@ const toggleProjectVisible = ref(false);
 const { getBannerData } = useBannerData();
 //新增文件或者文件夹成功回调
 const handleAddFileAndFolderCb = (data: ApidocBanner) => {
-  if (isStandalone.value) {
-    getBannerData();
-    return
-  }
   addFileAndFolderCb.call(this, ref(null), data)
 };
 //=====================================操作栏数据====================================//

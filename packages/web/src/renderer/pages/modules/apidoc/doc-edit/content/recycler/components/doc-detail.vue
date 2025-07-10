@@ -112,6 +112,8 @@ import SJsonEditor from '@/components/common/json-editor/g-json-editor.vue'
 import { formatDate } from '@/helper'
 import { useApidocBaseInfo } from '@/store/apidoc/base-info';
 import { useApidocRequest } from '@/store/apidoc/request';
+import { apidocCache } from '@/cache/apidoc';
+import { standaloneCache } from '@/cache/standalone';
 
 const emits = defineEmits(['close'])
 const props = defineProps({
@@ -131,8 +133,14 @@ const apidocRequestStore = useApidocRequest()
 const docDetail: Ref<ApidocDetail | null> = ref(null); //文档详情
 const projectId = router.currentRoute.value.query.id as string;
 const loading = ref(false); //数据加载
+const iStandalone = ref(__STANDALONE__);
+
 //获取文档详情
-const getDocDetail = () => {
+const getDocDetail = async () => {
+  if (iStandalone.value) {
+    docDetail.value = await standaloneCache.getDocById(props.id);
+    return
+  }
   loading.value = true;
   const params = {
     _id: props.id,

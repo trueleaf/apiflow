@@ -36,6 +36,7 @@ import { t } from "i18next"
 import { getUrl } from "@/server/request/request.ts"
 import { useVariable } from "./variables.ts"
 import { config } from "@src/config/config.ts"
+import { standaloneCache } from "@/cache/standalone.ts"
 
 type EditApidocPropertyPayload<K extends keyof ApidocProperty> = {
   data: ApidocProperty,
@@ -398,9 +399,9 @@ export const useApidoc = defineStore('apidoc', () => {
     }
     initDefaultHeaders(payload.item.contentType)
     //若全部返回数据isMock都为false，则取第一条数据为mock数据
-    if (payload.item.responseParams.every(v => !v.isMock)) {
-      payload.item.responseParams[0].isMock = true;
-    }
+    // if (payload.item.responseParams.every(v => !v.isMock)) {
+    //   payload.item.responseParams[0].isMock = true;
+    // }
     if (payload.item.headers.length === 0) {
       payload.item.headers.push(apidocGenerateProperty());
     }
@@ -470,8 +471,36 @@ export const useApidoc = defineStore('apidoc', () => {
   |--------------------------------------------------------------------------
   */
   //获取项目基本信息
-  const getApidocDetail = (payload: { id: string, projectId: string }): Promise<void> => {
+  const getApidocDetail = async (payload: { id: string, projectId: string }): Promise<void> => {
     const { deleteTabByIds } = useApidocTas();
+
+    if (__STANDALONE__) {
+      const doc = await standaloneCache.getDocById(payload.id);
+      console.log(doc, 2)
+      if (!doc) {
+        ElMessageBox.confirm('当前接口不存在，可能已经被删除!', '提示', {
+          confirmButtonText: '关闭接口',
+          cancelButtonText: '取消',
+          type: 'warning',
+        }).then(() => {
+          deleteTabByIds({
+            projectId: payload.projectId,
+            ids: [payload.id]
+          })
+        }).catch((err) => {
+          if (err === 'cancel' || err === 'close') {
+            return;
+          }
+          console.error(err);
+        });
+        return
+      }
+      changeApidoc(doc);
+      changeOriginApidoc()
+      return
+    }
+
+
     if (cancel.length > 0) {
       cancel.forEach((c) => {
         c('取消请求');
