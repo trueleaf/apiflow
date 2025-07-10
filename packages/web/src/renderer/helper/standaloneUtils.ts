@@ -40,7 +40,7 @@ export const generateEmptyNode = (_id: string): ApidocDetail => {
       paths: [],
       queryParams: [],
       requestBody: {
-        mode: 'none',
+        mode: 'json',
         rawJson: '',
         formdata: [],
         urlencoded: [],
