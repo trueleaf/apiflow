@@ -171,6 +171,7 @@ const enableDrag = ref(true);//是否允许拖拽
 const apidocBaseInfoStore = useApidocBaseInfo();
 const apidocBannerStore = useApidocBanner();
 const apidocTabsStore = useApidocTas();
+const isStandalone = ref(__STANDALONE__)
 
 //当前工作区状态
 const isView = computed(() => apidocBaseInfoStore.mode === 'view')
@@ -332,6 +333,10 @@ const handleOpenAddFolderDialog = () => {
 };
 //添加文件夹或文档成功回调函数
 const handleAddFileAndFolderCb = (data: ApidocBanner) => {
+  if (isStandalone.value) {
+    getBannerData();
+    return
+  }
   addFileAndFolderCb.call(this, currentOperationalNode, data);
   apidocBannerStore.addExpandItem(data._id);
 };

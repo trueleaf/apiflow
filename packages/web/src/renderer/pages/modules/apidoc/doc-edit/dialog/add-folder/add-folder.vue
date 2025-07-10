@@ -20,6 +20,9 @@ import { t } from 'i18next'
 import { ref } from 'vue';
 import { request } from '@/api/api';
 import { useRoute } from 'vue-router';
+import { generateEmptyNode } from '@/helper/standaloneUtils';
+import { nanoid } from 'nanoid';
+import { standaloneCache } from '@/cache/standalone';
 
 const props = defineProps({
   modelValue: {
@@ -42,7 +45,21 @@ const route = useRoute()
 |--------------------------------------------------------------------------
 */
 const handleAddFolder = () => {
-  form.value?.validate((valid) => {
+  form.value?.validate(async (valid) => {
+    if(__STANDALONE__ && valid){
+      const { formInfo } = form.value as any;
+      const nodeInfo = generateEmptyNode(nanoid())
+      nodeInfo.info.name = formInfo.name
+      nodeInfo.projectId = route.query.id as string
+      nodeInfo.pid = props.pid
+      nodeInfo.sort = Date.now()
+      nodeInfo.isDeleted = false;
+      nodeInfo.isFolder = true;
+      await standaloneCache.addDoc(nodeInfo)
+      emits('success', nodeInfo); //一定要先成功然后才关闭弹窗,因为关闭弹窗会清除节点父元素id
+      handleClose();
+      return;
+    }
     if (valid) {
       loading.value = true;
       const { formInfo } = form.value as any;

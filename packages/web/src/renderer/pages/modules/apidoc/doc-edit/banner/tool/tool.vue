@@ -162,6 +162,7 @@ import { useApidocTas } from '@/store/apidoc/tabs'
 import { useApidocWorkerState } from '@/store/apidoc/worker-state'
 import SLoading from '@/components/common/loading/g-loading.vue'
 import SFieldset from '@/components/common/fieldset/g-fieldset.vue'
+import { useBannerData } from '../composables/banner-data'
 
 
 type Operation = {
@@ -183,11 +184,17 @@ const apidocBaseInfoStore = useApidocBaseInfo();
 const apidocBannerStore = useApidocBanner();
 const apidocWorkerStateStore = useApidocWorkerState();
 const apidocTabsStore = useApidocTas();
+const isStandalone = ref(__STANDALONE__)
 const emits = defineEmits(['fresh', 'filter', 'changeProject']);
 const isView = computed(() => apidocBaseInfoStore.mode === 'view') //当前工作区状态
 const toggleProjectVisible = ref(false);
+const { getBannerData } = useBannerData();
 //新增文件或者文件夹成功回调
 const handleAddFileAndFolderCb = (data: ApidocBanner) => {
+  if (isStandalone.value) {
+    getBannerData();
+    return
+  }
   addFileAndFolderCb.call(this, ref(null), data)
 };
 //=====================================操作栏数据====================================//
