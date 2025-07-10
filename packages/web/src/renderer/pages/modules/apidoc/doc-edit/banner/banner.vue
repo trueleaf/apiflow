@@ -333,7 +333,6 @@ const handleOpenAddFolderDialog = () => {
 };
 //添加文件夹或文档成功回调函数
 const handleAddFileAndFolderCb = (data: ApidocBanner) => {
-
   addFileAndFolderCb.call(this, currentOperationalNode, data);
   apidocBannerStore.addExpandItem(data._id);
 };

@@ -23,6 +23,7 @@ import { useRoute } from 'vue-router';
 import { generateEmptyNode } from '@/helper/standaloneUtils';
 import { nanoid } from 'nanoid';
 import { standaloneCache } from '@/cache/standalone';
+import { useApidocBanner } from '@/store/apidoc/banner';
 
 const props = defineProps({
   modelValue: {
@@ -35,10 +36,12 @@ const props = defineProps({
     default: '',
   },
 })
+
 const form = ref<FormInstance>();
 const emits = defineEmits(["update:modelValue", "success"]);
 const loading = ref(false);
 const route = useRoute()
+const apidocBannerStore = useApidocBanner();
 /*
 |--------------------------------------------------------------------------
 | 方法定义
@@ -56,7 +59,20 @@ const handleAddFolder = () => {
       nodeInfo.isDeleted = false;
       nodeInfo.isFolder = true;
       await standaloneCache.addDoc(nodeInfo)
-      emits('success', nodeInfo); //一定要先成功然后才关闭弹窗,因为关闭弹窗会清除节点父元素id
+      const banner = await standaloneCache.getDocTree(nodeInfo.projectId);
+      apidocBannerStore.changeAllDocBanner(banner);
+      emits('success', {
+        _id: nodeInfo._id,
+        pid: nodeInfo.pid,
+        sort: nodeInfo.sort,
+        name: nodeInfo.info.name,
+        type: nodeInfo.info.type,
+        method: nodeInfo.item.method,
+        url: nodeInfo.item.url ? nodeInfo.item.url.path : '',
+        maintainer: nodeInfo.info.maintainer,
+        updatedAt: nodeInfo.updatedAt,
+        isFolder: nodeInfo.isFolder,
+      }); //一定要先成功然后才关闭弹窗,因为关闭弹窗会清除节点父元素id
       handleClose();
       return;
     }

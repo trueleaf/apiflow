@@ -40,13 +40,13 @@ const emits = defineEmits(['update:modelValue', 'success']);
 const loading = ref(false);
 const form = ref<FormInstance>();
 const route = useRoute()
+const apidocBannerStore = useApidocBanner();
 /*
 |--------------------------------------------------------------------------
 | 方法
 |--------------------------------------------------------------------------
 */
 const handleAddFile = () => {
-  const apidocBannerStore = useApidocBanner();
   form.value?.validate(async (valid) => {
     if(__STANDALONE__ && valid){
       const { formInfo } = form.value as any;
@@ -57,9 +57,20 @@ const handleAddFile = () => {
       nodeInfo.sort = Date.now()
       nodeInfo.isDeleted = false;
       await standaloneCache.addDoc(nodeInfo)
-      const banner = await apidocBannerStore.getDocBanner({ projectId: nodeInfo.projectId });
-      const bannerNode = banner.find(v => v._id === nodeInfo._id);
-      emits('success', bannerNode); //一定要先成功然后才关闭弹窗,因为关闭弹窗会清除节点父元素id
+      const banner = await standaloneCache.getDocTree(nodeInfo.projectId);
+      apidocBannerStore.changeAllDocBanner(banner);
+      emits('success', {
+        _id: nodeInfo._id,
+        pid: nodeInfo.pid,
+        sort: nodeInfo.sort,
+        name: nodeInfo.info.name,
+        type: nodeInfo.info.type,
+        method: nodeInfo.item.method,
+        url: nodeInfo.item.url ? nodeInfo.item.url.path : '',
+        maintainer: nodeInfo.info.maintainer,
+        updatedAt: nodeInfo.updatedAt,
+        isFolder: nodeInfo.isFolder,
+      }); //一定要先成功然后才关闭弹窗,因为关闭弹窗会清除节点父元素id
       handleClose();
       return;
     }

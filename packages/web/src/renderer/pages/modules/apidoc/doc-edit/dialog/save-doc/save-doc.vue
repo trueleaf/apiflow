@@ -34,7 +34,7 @@
 <script lang="ts" setup>
 import { t } from 'i18next'
 import { ref, Ref, onMounted, nextTick } from 'vue'
-import { ApidocDetail } from '@src/types/global';
+import { ApidocBanner, ApidocDetail } from '@src/types/global';
 import type { TreeNodeOptions } from 'element-plus/es/components/tree/src/tree.type';
 import { router } from '@/router';
 import { request } from '@/api/api'
@@ -46,6 +46,7 @@ import { useApidoc } from '@/store/apidoc/apidoc';
 import { usePermissionStore } from '@/store/permission';
 import { useApidocBanner } from '@/store/apidoc/banner';
 import { useApidocTas } from '@/store/apidoc/tabs';
+import { standaloneCache } from '@/cache/standalone';
 
 type FormInfo = {
   name: string, //接口名称
@@ -60,7 +61,7 @@ defineProps({
 })
 const emits = defineEmits(['update:modelValue', 'success']);
 const formInfo: Ref<FormInfo> = ref({
-  name: '',
+  name: t('未命名的接口'),
   pid: ''
 })
 const rules = ref({
@@ -78,7 +79,8 @@ const permissionStore = usePermissionStore();
 const projectId = router.currentRoute.value.query.id as string;
 const loading = ref(false); //保存按钮loading状态
 const loading2 = ref(false);
-const navTreeData = ref([]);
+const navTreeData = ref<ApidocBanner[]>([]);
+const isStandalone = ref(__STANDALONE__);
 //目标树
 const docTree: Ref<TreeNodeOptions['store'] | null> = ref(null);
 const currentMountedNode: Ref<ApidocDetail | null> = ref(null);
@@ -90,7 +92,11 @@ const handleCheckChange = (data: ApidocDetail, { checkedKeys }: { checkedKeys: A
   }
   currentMountedNode.value = data;
 }
-onMounted(() => {
+onMounted(async () => {
+  if (isStandalone.value) {
+    navTreeData.value = await standaloneCache.getDocTree(projectId);
+    return
+  }
   loading2.value = true;
   const params = {
     projectId,
@@ -107,20 +113,17 @@ const handleClose = () => {
   emits('update:modelValue', false)
   event.emit('tabs/cancelSaveTab')
 }
-const handleSaveDoc = () => {
+const handleSaveDoc = async () => {
   const docInfo = JSON.parse(JSON.stringify(apidocStore.apidoc))
   docInfo.info.name = formInfo.value.name;
   docInfo.info.creator = permissionStore.userInfo.realName
   docInfo.pid = currentMountedNode.value?._id;
   docInfo.projectId = projectId;
   docInfo.sort = Date.now();
-  const params = {
-    docInfo
-  }
-  loading.value = true;
-  request.post('/api/project/save_doc', params).then((res) => {
+
+  const saveDocCb = (docId: string) => {
     apidocBannerStore.getDocBanner({ projectId });
-    apidocStore.changeApidocId(res.data);
+    apidocStore.changeApidocId(docId);
     apidocStore.changeApidocName(formInfo.value.name);
     apidocTabsStore.changeTabInfoById({
       id: apidocStore.savedDocId,
@@ -130,17 +133,30 @@ const handleSaveDoc = () => {
     apidocTabsStore.changeTabInfoById({
       id: apidocStore.savedDocId,
       field: '_id',
-      value: res.data,
+      value: docId,
     })
     nextTick(() => {
       apidocTabsStore.changeTabInfoById({
-        id: res.data,
+        id: docId,
         field: 'saved',
         value: true,
       })
       event.emit('tabs/saveTabSuccess')
     })
     emits('update:modelValue', false)
+  }
+
+  const params = {
+    docInfo
+  }
+  loading.value = true;
+  if (isStandalone.value) {
+    await standaloneCache.addDoc(docInfo);
+    saveDocCb(docInfo._id);
+    return
+  }
+  request.post('/api/project/save_doc', params).then((res) => {
+    saveDocCb(res.data)
   }).catch((err) => {
     console.error(err);
     event.emit('tabs/saveTabError')
