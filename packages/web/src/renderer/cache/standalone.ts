@@ -1,6 +1,7 @@
 import { config } from "@src/config/config.ts";
 import { IDBPDatabase, openDB } from "idb";
 import type { ApidocProjectInfo, ApidocDetail, ApidocProperty } from "@src/types/global";
+import type { ApidocProjectRules } from "@src/types/apidoc/base-info";
 
 export class StandaloneCache {
   
@@ -148,6 +149,7 @@ export class StandaloneCache {
       const success = await this.setProjectList(allProjects);
       if (success) {
         await this.deleteDocsByProjectId(projectId);
+        await this.deleteProjectRules(projectId);
       }
       return success;
     } catch (err) {
@@ -332,6 +334,84 @@ export class StandaloneCache {
       return true;
     } catch (err) {
       console.error('Failed to set common headers:', err);
+      return false;
+    }
+  }
+
+  /**
+   * 获取所有项目规则
+   */
+  private async getAllProjectRules(): Promise<Record<string, ApidocProjectRules>> {
+    try {
+      if (!this.standaloneCacheDb) {
+        await this.initStandaloneCache();
+      }
+      const tx = this.standaloneCacheDb!.transaction('standaloneCache', 'readonly');
+      const store = tx.objectStore('standaloneCache');
+      const data = await store.get('projectRules');
+      return data || {};
+    } catch (err) {
+      console.error('Failed to get all project rules:', err);
+      return {};
+    }
+  }
+
+  /**
+   * 设置所有项目规则
+   */
+  private async setAllProjectRules(rules: Record<string, ApidocProjectRules>): Promise<boolean> {
+    try {
+      if (!this.standaloneCacheDb) {
+        await this.initStandaloneCache();
+      }
+      const tx = this.standaloneCacheDb!.transaction('standaloneCache', 'readwrite');
+      const store = tx.objectStore('standaloneCache');
+      await store.put(rules, 'projectRules');
+      await tx.done;
+      return true;
+    } catch (err) {
+      console.error('Failed to set all project rules:', err);
+      return false;
+    }
+  }
+
+  /**
+   * 获取项目规则
+   */
+  async getProjectRules(projectId: string): Promise<ApidocProjectRules | null> {
+    try {
+      const allRules = await this.getAllProjectRules();
+      return allRules[projectId] || null;
+    } catch (err) {
+      console.error('Failed to get project rules:', err);
+      return null;
+    }
+  }
+
+  /**
+   * 设置项目规则
+   */
+  async setProjectRules(projectId: string, rules: ApidocProjectRules): Promise<boolean> {
+    try {
+      const allRules = await this.getAllProjectRules();
+      allRules[projectId] = rules;
+      return await this.setAllProjectRules(allRules);
+    } catch (err) {
+      console.error('Failed to set project rules:', err);
+      return false;
+    }
+  }
+
+  /**
+   * 删除项目规则
+   */
+  async deleteProjectRules(projectId: string): Promise<boolean> {
+    try {
+      const allRules = await this.getAllProjectRules();
+      delete allRules[projectId];
+      return await this.setAllProjectRules(allRules);
+    } catch (err) {
+      console.error('Failed to delete project rules:', err);
       return false;
     }
   }

@@ -14,6 +14,7 @@ import { ref } from "vue";
 import { router } from "@/router";
 import { useVariable } from './variables';
 import { standaloneCache } from '@/cache/standalone.ts';
+import { requestMethods } from '@/data/data.ts';
 
 type ChangeProjectBaseInfo = {
   _id: string;
@@ -72,7 +73,7 @@ export const useApidocBaseInfo = defineStore('apidocBaseInfo', () => {
   const paramsTemplate = ref<ApidocProjectParamsTemplate[]>([]);
   const rules = ref<ApidocProjectRules>({
     fileInFolderLimit: 255,
-    requestMethods: []
+    requestMethods: requestMethods
   });
   const hosts = ref<ApidocProjectHost[]>([]);
   const globalCookies = ref<Record<string, ApidocCookieInfo[]>>({});
@@ -118,7 +119,7 @@ export const useApidocBaseInfo = defineStore('apidocBaseInfo', () => {
   const changeProjectHosts = (payload: ApidocProjectHost[]): void => {
     hosts.value = payload;
   }
-  //根据id改变host治
+  //根据id改变host
   const updateHostById = (payload: { _id: string, url: string, name: string }): void => {
     const matchedHost = hosts.value.find(v => v._id === payload._id);
     if (matchedHost) {

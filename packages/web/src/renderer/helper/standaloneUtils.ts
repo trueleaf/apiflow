@@ -16,9 +16,9 @@ export const generateEmptyProject = (_id: string): ApidocProjectInfo => {
   }
 }
 
-export const generateEmptyApi = (): ApidocDetail => {
+export const generateEmptyNode = (_id: string): ApidocDetail => {
   return {
-    _id: '',
+    _id,
     pid: '',
     projectId: '',
     isFolder: false,
