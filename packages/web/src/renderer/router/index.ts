@@ -24,33 +24,11 @@ const routes: Array<RouteRecordRaw> = [
     name: 'DocEdit',
     component: docEdit,
   },
-
   // {
-  //   path: '/v1/apidoc/doc-view',
-  //   name: 'DocView',
-  //   component: () => import('@/pages/modules/apidoc/doc-view/view/view.vue'),
-  // }, 
-  // {
-  //   path: '/v1/settings/user',
-  //   name: 'UserSettings',
-  //   component: () => import('@/pages/modules/settings/user/user.vue'),
-  // }
-]
-const router = createRouter({
-  history: createWebHashHistory(),
-  routes: [{
-    path: '/',
-    redirect: lastVisitPage || '/login',
-  },
-  {
-    path: '/login',
-    name: 'Login',
-    component: () => import('@/pages/login/login.vue')
-  },
-  {
-    path: '/test',
-    component: () => import('@/pages/test/test.vue'),
-  },
+  //   path: '/login',
+  //   name: 'Login',
+  //   component: () => import('@/pages/login/login.vue')
+  // },
   {
     path: '/share',
     name: 'Share',
@@ -60,8 +38,22 @@ const router = createRouter({
     path: '/:pathMatch(.*)*',
     name: '404',
     component: () => import('@/pages/layout/404/404.vue'),
-  }]
-})
+  }
+]
+
+const routerConfig = {
+  history: createWebHashHistory(),
+  routes: [
+    {
+      path: '/',
+      component: layout,
+      redirect: lastVisitPage || (__STANDALONE__ ? '/v1/apidoc/doc-list' : '/login'),
+      children: routes
+    }
+  ]
+}
+
+const router = createRouter(routerConfig)
 
 //=====================================路由守卫====================================//
 if(!__STANDALONE__){
@@ -91,13 +83,8 @@ if(!__STANDALONE__){
     localStorage.setItem('history/lastVisitePage', to.fullPath);
     NProgress.done(); // 页面顶部的加载条
   });
-} else {
-  router.addRoute({
-    path: '/v1',
-    component: layout,
-    children: routes,
-  });
 }
+
 export {
   routes,
   router,

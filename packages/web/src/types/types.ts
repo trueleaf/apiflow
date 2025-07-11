@@ -387,7 +387,7 @@ export type Config = {
       version: number,
     }
   },
-  standaloneCacheConfig: {
+  standaloneCache: {
     dbName: string,
     version: number,
   }

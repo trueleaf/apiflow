@@ -11,15 +11,20 @@ import Backend from 'i18next-http-backend'
 import { customDirective } from './directive/directive';
 import '@/assets/font/iconfont.css'
 import '@/assets/font/iconfont.js'
+import { standaloneCache } from './cache/standalone';
 
 const pinia = createPinia();
 const app = createApp(App);
 
+if (__STANDALONE__) {
+  await standaloneCache.init();
+}
 
 await i18next.use(Backend).init({
   lng: 'zh',
   fallbackLng: "zh",
 });
+
 app.use(pinia).use(customDirective).use(I18NextVue, { i18next }).use(ElementPlus, { locale: zhCn }).use(router);
 app.mount('#app')
 

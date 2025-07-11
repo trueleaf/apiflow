@@ -29,7 +29,7 @@
       </el-input>
     </div>
     <!-- 项目列表 -->
-    <Loading :loading="loading">
+    <Loading :loading="!isStandalone && loading">
       <!-- 收藏的项目 -->
       <h2 v-show="starProjects.length > 0">{{ t("收藏的项目") }}</h2>
       <div v-show="starProjects.length > 0" class="project-wrap">
@@ -226,7 +226,7 @@ const dialogVisible3 = ref(false);
 const dialogVisible4 = ref(false);
 const isStandalone = ref(__STANDALONE__)
 const projectList = computed(() => {
-  const list = (projectKeyword.value.trim().length > 0 && !loading.value && isShowAdvanceSearch.value) ? projectListCopy2.value : projectListCopy.value;
+  const list = (projectKeyword.value.trim().length > 0 && isShowAdvanceSearch.value) ? projectListCopy2.value : projectListCopy.value;
   const filteredProjectList = list.filter((val) => val.projectName.match(new RegExp(projectName.value, 'gi')))
   return filteredProjectList.map((val) => {
     const isStared = starProjectIds.value.find((id) => id === val._id);
@@ -237,7 +237,7 @@ const projectList = computed(() => {
   });
 });
 const starProjects = computed(() => {
-  const list = (projectKeyword.value.trim().length > 0 && !loading.value && isShowAdvanceSearch.value) ? projectListCopy2.value : projectListCopy.value;
+  const list = (projectKeyword.value.trim().length > 0 && isShowAdvanceSearch.value) ? projectListCopy2.value : projectListCopy.value;
   const filteredProjectList = list.filter((val) => val.projectName.match(new RegExp(projectName.value, 'gi')))
   return filteredProjectList.filter((projectInfo) => starProjectIds.value.find((id) => id === projectInfo._id)).map((val) => {
     const isStared = starProjectIds.value.find((id) => id === val._id);
@@ -291,7 +291,7 @@ const handleOpenPermissionDialog = (item: ApidocProjectInfo) => {
 }
 //删除项目
 const deleteProject = (_id: string) => {
-  ElMessageBox.confirm(t('此操作将永久删除此条记录, 是否继续?'), t('提示'), {
+  ElMessageBox.confirm(t('确定要删除此项目吗?'), t('提示'), {
     confirmButtonText: t('确定'),
     cancelButtonText: t('取消'),
     type: 'warning'

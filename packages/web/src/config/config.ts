@@ -92,7 +92,7 @@ export const config: Config = {
       version: 1,
     }
   },
-  standaloneCacheConfig: {
+  standaloneCache: {
     dbName: 'standaloneCache',
     version: 1,
   }
