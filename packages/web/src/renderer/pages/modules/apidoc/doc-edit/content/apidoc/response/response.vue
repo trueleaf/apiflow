@@ -103,7 +103,7 @@ const requestState = computed(() => apidocResponseStore.requestState); //请求�
   height: calc(100vh - var(--apiflow-apidoc-request-view-height) - var(--apiflow-doc-nav-height) - var(--apiflow-header-height) - 30px);
 }
 .remote-response-wrap {
-  height: 300px;
+  height: calc(100vh - var(--apiflow-apidoc-request-view-height) - var(--apiflow-doc-nav-height) - var(--apiflow-header-height) - 30px);
   overflow-y: auto;
   .el-tabs__content {
     height: calc(100% - 55px);

@@ -24,11 +24,6 @@ const routes: Array<RouteRecordRaw> = [
     name: 'DocEdit',
     component: docEdit,
   },
-  // {
-  //   path: '/login',
-  //   name: 'Login',
-  //   component: () => import('@/pages/login/login.vue')
-  // },
   {
     path: '/share',
     name: 'Share',
