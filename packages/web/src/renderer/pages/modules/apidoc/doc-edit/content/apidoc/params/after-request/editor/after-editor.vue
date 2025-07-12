@@ -106,7 +106,7 @@ const handleFormat = () => {
 }
 .format-btn {
     position: absolute;
-    right: size(20);
-    top: size(0);
+    right: 20px;
+    top: 0;
 }
 </style>
