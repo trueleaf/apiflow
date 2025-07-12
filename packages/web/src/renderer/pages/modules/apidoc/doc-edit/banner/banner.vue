@@ -20,8 +20,10 @@
             'active-node': activeNode && activeNode._id === scope.data._id,
             'cut-node': cutNodes.find(v => v._id === scope.data._id),
             'readonly': scope.data.readonly
-          }" tabindex="0" @keydown.stop="handleNodeKeydown($event)"
-            @mouseenter.stop="handleNodeHover" @click="handleClickNode($event, scope.data)"
+          }" tabindex="0"
+            @keydown.stop="handleNodeKeydown($event)"
+            @mouseenter.stop="handleNodeHover" 
+            @click="handleClickNode($event, scope.data)"
             @dblclick="handleDbclickNode(scope.data)">
             <!-- file渲染 -->
             <template v-if="!scope.data.isFolder">
@@ -171,7 +173,7 @@ const enableDrag = ref(true);//是否允许拖拽
 const apidocBaseInfoStore = useApidocBaseInfo();
 const apidocBannerStore = useApidocBanner();
 const apidocTabsStore = useApidocTas();
-const isStandalone = ref(__STANDALONE__)
+// const isStandalone = ref(__STANDALONE__)
 
 //当前工作区状态
 const isView = computed(() => apidocBaseInfoStore.mode === 'view')
@@ -630,7 +632,7 @@ onUnmounted(() => {
     }
 
     &.select-node {
-      background-color: #66b1ff;
+      background-color: #62a3e9;
     }
 
     &.cut-node {

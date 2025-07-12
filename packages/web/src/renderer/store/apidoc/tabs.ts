@@ -42,7 +42,7 @@ export const useApidocTas = defineStore('apidocTabs', () => {
     const hasTab = tabs.value[projectId].find((val) => val._id === _id);
     const unFixedTab = tabs.value[projectId].find((val) => !val.fixed && val.saved);
     const unFixedTabIndex = tabs.value[projectId].findIndex((val) => !val.fixed && val.saved);
-    if (_id.startsWith('local_')) { //直接末尾添加
+    if (_id.startsWith('local_') && !hasTab) { //直接末尾添加
       tabs.value[projectId].push(tabInfo)
     } else if (!fixed && unFixedTab && !hasTab) { //如果tabs里面存在未固定的tab并且是新增一个tab则覆盖未固定
       tabs.value[projectId].splice(unFixedTabIndex, 1, tabInfo)

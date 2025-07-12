@@ -47,6 +47,7 @@ import { usePermissionStore } from '@/store/permission';
 import { useApidocBanner } from '@/store/apidoc/banner';
 import { useApidocTas } from '@/store/apidoc/tabs';
 import { standaloneCache } from '@/cache/standalone';
+import { nanoid } from 'nanoid';
 
 type FormInfo = {
   name: string, //接口名称
@@ -151,6 +152,7 @@ const handleSaveDoc = async () => {
   }
   loading.value = true;
   if (isStandalone.value) {
+    docInfo._id = nanoid(); //local_开头会被识别为未保存文档
     await standaloneCache.addDoc(docInfo);
     saveDocCb(docInfo._id);
     return

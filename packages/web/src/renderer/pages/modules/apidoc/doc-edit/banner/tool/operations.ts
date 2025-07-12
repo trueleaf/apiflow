@@ -1,5 +1,7 @@
 
-export default [{
+
+
+export const originOperaions = [{
   name: '新增文件夹',
   icon: '#iconxinzengwenjian',
   op: 'addRootFolder',

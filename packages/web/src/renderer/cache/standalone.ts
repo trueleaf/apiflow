@@ -111,13 +111,21 @@ export class StandaloneCache {
   async updateDoc(doc: ApidocDetail): Promise<boolean> {
     return this.docs.updateDoc(doc);
   }
+  async updateDocName(docId: string, name: string): Promise<boolean> {
+    return this.docs.updateDocName(docId, name);
+  }
   async deleteDoc(docId: string): Promise<boolean> {
     return this.docs.deleteDoc(docId);
   }
   async deleteDocs(docIds: string[]): Promise<boolean> {
     return this.docs.deleteDocs(docIds);
   }
-
+  async restoreDoc(docId: string): Promise<string[]> {
+    return this.docs.restoreDoc(docId);
+  }
+  async getDeletedDocsList(projectId: string) {
+    return this.docs.getDeletedDocsList(projectId);
+  }
   // 公共请求头相关
   async getCommonHeaders(): Promise<ApidocProperty<'string'>[]> {
     return this.commonHeaders.getCommonHeaders();

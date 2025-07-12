@@ -6,7 +6,7 @@ import { config } from '@/../config/config'
 import { usePermissionStore } from '@/store/permission';
 import layout from '@/pages/layout/layout.vue';
 
-const lastVisitPage = localStorage.getItem('history/lastVisitePage'); //回复上次访问的页面
+let lastVisitPage = localStorage.getItem('history/lastVisitePage'); //上次访问的页面
 
 const routes: Array<RouteRecordRaw> = [
   {

@@ -8,17 +8,8 @@ export class DocCache {
     if (!this.db) throw new Error("Database not initialized");
     const tx = this.db.transaction("docs", "readonly");
     const store = tx.objectStore("docs");
-    const keys = await store.getAllKeys();
-    const docs: ApidocDetail[] = [];
-    
-    for (const key of keys) {
-      const doc = await store.get(key);
-      if (doc && !doc.isDeleted) {
-        docs.push(doc);
-      }
-    }
-    
-    return docs;
+    const allDocs = await store.getAll();
+    return allDocs.filter(doc => doc && !doc.isDeleted);
   }
 
   async getDocsByProjectId(projectId: string) {
@@ -62,10 +53,19 @@ export class DocCache {
     const tx = this.db.transaction("docs", "readwrite");
     const store = tx.objectStore("docs");
     const existingDoc = await store.get(doc._id);
-    
     if (!existingDoc) return false;
-    
     await store.put(doc, doc._id);
+    await tx.done;
+    return true;
+  }
+  async updateDocName(docId: string, name: string): Promise<boolean> {
+    if (!this.db) throw new Error("Database not initialized");
+    const tx = this.db.transaction("docs", "readwrite");
+    const store = tx.objectStore("docs");
+    const existingDoc = await store.get(docId);
+    if (!existingDoc) return false;
+    existingDoc.info.name = name;
+    await store.put(existingDoc, docId);
     await tx.done;
     return true;
   }
@@ -80,7 +80,8 @@ export class DocCache {
     
     const updatedDoc = {
       ...existingDoc,
-      isDeleted: true
+      isDeleted: true,
+      updatedAt: new Date().toISOString()
     };
     
     await store.put(updatedDoc, docId);
@@ -98,7 +99,8 @@ export class DocCache {
       if (existingDoc) {
         await store.put({
           ...existingDoc,
-          isDeleted: true
+          isDeleted: true,
+          updatedAt: new Date().toISOString()
         }, docId);
       }
     }
@@ -111,5 +113,51 @@ export class DocCache {
     const projectDocs = await this.getDocsByProjectId(projectId);
     if (projectDocs.length === 0) return true;
     return await this.deleteDocs(projectDocs.map(doc => doc._id));
+  }
+
+  async getDeletedDocsList(projectId: string) {
+    if (!this.db) throw new Error("Database not initialized");
+    const tx = this.db.transaction("docs", "readonly");
+    const store = tx.objectStore("docs");
+    const allDocs: ApidocDetail[] = await store.getAll();
+    
+    return allDocs
+      .filter(doc => doc.projectId === projectId && doc.isDeleted)
+      .map(doc => ({
+        name: doc.info.name,
+        type: doc.info.type,
+        deletePerson: doc.info.deletePerson,
+        isFolder: doc.isFolder,
+        host: doc.item.url.host,
+        path: doc.item.url.path,
+        method: doc.item.method,
+        updatedAt: doc.updatedAt || new Date().toISOString(),
+        _id: doc._id,
+        pid: doc.pid
+      }))
+      .sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime());
+  }
+  async restoreDoc(docId: string): Promise<string[]> {
+    if (!this.db) throw new Error("Database not initialized");
+    const tx = this.db.transaction("docs", "readwrite");
+    const store = tx.objectStore("docs");
+    const existingDoc = await store.get(docId);
+    const result: string[] = [docId];
+    if (!existingDoc) return [];
+    existingDoc.isDeleted = false;
+    await store.put(existingDoc, docId);
+    let currentPid = existingDoc.pid;
+    while (currentPid) {
+      const parentDoc = await store.get(currentPid);
+      if (!parentDoc) break;
+      if (parentDoc.isDeleted) {
+        parentDoc.isDeleted = false;
+        await store.put(parentDoc, currentPid);
+        result.push(currentPid);
+      }
+      currentPid = parentDoc.pid;
+    }
+    await tx.done;
+    return result;
   }
 } 

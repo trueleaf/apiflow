@@ -628,28 +628,28 @@ class ApidocCache extends ResponseCache {
   }
 
   /*
-   * 获取分享文档的编辑tabs
+   * 获取编辑tabs
    */
   getEditTabs(): Record<string, any[]> {
     try {
-      const localData = JSON.parse(localStorage.getItem('apidoc/share/tabs') || '{}');
+      const localData = JSON.parse(localStorage.getItem('apidoc/tabs') || '{}');
       return localData;
     } catch (error) {
       console.error(error);
-      localStorage.setItem('apidoc/share/tabs', '{}');
+      localStorage.setItem('apidoc/tabs', '{}');
       return {};
     }
   }
 
   /*
-   * 设置分享文档的编辑tabs
+   * 设置编辑tabs
    */
   setEditTabs(tabs: Record<string, any[]>) {
     try {
-      localStorage.setItem('apidoc/share/tabs', JSON.stringify(tabs));
+      localStorage.setItem('apidoc/tabs', JSON.stringify(tabs));
     } catch (error) {
       console.error(error);
-      localStorage.setItem('apidoc/share/tabs', '{}');
+      localStorage.setItem('apidoc/tabs', '{}');
     }
   }
 

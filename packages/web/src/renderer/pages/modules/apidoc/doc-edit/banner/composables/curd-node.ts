@@ -336,7 +336,7 @@ let isRename = false;
 /**
  * 重命名节点
  */
-export function renameNode(e: FocusEvent | KeyboardEvent, data: ApidocBanner): void {
+export async function renameNode(e: FocusEvent | KeyboardEvent, data: ApidocBanner): Promise<void> {
   const apidocBannerStore = useApidocBanner();
   const apidocTabsStore = useApidocTas()
   const apidocStpre = useApidoc()
@@ -367,6 +367,10 @@ export function renameNode(e: FocusEvent | KeyboardEvent, data: ApidocBanner): v
   //改变apidoc名称
   apidocStpre.changeApidocName(iptValue);
   //=========================================================================//
+  if (__STANDALONE__) {
+    await standaloneCache.updateDocName(data._id, iptValue);
+    return;
+  }
   const params = {
     _id: data._id,
     projectId,

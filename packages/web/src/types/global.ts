@@ -417,29 +417,33 @@ export type ApidocMindParam = ApidocProperty & {
 export type ApidocType = 'folder' | 'api' | 'markdown';
 export type ApidocBaseInfo = {
    /**
-      * 文档名称
-      */
+    * 文档名称
+    */
    name: string;
    /**
-      * 文档描述
-      */
+    * 文档描述
+    */
    description: string;
    /**
-      * 版本信息
-      */
+    * 版本信息
+    */
    version: string;
    /**
-      * 文档类型
-      */
+    * 文档类型
+    */
    type: ApidocType;
    /**
-      * 创建者
-      */
+    * 创建者
+    */
    creator: string;
    /**
-      * 维护人员
-      */
+    * 维护人员
+    */
    maintainer: string;
+   /**
+    * 删除人
+    */
+   deletePerson: string;
 };
 //api文档ContentType
 export type ApidocContentType =

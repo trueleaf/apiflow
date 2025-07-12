@@ -9,7 +9,7 @@
     <!-- 过滤条件 -->
     <div class="search">
       <!-- 操作人员 -->
-      <div class="op-item">
+      <div v-if="!isStandalone" class="op-item">
         <div>操作人员：</div>
         <el-checkbox-group v-model="formInfo.operators">
           <el-checkbox v-for="(item, index) in memberEnum" :key="index" :value="item._id">{{ item.realName }}</el-checkbox>
@@ -116,6 +116,7 @@ import { useApidocBaseInfo } from '@/store/apidoc/base-info'
 import { config } from '@src/config/config'
 import { formatDate } from '@/helper'
 import { Delete } from '@element-plus/icons-vue'
+import { standaloneCache } from '@/cache/standalone'
 
 
 dayjs.extend(isYesterday)
@@ -149,6 +150,7 @@ type SearchInfo = {
 const projectId = router.currentRoute.value.query.id as string; //项目id
 const folderUrl = new URL('@/assets/imgs/apidoc/folder.png', import.meta.url).href;
 const fileUrl = new URL('@/assets/imgs/apidoc/file.png', import.meta.url).href;
+const isStandalone = ref(__STANDALONE__)
 const formInfo: Ref<SearchInfo> = ref({
   projectId, //项目id
   startTime: null, //--起始日期
@@ -166,7 +168,11 @@ const apidocBaseInfoStore = useApidocBaseInfo()
 */
 const loading = ref(false); //获取数据加载状态
 const deletedList: Ref<DeleteInfo[]> = ref([]); //已删除数据列表
-const getData = () => {
+const getData = async () => {
+  if (isStandalone.value) {
+    deletedList.value = await standaloneCache.getDeletedDocsList(projectId) as any;
+    return;
+  }
   loading.value = true;
   const params = formInfo.value;
   request.post<ResponseTable<DeleteInfo[]>, ResponseTable<DeleteInfo[]>>('/api/docs/docs_deleted_list', params).then((res) => {
@@ -267,7 +273,9 @@ watch(() => [formInfo.value.operators, formInfo.value.startTime, formInfo.value.
 
 onMounted(() => {
   getData();
-  getOperatorEnum();
+  if (!isStandalone.value) {
+    getOperatorEnum();
+  }
   document.documentElement.addEventListener('click', closeAllDetailPopovers);
   event.on('apidoc/deleteDocs', getData);
 });
@@ -326,7 +334,17 @@ const restoreDocDirectly = (docInfo: DeleteInfo) => {
     confirmButtonText: '确定',
     cancelButtonText: '取消',
     type: 'warning',
-  }).then(() => {
+  }).then(async () => {
+    if (isStandalone.value) {
+      const delIds = await standaloneCache.restoreDoc(docInfo._id);
+      for (let i = 0; i < delIds.length; i += 1) {
+        const id = delIds[i];
+        const delIndex = deletedList.value.findIndex((val) => val._id === id);
+        deletedList.value.splice(delIndex, 1)
+      }
+      apidocBannerStore.getDocBanner({ projectId });
+      return;
+    }
     loading2.value = true;
     const params = {
       _id: docInfo._id,

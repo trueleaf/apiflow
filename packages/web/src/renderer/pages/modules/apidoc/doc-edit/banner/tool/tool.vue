@@ -154,7 +154,7 @@ import { request } from '@/api/api'
 import { apidocCache } from '@/cache/apidoc'
 import SAddFileDialog from '../../dialog/add-file/add-file.vue'
 import SAddFolderDialog from '../../dialog/add-folder/add-folder.vue'
-import localOriginOperations from './operations'
+import { originOperaions } from './operations'
 import { addFileAndFolderCb } from '../composables/curd-node'
 import { useApidocBaseInfo } from '@/store/apidoc/base-info'
 import { useApidocBanner } from '@/store/apidoc/banner'
@@ -163,6 +163,7 @@ import { useApidocWorkerState } from '@/store/apidoc/worker-state'
 import SLoading from '@/components/common/loading/g-loading.vue'
 import SFieldset from '@/components/common/fieldset/g-fieldset.vue'
 import { useBannerData } from '../composables/banner-data'
+import { standaloneCache } from '@/cache/standalone'
 
 
 type Operation = {
@@ -211,7 +212,10 @@ const initCacheOperation = () => {
   const localPinToolbarOperations = localStorage.getItem('apidoc/pinToolbarOperations');
   if (localToolbarOperations) {
     const localData: Operation[] = JSON.parse(localToolbarOperations);
-    localOriginOperations.forEach((data) => {
+    originOperaions.forEach((data) => {
+      if (isStandalone.value && data.op === 'generateLink') {
+        return;
+      }
       //如果本地缓存数据没有当前图标则新增图标
       if (localData.every((v: Operation) => (v.name !== data.name && v.op !== data.op))) {
         localData.push(data);
@@ -223,11 +227,16 @@ const initCacheOperation = () => {
     })
     operations.value = localData;
   } else {
-    operations.value = localOriginOperations;
+    operations.value = originOperaions.filter((v) => {
+      if (isStandalone.value && v.op === 'generateLink') {
+        return false;
+      }
+      return true;
+    });
   }
   if (localPinToolbarOperations) {
     const localData: Operation[] = JSON.parse(localPinToolbarOperations);
-    localOriginOperations.forEach((data) => {
+    originOperaions.forEach((data) => {
       const matchedData = localData.find((v: Operation) => v.name === data.name);
       if (matchedData?.icon) {
         matchedData.icon = data.icon;
@@ -639,7 +648,12 @@ const handleFilterBanner = () => {
 const loading = ref(false);
 const projectList: Ref<ApidocProjectInfo[]> = ref([]); //项目列表
 const startProjectList: Ref<ApidocProjectInfo[]> = ref([]); //收藏项目列表
-const getProjectList = () => {
+const getProjectList = async () => {
+  if (isStandalone.value) {
+    projectList.value = await standaloneCache.getProjectList();
+    startProjectList.value = projectList.value.filter(v => v.isStared);
+    return;
+  }
   loading.value = true;
   request.get<Response<ApidocProjectListInfo>, Response<ApidocProjectListInfo>>('/api/project/project_list').then((res) => {
     projectList.value = res.data.list;
