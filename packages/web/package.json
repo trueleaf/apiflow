@@ -14,7 +14,7 @@
     "build": "vite build",
     "build:share": "vite build --config build/share/vite.config.ts",
     "preview": "vite preview",
-    "build-font": "node build/share/script/build-font.mjs"
+    "build:font": "node build/share/script/build-font.mjs"
   },
   "dependencies": {
     "axios": "^1.7.3",
