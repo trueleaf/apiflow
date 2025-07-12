@@ -18,7 +18,7 @@
       <el-table 
         :data="filteredCookies" 
         border 
-        stripe 
+         
         size="small"
         @selection-change="handleSelectionChange"
       >

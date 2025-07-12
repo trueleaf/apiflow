@@ -9,7 +9,7 @@
     <div class='mb-2 d-flex a-center theme-color cursor-pointer' @click="handleJumpToCookies">
       <span class="ml-1">{{ t('Cookie管理') }}</span>
     </div>
-    <el-table :data="cookies" stripe border height="100%" size="small">
+    <el-table :data="cookies" border size="small">
       <el-table-column align="center" prop="name" label="Name"></el-table-column>
       <el-table-column align="center" prop="value" label="Value">
         <template #default="scope">
@@ -19,7 +19,7 @@
     </el-table>
     <el-dialog v-model="dialogVisible" :title="`【${currentSelectTab?.label}】节点的 ${t('cookie值')}`" width="80%"
       :close-on-click-modal="false">
-      <el-table :data="cookies" stripe border height="65vh" size="small">
+      <el-table :data="cookies"  border height="65vh" size="small">
         <el-table-column align="center" prop="name" label="Name"></el-table-column>
         <el-table-column align="center" prop="value" width='500' label="Value">
           <template #default="scope">
@@ -119,9 +119,8 @@ const handleJumpToCookies = () => {
 <style lang='scss' scoped>
 .cookie-view {
   width: 100%;
-  height: calc(100vh - 370px);
-  max-height: 140px;
-
+  height: calc(100vh - var(--apiflow-apidoc-request-view-height) - var(--apiflow-doc-nav-height) - var(--apiflow-header-height) - 95px);
+  overflow-y: auto;
   .value-wrap {
     max-height: 140px;
     overflow-y: auto;

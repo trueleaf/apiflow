@@ -18,7 +18,7 @@
       </el-form-item>
     </el-form>
     <!-- 成员信息 -->
-    <el-table v-if="!isStandalone" :data="selectMemberData" stripe border max-height="50vh">
+    <el-table v-if="!isStandalone" :data="selectMemberData"  border max-height="50vh">
       <el-table-column prop="name" :label="t('名称')" align="center"></el-table-column>
       <el-table-column prop="type" :label="t('类型')" align="center">
         <template #default="{ row }">

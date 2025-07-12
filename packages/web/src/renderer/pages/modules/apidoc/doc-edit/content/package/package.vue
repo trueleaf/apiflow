@@ -29,7 +29,7 @@
       </div>
     </SResizeX>
     <div class="flex1">
-      <el-table :data="tableInfo" stripe border size="small" height="450px">
+      <el-table :data="tableInfo"  border size="small" height="450px">
         <el-table-column prop="name" label="包名" align="center"></el-table-column>
         <el-table-column label="源码" align="center">
           <template #default="scope">

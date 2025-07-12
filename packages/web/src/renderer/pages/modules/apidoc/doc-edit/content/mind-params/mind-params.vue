@@ -55,7 +55,7 @@
     </SFieldset>
     <SFieldset :title="`${t('联想参数')}(${tableInfo.length})`" class="mt-3">
       <el-button type="danger" class="mb-1" :disabled="selectData.length === 0" @click="handleDeleteManyParams">{{ t("批量删除") }}</el-button>
-      <el-table :data="tableInfo" stripe border height="calc(100vh - 350px)" @selection-change="handleSelectionChange">
+      <el-table :data="tableInfo"  border height="calc(100vh - 350px)" @selection-change="handleSelectionChange">
         <el-table-column type="selection" width="55"></el-table-column>
         <el-table-column prop="key" :label="t('参数名称')" align="center">
           <template #default="scope">

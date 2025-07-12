@@ -6,7 +6,7 @@
       </el-icon>
       <span class="ml-1">{{ t('展开显示返回头') }}</span>
     </div>
-    <el-table :data="headers" stripe border>
+    <el-table :data="headers"  border>
       <el-table-column align="center" prop="key" :label="t('名称')"></el-table-column>
       <el-table-column align="center" prop="value" :label="t('值')">
         <template #default="scope">
@@ -33,7 +33,7 @@
       </el-table-column>
     </el-table>
     <el-dialog v-model="dialogVisible" :title="t('全部返回头信息')" width="80%" :close-on-click-modal="false">
-      <el-table :data="headers" stripe border height="65vh" size="small">
+      <el-table :data="headers"  border height="65vh" size="small">
         <el-table-column align="center" prop="key" :label="t('名称')" width="150px"></el-table-column>
         <el-table-column align="center" prop="value" :label="t('值')">
           <template #default="scope">
@@ -77,9 +77,11 @@ const headers = computed(() => {
   const result: { key: string, value: string }[] = [];
   Object.keys(apidocResponseStore.responseInfo.headers).forEach(key => {
     if (key === 'set-cookie') {
-      result.push({
-        key,
-        value: apidocResponseStore.responseInfo.headers['set-cookie']!.join('\n'),
+      apidocResponseStore.responseInfo.headers['set-cookie']?.forEach(item => {
+        result.push({
+          key,
+          value: item,
+        });
       });
     } else {
       result.push({

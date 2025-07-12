@@ -4,7 +4,7 @@
       ref="table"
       v-bind="$attrs"
       :data="tableData"
-      stripe
+      
       border
       :size="config.renderConfig.layout.size"
       :height="tableHeight"

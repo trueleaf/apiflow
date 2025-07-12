@@ -30,7 +30,7 @@
       
     </el-form>
     <!-- 成员信息 -->
-    <el-table :data="selectUserData" stripe border max-height="200px">
+    <el-table :data="selectUserData"  border max-height="200px">
       <el-table-column prop="userName" :label="t('用户名')" align="center"></el-table-column>
       <el-table-column prop="realName" :label="t('昵称')" align="center"></el-table-column>
       <el-table-column :label="t('角色(权限)')" align="center">

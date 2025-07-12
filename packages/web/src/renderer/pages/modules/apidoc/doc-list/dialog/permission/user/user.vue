@@ -17,7 +17,7 @@
   <!-- 表格展示 -->
   <Loading :loading="loading">
     <!-- 成员信息 -->
-    <el-table :data="memberList" stripe border max-height="50vh">
+    <el-table :data="memberList"  border max-height="50vh">
       <el-table-column prop="name" :label="t('名称')" align="center"></el-table-column>
       <el-table-column prop="type" :label="t('类型')" sortable align="center">
         <template #default="{ row }">

@@ -12,8 +12,7 @@
     </div>
     <div v-if="redirectList.length > 0" class="mb-1 ml-5">
       <span>{{ t('重定向') }}</span>
-      <span v-if="redirectList.length > 1" class="orange px-1 text-underline cursor-pointer" @click="showRedirectDialog = true">{{ redirectList.length }}</span>
-      <span v-else class="px-1">{{ redirectList.length }}</span>
+      <span class="orange px-1 text-underline cursor-pointer" @click="showRedirectDialog = true">{{ redirectList.length }}</span>
       <span>{{ t('次') }}</span>
     </div>
     <el-dialog
@@ -24,7 +23,7 @@
       class="redirect-dialog"
       :close-on-click-modal="true"
     >
-      <div v-for="(item, idx) in (redirectList.slice(0, redirectList.length - 1))" :key="idx" class="mb-2 redirect-item">
+      <div v-for="(item, idx) in (redirectList)" :key="idx" class="mb-2 redirect-item">
         <div class="mb-1">
           <h3>第{{ idx + 1 }}次重定向</h3>
         </div>

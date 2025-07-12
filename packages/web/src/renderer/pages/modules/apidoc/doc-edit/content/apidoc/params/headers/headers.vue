@@ -15,7 +15,7 @@
     <SParamsTree :drag="false" show-checkbox :data="headerData" :mind-params="mindHeaderParams" no-add></SParamsTree>
     <template v-if="commonHeaders.length > 0">
       <el-divider content-position="left">{{ t('公共请求头') }}</el-divider>
-      <el-table :data="commonHeaders" stripe border size="small">
+      <el-table :data="commonHeaders"  border size="small">
         <el-table-column :label="t('是否发送')" align="center" width="80px">
           <template #default="scope">
             <el-checkbox v-model="scope.row.select" @change="handleChangeCommonHeaderIsSend($event, scope.row)"></el-checkbox>
