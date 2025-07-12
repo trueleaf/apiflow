@@ -11,23 +11,11 @@ import { useCompletionItem } from './registerCompletionItem'
 import { useHoverProvider } from './registerHoverProvider'
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
 import 'monaco-editor/esm/vs/basic-languages/javascript/javascript.contribution'
-
-// 根据环境变量决定是否以inline方式引入worker
-const jsonWorkerPath = import.meta.env.VITE_USE_FOR_HTML === 'true' 
-  ? 'monaco-editor/esm/vs/language/json/json.worker?worker&inline'
-  : 'monaco-editor/esm/vs/language/json/json.worker?worker'
-const cssWorkerPath = import.meta.env.VITE_USE_FOR_HTML === 'true'
-  ? 'monaco-editor/esm/vs/language/css/css.worker?worker&inline'
-  : 'monaco-editor/esm/vs/language/css/css.worker?worker'
-const htmlWorkerPath = import.meta.env.VITE_USE_FOR_HTML === 'true'
-  ? 'monaco-editor/esm/vs/language/html/html.worker?worker&inline'
-  : 'monaco-editor/esm/vs/language/html/html.worker?worker'
-const tsWorkerPath = import.meta.env.VITE_USE_FOR_HTML === 'true'
-  ? 'monaco-editor/esm/vs/language/typescript/ts.worker?worker&inline'
-  : 'monaco-editor/esm/vs/language/typescript/ts.worker?worker'
-const EditorWorkerPath = import.meta.env.VITE_USE_FOR_HTML === 'true'
-  ? 'monaco-editor/esm/vs/editor/editor.worker?worker&inline'
-  : 'monaco-editor/esm/vs/editor/editor.worker?worker'
+import jsonWorker from 'monaco-editor/esm/vs/language/json/json.worker?worker&inline'
+import cssWorker from 'monaco-editor/esm/vs/language/css/css.worker?worker&inline'
+import htmlWorker from 'monaco-editor/esm/vs/language/html/html.worker?worker&inline'
+import tsWorker from 'monaco-editor/esm/vs/language/typescript/ts.worker?worker&inline'
+import EditorWorker from 'monaco-editor/esm/vs/editor/editor.worker?worker&inline'
 
 const props = defineProps({
   modelValue: {
@@ -52,18 +40,18 @@ onMounted(() => {
   self.MonacoEnvironment = {
     getWorker(_: string, label: string) {
       if (label === 'json') {
-        return new Worker(jsonWorkerPath)
+        return new jsonWorker()
       }
       if (label === 'css' || label === 'scss' || label === 'less') {
-        return new Worker(cssWorkerPath)
+        return new cssWorker()
       }
       if (label === 'html' || label === 'handlebars' || label === 'razor') {
-        return new Worker(htmlWorkerPath)
+        return new htmlWorker()
       }
       if (['typescript', 'javascript'].includes(label)) {
-        return new Worker(tsWorkerPath)
+        return new tsWorker()
       }
-      return new Worker(EditorWorkerPath)
+      return new EditorWorker()
     },
   }
   event.emit('apidoc/editor/removePreEditor');
@@ -118,7 +106,7 @@ const handleFormat = () => {
 }
 .format-btn {
     position: absolute;
-    right: 20px;
-    top: 0px;
+    right: size(20);
+    top: size(0);
 }
 </style>
