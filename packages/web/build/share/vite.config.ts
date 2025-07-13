@@ -27,7 +27,8 @@ export default defineConfig({
   define: {
     // 注入环境变量，用于控制是否为HTML模式
     __APP_BUILD_TIME__: JSON.stringify(dayjs().format('YYYY-MM-DD HH:mm:ss')),
-    'import.meta.env.VITE_USE_FOR_HTML': JSON.stringify('true')
+    'import.meta.env.VITE_USE_FOR_HTML': JSON.stringify('true'),
+    __STANDALONE__: false
   },
   build: {
     target: 'esnext', // 支持顶级 await
