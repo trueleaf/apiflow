@@ -604,7 +604,7 @@ export function getFileNameFromContentDisposition(contentDisposition: string) {
 
 export * from './apidoc-format'
 
-// 到处文本为文件
+// 导出文本为文件
 export const downloadStringAsText = (content: string, fileName: string, mimeType = 'text/plain;charset=utf-8'): void => {
   const blob = new Blob([content], { type: mimeType });
   const url = window.URL.createObjectURL(blob);

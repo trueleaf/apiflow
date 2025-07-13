@@ -3,8 +3,14 @@
     <!-- 文件选择 -->
     <!-- <SFieldset title="支持：Yapi、Postman、摸鱼文档、Swagger/OpenApi 3.0"> -->
     <SFieldset :title="t('支持：摸鱼文档、Swagger/OpenApi 3.0/Postman2.1')">
-      <el-upload class="w-100" drag action="" :show-file-list="false" :before-upload="handleBeforeUpload"
-        :http-request="requestHook">
+      <el-upload 
+        class="w-100" 
+        drag 
+        action="" 
+        :show-file-list="false" 
+        :before-upload="handleBeforeUpload"
+        :http-request="requestHook"
+      >
         <el-icon :size="20">
           <Upload />
         </el-icon>
@@ -79,7 +85,7 @@
                   <template #default="scope">
                     <div class="custom-tree-node" tabindex="0">
                       <!-- 文件夹渲染 -->
-                      <img :src="require('@/assets/imgs/apidoc/folder.png')" width="16px" height="16px" />
+                      <img :src="folderIcon" width="16px" height="16px" />
                       <span :title="scope.data.name" class="node-name text-ellipsis ml-1">{{ scope.data.name }}</span>
                     </div>
                   </template>
@@ -117,7 +123,7 @@ import jsyaml from 'js-yaml'
 import type { OpenAPIV3 } from 'openapi-types';
 import { ElMessage, ElMessageBox } from 'element-plus';
 import { Upload } from '@element-plus/icons-vue'
-import type { ApidocDetail } from '@src/types/global'
+import type { ApidocBanner, ApidocDetail } from '@src/types/global'
 import { config } from '@/../config/config'
 import { router } from '@/router/index'
 import { request } from '@/api/api'
@@ -129,6 +135,7 @@ import { ApidocProjectRules } from '@src/types/apidoc/base-info'
 import { useApidocBaseInfo } from '@/store/apidoc/base-info'
 import { useApidocBanner } from '@/store/apidoc/banner'
 import { $t } from '@/i18n/i18n'
+import { standaloneCache } from '@/cache/standalone'
 
 type FormInfo = {
   moyuData: {
@@ -143,7 +150,7 @@ type FormInfo = {
   cover: boolean
 }
 
-type MoyuInfo = {
+type ApiflowInfo = {
   type: string,
   rules: ApidocProjectRules[],
   docs: ApidocDetail[],
@@ -173,6 +180,7 @@ defineProps({
 const apidocBaseInfoStore = useApidocBaseInfo();
 const apidocBannerStore = useApidocBanner()
 const projectId = router.currentRoute.value.query.id as string;
+const folderIcon = new URL('@/assets/imgs/apidoc/folder.png', import.meta.url).href
 //目标树
 const docTree2: Ref<TreeNodeOptions['store'] | null> = ref(null);
 //按钮加载效果
@@ -211,7 +219,7 @@ const importTypeInfo = ref({
 });
 const jsonText: Ref<OpenAPIV3.Document | string | { type: string }> = ref('');
 const fileType = ref('');
-const navTreeData = ref([]);
+const navTreeData = ref<ApidocBanner[]>([]);
 const currentMountedNode: Ref<ApidocDetail | null> = ref(null);
 /*
 |--------------------------------------------------------------------------
@@ -254,11 +262,11 @@ const handleBeforeUpload = (file: File) => {
 //获取导入文件信息
 const getImportFileInfo = () => {
   const openApiTranslatorInstance = new OpenApiTranslator(projectId, jsonText.value as OpenAPIV3.Document);
-  if ((jsonText.value as MoyuInfo).type === 'moyu') {
-    importTypeInfo.value.name = 'moyu';
-    formInfo.value.type = 'moyu';
-    formInfo.value.moyuData.docs = (jsonText.value as MoyuInfo).docs;
-    formInfo.value.moyuData.hosts = (jsonText.value as MoyuInfo).hosts;
+  if ((jsonText.value as ApiflowInfo).type === 'apiflow') {
+    importTypeInfo.value.name = 'apiflow';
+    formInfo.value.type = 'apiflow';
+    formInfo.value.moyuData.docs = (jsonText.value as ApiflowInfo).docs;
+    formInfo.value.moyuData.hosts = (jsonText.value as ApiflowInfo).hosts;
   } else if ((jsonText.value as OpenAPIV3.Document).openapi) {
     importTypeInfo.value.name = 'openapi';
     importTypeInfo.value.version = (jsonText.value as OpenAPIV3.Document).openapi;
@@ -355,7 +363,7 @@ const previewNavTreeData = computed(() => {
 |
 */
 //改变导入方式，如果为覆盖类型提醒用户
-const handleChangeIsCover = (val: boolean) => {
+const handleChangeIsCover = (val: string | number | boolean | undefined) => {
   if (val) {
     ElMessageBox.confirm(t('覆盖后的数据将无法还原'), t('提示'), {
       confirmButtonText: t('确定'),
@@ -384,9 +392,15 @@ const handleChangeNamedType = () => {
   formInfo.value.moyuData.docs = openApiTranslatorInstance.getDocsInfo(openapiFolderNamedType.value);
 }
 //是否导入到特定文件夹
-const handleToggleTargetFolder = (val: boolean) => {
+const handleToggleTargetFolder = async (val: boolean) => {
   currentMountedNode.value = null;
   if (val) {
+    if (__STANDALONE__) {
+      const banner = await standaloneCache.getFolderTree(projectId);
+      navTreeData.value = banner;
+      return
+    }
+
     loading2.value = true;
     const params = {
       projectId,
@@ -406,9 +420,8 @@ const handleToggleTargetFolder = (val: boolean) => {
 |--------------------------------------------------------------------------
 |
 */
-const handleSubmit = () => {
+const handleSubmit = async () => {
   try {
-    loading.value = true;
     if (!formInfo.value.moyuData.docs) {
       ElMessage.warning(t('请选择需要导入的文件'));
       return;
@@ -418,6 +431,18 @@ const handleSubmit = () => {
       ...val,
       pid: val.pid || mountedId,
     }))
+    if (__STANDALONE__ && formInfo.value.cover) {
+      await standaloneCache.replaceAllDocs(JSON.parse(JSON.stringify(docs)) as ApidocDetail[], projectId);
+      apidocBannerStore.getDocBanner({ projectId });
+      ElMessage.success(t('导入成功'));
+      return
+    } else if (__STANDALONE__ && !formInfo.value.cover) {
+      await standaloneCache.appendDocs(JSON.parse(JSON.stringify(docs)) as ApidocDetail[], projectId);
+      apidocBannerStore.getDocBanner({ projectId });
+      ElMessage.success(t('导入成功'));
+      return
+    }
+    loading.value = true;
     const params = {
       projectId,
       cover: formInfo.value.cover,

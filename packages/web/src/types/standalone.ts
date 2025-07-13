@@ -18,4 +18,30 @@ export type Standalone = {
    * 项目规则
    */
   projectRules: ApidocProjectRules
-};
+};export type StandaloneExportHtmlParams = {
+  projectInfo: {
+    projectName: string;
+    projectId: string;
+  };
+  nodes: {
+    _id: string;
+    pid: string;
+    projectId: string;
+    isFolder: boolean;
+    sort: number;
+    info: ApidocDetail['info'];
+    item: ApidocDetail['item'];
+    isEnabled: boolean;
+  }[];
+  variables: {
+    name: string;
+    value: string;
+    type: string;
+    fileValue: {
+      name: string;
+      fileType: string;
+      path: string;
+    };
+  }[];
+}
+

@@ -243,6 +243,7 @@ export const useApidocBaseInfo = defineStore('apidocBaseInfo', () => {
       const projectInfo = await standaloneCache.getProjectInfo(payload.projectId);
       if(projectInfo){
         projectName.value = projectInfo.projectName;
+        _id.value = projectInfo._id;
       }
       return;
     }

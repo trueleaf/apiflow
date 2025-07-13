@@ -10,6 +10,11 @@ let lastVisitPage = localStorage.getItem('history/lastVisitePage'); //上次访�
 
 const routes: Array<RouteRecordRaw> = [
   {
+    path: '/login',
+    name: 'Login',
+    component: () => import('@/pages/login/login.vue'),
+  },
+  {
     path: '/v1/permission/permission',
     name: 'Permission',
     component: () => import('@/pages/modules/permission/permission.vue'),
@@ -77,6 +82,10 @@ if(!__STANDALONE__){
   router.afterEach((to) => {
     localStorage.setItem('history/lastVisitePage', to.fullPath);
     NProgress.done(); // 页面顶部的加载条
+  });
+} else {
+  router.afterEach((to) => {
+    localStorage.setItem('history/lastVisitePage', to.fullPath);
   });
 }
 

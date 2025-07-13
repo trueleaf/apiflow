@@ -1,5 +1,6 @@
 import type { Got } from 'got';
 import type {GotRequestOptions } from './types';
+import type { StandaloneExportHtmlParams } from './standalone.ts';
 
 
 export type ElectronAPI = {
@@ -14,6 +15,7 @@ export type ElectronAPI = {
   unmaximize: () => void;
   close: () => void;
   onWindowStateChange: (callback: (state: 'normal' | 'minimized' | 'maximized') => void) => void;
+  exportHtml: (params: StandaloneExportHtmlParams) => Promise<string>;
 }
 
 declare global {

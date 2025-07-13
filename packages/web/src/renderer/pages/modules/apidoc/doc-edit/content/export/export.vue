@@ -107,6 +107,9 @@ import SConfig from '@/components/common/config/g-config.vue'
 import SEmphasize from '@/components/common/emphasize/g-emphasize.vue'
 import { useRoute } from 'vue-router';
 import SFork from './fork/fork.vue'
+import type { StandaloneExportHtmlParams } from '@src/types/standalone.ts';
+import { standaloneCache } from '@/cache/standalone';
+import { downloadStringAsText } from '@/helper';
 
 const apidocBaseInfoStore = useApidocBaseInfo();
 const apidocBannerStore = useApidocBanner();
@@ -148,7 +151,49 @@ const handleCheckChange = () => {
 const loading = ref(false);
 const config: Ref<{ isEnabled: boolean } | null> = ref(null)
 //导出为html
-const handleExportAsHTML = () => {
+const handleExportAsHTML = async () => {
+  if (__STANDALONE__) {
+    const selectedIds = allCheckedNodes.value.map((val) => val._id);
+    const allDocs = await standaloneCache.getDocsByProjectId(apidocBaseInfoStore._id);
+    const selectedDocs = allDocs.filter((doc) => {
+      if (selectedIds.length === 0) {
+        return true;
+      }
+      return selectedIds.includes(doc._id);
+    });
+    loading.value = true;
+    const exportHtmlParams: StandaloneExportHtmlParams = {
+      projectInfo: {
+        projectName: apidocBaseInfoStore.projectName,
+        projectId: apidocBaseInfoStore._id,
+      },
+      nodes: selectedDocs.map((val) => ({
+        _id: val._id,
+        pid: val.pid,
+        projectId: apidocBaseInfoStore._id,
+        isFolder: val.isFolder,
+        sort: val.sort,
+        info: val.info,
+        item: val.item,
+        isEnabled: true,
+      })),
+      variables: variableStore.variables,
+    };
+    const cpExportHtmlParams = JSON.parse(JSON.stringify(exportHtmlParams));
+    console.log(cpExportHtmlParams, 2);
+    (window.electronAPI?.exportHtml(cpExportHtmlParams) as Promise<string>)
+      .then((htmlContent: string) => {
+        downloadStringAsText(htmlContent, `${apidocBaseInfoStore.projectName}.html`, 'text/html');
+      })
+      .catch((err: Error) => {
+        console.error(err);
+        ElMessage.error(t('导出失败'));
+      })
+      .finally(() => {
+        loading.value = false;
+      });
+    return;
+  }
   const selectedIds = allCheckedNodes.value.map((val) => val._id);
   loading.value = true;
   const params = {
@@ -176,7 +221,7 @@ const handleExportAsMoyu = () => {
   };
   request.request({
     method: 'post',
-    url: '/api/project/export/moyu',
+    url: '/api/project/export/json',
     responseType: 'blob',
     data: params,
   }).catch((err) => {

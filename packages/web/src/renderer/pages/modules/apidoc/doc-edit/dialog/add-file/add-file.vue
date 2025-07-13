@@ -57,8 +57,8 @@ const handleAddFile = () => {
       nodeInfo.sort = Date.now()
       nodeInfo.isDeleted = false;
       await standaloneCache.addDoc(nodeInfo)
-      const banner = await standaloneCache.getDocTree(nodeInfo.projectId);
-      apidocBannerStore.changeAllDocBanner(banner);
+      // const banner = await standaloneCache.getDocTree(nodeInfo.projectId);
+      // apidocBannerStore.changeAllDocBanner(banner);
       emits('success', {
         _id: nodeInfo._id,
         pid: nodeInfo.pid,

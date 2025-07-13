@@ -126,6 +126,12 @@ export class StandaloneCache {
   async getDeletedDocsList(projectId: string) {
     return this.docs.getDeletedDocsList(projectId);
   }
+  async replaceAllDocs(docs: ApidocDetail[], projectId: string): Promise<boolean> {
+    return this.docs.replaceAllDocs(docs, projectId);
+  }
+  async appendDocs(docs: ApidocDetail[], projectId: string): Promise<string[]> {
+    return this.docs.appendDocs(docs, projectId);
+  }
   // 公共请求头相关
   async getCommonHeaders(): Promise<ApidocProperty<'string'>[]> {
     return this.commonHeaders.getCommonHeaders();

@@ -1,5 +1,6 @@
 import { IDBPDatabase } from "idb";
 import type { ApidocDetail } from "@src/types/global";
+import { nanoid } from "nanoid";
 
 export class DocCache {
   constructor(private db: IDBPDatabase | null = null) {}
@@ -39,12 +40,30 @@ export class DocCache {
     return convertDocsToFolder(projectDocs);
   }
 
+  private async updateProjectDocNum(projectId: string): Promise<void> {
+    if (!this.db) throw new Error("Database not initialized");
+    const tx = this.db.transaction(["docs", "projects"], "readwrite");
+    const docsStore = tx.objectStore("docs");
+    const projectsStore = tx.objectStore("projects");
+
+    const allDocs = await docsStore.getAll();
+    const docNum = allDocs.filter(doc => doc.projectId === projectId && !doc.isDeleted).length;
+    
+    const project = await projectsStore.get(projectId);
+    if (project) {
+      await projectsStore.put({ ...project, docNum }, projectId);
+    }
+    
+    await tx.done;
+  }
+
   async addDoc(doc: ApidocDetail): Promise<boolean> {
     if (!this.db) throw new Error("Database not initialized");
     const tx = this.db.transaction("docs", "readwrite");
     const store = tx.objectStore("docs");
     await store.put(doc, doc._id);
     await tx.done;
+    await this.updateProjectDocNum(doc.projectId);
     return true;
   }
 
@@ -86,6 +105,7 @@ export class DocCache {
     
     await store.put(updatedDoc, docId);
     await tx.done;
+    await this.updateProjectDocNum(existingDoc.projectId);
     return true;
   }
 
@@ -94,9 +114,11 @@ export class DocCache {
     const tx = this.db.transaction("docs", "readwrite");
     const store = tx.objectStore("docs");
     
+    let projectId: string | null = null;
     for (const docId of docIds) {
       const existingDoc = await store.get(docId);
       if (existingDoc) {
+        projectId = existingDoc.projectId;
         await store.put({
           ...existingDoc,
           isDeleted: true,
@@ -106,6 +128,9 @@ export class DocCache {
     }
     
     await tx.done;
+    if (projectId) {
+      await this.updateProjectDocNum(projectId);
+    }
     return true;
   }
 
@@ -159,5 +184,68 @@ export class DocCache {
     }
     await tx.done;
     return result;
+  }
+
+  /**
+   * 覆盖替换所有接口文档
+   * @param docs 要替换的文档列表
+   * @param projectId 项目ID
+   * @returns 是否成功
+   */
+  async replaceAllDocs(docs: ApidocDetail[], projectId: string): Promise<boolean> {
+    if (!this.db) throw new Error("Database not initialized");
+    const tx = this.db.transaction("docs", "readwrite");
+    const store = tx.objectStore("docs");
+
+    try {
+      // 1. 软删除项目下所有现有文档
+      const existingDocs = await store.getAll();
+      await Promise.all(
+        existingDocs
+          .filter(doc => doc.projectId === projectId)
+          .map(doc => store.put({ 
+            ...doc, 
+            isDeleted: true,
+            updatedAt: new Date().toISOString()
+          }, doc._id))
+      );
+      await Promise.all(docs.map(doc => store.put({
+        ...doc,
+        projectId,
+      }, doc._id)));
+      await tx.done;
+      await this.updateProjectDocNum(projectId);
+      return true;
+    } catch (error) {
+      console.error('Failed to replace docs:', error);
+      return false;
+    }
+  }
+
+  /**
+   * 批量追加接口文档
+   * @param docs 要追加的文档列表
+   * @returns 成功追加的文档ID列表
+   */
+  async appendDocs(docs: ApidocDetail[], projectId: string): Promise<string[]> {
+    if (!this.db) throw new Error("Database not initialized");
+    const tx = this.db.transaction("docs", "readwrite");
+    const store = tx.objectStore("docs");
+    const successIds: string[] = [];
+
+    try {
+      for (const doc of docs) {
+        doc.projectId = projectId;
+        doc._id = nanoid()
+        await store.put(doc, doc._id);
+        successIds.push(doc._id);
+      }
+      await tx.done;
+      await this.updateProjectDocNum(projectId);
+      return successIds;
+    } catch (error) {
+      console.error('Failed to append docs:', error);
+      return successIds;
+    }
   }
 } 
