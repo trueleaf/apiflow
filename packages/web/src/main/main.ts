@@ -112,10 +112,11 @@ const bindIpcMainHandle = () => {
   ipcMain.handle('apiflow-export-html', async (_: IpcMainInvokeEvent, exportHtmlParams: StandaloneExportHtmlParams) => {
     try {
       const htmlPath = path.join(__dirname, '../public/share.html');
+      let strParams = JSON.stringify(exportHtmlParams);
+      strParams = strParams.replace(/<\/script>/gi, '\\u003c/script>')
       let htmlContent = await fs.readFile(htmlPath, 'utf-8');
-      htmlContent = htmlContent.replace(/<\/script>/gi, '\\u003c/script>')
       htmlContent = htmlContent.replace(/<title>[^<]*<\/title>/, `<title>${exportHtmlParams.projectInfo.projectName}</title>`)
-      return htmlContent.replace(/window.SHARE_DATA = null/g, `window.SHARE_DATA = ${JSON.stringify(exportHtmlParams)}`);
+      return htmlContent.replace(/window.SHARE_DATA = null/g, `window.SHARE_DATA = ${strParams}`);
     } catch (error) {
       console.error('Export HTML failed:', error);
       throw error;
