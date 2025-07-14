@@ -43,6 +43,9 @@ const getFilePath = (file: File) => {
 const exportHtml = async (params: StandaloneExportHtmlParams) => {
   return ipcRenderer.invoke('apiflow-export-html', params)
 }
+const exportWord = async (params: StandaloneExportHtmlParams) => {
+  return ipcRenderer.invoke('apiflow-export-word', params)
+}
 
 contextBridge.exposeInMainWorld('electronAPI', {
   got,
@@ -58,4 +61,5 @@ contextBridge.exposeInMainWorld('electronAPI', {
   getWindowState,
   onWindowStateChange,
   exportHtml,
+  exportWord,
 })

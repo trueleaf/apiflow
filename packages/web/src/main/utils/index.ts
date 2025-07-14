@@ -112,3 +112,42 @@ export const changeDevtoolsFont = (win: BrowserWindow) => {
     `);
   });
 }
+export function arrayToTree<T extends { _id: string; pid: string }>(list: T[]): (T & { children: T[] })[] {
+  const map = new Map<string, T & { children: T[] }>();
+  const roots: (T & { children: T[] })[] = [];
+  list.forEach(item => {
+    map.set(item._id, { ...item, children: [] });
+  });
+  map.forEach(node => {
+    if (node.pid && map.has(node.pid)) {
+      map.get(node.pid)!.children.push(node);
+    } else {
+      roots.push(node);
+    }
+  });
+  return roots;
+}
+/**
+ * 遍历树形数据
+ */
+export const dfsForest = <T extends { children: T[], [propsName: string]: unknown }>(forestData: T[], fn: (item: T, level: number) => void) => {
+  if (!Array.isArray(forestData)) {
+    throw new Error('第一个参数必须为数组类型');
+  }
+  const foo = (forestData: T[], hook: (item: T, level: number) => void, level: number) => {
+    for (let i = 0; i < forestData.length; i += 1) {
+      const currentData = forestData[i];
+      hook(currentData, level);
+      if (!currentData['children']) {
+        continue;
+      }
+      if (!Array.isArray(currentData['children'])) {
+        continue;
+      }
+      if ((currentData['children']).length > 0) {
+        foo(currentData['children'], hook, level + 1);
+      }
+    }
+  };
+  foo(forestData, fn, 1);
+}

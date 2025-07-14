@@ -419,6 +419,7 @@ export function apidocGenerateApidoc(id?: string): ApidocDetail {
       type: 'api',
       creator: '',
       maintainer: '',
+      deletePerson: '',
     },
     preRequest: {
       raw: ''
@@ -781,3 +782,5 @@ export function convertDocsToFolder(docs: ApidocDetail[] = []): ApidocBanner[] {
   foo(copyTreeData as ShareTreeNode[], banner)
   return banner
 }
+
+
