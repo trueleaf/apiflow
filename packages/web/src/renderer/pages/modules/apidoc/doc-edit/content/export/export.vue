@@ -180,7 +180,6 @@ const handleExportAsHTML = async () => {
       variables: variableStore.variables,
     };
     const cpExportHtmlParams = JSON.parse(JSON.stringify(exportHtmlParams));
-    console.log(cpExportHtmlParams, 2);
     (window.electronAPI?.exportHtml(cpExportHtmlParams) as Promise<string>)
       .then((htmlContent: string) => {
         downloadStringAsText(htmlContent, `${apidocBaseInfoStore.projectName}.html`, 'text/html');
@@ -250,7 +249,56 @@ const handleExportAsPdf = () => {
   });
 }
 //导出为word
-const handleExportAsWord = () => {
+const handleExportAsWord = async () => {
+  if (__STANDALONE__) {
+    const selectedIds = allCheckedNodes.value.map((val) => val._id);
+    const allDocs = await standaloneCache.getDocsByProjectId(apidocBaseInfoStore._id);
+    const selectedDocs = allDocs.filter((doc) => {
+      if (selectedIds.length === 0) {
+        return true;
+      }
+      return selectedIds.includes(doc._id);
+    });
+    loading.value = true;
+    const exportHtmlParams: StandaloneExportHtmlParams = {
+      projectInfo: {
+        projectName: apidocBaseInfoStore.projectName,
+        projectId: apidocBaseInfoStore._id,
+      },
+      nodes: selectedDocs.map((val) => ({
+        _id: val._id,
+        pid: val.pid,
+        projectId: apidocBaseInfoStore._id,
+        isFolder: val.isFolder,
+        sort: val.sort,
+        info: val.info,
+        item: val.item,
+        isEnabled: true,
+      })),
+      variables: variableStore.variables,
+    };
+    const cpExportHtmlParams = JSON.parse(JSON.stringify(exportHtmlParams));
+    (window.electronAPI?.exportWord(cpExportHtmlParams) as Promise<string>)
+      .then((buffer: Uint8Array) => {
+        const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' });
+        const blobUrl = URL.createObjectURL(blob);
+        const downloadElement = document.createElement('a');
+        downloadElement.href = blobUrl;
+        downloadElement.download = `${apidocBaseInfoStore.projectName}.docx`;
+        document.body.appendChild(downloadElement);
+        downloadElement.click();
+        document.body.removeChild(downloadElement);
+        window.URL.revokeObjectURL(blobUrl);
+      })
+      .catch((err: Error) => {
+        console.error(err);
+        ElMessage.error(t('导出失败'));
+      })
+      .finally(() => {
+        loading.value = false;
+      });
+    return;
+  }
   const selectedIds = allCheckedNodes.value.map((val) => val._id);
   loading.value = true;
   const params = {
