@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title></title>
+  <script src="./js/sortable.js"></script>
+  <style>
+    @import url('../src/renderer/assets/font/inline-font.css');
+  </style>
+  <style>
+    :root {
+      --apiflow-header-height: 35px;
+      --white: #fff;
+      --tab-bg: rgba(255, 255, 255, 0.08);
+      --tab-active-bg: rgba(255, 255, 255, 0.40);
+      --tab-hover-bg: rgba(255, 255, 255, 0.15);
+      --tab-border: rgba(255, 255, 255, 0.1);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: Helvetica Neue, Helvetica, PingFang SC, Hiragino Sans GB, Microsoft YaHei, SimSun, sans-serif;
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      overflow-x: hidden;
+    }
+
+    .s-header {
+      height: var(--apiflow-header-height);
+      display: flex;
+      background: linear-gradient(to right, #2c3e50, #3a4a5f);
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+      -webkit-app-region: drag;
+      color: var(--white);
+      padding: 0 0 0 20px;
+      justify-content: space-between;
+    }
+
+    .logo {
+      width: 100px;
+      height: 100%;
+      color: #ccc;
+      display: flex;
+      align-items: center;
+    }
+
+    .tabs {
+      flex: 1;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      padding: 0 8px;
+      overflow-x: auto;
+      overflow-y: hidden;
+      scrollbar-width: none;
+      -webkit-app-region: no-drag;
+    }
+
+    .tabs::-webkit-scrollbar {
+      display: none;
+    }
+
+    .tab-list {
+      display: flex;
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      height: calc(100% - 6px);
+      gap: 2px;
+    }
+
+    .tab-item {
+      height: 100%;
+      padding: 0 24px 0 12px;
+      display: flex;
+      align-items: center;
+      background: var(--tab-bg);
+      cursor: pointer;
+      user-select: none;
+      font-size: 12px;
+      transition: all 0.2s ease;
+      white-space: nowrap;
+      border: 1px solid var(--tab-border);
+      position: relative;
+      max-width: 100px;
+      overflow: hidden;
+      margin-right: 2px;
+    }
+
+    .tab-item span:first-child {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .tab-item .close-btn {
+      width: 20px;
+      height: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      font-size: 10px;
+      opacity: 0;
+      position: absolute;
+      right: 0px;
+      top: 53%;
+      transform: translateY(-50%);
+    }
+
+    .tab-item:hover .close-btn {
+      opacity: 1;
+    }
+
+    .tab-item:hover {
+      background: var(--tab-hover-bg);
+    }
+
+    .tab-item.active {
+      background: var(--tab-active-bg);
+    }
+
+    .tab-item .close-btn:hover {
+      background: rgba(255, 255, 255, 0.1);
+      opacity: 1;
+    }
+
+    .add-tab-btn {
+      margin-left: 4px;
+      padding: 0;
+      width: 24px;
+      height: 24px;
+      border: none;
+      background: var(--tab-bg);
+      color: var(--white);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 21px;
+      transition: all 0.2s;
+      -webkit-app-region: no-drag;
+    }
+
+    .add-tab-btn:hover {
+      background: var(--tab-hover-bg);
+    }
+
+    .right {
+      height: 100%;
+      display: flex;
+      align-items: center;
+    }
+
+    .window-control {
+      display: flex;
+      align-items: center;
+    }
+
+    .window-control i {
+      width: 46px;
+      height: 35px;
+      font-size: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      -webkit-app-region: no-drag;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+
+    .window-control i:hover {
+      background-color: rgba(255, 255, 255, 0.1);
+    }
+
+    .window-control .close:hover {
+      background-color: #e81123;
+    }
+
+    .sortable-ghost {
+      opacity: 0.6;
+    }
+
+  </style>
+</head>
+
+<body>
+  <div class="s-header">
+    <div class="logo">
+      <span class="app-title" id="jumpToHome">
+        <span id="appTitle">Apiflow</span>
+        <span id="devIndicator" style="display: none;">(本地)</span>
+      </span>
+    </div>
+    <div class="tabs">
+      <ul class="tab-list"></ul>
+      <button class="add-tab-btn" title="新建标签页">+</button>
+    </div>
+    <div class="right">
+      <div class="window-control">
+        <i class="iconfont iconjianhao" id="minimize" title="最小化"></i>
+        <i class="iconfont iconmaxScreen" id="maximize" title="最大化"></i>
+        <i class="iconfont iconminiScreen" id="unmaximize" title="取消最大化"></i>
+        <i class="iconfont iconguanbi close" id="close" title="关闭"></i>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const minimizeBtn = document.getElementById('minimize');
+      const maximizeBtn = document.getElementById('maximize');
+      const closeBtn = document.getElementById('close');
+      const unmaximizeBtn = document.getElementById('unmaximize');
+
+      if (minimizeBtn) {
+        minimizeBtn.addEventListener('click', () => {
+          window.electronAPI?.minimize();
+        });
+      }
+
+      if (maximizeBtn) {
+        maximizeBtn.addEventListener('click', () => {
+          window.electronAPI?.maximize();
+        });
+      }
+
+      if (unmaximizeBtn) {
+        unmaximizeBtn.addEventListener('click', () => {
+          window.electronAPI?.unmaximize();
+        });
+      }
+
+      if (closeBtn) {
+        closeBtn.addEventListener('click', () => {
+          window.electronAPI?.close();
+        });
+      }
+
+      let windowState = 'maximized';
+      function updateWindowButtons(state) {
+        windowState = state;
+        if (state === 'maximized') {
+          maximizeBtn.style.display = 'none';
+          unmaximizeBtn.style.display = '';
+        } else {
+          maximizeBtn.style.display = '';
+          unmaximizeBtn.style.display = 'none';
+        }
+      }
+
+      window.electronAPI?.onWindowStateChange(updateWindowButtons);
+      updateWindowButtons(windowState);
+
+      // Tabs 管理
+      const tabList = document.querySelector('.tab-list');
+      const addTabBtn = document.querySelector('.add-tab-btn');
+      
+      let tabs = [
+        { id: 'tab-1', title: '项目列表' },
+        { id: 'tab-2', title: '飞书文档' }
+      ];
+      let activeTabId = '';
+
+      function createTabElement(tab) {
+        const li = document.createElement('li');
+        li.className = `tab-item ${tab.id === activeTabId ? 'active' : ''}`;
+        li.dataset.id = tab.id;
+        
+        const title = document.createElement('span');
+        title.textContent = tab.title;
+        li.appendChild(title);
+
+        const closeBtn = document.createElement('span');
+        closeBtn.className = 'close-btn iconfont iconguanbi';
+        closeBtn.onclick = (e) => {
+          e.stopPropagation();
+          deleteTab(tab.id);
+        };
+        li.appendChild(closeBtn);
+
+        li.onclick = () => switchTab(tab.id);
+        return li;
+      }
+
+      function renderTabs() {
+        tabList.innerHTML = '';
+        tabs.forEach(tab => {
+          tabList.appendChild(createTabElement(tab));
+        });
+      }
+
+      function addTab() {
+        const id = `tab-${Date.now()}`;
+        const newTab = {
+          id,
+          title: `Tab ${tabs.length + 1}`
+        };
+        tabs.push(newTab);
+        activeTabId = id;
+        renderTabs();
+        // 滚动到新标签
+        tabList.scrollLeft = tabList.scrollWidth;
+      }
+
+      function deleteTab(tabId) {
+        const index = tabs.findIndex(t => t.id === tabId);
+        if (index === -1) return;
+
+        tabs = tabs.filter(t => t.id !== tabId);
+        if (activeTabId === tabId && index !== 0) {
+          activeTabId = tabs[Math.min(index, tabs.length - 1)].id;
+        }
+        renderTabs();
+      }
+
+      function switchTab(tabId) {
+        activeTabId = tabId;
+        renderTabs();
+      }
+
+      // 初始化 Sortable
+      if (window.Sortable) {
+        new Sortable(tabList, {
+          animation: 150,
+          ghostClass: 'sortable-ghost',
+          chosenClass: 'sortable-chosen',
+          dragClass: 'sortable-drag',
+          onEnd: function(evt) {
+            const tabsArray = Array.from(tabList.children);
+            tabs = tabsArray.map(el => 
+              tabs.find(t => t.id === el.dataset.id)
+            );
+          }
+        });
+      }
+
+      // 事件绑定
+      addTabBtn.onclick = addTab;
+
+      // 初始渲染
+      renderTabs();
+
+      // 暴露方法到全局，方便调试
+      window.tabsAPI = {
+        addTab,
+        deleteTab,
+        switchTab,
+        getTabs: () => tabs,
+        getActiveTab: () => tabs.find(t => t.id === activeTabId)
+      };
+    });
+  </script>
+</body>
+</html>
