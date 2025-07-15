@@ -483,9 +483,6 @@ export const exportWord = async (exportHtmlParams: StandaloneExportHtmlParams) =
     });
     const doc = new Document(document);
     const buffer = await Packer.toBuffer(doc);
-    // const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' });
-    // const blobUrl = URL.createObjectURL(blob);
-    // console.log(123, blobUrl)
     return buffer;
   } catch (error) {
     console.error('Export Word failed:', error);

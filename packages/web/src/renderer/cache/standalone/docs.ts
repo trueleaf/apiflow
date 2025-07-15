@@ -47,7 +47,11 @@ export class DocCache {
     const projectsStore = tx.objectStore("projects");
 
     const allDocs = await docsStore.getAll();
-    const docNum = allDocs.filter(doc => doc.projectId === projectId && !doc.isDeleted).length;
+    const docNum = allDocs.filter(doc => 
+      doc.projectId === projectId && 
+      !doc.isDeleted && 
+      !doc.isFolder // Exclude folders from the count
+    ).length;
     
     const project = await projectsStore.get(projectId);
     if (project) {

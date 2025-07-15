@@ -210,8 +210,27 @@ const handleExportAsHTML = async () => {
     loading.value = false;
   });
 }
-//导出为moyu文档
-const handleExportAsMoyu = () => {
+//导出为apiflow文档
+const handleExportAsApiflow = async () => {
+  if (__STANDALONE__) {
+    const selectedIds = allCheckedNodes.value.map((val) => val._id);
+    const allDocs = await standaloneCache.getDocsByProjectId(apidocBaseInfoStore._id);
+    const selectedDocs = allDocs.filter((doc) => {
+      if (selectedIds.length === 0) {
+        return true;
+      }
+      return selectedIds.includes(doc._id);
+    });
+    const result = {
+      type: 'apiflow',
+      info: {
+        projectName: apidocBaseInfoStore.projectName,
+      },
+      docs: selectedDocs,
+    };    
+    downloadStringAsText(JSON.stringify(result), `${apidocBaseInfoStore.projectName}.json`, 'application/json');
+    return;
+  }
   const selectedIds = allCheckedNodes.value.map((val) => val._id);
   loading.value = true;
   const params = {
@@ -326,7 +345,7 @@ const handleExport = () => {
   if (selectedType.value === 'html') {
     handleExportAsHTML();
   } else if (selectedType.value === 'moyu') {
-    handleExportAsMoyu();
+    handleExportAsApiflow();
   } else if (selectedType.value === 'pdf') {
     handleExportAsPdf();
   } else if (selectedType.value === 'word') {

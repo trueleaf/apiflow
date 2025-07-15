@@ -1,12 +1,12 @@
-import { createRouter, createWebHashHistory, RouteRecordRaw } from 'vue-router'
+import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router'
 import NProgress from 'nprogress';
 import 'nprogress/nprogress.css';
 import docEdit from '@/pages/modules/apidoc/doc-edit/doc-edit.vue'
 import { config } from '@/../config/config'
 import { usePermissionStore } from '@/store/permission';
-import layout from '@/pages/layout/layout.vue';
+// import layout from '@/pages/layout/layout.vue';
 
-let lastVisitPage = localStorage.getItem('history/lastVisitePage'); //上次访问的页面
+// let lastVisitPage = localStorage.getItem('history/lastVisitePage'); //上次访问的页面
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -34,6 +34,7 @@ const routes: Array<RouteRecordRaw> = [
     name: 'Share',
     component: () => import('@/pages/modules/apidoc/doc-share/share.vue'),
   },
+  
   {
     path: '/:pathMatch(.*)*',
     name: '404',
@@ -42,14 +43,32 @@ const routes: Array<RouteRecordRaw> = [
 ]
 
 const routerConfig = {
-  history: createWebHashHistory(),
+  history: createWebHistory(),
   routes: [
     {
       path: '/',
-      component: layout,
-      redirect: lastVisitPage || (__STANDALONE__ ? '/v1/apidoc/doc-list' : '/login'),
-      children: routes
-    }
+      redirect: '/v1/apidoc/doc-list'
+    },
+    {
+      path: '/header',
+      name: 'Header',
+      component: () => import('@/pages/layout/header.vue'),
+    },
+    {
+      path: '/v1/apidoc/doc-list',
+      name: 'DocList',
+      component: () => import('@/pages/modules/apidoc/doc-list/doc-list.vue'),
+    },
+    {
+      path: '/v1/apidoc/doc-edit',
+      name: 'DocEdit',
+      component: docEdit,
+    },
+    {
+      path: '/share',
+      name: 'Share',
+      component: () => import('@/pages/modules/apidoc/doc-share/share.vue'),
+    },
   ]
 }
 
