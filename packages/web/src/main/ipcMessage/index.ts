@@ -55,22 +55,6 @@ export const bindIpcMainHandle = () => {
   // 添加获取窗口状态的方法
   ipcMain.handle('apiflow-get-window-state', () => {
     const win = BrowserWindow.getFocusedWindow()
-    // 监听窗口状态变化
-    win?.on('minimize', () => {
-      win?.webContents.send('window-state-changed', 'minimized');
-    });
-
-    win?.on('maximize', () => {
-      win?.webContents.send('window-state-changed', 'maximized');
-    });
-
-    win?.on('unmaximize', () => {
-      win?.webContents.send('window-state-changed', 'normal');
-    });
-
-    win?.on('restore', () => {
-      win?.webContents.send('window-state-changed', win?.isMaximized() ? 'maximized' : 'normal');
-    });
     return win?.isMaximized() ? 'maximized' : 'normal';
   });
 
