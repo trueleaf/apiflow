@@ -278,7 +278,7 @@ const handleExportAsWord = async () => {
       variables: variableStore.variables,
     };
     const cpExportHtmlParams = JSON.parse(JSON.stringify(exportHtmlParams));
-    (window.electronAPI?.exportWord(cpExportHtmlParams) as Promise<string>)
+    (window.electronAPI?.exportWord(cpExportHtmlParams) as Promise<Uint8Array>)
       .then((buffer: Uint8Array) => {
         const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' });
         const blobUrl = URL.createObjectURL(blob);
