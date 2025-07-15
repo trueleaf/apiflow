@@ -85,7 +85,7 @@ body {
   margin: 0;
   padding: 0;
   width: 100%;
-  height: 100%;
+  height: calc(100vh - 35px);
   overflow-x: hidden;
   color: #495057;
 }
