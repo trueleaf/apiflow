@@ -17,6 +17,8 @@ export type ElectronAPI = {
   onWindowStateChange: (callback: (state: 'normal' | 'minimized' | 'maximized') => void) => void;
   exportHtml: (params: StandaloneExportHtmlParams) => Promise<string>;
   exportWord: (params: StandaloneExportHtmlParams) => Promise<Uint8Array>;
+  sendToMain: (channel: string, ...args: any[]) => void;
+  onMain: (channel: string, callback: (...args: any[]) => void) => void;
 }
 
 declare global {

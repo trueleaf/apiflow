@@ -200,7 +200,7 @@
     </div>
     <div class="tabs">
       <ul class="tab-list"></ul>
-      <button class="add-tab-btn" title="新建标签页">+</button>
+      <button class="add-tab-btn" title="新建项目">+</button>
     </div>
     <div class="right">
       <div class="window-control">
@@ -297,18 +297,19 @@
       }
 
       function addTab() {
-        const id = `tab-${Date.now()}`;
-        const newTab = {
-          id,
-          title: `Tab ${tabs.length + 1}`
-        };
-        tabs.push(newTab);
-        activeTabId = id;
-        renderTabs();
-        // 滚动到新标签
-        tabList.scrollLeft = tabList.scrollWidth;
+        // const id = `tab-${Date.now()}`;
+        // const newTab = {
+        //   id,
+        //   title: `Tab ${tabs.length + 1}`
+        // };
+        // tabs.push(newTab);
+        // activeTabId = id;
+        // renderTabs();
+        // // 滚动到新标签
+        // tabList.scrollLeft = tabList.scrollWidth;
+        // 发送创建项目事件
+        window.electronAPI?.sendToMain('apiflow-create-project');
       }
-
       function deleteTab(tabId) {
         const index = tabs.findIndex(t => t.id === tabId);
         if (index === -1) return;

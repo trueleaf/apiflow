@@ -47,6 +47,13 @@ const exportWord = async (params: StandaloneExportHtmlParams) => {
   return ipcRenderer.invoke('apiflow-export-word', params)
 }
 
+const sendToMain = (channel: string, ...args: any[]) => {
+  ipcRenderer.send(channel, ...args)
+}
+const onMain = (channel: string, callback: (...args: any[]) => void) => {
+  ipcRenderer.on(channel, (_event, ...args) => callback(...args))
+}
+
 contextBridge.exposeInMainWorld('electronAPI', {
   got,
   ip: ip.address(),
@@ -62,4 +69,6 @@ contextBridge.exposeInMainWorld('electronAPI', {
   onWindowStateChange,
   exportHtml,
   exportWord,
+  sendToMain,
+  onMain,
 })

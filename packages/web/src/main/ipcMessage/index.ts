@@ -5,17 +5,15 @@ import fs from 'fs/promises';
 import { exportHtml, exportWord } from './export/export.ts';
 
 
-export const bindIpcMainHandle = () => {
+export const bindIpcMainHandle = (mainWindow: BrowserWindow) => {
   ipcMain.handle('apiflow-open-dev-tools', () => {
     BrowserWindow.getAllWindows()?.forEach(win => {
       win.webContents.openDevTools()
     })
   })
-  
   ipcMain.handle('apiflow-minimize-window', () => {
     BrowserWindow.getFocusedWindow()?.minimize()
   })
-
   ipcMain.handle('apiflow-maximize-window', () => {
     const win = BrowserWindow.getFocusedWindow()
     win?.maximize()
@@ -29,7 +27,6 @@ export const bindIpcMainHandle = () => {
   ipcMain.handle('apiflow-close-window', () => {
     BrowserWindow.getFocusedWindow()?.close()
   })
-
   ipcMain.handle('apiflow-read-file-as-blob', async (_: IpcMainInvokeEvent, path: string) => {
     try {
       await fs.access(path, fs.constants.F_OK)
@@ -65,5 +62,8 @@ export const bindIpcMainHandle = () => {
   // 导出为word方法
   ipcMain.handle('apiflow-export-word', async (_: IpcMainInvokeEvent, exportHtmlParams: StandaloneExportHtmlParams) => {
     return exportWord(exportHtmlParams)
+  })
+  ipcMain.on('apiflow-create-project', () => {
+    mainWindow.webContents.send('on-apiflow-create-project')
   })
 }

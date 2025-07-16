@@ -29,6 +29,9 @@ onMounted(() => {
   }
   document.title = `${config.isDev ? `${config.localization.title}(本地)` : config.localization.title} `;
   bindGlobalShortCut();
+  window.electronAPI?.onMain('on-apiflow-create-project', () => {
+    console.log('createProject');
+  });
 })
 </script>
 
