@@ -9,11 +9,10 @@ import { ElementPlusResolver } from 'unplugin-vue-components/resolvers'
 import { resolve } from 'path';
 
 export default defineConfig(({ mode }) => {
-  console.log(resolve(__dirname, './header.html'))
   const isStandalone = mode === 'standalone'
   return {
     plugins: [
-      // viteElectronPlugin(),
+      viteElectronPlugin(),
       vue(),
       AutoImport({
         resolvers: [ElementPlusResolver()],
