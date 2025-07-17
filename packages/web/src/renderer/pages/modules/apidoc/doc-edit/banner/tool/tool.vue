@@ -669,9 +669,11 @@ const handleChangeProject = (item: ApidocProjectInfo) => {
   if (item._id === router.currentRoute.value.query.id) {
     return;
   }
-  request.put('/api/project/visited', { projectId: item._id }).catch((err) => {
-    console.error(err);
-  });
+  if (!isStandalone.value) {
+    request.put('/api/project/visited', { projectId: item._id }).catch((err) => {
+      console.error(err);
+    });
+  }
   router.push({
     path: '/v1/apidoc/doc-edit',
     query: {

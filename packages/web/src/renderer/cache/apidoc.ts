@@ -653,8 +653,48 @@ class ApidocCache extends ResponseCache {
     }
   }
 
+  /*
+   * header tabs 缓存
+   */
+  setHeaderTabs(tabs: { id: string; title: string }[]) {
+    try {
+      localStorage.setItem('apidoc/header/tabs', JSON.stringify(tabs));
+    } catch (error) {
+      console.error(error);
+      localStorage.setItem('apidoc/header/tabs', '[]');
+    }
+  }
 
-  
+  getHeaderTabs(): { id: string; title: string }[] {
+    try {
+      return JSON.parse(localStorage.getItem('apidoc/header/tabs') || '[]');
+    } catch (error) {
+      console.error(error);
+      localStorage.setItem('apidoc/header/tabs', '[]');
+      return [];
+    }
+  }
+
+  setHeaderActiveTab(tabId: string) {
+    try {
+      localStorage.setItem('apidoc/header/activeTab', tabId);
+    } catch (error) {
+      console.error(error);
+      localStorage.setItem('apidoc/header/activeTab', '');
+    }
+  }
+
+  getHeaderActiveTab(): string {
+    try {
+      return localStorage.getItem('apidoc/header/activeTab') || '';
+    } catch (error) {
+      console.error(error);
+      localStorage.setItem('apidoc/header/activeTab', '');
+      return '';
+    }
+  }
+
+
 }
 
 export const apidocCache = new ApidocCache();

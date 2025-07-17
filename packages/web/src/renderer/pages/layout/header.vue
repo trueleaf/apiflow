@@ -251,7 +251,7 @@ onMounted(() => {
   if (config.updateConfig.autoUpdate) {
     handleCheckUpdate();
   }
-  window.electronAPI?.onWindowStateChange((state) => {
+  window.electronAPI?.onWindowResize((state) => {
     windowState.value = state;
   })
 })

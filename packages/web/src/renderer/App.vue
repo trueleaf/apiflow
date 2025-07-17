@@ -5,14 +5,30 @@
 
 <script setup lang="ts">
 import { config } from '@/../config/config';
-import { onMounted, ref } from 'vue';
+import { onMounted, ref, watch } from 'vue';
 import { t } from 'i18next';
 import { bindGlobalShortCut } from './shortcut';
 import { useRouter } from 'vue-router';
 import AddProjectDialog from '@/pages/modules/apidoc/doc-list/dialog/add-project/add-project.vue';
+import { standaloneCache } from './cache/standalone';
+import { ElMessageBox } from 'element-plus';
 
 const router = useRouter();
 const dialogVisible = ref(false);
+
+// 监听路由变化
+watch(() => router.currentRoute.value.path, (newPath) => {
+  if (newPath === '/v1/apidoc/doc-edit') {
+    const projectId = router.currentRoute.value.query.id as string;
+    const projectName = router.currentRoute.value.query.name as string;
+    window.electronAPI?.sendToMain('apiflow-change-project-from-app', {
+      projectId: projectId,
+      projectName: projectName
+    })
+  }
+}, { immediate: true });
+
+
 
 const handleAddSuccess = (data: { projectId: string, projectName: string }) => {
   dialogVisible.value = false;
@@ -29,8 +45,50 @@ const handleAddSuccess = (data: { projectId: string, projectName: string }) => {
   });
 }
 
+const bindTopBarEvent = () => {
+  window.electronAPI?.onMain('apiflow-create-project', () => {
+    dialogVisible.value = true;
+  });
+  window.electronAPI?.onMain('apiflow-change-route', (path: string) => {
+    router.push(path)
+  })
+  window.electronAPI?.onMain('apiflow-change-topbar-tab', async (data: { projectId: string, projectName: string }) => {
+    let matchedProject = null;
+    if (__STANDALONE__) {
+      const projectList = await standaloneCache.getProjectList();
+      matchedProject = projectList.find(p => p._id === data.projectId);
+    } else {
+      // todo
+    }
 
-onMounted(() => {
+    if (!matchedProject) {
+      ElMessageBox.alert(t(`${data.projectName}已被删除`), t('提示'), {
+        confirmButtonText: t('确定'),
+        showClose: false,
+        type: 'error'
+      }).then(() => {
+        window.electronAPI?.sendToMain('apiflow-delete-topbar-tab-from-app', data.projectId)
+      })
+      return
+    }
+    if (matchedProject.projectName !== data.projectName) {
+      window.electronAPI?.sendToMain('apiflow-change-topbar-tab-name-from-app', {
+        projectId: data.projectId,
+        projectName: matchedProject.projectName
+      })
+    }
+    router.push({
+      path: '/v1/apidoc/doc-edit',
+      query: {
+        id: data.projectId,
+        name: matchedProject.projectName,
+        mode: 'edit'
+      }
+    })
+  })
+}
+
+const initWelcom = () => {
   if (!config.isDev && config.localization.consoleWelcome) {
     console.log(`
               _ _            _ _           _ _ _ _ _ _ _     _ _      _ _    _ _        _ _
@@ -50,11 +108,13 @@ onMounted(() => {
         ${t('最近一次更新')}：${__APP_BUILD_TIME__}
     `)
   }
-  document.title = `${config.isDev ? `${config.localization.title}(本地)` : config.localization.title} `;
+}
+
+onMounted(() => {
+  initWelcom();
   bindGlobalShortCut();
-  window.electronAPI?.onMain('apiflow-create-project', () => {
-    dialogVisible.value = true;
-  });
+  bindTopBarEvent();
+  document.title = `${config.isDev ? `${config.localization.title}(本地)` : config.localization.title} `;
 })
 </script>
 

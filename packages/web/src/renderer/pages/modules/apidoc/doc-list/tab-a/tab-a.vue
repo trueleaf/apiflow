@@ -403,6 +403,7 @@ const handleJumpToProject = (item: ApidocProjectInfo) => {
     path: '/v1/apidoc/doc-edit',
     query: {
       id: item._id,
+      name: item.projectName,
       mode: 'edit',
     },
   });
@@ -417,6 +418,7 @@ const handleJumpToView = (item: ApidocProjectInfo) => {
     path: '/v1/apidoc/doc-edit',
     query: {
       id: item._id,
+      name: item.projectName,
       mode: 'view',
     },
   });
