@@ -6,12 +6,14 @@ import dayjs from 'dayjs'
 import AutoImport from 'unplugin-auto-import/vite'
 import Components from 'unplugin-vue-components/vite'
 import { ElementPlusResolver } from 'unplugin-vue-components/resolvers'
+import { resolve } from 'path';
 
 export default defineConfig(({ mode }) => {
+  console.log(resolve(__dirname, './header.html'))
   const isStandalone = mode === 'standalone'
   return {
     plugins: [
-      viteElectronPlugin(),
+      // viteElectronPlugin(),
       vue(),
       AutoImport({
         resolvers: [ElementPlusResolver()],
@@ -45,6 +47,12 @@ export default defineConfig(({ mode }) => {
     },
     build: {
       target: 'esnext',
+      rollupOptions: {
+        input: {
+          header: resolve(__dirname, './public/header.html'),
+          index: resolve(__dirname, './index.html'),
+        },
+      },
     }
   }
 })
