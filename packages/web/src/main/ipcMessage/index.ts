@@ -1,11 +1,11 @@
-import { ipcMain, IpcMainInvokeEvent } from 'electron';
+import { ipcMain, IpcMainInvokeEvent, WebContentsView } from 'electron';
 import { BrowserWindow } from 'electron';
 import { StandaloneExportHtmlParams } from '@src/types/standalone.ts';
 import fs from 'fs/promises';
 import { exportHtml, exportWord } from './export/export.ts';
 
 
-export const bindIpcMainHandle = (mainWindow: BrowserWindow) => {
+export const bindIpcMainHandle = (mainWindow: BrowserWindow, topBarView: WebContentsView) => {
   ipcMain.handle('apiflow-open-dev-tools', () => {
     BrowserWindow.getAllWindows()?.forEach(win => {
       win.webContents.openDevTools()
@@ -63,7 +63,10 @@ export const bindIpcMainHandle = (mainWindow: BrowserWindow) => {
   ipcMain.handle('apiflow-export-word', async (_: IpcMainInvokeEvent, exportHtmlParams: StandaloneExportHtmlParams) => {
     return exportWord(exportHtmlParams)
   })
-  ipcMain.on('apiflow-create-project', () => {
-    mainWindow.webContents.send('on-apiflow-create-project')
+  ipcMain.on('apiflow-create-project-from-header', () => {
+    mainWindow.webContents.send('apiflow-create-project')
+  })
+  ipcMain.on('apiflow-create-project-success-from-app', (_, data: { projectId: string, projectName: string }) => {
+    topBarView.webContents.send('apiflow-create-project-success', data)
   })
 }

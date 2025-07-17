@@ -1,12 +1,35 @@
 <template>
   <router-view></router-view>
+  <AddProjectDialog v-if="dialogVisible" v-model="dialogVisible" @success="handleAddSuccess"></AddProjectDialog>
 </template>
 
 <script setup lang="ts">
 import { config } from '@/../config/config';
-import { onMounted } from 'vue';
+import { onMounted, ref } from 'vue';
 import { t } from 'i18next';
 import { bindGlobalShortCut } from './shortcut';
+import { useRouter } from 'vue-router';
+import AddProjectDialog from '@/pages/modules/apidoc/doc-list/dialog/add-project/add-project.vue';
+
+const router = useRouter();
+const dialogVisible = ref(false);
+
+const handleAddSuccess = (data: { projectId: string, projectName: string }) => {
+  dialogVisible.value = false;
+  window.electronAPI?.sendToMain('apiflow-create-project-success-from-app', {
+    projectId: data.projectId,
+    projectName: data.projectName
+  });
+  router.push({
+    path: '/v1/apidoc/doc-edit',
+    query: {
+      id: data.projectId,
+      mode: 'edit'
+    }
+  });
+}
+
+
 onMounted(() => {
   if (!config.isDev && config.localization.consoleWelcome) {
     console.log(`
@@ -29,8 +52,8 @@ onMounted(() => {
   }
   document.title = `${config.isDev ? `${config.localization.title}(本地)` : config.localization.title} `;
   bindGlobalShortCut();
-  window.electronAPI?.onMain('on-apiflow-create-project', () => {
-    console.log('createProject');
+  window.electronAPI?.onMain('apiflow-create-project', () => {
+    dialogVisible.value = true;
   });
 })
 </script>

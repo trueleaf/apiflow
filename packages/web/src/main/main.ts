@@ -62,15 +62,18 @@ const createWindow = () => {
     topBarView.setBounds({ x: 0, y: 0, width: mainWindow.getBounds().width, height: 35 })
   });
   mainWindow.maximize()
-  return mainWindow;
+  return {
+    mainWindow,
+    topBarView
+  };
 }
 const rebuildMenu = () => {
   Menu.setApplicationMenu(null)
 }
 
 app.whenReady().then(() => {
-  const mainWindow = createWindow()
-  bindIpcMainHandle(mainWindow);
+  const { mainWindow, topBarView } = createWindow()
+  bindIpcMainHandle(mainWindow, topBarView);
   rebuildMenu();
   app.on('activate', function () {
     if (BrowserWindow.getAllWindows().length === 0) createWindow()

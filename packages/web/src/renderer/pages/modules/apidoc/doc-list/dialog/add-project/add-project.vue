@@ -2,7 +2,7 @@
   <Dialog :model-value="modelValue" top="10vh" :title="t('新增项目')" @close="handleClose">
     <el-form ref="form" :model="formInfo" :rules="rules" label-width="150px" @submit.prevent="() => {}">
       <el-form-item :label="`${t('项目名称')}：`" prop="projectName">
-        <el-input v-model="formInfo.projectName" v-focus-select="true" :size="config.renderConfig.layout.size" :placeholder="t('请输入项目名称')" @keydown.enter="handleAddProject"></el-input>
+        <el-input v-model="formInfo.projectName" v-focus-select="isFocus" :size="config.renderConfig.layout.size" :placeholder="t('请输入项目名称')" @keydown.enter="handleAddProject"></el-input>
       </el-form-item>
       <el-form-item v-if="!isStandalone" :label="`${t('选择成员或组')}：`">
         <RemoteSelector v-model="remoteQueryName" :remote-methods="getRemoteUserOrGroupByName" :loading="loading" :placeholder="t('输入【用户名】| 【完整手机号】 | 【组名称】')">
@@ -80,6 +80,10 @@ defineProps({
     type: Boolean,
     default: false,
   },
+  isFocus: {
+    type: Boolean,
+    default: true,
+  },
 })
 const form = ref<FormInstance>()
 const emits = defineEmits(['update:modelValue', 'success'])
@@ -119,11 +123,15 @@ const getRemoteUserOrGroupByName = (query: string) => {
 const handleAddProject = () => {
   form.value?.validate(async (valid) => {
     if(isStandalone.value && valid){
-      const project = generateEmptyProject(nanoid());
+      const projectId = nanoid();
+      const project = generateEmptyProject(projectId);
       project.projectName = formInfo.value.projectName;
       await standaloneCache.addProject(project);
       handleClose();
-      emits('success', project);
+      emits('success', {
+        projectId,
+        projectName: project.projectName,
+      });
       return;
     }
     if (valid) {
@@ -144,7 +152,10 @@ const handleAddProject = () => {
       };
       request.post('/api/project/add_project', params).then((res) => {
         handleClose();
-        emits('success', res.data);
+        emits('success', {
+          projectId: res.data,
+          projectName: formInfo.value.projectName,
+        });
       }).catch((err) => {
         console.error(err);
       }).finally(() => {
