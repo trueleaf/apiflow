@@ -4,6 +4,7 @@ import got from 'got'
 import ip from 'ip'
 import { gotRequest } from './sendRequest'
 import { StandaloneExportHtmlParams } from '@src/types/standalone.ts'
+import { WindowState } from '@src/types/types.ts'
 
 const openDevTools = () => {
   ipcRenderer.invoke('apiflow-open-dev-tools')
@@ -29,8 +30,8 @@ const getWindowState = () => {
   return ipcRenderer.invoke('apiflow-get-window-state')
 }
 
-const onWindowStateChange = (callback: (state: 'normal' | 'minimized' | 'maximized') => void) => {
-  ipcRenderer.on('window-state-changed', (_event, state) => callback(state))
+const onWindowResize = (callback: (state: WindowState) => void) => {
+  ipcRenderer.on('apiflow-resize-window', (_event, state) => callback(state))
 }
 
 const readFileAsUint8Array = async (path: string): Promise<Uint8Array | string> => {
@@ -54,6 +55,7 @@ const onMain = (channel: string, callback: (...args: any[]) => void) => {
   ipcRenderer.on(channel, (_event, ...args) => callback(...args))
 }
 
+
 contextBridge.exposeInMainWorld('electronAPI', {
   got,
   ip: ip.address(),
@@ -66,7 +68,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
   unmaximize,
   close,
   getWindowState,
-  onWindowStateChange,
+  onWindowResize,
   exportHtml,
   exportWord,
   sendToMain,

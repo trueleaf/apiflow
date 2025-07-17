@@ -446,3 +446,15 @@ export type GotRequestOptions = {
   beforeRequest?: (options: Options) => void,
   beforeRetry?: (error: RequestError, retryCount: number) => void,
 }
+export type WindowState = {
+  isMaximized: boolean;
+  isMinimized: boolean;
+  isFullScreen: boolean;
+  isNormal: boolean;
+  isVisible: boolean;
+  isFocused: boolean;
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+}

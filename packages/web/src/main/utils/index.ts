@@ -1,4 +1,4 @@
-import type { ResponseInfo } from "@src/types/types"
+import type { ResponseInfo, WindowState } from "@src/types/types"
 import { BrowserWindow } from "electron";
 
 export const generateEmptyResponse = (): ResponseInfo => {
@@ -150,4 +150,26 @@ export const dfsForest = <T extends { children: T[], [propsName: string]: unknow
     }
   };
   foo(forestData, fn, 1);
+}
+export const getWindowState = (mainWindow: BrowserWindow): WindowState => {
+  const isMinimized = mainWindow.isMinimized();
+  const isMaximized = mainWindow.isMaximized();
+  const isFullScreen = mainWindow.isFullScreen();
+  const isVisible = mainWindow.isVisible();
+  const isFocused = mainWindow.isFocused();
+  const position = mainWindow.getPosition();
+  const size = mainWindow.getSize();
+
+  return {
+    isMaximized,
+    isMinimized,
+    isFullScreen,
+    isNormal: !isMinimized && !isMaximized && !isFullScreen,
+    isVisible,
+    isFocused,
+    x: position[0],
+    y: position[1],
+    width: size[0],
+    height: size[1],
+  }
 }

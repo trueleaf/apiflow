@@ -1,7 +1,7 @@
-import { app, BrowserView, BrowserWindow, Menu, shell, WebContentsView } from 'electron'
+import { app, BrowserWindow, Menu, shell, WebContentsView } from 'electron'
 import path from 'path'
 import { fileURLToPath } from 'url';
-import { changeDevtoolsFont } from './utils/index.ts';
+import { changeDevtoolsFont, getWindowState } from './utils/index.ts';
 import { bindIpcMainHandle } from './ipcMessage/index.ts';
 import { bindMainProcessGlobalShortCut } from './shortcut/index.ts';
 const isDevelopment = process.env.NODE_ENV !== 'production'
@@ -9,7 +9,6 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const createWindow = () => {
-  const headerPath = path.join(__dirname, '../../web/public/header.html');
   const mainWindow = new BrowserWindow({
     frame: false, // 无边框模式
     webPreferences: {
@@ -18,7 +17,6 @@ const createWindow = () => {
     }
   })
   mainWindow.loadURL('http://localhost:3000')
-  // mainWindow.loadFile(headerPath)
   const topBarView = new WebContentsView({
     webPreferences: {
       preload: path.join(__dirname, 'preload.mjs'),
@@ -28,7 +26,7 @@ const createWindow = () => {
   })
   mainWindow.contentView.addChildView(topBarView);
   topBarView.setBounds({ x: 0, y: 0, width: mainWindow.getBounds().width, height: 35 })
-  topBarView.webContents.loadFile(headerPath)
+  topBarView.webContents.loadURL('http://localhost:3000/header.html')
   topBarView.webContents.on('did-finish-load', () => {
     topBarView.webContents.openDevTools({ mode: 'detach' }) // 可以设置为 'right', 'bottom', 'undocked' 等
   })
@@ -41,25 +39,32 @@ const createWindow = () => {
     shell.openExternal(url)
     return { action: 'deny' }
   })
-  // 监听窗口状态变化
   mainWindow.on('minimize', () => {
-    mainWindow.webContents.send('window-state-changed', 'minimized');
-    topBarView.setBounds({ x: 0, y: 0, width: mainWindow.getBounds().width, height: 0 })
+    const windowState = getWindowState(mainWindow)  
+    topBarView.setBounds({ x: 0, y: 0, width: mainWindow.getBounds().width, height: 0 });
+    mainWindow.webContents.send('apiflow-resize-window', windowState);
+    topBarView.webContents.send('apiflow-resize-window', windowState);
   });
 
   mainWindow.on('maximize', () => {
-    mainWindow.webContents.send('window-state-changed', 'maximized');
+    const windowState = getWindowState(mainWindow)
     topBarView.setBounds({ x: 0, y: 0, width: mainWindow.getBounds().width, height: 35 })
+    mainWindow.webContents.send('apiflow-resize-window', windowState);
+    topBarView.webContents.send('apiflow-resize-window', windowState);
   });
 
   mainWindow.on('unmaximize', () => {
-    mainWindow.webContents.send('window-state-changed', 'normal');
+    const windowState = getWindowState(mainWindow)
     topBarView.setBounds({ x: 0, y: 0, width: mainWindow.getBounds().width, height: 35 })
+    mainWindow.webContents.send('apiflow-resize-window', windowState);
+    topBarView.webContents.send('apiflow-resize-window', windowState);
   });
 
   mainWindow.on('restore', () => {
-    mainWindow.webContents.send('window-state-changed', mainWindow.isMaximized() ? 'maximized' : 'normal');
+    const windowState = getWindowState(mainWindow)
     topBarView.setBounds({ x: 0, y: 0, width: mainWindow.getBounds().width, height: 35 })
+    mainWindow.webContents.send('apiflow-resize-window', windowState);
+    topBarView.webContents.send('apiflow-resize-window', windowState);
   });
   mainWindow.maximize()
   return {
