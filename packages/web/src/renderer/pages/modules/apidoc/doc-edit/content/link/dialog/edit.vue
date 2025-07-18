@@ -356,7 +356,7 @@ const handleCustomDateChange = (value: string) => {
       background-color: #a6d2ff;
     }
     &.select-node {
-      background-color: #66b1ff;
+      background-color: #a6d2ff;
     }
     &.cut-node {
       color: #adb5bd;

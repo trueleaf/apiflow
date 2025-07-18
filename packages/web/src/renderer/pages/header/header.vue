@@ -192,7 +192,7 @@ body {
   }
   &.active {
     color: #fff;
-    background-color: rgba(255, 255, 255, 0.1);
+    background-color: rgba(255, 255, 255, 0.35);
   }
   &:hover {
     color: #fff;
@@ -278,7 +278,7 @@ body {
 
 .tab-item.active {
   color: #fff;
-  background-color: rgba(255, 255, 255, 0.1);
+  background-color: rgba(255, 255, 255, 0.35);
 }
 
 .tab-item .close-btn:hover {

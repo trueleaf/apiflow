@@ -200,7 +200,9 @@ import { ElMessageBox } from 'element-plus';
 import { router } from '@/router';
 import { debounce, formatDate } from '@/helper';
 import { useApidocBaseInfo } from '@/store/apidoc/base-info'
+import { useApidocTas } from '@/store/apidoc/tabs'
 import { standaloneCache } from '@/cache/standalone'
+import { apidocCache } from '@/cache/apidoc'
 
 /*
 |--------------------------------------------------------------------------
@@ -248,6 +250,7 @@ const starProjects = computed(() => {
   });
 });
 const apidocBaseInfo = useApidocBaseInfo()
+const apidocTabs = useApidocTas()
 /*
 |--------------------------------------------------------------------------
 | 项目列表增删改查
@@ -296,10 +299,14 @@ const deleteProject = (_id: string) => {
     cancelButtonText: t('取消'),
     type: 'warning'
   }).then(async () => {
+    const deleteTopBarTab = () => {
+      window.electronAPI?.sendToMain('apiflow-delete-topbar-tab-from-app', _id);
+    }
     if (__STANDALONE__) {
       try {
         await standaloneCache.deleteProject(_id);
         getProjectList();
+        deleteTopBarTab();
       } catch (err) {
         console.error(err);
       }
@@ -307,6 +314,7 @@ const deleteProject = (_id: string) => {
     }
     request.delete('/api/project/delete_project', { data: { ids: [_id] } }).then(() => {
       getProjectList();
+      deleteTopBarTab();
     }).catch((err) => {
       console.error(err);
     });

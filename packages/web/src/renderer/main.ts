@@ -25,7 +25,9 @@ await i18next.use(Backend).init({
   fallbackLng: "zh",
 });
 
-app.use(pinia).use(customDirective).use(I18NextVue, { i18next }).use(ElementPlus, { locale: zhCn }).use(router);
+app.use(pinia).use(customDirective).use(I18NextVue, { i18next }).use(ElementPlus, { 
+  locale: zhCn
+ }).use(router);
 app.mount('#app')
 
 /*

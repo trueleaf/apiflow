@@ -632,7 +632,7 @@ onUnmounted(() => {
     }
 
     &.select-node {
-      background-color: #62a3e9;
+      background-color: #a6d2ff;
     }
 
     &.cut-node {

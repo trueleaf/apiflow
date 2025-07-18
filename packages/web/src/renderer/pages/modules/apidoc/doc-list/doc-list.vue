@@ -57,7 +57,6 @@ onMounted(() => {
 <style lang='scss' scoped>
 .doc-list {
   width: 70%;
-  margin-top: 20px;
   margin-left: auto;
   margin-right: auto;
   @media only screen and (max-width: 720px) {

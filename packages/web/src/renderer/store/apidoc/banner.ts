@@ -86,6 +86,7 @@ export const useApidocBanner = defineStore('apidocBanner', () => {
       if (__STANDALONE__) {
         const docs = await standaloneCache.getDocsList();
         const projectDocs = docs.filter((doc) => doc.projectId === payload.projectId);
+        console.log(projectDocs);
         const banner = convertDocsToBanner(projectDocs);
         changeAllDocBanner(banner)
         resolve(banner)

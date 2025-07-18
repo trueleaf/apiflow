@@ -215,7 +215,7 @@ watch(searchValue, (newValue) => {
     }
 
     &.select-node {
-      background-color: #66b1ff;
+      background-color: #a6d2ff;
     }
 
     &.readonly {

@@ -136,6 +136,7 @@ import { useApidocBaseInfo } from '@/store/apidoc/base-info'
 import { useApidocBanner } from '@/store/apidoc/banner'
 import { $t } from '@/i18n/i18n'
 import { standaloneCache } from '@/cache/standalone'
+import { nanoid } from 'nanoid'
 
 type FormInfo = {
   moyuData: {
@@ -432,7 +433,11 @@ const handleSubmit = async () => {
       pid: val.pid || mountedId,
     }))
     if (__STANDALONE__ && formInfo.value.cover) {
-      await standaloneCache.replaceAllDocs(JSON.parse(JSON.stringify(docs)) as ApidocDetail[], projectId);
+      const copiedDocs = JSON.parse(JSON.stringify(docs)) as ApidocDetail[];
+      copiedDocs.forEach(doc => {
+        doc._id = nanoid();
+      })
+      await standaloneCache.replaceAllDocs(copiedDocs as ApidocDetail[], projectId);
       apidocBannerStore.getDocBanner({ projectId });
       ElMessage.success(t('导入成功'));
       return

@@ -439,7 +439,7 @@ const clearContextmenu = () => {
     background: #d6e7fc;
 
     .custom-tree-node.select-node {
-      background-color: #d6e7fc;
+      background-color: #a6d2ff;
     }
   }
 
