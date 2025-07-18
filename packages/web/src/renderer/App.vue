@@ -12,9 +12,13 @@ import { useRouter } from 'vue-router';
 import AddProjectDialog from '@/pages/modules/apidoc/doc-list/dialog/add-project/add-project.vue';
 import { standaloneCache } from './cache/standalone';
 import { ElMessageBox } from 'element-plus';
+import { useApidocBanner } from './store/apidoc/banner';
+import { useApidocBaseInfo } from './store/apidoc/base-info';
 
 const router = useRouter();
 const dialogVisible = ref(false);
+const apidocBannerStore = useApidocBanner()
+const apidocBaseInfoStore = useApidocBaseInfo()
 
 // 监听路由变化
 watch(() => router.currentRoute.value.path, (newPath) => {
@@ -45,7 +49,7 @@ const handleAddSuccess = (data: { projectId: string, projectName: string }) => {
   });
 }
 
-const bindTopBarEvent = () => {
+const bindTopBarEvent = async () => {
   window.electronAPI?.onMain('apiflow-create-project', () => {
     dialogVisible.value = true;
   });
@@ -76,6 +80,11 @@ const bindTopBarEvent = () => {
         projectId: data.projectId,
         projectName: matchedProject.projectName
       })
+    }
+    if (__STANDALONE__) {
+      await apidocBannerStore.getDocBanner({ projectId: data.projectId })
+      await apidocBaseInfoStore.getProjectBaseInfo({ projectId: data.projectId })
+      await apidocBaseInfoStore.changeProjectId(data.projectId)
     }
     router.push({
       path: '/v1/apidoc/doc-edit',
@@ -122,6 +131,5 @@ onMounted(() => {
 #app {
   width: 100%;
   height: 100%;
-  margin-top: 35px;
 }
 </style>
