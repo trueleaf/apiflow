@@ -14,62 +14,96 @@ const createWindow = () => {
     webPreferences: {
       preload: path.join(__dirname, 'preload.mjs'),
       nodeIntegration: true,
-    }
+    },
   })
-  mainWindow.loadURL('http://localhost:3000')
+  // 创建顶部栏视图
   const topBarView = new WebContentsView({
     webPreferences: {
       preload: path.join(__dirname, 'preload.mjs'),
       nodeIntegration: true,
       devTools: true,
-    }
+    },
   })
+
+  // 创建主内容视图
+  const mainContentView = new WebContentsView({
+    webPreferences: {
+      preload: path.join(__dirname, 'preload.mjs'),
+      nodeIntegration: true,
+    },
+  })
+
+  // 添加子视图
   mainWindow.contentView.addChildView(topBarView);
-  topBarView.setBounds({ x: 0, y: 0, width: mainWindow.getBounds().width, height: 35 })
+  mainWindow.contentView.addChildView(mainContentView);
+
+  // 设置顶部栏位置和大小
+  const windowBounds = mainWindow.getBounds();
+  topBarView.setBounds({ x: 0, y: 0, width: windowBounds.width, height: 35 })
+
+  // 设置主内容位置和大小（在顶部栏下方）
+  mainContentView.setBounds({
+    x: 0,
+    y: 35,
+    width: windowBounds.width,
+    height: windowBounds.height - 35
+  })
+
+  // 加载内容
   topBarView.webContents.loadURL('http://localhost:3000/header.html')
+  mainContentView.webContents.loadURL('http://localhost:3000')
   topBarView.webContents.on('did-finish-load', () => {
     topBarView.webContents.openDevTools({ mode: 'detach' }) // 可以设置为 'right', 'bottom', 'undocked' 等
   })
 
-  mainWindow.webContents.openDevTools()
+  mainContentView.webContents.openDevTools()
   changeDevtoolsFont(mainWindow);
   bindMainProcessGlobalShortCut(mainWindow);
   // 设置窗口打开外部链接的默认行为
-  mainWindow.webContents.setWindowOpenHandler(({ url }) => {
+  mainContentView.webContents.setWindowOpenHandler(({ url }) => {
     shell.openExternal(url)
     return { action: 'deny' }
   })
   mainWindow.on('minimize', () => {
-    const windowState = getWindowState(mainWindow)  
-    topBarView.setBounds({ x: 0, y: 0, width: mainWindow.getBounds().width, height: 0 });
-    mainWindow.webContents.send('apiflow-resize-window', windowState);
+    const windowState = getWindowState(mainWindow)
+    const windowBounds = mainWindow.getBounds();
+    topBarView.setBounds({ x: 0, y: 0, width: windowBounds.width, height: 0 });
+    mainContentView.setBounds({ x: 0, y: 0, width: windowBounds.width, height: windowBounds.height });
+    mainContentView.webContents.send('apiflow-resize-window', windowState);
     topBarView.webContents.send('apiflow-resize-window', windowState);
   });
 
   mainWindow.on('maximize', () => {
     const windowState = getWindowState(mainWindow)
-    topBarView.setBounds({ x: 0, y: 0, width: mainWindow.getBounds().width, height: 35 })
-    mainWindow.webContents.send('apiflow-resize-window', windowState);
+    const windowBounds = mainWindow.getBounds();
+    topBarView.setBounds({ x: 0, y: 0, width: windowBounds.width, height: 35 })
+    mainContentView.setBounds({ x: 0, y: 35, width: windowBounds.width, height: windowBounds.height - 35 })
+    mainContentView.webContents.send('apiflow-resize-window', windowState);
     topBarView.webContents.send('apiflow-resize-window', windowState);
   });
 
   mainWindow.on('unmaximize', () => {
     const windowState = getWindowState(mainWindow)
-    topBarView.setBounds({ x: 0, y: 0, width: mainWindow.getBounds().width, height: 35 })
-    mainWindow.webContents.send('apiflow-resize-window', windowState);
+    const windowBounds = mainWindow.getBounds();
+    topBarView.setBounds({ x: 0, y: 0, width: windowBounds.width, height: 35 })
+    mainContentView.setBounds({ x: 0, y: 35, width: windowBounds.width, height: windowBounds.height - 35 })
+    mainContentView.webContents.send('apiflow-resize-window', windowState);
     topBarView.webContents.send('apiflow-resize-window', windowState);
   });
 
   mainWindow.on('restore', () => {
     const windowState = getWindowState(mainWindow)
-    topBarView.setBounds({ x: 0, y: 0, width: mainWindow.getBounds().width, height: 35 })
-    mainWindow.webContents.send('apiflow-resize-window', windowState);
+    const windowBounds = mainWindow.getBounds();
+    topBarView.setBounds({ x: 0, y: 0, width: windowBounds.width, height: 35 })
+    mainContentView.setBounds({ x: 0, y: 35, width: windowBounds.width, height: windowBounds.height - 35 })
+    mainContentView.webContents.send('apiflow-resize-window', windowState);
     topBarView.webContents.send('apiflow-resize-window', windowState);
   });
   mainWindow.maximize()
   return {
     mainWindow,
-    topBarView
+    topBarView,
+    mainContentView
   };
 }
 const rebuildMenu = () => {
@@ -77,7 +111,7 @@ const rebuildMenu = () => {
 }
 
 app.whenReady().then(() => {
-  const { mainWindow, topBarView } = createWindow()
+  const { mainWindow, topBarView, mainContentView } = createWindow()
   bindIpcMainHandle(mainWindow, topBarView);
   rebuildMenu();
   app.on('activate', function () {
