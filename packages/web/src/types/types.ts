@@ -458,3 +458,7 @@ export type WindowState = {
   width: number;
   height: number;
 }
+export type IPCProjectData = {
+  projectId: string;
+  projectName: string;
+}

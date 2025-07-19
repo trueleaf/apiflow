@@ -4,9 +4,17 @@ import { StandaloneExportHtmlParams } from '@src/types/standalone.ts';
 import fs from 'fs/promises';
 import { exportHtml, exportWord } from './export/export.ts';
 import { getWindowState } from '../utils/index.ts';
+import { IPCProjectData, WindowState } from '@src/types/types.ts';
 
-
-export const bindIpcMainHandle = (mainWindow: BrowserWindow, topBarView: WebContentsView) => {
+export const useIpcEvent = (mainWindow: BrowserWindow, topBarView: WebContentsView, contentView: WebContentsView) => {
+  /*
+  |--------------------------------------------------------------------------
+  | 其他操作
+  | 1.读取文件
+  | 2.打开开发者工具
+  |
+  |--------------------------------------------------------------------------
+  */
   ipcMain.handle('apiflow-open-dev-tools', () => {
     mainWindow.webContents.openDevTools()
   })
@@ -53,9 +61,6 @@ export const bindIpcMainHandle = (mainWindow: BrowserWindow, topBarView: WebCont
   ipcMain.handle('apiflow-get-window-state', () => {
     return getWindowState(mainWindow)
   });
-
-
-
   /*
   |---------------------------------------------------------------------------
   | 导出相关
@@ -69,31 +74,61 @@ export const bindIpcMainHandle = (mainWindow: BrowserWindow, topBarView: WebCont
   })
   /*
   |---------------------------------------------------------------------------
-  | tab与内容区域相关交互
+  | topBarView → contentView 通信（使用新的路由器）
   |---------------------------------------------------------------------------
   */
-  ipcMain.on('apiflow-create-project-from-header', () => {
-    mainWindow.webContents.send('apiflow-create-project')
+  // 顶部栏创建项目请求
+  ipcMain.on('apiflow-topbar-create-project', async () => {
+    contentView.webContents.send('apiflow-create-project')
   })
-  ipcMain.on('apiflow-create-project-success-from-app', (_, data: { projectId: string, projectName: string }) => {
-    topBarView.webContents.send('apiflow-create-project-success', data)
+
+  // 顶部栏路由切换请求
+  ipcMain.on('apiflow-topbar-navigate', async (_, path: string) => {
+    contentView.webContents.send('apiflow-change-route', path)
   })
-  ipcMain.on('apiflow-change-route-from-header', (_, path: string) => {
-    mainWindow.webContents.send('apiflow-change-route', path)
+
+  // 顶部栏project切换请求,tabs切换就是项目切换
+  ipcMain.on('apiflow-topbar-switch-project', async (_, data: IPCProjectData) => {
+    contentView.webContents.send('apiflow-change-project', data)
   })
-  ipcMain.on('apiflow-change-project-from-app', (_, data: { projectId: string, projectName: string }) => {
-    topBarView.webContents.send('apiflow-change-project', data)
+
+  /*
+  |---------------------------------------------------------------------------
+  | contentView → topBarView 通信（
+  |---------------------------------------------------------------------------
+  */
+  // 主内容区创建项目成功通知
+  ipcMain.on('apiflow-content-project-created', async (_, payload: IPCProjectData) => {
+    topBarView.webContents.send('apiflow-create-project-success', payload)
   })
-  //顶部切换tab
-  ipcMain.on('apiflow-change-topbar-tab-from-header', (_, projectId: string) => {
-    mainWindow.webContents.send('apiflow-change-topbar-tab', projectId)
+
+  // 主内容区项目切换通知
+  ipcMain.on('apiflow-content-project-changed', async (_, payload: IPCProjectData) => {
+    topBarView.webContents.send('apiflow-change-project', payload)
   })
-  //删除顶部tab
-  ipcMain.on('apiflow-delete-topbar-tab-from-app', (_, projectId: string) => {
-    topBarView.webContents.send('apiflow-delete-topbar-tab', projectId)
+
+  // 主内容区删除项目
+  ipcMain.on('apiflow-content-project-deleted', async (_, projectId: string) => {
+    topBarView.webContents.send('apiflow-delete-project', projectId)
   })
-  //改变顶部tab名称
-  ipcMain.on('apiflow-change-topbar-tab-name-from-app', (_, data: { projectId: string, projectName: string }) => {
-    topBarView.webContents.send('apiflow-change-topbar-tab-name', data)
+
+  // 主内容区修改项目名称请求
+  ipcMain.on('apiflow-content-project-renamed', async (_, payload: IPCProjectData) => {
+    topBarView.webContents.send('apiflow-change-project-name', payload)
   })
+  /*
+  |---------------------------------------------------------------------------
+  | 窗口状态同步
+  |---------------------------------------------------------------------------
+  */
+  // 提供一个统一的窗口状态广播方法
+  const broadcastWindowState = (windowState: WindowState) => {
+    contentView.webContents.send('apiflow-resize-window', windowState);
+    topBarView.webContents.send('apiflow-resize-window', windowState);
+  }
+
+  // 返回包含路由器和广播方法的对象
+  return {
+    broadcastWindowState
+  };
 }
