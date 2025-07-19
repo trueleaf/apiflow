@@ -40,8 +40,7 @@ import { ref, onMounted, nextTick, watch } from 'vue'
 import draggable from 'vuedraggable'
 import { apidocCache } from '@src/renderer/cache/apidoc'
 
-interface Tab { id: string; title: string }
-const tabs = ref<Tab[]>([])
+const tabs = ref<{ id: string; title: string }[]>([])
 const activeTabId = ref('')
 const isMaximized = ref(false)
 const isDev = ref(false)
@@ -72,9 +71,9 @@ const deleteTab = (tabId: string) => {
     activeTabId.value = tabs.value[Math.min(index, tabs.value.length - 1)]?.id || ''
   }
 }
-const switchTab = (projectId: string) => {  
+const switchTab = (projectId: string) => {
   activeTabId.value = projectId;
-  window.electronAPI?.sendToMain('apiflow-change-topbar-tab-from-header', {
+  window.electronAPI?.sendToMain('apiflow-topbar-switch-project', {
     projectId: projectId,
     projectName: tabs.value.find(t => t.id === projectId)?.title || ''
   })
@@ -85,11 +84,12 @@ const onDragEnd = () => { }
 | 新增项目
 |--------------------------------------------------------------------------
 */
-const handleAddProject = () => window.electronAPI?.sendToMain('apiflow-create-project-from-header')
+const handleAddProject = () => window.electronAPI?.sendToMain('apiflow-topbar-create-project')
 
 const jumpToHome = () => {
   activeTabId.value = '';
-  window.electronAPI?.sendToMain('apiflow-change-route-from-header', '/')
+  // 主进程期望接收字符串路径，不是对象
+  window.electronAPI?.sendToMain('apiflow-topbar-navigate', '/')
 }
 const bindAppEvent = () => {
   window.electronAPI?.onMain('apiflow-create-project-success', (data: { projectId: string, projectName: string }) => {
@@ -103,10 +103,12 @@ const bindAppEvent = () => {
       tabs.value.push({ id: data.projectId, title: data.projectName })
     }
   })
-  window.electronAPI?.onMain('apiflow-delete-topbar-tab', (projectId: string) => {
+  // 主进程发送的事件名称：apiflow-delete-project
+  window.electronAPI?.onMain('apiflow-delete-project', (projectId: string) => {
     deleteTab(projectId)
   })
-  window.electronAPI?.onMain('apiflow-change-topbar-tab-name', (data: { projectId: string, projectName: string }) => {
+  // 主进程发送的事件名称：apiflow-change-project-name
+  window.electronAPI?.onMain('apiflow-change-project-name', (data: { projectId: string, projectName: string }) => {
     const index = tabs.value.findIndex(t => t.id === data.projectId)
     if (index !== -1) {
       tabs.value[index].title = data.projectName

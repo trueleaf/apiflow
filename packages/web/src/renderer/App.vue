@@ -25,7 +25,8 @@ watch(() => router.currentRoute.value.path, (newPath) => {
   if (newPath === '/v1/apidoc/doc-edit') {
     const projectId = router.currentRoute.value.query.id as string;
     const projectName = router.currentRoute.value.query.name as string;
-    window.electronAPI?.sendToMain('apiflow-change-project-from-app', {
+    // 使用新的事件名称
+    window.electronAPI?.sendToMain('apiflow-content-project-changed', {
       projectId: projectId,
       projectName: projectName
     })
@@ -36,7 +37,8 @@ watch(() => router.currentRoute.value.path, (newPath) => {
 
 const handleAddSuccess = (data: { projectId: string, projectName: string }) => {
   dialogVisible.value = false;
-  window.electronAPI?.sendToMain('apiflow-create-project-success-from-app', {
+  // 使用新的事件名称
+  window.electronAPI?.sendToMain('apiflow-content-project-created', {
     projectId: data.projectId,
     projectName: data.projectName
   });
@@ -56,7 +58,8 @@ const bindTopBarEvent = async () => {
   window.electronAPI?.onMain('apiflow-change-route', (path: string) => {
     router.push(path)
   })
-  window.electronAPI?.onMain('apiflow-change-topbar-tab', async (data: { projectId: string, projectName: string }) => {
+  // 主进程发送的事件名称：apiflow-change-project
+  window.electronAPI?.onMain('apiflow-change-project', async (data: { projectId: string, projectName: string }) => {
     let matchedProject = null;
     if (__STANDALONE__) {
       const projectList = await standaloneCache.getProjectList();
@@ -71,12 +74,14 @@ const bindTopBarEvent = async () => {
         showClose: false,
         type: 'error'
       }).then(() => {
-        window.electronAPI?.sendToMain('apiflow-delete-topbar-tab-from-app', data.projectId)
+        // 使用主进程中定义的事件名称：apiflow-content-project-deleted
+        window.electronAPI?.sendToMain('apiflow-content-project-deleted', data.projectId)
       })
       return
     }
     if (matchedProject.projectName !== data.projectName) {
-      window.electronAPI?.sendToMain('apiflow-change-topbar-tab-name-from-app', {
+      // 使用主进程中定义的事件名称：apiflow-content-project-renamed
+      window.electronAPI?.sendToMain('apiflow-content-project-renamed', {
         projectId: data.projectId,
         projectName: matchedProject.projectName
       })
