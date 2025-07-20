@@ -1,7 +1,7 @@
 import { app, BrowserWindow, WebContentsView } from 'electron'
 import path from 'path'
 import { fileURLToPath } from 'url';
-import { changeDevtoolsFont, getWindowState } from './utils/index.ts';
+import { getWindowState } from './utils/index.ts';
 import { useIpcEvent } from './ipcMessage/index.ts';
 import { bindMainProcessGlobalShortCut } from './shortcut/index.ts';
 import { overrideBrowserWindow } from './override/index.ts';
@@ -73,7 +73,7 @@ const createWindow = () => {
 app.whenReady().then(() => {
   const { mainWindow, topBarView, contentView } = createWindow()
   const { broadcastWindowState } = useIpcEvent(mainWindow, topBarView, contentView);
-  bindMainProcessGlobalShortCut(mainWindow);
+  bindMainProcessGlobalShortCut(mainWindow, topBarView, contentView);
   // 窗口状态变化时的视图布局调整
   const updateViewLayout = () => {
     const windowBounds = mainWindow.getBounds();
