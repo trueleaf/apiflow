@@ -25,7 +25,6 @@ watch(() => router.currentRoute.value.path, (newPath) => {
   if (newPath === '/v1/apidoc/doc-edit') {
     const projectId = router.currentRoute.value.query.id as string;
     const projectName = router.currentRoute.value.query.name as string;
-    // 使用新的事件名称
     window.electronAPI?.sendToMain('apiflow-content-project-changed', {
       projectId: projectId,
       projectName: projectName
@@ -60,6 +59,7 @@ const bindTopBarEvent = async () => {
   })
   // 主进程发送的事件名称：apiflow-change-project
   window.electronAPI?.onMain('apiflow-change-project', async (data: { projectId: string, projectName: string }) => {
+
     let matchedProject = null;
     if (__STANDALONE__) {
       const projectList = await standaloneCache.getProjectList();

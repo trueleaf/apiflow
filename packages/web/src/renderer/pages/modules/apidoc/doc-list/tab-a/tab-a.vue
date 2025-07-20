@@ -434,16 +434,16 @@ const handleJumpToView = (item: ApidocProjectInfo) => {
   apidocBaseInfo.changeProjectId(item._id);
 }
 //新增项目成功
-const handleAddSuccess = async (data: { projectId: string }) => {
+const handleAddSuccess = async (data: { projectId: string, projectName: string }) => {
   if (__STANDALONE__) {
     await getProjectList();
     dialogVisible.value = false;
-    return;
   }
   router.push({
     path: '/v1/apidoc/doc-edit',
     query: {
       id: data.projectId,
+      name: data.projectName,
       mode: 'edit'
     }
   });

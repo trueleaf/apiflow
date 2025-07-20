@@ -10,7 +10,7 @@
       <i class="iconfont iconhome"></i>
       <span>主页面</span>
     </div>
-    <el-divider direction="vertical" class="divider" />
+    <el-divider v-if="tabs.length > 0" direction="vertical" class="divider" />
     <div class="tabs">
       <draggable v-model="tabs" class="tab-list" :animation="150" ghost-class="sortable-ghost"
         chosen-class="sortable-chosen" drag-class="sortable-drag" @end="onDragEnd" item-key="id">
@@ -66,8 +66,16 @@ const handleWindowResize = (state: WindowState) => {
 const deleteTab = (tabId: string) => {
   const index = tabs.value.findIndex(t => t.id === tabId)
   if (index === -1) return
+
+  // 删除指定的标签页
   tabs.value = tabs.value.filter(t => t.id !== tabId)
-  if (activeTabId.value === tabId && tabs.value.length) {
+
+  // 检查删除后的标签页数量
+  if (tabs.value.length === 0) {
+    // 如果没有剩余标签页，自动跳转到主页面
+    jumpToHome()
+  } else if (activeTabId.value === tabId) {
+    // 如果删除的是当前激活的标签页，且还有其他标签页，则切换到相邻的标签页
     activeTabId.value = tabs.value[Math.min(index, tabs.value.length - 1)]?.id || ''
   }
 }
@@ -99,8 +107,11 @@ const bindAppEvent = () => {
   })
   window.electronAPI?.onMain('apiflow-change-project', (data: { projectId: string, projectName: string }) => {
     activeTabId.value = data.projectId;
-    if (!tabs.value.find(t => t.id === data.projectId)) {
+    const matchedProject = tabs.value.find(t => t.id === data.projectId)
+    if (!matchedProject) {
       tabs.value.push({ id: data.projectId, title: data.projectName })
+    } else if (matchedProject.title !== data.projectName) {
+      matchedProject.title = data.projectName
     }
   })
   // 主进程发送的事件名称：apiflow-delete-project
