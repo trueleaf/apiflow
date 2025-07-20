@@ -539,7 +539,7 @@ onUnmounted(() => {
 
   //树形组件包裹框
   .tree-wrap {
-    height: calc(100vh - var(--apiflow-banner-tool-height) - var(--apiflow-header-height) - 15px);
+    height: calc(100vh - var(--apiflow-banner-tool-height) - 15px);
     overflow-y: auto;
   }
 

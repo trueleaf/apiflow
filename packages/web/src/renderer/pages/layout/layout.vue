@@ -18,7 +18,7 @@
 
   .page-wrap {
     overflow-y: auto;
-    height: calc(100vh - var(--apiflow-header-height));
+    height: 100vh;
   }
 }
 </style>
