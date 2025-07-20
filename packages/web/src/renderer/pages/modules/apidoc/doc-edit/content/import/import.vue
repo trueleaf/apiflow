@@ -196,8 +196,6 @@ const projectInfo = computed(() => {
     paramsTemplate: apidocBaseInfoStore.paramsTemplate,
     webProxy: apidocBaseInfoStore.webProxy,
     mode: apidocBaseInfoStore.mode,
-    variables: apidocBaseInfoStore.variables,
-    tempVariables: apidocBaseInfoStore.tempVariables,
     commonHeaders: apidocBaseInfoStore.commonHeaders,
     rules: apidocBaseInfoStore.rules,
     mindParams: apidocBaseInfoStore.mindParams,
@@ -324,15 +322,17 @@ const getImportFileInfo = () => {
 }
 //上传成功读取文件内容
 const requestHook = (e: { file: File }) => {
-  e.file.text().then((fileStr) => {
+  return e.file.text().then((fileStr) => {
     if (fileType.value === 'yaml' || fileType.value === 'application/x-yaml') {
       jsonText.value = jsyaml.load(fileStr) as OpenAPIV3.Document;
     } else {
       jsonText.value = JSON.parse(fileStr)
     }
     getImportFileInfo();
+    return fileStr;
   }).catch((err) => {
     console.error(err);
+    throw err;
   });
 }
 //导入数据预览
@@ -355,7 +355,38 @@ const previewNavTreeData = computed(() => {
       }
     }
   }
-  return result;
+
+  // 排序函数：实现多级排序规则
+  const sortItems = (items: typeof docs) => {
+    return items.sort((a, b) => {
+      // 文件夹排在前面，API文档排在后面
+      if (a.isFolder && !b.isFolder) return -1;
+      if (!a.isFolder && b.isFolder) return 1;
+
+      // 同类型内部按 sort 字段升序排序
+      const aSort = a.sort ?? Number.MAX_SAFE_INTEGER;
+      const bSort = b.sort ?? Number.MAX_SAFE_INTEGER;
+      if (aSort !== bSort) {
+        return aSort - bSort;
+      }
+
+      // sort 字段相同或都不存在时，按名称字母排序
+      return (a.info?.name || '').localeCompare(b.info?.name || '');
+    });
+  };
+
+  // 递归排序所有层级
+  const sortRecursively = (items: typeof docs) => {
+    const sorted = sortItems(items);
+    sorted.forEach(item => {
+      if (item.children && item.children.length > 0) {
+        item.children = sortRecursively(item.children);
+      }
+    });
+    return sorted;
+  };
+
+  return sortRecursively(result);
 })
 /*
 |--------------------------------------------------------------------------
