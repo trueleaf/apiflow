@@ -459,21 +459,27 @@ const handleSubmit = async () => {
       return;
     }
     const mountedId = currentMountedNode.value?._id;
-    const docs = formInfo.value.moyuData.docs.map((val) => ({
-      ...val,
-      pid: val.pid || mountedId,
-    }))
+
+    // 处理文档的父子关系
+    const docs = formInfo.value.moyuData.docs.map((val) => {
+      // 如果文档没有父ID（根节点）且用户选择了挂载节点，则设置为挂载节点
+      // 如果文档有父ID，保留原有的父子关系结构
+      const processedDoc = {
+        ...val,
+        pid: (!val.pid && mountedId) ? mountedId : val.pid,
+      };
+      return processedDoc;
+    });
+
     if (__STANDALONE__ && formInfo.value.cover) {
       const copiedDocs = JSON.parse(JSON.stringify(docs)) as ApidocDetail[];
-      copiedDocs.forEach(doc => {
-        doc._id = nanoid();
-      })
       await standaloneCache.replaceAllDocs(copiedDocs as ApidocDetail[], projectId);
       apidocBannerStore.getDocBanner({ projectId });
       ElMessage.success(t('导入成功'));
       return
     } else if (__STANDALONE__ && !formInfo.value.cover) {
-      await standaloneCache.appendDocs(JSON.parse(JSON.stringify(docs)) as ApidocDetail[], projectId);
+      const copiedDocs = JSON.parse(JSON.stringify(docs)) as ApidocDetail[];
+      await standaloneCache.appendDocs(copiedDocs, projectId);
       apidocBannerStore.getDocBanner({ projectId });
       ElMessage.success(t('导入成功'));
       return
@@ -504,7 +510,7 @@ const handleSubmit = async () => {
 <style lang='scss'>
 .doc-import {
   overflow-y: auto;
-  height: calc(100vh - 120px);
+  height: calc(100vh - var(--apiflow-doc-nav-height));
   width: 70%;
   min-width: 768px;
   margin: 0 auto;

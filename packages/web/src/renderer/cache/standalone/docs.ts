@@ -207,16 +207,19 @@ export class DocCache {
       await Promise.all(
         existingDocs
           .filter(doc => doc.projectId === projectId)
-          .map(doc => store.put({ 
-            ...doc, 
+          .map(doc => store.put({
+            ...doc,
             isDeleted: true,
             updatedAt: new Date().toISOString()
           }, doc._id))
       );
-      await Promise.all(docs.map(doc => store.put({
-        ...doc,
-        projectId,
-      }, doc._id)));
+
+      // 2. 处理文档ID和关系映射
+      const { processedDocs } = this.prepareDocsWithNewIds(docs, projectId);
+
+      // 3. 批量保存处理后的文档
+      await Promise.all(processedDocs.map(doc => store.put(doc, doc._id)));
+
       await tx.done;
       await this.updateProjectDocNum(projectId);
       return true;
@@ -227,8 +230,54 @@ export class DocCache {
   }
 
   /**
+   * 创建ID映射并更新文档关系
+   * @param docs 要处理的文档列表
+   * @param projectId 项目ID
+   * @returns 处理后的文档列表和ID映射
+   */
+  private prepareDocsWithNewIds(docs: ApidocDetail[], projectId: string): {
+    processedDocs: ApidocDetail[];
+    idMapping: Map<string, string>;
+  } {
+    const idMapping = new Map<string, string>();
+    const processedDocs: ApidocDetail[] = [];
+
+    // 第一步：为所有文档生成新的ID并创建映射
+    for (const doc of docs) {
+      const oldId = doc._id;
+      const newId = nanoid();
+      idMapping.set(oldId, newId);
+
+      // 创建文档副本并更新基本信息
+      const processedDoc: ApidocDetail = {
+        ...doc,
+        _id: newId,
+        projectId,
+        // 暂时保留原始pid，稍后会更新
+      };
+
+      processedDocs.push(processedDoc);
+    }
+
+    // 第二步：更新所有父子关系
+    for (const doc of processedDocs) {
+      if (doc.pid) {
+        // 如果父ID在映射中存在，使用新的父ID
+        const newParentId = idMapping.get(doc.pid);
+        if (newParentId) {
+          doc.pid = newParentId;
+        }
+        // 如果父ID不在导入的文档中，保留原始pid（可能是挂载到现有节点）
+      }
+    }
+
+    return { processedDocs, idMapping };
+  }
+
+  /**
    * 批量追加接口文档
    * @param docs 要追加的文档列表
+   * @param projectId 项目ID
    * @returns 成功追加的文档ID列表
    */
   async appendDocs(docs: ApidocDetail[], projectId: string): Promise<string[]> {
@@ -238,12 +287,15 @@ export class DocCache {
     const successIds: string[] = [];
 
     try {
-      for (const doc of docs) {
-        doc.projectId = projectId;
-        doc._id = nanoid()
+      // 处理文档ID和关系映射
+      const { processedDocs } = this.prepareDocsWithNewIds(docs, projectId);
+
+      // 批量保存处理后的文档
+      for (const doc of processedDocs) {
         await store.put(doc, doc._id);
         successIds.push(doc._id);
       }
+
       await tx.done;
       await this.updateProjectDocNum(projectId);
       return successIds;
