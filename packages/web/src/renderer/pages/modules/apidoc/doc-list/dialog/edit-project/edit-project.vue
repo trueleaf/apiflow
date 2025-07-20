@@ -62,7 +62,11 @@ const handleEditProject = () => {
         projectName: formInfo.value.projectName,
       });
       handleClose();
-      emits('success');
+      // 在standalone模式下也传递编辑后的数据
+      emits('success', {
+        id: props.projectId,
+        name: formInfo.value.projectName,
+      });
       return;
     }
     if (valid) {

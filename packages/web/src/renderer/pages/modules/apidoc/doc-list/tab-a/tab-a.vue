@@ -299,14 +299,15 @@ const deleteProject = (_id: string) => {
     cancelButtonText: t('取消'),
     type: 'warning'
   }).then(async () => {
-    const deleteTopBarTab = () => {
-      window.electronAPI?.sendToMain('apiflow-delete-topbar-tab-from-app', _id);
+    // 发送IPC事件通知topBarView删除对应的tab
+    const notifyProjectDeleted = () => {
+      window.electronAPI?.sendToMain('apiflow-content-project-deleted', _id);
     }
     if (__STANDALONE__) {
       try {
         await standaloneCache.deleteProject(_id);
         getProjectList();
-        deleteTopBarTab();
+        notifyProjectDeleted();
       } catch (err) {
         console.error(err);
       }
@@ -314,7 +315,7 @@ const deleteProject = (_id: string) => {
     }
     request.delete('/api/project/delete_project', { data: { ids: [_id] } }).then(() => {
       getProjectList();
-      deleteTopBarTab();
+      notifyProjectDeleted();
     }).catch((err) => {
       console.error(err);
     });
@@ -448,8 +449,16 @@ const handleAddSuccess = async (data: { projectId: string }) => {
   });
 }
 //编辑项目成功
-const handleEditSuccess = () => {
-  getProjectList()
+const handleEditSuccess = (data?: { id: string, name: string }) => {
+  getProjectList();
+
+  // 如果有编辑数据，发送IPC事件通知topBarView更新tab名称
+  if (data) {
+    window.electronAPI?.sendToMain('apiflow-content-project-renamed', {
+      projectId: data.id,
+      projectName: data.name
+    });
+  }
 }
 //折叠打开项目列表
 const toggleCollapse = () => {
