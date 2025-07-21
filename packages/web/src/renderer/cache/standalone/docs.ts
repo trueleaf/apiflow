@@ -267,6 +267,7 @@ export class DocCache {
       currentPid = parentDoc.pid;
     }
     await tx.done;
+    this.clearBannerCache(existingDoc.projectId);
     return result;
   }
 

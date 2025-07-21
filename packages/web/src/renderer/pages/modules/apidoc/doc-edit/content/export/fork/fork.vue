@@ -259,7 +259,6 @@ const sortTargetTree = (node: Node, dropNode: Node, type: DropType) => {
 }
 //目标树drop
 const handleTargetDrop = (dragNode: Node, dropNode: Node, type: DropType) => {
-  console.log('drop111')
   if (isInSource.value) { //拖拽到目标节点又拖拽回源节点代表取消
     targetTree.value?.remove(dragNode.data);
     return;

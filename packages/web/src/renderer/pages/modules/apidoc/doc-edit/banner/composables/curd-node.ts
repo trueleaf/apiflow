@@ -4,7 +4,7 @@
 
 import { Ref } from 'vue'
 import 'element-plus/es/components/message-box/style/css';
-import { ElMessageBox } from 'element-plus'
+import { ElMessage, ElMessageBox } from 'element-plus'
 import type { ApidocBanner, Response } from '@src/types/global'
 import { findNodeById, forEachForest, findParentById, flatTree, uniqueByKey, findPreviousSiblingById, findNextSiblingById, event } from '@/helper/index'
 import { router } from '@/router/index'
@@ -15,6 +15,7 @@ import { useApidocTas } from '@/store/apidoc/tabs';
 import { useApidoc } from '@/store/apidoc/apidoc';
 import { useApidocBaseInfo } from '@/store/apidoc/base-info.ts';
 import { standaloneCache } from '@/cache/standalone.ts';
+import { nanoid } from 'nanoid';
 
 type MapId = {
   oldId: string, //历史id
@@ -236,48 +237,229 @@ export function addFileAndFolderCb(currentOperationalNode: Ref<ApidocBanner | nu
  */
 export function pasteNodes(currentOperationalNode: Ref<ApidocBanner | null>, pastedNodes: ApidocBannerWithProjectId[]): Promise<ApidocBanner[]> {
   const copyPasteNodes: ApidocBanner[] = JSON.parse(JSON.stringify(pastedNodes));
-  return new Promise((resolve, reject) => {
-    const flatNodes: ApidocBanner[] = [];
-    copyPasteNodes.forEach((pasteNode) => {
-      flatNodes.push(...flatTree(pasteNode))
-    })
-    const uniqueFlatNodes = uniqueByKey(flatNodes, '_id');
-    const params = {
-      projectId: router.currentRoute.value.query.id,
-      fromProjectId: pastedNodes[0].projectId,
-      mountedId: currentOperationalNode.value?._id,
-      docs: uniqueFlatNodes.map((v) => ({
-        _id: v._id,
-        // pid: v.pid,
-      })),
-    };
-    request.post<Response<MapId[]>, Response<MapId[]>>('/api/project/paste_docs', params).then((res) => {
-      const mapIds = res.data;
-      forEachForest(copyPasteNodes, (node) => {
-        const matchedIdInfo = mapIds.find((v) => v.oldId === node._id)
-        if (matchedIdInfo) {
-          node._id = matchedIdInfo.newId;
-          node.pid = matchedIdInfo.newPid;
+  return new Promise(async (resolve, reject) => {
+    try {
+      if (__STANDALONE__) {
+        // Standalone 模式下的优化粘贴逻辑
+        const currentProjectId = router.currentRoute.value.query.id as string;
+        const fromProjectId = pastedNodes[0].projectId;
+
+        // 1. 获取要粘贴的所有节点（扁平化）
+        const flatNodes: ApidocBanner[] = [];
+        copyPasteNodes.forEach((pasteNode) => {
+          flatNodes.push(...flatTree(pasteNode))
+        })
+        const uniqueFlatNodes = uniqueByKey(flatNodes, '_id');
+
+        // 2. 如果是跨项目粘贴，需要获取完整的文档数据
+        let docsToProcess: any[] = [];
+        if (fromProjectId !== currentProjectId) {
+          // 跨项目粘贴：使用优化的缓存查询获取完整文档数据
+          const sourceProjectDocs = await standaloneCache.getBannerInfoByProjectId(fromProjectId);
+          const sourceDocsMap = new Map(sourceProjectDocs.map(doc => [doc._id, doc]));
+
+          docsToProcess = uniqueFlatNodes.map(node => {
+            const fullDoc = sourceDocsMap.get(node._id);
+            if (!fullDoc) {
+              ElMessage.error(`粘贴的文档 ${node.name} 在原项目中未找到`);
+            }
+            return fullDoc;
+          });
+        } else {
+          // 同项目内粘贴：直接使用当前项目的数据
+          const currentProjectDocs = await standaloneCache.getBannerInfoByProjectId(currentProjectId);
+          const currentDocsMap = new Map(currentProjectDocs.map(doc => [doc._id, doc]));
+
+          docsToProcess = uniqueFlatNodes.map(node => {
+            const fullDoc = currentDocsMap.get(node._id);
+            if (!fullDoc) {
+              ElMessage.error(`粘贴的文档 ${node.name} 在当前项目中未找到`);
+            }
+            return fullDoc;
+          });
         }
-      });
+
+        // 3. 生成ID映射并更新文档关系
+        const idMapping = new Map<string, string>();
+        const processedDocs: any[] = [];
+
+        // 第一步：为所有文档生成新的ID
+        for (const doc of docsToProcess) {
+          const oldId = doc._id;
+          const newId = nanoid();
+          idMapping.set(oldId, newId);
+
+          const processedDoc = {
+            ...doc,
+            _id: newId,
+            projectId: currentProjectId,
+            updatedAt: new Date().toISOString(),
+            // 暂时保留原始pid，稍后会更新
+          };
+
+          processedDocs.push(processedDoc);
+        }
+
+        // 第二步：更新所有文档的pid关系
+        for (const doc of processedDocs) {
+          if (doc.pid && idMapping.has(doc.pid)) {
+            // 如果父节点也在粘贴的节点中，更新为新的父节点ID
+            doc.pid = idMapping.get(doc.pid);
+          } else if (doc.pid && !idMapping.has(doc.pid)) {
+            // 如果父节点不在粘贴的节点中，说明这是根节点
+            doc.pid = currentOperationalNode.value?._id || '';
+          } else {
+            // 原本就是根节点
+            doc.pid = currentOperationalNode.value?._id || '';
+          }
+        }
+
+        // 4. 批量保存到数据库
+        for (const doc of processedDocs) {
+          await standaloneCache.addDoc(doc);
+        }
+
+        // 5. 更新前端显示的节点ID和关系
+        forEachForest(copyPasteNodes, (node) => {
+          const newId = idMapping.get(node._id);
+          if (newId) {
+            node._id = newId;
+            // 更新pid关系
+            if (node.pid && idMapping.has(node.pid)) {
+              node.pid = idMapping.get(node.pid)!;
+            } else {
+              node.pid = currentOperationalNode.value?._id || '';
+            }
+          }
+        });
+
+        // 6. 更新前端界面
+        copyPasteNodes.forEach((pasteNode) => {
+          pasteNode.pid = currentOperationalNode.value?._id || '';
+          addFileAndFolderCb(currentOperationalNode, pasteNode);
+        });
+
+        resolve(copyPasteNodes);
+        return;
+      }
+
+      // 在线模式的原有逻辑保持不变
+      const flatNodes: ApidocBanner[] = [];
       copyPasteNodes.forEach((pasteNode) => {
-        pasteNode.pid = currentOperationalNode.value?._id || '';
-        addFileAndFolderCb(currentOperationalNode, pasteNode);
+        flatNodes.push(...flatTree(pasteNode))
       })
-      resolve(copyPasteNodes);
-    }).catch((err) => {
-      console.error(err);
-      reject(err);
-    });
+      const uniqueFlatNodes = uniqueByKey(flatNodes, '_id');
+      const params = {
+        projectId: router.currentRoute.value.query.id,
+        fromProjectId: pastedNodes[0].projectId,
+        mountedId: currentOperationalNode.value?._id,
+        docs: uniqueFlatNodes.map((v) => ({
+          _id: v._id,
+          // pid: v.pid,
+        })),
+      };
+      request.post<Response<MapId[]>, Response<MapId[]>>('/api/project/paste_docs', params).then((res) => {
+        const mapIds = res.data;
+        forEachForest(copyPasteNodes, (node) => {
+          const matchedIdInfo = mapIds.find((v) => v.oldId === node._id)
+          if (matchedIdInfo) {
+            node._id = matchedIdInfo.newId;
+            node.pid = matchedIdInfo.newPid;
+          }
+        });
+        copyPasteNodes.forEach((pasteNode) => {
+          pasteNode.pid = currentOperationalNode.value?._id || '';
+          addFileAndFolderCb(currentOperationalNode, pasteNode);
+        })
+        resolve(copyPasteNodes);
+      }).catch((err) => {
+        console.error(err);
+        reject(err);
+      });
+    } catch (error) {
+      console.error('Paste nodes failed:', error);
+      reject(error);
+    }
   })
 }
 
 /**
  * 生成文件副本
  */
-export function forkNode(currentOperationalNode: ApidocBanner): void {
+export async function forkNode(currentOperationalNode: ApidocBanner): Promise<void> {
   const apidocBannerStore = useApidocBanner();
-  const projectId = router.currentRoute.value.query.id;
+  const projectId = router.currentRoute.value.query.id as string;
+
+  if (__STANDALONE__) {
+    try {
+      // Standalone 模式下的文件副本生成逻辑
+
+      // 1. 获取原始文档的完整数据
+      const originalDoc = await standaloneCache.getDocById(currentOperationalNode._id);
+      if (!originalDoc) {
+        console.error('原始文档不存在');
+        return;
+      }
+
+      // 2. 生成副本文档
+      const newId = nanoid();
+      const copyDoc = {
+        ...originalDoc,
+        _id: newId,
+        updatedAt: new Date().toISOString(),
+        info: {
+          ...originalDoc.info,
+          name: `${originalDoc.info.name}_副本`, // 添加副本后缀
+        }
+      };
+
+      // 3. 保存副本到数据库
+      await standaloneCache.addDoc(copyDoc);
+
+      // 4. 创建用于前端显示的 banner 数据
+      const bannerData: ApidocBanner = {
+        _id: newId,
+        updatedAt: copyDoc.updatedAt,
+        type: copyDoc.info.type,
+        sort: Date.now(), // 使用当前时间戳作为排序
+        pid: copyDoc.pid,
+        name: copyDoc.info.name,
+        isFolder: copyDoc.isFolder,
+        maintainer: copyDoc.info.maintainer,
+        method: copyDoc.item.method,
+        url: copyDoc.item.url.path,
+        commonHeaders: copyDoc.commonHeaders || [],
+        readonly: false,
+        children: [],
+      };
+
+      // 5. 更新前端界面
+      const pData = findParentById(apidocBannerStore.banner, currentOperationalNode._id, { idKey: '_id' });
+      if (!pData) {
+        // 插入到根级别
+        apidocBannerStore.splice({
+          start: apidocBannerStore.banner.length,
+          deleteCount: 0,
+          item: bannerData,
+        });
+      } else {
+        // 插入到父节点的子级
+        apidocBannerStore.splice({
+          start: pData.children.length,
+          deleteCount: 0,
+          item: bannerData,
+          opData: pData.children
+        });
+      }
+
+      return;
+    } catch (error) {
+      console.error('生成文件副本失败:', error);
+      return;
+    }
+  }
+
+  // 在线模式的原有逻辑保持不变
   const params = {
     _id: currentOperationalNode._id,
     projectId,
@@ -339,7 +521,7 @@ let isRename = false;
 export async function renameNode(e: FocusEvent | KeyboardEvent, data: ApidocBanner): Promise<void> {
   const apidocBannerStore = useApidocBanner();
   const apidocTabsStore = useApidocTas()
-  const apidocStpre = useApidoc()
+  const apidocStore = useApidoc()
   const { getCommonHeaders } = useApidocBaseInfo()
   if (isRename) {
     return;
@@ -365,10 +547,36 @@ export async function renameNode(e: FocusEvent | KeyboardEvent, data: ApidocBann
     value: iptValue,
   })
   //改变apidoc名称
-  apidocStpre.changeApidocName(iptValue);
+  apidocStore.changeApidocName(iptValue);
   //=========================================================================//
   if (__STANDALONE__) {
-    await standaloneCache.updateDocName(data._id, iptValue);
+    try {
+      // Standalone 模式下的重命名逻辑
+      await standaloneCache.updateDocName(data._id, iptValue);
+
+      // 如果是文件夹，需要重新拉取一次公共请求头
+      if (data.type === 'folder') {
+        getCommonHeaders();
+      }
+
+    } catch (error) {
+      console.error('重命名失败:', error);
+
+      // 重命名失败时回滚前端状态
+      apidocBannerStore.changeBannerInfoById({
+        id: data._id,
+        field: 'name',
+        value: originValue,
+      });
+      apidocTabsStore.changeTabInfoById({
+        id: data._id,
+        field: 'label',
+        value: originValue,
+      });
+      apidocStore.changeApidocName(originValue);
+    } finally {
+      isRename = false;
+    }
     return;
   }
   const params = {
@@ -387,7 +595,7 @@ export async function renameNode(e: FocusEvent | KeyboardEvent, data: ApidocBann
       field: 'name',
       value: originValue,
     });
-    apidocStpre.changeApidocName(originValue);
+    apidocStore.changeApidocName(originValue);
   }).finally(() => {
     isRename = false;
   });
