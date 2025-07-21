@@ -87,7 +87,6 @@ const bindTopBarEvent = async () => {
       })
     }
     if (__STANDALONE__) {
-      await apidocBannerStore.getDocBanner({ projectId: data.projectId })
       await apidocBaseInfoStore.getProjectBaseInfo({ projectId: data.projectId })
       await apidocBaseInfoStore.changeProjectId(data.projectId)
     }

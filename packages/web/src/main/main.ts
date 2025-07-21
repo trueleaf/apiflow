@@ -58,7 +58,7 @@ const createWindow = () => {
   topBarView.webContents.on('did-finish-load', () => {
     topBarView.webContents.openDevTools({ mode: 'detach' }) 
   })
-  contentView.webContents.openDevTools()
+  contentView.webContents.openDevTools({ mode: 'bottom' })
   return {
     mainWindow,
     topBarView,

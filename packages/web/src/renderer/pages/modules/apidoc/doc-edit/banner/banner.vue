@@ -119,7 +119,7 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, ref, Ref, onMounted, onUnmounted } from 'vue'
+import { computed, ref, Ref, onMounted, onUnmounted, watch } from 'vue'
 import { MoreFilled } from '@element-plus/icons-vue'
 import type { ApidocBanner } from '@src/types/global'
 import { router } from '@/router/index'
@@ -517,6 +517,19 @@ const handleGlobalClick = () => {
   showContextmenu.value = false;
   selectNodes.value = [];
 }
+
+/*
+|--------------------------------------------------------------------------
+| 监听路由变化，当项目切换时重新获取数据
+|--------------------------------------------------------------------------
+*/
+watch(() => router.currentRoute.value.query.id, (newProjectId) => {
+  if (newProjectId && newProjectId !== projectId.value) {
+    projectId.value = newProjectId as string;
+    getBannerData();
+  }
+}, { immediate: false });
+
 onMounted(() => {
   getBannerData();
   document.documentElement.addEventListener('click', handleGlobalClick);
