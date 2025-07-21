@@ -12,12 +12,10 @@ import { useRouter } from 'vue-router';
 import AddProjectDialog from '@/pages/modules/apidoc/doc-list/dialog/add-project/add-project.vue';
 import { standaloneCache } from './cache/standalone';
 import { ElMessageBox } from 'element-plus';
-import { useApidocBanner } from './store/apidoc/banner';
 import { useApidocBaseInfo } from './store/apidoc/base-info';
 
 const router = useRouter();
 const dialogVisible = ref(false);
-const apidocBannerStore = useApidocBanner()
 const apidocBaseInfoStore = useApidocBaseInfo()
 
 // 监听路由变化
@@ -116,7 +114,7 @@ const initWelcom = () => {
       
         ${t('GitHub地址')}：https://github.com/trueleaf/apiflow
       
-        ${t('Gitee地址')}：https://gitee.com/shuzhikai/apiflow
+        ${t('Gitee地址')}：https://gitee.com/wildsell/apiflow
 
         ${t('最近一次更新')}：${__APP_BUILD_TIME__}
     `)

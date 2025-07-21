@@ -35,7 +35,9 @@ export class StandaloneCache {
             db.createObjectStore("projects");
           }
           if (!db.objectStoreNames.contains("docs")) {
-            db.createObjectStore("docs");
+            const docsStore = db.createObjectStore("docs");
+            // 添加 projectId 索引以优化按项目查询
+            docsStore.createIndex("projectId", "projectId", { unique: false });
           }
           if (!db.objectStoreNames.contains("commonHeaders")) {
             db.createObjectStore("commonHeaders");
@@ -87,6 +89,9 @@ export class StandaloneCache {
   }
   async getDocsByProjectId(projectId: string): Promise<ApidocDetail[]> {
     return this.docs.getDocsByProjectId(projectId);
+  }
+  async getBannerInfoByProjectId(projectId: string) {
+    return this.docs.getBannerInfoByProjectId(projectId);
   }
   async getDocById(docId: string): Promise<ApidocDetail | null> {
     return this.docs.getDocById(docId);

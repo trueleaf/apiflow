@@ -699,6 +699,7 @@ export function arrayToTree<T extends { _id: string; pid: string }>(list: T[]): 
 }
 
 type ShareTreeNode = ApidocDetail & { children: ShareTreeNode[] }
+
 export function convertDocsToBanner(docs: ApidocDetail[] = []): ApidocBanner[] {
   const treeData = arrayToTree(docs);
   const copyTreeData = cloneDeep(treeData)

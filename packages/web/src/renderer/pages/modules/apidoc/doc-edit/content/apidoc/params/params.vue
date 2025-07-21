@@ -134,11 +134,11 @@ const hasBodyParams = computed(() => {
   return !!contentType;
 })
 const hasPreRequest = computed(() => {
-  const preRequest = apidocStore.apidoc.preRequest.raw;
+  const preRequest = apidocStore.apidoc.preRequest?.raw;
   return !!preRequest;
 })
 const hasAfterRequest = computed(() => {
-  const afterRequest = apidocStore.apidoc.afterRequest.raw;
+  const afterRequest = apidocStore.apidoc.afterRequest?.raw;
   return !!afterRequest;
 })
 const responseNum = computed(() => {

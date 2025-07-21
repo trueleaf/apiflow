@@ -2,7 +2,12 @@ import { IDBPDatabase } from "idb";
 import type { ApidocDetail } from "@src/types/global";
 import { nanoid } from "nanoid";
 
+
+
 export class DocCache {
+  private bannerCache = new Map<string, { data: ApidocDetail[]; timestamp: number }>();
+  private readonly CACHE_TTL = 5 * 60 * 1000; // 5分钟缓存过期时间
+
   constructor(private db: IDBPDatabase | null = null) {}
 
   async getDocsList(): Promise<ApidocDetail[]> {
@@ -13,10 +18,75 @@ export class DocCache {
     return allDocs.filter(doc => doc && !doc.isDeleted);
   }
 
-  async getDocsByProjectId(projectId: string) {
-    const docsList = await this.getDocsList();
-    return docsList.filter(doc => doc.projectId === projectId && !doc.isDeleted);
+  /**
+   * 优化的按项目ID获取文档方法
+   * 使用 IndexedDB 索引直接查询，避免全量加载
+   */
+  async getDocsByProjectId(projectId: string): Promise<ApidocDetail[]> {
+    if (!this.db) throw new Error("Database not initialized");
+
+    const tx = this.db.transaction("docs", "readonly");
+    const store = tx.objectStore("docs");
+
+    try {
+      // 使用 projectId 索引查询
+      const index = store.index("projectId");
+      const docs: ApidocDetail[] = await index.getAll(projectId);
+      return docs.filter(doc => !doc.isDeleted);
+    } catch (error) {
+      // 如果索引不存在（旧版本数据库），回退到原方法
+      const docsList = await this.getDocsList();
+      return docsList.filter(doc => doc.projectId === projectId && !doc.isDeleted);
+    }
   }
+
+  /**
+   * 获取用于 banner 显示的轻量级文档信息
+   * 使用缓存机制提高性能
+   */
+  async getBannerInfoByProjectId(projectId: string): Promise<ApidocDetail[]> {
+    // 检查缓存
+    const cached = this.bannerCache.get(projectId);
+    if (cached && Date.now() - cached.timestamp < this.CACHE_TTL) {
+      return cached.data;
+    }
+    if (!this.db) throw new Error("Database not initialized");
+    const tx = this.db.transaction("docs", "readonly");
+    const store = tx.objectStore("docs");
+    try {
+      // 使用 projectId 索引查询
+      const index = store.index("projectId");
+      const docs: ApidocDetail[] = await index.getAll(projectId);
+      const filteredDocs = docs.filter(doc => !doc.isDeleted);
+
+      // 更新缓存
+      this.bannerCache.set(projectId, {
+        data: filteredDocs,
+        timestamp: Date.now(),
+      });
+
+      return filteredDocs;
+    } catch (error) {
+      // 回退到原方法
+      const docs = await this.getDocsByProjectId(projectId);
+
+      // 更新缓存
+      this.bannerCache.set(projectId, {
+        data: docs,
+        timestamp: Date.now(),
+      });
+
+      return docs;
+    }
+  }
+
+  /**
+   * 清除指定项目的缓存
+   */
+  private clearBannerCache(projectId: string): void {
+    this.bannerCache.delete(projectId);
+  }
+
 
   async getDocById(docId: string): Promise<ApidocDetail | null> {
     if (!this.db) throw new Error("Database not initialized");
@@ -50,7 +120,7 @@ export class DocCache {
     const docNum = allDocs.filter(doc => 
       doc.projectId === projectId && 
       !doc.isDeleted && 
-      !doc.isFolder // Exclude folders from the count
+      !doc.isFolder 
     ).length;
     
     const project = await projectsStore.get(projectId);
@@ -68,6 +138,8 @@ export class DocCache {
     await store.put(doc, doc._id);
     await tx.done;
     await this.updateProjectDocNum(doc.projectId);
+    // 清除相关项目的缓存
+    this.clearBannerCache(doc.projectId);
     return true;
   }
 
@@ -79,6 +151,8 @@ export class DocCache {
     if (!existingDoc) return false;
     await store.put(doc, doc._id);
     await tx.done;
+    // 清除相关项目的缓存
+    this.clearBannerCache(doc.projectId);
     return true;
   }
   async updateDocName(docId: string, name: string): Promise<boolean> {
@@ -90,6 +164,8 @@ export class DocCache {
     existingDoc.info.name = name;
     await store.put(existingDoc, docId);
     await tx.done;
+    // 清除相关项目的缓存
+    this.clearBannerCache(existingDoc.projectId);
     return true;
   }
 
@@ -98,18 +174,20 @@ export class DocCache {
     const tx = this.db.transaction("docs", "readwrite");
     const store = tx.objectStore("docs");
     const existingDoc = await store.get(docId);
-    
+
     if (!existingDoc) return false;
-    
+
     const updatedDoc = {
       ...existingDoc,
       isDeleted: true,
       updatedAt: new Date().toISOString()
     };
-    
+
     await store.put(updatedDoc, docId);
     await tx.done;
     await this.updateProjectDocNum(existingDoc.projectId);
+    // 清除相关项目的缓存
+    this.clearBannerCache(existingDoc.projectId);
     return true;
   }
 
@@ -117,7 +195,7 @@ export class DocCache {
     if (!this.db) throw new Error("Database not initialized");
     const tx = this.db.transaction("docs", "readwrite");
     const store = tx.objectStore("docs");
-    
+
     let projectId: string | null = null;
     for (const docId of docIds) {
       const existingDoc = await store.get(docId);
@@ -130,10 +208,12 @@ export class DocCache {
         }, docId);
       }
     }
-    
+
     await tx.done;
     if (projectId) {
       await this.updateProjectDocNum(projectId);
+      // 清除相关项目的缓存
+      this.clearBannerCache(projectId);
     }
     return true;
   }
@@ -222,6 +302,8 @@ export class DocCache {
 
       await tx.done;
       await this.updateProjectDocNum(projectId);
+      // 清除相关项目的缓存
+      this.clearBannerCache(projectId);
       return true;
     } catch (error) {
       console.error('Failed to replace docs:', error);
@@ -298,6 +380,8 @@ export class DocCache {
 
       await tx.done;
       await this.updateProjectDocNum(projectId);
+      // 清除相关项目的缓存
+      this.clearBannerCache(projectId);
       return successIds;
     } catch (error) {
       console.error('Failed to append docs:', error);

@@ -84,8 +84,9 @@ export const useApidocBanner = defineStore('apidocBanner', () => {
   const getDocBanner = async(payload: { projectId: string }): Promise<ApidocBanner[]> => {
     return new Promise(async (resolve, reject) => {
       if (__STANDALONE__) {
-        const docs = await standaloneCache.getDocsByProjectId(payload.projectId);
-        const banner = convertDocsToBanner(docs);
+        // 使用优化的缓存数据获取方法，直接返回 ApidocBanner 格式
+        const docs = await standaloneCache.getBannerInfoByProjectId(payload.projectId);
+        const banner = convertDocsToBanner(docs)
         changeAllDocBanner(banner)
         resolve(banner)
         return
