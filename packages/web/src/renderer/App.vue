@@ -48,12 +48,50 @@ const handleAddSuccess = (data: { projectId: string, projectName: string }) => {
   });
 }
 
+/*
+|--------------------------------------------------------------------------
+| 导航控制处理函数
+|--------------------------------------------------------------------------
+*/
+const handleRefreshApp = () => {
+  // 刷新当前页面
+  window.location.reload()
+}
+
+const handleGoBack = () => {
+  // 检查是否可以后退
+  if (window.history.length > 1) {
+    router.back()
+  } else {
+    // 如果没有历史记录，跳转到主页
+    router.push('/')
+  }
+}
+
+const handleGoForward = () => {
+  // 使用 Vue Router 的前进功能
+  router.forward()
+}
+
 const bindTopBarEvent = async () => {
   window.electronAPI?.onMain('apiflow-create-project', () => {
     dialogVisible.value = true;
   });
   window.electronAPI?.onMain('apiflow-change-route', (path: string) => {
     router.push(path)
+  })
+
+  // 导航控制事件监听
+  window.electronAPI?.onMain('apiflow-refresh-app', () => {
+    handleRefreshApp()
+  })
+
+  window.electronAPI?.onMain('apiflow-go-back', () => {
+    handleGoBack()
+  })
+
+  window.electronAPI?.onMain('apiflow-go-forward', () => {
+    handleGoForward()
   })
   // 主进程发送的事件名称：apiflow-change-project
   window.electronAPI?.onMain('apiflow-change-project', async (data: { projectId: string, projectName: string }) => {

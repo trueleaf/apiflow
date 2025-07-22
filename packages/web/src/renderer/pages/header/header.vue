@@ -6,11 +6,11 @@
         <span v-if="isDev" id="devIndicator">(本地)</span>
       </span>
     </div>
-    <div class="home" :class="{ active: activeTabId === '' }" @click="jumpToHome">
+    <div class="home" :class="{ active: activeTabId === ''}" @click="jumpToHome">
       <i class="iconfont iconhome"></i>
       <span>主页面</span>
     </div>
-    <el-divider v-if="tabs.length > 0" direction="vertical" class="divider" />
+    <div v-if="tabs.length > 0" class="divider"></div>
     <div class="tabs">
       <draggable v-model="tabs" class="tab-list" :animation="150" ghost-class="sortable-ghost"
         chosen-class="sortable-chosen" drag-class="sortable-drag" @end="onDragEnd" item-key="id">
@@ -24,6 +24,11 @@
       <button class="add-tab-btn" title="新建项目" @click="handleAddProject">+</button>
     </div>
     <div class="right">
+      <div class="navigation-control">
+        <el-icon size="18" title="刷新主应用" @click="refreshApp"><RefreshRight /></el-icon>
+        <el-icon size="18" title="后退" @click="goBack"><Back /></el-icon>
+        <el-icon size="18" title="前进" @click="goForward"><Right /></el-icon>
+      </div>
       <div class="window-control">
         <i class="iconfont iconjianhao" id="minimize" title="最小化" @click="minimize"></i>
         <i v-if="!isMaximized" class="iconfont iconmaxScreen" id="maximize" title="最大化" @click="maximize"></i>
@@ -39,6 +44,7 @@ import { WindowState } from '@src/types/types';
 import { ref, onMounted, nextTick, watch } from 'vue'
 import draggable from 'vuedraggable'
 import { apidocCache } from '@src/renderer/cache/apidoc'
+import { RefreshRight, Back, Right } from '@element-plus/icons-vue'
 
 const tabs = ref<{ id: string; title: string }[]>([])
 const activeTabId = ref('')
@@ -57,6 +63,23 @@ const unmaximize = () => window.electronAPI?.unmaximize()
 const close = () => window.electronAPI?.close()
 const handleWindowResize = (state: WindowState) => {
   isMaximized.value = state.isMaximized
+}
+
+/*
+|--------------------------------------------------------------------------
+| 导航控制
+|--------------------------------------------------------------------------
+*/
+const refreshApp = () => {
+  window.electronAPI?.sendToMain('apiflow-refresh-app')
+}
+
+const goBack = () => {
+  window.electronAPI?.sendToMain('apiflow-go-back')
+}
+
+const goForward = () => {
+  window.electronAPI?.sendToMain('apiflow-go-forward')
 }
 /* 
 |--------------------------------------------------------------------------
@@ -198,6 +221,7 @@ body {
   padding: 0 15px;
   cursor: pointer;
   -webkit-app-region: no-drag;
+
   .iconfont {
     margin-top: 1px;
     font-size: 12px;
@@ -213,10 +237,9 @@ body {
   }
 }
 .divider {
-  border-left: 1px solid rgba(255, 255, 255, 0.15);
-  height: 0.9em;
-  margin-top: 3px;
-  
+  width: 1px;
+  height: 20px;
+  background-color: rgba(255, 255, 255, 0.15);
 }
 .tabs {
   flex: 1;
@@ -326,10 +349,37 @@ body {
 }
 
 .right {
-  width: 150px;
   height: 100%;
   display: flex;
   align-items: center;
+  padding-right: 15px;
+}
+
+.navigation-control {
+  display: flex;
+  align-items: center;
+  margin-right: 8px;
+  border-right: 1px solid rgba(255, 255, 255, 0.15);
+  padding-right: 8px;
+  -webkit-app-region: no-drag;
+}
+
+.navigation-control i {
+  width: 32px;
+  height: 28px;
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  -webkit-app-region: no-drag;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  border-radius: 3px;
+  margin: 0 1px;
+}
+
+.navigation-control i:hover {
+  background-color: rgba(255, 255, 255, 0.1);
 }
 
 .window-control {

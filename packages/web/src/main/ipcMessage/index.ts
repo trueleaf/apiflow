@@ -116,6 +116,26 @@ export const useIpcEvent = (mainWindow: BrowserWindow, topBarView: WebContentsVi
   ipcMain.on('apiflow-content-project-renamed', async (_, payload: IPCProjectData) => {
     topBarView.webContents.send('apiflow-change-project-name', payload)
   })
+
+  /*
+  |---------------------------------------------------------------------------
+  | 导航控制事件处理
+  |---------------------------------------------------------------------------
+  */
+  // 刷新主应用
+  ipcMain.on('apiflow-refresh-app', async () => {
+    contentView.webContents.send('apiflow-refresh-app')
+  })
+
+  // 后退
+  ipcMain.on('apiflow-go-back', async () => {
+    contentView.webContents.send('apiflow-go-back')
+  })
+
+  // 前进
+  ipcMain.on('apiflow-go-forward', async () => {
+    contentView.webContents.send('apiflow-go-forward')
+  })
   /*
   |---------------------------------------------------------------------------
   | 窗口状态同步
