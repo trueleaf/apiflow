@@ -28,6 +28,10 @@
         <el-icon size="18" title="刷新主应用" @click="refreshApp"><RefreshRight /></el-icon>
         <el-icon size="18" title="后退" @click="goBack"><Back /></el-icon>
         <el-icon size="18" title="前进" @click="goForward"><Right /></el-icon>
+        <div class="language-btn" :title="$t('切换语言')" @click="handleLanguageButtonClick" ref="languageButtonRef">
+          <i class="iconfont iconyuyan"></i>
+          <span class="language-text">{{ currentLanguageDisplay }}</span>
+        </div>
       </div>
       <div class="window-control">
         <i class="iconfont iconjianhao" id="minimize" title="最小化" @click="minimize"></i>
@@ -41,9 +45,11 @@
 
 <script setup lang="ts">
 import { WindowState } from '@src/types/types';
-import { ref, onMounted, nextTick, watch } from 'vue'
+import { ref, onMounted, nextTick, watch, computed } from 'vue'
 import draggable from 'vuedraggable'
 import { apidocCache } from '@src/renderer/cache/apidoc'
+import { $t } from '@src/renderer/i18n/i18n'
+import { Language } from '@src/types/global'
 import { RefreshRight, Back, Right } from '@element-plus/icons-vue'
 
 const tabs = ref<{ id: string; title: string }[]>([])
@@ -80,6 +86,43 @@ const goBack = () => {
 
 const goForward = () => {
   window.electronAPI?.sendToMain('apiflow-go-forward')
+}
+
+/*
+|--------------------------------------------------------------------------
+| 语言切换
+|--------------------------------------------------------------------------
+*/
+const currentLanguage = ref<Language>(localStorage.getItem('language') as Language || 'zh-cn')
+
+const currentLanguageDisplay = computed(() => {
+  const languageMap: Record<Language, string> = {
+    'zh-cn': '中',
+    'zh-tw': '繁',
+    'en': 'EN',
+    'ja': 'JP'
+  }
+  return languageMap[currentLanguage.value] || '中'
+})
+
+const languageButtonRef = ref<HTMLElement>()
+
+const handleLanguageButtonClick = () => {
+  if (languageButtonRef.value) {
+    const rect = languageButtonRef.value.getBoundingClientRect()
+    const buttonPosition = {
+      x: rect.left,
+      y: 0,
+      width: rect.width,
+      height: rect.height
+    }
+
+    // 发送显示语言菜单事件到主进程，包含按钮位置信息
+    window.electronAPI?.sendToMain('apiflow-show-language-menu', {
+      position: buttonPosition,
+      currentLanguage: currentLanguage.value
+    })
+  }
 }
 /* 
 |--------------------------------------------------------------------------
@@ -160,6 +203,11 @@ onMounted(() => {
   // 恢复 tabs 和激活 tab
   tabs.value = apidocCache.getHeaderTabs()
   activeTabId.value = apidocCache.getHeaderActiveTab()
+
+  // 监听语言切换事件
+  window.electronAPI?.onMain('apiflow-language-changed', (language: string) => {
+    currentLanguage.value = language as Language
+  })
 })
 
 watch(tabs, (val) => {
@@ -380,6 +428,35 @@ body {
 
 .navigation-control i:hover {
   background-color: rgba(255, 255, 255, 0.1);
+}
+
+.language-btn {
+  width: 42px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  -webkit-app-region: no-drag;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  border-radius: 3px;
+  margin: 0 1px;
+  font-size: 11px;
+  color: var(--white);
+}
+
+.language-btn:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.language-btn .iconfont {
+  font-size: 12px;
+  margin-right: 2px;
+}
+
+.language-text {
+  font-size: 10px;
+  font-weight: 500;
 }
 
 .window-control {

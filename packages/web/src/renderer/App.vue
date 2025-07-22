@@ -1,7 +1,18 @@
 <template>
   <router-view></router-view>
   <AddProjectDialog v-if="dialogVisible" v-model="dialogVisible" @success="handleAddSuccess"></AddProjectDialog>
+
+  <!-- 语言切换菜单组件 -->
+  <LanguageMenu
+    :visible="languageMenuVisible"
+    :position="languageMenuPosition"
+    :current-language="currentLanguage"
+    @language-select="handleLanguageSelect"
+    @close="hideLanguageMenu"
+  />
 </template>
+
+
 
 <script setup lang="ts">
 import { config } from '@/../config/config';
@@ -13,10 +24,20 @@ import AddProjectDialog from '@/pages/modules/apidoc/doc-list/dialog/add-project
 import { standaloneCache } from './cache/standalone';
 import { ElMessageBox } from 'element-plus';
 import { useApidocBaseInfo } from './store/apidoc/base-info';
+import { Language } from '@src/types/global';
+import { changeLanguage } from '@src/renderer/i18n/i18n';
+import LanguageMenu from '@/components/LanguageMenu.vue';
 
 const router = useRouter();
 const dialogVisible = ref(false);
 const apidocBaseInfoStore = useApidocBaseInfo()
+
+// 语言菜单相关状态
+const languageMenuVisible = ref(false)
+const languageMenuPosition = ref({ x: 0, y: 0, width: 0, height: 0 })
+const currentLanguage = ref<Language>(localStorage.getItem('language') as Language || 'zh-cn')
+
+
 
 // 监听路由变化
 watch(() => router.currentRoute.value.path, (newPath) => {
@@ -73,6 +94,32 @@ const handleGoForward = () => {
   router.forward()
 }
 
+/*
+|--------------------------------------------------------------------------
+| 语言菜单处理函数
+|--------------------------------------------------------------------------
+*/
+const showLanguageMenu = (data: { position: any, currentLanguage: string }) => {
+  languageMenuPosition.value = data.position
+  currentLanguage.value = data.currentLanguage as Language
+  languageMenuVisible.value = true
+}
+
+const hideLanguageMenu = () => {
+  languageMenuVisible.value = false
+}
+
+const handleLanguageSelect = (language: Language) => {
+  currentLanguage.value = language
+  changeLanguage(language)
+  hideLanguageMenu()
+
+  // 发送语言切换事件到主进程
+  window.electronAPI?.sendToMain('apiflow-language-changed', language)
+}
+
+
+
 const bindTopBarEvent = async () => {
   window.electronAPI?.onMain('apiflow-create-project', () => {
     dialogVisible.value = true;
@@ -92,6 +139,17 @@ const bindTopBarEvent = async () => {
 
   window.electronAPI?.onMain('apiflow-go-forward', () => {
     handleGoForward()
+  })
+
+  // 显示语言菜单事件监听
+  window.electronAPI?.onMain('apiflow-show-language-menu', (data: { position: any, currentLanguage: string }) => {
+    showLanguageMenu(data)
+  })
+
+  // 语言切换事件监听
+  window.electronAPI?.onMain('apiflow-language-changed', (language: string) => {
+    currentLanguage.value = language as Language
+    changeLanguage(language as Language)
   })
   // 主进程发送的事件名称：apiflow-change-project
   window.electronAPI?.onMain('apiflow-change-project', async (data: { projectId: string, projectName: string }) => {

@@ -136,6 +136,18 @@ export const useIpcEvent = (mainWindow: BrowserWindow, topBarView: WebContentsVi
   ipcMain.on('apiflow-go-forward', async () => {
     contentView.webContents.send('apiflow-go-forward')
   })
+
+  // 显示语言菜单
+  ipcMain.on('apiflow-show-language-menu', async (_, data: { position: any, currentLanguage: string }) => {
+    contentView.webContents.send('apiflow-show-language-menu', data)
+  })
+
+  // 语言切换
+  ipcMain.on('apiflow-language-changed', async (_, language: string) => {
+    // 同时通知 topBarView 和 contentView 更新语言显示
+    contentView.webContents.send('apiflow-language-changed', language)
+    topBarView.webContents.send('apiflow-language-changed', language)
+  })
   /*
   |---------------------------------------------------------------------------
   | 窗口状态同步

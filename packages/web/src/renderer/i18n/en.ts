@@ -9,6 +9,7 @@ export default {
   刷新: 'Refresh',
   前进: 'Forward',
   后退: 'Back',
+  切换语言: 'Switch Language',
   更新进度: 'Update Progress',
   安装: 'Install',
   个人中心: 'Personal Center',
