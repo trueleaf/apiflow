@@ -488,13 +488,83 @@ export async function forkNode(currentOperationalNode: ApidocBanner): Promise<vo
 /**
  * 拖拽节点
  */
-export function dragNode(dragData: ApidocBanner, dropData: ApidocBanner, type: 'before' | 'after' | 'inner'): void {
+export async function dragNode(dragData: ApidocBanner, dropData: ApidocBanner, type: 'before' | 'after' | 'inner'): Promise<void> {
   const apidocBannerStore = useApidocBanner();
+  const projectId = router.currentRoute.value.query.id as string;
+
+  if (__STANDALONE__) {
+    try {
+      // Standalone 模式下的拖拽节点逻辑
+
+      // 1. 获取被拖拽文档的完整数据
+      const dragDoc = await standaloneCache.getDocById(dragData._id);
+      if (!dragDoc) {
+        ElMessage.error(`拖拽的文档 ${dragData.name} 未找到`);
+        return;
+      }
+
+      // 2. 计算新的父节点ID和排序值
+      let newPid = '';
+      let newSort = 0;
+
+      if (type === 'inner') {
+        // 拖拽到目标节点内部
+        newPid = dropData._id;
+        newSort = Date.now();
+        dragData.pid = dropData._id;
+      } else {
+        // 拖拽到目标节点前面或后面
+        const pData = findParentById(apidocBannerStore.banner, dropData._id, { idKey: '_id' });
+        newPid = pData ? pData._id : '';
+
+        // 计算排序值
+        const nextSibling = findNextSiblingById<ApidocBanner>(apidocBannerStore.banner, dropData._id, { idKey: '_id' });
+        const previousSibling = findPreviousSiblingById<ApidocBanner>(apidocBannerStore.banner, dropData._id, { idKey: '_id' });
+
+        if (type === 'before') {
+          // 拖拽到目标节点前面
+          const previousSiblingSort = previousSibling ? previousSibling.sort : 0;
+          const dropDataSort = dropData.sort;
+          newSort = (previousSiblingSort + dropDataSort) / 2;
+        } else {
+          // 拖拽到目标节点后面
+          const dropDataSort = dropData.sort;
+          const nextSiblingSort = nextSibling ? nextSibling.sort : Date.now();
+          newSort = (dropDataSort + nextSiblingSort) / 2;
+        }
+
+        dragData.sort = newSort;
+      }
+
+      // 3. 更新文档数据
+      const updatedDoc = {
+        ...dragDoc,
+        pid: newPid,
+        sort: newSort,
+        updatedAt: new Date().toISOString(),
+      };
+
+      // 4. 保存到数据库
+      await standaloneCache.updateDoc(updatedDoc);
+
+      // 5. 更新前端显示的数据
+      dragData.pid = newPid;
+      dragData.sort = newSort;
+
+      return;
+    } catch (error) {
+      console.error('拖拽节点失败:', error);
+      ElMessage.error('拖拽操作失败，请重试');
+      return;
+    }
+  }
+
+  // 在线模式的原有逻辑保持不变
   const params = {
     _id: dragData._id, //当前节点id
     pid: '', //父元素
     sort: 0, //当前节点排序效果
-    projectId: router.currentRoute.value.query.id,
+    projectId,
   };
   const pData = findParentById(apidocBannerStore.banner, dragData._id, { idKey: '_id' });
   params.pid = pData ? pData._id : '';
