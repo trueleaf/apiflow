@@ -2,23 +2,23 @@
   <div class="doc-import">
     <!-- 文件选择 -->
     <!-- <SFieldset title="支持：Yapi、Postman、摸鱼文档、Swagger/OpenApi 3.0"> -->
-    <SFieldset :title="t('支持：摸鱼文档、Swagger/OpenApi 3.0/Postman2.1')">
-      <el-upload 
-        class="w-100" 
-        drag 
-        action="" 
-        :show-file-list="false" 
+    <SFieldset :title="$t('支持：摸鱼文档、Swagger/OpenApi 3.0/Postman2.1')">
+      <el-upload
+        class="w-100"
+        drag
+        action=""
+        :show-file-list="false"
         :before-upload="handleBeforeUpload"
         :http-request="requestHook"
       >
         <el-icon :size="20">
           <Upload />
         </el-icon>
-        <div class="el-upload__text">{{ t("将文件拖到此处，或") }}<em>{{ t("点击上传") }}</em></div>
+        <div class="el-upload__text">{{ $t("将文件拖到此处，或") }}<em>{{ $t("点击上传") }}</em></div>
         <template #tip>
           <div class="mt-2">
             <div v-if="importTypeInfo.name" class="orange">
-              <span>{{ t("文档类型") }}：</span>
+              <span>{{ $t("文档类型") }}：</span>
               <span>{{ importTypeInfo.name }}</span>
               <span v-if="importTypeInfo.version">({{ importTypeInfo.version }})</span>
             </div>
@@ -27,11 +27,11 @@
       </el-upload>
     </SFieldset>
     <!-- 导入数据预览 -->
-    <SFieldset :title="t('导入数据预览')">
+    <SFieldset :title="$t('导入数据预览')">
       <div>
-        <SLableValue :label="`${t('文档数')}：`" label-width="auto" class="mr-4">{{ formInfo.moyuData.docs.filter((v) =>
+        <SLableValue :label="`${$t('文档数')}：`" label-width="auto" class="mr-4">{{ formInfo.moyuData.docs.filter((v) =>
           !v.isFolder).length }}</SLableValue>
-        <SLableValue :label="`${t('文件夹数')}：`" label-width="auto">{{ formInfo.moyuData.docs.filter((v) =>
+        <SLableValue :label="`${$t('文件夹数')}：`" label-width="auto">{{ formInfo.moyuData.docs.filter((v) =>
           v.isFolder).length
           }}</SLableValue>
       </div>
@@ -60,23 +60,23 @@
       </el-tree>
     </SFieldset>
     <!-- 额外配置信息 -->
-    <SFieldset v-if="!importAsProject" :title="t('额外配置')">
+    <SFieldset v-if="!importAsProject" :title="$t('额外配置')">
       <div>
         <SConfig v-if="formInfo.type === 'openapi' || formInfo.type === 'swagger'" :has-check="false"
-          :label="t('文件夹命名方式')" :description="t('none代表不存在文件夹，所有节点扁平放置')">
+          :label="$t('文件夹命名方式')" :description="$t('none代表不存在文件夹，所有节点扁平放置')">
           <el-radio-group v-model="openapiFolderNamedType" @change="handleChangeNamedType">
             <el-radio value="tag">Tag</el-radio>
             <el-radio value="url">Url</el-radio>
             <el-radio value="none">none</el-radio>
           </el-radio-group>
         </SConfig>
-        <SConfig :has-check="false" label="导入方式" :description="t('请谨慎选择导入方式')">
+        <SConfig :has-check="false" label="导入方式" :description="$t('请谨慎选择导入方式')">
           <el-radio-group v-model="formInfo.cover" @change="handleChangeIsCover">
-            <el-radio :value="false">{{ t("追加方式") }}</el-radio>
-            <el-radio :value="true">{{ t("覆盖方式") }}</el-radio>
+            <el-radio :value="false">{{ $t("追加方式") }}</el-radio>
+            <el-radio :value="true">{{ $t("覆盖方式") }}</el-radio>
           </el-radio-group>
         </SConfig>
-        <SConfig :label="t('目标目录')" :description="t('选择需要挂载的节点，不选择则默认挂载到根目录')" @change="handleToggleTargetFolder">
+        <SConfig :label="$t('目标目录')" :description="$t('选择需要挂载的节点，不选择则默认挂载到根目录')" @change="handleToggleTargetFolder">
           <template #default="prop">
             <SLoading :loading="loading2">
               <div v-show="prop.isEnabled" class="doc-nav">
@@ -96,7 +96,7 @@
         </SConfig>
       </div>
       <div class="d-flex j-center mt-2">
-        <el-button :loading="loading" type="primary" @click="handleSubmit">{{ t("确定导入") }}</el-button>
+        <el-button :loading="loading" type="primary" @click="handleSubmit">{{ $t("确定导入") }}</el-button>
       </div>
     </SFieldset>
     <!-- <template v-if="importAsProject">
@@ -127,7 +127,7 @@ import type { ApidocBanner, ApidocDetail } from '@src/types/global'
 import { config } from '@/../config/config'
 import { router } from '@/router/index'
 import { request } from '@/api/api'
-import { t } from 'i18next'
+import { useTranslation } from 'i18next-vue'
 import type { TreeNodeOptions } from 'element-plus/lib/components/tree/src/tree.type'
 import OpenApiTranslator from './openapi';
 import PostmanTranslator from './postman';
@@ -176,6 +176,7 @@ defineProps({
     default: false,
   }
 })
+const { t } = useTranslation()
 const apidocBaseInfoStore = useApidocBaseInfo();
 const apidocBannerStore = useApidocBanner()
 const projectId = router.currentRoute.value.query.id as string;

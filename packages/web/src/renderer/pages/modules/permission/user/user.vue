@@ -2,9 +2,9 @@
 <template>
   <div>
     <SSearch @change="handleChange">
-      <SSearchItem :label="t('登录名称')" prop="loginName"></SSearchItem>
-      <SSearchItem :label="t('昵称')" prop="realName"></SSearchItem>
-      <SSearchItem :label="t('手机号')" prop="phone"></SSearchItem>
+      <SSearchItem :label="$t('登录名称')" prop="loginName"></SSearchItem>
+      <SSearchItem :label="$t('昵称')" prop="realName"></SSearchItem>
+      <SSearchItem :label="$t('手机号')" prop="phone"></SSearchItem>
       <template #operation>
         <el-button type="success" @click="addUserDialog = true">新增用户</el-button>
         <SDownload class="ml-2" url="/api/security/user_excel_template" @finish="handleDownloadFinish">
@@ -17,37 +17,37 @@
     </SSearch>
     <!-- 表格展示 -->
     <STable ref="table" url="/api/security/user_list" class="mt-5">
-      <el-table-column prop="loginName" :label="t('登录名称')" align="center"></el-table-column>
-      <el-table-column prop="realName" :label="t('昵称')" align="center"></el-table-column>
-      <el-table-column prop="phone" :label="t('手机号')" align="center"></el-table-column>
-      <el-table-column :label="t('创建日期')" align="center" width="200px">
+      <el-table-column prop="loginName" :label="$t('登录名称')" align="center"></el-table-column>
+      <el-table-column prop="realName" :label="$t('昵称')" align="center"></el-table-column>
+      <el-table-column prop="phone" :label="$t('手机号')" align="center"></el-table-column>
+      <el-table-column :label="$t('创建日期')" align="center" width="200px">
         <template #default="scope">
           {{ formatDate(scope.row.createdAt) }}
         </template>
       </el-table-column>
-      <el-table-column :label="t('上次登录')" align="center" width="200px">
+      <el-table-column :label="$t('上次登录')" align="center" width="200px">
         <template #default="scope">
           {{ formatDate(scope.row.lastLogin) }}
         </template>
       </el-table-column>
-      <el-table-column :label="t('登录次数')" align="center" prop="loginTimes"></el-table-column>
-      <el-table-column :label="t('角色信息')" align="center" width="200px">
+      <el-table-column :label="$t('登录次数')" align="center" prop="loginTimes"></el-table-column>
+      <el-table-column :label="$t('角色信息')" align="center" width="200px">
         <template #default="scope">
           <el-tag v-for="(item, index) in scope.row.roleNames" :key="index" class="d-flex a-center j-center mb-1">{{ item }}</el-tag>
         </template>
       </el-table-column>
-      <el-table-column :label="t('状态')" align="center" width="80px">
+      <el-table-column :label="$t('状态')" align="center" width="80px">
         <template #default="scope">
-          <el-tag v-if="scope.row.isEnabled" type="success">{{ t("启用") }}</el-tag>
-          <el-tag v-else type="warning">{{ t("禁用") }}</el-tag>
+          <el-tag v-if="scope.row.isEnabled" type="success">{{ $t("启用") }}</el-tag>
+          <el-tag v-else type="warning">{{ $t("禁用") }}</el-tag>
         </template>
       </el-table-column>
-      <el-table-column :label="t('操作')" align="center" width="300px">
+      <el-table-column :label="$t('操作')" align="center" width="300px">
         <template #default="scope">
-          <el-button link type="primary" text @click="handleOpenEditUser(scope.row)">{{ t('修改') }}</el-button>
+          <el-button link type="primary" text @click="handleOpenEditUser(scope.row)">{{ $t('修改') }}</el-button>
           <el-button link type="primary" text @click="handleResetPassword(scope.row)">重置密码</el-button>
           <el-button link type="primary" text @click="handleForbidRole(scope.row._id, scope.row.isEnabled)">
-            {{ scope.row.isEnabled ? t("禁用") : t("启用") }}
+            {{ scope.row.isEnabled ? $t("禁用") : $t("启用") }}
           </el-button>
         </template>
       </el-table-column>
@@ -59,7 +59,7 @@
 </template>
 
 <script lang="ts" setup>
-import { t } from 'i18next'
+import { useTranslation } from 'i18next-vue'
 import SAddUserDialog from './add/add.vue'
 import SEditUserDialog from './edit/edit.vue'
 import SResetPasswordDialog from './reset-pwd/reset-pwd.vue'
@@ -73,6 +73,7 @@ import STable from '@/components/common/table/g-table.vue'
 import SDownload from '@/components/common/download/g-download.vue'
 import SUploadPlain from '@/components/common/upload/g-upload-plain.vue'
 
+const { t } = useTranslation()
 const addUserDialog = ref(false) //------------------新增用户弹窗
 const editUserDialog = ref(false) //-----------------编辑用户弹窗
 const resetPwdDialog = ref(false) //-----------------重置密码弹窗

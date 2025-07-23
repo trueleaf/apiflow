@@ -28,7 +28,7 @@
         <el-icon size="18" title="刷新主应用" @click="refreshApp"><RefreshRight /></el-icon>
         <el-icon size="18" title="后退" @click="goBack"><Back /></el-icon>
         <el-icon size="18" title="前进" @click="goForward"><Right /></el-icon>
-        <div class="language-btn" :title="t('切换语言')" @click="handleLanguageButtonClick" ref="languageButtonRef">
+        <div class="language-btn" :title="$t('切换语言')" @click="handleLanguageButtonClick" ref="languageButtonRef">
           <i class="iconfont iconyuyan"></i>
           <span class="language-text">{{ currentLanguageDisplay }}</span>
         </div>
@@ -50,7 +50,7 @@ import draggable from 'vuedraggable'
 import { apidocCache } from '@src/renderer/cache/apidoc'
 import { Language } from '@src/types/global'
 import { RefreshRight, Back, Right } from '@element-plus/icons-vue'
-import { t } from 'i18next';
+
 
 const tabs = ref<{ id: string; title: string }[]>([])
 const activeTabId = ref('')

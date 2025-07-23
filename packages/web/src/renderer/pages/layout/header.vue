@@ -8,22 +8,22 @@
     </div>
     <div class="header-right ml-auto">
       <div class="operation">
-        <div :title="t('返回首页')" class="op_item" @click="jumpToHome">
+        <div :title="$t('返回首页')" class="op_item" @click="jumpToHome">
           <el-icon :size="16">
             <i class="iconfont iconhome"></i>
           </el-icon>
         </div>
-        <div :title="t('刷新')" class="op_item" @click="freshPage">
+        <div :title="$t('刷新')" class="op_item" @click="freshPage">
           <el-icon :size="16">
             <RefreshRight />
           </el-icon>
         </div>
-        <div :title="t('后退')" class="op_item" @click="goBack">
+        <div :title="$t('后退')" class="op_item" @click="goBack">
           <el-icon :size="16">
             <Back />
           </el-icon>
         </div>
-        <div :title="t('前进')" class="op_item" @click="goForward">
+        <div :title="$t('前进')" class="op_item" @click="goForward">
           <el-icon :size="16">
             <Right />
           </el-icon>
@@ -44,8 +44,8 @@
           </el-icon>
         </div>
         <div v-if="downloading" class="process">
-          <span v-if="progress !== 100" :title="t('更新进度')">{{ progress.toFixed(1) }}%</span>
-          <span v-else class="cursor-pointer yellow" @click="handleInstall">{{ t('安装') }}</span>
+          <span v-if="progress !== 100" :title="$t('更新进度')">{{ progress.toFixed(1) }}%</span>
+          <span v-else class="cursor-pointer yellow" @click="handleInstall">{{ $t('安装') }}</span>
         </div>
         <el-dropdown class="ml-5" @command="handleClickDropdown">
           <span class="d-flex a-center cursor-pointer">
@@ -57,19 +57,19 @@
           <template #dropdown>
             <el-dropdown-menu>
               <el-dropdown-item command="user-setting">
-                <el-button text>{{ t('个人中心') }}</el-button>
+                <el-button text>{{ $t('个人中心') }}</el-button>
               </el-dropdown-item>
               <el-dropdown-item v-if="isElectron()" :disabled="downloading" command="update">
-                <el-button text>{{ t('检查更新')}}</el-button>
+                <el-button text>{{ $t('检查更新')}}</el-button>
               </el-dropdown-item>
               <el-dropdown-item command="version">
-                <el-button text>{{ t('版本') }}</el-button>
+                <el-button text>{{ $t('版本') }}</el-button>
               </el-dropdown-item>
               <el-dropdown-item command="clear-cache">
-                <el-button text :loading="clearCacheLoading">{{ t('清除所有缓存') }}</el-button>
+                <el-button text :loading="clearCacheLoading">{{ $t('清除所有缓存') }}</el-button>
               </el-dropdown-item>
               <el-dropdown-item command="logout">
-                <el-button text>{{ t('退出登录') }}</el-button>
+                <el-button text>{{ $t('退出登录') }}</el-button>
               </el-dropdown-item>
             </el-dropdown-menu>
           </template>
@@ -106,7 +106,8 @@ import { usePermissionStore } from '@/store/permission';
 import { RefreshRight, Back, Right, ArrowDown, Minus, Close } from '@element-plus/icons-vue'
 import { deleteDB } from 'idb';
 import { useRouter } from 'vue-router';
-import i18next, { t } from 'i18next';
+import i18next from 'i18next';
+import { useTranslation } from 'i18next-vue';
 import type { Language } from '@src/types/global'
 import { computed, onMounted, ref } from 'vue';
 import { config } from '@/../config/config'
@@ -117,6 +118,7 @@ import { apidocCache } from '@/cache/apidoc';
 
 const router = useRouter();
 const permissionStore = usePermissionStore();
+const { t } = useTranslation();
 const userInfo = computed(() => permissionStore.userInfo);
 const clearCacheLoading = ref(false);
 const windowState = ref<'normal' | 'minimized' | 'maximized'>('maximized');
