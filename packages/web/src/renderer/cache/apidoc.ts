@@ -656,7 +656,7 @@ class ApidocCache extends ResponseCache {
   /*
    * header tabs 缓存
    */
-  setHeaderTabs(tabs: { id: string; title: string }[]) {
+  setHeaderTabs(tabs: { id: string; title: string; type: 'project' | 'settings' }[]) {
     try {
       localStorage.setItem('apidoc/header/tabs', JSON.stringify(tabs));
     } catch (error) {
@@ -665,7 +665,7 @@ class ApidocCache extends ResponseCache {
     }
   }
 
-  getHeaderTabs(): { id: string; title: string }[] {
+  getHeaderTabs(): { id: string; title: string; type: 'project' | 'settings' }[] {
     try {
       return JSON.parse(localStorage.getItem('apidoc/header/tabs') || '[]');
     } catch (error) {

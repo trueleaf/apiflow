@@ -69,6 +69,11 @@ const routerConfig = {
       name: 'Share',
       component: () => import('@/pages/modules/apidoc/doc-share/share.vue'),
     },
+    {
+      path: '/user-center',
+      name: 'UserCenter',
+      component: () => import('@/pages/modules/user-center/UserCenter.vue'),
+    },
   ]
 }
 

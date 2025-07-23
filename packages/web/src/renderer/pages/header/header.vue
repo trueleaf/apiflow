@@ -28,6 +28,7 @@
         <el-icon size="18" title="刷新主应用" @click="refreshApp"><RefreshRight /></el-icon>
         <el-icon size="18" title="后退" @click="goBack"><Back /></el-icon>
         <el-icon size="18" title="前进" @click="goForward"><Right /></el-icon>
+        <el-icon size="18" title="个人中心" @click="jumpToUserCenter"><i class="iconfont icongerenzhongxin"></i></el-icon>
         <div class="language-btn" :title="$t('切换语言')" @click="handleLanguageButtonClick" ref="languageButtonRef">
           <i class="iconfont iconyuyan"></i>
           <span class="language-text">{{ currentLanguageDisplay }}</span>
@@ -51,8 +52,14 @@ import { apidocCache } from '@src/renderer/cache/apidoc'
 import { Language } from '@src/types/global'
 import { RefreshRight, Back, Right } from '@element-plus/icons-vue'
 
+// 定义Tab类型
+interface HeaderTab {
+  id: string;
+  title: string;
+  type: 'project' | 'settings';
+}
 
-const tabs = ref<{ id: string; title: string }[]>([])
+const tabs = ref<HeaderTab[]>([])
 const activeTabId = ref('')
 const isMaximized = ref(false)
 const isDev = ref(false)
@@ -133,6 +140,9 @@ const deleteTab = (tabId: string) => {
   const index = tabs.value.findIndex(t => t.id === tabId)
   if (index === -1) return
 
+  // 记录当前激活的tab，用于智能切换
+  const wasActive = activeTabId.value === tabId;
+
   // 删除指定的标签页
   tabs.value = tabs.value.filter(t => t.id !== tabId)
 
@@ -140,21 +150,41 @@ const deleteTab = (tabId: string) => {
   if (tabs.value.length === 0) {
     // 如果没有剩余标签页，自动跳转到主页面
     jumpToHome()
-  } else if (activeTabId.value === tabId) {
-    // 如果删除的是当前激活的标签页，且还有其他标签页，则切换到相邻的标签页
-    const newActiveTabId = tabs.value[Math.min(index, tabs.value.length - 1)]?.id || ''
+  } else if (wasActive) {
+    // 如果删除的是当前激活的标签页，智能选择下一个tab
+    let newActiveTabId = '';
+
+    // 优先选择右侧相邻的tab，如果没有则选择左侧的
+    if (index < tabs.value.length) {
+      newActiveTabId = tabs.value[index].id;
+    } else if (index > 0) {
+      newActiveTabId = tabs.value[index - 1].id;
+    } else if (tabs.value.length > 0) {
+      newActiveTabId = tabs.value[0].id;
+    }
+
     if (newActiveTabId) {
       // 调用switchTab方法来正确切换到新的tab并触发相应的页面切换逻辑
       switchTab(newActiveTabId)
     }
   }
 }
-const switchTab = (projectId: string) => {
-  activeTabId.value = projectId;
-  window.electronAPI?.sendToMain('apiflow-topbar-switch-project', {
-    projectId: projectId,
-    projectName: tabs.value.find(t => t.id === projectId)?.title || ''
-  })
+const switchTab = (tabId: string) => {
+  activeTabId.value = tabId;
+  const currentTab = tabs.value.find(t => t.id === tabId);
+
+  if (!currentTab) return;
+
+  if (currentTab.type === 'project') {
+    // 项目类型tab：发送项目切换事件
+    window.electronAPI?.sendToMain('apiflow-topbar-switch-project', {
+      projectId: tabId,
+      projectName: currentTab.title
+    })
+  } else if (currentTab.type === 'settings') {
+    // 设置类型tab：发送路由跳转事件
+    window.electronAPI?.sendToMain('apiflow-topbar-navigate', '/user-center')
+  }
 }
 const onDragEnd = () => { }
 /*
@@ -169,9 +199,28 @@ const jumpToHome = () => {
   // 主进程期望接收字符串路径，不是对象
   window.electronAPI?.sendToMain('apiflow-topbar-navigate', '/')
 }
+
+const jumpToUserCenter = () => {
+  const userCenterTabId = 'user-center';
+
+  // 检查是否已存在个人中心tab
+  const existingTab = tabs.value.find(t => t.id === userCenterTabId);
+
+  if (!existingTab) {
+    // 如果不存在，创建新的个人中心tab
+    tabs.value.push({
+      id: userCenterTabId,
+      title: '个人中心',
+      type: 'settings'
+    });
+  }
+
+  // 切换到个人中心tab
+  switchTab(userCenterTabId);
+}
 const bindAppEvent = () => {
   window.electronAPI?.onMain('apiflow-create-project-success', (data: { projectId: string, projectName: string }) => {
-    tabs.value.push({ id: data.projectId, title: data.projectName })
+    tabs.value.push({ id: data.projectId, title: data.projectName, type: 'project' })
     activeTabId.value = data.projectId
     nextTick(() => { tabListRef.value && (tabListRef.value.scrollLeft = tabListRef.value.scrollWidth) })
   })
@@ -179,7 +228,7 @@ const bindAppEvent = () => {
     activeTabId.value = data.projectId;
     const matchedProject = tabs.value.find(t => t.id === data.projectId)
     if (!matchedProject) {
-      tabs.value.push({ id: data.projectId, title: data.projectName })
+      tabs.value.push({ id: data.projectId, title: data.projectName, type: 'project' })
     } else if (matchedProject.title !== data.projectName) {
       matchedProject.title = data.projectName
     }
@@ -434,7 +483,6 @@ body {
 .navigation-control i:hover {
   background-color: rgba(255, 255, 255, 0.1);
 }
-
 .language-btn {
   width: 42px;
   height: 28px;

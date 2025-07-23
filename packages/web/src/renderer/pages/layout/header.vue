@@ -149,7 +149,7 @@ const goBack = () => router.back()
 const goForward = () => router.forward();
 const freshPage = () => window.location.reload();
 const jumpToHome = () => router.push('/v1/apidoc/doc-list');
-const jumpToUserSetting = () => router.push('/v1/settings/user');
+const jumpToUserSetting = () => router.push('/user-center');
 const logout = () => {
   permissionStore.clearAllPermission()
   sessionStorage.clear();
