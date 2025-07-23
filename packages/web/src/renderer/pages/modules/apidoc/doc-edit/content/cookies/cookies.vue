@@ -158,7 +158,9 @@ import { uuid } from '@/helper';
 import { useRoute } from 'vue-router'
 import dayjs from 'dayjs';
 
+
 const route = useRoute()
+const { t } = useTranslation()
 const cookiesStore = useCookies();
 const cookies = computed(() => cookiesStore.cookies);
 const expiresShortcuts = [
@@ -187,7 +189,6 @@ const expiresShortcuts = [
     }
   }
 ];
-const { t } = useTranslation()
 
 const dialogVisible = ref(false);
 const editMode = ref(false);
