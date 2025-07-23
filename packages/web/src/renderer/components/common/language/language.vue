@@ -93,7 +93,6 @@ const handleClose = () => {
 </script>
 
 <style scoped>
-/* VSCode 风格的语言切换下拉菜单样式 */
 .language-dropdown-menu {
   background: var(--white);
   border: 1px solid #e1e4e8;

@@ -26,7 +26,7 @@ import { standaloneCache } from './cache/standalone';
 import { ElMessageBox } from 'element-plus';
 import { useApidocBaseInfo } from './store/apidoc/base-info';
 import { Language } from '@src/types/global';
-import LanguageMenu from '@/components/LanguageMenu.vue';
+import LanguageMenu from '@/components/common/language/language.vue';
 
 const router = useRouter();
 const dialogVisible = ref(false);
