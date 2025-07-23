@@ -105,7 +105,7 @@ import SLabelValue from '@/components/common/label-value/g-label-value.vue'
 import SFieldset from '@/components/common/fieldset/g-fieldset.vue'
 import mockResponse from './components/mock-response/mock-response.vue'
 import mockHeaders from './components/mock-headers/mock-headers.vue'
-import { t } from 'i18next'
+import { useTranslation } from 'i18next-vue'
 import { config } from '@src/config/config'
 import { useApidoc } from '@/store/apidoc/apidoc';
 import { useApidocTas } from '@/store/apidoc/tabs';
@@ -169,6 +169,8 @@ watch(customPath, (newVal) => {
 |--------------------------------------------------------------------------
 */
 const mockPort = computed(() => mockServerInfo.value.mockServerPort)
+const { t } = useTranslation()
+
 const _mockPort = ref(mockPort.value);
 const isEditingPort = ref(false);
 //改变端口编辑状态

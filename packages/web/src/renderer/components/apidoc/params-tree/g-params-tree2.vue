@@ -203,7 +203,7 @@ import type { TreeNodeOptions } from 'element-plus/lib/components/tree/src/tree.
 import type { ApidocProperty, MockItem } from '@src/types/global'
 import { apidocGenerateProperty, forEachForest } from '@/helper/index'
 import { store } from '@/store'
-import { t } from 'i18next'
+import { useTranslation } from 'i18next-vue'
 import { TreeNodeData } from 'element-plus/es/components/tree-v2/src/types'
 
 const treeProps = {
@@ -300,6 +300,7 @@ const props = defineProps({
   },
 });
 const emits = defineEmits(['change'])
+const { t } = useTranslation()
 /*
 |--------------------------------------------------------------------------
 | 基础变量

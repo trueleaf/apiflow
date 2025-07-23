@@ -31,11 +31,13 @@ import { computed, onMounted, ref } from 'vue'
 import { Tickets, School } from '@element-plus/icons-vue'
 import tabA from './tab-a/tab-a.vue'
 import tabB from './tab-b/tab-b.vue'
-import { t } from 'i18next'
+import { useTranslation } from 'i18next-vue'
 import { TabPaneName } from 'element-plus'
 import { apidocCache } from '@/cache/apidoc'
 
 const { getActiveApidocTab, setActiveApidocTab } = apidocCache
+const { t } = useTranslation()
+
 const activeName = ref('projectList'); //当前激活选项卡
 const isStandalone = ref(__STANDALONE__)
 const activeComponent = computed(() => {

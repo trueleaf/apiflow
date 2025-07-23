@@ -93,7 +93,7 @@
 import { ref, computed, Ref, PropType, onMounted, nextTick } from 'vue'
 import { ElMessage } from 'element-plus'
 import 'element-plus/es/components/message/style/css'
-import { t } from 'i18next'
+import { useTranslation } from 'i18next-vue'
 import SDialog from '@/components/common/dialog/g-dialog.vue'
 import SEmphasize from '@/components/common/emphasize/g-emphasize.vue'
 import SConfig from '@/components/common/config/g-config.vue'
@@ -139,6 +139,8 @@ const apidocBannerStore = useApidocBanner()
 const apidocBaseInfoStore = useApidocBaseInfo()
 //=========================================================================//
 //生成链接额外配置信息
+const { t } = useTranslation()
+
 const formInfo = ref({
   shareName: '', //链接名称
   password: '',

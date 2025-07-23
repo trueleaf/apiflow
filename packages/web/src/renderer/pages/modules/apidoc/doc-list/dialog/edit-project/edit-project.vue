@@ -17,7 +17,7 @@
 import { request } from '@/api/api';
 import { config } from '@src/config/config';
 import { ElMessage, FormInstance } from 'element-plus';
-import { t } from 'i18next'
+import { useTranslation } from 'i18next-vue'
 import { nextTick, ref, watch } from 'vue';
 import Dialog from '@/components/common/dialog/g-dialog.vue';
 import { standaloneCache } from '@/cache/standalone';
@@ -37,6 +37,8 @@ const props = defineProps({
   },
 })
 const emits = defineEmits(['update:modelValue', 'success'])
+const { t } = useTranslation()
+
 const isStandalone = ref(__STANDALONE__)
 const formInfo = ref({
   projectName: '',

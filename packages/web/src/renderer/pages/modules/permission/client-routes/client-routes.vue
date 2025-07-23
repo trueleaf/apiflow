@@ -36,7 +36,7 @@ import SMultiEditClientRoute from './edit/edit2.vue'
 import { Ref, ref } from 'vue';
 import { uniqueByKey } from '@/helper';
 import { ElMessageBox } from 'element-plus';
-import { t } from 'i18next'
+import { useTranslation } from 'i18next-vue'
 import { request } from '@/api/api';
 import SSearch from '@/components/common/forms/search/g-search.vue'
 import SSearchItem from '@/components/common/forms/search/g-search-item.vue'
@@ -56,6 +56,8 @@ const editData = ref<PermissionClientRoute>({
 }); //-------------需要编辑的数据
 const originTableData = ref<PermissionClientRoute[]>([]); //----原始表单数据
 const groupEnum = ref<{ id: string, name: string }[]>([]); //---分组信息
+const { t } = useTranslation()
+
 const dialogVisible = ref(false); //----------------------------新增路由信息弹窗
 const dialogVisible2 = ref(false); //---------------------------修改路由信息弹窗
 const dialogVisible3 = ref(false); //---------------------------批量修改路由信息弹窗

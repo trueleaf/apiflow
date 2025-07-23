@@ -26,10 +26,12 @@ import { ref } from 'vue';
 import SAddRole from './add/add.vue'
 import SEditRole from './edit/edit.vue'
 import { ElMessageBox } from 'element-plus';
-import { t } from 'i18next'
+import { useTranslation } from 'i18next-vue'
 import STable from '@/components/common/table/g-table.vue'
 import { request } from '@/api/api';
 import { formatDate } from '@/helper'
+
+const { t } = useTranslation()
 
 const userId = ref('');
 const addRoleDialog = ref(false);

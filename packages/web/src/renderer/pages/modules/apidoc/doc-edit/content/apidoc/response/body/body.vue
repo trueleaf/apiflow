@@ -287,7 +287,7 @@
 import { useApidocBaseInfo } from '@/store/apidoc/base-info';
 import { useApidocResponse } from '@/store/apidoc/response';
 import { computed, onMounted, onUnmounted, ref, watch } from 'vue';
-import { t } from 'i18next'
+import { useTranslation } from 'i18next-vue'
 import { formatBytes, downloadStringAsText, formatHeader } from '@/helper/index'
 import { config } from '@/../config/config'
 import SJsonEditor from '@/components/common/json-editor/g-json-editor.vue'
@@ -303,6 +303,8 @@ const loadingProcess = computed(() => apidocResponseStore.loadingProcess);
 const requestState = computed(() => apidocResponseStore.requestState);
 const redirectList = computed(() => apidocResponseStore.responseInfo.redirectList);
 const videoRef = ref<HTMLVideoElement>();
+const { t } = useTranslation()
+
 const formatedText = ref('');
 const apidocTabsStore = useApidocTas();
 const selectedTab = apidocTabsStore.getSelectedTab(apidocBaseInfoStore.projectId);

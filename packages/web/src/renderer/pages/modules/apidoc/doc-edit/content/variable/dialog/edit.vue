@@ -86,7 +86,7 @@
 import { request } from '@/api/api';
 import { config } from '@src/config/config';
 import { ElMessage, FormInstance, genFileId, UploadFile, UploadInstance, UploadProps, UploadRawFile } from 'element-plus';
-import { t } from 'i18next'
+import { useTranslation } from 'i18next-vue'
 import { nextTick, PropType, ref, watch } from 'vue';
 import Dialog from '@/components/common/dialog/g-dialog.vue';
 import { AddProjectVariableFormInfo, AddProjectVariableParams } from '../variable.vue';
@@ -119,6 +119,8 @@ const formInfo = ref<AddProjectVariableFormInfo>({
   },
   type: 'string',
 })
+const { t } = useTranslation()
+
 const rules = ref({
   name: [{ required: true, message: t('请输入变量名称'), trigger: 'blur' }],
 })

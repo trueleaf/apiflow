@@ -20,7 +20,7 @@ import { request } from '@/api/api';
 import { PermissionClientRoute, Response } from '@src/types/global'
 import { onMounted, watch } from 'vue';
 import { ref } from 'vue';
-import { t } from 'i18next'
+import { useTranslation } from 'i18next-vue'
 import SLoading from '@/components/common/loading/g-loading.vue'
 
 
@@ -34,6 +34,8 @@ type ClientGroupRoutes = {
 const emits = defineEmits(['change'])
 const selectedData = ref<string[]>([])
 const clientRoutes = ref<ClientGroupRoutes>({})
+const { t } = useTranslation()
+
 const loading = ref(false)
 
 watch(selectedData, (val) => {

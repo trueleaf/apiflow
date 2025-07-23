@@ -86,7 +86,7 @@
 <script lang="ts" setup>
 import { computed, ref, onMounted, Ref } from 'vue'
 import type { ApidocBodyMode, ApidocBodyParams, ApidocBodyRawType, ApidocContentType } from '@src/types/global'
-import { t } from 'i18next'
+import { useTranslation } from 'i18next-vue'
 import { apidocCache } from '@/cache/apidoc'
 import { useVariable } from '@/store/apidoc/variables';
 import { useApidoc } from '@/store/apidoc/apidoc';
@@ -147,6 +147,8 @@ const changeBodyType = () => {
   jsonComponent.value?.focus()
 }
 //不再显示body提示信息
+const { t } = useTranslation()
+
 const jsonBodyVisible = ref(false);
 const handleHideTip = () => {
   apidocCache.hideJsonBodyTip();

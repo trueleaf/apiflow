@@ -50,7 +50,7 @@ import SSearch from '@/components/common/forms/search/g-search.vue'
 import SSearchItem from '@/components/common/forms/search/g-search-item.vue'
 import STable from '@/components/common/table/g-table.vue'
 import { Ref, ref } from 'vue';
-import { t } from 'i18next'
+import { useTranslation } from 'i18next-vue'
 import { uniqueByKey } from '@/helper';
 import { ElMessageBox } from 'element-plus';
 import { request } from '@/api/api';
@@ -70,6 +70,8 @@ const editData = ref<PermissionServerRoute>({
 }); //需要编辑的数据
 const originTableData = ref<PermissionServerRoute[]>([]); //原始表单数据
 const groupEnum = ref<{ id: string, name: string }[]>([]); //分组信息
+const { t } = useTranslation()
+
 const dialogVisible = ref(false); //新增路由信息弹窗
 const dialogVisible2 = ref(false); //修改路由信息弹窗
 const dialogVisible3 = ref(false); //批量修改路由信息弹窗

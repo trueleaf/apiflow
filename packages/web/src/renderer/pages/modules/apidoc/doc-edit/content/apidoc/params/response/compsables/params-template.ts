@@ -1,6 +1,6 @@
 import { ref, Ref, computed, ComputedRef, onMounted, onBeforeUnmount } from 'vue'
 import { router } from '@/router/index'
-import { t } from 'i18next'
+import i18next from 'i18next'
 import { ApidocProjectParamsTemplate } from '@src/types/apidoc/base-info';
 import { useApidocBaseInfo } from '@/store/apidoc/base-info';
 import { useApidocTas } from '@/store/apidoc/tabs';
@@ -39,7 +39,7 @@ export default function useImportParams(): Response {
       _id: 'paramsTemplate',
       projectId,
       tabType: 'paramsTemplate',
-      label: t('模板维护'),
+      label: i18next.t('模板维护'),
       head: {
         icon: 'iconvariable',
         color: ''

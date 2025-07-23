@@ -19,7 +19,7 @@
 </template>
 
 <script lang="ts" setup>
-import { t } from 'i18next';
+import { useTranslation } from 'i18next-vue';
 import { onMounted, onUnmounted, ref, watch } from 'vue';
 
 const props = defineProps({
@@ -48,6 +48,7 @@ const props = defineProps({
     default: false,
   },
 })
+const { t } = useTranslation();
 
 const realTimeWidth = ref(0); //---------------实时宽度
 const mousedownLeft = ref(0); //---------------鼠标点击距离

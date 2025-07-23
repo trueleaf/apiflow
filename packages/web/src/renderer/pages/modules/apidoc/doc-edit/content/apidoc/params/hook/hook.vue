@@ -32,7 +32,7 @@ import { router } from '@/router';
 import type { ApidocCodeInfo, Response } from '@src/types/global'
 import { ElMessage } from 'element-plus'
 import 'element-plus/es/components/message/style/css';
-import { t } from 'i18next';
+import { useTranslation } from 'i18next-vue';
 import { useApidoc } from '@/store/apidoc/apidoc';
 import { useApidocTas } from '@/store/apidoc/tabs';
 import SLoading from '@/components/common/loading/g-loading.vue'
@@ -41,6 +41,8 @@ import SLoading from '@/components/common/loading/g-loading.vue'
 type CodeInfo = Omit<ApidocCodeInfo, 'updatedAt'>;
 const emits = defineEmits(['close']);
 const projectId = router.currentRoute.value.query.id as string; //项目id
+const { t } = useTranslation()
+
 const loading = ref(false); //加载效果
 const codeList: Ref<CodeInfo[]> = ref([]); //代码列表
 const worker = new Worker('/sandbox/hook/worker.js');

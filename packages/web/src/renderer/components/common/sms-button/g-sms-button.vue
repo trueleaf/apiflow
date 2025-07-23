@@ -3,21 +3,22 @@
 </template>
 
 <script lang="ts" setup>
-import { t } from 'i18next'
+import { useTranslation } from 'i18next-vue'
 import { onUnmounted, ref } from 'vue';
 
+const { t } = useTranslation()
 const props = defineProps({
   startLabel: {
     type: String,
-    default: t('获取验证码'),
+    default: '获取验证码',
   },
   waitLabel: {
     type: String,
-    default: t('重新发送')
+    default: '重新发送'
   },
   endLabel: {
     type: String,
-    default: t('重新获取')
+    default: '重新获取'
   },
   hook: {
     type: Function,

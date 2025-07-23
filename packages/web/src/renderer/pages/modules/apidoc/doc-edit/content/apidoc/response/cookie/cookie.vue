@@ -80,7 +80,7 @@ import { computed, ref, } from 'vue';
 import { FullScreen } from '@element-plus/icons-vue';
 import { parse } from 'set-cookie-parser';
 import { useApidocTas } from '@/store/apidoc/tabs'
-import { t } from 'i18next';
+import { useTranslation } from 'i18next-vue';
 import { useRoute } from 'vue-router'
 
 const route = useRoute()
@@ -98,6 +98,8 @@ const currentSelectTab = computed(() => {
   return currentSelectTab;
 });
 const layout = computed(() => apidocBaseInfoStore.layout);
+const { t } = useTranslation()
+
 const dialogVisible = ref(false);
 const handleJumpToCookies = () => {
   apidocTabsStore.addTab({

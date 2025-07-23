@@ -103,7 +103,7 @@ import { config } from '@/../config/config'
 import { router } from '@/router'
 import { useApidocBanner } from '@/store/apidoc/banner';
 import { useApidocBaseInfo } from '@/store/apidoc/base-info';
-import { t } from 'i18next'
+import { useTranslation } from 'i18next-vue'
 import dayjs from 'dayjs'
 
 //=========================================================================//
@@ -118,6 +118,8 @@ const emits = defineEmits(['update:modelValue', 'success'])
 const apidocBannerStore = useApidocBanner()
 const apidocBaseInfoStore = useApidocBaseInfo()
 //生成链接额外配置信息
+const { t } = useTranslation()
+
 const formInfo = ref({
   shareName: '', //链接名称
   password: '',

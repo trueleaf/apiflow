@@ -56,11 +56,13 @@
 import { computed } from 'vue'
 import { QuestionFilled } from '@element-plus/icons-vue'
 import { formatBytes, formatMs } from '@/helper/index'
-import { t } from 'i18next'
+import { useTranslation } from 'i18next-vue'
 import { useApidocResponse } from '@/store/apidoc/response';
 
 //远端返回值
 const apidocResponseStore = useApidocResponse();
+const { t } = useTranslation()
+
 const responseInfo = computed(() => apidocResponseStore.responseInfo);
 //格式化返回值大小
 const formatedBytes = computed(() => formatBytes(responseInfo.value.bodyByteLength))

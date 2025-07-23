@@ -17,7 +17,7 @@ import { nextTick, PropType, ref } from 'vue'
 import SDialog from '@/components/common/dialog/g-dialog.vue'
 import SForm from '@/components/common/forms/form/g-form.vue'
 import SFormItem from '@/components/common/forms/form/g-form-item.vue'
-import { t } from 'i18next'
+import { useTranslation } from 'i18next-vue'
 import { FormInstance } from 'element-plus'
 import { request } from '@/api/api'
 
@@ -32,6 +32,8 @@ defineProps({
   },
 })
 const emits = defineEmits(['update:modelValue', 'success'])
+const { t } = useTranslation()
+
 const loading = ref(false);
 const form = ref<FormInstance>()
 /*

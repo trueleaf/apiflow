@@ -11,7 +11,7 @@
 </template>
 
 <script lang="ts" setup>
-import { t } from 'i18next'
+import { useTranslation } from 'i18next-vue'
 import { Response, ApidocBanner } from '@src/types/global'
 import { ref } from 'vue';
 import { ElMessage, FormInstance } from 'element-plus';
@@ -37,6 +37,8 @@ const props = defineProps({
   },
 })
 const emits = defineEmits(['update:modelValue', 'success']);
+const { t } = useTranslation()
+
 const loading = ref(false);
 const form = ref<FormInstance>();
 const route = useRoute()

@@ -16,7 +16,7 @@
 
 <script lang="ts" setup>
 import { onMounted, onUnmounted, ref } from 'vue';
-import { t } from 'i18next'
+import { useTranslation } from 'i18next-vue'
 
 const props = defineProps({
   height: {
@@ -42,6 +42,7 @@ const props = defineProps({
 })
 
 const emits = defineEmits(['dragStart', 'dragEnd'])
+const { t } = useTranslation()
 const realTimeHeight = ref(0); //---------------实时高度
 const mousedownTop = ref(0); //---------------鼠标点击距离
 const wrapperHeight = ref(0); //----------------拖拽dom元素高度

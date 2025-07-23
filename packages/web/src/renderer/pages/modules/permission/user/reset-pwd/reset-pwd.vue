@@ -16,7 +16,7 @@
 <script lang="ts" setup>
 import { request } from '@/api/api';
 import { ElMessage, FormInstance } from 'element-plus';
-import { t } from 'i18next'
+import { useTranslation } from 'i18next-vue'
 import { nextTick, ref } from 'vue';
 import SDialog from '@/components/common/dialog/g-dialog.vue'
 import SForm from '@/components/common/forms/form/g-form.vue'
@@ -37,6 +37,8 @@ const props = defineProps({
 })
 const emits = defineEmits(['success', 'update:modelValue'])
 const formInfo = ref<Record<string, unknown>>({}); //用户基本信息
+const { t } = useTranslation()
+
 const loading = ref(false); //-----------------------用户信息加载
 const loading2 = ref(false); //----------------------修改用户加载
 const form = ref<FormInstance>()

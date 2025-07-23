@@ -105,7 +105,7 @@ import type TreeStore from 'element-plus/lib/components/tree/src/model/tree-stor
 import type Node from 'element-plus/lib/components/tree/src/model/node'
 import { request } from '@/api/api'
 import { findNextSiblingById, findParentById, findPreviousSiblingById, forEachForest, uuid } from '@/helper'
-import { t } from 'i18next'
+import { useTranslation } from 'i18next-vue'
 import { useApidocBaseInfo } from '@/store/apidoc/base-info';
 import { useApidocBanner } from '@/store/apidoc/banner';
 import SFieldset from '@/components/common/fieldset/g-fieldset.vue'
@@ -140,6 +140,8 @@ const projectRules = computed(() => apidocBaseInfoStore.rules);
 |--------------------------------------------------------------------------
 */
 //目标树数据加载
+const { t } = useTranslation()
+
 const loading = ref(false);
 //目标树数据
 const targetTreeData: Ref<ApidocBanner[]> = ref([]);

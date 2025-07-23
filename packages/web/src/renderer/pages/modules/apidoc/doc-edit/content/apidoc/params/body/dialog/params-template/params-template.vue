@@ -19,7 +19,7 @@ import { FormInstance } from 'element-plus';
 import { useApidoc } from '@/store/apidoc/apidoc';
 import { useRoute } from 'vue-router';
 import { request } from '@/api/api';
-import { t } from 'i18next' 
+import { useTranslation } from 'i18next-vue' 
 import { useApidocBaseInfo } from '@/store/apidoc/base-info';
 
 defineProps({
@@ -29,6 +29,8 @@ defineProps({
   },
 })
 const emits = defineEmits(['update:modelValue'])
+const { t } = useTranslation()
+
 const loading = ref(false);
 const form = ref<FormInstance>();
 const apidocStore = useApidoc()

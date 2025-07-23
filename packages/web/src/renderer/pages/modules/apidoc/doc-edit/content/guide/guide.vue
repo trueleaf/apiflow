@@ -19,7 +19,7 @@
 
 <script lang="ts" setup>
 import { computed } from 'vue'
-import { t } from 'i18next'
+import { useTranslation } from 'i18next-vue'
 import { ApidocBanner } from '@src/types/global'
 import { forEachForest } from '@/helper'
 import { config } from '@/../config/config'
@@ -28,6 +28,8 @@ import { useApidocBanner } from '@/store/apidoc/banner'
 const apidocBannerStore = useApidocBanner()
 const logoUrl = new URL('@/assets/imgs/logo.png', import.meta.url).href
 //所有节点
+const { t } = useTranslation()
+
 const allNodes = computed(() => {
   const allBanner = apidocBannerStore.banner;
   const docs: ApidocBanner[] = [];

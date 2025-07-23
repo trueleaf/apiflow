@@ -25,7 +25,7 @@
 import { request } from '@/api/api';
 import { PermissionRoleEnum, Response } from '@src/types/global'
 import { ElMessage, FormInstance } from 'element-plus';
-import { t } from 'i18next'
+import { useTranslation } from 'i18next-vue'
 import { nextTick, onMounted, ref } from 'vue';
 import SDialog from '@/components/common/dialog/g-dialog.vue'
 import SForm from '@/components/common/forms/form/g-form.vue'
@@ -40,6 +40,8 @@ defineProps({
 const emits = defineEmits(['success', 'update:modelValue']);
 const roleIds = ref<string[]>([]);
 const roleEnum = ref<PermissionRoleEnum>([]);
+const { t } = useTranslation()
+
 const loading = ref(false);
 const form = ref<FormInstance>();
 /*

@@ -86,7 +86,7 @@ import { DebouncedFunc } from 'lodash'
 import type { ApidocDetail, ApidocProperty } from '@src/types/global'
 import { apidocCache } from '@/cache/apidoc'
 import { lodashIsEqual, debounce } from '@/helper/index'
-import { t } from 'i18next'
+import { useTranslation } from 'i18next-vue'
 import SParams from './params/params.vue';
 import SRequestBody from './body/body.vue';
 import SRequestHeaders from './headers/headers.vue';
@@ -110,6 +110,8 @@ const apidocStore = useApidoc()
 const apidocTabsStore = useApidocTas()
 const apidocMock = useApidocMock();
 const activeName = ref<ActiceName>('SParams');
+const { t } = useTranslation()
+
 const generateCodeVisible = ref(false);
 import { router } from '@/router'
 const debounceFn = ref(null as (null | DebouncedFunc<(apidoc: ApidocDetail) => void>))

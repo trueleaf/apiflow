@@ -5,7 +5,7 @@
 |
 */
 import { ComputedRef, computed, WritableComputedRef } from 'vue'
-import { t } from 'i18next'
+import i18next from 'i18next'
 import { ApidocRequestMethodRule } from '@src/types/apidoc/base-info';
 import { useApidoc } from '@/store/apidoc/apidoc';
 import { ApidocHttpRequestMethod } from '@src/types/global';
@@ -41,7 +41,7 @@ export default (): MethodReturn => {
     //禁用请求方法后提示信息
   const disabledTip = (item: ApidocRequestMethodRule) => {
     if (!item.isEnabled) {
-      return t('当前请求方法被禁止，可以在全局配置中进行相关配置');
+      return i18next.t('当前请求方法被禁止，可以在全局配置中进行相关配置');
     }
     return '';
   }

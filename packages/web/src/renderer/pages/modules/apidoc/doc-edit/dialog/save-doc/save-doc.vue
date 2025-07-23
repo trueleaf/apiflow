@@ -32,7 +32,7 @@
 </template>
 
 <script lang="ts" setup>
-import { t } from 'i18next'
+import { useTranslation } from 'i18next-vue'
 import { ref, Ref, onMounted, nextTick } from 'vue'
 import { ApidocBanner, ApidocDetail } from '@src/types/global';
 import type { TreeNodeOptions } from 'element-plus/es/components/tree/src/tree.type';
@@ -65,6 +65,8 @@ const formInfo: Ref<FormInfo> = ref({
   name: t('未命名的接口'),
   pid: ''
 })
+const { t } = useTranslation()
+
 const rules = ref({
   name: [{ required: true, message: '接口名称必填', trigger: 'blur' }],
 });

@@ -64,7 +64,7 @@ import { TreeNodeOptions } from 'element-plus/es/components/tree/src/tree.type.m
 import { useShareStore } from '../store/index'
 import { defaultRequestMethods } from '../common'
 import { useRoute } from 'vue-router';
-import { t } from 'i18next'
+import { useTranslation } from 'i18next-vue'
 /*
 |--------------------------------------------------------------------------
 | 变量定义
@@ -74,6 +74,8 @@ const route = useRoute();
 const shareStore = useShareStore();
 const shareId = route.query?.share_id as string || 'local_share';
 const docTree: Ref<TreeNodeOptions['store'] | null | TreeNodeOptions> = ref(null);
+const { t } = useTranslation()
+
 const showMoreNodeInfo = ref(false); //banner是否显示更多内容
 // 添加项目名称和搜索相关变量
 const searchValue = ref('');

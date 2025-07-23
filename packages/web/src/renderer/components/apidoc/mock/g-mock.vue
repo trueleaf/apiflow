@@ -108,7 +108,7 @@
 </template>
 
 <script lang="ts" setup>
-import { t } from 'i18next'
+import { useTranslation } from 'i18next-vue'
 import type { MockItem } from '@src/types/global'
 import Mock from '@/server/mock/mock'
 import localMockEnum from './mock-enum';
@@ -140,6 +140,7 @@ const props = defineProps({
   }
 })
 const emits = defineEmits(['select', 'close']);
+const { t } = useTranslation();
 const cpMockEnum = ref<MockItem[]>(JSON.parse(JSON.stringify(localMockEnum)));
 const activeName = ref('常用');
 const mockValue = ref('');

@@ -21,7 +21,7 @@
 <script lang="ts" setup>
 import { request } from '@/api/api';
 import { PermissionClientRoute, Response } from '@src/types/global'
-import { t } from 'i18next'
+import { useTranslation } from 'i18next-vue'
 import SLoading from '@/components/common/loading/g-loading.vue'
 import { onMounted, ref, watch } from 'vue';
 
@@ -32,6 +32,8 @@ type RouteInfo = {
 type ClientGroupRoutes = {
   [propName: string]: RouteInfo
 }
+
+const { t } = useTranslation()
 
 const emits = defineEmits(['change']);
 const selectedData = ref<string[]>([]); //------------当前选中的前端路由

@@ -24,8 +24,10 @@
 import { Effect } from 'element-plus';
 import { Close } from '@element-plus/icons-vue'
 import status from './status'
-import { t } from 'i18next'
+import { useTranslation } from 'i18next-vue'
 
+
+const { t } = useTranslation()
 
 const emits = defineEmits(['close', 'select']);
 

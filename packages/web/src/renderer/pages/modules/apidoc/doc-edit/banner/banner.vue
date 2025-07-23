@@ -123,7 +123,7 @@ import { computed, ref, Ref, onMounted, onUnmounted, watch } from 'vue'
 import { MoreFilled } from '@element-plus/icons-vue'
 import type { ApidocBanner } from '@src/types/global'
 import { router } from '@/router/index'
-import { t } from 'i18next'
+import { useTranslation } from 'i18next-vue'
 import SResizeX from '@/components/common/resize/g-resize-x.vue'
 import SLoading from '@/components/common/loading/g-loading.vue'
 import SEmphasize from '@/components/common/emphasize/g-emphasize.vue'
@@ -163,6 +163,7 @@ type ApidocBannerWithProjectId = ApidocBanner & { projectId: string }
 | 获取项目基本信息
 |--------------------------------------------------------------------------
 */
+const { t } = useTranslation()
 const projectId = ref(router.currentRoute.value.query.id as string);
 const docTree: Ref<TreeNodeOptions['store'] | null | TreeNodeOptions> = ref(null);
 const pasteValue: Ref<ApidocBanner[] | null> = ref(null); //需要粘贴的数据

@@ -25,13 +25,14 @@
 <script lang="ts" setup>
 import { ref, useSlots, watch } from 'vue'
 import { ArrowDown, ArrowRight } from '@element-plus/icons-vue'
-import { t } from 'i18next'
+import { useTranslation } from 'i18next-vue'
 
 const slots = useSlots()
+const { t } = useTranslation()
 const props = defineProps({
   title: {
     type: String,
-    default: t('请输入标题'),
+    default: '请输入标题',
   },
   bold: {
     type: Boolean,

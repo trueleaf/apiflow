@@ -63,7 +63,7 @@ import { request } from '@/api/api';
 import { config } from '@src/config/config';
 import type { ApidocProjectMemberInfo } from '@src/types/global'
 import { ElMessage, FormInstance } from 'element-plus';
-import { t } from 'i18next'
+import { useTranslation } from 'i18next-vue'
 import { nextTick, ref } from 'vue';
 import RemoteSelector from '@/components/common/remote-select/g-remote-select.vue';
 import RemoteSelectorItem from '@/components/common/remote-select/g-remote-select-item.vue';
@@ -87,6 +87,8 @@ defineProps({
 })
 const form = ref<FormInstance>()
 const emits = defineEmits(['update:modelValue', 'success'])
+const { t } = useTranslation()
+
 const formInfo = ref({
   projectName: '', //-------------------------项目名称
   remark: '', //------------------------------项目备注

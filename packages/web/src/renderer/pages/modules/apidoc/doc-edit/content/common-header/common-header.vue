@@ -16,7 +16,7 @@
 </template>
 
 <script lang="ts" setup>
-import { t } from 'i18next'
+import { useTranslation } from 'i18next-vue'
 import { onMounted, ref, Ref, computed, watch } from 'vue'
 import { ElMessage } from 'element-plus'
 import 'element-plus/es/components/message/style/css';
@@ -48,6 +48,8 @@ const currentSelectTab = computed(() => { //当前选中的doc
 })
 
 //获取公共请求头信息
+const { t } = useTranslation()
+
 const loading = ref(false);
 const getCommonHeaderInfo = () => {
   loading.value = true;

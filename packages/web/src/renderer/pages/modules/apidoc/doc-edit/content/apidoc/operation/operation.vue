@@ -84,7 +84,7 @@
 
 <script lang="ts" setup>
 import { computed, ref } from 'vue'
-import { t } from 'i18next'
+import { useTranslation } from 'i18next-vue'
 import { Refresh } from '@element-plus/icons-vue'
 import { config } from '@/../config/config'
 import { router } from '@/router/index'
@@ -106,6 +106,8 @@ const apidocStore = useApidoc()
 const apidocResponseStore = useApidocResponse()
 const apidocRequestStore = useApidocRequest()
 const projectId = router.currentRoute.value.query.id as string;
+const { t } = useTranslation()
+
 const showPrefixHelper = ref(false)
 /*
 |--------------------------------------------------------------------------

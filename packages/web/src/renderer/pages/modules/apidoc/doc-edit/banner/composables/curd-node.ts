@@ -9,7 +9,7 @@ import type { ApidocBanner, Response } from '@src/types/global'
 import { findNodeById, forEachForest, findParentById, flatTree, uniqueByKey, findPreviousSiblingById, findNextSiblingById, event } from '@/helper/index'
 import { router } from '@/router/index'
 import { request } from '@/api/api'
-import { t } from 'i18next'
+import i18next from 'i18next'
 import { useApidocBanner } from '@/store/apidoc/banner';
 import { useApidocTas } from '@/store/apidoc/tabs';
 import { useApidoc } from '@/store/apidoc/apidoc';
@@ -44,7 +44,7 @@ export function deleteNode(selectNodes: ApidocBannerWithProjectId[], silent?: bo
       });
     }
   })
-  const deleteTip = selectNodes.length > 1 ? `${t('确定批量删除')} ${deleteIds.length} ${t('个节点?')}` : `${t('确定删除')} ${selectNodes[0].name} ${t('节点')}`
+  const deleteTip = selectNodes.length > 1 ? `${i18next.t('确定批量删除')} ${deleteIds.length} ${i18next.t('个节点?')}` : `${i18next.t('确定删除')} ${selectNodes[0].name} ${i18next.t('节点')}`
   const deleteOperation = async () => {
     if(__STANDALONE__){
       await standaloneCache.deleteDocs(deleteIds);
@@ -116,9 +116,9 @@ export function deleteNode(selectNodes: ApidocBannerWithProjectId[], silent?: bo
     deleteOperation();
     return;
   }
-  ElMessageBox.confirm(deleteTip, t('提示'), {
-    confirmButtonText: t('确定'),
-    cancelButtonText: t('取消'),
+  ElMessageBox.confirm(deleteTip, i18next.t('提示'), {
+    confirmButtonText: i18next.t('确定'),
+    cancelButtonText: i18next.t('取消'),
     type: 'warning',
   }).then(() => {
     deleteOperation();

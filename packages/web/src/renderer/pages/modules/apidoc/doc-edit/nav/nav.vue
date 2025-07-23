@@ -119,7 +119,7 @@
 
 <script lang="ts" setup>
 import * as SDraggable from 'vuedraggable'
-import { t } from 'i18next'
+import { useTranslation } from 'i18next-vue'
 import {
   Setting as IconSetting,
   Plus as IconPlus,
@@ -150,6 +150,8 @@ import { useApidocBanner } from '@/store/apidoc/banner';
 | 变量定义
 |--------------------------------------------------------------------------
 */
+const { t } = useTranslation()
+
 const tabIndex = ref(1);
 const showContextmenu = ref(false); //是否显示contextmenu
 const contextmenuLeft = ref(0); //鼠标右键x值

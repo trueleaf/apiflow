@@ -12,7 +12,7 @@ import { apidocCache } from '@/cache/apidoc';
 import { config } from '@src/config/config';
 import { cloneDeep, uuid } from '@/helper';
 import { useApidocRequest } from '@/store/apidoc/request';
-import { t } from 'i18next';
+import i18next from 'i18next';
 import { useCookies } from '@/store/apidoc/cookies';
 import { InitDataMessage, OnEvalSuccess, ReceivedEvent } from '@/worker/pre-request/types/types.ts';
 import { Method } from 'got';
@@ -180,7 +180,7 @@ const getBody = async (apidoc: ApidocDetail): Promise<GotRequestOptions['body']>
   if (mode === 'none') {
     return undefined;
   }
-  console.warn(`${t('未知的请求body类型')}`)
+  console.warn(`${i18next.t('未知的请求body类型')}`)
   return undefined;
 }
 /*
@@ -580,7 +580,7 @@ export function stopRequest(): void {
   changeResponseInfo({
     responseData: {
       canApiflowParseType: 'error',
-      errorData: t('请求被手动取消')
+      errorData: i18next.t('请求被手动取消')
     }
   })
 }

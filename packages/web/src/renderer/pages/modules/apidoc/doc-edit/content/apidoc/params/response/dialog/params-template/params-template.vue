@@ -14,7 +14,7 @@
 import SDialog from '@/components/common/dialog/g-dialog.vue'
 import SForm from '@/components/common/forms/form/g-form.vue'
 import SFormItem from '@/components/common/forms/form/g-form-item.vue'
-import { t } from 'i18next'
+import { useTranslation } from 'i18next-vue'
 import { nextTick, ref } from 'vue';
 import { FormInstance } from 'element-plus';
 import { useApidoc } from '@/store/apidoc/apidoc';
@@ -33,6 +33,8 @@ const props = defineProps({
   },
 })
 const emits = defineEmits(['update:modelValue'])
+const { t } = useTranslation()
+
 const loading = ref(false)
 const form = ref<FormInstance>()
 const apidocStore = useApidoc()

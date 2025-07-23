@@ -65,7 +65,7 @@ import { View } from '@element-plus/icons-vue'
 import { ApidocProperty } from '@src/types/global';
 import { apidocGenerateProperty } from '@/helper';
 import mindHeaders from './mind-headers'
-import { t } from 'i18next'
+import { useTranslation } from 'i18next-vue'
 import SParamsTree from '@/components/apidoc/params-tree/g-params-tree.vue'
 import { useApidoc } from '@/store/apidoc/apidoc';
 import { useApidocTas } from '@/store/apidoc/tabs';
@@ -84,6 +84,8 @@ const currentSelectTab = computed(() => { //当前选中的doc
   const tabs = apidocTabsStore.tabs[projectId];
   return tabs?.find((tab) => tab.selected) || null;
 })
+const { t } = useTranslation()
+
 const hideDefaultHeader = ref(true);
 const headerData = computed(() => apidocStore.apidoc.item.headers)
 const defaultHeaders = computed(() => apidocStore.defaultHeaders);

@@ -13,7 +13,7 @@ import { event } from '@/helper/index'
 import { router } from '@/router';
 import { useCompletionItem } from './registerCompletionItem'
 import { useHoverProvider } from './registerHoverProvider'
-import { t } from 'i18next'
+import { useTranslation } from 'i18next-vue'
 import { useApidocTas } from '@/store/apidoc/tabs';
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
 import 'monaco-editor/esm/vs/basic-languages/javascript/javascript.contribution'
@@ -22,6 +22,8 @@ import cssWorker from 'monaco-editor/esm/vs/language/css/css.worker?worker'
 import htmlWorker from 'monaco-editor/esm/vs/language/html/html.worker?worker'
 import tsWorker from 'monaco-editor/esm/vs/language/typescript/ts.worker?worker'
 import EditorWorker from 'monaco-editor/esm/vs/editor/editor.worker?worker'
+
+const { t } = useTranslation()
 
 const props = defineProps({
   modelValue: {

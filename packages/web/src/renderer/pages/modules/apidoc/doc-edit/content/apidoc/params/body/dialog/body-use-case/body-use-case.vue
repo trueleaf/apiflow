@@ -17,7 +17,7 @@
 import { ref, Ref, nextTick } from 'vue'
 import { router } from '@/router';
 import { FormInstance, FormRules } from 'element-plus';
-import { t } from 'i18next'
+import { useTranslation } from 'i18next-vue'
 import { useApidoc } from '@/store/apidoc/apidoc';
 import { useApidocBaseInfo } from '@/store/apidoc/base-info';
 import { request } from '@/api/api';
@@ -31,6 +31,8 @@ defineProps({
 const emits = defineEmits(['update:modelValue'])
 const apidocStore = useApidoc();
 const apidocBaseInfoStore = useApidocBaseInfo()
+const { t } = useTranslation()
+
 const loading = ref(false);
 const formInfo = ref({ name: '' });
 const rules: Ref<FormRules> = ref({

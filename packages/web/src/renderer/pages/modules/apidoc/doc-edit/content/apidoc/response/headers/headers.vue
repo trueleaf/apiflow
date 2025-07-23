@@ -67,7 +67,7 @@
 import { useApidocBaseInfo } from '@/store/apidoc/base-info';
 import { useApidocResponse } from '@/store/apidoc/response';
 import { computed, ref } from 'vue';
-import { t } from 'i18next'
+import { useTranslation } from 'i18next-vue'
 import { FullScreen } from '@element-plus/icons-vue';
 import { config } from '@src/config/config';
 
@@ -93,6 +93,8 @@ const headers = computed(() => {
   return result
 });
 const layout = computed(() => apidocBaseInfoStore.layout);
+const { t } = useTranslation()
+
 const dialogVisible = ref(false);
 const expandedRows = ref<Record<string, boolean>>({});
 

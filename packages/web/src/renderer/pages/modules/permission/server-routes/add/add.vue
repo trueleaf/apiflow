@@ -22,7 +22,7 @@ import { nextTick, onMounted, ref } from 'vue';
 import { getRequestMethodEnum } from '@/helper';
 import { FormInstance } from 'element-plus';
 import { request } from '@/api/api';
-import { t } from 'i18next'
+import { useTranslation } from 'i18next-vue'
 
 defineProps({
   modelValue: {
@@ -31,6 +31,8 @@ defineProps({
   },
 })
 const emits = defineEmits(['update:modelValue', 'success'])
+const { t } = useTranslation()
+
 const formInfo = ref({
   name: '', //------------路由名称
   path: '', //------------路由地址

@@ -153,7 +153,7 @@ import { ref, computed, nextTick, onMounted, onUnmounted } from 'vue';
 import { useCookies } from '@/store/apidoc/cookies';
 import { ElMessage, ElMessageBox } from 'element-plus';
 import type { ApidocCookie } from '@/store/apidoc/cookies';
-import { t } from 'i18next';
+import { useTranslation } from 'i18next-vue';
 import { uuid } from '@/helper';
 import { useRoute } from 'vue-router'
 import dayjs from 'dayjs';
@@ -187,6 +187,8 @@ const expiresShortcuts = [
     }
   }
 ];
+const { t } = useTranslation()
+
 const dialogVisible = ref(false);
 const editMode = ref(false);
 const editCookie = ref<ApidocCookie>({

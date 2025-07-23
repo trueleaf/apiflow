@@ -79,12 +79,14 @@
 
 <script lang="ts" setup>
 import { computed } from 'vue'
-import { t } from 'i18next'
+import { useTranslation } from 'i18next-vue'
 import { useApidocBaseInfo } from '@/store/apidoc/base-info';
 import { useApidoc } from '@/store/apidoc/apidoc';
 
 const apidocBaseInfoStore = useApidocBaseInfo()
 const apidocStore = useApidoc()
+const { t } = useTranslation()
+
 const requestMethods = computed(() => {
   return apidocBaseInfoStore.rules.requestMethods
 })

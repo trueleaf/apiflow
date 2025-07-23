@@ -98,7 +98,7 @@ import { ref, Ref, computed } from 'vue'
 import type { TreeNodeOptions } from 'element-plus/lib/components/tree/src/tree.type'
 import { ApidocBanner } from '@src/types/global';
 import { request } from '@/api/api'
-import { t } from 'i18next'
+import { useTranslation } from 'i18next-vue'
 import { useApidocBaseInfo } from '@/store/apidoc/base-info';
 import { useApidocBanner } from '@/store/apidoc/banner';
 import { useVariable } from '@/store/apidoc/variables';
@@ -148,6 +148,8 @@ const handleCheckChange = () => {
 
 //=====================================导出操作====================================//
 //数据加载状态
+const { t } = useTranslation()
+
 const loading = ref(false);
 const config: Ref<{ isEnabled: boolean } | null> = ref(null)
 //导出为html

@@ -12,11 +12,13 @@ import { useApidoc } from '@/store/apidoc/apidoc';
 import { useApidocBaseInfo } from '@/store/apidoc/base-info';
 import { computed } from 'vue'
 import SParamsTree from '@/components/apidoc/params-tree/g-params-tree.vue'
-import { t } from 'i18next'
+import { useTranslation } from 'i18next-vue'
 
 const apidocStore = useApidoc()
 const apidocBaseInfoStore = useApidocBaseInfo()
 //path参数
+const { t } = useTranslation()
+
 const pathTreeData = computed(() => apidocStore.apidoc.item.paths);
 //path参数联想值
 const mindPathData = computed(() => apidocBaseInfoStore.mindParams.filter(v => v.paramsPosition === 'paths'))

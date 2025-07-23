@@ -89,7 +89,7 @@ import type { ApidocMindParam } from '@src/types/global'
 import { store } from '@/store/index'
 import { router } from '@/router/index'
 import { request } from '@/api/api'
-import { t } from 'i18next'
+import { useTranslation } from 'i18next-vue'
 
 //搜索条件
 const formInfo: Ref<{ key: string, type: ApidocMindParam['paramsPosition'][] }> = ref({
@@ -97,6 +97,8 @@ const formInfo: Ref<{ key: string, type: ApidocMindParam['paramsPosition'][] }> 
   type: [],
 })
 //表格参数
+const { t } = useTranslation()
+
 const tableInfo = computed(() => {
   const allParams: ApidocMindParam[] = [];
   store.state['apidoc/baseInfo'].mindParams.forEach(v => {

@@ -45,7 +45,7 @@
 import { ref } from 'vue'
 import { ElMessage } from 'element-plus'
 import gCard from '@/components/common/card/g-card.vue'
-import { t } from 'i18next'
+import { useTranslation } from 'i18next-vue'
 
 /*
 |--------------------------------------------------------------------------
@@ -75,6 +75,8 @@ const importTypes = [
     bg: 'var(--purple)',
   },
 ]
+const { t } = useTranslation()
+
 const importType = ref('file')
 
 /*

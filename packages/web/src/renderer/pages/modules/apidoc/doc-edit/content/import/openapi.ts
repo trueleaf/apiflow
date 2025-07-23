@@ -12,7 +12,7 @@ import jsontoxml from 'jsontoxml'
 import type { OpenAPIV3 } from 'openapi-types';
 import type { ApidocProperty, ApidocDetail, ApidocPropertyType, ApidocHttpRequestMethod, ApidocBodyRawType, ApidocResponseContentType } from '@src/types/global'
 import { uuid, apidocGenerateProperty, apidocGenerateApidoc } from '@/helper/index'
-import { t } from 'i18next'
+import i18next from 'i18next'
 
 //=====================================项目信息====================================//
 type ProjectInfo = {
@@ -92,7 +92,7 @@ class OpenApiTranslator {
      */
   getVersion(): string {
     if (!this.openApiData.openapi) {
-      console.warn(t('缺少Version信息'));
+      console.warn(i18next.t('缺少Version信息'));
       return '';
     }
     return this.openApiData.openapi
@@ -104,7 +104,7 @@ class OpenApiTranslator {
   getProjectInfo(): ProjectInfo {
     const openApiInfo = this.openApiData.info;
     if (!openApiInfo) {
-      console.warn(t('缺少Info字段'))
+      console.warn(i18next.t('缺少Info字段'))
     }
     return {
       projectName: openApiInfo?.title || '',
@@ -119,11 +119,11 @@ class OpenApiTranslator {
     const openApiServers = this.openApiData.servers;
     const result: ServerInfo[] = [];
     if (!openApiServers) {
-      console.warn(t('缺少servers字段'));
+      console.warn(i18next.t('缺少servers字段'));
       return result;
     }
     if (!Array.isArray(openApiServers)) {
-      console.warn(t('servers字段必须为数组'));
+      console.warn(i18next.t('servers字段必须为数组'));
       return result;
     }
     openApiServers.forEach((server, index) => {
@@ -131,7 +131,7 @@ class OpenApiTranslator {
       const keys = Object.keys(variables);
       const varValue = keys.map((key) => {
         if (variables[key].enum) {
-          console.warn(t('server对象中存在多个变量枚举值，但接口工具仅解析默认值'));
+          console.warn(i18next.t('server对象中存在多个变量枚举值，但接口工具仅解析默认值'));
         }
         return {
           key,
@@ -143,7 +143,7 @@ class OpenApiTranslator {
         return matched?.value || $1
       })
       result.push({
-        name: `${t('服务器')}${index + 1}`,
+        name: `${i18next.t('服务器')}${index + 1}`,
         url,
         remark: server.description || '',
       });
@@ -160,7 +160,7 @@ class OpenApiTranslator {
     const docsResult: ApidocDetail[] = [];
     const allTags: Set<string> = new Set();
     if (!openApiDocInfo) {
-      console.warn(t('缺少paths字段'));
+      console.warn(i18next.t('缺少paths字段'));
       return docsResult;
     }
     Object.keys(openApiDocInfo).forEach((reqUrl) => {

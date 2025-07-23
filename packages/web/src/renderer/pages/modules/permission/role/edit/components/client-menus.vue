@@ -16,12 +16,14 @@ import { request } from '@/api/api';
 import { forEachForest } from '@/helper';
 import { TreeInstance } from 'element-plus';
 import { onMounted, ref } from 'vue';
-import { t } from 'i18next'
+import { useTranslation } from 'i18next-vue'
 import SLoading from '@/components/common/loading/g-loading.vue'
 
 
 const emits = defineEmits(['change']);
 const clientMenu = ref<string[]>([]);
+const { t } = useTranslation()
+
 const loading = ref(false);
 const tree = ref<TreeInstance>()
 /*

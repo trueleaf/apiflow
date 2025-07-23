@@ -44,7 +44,7 @@ import SForm from '@/components/common/forms/form/g-form.vue'
 import SFormItem from '@/components/common/forms/form/g-form-item.vue'
 import { request } from '@/api/api'
 import { FormInstance } from 'element-plus'
-import { t } from 'i18next'
+import { useTranslation } from 'i18next-vue'
 import SFieldset from '@/components/common/fieldset/g-fieldset.vue'
 
 type RoleInfo = {
@@ -66,6 +66,8 @@ const props = defineProps({
   },
 })
 const emits = defineEmits(['update:modelValue', 'success']);
+const { t } = useTranslation()
+
 const formInfo = ref({
   roleName: '', //-------------------角色名称
   remark: '', //---------------------备注信息

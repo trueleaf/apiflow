@@ -70,7 +70,7 @@ import { ArrowDown } from '@element-plus/icons-vue'
 import { Effect } from 'element-plus';
 import { ApidocProperty, ApidocASTInfo } from '@src/types/global'
 import { astJson } from './composables/astJson'
-import { t } from 'i18next'
+import { useTranslation } from 'i18next-vue'
 
 const props = defineProps({
   /**
@@ -88,6 +88,7 @@ const props = defineProps({
     default: false,
   },
 });
+const { t } = useTranslation()
 const astData: Ref<ApidocASTInfo[]> = ref([]);
 const queryString = ref(''); //查询字符串
 const activeCurlyBraceId = ref(''); //当前匹配的大括号id

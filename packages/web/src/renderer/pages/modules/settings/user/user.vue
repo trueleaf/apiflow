@@ -56,7 +56,7 @@
 import { Back } from '@element-plus/icons-vue'
 import type { Response } from '@src/types/global'
 import SCard from '@/components/common/card/g-card.vue'
-import { t } from 'i18next'
+import { useTranslation } from 'i18next-vue'
 import { nextTick, onMounted, ref } from 'vue';
 import { ElMessage, FormInstance } from 'element-plus';
 import { request } from '@/api/api';
@@ -78,6 +78,8 @@ const userInfo = ref<UserInfo>({
   phone: '',
   lastLogin: '',
 }); // 用户信息
+const { t } = useTranslation()
+
 const formInfo = ref({
   oldPassword: '', //------原始密码
   newPassword: '', //------新密码

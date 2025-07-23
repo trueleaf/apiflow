@@ -20,7 +20,9 @@ import SMenu from './menu/menu.vue'
 import SClientRoutes from './client-routes/client-routes.vue'
 import SServerRoutes from './server-routes/server-routes.vue'
 import { onMounted, ref } from 'vue'
-import { t } from 'i18next'
+import { useTranslation } from 'i18next-vue'
+
+const { t } = useTranslation()
 
 const activeName = ref('SUser')
 /*
