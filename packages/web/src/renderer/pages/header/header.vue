@@ -142,7 +142,11 @@ const deleteTab = (tabId: string) => {
     jumpToHome()
   } else if (activeTabId.value === tabId) {
     // 如果删除的是当前激活的标签页，且还有其他标签页，则切换到相邻的标签页
-    activeTabId.value = tabs.value[Math.min(index, tabs.value.length - 1)]?.id || ''
+    const newActiveTabId = tabs.value[Math.min(index, tabs.value.length - 1)]?.id || ''
+    if (newActiveTabId) {
+      // 调用switchTab方法来正确切换到新的tab并触发相应的页面切换逻辑
+      switchTab(newActiveTabId)
+    }
   }
 }
 const switchTab = (projectId: string) => {
@@ -206,6 +210,7 @@ onMounted(() => {
 
   // 监听语言切换事件
   window.electronAPI?.onMain('apiflow-language-changed', (language: string) => {
+    console.log('header', language)
     currentLanguage.value = language as Language
   })
 })
