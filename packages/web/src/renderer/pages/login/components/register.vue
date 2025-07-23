@@ -2,31 +2,31 @@
 <template>
   <el-form ref="form" :model="registerInfo" :rules="rules" @submit.stop.prevent="handleRegister">
     <el-form-item prop="loginName">
-      <el-input v-model="registerInfo.loginName" :size="config.renderConfig.layout.size" name="loginName" type="text" :placeholder="`${t('请输入登录名称')}`"></el-input>
+      <el-input v-model="registerInfo.loginName" :size="config.renderConfig.layout.size" name="loginName" type="text" :placeholder="`${$t('请输入登录名称')}`"></el-input>
     </el-form-item>
     <el-form-item prop="password">
-      <el-input v-model="registerInfo.password" :size="config.renderConfig.layout.size" show-password name="password" type="text" :placeholder="`${t('请输入密码')}`"></el-input>
+      <el-input v-model="registerInfo.password" :size="config.renderConfig.layout.size" show-password name="password" type="text" :placeholder="`${$t('请输入密码')}`"></el-input>
     </el-form-item>
     <el-form-item prop="password2">
-      <el-input v-model="registerInfo.password2" :size="config.renderConfig.layout.size" show-password name="password2" type="text" :placeholder="`${t('请再次输入密码')}`"></el-input>
+      <el-input v-model="registerInfo.password2" :size="config.renderConfig.layout.size" show-password name="password2" type="text" :placeholder="`${$t('请再次输入密码')}`"></el-input>
     </el-form-item>
     <el-form-item prop="phone">
-      <el-input v-model="registerInfo.phone" :size="config.renderConfig.layout.size" name="phone" type="text" :placeholder="`${t('请输入手机号')}`"></el-input>
+      <el-input v-model="registerInfo.phone" :size="config.renderConfig.layout.size" name="phone" type="text" :placeholder="`${$t('请输入手机号')}`"></el-input>
     </el-form-item>
     <el-form-item prop="captcha">
       <div class="d-flex w-100 a-center">
-        <el-input v-model="registerInfo.captcha" :size="config.renderConfig.layout.size" class="h-30" name="captcha" type="text" :placeholder="t('图形验证码')"></el-input>
+        <el-input v-model="registerInfo.captcha" :size="config.renderConfig.layout.size" class="h-30" name="captcha" type="text" :placeholder="$t('图形验证码')"></el-input>
         <div v-html="captchaData" class="w-100px h-50px" @click="getCaptcha"></div>
       </div>
     </el-form-item>
     <el-form-item prop="smsCode">
       <div class="d-flex w-100">
-        <el-input v-model="registerInfo.smsCode" :size="config.renderConfig.layout.size" name="smsCode" type="text" :placeholder="t('请输入验证码')"></el-input>
+        <el-input v-model="registerInfo.smsCode" :size="config.renderConfig.layout.size" name="smsCode" type="text" :placeholder="$t('请输入验证码')"></el-input>
         <SmsButton ref="smsRef" :hook="smsCodeHook" @click="getSmsCode"></SmsButton>
       </div>
     </el-form-item>
     <el-form-item>
-      <el-button :loading="loading" type="primary" native-type="submit" class="w-100">{{ t("注册并登录") }}</el-button>
+      <el-button :loading="loading" type="primary" native-type="submit" class="w-100">{{ $t("注册并登录") }}</el-button>
     </el-form-item>
   </el-form>
 </template>
@@ -35,13 +35,14 @@
 import type { InternalRuleItem } from 'async-validator/dist-types/interface'
 import { nextTick, onMounted, reactive, ref } from 'vue';
 import type { Response } from '@src/types/global'
-import { t } from 'i18next'
+import { useTranslation } from 'i18next-vue'
 import { ElMessage, FormInstance } from 'element-plus';
 import { request } from '@/api/api';
 import { router } from '@/router';
 import { config } from '@src/config/config';
 import SmsButton from '@/components/common/sms-button/g-sms-button.vue'
 
+const { t } = useTranslation()
 const registerInfo = reactive({
   loginName: '', //---登录名称
   smsCode: '', //-----验证码

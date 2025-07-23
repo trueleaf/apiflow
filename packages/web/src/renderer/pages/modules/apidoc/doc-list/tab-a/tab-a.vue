@@ -2,21 +2,21 @@
   <div class="tab-a">
     <!-- 搜索条件 -->
     <div class="search-item d-flex a-center mb-3">
-      <el-input v-model="projectName" :placeholder="t('项目名称')" :prefix-icon="SearchIcon" class="w-200px mr-3" clearable>
+      <el-input v-model="projectName" :placeholder="$t('项目名称')" :prefix-icon="SearchIcon" class="w-200px mr-3" clearable>
         <template #suffix>
-          <el-icon :title="t('高级搜索')" class="cursor-pointer" :color="isShowAdvanceSearch ? '#409EFF' : '#aaa'"
+          <el-icon :title="$t('高级搜索')" class="cursor-pointer" :color="isShowAdvanceSearch ? '#409EFF' : '#aaa'"
             @click.stop.prevent="() => isShowAdvanceSearch = !isShowAdvanceSearch">
             <Tools />
           </el-icon>
         </template>
       </el-input>
-      <el-button type="success" :icon="PlusIcon" @click="dialogVisible = true">{{ t("新建项目") }}</el-button>
-      <el-button v-if="0" type="success" :icon="DownloadIcon" @click="dialogVisible3 = true">{{ t("导入项目") }}</el-button>
+      <el-button type="success" :icon="PlusIcon" @click="dialogVisible = true">{{ $t("新建项目") }}</el-button>
+      <el-button v-if="0" type="success" :icon="DownloadIcon" @click="dialogVisible3 = true">{{ $t("导入项目") }}</el-button>
     </div>
     <!-- 高级搜索 -->
     <div v-if="isShowAdvanceSearch">
       <el-input v-model="projectKeyword" :prefix-icon="SearchIcon" class="w-50 mr-3" clearable
-        :placeholder="t('输入接口url eg: 接口url')" @keyup.enter="() => { debounceSearch() }"
+        :placeholder="$t('输入接口url eg: 接口url')" @keyup.enter="() => { debounceSearch() }"
         @change="() => { debounceSearch() }" @input="() => { debounceSearch() }">
         <template #append>
           <el-button type="primary" :loading="loading" @click="() => { debounceSearch() }">

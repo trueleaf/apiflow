@@ -7,7 +7,7 @@ import { router } from './router'
 import '@/assets/css/index.css'
 import i18next from 'i18next';
 import I18NextVue from "i18next-vue";
-import Backend from 'i18next-http-backend'
+// import Backend from 'i18next-http-backend'
 import { customDirective } from './directive/directive';
 import '@/assets/font/iconfont.css'
 import '@/assets/font/iconfont.js'
@@ -32,10 +32,10 @@ i18next.init({
   },
 })
 
-await i18next.use(Backend).init({
-  lng: 'zh',
-  fallbackLng: "zh",
-});
+// await i18next.use(Backend).init({
+//   lng: 'zh',
+//   fallbackLng: "zh",
+// });
 
 app.use(pinia).use(customDirective).use(I18NextVue, { i18next }).use(ElementPlus, { 
   locale: elZhCn
