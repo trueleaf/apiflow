@@ -17,7 +17,7 @@
 <script setup lang="ts">
 import { config } from '@/../config/config';
 import { onMounted, ref, watch } from 'vue';
-import { changeLanguage } from 'i18next';
+import i18next, { changeLanguage } from 'i18next';
 import { useTranslation } from 'i18next-vue';
 import { bindGlobalShortCut } from './shortcut';
 import { useRouter } from 'vue-router';
@@ -111,10 +111,12 @@ const hideLanguageMenu = () => {
 }
 
 const handleLanguageSelect = (language: Language) => {
-  currentLanguage.value = language
+  currentLanguage.value = language;
+  localStorage.setItem('language', language);
   changeLanguage(language)
+  console.log(`切换语言为: ${language}, ${i18next.language}`);
+  console.log('翻译结果:', i18next.t('项目列表'))
   hideLanguageMenu()
-
   // 发送语言切换事件到主进程
   window.electronAPI?.sendToMain('apiflow-language-changed', language)
 }
@@ -147,11 +149,6 @@ const bindTopBarEvent = async () => {
     showLanguageMenu(data)
   })
 
-  // 语言切换事件监听
-  window.electronAPI?.onMain('apiflow-language-changed', (language: string) => {
-    currentLanguage.value = language as Language
-    changeLanguage(language as Language)
-  })
   // 主进程发送的事件名称：apiflow-change-project
   window.electronAPI?.onMain('apiflow-change-project', async (data: { projectId: string, projectName: string }) => {
 
@@ -217,11 +214,22 @@ const initWelcom = () => {
     `)
   }
 }
-
+const initLanguage = () => {
+  const savedLanguage = localStorage.getItem('language') as Language;
+  if (savedLanguage) {
+    currentLanguage.value = savedLanguage;
+    changeLanguage(savedLanguage);
+  } else {
+    // 默认语言
+    currentLanguage.value = 'zh-cn';
+    changeLanguage('zh-cn');
+  }
+}
 onMounted(() => {
   initWelcom();
   bindGlobalShortCut();
   bindTopBarEvent();
+  initLanguage();
   document.title = `${config.isDev ? `${config.localization.title}(本地)` : config.localization.title} `;
 })
 </script>

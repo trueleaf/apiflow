@@ -65,9 +65,10 @@ const emit = defineEmits<Emits>()
 
 // 支持的语言列表
 const languages = [
-  { code: 'zh-cn' as Language, name: '简体中文', flag: '🇨🇳' },
-  { code: 'zh-tw' as Language, name: '繁體中文', flag: '🇹🇼' },
-  { code: 'en' as Language, name: 'English', flag: '🇺🇸' }
+  { code: 'zh-CN' as Language, name: '简体中文', flag: '🇨🇳' },
+  { code: 'zh-TW' as Language, name: '繁體中文', flag: '🇹🇼' },
+  { code: 'en' as Language, name: 'English', flag: '🇺🇸' },
+  { code: 'ja' as Language, name: '日本語', flag: '🇯🇵' },
 ]
 
 // 计算菜单样式 - 绝对定位到按钮下方

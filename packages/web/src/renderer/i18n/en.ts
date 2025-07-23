@@ -1,6 +1,7 @@
 export default {
   基于Vue和Electron的接口文档工具: '基于Vue和Electron的接口文档工具',
-  项目列表: '项目列表',
+  项目列表: 'Project List',
+  项目名称: 'Project Name',
   GitHub地址: 'GitHub Address',
   Gitee地址: 'Gitee Address',
   最近一次更新: 'Last Update',
@@ -264,7 +265,6 @@ export default {
   但是所匹配数据为空: 'But matched data is empty',
   链接名称: 'Link Name',
   生成链接: 'Generate Link',
-  项目名称: 'Project Name',
   过期截至: 'Expiration Date',
   链接: 'Link',
   密码: 'Password',
@@ -563,6 +563,7 @@ export default {
   响应: 'Response',
   暂无响应数据: 'No Response Data',
   暂无标签页: 'No Tabs',
+  分钟: 'Minutes',
   api_import_title: 'API Documentation Import',
   api_import_desc: 'Import and validate your Swagger or OpenAPI 3.1 specifications',
 }

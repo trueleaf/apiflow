@@ -4,8 +4,8 @@
 |--------------------------------------------------------------------------
 */
 export default {
-  基于Vue和Electron的接口文档工具: '基於Vue和Electron的接口文檔工具',
-  项目列表: '項目列表',
+  基于Vue和Electron的接口文档工具: '基于Vue和Electron的接口文档工具',
+  项目列表: 'Project List',
   GitHub地址: 'GitHub地址',
   Gitee地址: 'Gitee地址',
   最近一次更新: '最近一次更新',
