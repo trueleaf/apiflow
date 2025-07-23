@@ -675,6 +675,13 @@ const handleChangeProject = (item: ApidocProjectInfo) => {
       console.error(err);
     });
   }
+
+  // 同步更新header tabs - 发送事件通知header添加或激活对应的项目tab
+  window.electronAPI?.sendToMain('apiflow-content-project-changed', {
+    projectId: item._id,
+    projectName: item.projectName
+  });
+
   router.push({
     path: '/v1/apidoc/doc-edit',
     query: {
