@@ -39,17 +39,17 @@
               <Emphasize :value="item.projectName" :keyword="projectName"></Emphasize>
             </div>
             <div class="operator">
-              <div :title="t('编辑')" @click="handleOpenEditDialog(item)">
+              <div :title="$t('编辑')" @click="handleOpenEditDialog(item)">
                 <el-icon :size="16">
                   <EditIcon></EditIcon>
                 </el-icon>
               </div>
-              <div v-if="!isStandalone" :title="t('成员管理')" @click="handleOpenPermissionDialog(item)">
+              <div v-if="!isStandalone" :title="$t('成员管理')" @click="handleOpenPermissionDialog(item)">
                 <el-icon :size="16">
                   <UserIcon></UserIcon>
                 </el-icon>
               </div>
-              <div v-if="!item.isStared" :title="t('收藏')" @click="handleStar(item)">
+              <div v-if="!item.isStared" :title="$t('收藏')" @click="handleStar(item)">
                 <el-icon v-if="!starLoading" :size="16">
                   <star-icon></star-icon>
                 </el-icon>
@@ -57,7 +57,7 @@
                   <LoadingIcon></LoadingIcon>
                 </el-icon>
               </div>
-              <div v-if="item.isStared" :title="t('取消收藏')" @click="handleUnStar(item)">
+              <div v-if="item.isStared" :title="$t('取消收藏')" @click="handleUnStar(item)">
                 <el-icon v-if="!unStarLoading" :size="19" class="yellow">
                   <StarFilledIcon></StarFilledIcon>
                 </el-icon>
@@ -65,7 +65,7 @@
                   <LoadingIcon></LoadingIcon>
                 </el-icon>
               </div>
-              <div :title="t('删除')" @click="deleteProject(item._id)">
+              <div :title="$t('删除')" @click="deleteProject(item._id)">
                 <el-icon :size="16">
                   <DeleteIcon></DeleteIcon>
                 </el-icon>
@@ -73,21 +73,21 @@
             </div>
           </div>
           <div class="d-flex j-end a-center gray-500 mt-2">
-            <span>{{ t("最新更新") }}:</span>
+            <span>{{ $t("最新更新") }}:</span>
             <span>{{ formatDate(item.updatedAt) }}</span>&nbsp;&nbsp;
           </div>
           <div class="d-flex j-end a-center gray-500">
-            <span>{{ t("创建者") }}:</span>
+            <span>{{ $t("创建者") }}:</span>
             <span>{{ item.owner.name }}</span>&nbsp;&nbsp;
           </div>
           <div class="project-bottom d-flex">
             <div>
-              <span class="f-sm">{{ t("接口数") }}:</span>
+              <span class="f-sm">{{ $t("接口数") }}:</span>
               <span class="teal">{{ item.docNum || 0 }}</span>
             </div>
             <div class="ml-auto">
-              <el-button type="primary" @click="handleJumpToProject(item)">{{ t("编辑") }}</el-button>
-              <el-button v-if="!isStandalone" type="primary" @click="handleJumpToView(item)">{{ t("预览") }}</el-button>
+              <el-button type="primary" @click="handleJumpToProject(item)">{{ $t("编辑") }}</el-button>
+              <el-button v-if="!isStandalone" type="primary" @click="handleJumpToView(item)">{{ $t("预览") }}</el-button>
             </div>
           </div>
         </div>
@@ -99,7 +99,7 @@
         <el-icon v-if="isFold" class="mr-1" :size="16">
           <CaretRightIcon />
         </el-icon>
-        <span>{{ t("全部项目") }}({{ projectList.length }})</span>
+        <span>{{ $t("全部项目") }}({{ projectList.length }})</span>
       </h2>
       <!-- 项目列表 -->
       <div v-show="!isFold" class="project-wrap">
@@ -109,17 +109,17 @@
               <Emphasize :value="item.projectName" :keyword="projectName"></Emphasize>
             </div>
             <div class="operator">
-              <div :title="t('编辑')" @click="handleOpenEditDialog(item)">
+              <div :title="$t('编辑')" @click="handleOpenEditDialog(item)">
                 <el-icon :size="16">
                   <EditIcon></EditIcon>
                 </el-icon>
               </div>
-              <div v-if="!isStandalone" :title="t('成员管理')" @click="handleOpenPermissionDialog(item)">
+              <div v-if="!isStandalone" :title="$t('成员管理')" @click="handleOpenPermissionDialog(item)">
                 <el-icon :size="16">
                   <UserIcon></UserIcon>
                 </el-icon>
               </div>
-              <div v-if="!item.isStared" :title="t('收藏')" @click="handleStar(item)">
+              <div v-if="!item.isStared" :title="$t('收藏')" @click="handleStar(item)">
                 <el-icon v-if="!starLoading" :size="16">
                   <star-icon></star-icon>
                 </el-icon>
@@ -127,7 +127,7 @@
                   <LoadingIcon></LoadingIcon>
                 </el-icon>
               </div>
-              <div v-if="item.isStared" :title="t('取消收藏')" @click="handleUnStar(item)">
+              <div v-if="item.isStared" :title="$t('取消收藏')" @click="handleUnStar(item)">
                 <el-icon v-if="!unStarLoading" :size="19" class="yellow">
                   <StarFilledIcon></StarFilledIcon>
                 </el-icon>
@@ -135,7 +135,7 @@
                   <LoadingIcon></LoadingIcon>
                 </el-icon>
               </div>
-              <div :title="t('删除')" @click="deleteProject(item._id)">
+              <div :title="$t('删除')" @click="deleteProject(item._id)">
                 <el-icon :size="16">
                   <DeleteIcon></DeleteIcon>
                 </el-icon>
@@ -143,21 +143,21 @@
             </div>
           </div>
           <div class="d-flex j-end a-center gray-600 mt-2">
-            <span>{{ t("创建者") }}:</span>
+            <span>{{ $t("创建者") }}:</span>
             <span>{{ item.owner.name }}</span>&nbsp;&nbsp;
           </div>
           <div class="d-flex j-end a-center gray-600">
-            <span>{{ t("最新更新") }}:</span>
+            <span>{{ $t("最新更新") }}:</span>
             <span>{{ formatDate(item.updatedAt) }}</span>&nbsp;&nbsp;
           </div>
           <div class="project-bottom d-flex">
             <div>
-              <span class="f-sm">{{ t("接口数") }}:</span>
+              <span class="f-sm">{{ $t("接口数") }}:</span>
               <span class="teal">{{ item.docNum || 0 }}</span>
             </div>
             <div class="ml-auto">
-              <el-button type="primary" @click="handleJumpToProject(item)">{{ t("编辑") }}</el-button>
-              <el-button v-if="!isStandalone" type="primary" @click="handleJumpToView(item)">{{ t("预览") }}</el-button>
+              <el-button type="primary" @click="handleJumpToProject(item)">{{ $t("编辑") }}</el-button>
+              <el-button v-if="!isStandalone" type="primary" @click="handleJumpToView(item)">{{ $t("预览") }}</el-button>
             </div>
           </div>
         </div>
@@ -200,9 +200,7 @@ import { ElMessageBox } from 'element-plus';
 import { router } from '@/router';
 import { debounce, formatDate } from '@/helper';
 import { useApidocBaseInfo } from '@/store/apidoc/base-info'
-import { useApidocTas } from '@/store/apidoc/tabs'
 import { standaloneCache } from '@/cache/standalone'
-import { apidocCache } from '@/cache/apidoc'
 
 /*
 |--------------------------------------------------------------------------
@@ -250,7 +248,6 @@ const starProjects = computed(() => {
   });
 });
 const apidocBaseInfo = useApidocBaseInfo()
-const apidocTabs = useApidocTas()
 /*
 |--------------------------------------------------------------------------
 | 项目列表增删改查
