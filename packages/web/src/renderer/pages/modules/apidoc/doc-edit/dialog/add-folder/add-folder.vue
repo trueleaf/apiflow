@@ -66,7 +66,7 @@ const handleAddFolder = () => {
         pid: nodeInfo.pid,
         sort: nodeInfo.sort,
         name: nodeInfo.info.name,
-        type: nodeInfo.info.type,
+        type: 'folder',
         method: nodeInfo.item.method,
         url: nodeInfo.item.url ? nodeInfo.item.url.path : '',
         maintainer: nodeInfo.info.maintainer,
