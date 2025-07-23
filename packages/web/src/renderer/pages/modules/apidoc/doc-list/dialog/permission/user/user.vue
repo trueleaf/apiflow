@@ -73,7 +73,6 @@ import { request } from '@/api/api';
 import Loading from '@/components/common/loading/g-loading.vue'
 import RemoteSelector from '@/components/common/remote-select/g-remote-select.vue';
 import RemoteSelectorItem from '@/components/common/remote-select/g-remote-select-item.vue';
-import { $t } from '@/i18n/i18n';
 
 type MemberWithOldPermission = ApidocProjectMemberInfo & { _permission?: ApidocProjectPermission };
 type MemberInfo = {
@@ -219,7 +218,7 @@ const handleLeaveGroup = (row: MemberWithOldPermission, index: number) => {
   });
   if (!hasAdmin) {
     ElMessage({
-      message: $t('团队至少保留一个管理员'),
+      message: t('团队至少保留一个管理员'),
       grouping: true,
       type: 'error',
     })
@@ -258,7 +257,7 @@ const handleChangePermission = (row: MemberWithOldPermission) => {
   });
   if (!hasAdmin) {
     ElMessage({
-      message: $t('团队至少保留一个管理员'),
+      message: t('团队至少保留一个管理员'),
       grouping: true,
       type: 'error',
     })

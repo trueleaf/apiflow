@@ -15,7 +15,7 @@
           <Loading></Loading>
         </el-icon>
       </div>
-      <p class="loading-text">{{ $t('正在验证分享链接') }}</p>
+      <p class="loading-text">{{ t('正在验证分享链接') }}</p>
       <div class="loading-dots">
         <span></span><span></span><span></span>
       </div>
@@ -28,20 +28,20 @@
     <div class="error-content">
       <div class="error-content-inner">
         <img src="@/assets/imgs/logo.png" alt="logo" class="error-logo" />
-        <h2 class="mt-0">{{ shareProjectInfo.shareName || $t('文档分享') }}</h2>
+        <h2 class="mt-0">{{ shareProjectInfo.shareName || t('文档分享') }}</h2>
         <el-form ref="passwordFormRef" :model="passwordFormData" :rules="passwordRules" class="d-flex j-center" @submit.prevent="handlePasswordSubmit">
           <el-form-item prop="password" class="password-form-item">
             <el-input
               v-model="passwordFormData.password"
               type="password"
-              :placeholder="$t('请输入访问密码')"
+              :placeholder="t('请输入访问密码')"
               class="password-input"
             ></el-input>
-            <el-button :loading="passwordLoading" type="success" @click="handlePasswordSubmit">{{ $t('确认密码') }}</el-button>
+            <el-button :loading="passwordLoading" type="success" @click="handlePasswordSubmit">{{ t('确认密码') }}</el-button>
           </el-form-item>
         </el-form>
         <div v-if="shareProjectInfo.expire" class="mt-3">
-          {{ $t('过期倒计时') }}：{{ expireCountdown }}
+          {{ t('过期倒计时') }}：{{ expireCountdown }}
         </div>
       </div>
     </div>
@@ -53,7 +53,6 @@ import { request } from '@/api/api'
 import { FormInstance } from 'element-plus'
 import { Loading, } from '@element-plus/icons-vue'
 import { ApidocBanner, ApidocDetail, ApidocVariable, Response } from '@src/types/global'
-import { $t } from '@/i18n/i18n'
 import { apidocCache } from '@/cache/apidoc'
 import { router } from '@/router'
 import SBanner from './banner/banner.vue'
@@ -63,6 +62,7 @@ import {  LocalShareData, SharedProjectInfo } from '@src/types/types'
 import { convertDocsToBanner, getCountdown } from '@/helper/index'
 import { useShareStore } from './store'
 import localShareDataTest from './testData'
+import { t } from 'i18next'
 /*
 |--------------------------------------------------------------------------
 | 变量定义
@@ -81,7 +81,7 @@ const passwordFormData = ref({
 const passwordFormRef = ref<FormInstance>()
 const passwordRules = ref({
   password: [
-    { required: true, message: $t('请输入访问密码'), trigger: 'blur' }
+    { required: true, message: t('请输入访问密码'), trigger: 'blur' }
   ]
 })
 const shareStore = useShareStore();

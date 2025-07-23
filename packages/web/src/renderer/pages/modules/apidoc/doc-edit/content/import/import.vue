@@ -134,9 +134,7 @@ import PostmanTranslator from './postman';
 import { ApidocProjectRules } from '@src/types/apidoc/base-info'
 import { useApidocBaseInfo } from '@/store/apidoc/base-info'
 import { useApidocBanner } from '@/store/apidoc/banner'
-import { $t } from '@/i18n/i18n'
 import { standaloneCache } from '@/cache/standalone'
-import { nanoid } from 'nanoid'
 
 type FormInfo = {
   moyuData: {
@@ -234,7 +232,7 @@ const handleBeforeUpload = (file: File) => {
   fileType.value = standerFileType || suffixFileType;
   if (!standerFileType && !suffixFileType) {
     ElMessage({
-      message: $t('未知的文件格式，无法解析'),
+      message: t('未知的文件格式，无法解析'),
       grouping: true,
       type: 'error',
     })
@@ -242,7 +240,7 @@ const handleBeforeUpload = (file: File) => {
   }
   if (fileType.value !== 'application/json' && fileType.value !== 'yaml' && fileType.value !== 'application/x-yaml') {
     ElMessage({
-      message: $t('仅支持JSON格式或者YAML格式文件'),
+      message: t('仅支持JSON格式或者YAML格式文件'),
       grouping: true,
       type: 'error',
     })
@@ -250,7 +248,7 @@ const handleBeforeUpload = (file: File) => {
   }
   if (file.size > config.renderConfig.import.size) {
     ElMessage({
-      message: `${$t('文件大小不超过')}${config.renderConfig.import.size / 1024 / 1024}M`,
+      message: `${t('文件大小不超过')}${config.renderConfig.import.size / 1024 / 1024}M`,
       grouping: true,
       type: 'error',
     })

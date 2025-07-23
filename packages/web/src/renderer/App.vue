@@ -17,7 +17,7 @@
 <script setup lang="ts">
 import { config } from '@/../config/config';
 import { onMounted, ref, watch } from 'vue';
-import { t } from 'i18next';
+import { changeLanguage, t } from 'i18next';
 import { bindGlobalShortCut } from './shortcut';
 import { useRouter } from 'vue-router';
 import AddProjectDialog from '@/pages/modules/apidoc/doc-list/dialog/add-project/add-project.vue';
@@ -25,7 +25,6 @@ import { standaloneCache } from './cache/standalone';
 import { ElMessageBox } from 'element-plus';
 import { useApidocBaseInfo } from './store/apidoc/base-info';
 import { Language } from '@src/types/global';
-import { changeLanguage } from '@src/renderer/i18n/i18n';
 import LanguageMenu from '@/components/LanguageMenu.vue';
 
 const router = useRouter();

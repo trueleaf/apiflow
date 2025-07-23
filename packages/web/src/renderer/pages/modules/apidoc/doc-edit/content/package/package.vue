@@ -51,7 +51,7 @@ import { onMounted, Ref, ref } from 'vue';
 import SDialog from '@/components/common/dialog/g-dialog.vue'
 import SResizeX from '@/components/common/resize/g-resize-x.vue'
 import type { FormInstance } from 'element-plus/lib/components/form';
-import { $t } from '@/i18n/i18n';
+import { t } from 'i18next';
 
 //获取脚本列表
 const tableInfo: Ref<{ name: string, code: string }[]> = ref([]);
@@ -79,7 +79,7 @@ const handleBeforeUpload = (file: File) => {
   const suffixFileType = matchSuffix ? matchSuffix[0] : '';
   if (!standerFileType && !suffixFileType) {
     ElMessage({
-      message: $t('未知的文件格式，无法解析'),
+      message: t('未知的文件格式，无法解析'),
       grouping: true,
       type: 'error',
     })
@@ -87,7 +87,7 @@ const handleBeforeUpload = (file: File) => {
   }
   if (standerFileType !== 'text/javascript') {
     ElMessage({
-      message: $t('仅支持js文件上传'),
+      message: t('仅支持js文件上传'),
       grouping: true,
       type: 'error',
     })
@@ -95,7 +95,7 @@ const handleBeforeUpload = (file: File) => {
   }
   if (file.size > 1024 * 1024 * 20) {
     ElMessage({
-      message: $t('文件大小不超过20M'),
+      message: t('文件大小不超过20M'),
       grouping: true,
       type: 'error',
     })

@@ -36,7 +36,6 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import { changeLanguage } from '@src/renderer/i18n/i18n'
 import { Language } from '@src/types/global'
 
 // Props 定义
@@ -81,7 +80,7 @@ const menuStyle = computed(() => ({
 
 // 处理语言选择
 const handleLanguageSelect = (language: Language) => {
-  changeLanguage(language)
+  // changeLanguage(language)
   emit('languageSelect', language)
   emit('close')
 }

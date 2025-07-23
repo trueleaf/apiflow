@@ -7,7 +7,7 @@
         <h2 v-else class="gray-700 f-lg text-center text-ellipsis" :title="projectName">/</h2>
       </div>
       <div class="p-relative">
-        <el-input v-model="searchValue" size="large" class="doc-search" :placeholder="$t('文档名称、文档url')" clearable></el-input>
+        <el-input v-model="searchValue" size="large" class="doc-search" :placeholder="t('文档名称、文档url')" clearable></el-input>
       </div>
     </div>
     <div class="tree-wrap">
@@ -16,7 +16,7 @@
         :class="{ 'show-more': showMoreNodeInfo }" 
         :data="bannerData"
         node-key="_id" 
-        :empty-text="$t('暂无数据')"
+        :empty-text="t('暂无数据')"
         :default-expanded-keys="defaultExpandedKeys"
         :filter-node-method="filterNode">
         <template #default="scope">
@@ -62,10 +62,9 @@ import SResizeX from '@/components/common/resize/g-resize-x.vue'
 import SEmphasize from '@/components/common/emphasize/g-emphasize.vue'
 import { TreeNodeOptions } from 'element-plus/es/components/tree/src/tree.type.mjs'
 import { useShareStore } from '../store/index'
-import { $t } from '@/i18n/i18n'
 import { defaultRequestMethods } from '../common'
 import { useRoute } from 'vue-router';
-
+import { t } from 'i18next'
 /*
 |--------------------------------------------------------------------------
 | 变量定义

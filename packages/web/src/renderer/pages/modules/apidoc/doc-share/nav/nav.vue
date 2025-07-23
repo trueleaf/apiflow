@@ -32,11 +32,11 @@
   <teleport to="body">
     <!-- 单个节点操作 -->
     <SContextmenu v-if="showContextmenu" :left="contextmenuLeft" :top="contextmenuTop">
-      <SContextmenuItem :label="$t('关闭')" hot-key="Ctrl + W" @click="handleCloseCurrentTab()"></SContextmenuItem>
-      <SContextmenuItem :label="$t('关闭左侧')" @click="handleCloseLeftTab"></SContextmenuItem>
-      <SContextmenuItem :label="$t('关闭右侧')" @click="handleCloseRightTab"></SContextmenuItem>
-      <SContextmenuItem :label="$t('关闭其他')" @click="handleCloseOtherTab"></SContextmenuItem>
-      <SContextmenuItem :label="$t('全部关闭')" @click="handleCloseAllTab"></SContextmenuItem>
+      <SContextmenuItem :label="t('关闭')" hot-key="Ctrl + W" @click="handleCloseCurrentTab()"></SContextmenuItem>
+      <SContextmenuItem :label="t('关闭左侧')" @click="handleCloseLeftTab"></SContextmenuItem>
+      <SContextmenuItem :label="t('关闭右侧')" @click="handleCloseRightTab"></SContextmenuItem>
+      <SContextmenuItem :label="t('关闭其他')" @click="handleCloseOtherTab"></SContextmenuItem>
+      <SContextmenuItem :label="t('全部关闭')" @click="handleCloseAllTab"></SContextmenuItem>
     </SContextmenu>
   </teleport>
 </template>
@@ -52,10 +52,10 @@ import { useShareStore } from '../store';
 import SContextmenu from '@/components/common/contextmenu/g-contextmenu.vue'
 import SContextmenuItem from '@/components/common/contextmenu/g-contextmenu-item.vue'
 import { defaultRequestMethods } from '../common';
-import { $t } from '@/i18n/i18n';
 import { useRoute } from 'vue-router';
 import { findNodeById, findParentById, event } from '@/helper';
 import { ApidocBanner } from '@src/types/global';
+import { t } from 'i18next';
 
 /*
 |--------------------------------------------------------------------------

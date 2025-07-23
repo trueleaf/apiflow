@@ -3,8 +3,8 @@ import { config } from '@/../config/config'
 import { router } from '@/router';
 import { ElMessage, ElMessageBox } from 'element-plus';
 import { nanoid } from 'nanoid';
-import { $t } from '@/i18n/i18n';
 import { parseUrl, getStrParams, getStrHeader, getStrJsonBody, getHashedContent } from './sign';
+import { t } from 'i18next';
 
 const axiosInstance = Axios.create();
 axiosInstance.defaults.withCredentials = config.renderConfig.httpRequest.withCredentials;//允许携带cookie
@@ -79,42 +79,42 @@ axiosInstance.interceptors.response.use(
           break;
         case 1020: //分享链接不存在
           ElMessage({
-            message: $t('分享链接不存在'),
+            message: t('分享链接不存在'),
             grouping: true,
             type: 'warning',
           });
-          return Promise.reject(new Error($t('分享链接不存在'))); 
+          return Promise.reject(new Error(t('分享链接不存在'))); 
         case 1021: //分享链接已过期
           ElMessage({
-            message: $t('分享链接已过期'),
+            message: t('分享链接已过期'),
             grouping: true,
             type: 'warning',
           });
-          return Promise.reject(new Error($t('分享链接已过期')));     
+          return Promise.reject(new Error(t('分享链接已过期')));     
         case 1022: //分享链接无需密码
           ElMessage({
-            message: $t('分享链接无需密码'),
+            message: t('分享链接无需密码'),
             grouping: true,
             type: 'warning',
           });
-          return Promise.reject(new Error($t('分享链接无需密码')));
+          return Promise.reject(new Error(t('分享链接无需密码')));
         case 1023: //密码错误
           ElMessage({
-            message: $t('密码错误'),
+            message: t('密码错误'),
             grouping: true,
             type: 'warning',
           });
-          return Promise.reject(new Error($t('密码错误')));
+          return Promise.reject(new Error(t('密码错误')));
         case 4101: //登录有错
           router.replace('/login');
-          ElMessage.warning($t('暂无权限'));
-          return Promise.reject(new Error($t('暂无权限')));
+          ElMessage.warning(t('暂无权限'));
+          return Promise.reject(new Error(t('暂无权限')));
         case 4100: //登录过期
           if (!isExpire) {
             isExpire = true;
-            ElMessageBox.confirm($t('登录已过期'), $t('提示'), {
-              confirmButtonText: $t('跳转登录'),
-              cancelButtonText: $t('取消'),
+            ElMessageBox.confirm(t('登录已过期'), t('提示'), {
+              confirmButtonText: t('跳转登录'),
+              cancelButtonText: t('取消'),
               type: 'warning',
             }).then(() => {
               isExpire = false;
@@ -124,19 +124,19 @@ axiosInstance.interceptors.response.use(
               isExpire = false;
             });
           }
-          return Promise.reject(new Error($t('登录已过期')));
+          return Promise.reject(new Error(t('登录已过期')));
         case 4200: //代理错误
           return Promise.reject(new Error(res.data.msg));
         case 4002: //暂无权限
-          ElMessage.warning($t(res.data.msg || '暂无权限'));
-          return Promise.reject(new Error($t(res.data.msg || '暂无权限')));
+          ElMessage.warning(t(res.data.msg || '暂无权限'));
+          return Promise.reject(new Error(t(res.data.msg || '暂无权限')));
         default:
-          ElMessageBox.confirm($t(res.data.msg ? res.data.msg : '操作失败'), $t('提示'), {
-            confirmButtonText: $t('确定'),
+          ElMessageBox.confirm(t(res.data.msg ? res.data.msg : '操作失败'), t('提示'), {
+            confirmButtonText: t('确定'),
             showCancelButton: false,
             type: 'warning',
           });
-          return Promise.reject(new Error($t(res.data.msg)));
+          return Promise.reject(new Error(t(res.data.msg)));
       }
       return result;
     }
@@ -167,14 +167,14 @@ axiosInstance.interceptors.response.use(
     // 处理超时错误
     if (err.code === 'ECONNABORTED' || err.message.includes('timeout')) {
       ElMessage({
-        message: $t('接口调用超时，请稍后重试'),
+        message: t('接口调用超时，请稍后重试'),
         grouping: true,
         type: 'error',
       })
       return Promise.reject(err);
     }
     ElMessage({
-      message: $t('系统开小差了!'),
+      message: t('系统开小差了!'),
       grouping: true,
       type: 'error',
     })
