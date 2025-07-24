@@ -74,6 +74,7 @@ const handleAddFolder = () => {
         maintainer: nodeInfo.info.maintainer,
         updatedAt: nodeInfo.updatedAt,
         isFolder: nodeInfo.isFolder,
+        children: [],
       }); //一定要先成功然后才关闭弹窗,因为关闭弹窗会清除节点父元素id
       handleClose();
       return;
