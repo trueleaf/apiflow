@@ -253,10 +253,13 @@ onMounted(() => {
   window.electronAPI?.getWindowState().then((state) => {
     isMaximized.value = state.isMaximized
   })
-  // 恢复 tabs 和激活 tab
+  // // 恢复 tabs 和激活 tab
   tabs.value = apidocCache.getHeaderTabs()
-  activeTabId.value = apidocCache.getHeaderActiveTab()
-
+  // activeTabId.value = apidocCache.getHeaderActiveTab()
+  // const activeTab = tabs.value.find(t => t.id === activeTabId.value);
+  // if (activeTab) {
+  //   // switchTab(activeTab.id)
+  // }
   // 监听语言切换事件
   window.electronAPI?.onMain('apiflow-language-changed', (language: string) => {
     console.log('header', language)
