@@ -114,8 +114,6 @@ const handleLanguageSelect = (language: Language) => {
   currentLanguage.value = language;
   localStorage.setItem('language', language);
   changeLanguage(language)
-  console.log(`切换语言为: ${language}, ${i18next.language}`);
-  console.log('翻译结果:', i18next.t('项目列表'))
   hideLanguageMenu()
   // 发送语言切换事件到主进程
   window.electronAPI?.sendToMain('apiflow-language-changed', language)
@@ -151,7 +149,7 @@ const bindTopBarEvent = async () => {
 
   // 主进程发送的事件名称：apiflow-change-project
   window.electronAPI?.onMain('apiflow-change-project', async (data: { projectId: string, projectName: string }) => {
-
+    console.log('切换项目', data);
     let matchedProject = null;
     if (__STANDALONE__) {
       const projectList = await standaloneCache.getProjectList();

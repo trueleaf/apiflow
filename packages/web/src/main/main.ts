@@ -91,7 +91,9 @@ app.whenReady().then(() => {
 
   //重写默认逻辑
   overrideBrowserWindow(mainWindow, contentView, topBarView);
-})
+}).catch((error) => {
+  console.error('Error during app initialization:', error);
+});
 
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') app.quit()

@@ -29,7 +29,8 @@ export const generateEmptyNode = (_id: string): ApidocDetail => {
       version: '1.0.0',
       type: 'api',
       creator: '',
-      maintainer: ''
+      maintainer: '',
+      deletePerson: '',
     },
     item: {
       method: 'GET',

@@ -10,3 +10,4 @@ run/
 *.un~
 .tsbuildinfo
 .tsbuildinfo.*
+.augment/
