@@ -61,6 +61,10 @@ export const useApidocResponse = defineStore('apidocResponse', () => {
   const changeResponseCacheAllowed = (docId: string, allowed: boolean) => {
     responseCacheAllowedMap.value[docId] = allowed;
   };
+  //添加streamData
+  const addStreamData = (chunk: Uint8Array) => {
+    responseInfo.value.responseData.streamData.push(chunk);
+  }
   return {
     responseInfo,
     cookies,
@@ -76,5 +80,6 @@ export const useApidocResponse = defineStore('apidocResponse', () => {
     changeLoadingProcess,
     clearResponse,
     changeResponseCacheAllowed,
+    addStreamData,
   }
 })

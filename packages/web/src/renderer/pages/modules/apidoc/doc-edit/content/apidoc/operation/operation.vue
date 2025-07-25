@@ -66,7 +66,7 @@
       >
         {{ t("发送请求") }}
       </el-button>
-      <el-button v-if="requestState === 'sending'" type="danger" @click="handleStopRequest">{{ t("取消请求") }}</el-button>
+      <el-button v-if="requestState === 'sending' || requestState === 'response'" type="danger" @click="handleStopRequest">{{ t("取消请求") }}</el-button>
       <el-button :loading="loading2" type="primary" @click="handleSaveApidoc">{{ t("保存接口") }}</el-button>
       <el-button :loading="loading3" type="primary" :icon="Refresh" @click="handleFreshApidoc">{{ t("刷新") }}</el-button>
     </div>

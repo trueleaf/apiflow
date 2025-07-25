@@ -285,7 +285,15 @@ export async function sendRequest() {
   const apidocStore = useApidoc();
   const { updateCookiesBySetCookieHeader, getMachtedCookies } = useCookies();
   const { changeCancelRequestRef } = useApidocRequest()
-  const { changeResponseInfo, changeResponseBody, changeResponseCacheAllowed, changeRequestState, changeLoadingProcess, changeFileBlobUrl } = useApidocResponse()
+  const { 
+    changeResponseInfo, 
+    changeResponseBody, 
+    changeResponseCacheAllowed, 
+    changeRequestState, 
+    changeLoadingProcess, 
+    addStreamData,
+    changeFileBlobUrl 
+  } = useApidocResponse()
   const copiedApidoc = cloneDeep(toRaw(apidocStore.$state.apidoc));
   const preSendMethod = getMethod(copiedApidoc);
   const preSendUrl = await getUrl(copiedApidoc);
@@ -321,6 +329,18 @@ export async function sendRequest() {
       headers: finalSendHeaders,
       signal(cancelRequest) {
         changeCancelRequestRef(cancelRequest);
+      },
+      onAbort: () => {
+        //abort会触发onError需要延迟执行
+        setTimeout(() => {
+          changeRequestState('finish');
+          changeResponseInfo({
+            responseData: {
+              canApiflowParseType: 'error',
+              errorData: i18next.t('请求已取消')
+            }
+          });
+        }, 100);
       },
       onError: (err) => {
         console.error(err)
@@ -372,9 +392,10 @@ export async function sendRequest() {
       },
       onResponse(responseInfo) {
         changeResponseInfo(responseInfo);
-        changeRequestState('finish');
+        changeRequestState('response');
       },
-      onResponseData(loadedLength, totalLength) {
+      onResponseData(chunk, loadedLength, totalLength) {
+        // addStreamData(chunk)
         changeLoadingProcess({
           total: totalLength,
           transferred: loadedLength,

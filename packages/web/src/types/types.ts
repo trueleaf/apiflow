@@ -97,7 +97,14 @@ export type SendRequestOptions = {
   validVariables: Record<string, any>,
   globalTimeout: number;
 }
+export type SseData = {
+  id: string;
+  event: string;
+  data: string;
+  retry: string;
+}
 export type CanApiflowParseType =
+  'textEventStream' |
   'text' |
   'json' |
   'html' |
@@ -164,7 +171,8 @@ export type ResponseInfo = {
       url: string;
       name: string;
       ext: string;
-    }
+    },
+    streamData: Uint8Array[]
   }
 }
 
@@ -438,10 +446,11 @@ export type GotRequestOptions = {
   signal: (cancelRequest: () => void) => void;
   onResponse?: (responseInfo: ResponseInfo) => void;
   onResponseEnd?: (responseInfo: ResponseInfo) => void;
-  onResponseData?: (loadedLength: number, totalLength: number) => void;
+  onResponseData?: (chunk: Uint8Array, loadedLength: number, totalLength: number) => void;
   onReadFileFormDataError?: (options: { id: string, msg: string, fullMsg: string }) => void;
   onReadBinaryDataError?: (options: { msg: string, fullMsg: string }) => void;
   onError: (error: RequestError | Error) => void,
+  onAbort: () => void,
   beforeRedirect: (options: RedirectOptions) => void,
   beforeRequest?: (options: Options) => void,
   beforeRetry?: (error: RequestError, retryCount: number) => void,

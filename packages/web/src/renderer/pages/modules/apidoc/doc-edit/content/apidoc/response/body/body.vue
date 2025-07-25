@@ -84,7 +84,7 @@
        
       <div v-else-if="apidocResponseStore.responseInfo.responseData.canApiflowParseType === 'forceDownload'"
         class="d-flex flex-column j-center">
-        <el-icon class="download-icon" :title="t('下载文件')">
+        <el-icon class="download-icon"  :title="t('下载文件')">
           <Download />
         </el-icon>
         <div  class="text-center">{{ apidocResponseStore.responseInfo.contentType }}</div>
@@ -165,7 +165,11 @@
           <span class="ml-1 mr-3">{{ formatBytes(config.requestConfig.maxTextBodySize) }}</span>
           <el-button link type="primary" text @click="() => downloadStringAsText(formatedText, 'response.json')">{{ t("下载到本地预览") }}</el-button>
         </div>
-        <SJsonEditor v-else :model-value="formatedText || apidocResponseStore.responseInfo.responseData.jsonData" read-only :config="{ fontSize: 13, language: 'json' }"></SJsonEditor>
+        <SJsonEditor v-else-if="apidocResponseStore.requestState === 'finish'" :model-value="formatedText || apidocResponseStore.responseInfo.responseData.jsonData" read-only :config="{ fontSize: 13, language: 'json' }"></SJsonEditor>
+        <div v-else-if="formatedText.length === 0 && apidocResponseStore.requestState === 'response'" class="json-loading">
+          <el-icon size="16"><Loading /></el-icon>
+          <span>{{ $t('等待数据返回') }}</span>
+        </div>
       </div>
       <!-- excel -->
       <div v-else-if="apidocResponseStore.responseInfo.responseData.canApiflowParseType === 'excel'" class="d-flex flex-column j-center">
@@ -294,7 +298,7 @@ import SJsonEditor from '@/components/common/json-editor/g-json-editor.vue'
 import { useApidocTas } from '@/store/apidoc/tabs';
 import { ElDialog } from 'element-plus';
 import worker from '@/worker/prettier.worker.ts?worker&inline';
-import { Download } from '@element-plus/icons-vue';
+import { Download, Loading } from '@element-plus/icons-vue';
 
 const prettierWorker = new worker();
 const apidocResponseStore = useApidocResponse();
@@ -462,6 +466,25 @@ onUnmounted(() => {
       align-items: center;
       height: 20px;
       border-bottom: 1px solid var(--gray-200);
+    }
+    @keyframes spin {
+      0% {
+        transform: rotate(0deg);
+      }
+      100% {
+        transform: rotate(360deg);
+      }
+    }
+    .json-loading {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--gray-500);
+      .el-icon {
+        animation: spin 1s infinite linear;
+      }
     }
   }
   .operation {

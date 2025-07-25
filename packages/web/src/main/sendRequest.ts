@@ -266,7 +266,9 @@ export const gotRequest = async (options: GotRequestOptions) => {
       const contentTypeIsExcel = (responseInfo.contentType.includes('application/vnd.openxmlformats-officedocument.spreadsheetml.sheet') || responseInfo.contentType.includes('application/vnd.ms-excel'));
       const contentTypeIsWord = (responseInfo.contentType.includes('application/vnd.openxmlformats-officedocument.wordprocessingml.document') || responseInfo.contentType.includes('application/msword'));
 
-      if (responseInfo.contentType.includes('application/json')) {
+      if (responseInfo.contentType.includes('text/event-stream')) {
+        responseInfo.responseData.canApiflowParseType = 'textEventStream';
+      } else if (responseInfo.contentType.includes('application/json')) {
         responseInfo.responseData.canApiflowParseType = 'json';
       } else if (responseInfo.contentType.includes('text/html')) {
         responseInfo.responseData.canApiflowParseType = 'html';
@@ -305,7 +307,7 @@ export const gotRequest = async (options: GotRequestOptions) => {
     requestStream.on("data", (chunk: Buffer) => {
       bufferList.push(chunk);
       streamByteLength += chunk.byteLength;
-      options.onResponseData?.(streamByteLength, contentLength);
+      options.onResponseData?.(chunk, streamByteLength, contentLength);
     });
     requestStream.on("end", async () => {
       const endTime = responseInfo.timings.end ?? 0;
@@ -477,9 +479,12 @@ export const gotRequest = async (options: GotRequestOptions) => {
       console.error(error);
       options.onError(error as Error);
     });
+    abortController.signal.addEventListener('abort', () => {
+      options.onAbort();
+    });
     //取消请求
     options.signal(() => {
-      abortController.abort()
+      abortController.abort();
       requestStream.destroy();
     });
   } catch (error) {
