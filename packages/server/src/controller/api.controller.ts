@@ -8,6 +8,8 @@ import { ReturnModelType } from '@typegoose/typegoose';
 import path, { dirname } from 'node:path';
 import fs from 'node:fs'
 import { fileURLToPath } from 'node:url';
+// import { PassThrough } from 'node:stream';
+// import { PassThrough } from 'node:stream';
 
 @Controller('/api')
 export class APIController {
@@ -338,4 +340,38 @@ export class APIController {
       headers: this.ctx.headers,
     };
   }
+  @Post('/test/sse')
+  async testSse(@Body() body: { stream?: boolean; size?: number, speed: 100 }) {
+    const { stream = false, size = 200, speed } = body;
+    this.ctx.status = 200;
+    this.ctx.set({
+      'Content-Type': 'text/event-stream',
+      'Cache-Control': 'no-cache',
+      Connection: 'keep-alive',
+      'Access-Control-Allow-Origin': '*',
+    });
+    if (stream) {
+      // 循环发送消息
+      for (let i = 1; i <= size; i++) {
+        const payload = { id: i, timestamp: new Date().toISOString() };
+        // SSE 格式：可选 event 名称
+        this.ctx.res.write(`event: message\n`);
+        this.ctx.res.write(`data: ${JSON.stringify(payload)}\n\n`);
+        // 间隔 500ms
+        await new Promise(resolve => setTimeout(resolve, speed));
+      }
+      // 发送结束标记并关闭连接
+      this.ctx.res.write(`event: complete\n`);
+      this.ctx.res.write(`data: [done]\n\n`);
+      this.ctx.res.end();
+    } else {
+      this.ctx.set({
+        'Content-Type': 'application/json',
+      });
+      this.ctx.res.write(JSON.stringify({ message: 'SSE test completed' }));
+      await new Promise(resolve => setTimeout(resolve, 5000));
+      this.ctx.res.end();
+    }
+  }
 }
+
