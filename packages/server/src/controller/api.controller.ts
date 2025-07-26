@@ -341,8 +341,8 @@ export class APIController {
     };
   }
   @Post('/test/sse')
-  async testSse(@Body() body: { stream?: boolean; size?: number, speed: 100 }) {
-    const { stream = false, size = 200, speed } = body;
+  async testSse(@Body() body: { stream?: boolean; size?: number, speed: number, jsonData?: 'json' | 'string' }) {
+    const { stream = false, size = 200, speed = 100, jsonData = 'json' } = body;
     this.ctx.status = 200;
     this.ctx.set({
       'Content-Type': 'text/event-stream',
@@ -353,23 +353,65 @@ export class APIController {
     if (stream) {
       // 循环发送消息
       for (let i = 1; i <= size; i++) {
-        const payload = { id: i, timestamp: new Date().toISOString() };
-        // SSE 格式：可选 event 名称
+        let payload;
+        if (jsonData === 'json') {
+          // 生成约1KB的JSON数据
+          payload = {
+            id: i,
+            timestamp: new Date().toISOString(),
+            message: `这是第 ${i} 条消息`,
+            user: {
+              id: Math.floor(Math.random() * 1000),
+              name: `用户${i}`,
+              email: `user${i}@example.com`,
+              profile: {
+                age: 20 + (i % 50),
+                city: `城市${i % 10}`,
+                interests: [`兴趣${i % 5}`, `爱好${i % 3}`, `技能${i % 7}`]
+              }
+            },
+            content: {
+              title: `标题${i}`,
+              description: `这是一段描述文本，用于增加数据大小。消息编号：${i}，包含更多详细信息和内容描述。`,
+              tags: Array.from({length: 10}, (_, idx) => `标签${idx + i}`),
+              metadata: {
+                created: new Date().toISOString(),
+                updated: new Date().toISOString(),
+                version: `v1.${i}`,
+                status: i % 2 === 0 ? '活跃' : '待处理'
+              }
+            },
+            statistics: {
+              views: Math.floor(Math.random() * 10000),
+              likes: Math.floor(Math.random() * 1000),
+              shares: Math.floor(Math.random() * 100)
+            }
+          };
+        } else {
+          // 生成字符串数据
+          payload = `消息ID: ${i}, 时间戳: ${new Date().toISOString()}, 内容: 这是第${i}条字符串消息，包含一些额外的文本内容来增加数据大小。用户信息、统计数据、元数据等都以字符串形式展示。`;
+        }
+
+        // SSE 格式：标准字段
         this.ctx.res.write(`event: message\n`);
-        this.ctx.res.write(`data: ${JSON.stringify(payload)}\n\n`);
-        // 间隔 500ms
+        this.ctx.res.write(`data: ${JSON.stringify(payload)}\n`);
+        this.ctx.res.write(`retry: 3000\n`);
+        this.ctx.res.write(`id: ${i}\n\n`);
+        // 间隔延时
         await new Promise(resolve => setTimeout(resolve, speed));
       }
+      console.log(stream)
       // 发送结束标记并关闭连接
       this.ctx.res.write(`event: complete\n`);
-      this.ctx.res.write(`data: [done]\n\n`);
+      this.ctx.res.write(`data: [done]\n`);
+      this.ctx.res.write(`id: complete\n\n`);
       this.ctx.res.end();
     } else {
       this.ctx.set({
-        'Content-Type': 'application/json',
+        'Content-Type': 'text/event-stream',
       });
       this.ctx.res.write(JSON.stringify({ message: 'SSE test completed' }));
-      await new Promise(resolve => setTimeout(resolve, 5000));
+      await new Promise(resolve => setTimeout(resolve, 1000));
       this.ctx.res.end();
     }
   }
