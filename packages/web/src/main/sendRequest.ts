@@ -248,8 +248,6 @@ export const gotRequest = async (options: GotRequestOptions) => {
       responseInfo.requestData.host = req.host;
     })
     requestStream.on("response", (response: PlainResponse) => {
-      // console.log(reqeustBody?.getBuffer())
-      // responseInfo.requestData.body = response.request.options.body;
       const contentLengthStr = response.headers['content-length'] ?? '0';
       contentLength = isNaN(parseInt(contentLengthStr)) ? 0 : parseInt(contentLengthStr)
       responseInfo.headers = response.headers;
@@ -317,6 +315,7 @@ export const gotRequest = async (options: GotRequestOptions) => {
       const bufferData = Buffer.concat(bufferList as Uint8Array[]);
       const fileTypeInfo = await fileTypeFromBuffer(bufferData.buffer as ArrayBuffer);
       responseInfo.bodyByteLength = bufferData.byteLength;
+      responseInfo.responseData.streamData = bufferList
       responseInfo.body = bufferData
       const noFileType = !fileTypeInfo;
       const contentTypeIsPdf = responseInfo.contentType.includes('application/pdf');
@@ -359,7 +358,9 @@ export const gotRequest = async (options: GotRequestOptions) => {
       const responseAsExe = contentTypeIsExe || fileTypeInfo?.mime?.includes('application/x-msdownload');
       const responseAsEpub = contentTypeIsEpub || fileTypeInfo?.mime?.includes('application/epub') || fileTypeInfo?.mime?.includes('application/x-epub');
       const responseAsForceDownload = responseInfo.contentType.includes('application/force-download') || responseInfo.contentType.includes('application/octet-stream');
-      if (noFileType && responseInfo.contentType.includes('application/json')) {
+      if (responseInfo.contentType.includes('text/event-stream')) {
+        responseInfo.responseData.canApiflowParseType = 'textEventStream';
+      } else if (noFileType && responseInfo.contentType.includes('application/json')) {
         responseInfo.responseData.canApiflowParseType = 'json';
         responseInfo.responseData.jsonData = bufferData.toString();
       } else if (noFileType && responseInfo.contentType.includes('text/html')) {

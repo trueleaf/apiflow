@@ -278,6 +278,7 @@ export async function sendRequest() {
   const worker = new preRequestWorker();
   const redirectList = ref<ResponseInfo['redirectList']>([]);
   const apidocBaseInfoStore = useApidocBaseInfo();
+  const apidocResponseStore = useApidocResponse();
   const { objectVariable } = useVariable();
   const projectId = apidocBaseInfoStore.projectId;
   const apidocTabsStore = useApidocTas();
@@ -395,7 +396,7 @@ export async function sendRequest() {
         changeRequestState('response');
       },
       onResponseData(chunk, loadedLength, totalLength) {
-        // addStreamData(chunk)
+        addStreamData(chunk)
         changeLoadingProcess({
           total: totalLength,
           transferred: loadedLength,

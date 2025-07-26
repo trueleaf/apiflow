@@ -52,6 +52,7 @@ export const generateEmptyResponse = (): ResponseInfo => {
       jsonData: '',
       textData: '',
       errorData: '',
+      streamData: [],
       fileData: {
         url: '',
         name: '',
