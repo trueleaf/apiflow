@@ -58,6 +58,10 @@
       </div>
     </el-dialog>
     <template v-if="apidocResponseStore.responseInfo.contentType">
+      <!-- eventStream -->
+      <div v-if="apidocResponseStore.responseInfo.responseData.canApiflowParseType === 'textEventStream'" class="sse-view-wrap">
+        <SSseView :data-list="apidocResponseStore.responseInfo.responseData.streamData" />
+      </div>
       <!-- 图片类型 -->
       <div v-if="apidocResponseStore.responseInfo.responseData.canApiflowParseType === 'image'" class="img-view-wrap">
         <el-image 
@@ -81,7 +85,6 @@
         <el-button link type="primary" text @click="handleDownload">{{ t("下载文件") }}</el-button>
       </div>
       <!-- 下载类型文件 -->
-       
       <div v-else-if="apidocResponseStore.responseInfo.responseData.canApiflowParseType === 'forceDownload'"
         class="d-flex flex-column j-center">
         <el-icon class="download-icon"  :title="t('下载文件')">
@@ -295,6 +298,7 @@ import { useTranslation } from 'i18next-vue'
 import { formatBytes, downloadStringAsText, formatHeader } from '@/helper/index'
 import { config } from '@/../config/config'
 import SJsonEditor from '@/components/common/json-editor/g-json-editor.vue'
+import SSseView from '@/components/common/sse-view/g-sse-view.vue'
 import { useApidocTas } from '@/store/apidoc/tabs';
 import { ElDialog } from 'element-plus';
 import worker from '@/worker/prettier.worker.ts?worker&inline';
@@ -333,7 +337,8 @@ const showProcess = computed(() => {
   const isXml = canApiflowParseType === 'xml';
   const isUnknow = canApiflowParseType === 'unknown';
   const isTooLargeBody = canApiflowParseType === 'cachedBodyIsTooLarge';
-  return !isError && !isText && !isUnknow && !isHtml && !isCes && !isJs && !isXml && !isTooLargeBody && !isJson;
+  const isTextEventSteam = canApiflowParseType === 'textEventStream'
+  return !isError && !isText && !isUnknow && !isHtml && !isCes && !isJs && !isXml && !isTooLargeBody && !isJson && !isTextEventSteam;
 })
 //布局
 const layout = computed(() => {
@@ -428,7 +433,7 @@ onUnmounted(() => {
 <style lang='scss' scoped>
 .body-view {
   width: 100%;
-  height: calc(100vh - var(--apiflow-apidoc-request-view-height) - var(--apiflow-doc-nav-height) - 120px);
+  height: calc(100vh - var(--apiflow-apidoc-request-view-height) - var(--apiflow-doc-nav-height) - 100px);
   position: relative;
   .response-tip {
     width: 100%;
@@ -517,6 +522,11 @@ onUnmounted(() => {
       justify-content: center;
       color: var(--gray-500);
     }
+  }
+  .sse-view-wrap {
+    height: 100%;
+    border: 1px solid var(--gray-400);
+    overflow-y: auto;
   }
   .process {
     height: 30px;

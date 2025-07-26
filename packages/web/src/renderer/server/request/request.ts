@@ -332,19 +332,19 @@ export async function sendRequest() {
         changeCancelRequestRef(cancelRequest);
       },
       onAbort: () => {
-        //abort会触发onError需要延迟执行
-        setTimeout(() => {
-          changeRequestState('finish');
-          changeResponseInfo({
-            responseData: {
-              canApiflowParseType: 'error',
-              errorData: i18next.t('请求已取消')
-            }
-          });
-        }, 100);
+        changeRequestState('finish');
+        // 如果是流式返回的数据，则不显示请求已取消的消息
+        if (apidocResponseStore.responseInfo.headers['transfer-encoding'] === 'chunked') {
+          return;
+        }
+        changeResponseInfo({
+          responseData: {
+            canApiflowParseType: 'error',
+            errorData: i18next.t('请求已取消')
+          }
+        });
       },
       onError: (err) => {
-        console.error(err)
         changeResponseInfo({
           redirectList: [],
           responseData: {
@@ -595,14 +595,9 @@ export async function sendRequest() {
 }
 
 export function stopRequest(): void {
-  const { changeRequestState, changeResponseInfo } = useApidocResponse()
+  const apidocResponseStore = useApidocResponse()
+  const { changeRequestState } = apidocResponseStore
   const { cancelRequest } = useApidocRequest()
   changeRequestState('waiting');
   cancelRequest();
-  changeResponseInfo({
-    responseData: {
-      canApiflowParseType: 'error',
-      errorData: i18next.t('请求被手动取消')
-    }
-  })
 }

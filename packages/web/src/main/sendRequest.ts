@@ -478,10 +478,11 @@ export const gotRequest = async (options: GotRequestOptions) => {
     });
     requestStream.once("error", (error) => {
       console.error(error);
-      options.onError(error as Error);
-    });
-    abortController.signal.addEventListener('abort', () => {
-      options.onAbort();
+      if (error.name === 'AbortError') {
+        options.onAbort?.()
+      } else {
+        options.onError(error as Error);
+      }
     });
     //取消请求
     options.signal(() => {
