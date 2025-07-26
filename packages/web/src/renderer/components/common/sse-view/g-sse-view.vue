@@ -1,57 +1,56 @@
 <template>
-  <div class="sse-view">
+  <div ref="sseViewRef" class="sse-view">
     <div v-if="!dataList || dataList.length === 0" class="empty-state">
       暂无SSE数据
     </div>
-    <div
-      v-else
-      ref="sseContentRef"
-      class="sse-content"
-      @scroll="handleScroll"
-    >
+    <el-scrollbar v-else ref="scrollBarRef" @scroll="handleScroll" :noresize="true" always :min-size="50" :height="`${scrollContainerHeight}px`">
       <div
-        v-for="(sseMessage, index) in formattedData"
-        :key="index"
-        class="sse-message"
-        :class="{ 'sse-message-error': sseMessage.isError }"
+        ref="sseContentRef"
+        class="sse-content"
+        @wheel="handleUserInteraction"
+        @touchstart="handleUserInteraction"
+        @keydown="handleKeydown"
       >
-        <span class="message-index">{{ index + 1 }}</span>
-        <div class="message-content">
-          <pre>{{ sseMessage.content }}</pre>
+        <div
+          v-for="(sseMessage, index) in formattedData"
+          :key="index"
+          class="sse-message"
+          :class="{ 'sse-message-error': sseMessage.isError }"
+        >
+          <span class="message-index">{{ index + 1 }}</span>
+          <div class="message-content">
+            <pre>{{ sseMessage.content }}</pre>
+          </div>
         </div>
       </div>
-    </div>
+    </el-scrollbar>
   </div>
 </template>
 
 <script lang="ts" setup>
-import { computed, ref, watch, nextTick } from 'vue';
+import { debounce } from '@/helper';
+import { ScrollbarInstance } from 'element-plus';
+import { computed, ref, watch, nextTick, onMounted } from 'vue';
 
+/*
+|--------------------------------------------------------------------------
+| 全局变量
+|--------------------------------------------------------------------------
+*/
 const props = withDefaults(defineProps<{dataList: Uint8Array[];}>(), {
   dataList: () => []
 });
-
-// 滚动相关的响应式状态
+const scrollBarRef = ref<ScrollbarInstance  | null>(null);
+const sseViewRef = ref<HTMLElement | null>(null);
 const sseContentRef = ref<HTMLElement | null>(null);
-const isUserScrolled = ref(false); // 用户是否手动滚动过
 const autoScrollEnabled = ref(true); // 是否启用自动滚动
-const scrollThreshold = 100; // 距离底部多少像素内认为是"接近底部"
-
-// 处理滚动事件
-const handleScroll = () => {
-  if (!sseContentRef.value) return;
-  console.log("scroll")
-};
-
-// 滚动到底部的函数
-const scrollToBottom = () => {
-  nextTick(() => {
-    if (sseContentRef.value) {
-      sseContentRef.value.scrollTop = sseContentRef.value.scrollHeight;
-    }
-  });
-};
-
+const scrollThreshold = 300; // 距离底部多少像素内认为是"接近底部"
+const scrollContainerHeight = ref(0);
+/*
+|--------------------------------------------------------------------------
+| sse数据处理
+|--------------------------------------------------------------------------
+*/
 // 解析SSE格式数据，将Uint8Array转换为标准SSE消息
 const formattedData = computed(() => {
   if (!props.dataList || props.dataList.length === 0) {
@@ -84,18 +83,6 @@ const formattedData = computed(() => {
 
   return sseMessages;
 });
-
-// 监听formattedData变化，确保新消息能触发滚动
-watch(
-  formattedData,
-  () => {
-    if (autoScrollEnabled.value) {
-      scrollToBottom();
-    }
-  },
-  { flush: 'post' } // 确保DOM更新后再执行
-);
-
 // 解析单个chunk中的SSE消息
 const parseSSEChunk = (chunkText: string): Array<{ content: string; isError: boolean }> => {
   const messages: Array<{ content: string; isError: boolean }> = [];
@@ -164,15 +151,66 @@ const parseSSEChunk = (chunkText: string): Array<{ content: string; isError: boo
 
   return messages;
 };
+/*
+|--------------------------------------------------------------------------
+| 滚动相关
+|--------------------------------------------------------------------------
+*/
+
+// 处理滚动事件
+const handleScroll = (scrollInfo: {scrollTop: number}) => {
+  if (scrollInfo.scrollTop + scrollThreshold + scrollContainerHeight.value >= sseContentRef.value!.clientHeight) {
+    autoScrollEnabled.value = true;
+  }
+};
+
+// 处理用户交互事件（wheel, touchstart）
+const handleUserInteraction = debounce(() => {
+  autoScrollEnabled.value = false;
+}, 100);
+
+// 处理键盘事件
+const handleKeydown = (e: KeyboardEvent) => {
+  // 判断是否为上下键、PageUp/PageDown
+  if (e.key === 'ArrowUp' || e.key === 'ArrowDown' || e.key === 'PageUp' || e.key === 'PageDown') {
+    autoScrollEnabled.value = false;
+  }
+};
+
+// 滚动到底部的函数
+const scrollToBottom = () => {
+  if (!autoScrollEnabled.value) {
+    return;
+  }
+  nextTick(() => {
+    const sseContent = sseContentRef.value!;
+    const sseCOntentHeight = sseContent.clientHeight;
+    scrollBarRef.value?.setScrollTop(sseCOntentHeight);
+  });
+};
+
+// 监听formattedData变化，确保新消息能触发滚动
+watch(
+  formattedData,
+  () => {
+    if (autoScrollEnabled.value) {
+      scrollToBottom();
+    }
+  },
+  { flush: 'post' } // 确保DOM更新后再执行
+);
+onMounted(() => {
+  scrollContainerHeight.value = sseViewRef.value!.clientHeight;
+})
 </script>
 
 <style lang="scss" scoped>
 .sse-view {
   width: 100%;
   height: 100%;
+  padding: 0 8px;
   display: flex;
   flex-direction: column;
-
   .empty-state {
     display: flex;
     align-items: center;
@@ -183,15 +221,12 @@ const parseSSEChunk = (chunkText: string): Array<{ content: string; isError: boo
   }
 
   .sse-content {
-    flex: 1;
-    overflow-y: auto;
-    padding: 8px;
-
+    // flex: 1;
     .sse-message {
       display: flex;
       align-items: flex-start;
-      margin-bottom: 8px;
-      padding: 8px;
+      // margin-bottom: 8px;
+      // padding: 8px;
       border-radius: 4px;
       background-color: var(--bg-color, #ffffff);
 
@@ -231,6 +266,14 @@ const parseSSEChunk = (chunkText: string): Array<{ content: string; isError: boo
         }
       }
     }
+  }
+
+  ::v-deep(.el-scrollbar__thumb) {
+    opacity: 1 !important;
+  }
+
+  ::v-deep(.el-scrollbar__bar.is-vertical) {
+    width: 8px;
   }
 }
 </style>
