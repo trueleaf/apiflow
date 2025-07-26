@@ -17,9 +17,19 @@
           class="sse-message"
           :class="{ 'sse-message-error': sseMessage.isError }"
         >
-          <span class="message-index">{{ index + 1 }}</span>
+          <span class="message-index">↓</span>
           <div class="message-content">
-            <pre>{{ sseMessage.content }}</pre>
+            <el-popover
+              placement="top-start"
+              :width="600"
+              trigger="click"
+              :content="sseMessage.content"
+              popper-class="sse-message-popover"
+            >
+              <template #reference>
+                <pre class="single-line-content">{{ sseMessage.content }}</pre>
+              </template>
+            </el-popover>
           </div>
         </div>
       </div>
@@ -236,9 +246,10 @@ onMounted(() => {
       }
 
       .message-index {
-        font-weight: 600;
+        font-size: 12px;
         color: var(--color-primary, #409eff);
-        margin-right: 15px;
+        margin-right: 8px;
+        font-weight: bold;
         margin-top: 2px;
       }
 
@@ -251,10 +262,20 @@ onMounted(() => {
           font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
           font-size: 13px;
           line-height: 1.4;
-          white-space: pre-wrap;
-          word-break: break-all;
           color: var(--text-color-primary, #303133);
           background: transparent;
+        }
+
+        .single-line-content {
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          cursor: pointer;
+          transition: color 0.2s ease;
+
+          &:hover {
+            color: var(--color-primary, #409eff);
+          }
         }
       }
 
@@ -274,6 +295,19 @@ onMounted(() => {
 
   ::v-deep(.el-scrollbar__bar.is-vertical) {
     width: 8px;
+  }
+}
+
+// 全局样式，用于 Popover 内容
+:global(.sse-message-popover) {
+  .el-popover__content {
+    white-space: pre-wrap;
+    word-break: break-all;
+    font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+    font-size: 13px;
+    line-height: 1.4;
+    max-height: 400px;
+    overflow-y: auto;
   }
 }
 </style>
