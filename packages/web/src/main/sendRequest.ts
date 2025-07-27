@@ -2,6 +2,7 @@ import {
   GotRequestBinaryBody,
   GotRequestOptions,
   RendererFormDataBody,
+  ChunkWithTimestampe,
 } from '@/../types/types';
 import { Options, got} from 'got';
 import type { OptionsInit, PlainResponse, RequestError } from 'got'
@@ -236,6 +237,7 @@ export const gotRequest = async (options: GotRequestOptions) => {
     // console.log("gotOptions", options)
     const requestStream = got.stream(gotOptions);
     const bufferList: Buffer[] = [];
+    const streamDataList: ChunkWithTimestampe[] = [];
     let streamByteLength = 0;
     let contentLength = 0;
     requestStream.on('request', (req: ClientRequest) => {
@@ -305,7 +307,13 @@ export const gotRequest = async (options: GotRequestOptions) => {
     requestStream.on("data", (chunk: Buffer) => {
       bufferList.push(chunk);
       streamByteLength += chunk.byteLength;
-      options.onResponseData?.(chunk, streamByteLength, contentLength);
+      // 创建带时间戳的 chunk 对象
+      const chunkWithTimestampe: ChunkWithTimestampe = {
+        chunk: chunk,
+        timestamp: Date.now()
+      };
+      streamDataList.push(chunkWithTimestampe);
+      options.onResponseData?.(chunkWithTimestampe, streamByteLength, contentLength);
     });
     requestStream.on("end", async () => {
       const endTime = responseInfo.timings.end ?? 0;
@@ -315,7 +323,7 @@ export const gotRequest = async (options: GotRequestOptions) => {
       const bufferData = Buffer.concat(bufferList as Uint8Array[]);
       const fileTypeInfo = await fileTypeFromBuffer(bufferData.buffer as ArrayBuffer);
       responseInfo.bodyByteLength = bufferData.byteLength;
-      responseInfo.responseData.streamData = bufferList
+      responseInfo.responseData.streamData = streamDataList
       responseInfo.body = bufferData
       const noFileType = !fileTypeInfo;
       const contentTypeIsPdf = responseInfo.contentType.includes('application/pdf');

@@ -2,7 +2,7 @@ import { ApidocCookieInfo } from "@src/types/apidoc/base-info"
 import { defineStore } from "pinia"
 import { ref } from "vue"
 import { generateEmptyResponse } from "@src/main/utils"
-import { DeepPartial, ResponseInfo } from "@src/types/types"
+import { ChunkWithTimestampe, DeepPartial, ResponseInfo } from "@src/types/types"
 import assign from "lodash/assign"
 
 export const useApidocResponse = defineStore('apidocResponse', () => {
@@ -62,7 +62,7 @@ export const useApidocResponse = defineStore('apidocResponse', () => {
     responseCacheAllowedMap.value[docId] = allowed;
   };
   //添加streamData
-  const addStreamData = (chunk: Uint8Array) => {
+  const addStreamData = (chunk: ChunkWithTimestampe) => {
     responseInfo.value.responseData.streamData.push(chunk);
   }
   return {

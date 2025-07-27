@@ -3,6 +3,7 @@ import {
   ParsedSSeData,
   Property,
   RendererFormDataBody,
+  ChunkWithTimestampe,
 } from "@src/types/types";
 import Mock from "../../mock/mock";
 import { ApidocVariable, SandboxPostMessage } from "@src/types/global";
@@ -236,38 +237,6 @@ export const getFormDataFromFormDataParams = async (
   }
   return renderedFormDataBody;
 };
-// export const getFormDataFromFormDataParams = async (formDataParams: Property[], objectVariable: Record<string, any>): Promise<RendererFormDataBody> => {
-//   const { changeFormDataErrorInfoById } = useApidoc()
-//   const rendererFormDataBody: RendererFormDataBody = [];
-//   for (let i = 0; i < formDataParams.length; i++) {
-//     const formDataParam = formDataParams[i];
-//     if (formDataParam.key) {
-//       const realKey = await convertTemplateValueToRealValue(formDataParam.key, objectVariable);
-//       if (formDataParam.type === 'string') {
-//         const realValue = await convertTemplateValueToRealValue(formDataParam.value, objectVariable);
-//         formData.append(realKey, realValue);
-//         rendererFormDataBody.push
-//       } else if (formDataParam.type === 'file') {
-//         const result = await window.electronAPI?.readFileAsUint8Array(formDataParam.value);
-//         if (result && result instanceof Uint8Array) {
-//           const fileType = await fileTypeFromBuffer(result);
-//           let mimeType = fileType?.mime || ""
-//           if (!mimeType && formDataParam.value.match(/\.ts$/)) { //.ts以纯文本处理，不然会被当做视频处理
-//             mimeType = 'text/plain';
-//           } else if (!mimeType) {
-//             mimeType = mime.getType(formDataParam.value) || 'text/plain';
-//           }
-//           const blob = new Blob([result], { type: mimeType});
-//           formData.append(realKey, blob);
-//           changeFormDataErrorInfoById(formDataParam._id, '')
-//         } else if (result) { //读取错误
-//           changeFormDataErrorInfoById(formDataParam._id, result)
-//         }
-//       }
-//     }
-//   }
-//   return Promise.resolve(formData);
-// }
 export const getNodeById = (
   nodes: FlowNode[],
   nodeId: string
@@ -301,14 +270,14 @@ export const uint8ArrayToBlob = (
   return new Blob([uint8Array], { type: mimeType });
 };
 
-const parseSseBlock = (block: string) => {
+const parseSseBlock = (block: string, timestamp?: number) => {
   const lines = block.split(/\r?\n/);
   const msg: ParsedSSeData = {
     id: "",
     type: "",
     data: '',
     retry: 0,
-    timestamp: Date.now(),
+    timestamp: timestamp || Date.now(),
     dataType: 'normal',
     rawBlock: block,
   };
@@ -339,7 +308,7 @@ const parseSseBlock = (block: string) => {
   return msg;
 }
 
-export const parseChunkList = (chunkList: Uint8Array[]): ParsedSSeData[] => {
+export const parseChunkList = (chunkList: ChunkWithTimestampe[]): ParsedSSeData[] => {
   const parsedData: ParsedSSeData[] = [];
 
   // 尝试使用 TextDecoder，如果失败则使用二进制模式
@@ -355,11 +324,15 @@ export const parseChunkList = (chunkList: Uint8Array[]): ParsedSSeData[] => {
   if (useBinaryMode) {
     // 二进制模式：将所有 chunk 转换为十六进制字符串
     const hexBlocks: string[] = [];
-    for (let chunk of chunkList) {
-      const hexString = Array.from(chunk)
+    let firstTimestamp = Date.now();
+    for (let streamChunk of chunkList) {
+      const hexString = Array.from(streamChunk.chunk)
         .map(byte => byte.toString(16).padStart(2, '0'))
         .join('');
       hexBlocks.push(hexString);
+      if (firstTimestamp === Date.now()) {
+        firstTimestamp = streamChunk.timestamp;
+      }
     }
 
     // 创建一个二进制类型的 ParsedSSeData
@@ -368,7 +341,7 @@ export const parseChunkList = (chunkList: Uint8Array[]): ParsedSSeData[] => {
       type: "",
       data: '',
       retry: 0,
-      timestamp: Date.now(),
+      timestamp: firstTimestamp,
       dataType: 'binary',
       rawBlock: hexBlocks.join(''),
     };
@@ -379,20 +352,22 @@ export const parseChunkList = (chunkList: Uint8Array[]): ParsedSSeData[] => {
 
   // 正常的文本解码模式
   let buffer = '';
-  for (let chunk of chunkList) {
-    buffer += decoder!.decode(chunk, { stream: true });
+  for (let streamChunk of chunkList) {
+    buffer += decoder!.decode(streamChunk.chunk, { stream: true });
     let boundary: number;
     while ((boundary = buffer.indexOf('\n\n')) !== -1) {
       const block = buffer.slice(0, boundary);
       buffer = buffer.slice(boundary + 2);
-      const msg = parseSseBlock(block);
+      const msg = parseSseBlock(block, streamChunk.timestamp);
       parsedData.push(msg);
     }
   }
   buffer += decoder!.decode();
   if (buffer.includes('\n\n')) {
+    // 对于最后的 buffer，使用最后一个 chunk 的时间戳（如果有的话）
+    const lastTimestamp = chunkList.length > 0 ? chunkList[chunkList.length - 1].timestamp : Date.now();
     buffer.split(/\r?\n\r?\n/).forEach(block => {
-      if (block.trim()) parsedData.push(parseSseBlock(block));
+      if (block.trim()) parsedData.push(parseSseBlock(block, lastTimestamp));
     });
   }
 

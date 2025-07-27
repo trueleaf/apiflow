@@ -103,6 +103,11 @@ export type SseData = {
   data: string;
   retry: string;
 }
+
+export type ChunkWithTimestampe = {
+  chunk: Uint8Array;
+  timestamp: number;
+}
 export type CanApiflowParseType =
   'textEventStream' |
   'text' |
@@ -172,7 +177,7 @@ export type ResponseInfo = {
       name: string;
       ext: string;
     },
-    streamData: Uint8Array[]
+    streamData: ChunkWithTimestampe[]
   }
 }
 
@@ -446,7 +451,7 @@ export type GotRequestOptions = {
   signal: (cancelRequest: () => void) => void;
   onResponse?: (responseInfo: ResponseInfo) => void;
   onResponseEnd?: (responseInfo: ResponseInfo) => void;
-  onResponseData?: (chunk: Uint8Array, loadedLength: number, totalLength: number) => void;
+  onResponseData?: (chunk: ChunkWithTimestampe, loadedLength: number, totalLength: number) => void;
   onReadFileFormDataError?: (options: { id: string, msg: string, fullMsg: string }) => void;
   onReadBinaryDataError?: (options: { msg: string, fullMsg: string }) => void;
   onError: (error: RequestError | Error) => void,

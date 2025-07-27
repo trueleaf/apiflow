@@ -36,13 +36,14 @@ import { ScrollbarInstance } from 'element-plus';
 import { computed, ref, watch, nextTick, onMounted } from 'vue';
 import { parseChunkList } from '@/utils/utils';
 import dayjs from 'dayjs';
+import type { ChunkWithTimestampe } from '@src/types/types';
 
 /*
 |--------------------------------------------------------------------------
 | 全局变量
 |--------------------------------------------------------------------------
 */
-const props = withDefaults(defineProps<{dataList: Uint8Array[];}>(), {
+const props = withDefaults(defineProps<{dataList: ChunkWithTimestampe[];}>(), {
   dataList: () => []
 });
 const scrollBarRef = ref<ScrollbarInstance  | null>(null);
@@ -121,7 +122,7 @@ onMounted(() => {
 .sse-view {
   width: 100%;
   height: 100%;
-  padding: 0 8px;
+  padding: 0 5px;
   display: flex;
   flex-direction: column;
   .empty-state {
