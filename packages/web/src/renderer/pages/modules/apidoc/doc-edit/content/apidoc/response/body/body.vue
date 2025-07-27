@@ -525,8 +525,7 @@ onUnmounted(() => {
   }
   .sse-view-wrap {
     height: 100%;
-    border: 1px solid var(--gray-400);
-    overflow-y: auto;
+    padding-right: 5px;
   }
   .process {
     height: 30px;

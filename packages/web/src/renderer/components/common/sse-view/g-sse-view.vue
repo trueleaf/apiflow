@@ -122,7 +122,6 @@ onMounted(() => {
 .sse-view {
   width: 100%;
   height: 100%;
-  padding: 0 5px;
   display: flex;
   flex-direction: column;
   .empty-state {
@@ -133,7 +132,6 @@ onMounted(() => {
     color: var(--text-color-secondary, #909399);
     font-size: 14px;
   }
-
   .sse-content {
     .sse-message {
       display: flex;
@@ -141,8 +139,6 @@ onMounted(() => {
       padding: 8px 12px 8px 0;
       border-radius: 4px;
       background-color: var(--bg-color, #ffffff);
-      border-bottom: 1px solid var(--border-color-lighter, #ebeef5);
-
       &.sse-message-hex {
         border-left: 3px solid var(--color-warning, #e6a23c);
         background-color: var(--color-warning-light-9, #fdf6ec);
@@ -152,7 +148,7 @@ onMounted(() => {
         font-size: 12px;
         color: var(--color-primary, #409eff);
         font-weight: bold;
-        min-width: 40px;
+        min-width: 30px;
         text-align: right;
         margin-right: 12px;
         flex-shrink: 0;
