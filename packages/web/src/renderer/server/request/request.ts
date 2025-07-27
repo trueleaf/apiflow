@@ -278,8 +278,8 @@ export async function sendRequest() {
   const worker = new preRequestWorker();
   const redirectList = ref<ResponseInfo['redirectList']>([]);
   const apidocBaseInfoStore = useApidocBaseInfo();
-  const apidocResponseStore = useApidocResponse();
   const { objectVariable } = useVariable();
+  const apidocResponseStore = useApidocResponse();
   const projectId = apidocBaseInfoStore.projectId;
   const apidocTabsStore = useApidocTas();
   const selectedTab = apidocTabsStore.getSelectedTab(apidocBaseInfoStore.projectId);
@@ -395,12 +395,15 @@ export async function sendRequest() {
         changeResponseInfo(responseInfo);
         changeRequestState('response');
       },
-      onResponseData(chunk, loadedLength, totalLength) {
-        addStreamData(chunk)
+      onResponseData(chunkWithTimestampe, loadedLength, totalLength) {
+        addStreamData(chunkWithTimestampe)
         changeLoadingProcess({
           total: totalLength,
           transferred: loadedLength,
           percent: loadedLength / totalLength
+        })
+        changeResponseInfo({
+          bodyByteLength: apidocResponseStore.responseInfo.bodyByteLength + chunkWithTimestampe.chunk.byteLength,
         })
       },
       onResponseEnd(responseInfo) {
