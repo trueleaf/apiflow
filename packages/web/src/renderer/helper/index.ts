@@ -784,4 +784,33 @@ export function convertDocsToFolder(docs: ApidocDetail[] = []): ApidocBanner[] {
   return banner
 }
 
+/**
+ * 判断字符串是否为有效的 JSON 格式
+ */
+export const isJsonString = (str: string): boolean => {
+  if (!str || typeof str !== 'string') {
+    return false;
+  }
+
+  // 去除首尾空白字符
+  const trimmedStr = str.trim();
+
+  // 空字符串不是有效的 JSON
+  if (!trimmedStr) {
+    return false;
+  }
+
+  // JSON 必须以 { 或 [ 开头
+  if (!trimmedStr.startsWith('{') && !trimmedStr.startsWith('[')) {
+    return false;
+  }
+
+  try {
+    JSON.parse(trimmedStr);
+    return true;
+  } catch (error) {
+    return false;
+  }
+};
+
 
