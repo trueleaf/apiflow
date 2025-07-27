@@ -471,3 +471,13 @@ export type IPCProjectData = {
   projectId: string;
   projectName: string;
 }
+export type ParsedSSeData = {
+  id?: string;
+  type?: string;
+  retry?: number;
+  data: string;
+  event?: string;
+  timestamp: number;
+  dataType: 'normal' | 'binary';
+  rawBlock: string;
+}
