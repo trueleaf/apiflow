@@ -1,10 +1,10 @@
 <template>
   <div class="api-params" :class="{ vertical: layout === 'vertical' }">
     <div class="view-type" :class="{ vertical: layout === 'vertical' }">
-      <div class="cursor-pointer" :class="{ active: mode === 'edit' }" @click="toggleMode('edit')">{{ t("编辑") }}</div>
+      <!-- <div class="cursor-pointer" :class="{ active: mode === 'edit' }" @click="toggleMode('edit')">{{ t("编辑") }}</div>
       <el-divider direction="vertical"></el-divider>
       <div class="cursor-pointer mr-5" :class="{ active: mode === 'view' }" @click="toggleMode('view')">{{ t("预览") }}
-      </div>
+      </div> -->
       <el-dropdown trigger="click">
         <div class="gray-700 cursor-pointer mr-3 hover-theme-color">
           <span class="mr-1 f-sm iconfont iconbuju"></span>
@@ -25,7 +25,7 @@
         <span class="mr-1 f-sm iconfont iconvariable"></span>
         <span>{{ t("变量") }}</span>
       </div>
-      <div class="d-flex a-center gray-700 cursor-pointer mr-3 hover-theme-color">
+      <!-- <div class="d-flex a-center gray-700 cursor-pointer mr-3 hover-theme-color">
         <el-popover :visible="generateCodeVisible" width="300px" placement="bottom">
           <template #reference>
             <span @click.stop="generateCodeVisible = true">
@@ -35,7 +35,7 @@
           </template>
           <SHook v-if="generateCodeVisible" @close="generateCodeVisible = false"></SHook>
         </el-popover>
-      </div>
+      </div> -->
     </div>
     <el-tabs v-model="activeName">
       <el-tab-pane name="SParams">
