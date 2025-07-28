@@ -11,11 +11,16 @@
     "dev:standalone": "vite --host --mode standalone",
     "web": "vite --host -- -- web",
     "share": "vite --host --config build/share/vite.config.ts",
-    "build": "vite build",
-    "build:standalone": "vite build --mode standalone",
+    "build": "vite build && npm run build:electron",
+    "build:electron": "esbuild src/main/**/*.ts --bundle --platform=node --outdir=dist --format=esm --out-extension:.js=.mjs --external:electron",
     "build:share": "vite build --config build/share/vite.config.ts",
     "preview": "vite preview",
-    "build:font": "node build/share/script/build-font.mjs"
+    "build:font": "node build/share/script/build-font.mjs",
+    "pack": "electron-builder --dir",
+    "dist": "npm run build && electron-builder",
+    "dist:win": "npm run build && electron-builder --win",
+    "dist:mac": "npm run build && electron-builder --mac",
+    "dist:linux": "npm run build && electron-builder --linux"
   },
   "dependencies": {
     "axios": "^1.7.3",
@@ -23,7 +28,6 @@
     "dayjs": "^1.11.12",
     "dexie": "^4.0.8",
     "docx": "^9.5.1",
-    "electron": "^36.2.0",
     "element-plus": "^2.9.1",
     "file-type": "^19.6.0",
     "form-data": "^4.0.1",
@@ -72,6 +76,9 @@
     "@vitejs/plugin-vue": "^5.2.1",
     "@vue/tsconfig": "^0.7.0",
     "chokidar": "^4.0.1",
+    "electron": "36.2.0",
+    "electron-builder": "^26.0.12",
+    "esbuild": "^0.25.8",
     "eslint": "^9.8.0",
     "openapi-types": "^12.1.3",
     "rollup-plugin-visualizer": "^6.0.3",
@@ -82,5 +89,135 @@
     "vite": "^6.0.3",
     "vite-plugin-singlefile": "^2.2.0",
     "vue-tsc": "^2.1.10"
+  },
+  "main": "dist/main.mjs",
+  "build": {
+    "productName": "Apiflow",
+    "appId": "cn.apiflow",
+    "copyright": "Copyright © 2025 TrueLeaf Team",
+    "directories": {
+      "buildResources": "build",
+      "output": "release"
+    },
+    "files": [
+      "dist/**/*",
+      "public/**/*",
+      "!public/mock-file/**/*",
+      "node_modules/**/*",
+      "package.json"
+    ],
+    "extraResources": [
+      {
+        "from": "public/icons",
+        "to": "icons"
+      }
+    ],
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64",
+            "arm64"
+          ]
+        },
+        {
+          "target": "portable",
+          "arch": [
+            "x64",
+            "arm64"
+          ]
+        }
+      ],
+      "icon": "public/icons/icon.ico",
+      "artifactName": "${productName}-${version}-${arch}.${ext}",
+      "requestedExecutionLevel": "asInvoker"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "ApiFlow"
+    },
+    "mac": {
+      "target": [
+        {
+          "target": "dmg",
+          "arch": [
+            "x64",
+            "arm64"
+          ]
+        },
+        {
+          "target": "zip",
+          "arch": [
+            "x64",
+            "arm64"
+          ]
+        }
+      ],
+      "icon": "public/icons/icon.icns",
+      "category": "public.app-category.developer-tools",
+      "artifactName": "${productName}-${version}-${arch}.${ext}",
+      "hardenedRuntime": true,
+      "gatekeeperAssess": false,
+      "entitlements": "build/entitlements.mac.plist",
+      "entitlementsInherit": "build/entitlements.mac.plist"
+    },
+    "dmg": {
+      "title": "${productName} ${version}",
+      "icon": "public/icons/icon.icns",
+      "window": {
+        "width": 540,
+        "height": 380
+      },
+      "contents": [
+        {
+          "x": 410,
+          "y": 150,
+          "type": "link",
+          "path": "/Applications"
+        },
+        {
+          "x": 130,
+          "y": 150,
+          "type": "file"
+        }
+      ]
+    },
+    "linux": {
+      "target": [
+        {
+          "target": "AppImage",
+          "arch": [
+            "x64",
+            "arm64"
+          ]
+        },
+        {
+          "target": "deb",
+          "arch": [
+            "x64",
+            "arm64"
+          ]
+        }
+      ],
+      "icon": "public/icons",
+      "category": "Development",
+      "artifactName": "${productName}-${version}-${arch}.${ext}",
+      "desktop": {
+        "entry": {
+          "Name": "ApiFlow",
+          "Comment": "Visual API design tool",
+          "Categories": "Development;IDE;",
+          "Keywords": "api;design;development;rest;graphql;"
+        }
+      }
+    },
+    "publish": {
+      "provider": "generic",
+      "url": "https://releases.example.com/"
+    }
   }
 }
