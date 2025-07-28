@@ -94,6 +94,6 @@ export const config: Config = {
   },
   standaloneCache: {
     dbName: 'standaloneCache',
-    version: 1,
+    version: 2
   }
 }

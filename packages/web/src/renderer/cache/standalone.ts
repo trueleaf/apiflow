@@ -1,10 +1,11 @@
 
-import type { ApidocProjectInfo, ApidocDetail, ApidocProperty } from "@src/types/global";
+import type { ApidocProjectInfo, ApidocDetail, ApidocProperty, ApidocVariable } from "@src/types/global";
 import type { ApidocProjectRules } from "@src/types/apidoc/base-info";
 import { DocCache } from "./standalone/docs";
 import { ProjectCache } from "./standalone/projects";
 import { CommonHeaderCache } from "./standalone/commonHeaders";
 import { RuleCache } from "./standalone/rules";
+import { VariableCache } from "./standalone/variable";
 import { IDBPDatabase, openDB } from "idb";
 import { config } from "@src/config/config.ts";
 
@@ -16,12 +17,14 @@ export class StandaloneCache {
   projects: ProjectCache;
   commonHeaders: CommonHeaderCache;
   rules: RuleCache;
+  variables: VariableCache;
 
   constructor() {
     this.docs = new DocCache(null);
     this.projects = new ProjectCache(null);
     this.commonHeaders = new CommonHeaderCache(null);
     this.rules = new RuleCache(null);
+    this.variables = new VariableCache(null);
   }
 
   async init() {
@@ -45,14 +48,19 @@ export class StandaloneCache {
           if (!db.objectStoreNames.contains("rules")) {
             db.createObjectStore("rules");
           }
+          if (!db.objectStoreNames.contains("variables")) {
+            const variablesStore = db.createObjectStore("variables");
+            // 添加 projectId 索引以优化按项目查询变量
+            variablesStore.createIndex("projectId", "projectId", { unique: false });
+          }
         },
       }
     );
-
     this.docs = new DocCache(this.db);
     this.projects = new ProjectCache(this.db);
     this.commonHeaders = new CommonHeaderCache(this.db);
     this.rules = new RuleCache(this.db);
+    this.variables = new VariableCache(this.db);
   }
 
   // 项目相关
@@ -162,6 +170,23 @@ export class StandaloneCache {
     return this.rules.deleteProjectRules(projectId);
   }
 
+  // 变量相关
+  async addVariable(variable: Omit<ApidocVariable, '_id'> & { _id?: string }) {
+    return this.variables.add(variable);
+  }
+  async updateVariable(variableId: string, updates: Partial<ApidocVariable>) {
+    return this.variables.update(variableId, updates);
+  }
+  async deleteVariables(ids: string[]) {
+    return this.variables.delete(ids);
+  }
+  async getAllVariables(projectId: string) {
+    return this.variables.getAll(projectId);
+  }
+  async getVariableById(variableId: string) {
+    return this.variables.getById(variableId);
+  }
+
   /**
    * 清除所有数据
    */
@@ -178,7 +203,7 @@ export class StandaloneCache {
       const deletedProjects = projectList.filter(project => project.isDeleted);
       
       // 清空所有数据
-      const stores = ['docs', 'projects', 'commonHeaders', 'rules'];
+      const stores = ['docs', 'projects', 'commonHeaders', 'rules', 'variables'];
       for (const storeName of stores) {
         const tx = this.db.transaction(storeName, 'readwrite');
         await tx.objectStore(storeName).clear();

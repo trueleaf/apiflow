@@ -96,13 +96,15 @@
     </SFieldset>
     <!-- 变量列表 -->
     <SFieldset :title="t('变量列表')" class="right">
-      <STable 
-        ref="table" 
-        url="/api/project/project_variable" 
-        delete-many 
+      <!-- 在线模式 -->
+      <STable
+        v-if="!isStandalone"
+        ref="table"
+        url="/api/project/project_variable"
+        delete-many
         delete-url="/api/project/project_variable"
         @delete-many="getData"
-        :delete-params="{ projectId: route.query.id }" 
+        :delete-params="{ projectId: route.query.id }"
         :params="{ projectId: route.query.id }">
         <el-table-column :label="t('变量名称')" align="center">
           <template #default="scope">
@@ -152,6 +154,51 @@
           </template>
         </el-table-column>
       </STable>
+
+      <!-- 独立模式 -->
+      <el-table
+        v-else
+        :data="standaloneVariables"
+        v-loading="standaloneLoading"
+        class="w-100"
+      >
+        <el-table-column :label="t('变量名称')" align="center">
+          <template #default="scope">
+            <span>{{ scope.row.name }}</span>
+          </template>
+        </el-table-column>
+        <el-table-column :label="t('变量值')" align="center" show-overflow-tooltip>
+          <template #default="scope">
+            <div v-if="scope.row.type === 'file'">
+              <div>
+                <span>文件名称：</span>
+                <span>{{ scope.row.fileValue.name }}</span>
+              </div>
+              <div>
+                <span>文件路径：</span>
+                <span>{{ scope.row.fileValue.path }}</span>
+              </div>
+              <div>
+                <span>mime类型：</span>
+                <span>{{ scope.row.fileValue.fileType }}</span>
+              </div>
+            </div>
+            <span v-else>{{ scope.row.value }}</span>
+          </template>
+        </el-table-column>
+        <el-table-column :label="t('变量类型')" align="center">
+          <template #default="scope">
+            <span>{{ scope.row.type }}</span>
+          </template>
+        </el-table-column>
+        <el-table-column :label="t('创建者')" align="center" prop="creator"></el-table-column>
+        <el-table-column :label="t('操作')" align="center">
+          <template #default="scope">
+            <el-button link type="primary" text @click="handleEdit(scope.row)">{{ t("编辑") }}</el-button>
+            <el-button link type="primary" text @click="handleStandaloneDelete(scope.row._id)">{{ t("删除") }}</el-button>
+          </template>
+        </el-table-column>
+      </el-table>
     </SFieldset>
     <EditDialog v-model="isShowEditDialog" :editData="oldEditingData" @success="getData" @close="handleCloseEditDialog"></EditDialog>
   </div>
@@ -162,7 +209,7 @@ import SFieldset from '@/components/common/fieldset/g-fieldset.vue'
 import STable from '@/components/common/table/g-table.vue'
 import { config } from '@src/config/config'
 import { useTranslation } from 'i18next-vue'
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
 import { ElMessage, ElMessageBox, FormInstance, genFileId, UploadFile, UploadInstance, UploadProps, UploadRawFile } from 'element-plus';
 import { request } from '@/api/api';
 import { useRoute } from 'vue-router';
@@ -171,6 +218,7 @@ import EditDialog from './dialog/edit.vue'
 import { useVariable } from '@/store/apidoc/variables';
 import { Response, ApidocVariable } from '@src/types/global';
 import { request as axiosInstance } from '@/api/api'
+import { standaloneCache } from '@/cache/standalone';
 
 
 export type AddProjectVariableParams = {
@@ -214,11 +262,11 @@ const formInfo = ref<AddProjectVariableFormInfo>({
   type: 'string',
 })
 const { t } = useTranslation()
-
 const rules = ref({
   name: [{ required: true, message: t('请输入变量名称'), trigger: 'blur' }],
   stringValue: [{ required: true, message: t('请输入变量值'), trigger: 'blur' }],
 })
+const isStandalone = ref(__STANDALONE__)
 const oldEditingData = ref<AddProjectVariableParams | null>(null);
 const isShowEditDialog = ref(false);
 const loading = ref(false);
@@ -233,6 +281,10 @@ const table = ref<{
 const form = ref<FormInstance>();
 const variableStore = useVariable()
 const upload = ref<UploadInstance>()
+
+// 独立模式的数据状态
+const standaloneVariables = ref<ApidocVariable[]>([])
+const standaloneLoading = ref(false)
 /*
 |--------------------------------------------------------------------------
 | 方法定义
@@ -260,8 +312,32 @@ const handleExceed: UploadProps['onExceed'] = (files) => {
   }
 }
 const getData = () => {
-  table.value?.getData()
-  getVariableEnum();
+  if (isStandalone.value) {
+    getStandaloneVariables();
+  } else {
+    table.value?.getData()
+    getVariableEnum();
+  }
+}
+
+// 获取独立模式的变量数据
+const getStandaloneVariables = async () => {
+  try {
+    standaloneLoading.value = true;
+    const response = await standaloneCache.getAllVariables(route.query.id as string);
+    if (response.code === 0) {
+      standaloneVariables.value = response.data;
+      // 更新变量枚举
+      variableStore.replaceVariables(response.data);
+    } else {
+      ElMessage.error(response.msg || '获取变量列表失败');
+    }
+  } catch (error) {
+    console.error('获取变量列表失败:', error);
+    ElMessage.error('获取变量列表失败');
+  } finally {
+    standaloneLoading.value = false;
+  }
 }
 //获取变量枚举用于更新全部变量值
 const getVariableEnum = () => {
@@ -275,7 +351,7 @@ const getVariableEnum = () => {
 }
 //新增表格数据
 const handleAddVariable = () => {
-  form.value?.validate((valid) => {
+  form.value?.validate(async (valid) => {
     if (valid) {
       loading.value = true;
       const params: AddProjectVariableParams =  {
@@ -302,13 +378,28 @@ const handleAddVariable = () => {
       } else if (formInfo.value.type === 'file') {
         params.fileValue = formInfo.value.fileValue;
       }
-      request.post('/api/project/project_variable', params).then(() => {
-        getData();
-      }).catch((err) => {
+
+      try {
+        if (isStandalone.value) {
+          // 独立模式
+          const response = await standaloneCache.addVariable(params);
+          if (response.code === 0) {
+            ElMessage.success('添加成功');
+            getData();
+          } else {
+            ElMessage.error(response.msg || '添加失败');
+          }
+        } else {
+          // 在线模式
+          await request.post('/api/project/project_variable', params);
+          getData();
+        }
+      } catch (err) {
         console.error(err);
-      }).finally(() => {
+        ElMessage.error('操作失败');
+      } finally {
         loading.value = false;
-      });
+      }
     }
   });
 }
@@ -340,6 +431,38 @@ const handleDelete = (_id: string) => {
     });
   });
 }
+
+// 独立模式删除变量
+const handleStandaloneDelete = (_id: string) => {
+  ElMessageBox.confirm(t('此操作将永久删除该变量, 是否继续?'), t('提示'), {
+    confirmButtonText: t('确定'),
+    cancelButtonText: t('取消'),
+    type: 'warning',
+  }).then(async () => {
+    try {
+      const response = await standaloneCache.deleteVariables([_id]);
+      if (response.code === 0) {
+        ElMessage.success(t('删除成功'));
+        getData();
+      } else {
+        ElMessage.error(response.msg || '删除失败');
+      }
+    } catch (err) {
+      console.error(err);
+      ElMessage.error('删除失败');
+    }
+  });
+}
+
+// 组件挂载时初始化
+onMounted(() => {
+  try {
+    getData();
+  } catch (error) {
+    console.error('初始化独立缓存失败:', error);
+    ElMessage.error('初始化失败');
+  }
+});
 </script>
 
 <style lang='scss' scoped>
