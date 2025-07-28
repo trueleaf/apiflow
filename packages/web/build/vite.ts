@@ -12,7 +12,7 @@ const processWithElectron: NodeJS.Process & {
 } = process;
 
 let isKilling = false;
-const buildElectron = () => {
+const buildElectron = (mode: string, command: 'build' | 'serve') => {
   esbuild.buildSync({
     entryPoints: ['./src/main/**'],
     bundle: true,
@@ -23,6 +23,10 @@ const buildElectron = () => {
       '.js': '.mjs',
     },
     external: ['electron'],
+    define: {
+      __MODE__: JSON.stringify(mode),
+      __COMMAND__: JSON.stringify(command),
+    }
   });
 }
 const startElectronProcess = (server: ViteDevServer,) => {
@@ -42,10 +46,10 @@ const startElectronProcess = (server: ViteDevServer,) => {
   })
   isKilling = false;
 }
-export const viteElectronPlugin = () => {
+export const viteElectronPlugin = (mode: string, command: 'build' | 'serve') => {
   const debounceReloadMain = debounce((server: ViteDevServer) => {
     if (processWithElectron.electronProcess?.pid && !isKilling) {
-      buildElectron()
+      buildElectron(mode, command)
       console.log('重启主进程中...')
       isKilling = true;
       process.kill(processWithElectron.electronProcess.pid);
@@ -61,7 +65,7 @@ export const viteElectronPlugin = () => {
         processWithElectron.electronProcess = undefined;
       }
       server.httpServer?.once('listening', () => {
-        buildElectron()
+        buildElectron(mode, command)
         startElectronProcess(server);
         const watcher = chokidar.watch(
           path.resolve(process.cwd(), './src/main'),
@@ -73,5 +77,10 @@ export const viteElectronPlugin = () => {
         watcher.on('change', debounceReloadMain)
       });
     },
+    closeBundle() {
+      if (command === 'build') {
+        buildElectron(mode, command);
+      }
+    }
   };
 };

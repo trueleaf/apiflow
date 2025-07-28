@@ -52,11 +52,20 @@ const createWindow = () => {
     height: windowBounds.height - 35
   })
 
-  // 加载内容
-  topBarView.webContents.loadURL('http://localhost:3000/header.html')
-  contentView.webContents.loadURL('http://localhost:3000')
+  // 加载内容 - 根据 __MODE__ 变量决定加载方式
+  if (__MODE__ === 'standalone' && __COMMAND__ === 'build') {
+    const headerFilePath = path.join(__dirname, '../public/header.html');
+    const indexFilePath = path.join(__dirname, '../public/index.html');
+    topBarView.webContents.loadURL(headerFilePath);
+    contentView.webContents.loadURL(indexFilePath);
+  } else {
+    topBarView.webContents.loadURL('http://localhost:3000/header.html');
+    contentView.webContents.loadURL('http://localhost:3000');
+  }
+
+  // 开发工具（可以根据需要调整）
   topBarView.webContents.on('did-finish-load', () => {
-    topBarView.webContents.openDevTools({ mode: 'detach' }) 
+    topBarView.webContents.openDevTools({ mode: 'detach' })
   })
   contentView.webContents.openDevTools({ mode: 'bottom' })
   return {

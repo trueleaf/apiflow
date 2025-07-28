@@ -8,11 +8,11 @@ import Components from 'unplugin-vue-components/vite'
 import { ElementPlusResolver } from 'unplugin-vue-components/resolvers'
 import { resolve } from 'path';
 
-export default defineConfig(({ mode }) => {
+export default defineConfig(({ mode, command }) => {
   const isStandalone = mode === 'standalone'
   return {
     plugins: [
-      viteElectronPlugin(),
+      viteElectronPlugin(mode, command),
       vue(),
       AutoImport({
         resolvers: [ElementPlusResolver()],

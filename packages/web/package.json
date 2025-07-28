@@ -11,16 +11,14 @@
     "dev:standalone": "vite --host --mode standalone",
     "web": "vite --host -- -- web",
     "share": "vite --host --config build/share/vite.config.ts",
-    "build": "vite build && npm run build:electron",
-    "build:electron": "esbuild src/main/**/*.ts --bundle --platform=node --outdir=dist --format=esm --out-extension:.js=.mjs --external:electron",
     "build:share": "vite build --config build/share/vite.config.ts",
+    "build:standalone:pack": "vite build --mode standalone && electron-builder --dir",
+    "build:standalone": "vite build --mode standalone && electron-builder",
+    "build:standalone:win": "vite build --mode standalone && electron-builder --win",
+    "build:standalone:mac": "vite build --mode standalone && electron-builder --mac",
+    "build:standalone:linux": "vite build --mode standalone && electron-builder --linux",
     "preview": "vite preview",
-    "build:font": "node build/share/script/build-font.mjs",
-    "pack": "electron-builder --dir",
-    "dist": "npm run build && electron-builder",
-    "dist:win": "npm run build && electron-builder --win",
-    "dist:mac": "npm run build && electron-builder --mac",
-    "dist:linux": "npm run build && electron-builder --linux"
+    "build:font": "node build/share/script/build-font.mjs"
   },
   "dependencies": {
     "axios": "^1.7.3",
@@ -96,6 +94,7 @@
     "appId": "cn.apiflow",
     "copyright": "Copyright © 2025 TrueLeaf Team",
     "directories": {
+      "app": ".",
       "buildResources": "build",
       "output": "release"
     },
