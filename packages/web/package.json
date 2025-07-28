@@ -12,6 +12,7 @@
     "web": "vite --host -- -- web",
     "share": "vite --host --config build/share/vite.config.ts",
     "build": "vite build",
+    "build:standalone": "vite build --mode standalone",
     "build:share": "vite build --config build/share/vite.config.ts",
     "preview": "vite preview",
     "build:font": "node build/share/script/build-font.mjs"

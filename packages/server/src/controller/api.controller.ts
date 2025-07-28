@@ -393,8 +393,10 @@ export class APIController {
         }
 
         // SSE 格式：标准字段
+        this.ctx.res.write(`: 注释信息\n`);
         this.ctx.res.write(`event: message\n`);
         this.ctx.res.write(`data: ${JSON.stringify(payload)}\n`);
+        // this.ctx.res.write(Buffer.from('hello word', 'utf8'));
         this.ctx.res.write(`retry: 3000\n`);
         this.ctx.res.write(`id: ${i}\n\n`);
         // 间隔延时
