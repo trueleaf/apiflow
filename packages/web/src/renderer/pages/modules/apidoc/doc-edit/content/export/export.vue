@@ -24,12 +24,12 @@
           <img src="@/assets/imgs/logo.png" alt="moyu" class="img">
           <div class="mt-1">{{ t('JSON文档') }}</div>
         </div>
-        <div class="item" :class="{active: selectedType === 'otherProject'}" @click="selectedType = 'otherProject'">
+        <!-- <div class="item" :class="{active: selectedType === 'otherProject'}" @click="selectedType = 'otherProject'">
           <svg class="svg-icon" aria-hidden="true">
             <use xlink:href="#icondaochu1"></use>
           </svg>
           <div class="mt-1">{{ t("导出到其他项目") }}</div>
-        </div>
+        </div> -->
       </div>
     </SFieldset>
     <SFieldset v-if="selectedType !== 'otherProject'" :title="t('额外配置')">

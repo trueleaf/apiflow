@@ -303,9 +303,7 @@ watch(() => customDateRange.value, (val) => {
     formInfo.value.endTime = val[1];
   }
 })
-onMounted(() => {
-  getOperatorEnum();
-})
+
 /*
 |--------------------------------------------------------------------------
 | 列表数据获取
@@ -365,7 +363,8 @@ watch(() => formInfo.value, () => {
   deep: true
 })
 onMounted(() => {
-  getData();
+  // getOperatorEnum();
+  // getData();
 })
 
 </script>

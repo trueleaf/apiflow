@@ -1125,10 +1125,7 @@ export type ApidocOperationRecord = {
    | 'position'
    | 'rename'
    | 'import'
-   | 'export'
-   | 'addServer'
-   | 'deleteServer'
-   | 'editServer';
+   | 'export';
    /**
     * 操作者
     */

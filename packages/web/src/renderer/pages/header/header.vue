@@ -197,7 +197,7 @@ const handleAddProject = () => window.electronAPI?.sendToMain('apiflow-topbar-cr
 const jumpToHome = () => {
   activeTabId.value = '';
   // 主进程期望接收字符串路径，不是对象
-  window.electronAPI?.sendToMain('apiflow-topbar-navigate', '/')
+  window.electronAPI?.sendToMain('apiflow-topbar-navigate', '/v1/apidoc/doc-list')
 }
 
 const jumpToUserCenter = () => {
