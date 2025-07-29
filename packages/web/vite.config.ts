@@ -11,6 +11,7 @@ import { resolve } from 'path';
 export default defineConfig(({ mode, command }) => {
   const isStandalone = mode === 'standalone'
   return {
+    base: isStandalone ? './' : '/',
     plugins: [
       viteElectronPlugin(mode, command),
       vue(),
@@ -33,7 +34,8 @@ export default defineConfig(({ mode, command }) => {
     },
     define: {
       __APP_BUILD_TIME__: JSON.stringify(dayjs().format('YYYY-MM-DD HH:mm:ss')),
-      __STANDALONE__: isStandalone
+      __STANDALONE__: isStandalone,
+      __COMMAND__: JSON.stringify(command),
     },
     optimizeDeps: {
       include: [
@@ -46,9 +48,12 @@ export default defineConfig(({ mode, command }) => {
     },
     build: {
       target: 'esnext',
+      outDir: 'dist/renderer',
+      emptyOutDir: true,
+      // root: path.resolve(__dirname, 'dist/renderer'),
       rollupOptions: {
         input: {
-          header: resolve(__dirname, './public/header.html'),
+          header: resolve(__dirname, './header.html'),
           index: resolve(__dirname, './index.html'),
         },
       },

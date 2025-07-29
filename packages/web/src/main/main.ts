@@ -54,13 +54,13 @@ const createWindow = () => {
 
   // 加载内容 - 根据 __MODE__ 变量决定加载方式
   if (__MODE__ === 'standalone' && __COMMAND__ === 'build') {
-    const headerFilePath = path.join(__dirname, '../public/header.html');
-    const indexFilePath = path.join(__dirname, '../public/index.html');
-    topBarView.webContents.loadURL(headerFilePath);
-    contentView.webContents.loadURL(indexFilePath);
+    const headerFilePath = path.join(__dirname, '../renderer/header.html');
+    const indexFilePath = path.join(__dirname, '../renderer/index.html');
+    topBarView.webContents.loadFile(headerFilePath);
+    contentView.webContents.loadFile(indexFilePath);
   } else {
     topBarView.webContents.loadURL('http://localhost:3000/header.html');
-    contentView.webContents.loadURL('http://localhost:3000');
+    contentView.webContents.loadURL('http://localhost:3000/index.html');
   }
 
   // 开发工具（可以根据需要调整）

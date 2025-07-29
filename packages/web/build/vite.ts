@@ -17,7 +17,7 @@ const buildElectron = (mode: string, command: 'build' | 'serve') => {
     entryPoints: ['./src/main/**'],
     bundle: true,
     platform: 'node',
-    outdir: 'dist',
+    outdir: 'dist/main',
     format: 'esm',
     outExtension: {
       '.js': '.mjs',
@@ -33,7 +33,7 @@ const startElectronProcess = (server: ViteDevServer,) => {
   const addressInfo = server.httpServer?.address() as AddressInfo;
   const httpAddress = `http://${addressInfo?.address}:${addressInfo?.port}`;
   processWithElectron.electronProcess?.removeAllListeners()
-  processWithElectron.electronProcess = spawn(electron.toString(), ['./dist/main.mjs', httpAddress], {
+  processWithElectron.electronProcess = spawn(electron.toString(), ['./dist/main/main.mjs', httpAddress], {
     cwd: process.cwd(),
     stdio: 'inherit',
   });

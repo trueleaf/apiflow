@@ -1,5 +1,5 @@
 {
-  "name": "@apiflow/web",
+  "name": "apiflow",
   "description": "Apiflow is a visual API design tool that allows users to create, manage, and visualize APIs in a graphical way.",
   "author": "TrueLeaf Team",
   "license": "MIT",
@@ -12,6 +12,7 @@
     "web": "vite --host -- -- web",
     "share": "vite --host --config build/share/vite.config.ts",
     "build:share": "vite build --config build/share/vite.config.ts",
+    "build:web": "vite build --mode standalone",
     "build:standalone:pack": "vite build --mode standalone && electron-builder --dir",
     "build:standalone": "vite build --mode standalone && electron-builder",
     "build:standalone:win": "vite build --mode standalone && electron-builder --win",
@@ -88,7 +89,7 @@
     "vite-plugin-singlefile": "^2.2.0",
     "vue-tsc": "^2.1.10"
   },
-  "main": "dist/main.mjs",
+  "main": "dist/main/main.mjs",
   "build": {
     "productName": "Apiflow",
     "appId": "cn.apiflow",
@@ -100,9 +101,6 @@
     },
     "files": [
       "dist/**/*",
-      "public/**/*",
-      "!public/mock-file/**/*",
-      "node_modules/**/*",
       "package.json"
     ],
     "extraResources": [

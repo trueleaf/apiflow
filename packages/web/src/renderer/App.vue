@@ -38,8 +38,6 @@ const languageMenuVisible = ref(false)
 const languageMenuPosition = ref({ x: 0, y: 0, width: 0, height: 0 })
 const currentLanguage = ref<Language>(localStorage.getItem('language') as Language || 'zh-cn')
 
-
-
 // 监听路由变化
 watch(() => router.currentRoute.value.path, (newPath) => {
   if (newPath === '/v1/apidoc/doc-edit') {
