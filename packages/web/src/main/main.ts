@@ -61,13 +61,12 @@ const createWindow = () => {
   } else {
     topBarView.webContents.loadURL('http://localhost:3000/header.html');
     contentView.webContents.loadURL('http://localhost:3000/index.html');
+    topBarView.webContents.on('did-finish-load', () => {
+      topBarView.webContents.openDevTools({ mode: 'detach' })
+    })
+    contentView.webContents.openDevTools({ mode: 'bottom' })
   }
 
-  // 开发工具（可以根据需要调整）
-  topBarView.webContents.on('did-finish-load', () => {
-    topBarView.webContents.openDevTools({ mode: 'detach' })
-  })
-  contentView.webContents.openDevTools({ mode: 'bottom' })
   return {
     mainWindow,
     topBarView,

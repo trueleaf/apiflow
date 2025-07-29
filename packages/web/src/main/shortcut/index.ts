@@ -7,13 +7,13 @@ import { BrowserWindow, globalShortcut, WebContentsView, app } from 'electron';
 class ShortcutManager {
   private mainWindow: BrowserWindow;
   private topBarView: WebContentsView;
-  private mainContentView: WebContentsView;
+  private contentView: WebContentsView;
   private isShortcutRegistered = false;
 
-  constructor(mainWindow: BrowserWindow, topBarView: WebContentsView, mainContentView: WebContentsView) {
+  constructor(mainWindow: BrowserWindow, topBarView: WebContentsView, contentView: WebContentsView) {
     this.mainWindow = mainWindow;
     this.topBarView = topBarView;
-    this.mainContentView = mainContentView;
+    this.contentView = contentView;
 
     this.setupEventListeners();
     this.setupAppExitHandler();
@@ -67,7 +67,17 @@ class ShortcutManager {
         this.handleReload(true);
       });
 
-      if (reloadSuccess && forceReloadSuccess) {
+      // 注册开发者工具快捷键 (F12)
+      const devToolsF12Success = globalShortcut.register('F12', () => {
+        this.handleToggleDevTools();
+      });
+
+      // 注册开发者工具快捷键 (Ctrl+Shift+I / Cmd+Option+I)
+      const devToolsCtrlShiftISuccess = globalShortcut.register('CommandOrControl+Shift+I', () => {
+        this.handleToggleDevTools();
+      });
+
+      if (reloadSuccess && forceReloadSuccess && devToolsF12Success && devToolsCtrlShiftISuccess) {
         this.isShortcutRegistered = true;
       } else {
         console.warn('⚠️ 部分快捷键注册失败，可能与其他应用冲突');
@@ -88,9 +98,23 @@ class ShortcutManager {
     try {
       globalShortcut.unregister('CommandOrControl+R');
       globalShortcut.unregister('CommandOrControl+Shift+R');
+      globalShortcut.unregister('F12');
+      globalShortcut.unregister('CommandOrControl+Shift+I');
       this.isShortcutRegistered = false;
     } catch (error) {
       console.error('❌ 快捷键注销失败:', error);
+    }
+  }
+
+  /**
+   * 处理开发者工具切换
+   */
+  private handleToggleDevTools() {
+    try {
+      this.contentView.webContents.openDevTools({ mode: 'detach' })
+      this.topBarView.webContents.openDevTools({ mode: 'bottom' })
+    } catch (error) {
+      console.error('❌ 开发者工具切换失败:', error);
     }
   }
 
@@ -107,7 +131,7 @@ class ShortcutManager {
         focusedView.webContents[reloadMethod]();
       } else {
         // 如果无法确定焦点视图，默认刷新主内容视图
-        this.mainContentView.webContents[reloadMethod]();
+        this.contentView.webContents[reloadMethod]();
       }
     } catch (error) {
       console.error('❌ 页面刷新失败:', error);
@@ -132,8 +156,8 @@ class ShortcutManager {
   private getFocusedView(): WebContentsView | null {
     try {
       // 检查主内容视图是否有焦点
-      if (this.mainContentView.webContents.isFocused()) {
-        return this.mainContentView;
+      if (this.contentView.webContents.isFocused()) {
+        return this.contentView;
       }
 
       // 检查顶部栏视图是否有焦点
@@ -156,7 +180,7 @@ class ShortcutManager {
    */
   public manualReload(viewType: 'topBar' | 'mainContent', ignoreCache: boolean = false) {
     try {
-      const targetView = viewType === 'topBar' ? this.topBarView : this.mainContentView;
+      const targetView = viewType === 'topBar' ? this.topBarView : this.contentView;
       const reloadMethod = ignoreCache ? 'reloadIgnoringCache' : 'reload';
 
       targetView.webContents[reloadMethod]();
@@ -166,14 +190,38 @@ class ShortcutManager {
   }
 
   /**
+   * 手动切换开发者工具
+   * @param viewType 视图类型：'topBar' | 'mainContent'
+   */
+  public manualToggleDevTools(viewType: 'topBar' | 'mainContent') {
+    try {
+      const targetView = viewType === 'topBar' ? this.topBarView : this.contentView;
+
+      if (targetView.webContents.isDevToolsOpened()) {
+        targetView.webContents.closeDevTools();
+      } else {
+        const mode = viewType === 'topBar' ? 'detach' : 'bottom';
+        targetView.webContents.openDevTools({ mode });
+      }
+    } catch (error) {
+      console.error(`❌ 手动切换${viewType}View开发者工具失败:`, error);
+    }
+  }
+
+  /**
    * 获取快捷键状态
    */
   public getStatus() {
     return {
       isRegistered: this.isShortcutRegistered,
-      shortcuts: ['CommandOrControl+R', 'CommandOrControl+Shift+R'],
+      shortcuts: [
+        'CommandOrControl+R',           // 刷新
+        'CommandOrControl+Shift+R',     // 强制刷新
+        'F12',                          // 开发者工具
+        'CommandOrControl+Shift+I'      // 开发者工具
+      ],
       focusedView: this.getFocusedView() === this.topBarView ? 'topBar' :
-                   this.getFocusedView() === this.mainContentView ? 'mainContent' : 'none'
+                   this.getFocusedView() === this.contentView ? 'mainContent' : 'none'
     };
   }
 }
@@ -185,12 +233,12 @@ let shortcutManager: ShortcutManager | null = null;
  * 绑定主进程全局快捷键
  * @param mainWindow 主窗口
  * @param topBarView 顶部栏视图
- * @param mainContentView 主内容视图
+ * @param contentView 主内容视图
  */
 export const bindMainProcessGlobalShortCut = (
   mainWindow: BrowserWindow,
   topBarView: WebContentsView,
-  mainContentView: WebContentsView
+  contentView: WebContentsView
 ) => {
   // 如果已经存在管理器，先清理
   if (shortcutManager) {
@@ -198,7 +246,7 @@ export const bindMainProcessGlobalShortCut = (
   }
 
   // 创建新的快捷键管理器
-  shortcutManager = new ShortcutManager(mainWindow, topBarView, mainContentView);
+  shortcutManager = new ShortcutManager(mainWindow, topBarView, contentView);
 
   return shortcutManager;
 };
