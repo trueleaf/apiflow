@@ -67,18 +67,12 @@ class ShortcutManager {
         this.handleReload(true);
       });
 
-      // 注册开发者工具快捷键 (F12)
-      const devToolsF12Success = globalShortcut.register('F12', () => {
-        console.log('f12')
-        this.handleToggleDevTools();
-      });
-
       // 注册开发者工具快捷键 (Ctrl+Shift+I / Cmd+Option+I)
       const devToolsCtrlShiftISuccess = globalShortcut.register('CommandOrControl+Shift+I', () => {
         this.handleToggleDevTools();
       });
 
-      if (reloadSuccess && forceReloadSuccess && devToolsF12Success && devToolsCtrlShiftISuccess) {
+      if (reloadSuccess && forceReloadSuccess && devToolsCtrlShiftISuccess) {
         this.isShortcutRegistered = true;
       } else {
         console.warn('⚠️ 部分快捷键注册失败，可能与其他应用冲突');
@@ -112,8 +106,8 @@ class ShortcutManager {
    */
   private handleToggleDevTools() {
     try {
-      this.contentView.webContents.openDevTools({ mode: 'detach' })
-      this.topBarView.webContents.openDevTools({ mode: 'bottom' })
+      this.contentView.webContents.openDevTools({ mode: 'bottom' })
+      this.topBarView.webContents.openDevTools({ mode: 'detach' })
     } catch (error) {
       console.error('❌ 开发者工具切换失败:', error);
     }

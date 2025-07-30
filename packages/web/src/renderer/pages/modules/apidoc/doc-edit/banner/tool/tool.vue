@@ -209,32 +209,13 @@ const projectName = computed(() => apidocBaseInfoStore.projectName)
 //=====================================操作相关数据====================================//
 //初始化缓存数据
 const initCacheOperation = () => {
-  const localToolbarOperations = localStorage.getItem('apidoc/toolbarOperations');
   const localPinToolbarOperations = localStorage.getItem('apidoc/pinToolbarOperations');
-  if (localToolbarOperations) {
-    const localData: Operation[] = JSON.parse(localToolbarOperations);
-    originOperaions.forEach((data) => {
-      if (isStandalone.value && data.op === 'generateLink') {
-        return;
-      }
-      //如果本地缓存数据没有当前图标则新增图标
-      if (localData.every((v: Operation) => (v.name !== data.name && v.op !== data.op))) {
-        localData.push(data);
-      }
-      const matchedData = localData.find((v: Operation) => v.name === data.name);
-      if (matchedData?.icon) {
-        matchedData.icon = data.icon;
-      }
-    })
-    operations.value = localData;
-  } else {
-    operations.value = originOperaions.filter((v) => {
-      if (isStandalone.value && v.op === 'generateLink') {
-        return false;
-      }
-      return true;
-    });
-  }
+  operations.value = originOperaions.filter((v) => {
+    if (isStandalone.value && v.op === 'generateLink') {
+      return false;
+    }
+    return true;
+  });
   if (localPinToolbarOperations) {
     const localData: Operation[] = JSON.parse(localPinToolbarOperations);
     originOperaions.forEach((data) => {
@@ -248,12 +229,6 @@ const initCacheOperation = () => {
     pinOperations.value = operations.value.filter((v) => v.pin);
   }
 }
-//缓存所有操作
-watch(operations, (v) => {
-  localStorage.setItem('apidoc/toolbarOperations', JSON.stringify(v))
-}, {
-  deep: true
-})
 //缓存工具栏操作
 watch(pinOperations, (v) => {
   localStorage.setItem('apidoc/pinToolbarOperations', JSON.stringify(v))
