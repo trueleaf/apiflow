@@ -244,7 +244,8 @@ onMounted(() => {
   window.electronAPI?.getWindowState().then((state) => {
     isMaximized.value = state.isMaximized
   })
-  tabs.value = apidocCache.getHeaderTabs()
+  tabs.value = apidocCache.getHeaderTabs();
+  activeTabId.value = apidocCache.getHeaderActiveTab();
   // 监听语言切换事件
   window.electronAPI?.onMain('apiflow-language-changed', (language: string) => {
     console.log('header', language)
