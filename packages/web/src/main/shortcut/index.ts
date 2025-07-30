@@ -69,6 +69,7 @@ class ShortcutManager {
 
       // 注册开发者工具快捷键 (F12)
       const devToolsF12Success = globalShortcut.register('F12', () => {
+        console.log('f12')
         this.handleToggleDevTools();
       });
 
@@ -123,29 +124,14 @@ class ShortcutManager {
    * @param ignoreCache 是否忽略缓存（强制刷新）
    */
   private handleReload(ignoreCache: boolean = false) {
-    try {
-      const focusedView = this.getFocusedView();
-      const reloadMethod = ignoreCache ? 'reloadIgnoringCache' : 'reload';
-
-      if (focusedView) {
-        focusedView.webContents[reloadMethod]();
-      } else {
-        // 如果无法确定焦点视图，默认刷新主内容视图
-        this.contentView.webContents[reloadMethod]();
-      }
-    } catch (error) {
-      console.error('❌ 页面刷新失败:', error);
-      // 尝试刷新整个窗口作为备选方案
-      try {
-        if (ignoreCache) {
-          this.mainWindow.webContents.reloadIgnoringCache();
-        } else {
-          this.mainWindow.reload();
-        }
-        console.log('🔄 已执行窗口级别的刷新作为备选方案');
-      } catch (fallbackError) {
-        console.error('❌ 备选刷新方案也失败:', fallbackError);
-      }
+    if (ignoreCache) {
+      this.contentView.webContents.reloadIgnoringCache();
+      this.topBarView.webContents.reloadIgnoringCache();
+      this.mainWindow.webContents.reloadIgnoringCache();
+    } else {
+      this.contentView.webContents.reload();
+      this.topBarView.webContents.reload();
+      this.mainWindow.webContents.reload();
     }
   }
 

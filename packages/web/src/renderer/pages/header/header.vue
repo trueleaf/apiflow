@@ -196,26 +196,19 @@ const handleAddProject = () => window.electronAPI?.sendToMain('apiflow-topbar-cr
 
 const jumpToHome = () => {
   activeTabId.value = '';
-  // 主进程期望接收字符串路径，不是对象
   window.electronAPI?.sendToMain('apiflow-topbar-navigate', '/v1/apidoc/doc-list')
 }
 
 const jumpToUserCenter = () => {
   const userCenterTabId = 'user-center';
-
-  // 检查是否已存在个人中心tab
   const existingTab = tabs.value.find(t => t.id === userCenterTabId);
-
   if (!existingTab) {
-    // 如果不存在，创建新的个人中心tab
     tabs.value.push({
       id: userCenterTabId,
       title: '个人中心',
       type: 'settings'
     });
   }
-
-  // 切换到个人中心tab
   switchTab(userCenterTabId);
 }
 const bindAppEvent = () => {
@@ -233,11 +226,9 @@ const bindAppEvent = () => {
       matchedProject.title = data.projectName
     }
   })
-  // 主进程发送的事件名称：apiflow-delete-project
   window.electronAPI?.onMain('apiflow-delete-project', (projectId: string) => {
     deleteTab(projectId)
   })
-  // 主进程发送的事件名称：apiflow-change-project-name
   window.electronAPI?.onMain('apiflow-change-project-name', (data: { projectId: string, projectName: string }) => {
     const index = tabs.value.findIndex(t => t.id === data.projectId)
     if (index !== -1) {
@@ -253,13 +244,7 @@ onMounted(() => {
   window.electronAPI?.getWindowState().then((state) => {
     isMaximized.value = state.isMaximized
   })
-  // // 恢复 tabs 和激活 tab
   tabs.value = apidocCache.getHeaderTabs()
-  // activeTabId.value = apidocCache.getHeaderActiveTab()
-  // const activeTab = tabs.value.find(t => t.id === activeTabId.value);
-  // if (activeTab) {
-  //   // switchTab(activeTab.id)
-  // }
   // 监听语言切换事件
   window.electronAPI?.onMain('apiflow-language-changed', (language: string) => {
     console.log('header', language)

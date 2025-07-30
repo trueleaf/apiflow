@@ -60,7 +60,7 @@ const createWindow = () => {
     contentView.webContents.loadFile(indexFilePath);
   } else {
     topBarView.webContents.loadURL('http://localhost:3000/header.html');
-    contentView.webContents.loadURL('http://localhost:3000/index.html');
+    contentView.webContents.loadURL('http://localhost:3000');
     topBarView.webContents.on('did-finish-load', () => {
       topBarView.webContents.openDevTools({ mode: 'detach' })
     })

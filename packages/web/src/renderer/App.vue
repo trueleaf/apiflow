@@ -1,7 +1,6 @@
 <template>
   <router-view></router-view>
   <AddProjectDialog v-if="dialogVisible" v-model="dialogVisible" @success="handleAddSuccess"></AddProjectDialog>
-
   <!-- 语言切换菜单组件 -->
   <LanguageMenu
     :visible="languageMenuVisible"
@@ -17,7 +16,7 @@
 <script setup lang="ts">
 import { config } from '@/../config/config';
 import { onMounted, ref, watch } from 'vue';
-import i18next, { changeLanguage } from 'i18next';
+import { changeLanguage } from 'i18next';
 import { useTranslation } from 'i18next-vue';
 import { bindGlobalShortCut } from './shortcut';
 import { useRouter } from 'vue-router';
@@ -147,7 +146,6 @@ const bindTopBarEvent = async () => {
 
   // 主进程发送的事件名称：apiflow-change-project
   window.electronAPI?.onMain('apiflow-change-project', async (data: { projectId: string, projectName: string }) => {
-    console.log('切换项目', data);
     let matchedProject = null;
     if (__STANDALONE__) {
       const projectList = await standaloneCache.getProjectList();
