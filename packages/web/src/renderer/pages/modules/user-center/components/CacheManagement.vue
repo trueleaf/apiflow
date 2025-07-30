@@ -1,12 +1,71 @@
 <template>
   <div class="cache-management">
-    <div class="statistics"></div>
+    <!-- 页面标题区域 -->
+    <div class="page-title">
+      <h2>缓存管理</h2>
+    </div>
+
+    <!-- 缓存统计区域 -->
+    <div class="statistics">
+      <!-- localStorage 缓存卡片 -->
+      <div class="cache-card">
+        <div class="card-header">
+          <div class="card-icon">
+            <i class="iconfont iconcipan"></i>
+          </div>
+          <div class="card-title">localStorage 缓存</div>
+          <div class="card-refresh">
+            <div
+              class="refresh-btn"
+              @click="getLocalStorage"
+              :disabled="localStorageSizeLoading"
+            >
+              <div :class="{ 'fresh-icon': true, 'loading': localStorageSizeLoading }">
+                <el-icon size="18"><RefreshRight /></el-icon>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="cache-size">{{ formatBytes(cacheInfo.localStroageSize) }}</div>
+          <div class="cache-count">{{ cacheInfo.localStorageDetails.length }} 项</div>
+        </div>
+      </div>
+
+      <!-- IndexedDB 缓存卡片 -->
+      <div class="cache-card">
+        <div class="card-header">
+          <div class="card-icon">
+            <i class="iconfont iconodbc"></i>
+          </div>
+          <div class="card-title">IndexedDB 缓存</div>
+          <div class="card-refresh">
+            <div
+              class="refresh-btn"
+              :class="{ loading: indexedDBSizeLoading }"
+              @click="getIndexedDB"
+              :disabled="indexedDBSizeLoading"
+            >
+               <div :class="{ 'fresh-icon': true, 'loading': indexedDBSizeLoading }">
+                <el-icon size="18"><RefreshRight /></el-icon>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="cache-size">{{ formatBytes(cacheInfo.indexedDBSize) }}</div>
+          <div class="cache-count">{{ cacheInfo.indexedDBDetails.length }} 项</div>
+        </div>
+      </div>
+    </div>
  </div>
 </template>
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { CacheInfo, LocalStorageItem, IndexedDBItem } from '@src/types/apidoc/cache'
+import { formatBytes } from '@/helper'
+import { RefreshRight } from '@element-plus/icons-vue'
 
 // 加载状态管理
 const indexedDBSizeLoading = ref(false)
@@ -210,6 +269,107 @@ onMounted(() => {
 </script>
 
 <style lang="scss" scoped>
+.cache-management {
+  padding: 20px;
 
+  .page-title {
+    margin-bottom: 24px;
 
+    h2 {
+      margin: 0;
+      font-size: 24px;
+      font-weight: 600;
+      color: #333;
+    }
+  }
+
+  .statistics {
+    display: flex;
+    gap: 20px;
+
+    .cache-card {
+      width: 250px;
+      height: 120px;
+      background: #fff;
+      border-radius: 8px;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+
+      .card-header {
+        display: flex;
+        align-items: center;
+        // margin-bottom: 16px;
+
+        .card-icon {
+          margin-right: 8px;
+
+          .iconfont {
+            font-size: 18px;
+            color: #409eff;
+          }
+        }
+
+        .card-title {
+          flex: 1;
+          font-size: 14px;
+          font-weight: 500;
+          color: #333;
+        }
+
+        .card-refresh {
+          .refresh-btn {
+            width: 24px;
+            height: 24px;
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            .fresh-icon {
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              padding: 3px;
+              &:hover {
+                background: #eee;
+              }
+              &.loading {
+                animation: spin 1s linear infinite;
+              }
+            }
+          }
+        }
+      }
+
+      .card-body {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+
+        .cache-size {
+          font-size: 28px;
+          font-weight: 600;
+          color: #409eff;
+          margin-bottom: 8px;
+          line-height: 1;
+        }
+
+        .cache-count {
+          font-size: 14px;
+          color: #666;
+        }
+      }
+    }
+  }
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
 </style>
