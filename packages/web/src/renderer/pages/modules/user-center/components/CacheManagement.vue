@@ -28,7 +28,7 @@
         </div>
         <div class="card-body">
           <div class="cache-size">{{ formatBytes(cacheInfo.localStroageSize) }}</div>
-          <div class="cache-count">{{ cacheInfo.localStorageDetails.length }} 项</div>
+          <!-- <div class="cache-count">{{ cacheInfo.localStorageDetails.length }} 项</div> -->
         </div>
       </div>
 
@@ -54,7 +54,14 @@
         </div>
         <div class="card-body">
           <div class="cache-size">{{ formatBytes(cacheInfo.indexedDBSize) }}</div>
-          <div class="cache-count">{{ cacheInfo.indexedDBDetails.length }} 项</div>
+          <!-- <div class="cache-count">{{ cacheInfo.indexedDBDetails.length }} 项</div> -->
+          <!-- 进度显示 -->
+          <div v-if="indexedDBSizeLoading && indexedDBProgress > 0" class="progress-info">
+            <div class="progress-bar">
+              <div class="progress-fill" :style="{ width: indexedDBProgress + '%' }"></div>
+            </div>
+            <div class="progress-text"> ({{ indexedDBProgress }}%)</div>
+          </div>
         </div>
       </div>
     </div>
@@ -62,14 +69,20 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
-import { CacheInfo, LocalStorageItem, IndexedDBItem } from '@src/types/apidoc/cache'
+import { ref, onMounted, onUnmounted } from 'vue'
+import { CacheInfo, LocalStorageItem } from '@src/types/apidoc/cache'
 import { formatBytes } from '@/helper'
 import { RefreshRight } from '@element-plus/icons-vue'
+import { indexedDBWorkerManager } from '@/utils/utils'
+import { CacheManageProgressUpdateData, CacheManageErrorData, CacheManageIndexedDBResult } from '@src/types/apidoc/worker'
 
 // 加载状态管理
 const indexedDBSizeLoading = ref(false)
 const localStorageSizeLoading = ref(false)
+
+// IndexedDB 进度状态
+const indexedDBProgress = ref(0)
+const indexedDBStatus = ref('')
 
 // 缓存信息数据
 const cacheInfo = ref<CacheInfo>({
@@ -142,118 +155,59 @@ const getLocalStorage = () => {
   }
 }
 
-//获取 IndexedDB 缓存信息
+//获取 IndexedDB 缓存信息 (使用 Web Worker)
 const getIndexedDB = async () => {
   indexedDBSizeLoading.value = true
+  indexedDBProgress.value = 0
+  indexedDBStatus.value = '初始化中...'
 
   try {
-    let totalSize = 0
-    const details: IndexedDBItem[] = []
-
-    // 获取所有 IndexedDB 数据库
-    const databases = await indexedDB.databases()
-
-    // 遍历每个数据库
-    for (const dbInfo of databases) {
-      if (!dbInfo.name) continue
-
-      try {
-        // 打开数据库连接
-        const db = await new Promise<IDBDatabase>((resolve, reject) => {
-          const request = indexedDB.open(dbInfo.name!, dbInfo.version)
-          request.onsuccess = () => resolve(request.result)
-          request.onerror = () => reject(request.error)
-          request.onblocked = () => reject(new Error('数据库被阻塞'))
-        })
-
-        // 遍历数据库中的所有对象存储
-        const storeNames = Array.from(db.objectStoreNames)
-
-        for (const storeName of storeNames) {
-          try {
-            // 创建事务并获取对象存储
-            const transaction = db.transaction([storeName], 'readonly')
-            const store = transaction.objectStore(storeName)
-
-            // 获取所有数据
-            const allData = await new Promise<any[]>((resolve, reject) => {
-              const request = store.getAll()
-              request.onsuccess = () => resolve(request.result || [])
-              request.onerror = () => reject(request.error)
-            })
-
-            // 计算当前对象存储的数据大小
-            let storeSize = 0
-            for (const data of allData) {
-              // 将数据序列化为 JSON 字符串并计算字节大小
-              const jsonString = JSON.stringify(data)
-              storeSize += new Blob([jsonString]).size
-            }
-
-            totalSize += storeSize
-
-            // 生成中文描述信息
-            let description = '未知数据库存储'
-            const dbName = dbInfo.name
-
-            if (dbName === 'standaloneCache') {
-              // 独立缓存数据库
-              if (storeName === 'projects') {
-                description = '项目信息缓存存储'
-              } else if (storeName === 'docs') {
-                description = 'API文档数据缓存存储'
-              } else if (storeName === 'commonHeaders') {
-                description = '通用请求头缓存存储'
-              } else if (storeName === 'rules') {
-                description = '项目规则配置缓存存储'
-              } else if (storeName === 'variables') {
-                description = '项目变量缓存存储'
-              } else {
-                description = `独立缓存-${storeName}存储`
-              }
-            } else if (dbName === 'apiflowResponseCache') {
-              // API 响应缓存数据库
-              if (storeName === 'responseCache') {
-                description = '响应结果缓存存储'
-              } else {
-                description = `API响应缓存-${storeName}存储`
-              }
-            }else {
-              description = `${dbName}-${storeName}存储`
-            }
-
-            // 添加到详细信息列表
-            details.push({
-              name: `${dbName}/${storeName}`,
-              size: storeSize,
-              description
-            })
-
-          } catch (storeError) {
-            console.warn(`获取对象存储 ${storeName} 数据失败:`, storeError)
-          }
-        }
-        // 关闭数据库连接
-        db.close()
-      } catch (dbError) {
-        console.warn(`打开数据库 ${dbInfo.name} 失败:`, dbError)
-      }
+    // 确保 Worker 已初始化
+    if (!indexedDBWorkerManager.ready) {
+      await indexedDBWorkerManager.init()
     }
 
-    // 按大小降序排序，方便查看占用空间最大的存储
-    details.sort((a, b) => b.size - a.size)
+    // 设置 Worker 回调
+    indexedDBWorkerManager.setCallbacks({
+      onProgress: (data: CacheManageProgressUpdateData) => {
+        indexedDBProgress.value = data.progress
+        indexedDBStatus.value = data.status
+      },
+      onError: (data: CacheManageErrorData) => {
+        console.error('IndexedDB Worker 错误:', data.message)
+        if (data.stack) {
+          console.error('错误堆栈:', data.stack)
+        }
+        // 发生错误时重置数据
+        cacheInfo.value.indexedDBSize = 0
+        cacheInfo.value.indexedDBDetails = []
+        indexedDBSizeLoading.value = false
+      },
+      onResult: (data: CacheManageIndexedDBResult) => {
+        // 更新缓存信息
+        cacheInfo.value.indexedDBSize = data.totalSize
+        cacheInfo.value.indexedDBDetails = data.details.map((item: {name: string, size: number, description: string}) => ({
+          name: item.name,
+          size: item.size,
+          description: item.description
+        }))
+        indexedDBSizeLoading.value = false
+        indexedDBProgress.value = 100
+        indexedDBStatus.value = '完成'
+      }
+    })
 
-    // 更新缓存信息
-    cacheInfo.value.indexedDBSize = totalSize
-    cacheInfo.value.indexedDBDetails = details
+    // 开始获取数据
+    await indexedDBWorkerManager.getIndexedDBData()
 
   } catch (error) {
     console.error('获取 IndexedDB 缓存信息失败:', error)
     // 发生错误时重置数据
     cacheInfo.value.indexedDBSize = 0
     cacheInfo.value.indexedDBDetails = []
-  } finally {
     indexedDBSizeLoading.value = false
+    indexedDBProgress.value = 0
+    indexedDBStatus.value = '获取失败'
   }
 }
 
@@ -262,9 +216,20 @@ const getIndexedDB = async () => {
 | 组件生命周期
 |--------------------------------------------------------------------------
 */
-onMounted(() => {
+onMounted(async () => {
   getLocalStorage()
-  getIndexedDB()
+
+  // 初始化 IndexedDB Worker
+  try {
+    await indexedDBWorkerManager.init()
+  } catch (error) {
+    console.error('初始化 IndexedDB Worker 失败:', error)
+  }
+})
+
+onUnmounted(() => {
+  // 清理 Worker 资源
+  indexedDBWorkerManager.destroy()
 })
 </script>
 
@@ -300,7 +265,7 @@ onMounted(() => {
       .card-header {
         display: flex;
         align-items: center;
-        // margin-bottom: 16px;
+        margin-bottom: 5px;
 
         .card-icon {
           margin-right: 8px;
@@ -313,8 +278,8 @@ onMounted(() => {
 
         .card-title {
           flex: 1;
-          font-size: 14px;
-          font-weight: 500;
+          font-size: 16px;
+          font-weight: bolder;
           color: #333;
         }
 
@@ -335,7 +300,10 @@ onMounted(() => {
               justify-content: center;
               padding: 3px;
               &:hover {
-                background: #eee;
+                background-color: #eee;
+              }
+              &.loading:hover {
+                background-color: inherit;
               }
               &.loading {
                 animation: spin 1s linear infinite;
@@ -362,6 +330,31 @@ onMounted(() => {
         .cache-count {
           font-size: 14px;
           color: #666;
+        }
+
+        .progress-info {
+          margin-top: 8px;
+
+          .progress-bar {
+            width: 100%;
+            height: 4px;
+            background-color: #f0f0f0;
+            border-radius: 2px;
+            overflow: hidden;
+            margin-bottom: 4px;
+
+            .progress-fill {
+              height: 100%;
+              background-color: #409eff;
+              transition: width 0.3s ease;
+            }
+          }
+
+          .progress-text {
+            font-size: 12px;
+            color: #666;
+            text-align: center;
+          }
         }
       }
     }

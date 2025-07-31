@@ -8,6 +8,14 @@ import {
 import Mock from "../../mock/mock";
 import { ApidocVariable, SandboxPostMessage } from "@src/types/global";
 import SandboxWorker from "@/worker/sandbox.ts?worker&inline";
+import type {
+  CacheManageWorkerCallbacks,
+  CacheManageWorkerMessage,
+  CacheManageProgressUpdateData,
+  CacheManageErrorData,
+  CacheManageIndexedDBResult
+} from '@src/types/apidoc/worker'
+
 
 export const isElectron = () => {
   if (
@@ -373,3 +381,132 @@ export const parseChunkList = (chunkList: ChunkWithTimestampe[]): ParsedSSeData[
 
   return parsedData;
 };
+
+
+export class IndexedDBWorkerManager {
+  private worker: Worker | null = null
+  private isReady = false
+  private callbacks: CacheManageWorkerCallbacks = {}
+
+  /**
+   * 初始化 Worker
+   */
+  async init(): Promise<void> {
+    if (this.worker) {
+      return // 已经初始化
+    }
+
+    return new Promise((resolve, reject) => {
+      try {
+        // 创建 Worker 实例
+        this.worker = new Worker(
+          new URL('../worker/indexedDB.ts', import.meta.url),
+          { type: 'module' }
+        )
+
+        // 监听 Worker 消息
+        this.worker.onmessage = (event: MessageEvent<CacheManageWorkerMessage>) => {
+          this.handleWorkerMessage(event.data)
+        }
+
+        // 监听 Worker 错误
+        this.worker.onerror = (error) => {
+          console.error('IndexedDB Worker 错误:', error)
+          reject(new Error(`Worker 初始化失败: ${error.message}`))
+        }
+
+        // 等待 Worker 准备就绪
+        const readyTimeout = setTimeout(() => {
+          reject(new Error('Worker 初始化超时'))
+        }, 10000) // 10秒超时
+
+        this.callbacks.onReady = () => {
+          clearTimeout(readyTimeout)
+          this.isReady = true
+          resolve()
+        }
+
+      } catch (error) {
+        reject(error)
+      }
+    })
+  }
+
+  /**
+   * 处理 Worker 消息
+   */
+  private handleWorkerMessage(message: CacheManageWorkerMessage): void {
+    const { type } = message
+
+    switch (type) {
+      case 'workerReady':
+        this.callbacks.onReady?.()
+        break
+
+      case 'progressUpdate':
+        if ('data' in message) {
+          this.callbacks.onProgress?.(message.data as CacheManageProgressUpdateData)
+        }
+        break
+
+      case 'error':
+        if ('data' in message) {
+          this.callbacks.onError?.(message.data as CacheManageErrorData)
+        }
+        break
+
+      case 'dataResult':
+        if ('data' in message) {
+          this.callbacks.onResult?.(message.data as CacheManageIndexedDBResult)
+        }
+        break
+
+      default:
+        console.warn('未知的 Worker 消息类型:', type)
+    }
+  }
+
+  /**
+   * 设置回调函数
+   */
+  setCallbacks(callbacks: CacheManageWorkerCallbacks): void {
+    this.callbacks = { ...this.callbacks, ...callbacks }
+  }
+
+  /**
+   * 获取 IndexedDB 数据
+   */
+  async getIndexedDBData(): Promise<void> {
+    if (!this.worker || !this.isReady) {
+      throw new Error('Worker 未初始化或未准备就绪')
+    }
+
+    // 发送获取数据的消息
+    this.worker.postMessage({
+      type: 'getIndexedDBData',
+      data: {}
+    })
+  }
+
+  /**
+   * 销毁 Worker
+   */
+  destroy(): void {
+    if (this.worker) {
+      this.worker.terminate()
+      this.worker = null
+      this.isReady = false
+      this.callbacks = {} as CacheManageWorkerCallbacks
+    }
+  }
+
+  /**
+   * 检查 Worker 是否准备就绪
+   */
+  get ready(): boolean {
+    return this.isReady
+  }
+}
+
+// 创建单例实例
+export const indexedDBWorkerManager = new IndexedDBWorkerManager()
