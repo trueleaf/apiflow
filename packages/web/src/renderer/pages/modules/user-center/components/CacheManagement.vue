@@ -28,7 +28,6 @@
         </div>
         <div class="card-body">
           <div class="cache-size">{{ formatBytes(cacheInfo.localStroageSize) }}</div>
-          <!-- <div class="cache-count">{{ cacheInfo.localStorageDetails.length }} 项</div> -->
         </div>
       </div>
 
@@ -53,36 +52,28 @@
           </div>
         </div>
         <div class="card-body">
-          <div class="cache-size">{{ formatBytes(cacheInfo.indexedDBSize) }}</div>
-          <!-- <div class="cache-count">{{ cacheInfo.indexedDBDetails.length }} 项</div> -->
-          <!-- 进度显示 -->
-          <div v-if="indexedDBSizeLoading && indexedDBProgress > 0" class="progress-info">
-            <div class="progress-bar">
-              <div class="progress-fill" :style="{ width: indexedDBProgress + '%' }"></div>
-            </div>
-            <div class="progress-text"> ({{ indexedDBProgress }}%)</div>
-          </div>
+          <div class="cache-size">{{ formatBytes(indexedDBDataSize === -1 ? 0 : indexedDBDataSize) }}</div>
         </div>
+        <div v-if="!indexedDBSizeLoading && indexedDBDataSize === -1" class="gray-500" @click="getIndexedDB">点击计算缓存大小</div>
+        <div v-if="indexedDBSizeLoading" class="gray-500">计算中...</div>
       </div>
     </div>
  </div>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from 'vue'
+import { ref, onMounted } from 'vue'
 import { CacheInfo, LocalStorageItem } from '@src/types/apidoc/cache'
 import { formatBytes } from '@/helper'
 import { RefreshRight } from '@element-plus/icons-vue'
-import { indexedDBWorkerManager } from '@/utils/utils'
-import { CacheManageProgressUpdateData, CacheManageErrorData, CacheManageIndexedDBResult } from '@src/types/apidoc/worker'
 
 // 加载状态管理
 const indexedDBSizeLoading = ref(false)
 const localStorageSizeLoading = ref(false)
 
-// IndexedDB 进度状态
-const indexedDBProgress = ref(0)
-const indexedDBStatus = ref('')
+// IndexedDB
+const indexedDBDataSize = ref(-1)
+const indexedDBWorkerRef = ref<Worker | null>(null)
 
 // 缓存信息数据
 const cacheInfo = ref<CacheInfo>({
@@ -157,57 +148,23 @@ const getLocalStorage = () => {
 
 //获取 IndexedDB 缓存信息 (使用 Web Worker)
 const getIndexedDB = async () => {
-  indexedDBSizeLoading.value = true
-  indexedDBProgress.value = 0
-  indexedDBStatus.value = '初始化中...'
-
-  try {
-    // 确保 Worker 已初始化
-    if (!indexedDBWorkerManager.ready) {
-      await indexedDBWorkerManager.init()
+  if (!indexedDBWorkerRef.value || indexedDBSizeLoading.value) {
+    return
+  }
+  indexedDBWorkerRef.value.postMessage({
+    type: 'getIndexedDBData'
+  })
+  indexedDBSizeLoading.value = true;
+  indexedDBWorkerRef.value.onmessage = (event) => {
+    const { data } = event
+    if (data.type === 'changeStatus') {
+      indexedDBDataSize.value = data.data.size
+    }  else if (data.type === 'finish') {
+      indexedDBSizeLoading.value = false
+    } else if (data.type === 'error') {
+      console.error(data.error)
+      indexedDBSizeLoading.value = false
     }
-
-    // 设置 Worker 回调
-    indexedDBWorkerManager.setCallbacks({
-      onProgress: (data: CacheManageProgressUpdateData) => {
-        indexedDBProgress.value = data.progress
-        indexedDBStatus.value = data.status
-      },
-      onError: (data: CacheManageErrorData) => {
-        console.error('IndexedDB Worker 错误:', data.message)
-        if (data.stack) {
-          console.error('错误堆栈:', data.stack)
-        }
-        // 发生错误时重置数据
-        cacheInfo.value.indexedDBSize = 0
-        cacheInfo.value.indexedDBDetails = []
-        indexedDBSizeLoading.value = false
-      },
-      onResult: (data: CacheManageIndexedDBResult) => {
-        // 更新缓存信息
-        cacheInfo.value.indexedDBSize = data.totalSize
-        cacheInfo.value.indexedDBDetails = data.details.map((item: {name: string, size: number, description: string}) => ({
-          name: item.name,
-          size: item.size,
-          description: item.description
-        }))
-        indexedDBSizeLoading.value = false
-        indexedDBProgress.value = 100
-        indexedDBStatus.value = '完成'
-      }
-    })
-
-    // 开始获取数据
-    await indexedDBWorkerManager.getIndexedDBData()
-
-  } catch (error) {
-    console.error('获取 IndexedDB 缓存信息失败:', error)
-    // 发生错误时重置数据
-    cacheInfo.value.indexedDBSize = 0
-    cacheInfo.value.indexedDBDetails = []
-    indexedDBSizeLoading.value = false
-    indexedDBProgress.value = 0
-    indexedDBStatus.value = '获取失败'
   }
 }
 
@@ -218,19 +175,9 @@ const getIndexedDB = async () => {
 */
 onMounted(async () => {
   getLocalStorage()
-
-  // 初始化 IndexedDB Worker
-  try {
-    await indexedDBWorkerManager.init()
-  } catch (error) {
-    console.error('初始化 IndexedDB Worker 失败:', error)
-  }
+  indexedDBWorkerRef.value = new Worker(new URL('@/worker/indexedDB.ts', import.meta.url), { type: 'module' })
 })
 
-onUnmounted(() => {
-  // 清理 Worker 资源
-  indexedDBWorkerManager.destroy()
-})
 </script>
 
 <style lang="scss" scoped>
@@ -254,13 +201,11 @@ onUnmounted(() => {
 
     .cache-card {
       width: 250px;
-      height: 120px;
+      height: 110px;
       background: #fff;
       border-radius: 8px;
       box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
       padding: 16px;
-      display: flex;
-      flex-direction: column;
 
       .card-header {
         display: flex;
@@ -278,7 +223,7 @@ onUnmounted(() => {
 
         .card-title {
           flex: 1;
-          font-size: 16px;
+          font-size: 17px;
           font-weight: bolder;
           color: #333;
         }
@@ -314,47 +259,15 @@ onUnmounted(() => {
       }
 
       .card-body {
-        flex: 1;
         display: flex;
         flex-direction: column;
         justify-content: center;
-
+        height: 40px;
         .cache-size {
           font-size: 28px;
           font-weight: 600;
           color: #409eff;
-          margin-bottom: 8px;
           line-height: 1;
-        }
-
-        .cache-count {
-          font-size: 14px;
-          color: #666;
-        }
-
-        .progress-info {
-          margin-top: 8px;
-
-          .progress-bar {
-            width: 100%;
-            height: 4px;
-            background-color: #f0f0f0;
-            border-radius: 2px;
-            overflow: hidden;
-            margin-bottom: 4px;
-
-            .progress-fill {
-              height: 100%;
-              background-color: #409eff;
-              transition: width 0.3s ease;
-            }
-          }
-
-          .progress-text {
-            font-size: 12px;
-            color: #666;
-            text-align: center;
-          }
         }
       }
     }
