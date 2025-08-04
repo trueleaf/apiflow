@@ -58,14 +58,62 @@
         <div v-if="indexedDBSizeLoading" class="gray-500">计算中...</div>
       </div>
     </div>
+
+    <!-- IndexedDB 详情表格 -->
+    <div class="indexeddb-table-container">
+      <div class="table-title">
+        <h3>IndexedDB 缓存详情</h3>
+      </div>
+      <el-table :data="cacheInfo.indexedDBDetails" border>
+        <el-table-column prop="description" label="描述" />
+        <el-table-column prop="dbName" label="数据库名称"  />
+        <el-table-column prop="storeName" label="存储名称" />
+        <el-table-column prop="size" label="大小">
+          <template #default="scope">
+            
+            {{ formatBytes(scope.row.size) }}
+          </template>
+
+        </el-table-column>
+        <el-table-column label="操作" width="150" fixed="right">
+          <template #default="scope">
+            <el-button link @click="handleViewDetail(scope.row)">{{ $t('详情') }}</el-button>
+            <el-button link type="danger" @click="handleDelete(scope.row)">{{ $t('删除') }}</el-button>
+          </template>
+        </el-table-column>
+      </el-table>
+    </div>
+
+    <!-- 空数据提示 -->
+    <div v-if="!indexedDBSizeLoading && cacheInfo.indexedDBDetails.length === 0 && cacheInfo.indexedDBSize !== -1" class="empty-data">
+      <div class="empty-text">暂无数据</div>
+    </div>
+
+    <!-- 详情模态框 -->
+    <el-dialog
+      v-model="detailDialogVisible"
+      title="详情信息"
+      width="600px"
+      :before-close="handleCloseDetail"
+    >
+      <div class="detail-content">
+        详情内容待实现
+      </div>
+      <template #footer>
+        <span class="dialog-footer">
+          <el-button @click="handleCloseDetail">关闭</el-button>
+        </span>
+      </template>
+    </el-dialog>
  </div>
 </template>
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import { CacheInfo, LocalStorageItem } from '@src/types/apidoc/cache'
+import { CacheInfo, LocalStorageItem, IndexedDBItem } from '@src/types/apidoc/cache'
 import { formatBytes } from '@/helper'
 import { RefreshRight } from '@element-plus/icons-vue'
+import { ElMessageBox } from 'element-plus'
 
 // 加载状态管理
 const indexedDBSizeLoading = ref(false)
@@ -73,6 +121,9 @@ const localStorageSizeLoading = ref(false)
 
 // IndexedDB
 const indexedDBWorkerRef = ref<Worker | null>(null)
+
+// 模态框状态管理
+const detailDialogVisible = ref(false)
 
 // 缓存信息数据
 const cacheInfo = ref<CacheInfo>({
@@ -170,6 +221,37 @@ const getIndexedDB = async () => {
 
 /*
 |--------------------------------------------------------------------------
+| IndexedDB 表格操作函数
+|--------------------------------------------------------------------------
+*/
+// 查看详情
+const handleViewDetail = (row: IndexedDBItem): void => {
+  detailDialogVisible.value = true
+}
+
+// 删除操作
+const handleDelete = async (row: IndexedDBItem): Promise<void> => {
+  try {
+    await ElMessageBox.confirm('确定要删除这条数据吗？', '提示', {
+      confirmButtonText: '确定',
+      cancelButtonText: '取消',
+      type: 'warning'
+    })
+
+    // 仅在控制台打印被删除的数据，不实际删除
+    console.log('删除的数据:', row)
+  } catch {
+    // 用户取消删除操作，不做任何处理
+  }
+}
+
+// 关闭详情模态框
+const handleCloseDetail = (): void => {
+  detailDialogVisible.value = false
+}
+
+/*
+|--------------------------------------------------------------------------
 | 组件生命周期
 |--------------------------------------------------------------------------
 */
@@ -183,7 +265,8 @@ onMounted(async () => {
 <style lang="scss" scoped>
 .cache-management {
   padding: 20px;
-
+  width: 70%;
+  margin: 0 auto;
   .page-title {
     margin-bottom: 24px;
 
@@ -270,6 +353,36 @@ onMounted(async () => {
           line-height: 1;
         }
       }
+    }
+  }
+
+  // IndexedDB 表格容器
+  .indexeddb-table-container {
+    margin-top: 24px;
+    background: #fff;
+    .table-title {
+      margin-bottom: 16px;
+      h3 {
+        margin: 0;
+        font-size: 18px;
+        font-weight: 600;
+        color: #333;
+      }
+    }
+  }
+
+  // 空数据提示
+  .empty-data {
+    margin-top: 24px;
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    padding: 40px 20px;
+    text-align: center;
+
+    .empty-text {
+      font-size: 16px;
+      color: #999;
     }
   }
 }

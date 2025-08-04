@@ -27,10 +27,10 @@ const getIndexedDBData = async (): Promise<void> => {
       const db = await openDB(dbName)
       if (!db) return;
       const storeNames = Array.from(db.objectStoreNames);
-      let storeSize = 0;
       try {
         for(let i = 0; i < storeNames.length; i ++) {
           const storeName = storeNames[i]
+          let storeSize = 0;
           let cursor = await db.transaction(storeName).store.openCursor();
           while (cursor) {
             const jsonString = JSON.stringify(cursor!.value);
@@ -56,7 +56,6 @@ const getIndexedDBData = async (): Promise<void> => {
       } finally {
         db.close();
       } 
-      console.log(storeNames)
     }
     self.postMessage({
       type: 'finish',
