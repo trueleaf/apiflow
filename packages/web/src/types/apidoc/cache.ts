@@ -13,7 +13,8 @@ export type IndexedDBItem = {
    * 描述信息
    */
   description: string;
-  name: string;
+  storeName: string;
+  dbName: string;
   size: number;
 }
 export type CacheInfo = {

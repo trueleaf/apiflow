@@ -52,9 +52,9 @@
           </div>
         </div>
         <div class="card-body">
-          <div class="cache-size">{{ formatBytes(indexedDBDataSize === -1 ? 0 : indexedDBDataSize) }}</div>
+          <div class="cache-size">{{ formatBytes(cacheInfo.indexedDBSize === -1 ? 0 : cacheInfo.indexedDBSize) }}</div>
         </div>
-        <div v-if="!indexedDBSizeLoading && indexedDBDataSize === -1" class="gray-500" @click="getIndexedDB">点击计算缓存大小</div>
+        <div v-if="!indexedDBSizeLoading && cacheInfo.indexedDBSize === -1" class="gray-500" @click="getIndexedDB">点击计算缓存大小</div>
         <div v-if="indexedDBSizeLoading" class="gray-500">计算中...</div>
       </div>
     </div>
@@ -72,13 +72,12 @@ const indexedDBSizeLoading = ref(false)
 const localStorageSizeLoading = ref(false)
 
 // IndexedDB
-const indexedDBDataSize = ref(-1)
 const indexedDBWorkerRef = ref<Worker | null>(null)
 
 // 缓存信息数据
 const cacheInfo = ref<CacheInfo>({
   localStroageSize: 0,
-  indexedDBSize: 0,
+  indexedDBSize: -1,
   localStorageDetails: [],
   indexedDBDetails: []
 })
@@ -158,9 +157,10 @@ const getIndexedDB = async () => {
   indexedDBWorkerRef.value.onmessage = (event) => {
     const { data } = event
     if (data.type === 'changeStatus') {
-      indexedDBDataSize.value = data.data.size
+      cacheInfo.value.indexedDBSize = data.data.size;
     }  else if (data.type === 'finish') {
-      indexedDBSizeLoading.value = false
+      indexedDBSizeLoading.value = false;
+      cacheInfo.value.indexedDBDetails = data.data;
     } else if (data.type === 'error') {
       console.error(data.error)
       indexedDBSizeLoading.value = false
