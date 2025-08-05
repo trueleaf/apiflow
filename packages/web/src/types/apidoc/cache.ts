@@ -17,6 +17,19 @@ export type IndexedDBItem = {
   dbName: string;
   size: number;
 }
+export type StoreDetailItem = {
+  key: string;
+  value: unknown;
+  size: number;
+}
+
+export type StoreDetailResponse = {
+  data: StoreDetailItem[];
+  total: number;
+  currentPage: number;
+  pageSize: number;
+}
+
 export type CacheInfo = {
   localStroageSize: number;
   indexedDBSize: number;

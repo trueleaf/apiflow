@@ -5,7 +5,7 @@
 </template>
 
 <script setup lang="ts">
-import CacheManagement from './components/CacheManagement.vue'
+import CacheManagement from './cacheManager/CacheManagement.vue'
 
 </script>
 

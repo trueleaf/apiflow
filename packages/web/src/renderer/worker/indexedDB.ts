@@ -1,10 +1,38 @@
-import { IndexedDBItem } from '@src/types/apidoc/cache.ts';
+import { getObjectSize } from '@/helper/index.ts';
+import { IndexedDBItem, StoreDetailItem, StoreDetailResponse } from '@src/types/apidoc/cache.ts';
 import { openDB } from 'idb';
 
 
 export type CacheManageWorkerGetIndexedDBData = {
   type: 'getIndexedDBData';
 };
+
+export type CacheManageWorkerGetStoreDetail = {
+  type: 'getStoreDetail';
+  dbName: string;
+  storeName: string;
+  pageNum: number;
+  pageSize: number;
+};
+
+export type CacheManageWorkerDeleteStore = {
+  type: 'deleteStore';
+  dbName: string;
+  storeName: string;
+};
+
+export type CacheManageWorkerDeleteStoreItem = {
+  type: 'deleteStoreItem';
+  dbName: string;
+  storeName: string;
+  key: string;
+};
+
+export type CacheManageWorkerMessage =
+  | CacheManageWorkerGetIndexedDBData
+  | CacheManageWorkerGetStoreDetail
+  | CacheManageWorkerDeleteStore
+  | CacheManageWorkerDeleteStoreItem;
 const storeNameMap: Record<string, string> = {
   "responseCache": "返回值缓存",
   "commonHeaders": "公共请求头缓存",
@@ -33,8 +61,23 @@ const getIndexedDBData = async (): Promise<void> => {
           let storeSize = 0;
           let cursor = await db.transaction(storeName).store.openCursor();
           while (cursor) {
-            const jsonString = JSON.stringify(cursor!.value);
-            const jsonSize = new Blob([jsonString]).size
+            // if (storeName === 'responseCache') {
+            //   totalSize += (cursor.value.size || 0);
+            //   storeSize += (cursor.value.size || 0);
+            //   console.log(cursor.value.size, 22)
+            //   cursor = await cursor.continue();
+            //   self.postMessage({
+            //     type: 'changeStatus',
+            //     data: {
+            //       storeName,
+            //       size: totalSize,
+            //     }
+            //   });
+            // } else {
+            // }
+            // const jsonString = JSON.stringify(cursor!.value);
+            // const jsonSize = new Blob([jsonString]).size
+            const jsonSize = getObjectSize(cursor.value);
             totalSize += jsonSize;
             storeSize += jsonSize;
             cursor = await cursor.continue();
@@ -70,10 +113,162 @@ const getIndexedDBData = async (): Promise<void> => {
   }
 };
 
+/*
+|--------------------------------------------------------------------------
+| 获取指定store的详细数据（分页）
+|--------------------------------------------------------------------------
+*/
+const getStoreDetail = async (dbName: string, storeName: string, pageNum: number, pageSize: number): Promise<void> => {
+  try {
+    const db = await openDB(dbName);
+    if (!db) {
+      self.postMessage({
+        type: 'error',
+        error: new Error(`无法打开数据库: ${dbName}`)
+      });
+      return;
+    }
+
+    try {
+      const transaction = db.transaction(storeName, 'readonly');
+      const store = transaction.store;
+
+      // 获取所有数据
+      const allData: StoreDetailItem[] = [];
+      let cursor = await store.openCursor();
+
+      while (cursor) {
+        const key = cursor.key as string;
+        const value = cursor.value;
+        allData.push({
+          key,
+          value,
+          size: 0
+        });
+        cursor = await cursor.continue();
+      }
+
+      // 计算分页数据
+      const total = allData.length;
+      const startIndex = (pageNum - 1) * pageSize;
+      const endIndex = startIndex + pageSize;
+      const data = allData.slice(startIndex, endIndex);
+      const response: StoreDetailResponse = {
+        data,
+        total,
+        currentPage: pageNum,
+        pageSize
+      };
+
+      self.postMessage({
+        type: 'storeDetailResult',
+        data: response
+      });
+
+    } finally {
+      db.close();
+    }
+  } catch (error) {
+    self.postMessage({
+      type: 'error',
+      error: error
+    });
+    console.error('获取store详情失败:', error);
+  }
+};
+
+/*
+|--------------------------------------------------------------------------
+| 删除指定的store
+|--------------------------------------------------------------------------
+*/
+const deleteStore = async (dbName: string, storeName: string): Promise<void> => {
+  try {
+    const db = await openDB(dbName);
+    if (!db) {
+      self.postMessage({
+        type: 'error',
+        error: new Error(`无法打开数据库: ${dbName}`)
+      });
+      return;
+    }
+
+    try {
+      const transaction = db.transaction(storeName, 'readwrite');
+      const store = transaction.store;
+
+      // 清空store中的所有数据
+      await store.clear();
+      await transaction.done;
+
+      self.postMessage({
+        type: 'deleteStoreResult',
+        data: { success: true, dbName, storeName }
+      });
+
+    } finally {
+      db.close();
+    }
+  } catch (error) {
+    self.postMessage({
+      type: 'error',
+      error: error
+    });
+    console.error('删除store失败:', error);
+  }
+};
+
+// 删除store中的单个数据项
+const deleteStoreItem = async (dbName: string, storeName: string, key: string): Promise<void> => {
+  try {
+    const db = await openDB(dbName);
+    if (!db) {
+      throw new Error(`无法打开数据库: ${dbName}`);
+    }
+
+    if (!db.objectStoreNames.contains(storeName)) {
+      throw new Error(`数据库 ${dbName} 中不存在存储 ${storeName}`);
+    }
+
+    try {
+      const transaction = db.transaction(storeName, 'readwrite');
+      const store = transaction.store;
+
+      // 删除指定key的数据
+      await store.delete(key);
+      await transaction.done;
+
+      self.postMessage({
+        type: 'deleteStoreItemResult',
+        data: { success: true, dbName, storeName, key }
+      });
+
+    } finally {
+      db.close();
+    }
+  } catch (error) {
+    self.postMessage({
+      type: 'error',
+      error: error
+    });
+    console.error('删除数据项失败:', error);
+  }
+};
+
 // 监听主线程消息
-self.addEventListener('message', (event: MessageEvent<CacheManageWorkerGetIndexedDBData>) => {
+self.addEventListener('message', (event: MessageEvent<CacheManageWorkerMessage>) => {
   const { type } = event.data;
+
   if (type === 'getIndexedDBData') {
     getIndexedDBData();
+  } else if (type === 'getStoreDetail') {
+    const { dbName, storeName, pageNum, pageSize } = event.data;
+    getStoreDetail(dbName, storeName, pageNum, pageSize);
+  } else if (type === 'deleteStore') {
+    const { dbName, storeName } = event.data;
+    deleteStore(dbName, storeName);
+  } else if (type === 'deleteStoreItem') {
+    const { dbName, storeName, key } = event.data;
+    deleteStoreItem(dbName, storeName, key);
   }
 });

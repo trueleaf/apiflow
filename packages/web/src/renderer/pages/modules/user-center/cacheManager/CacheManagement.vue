@@ -18,9 +18,9 @@
             <div
               class="refresh-btn"
               @click="getLocalStorage"
-              :disabled="localStorageSizeLoading"
+              :disabled="localStorageLoading"
             >
-              <div :class="{ 'fresh-icon': true, 'loading': localStorageSizeLoading }">
+              <div :class="{ 'fresh-icon': true, 'loading': localStorageLoading }">
                 <el-icon size="18"><RefreshRight /></el-icon>
               </div>
             </div>
@@ -41,11 +41,11 @@
           <div class="card-refresh">
             <div
               class="refresh-btn"
-              :class="{ loading: indexedDBSizeLoading }"
+              :class="{ loading: indexedDBLoading }"
               @click="getIndexedDB"
-              :disabled="indexedDBSizeLoading"
+              :disabled="indexedDBLoading"
             >
-               <div :class="{ 'fresh-icon': true, 'loading': indexedDBSizeLoading }">
+               <div :class="{ 'fresh-icon': true, 'loading': indexedDBLoading }">
                 <el-icon size="18"><RefreshRight /></el-icon>
               </div>
             </div>
@@ -54,8 +54,8 @@
         <div class="card-body">
           <div class="cache-size">{{ formatBytes(cacheInfo.indexedDBSize === -1 ? 0 : cacheInfo.indexedDBSize) }}</div>
         </div>
-        <div v-if="!indexedDBSizeLoading && cacheInfo.indexedDBSize === -1" class="gray-500" @click="getIndexedDB">点击计算缓存大小</div>
-        <div v-if="indexedDBSizeLoading" class="gray-500">计算中...</div>
+        <div v-if="!indexedDBLoading && cacheInfo.indexedDBSize === -1" class="gray-500" @click="getIndexedDB">点击计算缓存大小</div>
+        <div v-if="indexedDBLoading" class="gray-500">计算中...</div>
       </div>
     </div>
 
@@ -70,14 +70,13 @@
         <el-table-column prop="storeName" label="存储名称" />
         <el-table-column prop="size" label="大小">
           <template #default="scope">
-            
             {{ formatBytes(scope.row.size) }}
           </template>
 
         </el-table-column>
         <el-table-column label="操作" width="150" fixed="right">
           <template #default="scope">
-            <el-button link @click="handleViewDetail(scope.row)">{{ $t('详情') }}</el-button>
+            <el-button link @click="handleOpenIndexedDBDetail(scope.row)">{{ $t('详情') }}</el-button>
             <el-button link type="danger" @click="handleDelete(scope.row)">{{ $t('删除') }}</el-button>
           </template>
         </el-table-column>
@@ -85,26 +84,18 @@
     </div>
 
     <!-- 空数据提示 -->
-    <div v-if="!indexedDBSizeLoading && cacheInfo.indexedDBDetails.length === 0 && cacheInfo.indexedDBSize !== -1" class="empty-data">
-      <div class="empty-text">暂无数据</div>
+    <div v-if="!indexedDBLoading && cacheInfo.indexedDBDetails.length === 0 && cacheInfo.indexedDBSize !== -1" class="empty-data">
+      <div class="empty-text">暂无数据,点击刷新按钮更新数据</div>
     </div>
 
-    <!-- 详情模态框 -->
-    <el-dialog
-      v-model="detailDialogVisible"
-      title="详情信息"
-      width="600px"
-      :before-close="handleCloseDetail"
-    >
-      <div class="detail-content">
-        详情内容待实现
-      </div>
-      <template #footer>
-        <span class="dialog-footer">
-          <el-button @click="handleCloseDetail">关闭</el-button>
-        </span>
-      </template>
-    </el-dialog>
+    <!-- 缓存详情组件 -->
+    <CacheDetail
+      v-if="detailDialogVisible"
+      v-model:visible="detailDialogVisible"
+      :current-store-info="currentIndexedDBItem!"
+      :worker="indexedDBWorkerRef"
+      @close="handleCloseIndexedDbDialog"
+    />
  </div>
 </template>
 
@@ -113,18 +104,20 @@ import { ref, onMounted } from 'vue'
 import { CacheInfo, LocalStorageItem, IndexedDBItem } from '@src/types/apidoc/cache'
 import { formatBytes } from '@/helper'
 import { RefreshRight } from '@element-plus/icons-vue'
-import { ElMessageBox } from 'element-plus'
+import { ElMessageBox, ElMessage } from 'element-plus'
+import { apidocCache } from '@/cache/apidoc'
+import CacheDetail from './dialog/CacheDetail.vue'
 
-// 加载状态管理
-const indexedDBSizeLoading = ref(false)
-const localStorageSizeLoading = ref(false)
-
-// IndexedDB
+/*
+|--------------------------------------------------------------------------
+| 变量相关
+|--------------------------------------------------------------------------
+*/
+const indexedDBLoading = ref(false)
+const localStorageLoading = ref(false)
 const indexedDBWorkerRef = ref<Worker | null>(null)
-
-// 模态框状态管理
 const detailDialogVisible = ref(false)
-
+const currentIndexedDBItem = ref<IndexedDBItem | null>(null)
 // 缓存信息数据
 const cacheInfo = ref<CacheInfo>({
   localStroageSize: 0,
@@ -133,14 +126,40 @@ const cacheInfo = ref<CacheInfo>({
   indexedDBDetails: []
 })
 
+
 /*
 |--------------------------------------------------------------------------
-| 获取缓存数据大小和内容
+| 初始化相关
 |--------------------------------------------------------------------------
 */
+const initWorker = () => {
+  indexedDBWorkerRef.value = new Worker(new URL('@/worker/indexedDB.ts', import.meta.url), { type: 'module' });
+}
+//初始化消息处理器
+const initMessageHandler = () => {
+  if (!indexedDBWorkerRef.value) return
+  indexedDBWorkerRef.value.onmessage = (event) => {
+    const { data } = event
+    if (data.type === 'changeStatus') {
+      cacheInfo.value.indexedDBSize = data.data.size;
+    }  else if (data.type === 'finish') {
+      indexedDBLoading.value = false;
+      cacheInfo.value.indexedDBDetails = data.data;
+      saveCacheData() // 保存缓存数据
+    } else if (data.type === 'deleteStoreResult') {
+      if (data.data.success) {
+        ElMessage.success('删除成功')
+        getIndexedDB()
+      }
+    } else if (data.type === 'error') {
+      console.error('操作失败:', data.error)
+      ElMessage.error('操作失败: ' + (data.error?.message || '未知错误'))
+    }
+  }
+}
 //获取 localStorage 缓存信息
 const getLocalStorage = () => {
-  localStorageSizeLoading.value = true
+  localStorageLoading.value = true
   try {
     let totalSize = 0
     const details: LocalStorageItem[] = []
@@ -192,62 +211,87 @@ const getLocalStorage = () => {
     cacheInfo.value.localStroageSize = 0
     cacheInfo.value.localStorageDetails = []
   } finally {
-    localStorageSizeLoading.value = false
+    localStorageLoading.value = false
   }
 }
-
 //获取 IndexedDB 缓存信息 (使用 Web Worker)
 const getIndexedDB = async () => {
-  if (!indexedDBWorkerRef.value || indexedDBSizeLoading.value) {
+  if (!indexedDBWorkerRef.value || indexedDBLoading.value) {
     return
   }
   indexedDBWorkerRef.value.postMessage({
     type: 'getIndexedDBData'
   })
-  indexedDBSizeLoading.value = true;
-  indexedDBWorkerRef.value.onmessage = (event) => {
-    const { data } = event
-    if (data.type === 'changeStatus') {
-      cacheInfo.value.indexedDBSize = data.data.size;
-    }  else if (data.type === 'finish') {
-      indexedDBSizeLoading.value = false;
-      cacheInfo.value.indexedDBDetails = data.data;
-    } else if (data.type === 'error') {
-      console.error(data.error)
-      indexedDBSizeLoading.value = false
-    }
-  }
+  indexedDBLoading.value = true;
 }
 
 /*
 |--------------------------------------------------------------------------
-| IndexedDB 表格操作函数
+| 表格相关操作
 |--------------------------------------------------------------------------
 */
 // 查看详情
-const handleViewDetail = (row: IndexedDBItem): void => {
+const handleOpenIndexedDBDetail = (row: IndexedDBItem): void => {
+  currentIndexedDBItem.value = row
   detailDialogVisible.value = true
 }
 
-// 删除操作
+// 删除单个store
 const handleDelete = async (row: IndexedDBItem): Promise<void> => {
   try {
-    await ElMessageBox.confirm('确定要删除这条数据吗？', '提示', {
-      confirmButtonText: '确定',
-      cancelButtonText: '取消',
-      type: 'warning'
+    await ElMessageBox.confirm(
+      `确定要删除 "${row.description}" 缓存吗？此操作将清空该存储中的所有数据。`,
+      '删除确认',
+      {
+        confirmButtonText: '确定删除',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }
+    )
+
+    if (!indexedDBWorkerRef.value) {
+      ElMessage.error('Worker未初始化')
+      return
+    }
+
+    // 发送删除消息到worker
+    indexedDBWorkerRef.value.postMessage({
+      type: 'deleteStore',
+      dbName: row.dbName,
+      storeName: row.storeName
     })
 
-    // 仅在控制台打印被删除的数据，不实际删除
-    console.log('删除的数据:', row)
   } catch {
     // 用户取消删除操作，不做任何处理
   }
 }
 
 // 关闭详情模态框
-const handleCloseDetail = (): void => {
+const handleCloseIndexedDbDialog = (): void => {
   detailDialogVisible.value = false
+  currentIndexedDBItem.value = null
+}
+
+/*
+|--------------------------------------------------------------------------
+| 缓存已加载的indexedDB缓存数据
+|--------------------------------------------------------------------------
+*/
+// 加载缓存数据
+const initIndexedDBCacheData = (): void => {
+  const cachedInfo = apidocCache.getCacheInfo()
+  if (cachedInfo) {
+    cacheInfo.value.indexedDBSize = cachedInfo.indexedDBSize
+    cacheInfo.value.indexedDBDetails = cachedInfo.indexedDBDetails as IndexedDBItem[]
+  }
+}
+
+// 保存缓存数据
+const saveCacheData = (): void => {
+  apidocCache.setCacheInfo({
+    indexedDBSize: cacheInfo.value.indexedDBSize,
+    indexedDBDetails: cacheInfo.value.indexedDBDetails
+  })
 }
 
 /*
@@ -255,9 +299,11 @@ const handleCloseDetail = (): void => {
 | 组件生命周期
 |--------------------------------------------------------------------------
 */
-onMounted(async () => {
+onMounted(() => {
   getLocalStorage()
-  indexedDBWorkerRef.value = new Worker(new URL('@/worker/indexedDB.ts', import.meta.url), { type: 'module' })
+  initIndexedDBCacheData() // 加载缓存数据
+  initWorker();
+  initMessageHandler()
 })
 
 </script>
@@ -385,6 +431,8 @@ onMounted(async () => {
       color: #999;
     }
   }
+
+
 }
 
 @keyframes spin {
