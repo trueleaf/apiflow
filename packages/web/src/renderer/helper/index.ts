@@ -813,4 +813,19 @@ export const isJsonString = (str: string): boolean => {
   }
 };
 
+/*
+|--------------------------------------------------------------------------
+| 对象大小计算方法
+|--------------------------------------------------------------------------
+*/
+/**
+ * 计算JavaScript对象的字节大小
+ * @param obj 需要计算大小的对象
+ * @returns 对象的字节大小
+ */
+export const getObjectSize = (obj: unknown): number => {
+  const blob = new Blob([JSON.stringify(obj)], { type: 'application/json' });
+  return blob.size;
+}
+
 
