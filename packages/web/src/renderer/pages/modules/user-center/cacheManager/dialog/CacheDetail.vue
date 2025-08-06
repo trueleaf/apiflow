@@ -26,7 +26,7 @@
           <el-table-column prop="key" label="键名" width="200" />
           <el-table-column prop="size" label="大小" width="100">
             <template #default="scope">
-              {{ formatBytes(getObjectSize(scope.row.value)) }}
+              {{ formatBytes(scope.row.size) }}
             </template>
           </el-table-column>
           <el-table-column prop="value" label="值">
@@ -122,7 +122,12 @@ const visible = computed({
 const initMessageListener = (): void => {
   if (!props.worker) return
   props.worker.onmessage = (event: MessageEvent) => {
-    const { type, data } = event.data
+    const { type, data } = event.data;
+    if (props.currentStoreInfo.dbName === 'apiflowResponseCache' && props.currentStoreInfo.storeName === 'responseCache') {
+      data.data?.forEach((item: StoreDetailItem) => {
+        (item as any).value.data.body = "<数据过大，无法显示>";
+      });
+    }
     switch (type) {
       case 'storeDetailResult':
         tableLoading.value = false
@@ -246,9 +251,9 @@ const handleDeleteItem = async (row: StoreDetailItem): Promise<void> => {
       type: 'deleteStoreItem',
       dbName: props.currentStoreInfo.dbName,
       storeName: props.currentStoreInfo.storeName,
-      key: row.key
+      key: row.key,
+      size: row.size
     })
-
   } catch {
     // 用户取消删除操作，不做任何处理
   }

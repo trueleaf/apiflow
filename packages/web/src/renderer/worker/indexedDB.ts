@@ -1,4 +1,3 @@
-import { getObjectSize } from '@/helper/index.ts';
 import { IndexedDBItem, StoreDetailItem, StoreDetailResponse } from '@src/types/apidoc/cache.ts';
 import { openDB } from 'idb';
 
@@ -26,6 +25,7 @@ export type CacheManageWorkerDeleteStoreItem = {
   dbName: string;
   storeName: string;
   key: string;
+  size: number;
 };
 
 export type CacheManageWorkerMessage =
@@ -61,25 +61,14 @@ const getIndexedDBData = async (): Promise<void> => {
           let storeSize = 0;
           let cursor = await db.transaction(storeName).store.openCursor();
           while (cursor) {
-            // if (storeName === 'responseCache') {
-            //   totalSize += (cursor.value.size || 0);
-            //   storeSize += (cursor.value.size || 0);
-            //   console.log(cursor.value.size, 22)
-            //   cursor = await cursor.continue();
-            //   self.postMessage({
-            //     type: 'changeStatus',
-            //     data: {
-            //       storeName,
-            //       size: totalSize,
-            //     }
-            //   });
-            // } else {
-            // }
-            // const jsonString = JSON.stringify(cursor!.value);
-            // const jsonSize = new Blob([jsonString]).size
-            const jsonSize = getObjectSize(cursor.value);
+            const jsonString = JSON.stringify(cursor!.value);
+            const jsonSize = new Blob([jsonString]).size
             totalSize += jsonSize;
             storeSize += jsonSize;
+            if (jsonSize > 1025 * 1024 * 100) {
+              console.log(`Store ${storeName} item size exceeds 100KB:`, cursor!.key, cursor.value);
+
+            }
             cursor = await cursor.continue();
             self.postMessage({
               type: 'changeStatus',
@@ -119,6 +108,7 @@ const getIndexedDBData = async (): Promise<void> => {
 |--------------------------------------------------------------------------
 */
 const getStoreDetail = async (dbName: string, storeName: string, pageNum: number, pageSize: number): Promise<void> => {
+  
   try {
     const db = await openDB(dbName);
     if (!db) {
@@ -132,7 +122,6 @@ const getStoreDetail = async (dbName: string, storeName: string, pageNum: number
     try {
       const transaction = db.transaction(storeName, 'readonly');
       const store = transaction.store;
-
       // 获取所有数据
       const allData: StoreDetailItem[] = [];
       let cursor = await store.openCursor();
@@ -140,10 +129,11 @@ const getStoreDetail = async (dbName: string, storeName: string, pageNum: number
       while (cursor) {
         const key = cursor.key as string;
         const value = cursor.value;
+        const blob = new Blob([JSON.stringify(value)], { type: 'application/json' });
         allData.push({
           key,
           value,
-          size: 0
+          size: blob.size
         });
         cursor = await cursor.continue();
       }
@@ -219,7 +209,7 @@ const deleteStore = async (dbName: string, storeName: string): Promise<void> => 
 };
 
 // 删除store中的单个数据项
-const deleteStoreItem = async (dbName: string, storeName: string, key: string): Promise<void> => {
+const deleteStoreItem = async (dbName: string, storeName: string, key: string, size: number): Promise<void> => {
   try {
     const db = await openDB(dbName);
     if (!db) {
@@ -240,7 +230,7 @@ const deleteStoreItem = async (dbName: string, storeName: string, key: string): 
 
       self.postMessage({
         type: 'deleteStoreItemResult',
-        data: { success: true, dbName, storeName, key }
+        data: { success: true, dbName, storeName, key, size }
       });
 
     } finally {
@@ -268,7 +258,7 @@ self.addEventListener('message', (event: MessageEvent<CacheManageWorkerMessage>)
     const { dbName, storeName } = event.data;
     deleteStore(dbName, storeName);
   } else if (type === 'deleteStoreItem') {
-    const { dbName, storeName, key } = event.data;
-    deleteStoreItem(dbName, storeName, key);
+    const { dbName, storeName, key, size } = event.data;
+    deleteStoreItem(dbName, storeName, key, size);
   }
 });
