@@ -7,8 +7,8 @@
         </div>
 
         <div class="menu-group">
-          <div v-for="(tab, index) in tabs" :key="index" class="tab-item" :class="{ active: activeTab === index }"
-            @click="activeTab = index">
+          <div v-for="(tab, index) in tabs" :key="index" class="tab-item" :class="{ active: activeTab === tab.action }"
+            @click="activeTab = tab.action">
             <i :class="tab.icon"></i>
             <span>{{ tab.name }}</span>
           </div>
@@ -19,21 +19,23 @@
         </div>
 
         <div class="menu-group">
-          <div class="tab-item">
-            <i class="iconfont iconCookies"></i>
-            <span>通用</span>
-          </div>
-
-          <div class="tab-item">
-            <i class="iconfont iconCookies"></i>
-            <span>快捷键</span>
+          <div 
+            v-for="(setting, index) in settingTabs" 
+            :key="index" 
+            class="tab-item"
+            :class="{ active: activeTab === setting.action }"
+            @click="handleSettingClick(setting)"
+          >
+            <i :class="setting.icon"></i>
+            <span>{{ setting.name }}</span>
           </div>
         </div>
       </div>
 
       <div class="content-area">
-        <UserInfo v-if="activeTab === 0" />
-        <CacheManagement v-if="activeTab === 1" />
+        <UserInfo v-if="activeTab === 'user-info'" />
+        <CacheManagement v-if="activeTab === 'local-data'" />
+        <ComponentLibrary v-if="activeTab === 'components'" />
       </div>
     </div>
   </div>
@@ -43,12 +45,26 @@
 import { ref } from 'vue'
 import CacheManagement from './cacheManager/CacheManagement.vue'
 import UserInfo from './userInfo/UserInfo.vue'
+import ComponentLibrary from './componentLibrary/ComponentLibrary.vue'
 
-const activeTab = ref(0)
+const activeTab = ref('user-info')
 const tabs = [
-  { name: '基本信息', icon: 'iconfont icongerenzhongxin' },
-  { name: '本地数据', icon: 'iconfont iconCookies' }
+  { name: '基本信息', icon: 'iconfont icongerenzhongxin', action: 'user-info' },
+  { name: '本地数据', icon: 'iconfont iconCookies', action: 'local-data' }
 ]
+
+// 偏好设置选项
+const settingTabs = [
+  { name: '通用', icon: 'iconfont iconCookies', action: 'general' },
+  { name: '快捷键', icon: 'iconfont iconCookies', action: 'shortcuts' },
+  { name: '组件库', icon: 'iconfont iconzujian', action: 'components' }
+]
+
+// 处理所有标签点击
+const handleSettingClick = (setting: any) => {
+  console.log('Settings clicked:', setting.action)
+  activeTab.value = setting.action
+}
 </script>
 
 <style lang="scss" scoped>
