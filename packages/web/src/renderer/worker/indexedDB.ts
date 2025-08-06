@@ -66,10 +66,6 @@ const getIndexedDBData = async (): Promise<void> => {
             const jsonSize = new Blob([jsonString]).size
             totalSize += jsonSize;
             storeSize += jsonSize;
-            if (jsonSize > 1025 * 1024 * 100) {
-              console.log(`Store ${storeName} item size exceeds 100KB:`, cursor!.key, cursor.value);
-
-            }
             cursor = await cursor.continue();
             self.postMessage({
               type: 'changeStatus',

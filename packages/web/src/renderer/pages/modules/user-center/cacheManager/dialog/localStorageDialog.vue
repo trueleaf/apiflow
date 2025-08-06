@@ -1,6 +1,6 @@
 <template>
   <el-dialog
-    :title="`${currentItem?.description || 'localStorage'} 详情`"
+    :title="`${currentItem?.description || 'localStorage'} ${t('详情')}`"
     v-model="visible"
     width="70%"
     :before-close="handleClose"
@@ -8,11 +8,11 @@
     <div class="dialog-content">
       <div class="item-info">
         <div class="info-item">
-          <span class="label">键名：</span>
+          <span class="label">{{ t('键名') }}：</span>
           <span class="value">{{ currentItem?.key }}</span>
         </div>
         <div class="info-item">
-          <span class="label">大小：</span>
+          <span class="label">{{ t('大小') }}：</span>
           <span class="value">{{ formatBytes(currentItem?.size || 0) }}</span>
         </div>
       </div>
@@ -35,6 +35,10 @@ import { defineProps, defineEmits, computed } from 'vue'
 import { formatBytes } from '@/helper'
 import SJsonEditor from '@/components/common/json-editor/g-json-editor.vue'
 import { LocalStorageItem } from '@src/types/apidoc/cache'
+import { useTranslation } from 'i18next-vue'
+
+// 获取翻译函数
+const { t } = useTranslation()
 
 // 定义属性
 const props = defineProps({
@@ -71,7 +75,7 @@ const formattedValue = computed(() => {
     }
   } catch (error) {
     console.error('获取或解析localStorage数据失败:', error)
-    return '无法解析数据'
+    return t('无法解析数据')
   }
 })
 

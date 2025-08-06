@@ -566,4 +566,7 @@ export default {
   分钟: 'Minutes',
   api_import_title: 'API Documentation Import',
   api_import_desc: 'Import and validate your Swagger or OpenAPI 3.1 specifications',
+  详情: 'Details',
+  键名: 'Key',
+  无法解析数据: 'Unable to parse data',
 }
