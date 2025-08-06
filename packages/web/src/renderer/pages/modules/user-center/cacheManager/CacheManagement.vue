@@ -8,7 +8,11 @@
     <!-- 缓存统计区域 -->
     <div class="statistics">
       <!-- localStorage 缓存卡片 -->
-      <div class="cache-card">
+      <div 
+        class="cache-card" 
+        :class="{ 'selected': selectedCacheType === 'localStorage' }"
+        @click="handleSelectCacheType('localStorage')"
+      >
         <div class="card-header">
           <div class="card-icon">
             <i class="iconfont iconcipan"></i>
@@ -17,7 +21,7 @@
           <div class="card-refresh">
             <div
               class="refresh-btn"
-              @click="getLocalStorage"
+              @click.stop="getLocalStorage"
               :disabled="localStorageLoading"
             >
               <div :class="{ 'fresh-icon': true, 'loading': localStorageLoading }">
@@ -32,7 +36,11 @@
       </div>
 
       <!-- IndexedDB 缓存卡片 -->
-      <div class="cache-card">
+      <div 
+        class="cache-card"
+        :class="{ 'selected': selectedCacheType === 'indexedDB' }"
+        @click="handleSelectCacheType('indexedDB')"
+      >
         <div class="card-header">
           <div class="card-icon">
             <i class="iconfont iconodbc"></i>
@@ -42,7 +50,7 @@
             <div
               class="refresh-btn"
               :class="{ loading: indexedDBLoading }"
-              @click="getIndexedDB"
+              @click.stop="getIndexedDB"
               :disabled="indexedDBLoading"
             >
                <div :class="{ 'fresh-icon': true, 'loading': indexedDBLoading }">
@@ -54,13 +62,40 @@
         <div class="card-body">
           <div class="cache-size">{{ formatBytes(cacheInfo.indexedDBSize === -1 ? 0 : cacheInfo.indexedDBSize) }}</div>
         </div>
-        <div v-if="!indexedDBLoading && cacheInfo.indexedDBSize === -1" class="gray-500" @click="getIndexedDB">点击计算缓存大小</div>
+        <div v-if="!indexedDBLoading && cacheInfo.indexedDBSize === -1" class="gray-500" @click.stop="getIndexedDB">点击计算缓存大小</div>
         <div v-if="indexedDBLoading" class="gray-500">计算中...</div>
       </div>
     </div>
 
+    <!-- localStorage 详情表格 -->
+    <div v-if="selectedCacheType === 'localStorage'" class="localstorage-table-container">
+      <div class="table-title">
+        <h3>localStorage 缓存详情</h3>
+      </div>
+      <el-table :data="cacheInfo.localStorageDetails" border>
+        <el-table-column prop="description" label="描述" />
+        <el-table-column prop="key" label="键名" show-overflow-tooltip />
+        <el-table-column prop="size" label="大小">
+          <template #default="scope">
+            {{ formatBytes(scope.row.size) }}
+          </template>
+        </el-table-column>
+        <el-table-column label="操作" width="150" fixed="right">
+          <template #default="scope">
+            <el-button link @click="handleOpenLocalStorageDetail(scope.row)">{{ $t('详情') }}</el-button>
+            <el-button link type="danger" @click="handleDeleteLocalStorage(scope.row)">{{ $t('删除') }}</el-button>
+          </template>
+        </el-table-column>
+      </el-table>
+      
+      <!-- 空数据提示 -->
+      <div v-if="!localStorageLoading && cacheInfo.localStorageDetails.length === 0" class="empty-data">
+        <div class="empty-text">暂无数据,点击刷新按钮更新数据</div>
+      </div>
+    </div>
+
     <!-- IndexedDB 详情表格 -->
-    <div class="indexeddb-table-container">
+    <div v-if="selectedCacheType === 'indexedDB'" class="indexeddb-table-container">
       <div class="table-title">
         <h3>IndexedDB 缓存详情</h3>
       </div>
@@ -88,13 +123,21 @@
       <div class="empty-text">暂无数据,点击刷新按钮更新数据</div>
     </div>
 
-    <!-- 缓存详情组件 -->
-    <CacheDetail
+    <!-- IndexedDB 缓存详情组件 -->
+    <IndexedDBDialog
       v-if="detailDialogVisible"
       v-model:visible="detailDialogVisible"
       :current-store-info="currentIndexedDBItem!"
       :worker="indexedDBWorkerRef"
       @close="handleCloseIndexedDbDialog"
+    />
+
+    <!-- localStorage 缓存详情组件 -->
+    <LocalStorageDialog
+      v-if="localStorageDialogVisible"
+      v-model:visible="localStorageDialogVisible"
+      :current-item="currentLocalStorageItem!"
+      @close="handleCloseLocalStorageDialog"
     />
  </div>
 </template>
@@ -106,7 +149,8 @@ import { formatBytes } from '@/helper'
 import { RefreshRight } from '@element-plus/icons-vue'
 import { ElMessageBox, ElMessage } from 'element-plus'
 import { apidocCache } from '@/cache/apidoc'
-import CacheDetail from './dialog/CacheDetail.vue'
+import IndexedDBDialog from './dialog/indexedDBDialog.vue'
+import LocalStorageDialog from './dialog/localStorageDialog.vue'
 
 /*
 |--------------------------------------------------------------------------
@@ -118,6 +162,11 @@ const localStorageLoading = ref(false)
 const indexedDBWorkerRef = ref<Worker | null>(null)
 const detailDialogVisible = ref(false)
 const currentIndexedDBItem = ref<IndexedDBItem | null>(null)
+// localStorage详情弹窗相关
+const localStorageDialogVisible = ref(false)
+const currentLocalStorageItem = ref<LocalStorageItem | null>(null)
+// 选中状态
+const selectedCacheType = ref<'localStorage' | 'indexedDB'>('localStorage')
 // 缓存信息数据
 const cacheInfo = ref<CacheInfo>({
   localStroageSize: 0,
@@ -260,10 +309,30 @@ const getIndexedDB = async () => {
 | 表格相关操作
 |--------------------------------------------------------------------------
 */
+
+// 处理缓存类型选择
+const handleSelectCacheType = (type: 'localStorage' | 'indexedDB'): void => {
+  // 选择新的缓存类型
+  selectedCacheType.value = type
+  // 如果选择了localStorage且没有数据，则刷新数据
+  if (type === 'localStorage' && cacheInfo.value.localStorageDetails.length === 0) {
+    getLocalStorage()
+  }
+  // 如果选择了indexedDB且没有数据，则刷新数据
+  if (type === 'indexedDB' && cacheInfo.value.indexedDBDetails.length === 0 && cacheInfo.value.indexedDBSize !== -1) {
+    getIndexedDB()
+  }
+}
 // 查看详情
 const handleOpenIndexedDBDetail = (row: IndexedDBItem): void => {
   currentIndexedDBItem.value = row
   detailDialogVisible.value = true
+}
+
+// 查看localStorage详情
+const handleOpenLocalStorageDetail = (row: LocalStorageItem): void => {
+  currentLocalStorageItem.value = row
+  localStorageDialogVisible.value = true
 }
 
 // 删除单个store
@@ -297,10 +366,39 @@ const handleDelete = async (row: IndexedDBItem): Promise<void> => {
   }
 }
 
+// 删除localStorage缓存项
+const handleDeleteLocalStorage = async (row: LocalStorageItem): Promise<void> => {
+  try {
+    await ElMessageBox.confirm(
+      `确定要删除 "${row.description}" 缓存吗？此操作将永久删除该缓存项。`,
+      '删除确认',
+      {
+        confirmButtonText: '确定删除',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }
+    )
+    // 从localStorage中删除该项
+    localStorage.removeItem(row.key)
+    // 重新计算localStorage总大小并更新表格数据
+    getLocalStorage()
+    ElMessage.success('删除成功')
+
+  } catch {
+    // 用户取消删除操作，不做任何处理
+  }
+}
+
 // 关闭详情模态框
 const handleCloseIndexedDbDialog = (): void => {
   detailDialogVisible.value = false
   currentIndexedDBItem.value = null
+}
+
+// 关闭localStorage详情模态框
+const handleCloseLocalStorageDialog = (): void => {
+  localStorageDialogVisible.value = false
+  currentLocalStorageItem.value = null
 }
 
 /*
@@ -371,8 +469,20 @@ onUnmounted(() => {
       height: 110px;
       background: #fff;
       border-radius: 8px;
-      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+      border: 1px solid #eaeaea;
       padding: 16px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      
+      &:hover {
+        border-color: #c6e2ff;
+        box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+      }
+      
+      &.selected {
+        border-color: #409eff;
+        background-color: #ecf5ff;
+      }
 
       .card-header {
         display: flex;
@@ -442,6 +552,21 @@ onUnmounted(() => {
 
   // IndexedDB 表格容器
   .indexeddb-table-container {
+    margin-top: 24px;
+    background: #fff;
+    .table-title {
+      margin-bottom: 16px;
+      h3 {
+        margin: 0;
+        font-size: 18px;
+        font-weight: 600;
+        color: #333;
+      }
+    }
+  }
+  
+  // localStorage 表格容器
+  .localstorage-table-container {
     margin-top: 24px;
     background: #fff;
     .table-title {
