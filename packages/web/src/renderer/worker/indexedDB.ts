@@ -18,6 +18,7 @@ export type CacheManageWorkerDeleteStore = {
   type: 'deleteStore';
   dbName: string;
   storeName: string;
+  size?: number;
 };
 
 export type CacheManageWorkerDeleteStoreItem = {
@@ -172,7 +173,7 @@ const getStoreDetail = async (dbName: string, storeName: string, pageNum: number
 | 删除指定的store
 |--------------------------------------------------------------------------
 */
-const deleteStore = async (dbName: string, storeName: string): Promise<void> => {
+const deleteStore = async (dbName: string, storeName: string, size?: number): Promise<void> => {
   try {
     const db = await openDB(dbName);
     if (!db) {
@@ -193,7 +194,7 @@ const deleteStore = async (dbName: string, storeName: string): Promise<void> => 
 
       self.postMessage({
         type: 'deleteStoreResult',
-        data: { success: true, dbName, storeName }
+        data: { success: true, dbName, storeName, size }
       });
 
     } finally {
@@ -255,8 +256,8 @@ self.addEventListener('message', (event: MessageEvent<CacheManageWorkerMessage>)
     const { dbName, storeName, pageNum, pageSize } = event.data;
     getStoreDetail(dbName, storeName, pageNum, pageSize);
   } else if (type === 'deleteStore') {
-    const { dbName, storeName } = event.data;
-    deleteStore(dbName, storeName);
+    const { dbName, storeName, size } = event.data;
+    deleteStore(dbName, storeName, size);
   } else if (type === 'deleteStoreItem') {
     const { dbName, storeName, key, size } = event.data;
     deleteStoreItem(dbName, storeName, key, size);

@@ -100,7 +100,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, onUnmounted } from 'vue'
 import { CacheInfo, LocalStorageItem, IndexedDBItem } from '@src/types/apidoc/cache'
 import { formatBytes } from '@/helper'
 import { RefreshRight } from '@element-plus/icons-vue'
@@ -136,26 +136,56 @@ const initWorker = () => {
   indexedDBWorkerRef.value = new Worker(new URL('@/worker/indexedDB.ts', import.meta.url), { type: 'module' });
 }
 //初始化消息处理器
+const messageHandler = (event: MessageEvent) => {
+  const { data } = event
+  if (data.type === 'changeStatus') {
+    cacheInfo.value.indexedDBSize = data.data.size;
+  } else if (data.type === 'finish') {
+    indexedDBLoading.value = false;
+    cacheInfo.value.indexedDBDetails = data.data;
+    saveCacheData() // 保存缓存数据
+  } else if (data.type === 'deleteStoreResult') {
+    if (data.data.success) {
+      ElMessage.success('删除成功')
+      // 更新总缓存大小
+      if (data.data.size) {
+        cacheInfo.value.indexedDBSize -= data.data.size;
+        // 找到并更新对应的store项
+        const index = cacheInfo.value.indexedDBDetails.findIndex(
+          item => item.dbName === data.data.dbName && item.storeName === data.data.storeName
+        );
+        if (index !== -1) {
+          cacheInfo.value.indexedDBDetails[index].size = 0;
+        }
+        saveCacheData(); // 保存更新后的缓存数据
+      } else {
+        getIndexedDB(); // 如果没有size信息，刷新所有数据
+      }
+    }
+  } else if (data.type === 'deleteStoreItemResult') {
+    if (data.data.success && data.data.size) {
+      // 更新总缓存大小
+      cacheInfo.value.indexedDBSize -= data.data.size;
+      // 找到并更新对应的store项
+      const index = cacheInfo.value.indexedDBDetails.findIndex(
+        item => item.dbName === data.data.dbName && item.storeName === data.data.storeName
+      );
+      if (index !== -1) {
+        cacheInfo.value.indexedDBDetails[index].size -= data.data.size;
+      }
+      saveCacheData(); // 保存更新后的缓存数据
+    }
+  } else if (data.type === 'error') {
+    console.error('操作失败:', data.error)
+    ElMessage.error('操作失败: ' + (data.error?.message || '未知错误'))
+  }
+};
+
 const initMessageHandler = () => {
   if (!indexedDBWorkerRef.value) return
-  indexedDBWorkerRef.value.onmessage = (event) => {
-    const { data } = event
-    if (data.type === 'changeStatus') {
-      cacheInfo.value.indexedDBSize = data.data.size;
-    }  else if (data.type === 'finish') {
-      indexedDBLoading.value = false;
-      cacheInfo.value.indexedDBDetails = data.data;
-      saveCacheData() // 保存缓存数据
-    } else if (data.type === 'deleteStoreResult') {
-      if (data.data.success) {
-        ElMessage.success('删除成功')
-        getIndexedDB()
-      }
-    } else if (data.type === 'error') {
-      console.error('操作失败:', data.error)
-      ElMessage.error('操作失败: ' + (data.error?.message || '未知错误'))
-    }
-  }
+  
+  // 使用addEventListener而不是直接赋值onmessage，防止被覆盖
+  indexedDBWorkerRef.value.addEventListener('message', messageHandler);
 }
 //获取 localStorage 缓存信息
 const getLocalStorage = () => {
@@ -254,11 +284,12 @@ const handleDelete = async (row: IndexedDBItem): Promise<void> => {
       return
     }
 
-    // 发送删除消息到worker
+    // 发送删除消息到worker，附加size参数
     indexedDBWorkerRef.value.postMessage({
       type: 'deleteStore',
       dbName: row.dbName,
-      storeName: row.storeName
+      storeName: row.storeName,
+      size: row.size
     })
 
   } catch {
@@ -304,6 +335,13 @@ onMounted(() => {
   initIndexedDBCacheData() // 加载缓存数据
   initWorker();
   initMessageHandler()
+})
+
+// 组件卸载时移除事件监听器，防止内存泄漏
+onUnmounted(() => {
+  if (indexedDBWorkerRef.value) {
+    indexedDBWorkerRef.value.removeEventListener('message', messageHandler)
+  }
 })
 
 </script>

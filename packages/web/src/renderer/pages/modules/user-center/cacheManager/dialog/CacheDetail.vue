@@ -118,35 +118,38 @@ const visible = computed({
 | 方法定义
 |--------------------------------------------------------------------------
 */
+// 定义消息处理函数，以便可以在卸载时移除
+const detailMessageHandler = (event: MessageEvent) => {
+  const { type, data } = event.data;
+  if (props.currentStoreInfo.dbName === 'apiflowResponseCache' && props.currentStoreInfo.storeName === 'responseCache') {
+    data.data?.forEach((item: StoreDetailItem) => {
+      (item as any).value.data.body = "<数据过大，无法显示>";
+    });
+  }
+  switch (type) {
+    case 'storeDetailResult':
+      tableLoading.value = false
+      storeDetailData.value = data
+      break
+    case 'deleteStoreItemResult':
+      props.currentStoreInfo.size -= data.size;
+      getStoreDetail(props.currentStoreInfo.dbName, props.currentStoreInfo.storeName)
+      deletingItems.value.delete(data.key)
+      break
+    case 'error':
+      console.error('操作失败:', data.error)
+      ElMessage.error('操作失败: ' + (data.error?.message || '未知错误'))
+      tableLoading.value = false
+      break
+  }
+};
+
 // 初始化消息监听器
 const initMessageListener = (): void => {
   if (!props.worker) return
-  props.worker.onmessage = (event: MessageEvent) => {
-    const { type, data } = event.data;
-    if (props.currentStoreInfo.dbName === 'apiflowResponseCache' && props.currentStoreInfo.storeName === 'responseCache') {
-      data.data?.forEach((item: StoreDetailItem) => {
-        (item as any).value.data.body = "<数据过大，无法显示>";
-      });
-    }
-    switch (type) {
-      case 'storeDetailResult':
-        tableLoading.value = false
-        storeDetailData.value = data
-        break
-      case 'deleteStoreItemResult':
-        // 删除成功后，刷新当前页数据
-        getStoreDetail(props.currentStoreInfo.dbName, props.currentStoreInfo.storeName)
-        deletingItems.value.delete(data.key)
-        break
-      case 'error':
-        console.error('操作失败:', data.error)
-        ElMessage.error('操作失败: ' + (data.error?.message || '未知错误'))
-        tableLoading.value = false
-        break
-      default:
-        console.warn(`未知消息类型: ${type}`)
-    }
-  }
+  
+  // 使用addEventListener而不是直接赋值onmessage，防止覆盖其他监听器
+  props.worker.addEventListener('message', detailMessageHandler);
 }
 // 获取store详情数据
 const getStoreDetail = (dbName: string, storeName: string): void => {
@@ -289,6 +292,10 @@ onMounted(() => {
 
 onUnmounted(() => {
   document.removeEventListener('keydown', handleKeydown, true)
+  // 移除Worker的消息监听器
+  if (props.worker) {
+    props.worker.removeEventListener('message', detailMessageHandler)
+  }
 })
 
 
