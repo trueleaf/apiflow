@@ -2,12 +2,12 @@
   <div class="cache-management">
     <!-- 页面标题区域 -->
     <div class="page-title">
-      <h2>缓存管理</h2>
+      <h2>本地数据管理</h2>
     </div>
 
-    <!-- 缓存统计区域 -->
+    <!-- 本地数据统计区域 -->
     <div class="statistics">
-      <!-- localStorage 缓存卡片 -->
+      <!-- localStorage 本地数据卡片 -->
       <div 
         class="cache-card" 
         :class="{ 'selected': selectedCacheType === 'localStorage' }"
@@ -17,7 +17,7 @@
           <div class="card-icon">
             <i class="iconfont iconcipan"></i>
           </div>
-          <div class="card-title">localStorage 缓存</div>
+          <div class="card-title">localStorage 数据</div>
           <div class="card-refresh">
             <div
               class="refresh-btn"
@@ -35,7 +35,7 @@
         </div>
       </div>
 
-      <!-- IndexedDB 缓存卡片 -->
+      <!-- IndexedDB 本地数据卡片 -->
       <div 
         class="cache-card"
         :class="{ 'selected': selectedCacheType === 'indexedDB' }"
@@ -45,7 +45,7 @@
           <div class="card-icon">
             <i class="iconfont iconodbc"></i>
           </div>
-          <div class="card-title">IndexedDB 缓存</div>
+          <div class="card-title">IndexedDB 本地数据</div>
           <div class="card-refresh">
             <div
               class="refresh-btn"
@@ -62,7 +62,7 @@
         <div class="card-body">
           <div class="cache-size">{{ formatBytes(cacheInfo.indexedDBSize === -1 ? 0 : cacheInfo.indexedDBSize) }}</div>
         </div>
-        <div v-if="!indexedDBLoading && cacheInfo.indexedDBSize === -1" class="gray-500" @click.stop="getIndexedDB">点击计算缓存大小</div>
+        <div v-if="!indexedDBLoading && cacheInfo.indexedDBSize === -1" class="gray-500" @click.stop="getIndexedDB">点击计算本地数据大小</div>
         <div v-if="indexedDBLoading" class="gray-500">计算中...</div>
       </div>
     </div>
@@ -70,7 +70,7 @@
     <!-- localStorage 详情表格 -->
     <div v-if="selectedCacheType === 'localStorage'" class="localstorage-table-container">
       <div class="table-title">
-        <h3>localStorage 缓存详情</h3>
+        <h3>localStorage 数据详情</h3>
       </div>
       <el-table :data="cacheInfo.localStorageDetails" border>
         <el-table-column prop="description" label="描述" />
@@ -97,7 +97,7 @@
     <!-- IndexedDB 详情表格 -->
     <div v-if="selectedCacheType === 'indexedDB'" class="indexeddb-table-container">
       <div class="table-title">
-        <h3>IndexedDB 缓存详情</h3>
+        <h3>IndexedDB 本地数据详情</h3>
       </div>
       <el-table :data="cacheInfo.indexedDBDetails" border>
         <el-table-column prop="description" label="描述" />
@@ -123,7 +123,7 @@
       <div class="empty-text">暂无数据,点击刷新按钮更新数据</div>
     </div>
 
-    <!-- IndexedDB 缓存详情组件 -->
+    <!-- IndexedDB 本地数据详情组件 -->
     <IndexedDBDialog
       v-if="detailDialogVisible"
       v-model:visible="detailDialogVisible"
@@ -132,7 +132,7 @@
       @close="handleCloseIndexedDbDialog"
     />
 
-    <!-- localStorage 缓存详情组件 -->
+    <!-- localStorage 本地数据详情组件 -->
     <LocalStorageDialog
       v-if="localStorageDialogVisible"
       v-model:visible="localStorageDialogVisible"
@@ -167,7 +167,7 @@ const localStorageDialogVisible = ref(false)
 const currentLocalStorageItem = ref<LocalStorageItem | null>(null)
 // 选中状态
 const selectedCacheType = ref<'localStorage' | 'indexedDB'>('localStorage')
-// 缓存信息数据
+// 本地数据信息数据
 const cacheInfo = ref<CacheInfo>({
   localStroageSize: 0,
   indexedDBSize: -1,
@@ -192,11 +192,11 @@ const messageHandler = (event: MessageEvent) => {
   } else if (data.type === 'finish') {
     indexedDBLoading.value = false;
     cacheInfo.value.indexedDBDetails = data.data;
-    saveCacheData() // 保存缓存数据
+    saveCacheData() // 保存本地数据
   } else if (data.type === 'deleteStoreResult') {
     if (data.data.success) {
       ElMessage.success('删除成功')
-      // 更新总缓存大小
+      // 更新总本地数据大小
       if (data.data.size) {
         cacheInfo.value.indexedDBSize -= data.data.size;
         // 找到并更新对应的store项
@@ -206,14 +206,14 @@ const messageHandler = (event: MessageEvent) => {
         if (index !== -1) {
           cacheInfo.value.indexedDBDetails[index].size = 0;
         }
-        saveCacheData(); // 保存更新后的缓存数据
+        saveCacheData(); // 保存更新后的本地数据
       } else {
         getIndexedDB(); // 如果没有size信息，刷新所有数据
       }
     }
   } else if (data.type === 'deleteStoreItemResult') {
     if (data.data.success && data.data.size) {
-      // 更新总缓存大小
+      // 更新总本地数据大小
       cacheInfo.value.indexedDBSize -= data.data.size;
       // 找到并更新对应的store项
       const index = cacheInfo.value.indexedDBDetails.findIndex(
@@ -222,7 +222,7 @@ const messageHandler = (event: MessageEvent) => {
       if (index !== -1) {
         cacheInfo.value.indexedDBDetails[index].size -= data.data.size;
       }
-      saveCacheData(); // 保存更新后的缓存数据
+      saveCacheData(); // 保存更新后的本地数据
     }
   } else if (data.type === 'error') {
     console.error('操作失败:', data.error)
@@ -236,7 +236,7 @@ const initMessageHandler = () => {
   // 使用addEventListener而不是直接赋值onmessage，防止被覆盖
   indexedDBWorkerRef.value.addEventListener('message', messageHandler);
 }
-//获取 localStorage 缓存信息
+//获取 localStorage 本地数据信息
 const getLocalStorage = () => {
   localStorageLoading.value = true
   try {
@@ -251,24 +251,25 @@ const getLocalStorage = () => {
         totalSize += byteSize
 
         // 生成中文描述信息
-        let description = '未知缓存数据'
-        if (key.startsWith('apidoc/')) {
-          // API 文档相关缓存
-          if (key === 'apidoc/apidoc') {
-            description = '未保存的API文档缓存'
-          } else if (key === 'apidoc/cookies') {
-            description = 'API请求Cookie缓存'
-          } else if (key === 'apidoc/header/activeTab') {
-            description = '顶部导航当前活跃标签页缓存'
-          } else if (key === 'apidoc/header/tabs') {
-            description = '顶部导航所有打开标签页缓存'
-          } else if (key === 'apidoc/pinToolbarOperations') {
-            description = '固定工具栏操作缓存'
-          } else if (key === 'apidoc/tabs') {
-            description = '接口管理标签页缓存'
-          } else {
-            description = '其他缓存'
-          }
+        let description = '未知本地数据'
+        if (key === 'apidoc/apidoc') {
+          description = '未保存的API文档本地数据'
+        } else if (key === 'apidoc/cookies') {
+          description = 'API请求Cookie本地数据'
+        } else if (key === 'apidoc/header/activeTab') {
+          description = '顶部导航当前活跃标签页本地数据'
+        } else if (key === 'apidoc/header/tabs') {
+          description = '顶部导航所有打开标签页本地数据'
+        } else if (key === 'apidoc/pinToolbarOperations') {
+          description = '固定工具栏操作本地数据'
+        } else if (key === 'apidoc/tabs') {
+          description = '接口管理标签页本地数据'
+        } else if (key === 'history/lastVisitePage') {
+          description = '最近一次访问的页面'
+        } else if (key === 'language') {
+          description = '语言设置'
+        } else {
+          description = '其他本地数据'
         }
         details.push({
           key,
@@ -277,15 +278,15 @@ const getLocalStorage = () => {
         })
       }
     }
-    // 按大小降序排序，方便查看占用空间最大的缓存项
+    // 按大小降序排序，方便查看占用空间最大的本地数据项
     details.sort((a, b) => b.size - a.size)
 
-    // 更新缓存信息
+    // 更新本地数据信息
     cacheInfo.value.localStroageSize = totalSize
     cacheInfo.value.localStorageDetails = details
 
   } catch (error) {
-    console.error('获取 localStorage 缓存信息失败:', error)
+    console.error('获取 localStorage 本地数据信息失败:', error)
     // 发生错误时重置数据
     cacheInfo.value.localStroageSize = 0
     cacheInfo.value.localStorageDetails = []
@@ -293,7 +294,7 @@ const getLocalStorage = () => {
     localStorageLoading.value = false
   }
 }
-//获取 IndexedDB 缓存信息 (使用 Web Worker)
+//获取 IndexedDB 本地数据信息 (使用 Web Worker)
 const getIndexedDB = async () => {
   if (!indexedDBWorkerRef.value || indexedDBLoading.value) {
     return
@@ -310,9 +311,9 @@ const getIndexedDB = async () => {
 |--------------------------------------------------------------------------
 */
 
-// 处理缓存类型选择
+// 处理本地数据类型选择
 const handleSelectCacheType = (type: 'localStorage' | 'indexedDB'): void => {
-  // 选择新的缓存类型
+  // 选择新的本地数据类型
   selectedCacheType.value = type
   // 如果选择了localStorage且没有数据，则刷新数据
   if (type === 'localStorage' && cacheInfo.value.localStorageDetails.length === 0) {
@@ -339,7 +340,7 @@ const handleOpenLocalStorageDetail = (row: LocalStorageItem): void => {
 const handleDelete = async (row: IndexedDBItem): Promise<void> => {
   try {
     await ElMessageBox.confirm(
-      `确定要删除 "${row.description}" 缓存吗？此操作将清空该存储中的所有数据。`,
+      `确定要删除 "${row.description}" 本地数据吗？此操作将清空该存储中的所有数据。`,
       '删除确认',
       {
         confirmButtonText: '确定删除',
@@ -366,11 +367,11 @@ const handleDelete = async (row: IndexedDBItem): Promise<void> => {
   }
 }
 
-// 删除localStorage缓存项
+// 删除localStorage本地数据项
 const handleDeleteLocalStorage = async (row: LocalStorageItem): Promise<void> => {
   try {
     await ElMessageBox.confirm(
-      `确定要删除 "${row.description}" 缓存吗？此操作将永久删除该缓存项。`,
+      `确定要删除 "${row.description}" 本地数据吗？此操作将永久删除该本地数据项。`,
       '删除确认',
       {
         confirmButtonText: '确定删除',
@@ -403,10 +404,10 @@ const handleCloseLocalStorageDialog = (): void => {
 
 /*
 |--------------------------------------------------------------------------
-| 缓存已加载的indexedDB缓存数据
+| 本地数据已加载的indexedDB本地数据
 |--------------------------------------------------------------------------
 */
-// 加载缓存数据
+// 加载本地数据
 const initIndexedDBCacheData = (): void => {
   const cachedInfo = apidocCache.getCacheInfo()
   if (cachedInfo) {
@@ -415,7 +416,7 @@ const initIndexedDBCacheData = (): void => {
   }
 }
 
-// 保存缓存数据
+// 保存本地数据
 const saveCacheData = (): void => {
   apidocCache.setCacheInfo({
     indexedDBSize: cacheInfo.value.indexedDBSize,
@@ -430,7 +431,7 @@ const saveCacheData = (): void => {
 */
 onMounted(() => {
   getLocalStorage()
-  initIndexedDBCacheData() // 加载缓存数据
+  initIndexedDBCacheData() // 加载本地数据
   initWorker();
   initMessageHandler()
 })
@@ -446,9 +447,12 @@ onUnmounted(() => {
 
 <style lang="scss" scoped>
 .cache-management {
-  padding: 20px;
-  width: 70%;
-  margin: 0 auto;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  
   .page-title {
     margin-bottom: 24px;
 
