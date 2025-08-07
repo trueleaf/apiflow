@@ -62,6 +62,7 @@
   --zIndex-contextmenu: 1996;
   --zIndex-loading-text: 2222;
   --zIndex-copy: 2599;
+  --zIndex-language: 2600;
   --el-transition-duration: 0;
   /* 业务变量 */
   --apiflow-header-height: 35px;

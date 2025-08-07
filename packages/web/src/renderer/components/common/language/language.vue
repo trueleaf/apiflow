@@ -13,10 +13,10 @@
       :key="language.code"
       class="language-menu-item"
       :class="{ active: currentLanguage === language.code }"
-      @click="handleLanguageSelect(language.code)"
       role="menuitem"
       :aria-selected="currentLanguage === language.code"
       tabindex="0"
+      @click="handleLanguageSelect(language.code)"
       @keydown.enter="handleLanguageSelect(language.code)"
       @keydown.space.prevent="handleLanguageSelect(language.code)"
     >
@@ -65,8 +65,8 @@ const emit = defineEmits<Emits>()
 
 // 支持的语言列表
 const languages = [
-  { code: 'zh-CN' as Language, name: '简体中文', flag: '🇨🇳' },
-  { code: 'zh-TW' as Language, name: '繁體中文', flag: '🇹🇼' },
+  { code: 'zh-cn' as Language, name: '简体中文', flag: '🇨🇳' },
+  { code: 'zh-tw' as Language, name: '繁體中文', flag: '🇹🇼' },
   { code: 'en' as Language, name: 'English', flag: '🇺🇸' },
   { code: 'ja' as Language, name: '日本語', flag: '🇯🇵' },
 ]
@@ -172,7 +172,7 @@ const handleClose = () => {
   left: 0;
   right: 0;
   bottom: 0;
-  z-index: 9998;
+  z-index: var(--zIndex-language);
   background: transparent;
 }
 </style>
