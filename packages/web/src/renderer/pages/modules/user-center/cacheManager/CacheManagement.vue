@@ -227,6 +227,10 @@ const getLocalStorage = () => {
           description = '最近一次访问的页面'
         } else if (key === 'language') {
           description = '语言设置'
+        } else if (key === 'apidoc/localData/activeMenu') {
+          description = '个人中心被选中菜单'
+        } else if (key === 'apidoc/cache/info') {
+          description = '缓存已计算的本地数据'
         } else {
           description = '其他本地数据'
         }
@@ -428,7 +432,6 @@ onUnmounted(() => {
     color: #909399;
     font-size: 14px;
     cursor: pointer;
-    margin-top: 8px;
   }
 }
 

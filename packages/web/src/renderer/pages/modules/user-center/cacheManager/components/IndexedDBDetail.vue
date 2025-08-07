@@ -26,7 +26,6 @@
       <div class="empty-text">
         暂无数据，
         <el-button link type="primary" @click="emit('refresh')">点击刷新</el-button>
-        更新数据
       </div>
     </div>
     <!-- IndexedDB 本地数据详情组件 -->

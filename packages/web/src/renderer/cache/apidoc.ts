@@ -696,6 +696,37 @@ class ApidocCache extends ResponseCache {
 
   /*
   |--------------------------------------------------------------------------
+  | 本地数据管理相关方法
+  |--------------------------------------------------------------------------
+  */
+
+  /*
+   * 获取当前活跃的本地数据管理菜单
+   */
+  getActiveLocalDataMenu(): string {
+    try {
+      const activeMenu = localStorage.getItem('apidoc/localData/activeMenu') || 'localStorage';
+      return activeMenu;
+    } catch (error) {
+      console.error(error);
+      return 'localStorage'
+    }
+  }
+
+  /*
+   * 设置当前活跃的本地数据管理菜单
+   */
+  setActiveLocalDataMenu(activeMenu: string) {
+    try {
+      localStorage.setItem('apidoc/localData/activeMenu', activeMenu);
+    } catch (error) {
+      console.error(error);
+      localStorage.setItem('apidoc/localData/activeMenu', 'localStorage');
+    }
+  }
+
+  /*
+  |--------------------------------------------------------------------------
   | 缓存管理相关方法
   |--------------------------------------------------------------------------
   */

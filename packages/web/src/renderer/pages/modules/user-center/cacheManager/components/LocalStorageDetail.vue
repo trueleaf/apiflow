@@ -21,7 +21,7 @@
     </el-table>
     
     <!-- 空数据提示 -->
-    <div v-if="1 || !props.localStorageLoading && props.localStorageDetails.length === 0" class="empty-data">
+    <div v-if="!props.localStorageLoading && props.localStorageDetails.length === 0" class="empty-data">
       <div class="empty-text">
         <span>暂无数据</span>
         <el-button link type="primary" :loading="props.localStorageLoading" @click="emit('refresh')">点击计算</el-button>
