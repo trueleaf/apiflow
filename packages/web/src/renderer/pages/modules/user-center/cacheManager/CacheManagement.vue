@@ -1,11 +1,8 @@
 <template>
   <div class="cache-management">
-    <!-- 页面标题区域 -->
     <div class="page-title">
       <h2>本地数据管理</h2>
     </div>
-
-    <!-- 本地数据统计区域 -->
     <div class="statistics">
       <!-- localStorage 本地数据卡片 -->
       <div 
@@ -34,7 +31,6 @@
           <div class="cache-size">{{ formatBytes(cacheInfo.localStroageSize) }}</div>
         </div>
       </div>
-
       <!-- IndexedDB 本地数据卡片 -->
       <div 
         class="cache-card"
@@ -65,80 +61,57 @@
         <div v-if="!indexedDBLoading && cacheInfo.indexedDBSize === -1" class="gray-500" @click.stop="getIndexedDB">点击计算本地数据大小</div>
         <div v-if="indexedDBLoading" class="gray-500">计算中...</div>
       </div>
-    </div>
-
-    <!-- localStorage 详情表格 -->
-    <div v-if="selectedCacheType === 'localStorage'" class="localstorage-table-container">
-      <div class="table-title">
-        <h3>localStorage 数据详情</h3>
+      <!-- 数据备份卡片 -->
+      <div 
+        class="cache-card"
+        :class="{ 'selected': selectedCacheType === 'backup' }"
+        @click="handleSelectCacheType('backup')"
+      >
+        <div class="card-header">
+          <div class="card-icon">
+            <i class="iconfont iconexport"></i>
+          </div>
+          <div class="card-title">数据备份/导出</div>
+        </div>
+        <div class="card-body">
+          <div class="card-description">
+            <div>备份所有本地数据 | 导出本地数据</div>
+          </div>
+        </div>
       </div>
-      <el-table :data="cacheInfo.localStorageDetails" border>
-        <el-table-column prop="description" label="描述" />
-        <el-table-column prop="key" label="键名" show-overflow-tooltip />
-        <el-table-column prop="size" label="大小">
-          <template #default="scope">
-            {{ formatBytes(scope.row.size) }}
-          </template>
-        </el-table-column>
-        <el-table-column label="操作" width="150" fixed="right">
-          <template #default="scope">
-            <el-button link @click="handleOpenLocalStorageDetail(scope.row)">{{ $t('详情') }}</el-button>
-            <el-button link type="danger" @click="handleDeleteLocalStorage(scope.row)">{{ $t('删除') }}</el-button>
-          </template>
-        </el-table-column>
-      </el-table>
-      
-      <!-- 空数据提示 -->
-      <div v-if="!localStorageLoading && cacheInfo.localStorageDetails.length === 0" class="empty-data">
-        <div class="empty-text">暂无数据,点击刷新按钮更新数据</div>
+      <!-- 数据恢复卡片 -->
+      <div 
+        class="cache-card"
+        :class="{ 'selected': selectedCacheType === 'restore' }"
+        @click="handleSelectCacheType('restore')"
+      >
+        <div class="card-header">
+          <div class="card-icon">
+            <i class="iconfont iconimport"></i>
+          </div>
+          <div class="card-title">数据恢复/导入</div>
+        </div>
+        <div class="card-body">
+          <div class="card-description">从备份中恢复数据</div>
+        </div>
       </div>
     </div>
-
-    <!-- IndexedDB 详情表格 -->
-    <div v-if="selectedCacheType === 'indexedDB'" class="indexeddb-table-container">
-      <div class="table-title">
-        <h3>IndexedDB 本地数据详情</h3>
-      </div>
-      <el-table :data="cacheInfo.indexedDBDetails" border>
-        <el-table-column prop="description" label="描述" />
-        <el-table-column prop="dbName" label="数据库名称"  />
-        <el-table-column prop="storeName" label="存储名称" />
-        <el-table-column prop="size" label="大小">
-          <template #default="scope">
-            {{ formatBytes(scope.row.size) }}
-          </template>
-
-        </el-table-column>
-        <el-table-column label="操作" width="150" fixed="right">
-          <template #default="scope">
-            <el-button link @click="handleOpenIndexedDBDetail(scope.row)">{{ $t('详情') }}</el-button>
-            <el-button link type="danger" @click="handleDelete(scope.row)">{{ $t('删除') }}</el-button>
-          </template>
-        </el-table-column>
-      </el-table>
-    </div>
-
-    <!-- 空数据提示 -->
-    <div v-if="!indexedDBLoading && cacheInfo.indexedDBDetails.length === 0 && cacheInfo.indexedDBSize !== -1" class="empty-data">
-      <div class="empty-text">暂无数据,点击刷新按钮更新数据</div>
-    </div>
-
-    <!-- IndexedDB 本地数据详情组件 -->
-    <IndexedDBDialog
-      v-if="detailDialogVisible"
-      v-model:visible="detailDialogVisible"
-      :current-store-info="currentIndexedDBItem!"
-      :worker="indexedDBWorkerRef"
-      @close="handleCloseIndexedDbDialog"
+    <LocalStorageDetail 
+      v-if="selectedCacheType === 'localStorage'" 
+      :local-storage-details="cacheInfo.localStorageDetails"
+      :local-storage-loading="localStorageLoading"
+      @refresh="getLocalStorage"
     />
-
-    <!-- localStorage 本地数据详情组件 -->
-    <LocalStorageDialog
-      v-if="localStorageDialogVisible"
-      v-model:visible="localStorageDialogVisible"
-      :current-item="currentLocalStorageItem!"
-      @close="handleCloseLocalStorageDialog"
+    <IndexedDBDetail 
+      v-if="selectedCacheType === 'indexedDB'" 
+      :indexed-d-b-details="cacheInfo.indexedDBDetails"
+      :indexed-d-b-loading="indexedDBLoading"
+      :indexed-d-b-size="cacheInfo.indexedDBSize"
+      :indexed-d-b-worker-ref="indexedDBWorkerRef"
+      @refresh="getIndexedDB"
     />
+    <DataBackup v-if="selectedCacheType === 'backup'" />
+    <DataRestore v-if="selectedCacheType === 'restore'" />
  </div>
 </template>
 
@@ -147,10 +120,12 @@ import { ref, onMounted, onUnmounted } from 'vue'
 import { CacheInfo, LocalStorageItem, IndexedDBItem } from '@src/types/apidoc/cache'
 import { formatBytes } from '@/helper'
 import { RefreshRight } from '@element-plus/icons-vue'
-import { ElMessageBox, ElMessage } from 'element-plus'
+import { ElMessage } from 'element-plus'
 import { apidocCache } from '@/cache/apidoc'
-import IndexedDBDialog from './dialog/indexedDBDialog.vue'
-import LocalStorageDialog from './dialog/localStorageDialog.vue'
+import LocalStorageDetail from './components/LocalStorageDetail.vue'
+import IndexedDBDetail from './components/IndexedDBDetail.vue'
+import DataBackup from './components/DataBackup.vue'
+import DataRestore from './components/DataRestore.vue'
 
 /*
 |--------------------------------------------------------------------------
@@ -160,32 +135,25 @@ import LocalStorageDialog from './dialog/localStorageDialog.vue'
 const indexedDBLoading = ref(false)
 const localStorageLoading = ref(false)
 const indexedDBWorkerRef = ref<Worker | null>(null)
-const detailDialogVisible = ref(false)
-const currentIndexedDBItem = ref<IndexedDBItem | null>(null)
-// localStorage详情弹窗相关
-const localStorageDialogVisible = ref(false)
-const currentLocalStorageItem = ref<LocalStorageItem | null>(null)
-// 选中状态
-const selectedCacheType = ref<'localStorage' | 'indexedDB'>('localStorage')
-// 本地数据信息数据
+const selectedCacheType = ref<'localStorage' | 'indexedDB' | 'backup' | 'restore'>('localStorage')
 const cacheInfo = ref<CacheInfo>({
   localStroageSize: 0,
   indexedDBSize: -1,
   localStorageDetails: [],
   indexedDBDetails: []
 })
-
-
 /*
 |--------------------------------------------------------------------------
 | 初始化相关
 |--------------------------------------------------------------------------
 */
+//初始化 Web Worker
 const initWorker = () => {
   indexedDBWorkerRef.value = new Worker(new URL('@/worker/indexedDB.ts', import.meta.url), { type: 'module' });
+  indexedDBWorkerRef.value.addEventListener('message', handleMessage);
 }
-//初始化消息处理器
-const messageHandler = (event: MessageEvent) => {
+//消息处理
+const handleMessage = (event: MessageEvent) => {
   const { data } = event
   if (data.type === 'changeStatus') {
     cacheInfo.value.indexedDBSize = data.data.size;
@@ -229,20 +197,11 @@ const messageHandler = (event: MessageEvent) => {
     ElMessage.error('操作失败: ' + (data.error?.message || '未知错误'))
   }
 };
-
-const initMessageHandler = () => {
-  if (!indexedDBWorkerRef.value) return
-  
-  // 使用addEventListener而不是直接赋值onmessage，防止被覆盖
-  indexedDBWorkerRef.value.addEventListener('message', messageHandler);
-}
-//获取 localStorage 本地数据信息
 const getLocalStorage = () => {
   localStorageLoading.value = true
   try {
     let totalSize = 0
     const details: LocalStorageItem[] = []
-
     // 遍历 localStorage 中的所有键值对
     for (let key in localStorage) {
       if (localStorage.hasOwnProperty(key)) {
@@ -278,10 +237,7 @@ const getLocalStorage = () => {
         })
       }
     }
-    // 按大小降序排序，方便查看占用空间最大的本地数据项
     details.sort((a, b) => b.size - a.size)
-
-    // 更新本地数据信息
     cacheInfo.value.localStroageSize = totalSize
     cacheInfo.value.localStorageDetails = details
 
@@ -294,7 +250,6 @@ const getLocalStorage = () => {
     localStorageLoading.value = false
   }
 }
-//获取 IndexedDB 本地数据信息 (使用 Web Worker)
 const getIndexedDB = async () => {
   if (!indexedDBWorkerRef.value || indexedDBLoading.value) {
     return
@@ -305,117 +260,29 @@ const getIndexedDB = async () => {
   indexedDBLoading.value = true;
 }
 
-/*
-|--------------------------------------------------------------------------
-| 表格相关操作
-|--------------------------------------------------------------------------
-*/
-
 // 处理本地数据类型选择
-const handleSelectCacheType = (type: 'localStorage' | 'indexedDB'): void => {
-  // 选择新的本地数据类型
+const handleSelectCacheType = (type: 'localStorage' | 'indexedDB' | 'backup' | 'restore'): void => {
   selectedCacheType.value = type
-  // 如果选择了localStorage且没有数据，则刷新数据
   if (type === 'localStorage' && cacheInfo.value.localStorageDetails.length === 0) {
     getLocalStorage()
   }
-  // 如果选择了indexedDB且没有数据，则刷新数据
-  if (type === 'indexedDB' && cacheInfo.value.indexedDBDetails.length === 0 && cacheInfo.value.indexedDBSize !== -1) {
+  if (type === 'indexedDB' && cacheInfo.value.indexedDBDetails.length === 0) {
     getIndexedDB()
   }
 }
-// 查看详情
-const handleOpenIndexedDBDetail = (row: IndexedDBItem): void => {
-  currentIndexedDBItem.value = row
-  detailDialogVisible.value = true
-}
-
-// 查看localStorage详情
-const handleOpenLocalStorageDetail = (row: LocalStorageItem): void => {
-  currentLocalStorageItem.value = row
-  localStorageDialogVisible.value = true
-}
-
-// 删除单个store
-const handleDelete = async (row: IndexedDBItem): Promise<void> => {
-  try {
-    await ElMessageBox.confirm(
-      `确定要删除 "${row.description}" 本地数据吗？此操作将清空该存储中的所有数据。`,
-      '删除确认',
-      {
-        confirmButtonText: '确定删除',
-        cancelButtonText: '取消',
-        type: 'warning'
-      }
-    )
-
-    if (!indexedDBWorkerRef.value) {
-      ElMessage.error('Worker未初始化')
-      return
-    }
-
-    // 发送删除消息到worker，附加size参数
-    indexedDBWorkerRef.value.postMessage({
-      type: 'deleteStore',
-      dbName: row.dbName,
-      storeName: row.storeName,
-      size: row.size
-    })
-
-  } catch {
-    // 用户取消删除操作，不做任何处理
-  }
-}
-
-// 删除localStorage本地数据项
-const handleDeleteLocalStorage = async (row: LocalStorageItem): Promise<void> => {
-  try {
-    await ElMessageBox.confirm(
-      `确定要删除 "${row.description}" 本地数据吗？此操作将永久删除该本地数据项。`,
-      '删除确认',
-      {
-        confirmButtonText: '确定删除',
-        cancelButtonText: '取消',
-        type: 'warning'
-      }
-    )
-    // 从localStorage中删除该项
-    localStorage.removeItem(row.key)
-    // 重新计算localStorage总大小并更新表格数据
-    getLocalStorage()
-    ElMessage.success('删除成功')
-
-  } catch {
-    // 用户取消删除操作，不做任何处理
-  }
-}
-
-// 关闭详情模态框
-const handleCloseIndexedDbDialog = (): void => {
-  detailDialogVisible.value = false
-  currentIndexedDBItem.value = null
-}
-
-// 关闭localStorage详情模态框
-const handleCloseLocalStorageDialog = (): void => {
-  localStorageDialogVisible.value = false
-  currentLocalStorageItem.value = null
-}
-
 /*
 |--------------------------------------------------------------------------
-| 本地数据已加载的indexedDB本地数据
+| 缓存已加载的indexedDB数据
 |--------------------------------------------------------------------------
 */
 // 加载本地数据
-const initIndexedDBCacheData = (): void => {
+const getIndexedDBCacheData = (): void => {
   const cachedInfo = apidocCache.getCacheInfo()
   if (cachedInfo) {
     cacheInfo.value.indexedDBSize = cachedInfo.indexedDBSize
     cacheInfo.value.indexedDBDetails = cachedInfo.indexedDBDetails as IndexedDBItem[]
   }
 }
-
 // 保存本地数据
 const saveCacheData = (): void => {
   apidocCache.setCacheInfo({
@@ -423,7 +290,6 @@ const saveCacheData = (): void => {
     indexedDBDetails: cacheInfo.value.indexedDBDetails
   })
 }
-
 /*
 |--------------------------------------------------------------------------
 | 组件生命周期
@@ -431,15 +297,13 @@ const saveCacheData = (): void => {
 */
 onMounted(() => {
   getLocalStorage()
-  initIndexedDBCacheData() // 加载本地数据
+  getIndexedDBCacheData() // 如果计算过indexedDB则默认取缓存数据
   initWorker();
-  initMessageHandler()
 })
-
 // 组件卸载时移除事件监听器，防止内存泄漏
 onUnmounted(() => {
   if (indexedDBWorkerRef.value) {
-    indexedDBWorkerRef.value.removeEventListener('message', messageHandler)
+    indexedDBWorkerRef.value.removeEventListener('message', handleMessage)
   }
 })
 
@@ -467,7 +331,7 @@ onUnmounted(() => {
   .statistics {
     display: flex;
     gap: 20px;
-
+    margin-bottom: 20px;
     .cache-card {
       width: 250px;
       height: 110px;
@@ -550,56 +414,22 @@ onUnmounted(() => {
           color: #409eff;
           line-height: 1;
         }
+        .card-description {
+          font-size: 14px;
+          color: #606266;
+          line-height: 1.4;
+        }
       }
     }
   }
 
-  // IndexedDB 表格容器
-  .indexeddb-table-container {
-    margin-top: 24px;
-    background: #fff;
-    .table-title {
-      margin-bottom: 16px;
-      h3 {
-        margin: 0;
-        font-size: 18px;
-        font-weight: 600;
-        color: #333;
-      }
-    }
+  // 添加灰色文本样式
+  .gray-500 {
+    color: #909399;
+    font-size: 14px;
+    cursor: pointer;
+    margin-top: 8px;
   }
-  
-  // localStorage 表格容器
-  .localstorage-table-container {
-    margin-top: 24px;
-    background: #fff;
-    .table-title {
-      margin-bottom: 16px;
-      h3 {
-        margin: 0;
-        font-size: 18px;
-        font-weight: 600;
-        color: #333;
-      }
-    }
-  }
-
-  // 空数据提示
-  .empty-data {
-    margin-top: 24px;
-    background: #fff;
-    border-radius: 8px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-    padding: 40px 20px;
-    text-align: center;
-
-    .empty-text {
-      font-size: 16px;
-      color: #999;
-    }
-  }
-
-
 }
 
 @keyframes spin {
