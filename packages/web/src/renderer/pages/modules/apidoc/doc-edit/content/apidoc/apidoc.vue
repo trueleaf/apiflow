@@ -96,6 +96,7 @@ const getApidocInfo = async () => {
   }
   //=====================================获取缓存的返回参数====================================//
   const localResponse = await apidocCache.getResponse(currentSelectTab.value._id);
+  console.log(32, localResponse)
   apidocResponseStore.clearResponse();
   if (localResponse) {
     // console.log('localResponse', localResponse)
@@ -104,6 +105,11 @@ const getApidocInfo = async () => {
     apidocResponseStore.changeResponseInfo(localResponse)
     apidocResponseStore.changeResponseBody(rawBody as Uint8Array);
     apidocResponseStore.changeFileBlobUrl(rawBody as Uint8Array, localResponse.contentType)
+    // 如果有缓存的响应数据，说明之前的请求已经完成，设置状态为finish
+    apidocResponseStore.changeRequestState('finish');
+  } else {
+    // 只有在没有缓存数据时才设置为waiting
+    apidocResponseStore.changeRequestState('waiting');
   }
 }
 
@@ -111,7 +117,8 @@ watch(currentSelectTab, (val, oldVal) => {
   const isApidoc = val?.tabType === 'doc';
   if (isApidoc && val?._id !== oldVal?._id) {
     getApidocInfo();
-    apidocResponseStore.changeRequestState('waiting')
+    // 只有在没有缓存响应数据时才设置为waiting，否则保持当前状态
+    // apidocResponseStore.changeRequestState('waiting')
   }
 }, {
   deep: true,
