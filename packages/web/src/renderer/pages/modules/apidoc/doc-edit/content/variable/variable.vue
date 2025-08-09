@@ -356,7 +356,7 @@ const handleAddVariable = () => {
       loading.value = true;
       const params: AddProjectVariableParams =  {
         projectId: route.query.id as string,
-        name: formInfo.value.name,
+        name: formInfo.value.name.trim(),
         type: formInfo.value.type,
         value: "",
         fileValue: {
@@ -366,7 +366,7 @@ const handleAddVariable = () => {
         }
       };
       if (formInfo.value.type === 'string') {
-        params.value = formInfo.value.stringValue;
+        params.value = formInfo.value.stringValue.trim();
       } else if (formInfo.value.type === 'number') {
         params.value = formInfo.value.numberValue.toString();
       } else if (formInfo.value.type === 'boolean') {

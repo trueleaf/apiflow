@@ -15,12 +15,29 @@ export class VariableCache {
       }
 
       // 检查变量名称在同一项目下是否重复
-      const existingVariablesResponse = await this.getAll(variable.projectId);
-      if (existingVariablesResponse.code === 0) {
-        const nameExists = existingVariablesResponse.data.some(v => v.name === variable.name);
+      try {
+        const checkTx = this.db.transaction("variables", "readonly");
+        const checkStore = checkTx.objectStore("variables");
+        let projectVariables: ApidocVariable[] = [];
+        
+        try {
+          const index = checkStore.index("projectId");
+          projectVariables = await index.getAll(variable.projectId);
+        } catch (indexError) {
+          // 如果索引不存在，回退到全量查询
+          const allVariables = await checkStore.getAll();
+          projectVariables = allVariables.filter(v => v.projectId === variable.projectId);
+        }
+        
+        await checkTx.done;
+        
+        const nameExists = projectVariables.some(v => v.name === variable.name);
         if (nameExists) {
           return { code: 1, msg: "变量名称已存在", data: null as any };
         }
+      } catch (checkError) {
+        console.error("检查变量名称重复失败:", checkError);
+        // 如果检查失败，继续执行添加操作
       }
 
       const id = nanoid()
@@ -28,10 +45,11 @@ export class VariableCache {
         ...variable,
         _id: id
       };
-      const tx = this.db.transaction("variables", "readwrite");
-      const store = tx.objectStore("variables");
-      await store.put(variableWithId, id);
-      await tx.done;
+      
+      const addTx = this.db.transaction("variables", "readwrite");
+      const addStore = addTx.objectStore("variables");
+      await addStore.put(variableWithId, id);
+      await addTx.done;
       return { code: 0, msg: "success", data: variableWithId };
     } catch (error) {
       console.error("添加变量失败:", error);
@@ -55,32 +73,58 @@ export class VariableCache {
       if (!id) {
         return { code: 1, msg: "变量ID不能为空", data: null as any };
       }
-      const tx = this.db.transaction("variables", "readwrite");
-      const store = tx.objectStore("variables");
-      const existingVariable = await store.get(id);
+
+      // 先获取现有变量
+      const readTx = this.db.transaction("variables", "readonly");
+      const readStore = readTx.objectStore("variables");
+      const existingVariable = await readStore.get(id);
+      await readTx.done;
+
       if (!existingVariable) {
         return { code: 1, msg: "变量不存在", data: null as any };
       }
 
       // 如果更新了变量名称，检查在同一项目下是否重复
       if (updates.name && updates.name !== existingVariable.name) {
-        const existingVariablesResponse = await this.getAll(existingVariable.projectId);
-        if (existingVariablesResponse.code === 0) {
-          const nameExists = existingVariablesResponse.data.some(v => v.name === updates.name && v._id !== id);
+        try {
+          // 使用索引查询同项目下的所有变量
+          const checkTx = this.db.transaction("variables", "readonly");
+          const checkStore = checkTx.objectStore("variables");
+          let projectVariables: ApidocVariable[] = [];
+          
+          try {
+            const index = checkStore.index("projectId");
+            projectVariables = await index.getAll(existingVariable.projectId);
+          } catch (indexError) {
+            // 如果索引不存在，回退到全量查询
+            const allVariables = await checkStore.getAll();
+            projectVariables = allVariables.filter(v => v.projectId === existingVariable.projectId);
+          }
+          
+          await checkTx.done;
+          
+          const nameExists = projectVariables.some(v => v.name === updates.name && v._id !== id);
           if (nameExists) {
             return { code: 1, msg: "变量名称已存在", data: null as any };
           }
+        } catch (checkError) {
+          console.error("检查变量名称重复失败:", checkError);
+          // 如果检查失败，继续执行更新操作
         }
       }
 
+      // 执行更新操作
+      const updateTx = this.db.transaction("variables", "readwrite");
+      const updateStore = updateTx.objectStore("variables");
+      
       const updatedVariable: ApidocVariable = {
         ...existingVariable,
         ...updates,
         _id: id
       };
 
-      await store.put(updatedVariable, id);
-      await tx.done;
+      await updateStore.put(updatedVariable, id);
+      await updateTx.done;
       return { code: 0, msg: "success", data: updatedVariable };
     } catch (error) {
       console.error("更新变量失败:", error);
