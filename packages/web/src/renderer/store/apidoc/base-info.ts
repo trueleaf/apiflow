@@ -239,15 +239,20 @@ export const useApidocBaseInfo = defineStore('apidocBaseInfo', () => {
    * 获取项目基本信息
    */
   const getProjectBaseInfo = async (payload: { projectId: string }): Promise<void> => {
+    const { replaceVariables } = useVariable();
     if(__STANDALONE__){
       const projectInfo = await standaloneCache.getProjectInfo(payload.projectId);
       if(projectInfo){
         projectName.value = projectInfo.projectName;
         _id.value = projectInfo._id;
       }
-      return;
+      const response = await standaloneCache.getAllVariables(payload.projectId);
+      if (response.code === 0) {
+        replaceVariables(response.data);
+        return Promise.resolve();
+      }
+      return Promise.reject();
     }
-    const { replaceVariables } = useVariable();
     return new Promise((resolve, reject) => {
       const params = {
         _id: payload.projectId,

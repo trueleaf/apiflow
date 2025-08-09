@@ -70,7 +70,7 @@ const getMethod = (apidoc: ApidocDetail) => {
   return apidoc.item.method;
 }
 export const getUrl = async (apidoc: ApidocDetail) => {
-  const { objectVariable } = useVariable()
+  const { objectVariable } = useVariable();
   const { url, queryParams, paths, } = apidoc.item;
   const queryString = await getQueryStringFromQueryParams(queryParams, objectVariable);
   const objectPathParams = await getObjectPathParams(paths, objectVariable);
@@ -397,13 +397,13 @@ export async function sendRequest() {
       },
       onResponseData(chunkWithTimestampe, loadedLength, totalLength) {
         addStreamData(chunkWithTimestampe)
-        changeLoadingProcess({
-          total: totalLength,
-          transferred: loadedLength,
-          percent: loadedLength / totalLength
-        })
         changeResponseInfo({
           bodyByteLength: apidocResponseStore.responseInfo.bodyByteLength + chunkWithTimestampe.chunk.byteLength,
+        })
+        changeLoadingProcess({
+          total: totalLength || (apidocResponseStore.responseInfo.bodyByteLength + chunkWithTimestampe.chunk.byteLength),
+          transferred: loadedLength,
+          percent: loadedLength / totalLength
         })
       },
       onResponseEnd(responseInfo) {

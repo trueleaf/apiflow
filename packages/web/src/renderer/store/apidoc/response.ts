@@ -30,18 +30,22 @@ export const useApidocResponse = defineStore('apidocResponse', () => {
     //重新生成blobUrl
     const type = payload.responseData?.canApiflowParseType;
     if (type === 'image' || type === 'word' || type === 'pdf' || type === 'excel' || type === 'ppt' || type === 'video') {
-      const blob = new Blob([payload.body as Uint8Array], { type: payload.contentType });
-      const blobUrl = URL.createObjectURL(blob);
-      payload.responseData!.fileData!.url = blobUrl;
+      const body = payload.body as unknown;
+      if (body instanceof Uint8Array) {
+        // 复制到新的 Uint8Array，确保使用标准 ArrayBuffer（规避 SharedArrayBuffer 类型不兼容）
+        const copy = new Uint8Array(body);
+        const blob = new Blob([copy], { type: payload.contentType });
+        const blobUrl = URL.createObjectURL(blob);
+        if (payload.responseData && payload.responseData.fileData) {
+          payload.responseData.fileData.url = blobUrl;
+        }
+      }
     }
     assign(responseInfo.value, payload);
-    //生成加载进度数据
-    loadingProcess.value.percent = 1
-    loadingProcess.value.transferred = payload.bodyByteLength || 0
-    loadingProcess.value.total = payload.bodyByteLength || 0
   }
   const changeFileBlobUrl = (rawBody: Uint8Array, contentType: string) => {
-    const blob = new Blob([rawBody], { type: contentType });
+    const copy = new Uint8Array(rawBody);
+    const blob = new Blob([copy], { type: contentType });
     const blobUrl = URL.createObjectURL(blob);
     responseInfo.value.responseData.fileData.url = blobUrl;
   }
