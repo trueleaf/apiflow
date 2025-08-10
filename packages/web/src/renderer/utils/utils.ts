@@ -86,6 +86,76 @@ export const getObjectVariable = async (variables: ApidocVariable[]) => {
   }
   return Promise.resolve(objectVariable);
 };
+
+/*
+|--------------------------------------------------------------------------
+| 表达式计算辅助函数
+|--------------------------------------------------------------------------
+*/
+
+/**
+ * 检查字符串是否为表达式
+ * 表达式特征：包含运算符且不是纯变量名
+ */
+const isExpression = (str: string): boolean => {
+  // 去除首尾空格
+  const trimmed = str.trim();
+  
+  // 如果是纯数字，不视为表达式
+  if (/^\d+(\.\d+)?$/.test(trimmed)) {
+    return false;
+  }
+  
+  // 如果是纯变量名（字母、数字、下划线），不视为表达式
+  if (/^[a-zA-Z_]\w*$/.test(trimmed)) {
+    return false;
+  }
+  
+  // 包含运算符的视为表达式
+  return /[+\-*/()%<>=!&|]/.test(trimmed);
+};
+
+/**
+ * 安全计算表达式
+ * 支持基本的数学运算和变量替换
+ */
+const evaluateExpression = (expression: string, variables: Record<string, any>): any => {
+  // 创建安全的计算环境
+  const safeGlobals = {
+    Math,
+    Number,
+    String,
+    Boolean,
+    Array,
+    Object,
+    parseInt,
+    parseFloat,
+    isNaN,
+    isFinite,
+    ...variables
+  };
+  
+  try {
+    // 替换表达式中的变量
+    let processedExpression = expression;
+    
+    // 替换变量名为实际值
+    Object.keys(variables).forEach(varName => {
+      const regex = new RegExp(`\\b${varName}\\b`, 'g');
+      const value = variables[varName];
+      // 如果是字符串，需要加引号
+      const replacement = typeof value === 'string' ? `"${value}"` : String(value);
+      processedExpression = processedExpression.replace(regex, replacement);
+    });
+    
+    // 使用Function构造函数在受限环境中执行
+    const func = new Function(...Object.keys(safeGlobals), `return (${processedExpression})`);
+    return func(...Object.values(safeGlobals));
+  } catch (error) {
+    throw new Error(`表达式计算错误: ${(error as Error).message}`);
+  }
+};
+
 /*
 |--------------------------------------------------------------------------
 | 将模板转换为字符串
@@ -99,9 +169,10 @@ export const convertTemplateValueToRealValue = async (
   stringValue: string,
   objectVariable: Record<string, any>
 ) => {
+
   const isSingleMustachTemplate = stringValue.match(
-    /^\s*\{\{\s*([^}\s]+)\s*\}\}\s*$/
-  ); // 这种属于单模板，返回实际值，可能是数字、对象等"{{ variable }}"
+    /^\s*\{\{\s*(.*?)\s*\}\}\s*$/
+  ); // 这种属于单模板，返回实际值，可能是数字、对象等"{{ variable }}"或"{{ expression }}"
   if (isSingleMustachTemplate) {
     const variableName = isSingleMustachTemplate[1];
     if (variableName.startsWith("@")) {
@@ -109,6 +180,17 @@ export const convertTemplateValueToRealValue = async (
     }
     if (objectVariable[variableName] !== undefined) {
       return objectVariable[variableName];
+    }
+    // 检查是否为表达式
+    if (isExpression(variableName)) {
+      try {
+        const result = evaluateExpression(variableName, objectVariable);
+        // 如果结果是数字，直接返回数字而不是字符串
+        return result;
+      } catch (error) {
+        console.warn('表达式计算失败:', variableName, error);
+        return isSingleMustachTemplate[0];
+      }
     }
     return isSingleMustachTemplate[0];
   }
@@ -121,6 +203,17 @@ export const convertTemplateValueToRealValue = async (
         return Mock.mock(variableName);
       }
       if (!isVariableExist) {
+        // 检查是否为表达式
+        if (isExpression(variableName)) {
+          try {
+            const result = evaluateExpression(variableName, objectVariable);
+            // 在字符串模板中，需要将结果转换为字符串
+            return String(result);
+          } catch (error) {
+            console.warn('表达式计算失败:', variableName, error);
+            return $1;
+          }
+        }
         return $1;
       }
       const value = objectVariable[variableName];

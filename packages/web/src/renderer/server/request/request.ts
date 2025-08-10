@@ -101,15 +101,21 @@ const getBody = async (apidoc: ApidocDetail): Promise<GotRequestOptions['body']>
      * 情况4: "\{{ @xxx }}" 反斜杠转义，不会被解析
      */
     const bigNumberMap: Record<string, string> = {}; // 存储超长数字
-    const replacedRawJson = apidoc.item.requestBody.rawJson.replace(/([+-]?\d*\.?\d+)(?=\s*[,}\]])/g, ($1) => {
-      const replacedStr = `"${$1}n"`;
-      bigNumberMap[`${$1}n`] = `${$1}`;
-      return replacedStr;
+    const MAX_SAFE_INTEGER_LENGTH = 16; // Number.MAX_SAFE_INTEGER 的长度
+    const replacedRawJson = apidoc.item.requestBody.rawJson.replace(/([+-]?\d+)(?=\s*[,}\]])/g, ($1) => {
+      // 只处理超过安全长度的整数
+      const numberStr = $1.replace(/^[+-]/, ''); // 移除符号来计算长度
+      if (numberStr.length > MAX_SAFE_INTEGER_LENGTH) {
+        const replacedStr = `"${$1}n"`;
+        bigNumberMap[`${$1}n`] = `${$1}`;
+        return replacedStr;
+      }
+      return $1; // 安全长度内的数字不做处理
     })
     try {
       const jsonObject = json5.parse(replacedRawJson || 'null');
       await Promise.all(convertStringValueAsync(jsonObject));
-      const stringBody = JSON.stringify(jsonObject).replace(/"([+-]?\d*\.?\d+n)"(?=\s*[,}\]])/g, (_, $2) => {
+      const stringBody = JSON.stringify(jsonObject).replace(/"([+-]?\d+n)"(?=\s*[,}\]])/g, (_, $2) => {
         return bigNumberMap[$2];
       })
       return {
