@@ -112,9 +112,7 @@ export default (): MidwayConfig => {
     permission: {
       isFree: false,
       whiteList: [
-        '/api/test/response',
-        '/api/test/request_method',
-        '/api/test/request_body',
+        '/api/test/**',
         '/mock/image',
         '/mock',
         '/api/security/register',

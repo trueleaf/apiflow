@@ -77,9 +77,20 @@ export class PermissionMiddleware implements IMiddleware<Context, NextFunction> 
     if (this.config.permission.isFree) {
       return true;
     }
-    return !!this.config.permission.whiteList.find(freeUrl =>
-      ctx.path.includes(freeUrl) || ctx.path.startsWith('/api/test')
-    );
+    return !!this.config.permission.whiteList.find(freeUrl => {
+      // 支持通配符匹配
+      if (freeUrl.endsWith('/**')) {
+        const basePath = freeUrl.slice(0, -3);
+        return ctx.path === basePath || ctx.path.startsWith(basePath + '/');
+      } else if (freeUrl.endsWith('/*')) {
+        const basePath = freeUrl.slice(0, -2);
+        const remainingPath = ctx.path.slice(basePath.length);
+        return ctx.path.startsWith(basePath + '/') && !remainingPath.slice(1).includes('/');
+      } else {
+        // 精确匹配或包含匹配
+        return ctx.path.includes(freeUrl);
+      }
+    });
   }
   static getName(): string {
     return 'permissionMiddleware';

@@ -340,6 +340,63 @@ export class APIController {
       headers: this.ctx.headers,
     };
   }
+
+  @All('/test/img')
+  async testImg(@Body() body: { size?: number; imgType?: string }) {
+    const { size = 2 * 1024 * 1024, imgType = 'png' } = body; // 默认2MB, PNG格式
+
+    // 设置对应的Content-Type
+    const contentTypes = {
+      'png': 'image/png',
+      'jpg': 'image/jpeg',
+      'jpeg': 'image/jpeg',
+      'gif': 'image/gif',
+      'bmp': 'image/bmp',
+      'webp': 'image/webp'
+    };
+    const contentType = contentTypes[imgType.toLowerCase()] || 'image/png';
+    this.ctx.set('Content-Type', contentType);
+
+    // 生成指定大小的模拟图片数据
+    let imageBuffer: Buffer;
+    if (imgType.toLowerCase() === 'png') {
+      // PNG文件头 (89 50 4E 47 0D 0A 1A 0A)
+      const pngHeader = Buffer.from([0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A]);
+      // IHDR chunk (简化版)
+      const ihdrChunk = Buffer.from([
+        0x00, 0x00, 0x00, 0x0D, // chunk length
+        0x49, 0x48, 0x44, 0x52, // "IHDR"
+        0x00, 0x00, 0x00, 0x64, // width: 100px
+        0x00, 0x00, 0x00, 0x64, // height: 100px
+        0x08, 0x02, 0x00, 0x00, 0x00, // bit depth, color type, compression, filter, interlace
+        0x4C, 0x8D, 0x2A, 0x53  // CRC
+      ]);
+      // IEND chunk
+      const iendChunk = Buffer.from([
+        0x00, 0x00, 0x00, 0x00, // chunk length
+        0x49, 0x45, 0x4E, 0x44, // "IEND"
+        0xAE, 0x42, 0x60, 0x82  // CRC
+      ]);
+      const headerSize = pngHeader.length + ihdrChunk.length + iendChunk.length;
+      const dataSize = Math.max(0, size - headerSize);
+      const dataBuffer = Buffer.alloc(dataSize);
+      // 填充渐变数据模式
+      for (let i = 0; i < dataSize; i++) {
+        dataBuffer[i] = (i % 256);
+      }
+      imageBuffer = Buffer.concat([pngHeader, ihdrChunk, dataBuffer, iendChunk]);
+    } else {
+      // 对于其他格式，直接生成指定大小的二进制数据
+      imageBuffer = Buffer.alloc(size);
+      // 填充一些模拟的图片数据模式
+      for (let i = 0; i < size; i++) {
+        imageBuffer[i] = (i % 256);
+      }
+    }
+    this.ctx.set('Content-Length', imageBuffer.length.toString());
+    return imageBuffer;
+  }
+
   @Post('/test/sse')
   async testSse(@Body() body: { stream?: boolean; size?: number, speed: number, jsonData?: 'json' | 'string' }) {
     const { stream = false, size = 200, speed = 100, jsonData = 'json' } = body;
@@ -393,20 +450,20 @@ export class APIController {
         }
 
         // SSE 格式：标准字段
-        this.ctx.res.write(`: 注释信息\n`);
-        this.ctx.res.write(`event: message\n`);
+        this.ctx.res.write(': 注释信息\n');
+        this.ctx.res.write('event: message\n');
         this.ctx.res.write(`data: ${JSON.stringify(payload)}\n`);
         // this.ctx.res.write(Buffer.from('hello word', 'utf8'));
-        this.ctx.res.write(`retry: 3000\n`);
+        this.ctx.res.write('retry: 3000\n');
         this.ctx.res.write(`id: ${i}\n\n`);
         // 间隔延时
         await new Promise(resolve => setTimeout(resolve, speed));
       }
       console.log(stream)
       // 发送结束标记并关闭连接
-      this.ctx.res.write(`event: complete\n`);
-      this.ctx.res.write(`data: [done]\n`);
-      this.ctx.res.write(`id: complete\n\n`);
+      this.ctx.res.write('event: complete\n');
+      this.ctx.res.write('data: [done]\n');
+      this.ctx.res.write('id: complete\n\n');
       this.ctx.res.end();
     } else {
       this.ctx.set({
