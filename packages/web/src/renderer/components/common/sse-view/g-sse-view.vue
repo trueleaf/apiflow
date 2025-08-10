@@ -7,22 +7,47 @@
       :height="`${scrollBarHeight}px`">
       <div ref="sseContentRef" class="sse-content" @wheel="handleCheckIsUserOperate"
         @touchstart="handleCheckIsUserOperate" @keydown="handleKeydownWithPopover">
-        <div
-          v-for="(sseMessage, index) in formattedData"
-          :key="index"
-          :ref="el => setMessageRef(el, index)"
-          class="sse-message"
-          :class="{ 'sse-message-hex': sseMessage.dataType === 'binary' }"
-          @click="handleMessageClick(index, $event)"
-        >
-          <div class="message-index">{{ index + 1 }}</div>
-          <pre class="message-content">
-            {{ (sseMessage.event || '') + ' ' + (sseMessage.data || '') }}
-          </pre>
-          <div class="message-timestamp">
-            {{ formatTimestamp(sseMessage.timestamp) }}
+        
+        <!-- 虚拟滚动优化：只渲染可见区域的消息 -->
+        <div v-if="virtualScrollEnabled" :style="{ height: `${totalHeight}px`, position: 'relative' }">
+          <div
+            v-for="sseMessage in visibleItems"
+            :key="sseMessage.originalIndex"
+            :ref="el => setMessageRef(el, sseMessage.originalIndex)"
+            class="sse-message"
+            :class="{ 'sse-message-hex': sseMessage.dataType === 'binary' }"
+            :style="{ position: 'absolute', top: `${sseMessage.top}px`, width: '100%' }"
+            @click="handleMessageClick(sseMessage.originalIndex, $event)"
+          >
+            <div class="message-index">{{ sseMessage.originalIndex + 1 }}</div>
+            <pre class="message-content">
+              {{ (sseMessage.event || '') + ' ' + (sseMessage.data || '') }}
+            </pre>
+            <div class="message-timestamp">
+              {{ formatTimestamp(sseMessage.timestamp) }}
+            </div>
           </div>
         </div>
+
+        <!-- 常规渲染：数据量较少时使用 -->
+        <template v-else>
+          <div
+            v-for="(sseMessage, index) in formattedData"
+            :key="index"
+            :ref="el => setMessageRef(el, index)"
+            class="sse-message"
+            :class="{ 'sse-message-hex': sseMessage.dataType === 'binary' }"
+            @click="handleMessageClick(index, $event)"
+          >
+            <div class="message-index">{{ index + 1 }}</div>
+            <pre class="message-content">
+              {{ (sseMessage.event || '') + ' ' + (sseMessage.data || '') }}
+            </pre>
+            <div class="message-timestamp">
+              {{ formatTimestamp(sseMessage.timestamp) }}
+            </div>
+          </div>
+        </template>
 
         <!-- 单个 Popover -->
         <el-popover
@@ -131,8 +156,47 @@ const scrollBarRef = ref<ScrollbarInstance | null>(null);
 const sseViewContainerRef = ref<HTMLElement | null>(null);
 const sseContentRef = ref<HTMLElement | null>(null);
 const autoScrollEnabled = ref(true); // 是否启用自动滚动
-const scrollThreshold = 300; // 距离底部多少像素内认为是"接近底部"
+const scrollThreshold = 200; // 距离底部多少像素内认为是"接近底部"（减少阈值提高精度）
 const scrollBarHeight = ref(0);
+
+// 滚动状态管理
+const isUserScrolling = ref(false); // 用户是否正在手动滚动
+const lastScrollTime = ref(0); // 最后一次滚动时间
+const scrollTimeoutId = ref<NodeJS.Timeout | null>(null);
+
+// 性能优化：增量数据处理
+const lastDataLength = ref(0);
+const incrementalData = ref<any[]>([]);
+
+// 虚拟滚动配置
+const ITEM_HEIGHT = 23; // 每条消息的高度
+const VIRTUAL_SCROLL_THRESHOLD = 500; // 超过500条消息启用虚拟滚动
+const BUFFER_SIZE = 10; // 缓冲区大小
+
+// 虚拟滚动状态
+const virtualScrollEnabled = computed(() => formattedData.value.length > VIRTUAL_SCROLL_THRESHOLD);
+const scrollTop = ref(0);
+const containerHeight = computed(() => scrollBarHeight.value);
+
+// 计算总高度
+const totalHeight = computed(() => formattedData.value.length * ITEM_HEIGHT);
+
+// 计算可见项目
+const visibleItems = computed(() => {
+  if (!virtualScrollEnabled.value) return [];
+  
+  const startIndex = Math.max(0, Math.floor(scrollTop.value / ITEM_HEIGHT) - BUFFER_SIZE);
+  const endIndex = Math.min(
+    formattedData.value.length - 1,
+    Math.ceil((scrollTop.value + containerHeight.value) / ITEM_HEIGHT) + BUFFER_SIZE
+  );
+
+  return formattedData.value.slice(startIndex, endIndex + 1).map((item, index) => ({
+    ...item,
+    originalIndex: startIndex + index,
+    top: (startIndex + index) * ITEM_HEIGHT
+  }));
+});
 
 /*
 |--------------------------------------------------------------------------
@@ -192,8 +256,8 @@ const formatJsonContent = (index: number, content: string) => {
   }
 };
 
-// 处理消息点击事件
-const handleMessageClick = (index: number, event: Event) => {
+// 处理消息点击事件（添加防抖）
+const handleMessageClick = debounce((index: number, event: Event) => {
   event.stopPropagation();
 
   // 如果点击的是同一条消息，保持 popover 打开状态
@@ -212,7 +276,7 @@ const handleMessageClick = (index: number, event: Event) => {
       formatJsonContent(index, content);
     }
   }
-};
+}, 100);
 
 // 处理 popover 隐藏事件
 const handlePopoverHide = () => {
@@ -246,7 +310,22 @@ const handleKeydownWithPopover = (e: KeyboardEvent) => {
   if (e.key === 'Escape') {
     activePopoverIndex.value = -1;
   } else if (e.key === 'ArrowUp' || e.key === 'ArrowDown' || e.key === 'PageUp' || e.key === 'PageDown') {
-    autoScrollEnabled.value = false;
+    // 键盘滚动时，标记为用户操作
+    isUserScrolling.value = true;
+    
+    // 检查是否会滚动到底部附近
+    setTimeout(() => {
+      const contentHeight = virtualScrollEnabled.value 
+        ? totalHeight.value 
+        : (sseContentRef.value?.scrollHeight || 0);
+      
+      if (isNearBottom(scrollTop.value, contentHeight, scrollBarHeight.value)) {
+        autoScrollEnabled.value = true;
+        isUserScrolling.value = false;
+      } else {
+        autoScrollEnabled.value = false;
+      }
+    }, 100);
   }
 };
 
@@ -267,13 +346,42 @@ const setActiveContentTab = (index: number, tab: 'content' | 'raw') => {
 |--------------------------------------------------------------------------
 */
 
-
-// 解析SSE格式数据，将Uint8Array转换为标准SSE消息
+// 性能优化：增量解析SSE数据
 const formattedData = computed(() => {
   if (!props.dataList || props.dataList.length === 0) {
+    lastDataLength.value = 0;
+    incrementalData.value = [];
     return [];
   }
-  return parseChunkList(props.dataList);
+
+  // 如果数据长度没有变化，直接返回缓存的结果
+  if (props.dataList.length === lastDataLength.value && incrementalData.value.length > 0) {
+    return incrementalData.value;
+  }
+
+  // 如果是新增数据，只解析新增部分
+  if (props.dataList.length > lastDataLength.value && lastDataLength.value > 0) {
+    const newChunks = props.dataList.slice(lastDataLength.value);
+    const newParsedData = parseChunkList(newChunks);
+    incrementalData.value = [...incrementalData.value, ...newParsedData];
+    lastDataLength.value = props.dataList.length;
+    
+    // 新增数据时立即滚动到底部（如果启用了自动滚动）
+    if (autoScrollEnabled.value) {
+      // 延迟执行，确保 DOM 更新完成
+      setTimeout(() => {
+        scrollToBottom();
+      }, 10);
+    }
+    
+    return incrementalData.value;
+  }
+
+  // 完全重新解析（首次加载或数据重置）
+  const parsed = parseChunkList(props.dataList);
+  incrementalData.value = parsed;
+  lastDataLength.value = props.dataList.length;
+  return parsed;
 });
 
 // 格式化时间戳为毫秒显示
@@ -291,43 +399,167 @@ const formatFullTimestamp = (timestamp: number): string => {
 | 滚动相关
 |--------------------------------------------------------------------------
 */
+
+// 检查是否接近底部
+const isNearBottom = (scrollTop: number, contentHeight: number, containerHeight: number): boolean => {
+  return scrollTop + containerHeight + scrollThreshold >= contentHeight;
+};
+
 // 处理滚动事件
 const handleScroll = (scrollInfo: { scrollTop: number }) => {
-  if (scrollInfo.scrollTop + scrollThreshold + scrollBarHeight.value >= sseContentRef.value!.clientHeight) {
+  scrollTop.value = scrollInfo.scrollTop;
+  lastScrollTime.value = Date.now();
+  
+  // 计算内容高度
+  const contentHeight = virtualScrollEnabled.value 
+    ? totalHeight.value 
+    : (sseContentRef.value?.scrollHeight || 0);
+  
+  // 检查是否滚动到底部附近
+  const nearBottom = isNearBottom(scrollInfo.scrollTop, contentHeight, scrollBarHeight.value);
+  
+  if (nearBottom) {
+    // 如果滚动到底部附近，启用自动滚动
     autoScrollEnabled.value = true;
+    isUserScrolling.value = false;
+  } else {
+    // 如果不在底部，说明用户手动滚动了，禁用自动滚动
+    if (!isUserScrolling.value) {
+      isUserScrolling.value = true;
+      autoScrollEnabled.value = false;
+    }
   }
+  
+  // 清除之前的超时，设置新的超时来检测滚动结束
+  if (scrollTimeoutId.value) {
+    clearTimeout(scrollTimeoutId.value);
+  }
+  
+  scrollTimeoutId.value = setTimeout(() => {
+    isUserScrolling.value = false;
+    // 滚动结束后，如果还在底部附近，重新启用自动滚动
+    const currentContentHeight = virtualScrollEnabled.value 
+      ? totalHeight.value 
+      : (sseContentRef.value?.scrollHeight || 0);
+    if (isNearBottom(scrollInfo.scrollTop, currentContentHeight, scrollBarHeight.value)) {
+      autoScrollEnabled.value = true;
+    }
+  }, 150); // 150ms 内没有新的滚动事件则认为滚动结束
 };
 // 处理用户交互事件（wheel, touchstart）
 const handleCheckIsUserOperate = debounce(() => {
-  autoScrollEnabled.value = false;
-}, 100);
+  // 只有在不接近底部时才禁用自动滚动
+  const contentHeight = virtualScrollEnabled.value 
+    ? totalHeight.value 
+    : (sseContentRef.value?.scrollHeight || 0);
+  
+  if (!isNearBottom(scrollTop.value, contentHeight, scrollBarHeight.value)) {
+    autoScrollEnabled.value = false;
+    isUserScrolling.value = true;
+  }
+}, 50); // 减少延迟，提高响应性
 
 // 滚动到底部
 const scrollToBottom = () => {
   if (!autoScrollEnabled.value) {
     return;
   }
-  nextTick(() => {
-    const sseContent = sseContentRef.value!;
-    const sseCOntentHeight = sseContent.clientHeight;
-    scrollBarRef.value?.setScrollTop(sseCOntentHeight);
+  
+  // 标记这是程序自动滚动，不是用户操作
+  const isAutoScroll = true;
+  
+  // 使用 requestAnimationFrame 确保在下一帧执行
+  requestAnimationFrame(() => {
+    nextTick(() => {
+      if (virtualScrollEnabled.value) {
+        // 虚拟滚动模式：滚动到虚拟内容的底部
+        const maxScrollTop = Math.max(0, totalHeight.value - scrollBarHeight.value);
+        scrollBarRef.value?.setScrollTop(maxScrollTop);
+      } else {
+        // 常规模式：等待 DOM 更新后滚动到实际内容底部
+        const sseContent = sseContentRef.value;
+        if (sseContent) {
+          // 使用 scrollHeight 而不是 clientHeight
+          const contentHeight = sseContent.scrollHeight;
+          if (contentHeight > scrollBarHeight.value) {
+            scrollBarRef.value?.setScrollTop(contentHeight);
+          }
+        }
+      }
+      
+      // 确保自动滚动后保持自动滚动状态
+      if (isAutoScroll) {
+        autoScrollEnabled.value = true;
+        isUserScrolling.value = false;
+      }
+    });
   });
 };
-// 监听formattedData变化，确保新消息能触发滚动
+// 监听formattedData变化，确保新消息能触发滚动（减少防抖延迟）
+const debouncedScrollToBottom = debounce(() => {
+  if (autoScrollEnabled.value) {
+    scrollToBottom();
+  }
+}, 500); // 减少到一帧时间，提高响应速度
+
 watch(
   formattedData,
   () => {
+    // 立即触发滚动，不使用防抖
     if (autoScrollEnabled.value) {
       scrollToBottom();
     }
   },
+  { flush: 'post' } // 确保在 DOM 更新后执行
 );
+
+// 直接监听 dataList 的变化，确保数据更新时能及时滚动
+watch(
+  () => props.dataList.length,
+  (newLength, oldLength) => {
+    // 当有新数据时，触发滚动
+    if (newLength > oldLength && autoScrollEnabled.value) {
+      nextTick(() => {
+        scrollToBottom();
+      });
+    }
+  }
+);
+
+// 清理函数
+const cleanup = () => {
+  // 清理 messageRefs 中超过限制的旧引用
+  const maxRefs = 1000; // 最多保留1000条消息的引用
+  const currentLength = Object.keys(messageRefs.value).length;
+  if (currentLength > maxRefs) {
+    const sortedKeys = Object.keys(messageRefs.value)
+      .map(Number)
+      .sort((a, b) => a - b);
+    const keysToDelete = sortedKeys.slice(0, currentLength - maxRefs);
+    keysToDelete.forEach(key => {
+      delete messageRefs.value[key];
+      delete formattedContent.value[key];
+      delete activeContentTabs.value[key];
+    });
+  }
+};
+
+// 定期清理
+const cleanupInterval = setInterval(cleanup, 30000); // 每30秒清理一次
+
 onMounted(() => {
   scrollBarHeight.value = sseViewContainerRef.value!.clientHeight;
   // 添加全局点击事件监听器
   document.addEventListener('click', handleClickOutside);
   // 添加全局键盘事件监听器
   document.addEventListener('keydown', handleGlobalKeydown);
+  
+  // 初始化时如果有数据，滚动到底部
+  if (formattedData.value.length > 0 && autoScrollEnabled.value) {
+    nextTick(() => {
+      scrollToBottom();
+    });
+  }
 });
 
 onBeforeUnmount(() => {
@@ -335,6 +567,14 @@ onBeforeUnmount(() => {
   document.removeEventListener('click', handleClickOutside);
   // 移除全局键盘事件监听器
   document.removeEventListener('keydown', handleGlobalKeydown);
+  // 清理定时器
+  clearInterval(cleanupInterval);
+  // 取消防抖函数
+  debouncedScrollToBottom.cancel();
+  // 清理滚动检测定时器
+  if (scrollTimeoutId.value) {
+    clearTimeout(scrollTimeoutId.value);
+  }
 });
 </script>
 
