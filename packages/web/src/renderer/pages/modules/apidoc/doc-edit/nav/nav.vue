@@ -143,6 +143,8 @@ import { useApidocBaseInfo } from '@/store/apidoc/base-info';
 import SContextmenu from '@/components/common/contextmenu/g-contextmenu.vue'
 import SContextmenuItem from '@/components/common/contextmenu/g-contextmenu-item.vue'
 import { useApidocBanner } from '@/store/apidoc/banner';
+import { useApidocRequest } from '@/store/apidoc/request';
+import { useApidocResponse } from '@/store/apidoc/response';
 
 
 /*
@@ -180,6 +182,9 @@ const requestMethods = computed(() => {
 })
 const isView = computed(() => {
   return apidocBaseInfoStore.mode === 'view'
+})
+const currentSelectedTab = computed(() => {
+  return tabs.value?.find(tab => tab.selected);
 })
 /*
 |--------------------------------------------------------------------------
@@ -221,6 +226,17 @@ const handleCloseCurrentTab = (tab?: ApidocTab) => {
   const projectId = router.currentRoute.value.query.id as string;
   const currentOperationNodeId = currentOperationNode.value?._id || ''
   const tabId: string = tab ? tab._id : currentOperationNodeId;
+  
+  // 如果要关闭的是当前选中的tab，且有正在进行的请求，则取消请求
+  const { cancelRequest } = useApidocRequest();
+  const { changeRequestState, requestState } = useApidocResponse();
+  const isClosingSelectedTab = tab ? tab.selected : currentSelectedTab.value?._id === tabId;
+  
+  if (isClosingSelectedTab && (requestState === 'sending' || requestState === 'response')) {
+    cancelRequest();
+    changeRequestState('waiting');
+  }
+  
   apidocTabsStore.deleteTabByIds({
     projectId,
     ids: [tabId]
@@ -239,6 +255,17 @@ const handleCloseOtherTab = () => {
       delTabs.push(tab._id);
     }
   })
+  
+  // 如果要关闭的标签中包含当前选中的标签，且有正在进行的请求，则取消请求
+  const { cancelRequest } = useApidocRequest();
+  const { changeRequestState, requestState } = useApidocResponse();
+  const isClosingSelectedTab = delTabs.includes(currentSelectedTab.value?._id || '');
+  
+  if (isClosingSelectedTab && (requestState === 'sending' || requestState === 'response')) {
+    cancelRequest();
+    changeRequestState('waiting');
+  }
+  
   apidocTabsStore.deleteTabByIds({
     projectId,
     ids: delTabs
@@ -256,6 +283,17 @@ const handleCloseLeftTab = () => {
       break;
     }
   }
+  
+  // 如果要关闭的标签中包含当前选中的标签，且有正在进行的请求，则取消请求
+  const { cancelRequest } = useApidocRequest();
+  const { changeRequestState, requestState } = useApidocResponse();
+  const isClosingSelectedTab = delTabs.includes(currentSelectedTab.value?._id || '');
+  
+  if (isClosingSelectedTab && (requestState === 'sending' || requestState === 'response')) {
+    cancelRequest();
+    changeRequestState('waiting');
+  }
+  
   apidocTabsStore.deleteTabByIds({
     projectId,
     ids: delTabs
@@ -270,6 +308,17 @@ const handleCloseRightTab = () => {
   for (let i = currentNodeIndex + 1; i < tabs.value.length; i += 1) {
     delTabs.push(tabs.value[i]._id);
   }
+  
+  // 如果要关闭的标签中包含当前选中的标签，且有正在进行的请求，则取消请求
+  const { cancelRequest } = useApidocRequest();
+  const { changeRequestState, requestState } = useApidocResponse();
+  const isClosingSelectedTab = delTabs.includes(currentSelectedTab.value?._id || '');
+  
+  if (isClosingSelectedTab && (requestState === 'sending' || requestState === 'response')) {
+    cancelRequest();
+    changeRequestState('waiting');
+  }
+  
   apidocTabsStore.deleteTabByIds({
     projectId,
     ids: delTabs
@@ -277,6 +326,15 @@ const handleCloseRightTab = () => {
 }
 //关闭全部
 const handleCloseAllTab = () => {
+  // 关闭全部标签时，如果有正在进行的请求，则取消请求
+  const { cancelRequest } = useApidocRequest();
+  const { changeRequestState, requestState } = useApidocResponse();
+  
+  if (requestState === 'sending' || requestState === 'response') {
+    cancelRequest();
+    changeRequestState('waiting');
+  }
+  
   const projectId: string = router.currentRoute.value.query.id as string;
   apidocTabsStore.deleteTabByIds({
     projectId,
@@ -285,11 +343,30 @@ const handleCloseAllTab = () => {
 }
 //不保存关闭全部
 const handleForceCloseAllTab = () => {
+  // 强制关闭全部标签时，如果有正在进行的请求，则取消请求
+  const { cancelRequest } = useApidocRequest();
+  const { changeRequestState, requestState } = useApidocResponse();
+  
+  if (requestState === 'sending' || requestState === 'response') {
+    cancelRequest();
+    changeRequestState('waiting');
+  }
+  
   const projectId: string = router.currentRoute.value.query.id as string;
   apidocTabsStore.forceDeleteAllTab(projectId);
 }
 //选中当前tab
 const selectCurrentTab = (element: ApidocTab) => {
+  // 切换tab时取消当前正在发送的请求
+  const { cancelRequest } = useApidocRequest();
+  const { changeRequestState, requestState } = useApidocResponse();
+  
+  // 如果有正在进行的请求，则取消它
+  if (requestState === 'sending' || requestState === 'response') {
+    cancelRequest();
+    changeRequestState('waiting');
+  }
+  
   const { changeExpandItems } = useApidocBanner()
   const projectId = router.currentRoute.value.query.id as string;
   apidocTabsStore.selectTabById({
