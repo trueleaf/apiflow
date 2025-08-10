@@ -88,8 +88,9 @@ export const config: Config = {
     apiflowResponseCache: {
       singleResponseBodySize: 1024 * 1024 * 200, //单个返回值大小
       maxResponseBodySize: 1024 * 1024 * 1024 * 10, //最大可以缓存的返回值大小
+      chunkSize: 1024 * 1024 * 5, //分块大小，默认5MB
       dbName: 'apiflowResponseCache',
-      version: 1,
+      version: 1, //升级版本以支持分块存储
     }
   },
   standaloneCache: {

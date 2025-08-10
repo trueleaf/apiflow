@@ -396,6 +396,10 @@ export type Config = {
        * 最大可以缓存的返回值大小
        */
       maxResponseBodySize: number;
+      /**
+       * 分块大小，用于大文件分块存储
+       */
+      chunkSize: number;
       dbName: string,
       version: number,
     }
