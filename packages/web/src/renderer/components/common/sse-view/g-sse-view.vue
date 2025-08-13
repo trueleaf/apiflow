@@ -1,5 +1,58 @@
 <template>
   <div ref="sseViewContainerRef" class="sse-view">
+
+    <!-- 筛选框 -->
+    <div v-if="dataList && dataList.length > 0 && props.isDataComplete" class="filter-container">
+      <!-- 收起状态：只显示搜索图标 -->
+      <div v-if="!isFilterExpanded" class="filter-collapsed">
+        <el-icon class="search-icon" @click="toggleFilter">
+          <Search />
+        </el-icon>
+        <el-icon class="download-icon" @click="downloadData" title="下载SSE数据">
+          <Download />
+        </el-icon>
+      </div>
+      
+      <!-- 展开状态：显示完整搜索框 -->
+      <div v-else class="filter-expanded">
+        <div class="filter-input-row">
+          <el-input
+            ref="filterInputRef"
+            v-model="filterText"
+            :placeholder="isRegexMode ? '支持正则表达式，如: /pattern/flags 或 pattern' : '输入关键词筛选消息内容...'"
+            clearable
+            size="small"
+            class="filter-input"
+            @input="handleFilterChange"
+            @keyup.enter="handleFilterChange"
+          />
+          <div
+            class="regex-toggle-btn"
+            :class="{ active: isRegexMode }"
+            @click="toggleRegexMode"
+            title="切换正则表达式模式"
+          >
+            .*
+          </div>
+          <el-icon class="close-btn" @click="toggleFilter">
+            <Close />
+          </el-icon>
+        </div>
+        
+        <div v-if="filterText" class="filter-stats-row">
+          <div v-if="filterError" class="filter-stats error">
+            {{ filterError }}
+          </div>
+          <div v-else-if="filteredData.length > 0" class="filter-stats">
+            找到 {{ filteredData.length }} 条匹配结果
+          </div>
+          <div v-else class="filter-stats no-result">
+            未找到匹配结果
+          </div>
+        </div>
+      </div>
+    </div>
+    
     <div v-if="!dataList || dataList.length === 0" class="empty-state">
       <el-icon class="loading-icon">
         <Loading />
@@ -8,22 +61,20 @@
     </div>
     <GVirtualScroll
       class="sse-content"
-      :items="formattedData"
+      :items="displayData"
       :auto-scroll="true"
-      :virtual="virtual"
+      :virtual="isDataComplete"
       :item-height="25"
     >
-      <template #default="{ item, index }">
+      <template #default="{ item }">
         <div   
-          :ref="el => setMessageRef(el, index)"
+          :ref="el => setMessageRef(el, item.originalIndex)"
           class="sse-message"
           :class="{ 'sse-message-hex': item.dataType === 'binary' }"
-          @click="handleMessageClick(index, $event)"
+          @click="handleMessageClick(item.originalIndex, $event)"
         >
-          <div class="message-index">{{ index + 1 }}</div>
-            <pre class="message-content">
-              {{ (item.event || '') + ' ' + (item.data || '') }}
-            </pre>
+          <div class="message-index">{{ item.originalIndex + 1 }}</div>
+            <pre class="message-content" v-html="highlightText((item.event || '') + ' ' + (item.data || ''))"></pre>
             <div class="message-timestamp">
               {{ formatTimestamp(item.timestamp) }}
             </div>
@@ -114,29 +165,190 @@
 </template>
 
 <script lang="ts" setup>
-import { debounce, isJsonString } from '@/helper';
-import { computed, ref, onMounted, onBeforeUnmount } from 'vue';
+import { debounce, isJsonString, downloadStringAsText } from '@/helper';
+import { computed, ref, onMounted, onBeforeUnmount, nextTick } from 'vue';
 import { parseChunkList } from '@/utils/utils';
 import dayjs from 'dayjs';
 import type { ChunkWithTimestampe } from '@src/types/types';
 import SJsonEditor from '@/components/common/json-editor/g-json-editor.vue';
 import GVirtualScroll from '@/components/apidoc/virtual-scroll/g-virtual-scroll.vue';
-import { Loading } from '@element-plus/icons-vue';
+import { Loading, Search, Close, Download } from '@element-plus/icons-vue';
 
 /*
 |--------------------------------------------------------------------------
 | 全局变量
 |--------------------------------------------------------------------------
 */
-const props = withDefaults(defineProps<{ dataList: ChunkWithTimestampe[]; virtual?: boolean }>(), {
+const props = withDefaults(defineProps<{ dataList: ChunkWithTimestampe[]; virtual?: boolean; isDataComplete?: boolean }>(), {
   dataList: () => [],
-  virtual: false,
+  isDataComplete: false,
 });
 const sseViewContainerRef = ref<HTMLElement | null>(null);
 
 // 性能优化：增量数据处理
 const lastDataLength = ref(0);
 const incrementalData = ref<any[]>([]);
+
+/*
+|--------------------------------------------------------------------------
+| 筛选相关
+|--------------------------------------------------------------------------
+*/
+const filterText = ref('');
+const isFilterExpanded = ref(false);
+const isRegexMode = ref(false);
+const filterError = ref('');
+const filterInputRef = ref<HTMLInputElement | null>(null);
+
+// 切换筛选框展开/收起状态
+const toggleFilter = () => {
+  isFilterExpanded.value = !isFilterExpanded.value;
+  if (isFilterExpanded.value) {
+    // 展开后自动聚焦到输入框
+    nextTick(() => {
+      filterInputRef.value?.focus();
+    });
+  } else {
+    // 收起时清空筛选条件
+    filterText.value = '';
+    filterError.value = '';
+  }
+};
+
+// 切换正则表达式模式
+const toggleRegexMode = () => {
+  isRegexMode.value = !isRegexMode.value;
+  // 切换模式时重新应用筛选
+  handleFilterChange();
+};
+
+// 下载SSE数据
+const downloadData = () => {
+  if (!props.dataList || props.dataList.length === 0) {
+    return;
+  }
+
+  try {
+    // 生成原始返回数据内容
+    const rawContent = generateRawContent();
+    
+    // 生成文件名
+    const timestamp = dayjs().format('YYYY-MM-DD_HH-mm-ss');
+    const fileName = `sse-raw-data_${timestamp}.txt`;
+    
+    // 使用downloadStringAsText方法下载
+    downloadStringAsText(rawContent, fileName);
+  } catch (error) {
+    console.error('下载失败:', error);
+  }
+};
+
+// 生成原始返回数据内容
+const generateRawContent = (): string => {
+  const lines: string[] = [];
+  
+  // 遍历原始数据列表，直接输出原始数据块
+  props.dataList.forEach((chunkData) => {
+    if (chunkData.chunk && chunkData.chunk.byteLength > 0) {
+      // 将 Uint8Array 转换为字符串
+      const textDecoder = new TextDecoder('utf-8');
+      const chunkText = textDecoder.decode(chunkData.chunk);
+      if (chunkText.trim()) {
+        lines.push(chunkText);
+      }
+    }
+  });
+  
+  return lines.join('');
+};
+
+// 处理筛选输入变化
+const handleFilterChange = debounce(() => {
+  activePopoverIndex.value = -1;
+  filterError.value = '';
+}, 300);
+
+// 高亮显示匹配的文本
+const highlightText = (text: string): string => {
+  if (!filterText.value.trim() || filterError.value) {
+    return text;
+  }
+  
+  try {
+    let regex: RegExp;
+    
+    if (isRegexMode.value) {
+      // 正则表达式模式
+      const trimmedText = filterText.value.trim();
+      
+      // 检查是否是 /pattern/flags 格式
+      const regexMatch = trimmedText.match(/^\/(.+)\/([gimuy]*)$/);
+      if (regexMatch) {
+        regex = new RegExp(regexMatch[1], regexMatch[2]);
+      } else {
+        // 普通正则表达式字符串
+        regex = new RegExp(trimmedText, 'gi');
+      }
+    } else {
+      // 普通文本模式，转义特殊字符
+      const escapedText = filterText.value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      regex = new RegExp(`(${escapedText})`, 'gi');
+    }
+    
+    return text.replace(regex, '<mark class="highlight">$1</mark>');
+  } catch (error) {
+    // 正则表达式错误时不高亮
+    return text;
+  }
+};
+// 筛选后的数据
+const filteredData = computed(() => {
+  if (!filterText.value.trim()) {
+    return formattedData.value;
+  }
+  
+  try {
+    let regex: RegExp;
+    
+    if (isRegexMode.value) {
+      // 正则表达式模式
+      const trimmedText = filterText.value.trim();
+      
+      // 检查是否是 /pattern/flags 格式
+      const regexMatch = trimmedText.match(/^\/(.+)\/([gimuy]*)$/);
+      if (regexMatch) {
+        regex = new RegExp(regexMatch[1], regexMatch[2]);
+      } else {
+        // 普通正则表达式字符串
+        regex = new RegExp(trimmedText, 'gi');
+      }
+    } else {
+      // 普通文本模式，大小写不敏感
+      const escapedText = filterText.value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      regex = new RegExp(escapedText, 'gi');
+    }
+    
+    // 清除错误状态
+    filterError.value = '';
+    
+    return formattedData.value
+      .map((item, index) => ({ ...item, originalIndex: index }))
+      .filter((item) => {
+        const content = (item.event || '') + ' ' + (item.data || '');
+        return regex.test(content);
+      });
+      
+  } catch (error) {
+    // 正则表达式错误
+    filterError.value = `正则表达式错误: ${error instanceof Error ? error.message : '未知错误'}`;
+    return formattedData.value;
+  }
+});
+
+// 最终显示的数据
+const displayData = computed(() => {
+  return filterText.value.trim() ? filteredData.value : formattedData.value.map((item, index) => ({ ...item, originalIndex: index }));
+});
 
 /*
 |--------------------------------------------------------------------------
@@ -199,15 +411,12 @@ const formatJsonContent = (index: number, content: string) => {
 // 处理消息点击事件（添加防抖）
 const handleMessageClick = debounce((index: number, event: Event) => {
   event.stopPropagation();
-
   // 如果点击的是同一条消息，保持 popover 打开状态
   if (activePopoverIndex.value === index) {
     return;
   }
-
   // 切换到新的消息或打开 popover
   activePopoverIndex.value = index;
-
   // 触发格式化
   const sseMessage = formattedData.value[index];
   if (sseMessage) {
@@ -347,6 +556,136 @@ onBeforeUnmount(() => {
   display: flex;
   flex-direction: column;
 
+  .filter-container {
+    position: relative;
+    display: flex;
+    align-items: flex-start;
+    padding: 0 12px 0;
+    margin-bottom: 3px;
+    border-bottom: 1px solid #ebeef5;
+    .filter-collapsed {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      width: 100%;
+      height: 24px;
+      opacity: 1;
+      transition: opacity 0.2s ease;
+      gap: 8px;
+      
+      .search-icon {
+        width: 20px;
+        height: 20px;
+        color: var(--text-color-regular, #606266);
+        cursor: pointer;
+        transition: color 0.2s;
+        
+        &:hover {
+          color: var(--color-primary, #409eff);
+        }
+      }
+      
+      .download-icon {
+        width: 20px;
+        height: 20px;
+        color: var(--text-color-regular, #606266);
+        cursor: pointer;
+        transition: color 0.2s;
+        
+        &:hover {
+          color: var(--color-success, #67c23a);
+        }
+      }
+    }
+    
+    .filter-expanded {
+      width: 100%;
+      opacity: 1;
+      transition: opacity 0.2s ease;
+      
+      .filter-input-row {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        height: 24px;
+        
+        .filter-input {
+          flex: 1;
+          max-width: none;
+        }
+        
+        .regex-toggle-btn {
+          height: 20px;
+          width: 25px;
+          font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+          font-weight: bold;
+          font-size: 12px;
+          background-color: var(--fill-color-light, #f5f7fa);
+          border: 1px solid var(--border-color-light, #e4e7ed);
+          border-radius: 4px;
+          color: var(--text-color-regular, #606266);
+          cursor: pointer;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          transition: all 0.2s;
+          user-select: none;
+          flex-shrink: 0;
+          
+          &:hover {
+            background-color: var(--fill-color, #f0f2f5);
+            border-color: var(--border-color, #dcdfe6);
+          }
+          
+          &.active {
+            background-color: var(--color-primary, #409eff);
+            border-color: var(--color-primary, #409eff);
+            color: #ffffff;
+            
+            &:hover {
+              background-color: var(--color-primary-light-3, #79bbff);
+              border-color: var(--color-primary-light-3, #79bbff);
+            }
+          }
+        }
+        
+        .close-btn {
+          width: 24px;
+          height: 24px;
+          color: var(--text-color-regular, #606266);
+          cursor: pointer;
+          transition: color 0.2s;
+          flex-shrink: 0;
+          
+          &:hover {
+            color: var(--color-danger, #f56c6c);
+          }
+        }
+      }
+      
+      .filter-stats-row {
+        margin-top: 8px;
+        min-height: 18px;
+        
+        .filter-stats {
+          font-size: 12px;
+          
+          &:not(.error):not(.no-result) {
+            color: var(--color-success, #67c23a);
+          }
+          
+          &.no-result {
+            color: var(--color-warning, #e6a23c);
+          }
+          
+          &.error {
+            color: var(--color-danger, #f56c6c);
+          }
+        }
+      }
+    }
+  }
+
   .empty-state {
     display: flex;
     align-items: center;
@@ -409,8 +748,7 @@ onBeforeUnmount(() => {
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
-        margin-right: 12px;
-        margin: 0;
+        margin: 0 12px 0 0;
       }
 
       .message-timestamp {
@@ -575,5 +913,14 @@ onBeforeUnmount(() => {
       }
     }
   }
+}
+
+// 高亮样式
+:deep(.highlight) {
+  background-color: var(--color-warning-light-7, #fdf2d5);
+  color: var(--color-warning-dark-2, #b17a1a);
+  font-weight: 600;
+  padding: 1px 2px;
+  border-radius: 2px;
 }
 </style>

@@ -60,7 +60,7 @@
     <template v-if="apidocResponseStore.responseInfo.contentType">
       <!-- eventStream -->
       <div v-if="apidocResponseStore.responseInfo.responseData.canApiflowParseType === 'textEventStream'" class="sse-view-wrap">
-        <SSseView :data-list="apidocResponseStore.responseInfo.responseData.streamData" :virtual="apidocResponseStore.requestState === 'finish'"/>
+        <SSseView :data-list="apidocResponseStore.responseInfo.responseData.streamData" :is-data-complete="apidocResponseStore.requestState === 'finish'"/>
       </div>
       <!-- 图片类型 -->
       <div v-if="apidocResponseStore.responseInfo.responseData.canApiflowParseType === 'image'" class="img-view-wrap">
