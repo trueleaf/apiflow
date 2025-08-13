@@ -61,7 +61,7 @@ export const useApidocResponse = defineStore('apidocResponse', () => {
   const clearResponse = () => {
     responseInfo.value = generateEmptyResponse()
   }
-  // 设置某个文档id是否允许缓存
+  // 设置某个文档id是否允许缓存,超大返回数据不允许缓存
   const changeResponseCacheAllowed = (docId: string, allowed: boolean) => {
     responseCacheAllowedMap.value[docId] = allowed;
   };

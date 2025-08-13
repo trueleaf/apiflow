@@ -292,6 +292,15 @@ export async function sendRequest() {
   const apidocStore = useApidoc();
   const { updateCookiesBySetCookieHeader, getMachtedCookies } = useCookies();
   const { changeCancelRequestRef } = useApidocRequest()
+  
+  // 缓存节流控制
+  let lastCacheTime = 0;
+  const cacheThrottleDelay = 2000;
+  
+  // 清理函数，确保资源释放
+  const cleanup = () => {
+    worker.terminate();
+  };
   const { 
     changeResponseInfo, 
     changeResponseBody, 
@@ -351,6 +360,7 @@ export async function sendRequest() {
         });
       },
       onError: (err) => {
+        cleanup(); // 清理 worker
         changeResponseInfo({
           redirectList: [],
           responseData: {
@@ -379,6 +389,7 @@ export async function sendRequest() {
       beforeRetry: () => {
       },
       onReadFileFormDataError(options: {id: string, msg: string, fullMsg: string}) {
+        cleanup(); // 清理 worker
         apidocStore.changeFormDataErrorInfoById(options.id, options.msg);
         changeResponseInfo({
           responseData: {
@@ -389,6 +400,7 @@ export async function sendRequest() {
         changeRequestState('finish');
       },
       onReadBinaryDataError(options: {msg: string, fullMsg: string}) {
+        cleanup(); // 清理 worker
         changeResponseInfo({
           responseData: {
             canApiflowParseType: 'error',
@@ -411,6 +423,17 @@ export async function sendRequest() {
           transferred: loadedLength,
           percent: loadedLength / totalLength
         })
+        
+        // 使用节流机制优化缓存操作，避免高频率的深拷贝和缓存写入
+        const now = Date.now();
+        if (now - lastCacheTime >= cacheThrottleDelay) {
+          lastCacheTime = now;
+          // 只有在数据大小合理的情况下才进行深拷贝和缓存
+          if (apidocResponseStore.responseInfo.bodyByteLength <= config.cacheConfig.apiflowResponseCache.singleResponseBodySize) {
+            const currentResponseInfo = cloneDeep(apidocResponseStore.responseInfo);
+            apidocCache.setResponse(selectedTab?._id ?? '', currentResponseInfo);
+          }
+        }
       },
       onResponseEnd(responseInfo) {
         const rawBody = responseInfo.body;
@@ -440,6 +463,7 @@ export async function sendRequest() {
           changeResponseCacheAllowed(selectedTab?._id ?? '', true);
         }
         apidocCache.setResponse(selectedTab?._id ?? '', storedResponseInfo);
+        cleanup(); // 请求完成后清理 worker
       },
     })
   }
@@ -490,6 +514,7 @@ export async function sendRequest() {
       })
     }
     if (e.data.type === 'pre-request-eval-error') {
+      cleanup(); // 前置脚本错误时清理 worker
       changeResponseInfo({
         responseData: {
           canApiflowParseType: 'error',
