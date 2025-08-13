@@ -1,7 +1,7 @@
 <template>
   <SBaseInfo v-show="layout === 'horizontal'"></SBaseInfo>
   <SResInfo v-show="layout === 'horizontal'"></SResInfo>
-  <SLoading :loading="requestState === 'sending'" :class="{ 'h-100': layout === 'vertical' }" class="loading-wrap w-100">
+  <SLoading :loading="requestState === 'sending' || responseBodyLoading" :class="{ 'h-100': layout === 'vertical' }" class="loading-wrap w-100">
     <div 
       v-show="responseInfo.bodyByteLength || requestState !== 'waiting'" 
       class="remote-response-wrap px-3 w-100"
@@ -70,6 +70,7 @@ import SRequest from './request/request.vue'
 import { useTranslation } from 'i18next-vue'
 import { useApidocResponse } from '@/store/apidoc/response'
 import { useApidocBaseInfo } from '@/store/apidoc/base-info'
+import { useApidoc } from '@/store/apidoc/apidoc'
 import { isElectron } from '@/utils/utils'
 import SLoading from '@/components/common/loading/g-loading.vue'
 
@@ -79,6 +80,7 @@ const { t } = useTranslation()
 const activeName = ref('SBody');
 const apidocResponseStore = useApidocResponse();
 const apidocBaseInfoStore = useApidocBaseInfo();
+const apidocStore = useApidoc();
 const cookies = computed(() => {
   return apidocResponseStore.responseInfo.headers['set-cookie']
 });
@@ -97,6 +99,7 @@ const headers = computed(() => {
 
 const layout = computed(() => apidocBaseInfoStore.layout);
 const requestState = computed(() => apidocResponseStore.requestState); //请求状态
+const responseBodyLoading = computed(() => apidocStore.responseBodyLoading); //返回体加载状态
 
 </script>
 

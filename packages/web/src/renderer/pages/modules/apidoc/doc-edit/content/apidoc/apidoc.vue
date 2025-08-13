@@ -95,25 +95,30 @@ const getApidocInfo = async () => {
     }
   }
   //=====================================获取缓存的返回参数====================================//
-  const localResponse = await apidocCache.getResponse(currentSelectTab.value._id);
-  apidocResponseStore.clearResponse();
-  if (localResponse) {
-    const rawBody = localResponse.body;
-    localResponse.body = null;
-    apidocResponseStore.changeResponseInfo(localResponse)
-    apidocResponseStore.changeResponseBody(rawBody as Uint8Array);
-    apidocResponseStore.changeFileBlobUrl(rawBody as Uint8Array, localResponse.contentType)
-    apidocResponseStore.changeLoadingProcess({
-      percent: 1,
-      total: localResponse.bodyByteLength,
-      transferred: localResponse.bodyByteLength,
-    })
-    // 如果有缓存的响应数据，说明之前的请求已经完成，设置状态为finish
-    apidocResponseStore.changeRequestState('finish');
-  } else {
-    // 只有在没有缓存数据时才设置为waiting
-    apidocResponseStore.changeRequestState('waiting');
-  }
+  // const localResponse = await apidocCache.getResponse(currentSelectTab.value._id);
+  apidocStore.changeResponseBodyLoading(true);
+  apidocCache.getResponse(currentSelectTab.value._id).then((localResponse) => {
+    apidocResponseStore.clearResponse();
+    if (localResponse) {
+      const rawBody = localResponse.body;
+      localResponse.body = null;
+      apidocResponseStore.changeResponseInfo(localResponse)
+      apidocResponseStore.changeResponseBody(rawBody as Uint8Array);
+      apidocResponseStore.changeFileBlobUrl(rawBody as Uint8Array, localResponse.contentType)
+      apidocResponseStore.changeLoadingProcess({
+        percent: 1,
+        total: localResponse.bodyByteLength,
+        transferred: localResponse.bodyByteLength,
+      })
+      // 如果有缓存的响应数据，说明之前的请求已经完成，设置状态为finish
+      apidocResponseStore.changeRequestState('finish');
+    } else {
+      // 只有在没有缓存数据时才设置为waiting
+      apidocResponseStore.changeRequestState('waiting');
+    }
+  }).finally(() => {
+    apidocStore.changeResponseBodyLoading(false);
+  })
 }
 
 watch(currentSelectTab, (val, oldVal) => {

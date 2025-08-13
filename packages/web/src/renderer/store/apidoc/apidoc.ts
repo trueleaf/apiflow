@@ -53,6 +53,7 @@ export const useApidoc = defineStore('apidoc', () => {
   const defaultHeaders = ref<ApidocProperty<"string">[]>([]);
   const loading = ref(false);
   const saveLoading = ref(false);
+  const responseBodyLoading = ref(false)
   const saveDocDialogVisible = ref(false);
   const savedDocId = ref('');
   /*
@@ -432,6 +433,10 @@ export const useApidoc = defineStore('apidoc', () => {
   const changeApidocSaveLoading = (loading: boolean): void => {
     saveLoading.value = loading;
   }
+  //响应体加载状态
+  const changeResponseBodyLoading = (state: boolean): void => {
+    responseBodyLoading.value = state;
+  }
   //添加一个请求参数数据
   const addProperty = (payload: { data: ApidocProperty[], params: ApidocProperty }): void => {
     payload.data.push(payload.params);
@@ -774,8 +779,10 @@ export const useApidoc = defineStore('apidoc', () => {
     loading,
     defaultHeaders,
     saveLoading,
+    responseBodyLoading,
     saveDocDialogVisible,
     savedDocId,
+    changeResponseBodyLoading,
     getApidocDetail,
     changeApidocSaveLoading,
     addProperty,

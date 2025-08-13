@@ -430,8 +430,7 @@ export async function sendRequest() {
           lastCacheTime = now;
           // 只有在数据大小合理的情况下才进行深拷贝和缓存
           if (apidocResponseStore.responseInfo.bodyByteLength <= config.cacheConfig.apiflowResponseCache.singleResponseBodySize) {
-            const currentResponseInfo = cloneDeep(apidocResponseStore.responseInfo);
-            apidocCache.setResponse(selectedTab?._id ?? '', currentResponseInfo);
+            apidocCache.setResponse(selectedTab?._id ?? '', apidocResponseStore.responseInfo);
           }
         }
       },
