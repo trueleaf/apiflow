@@ -1,202 +1,142 @@
 <template>
   <div ref="sseViewContainerRef" class="sse-view">
     <div v-if="!dataList || dataList.length === 0" class="empty-state">
-      暂无SSE数据
+      <el-icon class="loading-icon">
+        <Loading />
+      </el-icon>
+      <span>等待数据返回中</span>
     </div>
-    <el-scrollbar v-else ref="scrollBarRef" @scroll="handleScroll" :noresize="true" always :min-size="50"
-      :height="`${scrollBarHeight}px`">
-      <div ref="sseContentRef" class="sse-content" @wheel="handleCheckIsUserOperate"
-        @touchstart="handleCheckIsUserOperate" @keydown="handleKeydownWithPopover">
-        
-        <!-- 虚拟滚动优化：只渲染可见区域的消息 -->
-        <div v-if="virtualScrollEnabled" :style="{ height: `${totalHeight}px`, position: 'relative' }">
-          <div
-            v-for="sseMessage in visibleItems"
-            :key="sseMessage.originalIndex"
-            :ref="el => setMessageRef(el, sseMessage.originalIndex)"
-            class="sse-message"
-            :class="{ 'sse-message-hex': sseMessage.dataType === 'binary' }"
-            :style="{ position: 'absolute', top: `${sseMessage.top}px`, width: '100%' }"
-            @click="handleMessageClick(sseMessage.originalIndex, $event)"
-          >
-            <div class="message-index">{{ sseMessage.originalIndex + 1 }}</div>
+    <GVirtualScroll
+      class="sse-content"
+      :items="formattedData"
+      :auto-scroll="true"
+      :virtual="virtual"
+      :item-height="25"
+    >
+      <template #default="{ item, index }">
+        <div   
+          :ref="el => setMessageRef(el, index)"
+          class="sse-message"
+          :class="{ 'sse-message-hex': item.dataType === 'binary' }"
+          @click="handleMessageClick(index, $event)"
+        >
+          <div class="message-index">{{ index + 1 }}</div>
             <pre class="message-content">
-              {{ (sseMessage.event || '') + ' ' + (sseMessage.data || '') }}
+              {{ (item.event || '') + ' ' + (item.data || '') }}
             </pre>
             <div class="message-timestamp">
-              {{ formatTimestamp(sseMessage.timestamp) }}
+              {{ formatTimestamp(item.timestamp) }}
+            </div>
+        </div>
+      </template>
+    </GVirtualScroll>
+    <!-- json详情弹窗 -->
+    <el-popover
+      :visible="activePopoverIndex !== -1"
+      placement="right-start"
+      :width="600"
+      :popper-style="{ padding: '0' }"
+      :hide-after="0"
+      transition="none"
+      :virtual-ref="currentMessageRef"
+      virtual-triggering
+      @hide="handlePopoverHide"
+    >
+      <template #default>
+        <div v-if="currentMessage" class="sse-message-detail">
+          <div class="detail-header">
+            <div class="header">消息详情</div>
+            <div class="close-btn" @click="handleClosePopover">
+              <i class="iconfont iconguanbi" title="关闭"></i>
+            </div>
+          </div>
+          <div class="detail-content-wrap">
+            <div class="detail-row">
+              <div class="row-item w-20">
+                <label>序号:</label>
+                <span>{{ activePopoverIndex + 1 }}</span>
+              </div>
+              <div v-if="currentMessage.event" class="row-item w-30">
+                <label>事件类型:</label>
+                <span>{{ currentMessage.event }}</span>
+              </div>
+              <div class="row-item w-50">
+                <label>接受时间:</label>
+                <span>{{ formatFullTimestamp(currentMessage.timestamp) }}</span>
+              </div>
+            </div>
+            <div class="detail-content full-width">
+              <div class="content-tabs">
+                <div class="tab-header">
+                  <div class="tab-item" :class="{ active: getActiveContentTab(activePopoverIndex) === 'content' }"
+                    @click="setActiveContentTab(activePopoverIndex, 'content')">
+                    完整内容
+                  </div>
+                  <div v-if="currentMessage.rawBlock && currentMessage.dataType !== 'binary'" class="tab-item"
+                    :class="{ active: getActiveContentTab(activePopoverIndex) === 'raw' }"
+                    @click="setActiveContentTab(activePopoverIndex, 'raw')">
+                    原始数据块
+                  </div>
+                </div>
+                <div class="tab-content">
+                  <div v-if="getActiveContentTab(activePopoverIndex) === 'content'" class="content-wrapper">
+                    <SJsonEditor
+                      v-if="isJsonString(currentMessage.data || currentMessage.rawBlock)"
+                      :model-value="getFormattedContent(activePopoverIndex, currentMessage.data || currentMessage.rawBlock)"
+                      :read-only="true"
+                      :min-height="100"
+                      :max-height="350"
+                      :auto-height="true"
+                      :config="{ fontSize: 13, language: 'json' }"
+                    />
+                    <pre v-else class="full-content">{{ currentMessage.data || currentMessage.rawBlock }}</pre>
+                  </div>
+                  <div
+                    v-if="getActiveContentTab(activePopoverIndex) === 'raw' && currentMessage.rawBlock && currentMessage.dataType !== 'binary'"
+                    class="content-wrapper">
+                    <SJsonEditor
+                      :model-value="currentMessage.rawBlock"
+                      :read-only="true"
+                      :min-height="100"
+                      :max-height="350"
+                      :auto-height="true"
+                      :config="{ fontSize: 13, language: 'text/plain', wordWrap: 'on' }"
+                    />
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
-
-        <!-- 常规渲染：数据量较少时使用 -->
-        <template v-else>
-          <div
-            v-for="(sseMessage, index) in formattedData"
-            :key="index"
-            :ref="el => setMessageRef(el, index)"
-            class="sse-message"
-            :class="{ 'sse-message-hex': sseMessage.dataType === 'binary' }"
-            @click="handleMessageClick(index, $event)"
-          >
-            <div class="message-index">{{ index + 1 }}</div>
-            <pre class="message-content">
-              {{ (sseMessage.event || '') + ' ' + (sseMessage.data || '') }}
-            </pre>
-            <div class="message-timestamp">
-              {{ formatTimestamp(sseMessage.timestamp) }}
-            </div>
-          </div>
-        </template>
-
-        <!-- 单个 Popover -->
-        <el-popover
-          :visible="activePopoverIndex !== -1"
-          placement="right-start"
-          :width="600"
-          :popper-style="{ padding: '0' }"
-          :hide-after="0"
-          transition="none"
-          :virtual-ref="currentMessageRef"
-          virtual-triggering
-          @hide="handlePopoverHide"
-        >
-          <template #default>
-            <div v-if="currentMessage" class="sse-message-detail">
-              <div class="detail-header">
-                <div class="header">消息详情</div>
-                <div class="close-btn" @click="handleClosePopover">
-                  <i class="iconfont iconguanbi" title="关闭"></i>
-                </div>
-              </div>
-              <div class="detail-content-wrap">
-                <div class="detail-row">
-                  <div class="row-item w-20">
-                    <label>序号:</label>
-                    <span>{{ activePopoverIndex + 1 }}</span>
-                  </div>
-                  <div v-if="currentMessage.event" class="row-item w-30">
-                    <label>事件类型:</label>
-                    <span>{{ currentMessage.event }}</span>
-                  </div>
-                  <div class="row-item w-50">
-                    <label>接受时间:</label>
-                    <span>{{ formatFullTimestamp(currentMessage.timestamp) }}</span>
-                  </div>
-                </div>
-                <div class="detail-content full-width">
-                  <div class="content-tabs">
-                    <div class="tab-header">
-                      <div class="tab-item" :class="{ active: getActiveContentTab(activePopoverIndex) === 'content' }"
-                        @click="setActiveContentTab(activePopoverIndex, 'content')">
-                        完整内容
-                      </div>
-                      <div v-if="currentMessage.rawBlock && currentMessage.dataType !== 'binary'" class="tab-item"
-                        :class="{ active: getActiveContentTab(activePopoverIndex) === 'raw' }"
-                        @click="setActiveContentTab(activePopoverIndex, 'raw')">
-                        原始数据块
-                      </div>
-                    </div>
-                    <div class="tab-content">
-                      <div v-if="getActiveContentTab(activePopoverIndex) === 'content'" class="content-wrapper">
-                        <SJsonEditor
-                          v-if="isJsonString(currentMessage.data || currentMessage.rawBlock)"
-                          :model-value="getFormattedContent(activePopoverIndex, currentMessage.data || currentMessage.rawBlock)"
-                          :read-only="true"
-                          :min-height="100"
-                          :max-height="350"
-                          :auto-height="true"
-                          :config="{ fontSize: 13, language: 'json' }"
-                        />
-                        <pre v-else class="full-content">{{ currentMessage.data || currentMessage.rawBlock }}</pre>
-                      </div>
-                      <div
-                        v-if="getActiveContentTab(activePopoverIndex) === 'raw' && currentMessage.rawBlock && currentMessage.dataType !== 'binary'"
-                        class="content-wrapper">
-                        <SJsonEditor
-                          :model-value="currentMessage.rawBlock"
-                          :read-only="true"
-                          :min-height="100"
-                          :max-height="350"
-                          :auto-height="true"
-                          :config="{ fontSize: 13, language: 'text/plain', wordWrap: 'on' }"
-                        />
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </template>
-        </el-popover>
-      </div>
-    </el-scrollbar>
+      </template>
+    </el-popover>
   </div>
 </template>
 
 <script lang="ts" setup>
 import { debounce, isJsonString } from '@/helper';
-import { ScrollbarInstance } from 'element-plus';
-import { computed, ref, watch, nextTick, onMounted, onBeforeUnmount } from 'vue';
+import { computed, ref, onMounted, onBeforeUnmount } from 'vue';
 import { parseChunkList } from '@/utils/utils';
 import dayjs from 'dayjs';
 import type { ChunkWithTimestampe } from '@src/types/types';
 import SJsonEditor from '@/components/common/json-editor/g-json-editor.vue';
-
+import GVirtualScroll from '@/components/apidoc/virtual-scroll/g-virtual-scroll.vue';
+import { Loading } from '@element-plus/icons-vue';
 
 /*
 |--------------------------------------------------------------------------
 | 全局变量
 |--------------------------------------------------------------------------
 */
-const props = withDefaults(defineProps<{ dataList: ChunkWithTimestampe[]; }>(), {
-  dataList: () => []
+const props = withDefaults(defineProps<{ dataList: ChunkWithTimestampe[]; virtual?: boolean }>(), {
+  dataList: () => [],
+  virtual: false,
 });
-const scrollBarRef = ref<ScrollbarInstance | null>(null);
 const sseViewContainerRef = ref<HTMLElement | null>(null);
-const sseContentRef = ref<HTMLElement | null>(null);
-const autoScrollEnabled = ref(true); // 是否启用自动滚动
-const scrollThreshold = 200; // 距离底部多少像素内认为是"接近底部"（减少阈值提高精度）
-const scrollBarHeight = ref(0);
-
-// 滚动状态管理
-const isUserScrolling = ref(false); // 用户是否正在手动滚动
-const lastScrollTime = ref(0); // 最后一次滚动时间
-const scrollTimeoutId = ref<NodeJS.Timeout | null>(null);
 
 // 性能优化：增量数据处理
 const lastDataLength = ref(0);
 const incrementalData = ref<any[]>([]);
-
-// 虚拟滚动配置
-const ITEM_HEIGHT = 23; // 每条消息的高度
-const VIRTUAL_SCROLL_THRESHOLD = 500; // 超过500条消息启用虚拟滚动
-const BUFFER_SIZE = 10; // 缓冲区大小
-
-// 虚拟滚动状态
-const virtualScrollEnabled = computed(() => formattedData.value.length > VIRTUAL_SCROLL_THRESHOLD);
-const scrollTop = ref(0);
-const containerHeight = computed(() => scrollBarHeight.value);
-
-// 计算总高度
-const totalHeight = computed(() => formattedData.value.length * ITEM_HEIGHT);
-
-// 计算可见项目
-const visibleItems = computed(() => {
-  if (!virtualScrollEnabled.value) return [];
-  
-  const startIndex = Math.max(0, Math.floor(scrollTop.value / ITEM_HEIGHT) - BUFFER_SIZE);
-  const endIndex = Math.min(
-    formattedData.value.length - 1,
-    Math.ceil((scrollTop.value + containerHeight.value) / ITEM_HEIGHT) + BUFFER_SIZE
-  );
-
-  return formattedData.value.slice(startIndex, endIndex + 1).map((item, index) => ({
-    ...item,
-    originalIndex: startIndex + index,
-    top: (startIndex + index) * ITEM_HEIGHT
-  }));
-});
 
 /*
 |--------------------------------------------------------------------------
@@ -305,30 +245,6 @@ const handleGlobalKeydown = (event: KeyboardEvent) => {
   }
 };
 
-// 处理 ESC 键关闭 popover 和滚动键盘事件
-const handleKeydownWithPopover = (e: KeyboardEvent) => {
-  if (e.key === 'Escape') {
-    activePopoverIndex.value = -1;
-  } else if (e.key === 'ArrowUp' || e.key === 'ArrowDown' || e.key === 'PageUp' || e.key === 'PageDown') {
-    // 键盘滚动时，标记为用户操作
-    isUserScrolling.value = true;
-    
-    // 检查是否会滚动到底部附近
-    setTimeout(() => {
-      const contentHeight = virtualScrollEnabled.value 
-        ? totalHeight.value 
-        : (sseContentRef.value?.scrollHeight || 0);
-      
-      if (isNearBottom(scrollTop.value, contentHeight, scrollBarHeight.value)) {
-        autoScrollEnabled.value = true;
-        isUserScrolling.value = false;
-      } else {
-        autoScrollEnabled.value = false;
-      }
-    }, 100);
-  }
-};
-
 // 获取当前激活的内容标签页
 const getActiveContentTab = (index: number): 'content' | 'raw' => {
   return activeContentTabs.value[index] || 'content';
@@ -366,14 +282,6 @@ const formattedData = computed(() => {
     incrementalData.value = [...incrementalData.value, ...newParsedData];
     lastDataLength.value = props.dataList.length;
     
-    // 新增数据时立即滚动到底部（如果启用了自动滚动）
-    if (autoScrollEnabled.value) {
-      // 延迟执行，确保 DOM 更新完成
-      setTimeout(() => {
-        scrollToBottom();
-      }, 10);
-    }
-    
     return incrementalData.value;
   }
 
@@ -393,138 +301,6 @@ const formatTimestamp = (timestamp: number): string => {
 const formatFullTimestamp = (timestamp: number): string => {
   return dayjs(timestamp).format('YYYY-MM-DD HH:mm:ss');
 };
-
-/*
-|--------------------------------------------------------------------------
-| 滚动相关
-|--------------------------------------------------------------------------
-*/
-
-// 检查是否接近底部
-const isNearBottom = (scrollTop: number, contentHeight: number, containerHeight: number): boolean => {
-  return scrollTop + containerHeight + scrollThreshold >= contentHeight;
-};
-
-// 处理滚动事件
-const handleScroll = (scrollInfo: { scrollTop: number }) => {
-  scrollTop.value = scrollInfo.scrollTop;
-  lastScrollTime.value = Date.now();
-  
-  // 计算内容高度
-  const contentHeight = virtualScrollEnabled.value 
-    ? totalHeight.value 
-    : (sseContentRef.value?.scrollHeight || 0);
-  
-  // 检查是否滚动到底部附近
-  const nearBottom = isNearBottom(scrollInfo.scrollTop, contentHeight, scrollBarHeight.value);
-  
-  if (nearBottom) {
-    // 如果滚动到底部附近，启用自动滚动
-    autoScrollEnabled.value = true;
-    isUserScrolling.value = false;
-  } else {
-    // 如果不在底部，说明用户手动滚动了，禁用自动滚动
-    if (!isUserScrolling.value) {
-      isUserScrolling.value = true;
-      autoScrollEnabled.value = false;
-    }
-  }
-  
-  // 清除之前的超时，设置新的超时来检测滚动结束
-  if (scrollTimeoutId.value) {
-    clearTimeout(scrollTimeoutId.value);
-  }
-  
-  scrollTimeoutId.value = setTimeout(() => {
-    isUserScrolling.value = false;
-    // 滚动结束后，如果还在底部附近，重新启用自动滚动
-    const currentContentHeight = virtualScrollEnabled.value 
-      ? totalHeight.value 
-      : (sseContentRef.value?.scrollHeight || 0);
-    if (isNearBottom(scrollInfo.scrollTop, currentContentHeight, scrollBarHeight.value)) {
-      autoScrollEnabled.value = true;
-    }
-  }, 150); // 150ms 内没有新的滚动事件则认为滚动结束
-};
-// 处理用户交互事件（wheel, touchstart）
-const handleCheckIsUserOperate = debounce(() => {
-  // 只有在不接近底部时才禁用自动滚动
-  const contentHeight = virtualScrollEnabled.value 
-    ? totalHeight.value 
-    : (sseContentRef.value?.scrollHeight || 0);
-  
-  if (!isNearBottom(scrollTop.value, contentHeight, scrollBarHeight.value)) {
-    autoScrollEnabled.value = false;
-    isUserScrolling.value = true;
-  }
-}, 50); // 减少延迟，提高响应性
-
-// 滚动到底部
-const scrollToBottom = () => {
-  if (!autoScrollEnabled.value) {
-    return;
-  }
-  
-  // 标记这是程序自动滚动，不是用户操作
-  const isAutoScroll = true;
-  
-  // 使用 requestAnimationFrame 确保在下一帧执行
-  requestAnimationFrame(() => {
-    nextTick(() => {
-      if (virtualScrollEnabled.value) {
-        // 虚拟滚动模式：滚动到虚拟内容的底部
-        const maxScrollTop = Math.max(0, totalHeight.value - scrollBarHeight.value);
-        scrollBarRef.value?.setScrollTop(maxScrollTop);
-      } else {
-        // 常规模式：等待 DOM 更新后滚动到实际内容底部
-        const sseContent = sseContentRef.value;
-        if (sseContent) {
-          // 使用 scrollHeight 而不是 clientHeight
-          const contentHeight = sseContent.scrollHeight;
-          if (contentHeight > scrollBarHeight.value) {
-            scrollBarRef.value?.setScrollTop(contentHeight);
-          }
-        }
-      }
-      
-      // 确保自动滚动后保持自动滚动状态
-      if (isAutoScroll) {
-        autoScrollEnabled.value = true;
-        isUserScrolling.value = false;
-      }
-    });
-  });
-};
-// 监听formattedData变化，确保新消息能触发滚动（减少防抖延迟）
-const debouncedScrollToBottom = debounce(() => {
-  if (autoScrollEnabled.value) {
-    scrollToBottom();
-  }
-}, 500); // 减少到一帧时间，提高响应速度
-
-watch(
-  formattedData,
-  () => {
-    // 立即触发滚动，不使用防抖
-    if (autoScrollEnabled.value) {
-      scrollToBottom();
-    }
-  },
-  { flush: 'post' } // 确保在 DOM 更新后执行
-);
-
-// 直接监听 dataList 的变化，确保数据更新时能及时滚动
-watch(
-  () => props.dataList.length,
-  (newLength, oldLength) => {
-    // 当有新数据时，触发滚动
-    if (newLength > oldLength && autoScrollEnabled.value) {
-      nextTick(() => {
-        scrollToBottom();
-      });
-    }
-  }
-);
 
 // 清理函数
 const cleanup = () => {
@@ -548,18 +324,10 @@ const cleanup = () => {
 const cleanupInterval = setInterval(cleanup, 30000); // 每30秒清理一次
 
 onMounted(() => {
-  scrollBarHeight.value = sseViewContainerRef.value!.clientHeight;
   // 添加全局点击事件监听器
   document.addEventListener('click', handleClickOutside);
   // 添加全局键盘事件监听器
   document.addEventListener('keydown', handleGlobalKeydown);
-  
-  // 初始化时如果有数据，滚动到底部
-  if (formattedData.value.length > 0 && autoScrollEnabled.value) {
-    nextTick(() => {
-      scrollToBottom();
-    });
-  }
 });
 
 onBeforeUnmount(() => {
@@ -569,12 +337,6 @@ onBeforeUnmount(() => {
   document.removeEventListener('keydown', handleGlobalKeydown);
   // 清理定时器
   clearInterval(cleanupInterval);
-  // 取消防抖函数
-  debouncedScrollToBottom.cancel();
-  // 清理滚动检测定时器
-  if (scrollTimeoutId.value) {
-    clearTimeout(scrollTimeoutId.value);
-  }
 });
 </script>
 
@@ -589,9 +351,29 @@ onBeforeUnmount(() => {
     display: flex;
     align-items: center;
     justify-content: center;
+    flex-direction: column;
     height: 200px;
     color: var(--text-color-secondary, #909399);
     font-size: 14px;
+    gap: 12px;
+
+    .loading-icon {
+      font-size: 24px;
+      animation: loading-rotate 2s linear infinite;
+    }
+
+    span {
+      font-size: 14px;
+    }
+  }
+
+  @keyframes loading-rotate {
+    from {
+      transform: rotate(0deg);
+    }
+    to {
+      transform: rotate(360deg);
+    }
   }
 
   .sse-content {
@@ -599,6 +381,7 @@ onBeforeUnmount(() => {
       display: flex;
       align-items: center;
       padding: 4px 12px 4px 0;
+      height: 100%;
       border-radius: 4px;
       background-color: var(--bg-color, #ffffff);
 
@@ -648,14 +431,6 @@ onBeforeUnmount(() => {
         }
       }
     }
-  }
-
-  ::v-deep(.el-scrollbar__thumb) {
-    opacity: 1 !important;
-  }
-
-  ::v-deep(.el-scrollbar__bar.is-vertical) {
-    width: 8px;
   }
 }
 
