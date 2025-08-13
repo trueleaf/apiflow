@@ -2,10 +2,13 @@
   <div 
     ref="containerRef" 
     class="virtual-scroll-container" 
+    :class="{'is-normal': !virtual}"
     v-bind="$attrs"
     @scroll="handleScroll"
   >
+    <!-- 虚拟滚动模式 -->
     <div 
+      v-if="virtual"
       class="virtual-scroll-content"
       :style="{ height: `${totalHeight}px`, position: 'relative' }"
     >
@@ -21,6 +24,20 @@
         }"
       >
         <slot :item="item.data" :index="item.index" />
+      </div>
+    </div>
+    <!-- 普通模式 -->
+    <div 
+      v-else
+      class="normal-scroll-content"
+    >
+      <div
+        v-for="(item, index) in items"
+        :key="index"
+        class="normal-scroll-item"
+        :style="{ height: `${itemHeight}px` }"
+      >
+        <slot :item="item" :index="index" />
       </div>
     </div>
   </div>
@@ -43,10 +60,12 @@ const props = withDefaults(defineProps<{
   items: any[];
   itemHeight: number;
   bufferSize?: number; //可见区域上下额外渲染多少个条目
+  virtual?: boolean; // 是否开启虚拟滚动
 }>(), {
   items: () => [],
   itemHeight: 40,
-  bufferSize: 5
+  bufferSize: 0,
+  virtual: true
 });
 
 /*
@@ -96,6 +115,11 @@ const visibleItems = computed((): VirtualScrollItem[] => {
 */
 // 处理滚动事件 - 使用 requestAnimationFrame 节流优化
 const handleScroll = (event: Event) => {
+  // 只有在开启虚拟滚动时才处理滚动事件
+  if (!props.virtual) {
+    return;
+  }
+  
   if (rafId.value !== null) {
     cancelAnimationFrame(rafId.value);
   }
@@ -140,7 +164,11 @@ onBeforeUnmount(() => {
   overflow-y: auto;
   overflow-x: hidden;
   position: relative;
-  
+  &.is-normal {
+    height: auto;
+    display: flex;
+    flex-direction: column-reverse;
+  }
   &::-webkit-scrollbar {
     width: 8px;
   }
@@ -169,5 +197,14 @@ onBeforeUnmount(() => {
   left: 0;
   right: 0;
   box-sizing: border-box;
+}
+
+.normal-scroll-content {
+  position: relative;
+}
+
+.normal-scroll-item {
+  box-sizing: border-box;
+  flex-shrink: 0;
 }
 </style>
