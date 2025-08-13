@@ -44,7 +44,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, computed, onMounted, onBeforeUnmount } from 'vue';
+import { ref, computed, onMounted, onBeforeUnmount, watch, watchEffect } from 'vue';
 
 // 禁用自动属性继承，手动处理 class 等属性
 defineOptions({
@@ -136,7 +136,11 @@ const updateContainerHeight = () => {
     containerHeight.value = containerRef.value.clientHeight;
   }
 };
-
+watchEffect(() => {
+  if (props.virtual) {
+    updateContainerHeight();
+  }
+});
 /*
 |--------------------------------------------------------------------------
 | 生命周期
