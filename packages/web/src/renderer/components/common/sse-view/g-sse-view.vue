@@ -5,40 +5,57 @@
     <div v-if="dataList && dataList.length > 0 && props.isDataComplete" class="filter-container">
       <!-- 收起状态：只显示搜索图标 -->
       <div v-if="!isFilterExpanded" class="filter-collapsed">
-        <el-icon class="search-icon" @click="toggleFilter">
-          <Search />
-        </el-icon>
-        <el-icon class="download-icon" @click="downloadData" title="下载SSE数据">
-          <Download />
-        </el-icon>
+        <!-- 搜索输入框（在收起状态下显示） -->
+        <div v-if="isSearchInputVisible" class="compact-search-row">
+          <el-input ref="filterInputRef" v-model="filterText"
+            :placeholder="isRegexMode ? '支持正则表达式，如: /pattern/flags 或 pattern' : '输入关键词筛选消息内容...'" clearable size="small"
+            class="compact-filter-input" @input="handleFilterChange" @keyup.enter="handleFilterChange" />
+          <div class="compact-regex-toggle-btn" :class="{ active: isRegexMode }" @click="toggleRegexMode"
+            title="切换正则表达式模式">
+            .*
+          </div>
+        </div>
+
+        <div class="action-icons">
+          <el-icon class="search-icon" :class="{ active: isSearchInputVisible }" @click="toggleSearchInput">
+            <Search />
+          </el-icon>
+          <el-icon class="raw-view-icon" :class="{ active: isRawView }" @click="toggleRawView" title="切换原始数据视图">
+            <Document />
+          </el-icon>
+          <el-icon class="download-icon" @click="downloadData" title="下载SSE数据">
+            <Download />
+          </el-icon>
+        </div>
+
+        <!-- 在收起状态下显示筛选统计信息 -->
+        <div v-if="filterText && isSearchInputVisible" class="compact-filter-stats">
+          <div v-if="filterError" class="filter-stats error">
+            {{ filterError }}
+          </div>
+          <div v-else-if="filteredData.length > 0" class="filter-stats">
+            找到 {{ filteredData.length }} 条匹配结果
+          </div>
+          <div v-else class="filter-stats no-result">
+            未找到匹配结果
+          </div>
+        </div>
       </div>
-      
+
       <!-- 展开状态：显示完整搜索框 -->
       <div v-else class="filter-expanded">
         <div class="filter-input-row">
-          <el-input
-            ref="filterInputRef"
-            v-model="filterText"
-            :placeholder="isRegexMode ? '支持正则表达式，如: /pattern/flags 或 pattern' : '输入关键词筛选消息内容...'"
-            clearable
-            size="small"
-            class="filter-input"
-            @input="handleFilterChange"
-            @keyup.enter="handleFilterChange"
-          />
-          <div
-            class="regex-toggle-btn"
-            :class="{ active: isRegexMode }"
-            @click="toggleRegexMode"
-            title="切换正则表达式模式"
-          >
+          <el-input ref="filterInputRef" v-model="filterText"
+            :placeholder="isRegexMode ? '支持正则表达式，如: /pattern/flags 或 pattern' : '输入关键词筛选消息内容...'" clearable size="small"
+            class="filter-input" @input="handleFilterChange" @keyup.enter="handleFilterChange" />
+          <div class="regex-toggle-btn" :class="{ active: isRegexMode }" @click="toggleRegexMode" title="切换正则表达式模式">
             .*
           </div>
           <el-icon class="close-btn" @click="toggleFilter">
             <Close />
           </el-icon>
         </div>
-        
+
         <div v-if="filterText" class="filter-stats-row">
           <div v-if="filterError" class="filter-stats error">
             {{ filterError }}
@@ -52,47 +69,38 @@
         </div>
       </div>
     </div>
-    
+
     <div v-if="!dataList || dataList.length === 0" class="empty-state">
       <el-icon class="loading-icon">
         <Loading />
       </el-icon>
       <span>等待数据返回中</span>
     </div>
-    <GVirtualScroll
-      class="sse-content"
-      :items="displayData"
-      :auto-scroll="true"
-      :virtual="isDataComplete"
-      :item-height="25"
-    >
+
+    <!-- 原始数据视图 -->
+    <div v-else-if="isRawView" class="raw-content">
+      <pre class="raw-data" v-html="rawDataContent"></pre>
+    </div>
+
+    <!-- 虚拟滚动视图 -->
+    <GVirtualScroll v-else class="sse-content" :items="displayData" :auto-scroll="true" :virtual="isDataComplete"
+      :item-height="25">
       <template #default="{ item }">
-        <div   
-          :ref="el => setMessageRef(el, item.originalIndex)"
-          class="sse-message"
+        <div :ref="el => setMessageRef(el, item.originalIndex)" class="sse-message"
           :class="{ 'sse-message-hex': item.dataType === 'binary' }"
-          @click="handleMessageClick(item.originalIndex, $event)"
-        >
+          @click="handleMessageClick(item.originalIndex, $event)">
           <div class="message-index">{{ item.originalIndex + 1 }}</div>
-            <pre class="message-content" v-html="highlightText((item.event || '') + ' ' + (item.data || ''))"></pre>
-            <div class="message-timestamp">
-              {{ formatTimestamp(item.timestamp) }}
-            </div>
+          <pre class="message-content" v-html="highlightText((item.event || '') + ' ' + (item.data || ''))"></pre>
+          <div class="message-timestamp">
+            {{ formatTimestamp(item.timestamp) }}
+          </div>
         </div>
       </template>
     </GVirtualScroll>
     <!-- json详情弹窗 -->
-    <el-popover
-      :visible="activePopoverIndex !== -1"
-      placement="right-start"
-      :width="600"
-      :popper-style="{ padding: '0' }"
-      :hide-after="0"
-      transition="none"
-      :virtual-ref="currentMessageRef"
-      virtual-triggering
-      @hide="handlePopoverHide"
-    >
+    <el-popover v-if="!isRawView" :visible="activePopoverIndex !== -1" placement="right-start" :width="600"
+      :popper-style="{ padding: '0' }" :hide-after="0" transition="none" :virtual-ref="currentMessageRef"
+      virtual-triggering @hide="handlePopoverHide">
       <template #default>
         <div v-if="currentMessage" class="sse-message-detail">
           <div class="detail-header">
@@ -131,28 +139,18 @@
                 </div>
                 <div class="tab-content">
                   <div v-if="getActiveContentTab(activePopoverIndex) === 'content'" class="content-wrapper">
-                    <SJsonEditor
-                      v-if="isJsonString(currentMessage.data || currentMessage.rawBlock)"
+                    <SJsonEditor v-if="isJsonString(currentMessage.data || currentMessage.rawBlock)"
                       :model-value="getFormattedContent(activePopoverIndex, currentMessage.data || currentMessage.rawBlock)"
-                      :read-only="true"
-                      :min-height="100"
-                      :max-height="350"
-                      :auto-height="true"
-                      :config="{ fontSize: 13, language: 'json' }"
-                    />
+                      :read-only="true" :min-height="100" :max-height="350" :auto-height="true"
+                      :config="{ fontSize: 13, language: 'json' }" />
                     <pre v-else class="full-content">{{ currentMessage.data || currentMessage.rawBlock }}</pre>
                   </div>
                   <div
                     v-if="getActiveContentTab(activePopoverIndex) === 'raw' && currentMessage.rawBlock && currentMessage.dataType !== 'binary'"
                     class="content-wrapper">
-                    <SJsonEditor
-                      :model-value="currentMessage.rawBlock"
-                      :read-only="true"
-                      :min-height="100"
-                      :max-height="350"
-                      :auto-height="true"
-                      :config="{ fontSize: 13, language: 'text/plain', wordWrap: 'on' }"
-                    />
+                    <SJsonEditor :model-value="currentMessage.rawBlock" :read-only="true" :min-height="100"
+                      :max-height="350" :auto-height="true"
+                      :config="{ fontSize: 13, language: 'text/plain', wordWrap: 'on' }" />
                   </div>
                 </div>
               </div>
@@ -172,7 +170,7 @@ import dayjs from 'dayjs';
 import type { ChunkWithTimestampe } from '@src/types/types';
 import SJsonEditor from '@/components/common/json-editor/g-json-editor.vue';
 import GVirtualScroll from '@/components/apidoc/virtual-scroll/g-virtual-scroll.vue';
-import { Loading, Search, Close, Download } from '@element-plus/icons-vue';
+import { Loading, Search, Close, Download, Document } from '@element-plus/icons-vue';
 
 /*
 |--------------------------------------------------------------------------
@@ -199,6 +197,53 @@ const isFilterExpanded = ref(false);
 const isRegexMode = ref(false);
 const filterError = ref('');
 const filterInputRef = ref<HTMLInputElement | null>(null);
+const isSearchInputVisible = ref(false);
+
+/*
+|--------------------------------------------------------------------------
+| 原始视图相关
+|--------------------------------------------------------------------------
+*/
+const isRawView = ref(false);
+
+// 切换原始视图模式
+const toggleRawView = () => {
+  isRawView.value = !isRawView.value;
+  // 切换到原始视图时关闭 popover
+  if (isRawView.value) {
+    activePopoverIndex.value = -1;
+  }
+};
+
+// 生成原始数据内容（计算属性）
+const rawDataContent = computed(() => {
+  if (!props.dataList || props.dataList.length === 0) {
+    return '';
+  }
+
+  const lines: string[] = [];
+
+  // 遍历原始数据列表，直接输出原始数据块
+  props.dataList.forEach((chunkData) => {
+    if (chunkData.chunk && chunkData.chunk.byteLength > 0) {
+      // 将 Uint8Array 转换为字符串
+      const textDecoder = new TextDecoder('utf-8');
+      const chunkText = textDecoder.decode(chunkData.chunk);
+      if (chunkText.trim()) {
+        lines.push(chunkText);
+      }
+    }
+  });
+
+  const rawContent = lines.join('');
+
+  // 如果有筛选条件，对原始内容进行高亮处理
+  if (filterText.value.trim() && !filterError.value) {
+    return highlightText(rawContent);
+  }
+
+  return rawContent;
+});
 
 // 切换筛选框展开/收起状态
 const toggleFilter = () => {
@@ -210,6 +255,21 @@ const toggleFilter = () => {
     });
   } else {
     // 收起时清空筛选条件
+    filterText.value = '';
+    filterError.value = '';
+  }
+};
+
+// 切换搜索输入框显示状态
+const toggleSearchInput = () => {
+  isSearchInputVisible.value = !isSearchInputVisible.value;
+  if (isSearchInputVisible.value) {
+    // 显示输入框后自动聚焦
+    nextTick(() => {
+      filterInputRef.value?.focus();
+    });
+  } else {
+    // 隐藏输入框时清空筛选条件
     filterText.value = '';
     filterError.value = '';
   }
@@ -231,11 +291,11 @@ const downloadData = () => {
   try {
     // 生成原始返回数据内容
     const rawContent = generateRawContent();
-    
+
     // 生成文件名
     const timestamp = dayjs().format('YYYY-MM-DD_HH-mm-ss');
     const fileName = `sse-raw-data_${timestamp}.txt`;
-    
+
     // 使用downloadStringAsText方法下载
     downloadStringAsText(rawContent, fileName);
   } catch (error) {
@@ -246,7 +306,7 @@ const downloadData = () => {
 // 生成原始返回数据内容
 const generateRawContent = (): string => {
   const lines: string[] = [];
-  
+
   // 遍历原始数据列表，直接输出原始数据块
   props.dataList.forEach((chunkData) => {
     if (chunkData.chunk && chunkData.chunk.byteLength > 0) {
@@ -258,7 +318,7 @@ const generateRawContent = (): string => {
       }
     }
   });
-  
+
   return lines.join('');
 };
 
@@ -273,14 +333,14 @@ const highlightText = (text: string): string => {
   if (!filterText.value.trim() || filterError.value) {
     return text;
   }
-  
+
   try {
     let regex: RegExp;
-    
+
     if (isRegexMode.value) {
       // 正则表达式模式
       const trimmedText = filterText.value.trim();
-      
+
       // 检查是否是 /pattern/flags 格式
       const regexMatch = trimmedText.match(/^\/(.+)\/([gimuy]*)$/);
       if (regexMatch) {
@@ -294,7 +354,7 @@ const highlightText = (text: string): string => {
       const escapedText = filterText.value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
       regex = new RegExp(`(${escapedText})`, 'gi');
     }
-    
+
     return text.replace(regex, '<mark class="highlight">$1</mark>');
   } catch (error) {
     // 正则表达式错误时不高亮
@@ -306,14 +366,14 @@ const filteredData = computed(() => {
   if (!filterText.value.trim()) {
     return formattedData.value;
   }
-  
+
   try {
     let regex: RegExp;
-    
+
     if (isRegexMode.value) {
       // 正则表达式模式
       const trimmedText = filterText.value.trim();
-      
+
       // 检查是否是 /pattern/flags 格式
       const regexMatch = trimmedText.match(/^\/(.+)\/([gimuy]*)$/);
       if (regexMatch) {
@@ -327,17 +387,17 @@ const filteredData = computed(() => {
       const escapedText = filterText.value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
       regex = new RegExp(escapedText, 'gi');
     }
-    
+
     // 清除错误状态
     filterError.value = '';
-    
+
     return formattedData.value
       .map((item, index) => ({ ...item, originalIndex: index }))
       .filter((item) => {
         const content = (item.event || '') + ' ' + (item.data || '');
         return regex.test(content);
       });
-      
+
   } catch (error) {
     // 正则表达式错误
     filterError.value = `正则表达式错误: ${error instanceof Error ? error.message : '未知错误'}`;
@@ -490,7 +550,7 @@ const formattedData = computed(() => {
     const newParsedData = parseChunkList(newChunks);
     incrementalData.value = [...incrementalData.value, ...newParsedData];
     lastDataLength.value = props.dataList.length;
-    
+
     return incrementalData.value;
   }
 
@@ -562,55 +622,168 @@ onBeforeUnmount(() => {
     align-items: flex-start;
     padding: 0 12px 0;
     border-bottom: 1px solid #ebeef5;
+
     .filter-collapsed {
+      position: relative;
       display: flex;
       align-items: center;
-      justify-content: flex-end;
       width: 100%;
       height: 28px;
       opacity: 1;
       transition: opacity 0.2s ease;
+
+      .compact-search-row {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        width: 100%;
+        margin-right: 30px;
+
+        .compact-filter-input {
+          flex: 1;
+          transition: all 0.3s ease;
+        }
+
+        .compact-regex-toggle-btn {
+          height: 20px;
+          width: 25px;
+          font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+          font-weight: bold;
+          font-size: 12px;
+          background-color: var(--fill-color-light, #f5f7fa);
+          border: 1px solid var(--border-color-light, #e4e7ed);
+          border-radius: 4px;
+          color: var(--text-color-regular, #606266);
+          cursor: pointer;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          transition: all 0.2s;
+          user-select: none;
+          flex-shrink: 0;
+
+          &:hover {
+            background-color: var(--fill-color, #f0f2f5);
+            border-color: var(--border-color, #dcdfe6);
+          }
+
+          &.active {
+            background-color: var(--color-primary, #409eff);
+            border-color: var(--color-primary, #409eff);
+            color: #ffffff;
+
+            &:hover {
+              background-color: var(--color-primary-light-3, #79bbff);
+              border-color: var(--color-primary-light-3, #79bbff);
+            }
+          }
+        }
+      }
+
+      .action-icons {
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        height: 28px;
+        margin-left: auto;
+      }
+
       .search-icon {
         width: 28px;
         height: 28px;
         color: var(--text-color-regular, #606266);
         cursor: pointer;
-        transition: color 0.2s;
-        
+        transition: all 0.2s;
+
         &:hover {
           color: var(--color-primary, #409eff);
           background-color: #efefef;
         }
+
+        &.active {
+          color: var(--color-primary, #409eff);
+          background-color: var(--color-primary-light-9, #ecf5ff);
+        }
       }
-      
+
       .download-icon {
         width: 28px;
         height: 28px;
         color: var(--text-color-regular, #606266);
         cursor: pointer;
         transition: color 0.2s;
-        
+
         &:hover {
           color: var(--color-success, #67c23a);
           background-color: #efefef;
         }
       }
+
+      .raw-view-icon {
+        width: 28px;
+        height: 28px;
+        color: var(--text-color-regular, #606266);
+        cursor: pointer;
+        transition: all 0.2s;
+
+        &:hover {
+          color: var(--color-primary, #409eff);
+          background-color: #efefef;
+        }
+
+        &.active {
+          color: var(--color-primary, #409eff);
+          background-color: var(--color-primary-light-9, #ecf5ff);
+        }
+      }
+
+      .compact-filter-stats {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        z-index: 10;
+        background-color: var(--bg-color, #ffffff);
+        border: 1px solid var(--border-color-lighter, #ebeef5);
+        border-top: none;
+        border-radius: 0 0 4px 4px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+
+        .filter-stats {
+          font-size: 12px;
+          padding: 8px 12px;
+          margin: 0;
+
+          &:not(.error):not(.no-result) {
+            color: var(--color-success, #67c23a);
+          }
+
+          &.no-result {
+            color: var(--color-warning, #e6a23c);
+          }
+
+          &.error {
+            color: var(--color-danger, #f56c6c);
+          }
+        }
+      }
     }
-    
+
     .filter-expanded {
       width: 100%;
       opacity: 1;
       transition: opacity 0.2s ease;
+
       .filter-input-row {
         display: flex;
         align-items: center;
         height: 28px;
-        
+
         .filter-input {
           flex: 1;
           max-width: none;
         }
-        
+
         .regex-toggle-btn {
           height: 20px;
           width: 25px;
@@ -628,24 +801,24 @@ onBeforeUnmount(() => {
           transition: all 0.2s;
           user-select: none;
           flex-shrink: 0;
-          
+
           &:hover {
             background-color: var(--fill-color, #f0f2f5);
             border-color: var(--border-color, #dcdfe6);
           }
-          
+
           &.active {
             background-color: var(--color-primary, #409eff);
             border-color: var(--color-primary, #409eff);
             color: #ffffff;
-            
+
             &:hover {
               background-color: var(--color-primary-light-3, #79bbff);
               border-color: var(--color-primary-light-3, #79bbff);
             }
           }
         }
-        
+
         .close-btn {
           width: 24px;
           height: 24px;
@@ -653,28 +826,28 @@ onBeforeUnmount(() => {
           cursor: pointer;
           transition: color 0.2s;
           flex-shrink: 0;
-          
+
           &:hover {
             color: var(--color-danger, #f56c6c);
           }
         }
       }
-      
+
       .filter-stats-row {
         margin-top: 8px;
         min-height: 18px;
-        
+
         .filter-stats {
           font-size: 12px;
-          
+
           &:not(.error):not(.no-result) {
             color: var(--color-success, #67c23a);
           }
-          
+
           &.no-result {
             color: var(--color-warning, #e6a23c);
           }
-          
+
           &.error {
             color: var(--color-danger, #f56c6c);
           }
@@ -707,8 +880,32 @@ onBeforeUnmount(() => {
     from {
       transform: rotate(0deg);
     }
+
     to {
       transform: rotate(360deg);
+    }
+  }
+
+  .raw-content {
+    flex: 1;
+    overflow: auto;
+    padding: 12px;
+    background-color: var(--fill-color-extra-light, #fafcff);
+    border: 1px solid var(--border-color-lighter, #ebeef5);
+    border-radius: 4px;
+    margin: 0 12px 12px 12px;
+
+    .raw-data {
+      margin: 0;
+      padding: 0;
+      font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+      font-size: 13px;
+      color: var(--text-color-primary, #303133);
+      white-space: pre-wrap;
+      word-break: break-all;
+      line-height: 1.4;
+      background: none;
+      border: none;
     }
   }
 
