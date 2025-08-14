@@ -1,29 +1,30 @@
 <template>
   <div ref="sseViewContainerRef" class="sse-view">
-
     <!-- 筛选框 -->
     <div v-if="dataList && dataList.length > 0 && props.isDataComplete" class="filter-container">
       <!-- 收起状态：只显示搜索图标 -->
       <div v-if="!isFilterExpanded" class="filter-collapsed">
-        <!-- 搜索输入框（在收起状态下显示） -->
         <div v-if="isSearchInputVisible" class="compact-search-row">
           <el-input ref="filterInputRef" v-model="filterText"
-            :placeholder="isRegexMode ? '支持正则表达式，如: /pattern/flags 或 pattern' : '输入关键词筛选消息内容...'" clearable size="small"
-            class="compact-filter-input" @input="handleFilterChange" @keyup.enter="handleFilterChange" />
-          <div class="compact-regex-toggle-btn" :class="{ active: isRegexMode }" @click="toggleRegexMode"
-            title="切换正则表达式模式">
-            .*
-          </div>
+            :placeholder="isRegexMode ? '支持正则表达式，如: /pattern/flags 或 pattern' : '输入关键词筛选消息内容...'" size="small"
+            class="compact-filter-input" @input="handleFilterChange" @keyup.enter="handleFilterChange">
+            <template #suffix>
+              <div class="compact-regex-toggle-btn" :class="{ active: isRegexMode }" @click="toggleRegexMode"
+                title="切换正则表达式模式">
+                .*
+              </div>
+            </template>
+          </el-input>
         </div>
 
         <div class="action-icons">
-          <el-icon class="search-icon" :class="{ active: isSearchInputVisible }" @click="toggleSearchInput">
+          <el-icon class="icon search-icon" :class="{ active: isSearchInputVisible }" @click="toggleSearchInput">
             <Search />
           </el-icon>
-          <el-icon class="raw-view-icon" :class="{ active: isRawView }" @click="toggleRawView" title="切换原始数据视图">
+          <el-icon class="icon raw-view-icon" :class="{ active: isRawView }" @click="toggleRawView" title="切换原始数据视图">
             <Document />
           </el-icon>
-          <el-icon class="download-icon" @click="downloadData" title="下载SSE数据">
+          <el-icon class="icon download-icon" @click="downloadData" title="下载SSE数据">
             <Download />
           </el-icon>
         </div>
@@ -41,16 +42,18 @@
           </div>
         </div>
       </div>
-
       <!-- 展开状态：显示完整搜索框 -->
       <div v-else class="filter-expanded">
         <div class="filter-input-row">
           <el-input ref="filterInputRef" v-model="filterText"
             :placeholder="isRegexMode ? '支持正则表达式，如: /pattern/flags 或 pattern' : '输入关键词筛选消息内容...'" clearable size="small"
-            class="filter-input" @input="handleFilterChange" @keyup.enter="handleFilterChange" />
-          <div class="regex-toggle-btn" :class="{ active: isRegexMode }" @click="toggleRegexMode" title="切换正则表达式模式">
-            .*
-          </div>
+            class="filter-input" @input="handleFilterChange" @keyup.enter="handleFilterChange">
+            <template #suffix>
+              <div class="regex-toggle-btn" :class="{ active: isRegexMode }" @click="toggleRegexMode" title="切换正则表达式模式">
+                .*
+              </div>
+            </template>
+          </el-input>
           <el-icon class="close-btn" @click="toggleFilter">
             <Close />
           </el-icon>
@@ -76,12 +79,10 @@
       </el-icon>
       <span>等待数据返回中</span>
     </div>
-
     <!-- 原始数据视图 -->
     <div v-else-if="isRawView" class="raw-content">
       <pre class="raw-data" v-html="rawDataContent"></pre>
     </div>
-
     <!-- 虚拟滚动视图 -->
     <GVirtualScroll v-else class="sse-content" :items="displayData" :auto-scroll="true" :virtual="isDataComplete"
       :item-height="25">
@@ -182,30 +183,18 @@ const props = withDefaults(defineProps<{ dataList: ChunkWithTimestampe[]; virtua
   isDataComplete: false,
 });
 const sseViewContainerRef = ref<HTMLElement | null>(null);
-
 // 性能优化：增量数据处理
 const lastDataLength = ref(0);
 const incrementalData = ref<any[]>([]);
-
-/*
-|--------------------------------------------------------------------------
-| 筛选相关
-|--------------------------------------------------------------------------
-*/
+// 筛选相关
 const filterText = ref('');
 const isFilterExpanded = ref(false);
 const isRegexMode = ref(false);
 const filterError = ref('');
 const filterInputRef = ref<HTMLInputElement | null>(null);
 const isSearchInputVisible = ref(false);
-
-/*
-|--------------------------------------------------------------------------
-| 原始视图相关
-|--------------------------------------------------------------------------
-*/
+// 视图相关
 const isRawView = ref(false);
-
 // 切换原始视图模式
 const toggleRawView = () => {
   isRawView.value = !isRawView.value;
@@ -416,20 +405,14 @@ const displayData = computed(() => {
 |--------------------------------------------------------------------------
 */
 const activePopoverIndex = ref<number>(-1);
-// 内容标签页状态管理，key 为消息索引，value 为当前激活的标签页
 const activeContentTabs = ref<Record<number, 'content' | 'raw'>>({});
-// 消息元素引用管理
 const messageRefs = ref<Record<number, HTMLElement>>({});
-// 当前激活的消息引用
 const currentMessageRef = computed(() => {
   return activePopoverIndex.value !== -1 ? messageRefs.value[activePopoverIndex.value] : null;
 });
-// 当前激活的消息数据
 const currentMessage = computed(() => {
   return activePopoverIndex.value !== -1 ? formattedData.value[activePopoverIndex.value] : null;
 });
-
-// 设置消息元素引用
 const setMessageRef = (el: any, index: number) => {
   if (el && el instanceof HTMLElement) {
     messageRefs.value[index] = el;
@@ -588,23 +571,17 @@ const cleanup = () => {
     });
   }
 };
-
 // 定期清理
 const cleanupInterval = setInterval(cleanup, 30000); // 每30秒清理一次
 
 onMounted(() => {
-  // 添加全局点击事件监听器
   document.addEventListener('click', handleClickOutside);
-  // 添加全局键盘事件监听器
   document.addEventListener('keydown', handleGlobalKeydown);
 });
 
 onBeforeUnmount(() => {
-  // 移除全局点击事件监听器
   document.removeEventListener('click', handleClickOutside);
-  // 移除全局键盘事件监听器
   document.removeEventListener('keydown', handleGlobalKeydown);
-  // 清理定时器
   clearInterval(cleanupInterval);
 });
 </script>
@@ -642,39 +619,43 @@ onBeforeUnmount(() => {
         .compact-filter-input {
           flex: 1;
           transition: all 0.3s ease;
-        }
 
-        .compact-regex-toggle-btn {
-          height: 20px;
-          width: 25px;
-          font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
-          font-weight: bold;
-          font-size: 12px;
-          background-color: var(--fill-color-light, #f5f7fa);
-          border: 1px solid var(--border-color-light, #e4e7ed);
-          border-radius: 4px;
-          color: var(--text-color-regular, #606266);
-          cursor: pointer;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          transition: all 0.2s;
-          user-select: none;
-          flex-shrink: 0;
-
-          &:hover {
-            background-color: var(--fill-color, #f0f2f5);
-            border-color: var(--border-color, #dcdfe6);
+          :deep(.el-input__suffix) {
+            display: flex;
+            align-items: center;
           }
 
-          &.active {
-            background-color: var(--color-primary, #409eff);
-            border-color: var(--color-primary, #409eff);
-            color: #ffffff;
+          .compact-regex-toggle-btn {
+            height: 100%;
+            width: 25px;
+            font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+            font-weight: bold;
+            font-size: 10px;
+            border-radius: 3px;
+            color: var(--text-color-regular, #606266);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+            user-select: none;
+            flex-shrink: 0;
+            margin-left: 4px;
 
             &:hover {
-              background-color: var(--color-primary-light-3, #79bbff);
-              border-color: var(--color-primary-light-3, #79bbff);
+              background-color: var(--fill-color, #f0f2f5);
+              border-color: var(--border-color, #dcdfe6);
+            }
+
+            &.active {
+              background-color: var(--color-primary, #409eff);
+              border-color: var(--color-primary, #409eff);
+              color: #ffffff;
+
+              &:hover {
+                background-color: var(--color-primary-light-3, #79bbff);
+                border-color: var(--color-primary-light-3, #79bbff);
+              }
             }
           }
         }
@@ -687,7 +668,9 @@ onBeforeUnmount(() => {
         height: 28px;
         margin-left: auto;
       }
-
+      .icon {
+        margin: 0 1px;
+      }
       .search-icon {
         width: 28px;
         height: 28px;
@@ -782,39 +765,45 @@ onBeforeUnmount(() => {
         .filter-input {
           flex: 1;
           max-width: none;
-        }
 
-        .regex-toggle-btn {
-          height: 20px;
-          width: 25px;
-          font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
-          font-weight: bold;
-          font-size: 12px;
-          background-color: var(--fill-color-light, #f5f7fa);
-          border: 1px solid var(--border-color-light, #e4e7ed);
-          border-radius: 4px;
-          color: var(--text-color-regular, #606266);
-          cursor: pointer;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          transition: all 0.2s;
-          user-select: none;
-          flex-shrink: 0;
-
-          &:hover {
-            background-color: var(--fill-color, #f0f2f5);
-            border-color: var(--border-color, #dcdfe6);
+          :deep(.el-input__suffix) {
+            display: flex;
+            align-items: center;
           }
 
-          &.active {
-            background-color: var(--color-primary, #409eff);
-            border-color: var(--color-primary, #409eff);
-            color: #ffffff;
+          .regex-toggle-btn {
+            height: 25px;
+            width: 25px;
+            font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+            font-weight: bold;
+            font-size: 10px;
+            background-color: var(--fill-color-light, #f5f7fa);
+            border: 1px solid var(--border-color-light, #e4e7ed);
+            border-radius: 3px;
+            color: var(--text-color-regular, #606266);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+            user-select: none;
+            flex-shrink: 0;
+            margin-left: 4px;
 
             &:hover {
-              background-color: var(--color-primary-light-3, #79bbff);
-              border-color: var(--color-primary-light-3, #79bbff);
+              background-color: var(--fill-color, #f0f2f5);
+              border-color: var(--border-color, #dcdfe6);
+            }
+
+            &.active {
+              background-color: var(--color-primary, #409eff);
+              border-color: var(--color-primary, #409eff);
+              color: #ffffff;
+
+              &:hover {
+                background-color: var(--color-primary-light-3, #79bbff);
+                border-color: var(--color-primary-light-3, #79bbff);
+              }
             }
           }
         }
