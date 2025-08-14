@@ -433,7 +433,8 @@ onUnmounted(() => {
 <style lang='scss' scoped>
 .body-view {
   width: 100%;
-  height: calc(100vh - var(--apiflow-apidoc-request-view-height) - var(--apiflow-doc-nav-height) - 100px);
+  margin-top: 2px;
+  height: calc(100vh - var(--apiflow-apidoc-request-view-height) - var(--apiflow-doc-nav-height) - 80px);
   position: relative;
   .response-tip {
     width: 100%;

@@ -110,6 +110,11 @@ const responseBodyLoading = computed(() => apidocStore.responseBodyLoading); //è
 .remote-response-wrap {
   height: calc(100vh - var(--apiflow-apidoc-request-view-height) - var(--apiflow-doc-nav-height) - 30px);
   overflow-y: auto;
+  
+  :deep(.el-tabs__header) {
+    margin-bottom: 0px;
+  }
+  
   .el-tabs__content {
     height: calc(100% - 55px);
 

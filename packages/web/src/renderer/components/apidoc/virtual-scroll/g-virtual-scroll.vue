@@ -44,7 +44,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, computed, onMounted, onBeforeUnmount, watch, watchEffect } from 'vue';
+import { ref, computed, onMounted, onBeforeUnmount, watchEffect, nextTick } from 'vue';
 
 // 禁用自动属性继承，手动处理 class 等属性
 defineOptions({
@@ -136,9 +136,26 @@ const updateContainerHeight = () => {
     containerHeight.value = containerRef.value.clientHeight;
   }
 };
+
+// 滚动到底部
+const scrollToBottom = () => {
+  if (!containerRef.value) return;
+  
+  if (props.virtual) {
+    const maxScrollTop = totalHeight.value - containerHeight.value;
+    containerRef.value.scrollTop = Math.max(0, maxScrollTop);
+    scrollTop.value = containerRef.value.scrollTop;
+  } else {
+    containerRef.value.scrollTop = containerRef.value.scrollHeight;
+  }
+};
+
 watchEffect(() => {
   if (props.virtual) {
     updateContainerHeight();
+    nextTick(() => {
+      scrollToBottom();
+    })
   }
 });
 /*

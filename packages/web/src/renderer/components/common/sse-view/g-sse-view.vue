@@ -561,39 +561,38 @@ onBeforeUnmount(() => {
     display: flex;
     align-items: flex-start;
     padding: 0 12px 0;
-    margin-bottom: 3px;
     border-bottom: 1px solid #ebeef5;
     .filter-collapsed {
       display: flex;
       align-items: center;
       justify-content: flex-end;
       width: 100%;
-      height: 24px;
+      height: 28px;
       opacity: 1;
       transition: opacity 0.2s ease;
-      gap: 8px;
-      
       .search-icon {
-        width: 20px;
-        height: 20px;
+        width: 28px;
+        height: 28px;
         color: var(--text-color-regular, #606266);
         cursor: pointer;
         transition: color 0.2s;
         
         &:hover {
           color: var(--color-primary, #409eff);
+          background-color: #efefef;
         }
       }
       
       .download-icon {
-        width: 20px;
-        height: 20px;
+        width: 28px;
+        height: 28px;
         color: var(--text-color-regular, #606266);
         cursor: pointer;
         transition: color 0.2s;
         
         &:hover {
           color: var(--color-success, #67c23a);
+          background-color: #efefef;
         }
       }
     }
@@ -602,12 +601,10 @@ onBeforeUnmount(() => {
       width: 100%;
       opacity: 1;
       transition: opacity 0.2s ease;
-      
       .filter-input-row {
         display: flex;
         align-items: center;
-        gap: 8px;
-        height: 24px;
+        height: 28px;
         
         .filter-input {
           flex: 1;
