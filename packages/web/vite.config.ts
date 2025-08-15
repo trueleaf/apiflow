@@ -44,7 +44,7 @@ export default defineConfig(({ mode, command }) => {
         `monaco-editor/esm/vs/language/html/html.worker`,
         `monaco-editor/esm/vs/language/typescript/ts.worker`,
         `monaco-editor/esm/vs/editor/editor.worker`
-      ]
+      ],
     },
     build: {
       target: 'esnext',
