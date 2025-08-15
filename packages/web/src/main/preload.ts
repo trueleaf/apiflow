@@ -55,6 +55,16 @@ const onMain = (channel: string, callback: (...args: any[]) => void) => {
   ipcRenderer.on(channel, (_event, ...args) => callback(...args))
 }
 
+const removeListener = (channel: string, callback?: (...args: any[]) => void) => {
+  if (callback) {
+    ipcRenderer.removeListener(channel, callback)
+  } else {
+    ipcRenderer.removeAllListeners(channel)
+  }
+}
+
+
+
 
 contextBridge.exposeInMainWorld('electronAPI', {
   got,
@@ -73,4 +83,5 @@ contextBridge.exposeInMainWorld('electronAPI', {
   exportWord,
   sendToMain,
   onMain,
+  removeListener,
 })

@@ -20,6 +20,7 @@ export type ElectronAPI = {
   exportWord: (params: StandaloneExportHtmlParams) => Promise<Uint8Array>;
   sendToMain: (channel: string, ...args: any[]) => void;
   onMain: (channel: string, callback: (...args: any[]) => void) => void;
+  removeListener: (channel: string, callback?: (...args: any[]) => void) => void;
 }
 
 declare global {

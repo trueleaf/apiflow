@@ -490,3 +490,9 @@ export type ParsedSSeData = {
   dataType: 'normal' | 'binary';
   rawBlock: string;
 }
+export type ExportStatus = {
+  status: 'notStarted' | 'pathSelected' | "inProgress" | "paused" | "completed" | "error",
+  progress: number,
+  itemNum: number;
+  filePath?: string; // 选择的文件路径
+};
