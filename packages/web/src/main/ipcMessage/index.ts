@@ -2,17 +2,19 @@ import { ipcMain, IpcMainInvokeEvent, WebContentsView } from 'electron';
 import { BrowserWindow } from 'electron';
 import { StandaloneExportHtmlParams } from '@src/types/standalone.ts';
 import fs from 'fs/promises';
-import { exportHtml, exportWord } from './export/export.ts';
+import { exportHtml, exportWord, setMainWindow, setContentView, startExport, receiveRendererData, finishRendererData, getExportStatus, resetExport, selectExportPath } from './export/export.ts';
 import { getWindowState } from '../utils/index.ts';
 import { IPCProjectData, WindowState } from '@src/types/types.ts';
 
 export const useIpcEvent = (mainWindow: BrowserWindow, topBarView: WebContentsView, contentView: WebContentsView) => {
+  // 设置窗口引用到导出模块
+  setMainWindow(mainWindow);
+  setContentView(contentView);
   /*
   |--------------------------------------------------------------------------
   | 其他操作
   | 1.读取文件
   | 2.打开开发者工具
-  |
   |--------------------------------------------------------------------------
   */
   ipcMain.handle('apiflow-open-dev-tools', () => {
@@ -91,7 +93,6 @@ export const useIpcEvent = (mainWindow: BrowserWindow, topBarView: WebContentsVi
   ipcMain.on('apiflow-topbar-switch-project', async (_, data: IPCProjectData) => {
     contentView.webContents.send('apiflow-change-project', data)
   })
-
   /*
   |---------------------------------------------------------------------------
   | contentView → topBarView 通信（
@@ -150,21 +151,65 @@ export const useIpcEvent = (mainWindow: BrowserWindow, topBarView: WebContentsVi
   })
   /*
   |---------------------------------------------------------------------------
-  | 数据备份(导出进度) 事件监听 (占位, 未实现具体逻辑)
+  | 数据备份(导出进度) 事件监听
   |---------------------------------------------------------------------------
   */
-  ipcMain.on('export-start', async () => {
-    // 数据备份开始 (待实现)
-  })
-  ipcMain.on('export-doing', async () => {
-    // 数据备份进行中 (可传递进度参数) (待实现)
-  })
-  ipcMain.on('export-ending', async () => {
-    // 数据备份结束 (待实现)
-  })
-  ipcMain.on('export-error', async () => {
-    // 数据备份出错 (待实现)
-  })
+  // 选择导出路径
+  ipcMain.on('export-select-path', async (event) => {
+    try {
+      const result = await selectExportPath();
+      event.reply('export-select-path-reply', result);
+    } catch (error) {
+      console.error('选择导出路径失败:', error);
+      event.reply('export-select-path-reply', { success: false, error: (error as Error).message });
+    }
+  });
+
+  // 开始导出
+  ipcMain.on('export-start', async (_, params: { itemNum: number, config?: { includeResponseCache: boolean } }) => {
+    try {
+      await startExport(params.itemNum, params.config);
+    } catch (error) {
+      console.error('导出开始失败:', error);
+      contentView.webContents.send('export-main-error', (error as Error).message);
+    }
+  });
+
+  // 接收渲染进程传输的数据
+  ipcMain.on('export-renderer-data', async (_, data: any) => {
+    try {
+      receiveRendererData(data);
+    } catch (error) {
+      console.error('接收渲染进程数据失败:', error);
+      contentView.webContents.send('export-main-error', (error as Error).message);
+    }
+  });
+
+  // 渲染进程数据传输完毕
+  ipcMain.on('export-renderer-data-finish', async () => {
+    try {
+      await finishRendererData();
+    } catch (error) {
+      console.error('完成渲染进程数据传输失败:', error);
+      contentView.webContents.send('export-main-error', (error as Error).message);
+    }
+  });
+
+  // 获取导出状态
+  ipcMain.on('export-get-status', async (event) => {
+    const status = getExportStatus();
+    event.reply('export-get-status-reply', status);
+  });
+
+  // 重置导出状态
+  ipcMain.on('export-reset', async () => {
+    try {
+      resetExport();
+    } catch (error) {
+      console.error('重置导出状态失败:', error);
+      contentView.webContents.send('export-main-error', (error as Error).message);
+    }
+  });
   /*
   |---------------------------------------------------------------------------
   | 窗口状态同步
