@@ -39,7 +39,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, defineEmits } from 'vue'
+import { ref } from 'vue'
 import { LocalStorageItem } from '@src/types/apidoc/cache'
 import { formatBytes } from '@/helper'
 import { ElMessageBox, ElMessage } from 'element-plus'
