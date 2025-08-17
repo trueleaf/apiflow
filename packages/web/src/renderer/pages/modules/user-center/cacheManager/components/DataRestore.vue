@@ -129,9 +129,13 @@ const importConfig = reactive({
   importMode: 'merge'
 });
 
+// 导入状态跟踪
+const pendingImports = ref(0); // 等待导入的数据项数量
+const completedImports = ref(0); // 已完成导入的数据项数量
+const zipReadComplete = ref(false); // ZIP文件是否读取完成
+
 // 存储监听器引用，用于后续清理
 const listenerRefs = ref<Record<string, (...args: any[]) => void>>({});
-// Worker 引用
 const workerRef = ref<Worker | null>(null);
 
 /*
@@ -139,22 +143,31 @@ const workerRef = ref<Worker | null>(null);
 | 初始化相关
 |--------------------------------------------------------------------------
 */
-// 初始化 Web Worker
 const initWorker = () => {
   workerRef.value = new Worker(new URL('@/worker/indexedDB.ts', import.meta.url), { type: 'module' });
   workerRef.value.addEventListener('message', handleWorkerMessage);
 };
-
-// Worker消息处理
 const handleWorkerMessage = (event: MessageEvent) => {
-  const { data } = event;
-  // 这里只处理非clearAllData相关的消息
-  // clearAllData的消息在Promise内部处理，避免冲突
-  if (data.type !== 'clearAllResult') {
-    // 处理其他Worker消息...
+  const { type, data } = event.data;
+  if (type === 'clearAllResult') {
+    if (data.success) {
+      statusMessage.value = '数据清空完成，正在开始导入...';
+      window.electronAPI?.sendToMain('import-start', {
+        filePath: importStatus.filePath,
+        itemNum: importStatus.itemNum,
+        config: {
+          importMode: importConfig.importMode
+        }
+      });
+      statusMessage.value = '正在准备导入数据...';
+    } else {
+      console.error('清空数据失败:', data.error);
+      importStatus.status = 'error';
+      statusMessage.value = '清空数据失败';
+      ElMessage.error('清空数据失败');
+    }
   }
 };
-
 // IPC事件监听器
 const initIpcListeners = () => {
   cleanupIpcListeners();
@@ -196,22 +209,31 @@ const initIpcListeners = () => {
   };
   window.electronAPI?.onMain('import-progress', listenerRefs.value.importProgress);
   
-  // 监听导入完成事件
-  listenerRefs.value.importFinish = (result: { success: boolean, totalItems: number, message?: string }) => {
+  // 监听ZIP文件读取完成事件
+  listenerRefs.value.importZipReadComplete = (result: { success: boolean, totalItems: number, message?: string }) => {
     if (result.success) {
-      importStatus.status = 'completed';
-      importStatus.progress = 100;
-      importStatus.processedNum = result.totalItems;
-      statusMessage.value = result.message || `导入完成！共导入 ${result.totalItems} 项数据`;
-      // 导入成功后通知父组件刷新缓存状态
-      emit('refreshCache');
+      statusMessage.value = result.message || 'ZIP文件读取完成，正在导入到数据库...';
+      // 设置预期的总数据项数量，但不立即完成导入状态
+      importStatus.itemNum = result.totalItems;
+      zipReadComplete.value = true;
+      
+      // 如果没有数据项需要导入，直接标记为完成
+      if (result.totalItems === 0) {
+        importStatus.status = 'completed';
+        importStatus.progress = 100;
+        statusMessage.value = '导入完成！没有数据需要导入';
+        emit('refreshCache');
+      } else {
+        // 检查是否所有数据都已导入完成
+        checkImportComplete();
+      }
     } else {
       importStatus.status = 'error';
-      statusMessage.value = result.message || '导入失败';
-      ElMessage.error(result.message || '导入失败');
+      statusMessage.value = result.message || 'ZIP文件读取失败';
+      ElMessage.error(result.message || 'ZIP文件读取失败');
     }
   };
-  window.electronAPI?.onMain('import-finish', listenerRefs.value.importFinish);
+  window.electronAPI?.onMain('import-zip-read-complete', listenerRefs.value.importZipReadComplete);
   
   // 监听主进程错误事件
   listenerRefs.value.importMainError = (errorMessage: string) => {
@@ -223,10 +245,16 @@ const initIpcListeners = () => {
   
   // 监听导入数据项事件
   listenerRefs.value.importDataItem = async (item: any) => {
+    pendingImports.value++;
     try {
       await importDataToIndexedDB(item);
+      completedImports.value++;
+      // 检查是否所有数据都已导入完成
+      checkImportComplete();
     } catch (error) {
       console.error('导入数据项失败:', error);
+      completedImports.value++;
+      checkImportComplete();
     }
   };
   window.electronAPI?.onMain('import-data-item', listenerRefs.value.importDataItem);
@@ -240,7 +268,6 @@ const initIpcListeners = () => {
 const handleSelectFile = async () => {
   window.electronAPI?.sendToMain('import-select-file');
 };
-
 // 分析导入文件
 const analyzeImportFile = async () => {
   statusMessage.value = '正在分析文件...';
@@ -248,21 +275,17 @@ const analyzeImportFile = async () => {
     filePath: importStatus.filePath
   });
 };
-
 // 开始导入
 const handleStartImport = async () => {
   fileErrorMessage.value = '';
-  
   if (!importStatus.filePath) {
     fileErrorMessage.value = '请选择导入文件';
     return;
   }
-  
   if (estimatedDataCount.value === 0) {
     fileErrorMessage.value = '文件中没有可导入的数据';
     return;
   }
-
   // 如果是覆盖模式，需要用户确认
   if (importConfig.importMode === 'override') {
     try {
@@ -279,31 +302,28 @@ const handleStartImport = async () => {
       return; // 用户取消
     }
   }
-
   try {
     isStartingImport.value = true;
     importStatus.status = 'inProgress';
     importStatus.progress = 0;
     importStatus.processedNum = 0;
     
-    // 如果是覆盖模式，先在渲染进程中清空数据
+    // 重置导入跟踪变量
+    pendingImports.value = 0;
+    completedImports.value = 0;
+    zipReadComplete.value = false;
+    
+    // 如果是覆盖模式，先在渲染进程中清空数据（非阻塞方式）
     if (importConfig.importMode === 'override') {
       statusMessage.value = '正在清空现有数据...';
-      try {
-        await clearAllData();
-        statusMessage.value = '数据清空完成，正在开始导入...';
-      } catch (error) {
-        console.error('清空数据失败:', error);
-        importStatus.status = 'error';
-        statusMessage.value = '清空数据失败';
-        ElMessage.error('清空数据失败');
-        return;
-      }
-    } else {
-      statusMessage.value = '正在启动导入...';
+      workerRef.value?.postMessage({
+        type: 'clearAllIndexedDB'
+      });
+      return;
     }
     
-    // 发送导入请求到主进程
+    // 发送导入请求到主进程（仅在非覆盖模式下执行）
+    statusMessage.value = '正在启动导入...';
     window.electronAPI?.sendToMain('import-start', {
       filePath: importStatus.filePath,
       itemNum: importStatus.itemNum,
@@ -311,7 +331,6 @@ const handleStartImport = async () => {
         importMode: importConfig.importMode
       }
     });
-    
     statusMessage.value = '正在准备导入数据...';
   } catch (error) {
     console.error('开始导入失败:', error);
@@ -333,6 +352,12 @@ const handleResetImport = () => {
   estimatedDataCount.value = 0;
   statusMessage.value = '';
   fileErrorMessage.value = '';
+  
+  // 重置导入跟踪变量
+  pendingImports.value = 0;
+  completedImports.value = 0;
+  zipReadComplete.value = false;
+  
   window.electronAPI?.sendToMain('import-reset');
 };
 
@@ -341,57 +366,17 @@ const handleResetImport = () => {
 | 数据操作函数
 |--------------------------------------------------------------------------
 */
-// 清空所有本地数据（使用Worker避免阻塞UI）
-const clearAllData = async () => {
-  return new Promise<void>((resolve, reject) => {
-    // 使用nextTick确保UI更新不被阻塞
-    import('vue').then(({ nextTick }) => {
-      nextTick(() => {
-        // 清空localStorage和sessionStorage（这些操作很快，但仍然异步执行）
-        setTimeout(() => {
-          localStorage.clear();
-          sessionStorage.clear();
-          
-          if (!workerRef.value) {
-            reject(new Error('Worker未初始化'));
-            return;
-          }
-          
-          // 设置超时处理，避免Worker无响应
-          const timeoutId = setTimeout(() => {
-            workerRef.value?.removeEventListener('message', handleClearComplete);
-            reject(new Error('清空数据超时'));
-          }, 30000); // 30秒超时
-          
-          // 监听Worker完成消息
-          const handleClearComplete = (event: MessageEvent) => {
-            const { data } = event;
-            if (data.type === 'clearAllResult') {
-              clearTimeout(timeoutId);
-              workerRef.value?.removeEventListener('message', handleClearComplete);
-              
-              if (data.data.success) {
-                resolve();
-              } else {
-                const errorMsg = data.data.error?.message || '清空IndexedDB数据失败';
-                console.error('清空IndexedDB数据失败:', data.data.error);
-                reject(new Error(errorMsg));
-              }
-            }
-          };
-          
-          workerRef.value.addEventListener('message', handleClearComplete);
-          
-          // 发送清空IndexedDB的请求到Worker
-          workerRef.value.postMessage({
-            type: 'clearAllIndexedDB'
-          });
-        }, 0); // 使用setTimeout(0)让出主线程
-      });
-    });
-  });
+// 检查导入是否完成
+const checkImportComplete = () => {
+  // 只有当ZIP文件读取完成且所有数据项都导入完成时，才标记为完成
+  if (zipReadComplete.value && completedImports.value >= pendingImports.value && pendingImports.value > 0) {
+    importStatus.status = 'completed';
+    importStatus.progress = 100;
+    importStatus.processedNum = completedImports.value;
+    statusMessage.value = `导入完成！共导入 ${completedImports.value} 项数据`;
+    emit('refreshCache');
+  }
 };
-
 // 将数据项导入到 IndexedDB
 const importDataToIndexedDB = async (item: any) => {
   if (!item || !item.dbName || !item.storeName || item.key === undefined) {
@@ -441,9 +426,9 @@ const cleanupIpcListeners = () => {
       window.electronAPI.removeListener('import-progress', listenerRefs.value.importProgress);
     }
     
-    // 移除导入完成监听器
-    if (listenerRefs.value.importFinish) {
-      window.electronAPI.removeListener('import-finish', listenerRefs.value.importFinish);
+    // 移除ZIP文件读取完成监听器
+    if (listenerRefs.value.importZipReadComplete) {
+      window.electronAPI.removeListener('import-zip-read-complete', listenerRefs.value.importZipReadComplete);
     }
     
     // 移除主进程错误监听器

@@ -253,10 +253,10 @@ const extractAndImportData = async (filePath: string, totalItems: number) => {
         importInProgress = false;
         
         if (contentView) {
-          contentView.webContents.send('import-finish', {
+          contentView.webContents.send('import-zip-read-complete', {
             success: true,
             totalItems: processedItems,
-            message: `导入成功！共导入 ${processedItems} 项数据`
+            message: `ZIP文件读取完成，正在导入到数据库...`
           });
         }
         
