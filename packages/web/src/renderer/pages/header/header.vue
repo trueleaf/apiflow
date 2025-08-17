@@ -235,6 +235,7 @@ const bindAppEvent = () => {
       tabs.value[index].title = data.projectName
     }
   })
+  
 }
 
 
@@ -246,9 +247,11 @@ onMounted(() => {
   })
   tabs.value = apidocCache.getHeaderTabs();
   activeTabId.value = apidocCache.getHeaderActiveTab();
+  if (!activeTabId.value) { //如果没有缓存数据则跳转到主页
+    window.electronAPI?.sendToMain('apiflow-topbar-navigate', '/v1/apidoc/doc-list')
+  }
   // 监听语言切换事件
   window.electronAPI?.onMain('apiflow-language-changed', (language: string) => {
-    console.log('header', language)
     currentLanguage.value = language as Language
   })
 })
