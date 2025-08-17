@@ -778,6 +778,31 @@ class ApidocCache extends ResponseCache {
     }
   }
 
+  /**
+   * 设置选中的缓存卡片类型
+   */
+  setSelectedCacheType(cacheType: 'localStorage' | 'indexedDB' | 'backup' | 'restore') {
+    try {
+      localStorage.setItem('apidoc/cache/selectedType', cacheType);
+    } catch (error) {
+      console.error('设置选中缓存类型失败:', error);
+      localStorage.setItem('apidoc/cache/selectedType', 'localStorage');
+    }
+  }
+
+  /**
+   * 获取选中的缓存卡片类型
+   */
+  getSelectedCacheType(): 'localStorage' | 'indexedDB' | 'backup' | 'restore' {
+    try {
+      const cacheType = localStorage.getItem('apidoc/cache/selectedType') as 'localStorage' | 'indexedDB' | 'backup' | 'restore';
+      return cacheType || 'localStorage';
+    } catch (error) {
+      console.error('获取选中缓存类型失败:', error);
+      return 'localStorage';
+    }
+  }
+
 
 }
 
