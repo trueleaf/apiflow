@@ -111,7 +111,7 @@
       @refresh="getIndexedDB"
     />
     <DataBackup v-if="selectedCacheType === 'backup'" />
-    <DataRestore v-if="selectedCacheType === 'restore'" />
+    <DataRestore v-if="selectedCacheType === 'restore'" @refresh-cache="handleRefreshCache" />
  </div>
 </template>
 
@@ -135,7 +135,7 @@ import DataRestore from './components/DataRestore.vue'
 const indexedDBLoading = ref(false)
 const localStorageLoading = ref(false)
 const indexedDBWorkerRef = ref<Worker | null>(null)
-const selectedCacheType = ref<'localStorage' | 'indexedDB' | 'backup' | 'restore'>('localStorage')
+const selectedCacheType = ref<'localStorage' | 'indexedDB' | 'backup' | 'restore'>(apidocCache.getSelectedCacheType())
 const cacheInfo = ref<CacheInfo>({
   localStroageSize: 0,
   indexedDBSize: -1,
@@ -192,6 +192,17 @@ const handleMessage = (event: MessageEvent) => {
       }
       saveCacheData(); // 保存更新后的本地数据
     }
+  } else if (data.type === 'clearAllResult') {
+    if (data.data.success) {
+      ElMessage.success('已清空所有IndexedDB中的数据')
+      // 重置IndexedDB相关数据
+      cacheInfo.value.indexedDBSize = 0;
+      cacheInfo.value.indexedDBDetails = [];
+      saveCacheData(); // 保存更新后的本地数据
+      getIndexedDB();
+    } else {
+      ElMessage.error('清空IndexedDB数据失败')
+    }
   } else if (data.type === 'error') {
     console.error('操作失败:', data.error)
     ElMessage.error('操作失败: ' + (data.error?.message || '未知错误'))
@@ -231,6 +242,8 @@ const getLocalStorage = () => {
           description = '个人中心被选中菜单'
         } else if (key === 'apidoc/cache/info') {
           description = '缓存已计算的本地数据'
+        } else if (key === 'apidoc/cache/selectedType') {
+          description = '选中的缓存卡片类型'
         } else {
           description = '其他本地数据'
         }
@@ -244,7 +257,6 @@ const getLocalStorage = () => {
     details.sort((a, b) => b.size - a.size)
     cacheInfo.value.localStroageSize = totalSize
     cacheInfo.value.localStorageDetails = details
-
   } catch (error) {
     console.error('获取 localStorage 本地数据信息失败:', error)
     // 发生错误时重置数据
@@ -267,6 +279,8 @@ const getIndexedDB = async () => {
 // 处理本地数据类型选择
 const handleSelectCacheType = (type: 'localStorage' | 'indexedDB' | 'backup' | 'restore'): void => {
   selectedCacheType.value = type
+  // 缓存用户选择的卡片类型
+  apidocCache.setSelectedCacheType(type)
   if (type === 'localStorage' && cacheInfo.value.localStorageDetails.length === 0) {
     getLocalStorage()
   }
@@ -296,6 +310,21 @@ const saveCacheData = (): void => {
 }
 /*
 |--------------------------------------------------------------------------
+| 数据恢复完成后刷新缓存
+|--------------------------------------------------------------------------
+*/
+// 处理数据恢复后的缓存刷新
+const handleRefreshCache = (): void => {
+  getLocalStorage()
+  if (cacheInfo.value.indexedDBDetails.length > 0 || cacheInfo.value.indexedDBSize > 0) {
+    getIndexedDB()
+  }
+  // 清除之前缓存的计算结果，强制重新计算
+  cacheInfo.value.indexedDBSize = -1
+  cacheInfo.value.indexedDBDetails = []
+}
+/*
+|--------------------------------------------------------------------------
 | 组件生命周期
 |--------------------------------------------------------------------------
 */
@@ -303,6 +332,12 @@ onMounted(() => {
   getLocalStorage()
   getIndexedDBCacheData() // 如果计算过indexedDB则默认取缓存数据
   initWorker();
+  
+  // 根据缓存的选中状态初始化对应数据
+  const cachedType = selectedCacheType.value
+  if (cachedType === 'indexedDB' && cacheInfo.value.indexedDBDetails.length === 0) {
+    getIndexedDB()
+  }
 })
 // 组件卸载时移除事件监听器，防止内存泄漏
 onUnmounted(() => {

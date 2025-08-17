@@ -3,6 +3,14 @@
     <!-- IndexedDB 详情表格 -->
     <div class="table-title">
       <h3>IndexedDB 本地数据详情</h3>
+      <el-button 
+        type="danger" 
+        plain 
+        @click="handleClearAllIndexedDB"
+        :disabled="props.indexedDBDetails.length === 0"
+      >
+        清空所有数据
+      </el-button>
     </div>
     <el-table :data="props.indexedDBDetails" border>
       <el-table-column prop="description" label="描述" />
@@ -20,7 +28,6 @@
         </template>
       </el-table-column>
     </el-table>
-
     <!-- 空数据提示 -->
     <div v-if="!props.indexedDBLoading && props.indexedDBDetails.length === 0 && props.indexedDBSize !== -1" class="empty-data">
       <div class="empty-text">
@@ -112,6 +119,36 @@ const handleDelete = async (row: IndexedDBItem): Promise<void> => {
   }
 }
 
+// 清空所有IndexedDB数据
+const handleClearAllIndexedDB = async (): Promise<void> => {
+  try {
+    await ElMessageBox.prompt(
+      '请输入 "清空所有数据" 确认清空所有IndexedDB中的数据。此操作将清空所有数据库中的数据内容，但保留数据库结构。此操作不可恢复！',
+      '清空确认',
+      {
+        confirmButtonText: '确定清空',
+        cancelButtonText: '取消',
+        type: 'warning',
+        inputPattern: /^清空所有数据$/,
+        inputErrorMessage: '请输入"清空所有数据"进行确认'
+      }
+    )
+
+    if (!props.indexedDBWorkerRef) {
+      ElMessage.error('Worker未初始化')
+      return
+    }
+
+    // 发送清空所有IndexedDB数据的消息到worker
+    props.indexedDBWorkerRef.postMessage({
+      type: 'clearAllIndexedDB'
+    })
+
+  } catch {
+    // 用户取消或输入错误，不做任何处理
+  }
+}
+
 // 关闭详情模态框
 const handleCloseIndexedDbDialog = (): void => {
   detailDialogVisible.value = false
@@ -123,6 +160,9 @@ const handleCloseIndexedDbDialog = (): void => {
 .indexeddb-detail {
   .table-title {
     margin-bottom: 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
     h3 {
       margin: 0;
       font-size: 18px;

@@ -496,3 +496,11 @@ export type ExportStatus = {
   itemNum: number;
   filePath?: string; // 选择的文件路径
 };
+
+export type ImportStatus = {
+  status: 'notStarted' | 'fileSelected' | 'inProgress' | 'paused' | 'completed' | 'error',
+  progress: number,
+  itemNum: number;
+  processedNum: number;
+  filePath?: string; // 选择的导入文件路径
+};

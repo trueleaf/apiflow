@@ -3,6 +3,14 @@
     <!-- localStorage 详情表格 -->
     <div class="table-title">
       <h3>localStorage 数据详情</h3>
+      <el-button 
+        type="danger" 
+        plain 
+        @click="handleClearAllLocalStorage"
+        :disabled="props.localStorageDetails.length === 0"
+      >
+        清空所有数据
+      </el-button>
     </div>
     <el-table :data="props.localStorageDetails" border>
       <el-table-column prop="description" label="描述" />
@@ -95,6 +103,31 @@ const handleDeleteLocalStorage = async (row: LocalStorageItem): Promise<void> =>
   }
 }
 
+// 清空所有localStorage数据
+const handleClearAllLocalStorage = async (): Promise<void> => {
+  try {
+    await ElMessageBox.prompt(
+      '请输入 "清空所有数据" 确认清空所有localStorage数据。此操作不可恢复！',
+      '清空确认',
+      {
+        confirmButtonText: '确定清空',
+        cancelButtonText: '取消',
+        type: 'warning',
+        inputPattern: /^清空所有数据$/,
+        inputErrorMessage: '请输入"清空所有数据"进行确认'
+      }
+    )
+    
+    // 清空所有localStorage数据
+    localStorage.clear()
+    emit('refresh')
+    ElMessage.success('已清空所有localStorage数据')
+
+  } catch {
+    // 用户取消或输入错误，不做任何处理
+  }
+}
+
 // 关闭localStorage详情模态框
 const handleCloseLocalStorageDialog = (): void => {
   localStorageDialogVisible.value = false
@@ -106,6 +139,9 @@ const handleCloseLocalStorageDialog = (): void => {
 .localstorage-detail {
   .table-title {
     margin-bottom: 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
     h3 {
       margin: 0;
       font-size: 18px;

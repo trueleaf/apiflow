@@ -829,7 +829,7 @@ export const getObjectSize = (obj: unknown): number => {
 }
 
 // 获取IndexedDB中的数据项数量
-export const getIndexedDBItemCount = async (): Promise<number> => {
+export const getIndexedDBItemCount = async (excludeDbNames?: string[]): Promise<number> => {
   try {
     // 获取所有数据库
     const databases = await indexedDB.databases();
@@ -837,6 +837,11 @@ export const getIndexedDBItemCount = async (): Promise<number> => {
     
     for (const { name: dbName } of databases) {
       if (!dbName) continue;
+      
+      // 如果数据库名在排除列表中，跳过
+      if (excludeDbNames && excludeDbNames.includes(dbName)) {
+        continue;
+      }
       
       try {
         // 使用idb打开数据库

@@ -3,6 +3,7 @@ import { BrowserWindow } from 'electron';
 import { StandaloneExportHtmlParams } from '@src/types/standalone.ts';
 import fs from 'fs/promises';
 import { exportHtml, exportWord, setMainWindow, setContentView, startExport, receiveRendererData, finishRendererData, getExportStatus, resetExport, selectExportPath } from './export/export.ts';
+import { selectImportFile, analyzeImportFile, startImport, resetImport, setMainWindow as setImportMainWindow, setContentView as setImportContentView } from './import/import.ts';
 import { getWindowState } from '../utils/index.ts';
 import { IPCProjectData, WindowState } from '@src/types/types.ts';
 
@@ -10,6 +11,9 @@ export const useIpcEvent = (mainWindow: BrowserWindow, topBarView: WebContentsVi
   // 设置窗口引用到导出模块
   setMainWindow(mainWindow);
   setContentView(contentView);
+  // 设置窗口引用到导入模块
+  setImportMainWindow(mainWindow);
+  setImportContentView(contentView);
   /*
   |--------------------------------------------------------------------------
   | 其他操作
@@ -168,7 +172,7 @@ export const useIpcEvent = (mainWindow: BrowserWindow, topBarView: WebContentsVi
   // 开始导出
   ipcMain.on('export-start', async (_, params: { itemNum: number, config?: { includeResponseCache: boolean } }) => {
     try {
-      await startExport(params.itemNum, params.config);
+      await startExport(params.itemNum);
     } catch (error) {
       console.error('导出开始失败:', error);
       contentView.webContents.send('export-main-error', (error as Error).message);
@@ -210,6 +214,53 @@ export const useIpcEvent = (mainWindow: BrowserWindow, topBarView: WebContentsVi
       contentView.webContents.send('export-main-error', (error as Error).message);
     }
   });
+
+  /*
+  |---------------------------------------------------------------------------
+  | 数据恢复(导入进度) 事件监听
+  |---------------------------------------------------------------------------
+  */
+  // 选择导入文件
+  ipcMain.on('import-select-file', async (event) => {
+    try {
+      const result = await selectImportFile();
+      event.reply('import-select-file-reply', result);
+    } catch (error) {
+      console.error('选择导入文件失败:', error);
+      event.reply('import-select-file-reply', { success: false, error: (error as Error).message });
+    }
+  });
+
+  // 分析导入文件
+  ipcMain.on('import-analyze-file', async (_, params: { filePath: string }) => {
+    try {
+      await analyzeImportFile(params.filePath);
+    } catch (error) {
+      console.error('分析导入文件失败:', error);
+      contentView.webContents.send('import-main-error', (error as Error).message);
+    }
+  });
+
+  // 开始导入
+  ipcMain.on('import-start', async (_, params: { filePath: string, itemNum: number, config?: { importMode: 'merge' | 'override' } }) => {
+    try {
+      await startImport(params.filePath, params.itemNum);
+    } catch (error) {
+      console.error('导入开始失败:', error);
+      contentView.webContents.send('import-main-error', (error as Error).message);
+    }
+  });
+
+  // 重置导入状态  
+  ipcMain.on('import-reset', async () => {
+    try {
+      resetImport();
+    } catch (error) {
+      console.error('重置导入状态失败:', error);
+      contentView.webContents.send('import-main-error', (error as Error).message);
+    }
+  });
+
   /*
   |---------------------------------------------------------------------------
   | 窗口状态同步

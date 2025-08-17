@@ -4,7 +4,6 @@
       <div class="vertical-tabs">
         <div class="sidebar-title">
           <span>账号信息</span>
-          {{activeTab}}
         </div>
 
         <div class="menu-group">

@@ -131,12 +131,30 @@ const importConfig = reactive({
 
 // 存储监听器引用，用于后续清理
 const listenerRefs = ref<Record<string, (...args: any[]) => void>>({});
+// Worker 引用
+const workerRef = ref<Worker | null>(null);
 
 /*
 |--------------------------------------------------------------------------
 | 初始化相关
 |--------------------------------------------------------------------------
 */
+// 初始化 Web Worker
+const initWorker = () => {
+  workerRef.value = new Worker(new URL('@/worker/indexedDB.ts', import.meta.url), { type: 'module' });
+  workerRef.value.addEventListener('message', handleWorkerMessage);
+};
+
+// Worker消息处理
+const handleWorkerMessage = (event: MessageEvent) => {
+  const { data } = event;
+  // 这里只处理非clearAllData相关的消息
+  // clearAllData的消息在Promise内部处理，避免冲突
+  if (data.type !== 'clearAllResult') {
+    // 处理其他Worker消息...
+  }
+};
+
 // IPC事件监听器
 const initIpcListeners = () => {
   cleanupIpcListeners();
@@ -323,30 +341,55 @@ const handleResetImport = () => {
 | 数据操作函数
 |--------------------------------------------------------------------------
 */
-// 清空所有本地数据
+// 清空所有本地数据（使用Worker避免阻塞UI）
 const clearAllData = async () => {
-  localStorage.clear();
-  sessionStorage.clear();
-  const databases = await indexedDB.databases();
-  for (const { name: dbName } of databases) {
-    if (!dbName) continue;
-    try {
-      const { openDB } = await import('idb');
-      const db = await openDB(dbName);
-      const storeNames = Array.from(db.objectStoreNames);
-      
-      for (const storeName of storeNames) {
-        const transaction = db.transaction(storeName, 'readwrite');
-        const store = transaction.store;
-        await store.clear();
-        await transaction.done;
-      }
-      
-      db.close();
-    } catch (error) {
-      console.warn(`清空数据库 ${dbName} 失败:`, error);
-    }
-  }
+  return new Promise<void>((resolve, reject) => {
+    // 使用nextTick确保UI更新不被阻塞
+    import('vue').then(({ nextTick }) => {
+      nextTick(() => {
+        // 清空localStorage和sessionStorage（这些操作很快，但仍然异步执行）
+        setTimeout(() => {
+          localStorage.clear();
+          sessionStorage.clear();
+          
+          if (!workerRef.value) {
+            reject(new Error('Worker未初始化'));
+            return;
+          }
+          
+          // 设置超时处理，避免Worker无响应
+          const timeoutId = setTimeout(() => {
+            workerRef.value?.removeEventListener('message', handleClearComplete);
+            reject(new Error('清空数据超时'));
+          }, 30000); // 30秒超时
+          
+          // 监听Worker完成消息
+          const handleClearComplete = (event: MessageEvent) => {
+            const { data } = event;
+            if (data.type === 'clearAllResult') {
+              clearTimeout(timeoutId);
+              workerRef.value?.removeEventListener('message', handleClearComplete);
+              
+              if (data.data.success) {
+                resolve();
+              } else {
+                const errorMsg = data.data.error?.message || '清空IndexedDB数据失败';
+                console.error('清空IndexedDB数据失败:', data.data.error);
+                reject(new Error(errorMsg));
+              }
+            }
+          };
+          
+          workerRef.value.addEventListener('message', handleClearComplete);
+          
+          // 发送清空IndexedDB的请求到Worker
+          workerRef.value.postMessage({
+            type: 'clearAllIndexedDB'
+          });
+        }, 0); // 使用setTimeout(0)让出主线程
+      });
+    });
+  });
 };
 
 // 将数据项导入到 IndexedDB
@@ -418,13 +461,24 @@ const cleanupIpcListeners = () => {
   }
 };
 
+// 清理Worker
+const cleanupWorker = () => {
+  if (workerRef.value) {
+    workerRef.value.removeEventListener('message', handleWorkerMessage);
+    workerRef.value.terminate();
+    workerRef.value = null;
+  }
+};
+
 onMounted(() => {
   window.electronAPI?.sendToMain('import-reset');
+  initWorker();
   initIpcListeners();
 });
 
 onUnmounted(() => {
   cleanupIpcListeners();
+  cleanupWorker();
 });
 </script>
 

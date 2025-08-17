@@ -10,6 +10,7 @@ import archiver from "archiver";
 import { dialog, BrowserWindow, WebContentsView } from "electron";
 import { ExportStatus } from "@src/types/types.ts";
 import { createHash } from "crypto";
+import dayjs from "dayjs";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -24,7 +25,7 @@ let exportStatus: ExportStatus = {
 };
 
 // 存储接收到的数据
-let receivedData: any[] = [];
+let receivedDataLength = 0;
 let archive: archiver.Archiver | null = null;
 let tempFilePath: string = ''; // 临时文件路径
 let finalFilePath: string = ''; // 最终zip文件路径
@@ -74,7 +75,6 @@ const serializeData = (data: any): Buffer => {
  */
 const processBatch = (): void => {
   if (batchBuffer.length === 0 || !archive) return;
-  
   try {
     // 将批次数据合并
     const batchData = {
@@ -82,15 +82,12 @@ const processBatch = (): void => {
       timestamp: Date.now(),
       items: batchBuffer.splice(0, BATCH_SIZE) // 取出并清空缓冲区
     };
-    
     // 序列化批次数据
     const serializedData = serializeData(batchData);
     const fileName = `batch-${String(batchCounter).padStart(6, '0')}.dat`;
     
     // 添加到压缩包
     archive.append(serializedData, { name: fileName });
-    
-    console.log(`处理批次 ${batchCounter}, 包含 ${batchData.items.length} 项数据`);
   } catch (error) {
     console.error('批量处理失败:', error);
   }
@@ -686,27 +683,19 @@ export const selectExportPath = async (): Promise<{ success: boolean; filePath?:
     if (!mainWindow) {
       throw new Error('主窗口未设置');
     }
-    
     const result = await dialog.showSaveDialog(mainWindow, {
       title: '选择导出路径',
-      defaultPath: `apiflow-export-${new Date().toISOString().slice(0, 10)}.zip`,
+      defaultPath: `apiflow-export-${dayjs(new Date()).format('YYYY-MM-DD-HH-mm')}.zip`,
       filters: [
         { name: 'ZIP 文件', extensions: ['zip'] }
       ]
     });
-    
     if (result.canceled || !result.filePath) {
       return { success: false, error: '用户取消选择' };
     }
-    
-    // 保存最终文件路径
     finalFilePath = result.filePath;
-    
-    // 生成临时文件路径（无后缀）
     const pathWithoutExt = finalFilePath.replace(/\.zip$/, '');
     tempFilePath = `${pathWithoutExt}.tmp`;
-    
-    // 更新状态为路径已选择
     exportStatus.status = 'pathSelected';
     
     return { 
@@ -722,10 +711,10 @@ export const selectExportPath = async (): Promise<{ success: boolean; filePath?:
 };
 
 // 第二步：开始导出流程
-export const startExport = async (itemNum: number, config?: { includeResponseCache: boolean }): Promise<void> => {
+export const startExport = async (itemNum: number): Promise<void> => {
   try {
     // 检查是否已选择路径
-    if (exportStatus.status !== 'pathSelected' || !tempFilePath) {
+    if (!tempFilePath) {
       throw new Error('请先选择保存路径');
     }
     
@@ -733,11 +722,7 @@ export const startExport = async (itemNum: number, config?: { includeResponseCac
     exportStatus.status = 'inProgress';
     exportStatus.progress = 0;
     exportStatus.itemNum = itemNum;
-    receivedData = [];
-    
-    // 存储配置选项到全局变量（你可能需要定义这个变量）
-    (global as any).exportConfig = config || { includeResponseCache: true };
-    
+    receivedDataLength = 0;
     // 创建 archiver 实例，写入临时文件
     archive = archiver('zip', {
       zlib: { level: 9 } // 最高压缩级别
@@ -774,7 +759,7 @@ export const startExport = async (itemNum: number, config?: { includeResponseCac
   }
 };
 
-// 接收渲染进程数据
+// 第三步：接受数据并压缩
 export const receiveRendererData = (data: any): void => {
   try {
     if (exportStatus.status !== 'inProgress') {
@@ -785,11 +770,11 @@ export const receiveRendererData = (data: any): void => {
     batchBuffer.push({
       ...data,
       receivedAt: Date.now(),
-      index: receivedData.length
+      index: receivedDataLength
     });
     
-    receivedData.push(data);
-    exportStatus.progress = Math.round((receivedData.length / exportStatus.itemNum) * 100);
+    receivedDataLength ++;
+    exportStatus.progress = Math.round((receivedDataLength / exportStatus.itemNum) * 100);
     
     // 当缓冲区达到批次大小时，处理批次
     if (batchBuffer.length >= BATCH_SIZE) {
@@ -822,7 +807,7 @@ export const finishRendererData = async (): Promise<void> => {
       const exportMetadata = {
         version: '1.0',
         exportDate: new Date().toISOString(),
-        totalItems: receivedData.length,
+        totalItems: receivedDataLength,
         totalBatches: batchCounter,
         batchSize: BATCH_SIZE,
         format: 'binary-batched',
@@ -834,7 +819,7 @@ export const finishRendererData = async (): Promise<void> => {
     }
     
     // 检查是否所有数据都已处理
-    if (receivedData.length >= exportStatus.itemNum) {
+    if (receivedDataLength >= exportStatus.itemNum) {
       // 完成压缩
       if (archive) {
         await archive.finalize();
@@ -864,7 +849,7 @@ export const finishRendererData = async (): Promise<void> => {
           }
           await fs.rename(tempFilePath, finalFilePath);
           console.log(`文件已重命名: ${tempFilePath} -> ${finalFilePath}`);
-          console.log(`导出完成，共处理 ${batchCounter} 个批次，${receivedData.length} 项数据`);
+          console.log(`导出完成，共处理 ${batchCounter} 个批次，${receivedDataLength} 项数据`);
         } catch (renameError) {
           console.error('重命名文件失败:', renameError);
           throw new Error(`文件重命名失败: ${(renameError as Error).message}`);
@@ -877,7 +862,7 @@ export const finishRendererData = async (): Promise<void> => {
         if (contentView) {
           contentView.webContents.send('export-finish', {
             filePath: finalFilePath,
-            totalItems: receivedData.length,
+            totalItems: receivedDataLength,
             batches: batchCounter,
             format: 'binary-optimized'
           });
@@ -928,8 +913,7 @@ export const resetExport = (): void => {
     };
     
     // 清理数据数组，释放内存
-    receivedData.length = 0;
-    receivedData = [];
+    receivedDataLength = 0;
     batchBuffer.length = 0;
     batchBuffer = [];
     batchCounter = 0;
@@ -938,10 +922,6 @@ export const resetExport = (): void => {
     tempFilePath = '';
     finalFilePath = '';
     
-    // 重置导出配置
-    (global as any).exportConfig = undefined;
-    
-    console.log('导出状态已重置，内存已清理');
     
     // 通知渲染进程重置完成
     if (contentView) {

@@ -29,11 +29,16 @@ export type CacheManageWorkerDeleteStoreItem = {
   size: number;
 };
 
+export type CacheManageWorkerClearAllIndexedDB = {
+  type: 'clearAllIndexedDB';
+};
+
 export type CacheManageWorkerMessage =
   | CacheManageWorkerGetIndexedDBData
   | CacheManageWorkerGetStoreDetail
   | CacheManageWorkerDeleteStore
-  | CacheManageWorkerDeleteStoreItem;
+  | CacheManageWorkerDeleteStoreItem
+  | CacheManageWorkerClearAllIndexedDB;
 const storeNameMap: Record<string, string> = {
   "responseCache": "返回值缓存",
   "commonHeaders": "公共请求头缓存",
@@ -242,6 +247,56 @@ const deleteStoreItem = async (dbName: string, storeName: string, key: string, s
   }
 };
 
+// 清空所有IndexedDB数据（仅清空数据，不删除数据库）
+const clearAllIndexedDB = async (): Promise<void> => {
+  try {
+    const databases = await indexedDB.databases();
+    
+    for (const dbInfo of databases) {
+      if (dbInfo.name && dbInfo.version) {
+        try {
+          // 打开数据库
+          const db = await openDB(dbInfo.name, dbInfo.version);
+          
+          // 获取所有对象存储名称
+          const storeNames = Array.from(db.objectStoreNames);
+          
+          // 为每个对象存储创建事务并清空数据
+          if (storeNames.length > 0) {
+            const tx = db.transaction(storeNames, 'readwrite');
+            
+            // 清空每个对象存储中的数据
+            for (const storeName of storeNames) {
+              const store = tx.objectStore(storeName);
+              await store.clear();
+            }
+            
+            // 等待事务完成
+            await tx.done;
+          }
+          
+          // 关闭数据库连接
+          db.close();
+        } catch (error) {
+          console.error(`清空数据库 ${dbInfo.name} 中的数据失败:`, error);
+        }
+      }
+    }
+
+    // 发送清空完成消息
+    self.postMessage({
+      type: 'clearAllResult',
+      data: { success: true }
+    });
+  } catch (error) {
+    console.error('清空IndexedDB数据失败:', error);
+    self.postMessage({
+      type: 'clearAllResult',
+      data: { success: false, error }
+    });
+  }
+};
+
 // 监听主线程消息
 self.addEventListener('message', (event: MessageEvent<CacheManageWorkerMessage>) => {
   const { type } = event.data;
@@ -257,5 +312,7 @@ self.addEventListener('message', (event: MessageEvent<CacheManageWorkerMessage>)
   } else if (type === 'deleteStoreItem') {
     const { dbName, storeName, key, size } = event.data;
     deleteStoreItem(dbName, storeName, key, size);
+  } else if (type === 'clearAllIndexedDB') {
+    clearAllIndexedDB();
   }
 });
