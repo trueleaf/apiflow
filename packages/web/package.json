@@ -22,6 +22,7 @@
     "build:font": "node build/share/script/build-font.mjs"
   },
   "dependencies": {
+    "@types/yauzl": "^2.10.3",
     "archiver": "^7.0.1",
     "axios": "^1.7.3",
     "brace": "^0.11.1",
@@ -59,7 +60,8 @@
     "vue": "^3.5.13",
     "vue-router": "^4.4.2",
     "vuedraggable": "^4.1.0",
-    "vuex": "^4.1.0"
+    "vuex": "^4.1.0",
+    "yauzl": "^3.2.0"
   },
   "devDependencies": {
     "@types/archiver": "^6.0.3",
