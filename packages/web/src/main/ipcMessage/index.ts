@@ -1,4 +1,4 @@
-import { ipcMain, IpcMainInvokeEvent, WebContentsView } from 'electron';
+import { app, ipcMain, IpcMainInvokeEvent, WebContentsView } from 'electron';
 import { BrowserWindow } from 'electron';
 import { StandaloneExportHtmlParams } from '@src/types/standalone.ts';
 import fs from 'fs/promises';
@@ -129,7 +129,8 @@ export const useIpcEvent = (mainWindow: BrowserWindow, topBarView: WebContentsVi
   */
   // 刷新主应用
   ipcMain.on('apiflow-refresh-app', async () => {
-    contentView.webContents.send('apiflow-refresh-app')
+    app.relaunch();
+    app.exit();
   })
 
   // 后退

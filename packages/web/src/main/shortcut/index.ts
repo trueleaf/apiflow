@@ -33,10 +33,21 @@ class ShortcutManager {
       this.unregisterShortcuts();
     });
 
+    // 窗口最小化时注销快捷键
+    this.mainWindow.on('minimize', () => {
+      this.unregisterShortcuts();
+    });
+
+    // 窗口从最小化恢复时重新注册快捷键
+    this.mainWindow.on('restore', () => {
+      this.registerShortcuts();
+    });
+
     // 窗口关闭时清理快捷键
     this.mainWindow.on('closed', () => {
       this.unregisterShortcuts();
     });
+    
   }
 
   /**
@@ -75,10 +86,10 @@ class ShortcutManager {
       if (reloadSuccess && forceReloadSuccess && devToolsCtrlShiftISuccess) {
         this.isShortcutRegistered = true;
       } else {
-        console.warn('⚠️ 部分快捷键注册失败，可能与其他应用冲突');
+        console.warn('部分快捷键注册失败，可能与其他应用冲突');
       }
     } catch (error) {
-      console.error('❌ 快捷键注册失败:', error);
+      console.error('快捷键注册失败:', error);
     }
   }
 
@@ -97,7 +108,7 @@ class ShortcutManager {
       globalShortcut.unregister('CommandOrControl+Shift+I');
       this.isShortcutRegistered = false;
     } catch (error) {
-      console.error('❌ 快捷键注销失败:', error);
+      console.error('快捷键注销失败:', error);
     }
   }
 
@@ -109,23 +120,42 @@ class ShortcutManager {
       this.contentView.webContents.openDevTools({ mode: 'bottom' })
       this.topBarView.webContents.openDevTools({ mode: 'detach' })
     } catch (error) {
-      console.error('❌ 开发者工具切换失败:', error);
+      console.error('开发者工具切换失败:', error);
     }
   }
 
   /**
    * 处理页面刷新
-   * @param ignoreCache 是否忽略缓存（强制刷新）
+   * @param forceRecreate 是否释放内存完全重新加载
    */
-  private handleReload(ignoreCache: boolean = false) {
-    if (ignoreCache) {
+  private handleReload(forceRecreate: boolean = false) {
+    if (forceRecreate) {
+      // 在开发模式下，不使用 app.relaunch() 避免终止 Vite 服务器
+      // 而是通过强制重新加载所有 WebContents 来实现类似效果
+      if (__COMMAND__ === 'build') {
+        // 生产模式下可以安全使用 relaunch
+        app.relaunch();
+        app.exit(0);
+      } else {
+        // 开发模式下使用强制刷新替代重启
+        this.contentView.webContents.reloadIgnoringCache();
+        this.topBarView.webContents.reloadIgnoringCache();
+        this.mainWindow.webContents.reloadIgnoringCache();
+        
+        // 清理一些可能的缓存和状态
+        this.contentView.webContents.session.clearCache();
+        this.topBarView.webContents.session.clearCache();
+        this.mainWindow.webContents.session.clearCache();
+      }
+    } else {
       this.contentView.webContents.reloadIgnoringCache();
       this.topBarView.webContents.reloadIgnoringCache();
       this.mainWindow.webContents.reloadIgnoringCache();
-    } else {
-      this.contentView.webContents.reload();
-      this.topBarView.webContents.reload();
-      this.mainWindow.webContents.reload();
+      // 清理一些可能的缓存和状态
+      this.contentView.webContents.session.clearCache();
+      this.topBarView.webContents.session.clearCache();
+      this.mainWindow.webContents.session.clearCache();
+
     }
   }
 
@@ -148,7 +178,7 @@ class ShortcutManager {
       // 如果都没有焦点，返回null
       return null;
     } catch (error) {
-      console.error('❌ 检测视图焦点时出错:', error);
+      console.error('检测视图焦点时出错:', error);
       return null;
     }
   }
@@ -165,7 +195,7 @@ class ShortcutManager {
 
       targetView.webContents[reloadMethod]();
     } catch (error) {
-      console.error(`❌ 手动刷新${viewType}View失败:`, error);
+      console.error(`手动刷新${viewType}View失败:`, error);
     }
   }
 
@@ -184,7 +214,7 @@ class ShortcutManager {
         targetView.webContents.openDevTools({ mode });
       }
     } catch (error) {
-      console.error(`❌ 手动切换${viewType}View开发者工具失败:`, error);
+      console.error(`手动切换${viewType}View开发者工具失败:`, error);
     }
   }
 
