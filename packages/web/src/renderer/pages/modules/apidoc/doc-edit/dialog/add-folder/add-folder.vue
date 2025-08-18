@@ -1,5 +1,5 @@
 <template>
-  <SDialog :model-value="modelValue" top="10vh" width="40%" :title="t('新增文件夹')" @close="handleClose">
+  <SDialog :model-value="modelValue" top="10vh" width="500px" :title="t('新增文件夹')" @close="handleClose">
     <SForm ref="form" @submit.prevent="handleAddFolder">
       <SFormItem :label="t('文件夹名称')" prop="name" focus one-line></SFormItem>
     </SForm>

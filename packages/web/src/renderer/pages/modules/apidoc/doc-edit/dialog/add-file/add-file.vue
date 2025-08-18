@@ -1,29 +1,42 @@
 <template>
-  <SDialog :model-value="modelValue" top="10vh" width="40%" :title="t('新建接口')" @close="handleClose">
-    <SForm ref="form" @submit.prevent="handleAddFile">
-      <SFormItem :label="t('文档名称')" prop="name" focus one-line></SFormItem>
-    </SForm>
+  <el-dialog 
+    :model-value="modelValue" 
+    top="10vh" 
+    width="500px" 
+    :title="t('新建接口')" 
+    footer-class="add-file-dialog__footer"
+    content-class="add-file-dialog__content"
+    body-class="add-file-dialog__body"
+    :before-close="handleClose"
+   >
+    <el-form ref="form" :model="formData" :rules="formRules" @submit.prevent="handleAddFile">
+      <el-form-item :label="t('接口名称')" prop="name">
+        <el-input ref="nameInput" v-model="formData.name" :placeholder="t('请输入接口名称')" />
+      </el-form-item>
+      <el-form-item :label="t('接口类型')" prop="type">
+        <el-radio-group v-model="formData.type">
+          <el-radio value="http">HTTP</el-radio>
+          <el-radio value="websocket">WebSocket</el-radio>
+        </el-radio-group>
+      </el-form-item>
+    </el-form>
     <template #footer>
       <el-button :loading="loading" type="primary" @click="handleAddFile">{{ t("确定") }}</el-button>
       <el-button type="warning" @click="handleClose">{{ t("取消") }}</el-button>
     </template>
-  </SDialog>
+  </el-dialog>
 </template>
 
 <script lang="ts" setup>
 import { useTranslation } from 'i18next-vue'
 import { Response, ApidocBanner } from '@src/types'
-import { ref } from 'vue';
-import { ElMessage, FormInstance } from 'element-plus';
-import SForm from '@/components/common/forms/form/g-form.vue'
-import SFormItem from '@/components/common/forms/form/g-form-item.vue'
-import SDialog from '@/components/common/dialog/g-dialog.vue'
+import { ref, watch } from 'vue';
+import { ElMessage, FormInstance, ElInput } from 'element-plus';
 import { request } from '@/api/api';
 import { useRoute } from 'vue-router';
 import { generateEmptyNode } from '@/helper/standaloneUtils';
 import { standaloneCache } from '@/cache/standalone';
 import { nanoid } from 'nanoid';
-import { useApidocBanner } from '@/store/apidoc/banner';
 
 const props = defineProps({
   modelValue: {
@@ -41,8 +54,28 @@ const { t } = useTranslation()
 
 const loading = ref(false);
 const form = ref<FormInstance>();
+const nameInput = ref<InstanceType<typeof ElInput>>();
 const route = useRoute()
-const apidocBannerStore = useApidocBanner();
+const formData = ref({
+  type: 'http',
+  name: ''
+})
+const formRules = {
+  name: [
+    { required: true, message: t('请输入接口名称'), trigger: 'change' }
+  ]
+}
+
+// 监听对话框打开状态，自动聚焦输入框
+watch(() => props.modelValue, (newVal) => {
+  if (newVal) {
+    setTimeout(() => {
+      nameInput.value?.focus();
+    }, 100);
+  }
+}, {
+  immediate: true,
+});
 /*
 |--------------------------------------------------------------------------
 | 方法
@@ -51,16 +84,13 @@ const apidocBannerStore = useApidocBanner();
 const handleAddFile = () => {
   form.value?.validate(async (valid) => {
     if(__STANDALONE__ && valid){
-      const { formInfo } = form.value as any;
       const nodeInfo = generateEmptyNode(nanoid())
-      nodeInfo.info.name = formInfo.name
+      nodeInfo.info.name = formData.value.name
       nodeInfo.projectId = route.query.id as string
       nodeInfo.pid = props.pid
       nodeInfo.sort = Date.now()
       nodeInfo.isDeleted = false;
       await standaloneCache.addDoc(nodeInfo)
-      // const banner = await standaloneCache.getDocTree(nodeInfo.projectId);
-      // apidocBannerStore.changeAllDocBanner(banner);
       emits('success', {
         _id: nodeInfo._id,
         pid: nodeInfo.pid,
@@ -79,10 +109,9 @@ const handleAddFile = () => {
 
     if (valid) {
       loading.value = true;
-      const { formInfo } = form.value as any;
       const params = {
-        name: formInfo.name,
-        type: 'api',
+        name: formData.value.name,
+        type: formData.value.type === 'websocket' ? 'websocket' : 'api',
         projectId: route.query.id as string,
         pid: props.pid,
       };
@@ -101,9 +130,24 @@ const handleAddFile = () => {
   });
 }
 const handleClose = () => {
+  formData.value.type = 'http';
+  formData.value.name = '';
+  form.value?.resetFields();
   emits('update:modelValue', false);
 }
 
 </script>
 
-<style lang='scss' scoped></style>
+<style lang='scss'>
+.add-file-dialog__footer {
+  padding-top: 0;
+}
+.add-file-dialog__content {
+  .el-form-item {
+    margin-bottom: 10px;
+  }
+}
+.el-dialog__body.add-file-dialog__body {
+  padding-bottom: 0;
+}
+</style>
