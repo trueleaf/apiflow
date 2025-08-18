@@ -72,10 +72,6 @@ const handleAddSuccess = (data: { projectId: string, projectName: string }) => {
 | 导航控制处理函数
 |--------------------------------------------------------------------------
 */
-const handleRefreshApp = () => {
-  // 刷新当前页面
-  window.location.reload()
-}
 
 const handleGoBack = () => {
   // 检查是否可以后退
@@ -126,10 +122,6 @@ const bindTopBarEvent = async () => {
     router.push(path)
   })
 
-  // 导航控制事件监听
-  window.electronAPI?.onMain('apiflow-refresh-app', () => {
-    handleRefreshApp()
-  })
 
   window.electronAPI?.onMain('apiflow-go-back', () => {
     handleGoBack()
