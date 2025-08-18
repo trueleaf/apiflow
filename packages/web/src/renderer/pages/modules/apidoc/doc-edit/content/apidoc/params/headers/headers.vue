@@ -62,7 +62,7 @@
 import { ref, computed, Ref, watch, } from 'vue'
 import { router } from '@/router'
 import { View } from '@element-plus/icons-vue'
-import { ApidocProperty } from '@src/types/global';
+import { ApidocProperty } from '@src/types';
 import { apidocGenerateProperty } from '@/helper';
 import mindHeaders from './mind-headers'
 import { useTranslation } from 'i18next-vue'

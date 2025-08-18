@@ -15,7 +15,7 @@ import { ElMessage, FormInstance } from 'element-plus';
 import SForm from '@/components/common/forms/form/g-form.vue'
 import SFormItem from '@/components/common/forms/form/g-form-item.vue'
 import SDialog from '@/components/common/dialog/g-dialog.vue'
-import { Response, ApidocBanner } from '@src/types/global'
+import { Response, ApidocBanner } from '@src/types'
 import { useTranslation } from 'i18next-vue'
 import { ref } from 'vue';
 import { request } from '@/api/api';

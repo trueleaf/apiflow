@@ -29,7 +29,7 @@
 </template>
 
 <script lang="ts" setup>
-import { Response, PermissionClientRoute } from '@src/types/global'
+import { Response, PermissionClientRoute } from '@src/types'
 import SAddClientRoute from './add/add.vue'
 import SEditClientRoute from './edit/edit.vue'
 import SMultiEditClientRoute from './edit/edit2.vue'

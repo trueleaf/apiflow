@@ -216,7 +216,7 @@ import { useRoute } from 'vue-router';
 import SJsonEditor from '@/components/common/json-editor/g-json-editor.vue'
 import EditDialog from './dialog/edit.vue'
 import { useVariable } from '@/store/apidoc/variables';
-import { Response, ApidocVariable } from '@src/types/global';
+import { Response, ApidocVariable } from '@src/types';
 import { request as axiosInstance } from '@/api/api'
 import { standaloneCache } from '@/cache/standalone';
 

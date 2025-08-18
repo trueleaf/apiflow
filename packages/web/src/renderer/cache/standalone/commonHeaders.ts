@@ -1,5 +1,5 @@
 import { IDBPDatabase } from "idb";
-import type { ApidocProperty } from "@src/types/global";
+import type { ApidocProperty } from '@src/types';
 
 export class CommonHeaderCache {
   constructor(private db: IDBPDatabase | null = null) {}

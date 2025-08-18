@@ -1,4 +1,4 @@
-import type { ApidocHttpRequestMethod } from "../global";
+import type { ApidocHttpRequestMethod } from "./core";
 import type { Headers } from 'got'
 
 export type ApidocRequest = {

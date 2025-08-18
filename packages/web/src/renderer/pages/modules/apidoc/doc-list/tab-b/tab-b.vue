@@ -221,7 +221,7 @@ import { Plus, User, Search, ArrowDown, Check, Delete } from '@element-plus/icon
 import { computed, onMounted, ref } from 'vue';
 import AddProjectDialog from './dialog/add-group/add-group.vue'
 import { request } from '@/api/api';
-import { ApidocGroupItem, ApidocGroupUser, PermissionUserBaseInfo, Response } from '@src/types/global';
+import { ApidocGroupItem, ApidocGroupUser, PermissionUserBaseInfo, Response } from '@src/types';
 import { cloneDeep, uuid } from '@/helper';
 import { ElMessage, ElMessageBox } from 'element-plus';
 import RemoteSelector from '@/components/common/remote-select/g-remote-select.vue';

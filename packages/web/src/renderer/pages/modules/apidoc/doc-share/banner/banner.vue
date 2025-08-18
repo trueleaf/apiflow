@@ -57,7 +57,7 @@
 
 <script lang="ts" setup>
 import { computed, ref, Ref, watch } from 'vue'
-import type { ApidocBanner } from '@src/types/global'
+import type { ApidocBanner } from '@src/types'
 import SResizeX from '@/components/common/resize/g-resize-x.vue'
 import SEmphasize from '@/components/common/emphasize/g-emphasize.vue'
 import { TreeNodeOptions } from 'element-plus/es/components/tree/src/tree.type.mjs'

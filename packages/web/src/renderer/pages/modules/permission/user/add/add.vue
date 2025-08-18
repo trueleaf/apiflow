@@ -23,7 +23,7 @@
 
 <script lang="ts" setup>
 import { request } from '@/api/api';
-import { PermissionRoleEnum, Response } from '@src/types/global'
+import { PermissionRoleEnum, Response } from '@src/types'
 import { ElMessage, FormInstance } from 'element-plus';
 import { useTranslation } from 'i18next-vue'
 import { nextTick, onMounted, ref } from 'vue';

@@ -1,5 +1,5 @@
 import { getObjectVariable } from "@/utils/utils";
-import { ApidocVariable } from "@src/types/global";
+import { ApidocVariable } from "@src/types";
 import { defineStore } from "pinia"
 import { ref } from 'vue';
 

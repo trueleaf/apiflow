@@ -61,7 +61,7 @@
 
 <script lang="ts" setup>
 import { config } from '@src/config/config';
-import { PermissionUserInfo, Response } from '@src/types/global'
+import { PermissionUserInfo, Response } from '@src/types'
 import { User, Lock } from '@element-plus/icons-vue'
 import { computed, nextTick, ref } from 'vue';
 import { useTranslation } from 'i18next-vue';

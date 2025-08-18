@@ -28,7 +28,7 @@
 </template>
 
 <script lang="ts" setup>
-import { Response } from '@src/types/global'
+import { Response } from '@src/types'
 import { config } from '@src/config/config';
 import { nextTick, onMounted, reactive, ref } from 'vue';
 import { useTranslation } from 'i18next-vue'

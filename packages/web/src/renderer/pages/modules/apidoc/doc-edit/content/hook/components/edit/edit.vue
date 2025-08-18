@@ -48,7 +48,7 @@ import {
   apidocFormatHeaderParams,
   apidocFormatResponseParams,
 } from '@/helper';
-import type { ApidocCodeInfo } from '@src/types/global'
+import type { ApidocCodeInfo } from '@src/types'
 import { request } from '@/api/api';
 import { router } from '@/router';
 import SEditor from '../editor/editor.vue'

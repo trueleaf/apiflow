@@ -10,7 +10,7 @@
 
 import jsontoxml from 'jsontoxml'
 import type { OpenAPIV3 } from 'openapi-types';
-import type { ApidocProperty, ApidocDetail, ApidocPropertyType, ApidocHttpRequestMethod, ApidocBodyRawType, ApidocResponseContentType } from '@src/types/global'
+import type { ApidocProperty, ApidocDetail, ApidocPropertyType, ApidocHttpRequestMethod, ApidocBodyRawType, ApidocResponseContentType } from '@src/types'
 import { uuid, apidocGenerateProperty, apidocGenerateApidoc } from '@/helper/index'
 import i18next from 'i18next'
 

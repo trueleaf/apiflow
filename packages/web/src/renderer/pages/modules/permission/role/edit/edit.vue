@@ -34,7 +34,7 @@
 
 <script lang="ts" setup>
 import type { TreeNodeOptions } from 'element-plus/lib/components/tree/src/tree.type'
-import { Response } from '@src/types/global'
+import { Response } from '@src/types'
 import { nextTick, onMounted, ref } from 'vue'
 import SClientMenus from './components/client-menus.vue'
 import SClientRoutes from './components/client-routes.vue'

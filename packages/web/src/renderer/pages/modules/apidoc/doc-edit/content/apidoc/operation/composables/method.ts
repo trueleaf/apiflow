@@ -8,7 +8,7 @@ import { ComputedRef, computed, WritableComputedRef } from 'vue'
 import i18next from 'i18next'
 import { ApidocRequestMethodRule } from '@src/types/apidoc/base-info';
 import { useApidoc } from '@/store/apidoc/apidoc';
-import { ApidocHttpRequestMethod } from '@src/types/global';
+import { ApidocHttpRequestMethod } from '@src/types';
 import { useApidocBaseInfo } from '@/store/apidoc/base-info';
 
 type MethodReturn = {

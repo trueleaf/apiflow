@@ -1,4 +1,4 @@
-import type { ApidocProjectInfo, ApidocDetail } from "@src/types/global";
+import type { ApidocProjectInfo, ApidocDetail } from '@src/types';
 
 export const generateEmptyProject = (_id: string): ApidocProjectInfo => {
   return {

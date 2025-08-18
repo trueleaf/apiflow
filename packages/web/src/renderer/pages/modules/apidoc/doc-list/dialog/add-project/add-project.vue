@@ -61,7 +61,7 @@
 <script lang="ts" setup>
 import { request } from '@/api/api';
 import { config } from '@src/config/config';
-import type { ApidocProjectMemberInfo } from '@src/types/global'
+import type { ApidocProjectMemberInfo } from '@src/types'
 import { ElMessage, FormInstance } from 'element-plus';
 import { useTranslation } from 'i18next-vue'
 import { nextTick, ref } from 'vue';

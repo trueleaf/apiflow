@@ -1,5 +1,6 @@
-import { ApidocProjectRules } from "./apidoc/base-info.ts";
-import type { ApidocProjectInfo, ApidocDetail, ApidocProperty } from "./global";
+import { ApidocProjectRules } from "./apidoc/base-info";
+import type { ApidocDetail, ApidocProperty } from "./apidoc";
+import type { ApidocProjectInfo } from "./project";
 
 export type Standalone = {
   /**

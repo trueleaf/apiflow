@@ -1,5 +1,5 @@
 
-import type { ApidocProjectInfo, ApidocDetail, ApidocProperty, ApidocVariable } from "@src/types/global";
+import type { ApidocProjectInfo, ApidocDetail, ApidocProperty, ApidocVariable } from '@src/types';
 import type { ApidocProjectRules } from "@src/types/apidoc/base-info";
 import { DocCache } from "./standalone/docs";
 import { ProjectCache } from "./standalone/projects";

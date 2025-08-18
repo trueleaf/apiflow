@@ -54,7 +54,7 @@ import SContextmenuItem from '@/components/common/contextmenu/g-contextmenu-item
 import { defaultRequestMethods } from '../common';
 import { useRoute } from 'vue-router';
 import { findNodeById, findParentById, event } from '@/helper';
-import { ApidocBanner } from '@src/types/global';
+import { ApidocBanner } from '@src/types';
 import { useTranslation } from 'i18next-vue';
 
 /*

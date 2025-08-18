@@ -56,7 +56,7 @@
 
 <script lang="ts" setup>
 import { useTranslation } from 'i18next-vue'
-import type { Response, PermissionClientMenu } from '@src/types/global'
+import type { Response, PermissionClientMenu } from '@src/types'
 import type Node from 'element-plus/lib/components/tree/src/model/node'
 import SAddMenuDialog from './add/add.vue'
 import SEditMenuDialog from './edit/edit.vue'

@@ -5,7 +5,7 @@
 // import { store } from '@/store/index'
 // import { apidocConvertValue, event, sleep } from '@/helper/index'
 // import { request } from '@/api/api'
-// import { ApidocDetail } from '@src/types/global'
+// import { ApidocDetail } from '@src/types'
 // import apidocConverter from '../request/utils'
 // // import Mock from "./mock"
 

@@ -29,7 +29,7 @@ import {
 } from '@/helper';
 import { request } from '@/api/api';
 import { router } from '@/router';
-import type { ApidocCodeInfo, Response } from '@src/types/global'
+import type { ApidocCodeInfo, Response } from '@src/types'
 import { ElMessage } from 'element-plus'
 import 'element-plus/es/components/message/style/css';
 import { useTranslation } from 'i18next-vue';

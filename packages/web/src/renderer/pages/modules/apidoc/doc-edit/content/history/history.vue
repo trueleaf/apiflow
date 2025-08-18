@@ -190,7 +190,7 @@ import { ref, Ref, computed, watch, onMounted } from 'vue'
 import dayjs from 'dayjs'
 import isToday from 'dayjs/plugin/isToday'
 import isYesterday from 'dayjs/plugin/isYesterday'
-import { ResponseTable, ApidocOperationRecord, ApidocProjectPermission } from '@src/types/global'
+import { ResponseTable, ApidocOperationRecord, ApidocProjectPermission } from '@src/types'
 import { debounce } from '@/helper'
 import { request } from '@/api/api';
 import { router } from '@/router';

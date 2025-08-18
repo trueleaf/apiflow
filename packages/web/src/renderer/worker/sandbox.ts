@@ -1,4 +1,4 @@
-import { SandboxReceiveMessage } from "@src/types/global";
+import { SandboxReceiveMessage } from "@src/types";
 
 self.onmessage = (e: MessageEvent<SandboxReceiveMessage>) => {
  if (e.data.type === "eval") {

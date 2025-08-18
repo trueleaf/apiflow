@@ -26,7 +26,7 @@
 </template>
 
 <script lang="ts" setup>
-import type { ApidocProperty } from '@src/types/global'
+import type { ApidocProperty } from '@src/types'
 import SEmphasize from '@/components/common/emphasize/g-emphasize.vue'
 import { computed, nextTick, onMounted, onUnmounted, PropType, ref } from 'vue';
 import { config } from '@src/config/config';

@@ -135,7 +135,7 @@ import SCollapseCard from '@/components/common/collapse-card/g-collapse-card.vue
 import { computed, ref, Ref, onMounted, onUnmounted } from 'vue'
 import { Effect } from 'element-plus';
 import { Search, ArrowDown, Edit } from '@element-plus/icons-vue'
-import type { ApidocResponseParams, ApidocResponseContentType, ApidocContentType } from '@src/types/global'
+import type { ApidocResponseParams, ApidocResponseContentType, ApidocContentType } from '@src/types'
 import { apidocCache } from '@/cache/apidoc'
 import SStatus from './children/status.vue'
 import SMime from './children/mime.vue'

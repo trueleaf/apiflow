@@ -68,7 +68,7 @@ import {
 } from 'vue'
 import { ArrowDown } from '@element-plus/icons-vue'
 import { Effect } from 'element-plus';
-import { ApidocProperty, ApidocASTInfo } from '@src/types/global'
+import { ApidocProperty, ApidocASTInfo } from '@src/types'
 import { astJson } from './composables/astJson'
 import { useTranslation } from 'i18next-vue'
 

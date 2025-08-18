@@ -97,7 +97,7 @@ import { useTranslation } from 'i18next-vue'
 import SDialog from '@/components/common/dialog/g-dialog.vue'
 import SEmphasize from '@/components/common/emphasize/g-emphasize.vue'
 import SConfig from '@/components/common/config/g-config.vue'
-import { ApidocBanner } from '@src/types/global';
+import { ApidocBanner } from '@src/types';
 import type { TreeNodeOptions } from 'element-plus/lib/components/tree/src/tree.type'
 import { request } from '@/api/api'
 import { config } from '@/../config/config'

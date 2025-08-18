@@ -108,7 +108,7 @@ import { deleteDB } from 'idb';
 import { useRouter } from 'vue-router';
 import i18next from 'i18next';
 import { useTranslation } from 'i18next-vue';
-import type { Language } from '@src/types/global'
+import type { Language } from '@src/types'
 import { computed, onMounted, ref } from 'vue';
 import { config } from '@/../config/config'
 import { isElectron } from '@/utils/utils';

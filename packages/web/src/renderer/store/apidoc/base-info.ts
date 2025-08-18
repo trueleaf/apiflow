@@ -8,7 +8,7 @@ import {
   ApidocProjectRules,
 } from "@src/types/apidoc/base-info";
 import { event } from '@/helper'
-import { ApidocMindParam, ApidocProperty, Response } from "@src/types/global";
+import { ApidocMindParam, ApidocProperty, Response } from '@src/types';
 import { defineStore } from "pinia"
 import { ref } from "vue";
 import { router } from "@/router";

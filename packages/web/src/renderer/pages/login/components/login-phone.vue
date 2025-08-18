@@ -23,7 +23,7 @@
 </template>
 
 <script lang="ts" setup>
-import { PermissionUserInfo, Response } from '@src/types/global';
+import { PermissionUserInfo, Response } from '@src/types';
 import SmsButton from '@/components/common/sms-button/g-sms-button.vue'
 import { User as IconUser } from '@element-plus/icons-vue'
 import { nextTick, onMounted, reactive, ref } from 'vue';

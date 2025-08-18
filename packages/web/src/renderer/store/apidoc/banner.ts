@@ -2,7 +2,7 @@ import { request } from '@/api/api';
 import { standaloneCache } from '@/cache/standalone.ts';
 import { convertDocsToBanner, findNodeById, forEachForest } from "@/helper";
 import { ApidocMockState } from "@src/types/apidoc/mock";
-import { ApidocBanner, Response } from "@src/types/global";
+import { ApidocBanner, Response } from '@src/types';
 import { defineStore } from "pinia";
 import { ref } from "vue";
 

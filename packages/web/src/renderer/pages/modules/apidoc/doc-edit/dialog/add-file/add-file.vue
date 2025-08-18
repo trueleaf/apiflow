@@ -12,7 +12,7 @@
 
 <script lang="ts" setup>
 import { useTranslation } from 'i18next-vue'
-import { Response, ApidocBanner } from '@src/types/global'
+import { Response, ApidocBanner } from '@src/types'
 import { ref } from 'vue';
 import { ElMessage, FormInstance } from 'element-plus';
 import SForm from '@/components/common/forms/form/g-form.vue'

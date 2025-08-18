@@ -192,7 +192,7 @@ import AddProjectDialog from '../dialog/add-project/add-project.vue'
 import EditProjectDialog from '../dialog/edit-project/edit-project.vue'
 import EditPermissionDialog from '../dialog/permission/permission.vue'
 import { useTranslation } from 'i18next-vue'
-import type { Response, ApidocProjectListInfo, ApidocProjectInfo } from '@src/types/global';
+import type { Response, ApidocProjectListInfo, ApidocProjectInfo } from '@src/types';
 import { computed, onMounted, ref } from 'vue';
 import { request } from '@/api/api';
 import 'element-plus/es/components/message-box/style/css';

@@ -1,4 +1,4 @@
-import { ApidocBodyMode } from "@src/types/global.ts";
+import { ApidocBodyMode } from "@src/types";
 import { RendererFormDataBody } from "@src/types/types.ts";
 
 type JsonPrimitive = string | number | boolean | null;

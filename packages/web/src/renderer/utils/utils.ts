@@ -6,7 +6,7 @@ import {
   ChunkWithTimestampe,
 } from "@src/types/types";
 import Mock from "../../mock/mock";
-import { ApidocVariable, SandboxPostMessage } from "@src/types/global";
+import { ApidocVariable, SandboxPostMessage } from "@src/types";
 import SandboxWorker from "@/worker/sandbox.ts?worker&inline";
 
 export const isElectron = () => {

@@ -5,7 +5,7 @@
 import { Ref } from 'vue'
 import 'element-plus/es/components/message-box/style/css';
 import { ElMessage, ElMessageBox } from 'element-plus'
-import type { ApidocBanner, Response } from '@src/types/global'
+import type { ApidocBanner, Response } from '@src/types'
 import { findNodeById, forEachForest, findParentById, flatTree, uniqueByKey, findPreviousSiblingById, findNextSiblingById, event } from '@/helper/index'
 import { router } from '@/router/index'
 import { request } from '@/api/api'

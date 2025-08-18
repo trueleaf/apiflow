@@ -54,7 +54,7 @@
 
 <script lang="ts" setup>
 import { Back } from '@element-plus/icons-vue'
-import type { Response } from '@src/types/global'
+import type { Response } from '@src/types'
 import SCard from '@/components/common/card/g-card.vue'
 import { useTranslation } from 'i18next-vue'
 import { nextTick, onMounted, ref } from 'vue';

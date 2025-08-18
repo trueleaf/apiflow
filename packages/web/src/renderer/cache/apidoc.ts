@@ -3,7 +3,7 @@
  */
 
 import { ApidocProjectHost } from '@src/types/apidoc/base-info';
-import { ApidocDetail } from '@src/types/global';
+import { ApidocDetail } from '@src/types';
 import { ResponseCache } from './responseCache';
 import type { ApidocCookie } from '@src/renderer/store/apidoc/cookies';
 

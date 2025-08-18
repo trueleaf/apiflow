@@ -1,5 +1,5 @@
 import { apidocGenerateProperty, uuid } from '@/helper'
-import { ApidocProperty } from '@src/types/global';
+import { ApidocProperty } from '@src/types';
 
 //https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Headers
 const standarHeaders = [{

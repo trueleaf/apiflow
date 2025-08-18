@@ -17,7 +17,7 @@
 
 <script lang="ts" setup>
 import { request } from '@/api/api';
-import { PermissionClientRoute, Response } from '@src/types/global'
+import { PermissionClientRoute, Response } from '@src/types'
 import { onMounted, watch } from 'vue';
 import { ref } from 'vue';
 import { useTranslation } from 'i18next-vue'

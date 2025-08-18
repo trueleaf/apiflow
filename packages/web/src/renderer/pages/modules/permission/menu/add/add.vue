@@ -13,7 +13,7 @@
 </template>
 
 <script lang="ts" setup>
-import { Response } from '@src/types/global'
+import { Response } from '@src/types'
 import SDialog from '@/components/common/dialog/g-dialog.vue'
 import SForm from '@/components/common/forms/form/g-form.vue'
 import SFormItem from '@/components/common/forms/form/g-form-item.vue'

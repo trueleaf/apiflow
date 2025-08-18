@@ -100,7 +100,7 @@
 import { ref, Ref, onMounted, computed, ComponentPublicInstance, nextTick } from 'vue'
 import { ElMessage } from 'element-plus'
 import 'element-plus/es/components/message/style/css';
-import type { ApidocBanner, ApidocProjectEnum, Response } from '@src/types/global'
+import type { ApidocBanner, ApidocProjectEnum, Response } from '@src/types'
 import type TreeStore from 'element-plus/lib/components/tree/src/model/tree-store'
 import type Node from 'element-plus/lib/components/tree/src/model/node'
 import { request } from '@/api/api'

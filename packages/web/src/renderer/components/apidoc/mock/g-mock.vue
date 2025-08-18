@@ -109,7 +109,7 @@
 
 <script lang="ts" setup>
 import { useTranslation } from 'i18next-vue'
-import type { MockItem } from '@src/types/global'
+import type { MockItem } from '@src/types'
 import Mock from '@/server/mock/mock'
 import localMockEnum from './mock-enum';
 import { computed, onMounted, onUnmounted, ref, watch } from 'vue';

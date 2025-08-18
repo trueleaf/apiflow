@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
-import { ApidocDetail, ApidocVariable, ApidocBanner } from '@src/types/global';
+import { ApidocDetail, ApidocVariable, ApidocBanner } from '@src/types';
 import { ApidocTab } from '@src/types/apidoc/tabs';
 import { SharedProjectInfo } from '@src/types/types';
 import { getObjectVariable } from '@/utils/utils';

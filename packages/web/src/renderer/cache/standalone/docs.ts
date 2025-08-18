@@ -1,5 +1,5 @@
 import { IDBPDatabase } from "idb";
-import type { ApidocDetail } from "@src/types/global";
+import type { ApidocDetail } from '@src/types';
 import { nanoid } from "nanoid";
 
 

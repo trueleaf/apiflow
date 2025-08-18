@@ -21,7 +21,7 @@ import { onMounted, ref, Ref, computed, watch } from 'vue'
 import { ElMessage } from 'element-plus'
 import 'element-plus/es/components/message/style/css';
 import { router } from '@/router'
-import { ApidocProperty, Response } from '@src/types/global';
+import { ApidocProperty, Response } from '@src/types';
 import { request } from '@/api/api';
 import { apidocGenerateProperty } from '@/helper';
 import mindHeaders from '../apidoc/params/headers/mind-headers';

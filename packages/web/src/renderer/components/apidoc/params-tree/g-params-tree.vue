@@ -180,7 +180,7 @@ import {
 import { Plus, Close, Switch } from '@element-plus/icons-vue'
 import type Node from 'element-plus/es/components/tree/src/model/node'
 import type { TreeNodeOptions } from 'element-plus/lib/components/tree/src/tree.type'
-import type { ApidocProperty, ApidocPropertyType, MockItem } from '@src/types/global'
+import type { ApidocProperty, ApidocPropertyType, MockItem } from '@src/types'
 import { apidocGenerateProperty, forEachForest } from '@/helper/index'
 import { useTranslation } from 'i18next-vue'
 import { useApidoc } from '@/store/apidoc/apidoc'

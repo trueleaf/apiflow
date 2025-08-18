@@ -93,7 +93,7 @@
 import { ref, computed, Ref } from 'vue'
 import { ElMessage } from 'element-plus'
 import 'element-plus/es/components/message/style/css'
-import { ApidocBanner } from '@src/types/global';
+import { ApidocBanner } from '@src/types';
 import SDialog from '@/components/common/dialog/g-dialog.vue'
 import SEmphasize from '@/components/common/emphasize/g-emphasize.vue'
 import SConfig from '@/components/common/config/g-config.vue'

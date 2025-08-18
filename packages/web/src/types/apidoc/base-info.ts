@@ -1,4 +1,4 @@
-import type { ApidocMindParam, ApidocParamsType, ApidocProperty, ApidocPropertyType, ApidocRequestParamTypes, ApidocVariable } from "../global"
+import type { ApidocMindParam, ApidocParamsType, ApidocProperty, ApidocPropertyType, ApidocRequestParamTypes, ApidocVariable } from "./core"
 
 
 

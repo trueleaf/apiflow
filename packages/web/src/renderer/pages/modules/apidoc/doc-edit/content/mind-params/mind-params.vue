@@ -85,7 +85,7 @@
 import { computed, ref, Ref } from 'vue'
 import 'element-plus/es/components/message-box/style/css';
 import { ElMessageBox } from 'element-plus'
-import type { ApidocMindParam } from '@src/types/global'
+import type { ApidocMindParam } from '@src/types'
 import { store } from '@/store/index'
 import { router } from '@/router/index'
 import { request } from '@/api/api'

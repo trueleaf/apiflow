@@ -1,7 +1,7 @@
 import { uniqueByKey } from "@/helper";
 import { config } from "@src/config/config";
 import { ApidocMockMapInfo, ApidocMockState } from "@src/types/apidoc/mock";
-import { ApidocDetail } from "@src/types/global";
+import { ApidocDetail } from '@src/types';
 import { defineStore } from "pinia";
 import { ref } from "vue";
 import { useApidoc } from "./apidoc";

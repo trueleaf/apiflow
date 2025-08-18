@@ -83,7 +83,7 @@
 
 <script lang="ts" setup>
 import { DebouncedFunc } from 'lodash'
-import type { ApidocDetail, ApidocProperty } from '@src/types/global'
+import type { ApidocDetail, ApidocProperty } from '@src/types'
 import { apidocCache } from '@/cache/apidoc'
 import { lodashIsEqual, debounce } from '@/helper/index'
 import { useTranslation } from 'i18next-vue'

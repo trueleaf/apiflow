@@ -34,7 +34,7 @@
 <script lang="ts" setup>
 import { useTranslation } from 'i18next-vue'
 import { ref, Ref, onMounted, nextTick } from 'vue'
-import { ApidocBanner, ApidocDetail } from '@src/types/global';
+import { ApidocBanner, ApidocDetail } from '@src/types';
 import type { TreeNodeOptions } from 'element-plus/es/components/tree/src/tree.type';
 import { router } from '@/router';
 import { request } from '@/api/api'

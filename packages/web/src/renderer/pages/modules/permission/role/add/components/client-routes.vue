@@ -20,7 +20,7 @@
 
 <script lang="ts" setup>
 import { request } from '@/api/api';
-import { PermissionClientRoute, Response } from '@src/types/global'
+import { PermissionClientRoute, Response } from '@src/types'
 import { useTranslation } from 'i18next-vue'
 import SLoading from '@/components/common/loading/g-loading.vue'
 import { onMounted, ref, watch } from 'vue';

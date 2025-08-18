@@ -24,7 +24,7 @@ import AddProjectDialog from '@/pages/modules/apidoc/doc-list/dialog/add-project
 import { standaloneCache } from './cache/standalone';
 import { ElMessageBox } from 'element-plus';
 import { useApidocBaseInfo } from './store/apidoc/base-info';
-import { Language } from '@src/types/global';
+import { Language } from '@src/types';
 import LanguageMenu from '@/components/common/language/language.vue';
 
 const router = useRouter();

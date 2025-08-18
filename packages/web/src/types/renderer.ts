@@ -1,6 +1,6 @@
 import type { Got } from 'got';
 import type {GotRequestOptions, WindowState } from './types';
-import type { StandaloneExportHtmlParams } from './standalone.ts';
+import type { StandaloneExportHtmlParams } from './standalone';
 
 
 export type ElectronAPI = {

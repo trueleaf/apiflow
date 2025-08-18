@@ -1,5 +1,5 @@
 import { IDBPDatabase } from "idb";
-import type { ApidocProjectInfo } from "@src/types/global";
+import type { ApidocProjectInfo } from '@src/types';
 
 export class ProjectCache {
   constructor(private db: IDBPDatabase | null = null) {}

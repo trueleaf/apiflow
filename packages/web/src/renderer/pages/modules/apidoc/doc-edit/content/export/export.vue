@@ -96,7 +96,7 @@ import { ElMessage } from 'element-plus'
 import 'element-plus/es/components/message/style/css';
 import { ref, Ref, computed } from 'vue'
 import type { TreeNodeOptions } from 'element-plus/lib/components/tree/src/tree.type'
-import { ApidocBanner } from '@src/types/global';
+import { ApidocBanner } from '@src/types';
 import { request } from '@/api/api'
 import { useTranslation } from 'i18next-vue'
 import { useApidocBaseInfo } from '@/store/apidoc/base-info';

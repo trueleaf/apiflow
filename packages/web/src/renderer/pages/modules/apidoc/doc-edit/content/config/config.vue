@@ -60,7 +60,7 @@
 
 <script lang="ts" setup>
 import { ref, Ref, onMounted } from 'vue'
-import { ApidocRequestParamTypes } from '@src/types/global'
+import { ApidocRequestParamTypes } from '@src/types'
 import { request } from '@/api/api'
 import { router } from '@/router/index'
 import { event, apidocGenerateRequestParamTypes } from '@/helper'

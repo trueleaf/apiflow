@@ -85,7 +85,7 @@
 
 <script lang="ts" setup>
 import { computed, ref, onMounted, Ref } from 'vue'
-import type { ApidocBodyMode, ApidocBodyParams, ApidocBodyRawType, ApidocContentType } from '@src/types/global'
+import type { ApidocBodyMode, ApidocBodyParams, ApidocBodyRawType, ApidocContentType } from '@src/types'
 import { useTranslation } from 'i18next-vue'
 import { apidocCache } from '@/cache/apidoc'
 import { useVariable } from '@/store/apidoc/variables';

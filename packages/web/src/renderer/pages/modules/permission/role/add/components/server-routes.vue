@@ -15,7 +15,7 @@
 </template>
 
 <script lang="ts" setup>
-import type { PermissionServerRoute, Response } from '@src/types/global'
+import type { PermissionServerRoute, Response } from '@src/types'
 import { request } from '@/api/api';
 import { useTranslation } from 'i18next-vue'
 import { onMounted, ref, watch } from 'vue';

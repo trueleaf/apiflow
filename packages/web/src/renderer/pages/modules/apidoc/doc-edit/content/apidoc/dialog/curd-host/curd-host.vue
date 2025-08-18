@@ -76,7 +76,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ResponseTable } from '@src/types/global'
+import { ResponseTable } from '@src/types'
 import { apidocCache } from '@/cache/apidoc'
 import SFieldset from '@/components/common/fieldset/g-fieldset.vue'
 import SDialog from '@/components/common/dialog/g-dialog.vue'

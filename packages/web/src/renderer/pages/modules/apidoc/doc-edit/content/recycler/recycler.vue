@@ -105,7 +105,7 @@ import isYesterday from 'dayjs/plugin/isYesterday'
 import 'dayjs/locale/zh-cn'
 import 'element-plus/es/components/message-box/style/css';
 import { ElMessageBox } from 'element-plus'
-import type { ApidocHttpRequestMethod, ApidocType, ResponseTable } from '@src/types/global'
+import type { ApidocHttpRequestMethod, ApidocType, ResponseTable } from '@src/types'
 import { router } from '@/router/index'
 import { request } from '@/api/api'
 import SLoading from '@/components/common/loading/g-loading.vue'

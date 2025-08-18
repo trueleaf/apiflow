@@ -1,5 +1,5 @@
 import { IDBPDatabase } from "idb";
-import type { ApidocVariable, Response } from "@src/types/global";
+import type { ApidocVariable, Response } from '@src/types';
 import { nanoid } from "nanoid";
 
 export class VariableCache {

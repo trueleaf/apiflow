@@ -34,7 +34,7 @@
 <script lang="ts" setup>
 import type { InternalRuleItem } from 'async-validator/dist-types/interface'
 import { nextTick, onMounted, reactive, ref } from 'vue';
-import type { Response } from '@src/types/global'
+import type { Response } from '@src/types'
 import { useTranslation } from 'i18next-vue'
 import { ElMessage, FormInstance } from 'element-plus';
 import { request } from '@/api/api';

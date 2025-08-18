@@ -121,7 +121,7 @@
 <script lang="ts" setup>
 import { computed, ref, Ref, onMounted, onUnmounted, watch } from 'vue'
 import { MoreFilled } from '@element-plus/icons-vue'
-import type { ApidocBanner } from '@src/types/global'
+import type { ApidocBanner } from '@src/types'
 import { router } from '@/router/index'
 import { useTranslation } from 'i18next-vue'
 import SResizeX from '@/components/common/resize/g-resize-x.vue'

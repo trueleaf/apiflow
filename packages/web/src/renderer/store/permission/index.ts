@@ -1,6 +1,6 @@
 import { router, routes as allRoutes } from '@/router';
 import { config } from '@src/config/config';
-import { GlobalConfig, PermissionClientMenu, PermissionClientRoute, PermissionUserInfo, Response } from '@src/types/global';
+import { GlobalConfig, PermissionClientMenu, PermissionClientRoute, PermissionUserInfo, Response } from '@src/types';
 import { defineStore } from 'pinia'
 import layout from '@/pages/layout/layout.vue';
 import { RouteRecordRaw } from 'vue-router';

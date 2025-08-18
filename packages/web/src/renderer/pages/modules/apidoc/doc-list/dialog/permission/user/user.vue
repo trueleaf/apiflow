@@ -64,7 +64,7 @@
 
 <script lang="ts" setup>
 import { useTranslation } from 'i18next-vue'
-import type { Response, ApidocProjectMemberInfo, ApidocProjectPermission, ApidocGroupUser } from '@src/types/global'
+import type { Response, ApidocProjectMemberInfo, ApidocProjectPermission, ApidocGroupUser } from '@src/types'
 import {  onMounted, ref } from 'vue';
 import { ElMessage, ElMessageBox } from 'element-plus';
 import { usePermissionStore } from '@/store/permission';

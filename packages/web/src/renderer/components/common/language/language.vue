@@ -36,7 +36,7 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import { Language } from '@src/types/global'
+import { Language } from '@src/types'
 
 // Props 定义
 interface Props {

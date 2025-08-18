@@ -99,7 +99,7 @@
 <script lang="ts" setup>
 import { ref, Ref, onMounted, computed } from 'vue'
 import { Close } from '@element-plus/icons-vue'
-import { ApidocDetail, Response } from '@src/types/global';
+import { ApidocDetail, Response } from '@src/types';
 import { router } from '@/router/index'
 import { request } from '@/api/api'
 import { useTranslation } from 'i18next-vue'

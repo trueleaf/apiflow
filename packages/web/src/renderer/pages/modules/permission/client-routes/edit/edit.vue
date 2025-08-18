@@ -14,7 +14,7 @@
 
 <script lang="ts" setup>
 import { nextTick, PropType, ref, watch } from 'vue'
-import { PermissionClientRoute } from '@src/types/global'
+import { PermissionClientRoute } from '@src/types'
 import SDialog from '@/components/common/dialog/g-dialog.vue'
 import SForm from '@/components/common/forms/form/g-form.vue'
 import SFormItem from '@/components/common/forms/form/g-form-item.vue'

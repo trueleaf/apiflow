@@ -18,7 +18,7 @@ import {
   ApidocMindParam,
   ApidocProperty,
   ApidocBodyParams
-} from "@src/types/global"
+} from '@src/types'
 import { defineStore, storeToRefs } from "pinia"
 import axios, { Canceler } from 'axios'
 import { request as axiosInstance } from '@/api/api'

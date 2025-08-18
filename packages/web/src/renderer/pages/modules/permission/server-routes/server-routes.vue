@@ -42,7 +42,7 @@
 </template>
 
 <script lang="ts" setup>
-import type { Response, PermissionServerRoute } from '@src/types/global'
+import type { Response, PermissionServerRoute } from '@src/types'
 import SAddServerRoute from './add/add.vue'
 import SEditServerRoute from './edit/edit.vue'
 import SMultiEditServerRoute from './edit/edit2.vue'

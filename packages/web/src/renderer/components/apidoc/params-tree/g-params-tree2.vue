@@ -200,7 +200,7 @@ import {
 } from 'vue'
 import { Plus, Close } from '@element-plus/icons-vue'
 import type { TreeNodeOptions } from 'element-plus/lib/components/tree/src/tree.type'
-import type { ApidocProperty, MockItem } from '@src/types/global'
+import type { ApidocProperty, MockItem } from '@src/types'
 import { apidocGenerateProperty, forEachForest } from '@/helper/index'
 import { store } from '@/store'
 import { useTranslation } from 'i18next-vue'

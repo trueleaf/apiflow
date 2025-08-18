@@ -6,7 +6,7 @@
 
 <script lang="ts" setup>
 import { computed, ref, Ref } from 'vue';
-import { ApidocProperty } from '@src/types/global';
+import { ApidocProperty } from '@src/types';
 import mindHeaders from '../../../headers/mind-headers';
 import { useApidoc } from '@/store/apidoc/apidoc';
 import SParamsTree from '@/components/apidoc/params-tree/g-params-tree.vue'

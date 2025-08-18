@@ -34,7 +34,7 @@ import { ref, Ref } from 'vue'
 import 'element-plus/es/components/message-box/style/css';
 import { ElMessageBox } from 'element-plus';
 import { router } from '@/router';
-import type { ApidocCodeInfo } from '@src/types/global'
+import type { ApidocCodeInfo } from '@src/types'
 import { event } from '@/helper';
 import { useTranslation } from 'i18next-vue'
 import STable from '@/components/common/table/g-table.vue'

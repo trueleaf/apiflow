@@ -20,7 +20,7 @@
 <script lang="ts" setup>
 import { computed } from 'vue'
 import { useTranslation } from 'i18next-vue'
-import { ApidocBanner } from '@src/types/global'
+import { ApidocBanner } from '@src/types'
 import { forEachForest } from '@/helper'
 import { config } from '@/../config/config'
 import { useApidocBanner } from '@/store/apidoc/banner'

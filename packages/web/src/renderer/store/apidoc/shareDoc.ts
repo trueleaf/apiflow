@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
-import { ApidocVariable } from '@src/types/global';
+import { ApidocVariable } from '@src/types';
 import { getObjectVariable } from '@/utils/utils';
 
 export const useShareDocStore = defineStore('shareDoc', () => {

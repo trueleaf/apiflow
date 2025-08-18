@@ -140,7 +140,7 @@ import 'element-plus/es/components/message/style/css'
 import type { UploadFile, UploadInstance, UploadProps, UploadRawFile } from 'element-plus/es/components';
 import { genFileId } from 'element-plus';
 import { formatBytes } from '@/helper/index'
-import { ApidocDetail } from '@src/types/global';
+import { ApidocDetail } from '@src/types';
 import { apidocCache } from '@/cache/apidoc';
 import SCustomEditor from './components/custom-editor.vue'
 import SLabelValue from '@/components/common/label-value/g-label-value.vue'

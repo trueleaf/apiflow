@@ -49,7 +49,7 @@ import { WindowState } from '@src/types/types';
 import { ref, onMounted, nextTick, watch, computed } from 'vue'
 import draggable from 'vuedraggable'
 import { apidocCache } from '@src/renderer/cache/apidoc'
-import { Language } from '@src/types/global'
+import { Language } from '@src/types'
 import { RefreshRight, Back, Right } from '@element-plus/icons-vue'
 
 // 定义Tab类型
