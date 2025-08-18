@@ -356,12 +356,6 @@ export const randomInt = (start: number, end: number): number => {
   return Math.floor(Math.random() * range + 1);
 };
 
-export const uint8ArrayToBlob = (
-  uint8Array: Uint8Array,
-  mimeType: string
-): Blob => {
-  return new Blob([uint8Array], { type: mimeType });
-};
 
 const parseSseBlock = (block: string, timestamp?: number) => {
   const lines = block.split(/\r?\n/);
