@@ -315,7 +315,7 @@ export type HttpNode = {
       /**
        * 接口前缀
        */
-      host: string;
+      prefix: string;
       /**
        * 请求路径
        */
@@ -506,7 +506,8 @@ export type ApidocBanner = {
   /**
    * 请求方法
    */
-  method: ApidocHttpRequestMethod;
+  method?: ApidocHttpRequestMethod;
+  protocol?: 'ws' | 'wss',
   /**
    * 请求url
    */

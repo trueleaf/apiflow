@@ -1,16 +1,17 @@
 import { IDBPDatabase } from "idb";
 import type { HttpNode } from '@src/types';
 import { nanoid } from "nanoid";
+import { WebSocketNode } from "@src/types/websocket/websocket.ts";
 
 
 
 export class DocCache {
-  private bannerCache = new Map<string, { data: HttpNode[]; timestamp: number }>();
+  private bannerCache = new Map<string, { data: (HttpNode | WebSocketNode)[]; timestamp: number }>();
   private readonly CACHE_TTL = 5 * 60 * 1000; // 5分钟缓存过期时间
 
   constructor(private db: IDBPDatabase | null = null) {}
 
-  async getDocsList(): Promise<HttpNode[]> {
+  async getDocsList(): Promise<(HttpNode | WebSocketNode)[]> {
     if (!this.db) throw new Error("Database not initialized");
     const tx = this.db.transaction("docs", "readonly");
     const store = tx.objectStore("docs");
@@ -22,7 +23,7 @@ export class DocCache {
    * 优化的按项目ID获取文档方法
    * 使用 IndexedDB 索引直接查询，避免全量加载
    */
-  async getDocsByProjectId(projectId: string): Promise<HttpNode[]> {
+  async getDocsByProjectId(projectId: string): Promise<(HttpNode | WebSocketNode)[]> {
     if (!this.db) throw new Error("Database not initialized");
 
     const tx = this.db.transaction("docs", "readonly");
@@ -31,7 +32,7 @@ export class DocCache {
     try {
       // 使用 projectId 索引查询
       const index = store.index("projectId");
-      const docs: HttpNode[] = await index.getAll(projectId);
+      const docs: (HttpNode | WebSocketNode)[] = await index.getAll(projectId);
       return docs.filter(doc => !doc.isDeleted);
     } catch (error) {
       // 如果索引不存在（旧版本数据库），回退到原方法
@@ -44,7 +45,7 @@ export class DocCache {
    * 获取用于 banner 显示的轻量级文档信息
    * 使用缓存机制提高性能
    */
-  async getBannerInfoByProjectId(projectId: string): Promise<HttpNode[]> {
+  async getBannerInfoByProjectId(projectId: string): Promise<(HttpNode | WebSocketNode)[]> {
     // 检查缓存
     const cached = this.bannerCache.get(projectId);
     if (cached && Date.now() - cached.timestamp < this.CACHE_TTL) {
@@ -56,7 +57,7 @@ export class DocCache {
     try {
       // 使用 projectId 索引查询
       const index = store.index("projectId");
-      const docs: HttpNode[] = await index.getAll(projectId);
+      const docs: (HttpNode | WebSocketNode)[] = await index.getAll(projectId);
       const filteredDocs = docs.filter(doc => !doc.isDeleted);
 
       // 更新缓存
@@ -131,7 +132,7 @@ export class DocCache {
     await tx.done;
   }
 
-  async addDoc(doc: HttpNode): Promise<boolean> {
+  async addDoc(doc: HttpNode | WebSocketNode): Promise<boolean> {
     if (!this.db) throw new Error("Database not initialized");
     const tx = this.db.transaction("docs", "readwrite");
     const store = tx.objectStore("docs");
@@ -143,7 +144,7 @@ export class DocCache {
     return true;
   }
 
-  async updateDoc(doc: HttpNode): Promise<boolean> {
+  async updateDoc(doc: HttpNode | WebSocketNode): Promise<boolean> {
     if (!this.db) throw new Error("Database not initialized");
     const tx = this.db.transaction("docs", "readwrite");
     const store = tx.objectStore("docs");
@@ -228,7 +229,7 @@ export class DocCache {
     if (!this.db) throw new Error("Database not initialized");
     const tx = this.db.transaction("docs", "readonly");
     const store = tx.objectStore("docs");
-    const allDocs: HttpNode[] = await store.getAll();
+    const allDocs: (HttpNode | WebSocketNode)[] = await store.getAll();
     
     return allDocs
       .filter(doc => doc.projectId === projectId && doc.isDeleted)
@@ -236,10 +237,10 @@ export class DocCache {
         name: doc.info.name,
         type: doc.info.type,
         deletePerson: doc.info.deletePerson,
-        isFolder: doc.isFolder,
-        host: doc.item.url.host,
-        path: doc.item.url.path,
-        method: doc.item.method,
+        isFolder: 'isFolder' in doc ? doc.isFolder : false,
+        prefix: typeof doc.item.url === 'string' ? '' : doc.item.url.prefix,
+        path: typeof doc.item.url === 'string' ? doc.item.url : doc.item.url.path,
+        method: 'method' in doc.item ? doc.item.method : undefined,
         updatedAt: doc.updatedAt || new Date().toISOString(),
         _id: doc._id,
         pid: doc.pid
@@ -277,7 +278,7 @@ export class DocCache {
    * @param projectId 项目ID
    * @returns 是否成功
    */
-  async replaceAllDocs(docs: HttpNode[], projectId: string): Promise<boolean> {
+  async replaceAllDocs(docs: (HttpNode | WebSocketNode)[], projectId: string): Promise<boolean> {
     if (!this.db) throw new Error("Database not initialized");
     const tx = this.db.transaction("docs", "readwrite");
     const store = tx.objectStore("docs");
@@ -318,12 +319,12 @@ export class DocCache {
    * @param projectId 项目ID
    * @returns 处理后的文档列表和ID映射
    */
-  private prepareDocsWithNewIds(docs: HttpNode[], projectId: string): {
-    processedDocs: HttpNode[];
+  private prepareDocsWithNewIds(docs: (HttpNode | WebSocketNode)[], projectId: string): {
+    processedDocs: (HttpNode | WebSocketNode)[];
     idMapping: Map<string, string>;
   } {
     const idMapping = new Map<string, string>();
-    const processedDocs: HttpNode[] = [];
+    const processedDocs: (HttpNode | WebSocketNode)[] = [];
 
     // 第一步：为所有文档生成新的ID并创建映射
     for (const doc of docs) {
@@ -332,7 +333,7 @@ export class DocCache {
       idMapping.set(oldId, newId);
 
       // 创建文档副本并更新基本信息
-      const processedDoc: HttpNode = {
+      const processedDoc = {
         ...doc,
         _id: newId,
         projectId,
@@ -363,7 +364,7 @@ export class DocCache {
    * @param projectId 项目ID
    * @returns 成功追加的文档ID列表
    */
-  async appendDocs(docs: HttpNode[], projectId: string): Promise<string[]> {
+  async appendDocs(docs: (HttpNode | WebSocketNode)[], projectId: string): Promise<string[]> {
     if (!this.db) throw new Error("Database not initialized");
     const tx = this.db.transaction("docs", "readwrite");
     const store = tx.objectStore("docs");

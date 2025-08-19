@@ -209,7 +209,7 @@ export const exportWord = async (
         });
         const url = new Paragraph({
           //请求方法
-          text: `请求地址：${(data.item as any).url.host + (data.item as any).url.path}`,
+          text: `请求地址：${(data.item as any).url.prefix + (data.item as any).url.path}`,
         });
         const contentType = new Paragraph({
           //contentType

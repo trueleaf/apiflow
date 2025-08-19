@@ -8,6 +8,7 @@ import { RuleCache } from "./standalone/rules";
 import { VariableCache } from "./standalone/variable";
 import { IDBPDatabase, openDB } from "idb";
 import { config } from "@src/config/config.ts";
+import { WebSocketNode } from '@src/types/websocket/websocket.ts';
 
 export class StandaloneCache {
   public db: IDBPDatabase | null = null;
@@ -118,10 +119,10 @@ export class StandaloneCache {
   async getDocsList(): Promise<HttpNode[]> {
     return this.docs.getDocsList();
   }
-  async addDoc(doc: HttpNode): Promise<boolean> {
+  async addDoc(doc: HttpNode | WebSocketNode): Promise<boolean> {
     return this.docs.addDoc(doc);
   }
-  async updateDoc(doc: HttpNode): Promise<boolean> {
+  async updateDoc(doc: HttpNode | WebSocketNode): Promise<boolean> {
     return this.docs.updateDoc(doc);
   }
   async updateDocName(docId: string, name: string): Promise<boolean> {
@@ -139,10 +140,10 @@ export class StandaloneCache {
   async getDeletedDocsList(projectId: string) {
     return this.docs.getDeletedDocsList(projectId);
   }
-  async replaceAllDocs(docs: HttpNode[], projectId: string): Promise<boolean> {
+  async replaceAllDocs(docs: (HttpNode | WebSocketNode)[], projectId: string): Promise<boolean> {
     return this.docs.replaceAllDocs(docs, projectId);
   }
-  async appendDocs(docs: HttpNode[], projectId: string): Promise<string[]> {
+  async appendDocs(docs: (HttpNode | WebSocketNode)[], projectId: string): Promise<string[]> {
     return this.docs.appendDocs(docs, projectId);
   }
   // 公共请求头相关

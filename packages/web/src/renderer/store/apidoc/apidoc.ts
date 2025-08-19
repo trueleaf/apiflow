@@ -117,9 +117,9 @@ export const useApidoc = defineStore('apidoc', () => {
   | url、host、method、name、description
   |--------------------------------------------------------------------------
   */
-  //改变host值
-  const changeApidocHost = (host: string): void => {
-    apidoc.value.item.url.host = host;
+  //改变prefix值
+  const changeApidocPrefix = (prefix: string): void => {
+    apidoc.value.item.url.prefix = prefix;
   }
   //改变url值
   const changeApidocUrl = (path: string): void => {
@@ -415,9 +415,9 @@ export const useApidoc = defineStore('apidoc', () => {
     if (payload.mockInfo.responseHeaders?.length === 0) {
       payload.mockInfo.responseHeaders.push(apidocGenerateProperty());
     }
-    //如果host为空则默认为mockserver
-    // if (!payload.item.url.host && !payload.item.url.path.startsWith("http")) {
-    //     payload.item.url.host = `http://${config.renderConfig.mock.ip}:${store.state["apidoc/mock"].mockServerPort}`
+    //如果prefix为空则默认为mockserver
+    // if (!payload.item.url.prefix && !payload.item.url.path.startsWith("http")) {
+    //     payload.item.url.prefix = `http://${config.renderConfig.mock.ip}:${store.state["apidoc/mock"].mockServerPort}`
     // }
     apidoc.value = payload;
   }
@@ -546,7 +546,7 @@ export const useApidoc = defineStore('apidoc', () => {
         const cachedServer = apidocCache.getPreviousServer(payload.projectId);
         const { path } = apidoc.value.item.url
         if (cachedServer && !path.startsWith('http') && !path.startsWith('https')) {
-          changeApidocHost(cachedServer)
+          changeApidocPrefix(cachedServer)
         }
         resolve()
       }).catch((err) => {
@@ -797,7 +797,7 @@ export const useApidoc = defineStore('apidoc', () => {
     unshiftQueryParams,
     changeBodyMode,
     changeBodyRawType,
-    changeApidocHost,
+    changeApidocPrefix,
     changeBodyRawValue,
     changeContentType,
     changeApidocUrl,

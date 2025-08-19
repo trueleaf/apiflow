@@ -8,7 +8,7 @@ import { useApidoc } from "./apidoc";
 
 
 export const useApidocMock = defineStore('apidocMock', () => {
-  const {changeApidocHost } = useApidoc()
+  const {changeApidocPrefix } = useApidoc()
   const serverState = ref<ApidocMockState['serverState']>('disconnection') //服务器状态
   const mockServerPort = ref(config.renderConfig.mock.port) // 端口
   const httpStatusCode = ref(200) //http状态码
@@ -52,7 +52,7 @@ export const useApidocMock = defineStore('apidocMock', () => {
   //改变mock端口
   const changeMockServerPort = (port: number): void => {
     const ipAddress = window.electronAPI?.ip ?? '127.0.0.1'
-    changeApidocHost(`http://${ipAddress}:${port}`);
+    changeApidocPrefix(`http://${ipAddress}:${port}`);
     mockServerPort.value = port;
   }
   //改变服务器启动状态

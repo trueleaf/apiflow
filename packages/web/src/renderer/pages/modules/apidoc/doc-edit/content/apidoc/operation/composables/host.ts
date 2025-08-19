@@ -44,13 +44,13 @@ export default (): HostReturn => {
   const mockServer = computed(() => `http://${ipAddress}:${apidocMockStore.mockServerPort}`);
   //host弹窗
   const hostDialogVisible = ref(false);
-  //host值
+  //prefix值
   const host = computed<string>({
     get() {
-      return apidocStore.apidoc.item.url.host
+      return apidocStore.apidoc.item.url.prefix
     },
     set(val) {
-      apidocStore.changeApidocHost(val);
+      apidocStore.changeApidocPrefix(val);
     },
   });
     //改变host的值

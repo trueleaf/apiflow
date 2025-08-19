@@ -245,8 +245,8 @@ watchEffect(() => {
 */
 watchEffect(async () => {
   if (!apidocInfo.value) return '';
-  const { host, path } = apidocInfo.value.item.url || { host: '', path: '' };
-  const rawUrl = `${host}${path}`;
+  const { prefix, path } = apidocInfo.value.item.url || { prefix: '', path: '' };
+  const rawUrl = `${prefix}${path}`;
   fullUrl.value = await convertTemplateValueToRealValue(rawUrl, shareStore.objectVariable);
 });
 

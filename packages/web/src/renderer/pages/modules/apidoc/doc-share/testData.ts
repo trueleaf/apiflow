@@ -857,11 +857,11 @@ export const localShareDataTest: LocalShareData = {
           "isFolder": false,
           "sort": 1747025820340,
           "info": {
-              "name": "默认请求头",
+              "name": "默认请求�?,
               "version": "1.0",
               "type": "api",
               "creator": "apiflow",
-              "maintainer": "初始普通用户",
+              "maintainer": "初始普通用�?,
               "spendTime": 0
           },
           "item": {
@@ -1052,7 +1052,7 @@ export const localShareDataTest: LocalShareData = {
                       "_id": "LAlsPdmwyczUvERXr-anQ",
                       "key": "Accept-Encoding",
                       "type": "string",
-                      "description": "列出用户代理支持的压缩方法",
+                      "description": "列出用户代理支持的压缩方�?,
                       "value": "Accept-Encoding",
                       "required": true,
                       "select": false
@@ -1061,7 +1061,7 @@ export const localShareDataTest: LocalShareData = {
                       "_id": "bdK-iKiTvZP9Cc5bKVOXe",
                       "key": "accept-encoding",
                       "type": "string",
-                      "description": "列出用户代理支持的压缩方法",
+                      "description": "列出用户代理支持的压缩方�?,
                       "value": "accept-encoding",
                       "required": true,
                       "select": false
@@ -2320,7 +2320,7 @@ export const localShareDataTest: LocalShareData = {
           "isFolder": false,
           "sort": 1741336355657,
           "info": {
-              "name": "修改全局公共请求头",
+              "name": "修改全局公共请求�?,
               "version": "1.0",
               "type": "api",
               "creator": "apiflow",
@@ -2421,11 +2421,11 @@ export const localShareDataTest: LocalShareData = {
           "isFolder": false,
           "sort": 1741582738023,
           "info": {
-              "name": "获取全局公共请求头",
+              "name": "获取全局公共请求�?,
               "version": "1.0",
               "type": "api",
               "creator": "apiflow",
-              "maintainer": "初始普通用户",
+              "maintainer": "初始普通用�?,
               "spendTime": 0
           },
           "item": {
@@ -2599,7 +2599,7 @@ export const localShareDataTest: LocalShareData = {
           "isFolder": false,
           "sort": 1742379419642,
           "info": {
-              "name": "图形验证码获取",
+              "name": "图形验证码获�?,
               "version": "1.0",
               "type": "api",
               "creator": "apiflow",
@@ -2777,7 +2777,7 @@ export const localShareDataTest: LocalShareData = {
           "isFolder": true,
           "sort": 1741336332603,
           "info": {
-              "name": "公共请求头相关",
+              "name": "公共请求头相�?,
               "version": "1.0",
               "type": "folder",
               "creator": "apiflow"
@@ -2836,10 +2836,10 @@ export const localShareDataTest: LocalShareData = {
           "isFolder": true,
           "sort": 1747025815327,
           "info": {
-              "name": "请求头",
+              "name": "请求�?,
               "version": "1.0",
               "type": "folder",
-              "creator": "初始普通用户"
+              "creator": "初始普通用�?
           },
           "item": {
               "method": "GET",
@@ -2896,11 +2896,11 @@ export const localShareDataTest: LocalShareData = {
           "isFolder": false,
           "sort": 1747132124536,
           "info": {
-              "name": "公共请求头",
+              "name": "公共请求�?,
               "version": "1.0",
               "type": "api",
-              "creator": "初始普通用户",
-              "maintainer": "初始普通用户",
+              "creator": "初始普通用�?,
+              "maintainer": "初始普通用�?,
               "spendTime": 0
           },
           "item": {
@@ -3000,7 +3000,7 @@ export const localShareDataTest: LocalShareData = {
               "name": "返回参数录入",
               "version": "1.0",
               "type": "folder",
-              "creator": "初始普通用户"
+              "creator": "初始普通用�?
           },
           "item": {
               "method": "GET",
@@ -3060,7 +3060,7 @@ export const localShareDataTest: LocalShareData = {
               "name": "请求参数",
               "version": "1.0",
               "type": "folder",
-              "creator": "初始普通用户"
+              "creator": "初始普通用�?
           },
           "item": {
               "method": "GET",
@@ -3121,7 +3121,7 @@ export const localShareDataTest: LocalShareData = {
               "version": "1.0",
               "type": "api",
               "creator": "apiflow",
-              "maintainer": "初始普通用户",
+              "maintainer": "初始普通用�?,
               "spendTime": 0
           },
           "item": {
@@ -3222,7 +3222,7 @@ export const localShareDataTest: LocalShareData = {
               "version": "1.0",
               "type": "api",
               "creator": "apiflow",
-              "maintainer": "初始普通用户",
+              "maintainer": "初始普通用�?,
               "spendTime": 0
           },
           "item": {
@@ -3395,7 +3395,7 @@ export const localShareDataTest: LocalShareData = {
               "version": "1.0",
               "type": "api",
               "creator": "apiflow",
-              "maintainer": "初始普通用户",
+              "maintainer": "初始普通用�?,
               "spendTime": 0
           },
           "item": {
@@ -3496,7 +3496,7 @@ export const localShareDataTest: LocalShareData = {
               "version": "1.0",
               "type": "api",
               "creator": "apiflow",
-              "maintainer": "初始普通用户",
+              "maintainer": "初始普通用�?,
               "spendTime": 0
           },
           "item": {
@@ -3662,7 +3662,7 @@ export const localShareDataTest: LocalShareData = {
               "version": "1.0",
               "type": "api",
               "creator": "apiflow",
-              "maintainer": "初始普通用户",
+              "maintainer": "初始普通用�?,
               "spendTime": 0
           },
           "item": {
@@ -3826,7 +3826,7 @@ export const localShareDataTest: LocalShareData = {
               "version": "1.0",
               "type": "api",
               "creator": "apiflow",
-              "maintainer": "初始普通用户",
+              "maintainer": "初始普通用�?,
               "spendTime": 0
           },
           "item": {
@@ -3927,7 +3927,7 @@ export const localShareDataTest: LocalShareData = {
               "version": "1.0",
               "type": "api",
               "creator": "apiflow",
-              "maintainer": "初始普通用户",
+              "maintainer": "初始普通用�?,
               "spendTime": 0
           },
           "item": {
@@ -4038,7 +4038,7 @@ export const localShareDataTest: LocalShareData = {
               "version": "1.0",
               "type": "api",
               "creator": "apiflow",
-              "maintainer": "初始普通用户",
+              "maintainer": "初始普通用�?,
               "spendTime": 0
           },
           "item": {
@@ -4137,7 +4137,7 @@ export const localShareDataTest: LocalShareData = {
               "version": "1.0",
               "type": "api",
               "creator": "apiflow",
-              "maintainer": "初始普通用户",
+              "maintainer": "初始普通用�?,
               "spendTime": 0
           },
           "item": {
@@ -4238,7 +4238,7 @@ export const localShareDataTest: LocalShareData = {
               "version": "1.0",
               "type": "api",
               "creator": "apiflow",
-              "maintainer": "初始普通用户",
+              "maintainer": "初始普通用�?,
               "spendTime": 0
           },
           "item": {
@@ -4339,7 +4339,7 @@ export const localShareDataTest: LocalShareData = {
               "version": "1.0",
               "type": "api",
               "creator": "apiflow",
-              "maintainer": "初始普通用户",
+              "maintainer": "初始普通用�?,
               "spendTime": 0
           },
           "item": {
@@ -4439,8 +4439,8 @@ export const localShareDataTest: LocalShareData = {
               "name": "返回参数",
               "version": "1.0",
               "type": "api",
-              "creator": "初始普通用户",
-              "maintainer": "初始普通用户",
+              "creator": "初始普通用�?,
+              "maintainer": "初始普通用�?,
               "spendTime": 0,
               "description": ""
           },
@@ -4541,7 +4541,7 @@ export const localShareDataTest: LocalShareData = {
               "name": "前置脚本",
               "version": "1.0",
               "type": "folder",
-              "creator": "初始普通用户"
+              "creator": "初始普通用�?
           },
           "item": {
               "method": "GET",
@@ -4601,7 +4601,7 @@ export const localShareDataTest: LocalShareData = {
               "name": "后置脚本",
               "version": "1.0",
               "type": "folder",
-              "creator": "初始普通用户"
+              "creator": "初始普通用�?
           },
           "item": {
               "method": "GET",
@@ -4661,8 +4661,8 @@ export const localShareDataTest: LocalShareData = {
               "name": "前置脚本",
               "version": "1.0",
               "type": "api",
-              "creator": "初始普通用户",
-              "maintainer": "初始普通用户",
+              "creator": "初始普通用�?,
+              "maintainer": "初始普通用�?,
               "spendTime": 0
           },
           "item": {
@@ -4762,7 +4762,7 @@ export const localShareDataTest: LocalShareData = {
               "name": "后置脚本",
               "version": "1.0",
               "type": "api",
-              "creator": "初始普通用户"
+              "creator": "初始普通用�?
           },
           "item": {
               "method": "GET",
@@ -4822,7 +4822,7 @@ export const localShareDataTest: LocalShareData = {
               "name": "ContentType",
               "version": "1.0",
               "type": "folder",
-              "creator": "初始普通用户"
+              "creator": "初始普通用�?
           },
           "item": {
               "method": "GET",
@@ -4882,8 +4882,8 @@ export const localShareDataTest: LocalShareData = {
               "name": "无contentType-json",
               "version": "1.0",
               "type": "api",
-              "creator": "初始普通用户",
-              "maintainer": "初始普通用户",
+              "creator": "初始普通用�?,
+              "maintainer": "初始普通用�?,
               "spendTime": 0
           },
           "item": {
@@ -4983,8 +4983,8 @@ export const localShareDataTest: LocalShareData = {
               "name": "json",
               "version": "1.0",
               "type": "api",
-              "creator": "初始普通用户",
-              "maintainer": "初始普通用户",
+              "creator": "初始普通用�?,
+              "maintainer": "初始普通用�?,
               "spendTime": 0
           },
           "item": {
@@ -5084,8 +5084,8 @@ export const localShareDataTest: LocalShareData = {
               "name": "无contentType-form",
               "version": "1.0",
               "type": "api",
-              "creator": "初始普通用户",
-              "maintainer": "初始普通用户",
+              "creator": "初始普通用�?,
+              "maintainer": "初始普通用�?,
               "spendTime": 0
           },
           "item": {
@@ -5185,8 +5185,8 @@ export const localShareDataTest: LocalShareData = {
               "name": "无contentType-encoded",
               "version": "1.0",
               "type": "api",
-              "creator": "初始普通用户",
-              "maintainer": "初始普通用户",
+              "creator": "初始普通用�?,
+              "maintainer": "初始普通用�?,
               "spendTime": 0
           },
           "item": {
@@ -5286,8 +5286,8 @@ export const localShareDataTest: LocalShareData = {
               "name": "无contentType-raw",
               "version": "1.0",
               "type": "api",
-              "creator": "初始普通用户",
-              "maintainer": "初始普通用户",
+              "creator": "初始普通用�?,
+              "maintainer": "初始普通用�?,
               "spendTime": 0
           },
           "item": {
@@ -5387,8 +5387,8 @@ export const localShareDataTest: LocalShareData = {
               "name": "无contentType-binary",
               "version": "1.0",
               "type": "api",
-              "creator": "初始普通用户",
-              "maintainer": "初始普通用户",
+              "creator": "初始普通用�?,
+              "maintainer": "初始普通用�?,
               "spendTime": 0
           },
           "item": {
@@ -5488,8 +5488,8 @@ export const localShareDataTest: LocalShareData = {
               "name": "无contentType-none",
               "version": "1.0",
               "type": "api",
-              "creator": "初始普通用户",
-              "maintainer": "初始普通用户",
+              "creator": "初始普通用�?,
+              "maintainer": "初始普通用�?,
               "spendTime": 0
           },
           "item": {
@@ -5589,7 +5589,7 @@ export const localShareDataTest: LocalShareData = {
               "name": "无ContentType",
               "version": "1.0",
               "type": "folder",
-              "creator": "初始普通用户"
+              "creator": "初始普通用�?
           },
           "item": {
               "method": "GET",
@@ -5649,7 +5649,7 @@ export const localShareDataTest: LocalShareData = {
               "name": "有ContentType",
               "version": "1.0",
               "type": "folder",
-              "creator": "初始普通用户"
+              "creator": "初始普通用�?
           },
           "item": {
               "method": "GET",
@@ -5709,8 +5709,8 @@ export const localShareDataTest: LocalShareData = {
               "name": "formdata",
               "version": "1.0",
               "type": "api",
-              "creator": "初始普通用户",
-              "maintainer": "初始普通用户",
+              "creator": "初始普通用�?,
+              "maintainer": "初始普通用�?,
               "spendTime": 0
           },
           "item": {
@@ -5839,8 +5839,8 @@ export const localShareDataTest: LocalShareData = {
               "name": "urlencoded",
               "version": "1.0",
               "type": "api",
-              "creator": "初始普通用户",
-              "maintainer": "初始普通用户",
+              "creator": "初始普通用�?,
+              "maintainer": "初始普通用�?,
               "spendTime": 0
           },
           "item": {
@@ -5958,8 +5958,8 @@ export const localShareDataTest: LocalShareData = {
               "name": "raw-html",
               "version": "1.0",
               "type": "api",
-              "creator": "初始普通用户",
-              "maintainer": "初始普通用户",
+              "creator": "初始普通用�?,
+              "maintainer": "初始普通用�?,
               "spendTime": 0
           },
           "item": {
@@ -6059,8 +6059,8 @@ export const localShareDataTest: LocalShareData = {
               "name": "raw-text",
               "version": "1.0",
               "type": "api",
-              "creator": "初始普通用户",
-              "maintainer": "初始普通用户",
+              "creator": "初始普通用�?,
+              "maintainer": "初始普通用�?,
               "spendTime": 0
           },
           "item": {
@@ -6160,8 +6160,8 @@ export const localShareDataTest: LocalShareData = {
               "name": "raw-xml",
               "version": "1.0",
               "type": "api",
-              "creator": "初始普通用户",
-              "maintainer": "初始普通用户",
+              "creator": "初始普通用�?,
+              "maintainer": "初始普通用�?,
               "spendTime": 0
           },
           "item": {
@@ -6208,7 +6208,7 @@ export const localShareDataTest: LocalShareData = {
                       }
                   ],
                   "raw": {
-                      "data": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n<root>\r\n    <person id=\"1\">\r\n        <name>张三</name>\r\n        <age>30</age>\r\n        <email>zhangsan@example.com</email>\r\n        <address>\r\n            <street>人民路123号</street>\r\n            <city>北京</city>\r\n            <country>中国</country>\r\n        </address>\r\n    </person>\r\n    <person id=\"2\">\r\n        <name>李四</name>\r\n        <age>28</age>\r\n        <email>lisi@example.com</email>\r\n        <address>\r\n            <street>中山路456号</street>\r\n            <city>上海</city>\r\n            <country>中国</country>\r\n        </address>\r\n    </person>\r\n    <department name=\"技术部\">\r\n        <member>1</member>\r\n        <member>2</member>\r\n    </department>\r\n</root>",
+                      "data": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n<root>\r\n    <person id=\"1\">\r\n        <name>张三</name>\r\n        <age>30</age>\r\n        <email>zhangsan@example.com</email>\r\n        <address>\r\n            <street>人民�?23�?/street>\r\n            <city>北京</city>\r\n            <country>中国</country>\r\n        </address>\r\n    </person>\r\n    <person id=\"2\">\r\n        <name>李四</name>\r\n        <age>28</age>\r\n        <email>lisi@example.com</email>\r\n        <address>\r\n            <street>中山�?56�?/street>\r\n            <city>上海</city>\r\n            <country>中国</country>\r\n        </address>\r\n    </person>\r\n    <department name=\"技术部\">\r\n        <member>1</member>\r\n        <member>2</member>\r\n    </department>\r\n</root>",
                       "dataType": "application/xml"
                   },
                   "binary": {
@@ -6261,8 +6261,8 @@ export const localShareDataTest: LocalShareData = {
               "name": "raw-javascript",
               "version": "1.0",
               "type": "api",
-              "creator": "初始普通用户",
-              "maintainer": "初始普通用户",
+              "creator": "初始普通用�?,
+              "maintainer": "初始普通用�?,
               "spendTime": 0
           },
           "item": {
@@ -6362,8 +6362,8 @@ export const localShareDataTest: LocalShareData = {
               "name": "binary",
               "version": "1.0",
               "type": "api",
-              "creator": "初始普通用户",
-              "maintainer": "初始普通用户",
+              "creator": "初始普通用�?,
+              "maintainer": "初始普通用�?,
               "spendTime": 0
           },
           "item": {
@@ -6463,7 +6463,7 @@ export const localShareDataTest: LocalShareData = {
               "name": "返回结果",
               "version": "1.0",
               "type": "folder",
-              "creator": "初始普通用户"
+              "creator": "初始普通用�?
           },
           "item": {
               "method": "GET",
@@ -6523,8 +6523,8 @@ export const localShareDataTest: LocalShareData = {
               "name": "json返回",
               "version": "1.0",
               "type": "api",
-              "creator": "初始普通用户",
-              "maintainer": "初始普通用户",
+              "creator": "初始普通用�?,
+              "maintainer": "初始普通用�?,
               "spendTime": 0
           },
           "item": {
@@ -6624,8 +6624,8 @@ export const localShareDataTest: LocalShareData = {
               "name": "海量json返回",
               "version": "1.0",
               "type": "api",
-              "creator": "初始普通用户",
-              "maintainer": "初始普通用户",
+              "creator": "初始普通用�?,
+              "maintainer": "初始普通用�?,
               "spendTime": 0
           },
           "item": {
@@ -6752,7 +6752,7 @@ export const localShareDataTest: LocalShareData = {
               "name": "文本类型",
               "version": "1.0",
               "type": "folder",
-              "creator": "初始普通用户"
+              "creator": "初始普通用�?
           },
           "item": {
               "method": "GET",
@@ -6812,7 +6812,7 @@ export const localShareDataTest: LocalShareData = {
               "name": "css",
               "version": "1.0",
               "type": "folder",
-              "creator": "初始普通用户"
+              "creator": "初始普通用�?
           },
           "item": {
               "method": "GET",
@@ -6872,7 +6872,7 @@ export const localShareDataTest: LocalShareData = {
               "name": "json",
               "version": "1.0",
               "type": "folder",
-              "creator": "初始普通用户"
+              "creator": "初始普通用�?
           },
           "item": {
               "method": "GET",
@@ -6932,8 +6932,8 @@ export const localShareDataTest: LocalShareData = {
               "name": "css返回",
               "version": "1.0",
               "type": "api",
-              "creator": "初始普通用户",
-              "maintainer": "初始普通用户",
+              "creator": "初始普通用�?,
+              "maintainer": "初始普通用�?,
               "spendTime": 0
           },
           "item": {
@@ -7033,7 +7033,7 @@ export const localShareDataTest: LocalShareData = {
               "name": "html",
               "version": "1.0",
               "type": "folder",
-              "creator": "初始普通用户"
+              "creator": "初始普通用�?
           },
           "item": {
               "method": "GET",
@@ -7093,7 +7093,7 @@ export const localShareDataTest: LocalShareData = {
               "name": "js",
               "version": "1.0",
               "type": "folder",
-              "creator": "初始普通用户"
+              "creator": "初始普通用�?
           },
           "item": {
               "method": "GET",
@@ -7153,7 +7153,7 @@ export const localShareDataTest: LocalShareData = {
               "name": "txt",
               "version": "1.0",
               "type": "folder",
-              "creator": "初始普通用户"
+              "creator": "初始普通用�?
           },
           "item": {
               "method": "GET",
@@ -7213,7 +7213,7 @@ export const localShareDataTest: LocalShareData = {
               "name": "xml",
               "version": "1.0",
               "type": "folder",
-              "creator": "初始普通用户"
+              "creator": "初始普通用�?
           },
           "item": {
               "method": "GET",
@@ -7273,8 +7273,8 @@ export const localShareDataTest: LocalShareData = {
               "name": "html返回",
               "version": "1.0",
               "type": "api",
-              "creator": "初始普通用户",
-              "maintainer": "初始普通用户",
+              "creator": "初始普通用�?,
+              "maintainer": "初始普通用�?,
               "spendTime": 0
           },
           "item": {
@@ -7374,8 +7374,8 @@ export const localShareDataTest: LocalShareData = {
               "name": "海量html返回",
               "version": "1.0",
               "type": "api",
-              "creator": "初始普通用户",
-              "maintainer": "初始普通用户",
+              "creator": "初始普通用�?,
+              "maintainer": "初始普通用�?,
               "spendTime": 0
           },
           "item": {
@@ -7475,8 +7475,8 @@ export const localShareDataTest: LocalShareData = {
               "name": "js返回",
               "version": "1.0",
               "type": "api",
-              "creator": "初始普通用户",
-              "maintainer": "初始普通用户",
+              "creator": "初始普通用�?,
+              "maintainer": "初始普通用�?,
               "spendTime": 0
           },
           "item": {
@@ -7576,8 +7576,8 @@ export const localShareDataTest: LocalShareData = {
               "name": "海量js返回",
               "version": "1.0",
               "type": "api",
-              "creator": "初始普通用户",
-              "maintainer": "初始普通用户",
+              "creator": "初始普通用�?,
+              "maintainer": "初始普通用�?,
               "spendTime": 0
           },
           "item": {
@@ -7677,8 +7677,8 @@ export const localShareDataTest: LocalShareData = {
               "name": "txt返回",
               "version": "1.0",
               "type": "api",
-              "creator": "初始普通用户",
-              "maintainer": "初始普通用户",
+              "creator": "初始普通用�?,
+              "maintainer": "初始普通用�?,
               "spendTime": 0
           },
           "item": {
@@ -7778,8 +7778,8 @@ export const localShareDataTest: LocalShareData = {
               "name": "海量txt返回",
               "version": "1.0",
               "type": "api",
-              "creator": "初始普通用户",
-              "maintainer": "初始普通用户",
+              "creator": "初始普通用�?,
+              "maintainer": "初始普通用�?,
               "spendTime": 0
           },
           "item": {
@@ -7879,8 +7879,8 @@ export const localShareDataTest: LocalShareData = {
               "name": "xml返回",
               "version": "1.0",
               "type": "api",
-              "creator": "初始普通用户",
-              "maintainer": "初始普通用户",
+              "creator": "初始普通用�?,
+              "maintainer": "初始普通用�?,
               "spendTime": 0
           },
           "item": {
@@ -7980,8 +7980,8 @@ export const localShareDataTest: LocalShareData = {
               "name": "海量xml返回",
               "version": "1.0",
               "type": "api",
-              "creator": "初始普通用户",
-              "maintainer": "初始普通用户",
+              "creator": "初始普通用�?,
+              "maintainer": "初始普通用�?,
               "spendTime": 0
           },
           "item": {
@@ -8081,8 +8081,8 @@ export const localShareDataTest: LocalShareData = {
               "name": "海量css返回",
               "version": "1.0",
               "type": "api",
-              "creator": "初始普通用户",
-              "maintainer": "初始普通用户",
+              "creator": "初始普通用�?,
+              "maintainer": "初始普通用�?,
               "spendTime": 0
           },
           "item": {
@@ -8209,8 +8209,8 @@ export const localShareDataTest: LocalShareData = {
               "name": "docx返回",
               "version": "1.0",
               "type": "api",
-              "creator": "初始普通用户",
-              "maintainer": "初始普通用户",
+              "creator": "初始普通用�?,
+              "maintainer": "初始普通用�?,
               "spendTime": 0
           },
           "item": {
@@ -8310,7 +8310,7 @@ export const localShareDataTest: LocalShareData = {
               "name": "office类型",
               "version": "1.0",
               "type": "folder",
-              "creator": "初始普通用户"
+              "creator": "初始普通用�?
           },
           "item": {
               "method": "GET",
@@ -8369,7 +8369,7 @@ export const localShareDataTest: LocalShareData = {
               "name": "pdf",
               "version": "1.0",
               "type": "folder",
-              "creator": "初始普通用户"
+              "creator": "初始普通用�?
           },
           "item": {
               "method": "GET",
@@ -8428,7 +8428,7 @@ export const localShareDataTest: LocalShareData = {
               "name": "docx",
               "version": "1.0",
               "type": "folder",
-              "creator": "初始普通用户"
+              "creator": "初始普通用�?
           },
           "item": {
               "method": "GET",
@@ -8487,8 +8487,8 @@ export const localShareDataTest: LocalShareData = {
               "name": "pdf返回",
               "version": "1.0",
               "type": "api",
-              "creator": "初始普通用户",
-              "maintainer": "初始普通用户",
+              "creator": "初始普通用�?,
+              "maintainer": "初始普通用�?,
               "spendTime": 0
           },
           "item": {
@@ -8588,7 +8588,7 @@ export const localShareDataTest: LocalShareData = {
               "name": "xls",
               "version": "1.0",
               "type": "folder",
-              "creator": "初始普通用户"
+              "creator": "初始普通用�?
           },
           "item": {
               "method": "GET",
@@ -8647,7 +8647,7 @@ export const localShareDataTest: LocalShareData = {
               "name": "xlsx",
               "version": "1.0",
               "type": "folder",
-              "creator": "初始普通用户"
+              "creator": "初始普通用�?
           },
           "item": {
               "method": "GET",
@@ -8706,7 +8706,7 @@ export const localShareDataTest: LocalShareData = {
               "name": "ppt",
               "version": "1.0",
               "type": "folder",
-              "creator": "初始普通用户"
+              "creator": "初始普通用�?
           },
           "item": {
               "method": "GET",
@@ -8765,7 +8765,7 @@ export const localShareDataTest: LocalShareData = {
               "name": "doc",
               "version": "1.0",
               "type": "folder",
-              "creator": "初始普通用户"
+              "creator": "初始普通用�?
           },
           "item": {
               "method": "GET",
@@ -8824,8 +8824,8 @@ export const localShareDataTest: LocalShareData = {
               "name": "xls返回",
               "version": "1.0",
               "type": "api",
-              "creator": "初始普通用户",
-              "maintainer": "初始普通用户",
+              "creator": "初始普通用�?,
+              "maintainer": "初始普通用�?,
               "spendTime": 0
           },
           "item": {
@@ -8925,8 +8925,8 @@ export const localShareDataTest: LocalShareData = {
               "name": "xlsx返回",
               "version": "1.0",
               "type": "api",
-              "creator": "初始普通用户",
-              "maintainer": "初始普通用户",
+              "creator": "初始普通用�?,
+              "maintainer": "初始普通用�?,
               "spendTime": 0
           },
           "item": {
@@ -9026,8 +9026,8 @@ export const localShareDataTest: LocalShareData = {
               "name": "ppt返回",
               "version": "1.0",
               "type": "api",
-              "creator": "初始普通用户",
-              "maintainer": "初始普通用户",
+              "creator": "初始普通用�?,
+              "maintainer": "初始普通用�?,
               "spendTime": 0
           },
           "item": {
@@ -9127,8 +9127,8 @@ export const localShareDataTest: LocalShareData = {
               "name": "doc返回",
               "version": "1.0",
               "type": "api",
-              "creator": "初始普通用户",
-              "maintainer": "初始普通用户",
+              "creator": "初始普通用�?,
+              "maintainer": "初始普通用�?,
               "spendTime": 0
           },
           "item": {
@@ -9228,8 +9228,8 @@ export const localShareDataTest: LocalShareData = {
               "name": "png返回",
               "version": "1.0",
               "type": "api",
-              "creator": "初始普通用户",
-              "maintainer": "初始普通用户",
+              "creator": "初始普通用�?,
+              "maintainer": "初始普通用�?,
               "spendTime": 0
           },
           "item": {
@@ -9329,7 +9329,7 @@ export const localShareDataTest: LocalShareData = {
               "name": "图片类型",
               "version": "1.0",
               "type": "folder",
-              "creator": "初始普通用户"
+              "creator": "初始普通用�?
           },
           "item": {
               "method": "GET",
@@ -9388,7 +9388,7 @@ export const localShareDataTest: LocalShareData = {
               "name": "jpg/jpeg",
               "version": "1.0",
               "type": "folder",
-              "creator": "初始普通用户"
+              "creator": "初始普通用�?
           },
           "item": {
               "method": "GET",
@@ -9447,7 +9447,7 @@ export const localShareDataTest: LocalShareData = {
               "name": "png",
               "version": "1.0",
               "type": "folder",
-              "creator": "初始普通用户"
+              "creator": "初始普通用�?
           },
           "item": {
               "method": "GET",
@@ -9506,8 +9506,8 @@ export const localShareDataTest: LocalShareData = {
               "name": "jpg返回",
               "version": "1.0",
               "type": "api",
-              "creator": "初始普通用户",
-              "maintainer": "初始普通用户",
+              "creator": "初始普通用�?,
+              "maintainer": "初始普通用�?,
               "spendTime": 0
           },
           "item": {
@@ -9607,7 +9607,7 @@ export const localShareDataTest: LocalShareData = {
               "name": "gif",
               "version": "1.0",
               "type": "folder",
-              "creator": "初始普通用户"
+              "creator": "初始普通用�?
           },
           "item": {
               "method": "GET",
@@ -9666,7 +9666,7 @@ export const localShareDataTest: LocalShareData = {
               "name": "webp",
               "version": "1.0",
               "type": "folder",
-              "creator": "初始普通用户"
+              "creator": "初始普通用�?
           },
           "item": {
               "method": "GET",
@@ -9725,7 +9725,7 @@ export const localShareDataTest: LocalShareData = {
               "name": "bmp",
               "version": "1.0",
               "type": "folder",
-              "creator": "初始普通用户"
+              "creator": "初始普通用�?
           },
           "item": {
               "method": "GET",
@@ -9784,7 +9784,7 @@ export const localShareDataTest: LocalShareData = {
               "name": "svg",
               "version": "1.0",
               "type": "folder",
-              "creator": "初始普通用户"
+              "creator": "初始普通用�?
           },
           "item": {
               "method": "GET",
@@ -9843,8 +9843,8 @@ export const localShareDataTest: LocalShareData = {
               "name": "gif返回",
               "version": "1.0",
               "type": "api",
-              "creator": "初始普通用户",
-              "maintainer": "初始普通用户",
+              "creator": "初始普通用�?,
+              "maintainer": "初始普通用�?,
               "spendTime": 0
           },
           "item": {
@@ -9944,8 +9944,8 @@ export const localShareDataTest: LocalShareData = {
               "name": "webp返回",
               "version": "1.0",
               "type": "api",
-              "creator": "初始普通用户",
-              "maintainer": "初始普通用户",
+              "creator": "初始普通用�?,
+              "maintainer": "初始普通用�?,
               "spendTime": 0
           },
           "item": {
@@ -10045,8 +10045,8 @@ export const localShareDataTest: LocalShareData = {
               "name": "bmp返回",
               "version": "1.0",
               "type": "api",
-              "creator": "初始普通用户",
-              "maintainer": "初始普通用户",
+              "creator": "初始普通用�?,
+              "maintainer": "初始普通用�?,
               "spendTime": 0
           },
           "item": {
@@ -10146,8 +10146,8 @@ export const localShareDataTest: LocalShareData = {
               "name": "svg返回",
               "version": "1.0",
               "type": "api",
-              "creator": "初始普通用户",
-              "maintainer": "初始普通用户",
+              "creator": "初始普通用�?,
+              "maintainer": "初始普通用�?,
               "spendTime": 0
           },
           "item": {
@@ -10247,7 +10247,7 @@ export const localShareDataTest: LocalShareData = {
               "name": "csv",
               "version": "1.0",
               "type": "folder",
-              "creator": "初始普通用户"
+              "creator": "初始普通用�?
           },
           "item": {
               "method": "GET",
@@ -10307,7 +10307,7 @@ export const localShareDataTest: LocalShareData = {
               "name": "markdown",
               "version": "1.0",
               "type": "folder",
-              "creator": "初始普通用户"
+              "creator": "初始普通用�?
           },
           "item": {
               "method": "GET",
@@ -10367,8 +10367,8 @@ export const localShareDataTest: LocalShareData = {
               "name": "csv返回",
               "version": "1.0",
               "type": "api",
-              "creator": "初始普通用户",
-              "maintainer": "初始普通用户",
+              "creator": "初始普通用�?,
+              "maintainer": "初始普通用�?,
               "spendTime": 0
           },
           "item": {
@@ -10468,8 +10468,8 @@ export const localShareDataTest: LocalShareData = {
               "name": "海量csv返回",
               "version": "1.0",
               "type": "api",
-              "creator": "初始普通用户",
-              "maintainer": "初始普通用户",
+              "creator": "初始普通用�?,
+              "maintainer": "初始普通用�?,
               "spendTime": 0
           },
           "item": {
@@ -10569,7 +10569,7 @@ export const localShareDataTest: LocalShareData = {
               "name": "pptx",
               "version": "1.0",
               "type": "folder",
-              "creator": "初始普通用户"
+              "creator": "初始普通用�?
           },
           "item": {
               "method": "GET",
@@ -10628,8 +10628,8 @@ export const localShareDataTest: LocalShareData = {
               "name": "pptx返回",
               "version": "1.0",
               "type": "api",
-              "creator": "初始普通用户",
-              "maintainer": "初始普通用户",
+              "creator": "初始普通用�?,
+              "maintainer": "初始普通用�?,
               "spendTime": 0
           },
           "item": {
@@ -10726,11 +10726,11 @@ export const localShareDataTest: LocalShareData = {
           "isFolder": false,
           "sort": 1748074574941,
           "info": {
-              "name": "doc大文件返回",
+              "name": "doc大文件返�?,
               "version": "1.0",
               "type": "api",
-              "creator": "初始普通用户",
-              "maintainer": "初始普通用户",
+              "creator": "初始普通用�?,
+              "maintainer": "初始普通用�?,
               "spendTime": 0
           },
           "item": {
@@ -10830,7 +10830,7 @@ export const localShareDataTest: LocalShareData = {
               "name": "ico",
               "version": "1.0",
               "type": "folder",
-              "creator": "初始普通用户"
+              "creator": "初始普通用�?
           },
           "item": {
               "method": "GET",
@@ -10890,8 +10890,8 @@ export const localShareDataTest: LocalShareData = {
               "name": "ico返回",
               "version": "1.0",
               "type": "api",
-              "creator": "初始普通用户",
-              "maintainer": "初始普通用户",
+              "creator": "初始普通用�?,
+              "maintainer": "初始普通用�?,
               "spendTime": 0
           },
           "item": {
@@ -10991,7 +10991,7 @@ export const localShareDataTest: LocalShareData = {
               "name": "音频",
               "version": "1.0",
               "type": "folder",
-              "creator": "初始普通用户"
+              "creator": "初始普通用�?
           },
           "item": {
               "method": "GET",
@@ -11051,8 +11051,8 @@ export const localShareDataTest: LocalShareData = {
               "name": "wav返回",
               "version": "1.0",
               "type": "api",
-              "creator": "初始普通用户",
-              "maintainer": "初始普通用户",
+              "creator": "初始普通用�?,
+              "maintainer": "初始普通用�?,
               "spendTime": 0
           },
           "item": {
@@ -11152,7 +11152,7 @@ export const localShareDataTest: LocalShareData = {
               "name": "wav",
               "version": "1.0",
               "type": "folder",
-              "creator": "初始普通用户"
+              "creator": "初始普通用�?
           },
           "item": {
               "method": "GET",
@@ -11211,7 +11211,7 @@ export const localShareDataTest: LocalShareData = {
               "name": "mp3",
               "version": "1.0",
               "type": "folder",
-              "creator": "初始普通用户"
+              "creator": "初始普通用�?
           },
           "item": {
               "method": "GET",
@@ -11270,7 +11270,7 @@ export const localShareDataTest: LocalShareData = {
               "name": "flac",
               "version": "1.0",
               "type": "folder",
-              "creator": "初始普通用户"
+              "creator": "初始普通用�?
           },
           "item": {
               "method": "GET",
@@ -11329,7 +11329,7 @@ export const localShareDataTest: LocalShareData = {
               "name": "ogg",
               "version": "1.0",
               "type": "folder",
-              "creator": "初始普通用户"
+              "creator": "初始普通用�?
           },
           "item": {
               "method": "GET",
@@ -11388,8 +11388,8 @@ export const localShareDataTest: LocalShareData = {
               "name": "mp3返回",
               "version": "1.0",
               "type": "api",
-              "creator": "初始普通用户",
-              "maintainer": "初始普通用户",
+              "creator": "初始普通用�?,
+              "maintainer": "初始普通用�?,
               "spendTime": 0
           },
           "item": {
@@ -11489,8 +11489,8 @@ export const localShareDataTest: LocalShareData = {
               "name": "flac返回",
               "version": "1.0",
               "type": "api",
-              "creator": "初始普通用户",
-              "maintainer": "初始普通用户",
+              "creator": "初始普通用�?,
+              "maintainer": "初始普通用�?,
               "spendTime": 0
           },
           "item": {
@@ -11590,8 +11590,8 @@ export const localShareDataTest: LocalShareData = {
               "name": "ogg返回",
               "version": "1.0",
               "type": "api",
-              "creator": "初始普通用户",
-              "maintainer": "初始普通用户",
+              "creator": "初始普通用�?,
+              "maintainer": "初始普通用�?,
               "spendTime": 0
           },
           "item": {
@@ -11691,7 +11691,7 @@ export const localShareDataTest: LocalShareData = {
               "name": "视频",
               "version": "1.0",
               "type": "folder",
-              "creator": "初始普通用户"
+              "creator": "初始普通用�?
           },
           "item": {
               "method": "GET",
@@ -11751,8 +11751,8 @@ export const localShareDataTest: LocalShareData = {
               "name": "avi返回",
               "version": "1.0",
               "type": "api",
-              "creator": "初始普通用户",
-              "maintainer": "初始普通用户",
+              "creator": "初始普通用�?,
+              "maintainer": "初始普通用�?,
               "spendTime": 0
           },
           "item": {
@@ -11852,7 +11852,7 @@ export const localShareDataTest: LocalShareData = {
               "name": "mp4",
               "version": "1.0",
               "type": "folder",
-              "creator": "初始普通用户"
+              "creator": "初始普通用�?
           },
           "item": {
               "method": "GET",
@@ -11911,7 +11911,7 @@ export const localShareDataTest: LocalShareData = {
               "name": "avi",
               "version": "1.0",
               "type": "folder",
-              "creator": "初始普通用户"
+              "creator": "初始普通用�?
           },
           "item": {
               "method": "GET",
@@ -11970,8 +11970,8 @@ export const localShareDataTest: LocalShareData = {
               "name": "mp4返回",
               "version": "1.0",
               "type": "api",
-              "creator": "初始普通用户",
-              "maintainer": "初始普通用户",
+              "creator": "初始普通用�?,
+              "maintainer": "初始普通用�?,
               "spendTime": 0
           },
           "item": {
@@ -12071,7 +12071,7 @@ export const localShareDataTest: LocalShareData = {
               "name": "mkv",
               "version": "1.0",
               "type": "folder",
-              "creator": "初始普通用户"
+              "creator": "初始普通用�?
           },
           "item": {
               "method": "GET",
@@ -12130,7 +12130,7 @@ export const localShareDataTest: LocalShareData = {
               "name": "mov",
               "version": "1.0",
               "type": "folder",
-              "creator": "初始普通用户"
+              "creator": "初始普通用�?
           },
           "item": {
               "method": "GET",
@@ -12189,7 +12189,7 @@ export const localShareDataTest: LocalShareData = {
               "name": "webm",
               "version": "1.0",
               "type": "folder",
-              "creator": "初始普通用户"
+              "creator": "初始普通用�?
           },
           "item": {
               "method": "GET",
@@ -12248,8 +12248,8 @@ export const localShareDataTest: LocalShareData = {
               "name": "mkv返回",
               "version": "1.0",
               "type": "api",
-              "creator": "初始普通用户",
-              "maintainer": "初始普通用户",
+              "creator": "初始普通用�?,
+              "maintainer": "初始普通用�?,
               "spendTime": 0
           },
           "item": {
@@ -12349,8 +12349,8 @@ export const localShareDataTest: LocalShareData = {
               "name": "mov返回",
               "version": "1.0",
               "type": "api",
-              "creator": "初始普通用户",
-              "maintainer": "初始普通用户",
+              "creator": "初始普通用�?,
+              "maintainer": "初始普通用�?,
               "spendTime": 0
           },
           "item": {
@@ -12450,8 +12450,8 @@ export const localShareDataTest: LocalShareData = {
               "name": "webm返回",
               "version": "1.0",
               "type": "api",
-              "creator": "初始普通用户",
-              "maintainer": "初始普通用户",
+              "creator": "初始普通用�?,
+              "maintainer": "初始普通用�?,
               "spendTime": 0
           },
           "item": {
@@ -12548,10 +12548,10 @@ export const localShareDataTest: LocalShareData = {
           "isFolder": true,
           "sort": 1748321401495,
           "info": {
-              "name": "压缩包",
+              "name": "压缩�?,
               "version": "1.0",
               "type": "folder",
-              "creator": "初始普通用户"
+              "creator": "初始普通用�?
           },
           "item": {
               "method": "GET",
@@ -12611,7 +12611,7 @@ export const localShareDataTest: LocalShareData = {
               "name": "zip",
               "version": "1.0",
               "type": "folder",
-              "creator": "初始普通用户"
+              "creator": "初始普通用�?
           },
           "item": {
               "method": "GET",
@@ -12671,7 +12671,7 @@ export const localShareDataTest: LocalShareData = {
               "name": "rar",
               "version": "1.0",
               "type": "folder",
-              "creator": "初始普通用户"
+              "creator": "初始普通用�?
           },
           "item": {
               "method": "GET",
@@ -12731,7 +12731,7 @@ export const localShareDataTest: LocalShareData = {
               "name": "7z",
               "version": "1.0",
               "type": "folder",
-              "creator": "初始普通用户"
+              "creator": "初始普通用�?
           },
           "item": {
               "method": "GET",
@@ -12791,7 +12791,7 @@ export const localShareDataTest: LocalShareData = {
               "name": "tar",
               "version": "1.0",
               "type": "folder",
-              "creator": "初始普通用户"
+              "creator": "初始普通用�?
           },
           "item": {
               "method": "GET",
@@ -12851,8 +12851,8 @@ export const localShareDataTest: LocalShareData = {
               "name": "zip返回",
               "version": "1.0",
               "type": "api",
-              "creator": "初始普通用户",
-              "maintainer": "初始普通用户",
+              "creator": "初始普通用�?,
+              "maintainer": "初始普通用�?,
               "spendTime": 0
           },
           "item": {
@@ -12952,8 +12952,8 @@ export const localShareDataTest: LocalShareData = {
               "name": "rar返回",
               "version": "1.0",
               "type": "api",
-              "creator": "初始普通用户",
-              "maintainer": "初始普通用户",
+              "creator": "初始普通用�?,
+              "maintainer": "初始普通用�?,
               "spendTime": 0
           },
           "item": {
@@ -13053,8 +13053,8 @@ export const localShareDataTest: LocalShareData = {
               "name": "7z返回",
               "version": "1.0",
               "type": "api",
-              "creator": "初始普通用户",
-              "maintainer": "初始普通用户",
+              "creator": "初始普通用�?,
+              "maintainer": "初始普通用�?,
               "spendTime": 0
           },
           "item": {
@@ -13154,8 +13154,8 @@ export const localShareDataTest: LocalShareData = {
               "name": "tar返回",
               "version": "1.0",
               "type": "api",
-              "creator": "初始普通用户",
-              "maintainer": "初始普通用户",
+              "creator": "初始普通用�?,
+              "maintainer": "初始普通用�?,
               "spendTime": 0
           },
           "item": {
@@ -13255,7 +13255,7 @@ export const localShareDataTest: LocalShareData = {
               "name": "其他",
               "version": "1.0",
               "type": "folder",
-              "creator": "初始普通用户"
+              "creator": "初始普通用�?
           },
           "item": {
               "method": "GET",
@@ -13315,7 +13315,7 @@ export const localShareDataTest: LocalShareData = {
               "name": "exe返回",
               "version": "1.0",
               "type": "folder",
-              "creator": "初始普通用户"
+              "creator": "初始普通用�?
           },
           "item": {
               "method": "GET",
@@ -13375,7 +13375,7 @@ export const localShareDataTest: LocalShareData = {
               "name": "epub返回",
               "version": "1.0",
               "type": "folder",
-              "creator": "初始普通用户"
+              "creator": "初始普通用�?
           },
           "item": {
               "method": "GET",
@@ -13435,8 +13435,8 @@ export const localShareDataTest: LocalShareData = {
               "name": "exe返回",
               "version": "1.0",
               "type": "api",
-              "creator": "初始普通用户",
-              "maintainer": "初始普通用户",
+              "creator": "初始普通用�?,
+              "maintainer": "初始普通用�?,
               "spendTime": 0
           },
           "item": {
@@ -13536,8 +13536,8 @@ export const localShareDataTest: LocalShareData = {
               "name": "epub返回",
               "version": "1.0",
               "type": "api",
-              "creator": "初始普通用户",
-              "maintainer": "初始普通用户",
+              "creator": "初始普通用�?,
+              "maintainer": "初始普通用�?,
               "spendTime": 0
           },
           "item": {
@@ -13634,10 +13634,10 @@ export const localShareDataTest: LocalShareData = {
           "isFolder": true,
           "sort": 1748578722323,
           "info": {
-              "name": "重定向",
+              "name": "重定�?,
               "version": "1.0",
               "type": "folder",
-              "creator": "初始普通用户"
+              "creator": "初始普通用�?
           },
           "item": {
               "method": "GET",
@@ -13694,11 +13694,11 @@ export const localShareDataTest: LocalShareData = {
           "isFolder": false,
           "sort": 1748578734799,
           "info": {
-              "name": "重定向",
+              "name": "重定�?,
               "version": "1.0",
               "type": "api",
-              "creator": "初始普通用户",
-              "maintainer": "初始普通用户",
+              "creator": "初始普通用�?,
+              "maintainer": "初始普通用�?,
               "spendTime": 0
           },
           "item": {
@@ -13825,7 +13825,7 @@ export const localShareDataTest: LocalShareData = {
               "name": "Cookies",
               "version": "1.0",
               "type": "folder",
-              "creator": "初始普通用户"
+              "creator": "初始普通用�?
           },
           "item": {
               "method": "GET",
@@ -13885,8 +13885,8 @@ export const localShareDataTest: LocalShareData = {
               "name": "获取cookie",
               "version": "1.0",
               "type": "api",
-              "creator": "初始普通用户",
-              "maintainer": "初始普通用户",
+              "creator": "初始普通用�?,
+              "maintainer": "初始普通用�?,
               "spendTime": 0
           },
           "item": {
@@ -14013,10 +14013,10 @@ export const localShareDataTest: LocalShareData = {
               "name": "域名不同",
               "version": "1.0",
               "type": "api",
-              "creator": "初始普通用户",
+              "creator": "初始普通用�?,
               "spendTime": 0,
               "description": "",
-              "maintainer": "初始普通用户"
+              "maintainer": "初始普通用�?
           },
           "item": {
               "method": "GET",
@@ -14115,7 +14115,7 @@ export const localShareDataTest: LocalShareData = {
               "name": "前置脚本验证",
               "version": "1.0",
               "type": "folder",
-              "creator": "初始普通用户"
+              "creator": "初始普通用�?
           },
           "item": {
               "method": "GET",
@@ -14175,8 +14175,8 @@ export const localShareDataTest: LocalShareData = {
               "name": "前置脚本验证-formdata",
               "version": "1.0",
               "type": "api",
-              "creator": "初始普通用户",
-              "maintainer": "初始普通用户",
+              "creator": "初始普通用�?,
+              "maintainer": "初始普通用�?,
               "spendTime": 0
           },
           "item": {
@@ -14313,8 +14313,8 @@ export const localShareDataTest: LocalShareData = {
               "name": "前置脚本验证-json",
               "version": "1.0",
               "type": "api",
-              "creator": "初始普通用户",
-              "maintainer": "初始普通用户",
+              "creator": "初始普通用�?,
+              "maintainer": "初始普通用�?,
               "spendTime": 0
           },
           "item": {
@@ -14451,8 +14451,8 @@ export const localShareDataTest: LocalShareData = {
               "name": "域名和path相同",
               "version": "1.0",
               "type": "api",
-              "creator": "初始普通用户",
-              "maintainer": "初始普通用户",
+              "creator": "初始普通用�?,
+              "maintainer": "初始普通用�?,
               "spendTime": 0
           },
           "item": {
@@ -14552,8 +14552,8 @@ export const localShareDataTest: LocalShareData = {
               "name": "域名相同子path",
               "version": "1.0",
               "type": "api",
-              "creator": "初始普通用户",
-              "maintainer": "初始普通用户",
+              "creator": "初始普通用�?,
+              "maintainer": "初始普通用�?,
               "spendTime": 0
           },
           "item": {
@@ -14653,8 +14653,8 @@ export const localShareDataTest: LocalShareData = {
               "name": "域名相同path不同",
               "version": "1.0",
               "type": "api",
-              "creator": "初始普通用户",
-              "maintainer": "初始普通用户",
+              "creator": "初始普通用�?,
+              "maintainer": "初始普通用�?,
               "spendTime": 0
           },
           "item": {
@@ -14751,11 +14751,11 @@ export const localShareDataTest: LocalShareData = {
           "isFolder": false,
           "sort": 1750598698955,
           "info": {
-              "name": "请求头验证",
+              "name": "请求头验�?,
               "version": "1.0",
               "type": "api",
-              "creator": "初始普通用户",
-              "maintainer": "初始普通用户",
+              "creator": "初始普通用�?,
+              "maintainer": "初始普通用�?,
               "spendTime": 0
           },
           "item": {
@@ -14852,10 +14852,10 @@ export const localShareDataTest: LocalShareData = {
           "isFolder": true,
           "sort": 1750761053029,
           "info": {
-              "name": "回收站",
+              "name": "回收�?,
               "version": "1.0",
               "type": "folder",
-              "creator": "初始普通用户"
+              "creator": "初始普通用�?
           },
           "item": {
               "method": "GET",
@@ -14915,8 +14915,8 @@ export const localShareDataTest: LocalShareData = {
               "name": "文档操作人员列表",
               "version": "1.0",
               "type": "api",
-              "creator": "初始普通用户",
-              "maintainer": "初始普通用户",
+              "creator": "初始普通用�?,
+              "maintainer": "初始普通用�?,
               "spendTime": 0
           },
           "item": {
@@ -15034,7 +15034,7 @@ export const localShareDataTest: LocalShareData = {
               "name": "项目相关",
               "version": "1.0",
               "type": "folder",
-              "creator": "初始普通用户"
+              "creator": "初始普通用�?
           },
           "item": {
               "method": "GET",
@@ -15094,8 +15094,8 @@ export const localShareDataTest: LocalShareData = {
               "name": "获取文档详情",
               "version": "1.0",
               "type": "api",
-              "creator": "初始普通用户",
-              "maintainer": "初始普通用户"
+              "creator": "初始普通用�?,
+              "maintainer": "初始普通用�?
           },
           "item": {
               "method": "GET",
@@ -15212,7 +15212,7 @@ export const localShareDataTest: LocalShareData = {
               "name": "接口分享",
               "version": "1.0",
               "type": "folder",
-              "creator": "初始普通用户"
+              "creator": "初始普通用�?
           },
           "item": {
               "method": "GET",
@@ -15272,8 +15272,8 @@ export const localShareDataTest: LocalShareData = {
               "name": "获取分享详情",
               "version": "1.0",
               "type": "api",
-              "creator": "初始普通用户",
-              "maintainer": "初始普通用户"
+              "creator": "初始普通用�?,
+              "maintainer": "初始普通用�?
           },
           "item": {
               "method": "GET",
@@ -15381,8 +15381,8 @@ export const localShareDataTest: LocalShareData = {
               "name": "获取分享的banner信息",
               "version": "1.0",
               "type": "api",
-              "creator": "初始普通用户",
-              "maintainer": "初始普通用户"
+              "creator": "初始普通用�?,
+              "maintainer": "初始普通用�?
           },
           "item": {
               "method": "GET",
@@ -15499,8 +15499,8 @@ export const localShareDataTest: LocalShareData = {
               "name": "请求展示",
               "version": "1.0",
               "type": "api",
-              "creator": "初始普通用户",
-              "maintainer": "初始普通用户"
+              "creator": "初始普通用�?,
+              "maintainer": "初始普通用�?
           },
           "item": {
               "method": "POST",
@@ -15658,8 +15658,8 @@ export const localShareDataTest: LocalShareData = {
               "name": "导出为html",
               "version": "1.0",
               "type": "api",
-              "creator": "初始普通用户",
-              "maintainer": "初始普通用户"
+              "creator": "初始普通用�?,
+              "maintainer": "初始普通用�?
           },
           "item": {
               "method": "POST",

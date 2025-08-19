@@ -199,7 +199,7 @@ const handleChangeEditNode = (row: HostInfo) => {
 //提交编辑
 const handleSubmitEdit = (row: HostInfo) => {
   if (!errorInfo.value.error) {
-    const originHost = apidocStore.apidoc.item.url.host;
+    const originHost = apidocStore.apidoc.item.url.prefix;
     const isEditCurrenSelectedHost = originHost === row._originValue;
     if (row.isLocal) {
       const serverInfo = {
@@ -212,7 +212,7 @@ const handleSubmitEdit = (row: HostInfo) => {
       apidocCache.addApidocServer(serverInfo, projectId);
       editItem.value = null;
       if (isEditCurrenSelectedHost) { //同时修改本地server
-        apidocStore.changeApidocHost(row.url)
+        apidocStore.changeApidocPrefix(row.url)
       }
       getTableData()
       return;
@@ -227,7 +227,7 @@ const handleSubmitEdit = (row: HostInfo) => {
       ElMessage.success(t('修改成功'));
       apidocBaseInfoStore.updateHostById(params);
       if (isEditCurrenSelectedHost) { //同时修改本地server
-        apidocStore.changeApidocHost(row.url)
+        apidocStore.changeApidocPrefix(row.url)
       }
       editItem.value = null;
     }).catch((err) => {

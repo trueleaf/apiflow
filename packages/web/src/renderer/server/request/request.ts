@@ -443,7 +443,7 @@ export async function sendRequest() {
         responseInfo.redirectList = cloneDeep(redirectList.value); // 记录重定向列表
         changeResponseInfo(responseInfo);
         changeFileBlobUrl(rawBody as Uint8Array, responseInfo.contentType);
-        updateCookiesBySetCookieHeader(setCookieStrList, responseInfo.requestData.host, projectId);
+        updateCookiesBySetCookieHeader(setCookieStrList, responseInfo.requestData.prefix, projectId);
         console.log('responseInfo', responseInfo)
         const storedResponseInfo = cloneDeep(responseInfo);
         storedResponseInfo.body = rawBody;
@@ -584,7 +584,7 @@ export async function sendRequest() {
       })
       copiedApidoc.item.requestBody.formdata = newParams
     } else if (e.data.type === 'pre-request-set-url') {
-      copiedApidoc.item.url.host = '';
+      copiedApidoc.item.url.prefix = '';
       copiedApidoc.item.url.path = e.data.value;
     } else if (e.data.type === 'pre-request-set-cookie') {
       finalCookies = e.data.value;

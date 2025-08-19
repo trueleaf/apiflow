@@ -17,6 +17,7 @@ import tips from './tips'
 import { ApidocProjectBaseInfoState } from '@src/types/apidoc/base-info';
 import { ApidocTab } from '@src/types/apidoc/tabs.ts';
 import i18next from 'i18next';
+import { WebSocketNode } from '@src/types/websocket/websocket.ts';
 
 type Data = Record<string, unknown>
 
@@ -430,7 +431,7 @@ export function apidocGenerateApidoc(id?: string): HttpNode {
     item: {
       method: 'GET',
       url: {
-        host: '',
+        prefix: '',
         path: '',
       },
       paths: [],
@@ -700,7 +701,7 @@ export function arrayToTree<T extends { _id: string; pid: string }>(list: T[]): 
 
 type ShareTreeNode = HttpNode & { children: ShareTreeNode[] }
 
-export function convertDocsToBanner(docs: HttpNode[] = []): ApidocBanner[] {
+export function convertDocsToBanner(docs: (HttpNode | WebSocketNode)[] = []): ApidocBanner[] {
   const treeData = arrayToTree(docs);
   const copyTreeData = cloneDeep(treeData)
   const banner: ApidocBanner[] = []
@@ -741,7 +742,7 @@ export function convertDocsToBanner(docs: HttpNode[] = []): ApidocBanner[] {
   return banner
 }
 
-export function convertDocsToFolder(docs: HttpNode[] = []): ApidocBanner[] {
+export function convertDocsToFolder(docs: (HttpNode | WebSocketNode)[] = []): ApidocBanner[] {
   const treeData = arrayToTree(docs);
   const copyTreeData = cloneDeep(treeData)
   const banner: ApidocBanner[] = []

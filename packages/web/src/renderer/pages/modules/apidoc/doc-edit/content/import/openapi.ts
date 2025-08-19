@@ -204,7 +204,7 @@ class OpenApiTranslator {
           moyuDoc.info.description = pathItemObject.description || ''; //文档备注
           moyuDoc.info.type = 'api';
           moyuDoc.item.method = matchedMethodKey.toUpperCase() as ApidocHttpRequestMethod;
-          moyuDoc.item.url.host = serversInfo[0] ? serversInfo[0].url : '';
+          moyuDoc.item.url.prefix = serversInfo[0] ? serversInfo[0].url : '';
           moyuDoc.item.url.path = reqUrl;
           const parameters = this.convertParameters(pathItemObject.parameters);
           const requestBody = this.convertRequestBody(pathItemObject.requestBody);

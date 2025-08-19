@@ -53,7 +53,7 @@ class PostmanTranslator {
             doc.item.url.path = item.request.url?.path?.join('/');
           }
           if (item.request.url?.host?.length > 0) {
-            doc.item.url.host = `${item.request.url?.protocol ? `${item.request.url?.protocol}://` : ''}${item.request.url?.host?.join('/')}`;
+            doc.item.url.prefix = `${item.request.url?.protocol ? `${item.request.url?.protocol}://` : ''}${item.request.url?.host?.join('/')}`;
           }
           doc.item.queryParams = item.request.url.query?.map((v: any) => ({
             ...apidocGenerateProperty(),

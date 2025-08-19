@@ -79,7 +79,7 @@ export function handleFormatUrl():void {
       apidocStore.changeApidocUrl(path)
     },
   });
-    // const currentHost = computed<string>(() => store.state["apidoc/apidoc"].apidoc.item.url.host);
+    // const currentPrefix = computed<string>(() => store.state["apidoc/apidoc"].apidoc.item.url.prefix);
     // const hostEnum = computed<ApidocProjectHost[]>(() => {
     //     const localData = apidocCache.getApidocServer(projectId)
     //     return store.state["apidoc/baseInfo"].hosts.concat(localData)
