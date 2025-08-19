@@ -482,7 +482,7 @@ export type ApidocBanner = {
   /**
    * 文档类型
    */
-  type: 'folder' | 'api' | 'markdown';
+  type: 'folder' | 'api' | 'markdown' | "websocket";
   /**
    * 排序值
    */

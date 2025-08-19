@@ -16,6 +16,7 @@ export type ApidocTabType =
   'commonHeader' |
   'apiflow' |
   'cookies' |
+  'websocket' |
   'prefix'
 export type ApidocTab = {
   /**
