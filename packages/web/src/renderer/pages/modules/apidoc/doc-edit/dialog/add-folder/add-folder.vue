@@ -23,7 +23,6 @@ import { useRoute } from 'vue-router';
 import { generateEmptyNode } from '@/helper/standaloneUtils';
 import { nanoid } from 'nanoid';
 import { standaloneCache } from '@/cache/standalone';
-import { useApidocBanner } from '@/store/apidoc/banner';
 
 const props = defineProps({
   modelValue: {
@@ -43,7 +42,6 @@ const { t } = useTranslation()
 
 const loading = ref(false);
 const route = useRoute()
-const apidocBannerStore = useApidocBanner();
 /*
 |--------------------------------------------------------------------------
 | 方法定义

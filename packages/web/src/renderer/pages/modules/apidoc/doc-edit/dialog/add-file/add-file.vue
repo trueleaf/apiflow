@@ -15,7 +15,7 @@
       </el-form-item>
       <el-form-item :label="t('接口类型')" prop="type">
         <el-radio-group v-model="formData.type">
-          <el-radio value="http">HTTP</el-radio>
+          <el-radio value="api">HTTP</el-radio>
           <el-radio value="websocket">WebSocket</el-radio>
         </el-radio-group>
       </el-form-item>
@@ -57,7 +57,7 @@ const form = ref<FormInstance>();
 const nameInput = ref<InstanceType<typeof ElInput>>();
 const route = useRoute()
 const formData = ref({
-  type: 'http',
+  type: 'api',
   name: ''
 })
 const formRules = {
@@ -96,7 +96,7 @@ const handleAddFile = () => {
         pid: nodeInfo.pid,
         sort: nodeInfo.sort,
         name: nodeInfo.info.name,
-        type: 'api',
+        type: formData.value.type,
         method: nodeInfo.item.method,
         url: nodeInfo.item.url ? nodeInfo.item.url.path : '',
         maintainer: nodeInfo.info.maintainer,
@@ -130,7 +130,7 @@ const handleAddFile = () => {
   });
 }
 const handleClose = () => {
-  formData.value.type = 'http';
+  formData.value.type = 'api';
   formData.value.name = '';
   form.value?.resetFields();
   emits('update:modelValue', false);

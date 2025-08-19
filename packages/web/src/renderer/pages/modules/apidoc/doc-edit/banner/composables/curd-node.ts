@@ -155,7 +155,7 @@ export function addFileAndFolderCb(currentOperationalNode: Ref<ApidocBanner | nu
           opData: currentOperationalNode.value.children,
         })
       }
-    } else { //如果是文档
+    } else if (data) { //如果是http接口或者websocket接口
       apidocBannerStore.splice({
         start: currentOperationalNode.value.children.length,
         deleteCount: 0,
@@ -208,12 +208,27 @@ export function addFileAndFolderCb(currentOperationalNode: Ref<ApidocBanner | nu
       children: [],
     });
   }
-  if (!data.isFolder) {
+  if (data.type === 'api') {
     const projectId = router.currentRoute.value.query.id as string;
     apidocTabsStore.addTab({
       _id: data._id,
       projectId,
       tabType: 'doc',
+      label: data.name,
+      saved: true,
+      fixed: true,
+      selected: true,
+      head: {
+        icon: data.method,
+        color: ''
+      }
+    })
+  } else if (data.type === 'websocket') {
+    const projectId = router.currentRoute.value.query.id as string;
+    apidocTabsStore.addTab({
+      _id: data._id,
+      projectId,
+      tabType: 'websocket',
       label: data.name,
       saved: true,
       fixed: true,
