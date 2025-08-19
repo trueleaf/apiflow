@@ -1,4 +1,5 @@
-import type { ApidocProjectInfo, ApidocDetail } from '@src/types';
+import type { ApidocProjectInfo, HttpNode } from '@src/types';
+import { WebSocketNode } from '@src/types/websocket/websocket.ts';
 
 export const generateEmptyProject = (_id: string): ApidocProjectInfo => {
   return {
@@ -16,7 +17,7 @@ export const generateEmptyProject = (_id: string): ApidocProjectInfo => {
   }
 }
 
-export const generateEmptyNode = (_id: string): ApidocDetail => {
+export const generateEmptyNode = (_id: string): HttpNode => {
   return {
     _id,
     pid: '',
@@ -92,5 +93,33 @@ export const generateEmptyNode = (_id: string): ApidocDetail => {
       text: '',
       customResponseScript: ''
     }
+  }
+}
+export const generateEmptyWebsocketNode = (_id: string): WebSocketNode => {
+  return {
+    _id,
+    pid: '',
+    projectId: '',
+    sort: 0,
+    info: {
+      name: '',
+      description: '',
+      version: '1.0.0',
+      type: 'websocket',
+      creator: '',
+      maintainer: '',
+      deletePerson: '',
+    },
+    item: {
+      protocol: 'ws',
+      url: '',
+      headers: [],
+    },
+    preRequest: {
+      raw: ''
+    },
+    afterRequest: {
+      raw: ''
+    },
   }
 }

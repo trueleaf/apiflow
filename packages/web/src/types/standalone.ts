@@ -1,5 +1,5 @@
 import { ApidocProjectRules } from "./apidoc/base-info";
-import type { ApidocDetail, ApidocProperty } from "./apidoc";
+import type { HttpNode, ApidocProperty } from "./apidoc";
 import type { ApidocProjectInfo } from "./project";
 
 export type Standalone = {
@@ -10,7 +10,7 @@ export type Standalone = {
   /**
    * 文档列表
    */
-  docsList: ApidocDetail[];
+  docsList: HttpNode[];
   /**
    * 全局公共请求头列表
    */
@@ -30,8 +30,8 @@ export type Standalone = {
     projectId: string;
     isFolder: boolean;
     sort: number;
-    info: ApidocDetail['info'];
-    item: ApidocDetail['item'];
+    info: HttpNode['info'];
+    item: HttpNode['item'];
     isEnabled: boolean;
   }[];
   variables: {

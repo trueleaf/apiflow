@@ -83,7 +83,7 @@ export type {
   ApidocRequestParamTypes,
   ApidocBodyParams,
   ApidocResponseParams,
-  ApidocDetail,
+  HttpNode,
   ApidocBanner,
   ApidocOperations,
   ApidocASTInfo,

@@ -1,7 +1,7 @@
 import { uniqueByKey } from "@/helper";
 import { config } from "@src/config/config";
 import { ApidocMockMapInfo, ApidocMockState } from "@src/types/apidoc/mock";
-import { ApidocDetail } from '@src/types';
+import { HttpNode } from '@src/types';
 import { defineStore } from "pinia";
 import { ref } from "vue";
 import { useApidoc } from "./apidoc";
@@ -29,7 +29,7 @@ export const useApidocMock = defineStore('apidocMock', () => {
     }
   }
   //改变当前mock映射
-  const changeCurrentMockUrl = (payload: { id: string, apidoc: ApidocDetail }): void => {
+  const changeCurrentMockUrl = (payload: { id: string, apidoc: HttpNode }): void => {
     const index = urlMap.value.findIndex(v => v.id === payload.id);
     if (index !== -1) {
       urlMap.value[index] = {

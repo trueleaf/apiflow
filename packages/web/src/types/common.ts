@@ -1,4 +1,4 @@
-import type { ApidocDetail, ApidocVariable } from "./apidoc";
+import type { HttpNode, ApidocVariable } from "./apidoc";
 
 // ============================================================================
 // 基础工具类型
@@ -315,7 +315,7 @@ export type LocalShareData = {
     projectName: string;
     projectId: string;
   },
-  nodes: ApidocDetail[],
+  nodes: HttpNode[],
   variables: ApidocVariable[],
 }
 

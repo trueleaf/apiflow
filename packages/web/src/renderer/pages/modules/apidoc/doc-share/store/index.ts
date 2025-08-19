@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
-import { ApidocDetail, ApidocVariable, ApidocBanner } from '@src/types';
+import { HttpNode, ApidocVariable, ApidocBanner } from '@src/types';
 import { ApidocTab } from '@src/types/apidoc/tabs';
 import { SharedProjectInfo } from '@src/types/types';
 import { getObjectVariable } from '@/utils/utils';
@@ -11,7 +11,7 @@ import { apidocCache } from '@/cache/apidoc';
 | 变量定义
 |--------------------------------------------------------------------------
 */
-const docs = ref<ApidocDetail[]>([]);
+const docs = ref<HttpNode[]>([]);
 const project = ref<SharedProjectInfo>({
   projectName: '',
   shareName: '',
@@ -23,7 +23,7 @@ const tabs = ref<Record<string, ApidocTab[]>>({});
 const banner = ref<ApidocBanner[]>([]);
 const objectVariable = ref<Record<string, any>>({});
 const defaultExpandedKeys = ref<string[]>([]);
-const activeDocInfo = ref<ApidocDetail | null>(null);
+const activeDocInfo = ref<HttpNode | null>(null);
 const contentLoading = ref(false);
 /*
 |--------------------------------------------------------------------------
@@ -147,7 +147,7 @@ const setProject = (info: Partial<SharedProjectInfo>) => {
   project.value = { ...project.value, ...info };
 };
 
-const setDocs = (docsList: ApidocDetail[]) => {
+const setDocs = (docsList: HttpNode[]) => {
   docs.value.splice(0, docs.value.length, ...docsList);
 };
 
@@ -159,7 +159,7 @@ const setDefaultExpandedKeys = (keys: string[]) => {
   defaultExpandedKeys.value = keys;
 };
 
-const setActiveDocInfo = (info: ApidocDetail) => {
+const setActiveDocInfo = (info: HttpNode) => {
   activeDocInfo.value = info;
 };
 

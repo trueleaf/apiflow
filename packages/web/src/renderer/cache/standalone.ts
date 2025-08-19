@@ -1,5 +1,5 @@
 
-import type { ApidocProjectInfo, ApidocDetail, ApidocProperty, ApidocVariable } from '@src/types';
+import type { ApidocProjectInfo, HttpNode, ApidocProperty, ApidocVariable } from '@src/types';
 import type { ApidocProjectRules } from "@src/types/apidoc/base-info";
 import { DocCache } from "./standalone/docs";
 import { ProjectCache } from "./standalone/projects";
@@ -95,13 +95,13 @@ export class StandaloneCache {
     };
     return await this.projects.setProjectList(projectList);
   }
-  async getDocsByProjectId(projectId: string): Promise<ApidocDetail[]> {
+  async getDocsByProjectId(projectId: string): Promise<HttpNode[]> {
     return this.docs.getDocsByProjectId(projectId);
   }
   async getBannerInfoByProjectId(projectId: string) {
     return this.docs.getBannerInfoByProjectId(projectId);
   }
-  async getDocById(docId: string): Promise<ApidocDetail | null> {
+  async getDocById(docId: string): Promise<HttpNode | null> {
     return this.docs.getDocById(docId);
   }
   async deleteDocsByProjectId(projectId: string): Promise<boolean> {
@@ -115,13 +115,13 @@ export class StandaloneCache {
   }
 
   // 文档相关
-  async getDocsList(): Promise<ApidocDetail[]> {
+  async getDocsList(): Promise<HttpNode[]> {
     return this.docs.getDocsList();
   }
-  async addDoc(doc: ApidocDetail): Promise<boolean> {
+  async addDoc(doc: HttpNode): Promise<boolean> {
     return this.docs.addDoc(doc);
   }
-  async updateDoc(doc: ApidocDetail): Promise<boolean> {
+  async updateDoc(doc: HttpNode): Promise<boolean> {
     return this.docs.updateDoc(doc);
   }
   async updateDocName(docId: string, name: string): Promise<boolean> {
@@ -139,10 +139,10 @@ export class StandaloneCache {
   async getDeletedDocsList(projectId: string) {
     return this.docs.getDeletedDocsList(projectId);
   }
-  async replaceAllDocs(docs: ApidocDetail[], projectId: string): Promise<boolean> {
+  async replaceAllDocs(docs: HttpNode[], projectId: string): Promise<boolean> {
     return this.docs.replaceAllDocs(docs, projectId);
   }
-  async appendDocs(docs: ApidocDetail[], projectId: string): Promise<string[]> {
+  async appendDocs(docs: HttpNode[], projectId: string): Promise<string[]> {
     return this.docs.appendDocs(docs, projectId);
   }
   // 公共请求头相关

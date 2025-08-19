@@ -52,7 +52,7 @@ import { ref, onMounted, onUnmounted, computed, watch } from 'vue'
 import { request } from '@/api/api'
 import { FormInstance } from 'element-plus'
 import { Loading, } from '@element-plus/icons-vue'
-import { ApidocBanner, ApidocDetail, ApidocVariable, Response } from '@src/types'
+import { ApidocBanner, HttpNode, ApidocVariable, Response } from '@src/types'
 import { apidocCache } from '@/cache/apidoc'
 import { router } from '@/router'
 import SBanner from './banner/banner.vue'
@@ -170,7 +170,7 @@ const getDocDetail = async (docId: string) => {
       shareId: shareId,
       password: apidocCache.getSharePassword(shareId),
     }
-    const res = await request.get<Response<ApidocDetail>, Response<ApidocDetail>>('/api/project/share_doc_detail', { params });
+    const res = await request.get<Response<HttpNode>, Response<HttpNode>>('/api/project/share_doc_detail', { params });
     shareStore.setActiveDocInfo(res.data);
   } catch (error) {
     console.error(error)

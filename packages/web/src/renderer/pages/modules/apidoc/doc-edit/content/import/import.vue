@@ -123,7 +123,7 @@ import jsyaml from 'js-yaml'
 import type { OpenAPIV3 } from 'openapi-types';
 import { ElMessage, ElMessageBox } from 'element-plus';
 import { Upload } from '@element-plus/icons-vue'
-import type { ApidocBanner, ApidocDetail } from '@src/types'
+import type { ApidocBanner, HttpNode } from '@src/types'
 import { config } from '@/../config/config'
 import { router } from '@/router/index'
 import { request } from '@/api/api'
@@ -143,7 +143,7 @@ type FormInfo = {
       url: string,
       name: string,
     }[],
-    docs: (ApidocDetail & { children?: ApidocDetail[] })[]
+    docs: (HttpNode & { children?: HttpNode[] })[]
   },
   type: string,
   cover: boolean
@@ -152,7 +152,7 @@ type FormInfo = {
 type ApiflowInfo = {
   type: string,
   rules: ApidocProjectRules[],
-  docs: ApidocDetail[],
+  docs: HttpNode[],
   hosts: {
     _id: string,
     url: string,
@@ -218,7 +218,7 @@ const importTypeInfo = ref({
 const jsonText: Ref<OpenAPIV3.Document | string | { type: string }> = ref('');
 const fileType = ref('');
 const navTreeData = ref<ApidocBanner[]>([]);
-const currentMountedNode: Ref<ApidocDetail | null> = ref(null);
+const currentMountedNode: Ref<HttpNode | null> = ref(null);
 /*
 |--------------------------------------------------------------------------
 | 文件选择
@@ -410,7 +410,7 @@ const handleChangeIsCover = (val: string | number | boolean | undefined) => {
   }
 }
 //节点选中状态改变时候
-const handleCheckChange = (data: ApidocDetail, { checkedKeys }: { checkedKeys: ApidocDetail[] }) => {
+const handleCheckChange = (data: HttpNode, { checkedKeys }: { checkedKeys: HttpNode[] }) => {
   docTree2.value?.setCheckedKeys([]);
   if (checkedKeys.length > 0) {
     docTree2.value?.setCheckedKeys([data._id]);
@@ -471,13 +471,13 @@ const handleSubmit = async () => {
     });
 
     if (__STANDALONE__ && formInfo.value.cover) {
-      const copiedDocs = JSON.parse(JSON.stringify(docs)) as ApidocDetail[];
-      await standaloneCache.replaceAllDocs(copiedDocs as ApidocDetail[], projectId);
+      const copiedDocs = JSON.parse(JSON.stringify(docs)) as HttpNode[];
+      await standaloneCache.replaceAllDocs(copiedDocs as HttpNode[], projectId);
       apidocBannerStore.getDocBanner({ projectId });
       ElMessage.success(t('导入成功'));
       return
     } else if (__STANDALONE__ && !formInfo.value.cover) {
-      const copiedDocs = JSON.parse(JSON.stringify(docs)) as ApidocDetail[];
+      const copiedDocs = JSON.parse(JSON.stringify(docs)) as HttpNode[];
       await standaloneCache.appendDocs(copiedDocs, projectId);
       apidocBannerStore.getDocBanner({ projectId });
       ElMessage.success(t('导入成功'));

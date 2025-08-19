@@ -99,7 +99,7 @@
 <script lang="ts" setup>
 import { ref, Ref, onMounted, computed } from 'vue'
 import { Close } from '@element-plus/icons-vue'
-import { ApidocDetail, Response } from '@src/types';
+import { HttpNode, Response } from '@src/types';
 import { router } from '@/router/index'
 import { request } from '@/api/api'
 import { useTranslation } from 'i18next-vue'
@@ -130,7 +130,7 @@ const apidocRequestStore = useApidocRequest()
 | 获取文档详情
 |--------------------------------------------------------------------------
 */
-const docDetail: Ref<ApidocDetail | null> = ref(null); //文档详情
+const docDetail: Ref<HttpNode | null> = ref(null); //文档详情
 const projectId = router.currentRoute.value.query.id as string;
 const { t } = useTranslation()
 
@@ -148,7 +148,7 @@ const getDocDetail = async () => {
     _id: props.id,
     projectId,
   };
-  request.get<Response<ApidocDetail>, Response<ApidocDetail>>('/api/project/doc_detail', { params }).then((res) => {
+  request.get<Response<HttpNode>, Response<HttpNode>>('/api/project/doc_detail', { params }).then((res) => {
     docDetail.value = res.data
   }).catch((err) => {
     console.error(err);

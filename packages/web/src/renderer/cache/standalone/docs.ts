@@ -1,16 +1,16 @@
 import { IDBPDatabase } from "idb";
-import type { ApidocDetail } from '@src/types';
+import type { HttpNode } from '@src/types';
 import { nanoid } from "nanoid";
 
 
 
 export class DocCache {
-  private bannerCache = new Map<string, { data: ApidocDetail[]; timestamp: number }>();
+  private bannerCache = new Map<string, { data: HttpNode[]; timestamp: number }>();
   private readonly CACHE_TTL = 5 * 60 * 1000; // 5分钟缓存过期时间
 
   constructor(private db: IDBPDatabase | null = null) {}
 
-  async getDocsList(): Promise<ApidocDetail[]> {
+  async getDocsList(): Promise<HttpNode[]> {
     if (!this.db) throw new Error("Database not initialized");
     const tx = this.db.transaction("docs", "readonly");
     const store = tx.objectStore("docs");
@@ -22,7 +22,7 @@ export class DocCache {
    * 优化的按项目ID获取文档方法
    * 使用 IndexedDB 索引直接查询，避免全量加载
    */
-  async getDocsByProjectId(projectId: string): Promise<ApidocDetail[]> {
+  async getDocsByProjectId(projectId: string): Promise<HttpNode[]> {
     if (!this.db) throw new Error("Database not initialized");
 
     const tx = this.db.transaction("docs", "readonly");
@@ -31,7 +31,7 @@ export class DocCache {
     try {
       // 使用 projectId 索引查询
       const index = store.index("projectId");
-      const docs: ApidocDetail[] = await index.getAll(projectId);
+      const docs: HttpNode[] = await index.getAll(projectId);
       return docs.filter(doc => !doc.isDeleted);
     } catch (error) {
       // 如果索引不存在（旧版本数据库），回退到原方法
@@ -44,7 +44,7 @@ export class DocCache {
    * 获取用于 banner 显示的轻量级文档信息
    * 使用缓存机制提高性能
    */
-  async getBannerInfoByProjectId(projectId: string): Promise<ApidocDetail[]> {
+  async getBannerInfoByProjectId(projectId: string): Promise<HttpNode[]> {
     // 检查缓存
     const cached = this.bannerCache.get(projectId);
     if (cached && Date.now() - cached.timestamp < this.CACHE_TTL) {
@@ -56,7 +56,7 @@ export class DocCache {
     try {
       // 使用 projectId 索引查询
       const index = store.index("projectId");
-      const docs: ApidocDetail[] = await index.getAll(projectId);
+      const docs: HttpNode[] = await index.getAll(projectId);
       const filteredDocs = docs.filter(doc => !doc.isDeleted);
 
       // 更新缓存
@@ -88,7 +88,7 @@ export class DocCache {
   }
 
 
-  async getDocById(docId: string): Promise<ApidocDetail | null> {
+  async getDocById(docId: string): Promise<HttpNode | null> {
     if (!this.db) throw new Error("Database not initialized");
     const tx = this.db.transaction("docs", "readonly");
     const store = tx.objectStore("docs");
@@ -131,7 +131,7 @@ export class DocCache {
     await tx.done;
   }
 
-  async addDoc(doc: ApidocDetail): Promise<boolean> {
+  async addDoc(doc: HttpNode): Promise<boolean> {
     if (!this.db) throw new Error("Database not initialized");
     const tx = this.db.transaction("docs", "readwrite");
     const store = tx.objectStore("docs");
@@ -143,7 +143,7 @@ export class DocCache {
     return true;
   }
 
-  async updateDoc(doc: ApidocDetail): Promise<boolean> {
+  async updateDoc(doc: HttpNode): Promise<boolean> {
     if (!this.db) throw new Error("Database not initialized");
     const tx = this.db.transaction("docs", "readwrite");
     const store = tx.objectStore("docs");
@@ -228,7 +228,7 @@ export class DocCache {
     if (!this.db) throw new Error("Database not initialized");
     const tx = this.db.transaction("docs", "readonly");
     const store = tx.objectStore("docs");
-    const allDocs: ApidocDetail[] = await store.getAll();
+    const allDocs: HttpNode[] = await store.getAll();
     
     return allDocs
       .filter(doc => doc.projectId === projectId && doc.isDeleted)
@@ -277,7 +277,7 @@ export class DocCache {
    * @param projectId 项目ID
    * @returns 是否成功
    */
-  async replaceAllDocs(docs: ApidocDetail[], projectId: string): Promise<boolean> {
+  async replaceAllDocs(docs: HttpNode[], projectId: string): Promise<boolean> {
     if (!this.db) throw new Error("Database not initialized");
     const tx = this.db.transaction("docs", "readwrite");
     const store = tx.objectStore("docs");
@@ -318,12 +318,12 @@ export class DocCache {
    * @param projectId 项目ID
    * @returns 处理后的文档列表和ID映射
    */
-  private prepareDocsWithNewIds(docs: ApidocDetail[], projectId: string): {
-    processedDocs: ApidocDetail[];
+  private prepareDocsWithNewIds(docs: HttpNode[], projectId: string): {
+    processedDocs: HttpNode[];
     idMapping: Map<string, string>;
   } {
     const idMapping = new Map<string, string>();
-    const processedDocs: ApidocDetail[] = [];
+    const processedDocs: HttpNode[] = [];
 
     // 第一步：为所有文档生成新的ID并创建映射
     for (const doc of docs) {
@@ -332,7 +332,7 @@ export class DocCache {
       idMapping.set(oldId, newId);
 
       // 创建文档副本并更新基本信息
-      const processedDoc: ApidocDetail = {
+      const processedDoc: HttpNode = {
         ...doc,
         _id: newId,
         projectId,
@@ -363,7 +363,7 @@ export class DocCache {
    * @param projectId 项目ID
    * @returns 成功追加的文档ID列表
    */
-  async appendDocs(docs: ApidocDetail[], projectId: string): Promise<string[]> {
+  async appendDocs(docs: HttpNode[], projectId: string): Promise<string[]> {
     if (!this.db) throw new Error("Database not initialized");
     const tx = this.db.transaction("docs", "readwrite");
     const store = tx.objectStore("docs");

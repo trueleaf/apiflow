@@ -34,7 +34,7 @@ import { ref, watch } from 'vue';
 import { ElMessage, FormInstance, ElInput } from 'element-plus';
 import { request } from '@/api/api';
 import { useRoute } from 'vue-router';
-import { generateEmptyNode } from '@/helper/standaloneUtils';
+import { generateEmptyNode, generateEmptyWebsocketNode } from '@/helper/standaloneUtils';
 import { standaloneCache } from '@/cache/standalone';
 import { nanoid } from 'nanoid';
 
@@ -83,7 +83,12 @@ watch(() => props.modelValue, (newVal) => {
 */
 const handleAddFile = () => {
   form.value?.validate(async (valid) => {
-    if(__STANDALONE__ && valid){
+    if (!valid) {
+      ElMessage.warning(t('请完善必填信息'));
+      return;
+    }
+    loading.value = true;
+    if(__STANDALONE__ && formData.value.type === 'http'){
       const nodeInfo = generateEmptyNode(nanoid())
       nodeInfo.info.name = formData.value.name
       nodeInfo.projectId = route.query.id as string
@@ -104,7 +109,29 @@ const handleAddFile = () => {
         isFolder: nodeInfo.isFolder,
       }); //一定要先成功然后才关闭弹窗,因为关闭弹窗会清除节点父元素id
       handleClose();
+      loading.value = false;
       return;
+    } else if (formData.value.type === 'websocket') {
+      const websocketNode = generateEmptyWebsocketNode(nanoid())
+      websocketNode.info.name = formData.value.name
+      websocketNode.projectId = route.query.id as string
+      websocketNode.pid = props.pid
+      websocketNode.sort = Date.now()
+      websocketNode.isDeleted = false;
+      // await standaloneCache.addDoc(nodeInfo)
+      // emits('success', {
+      //   _id: nodeInfo._id,
+      //   pid: nodeInfo.pid,
+      //   sort: nodeInfo.sort,
+      //   name: nodeInfo.info.name,
+      //   type: formData.value.type,
+      //   method: nodeInfo.item.method,
+      //   url: nodeInfo.item.url ? nodeInfo.item.url.path : '',
+      //   maintainer: nodeInfo.info.maintainer,
+      //   updatedAt: nodeInfo.updatedAt,
+      //   isFolder: nodeInfo.isFolder,
+      // }); //一定要先成功然后才关闭弹窗,因为关闭弹窗会清除节点父元素id
+      // handleClose();
     }
 
     if (valid) {

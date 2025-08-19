@@ -13,7 +13,7 @@ import {
   Response,
   ApidocBodyRawType,
   ApidocContentType,
-  ApidocDetail,
+  HttpNode,
   ApidocHttpRequestMethod,
   ApidocMindParam,
   ApidocProperty,
@@ -47,9 +47,9 @@ type EditApidocPropertyPayload<K extends keyof ApidocProperty> = {
 export const useApidoc = defineStore('apidoc', () => {
   const cancel: Canceler[] = [] //请求列表  
   const apidocCookies = useCookies()
-  const apidoc = ref<ApidocDetail>(apidocGenerateApidoc());
+  const apidoc = ref<HttpNode>(apidocGenerateApidoc());
   const apidocVaribleStore = useVariable()
-  const originApidoc = ref<ApidocDetail>(apidocGenerateApidoc());
+  const originApidoc = ref<HttpNode>(apidocGenerateApidoc());
   const defaultHeaders = ref<ApidocProperty<"string">[]>([]);
   const loading = ref(false);
   const saveLoading = ref(false);
@@ -381,7 +381,7 @@ export const useApidoc = defineStore('apidoc', () => {
 
   }
   //重新赋值apidoc数据
-  const changeApidoc = (payload: ApidocDetail): void => {
+  const changeApidoc = (payload: HttpNode): void => {
     // queryParams如果没有数据则默认添加一条空数据
     if (payload.item.queryParams.length === 0) {
       payload.item.queryParams.push(apidocGenerateProperty());
@@ -517,7 +517,7 @@ export const useApidoc = defineStore('apidoc', () => {
         projectId: payload.projectId,
         _id: payload.id,
       }
-      axiosInstance.get<Response<ApidocDetail>, Response<ApidocDetail>>('/api/project/doc_detail', {
+      axiosInstance.get<Response<HttpNode>, Response<HttpNode>>('/api/project/doc_detail', {
         params,
         cancelToken: new axios.CancelToken((c) => {
           cancel.push(c);
@@ -722,7 +722,7 @@ export const useApidoc = defineStore('apidoc', () => {
     apidoc.value.mockInfo.responseDelay = delay;
   }
   //更改返回数据类型
-  const changeMockResponseType = (responseType: ApidocDetail['mockInfo']['responseType']): void => {
+  const changeMockResponseType = (responseType: HttpNode['mockInfo']['responseType']): void => {
     apidoc.value.mockInfo.responseType = responseType;
   }
   //改变json数据
@@ -730,7 +730,7 @@ export const useApidoc = defineStore('apidoc', () => {
     apidoc.value.mockInfo.json = jsonData;
   }
   //改变图片类型
-  const changeMockImageType = (type: ApidocDetail['mockInfo']['image']['type']): void => {
+  const changeMockImageType = (type: HttpNode['mockInfo']['image']['type']): void => {
     apidoc.value.mockInfo.image.type = type;
   }
   //改变图片宽度
@@ -758,7 +758,7 @@ export const useApidoc = defineStore('apidoc', () => {
     apidoc.value.mockInfo.image.fontSize = fontSize;
   }
   //改变返回文件类型
-  const changeMockFileType = (type: ApidocDetail['mockInfo']['file']['type']): void => {
+  const changeMockFileType = (type: HttpNode['mockInfo']['file']['type']): void => {
     apidoc.value.mockInfo.file.type = type;
   }
   //改变返回text类型数据

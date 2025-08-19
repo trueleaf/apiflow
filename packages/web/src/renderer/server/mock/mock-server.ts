@@ -5,7 +5,7 @@
 // import { store } from '@/store/index'
 // import { apidocConvertValue, event, sleep } from '@/helper/index'
 // import { request } from '@/api/api'
-// import { ApidocDetail } from '@src/types'
+// import { HttpNode } from '@src/types'
 // import apidocConverter from '../request/utils'
 // // import Mock from "./mock"
 
@@ -103,7 +103,7 @@
 //     const url = ctx.request.url.replace(/(?<=)\?.*/, '');
 //     const method = ctx.request.method.toLowerCase();
 //     const { mockInfo } = store.state['apidoc/apidoc'].apidoc;
-//     const realMockInfo = {} as ApidocDetail['mockInfo']; //最终的mock数据
+//     const realMockInfo = {} as HttpNode['mockInfo']; //最终的mock数据
 //     const matchedReuqest = store.state['apidoc/mock'].urlMap.find((data) => {
 //       const isSameMethod = data.method.toLocaleLowerCase() === method.toLocaleLowerCase();
 //       return (data.url === url || data.customMockUrl === url) && isSameMethod;
@@ -117,13 +117,13 @@
 //         const localApis = JSON.parse(localStorage.getItem('apidoc/apidoc') || '{}');
 //         const localApi = localApis[matchedReuqest.id];
 //         let remoteMockInfo = null;
-//         let realApidocDetail: ApidocDetail;
+//         let realApidocDetail: HttpNode;
 //         if (localApi) {
 //           remoteMockInfo = localApi.mockInfo;
 //           realApidocDetail = localApi
 //         } else {
 //           const res = await request.get('/api/project/doc_detail', { params });
-//           realApidocDetail = res.data as ApidocDetail;
+//           realApidocDetail = res.data as HttpNode;
 //           remoteMockInfo = res.data.mockInfo
 //         }
 //         if (realApidocDetail.item.responseParams.every(v => !v.isMock)) {

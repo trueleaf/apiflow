@@ -10,7 +10,7 @@
 
 import jsontoxml from 'jsontoxml'
 import type { OpenAPIV3 } from 'openapi-types';
-import type { ApidocProperty, ApidocDetail, ApidocPropertyType, ApidocHttpRequestMethod, ApidocBodyRawType, ApidocResponseContentType } from '@src/types'
+import type { ApidocProperty, HttpNode, ApidocPropertyType, ApidocHttpRequestMethod, ApidocBodyRawType, ApidocResponseContentType } from '@src/types'
 import { uuid, apidocGenerateProperty, apidocGenerateApidoc } from '@/helper/index'
 import i18next from 'i18next'
 
@@ -154,10 +154,10 @@ class OpenApiTranslator {
   /**
      * 获取文档信息 https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.0.md#pathItemObject
      */
-  getDocsInfo(folderNamedType: 'tag' | 'url' | 'none' = 'none'): ApidocDetail[] {
+  getDocsInfo(folderNamedType: 'tag' | 'url' | 'none' = 'none'): HttpNode[] {
     const serversInfo = this.getServersInfo();
     const openApiDocInfo = this.openApiData.paths;
-    const docsResult: ApidocDetail[] = [];
+    const docsResult: HttpNode[] = [];
     const allTags: Set<string> = new Set();
     if (!openApiDocInfo) {
       console.warn(i18next.t('缺少paths字段'));
@@ -176,7 +176,7 @@ class OpenApiTranslator {
         folderDoc.info.type = 'folder';
         folderDoc.info.name = reqUrl;
         folderDoc.info.name = reqUrl;
-        folderDoc.item = {} as ApidocDetail['item']; //folder的item属性为空
+        folderDoc.item = {} as HttpNode['item']; //folder的item属性为空
         docsResult.push(folderDoc);
       }
       if (pathObjectInfo == null) {
@@ -246,7 +246,7 @@ class OpenApiTranslator {
         folderDoc._id = pid; //目录id
         folderDoc.isFolder = true; //是目录
         folderDoc.sort = Date.now(); //排序
-        folderDoc.item = {} as ApidocDetail['item']; //目录item数据为空
+        folderDoc.item = {} as HttpNode['item']; //目录item数据为空
         folderDoc.info.type = 'folder';
         folderDoc.info.name = tag;
 

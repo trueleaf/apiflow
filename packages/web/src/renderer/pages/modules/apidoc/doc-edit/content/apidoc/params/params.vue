@@ -83,7 +83,7 @@
 
 <script lang="ts" setup>
 import { DebouncedFunc } from 'lodash'
-import type { ApidocDetail, ApidocProperty } from '@src/types'
+import type { HttpNode, ApidocProperty } from '@src/types'
 import { apidocCache } from '@/cache/apidoc'
 import { lodashIsEqual, debounce } from '@/helper/index'
 import { useTranslation } from 'i18next-vue'
@@ -114,7 +114,7 @@ const { t } = useTranslation()
 
 const generateCodeVisible = ref(false);
 import { router } from '@/router'
-const debounceFn = ref(null as (null | DebouncedFunc<(apidoc: ApidocDetail) => void>))
+const debounceFn = ref(null as (null | DebouncedFunc<(apidoc: HttpNode) => void>))
 const route = useRoute()
 
 const projectId = router.currentRoute.value.query.id as string;
@@ -262,19 +262,19 @@ const handleChangeLayout = (layout: 'vertical' | 'horizontal') => {
 }
 //=========================================================================//
 //检查mockInfo是否改变
-const checkMockInfo = (apidoc: ApidocDetail, originApidoc: ApidocDetail) => {
+const checkMockInfo = (apidoc: HttpNode, originApidoc: HttpNode) => {
   return lodashIsEqual(apidoc.mockInfo, originApidoc.mockInfo);
 }
 //检查请求方法是否发生改变
-const checkMethodIsEqual = (apidoc: ApidocDetail, originApidoc: ApidocDetail) => {
+const checkMethodIsEqual = (apidoc: HttpNode, originApidoc: HttpNode) => {
   return apidoc.item.method.toLowerCase() === originApidoc.item.method.toLowerCase();
 }
 //检查preRequest是否发送改变
-const checkPreRequest = (apidoc: ApidocDetail, originApidoc: ApidocDetail) => {
+const checkPreRequest = (apidoc: HttpNode, originApidoc: HttpNode) => {
   return apidoc.preRequest.raw === originApidoc.preRequest.raw;
 }
 //检查请求url是否发生改变
-const checkUrlIsEqual = (apidoc: ApidocDetail, originApidoc: ApidocDetail) => {
+const checkUrlIsEqual = (apidoc: HttpNode, originApidoc: HttpNode) => {
   const apidocPath = apidoc.item.url.path;
   const originPath = originApidoc.item.url.path;
   return apidocPath === originPath;
@@ -328,9 +328,9 @@ const checkPropertyIsEqual = (value: ApidocProperty[], originValue: ApidocProper
 }
 
 //判断apidoc是否发生改变
-const checkApidocIsEqual = (apidoc: ApidocDetail, originApidoc: ApidocDetail) => {
-  const cpApidoc: ApidocDetail = JSON.parse(JSON.stringify(apidoc));
-  const cpOriginApidoc: ApidocDetail = JSON.parse(JSON.stringify(originApidoc));
+const checkApidocIsEqual = (apidoc: HttpNode, originApidoc: HttpNode) => {
+  const cpApidoc: HttpNode = JSON.parse(JSON.stringify(apidoc));
+  const cpOriginApidoc: HttpNode = JSON.parse(JSON.stringify(originApidoc));
   const mockInfoIsEqual = checkMockInfo(cpApidoc, cpOriginApidoc);
   const preRequestIsEqual = checkPreRequest(cpApidoc, cpOriginApidoc);
   const methodIsEqual = checkMethodIsEqual(cpApidoc, cpOriginApidoc);
@@ -467,7 +467,7 @@ watch(() => activeName.value, (val: string) => {
 watch(() => currentSelectTab.value, () => {
   initTabCache();
 })
-watch(() => apidoc.value, (apidoc: ApidocDetail) => {
+watch(() => apidoc.value, (apidoc: HttpNode) => {
   if (debounceFn) {
     debounceFn.value?.(apidoc);
   }
@@ -480,7 +480,7 @@ watch(() => apidoc.value, (apidoc: ApidocDetail) => {
 |--------------------------------------------------------------------------
 */
 onMounted(() => {
-  debounceFn.value = debounce((apidoc: ApidocDetail) => {
+  debounceFn.value = debounce((apidoc: HttpNode) => {
     const isEqual = checkApidocIsEqual(apidoc, apidocStore.originApidoc);
     apidocMock.changeCurrentMockUrl({
       id: currentSelectTab.value?._id || "",

@@ -25,8 +25,8 @@
             @mouseenter.stop="handleNodeHover" 
             @click="handleClickNode($event, scope.data)"
             @dblclick="handleDbclickNode(scope.data)">
-            <!-- file渲染 -->
-            <template v-if="!scope.data.isFolder">
+            <!-- http -->
+            <template v-if="scope.data.type === 'api'">
               <template v-for="(req) in projectInfo.rules.requestMethods">
                 <span v-if="scope.data.method.toLowerCase() === req.value.toLowerCase()" :key="req.name"
                   class="file-icon" :style="{ color: req.iconColor }">{{ req.name }}</span>
@@ -71,6 +71,8 @@
                 </el-icon>
               </div>
             </template>
+            <!-- websocket -->
+            
           </div>
         </template>
       </el-tree>
@@ -195,6 +197,7 @@ const projectInfo = computed(() => {
 const activeNode = computed(() => apidocTabsStore.tabs[projectId.value]?.find((v) => v.selected));
 const bannerData = computed(() => {
   const originBannerData = apidocBannerStore.banner;
+  console.log(2, originBannerData)
   return originBannerData
 })
 /*

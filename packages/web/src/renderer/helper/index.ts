@@ -6,7 +6,7 @@
  * @create             2021-06-15 22:55
  */
 import { nanoid } from 'nanoid/non-secure'
-import type { ApidocHttpRequestMethod, ApidocProperty, ApidocPropertyType, ApidocDetail, ApidocBanner, ApidocRequestParamTypes, ApidocCodeInfo } from '@src/types'
+import type { ApidocHttpRequestMethod, ApidocProperty, ApidocPropertyType, HttpNode, ApidocBanner, ApidocRequestParamTypes, ApidocCodeInfo } from '@src/types'
 import isEqual from 'lodash/isEqual';
 import lodashCloneDeep from 'lodash/cloneDeep';
 import lodashDebounce from 'lodash/debounce';
@@ -328,8 +328,8 @@ export function apidocGenerateProperty<T extends ApidocPropertyType = 'string'>(
 /**
  * 生成一条默认mock数据
  */
-export function apidocGenerateMockInfo(): ApidocDetail['mockInfo'] {
-  const result: ApidocDetail['mockInfo'] = {
+export function apidocGenerateMockInfo(): HttpNode['mockInfo'] {
+  const result: HttpNode['mockInfo'] = {
     path: '',
     httpStatusCode: 200,
     responseDelay: 0,
@@ -405,7 +405,7 @@ export function apidocConvertParamsToJsonData(properties: Properties): JSON {
  * @author             shuxiaokai
  * @create             2021-09-07 22:35
  */
-export function apidocGenerateApidoc(id?: string): ApidocDetail {
+export function apidocGenerateApidoc(id?: string): HttpNode {
   return {
     _id: id || '',
     pid: '',
@@ -698,9 +698,9 @@ export function arrayToTree<T extends { _id: string; pid: string }>(list: T[]): 
   return roots;
 }
 
-type ShareTreeNode = ApidocDetail & { children: ShareTreeNode[] }
+type ShareTreeNode = HttpNode & { children: ShareTreeNode[] }
 
-export function convertDocsToBanner(docs: ApidocDetail[] = []): ApidocBanner[] {
+export function convertDocsToBanner(docs: HttpNode[] = []): ApidocBanner[] {
   const treeData = arrayToTree(docs);
   const copyTreeData = cloneDeep(treeData)
   const banner: ApidocBanner[] = []
@@ -741,7 +741,7 @@ export function convertDocsToBanner(docs: ApidocDetail[] = []): ApidocBanner[] {
   return banner
 }
 
-export function convertDocsToFolder(docs: ApidocDetail[] = []): ApidocBanner[] {
+export function convertDocsToFolder(docs: HttpNode[] = []): ApidocBanner[] {
   const treeData = arrayToTree(docs);
   const copyTreeData = cloneDeep(treeData)
   const banner: ApidocBanner[] = []

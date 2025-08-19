@@ -5,7 +5,7 @@
 */
 import { useApidocBaseInfo } from '@/store/apidoc/base-info';
 import { ApidocProjectVariable } from '@src/types/apidoc/base-info';
-import { ApidocResponseContentType, ApidocDetail } from '@src/types';
+import { ApidocResponseContentType, HttpNode } from '@src/types';
 import { storeToRefs } from 'pinia';
 
 type UrlInfo = {
@@ -63,7 +63,7 @@ function convertPlaceholder(value: string) {
 /**
  * query参数转换
  */
-export const apidocFormatQueryParams = (apidoc: ApidocDetail): Record<string, string> => {
+export const apidocFormatQueryParams = (apidoc: HttpNode): Record<string, string> => {
   const { queryParams } = apidoc.item;
   const result: Record<string, string> = {};
   queryParams.forEach(param => {
@@ -78,7 +78,7 @@ export const apidocFormatQueryParams = (apidoc: ApidocDetail): Record<string, st
 /**
  * path参数转换
  */
-export const apidocFormatPathParams = (apidoc: ApidocDetail): Record<string, string> => {
+export const apidocFormatPathParams = (apidoc: HttpNode): Record<string, string> => {
   const { paths } = apidoc.item;
   const result: Record<string, string> = {};
   paths.forEach(param => {
@@ -93,13 +93,13 @@ export const apidocFormatPathParams = (apidoc: ApidocDetail): Record<string, str
 /**
  * body json参数转换
  */
-export const apidocFormatJsonBodyParams = (apidoc: ApidocDetail): JSON => {
+export const apidocFormatJsonBodyParams = (apidoc: HttpNode): JSON => {
   return apidoc.item.requestBody.rawJson
 }
 /**
  * body form-data参数转换
  */
-export const apidocFormatFormdataParams = (apidoc: ApidocDetail): Record<string, string> => {
+export const apidocFormatFormdataParams = (apidoc: HttpNode): Record<string, string> => {
   const { formdata } = apidoc.item.requestBody;
   const result: Record<string, string> = {};
   formdata.forEach(param => {
@@ -114,7 +114,7 @@ export const apidocFormatFormdataParams = (apidoc: ApidocDetail): Record<string,
 /**
  * body urlencoded参数转换
  */
-export const apidocFormatUrlencodedParams = (apidoc: ApidocDetail): Record<string, string> => {
+export const apidocFormatUrlencodedParams = (apidoc: HttpNode): Record<string, string> => {
   const { urlencoded } = apidoc.item.requestBody;
   const result: Record<string, string> = {};
   urlencoded.forEach(param => {
@@ -129,7 +129,7 @@ export const apidocFormatUrlencodedParams = (apidoc: ApidocDetail): Record<strin
 /**
  * header参数转换
  */
-export const apidocFormatHeaderParams = (apidoc: ApidocDetail): Record<string, string> => {
+export const apidocFormatHeaderParams = (apidoc: HttpNode): Record<string, string> => {
   const { headers } = apidoc.item;
   const result: Record<string, string> = {};
   headers.forEach(param => {
@@ -144,7 +144,7 @@ export const apidocFormatHeaderParams = (apidoc: ApidocDetail): Record<string, s
 /**
  * 转换URL信息
  */
-export const apidocFormatUrl = (apidoc: ApidocDetail): UrlInfo => {
+export const apidocFormatUrl = (apidoc: HttpNode): UrlInfo => {
   let queryString = '';
   const { queryParams } = apidoc.item;
   const { path, host } = apidoc.item.url
@@ -169,7 +169,7 @@ export const apidocFormatUrl = (apidoc: ApidocDetail): UrlInfo => {
 /**
  * Response转换
  */
-export const apidocFormatResponseParams = (apidoc: ApidocDetail): ResponseData[] => {
+export const apidocFormatResponseParams = (apidoc: HttpNode): ResponseData[] => {
   const { responseParams } = apidoc.item;
   const result: ResponseData[] = [];
   responseParams.forEach(res => {

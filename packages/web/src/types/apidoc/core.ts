@@ -84,7 +84,7 @@ export type ApidocMindParam = ApidocProperty & {
 };
 
 //文档基础信息
-export type ApidocType = 'folder' | 'api' | 'markdown';
+export type ApidocType = 'folder' | 'api' | 'markdown' | 'websocket';
 export type ApidocBaseInfo = {
   /**
    * 文档名称
@@ -275,7 +275,7 @@ export type ApidocResponseParams = {
 };
 
 //完整文档信息
-export type ApidocDetail = {
+export type HttpNode = {
   /**
    * 当前文档id
    */
@@ -750,7 +750,7 @@ export type ApidocOperationRecord = {
     /**
      * 节点快照
      */
-    nodeSnapshot?: ApidocDetail['item'];
+    nodeSnapshot?: HttpNode['item'];
     /**
      * 拖拽到的节点id
      */

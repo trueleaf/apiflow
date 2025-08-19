@@ -34,7 +34,7 @@
 <script lang="ts" setup>
 import { useTranslation } from 'i18next-vue'
 import { ref, Ref, onMounted, nextTick } from 'vue'
-import { ApidocBanner, ApidocDetail } from '@src/types';
+import { ApidocBanner, HttpNode } from '@src/types';
 import type { TreeNodeOptions } from 'element-plus/es/components/tree/src/tree.type';
 import { router } from '@/router';
 import { request } from '@/api/api'
@@ -86,9 +86,9 @@ const navTreeData = ref<ApidocBanner[]>([]);
 const isStandalone = ref(__STANDALONE__);
 //目标树
 const docTree: Ref<TreeNodeOptions['store'] | null> = ref(null);
-const currentMountedNode: Ref<ApidocDetail | null> = ref(null);
+const currentMountedNode: Ref<HttpNode | null> = ref(null);
 //节点选中状态改变时候
-const handleCheckChange = (data: ApidocDetail, { checkedKeys }: { checkedKeys: ApidocDetail[] }) => {
+const handleCheckChange = (data: HttpNode, { checkedKeys }: { checkedKeys: HttpNode[] }) => {
   docTree.value?.setCheckedKeys([]);
   if (checkedKeys.length > 0) {
     docTree.value?.setCheckedKeys([data._id]);

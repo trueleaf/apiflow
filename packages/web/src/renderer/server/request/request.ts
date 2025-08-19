@@ -1,7 +1,7 @@
 import { useApidoc } from '@/store/apidoc/apidoc';
 import { ref, toRaw } from 'vue';
 import json5 from 'json5'
-import { ApidocDetail, ApidocProperty } from '@src/types';
+import { HttpNode, ApidocProperty } from '@src/types';
 import { convertTemplateValueToRealValue, getEncodedStringFromEncodedParams, getFormDataFromFormDataParams, getObjectPathParams, getQueryStringFromQueryParams } from '@/utils/utils';
 import { useVariable } from '@/store/apidoc/variables';
 import { GotRequestOptions, JsonData, RedirectOptions, ResponseInfo } from '@src/types/types';
@@ -66,10 +66,10 @@ const convertStringValueAsync = (data: JsonData) => {
   loop(data);
   return needConvertList;
 }
-const getMethod = (apidoc: ApidocDetail) => {
+const getMethod = (apidoc: HttpNode) => {
   return apidoc.item.method;
 }
-export const getUrl = async (apidoc: ApidocDetail) => {
+export const getUrl = async (apidoc: HttpNode) => {
   const { objectVariable } = useVariable();
   const { url, queryParams, paths, } = apidoc.item;
   const queryString = await getQueryStringFromQueryParams(queryParams, objectVariable);
@@ -88,7 +88,7 @@ export const getUrl = async (apidoc: ApidocDetail) => {
   fullUrl = await convertTemplateValueToRealValue(fullUrl, objectVariable);
   return fullUrl;
 }
-const getBody = async (apidoc: ApidocDetail): Promise<GotRequestOptions['body']> => {
+const getBody = async (apidoc: HttpNode): Promise<GotRequestOptions['body']> => {
   const { changeResponseInfo, changeRequestState } = useApidocResponse()
   const { objectVariable } = useVariable()
   const { changeFormDataErrorInfoById } = useApidoc()
@@ -194,7 +194,7 @@ const getBody = async (apidoc: ApidocDetail): Promise<GotRequestOptions['body']>
   * 2.从公共请求头中获取请求头 
   * 3.从cookie中读取请求头
  */
-const getHeaders = async (apidoc: ApidocDetail) => {
+const getHeaders = async (apidoc: HttpNode) => {
   const { objectVariable } = useVariable();
   const apidocBaseInfoStore = useApidocBaseInfo();
   const { defaultHeaders } = useApidoc();

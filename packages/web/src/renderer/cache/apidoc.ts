@@ -3,7 +3,7 @@
  */
 
 import { ApidocProjectHost } from '@src/types/apidoc/base-info';
-import { ApidocDetail } from '@src/types';
+import { HttpNode } from '@src/types';
 import { ResponseCache } from './responseCache';
 import type { ApidocCookie } from '@src/renderer/store/apidoc/cookies';
 
@@ -57,14 +57,14 @@ class ApidocCache extends ResponseCache {
   /*
    * 缓存接口信息
    */
-  setApidoc(val: ApidocDetail) {
+  setApidoc(val: HttpNode) {
     try {
       const localApidoc = JSON.parse(localStorage.getItem('apidoc/apidoc') || '{}');
       localApidoc[val._id] = val;
       localStorage.setItem('apidoc/apidoc', JSON.stringify(localApidoc));
     } catch (error) {
       console.error(error);
-      const data: Record<string, ApidocDetail> = {};
+      const data: Record<string, HttpNode> = {};
       data[val._id] = val;
       localStorage.setItem('apidoc/apidoc', JSON.stringify(data));
     }
@@ -73,9 +73,9 @@ class ApidocCache extends ResponseCache {
   /*
    * 获取缓存接口信息
    */
-  getApidoc(id: string): ApidocDetail | null {
+  getApidoc(id: string): HttpNode | null {
     try {
-      const localApidoc: Record<string, ApidocDetail> = JSON.parse(localStorage.getItem('apidoc/apidoc') || '{}');
+      const localApidoc: Record<string, HttpNode> = JSON.parse(localStorage.getItem('apidoc/apidoc') || '{}');
       if (!localApidoc[id]) {
         return null;
       }
