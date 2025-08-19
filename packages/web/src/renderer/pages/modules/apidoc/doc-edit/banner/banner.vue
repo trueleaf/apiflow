@@ -286,7 +286,7 @@ const handleClickNode = (e: MouseEvent, data: ApidocBanner) => {
       apidocTabsStore.addTab({
         _id: data._id,
         projectId: projectId.value,
-        tabType: 'doc',
+        tabType: 'http',
         label: data.name,
         saved: true,
         fixed: false,

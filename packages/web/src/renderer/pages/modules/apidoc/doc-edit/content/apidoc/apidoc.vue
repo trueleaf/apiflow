@@ -122,7 +122,7 @@ const getApidocInfo = async () => {
 }
 
 watch(currentSelectTab, (val, oldVal) => {
-  const isApidoc = val?.tabType === 'doc';
+  const isApidoc = val?.tabType === 'http';
   if (isApidoc && val?._id !== oldVal?._id) {
     getApidocInfo();
     // 只有在没有缓存响应数据时才设置为waiting，否则保持当前状态

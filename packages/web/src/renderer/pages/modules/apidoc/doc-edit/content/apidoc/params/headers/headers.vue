@@ -108,7 +108,7 @@ const handleChangeCommonHeaderIsSend = (isSend: CheckboxValueType, header: Pick<
   emits('changeCommonHeaderSendStatus')
 }
 watch([currentSelectTab, cHeaders, globalCommonHeaders], () => {
-  if (currentSelectTab.value?.tabType !== 'doc') {
+  if (currentSelectTab.value?.tabType !== 'http') {
     return
   }
   const defaultCommonHeader = apidocBaseInfoStore.getCommonHeadersById(currentSelectTab.value?._id || "");
@@ -148,7 +148,7 @@ const handleJumpToCommonHeaderConfigPage = ({ nodeId, name }: { nodeId?: string,
 
 // 公共请求头在单独接口里面可能会取消勾选，所以需要监听，最终发送请求时候以validCommonHeaders为准
 // watch(commonHeaders, () => {
-//   if (currentSelectTab.value?.tabType !== 'doc') {
+//   if (currentSelectTab.value?.tabType !== 'http') {
 //     return
 //   }
 //   const validCOmmonHeaders = commonHeaders.value.filter(header => header.select);

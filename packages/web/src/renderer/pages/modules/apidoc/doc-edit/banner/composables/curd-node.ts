@@ -213,7 +213,7 @@ export function addFileAndFolderCb(currentOperationalNode: Ref<ApidocBanner | nu
     apidocTabsStore.addTab({
       _id: data._id,
       projectId,
-      tabType: 'doc',
+      tabType: 'http',
       label: data.name,
       saved: true,
       fixed: true,

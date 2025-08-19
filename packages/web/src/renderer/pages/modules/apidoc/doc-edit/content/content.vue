@@ -11,13 +11,13 @@
     <SHook v-else-if="currentSelectTab.tabType === 'hook'"></SHook>
     <SCommonHeader v-else-if="currentSelectTab.tabType === 'commonHeader'"></SCommonHeader>
     <SPackage v-else-if="currentSelectTab.tabType === 'package'"></SPackage>
-    <SApidoc v-else-if="currentSelectTab.tabType === 'doc'"></SApidoc>
+    <SApidoc v-else-if="currentSelectTab.tabType === 'http'"></SApidoc>
     <SCookies v-else-if="currentSelectTab.tabType === 'cookies'"></SCookies>
   </keep-alive>
   <!-- 
   <s-params-template v-else-if="currentSelectTab.tabType === 'paramsTemplate'"></s-params-template>
   <s-mind-params v-else-if="currentSelectTab.tabType === 'mindParams'"></s-mind-params>
-  <s-apidoc v-else-if="currentSelectTab.tabType === 'doc'"></s-apidoc>
+  <s-apidoc v-else-if="currentSelectTab.tabType === 'http'"></s-apidoc>
   <s-export v-else-if="currentSelectTab.tabType === 'exportDoc'"></s-export>
   <s-import-doc v-else-if="currentSelectTab.tabType === 'importDoc'"></s-import-doc>
   <s-online-link v-else-if="currentSelectTab.tabType === 'onlineLink'"></s-online-link>

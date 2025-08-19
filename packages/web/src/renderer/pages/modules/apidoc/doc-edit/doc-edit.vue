@@ -57,7 +57,7 @@ const bindShortcut = (e: KeyboardEvent) => {
   }
   const currentTabs = apidocTabsStore.tabs[projectId];
   const hasTabs = currentTabs && currentTabs.length > 0;
-  const currentTabIsDoc = currentSelectTab.value?.tabType === 'doc';
+  const currentTabIsDoc = currentSelectTab.value?.tabType === 'http';
   if (hasTabs && currentTabIsDoc && e.ctrlKey && (e.key === 'S' || e.key === 's') && saveDocLoading.value === false) {
     e.preventDefault();
     e.stopPropagation();

@@ -1,5 +1,5 @@
 export type ApidocTabType =
-  'doc' |
+  'http' |
   'config' |
   'paramsTemplate' |
   'onlineLink' |

@@ -96,7 +96,7 @@ const handleClickNode = (_: MouseEvent, data: ApidocBanner) => {
     shareStore.addTab({
       _id: data._id,
       projectId: shareId,
-      tabType: 'doc',
+      tabType: 'http',
       label: data.name,
       saved: true,
       fixed: false,

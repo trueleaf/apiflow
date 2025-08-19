@@ -15,7 +15,7 @@
               @click="selectCurrentTab(element)" @dblclick="fixCurrentTab(element)"
               @contextmenu.stop.prevent="handleContextmenu($event, element)">
               <!-- 接口文档 -->
-              <template v-if="element.tabType === 'doc'">
+              <template v-if="element.tabType === 'http'">
                 <template v-for="(req) in requestMethods">
                   <span v-if="element.head.icon.toLowerCase() === req.value.toLowerCase()" :key="req.value" class="mr-2"
                     :style="{ color: req.iconColor, transform: `skewX(${element.fixed ? 0 : '-30deg'})` }">{{ req.name
@@ -110,9 +110,9 @@
       <SContextmenuItem :label="t('关闭其他')" @click="handleCloseOtherTab"></SContextmenuItem>
       <SContextmenuItem :label="t('全部关闭')" @click="handleCloseAllTab"></SContextmenuItem>
       <SContextmenuItem v-if="!isView" :label="t('强制全部关闭')" @click="handleForceCloseAllTab"></SContextmenuItem>
-      <!-- <SContextmenuItem v-if="currentOperationNode && currentOperationNode.tabType === 'doc'" type="divider"></SContextmenuItem> -->
-      <!-- <SContextmenuItem v-if="currentOperationNode && currentOperationNode.tabType === 'doc'" :label="t('复制url')"></SContextmenuItem>
-            <SContextmenuItem v-if="currentOperationNode && currentOperationNode.tabType === 'doc'" :label="t('刷新')"></SContextmenuItem> -->
+      <!-- <SContextmenuItem v-if="currentOperationNode && currentOperationNode.tabType === 'http'" type="divider"></SContextmenuItem> -->
+      <!-- <SContextmenuItem v-if="currentOperationNode && currentOperationNode.tabType === 'http'" :label="t('复制url')"></SContextmenuItem>
+            <SContextmenuItem v-if="currentOperationNode && currentOperationNode.tabType === 'http'" :label="t('刷新')"></SContextmenuItem> -->
     </SContextmenu>
   </teleport>
 </template>
@@ -389,7 +389,7 @@ const handleAddNewTab = () => {
   apidocTabsStore.addTab({
     _id: `local_${uuid()}`,
     projectId: router.currentRoute.value.query.id as string,
-    tabType: 'doc',
+    tabType: 'http',
     label: `未命名接口${tabIndex.value}`,
     saved: true,
     fixed: true,
