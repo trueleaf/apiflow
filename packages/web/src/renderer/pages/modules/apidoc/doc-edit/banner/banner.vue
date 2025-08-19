@@ -136,17 +136,12 @@ import 'element-plus/es/components/message/style/css'
 import STool from './tool/tool.vue'
 import { useBannerData } from './composables/banner-data'
 import { deleteNode, addFileAndFolderCb, pasteNodes, forkNode, dragNode, renameNode } from './composables/curd-node'
-import { TreeNodeOptions } from 'element-plus/es/components/tree/src/tree.type.mjs'
+import type { TreeNodeOptions } from 'element-plus/es/components/tree/src/tree.type.mjs'
 import { useApidocBaseInfo } from '@/store/apidoc/base-info'
 import { useApidocBanner } from '@/store/apidoc/banner'
 import { useApidocTas } from '@/store/apidoc/tabs'
 
 
-//树节点信息
-type TreeNode = {
-  data: ApidocBanner,
-  nextSibling?: TreeNode
-}
 //搜索数据
 type SearchData = {
   //接口名称或者接口路径
@@ -410,24 +405,28 @@ const handlePasteNode = async () => {
   } catch{}
 }
 //判断是否允许拖拽节点
-const handleCheckNodeCouldDrop = (draggingNode: TreeNode, dropNode: TreeNode, type: 'inner' | 'prev' | 'next') => {
-  if (!draggingNode.data.isFolder && dropNode.nextSibling?.data.isFolder && (type === 'prev' || type === 'next')) { //不允许文件后面是文件夹
+const handleCheckNodeCouldDrop = (draggingNode: any, dropNode: any, type: 'inner' | 'prev' | 'next') => {
+  const draggingData = draggingNode.data as ApidocBanner;
+  const dropData = dropNode.data as ApidocBanner;
+  const nextSiblingData = dropNode.nextSibling?.data as ApidocBanner;
+  
+  if (!draggingData.isFolder && nextSiblingData?.isFolder && (type === 'prev' || type === 'next')) { //不允许文件后面是文件夹
     return false;
   }
-  if (!draggingNode.data.isFolder && dropNode.data.isFolder && type !== 'inner') { //不允许文件在文件夹前面
+  if (!draggingData.isFolder && dropData.isFolder && type !== 'inner') { //不允许文件在文件夹前面
     return type !== 'prev';
   }
-  if (draggingNode.data.isFolder && !dropNode.data.isFolder) {
+  if (draggingData.isFolder && !dropData.isFolder) {
     return false;
   }
-  if (!dropNode.data.isFolder) {
+  if (!dropData.isFolder) {
     return type !== 'inner';
   }
   return true;
 }
 //拖拽节点
-const handleNodeDropSuccess = (draggingNode: TreeNode, dropNode: TreeNode, type: 'before' | 'after' | 'inner') => {
-  dragNode.call(this, draggingNode.data, dropNode.data, type);
+const handleNodeDropSuccess = (draggingNode: any, dropNode: any, type: 'before' | 'after' | 'inner') => {
+  dragNode.call(this, draggingNode.data as ApidocBanner, dropNode.data as ApidocBanner, type);
   if (type === 'inner') {
     apidocBannerStore.changeExpandItems([dropNode.data._id])
   }
