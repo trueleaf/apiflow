@@ -18,9 +18,12 @@
     "server:lint:fix": "npm run lint:fix -w @apiflow/server",
     "server:ci": "npm run ci -w @apiflow/server",
     "server:build": "npm run build -w @apiflow/server",
-    "dev": "npm-run-all --parallel web:dev server:dev"
+    "dev": "npm run dev:standalone -w @apiflow/web"
   },
   "devDependencies": {
     "npm-run-all": "^4.1.5"
+  },
+  "engines": {
+    "node": ">=20.0.0"
   }
 }

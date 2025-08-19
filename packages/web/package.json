@@ -221,5 +221,8 @@
       "provider": "generic",
       "url": "https://releases.example.com/"
     }
+  },
+  "engines": {
+    "node": ">=20.0.0"
   }
 }
