@@ -20,7 +20,7 @@ import { useTranslation } from 'i18next-vue'
 import { ref } from 'vue';
 import { request } from '@/api/api';
 import { useRoute } from 'vue-router';
-import { generateEmptyNode } from '@/helper/standaloneUtils';
+import { generateEmptyHttpNode } from '@/helper/standaloneUtils';
 import { nanoid } from 'nanoid';
 import { standaloneCache } from '@/cache/standalone';
 
@@ -51,7 +51,7 @@ const handleAddFolder = () => {
   form.value?.validate(async (valid) => {
     if(__STANDALONE__ && valid){
       const { formInfo } = form.value as any;
-      const nodeInfo = generateEmptyNode(nanoid())
+      const nodeInfo = generateEmptyHttpNode(nanoid())
       nodeInfo.info.name = formInfo.name
       nodeInfo.projectId = route.query.id as string
       nodeInfo.pid = props.pid

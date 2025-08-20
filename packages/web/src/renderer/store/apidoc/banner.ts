@@ -1,6 +1,6 @@
 import { request } from '@/api/api';
 import { standaloneCache } from '@/cache/standalone.ts';
-import { convertDocsToBanner, findNodeById, forEachForest } from "@/helper";
+import { convertNodesToBannerNodes, findNodeById, forEachForest } from "@/helper";
 import { ApidocMockState } from "@src/types/apidoc/mock";
 import { ApidocBanner, Response } from '@src/types';
 import { defineStore } from "pinia";
@@ -85,8 +85,8 @@ export const useApidocBanner = defineStore('apidocBanner', () => {
     return new Promise(async (resolve, reject) => {
       if (__STANDALONE__) {
         // 使用优化的缓存数据获取方法，直接返回 ApidocBanner 格式
-        const docs = await standaloneCache.getBannerInfoByProjectId(payload.projectId);
-        const banner = convertDocsToBanner(docs)
+        const docs = await standaloneCache.getDocsByProjectId(payload.projectId);
+        const banner = convertNodesToBannerNodes(docs)
         changeAllDocBanner(banner)
         resolve(banner)
         return

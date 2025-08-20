@@ -1,13 +1,16 @@
 import type { Method } from "got";
+import { WebSocketNode } from "../websocket/websocket.ts";
 
 /*
 |--------------------------------------------------------------------------
-| 1.核心节点类型
+| 核心节点类型
 |   HttpNode
 |   WebsocketNode
 |   FolderNode
 |--------------------------------------------------------------------------
 */
+export type ApiNode = HttpNode | WebSocketNode | FolderNode;
+
 export type HttpNode = {
   /**
    * 当前文档id
@@ -75,23 +78,6 @@ export type HttpNode = {
      */
     contentType: HttpNodeContentType;
   };
-  /**
-   * 公共请求头
-   */
-  commonHeaders?: {
-    /**
-     * 请求头名称
-     */
-    key: string;
-    /**
-     * 请求头值
-     */
-    value: string;
-    /**
-     * 请求头描述
-     */
-    description: string;
-  }[];
   /**
    * 前置脚本
    */
@@ -221,7 +207,7 @@ export type FolderNode = {
   /**
    * 公共请求头
    */
-  commonHeaders?: {
+  commonHeaders: {
     /**
      * 请求头名称
      */
@@ -248,6 +234,8 @@ export type FolderNode = {
    */
   isDeleted?: boolean;
 };
+
+
 
 /*
 |--------------------------------------------------------------------------
@@ -565,7 +553,7 @@ export type ApidocBanner = {
   /**
    * 公共请求头
    */
-  commonHeaders?: {
+  commonHeaders: {
     key: string;
     value: string;
     description: string;

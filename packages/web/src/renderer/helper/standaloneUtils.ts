@@ -17,7 +17,7 @@ export const generateEmptyProject = (_id: string): ApidocProjectInfo => {
   }
 }
 
-export const generateEmptyNode = (_id: string): HttpNode => {
+export const generateEmptyHttpNode = (_id: string): HttpNode => {
   return {
     _id,
     pid: '',
@@ -35,7 +35,7 @@ export const generateEmptyNode = (_id: string): HttpNode => {
     item: {
       method: 'GET',
       url: {
-        host: '',
+        prefix: '',
         path: ''
       },
       paths: [],

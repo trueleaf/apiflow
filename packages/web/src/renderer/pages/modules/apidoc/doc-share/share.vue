@@ -59,7 +59,7 @@ import SBanner from './banner/banner.vue'
 import SNav from './nav/nav.vue'
 import SContent from './content/content.vue'
 import {  LocalShareData, SharedProjectInfo } from '@src/types/types'
-import { convertDocsToBanner, getCountdown } from '@/helper/index'
+import { convertNodesToBannerNodes, getCountdown } from '@/helper/index'
 import { useShareStore } from './store'
 import localShareDataTest from './testData'
 import { useTranslation } from 'i18next-vue'
@@ -114,7 +114,7 @@ const initShareData = () => {
         if (Array.isArray(shareData.nodes)) {
           shareStore.setDocs(shareData.nodes);
         }
-        shareStore.setBanner(convertDocsToBanner(shareData.nodes));
+        shareStore.setBanner(convertNodesToBannerNodes(shareData.nodes));
         hasPermission.value = true;
       }
     } catch (error) {

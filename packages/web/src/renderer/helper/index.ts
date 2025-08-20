@@ -700,7 +700,7 @@ export function arrayToTree<T extends { _id: string; pid: string }>(list: T[]): 
 
 type ShareTreeNode = HttpNode & { children: ShareTreeNode[] }
 
-export function convertDocsToBanner(docs: (HttpNode | WebSocketNode)[] = []): ApidocBanner[] {
+export function convertNodesToBannerNodes(docs: (HttpNode | WebSocketNode)[] = []): ApidocBanner[] {
   const treeData = arrayToTree(docs);
   const copyTreeData = cloneDeep(treeData)
   const banner: ApidocBanner[] = []
@@ -726,7 +726,7 @@ export function convertDocsToBanner(docs: (HttpNode | WebSocketNode)[] = []): Ap
         maintainer: node.info.maintainer,
         method: node.item.method,
         url: node.item.url.path,
-        commonHeaders: node.commonHeaders,
+        commonHeaders: node.commonHeaders ?? [],
         readonly: false,
         children: [],
       }

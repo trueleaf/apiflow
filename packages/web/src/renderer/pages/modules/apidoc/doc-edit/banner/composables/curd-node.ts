@@ -270,7 +270,7 @@ export function pasteNodes(currentOperationalNode: Ref<ApidocBanner | null>, pas
         let docsToProcess: any[] = [];
         if (fromProjectId !== currentProjectId) {
           // 跨项目粘贴：使用优化的缓存查询获取完整文档数据
-          const sourceProjectDocs = await standaloneCache.getBannerInfoByProjectId(fromProjectId);
+          const sourceProjectDocs = await standaloneCache.getDocsByProjectId(fromProjectId);
           const sourceDocsMap = new Map(sourceProjectDocs.map(doc => [doc._id, doc]));
 
           docsToProcess = uniqueFlatNodes.map(node => {
@@ -282,7 +282,7 @@ export function pasteNodes(currentOperationalNode: Ref<ApidocBanner | null>, pas
           });
         } else {
           // 同项目内粘贴：直接使用当前项目的数据
-          const currentProjectDocs = await standaloneCache.getBannerInfoByProjectId(currentProjectId);
+          const currentProjectDocs = await standaloneCache.getDocsByProjectId(currentProjectId);
           const currentDocsMap = new Map(currentProjectDocs.map(doc => [doc._id, doc]));
 
           docsToProcess = uniqueFlatNodes.map(node => {

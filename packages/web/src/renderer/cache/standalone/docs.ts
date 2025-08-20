@@ -1,330 +1,355 @@
 import { IDBPDatabase } from "idb";
-import type { HttpNode } from '@src/types';
+import type { ApiNode, HttpNode } from "@src/types";
 import { nanoid } from "nanoid";
 import { WebSocketNode } from "@src/types/websocket/websocket.ts";
 
-
-
 export class DocCache {
-  private bannerCache = new Map<string, { data: (HttpNode | WebSocketNode)[]; timestamp: number }>();
+  private bannerCache = new Map<
+    string,
+    { data: ApiNode[]; timestamp: number }
+  >();
   private readonly CACHE_TTL = 5 * 60 * 1000; // 5分钟缓存过期时间
-
   constructor(private db: IDBPDatabase | null = null) {}
-
-  async getDocsList(): Promise<(HttpNode | WebSocketNode)[]> {
+  /*
+  |--------------------------------------------------------------------------
+  | 节点操作相关逻辑
+  |--------------------------------------------------------------------------
+  */
+  // 获取所有节点
+  async getDocsList(): Promise<ApiNode[]> {
     if (!this.db) throw new Error("Database not initialized");
-    const tx = this.db.transaction("docs", "readonly");
-    const store = tx.objectStore("docs");
-    const allDocs = await store.getAll();
-    return allDocs.filter(doc => doc && !doc.isDeleted);
-  }
-
-  /**
-   * 优化的按项目ID获取文档方法
-   * 使用 IndexedDB 索引直接查询，避免全量加载
-   */
-  async getDocsByProjectId(projectId: string): Promise<(HttpNode | WebSocketNode)[]> {
-    if (!this.db) throw new Error("Database not initialized");
-
-    const tx = this.db.transaction("docs", "readonly");
-    const store = tx.objectStore("docs");
-
     try {
-      // 使用 projectId 索引查询
-      const index = store.index("projectId");
-      const docs: (HttpNode | WebSocketNode)[] = await index.getAll(projectId);
-      return docs.filter(doc => !doc.isDeleted);
+      const allDocs = await this.db.getAll("docs");
+      return allDocs.filter((doc) => doc && !doc.isDeleted);
     } catch (error) {
-      // 如果索引不存在（旧版本数据库），回退到原方法
-      const docsList = await this.getDocsList();
-      return docsList.filter(doc => doc.projectId === projectId && !doc.isDeleted);
+      console.error("Failed to get docs list:", error);
+      return [];
     }
   }
-
-  /**
-   * 获取用于 banner 显示的轻量级文档信息
-   * 使用缓存机制提高性能
-   */
-  async getBannerInfoByProjectId(projectId: string): Promise<(HttpNode | WebSocketNode)[]> {
-    // 检查缓存
+  // 获取项目下面所有节点
+  async getDocsByProjectId(projectId: string): Promise<ApiNode[]> {
     const cached = this.bannerCache.get(projectId);
     if (cached && Date.now() - cached.timestamp < this.CACHE_TTL) {
       return cached.data;
     }
     if (!this.db) throw new Error("Database not initialized");
-    const tx = this.db.transaction("docs", "readonly");
-    const store = tx.objectStore("docs");
     try {
-      // 使用 projectId 索引查询
-      const index = store.index("projectId");
-      const docs: (HttpNode | WebSocketNode)[] = await index.getAll(projectId);
-      const filteredDocs = docs.filter(doc => !doc.isDeleted);
-
-      // 更新缓存
+      const docs: ApiNode[] = await this.db.getAllFromIndex("docs", "projectId", projectId);
+      const filteredDocs = docs.filter((doc) => !doc.isDeleted);
       this.bannerCache.set(projectId, {
         data: filteredDocs,
         timestamp: Date.now(),
       });
-
       return filteredDocs;
     } catch (error) {
-      // 回退到原方法
+      console.warn("Index query failed, falling back to full query:", error);
       const docs = await this.getDocsByProjectId(projectId);
-
-      // 更新缓存
       this.bannerCache.set(projectId, {
         data: docs,
         timestamp: Date.now(),
       });
-
       return docs;
     }
   }
-
-  /**
-   * 清除指定项目的缓存
-   */
-  private clearBannerCache(projectId: string): void {
-    this.bannerCache.delete(projectId);
-  }
-
-
-  async getDocById(docId: string): Promise<HttpNode | null> {
+  // 根据节点id获取节点信息
+  async getDocById(docId: string): Promise<ApiNode | null> {
     if (!this.db) throw new Error("Database not initialized");
-    const tx = this.db.transaction("docs", "readonly");
-    const store = tx.objectStore("docs");
-    const doc = await store.get(docId);
-    return doc && !doc.isDeleted ? doc : null;
-  }
-
-  async getDocTree(projectId: string) {
-    const docsList = await this.getDocsList();
-    const projectDocs = docsList.filter(doc => doc.projectId === projectId && !doc.isDeleted);
-    const { convertDocsToBanner } = await import("@/helper/index");
-    return convertDocsToBanner(projectDocs);
-  }
-
-  async getFolderTree(projectId: string) {
-    const docsList = await this.getDocsList();
-    const projectDocs = docsList.filter(doc => doc.projectId === projectId && !doc.isDeleted);
-    const { convertDocsToFolder } = await import("@/helper/index");
-    return convertDocsToFolder(projectDocs);
-  }
-
-  private async updateProjectDocNum(projectId: string): Promise<void> {
-    if (!this.db) throw new Error("Database not initialized");
-    const tx = this.db.transaction(["docs", "projects"], "readwrite");
-    const docsStore = tx.objectStore("docs");
-    const projectsStore = tx.objectStore("projects");
-
-    const allDocs = await docsStore.getAll();
-    const docNum = allDocs.filter(doc => 
-      doc.projectId === projectId && 
-      !doc.isDeleted && 
-      doc.info.type !== 'folder'
-    ).length;
-    
-    const project = await projectsStore.get(projectId);
-    if (project) {
-      await projectsStore.put({ ...project, docNum }, projectId);
-    }
-    
-    await tx.done;
-  }
-
-  async addDoc(doc: HttpNode | WebSocketNode): Promise<boolean> {
-    if (!this.db) throw new Error("Database not initialized");
-    const tx = this.db.transaction("docs", "readwrite");
-    const store = tx.objectStore("docs");
-    await store.put(doc, doc._id);
-    await tx.done;
-    await this.updateProjectDocNum(doc.projectId);
-    // 清除相关项目的缓存
-    this.clearBannerCache(doc.projectId);
-    return true;
-  }
-
-  async updateDoc(doc: HttpNode | WebSocketNode): Promise<boolean> {
-    if (!this.db) throw new Error("Database not initialized");
-    const tx = this.db.transaction("docs", "readwrite");
-    const store = tx.objectStore("docs");
-    const existingDoc = await store.get(doc._id);
-    if (!existingDoc) return false;
-    await store.put(doc, doc._id);
-    await tx.done;
-    // 清除相关项目的缓存
-    this.clearBannerCache(doc.projectId);
-    return true;
-  }
-  async updateDocName(docId: string, name: string): Promise<boolean> {
-    if (!this.db) throw new Error("Database not initialized");
-    const tx = this.db.transaction("docs", "readwrite");
-    const store = tx.objectStore("docs");
-    const existingDoc = await store.get(docId);
-    if (!existingDoc) return false;
-    existingDoc.info.name = name;
-    await store.put(existingDoc, docId);
-    await tx.done;
-    // 清除相关项目的缓存
-    this.clearBannerCache(existingDoc.projectId);
-    return true;
-  }
-
-  async deleteDoc(docId: string): Promise<boolean> {
-    if (!this.db) throw new Error("Database not initialized");
-    const tx = this.db.transaction("docs", "readwrite");
-    const store = tx.objectStore("docs");
-    const existingDoc = await store.get(docId);
-
-    if (!existingDoc) return false;
-
-    const updatedDoc = {
-      ...existingDoc,
-      isDeleted: true,
-      updatedAt: new Date().toISOString()
-    };
-
-    await store.put(updatedDoc, docId);
-    await tx.done;
-    await this.updateProjectDocNum(existingDoc.projectId);
-    // 清除相关项目的缓存
-    this.clearBannerCache(existingDoc.projectId);
-    return true;
-  }
-
-  async deleteDocs(docIds: string[]): Promise<boolean> {
-    if (!this.db) throw new Error("Database not initialized");
-    const tx = this.db.transaction("docs", "readwrite");
-    const store = tx.objectStore("docs");
-
-    let projectId: string | null = null;
-    for (const docId of docIds) {
-      const existingDoc = await store.get(docId);
-      if (existingDoc) {
-        projectId = existingDoc.projectId;
-        await store.put({
-          ...existingDoc,
-          isDeleted: true,
-          updatedAt: new Date().toISOString()
-        }, docId);
-      }
-    }
-
-    await tx.done;
-    if (projectId) {
-      await this.updateProjectDocNum(projectId);
-      // 清除相关项目的缓存
-      this.clearBannerCache(projectId);
-    }
-    return true;
-  }
-
-  async deleteDocsByProjectId(projectId: string): Promise<boolean> {
-    const projectDocs = await this.getDocsByProjectId(projectId);
-    if (projectDocs.length === 0) return true;
-    return await this.deleteDocs(projectDocs.map(doc => doc._id));
-  }
-
-  async getDeletedDocsList(projectId: string) {
-    if (!this.db) throw new Error("Database not initialized");
-    const tx = this.db.transaction("docs", "readonly");
-    const store = tx.objectStore("docs");
-    const allDocs: (HttpNode | WebSocketNode)[] = await store.getAll();
-    
-    return allDocs
-      .filter(doc => doc.projectId === projectId && doc.isDeleted)
-      .map(doc => ({
-        name: doc.info.name,
-        type: doc.info.type,
-        deletePerson: doc.info.deletePerson,
-
-        prefix: typeof doc.item.url === 'string' ? '' : doc.item.url.prefix,
-        path: typeof doc.item.url === 'string' ? doc.item.url : doc.item.url.path,
-        method: 'method' in doc.item ? doc.item.method : undefined,
-        updatedAt: doc.updatedAt || new Date().toISOString(),
-        _id: doc._id,
-        pid: doc.pid
-      }))
-      .sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime());
-  }
-  async restoreDoc(docId: string): Promise<string[]> {
-    if (!this.db) throw new Error("Database not initialized");
-    const tx = this.db.transaction("docs", "readwrite");
-    const store = tx.objectStore("docs");
-    const existingDoc = await store.get(docId);
-    const result: string[] = [docId];
-    if (!existingDoc) return [];
-    existingDoc.isDeleted = false;
-    await store.put(existingDoc, docId);
-    let currentPid = existingDoc.pid;
-    while (currentPid) {
-      const parentDoc = await store.get(currentPid);
-      if (!parentDoc) break;
-      if (parentDoc.isDeleted) {
-        parentDoc.isDeleted = false;
-        await store.put(parentDoc, currentPid);
-        result.push(currentPid);
-      }
-      currentPid = parentDoc.pid;
-    }
-    await tx.done;
-    this.clearBannerCache(existingDoc.projectId);
-    return result;
-  }
-
-  /**
-   * 覆盖替换所有接口文档
-   * @param docs 要替换的文档列表
-   * @param projectId 项目ID
-   * @returns 是否成功
-   */
-  async replaceAllDocs(docs: (HttpNode | WebSocketNode)[], projectId: string): Promise<boolean> {
-    if (!this.db) throw new Error("Database not initialized");
-    const tx = this.db.transaction("docs", "readwrite");
-    const store = tx.objectStore("docs");
-
     try {
-      // 1. 软删除项目下所有现有文档
-      const existingDocs = await store.getAll();
-      await Promise.all(
-        existingDocs
-          .filter(doc => doc.projectId === projectId)
-          .map(doc => store.put({
-            ...doc,
-            isDeleted: true,
-            updatedAt: new Date().toISOString()
-          }, doc._id))
-      );
-
-      // 2. 处理文档ID和关系映射
-      const { processedDocs } = this.prepareDocsWithNewIds(docs, projectId);
-
-      // 3. 批量保存处理后的文档
-      await Promise.all(processedDocs.map(doc => store.put(doc, doc._id)));
-
-      await tx.done;
-      await this.updateProjectDocNum(projectId);
-      // 清除相关项目的缓存
-      this.clearBannerCache(projectId);
+      const doc = await this.db.get("docs", docId);
+      return doc && !doc.isDeleted ? doc : null;
+    } catch (error) {
+      console.error("Failed to get doc by id:", error);
+      return null;
+    }
+  }
+  // 添加一个节点
+  async addDoc(doc: ApiNode): Promise<boolean> {
+    if (!this.db) throw new Error("Database not initialized");
+    try {
+      await this.db.put("docs", doc, doc._id);
+      await this.updateProjectDocNum(doc.projectId);
+      this.clearBannerCache(doc.projectId);
       return true;
     } catch (error) {
-      console.error('Failed to replace docs:', error);
+      console.error("Failed to add doc:", error);
       return false;
     }
   }
+  // 新增或修改一个节点
+  async updateDoc(doc: ApiNode): Promise<boolean> {
+    if (!this.db) throw new Error("Database not initialized");
+    try {
+      // 先检查文档是否存在
+      const existingDoc = await this.db.get("docs", doc._id);
+      if (!existingDoc) return false;
+      await this.db.put("docs", doc, doc._id);
+      this.clearBannerCache(doc.projectId);
+      return true;
+    } catch (error) {
+      console.error("Failed to update doc:", error);
+      return false;
+    }
+  }
+  // 更新节点名称
+  async updateDocName(docId: string, name: string): Promise<boolean> {
+    if (!this.db) throw new Error("Database not initialized");
+    try {
+      const existingDoc = await this.db.get("docs", docId);
+      if (!existingDoc) return false;
+      existingDoc.info.name = name;
+      await this.db.put("docs", existingDoc, docId);
+      this.clearBannerCache(existingDoc.projectId);
+      return true;
+    } catch (error) {
+      console.error("Failed to update doc name:", error);
+      return false;
+    }
+  }
+  // 删除一个节点
+  async deleteDoc(docId: string): Promise<boolean> {
+    if (!this.db) throw new Error("Database not initialized");
+    try {
+      const existingDoc = await this.db.get("docs", docId);
+      if (!existingDoc) return false;
+      const updatedDoc = {
+        ...existingDoc,
+        isDeleted: true,
+        updatedAt: new Date().toISOString(),
+      };
+      await this.db.put("docs", updatedDoc, docId);
+      await this.updateProjectDocNum(existingDoc.projectId);
+      this.clearBannerCache(existingDoc.projectId);
+      return true;
+    } catch (error) {
+      console.error("Failed to delete doc:", error);
+      return false;
+    }
+  }
+  // 批量删除节点
+  async deleteDocs(docIds: string[]): Promise<boolean> {
+    if (!this.db) throw new Error("Database not initialized");
+    if (docIds.length === 0) return true;
 
-  /**
-   * 创建ID映射并更新文档关系
-   * @param docs 要处理的文档列表
-   * @param projectId 项目ID
-   * @returns 处理后的文档列表和ID映射
-   */
-  private prepareDocsWithNewIds(docs: (HttpNode | WebSocketNode)[], projectId: string): {
-    processedDocs: (HttpNode | WebSocketNode)[];
+    // 使用事务确保批量操作的原子性
+    const tx = this.db.transaction("docs", "readwrite");
+    const store = tx.objectStore("docs");
+    
+    try {
+      let projectId: string | null = null;
+      const updatedTimestamp = new Date().toISOString();
+
+      // 在事务中批量处理所有删除操作
+      for (const docId of docIds) {
+        const existingDoc = await store.get(docId);
+        if (existingDoc) {
+          projectId = existingDoc.projectId;
+          await store.put({
+            ...existingDoc,
+            isDeleted: true,
+            updatedAt: updatedTimestamp,
+          }, docId);
+        }
+      }
+
+      // 等待事务完成
+      await tx.done;
+
+      // 更新项目文档数量和清除缓存
+      if (projectId) {
+        await this.updateProjectDocNum(projectId);
+        this.clearBannerCache(projectId);
+      }
+      
+      return true;
+    } catch (error) {
+      console.error("Failed to delete docs:", error);
+      // 事务会自动回滚，无需手动处理
+      return false;
+    }
+  }
+  // 删除整个项目的节点
+  async deleteDocsByProjectId(projectId: string): Promise<boolean> {
+    const projectDocs = await this.getDocsByProjectId(projectId);
+    if (projectDocs.length === 0) return true;
+    return await this.deleteDocs(projectDocs.map((doc) => doc._id));
+  }
+  // 获取已删除节点列表
+  async getDeletedDocsList(projectId: string) {
+    if (!this.db) throw new Error("Database not initialized");
+    try {
+      const allDocs = await this.db.getAllFromIndex("docs", "projectId", projectId);
+      return allDocs
+        .filter((doc) => doc.isDeleted).sort((a, b) =>
+          new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
+        );
+    } catch (error) {
+      console.error("Failed to get deleted docs list:", error);
+      return [];
+    }
+  }
+  // 恢复已删除的文档
+  async restoreDoc(docId: string): Promise<string[]> {
+    if (!this.db) throw new Error("Database not initialized");
+    try {
+      const existingDoc = await this.db.get("docs", docId);
+      const result: string[] = [docId];
+      if (!existingDoc) return [];
+      existingDoc.isDeleted = false;
+      await this.db.put("docs", existingDoc, docId);
+      // 递归恢复父级文档
+      let currentPid = existingDoc.pid;
+      while (currentPid) {
+        const parentDoc = await this.db.get("docs", currentPid);
+        if (!parentDoc) break;
+        if (parentDoc.isDeleted) {
+          parentDoc.isDeleted = false;
+          await this.db.put("docs", parentDoc, currentPid);
+          result.push(currentPid);
+        }
+        currentPid = parentDoc.pid;
+      }
+      
+      this.clearBannerCache(existingDoc.projectId);
+      return result;
+    } catch (error) {
+      console.error("Failed to restore doc:", error);
+      return [];
+    }
+  }
+  /*
+  |--------------------------------------------------------------------------
+  | 项目导入
+  |    replaceAllDocs代表覆盖导入
+  |    appendDocs代表追加导入
+  |--------------------------------------------------------------------------
+  */
+  // 覆盖替换所有接口文档
+  async replaceAllDocs(docs: ApiNode[], projectId: string): Promise<boolean> {
+    if (!this.db) throw new Error("Database not initialized");
+    // 使用事务确保替换操作的原子性
+    const tx = this.db.transaction("docs", "readwrite");
+    const store = tx.objectStore("docs");
+    try {
+      let existingDocs: ApiNode[];
+      try {
+        const index = store.index("projectId");
+        existingDocs = await index.getAll(projectId);
+      } catch (error) {
+        const allDocs = await store.getAll();
+        existingDocs = allDocs.filter((doc) => doc.projectId === projectId);
+      }
+      const updatedTimestamp = new Date().toISOString();
+      // 2. 在事务中批量软删除现有文档
+      for (const doc of existingDocs) {
+        await store.put({
+          ...doc,
+          isDeleted: true,
+          updatedAt: updatedTimestamp,
+        }, doc._id);
+      }
+      // 3. 处理文档ID和关系映射
+      const { processedDocs } = this.prepareDocsWithNewIds(docs, projectId);
+      // 4. 在事务中批量保存处理后的文档
+      for (const doc of processedDocs) {
+        await store.put(doc, doc._id);
+      }
+      // 等待事务完成
+      await tx.done;
+      // 更新项目文档数量和清除缓存
+      await this.updateProjectDocNum(projectId);
+      this.clearBannerCache(projectId);
+      return true;
+    } catch (error) {
+      console.error("Failed to replace docs:", error);
+      // 事务会自动回滚，无需手动处理
+      return false;
+    }
+  }
+  // 批量追加接口文档
+  async appendDocs(docs: ApiNode[], projectId: string): Promise<string[]> {
+    if (!this.db) throw new Error("Database not initialized");
+    const successIds: string[] = [];
+
+    try {
+      const { processedDocs } = this.prepareDocsWithNewIds(docs, projectId);
+      const savePromises = processedDocs.map(async (doc) => {
+        await this.db!.put("docs", doc, doc._id);
+        return doc._id;
+      });
+      const savedIds = await Promise.all(savePromises);
+      successIds.push(...savedIds);
+      await this.updateProjectDocNum(projectId);
+      this.clearBannerCache(projectId);
+      return successIds;
+    } catch (error) {
+      console.error("Failed to append docs:", error);
+      return successIds;
+    }
+  }
+  /*
+  |--------------------------------------------------------------------------
+  | 项目相关
+  |--------------------------------------------------------------------------
+  */
+  // 更新项目内节点数量(不包含文件夹)
+  private async updateProjectDocNum(projectId: string): Promise<void> {
+    if (!this.db) throw new Error("Database not initialized");
+    try {
+      // 使用索引查询优化性能，只获取当前项目的文档
+      const projectDocs = await this.db.getAllFromIndex("docs", "projectId", projectId);
+      const docNum = projectDocs.filter(
+        (doc) =>
+          !doc.isDeleted &&
+          doc.info.type !== "folder"
+      ).length;
+      const project = await this.db.get("projects", projectId);
+      if (project) {
+        await this.db.put("projects", { ...project, docNum }, projectId);
+      }
+    } catch (error) {
+      console.error("Failed to update project doc number:", error);
+    }
+  }
+  /*
+  |--------------------------------------------------------------------------
+  | 节点树形菜单区域
+  |--------------------------------------------------------------------------
+  */
+  // 以树形方式获取所有节点
+  async getDocTree(projectId: string) {
+    const projectDocs = await this.getDocsByProjectId(projectId);
+    const { convertNodesToBannerNodes } = await import("@/helper/index");
+    // 过滤出 HttpNode 和 WebSocketNode，排除 FolderNode
+    const apiDocs = projectDocs.filter(doc => 
+      doc.info.type === 'api' || doc.info.type === 'websocket'
+    ) as (HttpNode | WebSocketNode)[];
+    return convertNodesToBannerNodes(apiDocs);
+  }
+  // 以树形方式获取文件夹
+  async getFolderTree(projectId: string) {
+    const projectDocs = await this.getDocsByProjectId(projectId);
+    const { convertDocsToFolder } = await import("@/helper/index");
+    // 过滤出 HttpNode 和 WebSocketNode，排除 FolderNode
+    const apiDocs = projectDocs.filter(doc => 
+      doc.info.type === 'api' || doc.info.type === 'websocket'
+    ) as (HttpNode | WebSocketNode)[];
+    return convertDocsToFolder(apiDocs);
+  }
+  /*
+  |--------------------------------------------------------------------------
+  | 工具方法
+  |--------------------------------------------------------------------------
+  */
+  // 创建ID映射并更新文档关系
+  private prepareDocsWithNewIds(
+    docs: ApiNode[],
+    projectId: string
+  ): {
+    processedDocs: ApiNode[];
     idMapping: Map<string, string>;
   } {
     const idMapping = new Map<string, string>();
-    const processedDocs: (HttpNode | WebSocketNode)[] = [];
+    const processedDocs: ApiNode[] = [];
 
     // 第一步：为所有文档生成新的ID并创建映射
     for (const doc of docs) {
@@ -357,37 +382,8 @@ export class DocCache {
 
     return { processedDocs, idMapping };
   }
-
-  /**
-   * 批量追加接口文档
-   * @param docs 要追加的文档列表
-   * @param projectId 项目ID
-   * @returns 成功追加的文档ID列表
-   */
-  async appendDocs(docs: (HttpNode | WebSocketNode)[], projectId: string): Promise<string[]> {
-    if (!this.db) throw new Error("Database not initialized");
-    const tx = this.db.transaction("docs", "readwrite");
-    const store = tx.objectStore("docs");
-    const successIds: string[] = [];
-
-    try {
-      // 处理文档ID和关系映射
-      const { processedDocs } = this.prepareDocsWithNewIds(docs, projectId);
-
-      // 批量保存处理后的文档
-      for (const doc of processedDocs) {
-        await store.put(doc, doc._id);
-        successIds.push(doc._id);
-      }
-
-      await tx.done;
-      await this.updateProjectDocNum(projectId);
-      // 清除相关项目的缓存
-      this.clearBannerCache(projectId);
-      return successIds;
-    } catch (error) {
-      console.error('Failed to append docs:', error);
-      return successIds;
-    }
+  // 清除banner缓存
+  private clearBannerCache(projectId: string): void {
+    this.bannerCache.delete(projectId);
   }
-} 
+}

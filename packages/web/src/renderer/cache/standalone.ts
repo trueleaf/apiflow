@@ -1,5 +1,5 @@
 
-import type { ApidocProjectInfo, HttpNode, ApidocProperty, ApidocVariable } from '@src/types';
+import type { ApidocProjectInfo, HttpNode, ApidocProperty, ApidocVariable, FolderNode, ApiNode } from '@src/types';
 import type { ApidocProjectRules } from "@src/types/apidoc/base-info";
 import { DocCache } from "./standalone/docs";
 import { ProjectCache } from "./standalone/projects";
@@ -99,9 +99,6 @@ export class StandaloneCache {
   async getDocsByProjectId(projectId: string): Promise<HttpNode[]> {
     return this.docs.getDocsByProjectId(projectId);
   }
-  async getBannerInfoByProjectId(projectId: string) {
-    return this.docs.getBannerInfoByProjectId(projectId);
-  }
   async getDocById(docId: string): Promise<HttpNode | null> {
     return this.docs.getDocById(docId);
   }
@@ -116,13 +113,13 @@ export class StandaloneCache {
   }
 
   // 文档相关
-  async getDocsList(): Promise<HttpNode[]> {
+  async getDocsList(): Promise<ApiNode[]> {
     return this.docs.getDocsList();
   }
-  async addDoc(doc: HttpNode | WebSocketNode): Promise<boolean> {
+  async addDoc(doc: ApiNode): Promise<boolean> {
     return this.docs.addDoc(doc);
   }
-  async updateDoc(doc: HttpNode | WebSocketNode): Promise<boolean> {
+  async updateDoc(doc: ApiNode): Promise<boolean> {
     return this.docs.updateDoc(doc);
   }
   async updateDocName(docId: string, name: string): Promise<boolean> {
@@ -140,10 +137,10 @@ export class StandaloneCache {
   async getDeletedDocsList(projectId: string) {
     return this.docs.getDeletedDocsList(projectId);
   }
-  async replaceAllDocs(docs: (HttpNode | WebSocketNode)[], projectId: string): Promise<boolean> {
+  async replaceAllDocs(docs: ApiNode[], projectId: string): Promise<boolean> {
     return this.docs.replaceAllDocs(docs, projectId);
   }
-  async appendDocs(docs: (HttpNode | WebSocketNode)[], projectId: string): Promise<string[]> {
+  async appendDocs(docs: ApiNode[], projectId: string): Promise<string[]> {
     return this.docs.appendDocs(docs, projectId);
   }
   // 公共请求头相关

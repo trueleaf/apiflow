@@ -34,7 +34,7 @@ import { ref, watch } from 'vue';
 import { ElMessage, FormInstance, ElInput } from 'element-plus';
 import { request } from '@/api/api';
 import { useRoute } from 'vue-router';
-import { generateEmptyNode, generateEmptyWebsocketNode } from '@/helper/standaloneUtils';
+import { generateEmptyHttpNode, generateEmptyWebsocketNode } from '@/helper/standaloneUtils';
 import { standaloneCache } from '@/cache/standalone';
 import { nanoid } from 'nanoid';
 
@@ -89,7 +89,7 @@ const handleAddFile = () => {
     }
     loading.value = true;
     if(__STANDALONE__ && formData.value.type === 'http'){
-      const nodeInfo = generateEmptyNode(nanoid())
+      const nodeInfo = generateEmptyHttpNode(nanoid())
       nodeInfo.info.name = formData.value.name
       nodeInfo.projectId = route.query.id as string
       nodeInfo.pid = props.pid
