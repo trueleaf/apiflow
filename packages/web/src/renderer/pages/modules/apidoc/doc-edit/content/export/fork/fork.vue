@@ -21,7 +21,7 @@
           <template #default="scope">
             <div class="custom-tree-node" tabindex="0">
               <!-- file渲染 -->
-              <template v-if="!scope.data.isFolder">
+              <template v-if="scope.data.type !== 'folder'">
                 <template v-for="(req) in projectRules.requestMethods">
                   <span
                     v-if="scope.data && scope.data.method && scope.data.method.toLowerCase() === req.value.toLowerCase()"
@@ -32,7 +32,7 @@
                 </div>
               </template>
               <!-- 文件夹渲染 -->
-              <template v-if="scope.data.isFolder">
+              <template v-if="scope.data.type === 'folder'">
                 <i class="iconfont folder-icon iconweibiaoti-_huabanfuben"></i>
                 <div class="node-label-wrap">
                   <s-emphasize class="node-top" :title="scope.data.name" :value="scope.data.name"></s-emphasize>
@@ -69,7 +69,7 @@
               <template #default="scope">
                 <div class="custom-tree-node" tabindex="0">
                   <!-- file渲染 -->
-                  <template v-if="!scope.data.isFolder">
+                  <template v-if="scope.data.type !== 'folder'">
                     <template v-for="(req) in projectRules.requestMethods">
                       <span v-if="scope.data.method.toLowerCase() === req.value.toLowerCase()" :key="req.name"
                         class="file-icon" :style="{ color: req.iconColor }">{{ req.name }}</span>
@@ -79,7 +79,7 @@
                     </div>
                   </template>
                   <!-- 文件夹渲染 -->
-                  <template v-if="scope.data.isFolder">
+                  <template v-if="scope.data.type === 'folder'">
                     <i class="iconfont folder-icon iconweibiaoti-_huabanfuben"></i>
                     <div class="node-label-wrap">
                       <s-emphasize class="node-top" :title="scope.data.name" :value="scope.data.name"></s-emphasize>
@@ -212,13 +212,13 @@ const isInSource = ref(false);
 //判断目标树是否允许drop
 const checkTargetCouldDrop = (draggingNode: Node, dropNode: Node, type: DropType) => {
   // let realDragNode = draggingNode || targetTree.value?.dragState.draggingNode
-  // if (!realDragNode.data.isFolder && dropNode.data.isFolder && type !== "inner") { //不允许文件在文件夹前面
+  // if (realDragNode.data.type !== 'folder' && dropNode.data.type === 'folder' && type !== "inner") { //不允许文件在文件夹前面
   //     return type !== "prev";
   // }
-  // if (realDragNode.data.isFolder && !dropNode.data.isFolder) {
+  // if (realDragNode.data.type === 'folder' && dropNode.data.type !== 'folder') {
   //     return false;
   // }
-  // if (!dropNode.data.isFolder) {
+  // if (dropNode.data.type !== 'folder') {
   //     return type !== "inner";
   // }
   console.log(type)

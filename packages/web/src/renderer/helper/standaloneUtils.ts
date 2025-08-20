@@ -22,7 +22,6 @@ export const generateEmptyNode = (_id: string): HttpNode => {
     _id,
     pid: '',
     projectId: '',
-    isFolder: false,
     sort: 0,
     info: {
       name: '',

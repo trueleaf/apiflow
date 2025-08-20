@@ -55,7 +55,7 @@
               </div>
             </template>
             <!-- 文件夹渲染 -->
-            <template v-if="scope.data.isFolder">
+            <template v-if="scope.data.type === 'folder'">
               <i class="iconfont folder-icon iconweibiaoti-_huabanfuben"></i>
               <div v-if="editNode?._id !== scope.data._id" class="node-label-wrap">
                 <SEmphasize class="node-top" :title="scope.data.name" :value="scope.data.name" :keyword="filterString">
@@ -82,22 +82,22 @@
       <!-- 单个节点操作 -->
       <SContextmenu v-if="!isView && showContextmenu && selectNodes.length <= 1" :left="contextmenuLeft"
         :top="contextmenuTop">
-        <SContextmenuItem v-show="!currentOperationalNode || currentOperationalNode?.isFolder" :label="t('新建接口')"
+        <SContextmenuItem v-show="!currentOperationalNode || currentOperationalNode?.type === 'folder'" :label="t('新建接口')"
           @click="handleOpenAddFileDialog"></SContextmenuItem>
-        <SContextmenuItem v-show="!currentOperationalNode || currentOperationalNode?.isFolder" :label="t('新建文件夹')"
+        <SContextmenuItem v-show="!currentOperationalNode || currentOperationalNode?.type === 'folder'" :label="t('新建文件夹')"
           @click="handleOpenAddFolderDialog"></SContextmenuItem>
-        <SContextmenuItem v-show="!currentOperationalNode || currentOperationalNode?.isFolder" :label="t('设置公共请求头')"
+        <SContextmenuItem v-show="!currentOperationalNode || currentOperationalNode?.type === 'folder'" :label="t('设置公共请求头')"
           @click="handleJumpToCommonHeader"></SContextmenuItem>
-        <!-- <SContextmenuItem v-show="!currentOperationalNode || currentOperationalNode?.isFolder" :label="t('以模板新建')"></SContextmenuItem> -->
-        <SContextmenuItem v-show="currentOperationalNode && currentOperationalNode.isFolder" type="divider">
+        <!-- <SContextmenuItem v-show="!currentOperationalNode || currentOperationalNode?.type === 'folder'" :label="t('以模板新建')"></SContextmenuItem> -->
+        <SContextmenuItem v-show="currentOperationalNode && currentOperationalNode.type === 'folder'" type="divider">
         </SContextmenuItem>
         <SContextmenuItem v-show="currentOperationalNode" :label="t('剪切')" hot-key="Ctrl + X" @click="handleCutNode">
         </SContextmenuItem>
         <SContextmenuItem v-show="currentOperationalNode" :label="t('复制')" hot-key="Ctrl + C" @click="handleCopyNode">
         </SContextmenuItem>
-        <SContextmenuItem v-show="currentOperationalNode && !currentOperationalNode.isFolder" :label="t('生成副本')"
+        <SContextmenuItem v-show="currentOperationalNode && currentOperationalNode.type !== 'folder'" :label="t('生成副本')"
           hot-key="Ctrl + V" @click="handleForkNode"></SContextmenuItem>
-        <SContextmenuItem v-show="!currentOperationalNode || currentOperationalNode?.isFolder" :label="t('粘贴')"
+        <SContextmenuItem v-show="!currentOperationalNode || currentOperationalNode?.type === 'folder'" :label="t('粘贴')"
           hot-key="Ctrl + V" :disabled="!pasteValue" @click="handlePasteNode"></SContextmenuItem>
         <SContextmenuItem v-show="currentOperationalNode" type="divider"></SContextmenuItem>
         <SContextmenuItem v-show="currentOperationalNode && !currentOperationalNode.readonly" :label="t('重命名')"
@@ -285,7 +285,7 @@ const handleClickNode = (e: MouseEvent, data: ApidocBanner) => {
       ...data,
       projectId: projectId.value,
     }];
-    if (!data.isFolder) {
+    if (data.type !== 'folder') {
       apidocTabsStore.addTab({
         _id: data._id,
         projectId: projectId.value,
@@ -304,7 +304,7 @@ const handleClickNode = (e: MouseEvent, data: ApidocBanner) => {
 }
 //双击节点固定这个节点
 const handleDbclickNode = (data: ApidocBanner) => {
-  if (data.isFolder) {
+  if (data.type === 'folder') {
     return;
   }
   apidocTabsStore.fixedTab({
@@ -320,7 +320,7 @@ const handleNodeHover = (e: MouseEvent) => {
 }
 //打开新增文件弹窗
 const handleOpenAddFileDialog = () => {
-  const childFileNodeNum = currentOperationalNode.value?.children.filter((v) => !v.isFolder).length || 0;
+  const childFileNodeNum = currentOperationalNode.value?.children.filter((v) => v.type !== 'folder').length || 0;
   if (!currentOperationalNode.value) { //在根节点操作,不作限制
     addFileDialogVisible.value = true;
   } else if (childFileNodeNum >= projectInfo.value.rules.fileInFolderLimit) {
@@ -387,7 +387,7 @@ const handleCutNode = () => {
 }
 //粘贴节点
 const handlePasteNode = async () => {
-  if (currentOperationalNode.value && !currentOperationalNode.value.isFolder) return //只允许根元素或者文件夹粘贴
+  if (currentOperationalNode.value && currentOperationalNode.value.type !== 'folder') return //只允许根元素或者文件夹粘贴
   // const copyData = window.electronAPI?.clipboard.readBuffer('apiflow-apidoc-node')?.toString();
   try {
     const copyData = await navigator.clipboard.readText();
@@ -413,16 +413,16 @@ const handleCheckNodeCouldDrop = (draggingNode: any, dropNode: any, type: 'inner
   const dropData = dropNode.data as ApidocBanner;
   const nextSiblingData = dropNode.nextSibling?.data as ApidocBanner;
   
-  if (!draggingData.isFolder && nextSiblingData?.isFolder && (type === 'prev' || type === 'next')) { //不允许文件后面是文件夹
+  if (draggingData.type !== 'folder' && nextSiblingData?.type === 'folder' && (type === 'prev' || type === 'next')) { //不允许文件后面是文件夹
     return false;
   }
-  if (!draggingData.isFolder && dropData.isFolder && type !== 'inner') { //不允许文件在文件夹前面
+  if (draggingData.type !== 'folder' && dropData.type === 'folder' && type !== 'inner') { //不允许文件在文件夹前面
     return type !== 'prev';
   }
-  if (draggingData.isFolder && !dropData.isFolder) {
+  if (draggingData.type === 'folder' && dropData.type !== 'folder') {
     return false;
   }
-  if (!dropData.isFolder) {
+  if (dropData.type !== 'folder') {
     return type !== 'inner';
   }
   return true;

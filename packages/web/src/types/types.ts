@@ -69,9 +69,8 @@ export type {
 
 // 从apidoc模块导出API文档相关类型
 export type {
-  ApidocHttpRequestMethod,
-  ApidocPropertyType,
-  ApidocParamsType,
+  HttpNodeRequestMethod,
+  HttpNodePropertyType,
   ApidocProperty,
   ApidocMindParam,
   ApidocType,

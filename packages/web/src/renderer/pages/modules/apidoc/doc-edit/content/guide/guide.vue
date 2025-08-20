@@ -46,7 +46,7 @@ const allNodes = computed(() => {
 const allDocs = computed(() => {
   const result: ApidocBanner[] = [];
   allNodes.value.forEach((v) => {
-    if (!v.isFolder) {
+    if (v.type !== 'folder') {
       result.push(v);
     }
   })

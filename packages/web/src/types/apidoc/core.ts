@@ -1,14 +1,218 @@
 import type { Method } from "got";
 
-// ============================================================================
-// API文档核心类型定义
-// ============================================================================
+/*
+|--------------------------------------------------------------------------
+| 核心存在以下类型节点
+| HttpNode
+| WebsocketNode
+| FolderNode
+|--------------------------------------------------------------------------
+*/
+
+
+
+
+
+/*
+|--------------------------------------------------------------------------
+| HttpNode
+|--------------------------------------------------------------------------
+*/
+export type HttpNode = {
+  /**
+   * 当前文档id
+   */
+  _id: string;
+  /**
+   * 父元素id
+   */
+  pid: string;
+  /**
+   * 项目id
+   */
+  projectId: string;
+  /**
+   * 排序
+   */
+  sort: number;
+  /**
+   * 基本信息
+   */
+  info: ApidocBaseInfo;
+  /**
+   * 接口信息
+   */
+  item: {
+    /**
+     * 请求方法
+     */
+    method: HttpNodeRequestMethod;
+    /**
+     * 请求地址
+     */
+    url: {
+      /**
+       * 接口前缀
+       */
+      prefix: string;
+      /**
+       * 请求路径
+       */
+      path: string;
+    };
+    /**
+     * restful请求路径
+     */
+    paths: ApidocProperty<'string'>[];
+    /**
+     * 查询字符串
+     */
+    queryParams: ApidocProperty<'string'>[];
+    /**
+     * 请求body
+     */
+    requestBody: ApidocBodyParams;
+    /**
+     * 返回参数
+     */
+    responseParams: ApidocResponseParams[];
+    /**
+     * 请求头
+     */
+    headers: ApidocProperty<'string'>[];
+    /**
+     * ContentType类型
+     */
+    contentType: ApidocContentType;
+  };
+  /**
+   * 公共请求头
+   */
+  commonHeaders?: {
+    /**
+     * 请求头名称
+     */
+    key: string;
+    /**
+     * 请求头值
+     */
+    value: string;
+    /**
+     * 请求头描述
+     */
+    description: string;
+  }[];
+  /**
+   * 前置脚本
+   */
+  preRequest: {
+    raw: string;
+  };
+  /**
+   * 后置脚本
+   */
+  afterRequest: {
+    raw: string;
+  };
+  /**
+   * 创建时间
+   */
+  createdAt?: string;
+  /**
+   * 更新时间
+   */
+  updatedAt?: string;
+  mockInfo: {
+    /**
+     * mock地址
+     */
+    path: string,
+    /**
+     * http状态码
+     */
+    httpStatusCode: number;
+    /**
+     * 返回延时
+     */
+    responseDelay: number;
+    /**
+     * 返回数据类型
+     */
+    responseType: 'json' | 'image' | 'file' | 'text' | 'customJson';
+    /**
+     * 自定义返回头
+     */
+    responseHeaders: ApidocProperty<'string'>[];
+    /**
+     * json数据信息
+     */
+    json: string;
+    /**
+     * 图片相关信息
+     */
+    image: {
+      /**
+       * 图片类型
+       */
+      type: 'png' | 'jpg' | 'gif' | 'svg';
+      /**
+       * 图片宽度
+       */
+      width: number;
+      /**
+       * 图片高度
+       */
+      height: number;
+      /**
+       * 图片大小
+       */
+      size: number;
+      /**
+       * 文字大小
+       */
+      fontSize: number;
+      /**
+       * 文字颜色
+       */
+      color: string;
+      /**
+       * 背景颜色
+       */
+      backgroundColor: string;
+    };
+    /**
+     * 文件相关数据
+     */
+    file: {
+      /**
+       * 文件类型
+       */
+      type: 'doc' | 'docx' | 'xls' | 'xlsx' | 'pdf' | 'zip' | 'custom';
+      /**
+       * 文件地址
+       */
+      filePath: string;
+    };
+    /**
+     * 纯文本，html，css等
+     */
+    text: string;
+    /**
+     * 自定义json返回
+     */
+    customResponseScript: string;
+  };
+  /**
+   * 是否被删除
+   */
+  isDeleted?: boolean;
+};
 
 //http请求方法 https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Methods
-export type ApidocHttpRequestMethod = Method
+export type HttpNodeRequestMethod = Method
 
 //接口文档相关类型声明
-export type ApidocPropertyType =
+export type HttpNodePropertyType =
   | 'string'
   | 'number'
   | 'boolean'
@@ -16,16 +220,9 @@ export type ApidocPropertyType =
   | 'object'
   | 'file';
 
-//文档参数类型
-export type ApidocParamsType =
-  | 'pathParams'
-  | 'queryParams'
-  | 'bodyParams'
-  | 'responseParams'
-  | 'headerParams';
 
 //接口参数信息， header pathParams queryParams bodyParams
-export type ApidocProperty<T extends ApidocPropertyType = ApidocPropertyType> = {
+export type ApidocProperty<T extends HttpNodePropertyType = HttpNodePropertyType> = {
   /**
    * 参数id
    */
@@ -274,200 +471,7 @@ export type ApidocResponseParams = {
   isMock?: boolean;
 };
 
-//完整文档信息
-export type HttpNode = {
-  /**
-   * 当前文档id
-   */
-  _id: string;
-  /**
-   * 父元素id
-   */
-  pid: string;
-  /**
-   * 项目id
-   */
-  projectId: string;
-  /**
-   * 是否为文件夹
-   */
-  isFolder: boolean;
-  /**
-   * 排序
-   */
-  sort: number;
-  /**
-   * 基本信息
-   */
-  info: ApidocBaseInfo;
-  /**
-   * 接口信息
-   */
-  item: {
-    /**
-     * 请求方法
-     */
-    method: ApidocHttpRequestMethod;
-    /**
-     * 请求地址
-     */
-    url: {
-      /**
-       * 接口前缀
-       */
-      prefix: string;
-      /**
-       * 请求路径
-       */
-      path: string;
-    };
-    /**
-     * restful请求路径
-     */
-    paths: ApidocProperty<'string'>[];
-    /**
-     * 查询字符串
-     */
-    queryParams: ApidocProperty<'string'>[];
-    /**
-     * 请求body
-     */
-    requestBody: ApidocBodyParams;
-    /**
-     * 返回参数
-     */
-    responseParams: ApidocResponseParams[];
-    /**
-     * 请求头
-     */
-    headers: ApidocProperty<'string'>[];
-    /**
-     * ContentType类型
-     */
-    contentType: ApidocContentType;
-  };
-  /**
-   * 公共请求头
-   */
-  commonHeaders?: {
-    /**
-     * 请求头名称
-     */
-    key: string;
-    /**
-     * 请求头值
-     */
-    value: string;
-    /**
-     * 请求头描述
-     */
-    description: string;
-  }[];
-  /**
-   * 前置脚本
-   */
-  preRequest: {
-    raw: string;
-  };
-  /**
-   * 后置脚本
-   */
-  afterRequest: {
-    raw: string;
-  };
-  /**
-   * 创建时间
-   */
-  createdAt?: string;
-  /**
-   * 更新时间
-   */
-  updatedAt?: string;
-  mockInfo: {
-    /**
-     * mock地址
-     */
-    path: string,
-    /**
-     * http状态码
-     */
-    httpStatusCode: number;
-    /**
-     * 返回延时
-     */
-    responseDelay: number;
-    /**
-     * 返回数据类型
-     */
-    responseType: 'json' | 'image' | 'file' | 'text' | 'customJson';
-    /**
-     * 自定义返回头
-     */
-    responseHeaders: ApidocProperty<'string'>[];
-    /**
-     * json数据信息
-     */
-    json: string;
-    /**
-     * 图片相关信息
-     */
-    image: {
-      /**
-       * 图片类型
-       */
-      type: 'png' | 'jpg' | 'gif' | 'svg';
-      /**
-       * 图片宽度
-       */
-      width: number;
-      /**
-       * 图片高度
-       */
-      height: number;
-      /**
-       * 图片大小
-       */
-      size: number;
-      /**
-       * 文字大小
-       */
-      fontSize: number;
-      /**
-       * 文字颜色
-       */
-      color: string;
-      /**
-       * 背景颜色
-       */
-      backgroundColor: string;
-    };
-    /**
-     * 文件相关数据
-     */
-    file: {
-      /**
-       * 文件类型
-       */
-      type: 'doc' | 'docx' | 'xls' | 'xlsx' | 'pdf' | 'zip' | 'custom';
-      /**
-       * 文件地址
-       */
-      filePath: string;
-    };
-    /**
-     * 纯文本，html，css等
-     */
-    text: string;
-    /**
-     * 自定义json返回
-     */
-    customResponseScript: string;
-  };
-  /**
-   * 是否被删除
-   */
-  isDeleted?: boolean;
-};
+
 
 //文档banner信息
 export type ApidocBanner = {
@@ -496,17 +500,13 @@ export type ApidocBanner = {
    */
   name: string;
   /**
-   * 是否为文件夹
-   */
-  isFolder: boolean;
-  /**
    * 更新人
    */
   maintainer: string;
   /**
    * 请求方法
    */
-  method?: ApidocHttpRequestMethod;
+  method?: HttpNodeRequestMethod;
   protocol?: 'ws' | 'wss',
   /**
    * 请求url
@@ -710,13 +710,9 @@ export type ApidocOperationDeleteInfo = {
    */
   nodeId: string;
   /**
-   * 是否为文件夹
-   */
-  isFolder: boolean;
-  /**
    * 请求方法
    */
-  method: ApidocHttpRequestMethod;
+  method: HttpNodeRequestMethod;
   /**
    * 请求url
    */
@@ -743,7 +739,7 @@ export type ApidocOperationRecord = {
     /**
      * 请求方法
      */
-    method?: ApidocHttpRequestMethod;
+    method?: HttpNodeRequestMethod;
     /**
      * 请求url
      */

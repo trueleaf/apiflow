@@ -57,7 +57,7 @@ const handleAddFolder = () => {
       nodeInfo.pid = props.pid
       nodeInfo.sort = Date.now()
       nodeInfo.isDeleted = false;
-      nodeInfo.isFolder = true;
+      nodeInfo.info.type = 'folder';
       await standaloneCache.addDoc(nodeInfo)
       // const banner = await standaloneCache.getDocTree(nodeInfo.projectId);
       // apidocBannerStore.changeAllDocBanner(banner);
@@ -71,7 +71,7 @@ const handleAddFolder = () => {
         url: nodeInfo.item.url ? nodeInfo.item.url.path : '',
         maintainer: nodeInfo.info.maintainer,
         updatedAt: nodeInfo.updatedAt,
-        isFolder: nodeInfo.isFolder,
+
         children: [],
       }); //一定要先成功然后才关闭弹窗,因为关闭弹窗会清除节点父元素id
       handleClose();

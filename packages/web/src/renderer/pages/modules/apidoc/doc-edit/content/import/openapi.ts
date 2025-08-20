@@ -10,7 +10,7 @@
 
 import jsontoxml from 'jsontoxml'
 import type { OpenAPIV3 } from 'openapi-types';
-import type { ApidocProperty, HttpNode, ApidocPropertyType, ApidocHttpRequestMethod, ApidocBodyRawType, ApidocResponseContentType } from '@src/types'
+import type { ApidocProperty, HttpNode, HttpNodePropertyType, HttpNodeRequestMethod, ApidocBodyRawType, ApidocResponseContentType } from '@src/types'
 import { uuid, apidocGenerateProperty, apidocGenerateApidoc } from '@/helper/index'
 import i18next from 'i18next'
 
@@ -171,7 +171,6 @@ class OpenApiTranslator {
         const folderDoc = apidocGenerateApidoc();
         folderDoc.projectId = this.projectId;
         folderDoc._id = pid; //目录id
-        folderDoc.isFolder = true; //是目录
         folderDoc.sort = Date.now(); //排序
         folderDoc.info.type = 'folder';
         folderDoc.info.name = reqUrl;
@@ -203,7 +202,7 @@ class OpenApiTranslator {
           moyuDoc.info.name = pathItemObject.summary || '未命名'; //文档名称
           moyuDoc.info.description = pathItemObject.description || ''; //文档备注
           moyuDoc.info.type = 'api';
-          moyuDoc.item.method = matchedMethodKey.toUpperCase() as ApidocHttpRequestMethod;
+          moyuDoc.item.method = matchedMethodKey.toUpperCase() as HttpNodeRequestMethod;
           moyuDoc.item.url.prefix = serversInfo[0] ? serversInfo[0].url : '';
           moyuDoc.item.url.path = reqUrl;
           const parameters = this.convertParameters(pathItemObject.parameters);
@@ -244,7 +243,6 @@ class OpenApiTranslator {
         const folderDoc = apidocGenerateApidoc();
         folderDoc.projectId = this.projectId;
         folderDoc._id = pid; //目录id
-        folderDoc.isFolder = true; //是目录
         folderDoc.sort = Date.now(); //排序
         folderDoc.item = {} as HttpNode['item']; //目录item数据为空
         folderDoc.info.type = 'folder';
@@ -318,7 +316,7 @@ class OpenApiTranslator {
     if (!requestBody) {
       return result;
     }
-    const apidocProperty = apidocGenerateProperty<ApidocPropertyType>();
+    const apidocProperty = apidocGenerateProperty<HttpNodePropertyType>();
     const { description, required, content } = (requestBody as OpenAPIV3.RequestBodyObject);
     apidocProperty.description = description || '';
     apidocProperty.required = required || true;
@@ -420,7 +418,7 @@ class OpenApiTranslator {
      * 解析schemaObject
      */
   convertSchemaObjectToParams(schema: OpenAPIV3.SchemaObject | OpenAPIV3.ReferenceObject, key?: string, deep = 1): ApidocProperty {
-    const apidocProperty = apidocGenerateProperty<ApidocPropertyType>();
+    const apidocProperty = apidocGenerateProperty<HttpNodePropertyType>();
     apidocProperty.key = key || '';
     if (deep === 5) { //防止无线死循环
       return apidocProperty;

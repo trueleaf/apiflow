@@ -1,4 +1,4 @@
-import type { ApidocMindParam, ApidocParamsType, ApidocProperty, ApidocPropertyType, ApidocRequestParamTypes, ApidocVariable } from "./core"
+import type { ApidocMindParam, ApidocProperty, HttpNodePropertyType, ApidocRequestParamTypes, ApidocVariable } from "./core"
 
 
 
@@ -14,7 +14,7 @@ export type ApidocProjectVariable = {
    /**
     * 变量值类型
    */
-   type: ApidocPropertyType,
+   type: HttpNodePropertyType,
    /**
     * 变量值
    */
@@ -35,29 +35,7 @@ export type ApidocProjectHost = {
    */
    _id: string,
 }
-//项目参数模板
-export type ApidocProjectParamsTemplate = {
-   /**
-    * 模板id
-    */
-   _id: string,
-   /**
-    * 模板名称
-    */
-   name: string,
-   /**
-    * 模板参数类型
-    */
-   presetParamsType: ApidocParamsType,
-   /**
-    * 创建者
-    */
-   creatorName: string,
-   /**
-    * 参数信息
-    */
-   items: ApidocProperty[],
-}
+
 //请求方法规则
 export type ApidocRequestMethodRule = {
    /**
@@ -133,10 +111,6 @@ export type ApidocProjectCommonHeader = {
       */
    _id: string,
    /**
-      * 是否为文件夹
-      */
-   isFolder: boolean,
-   /**
     * 名称
     */
    name?: string;
@@ -144,6 +118,10 @@ export type ApidocProjectCommonHeader = {
     * pid
     */
    pid: string,
+   /**
+    * 类型
+    */
+   type: 'folder' | 'api' | 'websocket',
    /**
       * 公共请求头信息
       */
@@ -179,10 +157,6 @@ export type ApidocProjectBaseInfoState = {
       * 联想参数
       */
    mindParams: ApidocMindParam[],
-   /**
-      * 参数模板信息
-      */
-   paramsTemplate: ApidocProjectParamsTemplate[],
    /**
       * 项目规则
       */

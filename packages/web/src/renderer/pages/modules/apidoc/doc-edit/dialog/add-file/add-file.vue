@@ -106,7 +106,7 @@ const handleAddFile = () => {
         url: nodeInfo.item.url ? nodeInfo.item.url.path : '',
         maintainer: nodeInfo.info.maintainer,
         updatedAt: nodeInfo.updatedAt,
-        isFolder: nodeInfo.isFolder,
+
       }); //一定要先成功然后才关闭弹窗,因为关闭弹窗会清除节点父元素id
       handleClose();
       loading.value = false;
@@ -129,7 +129,7 @@ const handleAddFile = () => {
       //   url: nodeInfo.item.url ? nodeInfo.item.url.path : '',
       //   maintainer: nodeInfo.info.maintainer,
       //   updatedAt: nodeInfo.updatedAt,
-      //   isFolder: nodeInfo.isFolder,
+
       // }); //一定要先成功然后才关闭弹窗,因为关闭弹窗会清除节点父元素id
       // handleClose();
     }

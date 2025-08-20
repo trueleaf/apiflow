@@ -6,7 +6,7 @@
  * @create             2021-06-15 22:55
  */
 import { nanoid } from 'nanoid/non-secure'
-import type { ApidocHttpRequestMethod, ApidocProperty, ApidocPropertyType, HttpNode, ApidocBanner, ApidocRequestParamTypes, ApidocCodeInfo } from '@src/types'
+import type { HttpNodeRequestMethod, ApidocProperty, HttpNodePropertyType, HttpNode, ApidocBanner, ApidocRequestParamTypes, ApidocCodeInfo } from '@src/types'
 import isEqual from 'lodash/isEqual';
 import lodashCloneDeep from 'lodash/cloneDeep';
 import lodashDebounce from 'lodash/debounce';
@@ -307,14 +307,14 @@ export function uniqueByKey<T extends Data, K extends keyof T>(data: T[], key: K
 /**
  * 获取请求方法
  */
-export function getRequestMethodEnum(): ApidocHttpRequestMethod[] {
+export function getRequestMethodEnum(): HttpNodeRequestMethod[] {
   return ['GET', 'POST', 'PUT', 'DELETE', 'TRACE', 'OPTIONS', 'PATCH', 'HEAD'];
 }
 
 /**
  * 生成一条接口参数
  */
-export function apidocGenerateProperty<T extends ApidocPropertyType = 'string'>(type?: T): ApidocProperty<T> {
+export function apidocGenerateProperty<T extends HttpNodePropertyType = 'string'>(type?: T): ApidocProperty<T> {
   const result = {
     _id: uuid(),
     key: '',
@@ -360,7 +360,7 @@ export function apidocGenerateMockInfo(): HttpNode['mockInfo'] {
 |--------------------------------------------------------------------------
 |
 */
-type Properties = ApidocProperty<ApidocPropertyType>[]
+type Properties = ApidocProperty<HttpNodePropertyType>[]
 // eslint-disable-next-line no-use-before-define
 type JSON = string | number | boolean | null | JsonObj | JsonArr
 type JsonArr = JSON[]
@@ -411,7 +411,6 @@ export function apidocGenerateApidoc(id?: string): HttpNode {
     _id: id || '',
     pid: '',
     projectId: '',
-    isFolder: false,
     sort: 0,
     info: {
       name: '',
@@ -709,8 +708,8 @@ export function convertDocsToBanner(docs: (HttpNode | WebSocketNode)[] = []): Ap
     // 对节点进行排序：目录在前，文档在后
     const sortedNodes = [...nodes].sort((a, b) => {
       // 如果一个是目录一个是文档，目录排在前面
-      if (a.isFolder && !b.isFolder) return -1;
-      if (!a.isFolder && b.isFolder) return 1;
+      if (a.info.type === 'folder' && b.info.type !== 'folder') return -1;
+      if (a.info.type !== 'folder' && b.info.type === 'folder') return 1;
       // 如果都是目录或都是文档，按sort字段排序
       return (a.sort || 0) - (b.sort || 0);
     });
@@ -724,7 +723,6 @@ export function convertDocsToBanner(docs: (HttpNode | WebSocketNode)[] = []): Ap
         sort: node.sort,
         pid: node.pid,
         name: node.info.name,
-        isFolder: node.isFolder,
         maintainer: node.info.maintainer,
         method: node.item.method,
         url: node.item.url.path,
@@ -750,15 +748,15 @@ export function convertDocsToFolder(docs: (HttpNode | WebSocketNode)[] = []): Ap
     // 对节点进行排序：目录在前，文档在后
     const sortedNodes = [...nodes].sort((a, b) => {
       // 如果一个是目录一个是文档，目录排在前面
-      if (a.isFolder && !b.isFolder) return -1;
-      if (!a.isFolder && b.isFolder) return 1;
+      if (a.info.type === 'folder' && b.info.type !== 'folder') return -1;
+      if (a.info.type !== 'folder' && b.info.type === 'folder') return 1;
       // 如果都是目录或都是文档，按sort字段排序
       return (a.sort || 0) - (b.sort || 0);
     });
     
     for (let i = 0; i < sortedNodes.length; i += 1) {
       const node = sortedNodes[i];
-      if (!node.isFolder) continue; // Only include folders
+      if (node.info.type !== 'folder') continue; // Only include folders
       
       const bannerNode: ApidocBanner = {
         _id: node._id,
@@ -767,7 +765,6 @@ export function convertDocsToFolder(docs: (HttpNode | WebSocketNode)[] = []): Ap
         sort: node.sort,
         pid: node.pid,
         name: node.info.name,
-        isFolder: node.isFolder,
         maintainer: node.info.maintainer,
         method: node.item.method,
         url: node.item.url.path,

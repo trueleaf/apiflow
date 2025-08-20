@@ -14,7 +14,7 @@ import {
   ApidocBodyRawType,
   ApidocContentType,
   HttpNode,
-  ApidocHttpRequestMethod,
+  HttpNodeRequestMethod,
   ApidocMindParam,
   ApidocProperty,
   ApidocBodyParams
@@ -126,7 +126,7 @@ export const useApidoc = defineStore('apidoc', () => {
     apidoc.value.item.url.path = path;
   }
   //改变请求method
-  const changeApidocMethod = (method: ApidocHttpRequestMethod): void => {
+  const changeApidocMethod = (method: HttpNodeRequestMethod): void => {
     apidoc.value.item.method = method;
   }
   //改变接口名称

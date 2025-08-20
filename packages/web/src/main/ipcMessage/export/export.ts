@@ -165,7 +165,7 @@ export const exportWord = async (
           headingLevel = HeadingLevel.HEADING_2;
           break;
       }
-      if (data.isFolder) {
+      if (data.info.type === 'folder') {
         //文件夹
         const title = new Paragraph({
           text: `${data.info.name}`,

@@ -28,7 +28,6 @@ export type Standalone = {
     _id: string;
     pid: string;
     projectId: string;
-    isFolder: boolean;
     sort: number;
     info: HttpNode['info'];
     item: HttpNode['item'];

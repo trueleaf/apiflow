@@ -128,7 +128,7 @@
             <!-- 批量删除文档 -->
             <template v-if="item2.operation === 'deleteMany'">
               <div v-for="(node, index3) in item2.recordInfo.deleteNodes" :key="index3" class="doc-info">
-                <img v-if="node.isFolder" :src="folderUrl" width="14px" height="14px" class="mr-1" />
+                <img v-if="node.type === 'folder'" :src="folderUrl" width="14px" height="14px" class="mr-1" />
                 <template v-else>
                   <template v-for="(req) in validRequestMethods">
                     <span v-if="node.method === req.value.toLowerCase()" :key="req.value" class="mr-1"
@@ -136,8 +136,8 @@
                   </template>
                 </template>
                 <span>{{ node.nodeName }}</span>
-                <el-divider v-if="!node.isFolder && node.url" direction="vertical"></el-divider>
-                <span v-if="!node.isFolder">{{ node.url }}</span>
+                <el-divider v-if="node.type !== 'folder' && node.url" direction="vertical"></el-divider>
+                <span v-if="node.type !== 'folder'">{{ node.url }}</span>
               </div>
             </template>
             <!-- 编辑文档 -->

@@ -8,12 +8,6 @@
           </svg>
           <div class="mt-1">HTML</div>
         </div>
-        <!-- <div class="item" :class="{active: selectedType === 'pdf'}" @click="selectedType = 'pdf'">
-                    <svg class="svg-icon" aria-hidden="true">
-                        <use xlink:href="#iconpdfwenjian"></use>
-                    </svg>
-                    <div class="mt-1">PDF</div>
-                </div> -->
         <div class="item" :class="{active: selectedType === 'word'}" @click="selectedType = 'word'">
           <svg class="svg-icon" aria-hidden="true">
             <use xlink:href="#iconWORD"></use>
@@ -41,10 +35,10 @@
               <span>{{ allCheckedNodes.length }}</span>
               <el-divider direction="vertical"></el-divider>
               <span>{{ t("文件夹数量") }}：</span>
-              <span>{{ allCheckedNodes.filter(node => node.isFolder).length }}</span>
+              <span>{{ allCheckedNodes.filter(node => node.type === 'folder').length }}</span>
               <el-divider direction="vertical"></el-divider>
               <span>{{ t("文档数量") }}：</span>
-              <span>{{ allCheckedNodes.filter(node => !node.isFolder).length }}</span>
+              <span>{{ allCheckedNodes.filter(node => node.type !== 'folder').length }}</span>
             </div>
             <el-divider></el-divider>
             <el-tree
@@ -61,7 +55,7 @@
                   tabindex="0"
                 >
                   <!-- file渲染 -->
-                  <template v-if="!scope.data.isFolder">
+                  <template v-if="scope.data.type !== 'folder'">
                     <template v-for="(req) in projectInfo.rules.requestMethods">
                       <span v-if="scope.data.method.toLowerCase() === req.value.toLowerCase()" :key="req.name" class="file-icon" :style="{color: req.iconColor}">{{ req.name }}</span>
                     </template>
@@ -70,7 +64,7 @@
                     </div>
                   </template>
                   <!-- 文件夹渲染 -->
-                  <template v-if="scope.data.isFolder">
+                  <template v-if="scope.data.type === 'folder'">
                     <i class="iconfont folder-icon iconweibiaoti-_huabanfuben"></i>
                     <div class="node-label-wrap">
                       <SEmphasize class="node-top" :title="scope.data.name" :value="scope.data.name"></SEmphasize>
@@ -173,7 +167,6 @@ const handleExportAsHTML = async () => {
         _id: val._id,
         pid: val.pid,
         projectId: apidocBaseInfoStore._id,
-        isFolder: val.isFolder,
         sort: val.sort,
         info: val.info,
         item: val.item,
@@ -290,7 +283,7 @@ const handleExportAsWord = async () => {
         _id: val._id,
         pid: val.pid,
         projectId: apidocBaseInfoStore._id,
-        isFolder: val.isFolder,
+
         sort: val.sort,
         info: val.info,
         item: val.item,

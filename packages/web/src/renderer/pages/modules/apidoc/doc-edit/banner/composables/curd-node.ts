@@ -36,7 +36,7 @@ export function deleteNode(selectNodes: ApidocBannerWithProjectId[], silent?: bo
   const deleteIds: string[] = [];
   selectNodes.forEach((node) => {
     deleteIds.push(node._id); //删除自己
-    if (node.isFolder) { //如果是文件夹则删除所有子元素
+    if (node.type === 'folder') { //如果是文件夹则删除所有子元素
       forEachForest(node.children, (item) => {
         if (!deleteIds.find((id) => id === item._id)) {
           deleteIds.push(item._id);
@@ -52,7 +52,7 @@ export function deleteNode(selectNodes: ApidocBannerWithProjectId[], silent?: bo
       //删除所有nav节点
       const delNodeIds: string[] = [];
       forEachForest(selectNodes, (node) => {
-        if (!node.isFolder) {
+        if (node.type !== 'folder') {
           delNodeIds.push(node._id);
         }
       })
@@ -98,7 +98,7 @@ export function deleteNode(selectNodes: ApidocBannerWithProjectId[], silent?: bo
       //删除所有nav节点
       const delNodeIds: string[] = [];
       forEachForest(selectNodes, (node) => {
-        if (!node.isFolder) {
+        if (node.type !== 'folder') {
           delNodeIds.push(node._id);
         }
       })
@@ -139,7 +139,7 @@ export function addFileAndFolderCb(currentOperationalNode: Ref<ApidocBanner | nu
   const apidocTabsStore = useApidocTas()
   if (currentOperationalNode.value) { //插入到某个节点下面
     if (data.type === 'folder') {
-      const lastFolderIndex = currentOperationalNode.value.children.findIndex((node) => !node.isFolder)
+      const lastFolderIndex = currentOperationalNode.value.children.findIndex((node) => node.type !== 'folder')
       if (lastFolderIndex === -1) {
         apidocBannerStore.splice({
           start: currentOperationalNode.value.children.length,
@@ -165,7 +165,7 @@ export function addFileAndFolderCb(currentOperationalNode: Ref<ApidocBanner | nu
     }
   } else { //插入到根节点
     if (data.type === 'folder') {
-      const lastFolderIndex = apidocBannerStore.banner.findIndex((node) => !node.isFolder);
+      const lastFolderIndex = apidocBannerStore.banner.findIndex((node) => node.type !== 'folder');
       if (lastFolderIndex === -1) {
         apidocBannerStore.splice({
           start: apidocBannerStore.banner.length,
@@ -195,7 +195,7 @@ export function addFileAndFolderCb(currentOperationalNode: Ref<ApidocBanner | nu
     parentNode?.children.push({
       _id: data._id,
       pid: data.pid,
-      isFolder: data.isFolder,
+      type: data.type as 'folder' | 'api' | 'websocket',
       commonHeaders: [],
       children: [],
     });
@@ -203,7 +203,7 @@ export function addFileAndFolderCb(currentOperationalNode: Ref<ApidocBanner | nu
     apidocBaseInfoStore.commonHeaders.push({
       _id: data._id,
       pid: '',
-      isFolder: data.isFolder,
+      type: data.type as 'folder' | 'api' | 'websocket',
       commonHeaders: [],
       children: [],
     });
@@ -439,7 +439,6 @@ export async function forkNode(currentOperationalNode: ApidocBanner): Promise<vo
         sort: Date.now(), // 使用当前时间戳作为排序
         pid: copyDoc.pid,
         name: copyDoc.info.name,
-        isFolder: copyDoc.isFolder,
         maintainer: copyDoc.info.maintainer,
         method: copyDoc.item.method,
         url: copyDoc.item.url.path,

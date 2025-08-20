@@ -537,7 +537,7 @@ watch(() => formInfo.value, (formData) => {
   let plainBannerData: ApidocBanner[] = [];
   const { startTime, endTime, maintainers, recentNum } = formData;
   forEachForest(bannerData.value, (v) => {
-    if (!v.isFolder) {
+    if (v.type !== 'folder') {
       plainBannerData.push(v);
     }
   })
@@ -581,7 +581,7 @@ const handleFilterBanner = () => {
   let plainBannerData: ApidocBanner[] = [];
   const { startTime, endTime, maintainers, recentNum } = formInfo.value;
   forEachForest(bannerData.value, (v) => {
-    if (!v.isFolder) {
+    if (v.type !== 'folder') {
       plainBannerData.push(v);
     }
   })

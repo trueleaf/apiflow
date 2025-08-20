@@ -75,7 +75,7 @@
                 </div>
                 <div class="operator mr-1">{{ docInfo.deletePerson }}</div>
                 <div class="mr-2">删除了</div>
-                <div v-if="docInfo.isFolder" class="d-flex a-center">
+                <div v-if="docInfo.type === 'folder'" class="d-flex a-center">
                   <img :src="folderUrl" width="16" height="16" class="mr-1" />
                   <span>{{ docInfo.name }}</span>
                 </div>
@@ -105,7 +105,7 @@ import isYesterday from 'dayjs/plugin/isYesterday'
 import 'dayjs/locale/zh-cn'
 import 'element-plus/es/components/message-box/style/css';
 import { ElMessageBox } from 'element-plus'
-import type { ApidocHttpRequestMethod, ApidocType, ResponseTable } from '@src/types'
+import type { HttpNodeRequestMethod, ApidocType, ResponseTable } from '@src/types'
 import { router } from '@/router/index'
 import { request } from '@/api/api'
 import SLoading from '@/components/common/loading/g-loading.vue'
@@ -128,9 +128,8 @@ type DeleteInfo = {
   _id: string, //项目id
   deletePerson: string, //删除人
   deletePersonId: string, //删除人id
-  host: string, //host信息
-  isFolder: boolean, //是否为文件夹
-  method: ApidocHttpRequestMethod, //请求方法
+
+  method: HttpNodeRequestMethod, //请求方法
   name: string, //文件名称
   path: string, //请求路径
   pid: string, //父元素id
@@ -373,18 +372,18 @@ const restoreDocDirectly = (docInfo: DeleteInfo) => {
 //恢复接口
 const handleRestore = (docInfo: DeleteInfo) => {
   const banner = apidocBannerStore.banner;
-  const { pid, isFolder } = docInfo;
+  const { pid, type } = docInfo;
   let hasParent = false;
   forEachForest(banner, (node) => {
     if (node._id === pid) {
       hasParent = true;
     }
   });
-  if (!pid && !isFolder) { //文档，根元素
+  if (!pid && type !== 'folder') { //文档，根元素
     restoreDocDirectly(docInfo)
-  } else if (pid && !isFolder && hasParent) { //文档，非根元素,存在父元素
+  } else if (pid && type !== 'folder' && hasParent) { //文档，非根元素,存在父元素
     restoreDocDirectly(docInfo)
-  } else if (pid && !isFolder && !hasParent) { //文档，非根元素,不存在父元素
+  } else if (pid && type !== 'folder' && !hasParent) { //文档，非根元素,不存在父元素
     restoreDocDirectly(docInfo)
   } else {
     restoreDocDirectly(docInfo)

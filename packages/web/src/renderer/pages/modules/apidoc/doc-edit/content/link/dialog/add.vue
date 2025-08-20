@@ -41,10 +41,10 @@
               <span>{{ allCheckedNodes.length }}</span>
               <el-divider direction="vertical"></el-divider>
               <span>{{ t('文件夹数量') }}：</span>
-              <span>{{ allCheckedNodes.filter(node => node.isFolder).length }}</span>
+              <span>{{ allCheckedNodes.filter(node => node.type === 'folder').length }}</span>
               <el-divider direction="vertical"></el-divider>
               <span>{{ t('文档数量') }}：</span>
-              <span>{{ allCheckedNodes.filter(node => !node.isFolder).length }}</span>
+              <span>{{ allCheckedNodes.filter(node => node.type !== 'folder').length }}</span>
             </div>
             <hr>
             <el-tree ref="docTree" :data="navTreeData" node-key="_id" show-checkbox :expand-on-click-node="true"
@@ -52,7 +52,7 @@
               <template #default="prop">
                 <div class="custom-tree-node" tabindex="0">
                   <!-- file渲染 -->
-                  <template v-if="!prop.data.isFolder">
+                  <template v-if="prop.data.type !== 'folder'">
                     <template v-for="(req) in projectInfo.rules.requestMethods">
                       <span v-if="prop.data.method.toLowerCase() === req.value.toLowerCase()" :key="req.name"
                         class="file-icon" :style="{ color: req.iconColor }">{{ req.name }}</span>
@@ -62,7 +62,7 @@
                     </div>
                   </template>
                   <!-- 文件夹渲染 -->
-                  <template v-if="prop.data.isFolder">
+                  <template v-if="prop.data.type === 'folder'">
                     <i class="iconfont folder-icon iconweibiaoti-_huabanfuben"></i>
                     <div class="node-label-wrap">
                       <SEmphasize class="node-top" :title="prop.data.name" :value="prop.data.name"></SEmphasize>

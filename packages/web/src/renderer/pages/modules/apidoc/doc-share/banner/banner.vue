@@ -27,7 +27,7 @@
             @click="handleClickNode($event, scope.data)"
             @dblclick="handleDbclickNode(scope.data)">
             <!-- file渲染 -->
-            <template v-if="!scope.data.isFolder">
+            <template v-if="scope.data.type !== 'folder'">
               <template v-for="(req) in requestMethods">
                 <span 
                   v-if="scope.data.method.toLowerCase() === req.value.toLowerCase()" :key="req.name"
@@ -40,7 +40,7 @@
               </div>
             </template>
             <!-- 文件夹渲染 -->
-            <template v-if="scope.data.isFolder">
+            <template v-if="scope.data.type === 'folder'">
               <i class="iconfont folder-icon iconweibiaoti-_huabanfuben"></i>
               <div class="node-label-wrap">
                 <SEmphasize class="node-top" :title="scope.data.name" :value="scope.data.name" :keyword="searchValue">
@@ -92,7 +92,7 @@ const defaultExpandedKeys = computed(() => activeNode.value ? [activeNode.value.
 
 //点击节点
 const handleClickNode = (_: MouseEvent, data: ApidocBanner) => {
-  if (!data.isFolder) {
+  if (data.type !== 'folder') {
     shareStore.addTab({
       _id: data._id,
       projectId: shareId,
@@ -110,7 +110,7 @@ const handleClickNode = (_: MouseEvent, data: ApidocBanner) => {
 }
 //双击节点固定这个节点
 const handleDbclickNode = (data: ApidocBanner) => {
-  if (data.isFolder) {
+  if (data.type === 'folder') {
     return;
   }
   shareStore.fixedTab({

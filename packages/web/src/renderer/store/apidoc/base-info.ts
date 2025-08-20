@@ -4,7 +4,6 @@ import {
   ApidocProjectBaseInfoState,
   ApidocProjectCommonHeader,
   ApidocProjectHost,
-  ApidocProjectParamsTemplate,
   ApidocProjectRules,
 } from "@src/types/apidoc/base-info";
 import { event } from '@/helper'
@@ -20,7 +19,6 @@ type ChangeProjectBaseInfo = {
   _id: string;
   projectName: string,
   mindParams: ApidocMindParam[],
-  paramsTemplate: ApidocProjectParamsTemplate[],
   rules: ApidocProjectRules,
   hosts: ApidocProjectHost[],
 }
@@ -70,7 +68,6 @@ export const useApidocBaseInfo = defineStore('apidocBaseInfo', () => {
   const _id = ref('');
   const projectName = ref('');
   const mindParams = ref<ApidocMindParam[]>([]);
-  const paramsTemplate = ref<ApidocProjectParamsTemplate[]>([]);
   const rules = ref<ApidocProjectRules>({
     fileInFolderLimit: 255,
     requestMethods: requestMethods
@@ -98,7 +95,6 @@ export const useApidocBaseInfo = defineStore('apidocBaseInfo', () => {
     _id.value = payload._id;
     projectName.value = payload.projectName;
     mindParams.value = payload.mindParams;
-    paramsTemplate.value = payload.paramsTemplate;
     rules.value = payload.rules;
     hosts.value = payload.hosts;
   }
@@ -151,14 +147,6 @@ export const useApidocBaseInfo = defineStore('apidocBaseInfo', () => {
     } else {
       layout.value = localLayout;
     }
-  }
-  //添加一个模板
-  const addParamsTemplate = (payload: ApidocProjectParamsTemplate): void => {
-    paramsTemplate.value.push(payload);
-  }
-  //删除一个模板
-  const deleteParamsTemplate = (index: number): void => {
-    paramsTemplate.value.splice(index, 1)
   }
   //改变web代理
   const changeWebProxy = (isProxy: boolean): void => {
@@ -345,7 +333,6 @@ export const useApidocBaseInfo = defineStore('apidocBaseInfo', () => {
   return {
     _id,
     layout,
-    paramsTemplate,
     webProxy,
     projectName,
     mode,
@@ -363,8 +350,6 @@ export const useApidocBaseInfo = defineStore('apidocBaseInfo', () => {
     initCookies,
     changeLayout,
     initLayout,
-    addParamsTemplate,
-    deleteParamsTemplate,
     changeWebProxy,
     changeMode,
     changeCommonHeaders,

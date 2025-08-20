@@ -99,7 +99,7 @@ export const useApidocBanner = defineStore('apidocBanner', () => {
         changeAllDocBanner(result)
         const urlMap: ApidocMockState['urlMap'] = [];
         forEachForest(res.data, (data) => {
-          if (!data.isFolder) {
+          if (data.type !== 'folder') {
             urlMap.push({
               url: data.url,
               customMockUrl: data.customMockUrl,

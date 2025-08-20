@@ -79,37 +79,6 @@
           </div>
         </div>
       </template>
-      <template #tail>
-        <div class="d-flex a-center">
-          <div v-if="item.value.dataType === 'application/json' && 0" class="p-relative no-select flex0">
-            <span class="cursor-pointer" @click.stop="showTemplateIndex = index">{{ t("应用模板") }}</span>
-            <div v-if="showTemplateIndex === index" class="template-wrap">
-              <div class="header">
-                <el-input v-model="templateFilterString" :size="config.renderConfig.layout.size"
-                  :placeholder="t('过滤模板')" :prefix-icon="Search" class="w-100" maxlength="100" clearable></el-input>
-                <div class="flex0 theme-color cursor-pointer" @click="handleOpenTempateTab">{{ t("维护") }}</div>
-              </div>
-              <template v-if="jsonTemplateList.length > 0">
-                <div v-for="(item2, index2) in jsonTemplateList" :key="index2" class="select-item"
-                  @click="handleSelectTemplate(item2)">
-                  <span class="head">
-                    <SEllipsis :value="item2.name" :keyword="templateFilterString"></SEllipsis>
-                  </span>
-                  <span class="tail">{{ item2.creatorName }}</span>
-                </div>
-              </template>
-              <div v-else class="select-item disabled d-flex j-center gray-500">{{ t("暂无数据") }}</div>
-            </div>
-          </div>
-          <!-- <el-divider v-if="item.value.dataType === 'application/json'" direction="vertical"></el-divider> -->
-          <div v-if="item.value.dataType === 'application/json' && 0" class="cursor-pointer flex0 mr-3"
-            @click="handleOpenTemplateDialog(index)">{{ t("保存为模板") }} </div>
-          <div v-if="index === 0" class="green cursor-pointer flex0" @click="handleAddResponse">{{ t("新增") }}</div>
-          <div v-if="responseData.length > 1" class="red cursor-pointer ml-2" @click="handleDeleteResponse(index)">{{
-            t("删除") }}
-          </div>
-        </div>
-      </template>
       <!-- 内容展示 -->
       <div v-if="checkDisplayType(item.value.dataType) === 'json'" class="editor-wrap border-gray-400"
         :class="{ vertical: layout === 'vertical' }">
@@ -125,7 +94,6 @@
         </SRawEditor>
       </div>
     </SCollapseCard>
-    <ParamsTemplate v-model="paramsTemplatedialogVisible" :index="curentOperationIndex"></ParamsTemplate>
   </div>
 </template>
 
@@ -134,20 +102,15 @@ import { useTranslation } from 'i18next-vue'
 import SCollapseCard from '@/components/common/collapse-card/g-collapse-card.vue'
 import { computed, ref, Ref, onMounted, onUnmounted } from 'vue'
 import { Effect } from 'element-plus';
-import { Search, ArrowDown, Edit } from '@element-plus/icons-vue'
+import { ArrowDown, Edit } from '@element-plus/icons-vue'
 import type { ApidocResponseParams, ApidocResponseContentType, ApidocContentType } from '@src/types'
 import { apidocCache } from '@/cache/apidoc'
 import SStatus from './children/status.vue'
 import SMime from './children/mime.vue'
-import ParamsTemplate from './dialog/params-template/params-template.vue'
-import useParamsTemplate from './compsables/params-template' //参数模板
-import SEllipsis from '@/components/common/ellipsis-content/g-ellipsis-content.vue'
 import SRawEditor from '@/components/apidoc/raw-editor/g-raw-editor.vue'
 import SJsonEditor from '@/components/common/json-editor/g-json-editor.vue'
 import { useApidoc } from '@/store/apidoc/apidoc';
 import { useApidocBaseInfo } from '@/store/apidoc/base-info';
-import { ApidocProjectParamsTemplate } from '@src/types/apidoc/base-info';
-import { config } from '@src/config/config'
 
 const apidocStroe = useApidoc();
 const apidocBaseInfoStore = useApidocBaseInfo()
@@ -332,16 +295,6 @@ const checkDisplayType = (mimeType: ApidocResponseContentType): 'text' | 'json' 
     return 'json';
   }
   return 'unknown'
-}
-/*
-|--------------------------------------------------------------------------
-| 模板相关操作
-|--------------------------------------------------------------------------
-*/
-const { showTemplateIndex, templateFilterString, jsonTemplateList, paramsTemplatedialogVisible, curentOperationIndex, handleOpenTempateTab, handleOpenTemplateDialog } = useParamsTemplate();
-//选择模板
-const handleSelectTemplate = (templateInfo: ApidocProjectParamsTemplate) => {
-  console.log(123, templateInfo.items)
 }
 /*
 |--------------------------------------------------------------------------

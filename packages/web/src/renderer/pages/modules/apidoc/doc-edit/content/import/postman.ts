@@ -42,7 +42,6 @@ class PostmanTranslator {
         moyuDoc.docs.push(doc);
         if (isFolder) { //文件夹
           doc.info.type = 'folder';
-          doc.isFolder = true;
           foo(item.item, id);
         } else {
           doc.info.type = 'api';

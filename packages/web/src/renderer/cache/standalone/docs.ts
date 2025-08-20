@@ -121,7 +121,7 @@ export class DocCache {
     const docNum = allDocs.filter(doc => 
       doc.projectId === projectId && 
       !doc.isDeleted && 
-      !doc.isFolder 
+      doc.info.type !== 'folder'
     ).length;
     
     const project = await projectsStore.get(projectId);
@@ -237,7 +237,7 @@ export class DocCache {
         name: doc.info.name,
         type: doc.info.type,
         deletePerson: doc.info.deletePerson,
-        isFolder: 'isFolder' in doc ? doc.isFolder : false,
+
         prefix: typeof doc.item.url === 'string' ? '' : doc.item.url.prefix,
         path: typeof doc.item.url === 'string' ? doc.item.url : doc.item.url.path,
         method: 'method' in doc.item ? doc.item.method : undefined,

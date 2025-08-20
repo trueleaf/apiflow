@@ -5,19 +5,19 @@
     </el-icon>
     <div class="params-view">
       <SFieldset v-if="apidocInfo?.item.url" :title="t('基本信息')">
-        <SLableValue v-if="!apidocInfo?.isFolder" label="请求方式：" class="w-50">
+        <SLableValue v-if="apidocInfo?.type !== 'folder'" label="请求方式：" class="w-50">
           <template v-for="(req) in validRequestMethods">
             <span v-if="apidocInfo?.item.method.toLowerCase() === req.value.toLowerCase()" :key="req.name" class="label"
               :style="{ color: req.iconColor }">{{ req.name.toUpperCase() }}</span>
           </template>
         </SLableValue>
-        <SLableValue v-if="!apidocInfo?.isFolder" label="接口名称：" class="w-50">
+        <SLableValue v-if="apidocInfo?.info?.type !== 'folder'" label="接口名称：" class="w-50">
           <div>{{ apidocInfo?.info.name }}</div>
         </SLableValue>
-        <SLableValue v-if="!apidocInfo?.isFolder" label="请求地址：" class="w-50 mt-2">
+        <SLableValue v-if="apidocInfo?.info?.type !== 'folder'" label="请求地址：" class="w-50 mt-2">
           <span class="text-ellipsis">{{ apidocRequestStore.fullUrl }}</span>
         </SLableValue>
-        <SLableValue v-if="apidocInfo?.isFolder" label="目录名称：" class="w-50">
+        <SLableValue v-if="apidocInfo?.info?.type === 'folder'" label="目录名称：" class="w-50">
           <div>{{ apidocInfo?.info.name }}</div>
         </SLableValue>
         <div v-if="apidocInfo" class="base-info">
@@ -37,7 +37,7 @@
           </SLableValue>
         </div>
       </SFieldset>
-      <SFieldset v-if="!apidocInfo?.isFolder" :title="t('请求参数')" class="mb-5">
+      <SFieldset v-if="apidocInfo?.info?.type !== 'folder'" :title="t('请求参数')" class="mb-5">
         <template v-if="hasQueryParams">
           <div class="title">{{ t("Query参数") }}</div>
           <SParamsView :data="apidocInfo?.item.queryParams" plain class="mb-3"></SParamsView>
@@ -66,7 +66,7 @@
           v-if="!hasQueryParams && !hasPathsParams && !hasJsonBodyParams && !hasFormDataParams && !hasUrlEncodedParams && !hasRawParams">
           {{ t("暂无数据") }}</div>
       </SFieldset>
-      <SFieldset v-if="!apidocInfo?.isFolder" :title="t('返回参数')">
+      <SFieldset v-if="apidocInfo?.info?.type !== 'folder'" :title="t('返回参数')">
         <div v-for="(item, index) in apidocInfo?.item.responseParams" :key="index" class="title">
           <div class="mb-2">
             <span>{{ t("名称") }}：</span>
@@ -86,7 +86,7 @@
           </div>
         </div>
       </SFieldset>
-      <SFieldset v-if="!apidocInfo?.isFolder" :title="t('请求头')">
+      <SFieldset v-if="apidocInfo?.info?.type !== 'folder'" :title="t('请求头')">
         <template v-if="hasHeaders">
           <SParamsView :data="apidocInfo?.item.headers" plain class="mb-3"></SParamsView>
         </template>

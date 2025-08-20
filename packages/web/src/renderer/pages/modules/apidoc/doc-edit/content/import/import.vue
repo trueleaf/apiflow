@@ -30,16 +30,16 @@
     <SFieldset :title="$t('导入数据预览')">
       <div>
         <SLableValue :label="`${$t('文档数')}：`" label-width="auto" class="mr-4">{{ formInfo.moyuData.docs.filter((v) =>
-          !v.isFolder).length }}</SLableValue>
+          v.info.type !== 'folder').length }}</SLableValue>
         <SLableValue :label="`${$t('文件夹数')}：`" label-width="auto">{{ formInfo.moyuData.docs.filter((v) =>
-          v.isFolder).length
+          v.info.type === 'folder').length
           }}</SLableValue>
       </div>
       <el-tree ref="docTree" :data="previewNavTreeData" node-key="_id" :expand-on-click-node="true">
         <template #default="scope">
           <div class="custom-tree-node" tabindex="0">
             <!-- file渲染 -->
-            <template v-if="!scope.data.isFolder">
+            <template v-if="scope.data.info.type !== 'folder'">
               <template v-for="(req) in projectInfo.rules.requestMethods">
                 <span v-if="scope.data.item.method.toLowerCase() === req.value.toLowerCase()" :key="req.name"
                   class="file-icon" :style="{ color: req.iconColor }">{{ req.name }}</span>
@@ -49,7 +49,7 @@
               </div>
             </template>
             <!-- 文件夹渲染 -->
-            <template v-if="scope.data.isFolder">
+            <template v-if="scope.data.info.type === 'folder'">
               <i class="iconfont folder-icon iconweibiaoti-_huabanfuben"></i>
               <div class="node-label-wrap">
                 <SEmphasize class="node-top" :title="scope.data.info.name" :value="scope.data.info.name"></SEmphasize>
@@ -359,8 +359,8 @@ const previewNavTreeData = computed(() => {
   const sortItems = (items: typeof docs) => {
     return items.sort((a, b) => {
       // 文件夹排在前面，API文档排在后面
-      if (a.isFolder && !b.isFolder) return -1;
-      if (!a.isFolder && b.isFolder) return 1;
+      if (a.info.type === 'folder' && b.info.type !== 'folder') return -1;
+      if (a.info.type !== 'folder' && b.info.type === 'folder') return 1;
 
       // 同类型内部按 sort 字段升序排序
       const aSort = a.sort ?? Number.MAX_SAFE_INTEGER;

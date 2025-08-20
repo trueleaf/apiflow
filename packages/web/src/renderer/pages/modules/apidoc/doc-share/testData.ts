@@ -11,7 +11,7 @@ export const localShareDataTest: LocalShareData = {
           "_id": "6808c3a32c85f911e89f6c40",
           "pid": "6808c3a32c85f911e89f6c3f",
           "projectId": "68061e273bba346cff2cc878",
-          "isFolder": true,
+
           "sort": 1739182921312,
           "info": {
               "name": "请求方法",
@@ -70,7 +70,7 @@ export const localShareDataTest: LocalShareData = {
           "_id": "6808c3a32c85f911e89f6c3e",
           "pid": "",
           "projectId": "68061e273bba346cff2cc878",
-          "isFolder": true,
+
           "sort": 1735365393252,
           "info": {
               "name": "目录一",
@@ -129,7 +129,7 @@ export const localShareDataTest: LocalShareData = {
           "_id": "6808c3a32c85f911e89f6c3f",
           "pid": "",
           "projectId": "68061e273bba346cff2cc878",
-          "isFolder": true,
+
           "sort": 1739181956429,
           "info": {
               "name": "接口调用测试",
@@ -188,7 +188,7 @@ export const localShareDataTest: LocalShareData = {
           "_id": "6808c3a32c85f911e89f6c41",
           "pid": "6808c3a32c85f911e89f6c40",
           "projectId": "68061e273bba346cff2cc878",
-          "isFolder": false,
+
           "sort": 1739182933591,
           "info": {
               "name": "GET请求",
@@ -289,7 +289,7 @@ export const localShareDataTest: LocalShareData = {
           "_id": "6808c3a32c85f911e89f6c42",
           "pid": "6808c3a32c85f911e89f6c40",
           "projectId": "68061e273bba346cff2cc878",
-          "isFolder": false,
+
           "sort": 1739182938900,
           "info": {
               "name": "POST请求",
@@ -390,7 +390,7 @@ export const localShareDataTest: LocalShareData = {
           "_id": "6808c3a32c85f911e89f6c43",
           "pid": "6808c3a32c85f911e89f6c40",
           "projectId": "68061e273bba346cff2cc878",
-          "isFolder": false,
+
           "sort": 1739182943881,
           "info": {
               "name": "PUT请求",
@@ -491,7 +491,7 @@ export const localShareDataTest: LocalShareData = {
           "_id": "6808c3a32c85f911e89f6c46",
           "pid": "6808c3a32c85f911e89f6c40",
           "projectId": "68061e273bba346cff2cc878",
-          "isFolder": false,
+
           "sort": 1739183043122,
           "info": {
               "name": "OPTIONS请求",
@@ -592,7 +592,7 @@ export const localShareDataTest: LocalShareData = {
           "_id": "6808c3a32c85f911e89f6c47",
           "pid": "6808c3a32c85f911e89f6c40",
           "projectId": "68061e273bba346cff2cc878",
-          "isFolder": false,
+
           "sort": 1739183051089,
           "info": {
               "name": "HEAD请求",
@@ -693,7 +693,7 @@ export const localShareDataTest: LocalShareData = {
           "_id": "6808c3a32c85f911e89f6c48",
           "pid": "6808c3a32c85f911e89f6c40",
           "projectId": "68061e273bba346cff2cc878",
-          "isFolder": false,
+
           "sort": 1739591591744,
           "info": {
               "name": "自定义Test请求",
@@ -795,7 +795,7 @@ export const localShareDataTest: LocalShareData = {
           "_id": "6808c3a32c85f911e89f6c49",
           "pid": "6808c3a32c85f911e89f6c3f",
           "projectId": "68061e273bba346cff2cc878",
-          "isFolder": true,
+
           "sort": 1739598667673,
           "info": {
               "name": "请求信息&变量验证",
@@ -854,7 +854,7 @@ export const localShareDataTest: LocalShareData = {
           "_id": "6808c3a32c85f911e89f6c50",
           "pid": "68217f9754879786458cd66e",
           "projectId": "68061e273bba346cff2cc878",
-          "isFolder": false,
+
           "sort": 1747025820340,
           "info": {
               "name": "默认请求�?,
@@ -1108,7 +1108,7 @@ export const localShareDataTest: LocalShareData = {
           "_id": "6808c3a32c85f911e89f6c53",
           "pid": "6808c3a32c85f911e89f6c55",
           "projectId": "68061e273bba346cff2cc878",
-          "isFolder": false,
+
           "sort": 1740921282453,
           "info": {
               "name": "附件上传",
@@ -1246,7 +1246,7 @@ export const localShareDataTest: LocalShareData = {
           "_id": "6808c3a32c85f911e89f6c55",
           "pid": "",
           "projectId": "68061e273bba346cff2cc878",
-          "isFolder": true,
+
           "sort": 1740921278869,
           "info": {
               "name": "测试接口",
@@ -1305,7 +1305,7 @@ export const localShareDataTest: LocalShareData = {
           "_id": "6808c3a32c85f911e89f6c56",
           "pid": "6808c3a32c85f911e89f6c57",
           "projectId": "68061e273bba346cff2cc878",
-          "isFolder": false,
+
           "sort": 1740925263361,
           "info": {
               "name": "创建团队",
@@ -1406,7 +1406,7 @@ export const localShareDataTest: LocalShareData = {
           "_id": "6808c3a32c85f911e89f6c57",
           "pid": "6808c3a32c85f911e89f6c55",
           "projectId": "68061e273bba346cff2cc878",
-          "isFolder": true,
+
           "sort": 1740925259935,
           "info": {
               "name": "团队相关",
@@ -1465,7 +1465,7 @@ export const localShareDataTest: LocalShareData = {
           "_id": "6808c3a32c85f911e89f6c58",
           "pid": "6808c3a32c85f911e89f6c57",
           "projectId": "68061e273bba346cff2cc878",
-          "isFolder": false,
+
           "sort": 1740925318752,
           "info": {
               "name": "更新团队",
@@ -1566,7 +1566,7 @@ export const localShareDataTest: LocalShareData = {
           "_id": "6808c3a32c85f911e89f6c59",
           "pid": "6808c3a32c85f911e89f6c57",
           "projectId": "68061e273bba346cff2cc878",
-          "isFolder": false,
+
           "sort": 1741148451403,
           "info": {
               "name": "获取团队详情",
@@ -1676,7 +1676,7 @@ export const localShareDataTest: LocalShareData = {
           "_id": "6808c3a32c85f911e89f6c5a",
           "pid": "6808c3a32c85f911e89f6c57",
           "projectId": "68061e273bba346cff2cc878",
-          "isFolder": false,
+
           "sort": 1741169998985,
           "info": {
               "name": "列表形式获取团队",
@@ -1795,7 +1795,7 @@ export const localShareDataTest: LocalShareData = {
           "_id": "6808c3a32c85f911e89f6c5b",
           "pid": "6808c3a32c85f911e89f6c57",
           "projectId": "68061e273bba346cff2cc878",
-          "isFolder": false,
+
           "sort": 1741172166820,
           "info": {
               "name": "添加成员",
@@ -1896,7 +1896,7 @@ export const localShareDataTest: LocalShareData = {
           "_id": "6808c3a32c85f911e89f6c5c",
           "pid": "6808c3a32c85f911e89f6c57",
           "projectId": "68061e273bba346cff2cc878",
-          "isFolder": false,
+
           "sort": 1741173005989,
           "info": {
               "name": "修改成员权限",
@@ -1997,7 +1997,7 @@ export const localShareDataTest: LocalShareData = {
           "_id": "6808c3a32c85f911e89f6c5d",
           "pid": "6808c3a32c85f911e89f6c3e",
           "projectId": "68061e273bba346cff2cc878",
-          "isFolder": false,
+
           "sort": 1741182086672,
           "info": {
               "name": "3",
@@ -2056,7 +2056,7 @@ export const localShareDataTest: LocalShareData = {
           "_id": "6808c3a32c85f911e89f6c5e",
           "pid": "6808c3a32c85f911e89f6c3e",
           "projectId": "68061e273bba346cff2cc878",
-          "isFolder": false,
+
           "sort": 1741182144760,
           "info": {
               "name": "1",
@@ -2115,7 +2115,7 @@ export const localShareDataTest: LocalShareData = {
           "_id": "6808c3a32c85f911e89f6c44",
           "pid": "6808c3a32c85f911e89f6c40",
           "projectId": "68061e273bba346cff2cc878",
-          "isFolder": false,
+
           "sort": 1739183022281,
           "info": {
               "name": "DELETE请求",
@@ -2216,7 +2216,7 @@ export const localShareDataTest: LocalShareData = {
           "_id": "6808c3a32c85f911e89f6c45",
           "pid": "6808c3a32c85f911e89f6c40",
           "projectId": "68061e273bba346cff2cc878",
-          "isFolder": false,
+
           "sort": 1739183029521,
           "info": {
               "name": "PATCH请求",
@@ -2317,7 +2317,7 @@ export const localShareDataTest: LocalShareData = {
           "_id": "6808c3a32c85f911e89f6c61",
           "pid": "6808c3a32c85f911e89f6c60",
           "projectId": "68061e273bba346cff2cc878",
-          "isFolder": false,
+
           "sort": 1741336355657,
           "info": {
               "name": "修改全局公共请求�?,
@@ -2418,7 +2418,7 @@ export const localShareDataTest: LocalShareData = {
           "_id": "6808c3a32c85f911e89f6c62",
           "pid": "6808c3a32c85f911e89f6c60",
           "projectId": "68061e273bba346cff2cc878",
-          "isFolder": false,
+
           "sort": 1741582738023,
           "info": {
               "name": "获取全局公共请求�?,
@@ -2537,7 +2537,7 @@ export const localShareDataTest: LocalShareData = {
           "_id": "6808c3a32c85f911e89f6c64",
           "pid": "6808c3a32c85f911e89f6c55",
           "projectId": "68061e273bba346cff2cc878",
-          "isFolder": true,
+
           "sort": 1742379410534,
           "info": {
               "name": "认证相关",
@@ -2596,7 +2596,7 @@ export const localShareDataTest: LocalShareData = {
           "_id": "6808c3a32c85f911e89f6c65",
           "pid": "6808c3a32c85f911e89f6c64",
           "projectId": "68061e273bba346cff2cc878",
-          "isFolder": false,
+
           "sort": 1742379419642,
           "info": {
               "name": "图形验证码获�?,
@@ -2715,7 +2715,7 @@ export const localShareDataTest: LocalShareData = {
           "_id": "6808c3a32c85f911e89f6c5f",
           "pid": "6808c3a32c85f911e89f6c3e",
           "projectId": "68061e273bba346cff2cc878",
-          "isFolder": false,
+
           "sort": 1741182276242,
           "info": {
               "name": "33",
@@ -2774,7 +2774,7 @@ export const localShareDataTest: LocalShareData = {
           "_id": "6808c3a32c85f911e89f6c60",
           "pid": "6808c3a32c85f911e89f6c55",
           "projectId": "68061e273bba346cff2cc878",
-          "isFolder": true,
+
           "sort": 1741336332603,
           "info": {
               "name": "公共请求头相�?,
@@ -2833,7 +2833,7 @@ export const localShareDataTest: LocalShareData = {
           "_id": "68217f9754879786458cd66e",
           "pid": "6808c3a32c85f911e89f6c49",
           "projectId": "68061e273bba346cff2cc878",
-          "isFolder": true,
+
           "sort": 1747025815327,
           "info": {
               "name": "请求�?,
@@ -2893,7 +2893,7 @@ export const localShareDataTest: LocalShareData = {
           "_id": "68231edc7343812b7d2722dd",
           "pid": "68217f9754879786458cd66e",
           "projectId": "68061e273bba346cff2cc878",
-          "isFolder": false,
+
           "sort": 1747132124536,
           "info": {
               "name": "公共请求�?,
@@ -2994,7 +2994,7 @@ export const localShareDataTest: LocalShareData = {
           "_id": "6825c36f5d747c2d07745361",
           "pid": "6808c3a32c85f911e89f6c49",
           "projectId": "68061e273bba346cff2cc878",
-          "isFolder": true,
+
           "sort": 1747305327397,
           "info": {
               "name": "返回参数录入",
@@ -3054,7 +3054,7 @@ export const localShareDataTest: LocalShareData = {
           "_id": "6825c3775d747c2d07745369",
           "pid": "6808c3a32c85f911e89f6c49",
           "projectId": "68061e273bba346cff2cc878",
-          "isFolder": true,
+
           "sort": 1747305335098,
           "info": {
               "name": "请求参数",
@@ -3114,7 +3114,7 @@ export const localShareDataTest: LocalShareData = {
           "_id": "6825c3855d747c2d07745372",
           "pid": "6825c3775d747c2d07745369",
           "projectId": "68061e273bba346cff2cc878",
-          "isFolder": false,
+
           "sort": 1747305349635,
           "info": {
               "name": "请求url",
@@ -3215,7 +3215,7 @@ export const localShareDataTest: LocalShareData = {
           "_id": "6825c3855d747c2d07745373",
           "pid": "6825c3775d747c2d07745369",
           "projectId": "68061e273bba346cff2cc878",
-          "isFolder": false,
+
           "sort": 1747305349635,
           "info": {
               "name": "query参数",
@@ -3388,7 +3388,7 @@ export const localShareDataTest: LocalShareData = {
           "_id": "6825c3855d747c2d07745374",
           "pid": "6825c3775d747c2d07745369",
           "projectId": "68061e273bba346cff2cc878",
-          "isFolder": false,
+
           "sort": 1747305349635,
           "info": {
               "name": "json参数",
@@ -3489,7 +3489,7 @@ export const localShareDataTest: LocalShareData = {
           "_id": "6825c3855d747c2d07745375",
           "pid": "6825c3775d747c2d07745369",
           "projectId": "68061e273bba346cff2cc878",
-          "isFolder": false,
+
           "sort": 1747305349635,
           "info": {
               "name": "formData参数",
@@ -3655,7 +3655,7 @@ export const localShareDataTest: LocalShareData = {
           "_id": "6825c3855d747c2d07745376",
           "pid": "6825c3775d747c2d07745369",
           "projectId": "68061e273bba346cff2cc878",
-          "isFolder": false,
+
           "sort": 1747305349635,
           "info": {
               "name": "urlencoded参数",
@@ -3819,7 +3819,7 @@ export const localShareDataTest: LocalShareData = {
           "_id": "6825c3855d747c2d07745377",
           "pid": "6825c3775d747c2d07745369",
           "projectId": "68061e273bba346cff2cc878",
-          "isFolder": false,
+
           "sort": 1747305349635,
           "info": {
               "name": "raw类型-text",
@@ -3920,7 +3920,7 @@ export const localShareDataTest: LocalShareData = {
           "_id": "6825c3855d747c2d07745378",
           "pid": "6825c3775d747c2d07745369",
           "projectId": "68061e273bba346cff2cc878",
-          "isFolder": false,
+
           "sort": 1747305349635,
           "info": {
               "name": "path参数",
@@ -4031,7 +4031,7 @@ export const localShareDataTest: LocalShareData = {
           "_id": "6825c3855d747c2d07745379",
           "pid": "6825c3775d747c2d07745369",
           "projectId": "68061e273bba346cff2cc878",
-          "isFolder": false,
+
           "sort": 1747305349635,
           "info": {
               "name": "binary参数类型",
@@ -4130,7 +4130,7 @@ export const localShareDataTest: LocalShareData = {
           "_id": "6825c3855d747c2d0774537a",
           "pid": "6825c3775d747c2d07745369",
           "projectId": "68061e273bba346cff2cc878",
-          "isFolder": false,
+
           "sort": 1747305349635,
           "info": {
               "name": "raw类型-html",
@@ -4231,7 +4231,7 @@ export const localShareDataTest: LocalShareData = {
           "_id": "6825c3855d747c2d0774537b",
           "pid": "6825c3775d747c2d07745369",
           "projectId": "68061e273bba346cff2cc878",
-          "isFolder": false,
+
           "sort": 1747305349635,
           "info": {
               "name": "raw类型-xml",
@@ -4332,7 +4332,7 @@ export const localShareDataTest: LocalShareData = {
           "_id": "6825c3855d747c2d0774537c",
           "pid": "6825c3775d747c2d07745369",
           "projectId": "68061e273bba346cff2cc878",
-          "isFolder": false,
+
           "sort": 1747305349635,
           "info": {
               "name": "raw类型-javascript",
@@ -4433,7 +4433,7 @@ export const localShareDataTest: LocalShareData = {
           "_id": "6825c39a5d747c2d0774539e",
           "pid": "6825c36f5d747c2d07745361",
           "projectId": "68061e273bba346cff2cc878",
-          "isFolder": false,
+
           "sort": 1747305370997,
           "info": {
               "name": "返回参数",
@@ -4535,7 +4535,7 @@ export const localShareDataTest: LocalShareData = {
           "_id": "6825c4e95d747c2d077453c0",
           "pid": "6808c3a32c85f911e89f6c3f",
           "projectId": "68061e273bba346cff2cc878",
-          "isFolder": true,
+
           "sort": 1747305705631,
           "info": {
               "name": "前置脚本",
@@ -4595,7 +4595,7 @@ export const localShareDataTest: LocalShareData = {
           "_id": "6825c4f05d747c2d077453c8",
           "pid": "6808c3a32c85f911e89f6c3f",
           "projectId": "68061e273bba346cff2cc878",
-          "isFolder": true,
+
           "sort": 1747305712624,
           "info": {
               "name": "后置脚本",
@@ -4655,7 +4655,7 @@ export const localShareDataTest: LocalShareData = {
           "_id": "6825c5905d747c2d077453d0",
           "pid": "6825c4e95d747c2d077453c0",
           "projectId": "68061e273bba346cff2cc878",
-          "isFolder": false,
+
           "sort": 1747305872867,
           "info": {
               "name": "前置脚本",
@@ -4756,7 +4756,7 @@ export const localShareDataTest: LocalShareData = {
           "_id": "6827f3184c8d8514be544256",
           "pid": "6825c4f05d747c2d077453c8",
           "projectId": "68061e273bba346cff2cc878",
-          "isFolder": false,
+
           "sort": 1747448639177,
           "info": {
               "name": "后置脚本",
@@ -4816,7 +4816,7 @@ export const localShareDataTest: LocalShareData = {
           "_id": "6827fce3a1aedad4e6da43e9",
           "pid": "68217f9754879786458cd66e",
           "projectId": "68061e273bba346cff2cc878",
-          "isFolder": true,
+
           "sort": 1747451107042,
           "info": {
               "name": "ContentType",
@@ -4876,7 +4876,7 @@ export const localShareDataTest: LocalShareData = {
           "_id": "6827fcf0a1aedad4e6da43f1",
           "pid": "682c05860f7ebcead74fbc46",
           "projectId": "68061e273bba346cff2cc878",
-          "isFolder": false,
+
           "sort": 1747715474307,
           "info": {
               "name": "无contentType-json",
@@ -4977,7 +4977,7 @@ export const localShareDataTest: LocalShareData = {
           "_id": "682803e13a2049a73fd7130d",
           "pid": "682c058e0f7ebcead74fbc4e",
           "projectId": "68061e273bba346cff2cc878",
-          "isFolder": false,
+
           "sort": 1747715486418,
           "info": {
               "name": "json",
@@ -5078,7 +5078,7 @@ export const localShareDataTest: LocalShareData = {
           "_id": "682c04b90f7ebcead74fbb3d",
           "pid": "682c05860f7ebcead74fbc46",
           "projectId": "68061e273bba346cff2cc878",
-          "isFolder": false,
+
           "sort": 1747583298291,
           "info": {
               "name": "无contentType-form",
@@ -5179,7 +5179,7 @@ export const localShareDataTest: LocalShareData = {
           "_id": "682c04bb0f7ebcead74fbb46",
           "pid": "682c05860f7ebcead74fbc46",
           "projectId": "68061e273bba346cff2cc878",
-          "isFolder": false,
+
           "sort": 1747649388288,
           "info": {
               "name": "无contentType-encoded",
@@ -5280,7 +5280,7 @@ export const localShareDataTest: LocalShareData = {
           "_id": "682c04bd0f7ebcead74fbb4f",
           "pid": "682c05860f7ebcead74fbc46",
           "projectId": "68061e273bba346cff2cc878",
-          "isFolder": false,
+
           "sort": 1747682434149.5,
           "info": {
               "name": "无contentType-raw",
@@ -5381,7 +5381,7 @@ export const localShareDataTest: LocalShareData = {
           "_id": "682c052c0f7ebcead74fbbe8",
           "pid": "682c05860f7ebcead74fbc46",
           "projectId": "68061e273bba346cff2cc878",
-          "isFolder": false,
+
           "sort": 1747698958433.25,
           "info": {
               "name": "无contentType-binary",
@@ -5482,7 +5482,7 @@ export const localShareDataTest: LocalShareData = {
           "_id": "682c05310f7ebcead74fbbf1",
           "pid": "682c05860f7ebcead74fbc46",
           "projectId": "68061e273bba346cff2cc878",
-          "isFolder": false,
+
           "sort": 1747707221474.625,
           "info": {
               "name": "无contentType-none",
@@ -5583,7 +5583,7 @@ export const localShareDataTest: LocalShareData = {
           "_id": "682c05860f7ebcead74fbc46",
           "pid": "6827fce3a1aedad4e6da43e9",
           "projectId": "68061e273bba346cff2cc878",
-          "isFolder": true,
+
           "sort": 1747715462233,
           "info": {
               "name": "无ContentType",
@@ -5643,7 +5643,7 @@ export const localShareDataTest: LocalShareData = {
           "_id": "682c058e0f7ebcead74fbc4e",
           "pid": "6827fce3a1aedad4e6da43e9",
           "projectId": "68061e273bba346cff2cc878",
-          "isFolder": true,
+
           "sort": 1747715470122,
           "info": {
               "name": "有ContentType",
@@ -5703,7 +5703,7 @@ export const localShareDataTest: LocalShareData = {
           "_id": "682c05aa0f7ebcead74fbc80",
           "pid": "682c058e0f7ebcead74fbc4e",
           "projectId": "68061e273bba346cff2cc878",
-          "isFolder": false,
+
           "sort": 1747715498189,
           "info": {
               "name": "formdata",
@@ -5833,7 +5833,7 @@ export const localShareDataTest: LocalShareData = {
           "_id": "682c56efaafe9a5b722d6b78",
           "pid": "682c058e0f7ebcead74fbc4e",
           "projectId": "68061e273bba346cff2cc878",
-          "isFolder": false,
+
           "sort": 1747715498190,
           "info": {
               "name": "urlencoded",
@@ -5952,7 +5952,7 @@ export const localShareDataTest: LocalShareData = {
           "_id": "682c56f1aafe9a5b722d6b81",
           "pid": "682c058e0f7ebcead74fbc4e",
           "projectId": "68061e273bba346cff2cc878",
-          "isFolder": false,
+
           "sort": 1747715498190,
           "info": {
               "name": "raw-html",
@@ -6053,7 +6053,7 @@ export const localShareDataTest: LocalShareData = {
           "_id": "682c5753aafe9a5b722d6bb7",
           "pid": "682c058e0f7ebcead74fbc4e",
           "projectId": "68061e273bba346cff2cc878",
-          "isFolder": false,
+
           "sort": 1747715498190,
           "info": {
               "name": "raw-text",
@@ -6154,7 +6154,7 @@ export const localShareDataTest: LocalShareData = {
           "_id": "682c5755aafe9a5b722d6bc0",
           "pid": "682c058e0f7ebcead74fbc4e",
           "projectId": "68061e273bba346cff2cc878",
-          "isFolder": false,
+
           "sort": 1747715498191,
           "info": {
               "name": "raw-xml",
@@ -6255,7 +6255,7 @@ export const localShareDataTest: LocalShareData = {
           "_id": "682c5757aafe9a5b722d6bc9",
           "pid": "682c058e0f7ebcead74fbc4e",
           "projectId": "68061e273bba346cff2cc878",
-          "isFolder": false,
+
           "sort": 1747715498191,
           "info": {
               "name": "raw-javascript",
@@ -6356,7 +6356,7 @@ export const localShareDataTest: LocalShareData = {
           "_id": "682c5943aafe9a5b722d6ce2",
           "pid": "682c058e0f7ebcead74fbc4e",
           "projectId": "68061e273bba346cff2cc878",
-          "isFolder": false,
+
           "sort": 1747736899024,
           "info": {
               "name": "binary",
@@ -6457,7 +6457,7 @@ export const localShareDataTest: LocalShareData = {
           "_id": "682d58a0aafe9a5b722d6ece",
           "pid": "6808c3a32c85f911e89f6c3f",
           "projectId": "68061e273bba346cff2cc878",
-          "isFolder": true,
+
           "sort": 1747587526458.5,
           "info": {
               "name": "返回结果",
@@ -6517,7 +6517,7 @@ export const localShareDataTest: LocalShareData = {
           "_id": "682d58abaafe9a5b722d6ed6",
           "pid": "682db079141f84ed03d4e05a",
           "projectId": "68061e273bba346cff2cc878",
-          "isFolder": false,
+
           "sort": 1747824765689,
           "info": {
               "name": "json返回",
@@ -6618,7 +6618,7 @@ export const localShareDataTest: LocalShareData = {
           "_id": "682d5a9f4953d9e3e7f5549e",
           "pid": "682db079141f84ed03d4e05a",
           "projectId": "68061e273bba346cff2cc878",
-          "isFolder": false,
+
           "sort": 1747862864409.5,
           "info": {
               "name": "海量json返回",
@@ -6746,7 +6746,7 @@ export const localShareDataTest: LocalShareData = {
           "_id": "682daf764953d9e3e7f55874",
           "pid": "682d58a0aafe9a5b722d6ece",
           "projectId": "68061e273bba346cff2cc878",
-          "isFolder": true,
+
           "sort": 1747824502336,
           "info": {
               "name": "文本类型",
@@ -6806,7 +6806,7 @@ export const localShareDataTest: LocalShareData = {
           "_id": "682db075141f84ed03d4e052",
           "pid": "682daf764953d9e3e7f55874",
           "projectId": "68061e273bba346cff2cc878",
-          "isFolder": true,
+
           "sort": 1747824757721,
           "info": {
               "name": "css",
@@ -6866,7 +6866,7 @@ export const localShareDataTest: LocalShareData = {
           "_id": "682db079141f84ed03d4e05a",
           "pid": "682daf764953d9e3e7f55874",
           "projectId": "68061e273bba346cff2cc878",
-          "isFolder": true,
+
           "sort": 1747824761747,
           "info": {
               "name": "json",
@@ -6926,7 +6926,7 @@ export const localShareDataTest: LocalShareData = {
           "_id": "682db094141f84ed03d4e07a",
           "pid": "682db075141f84ed03d4e052",
           "projectId": "68061e273bba346cff2cc878",
-          "isFolder": false,
+
           "sort": 1747824788859,
           "info": {
               "name": "css返回",
@@ -7027,7 +7027,7 @@ export const localShareDataTest: LocalShareData = {
           "_id": "682db51b141f84ed03d4e0e8",
           "pid": "682daf764953d9e3e7f55874",
           "projectId": "68061e273bba346cff2cc878",
-          "isFolder": true,
+
           "sort": 1747825947083,
           "info": {
               "name": "html",
@@ -7087,7 +7087,7 @@ export const localShareDataTest: LocalShareData = {
           "_id": "682db525141f84ed03d4e0f0",
           "pid": "682daf764953d9e3e7f55874",
           "projectId": "68061e273bba346cff2cc878",
-          "isFolder": true,
+
           "sort": 1747825957582,
           "info": {
               "name": "js",
@@ -7147,7 +7147,7 @@ export const localShareDataTest: LocalShareData = {
           "_id": "682db52b141f84ed03d4e0f8",
           "pid": "682daf764953d9e3e7f55874",
           "projectId": "68061e273bba346cff2cc878",
-          "isFolder": true,
+
           "sort": 1747825963326,
           "info": {
               "name": "txt",
@@ -7207,7 +7207,7 @@ export const localShareDataTest: LocalShareData = {
           "_id": "682db530141f84ed03d4e100",
           "pid": "682daf764953d9e3e7f55874",
           "projectId": "68061e273bba346cff2cc878",
-          "isFolder": true,
+
           "sort": 1747825968744,
           "info": {
               "name": "xml",
@@ -7267,7 +7267,7 @@ export const localShareDataTest: LocalShareData = {
           "_id": "682db546141f84ed03d4e10e",
           "pid": "682db51b141f84ed03d4e0e8",
           "projectId": "68061e273bba346cff2cc878",
-          "isFolder": false,
+
           "sort": 1747825990748,
           "info": {
               "name": "html返回",
@@ -7368,7 +7368,7 @@ export const localShareDataTest: LocalShareData = {
           "_id": "682db547141f84ed03d4e11c",
           "pid": "682db51b141f84ed03d4e0e8",
           "projectId": "68061e273bba346cff2cc878",
-          "isFolder": false,
+
           "sort": 1747825991884,
           "info": {
               "name": "海量html返回",
@@ -7469,7 +7469,7 @@ export const localShareDataTest: LocalShareData = {
           "_id": "682db549141f84ed03d4e12a",
           "pid": "682db525141f84ed03d4e0f0",
           "projectId": "68061e273bba346cff2cc878",
-          "isFolder": false,
+
           "sort": 1747825993716,
           "info": {
               "name": "js返回",
@@ -7570,7 +7570,7 @@ export const localShareDataTest: LocalShareData = {
           "_id": "682db54a141f84ed03d4e138",
           "pid": "682db525141f84ed03d4e0f0",
           "projectId": "68061e273bba346cff2cc878",
-          "isFolder": false,
+
           "sort": 1747825994455,
           "info": {
               "name": "海量js返回",
@@ -7671,7 +7671,7 @@ export const localShareDataTest: LocalShareData = {
           "_id": "682db54b141f84ed03d4e146",
           "pid": "682db52b141f84ed03d4e0f8",
           "projectId": "68061e273bba346cff2cc878",
-          "isFolder": false,
+
           "sort": 1747825995892,
           "info": {
               "name": "txt返回",
@@ -7772,7 +7772,7 @@ export const localShareDataTest: LocalShareData = {
           "_id": "682db54c141f84ed03d4e154",
           "pid": "682db52b141f84ed03d4e0f8",
           "projectId": "68061e273bba346cff2cc878",
-          "isFolder": false,
+
           "sort": 1747825996150,
           "info": {
               "name": "海量txt返回",
@@ -7873,7 +7873,7 @@ export const localShareDataTest: LocalShareData = {
           "_id": "682db54d141f84ed03d4e162",
           "pid": "682db530141f84ed03d4e100",
           "projectId": "68061e273bba346cff2cc878",
-          "isFolder": false,
+
           "sort": 1747825997701,
           "info": {
               "name": "xml返回",
@@ -7974,7 +7974,7 @@ export const localShareDataTest: LocalShareData = {
           "_id": "682db54d141f84ed03d4e170",
           "pid": "682db530141f84ed03d4e100",
           "projectId": "68061e273bba346cff2cc878",
-          "isFolder": false,
+
           "sort": 1747825997873,
           "info": {
               "name": "海量xml返回",
@@ -8075,7 +8075,7 @@ export const localShareDataTest: LocalShareData = {
           "_id": "682ee934db437dc3d7b2aa11",
           "pid": "682db075141f84ed03d4e052",
           "projectId": "68061e273bba346cff2cc878",
-          "isFolder": false,
+
           "sort": 1747904820396,
           "info": {
               "name": "海量css返回",
@@ -8203,7 +8203,7 @@ export const localShareDataTest: LocalShareData = {
           "_id": "682fa671ebf4577a8860feee",
           "pid": "682fa671ebf4577a8860fef2",
           "projectId": "68061e273bba346cff2cc878",
-          "isFolder": false,
+
           "sort": 1747953265620,
           "info": {
               "name": "docx返回",
@@ -8304,7 +8304,7 @@ export const localShareDataTest: LocalShareData = {
           "_id": "682fa671ebf4577a8860fef0",
           "pid": "682d58a0aafe9a5b722d6ece",
           "projectId": "68061e273bba346cff2cc878",
-          "isFolder": true,
+
           "sort": 1747953265620,
           "info": {
               "name": "office类型",
@@ -8363,7 +8363,7 @@ export const localShareDataTest: LocalShareData = {
           "_id": "682fa671ebf4577a8860fef1",
           "pid": "682fa671ebf4577a8860fef0",
           "projectId": "68061e273bba346cff2cc878",
-          "isFolder": true,
+
           "sort": 1747953265620,
           "info": {
               "name": "pdf",
@@ -8422,7 +8422,7 @@ export const localShareDataTest: LocalShareData = {
           "_id": "682fa671ebf4577a8860fef2",
           "pid": "682fa671ebf4577a8860fef0",
           "projectId": "68061e273bba346cff2cc878",
-          "isFolder": true,
+
           "sort": 1747953265620,
           "info": {
               "name": "docx",
@@ -8481,7 +8481,7 @@ export const localShareDataTest: LocalShareData = {
           "_id": "682fa671ebf4577a8860fef3",
           "pid": "682fa671ebf4577a8860fef1",
           "projectId": "68061e273bba346cff2cc878",
-          "isFolder": false,
+
           "sort": 1747953265620,
           "info": {
               "name": "pdf返回",
@@ -8582,7 +8582,7 @@ export const localShareDataTest: LocalShareData = {
           "_id": "682fa671ebf4577a8860fef4",
           "pid": "682fa671ebf4577a8860fef0",
           "projectId": "68061e273bba346cff2cc878",
-          "isFolder": true,
+
           "sort": 1747953265620,
           "info": {
               "name": "xls",
@@ -8641,7 +8641,7 @@ export const localShareDataTest: LocalShareData = {
           "_id": "682fa671ebf4577a8860fef5",
           "pid": "682fa671ebf4577a8860fef0",
           "projectId": "68061e273bba346cff2cc878",
-          "isFolder": true,
+
           "sort": 1747953265620,
           "info": {
               "name": "xlsx",
@@ -8700,7 +8700,7 @@ export const localShareDataTest: LocalShareData = {
           "_id": "682fa671ebf4577a8860fef6",
           "pid": "682fa671ebf4577a8860fef0",
           "projectId": "68061e273bba346cff2cc878",
-          "isFolder": true,
+
           "sort": 1747953265620,
           "info": {
               "name": "ppt",
@@ -8759,7 +8759,7 @@ export const localShareDataTest: LocalShareData = {
           "_id": "682fa671ebf4577a8860fef7",
           "pid": "682fa671ebf4577a8860fef0",
           "projectId": "68061e273bba346cff2cc878",
-          "isFolder": true,
+
           "sort": 1747953265620,
           "info": {
               "name": "doc",
@@ -8818,7 +8818,7 @@ export const localShareDataTest: LocalShareData = {
           "_id": "682fa671ebf4577a8860fef8",
           "pid": "682fa671ebf4577a8860fef4",
           "projectId": "68061e273bba346cff2cc878",
-          "isFolder": false,
+
           "sort": 1747953265620,
           "info": {
               "name": "xls返回",
@@ -8919,7 +8919,7 @@ export const localShareDataTest: LocalShareData = {
           "_id": "682fa671ebf4577a8860fefa",
           "pid": "682fa671ebf4577a8860fef5",
           "projectId": "68061e273bba346cff2cc878",
-          "isFolder": false,
+
           "sort": 1747953265620,
           "info": {
               "name": "xlsx返回",
@@ -9020,7 +9020,7 @@ export const localShareDataTest: LocalShareData = {
           "_id": "682fa671ebf4577a8860fefc",
           "pid": "682fa671ebf4577a8860fef6",
           "projectId": "68061e273bba346cff2cc878",
-          "isFolder": false,
+
           "sort": 1747953265620,
           "info": {
               "name": "ppt返回",
@@ -9121,7 +9121,7 @@ export const localShareDataTest: LocalShareData = {
           "_id": "682fa671ebf4577a8860fefe",
           "pid": "682fa671ebf4577a8860fef7",
           "projectId": "68061e273bba346cff2cc878",
-          "isFolder": false,
+
           "sort": 1747953265620,
           "info": {
               "name": "doc返回",
@@ -9222,7 +9222,7 @@ export const localShareDataTest: LocalShareData = {
           "_id": "682fa677ebf4577a8860ff1b",
           "pid": "682fa677ebf4577a8860ff1f",
           "projectId": "68061e273bba346cff2cc878",
-          "isFolder": false,
+
           "sort": 1747953271064,
           "info": {
               "name": "png返回",
@@ -9323,7 +9323,7 @@ export const localShareDataTest: LocalShareData = {
           "_id": "682fa677ebf4577a8860ff1d",
           "pid": "682d58a0aafe9a5b722d6ece",
           "projectId": "68061e273bba346cff2cc878",
-          "isFolder": true,
+
           "sort": 1747953271064,
           "info": {
               "name": "图片类型",
@@ -9382,7 +9382,7 @@ export const localShareDataTest: LocalShareData = {
           "_id": "682fa677ebf4577a8860ff1e",
           "pid": "682fa677ebf4577a8860ff1d",
           "projectId": "68061e273bba346cff2cc878",
-          "isFolder": true,
+
           "sort": 1747953271064,
           "info": {
               "name": "jpg/jpeg",
@@ -9441,7 +9441,7 @@ export const localShareDataTest: LocalShareData = {
           "_id": "682fa677ebf4577a8860ff1f",
           "pid": "682fa677ebf4577a8860ff1d",
           "projectId": "68061e273bba346cff2cc878",
-          "isFolder": true,
+
           "sort": 1747953271064,
           "info": {
               "name": "png",
@@ -9500,7 +9500,7 @@ export const localShareDataTest: LocalShareData = {
           "_id": "682fa677ebf4577a8860ff20",
           "pid": "682fa677ebf4577a8860ff1e",
           "projectId": "68061e273bba346cff2cc878",
-          "isFolder": false,
+
           "sort": 1747953271064,
           "info": {
               "name": "jpg返回",
@@ -9601,7 +9601,7 @@ export const localShareDataTest: LocalShareData = {
           "_id": "682fa677ebf4577a8860ff21",
           "pid": "682fa677ebf4577a8860ff1d",
           "projectId": "68061e273bba346cff2cc878",
-          "isFolder": true,
+
           "sort": 1747953271064,
           "info": {
               "name": "gif",
@@ -9660,7 +9660,7 @@ export const localShareDataTest: LocalShareData = {
           "_id": "682fa677ebf4577a8860ff22",
           "pid": "682fa677ebf4577a8860ff1d",
           "projectId": "68061e273bba346cff2cc878",
-          "isFolder": true,
+
           "sort": 1747953271064,
           "info": {
               "name": "webp",
@@ -9719,7 +9719,7 @@ export const localShareDataTest: LocalShareData = {
           "_id": "682fa677ebf4577a8860ff23",
           "pid": "682fa677ebf4577a8860ff1d",
           "projectId": "68061e273bba346cff2cc878",
-          "isFolder": true,
+
           "sort": 1747953271064,
           "info": {
               "name": "bmp",
@@ -9778,7 +9778,7 @@ export const localShareDataTest: LocalShareData = {
           "_id": "682fa677ebf4577a8860ff24",
           "pid": "682fa677ebf4577a8860ff1d",
           "projectId": "68061e273bba346cff2cc878",
-          "isFolder": true,
+
           "sort": 1747953271064,
           "info": {
               "name": "svg",
@@ -9837,7 +9837,7 @@ export const localShareDataTest: LocalShareData = {
           "_id": "682fa677ebf4577a8860ff25",
           "pid": "682fa677ebf4577a8860ff21",
           "projectId": "68061e273bba346cff2cc878",
-          "isFolder": false,
+
           "sort": 1747953271064,
           "info": {
               "name": "gif返回",
@@ -9938,7 +9938,7 @@ export const localShareDataTest: LocalShareData = {
           "_id": "682fa677ebf4577a8860ff27",
           "pid": "682fa677ebf4577a8860ff22",
           "projectId": "68061e273bba346cff2cc878",
-          "isFolder": false,
+
           "sort": 1747953271064,
           "info": {
               "name": "webp返回",
@@ -10039,7 +10039,7 @@ export const localShareDataTest: LocalShareData = {
           "_id": "682fa677ebf4577a8860ff29",
           "pid": "682fa677ebf4577a8860ff23",
           "projectId": "68061e273bba346cff2cc878",
-          "isFolder": false,
+
           "sort": 1747953271064,
           "info": {
               "name": "bmp返回",
@@ -10140,7 +10140,7 @@ export const localShareDataTest: LocalShareData = {
           "_id": "682fa677ebf4577a8860ff2b",
           "pid": "682fa677ebf4577a8860ff24",
           "projectId": "68061e273bba346cff2cc878",
-          "isFolder": false,
+
           "sort": 1747953271064,
           "info": {
               "name": "svg返回",
@@ -10241,7 +10241,7 @@ export const localShareDataTest: LocalShareData = {
           "_id": "682fa6e10dd863d0940df9af",
           "pid": "682daf764953d9e3e7f55874",
           "projectId": "68061e273bba346cff2cc878",
-          "isFolder": true,
+
           "sort": 1747953377712,
           "info": {
               "name": "csv",
@@ -10301,7 +10301,7 @@ export const localShareDataTest: LocalShareData = {
           "_id": "68312f0c0dd863d0940df9dd",
           "pid": "682daf764953d9e3e7f55874",
           "projectId": "68061e273bba346cff2cc878",
-          "isFolder": true,
+
           "sort": 1748053772759,
           "info": {
               "name": "markdown",
@@ -10361,7 +10361,7 @@ export const localShareDataTest: LocalShareData = {
           "_id": "68313af80dd863d0940dfd12",
           "pid": "682fa6e10dd863d0940df9af",
           "projectId": "68061e273bba346cff2cc878",
-          "isFolder": false,
+
           "sort": 1748056824590,
           "info": {
               "name": "csv返回",
@@ -10462,7 +10462,7 @@ export const localShareDataTest: LocalShareData = {
           "_id": "68313c0ab151dc615b9b8b58",
           "pid": "682fa6e10dd863d0940df9af",
           "projectId": "68061e273bba346cff2cc878",
-          "isFolder": false,
+
           "sort": 1748056824591,
           "info": {
               "name": "海量csv返回",
@@ -10563,7 +10563,7 @@ export const localShareDataTest: LocalShareData = {
           "_id": "68317d18e110485431669503",
           "pid": "682fa671ebf4577a8860fef0",
           "projectId": "68061e273bba346cff2cc878",
-          "isFolder": true,
+
           "sort": 1748073752487,
           "info": {
               "name": "pptx",
@@ -10622,7 +10622,7 @@ export const localShareDataTest: LocalShareData = {
           "_id": "68317d18e110485431669504",
           "pid": "68317d18e110485431669503",
           "projectId": "68061e273bba346cff2cc878",
-          "isFolder": false,
+
           "sort": 1748073752487,
           "info": {
               "name": "pptx返回",
@@ -10723,7 +10723,7 @@ export const localShareDataTest: LocalShareData = {
           "_id": "6831804ed07798a1ea1fc009",
           "pid": "682fa671ebf4577a8860fef7",
           "projectId": "68061e273bba346cff2cc878",
-          "isFolder": false,
+
           "sort": 1748074574941,
           "info": {
               "name": "doc大文件返�?,
@@ -10824,7 +10824,7 @@ export const localShareDataTest: LocalShareData = {
           "_id": "68344225fcd57834c656cbff",
           "pid": "682fa677ebf4577a8860ff1d",
           "projectId": "68061e273bba346cff2cc878",
-          "isFolder": true,
+
           "sort": 1748255269039,
           "info": {
               "name": "ico",
@@ -10884,7 +10884,7 @@ export const localShareDataTest: LocalShareData = {
           "_id": "68344609fcd57834c656cd69",
           "pid": "68344225fcd57834c656cbff",
           "projectId": "68061e273bba346cff2cc878",
-          "isFolder": false,
+
           "sort": 1748256265867,
           "info": {
               "name": "ico返回",
@@ -10985,7 +10985,7 @@ export const localShareDataTest: LocalShareData = {
           "_id": "68344697fcd57834c656cdce",
           "pid": "682d58a0aafe9a5b722d6ece",
           "projectId": "68061e273bba346cff2cc878",
-          "isFolder": true,
+
           "sort": 1748256407095,
           "info": {
               "name": "音频",
@@ -11045,7 +11045,7 @@ export const localShareDataTest: LocalShareData = {
           "_id": "683446c4fcd57834c656cddf",
           "pid": "683446c4fcd57834c656cde1",
           "projectId": "68061e273bba346cff2cc878",
-          "isFolder": false,
+
           "sort": 1748256452766,
           "info": {
               "name": "wav返回",
@@ -11146,7 +11146,7 @@ export const localShareDataTest: LocalShareData = {
           "_id": "683446c4fcd57834c656cde1",
           "pid": "68344697fcd57834c656cdce",
           "projectId": "68061e273bba346cff2cc878",
-          "isFolder": true,
+
           "sort": 1748256452766,
           "info": {
               "name": "wav",
@@ -11205,7 +11205,7 @@ export const localShareDataTest: LocalShareData = {
           "_id": "683446c4fcd57834c656cde3",
           "pid": "68344697fcd57834c656cdce",
           "projectId": "68061e273bba346cff2cc878",
-          "isFolder": true,
+
           "sort": 1748256452766,
           "info": {
               "name": "mp3",
@@ -11264,7 +11264,7 @@ export const localShareDataTest: LocalShareData = {
           "_id": "683446c4fcd57834c656cde4",
           "pid": "68344697fcd57834c656cdce",
           "projectId": "68061e273bba346cff2cc878",
-          "isFolder": true,
+
           "sort": 1748256452766,
           "info": {
               "name": "flac",
@@ -11323,7 +11323,7 @@ export const localShareDataTest: LocalShareData = {
           "_id": "683446c4fcd57834c656cde5",
           "pid": "68344697fcd57834c656cdce",
           "projectId": "68061e273bba346cff2cc878",
-          "isFolder": true,
+
           "sort": 1748256452766,
           "info": {
               "name": "ogg",
@@ -11382,7 +11382,7 @@ export const localShareDataTest: LocalShareData = {
           "_id": "683446c4fcd57834c656cde7",
           "pid": "683446c4fcd57834c656cde3",
           "projectId": "68061e273bba346cff2cc878",
-          "isFolder": false,
+
           "sort": 1748256452766,
           "info": {
               "name": "mp3返回",
@@ -11483,7 +11483,7 @@ export const localShareDataTest: LocalShareData = {
           "_id": "683446c4fcd57834c656cde8",
           "pid": "683446c4fcd57834c656cde4",
           "projectId": "68061e273bba346cff2cc878",
-          "isFolder": false,
+
           "sort": 1748256452766,
           "info": {
               "name": "flac返回",
@@ -11584,7 +11584,7 @@ export const localShareDataTest: LocalShareData = {
           "_id": "683446c4fcd57834c656cde9",
           "pid": "683446c4fcd57834c656cde5",
           "projectId": "68061e273bba346cff2cc878",
-          "isFolder": false,
+
           "sort": 1748256452766,
           "info": {
               "name": "ogg返回",
@@ -11685,7 +11685,7 @@ export const localShareDataTest: LocalShareData = {
           "_id": "6834744bec4e3b9ceae5569e",
           "pid": "682d58a0aafe9a5b722d6ece",
           "projectId": "68061e273bba346cff2cc878",
-          "isFolder": true,
+
           "sort": 1748268107752,
           "info": {
               "name": "视频",
@@ -11745,7 +11745,7 @@ export const localShareDataTest: LocalShareData = {
           "_id": "68347453ec4e3b9ceae556a7",
           "pid": "68347453ec4e3b9ceae556a9",
           "projectId": "68061e273bba346cff2cc878",
-          "isFolder": false,
+
           "sort": 1748268115966,
           "info": {
               "name": "avi返回",
@@ -11846,7 +11846,7 @@ export const localShareDataTest: LocalShareData = {
           "_id": "68347453ec4e3b9ceae556a8",
           "pid": "6834744bec4e3b9ceae5569e",
           "projectId": "68061e273bba346cff2cc878",
-          "isFolder": true,
+
           "sort": 1748268115966,
           "info": {
               "name": "mp4",
@@ -11905,7 +11905,7 @@ export const localShareDataTest: LocalShareData = {
           "_id": "68347453ec4e3b9ceae556a9",
           "pid": "6834744bec4e3b9ceae5569e",
           "projectId": "68061e273bba346cff2cc878",
-          "isFolder": true,
+
           "sort": 1748268115966,
           "info": {
               "name": "avi",
@@ -11964,7 +11964,7 @@ export const localShareDataTest: LocalShareData = {
           "_id": "68347453ec4e3b9ceae556aa",
           "pid": "68347453ec4e3b9ceae556a8",
           "projectId": "68061e273bba346cff2cc878",
-          "isFolder": false,
+
           "sort": 1748268115966,
           "info": {
               "name": "mp4返回",
@@ -12065,7 +12065,7 @@ export const localShareDataTest: LocalShareData = {
           "_id": "68347453ec4e3b9ceae556ab",
           "pid": "6834744bec4e3b9ceae5569e",
           "projectId": "68061e273bba346cff2cc878",
-          "isFolder": true,
+
           "sort": 1748268115966,
           "info": {
               "name": "mkv",
@@ -12124,7 +12124,7 @@ export const localShareDataTest: LocalShareData = {
           "_id": "68347453ec4e3b9ceae556ac",
           "pid": "6834744bec4e3b9ceae5569e",
           "projectId": "68061e273bba346cff2cc878",
-          "isFolder": true,
+
           "sort": 1748268115966,
           "info": {
               "name": "mov",
@@ -12183,7 +12183,7 @@ export const localShareDataTest: LocalShareData = {
           "_id": "68347453ec4e3b9ceae556ad",
           "pid": "6834744bec4e3b9ceae5569e",
           "projectId": "68061e273bba346cff2cc878",
-          "isFolder": true,
+
           "sort": 1748268115966,
           "info": {
               "name": "webm",
@@ -12242,7 +12242,7 @@ export const localShareDataTest: LocalShareData = {
           "_id": "68347453ec4e3b9ceae556ae",
           "pid": "68347453ec4e3b9ceae556ab",
           "projectId": "68061e273bba346cff2cc878",
-          "isFolder": false,
+
           "sort": 1748268115966,
           "info": {
               "name": "mkv返回",
@@ -12343,7 +12343,7 @@ export const localShareDataTest: LocalShareData = {
           "_id": "68347453ec4e3b9ceae556af",
           "pid": "68347453ec4e3b9ceae556ac",
           "projectId": "68061e273bba346cff2cc878",
-          "isFolder": false,
+
           "sort": 1748268115966,
           "info": {
               "name": "mov返回",
@@ -12444,7 +12444,7 @@ export const localShareDataTest: LocalShareData = {
           "_id": "68347453ec4e3b9ceae556b0",
           "pid": "68347453ec4e3b9ceae556ad",
           "projectId": "68061e273bba346cff2cc878",
-          "isFolder": false,
+
           "sort": 1748268115966,
           "info": {
               "name": "webm返回",
@@ -12545,7 +12545,7 @@ export const localShareDataTest: LocalShareData = {
           "_id": "68354479ec4e3b9ceae55e27",
           "pid": "682d58a0aafe9a5b722d6ece",
           "projectId": "68061e273bba346cff2cc878",
-          "isFolder": true,
+
           "sort": 1748321401495,
           "info": {
               "name": "压缩�?,
@@ -12605,7 +12605,7 @@ export const localShareDataTest: LocalShareData = {
           "_id": "6835447dec4e3b9ceae55e2f",
           "pid": "68354479ec4e3b9ceae55e27",
           "projectId": "68061e273bba346cff2cc878",
-          "isFolder": true,
+
           "sort": 1748321405677,
           "info": {
               "name": "zip",
@@ -12665,7 +12665,7 @@ export const localShareDataTest: LocalShareData = {
           "_id": "68354485ec4e3b9ceae55e37",
           "pid": "68354479ec4e3b9ceae55e27",
           "projectId": "68061e273bba346cff2cc878",
-          "isFolder": true,
+
           "sort": 1748321413719,
           "info": {
               "name": "rar",
@@ -12725,7 +12725,7 @@ export const localShareDataTest: LocalShareData = {
           "_id": "6835448aec4e3b9ceae55e3f",
           "pid": "68354479ec4e3b9ceae55e27",
           "projectId": "68061e273bba346cff2cc878",
-          "isFolder": true,
+
           "sort": 1748321418288,
           "info": {
               "name": "7z",
@@ -12785,7 +12785,7 @@ export const localShareDataTest: LocalShareData = {
           "_id": "6835448eec4e3b9ceae55e47",
           "pid": "68354479ec4e3b9ceae55e27",
           "projectId": "68061e273bba346cff2cc878",
-          "isFolder": true,
+
           "sort": 1748321422607,
           "info": {
               "name": "tar",
@@ -12845,7 +12845,7 @@ export const localShareDataTest: LocalShareData = {
           "_id": "68354496ec4e3b9ceae55e4f",
           "pid": "6835447dec4e3b9ceae55e2f",
           "projectId": "68061e273bba346cff2cc878",
-          "isFolder": false,
+
           "sort": 1748321430424,
           "info": {
               "name": "zip返回",
@@ -12946,7 +12946,7 @@ export const localShareDataTest: LocalShareData = {
           "_id": "68354903ec4e3b9ceae55fa3",
           "pid": "68354485ec4e3b9ceae55e37",
           "projectId": "68061e273bba346cff2cc878",
-          "isFolder": false,
+
           "sort": 1748322563145,
           "info": {
               "name": "rar返回",
@@ -13047,7 +13047,7 @@ export const localShareDataTest: LocalShareData = {
           "_id": "6835494dec4e3b9ceae55fdf",
           "pid": "6835448aec4e3b9ceae55e3f",
           "projectId": "68061e273bba346cff2cc878",
-          "isFolder": false,
+
           "sort": 1748322637398,
           "info": {
               "name": "7z返回",
@@ -13148,7 +13148,7 @@ export const localShareDataTest: LocalShareData = {
           "_id": "6835494eec4e3b9ceae55fed",
           "pid": "6835448eec4e3b9ceae55e47",
           "projectId": "68061e273bba346cff2cc878",
-          "isFolder": false,
+
           "sort": 1748322638466,
           "info": {
               "name": "tar返回",
@@ -13249,7 +13249,7 @@ export const localShareDataTest: LocalShareData = {
           "_id": "6835957534a557767c7b1e08",
           "pid": "682d58a0aafe9a5b722d6ece",
           "projectId": "68061e273bba346cff2cc878",
-          "isFolder": true,
+
           "sort": 1748342133503,
           "info": {
               "name": "其他",
@@ -13309,7 +13309,7 @@ export const localShareDataTest: LocalShareData = {
           "_id": "6835958b34a557767c7b1e29",
           "pid": "6835957534a557767c7b1e08",
           "projectId": "68061e273bba346cff2cc878",
-          "isFolder": true,
+
           "sort": 1748342155240,
           "info": {
               "name": "exe返回",
@@ -13369,7 +13369,7 @@ export const localShareDataTest: LocalShareData = {
           "_id": "6835959e34a557767c7b1e31",
           "pid": "6835957534a557767c7b1e08",
           "projectId": "68061e273bba346cff2cc878",
-          "isFolder": true,
+
           "sort": 1748342174478,
           "info": {
               "name": "epub返回",
@@ -13429,7 +13429,7 @@ export const localShareDataTest: LocalShareData = {
           "_id": "683595aa34a557767c7b1e4d",
           "pid": "6835958b34a557767c7b1e29",
           "projectId": "68061e273bba346cff2cc878",
-          "isFolder": false,
+
           "sort": 1748342186155,
           "info": {
               "name": "exe返回",
@@ -13530,7 +13530,7 @@ export const localShareDataTest: LocalShareData = {
           "_id": "6837e492691b26af040b896a",
           "pid": "6835959e34a557767c7b1e31",
           "projectId": "68061e273bba346cff2cc878",
-          "isFolder": false,
+
           "sort": 1748493458131,
           "info": {
               "name": "epub返回",
@@ -13631,7 +13631,7 @@ export const localShareDataTest: LocalShareData = {
           "_id": "683931a2691b26af040b8be4",
           "pid": "6808c3a32c85f911e89f6c3f",
           "projectId": "68061e273bba346cff2cc878",
-          "isFolder": true,
+
           "sort": 1748578722323,
           "info": {
               "name": "重定�?,
@@ -13691,7 +13691,7 @@ export const localShareDataTest: LocalShareData = {
           "_id": "683931ae691b26af040b8bec",
           "pid": "683931a2691b26af040b8be4",
           "projectId": "68061e273bba346cff2cc878",
-          "isFolder": false,
+
           "sort": 1748578734799,
           "info": {
               "name": "重定�?,
@@ -13819,7 +13819,7 @@ export const localShareDataTest: LocalShareData = {
           "_id": "684661813a6e8ad6458d6d30",
           "pid": "6808c3a32c85f911e89f6c3f",
           "projectId": "68061e273bba346cff2cc878",
-          "isFolder": true,
+
           "sort": 1749442945816,
           "info": {
               "name": "Cookies",
@@ -13879,7 +13879,7 @@ export const localShareDataTest: LocalShareData = {
           "_id": "6846618a3a6e8ad6458d6d38",
           "pid": "684661813a6e8ad6458d6d30",
           "projectId": "68061e273bba346cff2cc878",
-          "isFolder": false,
+
           "sort": 1749442954341,
           "info": {
               "name": "获取cookie",
@@ -14007,7 +14007,7 @@ export const localShareDataTest: LocalShareData = {
           "_id": "684a588b3d558e19fc3b6584",
           "pid": "684661813a6e8ad6458d6d30",
           "projectId": "68061e273bba346cff2cc878",
-          "isFolder": false,
+
           "sort": 1749976065050,
           "info": {
               "name": "域名不同",
@@ -14109,7 +14109,7 @@ export const localShareDataTest: LocalShareData = {
           "_id": "6852af6650205699aae6c663",
           "pid": "6808c3a32c85f911e89f6c3f",
           "projectId": "68061e273bba346cff2cc878",
-          "isFolder": true,
+
           "sort": 1750249318842,
           "info": {
               "name": "前置脚本验证",
@@ -14169,7 +14169,7 @@ export const localShareDataTest: LocalShareData = {
           "_id": "6852af6f50205699aae6c66b",
           "pid": "6852af6650205699aae6c663",
           "projectId": "68061e273bba346cff2cc878",
-          "isFolder": false,
+
           "sort": 1750249327794,
           "info": {
               "name": "前置脚本验证-formdata",
@@ -14307,7 +14307,7 @@ export const localShareDataTest: LocalShareData = {
           "_id": "6852b7c050205699aae6ca83",
           "pid": "6852af6650205699aae6c663",
           "projectId": "68061e273bba346cff2cc878",
-          "isFolder": false,
+
           "sort": 1750249327795,
           "info": {
               "name": "前置脚本验证-json",
@@ -14445,7 +14445,7 @@ export const localShareDataTest: LocalShareData = {
           "_id": "6857d7220135b2699a296a94",
           "pid": "684661813a6e8ad6458d6d30",
           "projectId": "68061e273bba346cff2cc878",
-          "isFolder": false,
+
           "sort": 1749709509695.5,
           "info": {
               "name": "域名和path相同",
@@ -14546,7 +14546,7 @@ export const localShareDataTest: LocalShareData = {
           "_id": "6857d7510135b2699a296ab7",
           "pid": "684661813a6e8ad6458d6d30",
           "projectId": "68061e273bba346cff2cc878",
-          "isFolder": false,
+
           "sort": 1749842787372.75,
           "info": {
               "name": "域名相同子path",
@@ -14647,7 +14647,7 @@ export const localShareDataTest: LocalShareData = {
           "_id": "6857d863d6b8935cbbb51e4f",
           "pid": "684661813a6e8ad6458d6d30",
           "projectId": "68061e273bba346cff2cc878",
-          "isFolder": false,
+
           "sort": 1749909426211.375,
           "info": {
               "name": "域名相同path不同",
@@ -14748,7 +14748,7 @@ export const localShareDataTest: LocalShareData = {
           "_id": "6858042a68f9fe96e45b61d1",
           "pid": "68217f9754879786458cd66e",
           "projectId": "68061e273bba346cff2cc878",
-          "isFolder": false,
+
           "sort": 1750598698955,
           "info": {
               "name": "请求头验�?,
@@ -14849,7 +14849,7 @@ export const localShareDataTest: LocalShareData = {
           "_id": "685a7e5d9414fc1a509ba552",
           "pid": "6808c3a32c85f911e89f6c55",
           "projectId": "68061e273bba346cff2cc878",
-          "isFolder": true,
+
           "sort": 1750761053029,
           "info": {
               "name": "回收�?,
@@ -14909,7 +14909,7 @@ export const localShareDataTest: LocalShareData = {
           "_id": "685a7e789414fc1a509ba55a",
           "pid": "685a7e5d9414fc1a509ba552",
           "projectId": "68061e273bba346cff2cc878",
-          "isFolder": false,
+
           "sort": 1750761080045,
           "info": {
               "name": "文档操作人员列表",
@@ -15028,7 +15028,7 @@ export const localShareDataTest: LocalShareData = {
           "_id": "685bdab81368eb9da6cf34dc",
           "pid": "6808c3a32c85f911e89f6c55",
           "projectId": "68061e273bba346cff2cc878",
-          "isFolder": true,
+
           "sort": 1750850232033,
           "info": {
               "name": "项目相关",
@@ -15088,7 +15088,7 @@ export const localShareDataTest: LocalShareData = {
           "_id": "685bdac41368eb9da6cf34e4",
           "pid": "685bdab81368eb9da6cf34dc",
           "projectId": "68061e273bba346cff2cc878",
-          "isFolder": false,
+
           "sort": 1750850244534,
           "info": {
               "name": "获取文档详情",
@@ -15206,7 +15206,7 @@ export const localShareDataTest: LocalShareData = {
           "_id": "6860d768467e0e777e126573",
           "pid": "6808c3a32c85f911e89f6c55",
           "projectId": "68061e273bba346cff2cc878",
-          "isFolder": true,
+
           "sort": 1751177064587,
           "info": {
               "name": "接口分享",
@@ -15266,7 +15266,7 @@ export const localShareDataTest: LocalShareData = {
           "_id": "6860d773467e0e777e12657b",
           "pid": "6860d768467e0e777e126573",
           "projectId": "68061e273bba346cff2cc878",
-          "isFolder": false,
+
           "sort": 1751177075766,
           "info": {
               "name": "获取分享详情",
@@ -15375,7 +15375,7 @@ export const localShareDataTest: LocalShareData = {
           "_id": "6861077f80eeca023a023ad9",
           "pid": "6860d768467e0e777e126573",
           "projectId": "68061e273bba346cff2cc878",
-          "isFolder": false,
+
           "sort": 1751189375254,
           "info": {
               "name": "获取分享的banner信息",
@@ -15493,7 +15493,7 @@ export const localShareDataTest: LocalShareData = {
           "_id": "686217470d447efb4efc7497",
           "pid": "",
           "projectId": "68061e273bba346cff2cc878",
-          "isFolder": false,
+
           "sort": 1751258951199,
           "info": {
               "name": "请求展示",
@@ -15652,7 +15652,7 @@ export const localShareDataTest: LocalShareData = {
           "_id": "686937f24e0f546e4f44f3fe",
           "pid": "",
           "projectId": "68061e273bba346cff2cc878",
-          "isFolder": false,
+
           "sort": 1751726066772,
           "info": {
               "name": "导出为html",

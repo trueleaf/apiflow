@@ -19,7 +19,8 @@
     "build:standalone:mac": "vite build --mode standalone && electron-builder --mac",
     "build:standalone:linux": "vite build --mode standalone && electron-builder --linux",
     "preview": "vite preview",
-    "build:font": "node build/share/script/build-font.mjs"
+    "build:font": "node build/share/script/build-font.mjs",
+    "type-check": "vue-tsc --noEmit"
   },
   "dependencies": {
     "@types/yauzl": "^2.10.3",
