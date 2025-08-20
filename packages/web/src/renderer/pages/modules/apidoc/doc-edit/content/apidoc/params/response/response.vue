@@ -103,7 +103,7 @@ import SCollapseCard from '@/components/common/collapse-card/g-collapse-card.vue
 import { computed, ref, Ref, onMounted, onUnmounted } from 'vue'
 import { Effect } from 'element-plus';
 import { ArrowDown, Edit } from '@element-plus/icons-vue'
-import type { ApidocResponseParams, ApidocResponseContentType, ApidocContentType } from '@src/types'
+import type { HttpNodeResponseParams, HttpNodeResponseContentType, HttpNodeContentType } from '@src/types'
 import { apidocCache } from '@/cache/apidoc'
 import SStatus from './children/status.vue'
 import SMime from './children/mime.vue'
@@ -131,7 +131,7 @@ const bindRef = (el: unknown) => {
   }
 }
 //确定修改title
-const handleConfirmTitle = (_: ApidocResponseParams, index: number) => {
+const handleConfirmTitle = (_: HttpNodeResponseParams, index: number) => {
   if (currentEditNode.value && currentEditNode.value._title) {
     apidocStroe.changeResponseParamsTitleByIndex({
       index,
@@ -145,7 +145,7 @@ const handleCancelEdit = () => {
   currentEditNode.value = null;
 }
 //改变当前编辑的节点
-const handleChangeEditNode = (item: ApidocResponseParams, index: number) => {
+const handleChangeEditNode = (item: HttpNodeResponseParams, index: number) => {
   const value = {
     index,
     title: item.title,
@@ -214,11 +214,11 @@ const closeMimePopover = () => {
   })
 }
 //打开和关闭status弹窗
-const toggleStatusModel = (item: ApidocResponseParams) => {
+const toggleStatusModel = (item: HttpNodeResponseParams) => {
   statusVisibleMap.value[item._id!] = !statusVisibleMap.value[item._id!];
 }
 //关闭status弹窗
-const handleCloseStatusModel = (item: ApidocResponseParams) => {
+const handleCloseStatusModel = (item: HttpNodeResponseParams) => {
   statusVisibleMap.value[item._id!] = false;
 }
 //选择一个statusCode
@@ -229,15 +229,15 @@ const handleSelectStatusCode = (code: number, index: number) => {
   })
 }
 //打开和关闭contentType弹窗
-const toggleMimeModel = (item: ApidocResponseParams) => {
+const toggleMimeModel = (item: HttpNodeResponseParams) => {
   mimeVisibleMap.value[item._id!] = !mimeVisibleMap.value[item._id!];
 }
 //关闭contentType弹窗
-const handleCloseMimeModel = (item: ApidocResponseParams) => {
+const handleCloseMimeModel = (item: HttpNodeResponseParams) => {
   mimeVisibleMap.value[item._id!] = false;
 }
 //选择一个contentType
-const handleSelectContentType = (type: ApidocContentType, index: number) => {
+const handleSelectContentType = (type: HttpNodeContentType, index: number) => {
   apidocStroe.changeResponseParamsDataTypeByIndex({
     index,
     type,
@@ -264,7 +264,7 @@ onUnmounted(() => {
 | 不同类型数据展示
 |--------------------------------------------------------------------------
 */
-const checkDisplayType = (mimeType: ApidocResponseContentType): 'text' | 'json' | 'audio' | 'video' | 'image' | 'pdf' | 'download' | 'unknown' => {
+const checkDisplayType = (mimeType: HttpNodeResponseContentType): 'text' | 'json' | 'audio' | 'video' | 'image' | 'pdf' | 'download' | 'unknown' => {
   // 文本展示
   if (mimeType === 'text/csv' || mimeType === 'text/plain' || mimeType === 'text/html' || mimeType === 'application/xml' || mimeType === 'text/css' || mimeType === 'text/javascript') {
     return 'text';
@@ -310,7 +310,7 @@ const handleFormat = (index: number) => {
   }
 }
 const collapseState: Ref<Record<string, boolean>> = ref({});
-const handleChangeCollapseState = (isShow: boolean, item: ApidocResponseParams) => {
+const handleChangeCollapseState = (isShow: boolean, item: HttpNodeResponseParams) => {
   apidocCache.setResponseCollapseState(item._id || "", isShow);
 }
 onMounted(() => {

@@ -28,10 +28,7 @@
                 <el-icon v-if="element.tabType === 'config'" class="mr-2" :size="16">
                   <IconSetting />
                 </el-icon>
-                <!-- 参数模板 -->
-                <el-icon v-if="element.tabType === 'paramsTemplate'" class="mr-2" :size="16">
-                  <IconSetting />
-                </el-icon>
+
                 <!-- 链接 -->
                 <el-icon v-if="element.tabType === 'onlineLink'" class="orange mr-2" :size="16">
                   <IconLink />
@@ -63,10 +60,6 @@
                 <!-- 回收站管理 -->
                 <el-icon v-if="element.tabType === 'recycler'" class="red mr-2" :size="16">
                   <IconDeleteFilled />
-                </el-icon>
-                <!-- 联想参数 -->
-                <el-icon v-if="element.tabType === 'mindParams'" class="blue mr-2" :size="16">
-                  <IconOpportunity />
                 </el-icon>
                 <!-- 安装包 -->
                 <span v-if="element.tabType === 'package'" class="iconfont iconanzhuangbao f-base mr-2"></span>
@@ -129,7 +122,6 @@ import {
   Timer as IconTimer,
   CoffeeCup as IconCoffeeCup,
   DeleteFilled as IconDeleteFilled,
-  Opportunity as IconOpportunity,
   Close as IconClose,
   ArrowRight as IconArrowRight,
   ArrowLeft as IconArrowLeft

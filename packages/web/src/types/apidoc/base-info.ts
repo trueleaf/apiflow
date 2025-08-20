@@ -1,4 +1,4 @@
-import type { ApidocMindParam, ApidocProperty, HttpNodePropertyType, ApidocRequestParamTypes, ApidocVariable } from "./core"
+import type { ApidocProperty, HttpNodePropertyType, HttpNodeRequestParamTypes, ApidocVariable } from "./core"
 
 
 
@@ -41,7 +41,7 @@ export type ApidocRequestMethodRule = {
    /**
     * 允许请求参数类型
    */
-   enabledContenTypes: ApidocRequestParamTypes,
+   enabledContenTypes: HttpNodeRequestParamTypes,
    /**
     * 方法名称
    */
@@ -154,10 +154,6 @@ export type ApidocProjectBaseInfoState = {
       */
    hosts: ApidocProjectHost[],
    /**
-      * 联想参数
-      */
-   mindParams: ApidocMindParam[],
-   /**
       * 项目规则
       */
    rules: ApidocProjectRules,
@@ -169,10 +165,6 @@ export type ApidocProjectBaseInfoState = {
       * 布局
       */
    layout: 'vertical' | 'horizontal',
-   /**
-      * 是否启用web端代理功能
-      */
-   webProxy: boolean,
    /**
       * 代理服务器信息
       */

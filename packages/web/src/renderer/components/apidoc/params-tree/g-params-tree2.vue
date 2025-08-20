@@ -88,7 +88,7 @@
             :disabled="checkKeyInputDisable(scope)"
             :title="convertKeyPlaceholder(scope)"
             :placeholder="convertKeyPlaceholder(scope)"
-            :select-data="mindParams"
+            :select-data="[]"
             @remote-select="handleRemoteSelectKey($event, scope.data)"
             @update:modelValue="handleChangeKeyData($event, scope)"
             @focus="enableDrag = false"
@@ -290,13 +290,6 @@ const props = defineProps({
   drag: {
     type: Boolean,
     default: true,
-  },
-  /**
-     * 联想参数
-     */
-  mindParams: {
-    type: Array as PropType<ApidocProperty[]>,
-    default: () => []
   },
 });
 const emits = defineEmits(['change'])

@@ -6,7 +6,7 @@
  * @create             2021-06-15 22:55
  */
 import { nanoid } from 'nanoid/non-secure'
-import type { HttpNodeRequestMethod, ApidocProperty, HttpNodePropertyType, HttpNode, ApidocBanner, ApidocRequestParamTypes, ApidocCodeInfo } from '@src/types'
+import type { HttpNodeRequestMethod, ApidocProperty, HttpNodePropertyType, HttpNode, ApidocBanner, HttpNodeRequestParamTypes, ApidocCodeInfo } from '@src/types'
 import isEqual from 'lodash/isEqual';
 import lodashCloneDeep from 'lodash/cloneDeep';
 import lodashDebounce from 'lodash/debounce';
@@ -502,7 +502,7 @@ export function apidocGenerateApidoc(id?: string): HttpNode {
  * @author             shuxiaokai
  * @create             2022-01-20 22:35
  */
-export function apidocGenerateRequestParamTypes(): ApidocRequestParamTypes {
+export function apidocGenerateRequestParamTypes(): HttpNodeRequestParamTypes {
   return ['path', 'params', 'json', 'x-www-form-urlencoded', 'formData', 'text/javascript', 'text/plain', 'text/html', 'application/xml'];
 }
 /**

@@ -139,11 +139,8 @@ const projectInfo = computed(() => {
   return {
     _id: apidocBaseInfoStore._id,
     layout: apidocBaseInfoStore.layout,
-    paramsTemplate: apidocBaseInfoStore.paramsTemplate,
-    webProxy: apidocBaseInfoStore.webProxy,
     commonHeaders: apidocBaseInfoStore.commonHeaders,
     rules: apidocBaseInfoStore.rules,
-    mindParams: apidocBaseInfoStore.mindParams,
     hosts: apidocBaseInfoStore.hosts,
     globalCookies: apidocBaseInfoStore.globalCookies,
   }

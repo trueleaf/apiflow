@@ -85,7 +85,7 @@
 
 <script lang="ts" setup>
 import { computed, ref, onMounted, Ref } from 'vue'
-import type { ApidocBodyMode, ApidocBodyParams, ApidocBodyRawType, ApidocContentType } from '@src/types'
+import type { HttpNodeBodyMode, HttpNodeBodyParams, HttpNodeBodyRawType, HttpNodeContentType } from '@src/types'
 import { useTranslation } from 'i18next-vue'
 import { apidocCache } from '@/cache/apidoc'
 import { useVariable } from '@/store/apidoc/variables';
@@ -155,7 +155,7 @@ const handleHideTip = () => {
   jsonBodyVisible.value = false;
 }
 //body类型
-const bodyType = computed<ApidocBodyMode>({
+const bodyType = computed<HttpNodeBodyMode>({
   get() {
     return apidocStore.apidoc.item.requestBody.mode;
   },
@@ -163,7 +163,7 @@ const bodyType = computed<ApidocBodyMode>({
     apidocStore.changeBodyMode(val);
   },
 });
-const requestBody = computed<ApidocBodyParams>(() => {
+const requestBody = computed<HttpNodeBodyParams>(() => {
   return apidocStore.apidoc.item.requestBody
 })
 /*
@@ -210,7 +210,7 @@ const urlencodedData = computed(() => apidocStore.apidoc.item.requestBody.urlenc
 |--------------------------------------------------------------------------
 */
 //raw类型
-const rawType = computed<ApidocBodyRawType>({
+const rawType = computed<HttpNodeBodyRawType>({
   get() {
     return apidocStore.apidoc.item.requestBody.raw.dataType;
   },
@@ -267,12 +267,12 @@ const formData = computed(() => apidocStore.apidoc.item.requestBody.formdata)
 |--------------------------------------------------------------------------
 */
 const handleChangeBinaryMode = (binaryMode: string | number | boolean | undefined) => {
-  apidocStore.handleChangeBinaryInfo({ mode: binaryMode as ApidocBodyParams['binary']['mode'] })
+  apidocStore.handleChangeBinaryInfo({ mode: binaryMode as HttpNodeBodyParams['binary']['mode'] })
 }
 const handleChangeBinaryVarValue = (value: string) => {
   const { objectVariable } = useVariable()
   convertTemplateValueToRealValue(value, objectVariable).then(result => {
-    const mimeType = mime.getType(result.split('\\').pop()) as ApidocContentType;
+    const mimeType = mime.getType(result.split('\\').pop()) as HttpNodeContentType;
     apidocStore.changeContentType(mimeType || 'application/octet-stream')
   }).catch(error => {
     console.log(error)
@@ -290,7 +290,7 @@ const handleSelectFile = (e: Event) => {
     }})
     const { objectVariable } = useVariable()
     convertTemplateValueToRealValue(path, objectVariable).then(result => {
-    const mimeType = mime.getType(result.split('\\').pop()) as ApidocContentType;
+    const mimeType = mime.getType(result.split('\\').pop()) as HttpNodeContentType;
     apidocStore.changeContentType(mimeType || 'application/octet-stream')
     }).catch(error => {
       console.log(error)

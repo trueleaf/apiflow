@@ -13,7 +13,7 @@ import 'brace/mode/xml';
 import 'brace/mode/text';
 import 'brace/mode/css';
 import 'brace/theme/github';
-import type { ApidocBodyRawType } from '@src/types'
+import type { HttpNodeBodyRawType } from '@src/types'
 
 const TYPE_MAP: Record<string, string> = {
   'text/plain': 'text',
@@ -68,7 +68,7 @@ watch(() => props.modelValue, (newValue) => {
 const initEditor = () => {
   editorInstance.value = ace.edit(editor.value);
   editorInstance.value.$blockScrolling = Infinity;
-  editorInstance.value.getSession().setMode(`ace/mode/${TYPE_MAP[props.type as ApidocBodyRawType] || 'text'}`);
+  editorInstance.value.getSession().setMode(`ace/mode/${TYPE_MAP[props.type as HttpNodeBodyRawType] || 'text'}`);
   editorInstance.value.setTheme('ace/theme/github');
   // console.log(33, editorInstance.value.getOptions())
   editorInstance.value.getSession().setUseWrapMode(true);

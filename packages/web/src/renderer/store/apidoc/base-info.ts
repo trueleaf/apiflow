@@ -7,7 +7,7 @@ import {
   ApidocProjectRules,
 } from "@src/types/apidoc/base-info";
 import { event } from '@/helper'
-import { ApidocMindParam, ApidocProperty, Response } from '@src/types';
+import { ApidocProperty, Response } from '@src/types';
 import { defineStore } from "pinia"
 import { ref } from "vue";
 import { router } from "@/router";
@@ -18,7 +18,6 @@ import { requestMethods } from '@/data/data.ts';
 type ChangeProjectBaseInfo = {
   _id: string;
   projectName: string,
-  mindParams: ApidocMindParam[],
   rules: ApidocProjectRules,
   hosts: ApidocProjectHost[],
 }
@@ -67,7 +66,6 @@ const getMatchedHeaders = (data: ApidocProjectBaseInfoState['commonHeaders'], op
 export const useApidocBaseInfo = defineStore('apidocBaseInfo', () => {
   const _id = ref('');
   const projectName = ref('');
-  const mindParams = ref<ApidocMindParam[]>([]);
   const rules = ref<ApidocProjectRules>({
     fileInFolderLimit: 255,
     requestMethods: requestMethods
@@ -75,7 +73,6 @@ export const useApidocBaseInfo = defineStore('apidocBaseInfo', () => {
   const hosts = ref<ApidocProjectHost[]>([]);
   const globalCookies = ref<Record<string, ApidocCookieInfo[]>>({});
   const layout = ref<'vertical' | 'horizontal'>('horizontal');
-  const webProxy = ref(true);
   const mode = ref<'view' | 'edit'>('view');
   const commonHeaders = ref<ApidocProjectCommonHeader[]>([]);
   const globalCommonHeaders = ref<GlobalCommonHeader[]>([]);
@@ -94,7 +91,6 @@ export const useApidocBaseInfo = defineStore('apidocBaseInfo', () => {
   const changeProjectBaseInfo = (payload: ChangeProjectBaseInfo): void => {
     _id.value = payload._id;
     projectName.value = payload.projectName;
-    mindParams.value = payload.mindParams;
     rules.value = payload.rules;
     hosts.value = payload.hosts;
   }
@@ -102,15 +98,7 @@ export const useApidocBaseInfo = defineStore('apidocBaseInfo', () => {
   const changeProjectRules = (payload: ApidocProjectRules): void => {
     rules.value = payload;
   }
-  //改变联想参数信息
-  const changeMindParams = (payload: ApidocMindParam[]): void => {
-    mindParams.value = payload;
-  }
-  //根据id删除联想参数
-  const deleteMindParamsById = (id: string): void => {
-    const delIndex = mindParams.value.findIndex(v => v._id === id);
-    mindParams.value.splice(delIndex, 1)
-  }
+
   //改变hosts
   const changeProjectHosts = (payload: ApidocProjectHost[]): void => {
     hosts.value = payload;
@@ -147,10 +135,6 @@ export const useApidocBaseInfo = defineStore('apidocBaseInfo', () => {
     } else {
       layout.value = localLayout;
     }
-  }
-  //改变web代理
-  const changeWebProxy = (isProxy: boolean): void => {
-    webProxy.value = isProxy;
   }
   //改变操作模式
   const changeMode = (modeOption: 'edit' | 'view'): void => {
@@ -333,12 +317,10 @@ export const useApidocBaseInfo = defineStore('apidocBaseInfo', () => {
   return {
     _id,
     layout,
-    webProxy,
     projectName,
     mode,
     commonHeaders,
     rules,
-    mindParams,
     hosts,
     globalCookies,
     projectId,
@@ -350,12 +332,9 @@ export const useApidocBaseInfo = defineStore('apidocBaseInfo', () => {
     initCookies,
     changeLayout,
     initLayout,
-    changeWebProxy,
     changeMode,
     changeCommonHeaders,
     changeProjectRules,
-    changeMindParams,
-    deleteMindParamsById,
     changeProjectHosts,
     getProjectBaseInfo,
     getSharedProjectBaseInfo,

@@ -6,7 +6,7 @@
       <p>{{ t('3. 接口本身请求头优先级高于公共请求头') }}</p>
     </SFieldset>
     <SFieldset title="公共请求头">
-      <SParamsTree :drag="false" show-checkbox :data="headerData" :mind-params="mindHeaderParams"></SParamsTree>
+      <SParamsTree :drag="false" show-checkbox :data="headerData"></SParamsTree>
       <div class="d-flex a-center j-center mt-5">
         <el-button type="success" :loading="loading2" @click="handleEditCommonHeader">确认修改</el-button>
         <el-button type="primary" :loading="loading" @click="getCommonHeaderInfo">刷新</el-button>
@@ -17,14 +17,13 @@
 
 <script lang="ts" setup>
 import { useTranslation } from 'i18next-vue'
-import { onMounted, ref, Ref, computed, watch } from 'vue'
+import { onMounted, ref, computed, watch } from 'vue'
 import { ElMessage } from 'element-plus'
 import 'element-plus/es/components/message/style/css';
 import { router } from '@/router'
 import { ApidocProperty, Response } from '@src/types';
 import { request } from '@/api/api';
 import { apidocGenerateProperty } from '@/helper';
-import mindHeaders from '../apidoc/params/headers/mind-headers';
 import SFieldset from '@/components/common/fieldset/g-fieldset.vue'
 import SLoading from '@/components/common/loading/g-loading.vue'
 import SParamsTree from '@/components/apidoc/params-tree/g-params-tree.vue'
@@ -140,7 +139,7 @@ onMounted(() => {
   getCommonHeaderInfo();
 })
 
-const mindHeaderParams: Ref<ApidocProperty[]> = ref(mindHeaders);
+
 </script>
 
 <style lang='scss' scoped>

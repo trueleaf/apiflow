@@ -12,7 +12,7 @@
         <View />
       </el-icon>
     </div>
-    <SParamsTree :drag="false" show-checkbox :data="headerData" :mind-params="mindHeaderParams" no-add></SParamsTree>
+    <SParamsTree :drag="false" show-checkbox :data="headerData" no-add></SParamsTree>
     <template v-if="commonHeaders.length > 0">
       <el-divider content-position="left">{{ t('公共请求头') }}</el-divider>
       <el-table :data="commonHeaders"  border size="small">
@@ -59,12 +59,11 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, computed, Ref, watch, } from 'vue'
+import { ref, computed, watch, } from 'vue'
 import { router } from '@/router'
 import { View } from '@element-plus/icons-vue'
 import { ApidocProperty } from '@src/types';
 import { apidocGenerateProperty } from '@/helper';
-import mindHeaders from './mind-headers'
 import { useTranslation } from 'i18next-vue'
 import SParamsTree from '@/components/apidoc/params-tree/g-params-tree.vue'
 import { useApidoc } from '@/store/apidoc/apidoc';
@@ -90,7 +89,6 @@ const hideDefaultHeader = ref(true);
 const headerData = computed(() => apidocStore.apidoc.item.headers)
 const defaultHeaders = computed(() => apidocStore.defaultHeaders);
 const commonHeaders = ref<(Pick<ApidocProperty, "_id" | 'key' | 'value' | 'description' | 'select' & { path?: string[] }>)[]>([]);
-const mindHeaderParams: Ref<ApidocProperty[]> = ref(mindHeaders);
 const handleChangeCommonHeaderIsSend = (isSend: CheckboxValueType, header: Pick<ApidocProperty, "_id" | 'key' | 'value' | 'description' | 'select'>) => {
   if (isSend) {
     apidocCache.removeIgnoredCommonHeader({

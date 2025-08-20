@@ -10,7 +10,7 @@
 
 import jsontoxml from 'jsontoxml'
 import type { OpenAPIV3 } from 'openapi-types';
-import type { ApidocProperty, HttpNode, HttpNodePropertyType, HttpNodeRequestMethod, ApidocBodyRawType, ApidocResponseContentType } from '@src/types'
+import type { ApidocProperty, HttpNode, HttpNodePropertyType, HttpNodeRequestMethod, HttpNodeBodyRawType, HttpNodeResponseContentType } from '@src/types'
 import { uuid, apidocGenerateProperty, apidocGenerateApidoc } from '@/helper/index'
 import i18next from 'i18next'
 
@@ -54,7 +54,7 @@ type ConvertRequestBody = {
      */
   raw: {
     data: string,
-    dataType: ApidocBodyRawType
+    dataType: HttpNodeBodyRawType
   },
 }
 //=====================================解析response返回值====================================//
@@ -69,13 +69,13 @@ type ConvertResponse = {
     },
     strJson: string,
     json: ApidocProperty[],
-    dataType: ApidocResponseContentType,
+    dataType: HttpNodeResponseContentType,
     text: string
   }
 }
 //=========================================================================//
 const HTTP_METHOD = ['get', 'put', 'post', 'delete', 'options', 'head', 'patch', 'trace']
-// const VALID_CONTENT_TYPE: ApidocContentType[] = ["application/json", "application/x-www-form-urlencoded", "text/javascript", "multipart/form-data", "text/plain", "application/xml", "text/html"]
+// const VALID_CONTENT_TYPE: HttpNodeContentType[] = ["application/json", "application/x-www-form-urlencoded", "text/javascript", "multipart/form-data", "text/plain", "application/xml", "text/html"]
 
 class OpenApiTranslator {
   public projectId: string;

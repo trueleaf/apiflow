@@ -3,21 +3,18 @@ import {
   event,
   apidocGenerateProperty,
   cloneDeep,
-  forEachForest,
   uuid,
   apidocGenerateMockInfo,
-  
 } from "@/helper"
 import {
-  ApidocBodyMode,
+  HttpNodeBodyMode,
   Response,
-  ApidocBodyRawType,
-  ApidocContentType,
+  HttpNodeBodyRawType,
+  HttpNodeContentType,
   HttpNode,
   HttpNodeRequestMethod,
-  ApidocMindParam,
   ApidocProperty,
-  ApidocBodyParams
+  HttpNodeBodyParams
 } from '@src/types'
 import { defineStore, storeToRefs } from "pinia"
 import axios, { Canceler } from 'axios'
@@ -93,25 +90,6 @@ export const useApidoc = defineStore('apidoc', () => {
     deep: true,
     immediate: true,
   })
-  //过滤合法的联想参数(string、number)
-  const filterValidParams = (arrayParams: ApidocProperty[], type: ApidocMindParam['paramsPosition']) => {
-    const result: ApidocMindParam[] = [];
-    // const projectId = router.currentRoute.value.query.id as string || shareRouter.currentRoute.value.query.id as string;
-    //todo
-    const projectId = router.currentRoute.value.query.id as string;
-    forEachForest(arrayParams, (data) => {
-      const isComplex = data.type === 'object' || data.type === 'array';
-      const copyData = cloneDeep(data) as ApidocMindParam;
-      copyData.paramsPosition = type;
-      copyData.projectId = projectId;
-      if (!isComplex && data.key !== '' && data.value !== '' && data.description !== '') { //常规数据
-        result.push(copyData);
-      } else if (isComplex && data.key !== '' && data.description !== '') {
-        result.push(copyData);
-      }
-    });
-    return result;
-  }
   /*
   |--------------------------------------------------------------------------
   | url、host、method、name、description
@@ -162,11 +140,11 @@ export const useApidoc = defineStore('apidoc', () => {
     |--------------------------------------------------------------------------
     */
   //改变body参数mode类型
-  const changeBodyMode = (mode: ApidocBodyMode): void => {
+  const changeBodyMode = (mode: HttpNodeBodyMode): void => {
     apidoc.value.item.requestBody.mode = mode;
   }
   //改变body参数raw的mime类型
-  const changeBodyRawType = (rawType: ApidocBodyRawType): void => {
+  const changeBodyRawType = (rawType: HttpNodeBodyRawType): void => {
     apidoc.value.item.requestBody.raw.dataType = rawType;
   }
   //改变rawBody数据
@@ -190,7 +168,7 @@ export const useApidoc = defineStore('apidoc', () => {
     apidoc.value.item.requestBody.raw.data = rawValue;
   }
   //改变contentType值
-  const changeContentType = (contentType: ApidocContentType): void => {
+  const changeContentType = (contentType: HttpNodeContentType): void => {
     apidoc.value.item.contentType = contentType;
     const matchedValue = defaultHeaders.value.find((val) => val.key === 'Content-Type');
     const matchedIndex = defaultHeaders.value.findIndex((val) => val.key === 'Content-Type');
@@ -211,7 +189,7 @@ export const useApidoc = defineStore('apidoc', () => {
   | binary类型参数
   |--------------------------------------------------------------------------
   */
-  const handleChangeBinaryInfo = (payload: DeepPartial<ApidocBodyParams['binary']>) => {
+  const handleChangeBinaryInfo = (payload: DeepPartial<HttpNodeBodyParams['binary']>) => {
     assign(apidoc.value.item.requestBody.binary, payload)
   }
   /*
@@ -230,7 +208,7 @@ export const useApidoc = defineStore('apidoc', () => {
     apidoc.value.item.responseParams[index].statusCode = code;
   }
   //改变某个response的dataType值
-  const changeResponseParamsDataTypeByIndex = (payload: { index: number, type: ApidocContentType }): void => {
+  const changeResponseParamsDataTypeByIndex = (payload: { index: number, type: HttpNodeContentType }): void => {
     const { index, type } = payload
     apidoc.value.item.responseParams[index].value.dataType = type;
   }
@@ -284,7 +262,7 @@ export const useApidoc = defineStore('apidoc', () => {
     |--------------------------------------------------------------------------
     |
   */
-  const initDefaultHeaders = (contentType?: ApidocContentType) => {
+  const initDefaultHeaders = (contentType?: HttpNodeContentType) => {
     defaultHeaders.value = [];
     //=========================================================================//
     const params3 = apidocGenerateProperty();
@@ -666,26 +644,7 @@ export const useApidoc = defineStore('apidoc', () => {
     })
   }
   //保存联想参数
-  const saveMindParams = (): void => {
-    const apidocDetail = apidoc.value;
-    //todo
-    const projectId = router.currentRoute.value.query.id as string;
-    // const projectId = router.currentRoute.value.query.id as string || shareRouter.currentRoute.value.query.id as string;
-    const paths = filterValidParams(apidocDetail.item.paths, 'paths');
-    const queryParams = filterValidParams(apidocDetail.item.queryParams, 'queryParams').filter(v => v.description && v.value);
-    const params = {
-      projectId,
-      mindParams: paths.concat(queryParams)
-    };
-    axiosInstance.post('/api/project/doc_params_mind', params).then((res) => {
-      if (res.data != null) {
-        //todo
-        // store.commit('apidoc/baseInfo/changeMindParams', res.data);
-      }
-    }).catch((err) => {
-      console.error(err);
-    });
-  }
+
   //改变保存apidoc弹窗状态
   const openSaveDocDialog = (id: string): Promise<'save' | 'cancel'> => {
     changeSaveDocDialogVisible(true)
@@ -816,7 +775,6 @@ export const useApidoc = defineStore('apidoc', () => {
     addResponseParam,
     deleteResponseByIndex,
     saveApidoc,
-    saveMindParams,
     openSaveDocDialog,
     changePreRequest,
     changeAfterRequest,

@@ -8,7 +8,7 @@
     :draggable="drag && enableDrag" 
     :allow-drop="handleCheckNodeCouldDrop" 
     :show-checkbox="showCheckbox"
-    :default-expanded-keys="defaultExpandedKeys" 
+    :default-expanded-keys="expandKeys" 
     :default-checked-keys="defaultCheckedKeys" 
     @node-drop="handleNodeDrop"
     @check-change="handleCheckChange">
@@ -38,7 +38,7 @@
             :disabled="checkKeyDisable(scope)"
             :title="keyTip(scope)" 
             :placeholder="convertKeyPlaceholder(scope)" 
-            :select-data="mindParams"
+            :select-data="[]"
             one-line 
             @remote-select="handleRemoteSelectKey($event, scope.data)"
             @update:modelValue="handleChangeKeyData($event, scope)" 

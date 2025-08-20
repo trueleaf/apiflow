@@ -1,4 +1,4 @@
-import { ApidocBodyMode } from "@src/types";
+import { HttpNodeBodyMode } from "@src/types";
 import { RendererFormDataBody } from "@src/types/types.ts";
 
 type JsonPrimitive = string | number | boolean | null;
@@ -33,7 +33,7 @@ export type InitDataMessage = {
         };
       };
       headers: Record<string, string | null>;
-      bodyType: ApidocBodyMode;
+      bodyType: HttpNodeBodyMode;
     };
   };
 };

@@ -184,16 +184,13 @@ const projectInfo = computed(() => {
   return {
     _id: apidocBaseInfoStore._id,
     layout: apidocBaseInfoStore.layout,
-    paramsTemplate: apidocBaseInfoStore.paramsTemplate,
-    webProxy: apidocBaseInfoStore.webProxy,
     mode: apidocBaseInfoStore.mode,
     commonHeaders: apidocBaseInfoStore.commonHeaders,
     rules: apidocBaseInfoStore.rules,
-    mindParams: apidocBaseInfoStore.mindParams,
     hosts: apidocBaseInfoStore.hosts,
     globalCookies: apidocBaseInfoStore.globalCookies,
   }
-}); //项目基本信息 //项目基本信息
+}); //项目基本信息
 const projectId = router.currentRoute.value.query.id as string; //项目id
 const loading = ref(false); //生成项目分享加载
 const shareLink = ref(''); //项目分享地址

@@ -2,20 +2,10 @@ import type { Method } from "got";
 
 /*
 |--------------------------------------------------------------------------
-| 核心存在以下类型节点
-| HttpNode
-| WebsocketNode
-| FolderNode
-|--------------------------------------------------------------------------
-*/
-
-
-
-
-
-/*
-|--------------------------------------------------------------------------
-| HttpNode
+| 1.核心节点类型
+|   HttpNode
+|   WebsocketNode
+|   FolderNode
 |--------------------------------------------------------------------------
 */
 export type HttpNode = {
@@ -71,11 +61,11 @@ export type HttpNode = {
     /**
      * 请求body
      */
-    requestBody: ApidocBodyParams;
+    requestBody: HttpNodeBodyParams;
     /**
      * 返回参数
      */
-    responseParams: ApidocResponseParams[];
+    responseParams: HttpNodeResponseParams[];
     /**
      * 请求头
      */
@@ -83,7 +73,7 @@ export type HttpNode = {
     /**
      * ContentType类型
      */
-    contentType: ApidocContentType;
+    contentType: HttpNodeContentType;
   };
   /**
    * 公共请求头
@@ -207,21 +197,70 @@ export type HttpNode = {
    */
   isDeleted?: boolean;
 };
+export type FolderNode = {
+  /**
+   * 当前文档id
+   */
+  _id: string;
+  /**
+   * 父元素id
+   */
+  pid: string;
+  /**
+   * 项目id
+   */
+  projectId: string;
+  /**
+   * 排序
+   */
+  sort: number;
+  /**
+   * 基本信息
+   */
+  info: ApidocBaseInfo;
+  /**
+   * 公共请求头
+   */
+  commonHeaders?: {
+    /**
+     * 请求头名称
+     */
+    key: string;
+    /**
+     * 请求头值
+     */
+    value: string;
+    /**
+     * 请求头描述
+     */
+    description: string;
+  }[];
+  /**
+   * 创建时间
+   */
+  createdAt?: string;
+  /**
+   * 更新时间
+   */
+  updatedAt?: string;
+  /**
+   * 是否被删除
+   */
+  isDeleted?: boolean;
+};
 
-//http请求方法 https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Methods
-export type HttpNodeRequestMethod = Method
-
-//接口文档相关类型声明
-export type HttpNodePropertyType =
-  | 'string'
-  | 'number'
-  | 'boolean'
-  | 'array'
-  | 'object'
-  | 'file';
-
-
-//接口参数信息， header pathParams queryParams bodyParams
+/*
+|--------------------------------------------------------------------------
+| 通用类型
+|--------------------------------------------------------------------------
+*/
+/**
+ * 接口基础类型
+ */
+export type ApidocType = 'folder' | 'api' | 'markdown' | 'websocket';
+/**
+ * 接口参数信息
+ */
 export type ApidocProperty<T extends HttpNodePropertyType = HttpNodePropertyType> = {
   /**
    * 参数id
@@ -273,15 +312,9 @@ export type ApidocProperty<T extends HttpNodePropertyType = HttpNodePropertyType
   _keyPlaceholder?: string;
   disabled?: boolean; //是否禁止checkbox
 };
-
-//联想参数
-export type ApidocMindParam = ApidocProperty & {
-  paramsPosition: 'paths' | 'queryParams' | 'requestBody' | 'responseParams';
-  projectId: string;
-};
-
-//文档基础信息
-export type ApidocType = 'folder' | 'api' | 'markdown' | 'websocket';
+/**
+ * 接口基础信息
+ */
 export type ApidocBaseInfo = {
   /**
    * 文档名称
@@ -313,8 +346,26 @@ export type ApidocBaseInfo = {
   deletePerson: string;
 };
 
+
+/*
+|--------------------------------------------------------------------------
+| HttpNode
+|--------------------------------------------------------------------------
+*/
+//http请求方法 https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Methods
+export type HttpNodeRequestMethod = Method
+
+//接口文档相关类型声明
+export type HttpNodePropertyType =
+  | 'string'
+  | 'number'
+  | 'boolean'
+  | 'array'
+  | 'object'
+  | 'file';
+
 //api文档ContentType
-export type ApidocContentType =
+export type HttpNodeContentType =
   | ''
   | 'application/json'
   | 'application/x-www-form-urlencoded'
@@ -326,8 +377,8 @@ export type ApidocContentType =
   | 'text/html';
 
 // eslint-disable-next-line max-len
-export type ApidocResponseContentType =
-  | ApidocContentType
+export type HttpNodeResponseContentType =
+  | HttpNodeContentType
   | 'application/xml'
   | 'application/json'
   | 'text/html'
@@ -353,7 +404,7 @@ export type ApidocResponseContentType =
   | 'video/ogg'
   | 'application/ogg';
 
-export type ApidocBodyMode =
+export type HttpNodeBodyMode =
   | 'json'
   | 'raw'
   | 'formdata'
@@ -361,7 +412,7 @@ export type ApidocBodyMode =
   | 'binary'
   | 'none';
 
-export type ApidocBodyRawType =
+export type HttpNodeBodyRawType =
   | 'application/xml'
   | 'text/javascript'
   | 'text/plain'
@@ -369,7 +420,7 @@ export type ApidocBodyRawType =
   | 'application/json';
 
 //文档请求允许传参方式
-export type ApidocRequestParamTypes = (
+export type HttpNodeRequestParamTypes = (
   | 'path'
   | 'params'
   | 'json'
@@ -382,12 +433,12 @@ export type ApidocRequestParamTypes = (
 )[];
 
 //api文档请求body
-export type ApidocBodyParams = {
+export type HttpNodeBodyParams = {
   /**
    * 模式，对应相关的content-type值
    * json类型、formdata类型、urlencoded类型、binary类型需要单独处理，其余均为字符串(特殊类型可以做一些客户端校验，但本质上都是字符串)
    */
-  mode: ApidocBodyMode;
+  mode: HttpNodeBodyMode;
   /**
    * 原始json值
    */
@@ -405,7 +456,7 @@ export type ApidocBodyParams = {
    */
   raw: {
     data: string;
-    dataType: ApidocBodyRawType;
+    dataType: HttpNodeBodyRawType;
   };
   /**
    * binary类型参数
@@ -420,9 +471,8 @@ export type ApidocBodyParams = {
     };
   };
 };
-
 //api文档返回参数
-export type ApidocResponseParams = {
+export type HttpNodeResponseParams = {
   /**
    * id
    */
@@ -442,7 +492,7 @@ export type ApidocResponseParams = {
     /**
      * 返回参数类型
      */
-    dataType: ApidocResponseContentType;
+    dataType: HttpNodeResponseContentType;
     /**
      * 字符串json数据
      */
@@ -548,9 +598,6 @@ export type ApidocOperations =
   | 'cookies'
   | 'apiflow';
 
-// ============================================================================
-// 数组类型参数数据转换为json预览格式
-// ============================================================================
 
 export type ApidocASTInfo = {
   /**
@@ -652,15 +699,16 @@ export type ApidocASTInfo = {
   _close?: boolean;
 };
 
-// ============================================================================
-// api文档变量
-// ============================================================================
-
+/*
+|--------------------------------------------------------------------------
+| 变量
+|--------------------------------------------------------------------------
+*/
 export type ApidocVariable = {
   /**
    * 变量id
    */
-  _id?: string;
+  _id: string;
   /**
    * 项目id
    */
@@ -696,10 +744,6 @@ export type ApidocVariable = {
   }
 };
 
-// ============================================================================
-// api文档操作记录
-// ============================================================================
-
 export type ApidocOperationDeleteInfo = {
   /**
    * 节点名称
@@ -718,7 +762,6 @@ export type ApidocOperationDeleteInfo = {
    */
   url: string;
 };
-
 export type ApidocOperationRecord = {
   /**
    * 项目id
@@ -810,11 +853,6 @@ export type ApidocOperationRecord = {
    */
   createdAt: string;
 };
-
-// ============================================================================
-// 代码生成相关类型
-// ============================================================================
-
 export type ApidocCodeInfo = {
   /**
    * 源码

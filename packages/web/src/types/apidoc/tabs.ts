@@ -1,7 +1,6 @@
 export type ApidocTabType =
   'http' |
   'config' |
-  'paramsTemplate' |
   'onlineLink' |
   'exportDoc' |
   'importDoc' |
@@ -10,7 +9,6 @@ export type ApidocTabType =
   'mock' |
   'recycler' |
   'guide' |
-  'mindParams' |
   'hook' |
   'package' |
   'commonHeader' |

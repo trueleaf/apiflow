@@ -60,7 +60,7 @@
 
 <script lang="ts" setup>
 import { ref, Ref, onMounted } from 'vue'
-import { ApidocRequestParamTypes } from '@src/types'
+import { HttpNodeRequestParamTypes } from '@src/types'
 import { request } from '@/api/api'
 import { router } from '@/router/index'
 import { event, apidocGenerateRequestParamTypes } from '@/helper'
@@ -76,7 +76,7 @@ const copyApiRules: Ref<ApidocProjectRules> = ref({
   fileInFolderLimit: 8,
   requestMethods: [],
 });
-const paramTypes: Ref<ApidocRequestParamTypes> = ref(apidocGenerateRequestParamTypes());
+const paramTypes: Ref<HttpNodeRequestParamTypes> = ref(apidocGenerateRequestParamTypes());
 const loading = ref(false); //加载效果
 const projectId = router.currentRoute.value.query.id; //项目id
 const apidocBaseInfoStore = useApidocBaseInfo()
