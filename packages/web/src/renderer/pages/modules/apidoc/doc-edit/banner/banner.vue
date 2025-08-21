@@ -26,7 +26,7 @@
             @click="handleClickNode($event, scope.data)"
             @dblclick="handleDbclickNode(scope.data)">
             <!-- http -->
-            <template v-if="scope.data.type === 'api'">
+            <template v-if="scope.data.type === 'http'">
               <template v-for="(req) in projectInfo.rules.requestMethods">
                 <span v-if="scope.data.method.toLowerCase() === req.value.toLowerCase()" :key="req.name"
                   class="file-icon" :style="{ color: req.iconColor }">{{ req.name }}</span>
@@ -72,7 +72,31 @@
               </div>
             </template>
             <!-- websocket -->
-            
+            <template v-if="scope.data.type === 'websocket'">
+              <span class="ws-icon">{{ scope.data.protocol.toUpperCase() }}</span>
+              <div v-if="editNode?._id !== scope.data._id" class="node-label-wrap">
+                <SEmphasize class="node-top" :title="scope.data.name" :value="scope.data.name" :keyword="filterString">
+                </SEmphasize>
+                <SEmphasize v-show="showMoreNodeInfo" class="node-bottom" :title="scope.data.url.path"
+                  :value="scope.data.url.path" :keyword="filterString"></SEmphasize>
+              </div>
+              <input 
+                v-else 
+                :value="scope.data.name" 
+                :placeholder="t('不能为空')" 
+                type="text" 
+                class="rename-ipt"
+                :class="{ error: scope.data.name.trim() === '' }" 
+                @blur="handleChangeNodeName($event, scope.data)"
+                @input="handleWatchNodeInput($event)" 
+                @keydown.stop.enter="handleChangeNodeName($event, scope.data)"
+              >
+              <div class="more" @click.stop="handleShowContextmenu($event, scope.data)">
+                <el-icon class="more-op" :title="t('更多操作')" :size="16">
+                  <more-filled />
+                </el-icon>
+              </div>
+            </template>
           </div>
         </template>
       </el-tree>
@@ -171,8 +195,6 @@ const enableDrag = ref(true);//是否允许拖拽
 const apidocBaseInfoStore = useApidocBaseInfo();
 const apidocBannerStore = useApidocBanner();
 const apidocTabsStore = useApidocTas();
-// const isStandalone = ref(__STANDALONE__)
-
 //当前工作区状态
 const isView = computed(() => apidocBaseInfoStore.mode === 'view')
 const loading = computed(() => apidocBannerStore.loading)
@@ -282,7 +304,7 @@ const handleClickNode = (e: MouseEvent, data: ApidocBanner) => {
       ...data,
       projectId: projectId.value,
     }];
-    if (data.type !== 'folder') {
+    if (data.type === 'http') {
       apidocTabsStore.addTab({
         _id: data._id,
         projectId: projectId.value,
@@ -293,6 +315,20 @@ const handleClickNode = (e: MouseEvent, data: ApidocBanner) => {
         selected: true,
         head: {
           icon: data.method,
+          color: ""
+        },
+      })
+    } else if (data.type === 'websocket') {
+      apidocTabsStore.addTab({
+        _id: data._id,
+        projectId: projectId.value,
+        tabType: 'websocket',
+        label: data.name,
+        saved: true,
+        fixed: false,
+        selected: true,
+        head: {
+          icon: data.protocol,
           color: ""
         },
       })
@@ -477,9 +513,16 @@ const filterNode = (filterInfo: SearchData, data: Record<string, unknown>): bool
     showMoreNodeInfo.value = false;
     return true;
   }
-  const matchedUrl = filterInfo.iptValue ? (data as ApidocBanner).url?.match(filterInfo.iptValue) : false;
-  const matchedDocName = filterInfo.iptValue ? (data as ApidocBanner).name.match(filterInfo.iptValue) : false;
-  const matchedOthers = filterInfo.recentNumIds ? filterInfo.recentNumIds.find(v => v === (data as ApidocBanner)._id) : false;
+  const bannerData = data as ApidocBanner;
+  const matchedUrl = filterInfo.iptValue ? (
+    bannerData.type === 'http' 
+      ? bannerData.url?.match(filterInfo.iptValue)
+      : bannerData.type === 'websocket'
+        ? bannerData.url.path?.match(filterInfo.iptValue)
+        : false
+  ) : false;
+  const matchedDocName = filterInfo.iptValue ? bannerData.name.match(filterInfo.iptValue) : false;
+  const matchedOthers = filterInfo.recentNumIds ? filterInfo.recentNumIds.find(v => v === bannerData._id) : false;
   showMoreNodeInfo.value = true;
   return (!!matchedUrl || !!matchedDocName) || !!matchedOthers;
 }
@@ -589,6 +632,11 @@ onUnmounted(() => {
     .file-icon {
       font-size: 14px;
       margin-right: 5px;
+    }
+    .ws-icon {
+      font-size: 14px;
+      margin-right: 5px;
+      color: var(--red);
     }
 
     .folder-icon {

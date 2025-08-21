@@ -193,7 +193,7 @@ export const localShareDataTest: LocalShareData = {
           "info": {
               "name": "GET请求",
               "version": "1.0",
-              "type": "api",
+              "type": "http",
               "creator": "apiflow",
               "maintainer": "apiflow",
               "spendTime": 0
@@ -294,7 +294,7 @@ export const localShareDataTest: LocalShareData = {
           "info": {
               "name": "POST请求",
               "version": "1.0",
-              "type": "api",
+              "type": "http",
               "creator": "apiflow",
               "maintainer": "apiflow",
               "spendTime": 0
@@ -395,7 +395,7 @@ export const localShareDataTest: LocalShareData = {
           "info": {
               "name": "PUT请求",
               "version": "1.0",
-              "type": "api",
+              "type": "http",
               "creator": "apiflow",
               "maintainer": "apiflow",
               "spendTime": 0
@@ -496,7 +496,7 @@ export const localShareDataTest: LocalShareData = {
           "info": {
               "name": "OPTIONS请求",
               "version": "1.0",
-              "type": "api",
+              "type": "http",
               "creator": "apiflow",
               "maintainer": "apiflow",
               "spendTime": 0
@@ -597,7 +597,7 @@ export const localShareDataTest: LocalShareData = {
           "info": {
               "name": "HEAD请求",
               "version": "1.0",
-              "type": "api",
+              "type": "http",
               "creator": "apiflow",
               "maintainer": "apiflow",
               "spendTime": 0
@@ -698,7 +698,7 @@ export const localShareDataTest: LocalShareData = {
           "info": {
               "name": "自定义Test请求",
               "version": "1.0",
-              "type": "api",
+              "type": "http",
               "creator": "apiflow",
               "deletePerson": "apiflow",
               "spendTime": 0,
@@ -859,7 +859,7 @@ export const localShareDataTest: LocalShareData = {
           "info": {
               "name": "默认请求�?,
               "version": "1.0",
-              "type": "api",
+              "type": "http",
               "creator": "apiflow",
               "maintainer": "初始普通用�?,
               "spendTime": 0
@@ -1113,7 +1113,7 @@ export const localShareDataTest: LocalShareData = {
           "info": {
               "name": "附件上传",
               "version": "1.0",
-              "type": "api",
+              "type": "http",
               "creator": "apiflow",
               "maintainer": "apiflow",
               "spendTime": 0
@@ -1310,7 +1310,7 @@ export const localShareDataTest: LocalShareData = {
           "info": {
               "name": "创建团队",
               "version": "1.0",
-              "type": "api",
+              "type": "http",
               "creator": "apiflow",
               "maintainer": "apiflow",
               "spendTime": 0
@@ -1470,7 +1470,7 @@ export const localShareDataTest: LocalShareData = {
           "info": {
               "name": "更新团队",
               "version": "1.0",
-              "type": "api",
+              "type": "http",
               "creator": "apiflow",
               "maintainer": "apiflow",
               "spendTime": 0
@@ -1571,7 +1571,7 @@ export const localShareDataTest: LocalShareData = {
           "info": {
               "name": "获取团队详情",
               "version": "1.0",
-              "type": "api",
+              "type": "http",
               "creator": "apiflow",
               "maintainer": "apiflow",
               "spendTime": 0
@@ -1681,7 +1681,7 @@ export const localShareDataTest: LocalShareData = {
           "info": {
               "name": "列表形式获取团队",
               "version": "1.0",
-              "type": "api",
+              "type": "http",
               "creator": "apiflow",
               "maintainer": "apiflow",
               "spendTime": 0
@@ -1800,7 +1800,7 @@ export const localShareDataTest: LocalShareData = {
           "info": {
               "name": "添加成员",
               "version": "1.0",
-              "type": "api",
+              "type": "http",
               "creator": "apiflow",
               "maintainer": "apiflow",
               "spendTime": 0
@@ -1901,7 +1901,7 @@ export const localShareDataTest: LocalShareData = {
           "info": {
               "name": "修改成员权限",
               "version": "1.0",
-              "type": "api",
+              "type": "http",
               "creator": "apiflow",
               "maintainer": "apiflow",
               "spendTime": 0
@@ -2002,7 +2002,7 @@ export const localShareDataTest: LocalShareData = {
           "info": {
               "name": "3",
               "version": "1.0",
-              "type": "api",
+              "type": "http",
               "creator": "apiflow"
           },
           "item": {
@@ -2061,7 +2061,7 @@ export const localShareDataTest: LocalShareData = {
           "info": {
               "name": "1",
               "version": "1.0",
-              "type": "api",
+              "type": "http",
               "creator": "apiflow"
           },
           "item": {
@@ -2120,7 +2120,7 @@ export const localShareDataTest: LocalShareData = {
           "info": {
               "name": "DELETE请求",
               "version": "1.0",
-              "type": "api",
+              "type": "http",
               "creator": "apiflow",
               "maintainer": "apiflow",
               "spendTime": 0
@@ -2221,7 +2221,7 @@ export const localShareDataTest: LocalShareData = {
           "info": {
               "name": "PATCH请求",
               "version": "1.0",
-              "type": "api",
+              "type": "http",
               "creator": "apiflow",
               "maintainer": "apiflow",
               "spendTime": 0
@@ -2322,7 +2322,7 @@ export const localShareDataTest: LocalShareData = {
           "info": {
               "name": "修改全局公共请求�?,
               "version": "1.0",
-              "type": "api",
+              "type": "http",
               "creator": "apiflow",
               "maintainer": "apiflow",
               "spendTime": 0
@@ -2423,7 +2423,7 @@ export const localShareDataTest: LocalShareData = {
           "info": {
               "name": "获取全局公共请求�?,
               "version": "1.0",
-              "type": "api",
+              "type": "http",
               "creator": "apiflow",
               "maintainer": "初始普通用�?,
               "spendTime": 0
@@ -2601,7 +2601,7 @@ export const localShareDataTest: LocalShareData = {
           "info": {
               "name": "图形验证码获�?,
               "version": "1.0",
-              "type": "api",
+              "type": "http",
               "creator": "apiflow",
               "maintainer": "apiflow",
               "spendTime": 0
@@ -2720,7 +2720,7 @@ export const localShareDataTest: LocalShareData = {
           "info": {
               "name": "33",
               "version": "1.0",
-              "type": "api",
+              "type": "http",
               "creator": "apiflow"
           },
           "item": {
@@ -2898,7 +2898,7 @@ export const localShareDataTest: LocalShareData = {
           "info": {
               "name": "公共请求�?,
               "version": "1.0",
-              "type": "api",
+              "type": "http",
               "creator": "初始普通用�?,
               "maintainer": "初始普通用�?,
               "spendTime": 0
@@ -3119,7 +3119,7 @@ export const localShareDataTest: LocalShareData = {
           "info": {
               "name": "请求url",
               "version": "1.0",
-              "type": "api",
+              "type": "http",
               "creator": "apiflow",
               "maintainer": "初始普通用�?,
               "spendTime": 0
@@ -3220,7 +3220,7 @@ export const localShareDataTest: LocalShareData = {
           "info": {
               "name": "query参数",
               "version": "1.0",
-              "type": "api",
+              "type": "http",
               "creator": "apiflow",
               "maintainer": "初始普通用�?,
               "spendTime": 0
@@ -3393,7 +3393,7 @@ export const localShareDataTest: LocalShareData = {
           "info": {
               "name": "json参数",
               "version": "1.0",
-              "type": "api",
+              "type": "http",
               "creator": "apiflow",
               "maintainer": "初始普通用�?,
               "spendTime": 0
@@ -3494,7 +3494,7 @@ export const localShareDataTest: LocalShareData = {
           "info": {
               "name": "formData参数",
               "version": "1.0",
-              "type": "api",
+              "type": "http",
               "creator": "apiflow",
               "maintainer": "初始普通用�?,
               "spendTime": 0
@@ -3660,7 +3660,7 @@ export const localShareDataTest: LocalShareData = {
           "info": {
               "name": "urlencoded参数",
               "version": "1.0",
-              "type": "api",
+              "type": "http",
               "creator": "apiflow",
               "maintainer": "初始普通用�?,
               "spendTime": 0
@@ -3824,7 +3824,7 @@ export const localShareDataTest: LocalShareData = {
           "info": {
               "name": "raw类型-text",
               "version": "1.0",
-              "type": "api",
+              "type": "http",
               "creator": "apiflow",
               "maintainer": "初始普通用�?,
               "spendTime": 0
@@ -3925,7 +3925,7 @@ export const localShareDataTest: LocalShareData = {
           "info": {
               "name": "path参数",
               "version": "1.0",
-              "type": "api",
+              "type": "http",
               "creator": "apiflow",
               "maintainer": "初始普通用�?,
               "spendTime": 0
@@ -4036,7 +4036,7 @@ export const localShareDataTest: LocalShareData = {
           "info": {
               "name": "binary参数类型",
               "version": "1.0",
-              "type": "api",
+              "type": "http",
               "creator": "apiflow",
               "maintainer": "初始普通用�?,
               "spendTime": 0
@@ -4135,7 +4135,7 @@ export const localShareDataTest: LocalShareData = {
           "info": {
               "name": "raw类型-html",
               "version": "1.0",
-              "type": "api",
+              "type": "http",
               "creator": "apiflow",
               "maintainer": "初始普通用�?,
               "spendTime": 0
@@ -4236,7 +4236,7 @@ export const localShareDataTest: LocalShareData = {
           "info": {
               "name": "raw类型-xml",
               "version": "1.0",
-              "type": "api",
+              "type": "http",
               "creator": "apiflow",
               "maintainer": "初始普通用�?,
               "spendTime": 0
@@ -4337,7 +4337,7 @@ export const localShareDataTest: LocalShareData = {
           "info": {
               "name": "raw类型-javascript",
               "version": "1.0",
-              "type": "api",
+              "type": "http",
               "creator": "apiflow",
               "maintainer": "初始普通用�?,
               "spendTime": 0
@@ -4438,7 +4438,7 @@ export const localShareDataTest: LocalShareData = {
           "info": {
               "name": "返回参数",
               "version": "1.0",
-              "type": "api",
+              "type": "http",
               "creator": "初始普通用�?,
               "maintainer": "初始普通用�?,
               "spendTime": 0,
@@ -4660,7 +4660,7 @@ export const localShareDataTest: LocalShareData = {
           "info": {
               "name": "前置脚本",
               "version": "1.0",
-              "type": "api",
+              "type": "http",
               "creator": "初始普通用�?,
               "maintainer": "初始普通用�?,
               "spendTime": 0
@@ -4761,7 +4761,7 @@ export const localShareDataTest: LocalShareData = {
           "info": {
               "name": "后置脚本",
               "version": "1.0",
-              "type": "api",
+              "type": "http",
               "creator": "初始普通用�?
           },
           "item": {
@@ -4881,7 +4881,7 @@ export const localShareDataTest: LocalShareData = {
           "info": {
               "name": "无contentType-json",
               "version": "1.0",
-              "type": "api",
+              "type": "http",
               "creator": "初始普通用�?,
               "maintainer": "初始普通用�?,
               "spendTime": 0
@@ -4982,7 +4982,7 @@ export const localShareDataTest: LocalShareData = {
           "info": {
               "name": "json",
               "version": "1.0",
-              "type": "api",
+              "type": "http",
               "creator": "初始普通用�?,
               "maintainer": "初始普通用�?,
               "spendTime": 0
@@ -5083,7 +5083,7 @@ export const localShareDataTest: LocalShareData = {
           "info": {
               "name": "无contentType-form",
               "version": "1.0",
-              "type": "api",
+              "type": "http",
               "creator": "初始普通用�?,
               "maintainer": "初始普通用�?,
               "spendTime": 0
@@ -5184,7 +5184,7 @@ export const localShareDataTest: LocalShareData = {
           "info": {
               "name": "无contentType-encoded",
               "version": "1.0",
-              "type": "api",
+              "type": "http",
               "creator": "初始普通用�?,
               "maintainer": "初始普通用�?,
               "spendTime": 0
@@ -5285,7 +5285,7 @@ export const localShareDataTest: LocalShareData = {
           "info": {
               "name": "无contentType-raw",
               "version": "1.0",
-              "type": "api",
+              "type": "http",
               "creator": "初始普通用�?,
               "maintainer": "初始普通用�?,
               "spendTime": 0
@@ -5386,7 +5386,7 @@ export const localShareDataTest: LocalShareData = {
           "info": {
               "name": "无contentType-binary",
               "version": "1.0",
-              "type": "api",
+              "type": "http",
               "creator": "初始普通用�?,
               "maintainer": "初始普通用�?,
               "spendTime": 0
@@ -5487,7 +5487,7 @@ export const localShareDataTest: LocalShareData = {
           "info": {
               "name": "无contentType-none",
               "version": "1.0",
-              "type": "api",
+              "type": "http",
               "creator": "初始普通用�?,
               "maintainer": "初始普通用�?,
               "spendTime": 0
@@ -5708,7 +5708,7 @@ export const localShareDataTest: LocalShareData = {
           "info": {
               "name": "formdata",
               "version": "1.0",
-              "type": "api",
+              "type": "http",
               "creator": "初始普通用�?,
               "maintainer": "初始普通用�?,
               "spendTime": 0
@@ -5838,7 +5838,7 @@ export const localShareDataTest: LocalShareData = {
           "info": {
               "name": "urlencoded",
               "version": "1.0",
-              "type": "api",
+              "type": "http",
               "creator": "初始普通用�?,
               "maintainer": "初始普通用�?,
               "spendTime": 0
@@ -5957,7 +5957,7 @@ export const localShareDataTest: LocalShareData = {
           "info": {
               "name": "raw-html",
               "version": "1.0",
-              "type": "api",
+              "type": "http",
               "creator": "初始普通用�?,
               "maintainer": "初始普通用�?,
               "spendTime": 0
@@ -6058,7 +6058,7 @@ export const localShareDataTest: LocalShareData = {
           "info": {
               "name": "raw-text",
               "version": "1.0",
-              "type": "api",
+              "type": "http",
               "creator": "初始普通用�?,
               "maintainer": "初始普通用�?,
               "spendTime": 0
@@ -6159,7 +6159,7 @@ export const localShareDataTest: LocalShareData = {
           "info": {
               "name": "raw-xml",
               "version": "1.0",
-              "type": "api",
+              "type": "http",
               "creator": "初始普通用�?,
               "maintainer": "初始普通用�?,
               "spendTime": 0
@@ -6260,7 +6260,7 @@ export const localShareDataTest: LocalShareData = {
           "info": {
               "name": "raw-javascript",
               "version": "1.0",
-              "type": "api",
+              "type": "http",
               "creator": "初始普通用�?,
               "maintainer": "初始普通用�?,
               "spendTime": 0
@@ -6361,7 +6361,7 @@ export const localShareDataTest: LocalShareData = {
           "info": {
               "name": "binary",
               "version": "1.0",
-              "type": "api",
+              "type": "http",
               "creator": "初始普通用�?,
               "maintainer": "初始普通用�?,
               "spendTime": 0
@@ -6522,7 +6522,7 @@ export const localShareDataTest: LocalShareData = {
           "info": {
               "name": "json返回",
               "version": "1.0",
-              "type": "api",
+              "type": "http",
               "creator": "初始普通用�?,
               "maintainer": "初始普通用�?,
               "spendTime": 0
@@ -6623,7 +6623,7 @@ export const localShareDataTest: LocalShareData = {
           "info": {
               "name": "海量json返回",
               "version": "1.0",
-              "type": "api",
+              "type": "http",
               "creator": "初始普通用�?,
               "maintainer": "初始普通用�?,
               "spendTime": 0
@@ -6931,7 +6931,7 @@ export const localShareDataTest: LocalShareData = {
           "info": {
               "name": "css返回",
               "version": "1.0",
-              "type": "api",
+              "type": "http",
               "creator": "初始普通用�?,
               "maintainer": "初始普通用�?,
               "spendTime": 0
@@ -7272,7 +7272,7 @@ export const localShareDataTest: LocalShareData = {
           "info": {
               "name": "html返回",
               "version": "1.0",
-              "type": "api",
+              "type": "http",
               "creator": "初始普通用�?,
               "maintainer": "初始普通用�?,
               "spendTime": 0
@@ -7373,7 +7373,7 @@ export const localShareDataTest: LocalShareData = {
           "info": {
               "name": "海量html返回",
               "version": "1.0",
-              "type": "api",
+              "type": "http",
               "creator": "初始普通用�?,
               "maintainer": "初始普通用�?,
               "spendTime": 0
@@ -7474,7 +7474,7 @@ export const localShareDataTest: LocalShareData = {
           "info": {
               "name": "js返回",
               "version": "1.0",
-              "type": "api",
+              "type": "http",
               "creator": "初始普通用�?,
               "maintainer": "初始普通用�?,
               "spendTime": 0
@@ -7575,7 +7575,7 @@ export const localShareDataTest: LocalShareData = {
           "info": {
               "name": "海量js返回",
               "version": "1.0",
-              "type": "api",
+              "type": "http",
               "creator": "初始普通用�?,
               "maintainer": "初始普通用�?,
               "spendTime": 0
@@ -7676,7 +7676,7 @@ export const localShareDataTest: LocalShareData = {
           "info": {
               "name": "txt返回",
               "version": "1.0",
-              "type": "api",
+              "type": "http",
               "creator": "初始普通用�?,
               "maintainer": "初始普通用�?,
               "spendTime": 0
@@ -7777,7 +7777,7 @@ export const localShareDataTest: LocalShareData = {
           "info": {
               "name": "海量txt返回",
               "version": "1.0",
-              "type": "api",
+              "type": "http",
               "creator": "初始普通用�?,
               "maintainer": "初始普通用�?,
               "spendTime": 0
@@ -7878,7 +7878,7 @@ export const localShareDataTest: LocalShareData = {
           "info": {
               "name": "xml返回",
               "version": "1.0",
-              "type": "api",
+              "type": "http",
               "creator": "初始普通用�?,
               "maintainer": "初始普通用�?,
               "spendTime": 0
@@ -7979,7 +7979,7 @@ export const localShareDataTest: LocalShareData = {
           "info": {
               "name": "海量xml返回",
               "version": "1.0",
-              "type": "api",
+              "type": "http",
               "creator": "初始普通用�?,
               "maintainer": "初始普通用�?,
               "spendTime": 0
@@ -8080,7 +8080,7 @@ export const localShareDataTest: LocalShareData = {
           "info": {
               "name": "海量css返回",
               "version": "1.0",
-              "type": "api",
+              "type": "http",
               "creator": "初始普通用�?,
               "maintainer": "初始普通用�?,
               "spendTime": 0
@@ -8208,7 +8208,7 @@ export const localShareDataTest: LocalShareData = {
           "info": {
               "name": "docx返回",
               "version": "1.0",
-              "type": "api",
+              "type": "http",
               "creator": "初始普通用�?,
               "maintainer": "初始普通用�?,
               "spendTime": 0
@@ -8486,7 +8486,7 @@ export const localShareDataTest: LocalShareData = {
           "info": {
               "name": "pdf返回",
               "version": "1.0",
-              "type": "api",
+              "type": "http",
               "creator": "初始普通用�?,
               "maintainer": "初始普通用�?,
               "spendTime": 0
@@ -8823,7 +8823,7 @@ export const localShareDataTest: LocalShareData = {
           "info": {
               "name": "xls返回",
               "version": "1.0",
-              "type": "api",
+              "type": "http",
               "creator": "初始普通用�?,
               "maintainer": "初始普通用�?,
               "spendTime": 0
@@ -8924,7 +8924,7 @@ export const localShareDataTest: LocalShareData = {
           "info": {
               "name": "xlsx返回",
               "version": "1.0",
-              "type": "api",
+              "type": "http",
               "creator": "初始普通用�?,
               "maintainer": "初始普通用�?,
               "spendTime": 0
@@ -9025,7 +9025,7 @@ export const localShareDataTest: LocalShareData = {
           "info": {
               "name": "ppt返回",
               "version": "1.0",
-              "type": "api",
+              "type": "http",
               "creator": "初始普通用�?,
               "maintainer": "初始普通用�?,
               "spendTime": 0
@@ -9126,7 +9126,7 @@ export const localShareDataTest: LocalShareData = {
           "info": {
               "name": "doc返回",
               "version": "1.0",
-              "type": "api",
+              "type": "http",
               "creator": "初始普通用�?,
               "maintainer": "初始普通用�?,
               "spendTime": 0
@@ -9227,7 +9227,7 @@ export const localShareDataTest: LocalShareData = {
           "info": {
               "name": "png返回",
               "version": "1.0",
-              "type": "api",
+              "type": "http",
               "creator": "初始普通用�?,
               "maintainer": "初始普通用�?,
               "spendTime": 0
@@ -9505,7 +9505,7 @@ export const localShareDataTest: LocalShareData = {
           "info": {
               "name": "jpg返回",
               "version": "1.0",
-              "type": "api",
+              "type": "http",
               "creator": "初始普通用�?,
               "maintainer": "初始普通用�?,
               "spendTime": 0
@@ -9842,7 +9842,7 @@ export const localShareDataTest: LocalShareData = {
           "info": {
               "name": "gif返回",
               "version": "1.0",
-              "type": "api",
+              "type": "http",
               "creator": "初始普通用�?,
               "maintainer": "初始普通用�?,
               "spendTime": 0
@@ -9943,7 +9943,7 @@ export const localShareDataTest: LocalShareData = {
           "info": {
               "name": "webp返回",
               "version": "1.0",
-              "type": "api",
+              "type": "http",
               "creator": "初始普通用�?,
               "maintainer": "初始普通用�?,
               "spendTime": 0
@@ -10044,7 +10044,7 @@ export const localShareDataTest: LocalShareData = {
           "info": {
               "name": "bmp返回",
               "version": "1.0",
-              "type": "api",
+              "type": "http",
               "creator": "初始普通用�?,
               "maintainer": "初始普通用�?,
               "spendTime": 0
@@ -10145,7 +10145,7 @@ export const localShareDataTest: LocalShareData = {
           "info": {
               "name": "svg返回",
               "version": "1.0",
-              "type": "api",
+              "type": "http",
               "creator": "初始普通用�?,
               "maintainer": "初始普通用�?,
               "spendTime": 0
@@ -10366,7 +10366,7 @@ export const localShareDataTest: LocalShareData = {
           "info": {
               "name": "csv返回",
               "version": "1.0",
-              "type": "api",
+              "type": "http",
               "creator": "初始普通用�?,
               "maintainer": "初始普通用�?,
               "spendTime": 0
@@ -10467,7 +10467,7 @@ export const localShareDataTest: LocalShareData = {
           "info": {
               "name": "海量csv返回",
               "version": "1.0",
-              "type": "api",
+              "type": "http",
               "creator": "初始普通用�?,
               "maintainer": "初始普通用�?,
               "spendTime": 0
@@ -10627,7 +10627,7 @@ export const localShareDataTest: LocalShareData = {
           "info": {
               "name": "pptx返回",
               "version": "1.0",
-              "type": "api",
+              "type": "http",
               "creator": "初始普通用�?,
               "maintainer": "初始普通用�?,
               "spendTime": 0
@@ -10728,7 +10728,7 @@ export const localShareDataTest: LocalShareData = {
           "info": {
               "name": "doc大文件返�?,
               "version": "1.0",
-              "type": "api",
+              "type": "http",
               "creator": "初始普通用�?,
               "maintainer": "初始普通用�?,
               "spendTime": 0
@@ -10889,7 +10889,7 @@ export const localShareDataTest: LocalShareData = {
           "info": {
               "name": "ico返回",
               "version": "1.0",
-              "type": "api",
+              "type": "http",
               "creator": "初始普通用�?,
               "maintainer": "初始普通用�?,
               "spendTime": 0
@@ -11050,7 +11050,7 @@ export const localShareDataTest: LocalShareData = {
           "info": {
               "name": "wav返回",
               "version": "1.0",
-              "type": "api",
+              "type": "http",
               "creator": "初始普通用�?,
               "maintainer": "初始普通用�?,
               "spendTime": 0
@@ -11387,7 +11387,7 @@ export const localShareDataTest: LocalShareData = {
           "info": {
               "name": "mp3返回",
               "version": "1.0",
-              "type": "api",
+              "type": "http",
               "creator": "初始普通用�?,
               "maintainer": "初始普通用�?,
               "spendTime": 0
@@ -11488,7 +11488,7 @@ export const localShareDataTest: LocalShareData = {
           "info": {
               "name": "flac返回",
               "version": "1.0",
-              "type": "api",
+              "type": "http",
               "creator": "初始普通用�?,
               "maintainer": "初始普通用�?,
               "spendTime": 0
@@ -11589,7 +11589,7 @@ export const localShareDataTest: LocalShareData = {
           "info": {
               "name": "ogg返回",
               "version": "1.0",
-              "type": "api",
+              "type": "http",
               "creator": "初始普通用�?,
               "maintainer": "初始普通用�?,
               "spendTime": 0
@@ -11750,7 +11750,7 @@ export const localShareDataTest: LocalShareData = {
           "info": {
               "name": "avi返回",
               "version": "1.0",
-              "type": "api",
+              "type": "http",
               "creator": "初始普通用�?,
               "maintainer": "初始普通用�?,
               "spendTime": 0
@@ -11969,7 +11969,7 @@ export const localShareDataTest: LocalShareData = {
           "info": {
               "name": "mp4返回",
               "version": "1.0",
-              "type": "api",
+              "type": "http",
               "creator": "初始普通用�?,
               "maintainer": "初始普通用�?,
               "spendTime": 0
@@ -12247,7 +12247,7 @@ export const localShareDataTest: LocalShareData = {
           "info": {
               "name": "mkv返回",
               "version": "1.0",
-              "type": "api",
+              "type": "http",
               "creator": "初始普通用�?,
               "maintainer": "初始普通用�?,
               "spendTime": 0
@@ -12348,7 +12348,7 @@ export const localShareDataTest: LocalShareData = {
           "info": {
               "name": "mov返回",
               "version": "1.0",
-              "type": "api",
+              "type": "http",
               "creator": "初始普通用�?,
               "maintainer": "初始普通用�?,
               "spendTime": 0
@@ -12449,7 +12449,7 @@ export const localShareDataTest: LocalShareData = {
           "info": {
               "name": "webm返回",
               "version": "1.0",
-              "type": "api",
+              "type": "http",
               "creator": "初始普通用�?,
               "maintainer": "初始普通用�?,
               "spendTime": 0
@@ -12850,7 +12850,7 @@ export const localShareDataTest: LocalShareData = {
           "info": {
               "name": "zip返回",
               "version": "1.0",
-              "type": "api",
+              "type": "http",
               "creator": "初始普通用�?,
               "maintainer": "初始普通用�?,
               "spendTime": 0
@@ -12951,7 +12951,7 @@ export const localShareDataTest: LocalShareData = {
           "info": {
               "name": "rar返回",
               "version": "1.0",
-              "type": "api",
+              "type": "http",
               "creator": "初始普通用�?,
               "maintainer": "初始普通用�?,
               "spendTime": 0
@@ -13052,7 +13052,7 @@ export const localShareDataTest: LocalShareData = {
           "info": {
               "name": "7z返回",
               "version": "1.0",
-              "type": "api",
+              "type": "http",
               "creator": "初始普通用�?,
               "maintainer": "初始普通用�?,
               "spendTime": 0
@@ -13153,7 +13153,7 @@ export const localShareDataTest: LocalShareData = {
           "info": {
               "name": "tar返回",
               "version": "1.0",
-              "type": "api",
+              "type": "http",
               "creator": "初始普通用�?,
               "maintainer": "初始普通用�?,
               "spendTime": 0
@@ -13434,7 +13434,7 @@ export const localShareDataTest: LocalShareData = {
           "info": {
               "name": "exe返回",
               "version": "1.0",
-              "type": "api",
+              "type": "http",
               "creator": "初始普通用�?,
               "maintainer": "初始普通用�?,
               "spendTime": 0
@@ -13535,7 +13535,7 @@ export const localShareDataTest: LocalShareData = {
           "info": {
               "name": "epub返回",
               "version": "1.0",
-              "type": "api",
+              "type": "http",
               "creator": "初始普通用�?,
               "maintainer": "初始普通用�?,
               "spendTime": 0
@@ -13696,7 +13696,7 @@ export const localShareDataTest: LocalShareData = {
           "info": {
               "name": "重定�?,
               "version": "1.0",
-              "type": "api",
+              "type": "http",
               "creator": "初始普通用�?,
               "maintainer": "初始普通用�?,
               "spendTime": 0
@@ -13884,7 +13884,7 @@ export const localShareDataTest: LocalShareData = {
           "info": {
               "name": "获取cookie",
               "version": "1.0",
-              "type": "api",
+              "type": "http",
               "creator": "初始普通用�?,
               "maintainer": "初始普通用�?,
               "spendTime": 0
@@ -14012,7 +14012,7 @@ export const localShareDataTest: LocalShareData = {
           "info": {
               "name": "域名不同",
               "version": "1.0",
-              "type": "api",
+              "type": "http",
               "creator": "初始普通用�?,
               "spendTime": 0,
               "description": "",
@@ -14174,7 +14174,7 @@ export const localShareDataTest: LocalShareData = {
           "info": {
               "name": "前置脚本验证-formdata",
               "version": "1.0",
-              "type": "api",
+              "type": "http",
               "creator": "初始普通用�?,
               "maintainer": "初始普通用�?,
               "spendTime": 0
@@ -14312,7 +14312,7 @@ export const localShareDataTest: LocalShareData = {
           "info": {
               "name": "前置脚本验证-json",
               "version": "1.0",
-              "type": "api",
+              "type": "http",
               "creator": "初始普通用�?,
               "maintainer": "初始普通用�?,
               "spendTime": 0
@@ -14450,7 +14450,7 @@ export const localShareDataTest: LocalShareData = {
           "info": {
               "name": "域名和path相同",
               "version": "1.0",
-              "type": "api",
+              "type": "http",
               "creator": "初始普通用�?,
               "maintainer": "初始普通用�?,
               "spendTime": 0
@@ -14551,7 +14551,7 @@ export const localShareDataTest: LocalShareData = {
           "info": {
               "name": "域名相同子path",
               "version": "1.0",
-              "type": "api",
+              "type": "http",
               "creator": "初始普通用�?,
               "maintainer": "初始普通用�?,
               "spendTime": 0
@@ -14652,7 +14652,7 @@ export const localShareDataTest: LocalShareData = {
           "info": {
               "name": "域名相同path不同",
               "version": "1.0",
-              "type": "api",
+              "type": "http",
               "creator": "初始普通用�?,
               "maintainer": "初始普通用�?,
               "spendTime": 0
@@ -14753,7 +14753,7 @@ export const localShareDataTest: LocalShareData = {
           "info": {
               "name": "请求头验�?,
               "version": "1.0",
-              "type": "api",
+              "type": "http",
               "creator": "初始普通用�?,
               "maintainer": "初始普通用�?,
               "spendTime": 0
@@ -14914,7 +14914,7 @@ export const localShareDataTest: LocalShareData = {
           "info": {
               "name": "文档操作人员列表",
               "version": "1.0",
-              "type": "api",
+              "type": "http",
               "creator": "初始普通用�?,
               "maintainer": "初始普通用�?,
               "spendTime": 0
@@ -15093,7 +15093,7 @@ export const localShareDataTest: LocalShareData = {
           "info": {
               "name": "获取文档详情",
               "version": "1.0",
-              "type": "api",
+              "type": "http",
               "creator": "初始普通用�?,
               "maintainer": "初始普通用�?
           },
@@ -15271,7 +15271,7 @@ export const localShareDataTest: LocalShareData = {
           "info": {
               "name": "获取分享详情",
               "version": "1.0",
-              "type": "api",
+              "type": "http",
               "creator": "初始普通用�?,
               "maintainer": "初始普通用�?
           },
@@ -15380,7 +15380,7 @@ export const localShareDataTest: LocalShareData = {
           "info": {
               "name": "获取分享的banner信息",
               "version": "1.0",
-              "type": "api",
+              "type": "http",
               "creator": "初始普通用�?,
               "maintainer": "初始普通用�?
           },
@@ -15498,7 +15498,7 @@ export const localShareDataTest: LocalShareData = {
           "info": {
               "name": "请求展示",
               "version": "1.0",
-              "type": "api",
+              "type": "http",
               "creator": "初始普通用�?,
               "maintainer": "初始普通用�?
           },
@@ -15657,7 +15657,7 @@ export const localShareDataTest: LocalShareData = {
           "info": {
               "name": "导出为html",
               "version": "1.0",
-              "type": "api",
+              "type": "http",
               "creator": "初始普通用�?,
               "maintainer": "初始普通用�?
           },

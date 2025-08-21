@@ -201,7 +201,7 @@ class OpenApiTranslator {
           moyuDoc.sort = Date.now(); //排序
           moyuDoc.info.name = pathItemObject.summary || '未命名'; //文档名称
           moyuDoc.info.description = pathItemObject.description || ''; //文档备注
-          moyuDoc.info.type = 'api';
+          moyuDoc.info.type = 'http';
           moyuDoc.item.method = matchedMethodKey.toUpperCase() as HttpNodeRequestMethod;
           moyuDoc.item.url.prefix = serversInfo[0] ? serversInfo[0].url : '';
           moyuDoc.item.url.path = reqUrl;

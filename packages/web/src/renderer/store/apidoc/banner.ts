@@ -84,9 +84,7 @@ export const useApidocBanner = defineStore('apidocBanner', () => {
   const getDocBanner = async(payload: { projectId: string }): Promise<ApidocBanner[]> => {
     return new Promise(async (resolve, reject) => {
       if (__STANDALONE__) {
-        // 使用优化的缓存数据获取方法，直接返回 ApidocBanner 格式
-        const docs = await standaloneCache.getDocsByProjectId(payload.projectId);
-        const banner = convertNodesToBannerNodes(docs)
+        const banner = await standaloneCache.getApiNodesAsTree(payload.projectId);
         changeAllDocBanner(banner)
         resolve(banner)
         return
@@ -99,12 +97,20 @@ export const useApidocBanner = defineStore('apidocBanner', () => {
         changeAllDocBanner(result)
         const urlMap: ApidocMockState['urlMap'] = [];
         forEachForest(res.data, (data) => {
-          if (data.type !== 'folder') {
+          if (data.type === 'http') {
             urlMap.push({
               url: data.url,
               customMockUrl: data.customMockUrl,
               projectId: payload.projectId,
               method: data.method,
+              id: data._id,
+            });
+          } else if (data.type === 'websocket') {
+            urlMap.push({
+              url: data.url.path,
+              customMockUrl: data.customMockUrl,
+              projectId: payload.projectId,
+              method: data.protocol,
               id: data._id,
             });
           }

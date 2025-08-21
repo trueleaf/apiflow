@@ -33,7 +33,10 @@ export type WebSocketNode = {
     /**
      * 请求地址
      */
-    url: string;
+    url: {
+      path: string; 
+      prefix: string;
+    };
     /**
      * 请求头
      */

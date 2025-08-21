@@ -26,8 +26,8 @@
           }" tabindex="0"
             @click="handleClickNode($event, scope.data)"
             @dblclick="handleDbclickNode(scope.data)">
-            <!-- file渲染 -->
-            <template v-if="scope.data.type !== 'folder'">
+            <!-- http接口渲染 -->
+            <template v-if="scope.data.type === 'http'">
               <template v-for="(req) in requestMethods">
                 <span 
                   v-if="scope.data.method.toLowerCase() === req.value.toLowerCase()" :key="req.name"
@@ -37,6 +37,15 @@
                 <SEmphasize class="node-top" :title="scope.data.name" :value="scope.data.name" :keyword="searchValue"></SEmphasize>
                 <SEmphasize v-show="showMoreNodeInfo" class="node-bottom" :title="scope.data.url"
                   :value="scope.data.url" :keyword="searchValue"></SEmphasize>
+              </div>
+            </template>
+            <!-- websocket接口渲染 -->
+            <template v-if="scope.data.type === 'websocket'">
+              <span class="file-icon">{{ scope.data.protocol }}</span>
+              <div class="node-label-wrap">
+                <SEmphasize class="node-top" :title="scope.data.name" :value="scope.data.name" :keyword="searchValue"></SEmphasize>
+                <SEmphasize v-show="showMoreNodeInfo" class="node-bottom" :title="scope.data.url.path"
+                  :value="scope.data.url.path" :keyword="searchValue"></SEmphasize>
               </div>
             </template>
             <!-- 文件夹渲染 -->
@@ -92,7 +101,7 @@ const defaultExpandedKeys = computed(() => activeNode.value ? [activeNode.value.
 
 //点击节点
 const handleClickNode = (_: MouseEvent, data: ApidocBanner) => {
-  if (data.type !== 'folder') {
+  if (data.type === 'http') {
     shareStore.addTab({
       _id: data._id,
       projectId: shareId,
@@ -103,6 +112,20 @@ const handleClickNode = (_: MouseEvent, data: ApidocBanner) => {
       selected: true,
       head: {
         icon: data.method,
+        color: ""
+      },
+    })
+  } else if (data.type === 'websocket') {
+    shareStore.addTab({
+      _id: data._id,
+      projectId: shareId,
+      tabType: 'websocket',
+      label: data.name,
+      saved: true,
+      fixed: false,
+      selected: true,
+      head: {
+        icon: data.protocol,
         color: ""
       },
     })
@@ -124,8 +147,13 @@ const filterNode = (value: string, data: Record<string, unknown>): boolean => {
     showMoreNodeInfo.value = false;
     return true;
   }
-  const matchedUrl = (data as ApidocBanner).url?.toLowerCase().includes(value.toLowerCase());
-  const matchedDocName = (data as ApidocBanner).name.toLowerCase().includes(value.toLowerCase());
+  const bannerData = data as ApidocBanner;
+  const matchedUrl = bannerData.type === 'http' 
+    ? bannerData.url?.toLowerCase().includes(value.toLowerCase())
+    : bannerData.type === 'websocket'
+      ? bannerData.url.path?.toLowerCase().includes(value.toLowerCase())
+      : false;
+  const matchedDocName = bannerData.name.toLowerCase().includes(value.toLowerCase());
   showMoreNodeInfo.value = true;
   return !!matchedUrl || !!matchedDocName;
 }

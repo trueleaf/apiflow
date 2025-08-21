@@ -96,20 +96,17 @@ export class StandaloneCache {
     };
     return await this.projects.setProjectList(projectList);
   }
-  async getDocsByProjectId(projectId: string): Promise<HttpNode[]> {
+  async getDocsByProjectId(projectId: string): Promise<ApiNode[]> {
     return this.docs.getDocsByProjectId(projectId);
   }
-  async getDocById(docId: string): Promise<HttpNode | null> {
+  async getDocById(docId: string): Promise<ApiNode | null> {
     return this.docs.getDocById(docId);
   }
   async deleteDocsByProjectId(projectId: string): Promise<boolean> {
     return this.docs.deleteDocsByProjectId(projectId);
   }
-  async getDocTree(projectId: string) {
-    return this.docs.getDocTree(projectId);
-  }
-  async getFolderTree(projectId: string) {
-    return this.docs.getFolderTree(projectId);
+  async getApiNodesAsTree(projectId: string) {
+    return this.docs.getApiNodesAsTree(projectId);
   }
 
   // 文档相关

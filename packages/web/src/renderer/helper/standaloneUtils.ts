@@ -27,7 +27,7 @@ export const generateEmptyHttpNode = (_id: string): HttpNode => {
       name: '',
       description: '',
       version: '1.0.0',
-      type: 'api',
+      type: 'http',
       creator: '',
       maintainer: '',
       deletePerson: '',
@@ -111,7 +111,10 @@ export const generateEmptyWebsocketNode = (_id: string): WebSocketNode => {
     },
     item: {
       protocol: 'ws',
-      url: '',
+      url: {
+        path: "",
+        prefix: "",
+      },
       headers: [],
     },
     preRequest: {

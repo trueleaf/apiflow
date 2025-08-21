@@ -424,7 +424,7 @@ const handleToggleTargetFolder = async (val: boolean) => {
   currentMountedNode.value = null;
   if (val) {
     if (__STANDALONE__) {
-      const banner = await standaloneCache.getFolderTree(projectId);
+      const banner = await standaloneCache.getApiNodesAsTree(projectId);
       navTreeData.value = banner;
       return
     }

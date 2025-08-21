@@ -44,7 +44,7 @@ class PostmanTranslator {
           doc.info.type = 'folder';
           foo(item.item, id);
         } else {
-          doc.info.type = 'api';
+          doc.info.type = 'http';
           doc.item.method = item.request.method.toUpperCase();
           if (typeof item.request.url === 'string') {
             doc.item.url.path = item.request.url;

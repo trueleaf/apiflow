@@ -60,12 +60,12 @@ defineProps({
     default: false,
   },
 })
+const { t } = useTranslation()
 const emits = defineEmits(['update:modelValue', 'success']);
 const formInfo: Ref<FormInfo> = ref({
   name: t('未命名的接口'),
   pid: ''
 })
-const { t } = useTranslation()
 
 const rules = ref({
   name: [{ required: true, message: '接口名称必填', trigger: 'blur' }],

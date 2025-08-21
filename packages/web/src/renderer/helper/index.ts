@@ -6,7 +6,7 @@
  * @create             2021-06-15 22:55
  */
 import { nanoid } from 'nanoid/non-secure'
-import type { HttpNodeRequestMethod, ApidocProperty, HttpNodePropertyType, HttpNode, ApidocBanner, HttpNodeRequestParamTypes, ApidocCodeInfo } from '@src/types'
+import type { HttpNodeRequestMethod, ApidocProperty, HttpNodePropertyType, HttpNode, ApidocBanner, HttpNodeRequestParamTypes, ApidocCodeInfo, FolderNode, ApiNode } from '@src/types'
 import isEqual from 'lodash/isEqual';
 import lodashCloneDeep from 'lodash/cloneDeep';
 import lodashDebounce from 'lodash/debounce';
@@ -416,7 +416,7 @@ export function apidocGenerateApidoc(id?: string): HttpNode {
       name: '',
       description: '',
       version: '',
-      type: 'api',
+      type: 'http',
       creator: '',
       maintainer: '',
       deletePerson: '',
@@ -698,13 +698,11 @@ export function arrayToTree<T extends { _id: string; pid: string }>(list: T[]): 
   return roots;
 }
 
-type ShareTreeNode = HttpNode & { children: ShareTreeNode[] }
-
-export function convertNodesToBannerNodes(docs: (HttpNode | WebSocketNode)[] = []): ApidocBanner[] {
+export function convertNodesToBannerNodes(docs: ApiNode[] = []): ApidocBanner[] {
   const treeData = arrayToTree(docs);
   const copyTreeData = cloneDeep(treeData)
   const banner: ApidocBanner[] = []
-  const foo = (nodes: ShareTreeNode[], banner: ApidocBanner[]): void => {
+  const foo = (nodes: (ApiNode & { children: ApiNode[] })[], banner: ApidocBanner[]): void => {
     // 对节点进行排序：目录在前，文档在后
     const sortedNodes = [...nodes].sort((a, b) => {
       // 如果一个是目录一个是文档，目录排在前面
@@ -716,72 +714,74 @@ export function convertNodesToBannerNodes(docs: (HttpNode | WebSocketNode)[] = [
     
     for (let i = 0; i < sortedNodes.length; i += 1) {
       const node = sortedNodes[i];
-      const bannerNode: ApidocBanner = {
-        _id: node._id,
-        updatedAt: node.updatedAt || '',
-        type: node.info.type,
-        sort: node.sort,
-        pid: node.pid,
-        name: node.info.name,
-        maintainer: node.info.maintainer,
-        method: node.item.method,
-        url: node.item.url.path,
-        commonHeaders: node.commonHeaders ?? [],
-        readonly: false,
-        children: [],
-      }
-      banner.push(bannerNode);
-      if (node.children.length > 0) {
-        foo(node.children, bannerNode.children)
-      }
-    }
-  }
-  foo(copyTreeData as ShareTreeNode[], banner)
-  return banner
-}
-
-export function convertDocsToFolder(docs: (HttpNode | WebSocketNode)[] = []): ApidocBanner[] {
-  const treeData = arrayToTree(docs);
-  const copyTreeData = cloneDeep(treeData)
-  const banner: ApidocBanner[] = []
-  const foo = (nodes: ShareTreeNode[], banner: ApidocBanner[]): void => {
-    // 对节点进行排序：目录在前，文档在后
-    const sortedNodes = [...nodes].sort((a, b) => {
-      // 如果一个是目录一个是文档，目录排在前面
-      if (a.info.type === 'folder' && b.info.type !== 'folder') return -1;
-      if (a.info.type !== 'folder' && b.info.type === 'folder') return 1;
-      // 如果都是目录或都是文档，按sort字段排序
-      return (a.sort || 0) - (b.sort || 0);
-    });
-    
-    for (let i = 0; i < sortedNodes.length; i += 1) {
-      const node = sortedNodes[i];
-      if (node.info.type !== 'folder') continue; // Only include folders
+      let bannerNode: ApidocBanner;
       
-      const bannerNode: ApidocBanner = {
-        _id: node._id,
-        updatedAt: node.updatedAt || '',
-        type: node.info.type,
-        sort: node.sort,
-        pid: node.pid,
-        name: node.info.name,
-        maintainer: node.info.maintainer,
-        method: node.item.method,
-        url: node.item.url.path,
-        commonHeaders: node.commonHeaders,
-        readonly: false,
-        children: [],
+      if (node.info.type === 'http') {
+        bannerNode = {
+          _id: node._id,
+          updatedAt: node.updatedAt || '',
+          type: 'http',
+          sort: node.sort,
+          pid: node.pid,
+          name: node.info.name,
+          maintainer: node.info.maintainer,
+          method: (node as HttpNode).item.method,
+          url: (node as HttpNode).item.url.path,
+          readonly: false,
+          children: [],
+        };
+      } else if (node.info.type === 'websocket') {
+        bannerNode = {
+          _id: node._id,
+          updatedAt: node.updatedAt || '',
+          type: 'websocket',
+          sort: node.sort,
+          pid: node.pid,
+          name: node.info.name,
+          maintainer: node.info.maintainer,
+          protocol: (node as WebSocketNode).item.protocol,
+          url: (node as WebSocketNode).item.url,
+          readonly: false,
+          children: [],
+        };
+      } else if (node.info.type === 'folder') {
+        bannerNode = {
+          _id: node._id,
+          updatedAt: node.updatedAt || '',
+          type: 'folder',
+          sort: node.sort,
+          pid: node.pid,
+          name: node.info.name,
+          maintainer: node.info.maintainer,
+          commonHeaders: (node as FolderNode).commonHeaders || [],
+          readonly: false,
+          children: [],
+        };
+      } else if (node.info.type === 'markdown') {
+        bannerNode = {
+          _id: node._id,
+          updatedAt: node.updatedAt || '',
+          type: 'markdown',
+          sort: node.sort,
+          pid: node.pid,
+          name: node.info.name,
+          maintainer: node.info.maintainer,
+          readonly: false,
+          children: [],
+        };
+      } else {
+        continue;
       }
+      
       banner.push(bannerNode);
       if (node.children.length > 0) {
-        foo(node.children, bannerNode.children)
+        foo(node.children as (ApiNode & { children: ApiNode[] })[], bannerNode.children)
       }
     }
   }
-  foo(copyTreeData as ShareTreeNode[], banner)
+  foo(copyTreeData, banner)
   return banner
 }
-
 /**
  * 判断字符串是否为有效的 JSON 格式
  */

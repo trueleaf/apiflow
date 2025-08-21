@@ -7,6 +7,7 @@ import { WebSocketNode } from "../websocket/websocket.ts";
 |   HttpNode
 |   WebsocketNode
 |   FolderNode
+|  
 |--------------------------------------------------------------------------
 */
 export type ApiNode = HttpNode | WebSocketNode | FolderNode;
@@ -234,9 +235,67 @@ export type FolderNode = {
    */
   isDeleted?: boolean;
 };
+export type ApidocBannerOfHttpNode = {
+  _id: string;
+  updatedAt: string;
+  type: 'http';
+  sort: number;
+  pid: string;
+  name: string;
+  maintainer: string;
+  method: HttpNodeRequestMethod;
+  url: string;
+  readonly: boolean;
+  children: ApidocBanner[];
+}
 
+export type ApidocBannerOfWebsocketNode = {
+  _id: string;
+  updatedAt: string;
+  type: 'websocket';
+  sort: number;
+  pid: string;
+  name: string;
+  maintainer: string;
+  protocol: 'ws' | 'wss';
+  url: {
+    path: string;
+    prefix: string;
+  };
+  readonly: boolean;
+  children: ApidocBanner[];
+}
 
+export type ApidocBannerOfFolderNode = {
+  _id: string;
+  updatedAt: string;
+  type: 'folder';
+  sort: number;
+  pid: string;
+  name: string;
+  maintainer: string;
+  commonHeaders: {
+    key: string;
+    value: string;
+    description: string;
+  }[];
+  readonly: boolean;
+  children: ApidocBanner[];
+}
 
+export type ApidocBannerOfFolderMarkdown = {
+  _id: string;
+  updatedAt: string;
+  type: 'markdown';
+  sort: number;
+  pid: string;
+  name: string;
+  maintainer: string;
+  readonly: boolean;
+  children: ApidocBanner[];
+}
+
+export type ApidocBanner = ApidocBannerOfHttpNode | ApidocBannerOfWebsocketNode | ApidocBannerOfFolderNode | ApidocBannerOfFolderMarkdown;
 /*
 |--------------------------------------------------------------------------
 | 通用类型
@@ -245,7 +304,7 @@ export type FolderNode = {
 /**
  * 接口基础类型
  */
-export type ApidocType = 'folder' | 'api' | 'markdown' | 'websocket';
+export type ApidocType = 'folder' | 'http' | 'markdown' | 'websocket';
 /**
  * 接口参数信息
  */
@@ -511,62 +570,6 @@ export type HttpNodeResponseParams = {
 
 
 
-//文档banner信息
-export type ApidocBanner = {
-  /**
-   * 文档id
-   */
-  _id: string;
-  /**
-   * 最近一次更新日期
-   */
-  updatedAt: string;
-  /**
-   * 文档类型
-   */
-  type: 'folder' | 'api' | 'markdown' | "websocket";
-  /**
-   * 排序值
-   */
-  sort: number;
-  /**
-   * 父元素id
-   */
-  pid: string;
-  /**
-   * 名称
-   */
-  name: string;
-  /**
-   * 更新人
-   */
-  maintainer: string;
-  /**
-   * 请求方法
-   */
-  method?: HttpNodeRequestMethod;
-  protocol?: 'ws' | 'wss',
-  /**
-   * 请求url
-   */
-  url?: string;
-  /**
-   * 公共请求头
-   */
-  commonHeaders: {
-    key: string;
-    value: string;
-    description: string;
-  }[];
-  /**
-   * 是否只读
-   */
-  readonly: boolean;
-  /**
-   * 子节点
-   */
-  children: ApidocBanner[];
-};
 
 //工具栏操作
 export type ApidocOperations =

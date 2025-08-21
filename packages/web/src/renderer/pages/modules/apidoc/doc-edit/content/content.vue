@@ -13,6 +13,7 @@
     <SPackage v-else-if="currentSelectTab.tabType === 'package'"></SPackage>
     <SApidoc v-else-if="currentSelectTab.tabType === 'http'"></SApidoc>
     <SCookies v-else-if="currentSelectTab.tabType === 'cookies'"></SCookies>
+    <SWebsocket v-else-if="currentSelectTab.tabType === 'websocket'"></SWebsocket>
   </keep-alive>
 
 </template>
@@ -37,6 +38,7 @@ import SConfig from './config/config.vue'
 import SHook from './hook/hook.vue'
 import SCommonHeader from './common-header/common-header.vue'
 import SPackage from './package/package.vue'
+import SWebsocket from './websocket/websocket.vue'
 
 const route = useRoute();
 const apidocTabsStore = useApidocTas()

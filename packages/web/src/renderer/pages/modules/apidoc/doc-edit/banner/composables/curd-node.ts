@@ -5,7 +5,8 @@
 import { Ref } from 'vue'
 import 'element-plus/es/components/message-box/style/css';
 import { ElMessage, ElMessageBox } from 'element-plus'
-import type { ApidocBanner, Response } from '@src/types'
+import type { ApidocBanner, Response, HttpNode, FolderNode } from '@src/types'
+import { WebSocketNode } from '@src/types/websocket/websocket'
 import { findNodeById, forEachForest, findParentById, flatTree, uniqueByKey, findPreviousSiblingById, findNextSiblingById, event } from '@/helper/index'
 import { router } from '@/router/index'
 import { request } from '@/api/api'
@@ -195,7 +196,7 @@ export function addFileAndFolderCb(currentOperationalNode: Ref<ApidocBanner | nu
     parentNode?.children.push({
       _id: data._id,
       pid: data.pid,
-      type: data.type as 'folder' | 'api' | 'websocket',
+      type: data.type as 'folder' | 'http' | 'websocket',
       commonHeaders: [],
       children: [],
     });
@@ -203,12 +204,12 @@ export function addFileAndFolderCb(currentOperationalNode: Ref<ApidocBanner | nu
     apidocBaseInfoStore.commonHeaders.push({
       _id: data._id,
       pid: '',
-      type: data.type as 'folder' | 'api' | 'websocket',
+      type: data.type as 'folder' | 'http' | 'websocket',
       commonHeaders: [],
       children: [],
     });
   }
-  if (data.type === 'api') {
+  if (data.type === 'http') {
     const projectId = router.currentRoute.value.query.id as string;
     apidocTabsStore.addTab({
       _id: data._id,
@@ -234,7 +235,7 @@ export function addFileAndFolderCb(currentOperationalNode: Ref<ApidocBanner | nu
       fixed: true,
       selected: true,
       head: {
-        icon: data.method,
+        icon: data.protocol || 'ws',
         color: ''
       }
     })
@@ -432,20 +433,49 @@ export async function forkNode(currentOperationalNode: ApidocBanner): Promise<vo
       await standaloneCache.addDoc(copyDoc);
 
       // 4. 创建用于前端显示的 banner 数据
-      const bannerData: ApidocBanner = {
-        _id: newId,
-        updatedAt: copyDoc.updatedAt,
-        type: copyDoc.info.type,
-        sort: Date.now(), // 使用当前时间戳作为排序
-        pid: copyDoc.pid,
-        name: copyDoc.info.name,
-        maintainer: copyDoc.info.maintainer,
-        method: copyDoc.item.method,
-        url: copyDoc.item.url.path,
-        commonHeaders: copyDoc.commonHeaders || [],
-        readonly: false,
-        children: [],
-      };
+      let bannerData: ApidocBanner;
+      if (copyDoc.info.type === 'http') {
+        bannerData = {
+          _id: newId,
+          updatedAt: copyDoc.updatedAt,
+          type: 'http',
+          sort: Date.now(), // 使用当前时间戳作为排序
+          pid: copyDoc.pid,
+          name: copyDoc.info.name,
+          maintainer: copyDoc.info.maintainer,
+          method: (copyDoc as HttpNode).item.method,
+          url: (copyDoc as HttpNode).item.url.path,
+          readonly: false,
+          children: [],
+        };
+      } else if (copyDoc.info.type === 'websocket') {
+        bannerData = {
+          _id: newId,
+          updatedAt: copyDoc.updatedAt,
+          type: 'websocket',
+          sort: Date.now(),
+          pid: copyDoc.pid,
+          name: copyDoc.info.name,
+          maintainer: copyDoc.info.maintainer,
+          protocol: (copyDoc as WebSocketNode).item.protocol,
+          url: (copyDoc as WebSocketNode).item.url,
+          readonly: false,
+          children: [],
+        };
+      } else {
+        bannerData = {
+          _id: newId,
+          updatedAt: copyDoc.updatedAt,
+          type: 'folder',
+          sort: Date.now(),
+          pid: copyDoc.pid,
+          name: copyDoc.info.name,
+          maintainer: copyDoc.info.maintainer,
+          commonHeaders: (copyDoc as FolderNode).commonHeaders || [],
+          readonly: false,
+          children: [],
+        };
+      }
 
       // 5. 更新前端界面
       const pData = findParentById(apidocBannerStore.banner, currentOperationalNode._id, { idKey: '_id' });

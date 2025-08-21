@@ -15,7 +15,7 @@
       </el-form-item>
       <el-form-item :label="t('接口类型')" prop="type">
         <el-radio-group v-model="formData.type">
-          <el-radio value="api">HTTP</el-radio>
+          <el-radio value="http">HTTP</el-radio>
           <el-radio value="websocket">WebSocket</el-radio>
         </el-radio-group>
       </el-form-item>
@@ -57,7 +57,7 @@ const form = ref<FormInstance>();
 const nameInput = ref<InstanceType<typeof ElInput>>();
 const route = useRoute()
 const formData = ref({
-  type: 'api',
+  type: 'http',
   name: ''
 })
 const formRules = {
@@ -106,8 +106,8 @@ const handleAddFile = () => {
         url: nodeInfo.item.url ? nodeInfo.item.url.path : '',
         maintainer: nodeInfo.info.maintainer,
         updatedAt: nodeInfo.updatedAt,
-
-      }); //一定要先成功然后才关闭弹窗,因为关闭弹窗会清除节点父元素id
+      });
+      //一定要先成功然后才关闭弹窗,因为关闭弹窗会清除节点父元素id
       handleClose();
       loading.value = false;
       return;
@@ -118,27 +118,26 @@ const handleAddFile = () => {
       websocketNode.pid = props.pid
       websocketNode.sort = Date.now()
       websocketNode.isDeleted = false;
-      // await standaloneCache.addDoc(nodeInfo)
-      // emits('success', {
-      //   _id: nodeInfo._id,
-      //   pid: nodeInfo.pid,
-      //   sort: nodeInfo.sort,
-      //   name: nodeInfo.info.name,
-      //   type: formData.value.type,
-      //   method: nodeInfo.item.method,
-      //   url: nodeInfo.item.url ? nodeInfo.item.url.path : '',
-      //   maintainer: nodeInfo.info.maintainer,
-      //   updatedAt: nodeInfo.updatedAt,
-
-      // }); //一定要先成功然后才关闭弹窗,因为关闭弹窗会清除节点父元素id
-      // handleClose();
+      await standaloneCache.addDoc(websocketNode)
+      emits('success', {
+        _id: websocketNode._id,
+        pid: websocketNode.pid,
+        sort: websocketNode.sort,
+        name: websocketNode.info.name,
+        type: formData.value.type,
+        protocol: websocketNode.item.protocol,
+        url: websocketNode.item.url ? websocketNode.item.url.path : '',
+        maintainer: websocketNode.info.maintainer,
+        updatedAt: websocketNode.updatedAt,
+      });
+      handleClose();
     }
 
     if (valid) {
       loading.value = true;
       const params = {
         name: formData.value.name,
-        type: formData.value.type === 'websocket' ? 'websocket' : 'api',
+        type: formData.value.type === 'websocket' ? 'websocket' : 'http',
         projectId: route.query.id as string,
         pid: props.pid,
       };
@@ -157,7 +156,7 @@ const handleAddFile = () => {
   });
 }
 const handleClose = () => {
-  formData.value.type = 'api';
+  formData.value.type = 'http';
   formData.value.name = '';
   form.value?.resetFields();
   emits('update:modelValue', false);

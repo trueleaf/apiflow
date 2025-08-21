@@ -1,5 +1,5 @@
 import { IDBPDatabase } from "idb";
-import type { ApiNode, HttpNode } from "@src/types";
+import type { ApidocType, ApiNode, HttpNode } from "@src/types";
 import { nanoid } from "nanoid";
 import { WebSocketNode } from "@src/types/websocket/websocket.ts";
 
@@ -315,25 +315,17 @@ export class DocCache {
   | 节点树形菜单区域
   |--------------------------------------------------------------------------
   */
-  // 以树形方式获取所有节点
-  async getDocTree(projectId: string) {
+  // 以树形方式获取文件夹
+  async getApiNodesAsTree(projectId: string, filterType?: ApidocType) {
     const projectDocs = await this.getDocsByProjectId(projectId);
     const { convertNodesToBannerNodes } = await import("@/helper/index");
-    // 过滤出 HttpNode 和 WebSocketNode，排除 FolderNode
-    const apiDocs = projectDocs.filter(doc => 
-      doc.info.type === 'api' || doc.info.type === 'websocket'
-    ) as (HttpNode | WebSocketNode)[];
-    return convertNodesToBannerNodes(apiDocs);
-  }
-  // 以树形方式获取文件夹
-  async getFolderTree(projectId: string) {
-    const projectDocs = await this.getDocsByProjectId(projectId);
-    const { convertDocsToFolder } = await import("@/helper/index");
-    // 过滤出 HttpNode 和 WebSocketNode，排除 FolderNode
-    const apiDocs = projectDocs.filter(doc => 
-      doc.info.type === 'api' || doc.info.type === 'websocket'
-    ) as (HttpNode | WebSocketNode)[];
-    return convertDocsToFolder(apiDocs);
+    const folderNodes = projectDocs.filter(doc => {
+      if (!filterType) {
+        return true;
+      }
+      return doc.info.type === 'folder';
+    });
+    return convertNodesToBannerNodes(folderNodes);
   }
   /*
   |--------------------------------------------------------------------------

@@ -14,13 +14,22 @@
             <div :title="element.label" class="item" :class="{ active: element.selected }"
               @click="selectCurrentTab(element)" @dblclick="fixCurrentTab(element)"
               @contextmenu.stop.prevent="handleContextmenu($event, element)">
-              <!-- 接口文档 -->
+              <!-- http节点 -->
               <template v-if="element.tabType === 'http'">
                 <template v-for="(req) in requestMethods">
                   <span v-if="element.head.icon.toLowerCase() === req.value.toLowerCase()" :key="req.value" class="mr-2"
                     :style="{ color: req.iconColor, transform: `skewX(${element.fixed ? 0 : '-30deg'})` }">{{ req.name
                     }}</span>
                 </template>
+              </template>
+              <!-- websocket节点 -->
+              <template v-if="element.tabType === 'websocket'">
+                <span 
+                  :style="{  transform: `skewX(${element.fixed ? 0 : '-30deg'})` }" 
+                  class="red mr-2"
+              >
+                  {{ element.head.icon.toUpperCase() }}
+              </span>
               </template>
               <!-- 其他 -->
               <template v-else>
