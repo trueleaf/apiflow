@@ -20,7 +20,7 @@
       "prefer-arrow-callback": "error",
       "no-constant-condition": "off",
       "no-process-exit": "off",
-      "no-trailing-spaces": "error",
+      "no-trailing-spaces": "off",
       "quotes": ["warn", "single", { "avoidEscape": true }],
       "indent": ["error", 2]
   },

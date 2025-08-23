@@ -5,7 +5,7 @@ import * as http from 'http';
 @WSController()
 export class HelloSocketController {
   @Inject()
-  ctx: Context;
+    ctx: Context;
 
   @OnWSConnection()
   async onConnectionMethod(socket: Context, request: http.IncomingMessage) {
