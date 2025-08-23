@@ -27,6 +27,9 @@ export default (): MidwayConfig => {
       port: 7001,
       http2: false,
     },
+    webSocket: {
+      // 不设置port，复用koa的端口
+    },
     i18n: {
       writeCookie: false,
     },

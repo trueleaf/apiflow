@@ -32,12 +32,14 @@ import { dirname, resolve } from 'path';
 import { fileURLToPath } from 'url';
 import { CachingFactory, MidwayCache } from '@midwayjs/cache-manager';
 import * as staticFile from '@midwayjs/static-file';
+import * as ws from '@midwayjs/ws';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const filePath = resolve(__dirname, 'config/config.local.js');
 @Configuration({
   imports: [
     koa,
+    ws,
     crossDomain,
     upload,
     validate,

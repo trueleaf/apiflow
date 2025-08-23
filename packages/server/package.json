@@ -20,6 +20,7 @@
     "@midwayjs/typegoose": "^3.20.4",
     "@midwayjs/upload": "^3.20.5",
     "@midwayjs/validate": "^3.20.5",
+    "@midwayjs/ws": "^3.20.12",
     "@typegoose/typegoose": "^11.1.0",
     "@types/fs-extra": "^11.0.1",
     "@types/jsonwebtoken": "^9.0.2",
