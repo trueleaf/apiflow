@@ -5,7 +5,7 @@
 | 转换postman格式数据
 |--------------------------------------------------------------------------
 */
-import { uuid, apidocGenerateApidoc, apidocGenerateProperty } from '@/helper/index'
+import { uuid, generateHttpNode, apidocGenerateProperty } from '@/helper/index'
 
 class PostmanTranslator {
   public projectId: string;
@@ -32,7 +32,7 @@ class PostmanTranslator {
     };
     const foo = (items: any, pid = '') => {
       for (let i = 0; i < items.length; i += 1) {
-        const doc = apidocGenerateApidoc();
+        const doc = generateHttpNode();
         const id = uuid();
         doc._id = id;
         doc.pid = pid;

@@ -11,7 +11,7 @@
 import jsontoxml from 'jsontoxml'
 import type { OpenAPIV3 } from 'openapi-types';
 import type { ApidocProperty, HttpNode, HttpNodePropertyType, HttpNodeRequestMethod, HttpNodeBodyRawType, HttpNodeResponseContentType } from '@src/types'
-import { uuid, apidocGenerateProperty, apidocGenerateApidoc } from '@/helper/index'
+import { uuid, apidocGenerateProperty, generateHttpNode } from '@/helper/index'
 import i18next from 'i18next'
 
 //=====================================项目信息====================================//
@@ -168,7 +168,7 @@ class OpenApiTranslator {
       let pid = '';
       if (folderNamedType === 'url') {
         pid = uuid();
-        const folderDoc = apidocGenerateApidoc();
+        const folderDoc = generateHttpNode();
         folderDoc.projectId = this.projectId;
         folderDoc._id = pid; //目录id
         folderDoc.sort = Date.now(); //排序
@@ -183,7 +183,7 @@ class OpenApiTranslator {
         return
       }
       Object.keys(pathObjectInfo).forEach((pathKey) => {
-        const moyuDoc = apidocGenerateApidoc();
+        const moyuDoc = generateHttpNode();
         moyuDoc._id = uuid();
         moyuDoc.projectId = this.projectId;
         const matchedMethodKey = HTTP_METHOD.find(v => v === pathKey); //属性是否为http请求方法
@@ -240,7 +240,7 @@ class OpenApiTranslator {
       const tags = Array.from(allTags);
       tags.sort().forEach((tag) => {
         const pid = uuid();
-        const folderDoc = apidocGenerateApidoc();
+        const folderDoc = generateHttpNode();
         folderDoc.projectId = this.projectId;
         folderDoc._id = pid; //目录id
         folderDoc.sort = Date.now(); //排序

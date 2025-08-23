@@ -42,7 +42,7 @@ import { useApidocBaseInfo } from '@/store/apidoc/base-info'
 import { useApidocTas } from '@/store/apidoc/tabs'
 import { useRoute } from 'vue-router'
 import { useApidoc } from '@/store/apidoc/apidoc'
-import { apidocGenerateApidoc } from '@/helper'
+import { generateHttpNode } from '@/helper'
 import { useApidocResponse } from '@/store/apidoc/response'
 
 const apidocBaseInfoStore = useApidocBaseInfo();
@@ -74,7 +74,7 @@ const getApidocInfo = async () => {
   }
   if (currentSelectTab.value.saved) { //取最新值
     if (currentSelectTab.value._id?.startsWith('local_')) {
-      apidocStore.changeApidoc(apidocGenerateApidoc(currentSelectTab.value._id));
+      apidocStore.changeApidoc(generateHttpNode(currentSelectTab.value._id));
       apidocStore.changeOriginApidoc();
       apidocResponseStore.clearResponse();
       return

@@ -69,7 +69,7 @@ import RemoteSelector from '@/components/common/remote-select/g-remote-select.vu
 import RemoteSelectorItem from '@/components/common/remote-select/g-remote-select-item.vue';
 import Dialog from '@/components/common/dialog/g-dialog.vue';
 import { standaloneCache } from '@/cache/standalone';
-import { generateEmptyProject } from '@/helper/standaloneUtils';
+import { generateEmptyProject } from '@/helper';
 import { nanoid } from 'nanoid';
 
 

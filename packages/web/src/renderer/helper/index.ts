@@ -6,7 +6,7 @@
  * @create             2021-06-15 22:55
  */
 import { nanoid } from 'nanoid/non-secure'
-import type { HttpNodeRequestMethod, ApidocProperty, HttpNodePropertyType, HttpNode, ApidocBanner, HttpNodeRequestParamTypes, ApidocCodeInfo, FolderNode, ApiNode } from '@src/types'
+import type { HttpNodeRequestMethod, ApidocProperty, HttpNodePropertyType, HttpNode, ApidocBanner, HttpNodeRequestParamTypes, ApidocCodeInfo, FolderNode, ApiNode, ApidocProjectInfo } from '@src/types'
 import isEqual from 'lodash/isEqual';
 import lodashCloneDeep from 'lodash/cloneDeep';
 import lodashDebounce from 'lodash/debounce';
@@ -402,36 +402,51 @@ export function apidocConvertParamsToJsonData(properties: Properties): JSON {
 }
 
 /**
- * @description        生成一份apidoc默认值
+ * @description        生成一份空的项目默认值
  * @author             shuxiaokai
  * @create             2021-09-07 22:35
  */
-export function apidocGenerateApidoc(id?: string): HttpNode {
+export const generateEmptyProject = (_id: string): ApidocProjectInfo => {
   return {
-    _id: id || '',
+    _id,
+    docNum: 0,
+    owner: {
+      id: '',
+      name: 'me'
+    },
+    members: [],
+    projectName: '',
+    remark: '',
+    updatedAt: new Date().toISOString(),
+    isStared: false
+  }
+}
+
+/**
+ * @description        生成一份空的HTTP节点默认值
+ * @author             shuxiaokai
+ * @create             2021-09-07 22:35
+ */
+export const generateEmptyHttpNode = (_id: string): HttpNode => {
+  return {
+    _id,
     pid: '',
     projectId: '',
     sort: 0,
     info: {
       name: '',
       description: '',
-      version: '',
+      version: '1.0.0',
       type: 'http',
       creator: '',
       maintainer: '',
       deletePerson: '',
     },
-    preRequest: {
-      raw: ''
-    },
-    afterRequest: {
-      raw: ''
-    },
     item: {
       method: 'GET',
       url: {
         prefix: '',
-        path: '',
+        path: ''
       },
       paths: [],
       queryParams: [],
@@ -442,35 +457,27 @@ export function apidocGenerateApidoc(id?: string): HttpNode {
         urlencoded: [],
         raw: {
           data: '',
-          dataType: 'text/plain'
+          dataType: 'application/json'
         },
         binary: {
-          mode: 'file',
+          mode: 'var',
           varValue: '',
           binaryValue: {
-            path: "",
-            id: "",
-            raw: ""
+            path: '',
+            raw: '',
+            id: ''
           }
-        },
+        }
       },
-      responseParams: [{
-        _id: nanoid(),
-        title: '成功返回',
-        statusCode: 200,
-        value: {
-          file: {
-            url: '',
-            raw: ''
-          },
-          strJson: '',
-          dataType: 'application/json',
-          text: ''
-        },
-        isMock: true
-      }],
+      responseParams: [],
       headers: [],
-      contentType: '',
+      contentType: ''
+    },
+    preRequest: {
+      raw: ''
+    },
+    afterRequest: {
+      raw: ''
     },
     mockInfo: {
       path: '',
@@ -481,22 +488,111 @@ export function apidocGenerateApidoc(id?: string): HttpNode {
       json: '',
       image: {
         type: 'png',
-        width: 200,
-        height: 200,
-        fontSize: 30,
-        size: 0,
-        color: '#fff',
-        backgroundColor: '#aaa'
+        width: 100,
+        height: 100,
+        size: 1024,
+        fontSize: 14,
+        color: '#000000',
+        backgroundColor: '#ffffff'
       },
       file: {
-        type: 'doc',
-        filePath: '',
+        type: 'custom',
+        filePath: ''
       },
       text: '',
-      customResponseScript: '',
+      customResponseScript: ''
+    }
+  }
+}
+
+/**
+ * @description        生成一份空的WebSocket节点默认值
+ * @author             shuxiaokai
+ * @create             2021-09-07 22:35
+ */
+export const generateEmptyWebsocketNode = (_id: string): WebSocketNode => {
+  return {
+    _id,
+    pid: '',
+    projectId: '',
+    sort: 0,
+    info: {
+      name: '',
+      description: '',
+      version: '1.0.0',
+      type: 'websocket',
+      creator: '',
+      maintainer: '',
+      deletePerson: '',
+    },
+    item: {
+      protocol: 'ws',
+      url: {
+        path: "",
+        prefix: "",
+      },
+      headers: [],
+    },
+    preRequest: {
+      raw: ''
+    },
+    afterRequest: {
+      raw: ''
     },
   }
 }
+
+/**
+ * @description        生成一份apidoc默认值(保持向后兼容)
+ * @author             shuxiaokai
+ * @create             2021-09-07 22:35
+ */
+export function generateHttpNode(id?: string): HttpNode {
+  const result = generateEmptyHttpNode(id || nanoid());
+  // 添加默认的response参数以保持向后兼容
+  result.item.responseParams = [{
+    _id: nanoid(),
+    title: '成功返回',
+    statusCode: 200,
+    value: {
+      file: {
+        url: '',
+        raw: ''
+      },
+      strJson: '',
+      dataType: 'application/json',
+      text: ''
+    },
+    isMock: true
+  }];
+  // 调整一些默认值以保持向后兼容
+  result.item.requestBody.raw.dataType = 'text/plain';
+  result.item.requestBody.binary.mode = 'file';
+  result.mockInfo.image.width = 200;
+  result.mockInfo.image.height = 200;
+  result.mockInfo.image.fontSize = 30;
+  result.mockInfo.image.color = '#fff';
+  result.mockInfo.image.backgroundColor = '#aaa';
+  result.mockInfo.file.type = 'doc';
+  return result;
+}
+
+/**
+ * @description        生成一份websocket默认值(保持向后兼容)
+ * @author             shuxiaokai
+ * @create             2021-09-07 22:35
+ */
+export const generateWebsocketNode = (id?: string): WebSocketNode => {
+  const result = generateEmptyWebsocketNode(id || nanoid());
+  // 添加一些字段以保持向后兼容
+  result.commonHeaders = [];
+  result.createdAt = '';
+  result.updatedAt = '';
+  result.isDeleted = false;
+  return result;
+};
+
+
 /**
  * @description        生成一份参数类型数组
  * @author             shuxiaokai

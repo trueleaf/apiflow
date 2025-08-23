@@ -34,7 +34,7 @@ import { ref, watch } from 'vue';
 import { ElMessage, FormInstance, ElInput } from 'element-plus';
 import { request } from '@/api/api';
 import { useRoute } from 'vue-router';
-import { generateEmptyHttpNode, generateEmptyWebsocketNode } from '@/helper/standaloneUtils';
+import { generateEmptyHttpNode, generateEmptyWebsocketNode } from '@/helper';
 import { standaloneCache } from '@/cache/standalone';
 import { nanoid } from 'nanoid';
 

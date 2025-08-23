@@ -177,56 +177,74 @@ import { Refresh } from '@element-plus/icons-vue'
 import SHeaders from './headers/headers.vue'
 import SParams from './params/params.vue'
 import SPreScript from './pre-script/pre-script.vue'
+import { useWebSocket } from '@/store/websocket/websocket'
 
 const { t } = useTranslation()
 
+// 使用WebSocket store
+const websocketStore = useWebSocket()
+
 // 响应式数据
-const protocol = ref('ws')
-const connectionUrl = ref('')
 const activeTab = ref('messageContent')
 const connectionState = ref<'disconnected' | 'connecting' | 'connected' | 'error'>('disconnected')
 
-// 计算属性
-const fullUrl = computed(() => {
-  if (!connectionUrl.value) return ''
-  return `${protocol.value}://${connectionUrl.value.replace(/^(ws|wss):\/\//, '')}`
+// 从store获取的计算属性
+const protocol = computed({
+  get: () => websocketStore.websocket.item.protocol,
+  set: (value: 'ws' | 'wss') => websocketStore.changeWebSocketProtocol(value)
 })
 
-// 检查各tab是否有内容的计算属性
+const connectionUrl = computed({
+  get: () => websocketStore.websocket.item.url.path,
+  set: (value: string) => websocketStore.changeWebSocketPath(value)
+})
+
+const fullUrl = computed(() => {
+  const path = websocketStore.websocket.item.url.path
+  const prefix = websocketStore.websocket.item.url.prefix
+  if (!path) return ''
+  
+  if (prefix) {
+    return `${prefix}${path}`
+  }
+  
+  return `${protocol.value}://${path.replace(/^(ws|wss):\/\//, '')}`
+})
+
 const hasParams = computed(() => {
-  // 这里应该检查是否有参数配置
   return false
 })
 
 const hasHeaders = computed(() => {
-  // 这里应该检查是否有请求头配置
-  return false
+  return websocketStore.websocket.item.headers.some(header => header.key.trim() !== '' || header.value.trim() !== '')
 })
 
 const hasPreScript = computed(() => {
-  // 这里应该检查是否有前置脚本
-  return false
+  return websocketStore.websocket.preRequest.raw.trim() !== ''
 })
 
 const hasAfterScript = computed(() => {
-  // 这里应该检查是否有后置脚本
-  return false
+  return websocketStore.websocket.afterRequest.raw.trim() !== ''
 })
 
-// 新增的响应式数据
 const messageContent = ref('')
-const afterScript = ref('')
-const remarks = ref('')
 
-// 方法
-// 消息内容相关方法
+const afterScript = computed({
+  get: () => websocketStore.websocket.afterRequest.raw,
+  set: (value: string) => websocketStore.changeWebSocketAfterRequest(value)
+})
+
+const remarks = computed({
+  get: () => websocketStore.websocket.info.description,
+  set: (value: string) => websocketStore.changeWebSocketDescription(value)
+})
+
 const handleSendMessage = () => {
   if (!messageContent.value.trim()) {
     console.warn('消息内容不能为空')
     return
   }
   console.log('发送WebSocket消息:', messageContent.value)
-  // 这里实现发送消息的逻辑
 }
 
 const handleClearContent = () => {
@@ -235,7 +253,6 @@ const handleClearContent = () => {
 
 const handleConnect = () => {
   connectionState.value = 'connecting'
-  // 这里只是样式演示，实际连接逻辑会在后续实现
   setTimeout(() => {
     connectionState.value = 'connected'
   }, 1000)
@@ -247,34 +264,33 @@ const handleDisconnect = () => {
 
 const handleSave = () => {
   console.log('保存WebSocket配置')
+  websocketStore.updateWebSocketUpdatedAt()
 }
 
 const handleRefresh = () => {
   console.log('刷新WebSocket配置')
+  // 这里可以添加从服务器重新获取数据的逻辑
 }
 
-// 后置脚本相关方法
 const handleTestAfterScript = () => {
   if (!afterScript.value.trim()) {
     console.warn('脚本内容不能为空')
     return
   }
   console.log('测试后置脚本:', afterScript.value)
-  // 这里实现测试脚本的逻辑
 }
 
 const handleClearAfterScript = () => {
-  afterScript.value = ''
+  websocketStore.changeWebSocketAfterRequest('')
 }
 
-// 备注信息相关方法
 const handleSaveRemarks = () => {
   console.log('保存备注信息:', remarks.value)
-  // 这里实现保存备注的逻辑
+  websocketStore.updateWebSocketUpdatedAt()
 }
 
 const handleClearRemarks = () => {
-  remarks.value = ''
+  websocketStore.changeWebSocketDescription('')
 }
 
 const getStatusType = (state: string) => {

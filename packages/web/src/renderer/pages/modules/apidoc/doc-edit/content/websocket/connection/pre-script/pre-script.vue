@@ -55,20 +55,20 @@ console.log('正在连接到WebSocket服务器...');"
 </template>
 
 <script lang="ts" setup>
-import { ref } from 'vue'
+import { computed } from 'vue'
 import { useTranslation } from 'i18next-vue'
+import { useWebSocket } from '@/store/websocket/websocket'
 
 const { t } = useTranslation()
 
-const scriptContent = ref(`// 连接前脚本
-// 设置认证头
-const token = ws.getVariable('token');
-if (token) {
-  ws.setHeader('Authorization', 'Bearer ' + token);
-}
+// 使用WebSocket store
+const websocketStore = useWebSocket()
 
-// 打印连接信息
-console.log('准备连接到WebSocket服务器：', ws.getUrl());`)
+// 从store获取脚本内容
+const scriptContent = computed({
+  get: () => websocketStore.websocket.preRequest.raw,
+  set: (value: string) => websocketStore.changeWebSocketPreRequest(value)
+})
 
 const handleInsertVariable = () => {
   const variable = 'ws.getVariable("variableName")'
@@ -95,11 +95,11 @@ const handleTestScript = () => {
 }
 
 const handleClearScript = () => {
-  scriptContent.value = ''
+  websocketStore.changeWebSocketPreRequest('')
 }
 
 const handleLoadTemplate = () => {
-  scriptContent.value = `// WebSocket连接前脚本模板
+  const template = `// WebSocket连接前脚本模板
 // 获取环境变量
 const env = ws.getVariable('environment') || 'development';
 
@@ -117,10 +117,12 @@ ws.setParam('clientType', 'apiflow');
 // 记录日志
 console.log('连接环境:', env);
 console.log('连接地址:', ws.getUrl());`
+  websocketStore.changeWebSocketPreRequest(template)
 }
 
 const handleSaveScript = () => {
   console.log('保存脚本:', scriptContent.value)
+  websocketStore.updateWebSocketUpdatedAt()
 }
 
 const insertTextAtCursor = (text: string) => {

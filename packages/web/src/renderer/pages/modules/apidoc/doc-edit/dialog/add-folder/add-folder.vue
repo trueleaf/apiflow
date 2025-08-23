@@ -20,7 +20,7 @@ import { useTranslation } from 'i18next-vue'
 import { ref } from 'vue';
 import { request } from '@/api/api';
 import { useRoute } from 'vue-router';
-import { generateEmptyHttpNode } from '@/helper/standaloneUtils';
+import { generateEmptyHttpNode } from '@/helper';
 import { nanoid } from 'nanoid';
 import { standaloneCache } from '@/cache/standalone';
 

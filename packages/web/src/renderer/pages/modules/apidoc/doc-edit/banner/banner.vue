@@ -216,7 +216,6 @@ const projectInfo = computed(() => {
 const activeNode = computed(() => apidocTabsStore.tabs[projectId.value]?.find((v) => v.selected));
 const bannerData = computed(() => {
   const originBannerData = apidocBannerStore.banner;
-  console.log(2, originBannerData)
   return originBannerData
 })
 /*

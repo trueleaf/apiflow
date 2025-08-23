@@ -40,20 +40,40 @@
 
 <script lang="ts" setup>
 import { useTranslation } from 'i18next-vue'
-import { ref } from 'vue'
+import { computed } from 'vue'
 import { formatDate } from '@/helper'
 import SLabelValue from '@/components/common/label-value/g-label-value.vue'
+import { useWebSocket } from '@/store/websocket/websocket'
 
 const { t } = useTranslation()
 
-// 这些数据在实际使用中应该从 WebSocket store 中获取
-// 目前使用默认值演示
-const connectionUrl = ref('')
-const connectionState = ref<'disconnected' | 'connecting' | 'connected' | 'error'>('disconnected')
-const maintainer = ref('')
-const creator = ref('')
-const updatedAt = ref('')
-const createdAt = ref('')
+// 使用WebSocket store
+const websocketStore = useWebSocket()
+
+// 从store获取数据的计算属性
+const connectionUrl = computed(() => {
+  const websocket = websocketStore.websocket
+  const path = websocket.item.url.path
+  const prefix = websocket.item.url.prefix
+  
+  if (!path) return ''
+  
+  if (prefix) {
+    return `${prefix}${path}`
+  }
+  
+  return `${websocket.item.protocol}://${path.replace(/^(ws|wss):\/\//, '')}`
+})
+
+const connectionState = computed(() => {
+  // 这里可以添加实际的连接状态逻辑
+  return 'disconnected' as 'disconnected' | 'connecting' | 'connected' | 'error'
+})
+
+const maintainer = computed(() => websocketStore.websocket.info.maintainer || '')
+const creator = computed(() => websocketStore.websocket.info.creator || '')
+const updatedAt = computed(() => websocketStore.websocket.updatedAt)
+const createdAt = computed(() => websocketStore.websocket.createdAt)
 
 const getStatusType = () => {
   switch (connectionState.value) {

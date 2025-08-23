@@ -11,23 +11,41 @@
     <div class="headers-table">
       <el-table :data="headers" style="width: 100%" size="small">
         <el-table-column prop="enabled" label="" width="50">
-          <template #default="{ row }">
-            <el-checkbox v-model="row.enabled"></el-checkbox>
+          <template #default="{ row, $index }">
+            <el-checkbox 
+              :model-value="row.enabled" 
+              @update:model-value="updateHeader($index, 'enabled', $event)"
+            ></el-checkbox>
           </template>
         </el-table-column>
         <el-table-column prop="key" label="键" min-width="150">
-          <template #default="{ row }">
-            <el-input v-model="row.key" placeholder="请输入键名" size="small"></el-input>
+          <template #default="{ row, $index }">
+            <el-input 
+              :model-value="row.key" 
+              @update:model-value="updateHeader($index, 'key', $event)"
+              placeholder="请输入键名" 
+              size="small"
+            ></el-input>
           </template>
         </el-table-column>
         <el-table-column prop="value" label="值" min-width="200">
-          <template #default="{ row }">
-            <el-input v-model="row.value" placeholder="请输入值" size="small"></el-input>
+          <template #default="{ row, $index }">
+            <el-input 
+              :model-value="row.value" 
+              @update:model-value="updateHeader($index, 'value', $event)"
+              placeholder="请输入值" 
+              size="small"
+            ></el-input>
           </template>
         </el-table-column>
         <el-table-column prop="description" label="描述" min-width="150">
-          <template #default="{ row }">
-            <el-input v-model="row.description" placeholder="请输入描述" size="small"></el-input>
+          <template #default="{ row, $index }">
+            <el-input 
+              :model-value="row.description" 
+              @update:model-value="updateHeader($index, 'description', $event)"
+              placeholder="请输入描述" 
+              size="small"
+            ></el-input>
           </template>
         </el-table-column>
         <el-table-column label="操作" width="80">
@@ -54,39 +72,56 @@
 </template>
 
 <script lang="ts" setup>
-import { ref } from 'vue'
+import { computed } from 'vue'
 import { useTranslation } from 'i18next-vue'
 import { Plus, Delete } from '@element-plus/icons-vue'
+import { useWebSocket } from '@/store/websocket/websocket'
 
 const { t } = useTranslation()
 
-interface Header {
-  enabled: boolean
-  key: string
-  value: string
-  description: string
-}
+// 使用WebSocket store
+const websocketStore = useWebSocket()
 
-const headers = ref<Header[]>([
-  { enabled: true, key: 'Authorization', value: '', description: '认证头' },
-  { enabled: true, key: 'User-Agent', value: 'ApiFlow WebSocket Client', description: '用户代理' }
-])
+// 从store获取headers数据
+const headers = computed(() => {
+  return websocketStore.websocket.item.headers.map(header => ({
+    _id: header._id,
+    enabled: !header.disabled,
+    key: header.key,
+    value: header.value,
+    description: header.description
+  }))
+})
 
 const handleAddHeader = () => {
-  headers.value.push({
-    enabled: true,
-    key: '',
-    value: '',
-    description: ''
-  })
+  websocketStore.addWebSocketHeader()
 }
 
 const handleDeleteHeader = (index: number) => {
-  headers.value.splice(index, 1)
+  const headerId = websocketStore.websocket.item.headers[index]?._id
+  if (headerId) {
+    websocketStore.deleteWebSocketHeaderById(headerId)
+  }
 }
 
 const handleClearHeaders = () => {
-  headers.value = []
+  // 清空所有headers
+  const headerIds = websocketStore.websocket.item.headers.map(h => h._id)
+  headerIds.forEach(id => websocketStore.deleteWebSocketHeaderById(id))
+}
+
+// 监听输入变化并更新store
+const updateHeader = (index: number, field: string, value: any) => {
+  const headerId = websocketStore.websocket.item.headers[index]?._id
+  if (headerId) {
+    const updateData: any = {}
+    if (field === 'enabled') {
+      updateData.disabled = !value
+    } else {
+      updateData[field] = value
+    }
+    websocketStore.updateWebSocketHeaderById(headerId, updateData)
+  }
 }
 </script>
 

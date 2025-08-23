@@ -1,5 +1,5 @@
 import {
-  apidocGenerateApidoc,
+  generateHttpNode,
   event,
   apidocGenerateProperty,
   cloneDeep,
@@ -44,9 +44,9 @@ type EditApidocPropertyPayload<K extends keyof ApidocProperty> = {
 export const useApidoc = defineStore('apidoc', () => {
   const cancel: Canceler[] = [] //请求列表  
   const apidocCookies = useCookies()
-  const apidoc = ref<HttpNode>(apidocGenerateApidoc());
+  const apidoc = ref<HttpNode>(generateHttpNode());
   const apidocVaribleStore = useVariable()
-  const originApidoc = ref<HttpNode>(apidocGenerateApidoc());
+  const originApidoc = ref<HttpNode>(generateHttpNode());
   const defaultHeaders = ref<ApidocProperty<"string">[]>([]);
   const loading = ref(false);
   const saveLoading = ref(false);
@@ -458,7 +458,7 @@ export const useApidoc = defineStore('apidoc', () => {
     const { deleteTabByIds } = useApidocTas();
 
     if (__STANDALONE__) {
-      const doc = await standaloneCache.getDocById(payload.id);
+      const doc = await standaloneCache.getDocById(payload.id) as HttpNode;
       if (!doc) {
         ElMessageBox.confirm('当前接口不存在，可能已经被删除!', '提示', {
           confirmButtonText: '关闭接口',
