@@ -2,10 +2,15 @@ import { WebSocketNode } from "@src/types/websocket/websocket.ts";
 import { defineStore } from "pinia";
 import { ref } from "vue";
 import { ApidocProperty } from "@src/types";
-import { apidocGenerateProperty, generateEmptyWebsocketNode, uuid } from "@/helper";
+import { apidocGenerateProperty, generateEmptyWebsocketNode, uuid, cloneDeep } from "@/helper";
+import { standaloneCache } from "@/cache/standalone.ts";
+import { ElMessageBox } from "element-plus";
 
 export const useWebSocket = defineStore('websocket', () => {
   const websocket = ref<WebSocketNode>(generateEmptyWebsocketNode(uuid()));
+  const originWebsocket = ref<WebSocketNode>(generateEmptyWebsocketNode(uuid()));
+  const loading = ref(false);
+  const saveLoading = ref(false);
   /*
   |--------------------------------------------------------------------------
   | 基本信息操作方法
@@ -102,21 +107,6 @@ export const useWebSocket = defineStore('websocket', () => {
   | 时间戳操作方法
   |--------------------------------------------------------------------------
   */
-
-  // 更新创建时间
-  const updateWebSocketCreatedAt = (timestamp?: string): void => {
-    if (websocket.value) {
-      websocket.value.createdAt = timestamp || new Date().toISOString();
-    }
-  };
-
-  // 更新修改时间
-  const updateWebSocketUpdatedAt = (timestamp?: string): void => {
-    if (websocket.value) {
-      websocket.value.updatedAt = timestamp || new Date().toISOString();
-    }
-  };
-
   // 标记为已删除
   const markWebSocketAsDeleted = (deleted: boolean = true): void => {
     if (websocket.value) {
@@ -124,26 +114,102 @@ export const useWebSocket = defineStore('websocket', () => {
     }
   };
 
+  /*
+  |--------------------------------------------------------------------------
+  | 数据操作方法
+  |--------------------------------------------------------------------------
+  */
+  // 重新赋值websocket数据
+  const changeWebsocket = (payload: WebSocketNode): void => {
+    // headers如果没有数据则默认添加一条空数据
+    if (payload.item.headers.length === 0) {
+      payload.item.headers.push(apidocGenerateProperty());
+    }
+    websocket.value = payload;
+  };
+  // 改变websocket原始缓存值
+  const changeOriginWebsocket = (): void => {
+    originWebsocket.value = cloneDeep(websocket.value);
+  };
+  // 改变websocket数据加载状态
+  const changeWebsocketLoading = (state: boolean): void => {
+    loading.value = state;
+  };
+
+  /*
+  |--------------------------------------------------------------------------
+  | 接口调用
+  |--------------------------------------------------------------------------
+  */
+  // 获取WebSocket详情
+  const getWebsocketDetail = async (payload: { id: string, projectId: string }): Promise<void> => {
+    if (__STANDALONE__) {
+      const doc = await standaloneCache.getDocById(payload.id) as WebSocketNode;
+      if (!doc) {
+        ElMessageBox.confirm('当前WebSocket不存在，可能已经被删除!', '提示', {
+          confirmButtonText: '关闭接口',
+          cancelButtonText: '取消',
+          type: 'warning',
+        }).then(() => {
+          // TODO: 删除tab的逻辑需要根据实际情况实现
+          console.log('删除WebSocket tab');
+        }).catch((err) => {
+          if (err === 'cancel' || err === 'close') {
+            return;
+          }
+          console.error(err);
+        });
+        return;
+      }
+      console.log(123, doc)
+      changeWebsocket(doc);
+      changeOriginWebsocket();
+      return;
+    } else {
+      // 非standalone模式下暂时只打印日志
+      console.log('getWebsocketDetail called but not in standalone mode');
+    }
+  };
+
+  /*
+  |--------------------------------------------------------------------------
+  | 保存WebSocket
+  |--------------------------------------------------------------------------
+  */
+  // 保存WebSocket配置
+  const saveWebsocket = async (): Promise<void> => {
+    saveLoading.value = true;
+    if (__STANDALONE__) {
+      const websocketDetail = cloneDeep(websocket.value);
+      websocketDetail.updatedAt = new Date().toISOString();
+      await standaloneCache.updateDoc(websocketDetail);
+    } else {
+      console.log('todo');
+    }
+    saveLoading.value = false;
+  };
+
   return {
     websocket,
-    // 信息操作
+    originWebsocket,
+    loading,
+    saveLoading,
     changeWebSocketName,
     changeWebSocketDescription,
-    // 连接操作
     changeWebSocketProtocol,
     changeWebSocketPath,
     changeWebSocketPrefix,
-    // Headers操作
     addWebSocketHeader,
     deleteWebSocketHeaderByIndex,
     deleteWebSocketHeaderById,
     updateWebSocketHeaderById,
-    // 脚本操作
     changeWebSocketPreRequest,
     changeWebSocketAfterRequest,
-    // 时间戳操作
-    updateWebSocketCreatedAt,
-    updateWebSocketUpdatedAt,
     markWebSocketAsDeleted,
+    changeWebsocket,
+    changeOriginWebsocket,
+    changeWebsocketLoading,
+    getWebsocketDetail,
+    saveWebsocket,
   }
 })

@@ -22,23 +22,22 @@ import { useApidocBaseInfo } from '@/store/apidoc/base-info'
 import { useApidocWorkerState } from '@/store/apidoc/worker-state'
 import { useRoute } from 'vue-router';
 import { useCookies } from '@/store/apidoc/cookies';
+import { useWebSocket } from '@/store/websocket/websocket';
 
 const route = useRoute();
 const apidocTabsStore = useApidocTas();
 const apidocStore = useApidoc()
+const websocketStore = useWebSocket()
 const apidocBaseInfoStroe = useApidocBaseInfo();
 const apidocWorkerStateStore = useApidocWorkerState()
 const { initCookies } = useCookies();
 const projectId = route.query.id as string;
-const isStandalone = ref(__STANDALONE__)
 //当前选中的tab
 const currentSelectTab = computed(() => {
   const currentTabs = apidocTabsStore.tabs[projectId];
   const selectedTab = currentTabs?.find((tab) => tab.selected) || null;
   return selectedTab;
 })
-//是否正在保存数据
-const saveDocLoading = computed(() => apidocStore.loading);
 //当前工作区状态
 const isView = computed(() => apidocBaseInfoStroe.mode === 'view')
 const saveDocDialogVisible = computed({
@@ -57,14 +56,16 @@ const bindShortcut = (e: KeyboardEvent) => {
   }
   const currentTabs = apidocTabsStore.tabs[projectId];
   const hasTabs = currentTabs && currentTabs.length > 0;
-  const currentTabIsDoc = currentSelectTab.value?.tabType === 'http';
-  if (hasTabs && currentTabIsDoc && e.ctrlKey && (e.key === 'S' || e.key === 's') && saveDocLoading.value === false) {
+  const currentTabIsDoc = currentSelectTab.value?.tabType === 'http' || currentSelectTab.value?.tabType === 'websocket';
+  if (hasTabs && currentTabIsDoc && e.ctrlKey && (e.key === 'S' || e.key === 's')) {
     e.preventDefault();
     e.stopPropagation();
     if (currentSelectTab.value._id.includes('local_')) {
       saveDocDialogVisible.value = true
-    } else if (!apidocStore.saveLoading) {
+    } else if (currentSelectTab.value.tabType === 'http' && !apidocStore.saveLoading && !apidocStore.loading) {
       apidocStore.saveApidoc();
+    } else if (currentSelectTab.value.tabType === 'websocket' && !websocketStore.saveLoading && !websocketStore.loading) {
+      websocketStore.saveWebsocket();
     }
   } else if (hasTabs && e.ctrlKey && (e.key === 'W' || e.key === 'w')) {
     const selectedTab = currentTabs.find(tab => tab.selected)

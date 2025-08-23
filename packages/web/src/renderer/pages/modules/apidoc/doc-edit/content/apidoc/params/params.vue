@@ -85,7 +85,7 @@
 import { DebouncedFunc } from 'lodash'
 import type { HttpNode, ApidocProperty } from '@src/types'
 import { apidocCache } from '@/cache/apidoc'
-import { lodashIsEqual, debounce } from '@/helper/index'
+import { lodashIsEqual, debounce, checkPropertyIsEqual } from '@/helper/index'
 import { useTranslation } from 'i18next-vue'
 import SParams from './params/params.vue';
 import SRequestBody from './body/body.vue';
@@ -278,53 +278,6 @@ const checkUrlIsEqual = (apidoc: HttpNode, originApidoc: HttpNode) => {
   const apidocPath = apidoc.item.url.path;
   const originPath = originApidoc.item.url.path;
   return apidocPath === originPath;
-}
-//检查每个ApidocProperty是否一致
-const checkIsSameProperty = (p: ApidocProperty, p2: ApidocProperty) => {
-  let isSame = true;
-  const checkProperty = (prop: ApidocProperty, prop2: ApidocProperty) => {
-    if (prop.key !== prop2.key) {
-      isSame = false;
-      return;
-    }
-    if (prop.value !== prop2.value) {
-      isSame = false;
-      return;
-    }
-    if (prop.type !== prop2.type) {
-      isSame = false;
-      return;
-    }
-    if (prop.required !== prop2.required) {
-      isSame = false;
-      return;
-    }
-    if (prop.description !== prop2.description) {
-      isSame = false;
-      return;
-    }
-    if (prop.select !== prop2.select) {
-      isSame = false;
-    }
-  }
-  checkProperty(p, p2);
-  return isSame
-}
-//检查ApidocProperty[]类型数据是否相同
-const checkPropertyIsEqual = (value: ApidocProperty[], originValue: ApidocProperty[]) => {
-  if (value.length !== originValue.length) return false;
-  for (let i = 0; i < value.length; i += 1) {
-    const item = value[i];
-    const { _id } = item;
-    const matchedOriginItem = originValue.find(v => v._id === _id);
-    if (!matchedOriginItem) {
-      return false;
-    }
-    if (!checkIsSameProperty(item, matchedOriginItem)) {
-      return false;
-    }
-  }
-  return true;
 }
 
 //判断apidoc是否发生改变

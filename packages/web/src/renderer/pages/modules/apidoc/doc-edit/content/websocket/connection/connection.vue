@@ -180,15 +180,9 @@ import SPreScript from './pre-script/pre-script.vue'
 import { useWebSocket } from '@/store/websocket/websocket'
 
 const { t } = useTranslation()
-
-// 使用WebSocket store
 const websocketStore = useWebSocket()
-
-// 响应式数据
 const activeTab = ref('messageContent')
 const connectionState = ref<'disconnected' | 'connecting' | 'connected' | 'error'>('disconnected')
-
-// 从store获取的计算属性
 const protocol = computed({
   get: () => websocketStore.websocket.item.protocol,
   set: (value: 'ws' | 'wss') => websocketStore.changeWebSocketProtocol(value)
@@ -203,11 +197,9 @@ const fullUrl = computed(() => {
   const path = websocketStore.websocket.item.url.path
   const prefix = websocketStore.websocket.item.url.prefix
   if (!path) return ''
-  
   if (prefix) {
     return `${prefix}${path}`
   }
-  
   return `${protocol.value}://${path.replace(/^(ws|wss):\/\//, '')}`
 })
 
@@ -263,8 +255,7 @@ const handleDisconnect = () => {
 }
 
 const handleSave = () => {
-  console.log('保存WebSocket配置')
-  websocketStore.updateWebSocketUpdatedAt()
+  websocketStore.saveWebsocket()
 }
 
 const handleRefresh = () => {
@@ -286,7 +277,6 @@ const handleClearAfterScript = () => {
 
 const handleSaveRemarks = () => {
   console.log('保存备注信息:', remarks.value)
-  websocketStore.updateWebSocketUpdatedAt()
 }
 
 const handleClearRemarks = () => {
