@@ -145,7 +145,7 @@ const handleSaveCode = () => {
 }
 //初始化
 onMounted(() => {
-  // const codeInfo = apidocCache.getEditCodeInfoById(projectId);
+  // const codeInfo = httpNodeCache.getEditCodeInfoById(projectId);
   editData.value = props.codeInfo
   code.value = props.codeInfo?.code;
 })

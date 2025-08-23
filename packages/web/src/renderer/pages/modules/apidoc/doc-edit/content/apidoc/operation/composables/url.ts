@@ -9,7 +9,7 @@ import { apidocGenerateProperty } from '@/helper/index'
 import { useApidoc } from '@/store/apidoc/apidoc';
 // import globalConfig from "@/../config/config"
 // import { router } from "@/router/index"
-// import { apidocCache } from "@/cache/apidoc"
+// import { httpNodeCache } from "@/cache/apidoc"
 
 /**
  * 从url中找出path参数
@@ -81,7 +81,7 @@ export function handleFormatUrl():void {
   });
     // const currentPrefix = computed<string>(() => store.state["apidoc/apidoc"].apidoc.item.url.prefix);
     // const hostEnum = computed<ApidocProjectHost[]>(() => {
-    //     const localData = apidocCache.getApidocServer(projectId)
+    //     const localData = httpNodeCache.getApidocServer(projectId)
     //     return store.state["apidoc/baseInfo"].hosts.concat(localData)
     // })
     // const matchedHost = hostEnum.value.find(hostInfo => hostInfo.url === currentHost.value)

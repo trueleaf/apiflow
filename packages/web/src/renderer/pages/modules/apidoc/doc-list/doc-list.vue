@@ -33,9 +33,9 @@ import tabA from './tab-a/tab-a.vue'
 import tabB from './tab-b/tab-b.vue'
 import { useTranslation } from 'i18next-vue'
 import { TabPaneName } from 'element-plus'
-import { apidocCache } from '@/cache/apidoc'
+import { httpNodeCache } from '@/cache/httpNode'
 
-const { getActiveApidocTab, setActiveApidocTab } = apidocCache
+const { getActiveApidocTab, setActiveApidocTab } = httpNodeCache
 const { t } = useTranslation()
 
 const activeName = ref('projectList'); //当前激活选项卡

@@ -151,7 +151,7 @@ import { forEachForest } from '@/helper/index'
 import { router } from '@/router/index'
 import { useTranslation } from 'i18next-vue'
 import { request } from '@/api/api'
-import { apidocCache } from '@/cache/apidoc'
+import { httpNodeCache } from '@/cache/httpNode'
 import SAddFileDialog from '../../dialog/add-file/add-file.vue'
 import SAddFolderDialog from '../../dialog/add-folder/add-folder.vue'
 import { originOperaions } from './operations'
@@ -667,7 +667,7 @@ const handleChangeProject = (item: ApidocProjectInfo) => {
   apidocBaseInfoStore.changeProjectId(item._id);
   apidocBaseInfoStore.getProjectBaseInfo({ projectId: item._id });
   apidocBaseInfoStore.getCommonHeaders()
-  const localState = apidocCache.getApidocWorkerLocalStateById(item._id);
+  const localState = httpNodeCache.getApidocWorkerLocalStateById(item._id);
   if (localState) {
     apidocWorkerStateStore.changeLocalState({ projectId: item._id, value: localState })
   }

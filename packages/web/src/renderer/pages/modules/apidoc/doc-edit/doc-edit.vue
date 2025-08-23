@@ -11,7 +11,7 @@
 
 <script lang="ts" setup>
 import { computed, onMounted, onBeforeUnmount, ref } from 'vue'
-import { apidocCache } from '@/cache/apidoc'
+import { httpNodeCache } from '@/cache/httpNode'
 import SaveDocDialog from '@/pages/modules/apidoc/doc-edit/dialog/save-doc/save-doc.vue'
 import Banner from './banner/banner.vue';
 import Nav from './nav/nav.vue';
@@ -90,7 +90,7 @@ const initCommonHeaders = () => {
 }
 //初始化worker本地状态
 const initWorkerLocalState = () => {
-  const localState = apidocCache.getApidocWorkerLocalStateById(projectId);
+  const localState = httpNodeCache.getApidocWorkerLocalStateById(projectId);
   if (localState) {
     apidocWorkerStateStore.changeLocalState({ projectId, value: localState });
   }

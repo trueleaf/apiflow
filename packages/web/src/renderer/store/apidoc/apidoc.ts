@@ -23,7 +23,7 @@ import { ref, watch } from "vue"
 import 'element-plus/es/components/message-box/style/css';
 import { ElMessageBox } from "element-plus"
 import { router } from "@/router"
-import { apidocCache } from "@/cache/apidoc"
+import { httpNodeCache } from "@/cache/httpNode.ts"
 import { useApidocTas } from "./tabs"
 import { useApidocBanner } from "./banner"
 import assign from "lodash/assign"
@@ -521,7 +521,7 @@ export const useApidoc = defineStore('apidoc', () => {
         }
         changeApidoc(res.data);
         changeOriginApidoc()
-        const cachedServer = apidocCache.getPreviousServer(payload.projectId);
+        const cachedServer = httpNodeCache.getPreviousServer(payload.projectId);
         const { path } = apidoc.value.item.url
         if (cachedServer && !path.startsWith('http') && !path.startsWith('https')) {
           changeApidocPrefix(cachedServer)

@@ -8,7 +8,7 @@ import { GotRequestOptions, JsonData, RedirectOptions, ResponseInfo } from '@src
 import { useApidocBaseInfo } from '@/store/apidoc/base-info';
 import { useApidocTas } from '@/store/apidoc/tabs';
 import { useApidocResponse } from '@/store/apidoc/response';
-import { apidocCache } from '@/cache/apidoc';
+import { httpNodeCache } from '@/cache/httpNode';
 import { config } from '@src/config/config';
 import { cloneDeep, uuid } from '@/helper';
 import { useApidocRequest } from '@/store/apidoc/request';
@@ -207,7 +207,7 @@ const getHeaders = async (apidoc: HttpNode) => {
     return {}
   }
   const defaultCommonHeaders = apidocBaseInfoStore.getCommonHeadersById(currentSelectTab?._id || "");
-  const ignoreHeaderIds = apidocCache.getIgnoredCommonHeaderByTabId(projectId, currentSelectTab?._id ?? "") || [];
+  const ignoreHeaderIds = httpNodeCache.getIgnoredCommonHeaderByTabId(projectId, currentSelectTab?._id ?? "") || [];
   const commonHeaders = defaultCommonHeaders.filter(header => !ignoreHeaderIds.includes(header._id));
   const headers = apidoc.item.headers;
   const headersObject: Record<string, string | null> = {};
@@ -321,8 +321,8 @@ export async function sendRequest() {
   changeRequestState('sending');
   const matchedCookies = getMachtedCookies(preSendUrl);
   const objCookies = await convertPropertyToObject(matchedCookies.map(cookie => ({ key: cookie.name, value: cookie.value, select: true })) as ApidocProperty<"string">[])
-  const preRequestSessionStorage = apidocCache.getPreRequestSessionStorage(projectId) || {};
-  const preRequestLocalStorage = apidocCache.getPreRequestLocalStorage(projectId) || {};
+  const preRequestSessionStorage = httpNodeCache.getPreRequestSessionStorage(projectId) || {};
+  const preRequestLocalStorage = httpNodeCache.getPreRequestLocalStorage(projectId) || {};
   let finalSendHeaders = preSendHeaders;
   let finalCookies = objCookies;
   //实际发送请求
@@ -430,7 +430,7 @@ export async function sendRequest() {
           lastCacheTime = now;
           // 只有在数据大小合理的情况下才进行深拷贝和缓存
           if (apidocResponseStore.responseInfo.bodyByteLength <= config.cacheConfig.apiflowResponseCache.singleResponseBodySize) {
-            apidocCache.setResponse(selectedTab?._id ?? '', apidocResponseStore.responseInfo);
+            httpNodeCache.setResponse(selectedTab?._id ?? '', apidocResponseStore.responseInfo);
           }
         }
       },
@@ -461,7 +461,7 @@ export async function sendRequest() {
         } else {
           changeResponseCacheAllowed(selectedTab?._id ?? '', true);
         }
-        apidocCache.setResponse(selectedTab?._id ?? '', storedResponseInfo);
+        httpNodeCache.setResponse(selectedTab?._id ?? '', storedResponseInfo);
         cleanup(); // 请求完成后清理 worker
       },
     })
@@ -593,13 +593,13 @@ export async function sendRequest() {
     } else if (e.data.type === 'pre-request-set-variable') {
       // 修改variable无意义 console.log(e.data.type, e.data.value);
     } else if (e.data.type === 'pre-request-set-session-storage') {
-      apidocCache.setPreRequestSessionStorage(projectId, e.data.value);
+      httpNodeCache.setPreRequestSessionStorage(projectId, e.data.value);
     } else if (e.data.type === 'pre-request-delete-session-storage') {
-      apidocCache.setPreRequestSessionStorage(projectId, {});
+      httpNodeCache.setPreRequestSessionStorage(projectId, {});
     } else if (e.data.type === 'pre-request-set-local-storage') {
-      apidocCache.setPreRequestLocalStorage(projectId, e.data.value);
+      httpNodeCache.setPreRequestLocalStorage(projectId, e.data.value);
     } else if (e.data.type === 'pre-request-delete-local-storage') {
-      apidocCache.setPreRequestLocalStorage(projectId, {});
+      httpNodeCache.setPreRequestLocalStorage(projectId, {});
     } 
   })
   worker.addEventListener('message', async (e: MessageEvent<OnEvalSuccess>) => {

@@ -5,7 +5,7 @@
 |
 */
 import { ref, Ref, computed, WritableComputedRef, ComputedRef } from 'vue'
-import { apidocCache } from '@/cache/apidoc'
+import { httpNodeCache } from '@/cache/httpNode'
 import { router } from '@/router/index'
 import { ApidocProjectHost } from '@src/types/apidoc/base-info'
 import { useApidoc } from '@/store/apidoc/apidoc'
@@ -56,13 +56,13 @@ export default (): HostReturn => {
     //改变host的值
   const handleChangeHost = (server: string | number | boolean) => {
     const projectId = router.currentRoute.value.query.id as string;
-    apidocCache.setPreviousServer(projectId, server as string);
+    httpNodeCache.setPreviousServer(projectId, server as string);
   }
   //host枚举值
   const hostEnum = computed<ApidocProjectHost[]>(() => {
     const projectId = router.currentRoute.value.query.id as string;
     const localData: Ref<ApidocProjectHost[]> = ref([])
-    localData.value = apidocCache.getApidocServer(projectId)
+    localData.value = httpNodeCache.getApidocServer(projectId)
     return apidocBaseInfoStore.hosts.concat(localData.value)
   })
   return {

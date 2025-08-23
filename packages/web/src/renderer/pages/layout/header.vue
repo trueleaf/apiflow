@@ -114,7 +114,7 @@ import { config } from '@/../config/config'
 import { isElectron } from '@/utils/utils';
 import 'element-plus/es/components/message-box/style/css';
 import { ElMessageBox } from 'element-plus';
-import { apidocCache } from '@/cache/apidoc';
+import { httpNodeCache } from '@/cache/httpNode';
 
 const router = useRouter();
 const permissionStore = usePermissionStore();
@@ -224,8 +224,8 @@ const clearAllCache = () => {
         localStorage.clear();
         sessionStorage.clear();
         //清空indexedDB
-        if (apidocCache.responseCacheDb) {
-          apidocCache.responseCacheDb.close()
+        if (httpNodeCache.responseCacheDb) {
+          httpNodeCache.responseCacheDb.close()
           deleteDB(config.cacheConfig.apiflowResponseCache.dbName);
         }
         clearCacheLoading.value = false;

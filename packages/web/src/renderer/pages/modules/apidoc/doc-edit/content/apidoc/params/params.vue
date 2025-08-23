@@ -84,7 +84,7 @@
 <script lang="ts" setup>
 import { DebouncedFunc } from 'lodash'
 import type { HttpNode, ApidocProperty } from '@src/types'
-import { apidocCache } from '@/cache/apidoc'
+import { httpNodeCache } from '@/cache/httpNode'
 import { lodashIsEqual, debounce, checkPropertyIsEqual } from '@/helper/index'
 import { useTranslation } from 'i18next-vue'
 import SParams from './params/params.vue';
@@ -209,7 +209,7 @@ const freshHasHeaders = () => {
   const commonHeaders = apidocBaseInfoStore.getCommonHeadersById(currentSelectTab.value?._id || "");
   const cpCommonHeaders = JSON.parse(JSON.stringify(commonHeaders)) as (typeof commonHeaders);
   cpCommonHeaders.forEach(header => {
-    const ignoreHeaderIds = apidocCache.getIgnoredCommonHeaderByTabId(projectId, currentSelectTab.value?._id ?? "");
+    const ignoreHeaderIds = httpNodeCache.getIgnoredCommonHeaderByTabId(projectId, currentSelectTab.value?._id ?? "");
     const isSelect = ignoreHeaderIds?.find(headerId => headerId === header._id) ? false : true;
     header.select = isSelect;
   })
@@ -253,7 +253,7 @@ const getComponent = () => {
 //初始化tab缓存
 const initTabCache = () => {
   if (currentSelectTab) {
-    activeName.value = (apidocCache.getActiveParamsTab(currentSelectTab.value?._id || "") as ActiceName) || 'SParams';
+    activeName.value = (httpNodeCache.getActiveParamsTab(currentSelectTab.value?._id || "") as ActiceName) || 'SParams';
   }
 }
 //切换布局
@@ -414,7 +414,7 @@ const handleCloseHook = () => {
 */
 watch(() => activeName.value, (val: string) => {
   if (currentSelectTab.value) {
-    apidocCache.setActiveParamsTab(currentSelectTab.value._id, val);
+    httpNodeCache.setActiveParamsTab(currentSelectTab.value._id, val);
   }
 })
 watch(() => currentSelectTab.value, () => {
@@ -458,7 +458,7 @@ onMounted(() => {
       })
     }
     //缓存接口信息
-    apidocCache.setApidoc(apidoc);
+    httpNodeCache.setApidoc(apidoc);
   }, 200, {
     leading: true
   });

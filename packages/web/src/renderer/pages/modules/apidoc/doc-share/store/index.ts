@@ -4,7 +4,7 @@ import { HttpNode, ApidocVariable, ApidocBanner } from '@src/types';
 import { ApidocTab } from '@src/types/apidoc/tabs';
 import { SharedProjectInfo } from '@src/types/types';
 import { getObjectVariable } from '@/utils/utils';
-import { apidocCache } from '@/cache/apidoc';
+import { httpNodeCache } from '@/cache/httpNode';
 
 /*
 |--------------------------------------------------------------------------
@@ -54,12 +54,12 @@ const addTab = (payload: ApidocTab): void => {
   }
   const matchedTab = tabs.value[projectId].find((val) => val._id === _id) as ApidocTab;
   matchedTab.selected = true;
-  apidocCache.setEditTabs(tabs.value);
+  httpNodeCache.setEditTabs(tabs.value);
 };
 // 更新全部tab
 const updateAllTabs = (payload: { tabs: ApidocTab[]; shareId: string }): void => {
   tabs.value[payload.shareId] = payload.tabs;
-  apidocCache.setEditTabs(tabs.value);
+  httpNodeCache.setEditTabs(tabs.value);
 };
 // 固定tab
 const fixedTab = (payload: { _id: string; shareId: string }): void => {
@@ -68,7 +68,7 @@ const fixedTab = (payload: { _id: string; shareId: string }): void => {
   if (matchedTab) {
     matchedTab.fixed = true;
   }
-  apidocCache.setEditTabs(tabs.value);
+  httpNodeCache.setEditTabs(tabs.value);
 };
 // 根据索引删除tab
 const deleteTabByIndex = (payload: { deleteIndex: number; shareId: string }): void => {
@@ -83,7 +83,7 @@ const selectTabById = (payload: { id: string; shareId: string }): void => {
   tabs.value[shareId].forEach((tab) => {
     tab.selected = tab._id === id;
   });
-  apidocCache.setEditTabs(tabs.value);
+  httpNodeCache.setEditTabs(tabs.value);
 };
 // 修改tab属性
 const changeTabInfoById = (payload: { id: string; field: keyof ApidocTab; value: any; shareId: string }): void => {
@@ -92,7 +92,7 @@ const changeTabInfoById = (payload: { id: string; field: keyof ApidocTab; value:
   const editData = currentTabs?.find((tab) => tab._id === id);
   if (!editData) return;
   (editData as any)[field] = value;
-  apidocCache.setEditTabs(tabs.value);
+  httpNodeCache.setEditTabs(tabs.value);
 };
 // 强制删除所有tab
 const forceDeleteAllTab = (shareId: string): void => {
@@ -101,7 +101,7 @@ const forceDeleteAllTab = (shareId: string): void => {
     const deleteIndex = tabs.value[shareId].findIndex((tab) => tab._id === id);
     tabs.value[shareId].splice(deleteIndex, 1);
   });
-  apidocCache.setEditTabs(tabs.value);
+  httpNodeCache.setEditTabs(tabs.value);
 };
 // 根据id批量删除tab
 const deleteTabByIds = (payload: { ids: string[]; shareId: string; force?: boolean }): void => {
@@ -119,7 +119,7 @@ const deleteTabByIds = (payload: { ids: string[]; shareId: string; force?: boole
       });
       tabs.value[shareId][selectTabIndex].selected = true;
     }
-    apidocCache.setEditTabs(tabs.value);
+    httpNodeCache.setEditTabs(tabs.value);
   };
   if (!tabs.value[shareId]) {
     return;

@@ -11,7 +11,7 @@ type ServerInfo = ApidocProjectHost & {
   isLocal?: boolean,
 };
 
-class ApidocCache extends ResponseCache {
+class HttpNodeCache extends ResponseCache {
   constructor() {
     super();
     if (!localStorage.getItem('apidoc/paramsConfig')) {
@@ -806,4 +806,4 @@ class ApidocCache extends ResponseCache {
 
 }
 
-export const apidocCache = new ApidocCache();
+export const httpNodeCache = new HttpNodeCache();

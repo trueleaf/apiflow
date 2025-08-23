@@ -53,7 +53,7 @@ import { request } from '@/api/api'
 import { FormInstance } from 'element-plus'
 import { Loading, } from '@element-plus/icons-vue'
 import { ApidocBanner, HttpNode, ApidocVariable, Response } from '@src/types'
-import { apidocCache } from '@/cache/apidoc'
+import { httpNodeCache } from '@/cache/httpNode'
 import { router } from '@/router'
 import SBanner from './banner/banner.vue'
 import SNav from './nav/nav.vue'
@@ -123,7 +123,7 @@ const initShareData = () => {
   } else {
     getSharedProjectInfo();
   }
-  const tabs = apidocCache.getEditTabs();
+  const tabs = httpNodeCache.getEditTabs();
   if (tabs[shareId]) {
     shareStore.updateAllTabs({
       tabs: tabs[shareId],
@@ -143,7 +143,7 @@ const getSharedProjectInfo = async () => {
     expireCountdown.value = getCountdown(res.data.expire ?? 0);
     if (res.data.needPassword) {
       // 检查是否有缓存的密码
-      const cachedPassword = apidocCache.getSharePassword(shareId);
+      const cachedPassword = httpNodeCache.getSharePassword(shareId);
       if (cachedPassword) {
         // 自动使用缓存的密码进行验证
         await verifyPassword(cachedPassword);
@@ -157,7 +157,7 @@ const getSharedProjectInfo = async () => {
   } catch (error) {
     console.error(error)
     // 发生异常时清空密码缓存
-    apidocCache.clearSharePassword(shareId);
+    httpNodeCache.clearSharePassword(shareId);
   } finally {
     loading.value = false;
   }
@@ -168,7 +168,7 @@ const getDocDetail = async (docId: string) => {
     const params = {
       docId,
       shareId: shareId,
-      password: apidocCache.getSharePassword(shareId),
+      password: httpNodeCache.getSharePassword(shareId),
     }
     const res = await request.get<Response<HttpNode>, Response<HttpNode>>('/api/project/share_doc_detail', { params });
     shareStore.setActiveDocInfo(res.data);
@@ -188,12 +188,12 @@ const verifyPassword = async (password: string) => {
     })
     shareStore.replaceVaribles(response.data.variables);
     shareStore.setBanner(response.data.banner);
-    apidocCache.setSharePassword(shareId, password);
+    httpNodeCache.setSharePassword(shareId, password);
     hasPermission.value = true;
   } catch (error) {
     console.error('缓存密码验证失败:', error);
     // 缓存密码验证失败，清空缓存
-    apidocCache.clearSharePassword(shareId);
+    httpNodeCache.clearSharePassword(shareId);
     hasPermission.value = false;
   } finally {
     passwordLoading.value = false;

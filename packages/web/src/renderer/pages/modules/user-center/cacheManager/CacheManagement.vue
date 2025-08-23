@@ -121,7 +121,7 @@ import { CacheInfo, LocalStorageItem, IndexedDBItem } from '@src/types/apidoc/ca
 import { formatBytes } from '@/helper'
 import { RefreshRight } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
-import { apidocCache } from '@/cache/apidoc'
+import { httpNodeCache } from '@/cache/httpNode'
 import LocalStorageDetail from './components/LocalStorageDetail.vue'
 import IndexedDBDetail from './components/IndexedDBDetail.vue'
 import DataBackup from './components/DataBackup.vue'
@@ -135,7 +135,7 @@ import DataRestore from './components/DataRestore.vue'
 const indexedDBLoading = ref(false)
 const localStorageLoading = ref(false)
 const indexedDBWorkerRef = ref<Worker | null>(null)
-const selectedCacheType = ref<'localStorage' | 'indexedDB' | 'backup' | 'restore'>(apidocCache.getSelectedCacheType())
+const selectedCacheType = ref<'localStorage' | 'indexedDB' | 'backup' | 'restore'>(httpNodeCache.getSelectedCacheType())
 const cacheInfo = ref<CacheInfo>({
   localStroageSize: 0,
   indexedDBSize: -1,
@@ -280,7 +280,7 @@ const getIndexedDB = async () => {
 const handleSelectCacheType = (type: 'localStorage' | 'indexedDB' | 'backup' | 'restore'): void => {
   selectedCacheType.value = type
   // 缓存用户选择的卡片类型
-  apidocCache.setSelectedCacheType(type)
+  httpNodeCache.setSelectedCacheType(type)
   if (type === 'localStorage' && cacheInfo.value.localStorageDetails.length === 0) {
     getLocalStorage()
   }
@@ -295,7 +295,7 @@ const handleSelectCacheType = (type: 'localStorage' | 'indexedDB' | 'backup' | '
 */
 // 加载本地数据
 const getIndexedDBCacheData = (): void => {
-  const cachedInfo = apidocCache.getCacheInfo()
+  const cachedInfo = httpNodeCache.getCacheInfo()
   if (cachedInfo) {
     cacheInfo.value.indexedDBSize = cachedInfo.indexedDBSize
     cacheInfo.value.indexedDBDetails = cachedInfo.indexedDBDetails as IndexedDBItem[]
@@ -303,7 +303,7 @@ const getIndexedDBCacheData = (): void => {
 }
 // 保存本地数据
 const saveCacheData = (): void => {
-  apidocCache.setCacheInfo({
+  httpNodeCache.setCacheInfo({
     indexedDBSize: cacheInfo.value.indexedDBSize,
     indexedDBDetails: cacheInfo.value.indexedDBDetails
   })

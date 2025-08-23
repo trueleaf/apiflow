@@ -104,7 +104,7 @@ import { computed, ref, Ref, onMounted, onUnmounted } from 'vue'
 import { Effect } from 'element-plus';
 import { ArrowDown, Edit } from '@element-plus/icons-vue'
 import type { HttpNodeResponseParams, HttpNodeResponseContentType, HttpNodeContentType } from '@src/types'
-import { apidocCache } from '@/cache/apidoc'
+import { httpNodeCache } from '@/cache/httpNode'
 import SStatus from './children/status.vue'
 import SMime from './children/mime.vue'
 import SRawEditor from '@/components/apidoc/raw-editor/g-raw-editor.vue'
@@ -311,10 +311,10 @@ const handleFormat = (index: number) => {
 }
 const collapseState: Ref<Record<string, boolean>> = ref({});
 const handleChangeCollapseState = (isShow: boolean, item: HttpNodeResponseParams) => {
-  apidocCache.setResponseCollapseState(item._id || "", isShow);
+  httpNodeCache.setResponseCollapseState(item._id || "", isShow);
 }
 onMounted(() => {
-  collapseState.value = apidocCache.getAllResponseCollapseState();
+  collapseState.value = httpNodeCache.getAllResponseCollapseState();
 })
 </script>
 

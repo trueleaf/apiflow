@@ -141,7 +141,7 @@ import type { UploadFile, UploadInstance, UploadProps, UploadRawFile } from 'ele
 import { genFileId } from 'element-plus';
 import { formatBytes } from '@/helper/index'
 import { HttpNode } from '@src/types';
-import { apidocCache } from '@/cache/apidoc';
+import { httpNodeCache } from '@/cache/httpNode';
 import SCustomEditor from './components/custom-editor.vue'
 import SLabelValue from '@/components/common/label-value/g-label-value.vue'
 import SJsonEditor from '@/components/common/json-editor/g-json-editor.vue'
@@ -169,7 +169,7 @@ const responseType = computed<HttpNode['mockInfo']['responseType']>({
 | json数据类型
 |--------------------------------------------------------------------------
 */
-const isShowJsonTip = ref(apidocCache.getIsShowApidocMockParamsJsonTip());
+const isShowJsonTip = ref(httpNodeCache.getIsShowApidocMockParamsJsonTip());
 const jsonValue = computed({
   get() {
     return apidocStroe.apidoc.mockInfo.json;
@@ -180,7 +180,7 @@ const jsonValue = computed({
 })
 //不再显示提示
 const handleCloseTip = () => {
-  apidocCache.setIsShowApidocMockParamsJsonTip(false);
+  httpNodeCache.setIsShowApidocMockParamsJsonTip(false);
   isShowJsonTip.value = false;
 }
 //是否显示mock提示

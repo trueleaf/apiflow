@@ -1,7 +1,7 @@
 import { defineStore } from "pinia";
 import { ref } from "vue";
 import { parse } from 'set-cookie-parser';
-import { apidocCache } from '@/cache/apidoc';
+import { httpNodeCache } from '@/cache/httpNode';
 import { getDomainFromUrl, getPathFromUrl, uuid } from "@/helper/index.ts";
 import dayjs from "dayjs";
 
@@ -26,16 +26,16 @@ export const useCookies = defineStore('apidocCookies', () => {
   // 初始化时从缓存加载
   const initCookies = (projectId: string) => {
     const now = new Date();
-    const allCookies = apidocCache.getApidocCookies(projectId) || [];
+    const allCookies = httpNodeCache.getApidocCookies(projectId) || [];
     const validCookies = allCookies.filter(cookie => {
       if (!cookie.expires) return false; // 初始化时如果没有expires字段则清空
       const expiresDate = new Date(cookie.expires);
       return isNaN(expiresDate.getTime()) || expiresDate > now;
     });
     if (validCookies.length !== allCookies.length) {
-      apidocCache.setApidocCookies(projectId, validCookies);
+      httpNodeCache.setApidocCookies(projectId, validCookies);
     }
-    cookies.value = apidocCache.getApidocCookies(projectId) || [];
+    cookies.value = httpNodeCache.getApidocCookies(projectId) || [];
   };
 
   // 通过Set-Cookie头批量更新
@@ -75,7 +75,7 @@ export const useCookies = defineStore('apidocCookies', () => {
     } else {
       cookies.value.push(cookie);
     }
-    apidocCache.setApidocCookies(projectId, cookies.value);
+    httpNodeCache.setApidocCookies(projectId, cookies.value);
   };
 
   // 根据id修改cookie
@@ -83,7 +83,7 @@ export const useCookies = defineStore('apidocCookies', () => {
     const idx = cookies.value.findIndex(c => c.id === id);
     if (idx !== -1) {
       cookies.value[idx] = { ...cookies.value[idx], ...cookieInfo };
-      apidocCache.setApidocCookies(projectId, cookies.value);
+      httpNodeCache.setApidocCookies(projectId, cookies.value);
     }
   };
 
@@ -92,7 +92,7 @@ export const useCookies = defineStore('apidocCookies', () => {
     const idx = cookies.value.findIndex(c => c.id === id);
     if (idx !== -1) {
       cookies.value.splice(idx, 1);
-      apidocCache.setApidocCookies(projectId, cookies.value);
+      httpNodeCache.setApidocCookies(projectId, cookies.value);
     }
   };
   // 获取匹配的cookie列表

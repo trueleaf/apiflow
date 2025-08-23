@@ -43,7 +43,7 @@
 
 <script setup lang="ts">
 import { ref, watch } from 'vue'
-import { apidocCache } from '@/cache/apidoc'
+import { httpNodeCache } from '@/cache/httpNode'
 import CacheManagement from './cacheManager/CacheManagement.vue'
 import UserInfo from './userInfo/UserInfo.vue'
 import ComponentLibrary from './componentLibrary/ComponentLibrary.vue'
@@ -56,7 +56,7 @@ interface TabItem {
 }
 
 // 初始化时从缓存中获取活跃标签，默认为 'user-info'
-const activeTab = ref(apidocCache.getActiveLocalDataMenu() || 'user-info')
+const activeTab = ref(httpNodeCache.getActiveLocalDataMenu() || 'user-info')
 const tabs: TabItem[] = [
   { name: '基本信息', icon: 'iconfont icongerenzhongxin', action: 'user-info' },
   { name: '本地数据', icon: 'iconfont iconcipan', action: 'local-data' }
@@ -81,7 +81,7 @@ const handleTabClick = (tab: TabItem) => {
 
 // 监听 activeTab 变化，自动保存到缓存
 watch(activeTab, (newValue) => {
-  apidocCache.setActiveLocalDataMenu(newValue)
+  httpNodeCache.setActiveLocalDataMenu(newValue)
 }, { immediate: false })
 </script>
 

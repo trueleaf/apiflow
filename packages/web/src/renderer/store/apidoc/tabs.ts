@@ -6,7 +6,7 @@ import { router } from "@/router";
 import { ElMessageBox } from "element-plus";
 import 'element-plus/es/components/message-box/style/css';
 import i18next from 'i18next'
-import { apidocCache } from "@/cache/apidoc";
+import { httpNodeCache } from "@/cache/httpNode";
 import { request } from '@/api/api';
 import { useApidocBanner } from "./banner";
 
@@ -22,7 +22,7 @@ export const useApidocTas = defineStore('apidocTabs', () => {
   //初始化本地tab
   const initLocalTabs = (payload: { projectId: string }): void => {
     const { projectId } = payload;
-    const localTabs: Record<string, ApidocTab[]> = apidocCache.getEditTabs();
+    const localTabs: Record<string, ApidocTab[]> = httpNodeCache.getEditTabs();
     const selectedTab = localTabs[projectId]?.find((val) => val.selected);
     if (selectedTab) {
       changeExpandItems([selectedTab._id])
@@ -54,14 +54,14 @@ export const useApidocTas = defineStore('apidocTabs', () => {
 
     const matchedTab = tabs.value[projectId].find((val) => val._id === _id) as ApidocTab;
     matchedTab.selected = true;
-    apidocCache.setEditTabs(tabs.value);
+    httpNodeCache.setEditTabs(tabs.value);
     event.emit('apidoc/tabs/addOrDeleteTab')
     changeExpandItems([_id])
   }
   //更新全部的tab
   const updateAllTabs = (payload: { tabs: ApidocTab[], projectId: string }): void => {
     tabs.value[payload.projectId] = payload.tabs;
-    apidocCache.setEditTabs(tabs.value);
+    httpNodeCache.setEditTabs(tabs.value);
   }
   //固定一个tab
   const fixedTab = (payload: { _id: string, projectId: string}): void => {
@@ -70,7 +70,7 @@ export const useApidocTas = defineStore('apidocTabs', () => {
     if (matchedTab) {
       matchedTab.fixed = true;
     }
-    apidocCache.setEditTabs(tabs.value);
+    httpNodeCache.setEditTabs(tabs.value);
   }
   //根据id删除tab
   const deleteTabByIndex = (payload: { deleteIndex: number, projectId: string }): void => {
@@ -90,7 +90,7 @@ export const useApidocTas = defineStore('apidocTabs', () => {
         tab.selected = false;
       }
     })
-    apidocCache.setEditTabs(tabs.value);
+    httpNodeCache.setEditTabs(tabs.value);
     event.emit('apidoc/tabs/addOrDeleteTab')
   }
   //根据id改变节点属性
@@ -107,7 +107,7 @@ export const useApidocTas = defineStore('apidocTabs', () => {
       return
     }
     editData[field] = value;
-    apidocCache.setEditTabs(tabs.value);
+    httpNodeCache.setEditTabs(tabs.value);
   }
   //强制关闭所有节点
   const forceDeleteAllTab = (projectId: string): void  => {
@@ -117,7 +117,7 @@ export const useApidocTas = defineStore('apidocTabs', () => {
       tabs.value[projectId].splice(deleteIndex, 1);
       event.emit('apidoc/tabs/addOrDeleteTab')
     })
-    apidocCache.setEditTabs(tabs.value);
+    httpNodeCache.setEditTabs(tabs.value);
   }
   //根据id删除tab
   const deleteTabByIds = async(payload: { ids: string[], projectId: string, force?: boolean }): Promise<void> => {
@@ -134,7 +134,7 @@ export const useApidocTas = defineStore('apidocTabs', () => {
         })
         tabs.value[projectId][selectTabIndex].selected = true;
       }
-      apidocCache.setEditTabs(tabs.value);
+      httpNodeCache.setEditTabs(tabs.value);
       const activeTab = tabs.value[projectId].find((tab) => tab.selected);
       if (activeTab) {
         changeExpandItems([activeTab._id])
@@ -168,7 +168,7 @@ export const useApidocTas = defineStore('apidocTabs', () => {
           type: 'warning',
           distinguishCancelAndClose: true,
         })
-        const apidoc = apidocCache.getApidoc(unsavedTab._id)
+        const apidoc = httpNodeCache.getApidoc(unsavedTab._id)
         if (!apidoc) {
           continue;
         }

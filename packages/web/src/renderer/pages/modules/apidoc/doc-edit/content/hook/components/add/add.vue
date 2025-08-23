@@ -51,7 +51,7 @@ import {
 // import type { ApidocCodeInfo } from '@src/types'
 import { request } from '@/api/api';
 import { router } from '@/router';
-import { apidocCache } from '@/cache/apidoc';
+import { httpNodeCache } from '@/cache/httpNode';
 import SEditor from '../editor/editor.vue'
 import { useApidoc } from '@/store/apidoc/apidoc';
 
@@ -80,7 +80,7 @@ worker.addEventListener('error', (error) => {
 });
 //代码更新缓存带啊吗
 const handleChangeCode = () => {
-  apidocCache.setHookCode(projectId, code.value);
+  httpNodeCache.setHookCode(projectId, code.value);
 }
 //执行代码
 const executeCode = () => {
@@ -115,7 +115,7 @@ const executeCode = () => {
 //重置代码
 const handleResetCode = () => {
   code.value = defaultCode;
-  apidocCache.setHookCode(projectId, defaultCode);
+  httpNodeCache.setHookCode(projectId, defaultCode);
 }
 //保存代码
 const dialogVisible = ref(false);
@@ -142,7 +142,7 @@ const handleSaveCode = () => {
 //初始化
 onMounted(() => {
   //处理编辑逻辑
-  const cacheCode = apidocCache.getHookCodeById(projectId);
+  const cacheCode = httpNodeCache.getHookCodeById(projectId);
   code.value = cacheCode || defaultCode;
 })
 

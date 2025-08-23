@@ -77,7 +77,7 @@
 
 <script lang="ts" setup>
 import { ResponseTable } from '@src/types'
-import { apidocCache } from '@/cache/apidoc'
+import { httpNodeCache } from '@/cache/httpNode'
 import SFieldset from '@/components/common/fieldset/g-fieldset.vue'
 import SDialog from '@/components/common/dialog/g-dialog.vue'
 import SResizeX from '@/components/common/resize/g-resize-x.vue'
@@ -141,7 +141,7 @@ const form = ref<FormInstance>()
 */
 //返回钩子
 const handleHookResponse = (res: ResponseTable<HostInfo[]>, _this: HookThis) => {
-  const localData = apidocCache.getApidocServer(projectId);
+  const localData = httpNodeCache.getApidocServer(projectId);
   _this.tableData.value = res.data.rows.concat(localData);
   _this.total.value = res.data.total + localData.length
 }
@@ -168,7 +168,7 @@ const handleAddHost = () => {
         setTimeout(() => {
           isSuccess.value = false;
         }, 300)
-        apidocCache.addApidocServer(serverInfo, projectId);
+        httpNodeCache.addApidocServer(serverInfo, projectId);
         getTableData();
         return;
       }
@@ -208,8 +208,8 @@ const handleSubmitEdit = (row: HostInfo) => {
         isLocal: true,
         _id: uuid(),
       }
-      apidocCache.deleteApidocServer(row._originValue as string, projectId);
-      apidocCache.addApidocServer(serverInfo, projectId);
+      httpNodeCache.deleteApidocServer(row._originValue as string, projectId);
+      httpNodeCache.addApidocServer(serverInfo, projectId);
       editItem.value = null;
       if (isEditCurrenSelectedHost) { //同时修改本地server
         apidocStore.changeApidocPrefix(row.url)
@@ -251,7 +251,7 @@ const handleDeleteHost = (row: HostInfo) => {
     type: 'warning',
   }).then(() => {
     if (row.isLocal) {
-      apidocCache.deleteApidocServer(row.url, projectId);
+      httpNodeCache.deleteApidocServer(row.url, projectId);
       editItem.value = null;
       getTableData()
       return;

@@ -48,7 +48,7 @@
 import { WindowState } from '@src/types/types';
 import { ref, onMounted, nextTick, watch, computed } from 'vue'
 import draggable from 'vuedraggable'
-import { apidocCache } from '@src/renderer/cache/apidoc'
+import { httpNodeCache } from '@/cache/httpNode'
 import { Language } from '@src/types'
 import { RefreshRight, Back, Right } from '@element-plus/icons-vue'
 
@@ -245,8 +245,8 @@ onMounted(() => {
   window.electronAPI?.getWindowState().then((state) => {
     isMaximized.value = state.isMaximized
   })
-  tabs.value = apidocCache.getHeaderTabs();
-  activeTabId.value = apidocCache.getHeaderActiveTab();
+  tabs.value = httpNodeCache.getHeaderTabs();
+  activeTabId.value = httpNodeCache.getHeaderActiveTab();
   if (!activeTabId.value) { //如果没有缓存数据则跳转到主页
     window.electronAPI?.sendToMain('apiflow-topbar-navigate', '/v1/apidoc/doc-list')
   }
@@ -257,11 +257,11 @@ onMounted(() => {
 })
 
 watch(tabs, (val) => {
-  apidocCache.setHeaderTabs(val)
+  httpNodeCache.setHeaderTabs(val)
 }, { deep: true })
 
 watch(activeTabId, (val) => {
-  apidocCache.setHeaderActiveTab(val)
+  httpNodeCache.setHeaderActiveTab(val)
 })
 </script>
 

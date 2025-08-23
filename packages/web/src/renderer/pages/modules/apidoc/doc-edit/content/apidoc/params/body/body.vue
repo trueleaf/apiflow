@@ -87,7 +87,7 @@
 import { computed, ref, onMounted, Ref } from 'vue'
 import type { HttpNodeBodyMode, HttpNodeBodyParams, HttpNodeBodyRawType, HttpNodeContentType } from '@src/types'
 import { useTranslation } from 'i18next-vue'
-import { apidocCache } from '@/cache/apidoc'
+import { httpNodeCache } from '@/cache/httpNode'
 import { useVariable } from '@/store/apidoc/variables';
 import { useApidoc } from '@/store/apidoc/apidoc';
 import { config } from '@src/config/config';
@@ -151,7 +151,7 @@ const { t } = useTranslation()
 
 const jsonBodyVisible = ref(false);
 const handleHideTip = () => {
-  apidocCache.hideJsonBodyTip();
+  httpNodeCache.hideJsonBodyTip();
   jsonBodyVisible.value = false;
 }
 //body类型
@@ -311,7 +311,7 @@ const handleClearSelectFile = () => {
 |--------------------------------------------------------------------------
 */
 onMounted(async () => {
-  jsonBodyVisible.value = await apidocCache.getCouldShowJsonBodyTip();
+  jsonBodyVisible.value = await httpNodeCache.getCouldShowJsonBodyTip();
 });
 </script>
 

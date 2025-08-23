@@ -69,7 +69,7 @@ import SParamsTree from '@/components/apidoc/params-tree/g-params-tree.vue'
 import { useApidoc } from '@/store/apidoc/apidoc';
 import { useApidocTas } from '@/store/apidoc/tabs';
 import { useApidocBaseInfo } from '@/store/apidoc/base-info';
-import { apidocCache } from '@/cache/apidoc';
+import { httpNodeCache } from '@/cache/httpNode';
 import { storeToRefs } from 'pinia';
 import { CheckboxValueType } from 'element-plus';
 
@@ -91,13 +91,13 @@ const defaultHeaders = computed(() => apidocStore.defaultHeaders);
 const commonHeaders = ref<(Pick<ApidocProperty, "_id" | 'key' | 'value' | 'description' | 'select' & { path?: string[] }>)[]>([]);
 const handleChangeCommonHeaderIsSend = (isSend: CheckboxValueType, header: Pick<ApidocProperty, "_id" | 'key' | 'value' | 'description' | 'select'>) => {
   if (isSend) {
-    apidocCache.removeIgnoredCommonHeader({
+    httpNodeCache.removeIgnoredCommonHeader({
       projectId,
       tabId: currentSelectTab.value?._id ?? '',
       ignoreHeaderId: header._id
     })
   } else {
-    apidocCache.setIgnoredCommonHeader({
+    httpNodeCache.setIgnoredCommonHeader({
       projectId,
       tabId: currentSelectTab.value?._id ?? '',
       ignoreHeaderId: header._id
@@ -111,7 +111,7 @@ watch([currentSelectTab, cHeaders, globalCommonHeaders], () => {
   }
   const defaultCommonHeader = apidocBaseInfoStore.getCommonHeadersById(currentSelectTab.value?._id || "");
   commonHeaders.value = defaultCommonHeader.map(v => {
-    const ignoreHeaderIds = apidocCache.getIgnoredCommonHeaderByTabId(projectId, currentSelectTab.value?._id ?? "");
+    const ignoreHeaderIds = httpNodeCache.getIgnoredCommonHeaderByTabId(projectId, currentSelectTab.value?._id ?? "");
     const isSelect = ignoreHeaderIds?.find(headerId => headerId === v._id) ? false : true
     const property: ApidocProperty<'string'> & { path?: string[] } = apidocGenerateProperty();
     property._id = v._id;
