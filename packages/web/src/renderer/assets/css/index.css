@@ -37,6 +37,7 @@
   --font-size-xs: 12px;
   --font-size-lg: 16px;
   --font-size-ex: 20px;
+  --font-family: Helvetica Neue, Helvetica, PingFang SC, Hiragino Sans GB, Microsoft YaHei, SimSun, sans-serif;
   /* 圆角 */
   --border-radius-xs: 2px;
   --border-radius-sm: 4px;
@@ -79,7 +80,7 @@
 html {
   font-size: 14px;
   height: 100%;
-  font-family: Helvetica Neue, Helvetica, PingFang SC, Hiragino Sans GB, Microsoft YaHei, SimSun, sans-serif;
+  font-family: var(--font-family);
 }
 
 body {
