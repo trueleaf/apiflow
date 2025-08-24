@@ -8,6 +8,7 @@
     :draggable="drag && enableDrag" 
     :allow-drop="handleCheckNodeCouldDrop" 
     :show-checkbox="showCheckbox"
+    :check-on-click-leaf="false"
     :default-expanded-keys="expandKeys" 
     :default-checked-keys="defaultCheckedKeys" 
     @node-drop="handleNodeDrop"
@@ -327,16 +328,16 @@ watch(() => props.data, (data) => {
 |--------------------------------------------------------------------------
 */
 const enableDrag = ref(true);
-const handleCheckNodeCouldDrop = (_: TreeNode, dropNode: TreeNode, type: 'inner' | 'prev') => {
+const handleCheckNodeCouldDrop = (_: Node, dropNode: Node, type: 'inner' | 'prev' | 'next') => {
   if (!props.nest) {
     return type !== 'inner';
   }
-  if (props.nest && dropNode.parent.level === 0) { //只允许有一个根元素
+  if (props.nest && dropNode.parent && dropNode.parent.level === 0) { //只允许有一个根元素
     return false;
   }
   return true;
 }
-const handleNodeDrop = (_: TreeNode, dropNode: TreeNode, type: 'inner' | 'prev') => {
+const handleNodeDrop = (_: Node, dropNode: Node, type: 'inner' | 'prev' | 'next') => {
   if (type === 'inner') {
     dropNode.data.type = 'object';
     dropNode.data.value = '';
