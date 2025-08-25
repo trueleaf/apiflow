@@ -70,12 +70,24 @@ export default (): OperationReturn => {
       loading3.value = false;
       return;
     }
-    apidocStore.getApidocDetail({
-      id: currentSelectTab.value?._id || "",
-      projectId,
-    }).finally(() => {
-      loading3.value = false;
-    })
+    
+    const executeRefresh = () => {
+      apidocStore.getApidocDetail({
+        id: currentSelectTab.value?._id || "",
+        projectId,
+      }).finally(() => {
+        loading3.value = false;
+      })
+    };
+    
+    // 在standalone模式下添加100毫秒延迟，提供加载效果
+    if (__STANDALONE__) {
+      setTimeout(() => {
+        executeRefresh();
+      }, 100);
+    } else {
+      executeRefresh();
+    }
   };
   return {
     loading2,

@@ -42,7 +42,7 @@
           {{ t("连接中") }}
         </el-button>
         <el-button type="primary" :loading="saveLoading" @click="handleSave">{{ t("保存接口") }}</el-button>
-        <el-button type="primary" :icon="Refresh" @click="handleRefresh">{{ t("刷新") }}</el-button>
+        <el-button type="primary" :icon="Refresh" :loading="refreshLoading" @click="handleRefresh">{{ t("刷新") }}</el-button>
       </div>
       
       <!-- 连接状态显示 -->
@@ -130,6 +130,7 @@ const getInitialActiveTab = (): string => {
   return 'messageContent';
 };
 const activeTab = ref(getInitialActiveTab())
+const refreshLoading = ref(false)
 
 const connectionState = ref<'disconnected' | 'connecting' | 'connected' | 'error'>('disconnected')
 const protocol = computed({
@@ -174,14 +175,20 @@ const handleSave = () => {
 }
 
 const handleRefresh = () => {
-    if (!currentSelectTab.value) {
+  if (!currentSelectTab.value) {
     return;
   }
   if (__STANDALONE__) {
-    websocketStore.getWebsocketDetail({
-      id: currentSelectTab.value._id,
-      projectId: route.query.id as string,
-    });
+    refreshLoading.value = true;
+    setTimeout(() => {
+      if (currentSelectTab.value) {
+        websocketStore.getWebsocketDetail({
+          id: currentSelectTab.value._id,
+          projectId: route.query.id as string,
+        });
+      }
+      refreshLoading.value = false;
+    }, 100);
   }
   // 这里可以添加从服务器重新获取数据的逻辑
 }
