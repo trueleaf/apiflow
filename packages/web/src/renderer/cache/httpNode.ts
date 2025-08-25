@@ -149,37 +149,6 @@ class HttpNodeCache extends ResponseCache {
   }
 
   /*
-   * 获取是否开启代理缓存
-   */
-  getApidocProxyState(projectId: string): boolean | null {
-    try {
-      const localData: Record<string, boolean> = JSON.parse(localStorage.getItem('httpNode/apidocCacheState') || '{}');
-      if (localData[projectId] == null) {
-        return null;
-      }
-      return localData[projectId] === true;
-    } catch (error) {
-      console.error(error);
-      localStorage.setItem('httpNode/apidocCacheState', '{}')
-      return false;
-    }
-  }
-
-  /*
-   * 设置是否开启代理服务器
-   */
-  setApidocProxyState(cacheState: boolean, projectId: string) {
-    try {
-      const localData = JSON.parse(localStorage.getItem('httpNode/apidocCacheState') || '{}');
-      localData[projectId] = cacheState;
-      localStorage.setItem('httpNode/apidocCacheState', JSON.stringify(localData));
-    } catch (error) {
-      console.error(error);
-      localStorage.setItem('httpNode/apidocCacheState', '{}');
-    }
-  }
-
-  /*
    * 缓存上一次选择的server
    */
   setPreviousServer(projectId: string, server: string) {

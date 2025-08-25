@@ -96,7 +96,7 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, ref } from 'vue'
+import { computed, ref, watch, onMounted } from 'vue'
 import { useTranslation } from 'i18next-vue'
 import { Refresh } from '@element-plus/icons-vue'
 import SHeaders from './headers/headers.vue'
@@ -109,6 +109,7 @@ import { useWebSocket } from '@/store/websocket/websocket'
 import { useRoute } from 'vue-router'
 import { useApidocTas } from '@/store/apidoc/tabs'
 import { ApidocProperty } from '@src/types'
+import { webSocketNodeCache } from '@/cache/websocketNode'
 
 const { t } = useTranslation()
 const websocketStore = useWebSocket();
@@ -121,18 +122,24 @@ const currentSelectTab = computed(() => {
   const currentSelectTab = tabs?.find((tab) => tab.selected) || null;
   return currentSelectTab;
 });
-const activeTab = ref('messageContent')
+const getInitialActiveTab = (): string => {
+  if (currentSelectTab.value) {
+    const cachedTab = webSocketNodeCache.getWebSocketConnectionActiveTab(currentSelectTab.value._id);
+    return cachedTab || 'messageContent';
+  }
+  return 'messageContent';
+};
+const activeTab = ref(getInitialActiveTab())
+
 const connectionState = ref<'disconnected' | 'connecting' | 'connected' | 'error'>('disconnected')
 const protocol = computed({
   get: () => websocketStore.websocket.item.protocol,
   set: (value: 'ws' | 'wss') => websocketStore.changeWebSocketProtocol(value)
 })
-
 const connectionUrl = computed({
   get: () => websocketStore.websocket.item.url.path,
   set: (value: string) => websocketStore.changeWebSocketPath(value)
 })
-
 const fullUrl = computed(() => {
   return websocketStore.websocketFullUrl;
 })
@@ -144,11 +151,9 @@ const hasParams = computed(() => {
 const hasHeaders = computed(() => {
   return websocketStore.websocket.item.headers.some(header => header.key.trim() !== '' || header.value.trim() !== '')
 })
-
 const hasPreScript = computed(() => {
   return websocketStore.websocket.preRequest.raw.trim() !== ''
 })
-
 const hasAfterScript = computed(() => {
   return websocketStore.websocket.afterRequest.raw.trim() !== ''
 })
@@ -278,6 +283,25 @@ const handleFormatUrl = () => {
   // 更新连接URL
   connectionUrl.value = formatPath;
 }
+// 监听activeTab变化并保存到缓存
+watch(activeTab, (newVal) => {
+  if (currentSelectTab.value) {
+    webSocketNodeCache.setWebSocketConnectionActiveTab(currentSelectTab.value._id, newVal);
+  }
+});
+
+// 监听当前选中tab变化，重新加载activeTab
+watch(currentSelectTab, (newTab) => {
+  if (newTab) {
+    const cachedTab = webSocketNodeCache.getWebSocketConnectionActiveTab(newTab._id);
+    activeTab.value = cachedTab || 'messageContent';
+  }
+});
+
+// 组件挂载时初始化activeTab
+onMounted(() => {
+  activeTab.value = getInitialActiveTab();
+});
 </script>
 
 <style lang="scss" scoped>

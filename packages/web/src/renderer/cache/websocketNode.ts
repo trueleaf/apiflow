@@ -559,6 +559,39 @@ class WebSocketNodeCache extends ResponseCache {
       localStorage.setItem('websocket/autoReconnect', JSON.stringify(data));
     }
   }
+
+  /*
+   * 获取websocket连接页面的活跃tab
+   */
+  getWebSocketConnectionActiveTab(id: string): string | null {
+    try {
+      const localActiveTab: Record<string, string> = JSON.parse(localStorage.getItem('websocket/connectionActiveTab') || '{}');
+      if (!localActiveTab[id]) {
+        return null;
+      }
+      return localActiveTab[id];
+    } catch (error) {
+      console.error(error);
+      localStorage.setItem('websocket/connectionActiveTab', '{}')
+      return null;
+    }
+  }
+
+  /*
+   * 设置websocket连接页面的活跃tab
+   */
+  setWebSocketConnectionActiveTab(id: string, val: string) {
+    try {
+      const localActiveTab = JSON.parse(localStorage.getItem('websocket/connectionActiveTab') || '{}');
+      localActiveTab[id] = val;
+      localStorage.setItem('websocket/connectionActiveTab', JSON.stringify(localActiveTab));
+    } catch (error) {
+      console.error(error);
+      const data: Record<string, string> = {};
+      data[id] = val;
+      localStorage.setItem('websocket/connectionActiveTab', JSON.stringify(data));
+    }
+  }
 }
 
 export const webSocketNodeCache = new WebSocketNodeCache();
