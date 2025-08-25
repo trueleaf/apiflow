@@ -23,6 +23,10 @@
     "type-check": "vue-tsc --noEmit"
   },
   "dependencies": {
+    "@tiptap/core": "^3.3.0",
+    "@tiptap/extension-history": "^3.3.0",
+    "@tiptap/starter-kit": "^3.3.0",
+    "@tiptap/vue-3": "^3.3.0",
     "@types/yauzl": "^2.10.3",
     "archiver": "^7.0.1",
     "axios": "^1.7.3",
