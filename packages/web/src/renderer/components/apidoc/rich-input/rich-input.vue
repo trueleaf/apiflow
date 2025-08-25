@@ -2,7 +2,7 @@
   <div
     class="tiptap-variable-input"
     :class="componentClass"
-    :style="rootStyle"
+    :style="(rootStyle as any)"
     v-bind="$attrs"
   >
     <EditorContent :editor="editor" />
@@ -11,22 +11,20 @@
     <div
       v-if="showPopover && popoverSlotPresent"
       class="variable-popover-wrapper"
-      :style="popoverStyle"
+      :style="(popoverStyle as any)"
     >
       <slot name="popover" :variable="selectedVariable" :close="closePopover" />
     </div>
   </div>
 </template>
 
-<script setup>
-import { ref, watch, onMounted, onBeforeUnmount, computed } from 'vue'
+<script setup lang="ts">
+import { ref, watch, onMounted, onBeforeUnmount, computed, useSlots } from 'vue'
 import { EditorContent, useEditor } from '@tiptap/vue-3'
 import StarterKit from '@tiptap/starter-kit'
 import History from '@tiptap/extension-history'
 import { Mark, mergeAttributes } from '@tiptap/core'
-import { inputRules, textblockTypeInputRule } from 'prosemirror-inputrules'
 
-// Props
 const props = defineProps({
   value: { type: String, default: '' },
   placeholder: { type: String, default: '' },
@@ -37,7 +35,6 @@ const props = defineProps({
 
 const emits = defineEmits(['update:value', 'updateValue', 'undo', 'redo'])
 
-// --- Variable mark extension ---
 const VariableMark = Mark.create({
   name: 'variable',
   inclusive: false,
@@ -65,7 +62,7 @@ const VariableMark = Mark.create({
   },
 
   renderHTML({ HTMLAttributes }) {
-    const attrs = {
+    const attrs: any = {
       'data-variable': 'true',
       'data-name': HTMLAttributes.name || '',
     }
@@ -76,16 +73,16 @@ const VariableMark = Mark.create({
     return ['span', mergeAttributes(attrs), 0]
   },
 
-  addCommands() {
+  addCommands(): any {
     return {
       setVariable:
-        (attrs) =>
-        ({ commands }) => {
+        (attrs: any) =>
+        ({ commands }: any) => {
           return commands.setMark(this.name, attrs)
         },
       unsetVariable:
         () =>
-        ({ commands }) => {
+        ({ commands }: any) => {
           return commands.unsetMark(this.name)
         },
     }
@@ -93,16 +90,14 @@ const VariableMark = Mark.create({
 })
 
 // Helper: try to run matchedHook and return attrs
-function buildAttrsFromMatch(name) {
+function buildAttrsFromMatch(name: string) {
   if (!props.matchedHook) return { name }
   try {
     const res = props.matchedHook(name)
-    // matchedHook may return a string (class), or object of styles, or an object { class, style }
     if (!res) return { name }
     if (typeof res === 'string') return { name, class: res }
     if (typeof res === 'object') {
       if (res.class || res.style) return { name, class: res.class || null, style: res.style || null }
-      // treat as style object
       const styleStr = Object.entries(res).map(([k, v]) => `${k}: ${v};`).join(' ')
       return { name, style: styleStr }
     }
@@ -113,18 +108,15 @@ function buildAttrsFromMatch(name) {
   }
 }
 
-// --- Editor setup ---
 const editor = useEditor({
   extensions: [
     StarterKit.configure({
-      // keep bold/italic, lists, paragraph, etc.
     }),
     History,
     VariableMark,
   ],
   content: props.value || '',
   onUpdate({ editor }) {
-    // Emit both html and plain text
     const html = editor.getHTML()
     const text = reconstructTextWithBraces(editor)
     emits('updateValue', { html, text })
@@ -132,17 +124,15 @@ const editor = useEditor({
   },
 })
 
-// Reconstruct a plain-text representation where variable marks are wrapped with {{name}}
-function reconstructTextWithBraces(editorInstance) {
+function reconstructTextWithBraces(editorInstance: any) {
   if (!editorInstance) return ''
   const doc = editorInstance.state.doc
   let out = ''
-  doc.descendants((node, pos) => {
+  doc.descendants((node: any, _pos: any) => {
     if (node.isText) {
       const marks = node.marks
       if (marks && marks.length) {
-        // If text has variable mark, wrap by {{ }}
-        const variableMark = marks.find((m) => m.type.name === 'variable')
+        const variableMark = marks.find((m: any) => m.type.name === 'variable')
         if (variableMark) {
           out += `{{${node.text}}}`
           return
@@ -161,26 +151,26 @@ function reconstructTextWithBraces(editorInstance) {
 watch(
   () => props.value,
   (v) => {
-    if (!editor) return
+    if (!editor.value) return
     // naively set content to HTML value
-    if (v !== editor.getHTML()) {
+    if (v !== editor.value.getHTML()) {
       // try to detect if v is HTML; if contains '<', treat as HTML, otherwise insert text
       if (typeof v === 'string' && v.includes('<')) {
-        editor.commands.setContent(v)
+        editor.value.commands.setContent(v)
       } else {
         // plain text: preserve variable braces
         // convert occurrences of {{name}} into variable marks
         const html = plainTextToHTMLWithVariables(v)
-        editor.commands.setContent(html)
+        editor.value.commands.setContent(html)
       }
     }
   }
 )
 
-function plainTextToHTMLWithVariables(text) {
+function plainTextToHTMLWithVariables(text: string) {
   if (!text) return ''
   // replace {{name}} occurrences with span[data-variable]
-  const replaced = text.replace(/\{\{([^}]+)\}\}/g, (m, p1) => {
+  const replaced = text.replace(/\{\{([^}]+)\}\}/g, (_m: string, p1: string) => {
     const attrs = buildAttrsFromMatch(p1)
     const styleAttr = attrs.style ? ` style="${attrs.style}"` : ''
     const classAttr = attrs.class ? ` class="${attrs.class}"` : ''
@@ -191,22 +181,22 @@ function plainTextToHTMLWithVariables(text) {
 }
 
 // Input handling: auto-complete when typing '{' -> '{{}}' and place cursor in middle
-let domKeydownHandler = null
+let domKeydownHandler: ((e: any) => void) | null = null
 onMounted(() => {
-  if (!editor) return
-  const view = editor.view
+  if (!editor.value) return
+  const view = editor.value.view
   if (!view) return
 
-  domKeydownHandler = (e) => {
+  domKeydownHandler = (e: any) => {
     // For simplicity detect single character '{'
     if (e.key === '{') {
       // prevent default input of single brace
       e.preventDefault()
       // insert '{{}}'
-      editor.chain().focus().insertContent('{{}}').run()
+      editor.value!.chain().focus().insertContent('{{}}').run()
       // set selection inside the two braces
-      const pos = editor.state.selection.anchor - 2
-      editor.commands.setTextSelection(pos)
+      const pos = editor.value!.state.selection.anchor - 2
+      editor.value!.commands.setTextSelection(pos)
       return
     }
   }
@@ -214,7 +204,7 @@ onMounted(() => {
   view.dom.addEventListener('keydown', domKeydownHandler)
 
   // click handler for variable elements -> show popover
-  const clickHandler = (e) => {
+  const clickHandler = (e: any) => {
     const el = e.target.closest && e.target.closest('span[data-variable]')
     if (el) {
       selectedVariable.value = el.getAttribute('data-name') || ''
@@ -235,10 +225,10 @@ onMounted(() => {
   _internalHandlers.click = clickHandler
 })
 
-const _internalHandlers = { keydown: null, click: null }
+const _internalHandlers: { keydown: any; click: any } = { keydown: null, click: null }
 onBeforeUnmount(() => {
-  if (!editor) return
-  const view = editor.view
+  if (!editor.value) return
+  const view = editor.value.view
   if (!view) return
   if (_internalHandlers.keydown) view.dom.removeEventListener('keydown', _internalHandlers.keydown)
   if (_internalHandlers.click) view.dom.removeEventListener('click', _internalHandlers.click)
@@ -249,7 +239,8 @@ const showPopover = ref(false)
 const selectedVariable = ref('')
 const popoverPos = { x: 0, y: 0 }
 
-const popoverSlotPresent = computed(() => !!(useSlots && useSlots().popover))
+const slots = useSlots()
+const popoverSlotPresent = computed(() => !!(slots && (slots as any).popover))
 
 function closePopover() {
   showPopover.value = false
@@ -268,11 +259,11 @@ const popoverStyle = computed(() => {
 
 // expose undo/redo methods
 function undo() {
-  editor?.commands.undo()
+  editor.value?.commands.undo()
   emits('undo')
 }
 function redo() {
-  editor?.commands.redo()
+  editor.value?.commands.redo()
   emits('redo')
 }
 
@@ -282,17 +273,12 @@ function redo() {
 const componentClass = computed(() => '')
 const rootStyle = computed(() => ({ width: typeof props.width === 'number' ? props.width + 'px' : props.width, height: typeof props.height === 'number' ? props.height + 'px' : props.height, position: 'relative' }))
 
-// Small utility: detect if slot provided
-function useSlots() {
-  // shallow method to check slots in <script setup>
-  // In Vue SFC, useSlots() is available from vue, but not top-level here. We'll import it lazily.
-  try {
-    // eslint-disable-next-line no-undef
-    return __VUE_SSR_CONTEXT__ ? {} : {} // fallback
-  } catch (e) {
-    return {}
-  }
-}
+// Expose methods to parent component
+defineExpose({
+  undo,
+  redo,
+  closePopover
+})
 
 // A note: reconstructTextWithBraces is naive — for complex nodes you may want a more robust serializer.
 </script>
