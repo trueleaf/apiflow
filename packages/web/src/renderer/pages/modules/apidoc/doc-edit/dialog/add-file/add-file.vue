@@ -111,7 +111,7 @@ const handleAddFile = () => {
       handleClose();
       loading.value = false;
       return;
-    } else if (formData.value.type === 'websocket') {
+    } else if (__STANDALONE__ && formData.value.type === 'websocket') {
       const websocketNode = generateEmptyWebsocketNode(nanoid())
       websocketNode.info.name = formData.value.name
       websocketNode.projectId = route.query.id as string

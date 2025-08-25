@@ -17,6 +17,7 @@ import { useCookies } from '@/store/apidoc/cookies';
 import { InitDataMessage, OnEvalSuccess, ReceivedEvent } from '@/worker/pre-request/types/types.ts';
 import { Method } from 'got';
 import preRequestWorker from '@/worker/pre-request/pre-request.ts?worker&inline';
+import { WebSocketNode } from '@src/types/websocket/websocket.ts';
 /*
 |--------------------------------------------------------------------------
 | 发送请求
@@ -69,9 +70,9 @@ const convertStringValueAsync = (data: JsonData) => {
 const getMethod = (apidoc: HttpNode) => {
   return apidoc.item.method;
 }
-export const getUrl = async (apidoc: HttpNode) => {
+export const getUrl = async (httpNode: HttpNode) => {
   const { objectVariable } = useVariable();
-  const { url, queryParams, paths, } = apidoc.item;
+  const { url, queryParams, paths, } = httpNode.item;
   const queryString = await getQueryStringFromQueryParams(queryParams, objectVariable);
   const objectPathParams = await getObjectPathParams(paths, objectVariable);
   const replacedPathParamsString = url.path.replace(/(?<!\{)\{([^{}]+)\}(?!\})/g, (_, variableName) => {
@@ -81,6 +82,20 @@ export const getUrl = async (apidoc: HttpNode) => {
   let fullUrl = pathString + queryString;
   if (!fullUrl.startsWith('http') && !fullUrl.startsWith('https')) {
     fullUrl = `http://${fullUrl}`
+  }
+  if (fullUrl.includes('localhost')) {
+    fullUrl = fullUrl.replace('localhost', '127.0.0.1')
+  }
+  fullUrl = await convertTemplateValueToRealValue(fullUrl, objectVariable);
+  return fullUrl;
+}
+export const getWebSocketUrl = async (websocketNode: WebSocketNode) => {
+  const { objectVariable } = useVariable();
+  const { url, queryParams } = websocketNode.item;
+  const queryString = await getQueryStringFromQueryParams(queryParams, objectVariable);
+  let fullUrl = url.path + queryString;
+  if (!fullUrl.startsWith('ws') && !fullUrl.startsWith('wss')) {
+    fullUrl = `ws://${fullUrl}`
   }
   if (fullUrl.includes('localhost')) {
     fullUrl = fullUrl.replace('localhost', '127.0.0.1')

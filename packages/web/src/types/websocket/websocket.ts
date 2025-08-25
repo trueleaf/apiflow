@@ -38,6 +38,10 @@ export type WebSocketNode = {
       prefix: string;
     };
     /**
+     * 请求参数
+     */
+    queryParams: ApidocProperty<'string'>[];
+    /**
      * 请求头
      */
     headers: ApidocProperty<'string'>[];

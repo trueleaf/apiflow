@@ -247,6 +247,7 @@ const requestPath = computed<string>({
       height: 0px;
     }
     .label {
+      font-family: var(--font-family);
       user-select: none;
       flex: 0 0 auto;
     }

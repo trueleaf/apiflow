@@ -8,6 +8,8 @@
           autocomplete="off" 
           autocorrect="off" 
           spellcheck="false"
+          @blur="handleFormatUrl"
+          @keyup.enter.stop="handleFormatUrl"
         >
           <template #prepend>
             <div class="protocol-select">
@@ -39,14 +41,14 @@
         >
           {{ t("连接中") }}
         </el-button>
-        <el-button type="primary" @click="handleSave">{{ t("保存接口") }}</el-button>
+        <el-button type="primary" :loading="saveLoading" @click="handleSave">{{ t("保存接口") }}</el-button>
         <el-button type="primary" :icon="Refresh" @click="handleRefresh">{{ t("刷新") }}</el-button>
       </div>
       
       <!-- 连接状态显示 -->
       <pre class="pre-url-wrap">
         <span class="label">{{ t("连接地址") }}：</span>
-        <span class="url">{{ fullUrl || connectionUrl }}</span>
+        <span class="url">{{ fullUrl }}</span>
         <el-tag 
           :type="getStatusType(connectionState)" 
           size="small"
@@ -59,112 +61,35 @@
 
     <!-- 连接配置选项卡 -->
     <el-tabs v-model="activeTab" class="connection-tabs">
-      <!-- 发送消息内容 -->
       <el-tab-pane label="发送消息内容" name="messageContent">
-        <div class="message-content">
-          <div class="content-editor">
-            <el-input 
-              v-model="messageContent" 
-              type="textarea" 
-              :rows="10"
-              placeholder="请输入要发送的消息内容..."
-              autocomplete="off"
-              autocorrect="off"
-              spellcheck="false"
-            />
-          </div>
-          
-          <div class="content-actions">
-            <el-button type="primary" @click="handleSendMessage">
-              {{ t("发送消息") }}
-            </el-button>
-            <el-button @click="handleClearContent">
-              {{ t("清空内容") }}
-            </el-button>
-          </div>
-        </div>
+        <SMessageContent></SMessageContent>
       </el-tab-pane>
-      
-      <!-- Params -->
       <el-tab-pane name="params">
         <template #label>
           <el-badge :is-dot="hasParams">Params</el-badge>
         </template>
         <SParams></SParams>
       </el-tab-pane>
-      
-      <!-- 请求头 -->
       <el-tab-pane name="headers">
         <template #label>
           <el-badge :is-dot="hasHeaders">{{ t("请求头") }}</el-badge>
         </template>
         <SHeaders></SHeaders>
       </el-tab-pane>
-      
-      <!-- 前置脚本 -->
       <el-tab-pane name="preScript">
         <template #label>
           <el-badge :is-dot="hasPreScript">{{ t("前置脚本") }}</el-badge>
         </template>
         <SPreScript></SPreScript>
       </el-tab-pane>
-      
-      <!-- 后置脚本 -->
       <el-tab-pane name="afterScript">
         <template #label>
           <el-badge :is-dot="hasAfterScript">{{ t("后置脚本") }}</el-badge>
         </template>
-        <div class="after-script-content">
-          <div class="script-editor">
-            <el-input 
-              v-model="afterScript" 
-              type="textarea" 
-              :rows="15"
-              placeholder="// 在WebSocket消息发送后执行的JavaScript代码
-// 可以访问 response 对象处理响应数据
-
-console.log('WebSocket消息发送完成');"
-              autocomplete="off"
-              autocorrect="off"
-              spellcheck="false"
-            />
-          </div>
-          
-          <div class="script-actions">
-            <el-button type="primary" @click="handleTestAfterScript">
-              {{ t("测试脚本") }}
-            </el-button>
-            <el-button @click="handleClearAfterScript">
-              {{ t("清空脚本") }}
-            </el-button>
-          </div>
-        </div>
+        <SAfterScript></SAfterScript>
       </el-tab-pane>
-      
-      <!-- 备注信息 -->
       <el-tab-pane :label="t('备注信息')" name="remarks">
-        <div class="remarks-content">
-          <div class="remarks-editor">
-            <el-input 
-              v-model="remarks" 
-              type="textarea" 
-              :rows="15"
-              placeholder="请输入WebSocket接口的备注信息..."
-              autocomplete="off"
-              autocorrect="off"
-              spellcheck="false"
-            />
-          </div>
-          
-          <div class="remarks-actions">
-            <el-button type="primary" @click="handleSaveRemarks">
-              {{ t("保存备注") }}
-            </el-button>
-            <el-button @click="handleClearRemarks">
-              {{ t("清空备注") }}
-            </el-button>
-          </div>
-        </div>
+        <SRemarks></SRemarks>
       </el-tab-pane>
     </el-tabs>
   </div>
@@ -177,10 +102,25 @@ import { Refresh } from '@element-plus/icons-vue'
 import SHeaders from './headers/headers.vue'
 import SParams from './params/params.vue'
 import SPreScript from './pre-script/pre-script.vue'
+import SMessageContent from './message-content/message-content.vue'
+import SAfterScript from './after-script/after-script.vue'
+import SRemarks from './remarks/remarks.vue'
 import { useWebSocket } from '@/store/websocket/websocket'
+import { useRoute } from 'vue-router'
+import { useApidocTas } from '@/store/apidoc/tabs'
+import { ApidocProperty } from '@src/types'
 
 const { t } = useTranslation()
-const websocketStore = useWebSocket()
+const websocketStore = useWebSocket();
+const apidocTabsStore = useApidocTas();
+const route = useRoute();
+const saveLoading = computed(() => websocketStore.saveLoading);
+const currentSelectTab = computed(() => {
+  const projectId = route.query.id as string;
+  const tabs = apidocTabsStore.tabs[projectId];
+  const currentSelectTab = tabs?.find((tab) => tab.selected) || null;
+  return currentSelectTab;
+});
 const activeTab = ref('messageContent')
 const connectionState = ref<'disconnected' | 'connecting' | 'connected' | 'error'>('disconnected')
 const protocol = computed({
@@ -194,17 +134,11 @@ const connectionUrl = computed({
 })
 
 const fullUrl = computed(() => {
-  const path = websocketStore.websocket.item.url.path
-  const prefix = websocketStore.websocket.item.url.prefix
-  if (!path) return ''
-  if (prefix) {
-    return `${prefix}${path}`
-  }
-  return `${protocol.value}://${path.replace(/^(ws|wss):\/\//, '')}`
+  return websocketStore.websocketFullUrl;
 })
 
 const hasParams = computed(() => {
-  return false
+  return websocketStore.websocket.item.queryParams.some(param => param.key.trim() !== '' || param.value.trim() !== '')
 })
 
 const hasHeaders = computed(() => {
@@ -218,30 +152,6 @@ const hasPreScript = computed(() => {
 const hasAfterScript = computed(() => {
   return websocketStore.websocket.afterRequest.raw.trim() !== ''
 })
-
-const messageContent = ref('')
-
-const afterScript = computed({
-  get: () => websocketStore.websocket.afterRequest.raw,
-  set: (value: string) => websocketStore.changeWebSocketAfterRequest(value)
-})
-
-const remarks = computed({
-  get: () => websocketStore.websocket.info.description,
-  set: (value: string) => websocketStore.changeWebSocketDescription(value)
-})
-
-const handleSendMessage = () => {
-  if (!messageContent.value.trim()) {
-    console.warn('消息内容不能为空')
-    return
-  }
-  console.log('发送WebSocket消息:', messageContent.value)
-}
-
-const handleClearContent = () => {
-  messageContent.value = ''
-}
 
 const handleConnect = () => {
   connectionState.value = 'connecting'
@@ -259,28 +169,16 @@ const handleSave = () => {
 }
 
 const handleRefresh = () => {
-  console.log('刷新WebSocket配置')
-  // 这里可以添加从服务器重新获取数据的逻辑
-}
-
-const handleTestAfterScript = () => {
-  if (!afterScript.value.trim()) {
-    console.warn('脚本内容不能为空')
-    return
+    if (!currentSelectTab.value) {
+    return;
   }
-  console.log('测试后置脚本:', afterScript.value)
-}
-
-const handleClearAfterScript = () => {
-  websocketStore.changeWebSocketAfterRequest('')
-}
-
-const handleSaveRemarks = () => {
-  console.log('保存备注信息:', remarks.value)
-}
-
-const handleClearRemarks = () => {
-  websocketStore.changeWebSocketDescription('')
+  if (__STANDALONE__) {
+    websocketStore.getWebsocketDetail({
+      id: currentSelectTab.value._id,
+      projectId: route.query.id as string,
+    });
+  }
+  // 这里可以添加从服务器重新获取数据的逻辑
 }
 
 const getStatusType = (state: string) => {
@@ -299,6 +197,86 @@ const getStatusText = (state: string) => {
     case 'error': return '连接错误'
     default: return '未连接'
   }
+}
+const handleFormatUrl = () => {
+  // 将请求url后面查询参数转换为params
+  const convertQueryToParams = (requestPath: string): void => {
+    const stringParams = requestPath.split('?')[1] || '';
+    if (!stringParams) return;
+
+    const objectParams: Record<string, string> = {};
+    stringParams.split('&').forEach(pair => {
+      const [encodedKey, encodedValue] = pair.split(/=(.*)/s);
+      if (encodedKey) {
+        objectParams[encodedKey] = encodedValue || '';
+      }
+    });
+    
+    const newParams: ApidocProperty<'string'>[] = [];
+    Object.keys(objectParams).forEach(field => {
+      const property: ApidocProperty<'string'> = {
+        _id: Math.random().toString(36).substr(2, 9),
+        key: field,
+        value: objectParams[field] || '',
+        description: '',
+        required: true,
+        type: 'string',
+        select: true,
+      };
+      newParams.push(property)
+    })
+    
+    const uniqueData: ApidocProperty<'string'>[] = [];
+    const originParams = websocketStore.websocket.item.queryParams;
+    newParams.forEach(item => {
+      const matchedItem = originParams.find(v => v.key === item.key);
+      if (originParams.every(v => v.key !== item.key)) {
+        uniqueData.push(item);
+      }
+      if (matchedItem) {
+        matchedItem.value = item.value;
+      }
+    })
+    
+    // 添加新的唯一参数到查询参数列表
+    if (uniqueData.length > 0) {
+      websocketStore.websocket.item.queryParams.unshift(...uniqueData);
+    }
+  };
+
+  const currentPath = connectionUrl.value;
+  convertQueryToParams(currentPath);
+  
+  // URL格式化处理
+  const ipReg = /^wss?:\/\/((\d|[1-9]\d|1\d{2}|2[0-5]{2})\.){3}(2[0-5]{2}|1\d{2}|[1-9]\d|\d)/;
+  const ipWithPortReg = /^wss?:\/\/((\d|[1-9]\d|1\d{2}|2[0-5]{2})\.){3}(2[0-5]{2}|1\d{2}|[1-9]\d|\d)(:\d{2,5})/;
+  const dominReg = /^(wss?:\/\/)?([^./]{1,62}\.){1,}[^./]{1,62}/;
+  const localhostReg = /^(wss?:\/\/)?(localhost)/;
+  const startsWithVarReg = /^\{\{(.*)\}\}/;
+  
+  const matchedIp = currentPath.match(ipReg);
+  const matchedIpWithPort = currentPath.match(ipWithPortReg);
+  const matchedDomin = currentPath.match(dominReg);
+  const matchedLocalhost = currentPath.match(localhostReg);
+  const isStartsWithVar = currentPath.match(startsWithVarReg);
+  
+  let formatPath = currentPath;
+  if (!matchedIp && !matchedDomin && !matchedIpWithPort && !matchedLocalhost && !isStartsWithVar) {
+    // WebSocket路径处理
+    if (formatPath.trim() === '') {
+      formatPath = '';
+    } else if (!formatPath.startsWith('ws://') && !formatPath.startsWith('wss://')) {
+      // 如果没有协议前缀，添加当前选择的协议
+      formatPath = `${protocol.value}://${formatPath}`;
+    }
+  }
+  
+  // 移除查询参数部分（因为已经转换为params）
+  const queryReg = /(\?.*$)/;
+  formatPath = formatPath.replace(queryReg, '');
+  
+  // 更新连接URL
+  connectionUrl.value = formatPath;
 }
 </script>
 
@@ -377,6 +355,7 @@ const getStatusText = (state: string) => {
     }
     
     .label {
+      font-family: var(--font-family);
       user-select: none;
       flex: 0 0 auto;
     }
@@ -430,68 +409,6 @@ const getStatusText = (state: string) => {
 
     :deep(.el-tab-pane) {
       height: 100%;
-    }
-
-    // 发送消息内容样式
-    .message-content {
-      padding: 16px;
-      height: 100%;
-      display: flex;
-      flex-direction: column;
-
-      .content-editor {
-        flex: 1;
-        margin-bottom: 16px;
-      }
-
-      .content-actions {
-        display: flex;
-        gap: 8px;
-        justify-content: flex-start;
-      }
-    }
-
-    // 后置脚本样式
-    .after-script-content {
-      padding: 16px;
-      height: 100%;
-      display: flex;
-      flex-direction: column;
-
-      .script-editor {
-        flex: 1;
-        margin-bottom: 16px;
-
-        :deep(.el-textarea__inner) {
-          font-family: 'Courier New', monospace;
-          font-size: 14px;
-        }
-      }
-
-      .script-actions {
-        display: flex;
-        gap: 8px;
-        justify-content: flex-start;
-      }
-    }
-
-    // 备注信息样式
-    .remarks-content {
-      padding: 16px;
-      height: 100%;
-      display: flex;
-      flex-direction: column;
-
-      .remarks-editor {
-        flex: 1;
-        margin-bottom: 16px;
-      }
-
-      .remarks-actions {
-        display: flex;
-        gap: 8px;
-        justify-content: flex-start;
-      }
     }
   }
 }

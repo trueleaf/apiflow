@@ -584,6 +584,7 @@ export const generateEmptyWebsocketNode = (_id: string): WebSocketNode => {
         path: "",
         prefix: "",
       },
+      queryParams: [],
       headers: [],
     },
     preRequest: {

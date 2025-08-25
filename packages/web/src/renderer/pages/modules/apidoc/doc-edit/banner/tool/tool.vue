@@ -209,15 +209,15 @@ const projectName = computed(() => apidocBaseInfoStore.projectName)
 //=====================================操作相关数据====================================//
 //初始化缓存数据
 const initCacheOperation = () => {
-  const localPinToolbarOperations = localStorage.getItem('apidoc/pinToolbarOperations');
+  const localPinToolbarOperations = httpNodeCache.getPinToolbarOperations();
   operations.value = originOperaions.filter((v) => {
     if (isStandalone.value && v.op === 'generateLink') {
       return false;
     }
     return true;
   });
-  if (localPinToolbarOperations) {
-    const localData: Operation[] = JSON.parse(localPinToolbarOperations);
+  if (localPinToolbarOperations.length > 0) {
+    const localData: Operation[] = localPinToolbarOperations;
     originOperaions.forEach((data) => {
       const matchedData = localData.find((v: Operation) => v.name === data.name);
       if (matchedData?.icon) {
@@ -231,7 +231,7 @@ const initCacheOperation = () => {
 }
 //缓存工具栏操作
 watch(pinOperations, (v) => {
-  localStorage.setItem('apidoc/pinToolbarOperations', JSON.stringify(v))
+  httpNodeCache.setPinToolbarOperations(v)
 }, {
   deep: true
 })

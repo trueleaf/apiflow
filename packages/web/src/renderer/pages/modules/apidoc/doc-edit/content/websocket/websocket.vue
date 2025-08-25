@@ -1,43 +1,29 @@
 <template>
-  <div v-loading="loading" class="websocket" :class="{ vertical: layout === 'vertical' }">
-    <template v-if="mode === 'edit'">
-      <div class="connection-layout" :class="{ vertical: layout === 'vertical' }">
-        <SConnection></SConnection>
-        <SMessages></SMessages>
-      </div>
-      <el-divider v-show="layout === 'vertical' && !isVerticalDrag" content-position="left">WebSocket信息</el-divider>
-      <SResizeY v-if="layout === 'vertical'" :min="150" :max="550" :height="350" name="ws-info-y" tabindex="1"
-        @dragStart="isVerticalDrag = true" @dragEnd="isVerticalDrag = false">
-        <SWebSocketInfo></SWebSocketInfo>
-      </SResizeY>
-      <SResizeX 
-        v-if="layout === 'horizontal'" 
-        :min="500" 
-        :max="750"
-        :width="500" 
-        name="ws-info" 
-        bar-left
-        class="info-layout" 
-        tabindex="1"
-      >
-        <SWebSocketInfo></SWebSocketInfo>
-      </SResizeX>
-    </template>
-    <template v-else>
-      <SView></SView>
-    </template>
+  <div v-loading="loading" class="websocket">
+    <div class="connection-layout">
+      <SConnection></SConnection>
+      <SMessages></SMessages>
+    </div>
+    <SResizeX 
+      :min="500" 
+      :max="750"
+      :width="500" 
+      name="ws-info" 
+      bar-left
+      class="info-layout" 
+      tabindex="1"
+    >
+      <SWebSocketInfo></SWebSocketInfo>
+    </SResizeX>
   </div>
 </template>
 
 <script lang="ts" setup>
 import { computed, onMounted, ref, watch } from 'vue'
 import SResizeX from '@/components/common/resize/g-resize-x.vue'
-import SResizeY from '@/components/common/resize/g-resize-y.vue'
 import SConnection from './connection/connection.vue'
 import SMessages from './messages/messages.vue'
 import SWebSocketInfo from './websocket-info/websocket-info.vue'
-import SView from './view/view.vue'
-import { useApidocBaseInfo } from '@/store/apidoc/base-info'
 import { useApidocTas } from '@/store/apidoc/tabs'
 import { useWebSocket } from '@/store/websocket/websocket'
 import { useRoute } from 'vue-router'
@@ -45,15 +31,11 @@ import { debounce, checkPropertyIsEqual } from '@/helper'
 import type { WebSocketNode } from '@src/types/websocket/websocket'
 import { DebouncedFunc } from 'lodash'
 
-const apidocBaseInfoStore = useApidocBaseInfo();
 const apidocTabsStore = useApidocTas();
 const websocketStore = useWebSocket();
-const isVerticalDrag = ref(false);
 const route = useRoute();
 const debounceFn = ref(null as (null | DebouncedFunc<(websocket: WebSocketNode) => void>));
 
-const mode = computed(() => apidocBaseInfoStore.mode);
-const layout = computed(() => apidocBaseInfoStore.layout);
 const loading = computed(() => websocketStore.loading);
 const currentSelectTab = computed(() => {
   const projectId = route.query.id as string;
@@ -86,12 +68,14 @@ const checkWebsocketIsEqual = (websocket: WebSocketNode, originWebsocket: WebSoc
   // 检查请求头
   const headerIsEqual = checkPropertyIsEqual(cpWebsocket.item.headers, cpOriginWebsocket.item.headers);
   
+  // 检查查询参数
+  const queryParamsIsEqual = checkPropertyIsEqual(cpWebsocket.item.queryParams, cpOriginWebsocket.item.queryParams);
+  
   // 检查前置和后置脚本
   const preRequestIsEqual = cpWebsocket.preRequest.raw === cpOriginWebsocket.preRequest.raw;
   const afterRequestIsEqual = cpWebsocket.afterRequest.raw === cpOriginWebsocket.afterRequest.raw;
-  
   if (!nameIsEqual || !descriptionIsEqual || !protocolIsEqual || !pathIsEqual || 
-      !prefixIsEqual || !headerIsEqual || !preRequestIsEqual || !afterRequestIsEqual) {
+      !prefixIsEqual || !headerIsEqual || !queryParamsIsEqual || !preRequestIsEqual || !afterRequestIsEqual) {
     return false;
   }
   
@@ -109,7 +93,16 @@ const getWebsocketInfo = async () => {
       projectId: route.query.id as string,
     });
   } else { // 取缓存值
-    console.log('缓存获取websocket');
+    const cachedWebSocket = websocketStore.getCachedWebSocket(currentSelectTab.value._id);
+    if (cachedWebSocket) {
+      websocketStore.changeWebsocket(cachedWebSocket);
+    } else {
+      // 如果缓存中也没有，尝试获取最新数据
+      websocketStore.getWebsocketDetail({
+        id: currentSelectTab.value._id,
+        projectId: route.query.id as string,
+      });
+    }
   }
 };
 
@@ -151,7 +144,8 @@ onMounted(() => {
         value: true,
       });
     }
-    // TODO: 这里可以添加WebSocket缓存逻辑，类似apidocCache.setApidoc
+    // 缓存WebSocket数据
+    websocketStore.cacheWebSocket();
   }, 200, {
     leading: true
   });

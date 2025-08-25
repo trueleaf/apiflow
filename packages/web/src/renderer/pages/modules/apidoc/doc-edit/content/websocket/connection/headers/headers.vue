@@ -1,154 +1,161 @@
 <template>
   <div class="ws-headers">
-    <div class="headers-toolbar">
-      <el-button type="primary" size="small" @click="handleAddHeader">
-        <el-icon><Plus /></el-icon>
-        {{ t("添加连接头") }}
-      </el-button>
-      <el-button size="small" @click="handleClearHeaders">{{ t("清空") }}</el-button>
+    <div v-if="!hideDefaultHeader">
+      <span class="cursor-pointer no-select" @click="hideDefaultHeader = true">
+        <span>{{ t("点击隐藏") }}</span>
+      </span>
+      <SParamsTree :drag="false" show-checkbox :data="defaultHeaders" no-add></SParamsTree>
     </div>
-    
-    <div class="headers-table">
-      <el-table :data="headers" style="width: 100%" size="small">
-        <el-table-column prop="enabled" label="" width="50">
-          <template #default="{ row, $index }">
-            <el-checkbox 
-              :model-value="row.enabled" 
-              @update:model-value="updateHeader($index, 'enabled', $event)"
-            ></el-checkbox>
+    <div v-else class="cursor-pointer no-select d-flex a-center" @click="hideDefaultHeader = false">
+      <span>{{ defaultHeaders.length }}{{ t("个隐藏") }}</span>
+      <el-icon :size="16" class="ml-1">
+        <View />
+      </el-icon>
+    </div>
+    <SParamsTree :drag="false" show-checkbox :data="headerData" no-add></SParamsTree>
+    <template v-if="commonHeaders.length > 0">
+      <el-divider content-position="left">{{ t('公共请求头') }}</el-divider>
+      <el-table :data="commonHeaders" border size="small">
+        <el-table-column :label="t('是否发送')" align="center" width="80px">
+          <template #default="scope">
+            <el-checkbox v-model="scope.row.select" @change="handleChangeCommonHeaderIsSend($event, scope.row)"></el-checkbox>
           </template>
         </el-table-column>
-        <el-table-column prop="key" label="键" min-width="150">
-          <template #default="{ row, $index }">
-            <el-input 
-              :model-value="row.key" 
-              @update:model-value="updateHeader($index, 'key', $event)"
-              placeholder="请输入键名" 
-              size="small"
-            ></el-input>
+        <el-table-column prop="key" :label="t('键')" align="center"></el-table-column>
+        <el-table-column prop="type" :label="t('类型')" align="center" width="100px"></el-table-column>
+        <el-table-column prop="value" :label="t('值')" align="center">
+          <template #default="scope">
+            <div class="value-wrap">{{ scope.row.value }}</div>
           </template>
         </el-table-column>
-        <el-table-column prop="value" label="值" min-width="200">
-          <template #default="{ row, $index }">
-            <el-input 
-              :model-value="row.value" 
-              @update:model-value="updateHeader($index, 'value', $event)"
-              placeholder="请输入值" 
-              size="small"
-            ></el-input>
+        <el-table-column prop="description" :label="t('来源')" align="center" width="250px">
+          <template #default="scope">
+            <template v-if="scope.row.path">
+              <div v-for="(path, index) in scope.row.path" :key="path" class="w-100 d-flex a-center">
+                <i class="iconfont folder-icon iconweibiaoti-_huabanfuben mr-1" :style="{textIndent: `${15 * index}px`}"></i>
+                <span v-if="index !== scope.row.path.length - 1" :title="path" class="text-ellipsis">{{ path }}</span>
+                <span 
+                  v-else 
+                  :title="path"
+                  class="theme-color cursor-pointer text-ellipsis" 
+                  @click="() => handleJumpToCommonHeaderConfigPage({ nodeId: scope.row.nodeId, name: path })"
+                >
+                  {{ path }}
+                </span>
+              </div>
+            </template>
+            <div v-else class="d-flex w-100 theme-color cursor-pointer" @click="() => handleJumpToCommonHeaderConfigPage()">{{ t('全局公共头') }}</div>
           </template>
         </el-table-column>
-        <el-table-column prop="description" label="描述" min-width="150">
-          <template #default="{ row, $index }">
-            <el-input 
-              :model-value="row.description" 
-              @update:model-value="updateHeader($index, 'description', $event)"
-              placeholder="请输入描述" 
-              size="small"
-            ></el-input>
-          </template>
-        </el-table-column>
-        <el-table-column label="操作" width="80">
-          <template #default="{ $index }">
-            <el-button 
-              type="danger" 
-              size="small" 
-              link 
-              @click="handleDeleteHeader($index)"
-            >
-              <el-icon><Delete /></el-icon>
-            </el-button>
+        <el-table-column prop="description" :label="t('描述')" align="center">
+          <template #default="scope">
+            <div>{{ t(scope.row.description) }}</div>
           </template>
         </el-table-column>
       </el-table>
-    </div>
-    
-    <div v-if="headers.length === 0" class="empty-state">
-      <el-empty description="暂无连接头" :image-size="80">
-        <el-button type="primary" @click="handleAddHeader">添加连接头</el-button>
-      </el-empty>
-    </div>
+    </template>
   </div>
 </template>
 
 <script lang="ts" setup>
-import { computed } from 'vue'
+import { ref, computed, watch } from 'vue'
+import { router } from '@/router'
+import { View } from '@element-plus/icons-vue'
+import { ApidocProperty } from '@src/types';
+import { apidocGenerateProperty } from '@/helper';
 import { useTranslation } from 'i18next-vue'
-import { Plus, Delete } from '@element-plus/icons-vue'
-import { useWebSocket } from '@/store/websocket/websocket'
+import SParamsTree from '@/components/apidoc/params-tree/g-params-tree.vue'
+import { useWebSocket } from '@/store/websocket/websocket';
+import { useApidocTas } from '@/store/apidoc/tabs';
+import { useApidocBaseInfo } from '@/store/apidoc/base-info';
+import { webSocketNodeCache } from '@/cache/websocketNode';
+import { storeToRefs } from 'pinia';
+import { CheckboxValueType } from 'element-plus';
 
+const emits = defineEmits(['changeCommonHeaderSendStatus'])
+const apidocTabsStore = useApidocTas()
+const websocketStore = useWebSocket()
+const apidocBaseInfoStore = useApidocBaseInfo()
+const { commonHeaders: cHeaders, globalCommonHeaders } = storeToRefs(apidocBaseInfoStore)
+const projectId = router.currentRoute.value.query.id as string;
+const currentSelectTab = computed(() => { //当前选中的doc
+  const tabs = apidocTabsStore.tabs[projectId];
+  return tabs?.find((tab) => tab.selected) || null;
+})
 const { t } = useTranslation()
 
-// 使用WebSocket store
-const websocketStore = useWebSocket()
+const hideDefaultHeader = ref(true);
+const headerData = computed(() => websocketStore.websocket.item.headers)
+const defaultHeaders = computed(() => websocketStore.defaultHeaders);
+const commonHeaders = ref<(Pick<ApidocProperty, "_id" | 'key' | 'value' | 'description' | 'select' & { path?: string[] }>)[]>([]);
 
-// 从store获取headers数据
-const headers = computed(() => {
-  return websocketStore.websocket.item.headers.map(header => ({
-    _id: header._id,
-    enabled: !header.disabled,
-    key: header.key,
-    value: header.value,
-    description: header.description
-  }))
+const handleChangeCommonHeaderIsSend = (isSend: CheckboxValueType, header: Pick<ApidocProperty, "_id" | 'key' | 'value' | 'description' | 'select'>) => {
+  if (isSend) {
+    webSocketNodeCache.removeIgnoredCommonHeader({
+      projectId,
+      tabId: currentSelectTab.value?._id ?? '',
+      ignoreHeaderId: header._id
+    })
+  } else {
+    webSocketNodeCache.setIgnoredCommonHeader({
+      projectId,
+      tabId: currentSelectTab.value?._id ?? '',
+      ignoreHeaderId: header._id
+    })
+  }
+  emits('changeCommonHeaderSendStatus')
+}
+
+watch([currentSelectTab, cHeaders, globalCommonHeaders], () => {
+  if (currentSelectTab.value?.tabType !== 'websocket') {
+    return
+  }
+  const defaultCommonHeader = apidocBaseInfoStore.getCommonHeadersById(currentSelectTab.value?._id || "");
+  commonHeaders.value = defaultCommonHeader.map(v => {
+    const ignoreHeaderIds = webSocketNodeCache.getIgnoredCommonHeaderByTabId(projectId, currentSelectTab.value?._id ?? "");
+    const isSelect = ignoreHeaderIds?.find(headerId => headerId === v._id) ? false : true
+    const property: ApidocProperty<'string'> & { path?: string[] } = apidocGenerateProperty();
+    property._id = v._id;
+    property.select = isSelect;
+    property.key = v.key;
+    property.value = v.value;
+    property.description = v.description;
+    property.path = v.path;
+    property.nodeId = v.nodeId;
+    return property;
+  })
+}, {
+  deep: true,
+  immediate: true
 })
 
-const handleAddHeader = () => {
-  websocketStore.addWebSocketHeader()
+//跳转公共请求头
+const handleJumpToCommonHeaderConfigPage = ({ nodeId, name }: { nodeId?: string, name?: string } = {}) => {
+    apidocTabsStore.addTab({
+    _id: nodeId || projectId,
+    projectId: projectId,
+    tabType: 'commonHeader',
+    label: `【公共头】${name ? name : t('全局')}`,
+    saved: true,
+    fixed: true,
+    selected: true,
+    head: {
+      icon: '',
+      color: ''
+    },
+  })
 }
 
-const handleDeleteHeader = (index: number) => {
-  const headerId = websocketStore.websocket.item.headers[index]?._id
-  if (headerId) {
-    websocketStore.deleteWebSocketHeaderById(headerId)
-  }
-}
-
-const handleClearHeaders = () => {
-  // 清空所有headers
-  const headerIds = websocketStore.websocket.item.headers.map(h => h._id)
-  headerIds.forEach(id => websocketStore.deleteWebSocketHeaderById(id))
-}
-
-// 监听输入变化并更新store
-const updateHeader = (index: number, field: string, value: any) => {
-  const headerId = websocketStore.websocket.item.headers[index]?._id
-  if (headerId) {
-    const updateData: any = {}
-    if (field === 'enabled') {
-      updateData.disabled = !value
-    } else {
-      updateData[field] = value
-    }
-    websocketStore.updateWebSocketHeaderById(headerId, updateData)
-  }
-}
 </script>
 
-<style lang="scss" scoped>
+<style lang='scss' scoped>
 .ws-headers {
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-
-  .headers-toolbar {
-    display: flex;
-    gap: 8px;
-    margin-bottom: 16px;
-    padding-bottom: 12px;
-    border-bottom: 1px solid var(--gray-300);
-  }
-
-  .headers-table {
-    flex: 1;
+  .value-wrap {
+    max-height: 140px;
     overflow-y: auto;
   }
-
-  .empty-state {
-    flex: 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+  .folder-icon {
+    color: #ffc107;
   }
 }
 </style>

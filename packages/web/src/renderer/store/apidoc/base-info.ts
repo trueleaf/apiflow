@@ -14,6 +14,7 @@ import { router } from "@/router";
 import { useVariable } from './variables';
 import { standaloneCache } from '@/cache/standalone.ts';
 import { requestMethods } from '@/data/data.ts';
+import { httpNodeCache } from '@/cache/httpNode';
 
 type ChangeProjectBaseInfo = {
   _id: string;
@@ -113,28 +114,30 @@ export const useApidocBaseInfo = defineStore('apidocBaseInfo', () => {
   }
   //初始化cookie值
   const initCookies = (): void => {
-    const localCookies = localStorage.getItem('apidoc/globalCookies') || '{}';
-    try {
-      const jsonCookies = JSON.parse(localCookies)
-      globalCookies.value = jsonCookies;
-    } catch (error) {
-      console.error(error);
-      localStorage.setItem('apidoc/globalCookies', '{}')
-    }
+    const jsonCookies = httpNodeCache.getGlobalCookies();
+    globalCookies.value = jsonCookies;
+  }
+  //更新全局cookies
+  const updateGlobalCookies = (cookies: Record<string, ApidocCookieInfo[]>): void => {
+    globalCookies.value = cookies;
+    // 将ApidocCookieInfo转换为ApidocCookie格式用于缓存
+    const cookiesForCache: Record<string, any[]> = {};
+    Object.keys(cookies).forEach(key => {
+      cookiesForCache[key] = cookies[key].map(cookie => ({
+        id: cookie.name + '_' + cookie.domain, // 生成一个简单的id
+        ...cookie
+      }));
+    });
+    httpNodeCache.setGlobalCookies(cookiesForCache);
   }
   //改变布局方式
   const changeLayout = (layoutOption: 'horizontal' | 'vertical'): void => {
     layout.value = layoutOption;
-    localStorage.setItem('apidoc/layout', layoutOption)
+    httpNodeCache.setLayout(layoutOption)
   }
   //初始化布局
   const initLayout = (): void => {
-    const localLayout = localStorage.getItem('apidoc/layout');
-    if (localLayout !== 'horizontal' && localLayout !== 'vertical') {
-      layout.value = 'horizontal';
-    } else {
-      layout.value = localLayout;
-    }
+    layout.value = httpNodeCache.getLayout();
   }
   //改变操作模式
   const changeMode = (modeOption: 'edit' | 'view'): void => {
@@ -330,6 +333,7 @@ export const useApidocBaseInfo = defineStore('apidocBaseInfo', () => {
     changeProjectBaseInfo,
     updateHostById,
     initCookies,
+    updateGlobalCookies,
     changeLayout,
     initLayout,
     changeMode,

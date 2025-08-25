@@ -1,8 +1,8 @@
 import { request } from '@/api/api';
 import { standaloneCache } from '@/cache/standalone.ts';
-import { convertNodesToBannerNodes, findNodeById, forEachForest } from "@/helper";
+import { findNodeById, forEachForest } from "@/helper";
 import { ApidocMockState } from "@src/types/apidoc/mock";
-import { ApidocBanner, Response } from '@src/types';
+import { ApidocBanner, ApidocBannerOfWebsocketNode, ApidocBannerOfHttpNode, Response } from '@src/types';
 import { defineStore } from "pinia";
 import { ref } from "vue";
 
@@ -18,23 +18,41 @@ type MapId = {
   oldPid: string, //历史pid
   newPid: string, //新pid
 };
-type EditBannerPayload<K extends keyof ApidocBanner> = {
+// 使用条件类型来确保类型安全
+type EditBannerPayload<T extends ApidocBanner, K extends keyof T> = {
   id: string,
   field: K,
-  value: ApidocBanner[K],
+  value: T[K],
 };
 
 export const useApidocBanner = defineStore('apidocBanner', () => {
   const loading = ref(false);
   const banner = ref<ApidocBanner[]>([]);
   const defaultExpandedKeys = ref<string[]>([]);
-  //根据id改变节点属性
-  const changeBannerInfoById = <K extends keyof ApidocBanner>(payload: EditBannerPayload<K>): void => {
+  
+  //根据id改变节点属性 - 使用类型断言但更安全
+  const changeBannerInfoById = <T extends ApidocBanner, K extends keyof T>(payload: EditBannerPayload<T, K>): void => {
     const { id, field, value } = payload;
     const editData = findNodeById(banner.value, id, {
       idKey: '_id',
-    }) as ApidocBanner;
-    editData[field] = value
+    }) as T;
+    if (editData && field in editData) {
+      editData[field] = value;
+    }
+  }
+  
+  // 类型安全的 WebSocket banner 更新方法
+  const changeWebsocketBannerInfoById = <K extends keyof ApidocBannerOfWebsocketNode>(
+    payload: EditBannerPayload<ApidocBannerOfWebsocketNode, K>
+  ): void => {
+    changeBannerInfoById<ApidocBannerOfWebsocketNode, K>(payload);
+  }
+  
+  // 类型安全的 HTTP banner 更新方法
+  const changeHttpBannerInfoById = <K extends keyof ApidocBannerOfHttpNode>(
+    payload: EditBannerPayload<ApidocBannerOfHttpNode, K>
+  ): void => {
+    changeBannerInfoById<ApidocBannerOfHttpNode, K>(payload);
   }
   //改变文档banner
   const changeAllDocBanner = (payload: ApidocBanner[]): void => {
@@ -157,6 +175,8 @@ export const useApidocBanner = defineStore('apidocBanner', () => {
     banner,
     defaultExpandedKeys,
     changeBannerInfoById,
+    changeWebsocketBannerInfoById,
+    changeHttpBannerInfoById,
     changeAllDocBanner,
     changeBannerIdAndPid,
     splice,

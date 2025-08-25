@@ -539,7 +539,7 @@ export const useApidoc = defineStore('apidoc', () => {
   const saveApidoc = (): Promise<void> => {
     const { tabs } = storeToRefs(useApidocTas());
     const { changeTabInfoById } = useApidocTas();
-    const { changeBannerInfoById } = useApidocBanner()
+    const { changeHttpBannerInfoById } = useApidocBanner()
     return new Promise(async (resolve, reject) => {
       //todo
       // const projectId = router.currentRoute.value.query.id as string || shareRouter.currentRoute.value.query.id as string;
@@ -550,6 +550,7 @@ export const useApidoc = defineStore('apidoc', () => {
         console.warn('缺少tab信息');
         return;
       }
+      changeApidocSaveLoading(true);
       const apidocDetail = cloneDeep(apidoc.value);
       //todo
       // context.dispatch('saveMindParams');
@@ -579,7 +580,7 @@ export const useApidoc = defineStore('apidoc', () => {
           },
         })
         //改变banner请求方法
-        changeBannerInfoById({
+        changeHttpBannerInfoById({
           id: currentSelectTab._id,
           field: 'method',
           value: params.item.method,
@@ -592,9 +593,12 @@ export const useApidoc = defineStore('apidoc', () => {
           field: 'saved',
           value: true,
         })
+        // 添加0.2秒的saveLoading效果
+        setTimeout(() => {
+          changeApidocSaveLoading(false);
+        }, 100);
         return
       }
-      changeApidocSaveLoading(true)
 
       axiosInstance.post('/api/project/fill_doc', params).then(() => {
         //改变tab请求方法
@@ -608,7 +612,7 @@ export const useApidoc = defineStore('apidoc', () => {
         })
 
         //改变banner请求方法
-        changeBannerInfoById({
+        changeHttpBannerInfoById({
           id: currentSelectTab._id,
           field: 'method',
           value: params.item.method,

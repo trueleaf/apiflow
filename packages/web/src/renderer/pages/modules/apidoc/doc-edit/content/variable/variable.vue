@@ -469,7 +469,7 @@ onMounted(() => {
 .s-variable {
   overflow-y: auto;
   overflow-x: hidden;
-  height: calc(100vh - 100px);
+  height: calc(100vh - var(--apiflow-doc-nav-height));
   width: 100%;
   padding: 20px 30px;
   display: flex;

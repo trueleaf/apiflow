@@ -14,11 +14,11 @@ type ServerInfo = ApidocProjectHost & {
 class HttpNodeCache extends ResponseCache {
   constructor() {
     super();
-    if (!localStorage.getItem('apidoc/paramsConfig')) {
-      localStorage.setItem('apidoc/paramsConfig', '{}');
+    if (!localStorage.getItem('httpNode/paramsConfig')) {
+      localStorage.setItem('httpNode/paramsConfig', '{}');
     }
-    if (!localStorage.getItem('apidoc/apidoc')) {
-      localStorage.setItem('apidoc/apidoc', '{}');
+    if (!localStorage.getItem('httpNode/apidoc')) {
+      localStorage.setItem('httpNode/apidoc', '{}');
     }
     this.initApiflowResponseCache();
   }
@@ -28,14 +28,14 @@ class HttpNodeCache extends ResponseCache {
    */
   getActiveParamsTab(id: string): string | null {
     try {
-      const localActiveTab: Record<string, string> = JSON.parse(localStorage.getItem('apidoc/paramsActiveTab') || '{}');
+      const localActiveTab: Record<string, string> = JSON.parse(localStorage.getItem('httpNode/paramsActiveTab') || '{}');
       if (!localActiveTab[id]) {
         return null;
       }
       return localActiveTab[id];
     } catch (error) {
       console.error(error);
-      localStorage.setItem('apidoc/paramsActiveTab', '{}')
+      localStorage.setItem('httpNode/paramsActiveTab', '{}')
       return null;
     }
   }
@@ -44,14 +44,14 @@ class HttpNodeCache extends ResponseCache {
    */
   setActiveParamsTab(id: string, val: string) {
     try {
-      const localActiveTab = JSON.parse(localStorage.getItem('apidoc/paramsActiveTab') || '{}');
+      const localActiveTab = JSON.parse(localStorage.getItem('httpNode/paramsActiveTab') || '{}');
       localActiveTab[id] = val;
-      localStorage.setItem('apidoc/paramsActiveTab', JSON.stringify(localActiveTab));
+      localStorage.setItem('httpNode/paramsActiveTab', JSON.stringify(localActiveTab));
     } catch (error) {
       console.error(error);
       const data: Record<string, string> = {};
       data[id] = val;
-      localStorage.setItem('apidoc/paramsActiveTab', JSON.stringify(data));
+      localStorage.setItem('httpNode/paramsActiveTab', JSON.stringify(data));
     }
   }
   /*
@@ -59,14 +59,14 @@ class HttpNodeCache extends ResponseCache {
    */
   setApidoc(val: HttpNode) {
     try {
-      const localApidoc = JSON.parse(localStorage.getItem('apidoc/apidoc') || '{}');
+      const localApidoc = JSON.parse(localStorage.getItem('httpNode/apidoc') || '{}');
       localApidoc[val._id] = val;
-      localStorage.setItem('apidoc/apidoc', JSON.stringify(localApidoc));
+      localStorage.setItem('httpNode/apidoc', JSON.stringify(localApidoc));
     } catch (error) {
       console.error(error);
       const data: Record<string, HttpNode> = {};
       data[val._id] = val;
-      localStorage.setItem('apidoc/apidoc', JSON.stringify(data));
+      localStorage.setItem('httpNode/apidoc', JSON.stringify(data));
     }
   }
 
@@ -75,14 +75,14 @@ class HttpNodeCache extends ResponseCache {
    */
   getApidoc(id: string): HttpNode | null {
     try {
-      const localApidoc: Record<string, HttpNode> = JSON.parse(localStorage.getItem('apidoc/apidoc') || '{}');
+      const localApidoc: Record<string, HttpNode> = JSON.parse(localStorage.getItem('httpNode/apidoc') || '{}');
       if (!localApidoc[id]) {
         return null;
       }
       return localApidoc[id];
     } catch (error) {
       console.error(error);
-      localStorage.setItem('apidoc/apidoc', '{}')
+      localStorage.setItem('httpNode/apidoc', '{}')
       return null;
     }
   }
@@ -92,7 +92,7 @@ class HttpNodeCache extends ResponseCache {
    */
   addApidocServer(serverInfo: ServerInfo, projectId: string) {
     try {
-      const localData = JSON.parse(localStorage.getItem('apidoc/apidocServer') || '{}');
+      const localData = JSON.parse(localStorage.getItem('httpNode/apidocServer') || '{}');
       if (!localData[projectId]) {
         localData[projectId] = [];
       }
@@ -100,12 +100,12 @@ class HttpNodeCache extends ResponseCache {
       //     return
       // }
       localData[projectId].push(serverInfo);
-      localStorage.setItem('apidoc/apidocServer', JSON.stringify(localData));
+      localStorage.setItem('httpNode/apidocServer', JSON.stringify(localData));
     } catch (error) {
       console.error(error);
       const data: Record<string, ServerInfo[]> = {};
       data[projectId] = [serverInfo];
-      localStorage.setItem('apidoc/apidocServer', JSON.stringify(data));
+      localStorage.setItem('httpNode/apidocServer', JSON.stringify(data));
     }
   }
 
@@ -114,7 +114,7 @@ class HttpNodeCache extends ResponseCache {
    */
   deleteApidocServer(host: string, projectId: string) {
     try {
-      const localData = JSON.parse(localStorage.getItem('apidoc/apidocServer') || '{}');
+      const localData = JSON.parse(localStorage.getItem('httpNode/apidocServer') || '{}');
       if (!localData[projectId]) {
         localData[projectId] = [];
       }
@@ -122,12 +122,12 @@ class HttpNodeCache extends ResponseCache {
       if (delIndex !== -1) {
         localData[projectId].splice(delIndex, 1);
       }
-      localStorage.setItem('apidoc/apidocServer', JSON.stringify(localData));
+      localStorage.setItem('httpNode/apidocServer', JSON.stringify(localData));
     } catch (error) {
       console.error(error);
       const data: Record<string, ServerInfo[]> = {};
       data[projectId] = [];
-      localStorage.setItem('apidoc/apidocServer', JSON.stringify(data));
+      localStorage.setItem('httpNode/apidocServer', JSON.stringify(data));
     }
   }
 
@@ -136,14 +136,14 @@ class HttpNodeCache extends ResponseCache {
    */
   getApidocServer(projectId: string): ServerInfo[] | [] {
     try {
-      const localData: Record<string, ServerInfo[]> = JSON.parse(localStorage.getItem('apidoc/apidocServer') || '{}');
+      const localData: Record<string, ServerInfo[]> = JSON.parse(localStorage.getItem('httpNode/apidocServer') || '{}');
       if (!localData[projectId]) {
         return [];
       }
       return localData[projectId];
     } catch (error) {
       console.error(error);
-      localStorage.setItem('apidoc/apidocServer', '{}')
+      localStorage.setItem('httpNode/apidocServer', '{}')
       return [];
     }
   }
@@ -153,14 +153,14 @@ class HttpNodeCache extends ResponseCache {
    */
   getApidocProxyState(projectId: string): boolean | null {
     try {
-      const localData: Record<string, boolean> = JSON.parse(localStorage.getItem('apidoc/apidocCacheState') || '{}');
+      const localData: Record<string, boolean> = JSON.parse(localStorage.getItem('httpNode/apidocCacheState') || '{}');
       if (localData[projectId] == null) {
         return null;
       }
       return localData[projectId] === true;
     } catch (error) {
       console.error(error);
-      localStorage.setItem('apidoc/apidocCacheState', '{}')
+      localStorage.setItem('httpNode/apidocCacheState', '{}')
       return false;
     }
   }
@@ -170,12 +170,12 @@ class HttpNodeCache extends ResponseCache {
    */
   setApidocProxyState(cacheState: boolean, projectId: string) {
     try {
-      const localData = JSON.parse(localStorage.getItem('apidoc/apidocCacheState') || '{}');
+      const localData = JSON.parse(localStorage.getItem('httpNode/apidocCacheState') || '{}');
       localData[projectId] = cacheState;
-      localStorage.setItem('apidoc/apidocCacheState', JSON.stringify(localData));
+      localStorage.setItem('httpNode/apidocCacheState', JSON.stringify(localData));
     } catch (error) {
       console.error(error);
-      localStorage.setItem('apidoc/apidocCacheState', '{}');
+      localStorage.setItem('httpNode/apidocCacheState', '{}');
     }
   }
 
@@ -184,12 +184,12 @@ class HttpNodeCache extends ResponseCache {
    */
   setPreviousServer(projectId: string, server: string) {
     try {
-      const localData = JSON.parse(localStorage.getItem('apidoc/previousServer') || '{}');
+      const localData = JSON.parse(localStorage.getItem('httpNode/previousServer') || '{}');
       localData[projectId] = server;
-      localStorage.setItem('apidoc/previousServer', JSON.stringify(localData));
+      localStorage.setItem('httpNode/previousServer', JSON.stringify(localData));
     } catch (error) {
       console.error(error);
-      localStorage.setItem('apidoc/previousServer', '{}');
+      localStorage.setItem('httpNode/previousServer', '{}');
     }
   }
 
@@ -198,14 +198,14 @@ class HttpNodeCache extends ResponseCache {
    */
   getPreviousServer(projectId: string): string | null {
     try {
-      const localData: Record<string, string> = JSON.parse(localStorage.getItem('apidoc/previousServer') || '{}');
+      const localData: Record<string, string> = JSON.parse(localStorage.getItem('httpNode/previousServer') || '{}');
       if (localData[projectId] == null) {
         return null;
       }
       return localData[projectId];
     } catch (error) {
       console.error(error);
-      localStorage.setItem('apidoc/previousServer', '{}')
+      localStorage.setItem('httpNode/previousServer', '{}')
       return null;
     }
   }
@@ -215,7 +215,7 @@ class HttpNodeCache extends ResponseCache {
    */
   getAllResponseCollapseState(): Record<string, boolean> {
     try {
-      const localData: Record<string, boolean> = JSON.parse(localStorage.getItem('apidoc/responseCollapse') || '{}');
+      const localData: Record<string, boolean> = JSON.parse(localStorage.getItem('httpNode/responseCollapse') || '{}');
       return localData;
     } catch (error) {
       console.error(error);
@@ -228,12 +228,12 @@ class HttpNodeCache extends ResponseCache {
    */
   setResponseCollapseState(id: string, isShow: boolean) {
     try {
-      const localData = JSON.parse(localStorage.getItem('apidoc/responseCollapse') || '{}');
+      const localData = JSON.parse(localStorage.getItem('httpNode/responseCollapse') || '{}');
       localData[id] = isShow;
-      localStorage.setItem('apidoc/responseCollapse', JSON.stringify(localData));
+      localStorage.setItem('httpNode/responseCollapse', JSON.stringify(localData));
     } catch (error) {
       console.error(error);
-      localStorage.setItem('apidoc/responseCollapse', '{}');
+      localStorage.setItem('httpNode/responseCollapse', '{}');
     }
   }
 
@@ -242,7 +242,7 @@ class HttpNodeCache extends ResponseCache {
    */
   getHookCodeById(projectId: string): string | null {
     try {
-      const localData: Record<string, string> = JSON.parse(localStorage.getItem('apidoc/hookCode') || '{}');
+      const localData: Record<string, string> = JSON.parse(localStorage.getItem('httpNode/hookCode') || '{}');
       if (localData[projectId] == null) {
         return null;
       }
@@ -258,12 +258,12 @@ class HttpNodeCache extends ResponseCache {
    */
   setHookCode(projectId: string, code: string) {
     try {
-      const localData = JSON.parse(localStorage.getItem('apidoc/hookCode') || '{}');
+      const localData = JSON.parse(localStorage.getItem('httpNode/hookCode') || '{}');
       localData[projectId] = code;
-      localStorage.setItem('apidoc/hookCode', JSON.stringify(localData));
+      localStorage.setItem('httpNode/hookCode', JSON.stringify(localData));
     } catch (error) {
       console.error(error);
-      localStorage.setItem('apidoc/hookCode', '{}');
+      localStorage.setItem('httpNode/hookCode', '{}');
     }
   }
 
@@ -272,10 +272,10 @@ class HttpNodeCache extends ResponseCache {
    */
   hideJsonBodyTip() {
     try {
-      localStorage.setItem('apidoc/hideJsonBodyTip', JSON.stringify(true));
+      localStorage.setItem('httpNode/hideJsonBodyTip', JSON.stringify(true));
     } catch (error) {
       console.error(error);
-      localStorage.setItem('apidoc/hideJsonBodyTip', 'false');
+      localStorage.setItem('httpNode/hideJsonBodyTip', 'false');
     }
   }
 
@@ -284,7 +284,7 @@ class HttpNodeCache extends ResponseCache {
    */
   getCouldShowJsonBodyTip(): boolean {
     try {
-      const isHidden = JSON.parse(localStorage.getItem('apidoc/hideJsonBodyTip') || 'false');
+      const isHidden = JSON.parse(localStorage.getItem('httpNode/hideJsonBodyTip') || 'false');
       return !isHidden;
     } catch (error) {
       console.error(error);
@@ -297,7 +297,7 @@ class HttpNodeCache extends ResponseCache {
    */
   getApidocWorkerLocalStateById(projectId: string): null | Record<string, unknown> {
     try {
-      const localData: Record<string, Record<string, unknown>> = JSON.parse(localStorage.getItem('apidoc/worker/localState') || '{}');
+      const localData: Record<string, Record<string, unknown>> = JSON.parse(localStorage.getItem('httpNode/worker/localState') || '{}');
       if (localData[projectId] == null) {
         return null;
       }
@@ -313,12 +313,12 @@ class HttpNodeCache extends ResponseCache {
    */
   setApidocWorkerLocalState(projectId: string, state: Record<string, unknown>) {
     try {
-      const localData = JSON.parse(localStorage.getItem('apidoc/worker/localState') || '{}');
+      const localData = JSON.parse(localStorage.getItem('httpNode/worker/localState') || '{}');
       localData[projectId] = state;
-      localStorage.setItem('apidoc/worker/localState', JSON.stringify(localData));
+      localStorage.setItem('httpNode/worker/localState', JSON.stringify(localData));
     } catch (error) {
       console.error(error);
-      localStorage.setItem('apidoc/worker/localState', '{}');
+      localStorage.setItem('httpNode/worker/localState', '{}');
     }
   }
 
@@ -327,7 +327,7 @@ class HttpNodeCache extends ResponseCache {
    */
   getIsShowApidocMockParamsJsonTip(): boolean {
     try {
-      const localData = JSON.parse(localStorage.getItem('apidoc/mock/isShowJsonTip') || 'true');
+      const localData = JSON.parse(localStorage.getItem('httpNode/mock/isShowJsonTip') || 'true');
       return localData;
     } catch (error) {
       console.error(error);
@@ -340,10 +340,10 @@ class HttpNodeCache extends ResponseCache {
    */
   setIsShowApidocMockParamsJsonTip(isShow: boolean) {
     try {
-      localStorage.setItem('apidoc/mock/isShowJsonTip', JSON.stringify(isShow));
+      localStorage.setItem('httpNode/mock/isShowJsonTip', JSON.stringify(isShow));
     } catch (error) {
       console.error(error);
-      localStorage.setItem('apidoc/mock/isShowJsonTip', 'true');
+      localStorage.setItem('httpNode/mock/isShowJsonTip', 'true');
     }
   }
 
@@ -352,7 +352,7 @@ class HttpNodeCache extends ResponseCache {
    */
   getIgnoredCommonHeaderByTabId(projectId: string, tabId: string): string[] | null {
     try {
-      const localData = JSON.parse(localStorage.getItem('apidoc/commonHeaders/ignore') || '{}') as Record<string, Record<string, string[]>>;
+      const localData = JSON.parse(localStorage.getItem('httpNode/commonHeaders/ignore') || '{}') as Record<string, Record<string, string[]>>;
       if (localData[projectId] == null) {
         return [];
       }
@@ -372,7 +372,7 @@ class HttpNodeCache extends ResponseCache {
   setIgnoredCommonHeader(options: { projectId: string; tabId: string; ignoreHeaderId: string }) {
     try {
       const { projectId, tabId, ignoreHeaderId } = options;
-      const localData = JSON.parse(localStorage.getItem('apidoc/commonHeaders/ignore') || '{}') as Record<string, Record<string, string[]>>;
+      const localData = JSON.parse(localStorage.getItem('httpNode/commonHeaders/ignore') || '{}') as Record<string, Record<string, string[]>>;
       if (localData[projectId] == null) {
         localData[projectId] = {}
       }
@@ -381,10 +381,10 @@ class HttpNodeCache extends ResponseCache {
       }
       const matchedTab = localData[projectId][tabId];
       matchedTab.push(ignoreHeaderId);
-      localStorage.setItem('apidoc/commonHeaders/ignore', JSON.stringify(localData));
+      localStorage.setItem('httpNode/commonHeaders/ignore', JSON.stringify(localData));
     } catch (error) {
       console.error(error);
-      localStorage.setItem('apidoc/commonHeaders/ignore', '{}');
+      localStorage.setItem('httpNode/commonHeaders/ignore', '{}');
     }
   }
   /*
@@ -393,7 +393,7 @@ class HttpNodeCache extends ResponseCache {
   removeIgnoredCommonHeader(options: { projectId: string; tabId: string; ignoreHeaderId: string }) {
     try {
       const { projectId, tabId, ignoreHeaderId } = options;
-      const localData = JSON.parse(localStorage.getItem('apidoc/commonHeaders/ignore') || '{}') as Record<string, Record<string, string[]>>;
+      const localData = JSON.parse(localStorage.getItem('httpNode/commonHeaders/ignore') || '{}') as Record<string, Record<string, string[]>>;
       if (localData[projectId] == null) {
         return false;
       }
@@ -403,10 +403,10 @@ class HttpNodeCache extends ResponseCache {
       const matchedTab = localData[projectId][tabId];
       const deleteIndex = matchedTab.findIndex(id => ignoreHeaderId === id);
       matchedTab.splice(deleteIndex, 1)
-      localStorage.setItem('apidoc/commonHeaders/ignore', JSON.stringify(localData));
+      localStorage.setItem('httpNode/commonHeaders/ignore', JSON.stringify(localData));
     } catch (error) {
       console.error(error);
-      localStorage.setItem('apidoc/commonHeaders/ignore', '{}');
+      localStorage.setItem('httpNode/commonHeaders/ignore', '{}');
     }
   }
   /*
@@ -414,7 +414,7 @@ class HttpNodeCache extends ResponseCache {
    */
   getActiveApidocTab(): string {
     try {
-      const localData = localStorage.getItem('apidoc/activeApidocTab') || 'projectList';
+      const localData = localStorage.getItem('httpNode/activeApidocTab') || 'projectList';
       return localData;
     } catch (error) {
       console.error(error);
@@ -424,10 +424,10 @@ class HttpNodeCache extends ResponseCache {
 
   setActiveApidocTab(activeTab: string) {
     try {
-      localStorage.setItem('apidoc/activeApidocTab', activeTab);
+      localStorage.setItem('httpNode/activeApidocTab', activeTab);
     } catch (error) {
       console.error(error);
-      localStorage.setItem('apidoc/activeApidocTab', 'projectList');
+      localStorage.setItem('httpNode/activeApidocTab', 'projectList');
      }
   }
 
@@ -436,14 +436,14 @@ class HttpNodeCache extends ResponseCache {
    */
   setApidocCookies(projectId: string, cookies: ApidocCookie[]) {
     try {
-      const localData = JSON.parse(localStorage.getItem('apidoc/cookies') || '{}');
+      const localData = JSON.parse(localStorage.getItem('httpNode/cookies') || '{}');
       localData[projectId] = cookies;
-      localStorage.setItem('apidoc/cookies', JSON.stringify(localData));
+      localStorage.setItem('httpNode/cookies', JSON.stringify(localData));
     } catch (error) {
       console.error(error);
       const data: Record<string, ApidocCookie[]> = {};
       data[projectId] = cookies;
-      localStorage.setItem('apidoc/cookies', JSON.stringify(data));
+      localStorage.setItem('httpNode/cookies', JSON.stringify(data));
     }
   }
 
@@ -452,14 +452,14 @@ class HttpNodeCache extends ResponseCache {
    */
   getApidocCookies(projectId: string): ApidocCookie[] {
     try {
-      const localData: Record<string, ApidocCookie[]> = JSON.parse(localStorage.getItem('apidoc/cookies') || '{}');
+      const localData: Record<string, ApidocCookie[]> = JSON.parse(localStorage.getItem('httpNode/cookies') || '{}');
       if (!localData[projectId]) {
         return [];
       }
       return localData[projectId];
     } catch (error) {
       console.error(error);
-      localStorage.setItem('apidoc/cookies', '{}');
+      localStorage.setItem('httpNode/cookies', '{}');
       return [];
     }
   }
@@ -469,14 +469,14 @@ class HttpNodeCache extends ResponseCache {
    */
   getPreRequestSessionStorage(projectId: string): Record<string, unknown> | null {
     try {
-      const localData: Record<string, Record<string, unknown>> = JSON.parse(sessionStorage.getItem('apidoc/preRequest/sessionStorage') || '{}');
+      const localData: Record<string, Record<string, unknown>> = JSON.parse(sessionStorage.getItem('httpNode/preRequest/sessionStorage') || '{}');
       if (!localData[projectId]) {
         return null;
       }
       return localData[projectId];
     } catch (error) {
       console.error(error);
-      sessionStorage.setItem('apidoc/preRequest/sessionStorage', '{}');
+      sessionStorage.setItem('httpNode/preRequest/sessionStorage', '{}');
       return null;
     }
   }
@@ -485,14 +485,14 @@ class HttpNodeCache extends ResponseCache {
    */
   setPreRequestSessionStorage(projectId: string, data: Record<string, unknown>) {
     try {
-      const localData = JSON.parse(sessionStorage.getItem('apidoc/preRequest/sessionStorage') || '{}');
+      const localData = JSON.parse(sessionStorage.getItem('httpNode/preRequest/sessionStorage') || '{}');
       localData[projectId] = data;
-      sessionStorage.setItem('apidoc/preRequest/sessionStorage', JSON.stringify(localData));
+      sessionStorage.setItem('httpNode/preRequest/sessionStorage', JSON.stringify(localData));
     } catch (error) {
       console.error(error);
       const newData: Record<string, Record<string, unknown>> = {};
       newData[projectId] = data;
-      sessionStorage.setItem('apidoc/preRequest/sessionStorage', JSON.stringify(newData));
+      sessionStorage.setItem('httpNode/preRequest/sessionStorage', JSON.stringify(newData));
     }
   }
 
@@ -501,14 +501,14 @@ class HttpNodeCache extends ResponseCache {
    */
   getPreRequestLocalStorage(projectId: string): Record<string, any> | null {
     try {
-      const localData: Record<string, Record<string, any>> = JSON.parse(localStorage.getItem('apidoc/preRequest/localStorage') || '{}');
+      const localData: Record<string, Record<string, any>> = JSON.parse(localStorage.getItem('httpNode/preRequest/localStorage') || '{}');
       if (!localData[projectId]) {
         return null;
       }
       return localData[projectId];
     } catch (error) {
       console.error(error);
-      localStorage.setItem('apidoc/preRequest/localStorage', '{}');
+      localStorage.setItem('httpNode/preRequest/localStorage', '{}');
       return null;
     }
   }
@@ -518,14 +518,14 @@ class HttpNodeCache extends ResponseCache {
    */
   setPreRequestLocalStorage(projectId: string, data: Record<string, any>) {
     try {
-      const localData = JSON.parse(localStorage.getItem('apidoc/preRequest/localStorage') || '{}');
+      const localData = JSON.parse(localStorage.getItem('httpNode/preRequest/localStorage') || '{}');
       localData[projectId] = data;
-      localStorage.setItem('apidoc/preRequest/localStorage', JSON.stringify(localData));
+      localStorage.setItem('httpNode/preRequest/localStorage', JSON.stringify(localData));
     } catch (error) {
       console.error(error);
       const newData: Record<string, Record<string, any>> = {};
       newData[projectId] = data;
-      localStorage.setItem('apidoc/preRequest/localStorage', JSON.stringify(newData));
+      localStorage.setItem('httpNode/preRequest/localStorage', JSON.stringify(newData));
     }
   }
   /*
@@ -533,14 +533,14 @@ class HttpNodeCache extends ResponseCache {
    */
   setSharePassword(shareId: string, password: string) {
     try {
-      const localData = JSON.parse(localStorage.getItem('apidoc/share/password') || '{}');
+      const localData = JSON.parse(localStorage.getItem('httpNode/share/password') || '{}');
       localData[shareId] = password;
-      localStorage.setItem('apidoc/share/password', JSON.stringify(localData));
+      localStorage.setItem('httpNode/share/password', JSON.stringify(localData));
     } catch (error) {
       console.error(error);
       const data: Record<string, string> = {};
       data[shareId] = password;
-      localStorage.setItem('apidoc/share/password', JSON.stringify(data));
+      localStorage.setItem('httpNode/share/password', JSON.stringify(data));
     }
   }
 
@@ -549,14 +549,14 @@ class HttpNodeCache extends ResponseCache {
    */
   getSharePassword(shareId: string): string | null {
     try {
-      const localData: Record<string, string> = JSON.parse(localStorage.getItem('apidoc/share/password') || '{}');
+      const localData: Record<string, string> = JSON.parse(localStorage.getItem('httpNode/share/password') || '{}');
       if (!localData[shareId]) {
         return null;
       }
       return localData[shareId];
     } catch (error) {
       console.error(error);
-      localStorage.setItem('apidoc/share/password', '{}');
+      localStorage.setItem('httpNode/share/password', '{}');
       return null;
     }
   }
@@ -566,12 +566,12 @@ class HttpNodeCache extends ResponseCache {
    */
   clearSharePassword(shareId: string) {
     try {
-      const localData = JSON.parse(localStorage.getItem('apidoc/share/password') || '{}');
+      const localData = JSON.parse(localStorage.getItem('httpNode/share/password') || '{}');
       delete localData[shareId];
-      localStorage.setItem('apidoc/share/password', JSON.stringify(localData));
+      localStorage.setItem('httpNode/share/password', JSON.stringify(localData));
     } catch (error) {
       console.error(error);
-      localStorage.setItem('apidoc/share/password', '{}');
+      localStorage.setItem('httpNode/share/password', '{}');
     }
   }
 
@@ -580,14 +580,14 @@ class HttpNodeCache extends ResponseCache {
    */
   setShareCollapseState(tabId: string, blockStates: Record<string, boolean>) {
     try {
-      const localData = JSON.parse(localStorage.getItem('apidoc/share/collapse') || '{}');
+      const localData = JSON.parse(localStorage.getItem('httpNode/share/collapse') || '{}');
       localData[tabId] = blockStates;
-      localStorage.setItem('apidoc/share/collapse', JSON.stringify(localData));
+      localStorage.setItem('httpNode/share/collapse', JSON.stringify(localData));
     } catch (error) {
       console.error(error);
       const data: Record<string, Record<string, boolean>> = {};
       data[tabId] = blockStates;
-      localStorage.setItem('apidoc/share/collapse', JSON.stringify(data));
+      localStorage.setItem('httpNode/share/collapse', JSON.stringify(data));
     }
   }
 
@@ -596,14 +596,14 @@ class HttpNodeCache extends ResponseCache {
    */
   getShareCollapseState(tabId: string): Record<string, boolean> | null {
     try {
-      const localData: Record<string, Record<string, boolean>> = JSON.parse(localStorage.getItem('apidoc/share/collapse') || '{}');
+      const localData: Record<string, Record<string, boolean>> = JSON.parse(localStorage.getItem('httpNode/share/collapse') || '{}');
       if (!localData[tabId]) {
         return null;
       }
       return localData[tabId];
     } catch (error) {
       console.error(error);
-      localStorage.setItem('apidoc/share/collapse', '{}');
+      localStorage.setItem('httpNode/share/collapse', '{}');
       return null;
     }
   }
@@ -613,17 +613,17 @@ class HttpNodeCache extends ResponseCache {
    */
   updateShareBlockCollapseState(tabId: string, blockName: string, isExpanded: boolean) {
     try {
-      const localData = JSON.parse(localStorage.getItem('apidoc/share/collapse') || '{}');
+      const localData = JSON.parse(localStorage.getItem('httpNode/share/collapse') || '{}');
       if (!localData[tabId]) {
         localData[tabId] = {};
       }
       localData[tabId][blockName] = isExpanded;
-      localStorage.setItem('apidoc/share/collapse', JSON.stringify(localData));
+      localStorage.setItem('httpNode/share/collapse', JSON.stringify(localData));
     } catch (error) {
       console.error(error);
       const data: Record<string, Record<string, boolean>> = {};
       data[tabId] = { [blockName]: isExpanded };
-      localStorage.setItem('apidoc/share/collapse', JSON.stringify(data));
+      localStorage.setItem('httpNode/share/collapse', JSON.stringify(data));
     }
   }
 
@@ -632,11 +632,11 @@ class HttpNodeCache extends ResponseCache {
    */
   getEditTabs(): Record<string, any[]> {
     try {
-      const localData = JSON.parse(localStorage.getItem('apidoc/tabs') || '{}');
+      const localData = JSON.parse(localStorage.getItem('httpNode/tabs') || '{}');
       return localData;
     } catch (error) {
       console.error(error);
-      localStorage.setItem('apidoc/tabs', '{}');
+      localStorage.setItem('httpNode/tabs', '{}');
       return {};
     }
   }
@@ -646,10 +646,10 @@ class HttpNodeCache extends ResponseCache {
    */
   setEditTabs(tabs: Record<string, any[]>) {
     try {
-      localStorage.setItem('apidoc/tabs', JSON.stringify(tabs));
+      localStorage.setItem('httpNode/tabs', JSON.stringify(tabs));
     } catch (error) {
       console.error(error);
-      localStorage.setItem('apidoc/tabs', '{}');
+      localStorage.setItem('httpNode/tabs', '{}');
     }
   }
 
@@ -658,38 +658,38 @@ class HttpNodeCache extends ResponseCache {
    */
   setHeaderTabs(tabs: { id: string; title: string; type: 'project' | 'settings' }[]) {
     try {
-      localStorage.setItem('apidoc/header/tabs', JSON.stringify(tabs));
+      localStorage.setItem('httpNode/header/tabs', JSON.stringify(tabs));
     } catch (error) {
       console.error(error);
-      localStorage.setItem('apidoc/header/tabs', '[]');
+      localStorage.setItem('httpNode/header/tabs', '[]');
     }
   }
 
   getHeaderTabs(): { id: string; title: string; type: 'project' | 'settings' }[] {
     try {
-      return JSON.parse(localStorage.getItem('apidoc/header/tabs') || '[]');
+      return JSON.parse(localStorage.getItem('httpNode/header/tabs') || '[]');
     } catch (error) {
       console.error(error);
-      localStorage.setItem('apidoc/header/tabs', '[]');
+      localStorage.setItem('httpNode/header/tabs', '[]');
       return [];
     }
   }
 
   setHeaderActiveTab(tabId: string) {
     try {
-      localStorage.setItem('apidoc/header/activeTab', tabId);
+      localStorage.setItem('httpNode/header/activeTab', tabId);
     } catch (error) {
       console.error(error);
-      localStorage.setItem('apidoc/header/activeTab', '');
+      localStorage.setItem('httpNode/header/activeTab', '');
     }
   }
 
   getHeaderActiveTab(): string {
     try {
-      return localStorage.getItem('apidoc/header/activeTab') || '';
+      return localStorage.getItem('httpNode/header/activeTab') || '';
     } catch (error) {
       console.error(error);
-      localStorage.setItem('apidoc/header/activeTab', '');
+      localStorage.setItem('httpNode/header/activeTab', '');
       return '';
     }
   }
@@ -705,7 +705,7 @@ class HttpNodeCache extends ResponseCache {
    */
   getActiveLocalDataMenu(): string {
     try {
-      const activeMenu = localStorage.getItem('apidoc/localData/activeMenu') || 'localStorage';
+      const activeMenu = localStorage.getItem('httpNode/localData/activeMenu') || 'localStorage';
       return activeMenu;
     } catch (error) {
       console.error(error);
@@ -718,10 +718,10 @@ class HttpNodeCache extends ResponseCache {
    */
   setActiveLocalDataMenu(activeMenu: string) {
     try {
-      localStorage.setItem('apidoc/localData/activeMenu', activeMenu);
+      localStorage.setItem('httpNode/localData/activeMenu', activeMenu);
     } catch (error) {
       console.error(error);
-      localStorage.setItem('apidoc/localData/activeMenu', 'localStorage');
+      localStorage.setItem('httpNode/localData/activeMenu', 'localStorage');
     }
   }
 
@@ -741,7 +741,7 @@ class HttpNodeCache extends ResponseCache {
         indexedDBDetails: cacheInfo.indexedDBDetails,
         timestamp: Date.now()
       };
-      localStorage.setItem('apidoc/cache/info', JSON.stringify(cacheData));
+      localStorage.setItem('httpNode/cache/info', JSON.stringify(cacheData));
     } catch (error) {
       console.error('设置缓存信息失败:', error);
     }
@@ -752,7 +752,7 @@ class HttpNodeCache extends ResponseCache {
    */
   getCacheInfo(): { indexedDBSize: number; indexedDBDetails: unknown[] } | null {
     try {
-      const cacheData = localStorage.getItem('apidoc/cache/info');
+      const cacheData = localStorage.getItem('httpNode/cache/info');
       if (!cacheData) {
         return null;
       }
@@ -772,7 +772,7 @@ class HttpNodeCache extends ResponseCache {
    */
   clearCacheInfo() {
     try {
-      localStorage.removeItem('apidoc/cache/info');
+      localStorage.removeItem('httpNode/cache/info');
     } catch (error) {
       console.error('清除缓存信息失败:', error);
     }
@@ -783,10 +783,10 @@ class HttpNodeCache extends ResponseCache {
    */
   setSelectedCacheType(cacheType: 'localStorage' | 'indexedDB' | 'backup' | 'restore') {
     try {
-      localStorage.setItem('apidoc/cache/selectedType', cacheType);
+      localStorage.setItem('httpNode/cache/selectedType', cacheType);
     } catch (error) {
       console.error('设置选中缓存类型失败:', error);
-      localStorage.setItem('apidoc/cache/selectedType', 'localStorage');
+      localStorage.setItem('httpNode/cache/selectedType', 'localStorage');
     }
   }
 
@@ -795,11 +795,103 @@ class HttpNodeCache extends ResponseCache {
    */
   getSelectedCacheType(): 'localStorage' | 'indexedDB' | 'backup' | 'restore' {
     try {
-      const cacheType = localStorage.getItem('apidoc/cache/selectedType') as 'localStorage' | 'indexedDB' | 'backup' | 'restore';
+      const cacheType = localStorage.getItem('httpNode/cache/selectedType') as 'localStorage' | 'indexedDB' | 'backup' | 'restore';
       return cacheType || 'localStorage';
     } catch (error) {
       console.error('获取选中缓存类型失败:', error);
       return 'localStorage';
+    }
+  }
+
+  /*
+  |--------------------------------------------------------------------------
+  | 工具栏相关方法
+  |--------------------------------------------------------------------------
+  */
+
+  /**
+   * 获取固定的工具栏操作
+   */
+  getPinToolbarOperations(): any[] {
+    try {
+      const localPinToolbarOperations = localStorage.getItem('httpNode/pinToolbarOperations');
+      if (localPinToolbarOperations) {
+        return JSON.parse(localPinToolbarOperations);
+      }
+      return [];
+    } catch (error) {
+      console.error('获取固定工具栏操作失败:', error);
+      localStorage.setItem('httpNode/pinToolbarOperations', '[]');
+      return [];
+    }
+  }
+
+  /**
+   * 设置固定的工具栏操作
+   */
+  setPinToolbarOperations(operations: any[]) {
+    try {
+      localStorage.setItem('httpNode/pinToolbarOperations', JSON.stringify(operations));
+    } catch (error) {
+      console.error('设置固定工具栏操作失败:', error);
+    }
+  }
+
+  /*
+  |--------------------------------------------------------------------------
+  | 全局设置相关方法
+  |--------------------------------------------------------------------------
+  */
+
+  /**
+   * 获取全局cookies
+   */
+  getGlobalCookies(): Record<string, ApidocCookie[]> {
+    try {
+      const localCookies = localStorage.getItem('httpNode/globalCookies') || '{}';
+      return JSON.parse(localCookies);
+    } catch (error) {
+      console.error('获取全局cookies失败:', error);
+      localStorage.setItem('httpNode/globalCookies', '{}');
+      return {};
+    }
+  }
+
+  /**
+   * 设置全局cookies
+   */
+  setGlobalCookies(cookies: Record<string, ApidocCookie[]>) {
+    try {
+      localStorage.setItem('httpNode/globalCookies', JSON.stringify(cookies));
+    } catch (error) {
+      console.error('设置全局cookies失败:', error);
+    }
+  }
+
+  /**
+   * 获取布局方式
+   */
+  getLayout(): 'horizontal' | 'vertical' {
+    try {
+      const localLayout = localStorage.getItem('httpNode/layout');
+      if (localLayout !== 'horizontal' && localLayout !== 'vertical') {
+        return 'horizontal';
+      }
+      return localLayout as 'horizontal' | 'vertical';
+    } catch (error) {
+      console.error('获取布局方式失败:', error);
+      return 'horizontal';
+    }
+  }
+
+  /**
+   * 设置布局方式
+   */
+  setLayout(layout: 'horizontal' | 'vertical') {
+    try {
+      localStorage.setItem('httpNode/layout', layout);
+    } catch (error) {
+      console.error('设置布局方式失败:', error);
     }
   }
 
