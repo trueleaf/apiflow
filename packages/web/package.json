@@ -27,6 +27,7 @@
     "@tiptap/extension-history": "^3.3.0",
     "@tiptap/starter-kit": "^3.3.0",
     "@tiptap/vue-3": "^3.3.0",
+    "@types/ws": "^8.18.1",
     "@types/yauzl": "^2.10.3",
     "archiver": "^7.0.1",
     "axios": "^1.7.3",
@@ -66,6 +67,7 @@
     "vue-router": "^4.4.2",
     "vuedraggable": "^4.1.0",
     "vuex": "^4.1.0",
+    "ws": "^8.18.3",
     "yauzl": "^3.2.0"
   },
   "devDependencies": {
