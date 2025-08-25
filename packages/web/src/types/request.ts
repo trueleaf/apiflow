@@ -180,7 +180,7 @@ export type ResponseInfo = {
     url: string;
     method: string;
     headers: OutgoingHttpHeaders;
-    prefix: string;
+    host: string;
     body: string | FormData;
   },
   responseData: {

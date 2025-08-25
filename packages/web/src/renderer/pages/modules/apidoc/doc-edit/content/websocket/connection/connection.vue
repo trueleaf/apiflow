@@ -20,6 +20,7 @@
             </div>
           </template>
         </el-input>
+        <!-- <RichInput></RichInput> -->
         <el-button 
           v-if="connectionState === 'disconnected' || connectionState === 'error'" 
           type="success" 
@@ -110,6 +111,7 @@ import { useRoute } from 'vue-router'
 import { useApidocTas } from '@/store/apidoc/tabs'
 import { ApidocProperty } from '@src/types'
 import { webSocketNodeCache } from '@/cache/websocketNode'
+// import RichInput from '@/components/apidoc/rich-input/rich-input.vue'
 
 const { t } = useTranslation()
 const websocketStore = useWebSocket();
