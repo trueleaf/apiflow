@@ -5,6 +5,7 @@ import { getWindowState } from './utils/index.ts';
 import { useIpcEvent } from './ipcMessage/index.ts';
 import { bindMainProcessGlobalShortCut } from './shortcut/index.ts';
 import { overrideBrowserWindow } from './override/index.ts';
+import { webSocketManager } from './websocket/websocket.ts';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
@@ -104,6 +105,8 @@ app.whenReady().then(() => {
 });
 
 app.on('window-all-closed', () => {
+  // 清理WebSocket连接
+  webSocketManager.cleanup();
   if (process.platform !== 'darwin') app.quit()
 })
 
