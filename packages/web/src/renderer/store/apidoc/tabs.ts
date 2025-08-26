@@ -45,6 +45,12 @@ export const useApidocTas = defineStore('apidocTabs', () => {
     if (_id.startsWith('local_') && !hasTab) { //直接末尾添加
       tabs.value[projectId].push(tabInfo)
     } else if (!fixed && unFixedTab && !hasTab) { //如果tabs里面存在未固定的tab并且是新增一个tab则覆盖未固定
+      // 检查被覆盖的标签页是否为WebSocket类型，如果是则断开连接
+      if (unFixedTab.tabType === 'websocket') {
+        window.electronAPI?.websocket.disconnectByNode(unFixedTab._id).catch((error) => {
+          console.error(`覆盖WebSocket标签页时断开连接失败 [${unFixedTab._id}]:`, error);
+        });
+      }
       tabs.value[projectId].splice(unFixedTabIndex, 1, tabInfo)
     } else if (!unFixedTab && !hasTab) { //不存在未固定的并且不存在tab则新增一个tab
       tabs.value[projectId].splice(selectedTabIndex + 1, 0, tabInfo); //添加到已选中的后面
@@ -74,7 +80,17 @@ export const useApidocTas = defineStore('apidocTabs', () => {
   }
   //根据id删除tab
   const deleteTabByIndex = (payload: { deleteIndex: number, projectId: string }): void => {
-    tabs.value[payload.projectId].splice(payload.deleteIndex, 1);
+    const { deleteIndex, projectId } = payload;
+    const deletedTab = tabs.value[projectId][deleteIndex];
+    
+    // 删除标签页时断开对应的WebSocket连接（检查标签页类型）
+    if (deletedTab && deletedTab.tabType === 'websocket') {
+      window.electronAPI?.websocket.disconnectByNode(deletedTab._id).catch((error) => {
+        console.error(`删除WebSocket标签页时断开连接失败 [${deletedTab._id}]:`, error);
+      });
+    }
+    
+    tabs.value[projectId].splice(deleteIndex, 1);
     event.emit('apidoc/tabs/addOrDeleteTab')
   }
   //根据id选中tab
@@ -111,11 +127,24 @@ export const useApidocTas = defineStore('apidocTabs', () => {
   }
   //强制关闭所有节点
   const forceDeleteAllTab = (projectId: string): void  => {
-    const deleteIds = tabs.value[projectId].map(v => v._id);
+    // 获取所有要删除的标签页
+    const tabsToDelete = tabs.value[projectId] || [];
+    
+    // 检查是否有WebSocket类型的标签页，如果有则清空所有WebSocket连接
+    const hasWebSocketTabs = tabsToDelete.some(tab => tab.tabType === 'websocket');
+    if (hasWebSocketTabs) {
+      window.electronAPI?.websocket.clearAllConnections().catch((error) => {
+        console.error('强制关闭所有标签页时清空WebSocket连接失败:', error);
+      });
+    }
+    
+    const deleteIds = tabsToDelete.map(v => v._id);
     deleteIds.forEach((id) => {
       const deleteIndex = tabs.value[projectId].findIndex((tab) => tab._id === id);
-      tabs.value[projectId].splice(deleteIndex, 1);
-      event.emit('apidoc/tabs/addOrDeleteTab')
+      if (deleteIndex !== -1) {
+        tabs.value[projectId].splice(deleteIndex, 1);
+        event.emit('apidoc/tabs/addOrDeleteTab')
+      }
     })
     httpNodeCache.setEditTabs(tabs.value);
   }
