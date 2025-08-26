@@ -61,6 +61,15 @@ app
   })
   .use(router);
 app.mount("#app");
+
+// 页面卸载时清空所有WebSocket连接
+window.addEventListener('beforeunload', () => {
+  // 清空所有WebSocket连接
+  window.electronAPI?.websocket.clearAllConnections().catch((error) => {
+    console.error('页面卸载时清理WebSocket连接失败:', error);
+  });
+});
+
 /*
 |--------------------------------------------------------------------------
 | 备忘录

@@ -64,8 +64,8 @@ const removeListener = (channel: string, callback?: (...args: any[]) => void) =>
 }
 
 // WebSocket相关方法
-const websocketConnect = (url: string) => {
-  return ipcRenderer.invoke('websocket-connect', url)
+const websocketConnect = (url: string, nodeId: string) => {
+  return ipcRenderer.invoke('websocket-connect', url, nodeId)
 }
 
 const websocketDisconnect = (connectionId: string) => {
@@ -82,6 +82,22 @@ const websocketGetState = (connectionId: string) => {
 
 const websocketGetAllConnections = () => {
   return ipcRenderer.invoke('websocket-get-all-connections')
+}
+
+const websocketGetConnectionIds = () => {
+  return ipcRenderer.invoke('websocket-get-connection-ids')
+}
+
+const websocketCheckNodeConnection = (nodeId: string) => {
+  return ipcRenderer.invoke('websocket-check-node-connection', nodeId)
+}
+
+const websocketClearAllConnections = () => {
+  return ipcRenderer.invoke('websocket-clear-all-connections')
+}
+
+const websocketDisconnectByNode = (nodeId: string) => {
+  return ipcRenderer.invoke('websocket-disconnect-by-node', nodeId)
 }
 
 contextBridge.exposeInMainWorld('electronAPI', {
@@ -102,12 +118,15 @@ contextBridge.exposeInMainWorld('electronAPI', {
   sendToMain,
   onMain,
   removeListener,
-  // WebSocket相关API
   websocket: {
     connect: websocketConnect,
     disconnect: websocketDisconnect,
     send: websocketSend,
     getState: websocketGetState,
     getAllConnections: websocketGetAllConnections,
+    getConnectionIds: websocketGetConnectionIds,
+    checkNodeConnection: websocketCheckNodeConnection,
+    clearAllConnections: websocketClearAllConnections,
+    disconnectByNode: websocketDisconnectByNode,
   }
 })

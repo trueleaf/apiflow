@@ -6,6 +6,8 @@ import { ipcMain, IpcMainInvokeEvent } from 'electron';
  */
 export class WebSocketManager {
   private connections: Map<string, WebSocket> = new Map();
+  private connectionIds: Set<string> = new Set();
+  private nodeIdToConnectionId: Map<string, string> = new Map(); // 节点ID到连接ID的映射
   private connectionId = 0;
 
   constructor() {
@@ -17,8 +19,8 @@ export class WebSocketManager {
    */
   private registerIpcHandlers() {
     // 连接WebSocket
-    ipcMain.handle('websocket-connect', async (event: IpcMainInvokeEvent, url: string) => {
-      return this.connect(url, event);
+    ipcMain.handle('websocket-connect', async (event: IpcMainInvokeEvent, url: string, nodeId: string) => {
+      return this.connect(url, nodeId, event);
     });
 
     // 断开WebSocket连接
@@ -40,44 +42,83 @@ export class WebSocketManager {
     ipcMain.handle('websocket-get-all-connections', async () => {
       return this.getAllConnections();
     });
+
+    // 获取所有连接ID
+    ipcMain.handle('websocket-get-connection-ids', async () => {
+      return this.getConnectionIds();
+    });
+
+    // 检查节点ID是否有活跃连接
+    ipcMain.handle('websocket-check-node-connection', async (_: IpcMainInvokeEvent, nodeId: string) => {
+      return this.checkNodeConnection(nodeId);
+    });
+
+    // 清空所有WebSocket连接
+    ipcMain.handle('websocket-clear-all-connections', async () => {
+      return this.clearAllConnections();
+    });
+
+    // 断开指定节点的连接
+    ipcMain.handle('websocket-disconnect-by-node', async (_: IpcMainInvokeEvent, nodeId: string) => {
+      return this.disconnectByNode(nodeId);
+    });
   }
 
   /**
    * 连接到WebSocket服务器
    * @param url WebSocket服务器URL
+   * @param nodeId 节点ID，用于标识连接
    * @param event IPC事件对象，用于向渲染进程发送消息
    * @returns 连接ID
    */
-  async connect(url: string, event: IpcMainInvokeEvent): Promise<{ success: boolean; connectionId?: string; error?: string }> {
+  async connect(url: string, nodeId: string, event: IpcMainInvokeEvent): Promise<{ success: boolean; connectionId?: string; error?: string }> {
     try {
+      // 如果该节点已有连接，先断开旧连接
+      const existingConnectionId = this.nodeIdToConnectionId.get(nodeId);
+      if (existingConnectionId) {
+        await this.disconnect(existingConnectionId);
+      }
+
       const connectionId = `ws_${++this.connectionId}`;
       const ws = new WebSocket(url);
 
       // 连接打开事件
       ws.on('open', () => {
-        console.log(`WebSocket连接已建立: ${url}`);
-        event.sender.send('websocket-opened', { connectionId, url });
+        console.log(`WebSocket连接已建立: ${url} (节点ID: ${nodeId})`);
+        // 自动添加到连接ID集合
+        this.connectionIds.add(connectionId);
+        // 建立节点ID到连接ID的映射
+        this.nodeIdToConnectionId.set(nodeId, connectionId);
+        event.sender.send('websocket-opened', { connectionId, nodeId, url });
       });
 
       // 接收消息事件
       ws.on('message', (data) => {
         const message = data.toString();
         console.log(`WebSocket收到消息 [${connectionId}]:`, message);
-        event.sender.send('websocket-message', { connectionId, message, url });
+        event.sender.send('websocket-message', { connectionId, nodeId, message, url });
       });
 
       // 连接关闭事件
       ws.on('close', (code, reason) => {
         console.log(`WebSocket连接已关闭 [${connectionId}]: ${code} ${reason}`);
         this.connections.delete(connectionId);
-        event.sender.send('websocket-closed', { connectionId, code, reason: reason.toString(), url });
+        // 自动从连接ID集合中移除
+        this.connectionIds.delete(connectionId);
+        // 移除节点ID映射
+        this.nodeIdToConnectionId.delete(nodeId);
+        event.sender.send('websocket-closed', { connectionId, nodeId, code, reason: reason.toString(), url });
       });
 
       // 连接错误事件
       ws.on('error', (error) => {
         console.error(`WebSocket连接错误 [${connectionId}]:`, error);
         this.connections.delete(connectionId);
-        event.sender.send('websocket-error', { connectionId, error: error.message, url });
+        // 自动从连接ID集合中移除
+        this.connectionIds.delete(connectionId);
+        // 移除节点ID映射
+        this.nodeIdToConnectionId.delete(nodeId);
+        event.sender.send('websocket-error', { connectionId, nodeId, error: error.message, url });
       });
 
       // 保存连接
@@ -101,8 +142,22 @@ export class WebSocketManager {
         return { success: false, error: '连接不存在' };
       }
 
+      // 找到对应的节点ID并清理映射
+      let nodeIdToRemove: string | undefined;
+      for (const [nodeId, connId] of this.nodeIdToConnectionId.entries()) {
+        if (connId === connectionId) {
+          nodeIdToRemove = nodeId;
+          break;
+        }
+      }
+      if (nodeIdToRemove) {
+        this.nodeIdToConnectionId.delete(nodeIdToRemove);
+      }
+
       ws.close();
       this.connections.delete(connectionId);
+      // 自动从连接ID集合中移除
+      this.connectionIds.delete(connectionId);
       return { success: true };
     } catch (error) {
       console.error('断开WebSocket连接失败:', error);
@@ -158,6 +213,92 @@ export class WebSocketManager {
   }
 
   /**
+   * 获取所有连接ID
+   */
+  async getConnectionIds(): Promise<string[]> {
+    return Array.from(this.connectionIds);
+  }
+
+  /**
+   * 检查节点是否有活跃的WebSocket连接
+   * @param nodeId 节点ID
+   */
+  async checkNodeConnection(nodeId: string): Promise<{ 
+    connected: boolean; 
+    connectionId?: string; 
+    state?: number;
+  }> {
+    const connectionId = this.nodeIdToConnectionId.get(nodeId);
+    if (!connectionId) {
+      return { connected: false };
+    }
+
+    const ws = this.connections.get(connectionId);
+    if (!ws) {
+      // 连接记录不一致，清理映射
+      this.nodeIdToConnectionId.delete(nodeId);
+      this.connectionIds.delete(connectionId);
+      return { connected: false };
+    }
+
+    return {
+      connected: ws.readyState === WebSocket.OPEN,
+      connectionId,
+      state: ws.readyState
+    };
+  }
+
+  /**
+   * 清空所有WebSocket连接
+   */
+  async clearAllConnections(): Promise<{ success: boolean; closedCount: number; error?: string }> {
+    try {
+      let closedCount = 0;
+      const connectionsToClose = Array.from(this.connections.entries());
+      
+      for (const [connectionId, ws] of connectionsToClose) {
+        try {
+          if (ws.readyState === WebSocket.OPEN || ws.readyState === WebSocket.CONNECTING) {
+            ws.close();
+            closedCount++;
+          }
+        } catch (error) {
+          console.error(`关闭WebSocket连接失败 [${connectionId}]:`, error);
+        }
+      }
+
+      // 清理所有状态
+      this.connections.clear();
+      this.connectionIds.clear();
+      this.nodeIdToConnectionId.clear();
+
+      console.log(`已清空所有WebSocket连接，共关闭 ${closedCount} 个连接`);
+      return { success: true, closedCount };
+    } catch (error) {
+      console.error('清空WebSocket连接失败:', error);
+      return { success: false, closedCount: 0, error: error instanceof Error ? error.message : '未知错误' };
+    }
+  }
+
+  /**
+   * 根据节点ID断开连接
+   * @param nodeId 节点ID
+   */
+  async disconnectByNode(nodeId: string): Promise<{ success: boolean; error?: string }> {
+    try {
+      const connectionId = this.nodeIdToConnectionId.get(nodeId);
+      if (!connectionId) {
+        return { success: false, error: '该节点没有活跃连接' };
+      }
+
+      return await this.disconnect(connectionId);
+    } catch (error) {
+      console.error('根据节点ID断开连接失败:', error);
+      return { success: false, error: error instanceof Error ? error.message : '未知错误' };
+    }
+  }
+
+  /**
    * 清理所有连接
    */
   cleanup() {
@@ -169,6 +310,8 @@ export class WebSocketManager {
       }
     });
     this.connections.clear();
+    this.connectionIds.clear();
+    this.nodeIdToConnectionId.clear();
   }
 }
 
