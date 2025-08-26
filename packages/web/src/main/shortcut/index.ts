@@ -1,4 +1,5 @@
 import { BrowserWindow, globalShortcut, WebContentsView, app } from 'electron';
+import { webSocketManager } from '../websocket/websocket.ts';
 
 /**
  * 快捷键管理器
@@ -129,6 +130,7 @@ class ShortcutManager {
    * @param forceRecreate 是否释放内存完全重新加载
    */
   private handleReload(forceRecreate: boolean = false) {
+    webSocketManager.clearAllConnections()
     if (forceRecreate) {
       // 在开发模式下，不使用 app.relaunch() 避免终止 Vite 服务器
       // 而是通过强制重新加载所有 WebContents 来实现类似效果
