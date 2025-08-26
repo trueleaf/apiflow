@@ -24,6 +24,7 @@
         <el-button 
           v-if="connectionState === 'disconnected' || connectionState === 'error'" 
           type="success" 
+          :loading="connectionLoading"
           @click="handleConnect"
         >
           {{ t("发起连接") }}
@@ -31,6 +32,7 @@
         <el-button 
           v-if="connectionState === 'connected'" 
           type="danger" 
+          :loading="connectionLoading"
           @click="handleDisconnect"
         >
           {{ t("断开连接") }}
@@ -124,17 +126,13 @@ const currentSelectTab = computed(() => {
   const currentSelectTab = tabs?.find((tab) => tab.selected) || null;
   return currentSelectTab;
 });
-const getInitialActiveTab = (): string => {
-  if (currentSelectTab.value) {
-    const cachedTab = webSocketNodeCache.getWebSocketConnectionActiveTab(currentSelectTab.value._id);
-    return cachedTab || 'messageContent';
-  }
-  return 'messageContent';
-};
-const activeTab = ref(getInitialActiveTab())
-const refreshLoading = ref(false)
+const activeTab = ref('')
+const refreshLoading = ref(false);
+const connectionState = ref<'disconnected' | 'connecting' | 'connected' | 'error'>('disconnected');
+const connectionId = ref('');
+const connectionLoading = ref(false)
 
-const connectionState = ref<'disconnected' | 'connecting' | 'connected' | 'error'>('disconnected')
+
 const protocol = computed({
   get: () => websocketStore.websocket.item.protocol,
   set: (value: 'ws' | 'wss') => websocketStore.changeWebSocketProtocol(value)
@@ -161,17 +159,61 @@ const hasAfterScript = computed(() => {
   return websocketStore.websocket.afterRequest.raw.trim() !== ''
 })
 
+/*
+|--------------------------------------------------------------------------
+| websocket相关操作
+|--------------------------------------------------------------------------
+*/
 const handleConnect = () => {
-  connectionState.value = 'connecting'
-  setTimeout(() => {
-    connectionState.value = 'connected'
-  }, 1000)
+  if (!currentSelectTab.value) {
+    console.error('未找到当前选中的标签页');
+    return;
+  }
+  connectionLoading.value = true;
+  connectionState.value = 'connecting';
+  const nodeId = currentSelectTab.value._id;
+  
+  window.electronAPI?.websocket.connect(fullUrl.value, nodeId).then((result) => {
+    if (result.success) {
+      connectionId.value = result.connectionId!;
+      connectionState.value = 'connected';
+      console.log(`WebSocket连接成功，节点ID: ${nodeId}, 连接ID: ${result.connectionId}`);
+    } else {
+      connectionState.value = 'error';
+      console.error('WebSocket连接失败:', result.error);
+    }
+  }).catch((error) => {
+    connectionState.value = 'error';
+    console.error('WebSocket连接异常:', error);
+  }).finally(() => {
+    connectionLoading.value = false;
+  });
 }
 
 const handleDisconnect = () => {
-  connectionState.value = 'disconnected'
+  connectionLoading.value = true;
+   window.electronAPI?.websocket.disconnect(connectionId.value).then((result) => {
+     if (result.success) {
+       connectionState.value = 'disconnected';
+       connectionId.value = '';
+       console.log('WebSocket连接已断开');
+     } else {
+       connectionState.value = 'error';
+       console.error('WebSocket断开连接失败:', result.error);
+     }
+   }).catch((error) => {
+     connectionState.value = 'error';
+     console.error('WebSocket断开连接异常:', error);
+   }).finally(() => {
+     connectionLoading.value = false;
+   });
 }
 
+/*
+|--------------------------------------------------------------------------
+| 其他操作
+|--------------------------------------------------------------------------
+*/
 const handleSave = () => {
   websocketStore.saveWebsocket()
 }
@@ -203,7 +245,6 @@ const getStatusType = (state: string) => {
     default: return 'info'
   }
 }
-
 const getStatusText = (state: string) => {
   switch (state) {
     case 'connected': return '已连接'
@@ -292,6 +333,13 @@ const handleFormatUrl = () => {
   // 更新连接URL
   connectionUrl.value = formatPath;
 }
+const getInitialActiveTab = (): string => {
+  if (currentSelectTab.value) {
+    const cachedTab = webSocketNodeCache.getWebSocketConnectionActiveTab(currentSelectTab.value._id);
+    return cachedTab || 'messageContent';
+  }
+  return 'messageContent';
+};
 // 监听activeTab变化并保存到缓存
 watch(activeTab, (newVal) => {
   if (currentSelectTab.value) {
@@ -304,12 +352,31 @@ watch(currentSelectTab, (newTab) => {
   if (newTab) {
     const cachedTab = webSocketNodeCache.getWebSocketConnectionActiveTab(newTab._id);
     activeTab.value = cachedTab || 'messageContent';
+    connectionId.value = '';
+    connectionState.value = 'disconnected';
   }
 });
-
-// 组件挂载时初始化activeTab
+const checkIsConnection = () => {
+  if (!currentSelectTab.value) {
+    return;
+  }
+  window.electronAPI?.websocket.checkNodeConnection(currentSelectTab.value._id).then((result) => {
+    if (result.connected) {
+      connectionId.value = result.connectionId!;
+      connectionState.value = 'connected';
+    } else {
+      connectionId.value = '';
+      connectionState.value = 'disconnected';
+    }
+  }).catch((error) => {
+    console.error('检查WebSocket连接状态异常:', error);
+    connectionId.value = '';
+    connectionState.value = 'error';
+  });
+}
 onMounted(() => {
   activeTab.value = getInitialActiveTab();
+  checkIsConnection();
 });
 </script>
 
