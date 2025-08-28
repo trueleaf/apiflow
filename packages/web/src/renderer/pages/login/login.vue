@@ -2,10 +2,10 @@
   <div class="login-container d-flex a-center j-center">
     <div class="login-box d-flex">
       <div ref="left" tabindex="-1" class="left hidden-md-and-down">
-        <!-- <h2 class="text-center mt-5">下载客户端获得完整功能</h2>
+        <!-- <h2 class="text-center mt-5">{{ t('客户端下载') }}</h2>
         <el-carousel trigger="click" height="340px" :autoplay="false">
           <el-carousel-item v-for="item in 4" :key="item">
-            <div class="d-flex a-center j-center h-300px">项目特色功能视频演示</div>
+            <div class="d-flex a-center j-center h-300px">{{ t('项目特色功能视频演示') }}</div>
             <img :src="require('@/assets/imgs/login/a.gif')" width="460" height="340">
           </el-carousel-item>
         </el-carousel>
@@ -14,19 +14,19 @@
             <a href="https://gitee.com/shuzhikai/moyu/releases" target="__blank"
               class="d-flex flex-column j-center a-center cursor-pointer hover-theme-color">
               <i class="iconfont iconwindows theme-color"></i>
-              <div class="mt-1">Windows下载</div>
+              <div class="mt-1">Windows{{ t('下载') }}</div>
             </a>
             <a href="https://gitee.com/shuzhikai/moyu/releases" target="__blank"
               class="d-flex flex-column j-center a-center cursor-pointer hover-theme-color">
               <svg class="svg-icon" aria-hidden="true">
                 <use xlink:href="#iconlinux1"></use>
               </svg>
-              <div class="mt-1">Linux下载</div>
+              <div class="mt-1">Linux{{ t('下载') }}</div>
             </a>
             <a href="https://gitee.com/shuzhikai/moyu/releases" target="__blank"
               class="d-flex flex-column j-center a-center cursor-pointer hover-theme-color">
               <i class="iconfont iconmac gray-600"></i>
-              <div class="mt-1">Mac下载</div>
+              <div class="mt-1">Mac{{ t('下载') }}</div>
             </a>
           </div>
         </div> -->

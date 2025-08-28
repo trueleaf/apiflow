@@ -8,7 +8,7 @@
           <el-input 
             ref="filterInputRef" 
             v-model="filterText"
-            :placeholder="isRegexMode ? '支持正则表达式，如: /pattern/flags 或 pattern' : '输入关键词筛选消息内容...'"
+:placeholder="isRegexMode ? $t('支持正则表达式') : $t('输入关键词筛选')"
             size="small"
             class="compact-filter-input" 
             @input="handleFilterChange" 
@@ -19,7 +19,7 @@
                 class="compact-regex-toggle-btn" 
                 :class="{ active: isRegexMode }" 
                 @click="toggleRegexMode"
-                title="切换正则表达式模式"
+:title="$t('切换正则表达式模式')"
             >
                 .*
               </div>
@@ -31,10 +31,10 @@
           <el-icon class="icon search-icon" :class="{ active: isSearchInputVisible }" @click="toggleSearchInput">
             <Search />
           </el-icon>
-          <el-icon class="icon raw-view-icon" :class="{ active: isRawView }" @click="toggleRawView" title="切换原始数据视图">
+          <el-icon class="icon raw-view-icon" :class="{ active: isRawView }" @click="toggleRawView" :title="$t('切换原始数据视图')">
             <Document />
           </el-icon>
-          <el-icon class="icon download-icon" @click="downloadData" title="下载SSE数据">
+          <el-icon class="icon download-icon" @click="downloadData" :title="$t('下载SSE数据')">
             <Download />
           </el-icon>
         </div>

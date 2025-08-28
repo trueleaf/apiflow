@@ -3,7 +3,7 @@
     <div class="ml-5 header-left">
       <span class="flex0 mr-5 gray-200 cursor-pointer" @click="jumpToHome">
         <span>{{ config.localization.title }}</span>
-        <span v-if="config.isDev">(本地)</span>
+        <span v-if="config.isDev">({{ $t('本地') }})</span>
       </span>
     </div>
     <div class="header-right ml-auto">
@@ -32,8 +32,8 @@
           <span class="iconfont iconyuyan language"></span>
           <template #dropdown>
             <el-dropdown-menu>
-              <el-dropdown-item @click="changeLocale('zh-cn')">中文简体</el-dropdown-item>
-              <el-dropdown-item @click="changeLocale('zh-tw')">中文繁體</el-dropdown-item>
+              <el-dropdown-item @click="changeLocale('zh-cn')">{{ $t('中文简体') }}</el-dropdown-item>
+              <el-dropdown-item @click="changeLocale('zh-tw')">{{ $t('中文繁體') }}</el-dropdown-item>
               <el-dropdown-item @click="changeLocale('en')">English</el-dropdown-item>
             </el-dropdown-menu>
           </template>

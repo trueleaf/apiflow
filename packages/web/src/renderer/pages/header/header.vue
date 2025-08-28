@@ -3,12 +3,12 @@
     <div class="logo">
       <span class="app-title" @click="jumpToHome">
         <span>{{ appTitle }}</span>
-        <span v-if="isDev" id="devIndicator">(本地)</span>
+        <span v-if="isDev" id="devIndicator">({{ $t('本地') }})</span>
       </span>
     </div>
     <div class="home" :class="{ active: activeTabId === ''}" @click="jumpToHome">
       <i class="iconfont iconhome"></i>
-      <span>主页面</span>
+      <span>{{ $t('主页面') }}</span>
     </div>
     <div v-if="tabs.length > 0" class="divider"></div>
     <div class="tabs">
@@ -21,24 +21,24 @@
           </li>
         </template>
       </draggable>
-      <button class="add-tab-btn" title="新建项目" @click="handleAddProject">+</button>
+      <button class="add-tab-btn" :title="$t('新建项目')" @click="handleAddProject">+</button>
     </div>
     <div class="right">
       <div class="navigation-control">
-        <el-icon size="18" title="刷新主应用" @click="refreshApp"><RefreshRight /></el-icon>
-        <el-icon size="18" title="后退" @click="goBack"><Back /></el-icon>
-        <el-icon size="18" title="前进" @click="goForward"><Right /></el-icon>
-        <el-icon size="18" title="个人中心" @click="jumpToUserCenter"><i class="iconfont icongerenzhongxin"></i></el-icon>
+        <el-icon size="18" :title="$t('刷新主应用')" @click="refreshApp"><RefreshRight /></el-icon>
+        <el-icon size="18" :title="$t('后退')" @click="goBack"><Back /></el-icon>
+        <el-icon size="18" :title="$t('前进')" @click="goForward"><Right /></el-icon>
+        <el-icon size="18" :title="$t('个人中心')" @click="jumpToUserCenter"><i class="iconfont icongerenzhongxin"></i></el-icon>
         <div class="language-btn" :title="$t('切换语言')" @click="handleLanguageButtonClick" ref="languageButtonRef">
           <i class="iconfont iconyuyan"></i>
           <span class="language-text">{{ currentLanguageDisplay }}</span>
         </div>
       </div>
       <div class="window-control">
-        <i class="iconfont iconjianhao" id="minimize" title="最小化" @click="minimize"></i>
-        <i v-if="!isMaximized" class="iconfont iconmaxScreen" id="maximize" title="最大化" @click="maximize"></i>
-        <i v-if="isMaximized" class="iconfont iconminiScreen" id="unmaximize" title="取消最大化" @click="unmaximize"></i>
-        <i class="iconfont iconguanbi close" id="close" title="关闭" @click="close"></i>
+        <i class="iconfont iconjianhao" id="minimize" :title="$t('最小化')" @click="minimize"></i>
+        <i v-if="!isMaximized" class="iconfont iconmaxScreen" id="maximize" :title="$t('最大化')" @click="maximize"></i>
+        <i v-if="isMaximized" class="iconfont iconminiScreen" id="unmaximize" :title="$t('取消最大化')" @click="unmaximize"></i>
+        <i class="iconfont iconguanbi close" id="close" :title="$t('关闭')" @click="close"></i>
       </div>
     </div>
   </div>
@@ -51,6 +51,7 @@ import draggable from 'vuedraggable'
 import { httpNodeCache } from '@/cache/httpNode'
 import { Language } from '@src/types'
 import { RefreshRight, Back, Right } from '@element-plus/icons-vue'
+import { useI18n } from 'vue-i18n'
 
 // 定义Tab类型
 interface HeaderTab {
@@ -65,6 +66,7 @@ const isMaximized = ref(false)
 const isDev = ref(false)
 const appTitle = ref('Apiflow')
 const tabListRef = ref<HTMLElement>()
+const { t: $t } = useI18n()
 /*
 |--------------------------------------------------------------------------
 | 窗口控制
@@ -205,7 +207,7 @@ const jumpToUserCenter = () => {
   if (!existingTab) {
     tabs.value.push({
       id: userCenterTabId,
-      title: '个人中心',
+      title: $t('个人中心'),
       type: 'settings'
     });
   }

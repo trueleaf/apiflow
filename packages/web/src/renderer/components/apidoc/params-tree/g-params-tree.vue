@@ -106,9 +106,9 @@
           <div class="file-input-wrap">
             <!-- 模式切换提示 -->
             <div v-if="scope.data.fileValueType !== 'file' && scope.data.fileValueType !== 'var'" class="mode-list">
-              <span class="var-mode" @click="() => scope.data.fileValueType = 'var'">变量模式</span>
+              <span class="var-mode" @click="() => scope.data.fileValueType = 'var'">{{ t('变量模式') }}</span>
               <span class="px-3"></span>
-              <span class="file-mode" @click="() => scope.data.fileValueType = 'file'">文件模式</span>
+              <span class="file-mode" @click="() => scope.data.fileValueType = 'file'">{{ t('文件模式') }}</span>
             </div>
             <!-- 变量模式 -->
             <SValidInput 
@@ -116,7 +116,7 @@
               :model-value="scope.data.value" 
               class="w-100" 
               :disabled="checkValueDisable(scope.data)" 
-              placeholder="变量模式 eg: {{ fileValue }}"
+:placeholder="t('变量模式') + ' eg: {{ fileValue }}'"
               @update:modelValue="handleChangeValue($event, scope.data)" 
               @focus="handleFocusValue(scope.data)"
               @blur="handleBlurValue">

@@ -2,21 +2,10 @@
   <div class="websocket-base-info">
     <div class="text-bold">{{ t("基本信息") }}</div>
     <div class="px-4">
-      <SLabelValue :label="`${t('连接地址')}：`" class="mt-2" one-line>
-        <div class="text-ellipsis" :title="connectionUrl">{{ connectionUrl || '未设置连接地址' }}</div>
-      </SLabelValue>
-      <SLabelValue :label="`${t('协议类型')}：`" one-line>
-        <span class="label protocol-label">WebSocket</span>
-      </SLabelValue>
-      <SLabelValue :label="`${t('连接状态')}：`" one-line>
-        <el-tag 
-          :type="getStatusType()" 
-          size="small"
-        >
-          {{ getStatusText() }}
-        </el-tag>
-      </SLabelValue>
       <div class="base-info">
+        <SLabelValue :label="`${t('连接地址')}：`" class="mt-2" one-line>
+          <div class="text-ellipsis" :title="fullUrl">{{ fullUrl }}</div>
+        </SLabelValue>
         <SLabelValue :label="`${t('维护人员：')}`" 
           label-width="auto" class="w-50">
           <span class="text-ellipsis">{{ maintainer || '未设置' }}</span>
@@ -50,48 +39,14 @@ const { t } = useTranslation()
 // 使用WebSocket store
 const websocketStore = useWebSocket()
 
-// 从store获取数据的计算属性
-const connectionUrl = computed(() => {
-  const websocket = websocketStore.websocket
-  const path = websocket.item.url.path
-  const prefix = websocket.item.url.prefix
-  
-  if (!path) return ''
-  
-  if (prefix) {
-    return `${prefix}${path}`
-  }
-  
-  return `${websocket.item.protocol}://${path.replace(/^(ws|wss):\/\//, '')}`
+const fullUrl = computed(() => {
+  return websocketStore.websocketFullUrl;
 })
-
-const connectionState = computed(() => {
-  // 这里可以添加实际的连接状态逻辑
-  return 'disconnected' as 'disconnected' | 'connecting' | 'connected' | 'error'
-})
-
 const maintainer = computed(() => websocketStore.websocket.info.maintainer || '')
 const creator = computed(() => websocketStore.websocket.info.creator || '')
 const updatedAt = computed(() => websocketStore.websocket.updatedAt)
 const createdAt = computed(() => websocketStore.websocket.createdAt)
 
-const getStatusType = () => {
-  switch (connectionState.value) {
-    case 'connected': return 'success'
-    case 'connecting': return 'warning'
-    case 'error': return 'danger'
-    default: return 'info'
-  }
-}
-
-const getStatusText = () => {
-  switch (connectionState.value) {
-    case 'connected': return '已连接'
-    case 'connecting': return '连接中'
-    case 'error': return '连接错误'
-    default: return '未连接'
-  }
-}
 </script>
 
 <style lang="scss" scoped>
@@ -102,7 +57,6 @@ const getStatusText = () => {
 
   .text-bold {
     font-weight: 600;
-    margin-bottom: 12px;
     color: #303133;
   }
 
@@ -114,8 +68,6 @@ const getStatusText = () => {
   .base-info {
     display: flex;
     flex-wrap: wrap;
-    margin-top: 8px;
-
     .w-50 {
       width: 50%;
     }

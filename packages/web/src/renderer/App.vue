@@ -147,7 +147,7 @@ const bindTopBarEvent = async () => {
     }
 
     if (!matchedProject) {
-      ElMessageBox.alert(t(`${data.projectName}已被删除`), t('提示'), {
+      ElMessageBox.alert(`${data.projectName}${t('已被删除')}`, t('提示'), {
         confirmButtonText: t('确定'),
         showClose: false,
         type: 'error'
@@ -216,7 +216,7 @@ onMounted(() => {
   bindGlobalShortCut();
   bindTopBarEvent();
   initLanguage();
-  document.title = `${config.isDev ? `${config.localization.title}(本地)` : config.localization.title} `;
+  document.title = `${config.isDev ? `${config.localization.title}(${t('本地')})` : config.localization.title} `;
 })
 </script>
 

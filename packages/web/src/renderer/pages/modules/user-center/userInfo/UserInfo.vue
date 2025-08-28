@@ -2,23 +2,23 @@
   <div class="user-info-container">
     <!-- 页面标题区域 -->
     <div class="page-title">
-      <h2>个人基本信息</h2>
+      <h2>{{ $t('个人基本信息') }}</h2>
     </div>
     
     <div class="info-card">
       <div class="avatar-section">
         <div class="avatar">
-          <img :src="userInfo.avatar || defaultAvatar" alt="用户头像">
+          <img :src="userInfo.avatar || defaultAvatar" :alt="$t('用户头像')">
           <div class="upload-overlay" v-if="!isLocalMode">
             <i class="iconfont icon-upload"></i>
           </div>
         </div>
-        <button class="upload-btn" v-if="!isLocalMode">更换头像</button>
+        <button class="upload-btn" v-if="!isLocalMode">{{ $t('更换头像') }}</button>
       </div>
       
       <div class="info-section">
         <div class="info-row">
-          <div class="info-label">用户名</div>
+          <div class="info-label">{{ $t('用户名') }}</div>
           <div class="info-value">
             <input v-if="editing" v-model="editedInfo.username" />
             <span v-else>{{ userInfo.username }}</span>
@@ -26,7 +26,7 @@
         </div>
         
         <div class="info-row">
-          <div class="info-label">邮箱</div>
+          <div class="info-label">{{ $t('邮箱') }}</div>
           <div class="info-value">
             <input v-if="editing" v-model="editedInfo.email" />
             <span v-else-if="isLocalMode" class="local-mode-value">/</span>
@@ -35,7 +35,7 @@
         </div>
         
         <div class="info-row">
-          <div class="info-label">所属团队</div>
+          <div class="info-label">{{ $t('所属团队') }}</div>
           <div class="info-value">
             <select v-if="editing" v-model="editedInfo.team">
               <option v-for="team in teams" :key="team.id" :value="team.id">{{ team.name }}</option>
@@ -46,20 +46,20 @@
         </div>
         
         <div class="info-row">
-          <div class="info-label">注册时间</div>
+          <div class="info-label">{{ $t('注册时间') }}</div>
           <div class="info-value">{{ userInfo.registerTime }}</div>
         </div>
         
         <div class="info-row">
-          <div class="info-label">最后登录</div>
+          <div class="info-label">{{ $t('最后登录') }}</div>
           <div class="info-value">{{ userInfo.lastLoginTime }}</div>
         </div>
         
         <div class="action-buttons">
-          <button v-if="!editing && !isLocalMode" class="edit-btn" @click="startEditing">编辑信息</button>
+          <button v-if="!editing && !isLocalMode" class="edit-btn" @click="startEditing">{{ $t('编辑信息') }}</button>
           <template v-if="editing">
-            <button class="save-btn" @click="saveChanges">保存</button>
-            <button class="cancel-btn" @click="cancelEditing">取消</button>
+            <button class="save-btn" @click="saveChanges">{{ $t('保存') }}</button>
+            <button class="cancel-btn" @click="cancelEditing">{{ $t('取消') }}</button>
           </template>
         </div>
       </div>
