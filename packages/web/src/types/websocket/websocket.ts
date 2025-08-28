@@ -45,6 +45,22 @@ export type WebSocketNode = {
      * 请求头
      */
     headers: ApidocProperty<'string'>[];
+    /**
+     * 发送的数据
+     */
+    sendMessage: string;
+    /**
+     * 是否自动发送心跳包
+     */
+    autoHeartbeat: boolean;
+    /**
+     * 心跳包间隔
+     */
+    heartbeatInterval: number;
+    /**
+     * 默认心跳包内容
+     */
+    defaultHeartbeatContent: string;
   };
   /**
    * 公共请求头

@@ -2,7 +2,6 @@
   <div v-loading="loading" class="websocket">
     <div class="connection-layout">
       <SConnection></SConnection>
-      <SMessages></SMessages>
     </div>
     <SResizeX 
       :min="500" 
@@ -22,7 +21,6 @@
 import { computed, onMounted, ref, watch } from 'vue'
 import SResizeX from '@/components/common/resize/g-resize-x.vue'
 import SConnection from './connection/connection.vue'
-import SMessages from './messages/messages.vue'
 import SWebSocketInfo from './websocket-info/websocket-info.vue'
 import { useApidocTas } from '@/store/apidoc/tabs'
 import { useWebSocket } from '@/store/websocket/websocket'

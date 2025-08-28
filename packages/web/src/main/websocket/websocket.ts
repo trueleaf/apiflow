@@ -84,7 +84,6 @@ export class WebSocketManager {
 
       // 连接打开事件
       ws.on('open', () => {
-        console.log(`WebSocket连接已建立: ${url} (节点ID: ${nodeId})`);
         // 自动添加到连接ID集合
         this.connectionIds.add(connectionId);
         // 建立节点ID到连接ID的映射
@@ -95,17 +94,13 @@ export class WebSocketManager {
       // 接收消息事件
       ws.on('message', (data) => {
         const message = data.toString();
-        console.log(`WebSocket收到消息 [${connectionId}]:`, message);
         event.sender.send('websocket-message', { connectionId, nodeId, message, url });
       });
 
       // 连接关闭事件
       ws.on('close', (code, reason) => {
-        console.log(`WebSocket连接已关闭 [${connectionId}]: ${code} ${reason}`);
         this.connections.delete(connectionId);
-        // 自动从连接ID集合中移除
         this.connectionIds.delete(connectionId);
-        // 移除节点ID映射
         this.nodeIdToConnectionId.delete(nodeId);
         event.sender.send('websocket-closed', { connectionId, nodeId, code, reason: reason.toString(), url });
       });
@@ -114,16 +109,12 @@ export class WebSocketManager {
       ws.on('error', (error) => {
         console.error(`WebSocket连接错误 [${connectionId}]:`, error);
         this.connections.delete(connectionId);
-        // 自动从连接ID集合中移除
         this.connectionIds.delete(connectionId);
-        // 移除节点ID映射
         this.nodeIdToConnectionId.delete(nodeId);
         event.sender.send('websocket-error', { connectionId, nodeId, error: error.message, url });
       });
-
       // 保存连接
       this.connections.set(connectionId, ws);
-
       return { success: true, connectionId };
     } catch (error) {
       console.error('WebSocket连接失败:', error);
@@ -266,13 +257,10 @@ export class WebSocketManager {
           console.error(`关闭WebSocket连接失败 [${connectionId}]:`, error);
         }
       }
-
       // 清理所有状态
       this.connections.clear();
       this.connectionIds.clear();
       this.nodeIdToConnectionId.clear();
-
-      console.log(`已清空所有WebSocket连接，共关闭 ${closedCount} 个连接`);
       return { success: true, closedCount };
     } catch (error) {
       console.error('清空WebSocket连接失败:', error);

@@ -4,7 +4,7 @@
       <div class="op-wrap">
         <el-input 
           v-model="connectionUrl" 
-          placeholder="WebSocket连接地址 eg: ws://localhost:8080/websocket" 
+:placeholder="$t('请输入WebSocket连接地址')" 
           autocomplete="off" 
           autocorrect="off" 
           spellcheck="false"
@@ -27,7 +27,7 @@
           :loading="connectionLoading"
           @click="handleConnect"
         >
-          {{ t("发起连接") }}
+          {{ connectButtonText }}
         </el-button>
         <el-button 
           v-if="connectionState === 'connected'" 
@@ -64,8 +64,14 @@
 
     <!-- 连接配置选项卡 -->
     <el-tabs v-model="activeTab" class="connection-tabs">
-      <el-tab-pane label="发送消息内容" name="messageContent">
-        <SMessageContent></SMessageContent>
+      <el-tab-pane name="messageContent">
+        <template #label>
+          <el-badge :is-dot="hasSendMessage">{{ t('消息内容') }}</el-badge>
+        </template>
+        <SMessageContent
+          :connection-state="connectionState"
+          :connection-id="connectionId"
+        ></SMessageContent>
       </el-tab-pane>
       <el-tab-pane name="params">
         <template #label>
@@ -99,7 +105,7 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, ref, watch, onMounted } from 'vue'
+import { computed, ref, watch, onMounted, onUnmounted } from 'vue'
 import { useTranslation } from 'i18next-vue'
 import { Refresh } from '@element-plus/icons-vue'
 import SHeaders from './headers/headers.vue'
@@ -113,6 +119,7 @@ import { useRoute } from 'vue-router'
 import { useApidocTas } from '@/store/apidoc/tabs'
 import { ApidocProperty } from '@src/types'
 import { webSocketNodeCache } from '@/cache/websocketNode'
+import { ElMessage } from 'element-plus'
 // import RichInput from '@/components/apidoc/rich-input/rich-input.vue'
 
 const { t } = useTranslation()
@@ -131,6 +138,7 @@ const refreshLoading = ref(false);
 const connectionState = ref<'disconnected' | 'connecting' | 'connected' | 'error'>('disconnected');
 const connectionId = ref('');
 const connectionLoading = ref(false)
+const hasEverConnected = ref(false); // 跟踪是否曾经连接过
 
 
 const protocol = computed({
@@ -159,6 +167,19 @@ const hasAfterScript = computed(() => {
   return websocketStore.websocket.afterRequest.raw.trim() !== ''
 })
 
+const hasSendMessage = computed(() => {
+  return websocketStore.websocket.item.sendMessage.trim() !== ''
+})
+
+// 连接按钮文案
+const connectButtonText = computed(() => {
+  if (hasEverConnected.value) {
+    return t("重新连接")
+  } else {
+    return t("发起连接")
+  }
+})
+
 /*
 |--------------------------------------------------------------------------
 | websocket相关操作
@@ -177,7 +198,7 @@ const handleConnect = () => {
     if (result.success) {
       connectionId.value = result.connectionId!;
       connectionState.value = 'connected';
-      console.log(`WebSocket连接成功，节点ID: ${nodeId}, 连接ID: ${result.connectionId}`);
+      hasEverConnected.value = true; // 标记已经连接过
     } else {
       connectionState.value = 'error';
       console.error('WebSocket连接失败:', result.error);
@@ -196,7 +217,6 @@ const handleDisconnect = () => {
      if (result.success) {
        connectionState.value = 'disconnected';
        connectionId.value = '';
-       console.log('WebSocket连接已断开');
      } else {
        connectionState.value = 'error';
        console.error('WebSocket断开连接失败:', result.error);
@@ -354,6 +374,7 @@ watch(currentSelectTab, (newTab) => {
     activeTab.value = cachedTab || 'messageContent';
     connectionId.value = '';
     connectionState.value = 'disconnected';
+    hasEverConnected.value = false; // 切换tab时重置连接历史
   }
 });
 const checkIsConnection = () => {
@@ -364,6 +385,7 @@ const checkIsConnection = () => {
     if (result.connected) {
       connectionId.value = result.connectionId!;
       connectionState.value = 'connected';
+      hasEverConnected.value = true; // 如果检查发现已连接，说明之前连接过
     } else {
       connectionId.value = '';
       connectionState.value = 'disconnected';
@@ -374,9 +396,52 @@ const checkIsConnection = () => {
     connectionState.value = 'error';
   });
 }
+
+// 监听WebSocket事件
+const setupWebSocketEventListeners = () => {
+  if (!window.electronAPI) return;
+  window.electronAPI.onMain('websocket-opened', (data: { connectionId: string; nodeId: string; url: string }) => {
+    if (currentSelectTab.value && data.nodeId === currentSelectTab.value._id) {
+      connectionId.value = data.connectionId;
+      connectionState.value = 'connected';
+      hasEverConnected.value = true; // 标记已经连接过
+    }
+  });
+  // 监听WebSocket连接关闭事件
+  window.electronAPI.onMain('websocket-closed', (data: { connectionId: string; nodeId: string; code: number; reason: string; url: string }) => {
+    if (currentSelectTab.value && data.nodeId === currentSelectTab.value._id) {
+      connectionId.value = '';
+      connectionState.value = 'disconnected';
+      ElMessage.warning(`WebSocket连接已关闭`);
+    }
+  });
+  // 监听WebSocket连接错误事件
+  window.electronAPI.onMain('websocket-error', (data: { connectionId: string; nodeId: string; error: string; url: string }) => {
+    if (currentSelectTab.value && data.nodeId === currentSelectTab.value._id) {
+      connectionId.value = '';
+      connectionState.value = 'error';
+    }
+  });
+}
+
+// 清理WebSocket事件监听器
+const cleanupWebSocketEventListeners = () => {
+  if (!window.electronAPI) return;
+  
+  // 清理所有WebSocket事件监听器
+  window.electronAPI.removeListener('websocket-opened');
+  window.electronAPI.removeListener('websocket-closed');
+  window.electronAPI.removeListener('websocket-error');
+  window.electronAPI.removeListener('websocket-message');
+}
 onMounted(() => {
   activeTab.value = getInitialActiveTab();
   checkIsConnection();
+  setupWebSocketEventListeners(); 
+});
+
+onUnmounted(() => {
+  cleanupWebSocketEventListeners();
 });
 </script>
 

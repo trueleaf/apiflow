@@ -1,6 +1,6 @@
 import { WebSocketNode } from "@src/types/websocket/websocket.ts";
 import { defineStore, storeToRefs } from "pinia";
-import { ref, toRaw, watch } from "vue";
+import { ref, watch } from "vue";
 import { ApidocProperty } from "@src/types";
 import { apidocGenerateProperty, generateEmptyWebsocketNode, uuid, cloneDeep, debounce } from "@/helper";
 import { standaloneCache } from "@/cache/standalone.ts";
@@ -9,7 +9,7 @@ import { ElMessageBox } from "element-plus";
 import { useApidocTas } from "../apidoc/tabs.ts";
 import { router } from "@/router/index.ts";
 import { useApidocBanner } from "../apidoc/banner.ts";
-import { getUrl, getWebSocketUrl } from "@/server/request/request.ts";
+import { getWebSocketUrl } from "@/server/request/request.ts";
 import { useVariable } from "../apidoc/variables.ts";
 import { config } from "@src/config/config.ts";
 import { useCookies } from "../apidoc/cookies.ts";
@@ -278,6 +278,40 @@ export const useWebSocket = defineStore('websocket', () => {
       websocket.value.afterRequest.raw = script;
     }
   };
+
+  /*
+  |--------------------------------------------------------------------------
+  | 消息和心跳操作方法
+  |--------------------------------------------------------------------------
+  */
+  // 改变发送消息内容
+  const changeWebSocketSendMessage = (message: string): void => {
+    if (websocket.value) {
+      websocket.value.item.sendMessage = message;
+    }
+  };
+
+  // 改变自动心跳设置
+  const changeWebSocketAutoHeartbeat = (enabled: boolean): void => {
+    if (websocket.value) {
+      websocket.value.item.autoHeartbeat = enabled;
+    }
+  };
+
+  // 改变心跳间隔
+  const changeWebSocketHeartbeatInterval = (interval: number): void => {
+    if (websocket.value) {
+      websocket.value.item.heartbeatInterval = interval;
+    }
+  };
+
+  // 改变默认心跳内容
+  const changeWebSocketDefaultHeartbeatContent = (content: string): void => {
+    if (websocket.value) {
+      websocket.value.item.defaultHeartbeatContent = content;
+    }
+  };
+
   /*
   |--------------------------------------------------------------------------
   | 时间戳操作方法
@@ -322,26 +356,7 @@ export const useWebSocket = defineStore('websocket', () => {
     webSocketNodeCache.setWebSocketConnectionState(connectionId, state);
   };
 
-  // 获取消息历史记录
-  const getMessageHistory = (connectionId: string) => {
-    return webSocketNodeCache.getWebSocketMessageHistory(connectionId);
-  };
 
-  // 添加消息到历史记录
-  const addMessageToHistory = (connectionId: string, message: {
-    id: string;
-    type: 'send' | 'receive';
-    content: string;
-    timestamp: number;
-    messageType: 'text' | 'binary';
-  }) => {
-    webSocketNodeCache.addWebSocketMessage(connectionId, message);
-  };
-
-  // 清除消息历史记录
-  const clearMessageHistory = (connectionId: string) => {
-    webSocketNodeCache.clearWebSocketMessageHistory(connectionId);
-  };
 
   // 获取自动重连配置
   const getAutoReconnectConfig = (projectId: string) => {
@@ -531,6 +546,10 @@ export const useWebSocket = defineStore('websocket', () => {
     updateWebSocketQueryParamById,
     changeWebSocketPreRequest,
     changeWebSocketAfterRequest,
+    changeWebSocketSendMessage,
+    changeWebSocketAutoHeartbeat,
+    changeWebSocketHeartbeatInterval,
+    changeWebSocketDefaultHeartbeatContent,
     markWebSocketAsDeleted,
     changeWebsocket,
     changeOriginWebsocket,
@@ -542,9 +561,6 @@ export const useWebSocket = defineStore('websocket', () => {
     getCachedWebSocket,
     getCachedConnectionState,
     setCachedConnectionState,
-    getMessageHistory,
-    addMessageToHistory,
-    clearMessageHistory,
     getAutoReconnectConfig,
     setAutoReconnectConfig,
   }

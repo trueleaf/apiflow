@@ -592,6 +592,66 @@ class WebSocketNodeCache extends ResponseCache {
       localStorage.setItem('websocket/connectionActiveTab', JSON.stringify(data));
     }
   }
+
+  /*
+   * 获取websocket节点的"发送并清空"checkbox状态
+   */
+  getWebSocketSendAndClearState(nodeId: string): boolean {
+    try {
+      const localData: Record<string, boolean> = JSON.parse(localStorage.getItem('websocket/sendAndClearState') || '{}');
+      return localData[nodeId] || false;
+    } catch (error) {
+      console.error(error);
+      localStorage.setItem('websocket/sendAndClearState', '{}');
+      return false;
+    }
+  }
+
+  /*
+   * 设置websocket节点的"发送并清空"checkbox状态
+   */
+  setWebSocketSendAndClearState(nodeId: string, state: boolean) {
+    try {
+      const localData = JSON.parse(localStorage.getItem('websocket/sendAndClearState') || '{}');
+      localData[nodeId] = state;
+      localStorage.setItem('websocket/sendAndClearState', JSON.stringify(localData));
+    } catch (error) {
+      console.error(error);
+      const data: Record<string, boolean> = {};
+      data[nodeId] = state;
+      localStorage.setItem('websocket/sendAndClearState', JSON.stringify(data));
+    }
+  }
+
+  /*
+   * 获取websocket节点的消息类型
+   */
+  getWebSocketMessageType(nodeId: string): string {
+    try {
+      const localData: Record<string, string> = JSON.parse(localStorage.getItem('websocket/messageType') || '{}');
+      return localData[nodeId] || 'text';
+    } catch (error) {
+      console.error(error);
+      localStorage.setItem('websocket/messageType', '{}');
+      return 'text';
+    }
+  }
+
+  /*
+   * 设置websocket节点的消息类型
+   */
+  setWebSocketMessageType(nodeId: string, type: string) {
+    try {
+      const localData = JSON.parse(localStorage.getItem('websocket/messageType') || '{}');
+      localData[nodeId] = type;
+      localStorage.setItem('websocket/messageType', JSON.stringify(localData));
+    } catch (error) {
+      console.error(error);
+      const data: Record<string, string> = {};
+      data[nodeId] = type;
+      localStorage.setItem('websocket/messageType', JSON.stringify(data));
+    }
+  }
 }
 
 export const webSocketNodeCache = new WebSocketNodeCache();
