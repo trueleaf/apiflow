@@ -93,8 +93,7 @@ export class WebSocketManager {
 
       // 接收消息事件
       ws.on('message', (data) => {
-        const message = data.toString();
-        event.sender.send('websocket-message', { connectionId, nodeId, message, url });
+        event.sender.send('websocket-message', { connectionId, nodeId, message: data, url });
       });
 
       // 连接关闭事件
