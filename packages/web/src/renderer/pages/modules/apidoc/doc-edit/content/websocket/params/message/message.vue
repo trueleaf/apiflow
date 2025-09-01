@@ -2,7 +2,7 @@
   <div class="message-content">
     <!-- 数据类型选择器 -->
     <div class="message-type-selector">
-      <el-select v-model="websocketStore.websocket.item.messageType" size="small" @change="handleMessageTypeChange" class="type-selector">
+      <el-select v-model="websocketStore.websocket.config.messageType" size="small" @change="handleMessageTypeChange" class="type-selector">
         <el-option value="text" :label="t('文本')">
           <span class="option-content">
             <span>{{ t("文本") }}</span>
@@ -64,7 +64,7 @@
         </el-tooltip>
 
         <el-checkbox
-          v-model="sendAndClear"
+          v-model="websocketStore.websocket.config.sendAndClear"
           @change="handleSendAndClearChange"
         >
           {{ t("发送并清空") }}
@@ -74,7 +74,7 @@
         <div class="heartbeat-controls">
           <div class="heartbeat-checkbox">
             <el-checkbox
-              v-model="websocketStore.websocket.item.autoHeartbeat"
+              v-model="websocketStore.websocket.config.autoHeartbeat"
               @change="handleAutoHeartbeatChange"
               :disabled="connectionState !== 'connected'"
             >
@@ -82,7 +82,7 @@
             </el-checkbox>
 
             <el-popover
-              v-if="websocketStore.websocket.item.autoHeartbeat"
+              v-if="websocketStore.websocket.config.autoHeartbeat"
               :visible="configPopoverVisible"
               placement="bottom"
               :width="320"
@@ -105,7 +105,7 @@
                   <label class="config-label">{{ t("发送间隔") }}:</label>
                   <div class="config-input">
                     <el-input-number
-                      v-model="websocketStore.websocket.item.heartbeatInterval"
+                      v-model="websocketStore.websocket.config.heartbeatInterval"
                       :min="1000"
                       :max="300000"
                       :step="1000"
@@ -120,7 +120,7 @@
                 <div class="config-item">
                   <label class="config-label">{{ t("心跳包内容") }}:</label>
                   <el-input
-                    v-model="websocketStore.websocket.item.defaultHeartbeatContent"
+                    v-model="websocketStore.websocket.config.defaultHeartbeatContent"
                     type="textarea"
                     :rows="3"
                     :placeholder="t('请输入心跳包内容')"
@@ -144,12 +144,11 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
+import { ref, computed, watch, onUnmounted } from 'vue'
+import { storeToRefs } from 'pinia'
 import { useTranslation } from 'i18next-vue'
-import { useRoute } from 'vue-router'
 import { useApidocTas } from '@/store/apidoc/tabs'
 import { useWebSocket } from '@/store/websocket/websocket'
-import { webSocketNodeCache } from '@/cache/websocketNode'
 import { ElMessage } from 'element-plus'
 import {
   Position,
@@ -157,28 +156,20 @@ import {
 } from '@element-plus/icons-vue'
 import SJsonEditor from '@/components/common/json-editor/g-json-editor.vue'
 import type { MessageType } from '@src/types/websocket/websocket'
+import { uuid } from '@/helper'
 
 
 const { t } = useTranslation()
-const route = useRoute()
 const apidocTabsStore = useApidocTas()
 const websocketStore = useWebSocket()
 const connectionState = computed(() => websocketStore.connectionState)
 const connectionId = computed(() => websocketStore.connectionId)
-
 // 获取当前选中的tab
-const currentSelectTab = computed(() => {
-  const projectId = route.query.id as string
-  const tabs = apidocTabsStore.tabs[projectId]
-  const currentSelectTab = tabs?.find((tab) => tab.selected) || null
-  return currentSelectTab
-})
-const sendAndClear = ref(false)
+const { currentSelectTab } = storeToRefs(apidocTabsStore)
 const configPopoverVisible = ref(false)
 let heartbeatTimer: NodeJS.Timeout | null = null
-
 const editorConfig = computed(() => {
-  switch (websocketStore.websocket.item.messageType) {
+  switch (websocketStore.websocket.config.messageType) {
     case 'json':
       return { language: 'json' }
     case 'xml':
@@ -192,15 +183,6 @@ const editorConfig = computed(() => {
 })
 
 
-// 初始化状态
-const initStates = () => {
-  if (currentSelectTab.value) {
-    sendAndClear.value = webSocketNodeCache.getWebSocketSendAndClearState(currentSelectTab.value._id)
-    websocketStore.changeWebSocketMessageType(webSocketNodeCache.getWebSocketMessageType(currentSelectTab.value._id))
-  }
-}
-
-// 方法
 const handleSendMessage = async () => {
   if (!websocketStore.websocket.item.message.trim()) {
     ElMessage.warning(t('消息内容不能为空'))
@@ -218,39 +200,60 @@ const handleSendMessage = async () => {
   }
 
   try {
-    const result = await window.electronAPI?.websocket.send(connectionId.value, websocketStore.websocket.item.message)
+    const messageContent = websocketStore.websocket.item.message;
+    const result = await window.electronAPI?.websocket.send(connectionId.value, messageContent)
     if (result?.success) {
-      // 发送成功，发出事件通知父组件
-      // emit('message-sent', websocketStore.websocket.item.message)
-      
-      if (sendAndClear.value) {
+      // 添加发送消息记录
+      websocketStore.addMessage({
+        type: 'send',
+        data: {
+          id: uuid(),
+          content: messageContent,
+          timestamp: Date.now(),
+          contentType: websocketStore.websocket.config.messageType,
+          size: new Blob([messageContent]).size
+        }
+      });
+
+      if (websocketStore.websocket.config.sendAndClear) {
         websocketStore.changeWebSocketMessage('')
       }
     } else {
       ElMessage.error(t('消息发送失败') + ': ' + (result?.error || t('未知错误')))
       console.error('WebSocket消息发送失败:', result?.error)
+
+      // 添加发送失败错误消息
+      websocketStore.addMessage({
+        type: 'error',
+        data: {
+          id: uuid(),
+          error: result?.error || t('消息发送失败'),
+          timestamp: Date.now()
+        }
+      });
     }
   } catch (error) {
     ElMessage.error(t('消息发送异常'))
     console.error('WebSocket消息发送异常:', error)
+
+    // 添加发送异常错误消息
+    websocketStore.addMessage({
+      type: 'error',
+      data: {
+        id: uuid(),
+        error: error instanceof Error ? error.message : t('消息发送异常'),
+        timestamp: Date.now()
+      }
+    });
   }
 }
-
 const handleSendAndClearChange = (value: boolean | string | number) => {
   const boolValue = Boolean(value)
-  if (currentSelectTab.value) {
-    webSocketNodeCache.setWebSocketSendAndClearState(currentSelectTab.value._id, boolValue)
-  }
+  websocketStore.changeWebSocketSendAndClear(boolValue)
 }
-
 const handleMessageTypeChange = (value: MessageType) => {
   websocketStore.changeWebSocketMessageType(value)
-  if (currentSelectTab.value) {
-    webSocketNodeCache.setWebSocketMessageType(currentSelectTab.value._id, value)
-  }
 }
-
-// 心跳相关方法
 const handleAutoHeartbeatChange = (enabled: boolean | string | number) => {
   const boolEnabled = Boolean(enabled)
   websocketStore.changeWebSocketAutoHeartbeat(boolEnabled)
@@ -261,23 +264,19 @@ const handleAutoHeartbeatChange = (enabled: boolean | string | number) => {
     stopHeartbeat()
   }
 }
-
 const handleHeartbeatIntervalChange = (interval: number | undefined) => {
   if (interval !== undefined) {
     websocketStore.changeWebSocketHeartbeatInterval(interval)
-
     // 如果心跳正在运行，重新启动以应用新的间隔
-    if (websocketStore.websocket.item.autoHeartbeat && connectionState.value === 'connected') {
+    if (websocketStore.websocket.config.autoHeartbeat && connectionState.value === 'connected') {
       stopHeartbeat()
       startHeartbeat()
     }
   }
 }
-
 const handleDefaultHeartbeatContentChange = (content: string) => {
   websocketStore.changeWebSocketDefaultHeartbeatContent(content)
 }
-
 const startHeartbeat = () => {
   if (heartbeatTimer) {
     clearInterval(heartbeatTimer)
@@ -286,18 +285,45 @@ const startHeartbeat = () => {
   heartbeatTimer = setInterval(async () => {
     if (connectionState.value === 'connected' && connectionId.value) {
       try {
-        const heartbeatContent = websocketStore.websocket.item.defaultHeartbeatContent || 'ping'
+        const heartbeatContent = websocketStore.websocket.config.defaultHeartbeatContent || 'ping'
         const result = await window.electronAPI?.websocket.send(connectionId.value, heartbeatContent)
-        if (!result?.success) {
+        if (result?.success) {
+          // 添加心跳包发送记录
+          websocketStore.addMessage({
+            type: 'heartbeat',
+            data: {
+              id: uuid(),
+              message: heartbeatContent,
+              timestamp: Date.now()
+            }
+          });
+        } else {
           console.error('心跳包发送失败:', result?.error)
+          // 添加心跳包发送失败错误消息
+          websocketStore.addMessage({
+            type: 'error',
+            data: {
+              id: uuid(),
+              error: result?.error || t('心跳包发送失败'),
+              timestamp: Date.now()
+            }
+          });
         }
       } catch (error) {
         console.error('心跳包发送异常:', error)
+        // 添加心跳包发送异常错误消息
+        websocketStore.addMessage({
+          type: 'error',
+          data: {
+            id: uuid(),
+            error: error instanceof Error ? error.message : t('心跳包发送异常'),
+            timestamp: Date.now()
+          }
+        });
       }
     }
-  }, websocketStore.websocket.item.heartbeatInterval)
+  }, websocketStore.websocket.config.heartbeatInterval)
 }
-
 const stopHeartbeat = () => {
   if (heartbeatTimer) {
     clearInterval(heartbeatTimer)
@@ -305,11 +331,9 @@ const stopHeartbeat = () => {
   }
 }
 
-
-
 // 监听连接状态变化，管理心跳
 watch(() => connectionState.value, (newState) => {
-  if (newState === 'connected' && websocketStore.websocket.item.autoHeartbeat) {
+  if (newState === 'connected' && websocketStore.websocket.config.autoHeartbeat) {
     startHeartbeat()
   } else if (newState !== 'connected') {
     stopHeartbeat()
@@ -319,24 +343,12 @@ watch(() => connectionState.value, (newState) => {
 // 监听当前选中tab变化，重新加载状态
 watch(currentSelectTab, (newTab) => {
   if (newTab) {
-    // 停止之前的心跳
     stopHeartbeat()
-
-    // 重新加载状态
-    sendAndClear.value = webSocketNodeCache.getWebSocketSendAndClearState(newTab._id)
-    websocketStore.changeWebSocketMessageType(webSocketNodeCache.getWebSocketMessageType(newTab._id))
-
-    // 如果连接状态是已连接且启用了自动心跳，启动心跳
-    if (connectionState.value === 'connected' && websocketStore.websocket.item.autoHeartbeat) {
+    if (connectionState.value === 'connected' && websocketStore.websocket.config.autoHeartbeat) {
       startHeartbeat()
     }
   }
 })
-
-onMounted(() => {
-  initStates()
-})
-
 onUnmounted(() => {
   stopHeartbeat()
 })

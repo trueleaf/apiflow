@@ -74,6 +74,7 @@ import { useWebSocket } from '@/store/websocket/websocket';
 import { useApidocTas } from '@/store/apidoc/tabs';
 import { router } from '@/router';
 import { ApidocProperty } from '@src/types';
+import { uuid } from '@/helper';
 
 const { t } = useTranslation();
 const websocketStore = useWebSocket();
@@ -84,6 +85,10 @@ const saveLoading = computed(() => websocketStore.saveLoading);
 const refreshLoading = ref(false);
 const connectionLoading = ref(false);
 const hasEverConnected = ref(false);
+const reconnectAttempts = ref(0);
+const maxReconnectAttempts = computed(() => websocketStore.websocket.config.maxReconnectAttempts);
+const reconnectInterval = computed(() => websocketStore.websocket.config.reconnectInterval);
+let reconnectTimer: NodeJS.Timeout | null = null;
 const fullUrl = computed(() => {
   return websocketStore.websocketFullUrl;
 });
@@ -120,21 +125,61 @@ const handleConnect = () => {
   }
   connectionLoading.value = true;
   websocketStore.changeConnectionState('connecting');
+  
+  // 添加发起连接消息
+  websocketStore.addMessage({
+    type: 'startConnect',
+    data: {
+      id: uuid(),
+      url: fullUrl.value,
+      timestamp: Date.now()
+    }
+  });
+  
   const nodeId = currentSelectTab.value._id;
   window.electronAPI?.websocket.connect(fullUrl.value, nodeId).then((result) => {
     if (result.success) {
       websocketStore.changeConnectionId(result.connectionId!);
       websocketStore.changeConnectionState('connected');
       hasEverConnected.value = true;
+      // 连接成功后，重置重连计数器
+      reconnectAttempts.value = 0;
+      clearReconnectTimer();
       // 连接成功后，更新originWebsocket以避免checkWebsocketIsEqual返回false
       websocketStore.changeOriginWebsocket();
     } else {
       websocketStore.changeConnectionState('error');
       console.error('WebSocket连接失败:', result.error);
+
+      // 添加连接错误消息
+      websocketStore.addMessage({
+        type: 'error',
+        data: {
+          id: uuid(),
+          error: result.error || t('连接失败'),
+          timestamp: Date.now()
+        }
+      });
+
+      // 如果启用了自动重连，尝试重连
+      attemptReconnect();
     }
   }).catch((error) => {
     websocketStore.changeConnectionState('error');
     console.error('WebSocket连接异常:', error);
+
+    // 添加连接异常消息
+    websocketStore.addMessage({
+      type: 'error',
+      data: {
+        id: uuid(),
+        error: error.message || t('连接异常'),
+        timestamp: Date.now()
+      }
+    });
+
+    // 如果启用了自动重连，尝试重连
+    attemptReconnect();
   }).finally(() => {
     connectionLoading.value = false;
   });
@@ -146,16 +191,94 @@ const handleDisconnect = () => {
     if (result.success) {
       websocketStore.changeConnectionState('disconnected');
       websocketStore.changeConnectionId('');
+      // 手动断开连接时，清理重连定时器和重置计数器
+      clearReconnectTimer();
+      reconnectAttempts.value = 0;
+
+      // 添加断开连接消息
+      websocketStore.addMessage({
+        type: 'disconnected',
+        data: {
+          id: uuid(),
+          url: fullUrl.value,
+          reasonType: 'manual',
+          timestamp: Date.now()
+        }
+      });
     } else {
       websocketStore.changeConnectionState('error');
       console.error('WebSocket断开连接失败:', result.error);
+
+      // 添加断开连接错误消息
+      websocketStore.addMessage({
+        type: 'error',
+        data: {
+          id: uuid(),
+          error: result.error || t('断开连接失败'),
+          timestamp: Date.now()
+        }
+      });
     }
   }).catch((error) => {
     websocketStore.changeConnectionState('error');
     console.error('WebSocket断开连接异常:', error);
+
+    // 添加断开连接异常消息
+    websocketStore.addMessage({
+      type: 'error',
+      data: {
+        id: uuid(),
+        error: error.message || t('断开连接异常'),
+        timestamp: Date.now()
+      }
+    });
   }).finally(() => {
     connectionLoading.value = false;
   });
+};
+
+// 自动重连逻辑
+const attemptReconnect = () => {
+  if (!websocketStore.websocket.config.autoReconnect || !hasEverConnected.value) {
+    return;
+  }
+
+  if (reconnectAttempts.value >= maxReconnectAttempts.value) {
+    console.log('已达到最大重连次数，停止重连');
+    return;
+  }
+
+  reconnectAttempts.value++;
+  // 使用配置的重连间隔，如果没有配置则使用指数退避
+  const configuredInterval = reconnectInterval.value * 1000; // 转换为毫秒
+  const exponentialBackoff = Math.min(1000 * Math.pow(2, reconnectAttempts.value - 1), 30000);
+  const delay = configuredInterval > 0 ? configuredInterval : exponentialBackoff;
+  const nextRetryTime = Date.now() + delay;
+
+  // 添加重连消息
+  websocketStore.addMessage({
+    type: 'reconnecting',
+    data: {
+      id: uuid(),
+      url: fullUrl.value,
+      timestamp: Date.now(),
+      attempt: reconnectAttempts.value,
+      nextRetryTime
+    }
+  });
+
+  reconnectTimer = setTimeout(() => {
+    console.log(`尝试第 ${reconnectAttempts.value} 次重连...`);
+    handleConnect();
+  }, delay);
+};
+
+// 清理重连定时器
+const clearReconnectTimer = () => {
+  if (reconnectTimer) {
+    clearTimeout(reconnectTimer);
+    reconnectTimer = null;
+  }
 };
 
 /*
@@ -315,6 +438,16 @@ const setupWebSocketEventListeners = () => {
       websocketStore.changeConnectionId(data.connectionId);
       websocketStore.changeConnectionState('connected');
       hasEverConnected.value = true;
+
+      // 添加连接成功消息
+      websocketStore.addMessage({
+        type: 'connected',
+        data: {
+          id: uuid(),
+          url: data.url,
+          timestamp: Date.now()
+        }
+      });
     }
   });
   // 监听WebSocket连接关闭事件
@@ -322,6 +455,20 @@ const setupWebSocketEventListeners = () => {
     if (currentSelectTab.value && data.nodeId === currentSelectTab.value._id) {
       websocketStore.changeConnectionId('');
       websocketStore.changeConnectionState('disconnected');
+
+      // 添加断开连接消息
+      websocketStore.addMessage({
+        type: 'disconnected',
+        data: {
+          id: uuid(),
+          url: data.url,
+          reasonType: 'auto',
+          timestamp: Date.now()
+        }
+      });
+
+      // 如果启用了自动重连，尝试重连
+      attemptReconnect();
     }
   });
   // 监听WebSocket连接错误事件
@@ -329,6 +476,34 @@ const setupWebSocketEventListeners = () => {
     if (currentSelectTab.value && data.nodeId === currentSelectTab.value._id) {
       websocketStore.changeConnectionId('');
       websocketStore.changeConnectionState('error');
+
+      // 添加错误消息
+      websocketStore.addMessage({
+        type: 'error',
+        data: {
+          id: uuid(),
+          error: data.error,
+          timestamp: Date.now()
+        }
+      });
+    }
+  });
+
+  // 监听WebSocket接收消息事件
+  window.electronAPI.onMain('websocket-message', (data: { connectionId: string; nodeId: string; message: string; url: string }) => {
+    if (currentSelectTab.value && data.nodeId === currentSelectTab.value._id) {
+      // 添加接收消息记录
+      websocketStore.addMessage({
+        type: 'receive',
+        data: {
+          id: uuid(),
+          content: data.message,
+          timestamp: Date.now(),
+          contentType: 'text', // 默认为文本类型，实际项目中可能需要根据消息内容判断
+          mimeType: 'text/plain',
+          size: new Blob([data.message]).size
+        }
+      });
     }
   });
 };
@@ -357,6 +532,7 @@ onMounted(() => {
 
 onUnmounted(() => {
   cleanupWebSocketEventListeners();
+  clearReconnectTimer();
 });
 
 // 暴露连接状态供父组件使用

@@ -45,6 +45,22 @@ const loading = computed(() => websocketStore.loading)
 | 方法定义
 |--------------------------------------------------------------------------
 */
+//检查config配置是否相等
+const checkConfigIsEqual = (config: WebSocketNode['config'], originConfig: WebSocketNode['config']) => {
+  const messageTypeIsEqual = config.messageType === originConfig.messageType;
+  const autoHeartbeatIsEqual = config.autoHeartbeat === originConfig.autoHeartbeat;
+  const heartbeatIntervalIsEqual = config.heartbeatInterval === originConfig.heartbeatInterval;
+  const defaultHeartbeatContentIsEqual = config.defaultHeartbeatContent === originConfig.defaultHeartbeatContent;
+  const sendAndClearIsEqual = config.sendAndClear === originConfig.sendAndClear;
+  const autoReconnectIsEqual = config.autoReconnect === originConfig.autoReconnect;
+  const maxReconnectAttemptsIsEqual = config.maxReconnectAttempts === originConfig.maxReconnectAttempts;
+  const reconnectIntervalIsEqual = config.reconnectInterval === originConfig.reconnectInterval;
+  
+  return messageTypeIsEqual && autoHeartbeatIsEqual && heartbeatIntervalIsEqual && 
+         defaultHeartbeatContentIsEqual && sendAndClearIsEqual && autoReconnectIsEqual &&
+         maxReconnectAttemptsIsEqual && reconnectIntervalIsEqual;
+}
+
 //判断websocket是否发生改变
 const checkWebsocketIsEqual = (websocket: WebSocketNode, originWebsocket: WebSocketNode) => {
   const cpWebsocket: WebSocketNode = JSON.parse(JSON.stringify(websocket))
@@ -68,23 +84,18 @@ const checkWebsocketIsEqual = (websocket: WebSocketNode, originWebsocket: WebSoc
   const queryParamsIsEqual = checkPropertyIsEqual(cpWebsocket.item.queryParams, cpOriginWebsocket.item.queryParams)
   
   // 检查消息内容
-  const messageIsEqual = cpWebsocket.item.message === cpOriginWebsocket.item.message
+  const messageIsEqual = cpWebsocket.item.message === cpOriginWebsocket.item.message;
   
-  // 检查心跳配置
-  const autoHeartbeatIsEqual = cpWebsocket.item.autoHeartbeat === cpOriginWebsocket.item.autoHeartbeat
-  const heartbeatIntervalIsEqual = cpWebsocket.item.heartbeatInterval === cpOriginWebsocket.item.heartbeatInterval
-  const defaultHeartbeatContentIsEqual = cpWebsocket.item.defaultHeartbeatContent === cpOriginWebsocket.item.defaultHeartbeatContent
-
-  console.log(autoHeartbeatIsEqual, heartbeatIntervalIsEqual, defaultHeartbeatContentIsEqual)
-
+  // 检查config配置
+  const configIsEqual = checkConfigIsEqual(cpWebsocket.config, cpOriginWebsocket.config)
+  
   // 检查前置和后置脚本
   const preRequestIsEqual = cpWebsocket.preRequest.raw === cpOriginWebsocket.preRequest.raw
   const afterRequestIsEqual = cpWebsocket.afterRequest.raw === cpOriginWebsocket.afterRequest.raw
 
   if (!nameIsEqual || !descriptionIsEqual || !protocolIsEqual || !pathIsEqual || 
       !prefixIsEqual || !headerIsEqual || !queryParamsIsEqual || !messageIsEqual || 
-      !autoHeartbeatIsEqual || !heartbeatIntervalIsEqual || !defaultHeartbeatContentIsEqual ||
-      !preRequestIsEqual || !afterRequestIsEqual) {
+      !configIsEqual || !preRequestIsEqual || !afterRequestIsEqual) {
     return false
   }
 
