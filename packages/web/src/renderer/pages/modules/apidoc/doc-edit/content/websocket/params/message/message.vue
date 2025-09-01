@@ -156,23 +156,15 @@ import {
   Setting,
 } from '@element-plus/icons-vue'
 import SJsonEditor from '@/components/common/json-editor/g-json-editor.vue'
+import type { MessageType } from '@src/types/websocket/websocket'
 
-// 定义emits
-// const emit = defineEmits<{
-//   'message-sent': [message: string]
-// }>()
 
 const { t } = useTranslation()
 const route = useRoute()
 const apidocTabsStore = useApidocTas()
 const websocketStore = useWebSocket()
-
-// 使用store中的连接状态
 const connectionState = computed(() => websocketStore.connectionState)
 const connectionId = computed(() => websocketStore.connectionId)
-
-// 消息类型定义
-type MessageType = 'text' | 'json' | 'xml' | 'html' | 'binary-base64' | 'binary-hex'
 
 // 获取当前选中的tab
 const currentSelectTab = computed(() => {
@@ -207,7 +199,7 @@ const editorConfig = computed(() => {
 const initStates = () => {
   if (currentSelectTab.value) {
     sendAndClear.value = webSocketNodeCache.getWebSocketSendAndClearState(currentSelectTab.value._id)
-    messageType.value = webSocketNodeCache.getWebSocketMessageType(currentSelectTab.value._id) as MessageType
+    messageType.value = webSocketNodeCache.getWebSocketMessageType(currentSelectTab.value._id)
   }
 }
 
@@ -335,7 +327,7 @@ watch(currentSelectTab, (newTab) => {
 
     // 重新加载状态
     sendAndClear.value = webSocketNodeCache.getWebSocketSendAndClearState(newTab._id)
-    messageType.value = webSocketNodeCache.getWebSocketMessageType(newTab._id) as MessageType
+    messageType.value = webSocketNodeCache.getWebSocketMessageType(newTab._id)
 
     // 如果连接状态是已连接且启用了自动心跳，启动心跳
     if (connectionState.value === 'connected' && websocketStore.websocket.item.autoHeartbeat) {
@@ -405,8 +397,7 @@ onUnmounted(() => {
     .heartbeat-controls {
       display: flex;
       flex-direction: column;
-      gap: 8px;
-      margin-left: 16px;
+      margin-left: 8px;
 
       .heartbeat-checkbox {
         display: flex;
@@ -431,7 +422,6 @@ onUnmounted(() => {
       .heartbeat-config {
         display: flex;
         align-items: center;
-        gap: 8px;
         margin-left: 24px;
 
         .interval-unit {

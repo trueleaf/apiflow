@@ -2,7 +2,7 @@
  * websocket文档缓存
  */
 
-import { WebSocketNode } from '@src/types/websocket/websocket';
+import { WebSocketNode, MessageType } from '@src/types/websocket/websocket';
 import { ResponseCache } from './responseCache';
 import type { ApidocCookie } from '@src/renderer/store/apidoc/cookies';
 
@@ -626,10 +626,10 @@ class WebSocketNodeCache extends ResponseCache {
   /*
    * 获取websocket节点的消息类型
    */
-  getWebSocketMessageType(nodeId: string): string {
+  getWebSocketMessageType(nodeId: string): MessageType {
     try {
       const localData: Record<string, string> = JSON.parse(localStorage.getItem('websocket/messageType') || '{}');
-      return localData[nodeId] || 'text';
+      return (localData[nodeId] || 'text') as MessageType;
     } catch (error) {
       console.error(error);
       localStorage.setItem('websocket/messageType', '{}');
@@ -640,7 +640,7 @@ class WebSocketNodeCache extends ResponseCache {
   /*
    * 设置websocket节点的消息类型
    */
-  setWebSocketMessageType(nodeId: string, type: string) {
+  setWebSocketMessageType(nodeId: string, type: MessageType) {
     try {
       const localData = JSON.parse(localStorage.getItem('websocket/messageType') || '{}');
       localData[nodeId] = type;

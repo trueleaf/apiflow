@@ -37,9 +37,7 @@ const apidocTabsStore = useApidocTas()
 const websocketStore = useWebSocket()
 const { currentSelectTab } = storeToRefs(apidocTabsStore)
 const debounceFn = ref(null as (null | DebouncedFunc<(websocket: WebSocketNode) => void>))
-
 const responseRef = ref()
-
 const loading = computed(() => websocketStore.loading)
 
 /*
@@ -76,7 +74,9 @@ const checkWebsocketIsEqual = (websocket: WebSocketNode, originWebsocket: WebSoc
   const autoHeartbeatIsEqual = cpWebsocket.item.autoHeartbeat === cpOriginWebsocket.item.autoHeartbeat
   const heartbeatIntervalIsEqual = cpWebsocket.item.heartbeatInterval === cpOriginWebsocket.item.heartbeatInterval
   const defaultHeartbeatContentIsEqual = cpWebsocket.item.defaultHeartbeatContent === cpOriginWebsocket.item.defaultHeartbeatContent
-  
+
+  console.log(autoHeartbeatIsEqual, heartbeatIntervalIsEqual, defaultHeartbeatContentIsEqual)
+
   // 检查前置和后置脚本
   const preRequestIsEqual = cpWebsocket.preRequest.raw === cpOriginWebsocket.preRequest.raw
   const afterRequestIsEqual = cpWebsocket.afterRequest.raw === cpOriginWebsocket.afterRequest.raw

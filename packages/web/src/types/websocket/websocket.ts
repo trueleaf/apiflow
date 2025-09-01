@@ -1,5 +1,9 @@
 import { ApidocBaseInfo, ApidocProperty } from "../types.ts";
 
+/**
+ * WebSocket消息类型
+ */
+export type MessageType = 'text' | 'json' | 'xml' | 'html' | 'binary-base64' | 'binary-hex';
 
 export type WebSocketNode = {
   /**
@@ -49,6 +53,10 @@ export type WebSocketNode = {
      * 发送的数据
      */
     message: string;
+    /**
+     * 消息类型
+     */
+    messageType: MessageType;
     /**
      * 是否自动发送心跳包
      */
@@ -104,3 +112,4 @@ export type WebSocketNode = {
    */
   isDeleted?: boolean;
 };
+

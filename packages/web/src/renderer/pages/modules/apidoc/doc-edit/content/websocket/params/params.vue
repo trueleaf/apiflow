@@ -46,13 +46,13 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, ref, watch } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import { useTranslation } from 'i18next-vue'
 import { storeToRefs } from 'pinia'
 import SHeaders from './headers/headers.vue'
 import SQueryParams from './query-params/query-params.vue'
 import SPreScript from './pre-script/pre-script.vue'
-import SMessageContent from './message-content/message-content.vue'
+import SMessageContent from './message/message.vue'
 import SAfterScript from './after-script/after-script.vue'
 import SConfig from './config/config.vue'
 import SRemarks from './remarks/remarks.vue'
@@ -108,9 +108,9 @@ watch(currentSelectTab, (newTab) => {
     activeTab.value = cachedTab || 'messageContent'
   }
 })
-
-// 初始化
-activeTab.value = getInitialActiveTab()
+onMounted(() => {
+  activeTab.value = getInitialActiveTab()
+})
 </script>
 
 <style lang="scss" scoped>
