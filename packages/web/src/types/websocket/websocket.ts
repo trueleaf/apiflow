@@ -53,6 +53,11 @@ export type WebSocketNode = {
      * 发送的数据
      */
     message: string;
+  };
+  /**
+   * 连接配置
+   */
+  config: {
     /**
      * 消息类型
      */
@@ -69,7 +74,23 @@ export type WebSocketNode = {
      * 默认心跳包内容
      */
     defaultHeartbeatContent: string;
-  };
+    /**
+     * 发送并清空
+     */
+    sendAndClear: boolean;
+    /**
+     * 是否自动重连
+     */
+    autoReconnect: boolean;
+    /**
+     * 最大重连次数
+     */
+    maxReconnectAttempts: number;
+    /**
+     * 重连间隔
+     */
+    reconnectInterval: number;
+  },
   /**
    * 公共请求头
    */
@@ -113,3 +134,101 @@ export type WebSocketNode = {
   isDeleted?: boolean;
 };
 
+// 发送消息数据
+export type WebsocketSendResponse = {
+  type: "send";
+  data: {
+    id: string;
+    content: string;
+    timestamp: number;
+    contentType: MessageType;
+    size: number; // 消息大小(字节)
+  };
+};
+
+// 接收消息数据
+export type WebsocketReceiveResponse = {
+  type: "receive";
+  data: {
+    id: string;
+    content: string;
+    timestamp: number;
+    contentType: 'text' | 'binary';
+    mimeType: string;
+    size: number; // 消息大小
+  };
+};
+
+// 发起连接数据
+export type WebsocketStartConnectResponse = {
+  type: "startConnect";
+  data: {
+    id: string;
+    url: string;
+    timestamp: number;
+  };
+};
+// 连接数据
+export type WebsocketConnectedResponse = {
+  type: "connected";
+  data: {
+    id: string;
+    url: string;
+    timestamp: number;
+  };
+};
+
+// 断开连接数据
+export type WebsocketDisconnectedResponse = {
+  type: "disconnected";
+  data: {
+    id: string;
+    url: string;
+    reasonType: 'manual' | 'auto';
+    timestamp: number;
+  };
+};
+
+// 错误数据
+export type WebsocketErrorResponse = {
+  type: "error";
+  data: {
+    id: string;
+    error: string;
+    timestamp: number;
+  };
+};
+
+// 心跳包响应
+export type WebsocketHeartbeatResponse = {
+  type: "heartbeat";
+  data: {
+    id: string;
+    message: string;
+    timestamp: number;
+  };
+};
+
+// 正在重连响应
+export type WebsocketReconnectingResponse = {
+  type: "reconnecting";
+  data: {
+    id: string;
+    url: string;
+    timestamp: number;
+    attempt: number; // 重试次数
+    nextRetryTime: number; // 下次重试时间戳
+  };
+};
+
+
+
+export type WebsocketResponse = 
+  | WebsocketSendResponse 
+  | WebsocketReceiveResponse 
+  | WebsocketConnectedResponse 
+  | WebsocketDisconnectedResponse 
+  | WebsocketErrorResponse
+  | WebsocketHeartbeatResponse
+  | WebsocketStartConnectResponse
+  | WebsocketReconnectingResponse;

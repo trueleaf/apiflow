@@ -587,10 +587,16 @@ export const generateEmptyWebsocketNode = (_id: string): WebSocketNode => {
       queryParams: [],
       headers: [],
       message: '',
+    },
+    config: {
       messageType: 'text',
       autoHeartbeat: false,
       heartbeatInterval: 30000, // 30 seconds default
       defaultHeartbeatContent: 'ping', // default heartbeat content
+      sendAndClear: false,
+      autoReconnect: false,
+      maxReconnectAttempts: 5,
+      reconnectInterval: 5,
     },
     preRequest: {
       raw: ''

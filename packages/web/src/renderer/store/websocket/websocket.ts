@@ -1,4 +1,4 @@
-import { WebSocketNode, MessageType } from "@src/types/websocket/websocket.ts";
+import { WebSocketNode, MessageType, WebsocketResponse } from "@src/types/websocket/websocket.ts";
 import { defineStore, storeToRefs } from "pinia";
 import { ref, watch } from "vue";
 import { ApidocProperty } from "@src/types";
@@ -26,6 +26,7 @@ export const useWebSocket = defineStore('websocket', () => {
   const defaultHeaders = ref<ApidocProperty<"string">[]>([]);
   const connectionState = ref<'disconnected' | 'connecting' | 'connected' | 'error'>('disconnected');
   const connectionId = ref('');
+  const messages = ref<WebsocketResponse[]>([]);
   
   /*
   |--------------------------------------------------------------------------
@@ -296,28 +297,56 @@ export const useWebSocket = defineStore('websocket', () => {
   // 改变消息类型
   const changeWebSocketMessageType = (messageType: MessageType): void => {
     if (websocket.value) {
-      websocket.value.item.messageType = messageType;
+      websocket.value.config.messageType = messageType;
     }
   };
 
   // 改变自动心跳设置
   const changeWebSocketAutoHeartbeat = (enabled: boolean): void => {
     if (websocket.value) {
-      websocket.value.item.autoHeartbeat = enabled;
+      websocket.value.config.autoHeartbeat = enabled;
     }
   };
 
   // 改变心跳间隔
   const changeWebSocketHeartbeatInterval = (interval: number): void => {
     if (websocket.value) {
-      websocket.value.item.heartbeatInterval = interval;
+      websocket.value.config.heartbeatInterval = interval;
     }
   };
 
   // 改变默认心跳内容
   const changeWebSocketDefaultHeartbeatContent = (content: string): void => {
     if (websocket.value) {
-      websocket.value.item.defaultHeartbeatContent = content;
+      websocket.value.config.defaultHeartbeatContent = content;
+    }
+  };
+
+  // 改变发送并清空设置
+  const changeWebSocketSendAndClear = (enabled: boolean): void => {
+    if (websocket.value) {
+      websocket.value.config.sendAndClear = enabled;
+    }
+  };
+
+  // 改变自动重连设置
+  const changeWebSocketAutoReconnect = (enabled: boolean): void => {
+    if (websocket.value) {
+      websocket.value.config.autoReconnect = enabled;
+    }
+  };
+
+  // 改变最大重连次数
+  const changeWebSocketMaxReconnectAttempts = (attempts: number): void => {
+    if (websocket.value) {
+      websocket.value.config.maxReconnectAttempts = attempts;
+    }
+  };
+
+  // 改变重连间隔
+  const changeWebSocketReconnectInterval = (interval: number): void => {
+    if (websocket.value) {
+      websocket.value.config.reconnectInterval = interval;
     }
   };
 
@@ -334,6 +363,47 @@ export const useWebSocket = defineStore('websocket', () => {
   // 改变连接ID
   const changeConnectionId = (id: string): void => {
     connectionId.value = id;
+  };
+
+  /*
+  |--------------------------------------------------------------------------
+  | 消息数据操作方法
+  |--------------------------------------------------------------------------
+  */
+  // 添加消息到数组
+  const addMessage = (message: WebsocketResponse): void => {
+    messages.value.push(message);
+  };
+
+  // 清空所有消息
+  const clearMessages = (): void => {
+    messages.value = [];
+  };
+
+  // 根据ID删除消息
+  const deleteMessageById = (messageId: string): void => {
+    const index = messages.value.findIndex(msg => msg.data.id === messageId);
+    if (index !== -1) {
+      messages.value.splice(index, 1);
+    }
+  };
+
+  // 根据类型筛选消息
+  const getMessagesByType = (type: WebsocketResponse['type']): WebsocketResponse[] => {
+    return messages.value.filter(msg => msg.type === type);
+  };
+
+  // 获取最新的N条消息
+  const getLatestMessages = (count: number): WebsocketResponse[] => {
+    return messages.value.slice(-count);
+  };
+
+  // 根据时间范围获取消息
+  const getMessagesByTimeRange = (startTime: number, endTime: number): WebsocketResponse[] => {
+    return messages.value.filter(msg => {
+      const timestamp = msg.data.timestamp;
+      return timestamp >= startTime && timestamp <= endTime;
+    });
   };
 
   /*
@@ -557,6 +627,7 @@ export const useWebSocket = defineStore('websocket', () => {
     defaultHeaders,
     connectionState,
     connectionId,
+    messages,
     changeWebSocketName,
     changeWebSocketDescription,
     changeWebSocketProtocol,
@@ -577,6 +648,10 @@ export const useWebSocket = defineStore('websocket', () => {
     changeWebSocketAutoHeartbeat,
     changeWebSocketHeartbeatInterval,
     changeWebSocketDefaultHeartbeatContent,
+    changeWebSocketSendAndClear,
+    changeWebSocketAutoReconnect,
+    changeWebSocketMaxReconnectAttempts,
+    changeWebSocketReconnectInterval,
     changeConnectionState,
     changeConnectionId,
     markWebSocketAsDeleted,
@@ -585,6 +660,13 @@ export const useWebSocket = defineStore('websocket', () => {
     changeWebsocketLoading,
     getWebsocketDetail,
     saveWebsocket,
+    // 消息相关方法
+    addMessage,
+    clearMessages,
+    deleteMessageById,
+    getMessagesByType,
+    getLatestMessages,
+    getMessagesByTimeRange,
     // 缓存相关方法
     cacheWebSocket,
     getCachedWebSocket,
