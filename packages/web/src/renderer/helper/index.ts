@@ -587,6 +587,7 @@ export const generateEmptyWebsocketNode = (_id: string): WebSocketNode => {
       queryParams: [],
       headers: [],
       message: '',
+      messageType: 'text',
       autoHeartbeat: false,
       heartbeatInterval: 30000, // 30 seconds default
       defaultHeartbeatContent: 'ping', // default heartbeat content

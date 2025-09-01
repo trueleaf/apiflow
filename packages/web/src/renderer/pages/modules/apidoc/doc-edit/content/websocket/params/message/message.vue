@@ -2,7 +2,7 @@
   <div class="message-content">
     <!-- 数据类型选择器 -->
     <div class="message-type-selector">
-      <el-select v-model="messageType" size="small" @change="handleMessageTypeChange" class="type-selector">
+      <el-select v-model="websocketStore.websocket.item.messageType" size="small" @change="handleMessageTypeChange" class="type-selector">
         <el-option value="text" :label="t('文本')">
           <span class="option-content">
             <span>{{ t("文本") }}</span>
@@ -173,15 +173,12 @@ const currentSelectTab = computed(() => {
   const currentSelectTab = tabs?.find((tab) => tab.selected) || null
   return currentSelectTab
 })
-
-// 响应式数据
 const sendAndClear = ref(false)
-const messageType = ref<MessageType>('text')
 const configPopoverVisible = ref(false)
 let heartbeatTimer: NodeJS.Timeout | null = null
 
 const editorConfig = computed(() => {
-  switch (messageType.value) {
+  switch (websocketStore.websocket.item.messageType) {
     case 'json':
       return { language: 'json' }
     case 'xml':
@@ -199,7 +196,7 @@ const editorConfig = computed(() => {
 const initStates = () => {
   if (currentSelectTab.value) {
     sendAndClear.value = webSocketNodeCache.getWebSocketSendAndClearState(currentSelectTab.value._id)
-    messageType.value = webSocketNodeCache.getWebSocketMessageType(currentSelectTab.value._id)
+    websocketStore.changeWebSocketMessageType(webSocketNodeCache.getWebSocketMessageType(currentSelectTab.value._id))
   }
 }
 
@@ -247,7 +244,7 @@ const handleSendAndClearChange = (value: boolean | string | number) => {
 }
 
 const handleMessageTypeChange = (value: MessageType) => {
-  messageType.value = value
+  websocketStore.changeWebSocketMessageType(value)
   if (currentSelectTab.value) {
     webSocketNodeCache.setWebSocketMessageType(currentSelectTab.value._id, value)
   }
@@ -327,7 +324,7 @@ watch(currentSelectTab, (newTab) => {
 
     // 重新加载状态
     sendAndClear.value = webSocketNodeCache.getWebSocketSendAndClearState(newTab._id)
-    messageType.value = webSocketNodeCache.getWebSocketMessageType(newTab._id)
+    websocketStore.changeWebSocketMessageType(webSocketNodeCache.getWebSocketMessageType(newTab._id))
 
     // 如果连接状态是已连接且启用了自动心跳，启动心跳
     if (connectionState.value === 'connected' && websocketStore.websocket.item.autoHeartbeat) {

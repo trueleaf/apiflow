@@ -1,4 +1,4 @@
-import { WebSocketNode } from "@src/types/websocket/websocket.ts";
+import { WebSocketNode, MessageType } from "@src/types/websocket/websocket.ts";
 import { defineStore, storeToRefs } from "pinia";
 import { ref, watch } from "vue";
 import { ApidocProperty } from "@src/types";
@@ -293,6 +293,13 @@ export const useWebSocket = defineStore('websocket', () => {
     }
   };
 
+  // 改变消息类型
+  const changeWebSocketMessageType = (messageType: MessageType): void => {
+    if (websocket.value) {
+      websocket.value.item.messageType = messageType;
+    }
+  };
+
   // 改变自动心跳设置
   const changeWebSocketAutoHeartbeat = (enabled: boolean): void => {
     if (websocket.value) {
@@ -566,6 +573,7 @@ export const useWebSocket = defineStore('websocket', () => {
     changeWebSocketPreRequest,
     changeWebSocketAfterRequest,
     changeWebSocketMessage,
+    changeWebSocketMessageType,
     changeWebSocketAutoHeartbeat,
     changeWebSocketHeartbeatInterval,
     changeWebSocketDefaultHeartbeatContent,
