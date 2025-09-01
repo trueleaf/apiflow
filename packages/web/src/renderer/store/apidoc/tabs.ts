@@ -1,6 +1,6 @@
 import { ApidocTab } from "@src/types/apidoc/tabs";
 import { defineStore } from "pinia";
-import { ref } from "vue";
+import { ref, computed } from "vue";
 import { event, findNodeById } from "@/helper";
 import { router } from "@/router";
 import { ElMessageBox } from "element-plus";
@@ -19,6 +19,16 @@ type EditTabPayload<K extends keyof ApidocTab> = {
 export const useApidocTas = defineStore('apidocTabs', () => {
   const tabs = ref<Record<string, ApidocTab[]>>({});
   const { changeExpandItems } = useApidocBanner()
+  
+  // 获取当前选中的tab（基于当前路由的projectId）
+  const currentSelectTab = computed(() => {
+    const projectId = router.currentRoute.value.query.id as string;
+    if (!projectId || !tabs.value[projectId]) {
+      return null;
+    }
+    return tabs.value[projectId].find((tab) => tab.selected) || null;
+  });
+  
   //初始化本地tab
   const initLocalTabs = (payload: { projectId: string }): void => {
     const { projectId } = payload;
@@ -264,6 +274,7 @@ export const useApidocTas = defineStore('apidocTabs', () => {
   }
   return {
     tabs,
+    currentSelectTab,
     initLocalTabs,
     addTab,
     fixedTab,

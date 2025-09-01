@@ -563,7 +563,7 @@ class WebSocketNodeCache extends ResponseCache {
   /*
    * 获取websocket连接页面的活跃tab
    */
-  getWebSocketConnectionActiveTab(id: string): string | null {
+  getActiveTab(id: string): string | null {
     try {
       const localActiveTab: Record<string, string> = JSON.parse(localStorage.getItem('websocket/connectionActiveTab') || '{}');
       if (!localActiveTab[id]) {
@@ -580,7 +580,7 @@ class WebSocketNodeCache extends ResponseCache {
   /*
    * 设置websocket连接页面的活跃tab
    */
-  setWebSocketConnectionActiveTab(id: string, val: string) {
+  setActiveTab(id: string, val: string) {
     try {
       const localActiveTab = JSON.parse(localStorage.getItem('websocket/connectionActiveTab') || '{}');
       localActiveTab[id] = val;

@@ -48,7 +48,7 @@ export type WebSocketNode = {
     /**
      * 发送的数据
      */
-    sendMessage: string;
+    message: string;
     /**
      * 是否自动发送心跳包
      */

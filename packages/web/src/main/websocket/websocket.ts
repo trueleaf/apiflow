@@ -127,6 +127,8 @@ export class WebSocketManager {
    * @param connectionId 连接ID
    */
   async disconnect(connectionId: string): Promise<{ success: boolean; error?: string }> {
+    console.log('主进程断开websocket连接')
+
     try {
       const ws = this.connections.get(connectionId);
       if (!ws) {

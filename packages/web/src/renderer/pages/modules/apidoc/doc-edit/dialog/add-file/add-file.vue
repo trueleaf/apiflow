@@ -131,6 +131,7 @@ const handleAddFile = () => {
         updatedAt: websocketNode.updatedAt,
       });
       handleClose();
+      return
     }
 
     if (valid) {

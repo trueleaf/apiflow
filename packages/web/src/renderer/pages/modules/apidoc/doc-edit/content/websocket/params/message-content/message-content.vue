@@ -39,7 +39,7 @@
     <!-- 内容编辑器 -->
     <div class="content-editor">
       <SJsonEditor
-          v-model="websocketStore.websocket.item.sendMessage"
+          v-model="websocketStore.websocket.item.message"
           :config="editorConfig"
           :auto-height="false"
         />
@@ -49,13 +49,13 @@
     <div class="content-actions">
       <div class="action-buttons">
         <el-tooltip
-          :content="props.connectionState !== 'connected' ? t('等待连接') : ''"
-          :disabled="props.connectionState === 'connected'"
+          :content="connectionState !== 'connected' ? t('等待连接') : ''"
+          :disabled="connectionState === 'connected'"
           placement="top"
         >
           <el-button
             type="primary"
-            :disabled="!websocketStore.websocket.item.sendMessage.trim() || props.connectionState !== 'connected'"
+            :disabled="!websocketStore.websocket.item.message.trim() || connectionState !== 'connected'"
             @click="handleSendMessage"
             :icon="Position"
           >
@@ -76,7 +76,7 @@
             <el-checkbox
               v-model="websocketStore.websocket.item.autoHeartbeat"
               @change="handleAutoHeartbeatChange"
-              :disabled="props.connectionState !== 'connected'"
+              :disabled="connectionState !== 'connected'"
             >
               {{ t("自动发送") }}
             </el-checkbox>
@@ -157,18 +157,19 @@ import {
 } from '@element-plus/icons-vue'
 import SJsonEditor from '@/components/common/json-editor/g-json-editor.vue'
 
-const props = withDefaults(defineProps<{
-  connectionState?: string
-  connectionId?: string
-}>(), {
-  connectionState: 'disconnected',
-  connectionId: ''
-})
+// 定义emits
+// const emit = defineEmits<{
+//   'message-sent': [message: string]
+// }>()
 
 const { t } = useTranslation()
 const route = useRoute()
 const apidocTabsStore = useApidocTas()
 const websocketStore = useWebSocket()
+
+// 使用store中的连接状态
+const connectionState = computed(() => websocketStore.connectionState)
+const connectionId = computed(() => websocketStore.connectionId)
 
 // 消息类型定义
 type MessageType = 'text' | 'json' | 'xml' | 'html' | 'binary-base64' | 'binary-hex'
@@ -212,26 +213,29 @@ const initStates = () => {
 
 // 方法
 const handleSendMessage = async () => {
-  if (!websocketStore.websocket.item.sendMessage.trim()) {
+  if (!websocketStore.websocket.item.message.trim()) {
     ElMessage.warning(t('消息内容不能为空'))
     return
   }
 
-  if (!props.connectionId) {
+  if (!connectionId.value) {
     ElMessage.error(t('WebSocket连接不存在'))
     return
   }
 
-  if (props.connectionState !== 'connected') {
+  if (connectionState.value !== 'connected') {
     ElMessage.error(t('WebSocket未连接'))
     return
   }
 
   try {
-    const result = await window.electronAPI?.websocket.send(props.connectionId, websocketStore.websocket.item.sendMessage)
+    const result = await window.electronAPI?.websocket.send(connectionId.value, websocketStore.websocket.item.message)
     if (result?.success) {
+      // 发送成功，发出事件通知父组件
+      // emit('message-sent', websocketStore.websocket.item.message)
+      
       if (sendAndClear.value) {
-        websocketStore.changeWebSocketSendMessage('')
+        websocketStore.changeWebSocketMessage('')
       }
     } else {
       ElMessage.error(t('消息发送失败') + ': ' + (result?.error || t('未知错误')))
@@ -262,7 +266,7 @@ const handleAutoHeartbeatChange = (enabled: boolean | string | number) => {
   const boolEnabled = Boolean(enabled)
   websocketStore.changeWebSocketAutoHeartbeat(boolEnabled)
 
-  if (boolEnabled && props.connectionState === 'connected') {
+  if (boolEnabled && connectionState.value === 'connected') {
     startHeartbeat()
   } else {
     stopHeartbeat()
@@ -274,7 +278,7 @@ const handleHeartbeatIntervalChange = (interval: number | undefined) => {
     websocketStore.changeWebSocketHeartbeatInterval(interval)
 
     // 如果心跳正在运行，重新启动以应用新的间隔
-    if (websocketStore.websocket.item.autoHeartbeat && props.connectionState === 'connected') {
+    if (websocketStore.websocket.item.autoHeartbeat && connectionState.value === 'connected') {
       stopHeartbeat()
       startHeartbeat()
     }
@@ -291,10 +295,10 @@ const startHeartbeat = () => {
   }
 
   heartbeatTimer = setInterval(async () => {
-    if (props.connectionState === 'connected' && props.connectionId) {
+    if (connectionState.value === 'connected' && connectionId.value) {
       try {
         const heartbeatContent = websocketStore.websocket.item.defaultHeartbeatContent || 'ping'
-        const result = await window.electronAPI?.websocket.send(props.connectionId, heartbeatContent)
+        const result = await window.electronAPI?.websocket.send(connectionId.value, heartbeatContent)
         if (!result?.success) {
           console.error('心跳包发送失败:', result?.error)
         }
@@ -315,7 +319,7 @@ const stopHeartbeat = () => {
 
 
 // 监听连接状态变化，管理心跳
-watch(() => props.connectionState, (newState) => {
+watch(() => connectionState.value, (newState) => {
   if (newState === 'connected' && websocketStore.websocket.item.autoHeartbeat) {
     startHeartbeat()
   } else if (newState !== 'connected') {
@@ -334,7 +338,7 @@ watch(currentSelectTab, (newTab) => {
     messageType.value = webSocketNodeCache.getWebSocketMessageType(newTab._id) as MessageType
 
     // 如果连接状态是已连接且启用了自动心跳，启动心跳
-    if (props.connectionState === 'connected' && websocketStore.websocket.item.autoHeartbeat) {
+    if (connectionState.value === 'connected' && websocketStore.websocket.item.autoHeartbeat) {
       startHeartbeat()
     }
   }
@@ -351,7 +355,7 @@ onUnmounted(() => {
 
 <style lang="scss" scoped>
 .message-content {
-  padding: 0 16px;
+  // padding: 0 16px;
   height: 100%;
   .message-type-selector {
     margin-bottom: 5px;

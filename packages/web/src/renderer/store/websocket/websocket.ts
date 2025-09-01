@@ -24,6 +24,8 @@ export const useWebSocket = defineStore('websocket', () => {
   const saveLoading = ref(false);
   const websocketFullUrl = ref('');
   const defaultHeaders = ref<ApidocProperty<"string">[]>([]);
+  const connectionState = ref<'disconnected' | 'connecting' | 'connected' | 'error'>('disconnected');
+  const connectionId = ref('');
   
   /*
   |--------------------------------------------------------------------------
@@ -285,9 +287,9 @@ export const useWebSocket = defineStore('websocket', () => {
   |--------------------------------------------------------------------------
   */
   // 改变发送消息内容
-  const changeWebSocketSendMessage = (message: string): void => {
+  const changeWebSocketMessage = (message: string): void => {
     if (websocket.value) {
-      websocket.value.item.sendMessage = message;
+      websocket.value.item.message = message;
     }
   };
 
@@ -310,6 +312,21 @@ export const useWebSocket = defineStore('websocket', () => {
     if (websocket.value) {
       websocket.value.item.defaultHeartbeatContent = content;
     }
+  };
+
+  /*
+  |--------------------------------------------------------------------------
+  | 连接状态操作方法
+  |--------------------------------------------------------------------------
+  */
+  // 改变连接状态
+  const changeConnectionState = (state: 'disconnected' | 'connecting' | 'connected' | 'error'): void => {
+    connectionState.value = state;
+  };
+
+  // 改变连接ID
+  const changeConnectionId = (id: string): void => {
+    connectionId.value = id;
   };
 
   /*
@@ -531,6 +548,8 @@ export const useWebSocket = defineStore('websocket', () => {
     saveLoading,
     websocketFullUrl,
     defaultHeaders,
+    connectionState,
+    connectionId,
     changeWebSocketName,
     changeWebSocketDescription,
     changeWebSocketProtocol,
@@ -546,10 +565,12 @@ export const useWebSocket = defineStore('websocket', () => {
     updateWebSocketQueryParamById,
     changeWebSocketPreRequest,
     changeWebSocketAfterRequest,
-    changeWebSocketSendMessage,
+    changeWebSocketMessage,
     changeWebSocketAutoHeartbeat,
     changeWebSocketHeartbeatInterval,
     changeWebSocketDefaultHeartbeatContent,
+    changeConnectionState,
+    changeConnectionId,
     markWebSocketAsDeleted,
     changeWebsocket,
     changeOriginWebsocket,
