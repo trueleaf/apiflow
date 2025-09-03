@@ -77,6 +77,7 @@ const getApidocInfo = async () => {
       apidocStore.changeApidoc(generateHttpNode(currentSelectTab.value._id));
       apidocStore.changeOriginApidoc();
       apidocResponseStore.clearResponse();
+      apidocResponseStore.changeRequestState('waiting');
       return
     }
     apidocStore.getApidocDetail({
@@ -125,8 +126,6 @@ watch(currentSelectTab, (val, oldVal) => {
   const isApidoc = val?.tabType === 'http';
   if (isApidoc && val?._id !== oldVal?._id) {
     getApidocInfo();
-    // 只有在没有缓存响应数据时才设置为waiting，否则保持当前状态
-    // apidocResponseStore.changeRequestState('waiting')
   }
 }, {
   deep: true,
@@ -158,10 +157,7 @@ watch(currentSelectTab, (val, oldVal) => {
 
     &.vertical {
       flex: 1;
-      // border-bottom: 1px solid var(--gray-500);
       overflow-y: auto;
-      // margin-top: -2px;
-      // box-shadow: 0 3px 1px var(--gray-400);
     }
   }
 
@@ -170,7 +166,6 @@ watch(currentSelectTab, (val, oldVal) => {
     flex-grow: 0;
     flex-shrink: 0;
     width: 300px;
-    // flex: 0 0 500px;
   }
 
   .el-divider--horizontal {
