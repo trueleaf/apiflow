@@ -1,5 +1,6 @@
 import { WebSocket } from 'ws';
 import { ipcMain, IpcMainInvokeEvent } from 'electron';
+import { fileTypeFromBuffer } from 'file-type';
 
 /**
  * WebSocket连接管理类
@@ -92,8 +93,62 @@ export class WebSocketManager {
       });
 
       // 接收消息事件
-      ws.on('message', (data) => {
-        event.sender.send('websocket-message', { connectionId, nodeId, message: data, url });
+      ws.on('message', async (data) => {
+        let mimeType = 'application/octet-stream';
+        let contentType: 'text' | 'binary' = 'binary';
+        
+        // 将 data 转换为 Buffer 以便进行 mime 类型检测
+        const buffer = Buffer.isBuffer(data) ? data : Buffer.from(data as ArrayBuffer);
+        
+        try {
+          // 使用 file-type 检测文件类型
+          const fileType = await fileTypeFromBuffer(buffer);
+          if (fileType) {
+            mimeType = fileType.mime;
+            contentType = 'binary';
+          } else {
+            // 如果无法检测到文件类型，尝试作为文本处理
+            const text = buffer.toString('utf8');
+            
+            // 检查是否为有效的 UTF-8 文本
+            if (/^[\x20-\x7E\s\u4e00-\u9fff]*$/.test(text)) {
+              contentType = 'text';
+              
+              // 根据文本内容判断具体的 MIME 类型
+              try {
+                JSON.parse(text);
+                mimeType = 'application/json';
+              } catch {
+                if (text.trim().startsWith('<') && text.trim().endsWith('>')) {
+                  mimeType = 'text/xml';
+                } else {
+                  mimeType = 'text/plain';
+                }
+              }
+            }
+          }
+        } catch (error) {
+          console.warn('MIME类型检测失败:', error);
+          // 检测失败时尝试文本解析
+          try {
+            const text = buffer.toString('utf8');
+            if (/^[\x20-\x7E\s\u4e00-\u9fff]*$/.test(text)) {
+              contentType = 'text';
+              mimeType = 'text/plain';
+            }
+          } catch {
+            // 完全无法解析，保持为二进制
+          }
+        }
+        
+        event.sender.send('websocket-message', { 
+          connectionId, 
+          nodeId, 
+          message: buffer, 
+          mimeType, 
+          contentType,
+          url 
+        });
       });
 
       // 连接关闭事件
