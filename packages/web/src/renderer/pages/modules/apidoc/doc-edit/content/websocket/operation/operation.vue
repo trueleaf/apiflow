@@ -194,17 +194,7 @@ const handleDisconnect = () => {
       // 手动断开连接时，清理重连定时器和重置计数器
       clearReconnectTimer();
       reconnectAttempts.value = 0;
-
-      // 添加断开连接消息
-      websocketStore.addMessage({
-        type: 'disconnected',
-        data: {
-          id: uuid(),
-          url: fullUrl.value,
-          reasonType: 'manual',
-          timestamp: Date.now()
-        }
-      });
+      // 注意：断开连接消息会在 websocket-closed 事件中统一添加
     } else {
       websocketStore.changeConnectionState('error');
       console.error('WebSocket断开连接失败:', result.error);
@@ -456,19 +446,24 @@ const setupWebSocketEventListeners = () => {
       websocketStore.changeConnectionId('');
       websocketStore.changeConnectionState('disconnected');
 
+      // 判断断开原因：1000为正常关闭（通常是手动断开），其他为异常断开
+      const reasonType = data.code === 1000 ? 'manual' : 'auto';
+
       // 添加断开连接消息
       websocketStore.addMessage({
         type: 'disconnected',
         data: {
           id: uuid(),
           url: data.url,
-          reasonType: 'auto',
+          reasonType,
           timestamp: Date.now()
         }
       });
 
-      // 如果启用了自动重连，尝试重连
-      attemptReconnect();
+      // 如果启用了自动重连且是异常断开，尝试重连
+      if (reasonType === 'auto') {
+        attemptReconnect();
+      }
     }
   });
   // 监听WebSocket连接错误事件
@@ -490,18 +485,31 @@ const setupWebSocketEventListeners = () => {
   });
 
   // 监听WebSocket接收消息事件
-  window.electronAPI.onMain('websocket-message', (data: { connectionId: string; nodeId: string; message: string; url: string }) => {
+  window.electronAPI.onMain('websocket-message', (data: { 
+    connectionId: string; 
+    nodeId: string; 
+    message: Uint8Array; 
+    mimeType: string; 
+    contentType: 'text' | 'binary';
+    url: string 
+  }) => {
     if (currentSelectTab.value && data.nodeId === currentSelectTab.value._id) {
+      // 将 Uint8Array 转换为 ArrayBuffer
+      const arrayBuffer = data.message.buffer.slice(
+        data.message.byteOffset, 
+        data.message.byteOffset + data.message.byteLength
+      ) as ArrayBuffer;
+      
       // 添加接收消息记录
       websocketStore.addMessage({
         type: 'receive',
         data: {
           id: uuid(),
-          content: data.message,
+          content: arrayBuffer,
           timestamp: Date.now(),
-          contentType: 'text', // 默认为文本类型，实际项目中可能需要根据消息内容判断
-          mimeType: 'text/plain',
-          size: new Blob([data.message]).size
+          contentType: data.contentType,
+          mimeType: data.mimeType,
+          size: arrayBuffer.byteLength
         }
       });
     }

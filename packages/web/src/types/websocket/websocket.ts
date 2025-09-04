@@ -151,7 +151,7 @@ export type WebsocketReceiveResponse = {
   type: "receive";
   data: {
     id: string;
-    content: string;
+    content: ArrayBuffer;
     timestamp: number;
     contentType: 'text' | 'binary';
     mimeType: string;

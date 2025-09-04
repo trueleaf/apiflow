@@ -4,7 +4,7 @@
   <SLoading :loading="requestState === 'sending' || responseBodyLoading" :class="{ 'h-100': layout === 'vertical' }" class="loading-wrap w-100">
     <div 
       v-show="responseInfo.bodyByteLength || requestState !== 'waiting'" 
-      class="remote-response-wrap px-3 w-100"
+      class="remote-response-wrap pl-3 w-100"
       :class="{ vertical: layout === 'vertical' }">
       <el-tabs v-model="activeName" class="h-100 w-100">
         <el-tab-pane :label="t('返回值')" name="SBody" class="w-100">

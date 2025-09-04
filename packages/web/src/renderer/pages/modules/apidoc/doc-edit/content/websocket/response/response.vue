@@ -68,7 +68,7 @@ const messages = computed(() => websocketStore.messages);
     border-bottom: 1px solid #e4e7ed;
     background-color: #fff;
     flex-shrink: 0;
-
+    box-shadow: 0 3px 2px var(--gray-400);
     .text-bold {
       font-weight: 600;
       color: #303133;
