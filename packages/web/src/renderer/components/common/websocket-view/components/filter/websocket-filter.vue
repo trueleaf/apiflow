@@ -139,7 +139,7 @@ defineExpose({
     display: flex;
     align-items: center;
     width: 100%;
-    height: 28px;
+    height: 30px;
     opacity: 1;
     transition: opacity 0.2s ease;
 
@@ -153,11 +153,7 @@ defineExpose({
       .compact-filter-input {
         flex: 1;
         transition: all 0.3s ease;
-
-        :deep(.el-input__suffix) {
-          display: flex;
-          align-items: center;
-        }
+        margin-top: 3px;
 
         .compact-regex-toggle-btn {
           height: 100%;
@@ -199,7 +195,7 @@ defineExpose({
       display: flex;
       align-items: center;
       justify-content: flex-end;
-      height: 28px;
+      height: 30px;
       margin-left: auto;
     }
 

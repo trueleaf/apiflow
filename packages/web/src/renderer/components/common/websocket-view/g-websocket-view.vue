@@ -25,9 +25,26 @@
               <Bottom />
             </el-icon>
           </div>
-          <pre class="message-content">{{ getMessagePreview(item) }}</pre>
+          <!-- 发送、接收、心跳消息使用 message-content 展示 -->
+          <div v-if="item.type === 'send' || item.type === 'receive' || item.type === 'heartbeat'" class="message-content">
+            {{ getMessagePreview(item) }}
+          </div>
+          <!-- 其他类型消息使用 status-info 展示 -->
+          <div v-else class="status-info">
+            <el-icon v-if="item.type === 'connected'" class="status-icon success">
+              <SuccessFilled />
+            </el-icon>
+            <el-icon v-else-if="item.type === 'disconnected'" class="status-icon warning">
+              <WarnTriangleFilled />
+            </el-icon>
+            <el-icon v-else-if="item.type === 'error'" class="status-icon danger">
+              <CircleCloseFilled />
+            </el-icon>
+            <div class="status-type">{{ getStatusTypeText(item.type) }}</div>
+            <div class="status-data">{{ getStatusDataText(item) }}</div>
+          </div>
           <div class="message-timestamp">
-            {{ formatTimestamp(item.data.timestamp) }}
+            {{ formatDate(item.data.timestamp, 'HH:mm:ss') }}
           </div>
         </div>
       </template>
@@ -51,7 +68,7 @@ import type { WebsocketResponse } from '@src/types/websocket/websocket';
 import GVirtualScroll from '@/components/apidoc/virtual-scroll/g-virtual-scroll.vue';
 import WebsocketPopover from './components/popover/websocket-popover.vue';
 import WebsocketFilter from './components/filter/websocket-filter.vue';
-import { Top, Bottom } from '@element-plus/icons-vue';
+import { Top, Bottom, SuccessFilled, WarnTriangleFilled, CircleCloseFilled } from '@element-plus/icons-vue';
 
 const instance = getCurrentInstance();
 const $t = instance?.appContext.config.globalProperties.$t;
@@ -162,31 +179,83 @@ const handleGlobalKeydown = (event: KeyboardEvent) => {
 | WebSocket数据处理
 |--------------------------------------------------------------------------
 */
-// 获取消息预览内容
-const getMessagePreview = (message: WebsocketResponse): string => {
-  const data = message.data as any;
-  
-  switch (message.type) {
-    case 'send':
-    case 'receive':
-    case 'heartbeat':
-      return data.content || data.message || '';
-    case 'connected':
-      return `${$t?.('已连接到') || '已连接到'} ${data.url || ''}`;
-    case 'disconnected':
-      return `${$t?.('已断开连接') || '已断开连接'} ${data.url || ''}`;
-    case 'error':
-      return `${$t?.('错误') || '错误'}: ${data.error || ''}`;
-    case 'reconnecting':
-      return `${$t?.('重连中') || '重连中'} ${$t?.('重试第') || '重试第'} ${data.attempt} ${$t?.('次URL') || '次，URL:'} ${data.url}`;
-    default:
-      return JSON.stringify(data);
+// 解析 ArrayBuffer 为字符串
+const parseArrayBuffer = (buffer: ArrayBuffer, mimeType?: string): string => {
+  try {
+    // 检查是否为文本类型
+    if (mimeType && (mimeType.startsWith('text/') || mimeType.includes('json') || mimeType.includes('xml'))) {
+      const decoder = new TextDecoder('utf-8');
+      return decoder.decode(buffer);
+    }
+    
+    // 尝试解码为文本
+    const decoder = new TextDecoder('utf-8');
+    const text = decoder.decode(buffer);
+    
+    // 检查是否包含有效的文本字符
+    if (/^[\x20-\x7E\s\u4e00-\u9fff]*$/.test(text)) {
+      return text;
+    }
+    
+    // 如果不是文本，显示为十六进制
+    const uint8Array = new Uint8Array(buffer);
+    const hexString = Array.from(uint8Array)
+      .map(byte => byte.toString(16).padStart(2, '0'))
+      .join(' ');
+    return `[${$t?.('二进制数据') || '二进制数据'}] ${hexString.substring(0, 100)}${hexString.length > 100 ? '...' : ''}`;
+  } catch (error) {
+    return `[${$t?.('解析错误') || '解析错误'}] ${error instanceof Error ? error.message : $t?.('未知错误') || '未知错误'}`;
   }
 };
 
-// 格式化时间戳为毫秒显示
-const formatTimestamp = (timestamp: number): string => {
-  return formatDate(timestamp, 'HH:mm:ss.SSS');
+// 获取消息预览内容
+const getMessagePreview = (message: WebsocketResponse): string => {
+  switch (message.type) {
+    case 'send':
+      return message.data.content || '';
+    case 'receive':
+      return parseArrayBuffer(message.data.content, message.data.mimeType);
+    case 'heartbeat':
+      return message.data.message || '';
+    default:
+      return '';
+  }
+};
+
+// 获取状态类型文本
+const getStatusTypeText = (type: string): string => {
+  switch (type) {
+    case 'connected':
+      return $t?.('已连接到：') || '已连接到：';
+    case 'disconnected':
+      return $t?.('已断开连接：') || '已断开连接：';
+    case 'error':
+      return $t?.('错误') || '错误';
+    case 'reconnecting':
+      return $t?.('重连中') || '重连中';
+    case 'startConnect':
+      return $t?.('开始连接') || '开始连接';
+    default:
+      return type;
+  }
+};
+
+// 获取状态数据文本
+const getStatusDataText = (message: WebsocketResponse): string => {
+  switch (message.type) {
+    case 'connected':
+    case 'disconnected':
+    case 'startConnect':
+      return message.data.url || '';
+    case 'error':
+      return message.data.error || '';
+    case 'reconnecting':
+      return `${$t?.('重试第') || '重试第'} ${message.data.attempt} ${$t?.('次') || '次'}`;
+    default:
+      // 处理未知类型，使用类型断言确保类型安全
+      const unknownData = (message as { data: Record<string, unknown> }).data;
+      return JSON.stringify(unknownData);
+  }
 };
 
 onMounted(() => {
@@ -222,21 +291,18 @@ onBeforeUnmount(() => {
 
       .message-index {
         font-size: 12px;
-        color: var(--gray-500, #409eff);
-        font-weight: bold;
+        color: var(--gray-600);
         min-width: 30px;
         text-align: right;
         margin-right: 10px;
-        flex-shrink: 0;
       }
 
       .message-type {
         border-radius: 3px;
         font-size: 14px;
-        font-weight: 500;
         min-width: 20px;
         text-align: center;
-        margin-right: 12px;
+        margin-right: 10px;
         display: flex;
         align-items: center;
         justify-content: center;
@@ -255,7 +321,7 @@ onBeforeUnmount(() => {
         flex: 1;
         min-width: 0;
         font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
-        font-size: 13px;
+        font-size: 12px;
         color: var(--text-color-primary, #303133);
         white-space: nowrap;
         overflow: hidden;
@@ -263,11 +329,56 @@ onBeforeUnmount(() => {
         margin: 0 12px 0 0;
       }
 
+      .status-info {
+        flex: 1;
+        min-width: 0;
+        display: flex;
+        align-items: center;
+        margin: 0 12px 0 0;
+        font-family: var(--font-family);
+        .status-icon {
+          margin-top: 2px;
+          margin-right: 10px;
+          font-size: 14px;
+          flex-shrink: 0;
+          min-width: 20px;
+          &.success {
+            color: var(--color-success, #67c23a);
+          }
+
+          &.warning {
+            color: var(--color-warning, #e6a23c);
+          }
+
+          &.danger {
+            color: var(--color-danger, #f56c6c);
+          }
+        }
+
+        .status-type {
+          font-size: 13px;
+          font-weight: 500;
+          color: var(--text-color-primary, #303133);
+          margin-right: 4px;
+          white-space: nowrap;
+        }
+
+        .status-data {
+          flex: 1;
+          min-width: 0;
+          font-size: 13px;
+          color: var(--text-color-regular, #606266);
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
+      }
+
       .message-timestamp {
-        font-size: 11px;
+        font-size: 12px;
         color: var(--text-color-secondary, #909399);
         font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
-        min-width: 90px;
+        min-width: 60px;
         text-align: right;
         flex-shrink: 0;
       }
