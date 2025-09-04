@@ -42,7 +42,7 @@ const createWindow = () => {
   mainWindow.contentView.addChildView(contentView);
 
   // 设置顶部栏位置和大小
-  const windowBounds = mainWindow.getBounds();
+  const windowBounds = mainWindow.getContentBounds();
   topBarView.setBounds({ x: 0, y: 0, width: windowBounds.width, height: 35 })
 
   // 设置主内容位置和大小（在顶部栏下方）
