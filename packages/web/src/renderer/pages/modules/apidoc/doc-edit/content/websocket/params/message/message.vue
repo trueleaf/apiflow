@@ -366,7 +366,7 @@ onUnmounted(() => {
   }
 
   .content-editor {
-    height: calc(100vh - 300px);
+    height: calc(100vh - 280px);
     border: 1px solid var(--gray-400);
     .binary-editor {
       flex: 1;

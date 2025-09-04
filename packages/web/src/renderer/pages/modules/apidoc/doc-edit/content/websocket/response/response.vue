@@ -30,16 +30,7 @@
     
     <!-- WebSocket消息内容部分 -->
     <div class="websocket-content">
-      <!-- <div class="empty-content">
-        <el-empty :description="t('WebSocket 响应信息展示区域')">
-          <template #image>
-            <div class="websocket-icon">
-              <i class="iconfont iconwebsocket"></i>
-            </div>
-          </template>
-        </el-empty>
-      </div> -->
-      <pre class="pre">{{ messages }}</pre>
+      <GWebsocketView :dataList="messages" />
     </div>
   </div>
 </template>
@@ -50,6 +41,7 @@ import { useTranslation } from 'i18next-vue';
 import { useWebSocket } from '@/store/websocket/websocket';
 import { formatDate } from '@/helper';
 import SLabelValue from '@/components/common/label-value/g-label-value.vue';
+import GWebsocketView from '@/components/common/websocket-view/g-websocket-view.vue';
 
 const { t } = useTranslation();
 const websocketStore = useWebSocket();
@@ -99,20 +91,6 @@ const messages = computed(() => websocketStore.messages);
     display: flex;
     flex-direction: column;
     overflow: hidden;
-
-    .empty-content {
-      flex: 1;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background-color: #fafafa;
-
-      .websocket-icon {
-        font-size: 64px;
-        color: #d3d3d3;
-        margin-bottom: 16px;
-      }
-    }
   }
 }
 </style>
