@@ -45,10 +45,10 @@
             {{ filterError }}
           </div>
           <div v-else-if="filteredData.length > 0" class="filter-stats">
-            找到 {{ filteredData.length }} 条匹配结果
+            {{ $t('找到') }} {{ filteredData.length }} {{ $t('条匹配结果') }}
           </div>
           <div v-else class="filter-stats no-result">
-            未找到匹配结果
+            {{ $t('未找到匹配结果') }}
           </div>
         </div>
       </div></div>
@@ -92,7 +92,7 @@
 
 <script lang="ts" setup>
 import { debounce, downloadStringAsText } from '@/helper';
-import { computed, ref, onMounted, onBeforeUnmount, nextTick } from 'vue';
+import { computed, ref, onMounted, onBeforeUnmount, nextTick, getCurrentInstance } from 'vue';
 import { parseChunkList } from '@/utils/utils';
 import dayjs from 'dayjs';
 import type { ChunkWithTimestampe } from '@src/types/types';
@@ -109,6 +109,9 @@ const props = withDefaults(defineProps<{ dataList: ChunkWithTimestampe[]; virtua
   dataList: () => [],
   isDataComplete: false,
 });
+
+const instance = getCurrentInstance();
+const $t = instance?.appContext.config.globalProperties.$t;
 const sseViewContainerRef = ref<HTMLElement | null>(null);
 // 性能优化：增量数据处理
 const lastDataLength = ref(0);
@@ -298,7 +301,7 @@ const filteredData = computed(() => {
 
   } catch (error) {
     // 正则表达式错误
-    filterError.value = `正则表达式错误: ${error instanceof Error ? error.message : '未知错误'}`;
+    filterError.value = `${$t?.('正则表达式错误') || '正则表达式错误'}: ${error instanceof Error ? error.message : $t?.('未知错误') || '未知错误'}`;
     return formattedData.value;
   }
 });
