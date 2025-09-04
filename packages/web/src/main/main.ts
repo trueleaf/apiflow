@@ -85,7 +85,7 @@ app.whenReady().then(() => {
   bindMainProcessGlobalShortCut(mainWindow, topBarView, contentView);
   // 窗口状态变化时的视图布局调整
   const updateViewLayout = () => {
-    const windowBounds = mainWindow.getBounds();
+    const windowBounds = mainWindow.getContentBounds();
     const windowState = getWindowState(mainWindow);
     topBarView.setBounds({ x: 0, y: 0, width: windowBounds.width, height: 35 });
     contentView.setBounds({ x: 0, y: 35, width: windowBounds.width, height: windowBounds.height - 35 });
