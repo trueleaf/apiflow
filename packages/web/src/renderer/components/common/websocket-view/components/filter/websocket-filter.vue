@@ -28,9 +28,6 @@
         <el-icon class="icon search-icon" :class="{ active: isSearchInputVisible }" @click="handleToggleSearchInput">
           <Search />
         </el-icon>
-        <el-icon class="icon raw-view-icon" :class="{ active: isRawView }" @click="handleToggleRawView" :title="$t('切换原始数据视图')">
-          <Document />
-        </el-icon>
         <el-icon class="icon download-icon" @click="handleDownloadData" :title="$t('下载WebSocket数据')">
           <Download />
         </el-icon>
@@ -54,7 +51,7 @@
 
 <script lang="ts" setup>
 import { ref, nextTick, defineEmits, defineProps } from 'vue';
-import { Search, Download, Document } from '@element-plus/icons-vue';
+import { Search, Download } from '@element-plus/icons-vue';
 import { debounce } from '@/helper';
 
 interface Props {
@@ -71,7 +68,7 @@ interface Emits {
   (e: 'download'): void;
 }
 
-const props = withDefaults(defineProps<Props>(), {
+withDefaults(defineProps<Props>(), {
   hasData: false,
   isRawView: false,
   filteredCount: 0,
@@ -108,11 +105,6 @@ const handleToggleRegexMode = () => {
   emit('update:isRegexMode', isRegexMode.value);
   // 切换模式时重新应用筛选
   handleFilterChange();
-};
-
-// 切换原始数据视图
-const handleToggleRawView = () => {
-  emit('update:isRawView', !props.isRawView);
 };
 
 // 下载数据

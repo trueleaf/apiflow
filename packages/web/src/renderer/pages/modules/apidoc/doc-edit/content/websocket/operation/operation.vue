@@ -554,7 +554,6 @@ defineExpose({
 
   .connection-wrap {
     display: flex;
-    gap: 8px;
     align-items: flex-start;
     margin-top: 10px;
 
@@ -577,7 +576,6 @@ defineExpose({
 
     .action-buttons {
       display: flex;
-      gap: 8px;
       flex-wrap: wrap;
     }
   }
