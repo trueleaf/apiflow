@@ -12,7 +12,7 @@
     @hide="handleHide"
   >
     <template #default>
-      <div v-if="message" class="websocket-message-detail">
+      <div v-if="message" class="websocket-message-detail" @click.stop @mousedown.stop>
         <div class="detail-header">
           <div class="header">消息详情</div>
           <div class="close-btn" @click="handleClose">
@@ -23,7 +23,7 @@
           <div class="detail-row">
             <div class="row-item w-15">
               <label>序号:</label>
-              <span>{{ messageIndex + 1 }}</span>
+              <span>{{ messageIndex }}</span>
             </div>
             <div class="row-item w-20">
               <label>类型:</label>

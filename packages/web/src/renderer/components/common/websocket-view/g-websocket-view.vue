@@ -13,7 +13,6 @@
       @download="handleDownloadData"
       @clear-data="handleClearData"
     />
-    {{filteredData}}
     <el-empty v-if="!dataList || dataList.length === 0" :description="t('点击发起连接建立WebSocket连接')"></el-empty>
     <!-- 虚拟滚动视图 -->
     <GVirtualScroll v-else 
@@ -24,7 +23,7 @@
       :item-height="28">
       <template #default="{ item }">
         <div class="websocket-message" @click="handleMessageClick(item.originalIndex, $event)">
-          <div class="message-index">{{ item.originalIndex + 1 }}</div>
+          <div class="message-index">{{ item.originalIndex }}</div>
           <div v-if="item.type === 'send' || item.type === 'receive' || item.type === 'heartbeat'" class="message-type" :class="`type-${item.type}`">
             <el-icon v-if="item.type === 'send' || item.type === 'heartbeat'">
               <Top />

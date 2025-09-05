@@ -32,6 +32,7 @@ import { router } from '@/router'
 import { debounce, checkPropertyIsEqual } from '@/helper'
 import type { WebSocketNode } from '@src/types/websocket/websocket'
 import { DebouncedFunc } from 'lodash'
+import { websocketResponseCache } from '@/cache/websocket/websocketResponse'
 
 const apidocTabsStore = useApidocTas()
 const websocketStore = useWebSocket()
@@ -103,7 +104,7 @@ const checkWebsocketIsEqual = (websocket: WebSocketNode, originWebsocket: WebSoc
 }
 
 //获取WebSocket数据
-const getWebsocketInfo = async () => {
+const getWebsocketInfo = () => {
   if (!currentSelectTab.value) {
     return
   }
@@ -124,9 +125,37 @@ const getWebsocketInfo = async () => {
       })
     }
   }
+  
+  // 获取WebSocket信息后，加载缓存的消息数据
+  loadMessagesFromCache()
 }
 
-watch(currentSelectTab, (val, oldVal) => {
+// 从缓存加载消息数据
+const loadMessagesFromCache = () => {
+  if (!currentSelectTab.value) {
+    return
+  }
+  websocketStore.setResponseCacheLoading(true)
+  try {
+    const nodeId = currentSelectTab.value._id;
+    if (nodeId) {
+      websocketResponseCache.getData(nodeId).then(cachedMessages => {
+        if (cachedMessages.length > 0) {
+          websocketStore.clearMessages();
+          cachedMessages.forEach(message => {
+            websocketStore.addMessage(message);
+          });
+        }
+      }).finally(() => {
+        websocketStore.setResponseCacheLoading(false)
+      })
+    }
+  } catch (error) {
+    console.error('从缓存加载消息失败:', error);
+  }
+}
+
+watch(currentSelectTab, async (val, oldVal) => {
   const isWebSocket = val?.tabType === 'websocket'
   if (isWebSocket && val?._id !== oldVal?._id) {
     getWebsocketInfo()

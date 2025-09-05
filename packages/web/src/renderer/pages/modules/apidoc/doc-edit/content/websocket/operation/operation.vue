@@ -75,6 +75,7 @@ import { useApidocTas } from '@/store/apidoc/tabs';
 import { router } from '@/router';
 import { ApidocProperty } from '@src/types';
 import { uuid } from '@/helper';
+import { websocketResponseCache } from '@/cache/websocket/websocketResponse';
 
 const { t } = useTranslation();
 const websocketStore = useWebSocket();
@@ -118,7 +119,7 @@ const connectButtonText = computed(() => {
 | websocket相关操作
 |--------------------------------------------------------------------------
 */
-const handleConnect = () => {
+const handleConnect = async () => {
   if (!currentSelectTab.value) {
     console.error('未找到当前选中的标签页');
     return;
@@ -127,14 +128,20 @@ const handleConnect = () => {
   websocketStore.changeConnectionState('connecting');
   
   // 添加发起连接消息
-  websocketStore.addMessage({
-    type: 'startConnect',
+  const startConnectMessage = {
+    type: 'startConnect' as const,
     data: {
       id: uuid(),
       url: fullUrl.value,
       timestamp: Date.now()
     }
-  });
+  };
+  websocketStore.addMessage(startConnectMessage);
+  
+  // 缓存发起连接消息到IndexedDB
+  if (currentSelectTab.value?._id) {
+    websocketResponseCache.setSingleData(currentSelectTab.value._id, startConnectMessage);
+  }
   
   const nodeId = currentSelectTab.value._id;
   window.electronAPI?.websocket.connect(fullUrl.value, nodeId).then((result) => {
@@ -152,14 +159,20 @@ const handleConnect = () => {
       console.error('WebSocket连接失败:', result.error);
 
       // 添加连接错误消息
-      websocketStore.addMessage({
-        type: 'error',
+      const connectErrorMessage = {
+        type: 'error' as const,
         data: {
           id: uuid(),
           error: result.error || t('连接失败'),
           timestamp: Date.now()
         }
-      });
+      };
+      websocketStore.addMessage(connectErrorMessage);
+
+      // 缓存连接错误消息到IndexedDB
+      if (currentSelectTab.value?._id) {
+        websocketResponseCache.setSingleData(currentSelectTab.value._id, connectErrorMessage);
+      }
 
       // 如果启用了自动重连，尝试重连
       attemptReconnect();
@@ -169,14 +182,20 @@ const handleConnect = () => {
     console.error('WebSocket连接异常:', error);
 
     // 添加连接异常消息
-    websocketStore.addMessage({
-      type: 'error',
+    const connectExceptionMessage = {
+      type: 'error' as const,
       data: {
         id: uuid(),
         error: error.message || t('连接异常'),
         timestamp: Date.now()
       }
-    });
+    };
+    websocketStore.addMessage(connectExceptionMessage);
+
+    // 缓存连接异常消息到IndexedDB
+    if (currentSelectTab.value?._id) {
+      websocketResponseCache.setSingleData(currentSelectTab.value._id, connectExceptionMessage);
+    }
 
     // 如果启用了自动重连，尝试重连
     attemptReconnect();
@@ -185,7 +204,7 @@ const handleConnect = () => {
   });
 };
 
-const handleDisconnect = () => {
+const handleDisconnect = async () => {
   connectionLoading.value = true;
   window.electronAPI?.websocket.disconnect(connectionId.value).then((result) => {
     if (result.success) {
@@ -200,28 +219,40 @@ const handleDisconnect = () => {
       console.error('WebSocket断开连接失败:', result.error);
 
       // 添加断开连接错误消息
-      websocketStore.addMessage({
-        type: 'error',
+      const disconnectErrorMessage = {
+        type: 'error' as const,
         data: {
           id: uuid(),
           error: result.error || t('断开连接失败'),
           timestamp: Date.now()
         }
-      });
+      };
+      websocketStore.addMessage(disconnectErrorMessage);
+
+      // 缓存断开连接错误消息到IndexedDB
+      if (currentSelectTab.value?._id) {
+        websocketResponseCache.setSingleData(currentSelectTab.value._id, disconnectErrorMessage);
+      }
     }
   }).catch((error) => {
     websocketStore.changeConnectionState('error');
     console.error('WebSocket断开连接异常:', error);
 
     // 添加断开连接异常消息
-    websocketStore.addMessage({
-      type: 'error',
+    const disconnectExceptionMessage = {
+      type: 'error' as const,
       data: {
         id: uuid(),
         error: error.message || t('断开连接异常'),
         timestamp: Date.now()
       }
-    });
+    };
+    websocketStore.addMessage(disconnectExceptionMessage);
+
+    // 缓存断开连接异常消息到IndexedDB
+    if (currentSelectTab.value?._id) {
+      websocketResponseCache.setSingleData(currentSelectTab.value._id, disconnectExceptionMessage);
+    }
   }).finally(() => {
     connectionLoading.value = false;
   });
@@ -246,8 +277,8 @@ const attemptReconnect = () => {
   const nextRetryTime = Date.now() + delay;
 
   // 添加重连消息
-  websocketStore.addMessage({
-    type: 'reconnecting',
+  const reconnectMessage = {
+    type: 'reconnecting' as const,
     data: {
       id: uuid(),
       url: fullUrl.value,
@@ -255,7 +286,13 @@ const attemptReconnect = () => {
       attempt: reconnectAttempts.value,
       nextRetryTime
     }
-  });
+  };
+  websocketStore.addMessage(reconnectMessage);
+
+  // 缓存重连消息到IndexedDB
+  if (currentSelectTab.value?._id) {
+    websocketResponseCache.setSingleData(currentSelectTab.value._id, reconnectMessage);
+  }
 
   reconnectTimer = setTimeout(() => {
     console.log(`尝试第 ${reconnectAttempts.value} 次重连...`);
@@ -280,23 +317,39 @@ const handleSave = () => {
   websocketStore.saveWebsocket();
 };
 
-const handleRefresh = () => {
+const handleRefresh = async () => {
   if (!currentSelectTab.value) {
     return;
   }
-  if (__STANDALONE__) {
-    refreshLoading.value = true;
-    setTimeout(() => {
+  refreshLoading.value = true;
+  try {
+    // 清空内存中的消息
+    websocketStore.clearMessages();
+    
+    // 清空IndexedDB中的缓存
+    const nodeId = currentSelectTab.value._id;
+    if (nodeId) {
+      await websocketResponseCache.clearData(nodeId);
+    }
+    
+    if (__STANDALONE__) {
       if (currentSelectTab.value) {
         websocketStore.getWebsocketDetail({
           id: currentSelectTab.value._id,
           projectId: router.currentRoute.value.query.id as string,
         });
       }
+    }
+    // 这里可以添加从服务器重新获取数据的逻辑
+  } catch (error) {
+    console.error('清空缓存失败:', error);
+    // 即使缓存清空失败，也要清空内存中的消息
+    websocketStore.clearMessages();
+  } finally {
+    setTimeout(() => {
       refreshLoading.value = false;
     }, 100);
   }
-  // 这里可以添加从服务器重新获取数据的逻辑
 };
 
 const getStatusType = (state: string) => {
@@ -430,14 +483,20 @@ const setupWebSocketEventListeners = () => {
       hasEverConnected.value = true;
 
       // 添加连接成功消息
-      websocketStore.addMessage({
-        type: 'connected',
+      const connectedMessage = {
+        type: 'connected' as const,
         data: {
           id: uuid(),
           url: data.url,
           timestamp: Date.now()
         }
-      });
+      };
+      websocketStore.addMessage(connectedMessage);
+
+      // 缓存连接成功消息到IndexedDB
+      if (currentSelectTab.value?._id) {
+        websocketResponseCache.setSingleData(currentSelectTab.value._id, connectedMessage);
+      }
     }
   });
   // 监听WebSocket连接关闭事件
@@ -447,18 +506,24 @@ const setupWebSocketEventListeners = () => {
       websocketStore.changeConnectionState('disconnected');
 
       // 判断断开原因：1000为正常关闭（通常是手动断开），其他为异常断开
-      const reasonType = data.code === 1000 ? 'manual' : 'auto';
+      const reasonType: 'manual' | 'auto' = data.code === 1000 ? 'manual' : 'auto';
 
       // 添加断开连接消息
-      websocketStore.addMessage({
-        type: 'disconnected',
+      const disconnectedMessage = {
+        type: 'disconnected' as const,
         data: {
           id: uuid(),
           url: data.url,
           reasonType,
           timestamp: Date.now()
         }
-      });
+      };
+      websocketStore.addMessage(disconnectedMessage);
+
+      // 缓存断开连接消息到IndexedDB
+      if (currentSelectTab.value?._id) {
+        websocketResponseCache.setSingleData(currentSelectTab.value._id, disconnectedMessage);
+      }
 
       // 如果启用了自动重连且是异常断开，尝试重连
       if (reasonType === 'auto') {
@@ -473,14 +538,20 @@ const setupWebSocketEventListeners = () => {
       websocketStore.changeConnectionState('error');
 
       // 添加错误消息
-      websocketStore.addMessage({
-        type: 'error',
+      const wsErrorMessage = {
+        type: 'error' as const,
         data: {
           id: uuid(),
           error: data.error,
           timestamp: Date.now()
         }
-      });
+      };
+      websocketStore.addMessage(wsErrorMessage);
+
+      // 缓存错误消息到IndexedDB
+      if (currentSelectTab.value?._id) {
+        websocketResponseCache.setSingleData(currentSelectTab.value._id, wsErrorMessage);
+      }
     }
   });
 
@@ -501,8 +572,8 @@ const setupWebSocketEventListeners = () => {
       ) as ArrayBuffer;
       
       // 添加接收消息记录
-      websocketStore.addMessage({
-        type: 'receive',
+      const receiveMessage = {
+        type: 'receive' as const,
         data: {
           id: uuid(),
           content: arrayBuffer,
@@ -511,7 +582,13 @@ const setupWebSocketEventListeners = () => {
           mimeType: data.mimeType,
           size: arrayBuffer.byteLength
         }
-      });
+      };
+      websocketStore.addMessage(receiveMessage);
+
+      // 缓存接收消息到IndexedDB
+      if (currentSelectTab.value?._id) {
+        websocketResponseCache.setSingleData(currentSelectTab.value._id, receiveMessage);
+      }
     }
   });
 };
