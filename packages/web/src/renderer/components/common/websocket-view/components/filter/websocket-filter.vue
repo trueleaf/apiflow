@@ -25,6 +25,27 @@
       </div>
 
       <div class="action-icons">
+        <el-select
+          v-model="selectedMessageTypes"
+          multiple
+          collapse-tags
+          collapse-tags-tooltip
+          :max-collapse-tags="1"
+          :placeholder="$t('全部消息')"
+          size="small"
+          class="message-type-filter"
+          @change="handleMessageTypeChange"
+        >
+          <el-option
+            v-for="option in messageTypeOptions"
+            :key="option.value"
+            :label="option.label"
+            :value="option.value"
+          />
+        </el-select>
+        <el-icon class="icon clear-icon" @click="handleClearData" :title="$t('清空历史')">
+          <Delete />
+        </el-icon>
         <el-icon class="icon search-icon" :class="{ active: isSearchInputVisible }" @click="handleToggleSearchInput">
           <Search />
         </el-icon>
@@ -50,9 +71,11 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, nextTick, defineEmits, defineProps } from 'vue';
-import { Search, Download } from '@element-plus/icons-vue';
+import { ref, nextTick, defineEmits, defineProps, computed } from 'vue';
+import { Search, Download, Delete } from '@element-plus/icons-vue';
 import { debounce } from '@/helper';
+import { useTranslation } from 'i18next-vue';
+const { t } = useTranslation();
 
 interface Props {
   hasData: boolean;
@@ -65,7 +88,10 @@ interface Emits {
   (e: 'update:isRegexMode', value: boolean): void;
   (e: 'update:filterError', value: string): void;
   (e: 'update:isRawView', value: boolean): void;
+  (e: 'update:selectedMessageTypes', value: string[]): void;
+  (e: 'update:isSearchInputVisible', value: boolean): void;
   (e: 'download'): void;
+  (e: 'clearData'): void;
 }
 
 withDefaults(defineProps<Props>(), {
@@ -81,10 +107,23 @@ const isRegexMode = ref(false);
 const filterError = ref('');
 const filterInputRef = ref<HTMLInputElement | null>(null);
 const isSearchInputVisible = ref(false);
+const selectedMessageTypes = ref<string[]>([]);
+
+// 消息类型选项
+const messageTypeOptions = computed(() => [
+  { value: 'send', label: t?.('发送') || '发送' },
+  { value: 'receive', label: t?.('接收') || '接收' },
+  { value: 'connected', label: t?.('已连接') || '已连接' },
+  { value: 'disconnected', label: t?.('已断开') || '已断开' },
+  { value: 'error', label: t?.('错误') || '错误' },
+  { value: 'heartbeat', label: t?.('心跳') || '心跳' },
+  { value: 'reconnecting', label: t?.('重连中') || '重连中' },
+]);
 
 // 切换搜索输入框显示状态
 const handleToggleSearchInput = () => {
   isSearchInputVisible.value = !isSearchInputVisible.value;
+  emit('update:isSearchInputVisible', isSearchInputVisible.value);
   if (isSearchInputVisible.value) {
     // 显示输入框后自动聚焦
     nextTick(() => {
@@ -111,6 +150,10 @@ const handleToggleRegexMode = () => {
 const handleDownloadData = () => {
   emit('download');
 };
+// 清空数据
+const handleClearData = () => {
+  emit('clearData');
+};
 
 // 处理筛选输入变化
 const handleFilterChange = debounce(() => {
@@ -118,11 +161,18 @@ const handleFilterChange = debounce(() => {
   emit('update:filterError', filterError.value);
 }, 300);
 
+// 处理消息类型过滤变化
+const handleMessageTypeChange = (value: string[]) => {
+  selectedMessageTypes.value = value;
+  emit('update:selectedMessageTypes', value);
+};
+
 // 暴露方法给父组件
 defineExpose({
   filterText: () => filterText.value,
   isRegexMode: () => isRegexMode.value,
   isSearchInputVisible: () => isSearchInputVisible.value,
+  selectedMessageTypes: () => selectedMessageTypes.value,
 });
 </script>
 
@@ -139,16 +189,14 @@ defineExpose({
     display: flex;
     align-items: center;
     width: 100%;
-    height: 30px;
-    opacity: 1;
-    transition: opacity 0.2s ease;
+    height: 35px;
 
     .compact-search-row {
       display: flex;
       align-items: center;
       gap: 8px;
       width: 100%;
-      margin-right: 30px;
+      margin-right: 35px;
 
       .compact-filter-input {
         flex: 1;
@@ -195,8 +243,14 @@ defineExpose({
       display: flex;
       align-items: center;
       justify-content: flex-end;
-      height: 30px;
+      height: 35px;
+      flex: 0 0 40%;
       margin-left: auto;
+      .message-type-filter {
+        min-width: 140px;
+        width: 65%;
+        margin-right: 8px;
+      }
     }
 
     .icon {
@@ -220,6 +274,9 @@ defineExpose({
 
     .download-icon:hover {
       color: var(--color-success, #67c23a);
+    }
+    .clear-icon:hover {
+      color: var(--color-danger, #f56c6c);
     }
 
     .compact-filter-stats {
