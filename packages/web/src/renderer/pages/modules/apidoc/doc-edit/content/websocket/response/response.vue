@@ -30,7 +30,7 @@
     
     <!-- WebSocket消息内容部分 -->
     <div class="websocket-content">
-      <SLoading :loading="responseCacheLoading">
+      <SLoading :loading="responseCacheLoading" class="h-100">
         <GWebsocketView :dataList="messages" @clear-data="handleClearData" />
       </SLoading>
     </div>

@@ -586,10 +586,10 @@ export const generateEmptyWebsocketNode = (_id: string): WebSocketNode => {
       },
       queryParams: [],
       headers: [],
-      message: '',
+      sendMessage: '',
     },
     config: {
-      messageType: 'text',
+      messageType: 'json',
       autoHeartbeat: false,
       heartbeatInterval: 30000, // 30 seconds default
       defaultHeartbeatContent: 'ping', // default heartbeat content

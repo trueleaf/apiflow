@@ -85,7 +85,7 @@ const checkWebsocketIsEqual = (websocket: WebSocketNode, originWebsocket: WebSoc
   const queryParamsIsEqual = checkPropertyIsEqual(cpWebsocket.item.queryParams, cpOriginWebsocket.item.queryParams)
   
   // 检查消息内容
-  const messageIsEqual = cpWebsocket.item.message === cpOriginWebsocket.item.message;
+  const messageIsEqual = cpWebsocket.item.sendMessage === cpOriginWebsocket.item.sendMessage;
   
   // 检查config配置
   const configIsEqual = checkConfigIsEqual(cpWebsocket.config, cpOriginWebsocket.config)

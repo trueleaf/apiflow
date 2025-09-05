@@ -39,7 +39,7 @@
 
     <!-- 内容编辑器 -->
     <div class="content-editor">
-      <SJsonEditor v-model="websocketStore.websocket.item.message" :config="editorConfig" :auto-height="false" />
+      <SJsonEditor v-model="websocketStore.websocket.item.sendMessage" :config="editorConfig" :auto-height="false" />
     </div>
 
     <!-- 操作按钮区域 -->
@@ -48,7 +48,7 @@
         <el-tooltip :content="connectionState !== 'connected' ? t('等待连接') : ''"
           :disabled="connectionState === 'connected'" placement="top">
           <el-button type="primary"
-            :disabled="!websocketStore.websocket.item.message.trim() || connectionState !== 'connected'"
+            :disabled="!websocketStore.websocket.item.sendMessage.trim() || connectionState !== 'connected'"
             @click="handleSendMessage" :icon="Position">
             {{ t("发送消息") }}
           </el-button>
@@ -60,20 +60,18 @@
         <!-- 自动心跳功能 -->
         <div class="heartbeat-controls">
           <div class="heartbeat-checkbox">
-            <el-checkbox v-model="websocketStore.websocket.config.autoHeartbeat" @change="handleAutoHeartbeatChange"
-              :disabled="connectionState !== 'connected'">
+            <el-checkbox v-model="websocketStore.websocket.config.autoHeartbeat" @change="handleAutoHeartbeatChange">
               {{ t("自动发送") }}
             </el-checkbox>
 
-            <el-popover v-if="websocketStore.websocket.config.autoHeartbeat" :visible="configPopoverVisible"
+            <el-popover :visible="configPopoverVisible"
               placement="bottom" :width="320">
               <template #reference>
-                <el-button type="text" size="small" @click="configPopoverVisible = !configPopoverVisible"
-                  class="gear-button">
+                <div @click="configPopoverVisible = !configPopoverVisible" class="gear-button">
                   <el-icon>
                     <Setting />
                   </el-icon>
-                </el-button>
+                </div>
               </template>
 
               <div class="heartbeat-config-popover">
@@ -151,7 +149,7 @@ const editorConfig = computed(() => {
 
 const handleSendMessage = async () => {
   try {
-    const messageContent = websocketStore.websocket.item.message;
+    const messageContent = websocketStore.websocket.item.sendMessage;
     const result = await window.electronAPI?.websocket.send(connectionId.value, messageContent)
     if (result?.success) {
       const sendMessage = {
@@ -417,14 +415,9 @@ onUnmounted(() => {
         gap: 8px;
 
         .gear-button {
-          padding: 4px 8px;
-          font-size: 14px;
-          border: none;
-          background: transparent;
+          padding: 5px;
           cursor: pointer;
-          border-radius: 4px;
           transition: background-color 0.2s;
-
           &:hover {
             background-color: var(--el-fill-color-light);
           }

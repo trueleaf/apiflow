@@ -83,7 +83,7 @@ const hasAfterScript = computed(() => {
 })
 
 const hasSendMessage = computed(() => {
-  return websocketStore.websocket.item.message.trim() !== ''
+  return websocketStore.websocket.item.sendMessage.trim() !== ''
 })
 
 const getInitialActiveTab = (): string => {

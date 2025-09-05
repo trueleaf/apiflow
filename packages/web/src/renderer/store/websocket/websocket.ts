@@ -291,7 +291,7 @@ export const useWebSocket = defineStore('websocket', () => {
   // 改变发送消息内容
   const changeWebSocketMessage = (message: string): void => {
     if (websocket.value) {
-      websocket.value.item.message = message;
+      websocket.value.item.sendMessage = message;
     }
   };
 

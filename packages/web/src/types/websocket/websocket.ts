@@ -52,7 +52,7 @@ export type WebSocketNode = {
     /**
      * 发送的数据
      */
-    message: string;
+    sendMessage: string;
   };
   /**
    * 连接配置
