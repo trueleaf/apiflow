@@ -8,11 +8,19 @@
       @update:filter-text="handleFilterTextUpdate"
       @update:is-regex-mode="handleRegexModeUpdate"
       @update:filter-error="handleFilterErrorUpdate"
+      @update:selected-message-types="handleSelectedMessageTypesUpdate"
+      @update:is-search-input-visible="handleSearchInputVisibleUpdate"
       @download="handleDownloadData"
+      @clear-data="handleClearData"
     />
-    <el-empty v-if="!dataList || dataList.length === 0" :description="$t('点击发起连接建立WebSocket连接')"></el-empty>
+    {{filteredData}}
+    <el-empty v-if="!dataList || dataList.length === 0" :description="t('点击发起连接建立WebSocket连接')"></el-empty>
     <!-- 虚拟滚动视图 -->
-    <GVirtualScroll v-else class="websocket-content" :items="filteredData" :auto-scroll="true"
+    <GVirtualScroll v-else 
+      class="websocket-content" 
+      :class="{ 'with-filter-stats': shouldAddMarginTop }"
+      :items="filteredData" 
+      :virtual="false"
       :item-height="28">
       <template #default="{ item }">
         <div class="websocket-message" @click="handleMessageClick(item.originalIndex, $event)">
@@ -63,15 +71,15 @@
 
 <script lang="ts" setup>
 import { downloadStringAsText, formatDate } from '@/helper';
-import { computed, ref, onMounted, onBeforeUnmount, getCurrentInstance } from 'vue';
+import { computed, ref, onMounted, onBeforeUnmount, watch } from 'vue';
 import type { WebsocketResponse } from '@src/types/websocket/websocket';
 import GVirtualScroll from '@/components/apidoc/virtual-scroll/g-virtual-scroll.vue';
 import WebsocketPopover from './components/popover/websocket-popover.vue';
 import WebsocketFilter from './components/filter/websocket-filter.vue';
 import { Top, Bottom, SuccessFilled, WarnTriangleFilled, CircleCloseFilled } from '@element-plus/icons-vue';
+import { useTranslation } from 'i18next-vue';
 
-const instance = getCurrentInstance();
-const $t = instance?.appContext.config.globalProperties.$t;
+const { t } = useTranslation();
 
 const props = withDefaults(defineProps<{ 
   dataList: WebsocketResponse[]; 
@@ -79,48 +87,55 @@ const props = withDefaults(defineProps<{
 }>(), {
   dataList: () => [],
 });
+const emit = defineEmits<{
+  clearData: [];
+}>();
 
 const filterText = ref('');
 const isRegexMode = ref(false);
 const filterError = ref('');
+const selectedMessageTypes = ref<string[]>([]);
+const isSearchInputVisible = ref(false);
+
+// 计算是否显示统计信息并需要添加margin-top
+const shouldAddMarginTop = computed(() => {
+  return filterText.value && isSearchInputVisible.value;
+});
 const filteredData = computed(() => {
+  // 预先绑定原始索引，确保与 props.dataList 对齐
+  const withIndex = props.dataList.map((item, index) => ({ ...item, originalIndex: index }));
   // 过滤掉开始连接状态的消息
-  const filteredList = props.dataList.filter(item => item.type !== 'startConnect');
-  
-  if (!filterText.value.trim()) {
-    return filteredList.map((item, index) => ({ ...item, originalIndex: index }));
-  }
+  let list = withIndex.filter(item => item.type !== 'startConnect');
+  // 按消息类型过滤
+  if (selectedMessageTypes.value.length > 0) list = list.filter(item => selectedMessageTypes.value.includes(item.type));
+  if (!filterText.value.trim()) return list;
   try {
     let regex: RegExp;
     if (isRegexMode.value) {
       const trimmedText = filterText.value.trim();
       const regexMatch = trimmedText.match(/^\/(.+)\/([gimuy]*)$/);
-      if (regexMatch) {
-        regex = new RegExp(regexMatch[1], regexMatch[2]);
-      } else {
-        regex = new RegExp(trimmedText, 'gi');
-      }
+      regex = regexMatch ? new RegExp(regexMatch[1], regexMatch[2]) : new RegExp(trimmedText, 'gi');
     } else {
       const escapedText = filterText.value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
       regex = new RegExp(escapedText, 'gi');
     }
     filterError.value = '';
-    return filteredList
-      .map((item: WebsocketResponse, index: number) => ({ ...item, originalIndex: index }))
-      .filter((item: WebsocketResponse & { originalIndex: number }) => {
-        const content = getMessagePreview(item);
-        return regex.test(content);
-      });
-
+    return list.filter(item => {
+      // 修正 g 标志导致的 lastIndex 影响
+      regex.lastIndex = 0;
+      const content = getMessagePreview(item);
+      return regex.test(content);
+    });
   } catch (error) {
-    filterError.value = `${$t?.('正则表达式错误') || '正则表达式错误'}: ${error instanceof Error ? error.message : $t?.('未知错误') || '未知错误'}`;
-    return filteredList.map((item, index) => ({ ...item, originalIndex: index }));
+    filterError.value = `${t?.('正则表达式错误') || '正则表达式错误'}: ${error instanceof Error ? error.message : t?.('未知错误') || '未知错误'}`;
+    return list;
   }
 });
 const activePopoverIndex = ref(-1);
 const currentMessageRef = ref<HTMLElement | null>(null);
 const currentMessage = computed(() => {
-  return activePopoverIndex.value !== -1 ? props.dataList[activePopoverIndex.value] : null;
+  const idx = activePopoverIndex.value;
+  return idx !== -1 && idx >= 0 && idx < props.dataList.length ? props.dataList[idx] : null;
 });
 /*
 |--------------------------------------------------------------------------
@@ -138,6 +153,13 @@ const handleRegexModeUpdate = (value: boolean) => {
 const handleFilterErrorUpdate = (value: string) => {
   filterError.value = value;
 };
+const handleSelectedMessageTypesUpdate = (value: string[]) => {
+  selectedMessageTypes.value = value;
+  activePopoverIndex.value = -1;
+};
+const handleSearchInputVisibleUpdate = (value: boolean) => {
+  isSearchInputVisible.value = value;
+};
 const handleDownloadData = () => {
   if (!props.dataList || props.dataList.length === 0) {
     return;
@@ -148,8 +170,13 @@ const handleDownloadData = () => {
     const fileName = `websocket-messages_${timestamp}.json`;
     downloadStringAsText(jsonContent, fileName);
   } catch (error) {
-    console.error($t?.('下载失败') || '下载失败:', error);
+    console.error(t?.('下载失败') || '下载失败:', error);
   }
+};
+const handleClearData = () => {
+  activePopoverIndex.value = -1;
+  currentMessageRef.value = null;
+  emit('clearData');
 };
 
 /*
@@ -202,9 +229,9 @@ const parseArrayBuffer = (buffer: ArrayBuffer, mimeType?: string): string => {
     const hexString = Array.from(uint8Array)
       .map(byte => byte.toString(16).padStart(2, '0'))
       .join(' ');
-    return `[${$t?.('二进制数据') || '二进制数据'}] ${hexString.substring(0, 100)}${hexString.length > 100 ? '...' : ''}`;
+    return `[${t?.('二进制数据') || '二进制数据'}] ${hexString.substring(0, 100)}${hexString.length > 100 ? '...' : ''}`;
   } catch (error) {
-    return `[${$t?.('解析错误') || '解析错误'}] ${error instanceof Error ? error.message : $t?.('未知错误') || '未知错误'}`;
+    return `[${t?.('解析错误') || '解析错误'}] ${error instanceof Error ? error.message : t?.('未知错误') || '未知错误'}`;
   }
 };
 
@@ -226,15 +253,15 @@ const getMessagePreview = (message: WebsocketResponse): string => {
 const getStatusTypeText = (type: string): string => {
   switch (type) {
     case 'connected':
-      return $t?.('已连接到：') || '已连接到：';
+      return t?.('已连接到：') || '已连接到：';
     case 'disconnected':
-      return $t?.('已断开连接：') || '已断开连接：';
+      return t?.('已断开连接：') || '已断开连接：';
     case 'error':
-      return $t?.('错误') || '错误';
+      return t?.('错误') || '错误';
     case 'reconnecting':
-      return $t?.('重连中') || '重连中';
+      return t?.('重连中') || '重连中';
     case 'startConnect':
-      return $t?.('开始连接') || '开始连接';
+      return t?.('开始连接') || '开始连接';
     default:
       return type;
   }
@@ -250,7 +277,7 @@ const getStatusDataText = (message: WebsocketResponse): string => {
     case 'error':
       return message.data.error || '';
     case 'reconnecting':
-      return `${$t?.('重试第') || '重试第'} ${message.data.attempt} ${$t?.('次') || '次'}`;
+      return `${t?.('重试第') || '重试第'} ${message.data.attempt} ${t?.('次') || '次'}`;
     default:
       // 处理未知类型，使用类型断言确保类型安全
       const unknownData = (message as { data: Record<string, unknown> }).data;
@@ -267,6 +294,16 @@ onBeforeUnmount(() => {
   document.removeEventListener('click', handleClosePopover);
   document.removeEventListener('keydown', handleGlobalKeydown);
 });
+
+// 当数据源变化导致索引失效时，关闭弹窗
+watch(
+  () => props.dataList.length,
+  (len) => {
+    if (activePopoverIndex.value !== -1 && (activePopoverIndex.value < 0 || activePopoverIndex.value >= len)) {
+      handleClosePopover();
+    }
+  }
+);
 </script>
 
 <style lang="scss" scoped>
@@ -280,6 +317,10 @@ onBeforeUnmount(() => {
   }
 
   .websocket-content {
+    &.with-filter-stats {
+      margin-top: 30px;
+    }
+    
     .websocket-message {
       display: flex;
       align-items: center;
