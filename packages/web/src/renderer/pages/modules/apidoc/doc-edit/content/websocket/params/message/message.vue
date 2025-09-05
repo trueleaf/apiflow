@@ -106,7 +106,7 @@
                   <div class="config-input">
                     <el-input-number
                       v-model="websocketStore.websocket.config.heartbeatInterval"
-                      :min="1000"
+                      :min="100"
                       :max="300000"
                       :step="1000"
                       size="small"

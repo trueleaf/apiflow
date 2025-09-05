@@ -663,4 +663,6 @@ export default {
   断开原因: 'Disconnect Reason',
   手动断开: 'Manual Disconnect',
   自动断开: 'Auto Disconnect',
+  全部消息: 'All Messages',
+  心跳: 'Heartbeat',
 }

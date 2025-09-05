@@ -30,7 +30,7 @@
     
     <!-- WebSocket消息内容部分 -->
     <div class="websocket-content">
-      <GWebsocketView :dataList="messages" />
+      <GWebsocketView :dataList="messages" @clear-data="handleClearData" />
     </div>
   </div>
 </template>
@@ -55,6 +55,10 @@ const websocketBaseInfo = computed(() => ({
   createdAt: websocketStore.websocket.createdAt
 }));
 const messages = computed(() => websocketStore.messages);
+// 清空WebSocket消息数据
+const handleClearData = () => {
+  websocketStore.clearMessages();
+};
 </script>
 
 <style lang="scss" scoped>
