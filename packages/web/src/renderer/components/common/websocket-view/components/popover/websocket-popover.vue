@@ -14,68 +14,28 @@
     <template #default>
       <div v-if="message" class="websocket-message-detail">
         <div class="detail-header">
-          <div class="header">{{ $t('消息详情') }}</div>
+          <div class="header">消息详情</div>
           <div class="close-btn" @click="handleClose">
-            <i class="iconfont iconguanbi" :title="$t('关闭')"></i>
+            <i class="iconfont iconguanbi" title="关闭"></i>
           </div>
         </div>
         <div class="detail-content-wrap">
           <div class="detail-row">
-            <div class="row-item w-20">
-              <label>{{ $t('序号') }}:</label>
+            <div class="row-item w-15">
+              <label>序号:</label>
               <span>{{ messageIndex + 1 }}</span>
             </div>
-            <div class="row-item w-30">
-              <label>{{ $t('类型') }}:</label>
+            <div class="row-item w-20">
+              <label>类型:</label>
               <span class="message-type" :class="`type-${message.type}`">{{ getTypeDisplayName(message.type) }}</span>
             </div>
-            <div class="row-item w-50">
-              <label>{{ $t('时间') }}:</label>
-              <span>{{ formatFullTimestamp(message.data.timestamp) }}</span>
-            </div>
-          </div>
-          <div v-if="message.data.id" class="detail-row">
-            <div class="row-item w-100">
-              <label>ID:</label>
-              <span>{{ message.data.id }}</span>
-            </div>
-          </div>
-          <div v-if="getMessageUrl(message)" class="detail-row">
-            <div class="row-item w-100">
-              <label>URL:</label>
-              <span>{{ getMessageUrl(message) }}</span>
-            </div>
-          </div>
-          <div v-if="getMessageError(message)" class="detail-row">
-            <div class="row-item w-100">
-              <label>{{ $t('错误信息') }}:</label>
-              <span class="error-text">{{ getMessageError(message) }}</span>
-            </div>
-          </div>
-          <div v-if="getMessageSize(message)" class="detail-row">
-            <div class="row-item w-50">
-              <label>{{ $t('大小') }}:</label>
+            <div v-if="getMessageSize(message)" class="row-item w-20">
+              <label>大小:</label>
               <span>{{ formatSize(getMessageSize(message)) }}</span>
             </div>
-            <div v-if="getMessageContentType(message)" class="row-item w-50">
-              <label>{{ $t('内容类型') }}:</label>
-              <span>{{ getMessageContentType(message) }}</span>
-            </div>
-          </div>
-          <div v-if="getMessageAttempt(message)" class="detail-row">
-            <div class="row-item w-50">
-              <label>{{ $t('重连次数') }}:</label>
-              <span>{{ getMessageAttempt(message) }}</span>
-            </div>
-            <div v-if="getMessageNextRetryTime(message)" class="row-item w-50">
-              <label>{{ $t('下次重试') }}:</label>
-              <span>{{ formatFullTimestamp(getMessageNextRetryTime(message)) }}</span>
-            </div>
-          </div>
-          <div v-if="getMessageReasonType(message)" class="detail-row">
-            <div class="row-item w-50">
-              <label>{{ $t('断开原因') }}:</label>
-              <span>{{ getMessageReasonType(message) === 'manual' ? $t('手动断开') : $t('自动断开') }}</span>
+            <div class="row-item w-45">
+              <label>接收时间:</label>
+              <span>{{ formatFullTimestamp(message.data.timestamp) }}</span>
             </div>
           </div>
           <div v-if="hasContent" class="detail-content full-width">
@@ -117,6 +77,9 @@ import { isJsonString } from '@/helper';
 import dayjs from 'dayjs';
 import SJsonEditor from '@/components/common/json-editor/g-json-editor.vue';
 import type { WebsocketResponse } from '@src/types/websocket/websocket';
+import { useTranslation } from 'i18next-vue';
+
+const { t } = useTranslation();
 
 /*
 |--------------------------------------------------------------------------
@@ -157,8 +120,24 @@ const formattedContent = ref<string>('');
 */
 const messageContent = computed(() => {
   if (!props.message) return '';
+  
   const data = props.message.data as any;
-  return data.content || data.message || '';
+  
+  // 根据消息类型获取内容
+  switch (props.message.type) {
+    case 'send':
+      return data.content || '';
+    case 'receive':
+      // 如果是 ArrayBuffer，使用 parseArrayBuffer 处理
+      if (data.content instanceof ArrayBuffer) {
+        return parseArrayBuffer(data.content, data.mimeType);
+      }
+      return data.content || '';
+    case 'heartbeat':
+      return data.message || '';
+    default:
+      return data.content || data.message || '';
+  }
 });
 
 const hasContent = computed(() => {
@@ -170,14 +149,33 @@ const hasContent = computed(() => {
 | Methods
 |--------------------------------------------------------------------------
 */
-const getMessageUrl = (message: WebsocketResponse): string => {
-  const data = message.data as any;
-  return data.url || '';
-};
-
-const getMessageError = (message: WebsocketResponse): string => {
-  const data = message.data as any;
-  return data.error || '';
+// 解析 ArrayBuffer 为字符串
+const parseArrayBuffer = (buffer: ArrayBuffer, mimeType?: string): string => {
+  try {
+    // 检查是否为文本类型
+    if (mimeType && (mimeType.startsWith('text/') || mimeType.includes('json') || mimeType.includes('xml'))) {
+      const decoder = new TextDecoder('utf-8');
+      return decoder.decode(buffer);
+    }
+    
+    // 尝试解码为文本
+    const decoder = new TextDecoder('utf-8');
+    const text = decoder.decode(buffer);
+    
+    // 检查是否包含有效的文本字符
+    if (/^[\x20-\x7E\s\u4e00-\u9fff]*$/.test(text)) {
+      return text;
+    }
+    
+    // 如果不是文本，显示为十六进制
+    const uint8Array = new Uint8Array(buffer);
+    const hexString = Array.from(uint8Array)
+      .map(byte => byte.toString(16).padStart(2, '0'))
+      .join(' ');
+    return `[${t('二进制数据')}] ${hexString.substring(0, 100)}${hexString.length > 100 ? '...' : ''}`;
+  } catch (error) {
+    return `[${t('解析错误')}] ${error instanceof Error ? error.message : t('未知错误')}`;
+  }
 };
 
 const getMessageSize = (message: WebsocketResponse): number => {
@@ -185,25 +183,6 @@ const getMessageSize = (message: WebsocketResponse): number => {
   return data.size || 0;
 };
 
-const getMessageContentType = (message: WebsocketResponse): string => {
-  const data = message.data as any;
-  return data.contentType || data.mimeType || '';
-};
-
-const getMessageAttempt = (message: WebsocketResponse): number => {
-  const data = message.data as any;
-  return data.attempt || 0;
-};
-
-const getMessageNextRetryTime = (message: WebsocketResponse): number => {
-  const data = message.data as any;
-  return data.nextRetryTime || 0;
-};
-
-const getMessageReasonType = (message: WebsocketResponse): string => {
-  const data = message.data as any;
-  return data.reasonType || '';
-};
 const getTypeDisplayName = (type: WebsocketResponse['type']): string => {
   const typeMap = {
     send: '发送',
@@ -229,19 +208,52 @@ const formatFullTimestamp = (timestamp: number): string => {
 };
 
 const getFormattedContent = (content: string): string => {
-  if (isJsonString(content) && formattedContent.value) {
+  if (!props.message) return content;
+  
+  // 根据消息类型处理不同的数据展示
+  let displayContent = '';
+  switch (props.message.type) {
+    case 'send':
+      // 发送消息直接展示内容
+      displayContent = content || (props.message.data as any).content || '';
+      break;
+    case 'receive': {
+      // 接收消息可能是 ArrayBuffer，需要特殊处理
+      const data = props.message.data as any;
+      if (data.content instanceof ArrayBuffer) {
+        displayContent = parseArrayBuffer(data.content, data.mimeType);
+      } else {
+        displayContent = content || data.content || '';
+      }
+      break;
+    }
+    case 'heartbeat':
+      // 心跳消息展示 message 字段
+      displayContent = content || (props.message.data as any).message || '';
+      break;
+    default:
+      // 其他类型消息展示完整数据
+      displayContent = content;
+      break;
+  }
+  
+  // 如果是 JSON 格式且已格式化，返回格式化结果
+  if (isJsonString(displayContent) && formattedContent.value) {
     return formattedContent.value;
   }
-  return content;
+  // 否则返回原始内容
+  return displayContent;
 };
 
 const formatJsonContent = (content: string) => {
   if (isJsonString(content) && !formattedContent.value) {
     try {
+      // 先尝试解析 JSON 确保格式正确
       const parsed = JSON.parse(content);
       const formatted = JSON.stringify(parsed, null, 2);
       formattedContent.value = formatted;
     } catch (error) {
+      // 如果解析失败，保持原始内容
       formattedContent.value = content;
     }
   }
@@ -324,24 +336,10 @@ watch(() => props.message, (newMessage) => {
 
     .detail-row {
       display: flex;
-      margin-bottom: 12px;
 
       .row-item {
-        display: flex;
-        align-items: center;
-
         label {
-          min-width: 60px;
-          font-weight: 600;
-          color: var(--text-color-regular, #606266);
-          margin-right: 8px;
-          flex-shrink: 0;
-        }
-
-        span {
-          color: var(--text-color-primary, #303133);
-          word-break: break-all;
-          flex: 1;
+          margin-right: 10px;
         }
 
         .message-type {
@@ -390,16 +388,11 @@ watch(() => props.message, (newMessage) => {
             color: var(--color-warning, #e6a23c);
           }
         }
-
-        .error-text {
-          color: var(--color-danger, #f56c6c);
-        }
       }
     }
 
     .detail-content {
       display: flex;
-      margin-bottom: 12px;
       align-items: flex-start;
 
       &.full-width {
