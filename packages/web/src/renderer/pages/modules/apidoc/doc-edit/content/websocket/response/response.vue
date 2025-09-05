@@ -30,7 +30,9 @@
     
     <!-- WebSocket消息内容部分 -->
     <div class="websocket-content">
-      <GWebsocketView :dataList="messages" @clear-data="handleClearData" />
+      <SLoading :loading="responseCacheLoading">
+        <GWebsocketView :dataList="messages" @clear-data="handleClearData" />
+      </SLoading>
     </div>
   </div>
 </template>
@@ -42,6 +44,8 @@ import { useWebSocket } from '@/store/websocket/websocket';
 import { formatDate } from '@/helper';
 import SLabelValue from '@/components/common/label-value/g-label-value.vue';
 import GWebsocketView from '@/components/common/websocket-view/g-websocket-view.vue';
+import SLoading from '@/components/common/loading/g-loading.vue';
+import { websocketResponseCache } from '@/cache/websocket/websocketResponse';
 
 const { t } = useTranslation();
 const websocketStore = useWebSocket();
@@ -54,10 +58,26 @@ const websocketBaseInfo = computed(() => ({
   updatedAt: websocketStore.websocket.updatedAt,
   createdAt: websocketStore.websocket.createdAt
 }));
-const messages = computed(() => websocketStore.messages);
-// 清空WebSocket消息数据
-const handleClearData = () => {
-  websocketStore.clearMessages();
+const messages = computed(() => websocketStore.responseMessage);
+const responseCacheLoading = computed(() => websocketStore.responseCacheLoading);
+
+// 清空WebSocket消息数据和缓存
+const handleClearData = async () => {
+  try {
+    // 清空内存中的消息
+    websocketStore.clearMessages();
+    
+    // 清空IndexedDB中的缓存
+    const nodeId = websocketStore.websocket._id;
+    if (nodeId) {
+      await websocketResponseCache.clearData(nodeId);
+    }
+    
+  } catch (error) {
+    console.error('清空缓存失败:', error);
+    // 即使缓存清空失败，也要清空内存中的消息
+    websocketStore.clearMessages();
+  }
 };
 </script>
 
