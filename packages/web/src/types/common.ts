@@ -246,6 +246,12 @@ export type Config = {
       chunkSize: number;
       dbName: string,
       version: number,
+    },
+    websocketNodeResponseCache: {
+      dbName: string,
+      version: number,
+      singleResponseSize: number, //单个消息大小限制
+      maxResponseSize: number, //最大缓存消息大小
     }
   },
   standaloneCache: {

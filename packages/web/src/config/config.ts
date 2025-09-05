@@ -91,6 +91,12 @@ export const config: Config = {
       chunkSize: 1024 * 1024 * 5, //分块大小，默认5MB
       dbName: 'apiflowResponseCache',
       version: 1, //升级版本以支持分块存储
+    },
+    websocketNodeResponseCache: {
+      dbName: 'websocketNodeResponseCache',
+      version: 1,
+      singleResponseSize: 1024 * 1024 * 50, //单个消息大小限制
+      maxResponseSize: 1024 * 1024 * 1024 * 5, //最大缓存消息大小
     }
   },
   standaloneCache: {

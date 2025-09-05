@@ -4,7 +4,7 @@ import { ref, watch } from "vue";
 import { ApidocProperty } from "@src/types";
 import { apidocGenerateProperty, generateEmptyWebsocketNode, uuid, cloneDeep, debounce } from "@/helper";
 import { standaloneCache } from "@/cache/standalone.ts";
-import { webSocketNodeCache } from "@/cache/websocketNode.ts";
+import { webSocketNodeCache } from "@/cache/websocket/websocketNode.ts";
 import { ElMessageBox } from "element-plus";
 import { useApidocTas } from "../apidoc/tabs.ts";
 import { router } from "@/router/index.ts";
@@ -22,11 +22,12 @@ export const useWebSocket = defineStore('websocket', () => {
   const originWebsocket = ref<WebSocketNode>(generateEmptyWebsocketNode(uuid()));
   const loading = ref(false);
   const saveLoading = ref(false);
+  const responseCacheLoading = ref(false);
   const websocketFullUrl = ref('');
   const defaultHeaders = ref<ApidocProperty<"string">[]>([]);
   const connectionState = ref<'disconnected' | 'connecting' | 'connected' | 'error'>('disconnected');
   const connectionId = ref('');
-  const messages = ref<WebsocketResponse[]>([]);
+  const responseMessage = ref<WebsocketResponse[]>([]);
   
   /*
   |--------------------------------------------------------------------------
@@ -372,35 +373,35 @@ export const useWebSocket = defineStore('websocket', () => {
   */
   // 添加消息到数组
   const addMessage = (message: WebsocketResponse): void => {
-    messages.value.push(message);
+    responseMessage.value.push(message);
   };
 
   // 清空所有消息
   const clearMessages = (): void => {
-    messages.value = [];
+    responseMessage.value = [];
   };
 
   // 根据ID删除消息
   const deleteMessageById = (messageId: string): void => {
-    const index = messages.value.findIndex(msg => msg.data.id === messageId);
+    const index = responseMessage.value.findIndex(msg => msg.data.id === messageId);
     if (index !== -1) {
-      messages.value.splice(index, 1);
+      responseMessage.value.splice(index, 1);
     }
   };
 
   // 根据类型筛选消息
   const getMessagesByType = (type: WebsocketResponse['type']): WebsocketResponse[] => {
-    return messages.value.filter(msg => msg.type === type);
+    return responseMessage.value.filter(msg => msg.type === type);
   };
 
   // 获取最新的N条消息
   const getLatestMessages = (count: number): WebsocketResponse[] => {
-    return messages.value.slice(-count);
+    return responseMessage.value.slice(-count);
   };
 
   // 根据时间范围获取消息
   const getMessagesByTimeRange = (startTime: number, endTime: number): WebsocketResponse[] => {
-    return messages.value.filter(msg => {
+    return responseMessage.value.filter(msg => {
       const timestamp = msg.data.timestamp;
       return timestamp >= startTime && timestamp <= endTime;
     });
@@ -466,7 +467,9 @@ export const useWebSocket = defineStore('websocket', () => {
   }) => {
     webSocketNodeCache.setWebSocketAutoReconnectConfig(projectId, config);
   };
-
+  const setResponseCacheLoading = (state: boolean) => {
+    responseCacheLoading.value = state;
+  }
   /*
   |--------------------------------------------------------------------------
   | 数据操作方法
@@ -627,7 +630,7 @@ export const useWebSocket = defineStore('websocket', () => {
     defaultHeaders,
     connectionState,
     connectionId,
-    messages,
+    responseMessage,
     changeWebSocketName,
     changeWebSocketDescription,
     changeWebSocketProtocol,
@@ -674,5 +677,7 @@ export const useWebSocket = defineStore('websocket', () => {
     setCachedConnectionState,
     getAutoReconnectConfig,
     setAutoReconnectConfig,
+    responseCacheLoading,
+    setResponseCacheLoading,
   }
 })
