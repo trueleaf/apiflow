@@ -3,7 +3,7 @@
  */
 
 import { WebSocketNode } from '@src/types/websocket/websocket';
-import { ResponseCache } from './responseCache';
+import { ResponseCache } from '../responseCache';
 
 class WebSocketNodeCache extends ResponseCache {
   constructor() {
