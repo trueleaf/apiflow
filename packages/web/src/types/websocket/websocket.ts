@@ -241,4 +241,8 @@ export type WebsocketSendMessageTemplate = {
 // WebSocket其他配置
 export type WebsocketConfig = {
   connectionWaitingTip: boolean;
+  /**
+   * 需要展示的快捷操作列表
+   */
+  quickOperations: ('autoSend' | 'template')[];
 };

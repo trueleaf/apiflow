@@ -72,42 +72,42 @@
               <el-checkbox v-model="websocketStore.websocket.config.autoHeartbeat" @change="handleAutoHeartbeatChange">
                 {{ t("自动发送") }}
               </el-checkbox>
-              <el-popover :visible="configPopoverVisible" placement="bottom" :width="320">
-                <template #reference>
-                  <div @click="configPopoverVisible = !configPopoverVisible" class="gear-button">
-                    <el-icon>
-                      <Setting />
-                    </el-icon>
-                  </div>
-                </template>
-
-                <div class="heartbeat-config-popover">
-                  <div class="config-item">
-                    <label class="config-label">{{ t("发送间隔") }}:</label>
-                    <div class="config-input">
-                      <el-input-number v-model="websocketStore.websocket.config.heartbeatInterval" :min="100"
-                        :max="300000" :step="1000" size="small" @change="handleHeartbeatIntervalChange"
-                        style="width: 120px;" />
-                      <span class="interval-unit">{{ t("毫秒") }}</span>
-                    </div>
-                  </div>
-
-                  <div class="config-item">
-                    <label class="config-label">{{ t("心跳包内容") }}:</label>
-                    <el-input v-model="websocketStore.websocket.config.defaultHeartbeatContent" type="textarea"
-                      :rows="3" :placeholder="t('请输入心跳包内容')" @input="handleDefaultHeartbeatContentChange"
-                      class="heartbeat-content-input" />
-                  </div>
-
-                  <div class="config-actions">
-                    <el-button size="small" @click="configPopoverVisible = false">
-                      {{ t("关闭") }}
-                    </el-button>
-                  </div>
-                </div>
-              </el-popover>
             </div>
           </div>
+          <el-popover :visible="configPopoverVisible" placement="bottom" :width="320">
+            <template #reference>
+              <div @click="configPopoverVisible = !configPopoverVisible" class="config-button">
+                <el-icon>
+                  <Setting />
+                </el-icon>
+              </div>
+            </template>
+
+            <div class="heartbeat-config-popover">
+              <div class="config-item">
+                <label class="config-label">{{ t("发送间隔") }}:</label>
+                <div class="config-input">
+                  <el-input-number v-model="websocketStore.websocket.config.heartbeatInterval" :min="100"
+                    :max="300000" :step="1000" size="small" @change="handleHeartbeatIntervalChange"
+                    style="width: 120px;" />
+                  <span class="interval-unit">{{ t("毫秒") }}</span>
+                </div>
+              </div>
+
+              <div class="config-item">
+                <label class="config-label">{{ t("心跳包内容") }}:</label>
+                <el-input v-model="websocketStore.websocket.config.defaultHeartbeatContent" type="textarea"
+                  :rows="3" :placeholder="t('请输入心跳包内容')" @input="handleDefaultHeartbeatContentChange"
+                  class="heartbeat-content-input" />
+              </div>
+
+              <div class="config-actions">
+                <el-button size="small" @click="configPopoverVisible = false">
+                  {{ t("关闭") }}
+                </el-button>
+              </div>
+            </div>
+          </el-popover>
           <!-- 数据类型选择器 -->
           <div class="message-type-selector">
             <el-select v-model="websocketStore.websocket.config.messageType" size="small"
@@ -561,22 +561,10 @@ const handleHideWaitingTip = () => {
       .heartbeat-controls {
         display: flex;
         flex-direction: column;
-
         .heartbeat-checkbox {
           display: flex;
           align-items: center;
-
-          .gear-button {
-            padding: 5px;
-            cursor: pointer;
-            transition: background-color 0.2s;
-
-            &:hover {
-              background-color: var(--el-fill-color-light);
-            }
-          }
         }
-
         .heartbeat-config {
           display: flex;
           align-items: center;
@@ -586,6 +574,15 @@ const handleHideWaitingTip = () => {
             font-size: 12px;
             color: var(--el-text-color-regular);
           }
+        }
+      }
+      .config-button {
+        padding: 5px;
+        cursor: pointer;
+        transition: background-color 0.2s;
+
+        &:hover {
+          background-color: var(--el-fill-color-light);
         }
       }
     }

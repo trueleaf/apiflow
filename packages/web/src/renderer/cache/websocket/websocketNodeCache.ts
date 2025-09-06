@@ -252,7 +252,7 @@ class WebSocketNodeCache extends HttpResponseCache {
   /*
    * 设置websocket配置(覆盖/合并)
    */
-  setWebsocketConfig(projectId: string, config: WebsocketConfig) {
+  setWebsocketConfig(projectId: string, config: Partial<WebsocketConfig>) {
     try {
       const localData = JSON.parse(localStorage.getItem('websocketNode/config') || '{}');
       localData[projectId] = { ...(localData[projectId] || {}), ...config };
