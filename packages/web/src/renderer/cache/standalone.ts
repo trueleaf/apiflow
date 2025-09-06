@@ -1,27 +1,26 @@
 
-import type { ApidocProjectInfo, HttpNode, ApidocProperty, ApidocVariable, FolderNode, ApiNode } from '@src/types';
+import type { ApidocProjectInfo, ApidocProperty, ApidocVariable, ApiNode } from '@src/types';
 import type { ApidocProjectRules } from "@src/types/apidoc/base-info";
-import { DocCache } from "./standalone/docs";
+import { StandaloneHttpNodeCache } from "./standalone/docs";
 import { ProjectCache } from "./standalone/projects";
 import { CommonHeaderCache } from "./standalone/commonHeaders";
 import { RuleCache } from "./standalone/rules";
 import { VariableCache } from "./standalone/variable";
 import { IDBPDatabase, openDB } from "idb";
 import { config } from "@src/config/config.ts";
-import { WebSocketNode } from '@src/types/websocket/websocket.ts';
 
 export class StandaloneCache {
   public db: IDBPDatabase | null = null;
   
   // 组合各 cache
-  docs: DocCache;
+  standaloneHttpNodeList: StandaloneHttpNodeCache;
   projects: ProjectCache;
   commonHeaders: CommonHeaderCache;
   rules: RuleCache;
   variables: VariableCache;
 
   constructor() {
-    this.docs = new DocCache(null);
+    this.standaloneHttpNodeList = new StandaloneHttpNodeCache(null);
     this.projects = new ProjectCache(null);
     this.commonHeaders = new CommonHeaderCache(null);
     this.rules = new RuleCache(null);
@@ -57,7 +56,7 @@ export class StandaloneCache {
         },
       }
     );
-    this.docs = new DocCache(this.db);
+    this.standaloneHttpNodeList = new StandaloneHttpNodeCache(this.db);
     this.projects = new ProjectCache(this.db);
     this.commonHeaders = new CommonHeaderCache(this.db);
     this.rules = new RuleCache(this.db);
@@ -84,7 +83,7 @@ export class StandaloneCache {
     return this.projects.deleteProject(projectId);
   }
   async updateProjectDocNum(projectId: string): Promise<boolean> {
-    const docsList = await this.docs.getDocsList();
+    const docsList = await this.standaloneHttpNodeList.getDocsList();
     const projectDocs = docsList.filter(doc => doc.projectId === projectId && !doc.isDeleted);
     const docNum = projectDocs.length;
     const projectList = await this.projects.getProjectList();
@@ -97,48 +96,48 @@ export class StandaloneCache {
     return await this.projects.setProjectList(projectList);
   }
   async getDocsByProjectId(projectId: string): Promise<ApiNode[]> {
-    return this.docs.getDocsByProjectId(projectId);
+    return this.standaloneHttpNodeList.getDocsByProjectId(projectId);
   }
   async getDocById(docId: string): Promise<ApiNode | null> {
-    return this.docs.getDocById(docId);
+    return this.standaloneHttpNodeList.getDocById(docId);
   }
   async deleteDocsByProjectId(projectId: string): Promise<boolean> {
-    return this.docs.deleteDocsByProjectId(projectId);
+    return this.standaloneHttpNodeList.deleteDocsByProjectId(projectId);
   }
   async getApiNodesAsTree(projectId: string) {
-    return this.docs.getApiNodesAsTree(projectId);
+    return this.standaloneHttpNodeList.getApiNodesAsTree(projectId);
   }
 
   // 文档相关
   async getDocsList(): Promise<ApiNode[]> {
-    return this.docs.getDocsList();
+    return this.standaloneHttpNodeList.getDocsList();
   }
   async addDoc(doc: ApiNode): Promise<boolean> {
-    return this.docs.addDoc(doc);
+    return this.standaloneHttpNodeList.addDoc(doc);
   }
   async updateDoc(doc: ApiNode): Promise<boolean> {
-    return this.docs.updateDoc(doc);
+    return this.standaloneHttpNodeList.updateDoc(doc);
   }
   async updateDocName(docId: string, name: string): Promise<boolean> {
-    return this.docs.updateDocName(docId, name);
+    return this.standaloneHttpNodeList.updateDocName(docId, name);
   }
   async deleteDoc(docId: string): Promise<boolean> {
-    return this.docs.deleteDoc(docId);
+    return this.standaloneHttpNodeList.deleteDoc(docId);
   }
   async deleteDocs(docIds: string[]): Promise<boolean> {
-    return this.docs.deleteDocs(docIds);
+    return this.standaloneHttpNodeList.deleteDocs(docIds);
   }
   async restoreDoc(docId: string): Promise<string[]> {
-    return this.docs.restoreDoc(docId);
+    return this.standaloneHttpNodeList.restoreDoc(docId);
   }
   async getDeletedDocsList(projectId: string) {
-    return this.docs.getDeletedDocsList(projectId);
+    return this.standaloneHttpNodeList.getDeletedDocsList(projectId);
   }
   async replaceAllDocs(docs: ApiNode[], projectId: string): Promise<boolean> {
-    return this.docs.replaceAllDocs(docs, projectId);
+    return this.standaloneHttpNodeList.replaceAllDocs(docs, projectId);
   }
   async appendDocs(docs: ApiNode[], projectId: string): Promise<string[]> {
-    return this.docs.appendDocs(docs, projectId);
+    return this.standaloneHttpNodeList.appendDocs(docs, projectId);
   }
   // 公共请求头相关
   async getCommonHeaders(): Promise<ApidocProperty<'string'>[]> {
@@ -190,7 +189,7 @@ export class StandaloneCache {
       if (!this.db) throw new Error("Database not initialized");
       
       // 获取所有数据
-      const docsList = await this.docs.getDocsList();
+      const docsList = await this.standaloneHttpNodeList.getDocsList();
       const projectList = await this.projects.getProjectList();
       
       // 保留已删除的数据
@@ -207,7 +206,7 @@ export class StandaloneCache {
       
       // 恢复已删除的数据
       for (const doc of deletedDocs) {
-        await this.docs.addDoc(doc);
+        await this.standaloneHttpNodeList.addDoc(doc);
       }
       await this.projects.setProjectList(deletedProjects);
       return true;

@@ -1,9 +1,8 @@
 import { IDBPDatabase } from "idb";
-import type { ApidocType, ApiNode, HttpNode } from "@src/types";
+import type { ApidocType, ApiNode } from "@src/types";
 import { nanoid } from "nanoid";
-import { WebSocketNode } from "@src/types/websocket/websocket.ts";
 
-export class DocCache {
+export class StandaloneHttpNodeCache {
   private bannerCache = new Map<
     string,
     { data: ApiNode[]; timestamp: number }
