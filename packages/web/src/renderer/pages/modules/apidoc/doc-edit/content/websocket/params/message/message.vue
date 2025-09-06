@@ -30,7 +30,7 @@
             </el-button>
           </template>
           <!-- 模板选择器 -->
-          <div class="template-selector">
+          <div v-if="quickOperations.includes('template')" class="template-selector">
             <el-select
               v-model="selectedTemplateId"
               :placeholder="t('选择模板')"
@@ -66,10 +66,10 @@
               </el-option>
             </el-select>
           </div>
-          <!-- 自动心跳功能 -->
-          <div class="heartbeat-controls">
-            <div class="heartbeat-checkbox">
-              <el-checkbox v-model="websocketStore.websocket.config.autoHeartbeat" @change="handleAutoHeartbeatChange">
+          <!-- 自动配置功能 -->
+          <div v-if="quickOperations.includes('autoSend')" class="config-controls">
+            <div class="config-checkbox">
+              <el-checkbox v-model="websocketStore.websocket.config.autoHeartbeat" @change="handleAutoConfigChange">
                 {{ t("自动发送") }}
               </el-checkbox>
             </div>
@@ -83,22 +83,40 @@
               </div>
             </template>
 
-            <div class="heartbeat-config-popover">
+            <div class="config-popover">
               <div class="config-item">
                 <label class="config-label">{{ t("发送间隔") }}:</label>
                 <div class="config-input">
                   <el-input-number v-model="websocketStore.websocket.config.heartbeatInterval" :min="100"
-                    :max="300000" :step="1000" size="small" @change="handleHeartbeatIntervalChange"
+                    :max="300000" :step="1000" size="small" @change="handleConfigIntervalChange"
                     style="width: 120px;" />
                   <span class="interval-unit">{{ t("毫秒") }}</span>
                 </div>
               </div>
 
               <div class="config-item">
-                <label class="config-label">{{ t("心跳包内容") }}:</label>
+                <label class="config-label">{{ t("消息内容") }}:</label>
                 <el-input v-model="websocketStore.websocket.config.defaultHeartbeatContent" type="textarea"
-                  :rows="3" :placeholder="t('请输入心跳包内容')" @input="handleDefaultHeartbeatContentChange"
-                  class="heartbeat-content-input" />
+                  :rows="3" :placeholder="t('请输入消息内容')" @input="handleDefaultConfigContentChange"
+                  class="config-content-input" />
+              </div>
+
+              <div class="config-item">
+                <label class="config-label">{{ t("快捷操作") }}:</label>
+                <div class="quick-operations">
+                  <el-checkbox 
+                    :model-value="quickOperations.includes('autoSend')"
+                    @change="handleQuickOperationChange('autoSend', $event)"
+                  >
+                    {{ t("自动发送") }}
+                  </el-checkbox>
+                  <el-checkbox 
+                    :model-value="quickOperations.includes('template')"
+                    @change="handleQuickOperationChange('template', $event)"
+                  >
+                    {{ t("模板选择") }}
+                  </el-checkbox>
+                </div>
               </div>
 
               <div class="config-actions">
@@ -184,7 +202,7 @@ const hideWaitingTip = ref(false)
 // 获取当前选中的tab
 const { currentSelectTab } = storeToRefs(apidocTabsStore)
 const configPopoverVisible = ref(false)
-let heartbeatTimer: NodeJS.Timeout | null = null
+let configTimer: NodeJS.Timeout | null = null
 const editorConfig = computed(() => {
   switch (websocketStore.websocket.config.messageType) {
     case 'json':
@@ -202,6 +220,41 @@ const editorConfig = computed(() => {
 // 模板相关变量
 const selectedTemplateId = ref<string>('')
 const createTemplateDialogVisible = ref(false)
+
+// 快捷操作配置
+const quickOperations = ref<('autoSend' | 'template')[]>([])
+
+// 初始化快捷操作配置
+const initQuickOperations = () => {
+  const tab = currentSelectTab.value
+  if (tab) {
+    const config = webSocketNodeCache.getWebsocketConfig(tab.projectId)
+    quickOperations.value = config?.quickOperations || ['autoSend', 'template']
+  }
+}
+
+// 处理快捷操作变化
+const handleQuickOperationChange = (operation: 'autoSend' | 'template', enabled: boolean | string | number) => {
+  const boolEnabled = Boolean(enabled)
+  const tab = currentSelectTab.value
+  if (!tab) return
+
+  if (boolEnabled) {
+    if (!quickOperations.value.includes(operation)) {
+      quickOperations.value.push(operation)
+    }
+  } else {
+    const index = quickOperations.value.indexOf(operation)
+    if (index > -1) {
+      quickOperations.value.splice(index, 1)
+    }
+  }
+
+  // 保存到缓存
+  webSocketNodeCache.setWebsocketConfig(tab.projectId, {
+    quickOperations: quickOperations.value
+  })
+}
 
 // 模板选择处理
 const handleSelectTemplate = (templateId: string) => {
@@ -325,7 +378,7 @@ const handleSendMessage = async () => {
 const handleMessageTypeChange = (value: MessageType) => {
   websocketStore.changeWebSocketMessageType(value)
 }
-const handleAutoHeartbeatChange = (enabled: boolean | string | number) => {
+const handleAutoConfigChange = (enabled: boolean | string | number) => {
   const boolEnabled = Boolean(enabled)
   websocketStore.changeWebSocketAutoHeartbeat(boolEnabled)
 
@@ -335,7 +388,7 @@ const handleAutoHeartbeatChange = (enabled: boolean | string | number) => {
     stopHeartbeat()
   }
 }
-const handleHeartbeatIntervalChange = (interval: number | undefined) => {
+const handleConfigIntervalChange = (interval: number | undefined) => {
   if (interval !== undefined) {
     websocketStore.changeWebSocketHeartbeatInterval(interval)
     // 如果心跳正在运行，重新启动以应用新的间隔
@@ -345,15 +398,15 @@ const handleHeartbeatIntervalChange = (interval: number | undefined) => {
     }
   }
 }
-const handleDefaultHeartbeatContentChange = (content: string) => {
+const handleDefaultConfigContentChange = (content: string) => {
   websocketStore.changeWebSocketDefaultHeartbeatContent(content)
 }
 const startHeartbeat = () => {
-  if (heartbeatTimer) {
-    clearInterval(heartbeatTimer)
+  if (configTimer) {
+    clearInterval(configTimer)
   }
 
-  heartbeatTimer = setInterval(async () => {
+  configTimer = setInterval(async () => {
     if (connectionState.value === 'connected' && connectionId.value) {
       try {
         const heartbeatContent = websocketStore.websocket.config.defaultHeartbeatContent || 'ping'
@@ -425,12 +478,12 @@ const startHeartbeat = () => {
   }, websocketStore.websocket.config.heartbeatInterval)
 }
 const stopHeartbeat = () => {
-  if (heartbeatTimer) {
-    clearInterval(heartbeatTimer)
-    heartbeatTimer = null
+  if (configTimer) {
+    clearInterval(configTimer)
+    configTimer = null
   }
 }
-// 监听连接状态变化，管理心跳
+// 监听连接状态变化，管理配置
 watch(() => connectionState.value, (newState) => {
   if (newState === 'connected' && websocketStore.websocket.config.autoHeartbeat) {
     startHeartbeat()
@@ -458,6 +511,8 @@ watch(currentSelectTab, (tab) => {
   if (tab) {
     const cfg = webSocketNodeCache.getWebsocketConfig(tab.projectId)
     hideWaitingTip.value = cfg?.connectionWaitingTip === true
+    // 初始化快捷操作配置
+    initQuickOperations()
   }
 }, { immediate: true })
 
@@ -558,14 +613,14 @@ const handleHideWaitingTip = () => {
         }
       }
 
-      .heartbeat-controls {
+      .config-controls {
         display: flex;
         flex-direction: column;
-        .heartbeat-checkbox {
+        .config-checkbox {
           display: flex;
           align-items: center;
         }
-        .heartbeat-config {
+        .config-settings {
           display: flex;
           align-items: center;
           margin-left: 24px;
@@ -589,7 +644,7 @@ const handleHideWaitingTip = () => {
   }
 }
 
-.heartbeat-config-popover {
+.config-popover {
   .config-item {
     margin-bottom: 16px;
 
@@ -612,8 +667,18 @@ const handleHideWaitingTip = () => {
       }
     }
 
-    .heartbeat-content-input {
+    .config-content-input {
       width: 100%;
+    }
+
+    .quick-operations {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+
+      .el-checkbox {
+        margin: 0;
+      }
     }
   }
 
