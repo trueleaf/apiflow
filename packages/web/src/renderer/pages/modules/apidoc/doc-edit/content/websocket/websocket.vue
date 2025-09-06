@@ -140,12 +140,7 @@ const loadMessagesFromCache = () => {
     const nodeId = currentSelectTab.value._id;
     if (nodeId) {
       websocketResponseCache.getData(nodeId).then(cachedMessages => {
-        if (cachedMessages.length > 0) {
-          websocketStore.clearMessages();
-          cachedMessages.forEach(message => {
-            websocketStore.addMessage(message);
-          });
-        }
+        websocketStore.replaceMessages(cachedMessages);
       }).finally(() => {
         websocketStore.setResponseCacheLoading(false)
       })

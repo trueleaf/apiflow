@@ -132,6 +132,7 @@ const handleConnect = async () => {
     type: 'startConnect' as const,
     data: {
       id: uuid(),
+      nodeId: currentSelectTab.value._id,
       url: fullUrl.value,
       timestamp: Date.now()
     }
@@ -163,6 +164,7 @@ const handleConnect = async () => {
         type: 'error' as const,
         data: {
           id: uuid(),
+          nodeId: currentSelectTab.value?._id || '',
           error: result.error || t('连接失败'),
           timestamp: Date.now()
         }
@@ -186,6 +188,7 @@ const handleConnect = async () => {
       type: 'error' as const,
       data: {
         id: uuid(),
+        nodeId: currentSelectTab.value?._id || '',
         error: error.message || t('连接异常'),
         timestamp: Date.now()
       }
@@ -223,6 +226,7 @@ const handleDisconnect = async () => {
         type: 'error' as const,
         data: {
           id: uuid(),
+          nodeId: currentSelectTab.value?._id || '',
           error: result.error || t('断开连接失败'),
           timestamp: Date.now()
         }
@@ -243,6 +247,7 @@ const handleDisconnect = async () => {
       type: 'error' as const,
       data: {
         id: uuid(),
+        nodeId: currentSelectTab.value?._id || '',
         error: error.message || t('断开连接异常'),
         timestamp: Date.now()
       }
@@ -281,6 +286,7 @@ const attemptReconnect = () => {
     type: 'reconnecting' as const,
     data: {
       id: uuid(),
+      nodeId: currentSelectTab.value?._id || '',
       url: fullUrl.value,
       timestamp: Date.now(),
       attempt: reconnectAttempts.value,
@@ -487,6 +493,7 @@ const setupWebSocketEventListeners = () => {
         type: 'connected' as const,
         data: {
           id: uuid(),
+          nodeId: data.nodeId,
           url: data.url,
           timestamp: Date.now()
         }
@@ -513,6 +520,7 @@ const setupWebSocketEventListeners = () => {
         type: 'disconnected' as const,
         data: {
           id: uuid(),
+          nodeId: data.nodeId,
           url: data.url,
           reasonType,
           timestamp: Date.now()
@@ -542,6 +550,7 @@ const setupWebSocketEventListeners = () => {
         type: 'error' as const,
         data: {
           id: uuid(),
+          nodeId: data.nodeId,
           error: data.error,
           timestamp: Date.now()
         }
@@ -576,6 +585,7 @@ const setupWebSocketEventListeners = () => {
         type: 'receive' as const,
         data: {
           id: uuid(),
+          nodeId: data.nodeId,
           content: arrayBuffer,
           timestamp: Date.now(),
           contentType: data.contentType,

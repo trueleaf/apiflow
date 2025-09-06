@@ -135,6 +135,7 @@ export type WebsocketSendResponse = {
   type: "send";
   data: {
     id: string;
+    nodeId: string;
     content: string;
     timestamp: number;
     contentType: MessageType;
@@ -147,6 +148,7 @@ export type WebsocketReceiveResponse = {
   type: "receive";
   data: {
     id: string;
+    nodeId: string;
     content: ArrayBuffer;
     timestamp: number;
     contentType: 'text' | 'binary';
@@ -160,6 +162,7 @@ export type WebsocketStartConnectResponse = {
   type: "startConnect";
   data: {
     id: string;
+    nodeId: string;
     url: string;
     timestamp: number;
   };
@@ -169,6 +172,7 @@ export type WebsocketConnectedResponse = {
   type: "connected";
   data: {
     id: string;
+    nodeId: string;
     url: string;
     timestamp: number;
   };
@@ -179,6 +183,7 @@ export type WebsocketDisconnectedResponse = {
   type: "disconnected";
   data: {
     id: string;
+    nodeId: string;
     url: string;
     reasonType: 'manual' | 'auto';
     timestamp: number;
@@ -190,6 +195,7 @@ export type WebsocketErrorResponse = {
   type: "error";
   data: {
     id: string;
+    nodeId: string;
     error: string;
     timestamp: number;
   };
@@ -200,6 +206,7 @@ export type WebsocketHeartbeatResponse = {
   type: "heartbeat";
   data: {
     id: string;
+    nodeId: string;
     message: string;
     timestamp: number;
   };
@@ -210,6 +217,7 @@ export type WebsocketReconnectingResponse = {
   type: "reconnecting";
   data: {
     id: string;
+    nodeId: string;
     url: string;
     timestamp: number;
     attempt: number; // 重试次数

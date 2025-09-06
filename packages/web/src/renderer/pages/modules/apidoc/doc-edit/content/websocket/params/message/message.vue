@@ -318,7 +318,8 @@ const handleSendMessage = async () => {
           content: messageContent,
           timestamp: Date.now(),
           contentType: websocketStore.websocket.config.messageType,
-          size: new Blob([messageContent]).size
+          size: new Blob([messageContent]).size,
+          nodeId: currentSelectTab.value?._id || ''
         }
       };
       websocketStore.addMessage(sendMessage);
@@ -338,7 +339,8 @@ const handleSendMessage = async () => {
         data: {
           id: uuid(),
           error: result?.error || t('消息发送失败'),
-          timestamp: Date.now()
+          timestamp: Date.now(),
+          nodeId: currentSelectTab.value?._id || ''
         }
       };
 
@@ -361,7 +363,8 @@ const handleSendMessage = async () => {
       data: {
         id: uuid(),
         error: error instanceof Error ? error.message : t('消息发送异常'),
-        timestamp: Date.now()
+        timestamp: Date.now(),
+        nodeId: currentSelectTab.value?._id || ''
       }
     };
 
@@ -418,7 +421,8 @@ const startHeartbeat = () => {
             data: {
               id: uuid(),
               message: heartbeatContent,
-              timestamp: Date.now()
+              timestamp: Date.now(),
+              nodeId: currentSelectTab.value?._id || ''
             }
           };
 
@@ -439,7 +443,8 @@ const startHeartbeat = () => {
             data: {
               id: uuid(),
               error: result?.error || t('心跳包发送失败'),
-              timestamp: Date.now()
+              timestamp: Date.now(),
+              nodeId: currentSelectTab.value?._id || ''
             }
           };
 
@@ -461,7 +466,8 @@ const startHeartbeat = () => {
           data: {
             id: uuid(),
             error: error instanceof Error ? error.message : t('心跳包发送异常'),
-            timestamp: Date.now()
+            timestamp: Date.now(),
+            nodeId: currentSelectTab.value?._id || ''
           }
         };
 

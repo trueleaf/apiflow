@@ -132,7 +132,7 @@ export const useWebSocket = defineStore('websocket', () => {
     // Origin头 - WebSocket协议要求的来源标识
     const originHeader = apidocGenerateProperty();
     originHeader.key = 'Origin';
-    originHeader.value = 'http://localhost:3000';
+    originHeader.value = 'http://localhost:4000';
     originHeader.description = '<请求来源，WebSocket协议要求>';
     originHeader._disableKey = true;
     originHeader._disableDescription = true;
@@ -369,6 +369,11 @@ export const useWebSocket = defineStore('websocket', () => {
   // 添加消息到数组
   const addMessage = (message: WebsocketResponse): void => {
     responseMessage.value.push(message);
+  };
+
+  // 替换所有消息
+  const replaceMessages = (messages: WebsocketResponse[]): void => {
+    responseMessage.value = messages;
   };
 
   // 清空所有消息
@@ -741,6 +746,7 @@ export const useWebSocket = defineStore('websocket', () => {
     saveWebsocket,
     // 消息相关方法
     addMessage,
+    replaceMessages,
     clearMessages,
     deleteMessageById,
     getMessagesByType,
