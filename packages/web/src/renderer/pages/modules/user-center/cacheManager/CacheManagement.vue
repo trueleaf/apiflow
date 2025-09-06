@@ -121,7 +121,7 @@ import { CacheInfo, LocalStorageItem, IndexedDBItem } from '@src/types/apidoc/ca
 import { formatBytes } from '@/helper'
 import { RefreshRight } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
-import { httpNodeCache } from '@/cache/http/httpNode'
+import { httpNodeCache } from '@/cache/http/httpNodeCache.ts'
 import LocalStorageDetail from './components/LocalStorageDetail.vue'
 import IndexedDBDetail from './components/IndexedDBDetail.vue'
 import DataBackup from './components/DataBackup.vue'

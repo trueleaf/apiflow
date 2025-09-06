@@ -4,7 +4,7 @@
 
 import { ApidocProjectHost } from '@src/types/apidoc/base-info';
 import { HttpNode } from '@src/types';
-import { HttpResponseCache } from './responseCache';
+import { HttpResponseCache } from './httpResponseCache';
 import type { ApidocCookie } from '@src/renderer/store/apidoc/cookies';
 
 type ServerInfo = ApidocProjectHost & {

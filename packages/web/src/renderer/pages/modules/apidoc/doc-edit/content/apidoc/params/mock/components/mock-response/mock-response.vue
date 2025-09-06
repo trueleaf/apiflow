@@ -141,7 +141,7 @@ import type { UploadFile, UploadInstance, UploadProps, UploadRawFile } from 'ele
 import { genFileId } from 'element-plus';
 import { formatBytes } from '@/helper/index'
 import { HttpNode } from '@src/types';
-import { httpNodeCache } from '@/cache/http/httpNode';
+import { httpNodeCache } from '@/cache/http/httpNodeCache.ts';
 import SCustomEditor from './components/custom-editor.vue'
 import SLabelValue from '@/components/common/label-value/g-label-value.vue'
 import SJsonEditor from '@/components/common/json-editor/g-json-editor.vue'

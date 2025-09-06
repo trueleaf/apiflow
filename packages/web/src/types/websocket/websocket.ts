@@ -232,3 +232,12 @@ export type WebsocketResponse =
   | WebsocketHeartbeatResponse
   | WebsocketStartConnectResponse
   | WebsocketReconnectingResponse;
+  
+export type WebsocketMessageTemplate = {
+  id: string;
+  name: string;
+  sendMessage: string;
+  messageType: MessageType;
+  createdAt: number;
+  updatedAt: number;
+}

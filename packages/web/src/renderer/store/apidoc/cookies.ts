@@ -1,7 +1,7 @@
 import { defineStore } from "pinia";
 import { ref } from "vue";
 import { parse } from 'set-cookie-parser';
-import { httpNodeCache } from '@/cache/http/httpNode';
+import { httpNodeCache } from '@/cache/http/httpNodeCache.ts';
 import { getDomainFromUrl, getPathFromUrl, uuid } from "@/helper/index.ts";
 import dayjs from "dayjs";
 

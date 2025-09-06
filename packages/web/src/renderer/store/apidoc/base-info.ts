@@ -14,7 +14,7 @@ import { router } from "@/router";
 import { useVariable } from './variables';
 import { standaloneCache } from '@/cache/standalone.ts';
 import { requestMethods } from '@/data/data.ts';
-import { httpNodeCache } from '@/cache/http/httpNode';
+import { httpNodeCache } from '@/cache/http/httpNodeCache.ts';
 
 type ChangeProjectBaseInfo = {
   _id: string;

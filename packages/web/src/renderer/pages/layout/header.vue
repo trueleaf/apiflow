@@ -108,13 +108,13 @@ import { deleteDB } from 'idb';
 import { useRouter } from 'vue-router';
 import i18next from 'i18next';
 import { useTranslation } from 'i18next-vue';
-import type { Language } from '@src/types'
+import type { Language, WindowState } from '@src/types'
 import { computed, onMounted, ref } from 'vue';
 import { config } from '@/../config/config'
 import { isElectron } from '@/utils/utils';
 import 'element-plus/es/components/message-box/style/css';
 import { ElMessageBox } from 'element-plus';
-import { httpNodeCache } from '@/cache/http/httpNode';
+import { httpNodeCache } from '@/cache/http/httpNodeCache.ts';
 
 const router = useRouter();
 const permissionStore = usePermissionStore();
@@ -224,8 +224,8 @@ const clearAllCache = () => {
         localStorage.clear();
         sessionStorage.clear();
         //清空indexedDB
-        if (httpNodeCache.responseCacheDb) {
-          httpNodeCache.responseCacheDb.close()
+        if (httpNodeCache.httpResponseCacheDb) {
+          httpNodeCache.httpResponseCacheDb.close()
           deleteDB(config.cacheConfig.apiflowResponseCache.dbName);
         }
         clearCacheLoading.value = false;
@@ -253,8 +253,14 @@ onMounted(() => {
   if (config.updateConfig.autoUpdate) {
     handleCheckUpdate();
   }
-  window.electronAPI?.onWindowResize((state) => {
-    windowState.value = state;
+  window.electronAPI?.onWindowResize((state: WindowState) => {
+    if (state.isMaximized) {
+      windowState.value = 'maximized';
+    } else if (state.isMinimized) {
+      windowState.value = 'minimized';
+    } else {
+      windowState.value = 'normal';
+    }
   })
 })
 </script>

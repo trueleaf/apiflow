@@ -4,7 +4,7 @@ import { ref, watch } from "vue";
 import { ApidocProperty } from "@src/types";
 import { apidocGenerateProperty, generateEmptyWebsocketNode, uuid, cloneDeep, debounce } from "@/helper";
 import { standaloneCache } from "@/cache/standalone.ts";
-import { webSocketNodeCache } from "@/cache/websocket/websocketNode.ts";
+import { webSocketNodeCache } from "@/cache/websocket/websocketNodeCache.ts";
 import { ElMessageBox } from "element-plus";
 import { useApidocTas } from "../apidoc/tabs.ts";
 import { router } from "@/router/index.ts";

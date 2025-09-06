@@ -112,7 +112,7 @@ import SJsonEditor from '@/components/common/json-editor/g-json-editor.vue'
 import { formatDate } from '@/helper'
 import { useApidocBaseInfo } from '@/store/apidoc/base-info';
 import { useApidocRequest } from '@/store/apidoc/request';
-import { httpNodeCache } from '@/cache/http/httpNode';
+import { httpNodeCache } from '@/cache/http/httpNodeCache.ts';
 import { standaloneCache } from '@/cache/standalone';
 
 const emits = defineEmits(['close'])

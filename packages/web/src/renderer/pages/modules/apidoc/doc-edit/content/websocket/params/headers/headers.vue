@@ -68,7 +68,7 @@ import SParamsTree from '@/components/apidoc/params-tree/g-params-tree.vue'
 import { useWebSocket } from '@/store/websocket/websocket';
 import { useApidocTas } from '@/store/apidoc/tabs';
 import { useApidocBaseInfo } from '@/store/apidoc/base-info';
-import { webSocketNodeCache } from '@/cache/websocket/websocketNode';
+import { webSocketNodeCache } from '@/cache/websocket/websocketNodeCache';
 import { storeToRefs } from 'pinia';
 import { CheckboxValueType } from 'element-plus';
 

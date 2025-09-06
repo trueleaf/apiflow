@@ -77,7 +77,7 @@
 
 <script lang="ts" setup>
 import { ResponseTable } from '@src/types'
-import { httpNodeCache } from '@/cache/http/httpNode'
+import { httpNodeCache } from '@/cache/http/httpNodeCache.ts'
 import SFieldset from '@/components/common/fieldset/g-fieldset.vue'
 import SDialog from '@/components/common/dialog/g-dialog.vue'
 import SResizeX from '@/components/common/resize/g-resize-x.vue'

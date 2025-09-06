@@ -58,7 +58,7 @@ import SConfig from './config/config.vue'
 import SRemarks from './remarks/remarks.vue'
 import { useWebSocket } from '@/store/websocket/websocket'
 import { useApidocTas } from '@/store/apidoc/tabs'
-import { webSocketNodeCache } from '@/cache/websocket/websocketNode'
+import { webSocketNodeCache } from '@/cache/websocket/websocketNodeCache'
 
 const { t } = useTranslation()
 const websocketStore = useWebSocket()

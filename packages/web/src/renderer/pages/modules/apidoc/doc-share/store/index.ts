@@ -4,7 +4,7 @@ import { HttpNode, ApidocVariable, ApidocBanner } from '@src/types';
 import { ApidocTab } from '@src/types/apidoc/tabs';
 import { SharedProjectInfo } from '@src/types/types';
 import { getObjectVariable } from '@/utils/utils';
-import { httpNodeCache } from '@/cache/http/httpNode';
+import { httpNodeCache } from '@/cache/http/httpNodeCache.ts';
 
 /*
 |--------------------------------------------------------------------------

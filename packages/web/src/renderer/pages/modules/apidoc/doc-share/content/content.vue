@@ -207,7 +207,7 @@ import { defaultRequestMethods } from '../common';
 import SParamsView from '@/components/apidoc/params-view/g-params-view.vue';
 import { useShareStore } from '../store';
 import { useRoute } from 'vue-router';
-import { httpNodeCache } from '@/cache/http/httpNode';
+import { httpNodeCache } from '@/cache/http/httpNodeCache.ts';
 import { convertTemplateValueToRealValue } from '@/utils/utils';
 
 const route = useRoute();

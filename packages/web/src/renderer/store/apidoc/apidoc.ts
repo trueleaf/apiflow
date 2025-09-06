@@ -23,7 +23,7 @@ import { ref, watch } from "vue"
 import 'element-plus/es/components/message-box/style/css';
 import { ElMessageBox } from "element-plus"
 import { router } from "@/router"
-import { httpNodeCache } from "@/cache/http/httpNode.ts"
+import { httpNodeCache } from "@/cache/http/httpNodeCache.ts"
 import { useApidocTas } from "./tabs"
 import { useApidocBanner } from "./banner"
 import assign from "lodash/assign"

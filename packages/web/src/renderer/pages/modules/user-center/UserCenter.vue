@@ -43,7 +43,7 @@
 
 <script setup lang="ts">
 import { ref, watch } from 'vue'
-import { httpNodeCache } from '@/cache/http/httpNode'
+import { httpNodeCache } from '@/cache/http/httpNodeCache.ts'
 import CacheManagement from './cacheManager/CacheManagement.vue'
 import UserInfo from './userInfo/UserInfo.vue'
 import ComponentLibrary from './componentLibrary/ComponentLibrary.vue'
