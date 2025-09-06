@@ -3,30 +3,30 @@ import { GitBranch, MessageCircle, Users, Mail } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 
 export default function Footer() {
-  const t = useTranslations('footer');
+  const t = useTranslations('页脚');
   const footerLinks = {
     product: [
-      { name: t('links.features'), href: '#features' },
-      { name: t('links.demo'), href: '#demo' },
-      { name: t('links.documentation'), href: '#docs' },
+      { name: t('链接.功能特性'), href: '#features' },
+      { name: t('链接.演示'), href: '#demo' },
+      { name: t('链接.文档'), href: '#docs' },
     ],
     company: [
-      { name: t('links.about'), href: '#about' },
-      { name: t('links.blog'), href: '#blog' },
-      { name: t('links.careers'), href: '#careers' },
-      { name: t('links.contact'), href: '#contact' },
+      { name: t('链接.关于我们'), href: '#about' },
+      { name: t('链接.博客'), href: '#blog' },
+      { name: t('链接.招聘'), href: '#careers' },
+      { name: t('链接.联系我们'), href: '#contact' },
     ],
     resources: [
-      { name: t('links.helpCenter'), href: '#help' },
-      { name: t('links.apiReference'), href: '#api' },
-      { name: t('links.community'), href: '#community' },
-      { name: t('links.status'), href: '#status' },
+      { name: t('链接.帮助中心'), href: '#help' },
+      { name: t('链接.API参考'), href: '#api' },
+      { name: t('链接.社区'), href: '#community' },
+      { name: t('链接.状态'), href: '#status' },
     ],
     legal: [
-      { name: t('links.privacy'), href: '#privacy' },
-      { name: t('links.terms'), href: '#terms' },
-      { name: t('links.cookies'), href: '#cookies' },
-      { name: t('links.security'), href: '#security' },
+      { name: t('链接.隐私政策'), href: '#privacy' },
+      { name: t('链接.服务条款'), href: '#terms' },
+      { name: t('链接.Cookie政策'), href: '#cookies' },
+      { name: t('链接.安全'), href: '#security' },
     ],
   };
 
@@ -50,7 +50,7 @@ export default function Footer() {
               <span className="text-xl font-bold">APIFlow</span>
             </div>
             <p className="text-gray-400 mb-6 max-w-md">
-              {t('description')}
+              {t('描述')}
             </p>
             <div className="flex space-x-4">
               {socialLinks.map((social) => {
@@ -72,7 +72,7 @@ export default function Footer() {
           {/* Product Links */}
           <div>
             <h3 className="text-sm font-semibold text-white uppercase tracking-wider mb-4">
-              {t('product')}
+              {t('产品')}
             </h3>
             <ul className="space-y-3">
               {footerLinks.product.map((link) => (
@@ -91,7 +91,7 @@ export default function Footer() {
           {/* Company Links */}
           <div>
             <h3 className="text-sm font-semibold text-white uppercase tracking-wider mb-4">
-              {t('company')}
+              {t('公司')}
             </h3>
             <ul className="space-y-3">
               {footerLinks.company.map((link) => (
@@ -110,7 +110,7 @@ export default function Footer() {
           {/* Resources Links */}
           <div>
             <h3 className="text-sm font-semibold text-white uppercase tracking-wider mb-4">
-              {t('resources')}
+              {t('资源')}
             </h3>
             <ul className="space-y-3">
               {footerLinks.resources.map((link) => (
@@ -129,7 +129,7 @@ export default function Footer() {
           {/* Legal Links */}
           <div>
             <h3 className="text-sm font-semibold text-white uppercase tracking-wider mb-4">
-              {t('legal')}
+              {t('法律')}
             </h3>
             <ul className="space-y-3">
               {footerLinks.legal.map((link) => (
@@ -150,10 +150,10 @@ export default function Footer() {
         <div className="mt-12 pt-8 border-t border-gray-800">
           <div className="flex flex-col md:flex-row justify-between items-center">
             <p className="text-gray-400 text-sm">
-              {t('copyright')}
+              {t('版权')}
             </p>
             <p className="text-gray-400 text-sm mt-4 md:mt-0">
-              {t('builtWith')}
+              {t('构建者')}
             </p>
           </div>
         </div>

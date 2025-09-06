@@ -1,259 +1,109 @@
 {
-  "navigation": {
-    "features": "功能特性",
-    "demo": "产品演示",
-    "about": "关于我们",
-    "contact": "联系我们",
-    "github": "GitHub"
+  "导航": {
+    "功能特性": "功能特性",
+    "产品演示": "产品演示",
+    "关于我们": "关于我们",
+    "联系我们": "联系我们",
+    "GitHub": "GitHub"
   },
-  "hero": {
-    "badge": "🚀 新功能：高级 API 测试功能现已上线",
-    "title": "Postman 和 Apifox 的",
-    "titleHighlight": "现代化替代品",
-    "subtitle": "使用我们直观的平台构建、测试和记录您的 API。体验更快的工作流程、更好的协作和全面的 API 管理，一个强大的工具搞定一切。",
-    "startFreeTrial": "开始使用",
-    "stats": {
-      "developers": "开发者",
-      "rating": "评分",
-      "uptime": "正常运行时间"
+  "首页": {
+    "徽章": "🚀 新功能：高级 API 测试功能现已上线",
+    "标题": "Postman 和 Apifox 的",
+    "标题高亮": "现代化替代品",
+    "副标题": "使用我们直观的平台构建、测试和记录您的 API。体验更快的工作流程、更好的协作和全面的 API 管理，一个强大的工具搞定一切。",
+    "下载离线版本": "下载离线版本",
+    "下载互联网版本": "下载互联网版本",
+    "统计": {
+      "开发者": "开发者",
+      "评分": "评分",
+      "正常运行时间": "正常运行时间"
     }
   },
-  "comparison": {
-    "title": "为什么选择 APIFlow？",
-    "subtitle": "了解 APIFlow 与其他流行 API 工具的对比。我们构建了您喜爱的现有工具的所有功能，以及您一直在等待的新功能。",
-    "highlights": {
-      "faster": {
-        "title": "快 3 倍",
-        "description": "相比传统工具，API 测试工作流程快 3 倍"
+  "对比": {
+    "标题": "为什么选择 APIFlow？",
+    "副标题": "了解 APIFlow 与其他流行 API 工具的对比。我们构建了您喜爱的现有工具的所有功能，以及您一直在等待的新功能。",
+    "亮点": {
+      "更快": {
+        "标题": "快 3 倍",
+        "描述": "相比传统工具，API 测试工作流程快 3 倍"
       },
-      "enterpriseReady": {
-        "title": "企业级就绪",
-        "description": "从第一天起就内置安全性和合规性功能"
+      "企业级就绪": {
+        "标题": "企业级就绪",
+        "描述": "从第一天起就内置安全性和合规性功能"
       },
-      "teamFocused": {
-        "title": "团队协作",
-        "description": "无需高级价格标签的实时协作"
+      "团队协作": {
+        "标题": "团队协作",
+        "描述": "无需高级价格标签的实时协作"
       },
-      "developerFirst": {
-        "title": "开发者优先",
-        "description": "由开发者设计，为开发者服务"
+      "开发者优先": {
+        "标题": "开发者优先",
+        "描述": "由开发者设计，为开发者服务"
       }
     },
-    "tableTitle": "功能对比",
-    "tableSubtitle": "看看我们与竞争对手的对比",
-    "features": {
-      "coreFeatures": "核心功能",
-      "apiTesting": "API 测试与文档",
-      "realTimeCollaboration": "实时协作",
-      "advancedMockServers": "高级模拟服务器",
-      "automatedTesting": "自动化测试工作流",
-      "graphqlSupport": "GraphQL 支持",
-      "developerExperience": "开发者体验",
-      "intuitiveInterface": "直观界面",
-      "fastPerformance": "快速性能",
-      "offlineMode": "离线模式",
-      "customThemes": "自定义主题",
-      "pluginEcosystem": "插件生态系统",
-      "enterprise": "企业功能",
-      "ssoIntegration": "SSO 集成",
-      "advancedSecurity": "高级安全",
-      "customDeployment": "自定义部署",
-      "prioritySupport": "优先支持",
-      "complianceReady": "合规就绪"
+    "表格标题": "功能对比",
+    "表格副标题": "看看我们与竞争对手的对比",
+    "功能": {
+      "核心功能": "核心功能",
+      "API测试与文档": "API 测试与文档",
+      "实时协作": "实时协作",
+      "高级模拟服务器": "高级模拟服务器",
+      "自动化测试工作流": "自动化测试工作流",
+      "GraphQL支持": "GraphQL 支持",
+      "开发者体验": "开发者体验",
+      "直观界面": "直观界面",
+      "快速性能": "快速性能",
+      "离线模式": "离线模式",
+      "自定义主题": "自定义主题",
+      "插件生态系统": "插件生态系统",
+      "企业功能": "企业功能",
+      "SSO集成": "SSO 集成",
+      "高级安全": "高级安全",
+      "自定义部署": "自定义部署",
+      "优先支持": "优先支持",
+      "合规就绪": "合规就绪"
     },
-    "values": {
-      "limited": "有限",
-      "paid": "付费",
-      "good": "良好",
-      "slow": "较慢",
-      "enterprise": "企业版"
+    "值": {
+      "有限": "有限",
+      "付费": "付费",
+      "良好": "良好",
+      "较慢": "较慢",
+      "企业版": "企业版"
     },
-    "readyToExperience": "准备体验不同之处？",
-    "startTrial": "开始免费试用"
+    "准备体验": "准备体验不同之处？",
+    "开始试用": "开始免费试用"
   },
-  "about": {
-    "title": "关于 APIFlow",
-    "subtitle": "我们的使命是让全世界的开发者更快、更轻松、更愉快地进行 API 开发。",
-    "missionTitle": "我们的使命",
-    "missionDescription": "为开发者提供最直观、强大和协作的 API 开发平台。我们相信优秀的 API 是优秀软件的基础，我们在这里让构建它们成为一种乐趣，而不是苦差事。",
-    "valuesTitle": "我们的价值观",
-    "values": {
-      "developerFirst": {
-        "title": "开发者优先",
-        "description": "每个功能都以开发者为中心设计。我们理解您的工作流程，因为我们也是开发者。"
-      },
-      "communityDriven": {
-        "title": "社区驱动",
-        "description": "我们的路线图由用户反馈塑造。我们构建开发者真正需要的功能，而不是我们认为他们需要的。"
-      },
-      "innovation": {
-        "title": "创新",
-        "description": "我们不断推动 API 开发和测试工具可能性的边界。"
-      },
-      "excellence": {
-        "title": "卓越",
-        "description": "我们在每个细节上都追求完美，从用户体验到性能和可靠性。"
-      }
+  "页脚": {
+    "描述": "开发者喜爱的现代化 API 文档与测试工具。轻松构建、测试和记录您的 API。",
+    "产品": "产品",
+    "公司": "公司",
+    "资源": "资源",
+    "法律": "法律",
+    "链接": {
+      "功能特性": "功能特性",
+      "演示": "演示",
+      "文档": "文档",
+      "关于我们": "关于我们",
+      "博客": "博客",
+      "招聘": "招聘",
+      "联系我们": "联系我们",
+      "帮助中心": "帮助中心",
+      "API参考": "API 参考",
+      "社区": "社区",
+      "状态": "状态",
+      "隐私政策": "隐私政策",
+      "服务条款": "服务条款",
+      "Cookie政策": "Cookie 政策",
+      "安全": "安全"
     },
-    "journeyTitle": "我们的历程",
-    "milestones": {
-      "founded": {
-        "title": "公司成立",
-        "description": "以简化每个人的 API 开发为愿景开始"
-      },
-      "firstUsers": {
-        "title": "首批 1,000 名用户",
-        "description": "在社区积极反馈下达到第一个里程碑"
-      },
-      "seriesA": {
-        "title": "A 轮融资",
-        "description": "筹集 1000 万美元以加速产品开发和团队增长"
-      },
-      "tenThousandDevelopers": {
-        "title": "10,000+ 开发者",
-        "description": "每天使用 APIFlow 的开发者社区不断增长"
-      }
-    },
-    "teamTitle": "认识我们的团队",
-    "team": {
-      "alexJohnson": {
-        "name": "Alex Johnson",
-        "role": "CEO 兼联合创始人",
-        "bio": "前大型科技公司首席工程师。热衷于开发者工具和 API 架构。"
-      },
-      "sarahChen": {
-        "name": "Sarah Chen",
-        "role": "CTO 兼联合创始人",
-        "bio": "拥有 10 年以上经验的全栈开发者。分布式系统和 API 设计专家。"
-      },
-      "michaelRodriguez": {
-        "name": "Michael Rodriguez",
-        "role": "产品负责人",
-        "bio": "深度理解开发者工作流程和企业需求的产品经理。"
-      },
-      "emilyDavis": {
-        "name": "Emily Davis",
-        "role": "首席设计师",
-        "bio": "专注于为复杂技术工具创建直观界面的 UX/UI 设计师。"
-      }
-    },
-    "joinTeamTitle": "加入我们不断壮大的团队",
-    "joinTeamDescription": "我们一直在寻找与我们对开发者工具有共同热情并希望有所作为的有才华的人。",
-    "viewPositions": "查看职位空缺"
+    "版权": "© 2024 APIFlow. 保留所有权利。",
+    "构建者": "为全世界的开发者用 ❤️ 构建"
   },
-  "contact": {
-    "title": "联系我们",
-    "subtitle": "有问题吗？需要帮助入门？我们的团队随时为您提供支持。",
-    "sendMessage": "发送消息",
-    "form": {
-      "firstName": "名字",
-      "lastName": "姓氏",
-      "email": "邮箱地址",
-      "company": "公司（可选）",
-      "subject": "主题",
-      "message": "消息",
-      "selectTopic": "选择主题",
-      "topics": {
-        "general": "一般咨询",
-        "support": "技术支持",
-        "sales": "销售问题",
-        "partnership": "合作伙伴关系",
-        "feedback": "反馈"
-      },
-      "messagePlaceholder": "告诉我们如何为您提供帮助...",
-      "sendMessage": "发送消息"
-    },
-    "otherWays": "其他联系方式",
-    "contactMethods": {
-      "emailSupport": {
-        "title": "邮件支持",
-        "description": "从我们的支持团队获得帮助",
-        "contact": "support@apiflow.com",
-        "availability": "24/7 响应，4 小时内回复"
-      },
-      "liveChat": {
-        "title": "在线聊天",
-        "description": "与我们实时聊天",
-        "contact": "应用内可用",
-        "availability": "周一至周五，上午 9 点 - 下午 6 点 PST"
-      },
-      "phoneSupport": {
-        "title": "电话支持",
-        "description": "直接与我们的团队通话",
-        "contact": "+1 (555) 123-4567",
-        "availability": "仅限企业客户"
-      },
-      "office": {
-        "title": "办公室",
-        "description": "亲自拜访我们",
-        "contact": "123 Tech Street, San Francisco, CA",
-        "availability": "仅限预约"
-      }
-    },
-    "readyToStart": "准备开始了吗？",
-    "readyDescription": "不要等待！立即使用我们的免费计划开始构建更好的 API。",
-    "startFreeTrial": "开始免费试用",
-    "faqTitle": "常见问题",
-    "faqs": {
-      "howToStart": {
-        "question": "如何开始使用 APIFlow？",
-        "answer": "只需注册一个免费账户，您就可以立即开始使用 APIFlow。免费计划无需信用卡。"
-      },
-      "importPostman": {
-        "question": "我可以导入现有的 Postman 集合吗？",
-        "answer": "可以！我们提供简单的导入工具，可以从 Postman、Insomnia 和其他流行的 API 工具迁移您的集合。"
-      },
-      "onPremise": {
-        "question": "您提供本地部署吗？",
-        "answer": "是的，我们为有特定安全要求的企业客户提供本地和私有云部署选项。"
-      },
-      "integrations": {
-        "question": "您支持哪些集成？",
-        "answer": "我们与 GitHub、GitLab、Slack、Jira 等流行工具集成。查看我们的集成页面获取完整列表。"
-      },
-      "dataSecurity": {
-        "question": "我的数据安全吗？",
-        "answer": "绝对安全。我们使用企业级安全措施，包括静态和传输加密、SOC 2 合规性和定期安全审计。"
-      },
-      "cancelSubscription": {
-        "question": "我可以随时取消订阅吗？",
-        "answer": "是的，您可以随时取消订阅。没有长期合同或取消费用。"
-      }
-    },
-    "supportHours": "支持时间：周一至周五，上午 9 点 - 下午 6 点 PST"
-  },
-  "footer": {
-    "description": "开发者喜爱的现代化 API 文档与测试工具。轻松构建、测试和记录您的 API。",
-    "product": "产品",
-    "company": "公司",
-    "resources": "资源",
-    "legal": "法律",
-    "links": {
-      "features": "功能特性",
-      "demo": "演示",
-      "documentation": "文档",
-      "about": "关于我们",
-      "blog": "博客",
-      "careers": "招聘",
-      "contact": "联系我们",
-      "helpCenter": "帮助中心",
-      "apiReference": "API 参考",
-      "community": "社区",
-      "status": "状态",
-      "privacy": "隐私政策",
-      "terms": "服务条款",
-      "cookies": "Cookie 政策",
-      "security": "安全"
-    },
-    "copyright": "© 2024 APIFlow. 保留所有权利。",
-    "builtWith": "为全世界的开发者用 ❤️ 构建"
-  },
-  "openSource": {
-    "badge": "开源项目",
-    "description": "APIFlow 是一个开源项目，欢迎社区贡献",
-    "starOnGitHub": "在 GitHub 上加星",
-    "viewOnGitee": "在 Gitee 上查看",
-    "contribute": "贡献代码",
-    "license": "MIT 许可证"
+  "开源": {
+    "徽章": "开源项目",
+    "描述": "APIFlow 是一个开源项目，欢迎社区贡献",
+    "GitHub加星": "在 GitHub 上加星",
+    "Gitee查看": "在 Gitee 上查看",
+    "贡献": "贡献代码",
+    "许可证": "MIT 许可证"
   }
 }

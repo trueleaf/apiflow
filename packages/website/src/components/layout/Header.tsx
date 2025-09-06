@@ -10,13 +10,13 @@ import GitHubStars from '@/components/ui/GitHubStars';
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const t = useTranslations('navigation');
+  const t = useTranslations('导航');
 
   const navigation = [
-    { name: t('features'), href: '#features' },
-    { name: t('demo'), href: '#demo' },
-    { name: t('about'), href: '#about' },
-    { name: t('contact'), href: '#contact' },
+    { name: t('功能特性'), href: '#features' },
+    { name: t('产品演示'), href: '#demo' },
+    { name: t('关于我们'), href: '#about' },
+    { name: t('联系我们'), href: '#contact' },
   ];
 
   const repositoryLinks = [
@@ -31,8 +31,8 @@ export default function Header() {
   return (
     <header className="fixed top-0 w-full bg-white/95 backdrop-blur-sm border-b border-gray-200 z-50">
       <nav className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center py-4">
-          {/* Logo */}
+        <div className="flex items-center py-4">
+          {/* Left side - Logo */}
           <div className="flex items-center">
             <Link href="/" className="flex items-center space-x-2">
               <Image
@@ -46,57 +46,60 @@ export default function Header() {
             </Link>
           </div>
 
-          {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center space-x-8">
-            {navigation.map((item) => (
-              <Link
-                key={item.name}
-                href={item.href}
-                className="text-gray-600 hover:text-blue-600 transition-colors duration-200 font-medium"
-              >
-                {item.name}
-              </Link>
-            ))}
-          </div>
-
-          {/* Repository Links & Actions */}
-          <div className="hidden md:flex items-center space-x-4">
-            {/* Repository Links */}
-            <div className="flex items-center space-x-3">
-              {repositoryLinks.map((repo) => (
+          {/* Right side - Navigation and Actions */}
+          <div className="flex-1 flex justify-end items-center">
+            {/* Desktop Navigation */}
+            <div className="hidden md:flex items-center space-x-8 mr-8">
+              {navigation.map((item) => (
                 <Link
-                  key={repo.name}
-                  href={repo.href}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center space-x-2 text-gray-600 hover:text-blue-600 transition-colors duration-200 text-sm"
+                  key={item.name}
+                  href={item.href}
+                  className="text-gray-600 hover:text-blue-600 transition-colors duration-200 font-medium"
                 >
-                  <Image 
-                    src={repo.icon} 
-                    alt={`${repo.name} icon`}
-                    width={16} 
-                    height={16} 
-                    className="w-4 h-4" 
-                  />
-                  {repo.showStars && (
-                    <GitHubStars repo="trueleaf/apiflow" className="ml-1" />
-                  )}
+                  {item.name}
                 </Link>
               ))}
             </div>
 
-            {/* Language Switcher */}
-            <LanguageSwitcher />
-          </div>
+            {/* Repository Links & Language Switcher */}
+            <div className="hidden md:flex items-center space-x-4">
+              {/* Repository Links */}
+              <div className="flex items-center space-x-3">
+                {repositoryLinks.map((repo) => (
+                  <Link
+                    key={repo.name}
+                    href={repo.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center space-x-2 text-gray-600 hover:text-blue-600 transition-colors duration-200 text-sm"
+                  >
+                    <Image 
+                      src={repo.icon} 
+                      alt={`${repo.name} icon`}
+                      width={16} 
+                      height={16} 
+                      className="w-4 h-4" 
+                    />
+                    {repo.showStars && (
+                      <GitHubStars repo="trueleaf/apiflow" className="ml-1" />
+                    )}
+                  </Link>
+                ))}
+              </div>
 
-          {/* Mobile menu button */}
-          <div className="md:hidden">
-            <button
-              onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className="text-gray-600 hover:text-gray-900 transition-colors duration-200"
-            >
-              {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
-            </button>
+              {/* Language Switcher */}
+              <LanguageSwitcher />
+            </div>
+
+            {/* Mobile menu button */}
+            <div className="md:hidden">
+              <button
+                onClick={() => setIsMenuOpen(!isMenuOpen)}
+                className="text-gray-600 hover:text-gray-900 transition-colors duration-200"
+              >
+                {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
+              </button>
+            </div>
           </div>
         </div>
 

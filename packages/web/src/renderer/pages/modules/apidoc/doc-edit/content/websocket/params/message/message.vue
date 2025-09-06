@@ -31,14 +31,8 @@
           </template>
           <!-- 模板选择器 -->
           <div v-if="quickOperations.includes('template')" class="template-selector">
-            <el-select
-              v-model="selectedTemplateId"
-              :placeholder="t('选择模板')"
-              size="small"
-              clearable
-              @change="handleSelectTemplate"
-              class="template-select"
-            >
+            <el-select v-model="selectedTemplateId" :placeholder="t('选择模板')" size="small" clearable
+              @change="handleSelectTemplate" class="template-select">
               <template #empty>
                 <div class="empty-template">
                   <div class="empty-text">{{ t('暂无模板数据') }}</div>
@@ -47,19 +41,11 @@
                   </el-button>
                 </div>
               </template>
-              <el-option
-                v-for="template in websocketStore.sendMessageTemplateList"
-                :key="template.id"
-                :label="template.name"
-                :value="template.id"
-              >
+              <el-option v-for="template in websocketStore.sendMessageTemplateList" :key="template.id"
+                :label="template.name" :value="template.id">
                 <div class="template-option">
                   <span class="template-name">{{ template.name }}</span>
-                  <el-icon
-                    class="delete-icon"
-                    @click.stop="handleDeleteTemplate(template.id)"
-                    :title="t('删除')"
-                  >
+                  <el-icon class="delete-icon" @click.stop="handleDeleteTemplate(template.id)" :title="t('删除')">
                     <Delete />
                   </el-icon>
                 </div>
@@ -74,9 +60,9 @@
               </el-checkbox>
             </div>
           </div>
-          <el-popover :visible="configPopoverVisible" placement="bottom" :width="320">
+          <el-popover v-model:visible="configPopoverVisible" placement="bottom" :width="320" trigger="click" transition="none">
             <template #reference>
-              <div @click="configPopoverVisible = !configPopoverVisible" class="config-button">
+              <div class="config-button">
                 <el-icon>
                   <Setting />
                 </el-icon>
@@ -87,33 +73,27 @@
               <div class="config-item">
                 <label class="config-label">{{ t("发送间隔") }}:</label>
                 <div class="config-input">
-                  <el-input-number v-model="websocketStore.websocket.config.heartbeatInterval" :min="100"
-                    :max="300000" :step="1000" size="small" @change="handleConfigIntervalChange"
-                    style="width: 120px;" />
+                  <el-input-number v-model="websocketStore.websocket.config.heartbeatInterval" :min="100" :max="300000"
+                    :step="1000" size="small" @change="handleConfigIntervalChange" style="width: 120px;" />
                   <span class="interval-unit">{{ t("毫秒") }}</span>
                 </div>
               </div>
 
               <div class="config-item">
                 <label class="config-label">{{ t("消息内容") }}:</label>
-                <el-input v-model="websocketStore.websocket.config.defaultHeartbeatContent" type="textarea"
-                  :rows="3" :placeholder="t('请输入消息内容')" @input="handleDefaultConfigContentChange"
-                  class="config-content-input" />
+                <el-input v-model="websocketStore.websocket.config.defaultHeartbeatContent" type="textarea" :rows="3"
+                  :placeholder="t('请输入消息内容')" @input="handleDefaultConfigContentChange" class="config-content-input" />
               </div>
 
               <div class="config-item">
                 <label class="config-label">{{ t("快捷操作") }}:</label>
                 <div class="quick-operations">
-                  <el-checkbox 
-                    :model-value="quickOperations.includes('autoSend')"
-                    @change="handleQuickOperationChange('autoSend', $event)"
-                  >
+                  <el-checkbox :model-value="quickOperations.includes('autoSend')"
+                    @change="handleQuickOperationChange('autoSend', $event)">
                     {{ t("自动发送") }}
                   </el-checkbox>
-                  <el-checkbox 
-                    :model-value="quickOperations.includes('template')"
-                    @change="handleQuickOperationChange('template', $event)"
-                  >
+                  <el-checkbox :model-value="quickOperations.includes('template')"
+                    @change="handleQuickOperationChange('template', $event)">
                     {{ t("模板选择") }}
                   </el-checkbox>
                 </div>
@@ -126,6 +106,7 @@
               </div>
             </div>
           </el-popover>
+
           <!-- 数据类型选择器 -->
           <div class="message-type-selector">
             <el-select v-model="websocketStore.websocket.config.messageType" size="small"
@@ -134,6 +115,7 @@
                 <span class="option-content">
                   <span>{{ t("文本") }}</span>
                 </span>
+
               </el-option>
               <el-option value="json" :label="t('JSON')">
                 <span class="option-content">
@@ -622,10 +604,12 @@ const handleHideWaitingTip = () => {
       .config-controls {
         display: flex;
         flex-direction: column;
+
         .config-checkbox {
           display: flex;
           align-items: center;
         }
+
         .config-settings {
           display: flex;
           align-items: center;
@@ -637,6 +621,7 @@ const handleHideWaitingTip = () => {
           }
         }
       }
+
       .config-button {
         padding: 5px;
         cursor: pointer;
