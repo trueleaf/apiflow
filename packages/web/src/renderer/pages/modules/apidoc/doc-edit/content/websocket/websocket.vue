@@ -33,6 +33,7 @@ import { debounce, checkPropertyIsEqual } from '@/helper'
 import type { WebSocketNode } from '@src/types/websocket/websocket'
 import { DebouncedFunc } from 'lodash'
 import { websocketResponseCache } from '@/cache/websocket/websocketResponse'
+import { websocketTemplateCache } from '@/cache/websocket/websocketTemplateCache'
 
 const apidocTabsStore = useApidocTas()
 const websocketStore = useWebSocket()
@@ -172,6 +173,14 @@ watch(() => websocketStore.websocket, (websocket: WebSocketNode) => {
 })
 
 onMounted(() => {
+  // 初始化模板数据
+  try {
+    const templates = websocketTemplateCache.getAllTemplates();
+    websocketStore.sendMessageTemplateList = templates;
+  } catch (error) {
+    console.error('初始化WebSocket模板数据失败:', error);
+  }
+  
   debounceFn.value = debounce((websocket: WebSocketNode) => {
     const isEqual = checkWebsocketIsEqual(websocket, websocketStore.originWebsocket)
     if (!isEqual) {

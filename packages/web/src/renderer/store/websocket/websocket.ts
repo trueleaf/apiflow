@@ -5,6 +5,7 @@ import { ApidocProperty } from "@src/types";
 import { apidocGenerateProperty, generateEmptyWebsocketNode, uuid, cloneDeep, debounce } from "@/helper";
 import { standaloneCache } from "@/cache/standalone.ts";
 import { webSocketNodeCache } from "@/cache/websocket/websocketNodeCache.ts";
+import { websocketTemplateCache } from "@/cache/websocket/websocketTemplateCache.ts";
 import { ElMessageBox } from "element-plus";
 import { useApidocTas } from "../apidoc/tabs.ts";
 import { router } from "@/router/index.ts";
@@ -406,36 +407,58 @@ export const useWebSocket = defineStore('websocket', () => {
   | 消息模板
   |--------------------------------------------------------------------------
   */
+
   // 新增消息模板
   const addMessageTemplate = (template: WebsocketSendMessageTemplate): void => {
-    sendMessageTemplateList.value.push(template);
+    try {
+      websocketTemplateCache.saveTemplate(template);
+      sendMessageTemplateList.value.push(template);
+    } catch (error) {
+      console.error('添加消息模板失败:', error);
+      throw error;
+    }
   };
 
   // 更新消息模板
   const updateMessageTemplate = (id: string, updates: Partial<WebsocketSendMessageTemplate>): WebsocketSendMessageTemplate | null => {
-    const index = sendMessageTemplateList.value.findIndex(template => template.id === id);
-    if (index === -1) {
-      console.warn(`消息模板 ID ${id} 不存在`);
+    try {
+      const success = websocketTemplateCache.updateTemplate(id, updates);
+      if (!success) {
+        console.warn(`消息模板 ID ${id} 不存在`);
+        return null;
+      }
+      const index = sendMessageTemplateList.value.findIndex(template => template.id === id);
+      if (index !== -1) {
+        const updatedTemplate = {
+          ...sendMessageTemplateList.value[index],
+          ...updates,
+          updatedAt: Date.now(),
+        };
+        sendMessageTemplateList.value[index] = updatedTemplate;
+        return updatedTemplate;
+      }
+      return null;
+    } catch (error) {
+      console.error('更新消息模板失败:', error);
       return null;
     }
-    const updatedTemplate = {
-      ...sendMessageTemplateList.value[index],
-      ...updates,
-      updatedAt: Date.now(),
-    };
-    sendMessageTemplateList.value[index] = updatedTemplate;
-    return updatedTemplate;
   };
 
   // 删除消息模板
-  const deleteMessageTemplate = (id: string): WebsocketSendMessageTemplate[] => {
-    const index = sendMessageTemplateList.value.findIndex(template => template.id === id);
-    if (index === -1) {
-      console.warn(`消息模板 ID ${id} 不存在`);
-      return sendMessageTemplateList.value;
+  const deleteMessageTemplate = (id: string): boolean => {
+    try {
+      const success = websocketTemplateCache.deleteTemplate(id);
+      if (success) {
+        const index = sendMessageTemplateList.value.findIndex(template => template.id === id);
+        if (index !== -1) {
+          sendMessageTemplateList.value.splice(index, 1);
+        }
+      }
+      return success;
+    } catch (error) {
+      console.error('删除消息模板失败:', error);
+      return false;
     }
-    sendMessageTemplateList.value.splice(index, 1);
-    return sendMessageTemplateList.value;
   };
 
   // 根据 ID 获取消息模板
@@ -450,8 +473,15 @@ export const useWebSocket = defineStore('websocket', () => {
 
   // 清空所有消息模板
   const clearAllMessageTemplates = (): void => {
-    sendMessageTemplateList.value = [];
+    try {
+      websocketTemplateCache.clearAllTemplates();
+      sendMessageTemplateList.value = [];
+    } catch (error) {
+      console.error('清空消息模板失败:', error);
+    }
   };
+
+
 
   /*
   |--------------------------------------------------------------------------

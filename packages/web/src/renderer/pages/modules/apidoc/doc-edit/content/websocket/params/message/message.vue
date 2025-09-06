@@ -29,6 +29,43 @@
               {{ t('发送消息') }}
             </el-button>
           </template>
+          <!-- 模板选择器 -->
+          <div class="template-selector">
+            <el-select
+              v-model="selectedTemplateId"
+              :placeholder="t('选择模板')"
+              size="small"
+              clearable
+              @change="handleSelectTemplate"
+              class="template-select"
+            >
+              <template #empty>
+                <div class="empty-template">
+                  <div class="empty-text">{{ t('暂无模板数据') }}</div>
+                  <el-button link type="primary" size="small" @click="handleOpenCreateTemplateDialog">
+                    {{ t('创建模板') }}
+                  </el-button>
+                </div>
+              </template>
+              <el-option
+                v-for="template in websocketStore.sendMessageTemplateList"
+                :key="template.id"
+                :label="template.name"
+                :value="template.id"
+              >
+                <div class="template-option">
+                  <span class="template-name">{{ template.name }}</span>
+                  <el-icon
+                    class="delete-icon"
+                    @click.stop="handleDeleteTemplate(template.id)"
+                    :title="t('删除')"
+                  >
+                    <Delete />
+                  </el-icon>
+                </div>
+              </el-option>
+            </el-select>
+          </div>
           <!-- 自动心跳功能 -->
           <div class="heartbeat-controls">
             <div class="heartbeat-checkbox">
@@ -111,6 +148,9 @@
         </div>
       </div>
     </div>
+
+    <!-- 创建模板弹窗 -->
+    <AddTemplateDialog v-model="createTemplateDialogVisible" />
   </div>
 </template>
 
@@ -120,16 +160,18 @@ import { storeToRefs } from 'pinia'
 import { useTranslation } from 'i18next-vue'
 import { useApidocTas } from '@/store/apidoc/tabs'
 import { useWebSocket } from '@/store/websocket/websocket'
-import { ElMessage } from 'element-plus'
 import {
   Position,
   Setting,
+  Delete,
 } from '@element-plus/icons-vue'
 import SJsonEditor from '@/components/common/json-editor/g-json-editor.vue'
+import AddTemplateDialog from './dialog/add/add.vue'
 import type { MessageType } from '@src/types/websocket/websocket'
 import { uuid } from '@/helper'
 import { websocketResponseCache } from '@/cache/websocket/websocketResponse'
 import { webSocketNodeCache } from '@/cache/websocket/websocketNodeCache'
+import { ElMessageBox, ElMessage } from 'element-plus'
 
 
 const { t } = useTranslation()
@@ -157,6 +199,59 @@ const editorConfig = computed(() => {
   }
 })
 
+// 模板相关变量
+const selectedTemplateId = ref<string>('')
+const createTemplateDialogVisible = ref(false)
+
+// 模板选择处理
+const handleSelectTemplate = (templateId: string) => {
+  if (!templateId) {
+    selectedTemplateId.value = ''
+    return
+  }
+
+  const template = websocketStore.getMessageTemplateById(templateId)
+  if (template) {
+    // 填充消息内容和类型
+    websocketStore.changeWebSocketMessage(template.sendMessage)
+    websocketStore.changeWebSocketMessageType(template.messageType)
+    selectedTemplateId.value = templateId
+  }
+}
+
+// 删除模板处理
+const handleDeleteTemplate = async (templateId: string) => {
+  try {
+    await ElMessageBox.confirm(
+      t('确定要删除此消息模板吗'),
+      t('提示'),
+      {
+        confirmButtonText: t('确定'),
+        cancelButtonText: t('取消'),
+        type: 'warning'
+      }
+    )
+
+    const success = websocketStore.deleteMessageTemplate(templateId)
+    if (success) {
+      ElMessage.success(t('消息模板删除成功'))
+      // 如果删除的是当前选中的模板，清空选择
+      if (selectedTemplateId.value === templateId) {
+        selectedTemplateId.value = ''
+      }
+    } else {
+      ElMessage.error(t('模板删除失败'))
+    }
+  } catch (error) {
+    // 用户取消删除
+    console.log('用户取消删除模板')
+  }
+}
+
+// 打开创建模板弹窗
+const handleOpenCreateTemplateDialog = () => {
+  createTemplateDialogVisible.value = true
+}
 
 const handleSendMessage = async () => {
   try {
@@ -420,10 +515,52 @@ const handleHideWaitingTip = () => {
         align-items: center;
       }
 
+      .template-selector {
+
+        .template-select {
+          width: 140px;
+        }
+
+        .empty-template {
+          padding: 12px;
+          text-align: center;
+
+          .empty-text {
+            color: var(--el-text-color-regular);
+            margin-bottom: 8px;
+            font-size: 12px;
+          }
+        }
+
+        .template-option {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          width: 100%;
+
+          .template-name {
+            flex: 1;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+          }
+
+          .delete-icon {
+            margin-left: 8px;
+            color: var(--el-text-color-regular);
+            cursor: pointer;
+            transition: color 0.2s;
+
+            &:hover {
+              color: var(--el-color-danger);
+            }
+          }
+        }
+      }
+
       .heartbeat-controls {
         display: flex;
         flex-direction: column;
-        margin-left: 8px;
 
         .heartbeat-checkbox {
           display: flex;
