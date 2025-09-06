@@ -48,7 +48,7 @@
 import { WindowState } from '@src/types/types';
 import { ref, onMounted, nextTick, watch, computed } from 'vue'
 import draggable from 'vuedraggable'
-import { httpNodeCache } from '@/cache/httpNode'
+import { httpNodeCache } from '@/cache/http/httpNode'
 import { Language } from '@src/types'
 import { RefreshRight, Back, Right } from '@element-plus/icons-vue'
 import { useTranslation } from 'i18next-vue'

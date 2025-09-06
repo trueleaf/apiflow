@@ -33,7 +33,7 @@ import tabA from './tab-a/tab-a.vue'
 import tabB from './tab-b/tab-b.vue'
 import { useTranslation } from 'i18next-vue'
 import { TabPaneName } from 'element-plus'
-import { httpNodeCache } from '@/cache/httpNode'
+import { httpNodeCache } from '@/cache/http/httpNode'
 
 const { getActiveApidocTab, setActiveApidocTab } = httpNodeCache
 const { t } = useTranslation()

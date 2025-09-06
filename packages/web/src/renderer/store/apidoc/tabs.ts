@@ -6,7 +6,7 @@ import { router } from "@/router";
 import { ElMessageBox } from "element-plus";
 import 'element-plus/es/components/message-box/style/css';
 import i18next from 'i18next'
-import { httpNodeCache } from "@/cache/httpNode";
+import { httpNodeCache } from "@/cache/http/httpNode";
 import { request } from '@/api/api';
 import { useApidocBanner } from "./banner";
 

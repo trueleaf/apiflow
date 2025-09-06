@@ -84,7 +84,7 @@
 <script lang="ts" setup>
 import { DebouncedFunc } from 'lodash'
 import type { HttpNode, ApidocProperty } from '@src/types'
-import { httpNodeCache } from '@/cache/httpNode'
+import { httpNodeCache } from '@/cache/http/httpNode'
 import { lodashIsEqual, debounce, checkPropertyIsEqual } from '@/helper/index'
 import { useTranslation } from 'i18next-vue'
 import SParams from './params/params.vue';

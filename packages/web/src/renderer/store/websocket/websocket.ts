@@ -28,7 +28,11 @@ export const useWebSocket = defineStore('websocket', () => {
   const connectionState = ref<'disconnected' | 'connecting' | 'connected' | 'error'>('disconnected');
   const connectionId = ref('');
   const responseMessage = ref<WebsocketResponse[]>([]);
-  
+  const sendMessageTemplateList = ref<{
+    nodeId: string;
+    name: string;
+    content: string;
+  }[]>([]);
   /*
   |--------------------------------------------------------------------------
   | 通用方法 - Cookie自动更新

@@ -114,7 +114,7 @@ import { config } from '@/../config/config'
 import { isElectron } from '@/utils/utils';
 import 'element-plus/es/components/message-box/style/css';
 import { ElMessageBox } from 'element-plus';
-import { httpNodeCache } from '@/cache/httpNode';
+import { httpNodeCache } from '@/cache/http/httpNode';
 
 const router = useRouter();
 const permissionStore = usePermissionStore();

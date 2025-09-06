@@ -104,7 +104,7 @@ import { computed, ref, Ref, onMounted, onUnmounted } from 'vue'
 import { Effect } from 'element-plus';
 import { ArrowDown, Edit } from '@element-plus/icons-vue'
 import type { HttpNodeResponseParams, HttpNodeResponseContentType, HttpNodeContentType } from '@src/types'
-import { httpNodeCache } from '@/cache/httpNode'
+import { httpNodeCache } from '@/cache/http/httpNode'
 import SStatus from './children/status.vue'
 import SMime from './children/mime.vue'
 import SRawEditor from '@/components/apidoc/raw-editor/g-raw-editor.vue'

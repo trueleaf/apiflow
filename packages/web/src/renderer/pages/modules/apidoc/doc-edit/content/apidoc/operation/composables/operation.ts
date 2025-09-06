@@ -7,7 +7,7 @@
 import { ref, Ref, computed } from 'vue'
 import { router } from '@/router/index'
 import { sendRequest, stopRequest } from '@/server/request/request'
-import { httpNodeCache } from '@/cache/httpNode'
+import { httpNodeCache } from '@/cache/http/httpNode'
 import { useApidocTas } from '@/store/apidoc/tabs'
 import { useApidocResponse } from '@/store/apidoc/response'
 import { useApidoc } from '@/store/apidoc/apidoc'

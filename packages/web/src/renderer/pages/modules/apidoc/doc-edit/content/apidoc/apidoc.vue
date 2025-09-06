@@ -32,7 +32,7 @@
 <script lang="ts" setup>
 import SResizeX from '@/components/common/resize/g-resize-x.vue'
 import SResizeY from '@/components/common/resize/g-resize-y.vue'
-import { httpNodeCache } from '@/cache/httpNode'
+import { httpNodeCache } from '@/cache/http/httpNode'
 import SOperation from './operation/operation.vue'
 import SParams from './params/params.vue'
 import SResponse from './response/response.vue'

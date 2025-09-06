@@ -11,7 +11,7 @@
 
 <script lang="ts" setup>
 import { computed, onMounted, onBeforeUnmount, ref } from 'vue'
-import { httpNodeCache } from '@/cache/httpNode'
+import { httpNodeCache } from '@/cache/http/httpNode'
 import SaveDocDialog from '@/pages/modules/apidoc/doc-edit/dialog/save-doc/save-doc.vue'
 import Banner from './banner/banner.vue';
 import Nav from './nav/nav.vue';

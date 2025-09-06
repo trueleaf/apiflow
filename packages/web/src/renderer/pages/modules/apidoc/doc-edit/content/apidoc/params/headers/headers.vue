@@ -69,7 +69,7 @@ import SParamsTree from '@/components/apidoc/params-tree/g-params-tree.vue'
 import { useApidoc } from '@/store/apidoc/apidoc';
 import { useApidocTas } from '@/store/apidoc/tabs';
 import { useApidocBaseInfo } from '@/store/apidoc/base-info';
-import { httpNodeCache } from '@/cache/httpNode';
+import { httpNodeCache } from '@/cache/http/httpNode';
 import { storeToRefs } from 'pinia';
 import { CheckboxValueType } from 'element-plus';
 

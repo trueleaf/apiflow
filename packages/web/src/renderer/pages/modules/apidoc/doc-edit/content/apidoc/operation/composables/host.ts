@@ -5,7 +5,7 @@
 |
 */
 import { ref, Ref, computed, WritableComputedRef, ComputedRef } from 'vue'
-import { httpNodeCache } from '@/cache/httpNode'
+import { httpNodeCache } from '@/cache/http/httpNode'
 import { router } from '@/router/index'
 import { ApidocProjectHost } from '@src/types/apidoc/base-info'
 import { useApidoc } from '@/store/apidoc/apidoc'

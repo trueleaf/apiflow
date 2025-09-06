@@ -51,7 +51,7 @@ import {
 // import type { ApidocCodeInfo } from '@src/types'
 import { request } from '@/api/api';
 import { router } from '@/router';
-import { httpNodeCache } from '@/cache/httpNode';
+import { httpNodeCache } from '@/cache/http/httpNode';
 import SEditor from '../editor/editor.vue'
 import { useApidoc } from '@/store/apidoc/apidoc';
 

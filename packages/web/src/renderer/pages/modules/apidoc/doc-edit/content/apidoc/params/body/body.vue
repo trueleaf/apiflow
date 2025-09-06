@@ -87,7 +87,7 @@
 import { computed, ref, onMounted, Ref } from 'vue'
 import type { HttpNodeBodyMode, HttpNodeBodyParams, HttpNodeBodyRawType, HttpNodeContentType } from '@src/types'
 import { useTranslation } from 'i18next-vue'
-import { httpNodeCache } from '@/cache/httpNode'
+import { httpNodeCache } from '@/cache/http/httpNode'
 import { useVariable } from '@/store/apidoc/variables';
 import { useApidoc } from '@/store/apidoc/apidoc';
 import { config } from '@src/config/config';
