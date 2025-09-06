@@ -18,7 +18,7 @@ export class StandaloneHttpNodeCache {
   async getDocsList(): Promise<ApiNode[]> {
     if (!this.db) throw new Error("Database not initialized");
     try {
-      const allDocs = await this.db.getAll("docs");
+      const allDocs = await this.db.getAll("httpNodeList");
       return allDocs.filter((doc) => doc && !doc.isDeleted);
     } catch (error) {
       console.error("Failed to get docs list:", error);
@@ -33,7 +33,7 @@ export class StandaloneHttpNodeCache {
     }
     if (!this.db) throw new Error("Database not initialized");
     try {
-      const docs: ApiNode[] = await this.db.getAllFromIndex("docs", "projectId", projectId);
+      const docs: ApiNode[] = await this.db.getAllFromIndex("httpNodeList", "projectId", projectId);
       const filteredDocs = docs.filter((doc) => !doc.isDeleted);
       this.bannerCache.set(projectId, {
         data: filteredDocs,
@@ -54,7 +54,7 @@ export class StandaloneHttpNodeCache {
   async getDocById(docId: string): Promise<ApiNode | null> {
     if (!this.db) throw new Error("Database not initialized");
     try {
-      const doc = await this.db.get("docs", docId);
+      const doc = await this.db.get("httpNodeList", docId);
       return doc && !doc.isDeleted ? doc : null;
     } catch (error) {
       console.error("Failed to get doc by id:", error);
@@ -65,7 +65,7 @@ export class StandaloneHttpNodeCache {
   async addDoc(doc: ApiNode): Promise<boolean> {
     if (!this.db) throw new Error("Database not initialized");
     try {
-      await this.db.put("docs", doc, doc._id);
+      await this.db.put("httpNodeList", doc, doc._id);
       await this.updateProjectDocNum(doc.projectId);
       this.clearBannerCache(doc.projectId);
       return true;
@@ -79,9 +79,9 @@ export class StandaloneHttpNodeCache {
     if (!this.db) throw new Error("Database not initialized");
     try {
       // 先检查文档是否存在
-      const existingDoc = await this.db.get("docs", doc._id);
+      const existingDoc = await this.db.get("httpNodeList", doc._id);
       if (!existingDoc) return false;
-      await this.db.put("docs", doc, doc._id);
+      await this.db.put("httpNodeList", doc, doc._id);
       this.clearBannerCache(doc.projectId);
       return true;
     } catch (error) {
@@ -93,10 +93,10 @@ export class StandaloneHttpNodeCache {
   async updateDocName(docId: string, name: string): Promise<boolean> {
     if (!this.db) throw new Error("Database not initialized");
     try {
-      const existingDoc = await this.db.get("docs", docId);
+      const existingDoc = await this.db.get("httpNodeList", docId);
       if (!existingDoc) return false;
       existingDoc.info.name = name;
-      await this.db.put("docs", existingDoc, docId);
+      await this.db.put("httpNodeList", existingDoc, docId);
       this.clearBannerCache(existingDoc.projectId);
       return true;
     } catch (error) {
@@ -108,14 +108,14 @@ export class StandaloneHttpNodeCache {
   async deleteDoc(docId: string): Promise<boolean> {
     if (!this.db) throw new Error("Database not initialized");
     try {
-      const existingDoc = await this.db.get("docs", docId);
+      const existingDoc = await this.db.get("httpNodeList", docId);
       if (!existingDoc) return false;
       const updatedDoc = {
         ...existingDoc,
         isDeleted: true,
         updatedAt: new Date().toISOString(),
       };
-      await this.db.put("docs", updatedDoc, docId);
+      await this.db.put("httpNodeList", updatedDoc, docId);
       await this.updateProjectDocNum(existingDoc.projectId);
       this.clearBannerCache(existingDoc.projectId);
       return true;
@@ -130,8 +130,8 @@ export class StandaloneHttpNodeCache {
     if (docIds.length === 0) return true;
 
     // 使用事务确保批量操作的原子性
-    const tx = this.db.transaction("docs", "readwrite");
-    const store = tx.objectStore("docs");
+    const tx = this.db.transaction("httpNodeList", "readwrite");
+    const store = tx.objectStore("httpNodeList");
     
     try {
       let projectId: string | null = null;
@@ -176,7 +176,7 @@ export class StandaloneHttpNodeCache {
   async getDeletedDocsList(projectId: string) {
     if (!this.db) throw new Error("Database not initialized");
     try {
-      const allDocs = await this.db.getAllFromIndex("docs", "projectId", projectId);
+      const allDocs = await this.db.getAllFromIndex("httpNodeList", "projectId", projectId);
       return allDocs
         .filter((doc) => doc.isDeleted).sort((a, b) =>
           new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
@@ -190,19 +190,19 @@ export class StandaloneHttpNodeCache {
   async restoreDoc(docId: string): Promise<string[]> {
     if (!this.db) throw new Error("Database not initialized");
     try {
-      const existingDoc = await this.db.get("docs", docId);
+      const existingDoc = await this.db.get("httpNodeList", docId);
       const result: string[] = [docId];
       if (!existingDoc) return [];
       existingDoc.isDeleted = false;
-      await this.db.put("docs", existingDoc, docId);
+      await this.db.put("httpNodeList", existingDoc, docId);
       // 递归恢复父级文档
       let currentPid = existingDoc.pid;
       while (currentPid) {
-        const parentDoc = await this.db.get("docs", currentPid);
+        const parentDoc = await this.db.get("httpNodeList", currentPid);
         if (!parentDoc) break;
         if (parentDoc.isDeleted) {
           parentDoc.isDeleted = false;
-          await this.db.put("docs", parentDoc, currentPid);
+          await this.db.put("httpNodeList", parentDoc, currentPid);
           result.push(currentPid);
         }
         currentPid = parentDoc.pid;
@@ -226,8 +226,8 @@ export class StandaloneHttpNodeCache {
   async replaceAllDocs(docs: ApiNode[], projectId: string): Promise<boolean> {
     if (!this.db) throw new Error("Database not initialized");
     // 使用事务确保替换操作的原子性
-    const tx = this.db.transaction("docs", "readwrite");
-    const store = tx.objectStore("docs");
+    const tx = this.db.transaction("httpNodeList", "readwrite");
+    const store = tx.objectStore("httpNodeList");
     try {
       let existingDocs: ApiNode[];
       try {
@@ -272,7 +272,7 @@ export class StandaloneHttpNodeCache {
     try {
       const { processedDocs } = this.prepareDocsWithNewIds(docs, projectId);
       const savePromises = processedDocs.map(async (doc) => {
-        await this.db!.put("docs", doc, doc._id);
+        await this.db!.put("httpNodeList", doc, doc._id);
         return doc._id;
       });
       const savedIds = await Promise.all(savePromises);
@@ -295,7 +295,7 @@ export class StandaloneHttpNodeCache {
     if (!this.db) throw new Error("Database not initialized");
     try {
       // 使用索引查询优化性能，只获取当前项目的文档
-      const projectDocs = await this.db.getAllFromIndex("docs", "projectId", projectId);
+      const projectDocs = await this.db.getAllFromIndex("httpNodeList", "projectId", projectId);
       const docNum = projectDocs.filter(
         (doc) =>
           !doc.isDeleted &&

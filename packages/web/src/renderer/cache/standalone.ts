@@ -2,10 +2,10 @@
 import type { ApidocProjectInfo, ApidocProperty, ApidocVariable, ApiNode } from '@src/types';
 import type { ApidocProjectRules } from "@src/types/apidoc/base-info";
 import { StandaloneHttpNodeCache } from "./standalone/docs";
-import { ProjectCache } from "./standalone/projects";
-import { CommonHeaderCache } from "./standalone/commonHeaders";
-import { RuleCache } from "./standalone/rules";
-import { VariableCache } from "./standalone/variable";
+import { StandaloneProjectCache } from "./standalone/projects";
+import { StandaloneCommonHeaderCache } from "./standalone/commonHeaders";
+import { StandaloneRuleCache } from "./standalone/rules";
+import { StandaloneVariableCache } from "./standalone/variable";
 import { IDBPDatabase, openDB } from "idb";
 import { config } from "@src/config/config.ts";
 
@@ -14,17 +14,17 @@ export class StandaloneCache {
   
   // 组合各 cache
   standaloneHttpNodeList: StandaloneHttpNodeCache;
-  projects: ProjectCache;
-  commonHeaders: CommonHeaderCache;
-  rules: RuleCache;
-  variables: VariableCache;
+  standaloneProjects: StandaloneProjectCache;
+  standaloneCommonHeaders: StandaloneCommonHeaderCache;
+  standaloneRules: StandaloneRuleCache;
+  standaloneVariables: StandaloneVariableCache;
 
   constructor() {
     this.standaloneHttpNodeList = new StandaloneHttpNodeCache(null);
-    this.projects = new ProjectCache(null);
-    this.commonHeaders = new CommonHeaderCache(null);
-    this.rules = new RuleCache(null);
-    this.variables = new VariableCache(null);
+    this.standaloneProjects = new StandaloneProjectCache(null);
+    this.standaloneCommonHeaders = new StandaloneCommonHeaderCache(null);
+    this.standaloneRules = new StandaloneRuleCache(null);
+    this.standaloneVariables = new StandaloneVariableCache(null);
   }
 
   async init() {
@@ -37,10 +37,10 @@ export class StandaloneCache {
           if (!db.objectStoreNames.contains("projects")) {
             db.createObjectStore("projects");
           }
-          if (!db.objectStoreNames.contains("docs")) {
-            const docsStore = db.createObjectStore("docs");
+          if (!db.objectStoreNames.contains("httpNodeList")) {
+            const httpNodeListStore = db.createObjectStore("httpNodeList");
             // 添加 projectId 索引以优化按项目查询
-            docsStore.createIndex("projectId", "projectId", { unique: false });
+            httpNodeListStore.createIndex("projectId", "projectId", { unique: false });
           }
           if (!db.objectStoreNames.contains("commonHeaders")) {
             db.createObjectStore("commonHeaders");
@@ -57,43 +57,43 @@ export class StandaloneCache {
       }
     );
     this.standaloneHttpNodeList = new StandaloneHttpNodeCache(this.db);
-    this.projects = new ProjectCache(this.db);
-    this.commonHeaders = new CommonHeaderCache(this.db);
-    this.rules = new RuleCache(this.db);
-    this.variables = new VariableCache(this.db);
+    this.standaloneProjects = new StandaloneProjectCache(this.db);
+    this.standaloneCommonHeaders = new StandaloneCommonHeaderCache(this.db);
+    this.standaloneRules = new StandaloneRuleCache(this.db);
+    this.standaloneVariables = new StandaloneVariableCache(this.db);
   }
 
   // 项目相关
   async getProjectList() {
-    return this.projects.getProjectList();
+    return this.standaloneProjects.getProjectList();
   }
   async setProjectList(list: ApidocProjectInfo[]): Promise<boolean> {
-    return this.projects.setProjectList(list);
+    return this.standaloneProjects.setProjectList(list);
   }
   async getProjectInfo(projectId: string): Promise<ApidocProjectInfo | null> {
-    return this.projects.getProjectInfo(projectId);
+    return this.standaloneProjects.getProjectInfo(projectId);
   }
   async addProject(project: ApidocProjectInfo): Promise<boolean> {
-    return this.projects.addProject(project);
+    return this.standaloneProjects.addProject(project);
   }
   async updateProject(projectId: string, project: Partial<ApidocProjectInfo>): Promise<boolean> {
-    return this.projects.updateProject(projectId, project);
+    return this.standaloneProjects.updateProject(projectId, project);
   }
   async deleteProject(projectId: string): Promise<boolean> {
-    return this.projects.deleteProject(projectId);
+    return this.standaloneProjects.deleteProject(projectId);
   }
   async updateProjectDocNum(projectId: string): Promise<boolean> {
     const docsList = await this.standaloneHttpNodeList.getDocsList();
     const projectDocs = docsList.filter(doc => doc.projectId === projectId && !doc.isDeleted);
     const docNum = projectDocs.length;
-    const projectList = await this.projects.getProjectList();
+    const projectList = await this.standaloneProjects.getProjectList();
     const projectIndex = projectList.findIndex(p => p._id === projectId);
     if (projectIndex === -1) return false;
     projectList[projectIndex] = {
       ...projectList[projectIndex],
       docNum
     };
-    return await this.projects.setProjectList(projectList);
+    return await this.standaloneProjects.setProjectList(projectList);
   }
   async getDocsByProjectId(projectId: string): Promise<ApiNode[]> {
     return this.standaloneHttpNodeList.getDocsByProjectId(projectId);
@@ -141,44 +141,44 @@ export class StandaloneCache {
   }
   // 公共请求头相关
   async getCommonHeaders(): Promise<ApidocProperty<'string'>[]> {
-    return this.commonHeaders.getCommonHeaders();
+    return this.standaloneCommonHeaders.getCommonHeaders();
   }
   async setCommonHeaders(commonHeaders: ApidocProperty<'string'>[]): Promise<boolean> {
-    return this.commonHeaders.setCommonHeaders(commonHeaders);
+    return this.standaloneCommonHeaders.setCommonHeaders(commonHeaders);
   }
 
   // 规则相关
   async getAllProjectRules(): Promise<Record<string, ApidocProjectRules>> {
-    return this.rules.getAllProjectRules();
+    return this.standaloneRules.getAllProjectRules();
   }
   async setAllProjectRules(rules: Record<string, ApidocProjectRules>): Promise<boolean> {
-    return this.rules.setAllProjectRules(rules);
+    return this.standaloneRules.setAllProjectRules(rules);
   }
   async getProjectRules(projectId: string): Promise<ApidocProjectRules | null> {
-    return this.rules.getProjectRules(projectId);
+    return this.standaloneRules.getProjectRules(projectId);
   }
   async setProjectRules(projectId: string, rules: ApidocProjectRules): Promise<boolean> {
-    return this.rules.setProjectRules(projectId, rules);
+    return this.standaloneRules.setProjectRules(projectId, rules);
   }
   async deleteProjectRules(projectId: string): Promise<boolean> {
-    return this.rules.deleteProjectRules(projectId);
+    return this.standaloneRules.deleteProjectRules(projectId);
   }
 
   // 变量相关
   async addVariable(variable: Omit<ApidocVariable, '_id'> & { _id?: string }) {
-    return this.variables.add(variable);
+    return this.standaloneVariables.add(variable);
   }
   async updateVariable(variableId: string, updates: Partial<ApidocVariable>) {
-    return this.variables.update(variableId, updates);
+    return this.standaloneVariables.update(variableId, updates);
   }
   async deleteVariables(ids: string[]) {
-    return this.variables.delete(ids);
+    return this.standaloneVariables.delete(ids);
   }
   async getAllVariables(projectId: string) {
-    return this.variables.getAll(projectId);
+    return this.standaloneVariables.getAll(projectId);
   }
   async getVariableById(variableId: string) {
-    return this.variables.getById(variableId);
+    return this.standaloneVariables.getById(variableId);
   }
 
   /**
@@ -190,14 +190,14 @@ export class StandaloneCache {
       
       // 获取所有数据
       const docsList = await this.standaloneHttpNodeList.getDocsList();
-      const projectList = await this.projects.getProjectList();
+      const projectList = await this.standaloneProjects.getProjectList();
       
       // 保留已删除的数据
       const deletedDocs = docsList.filter(doc => doc.isDeleted);
       const deletedProjects = projectList.filter(project => project.isDeleted);
       
       // 清空所有数据
-      const stores = ['docs', 'projects', 'commonHeaders', 'rules', 'variables'];
+      const stores = ['httpNodeList', 'projects', 'commonHeaders', 'rules', 'variables'];
       for (const storeName of stores) {
         const tx = this.db.transaction(storeName, 'readwrite');
         await tx.objectStore(storeName).clear();
@@ -208,7 +208,7 @@ export class StandaloneCache {
       for (const doc of deletedDocs) {
         await this.standaloneHttpNodeList.addDoc(doc);
       }
-      await this.projects.setProjectList(deletedProjects);
+      await this.standaloneProjects.setProjectList(deletedProjects);
       return true;
     } catch (err) {
       console.error('Failed to clear all data:', err);

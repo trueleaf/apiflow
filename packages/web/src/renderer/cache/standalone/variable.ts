@@ -2,7 +2,7 @@ import { IDBPDatabase } from "idb";
 import type { ApidocVariable, Response } from '@src/types';
 import { nanoid } from "nanoid";
 
-export class VariableCache {
+export class StandaloneVariableCache {
   constructor(private db: IDBPDatabase | null = null) {}
 
   /**

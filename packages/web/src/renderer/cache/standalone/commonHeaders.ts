@@ -1,7 +1,7 @@
 import { IDBPDatabase } from "idb";
 import type { ApidocProperty } from '@src/types';
 
-export class CommonHeaderCache {
+export class StandaloneCommonHeaderCache {
   constructor(private db: IDBPDatabase | null = null) {}
 
   async getCommonHeaders(): Promise<ApidocProperty<'string'>[]> {

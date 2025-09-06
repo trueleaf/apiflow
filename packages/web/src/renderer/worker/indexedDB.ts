@@ -42,7 +42,7 @@ export type CacheManageWorkerMessage =
 const storeNameMap: Record<string, string> = {
   "httpResponseCache": "HTTP返回值缓存",
   "commonHeaders": "公共请求头缓存",
-  "docs": "文档缓存",
+  "httpNodeList": "文档缓存",
   "projects": "项目缓存",
   "rules": "规则缓存",
   "variables": "变量缓存",

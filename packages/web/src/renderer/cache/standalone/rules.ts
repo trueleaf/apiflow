@@ -1,7 +1,7 @@
 import { IDBPDatabase } from "idb";
 import type { ApidocProjectRules } from "@src/types/apidoc/base-info";
 
-export class RuleCache {
+export class StandaloneRuleCache {
   constructor(private db: IDBPDatabase | null = null) {}
 
   async getAllProjectRules(): Promise<Record<string, ApidocProjectRules>> {
