@@ -3,15 +3,15 @@
  */
 
 import { WebSocketNode } from '@src/types/websocket/websocket';
-import { ResponseCache } from '../responseCache';
+import { HttpResponseCache } from '../http/responseCache';
 
-class WebSocketNodeCache extends ResponseCache {
+class WebSocketNodeCache extends HttpResponseCache {
   constructor() {
     super();
     if (!localStorage.getItem('websocket/websocket')) {
       localStorage.setItem('websocket/websocket', '{}');
     }
-    this.initApiflowResponseCache();
+    this.initApiflowHttpResponseCache();
   }
 
   /*

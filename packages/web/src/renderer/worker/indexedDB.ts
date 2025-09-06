@@ -40,7 +40,7 @@ export type CacheManageWorkerMessage =
   | CacheManageWorkerDeleteStoreItem
   | CacheManageWorkerClearAllIndexedDB;
 const storeNameMap: Record<string, string> = {
-  "responseCache": "返回值缓存",
+  "httpResponseCache": "HTTP返回值缓存",
   "commonHeaders": "公共请求头缓存",
   "docs": "文档缓存",
   "projects": "项目缓存",

@@ -4,14 +4,14 @@
 
 import { ApidocProjectHost } from '@src/types/apidoc/base-info';
 import { HttpNode } from '@src/types';
-import { ResponseCache } from '../responseCache';
+import { HttpResponseCache } from './responseCache';
 import type { ApidocCookie } from '@src/renderer/store/apidoc/cookies';
 
 type ServerInfo = ApidocProjectHost & {
   isLocal?: boolean,
 };
 
-class HttpNodeCache extends ResponseCache {
+class HttpNodeCache extends HttpResponseCache {
   constructor() {
     super();
     if (!localStorage.getItem('httpNode/paramsConfig')) {
@@ -20,7 +20,7 @@ class HttpNodeCache extends ResponseCache {
     if (!localStorage.getItem('httpNode/apidoc')) {
       localStorage.setItem('httpNode/apidoc', '{}');
     }
-    this.initApiflowResponseCache();
+    this.initApiflowHttpResponseCache();
   }
 
   /**
