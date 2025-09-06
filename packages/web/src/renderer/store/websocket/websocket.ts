@@ -1,4 +1,4 @@
-import { WebSocketNode, MessageType, WebsocketResponse } from "@src/types/websocket/websocket.ts";
+import { WebSocketNode, MessageType, WebsocketResponse, WebsocketSendMessageTemplate } from "@src/types/websocket/websocket.ts";
 import { defineStore, storeToRefs } from "pinia";
 import { ref, watch } from "vue";
 import { ApidocProperty } from "@src/types";
@@ -28,11 +28,7 @@ export const useWebSocket = defineStore('websocket', () => {
   const connectionState = ref<'disconnected' | 'connecting' | 'connected' | 'error'>('disconnected');
   const connectionId = ref('');
   const responseMessage = ref<WebsocketResponse[]>([]);
-  const sendMessageTemplateList = ref<{
-    nodeId: string;
-    name: string;
-    content: string;
-  }[]>([]);
+  const sendMessageTemplateList = ref<WebsocketSendMessageTemplate[]>([]);
   /*
   |--------------------------------------------------------------------------
   | 通用方法 - Cookie自动更新
@@ -327,12 +323,6 @@ export const useWebSocket = defineStore('websocket', () => {
     }
   };
 
-  // 改变发送并清空设置
-  const changeWebSocketSendAndClear = (enabled: boolean): void => {
-    if (websocket.value) {
-      websocket.value.config.sendAndClear = enabled;
-    }
-  };
 
   // 改变自动重连设置
   const changeWebSocketAutoReconnect = (enabled: boolean): void => {
@@ -413,6 +403,58 @@ export const useWebSocket = defineStore('websocket', () => {
 
   /*
   |--------------------------------------------------------------------------
+  | 消息模板
+  |--------------------------------------------------------------------------
+  */
+  // 新增消息模板
+  const addMessageTemplate = (template: WebsocketSendMessageTemplate): void => {
+    sendMessageTemplateList.value.push(template);
+  };
+
+  // 更新消息模板
+  const updateMessageTemplate = (id: string, updates: Partial<WebsocketSendMessageTemplate>): WebsocketSendMessageTemplate | null => {
+    const index = sendMessageTemplateList.value.findIndex(template => template.id === id);
+    if (index === -1) {
+      console.warn(`消息模板 ID ${id} 不存在`);
+      return null;
+    }
+    const updatedTemplate = {
+      ...sendMessageTemplateList.value[index],
+      ...updates,
+      updatedAt: Date.now(),
+    };
+    sendMessageTemplateList.value[index] = updatedTemplate;
+    return updatedTemplate;
+  };
+
+  // 删除消息模板
+  const deleteMessageTemplate = (id: string): WebsocketSendMessageTemplate[] => {
+    const index = sendMessageTemplateList.value.findIndex(template => template.id === id);
+    if (index === -1) {
+      console.warn(`消息模板 ID ${id} 不存在`);
+      return sendMessageTemplateList.value;
+    }
+    sendMessageTemplateList.value.splice(index, 1);
+    return sendMessageTemplateList.value;
+  };
+
+  // 根据 ID 获取消息模板
+  const getMessageTemplateById = (id: string): WebsocketSendMessageTemplate | null => {
+    return sendMessageTemplateList.value.find(template => template.id === id) || null;
+  };
+
+  // 获取所有消息模板
+  const getAllMessageTemplates = (): WebsocketSendMessageTemplate[] => {
+    return sendMessageTemplateList.value;
+  };
+
+  // 清空所有消息模板
+  const clearAllMessageTemplates = (): void => {
+    sendMessageTemplateList.value = [];
+  };
+
+  /*
+  |--------------------------------------------------------------------------
   | 时间戳操作方法
   |--------------------------------------------------------------------------
   */
@@ -431,13 +473,13 @@ export const useWebSocket = defineStore('websocket', () => {
   // 缓存当前websocket配置
   const cacheWebSocket = (): void => {
     if (websocket.value) {
-      webSocketNodeCache.setWebSocket(websocket.value);
+      webSocketNodeCache.setWebSocketNode(websocket.value);
     }
   };
 
   // 从缓存获取websocket配置
   const getCachedWebSocket = (id: string): WebSocketNode | null => {
-    return webSocketNodeCache.getWebSocket(id);
+    return webSocketNodeCache.getWebSocketNode(id);
   };
 
   // 获取websocket连接状态缓存
@@ -635,6 +677,7 @@ export const useWebSocket = defineStore('websocket', () => {
     connectionState,
     connectionId,
     responseMessage,
+    sendMessageTemplateList,
     changeWebSocketName,
     changeWebSocketDescription,
     changeWebSocketProtocol,
@@ -655,7 +698,6 @@ export const useWebSocket = defineStore('websocket', () => {
     changeWebSocketAutoHeartbeat,
     changeWebSocketHeartbeatInterval,
     changeWebSocketDefaultHeartbeatContent,
-    changeWebSocketSendAndClear,
     changeWebSocketAutoReconnect,
     changeWebSocketMaxReconnectAttempts,
     changeWebSocketReconnectInterval,
@@ -674,6 +716,13 @@ export const useWebSocket = defineStore('websocket', () => {
     getMessagesByType,
     getLatestMessages,
     getMessagesByTimeRange,
+    // 消息模板 CRUD 操作方法
+    addMessageTemplate,
+    updateMessageTemplate,
+    deleteMessageTemplate,
+    getMessageTemplateById,
+    getAllMessageTemplates,
+    clearAllMessageTemplates,
     // 缓存相关方法
     cacheWebSocket,
     getCachedWebSocket,

@@ -75,10 +75,6 @@ export type WebSocketNode = {
      */
     defaultHeartbeatContent: string;
     /**
-     * 发送并清空
-     */
-    sendAndClear: boolean;
-    /**
      * 是否自动重连
      */
     autoReconnect: boolean;
@@ -232,8 +228,8 @@ export type WebsocketResponse =
   | WebsocketHeartbeatResponse
   | WebsocketStartConnectResponse
   | WebsocketReconnectingResponse;
-  
-export type WebsocketMessageTemplate = {
+
+export type WebsocketSendMessageTemplate = {
   id: string;
   name: string;
   sendMessage: string;

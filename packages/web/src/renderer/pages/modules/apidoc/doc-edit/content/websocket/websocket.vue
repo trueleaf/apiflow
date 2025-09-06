@@ -52,13 +52,12 @@ const checkConfigIsEqual = (config: WebSocketNode['config'], originConfig: WebSo
   const autoHeartbeatIsEqual = config.autoHeartbeat === originConfig.autoHeartbeat;
   const heartbeatIntervalIsEqual = config.heartbeatInterval === originConfig.heartbeatInterval;
   const defaultHeartbeatContentIsEqual = config.defaultHeartbeatContent === originConfig.defaultHeartbeatContent;
-  const sendAndClearIsEqual = config.sendAndClear === originConfig.sendAndClear;
   const autoReconnectIsEqual = config.autoReconnect === originConfig.autoReconnect;
   const maxReconnectAttemptsIsEqual = config.maxReconnectAttempts === originConfig.maxReconnectAttempts;
   const reconnectIntervalIsEqual = config.reconnectInterval === originConfig.reconnectInterval;
   
   return messageTypeIsEqual && autoHeartbeatIsEqual && heartbeatIntervalIsEqual && 
-         defaultHeartbeatContentIsEqual && sendAndClearIsEqual && autoReconnectIsEqual &&
+         defaultHeartbeatContentIsEqual && autoReconnectIsEqual &&
          maxReconnectAttemptsIsEqual && reconnectIntervalIsEqual;
 }
 

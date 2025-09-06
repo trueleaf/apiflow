@@ -8,8 +8,8 @@ import { HttpResponseCache } from '../http/httpResponseCache';
 class WebSocketNodeCache extends HttpResponseCache {
   constructor() {
     super();
-    if (!localStorage.getItem('websocket/websocket')) {
-      localStorage.setItem('websocket/websocket', '{}');
+    if (!localStorage.getItem('websocketNode/websocket')) {
+      localStorage.setItem('websocketNode/websocket', '{}');
     }
     this.initApiflowHttpResponseCache();
   }
@@ -17,32 +17,32 @@ class WebSocketNodeCache extends HttpResponseCache {
   /*
    * 缓存websocket接口信息
    */
-  setWebSocket(val: WebSocketNode) {
+  setWebSocketNode(val: WebSocketNode) {
     try {
-      const localWebSocket = JSON.parse(localStorage.getItem('websocket/websocket') || '{}');
+      const localWebSocket = JSON.parse(localStorage.getItem('websocketNode/websocket') || '{}');
       localWebSocket[val._id] = val;
-      localStorage.setItem('websocket/websocket', JSON.stringify(localWebSocket));
+      localStorage.setItem('websocketNode/websocket', JSON.stringify(localWebSocket));
     } catch (error) {
       console.error(error);
       const data: Record<string, WebSocketNode> = {};
       data[val._id] = val;
-      localStorage.setItem('websocket/websocket', JSON.stringify(data));
+      localStorage.setItem('websocketNode/websocket', JSON.stringify(data));
     }
   }
 
   /*
    * 获取缓存websocket接口信息
    */
-  getWebSocket(id: string): WebSocketNode | null {
+  getWebSocketNode(id: string): WebSocketNode | null {
     try {
-      const localWebSocket: Record<string, WebSocketNode> = JSON.parse(localStorage.getItem('websocket/websocket') || '{}');
+      const localWebSocket: Record<string, WebSocketNode> = JSON.parse(localStorage.getItem('websocketNode/websocket') || '{}');
       if (!localWebSocket[id]) {
         return null;
       }
       return localWebSocket[id];
     } catch (error) {
       console.error(error);
-      localStorage.setItem('websocket/websocket', '{}')
+      localStorage.setItem('websocketNode/websocket', '{}')
       return null;
     }
   }
@@ -57,14 +57,14 @@ class WebSocketNodeCache extends HttpResponseCache {
     reconnectAttempts?: number;
   } | null {
     try {
-      const localData: Record<string, any> = JSON.parse(localStorage.getItem('websocket/connectionState') || '{}');
+      const localData: Record<string, any> = JSON.parse(localStorage.getItem('websocketNode/connectionState') || '{}');
       if (!localData[connectionId]) {
         return null;
       }
       return localData[connectionId];
     } catch (error) {
       console.error(error);
-      localStorage.setItem('websocket/connectionState', '{}');
+      localStorage.setItem('websocketNode/connectionState', '{}');
       return null;
     }
   }
@@ -79,14 +79,14 @@ class WebSocketNodeCache extends HttpResponseCache {
     reconnectAttempts?: number;
   }) {
     try {
-      const localData = JSON.parse(localStorage.getItem('websocket/connectionState') || '{}');
+      const localData = JSON.parse(localStorage.getItem('websocketNode/connectionState') || '{}');
       localData[connectionId] = state;
-      localStorage.setItem('websocket/connectionState', JSON.stringify(localData));
+      localStorage.setItem('websocketNode/connectionState', JSON.stringify(localData));
     } catch (error) {
       console.error(error);
       const data: Record<string, any> = {};
       data[connectionId] = state;
-      localStorage.setItem('websocket/connectionState', JSON.stringify(data));
+      localStorage.setItem('websocketNode/connectionState', JSON.stringify(data));
     }
   }
 
@@ -95,7 +95,7 @@ class WebSocketNodeCache extends HttpResponseCache {
    */
   getIgnoredCommonHeaderByTabId(projectId: string, tabId: string): string[] | null {
     try {
-      const localData = JSON.parse(localStorage.getItem('websocket/commonHeaders/ignore') || '{}') as Record<string, Record<string, string[]>>;
+      const localData = JSON.parse(localStorage.getItem('websocketNode/commonHeaders/ignore') || '{}') as Record<string, Record<string, string[]>>;
       if (localData[projectId] == null) {
         return [];
       }
@@ -115,7 +115,7 @@ class WebSocketNodeCache extends HttpResponseCache {
   setIgnoredCommonHeader(options: { projectId: string; tabId: string; ignoreHeaderId: string }) {
     try {
       const { projectId, tabId, ignoreHeaderId } = options;
-      const localData = JSON.parse(localStorage.getItem('websocket/commonHeaders/ignore') || '{}') as Record<string, Record<string, string[]>>;
+      const localData = JSON.parse(localStorage.getItem('websocketNode/commonHeaders/ignore') || '{}') as Record<string, Record<string, string[]>>;
       if (localData[projectId] == null) {
         localData[projectId] = {}
       }
@@ -124,10 +124,10 @@ class WebSocketNodeCache extends HttpResponseCache {
       }
       const matchedTab = localData[projectId][tabId];
       matchedTab.push(ignoreHeaderId);
-      localStorage.setItem('websocket/commonHeaders/ignore', JSON.stringify(localData));
+      localStorage.setItem('websocketNode/commonHeaders/ignore', JSON.stringify(localData));
     } catch (error) {
       console.error(error);
-      localStorage.setItem('websocket/commonHeaders/ignore', '{}');
+      localStorage.setItem('websocketNode/commonHeaders/ignore', '{}');
     }
   }
 
@@ -137,7 +137,7 @@ class WebSocketNodeCache extends HttpResponseCache {
   removeIgnoredCommonHeader(options: { projectId: string; tabId: string; ignoreHeaderId: string }) {
     try {
       const { projectId, tabId, ignoreHeaderId } = options;
-      const localData = JSON.parse(localStorage.getItem('websocket/commonHeaders/ignore') || '{}') as Record<string, Record<string, string[]>>;
+      const localData = JSON.parse(localStorage.getItem('websocketNode/commonHeaders/ignore') || '{}') as Record<string, Record<string, string[]>>;
       if (localData[projectId] == null) {
         return false;
       }
@@ -148,11 +148,11 @@ class WebSocketNodeCache extends HttpResponseCache {
       const deleteIndex = matchedTab.findIndex(id => ignoreHeaderId === id);
       if (deleteIndex !== -1) {
         matchedTab.splice(deleteIndex, 1);
-        localStorage.setItem('websocket/commonHeaders/ignore', JSON.stringify(localData));
+        localStorage.setItem('websocketNode/commonHeaders/ignore', JSON.stringify(localData));
       }
     } catch (error) {
       console.error(error);
-      localStorage.setItem('websocket/commonHeaders/ignore', '{}');
+      localStorage.setItem('websocketNode/commonHeaders/ignore', '{}');
     }
   }
 
@@ -166,14 +166,14 @@ class WebSocketNodeCache extends HttpResponseCache {
     backoffFactor: number;
   } | null {
     try {
-      const localData: Record<string, any> = JSON.parse(localStorage.getItem('websocket/autoReconnect') || '{}');
+      const localData: Record<string, any> = JSON.parse(localStorage.getItem('websocketNode/autoReconnect') || '{}');
       if (!localData[projectId]) {
         return null;
       }
       return localData[projectId];
     } catch (error) {
       console.error(error);
-      localStorage.setItem('websocket/autoReconnect', '{}');
+      localStorage.setItem('websocketNode/autoReconnect', '{}');
       return null;
     }
   }
@@ -188,14 +188,14 @@ class WebSocketNodeCache extends HttpResponseCache {
     backoffFactor: number;
   }) {
     try {
-      const localData = JSON.parse(localStorage.getItem('websocket/autoReconnect') || '{}');
+      const localData = JSON.parse(localStorage.getItem('websocketNode/autoReconnect') || '{}');
       localData[projectId] = config;
-      localStorage.setItem('websocket/autoReconnect', JSON.stringify(localData));
+      localStorage.setItem('websocketNode/autoReconnect', JSON.stringify(localData));
     } catch (error) {
       console.error(error);
       const data: Record<string, any> = {};
       data[projectId] = config;
-      localStorage.setItem('websocket/autoReconnect', JSON.stringify(data));
+      localStorage.setItem('websocketNode/autoReconnect', JSON.stringify(data));
     }
   }
 
@@ -204,14 +204,14 @@ class WebSocketNodeCache extends HttpResponseCache {
    */
   getActiveTab(id: string): string | null {
     try {
-      const localActiveTab: Record<string, string> = JSON.parse(localStorage.getItem('websocket/connectionActiveTab') || '{}');
+      const localActiveTab: Record<string, string> = JSON.parse(localStorage.getItem('websocketNode/connectionActiveTab') || '{}');
       if (!localActiveTab[id]) {
         return null;
       }
       return localActiveTab[id];
     } catch (error) {
       console.error(error);
-      localStorage.setItem('websocket/connectionActiveTab', '{}')
+      localStorage.setItem('websocketNode/connectionActiveTab', '{}')
       return null;
     }
   }
@@ -221,14 +221,14 @@ class WebSocketNodeCache extends HttpResponseCache {
    */
   setActiveTab(id: string, val: string) {
     try {
-      const localActiveTab = JSON.parse(localStorage.getItem('websocket/connectionActiveTab') || '{}');
+      const localActiveTab = JSON.parse(localStorage.getItem('websocketNode/connectionActiveTab') || '{}');
       localActiveTab[id] = val;
-      localStorage.setItem('websocket/connectionActiveTab', JSON.stringify(localActiveTab));
+      localStorage.setItem('websocketNode/connectionActiveTab', JSON.stringify(localActiveTab));
     } catch (error) {
       console.error(error);
       const data: Record<string, string> = {};
       data[id] = val;
-      localStorage.setItem('websocket/connectionActiveTab', JSON.stringify(data));
+      localStorage.setItem('websocketNode/connectionActiveTab', JSON.stringify(data));
     }
   }
 }
