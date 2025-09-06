@@ -236,4 +236,9 @@ export type WebsocketSendMessageTemplate = {
   messageType: MessageType;
   createdAt: number;
   updatedAt: number;
-}
+};
+
+// WebSocket其他配置
+export type WebsocketConfig = {
+  connectionWaitingTip: boolean;
+};

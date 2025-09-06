@@ -2,67 +2,40 @@
   <div class="message-content">
     <!-- 内容编辑器 -->
     <div class="content-wrapper">
-      <!-- 数据类型选择器 -->
-      <div class="message-type-selector">
-        <el-select v-model="websocketStore.websocket.config.messageType" size="small" @change="handleMessageTypeChange"
-          class="type-selector">
-          <el-option value="text" :label="t('文本')">
-            <span class="option-content">
-              <span>{{ t("文本") }}</span>
-            </span>
-          </el-option>
-          <el-option value="json" :label="t('JSON')">
-            <span class="option-content">
-              <span>JSON</span>
-            </span>
-          </el-option>
-          <el-option value="xml" :label="t('XML')">
-            <span class="option-content">
-              <span>XML</span>
-            </span>
-          </el-option>
-          <el-option value="html" :label="t('HTML')">
-            <span class="option-content">
-              <span>HTML</span>
-            </span>
-          </el-option>
-          <el-option value="binary-base64" :label="t('二进制(Base64)')">
-            <span class="option-content">
-              <span>{{ t("二进制(Base64)") }}</span>
-            </span>
-          </el-option>
-          <el-option value="binary-hex" :label="t('二进制(Hex)')">
-            <span class="option-content">
-              <span>{{ t("二进制(Hex)") }}</span>
-            </span>
-          </el-option>
-        </el-select>
-      </div>
       <!-- 编辑器 -->
       <div class="editor-wrap">
         <SJsonEditor v-model="websocketStore.websocket.item.sendMessage" :config="editorConfig" :auto-height="false" />
       </div>
       <!-- 操作按钮区域 -->
       <div class="content-actions">
-        <div class="action-buttons">
-          <el-tooltip :content="connectionState !== 'connected' ? t('等待连接') : ''"
-            :disabled="connectionState === 'connected'" placement="top">
-            <el-button type="primary"
+        <div class="action-items">
+          <el-tooltip v-if="!hideWaitingTip" placement="top" :disabled="connectionState === 'connected'">
+            <template #content>
+              <div class="ws-waiting-tip">
+                <div>{{ t('等待连接') }}</div>
+                <div class="no-more-tip-btn" @click.stop="handleHideWaitingTip">{{ t('不再提示') }}</div>
+              </div>
+            </template>
+            <el-button type="primary" size="small"
               :disabled="!websocketStore.websocket.item.sendMessage.trim() || connectionState !== 'connected'"
               @click="handleSendMessage" :icon="Position">
               {{ t("发送消息") }}
             </el-button>
           </el-tooltip>
-
+          <template v-else>
+            <el-button type="primary" size="small"
+              :disabled="!websocketStore.websocket.item.sendMessage.trim() || connectionState !== 'connected'"
+              @click="handleSendMessage" :icon="Position">
+              {{ t('发送消息') }}
+            </el-button>
+          </template>
           <!-- 自动心跳功能 -->
           <div class="heartbeat-controls">
             <div class="heartbeat-checkbox">
               <el-checkbox v-model="websocketStore.websocket.config.autoHeartbeat" @change="handleAutoHeartbeatChange">
                 {{ t("自动发送") }}
               </el-checkbox>
-
-              <el-popover :visible="configPopoverVisible"
-                placement="bottom" :width="320">
+              <el-popover :visible="configPopoverVisible" placement="bottom" :width="320">
                 <template #reference>
                   <div @click="configPopoverVisible = !configPopoverVisible" class="gear-button">
                     <el-icon>
@@ -84,8 +57,8 @@
 
                   <div class="config-item">
                     <label class="config-label">{{ t("心跳包内容") }}:</label>
-                    <el-input v-model="websocketStore.websocket.config.defaultHeartbeatContent" type="textarea" :rows="3"
-                      :placeholder="t('请输入心跳包内容')" @input="handleDefaultHeartbeatContentChange"
+                    <el-input v-model="websocketStore.websocket.config.defaultHeartbeatContent" type="textarea"
+                      :rows="3" :placeholder="t('请输入心跳包内容')" @input="handleDefaultHeartbeatContentChange"
                       class="heartbeat-content-input" />
                   </div>
 
@@ -98,6 +71,43 @@
               </el-popover>
             </div>
           </div>
+          <!-- 数据类型选择器 -->
+          <div class="message-type-selector">
+            <el-select v-model="websocketStore.websocket.config.messageType" size="small"
+              @change="handleMessageTypeChange" class="type-selector">
+              <el-option value="text" :label="t('文本')">
+                <span class="option-content">
+                  <span>{{ t("文本") }}</span>
+                </span>
+              </el-option>
+              <el-option value="json" :label="t('JSON')">
+                <span class="option-content">
+                  <span>JSON</span>
+                </span>
+              </el-option>
+              <el-option value="xml" :label="t('XML')">
+                <span class="option-content">
+                  <span>XML</span>
+                </span>
+              </el-option>
+              <el-option value="html" :label="t('HTML')">
+                <span class="option-content">
+                  <span>HTML</span>
+                </span>
+              </el-option>
+              <el-option value="binary-base64" :label="t('二进制(Base64)')">
+                <span class="option-content">
+                  <span>{{ t("二进制(Base64)") }}</span>
+                </span>
+              </el-option>
+              <el-option value="binary-hex" :label="t('二进制(Hex)')">
+                <span class="option-content">
+                  <span>{{ t("二进制(Hex)") }}</span>
+                </span>
+              </el-option>
+            </el-select>
+          </div>
+
         </div>
       </div>
     </div>
@@ -119,6 +129,7 @@ import SJsonEditor from '@/components/common/json-editor/g-json-editor.vue'
 import type { MessageType } from '@src/types/websocket/websocket'
 import { uuid } from '@/helper'
 import { websocketResponseCache } from '@/cache/websocket/websocketResponse'
+import { webSocketNodeCache } from '@/cache/websocket/websocketNodeCache'
 
 
 const { t } = useTranslation()
@@ -126,6 +137,8 @@ const apidocTabsStore = useApidocTas()
 const websocketStore = useWebSocket()
 const connectionState = computed(() => websocketStore.connectionState)
 const connectionId = computed(() => websocketStore.connectionId)
+// 是否隐藏等待连接提示
+const hideWaitingTip = ref(false)
 // 获取当前选中的tab
 const { currentSelectTab } = storeToRefs(apidocTabsStore)
 const configPopoverVisible = ref(false)
@@ -166,7 +179,7 @@ const handleSendMessage = async () => {
         await websocketResponseCache.setSingleData(nodeId, sendMessage);
       }
 
-  // 发送成功不再清空输入框
+      // 发送成功不再清空输入框
     } else {
       ElMessage.error(t('消息发送失败') + ': ' + (result?.error || t('未知错误')))
       console.error('WebSocket消息发送失败:', result?.error)
@@ -344,36 +357,58 @@ watch(currentSelectTab, async (newTab) => {
 onUnmounted(() => {
   stopHeartbeat()
 })
+
+// 初始化隐藏提示状态
+watch(currentSelectTab, (tab) => {
+  if (tab) {
+    const cfg = webSocketNodeCache.getWebsocketConfig(tab.projectId)
+    hideWaitingTip.value = cfg?.connectionWaitingTip === true
+  }
+}, { immediate: true })
+
+// 点击不再提示
+const handleHideWaitingTip = () => {
+  const tab = currentSelectTab.value
+  if (!tab) return
+  webSocketNodeCache.setWebsocketConfig(tab.projectId, { connectionWaitingTip: true })
+  hideWaitingTip.value = true
+}
 </script>
 
 <style lang="scss" scoped>
 .message-content {
   height: 100%;
+
   .content-wrapper {
     position: relative;
     height: calc(100vh - 210px);
     border: 1px solid var(--gray-400);
+
     .message-type-selector {
       position: absolute;
       top: 8px;
       right: 8px;
       z-index: var(--z-index-dropdown);
+
       .type-selector {
         width: 120px;
       }
     }
+
     .editor-wrap {
       height: calc(100% - 40px);
-      border-bottom: 1px solid var(--gray-400);
     }
+
     .content-actions {
       width: 100%;
       height: 40px;
       display: flex;
       align-items: center;
+      justify-content: flex-end;
       z-index: var(--z-index-dropdown);
       background: var(--el-bg-color);
-      .action-buttons {
+
+      .action-items {
         display: flex;
         gap: 8px;
         align-items: center;
@@ -393,12 +428,12 @@ onUnmounted(() => {
         .heartbeat-checkbox {
           display: flex;
           align-items: center;
-          gap: 8px;
 
           .gear-button {
             padding: 5px;
             cursor: pointer;
             transition: background-color 0.2s;
+
             &:hover {
               background-color: var(--el-fill-color-light);
             }
@@ -454,6 +489,23 @@ onUnmounted(() => {
     margin-top: 16px;
     padding-top: 16px;
     border-top: 1px solid var(--el-border-color-lighter);
+  }
+}
+
+.ws-waiting-tip {
+  display: flex;
+  align-items: center;
+
+  .no-more-tip-btn {
+    color: var(--gray-400);
+    font-size: 12px;
+    cursor: pointer;
+    margin-left: 10px;
+    margin-top: 5px;
+
+    &:hover {
+      color: var(--gray-200)
+    }
   }
 }
 </style>

@@ -2,7 +2,7 @@
  * websocket文档缓存
  */
 
-import { WebSocketNode } from '@src/types/websocket/websocket';
+import { WebSocketNode, WebsocketConfig } from '@src/types/websocket/websocket';
 import { HttpResponseCache } from '../http/httpResponseCache';
 
 class WebSocketNodeCache extends HttpResponseCache {
@@ -229,6 +229,39 @@ class WebSocketNodeCache extends HttpResponseCache {
       const data: Record<string, string> = {};
       data[id] = val;
       localStorage.setItem('websocketNode/connectionActiveTab', JSON.stringify(data));
+    }
+  }
+
+  /*
+   * 获取websocket配置
+   */
+  getWebsocketConfig(projectId: string): WebsocketConfig | null {
+    try {
+      const localData: Record<string, WebsocketConfig> = JSON.parse(localStorage.getItem('websocketNode/config') || '{}');
+      if (!localData[projectId]) {
+        return null;
+      }
+      return localData[projectId];
+    } catch (error) {
+      console.error(error);
+      localStorage.setItem('websocketNode/config', '{}');
+      return null;
+    }
+  }
+
+  /*
+   * 设置websocket配置(覆盖/合并)
+   */
+  setWebsocketConfig(projectId: string, config: WebsocketConfig) {
+    try {
+      const localData = JSON.parse(localStorage.getItem('websocketNode/config') || '{}');
+      localData[projectId] = { ...(localData[projectId] || {}), ...config };
+      localStorage.setItem('websocketNode/config', JSON.stringify(localData));
+    } catch (error) {
+      console.error(error);
+      const data: Record<string, any> = {};
+      data[projectId] = config;
+      localStorage.setItem('websocketNode/config', JSON.stringify(data));
     }
   }
 }
