@@ -116,7 +116,7 @@ const messageTypeOptions = computed(() => [
   { value: 'connected', label: t?.('已连接') || '已连接' },
   { value: 'disconnected', label: t?.('已断开') || '已断开' },
   { value: 'error', label: t?.('错误') || '错误' },
-  { value: 'heartbeat', label: t?.('心跳') || '心跳' },
+  { value: 'autoSend', label: t?.('自动发送') || '自动发送' },
   { value: 'reconnecting', label: t?.('重连中') || '重连中' },
 ]);
 

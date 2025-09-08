@@ -133,7 +133,7 @@ const messageContent = computed(() => {
         return parseArrayBuffer(data.content, data.mimeType);
       }
       return data.content || '';
-    case 'heartbeat':
+    case 'autoSend':
       return data.message || '';
     default:
       return data.content || data.message || '';
@@ -188,7 +188,7 @@ const getTypeDisplayName = (type: WebsocketResponse['type']): string => {
     connected: '已连接',
     disconnected: '已断开',
     error: '错误',
-    heartbeat: '心跳',
+    autoSend: '自动发送',
     startConnect: '开始连接',
     reconnecting: '重连中'
   };
@@ -225,7 +225,7 @@ const getFormattedContent = (content: string): string => {
       }
       break;
     }
-    case 'heartbeat':
+    case 'autoSend':
       // 心跳消息展示 message 字段
       displayContent = content || (props.message.data as any).message || '';
       break;
@@ -371,7 +371,7 @@ watch(() => props.message, (newMessage) => {
             color: var(--color-danger, #f56c6c);
           }
 
-          &.type-heartbeat {
+          &.type-autoSend {
             background-color: var(--color-info-light-9, #f4f4f5);
             color: var(--color-info, #909399);
           }

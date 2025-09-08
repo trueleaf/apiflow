@@ -24,8 +24,8 @@
       <template #default="{ item }">
         <div class="websocket-message" @click="handleMessageClick(item.originalIndex, $event)">
           <div class="message-index">{{ item.originalIndex }}</div>
-          <div v-if="item.type === 'send' || item.type === 'receive' || item.type === 'heartbeat'" class="message-type" :class="`type-${item.type}`">
-            <el-icon v-if="item.type === 'send' || item.type === 'heartbeat'">
+          <div v-if="item.type === 'send' || item.type === 'receive' || item.type === 'autoSend'" class="message-type" :class="`type-${item.type}`">
+            <el-icon v-if="item.type === 'send' || item.type === 'autoSend'">
               <Top />
             </el-icon>
             <el-icon v-else-if="item.type === 'receive'">
@@ -33,7 +33,7 @@
             </el-icon>
           </div>
           <!-- 发送、接收、心跳消息使用 message-content 展示 -->
-          <div v-if="item.type === 'send' || item.type === 'receive' || item.type === 'heartbeat'" class="message-content">
+          <div v-if="item.type === 'send' || item.type === 'receive' || item.type === 'autoSend'" class="message-content">
             {{ getMessagePreview(item) }}
           </div>
           <!-- 其他类型消息使用 status-info 展示 -->
@@ -239,7 +239,7 @@ const getMessagePreview = (message: WebsocketResponse): string => {
       return message.data.content || '';
     case 'receive':
       return parseArrayBuffer(message.data.content, message.data.mimeType);
-    case 'heartbeat':
+    case 'autoSend':
       return message.data.message || '';
     default:
       return '';
@@ -346,7 +346,7 @@ watch(
         justify-content: center;
 
         &.type-send,
-        &.type-heartbeat {
+        &.type-autoSend {
           color: var(--color-success, #67c23a);
         }
 

@@ -38,7 +38,7 @@
         <!-- 自动配置功能 -->
         <div v-if="quickOperations.includes('autoSend')" class="config-controls">
           <div class="config-checkbox">
-            <el-checkbox v-model="websocketStore.websocket.config.autoHeartbeat" @change="handleAutoConfigChange">
+            <el-checkbox v-model="websocketStore.websocket.config.autoSend" @change="handleAutoConfigChange">
               {{ t("自动发送") }}
             </el-checkbox>
           </div>
@@ -56,7 +56,7 @@
             <div class="config-item">
               <label class="config-label">{{ t("发送间隔") }}:</label>
               <div class="config-input">
-                <el-input-number v-model="websocketStore.websocket.config.heartbeatInterval" :min="100" :max="300000"
+                <el-input-number v-model="websocketStore.websocket.config.autoSendInterval" :min="100" :max="300000"
                   :step="1000" size="small" @change="handleConfigIntervalChange" style="width: 120px;" />
                 <span class="interval-unit">{{ t("毫秒") }}</span>
               </div>
@@ -64,7 +64,7 @@
 
             <div class="config-item">
               <label class="config-label">{{ t("消息内容") }}:</label>
-              <el-input v-model="websocketStore.websocket.config.defaultHeartbeatContent" type="textarea" :rows="3"
+              <el-input v-model="websocketStore.websocket.config.defaultAutoSendContent" type="textarea" :rows="3"
                 :placeholder="t('请输入消息内容')" @input="handleDefaultConfigContentChange" class="config-content-input" />
             </div>
 
@@ -338,7 +338,7 @@ const handleMessageTypeChange = (value: MessageType) => {
 }
 const handleAutoConfigChange = (enabled: boolean | string | number) => {
   const boolEnabled = Boolean(enabled)
-  websocketStore.changeWebSocketAutoHeartbeat(boolEnabled)
+  websocketStore.changeWebSocketAutoSend(boolEnabled)
 
   if (boolEnabled && connectionState.value === 'connected') {
     startAutoSend()
@@ -348,16 +348,16 @@ const handleAutoConfigChange = (enabled: boolean | string | number) => {
 }
 const handleConfigIntervalChange = (interval: number | undefined) => {
   if (interval !== undefined) {
-    websocketStore.changeWebSocketHeartbeatInterval(interval)
+    websocketStore.changeWebSocketAutoSendInterval(interval)
     // 如果自动发送正在运行，重新启动以应用新的间隔
-    if (websocketStore.websocket.config.autoHeartbeat && connectionState.value === 'connected') {
+    if (websocketStore.websocket.config.autoSend && connectionState.value === 'connected') {
       stopAutoSend()
       startAutoSend()
     }
   }
 }
 const handleDefaultConfigContentChange = (content: string) => {
-  websocketStore.changeWebSocketDefaultHeartbeatContent(content)
+  websocketStore.changeWebSocketDefaultAutoSendContent(content)
 }
 const startAutoSend = () => {
   if (configTimer) {
@@ -367,12 +367,12 @@ const startAutoSend = () => {
   configTimer = setInterval(async () => {
     if (connectionState.value === 'connected' && connectionId.value) {
       try {
-        const autoSendContent = websocketStore.websocket.config.defaultHeartbeatContent || 'ping'
+        const autoSendContent = websocketStore.websocket.config.defaultAutoSendContent || 'ping'
         const result = await window.electronAPI?.websocket.send(connectionId.value, autoSendContent)
         if (result?.success) {
           // 创建自动发送记录
           const autoSendMessage = {
-            type: 'heartbeat' as const,
+            type: 'autoSend' as const,
             data: {
               id: uuid(),
               message: autoSendContent,
@@ -430,7 +430,7 @@ const startAutoSend = () => {
         await websocketResponseCache.setSingleData(nodeId, exceptionMessage);
       }
     }
-  }, websocketStore.websocket.config.heartbeatInterval)
+  }, websocketStore.websocket.config.autoSendInterval)
 }
 const stopAutoSend = () => {
   if (configTimer) {
@@ -440,7 +440,7 @@ const stopAutoSend = () => {
 }
 // 监听连接状态变化，管理配置
 watch(() => connectionState.value, (newState) => {
-  if (newState === 'connected' && websocketStore.websocket.config.autoHeartbeat) {
+  if (newState === 'connected' && websocketStore.websocket.config.autoSend) {
     startAutoSend()
   } else if (newState !== 'connected') {
     stopAutoSend()
@@ -451,7 +451,7 @@ watch(() => connectionState.value, (newState) => {
 watch(currentSelectTab, async (newTab) => {
   if (newTab) {
     stopAutoSend()
-    if (connectionState.value === 'connected' && websocketStore.websocket.config.autoHeartbeat) {
+    if (connectionState.value === 'connected' && websocketStore.websocket.config.autoSend) {
       startAutoSend()
     }
   }

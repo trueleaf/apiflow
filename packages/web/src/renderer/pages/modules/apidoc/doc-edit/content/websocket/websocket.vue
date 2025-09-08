@@ -20,7 +20,7 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
+import { onMounted, onUnmounted, ref, watch } from 'vue'
 import { storeToRefs } from 'pinia'
 import SResizeX from '@/components/common/resize/g-resize-x.vue'
 import SOperation from './operation/operation.vue'
@@ -51,13 +51,13 @@ const responseRef = ref()
 //检查config配置是否相等
 const checkConfigIsEqual = (config: WebSocketNode['config'], originConfig: WebSocketNode['config']) => {
   const messageTypeIsEqual = config.messageType === originConfig.messageType;
-  const autoHeartbeatIsEqual = config.autoHeartbeat === originConfig.autoHeartbeat;
-  const heartbeatIntervalIsEqual = config.heartbeatInterval === originConfig.heartbeatInterval;
-  const defaultHeartbeatContentIsEqual = config.defaultHeartbeatContent === originConfig.defaultHeartbeatContent;
+  const autoSendIsEqual = config.autoSend === originConfig.autoSend;
+  const autoSendIntervalIsEqual = config.autoSendInterval === originConfig.autoSendInterval;
+  const defaultAutoSendContentIsEqual = config.defaultAutoSendContent === originConfig.defaultAutoSendContent;
   const autoReconnectIsEqual = config.autoReconnect === originConfig.autoReconnect;
   
-  return messageTypeIsEqual && autoHeartbeatIsEqual && heartbeatIntervalIsEqual && 
-         defaultHeartbeatContentIsEqual && autoReconnectIsEqual;
+  return messageTypeIsEqual && autoSendIsEqual && autoSendIntervalIsEqual && 
+         defaultAutoSendContentIsEqual && autoReconnectIsEqual;
 }
 
 //判断websocket是否发生改变
