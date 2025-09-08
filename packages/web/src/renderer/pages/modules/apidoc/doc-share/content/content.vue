@@ -250,19 +250,11 @@ watchEffect(async () => {
   fullUrl.value = await convertTemplateValueToRealValue(rawUrl, shareStore.objectVariable);
 });
 
-const hasQueryParams = computed(() => {
-  return apidocInfo.value?.item?.queryParams?.filter(p => p.select).some((data) => data.key);
-});
-const actualQueryParams = computed(() => {
-  return apidocInfo.value?.item?.queryParams?.filter(p => p.select && p.key) || [];
-});
+const hasQueryParams = computed(() => apidocInfo.value?.item?.queryParams?.filter(p => p.select).some((data) => data.key));
+const actualQueryParams = computed(() => apidocInfo.value?.item?.queryParams?.filter(p => p.select && p.key) || []);
 
-const hasHeaders = computed(() => {
-  return apidocInfo.value?.item.headers?.filter(p => p.select).some((data) => data.key);
-});
-const actualHeaders = computed(() => {
-  return apidocInfo.value?.item.headers?.filter(p => p.select && p.key) || [];
-});
+const hasHeaders = computed(() => apidocInfo.value?.item.headers?.filter(p => p.select).some((data) => data.key));
+const actualHeaders = computed(() => apidocInfo.value?.item.headers?.filter(p => p.select && p.key) || []);
 
 const bodyType = computed(() => {
   if (!apidocInfo.value) return '';

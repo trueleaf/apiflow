@@ -97,9 +97,7 @@ const selectedMessageTypes = ref<string[]>([]);
 const isSearchInputVisible = ref(false);
 
 // 计算是否显示统计信息并需要添加margin-top
-const shouldAddMarginTop = computed(() => {
-  return filterText.value && isSearchInputVisible.value;
-});
+const shouldAddMarginTop = computed(() => filterText.value && isSearchInputVisible.value);
 const filteredData = computed(() => {
   // 预先绑定原始索引，确保与 props.dataList 对齐
   const withIndex = props.dataList.map((item, index) => ({ ...item, originalIndex: index }));

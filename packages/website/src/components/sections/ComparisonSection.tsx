@@ -76,7 +76,7 @@ export default function ComparisonSection() {
         {/* Section header */}
         <div className="text-center mb-16">
           <h2 className="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl lg:text-5xl">
-            {t('标题')}
+            {/* {t('标题')} */}
           </h2>
           <p className="mx-auto mt-6 max-w-3xl text-lg text-gray-600">
             {t('副标题')}

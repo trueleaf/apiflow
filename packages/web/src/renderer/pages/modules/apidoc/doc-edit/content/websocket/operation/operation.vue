@@ -76,9 +76,7 @@ const { currentSelectTab } = storeToRefs(apidocTabsStore);
 
 const saveLoading = computed(() => websocketStore.saveLoading);
 const refreshLoading = computed(() => websocketStore.refreshLoading);
-const fullUrl = computed(() => {
-  return websocketStore.websocketFullUrl;
-});
+const fullUrl = computed(() => websocketStore.websocketFullUrl);
 const connectionState = computed(() => websocketStore.connectionState);
 const connectionId = computed(() => websocketStore.connectionId);
 const protocol = computed({

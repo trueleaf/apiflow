@@ -70,7 +70,5 @@ const realLabel = computed(() => {
   }
   return `${props.label}：`;
 });
-const realPlaceholder = computed(() => {
-  return props.placeholder ? props.placeholder : `请输入${props.label}`;
-});
+const realPlaceholder = computed(() => props.placeholder ? props.placeholder : `请输入${props.label}`);
 </script>

@@ -341,9 +341,7 @@ const showProcess = computed(() => {
   return !isError && !isText && !isUnknow && !isHtml && !isCes && !isJs && !isXml && !isTooLargeBody && !isJson && !isTextEventSteam;
 })
 //布局
-const layout = computed(() => {
-  return apidocBaseInfoStore.layout;
-});
+const layout = computed(() => apidocBaseInfoStore.layout);
 //返回参数格式化
 watch(() => apidocResponseStore.responseInfo.bodyByteLength, () => {
   const { jsonData, textData } = apidocResponseStore.responseInfo.responseData;

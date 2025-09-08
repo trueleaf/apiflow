@@ -87,9 +87,7 @@ const route = useRoute()
 const apidocResponseStore = useApidocResponse();
 const apidocBaseInfoStore = useApidocBaseInfo();
 const { responseInfo } = useApidocResponse();
-const cookies = computed(() => {
-  return parse(apidocResponseStore.responseInfo.headers['set-cookie'] || [])
-});
+const cookies = computed(() => parse(apidocResponseStore.responseInfo.headers['set-cookie'] || []));
 const apidocTabsStore = useApidocTas();
 const currentSelectTab = computed(() => {
   const projectId = route.query.id as string;

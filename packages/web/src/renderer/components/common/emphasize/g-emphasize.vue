@@ -38,9 +38,7 @@ const leftStr = ref(''); //----------高亮字符串左侧字符串
 const emphasizeStr = ref(''); //-----高亮字符串
 const rightStr = ref(''); //---------高亮字符串右边字符串
 
-const isMatched = computed(() => {
-  return !!(props.keyword && props.value.toLowerCase().match(props.keyword.toLowerCase()));
-})
+const isMatched = computed(() => !!(props.keyword && props.value.toLowerCase().match(props.keyword.toLowerCase())))
 const spliceStr = () => {
   const index = props.value.toLowerCase().indexOf(props.keyword.toLowerCase()); //匹配位置
   const offset = props.keyword.length; //偏移位置

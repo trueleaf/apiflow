@@ -140,9 +140,7 @@ const messageContent = computed(() => {
   }
 });
 
-const hasContent = computed(() => {
-  return !!messageContent.value;
-});
+const hasContent = computed(() => !!messageContent.value);
 
 /*
 |--------------------------------------------------------------------------

@@ -81,9 +81,7 @@ const activeName = ref('SBody');
 const apidocResponseStore = useApidocResponse();
 const apidocBaseInfoStore = useApidocBaseInfo();
 const apidocStore = useApidoc();
-const cookies = computed(() => {
-  return apidocResponseStore.responseInfo.headers['set-cookie']
-});
+const cookies = computed(() => apidocResponseStore.responseInfo.headers['set-cookie']);
 const responseInfo = computed(() => apidocResponseStore.responseInfo);
 
 const headers = computed(() => {

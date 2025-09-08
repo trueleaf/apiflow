@@ -118,9 +118,7 @@ const debounceFn = ref(null as (null | DebouncedFunc<(apidoc: HttpNode) => void>
 const route = useRoute()
 
 const projectId = router.currentRoute.value.query.id as string;
-const mode = computed(() => {
-  return apidocBaseInfoStore.mode
-})
+const mode = computed(() => apidocBaseInfoStore.mode)
 const hasQueryOrPathsParams = computed(() => {
   const { queryParams, paths } = apidocStore.apidoc.item;
   const hasQueryParams = queryParams.filter(p => p.select).some((data) => data.key);
@@ -220,12 +218,8 @@ const freshHasHeaders = () => {
 }
 watchEffect(freshHasHeaders, {
 });
-const layout = computed(() => {
-  return apidocBaseInfoStore.layout;
-})
-const apidoc = computed(() => {
-  return apidocStore.apidoc;
-})
+const layout = computed(() => apidocBaseInfoStore.layout)
+const apidoc = computed(() => apidocStore.apidoc)
 /*
 |--------------------------------------------------------------------------
 | 方法定义

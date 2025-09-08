@@ -87,12 +87,8 @@ const apidocBaseInfoStore = useApidocBaseInfo()
 const apidocStore = useApidoc()
 const { t } = useTranslation()
 
-const requestMethods = computed(() => {
-  return apidocBaseInfoStore.rules.requestMethods
-})
-const apidoc = computed(() => {
-  return apidocStore.apidoc
-})
+const requestMethods = computed(() => apidocBaseInfoStore.rules.requestMethods)
+const apidoc = computed(() => apidocStore.apidoc)
 const fullUrl = computed(() => {
   const { paths } = apidocStore.apidoc.item
   const { host, path: requestPath } = apidocStore.apidoc.item.url;

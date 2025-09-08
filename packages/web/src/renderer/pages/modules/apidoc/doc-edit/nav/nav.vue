@@ -175,18 +175,10 @@ const tabs = computed({
     })
   }
 })
-const ipAddress = computed(() => {
-  return window.electronAPI?.ip;
-})
-const requestMethods = computed(() => {
-  return apidocBaseInfoStore.rules.requestMethods
-})
-const isView = computed(() => {
-  return apidocBaseInfoStore.mode === 'view'
-})
-const currentSelectedTab = computed(() => {
-  return tabs.value?.find(tab => tab.selected);
-})
+const ipAddress = computed(() => window.electronAPI?.ip)
+const requestMethods = computed(() => apidocBaseInfoStore.rules.requestMethods)
+const isView = computed(() => apidocBaseInfoStore.mode === 'view')
+const currentSelectedTab = computed(() => tabs.value?.find(tab => tab.selected))
 /*
 |--------------------------------------------------------------------------
 | 事件绑定

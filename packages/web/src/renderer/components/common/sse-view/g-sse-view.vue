@@ -307,9 +307,7 @@ const filteredData = computed(() => {
 });
 
 // 最终显示的数据
-const displayData = computed(() => {
-  return filterText.value.trim() ? filteredData.value : formattedData.value.map((item, index) => ({ ...item, originalIndex: index }));
-});
+const displayData = computed(() => filterText.value.trim() ? filteredData.value : formattedData.value.map((item, index) => ({ ...item, originalIndex: index })));
 
 /*
 |--------------------------------------------------------------------------
@@ -318,12 +316,8 @@ const displayData = computed(() => {
 */
 const activePopoverIndex = ref<number>(-1);
 const messageRefs = ref<Record<number, HTMLElement>>({});
-const currentMessageRef = computed(() => {
-  return activePopoverIndex.value !== -1 ? messageRefs.value[activePopoverIndex.value] : null;
-});
-const currentMessage = computed(() => {
-  return activePopoverIndex.value !== -1 ? formattedData.value[activePopoverIndex.value] : null;
-});
+const currentMessageRef = computed(() => activePopoverIndex.value !== -1 ? messageRefs.value[activePopoverIndex.value] : null);
+const currentMessage = computed(() => activePopoverIndex.value !== -1 ? formattedData.value[activePopoverIndex.value] : null);
 const setMessageRef = (el: any, index: number) => {
   if (el && el instanceof HTMLElement) {
     messageRefs.value[index] = el;

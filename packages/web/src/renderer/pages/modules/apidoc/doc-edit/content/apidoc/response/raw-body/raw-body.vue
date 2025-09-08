@@ -45,9 +45,7 @@ watch(() => apidocResponseStore.responseInfo.bodyByteLength, () => {
   deep: true,
 })
 //布局
-const layout = computed(() => {
-  return apidocBaseInfoStore.layout;
-});
+const layout = computed(() => apidocBaseInfoStore.layout);
 const handleCheckRawSize = () => {
   if (apidocResponseStore.responseInfo.responseData.canApiflowParseType === 'cachedBodyIsTooLarge') {
     return

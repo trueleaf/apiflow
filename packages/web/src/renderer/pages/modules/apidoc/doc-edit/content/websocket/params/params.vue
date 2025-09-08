@@ -66,25 +66,15 @@ const apidocTabsStore = useApidocTas()
 const { currentSelectTab } = storeToRefs(apidocTabsStore)
 const activeTab = ref('')
 
-const hasParams = computed(() => {
-  return websocketStore.websocket.item.queryParams.some(param => param.key.trim() !== '' || param.value.trim() !== '')
-})
+const hasParams = computed(() => websocketStore.websocket.item.queryParams.some(param => param.key.trim() !== '' || param.value.trim() !== ''))
 
-const hasHeaders = computed(() => {
-  return websocketStore.websocket.item.headers.some(header => header.key.trim() !== '' || header.value.trim() !== '')
-})
+const hasHeaders = computed(() => websocketStore.websocket.item.headers.some(header => header.key.trim() !== '' || header.value.trim() !== ''))
 
-const hasPreScript = computed(() => {
-  return websocketStore.websocket.preRequest.raw.trim() !== ''
-})
+const hasPreScript = computed(() => websocketStore.websocket.preRequest.raw.trim() !== '')
 
-const hasAfterScript = computed(() => {
-  return websocketStore.websocket.afterRequest.raw.trim() !== ''
-})
+const hasAfterScript = computed(() => websocketStore.websocket.afterRequest.raw.trim() !== '')
 
-const hasSendMessage = computed(() => {
-  return websocketStore.websocket.item.sendMessage.trim() !== ''
-})
+const hasSendMessage = computed(() => websocketStore.websocket.item.sendMessage.trim() !== '')
 
 const getInitialActiveTab = (): string => {
   if (currentSelectTab.value) {

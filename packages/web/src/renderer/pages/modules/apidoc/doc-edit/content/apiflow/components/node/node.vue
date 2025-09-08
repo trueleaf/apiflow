@@ -149,9 +149,7 @@ const props = defineProps({
 const nodesStore = useFlowNodesStore();
 const nodeStateStore = useFlowNodeStateStore();
 const configStore = useFlowConfigStore();
-const nodeInfo = computed(() => {
-  return nodesStore.nodeList.find(node => node.id === props.nodeId)as FlowNodeInfo
-})
+const nodeInfo = computed(() => nodesStore.nodeList.find(node => node.id === props.nodeId)as FlowNodeInfo)
 
 </script>
 
