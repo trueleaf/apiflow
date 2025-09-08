@@ -39,6 +39,7 @@
 
 <script lang="ts" setup>
 import { computed } from 'vue';
+import { storeToRefs } from 'pinia';
 import { useTranslation } from 'i18next-vue';
 import { useWebSocket } from '@/store/websocket/websocket';
 import { formatDate } from '@/helper';
@@ -49,17 +50,16 @@ import { websocketResponseCache } from '@/cache/websocket/websocketResponse';
 
 const { t } = useTranslation();
 const websocketStore = useWebSocket();
+const { websocketFullUrl, websocket, responseMessage: messages, responseCacheLoading } = storeToRefs(websocketStore);
 
 // 基本信息计算属性
 const websocketBaseInfo = computed(() => ({
-  fullUrl: websocketStore.websocketFullUrl,
-  maintainer: websocketStore.websocket.info.maintainer || '',
-  creator: websocketStore.websocket.info.creator || '',
-  updatedAt: websocketStore.websocket.updatedAt,
-  createdAt: websocketStore.websocket.createdAt
+  fullUrl: websocketFullUrl.value,
+  maintainer: websocket.value.info.maintainer || '',
+  creator: websocket.value.info.creator || '',
+  updatedAt: websocket.value.updatedAt,
+  createdAt: websocket.value.createdAt
 }));
-const messages = computed(() => websocketStore.responseMessage);
-const responseCacheLoading = computed(() => websocketStore.responseCacheLoading);
 
 // 清空WebSocket消息数据和缓存
 const handleClearData = async () => {

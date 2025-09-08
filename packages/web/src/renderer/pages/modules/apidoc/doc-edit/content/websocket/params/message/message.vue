@@ -159,8 +159,7 @@ import { ElMessageBox, ElMessage } from 'element-plus'
 const { t } = useTranslation()
 const apidocTabsStore = useApidocTas()
 const websocketStore = useWebSocket()
-const connectionState = computed(() => websocketStore.connectionState)
-const connectionId = computed(() => websocketStore.connectionId)
+const { connectionState, connectionId } = storeToRefs(websocketStore)
 // 获取当前选中的tab
 const { currentSelectTab } = storeToRefs(apidocTabsStore)
 const configPopoverVisible = ref(false)
@@ -342,25 +341,25 @@ const handleAutoConfigChange = (enabled: boolean | string | number) => {
   websocketStore.changeWebSocketAutoHeartbeat(boolEnabled)
 
   if (boolEnabled && connectionState.value === 'connected') {
-    startHeartbeat()
+    startAutoSend()
   } else {
-    stopHeartbeat()
+    stopAutoSend()
   }
 }
 const handleConfigIntervalChange = (interval: number | undefined) => {
   if (interval !== undefined) {
     websocketStore.changeWebSocketHeartbeatInterval(interval)
-    // 如果心跳正在运行，重新启动以应用新的间隔
+    // 如果自动发送正在运行，重新启动以应用新的间隔
     if (websocketStore.websocket.config.autoHeartbeat && connectionState.value === 'connected') {
-      stopHeartbeat()
-      startHeartbeat()
+      stopAutoSend()
+      startAutoSend()
     }
   }
 }
 const handleDefaultConfigContentChange = (content: string) => {
   websocketStore.changeWebSocketDefaultHeartbeatContent(content)
 }
-const startHeartbeat = () => {
+const startAutoSend = () => {
   if (configTimer) {
     clearInterval(configTimer)
   }
@@ -368,41 +367,41 @@ const startHeartbeat = () => {
   configTimer = setInterval(async () => {
     if (connectionState.value === 'connected' && connectionId.value) {
       try {
-        const heartbeatContent = websocketStore.websocket.config.defaultHeartbeatContent || 'ping'
-        const result = await window.electronAPI?.websocket.send(connectionId.value, heartbeatContent)
+        const autoSendContent = websocketStore.websocket.config.defaultHeartbeatContent || 'ping'
+        const result = await window.electronAPI?.websocket.send(connectionId.value, autoSendContent)
         if (result?.success) {
-          // 创建心跳包发送记录
-          const heartbeatMessage = {
+          // 创建自动发送记录
+          const autoSendMessage = {
             type: 'heartbeat' as const,
             data: {
               id: uuid(),
-              message: heartbeatContent,
+              message: autoSendContent,
               timestamp: Date.now(),
               nodeId: currentSelectTab.value?._id || ''
             }
           };
 
-          // 添加心跳包发送记录
-          websocketStore.addMessage(heartbeatMessage);
+          // 添加自动发送记录
+          websocketStore.addMessage(autoSendMessage);
 
-          // 缓存心跳包消息到IndexedDB
+          // 缓存自动发送消息到IndexedDB
           const nodeId = currentSelectTab.value!._id;
-          await websocketResponseCache.setSingleData(nodeId, heartbeatMessage);
+          await websocketResponseCache.setSingleData(nodeId, autoSendMessage);
         } else {
-          console.error('心跳包发送失败:', result?.error)
+          console.error('自动发送失败:', result?.error)
 
-          // 创建心跳包发送失败错误消息
+          // 创建自动发送失败错误消息
           const errorMessage = {
             type: 'error' as const,
             data: {
               id: uuid(),
-              error: result?.error || t('心跳包发送失败'),
+              error: result?.error || t('自动发送失败'),
               timestamp: Date.now(),
               nodeId: currentSelectTab.value?._id || ''
             }
           };
 
-          // 添加心跳包发送失败错误消息
+          // 添加自动发送失败错误消息
           websocketStore.addMessage(errorMessage);
 
           // 缓存错误消息到IndexedDB
@@ -410,20 +409,20 @@ const startHeartbeat = () => {
           await websocketResponseCache.setSingleData(nodeId, errorMessage);
         }
       } catch (error) {
-        console.error('心跳包发送异常:', error)
+        console.error('自动发送异常:', error)
 
-        // 创建心跳包发送异常错误消息
+        // 创建自动发送异常错误消息
         const exceptionMessage = {
           type: 'error' as const,
           data: {
             id: uuid(),
-            error: error instanceof Error ? error.message : t('心跳包发送异常'),
+            error: error instanceof Error ? error.message : t('自动发送异常'),
             timestamp: Date.now(),
             nodeId: currentSelectTab.value?._id || ''
           }
         };
 
-        // 添加心跳包发送异常错误消息
+        // 添加自动发送异常错误消息
         websocketStore.addMessage(exceptionMessage);
 
         // 缓存异常消息到IndexedDB
@@ -433,7 +432,7 @@ const startHeartbeat = () => {
     }
   }, websocketStore.websocket.config.heartbeatInterval)
 }
-const stopHeartbeat = () => {
+const stopAutoSend = () => {
   if (configTimer) {
     clearInterval(configTimer)
     configTimer = null
@@ -442,18 +441,18 @@ const stopHeartbeat = () => {
 // 监听连接状态变化，管理配置
 watch(() => connectionState.value, (newState) => {
   if (newState === 'connected' && websocketStore.websocket.config.autoHeartbeat) {
-    startHeartbeat()
+    startAutoSend()
   } else if (newState !== 'connected') {
-    stopHeartbeat()
+    stopAutoSend()
   }
 })
 
 // 监听当前选中tab变化，重新加载状态
 watch(currentSelectTab, async (newTab) => {
   if (newTab) {
-    stopHeartbeat()
+    stopAutoSend()
     if (connectionState.value === 'connected' && websocketStore.websocket.config.autoHeartbeat) {
-      startHeartbeat()
+      startAutoSend()
     }
   }
 })
@@ -467,7 +466,7 @@ watch(currentSelectTab, (tab) => {
 }, { immediate: true })
 
 onUnmounted(() => {
-  stopHeartbeat()
+  stopAutoSend()
 })
 
 </script>

@@ -39,9 +39,9 @@ import { uuid } from '@/helper'
 const apidocTabsStore = useApidocTas()
 const websocketStore = useWebSocket()
 const { currentSelectTab } = storeToRefs(apidocTabsStore)
+const { loading } = storeToRefs(websocketStore)
 const debounceWebsocketDataChange = ref(null as (null | DebouncedFunc<(websocket: WebSocketNode) => void>))
 const responseRef = ref()
-const loading = computed(() => websocketStore.loading)
 
 /*
 |--------------------------------------------------------------------------

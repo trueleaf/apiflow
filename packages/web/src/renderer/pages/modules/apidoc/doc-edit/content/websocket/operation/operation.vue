@@ -73,12 +73,7 @@ const { t } = useTranslation();
 const websocketStore = useWebSocket();
 const apidocTabsStore = useApidocTas();
 const { currentSelectTab } = storeToRefs(apidocTabsStore);
-
-const saveLoading = computed(() => websocketStore.saveLoading);
-const refreshLoading = computed(() => websocketStore.refreshLoading);
-const fullUrl = computed(() => websocketStore.websocketFullUrl);
-const connectionState = computed(() => websocketStore.connectionState);
-const connectionId = computed(() => websocketStore.connectionId);
+const { saveLoading, refreshLoading, websocketFullUrl: fullUrl, connectionState, connectionId } = storeToRefs(websocketStore);
 const protocol = computed({
   get: () => websocketStore.websocket.item.protocol,
   set: (value: 'ws' | 'wss') => websocketStore.changeWebSocketProtocol(value)

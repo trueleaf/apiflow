@@ -8,14 +8,16 @@
 <script lang="ts" setup>
 import { useWebSocket } from '@/store/websocket/websocket'
 import { computed } from 'vue'
+import { storeToRefs } from 'pinia'
 import SParamsTree from '@/components/apidoc/params-tree/g-params-tree.vue'
 import { useTranslation } from 'i18next-vue'
 
 const websocketStore = useWebSocket()
+const { websocket } = storeToRefs(websocketStore)
 const { t } = useTranslation()
 
 //query参数
-const queryTreeData = computed(() => websocketStore.websocket.item.queryParams)
+const queryTreeData = computed(() => websocket.value.item.queryParams)
 
 </script>
 

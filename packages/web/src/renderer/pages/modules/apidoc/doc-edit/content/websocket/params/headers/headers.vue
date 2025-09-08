@@ -77,6 +77,7 @@ const apidocTabsStore = useApidocTas()
 const websocketStore = useWebSocket()
 const apidocBaseInfoStore = useApidocBaseInfo()
 const { commonHeaders: cHeaders, globalCommonHeaders } = storeToRefs(apidocBaseInfoStore)
+const { websocket, defaultHeaders } = storeToRefs(websocketStore)
 const projectId = router.currentRoute.value.query.id as string;
 const currentSelectTab = computed(() => { //当前选中的doc
   const tabs = apidocTabsStore.tabs[projectId];
@@ -85,8 +86,7 @@ const currentSelectTab = computed(() => { //当前选中的doc
 const { t } = useTranslation()
 
 const hideDefaultHeader = ref(true);
-const headerData = computed(() => websocketStore.websocket.item.headers)
-const defaultHeaders = computed(() => websocketStore.defaultHeaders);
+const headerData = computed(() => websocket.value.item.headers)
 const commonHeaders = ref<(Pick<ApidocProperty, "_id" | 'key' | 'value' | 'description' | 'select' & { path?: string[] }>)[]>([]);
 
 const handleChangeCommonHeaderIsSend = (isSend: CheckboxValueType, header: Pick<ApidocProperty, "_id" | 'key' | 'value' | 'description' | 'select'>) => {

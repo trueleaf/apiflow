@@ -26,12 +26,13 @@
 
 <script lang="ts" setup>
 import { computed } from 'vue';
+import { storeToRefs } from 'pinia';
 import { QuestionFilled } from '@element-plus/icons-vue';
 import { useWebSocket } from '@/store/websocket/websocket';
 
 const websocketStore = useWebSocket();
-
-const config = computed(() => websocketStore.websocket.config);
+const { websocket } = storeToRefs(websocketStore);
+const config = computed(() => websocket.value.config);
 
 const handleAutoReconnectChange = (value: boolean | string | number) => {
   const boolValue = Boolean(value);
