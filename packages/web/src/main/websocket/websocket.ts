@@ -1,6 +1,7 @@
 import { WebSocket } from 'ws';
 import { ipcMain, IpcMainInvokeEvent } from 'electron';
 import { fileTypeFromBuffer } from 'file-type';
+import { WebsocketConnectParams } from '@src/types/websocket/websocket.ts';
 
 /**
  * WebSocket连接管理类
@@ -20,8 +21,8 @@ export class WebSocketManager {
    */
   private registerIpcHandlers() {
     // 连接WebSocket
-    ipcMain.handle('websocket-connect', async (event: IpcMainInvokeEvent, url: string, nodeId: string, headers?: Record<string, string>) => {
-      return this.connect(url, nodeId, event, headers);
+    ipcMain.handle('websocket-connect', async (event: IpcMainInvokeEvent, params: WebsocketConnectParams) => {
+      return this.connect(params.url, params.nodeId, event, params.headers);
     });
 
     // 断开WebSocket连接

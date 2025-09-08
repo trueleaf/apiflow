@@ -18,34 +18,8 @@
             ></el-switch>
           </el-form-item>
         </el-col>
-        <el-col :span="12">
-          <el-form-item label="最大重连次数">
-            <el-input-number 
-              v-model="config.maxReconnectAttempts" 
-              :min="0" 
-              :max="100" 
-              :disabled="!config.autoReconnect"
-              style="width: 100%"
-              @change="handleMaxReconnectAttemptsChange"
-            ></el-input-number>
-          </el-form-item>
-        </el-col>
       </el-row>
 
-      <el-row :gutter="16">
-        <el-col :span="12">
-          <el-form-item label="重连间隔(秒)">
-            <el-input-number 
-              v-model="config.reconnectInterval" 
-              :min="1" 
-              :max="300" 
-              :disabled="!config.autoReconnect"
-              style="width: 100%"
-              @change="handleReconnectIntervalChange"
-            ></el-input-number>
-          </el-form-item>
-        </el-col>
-      </el-row>
     </el-form>
   </div>
 </template>
@@ -64,17 +38,6 @@ const handleAutoReconnectChange = (value: boolean | string | number) => {
   websocketStore.changeWebSocketAutoReconnect(boolValue);
 };
 
-const handleMaxReconnectAttemptsChange = (value: number | undefined) => {
-  if (value !== undefined) {
-    websocketStore.changeWebSocketMaxReconnectAttempts(value);
-  }
-};
-
-const handleReconnectIntervalChange = (value: number | undefined) => {
-  if (value !== undefined) {
-    websocketStore.changeWebSocketReconnectInterval(value);
-  }
-};
 </script>
 
 <style lang="scss" scoped>

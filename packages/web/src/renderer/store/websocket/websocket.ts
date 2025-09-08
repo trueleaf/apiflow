@@ -23,6 +23,7 @@ export const useWebSocket = defineStore('websocket', () => {
   const originWebsocket = ref<WebSocketNode>(generateEmptyWebsocketNode(uuid()));
   const loading = ref(false);
   const saveLoading = ref(false);
+  const refreshLoading = ref(false);
   const responseCacheLoading = ref(false);
   const websocketFullUrl = ref('');
   const defaultHeaders = ref<ApidocProperty<"string">[]>([]);
@@ -344,19 +345,6 @@ export const useWebSocket = defineStore('websocket', () => {
     }
   };
 
-  // 改变最大重连次数
-  const changeWebSocketMaxReconnectAttempts = (attempts: number): void => {
-    if (websocket.value) {
-      websocket.value.config.maxReconnectAttempts = attempts;
-    }
-  };
-
-  // 改变重连间隔
-  const changeWebSocketReconnectInterval = (interval: number): void => {
-    if (websocket.value) {
-      websocket.value.config.reconnectInterval = interval;
-    }
-  };
 
   /*
   |--------------------------------------------------------------------------
@@ -746,8 +734,6 @@ export const useWebSocket = defineStore('websocket', () => {
     changeWebSocketHeartbeatInterval,
     changeWebSocketDefaultHeartbeatContent,
     changeWebSocketAutoReconnect,
-    changeWebSocketMaxReconnectAttempts,
-    changeWebSocketReconnectInterval,
     changeConnectionState,
     changeConnectionId,
     markWebSocketAsDeleted,
@@ -780,5 +766,6 @@ export const useWebSocket = defineStore('websocket', () => {
     setAutoReconnectConfig,
     responseCacheLoading,
     setResponseCacheLoading,
+    refreshLoading,
   }
 })

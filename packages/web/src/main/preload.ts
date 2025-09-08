@@ -64,8 +64,8 @@ const removeListener = (channel: string, callback?: (...args: any[]) => void) =>
 }
 
 // WebSocket相关方法
-const websocketConnect = (url: string, nodeId: string) => {
-  return ipcRenderer.invoke('websocket-connect', url, nodeId)
+const websocketConnect = (params: { url: string; nodeId: string; headers?: Record<string, string> }) => {
+  return ipcRenderer.invoke('websocket-connect', params)
 }
 
 const websocketDisconnect = (connectionId: string) => {

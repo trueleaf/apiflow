@@ -5,6 +5,24 @@ import { ApidocBaseInfo, ApidocProperty } from "../types.ts";
  */
 export type MessageType = 'text' | 'json' | 'xml' | 'html' | 'binary-base64' | 'binary-hex';
 
+/**
+ * WebSocket连接参数
+ */
+export interface WebsocketConnectParams {
+  /**
+   * 连接URL
+   */
+  url: string;
+  /**
+   * 节点ID
+   */
+  nodeId: string;
+  /**
+   * 请求头
+   */
+  headers: Record<string, string>;
+}
+
 export type WebSocketNode = {
   /**
    * 当前节点d
@@ -78,14 +96,6 @@ export type WebSocketNode = {
      * 是否自动重连
      */
     autoReconnect: boolean;
-    /**
-     * 最大重连次数
-     */
-    maxReconnectAttempts: number;
-    /**
-     * 重连间隔
-     */
-    reconnectInterval: number;
   },
   /**
    * 公共请求头
