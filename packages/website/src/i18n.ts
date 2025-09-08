@@ -1,4 +1,3 @@
-import {notFound} from 'next/navigation';
 import {getRequestConfig} from 'next-intl/server';
 
 // Can be imported from a shared config
@@ -9,7 +8,7 @@ export default getRequestConfig(async ({requestLocale}) => {
   let locale = await requestLocale;
 
   // Ensure that a valid locale is used
-  if (!locale || !locales.includes(locale as any)) {
+  if (!locale || !locales.includes(locale as (typeof locales)[number])) {
     locale = 'zh';
   }
 

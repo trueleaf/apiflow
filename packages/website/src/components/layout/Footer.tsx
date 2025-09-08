@@ -3,30 +3,30 @@ import { GitBranch, MessageCircle, Users, Mail } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 
 export default function Footer() {
-  const t = useTranslations('页脚');
+  const t = useTranslations();
   const footerLinks = {
     product: [
-      { name: t('链接.功能特性'), href: '#features' },
-      { name: t('链接.演示'), href: '#demo' },
-      { name: t('链接.文档'), href: '#docs' },
+      { name: t('功能'), href: '#features' },
+      { name: t('演示'), href: '#demo' },
+      { name: t('文档'), href: '#docs' },
     ],
     company: [
-      { name: t('链接.关于我们'), href: '#about' },
-      { name: t('链接.博客'), href: '#blog' },
-      { name: t('链接.招聘'), href: '#careers' },
-      { name: t('链接.联系我们'), href: '#contact' },
+      { name: t('关于我们'), href: '#about' },
+      { name: t('博客'), href: '#blog' },
+      { name: t('招聘'), href: '#careers' },
+      { name: t('联系我们'), href: '#contact' },
     ],
     resources: [
-      { name: t('链接.帮助中心'), href: '#help' },
-      { name: t('链接.API参考'), href: '#api' },
-      { name: t('链接.社区'), href: '#community' },
-      { name: t('链接.状态'), href: '#status' },
+      { name: t('帮助中心'), href: '#help' },
+      { name: t('API 参考'), href: '#api' },
+      { name: t('社区'), href: '#community' },
+      { name: t('状态'), href: '#status' },
     ],
     legal: [
-      { name: t('链接.隐私政策'), href: '#privacy' },
-      { name: t('链接.服务条款'), href: '#terms' },
-      { name: t('链接.Cookie政策'), href: '#cookies' },
-      { name: t('链接.安全'), href: '#security' },
+      { name: t('隐私政策'), href: '#privacy' },
+      { name: t('服务条款'), href: '#terms' },
+      { name: t('Cookie 政策'), href: '#cookies' },
+      { name: t('安全'), href: '#security' },
     ],
   };
 
@@ -50,7 +50,7 @@ export default function Footer() {
               <span className="text-xl font-bold">APIFlow</span>
             </div>
             <p className="text-gray-400 mb-6 max-w-md">
-              {t('描述')}
+              {t('开发者喜爱的现代化 API 文档与测试工具。轻松构建、测试和记录您的 API。')}
             </p>
             <div className="flex space-x-4">
               {socialLinks.map((social) => {
@@ -150,10 +150,10 @@ export default function Footer() {
         <div className="mt-12 pt-8 border-t border-gray-800">
           <div className="flex flex-col md:flex-row justify-between items-center">
             <p className="text-gray-400 text-sm">
-              {t('版权')}
+              {t('© 2024 APIFlow 保留所有权利')}
             </p>
             <p className="text-gray-400 text-sm mt-4 md:mt-0">
-              {t('构建者')}
+              {t('为全世界的开发者用 ❤️ 构建')}
             </p>
           </div>
         </div>

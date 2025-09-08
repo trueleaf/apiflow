@@ -10,7 +10,7 @@ import GitHubStars from '@/components/ui/GitHubStars';
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const t = useTranslations('导航');
+  const t = useTranslations();
 
   const navigation = [
     { name: t('功能特性'), href: '#features' },

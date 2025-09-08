@@ -3,7 +3,7 @@ import { Check, X, Zap, Shield, Users, Code } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 
 export default function ComparisonSection() {
-  const t = useTranslations('对比');
+  const t = useTranslations();
   const features = [
     {
       category: 'Core Features',
@@ -50,23 +50,23 @@ export default function ComparisonSection() {
   const highlights = [
     {
       icon: Zap,
-      title: t('亮点.更快.标题'),
-      description: t('亮点.更快.描述')
+      title: t('快 3 倍'),
+      description: t('相比传统工具，API 测试工作流程快 3 倍')
     },
     {
       icon: Shield,
-      title: t('亮点.企业级就绪.标题'),
-      description: t('亮点.企业级就绪.描述')
+      title: t('企业级就绪'),
+      description: t('从第一天起就内置安全性和合规性功能')
     },
     {
       icon: Users,
-      title: t('亮点.团队协作.标题'),
-      description: t('亮点.团队协作.描述')
+      title: t('团队协作'),
+      description: t('无需高级价格标签的实时协作')
     },
     {
       icon: Code,
-      title: t('亮点.开发者优先.标题'),
-      description: t('亮点.开发者优先.描述')
+      title: t('开发者优先'),
+      description: t('由开发者设计，为开发者服务')
     }
   ];
 
@@ -76,10 +76,10 @@ export default function ComparisonSection() {
         {/* Section header */}
         <div className="text-center mb-16">
           <h2 className="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl lg:text-5xl">
-            {/* {t('标题')} */}
+            {t('为什么选择 APIFlow？')}
           </h2>
           <p className="mx-auto mt-6 max-w-3xl text-lg text-gray-600">
-            {t('副标题')}
+            {t('了解 APIFlow 与其他流行 API 工具的对比。我们构建了您喜爱的现有工具的所有功能，以及您一直在等待的新功能。')}
           </p>
         </div>
 
@@ -103,10 +103,10 @@ export default function ComparisonSection() {
         <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
           <div className="px-6 py-8 bg-gradient-to-r from-blue-600 to-purple-600">
             <h3 className="text-2xl font-bold text-white text-center">
-              {t('表格标题')}
+              {t('功能对比')}
             </h3>
             <p className="text-blue-100 text-center mt-2">
-              {t('表格副标题')}
+              {t('看看我们与竞争对手的对比')}
             </p>
           </div>
 
@@ -160,10 +160,10 @@ export default function ComparisonSection() {
 
           <div className="px-6 py-6 bg-blue-50 text-center">
             <p className="text-sm text-gray-600 mb-4">
-              {t('准备体验')}
+              {t('准备体验不同之处？')}
             </p>
             <button className="inline-flex items-center rounded-lg bg-blue-600 px-6 py-3 text-base font-semibold text-white shadow-lg hover:bg-blue-700 transition-all duration-200">
-              {t('开始试用')}
+              {t('开始免费试用')}
             </button>
           </div>
         </div>

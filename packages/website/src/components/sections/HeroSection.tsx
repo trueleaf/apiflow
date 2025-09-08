@@ -3,11 +3,11 @@ import { Star, Users, Zap } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 
 export default function HeroSection() {
-  const t = useTranslations('首页');
+  const t = useTranslations();
   const stats = [
-    { icon: Users, value: '10K+', label: t('统计.开发者') },
-    { icon: Star, value: '4.9/5', label: t('统计.评分') },
-    { icon: Zap, value: '99.9%', label: t('统计.正常运行时间') },
+    { icon: Users, value: '10K+', label: t('开发者') },
+    { icon: Star, value: '4.9/5', label: t('评分') },
+    { icon: Zap, value: '99.9%', label: t('正常运行时间') },
   ];
 
   return (
@@ -21,18 +21,18 @@ export default function HeroSection() {
           <div className="text-left">
             {/* Badge */}
             <div className="inline-flex items-center rounded-full bg-blue-100 px-4 py-2 text-sm font-medium text-blue-800 mb-8">
-              {t('徽章')}
+              {t('🚀 新功能：高级 API 测试功能现已上线')}
             </div>
 
             {/* Main heading */}
             <h1 className="text-4xl font-bold tracking-tight text-gray-900 sm:text-5xl lg:text-6xl">
-              {t('标题')}{' '}
-              <span className="gradient-text">{t('标题高亮')}</span>
+              {t('Postman 和 Apifox 的')}{' '}
+              <span className="gradient-text">{t('现代化替代品')}</span>
             </h1>
 
             {/* Subheading */}
             <p className="mt-6 max-w-2xl text-lg leading-8 text-gray-600 sm:text-xl">
-              {t('副标题')}
+              {t('使用我们直观的平台构建、测试和记录您的 API。体验更快的工作流程、更好的协作和全面的 API 管理，一个强大的工具搞定一切。')}
             </p>
 
             {/* CTA Buttons */}
