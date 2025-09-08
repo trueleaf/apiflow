@@ -8,144 +8,126 @@
       </div>
       <!-- 操作按钮区域 -->
       <div class="content-actions">
-        <div class="action-items">
-          <el-tooltip v-if="!hideWaitingTip" placement="top" :disabled="connectionState === 'connected'">
-            <template #content>
-              <div class="ws-waiting-tip">
-                <div>{{ t('等待连接') }}</div>
-                <div class="no-more-tip-btn" @click.stop="handleHideWaitingTip">{{ t('不再提示') }}</div>
-              </div>
-            </template>
-            <el-button type="primary" size="small"
-              :disabled="!websocketStore.websocket.item.sendMessage.trim() || connectionState !== 'connected'"
-              @click="handleSendMessage" :icon="Position">
-              {{ t("发送消息") }}
-            </el-button>
-          </el-tooltip>
-          <template v-else>
-            <el-button type="primary" size="small"
-              :disabled="!websocketStore.websocket.item.sendMessage.trim() || connectionState !== 'connected'"
-              @click="handleSendMessage" :icon="Position">
-              {{ t('发送消息') }}
-            </el-button>
-          </template>
-          <!-- 模板选择器 -->
-          <div v-if="quickOperations.includes('template')" class="template-selector">
-            <el-select v-model="selectedTemplateId" :placeholder="t('选择模板')" size="small" clearable
-              @change="handleSelectTemplate" class="template-select">
-              <template #empty>
-                <div class="empty-template">
-                  <div class="empty-text">{{ t('暂无模板数据') }}</div>
-                  <el-button link type="primary" size="small" @click="handleOpenCreateTemplateDialog">
-                    {{ t('创建模板') }}
-                  </el-button>
-                </div>
-              </template>
-              <el-option v-for="template in websocketStore.sendMessageTemplateList" :key="template.id"
-                :label="template.name" :value="template.id">
-                <div class="template-option">
-                  <span class="template-name">{{ template.name }}</span>
-                  <el-icon class="delete-icon" @click.stop="handleDeleteTemplate(template.id)" :title="t('删除')">
-                    <Delete />
-                  </el-icon>
-                </div>
-              </el-option>
-            </el-select>
-          </div>
-          <!-- 自动配置功能 -->
-          <div v-if="quickOperations.includes('autoSend')" class="config-controls">
-            <div class="config-checkbox">
-              <el-checkbox v-model="websocketStore.websocket.config.autoHeartbeat" @change="handleAutoConfigChange">
-                {{ t("自动发送") }}
-              </el-checkbox>
-            </div>
-          </div>
-          <el-popover v-model:visible="configPopoverVisible" placement="bottom" :width="320" trigger="click" transition="none">
-            <template #reference>
-              <div class="config-button">
-                <el-icon>
-                  <Setting />
-                </el-icon>
-              </div>
-            </template>
-
-            <div class="config-popover">
-              <div class="config-item">
-                <label class="config-label">{{ t("发送间隔") }}:</label>
-                <div class="config-input">
-                  <el-input-number v-model="websocketStore.websocket.config.heartbeatInterval" :min="100" :max="300000"
-                    :step="1000" size="small" @change="handleConfigIntervalChange" style="width: 120px;" />
-                  <span class="interval-unit">{{ t("毫秒") }}</span>
-                </div>
-              </div>
-
-              <div class="config-item">
-                <label class="config-label">{{ t("消息内容") }}:</label>
-                <el-input v-model="websocketStore.websocket.config.defaultHeartbeatContent" type="textarea" :rows="3"
-                  :placeholder="t('请输入消息内容')" @input="handleDefaultConfigContentChange" class="config-content-input" />
-              </div>
-
-              <div class="config-item">
-                <label class="config-label">{{ t("快捷操作") }}:</label>
-                <div class="quick-operations">
-                  <el-checkbox :model-value="quickOperations.includes('autoSend')"
-                    @change="handleQuickOperationChange('autoSend', $event)">
-                    {{ t("自动发送") }}
-                  </el-checkbox>
-                  <el-checkbox :model-value="quickOperations.includes('template')"
-                    @change="handleQuickOperationChange('template', $event)">
-                    {{ t("模板选择") }}
-                  </el-checkbox>
-                </div>
-              </div>
-
-              <div class="config-actions">
-                <el-button size="small" @click="configPopoverVisible = false">
-                  {{ t("关闭") }}
+        <el-button type="primary" size="small"
+          @click="handleSendMessage" :icon="Position">
+          {{ t("发送消息") }}
+        </el-button>
+        <!-- 模板选择器 -->
+        <div v-if="quickOperations.includes('template')" class="template-selector">
+          <el-select v-model="selectedTemplateId" :placeholder="t('选择模板')" size="small" clearable
+            @change="handleSelectTemplate" class="template-select">
+            <template #empty>
+              <div class="empty-template">
+                <div class="empty-text">{{ t('暂无模板数据') }}</div>
+                <el-button link type="primary" size="small" @click="handleOpenCreateTemplateDialog">
+                  {{ t('创建模板') }}
                 </el-button>
               </div>
-            </div>
-          </el-popover>
-
-          <!-- 数据类型选择器 -->
-          <div class="message-type-selector">
-            <el-select v-model="websocketStore.websocket.config.messageType" size="small"
-              @change="handleMessageTypeChange" class="type-selector">
-              <el-option value="text" :label="t('文本')">
-                <span class="option-content">
-                  <span>{{ t("文本") }}</span>
-                </span>
-
-              </el-option>
-              <el-option value="json" :label="t('JSON')">
-                <span class="option-content">
-                  <span>JSON</span>
-                </span>
-              </el-option>
-              <el-option value="xml" :label="t('XML')">
-                <span class="option-content">
-                  <span>XML</span>
-                </span>
-              </el-option>
-              <el-option value="html" :label="t('HTML')">
-                <span class="option-content">
-                  <span>HTML</span>
-                </span>
-              </el-option>
-              <el-option value="binary-base64" :label="t('二进制(Base64)')">
-                <span class="option-content">
-                  <span>{{ t("二进制(Base64)") }}</span>
-                </span>
-              </el-option>
-              <el-option value="binary-hex" :label="t('二进制(Hex)')">
-                <span class="option-content">
-                  <span>{{ t("二进制(Hex)") }}</span>
-                </span>
-              </el-option>
-            </el-select>
-          </div>
-
+            </template>
+            <el-option v-for="template in websocketStore.sendMessageTemplateList" :key="template.id"
+              :label="template.name" :value="template.id">
+              <div class="template-option">
+                <span class="template-name">{{ template.name }}</span>
+                <el-icon class="delete-icon" @click.stop="handleDeleteTemplate(template.id)" :title="t('删除')">
+                  <Delete />
+                </el-icon>
+              </div>
+            </el-option>
+          </el-select>
         </div>
+        <!-- 自动配置功能 -->
+        <div v-if="quickOperations.includes('autoSend')" class="config-controls">
+          <div class="config-checkbox">
+            <el-checkbox v-model="websocketStore.websocket.config.autoHeartbeat" @change="handleAutoConfigChange">
+              {{ t("自动发送") }}
+            </el-checkbox>
+          </div>
+        </div>
+        <el-popover v-model:visible="configPopoverVisible" placement="bottom" :width="320" trigger="click" transition="none">
+          <template #reference>
+            <div class="config-button">
+              <el-icon>
+                <Setting />
+              </el-icon>
+            </div>
+          </template>
+
+          <div class="config-popover">
+            <div class="config-item">
+              <label class="config-label">{{ t("发送间隔") }}:</label>
+              <div class="config-input">
+                <el-input-number v-model="websocketStore.websocket.config.heartbeatInterval" :min="100" :max="300000"
+                  :step="1000" size="small" @change="handleConfigIntervalChange" style="width: 120px;" />
+                <span class="interval-unit">{{ t("毫秒") }}</span>
+              </div>
+            </div>
+
+            <div class="config-item">
+              <label class="config-label">{{ t("消息内容") }}:</label>
+              <el-input v-model="websocketStore.websocket.config.defaultHeartbeatContent" type="textarea" :rows="3"
+                :placeholder="t('请输入消息内容')" @input="handleDefaultConfigContentChange" class="config-content-input" />
+            </div>
+
+            <div class="config-item">
+              <label class="config-label">{{ t("快捷操作") }}:</label>
+              <div class="quick-operations">
+                <el-checkbox :model-value="quickOperations.includes('autoSend')"
+                  @change="handleQuickOperationChange('autoSend', $event)">
+                  {{ t("自动发送") }}
+                </el-checkbox>
+                <el-checkbox :model-value="quickOperations.includes('template')"
+                  @change="handleQuickOperationChange('template', $event)">
+                  {{ t("模板选择") }}
+                </el-checkbox>
+              </div>
+            </div>
+
+            <div class="config-actions">
+              <el-button size="small" @click="configPopoverVisible = false">
+                {{ t("关闭") }}
+              </el-button>
+            </div>
+          </div>
+        </el-popover>
+
+        <!-- 数据类型选择器 -->
+        <div class="message-type-selector">
+          <el-select v-model="websocketStore.websocket.config.messageType" size="small"
+            @change="handleMessageTypeChange" class="type-selector">
+            <el-option value="text" :label="t('文本')">
+              <span class="option-content">
+                <span>{{ t("文本") }}</span>
+              </span>
+
+            </el-option>
+            <el-option value="json" :label="t('JSON')">
+              <span class="option-content">
+                <span>JSON</span>
+              </span>
+            </el-option>
+            <el-option value="xml" :label="t('XML')">
+              <span class="option-content">
+                <span>XML</span>
+              </span>
+            </el-option>
+            <el-option value="html" :label="t('HTML')">
+              <span class="option-content">
+                <span>HTML</span>
+              </span>
+            </el-option>
+            <el-option value="binary-base64" :label="t('二进制(Base64)')">
+              <span class="option-content">
+                <span>{{ t("二进制(Base64)") }}</span>
+              </span>
+            </el-option>
+            <el-option value="binary-hex" :label="t('二进制(Hex)')">
+              <span class="option-content">
+                <span>{{ t("二进制(Hex)") }}</span>
+              </span>
+            </el-option>
+          </el-select>
+        </div>
+
       </div>
     </div>
 
@@ -179,8 +161,6 @@ const apidocTabsStore = useApidocTas()
 const websocketStore = useWebSocket()
 const connectionState = computed(() => websocketStore.connectionState)
 const connectionId = computed(() => websocketStore.connectionId)
-// 是否隐藏等待连接提示
-const hideWaitingTip = ref(false)
 // 获取当前选中的tab
 const { currentSelectTab } = storeToRefs(apidocTabsStore)
 const configPopoverVisible = ref(false)
@@ -305,10 +285,8 @@ const handleSendMessage = async () => {
         }
       };
       websocketStore.addMessage(sendMessage);
-      const nodeId = currentSelectTab.value?._id;
-      if (nodeId) {
-        await websocketResponseCache.setSingleData(nodeId, sendMessage);
-      }
+      const nodeId = currentSelectTab.value!._id;
+      await websocketResponseCache.setSingleData(nodeId, sendMessage);
 
       // 发送成功不再清空输入框
     } else {
@@ -330,10 +308,8 @@ const handleSendMessage = async () => {
       websocketStore.addMessage(errorMessage);
 
       // 缓存错误消息到IndexedDB
-      const nodeId = currentSelectTab.value?._id;
-      if (nodeId) {
-        await websocketResponseCache.setSingleData(nodeId, errorMessage);
-      }
+      const nodeId = currentSelectTab.value!._id;
+      await websocketResponseCache.setSingleData(nodeId, errorMessage);
     }
   } catch (error) {
     ElMessage.error(t('消息发送异常'))
@@ -354,10 +330,8 @@ const handleSendMessage = async () => {
     websocketStore.addMessage(exceptionMessage);
 
     // 缓存异常消息到IndexedDB
-    const nodeId = currentSelectTab.value?._id;
-    if (nodeId) {
-      await websocketResponseCache.setSingleData(nodeId, exceptionMessage);
-    }
+    const nodeId = currentSelectTab.value!._id;
+    await websocketResponseCache.setSingleData(nodeId, exceptionMessage);
   }
 }
 const handleMessageTypeChange = (value: MessageType) => {
@@ -412,10 +386,8 @@ const startHeartbeat = () => {
           websocketStore.addMessage(heartbeatMessage);
 
           // 缓存心跳包消息到IndexedDB
-          const nodeId = currentSelectTab.value?._id;
-          if (nodeId) {
-            await websocketResponseCache.setSingleData(nodeId, heartbeatMessage);
-          }
+          const nodeId = currentSelectTab.value!._id;
+          await websocketResponseCache.setSingleData(nodeId, heartbeatMessage);
         } else {
           console.error('心跳包发送失败:', result?.error)
 
@@ -434,10 +406,8 @@ const startHeartbeat = () => {
           websocketStore.addMessage(errorMessage);
 
           // 缓存错误消息到IndexedDB
-          const nodeId = currentSelectTab.value?._id;
-          if (nodeId) {
-            await websocketResponseCache.setSingleData(nodeId, errorMessage);
-          }
+          const nodeId = currentSelectTab.value!._id;
+          await websocketResponseCache.setSingleData(nodeId, errorMessage);
         }
       } catch (error) {
         console.error('心跳包发送异常:', error)
@@ -457,10 +427,8 @@ const startHeartbeat = () => {
         websocketStore.addMessage(exceptionMessage);
 
         // 缓存异常消息到IndexedDB
-        const nodeId = currentSelectTab.value?._id;
-        if (nodeId) {
-          await websocketResponseCache.setSingleData(nodeId, exceptionMessage);
-        }
+        const nodeId = currentSelectTab.value!._id;
+        await websocketResponseCache.setSingleData(nodeId, exceptionMessage);
       }
     }
   }, websocketStore.websocket.config.heartbeatInterval)
@@ -490,27 +458,18 @@ watch(currentSelectTab, async (newTab) => {
   }
 })
 
-onUnmounted(() => {
-  stopHeartbeat()
-})
-
-// 初始化隐藏提示状态
+// 初始化快捷操作配置
 watch(currentSelectTab, (tab) => {
   if (tab) {
-    const cfg = webSocketNodeCache.getWebsocketConfig(tab.projectId)
-    hideWaitingTip.value = cfg?.connectionWaitingTip === true
     // 初始化快捷操作配置
     initQuickOperations()
   }
 }, { immediate: true })
 
-// 点击不再提示
-const handleHideWaitingTip = () => {
-  const tab = currentSelectTab.value
-  if (!tab) return
-  webSocketNodeCache.setWebsocketConfig(tab.projectId, { connectionWaitingTip: true })
-  hideWaitingTip.value = true
-}
+onUnmounted(() => {
+  stopHeartbeat()
+})
+
 </script>
 
 <style lang="scss" scoped>
@@ -545,13 +504,8 @@ const handleHideWaitingTip = () => {
       justify-content: flex-end;
       z-index: var(--z-index-dropdown);
       background: var(--el-bg-color);
-
-      .action-items {
-        display: flex;
-        gap: 8px;
-        align-items: center;
-        flex-wrap: wrap;
-      }
+      gap: 8px;
+      flex-wrap: wrap;
 
       .action-options {
         display: flex;
