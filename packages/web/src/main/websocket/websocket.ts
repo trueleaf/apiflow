@@ -20,8 +20,8 @@ export class WebSocketManager {
    */
   private registerIpcHandlers() {
     // 连接WebSocket
-    ipcMain.handle('websocket-connect', async (event: IpcMainInvokeEvent, url: string, nodeId: string) => {
-      return this.connect(url, nodeId, event);
+    ipcMain.handle('websocket-connect', async (event: IpcMainInvokeEvent, url: string, nodeId: string, headers?: Record<string, string>) => {
+      return this.connect(url, nodeId, event, headers);
     });
 
     // 断开WebSocket连接
@@ -70,9 +70,10 @@ export class WebSocketManager {
    * @param url WebSocket服务器URL
    * @param nodeId 节点ID，用于标识连接
    * @param event IPC事件对象，用于向渲染进程发送消息
+   * @param headers 可选的请求头对象
    * @returns 连接ID
    */
-  async connect(url: string, nodeId: string, event: IpcMainInvokeEvent): Promise<{ success: boolean; connectionId?: string; error?: string }> {
+  async connect(url: string, nodeId: string, event: IpcMainInvokeEvent, headers?: Record<string, string>): Promise<{ success: boolean; connectionId?: string; error?: string }> {
     try {
       // 如果该节点已有连接，先断开旧连接
       const existingConnectionId = this.nodeIdToConnectionId.get(nodeId);
@@ -81,7 +82,14 @@ export class WebSocketManager {
       }
 
       const connectionId = `ws_${++this.connectionId}`;
-      const ws = new WebSocket(url);
+      
+      // 构建WebSocket连接选项
+      const wsOptions: any = {};
+      if (headers && Object.keys(headers).length > 0) {
+        wsOptions.headers = headers;
+      }
+      
+      const ws = new WebSocket(url, wsOptions);
 
       // 连接打开事件
       ws.on('open', () => {

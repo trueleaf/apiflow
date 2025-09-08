@@ -38,7 +38,7 @@ import { websocketTemplateCache } from '@/cache/websocket/websocketTemplateCache
 const apidocTabsStore = useApidocTas()
 const websocketStore = useWebSocket()
 const { currentSelectTab } = storeToRefs(apidocTabsStore)
-const debounceFn = ref(null as (null | DebouncedFunc<(websocket: WebSocketNode) => void>))
+const debounceWebsocketDataChange = ref(null as (null | DebouncedFunc<(websocket: WebSocketNode) => void>))
 const responseRef = ref()
 const loading = computed(() => websocketStore.loading)
 
@@ -103,6 +103,31 @@ const checkWebsocketIsEqual = (websocket: WebSocketNode, originWebsocket: WebSoc
   return true
 }
 
+//处理WebSocket数据变化
+const handleWebsocketDataChange = (websocket: WebSocketNode) => {
+  const isEqual = checkWebsocketIsEqual(websocket, websocketStore.originWebsocket)
+  if (!isEqual) {
+    apidocTabsStore.changeTabInfoById({
+      id: currentSelectTab.value?._id || "",
+      field: 'saved',
+      value: false,
+    })
+    apidocTabsStore.changeTabInfoById({
+      id: currentSelectTab.value?._id || "",
+      field: 'fixed',
+      value: true,
+    })
+  } else {
+    apidocTabsStore.changeTabInfoById({
+      id: currentSelectTab.value?._id || "",
+      field: 'saved',
+      value: true,
+    })
+  }
+  // 缓存WebSocket数据
+  websocketStore.cacheWebSocket()
+}
+
 //获取WebSocket数据
 const getWebsocketInfo = () => {
   if (!currentSelectTab.value) {
@@ -125,13 +150,10 @@ const getWebsocketInfo = () => {
       })
     }
   }
-  
-  // 获取WebSocket信息后，加载缓存的消息数据
-  loadMessagesFromCache()
 }
 
-// 从缓存加载消息数据
-const loadMessagesFromCache = () => {
+// 从缓存初始化响应数据
+const initResponseFromCache = () => {
   if (!currentSelectTab.value) {
     return
   }
@@ -147,6 +169,7 @@ const loadMessagesFromCache = () => {
     }
   } catch (error) {
     console.error('从缓存加载消息失败:', error);
+    websocketStore.setResponseCacheLoading(false);
   }
 }
 
@@ -154,14 +177,15 @@ watch(currentSelectTab, async (val, oldVal) => {
   const isWebSocket = val?.tabType === 'websocket'
   if (isWebSocket && val?._id !== oldVal?._id) {
     getWebsocketInfo()
+    initResponseFromCache()
   }
 }, {
   deep: true,
   immediate: true,
 })
 watch(() => websocketStore.websocket, (websocket: WebSocketNode) => {
-  if (debounceFn.value) {
-    debounceFn.value(websocket)
+  if (debounceWebsocketDataChange.value) {
+    debounceWebsocketDataChange.value(websocket)
   }
 }, {
   deep: true,
@@ -176,29 +200,7 @@ onMounted(() => {
     console.error('初始化WebSocket模板数据失败:', error);
   }
   
-  debounceFn.value = debounce((websocket: WebSocketNode) => {
-    const isEqual = checkWebsocketIsEqual(websocket, websocketStore.originWebsocket)
-    if (!isEqual) {
-      apidocTabsStore.changeTabInfoById({
-        id: currentSelectTab.value?._id || "",
-        field: 'saved',
-        value: false,
-      })
-      apidocTabsStore.changeTabInfoById({
-        id: currentSelectTab.value?._id || "",
-        field: 'fixed',
-        value: true,
-      })
-    } else {
-      apidocTabsStore.changeTabInfoById({
-        id: currentSelectTab.value?._id || "",
-        field: 'saved',
-        value: true,
-      })
-    }
-    // 缓存WebSocket数据
-    websocketStore.cacheWebSocket()
-  }, 200, {
+  debounceWebsocketDataChange.value = debounce(handleWebsocketDataChange, 200, {
     leading: true
   })
 })

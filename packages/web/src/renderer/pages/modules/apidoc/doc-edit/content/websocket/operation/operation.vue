@@ -76,6 +76,7 @@ import { router } from '@/router';
 import { ApidocProperty } from '@src/types';
 import { uuid } from '@/helper';
 import { websocketResponseCache } from '@/cache/websocket/websocketResponse';
+import { getWebSocketHeaders } from '@/server/request/request';
 
 const { t } = useTranslation();
 const websocketStore = useWebSocket();
@@ -144,8 +145,16 @@ const handleConnect = async () => {
     websocketResponseCache.setSingleData(currentSelectTab.value._id, startConnectMessage);
   }
   
-  const nodeId = currentSelectTab.value._id;
-  window.electronAPI?.websocket.connect(fullUrl.value, nodeId).then((result) => {
+  try {
+    // 获取处理后的请求头
+    const headers = await getWebSocketHeaders(
+      websocketStore.websocket, 
+      websocketStore.defaultHeaders, 
+      fullUrl.value
+    );
+    console.log(headers)
+    const nodeId = currentSelectTab.value._id;
+    window.electronAPI?.websocket.connect(fullUrl.value, nodeId, headers).then((result) => {
     if (result.success) {
       websocketStore.changeConnectionId(result.connectionId!);
       websocketStore.changeConnectionState('connected');
@@ -205,6 +214,29 @@ const handleConnect = async () => {
   }).finally(() => {
     connectionLoading.value = false;
   });
+  } catch (error) {
+    websocketStore.changeConnectionState('error');
+    console.error('WebSocket连接参数处理异常:', error);
+    
+    // 添加连接参数处理异常消息
+    const paramErrorMessage = {
+      type: 'error' as const,
+      data: {
+        id: uuid(),
+        nodeId: currentSelectTab.value?._id || '',
+        error: `请求头处理异常: ${error instanceof Error ? error.message : '未知错误'}`,
+        timestamp: Date.now()
+      }
+    };
+    websocketStore.addMessage(paramErrorMessage);
+    
+    // 缓存连接参数处理异常消息到IndexedDB
+    if (currentSelectTab.value?._id) {
+      websocketResponseCache.setSingleData(currentSelectTab.value._id, paramErrorMessage);
+    }
+    
+    connectionLoading.value = false;
+  }
 };
 
 const handleDisconnect = async () => {

@@ -18,6 +18,7 @@ import { InitDataMessage, OnEvalSuccess, ReceivedEvent } from '@/worker/pre-requ
 import { Method } from 'got';
 import preRequestWorker from '@/worker/pre-request/pre-request.ts?worker&inline';
 import { WebSocketNode } from '@src/types/websocket/websocket.ts';
+import { webSocketNodeCache } from '@/cache/websocket/websocketNodeCache.ts';
 /*
 |--------------------------------------------------------------------------
 | 发送请求
@@ -103,6 +104,128 @@ export const getWebSocketUrl = async (websocketNode: WebSocketNode) => {
   fullUrl = await convertTemplateValueToRealValue(fullUrl, objectVariable);
   return fullUrl;
 }
+
+/*
+ * 获取WebSocket请求头
+ * 1.从默认请求头中获取必需的WebSocket握手头
+ * 2.从用户定义请求头中获取请求头
+ * 3.从公共请求头中获取请求头 
+ * 4.从cookie中读取请求头
+ */
+export const getWebSocketHeaders = async (websocketNode: WebSocketNode, defaultHeaders: ApidocProperty<'string'>[], fullUrl: string) => {
+  const { objectVariable } = useVariable();
+  const apidocBaseInfoStore = useApidocBaseInfo();
+  const apidocTabsStore = useApidocTas();
+  const { getMachtedCookies } = useCookies();
+  const projectId = websocketNode.projectId;
+  const tabs = apidocTabsStore.tabs[projectId];
+  const currentSelectTab = tabs?.find((tab) => tab.selected) || null;
+  
+  if (!currentSelectTab) {
+    console.warn('未匹配到当前选中tab');
+    return {};
+  }
+  
+  const defaultCommonHeaders = apidocBaseInfoStore.getCommonHeadersById(currentSelectTab?._id || "");
+  const ignoreHeaderIds = webSocketNodeCache.getIgnoredCommonHeaderByTabId?.(projectId, currentSelectTab?._id ?? "") || [];
+  const commonHeaders = defaultCommonHeaders.filter(header => !ignoreHeaderIds.includes(header._id));
+  const headers = websocketNode.item.headers;
+  const headersObject: Record<string, string> = {};
+  
+  // 生成Sec-WebSocket-Key
+  const generateWebSocketKey = () => {
+    const buffer = new Uint8Array(16);
+    for (let i = 0; i < 16; i++) {
+      buffer[i] = Math.floor(Math.random() * 256);
+    }
+    return Buffer.from(buffer).toString('base64');
+  };
+  
+  // 从URL中提取Host
+  const getHostFromUrl = (url: string) => {
+    try {
+      const urlObj = new URL(url);
+      return urlObj.host;
+    } catch {
+      return 'localhost';
+    }
+  };
+  
+  // 处理默认请求头
+  for (let i = 0; i < defaultHeaders.length; i++) {
+    const header = defaultHeaders[i];
+    if (!header.select && header.key !== 'Host' && header.key !== 'Upgrade' && header.key !== 'Connection' && header.key !== 'Sec-WebSocket-Key' && header.key !== 'Sec-WebSocket-Version') {
+      continue; // 跳过未选中的可选请求头
+    }
+    
+    const headerKey = header.key.toLowerCase();
+    
+    // 特殊处理必需的请求头
+    if (header.key === 'Host') {
+      headersObject[headerKey] = getHostFromUrl(fullUrl);
+    } else if (header.key === 'Upgrade') {
+      headersObject[headerKey] = header.value || 'websocket';
+    } else if (header.key === 'Connection') {
+      headersObject[headerKey] = header.value || 'Upgrade';
+    } else if (header.key === 'Sec-WebSocket-Key') {
+      headersObject[headerKey] = generateWebSocketKey();
+    } else if (header.key === 'Sec-WebSocket-Version') {
+      headersObject[headerKey] = '13';
+    } else if (header.value) {
+      // 处理其他默认请求头
+      const realValue = await convertTemplateValueToRealValue(header.value, objectVariable);
+      headersObject[headerKey] = realValue;
+    }
+  }
+  
+  // 处理公共请求头
+  for (let i = 0; i < commonHeaders.length; i++) {
+    const header = commonHeaders[i];
+    const realKey = await convertTemplateValueToRealValue(header.key, objectVariable);
+    if (realKey.trim() === '') {
+      continue;
+    }
+    const headerKeyLower = realKey.toLowerCase();
+    
+    // 不允许覆盖关键的WebSocket握手头
+    if (headerKeyLower === 'sec-websocket-key' || headerKeyLower === 'sec-websocket-version') {
+      continue;
+    }
+    
+    const realValue = await convertTemplateValueToRealValue(header.value, objectVariable);
+    headersObject[headerKeyLower] = realValue;
+  }
+  
+  // 处理用户填写的请求头 (会覆盖公共请求头)
+  for (let i = 0; i < headers.length; i++) {
+    const header = headers[i];
+    if (!header.select) {
+      continue;
+    }
+    const realKey = await convertTemplateValueToRealValue(header.key, objectVariable);
+    if (realKey.trim() === '') {
+      continue;
+    }
+    const headerKeyLower = realKey.toLowerCase();
+    
+    // 不允许覆盖关键的WebSocket握手头
+    if (headerKeyLower === 'sec-websocket-key' || headerKeyLower === 'sec-websocket-version') {
+      continue;
+    }
+    
+    const realValue = await convertTemplateValueToRealValue(header.value, objectVariable);
+    headersObject[headerKeyLower] = realValue;
+  }
+  
+  // 处理Cookie
+  const matchedCookies = getMachtedCookies(fullUrl);
+  if (matchedCookies.length > 0) {
+    const cookieHeader = matchedCookies.map(c => `${c.name}=${c.value}`).join('; ');
+    headersObject['cookie'] = cookieHeader;
+  }
+  
+  return headersObject;
+};
 const getBody = async (apidoc: HttpNode): Promise<GotRequestOptions['body']> => {
   const { changeResponseInfo, changeRequestState } = useApidocResponse()
   const { objectVariable } = useVariable()

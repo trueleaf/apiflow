@@ -111,90 +111,102 @@ export const useWebSocket = defineStore('websocket', () => {
   // 初始化默认请求头
   const initDefaultHeaders = () => {
     defaultHeaders.value = [];
-    
+  
     //=========================================================================//
-    // Host头 - WebSocket连接必需的主机信息
+    // Host - 必需请求头，值可以覆盖
     const hostHeader = apidocGenerateProperty();
-    hostHeader.key = 'Host';
-    hostHeader.description = '<主机信息，WebSocket连接必需>';
+    hostHeader.key = "Host";
+    hostHeader.description = i18next.t("<主机信息，WebSocket连接必需，值可覆盖>");
     hostHeader._disableKey = true;
-    hostHeader._disableKeyTip = '该请求头无法修改，也无法取消发送';
-    hostHeader._disableDeleteTip = 'Host请求头无法删除';
-    hostHeader._disableValue = true;
-    hostHeader._valuePlaceholder = '<发送请求时候自动处理>';
-    hostHeader._disableDescription = true;
-    hostHeader._disableAdd = true;
     hostHeader._disableDelete = true;
-    hostHeader.disabled = true;
+    hostHeader._disableValue = true;
+    hostHeader._valuePlaceholder = i18next.t("<自动生成>");
+    hostHeader._disableDescription = true;
     defaultHeaders.value.push(hostHeader);
-
+  
     //=========================================================================//
-    // Origin头 - WebSocket协议要求的来源标识
+    // Upgrade - 必需请求头，值可以覆盖
+    const upgradeHeader = apidocGenerateProperty();
+    upgradeHeader.key = "Upgrade";
+    upgradeHeader.value = "websocket";
+    upgradeHeader.description = i18next.t("<升级协议，WebSocket必需，值可覆盖>");
+    upgradeHeader._disableKey = true;
+    upgradeHeader._disableDelete = true;
+    defaultHeaders.value.push(upgradeHeader);
+  
+    //=========================================================================//
+    // Connection - 必需请求头，值可以覆盖
+    const connectionHeader = apidocGenerateProperty();
+    connectionHeader.key = "Connection";
+    connectionHeader.value = "Upgrade";
+    connectionHeader.description = i18next.t("<保持连接升级，WebSocket必需，值可覆盖>");
+    connectionHeader._disableKey = true;
+    connectionHeader._disableDelete = true;
+    defaultHeaders.value.push(connectionHeader);
+  
+    //=========================================================================//
+    // Sec-WebSocket-Key - 必需请求头，值不可覆盖
+    const secKeyHeader = apidocGenerateProperty();
+    secKeyHeader.key = "Sec-WebSocket-Key";
+    secKeyHeader._valuePlaceholder = i18next.t("<客户端自动生成随机Key>");
+    secKeyHeader.description = i18next.t("<握手校验Key，客户端每次随机生成，值不可覆盖>");
+    secKeyHeader._disableKey = true;
+    secKeyHeader._disableValue = true;
+    secKeyHeader._disableDelete = true;
+    defaultHeaders.value.push(secKeyHeader);
+  
+    //=========================================================================//
+    // Sec-WebSocket-Version - 必需请求头，值不可覆盖
+    const secVersionHeader = apidocGenerateProperty();
+    secVersionHeader.key = "Sec-WebSocket-Version";
+    secVersionHeader.value = "13";
+    secVersionHeader.description = i18next.t("<WebSocket协议版本，固定为13，值不可覆盖>");
+    secVersionHeader._disableKey = true;
+    secVersionHeader._disableValue = true;
+    secVersionHeader._disableDelete = true;
+    defaultHeaders.value.push(secVersionHeader);
+  
+    //=========================================================================//
+    // Origin - 可选请求头，用于CORS验证
     const originHeader = apidocGenerateProperty();
-    originHeader.key = 'Origin';
-    originHeader.value = 'http://localhost:4000';
-    originHeader.description = '<请求来源，WebSocket协议要求>';
+    originHeader.key = "Origin";
+    originHeader.value = "";
+    originHeader.description = i18next.t("<源验证，用于CORS安全检查，可选>");
     originHeader._disableKey = true;
-    originHeader._disableDescription = true;
-    originHeader._disableKeyTip = 'Origin是WebSocket协议必需的请求头';
-    originHeader._disableAdd = true;
-    originHeader._disableDelete = true;
+    originHeader.select = false; // 默认不选中
     defaultHeaders.value.push(originHeader);
-
+  
     //=========================================================================//
-    // User-Agent头
+    // Sec-WebSocket-Protocol - 可选请求头，子协议协商
+    const secProtocolHeader = apidocGenerateProperty();
+    secProtocolHeader.key = "Sec-WebSocket-Protocol";
+    secProtocolHeader.value = "";
+    secProtocolHeader.description = i18next.t("<子协议协商，可选>");
+    secProtocolHeader._disableKey = true;
+    secProtocolHeader.select = false; // 默认不选中
+    defaultHeaders.value.push(secProtocolHeader);
+  
+    //=========================================================================//
+    // Sec-WebSocket-Extensions - 可选请求头，扩展协商
+    const secExtensionsHeader = apidocGenerateProperty();
+    secExtensionsHeader.key = "Sec-WebSocket-Extensions";
+    secExtensionsHeader.value = "";
+    secExtensionsHeader.description = i18next.t("<扩展功能协商，可选>");
+    secExtensionsHeader._disableKey = true;
+    secExtensionsHeader.select = false; // 默认不选中
+    defaultHeaders.value.push(secExtensionsHeader);
+  
+    //=========================================================================//
+    // User-Agent - 可选请求头，客户端标识
     const userAgentHeader = apidocGenerateProperty();
-    userAgentHeader.key = 'User-Agent';
-    userAgentHeader._valuePlaceholder = config.requestConfig.userAgent;
-    userAgentHeader.description = '<用户代理软件信息>';
+    userAgentHeader.key = "User-Agent";
+    userAgentHeader.value = "Apiflow WebSocket Client";
+    userAgentHeader.description = i18next.t("<客户端标识，可选>");
     userAgentHeader._disableKey = true;
-    userAgentHeader._disableKeyTip = '';
-    userAgentHeader._disableDescription = true;
-    userAgentHeader._disableAdd = true;
-    userAgentHeader._disableDelete = true;
+    userAgentHeader.select = false; // 默认不选中
     defaultHeaders.value.push(userAgentHeader);
-
-    //=========================================================================//
-    // Accept-Language头
-    const acceptLanguageHeader = apidocGenerateProperty();
-    acceptLanguageHeader.key = 'Accept-Language';
-    acceptLanguageHeader._valuePlaceholder = 'zh-CN,zh;q=0.9,en;q=0.8';
-    acceptLanguageHeader.description = '<客户端可接受的语言类型>';
-    acceptLanguageHeader._disableKey = true;
-    acceptLanguageHeader._disableDescription = true;
-    acceptLanguageHeader._disableKeyTip = '';
-    acceptLanguageHeader._disableAdd = true;
-    acceptLanguageHeader._disableDelete = true;
-    defaultHeaders.value.push(acceptLanguageHeader);
-
-    //=========================================================================//
-    // Accept-Encoding头
-    const acceptEncodingHeader = apidocGenerateProperty();
-    acceptEncodingHeader.key = 'Accept-Encoding';
-    acceptEncodingHeader._valuePlaceholder = 'gzip, deflate, br';
-    acceptEncodingHeader.description = '<客户端理解的编码方式>';
-    acceptEncodingHeader._disableKey = true;
-    acceptEncodingHeader._disableDescription = true;
-    acceptEncodingHeader._disableKeyTip = '';
-    acceptEncodingHeader._disableValue = true;
-    acceptEncodingHeader._disableAdd = true;
-    acceptEncodingHeader._disableDelete = true;
-    acceptEncodingHeader.disabled = true;
-    defaultHeaders.value.push(acceptEncodingHeader);
-
-    //=========================================================================//
-    // Cache-Control头
-    const cacheControlHeader = apidocGenerateProperty();
-    cacheControlHeader.key = 'Cache-Control';
-    cacheControlHeader._valuePlaceholder = 'no-cache';
-    cacheControlHeader.description = '<缓存控制指令>';
-    cacheControlHeader._disableKey = true;
-    cacheControlHeader._disableDescription = true;
-    cacheControlHeader._disableKeyTip = '';
-    cacheControlHeader._disableAdd = true;
-    cacheControlHeader._disableDelete = true;
-    defaultHeaders.value.push(cacheControlHeader);
   };
+  
 
  // 添加请求头
  const addWebSocketHeader = (header?: Partial<ApidocProperty<'string'>>): void => {
