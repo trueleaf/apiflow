@@ -44,26 +44,6 @@
         </el-button>
         <el-button type="primary" :loading="saveLoading" @click="handleSave">{{ t("保存接口") }}</el-button>
         <el-button type="primary" :icon="Refresh" :loading="refreshLoading" @click="handleRefresh">{{ t("刷新") }}</el-button>
-        
-        <!-- 撤销重做按钮 -->
-        <div class="history-controls">
-          <el-button
-            :disabled="!canUndo(websocketStore.websocket._id)"
-            :title="t('撤销上一步操作')"
-            @click="handleUndo"
-            class="history-btn"
-          >
-            <i class="iconfont iconshangyibu"></i>
-          </el-button>
-          <el-button
-            :disabled="!canRedo(websocketStore.websocket._id)"
-            :title="t('重做下一步操作')"
-            @click="handleRedo"
-            class="history-btn"
-          >
-            <i class="iconfont iconxiayibu"></i>
-          </el-button>
-        </div>
       </div>
     </div>
     
@@ -76,7 +56,7 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, onMounted, onUnmounted } from 'vue';
+import { computed } from 'vue';
 import { useTranslation } from 'i18next-vue';
 import { storeToRefs } from 'pinia';
 import { Refresh } from '@element-plus/icons-vue';
@@ -95,8 +75,6 @@ const apidocTabsStore = useApidocTas();
 const { currentSelectTab } = storeToRefs(apidocTabsStore);
 const { saveLoading, refreshLoading, websocketFullUrl: fullUrl, connectionState, connectionId } = storeToRefs(websocketStore);
 
-// 撤销重做相关
-const { canUndo, canRedo, undo, redo } = websocketStore;
 const protocol = computed({
   get: () => websocketStore.websocket.item.protocol,
   set: (value: 'ws' | 'wss') => websocketStore.changeWebSocketProtocol(value)
@@ -396,55 +374,8 @@ const handleFormatUrl = () => {
 
 
 
-// 撤销重做处理方法
-const handleUndo = () => {
-  const success = undo();
-  if (success) {
-    console.log('撤销操作成功');
-  } else {
-    console.log('撤销操作失败：' + t('没有可撤销的操作'));
-  }
-};
 
-const handleRedo = () => {
-  const success = redo();
-  if (success) {
-    console.log('重做操作成功');
-  } else {
-    console.log('重做操作失败：' + t('没有可重做的操作'));
-  }
-};
 
-// 键盘快捷键处理
-const handleKeydown = (event: KeyboardEvent) => {
-  // Ctrl+Z 撤销
-  if (event.ctrlKey && event.key === 'z' && !event.shiftKey) {
-    event.preventDefault();
-    if (canUndo(websocketStore.websocket._id)) {
-      handleUndo();
-    }
-  }
-  // Ctrl+Y 或 Ctrl+Shift+Z 重做
-  if ((event.ctrlKey && event.key === 'y') || (event.ctrlKey && event.shiftKey && event.key === 'Z')) {
-    event.preventDefault();
-    if (canRedo(websocketStore.websocket._id)) {
-      handleRedo();
-    }
-  }
-};
-
-onMounted(() => {
-  // 初始化历史记录
-  websocketStore.initHistory();
-  
-  // 添加键盘事件监听
-  document.addEventListener('keydown', handleKeydown);
-});
-
-onUnmounted(() => {
-  // 移除键盘事件监听
-  document.removeEventListener('keydown', handleKeydown);
-});
 
 </script>
 
@@ -533,26 +464,5 @@ onUnmounted(() => {
     
   }
 
-  .history-controls {
-    display: flex;
-    gap: 4px;
-    margin-left: 8px;
-    
-    .history-btn {
-      padding: 4px 8px;
-      min-width: auto;
-      height: 28px;
-      border-radius: 4px;
-      
-      .iconfont {
-        font-size: 14px;
-      }
-      
-      &:disabled {
-        opacity: 0.5;
-        cursor: not-allowed;
-      }
-    }
-  }
 }
 </style>

@@ -590,8 +590,10 @@ export const generateEmptyWebsocketNode = (_id: string): WebSocketNode => {
     },
     config: {
       messageType: 'json',
-      autoSend: false,
+      autoHeartbeat: false,
       autoSendInterval: 30000,
+      defaultHeartbeatContent: 'ping',
+      autoSend: false,
       defaultAutoSendContent: 'ping',
       autoReconnect: false,
     },
