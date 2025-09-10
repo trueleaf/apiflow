@@ -299,7 +299,7 @@ export const useWebSocket = defineStore('websocket', () => {
 
   /*
   |--------------------------------------------------------------------------
-  | 消息和心跳操作方法
+  | 消息和自动发送操作方法
   |--------------------------------------------------------------------------
   */
   // 改变发送消息内容
@@ -316,24 +316,24 @@ export const useWebSocket = defineStore('websocket', () => {
     }
   };
 
-  // 改变自动心跳设置
-  const changeWebSocketAutoHeartbeat = (enabled: boolean): void => {
+  // 改变自动发送设置
+  const changeWebSocketAutoSend = (enabled: boolean): void => {
     if (websocket.value) {
-      websocket.value.config.autoHeartbeat = enabled;
+      websocket.value.config.autoSend = enabled;
     }
   };
 
-  // 改变心跳间隔
-  const changeWebSocketHeartbeatInterval = (interval: number): void => {
+  // 改变自动发送间隔
+  const changeWebSocketAutoSendInterval = (interval: number): void => {
     if (websocket.value) {
-      websocket.value.config.heartbeatInterval = interval;
+      websocket.value.config.autoSendInterval = interval;
     }
   };
 
-  // 改变默认心跳内容
-  const changeWebSocketDefaultHeartbeatContent = (content: string): void => {
+  // 改变默认自动发送内容
+  const changeWebSocketDefaultAutoSendContent = (content: string): void => {
     if (websocket.value) {
-      websocket.value.config.defaultHeartbeatContent = content;
+      websocket.value.config.defaultAutoSendContent = content;
     }
   };
 
@@ -730,9 +730,9 @@ export const useWebSocket = defineStore('websocket', () => {
     changeWebSocketAfterRequest,
     changeWebSocketMessage,
     changeWebSocketMessageType,
-    changeWebSocketAutoHeartbeat,
-    changeWebSocketHeartbeatInterval,
-    changeWebSocketDefaultHeartbeatContent,
+    changeWebSocketAutoSend,
+    changeWebSocketAutoSendInterval,
+    changeWebSocketDefaultAutoSendContent,
     changeWebSocketAutoReconnect,
     changeConnectionState,
     changeConnectionId,

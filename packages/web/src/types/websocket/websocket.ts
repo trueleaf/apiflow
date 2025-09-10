@@ -81,17 +81,17 @@ export type WebSocketNode = {
      */
     messageType: MessageType;
     /**
-     * 是否自动发送心跳包
+     * 是否自动发送
      */
-    autoHeartbeat: boolean;
+    autoSend: boolean;
     /**
-     * 心跳包间隔
+     * 自动发送间隔
      */
-    heartbeatInterval: number;
+    autoSendInterval: number;
     /**
-     * 默认心跳包内容
+     * 默认自动发送内容
      */
-    defaultHeartbeatContent: string;
+    defaultAutoSendContent: string;
     /**
      * 是否自动重连
      */
@@ -211,9 +211,9 @@ export type WebsocketErrorResponse = {
   };
 };
 
-// 心跳包响应
-export type WebsocketHeartbeatResponse = {
-  type: "heartbeat";
+// 自动发送响应
+export type WebsocketAutoSendResponse = {
+  type: "autoSend";
   data: {
     id: string;
     nodeId: string;
@@ -243,7 +243,7 @@ export type WebsocketResponse =
   | WebsocketConnectedResponse 
   | WebsocketDisconnectedResponse 
   | WebsocketErrorResponse
-  | WebsocketHeartbeatResponse
+  | WebsocketAutoSendResponse
   | WebsocketStartConnectResponse
   | WebsocketReconnectingResponse;
 

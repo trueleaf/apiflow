@@ -226,7 +226,7 @@ const getFormattedContent = (content: string): string => {
       break;
     }
     case 'autoSend':
-      // 心跳消息展示 message 字段
+      // 自动发送消息展示 message 字段
       displayContent = content || (props.message.data as any).message || '';
       break;
     default:

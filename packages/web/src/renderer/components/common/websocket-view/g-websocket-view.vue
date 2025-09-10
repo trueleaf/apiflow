@@ -32,7 +32,7 @@
               <Bottom />
             </el-icon>
           </div>
-          <!-- 发送、接收、心跳消息使用 message-content 展示 -->
+          <!-- 发送、接收、自动发送消息使用 message-content 展示 -->
           <div v-if="item.type === 'send' || item.type === 'receive' || item.type === 'autoSend'" class="message-content">
             {{ getMessagePreview(item) }}
           </div>
