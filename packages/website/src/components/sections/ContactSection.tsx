@@ -62,7 +62,7 @@ export default function ContactSection() {
   return (
     <section id="contact" className="py-16 sm:py-20 lg:py-24 bg-gray-50">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        {/* Section header */}
+        {/* 版块标题 */}
         <div className="text-center mb-16">
           <h2 className="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl lg:text-5xl">
             Get in Touch
@@ -74,7 +74,7 @@ export default function ContactSection() {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-16">
-          {/* Contact form */}
+          {/* 联系表单 */}
           <div className="bg-white rounded-2xl shadow-lg p-8">
             <h3 className="text-2xl font-bold text-gray-900 mb-6">
               Send us a message
@@ -174,9 +174,9 @@ export default function ContactSection() {
             </form>
           </div>
 
-          {/* Contact methods and FAQ */}
+          {/* 联系方式和FAQ */}
           <div className="space-y-8">
-            {/* Contact methods */}
+            {/* 联系方式 */}
             <div className="bg-white rounded-2xl shadow-lg p-8">
               <h3 className="text-2xl font-bold text-gray-900 mb-6">
                 Other ways to reach us
@@ -203,7 +203,7 @@ export default function ContactSection() {
               </div>
             </div>
 
-            {/* Quick start CTA */}
+            {/* 快速开始CTA */}
             <div className="bg-gradient-to-r from-blue-600 to-purple-600 rounded-2xl p-8 text-center">
               <h3 className="text-2xl font-bold text-white mb-4">
                 Ready to Get Started?
@@ -218,7 +218,7 @@ export default function ContactSection() {
           </div>
         </div>
 
-        {/* FAQ Section */}
+        {/* FAQ版块 */}
         <div className="mt-20">
           <h3 className="text-2xl font-bold text-gray-900 text-center mb-12">
             Frequently Asked Questions
@@ -237,7 +237,7 @@ export default function ContactSection() {
           </div>
         </div>
 
-        {/* Business hours */}
+        {/* 营业时间 */}
         <div className="mt-12 text-center">
           <div className="inline-flex items-center rounded-full bg-blue-100 px-6 py-3 text-blue-800">
             <Clock className="mr-2 h-5 w-5" />

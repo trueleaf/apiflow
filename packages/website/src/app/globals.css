@@ -25,12 +25,12 @@ body {
   font-family: "Helvetica Neue", Helvetica, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", SimSun, sans-serif;
 }
 
-/* Smooth scrolling for anchor links */
+/* 锚点链接的平滑滚动 */
 html {
   scroll-behavior: smooth;
 }
 
-/* Custom scrollbar */
+/* 自定义滚动条 */
 ::-webkit-scrollbar {
   width: 8px;
 }
@@ -48,7 +48,7 @@ html {
   background: #a8a8a8;
 }
 
-/* Gradient backgrounds */
+/* 渐变背景 */
 .gradient-bg {
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
 }
@@ -60,7 +60,7 @@ html {
   background-clip: text;
 }
 
-/* Animation utilities */
+/* 动画工具 */
 .fade-in {
   animation: fadeIn 0.6s ease-in-out;
 }
@@ -91,7 +91,7 @@ html {
   }
 }
 
-/* Mobile optimizations */
+/* 移动端优化 */
 @media (max-width: 768px) {
   .mobile-padding {
     padding-left: 1rem;
@@ -107,7 +107,7 @@ html {
   }
 }
 
-/* Touch targets for mobile */
+/* 移动端触摸目标 */
 @media (hover: none) and (pointer: coarse) {
   button, a {
     min-height: 44px;
@@ -115,7 +115,7 @@ html {
   }
 }
 
-/* Reduce motion for accessibility */
+/* 减少动画以提升无障碍性 */
 @media (prefers-reduced-motion: reduce) {
   .fade-in,
   .slide-up {

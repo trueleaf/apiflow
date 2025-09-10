@@ -19,10 +19,10 @@ export default function LanguageSwitcher() {
   const currentLanguage = languages.find(lang => lang.code === locale) || languages[0]; // 默认显示中文
 
   const handleLanguageChange = (newLocale: string) => {
-    // Remove the current locale from the pathname
+    // 从路径名中移除当前语言环境
     const pathWithoutLocale = pathname.replace(`/${locale}`, '') || '/';
     
-    // Navigate to the new locale
+    // 导航到新的语言环境
     router.push(`/${newLocale}${pathWithoutLocale}`);
     setIsOpen(false);
   };
@@ -55,13 +55,13 @@ export default function LanguageSwitcher() {
 
       {isOpen && (
         <>
-          {/* Backdrop */}
+          {/* 背景遮罩 */}
           <div
             className="fixed inset-0 z-10"
             onClick={() => setIsOpen(false)}
           />
           
-          {/* Dropdown */}
+          {/* 下拉菜单 */}
           <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 z-20">
             <div className="py-2">
               {languages.map((language) => (

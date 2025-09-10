@@ -77,7 +77,7 @@ export default function AboutSection() {
   return (
     <section id="about" className="py-16 sm:py-20 lg:py-24">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        {/* Section header */}
+        {/* 版块标题 */}
         <div className="text-center mb-16">
           <h2 className="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl lg:text-5xl">
             About APIFlow
@@ -88,7 +88,7 @@ export default function AboutSection() {
           </p>
         </div>
 
-        {/* Mission statement */}
+        {/* 使命宣言 */}
         <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-2xl p-8 lg:p-12 mb-16">
           <div className="text-center">
             <h3 className="text-2xl lg:text-3xl font-bold text-gray-900 mb-6">
@@ -102,7 +102,7 @@ export default function AboutSection() {
           </div>
         </div>
 
-        {/* Values */}
+        {/* 价值观 */}
         <div className="mb-20">
           <h3 className="text-2xl font-bold text-gray-900 text-center mb-12">
             Our Values
@@ -123,13 +123,13 @@ export default function AboutSection() {
           </div>
         </div>
 
-        {/* Timeline */}
+        {/* 发展历程 */}
         <div className="mb-20">
           <h3 className="text-2xl font-bold text-gray-900 text-center mb-12">
             Our Journey
           </h3>
           <div className="relative">
-            {/* Timeline line */}
+            {/* 时间线 */}
             <div className="absolute left-1/2 transform -translate-x-1/2 w-1 h-full bg-blue-200"></div>
             
             <div className="space-y-12">
@@ -152,7 +152,7 @@ export default function AboutSection() {
           </div>
         </div>
 
-        {/* Team */}
+        {/* 团队 */}
         <div>
           <h3 className="text-2xl font-bold text-gray-900 text-center mb-12">
             Meet Our Team
@@ -173,7 +173,7 @@ export default function AboutSection() {
           </div>
         </div>
 
-        {/* Join us CTA */}
+        {/* 加入我们的CTA */}
         <div className="mt-20 text-center">
           <div className="bg-gray-900 rounded-2xl p-8 lg:p-12">
             <h3 className="text-2xl lg:text-3xl font-bold text-white mb-4">

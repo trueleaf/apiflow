@@ -12,30 +12,30 @@ export default function HeroSection() {
 
   return (
     <section className="relative pt-20 pb-16 sm:pt-24 sm:pb-20 lg:pt-32 lg:pb-28">
-      {/* Background gradient */}
+      {/* 背景渐变 */}
       <div className="absolute inset-0 bg-gradient-to-br from-blue-50 via-white to-purple-50"></div>
 
       <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-          {/* Left side - Content */}
+          {/* 左侧 - 内容 */}
           <div className="text-left">
-            {/* Badge */}
+            {/* 徽章 */}
             <div className="inline-flex items-center rounded-full bg-blue-100 px-4 py-2 text-sm font-medium text-blue-800 mb-8">
               {t('🚀 新功能：高级 API 测试功能现已上线')}
             </div>
 
-            {/* Main heading */}
+            {/* 主标题 */}
             <h1 className="text-4xl font-bold tracking-tight text-gray-900 sm:text-5xl lg:text-6xl">
               {t('Postman 和 Apifox 的')}{' '}
               <span className="gradient-text">{t('现代化替代品')}</span>
             </h1>
 
-            {/* Subheading */}
+            {/* 副标题 */}
             <p className="mt-6 max-w-2xl text-lg leading-8 text-gray-600 sm:text-xl">
               {t('使用我们直观的平台构建、测试和记录您的 API。体验更快的工作流程、更好的协作和全面的 API 管理，一个强大的工具搞定一切。')}
             </p>
 
-            {/* CTA Buttons */}
+            {/* CTA按钮 */}
             <div className="mt-10 flex flex-col sm:flex-row items-start gap-4">
               <Link
                 href="https://github.com/trueleaf/apiflow/releases"
@@ -56,7 +56,7 @@ export default function HeroSection() {
             </div>
           </div>
 
-          {/* Right side - Stats */}
+          {/* 右侧 - 统计数据 */}
           <div className="lg:pl-8">
             <div className="grid grid-cols-1 gap-8 sm:grid-cols-3 lg:grid-cols-1 lg:gap-6">
               {stats.map((stat, index) => {

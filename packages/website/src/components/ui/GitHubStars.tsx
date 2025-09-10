@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { Star } from 'lucide-react';
 
 interface GitHubStarsProps {
-  repo: string; // Format: "owner/repo"
+  repo: string; // 格式: "owner/repo"
   className?: string;
 }
 

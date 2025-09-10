@@ -41,7 +41,7 @@ export default function Footer() {
     <footer className="bg-gray-900 text-white">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-12">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-8">
-          {/* Brand Section */}
+          {/* 品牌部分 */}
           <div className="lg:col-span-2">
             <div className="flex items-center space-x-2 mb-4">
               <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
@@ -69,7 +69,7 @@ export default function Footer() {
             </div>
           </div>
 
-          {/* Product Links */}
+          {/* 产品链接 */}
           <div>
             <h3 className="text-sm font-semibold text-white uppercase tracking-wider mb-4">
               {t('产品')}
@@ -88,7 +88,7 @@ export default function Footer() {
             </ul>
           </div>
 
-          {/* Company Links */}
+          {/* 公司链接 */}
           <div>
             <h3 className="text-sm font-semibold text-white uppercase tracking-wider mb-4">
               {t('公司')}
@@ -107,7 +107,7 @@ export default function Footer() {
             </ul>
           </div>
 
-          {/* Resources Links */}
+          {/* 资源链接 */}
           <div>
             <h3 className="text-sm font-semibold text-white uppercase tracking-wider mb-4">
               {t('资源')}
@@ -126,7 +126,7 @@ export default function Footer() {
             </ul>
           </div>
 
-          {/* Legal Links */}
+          {/* 法律链接 */}
           <div>
             <h3 className="text-sm font-semibold text-white uppercase tracking-wider mb-4">
               {t('法律')}
@@ -146,7 +146,7 @@ export default function Footer() {
           </div>
         </div>
 
-        {/* Bottom Section */}
+        {/* 底部部分 */}
         <div className="mt-12 pt-8 border-t border-gray-800">
           <div className="flex flex-col md:flex-row justify-between items-center">
             <p className="text-gray-400 text-sm">

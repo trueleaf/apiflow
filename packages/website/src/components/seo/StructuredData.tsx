@@ -124,7 +124,7 @@ export default function StructuredData() {
 
     const schemas = [organizationSchema, softwareSchema, websiteSchema, faqSchema];
     
-    // Add structured data scripts to head
+    // 向头部添加结构化数据脚本
     schemas.forEach((schema) => {
       const script = document.createElement('script');
       script.type = 'application/ld+json';
@@ -132,12 +132,12 @@ export default function StructuredData() {
       document.head.appendChild(script);
     });
 
-    // Cleanup function to remove scripts when component unmounts
+    // 组件卸载时清理函数，移除脚本
     return () => {
       const scripts = document.head.querySelectorAll('script[type="application/ld+json"]');
       scripts.forEach(script => script.remove());
     };
   }, []);
 
-  return null; // This component doesn't render anything visible
+  return null; // 此组件不渲染任何可见内容
 }

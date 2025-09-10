@@ -1,17 +1,17 @@
 import createMiddleware from 'next-intl/middleware';
 
 export default createMiddleware({
-  // A list of all locales that are supported
+  // 支持的所有语言环境列表
   locales: ['zh', 'en'],
 
-  // Used when no locale matches
+  // 当没有语言环境匹配时使用
   defaultLocale: 'zh',
 
-  // Always use locale prefix
+  // 始终使用语言环境前缀
   localePrefix: 'always'
 });
 
 export const config = {
-  // Match only internationalized pathnames
+  // 仅匹配国际化路径名
   matcher: ['/((?!api|_next|_vercel|.*\\..*).*)']
 };

@@ -73,7 +73,7 @@ export default function ComparisonSection() {
   return (
     <section id="features" className="py-16 sm:py-20 lg:py-24 bg-gray-50">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        {/* Section header */}
+        {/* 版块标题 */}
         <div className="text-center mb-16">
           <h2 className="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl lg:text-5xl">
             {t('为什么选择 APIFlow？')}
@@ -83,7 +83,7 @@ export default function ComparisonSection() {
           </p>
         </div>
 
-        {/* Highlights */}
+        {/* 亮点 */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-16">
           {highlights.map((highlight, index) => {
             const Icon = highlight.icon;
@@ -99,7 +99,7 @@ export default function ComparisonSection() {
           })}
         </div>
 
-        {/* Comparison table */}
+        {/* 对比表格 */}
         <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
           <div className="px-6 py-8 bg-gradient-to-r from-blue-600 to-purple-600">
             <h3 className="text-2xl font-bold text-white text-center">

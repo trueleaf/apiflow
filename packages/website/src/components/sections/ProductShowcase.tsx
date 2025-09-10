@@ -50,7 +50,7 @@ export default function ProductShowcase() {
   return (
     <section id="demo" className="py-16 sm:py-20 lg:py-24">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        {/* Section header */}
+        {/* 版块标题 */}
         <div className="text-center mb-16">
           <h2 className="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl lg:text-5xl">
             See APIFlow in Action
@@ -61,7 +61,7 @@ export default function ProductShowcase() {
           </p>
         </div>
 
-        {/* Main demo video/screenshot */}
+        {/* 主要演示视频/截图 */}
         <div className="mb-20">
           <div className="relative rounded-2xl bg-gradient-to-br from-blue-50 to-purple-50 shadow-2xl overflow-hidden">
             <div className="aspect-[16/9] flex items-center justify-center">
@@ -82,7 +82,7 @@ export default function ProductShowcase() {
               </div>
             </div>
             
-            {/* Floating UI elements for visual interest */}
+            {/* 增加视觉趣味的浮动UI元素 */}
             <div className="absolute top-6 left-6 bg-white rounded-lg shadow-lg p-4 opacity-90 max-w-xs">
               <div className="flex items-center space-x-3">
                 <div className="w-3 h-3 bg-green-500 rounded-full"></div>
@@ -115,7 +115,7 @@ export default function ProductShowcase() {
           </div>
         </div>
 
-        {/* Stats */}
+        {/* 统计数据 */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-8 mb-20">
           {stats.map((stat, index) => (
             <div key={index} className="text-center">
@@ -125,7 +125,7 @@ export default function ProductShowcase() {
           ))}
         </div>
 
-        {/* Feature showcase */}
+        {/* 功能展示 */}
         <div className="space-y-20">
           {features.map((feature, index) => {
             const Icon = feature.icon;
@@ -164,7 +164,7 @@ export default function ProductShowcase() {
           })}
         </div>
 
-        {/* CTA Section */}
+        {/* CTA版块 */}
         <div className="mt-20 text-center">
           <div className="bg-gradient-to-r from-blue-600 to-purple-600 rounded-2xl p-8 lg:p-12">
             <h3 className="text-2xl lg:text-3xl font-bold text-white mb-4">

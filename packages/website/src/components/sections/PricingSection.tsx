@@ -93,7 +93,7 @@ export default function PricingSection() {
   return (
     <section id="pricing" className="py-16 sm:py-20 lg:py-24 bg-gray-50">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        {/* Section header */}
+        {/* 版块标题 */}
         <div className="text-center mb-16">
           <h2 className="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl lg:text-5xl">
             Simple, Transparent Pricing
@@ -104,7 +104,7 @@ export default function PricingSection() {
           </p>
         </div>
 
-        {/* Pricing cards */}
+        {/* 价格卡片 */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-16">
           {plans.map((plan, index) => (
             <div
@@ -171,7 +171,7 @@ export default function PricingSection() {
           ))}
         </div>
 
-        {/* Enterprise features */}
+        {/* 企业版功能 */}
         <div className="bg-white rounded-2xl shadow-lg p-8 mb-16">
           <div className="text-center mb-8">
             <h3 className="text-2xl font-bold text-gray-900 mb-4">
@@ -207,7 +207,7 @@ export default function PricingSection() {
           </div>
         </div>
 
-        {/* FAQ */}
+        {/* 常见问题 */}
         <div className="bg-white rounded-2xl shadow-lg p-8">
           <h3 className="text-2xl font-bold text-gray-900 text-center mb-8">
             Frequently Asked Questions
@@ -224,7 +224,7 @@ export default function PricingSection() {
           </div>
         </div>
 
-        {/* Money back guarantee */}
+        {/* 退款保证 */}
         <div className="text-center mt-12">
           <div className="inline-flex items-center rounded-full bg-green-100 px-6 py-3 text-green-800">
             <Check className="mr-2 h-5 w-5" />

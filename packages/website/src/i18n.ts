@@ -1,13 +1,13 @@
 import {getRequestConfig} from 'next-intl/server';
 
-// Can be imported from a shared config
+// 可以从共享配置中导入
 export const locales = ['zh', 'en'] as const;
 
 export default getRequestConfig(async ({requestLocale}) => {
-  // This typically corresponds to the `[locale]` segment
+  // 这通常对应于 `[locale]` 段
   let locale = await requestLocale;
 
-  // Ensure that a valid locale is used
+  // 确保使用有效的语言环境
   if (!locale || !locales.includes(locale as (typeof locales)[number])) {
     locale = 'zh';
   }
