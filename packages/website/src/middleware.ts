@@ -8,7 +8,7 @@ export default createMiddleware({
   defaultLocale: 'zh',
 
   // Always use locale prefix
-  localePrefix: 'as-needed'
+  localePrefix: 'always'
 });
 
 export const config = {
