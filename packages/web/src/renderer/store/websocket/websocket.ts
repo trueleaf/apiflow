@@ -12,7 +12,6 @@ import { router } from "@/router/index.ts";
 import { useApidocBanner } from "../apidoc/banner.ts";
 import { getWebSocketUrl } from "@/server/request/request.ts";
 import { useVariable } from "../apidoc/variables.ts";
-import { config } from "@src/config/config.ts";
 import { useCookies } from "../apidoc/cookies.ts";
 import i18next from "i18next";
 
@@ -31,6 +30,8 @@ export const useWebSocket = defineStore('websocket', () => {
   const connectionId = ref('');
   const responseMessage = ref<WebsocketResponse[]>([]);
   const sendMessageTemplateList = ref<WebsocketSendMessageTemplate[]>([]);
+  const currentActiveModule = ref<string>('messageContent'); // 当前激活的模块
+  
   /*
   |--------------------------------------------------------------------------
   | 通用方法 - Cookie自动更新
@@ -76,32 +77,32 @@ export const useWebSocket = defineStore('websocket', () => {
   */
   // 改变websocket名称
   const changeWebSocketName = (name: string): void => {
+    if (!websocket.value) return;
     websocket.value.info.name = name;
   };
 
   // 改变websocket描述
   const changeWebSocketDescription = (description: string): void => {
-    if (websocket.value) {
-      websocket.value.info.description = description;
-    }
+    if (!websocket.value) return;
+    websocket.value.info.description = description;
   };
+  
   // 改变协议类型
   const changeWebSocketProtocol = (protocol: 'ws' | 'wss'): void => {
-    if (websocket.value) {
-      websocket.value.item.protocol = protocol;
-    }
+    if (!websocket.value) return;
+    websocket.value.item.protocol = protocol;
   };
+  
   // 改变请求路径
   const changeWebSocketPath = (path: string): void => {
-    if (websocket.value) {
-      websocket.value.item.url.path = path;
-    }
+    if (!websocket.value) return;
+    websocket.value.item.url.path = path;
   };
+  
   // 改变请求前缀
   const changeWebSocketPrefix = (prefix: string): void => {
-    if (websocket.value) {
-      websocket.value.item.url.prefix = prefix;
-    }
+    if (!websocket.value) return;
+    websocket.value.item.url.prefix = prefix;
   };
 
   /*
@@ -209,40 +210,40 @@ export const useWebSocket = defineStore('websocket', () => {
   };
   
 
- // 添加请求头
- const addWebSocketHeader = (header?: Partial<ApidocProperty<'string'>>): void => {
-   if (websocket.value) {
-     const newHeader = apidocGenerateProperty();
-     Object.assign(newHeader, header);
-     websocket.value.item.headers.push(newHeader);
-   }
- };
+// 添加请求头
+const addWebSocketHeader = (header?: Partial<ApidocProperty<'string'>>): void => {
+  if (!websocket.value) return;
+  
+  const newHeader = apidocGenerateProperty();
+  Object.assign(newHeader, header);
+  websocket.value.item.headers.push(newHeader);
+};
 
- // 删除请求头
- const deleteWebSocketHeaderByIndex = (index: number): void => {
-   if (websocket.value && websocket.value.item.headers[index]) {
-     websocket.value.item.headers.splice(index, 1);
-   }
- };
+// 删除请求头
+const deleteWebSocketHeaderByIndex = (index: number): void => {
+  if (!websocket.value || !websocket.value.item.headers[index]) return;
+  websocket.value.item.headers.splice(index, 1);
+};
 
- // 根据ID删除请求头
- const deleteWebSocketHeaderById = (id: string): void => {
-   if (websocket.value) {
-     const index = websocket.value.item.headers.findIndex(header => header._id === id);
-     if (index !== -1) {
-       websocket.value.item.headers.splice(index, 1);
-     }
-   }
- };
- // 根据ID更新请求头
- const updateWebSocketHeaderById = (id: string, header: Partial<ApidocProperty<'string'>>): void => {
-   if (websocket.value) {
-     const index = websocket.value.item.headers.findIndex(h => h._id === id);
-     if (index !== -1) {
-       Object.assign(websocket.value.item.headers[index], header);
-     }
-   }
- };
+// 根据ID删除请求头
+const deleteWebSocketHeaderById = (id: string): void => {
+  if (!websocket.value) return;
+  
+  const index = websocket.value.item.headers.findIndex(header => header._id === id);
+  if (index === -1) return;
+  
+  websocket.value.item.headers.splice(index, 1);
+};
+
+// 根据ID更新请求头
+const updateWebSocketHeaderById = (id: string, header: Partial<ApidocProperty<'string'>>): void => {
+  if (!websocket.value) return;
+  
+  const index = websocket.value.item.headers.findIndex(h => h._id === id);
+  if (index === -1) return;
+  
+  Object.assign(websocket.value.item.headers[index], header);
+};
   /*
   |--------------------------------------------------------------------------
   | 查询参数操作方法
@@ -286,15 +287,14 @@ export const useWebSocket = defineStore('websocket', () => {
   */
   // 改变前置脚本
   const changeWebSocketPreRequest = (script: string): void => {
-    if (websocket.value) {
-      websocket.value.preRequest.raw = script;
-    }
+    if (!websocket.value) return;
+    websocket.value.preRequest.raw = script;
   };
+  
   // 改变后置脚本
   const changeWebSocketAfterRequest = (script: string): void => {
-    if (websocket.value) {
-      websocket.value.afterRequest.raw = script;
-    }
+    if (!websocket.value) return;
+    websocket.value.afterRequest.raw = script;
   };
 
   /*
@@ -304,9 +304,8 @@ export const useWebSocket = defineStore('websocket', () => {
   */
   // 改变发送消息内容
   const changeWebSocketMessage = (message: string): void => {
-    if (websocket.value) {
-      websocket.value.item.sendMessage = message;
-    }
+    if (!websocket.value) return;
+    websocket.value.item.sendMessage = message;
   };
 
   // 改变消息类型
@@ -550,7 +549,14 @@ export const useWebSocket = defineStore('websocket', () => {
   };
   const setResponseCacheLoading = (state: boolean) => {
     responseCacheLoading.value = state;
-  }
+  };
+  
+  /**
+   * 设置当前激活的模块
+   */
+  const setActiveModule = (moduleName: string): void => {
+    currentActiveModule.value = moduleName;
+  };
   /*
   |--------------------------------------------------------------------------
   | 数据操作方法
@@ -767,5 +773,8 @@ export const useWebSocket = defineStore('websocket', () => {
     responseCacheLoading,
     setResponseCacheLoading,
     refreshLoading,
+    // 模块状态管理
+    currentActiveModule,
+    setActiveModule,
   }
 })
