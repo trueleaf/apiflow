@@ -28,20 +28,27 @@ import SParams from './params/params.vue'
 import SResponse from './response/response.vue'
 import { useApidocTas } from '@/store/apidoc/tabs'
 import { useWebSocket } from '@/store/websocket/websocket'
-import { router } from '@/router'
 import { debounce, checkPropertyIsEqual } from '@/helper'
 import type { WebSocketNode } from '@src/types/websocket/websocket'
 import { DebouncedFunc } from 'lodash'
 import { websocketResponseCache } from '@/cache/websocket/websocketResponse'
 import { websocketTemplateCache } from '@/cache/websocket/websocketTemplateCache'
 import { uuid } from '@/helper'
+import { router } from '@/router'
+import { useRedoUndo } from '@/store/redoUndo/redoUndo'
+import { OperationFactory } from '@/helper/redoUndo'
+import { cloneDeep } from '@/helper'
 
 const apidocTabsStore = useApidocTas()
 const websocketStore = useWebSocket()
+const redoUndoStore = useRedoUndo()
 const { currentSelectTab } = storeToRefs(apidocTabsStore)
 const { loading } = storeToRefs(websocketStore)
 const debounceWebsocketDataChange = ref(null as (null | DebouncedFunc<(websocket: WebSocketNode) => void>))
+const debounceRedoUndoDataChange = ref(null as (null | DebouncedFunc<(websocket: WebSocketNode, oldWebsocket: WebSocketNode) => void>))
+const lastWebsocketSnapshot = ref<WebSocketNode | null>(null)
 const responseRef = ref()
+
 
 /*
 |--------------------------------------------------------------------------
@@ -171,6 +178,172 @@ const initResponseFromCache = () => {
   }
 }
 
+// 初始化模板数据
+const initTemplate = () => {
+  try {
+    const templates = websocketTemplateCache.getAllTemplates();
+    websocketStore.sendMessageTemplateList = templates;
+  } catch (error) {
+    console.error('初始化WebSocket模板数据失败:', error);
+  }
+};
+// 初始化防抖数据变化处理
+const initWsDebounceDataChange = () => {
+  debounceWebsocketDataChange.value = debounce(handleWebsocketDataChange, 200, {
+    leading: true
+  });
+};
+// 处理RedoUndo数据变化
+const handleRedoUndoDataChange = (currentWebsocket: WebSocketNode, oldWebsocket: WebSocketNode) => {
+  if (!currentSelectTab.value) {
+    return;
+  }
+  const nodeId = currentSelectTab.value._id;
+  // 检查协议变化
+  if (currentWebsocket.item.protocol !== oldWebsocket.item.protocol) {
+    const operation = OperationFactory.createProtocolOperation(
+      nodeId,
+      oldWebsocket.item.protocol,
+      currentWebsocket.item.protocol
+    );
+    if (operation) {
+      redoUndoStore.recordOperation(operation);
+    }
+  }
+  // 检查URL路径变化
+  if (currentWebsocket.item.url.path !== oldWebsocket.item.url.path) {
+    const operation = OperationFactory.createUrlOperation(
+      nodeId,
+      oldWebsocket.item.url.path,
+      currentWebsocket.item.url.path,
+      true
+    );
+    if (operation) {
+      redoUndoStore.recordOperation(operation);
+    }
+  }
+  // 检查URL前缀变化
+  if (currentWebsocket.item.url.prefix !== oldWebsocket.item.url.prefix) {
+    const operation = OperationFactory.createUrlOperation(
+      nodeId,
+      oldWebsocket.item.url.prefix,
+      currentWebsocket.item.url.prefix,
+      false
+    );
+    if (operation) {
+      redoUndoStore.recordOperation(operation);
+    }
+  }
+  // 检查请求头变化
+  if (!checkPropertyIsEqual(currentWebsocket.item.headers, oldWebsocket.item.headers)) {
+    const operation = OperationFactory.createHeadersOperation(
+      nodeId,
+      cloneDeep(oldWebsocket.item.headers),
+      cloneDeep(currentWebsocket.item.headers)
+    );
+    if (operation) {
+      redoUndoStore.recordOperation(operation);
+    }
+  }
+  // 检查查询参数变化
+  if (!checkPropertyIsEqual(currentWebsocket.item.queryParams, oldWebsocket.item.queryParams)) {
+    const operation = OperationFactory.createQueryParamsOperation(
+      nodeId,
+      cloneDeep(oldWebsocket.item.queryParams),
+      cloneDeep(currentWebsocket.item.queryParams)
+    );
+    if (operation) {
+      redoUndoStore.recordOperation(operation);
+    }
+  }
+  // 检查发送消息变化
+  if (currentWebsocket.item.sendMessage !== oldWebsocket.item.sendMessage) {
+    const operation = OperationFactory.createSendMessageOperation(
+      nodeId,
+      oldWebsocket.item.sendMessage,
+      currentWebsocket.item.sendMessage
+    );
+    if (operation) {
+      redoUndoStore.recordOperation(operation);
+    }
+  }
+  // 检查配置变化
+  if (!checkConfigIsEqual(currentWebsocket.config, oldWebsocket.config)) {
+    const operation = OperationFactory.createConfigOperation(
+      nodeId,
+      cloneDeep(oldWebsocket.config),
+      cloneDeep(currentWebsocket.config)
+    );
+    if (operation) {
+      redoUndoStore.recordOperation(operation);
+    }
+  }
+  // 检查前置脚本变化
+  if (currentWebsocket.preRequest.raw !== oldWebsocket.preRequest.raw) {
+    const operation = OperationFactory.createPreRequestOperation(
+      nodeId,
+      cloneDeep(oldWebsocket.preRequest),
+      cloneDeep(currentWebsocket.preRequest)
+    );
+    if (operation) {
+      redoUndoStore.recordOperation(operation);
+    }
+  }
+  // 检查后置脚本变化
+  if (currentWebsocket.afterRequest.raw !== oldWebsocket.afterRequest.raw) {
+    const operation = OperationFactory.createAfterRequestOperation(
+      nodeId,
+      cloneDeep(oldWebsocket.afterRequest),
+      cloneDeep(currentWebsocket.afterRequest)
+    );
+    if (operation) {
+      redoUndoStore.recordOperation(operation);
+    }
+  }
+  // 检查基本信息变化
+  if (currentWebsocket.info.name !== oldWebsocket.info.name || 
+      currentWebsocket.info.description !== oldWebsocket.info.description) {
+    const operation = OperationFactory.createBasicInfoOperation(
+      nodeId,
+      {
+        name: oldWebsocket.info.name,
+        description: oldWebsocket.info.description
+      },
+      {
+        name: currentWebsocket.info.name,
+        description: currentWebsocket.info.description
+      }
+    );
+    if (operation) {
+      redoUndoStore.recordOperation(operation);
+    }
+  }
+  // 缓存RedoUndo数据
+  cacheRedoUndoData();
+};
+// 缓存RedoUndo数据（已废弃，现在自动同步）
+const cacheRedoUndoData = () => {
+  // 不再需要手动缓存，store会自动同步到cache
+};
+// 初始化RedoUndo防抖处理
+const initRedoUndoDebounceDataChange = () => {
+  debounceRedoUndoDataChange.value = debounce(handleRedoUndoDataChange, 300, {
+    leading: false,
+    trailing: true
+  });
+};
+// 初始化RedoUndo缓存数据
+const initRedoUndoCache = () => {
+  if (!currentSelectTab.value) {
+    return;
+  }
+  try {
+    const nodeId = currentSelectTab.value._id;
+    redoUndoStore.initFromCache(nodeId);
+  } catch (error) {
+    console.error('初始化RedoUndo缓存数据失败:', error);
+  }
+};
 // 检查WebSocket连接状态
 const checkIsConnection = () => {
   if (!currentSelectTab.value) {
@@ -323,6 +496,11 @@ watch(currentSelectTab, async (val, oldVal) => {
     getWebsocketInfo()
     initResponseFromCache()
     checkIsConnection()
+    initRedoUndoCache()
+    // 初始化websocket快照
+    if (websocketStore.websocket) {
+      lastWebsocketSnapshot.value = cloneDeep(websocketStore.websocket)
+    }
   }
 }, {
   deep: true,
@@ -335,24 +513,31 @@ watch(() => websocketStore.websocket, (websocket: WebSocketNode) => {
 }, {
   deep: true,
 })
+// RedoUndo数据变化监听器
+watch(() => websocketStore.websocket, (newWebsocket: WebSocketNode, oldWebsocket: WebSocketNode) => {
+  if (debounceRedoUndoDataChange.value && lastWebsocketSnapshot.value && oldWebsocket) {
+    debounceRedoUndoDataChange.value(newWebsocket, lastWebsocketSnapshot.value)
+  }
+  // 更新快照
+  lastWebsocketSnapshot.value = cloneDeep(newWebsocket)
+}, {
+  deep: true,
+})
+
 
 onMounted(() => {
-  // 初始化模板数据
-  try {
-    const templates = websocketTemplateCache.getAllTemplates();
-    websocketStore.sendMessageTemplateList = templates;
-  } catch (error) {
-    console.error('初始化WebSocket模板数据失败:', error);
-  }
-  
-  debounceWebsocketDataChange.value = debounce(handleWebsocketDataChange, 200, {
-    leading: true
-  })
+  initTemplate()
+  initWsDebounceDataChange()
+  initRedoUndoDebounceDataChange()
   initWebSocketEventListeners()
 })
 // 组件卸载时清理事件监听器  
 onUnmounted(() => {
   cleanupWebSocketEventListeners()
+  // 清理防抖函数
+  if (debounceRedoUndoDataChange.value) {
+    debounceRedoUndoDataChange.value.cancel()
+  }
 })
 
 </script>

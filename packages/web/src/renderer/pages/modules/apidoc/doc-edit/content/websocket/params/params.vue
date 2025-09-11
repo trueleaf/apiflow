@@ -59,10 +59,12 @@ import SRemarks from './remarks/remarks.vue'
 import { useWebSocket } from '@/store/websocket/websocket'
 import { useApidocTas } from '@/store/apidoc/tabs'
 import { webSocketNodeCache } from '@/cache/websocket/websocketNodeCache'
+import { useRedoUndo } from '@/store/redoUndo/redoUndo'
 
 const { t } = useTranslation()
 const websocketStore = useWebSocket()
 const apidocTabsStore = useApidocTas()
+const redoUndoStore = useRedoUndo()
 const { currentSelectTab } = storeToRefs(apidocTabsStore)
 const { websocket } = storeToRefs(websocketStore)
 const activeTab = ref('')
@@ -89,6 +91,8 @@ const getInitialActiveTab = (): string => {
 watch(activeTab, (newVal) => {
   if (currentSelectTab.value) {
     webSocketNodeCache.setActiveTab(currentSelectTab.value._id, newVal)
+    // 设置当前激活的模块到websocket store
+    websocketStore.setActiveModule(newVal)
   }
 })
 

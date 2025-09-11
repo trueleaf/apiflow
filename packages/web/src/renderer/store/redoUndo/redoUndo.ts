@@ -1,0 +1,206 @@
+import { defineStore } from "pinia";
+import { ref } from "vue";
+import type { 
+  WsRedoUnDoOperation
+} from "@src/types/redoUndo";
+import type { ApidocProperty } from "@src/types";
+import type { WebSocketNode } from "@src/types/websocket/websocket";
+import { useWebSocket } from "@/store/websocket/websocket";
+import { cloneDeep } from "@/helper";
+import { redoUndoCache } from "@/cache/redoUndo/redoUndo";
+
+export const useRedoUndo = defineStore('redoUndo', () => {
+  const wsRedoList = ref<Record<string, WsRedoUnDoOperation[]>>({});
+  const wsUndoList = ref<Record<string, WsRedoUnDoOperation[]>>({});
+  const websocketStore = useWebSocket();
+  /*
+  |--------------------------------------------------------------------------
+  | 操作记录方法
+  |--------------------------------------------------------------------------
+  */
+  
+  /**
+   * 记录操作
+   */
+  const recordOperation = (operation: WsRedoUnDoOperation): void => {
+    const nodeId = operation.nodeId;
+    if (!wsUndoList.value[nodeId]) {
+      wsUndoList.value[nodeId] = [];
+    }
+    wsUndoList.value[nodeId].push(operation);
+    wsRedoList.value[nodeId] = []; // 清空redo列表
+    
+    const maxHistoryLength = 100; // 默认最大历史记录长度
+    if (wsUndoList.value[nodeId].length > maxHistoryLength) {
+      wsUndoList.value[nodeId] = wsUndoList.value[nodeId].slice(-maxHistoryLength);
+    }
+    
+    // 同步到cache
+    redoUndoCache.setRedoUndoListByNodeId(nodeId, wsRedoList.value[nodeId], wsUndoList.value[nodeId]);
+  };
+
+  /**
+   * 撤销操作
+   */
+  const wsUndo = (nodeId: string): boolean => {
+    const undoList = wsUndoList.value[nodeId];
+    if (!undoList || undoList.length === 0) {
+      return false;
+    }
+    const operation = undoList.pop()!;
+    try {
+      applyOperation(operation, "undo");
+      if (!wsRedoList.value[nodeId]) {
+        wsRedoList.value[nodeId] = [];
+      }
+      wsRedoList.value[nodeId].push(operation);
+      
+      // 同步到cache
+      redoUndoCache.setRedoUndoListByNodeId(nodeId, wsRedoList.value[nodeId], wsUndoList.value[nodeId]);
+      return true;
+    } catch (error) {
+      console.error('撤销操作失败:', error);
+      undoList.push(operation); // 回滚
+      return false;
+    }
+  };
+
+  /**
+   * 重做操作
+   */
+  const wsRedo = (nodeId: string): boolean => {
+    const redoList = wsRedoList.value[nodeId];
+    if (!redoList || redoList.length === 0) {
+      return false;
+    }
+    const operation = redoList.pop()!;
+    try {
+      applyOperation(operation, "redo");
+      if (!wsUndoList.value[nodeId]) {
+        wsUndoList.value[nodeId] = [];
+      }
+      wsUndoList.value[nodeId].push(operation);
+      
+      // 同步到cache
+      redoUndoCache.setRedoUndoListByNodeId(nodeId, wsRedoList.value[nodeId], wsUndoList.value[nodeId]);
+      return true;
+    } catch (error) {
+      console.error('重做操作失败:', error);
+      redoList.push(operation); // 回滚
+      return false;
+    }
+  };
+
+  /*
+  |--------------------------------------------------------------------------
+  | 辅助方法
+  |--------------------------------------------------------------------------
+  */
+  
+  /**
+   * 应用操作到WebSocket store
+   */
+  const applyOperation = (operation: WsRedoUnDoOperation, operationType: "redo" | "undo"): void => {
+    const targetValue = operationType === "undo" ? operation.oldValue : operation.newValue;
+    
+    switch (operation.type) {
+      case 'protocolOperation':
+        websocketStore.changeWebSocketProtocol(targetValue as 'ws' | 'wss');
+        break;
+        
+      case 'urlOperation':
+        // URL操作仅改变path字段
+        websocketStore.changeWebSocketPath(targetValue as string);
+        break;
+        
+      case 'headersOperation':
+        websocketStore.websocket.item.headers = cloneDeep(targetValue as ApidocProperty<'string'>[]);
+        break;
+        
+      case 'queryParamsOperation':
+        websocketStore.websocket.item.queryParams = cloneDeep(targetValue as ApidocProperty<'string'>[]);
+        break;
+        
+      case 'sendMessageOperation':
+        websocketStore.changeWebSocketMessage(targetValue as string);
+        break;
+        
+      case 'configOperation':
+        websocketStore.websocket.config = cloneDeep(targetValue as WebSocketNode['config']);
+        break;
+        
+      case 'preRequestOperation':
+        websocketStore.websocket.preRequest = cloneDeep(targetValue as WebSocketNode['preRequest']);
+        break;
+        
+      case 'afterRequestOperation':
+        websocketStore.websocket.afterRequest = cloneDeep(targetValue as WebSocketNode['afterRequest']);
+        break;
+        
+      case 'basicInfoOperation':
+        const info = targetValue as { name?: string; description?: string };
+        if (info.name !== undefined) {
+          websocketStore.changeWebSocketName(info.name);
+        }
+        if (info.description !== undefined) {
+          websocketStore.changeWebSocketDescription(info.description);
+        }
+        break;
+        
+      default:
+        console.warn('未知的操作类型:', (operation as any).type);
+    }
+  };
+
+
+
+  /**
+   * 修改WebSocket重做列表
+   */
+  const changeWsRedoList = (nodeId: string, redoList: WsRedoUnDoOperation[]): void => {
+    wsRedoList.value[nodeId] = redoList;
+    // 同步到cache
+    const undoList = wsUndoList.value[nodeId] || [];
+    redoUndoCache.setRedoUndoListByNodeId(nodeId, redoList, undoList);
+  };
+
+  /**
+   * 修改WebSocket撤销列表
+   */
+  const changeWsUndoList = (nodeId: string, undoList: WsRedoUnDoOperation[]): void => {
+    wsUndoList.value[nodeId] = undoList;
+    // 同步到cache
+    const redoList = wsRedoList.value[nodeId] || [];
+    redoUndoCache.setRedoUndoListByNodeId(nodeId, redoList, undoList);
+  };
+
+  /**
+   * 从缓存初始化指定节点的数据
+   */
+  const initFromCache = (nodeId: string): void => {
+    const cacheData = redoUndoCache.getRedoUndoListByNodeId(nodeId);
+    if (cacheData) {
+      wsUndoList.value[nodeId] = cacheData.undoList;
+      wsRedoList.value[nodeId] = cacheData.redoList;
+    } else {
+      wsUndoList.value[nodeId] = [];
+      wsRedoList.value[nodeId] = [];
+    }
+  };
+
+
+
+  return {
+    // 状态
+    wsRedoList,
+    wsUndoList,
+    
+    // 方法
+    recordOperation,
+    wsUndo,
+    wsRedo,
+    changeWsRedoList,
+    changeWsUndoList,
+    initFromCache
+  };
+});
