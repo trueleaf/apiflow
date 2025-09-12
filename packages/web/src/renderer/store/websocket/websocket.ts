@@ -485,6 +485,11 @@ const updateWebSocketHeaderById = (id: string, header: Partial<ApidocProperty<'s
     }
   };
 
+  // 设置消息模板列表
+  const setSendMessageTemplateList = (templates: WebsocketSendMessageTemplate[]): void => {
+    sendMessageTemplateList.value = templates;
+  };
+
 
 
   /*
@@ -763,6 +768,7 @@ const updateWebSocketHeaderById = (id: string, header: Partial<ApidocProperty<'s
     getMessageTemplateById,
     getAllMessageTemplates,
     clearAllMessageTemplates,
+    setSendMessageTemplateList,
     // 缓存相关方法
     cacheWebSocket,
     getCachedWebSocket,
