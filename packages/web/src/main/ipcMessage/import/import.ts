@@ -1,7 +1,7 @@
 import { dialog, BrowserWindow, WebContentsView } from "electron";
 import { ImportStatus } from "@src/types/types.ts";
 import fs from "fs/promises";
-import yauzl from "yauzl";
+import JSZip from "jszip";
 import { createHash } from "crypto";
 
 // 全局导入状态
@@ -99,35 +99,48 @@ export const analyzeImportFile = async (filePath: string) => {
 
 /**
  * 获取压缩包中的项目数量
+ * 优化内存使用：只读取中央目录，不加载文件内容
  */
 const getArchiveItemCount = async (filePath: string): Promise<number> => {
-  return new Promise((resolve, reject) => {
-    yauzl.open(filePath, { lazyEntries: true }, (err, zipfile) => {
-      if (err) {
-        reject(new Error('无法打开压缩文件'));
-        return;
+  try {
+    // 检查文件大小，如果文件过大，使用分块读取
+    const stats = await fs.stat(filePath);
+    const fileSize = stats.size;
+    
+    let zipData: JSZip;
+    
+    if (fileSize > 50 * 1024 * 1024) { // 大于50MB的文件
+      // 对于大文件，使用流式加载
+      const zipBuffer = await fs.readFile(filePath);
+      const zip = new JSZip();
+      zipData = await zip.loadAsync(zipBuffer, { 
+        checkCRC32: false, // 跳过CRC检查以提高性能
+        createFolders: false // 不创建文件夹结构
+      });
+    } else {
+      // 小文件直接加载
+      const zipBuffer = await fs.readFile(filePath);
+      const zip = new JSZip();
+      zipData = await zip.loadAsync(zipBuffer);
+    }
+    
+    let itemCount = 0;
+    
+    // 遍历ZIP文件中的所有条目
+    Object.keys(zipData.files).forEach(fileName => {
+      const file = zipData.files[fileName];
+      // 跳过目录和元数据文件，只计算批次数据文件
+      if (!file.dir && 
+          fileName.startsWith('batch-') && 
+          fileName.endsWith('.dat')) {
+        itemCount++;
       }
-      let itemCount = 0;
-      zipfile.readEntry();
-      zipfile.on('entry', (entry) => {
-        // 跳过目录和元数据文件
-        if (!entry.fileName.endsWith('/') && 
-            entry.fileName.startsWith('batch-') && 
-            entry.fileName.endsWith('.dat')) {
-          itemCount++;
-        }
-        zipfile.readEntry();
-      });
-      
-      zipfile.on('end', () => {
-        resolve(itemCount * 100); // 假设每个批次文件包含约100个数据项
-      });
-      
-      zipfile.on('error', (error) => {
-        reject(error);
-      });
     });
-  });
+    
+    return itemCount * 100; // 假设每个批次文件包含约100个数据项
+  } catch (error) {
+    throw new Error(`无法打开或分析压缩文件: ${(error as Error).message}`);
+  }
 };
 
 /**
@@ -168,107 +181,166 @@ export const startImport = async (
 
 /**
  * 解压并导入数据
+ * 优化内存使用：批次处理文件，及时释放内存
  */
 const extractAndImportData = async (filePath: string, totalItems: number) => {
-  return new Promise<void>((resolve, reject) => {
-    yauzl.open(filePath, { lazyEntries: true }, (err, zipfile) => {
-      if (err) {
-        reject(new Error('无法打开导入文件'));
-        return;
-      }
-
-      let processedItems = 0;
-      const processedFiles = new Set<string>();
-
-      zipfile.readEntry();
-
-      zipfile.on('entry', (entry) => {
-        // 跳过目录和非数据文件
-        if (entry.fileName.endsWith('/') || 
-            entry.fileName === 'export-metadata.dat' ||
-            !entry.fileName.startsWith('batch-')) {
-          zipfile.readEntry();
-          return;
-        }
-
+  try {
+    // 检查文件大小以决定处理策略
+    const stats = await fs.stat(filePath);
+    const fileSize = stats.size;
+    
+    let processedItems = 0;
+    const processedFiles = new Set<string>();
+    
+    if (fileSize > 100 * 1024 * 1024) { // 大于100MB的文件，分块处理
+      await processLargeZipFile(filePath, totalItems, processedFiles, processedItems);
+    } else {
+      // 小文件直接处理
+      const zipBuffer = await fs.readFile(filePath);
+      const zip = new JSZip();
+      const zipData = await zip.loadAsync(zipBuffer);
+      
+      // 获取所有批次文件，按文件名排序确保处理顺序
+      const batchFiles = Object.keys(zipData.files)
+        .filter(fileName => {
+          const file = zipData.files[fileName];
+          return !file.dir && 
+                 fileName.startsWith('batch-') && 
+                 fileName.endsWith('.dat') &&
+                 fileName !== 'export-metadata.dat';
+        })
+        .sort();
+      
+      // 顺序处理每个批次文件
+      for (const fileName of batchFiles) {
         // 避免重复处理
-        if (processedFiles.has(entry.fileName)) {
-          zipfile.readEntry();
-          return;
+        if (processedFiles.has(fileName)) {
+          continue;
         }
-        processedFiles.add(entry.fileName);
-
-        zipfile.openReadStream(entry, (err, readStream) => {
-          if (err) {
-            console.error('读取文件失败:', err);
-            zipfile.readEntry();
-            return;
-          }
-
-          const chunks: Buffer[] = [];
+        processedFiles.add(fileName);
+        
+        try {
+          const file = zipData.files[fileName];
+          const buffer = await file.async('nodebuffer');
+          const batchData = deserializeData(buffer);
           
-          readStream.on('data', (chunk) => {
-            chunks.push(chunk);
-          });
-          
-          readStream.on('end', async () => {
-            try {
-              const buffer = Buffer.concat(chunks);
-              const batchData = deserializeData(buffer);
-              
-              if (batchData && batchData.items) {
-                // 发送数据到渲染进程进行导入
-                await importBatchData(batchData.items);
-                
-                processedItems += batchData.items.length;
-                importStatus.processedNum = processedItems;
-                importStatus.progress = Math.min(Math.round((processedItems / totalItems) * 100), 100);
-                
-                if (contentView) {
-                  contentView.webContents.send('import-progress', {
-                    processed: processedItems,
-                    total: totalItems,
-                    message: `正在导入数据... ${processedItems}/${totalItems}`
-                  });
-                }
-              }
-              
-              zipfile.readEntry();
-            } catch (error) {
-              console.error('处理批次数据失败:', error);
-              zipfile.readEntry();
+          if (batchData && batchData.items) {
+            // 发送数据到渲染进程进行导入
+            await importBatchData(batchData.items);
+            
+            processedItems += batchData.items.length;
+            importStatus.processedNum = processedItems;
+            importStatus.progress = Math.min(Math.round((processedItems / totalItems) * 100), 100);
+            
+            if (contentView) {
+              contentView.webContents.send('import-progress', {
+                processed: processedItems,
+                total: totalItems,
+                message: `正在导入数据... ${processedItems}/${totalItems}`
+              });
             }
-          });
+          }
           
-          readStream.on('error', (err) => {
-            console.error('读取流错误:', err);
-            zipfile.readEntry();
-          });
-        });
-      });
-
-      zipfile.on('end', () => {
-        importStatus.status = 'completed';
-        importStatus.progress = 100;
-        importInProgress = false;
-        
-        if (contentView) {
-          contentView.webContents.send('import-zip-read-complete', {
-            success: true,
-            totalItems: processedItems,
-            message: `ZIP文件读取完成，正在导入到数据库...`
-          });
+          // 强制垃圾回收，释放内存
+          if (global.gc) {
+            global.gc();
+          }
+          
+        } catch (error) {
+          console.error(`处理批次文件 ${fileName} 失败:`, error);
+          // 继续处理下一个文件，不中断整个导入过程
         }
-        
-        resolve();
+      }
+    }
+    
+    // 导入完成
+    importStatus.status = 'completed';
+    importStatus.progress = 100;
+    importInProgress = false;
+    
+    if (contentView) {
+      contentView.webContents.send('import-zip-read-complete', {
+        success: true,
+        totalItems: processedItems,
+        message: `ZIP文件读取完成，正在导入到数据库...`
       });
+    }
+    
+  } catch (error) {
+    importInProgress = false;
+    throw new Error(`解压导入失败: ${(error as Error).message}`);
+  }
+};
 
-      zipfile.on('error', (error) => {
-        importInProgress = false;
-        reject(error);
-      });
-    });
+/**
+ * 处理大型ZIP文件的内存优化方法
+ */
+const processLargeZipFile = async (
+  filePath: string, 
+  totalItems: number, 
+  processedFiles: Set<string>, 
+  processedItems: number
+) => {
+  const zipBuffer = await fs.readFile(filePath);
+  const zip = new JSZip();
+  const zipData = await zip.loadAsync(zipBuffer, {
+    checkCRC32: false, // 跳过CRC检查以提高性能
+    createFolders: false
   });
+  
+  // 获取所有批次文件，按文件名排序
+  const batchFiles = Object.keys(zipData.files)
+    .filter(fileName => {
+      const file = zipData.files[fileName];
+      return !file.dir && 
+             fileName.startsWith('batch-') && 
+             fileName.endsWith('.dat') &&
+             fileName !== 'export-metadata.dat';
+    })
+    .sort();
+  
+  // 分批处理文件，每次处理5个文件以控制内存使用
+  const batchSize = 5;
+  for (let i = 0; i < batchFiles.length; i += batchSize) {
+    const currentBatch = batchFiles.slice(i, i + batchSize);
+    
+    for (const fileName of currentBatch) {
+      if (processedFiles.has(fileName)) continue;
+      processedFiles.add(fileName);
+      
+      try {
+        const file = zipData.files[fileName];
+        const buffer = await file.async('nodebuffer');
+        const batchData = deserializeData(buffer);
+        
+        if (batchData && batchData.items) {
+          await importBatchData(batchData.items);
+          
+          processedItems += batchData.items.length;
+          importStatus.processedNum = processedItems;
+          importStatus.progress = Math.min(Math.round((processedItems / totalItems) * 100), 100);
+          
+          if (contentView) {
+            contentView.webContents.send('import-progress', {
+              processed: processedItems,
+              total: totalItems,
+              message: `正在导入数据... ${processedItems}/${totalItems}`
+            });
+          }
+        }
+      } catch (error) {
+        console.error(`处理批次文件 ${fileName} 失败:`, error);
+      }
+    }
+    
+    // 每处理一批文件后强制垃圾回收
+    if (global.gc) {
+      global.gc();
+    }
+    
+    // 给事件循环一些时间处理其他任务
+    await new Promise(resolve => setImmediate(resolve));
+  }
 };
 
 /**

@@ -1,12 +1,11 @@
 import { StandaloneExportHtmlParams } from "@src/types/standalone";
 import path from "path";
 import fs from "fs/promises";
-import fsSync from "fs";
 import * as docx from "docx";
 import type { Paragraph as ParagraphType, Table as TableType } from "docx";
 import { dfsForest, arrayToTree } from "../../utils/index";
 import { fileURLToPath } from "url";
-import archiver from "archiver";
+import JSZip from "jszip";
 import { dialog, BrowserWindow, WebContentsView } from "electron";
 import { ExportStatus } from "@src/types/types.ts";
 import { createHash } from "crypto";
@@ -26,7 +25,7 @@ let exportStatus: ExportStatus = {
 
 // 存储接收到的数据
 let receivedDataLength = 0;
-let archive: archiver.Archiver | null = null;
+let zip: JSZip | null = null;
 let tempFilePath: string = ''; // 临时文件路径
 let finalFilePath: string = ''; // 最终zip文件路径
 let mainWindow: BrowserWindow | null = null;
@@ -74,7 +73,7 @@ const serializeData = (data: any): Buffer => {
  * 批量处理数据以提高性能
  */
 const processBatch = (): void => {
-  if (batchBuffer.length === 0 || !archive) return;
+  if (batchBuffer.length === 0 || !zip) return;
   try {
     // 将批次数据合并
     const batchData = {
@@ -87,7 +86,9 @@ const processBatch = (): void => {
     const fileName = `batch-${String(batchCounter).padStart(6, '0')}.dat`;
     
     // 添加到压缩包
-    archive.append(serializedData, { name: fileName });
+    if (zip) {
+      zip.file(fileName, serializedData);
+    }
   } catch (error) {
     console.error('批量处理失败:', error);
   }
@@ -694,6 +695,7 @@ export const selectExportPath = async (): Promise<{ success: boolean; filePath?:
       return { success: false, error: '用户取消选择' };
     }
     finalFilePath = result.filePath;
+    // JSZip 不需要临时文件，但保留变量以兼容现有逻辑
     const pathWithoutExt = finalFilePath.replace(/\.zip$/, '');
     tempFilePath = `${pathWithoutExt}.tmp`;
     exportStatus.status = 'pathSelected';
@@ -723,27 +725,8 @@ export const startExport = async (itemNum: number): Promise<void> => {
     exportStatus.progress = 0;
     exportStatus.itemNum = itemNum;
     receivedDataLength = 0;
-    // 创建 archiver 实例，写入临时文件
-    archive = archiver('zip', {
-      zlib: { level: 9 } // 最高压缩级别
-    });
-    
-    // 监听 archiver 事件
-    archive.on('error', (err) => {
-      console.error('Archive error:', err);
-      exportStatus.status = 'error';
-      if (contentView) {
-        contentView.webContents.send('export-main-error', err.message);
-      }
-    });
-    
-    archive.on('end', () => {
-      console.log('Archive finalized');
-    });
-    
-    // 创建输出流到临时文件
-    const output = fsSync.createWriteStream(tempFilePath);
-    archive.pipe(output);
+    // 创建 JSZip 实例
+    zip = new JSZip();
     
     // 通知渲染进程准备发送数据
     if (contentView) {
@@ -803,7 +786,7 @@ export const finishRendererData = async (): Promise<void> => {
     }
     
     // 添加导出元数据文件
-    if (archive) {
+    if (zip) {
       const exportMetadata = {
         version: '1.0',
         exportDate: new Date().toISOString(),
@@ -815,44 +798,29 @@ export const finishRendererData = async (): Promise<void> => {
       };
       
       const metadataBuffer = serializeData(exportMetadata);
-      archive.append(metadataBuffer, { name: 'export-metadata.dat' });
+      zip.file('export-metadata.dat', metadataBuffer);
     }
     
     // 检查是否所有数据都已处理
     if (receivedDataLength >= exportStatus.itemNum) {
       // 完成压缩
-      if (archive) {
-        await archive.finalize();
-        
-        // 等待文件写入完成
-        await new Promise((resolve, reject) => {
-          const timeout = setTimeout(() => {
-            reject(new Error('文件写入超时'));
-          }, 30000);
-          
-          const checkFileExists = () => {
-            if (fsSync.existsSync(tempFilePath)) {
-              clearTimeout(timeout);
-              resolve(void 0);
-            } else {
-              setTimeout(checkFileExists, 100);
-            }
-          };
-          checkFileExists();
-        });
-        
-        // 将临时文件重命名为最终的zip文件
+      if (zip) {
         try {
-          if (fsSync.existsSync(finalFilePath)) {
-            // 如果目标文件已存在，先删除
-            await fs.unlink(finalFilePath);
-          }
-          await fs.rename(tempFilePath, finalFilePath);
-          console.log(`文件已重命名: ${tempFilePath} -> ${finalFilePath}`);
+          // 生成 ZIP 文件的 Buffer
+          const zipBuffer = await zip.generateAsync({
+            type: 'nodebuffer',
+            compression: 'DEFLATE',
+            compressionOptions: {
+              level: 9 // 最高压缩级别
+            }
+          });
+          
+          // 写入文件
+          await fs.writeFile(finalFilePath, zipBuffer);
           console.log(`导出完成，共处理 ${batchCounter} 个批次，${receivedDataLength} 项数据`);
-        } catch (renameError) {
-          console.error('重命名文件失败:', renameError);
-          throw new Error(`文件重命名失败: ${(renameError as Error).message}`);
+        } catch (zipError) {
+          console.error('生成ZIP文件失败:', zipError);
+          throw new Error(`ZIP文件生成失败: ${(zipError as Error).message}`);
         }
         
         exportStatus.status = 'completed';
@@ -869,7 +837,7 @@ export const finishRendererData = async (): Promise<void> => {
         }
         
         // 重置变量
-        archive = null;
+        zip = null;
       }
     }
 
@@ -877,14 +845,8 @@ export const finishRendererData = async (): Promise<void> => {
     console.error('完成导出失败:', error);
     exportStatus.status = 'error';
     
-    // 清理临时文件
-    try {
-      if (tempFilePath && fsSync.existsSync(tempFilePath)) {
-        await fs.unlink(tempFilePath);
-      }
-    } catch (cleanupError) {
-      console.warn('清理临时文件失败:', cleanupError);
-    }
+    // 清理临时文件(使用JSZip不需要临时文件)
+    // JSZip 在内存中生成，不需要清理临时文件
     
     if (contentView) {
       contentView.webContents.send('export-main-error', (error as Error).message);
@@ -896,13 +858,9 @@ export const finishRendererData = async (): Promise<void> => {
 export const resetExport = (): void => {
   try {
     // 如果有正在进行的压缩，先销毁它
-    if (archive) {
-      try {
-        archive.destroy();
-      } catch (error) {
-        console.warn('销毁archive时出错:', error);
-      }
-      archive = null;
+    if (zip) {
+      // JSZip 不需要显式销毁，直接置空即可
+      zip = null;
     }
     
     // 重置状态

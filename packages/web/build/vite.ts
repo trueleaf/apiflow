@@ -22,7 +22,7 @@ const buildElectron = (mode: string, command: 'build' | 'serve') => {
     outExtension: {
       '.js': '.mjs',
     },
-    external: ['electron', 'archiver', 'fs', 'path', 'stream', 'yauzl', 'ws'],
+    external: ['electron', 'ws'],
     define: {
       __MODE__: JSON.stringify(mode),
       __COMMAND__: JSON.stringify(command),
