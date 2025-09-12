@@ -24,3 +24,4 @@ dist-ssr
 *.sw?
 .augments
 .github/copilot-instructions.md
+AGENTS.md

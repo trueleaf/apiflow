@@ -70,10 +70,12 @@ import { uuid } from '@/helper';
 import { websocketResponseCache } from '@/cache/websocket/websocketResponse';
 import { getWebSocketHeaders } from '@/server/request/request';
 import SRedoUndoControls from '@/components/common/redo-undo/redo-undo-controls.vue';
+import { useRedoUndo } from '@/store/redoUndo/redoUndo';
 
 const { t } = useTranslation();
 const websocketStore = useWebSocket();
 const apidocTabsStore = useApidocTas();
+const redoUndoStore = useRedoUndo();
 const { currentSelectTab } = storeToRefs(apidocTabsStore);
 const { saveLoading, refreshLoading, websocketFullUrl: fullUrl, connectionState, connectionId } = storeToRefs(websocketStore);
 
@@ -265,9 +267,10 @@ const handleRefresh = async () => {
     // 清空内存中的消息
     websocketStore.clearMessages();
     
-    // 清空IndexedDB中的缓存
+    // 清空指定节点的redoList和undoList
     const nodeId = currentSelectTab.value._id;
     if (nodeId) {
+      redoUndoStore.clearRedoUndoListByNodeId(nodeId);
       await websocketResponseCache.clearData(nodeId);
     }
     

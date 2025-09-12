@@ -188,19 +188,25 @@ export const useRedoUndo = defineStore('redoUndo', () => {
     }
   };
 
+  /**
+   * 清除指定节点的redoList和undoList
+   */
+  const clearRedoUndoListByNodeId = (nodeId: string): void => {
+    wsRedoList.value[nodeId] = [];
+    wsUndoList.value[nodeId] = [];
+    redoUndoCache.setRedoUndoListByNodeId(nodeId, [], []);
+  };
 
 
   return {
-    // 状态
     wsRedoList,
     wsUndoList,
-    
-    // 方法
     recordOperation,
     wsUndo,
     wsRedo,
     changeWsRedoList,
     changeWsUndoList,
-    initFromCache
+    initFromCache,
+    clearRedoUndoListByNodeId
   };
 });
