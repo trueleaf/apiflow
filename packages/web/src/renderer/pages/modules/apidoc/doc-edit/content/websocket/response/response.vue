@@ -40,7 +40,7 @@
 <script lang="ts" setup>
 import { computed } from 'vue';
 import { storeToRefs } from 'pinia';
-import { useTranslation } from 'i18next-vue';
+import { useI18n } from 'vue-i18n';
 import { useWebSocket } from '@/store/websocket/websocket';
 import { formatDate } from '@/helper';
 import SLabelValue from '@/components/common/label-value/g-label-value.vue';
@@ -48,7 +48,7 @@ import GWebsocketView from '@/components/common/websocket-view/g-websocket-view.
 import SLoading from '@/components/common/loading/g-loading.vue';
 import { websocketResponseCache } from '@/cache/websocket/websocketResponse';
 
-const { t } = useTranslation();
+const { t } = useI18n();
 const websocketStore = useWebSocket();
 const { websocketFullUrl, websocket, responseMessage: messages, responseCacheLoading } = storeToRefs(websocketStore);
 

@@ -24,11 +24,11 @@
 <script lang="ts" setup>
 import { computed, onMounted, onUnmounted } from 'vue';
 import { RefreshLeft, RefreshRight } from '@element-plus/icons-vue';
-import { useTranslation } from 'i18next-vue';
+import { useI18n } from 'vue-i18n';
 import { useRedoUndo } from '@/store/redoUndo/redoUndo';
 import { useWebSocket } from '@/store/websocket/websocket';
 
-const { t } = useTranslation();
+const { t } = useI18n();
 const redoUndoStore = useRedoUndo();
 const websocketStore = useWebSocket();
 

@@ -35,14 +35,14 @@
 import type { InternalRuleItem } from 'async-validator/dist-types/interface'
 import { nextTick, onMounted, reactive, ref } from 'vue';
 import type { Response } from '@src/types'
-import { useTranslation } from 'i18next-vue'
+import { useI18n } from 'vue-i18n'
 import { ElMessage, FormInstance } from 'element-plus';
 import { request } from '@/api/api';
 import { router } from '@/router';
 import { config } from '@src/config/config';
 import SmsButton from '@/components/common/sms-button/g-sms-button.vue'
 
-const { t } = useTranslation()
+const { t } = useI18n()
 const registerInfo = reactive({
   loginName: '', //---登录名称
   smsCode: '', //-----验证码

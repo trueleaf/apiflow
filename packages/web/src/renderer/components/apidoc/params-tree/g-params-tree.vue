@@ -183,7 +183,7 @@ import type Node from 'element-plus/es/components/tree/src/model/node'
 import type { TreeNodeOptions } from 'element-plus/lib/components/tree/src/tree.type'
 import type { ApidocProperty, HttpNodePropertyType, MockItem } from '@src/types'
 import { apidocGenerateProperty, forEachForest } from '@/helper/index'
-import { useTranslation } from 'i18next-vue'
+import { useI18n } from 'vue-i18n'
 import { useApidoc } from '@/store/apidoc/apidoc'
 import SValidInput from '@/components/common/valid-input/g-valid-input.vue'
 import SMock from '@/components/apidoc/mock/g-mock.vue'
@@ -296,7 +296,7 @@ const props = defineProps({
   },
 });
 const emits = defineEmits(['change'])
-const { t } = useTranslation()
+const { t } = useI18n()
 /*
 |--------------------------------------------------------------------------
 | 基础变量

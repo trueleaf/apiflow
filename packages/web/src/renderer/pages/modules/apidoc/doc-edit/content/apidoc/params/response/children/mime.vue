@@ -21,9 +21,9 @@
 import { Effect } from 'element-plus';
 import { Close } from '@element-plus/icons-vue'
 import mimeTypes from './mime'
-import { useTranslation } from 'i18next-vue'
+import { useI18n } from 'vue-i18n'
 
-const { t } = useTranslation()
+const { t } = useI18n()
 
 const emits = defineEmits(['close', 'select']);
 const handleSelect = (mimeType: string) => {

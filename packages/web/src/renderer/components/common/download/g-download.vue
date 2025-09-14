@@ -6,7 +6,7 @@
 
 <script lang="ts" setup>
 import { request } from '@/api/api';
-import { useTranslation } from 'i18next-vue'
+import { useI18n } from 'vue-i18n'
 
 type DownloadResponse = {
   fileName?: string,
@@ -29,7 +29,7 @@ const props = defineProps({
   },
 })
 const emits = defineEmits(['finish', 'start']);
-const { t } = useTranslation();
+const { t } = useI18n();
 
 //导出任务明细
 const downloadFile = () => {

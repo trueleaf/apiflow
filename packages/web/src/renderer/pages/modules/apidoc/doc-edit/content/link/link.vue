@@ -62,7 +62,7 @@ import { ElMessageBox } from 'element-plus'
 import { request } from '@/api/api'
 import { CirclePlus, Link, Search } from '@element-plus/icons-vue'
 import { router } from '@/router'
-import { useTranslation } from 'i18next-vue'
+import { useI18n } from 'vue-i18n'
 import SAddDialog from './dialog/add.vue'
 import SEditDialog from './dialog/edit.vue'
 import { usePermissionStore } from '@/store/permission';
@@ -80,7 +80,7 @@ type LinkInfo = {
 
 const projectId = router.currentRoute.value.query.id as string; //项目id
 const editData: Ref<LinkInfo | null> = ref(null);
-const { t } = useTranslation()
+const { t } = useI18n()
 
 const dialogVisible = ref(false); //是否显示弹窗
 const dialogVisible2 = ref(false); //编辑弹窗

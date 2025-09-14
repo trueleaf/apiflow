@@ -53,7 +53,7 @@
 
 <script lang="ts" setup>
 import { ref, reactive, computed, watch } from 'vue';
-import { useTranslation } from 'i18next-vue';
+import { useI18n } from 'vue-i18n';
 import { useWebSocket } from '@/store/websocket/websocket';
 import { uuid } from '@/helper';
 import { ElMessage, type FormInstance, type FormRules } from 'element-plus';
@@ -65,7 +65,7 @@ const props = defineProps<{
 const emit = defineEmits<{
   (e: 'update:modelValue', value: boolean): void;
 }>();
-const { t } = useTranslation();
+const { t } = useI18n();
 const websocketStore = useWebSocket();
 const visible = computed({
   get: () => props.modelValue,

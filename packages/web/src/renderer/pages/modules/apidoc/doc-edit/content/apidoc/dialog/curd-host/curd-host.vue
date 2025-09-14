@@ -89,7 +89,7 @@ import { ElMessage, ElMessageBox, FormInstance } from 'element-plus'
 import { uuid } from '@/helper'
 import { request } from '@/api/api'
 import { useApidoc } from '@/store/apidoc/apidoc'
-import { useTranslation } from 'i18next-vue'
+import { useI18n } from 'vue-i18n'
 import { config } from '@src/config/config'
 import { Ref, ref } from 'vue'
 
@@ -111,7 +111,7 @@ defineProps({
   },
 })
 const emits = defineEmits(['update:modelValue'])
-const { t } = useTranslation()
+const { t } = useI18n()
 
 const formInfo = ref({
   name: '', //-------------------前缀名称

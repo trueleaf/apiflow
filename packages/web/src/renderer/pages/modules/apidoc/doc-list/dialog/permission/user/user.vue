@@ -63,7 +63,7 @@
 </template>
 
 <script lang="ts" setup>
-import { useTranslation } from 'i18next-vue'
+import { useI18n } from 'vue-i18n'
 import type { Response, ApidocProjectMemberInfo, ApidocProjectPermission, ApidocGroupUser } from '@src/types'
 import {  onMounted, ref } from 'vue';
 import { ElMessage, ElMessageBox } from 'element-plus';
@@ -98,7 +98,7 @@ const emits = defineEmits(['leave']);
 const { userInfo } = usePermissionStore()
 const remoteUserOrGroupList = ref<ApidocProjectMemberInfo[]>([]) //------远程用户和组列表
 const memberList = ref<MemberWithOldPermission[]>([]);
-const { t } = useTranslation()
+const { t } = useI18n()
 
 const remoteQueryName = ref('');
 const loading = ref(false);

@@ -57,7 +57,7 @@
 </template>
 
 <script lang="ts" setup>
-import { useTranslation } from 'i18next-vue'
+import { useI18n } from 'vue-i18n'
 import { computed } from 'vue'
 import beautify from 'js-beautify'
 import { useApidoc } from '@/store/apidoc/apidoc';
@@ -72,7 +72,7 @@ const apidocStore = useApidoc();
 const apidocBaseInfoStore = useApidocBaseInfo();
 const apidocResponseStore = useApidocResponse();
 const { responseInfo } = storeToRefs(apidocResponseStore);
-const { t } = useTranslation()
+const { t } = useI18n()
 
 const headers = computed(() => {
   const requestHeaders = responseInfo.value.requestData.headers;

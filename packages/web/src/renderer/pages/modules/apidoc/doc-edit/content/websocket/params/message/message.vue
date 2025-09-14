@@ -139,7 +139,7 @@
 <script lang="ts" setup>
 import { ref, computed, watch, onUnmounted } from 'vue'
 import { storeToRefs } from 'pinia'
-import { useTranslation } from 'i18next-vue'
+import { useI18n } from 'vue-i18n'
 import { useApidocTas } from '@/store/apidoc/tabs'
 import { useWebSocket } from '@/store/websocket/websocket'
 import { useRedoUndo } from '@/store/redoUndo/redoUndo'
@@ -157,7 +157,7 @@ import { webSocketNodeCache } from '@/cache/websocket/websocketNodeCache'
 import { ElMessageBox, ElMessage } from 'element-plus'
 
 
-const { t } = useTranslation()
+const { t } = useI18n()
 const apidocTabsStore = useApidocTas()
 const websocketStore = useWebSocket()
 const redoUndoStore = useRedoUndo()

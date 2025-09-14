@@ -56,12 +56,12 @@
 import { computed } from 'vue'
 import { QuestionFilled } from '@element-plus/icons-vue'
 import { formatBytes, formatMs } from '@/helper/index'
-import { useTranslation } from 'i18next-vue'
+import { useI18n } from 'vue-i18n'
 import { useApidocResponse } from '@/store/apidoc/response';
 
 //远端返回值
 const apidocResponseStore = useApidocResponse();
-const { t } = useTranslation()
+const { t } = useI18n()
 
 const responseInfo = computed(() => apidocResponseStore.responseInfo);
 //格式化返回值大小

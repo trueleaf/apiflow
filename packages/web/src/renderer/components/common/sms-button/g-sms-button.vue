@@ -3,10 +3,10 @@
 </template>
 
 <script lang="ts" setup>
-import { useTranslation } from 'i18next-vue'
+import { useI18n } from 'vue-i18n'
 import { onUnmounted, ref } from 'vue';
 
-const { t } = useTranslation()
+const { t } = useI18n()
 const props = defineProps({
   startLabel: {
     type: String,

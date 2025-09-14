@@ -59,7 +59,7 @@
 </template>
 
 <script lang="ts" setup>
-import { useTranslation } from 'i18next-vue'
+import { useI18n } from 'vue-i18n'
 import SAddUserDialog from './add/add.vue'
 import SEditUserDialog from './edit/edit.vue'
 import SResetPasswordDialog from './reset-pwd/reset-pwd.vue'
@@ -73,7 +73,7 @@ import STable from '@/components/common/table/g-table.vue'
 import SDownload from '@/components/common/download/g-download.vue'
 import SUploadPlain from '@/components/common/upload/g-upload-plain.vue'
 
-const { t } = useTranslation()
+const { t } = useI18n()
 const addUserDialog = ref(false) //------------------新增用户弹窗
 const editUserDialog = ref(false) //-----------------编辑用户弹窗
 const resetPwdDialog = ref(false) //-----------------重置密码弹窗

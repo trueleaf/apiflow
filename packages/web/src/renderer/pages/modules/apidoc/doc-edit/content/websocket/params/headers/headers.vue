@@ -63,7 +63,7 @@ import { router } from '@/router'
 import { View } from '@element-plus/icons-vue'
 import { ApidocProperty } from '@src/types';
 import { apidocGenerateProperty, debounce, cloneDeep } from '@/helper';
-import { useTranslation } from 'i18next-vue'
+import { useI18n } from 'vue-i18n'
 import SParamsTree from '@/components/apidoc/params-tree/g-params-tree.vue'
 import { useWebSocket } from '@/store/websocket/websocket';
 import { useRedoUndo } from '@/store/redoUndo/redoUndo';
@@ -85,7 +85,7 @@ const currentSelectTab = computed(() => { //当前选中的doc
   const tabs = apidocTabsStore.tabs[projectId];
   return tabs?.find((tab) => tab.selected) || null;
 })
-const { t } = useTranslation()
+const { t } = useI18n()
 
 const hideDefaultHeader = ref(true);
 const headerData = computed(() => websocket.value.item.headers)

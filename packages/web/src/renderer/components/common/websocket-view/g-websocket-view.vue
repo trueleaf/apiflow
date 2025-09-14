@@ -76,9 +76,9 @@ import GVirtualScroll from '@/components/apidoc/virtual-scroll/g-virtual-scroll.
 import WebsocketPopover from './components/popover/websocket-popover.vue';
 import WebsocketFilter from './components/filter/websocket-filter.vue';
 import { Top, Bottom, SuccessFilled, WarnTriangleFilled, CircleCloseFilled } from '@element-plus/icons-vue';
-import { useTranslation } from 'i18next-vue';
+import { useI18n } from 'vue-i18n';
 
-const { t } = useTranslation();
+const { t } = useI18n();
 
 const props = withDefaults(defineProps<{ 
   dataList: WebsocketResponse[]; 

@@ -150,13 +150,13 @@ import { Close, Switch } from '@element-plus/icons-vue';
 import type Node from 'element-plus/es/components/tree/src/model/node';
 import type { ApidocProperty, HttpNodePropertyType, MockItem } from '@src/types';
 import { apidocGenerateProperty } from '@/helper/index';
-import { useTranslation } from 'i18next-vue';
+import { useI18n } from 'vue-i18n';
 import SMock from '@/components/apidoc/mock/g-mock.vue';
 import { config } from '@src/config/config';
 
 const props = defineProps<{ data: ApidocProperty[] }>();
 const emits = defineEmits<{ (e: 'change', value: ApidocProperty[]): void }>();
-const { t } = useTranslation();
+const { t } = useI18n();
 
 const localData: Ref<ApidocProperty[]> = ref([]);
 const tree: Ref<any> = ref(null);

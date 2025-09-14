@@ -20,7 +20,7 @@ import SForm from '@/components/common/forms/form/g-form.vue'
 import SFormItem from '@/components/common/forms/form/g-form-item.vue'
 import { FormInstance } from 'element-plus'
 import { request } from '@/api/api'
-import { useTranslation } from 'i18next-vue'
+import { useI18n } from 'vue-i18n'
 
 const props = defineProps({
   modelValue: {
@@ -33,7 +33,7 @@ const props = defineProps({
   },
 })
 const emits = defineEmits(['update:modelValue', 'success'])
-const { t } = useTranslation()
+const { t } = useI18n()
 
 const formInfo = ref({});
 const loading = ref(false);

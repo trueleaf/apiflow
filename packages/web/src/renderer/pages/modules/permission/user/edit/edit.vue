@@ -21,7 +21,7 @@
 </template>
 
 <script lang="ts" setup>
-import { useTranslation } from 'i18next-vue'
+import { useI18n } from 'vue-i18n'
 import { PermissionRoleEnum, Response } from '@src/types'
 import { nextTick, onMounted, ref } from 'vue';
 import { request } from '@/api/api';
@@ -44,7 +44,7 @@ const emits = defineEmits(['success', 'update:modelValue'])
 const formInfo = ref<Record<string, unknown>>({}) //用户基本信息
 const roleIds = ref<string[]>([]) //角色id列表
 const roleEnum = ref<PermissionRoleEnum>([]) //角色枚举信息
-const { t } = useTranslation()
+const { t } = useI18n()
 
 const loading = ref(false) //用户信息加载
 const loading2 = ref(false) //修改用户加载

@@ -58,7 +58,7 @@
 
 <script lang="ts" setup>
 import { computed } from 'vue';
-import { useTranslation } from 'i18next-vue';
+import { useI18n } from 'vue-i18n';
 import { storeToRefs } from 'pinia';
 import { Refresh } from '@element-plus/icons-vue';
 import { useWebSocket } from '@/store/websocket/websocket';
@@ -72,7 +72,7 @@ import { getWebSocketHeaders } from '@/server/request/request';
 import SRedoUndoControls from '@/components/common/redo-undo/redo-undo-controls.vue';
 import { useRedoUndo } from '@/store/redoUndo/redoUndo';
 
-const { t } = useTranslation();
+const { t } = useI18n();
 const websocketStore = useWebSocket();
 const apidocTabsStore = useApidocTas();
 const redoUndoStore = useRedoUndo();

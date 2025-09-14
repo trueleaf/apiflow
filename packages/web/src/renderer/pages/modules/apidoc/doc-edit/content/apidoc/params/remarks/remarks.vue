@@ -18,13 +18,13 @@
 </template>
 
 <script lang="ts" setup>
-import { useTranslation } from 'i18next-vue'
+import { useI18n } from 'vue-i18n'
 import { config } from '@src/config/config';
 import { computed } from 'vue'
 import { useApidoc } from '@/store/apidoc/apidoc';
 
 const apidocStore = useApidoc()
-const { t } = useTranslation()
+const { t } = useI18n()
 
 const description = computed({
   get() {

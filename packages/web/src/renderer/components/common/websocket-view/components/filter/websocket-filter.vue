@@ -74,8 +74,8 @@
 import { ref, nextTick, defineEmits, defineProps, computed } from 'vue';
 import { Search, Download, Delete } from '@element-plus/icons-vue';
 import { debounce } from '@/helper';
-import { useTranslation } from 'i18next-vue';
-const { t } = useTranslation();
+import { useI18n } from 'vue-i18n';
+const { t } = useI18n();
 
 interface Props {
   hasData: boolean;

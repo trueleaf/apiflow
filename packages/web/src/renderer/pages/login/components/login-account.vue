@@ -64,13 +64,13 @@ import { config } from '@src/config/config';
 import { PermissionUserInfo, Response } from '@src/types'
 import { User, Lock } from '@element-plus/icons-vue'
 import { computed, nextTick, ref } from 'vue';
-import { useTranslation } from 'i18next-vue';
+import { useI18n } from 'vue-i18n';
 import { ElMessage, FormInstance } from 'element-plus';
 import { request } from '@/api/api';
 import { router } from '@/router';
 
 const emits = defineEmits(['jumpToRegister', 'jumpToResetPassword'])
-const { t } = useTranslation()
+const { t } = useI18n()
 const userInfo = ref({
   loginName: process.env.NODE_ENV === 'development' ? 'apiflow' : '', //-----------登录名称
   password: process.env.NODE_ENV === 'development' ? '111111aaa' : '', //---------密码

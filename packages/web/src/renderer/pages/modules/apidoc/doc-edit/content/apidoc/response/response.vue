@@ -67,7 +67,7 @@ import SHeaders from './headers/headers.vue'
 import SBody from './body/body.vue'
 import SRawBody from './raw-body/raw-body.vue'
 import SRequest from './request/request.vue'
-import { useTranslation } from 'i18next-vue'
+import { useI18n } from 'vue-i18n'
 import { useApidocResponse } from '@/store/apidoc/response'
 import { useApidocBaseInfo } from '@/store/apidoc/base-info'
 import { useApidoc } from '@/store/apidoc/apidoc'
@@ -75,7 +75,7 @@ import { isElectron } from '@/utils/utils'
 import SLoading from '@/components/common/loading/g-loading.vue'
 
 
-const { t } = useTranslation()
+const { t } = useI18n()
 
 const activeName = ref('SBody');
 const apidocResponseStore = useApidocResponse();

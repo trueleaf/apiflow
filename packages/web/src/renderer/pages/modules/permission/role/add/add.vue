@@ -43,7 +43,7 @@ import SFormItem from '@/components/common/forms/form/g-form-item.vue'
 import SFieldset from '@/components/common/fieldset/g-fieldset.vue'
 import { FormInstance } from 'element-plus'
 import { request } from '@/api/api'
-import { useTranslation } from 'i18next-vue'
+import { useI18n } from 'vue-i18n'
 
 defineProps({
   modelValue: {
@@ -61,7 +61,7 @@ const formInfo = ref<{
   clientRoutes: [], //已选前端路由
   serverRoutes: [], //已选后端路由
 });
-const { t } = useTranslation()
+const { t } = useI18n()
 
 const activeName = ref('clientRoute');
 const loading = ref(false);

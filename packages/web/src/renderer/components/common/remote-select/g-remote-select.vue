@@ -11,7 +11,7 @@
 
 <script lang="ts" setup>
 import { PropType, ref, useSlots, watch } from 'vue'
-import { useTranslation } from 'i18next-vue'
+import { useI18n } from 'vue-i18n'
 import { debounce } from '@/helper';
 
 type DebounceFn = (query: string) => void;
@@ -45,7 +45,7 @@ const props = defineProps({
 const emits = defineEmits([
   "update:modelValue",
 ])
-const { t } = useTranslation()
+const { t } = useI18n()
 const slots = useSlots()
 const query = ref('')
 const debounceFn = ref<DebounceFn | null>(null)

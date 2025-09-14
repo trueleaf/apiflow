@@ -127,7 +127,7 @@ import type { ApidocBanner, HttpNode } from '@src/types'
 import { config } from '@/../config/config'
 import { router } from '@/router/index'
 import { request } from '@/api/api'
-import { useTranslation } from 'i18next-vue'
+import { useI18n } from 'vue-i18n'
 import type { TreeNodeOptions } from 'element-plus/lib/components/tree/src/tree.type'
 import OpenApiTranslator from './openapi';
 import PostmanTranslator from './postman';
@@ -176,7 +176,7 @@ defineProps({
     default: false,
   }
 })
-const { t } = useTranslation()
+const { t } = useI18n()
 const apidocBaseInfoStore = useApidocBaseInfo();
 const apidocBannerStore = useApidocBanner()
 const projectId = router.currentRoute.value.query.id as string;

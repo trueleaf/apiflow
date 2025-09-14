@@ -32,7 +32,7 @@
 </template>
 
 <script lang="ts" setup>
-import { useTranslation } from 'i18next-vue'
+import { useI18n } from 'vue-i18n'
 import { ref, Ref, onMounted, nextTick } from 'vue'
 import { ApidocBanner, HttpNode } from '@src/types';
 import type { TreeNodeOptions } from 'element-plus/es/components/tree/src/tree.type';
@@ -60,7 +60,7 @@ defineProps({
     default: false,
   },
 })
-const { t } = useTranslation()
+const { t } = useI18n()
 const emits = defineEmits(['update:modelValue', 'success']);
 const formInfo: Ref<FormInfo> = ref({
   name: t('未命名的接口'),

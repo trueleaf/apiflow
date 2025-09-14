@@ -48,7 +48,7 @@
 <script lang="ts" setup>
 import { Delete, Refresh } from '@element-plus/icons-vue'
 import { config } from '@/../config/config'
-import { useTranslation } from 'i18next-vue'
+import { useI18n } from 'vue-i18n'
 import SLoading from '@/components/common/loading/g-loading.vue'
 import { computed, nextTick, onMounted, ref } from 'vue';
 import { debounce } from '@/helper';
@@ -118,7 +118,7 @@ const props = defineProps({
   },
 })
 const emits = defineEmits(['finish', 'select', 'deleteMany'])
-const { t } = useTranslation()
+const { t } = useI18n()
 const formInfo = ref({
   pageSize: config.renderConfig.components.tableConfig.pageSize, //----分页大小
   pageNum: 1, //-------------------------------------------------------当前页数

@@ -98,7 +98,7 @@
 </template>
 
 <script lang="ts" setup>
-import { useTranslation } from 'i18next-vue'
+import { useI18n } from 'vue-i18n'
 import SCollapseCard from '@/components/common/collapse-card/g-collapse-card.vue'
 import { computed, ref, Ref, onMounted, onUnmounted } from 'vue'
 import { Effect } from 'element-plus';
@@ -189,7 +189,7 @@ const handleDeleteResponse = (index: number) => {
   apidocStroe.deleteResponseByIndex(index);
 }
 //response参数值
-const { t } = useTranslation()
+const { t } = useI18n()
 
 const responseData = computed(() => apidocStroe.apidoc.item.responseParams);
 //布局

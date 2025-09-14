@@ -107,7 +107,7 @@ import { RefreshRight, Back, Right, ArrowDown, Minus, Close } from '@element-plu
 import { deleteDB } from 'idb';
 import { useRouter } from 'vue-router';
 import i18next from 'i18next';
-import { useTranslation } from 'i18next-vue';
+import { useI18n } from 'vue-i18n';
 import type { Language, WindowState } from '@src/types'
 import { computed, onMounted, ref } from 'vue';
 import { config } from '@/../config/config'
@@ -118,7 +118,7 @@ import { httpNodeCache } from '@/cache/http/httpNodeCache.ts';
 
 const router = useRouter();
 const permissionStore = usePermissionStore();
-const { t } = useTranslation();
+const { t } = useI18n();
 const userInfo = computed(() => permissionStore.userInfo);
 const clearCacheLoading = ref(false);
 const windowState = ref<'normal' | 'minimized' | 'maximized'>('maximized');

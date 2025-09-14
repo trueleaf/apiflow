@@ -191,7 +191,7 @@ import Emphasize from '@/components/common/emphasize/g-emphasize.vue'
 import AddProjectDialog from '../dialog/add-project/add-project.vue'
 import EditProjectDialog from '../dialog/edit-project/edit-project.vue'
 import EditPermissionDialog from '../dialog/permission/permission.vue'
-import { useTranslation } from 'i18next-vue'
+import { useI18n } from 'vue-i18n'
 import type { Response, ApidocProjectListInfo, ApidocProjectInfo } from '@src/types';
 import { computed, onMounted, ref } from 'vue';
 import { request } from '@/api/api';
@@ -207,7 +207,7 @@ import { standaloneCache } from '@/cache/standalone'
 | 变量
 |--------------------------------------------------------------------------
 */
-const { t } = useTranslation()
+const { t } = useI18n()
 const projectName = ref('');
 const projectKeyword = ref('')
 const recentVisitProjectIds = ref<string[]>([]);

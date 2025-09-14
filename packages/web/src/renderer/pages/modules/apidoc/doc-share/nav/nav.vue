@@ -55,7 +55,7 @@ import { defaultRequestMethods } from '../common';
 import { useRoute } from 'vue-router';
 import { findNodeById, findParentById, event } from '@/helper';
 import { ApidocBanner } from '@src/types';
-import { useTranslation } from 'i18next-vue';
+import { useI18n } from 'vue-i18n';
 
 /*
 |--------------------------------------------------------------------------
@@ -63,7 +63,7 @@ import { useTranslation } from 'i18next-vue';
 |--------------------------------------------------------------------------
 */
 const route = useRoute();
-const { t } = useTranslation()
+const { t } = useI18n()
 
 const showContextmenu = ref(false); //是否显示contextmenu
 const contextmenuLeft = ref(0); //鼠标右键x值

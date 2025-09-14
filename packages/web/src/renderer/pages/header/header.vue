@@ -51,7 +51,7 @@ import draggable from 'vuedraggable'
 import { httpNodeCache } from '@/cache/http/httpNodeCache.ts'
 import { Language } from '@src/types'
 import { RefreshRight, Back, Right } from '@element-plus/icons-vue'
-import { useTranslation } from 'i18next-vue'
+import { useI18n } from 'vue-i18n'
 
 // 定义Tab类型
 interface HeaderTab {
@@ -66,7 +66,7 @@ const isMaximized = ref(false)
 const isDev = ref(false)
 const appTitle = ref('Apiflow')
 const tabListRef = ref<HTMLElement>()
-const { t: $t } = useTranslation()
+const { t: $t } = useI18n()
 /*
 |--------------------------------------------------------------------------
 | 窗口控制

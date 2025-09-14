@@ -208,7 +208,7 @@
 import SFieldset from '@/components/common/fieldset/g-fieldset.vue'
 import STable from '@/components/common/table/g-table.vue'
 import { config } from '@src/config/config'
-import { useTranslation } from 'i18next-vue'
+import { useI18n } from 'vue-i18n'
 import { ref, onMounted } from 'vue';
 import { ElMessage, ElMessageBox, FormInstance, genFileId, UploadFile, UploadInstance, UploadProps, UploadRawFile } from 'element-plus';
 import { request } from '@/api/api';
@@ -261,7 +261,7 @@ const formInfo = ref<AddProjectVariableFormInfo>({
   },
   type: 'string',
 })
-const { t } = useTranslation()
+const { t } = useI18n()
 const rules = ref({
   name: [{ required: true, message: t('请输入变量名称'), trigger: 'blur' }],
   stringValue: [{ required: true, message: t('请输入变量值'), trigger: 'blur' }],

@@ -27,14 +27,14 @@ import { PermissionUserInfo, Response } from '@src/types';
 import SmsButton from '@/components/common/sms-button/g-sms-button.vue'
 import { User as IconUser } from '@element-plus/icons-vue'
 import { nextTick, onMounted, reactive, ref } from 'vue';
-import { useTranslation } from 'i18next-vue'
+import { useI18n } from 'vue-i18n'
 import { ElMessage, FormInstance } from 'element-plus';
 import { request } from '@/api/api';
 import { router } from '@/router';
 import { usePermissionStore } from '@/store/permission';
 import { config } from '@src/config/config';
 
-const { t } = useTranslation()
+const { t } = useI18n()
 const userInfo = reactive({
   phone: '', //------------------手机号码
   smsCode: '', //----------------短信验证码

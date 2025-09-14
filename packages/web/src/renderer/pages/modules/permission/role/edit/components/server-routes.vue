@@ -21,7 +21,7 @@
 <script lang="ts" setup>
 import { request } from '@/api/api';
 import type { PermissionServerRoute, Response } from '@src/types'
-import { useTranslation } from 'i18next-vue'
+import { useI18n } from 'vue-i18n'
 import { onMounted, ref, watch } from 'vue';
 import SLoading from '@/components/common/loading/g-loading.vue'
 
@@ -36,7 +36,7 @@ type ServerGroupRoutes = {
 const emits = defineEmits(['change']);
 const selectedData = ref<string[]>([]); //------------当前选中的后端路由
 const serverRoutes = ref<ServerGroupRoutes>({}); //---后端路由列表
-const { t } = useTranslation()
+const { t } = useI18n()
 
 const loading = ref(false);
 

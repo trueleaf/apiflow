@@ -216,7 +216,7 @@
 </template>
 
 <script lang="ts" setup>
-import { useTranslation } from 'i18next-vue'
+import { useI18n } from 'vue-i18n'
 import { Plus, User, Search, ArrowDown, Check, Delete } from '@element-plus/icons-vue'
 import { computed, onMounted, ref } from 'vue';
 import AddProjectDialog from './dialog/add-group/add-group.vue'
@@ -232,7 +232,7 @@ import { usePermissionStore } from '@/store/permission';
 
 
 
-const { t } = useTranslation()
+const { t } = useI18n()
 
 const searchText = ref('')
 const selectedGroupId = ref('')

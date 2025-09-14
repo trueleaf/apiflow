@@ -65,9 +65,9 @@ import LoginAccount from './components/login-account.vue';
 import LoginPhone from './components/login-phone.vue';
 import Register from './components/register.vue';
 import ResetPassword from './components/reset-password.vue';
-import { useTranslation } from 'i18next-vue'
+import { useI18n } from 'vue-i18n'
 
-const { t } = useTranslation()
+const { t } = useI18n()
 const config = ref(globalConfig);
 const activeName = ref('loginAccount');
 

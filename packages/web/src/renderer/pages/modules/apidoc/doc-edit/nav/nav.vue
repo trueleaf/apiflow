@@ -121,7 +121,7 @@
 
 <script lang="ts" setup>
 import * as SDraggable from 'vuedraggable'
-import { useTranslation } from 'i18next-vue'
+import { useI18n } from 'vue-i18n'
 import {
   Setting as IconSetting,
   Plus as IconPlus,
@@ -153,7 +153,7 @@ import { useApidocResponse } from '@/store/apidoc/response';
 | 变量定义
 |--------------------------------------------------------------------------
 */
-const { t } = useTranslation()
+const { t } = useI18n()
 
 const tabIndex = ref(1);
 const showContextmenu = ref(false); //是否显示contextmenu

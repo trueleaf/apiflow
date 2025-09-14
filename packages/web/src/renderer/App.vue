@@ -17,7 +17,7 @@
 import { config } from '@/../config/config';
 import { onMounted, ref, watch } from 'vue';
 import { changeLanguage } from 'i18next';
-import { useTranslation } from 'i18next-vue';
+import { useI18n } from 'vue-i18n';
 import { bindGlobalShortCut } from './shortcut';
 import { useRouter } from 'vue-router';
 import AddProjectDialog from '@/pages/modules/apidoc/doc-list/dialog/add-project/add-project.vue';
@@ -30,7 +30,7 @@ import LanguageMenu from '@/components/common/language/language.vue';
 const router = useRouter();
 const dialogVisible = ref(false);
 const apidocBaseInfoStore = useApidocBaseInfo()
-const { t } = useTranslation()
+const { t } = useI18n()
 
 // 语言菜单相关状态
 const languageMenuVisible = ref(false)

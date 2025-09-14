@@ -47,7 +47,7 @@
 
 <script lang="ts" setup>
 import { computed, onMounted, ref, watch } from 'vue'
-import { useTranslation } from 'i18next-vue'
+import { useI18n } from 'vue-i18n'
 import { storeToRefs } from 'pinia'
 import SHeaders from './headers/headers.vue'
 import SQueryParams from './query-params/query-params.vue'
@@ -61,7 +61,7 @@ import { useApidocTas } from '@/store/apidoc/tabs'
 import { webSocketNodeCache } from '@/cache/websocket/websocketNodeCache'
 import { useRedoUndo } from '@/store/redoUndo/redoUndo'
 
-const { t } = useTranslation()
+const { t } = useI18n()
 const websocketStore = useWebSocket()
 const apidocTabsStore = useApidocTas()
 const redoUndoStore = useRedoUndo()

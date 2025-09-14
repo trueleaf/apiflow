@@ -29,12 +29,12 @@ import { useApidocResponse } from '@/store/apidoc/response';
 import { computed, ref, watch, onMounted } from 'vue';
 import { config } from '@/../config/config'
 import { formatBytes, downloadStringAsText } from '@/helper/index'
-import { useTranslation } from 'i18next-vue'
+import { useI18n } from 'vue-i18n'
 import SJsonEditor from '@/components/common/json-editor/g-json-editor.vue'
 
 const apidocBaseInfoStore = useApidocBaseInfo();
 const apidocResponseStore = useApidocResponse();
-const { t } = useTranslation()
+const { t } = useI18n()
 
 const textResponse = ref('');
 const rawResponseIsOverflow = ref(false);

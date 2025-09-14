@@ -149,7 +149,7 @@ import { MoreFilled, Close, Switch } from '@element-plus/icons-vue'
 import type { Response, ApidocBanner, ApidocOperations, ApidocProjectListInfo, ApidocProjectInfo } from '@src/types'
 import { forEachForest } from '@/helper/index'
 import { router } from '@/router/index'
-import { useTranslation } from 'i18next-vue'
+import { useI18n } from 'vue-i18n'
 import { request } from '@/api/api'
 import { httpNodeCache } from '@/cache/http/httpNodeCache.ts'
 import SAddFileDialog from '../../dialog/add-file/add-file.vue'
@@ -185,7 +185,7 @@ const apidocBaseInfoStore = useApidocBaseInfo();
 const apidocBannerStore = useApidocBanner();
 const apidocWorkerStateStore = useApidocWorkerState();
 const apidocTabsStore = useApidocTas();
-const { t } = useTranslation()
+const { t } = useI18n()
 const isStandalone = ref(__STANDALONE__)
 const emits = defineEmits(['fresh', 'filter', 'changeProject']);
 const isView = computed(() => apidocBaseInfoStore.mode === 'view') //当前工作区状态

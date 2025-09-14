@@ -102,7 +102,7 @@ import { Close } from '@element-plus/icons-vue'
 import { HttpNode, Response } from '@src/types';
 import { router } from '@/router/index'
 import { request } from '@/api/api'
-import { useTranslation } from 'i18next-vue'
+import { useI18n } from 'vue-i18n'
 import SLoading from '@/components/common/loading/g-loading.vue'
 import SLableValue from '@/components/common/label-value/g-label-value.vue'
 import SFieldset from '@/components/common/fieldset/g-fieldset.vue'
@@ -132,7 +132,7 @@ const apidocRequestStore = useApidocRequest()
 */
 const docDetail: Ref<HttpNode | null> = ref(null); //文档详情
 const projectId = router.currentRoute.value.query.id as string;
-const { t } = useTranslation()
+const { t } = useI18n()
 
 const loading = ref(false); //数据加载
 const iStandalone = ref(__STANDALONE__);

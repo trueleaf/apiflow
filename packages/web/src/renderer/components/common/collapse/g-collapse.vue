@@ -25,10 +25,10 @@
 <script lang="ts" setup>
 import { ref, useSlots, watch } from 'vue'
 import { ArrowDown, ArrowRight } from '@element-plus/icons-vue'
-import { useTranslation } from 'i18next-vue'
+import { useI18n } from 'vue-i18n'
 
 const slots = useSlots()
-const { t } = useTranslation()
+const { t } = useI18n()
 const props = defineProps({
   title: {
     type: String,

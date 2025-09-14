@@ -153,14 +153,14 @@ import { ref, computed, nextTick, onMounted, onUnmounted } from 'vue';
 import { useCookies } from '@/store/apidoc/cookies';
 import { ElMessage, ElMessageBox } from 'element-plus';
 import type { ApidocCookie } from '@/store/apidoc/cookies';
-import { useTranslation } from 'i18next-vue';
+import { useI18n } from 'vue-i18n';
 import { uuid } from '@/helper';
 import { useRoute } from 'vue-router'
 import dayjs from 'dayjs';
 
 
 const route = useRoute()
-const { t } = useTranslation()
+const { t } = useI18n()
 const cookiesStore = useCookies();
 const cookies = computed(() => cookiesStore.cookies);
 const expiresShortcuts = [

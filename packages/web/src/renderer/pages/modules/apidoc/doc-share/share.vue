@@ -62,13 +62,13 @@ import {  LocalShareData, SharedProjectInfo } from '@src/types/types'
 import { convertNodesToBannerNodes, getCountdown } from '@/helper/index'
 import { useShareStore } from './store'
 import localShareDataTest from './testData'
-import { useTranslation } from 'i18next-vue'
+import { useI18n } from 'vue-i18n'
 /*
 |--------------------------------------------------------------------------
 | 变量定义
 |--------------------------------------------------------------------------
 */
-const { t } = useTranslation()
+const { t } = useI18n()
 
 const isForHtml = ref(import.meta.env.VITE_USE_FOR_HTML === 'true');
 const shareId = router.currentRoute.value.query?.share_id as string || 'local_share';

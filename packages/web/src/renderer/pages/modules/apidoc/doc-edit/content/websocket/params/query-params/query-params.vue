@@ -12,7 +12,7 @@ import { useApidocTas } from '@/store/apidoc/tabs'
 import { computed, watch } from 'vue'
 import { storeToRefs } from 'pinia'
 import SParamsTree from '@/components/apidoc/params-tree/g-params-tree.vue'
-import { useTranslation } from 'i18next-vue'
+import { useI18n } from 'vue-i18n'
 import { debounce, cloneDeep } from '@/helper'
 import type { ApidocProperty } from '@src/types'
 
@@ -21,7 +21,7 @@ const redoUndoStore = useRedoUndo()
 const apidocTabsStore = useApidocTas()
 const { websocket } = storeToRefs(websocketStore)
 const { currentSelectTab } = storeToRefs(apidocTabsStore)
-const { t } = useTranslation()
+const { t } = useI18n()
 
 //query参数
 const queryTreeData = computed(() => websocket.value.item.queryParams)

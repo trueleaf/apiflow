@@ -15,7 +15,7 @@
 
 <script lang="ts" setup>
 import { ref } from 'vue'
-import { useTranslation } from 'i18next-vue'
+import { useI18n } from 'vue-i18n'
 
 defineProps({
   modelValue: {
@@ -24,7 +24,7 @@ defineProps({
   },
 });
 const emits = defineEmits(['update:modelValue'])
-const { t } = useTranslation()
+const { t } = useI18n()
 
 const loading = ref(false);
 //关闭弹窗

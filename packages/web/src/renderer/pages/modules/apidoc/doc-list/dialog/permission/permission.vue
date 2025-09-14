@@ -7,7 +7,7 @@
 <script lang="ts" setup>
 import SUser from './user/user.vue'
 import SDialog from '@/components/common/dialog/g-dialog.vue'
-import { useTranslation } from 'i18next-vue'
+import { useI18n } from 'vue-i18n'
 
 defineProps({
   modelValue: {
@@ -19,7 +19,7 @@ defineProps({
     default: '',
   },
 })
-const { t } = useTranslation()
+const { t } = useI18n()
 
 const emits = defineEmits(['update:modelValue', 'leave'])
 

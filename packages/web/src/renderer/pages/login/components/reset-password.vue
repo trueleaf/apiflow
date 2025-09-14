@@ -31,14 +31,14 @@
 import { Response } from '@src/types'
 import { config } from '@src/config/config';
 import { nextTick, onMounted, reactive, ref } from 'vue';
-import { useTranslation } from 'i18next-vue'
+import { useI18n } from 'vue-i18n'
 import { ElMessage, FormInstance } from 'element-plus';
 import { request } from '@/api/api';
 import SmsButton from '@/components/common/sms-button/g-sms-button.vue'
 
 
 const emits = defineEmits(['jumpToLogin']);
-const { t } = useTranslation()
+const { t } = useI18n()
 const form = ref<FormInstance>();
 const userInfo = reactive({
   smsCode: '', //-----验证码

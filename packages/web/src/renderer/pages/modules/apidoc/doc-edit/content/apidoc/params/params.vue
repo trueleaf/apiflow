@@ -86,7 +86,7 @@ import { DebouncedFunc } from 'lodash'
 import type { HttpNode, ApidocProperty } from '@src/types'
 import { httpNodeCache } from '@/cache/http/httpNodeCache.ts'
 import { lodashIsEqual, debounce, checkPropertyIsEqual } from '@/helper/index'
-import { useTranslation } from 'i18next-vue'
+import { useI18n } from 'vue-i18n'
 import SParams from './params/params.vue';
 import SRequestBody from './body/body.vue';
 import SRequestHeaders from './headers/headers.vue';
@@ -110,7 +110,7 @@ const apidocStore = useApidoc()
 const apidocTabsStore = useApidocTas()
 const apidocMock = useApidocMock();
 const activeName = ref<ActiceName>('SParams');
-const { t } = useTranslation()
+const { t } = useI18n()
 
 const generateCodeVisible = ref(false);
 import { router } from '@/router'

@@ -11,11 +11,11 @@
 import { useApidoc } from '@/store/apidoc/apidoc';
 import { computed } from 'vue'
 import SParamsTree from '@/components/apidoc/params-tree/g-params-tree.vue'
-import { useTranslation } from 'i18next-vue'
+import { useI18n } from 'vue-i18n'
 
 const apidocStore = useApidoc()
 //path参数
-const { t } = useTranslation()
+const { t } = useI18n()
 
 const pathTreeData = computed(() => apidocStore.apidoc.item.paths);
 

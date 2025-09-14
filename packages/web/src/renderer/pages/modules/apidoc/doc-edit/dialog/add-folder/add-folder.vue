@@ -16,7 +16,7 @@ import SForm from '@/components/common/forms/form/g-form.vue'
 import SFormItem from '@/components/common/forms/form/g-form-item.vue'
 import SDialog from '@/components/common/dialog/g-dialog.vue'
 import { Response, ApidocBanner } from '@src/types'
-import { useTranslation } from 'i18next-vue'
+import { useI18n } from 'vue-i18n'
 import { ref } from 'vue';
 import { request } from '@/api/api';
 import { useRoute } from 'vue-router';
@@ -38,7 +38,7 @@ const props = defineProps({
 
 const form = ref<FormInstance>();
 const emits = defineEmits(["update:modelValue", "success"]);
-const { t } = useTranslation()
+const { t } = useI18n()
 
 const loading = ref(false);
 const route = useRoute()

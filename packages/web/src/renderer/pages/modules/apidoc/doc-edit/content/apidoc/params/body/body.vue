@@ -86,7 +86,7 @@
 <script lang="ts" setup>
 import { computed, ref, onMounted, Ref } from 'vue'
 import type { HttpNodeBodyMode, HttpNodeBodyParams, HttpNodeBodyRawType, HttpNodeContentType } from '@src/types'
-import { useTranslation } from 'i18next-vue'
+import { useI18n } from 'vue-i18n'
 import { httpNodeCache } from '@/cache/http/httpNodeCache.ts'
 import { useVariable } from '@/store/apidoc/variables';
 import { useApidoc } from '@/store/apidoc/apidoc';
@@ -147,7 +147,7 @@ const changeBodyType = () => {
   jsonComponent.value?.focus()
 }
 //不再显示body提示信息
-const { t } = useTranslation()
+const { t } = useI18n()
 
 const jsonBodyVisible = ref(false);
 const handleHideTip = () => {

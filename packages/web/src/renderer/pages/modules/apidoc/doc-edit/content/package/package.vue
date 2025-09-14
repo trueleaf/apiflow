@@ -51,7 +51,7 @@ import { onMounted, Ref, ref } from 'vue';
 import SDialog from '@/components/common/dialog/g-dialog.vue'
 import SResizeX from '@/components/common/resize/g-resize-x.vue'
 import type { FormInstance } from 'element-plus/lib/components/form';
-import { useTranslation } from 'i18next-vue';
+import { useI18n } from 'vue-i18n';
 
 //获取脚本列表
 const tableInfo: Ref<{ name: string, code: string }[]> = ref([]);
@@ -64,7 +64,7 @@ const getScriptList = () => {
 |--------------------------------------------------------------------------
 */
 const form: Ref<FormInstance | null> = ref(null);
-const { t } = useTranslation()
+const { t } = useI18n()
 
 const formInfo = ref({
   code: '',

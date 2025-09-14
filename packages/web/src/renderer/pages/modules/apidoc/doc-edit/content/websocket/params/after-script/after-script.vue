@@ -28,12 +28,12 @@ console.log('WebSocket消息发送完成');"
 
 <script lang="ts" setup>
 import { computed } from 'vue'
-import { useTranslation } from 'i18next-vue'
+import { useI18n } from 'vue-i18n'
 import { useWebSocket } from '@/store/websocket/websocket'
 import { useRedoUndo } from '@/store/redoUndo/redoUndo'
 import { debounce } from '@/helper'
 
-const { t } = useTranslation()
+const { t } = useI18n()
 const websocketStore = useWebSocket()
 const redoUndoStore = useRedoUndo()
 

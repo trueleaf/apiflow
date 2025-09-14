@@ -55,7 +55,7 @@
 </template>
 
 <script lang="ts" setup>
-import { useTranslation } from 'i18next-vue'
+import { useI18n } from 'vue-i18n'
 import type { Response, PermissionClientMenu } from '@src/types'
 import type Node from 'element-plus/lib/components/tree/src/model/node'
 import SAddMenuDialog from './add/add.vue'
@@ -75,7 +75,7 @@ const fileUrl = new URL('@/assets/imgs/apidoc/file.png', import.meta.url).href;
 const treeData = ref<PermissionClientMenu[]>([])
 const defaultExpandKeys = ref<string[]>([])
 const currentEditNode = ref<PermissionClientMenu | null>(null)
-const { t } = useTranslation()
+const { t } = useI18n()
 
 const ctxLeft = ref(0)
 const ctxTop = ref(0)

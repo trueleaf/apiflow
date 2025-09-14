@@ -36,7 +36,7 @@
 <script lang="ts" setup>
 import { useApidoc } from '@/store/apidoc/apidoc';
 import { useApidocBaseInfo } from '@/store/apidoc/base-info';
-import { useTranslation } from 'i18next-vue'
+import { useI18n } from 'vue-i18n'
 import { computed } from 'vue';
 import { formatDate } from '@/helper'
 import SLabelValue from '@/components/common/label-value/g-label-value.vue'
@@ -46,7 +46,7 @@ import { useApidocRequest } from '@/store/apidoc/request';
 
 const apidocStore = useApidoc();
 const apidocBaseInfoStore = useApidocBaseInfo();
-const { t } = useTranslation()
+const { t } = useI18n()
 
 const apidocInfo = computed(() => apidocStore.apidoc);
 const apidocRequestStore = useApidocRequest();

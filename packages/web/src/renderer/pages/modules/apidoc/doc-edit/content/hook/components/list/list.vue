@@ -36,12 +36,12 @@ import { ElMessageBox } from 'element-plus';
 import { router } from '@/router';
 import type { ApidocCodeInfo } from '@src/types'
 import { event } from '@/helper';
-import { useTranslation } from 'i18next-vue'
+import { useI18n } from 'vue-i18n'
 import STable from '@/components/common/table/g-table.vue'
 import SDialog from '@/components/common/dialog/g-dialog.vue'
 import { request } from '@/api/api';
 
-const { t } = useTranslation()
+const { t } = useI18n()
 
 const projectId = ref(router.currentRoute.value.query.id as string); //项目id
 const table: Ref<{ getData: () => void } | null> = ref(null); //table实例

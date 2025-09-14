@@ -35,10 +35,10 @@ import { defineProps, defineEmits, computed } from 'vue'
 import { formatBytes } from '@/helper'
 import SJsonEditor from '@/components/common/json-editor/g-json-editor.vue'
 import { LocalStorageItem } from '@src/types/apidoc/cache'
-import { useTranslation } from 'i18next-vue'
+import { useI18n } from 'vue-i18n'
 
 // 获取翻译函数
-const { t } = useTranslation()
+const { t } = useI18n()
 
 // 定义属性
 const props = defineProps({

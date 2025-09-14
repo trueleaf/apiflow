@@ -28,7 +28,7 @@
 </template>
 
 <script lang="ts" setup>
-import { useTranslation } from 'i18next-vue'
+import { useI18n } from 'vue-i18n'
 import { Response, ApidocBanner } from '@src/types'
 import { ref, watch } from 'vue';
 import { ElMessage, FormInstance, ElInput } from 'element-plus';
@@ -50,7 +50,7 @@ const props = defineProps({
   },
 })
 const emits = defineEmits(['update:modelValue', 'success']);
-const { t } = useTranslation()
+const { t } = useI18n()
 
 const loading = ref(false);
 const form = ref<FormInstance>();

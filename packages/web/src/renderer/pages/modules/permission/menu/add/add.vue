@@ -18,7 +18,7 @@ import SDialog from '@/components/common/dialog/g-dialog.vue'
 import SForm from '@/components/common/forms/form/g-form.vue'
 import SFormItem from '@/components/common/forms/form/g-form-item.vue'
 import { nextTick, ref } from 'vue';
-import { useTranslation } from 'i18next-vue'
+import { useI18n } from 'vue-i18n'
 import { FormInstance } from 'element-plus';
 import { request } from '@/api/api';
 
@@ -38,7 +38,7 @@ const emits = defineEmits({
     return payload
   }
 })
-const { t } = useTranslation()
+const { t } = useI18n()
 
 const loading = ref(false);
 const form = ref<FormInstance>()
