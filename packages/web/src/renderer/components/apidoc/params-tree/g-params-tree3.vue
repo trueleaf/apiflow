@@ -92,7 +92,7 @@
               v-if="data.fileValueType === 'var'"
               :model-value="data.value"
               class="w-100"
-              :placeholder="t('变量模式') + ' eg: {{ fileValue }}'"
+              :placeholder="t('变量模式') + ' eg: ' + t('{0} fileValue {1}', ['{{', '}}'])"
               @update:modelValue="v => handleChangeValue(v, data)"
               @focus="handleFocusValue(data)"
               @blur="handleBlurValue()"

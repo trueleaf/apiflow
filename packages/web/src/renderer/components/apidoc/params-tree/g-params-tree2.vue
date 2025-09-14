@@ -563,7 +563,7 @@ const getValuePlaceholder = (data: ApidocProperty) => {
   if (data.type === 'array') {
     return t('填写数字代表mock数据条数')
   }
-  return t('参数值、@代表mock，{{ 变量 }}')
+  return t('参数值、@代表mock，{0} 变量 {1}', ['{{', '}}'])
 }
 //改变value值
 const handleChangeValue = (value: string, data: ApidocProperty) => {

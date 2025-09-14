@@ -57,7 +57,7 @@
       <div v-if="requestBody?.binary?.mode === 'var'" class="var-mode">
         <el-input
           :model-value="requestBody?.binary?.varValue" 
-          :placeholder="t('输入变量；eg: {{ fileValue }}')" 
+          :placeholder="t('输入变量；eg: ') + t('{0} fileValue {1}', ['{{', '}}'])" 
           class="w-20"
           @input="handleChangeBinaryVarValue">
         </el-input>

@@ -116,7 +116,7 @@
               :model-value="scope.data.value" 
               class="w-100" 
               :disabled="checkValueDisable(scope.data)" 
-:placeholder="t('变量模式') + ' eg: {{ fileValue }}'"
+              :placeholder="t('变量模式') + ' eg: ' + t('{0} fileValue {1}', ['{{', '}}'])"
               @update:modelValue="handleChangeValue($event, scope.data)" 
               @focus="handleFocusValue(scope.data)"
               @blur="handleBlurValue">
@@ -597,7 +597,7 @@ const getValuePlaceholder = (data: ApidocProperty) => {
   if (data.type === 'array') {
     return t('填写数字代表mock数据条数')
   }
-  return t('参数值、@代表mock，{{ 变量 }}')
+  return t('参数值、@代表mock，{0} 变量 {1}', ['{{', '}}'])
 }
 //改变value值
 const handleChangeValue = (value: string, data: ApidocProperty) => {
