@@ -15,14 +15,15 @@
   >
     <template #default="{ data }">
       <div class="custom-params">
-        <el-button
-          class="mr-2"
-          :title="t('删除当前项')"
-          text
-          :icon="Close"
-          @click="handleDeleteRow(data)"
+        <el-icon
+          class="delete-icon"
+          :class="{ disabled: localData.length <= 1 }"
+          :size="14"
+          :title="localData.length <= 1 ? t('至少保留一条数据') : t('删除')"
+          @click="() => handleDeleteRow(data)"
         >
-        </el-button>
+          <Close />
+        </el-icon>
         <div class="w-15 flex0 mr-2 d-flex a-center">
           <el-input
             :model-value="data.key"
@@ -41,24 +42,21 @@
           @update:modelValue="v => handleChangeType(v as HttpNodePropertyType, data)"
         >
           <el-option label="String" value="string"></el-option>
-          <el-option label="Number" value="number"></el-option>
-          <el-option label="Boolean" value="boolean"></el-option>
           <el-option label="File" value="file"></el-option>
         </el-select>
         <el-popover
           v-if="data.type !== 'boolean' && data.type !== 'file'"
-          :visible="data._id === currentOpData?._id"
+          :visible="data._id === currentOpData?._id && (data.value || '').includes('@')"
           placement="top-start"
           width="auto"
         >
-          <SMock :search-value="data.value" @close="handleCloseMock()" @select="v => handleSelectMockValue(v, data)"></SMock>
+          <SMock :search-value="data.value.split('@').pop() || ''" @close="handleCloseMock()" @select="v => handleSelectMockValue(v, data)"></SMock>
           <template #reference>
             <el-input
               :model-value="data.value"
               class="w-25 mr-2"
-              :placeholder="getValuePlaceholder(data)"
+              :placeholder="t('参数值、@代表mock数据、{{ 变量 }}')"
               @update:modelValue="v => handleChangeValue(v, data)"
-              @focus="handleFocusValue(data)"
               @blur="handleBlurValue()"
             >
             </el-input>
@@ -94,7 +92,6 @@
               class="w-100"
               :placeholder="t('变量模式') + ' eg: ' + t('{0} fileValue {1}', ['{{', '}}'])"
               @update:modelValue="v => handleChangeValue(v, data)"
-              @focus="handleFocusValue(data)"
               @blur="handleBlurValue()"
             >
             </el-input>
@@ -212,6 +209,10 @@ const handleNodeDrop = (dragNode: Node, dropNode: Node, type: 'inner' | 'prev' |
 };
 
 const handleDeleteRow = (data: ApidocProperty) => {
+  // 如果只有一条数据，禁止删除
+  if (localData.value.length <= 1) {
+    return;
+  }
   const idx = localData.value.findIndex(i => i._id === data._id);
   if (idx > -1) {
     localData.value.splice(idx, 1);
@@ -236,12 +237,14 @@ const handleChangeKey = (v: string, data: ApidocProperty) => {
   emitChange();
 };
 
-const getValuePlaceholder = (data: ApidocProperty) => {
-  return data._valuePlaceholder || t('请输入');
-};
-
 const handleChangeValue = (v: string, data: ApidocProperty) => {
   data.value = v;
+  // 检测是否包含@符号，如果包含则显示mock弹窗
+  if (v.includes('@')) {
+    currentOpData.value = data;
+  } else {
+    currentOpData.value = null;
+  }
   emitChange();
 };
 
@@ -264,10 +267,6 @@ const handleChangeType = (v: HttpNodePropertyType, data: ApidocProperty) => {
   emitChange();
 };
 
-const handleFocusValue = (data: ApidocProperty) => {
-  currentOpData.value = data;
-};
-
 const handleBlurValue = () => {
   setTimeout(() => (currentOpData.value = null), 150);
 };
@@ -278,6 +277,8 @@ const handleCloseMock = () => {
 
 const handleSelectMockValue = (item: MockItem, data: ApidocProperty) => {
   data.value = item.value;
+  // 选中mock数据后自动关闭弹窗
+  currentOpData.value = null;
   emitChange();
 };
 
@@ -325,15 +326,42 @@ const handleCheckChange = (data: ApidocProperty, select: boolean) => {
   emitChange();
 };
 </script>
-<style lang='scss'>
+<style lang='scss' scoped>
 .custom-params {
   width: 100%;
   display: flex;
   align-items: center;
+  
   :deep(.el-input__wrapper) {
     box-shadow: none;
+    font-size: 12px;
+    border-bottom: 1px solid var(--gray-400);
+    border-radius: 0;
+    .el-input__inner {
+      height: 28px;
+      line-height: 28px;
+    }
   }
-  
+  :deep(.el-select__wrapper) {
+    height: 28px;
+    min-height: 28px;
+    line-height: 28px;
+  }
+  .delete-icon {
+    height: 30px;
+    display: flex;
+    align-items: center;
+    margin-right: 10px;
+    cursor: pointer;
+    &.disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+  }
+  .file-input-wrap {
+    display: flex;
+    align-items: center;
+  }
 }
 
 </style>

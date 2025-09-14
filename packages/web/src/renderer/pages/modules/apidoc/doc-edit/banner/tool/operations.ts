@@ -1,20 +1,22 @@
+import { i18n } from '@/i18n';
+
 export const originOperaions = [
   {
-    name: "新增文件夹",
+    name: i18n.global.t('新增文件夹'),
     icon: "#iconxinzengwenjian",
     op: "addRootFolder",
     shortcut: [],
     pin: true,
   },
   {
-    name: "新增文件",
+    name: i18n.global.t('新增文件'),
     icon: "#iconwenjian",
     op: "addRootFile",
     shortcut: [],
     pin: true,
   },
   {
-    name: "刷新banner",
+    name: i18n.global.t('刷新banner'),
     icon: "#iconshuaxin",
     op: "freshBanner",
     shortcut: [],
@@ -22,42 +24,42 @@ export const originOperaions = [
     viewOnly: true,
   },
   {
-    name: "全局设置",
+    name: i18n.global.t('全局设置'),
     icon: "#iconshezhi",
     op: "config",
     shortcut: ["Ctrl", ","],
     pin: true,
   },
   {
-    name: "Cookie管理",
+    name: i18n.global.t('Cookie管理'),
     icon: "#iconCookies",
     op: "cookies",
     shortcut: ["Ctrl", "Alt", "C"],
     pin: true,
   },
   {
-    name: "回收站",
+    name: i18n.global.t('回收站'),
     icon: "#iconhuishouzhan",
     op: "recycler",
     shortcut: ["Ctrl", "Alt", "R"],
     pin: true,
   },
   {
-    name: "项目分享",
+    name: i18n.global.t('项目分享'),
     icon: "#iconlink",
     op: "generateLink",
     shortcut: ["Ctrl", "L"],
     pin: false,
   },
   {
-    name: "导出文档",
+    name: i18n.global.t('导出文档'),
     icon: "#icondaochu1",
     op: "exportDoc",
     shortcut: ["Ctrl", "E"],
     pin: false,
   },
   {
-    name: "导入文档",
+    name: i18n.global.t('导入文档'),
     icon: "#icondaoru",
     op: "importDoc",
     shortcut: ["Ctrl", "I"],
@@ -72,7 +74,7 @@ export const originOperaions = [
   //   viewOnly: true,
   // },
   {
-    name: "生成代码",
+    name: i18n.global.t('生成代码'),
     icon: "#iconshengchengdaima",
     op: "hook",
     shortcut: ["Ctrl", "H"],
@@ -80,7 +82,7 @@ export const originOperaions = [
     viewOnly: true,
   },
   {
-    name: "全局变量",
+    name: i18n.global.t('全局变量'),
     icon: "#iconvariable",
     op: "variable",
     shortcut: [],
@@ -88,7 +90,7 @@ export const originOperaions = [
     viewOnly: true,
   },
   {
-    name: "接口编排",
+    name: i18n.global.t('接口编排'),
     icon: "#iconbianpaixin",
     op: "apiflow",
     shortcut: [],
