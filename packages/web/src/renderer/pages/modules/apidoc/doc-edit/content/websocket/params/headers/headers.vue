@@ -62,10 +62,11 @@ import { ref, computed, watch } from 'vue'
 import { router } from '@/router'
 import { View } from '@element-plus/icons-vue'
 import { ApidocProperty } from '@src/types';
-import { apidocGenerateProperty } from '@/helper';
+import { apidocGenerateProperty, debounce, cloneDeep } from '@/helper';
 import { useTranslation } from 'i18next-vue'
 import SParamsTree from '@/components/apidoc/params-tree/g-params-tree.vue'
 import { useWebSocket } from '@/store/websocket/websocket';
+import { useRedoUndo } from '@/store/redoUndo/redoUndo';
 import { useApidocTas } from '@/store/apidoc/tabs';
 import { useApidocBaseInfo } from '@/store/apidoc/base-info';
 import { webSocketNodeCache } from '@/cache/websocket/websocketNodeCache';
@@ -75,6 +76,7 @@ import { CheckboxValueType } from 'element-plus';
 const emits = defineEmits(['changeCommonHeaderSendStatus'])
 const apidocTabsStore = useApidocTas()
 const websocketStore = useWebSocket()
+const redoUndoStore = useRedoUndo()
 const apidocBaseInfoStore = useApidocBaseInfo()
 const { commonHeaders: cHeaders, globalCommonHeaders } = storeToRefs(apidocBaseInfoStore)
 const { websocket, defaultHeaders } = storeToRefs(websocketStore)
@@ -88,6 +90,29 @@ const { t } = useTranslation()
 const hideDefaultHeader = ref(true);
 const headerData = computed(() => websocket.value.item.headers)
 const commonHeaders = ref<(Pick<ApidocProperty, "_id" | 'key' | 'value' | 'description' | 'select' & { path?: string[] }>)[]>([]);
+
+// 防抖的请求头记录函数
+const debouncedRecordHeadersOperation = debounce((oldValue: ApidocProperty<'string'>[], newValue: ApidocProperty<'string'>[]) => {
+  if (!currentSelectTab.value) return;
+  
+  redoUndoStore.recordOperation({
+    nodeId: currentSelectTab.value._id,
+    type: "headersOperation",
+    operationName: "修改请求头",
+    affectedModuleName: "headers",
+    oldValue,
+    newValue,
+    timestamp: Date.now()
+  });
+}, 500);
+
+// 监听请求头变化
+let previousHeaders = cloneDeep(websocket.value.item.headers);
+watch(() => websocket.value.item.headers, (newValue) => {
+  const newValueClone = cloneDeep(newValue);
+  debouncedRecordHeadersOperation(previousHeaders, newValueClone);
+  previousHeaders = newValueClone;
+}, { deep: true });
 
 const handleChangeCommonHeaderIsSend = (isSend: CheckboxValueType, header: Pick<ApidocProperty, "_id" | 'key' | 'value' | 'description' | 'select'>) => {
   if (isSend) {

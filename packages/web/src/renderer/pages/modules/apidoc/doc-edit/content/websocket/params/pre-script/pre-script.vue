@@ -58,16 +58,42 @@ console.log('正在连接到WebSocket服务器...');"
 import { computed } from 'vue'
 import { useTranslation } from 'i18next-vue'
 import { useWebSocket } from '@/store/websocket/websocket'
+import { useRedoUndo } from '@/store/redoUndo/redoUndo'
+import { debounce } from '@/helper'
 
 const { t } = useTranslation()
 
 // 使用WebSocket store
 const websocketStore = useWebSocket()
+const redoUndoStore = useRedoUndo()
+
+// 防抖记录前置脚本操作
+const debouncedRecordPreRequestOperation = debounce((oldValue: string, newValue: string) => {
+  if (oldValue === newValue) return;
+  
+  redoUndoStore.recordOperation({
+    nodeId: websocketStore.websocket._id,
+    type: "preRequestOperation",
+    operationName: "修改前置脚本",
+    affectedModuleName: "preScript",
+    oldValue: { raw: oldValue },
+    newValue: { raw: newValue },
+    timestamp: Date.now()
+  })
+}, 500)
+
+// 前置脚本内容的前值
+let previousScriptContent = websocketStore.websocket.preRequest.raw
 
 // 从store获取脚本内容
 const scriptContent = computed({
   get: () => websocketStore.websocket.preRequest.raw,
-  set: (value: string) => websocketStore.changeWebSocketPreRequest(value)
+  set: (value: string) => {
+    const oldValue = previousScriptContent
+    websocketStore.changeWebSocketPreRequest(value)
+    debouncedRecordPreRequestOperation(oldValue, value)
+    previousScriptContent = value
+  }
 })
 
 const handleInsertVariable = () => {
@@ -122,7 +148,6 @@ console.log('连接地址:', ws.getUrl());`
 
 const handleSaveScript = () => {
   console.log('保存脚本:', scriptContent.value)
-  websocketStore.updateWebSocketUpdatedAt()
 }
 
 const insertTextAtCursor = (text: string) => {

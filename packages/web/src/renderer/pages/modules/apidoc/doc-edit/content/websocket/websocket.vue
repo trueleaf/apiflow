@@ -28,7 +28,7 @@ import SParams from './params/params.vue'
 import SResponse from './response/response.vue'
 import { useApidocTas } from '@/store/apidoc/tabs'
 import { useWebSocket } from '@/store/websocket/websocket'
-import { debounce, checkPropertyIsEqual, lodashIsEqual } from '@/helper'
+import { debounce, checkPropertyIsEqual } from '@/helper'
 import type { WebSocketNode } from '@src/types/websocket/websocket'
 import { DebouncedFunc } from 'lodash'
 import { websocketResponseCache } from '@/cache/websocket/websocketResponse'
@@ -36,20 +36,13 @@ import { websocketTemplateCache } from '@/cache/websocket/websocketTemplateCache
 import { uuid } from '@/helper'
 import { router } from '@/router'
 import { useRedoUndo } from '@/store/redoUndo/redoUndo'
-import { cloneDeep } from '@/helper'
-import { useTranslation } from 'i18next-vue'
 
 const apidocTabsStore = useApidocTas()
 const websocketStore = useWebSocket()
-const redoUndoStore = useRedoUndo()
-const { t } = useTranslation()
 const { currentSelectTab } = storeToRefs(apidocTabsStore)
-const { loading } = storeToRefs(websocketStore)
+const { loading, } = storeToRefs(websocketStore)
 const debounceWebsocketDataChange = ref(null as (null | DebouncedFunc<(websocket: WebSocketNode) => void>))
-const debounceRedoUndoDataChange = ref(null as (null | DebouncedFunc<(websocket: WebSocketNode, oldWebsocket: WebSocketNode) => void>))
-const lastWebsocketSnapshot = ref<WebSocketNode | null>(null)
-const responseRef = ref()
-
+const redoUndoStore = useRedoUndo()
 
 /*
 |--------------------------------------------------------------------------
@@ -183,165 +176,11 @@ const initTemplate = () => {
   const templates = websocketTemplateCache.getAllTemplates();
   websocketStore.setSendMessageTemplateList(templates);
 };
-// 处理RedoUndo数据变化
-const handleRedoUndoDataChange = (currentWebsocket: WebSocketNode, oldWebsocket: WebSocketNode) => {
-  if (!currentSelectTab.value) {
-    return;
-  }
-  const nodeId = currentSelectTab.value._id;
-  // 检查协议变化
-  if (currentWebsocket.item.protocol !== oldWebsocket.item.protocol) {
-    const operation = {
-      nodeId,
-      type: 'protocolOperation' as const,
-      operationName: t('修改协议'),
-      affectedModuleName: 'operation' as const,
-      oldValue: oldWebsocket.item.protocol,
-      newValue: currentWebsocket.item.protocol,
-      timestamp: Date.now()
-    };
-    redoUndoStore.recordOperation(operation);
-  }
-  // 检查URL路径变化
-  if (currentWebsocket.item.url.path !== oldWebsocket.item.url.path) {
-    const operation = {
-      nodeId,
-      type: 'urlOperation' as const,
-      operationName: t('修改请求路径'),
-      affectedModuleName: 'operation' as const,
-      oldValue: oldWebsocket.item.url.path,
-      newValue: currentWebsocket.item.url.path,
-      timestamp: Date.now()
-    };
-    redoUndoStore.recordOperation(operation);
-  }
-  // 检查请求头变化
-  if (!checkPropertyIsEqual(currentWebsocket.item.headers, oldWebsocket.item.headers)) {
-    if (!lodashIsEqual(oldWebsocket.item.headers, currentWebsocket.item.headers)) {
-      const operation = {
-        nodeId,
-        type: 'headersOperation' as const,
-        operationName: t('修改请求头'),
-        affectedModuleName: 'headers' as const,
-        oldValue: cloneDeep(oldWebsocket.item.headers),
-        newValue: cloneDeep(currentWebsocket.item.headers),
-        timestamp: Date.now()
-      };
-      redoUndoStore.recordOperation(operation);
-    }
-  }
-  // 检查查询参数变化
-  if (!checkPropertyIsEqual(currentWebsocket.item.queryParams, oldWebsocket.item.queryParams)) {
-    if (!lodashIsEqual(oldWebsocket.item.queryParams, currentWebsocket.item.queryParams)) {
-      const operation = {
-        nodeId,
-        type: 'queryParamsOperation' as const,
-        operationName: t('修改查询参数'),
-        affectedModuleName: 'params' as const,
-        oldValue: cloneDeep(oldWebsocket.item.queryParams),
-        newValue: cloneDeep(currentWebsocket.item.queryParams),
-        timestamp: Date.now()
-      };
-      redoUndoStore.recordOperation(operation);
-    }
-  }
-  // 检查发送消息变化
-  if (currentWebsocket.item.sendMessage !== oldWebsocket.item.sendMessage) {
-    const operation = {
-      nodeId,
-      type: 'sendMessageOperation' as const,
-      operationName: t('修改发送消息'),
-      affectedModuleName: 'messageContent' as const,
-      oldValue: oldWebsocket.item.sendMessage,
-      newValue: currentWebsocket.item.sendMessage,
-      timestamp: Date.now()
-    };
-    redoUndoStore.recordOperation(operation);
-  }
-  // 检查配置变化
-  if (!checkConfigIsEqual(currentWebsocket.config, oldWebsocket.config)) {
-    if (!lodashIsEqual(oldWebsocket.config, currentWebsocket.config)) {
-      const operation = {
-        nodeId,
-        type: 'configOperation' as const,
-        operationName: t('修改连接配置'),
-        affectedModuleName: 'config' as const,
-        oldValue: cloneDeep(oldWebsocket.config),
-        newValue: cloneDeep(currentWebsocket.config),
-        timestamp: Date.now()
-      };
-      redoUndoStore.recordOperation(operation);
-    }
-  }
-  // 检查前置脚本变化
-  if (currentWebsocket.preRequest.raw !== oldWebsocket.preRequest.raw) {
-    const operation = {
-      nodeId,
-      type: 'preRequestOperation' as const,
-      operationName: t('修改前置脚本'),
-      affectedModuleName: 'preScript' as const,
-      oldValue: cloneDeep(oldWebsocket.preRequest),
-      newValue: cloneDeep(currentWebsocket.preRequest),
-      timestamp: Date.now()
-    };
-    redoUndoStore.recordOperation(operation);
-  }
-  // 检查后置脚本变化
-  if (currentWebsocket.afterRequest.raw !== oldWebsocket.afterRequest.raw) {
-    const operation = {
-      nodeId,
-      type: 'afterRequestOperation' as const,
-      operationName: t('修改后置脚本'),
-      affectedModuleName: 'afterScript' as const,
-      oldValue: cloneDeep(oldWebsocket.afterRequest),
-      newValue: cloneDeep(currentWebsocket.afterRequest),
-      timestamp: Date.now()
-    };
-    redoUndoStore.recordOperation(operation);
-  }
-  // 检查基本信息变化
-  if (currentWebsocket.info.name !== oldWebsocket.info.name || 
-      currentWebsocket.info.description !== oldWebsocket.info.description) {
-    const oldValue = {
-      name: oldWebsocket.info.name || '',
-      description: oldWebsocket.info.description || ''
-    };
-    const newValue = {
-      name: currentWebsocket.info.name || '',
-      description: currentWebsocket.info.description || ''
-    };
-    if (!lodashIsEqual(oldValue, newValue)) {
-      const operation = {
-        nodeId,
-        type: 'basicInfoOperation' as const,
-        operationName: t('修改基本信息'),
-        affectedModuleName: 'remarks' as const,
-        oldValue,
-        newValue,
-        timestamp: Date.now()
-      };
-      redoUndoStore.recordOperation(operation);
-    }
-  }
-};
 // 初始化防抖数据变化处理
 const initDebouncDataChange = () => {
   debounceWebsocketDataChange.value = debounce(handleWebsocketDataChange, 200, {
     leading: true
   });
-  debounceRedoUndoDataChange.value = debounce(handleRedoUndoDataChange, 200);
-};
-// 初始化RedoUndo缓存数据
-const initRedoUndoCache = () => {
-  if (!currentSelectTab.value) {
-    return;
-  }
-  try {
-    const nodeId = currentSelectTab.value._id;
-    redoUndoStore.initFromCache(nodeId);
-  } catch (error) {
-    console.error('初始化RedoUndo缓存数据失败:', error);
-  }
 };
 // 检查WebSocket连接状态
 const checkIsConnection = () => {
@@ -492,14 +331,10 @@ const cleanupWebSocketEventListeners = () => {
 watch(currentSelectTab, async (val, oldVal) => {
   const isWebSocket = val?.tabType === 'websocket'
   if (isWebSocket && val?._id !== oldVal?._id) {
-    getWebsocketInfo()
-    initResponseFromCache()
-    checkIsConnection()
-    initRedoUndoCache()
-    // 初始化websocket快照
-    if (websocketStore.websocket) {
-      lastWebsocketSnapshot.value = cloneDeep(websocketStore.websocket)
-    }
+    getWebsocketInfo();
+    initResponseFromCache();
+    checkIsConnection();
+    redoUndoStore.initFromCache(val._id);
   }
 }, {
   deep: true,
@@ -509,16 +344,6 @@ watch(() => websocketStore.websocket, (websocket: WebSocketNode) => {
   if (debounceWebsocketDataChange.value) {
     debounceWebsocketDataChange.value(websocket)
   }
-}, {
-  deep: true,
-})
-// RedoUndo数据变化监听器
-watch(() => websocketStore.websocket, (newWebsocket: WebSocketNode, oldWebsocket: WebSocketNode) => {
-  if (debounceRedoUndoDataChange.value && lastWebsocketSnapshot.value && oldWebsocket) {
-    debounceRedoUndoDataChange.value(newWebsocket, lastWebsocketSnapshot.value)
-  }
-  // 更新快照
-  lastWebsocketSnapshot.value = cloneDeep(newWebsocket)
 }, {
   deep: true,
 })
@@ -532,10 +357,6 @@ onMounted(() => {
 // 组件卸载时清理事件监听器  
 onUnmounted(() => {
   cleanupWebSocketEventListeners()
-  // 清理防抖函数
-  if (debounceRedoUndoDataChange.value) {
-    debounceRedoUndoDataChange.value.cancel()
-  }
 })
 
 </script>

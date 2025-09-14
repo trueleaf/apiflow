@@ -30,13 +30,39 @@ console.log('WebSocket消息发送完成');"
 import { computed } from 'vue'
 import { useTranslation } from 'i18next-vue'
 import { useWebSocket } from '@/store/websocket/websocket'
+import { useRedoUndo } from '@/store/redoUndo/redoUndo'
+import { debounce } from '@/helper'
 
 const { t } = useTranslation()
 const websocketStore = useWebSocket()
+const redoUndoStore = useRedoUndo()
+
+// 防抖记录后置脚本操作
+const debouncedRecordAfterRequestOperation = debounce((oldValue: string, newValue: string) => {
+  if (oldValue === newValue) return;
+  
+  redoUndoStore.recordOperation({
+    nodeId: websocketStore.websocket._id,
+    type: "afterRequestOperation",
+    operationName: "修改后置脚本",
+    affectedModuleName: "afterScript",
+    oldValue: { raw: oldValue },
+    newValue: { raw: newValue },
+    timestamp: Date.now()
+  })
+}, 500)
+
+// 后置脚本内容的前值
+let previousAfterScriptContent = websocketStore.websocket.afterRequest.raw
 
 const afterScript = computed({
   get: () => websocketStore.websocket.afterRequest.raw,
-  set: (value: string) => websocketStore.changeWebSocketAfterRequest(value)
+  set: (value: string) => {
+    const oldValue = previousAfterScriptContent
+    websocketStore.changeWebSocketAfterRequest(value)
+    debouncedRecordAfterRequestOperation(oldValue, value)
+    previousAfterScriptContent = value
+  }
 })
 
 const handleTestAfterScript = () => {

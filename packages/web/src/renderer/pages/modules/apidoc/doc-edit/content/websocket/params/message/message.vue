@@ -4,7 +4,7 @@
     <div class="content-wrapper">
       <!-- 编辑器 -->
       <div class="editor-wrap">
-        <SJsonEditor v-model="websocketStore.websocket.item.sendMessage" :config="editorConfig" :auto-height="false" />
+        <SJsonEditor :model-value="websocketStore.websocket.item.sendMessage" @update:model-value="handleMessageChange" :config="editorConfig" :auto-height="false" />
       </div>
       <!-- 操作按钮区域 -->
       <div class="content-actions">
@@ -142,6 +142,7 @@ import { storeToRefs } from 'pinia'
 import { useTranslation } from 'i18next-vue'
 import { useApidocTas } from '@/store/apidoc/tabs'
 import { useWebSocket } from '@/store/websocket/websocket'
+import { useRedoUndo } from '@/store/redoUndo/redoUndo'
 import {
   Position,
   Setting,
@@ -150,7 +151,7 @@ import {
 import SJsonEditor from '@/components/common/json-editor/g-json-editor.vue'
 import AddTemplateDialog from './dialog/add/add.vue'
 import type { MessageType } from '@src/types/websocket/websocket'
-import { uuid } from '@/helper'
+import { uuid, debounce } from '@/helper'
 import { websocketResponseCache } from '@/cache/websocket/websocketResponse'
 import { webSocketNodeCache } from '@/cache/websocket/websocketNodeCache'
 import { ElMessageBox, ElMessage } from 'element-plus'
@@ -159,11 +160,34 @@ import { ElMessageBox, ElMessage } from 'element-plus'
 const { t } = useTranslation()
 const apidocTabsStore = useApidocTas()
 const websocketStore = useWebSocket()
+const redoUndoStore = useRedoUndo()
 const { connectionState, connectionId } = storeToRefs(websocketStore)
 // 获取当前选中的tab
 const { currentSelectTab } = storeToRefs(apidocTabsStore)
 const configPopoverVisible = ref(false)
 let configTimer: NodeJS.Timeout | null = null
+
+// 防抖的消息内容记录函数
+const debouncedRecordMessageOperation = debounce((oldValue: string, newValue: string) => {
+  if (!currentSelectTab.value || oldValue === newValue) return;
+  
+  redoUndoStore.recordOperation({
+    nodeId: currentSelectTab.value._id,
+    type: "sendMessageOperation",
+    operationName: "修改消息内容",
+    affectedModuleName: "messageContent",
+    oldValue,
+    newValue,
+    timestamp: Date.now()
+  });
+}, 500);
+
+// 处理消息内容变化
+const handleMessageChange = (newValue: string) => {
+  const oldValue = websocketStore.websocket.item.sendMessage;
+  websocketStore.changeWebSocketMessage(newValue);
+  debouncedRecordMessageOperation(oldValue, newValue);
+};
 const editorConfig = computed(() => {
   switch (websocketStore.websocket.config.messageType) {
     case 'json':

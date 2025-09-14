@@ -81,11 +81,43 @@ const { saveLoading, refreshLoading, websocketFullUrl: fullUrl, connectionState,
 
 const protocol = computed({
   get: () => websocketStore.websocket.item.protocol,
-  set: (value: 'ws' | 'wss') => websocketStore.changeWebSocketProtocol(value)
+  set: (value: 'ws' | 'wss') => {
+    if (!currentSelectTab.value) return;
+    const oldValue = websocketStore.websocket.item.protocol;
+    if (oldValue !== value) {
+      // 记录协议变化操作
+      redoUndoStore.recordOperation({
+        nodeId: currentSelectTab.value._id,
+        type: "protocolOperation",
+        operationName: "修改协议",
+        affectedModuleName: "operation",
+        oldValue,
+        newValue: value,
+        timestamp: Date.now()
+      });
+    }
+    websocketStore.changeWebSocketProtocol(value);
+  }
 });
 const connectionUrl = computed({
   get: () => websocketStore.websocket.item.url.path,
-  set: (value: string) => websocketStore.changeWebSocketPath(value)
+  set: (value: string) => {
+    if (!currentSelectTab.value) return;
+    const oldValue = websocketStore.websocket.item.url.path;
+    if (oldValue !== value) {
+      // 记录URL变化操作
+      redoUndoStore.recordOperation({
+        nodeId: currentSelectTab.value._id,
+        type: "urlOperation",
+        operationName: "修改连接地址",
+        affectedModuleName: "operation",
+        oldValue,
+        newValue: value,
+        timestamp: Date.now()
+      });
+    }
+    websocketStore.changeWebSocketPath(value);
+  }
 });
 
 
@@ -264,10 +296,7 @@ const handleRefresh = async () => {
   }
   websocketStore.refreshLoading = true;
   try {
-    // 清空内存中的消息
     websocketStore.clearMessages();
-    
-    // 清空指定节点的redoList和undoList
     const nodeId = currentSelectTab.value._id;
     if (nodeId) {
       redoUndoStore.clearRedoUndoListByNodeId(nodeId);
@@ -293,7 +322,6 @@ const handleRefresh = async () => {
     }, 100);
   }
 };
-
 
 const handleFormatUrl = () => {
   // 将请求url后面查询参数转换为params
