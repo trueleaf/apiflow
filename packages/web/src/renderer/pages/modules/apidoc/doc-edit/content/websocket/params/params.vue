@@ -1,5 +1,28 @@
 <template>
   <div class="ws-params">
+    <!-- 快捷操作区域 -->
+    <div class="quick-actions">
+      <div class="action-group">
+        <div
+          class="action-item"
+          :class="{ disabled: !canUndo }"
+          :title="t('撤销') + ' (Ctrl+Z)'"
+          @click="handleUndo"
+        >
+          <el-icon size="16"><RefreshLeft /></el-icon>
+          <span>{{ t('撤销') }}</span>
+        </div>
+        <div
+          class="action-item"
+          :class="{ disabled: !canRedo }"
+          :title="t('重做') + ' (Ctrl+Y)'"
+          @click="handleRedo"
+        >
+          <el-icon size="16"><RefreshRight /></el-icon>
+          <span>{{ t('重做') }}</span>
+        </div>
+      </div>
+    </div>
     <!-- 连接配置选项卡 -->
     <el-tabs v-model="activeTab" class="params-tabs">
       <el-tab-pane name="messageContent">
@@ -49,6 +72,7 @@
 import { computed, onMounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { storeToRefs } from 'pinia'
+import { RefreshLeft, RefreshRight } from '@element-plus/icons-vue'
 import SHeaders from './headers/headers.vue'
 import SQueryParams from './query-params/query-params.vue'
 import SPreScript from './pre-script/pre-script.vue'
@@ -78,6 +102,30 @@ const hasPreScript = computed(() => websocket.value.preRequest.raw.trim() !== ''
 const hasAfterScript = computed(() => websocket.value.afterRequest.raw.trim() !== '')
 
 const hasSendMessage = computed(() => websocket.value.item.sendMessage.trim() !== '')
+
+// 撤销/重做相关计算属性
+const canUndo = computed(() => {
+  const nodeId = websocket.value._id;
+  const undoList = redoUndoStore.wsUndoList[nodeId];
+  return undoList && undoList.length > 0;
+});
+
+const canRedo = computed(() => {
+  const nodeId = websocket.value._id;
+  const redoList = redoUndoStore.wsRedoList[nodeId];
+  return redoList && redoList.length > 0;
+});
+
+// 撤销/重做事件处理
+const handleUndo = (): void => {
+  const nodeId = websocket.value._id;
+  redoUndoStore.wsUndo(nodeId);
+};
+
+const handleRedo = (): void => {
+  const nodeId = websocket.value._id;
+  redoUndoStore.wsRedo(nodeId);
+};
 
 const getInitialActiveTab = (): string => {
   if (currentSelectTab.value) {
@@ -111,12 +159,46 @@ onMounted(() => {
 <style lang="scss" scoped>
 .ws-params {
   padding: 0 0 10px;
-  height: calc(100vh - var(--apiflow-apidoc-operation-height) - var(--apiflow-doc-nav-height));
-  overflow-y: auto;
+  // overflow-y: auto;
   position: relative;
+
+  .quick-actions {
+    height: 35px;
+    display: flex;
+    align-items: flex-end;
+    padding: 0 20px;
+    justify-content: flex-end;
+    .action-group {
+      display: flex;
+      .action-item {
+        display: flex;
+        align-items: center;
+        padding: 4px 5px;
+        font-size: 13px;
+        cursor: pointer;
+        border-radius: 4px;
+        transition: background-color 0.2s;
+        
+        &:hover:not(.disabled) {
+          background-color: var(--gray-200);
+        }
+        
+        &.disabled {
+          opacity: 0.5;
+          cursor: default;
+        }
+        
+        span {
+          user-select: none;
+        }
+      }
+    }
+  }
 
   .params-tabs,
   .workbench {
+    height: calc(100vh - var(--apiflow-apidoc-operation-height) - var(--apiflow-doc-nav-height) - 45px);
+    overflow-y: auto;
     padding-right: 20px;
     padding-left: 20px;
   }
