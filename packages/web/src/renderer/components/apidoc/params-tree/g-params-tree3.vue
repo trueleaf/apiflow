@@ -39,13 +39,14 @@
           :placeholder="t('类型')"
           class="w-15 flex0 mr-2"
           :size="config.renderConfig.layout.size"
-          @update:modelValue="v => handleChangeType(v as HttpNodePropertyType, data)"
+          :disabled="!props.enableFile && data.type === 'file'"
+          @update:modelValue="v => handleChangeType(v as 'string' | 'file', data)"
         >
           <el-option label="String" value="string"></el-option>
           <el-option label="File" value="file"></el-option>
         </el-select>
         <el-popover
-          v-if="data.type !== 'boolean' && data.type !== 'file'"
+          v-if="data.type === 'string'"
           :visible="data._id === currentOpData?._id && (data.value || '').includes('@')"
           placement="top-start"
           width="auto"
@@ -62,17 +63,6 @@
             </el-input>
           </template>
         </el-popover>
-        <el-select
-          v-if="data.type === 'boolean'"
-          :model-value="data.value"
-          :placeholder="t('请选择')"
-          class="w-25 flex0"
-          :size="config.renderConfig.layout.size"
-          @update:modelValue="v => handleChangeBooleanValue(v as string, data)"
-        >
-          <el-option label="true" value="true"></el-option>
-          <el-option label="false" value="false"></el-option>
-        </el-select>
         <div
           v-if="data.type === 'file'"
           class="w-25 mr-2"
@@ -145,23 +135,23 @@
 import { ref, Ref, watch, computed } from 'vue';
 import { Close, Switch } from '@element-plus/icons-vue';
 import type Node from 'element-plus/es/components/tree/src/model/node';
-import type { ApidocProperty, HttpNodePropertyType, MockItem } from '@src/types';
+import type { ApidocProperty, MockItem } from '@src/types';
 import { apidocGenerateProperty } from '@/helper/index';
 import { useI18n } from 'vue-i18n';
 import SMock from '@/components/apidoc/mock/g-mock.vue';
 import { config } from '@src/config/config';
 
-const props = defineProps<{ data: ApidocProperty[] }>();
-const emits = defineEmits<{ (e: 'change', value: ApidocProperty[]): void }>();
+const props = defineProps<{ 
+  data: ApidocProperty<'string' | 'file'>[];
+  enableFile?: boolean;
+}>();
+const emits = defineEmits<{ (e: 'change', value: ApidocProperty<'string' | 'file'>[]): void }>();
 const { t } = useI18n();
 
-const localData: Ref<ApidocProperty[]> = ref([]);
-const tree: Ref<any> = ref(null);
+const localData: Ref<ApidocProperty<'string' | 'file'>[]> = ref([]);
 const enableDrag = ref(true);
-const currentOpData: Ref<ApidocProperty | null> = ref(null);
-
+const currentOpData: Ref<ApidocProperty<'string' | 'file'> | null> = ref(null);
 const checkedKeys = computed(() => localData.value.filter(v => v.select).map(v => v._id));
-
 const emitChange = () => {
   emits('change', localData.value);
 };
@@ -174,7 +164,7 @@ watch(
     }
     localData.value = v.map(i => ({ ...i }));
     if (localData.value.length === 0) {
-      localData.value.push(apidocGenerateProperty());
+      localData.value.push(apidocGenerateProperty<'string'>());
     }
   },
   { deep: true, immediate: true },
@@ -208,7 +198,7 @@ const handleNodeDrop = (dragNode: Node, dropNode: Node, type: 'inner' | 'prev' |
   emitChange();
 };
 
-const handleDeleteRow = (data: ApidocProperty) => {
+const handleDeleteRow = (data: ApidocProperty<'string' | 'file'>) => {
   // 如果只有一条数据，禁止删除
   if (localData.value.length <= 1) {
     return;
@@ -218,26 +208,26 @@ const handleDeleteRow = (data: ApidocProperty) => {
     localData.value.splice(idx, 1);
   }
   if (localData.value.length === 0) {
-    localData.value.push(apidocGenerateProperty());
+    localData.value.push(apidocGenerateProperty<'string'>());
   }
   emitChange();
 };
 
-const autoAppendIfNeeded = (data: ApidocProperty) => {
+const autoAppendIfNeeded = (data: ApidocProperty<'string' | 'file'>) => {
   const isLast = localData.value[localData.value.length - 1]?._id === data._id;
   const hasKey = (data.key ?? '').trim() !== '';
   if (isLast && hasKey) {
-    localData.value.push(apidocGenerateProperty());
+    localData.value.push(apidocGenerateProperty<'string'>());
   }
 };
 
-const handleChangeKey = (v: string, data: ApidocProperty) => {
+const handleChangeKey = (v: string, data: ApidocProperty<'string' | 'file'>) => {
   data.key = v;
   autoAppendIfNeeded(data);
   emitChange();
 };
 
-const handleChangeValue = (v: string, data: ApidocProperty) => {
+const handleChangeValue = (v: string, data: ApidocProperty<'string' | 'file'>) => {
   data.value = v;
   // 检测是否包含@符号，如果包含则显示mock弹窗
   if (v.includes('@')) {
@@ -248,21 +238,17 @@ const handleChangeValue = (v: string, data: ApidocProperty) => {
   emitChange();
 };
 
-const handleChangeBooleanValue = (v: string, data: ApidocProperty) => {
-  data.value = v;
-  emitChange();
-};
-
-const handleChangeType = (v: HttpNodePropertyType, data: ApidocProperty) => {
+const handleChangeType = (v: 'string' | 'file', data: ApidocProperty<'string' | 'file'>) => {
   data.type = v;
-  if (v === 'boolean') {
-    data.value = data.value === 'false' ? 'false' : 'true';
-  } else if (v === 'file') {
+  if (v === 'file') {
     data.fileValueType = data.fileValueType ?? 'var';
     data.value = '';
     data._error = '';
   } else {
     data.value = '';
+    // 清除文件相关属性
+    delete data.fileValueType;
+    delete data._error;
   }
   emitChange();
 };
@@ -275,24 +261,24 @@ const handleCloseMock = () => {
   currentOpData.value = null;
 };
 
-const handleSelectMockValue = (item: MockItem, data: ApidocProperty) => {
+const handleSelectMockValue = (item: MockItem, data: ApidocProperty<'string' | 'file'>) => {
   data.value = item.value;
   // 选中mock数据后自动关闭弹窗
   currentOpData.value = null;
   emitChange();
 };
 
-const handleToggleFileValueType = (data: ApidocProperty) => {
+const handleToggleFileValueType = (data: ApidocProperty<'string' | 'file'>) => {
   data.fileValueType = data.fileValueType === 'var' ? 'file' : 'var';
   emitChange();
 };
 
-const handleClearFileValue = (data: ApidocProperty) => {
+const handleClearFileValue = (data: ApidocProperty<'string' | 'file'>) => {
   data.value = '';
   emitChange();
 };
 
-const handleSelectFile = (e: Event, data: ApidocProperty) => {
+const handleSelectFile = (e: Event, data: ApidocProperty<'string' | 'file'>) => {
   const files = (e.target as HTMLInputElement).files;
   if (!files || files.length === 0) {
     data.value = '';
@@ -311,17 +297,17 @@ const handleSelectFile = (e: Event, data: ApidocProperty) => {
   emitChange();
 };
 
-const handleChangeRequired = (v: boolean, data: ApidocProperty) => {
+const handleChangeRequired = (v: boolean, data: ApidocProperty<'string' | 'file'>) => {
   data.required = !!v;
   emitChange();
 };
 
-const handleChangeDescription = (v: string, data: ApidocProperty) => {
+const handleChangeDescription = (v: string, data: ApidocProperty<'string' | 'file'>) => {
   data.description = v;
   emitChange();
 };
 
-const handleCheckChange = (data: ApidocProperty, select: boolean) => {
+const handleCheckChange = (data: ApidocProperty<'string' | 'file'>, select: boolean) => {
   data.select = select;
   emitChange();
 };
@@ -359,8 +345,74 @@ const handleCheckChange = (data: ApidocProperty, select: boolean) => {
     }
   }
   .file-input-wrap {
+    box-sizing: content-box;
+    cursor: default;
+    border: 1px dashed var(--gray-400);
     display: flex;
     align-items: center;
+    height: 28px;
+    position: relative;
+    font-size: 13px;
+    :deep(.el-input__wrapper) {
+      box-shadow: none;
+      border-bottom: none;
+      height: 28px;
+    }
+    &.active {
+      background: none;
+      border: 1px solid var(--gray-300);
+      cursor: auto;
+    }
+    &.no-border {
+      border: none;
+    }
+    .mode-list {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+    }
+    .var-mode,.file-mode {
+      cursor: pointer;
+      &:hover {
+        color: var(--theme-color);
+      }
+    }
+    .file-mode-wrap {
+      .label {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: var(--gray-300);
+        cursor: pointer;
+      }
+      .close {
+        position: absolute;
+        right: 3px;
+        top: 50%;
+        transform: translateY(-50%);
+        font-size: 16px;
+        cursor: pointer;
+        &:hover {
+          color: var(--red);
+        }
+      }
+    }
+    .toggle-mode {
+      flex: 0 0 20px;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      &:hover {
+        cursor: pointer;
+        color: var(--theme-color);
+      }
+    }
   }
 }
 
