@@ -16,7 +16,7 @@ import mitt from 'mitt'
 import tips from './tips'
 import { ApidocProjectBaseInfoState } from '@src/types/apidoc/base-info';
 import { ApidocTab } from '@src/types/apidoc/tabs.ts';
-import i18next from 'i18next';
+import { i18n } from '@/i18n';
 import { WebSocketNode } from '@src/types/websocket/websocket.ts';
 
 type Data = Record<string, unknown>
@@ -817,7 +817,7 @@ export const getCountdown = (expire: number) => {
   const now = Date.now();
   let diff = expireDate - now;
   if (diff <= 0) {
-    return i18next.t('已过期');
+    return i18n.global.t('已过期');
   }
   const days = Math.floor(diff / (1000 * 60 * 60 * 24));
   diff -= days * (1000 * 60 * 60 * 24);
@@ -828,10 +828,10 @@ export const getCountdown = (expire: number) => {
   const seconds = Math.floor(diff / 1000);
   // 国际化拼接
   let result = '';
-  if (days > 0) result += days + i18next.t('天');
-  if (hours > 0 || days > 0) result += hours + i18next.t('小时');
-  if (minutes > 0 || hours > 0 || days > 0) result += minutes + i18next.t('分钟');
-  result += seconds + i18next.t('秒');
+  if (days > 0) result += days + i18n.global.t('天');
+  if (hours > 0 || days > 0) result += hours + i18n.global.t('小时');
+  if (minutes > 0 || hours > 0 || days > 0) result += minutes + i18n.global.t('分钟');
+  result += seconds + i18n.global.t('秒');
   return result;
 }
 

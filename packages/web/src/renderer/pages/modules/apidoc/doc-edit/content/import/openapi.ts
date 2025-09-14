@@ -12,7 +12,7 @@ import jsontoxml from 'jsontoxml'
 import type { OpenAPIV3 } from 'openapi-types';
 import type { ApidocProperty, HttpNode, HttpNodePropertyType, HttpNodeRequestMethod, HttpNodeBodyRawType, HttpNodeResponseContentType } from '@src/types'
 import { uuid, apidocGenerateProperty, generateHttpNode } from '@/helper/index'
-import i18next from 'i18next'
+import { i18n } from '@/i18n'
 
 //=====================================项目信息====================================//
 type ProjectInfo = {
@@ -92,7 +92,7 @@ class OpenApiTranslator {
      */
   getVersion(): string {
     if (!this.openApiData.openapi) {
-      console.warn(i18next.t('缺少Version信息'));
+      console.warn(i18n.global.t('缺少Version信息'));
       return '';
     }
     return this.openApiData.openapi
@@ -104,7 +104,7 @@ class OpenApiTranslator {
   getProjectInfo(): ProjectInfo {
     const openApiInfo = this.openApiData.info;
     if (!openApiInfo) {
-      console.warn(i18next.t('缺少Info字段'))
+      console.warn(i18n.global.t('缺少Info字段'))
     }
     return {
       projectName: openApiInfo?.title || '',
@@ -160,7 +160,7 @@ class OpenApiTranslator {
     const docsResult: HttpNode[] = [];
     const allTags: Set<string> = new Set();
     if (!openApiDocInfo) {
-      console.warn(i18next.t('缺少paths字段'));
+      console.warn(i18n.global.t('缺少paths字段'));
       return docsResult;
     }
     Object.keys(openApiDocInfo).forEach((reqUrl) => {

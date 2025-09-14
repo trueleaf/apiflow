@@ -81,7 +81,6 @@ const menuStyle = computed(() => ({
 
 // 处理语言选择
 const handleLanguageSelect = (language: Language) => {
-  // changeLanguage(language)
   emit('languageSelect', language)
   emit('close')
 }

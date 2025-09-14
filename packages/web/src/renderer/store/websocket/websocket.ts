@@ -13,7 +13,7 @@ import { useApidocBanner } from "../apidoc/banner.ts";
 import { getWebSocketUrl } from "@/server/request/request.ts";
 import { useVariable } from "../apidoc/variables.ts";
 import { useCookies } from "../apidoc/cookies.ts";
-import i18next from "i18next";
+import { i18n } from "@/i18n";
 
 export const useWebSocket = defineStore('websocket', () => {
   const apidocVariableStore = useVariable();
@@ -54,7 +54,7 @@ export const useWebSocket = defineStore('websocket', () => {
     if (matchedCookies.length > 0) {
       cookieValue = matchedCookies.map(cookie => `${cookie.name}=${cookie.value}`).join('; ');
       property.value = cookieValue;
-      property.description = i18next.t('<发送时候自动计算>');
+      property.description = i18n.global.t('<发送时候自动计算>');
       property._disableDelete = true;
       property._disableKey = true;
       property._disableDescription = true;
@@ -118,11 +118,11 @@ export const useWebSocket = defineStore('websocket', () => {
     // Host - 必需请求头，值可以覆盖
     const hostHeader = apidocGenerateProperty();
     hostHeader.key = "Host";
-    hostHeader.description = i18next.t("<主机信息，WebSocket连接必需，值可覆盖>");
+    hostHeader.description = i18n.global.t("<主机信息，WebSocket连接必需，值可覆盖>");
     hostHeader._disableKey = true;
     hostHeader._disableDelete = true;
     hostHeader._disableValue = true;
-    hostHeader._valuePlaceholder = i18next.t("<自动生成>");
+    hostHeader._valuePlaceholder = i18n.global.t("<自动生成>");
     hostHeader._disableDescription = true;
     defaultHeaders.value.push(hostHeader);
   
@@ -131,7 +131,7 @@ export const useWebSocket = defineStore('websocket', () => {
     const upgradeHeader = apidocGenerateProperty();
     upgradeHeader.key = "Upgrade";
     upgradeHeader.value = "websocket";
-    upgradeHeader.description = i18next.t("<升级协议，WebSocket必需，值可覆盖>");
+    upgradeHeader.description = i18n.global.t("<升级协议，WebSocket必需，值可覆盖>");
     upgradeHeader._disableKey = true;
     upgradeHeader._disableDelete = true;
     defaultHeaders.value.push(upgradeHeader);
@@ -141,7 +141,7 @@ export const useWebSocket = defineStore('websocket', () => {
     const connectionHeader = apidocGenerateProperty();
     connectionHeader.key = "Connection";
     connectionHeader.value = "Upgrade";
-    connectionHeader.description = i18next.t("<保持连接升级，WebSocket必需，值可覆盖>");
+    connectionHeader.description = i18n.global.t("<保持连接升级，WebSocket必需，值可覆盖>");
     connectionHeader._disableKey = true;
     connectionHeader._disableDelete = true;
     defaultHeaders.value.push(connectionHeader);
@@ -150,8 +150,8 @@ export const useWebSocket = defineStore('websocket', () => {
     // Sec-WebSocket-Key - 必需请求头，值不可覆盖
     const secKeyHeader = apidocGenerateProperty();
     secKeyHeader.key = "Sec-WebSocket-Key";
-    secKeyHeader._valuePlaceholder = i18next.t("<客户端自动生成随机Key>");
-    secKeyHeader.description = i18next.t("<握手校验Key，客户端每次随机生成，值不可覆盖>");
+    secKeyHeader._valuePlaceholder = i18n.global.t("<客户端自动生成随机Key>");
+    secKeyHeader.description = i18n.global.t("<握手校验Key，客户端每次随机生成，值不可覆盖>");
     secKeyHeader._disableKey = true;
     secKeyHeader._disableValue = true;
     secKeyHeader._disableDelete = true;
@@ -162,7 +162,7 @@ export const useWebSocket = defineStore('websocket', () => {
     const secVersionHeader = apidocGenerateProperty();
     secVersionHeader.key = "Sec-WebSocket-Version";
     secVersionHeader.value = "13";
-    secVersionHeader.description = i18next.t("<WebSocket协议版本，固定为13，值不可覆盖>");
+    secVersionHeader.description = i18n.global.t("<WebSocket协议版本，固定为13，值不可覆盖>");
     secVersionHeader._disableKey = true;
     secVersionHeader._disableValue = true;
     secVersionHeader._disableDelete = true;
@@ -173,7 +173,7 @@ export const useWebSocket = defineStore('websocket', () => {
     const originHeader = apidocGenerateProperty();
     originHeader.key = "Origin";
     originHeader.value = "";
-    originHeader.description = i18next.t("<源验证，用于CORS安全检查，可选>");
+    originHeader.description = i18n.global.t("<源验证，用于CORS安全检查，可选>");
     originHeader._disableKey = true;
     originHeader.select = false; // 默认不选中
     defaultHeaders.value.push(originHeader);
@@ -183,7 +183,7 @@ export const useWebSocket = defineStore('websocket', () => {
     const secProtocolHeader = apidocGenerateProperty();
     secProtocolHeader.key = "Sec-WebSocket-Protocol";
     secProtocolHeader.value = "";
-    secProtocolHeader.description = i18next.t("<子协议协商，可选>");
+    secProtocolHeader.description = i18n.global.t("<子协议协商，可选>");
     secProtocolHeader._disableKey = true;
     secProtocolHeader.select = false; // 默认不选中
     defaultHeaders.value.push(secProtocolHeader);
@@ -193,7 +193,7 @@ export const useWebSocket = defineStore('websocket', () => {
     const secExtensionsHeader = apidocGenerateProperty();
     secExtensionsHeader.key = "Sec-WebSocket-Extensions";
     secExtensionsHeader.value = "";
-    secExtensionsHeader.description = i18next.t("<扩展功能协商，可选>");
+    secExtensionsHeader.description = i18n.global.t("<扩展功能协商，可选>");
     secExtensionsHeader._disableKey = true;
     secExtensionsHeader.select = false; // 默认不选中
     defaultHeaders.value.push(secExtensionsHeader);
@@ -203,7 +203,7 @@ export const useWebSocket = defineStore('websocket', () => {
     const userAgentHeader = apidocGenerateProperty();
     userAgentHeader.key = "User-Agent";
     userAgentHeader.value = "Apiflow WebSocket Client";
-    userAgentHeader.description = i18next.t("<客户端标识，可选>");
+    userAgentHeader.description = i18n.global.t("<客户端标识，可选>");
     userAgentHeader._disableKey = true;
     userAgentHeader.select = false; // 默认不选中
     defaultHeaders.value.push(userAgentHeader);

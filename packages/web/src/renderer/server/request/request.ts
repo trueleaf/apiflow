@@ -12,7 +12,7 @@ import { httpNodeCache } from '@/cache/http/httpNodeCache';
 import { config } from '@src/config/config';
 import { cloneDeep, uuid } from '@/helper';
 import { useApidocRequest } from '@/store/apidoc/request';
-import i18next from 'i18next';
+import { i18n } from '@/i18n';
 import { useCookies } from '@/store/apidoc/cookies';
 import { InitDataMessage, OnEvalSuccess, ReceivedEvent } from '@/worker/pre-request/types/types.ts';
 import { Method } from 'got';
@@ -324,7 +324,7 @@ const getBody = async (apidoc: HttpNode): Promise<GotRequestOptions['body']> => 
   if (mode === 'none') {
     return undefined;
   }
-  console.warn(`${i18next.t('未知的请求body类型')}`)
+  console.warn(`${i18n.global.t('未知的请求body类型')}`)
   return undefined;
 }
 /*
@@ -493,7 +493,7 @@ export async function sendRequest() {
         changeResponseInfo({
           responseData: {
             canApiflowParseType: 'error',
-            errorData: i18next.t('请求已取消')
+            errorData: i18n.global.t('请求已取消')
           }
         });
       },

@@ -29,7 +29,7 @@ import { useApidocBanner } from "./banner"
 import assign from "lodash/assign"
 import { DeepPartial } from "@src/types/types.ts"
 import { useCookies } from "./cookies.ts"
-import i18next from "i18next"
+import { i18n } from "@/i18n"
 import { getUrl } from "@/server/request/request.ts"
 import { useVariable } from "./variables.ts"
 import { config } from "@src/config/config.ts"
@@ -75,7 +75,7 @@ export const useApidoc = defineStore('apidoc', () => {
     if (matchedCookies.length > 0) {
       cookieValue = matchedCookies.map(cookie => `${cookie.name}=${cookie.value}`).join('; ');
       property.value = cookieValue;
-      property.description = i18next.t('<发送时候自动计算>');
+      property.description = i18n.global.t('<发送时候自动计算>');
       property._disableDelete = true;
       property._disableKey = true;
       property._disableDescription = true;

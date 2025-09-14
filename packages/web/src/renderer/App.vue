@@ -16,8 +16,8 @@
 <script setup lang="ts">
 import { config } from '@/../config/config';
 import { onMounted, ref, watch } from 'vue';
-import { changeLanguage } from 'i18next';
 import { useI18n } from 'vue-i18n';
+import { changeLanguage } from './i18n';
 import { bindGlobalShortCut } from './shortcut';
 import { useRouter } from 'vue-router';
 import AddProjectDialog from '@/pages/modules/apidoc/doc-list/dialog/add-project/add-project.vue';

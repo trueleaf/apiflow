@@ -106,8 +106,8 @@ import { usePermissionStore } from '@/store/permission';
 import { RefreshRight, Back, Right, ArrowDown, Minus, Close } from '@element-plus/icons-vue'
 import { deleteDB } from 'idb';
 import { useRouter } from 'vue-router';
-import i18next from 'i18next';
 import { useI18n } from 'vue-i18n';
+import { changeLanguage } from '@/i18n';
 import type { Language, WindowState } from '@src/types'
 import { computed, onMounted, ref } from 'vue';
 import { config } from '@/../config/config'
@@ -157,7 +157,7 @@ const logout = () => {
 };
 //国际化
 const changeLocale = (language: Language) => {
-  i18next.changeLanguage(language);
+  changeLanguage(language);
 }
 
 /*
