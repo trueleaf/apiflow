@@ -1,7 +1,6 @@
 <template>
   <router-view></router-view>
   <AddProjectDialog v-if="dialogVisible" v-model="dialogVisible" @success="handleAddSuccess"></AddProjectDialog>
-  <!-- 语言切换菜单组件 -->
   <LanguageMenu
     :visible="languageMenuVisible"
     :position="languageMenuPosition"

@@ -38,17 +38,4 @@ export const changeLanguage = (language: Language) => {
   localStorage.setItem('language', language);
 };
 
-// 获取当前语言
-export const getCurrentLanguage = (): Language => {
-  return i18n.global.locale.value as Language;
-};
-
-// 支持的语言列表
-export const supportedLanguages = [
-  { code: 'zh-cn' as Language, name: '简体中文', flag: '🇨🇳' },
-  { code: 'zh-tw' as Language, name: '繁體中文', flag: '🇹🇼' },
-  { code: 'en' as Language, name: 'English', flag: '🇺🇸' },
-  { code: 'ja' as Language, name: '日本語', flag: '🇯🇵' },
-];
-
 export default i18n;

@@ -14,7 +14,7 @@
     @check-change="handleCheckChange"
   >
     <template #default="{ data }">
-      <div class="custom-params-tree-node">
+      <div class="custom-params">
         <el-button
           class="mr-2"
           :title="t('删除当前项')"
@@ -326,116 +326,14 @@ const handleCheckChange = (data: ApidocProperty, select: boolean) => {
 };
 </script>
 <style lang='scss'>
-.custom-params-tree-node {
+.custom-params {
   width: 100%;
   display: flex;
   align-items: center;
-  .el-button.is-text {
-    padding: 0;
-  }
-  .el-input-number .el-input__inner {
-    text-align: left;
-  }
-  .el-input__inner {
-    border-radius: 0;
-    border: none;
-    border-bottom: 1px solid var(--gray-400);
-    font-size: fz(12);
+  :deep(.el-input__wrapper) {
     box-shadow: none;
   }
-  .el-select__wrapper {
-    font-size: fz(12);
-  }
-  .valid-input .ipt-wrap .ipt-inner {
-    border: none;
-    border-radius: 0;
-    border-color: var(--gray-400);
-    border-bottom: 1px solid var(--gray-400);
-    font-size: fz(12);
-  }
-  .file-error {
-    color: var(--red);
-    font-size: fz(12);
-  }
-  .file-input-wrap {
-    cursor: default;
-    border: 1px dashed var(--gray-400);
-    display: flex;
-    align-items: center;
-    height: 30px;
-    position: relative;
-    font-size: 13px;
-    &.active {
-      background: none;
-      border: 1px solid var(--gray-300);
-      cursor: auto;
-    }
-    &.no-border {
-      border: none;
-    }
-    .mode-list {
-      width: 100%;
-      height: 100%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    .var-mode,
-    .file-mode {
-      cursor: pointer;
-      &:hover {
-        color: var(--theme-color);
-      }
-    }
-    .file-mode-wrap {
-      .label {
-        width: 100%;
-        height: 100%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        background-color: var(--gray-300);
-        cursor: pointer;
-      }
-      .close {
-        position: absolute;
-        right: 3px;
-        top: 50%;
-        transform: translateY(-50%);
-        font-size: 16px;
-        cursor: pointer;
-        &:hover {
-          color: var(--red);
-        }
-      }
-    }
-    .toggle-mode {
-      flex: 0 0 20px;
-      height: 100%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      &:hover {
-        cursor: pointer;
-        color: var(--theme-color);
-      }
-    }
-  }
+  
 }
-.el-tree-node:focus > .el-tree-node__content {
-  background: none;
-}
-.el-tree-node__content {
-  height: 50px;
-  &:hover {
-    background: var(--gray-200);
-  }
-}
-.el-tree__drop-indicator {
-  height: 3px;
-}
-.el-collapse-transition-enter-active,
-.el-collapse-transition-leave-active {
-  transition: none !important;
-}
+
 </style>
