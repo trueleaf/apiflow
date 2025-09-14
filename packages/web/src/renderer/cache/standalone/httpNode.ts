@@ -32,7 +32,9 @@ export class StandaloneHttpNodeCache {
       return cached.data;
     }
     if (!this.db) throw new Error("Database not initialized");
+    
     try {
+      // 尝试使用索引查询
       const docs: ApiNode[] = await this.db.getAllFromIndex("httpNodeList", "projectId", projectId);
       const filteredDocs = docs.filter((doc) => !doc.isDeleted);
       this.bannerCache.set(projectId, {
@@ -42,12 +44,19 @@ export class StandaloneHttpNodeCache {
       return filteredDocs;
     } catch (error) {
       console.warn("Index query failed, falling back to full query:", error);
-      const docs = await this.getDocsByProjectId(projectId);
-      this.bannerCache.set(projectId, {
-        data: docs,
-        timestamp: Date.now(),
-      });
-      return docs;
+      // 修复：使用手动过滤而不是递归调用
+      try {
+        const allDocs = await this.db.getAll("httpNodeList");
+        const projectDocs = allDocs.filter((doc) => doc.projectId === projectId && !doc.isDeleted);
+        this.bannerCache.set(projectId, {
+          data: projectDocs,
+          timestamp: Date.now(),
+        });
+        return projectDocs;
+      } catch (fallbackError) {
+        console.error("Fallback query also failed:", fallbackError);
+        return [];
+      }
     }
   }
   // 根据节点id获取节点信息
