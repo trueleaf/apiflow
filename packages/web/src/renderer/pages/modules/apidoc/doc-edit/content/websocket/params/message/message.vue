@@ -501,7 +501,7 @@ onUnmounted(() => {
 
   .content-wrapper {
     position: relative;
-    height: calc(100vh - 210px);
+    height: calc(100vh - 245px);
     border: 1px solid var(--gray-400);
 
     .message-type-selector {

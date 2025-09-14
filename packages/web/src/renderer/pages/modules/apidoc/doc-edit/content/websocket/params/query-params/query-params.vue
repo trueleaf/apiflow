@@ -1,7 +1,7 @@
 <template>
   <div class="ws-query-params">
     <div class="title">Query&nbsp;{{ t("参数") }}</div>
-    <SParamsTree show-checkbox :data="queryTreeData"></SParamsTree>
+    <SParamsTree show-checkbox :data="queryData" @change="handleChange"></SParamsTree>
   </div>
 </template>
 
@@ -9,7 +9,7 @@
 import { useWebSocket } from '@/store/websocket/websocket'
 import { useRedoUndo } from '@/store/redoUndo/redoUndo'
 import { useApidocTas } from '@/store/apidoc/tabs'
-import { computed, watch } from 'vue'
+import { computed } from 'vue'
 import { storeToRefs } from 'pinia'
 import SParamsTree from '@/components/apidoc/params-tree/g-params-tree3.vue'
 import { useI18n } from 'vue-i18n'
@@ -23,9 +23,7 @@ const { websocket } = storeToRefs(websocketStore)
 const { currentSelectTab } = storeToRefs(apidocTabsStore)
 const { t } = useI18n()
 
-//query参数
-const queryTreeData = computed(() => websocket.value.item.queryParams)
-
+const queryData = computed(() => websocket.value.item.queryParams);
 // 防抖的查询参数记录函数
 const debouncedRecordQueryParamsOperation = debounce((oldValue: ApidocProperty<'string'>[], newValue: ApidocProperty<'string'>[]) => {
   if (!currentSelectTab.value) return;
@@ -39,16 +37,13 @@ const debouncedRecordQueryParamsOperation = debounce((oldValue: ApidocProperty<'
     newValue,
     timestamp: Date.now()
   });
-}, 500);
+}, 500, { leading: true, trailing: true });
 
-// 监听查询参数变化
-let previousQueryParams = cloneDeep(websocket.value.item.queryParams);
-watch(() => websocket.value.item.queryParams, (newValue) => {
-  const newValueClone = cloneDeep(newValue);
-  debouncedRecordQueryParamsOperation(previousQueryParams, newValueClone);
-  previousQueryParams = newValueClone;
-}, { deep: true });
-
+const handleChange = (newData: ApidocProperty<'string' | 'file'>[]) => {
+  const previousQueryParams = cloneDeep(websocket.value.item.queryParams);
+  websocketStore.changeQueryParams(newData as ApidocProperty<'string'>[]);
+  debouncedRecordQueryParamsOperation(previousQueryParams, cloneDeep(newData) as ApidocProperty<'string'>[]);
+};
 </script>
 
 <style lang='scss' scoped>

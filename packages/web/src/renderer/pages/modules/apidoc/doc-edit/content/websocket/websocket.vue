@@ -353,11 +353,32 @@ onMounted(() => {
   initTemplate()
   initDebouncDataChange()
   initWebSocketEventListeners()
+  document.addEventListener('keydown', handleKeyDown)
 })
-// 组件卸载时清理事件监听器  
+// 组件卸载时清理事件监听器
 onUnmounted(() => {
   cleanupWebSocketEventListeners()
+  document.removeEventListener('keydown', handleKeyDown)
 })
+
+// 键盘事件处理
+const handleKeyDown = (event: KeyboardEvent) => {
+  // Ctrl+Z 或 Cmd+Z (撤销)
+  if ((event.ctrlKey || event.metaKey) && event.key === 'z' && !event.shiftKey) {
+    event.preventDefault();
+    const nodeId = websocketStore.websocket._id;
+    redoUndoStore.wsUndo(nodeId);
+    return;
+  }
+  // Ctrl+Y 或 Cmd+Shift+Z (重做)
+  if (((event.ctrlKey || event.metaKey) && event.key === 'y') ||
+      ((event.ctrlKey || event.metaKey) && event.shiftKey && event.key === 'z')) {
+    event.preventDefault();
+    const nodeId = websocketStore.websocket._id;
+    redoUndoStore.wsRedo(nodeId);
+    return;
+  }
+};
 
 </script>
 

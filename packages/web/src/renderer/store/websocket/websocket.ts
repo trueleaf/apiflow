@@ -170,43 +170,15 @@ export const useWebSocket = defineStore('websocket', () => {
   
     //=========================================================================//
     // Origin - 可选请求头，用于CORS验证
-    const originHeader = apidocGenerateProperty();
-    originHeader.key = "Origin";
-    originHeader.value = "";
-    originHeader.description = i18n.global.t("<源验证，用于CORS安全检查，可选>");
-    originHeader._disableKey = true;
-    originHeader.select = false; // 默认不选中
-    defaultHeaders.value.push(originHeader);
+    // const originHeader = apidocGenerateProperty();
+    // originHeader.key = "Origin";
+    // originHeader.value = "";
+    // originHeader.description = i18n.global.t("<源验证，用于CORS安全检查，可选>");
+    // originHeader._disableKey = true;
+    // originHeader.select = false; // 默认不选中
+    // defaultHeaders.value.push(originHeader);
   
-    //=========================================================================//
-    // Sec-WebSocket-Protocol - 可选请求头，子协议协商
-    const secProtocolHeader = apidocGenerateProperty();
-    secProtocolHeader.key = "Sec-WebSocket-Protocol";
-    secProtocolHeader.value = "";
-    secProtocolHeader.description = i18n.global.t("<子协议协商，可选>");
-    secProtocolHeader._disableKey = true;
-    secProtocolHeader.select = false; // 默认不选中
-    defaultHeaders.value.push(secProtocolHeader);
-  
-    //=========================================================================//
-    // Sec-WebSocket-Extensions - 可选请求头，扩展协商
-    const secExtensionsHeader = apidocGenerateProperty();
-    secExtensionsHeader.key = "Sec-WebSocket-Extensions";
-    secExtensionsHeader.value = "";
-    secExtensionsHeader.description = i18n.global.t("<扩展功能协商，可选>");
-    secExtensionsHeader._disableKey = true;
-    secExtensionsHeader.select = false; // 默认不选中
-    defaultHeaders.value.push(secExtensionsHeader);
-  
-    //=========================================================================//
-    // User-Agent - 可选请求头，客户端标识
-    const userAgentHeader = apidocGenerateProperty();
-    userAgentHeader.key = "User-Agent";
-    userAgentHeader.value = "Apiflow WebSocket Client";
-    userAgentHeader.description = i18n.global.t("<客户端标识，可选>");
-    userAgentHeader._disableKey = true;
-    userAgentHeader.select = false; // 默认不选中
-    defaultHeaders.value.push(userAgentHeader);
+   
   };
   
 
@@ -278,6 +250,15 @@ const updateWebSocketHeaderById = (id: string, header: Partial<ApidocProperty<'s
       if (index !== -1) {
         Object.assign(websocket.value.item.queryParams[index], param);
       }
+    }
+  };
+  // 批量更新查询参数
+  const changeQueryParams = (params: ApidocProperty<'string'>[]): void => {
+    if (!websocket.value) return;
+    websocket.value.item.queryParams = params;
+    // 如果没有数据则默认添加一条空数据
+    if (websocket.value.item.queryParams.length === 0) {
+      websocket.value.item.queryParams.push(apidocGenerateProperty());
     }
   };
   /*
@@ -737,6 +718,7 @@ const updateWebSocketHeaderById = (id: string, header: Partial<ApidocProperty<'s
     deleteWebSocketQueryParamByIndex,
     deleteWebSocketQueryParamById,
     updateWebSocketQueryParamById,
+    changeQueryParams,
     changeWebSocketPreRequest,
     changeWebSocketAfterRequest,
     changeWebSocketMessage,
