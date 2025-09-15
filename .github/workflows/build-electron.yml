@@ -62,7 +62,12 @@ jobs:
           cache: 'npm'
           
       - name: 安装依赖
-        run: npm ci --include=optional
+        run: npm ci
+        
+      - name: 安装Sass embedded依赖
+        run: |
+          npm install --no-save sass-embedded-linux-x64@^1.92.1
+          npm install --no-save sass-embedded-linux-arm64@^1.92.1
         
       - name: 打包Linux应用
         run: npm run web:build:standalone:linux
