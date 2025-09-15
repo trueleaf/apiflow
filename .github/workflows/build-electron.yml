@@ -84,9 +84,45 @@ jobs:
             packages/web/release/*.deb
           retention-days: 30
           
+  build-macos:
+    runs-on: macos-latest
+    
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@v4
+        
+      - name: 设置Node.js环境
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          
+      - name: 安装依赖
+        run: npm ci --include=optional
+        env:
+          npm_config_ignore_optional: true
+          npm_config_ignore_scripts: false
+        
+      - name: 打包macOS应用
+        run: npm run web:build:standalone:mac
+        env:
+          CSC_IDENTITY_AUTO_DISCOVERY: false
+          npm_config_target_platform: darwin
+          
+      - name: 上传构建产物
+        uses: actions/upload-artifact@v4
+        with:
+          name: apiflow-macos
+          path: |
+            packages/web/release/*.dmg
+            packages/web/release/*.zip
+            packages/web/release/*.app
+            packages/web/release/mac/
+          retention-days: 30
+          
   create-release:
     if: github.event_name == 'workflow_dispatch' || startsWith(github.ref, 'refs/tags/')
-    needs: [build-windows, build-linux]
+    needs: [build-windows, build-linux, build-macos]
     runs-on: ubuntu-latest
     
     steps:
@@ -99,6 +135,7 @@ jobs:
           files: |
             apiflow-windows/*
             apiflow-linux/*
+            apiflow-macos/*
           tag_name: ${{ github.ref_name }}
           name: Apiflow ${{ github.ref_name }}
           body: |
@@ -131,6 +168,16 @@ jobs:
             - **Linux x64**: `Apiflow-*-x64.deb`
             - **Linux ARM64**: `Apiflow-*-arm64.deb`
             
+            ### macOS
+            
+            #### DMG Installer (Recommended)
+            - **macOS Intel**: `Apiflow-*-x64.dmg`
+            - **macOS Apple Silicon**: `Apiflow-*-arm64.dmg`
+            
+            #### ZIP Archive
+            - **macOS Intel**: `Apiflow-*-x64-mac.zip`
+            - **macOS Apple Silicon**: `Apiflow-*-arm64-mac.zip`
+            
             ## � 下载地址
             
             ### Windows版本
@@ -159,6 +206,16 @@ jobs:
             #### Debian包
             - **Linux x64**: `Apiflow-*-x64.deb`
             - **Linux ARM64**: `Apiflow-*-arm64.deb`
+            
+            ### macOS版本
+            
+            #### DMG安装包 (推荐)
+            - **macOS Intel**: `Apiflow-*-x64.dmg`
+            - **macOS Apple Silicon**: `Apiflow-*-arm64.dmg`
+            
+            #### ZIP压缩包
+            - **macOS Intel**: `Apiflow-*-x64-mac.zip`
+            - **macOS Apple Silicon**: `Apiflow-*-arm64-mac.zip`
             
             ## �🚀 What's New
             
