@@ -97,7 +97,6 @@
   },
   "main": "dist/main/main.mjs",
   "build": {
-    "compression": "maximum",
     "productName": "Apiflow",
     "appId": "cn.apiflow",
     "copyright": "Copyright © 2025 TrueLeaf Team",
