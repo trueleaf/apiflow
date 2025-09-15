@@ -29,9 +29,6 @@ jobs:
       - name: 安装依赖
         run: npm ci
         
-      - name: 构建前端应用
-        run: npm run web:build:web
-        
       - name: 打包Windows应用
         run: npm run web:build:standalone:win
         env:
@@ -49,7 +46,7 @@ jobs:
           
   # 创建GitHub Release（仅在推送tag时执行）
   create-release:
-    if: startsWith(github.ref, 'refs/tags/')
+    if: github.event_name == 'workflow_dispatch' || startsWith(github.ref, 'refs/tags/')
     needs: build-windows
     runs-on: ubuntu-latest
     
