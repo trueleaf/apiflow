@@ -1,6 +1,5 @@
 name: Build Electron
 
-# 触发条件：创建tag时或手动触发
 on:
   push:
     tags:
@@ -27,13 +26,16 @@ jobs:
           cache: 'npm'
           
       - name: 安装依赖
-        run: npm ci
+        run: npm ci --include=optional
+        env:
+          npm_config_ignore_optional: true
+          npm_config_ignore_scripts: false
         
       - name: 打包Windows应用
-        run: npm run web:build:standalone:win
+        run: npm run build:standalone:win
         env:
-          # 禁用代码签名（如果需要签名，请配置相关证书）
           CSC_IDENTITY_AUTO_DISCOVERY: false
+          npm_config_target_platform: win32
           
       - name: 上传构建产物
         uses: actions/upload-artifact@v4
@@ -43,7 +45,6 @@ jobs:
             packages/web/release/*.exe
             packages/web/release/*.zip
             packages/web/release/win-unpacked/
-            # Generic no-extension executables (built as compatibility binaries)
             packages/web/release/Apiflow-*-x64
             packages/web/release/Apiflow-*-arm64
           retention-days: 30
@@ -62,18 +63,17 @@ jobs:
           cache: 'npm'
           
       - name: 安装依赖
-        run: npm ci
-        
-      - name: 安装Sass embedded依赖
-        run: |
-          npm install --no-save sass-embedded-linux-x64@^1.92.1
-          npm install --no-save sass-embedded-linux-arm64@^1.92.1
+        run: npm ci --include=optional
+        env:
+          npm_config_ignore_optional: true
+          npm_config_ignore_scripts: false
         
       - name: 打包Linux应用
-        run: npm run web:build:standalone:linux
+        run: npm run build:standalone:linux
         env:
-          # 禁用代码签名
           CSC_IDENTITY_AUTO_DISCOVERY: false
+          npm_config_target_arch: x64
+          npm_config_target_platform: linux
           
       - name: 上传构建产物
         uses: actions/upload-artifact@v4
@@ -84,7 +84,6 @@ jobs:
             packages/web/release/*.deb
           retention-days: 30
           
-  # 创建GitHub Release（仅在推送tag时执行）
   create-release:
     if: github.event_name == 'workflow_dispatch' || startsWith(github.ref, 'refs/tags/')
     needs: [build-windows, build-linux]
@@ -103,7 +102,7 @@ jobs:
           tag_name: ${{ github.ref_name }}
           name: Apiflow ${{ github.ref_name }}
           body: |
-            ## 📦 Downloads
+           ## 📦 Downloads
             
             ### Windows
             
@@ -168,8 +167,5 @@ jobs:
             ## 🚀 更新内容
             
             请查看提交记录了解详细更改。
-            
-          draft: true
-          prerelease: false
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
