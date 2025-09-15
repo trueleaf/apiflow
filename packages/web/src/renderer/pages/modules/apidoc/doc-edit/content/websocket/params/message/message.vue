@@ -180,7 +180,7 @@ const debouncedRecordMessageOperation = debounce((oldValue: string, newValue: st
     newValue,
     timestamp: Date.now()
   });
-}, 500);
+}, 300, { leading: true, trailing: true });
 
 // 处理消息内容变化
 const handleMessageChange = (newValue: string) => {
