@@ -164,7 +164,7 @@ jobs:
             
             请查看提交记录了解详细更改。
             
-          draft: false
+          draft: true
           prerelease: false
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
