@@ -32,7 +32,7 @@ jobs:
           npm_config_ignore_scripts: false
         
       - name: 打包Windows应用
-        run: npm run build:standalone:win
+        run: npm run web:build:standalone:win
         env:
           CSC_IDENTITY_AUTO_DISCOVERY: false
           npm_config_target_platform: win32
@@ -69,7 +69,7 @@ jobs:
           npm_config_ignore_scripts: false
         
       - name: 打包Linux应用
-        run: npm run build:standalone:linux
+        run: npm run web:build:standalone:linux
         env:
           CSC_IDENTITY_AUTO_DISCOVERY: false
           npm_config_target_arch: x64
