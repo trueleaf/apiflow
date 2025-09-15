@@ -1,4 +1,4 @@
-name: Build Multiplatform App
+name: Build Electron
 
 # 触发条件：创建tag时或手动触发
 on:
@@ -62,7 +62,7 @@ jobs:
           cache: 'npm'
           
       - name: 安装依赖
-        run: npm ci
+        run: npm ci --include=optional
         
       - name: 打包Linux应用
         run: npm run web:build:standalone:linux
