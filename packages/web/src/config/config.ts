@@ -97,6 +97,12 @@ export const config: Config = {
       version: 1,
       singleResponseSize: 1024 * 1024 * 50, //单个消息大小限制
       maxResponseSize: 1024 * 1024 * 1024 * 5, //最大缓存消息大小
+    },
+    websocketHistoryCache: {
+      dbName: 'websocketHistoryCache',
+      version: 1,
+      storeName: 'histories',
+      maxHistoryPerNode: 50, //每个节点最大历史记录数
     }
   },
   standaloneCache: {

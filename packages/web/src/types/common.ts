@@ -252,6 +252,12 @@ export type Config = {
       version: number,
       singleResponseSize: number, //单个消息大小限制
       maxResponseSize: number, //最大缓存消息大小
+    },
+    websocketHistoryCache: {
+      dbName: string,
+      version: number,
+      storeName: string,
+      maxHistoryPerNode: number, //每个节点最大历史记录数
     }
   },
   standaloneCache: {

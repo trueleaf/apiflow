@@ -6,3 +6,4 @@ export * from './project';
 export * from './apidoc';
 export * from './renderer';
 export * from './standalone';
+export * from './history';
