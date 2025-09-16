@@ -21,6 +21,55 @@
           <el-icon size="16"><RefreshRight /></el-icon>
           <span>{{ t('重做') }}</span>
         </div>
+        <div
+          class="action-item history-action"
+          :title="t('历史记录')"
+          @click="handleToggleHistory"
+          ref="historyButtonRef"
+        >
+          <el-icon size="16"><Clock /></el-icon>
+          <!-- <span>{{ t('历史记录') }}</span> -->
+        </div>
+        
+      </div>
+      <!-- 历史记录下拉列表 -->
+      <div
+        v-if="showHistoryDropdown"
+        class="history-dropdown"
+        ref="historyDropdownRef"
+      >
+        <div v-if="historyLoading" class="history-loading">
+          <el-icon class="loading-icon"><Loading /></el-icon>
+          <span>{{ t('加载中...') }}</span>
+        </div>
+        <div v-else-if="historyList.length === 0" class="history-empty">
+          <span>{{ t('暂无历史记录') }}</span>
+        </div>
+        <div v-else class="history-list">
+          <div
+            v-for="history in historyList"
+            :key="history._id"
+            class="history-item"
+            @click="handleSelectHistory(history)"
+          >
+            <div class="history-main">
+              <div class="history-info">
+                <span class="history-name">{{ history.node.info.name || t('未命名') }}</span>
+                <span class="history-operator">{{ history.operatorName }}</span>
+              </div>
+              <div class="history-time">{{ formatRelativeTime(history.timestamp) }}</div>
+            </div>
+            <div class="history-actions">
+              <el-icon
+                class="delete-icon"
+                @click.stop="handleDeleteHistory(history)"
+                :title="t('删除')"
+              >
+                <Delete />
+              </el-icon>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
     <!-- 连接配置选项卡 -->
@@ -69,10 +118,10 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, onMounted, ref, watch } from 'vue'
+import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { storeToRefs } from 'pinia'
-import { RefreshLeft, RefreshRight } from '@element-plus/icons-vue'
+import { RefreshLeft, RefreshRight, Clock, Delete, Loading } from '@element-plus/icons-vue'
 import SHeaders from './headers/headers.vue'
 import SQueryParams from './query-params/query-params.vue'
 import SPreScript from './pre-script/pre-script.vue'
@@ -84,6 +133,9 @@ import { useWebSocket } from '@/store/websocket/websocket'
 import { useApidocTas } from '@/store/apidoc/tabs'
 import { webSocketNodeCache } from '@/cache/websocket/websocketNodeCache'
 import { useRedoUndo } from '@/store/redoUndo/redoUndo'
+import { webSocketHistoryCache } from '@/cache/history'
+import type { WebSocketHistory } from '@src/types/history'
+import { ElMessageBox, ElMessage } from 'element-plus'
 
 const { t } = useI18n()
 const websocketStore = useWebSocket()
@@ -92,6 +144,13 @@ const redoUndoStore = useRedoUndo()
 const { currentSelectTab } = storeToRefs(apidocTabsStore)
 const { websocket } = storeToRefs(websocketStore)
 const activeTab = ref('')
+
+// 历史记录相关
+const showHistoryDropdown = ref(false)
+const historyLoading = ref(false)
+const historyList = ref<WebSocketHistory[]>([])
+const historyButtonRef = ref<HTMLElement>()
+const historyDropdownRef = ref<HTMLElement>()
 
 const hasParams = computed(() => websocket.value.item.queryParams.some(param => param.key.trim() !== '' || param.value.trim() !== ''))
 
@@ -127,6 +186,116 @@ const handleRedo = (): void => {
   redoUndoStore.wsRedo(nodeId);
 };
 
+// 历史记录相关方法
+const handleToggleHistory = async (): Promise<void> => {
+  if (showHistoryDropdown.value) {
+    showHistoryDropdown.value = false;
+    return;
+  }
+  
+  showHistoryDropdown.value = true;
+  await loadHistoryList();
+};
+
+const loadHistoryList = async (): Promise<void> => {
+  if (!websocket.value._id) return;
+  
+  historyLoading.value = true;
+  try {
+    const histories = await webSocketHistoryCache.getWsHistoryListByNodeId(websocket.value._id);
+    historyList.value = histories;
+  } catch (error) {
+    console.error('加载历史记录失败:', error);
+    ElMessage.error(t('加载历史记录失败'));
+  } finally {
+    historyLoading.value = false;
+  }
+};
+
+const handleSelectHistory = async (history: WebSocketHistory): Promise<void> => {
+  try {
+    await ElMessageBox.confirm(
+      t('确定要使用此历史记录覆盖当前配置吗？当前未保存的修改将丢失。'),
+      t('确认覆盖'),
+      {
+        confirmButtonText: t('确定'),
+        cancelButtonText: t('取消'),
+        type: 'warning'
+      }
+    );
+    
+    // 调用changeWebsocket重新赋值
+    websocketStore.changeWebsocket(history.node);
+    showHistoryDropdown.value = false;
+    ElMessage.success(t('已恢复历史记录'));
+  } catch (error) {
+    // 用户取消操作
+    if (error !== 'cancel' && error !== 'close') {
+      console.error('恢复历史记录失败:', error);
+      ElMessage.error(t('恢复历史记录失败'));
+    }
+  }
+};
+
+const handleDeleteHistory = async (history: WebSocketHistory): Promise<void> => {
+  try {
+    await ElMessageBox.confirm(
+      t('确定要删除这条历史记录吗？'),
+      t('确认删除'),
+      {
+        confirmButtonText: t('删除'),
+        cancelButtonText: t('取消'),
+        type: 'warning'
+      }
+    );
+    
+    const success = await webSocketHistoryCache.deleteWsHistoryByNode(websocket.value._id, [history._id]);
+    if (success) {
+      ElMessage.success(t('删除成功'));
+      await loadHistoryList(); // 重新加载列表
+    } else {
+      ElMessage.error(t('删除失败'));
+    }
+  } catch (error) {
+    // 用户取消操作
+    if (error !== 'cancel' && error !== 'close') {
+      console.error('删除历史记录失败:', error);
+      ElMessage.error(t('删除失败'));
+    }
+  }
+};
+
+const formatRelativeTime = (timestamp: number): string => {
+  const now = Date.now();
+  const diff = now - timestamp;
+  const minutes = Math.floor(diff / (1000 * 60));
+  const hours = Math.floor(diff / (1000 * 60 * 60));
+  const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+  
+  if (minutes < 1) {
+    return t('刚刚');
+  } else if (minutes < 60) {
+    return t('{count}分钟前', { count: minutes });
+  } else if (hours < 24) {
+    return t('{count}小时前', { count: hours });
+  } else {
+    return t('{count}天前', { count: days });
+  }
+};
+
+// 点击外部关闭下拉列表
+const handleClickOutside = (event: MouseEvent): void => {
+  if (
+    showHistoryDropdown.value &&
+    historyButtonRef.value &&
+    historyDropdownRef.value &&
+    !historyButtonRef.value.contains(event.target as Node) &&
+    !historyDropdownRef.value.contains(event.target as Node)
+  ) {
+    showHistoryDropdown.value = false;
+  }
+};
+
 const getInitialActiveTab = (): string => {
   if (currentSelectTab.value) {
     const cachedTab = webSocketNodeCache.getActiveTab(currentSelectTab.value._id)
@@ -147,12 +316,18 @@ watch(activeTab, (newVal) => {
 // 监听当前选中tab变化，重新加载activeTab
 watch(currentSelectTab, (newTab) => {
   if (newTab) {
-    const cachedTab = webSocketNodeCache.getActiveTab(newTab._id)
-    activeTab.value = cachedTab || 'messageContent'
+    activeTab.value = getInitialActiveTab()
   }
-})
+}, { immediate: true })
+
+// 生命周期钩子
 onMounted(() => {
   activeTab.value = getInitialActiveTab()
+  document.addEventListener('click', handleClickOutside)
+})
+
+onUnmounted(() => {
+  document.removeEventListener('click', handleClickOutside)
 })
 </script>
 
@@ -168,6 +343,8 @@ onMounted(() => {
     align-items: flex-end;
     padding: 0 20px;
     justify-content: flex-end;
+    position: relative;
+    
     .action-group {
       display: flex;
       .action-item {
@@ -188,8 +365,120 @@ onMounted(() => {
           cursor: default;
         }
         
+        &.history-action {
+          position: relative;
+        }
+        
         span {
           user-select: none;
+        }
+      }
+    }
+    
+    .history-dropdown {
+      position: absolute;
+      top: 100%;
+      right: 20px;
+      background: var(--color-white);
+      border: 1px solid var(--gray-300);
+      border-radius: 6px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      z-index: var(--z-index-dropdown);
+      min-width: 280px;
+      max-height: 350px;
+      overflow-y: auto;
+      margin-top: 5px;
+      
+      .history-loading,
+      .history-empty {
+        padding: 16px;
+        text-align: center;
+        color: var(--gray-500);
+        font-size: 14px;
+        
+        .loading-icon {
+          margin-right: 8px;
+          animation: rotate 1s linear infinite;
+        }
+      }
+      
+      .history-list {
+        padding: 8px 0;
+      }
+      
+      .history-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 10px 16px;
+        cursor: pointer;
+        transition: background-color 0.2s;
+        border-bottom: 1px solid var(--gray-100);
+        
+        &:last-child {
+          border-bottom: none;
+        }
+        
+        &:hover {
+          background-color: var(--gray-50);
+          
+          .history-actions {
+            opacity: 1;
+          }
+        }
+        
+        .history-main {
+          flex: 1;
+          min-width: 0;
+          
+          .history-info {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 4px;
+            
+            .history-name {
+              font-weight: 500;
+              color: var(--color-text-primary);
+              font-size: 14px;
+              white-space: nowrap;
+              overflow: hidden;
+              text-overflow: ellipsis;
+              max-width: 140px;
+            }
+            
+            .history-operator {
+              font-size: 12px;
+              color: var(--gray-500);
+              background: var(--gray-100);
+              padding: 2px 6px;
+              border-radius: 4px;
+              white-space: nowrap;
+            }
+          }
+          
+          .history-time {
+            font-size: 12px;
+            color: var(--gray-400);
+          }
+        }
+        
+        .history-actions {
+          opacity: 0;
+          transition: opacity 0.2s;
+          
+          .delete-icon {
+            color: var(--gray-400);
+            cursor: pointer;
+            padding: 4px;
+            border-radius: 4px;
+            transition: all 0.2s;
+            
+            &:hover {
+              color: var(--color-danger);
+              background-color: var(--danger-50);
+            }
+          }
         }
       }
     }
@@ -201,6 +490,15 @@ onMounted(() => {
     overflow-y: auto;
     padding-right: 20px;
     padding-left: 20px;
+  }
+}
+
+@keyframes rotate {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
   }
 }
 </style>
