@@ -285,10 +285,8 @@ const handleDisconnect = async () => {
 |--------------------------------------------------------------------------
 */
 const handleSave = () => {
-  websocketStore.saveWebsocket();
-  
+  websocketStore.saveWebsocket()
 };
-
 const handleRefresh = async () => {
   if (!currentSelectTab.value) {
     return;
@@ -402,12 +400,6 @@ const handleFormatUrl = () => {
   // 更新连接URL
   connectionUrl.value = formatPath;
 };
-
-
-
-
-
-
 
 </script>
 

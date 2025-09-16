@@ -508,7 +508,7 @@ onUnmounted(() => {
       position: absolute;
       top: 8px;
       right: 8px;
-      z-index: var(--z-index-dropdown);
+      z-index: var(--zIndex-dropdown);
 
       .type-selector {
         width: 120px;
@@ -525,7 +525,7 @@ onUnmounted(() => {
       display: flex;
       align-items: center;
       justify-content: flex-end;
-      z-index: var(--z-index-dropdown);
+      z-index: var(--zIndex-dropdown);
       background: var(--el-bg-color);
       gap: 8px;
       flex-wrap: wrap;

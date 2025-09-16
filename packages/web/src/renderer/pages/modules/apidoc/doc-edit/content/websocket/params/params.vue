@@ -28,7 +28,6 @@
           ref="historyButtonRef"
         >
           <el-icon size="16"><Clock /></el-icon>
-          <!-- <span>{{ t('历史记录') }}</span> -->
         </div>
         
       </div>
@@ -47,14 +46,14 @@
         </div>
         <div v-else class="history-list">
           <div
-            v-for="history in historyList"
+            v-for="(history, index) in historyList"
             :key="history._id"
             class="history-item"
             @click="handleSelectHistory(history)"
           >
             <div class="history-main">
               <div class="history-info">
-                <span class="history-name">{{ history.node.info.name || t('未命名') }}</span>
+                <span class="history-name">{{ t('历史记录') }}{{ index + 1 }}</span>
                 <span class="history-operator">{{ history.operatorName }}</span>
               </div>
               <div class="history-time">{{ formatRelativeTime(history.timestamp) }}</div>
@@ -222,7 +221,7 @@ const getHistoryList = (): Promise<void> => {
 
 const handleSelectHistory = (history: WebSocketHistory): void => {
   ElMessageBox.confirm(
-    t('确定要使用此历史记录覆盖当前配置吗？当前未保存的修改将丢失。'),
+    t('当前操作将被覆盖，是否继续？'),
     t('确认覆盖'),
     {
       confirmButtonText: t('确定'),
@@ -233,12 +232,10 @@ const handleSelectHistory = (history: WebSocketHistory): void => {
     // 调用changeWebsocket重新赋值
     websocketStore.changeWebsocket(history.node);
     showHistoryDropdown.value = false;
-    ElMessage.success(t('已恢复历史记录'));
   }).catch((error) => {
     // 用户取消操作
     if (error !== 'cancel' && error !== 'close') {
       console.error('恢复历史记录失败:', error);
-      ElMessage.error(t('恢复历史记录失败'));
     }
   });
 };
@@ -396,7 +393,7 @@ onUnmounted(() => {
       border: 1px solid var(--gray-300);
       border-radius: 6px;
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-      z-index: var(--z-index-dropdown);
+      z-index: var(--zIndex-history-dropdown);
       min-width: 280px;
       max-height: 350px;
       overflow-y: auto;
@@ -433,7 +430,7 @@ onUnmounted(() => {
         }
         
         &:hover {
-          background-color: var(--gray-50);
+          background-color: var(--gray-200);
           
           .history-actions {
             opacity: 1;
@@ -472,7 +469,7 @@ onUnmounted(() => {
           
           .history-time {
             font-size: 12px;
-            color: var(--gray-400);
+            color: var(--gray-500);
           }
         }
         
