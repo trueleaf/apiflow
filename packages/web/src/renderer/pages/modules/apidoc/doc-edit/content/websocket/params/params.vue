@@ -186,83 +186,97 @@ const handleRedo = (): void => {
   redoUndoStore.wsRedo(nodeId);
 };
 
-// 历史记录相关方法
-const handleToggleHistory = async (): Promise<void> => {
+/*
+|--------------------------------------------------------------------------
+| 历史记录相关方法
+|--------------------------------------------------------------------------
+*/
+const handleToggleHistory = (): void => {
   if (showHistoryDropdown.value) {
     showHistoryDropdown.value = false;
     return;
   }
-  
   showHistoryDropdown.value = true;
-  await loadHistoryList();
+  // 非阻塞方式加载历史记录
+  getHistoryList().catch(error => {
+    console.error('加载历史记录失败:', error);
+  });
 };
 
-const loadHistoryList = async (): Promise<void> => {
-  if (!websocket.value._id) return;
+const getHistoryList = (): Promise<void> => {
+  if (!websocket.value._id) return Promise.resolve();
   
   historyLoading.value = true;
-  try {
-    const histories = await webSocketHistoryCache.getWsHistoryListByNodeId(websocket.value._id);
-    historyList.value = histories;
-  } catch (error) {
-    console.error('加载历史记录失败:', error);
-    ElMessage.error(t('加载历史记录失败'));
-  } finally {
-    historyLoading.value = false;
-  }
+  return webSocketHistoryCache.getWsHistoryListByNodeId(websocket.value._id)
+    .then((histories) => {
+      historyList.value = histories;
+    })
+    .catch((error) => {
+      console.error('加载历史记录失败:', error);
+      ElMessage.error(t('加载历史记录失败'));
+    })
+    .finally(() => {
+      historyLoading.value = false;
+    });
 };
 
-const handleSelectHistory = async (history: WebSocketHistory): Promise<void> => {
-  try {
-    await ElMessageBox.confirm(
-      t('确定要使用此历史记录覆盖当前配置吗？当前未保存的修改将丢失。'),
-      t('确认覆盖'),
-      {
-        confirmButtonText: t('确定'),
-        cancelButtonText: t('取消'),
-        type: 'warning'
-      }
-    );
-    
+const handleSelectHistory = (history: WebSocketHistory): void => {
+  ElMessageBox.confirm(
+    t('确定要使用此历史记录覆盖当前配置吗？当前未保存的修改将丢失。'),
+    t('确认覆盖'),
+    {
+      confirmButtonText: t('确定'),
+      cancelButtonText: t('取消'),
+      type: 'warning'
+    }
+  ).then(() => {
     // 调用changeWebsocket重新赋值
     websocketStore.changeWebsocket(history.node);
     showHistoryDropdown.value = false;
     ElMessage.success(t('已恢复历史记录'));
-  } catch (error) {
+  }).catch((error) => {
     // 用户取消操作
     if (error !== 'cancel' && error !== 'close') {
       console.error('恢复历史记录失败:', error);
       ElMessage.error(t('恢复历史记录失败'));
     }
-  }
+  });
 };
 
-const handleDeleteHistory = async (history: WebSocketHistory): Promise<void> => {
-  try {
-    await ElMessageBox.confirm(
-      t('确定要删除这条历史记录吗？'),
-      t('确认删除'),
-      {
-        confirmButtonText: t('删除'),
-        cancelButtonText: t('取消'),
-        type: 'warning'
-      }
-    );
-    
-    const success = await webSocketHistoryCache.deleteWsHistoryByNode(websocket.value._id, [history._id]);
-    if (success) {
-      ElMessage.success(t('删除成功'));
-      await loadHistoryList(); // 重新加载列表
-    } else {
-      ElMessage.error(t('删除失败'));
+const handleDeleteHistory = (history: WebSocketHistory): void => {
+  ElMessageBox.confirm(
+    t('确定要删除这条历史记录吗？'),
+    t('确认删除'),
+    {
+      confirmButtonText: t('删除'),
+      cancelButtonText: t('取消'),
+      type: 'warning'
     }
-  } catch (error) {
+  ).then(() => {
+    // 删除操作也改为非阻塞
+    webSocketHistoryCache.deleteWsHistoryByNode(websocket.value._id, [history._id])
+      .then((success) => {
+        if (success) {
+          ElMessage.success(t('删除成功'));
+          // 重新加载列表 - 非阻塞方式
+          getHistoryList().catch(error => {
+            console.error('重新加载历史记录失败:', error);
+          });
+        } else {
+          ElMessage.error(t('删除失败'));
+        }
+      })
+      .catch((error) => {
+        console.error('删除历史记录失败:', error);
+        ElMessage.error(t('删除失败'));
+      });
+  }).catch((error) => {
     // 用户取消操作
     if (error !== 'cancel' && error !== 'close') {
       console.error('删除历史记录失败:', error);
       ElMessage.error(t('删除失败'));
     }
-  }
+  });
 };
 
 const formatRelativeTime = (timestamp: number): string => {
@@ -334,7 +348,6 @@ onUnmounted(() => {
 <style lang="scss" scoped>
 .ws-params {
   padding: 0 0 10px;
-  // overflow-y: auto;
   position: relative;
 
   .quick-actions {
@@ -379,7 +392,7 @@ onUnmounted(() => {
       position: absolute;
       top: 100%;
       right: 20px;
-      background: var(--color-white);
+      background: var(--white);
       border: 1px solid var(--gray-300);
       border-radius: 6px;
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
