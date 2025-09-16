@@ -702,4 +702,8 @@ export default {
   连接配置更新: 'Connection config update',
   初始化状态: 'Initialize state',
   重置状态: 'Reset state',
+  刚刚: 'Just now',
+  '{count}分钟前': '{count} minutes ago',
+  '{count}小时前': '{count} hours ago',
+  '{count}天前': '{count} days ago',
 }

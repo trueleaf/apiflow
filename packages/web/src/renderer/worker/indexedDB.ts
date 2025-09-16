@@ -46,6 +46,7 @@ const storeNameMap: Record<string, string> = {
   "projects": "项目缓存",
   "rules": "规则缓存",
   "variables": "变量缓存",
+  "histories": "WebSocket历史记录缓存",
 }
 // 获取indexedDB数据
 const getIndexedDBData = async (): Promise<void> => {

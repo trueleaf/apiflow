@@ -14,6 +14,7 @@ import { getWebSocketUrl } from "@/server/request/request.ts";
 import { useVariable } from "../apidoc/variables.ts";
 import { useCookies } from "../apidoc/cookies.ts";
 import { i18n } from "@/i18n";
+import { webSocketHistoryCache } from "@/cache/history";
 
 export const useWebSocket = defineStore('websocket', () => {
   const apidocVariableStore = useVariable();
@@ -636,6 +637,7 @@ const updateWebSocketHeaderById = (id: string, header: Partial<ApidocProperty<'s
     const projectId = router.currentRoute.value.query.id as string;
     const currentTabs = tabs.value[projectId];
     const currentSelectTab = currentTabs?.find((tab) => tab.selected) || null;
+    let isSaved = currentSelectTab?.saved
     if (!currentSelectTab) {
       console.warn('缺少tab信息');
       return;
@@ -669,6 +671,12 @@ const updateWebSocketHeaderById = (id: string, header: Partial<ApidocProperty<'s
         value: true,
       })
       cacheWebSocket();
+      if (!isSaved) {
+        webSocketHistoryCache.addWsHistoryByNodeId(
+          currentSelectTab._id,
+          websocket.value
+        );
+      }
       // 添加0.5秒的saveLoading效果
       setTimeout(() => {
         saveLoading.value = false;
@@ -676,6 +684,13 @@ const updateWebSocketHeaderById = (id: string, header: Partial<ApidocProperty<'s
     } else {
       console.log('todo');
       cacheWebSocket();
+      // 只有当数据发生改变时才添加WebSocket历史记录
+      if (!isSaved) {
+        webSocketHistoryCache.addWsHistoryByNodeId(
+          currentSelectTab._id,
+          websocket.value
+        );
+      }
       saveLoading.value = false;
     }
   };
