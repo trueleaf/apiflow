@@ -42,10 +42,10 @@ export const useRedoUndo = defineStore('redoUndo', () => {
   /**
    * 撤销操作
    */
-  const wsUndo = (nodeId: string): boolean => {
+  const wsUndo = (nodeId: string): { success: boolean; operation?: WsRedoUnDoOperation } => {
     const undoList = wsUndoList.value[nodeId];
     if (!undoList || undoList.length === 0) {
-      return false;
+      return { success: false };
     }
     const operation = undoList.pop()!;
     try {
@@ -57,21 +57,21 @@ export const useRedoUndo = defineStore('redoUndo', () => {
       
       // 同步到cache
       redoUndoCache.setRedoUndoListByNodeId(nodeId, wsRedoList.value[nodeId], wsUndoList.value[nodeId]);
-      return true;
+      return { success: true, operation };
     } catch (error) {
       console.error('撤销操作失败:', error);
       undoList.push(operation); // 回滚
-      return false;
+      return { success: false };
     }
   };
 
   /**
    * 重做操作
    */
-  const wsRedo = (nodeId: string): boolean => {
+  const wsRedo = (nodeId: string): { success: boolean; operation?: WsRedoUnDoOperation } => {
     const redoList = wsRedoList.value[nodeId];
     if (!redoList || redoList.length === 0) {
-      return false;
+      return { success: false };
     }
     const operation = redoList.pop()!;
     try {
@@ -83,11 +83,11 @@ export const useRedoUndo = defineStore('redoUndo', () => {
       
       // 同步到cache
       redoUndoCache.setRedoUndoListByNodeId(nodeId, wsRedoList.value[nodeId], wsUndoList.value[nodeId]);
-      return true;
+      return { success: true, operation };
     } catch (error) {
       console.error('重做操作失败:', error);
       redoList.push(operation); // 回滚
-      return false;
+      return { success: false };
     }
   };
 

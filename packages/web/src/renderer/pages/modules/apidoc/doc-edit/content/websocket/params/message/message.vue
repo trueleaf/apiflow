@@ -4,7 +4,7 @@
     <div class="content-wrapper">
       <!-- 编辑器 -->
       <div class="editor-wrap">
-        <SJsonEditor :model-value="websocketStore.websocket.item.sendMessage" @update:model-value="handleMessageChange" :config="editorConfig" :auto-height="false" />
+        <SJsonEditor ref="jsonEditorRef" manual-undo-redo :model-value="websocketStore.websocket.item.sendMessage" @update:model-value="handleMessageChange" :config="editorConfig" :auto-height="false" @undo="handleEditorUndo" @redo="handleEditorRedo" @ready="handleEditorReady" />
       </div>
       <!-- 操作按钮区域 -->
       <div class="content-actions">
@@ -155,6 +155,7 @@ import { uuid, debounce } from '@/helper'
 import { websocketResponseCache } from '@/cache/websocket/websocketResponse'
 import { webSocketNodeCache } from '@/cache/websocket/websocketNodeCache'
 import { ElMessageBox, ElMessage } from 'element-plus'
+import * as monaco from 'monaco-editor/esm/vs/editor/editor.api'
 
 
 const { t } = useI18n()
@@ -162,14 +163,31 @@ const apidocTabsStore = useApidocTas()
 const websocketStore = useWebSocket()
 const redoUndoStore = useRedoUndo()
 const { connectionState, connectionId } = storeToRefs(websocketStore)
+// const { changeMessageEditorRef } = websocketStore
 // 获取当前选中的tab
 const { currentSelectTab } = storeToRefs(apidocTabsStore)
+
 const configPopoverVisible = ref(false)
 let configTimer: NodeJS.Timeout | null = null
+
+// 编辑器引用
+interface JsonEditorRef {
+  format: () => void;
+  focus: () => void;
+  changeLanguage: (language: string) => void;
+  updateEditorHeight: () => void;
+  getCursorPosition: () => monaco.Position | null;
+  setCursorPosition: (position: monaco.Position) => void;
+}
+
+const jsonEditorRef = ref<JsonEditorRef | null>(null)
 
 // 防抖的消息内容记录函数
 const debouncedRecordMessageOperation = debounce((oldValue: string, newValue: string) => {
   if (!currentSelectTab.value || oldValue === newValue) return;
+  
+  // 获取当前光标位置
+  const cursorPosition = jsonEditorRef.value?.getCursorPosition() || undefined;
   
   redoUndoStore.recordOperation({
     nodeId: currentSelectTab.value._id,
@@ -178,6 +196,7 @@ const debouncedRecordMessageOperation = debounce((oldValue: string, newValue: st
     affectedModuleName: "messageContent",
     oldValue,
     newValue,
+    cursorPosition,
     timestamp: Date.now()
   });
 }, 300, { leading: true, trailing: true });
@@ -185,8 +204,44 @@ const debouncedRecordMessageOperation = debounce((oldValue: string, newValue: st
 // 处理消息内容变化
 const handleMessageChange = (newValue: string) => {
   const oldValue = websocketStore.websocket.item.sendMessage;
+  console.log('handleMessageChange', newValue, oldValue);
   websocketStore.changeWebSocketMessage(newValue);
   debouncedRecordMessageOperation(oldValue, newValue);
+};
+
+// 设置编辑器引用
+const handleEditorReady = () => {
+  // 编辑器准备就绪
+};
+
+// 处理编辑器undo事件
+const handleEditorUndo = () => {
+  const nodeId = currentSelectTab.value?._id;
+  if (nodeId) {
+    const result = redoUndoStore.wsUndo(nodeId);
+    if (result.success && result.operation?.type === 'sendMessageOperation') {
+      const operation = result.operation as any;
+      if (operation.cursorPosition) {
+        const editor = jsonEditorRef.value as any;
+        editor?.setCursorPosition(operation.cursorPosition);
+      }
+    }
+  }
+};
+
+// 处理编辑器redo事件
+const handleEditorRedo = () => {
+  const nodeId = currentSelectTab.value?._id;
+  if (nodeId) {
+    const result = redoUndoStore.wsRedo(nodeId);
+    if (result.success && result.operation?.type === 'sendMessageOperation') {
+      const operation = result.operation as any;
+      if (operation.cursorPosition) {
+        const editor = jsonEditorRef.value as any;
+        editor?.setCursorPosition(operation.cursorPosition);
+      }
+    }
+  }
 };
 const editorConfig = computed(() => {
   switch (websocketStore.websocket.config.messageType) {

@@ -1,5 +1,6 @@
 import type { ApidocProperty } from "./apidoc";
 import type { WebSocketNode } from "./websocket/websocket";
+import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
 
 // WebSocket模块名称联合类型
 export type WsModuleName = 
@@ -64,6 +65,7 @@ export type WsSendMessageOperation = {
   affectedModuleName: WsModuleName;
   oldValue: string;
   newValue: string;
+  cursorPosition?:  monaco.Position;
   timestamp: number;
 };
 

@@ -32,6 +32,7 @@ export const useWebSocket = defineStore('websocket', () => {
   const responseMessage = ref<WebsocketResponse[]>([]);
   const sendMessageTemplateList = ref<WebsocketSendMessageTemplate[]>([]);
   const currentActiveModule = ref<string>('messageContent'); // 当前激活的模块
+  const messageEditorRef = ref<{changeSilent: (value: boolean) => void} | null>(null); // 消息编辑器引用
   
   /*
   |--------------------------------------------------------------------------
@@ -544,6 +545,13 @@ const updateWebSocketHeaderById = (id: string, header: Partial<ApidocProperty<'s
   const setActiveModule = (moduleName: string): void => {
     currentActiveModule.value = moduleName;
   };
+
+  /**
+   * 改变消息编辑器引用
+   */
+  const changeMessageEditorRef = (ref: {changeSilent: (value: boolean) => void} | null): void => {
+    messageEditorRef.value = ref;
+  };
   /*
   |--------------------------------------------------------------------------
   | 数据操作方法
@@ -779,5 +787,8 @@ const updateWebSocketHeaderById = (id: string, header: Partial<ApidocProperty<'s
     // 模块状态管理
     currentActiveModule,
     setActiveModule,
+    // 消息编辑器引用
+    messageEditorRef,
+    changeMessageEditorRef,
   }
 })
