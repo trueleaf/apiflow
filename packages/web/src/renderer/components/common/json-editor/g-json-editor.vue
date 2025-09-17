@@ -46,10 +46,14 @@ const props = defineProps({
   minHeight: {
     type: [String, Number],
     default: '100px'
+  },
+  manualUndoRedo: {
+    type: Boolean,
+    default: false
   }
 });
 
-const emits = defineEmits(['update:modelValue', 'change', 'ready'])
+const emits = defineEmits(['update:modelValue', 'change', 'ready', 'undo', 'redo'])
 
 const monacoDom: Ref<HTMLElement | null> = ref(null);
 let monacoInstance: monaco.editor.IStandaloneCodeEditor | null = null;
@@ -175,7 +179,20 @@ const initResizeLister = () => {
     resizeObserver.observe(monacoDom.value);
   }
 };
-
+const initManualUndoRedo = () => {
+  monacoInstance?.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyZ, () => {
+    const cursorPosition = getCursorPosition();
+    emits('undo', { cursorPosition });
+  });
+  monacoInstance?.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyMod.Shift | monaco.KeyCode.KeyZ, () => {
+    const cursorPosition = getCursorPosition();
+    emits('redo', { cursorPosition });
+  });
+  monacoInstance?.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyY, () => {
+    const cursorPosition = getCursorPosition();
+    emits('redo', { cursorPosition });
+  });
+}
 /*
 |--------------------------------------------------------------------------
 | 生命周期函数
@@ -243,14 +260,12 @@ onMounted(() => {
     ...props.config
   })
   
-  // 监听内容变化，自动调整高度
   monacoInstance.onDidChangeModelContent(() => {
     // 中文输入过程中不触发 update:modelValue
     if (!isComposing) {
       emits('update:modelValue', monacoInstance?.getValue())
       emits('change', monacoInstance?.getValue())
     }
-    
     if (props.autoHeight) {
       // 使用 nextTick 确保内容更新后再调整高度
       setTimeout(() => {
@@ -272,46 +287,11 @@ onMounted(() => {
     editorDom.addEventListener('compositionstart', () => {
       isComposing = true;
     });
-    
     editorDom.addEventListener('compositionend', () => {
       isComposing = false;
       // 中文输入结束后手动触发一次事件
       emits('update:modelValue', monacoInstance?.getValue())
       emits('change', monacoInstance?.getValue())
-    });
-    
-    // 监听键盘事件，检测撤销重做操作
-    editorDom.addEventListener('keydown', (event) => {
-      const isMac = /Mac|iPod|iPhone|iPad/.test(navigator.platform);
-      const isModifierPressed = isMac ? event.metaKey : event.ctrlKey;
-      if (isModifierPressed) {
-        // 检测撤销操作 Ctrl+Z (Windows) 或 Cmd+Z (Mac)
-        if (event.key === 'z' && !event.shiftKey) {
-          const keyboardEvent = new KeyboardEvent('keydown', {
-            key: event.key,
-            code: event.code,
-            ctrlKey: event.ctrlKey,
-            metaKey: event.metaKey,
-            shiftKey: event.shiftKey,
-            bubbles: true
-          });
-          monacoDom.value?.dispatchEvent(keyboardEvent);
-        }
-        // 检测重做操作
-        // Windows: Ctrl+Y 或 Ctrl+Shift+Z
-        // Mac: Cmd+Shift+Z
-        else if ((!isMac && event.key === 'y') || (event.key === 'z' && event.shiftKey)) {
-          const keyboardEvent = new KeyboardEvent('keydown', {
-            key: event.key,
-            code: event.code,
-            ctrlKey: event.ctrlKey,
-            metaKey: event.metaKey,
-            shiftKey: event.shiftKey,
-            bubbles: true
-          });
-          monacoDom.value?.dispatchEvent(keyboardEvent);
-        }
-      }
     });
   }
   
@@ -323,7 +303,7 @@ onMounted(() => {
       updateEditorHeight();
     }, 100);
   }
-  
+  initManualUndoRedo();
   emits('ready')
 })
 
@@ -358,6 +338,19 @@ const changeLanguage = (lang: string) => {
   }
 }
 
+// 获取光标位置
+const getCursorPosition = () => {
+  if (!monacoInstance) return null;
+  return monacoInstance.getPosition();
+}
+
+// 设置光标位置
+const setCursorPosition = (position:  monaco.Position) => {
+  if (!monacoInstance) return;
+  monacoInstance.setPosition(position);
+  monacoInstance.focus();
+}
+
 watch(() => props.config?.language, () => {
   if (props.config?.language) {
     changeLanguage(props.config.language)
@@ -370,7 +363,9 @@ defineExpose({
   format,
   focus,
   changeLanguage,
-  updateEditorHeight
+  updateEditorHeight,
+  getCursorPosition,
+  setCursorPosition
 });
 
 </script>
