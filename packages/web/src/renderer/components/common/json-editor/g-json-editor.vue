@@ -54,6 +54,7 @@ const emits = defineEmits(['update:modelValue', 'change', 'ready'])
 const monacoDom: Ref<HTMLElement | null> = ref(null);
 let monacoInstance: monaco.editor.IStandaloneCodeEditor | null = null;
 let resizeObserver: ResizeObserver | null = null;
+let isComposing = false; // 中文输入状态标记
 
 /*
 |--------------------------------------------------------------------------
@@ -244,8 +245,11 @@ onMounted(() => {
   
   // 监听内容变化，自动调整高度
   monacoInstance.onDidChangeModelContent(() => {
-    emits('update:modelValue', monacoInstance?.getValue())
-    emits('change', monacoInstance?.getValue())
+    // 中文输入过程中不触发 update:modelValue
+    if (!isComposing) {
+      emits('update:modelValue', monacoInstance?.getValue())
+      emits('change', monacoInstance?.getValue())
+    }
     
     if (props.autoHeight) {
       // 使用 nextTick 确保内容更新后再调整高度
@@ -261,6 +265,55 @@ onMounted(() => {
       updateEditorHeight();
     }
   });
+  
+  // 监听中文输入状态
+  const editorDom = monacoInstance.getDomNode();
+  if (editorDom) {
+    editorDom.addEventListener('compositionstart', () => {
+      isComposing = true;
+    });
+    
+    editorDom.addEventListener('compositionend', () => {
+      isComposing = false;
+      // 中文输入结束后手动触发一次事件
+      emits('update:modelValue', monacoInstance?.getValue())
+      emits('change', monacoInstance?.getValue())
+    });
+    
+    // 监听键盘事件，检测撤销重做操作
+    editorDom.addEventListener('keydown', (event) => {
+      const isMac = /Mac|iPod|iPhone|iPad/.test(navigator.platform);
+      const isModifierPressed = isMac ? event.metaKey : event.ctrlKey;
+      if (isModifierPressed) {
+        // 检测撤销操作 Ctrl+Z (Windows) 或 Cmd+Z (Mac)
+        if (event.key === 'z' && !event.shiftKey) {
+          const keyboardEvent = new KeyboardEvent('keydown', {
+            key: event.key,
+            code: event.code,
+            ctrlKey: event.ctrlKey,
+            metaKey: event.metaKey,
+            shiftKey: event.shiftKey,
+            bubbles: true
+          });
+          monacoDom.value?.dispatchEvent(keyboardEvent);
+        }
+        // 检测重做操作
+        // Windows: Ctrl+Y 或 Ctrl+Shift+Z
+        // Mac: Cmd+Shift+Z
+        else if ((!isMac && event.key === 'y') || (event.key === 'z' && event.shiftKey)) {
+          const keyboardEvent = new KeyboardEvent('keydown', {
+            key: event.key,
+            code: event.code,
+            ctrlKey: event.ctrlKey,
+            metaKey: event.metaKey,
+            shiftKey: event.shiftKey,
+            bubbles: true
+          });
+          monacoDom.value?.dispatchEvent(keyboardEvent);
+        }
+      }
+    });
+  }
   
   initResizeLister();
   

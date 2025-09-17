@@ -10,7 +10,10 @@ import "@/assets/font/iconfont.css";
 import "@/assets/font/iconfont.js";
 import { standaloneCache } from "./cache/standalone";
 import { i18n } from "./i18n";
+import { shortcutManager } from "./shortcut/index.ts";
 
+
+shortcutManager.init();
 const pinia = createPinia();
 const app = createApp(App);
 
