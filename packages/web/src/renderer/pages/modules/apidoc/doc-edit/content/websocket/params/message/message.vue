@@ -4,7 +4,16 @@
     <div class="content-wrapper">
       <!-- 编辑器 -->
       <div class="editor-wrap">
-        <SJsonEditor ref="jsonEditorRef" manual-undo-redo :model-value="websocketStore.websocket.item.sendMessage" @update:model-value="handleMessageChange" :config="editorConfig" :auto-height="false" @undo="handleEditorUndo" @redo="handleEditorRedo" @ready="handleEditorReady" />
+        <SJsonEditor 
+          ref="jsonEditorRef" 
+          manual-undo-redo 
+          :model-value="websocketStore.websocket.item.sendMessage" 
+          :config="editorConfig" 
+          :auto-height="false" 
+          @update:model-value="handleMessageChange" 
+          @undo="handleEditorUndo" 
+          @redo="handleEditorRedo" 
+        />
       </div>
       <!-- 操作按钮区域 -->
       <div class="content-actions">
@@ -204,15 +213,10 @@ const debouncedRecordMessageOperation = debounce((oldValue: string, newValue: st
 // 处理消息内容变化
 const handleMessageChange = (newValue: string) => {
   const oldValue = websocketStore.websocket.item.sendMessage;
-  console.log('handleMessageChange', newValue, oldValue);
   websocketStore.changeWebSocketMessage(newValue);
   debouncedRecordMessageOperation(oldValue, newValue);
 };
 
-// 设置编辑器引用
-const handleEditorReady = () => {
-  // 编辑器准备就绪
-};
 
 // 处理编辑器undo事件
 const handleEditorUndo = () => {
@@ -220,9 +224,9 @@ const handleEditorUndo = () => {
   if (nodeId) {
     const result = redoUndoStore.wsUndo(nodeId);
     if (result.success && result.operation?.type === 'sendMessageOperation') {
-      const operation = result.operation as any;
+      const operation = result.operation;
       if (operation.cursorPosition) {
-        const editor = jsonEditorRef.value as any;
+        const editor = jsonEditorRef.value;
         editor?.setCursorPosition(operation.cursorPosition);
       }
     }
@@ -235,9 +239,9 @@ const handleEditorRedo = () => {
   if (nodeId) {
     const result = redoUndoStore.wsRedo(nodeId);
     if (result.success && result.operation?.type === 'sendMessageOperation') {
-      const operation = result.operation as any;
+      const operation = result.operation;
       if (operation.cursorPosition) {
-        const editor = jsonEditorRef.value as any;
+        const editor = jsonEditorRef.value;
         editor?.setCursorPosition(operation.cursorPosition);
       }
     }
