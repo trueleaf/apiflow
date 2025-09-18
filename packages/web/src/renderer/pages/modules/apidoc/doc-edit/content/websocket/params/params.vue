@@ -221,7 +221,7 @@ const getHistoryList = (): Promise<void> => {
 
 const handleSelectHistory = (history: WebSocketHistory): void => {
   ElMessageBox.confirm(
-    t('当前操作将被覆盖，是否继续？'),
+    t('当前操作将覆盖原有数据，是否继续？'),
     t('确认覆盖'),
     {
       confirmButtonText: t('确定'),
@@ -279,18 +279,35 @@ const handleDeleteHistory = (history: WebSocketHistory): void => {
 const formatRelativeTime = (timestamp: number): string => {
   const now = Date.now();
   const diff = now - timestamp;
+  const seconds = Math.floor(diff / 1000);
   const minutes = Math.floor(diff / (1000 * 60));
   const hours = Math.floor(diff / (1000 * 60 * 60));
   const days = Math.floor(diff / (1000 * 60 * 60 * 24));
   
-  if (minutes < 1) {
+  if (seconds < 60) {
     return t('刚刚');
   } else if (minutes < 60) {
     return t('{count}分钟前', { count: minutes });
   } else if (hours < 24) {
-    return t('{count}小时前', { count: hours });
+    // 计算剩余的分钟和秒
+    const remainingMinutes = minutes % 60;
+    const remainingSeconds = seconds % 60;
+    return t('{hours}小时{minutes}分{seconds}秒前', { 
+      hours, 
+      minutes: remainingMinutes, 
+      seconds: remainingSeconds 
+    });
   } else {
-    return t('{count}天前', { count: days });
+    // 计算剩余的小时、分钟和秒
+    const remainingHours = hours % 24;
+    const remainingMinutes = minutes % 60;
+    const remainingSeconds = seconds % 60;
+    return t('{days}天{hours}小时{minutes}分{seconds}秒前', { 
+      days, 
+      hours: remainingHours, 
+      minutes: remainingMinutes, 
+      seconds: remainingSeconds 
+    });
   }
 };
 
@@ -364,7 +381,7 @@ onUnmounted(() => {
         font-size: 13px;
         cursor: pointer;
         border-radius: 4px;
-        transition: background-color 0.2s;
+        // transition: background-color 0.2s;
         
         &:hover:not(.disabled) {
           background-color: var(--gray-200);
@@ -422,7 +439,6 @@ onUnmounted(() => {
         justify-content: space-between;
         padding: 10px 16px;
         cursor: pointer;
-        transition: background-color 0.2s;
         border-bottom: 1px solid var(--gray-100);
         
         &:last-child {
@@ -475,18 +491,12 @@ onUnmounted(() => {
         
         .history-actions {
           opacity: 0;
-          transition: opacity 0.2s;
           
           .delete-icon {
-            color: var(--gray-400);
             cursor: pointer;
-            padding: 4px;
             border-radius: 4px;
-            transition: all 0.2s;
-            
             &:hover {
-              color: var(--color-danger);
-              background-color: var(--danger-50);
+              color: var(--red);
             }
           }
         }

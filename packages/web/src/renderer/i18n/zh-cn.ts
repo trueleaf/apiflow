@@ -981,4 +981,6 @@ export default {
   '{count}分钟前': '{count}分钟前',
   '{count}小时前': '{count}小时前',
   '{count}天前': '{count}天前',
+  '{hours}小时{minutes}分{seconds}秒前': '{hours}小时{minutes}分{seconds}秒前',
+  '{days}天{hours}小时{minutes}分{seconds}秒前': '{days}天{hours}小时{minutes}分{seconds}秒前',
 }

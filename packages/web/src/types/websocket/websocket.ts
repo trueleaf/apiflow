@@ -98,23 +98,6 @@ export type WebSocketNode = {
     autoReconnect: boolean;
   },
   /**
-   * 公共请求头
-   */
-  commonHeaders?: {
-    /**
-     * 请求头名称
-     */
-    key: string;
-    /**
-     * 请求头值
-     */
-    value: string;
-    /**
-     * 请求头描述
-     */
-    description: string;
-  }[];
-  /**
    * 前置脚本
    */
   preRequest: {
