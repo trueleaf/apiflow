@@ -207,7 +207,7 @@ const clearAllCache = () => {
     confirmButtonText: t('确定'),
     cancelButtonText: t('取消'),
     type: 'warning',
-    beforeClose: async (action, instance, done) => {
+    beforeClose: (action, instance, done) => {
       if (action === 'confirm') {
         instance.confirmButtonLoading = true;
         instance.confirmButtonText = t('执行中...');
@@ -239,8 +239,8 @@ const clearAllCache = () => {
         done()
       }
     }
-  }).then(async () => {
-    
+  }).then(() => {
+
   }).catch((err: Error | 'cancel' | 'close') => {
     if (err === 'cancel' || err === 'close') {
       return;

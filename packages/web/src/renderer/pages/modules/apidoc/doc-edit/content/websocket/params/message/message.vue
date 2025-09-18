@@ -531,7 +531,7 @@ watch(() => connectionState.value, (newState) => {
 })
 
 // 监听当前选中tab变化，重新加载状态
-watch(currentSelectTab, async (newTab) => {
+watch(currentSelectTab, (newTab) => {
   if (newTab) {
     stopAutoSend()
     if (connectionState.value === 'connected' && websocketStore.websocket.config.autoSend) {

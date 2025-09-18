@@ -151,7 +151,7 @@ const handleOpenCodeDialog = (info: { name: string, code: string }) => {
   title.value = info.name;
 }
 //删除包
-const handleDeletepackage = async (info: { name: string, code: string }) => {
+const handleDeletepackage = (info: { name: string, code: string }) => {
   ElMessageBox.confirm('此操作将永久删除此条记录, 是否继续?', '提示', {
     confirmButtonText: '确定',
     cancelButtonText: '取消',

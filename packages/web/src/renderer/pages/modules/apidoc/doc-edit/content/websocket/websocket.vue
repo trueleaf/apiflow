@@ -328,7 +328,7 @@ const cleanupWebSocketEventListeners = () => {
   window.electronAPI.removeListener('websocket-message');
 };
 
-watch(currentSelectTab, async (val, oldVal) => {
+watch(currentSelectTab, (val, oldVal) => {
   const isWebSocket = val?.tabType === 'websocket'
   if (isWebSocket && val?._id !== oldVal?._id) {
     getWebsocketInfo();

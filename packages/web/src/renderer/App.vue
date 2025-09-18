@@ -112,7 +112,7 @@ const handleLanguageSelect = (language: Language) => {
 
 
 
-const bindTopBarEvent = async () => {
+const bindTopBarEvent = () => {
   window.electronAPI?.onMain('apiflow-create-project', () => {
     dialogVisible.value = true;
   });

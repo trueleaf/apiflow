@@ -84,17 +84,17 @@ export const useIpcEvent = (mainWindow: BrowserWindow, topBarView: WebContentsVi
   |---------------------------------------------------------------------------
   */
   // 顶部栏创建项目请求
-  ipcMain.on('apiflow-topbar-create-project', async () => {
+  ipcMain.on('apiflow-topbar-create-project', () => {
     contentView.webContents.send('apiflow-create-project')
   })
 
   // 顶部栏路由切换请求
-  ipcMain.on('apiflow-topbar-navigate', async (_, path: string) => {
+  ipcMain.on('apiflow-topbar-navigate', (_, path: string) => {
     contentView.webContents.send('apiflow-change-route', path)
   })
 
   // 顶部栏project切换请求,tabs切换就是项目切换
-  ipcMain.on('apiflow-topbar-switch-project', async (_, data: IPCProjectData) => {
+  ipcMain.on('apiflow-topbar-switch-project', (_, data: IPCProjectData) => {
     contentView.webContents.send('apiflow-change-project', data)
   })
   /*
@@ -103,22 +103,22 @@ export const useIpcEvent = (mainWindow: BrowserWindow, topBarView: WebContentsVi
   |---------------------------------------------------------------------------
   */
   // 主内容区创建项目成功通知
-  ipcMain.on('apiflow-content-project-created', async (_, payload: IPCProjectData) => {
+  ipcMain.on('apiflow-content-project-created', (_, payload: IPCProjectData) => {
     topBarView.webContents.send('apiflow-create-project-success', payload)
   })
 
   // 主内容区项目切换通知
-  ipcMain.on('apiflow-content-project-changed', async (_, payload: IPCProjectData) => {
+  ipcMain.on('apiflow-content-project-changed', (_, payload: IPCProjectData) => {
     topBarView.webContents.send('apiflow-change-project', payload)
   })
 
   // 主内容区删除项目
-  ipcMain.on('apiflow-content-project-deleted', async (_, projectId: string) => {
+  ipcMain.on('apiflow-content-project-deleted', (_, projectId: string) => {
     topBarView.webContents.send('apiflow-delete-project', projectId)
   })
 
   // 主内容区修改项目名称请求
-  ipcMain.on('apiflow-content-project-renamed', async (_, payload: IPCProjectData) => {
+  ipcMain.on('apiflow-content-project-renamed', (_, payload: IPCProjectData) => {
     topBarView.webContents.send('apiflow-change-project-name', payload)
   })
 
@@ -128,28 +128,28 @@ export const useIpcEvent = (mainWindow: BrowserWindow, topBarView: WebContentsVi
   |---------------------------------------------------------------------------
   */
   // 刷新主应用
-  ipcMain.on('apiflow-refresh-app', async () => {
+  ipcMain.on('apiflow-refresh-app', () => {
     app.relaunch();
     app.exit();
   })
 
   // 后退
-  ipcMain.on('apiflow-go-back', async () => {
+  ipcMain.on('apiflow-go-back', () => {
     contentView.webContents.send('apiflow-go-back')
   })
 
   // 前进
-  ipcMain.on('apiflow-go-forward', async () => {
+  ipcMain.on('apiflow-go-forward', () => {
     contentView.webContents.send('apiflow-go-forward')
   })
 
   // 显示语言菜单
-  ipcMain.on('apiflow-show-language-menu', async (_, data: { position: any, currentLanguage: string }) => {
+  ipcMain.on('apiflow-show-language-menu', (_, data: { position: any, currentLanguage: string }) => {
     contentView.webContents.send('apiflow-show-language-menu', data)
   })
 
   // 语言切换
-  ipcMain.on('apiflow-language-changed', async (_, language: string) => {
+  ipcMain.on('apiflow-language-changed', (_, language: string) => {
     // 同时通知 topBarView 和 contentView 更新语言显示
     contentView.webContents.send('apiflow-language-changed', language)
     topBarView.webContents.send('apiflow-language-changed', language)
@@ -181,7 +181,7 @@ export const useIpcEvent = (mainWindow: BrowserWindow, topBarView: WebContentsVi
   });
 
   // 接收渲染进程传输的数据
-  ipcMain.on('export-renderer-data', async (_, data: any) => {
+  ipcMain.on('export-renderer-data', (_, data: any) => {
     try {
       receiveRendererData(data);
     } catch (error) {
@@ -201,13 +201,13 @@ export const useIpcEvent = (mainWindow: BrowserWindow, topBarView: WebContentsVi
   });
 
   // 获取导出状态
-  ipcMain.on('export-get-status', async (event) => {
+  ipcMain.on('export-get-status', (event) => {
     const status = getExportStatus();
     event.reply('export-get-status-reply', status);
   });
 
   // 重置导出状态
-  ipcMain.on('export-reset', async () => {
+  ipcMain.on('export-reset', () => {
     try {
       resetExport();
     } catch (error) {
@@ -252,8 +252,8 @@ export const useIpcEvent = (mainWindow: BrowserWindow, topBarView: WebContentsVi
     }
   });
 
-  // 重置导入状态  
-  ipcMain.on('import-reset', async () => {
+  // 重置导入状态
+  ipcMain.on('import-reset', () => {
     try {
       resetImport();
     } catch (error) {
