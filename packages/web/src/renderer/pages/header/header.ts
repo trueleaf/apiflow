@@ -10,7 +10,8 @@ import { i18n } from '@/i18n';
 const app = createApp(Header);
 
 if (__STANDALONE__) {
-  await standaloneCache.init();
+  try { await standaloneCache.init(); }
+  catch (e) { console.warn('本地缓存初始化失败，已跳过：', e); }
 }
 
 app.use(i18n).use(ElementPlus, { locale: zhCn });
