@@ -117,15 +117,15 @@ export type WebSocketNode = {
   /**
    * 创建时间
    */
-  createdAt?: string;
+  createdAt: string;
   /**
    * 更新时间
    */
-  updatedAt?: string;
+  updatedAt: string;
   /**
    * 是否被删除
    */
-  isDeleted?: boolean;
+  isDeleted: boolean;
 };
 
 // 发送消息数据

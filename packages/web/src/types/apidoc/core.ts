@@ -94,11 +94,11 @@ export type HttpNode = {
   /**
    * 创建时间
    */
-  createdAt?: string;
+  createdAt: string;
   /**
    * 更新时间
    */
-  updatedAt?: string;
+  updatedAt: string;
   mockInfo: {
     /**
      * mock地址
@@ -182,7 +182,7 @@ export type HttpNode = {
   /**
    * 是否被删除
    */
-  isDeleted?: boolean;
+  isDeleted: boolean;
 };
 export type FolderNode = {
   /**
@@ -225,15 +225,15 @@ export type FolderNode = {
   /**
    * 创建时间
    */
-  createdAt?: string;
+  createdAt: string;
   /**
    * 更新时间
    */
-  updatedAt?: string;
+  updatedAt: string;
   /**
    * 是否被删除
    */
-  isDeleted?: boolean;
+  isDeleted: boolean;
 };
 export type ApidocBannerOfHttpNode = {
   _id: string;

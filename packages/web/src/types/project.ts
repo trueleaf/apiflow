@@ -236,7 +236,7 @@ export type ApidocProjectInfo = {
   /**
    * 是否被删除
    */
-  isDeleted?: boolean;
+  isDeleted: boolean;
 };
 
 //项目列表信息
