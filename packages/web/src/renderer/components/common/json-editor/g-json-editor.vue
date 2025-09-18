@@ -86,10 +86,13 @@ const editorStyle = computed(() => {
 watch(() => props.modelValue, (newValue) => {
   const value = monacoInstance?.getValue();
   if (newValue !== value) {
+    const position = monacoInstance?.getPosition();
     monacoInstance?.setValue(props.modelValue)
+    if (position) {
+      monacoInstance?.setPosition(position);
+    }
   }
 })
-
 watch(() => props.readOnly, (readOnly) => {
   monacoInstance?.updateOptions({
     readOnly,
