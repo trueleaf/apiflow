@@ -337,7 +337,7 @@ const handleFormatUrl = () => {
     const newParams: ApidocProperty<'string'>[] = [];
     Object.keys(objectParams).forEach(field => {
       const property: ApidocProperty<'string'> = {
-        _id: Math.random().toString(36).substr(2, 9),
+        _id: uuid(),
         key: field,
         value: objectParams[field] || '',
         description: '',
