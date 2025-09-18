@@ -6,6 +6,11 @@ import { ApidocBaseInfo, ApidocProperty } from "../types.ts";
 export type MessageType = 'text' | 'json' | 'xml' | 'html' | 'binary-base64' | 'binary-hex';
 
 /**
+ * WebSocket激活选项卡类型
+ */
+export type WebsocketActiveTabType = 'messageContent' | 'params' | 'headers' | 'preScript' | 'afterScript' | 'config' | 'remarks';
+
+/**
  * WebSocket连接参数
  */
 export interface WebsocketConnectParams {
