@@ -12,7 +12,7 @@
         <View />
       </el-icon>
     </div>
-    <SParamsTree :drag="false" show-checkbox :data="headerData" no-add @change="handleChange"></SParamsTree>
+    <SParamsTree :drag="false" show-checkbox :data="websocket.item.headers" no-add @change="handleChange"></SParamsTree>
     <template v-if="commonHeaders.length > 0">
       <el-divider content-position="left">{{ t('公共请求头') }}</el-divider>
       <el-table :data="commonHeaders" border size="small">
@@ -88,7 +88,7 @@ const currentSelectTab = computed(() => { //当前选中的doc
 const { t } = useI18n()
 
 const hideDefaultHeader = ref(true);
-const headerData = computed(() => websocket.value.item.headers)
+// 直接使用 websocket.item.headers，不需要 computed 包装
 const commonHeaders = ref<(Pick<ApidocProperty, "_id" | 'key' | 'value' | 'description' | 'select' & { path?: string[] }>)[]>([]);
 // 防抖的请求头记录函数
 const debouncedRecordHeadersOperation = debounce((oldValue: ApidocProperty<'string'>[], newValue: ApidocProperty<'string'>[]) => {

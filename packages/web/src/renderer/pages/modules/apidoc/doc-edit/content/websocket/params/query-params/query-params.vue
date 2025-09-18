@@ -1,7 +1,7 @@
 <template>
   <div class="ws-query-params">
     <div class="title">Query&nbsp;{{ t("参数") }}</div>
-    <SParamsTree show-checkbox :data="queryData" @change="handleChange"></SParamsTree>
+    <SParamsTree show-checkbox :data="websocket.item.queryParams" @change="handleChange"></SParamsTree>
   </div>
 </template>
 
@@ -9,7 +9,7 @@
 import { useWebSocket } from '@/store/websocket/websocket'
 import { useRedoUndo } from '@/store/redoUndo/redoUndo'
 import { useApidocTas } from '@/store/apidoc/tabs'
-import { computed } from 'vue'
+
 import { storeToRefs } from 'pinia'
 import SParamsTree from '@/components/apidoc/params-tree/g-params-tree3.vue'
 import { useI18n } from 'vue-i18n'
@@ -23,7 +23,7 @@ const { websocket } = storeToRefs(websocketStore)
 const { currentSelectTab } = storeToRefs(apidocTabsStore)
 const { t } = useI18n()
 
-const queryData = computed(() => websocket.value.item.queryParams);
+// 直接使用 websocket.item.queryParams，不需要 computed 包装
 // 防抖的查询参数记录函数
 const debouncedRecordQueryParamsOperation = debounce((oldValue: ApidocProperty<'string'>[], newValue: ApidocProperty<'string'>[]) => {
   if (!currentSelectTab.value) return;

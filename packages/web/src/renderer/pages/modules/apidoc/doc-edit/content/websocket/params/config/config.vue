@@ -1,6 +1,6 @@
 <template>
   <div class="ws-config">
-    <el-form :model="config" label-position="top" size="small">
+    <el-form :model="websocket.config" label-position="top" size="small">
       <el-row :gutter="16">
         <el-col :span="12">
           <el-form-item>
@@ -13,7 +13,7 @@
               </div>
             </template>
             <el-switch 
-              v-model="config.autoReconnect"
+              v-model="websocket.config.autoReconnect"
               @change="handleAutoReconnectChange"
             ></el-switch>
           </el-form-item>
@@ -25,14 +25,13 @@
 </template>
 
 <script lang="ts" setup>
-import { computed } from 'vue';
+
 import { storeToRefs } from 'pinia';
 import { QuestionFilled } from '@element-plus/icons-vue';
 import { useWebSocket } from '@/store/websocket/websocket';
 
 const websocketStore = useWebSocket();
 const { websocket } = storeToRefs(websocketStore);
-const config = computed(() => websocket.value.config);
 
 const handleAutoReconnectChange = (value: boolean | string | number) => {
   const boolValue = Boolean(value);
