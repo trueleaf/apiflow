@@ -291,32 +291,26 @@ const formatRelativeTime = (timestamp: number): string => {
   const seconds = Math.floor(diff / 1000);
   const minutes = Math.floor(diff / (1000 * 60));
   const hours = Math.floor(diff / (1000 * 60 * 60));
-  const days = Math.floor(diff / (1000 * 60 * 60 * 24));
   
   if (seconds < 60) {
     return t('刚刚');
   } else if (minutes < 60) {
     return t('{count}分钟前', { count: minutes });
   } else if (hours < 24) {
-    // 计算剩余的分钟和秒
     const remainingMinutes = minutes % 60;
-    const remainingSeconds = seconds % 60;
-    return t('{hours}小时{minutes}分{seconds}秒前', { 
+    return t('{hours}小时{minutes}分钟前', { 
       hours, 
-      minutes: remainingMinutes, 
-      seconds: remainingSeconds 
+      minutes: remainingMinutes
     });
   } else {
-    // 计算剩余的小时、分钟和秒
-    const remainingHours = hours % 24;
-    const remainingMinutes = minutes % 60;
-    const remainingSeconds = seconds % 60;
-    return t('{days}天{hours}小时{minutes}分{seconds}秒前', { 
-      days, 
-      hours: remainingHours, 
-      minutes: remainingMinutes, 
-      seconds: remainingSeconds 
-    });
+    // 超过一天时，显示具体的日期时间格式
+    const date = new Date(timestamp);
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    const hour = String(date.getHours()).padStart(2, '0');
+    const minute = String(date.getMinutes()).padStart(2, '0');
+    return `${year}-${month}-${day} ${hour}:${minute}`;
   }
 };
 

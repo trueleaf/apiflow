@@ -706,6 +706,5 @@ export default {
   '{count}分钟前': '{count} minutes ago',
   '{count}小时前': '{count} hours ago',
   '{count}天前': '{count} days ago',
-  '{hours}小时{minutes}分{seconds}秒前': '{hours}h {minutes}m {seconds}s ago',
-  '{days}天{hours}小时{minutes}分{seconds}秒前': '{days}d {hours}h {minutes}m {seconds}s ago',
+  '{hours}小时{minutes}分钟前': '{hours}h {minutes}m ago',
 }
