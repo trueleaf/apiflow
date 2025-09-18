@@ -318,10 +318,8 @@ onActivated(() => {
 })
 
 onBeforeUnmount(() => {
-  if (resizeObserver) {
-    resizeObserver.disconnect();
-    resizeObserver = null;
-  }
+  resizeObserver?.disconnect();
+  resizeObserver = null;
   monacoInstance?.dispose();
 })
 

@@ -56,11 +56,7 @@ const onMain = (channel: string, callback: (...args: any[]) => void) => {
 }
 
 const removeListener = (channel: string, callback?: (...args: any[]) => void) => {
-  if (callback) {
-    ipcRenderer.removeListener(channel, callback)
-  } else {
-    ipcRenderer.removeAllListeners(channel)
-  }
+  callback ? ipcRenderer.removeListener(channel, callback) : ipcRenderer.removeAllListeners(channel);
 }
 
 // WebSocket相关方法

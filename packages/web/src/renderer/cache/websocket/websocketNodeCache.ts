@@ -2,7 +2,7 @@
  * websocket文档缓存
  */
 
-import { WebSocketNode, WebsocketConfig } from '@src/types/websocket/websocket';
+import { WebSocketNode, WebsocketActiveTabType, WebsocketConfig } from '@src/types/websocket/websocket';
 import { HttpResponseCache } from '../http/httpResponseCache';
 
 class WebSocketNodeCache extends HttpResponseCache {
@@ -202,9 +202,9 @@ class WebSocketNodeCache extends HttpResponseCache {
   /*
    * 获取websocket连接页面的活跃tab
    */
-  getActiveTab(id: string): string | null {
+  getActiveTab(id: string): WebsocketActiveTabType | null {
     try {
-      const localActiveTab: Record<string, string> = JSON.parse(localStorage.getItem('websocketNode/connectionActiveTab') || '{}');
+      const localActiveTab: Record<string, WebsocketActiveTabType> = JSON.parse(localStorage.getItem('websocketNode/connectionActiveTab') || '{}');
       if (!localActiveTab[id]) {
         return null;
       }
@@ -219,7 +219,7 @@ class WebSocketNodeCache extends HttpResponseCache {
   /*
    * 设置websocket连接页面的活跃tab
    */
-  setActiveTab(id: string, val: string) {
+  setActiveTab(id: string, val: WebsocketActiveTabType) {
     try {
       const localActiveTab = JSON.parse(localStorage.getItem('websocketNode/connectionActiveTab') || '{}');
       localActiveTab[id] = val;

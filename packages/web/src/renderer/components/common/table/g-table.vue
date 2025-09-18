@@ -165,12 +165,11 @@ const getData = (searchParams?: unknown) => {
       loading.value = true;
       request.get(props.url, { params }).then((res) => {
         responseData.value = res.data;
-        if (props.resHook) {
-          props.resHook(res, {
-            tableData,
-            total,
-          });
-        } else if (props.paging) { //分页
+        props.resHook?.(res, {
+          tableData,
+          total,
+        });
+        if (!props.resHook && props.paging) { //分页
           total.value = res.data.total;
           tableData.value = res.data.rows;
         } else { //不分页

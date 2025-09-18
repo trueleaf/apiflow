@@ -729,16 +729,12 @@ export const startExport = async (itemNum: number): Promise<void> => {
     zip = new JSZip();
     
     // 通知渲染进程准备发送数据
-    if (contentView) {
-      contentView.webContents.send('export-ready-to-receive');
-    }
+    contentView?.webContents.send('export-ready-to-receive');
     
   } catch (error) {
     console.error('开始导出失败:', error);
     exportStatus.status = 'error';
-    if (contentView) {
-      contentView.webContents.send('export-main-error', (error as Error).message);
-    }
+    contentView?.webContents.send('export-main-error', (error as Error).message);
   }
 };
 
@@ -767,9 +763,7 @@ export const receiveRendererData = (data: any): void => {
   } catch (error) {
     console.error('接收渲染进程数据失败:', error);
     exportStatus.status = 'error';
-    if (contentView) {
-      contentView.webContents.send('export-main-error', (error as Error).message);
-    }
+    contentView?.webContents.send('export-main-error', (error as Error).message);
   }
 };
 
@@ -827,14 +821,12 @@ export const finishRendererData = async (): Promise<void> => {
         exportStatus.progress = 100;
         
         // 通知渲染进程导出完成
-        if (contentView) {
-          contentView.webContents.send('export-finish', {
-            filePath: finalFilePath,
-            totalItems: receivedDataLength,
-            batches: batchCounter,
-            format: 'binary-optimized'
-          });
-        }
+        contentView?.webContents.send('export-finish', {
+          filePath: finalFilePath,
+          totalItems: receivedDataLength,
+          batches: batchCounter,
+          format: 'binary-optimized'
+        });
         
         // 重置变量
         zip = null;
@@ -848,9 +840,7 @@ export const finishRendererData = async (): Promise<void> => {
     // 清理临时文件(使用JSZip不需要临时文件)
     // JSZip 在内存中生成，不需要清理临时文件
     
-    if (contentView) {
-      contentView.webContents.send('export-main-error', (error as Error).message);
-    }
+    contentView?.webContents.send('export-main-error', (error as Error).message);
   }
 };
 
@@ -882,9 +872,7 @@ export const resetExport = (): void => {
     
     
     // 通知渲染进程重置完成
-    if (contentView) {
-      contentView.webContents.send('export-reset-complete');
-    }
+    contentView?.webContents.send('export-reset-complete');
     
   } catch (error) {
     console.error('重置导出状态失败:', error);

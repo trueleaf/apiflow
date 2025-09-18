@@ -52,9 +52,7 @@ const debounceFn = ref<DebounceFn | null>(null)
 const dataLoading = ref(false)
 
 const getData = (query: string) => {
-  if (props.remoteMethods) {
-    props.remoteMethods(query);
-  }
+  props.remoteMethods?.(query);
 }
 const handleInput = () => {
   emits("update:modelValue", query.value);

@@ -129,8 +129,13 @@ export const useIpcEvent = (mainWindow: BrowserWindow, topBarView: WebContentsVi
   */
   // 刷新主应用
   ipcMain.on('apiflow-refresh-app', () => {
-    app.relaunch();
-    app.exit();
+    if (app.isPackaged) {
+      app.relaunch();
+      app.exit();
+    } else {
+      topBarView.webContents.reloadIgnoringCache();
+      contentView.webContents.reloadIgnoringCache();
+    }
   })
 
   // 后退

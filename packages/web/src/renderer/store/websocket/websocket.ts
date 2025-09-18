@@ -1,4 +1,4 @@
-import { WebSocketNode, MessageType, WebsocketResponse, WebsocketSendMessageTemplate } from "@src/types/websocket/websocket.ts";
+import { WebSocketNode, MessageType, WebsocketResponse, WebsocketSendMessageTemplate, WebsocketActiveTabType } from "@src/types/websocket/websocket.ts";
 import { defineStore, storeToRefs } from "pinia";
 import { ref, watch } from "vue";
 import { ApidocProperty } from "@src/types";
@@ -31,7 +31,7 @@ export const useWebSocket = defineStore('websocket', () => {
   const connectionId = ref('');
   const responseMessage = ref<WebsocketResponse[]>([]);
   const sendMessageTemplateList = ref<WebsocketSendMessageTemplate[]>([]);
-  const currentActiveModule = ref<string>('messageContent'); // 当前激活的模块
+  const currentActiveTab = ref<WebsocketActiveTabType>('messageContent'); // 当前激活的模块
   const messageEditorRef = ref<{changeSilent: (value: boolean) => void} | null>(null); // 消息编辑器引用
   
   /*
@@ -542,8 +542,8 @@ const updateWebSocketHeaderById = (id: string, header: Partial<ApidocProperty<'s
   /**
    * 设置当前激活的模块
    */
-  const setActiveModule = (moduleName: string): void => {
-    currentActiveModule.value = moduleName;
+  const setActiveTab = (moduleName: WebsocketActiveTabType): void => {
+    currentActiveTab.value = moduleName;
   };
 
   /**
@@ -785,8 +785,8 @@ const updateWebSocketHeaderById = (id: string, header: Partial<ApidocProperty<'s
     setResponseCacheLoading,
     refreshLoading,
     // 模块状态管理
-    currentActiveModule,
-    setActiveModule,
+    currentActiveTab,
+    setActiveTab,
     // 消息编辑器引用
     messageEditorRef,
     changeMessageEditorRef,

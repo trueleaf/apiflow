@@ -356,9 +356,7 @@ watch(() => formInfo.value, () => {
       getData();
     });
   }
-  if (debounceFn.value) {
-    debounceFn.value();
-  }
+  debounceFn.value?.();
 }, {
   deep: true
 })

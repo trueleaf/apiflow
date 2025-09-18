@@ -341,9 +341,7 @@ watch(currentSelectTab, (val, oldVal) => {
   immediate: true,
 })
 watch(() => websocketStore.websocket, (websocket: WebSocketNode) => {
-  if (debounceWebsocketDataChange.value) {
-    debounceWebsocketDataChange.value(websocket)
-  }
+  debounceWebsocketDataChange.value?.(websocket);
 }, {
   deep: true,
 })
