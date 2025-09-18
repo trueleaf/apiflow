@@ -72,7 +72,7 @@
       </div>
     </div>
     <!-- 连接配置选项卡 -->
-    <el-tabs v-model="activeTab" class="params-tabs">
+    <el-tabs v-model="currentActiveTab" class="params-tabs">
       <el-tab-pane name="messageContent">
         <template #label>
           <el-badge :is-dot="hasSendMessage">{{ t('消息内容') }}</el-badge>
@@ -135,6 +135,7 @@ import { useRedoUndo } from '@/store/redoUndo/redoUndo'
 import { webSocketHistoryCache } from '@/cache/history'
 import type { WebSocketHistory } from '@src/types/history'
 import { ElMessageBox, ElMessage } from 'element-plus'
+import { WebsocketActiveTabType } from '@src/types/websocket/websocket'
 
 const { t } = useI18n()
 const websocketStore = useWebSocket()
@@ -142,7 +143,15 @@ const apidocTabsStore = useApidocTas()
 const redoUndoStore = useRedoUndo()
 const { currentSelectTab } = storeToRefs(apidocTabsStore)
 const { websocket } = storeToRefs(websocketStore)
-const activeTab = ref('')
+const currentActiveTab = computed({
+  get: () => websocketStore.currentActiveTab,
+  set: (val: WebsocketActiveTabType) => {
+    websocketStore.setActiveTab(val)
+    if (currentSelectTab.value) {
+      webSocketNodeCache.setActiveTab(currentSelectTab.value._id, val)
+    }
+  }
+})
 
 // 历史记录相关
 const showHistoryDropdown = ref(false)
@@ -324,33 +333,20 @@ const handleClickOutside = (event: MouseEvent): void => {
   }
 };
 
-const getInitialActiveTab = (): string => {
-  if (currentSelectTab.value) {
-    const cachedTab = webSocketNodeCache.getActiveTab(currentSelectTab.value._id)
-    return cachedTab || 'messageContent'
-  }
-  return 'messageContent'
+const initActiveTab = (): void => {
+  const cachedTab = webSocketNodeCache.getActiveTab(currentSelectTab.value!._id) || 'messageContent';
+  websocketStore.setActiveTab(cachedTab)
 }
-
-// 监听activeTab变化并保存到缓存
-watch(activeTab, (newVal) => {
-  if (currentSelectTab.value) {
-    webSocketNodeCache.setActiveTab(currentSelectTab.value._id, newVal)
-    // 设置当前激活的模块到websocket store
-    websocketStore.setActiveModule(newVal)
-  }
-})
-
+  
 // 监听当前选中tab变化，重新加载activeTab
 watch(currentSelectTab, (newTab) => {
   if (newTab) {
-    activeTab.value = getInitialActiveTab()
+    initActiveTab()
   }
 }, { immediate: true })
 
 // 生命周期钩子
 onMounted(() => {
-  activeTab.value = getInitialActiveTab()
   document.addEventListener('click', handleClickOutside)
 })
 
