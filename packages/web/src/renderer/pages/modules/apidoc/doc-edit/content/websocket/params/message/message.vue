@@ -159,7 +159,7 @@ import {
 } from '@element-plus/icons-vue'
 import SJsonEditor from '@/components/common/json-editor/g-json-editor.vue'
 import AddTemplateDialog from './dialog/add/add.vue'
-import type { MessageType } from '@src/types/websocket/websocket'
+import type { WebsocketMessageType } from '@src/types/websocket/websocket'
 import { uuid, debounce } from '@/helper'
 import { websocketResponseCache } from '@/cache/websocket/websocketResponse'
 import { webSocketNodeCache } from '@/cache/websocket/websocketNodeCache'
@@ -416,7 +416,7 @@ const handleSendMessage = async () => {
     await websocketResponseCache.setSingleData(nodeId, exceptionMessage);
   }
 }
-const handleMessageTypeChange = (value: MessageType) => {
+const handleMessageTypeChange = (value: WebsocketMessageType) => {
   websocketStore.changeWebSocketMessageType(value)
 }
 const handleAutoConfigChange = (enabled: boolean | string | number) => {

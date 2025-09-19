@@ -1,4 +1,4 @@
-import { WebSocketNode, MessageType, WebsocketResponse, WebsocketSendMessageTemplate, WebsocketActiveTabType } from "@src/types/websocket/websocket.ts";
+import { WebSocketNode, WebsocketMessageType, WebsocketResponse, WebsocketSendMessageTemplate, WebsocketActiveTabType } from "@src/types/websocket/websocket.ts";
 import { defineStore, storeToRefs } from "pinia";
 import { ref, watch } from "vue";
 import { ApidocProperty } from "@src/types";
@@ -292,7 +292,7 @@ const updateWebSocketHeaderById = (id: string, header: Partial<ApidocProperty<'s
   };
 
   // 改变消息类型
-  const changeWebSocketMessageType = (messageType: MessageType): void => {
+  const changeWebSocketMessageType = (messageType: WebsocketMessageType): void => {
     if (websocket.value) {
       websocket.value.config.messageType = messageType;
     }

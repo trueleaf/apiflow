@@ -57,7 +57,7 @@ import { useI18n } from 'vue-i18n';
 import { useWebSocket } from '@/store/websocket/websocket';
 import { uuid } from '@/helper';
 import { ElMessage, type FormInstance, type FormRules } from 'element-plus';
-import type { MessageType, WebsocketSendMessageTemplate } from '@src/types/websocket/websocket';
+import type { WebsocketMessageType, WebsocketSendMessageTemplate } from '@src/types/websocket/websocket';
 
 const props = defineProps<{
   modelValue: boolean;
@@ -76,7 +76,7 @@ const createTemplateLoading = ref(false);
 const templateFormRef = ref<FormInstance>();
 const templateForm = reactive({
   name: '',
-  messageType: 'text' as MessageType,
+  messageType: 'text' as WebsocketMessageType,
   sendMessage: ''
 });
 

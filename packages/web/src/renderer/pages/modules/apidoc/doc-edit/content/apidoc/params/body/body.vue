@@ -247,8 +247,6 @@ const handleChangeRawType = () => {
     apidocStore.changeContentType('application/xml');
   } else if (rawType.value === 'text/javascript') {
     apidocStore.changeContentType('text/javascript');
-  } else if (rawType.value === 'application/json') {
-    apidocStore.changeContentType('application/json');;
   } else {
     console.warn(t('未知请求类型'));
   }

@@ -380,8 +380,7 @@ export type HttpNodeBodyRawType =
   | 'application/xml'
   | 'text/javascript'
   | 'text/plain'
-  | 'text/html'
-  | 'application/json';
+  | 'text/html';
 
 //文档请求允许传参方式
 export type HttpNodeRequestParamTypes = (

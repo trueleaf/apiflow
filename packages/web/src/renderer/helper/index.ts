@@ -476,7 +476,7 @@ export const generateEmptyHttpNode = (_id: string): HttpNode => {
         urlencoded: [],
         raw: {
           data: '',
-          dataType: 'application/json'
+          dataType: 'text/plain'
         },
         binary: {
           mode: 'var',

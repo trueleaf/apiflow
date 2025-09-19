@@ -3,7 +3,7 @@ import { ApidocBaseInfo, ApidocProperty } from "../types.ts";
 /**
  * WebSocket消息类型
  */
-export type MessageType = 'text' | 'json' | 'xml' | 'html' | 'binary-base64' | 'binary-hex';
+export type WebsocketMessageType = 'text' | 'json' | 'xml' | 'html' | 'binary-base64' | 'binary-hex';
 
 /**
  * WebSocket激活选项卡类型
@@ -84,7 +84,7 @@ export type WebSocketNode = {
     /**
      * 消息类型
      */
-    messageType: MessageType;
+    messageType: WebsocketMessageType;
     /**
      * 是否自动发送
      */
@@ -136,7 +136,7 @@ export type WebsocketSendResponse = {
     nodeId: string;
     content: string;
     timestamp: number;
-    contentType: MessageType;
+    contentType: WebsocketMessageType;
     size: number; // 消息大小(字节)
   };
 };
@@ -239,7 +239,7 @@ export type WebsocketSendMessageTemplate = {
   id: string;
   name: string;
   sendMessage: string;
-  messageType: MessageType;
+  messageType: WebsocketMessageType;
   createdAt: number;
   updatedAt: number;
 };

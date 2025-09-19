@@ -20,7 +20,6 @@ const TYPE_MAP: Record<string, string> = {
   'text/css': 'css',
   'text/html': 'html',
   'application/xml': 'xml',
-  'application/json': 'json',
   'application/javascript': 'javascript',
 }
 const props = defineProps({
