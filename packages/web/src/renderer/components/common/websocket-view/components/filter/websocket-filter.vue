@@ -71,7 +71,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, nextTick, defineEmits, defineProps, computed } from 'vue';
+import { ref, nextTick, defineProps, computed } from 'vue';
 import { Search, Download, Delete } from '@element-plus/icons-vue';
 import { debounce } from '@/helper';
 import { useI18n } from 'vue-i18n';

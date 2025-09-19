@@ -31,7 +31,7 @@
 </template>
 
 <script setup lang="ts">
-import { defineProps, defineEmits, computed } from 'vue'
+import { defineProps, computed } from 'vue'
 import { formatBytes } from '@/helper'
 import SJsonEditor from '@/components/common/json-editor/g-json-editor.vue'
 import { LocalStorageItem } from '@src/types/apidoc/cache'
