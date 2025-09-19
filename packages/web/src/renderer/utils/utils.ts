@@ -5,7 +5,6 @@ import {
   RendererFormDataBody,
   ChunkWithTimestampe,
 } from "@src/types/types";
-import Mock from "../../mock/mock";
 import { ApidocVariable, SandboxPostMessage } from "@src/types";
 import SandboxWorker from "@/worker/sandbox.ts?worker&inline";
 
@@ -160,8 +159,8 @@ const evaluateExpression = (expression: string, variables: Record<string, any>):
 |--------------------------------------------------------------------------
 | 将模板转换为字符串
 | 变量类型一：{{ variable }}
-| 变量类型二：{{ @variable }} mock类型
-| 变量类型三：@xxx mock类型
+| 变量类型二：{{ @variable }}
+| 变量类型三：@xxx
 |--------------------------------------------------------------------------
 |
 */
@@ -176,7 +175,7 @@ export const convertTemplateValueToRealValue = async (
   if (isSingleMustachTemplate) {
     const variableName = isSingleMustachTemplate[1];
     if (variableName.startsWith("@")) {
-      return Mock.mock(variableName);
+      return variableName;
     }
     if (objectVariable[variableName] !== undefined) {
       return objectVariable[variableName];
@@ -200,7 +199,7 @@ export const convertTemplateValueToRealValue = async (
     ($1, variableName: string) => {
       const isVariableExist = variableName in objectVariable;
       if (variableName.startsWith("@")) {
-        return Mock.mock(variableName);
+        return variableName;
       }
       if (!isVariableExist) {
         // 检查是否为表达式
@@ -221,14 +220,14 @@ export const convertTemplateValueToRealValue = async (
     }
   );
 
-  const withoutMockString = withoutVaribleString.replace(
+  const withoutAtPatternString = withoutVaribleString.replace(
     /(@[^@]+)/g,
     (_, variableName: string) => {
-      return Mock.mock(variableName);
+      return variableName;
     }
   );
 
-  const withoutEscapeString = withoutMockString.replace(
+  const withoutEscapeString = withoutAtPatternString.replace(
     /((\\)(?=\{\{))|(\\)(?=@)/g,
     ""
   );

@@ -99,89 +99,6 @@ export type HttpNode = {
    * 更新时间
    */
   updatedAt: string;
-  mockInfo: {
-    /**
-     * mock地址
-     */
-    path: string,
-    /**
-     * http状态码
-     */
-    httpStatusCode: number;
-    /**
-     * 返回延时
-     */
-    responseDelay: number;
-    /**
-     * 返回数据类型
-     */
-    responseType: 'json' | 'image' | 'file' | 'text' | 'customJson';
-    /**
-     * 自定义返回头
-     */
-    responseHeaders: ApidocProperty<'string'>[];
-    /**
-     * json数据信息
-     */
-    json: string;
-    /**
-     * 图片相关信息
-     */
-    image: {
-      /**
-       * 图片类型
-       */
-      type: 'png' | 'jpg' | 'gif' | 'svg';
-      /**
-       * 图片宽度
-       */
-      width: number;
-      /**
-       * 图片高度
-       */
-      height: number;
-      /**
-       * 图片大小
-       */
-      size: number;
-      /**
-       * 文字大小
-       */
-      fontSize: number;
-      /**
-       * 文字颜色
-       */
-      color: string;
-      /**
-       * 背景颜色
-       */
-      backgroundColor: string;
-    };
-    /**
-     * 文件相关数据
-     */
-    file: {
-      /**
-       * 文件类型
-       */
-      type: 'doc' | 'docx' | 'xls' | 'xlsx' | 'pdf' | 'zip' | 'custom';
-      /**
-       * 文件地址
-       */
-      filePath: string;
-    };
-    /**
-     * 纯文本，html，css等
-     */
-    text: string;
-    /**
-     * 自定义json返回
-     */
-    customResponseScript: string;
-  };
-  /**
-   * 是否被删除
-   */
   isDeleted: boolean;
 };
 export type FolderNode = {
@@ -562,10 +479,6 @@ export type HttpNodeResponseParams = {
       raw: string;
     };
   };
-  /**
-   * 是否mock
-   */
-  isMock?: boolean;
 };
 
 
@@ -878,3 +791,5 @@ export type ApidocCodeInfo = {
    */
   _id: string;
 };
+
+

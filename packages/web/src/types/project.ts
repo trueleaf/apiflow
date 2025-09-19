@@ -371,13 +371,4 @@ export type GlobalConfig = {
   updateUrl: string;
 };
 
-// ============================================================================
-// Mock相关类型
-// ============================================================================
 
-//mock项目
-export type MockItem = {
-  name: string;
-  value: string;
-  tags: string[];
-};

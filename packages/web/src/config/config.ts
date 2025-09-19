@@ -26,11 +26,6 @@ export const config: Config = {
       timeout: 20000,
       withCredentials: true,
     },
-    //mock相关配置
-    mock: {
-      isEnabled: true,
-      port: 55555,
-    },
     //全局组件配置
     components: {
       tableConfig: {

@@ -2,6 +2,5 @@
 export * from './core';
 export * from './base-info';
 export * from './cache';
-export * from './mock';
 export * from './request';
 export * from './tabs';

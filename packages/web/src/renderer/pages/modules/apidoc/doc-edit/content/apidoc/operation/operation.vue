@@ -2,13 +2,6 @@
   <div class="api-operation">
     <!-- 环境、host、接口前缀 -->
     <div v-if="showPrefixHelper && hostEnum.length < 5" class="d-flex a-center">
-      <el-popover placement="top-start" :show-after="500" trigger="hover" width="auto" :content="mockServer"
-        class="mr-2">
-        <template #reference>
-          <el-checkbox v-model="host" :label="mockServer" size="small" border :true-value="mockServer" false-label=""
-            @change="handleChangeHost">{{ t("Mock服务器") }}</el-checkbox>
-        </template>
-      </el-popover>
       <el-popover v-for="(item, index) in hostEnum" :key="index" :show-after="500" placement="top-start" trigger="hover"
         width="auto" :content="item.url">
         <template #reference>
@@ -20,12 +13,6 @@
     </div>
     <div v-else-if="showPrefixHelper" class="d-flex a-center">
       <el-select v-model="host" placeholder="环境切换" clearable filterable @change="handleChangeHost">
-        <el-option :value="mockServer" label="Mock服务器">
-          <div class="env-item">
-            <div class="w-200">Mock服务器</div>
-            <div class="gray-600">{{ mockServer }}</div>
-          </div>
-        </el-option>
         <el-option v-for="(item, index) in hostEnum" :key="index" :value="item.url" :label="item.name">
           <div class="env-item">
             <div class="w-200">{{ item.name }}</div>
@@ -115,7 +102,7 @@ const showPrefixHelper = ref(false)
 |--------------------------------------------------------------------------
 */
 const hostPart = getHostPart();
-const { mockServer, hostDialogVisible, host, hostEnum, handleChangeHost } = hostPart;
+const { hostDialogVisible, host, hostEnum, handleChangeHost } = hostPart;
 /*
 |--------------------------------------------------------------------------
 | 请求方法

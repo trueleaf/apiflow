@@ -41,13 +41,9 @@ export const throttle = lodashThrottle;
  * 全局事件订阅发布
  */
 const emitter = mitt<{
-  'apidoc/mock/closeMockServer': void;
-  'apidoc/mock/openMockServer': void;
-  'apidoc/mock/restartMockserver': void;
   'apidoc/editor/removePreEditor': void;
   'apidoc/editor/removeAfterEditor': void;
   'apidoc/hook/jumpToEdit': ApidocCodeInfo;
-  'apidoc/mock/restartMockServer': void;
   'apidoc/tabs/addOrDeleteTab': void,
   'apidoc/deleteDocs': void,
   'apidoc/getBaseInfo': ApidocProjectBaseInfoState,
@@ -378,37 +374,7 @@ export function checkPropertyIsEqual(value: ApidocProperty[], originValue: Apido
     }
   }
   return true;
-}
-/**
- * 生成一条默认mock数据
- */
-export function apidocGenerateMockInfo(): HttpNode['mockInfo'] {
-  const result: HttpNode['mockInfo'] = {
-    path: '',
-    httpStatusCode: 200,
-    responseDelay: 0,
-    responseType: 'json',
-    responseHeaders: [],
-    json: '',
-    image: {
-      type: 'png',
-      width: 200,
-      height: 200,
-      fontSize: 30,
-      size: 0,
-      color: '#fff',
-      backgroundColor: '#aaa'
-    },
-    file: {
-      type: 'doc',
-      filePath: '',
-    },
-    text: '',
-    customResponseScript: '',
-  };
-  return result;
-}
-/*
+}/*
 |--------------------------------------------------------------------------
 |--------------------------------------------------------------------------
 |
@@ -532,29 +498,6 @@ export const generateEmptyHttpNode = (_id: string): HttpNode => {
     afterRequest: {
       raw: ''
     },
-    mockInfo: {
-      path: '',
-      httpStatusCode: 200,
-      responseDelay: 0,
-      responseType: 'json',
-      responseHeaders: [],
-      json: '',
-      image: {
-        type: 'png',
-        width: 100,
-        height: 100,
-        size: 1024,
-        fontSize: 14,
-        color: '#000000',
-        backgroundColor: '#ffffff'
-      },
-      file: {
-        type: 'custom',
-        filePath: ''
-      },
-      text: '',
-      customResponseScript: ''
-    }
   }
 }
 
@@ -625,17 +568,10 @@ export function generateHttpNode(id?: string): HttpNode {
       dataType: 'application/json',
       text: ''
     },
-    isMock: true
   }];
   // 调整一些默认值以保持向后兼容
   result.item.requestBody.raw.dataType = 'text/plain';
   result.item.requestBody.binary.mode = 'file';
-  result.mockInfo.image.width = 200;
-  result.mockInfo.image.height = 200;
-  result.mockInfo.image.fontSize = 30;
-  result.mockInfo.image.color = '#fff';
-  result.mockInfo.image.backgroundColor = '#aaa';
-  result.mockInfo.file.type = 'doc';
   return result;
 }
 

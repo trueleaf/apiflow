@@ -107,7 +107,6 @@ export function handleFormatUrl():void {
   const isStartsWithVar = requestPath.value.match(startsWithVarReg);
   let formatPath = requestPath.value;
   if (!matchedIp && !matchedDomin && !matchedIpWithPort && !matchedLocalhost && !isStartsWithVar) {
-    // const mockServer = `http://${globalConfig.renderConfig.mock.ip}:${store.state["apidoc/mock"].mockServerPort}`;
     // const pathReg = /\/(?!\/)[^#\\?:]+/; //查询路径正则
     //路径处理
     if (formatPath.trim() === '') {

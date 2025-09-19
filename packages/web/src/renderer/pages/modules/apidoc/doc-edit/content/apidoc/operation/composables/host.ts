@@ -10,13 +10,8 @@ import { router } from '@/router/index'
 import { ApidocProjectHost } from '@src/types/apidoc/base-info'
 import { useApidoc } from '@/store/apidoc/apidoc'
 import { useApidocBaseInfo } from '@/store/apidoc/base-info'
-import { useApidocMock } from '@/store/apidoc/mock'
 
 type HostReturn = {
-  /**
-     * mock服务器地址
-     */
-  mockServer: Ref<string>,
   /**
      * host弹窗
      */
@@ -38,10 +33,6 @@ type HostReturn = {
 export default (): HostReturn => {
   const apidocStore = useApidoc()
   const apidocBaseInfoStore = useApidocBaseInfo()
-  const apidocMockStore = useApidocMock()
-  const ipAddress = window.electronAPI?.ip
-  //mock服务器地址
-  const mockServer = computed(() => `http://${ipAddress}:${apidocMockStore.mockServerPort}`);
   //host弹窗
   const hostDialogVisible = ref(false);
   //prefix值
@@ -66,7 +57,6 @@ export default (): HostReturn => {
     return apidocBaseInfoStore.hosts.concat(localData.value)
   })
   return {
-    mockServer,
     hostDialogVisible,
     host,
     hostEnum,

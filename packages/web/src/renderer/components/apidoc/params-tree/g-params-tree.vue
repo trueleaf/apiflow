@@ -43,10 +43,8 @@
             one-line 
             @remote-select="handleRemoteSelectKey($event, scope.data)"
             @update:modelValue="handleChangeKeyData($event, scope)" 
-            @focus="enableDrag = false; 
-            currentOpData = null"
-            @blur="handleCheckKeyField(scope); 
-            enableDrag = true">
+            @focus="enableDrag = false" 
+            @blur="handleCheckKeyField(scope); enableDrag = true">
           </SValidInput>
           <!-- <div v-else class="readonly-key" @mouseover="() => enableDrag = false" @mouseout="() => enableDrag = true">{{ scope.data.key }}</div> -->
         </div>
@@ -57,7 +55,7 @@
           :placeholder="t('类型')" 
           class="w-15 flex0 mr-2" 
           :size="config.renderConfig.layout.size"
-          @click="currentOpData = null" 
+          
           @update:modelValue="handleChangeParamsType($event, scope.data)"
         >
           <el-option :disabled="scope.data.children && scope.data.children.length > 0" label="String"
@@ -72,25 +70,19 @@
             value="file"></el-option>
         </el-select>
         <!-- 字符串类型录入 -->
-        <el-popover v-if="scope.data.type !== 'boolean' && scope.data.type !== 'file'"
-          :visible="scope.data._id === currentOpData?._id" placement="top-start" width="auto">
-          <SMock v-if="scope.data.type !== 'boolean' && scope.data.type !== 'file'" :search-value="scope.data.value"
-            @close="handleCloseMockModel" @select="handleSelectMockValue($event, scope.data)">
-          </SMock>
-          <template #reference>
-            <SValidInput 
-              :model-value="scope.data.value" 
-              class="w-25 mr-2" 
-              :disabled="checkValueDisable(scope.data)" 
-              :placeholder="getValuePlaceholder(scope.data)"
-              @update:modelValue="handleChangeValue($event, scope.data)" @focus="handleFocusValue(scope.data)"
-              @blur="handleBlurValue">
-            </SValidInput>
-          </template>
-        </el-popover>
+        <SValidInput
+          v-if="scope.data.type !== 'boolean' && scope.data.type !== 'file'"
+          :model-value="scope.data.value"
+          class="w-25 mr-2"
+          :disabled="checkValueDisable(scope.data)"
+          :placeholder="getValuePlaceholder(scope.data)"
+          @update:modelValue="handleChangeValue($event, scope.data)"
+          @focus="handleFocusValue()"
+          @blur="handleBlurValue()">
+        </SValidInput>
         <!-- 布尔值类型录入 -->
         <el-select v-if="scope.data.type === 'boolean'" :model-value="scope.data.value" :placeholder="t('请选择')"
-          class="w-25 flex0" :size="config.renderConfig.layout.size" @click="currentOpData = null"
+          class="w-25 flex0" :size="config.renderConfig.layout.size"
           @update:modelValue="handleChangeBooleanValue($event, scope.data)">
           <el-option label="true" value="true"></el-option>
           <el-option label="false" value="false"></el-option>
@@ -118,7 +110,7 @@
               :disabled="checkValueDisable(scope.data)" 
               :placeholder="t('变量模式') + ' eg: ' + t('{0} fileValue {1}', ['{{', '}}'])"
               @update:modelValue="handleChangeValue($event, scope.data)" 
-              @focus="handleFocusValue(scope.data)"
+              @focus="handleFocusValue()"
               @blur="handleBlurValue">
             </SValidInput>
             <div v-if="scope.data.fileValueType === 'file'" class="file-mode-wrap">
@@ -153,7 +145,7 @@
           :model-value="scope.data.required" 
           :label="t('必有')" 
           class="pr-2"
-          :disabled="checkRequiredDisable(scope.data)" @click="currentOpData = null"
+          :disabled="checkRequiredDisable(scope.data)"
           @update:modelValue="handleChangeIsRequired($event as string, scope.data)">
         </el-checkbox>
         <!-- 参数描述 -->
@@ -162,7 +154,7 @@
           :disabled="checkDescriptionDisable(scope)" 
           class="w-40"
           :placeholder="t('参数描述与备注')"
-          @focus="enableDrag = false; currentOpData = null"
+          @focus="enableDrag = false"
           @blur="handleDescriptionBlur"
           @update:modelValue="handleChangeDescription($event, scope.data)">
         </SValidInput>
@@ -181,12 +173,11 @@ import {
 import { Plus, Close, Switch } from '@element-plus/icons-vue'
 import type Node from 'element-plus/es/components/tree/src/model/node'
 import type { TreeNodeOptions } from 'element-plus/lib/components/tree/src/tree.type'
-import type { ApidocProperty, HttpNodePropertyType, MockItem } from '@src/types'
+import type { ApidocProperty, HttpNodePropertyType } from '@src/types'
 import { apidocGenerateProperty, forEachForest } from '@/helper/index'
 import { useI18n } from 'vue-i18n'
 import { useApidoc } from '@/store/apidoc/apidoc'
 import SValidInput from '@/components/common/valid-input/g-valid-input.vue'
-import SMock from '@/components/apidoc/mock/g-mock.vue'
 import { config } from '@src/config/config'
 
 type TreeNode = {
@@ -584,35 +575,28 @@ const handleChangeParamsType = (value: string, data: ApidocProperty) => {
 | 参数值填写
 |--------------------------------------------------------------------------
 */
-//当前操作节点
-const currentOpData: Ref<ApidocProperty | null> = ref(null);
-//value值placeholder处理
+/*
+|--------------------------------------------------------------------------
+| 值录入
+|--------------------------------------------------------------------------
+|
+*/
 const getValuePlaceholder = (data: ApidocProperty) => {
   if (data._valuePlaceholder) {
     return data._valuePlaceholder;
   }
   if (data.type === 'object') {
-    return t('对象类型不必填写')
+    return t('对象类型无需填写')
   }
-  if (data.type === 'array') {
-    return t('填写数字代表mock数据条数')
-  }
-  return t('参数值、@代表mock数据、{{ 变量 }}');
+  return t('请输入值');
 }
-//改变value值
 const handleChangeValue = (value: string, data: ApidocProperty) => {
   apidocStore.changePropertyValue({
     data,
     field: 'value',
     value,
   })
-  if (data.value.startsWith('@')) {
-    currentOpData.value = data;
-  } else {
-    currentOpData.value = null;
-  }
 }
-//改变布尔值
 const handleChangeBooleanValue = (value: string, data: ApidocProperty) => {
   apidocStore.changePropertyValue({
     data,
@@ -620,20 +604,11 @@ const handleChangeBooleanValue = (value: string, data: ApidocProperty) => {
     value,
   })
 }
-//处理value值focus事件
-const handleFocusValue = (data: ApidocProperty) => {
+const handleFocusValue = () => {
   enableDrag.value = false;
-  if (data.value.startsWith('@')) {
-    currentOpData.value = data;
-  }
 }
-//处理value值blur事件
 const handleBlurValue = () => {
   enableDrag.value = true;
-}
-//处理value值mock移入
-const handleCloseMockModel = () => {
-  currentOpData.value = null;
 }
 const handleChangeFileValueType = (data: ApidocProperty) => {
   data.value = '';
@@ -643,16 +618,7 @@ const handleChangeFileValueType = (data: ApidocProperty) => {
     data.fileValueType = 'file'
   }
 }
-//选择某个mock类型数据
-const handleSelectMockValue = (item: MockItem, data: ApidocProperty) => {
-  apidocStore.changePropertyValue({
-    data,
-    field: 'value',
-    value: `@${item.value}`,
-  })
-  currentOpData.value = null;
-}
-//清空选中的文件
+
 const fileInput: Ref<HTMLInputElement | null> = ref(null);
 const handleClearSelectType = (data: ApidocProperty) => {
   if (fileInput.value) {

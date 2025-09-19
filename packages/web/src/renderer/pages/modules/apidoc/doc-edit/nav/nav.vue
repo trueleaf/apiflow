@@ -62,10 +62,6 @@
                 <span v-if="element.tabType === 'hook'" class="iconfont iconshengchengdaima f-base mr-2"></span>
                 <!-- 公共请求头 -->
                 <span v-if="element.tabType === 'commonHeader'" class="iconfont icondaimakuai f-base mr-2"></span>
-                <!-- mock管理 -->
-                <el-icon v-if="element.tabType === 'mock'" class="teal mr-2" :size="16">
-                  <IconCoffeeCup />
-                </el-icon>
                 <!-- 回收站管理 -->
                 <el-icon v-if="element.tabType === 'recycler'" class="red mr-2" :size="16">
                   <IconDeleteFilled />
@@ -603,3 +599,4 @@ onUnmounted(() => {
   }
 }
 </style>
+

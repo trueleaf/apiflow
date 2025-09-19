@@ -6,7 +6,6 @@ export type ApidocTabType =
   'importDoc' |
   'history' |
   'variable' |
-  'mock' |
   'recycler' |
   'guide' |
   'hook' |

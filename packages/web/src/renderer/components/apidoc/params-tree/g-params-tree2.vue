@@ -114,35 +114,20 @@
           <el-option :disabled="!nest" label="List | Array" value="array"></el-option>
           <el-option :disabled="!enableFile" :title="t('传输数据类型为formData才能使用file类型')" label="File" value="file"></el-option>
         </el-select>
-        <!-- 参数值录入 -->
-        <el-popover
+                <!-- 参数值录入 -->
+        <el-input
           v-if="scope.data.type !== 'boolean' && scope.data.type !== 'file'"
-          :visible="scope.data._id === currentOpData?._id"
-          placement="top-start"
-          width="auto"
+          :model-value="scope.data.value"
+          :disabled="checkDisableValue(scope.data)"
+          :title="t('参数默认值不需要填写真实值')"
+          class="w-25 flex0"
+          :size="config.renderConfig.layout.size"
+          :placeholder="getValuePlaceholder(scope.data)"
+          @update:modelValue="handleChangeValue($event, scope.data)"
+          @focus="handleFocusValue()"
+          @blur="handleBlurValue()"
         >
-          <s-mock
-            v-if="scope.data.type !== 'boolean' && scope.data.type !== 'file'"
-            :search-value="scope.data.value"
-            @close="handleCloseMockModel"
-            @select="handleSelectMockValue($event, scope.data)"
-          >
-          </s-mock>
-          <template #reference>
-            <el-input
-              :model-value="scope.data.value"
-              :disabled="checkDisableValue(scope.data)"
-              :title="t('对象和数组不必填写参数值')"
-              class="w-25 flex0"
-              :size="config.renderConfig.layout.size"
-              :placeholder="getValuePlaceholder(scope.data)"
-              @update:modelValue="handleChangeValue($event, scope.data)"
-              @focus="handleFocusValue(scope.data)"
-              @blur="handleBlurValue"
-            >
-            </el-input>
-          </template>
-        </el-popover>
+        </el-input>
         <!-- 布尔值类型录入 -->
         <el-select
           v-if="scope.data.type === 'boolean'"
@@ -200,7 +185,7 @@ import {
 } from 'vue'
 import { Plus, Close } from '@element-plus/icons-vue'
 import type { TreeNodeOptions } from 'element-plus/lib/components/tree/src/tree.type'
-import type { ApidocProperty, MockItem } from '@src/types'
+import type { ApidocProperty } from '@src/types'
 import { apidocGenerateProperty, forEachForest } from '@/helper/index'
 import { store } from '@/store'
 import { useI18n } from 'vue-i18n'
@@ -300,6 +285,36 @@ const { t } = useI18n()
 |--------------------------------------------------------------------------
 |
 */
+const getValuePlaceholder = (data: ApidocProperty) => {
+  if (data._valuePlaceholder) {
+    return data._valuePlaceholder;
+  }
+  if (data.type === 'object') {
+    return t('对象类型无需填写')
+  }
+  return t('请输入值');
+}
+const handleChangeValue = (value: string, data: ApidocProperty) => {
+  store.commit('apidoc/apidoc/changePropertyValue', {
+    data,
+    field: 'value',
+    value,
+  });
+}
+const handleChangeBooleanValue = (value: string, data: ApidocProperty) => {
+  store.commit('apidoc/apidoc/changePropertyValue', {
+    data,
+    field: 'value',
+    value,
+  });
+}
+const handleFocusValue = () => {
+  enableDrag.value = false;
+}
+const handleBlurValue = () => {
+  enableDrag.value = true;
+}
+
 const defaultExpandedKeys: Ref<string[]> = ref([]);
 const defaultCheckedKeys: Ref<string[]> = ref([]);
 const tree: Ref<TreeNodeOptions['store'] | null> = ref(null)
@@ -553,64 +568,6 @@ const handleChangeParamsType = (value: string, data: ApidocProperty) => {
 | 参数值填写
 |--------------------------------------------------------------------------
 */
-//当前操作节点
-const currentOpData: Ref<ApidocProperty | null> = ref(null);
-//value值placeholder处理
-const getValuePlaceholder = (data: ApidocProperty) => {
-  if (data.type === 'object') {
-    return t('对象类型不必填写')
-  }
-  if (data.type === 'array') {
-    return t('填写数字代表mock数据条数')
-  }
-  return t("参数值、@代表mock，{'{{'} 变量 {'}}'}")
-}
-//改变value值
-const handleChangeValue = (value: string, data: ApidocProperty) => {
-  store.commit('apidoc/apidoc/changePropertyValue', {
-    data,
-    field: 'value',
-    value,
-  });
-  if (data.value.startsWith('@')) {
-    currentOpData.value = data;
-  } else {
-    currentOpData.value = null;
-  }
-}
-//改变布尔值
-const handleChangeBooleanValue = (value: string, data: ApidocProperty) => {
-  store.commit('apidoc/apidoc/changePropertyValue', {
-    data,
-    field: 'value',
-    value,
-  });
-}
-//处理value值focus事件
-const handleFocusValue = (data: ApidocProperty) => {
-  enableDrag.value = false;
-  if (data.value.startsWith('@')) {
-    currentOpData.value = data;
-  }
-}
-//处理value值blur事件
-const handleBlurValue = () => {
-  enableDrag.value = true;
-}
-//处理value值mock移入
-const handleCloseMockModel = () => {
-  currentOpData.value = null;
-}
-//选择某个mock类型数据
-const handleSelectMockValue = (item: MockItem, data: ApidocProperty) => {
-  store.commit('apidoc/apidoc/changePropertyValue', {
-    data,
-    field: 'value',
-    value: `@${item.value}`,
-  });
-  currentOpData.value = null;
-}
-//清空选中的文件
 const fileInput: Ref<HTMLInputElement | null> = ref(null);
 const handleClearSelectType = (data: ApidocProperty) => {
   if (fileInput.value) {

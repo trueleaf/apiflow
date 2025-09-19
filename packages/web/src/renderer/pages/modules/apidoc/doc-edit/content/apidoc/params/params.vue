@@ -69,23 +69,17 @@
         </template>
       </el-tab-pane>
       <el-tab-pane :label="t('备注信息')" name="SRemarks"></el-tab-pane>
-      <el-tab-pane name="SMock">
-        <template #label>
-          <el-badge :is-dot="hasCustomMockInfo">Mock</el-badge>
-        </template>
-      </el-tab-pane>
     </el-tabs>
     <keep-alive>
       <component :is="getComponent()" class="workbench" @changeCommonHeaderSendStatus="freshHasHeaders"></component>
     </keep-alive>
   </div>
 </template>
-
 <script lang="ts" setup>
 import { DebouncedFunc } from 'lodash'
 import type { HttpNode, ApidocProperty } from '@src/types'
 import { httpNodeCache } from '@/cache/http/httpNodeCache.ts'
-import { lodashIsEqual, debounce, checkPropertyIsEqual } from '@/helper/index'
+import { debounce, checkPropertyIsEqual } from '@/helper/index'
 import { useI18n } from 'vue-i18n'
 import SParams from './params/params.vue';
 import SRequestBody from './body/body.vue';
@@ -95,28 +89,21 @@ import SPreRequestParams from './pre-request/pre-request.vue';
 import SAfterRequestParams from './after-request/after-request.vue';
 import SRemark from './remarks/remarks.vue';
 import SHook from './hook/hook.vue'
-import SMock from './mock/mock.vue'
 import { computed, onMounted, onUnmounted, ref, watch, watchEffect } from 'vue'
 import { useApidocBaseInfo } from '@/store/apidoc/base-info'
 import { useApidoc } from '@/store/apidoc/apidoc'
 import { useRoute } from 'vue-router'
 import { useApidocTas } from '@/store/apidoc/tabs'
-import { useApidocMock } from '@/store/apidoc/mock'
-
-type ActiceName = 'SParams' | 'SRequestBody' | 'SResponseParams' | 'SRequestHeaders' | 'SRemarks' | 'SPreRequest' | 'SAfterRequest' | 'SMock'
-
+type ActiceName = 'SParams' | 'SRequestBody' | 'SResponseParams' | 'SRequestHeaders' | 'SRemarks' | 'SPreRequest' | 'SAfterRequest'
 const apidocBaseInfoStore = useApidocBaseInfo()
 const apidocStore = useApidoc()
 const apidocTabsStore = useApidocTas()
-const apidocMock = useApidocMock();
 const activeName = ref<ActiceName>('SParams');
 const { t } = useI18n()
-
 const generateCodeVisible = ref(false);
 import { router } from '@/router'
 const debounceFn = ref(null as (null | DebouncedFunc<(apidoc: HttpNode) => void>))
 const route = useRoute()
-
 const projectId = router.currentRoute.value.query.id as string;
 const mode = computed(() => apidocBaseInfoStore.mode)
 const hasQueryOrPathsParams = computed(() => {
@@ -161,46 +148,12 @@ const responseNum = computed(() => {
   });
   return resNum;
 })
-const hasCustomMockInfo = computed(() => {
-  const { mockInfo } = apidocStore.apidoc;
-  const { responseHeaders } = apidocStore.apidoc.mockInfo;
-  const hasCustomMockHeaders = responseHeaders.filter(p => p.select).some((data) => data.key);
-  if (mockInfo.responseType === 'json' && mockInfo.json.trim() !== '') {
-    return true;
-  }
-  if (mockInfo.responseType === 'text' && mockInfo.text.trim() !== '') {
-    return true;
-  }
-  if (mockInfo.responseType === 'image') {
-    return true;
-  }
-  if (mockInfo.responseType === 'file') {
-    return true;
-  }
-  if (mockInfo.responseType === 'customJson' && mockInfo.customResponseScript.trim() !== '') {
-    return true;
-  }
-  if (hasCustomMockHeaders) { //存在自定义headers
-    return true;
-  }
-  if (mockInfo.path !== '' && mockInfo.path !== '/') { //blur会在自动添加/，这种情况也属于未改变
-    return true;
-  }
-  if (mockInfo.responseDelay !== 0) {
-    return true;
-  }
-  if (mockInfo.httpStatusCode !== 200) {
-    return true;
-  }
-  return false;
-})
 const currentSelectTab = computed(() => {
   const projectId = route.query.id as string;
   const tabs = apidocTabsStore.tabs[projectId];
   const currentSelectTab = tabs?.find((tab) => tab.selected) || null;
   return currentSelectTab;
 })
-
 const hasHeaders = ref(false);
 const freshHasHeaders = () => {
   const { headers } = apidocStore.apidoc.item;
@@ -230,8 +183,6 @@ const getComponent = () => {
     return SParams;
   } else if (activeName.value === 'SAfterRequest') {
     return SAfterRequestParams;
-  } else if (activeName.value === 'SMock') {
-    return SMock
   } else if (activeName.value === 'SPreRequest') {
     return SPreRequestParams
   } else if (activeName.value === 'SRemarks') {
@@ -247,7 +198,21 @@ const getComponent = () => {
 //初始化tab缓存
 const initTabCache = () => {
   if (currentSelectTab) {
-    activeName.value = (httpNodeCache.getActiveParamsTab(currentSelectTab.value?._id || "") as ActiceName) || 'SParams';
+    const cachedTab = httpNodeCache.getActiveParamsTab(currentSelectTab.value?._id || "");
+    const allowedTabs: ActiceName[] = [
+      'SParams',
+      'SRequestBody',
+      'SResponseParams',
+      'SRequestHeaders',
+      'SRemarks',
+      'SPreRequest',
+      'SAfterRequest'
+    ];
+    if (cachedTab && allowedTabs.includes(cachedTab as ActiceName)) {
+      activeName.value = cachedTab as ActiceName;
+    } else {
+      activeName.value = 'SParams';
+    }
   }
 }
 //切换布局
@@ -255,10 +220,6 @@ const handleChangeLayout = (layout: 'vertical' | 'horizontal') => {
   apidocBaseInfoStore.changeLayout(layout);
 }
 //=========================================================================//
-//检查mockInfo是否改变
-const checkMockInfo = (apidoc: HttpNode, originApidoc: HttpNode) => {
-  return lodashIsEqual(apidoc.mockInfo, originApidoc.mockInfo);
-}
 //检查请求方法是否发生改变
 const checkMethodIsEqual = (apidoc: HttpNode, originApidoc: HttpNode) => {
   return apidoc.item.method.toLowerCase() === originApidoc.item.method.toLowerCase();
@@ -273,12 +234,10 @@ const checkUrlIsEqual = (apidoc: HttpNode, originApidoc: HttpNode) => {
   const originPath = originApidoc.item.url.path;
   return apidocPath === originPath;
 }
-
 //判断apidoc是否发生改变
 const checkApidocIsEqual = (apidoc: HttpNode, originApidoc: HttpNode) => {
   const cpApidoc: HttpNode = JSON.parse(JSON.stringify(apidoc));
   const cpOriginApidoc: HttpNode = JSON.parse(JSON.stringify(originApidoc));
-  const mockInfoIsEqual = checkMockInfo(cpApidoc, cpOriginApidoc);
   const preRequestIsEqual = checkPreRequest(cpApidoc, cpOriginApidoc);
   const methodIsEqual = checkMethodIsEqual(cpApidoc, cpOriginApidoc);
   const urlIsEqual = checkUrlIsEqual(cpApidoc, cpOriginApidoc);
@@ -287,7 +246,7 @@ const checkApidocIsEqual = (apidoc: HttpNode, originApidoc: HttpNode) => {
   const queryParamsIsEqual = checkPropertyIsEqual(cpApidoc.item.queryParams, cpOriginApidoc.item.queryParams);
   const descriptionIsEqual = cpApidoc.info.description === cpOriginApidoc.info.description;
   //=====================================Request====================================//
-  if (!methodIsEqual || !urlIsEqual || !headerIsEqual || !pathsIsEqual || !queryParamsIsEqual || !preRequestIsEqual || !mockInfoIsEqual || !descriptionIsEqual) {
+  if (!methodIsEqual || !urlIsEqual || !headerIsEqual || !pathsIsEqual || !queryParamsIsEqual || !preRequestIsEqual || !descriptionIsEqual) {
     return false;
   }
   if (cpApidoc.item.requestBody.mode !== cpOriginApidoc.item.requestBody.mode) { //body模式不同
@@ -359,7 +318,6 @@ const checkApidocIsEqual = (apidoc: HttpNode, originApidoc: HttpNode) => {
   }
   return true;
 }
-
 //=========================================================================//
 //切换工作模式
 const toggleMode = (mode: 'edit' | 'view') => {
@@ -429,10 +387,6 @@ watch(() => apidoc.value, (apidoc: HttpNode) => {
 onMounted(() => {
   debounceFn.value = debounce((apidoc: HttpNode) => {
     const isEqual = checkApidocIsEqual(apidoc, apidocStore.originApidoc);
-    apidocMock.changeCurrentMockUrl({
-      id: currentSelectTab.value?._id || "",
-      apidoc,
-    })
     if (!isEqual) {
       apidocTabsStore.changeTabInfoById({
         id: currentSelectTab.value?._id || "",
@@ -457,49 +411,37 @@ onMounted(() => {
     leading: true
   });
   initTabCache();
-  apidocMock.changeCurrentMockUrl({
-    id: currentSelectTab.value?._id || "",
-    apidoc: apidoc.value,
-  })
   document.documentElement.addEventListener('click', handleCloseHook)
 })
 onUnmounted(() => {
   document.documentElement.removeEventListener('click', handleCloseHook)
 })
-
 </script>
-
 <style lang='scss' scoped>
 .api-params {
   padding: 0 0 10px;
   height: calc(100vh - var(--apiflow-apidoc-operation-height) - var(--apiflow-doc-nav-height));
   overflow-y: auto;
   position: relative;
-
   &.vertical {
     height: auto;
   }
-
   .el-tabs,
   .workbench {
     padding-right: 20px;
     padding-left: 20px;
   }
-
   .el-tabs__item {
     user-select: none;
   }
-
   .el-badge__content {
     transition: none;
     top: 10px;
-
     &.is-fixed.is-dot {
       top: 10px;
       right: 3px;
     }
   }
-
   .view-type {
     display: flex;
     align-items: center;
@@ -513,23 +455,23 @@ onUnmounted(() => {
     align-items: center;
     background: var(--white);
     z-index: var(--zIndex-request-info-wrap);
-
     &.vertical {
       z-index: 1;
     }
-
     .active {
       color: var(--theme-color);
     }
   }
-
   .el-tabs__item {
     height: 30px;
     line-height: 30px;
   }
-
   .el-dropdown {
     line-height: initial;
   }
 }
 </style>
+
+
+
+

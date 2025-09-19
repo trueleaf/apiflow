@@ -235,7 +235,7 @@ const getBody = async (apidoc: HttpNode): Promise<GotRequestOptions['body']> => 
     /*
      * 情况1：json值存在超长数字，在js中会被截断 例如：{ num: 123456789087654321 } 会被转换为 { num: 123456789087654320 } 
      * 情况2："{{ 变量名称 }}" 会被解析为实际变量值
-     * 情况3："{{ @xxx }}" 会被解析为mock值
+     * 情况3："{{ @xxx }}" 会被保留为字符串
      * 情况4: "\{{ @xxx }}" 反斜杠转义，不会被解析
      */
     const bigNumberMap: Record<string, string> = {}; // 存储超长数字

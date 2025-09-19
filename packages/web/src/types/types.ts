@@ -64,7 +64,6 @@ export type {
   ApidocGroupUser,
   ApidocGroupItem,
   GlobalConfig,
-  MockItem
 } from './project';
 
 // 从apidoc模块导出API文档相关类型

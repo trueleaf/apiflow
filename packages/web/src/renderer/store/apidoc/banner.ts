@@ -1,7 +1,6 @@
 import { request } from '@/api/api';
 import { standaloneCache } from '@/cache/standalone.ts';
 import { findNodeById, forEachForest } from "@/helper";
-import { ApidocMockState } from "@src/types/apidoc/mock";
 import { ApidocBanner, ApidocBannerOfWebsocketNode, ApidocBannerOfHttpNode, Response } from '@src/types';
 import { defineStore } from "pinia";
 import { ref } from "vue";
@@ -113,28 +112,6 @@ export const useApidocBanner = defineStore('apidocBanner', () => {
       request.get('/api/project/doc_tree_node', { params }).then((res) => {
         const result = res.data;
         changeAllDocBanner(result)
-        const urlMap: ApidocMockState['urlMap'] = [];
-        forEachForest(res.data, (data) => {
-          if (data.type === 'http') {
-            urlMap.push({
-              url: data.url,
-              customMockUrl: data.customMockUrl,
-              projectId: payload.projectId,
-              method: data.method,
-              id: data._id,
-            });
-          } else if (data.type === 'websocket') {
-            urlMap.push({
-              url: data.url.path,
-              customMockUrl: data.customMockUrl,
-              projectId: payload.projectId,
-              method: data.protocol,
-              id: data._id,
-            });
-          }
-        })
-        //todo
-        // store.commit('apidoc/mock/changeMockUrlMap', urlMap);
         resolve(result)
       }).catch((err) => {
         reject(err);

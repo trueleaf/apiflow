@@ -230,8 +230,7 @@ export const useApidocTas = defineStore('apidocTabs', () => {
             item: apidoc.item,
             preRequest: apidoc.preRequest,
             afterRequest: apidoc.afterRequest,
-            mockInfo: apidoc.mockInfo,
-          };
+              };
           request.post('/api/project/fill_doc', params).then(() => {
             const deleteIndex = tabs.value[projectId].findIndex((tab) => tab._id === apidoc._id);
             deleteTabByIndex({

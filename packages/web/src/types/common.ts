@@ -92,19 +92,6 @@ export type Config = {
       withCredentials: boolean,
     },
     /**
-     * mock相关配置
-     */
-    mock: {
-      /**
-       * 是否启动mock功能
-       */
-      isEnabled: boolean,
-      /**
-       * mock服务器默认端口
-       */
-      port: number,
-    },
-    /**
      * 全局组件配置
      */
     components: {

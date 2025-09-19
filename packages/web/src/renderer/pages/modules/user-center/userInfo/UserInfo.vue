@@ -70,7 +70,6 @@
 <script setup lang="ts">
 import { ref, reactive } from 'vue'
 
-// Mock data - in a real app, this would come from your store or API
 const defaultAvatar = '/src/renderer/assets/imgs/logo.png'
 
 // Determine if we're in standalone/local mode

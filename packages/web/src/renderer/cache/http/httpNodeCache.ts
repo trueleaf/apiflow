@@ -292,31 +292,6 @@ class HttpNodeCache extends HttpResponseCache {
   }
 
   /*
-   * 获取mock编辑 json返回数据提示信息
-   */
-  getIsShowApidocMockParamsJsonTip(): boolean {
-    try {
-      const localData = JSON.parse(localStorage.getItem('httpNode/mock/isShowJsonTip') || 'true');
-      return localData;
-    } catch (error) {
-      console.error(error);
-      return true
-    }
-  }
-
-  /*
-   * 设置 json返回数据提示信息
-   */
-  setIsShowApidocMockParamsJsonTip(isShow: boolean) {
-    try {
-      localStorage.setItem('httpNode/mock/isShowJsonTip', JSON.stringify(isShow));
-    } catch (error) {
-      console.error(error);
-      localStorage.setItem('httpNode/mock/isShowJsonTip', 'true');
-    }
-  }
-
-  /*
    * 根据tabId获取不发送公共请求头
    */
   getIgnoredCommonHeaderByTabId(projectId: string, tabId: string): string[] | null {
@@ -868,3 +843,4 @@ class HttpNodeCache extends HttpResponseCache {
 }
 
 export const httpNodeCache = new HttpNodeCache();
+

@@ -3,9 +3,9 @@ import {
   event,
   apidocGenerateProperty,
   cloneDeep,
-  uuid,
-  apidocGenerateMockInfo,
+  uuid
 } from "@/helper"
+
 import {
   HttpNodeBodyMode,
   Response,
@@ -227,13 +227,6 @@ export const useApidoc = defineStore('apidoc', () => {
     const { index, value } = payload
     apidoc.value.item.responseParams[index].value.strJson = value;
   }
-  //根据index值改变mock值
-  const changeResponseMockByIndex = (index: number): void => {
-    apidoc.value.item.responseParams.forEach(v => {
-      v.isMock = false;
-    })
-    apidoc.value.item.responseParams[index].isMock = true;
-  }
   //新增一个response
   const addResponseParam = (): void => {
     apidoc.value.item.responseParams.push({
@@ -249,7 +242,6 @@ export const useApidoc = defineStore('apidoc', () => {
           raw: '',
         }
       },
-      isMock: false,
     })
   }
   //删除一个response
@@ -377,25 +369,10 @@ export const useApidoc = defineStore('apidoc', () => {
       payload.item.headers.push(apidocGenerateProperty());
     }
     initDefaultHeaders(payload.item.contentType)
-    //若全部返回数据isMock都为false，则取第一条数据为mock数据
-    // if (payload.item.responseParams.every(v => !v.isMock)) {
-    //   payload.item.responseParams[0].isMock = true;
-    // }
     if (payload.item.headers.length === 0) {
       payload.item.headers.push(apidocGenerateProperty());
     }
-    if (payload.mockInfo == null) {
-      payload.mockInfo = apidocGenerateMockInfo();
-    }
-    if (!payload.mockInfo.responseHeaders) {
-      payload.mockInfo.responseHeaders = []
-    }
-    if (payload.mockInfo.responseHeaders?.length === 0) {
-      payload.mockInfo.responseHeaders.push(apidocGenerateProperty());
-    }
-    //如果prefix为空则默认为mockserver
     // if (!payload.item.url.prefix && !payload.item.url.path.startsWith("http")) {
-    //     payload.item.url.prefix = `http://${config.renderConfig.mock.ip}:${store.state["apidoc/mock"].mockServerPort}`
     // }
     apidoc.value = payload;
   }
@@ -565,7 +542,6 @@ export const useApidoc = defineStore('apidoc', () => {
         item: apidocDetail.item,
         preRequest: apidocDetail.preRequest,
         afterRequest: apidocDetail.afterRequest,
-        mockInfo: apidocDetail.mockInfo,
       };
       if (__STANDALONE__) {
         apidocDetail.updatedAt = new Date().toISOString();
@@ -625,8 +601,6 @@ export const useApidoc = defineStore('apidoc', () => {
           field: 'saved',
           value: true,
         })
-        //todo 新增一个mock映射
-        // store.commit('apidoc/mock/addMockUrl', {
         //   id: currentSelectTab._id,
         //   projectId,
         //   url: apidocDetail.item.url.path,
@@ -666,76 +640,7 @@ export const useApidoc = defineStore('apidoc', () => {
       }
     })
   }
-  /*
-    |--------------------------------------------------------------------------
-    | mock相关
-    |--------------------------------------------------------------------------
-    |
-  */
-  //改变mock地址
-  const changeMockPath = (path: string): void => {
-    apidoc.value.mockInfo.path = path;
-  }
-  //改变http状态码
-  const changeMockHttpStatusCode = (code: number): void => {
-    apidoc.value.mockInfo.httpStatusCode = code;
-  }
-  //改变返回延时
-  const changeMockResponseDelay = (delay: number): void => {
-    apidoc.value.mockInfo.responseDelay = delay;
-  }
-  //更改返回数据类型
-  const changeMockResponseType = (responseType: HttpNode['mockInfo']['responseType']): void => {
-    apidoc.value.mockInfo.responseType = responseType;
-  }
-  //改变json数据
-  const changeMockJsonValue = (jsonData: string): void => {
-    apidoc.value.mockInfo.json = jsonData;
-  }
-  //改变图片类型
-  const changeMockImageType = (type: HttpNode['mockInfo']['image']['type']): void => {
-    apidoc.value.mockInfo.image.type = type;
-  }
-  //改变图片宽度
-  const changeMockImageWidth = (width: number): void => {
-    apidoc.value.mockInfo.image.width = width;
-  }
-  //改变图片高度
-  const changeMockImageHeight = (height: number): void => {
-    apidoc.value.mockInfo.image.height = height;
-  }
-  //改变图片size
-  const changeMockImageSize = (size: number): void => {
-    apidoc.value.mockInfo.image.size = size;
-  }
-  //改变文字颜色
-  const changeMockImageColor = (color: string): void => {
-    apidoc.value.mockInfo.image.color = color;
-  }
-  //改变图片背景颜色
-  const changeMockImageBackgroundColor = (backgroundColor: string): void => {
-    apidoc.value.mockInfo.image.backgroundColor = backgroundColor;
-  }
-  //改变图片背景颜色
-  const changeMockImageFontSize = (fontSize: number): void => {
-    apidoc.value.mockInfo.image.fontSize = fontSize;
-  }
-  //改变返回文件类型
-  const changeMockFileType = (type: HttpNode['mockInfo']['file']['type']): void => {
-    apidoc.value.mockInfo.file.type = type;
-  }
-  //改变返回text类型数据
-  const changeMockTextValue = (text: string): void => {
-    apidoc.value.mockInfo.text = text;
-  }
-  //改变自定义返回脚本数据
-  const changeCustomResponseScript = (text: string): void => {
-    apidoc.value.mockInfo.customResponseScript = text;
-  }
-  //改变自定义文件数据
-  const changeCustomFile = (filePath: string): void => {
-    apidoc.value.mockInfo.file.filePath = filePath;
-  }
+  
   return {
     apidoc,
     originApidoc,
@@ -775,29 +680,12 @@ export const useApidoc = defineStore('apidoc', () => {
     changeResponseParamsTextValueByIndex,
     changeResponseByIndex,
     changeResponseStrJsonByIndex,
-    changeResponseMockByIndex,
     addResponseParam,
     deleteResponseByIndex,
     saveApidoc,
     openSaveDocDialog,
     changePreRequest,
     changeAfterRequest,
-    changeMockPath,
-    changeMockHttpStatusCode,
-    changeMockResponseDelay,
-    changeMockResponseType,
-    changeMockJsonValue,
-    changeMockImageType,
-    changeMockImageWidth,
-    changeMockImageHeight,
-    changeMockImageSize,
-    changeMockImageColor,
-    changeMockImageBackgroundColor,
-    changeMockImageFontSize,
-    changeMockFileType,
-    changeMockTextValue,
-    changeCustomResponseScript,
-    changeCustomFile,
     changeFormDataErrorInfoById,
     handleChangeBinaryInfo
   }

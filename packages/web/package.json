@@ -53,6 +53,7 @@
     "lodash-es": "^4.17.21",
     "mime": "^4.0.6",
     "mitt": "^3.0.1",
+    "mockjs": "^1.1.0",
     "monaco-editor": "^0.52.2",
     "nanoid": "^5.0.7",
     "nprogress": "^0.2.0",
