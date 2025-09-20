@@ -25,15 +25,25 @@
     </div>
     <div class="right">
       <div class="navigation-control">
-        <el-icon size="18" :title="$t('刷新主应用')" @click="refreshApp"><RefreshRight /></el-icon>
-        <el-icon size="18" :title="$t('后退')" @click="goBack"><Back /></el-icon>
-        <el-icon size="18" :title="$t('前进')" @click="goForward"><Right /></el-icon>
-        <el-icon size="18" :title="$t('个人中心')" @click="jumpToUserCenter"><i class="iconfont icongerenzhongxin"></i></el-icon>
-        <div class="language-btn" :title="$t('切换语言')" @click="handleLanguageButtonClick" ref="languageButtonRef">
-          <i class="iconfont iconyuyan"></i>
+        <el-icon class="icon" size="16" :title="$t('刷新主应用')" @click="refreshApp"><RefreshRight /></el-icon>
+        <el-icon class="icon" size="16" :title="$t('后退')" @click="goBack"><Back /></el-icon>
+        <el-icon class="icon" size="16" :title="$t('前进')" @click="goForward"><Right /></el-icon>
+        <el-icon class="icon" size="16" :title="$t('个人中心')" @click="jumpToUserCenter">
+          <i class="iconfont icongerenzhongxin custom-icon"></i>
+        </el-icon>
+        <div class="icon" size="16" :title="$t('切换语言')" @click="handleLanguageButtonClick" ref="languageButtonRef">
+          <i class="iconfont iconyuyan custom-icon"></i>
           <span class="language-text">{{ currentLanguageDisplay }}</span>
         </div>
-        
+        <el-icon 
+          size="16" 
+          :title="networkMode === 'online' ? $t('互联网模式') : $t('离线模式')" 
+          @click="toggleNetworkMode" 
+          class="network-btn icon"
+        >
+          <i class="iconfont network-icon" :class="networkMode === 'online' ? 'iconwifi' : 'iconwifi-off-line'"></i>
+          <span class="network-text">{{ networkMode === 'online' ? $t('互联网模式') : $t('离线模式') }}</span>
+        </el-icon>
       </div>
       <div class="window-control">
         <i class="iconfont iconjianhao" id="minimize" :title="$t('最小化')" @click="minimize"></i>
@@ -61,6 +71,8 @@ type HeaderTab = {
   type: 'project' | 'settings';
 };
 
+type NetworkMode = 'online' | 'offline';
+
 const tabs = ref<HeaderTab[]>([])
 const activeTabId = ref('')
 const isMaximized = ref(false)
@@ -68,6 +80,17 @@ const isDev = ref(false)
 const appTitle = ref('Apiflow')
 const tabListRef = ref<HTMLElement>()
 const { t: $t } = useI18n()
+
+const networkMode = ref<NetworkMode>('online')
+
+/*
+|--------------------------------------------------------------------------
+| 网络模式切换
+|--------------------------------------------------------------------------
+*/
+const toggleNetworkMode = () => {
+  networkMode.value = networkMode.value === 'online' ? 'offline' : 'online'
+}
 /*
 |--------------------------------------------------------------------------
 | 窗口控制
@@ -459,26 +482,43 @@ body {
   border-right: 1px solid rgba(255, 255, 255, 0.15);
   padding-right: 8px;
   -webkit-app-region: no-drag;
+
+  .icon {
+    width: 30px;
+    height: 28px;
+    font-size: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    -webkit-app-region: no-drag;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    border-radius: 3px;
+    margin: 0 1px;
+    font-style: normal;
+    &:hover {
+      background-color: rgba(255, 255, 255, 0.1);
+    }
+  }
+  .network-btn {
+    width: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    -webkit-app-region: no-drag;
+    text-emphasis: none;
+    font-style: normal;
+    margin-left: 5px;
+  }
+  .custom-icon {
+    font-size: 13px;
+  }
+  .network-icon {
+    font-size: 14px;
+  }
 }
 
-.navigation-control i {
-  width: 32px;
-  height: 28px;
-  font-size: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  -webkit-app-region: no-drag;
-  cursor: pointer;
-  transition: background-color 0.2s;
-  border-radius: 3px;
-  margin: 0 1px;
-}
-
-.navigation-control i:hover {
-  background-color: rgba(255, 255, 255, 0.1);
-}
-.language-btn {
+.language-btn{
   width: 42px;
   height: 28px;
   display: flex;
@@ -493,6 +533,8 @@ body {
   color: var(--white);
 }
 
+
+
 .language-btn:hover {
   background-color: rgba(255, 255, 255, 0.1);
 }
@@ -506,7 +548,9 @@ body {
   font-size: 10px;
   font-weight: 500;
 }
-
+.network-text {
+  font-size: 10px;
+}
 .window-control {
   display: flex;
   align-items: center;
@@ -536,3 +580,4 @@ body {
   opacity: 0.6;
 }
 </style>
+
