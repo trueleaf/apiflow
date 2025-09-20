@@ -5,7 +5,7 @@ import { httpNodeCache } from '@/cache/http/httpNodeCache.ts';
 import { getDomainFromUrl, getPathFromUrl, uuid } from "@/helper/index.ts";
 import dayjs from "dayjs";
 
-export interface ApidocCookie {
+export type ApidocCookie = {
   id: string;
   name: string;
   value: string;
@@ -15,7 +15,7 @@ export interface ApidocCookie {
   httpOnly: boolean;
   secure: boolean;
   sameSite: string;
-}
+};
 
 function isSameCookie(a: ApidocCookie, b: ApidocCookie) {
   return a.name === b.name && a.domain === b.domain && a.path === b.path;

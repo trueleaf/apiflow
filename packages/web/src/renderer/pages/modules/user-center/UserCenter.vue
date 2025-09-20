@@ -49,11 +49,11 @@ import UserInfo from './userInfo/UserInfo.vue'
 import ComponentLibrary from './componentLibrary/ComponentLibrary.vue'
 
 // 定义标签类型接口
-interface TabItem {
+type TabItem = {
   name: string
   icon: string
   action: string
-}
+};
 
 // 初始化时从缓存中获取活跃标签，默认为 'user-info'
 const activeTab = ref(httpNodeCache.getActiveLocalDataMenu() || 'user-info')

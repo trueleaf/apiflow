@@ -65,7 +65,6 @@
       </el-icon>
     </pre>
   </div>
-  <SCurdHostDialog v-if="hostDialogVisible" v-model="hostDialogVisible"></SCurdHostDialog>
   <SSaveDocDialog v-if="saveDocDialogVisible" v-model="saveDocDialogVisible"></SSaveDocDialog>
 </template>
 
@@ -76,7 +75,6 @@ import { Refresh } from '@element-plus/icons-vue'
 import { config } from '@/../config/config'
 import { router } from '@/router/index'
 import SSaveDocDialog from '@/pages/modules/apidoc/doc-edit/dialog/save-doc/save-doc.vue'
-import SCurdHostDialog from '../dialog/curd-host/curd-host.vue'
 import getHostPart from './composables/host'
 import { handleFormatUrl, handleChangeUrl } from './composables/url'
 import getMethodPart from './composables/method'
