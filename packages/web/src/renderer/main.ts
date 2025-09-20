@@ -16,7 +16,7 @@ import { shortcutManager } from "./shortcut/index.ts";
 shortcutManager.init();
 const pinia = createPinia();
 const app = createApp(App);
-
+// console.log(pinia)
 if (__STANDALONE__) {
   try { await standaloneCache.init(); }
   catch (e) { console.warn("本地缓存初始化失败，已跳过：", e); }

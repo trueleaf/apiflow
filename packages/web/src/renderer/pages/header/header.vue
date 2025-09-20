@@ -63,6 +63,7 @@ import { httpNodeCache } from '@/cache/http/httpNodeCache.ts'
 import { Language } from '@src/types'
 import { RefreshRight, Back, Right } from '@element-plus/icons-vue'
 import { useI18n } from 'vue-i18n'
+import { useRuntime } from '@/store/runtime/runtime'
 
 // 定义Tab类型
 type HeaderTab = {
@@ -70,8 +71,6 @@ type HeaderTab = {
   title: string;
   type: 'project' | 'settings';
 };
-
-type NetworkMode = 'online' | 'offline';
 
 const tabs = ref<HeaderTab[]>([])
 const activeTabId = ref('')
@@ -81,7 +80,9 @@ const appTitle = ref('Apiflow')
 const tabListRef = ref<HTMLElement>()
 const { t: $t } = useI18n()
 
-const networkMode = ref<NetworkMode>('online')
+// 使用runtime store管理网络模式
+const runtime = useRuntime()
+const networkMode = computed(() => runtime.networkMode)
 
 /*
 |--------------------------------------------------------------------------
@@ -89,7 +90,10 @@ const networkMode = ref<NetworkMode>('online')
 |--------------------------------------------------------------------------
 */
 const toggleNetworkMode = () => {
-  networkMode.value = networkMode.value === 'online' ? 'offline' : 'online'
+  const newMode = networkMode.value === 'online' ? 'offline' : 'online'
+  runtime.setNetworkMode(newMode)
+  // 切换网络模式后刷新contentView
+  window.electronAPI?.sendToMain('apiflow-refresh-content-view')
 }
 /*
 |--------------------------------------------------------------------------

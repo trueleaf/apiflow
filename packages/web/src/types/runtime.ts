@@ -1,4 +1,4 @@
-export type RuntimeNetworkMode = 'local' | 'remote'
+export type RuntimeNetworkMode = 'online' | 'offline'
 
 export type RuntimeState = {
   networkMode: RuntimeNetworkMode

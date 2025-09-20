@@ -159,6 +159,11 @@ export const useIpcEvent = (mainWindow: BrowserWindow, topBarView: WebContentsVi
     contentView.webContents.send('apiflow-language-changed', language)
     topBarView.webContents.send('apiflow-language-changed', language)
   })
+
+  // 刷新contentView
+  ipcMain.on('apiflow-refresh-content-view', () => {
+    contentView.webContents.reloadIgnoringCache()
+  })
   /*
   |---------------------------------------------------------------------------
   | 数据备份(导出进度) 事件监听
