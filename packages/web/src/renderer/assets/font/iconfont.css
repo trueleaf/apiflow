@@ -1,8 +1,8 @@
 @font-face {
   font-family: "iconfont"; /* Project id 1072300 */
-  src: url('iconfont.woff2?t=1753884938525') format('woff2'),
-       url('iconfont.woff?t=1753884938525') format('woff'),
-       url('iconfont.ttf?t=1753884938525') format('truetype');
+  src: url('iconfont.woff2?t=1758346084498') format('woff2'),
+       url('iconfont.woff?t=1758346084498') format('woff'),
+       url('iconfont.ttf?t=1758346084498') format('truetype');
 }
 
 .iconfont {
@@ -11,6 +11,14 @@
   font-style: normal;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+.iconwifi:before {
+  content: "\e890";
+}
+
+.iconwifi-off-line:before {
+  content: "\e8e8";
 }
 
 .iconcipan:before {

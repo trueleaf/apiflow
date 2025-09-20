@@ -33,6 +33,7 @@
           <i class="iconfont iconyuyan"></i>
           <span class="language-text">{{ currentLanguageDisplay }}</span>
         </div>
+        
       </div>
       <div class="window-control">
         <i class="iconfont iconjianhao" id="minimize" :title="$t('最小化')" @click="minimize"></i>

@@ -2,14 +2,9 @@
  * apidoc文档缓存
  */
 
-import { ApidocProjectHost } from '@src/types/apidoc/base-info';
 import { HttpNode } from '@src/types';
 import { HttpResponseCache } from './httpResponseCache';
 import type { ApidocCookie } from '@src/renderer/store/apidoc/cookies';
-
-type ServerInfo = ApidocProjectHost & {
-  isLocal?: boolean,
-};
 
 class HttpNodeCache extends HttpResponseCache {
   constructor() {
@@ -88,98 +83,6 @@ class HttpNodeCache extends HttpResponseCache {
   }
 
   /*
-   * 缓存服务器地址
-   */
-  addApidocServer(serverInfo: ServerInfo, projectId: string) {
-    try {
-      const localData = JSON.parse(localStorage.getItem('httpNode/apidocServer') || '{}');
-      if (!localData[projectId]) {
-        localData[projectId] = [];
-      }
-      // if (localData[projectId].find((v: ServerInfo) => v.url === serverInfo.url)) {
-      //     return
-      // }
-      localData[projectId].push(serverInfo);
-      localStorage.setItem('httpNode/apidocServer', JSON.stringify(localData));
-    } catch (error) {
-      console.error(error);
-      const data: Record<string, ServerInfo[]> = {};
-      data[projectId] = [serverInfo];
-      localStorage.setItem('httpNode/apidocServer', JSON.stringify(data));
-    }
-  }
-
-  /*
-   * 删除缓存服务器地址
-   */
-  deleteApidocServer(host: string, projectId: string) {
-    try {
-      const localData = JSON.parse(localStorage.getItem('httpNode/apidocServer') || '{}');
-      if (!localData[projectId]) {
-        localData[projectId] = [];
-      }
-      const delIndex = localData[projectId].findIndex((v: ServerInfo) => v.url === host);
-      if (delIndex !== -1) {
-        localData[projectId].splice(delIndex, 1);
-      }
-      localStorage.setItem('httpNode/apidocServer', JSON.stringify(localData));
-    } catch (error) {
-      console.error(error);
-      const data: Record<string, ServerInfo[]> = {};
-      data[projectId] = [];
-      localStorage.setItem('httpNode/apidocServer', JSON.stringify(data));
-    }
-  }
-
-  /*
-   * 获取缓存服务器地址
-   */
-  getApidocServer(projectId: string): ServerInfo[] | [] {
-    try {
-      const localData: Record<string, ServerInfo[]> = JSON.parse(localStorage.getItem('httpNode/apidocServer') || '{}');
-      if (!localData[projectId]) {
-        return [];
-      }
-      return localData[projectId];
-    } catch (error) {
-      console.error(error);
-      localStorage.setItem('httpNode/apidocServer', '{}')
-      return [];
-    }
-  }
-
-  /*
-   * 缓存上一次选择的server
-   */
-  setPreviousServer(projectId: string, server: string) {
-    try {
-      const localData = JSON.parse(localStorage.getItem('httpNode/previousServer') || '{}');
-      localData[projectId] = server;
-      localStorage.setItem('httpNode/previousServer', JSON.stringify(localData));
-    } catch (error) {
-      console.error(error);
-      localStorage.setItem('httpNode/previousServer', '{}');
-    }
-  }
-
-  /*
-   * 获取上一次选择的server
-   */
-  getPreviousServer(projectId: string): string | null {
-    try {
-      const localData: Record<string, string> = JSON.parse(localStorage.getItem('httpNode/previousServer') || '{}');
-      if (localData[projectId] == null) {
-        return null;
-      }
-      return localData[projectId];
-    } catch (error) {
-      console.error(error);
-      localStorage.setItem('httpNode/previousServer', '{}')
-      return null;
-    }
-  }
-
-  /*
    * 获取返回参数状态
    */
   getAllResponseCollapseState(): Record<string, boolean> {
@@ -203,36 +106,6 @@ class HttpNodeCache extends HttpResponseCache {
     } catch (error) {
       console.error(error);
       localStorage.setItem('httpNode/responseCollapse', '{}');
-    }
-  }
-
-  /*
-   * 获取缓存的代码钩子
-   */
-  getHookCodeById(projectId: string): string | null {
-    try {
-      const localData: Record<string, string> = JSON.parse(localStorage.getItem('httpNode/hookCode') || '{}');
-      if (localData[projectId] == null) {
-        return null;
-      }
-      return localData[projectId];
-    } catch (error) {
-      console.error(error);
-      return null;
-    }
-  }
-
-  /*
-   * 设置缓存的代码钩子
-   */
-  setHookCode(projectId: string, code: string) {
-    try {
-      const localData = JSON.parse(localStorage.getItem('httpNode/hookCode') || '{}');
-      localData[projectId] = code;
-      localStorage.setItem('httpNode/hookCode', JSON.stringify(localData));
-    } catch (error) {
-      console.error(error);
-      localStorage.setItem('httpNode/hookCode', '{}');
     }
   }
 
@@ -838,7 +711,6 @@ class HttpNodeCache extends HttpResponseCache {
       console.error('设置布局方式失败:', error);
     }
   }
-
 
 }
 

@@ -135,7 +135,7 @@
 import { ref, Ref, watch, computed } from 'vue';
 import { Close, Switch } from '@element-plus/icons-vue';
 import type Node from 'element-plus/es/components/tree/src/model/node';
-import type { ApidocProperty, MockItem } from '@src/types';
+import type { ApidocProperty } from '@src/types';
 import { apidocGenerateProperty } from '@/helper/index';
 import { useI18n } from 'vue-i18n';
 import SMock from '@/components/apidoc/mock/g-mock.vue';
@@ -261,7 +261,7 @@ const handleCloseMock = () => {
   currentOpData.value = null;
 };
 
-const handleSelectMockValue = (item: MockItem, data: ApidocProperty<'string' | 'file'>) => {
+const handleSelectMockValue = (item: any, data: ApidocProperty<'string' | 'file'>) => {
   data.value = item.value;
   // 选中mock数据后自动关闭弹窗
   currentOpData.value = null;
