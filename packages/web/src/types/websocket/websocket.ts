@@ -13,7 +13,7 @@ export type WebsocketActiveTabType = 'messageContent' | 'params' | 'headers' | '
 /**
  * WebSocket连接参数
  */
-export interface WebsocketConnectParams {
+export type WebsocketConnectParams = {
   /**
    * 连接URL
    */
@@ -26,7 +26,7 @@ export interface WebsocketConnectParams {
    * 请求头
    */
   headers: Record<string, string>;
-}
+};
 
 export type WebSocketNode = {
   /**

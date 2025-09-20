@@ -77,13 +77,13 @@ import { debounce } from '@/helper';
 import { useI18n } from 'vue-i18n';
 const { t } = useI18n();
 
-interface Props {
+type Props = {
   hasData: boolean;
   isRawView: boolean;
   filteredCount: number;
-}
+};
 
-interface Emits {
+type Emits = {
   (e: 'update:filterText', value: string): void;
   (e: 'update:isRegexMode', value: boolean): void;
   (e: 'update:filterError', value: string): void;
@@ -92,7 +92,7 @@ interface Emits {
   (e: 'update:isSearchInputVisible', value: boolean): void;
   (e: 'download'): void;
   (e: 'clearData'): void;
-}
+};
 
 withDefaults(defineProps<Props>(), {
   hasData: false,

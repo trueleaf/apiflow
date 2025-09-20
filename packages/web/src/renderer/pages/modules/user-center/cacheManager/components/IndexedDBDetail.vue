@@ -53,18 +53,18 @@ import { formatBytes } from '@/helper'
 import { ElMessageBox, ElMessage } from 'element-plus'
 import IndexedDBDialog from '../dialog/indexedDBDialog.vue'
 
-interface Props {
+type Props = {
   indexedDBDetails: IndexedDBItem[]
   indexedDBLoading: boolean
   indexedDBSize: number
   indexedDBWorkerRef: Worker | null
-}
+};
 
-interface Emits {
+type Emits = {
   (e: 'refresh'): void
   (e: 'update-size', size: number): void
   (e: 'update-details', details: IndexedDBItem[]): void
-}
+};
 
 const props = defineProps<Props>()
 const emit = defineEmits<Emits>()

@@ -1,9 +1,9 @@
 type ShortcutHandler = (event: KeyboardEvent) => void;
 
-interface Shortcut {
+type Shortcut = {
   keys: string; // 例如 "ctrl+s"
   handler: ShortcutHandler;
-}
+};
 
 class ShortcutManager {
   private shortcuts: Shortcut[] = [];

@@ -1,7 +1,7 @@
 <template>
   <div class="hook-add-wrap d-flex">
     <SFieldset title="代码编写" class="w-50">
-      <SEditor v-model="code" class="editor" @change="handleChangeCode"></SEditor>
+      <SEditor v-model="code" class="editor"></SEditor>
       <div class="operation">
         <el-button type="primary" class="mb-2" @click="executeCode">执行代码</el-button>
         <el-button type="primary" class="mb-2" @click="dialogVisible = true">保存代码</el-button>
@@ -29,7 +29,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, Ref, onMounted } from 'vue'
+import { ref, Ref } from 'vue'
 import { ElMessage } from 'element-plus'
 import 'element-plus/es/components/message/style/css';
 import SFieldset from '@/components/common/fieldset/g-fieldset.vue'
@@ -51,7 +51,6 @@ import {
 // import type { ApidocCodeInfo } from '@src/types'
 import { request } from '@/api/api';
 import { router } from '@/router';
-import { httpNodeCache } from '@/cache/http/httpNodeCache';
 import SEditor from '../editor/editor.vue'
 import { useApidoc } from '@/store/apidoc/apidoc';
 
@@ -79,9 +78,6 @@ worker.addEventListener('error', (error) => {
   console.error(error);
 });
 //代码更新缓存带啊吗
-const handleChangeCode = () => {
-  httpNodeCache.setHookCode(projectId, code.value);
-}
 //执行代码
 const executeCode = () => {
   worker.postMessage({
@@ -115,7 +111,6 @@ const executeCode = () => {
 //重置代码
 const handleResetCode = () => {
   code.value = defaultCode;
-  httpNodeCache.setHookCode(projectId, defaultCode);
 }
 //保存代码
 const dialogVisible = ref(false);
@@ -140,11 +135,6 @@ const handleSaveCode = () => {
 }
 
 //初始化
-onMounted(() => {
-  //处理编辑逻辑
-  const cacheCode = httpNodeCache.getHookCodeById(projectId);
-  code.value = cacheCode || defaultCode;
-})
 
 </script>
 

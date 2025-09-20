@@ -53,10 +53,10 @@ import { formatBytes } from '@/helper'
 import { ElMessageBox, ElMessage } from 'element-plus'
 import LocalStorageDialog from '../dialog/localStorageDialog.vue'
 
-interface Props {
+type Props = {
   localStorageDetails: LocalStorageItem[]
   localStorageLoading: boolean
-}
+};
 
 const props = defineProps<Props>()
 const emit = defineEmits<{

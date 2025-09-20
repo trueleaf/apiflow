@@ -8,14 +8,14 @@ import { WebSocketNode } from '@src/types/websocket/websocket';
 import { config } from '@src/config/config';
 import { uuid } from '@/helper/index';
 
-interface WebSocketHistoryCacheData {
+type WebSocketHistoryCacheData = {
   _id: string; // 历史记录唯一ID作为主键
   nodeId: string; // 节点ID，用于索引
   node: WebSocketNode; // 完整的WebSocket节点信息
   operatorId: string; // 操作者ID
   operatorName: string; // 操作者名称
   timestamp: number; // 创建时间戳
-}
+};
 
 class WebSocketHistoryCache {
   private dbName = config.cacheConfig.websocketHistoryCache.dbName;

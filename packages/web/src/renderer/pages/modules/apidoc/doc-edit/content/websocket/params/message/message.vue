@@ -180,14 +180,14 @@ const configPopoverVisible = ref(false)
 let configTimer: NodeJS.Timeout | null = null
 
 // 编辑器引用
-interface JsonEditorRef {
+type JsonEditorRef = {
   format: () => void;
   focus: () => void;
   changeLanguage: (language: string) => void;
   updateEditorHeight: () => void;
   getCursorPosition: () => monaco.Position | null;
   setCursorPosition: (position: monaco.Position) => void;
-}
+};
 
 const jsonEditorRef = ref<JsonEditorRef | null>(null)
 

@@ -39,14 +39,14 @@ import { computed } from 'vue'
 import { Language } from '@src/types'
 
 // Props 定义
-interface Props {
+type Props = {
   visible: boolean
   position: {
     x: number
     y: number
     width: number
     height: number
-  }
+};
   currentLanguage: Language
 }
 
@@ -56,10 +56,10 @@ const props = withDefaults(defineProps<Props>(), {
 })
 
 // Events 定义
-interface Emits {
+type Emits = {
   languageSelect: [language: Language]
   close: []
-}
+};
 
 const emit = defineEmits<Emits>()
 

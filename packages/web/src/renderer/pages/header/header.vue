@@ -54,11 +54,11 @@ import { RefreshRight, Back, Right } from '@element-plus/icons-vue'
 import { useI18n } from 'vue-i18n'
 
 // 定义Tab类型
-interface HeaderTab {
+type HeaderTab = {
   id: string;
   title: string;
   type: 'project' | 'settings';
-}
+};
 
 const tabs = ref<HeaderTab[]>([])
 const activeTabId = ref('')

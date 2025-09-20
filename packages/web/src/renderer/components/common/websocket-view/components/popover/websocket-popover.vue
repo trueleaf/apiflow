@@ -86,12 +86,12 @@ const { t } = useI18n();
 | Props & Emits
 |--------------------------------------------------------------------------
 */
-interface Props {
+type Props = {
   visible: boolean;
   message: WebsocketResponse | null;
   messageIndex: number;
   virtualRef: HTMLElement | null;
-}
+};
 
 const props = withDefaults(defineProps<Props>(), {
   visible: false,

@@ -99,12 +99,12 @@ import SJsonEditor from '@/components/common/json-editor/g-json-editor.vue';
 | Props & Emits
 |--------------------------------------------------------------------------
 */
-interface Props {
+type Props = {
   visible: boolean;
   message: any;
   messageIndex: number;
   virtualRef: HTMLElement | null;
-}
+};
 
 const props = withDefaults(defineProps<Props>(), {
   visible: false,

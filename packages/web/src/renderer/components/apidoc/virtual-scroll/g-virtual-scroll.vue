@@ -51,11 +51,11 @@ defineOptions({
   inheritAttrs: false
 });
 
-interface VirtualScrollItem {
+type VirtualScrollItem = {
   index: number;
   data: any;
   top: number;
-}
+};
 const props = withDefaults(defineProps<{
   items: any[];
   itemHeight: number;

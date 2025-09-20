@@ -7,12 +7,12 @@ import { WebsocketResponse } from '@src/types/websocket/websocket';
 import { config } from '@src/config/config';
 import { uuid } from '@/helper/index.ts';
 
-interface WebsocketResponseCacheData {
+type WebsocketResponseCacheData = {
   id: string; // 数据唯一ID作为主键
   nodeId: string; // 节点ID
   response: WebsocketResponse; // 单个响应数据
   updatedAt: number; // 最后更新时间
-}
+};
 
 class WebsocketResponseCache {
   private dbName = config.cacheConfig.websocketNodeResponseCache.dbName;
