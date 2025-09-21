@@ -6,17 +6,11 @@
   ],
   "scripts": {
     "web:dev": "npm run dev -w apiflow",
-    "web:dev:standalone": "npm run dev:standalone -w apiflow",
     "web:web": "npm run web -w apiflow",
     "web:share": "npm run share -w apiflow",
-    "web:build": "npm run build -w apiflow",
+    "web:build": "npm run build:web -w apiflow",
     "web:build:share": "npm run build:share -w apiflow",
     "web:build:web": "npm run build:web -w apiflow",
-    "web:build:standalone": "npm run build:standalone -w apiflow",
-    "web:build:standalone:pack": "npm run build:standalone:pack -w apiflow",
-    "web:build:standalone:win": "npm run build:standalone:win -w apiflow",
-    "web:build:standalone:mac": "npm run build:standalone:mac -w apiflow",
-    "web:build:standalone:linux": "npm run build:standalone:linux -w apiflow",
     "web:build:font": "npm run build:font -w apiflow",
     "web:preview": "npm run preview -w apiflow",
     "web:type-check": "npm run type-check -w apiflow",
@@ -28,7 +22,12 @@
     "server:lint:fix": "npm run lint:fix -w @apiflow/server",
     "server:ci": "npm run ci -w @apiflow/server",
     "server:build": "npm run build -w @apiflow/server",
-    "dev": "npm run dev -w apiflow"
+    "dev": "npm run dev -w apiflow",
+    "web:build:app": "npm run build:app -w apiflow",
+    "web:build:app:pack": "npm run build:app:pack -w apiflow",
+    "web:build:app:win": "npm run build:app:win -w apiflow",
+    "web:build:app:mac": "npm run build:app:mac -w apiflow",
+    "web:build:app:linux": "npm run build:app:linux -w apiflow"
   },
   "devDependencies": {
     "npm-run-all": "^4.1.5"
