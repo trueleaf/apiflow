@@ -5,7 +5,7 @@
     </el-icon>
     <div class="params-view">
       <SFieldset v-if="apidocInfo?.item.url" :title="t('基本信息')">
-        <SLableValue v-if="apidocInfo?.type !== 'folder'" label="请求方式：" class="w-50">
+        <SLableValue v-if="apidocInfo?.info.type !== 'folder'" label="请求方式：" class="w-50">
           <template v-for="(req) in validRequestMethods">
             <span v-if="apidocInfo?.item.method.toLowerCase() === req.value.toLowerCase()" :key="req.name" class="label"
               :style="{ color: req.iconColor }">{{ req.name.toUpperCase() }}</span>
@@ -112,8 +112,8 @@ import SJsonEditor from '@/components/common/json-editor/g-json-editor.vue'
 import { formatDate } from '@/helper'
 import { useApidocBaseInfo } from '@/store/apidoc/base-info';
 import { useApidocRequest } from '@/store/apidoc/request';
-import { httpNodeCache } from '@/cache/http/httpNodeCache.ts';
 import { standaloneCache } from '@/cache/standalone';
+import { useRuntime } from '@/store/runtime/runtime';
 
 const emits = defineEmits(['close'])
 const props = defineProps({
@@ -125,6 +125,7 @@ const props = defineProps({
 
 const apidocBaseInfoStore = useApidocBaseInfo()
 const apidocRequestStore = useApidocRequest()
+const runtimeStore = useRuntime()
 /*
 |--------------------------------------------------------------------------
 | 获取文档详情
@@ -135,12 +136,12 @@ const projectId = router.currentRoute.value.query.id as string;
 const { t } = useI18n()
 
 const loading = ref(false); //数据加载
-const iStandalone = ref(__STANDALONE__);
+const isOffline = () => runtimeStore.networkMode === 'offline';
 
 //获取文档详情
 const getDocDetail = async () => {
-  if (iStandalone.value) {
-    docDetail.value = await standaloneCache.getDocById(props.id);
+  if (isOffline()) {
+    docDetail.value = await standaloneCache.getDocById(props.id) as HttpNode;
     return
   }
   loading.value = true;

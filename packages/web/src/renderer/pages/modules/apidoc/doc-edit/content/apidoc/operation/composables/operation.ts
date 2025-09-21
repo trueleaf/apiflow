@@ -11,6 +11,7 @@ import { httpNodeCache } from '@/cache/http/httpNodeCache.ts'
 import { useApidocTas } from '@/store/apidoc/tabs'
 import { useApidocResponse } from '@/store/apidoc/response'
 import { useApidoc } from '@/store/apidoc/apidoc'
+import { useRuntime } from '@/store/runtime/runtime'
 
 type OperationReturn = {
   /**
@@ -39,9 +40,11 @@ export default (): OperationReturn => {
   const apidocTabsStore = useApidocTas();
   const apidocStore = useApidoc()
   const apidocResponseStroe = useApidocResponse()
+  const runtimeStore = useRuntime()
   const loading2 = ref(false); //保存接口
   const loading3 = ref(false); //刷新接口
   const projectId = router.currentRoute.value.query.id as string;
+  const isOffline = () => runtimeStore.networkMode === 'offline';
   const currentSelectTab = computed(() => {
     const tabs = apidocTabsStore.tabs[projectId];
     const currentTab = tabs?.find((tab) => tab.selected) || null;
@@ -81,7 +84,7 @@ export default (): OperationReturn => {
     };
     
     // 在standalone模式下添加100毫秒延迟，提供加载效果
-    if (__STANDALONE__) {
+    if (isOffline()) {
       setTimeout(() => {
         executeRefresh();
       }, 100);

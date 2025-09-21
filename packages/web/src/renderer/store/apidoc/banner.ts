@@ -4,6 +4,7 @@ import { findNodeById, forEachForest } from "@/helper";
 import { ApidocBanner, ApidocBannerOfWebsocketNode, ApidocBannerOfHttpNode, Response } from '@src/types';
 import { defineStore } from "pinia";
 import { ref } from "vue";
+import { useRuntime } from '../runtime/runtime';
 
 type SplicePayload = {
   opData?: ApidocBanner[],
@@ -25,6 +26,8 @@ type EditBannerPayload<T extends ApidocBanner, K extends keyof T> = {
 };
 
 export const useApidocBanner = defineStore('apidocBanner', () => {
+  const runtimeStore = useRuntime();
+  const isOffline = () => runtimeStore.networkMode === 'offline';
   const loading = ref(false);
   const banner = ref<ApidocBanner[]>([]);
   const defaultExpandedKeys = ref<string[]>([]);
@@ -100,7 +103,7 @@ export const useApidocBanner = defineStore('apidocBanner', () => {
    */
   const getDocBanner = async(payload: { projectId: string }): Promise<ApidocBanner[]> => {
     return new Promise(async (resolve, reject) => {
-      if (__STANDALONE__) {
+      if (isOffline()) {
         const banner = await standaloneCache.getApiNodesAsTree(payload.projectId);
         changeAllDocBanner(banner)
         resolve(banner)

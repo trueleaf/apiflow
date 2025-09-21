@@ -17,20 +17,22 @@ import { useRuntime } from "./store/runtime/runtime.ts";
 shortcutManager.init();
 const pinia = createPinia();
 const app = createApp(App);
-app.use(pinia)
 
-const runtimeStore = useRuntime();
+
+// 在 app.use(pinia) 之前如需使用 store，必须将 pinia 实例显式传入
+const runtimeStore = useRuntime(pinia);
 if (runtimeStore.networkMode === 'offline') {
   try { await standaloneCache.init(); }
   catch (e) { console.warn("本地缓存初始化失败，已跳过：", e); }
 }
+app.use(pinia);
+app.use(router);
 
 app.use(customDirective)
   .use(i18n)
   .use(ElementPlus, {
     locale: elZhCn,
-  })
-  .use(router);
+  });
 
 app.mount("#app");
 
