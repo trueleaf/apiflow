@@ -30,16 +30,12 @@ export default function HeroSection() {
             {/* 主标题 */}
             <h1 className="text-4xl font-bold tracking-tight text-gray-900 sm:text-5xl lg:text-6xl">
               <span>{t('Postman 和 Apifox 的')}{' '}</span>
-              <span className="gradient-text">{t('开源替代品')}</span>
+              <span className="gradient-text">{t('免费开源替代品')}</span>
             </h1>
 
             {/* 副标题 */}
             <p className="mt-6 max-w-2xl text-lg leading-8 text-gray-600 sm:text-xl">
               <span>{t('在 Vibe Coding 的支持下，个人开发者或小团队同样能够构建媲美企业级应用的产品，欢迎 Star，支持我们走得更远')}</span>
-              {/* <div>{t('无法联网？切换为单机版即可正常使用')}</div>
-              <div>{t('需要团队协作？我们提供实时协作功能')}</div>
-              <div>{t('担心数据安全？所有功能均支持本地部署')}</div>
-              <div>{t('不再使用？数据可随时完整导出')}</div> */}
             </p>
 
             {/* CTA按钮 */}

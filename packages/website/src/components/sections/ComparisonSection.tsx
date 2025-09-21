@@ -1,5 +1,5 @@
 import React from 'react';
-import { Check, X, Zap, Shield, Users, Code } from 'lucide-react';
+import { Check, X } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 
 export default function ComparisonSection() {
@@ -47,31 +47,10 @@ export default function ComparisonSection() {
     }
   };
 
-  const highlights = [
-    {
-      icon: Zap,
-      title: t('快 3 倍'),
-      description: t('相比传统工具，API 测试工作流程快 3 倍')
-    },
-    {
-      icon: Shield,
-      title: t('企业级就绪'),
-      description: t('从第一天起就内置安全性和合规性功能')
-    },
-    {
-      icon: Users,
-      title: t('团队协作'),
-      description: t('无需高级价格标签的实时协作')
-    },
-    {
-      icon: Code,
-      title: t('开发者优先'),
-      description: t('由开发者设计，为开发者服务')
-    }
-  ];
+
 
   return (
-    <section id="features" className="py-16 sm:py-20 lg:py-24 bg-gray-50">
+    <section id="features" className="py-16 sm:py-20 lg:py-18 bg-gray-50">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         {/* 版块标题 */}
         <div className="text-center mb-16">
@@ -86,21 +65,7 @@ export default function ComparisonSection() {
           </p>
         </div>
 
-        {/* 亮点 */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-16">
-          {highlights.map((highlight, index) => {
-            const Icon = highlight.icon;
-            return (
-              <div key={index} className="text-center">
-                <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-xl bg-blue-600 mb-4">
-                  <Icon className="h-8 w-8 text-white" />
-                </div>
-                <h3 className="text-lg font-semibold text-gray-900 mb-2">{highlight.title}</h3>
-                <p className="text-gray-600">{highlight.description}</p>
-              </div>
-            );
-          })}
-        </div>
+
 
         {/* 对比表格 */}
         <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
@@ -117,16 +82,19 @@ export default function ComparisonSection() {
             <table className="w-full">
               <thead className="bg-gray-50">
                 <tr>
-                  <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">
-                    Feature
+                  <th className="px-6 py-4 text-left text-base font-semibold text-gray-900">
+                    功能
                   </th>
-                  <th className="px-6 py-4 text-center text-sm font-semibold text-blue-600">
+                  <th className="px-6 py-4 text-center text-base font-semibold text-blue-600">
                     Apiflow
                   </th>
-                  <th className="px-6 py-4 text-center text-sm font-semibold text-gray-600">
+                  <th className="px-6 py-4 text-center text-base font-semibold text-gray-600">
                     Postman
                   </th>
-                  <th className="px-6 py-4 text-center text-sm font-semibold text-gray-600">
+                  <th className="px-6 py-4 text-center text-base font-semibold text-gray-600">
+                    Hoppscotch
+                  </th>
+                  <th className="px-6 py-4 text-center text-base font-semibold text-gray-600">
                     Apifox
                   </th>
                 </tr>
