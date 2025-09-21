@@ -1,9 +1,12 @@
+'use client';
+
 import Link from 'next/link';
 import { GitBranch, MessageCircle, Users, Mail } from 'lucide-react';
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 
 export default function Footer() {
   const t = useTranslations();
+  const locale = useLocale();
   const footerLinks = {
     product: [
       { name: t('功能'), href: '#features' },
@@ -11,10 +14,10 @@ export default function Footer() {
       { name: t('文档'), href: '#docs' },
     ],
     company: [
-      { name: t('关于我们'), href: '#about' },
+      { name: t('使用文档'), href: `/${locale}/usage-docs` },
       { name: t('博客'), href: '#blog' },
       { name: t('招聘'), href: '#careers' },
-      { name: t('联系我们'), href: '#contact' },
+      { name: t('部署教程'), href: `/${locale}/deployment-guide` },
     ],
     resources: [
       { name: t('帮助中心'), href: '#help' },

@@ -4,19 +4,20 @@ import { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Menu, X } from 'lucide-react';
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import LanguageSwitcher from '@/components/ui/LanguageSwitcher';
 import GitHubStars from '@/components/ui/GitHubStars';
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const t = useTranslations();
+  const locale = useLocale();
 
   const navigation = [
     { name: t('功能特性'), href: '#features' },
     { name: t('产品演示'), href: '#demo' },
-    { name: t('关于我们'), href: '#about' },
-    { name: t('联系我们'), href: '#contact' },
+    { name: t('使用文档'), href: `/${locale}/usage-docs` },
+    { name: t('部署教程'), href: `/${locale}/deployment-guide` },
   ];
 
   const repositoryLinks = [
