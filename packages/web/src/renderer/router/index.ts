@@ -4,8 +4,9 @@ import "nprogress/nprogress.css";
 import docEdit from "@/pages/modules/apidoc/doc-edit/doc-edit.vue";
 import { config } from "@/../config/config";
 import { usePermissionStore } from "@/store/permission";
+import { useRuntime } from "@/store/runtime/runtime.ts";
 
-let lastVisitPage = localStorage.getItem("history/lastVisitePage"); //上次访问的页面
+let lastVisitPage = localStorage.getItem("history/lastVisitePage"); // 上次访问的页面
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -33,16 +34,21 @@ const routes: Array<RouteRecordRaw> = [
     name: "UserCenter",
     component: () => import("@/pages/modules/user-center/UserCenter.vue"),
   },
+  {
+    path: "/:pathMatch(.*)*",
+    name: "NotFound",
+    component: () => import("@/pages/layout/404/404.vue"),
+  },
 ];
 
-// 判断lastVisitPage路径是否匹配routes中的path
+// 判断 lastVisitPage 路径是否匹配 routes 中的 path
 const getRedirectPath = () => {
   if (!lastVisitPage) {
     return "/v1/apidoc/doc-list";
   }
-  // 提取路径部分，去除查询字符串和hash
+  // 取路径部分，去掉查询字符串和 hash
   const lastVisitPath = lastVisitPage.split("?")[0].split("#")[0];
-  const allRoutePaths = routes.map((route) => route.path)
+  const allRoutePaths = routes.map((route) => route.path);
   const isValidPath = allRoutePaths.some((routePath) => {
     return lastVisitPath === routePath;
   });
@@ -81,49 +87,56 @@ const routerConfig = {
       name: "UserCenter",
       component: () => import("@/pages/modules/user-center/UserCenter.vue"),
     },
+    {
+      path: "/:pathMatch(.*)*",
+      name: "NotFound",
+      component: () => import("@/pages/layout/404/404.vue"),
+    },
   ],
 };
 
 const router = createRouter(routerConfig);
 
-//=====================================路由守卫====================================//
-if (!__STANDALONE__) {
-  router.beforeEach((to, _, next) => {
-    const permissionStore = usePermissionStore();
-    NProgress.start();
-    const hasPermission = permissionStore.routes.length > 0; //挂载了路由代表存在权限
-    if (
-      config.renderConfig.permission.whiteList.find((val) => val === to.path)
-    ) {
-      //白名单内的路由直接放行
-      next();
-      return;
-    }
-    if (!hasPermission) {
-      permissionStore
-        .getPermission()
-        .then(() => {
-          next(to.fullPath);
-        })
-        .catch((err) => {
-          router.push("/login");
-          console.error(err);
-        })
-        .finally(() => {
-          NProgress.done();
-        });
-    } else {
-      next();
-    }
-  });
-  router.afterEach((to) => {
-    localStorage.setItem("history/lastVisitePage", to.fullPath);
+// 注意：不要在模块顶层直接 useRuntime()，需等 Pinia 激活后在守卫内访问
+//===================================== 路由守卫 ====================================//
+router.beforeEach((to, _, next) => {
+  const runtimeStore = useRuntime();
+  if (runtimeStore.networkMode === 'offline') {
+    next();
+    return;
+  }
+
+  const permissionStore = usePermissionStore();
+  NProgress.start();
+  const hasPermission = permissionStore.routes.length > 0; // 已加载路由表示存在权限
+  if (config.renderConfig.permission.whiteList.find((val) => val === to.path)) {
+    next();
+    return;
+  }
+  if (!hasPermission) {
+    permissionStore
+      .getPermission()
+      .then(() => {
+        next(to.fullPath);
+      })
+      .catch((err) => {
+        router.push("/login");
+        console.error(err);
+      })
+      .finally(() => {
+        NProgress.done();
+      });
+  } else {
+    next();
+  }
+});
+
+router.afterEach((to) => {
+  localStorage.setItem("history/lastVisitePage", to.fullPath);
+  const runtimeStore = useRuntime();
+  if (runtimeStore.networkMode !== 'offline') {
     NProgress.done(); // 页面顶部的加载条
-  });
-} else {
-  router.afterEach((to) => {
-    localStorage.setItem("history/lastVisitePage", to.fullPath);
-  });
-}
+  }
+});
 
 export { routes, router };
