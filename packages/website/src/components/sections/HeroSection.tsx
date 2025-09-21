@@ -1,13 +1,16 @@
 import Link from 'next/link';
-import { Star, Users, Zap } from 'lucide-react';
+import { WifiOff, Users, Shield, Download, Gift, Globe } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 
 export default function HeroSection() {
   const t = useTranslations();
-  const stats = [
-    { icon: Users, value: '10K+', label: t('开发者') },
-    { icon: Star, value: '4.9/5', label: t('评分') },
-    { icon: Zap, value: '99.9%', label: t('正常运行时间') },
+  const features = [
+    { icon: WifiOff, title: t('离线运行'), description: t('除协作外可以使用所有功能') },
+    { icon: Users, title: t('团队协作'), description: t('我们提供实时协作功能') },
+    { icon: Shield, title: t('本地部署'), description: t('所有功能支持Docker本地部署') },
+    { icon: Download, title: t('数据自由'), description: t('可随时导出数据到其他工具') },
+    { icon: Gift, title: t('完全免费'), description: t('所有核心功能永久免费使用') },
+    { icon: Globe, title: t('协议支持'), description: t('支持HTTP、WebSocket、GraphQL等协议') },
   ];
 
   return (
@@ -26,13 +29,17 @@ export default function HeroSection() {
 
             {/* 主标题 */}
             <h1 className="text-4xl font-bold tracking-tight text-gray-900 sm:text-5xl lg:text-6xl">
-              {t('Postman 和 Apifox 的')}{' '}
-              <span className="gradient-text">{t('现代化替代品')}</span>
+              <span>{t('Postman 和 Apifox 的')}{' '}</span>
+              <span className="gradient-text">{t('开源替代品')}</span>
             </h1>
 
             {/* 副标题 */}
             <p className="mt-6 max-w-2xl text-lg leading-8 text-gray-600 sm:text-xl">
-              {t('使用我们直观的平台构建、测试和记录您的 API。体验更快的工作流程、更好的协作和全面的 API 管理，一个强大的工具搞定一切。')}
+              <span>{t('在 Vibe Coding 的支持下，个人开发者或小团队同样能够构建媲美企业级应用的产品，欢迎 Star，支持我们走得更远')}</span>
+              {/* <div>{t('无法联网？切换为单机版即可正常使用')}</div>
+              <div>{t('需要团队协作？我们提供实时协作功能')}</div>
+              <div>{t('担心数据安全？所有功能均支持本地部署')}</div>
+              <div>{t('不再使用？数据可随时完整导出')}</div> */}
             </p>
 
             {/* CTA按钮 */}
@@ -43,32 +50,24 @@ export default function HeroSection() {
                 rel="noopener noreferrer"
                 className="inline-flex items-center rounded-lg bg-blue-600 px-8 py-3 text-base font-semi text-white shadow-lg hover:bg-blue-700"
               >
-                {t('下载离线版本')}
-              </Link>
-              <Link
-                href="https://github.com/trueleaf/apiflow"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center rounded-lg bg-green-600 px-8 py-3 text-base font-semi text-white shadow-lg hover:bg-green-700"
-              >
-                {t('下载互联网版本')}
+                {t('下载客户端')}
               </Link>
             </div>
           </div>
 
-          {/* 右侧 - 统计数据 */}
+          {/* 右侧 - 特色功能 */}
           <div className="lg:pl-8">
-            <div className="grid grid-cols-1 gap-8 sm:grid-cols-3 lg:grid-cols-1 lg:gap-6">
-              {stats.map((stat, index) => {
-                const Icon = stat.icon;
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-2">
+              {features.map((feature, index) => {
+                const Icon = feature.icon;
                 return (
-                  <div key={index} className="flex items-center lg:justify-start justify-center">
-                    <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-blue-100 mr-4">
-                      <Icon className="h-6 w-6 text-blue-600" />
+                  <div key={index} className="flex items-start p-3">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-100 mr-3 flex-shrink-0">
+                      <Icon className="h-5 w-5 text-blue-600" />
                     </div>
                     <div>
-                      <div className="text-2xl font-bold text-gray-900">{stat.value}</div>
-                      <div className="text-sm text-gray-600">{stat.label}</div>
+                      <div className="text-base font-semibold text-gray-900 mb-1">{feature.title}</div>
+                      <div className="text-sm text-gray-600 leading-relaxed">{feature.description}</div>
                     </div>
                   </div>
                 );

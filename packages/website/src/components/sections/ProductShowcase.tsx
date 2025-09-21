@@ -53,11 +53,11 @@ export default function ProductShowcase() {
         {/* 版块标题 */}
         <div className="text-center mb-16">
           <h2 className="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl lg:text-5xl">
-            See APIFlow in Action
+            See Apiflow in Action
           </h2>
           <p className="mx-auto mt-6 max-w-3xl text-lg text-gray-600">
             Experience the power of modern API development. From design to deployment, 
-            APIFlow streamlines every step of your workflow.
+            Apiflow streamlines every step of your workflow.
           </p>
         </div>
 
@@ -73,7 +73,7 @@ export default function ProductShowcase() {
                   Interactive Product Demo
                 </h3>
                 <p className="text-gray-600 mb-6 max-w-md mx-auto">
-                  Watch how APIFlow transforms your API development workflow in just 3 minutes
+                  Watch how Apiflow transforms your API development workflow in just 3 minutes
                 </p>
                 <button className="inline-flex items-center rounded-lg bg-blue-600 px-6 py-3 text-base font-semibold text-white shadow-lg hover:bg-blue-700 transition-all duration-200 hover:scale-105">
                   <Play className="mr-2 h-5 w-5" />
@@ -171,7 +171,7 @@ export default function ProductShowcase() {
               Ready to Transform Your API Workflow?
             </h3>
             <p className="text-blue-100 mb-8 max-w-2xl mx-auto">
-              Join thousands of developers who have already made the switch to APIFlow. 
+              Join thousands of developers who have already made the switch to Apiflow. 
               Start your free trial today and experience the difference.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">

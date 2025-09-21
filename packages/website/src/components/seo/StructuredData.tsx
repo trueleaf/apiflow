@@ -7,7 +7,7 @@ export default function StructuredData() {
     const organizationSchema = {
       "@context": "https://schema.org",
       "@type": "Organization",
-      "name": "APIFlow",
+      "name": "Apiflow",
       "description": "The modern API documentation and testing tool that developers love. Build, test, and document your APIs with ease.",
       "url": "https://apiflow.com",
       "logo": "https://apiflow.com/logo.png",
@@ -39,7 +39,7 @@ export default function StructuredData() {
     const softwareSchema = {
       "@context": "https://schema.org",
       "@type": "SoftwareApplication",
-      "name": "APIFlow",
+      "name": "Apiflow",
       "description": "Modern API documentation and testing tool. A powerful alternative to Postman and Apifox for developers.",
       "url": "https://apiflow.com",
       "applicationCategory": "DeveloperApplication",
@@ -81,7 +81,7 @@ export default function StructuredData() {
     const websiteSchema = {
       "@context": "https://schema.org",
       "@type": "WebSite",
-      "name": "APIFlow",
+      "name": "Apiflow",
       "url": "https://apiflow.com",
       "description": "The modern API documentation and testing tool that developers love.",
       "potentialAction": {
@@ -97,10 +97,10 @@ export default function StructuredData() {
       "mainEntity": [
         {
           "@type": "Question",
-          "name": "How does APIFlow compare to Postman?",
+          "name": "How does Apiflow compare to Postman?",
           "acceptedAnswer": {
             "@type": "Answer",
-            "text": "APIFlow offers 3x faster API testing workflows, better real-time collaboration, and enterprise-ready features at a more affordable price point compared to Postman."
+            "text": "Apiflow offers 3x faster API testing workflows, better real-time collaboration, and enterprise-ready features at a more affordable price point compared to Postman."
           }
         },
         {

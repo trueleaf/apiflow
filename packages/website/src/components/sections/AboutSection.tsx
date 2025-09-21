@@ -70,7 +70,7 @@ export default function AboutSection() {
     {
       year: '2024',
       title: '10,000+ Developers',
-      description: 'Growing community of developers using APIFlow daily'
+      description: 'Growing community of developers using Apiflow daily'
     }
   ];
 
@@ -80,7 +80,7 @@ export default function AboutSection() {
         {/* 版块标题 */}
         <div className="text-center mb-16">
           <h2 className="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl lg:text-5xl">
-            About APIFlow
+            About Apiflow
           </h2>
           <p className="mx-auto mt-6 max-w-3xl text-lg text-gray-600">
             We're on a mission to make API development faster, easier, and more enjoyable 

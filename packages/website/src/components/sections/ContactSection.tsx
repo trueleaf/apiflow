@@ -34,8 +34,8 @@ export default function ContactSection() {
 
   const faqs = [
     {
-      question: 'How do I get started with APIFlow?',
-      answer: 'Simply sign up for a free account and you can start using APIFlow immediately. No credit card required for the free plan.'
+      question: 'How do I get started with Apiflow?',
+      answer: 'Simply sign up for a free account and you can start using Apiflow immediately. No credit card required for the free plan.'
     },
     {
       question: 'Can I import my existing Postman collections?',

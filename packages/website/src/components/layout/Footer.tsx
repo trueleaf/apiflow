@@ -47,7 +47,7 @@ export default function Footer() {
               <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
                 <span className="text-white font-bold text-lg">A</span>
               </div>
-              <span className="text-xl font-bold">APIFlow</span>
+              <span className="text-xl font-bold">Apiflow</span>
             </div>
             <p className="text-gray-400 mb-6 max-w-md">
               {t('开发者喜爱的现代化 API 文档与测试工具。轻松构建、测试和记录您的 API。')}
@@ -150,7 +150,7 @@ export default function Footer() {
         <div className="mt-12 pt-8 border-t border-gray-800">
           <div className="flex flex-col md:flex-row justify-between items-center">
             <p className="text-gray-400 text-sm">
-              {t('© 2024 APIFlow 保留所有权利')}
+              {t('© 2024 Apiflow. 保留所有权利。')}
             </p>
             <p className="text-gray-400 text-sm mt-4 md:mt-0">
               {t('为全世界的开发者用 ❤️ 构建')}

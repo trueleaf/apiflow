@@ -1,6 +1,6 @@
-# APIFlow Marketing Website
+# Apiflow Marketing Website
 
-A modern, professional marketing website for APIFlow - an API documentation and testing tool that serves as a powerful alternative to Postman and Apifox.
+A modern, professional marketing website for Apiflow - an API documentation and testing tool that serves as a powerful alternative to Postman and Apifox.
 
 ## 🚀 Features
 

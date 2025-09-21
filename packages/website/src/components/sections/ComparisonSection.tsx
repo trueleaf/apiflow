@@ -76,10 +76,13 @@ export default function ComparisonSection() {
         {/* 版块标题 */}
         <div className="text-center mb-16">
           <h2 className="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl lg:text-5xl">
-            {t('为什么选择 APIFlow？')}
+            {t('为什么选择 Apiflow？')}
           </h2>
           <p className="mx-auto mt-6 max-w-3xl text-lg text-gray-600">
-            {t('了解 APIFlow 与其他流行 API 工具的对比。我们构建了您喜爱的现有工具的所有功能，以及您一直在等待的新功能。')}
+            {t('其他工具有的功能我们也有，其他工具收费的功能我们免费')}
+          </p>
+          <p className="mx-auto mt-2 max-w-3xl text-lg text-gray-600">
+            {t('如果发现我们还有不支持的功能，请稍等一下，过两天就有了')}
           </p>
         </div>
 
@@ -106,7 +109,7 @@ export default function ComparisonSection() {
               {t('功能对比')}
             </h3>
             <p className="text-blue-100 text-center mt-2">
-              {t('看看我们与竞争对手的对比')}
+              {t('我们正在努力追赶与竞品之间的差距')}
             </p>
           </div>
 
@@ -118,7 +121,7 @@ export default function ComparisonSection() {
                     Feature
                   </th>
                   <th className="px-6 py-4 text-center text-sm font-semibold text-blue-600">
-                    APIFlow
+                    Apiflow
                   </th>
                   <th className="px-6 py-4 text-center text-sm font-semibold text-gray-600">
                     Postman
