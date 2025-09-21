@@ -135,6 +135,7 @@ import { ApidocProjectRules } from '@src/types/apidoc/base-info'
 import { useApidocBaseInfo } from '@/store/apidoc/base-info'
 import { useApidocBanner } from '@/store/apidoc/banner'
 import { standaloneCache } from '@/cache/standalone'
+import { useRuntime } from '@/store/runtime/runtime'
 
 type FormInfo = {
   moyuData: {
@@ -177,6 +178,8 @@ defineProps({
   }
 })
 const { t } = useI18n()
+const runtimeStore = useRuntime();
+const isStandalone = computed(() => runtimeStore.networkMode === 'offline');
 const apidocBaseInfoStore = useApidocBaseInfo();
 const apidocBannerStore = useApidocBanner()
 const projectId = router.currentRoute.value.query.id as string;
@@ -423,7 +426,7 @@ const handleChangeNamedType = () => {
 const handleToggleTargetFolder = async (val: boolean) => {
   currentMountedNode.value = null;
   if (val) {
-    if (__STANDALONE__) {
+    if (isStandalone.value) {
       const banner = await standaloneCache.getApiNodesAsTree(projectId);
       navTreeData.value = banner;
       return
@@ -467,13 +470,13 @@ const handleSubmit = async () => {
       return processedDoc;
     });
 
-    if (__STANDALONE__ && formInfo.value.cover) {
+    if (isStandalone.value && formInfo.value.cover) {
       const copiedDocs = JSON.parse(JSON.stringify(docs)) as HttpNode[];
       await standaloneCache.replaceAllDocs(copiedDocs as HttpNode[], projectId);
       apidocBannerStore.getDocBanner({ projectId });
       ElMessage.success(t('导入成功'));
       return
-    } else if (__STANDALONE__ && !formInfo.value.cover) {
+    } else if (isStandalone.value && !formInfo.value.cover) {
       const copiedDocs = JSON.parse(JSON.stringify(docs)) as HttpNode[];
       await standaloneCache.appendDocs(copiedDocs, projectId);
       apidocBannerStore.getDocBanner({ projectId });

@@ -9,9 +9,8 @@ import { ElementPlusResolver } from 'unplugin-vue-components/resolvers'
 import { resolve } from 'path';
 
 export default defineConfig(({ mode, command }) => {
-  const isStandalone = mode === 'standalone'
   return {
-    base: isStandalone ? './' : '/',
+    base: './',
     plugins: [
       viteElectronPlugin(mode, command),
       vue(),
@@ -34,7 +33,6 @@ export default defineConfig(({ mode, command }) => {
     },
     define: {
       __APP_BUILD_TIME__: JSON.stringify(dayjs().format('YYYY-MM-DD HH:mm:ss')),
-      __STANDALONE__: isStandalone,
       __COMMAND__: JSON.stringify(command),
     },
     optimizeDeps: {
@@ -60,3 +58,4 @@ export default defineConfig(({ mode, command }) => {
     }
   }
 })
+

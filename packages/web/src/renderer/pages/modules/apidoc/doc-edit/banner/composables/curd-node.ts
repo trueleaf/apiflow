@@ -17,6 +17,7 @@ import { useApidoc } from '@/store/apidoc/apidoc';
 import { useApidocBaseInfo } from '@/store/apidoc/base-info.ts';
 import { standaloneCache } from '@/cache/standalone.ts';
 import { nanoid } from 'nanoid';
+import { useRuntime } from '@/store/runtime/runtime';
 
 type MapId = {
   oldId: string, //历史id
@@ -26,6 +27,7 @@ type MapId = {
 };
 //带projectId的banner数据
 type ApidocBannerWithProjectId = ApidocBanner & { projectId: string }
+const isOffline = () => useRuntime().networkMode === 'offline';
 /**
  * 删除某个(多个)节点
  */
@@ -47,7 +49,7 @@ export function deleteNode(selectNodes: ApidocBannerWithProjectId[], silent?: bo
   })
   const deleteTip = selectNodes.length > 1 ? `${i18n.global.t('确定批量删除')} ${deleteIds.length} ${i18n.global.t('个节点?')}` : `${i18n.global.t('确定删除')} ${selectNodes[0].name} ${i18n.global.t('节点')}`
   const deleteOperation = async () => {
-    if(__STANDALONE__){
+    if(isOffline()){
       await standaloneCache.deleteDocs(deleteIds);
       await apidocBannerStore.getDocBanner({ projectId: nodeProjectId });
       //删除所有nav节点
@@ -255,7 +257,7 @@ export function pasteNodes(currentOperationalNode: Ref<ApidocBanner | null>, pas
   const copyPasteNodes: ApidocBanner[] = JSON.parse(JSON.stringify(pastedNodes));
   return new Promise(async (resolve, reject) => {
     try {
-      if (__STANDALONE__) {
+      if (isOffline()) {
         // Standalone 模式下的优化粘贴逻辑
         const currentProjectId = router.currentRoute.value.query.id as string;
         const fromProjectId = pastedNodes[0].projectId;
@@ -406,7 +408,7 @@ export async function forkNode(currentOperationalNode: ApidocBanner): Promise<vo
   const apidocBannerStore = useApidocBanner();
   const projectId = router.currentRoute.value.query.id as string;
 
-  if (__STANDALONE__) {
+  if (isOffline()) {
     try {
       // Standalone 模式下的文件副本生成逻辑
 
@@ -536,7 +538,7 @@ export async function dragNode(dragData: ApidocBanner, dropData: ApidocBanner, t
   const apidocBannerStore = useApidocBanner();
   const projectId = router.currentRoute.value.query.id as string;
 
-  if (__STANDALONE__) {
+  if (isOffline()) {
     try {
       // Standalone 模式下的拖拽节点逻辑
 
@@ -663,7 +665,7 @@ export async function renameNode(e: FocusEvent | KeyboardEvent, data: ApidocBann
   //改变apidoc名称
   apidocStore.changeApidocName(iptValue);
   //=========================================================================//
-  if (__STANDALONE__) {
+  if (isOffline()) {
     try {
       // Standalone 模式下的重命名逻辑
       await standaloneCache.updateDocName(data._id, iptValue);

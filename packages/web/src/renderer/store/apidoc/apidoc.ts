@@ -32,7 +32,8 @@ import { i18n } from "@/i18n"
 import { getUrl } from "@/server/request/request.ts"
 import { useVariable } from "./variables.ts"
 import { config } from "@src/config/config.ts"
-import { standaloneCache } from "@/cache/standalone.ts"
+import { standaloneCache } from "@/cache/standalone.ts";
+import { useRuntime } from '../runtime/runtime';
 
 type EditApidocPropertyPayload<K extends keyof ApidocProperty> = {
   data: ApidocProperty,
@@ -41,6 +42,8 @@ type EditApidocPropertyPayload<K extends keyof ApidocProperty> = {
 }
 
 export const useApidoc = defineStore('apidoc', () => {
+  const runtimeStore = useRuntime();
+  const isOffline = () => runtimeStore.networkMode === 'offline';
   const cancel: Canceler[] = [] //请求列表  
   const apidocCookies = useCookies()
   const apidoc = ref<HttpNode>(generateHttpNode());
@@ -433,7 +436,7 @@ export const useApidoc = defineStore('apidoc', () => {
   const getApidocDetail = async (payload: { id: string, projectId: string }): Promise<void> => {
     const { deleteTabByIds } = useApidocTas();
 
-    if (__STANDALONE__) {
+    if (isOffline()) {
       const doc = await standaloneCache.getDocById(payload.id) as HttpNode;
       if (!doc) {
         ElMessageBox.confirm('当前接口不存在，可能已经被删除!', '提示', {
@@ -537,7 +540,7 @@ export const useApidoc = defineStore('apidoc', () => {
         preRequest: apidocDetail.preRequest,
         afterRequest: apidocDetail.afterRequest,
       };
-      if (__STANDALONE__) {
+      if (isOffline()) {
         apidocDetail.updatedAt = new Date().toISOString();
         await standaloneCache.updateDoc(apidocDetail);
         //改变tab请求方法

@@ -15,10 +15,13 @@ import { useVariable } from "../apidoc/variables.ts";
 import { useCookies } from "../apidoc/cookies.ts";
 import { i18n } from "@/i18n";
 import { webSocketHistoryCache } from "@/cache/history";
+import { useRuntime } from '@/store/runtime/runtime';
 
 export const useWebSocket = defineStore('websocket', () => {
+  const runtimeStore = useRuntime();
   const apidocVariableStore = useVariable();
   const websocketCookies = useCookies();
+  const isOffline = () => runtimeStore.networkMode === 'offline';
   const websocket = ref<WebSocketNode>(generateEmptyWebsocketNode(uuid()));
   const originWebsocket = ref<WebSocketNode>(generateEmptyWebsocketNode(uuid()));
   const loading = ref(false);
@@ -589,7 +592,7 @@ const updateWebSocketHeaderById = (id: string, header: Partial<ApidocProperty<'s
   */
   // 获取WebSocket详情
   const getWebsocketDetail = async (payload: { id: string, projectId: string }): Promise<void> => {
-    if (__STANDALONE__) {
+    if (isOffline()) {
       const doc = await standaloneCache.getDocById(payload.id) as WebSocketNode;
       if (!doc) {
         // 如果standalone中没有找到，尝试从缓存中获取
@@ -651,7 +654,7 @@ const updateWebSocketHeaderById = (id: string, header: Partial<ApidocProperty<'s
       return;
     }
     saveLoading.value = true;
-    if (__STANDALONE__) {
+    if (isOffline()) {
       const websocketDetail = cloneDeep(websocket.value);
       websocketDetail.updatedAt = new Date().toISOString();
       await standaloneCache.updateDoc(websocketDetail);

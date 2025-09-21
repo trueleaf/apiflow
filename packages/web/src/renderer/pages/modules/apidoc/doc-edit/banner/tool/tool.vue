@@ -162,6 +162,7 @@ import { useApidocTas } from '@/store/apidoc/tabs'
 import { useApidocWorkerState } from '@/store/apidoc/worker-state'
 import SLoading from '@/components/common/loading/g-loading.vue'
 import SFieldset from '@/components/common/fieldset/g-fieldset.vue'
+import { useRuntime } from '@/store/runtime/runtime'
 
 import { standaloneCache } from '@/cache/standalone'
 
@@ -186,7 +187,8 @@ const apidocBannerStore = useApidocBanner();
 const apidocWorkerStateStore = useApidocWorkerState();
 const apidocTabsStore = useApidocTas();
 const { t } = useI18n()
-const isStandalone = ref(__STANDALONE__)
+const runtimeStore = useRuntime();
+const isStandalone = computed(() => runtimeStore.networkMode === 'offline')
 const emits = defineEmits(['fresh', 'filter', 'changeProject']);
 const isView = computed(() => apidocBaseInfoStore.mode === 'view') //当前工作区状态
 const toggleProjectVisible = ref(false);

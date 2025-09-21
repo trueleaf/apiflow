@@ -33,7 +33,7 @@
 
 <script lang="ts" setup>
 import { useI18n } from 'vue-i18n'
-import { ref, Ref, onMounted, nextTick } from 'vue'
+import { computed, ref, Ref, onMounted, nextTick } from 'vue'
 import { ApidocBanner, HttpNode } from '@src/types';
 import type { TreeNodeOptions } from 'element-plus/es/components/tree/src/tree.type';
 import { router } from '@/router';
@@ -48,6 +48,7 @@ import { useApidocBanner } from '@/store/apidoc/banner';
 import { useApidocTas } from '@/store/apidoc/tabs';
 import { standaloneCache } from '@/cache/standalone';
 import { nanoid } from 'nanoid';
+import { useRuntime } from '@/store/runtime/runtime';
 
 type FormInfo = {
   name: string, //接口名称
@@ -83,7 +84,8 @@ const projectId = router.currentRoute.value.query.id as string;
 const loading = ref(false); //保存按钮loading状态
 const loading2 = ref(false);
 const navTreeData = ref<ApidocBanner[]>([]);
-const isStandalone = ref(__STANDALONE__);
+const runtimeStore = useRuntime();
+const isStandalone = computed(() => runtimeStore.networkMode === 'offline');
 //目标树
 const docTree: Ref<TreeNodeOptions['store'] | null> = ref(null);
 const currentMountedNode: Ref<HttpNode | null> = ref(null);

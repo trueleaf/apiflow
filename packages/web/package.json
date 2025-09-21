@@ -8,20 +8,19 @@
   "version": "0.9.0",
   "type": "module",
   "scripts": {
-    "dev": "vite --host --mode standalone",
-    "dev:standalone": "vite --host --mode standalone",
+    "dev": "vite --host",
     "web": "vite --host -- -- web",
     "share": "vite --host --config build/share/vite.config.ts",
     "build:share": "vite build --config build/share/vite.config.ts",
-    "build:web": "vite build --mode standalone",
-    "build:standalone:pack": "vite build --mode standalone && electron-builder --dir",
-    "build:standalone": "cross-env NODE_OPTIONS=--max-old-space-size=8192 vite build --mode standalone && electron-builder",
-    "build:standalone:win": "cross-env NODE_OPTIONS=--max-old-space-size=8192 vite build --mode standalone && electron-builder --win",
-    "build:standalone:mac": "cross-env NODE_OPTIONS=--max-old-space-size=8192 vite build --mode standalone && electron-builder --mac",
-    "build:standalone:linux": "cross-env NODE_OPTIONS=--max-old-space-size=8192 vite build --mode standalone && electron-builder --linux",
+    "build:web": "vite build",
     "preview": "vite preview",
     "build:font": "node build/share/script/build-font.mjs",
-    "type-check": "vue-tsc --noEmit"
+    "type-check": "vue-tsc --noEmit",
+    "build:app:pack": "vite build && electron-builder --dir",
+    "build:app": "cross-env NODE_OPTIONS=--max-old-space-size=8192 vite build && electron-builder",
+    "build:app:win": "cross-env NODE_OPTIONS=--max-old-space-size=8192 vite build && electron-builder --win",
+    "build:app:mac": "cross-env NODE_OPTIONS=--max-old-space-size=8192 vite build && electron-builder --mac",
+    "build:app:linux": "cross-env NODE_OPTIONS=--max-old-space-size=8192 vite build && electron-builder --linux"
   },
   "dependencies": {
     "@tiptap/core": "^3.3.0",

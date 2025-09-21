@@ -53,8 +53,8 @@ const createWindow = () => {
     height: windowBounds.height - 35
   })
 
-  // 加载内容 - 根据 __MODE__ 变量决定加载方式
-  if (__MODE__ === 'standalone' && __COMMAND__ === 'build') {
+  // 加载内容 - 根据构建命令决定加载方式
+  if (__COMMAND__ === 'build') {
     const headerFilePath = path.join(__dirname, '../renderer/header.html');
     const indexFilePath = path.join(__dirname, '../renderer/index.html');
     topBarView.webContents.loadFile(headerFilePath);

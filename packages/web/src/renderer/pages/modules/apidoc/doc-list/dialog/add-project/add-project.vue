@@ -64,13 +64,14 @@ import { config } from '@src/config/config';
 import type { ApidocProjectMemberInfo } from '@src/types'
 import { ElMessage, FormInstance } from 'element-plus';
 import { useI18n } from 'vue-i18n'
-import { nextTick, ref } from 'vue';
+import { computed, nextTick, ref } from 'vue';
 import RemoteSelector from '@/components/common/remote-select/g-remote-select.vue';
 import RemoteSelectorItem from '@/components/common/remote-select/g-remote-select-item.vue';
 import Dialog from '@/components/common/dialog/g-dialog.vue';
 import { standaloneCache } from '@/cache/standalone';
 import { generateEmptyProject } from '@/helper';
 import { nanoid } from 'nanoid';
+import { useRuntime } from '@/store/runtime/runtime';
 
 
 
@@ -89,6 +90,8 @@ const form = ref<FormInstance>()
 const emits = defineEmits(['update:modelValue', 'success'])
 const { t } = useI18n()
 
+const runtimeStore = useRuntime();
+
 const formInfo = ref({
   projectName: '', //-------------------------项目名称
   remark: '', //------------------------------项目备注
@@ -96,7 +99,7 @@ const formInfo = ref({
 const rules = ref({
   projectName: [{ required: true, trigger: 'blur', message: t('请填写项目名称') }],
 })
-const isStandalone = ref(__STANDALONE__)
+const isStandalone = computed(() => runtimeStore.networkMode === 'offline')
 const remoteUserOrGroupList = ref<ApidocProjectMemberInfo[]>([]) //------远程用户和组列表
 const selectMemberData = ref<ApidocProjectMemberInfo[]>([]) //-----已选中的用户
 const remoteQueryName = ref('') //-------------------------用户名称

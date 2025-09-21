@@ -209,7 +209,7 @@ import SFieldset from '@/components/common/fieldset/g-fieldset.vue'
 import STable from '@/components/common/table/g-table.vue'
 import { config } from '@src/config/config'
 import { useI18n } from 'vue-i18n'
-import { ref, onMounted } from 'vue';
+import { computed, ref, onMounted } from 'vue';
 import { ElMessage, ElMessageBox, FormInstance, genFileId, UploadFile, UploadInstance, UploadProps, UploadRawFile } from 'element-plus';
 import { request } from '@/api/api';
 import { useRoute } from 'vue-router';
@@ -219,6 +219,7 @@ import { useVariable } from '@/store/apidoc/variables';
 import { Response, ApidocVariable } from '@src/types';
 import { request as axiosInstance } from '@/api/api'
 import { standaloneCache } from '@/cache/standalone';
+import { useRuntime } from '@/store/runtime/runtime';
 
 
 export type AddProjectVariableParams = {
@@ -266,7 +267,8 @@ const rules = ref({
   name: [{ required: true, message: t('请输入变量名称'), trigger: 'blur' }],
   stringValue: [{ required: true, message: t('请输入变量值'), trigger: 'blur' }],
 })
-const isStandalone = ref(__STANDALONE__)
+const runtimeStore = useRuntime();
+const isStandalone = computed(() => runtimeStore.networkMode === 'offline')
 const oldEditingData = ref<AddProjectVariableParams | null>(null);
 const isShowEditDialog = ref(false);
 const loading = ref(false);

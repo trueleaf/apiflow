@@ -201,6 +201,7 @@ import { router } from '@/router';
 import { debounce, formatDate } from '@/helper';
 import { useApidocBaseInfo } from '@/store/apidoc/base-info'
 import { standaloneCache } from '@/cache/standalone'
+import { useRuntime } from '@/store/runtime/runtime'
 
 /*
 |--------------------------------------------------------------------------
@@ -208,6 +209,7 @@ import { standaloneCache } from '@/cache/standalone'
 |--------------------------------------------------------------------------
 */
 const { t } = useI18n()
+const runtimeStore = useRuntime();
 const projectName = ref('');
 const projectKeyword = ref('')
 const recentVisitProjectIds = ref<string[]>([]);
@@ -225,7 +227,7 @@ const dialogVisible = ref(false);
 const dialogVisible2 = ref(false);
 const dialogVisible3 = ref(false);
 const dialogVisible4 = ref(false);
-const isStandalone = ref(__STANDALONE__)
+const isStandalone = computed(() => runtimeStore.networkMode === 'offline')
 const projectList = computed(() => {
   const list = (projectKeyword.value.trim().length > 0 && isShowAdvanceSearch.value) ? projectListCopy2.value : projectListCopy.value;
   const filteredProjectList = list.filter((val) => val.projectName.match(new RegExp(projectName.value, 'gi')))
@@ -256,7 +258,7 @@ const apidocBaseInfo = useApidocBaseInfo()
 */
 //获取项目列表
 const getProjectList = () => {
-  if (__STANDALONE__) {
+  if (isStandalone.value) {
     standaloneCache.getProjectList().then((projectList) => {
       projectListCopy.value = projectList;
       projectListCopy2.value = projectList;
@@ -301,7 +303,7 @@ const deleteProject = (_id: string) => {
     const notifyProjectDeleted = () => {
       window.electronAPI?.sendToMain('apiflow-content-project-deleted', _id);
     }
-    if (__STANDALONE__) {
+    if (isStandalone.value) {
       try {
         await standaloneCache.deleteProject(_id);
         getProjectList();
@@ -336,7 +338,7 @@ const handleStar = async (item: ApidocProjectInfo) => {
   }
   starLoading.value = true;
   try {
-    if (__STANDALONE__) {
+    if (isStandalone.value) {
       const projectList = await standaloneCache.getProjectList();
       const project = projectList.find(p => p._id === item._id);
       if (project) {
@@ -368,7 +370,7 @@ const handleUnStar = async (item: ApidocProjectInfo) => {
   }
   unStarLoading.value = true;
   try {
-    if (__STANDALONE__) {
+    if (isStandalone.value) {
       const projectList = await standaloneCache.getProjectList();
       const project = projectList.find(p => p._id === item._id);
       if (project) {
@@ -401,7 +403,7 @@ const initCahce = () => {
 }
 //跳转到编辑
 const handleJumpToProject = (item: ApidocProjectInfo) => {
-  if(!__STANDALONE__){
+  if(!isStandalone.value){
     request.put('/api/project/visited', { projectId: item._id }).catch((err) => {
       console.error(err);
     });
@@ -433,7 +435,7 @@ const handleJumpToView = (item: ApidocProjectInfo) => {
 }
 //新增项目成功
 const handleAddSuccess = async (data: { projectId: string, projectName: string }) => {
-  if (__STANDALONE__) {
+  if (isStandalone.value) {
     await getProjectList();
     dialogVisible.value = false;
   }
@@ -473,7 +475,7 @@ const debounceSearch = debounce(async () => {
     }, 100)
     return
   }
-  if (__STANDALONE__) {
+  if (isStandalone.value) {
     const keyword = projectKeyword.value.toLowerCase().trim();
     const docs = await standaloneCache.getDocsList();
     const projectList = await standaloneCache.getProjectList();

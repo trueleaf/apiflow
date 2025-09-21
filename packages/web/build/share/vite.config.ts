@@ -9,13 +9,13 @@ export default defineConfig({
   root: __dirname, // 设置根目录为当前目录
   plugins: [
     vue(),
-    viteSingleFile(), // 启用单文件插件
+    viteSingleFile(), // 启用单文件输出
     // visualizer({
-    //   filename: 'dist/bundle-analysis.html', // 分析报告输出路径
+    //   filename: 'dist/bundle-analysis.html', // 输出分析报告的路径
     //   open: true, // 构建完成后自动打开分析报告
     //   gzipSize: true, // 显示 gzip 压缩后的大小
     //   brotliSize: true, // 显示 brotli 压缩后的大小
-    //   template: 'treemap' // 使用树形图模板
+    //   template: 'treemap' // 使用矩形树图模板
     // })
   ],
   resolve: {
@@ -25,13 +25,12 @@ export default defineConfig({
     }
   },
   define: {
-    // 注入环境变量，用于控制是否为HTML模式
+    // 注入构建时间和环境变量标记是否为HTML模式
     __APP_BUILD_TIME__: JSON.stringify(dayjs().format('YYYY-MM-DD HH:mm:ss')),
-    'import.meta.env.VITE_USE_FOR_HTML': JSON.stringify('true'),
-    __STANDALONE__: false
+    'import.meta.env.VITE_USE_FOR_HTML': JSON.stringify('true')
   },
   build: {
-    target: 'esnext', // 支持顶级 await
+    target: 'esnext', // 支持顶层 await
     // 指定自定义入口
     rollupOptions: {
       input: {
@@ -40,11 +39,11 @@ export default defineConfig({
     },
     // 内联所有资源
     cssCodeSplit: false,
-    assetsInlineLimit: 1000000000, // 内联所有资源
-    // 输出单文件
+    assetsInlineLimit: 1000000000, // 允许较大的内联资源
+    // 输出目录
     outDir: 'dist',
     emptyOutDir: true,
-    // 启用sourcemap
+    // 关闭 sourcemap
     // sourcemap: true
   },
   server: {
@@ -62,3 +61,4 @@ export default defineConfig({
   },
 
 })
+

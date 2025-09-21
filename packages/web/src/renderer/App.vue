@@ -14,7 +14,7 @@
 
 <script setup lang="ts">
 import { config } from '@/../config/config';
-import { onMounted, ref, watch } from 'vue';
+import { computed, onMounted, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { changeLanguage } from './i18n';
 import { useRouter } from 'vue-router';
@@ -24,10 +24,13 @@ import { ElMessageBox } from 'element-plus';
 import { useApidocBaseInfo } from './store/apidoc/base-info';
 import { Language } from '@src/types';
 import LanguageMenu from '@/components/common/language/language.vue';
+import { useRuntime } from './store/runtime/runtime.ts';
 
 const router = useRouter();
 const dialogVisible = ref(false);
 const apidocBaseInfoStore = useApidocBaseInfo()
+const runtimeStore = useRuntime();
+const isOffline = computed(() => runtimeStore.networkMode === 'offline');
 const { t } = useI18n()
 
 // 语言菜单相关状态
@@ -137,7 +140,7 @@ const bindTopBarEvent = () => {
   // 主进程发送的事件名称：apiflow-change-project
   window.electronAPI?.onMain('apiflow-change-project', async (data: { projectId: string, projectName: string }) => {
     let matchedProject = null;
-    if (__STANDALONE__) {
+    if (isOffline.value) {
       const projectList = await standaloneCache.getProjectList();
       matchedProject = projectList.find(p => p._id === data.projectId);
     } else {
@@ -162,7 +165,7 @@ const bindTopBarEvent = () => {
         projectName: matchedProject.projectName
       })
     }
-    if (__STANDALONE__) {
+    if (isOffline.value) {
       await apidocBaseInfoStore.getProjectBaseInfo({ projectId: data.projectId })
       await apidocBaseInfoStore.changeProjectId(data.projectId)
     }

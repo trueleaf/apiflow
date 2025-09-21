@@ -104,11 +104,14 @@ import SFork from './fork/fork.vue'
 import type { StandaloneExportHtmlParams } from '@src/types/standalone.ts';
 import { standaloneCache } from '@/cache/standalone';
 import { downloadStringAsText } from '@/helper';
+import { useRuntime } from '@/store/runtime/runtime';
 
 const apidocBaseInfoStore = useApidocBaseInfo();
 const apidocBannerStore = useApidocBanner();
 const variableStore = useVariable();
 const route = useRoute()
+const runtimeStore = useRuntime();
+const isStandalone = computed(() => runtimeStore.networkMode === 'offline');
 //可导出数据类型
 const selectedType: Ref<'html' | 'pdf' | 'word' | 'moyu' | 'otherProject'> = ref('html')
 //项目基本信息
@@ -145,7 +148,7 @@ const loading = ref(false);
 const config: Ref<{ isEnabled: boolean } | null> = ref(null)
 //导出为html
 const handleExportAsHTML = async () => {
-  if (__STANDALONE__) {
+  if (isStandalone.value) {
     const selectedIds = allCheckedNodes.value.map((val) => val._id);
     const allDocs = await standaloneCache.getDocsByProjectId(apidocBaseInfoStore._id);
     const selectedDocs = allDocs.filter((doc) => {
@@ -204,7 +207,7 @@ const handleExportAsHTML = async () => {
 }
 //导出为apiflow文档
 const handleExportAsApiflow = async () => {
-  if (__STANDALONE__) {
+  if (isStandalone.value) {
     const selectedIds = allCheckedNodes.value.map((val) => val._id);
     const allDocs = await standaloneCache.getDocsByProjectId(apidocBaseInfoStore._id);
     const selectedDocs = allDocs.filter((doc) => {
@@ -261,7 +264,7 @@ const handleExportAsPdf = () => {
 }
 //导出为word
 const handleExportAsWord = async () => {
-  if (__STANDALONE__) {
+  if (isStandalone.value) {
     const selectedIds = allCheckedNodes.value.map((val) => val._id);
     const allDocs = await standaloneCache.getDocsByProjectId(apidocBaseInfoStore._id);
     const selectedDocs = allDocs.filter((doc) => {

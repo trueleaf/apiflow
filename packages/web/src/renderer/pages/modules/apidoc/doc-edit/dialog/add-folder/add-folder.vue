@@ -17,12 +17,13 @@ import SFormItem from '@/components/common/forms/form/g-form-item.vue'
 import SDialog from '@/components/common/dialog/g-dialog.vue'
 import { Response, ApidocBanner } from '@src/types'
 import { useI18n } from 'vue-i18n'
-import { ref } from 'vue';
+import { computed, ref } from 'vue';
 import { request } from '@/api/api';
 import { useRoute } from 'vue-router';
 import { generateEmptyHttpNode } from '@/helper';
 import { nanoid } from 'nanoid';
 import { standaloneCache } from '@/cache/standalone';
+import { useRuntime } from '@/store/runtime/runtime';
 
 const props = defineProps({
   modelValue: {
@@ -40,8 +41,10 @@ const form = ref<FormInstance>();
 const emits = defineEmits(["update:modelValue", "success"]);
 const { t } = useI18n()
 
+const runtimeStore = useRuntime();
 const loading = ref(false);
 const route = useRoute()
+const isStandalone = computed(() => runtimeStore.networkMode === 'offline');
 /*
 |--------------------------------------------------------------------------
 | 方法定义
@@ -49,7 +52,7 @@ const route = useRoute()
 */
 const handleAddFolder = () => {
   form.value?.validate(async (valid) => {
-    if(__STANDALONE__ && valid){
+    if(isStandalone.value && valid){
       const { formInfo } = form.value as any;
       const nodeInfo = generateEmptyHttpNode(nanoid())
       nodeInfo.info.name = formInfo.name

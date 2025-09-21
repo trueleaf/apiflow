@@ -30,13 +30,14 @@
 <script lang="ts" setup>
 import { useI18n } from 'vue-i18n'
 import { Response, ApidocBanner } from '@src/types'
-import { ref, watch } from 'vue';
+import { computed, ref, watch } from 'vue';
 import { ElMessage, FormInstance, ElInput } from 'element-plus';
 import { request } from '@/api/api';
 import { useRoute } from 'vue-router';
 import { generateEmptyHttpNode, generateEmptyWebsocketNode } from '@/helper';
 import { standaloneCache } from '@/cache/standalone';
 import { nanoid } from 'nanoid';
+import { useRuntime } from '@/store/runtime/runtime';
 
 const props = defineProps({
   modelValue: {
@@ -52,6 +53,7 @@ const props = defineProps({
 const emits = defineEmits(['update:modelValue', 'success']);
 const { t } = useI18n()
 
+const runtimeStore = useRuntime();
 const loading = ref(false);
 const form = ref<FormInstance>();
 const nameInput = ref<InstanceType<typeof ElInput>>();
@@ -60,6 +62,7 @@ const formData = ref({
   type: 'http',
   name: ''
 })
+const isStandalone = computed(() => runtimeStore.networkMode === 'offline')
 const formRules = {
   name: [
     { required: true, message: t('请输入接口名称'), trigger: 'change' }
@@ -88,7 +91,7 @@ const handleAddFile = () => {
       return;
     }
     loading.value = true;
-    if(__STANDALONE__ && formData.value.type === 'http'){
+    if(isStandalone.value && formData.value.type === 'http'){
       const nodeInfo = generateEmptyHttpNode(nanoid())
       nodeInfo.info.name = formData.value.name
       nodeInfo.projectId = route.query.id as string
@@ -111,7 +114,7 @@ const handleAddFile = () => {
       handleClose();
       loading.value = false;
       return;
-    } else if (__STANDALONE__ && formData.value.type === 'websocket') {
+    } else if (isStandalone.value && formData.value.type === 'websocket') {
       const websocketNode = generateEmptyWebsocketNode(nanoid())
       websocketNode.info.name = formData.value.name
       websocketNode.projectId = route.query.id as string

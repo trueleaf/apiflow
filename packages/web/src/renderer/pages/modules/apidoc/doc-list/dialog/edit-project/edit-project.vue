@@ -21,6 +21,7 @@ import { useI18n } from 'vue-i18n'
 import { nextTick, ref, watch } from 'vue';
 import Dialog from '@/components/common/dialog/g-dialog.vue';
 import { standaloneCache } from '@/cache/standalone';
+import { useRuntime } from '@/store/runtime/runtime';
 
 const props = defineProps({
   modelValue: {
@@ -39,7 +40,8 @@ const props = defineProps({
 const emits = defineEmits(['update:modelValue', 'success'])
 const { t } = useI18n()
 
-const isStandalone = ref(__STANDALONE__)
+const runtimeStore = useRuntime();
+const isStandalone = computed(() => runtimeStore.networkMode === 'offline')
 const formInfo = ref({
   projectName: '',
 })

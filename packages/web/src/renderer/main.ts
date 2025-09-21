@@ -11,20 +11,21 @@ import "@/assets/font/iconfont.js";
 import { standaloneCache } from "./cache/standalone";
 import { i18n } from "./i18n";
 import { shortcutManager } from "./shortcut/index.ts";
+import { useRuntime } from "./store/runtime/runtime.ts";
 
 
 shortcutManager.init();
 const pinia = createPinia();
 const app = createApp(App);
-// console.log(pinia)
-if (__STANDALONE__) {
+app.use(pinia)
+
+const runtimeStore = useRuntime();
+if (runtimeStore.networkMode === 'offline') {
   try { await standaloneCache.init(); }
   catch (e) { console.warn("本地缓存初始化失败，已跳过：", e); }
 }
 
-app
-  .use(pinia)
-  .use(customDirective)
+app.use(customDirective)
   .use(i18n)
   .use(ElementPlus, {
     locale: elZhCn,

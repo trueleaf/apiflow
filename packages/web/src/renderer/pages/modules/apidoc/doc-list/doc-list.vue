@@ -34,12 +34,14 @@ import tabB from './tab-b/tab-b.vue'
 import { useI18n } from 'vue-i18n'
 import { TabPaneName } from 'element-plus'
 import { httpNodeCache } from '@/cache/http/httpNodeCache.ts'
+import { useRuntime } from '@/store/runtime/runtime'
 
 const { getActiveApidocTab, setActiveApidocTab } = httpNodeCache
 const { t } = useI18n()
 
 const activeName = ref('projectList'); //当前激活选项卡
-const isStandalone = ref(__STANDALONE__)
+const runtimeStore = useRuntime();
+const isStandalone = computed(() => runtimeStore.networkMode === 'offline')
 const activeComponent = computed(() => {
   if (activeName.value === 'projectList') {
     return tabA

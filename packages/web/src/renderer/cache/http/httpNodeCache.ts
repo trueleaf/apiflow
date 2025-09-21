@@ -9,12 +9,6 @@ import type { ApidocCookie } from '@src/renderer/store/apidoc/cookies';
 class HttpNodeCache extends HttpResponseCache {
   constructor() {
     super();
-    if (!localStorage.getItem('httpNode/paramsConfig')) {
-      localStorage.setItem('httpNode/paramsConfig', '{}');
-    }
-    if (!localStorage.getItem('httpNode/apidoc')) {
-      localStorage.setItem('httpNode/apidoc', '{}');
-    }
     this.initApiflowHttpResponseCache();
   }
 

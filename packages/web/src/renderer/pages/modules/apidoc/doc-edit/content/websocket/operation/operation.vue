@@ -69,11 +69,14 @@ import { uuid } from '@/helper';
 import { websocketResponseCache } from '@/cache/websocket/websocketResponse';
 import { getWebSocketHeaders } from '@/server/request/request';
 import { useRedoUndo } from '@/store/redoUndo/redoUndo';
+import { useRuntime } from '@/store/runtime/runtime';
 
 const { t } = useI18n();
 const websocketStore = useWebSocket();
 const apidocTabsStore = useApidocTas();
 const redoUndoStore = useRedoUndo();
+const runtimeStore = useRuntime();
+const isStandalone = computed(() => runtimeStore.networkMode === 'offline');
 const { currentSelectTab } = storeToRefs(apidocTabsStore);
 const { saveLoading, refreshLoading, websocketFullUrl: fullUrl, connectionState, connectionId } = storeToRefs(websocketStore);
 
@@ -300,7 +303,7 @@ const handleRefresh = async () => {
       await websocketResponseCache.clearData(nodeId);
     }
     
-    if (__STANDALONE__) {
+    if (isStandalone.value) {
       if (currentSelectTab.value) {
         websocketStore.getWebsocketDetail({
           id: currentSelectTab.value._id,

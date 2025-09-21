@@ -87,12 +87,13 @@ import { request } from '@/api/api';
 import { config } from '@src/config/config';
 import { ElMessage, FormInstance, genFileId, UploadFile, UploadInstance, UploadProps, UploadRawFile } from 'element-plus';
 import { useI18n } from 'vue-i18n'
-import { nextTick, PropType, ref, watch } from 'vue';
+import { computed, nextTick, PropType, ref, watch } from 'vue';
 import Dialog from '@/components/common/dialog/g-dialog.vue';
 import { AddProjectVariableFormInfo, AddProjectVariableParams } from '../variable.vue';
 import SJsonEditor from '@/components/common/json-editor/g-json-editor.vue'
 import { useRoute } from 'vue-router';
 import { standaloneCache } from '@/cache/standalone';
+import { useRuntime } from '@/store/runtime/runtime';
 
 
 const props = defineProps({
@@ -129,7 +130,8 @@ const loading = ref(false);
 const formInstance = ref<FormInstance>();
 const uploadInstance = ref<UploadInstance>()
 const route = useRoute()
-const isStandalone = ref(__STANDALONE__)
+const runtimeStore = useRuntime();
+const isStandalone = computed(() => runtimeStore.networkMode === 'offline')
 
 watch(() => props.editData, (val) => {
   if (!val) {

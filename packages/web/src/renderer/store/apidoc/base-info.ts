@@ -15,6 +15,7 @@ import { useVariable } from './variables';
 import { standaloneCache } from '@/cache/standalone.ts';
 import { requestMethods } from '@/data/data.ts';
 import { httpNodeCache } from '@/cache/http/httpNodeCache.ts';
+import { useRuntime } from '../runtime/runtime';
 
 type ChangeProjectBaseInfo = {
   _id: string;
@@ -65,6 +66,8 @@ const getMatchedHeaders = (data: ApidocProjectBaseInfoState['commonHeaders'], op
   }
 }
 export const useApidocBaseInfo = defineStore('apidocBaseInfo', () => {
+  const runtimeStore = useRuntime();
+  const isOffline = () => runtimeStore.networkMode === 'offline';
   const _id = ref('');
   const projectName = ref('');
   const rules = ref<ApidocProjectRules>({
@@ -215,7 +218,7 @@ export const useApidocBaseInfo = defineStore('apidocBaseInfo', () => {
    */
   const getProjectBaseInfo = async (payload: { projectId: string }): Promise<void> => {
     const { replaceVariables } = useVariable();
-    if(__STANDALONE__){
+    if (isOffline()){
       const projectInfo = await standaloneCache.getProjectInfo(payload.projectId);
       if(projectInfo){
         projectName.value = projectInfo.projectName;
@@ -276,7 +279,7 @@ export const useApidocBaseInfo = defineStore('apidocBaseInfo', () => {
    * 获取全部公共请求头信息
    */
   const getCommonHeaders = async (): Promise<void> => {
-    if(__STANDALONE__){
+    if (isOffline()){
       // todo
       return;
     }
@@ -299,7 +302,7 @@ export const useApidocBaseInfo = defineStore('apidocBaseInfo', () => {
    */
   const getGlobalCommonHeaders = async (): Promise<void> => {
     return new Promise(async (resolve, reject) => {
-      if(__STANDALONE__){
+      if (isOffline()){
         const commonHeaders = await standaloneCache.getCommonHeaders();
         globalCommonHeaders.value = commonHeaders;
         resolve();

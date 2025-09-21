@@ -117,6 +117,7 @@ import { config } from '@src/config/config'
 import { formatDate } from '@/helper'
 import { Delete } from '@element-plus/icons-vue'
 import { standaloneCache } from '@/cache/standalone'
+import { useRuntime } from '@/store/runtime/runtime'
 
 
 dayjs.extend(isYesterday)
@@ -149,7 +150,8 @@ type SearchInfo = {
 const projectId = router.currentRoute.value.query.id as string; //项目id
 const folderUrl = new URL('@/assets/imgs/apidoc/folder.png', import.meta.url).href;
 const fileUrl = new URL('@/assets/imgs/apidoc/file.png', import.meta.url).href;
-const isStandalone = ref(__STANDALONE__)
+const runtimeStore = useRuntime();
+const isStandalone = computed(() => runtimeStore.networkMode === 'offline')
 const formInfo: Ref<SearchInfo> = ref({
   projectId, //项目id
   startTime: null, //--起始日期
