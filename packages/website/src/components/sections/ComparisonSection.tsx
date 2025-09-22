@@ -42,12 +42,20 @@ export default function ComparisonSection() {
       ],
     },
     {
-      category: '历史记录/审计',
+      category: '历史记录',
       items: [
         { feature: '发送请求历史记录', apiflow: true, postman: true, hoppscotch: true, apifox: true },
         { feature: '单个节点历史记录', apiflow: true, postman: 'limit(付费版)', hoppscotch: '??', apifox: '??' },
-        { feature: '审计功能', apiflow: true, postman: 'limit(付费版)', hoppscotch: false, apifox: 'limit(付费版)' },
         { feature: '回收站', apiflow: true, postman: true, hoppscotch: false, apifox: true },
+      ],
+    },
+    {
+      category: '团队协作',
+      items: [
+        { feature: '工作区', apiflow: true, postman: true, hoppscotch: true, apifox: true },
+        { feature: '角色与权限（RBAC', apiflow: true, postman: true, hoppscotch: true, apifox: true },
+        { feature: '评论/讨论', apiflow: false, postman: true, hoppscotch: false, apifox: true },
+        { feature: '审计功能', apiflow: true, postman: 'limit(付费版)', hoppscotch: false, apifox: 'limit(付费版)' },
       ],
     },
   ];

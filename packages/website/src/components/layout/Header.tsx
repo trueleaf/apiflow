@@ -14,8 +14,8 @@ export default function Header() {
   const locale = useLocale();
 
   const navigation = [
-    { name: t('功能特性'), href: '#features' },
-    { name: t('产品演示'), href: '#demo' },
+    { name: t('首页'), href: `/${locale}` },
+    { name: t('产品展示'), href: `/${locale}/product-showcase` },
     { name: t('使用文档'), href: `/${locale}/usage-docs` },
     { name: t('部署教程'), href: `/${locale}/deployment-guide` },
   ];

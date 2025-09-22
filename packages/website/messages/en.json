@@ -1,6 +1,4 @@
 {
-  "功能特性": "Features",
-  "产品演示": "Demo",
   "关于我们": "About",
   "联系我们": "Contact",
   "GitHub": "GitHub",
@@ -127,5 +125,9 @@
   "部署教程_章节_排障_描述": "Check these tips first when something goes wrong.",
   "部署教程_章节_排障_要点1": "Service unreachable: examine firewalls or proxies and verify port mappings.",
   "部署教程_章节_排障_要点2": "API returns 5xx: inspect service logs for database or dependency failures.",
-  "部署教程_章节_排障_要点3": "Assets missing: refresh CDN caches and rebuild the frontend bundle."
+  "部署教程_章节_排障_要点3": "Assets missing: refresh CDN caches and rebuild the frontend bundle.",
+  "首页": "Home",
+  "产品展示": "Product Showcase",
+  "产品展示_标题": "Product Showcase",
+  "产品展示_描述": "Explore highlights of Apiflow's upcoming product experience. Full details coming soon."
 }
