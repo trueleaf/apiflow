@@ -13,6 +13,7 @@
     <SPackage v-else-if="currentSelectTab.tabType === 'package'"></SPackage>
     <SApidoc v-else-if="currentSelectTab.tabType === 'http'"></SApidoc>
     <SCookies v-else-if="currentSelectTab.tabType === 'cookies'"></SCookies>
+    <SHttpMock v-else-if="currentSelectTab.tabType === 'httpMock'"></SHttpMock>
     <SWebsocket v-else-if="currentSelectTab.tabType === 'websocket'"></SWebsocket>
   </keep-alive>
 

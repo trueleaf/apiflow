@@ -14,6 +14,7 @@ export type ApidocTabType =
   'apiflow' |
   'cookies' |
   'websocket' |
+  'httpMock' |
   'prefix'
 export type ApidocTab = {
   /**

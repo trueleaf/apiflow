@@ -54,6 +54,31 @@
                 </el-icon>
               </div>
             </template>
+            <template v-else-if="scope.data.type === 'httpMock'">
+              <span class="file-icon mock">{{ scope.data.method }}</span>
+              <div v-if="editNode?._id !== scope.data._id" class="node-label-wrap">
+                <SEmphasize class="node-top" :title="scope.data.name" :value="scope.data.name" :keyword="filterString">
+                </SEmphasize>
+                <SEmphasize v-show="showMoreNodeInfo" class="node-bottom" :title="scope.data.url"
+                  :value="scope.data.url" :keyword="filterString"></SEmphasize>
+              </div>
+              <input 
+                v-else 
+                :value="scope.data.name" 
+                :placeholder="t('不能为空')" 
+                type="text" 
+                class="rename-ipt"
+                :class="{ error: scope.data.name.trim() === '' }" 
+                @blur="handleChangeNodeName($event, scope.data)"
+                @input="handleWatchNodeInput($event)" 
+                @keydown.stop.enter="handleChangeNodeName($event, scope.data)"
+              >
+              <div class="more" @click.stop="handleShowContextmenu($event, scope.data)">
+                <el-icon class="more-op" :title="t('更多操作')" :size="16">
+                  <more-filled />
+                </el-icon>
+              </div>
+            </template>
             <!-- 文件夹渲染 -->
             <template v-if="scope.data.type === 'folder'">
               <i class="iconfont folder-icon iconweibiaoti-_huabanfuben"></i>
@@ -315,6 +340,20 @@ const handleClickNode = (e: MouseEvent, data: ApidocBanner) => {
         head: {
           icon: data.method,
           color: ""
+        },
+      })
+    } else if (data.type === 'httpMock') {
+      apidocTabsStore.addTab({
+        _id: data._id,
+        projectId: projectId.value,
+        tabType: 'httpMock',
+        label: data.name,
+        saved: true,
+        fixed: false,
+        selected: true,
+        head: {
+          icon: 'MOCK',
+          color: ''
         },
       })
     } else if (data.type === 'websocket') {

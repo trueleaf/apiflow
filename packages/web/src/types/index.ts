@@ -7,3 +7,4 @@ export * from './apidoc';
 export * from './renderer';
 export * from './standalone';
 export * from './history';
+export * from './mock/mock';

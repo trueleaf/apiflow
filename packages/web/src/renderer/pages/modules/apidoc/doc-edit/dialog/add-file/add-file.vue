@@ -34,7 +34,7 @@ import { computed, ref, watch } from 'vue';
 import { ElMessage, FormInstance, ElInput } from 'element-plus';
 import { request } from '@/api/api';
 import { useRoute } from 'vue-router';
-import { generateEmptyHttpNode, generateEmptyWebsocketNode } from '@/helper';
+import { generateEmptyHttpNode, generateEmptyWebsocketNode, generateEmptyHttpMockNode } from '@/helper';
 import { standaloneCache } from '@/cache/standalone';
 import { nanoid } from 'nanoid';
 import { useRuntime } from '@/store/runtime/runtime';
@@ -114,6 +114,32 @@ const handleAddFile = () => {
       handleClose();
       loading.value = false;
       return;
+    } else if (isStandalone.value && formData.value.type === 'httpMock') {
+      const mockNode = generateEmptyHttpMockNode(nanoid())
+      mockNode.info.name = formData.value.name
+      mockNode.projectId = route.query.id as string
+      mockNode.pid = props.pid
+      mockNode.sort = Date.now()
+      mockNode.isDeleted = false;
+      mockNode.createdAt = new Date().toISOString()
+      mockNode.updatedAt = mockNode.createdAt
+      await standaloneCache.addDoc(mockNode)
+      emits('success', {
+        _id: mockNode._id,
+        pid: mockNode.pid,
+        sort: mockNode.sort,
+        name: mockNode.info.name,
+        type: formData.value.type,
+        method: mockNode.requestCondition.method,
+        url: mockNode.requestCondition.url,
+        port: mockNode.requestCondition.port,
+        maintainer: mockNode.info.maintainer,
+        updatedAt: mockNode.updatedAt,
+      });
+      handleClose();
+      loading.value = false;
+      return;
+    
     } else if (isStandalone.value && formData.value.type === 'websocket') {
       const websocketNode = generateEmptyWebsocketNode(nanoid())
       websocketNode.info.name = formData.value.name
@@ -141,7 +167,7 @@ const handleAddFile = () => {
       loading.value = true;
       const params = {
         name: formData.value.name,
-        type: formData.value.type === 'websocket' ? 'websocket' : 'http',
+        type: formData.value.type,
         projectId: route.query.id as string,
         pid: props.pid,
       };

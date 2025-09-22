@@ -1,5 +1,6 @@
 import type { Method } from "got";
 import { WebSocketNode } from "../websocket/websocket.ts";
+import { MockHttpNode } from "../mock/mock.ts";
 
 /*
 |--------------------------------------------------------------------------
@@ -10,7 +11,7 @@ import { WebSocketNode } from "../websocket/websocket.ts";
 |  
 |--------------------------------------------------------------------------
 */
-export type ApiNode = HttpNode | WebSocketNode | FolderNode;
+export type ApiNode = HttpNode | WebSocketNode | MockHttpNode | FolderNode;
 
 export type HttpNode = {
   /**
@@ -166,6 +167,21 @@ export type ApidocBannerOfHttpNode = {
   children: ApidocBanner[];
 }
 
+export type ApidocBannerOfHttpMockNode = {
+  _id: string;
+  updatedAt: string;
+  type: 'httpMock';
+  sort: number;
+  pid: string;
+  name: string;
+  maintainer: string;
+  method: Method | 'ALL';
+  url: string;
+  port: number;
+  readonly: boolean;
+  children: ApidocBanner[];
+}
+
 export type ApidocBannerOfWebsocketNode = {
   _id: string;
   updatedAt: string;
@@ -212,7 +228,7 @@ export type ApidocBannerOfFolderMarkdown = {
   children: ApidocBanner[];
 }
 
-export type ApidocBanner = ApidocBannerOfHttpNode | ApidocBannerOfWebsocketNode | ApidocBannerOfFolderNode | ApidocBannerOfFolderMarkdown;
+export type ApidocBanner = ApidocBannerOfHttpNode | ApidocBannerOfHttpMockNode | ApidocBannerOfWebsocketNode | ApidocBannerOfFolderNode | ApidocBannerOfFolderMarkdown;
 /*
 |--------------------------------------------------------------------------
 | 通用类型
@@ -221,7 +237,7 @@ export type ApidocBanner = ApidocBannerOfHttpNode | ApidocBannerOfWebsocketNode 
 /**
  * 接口基础类型
  */
-export type ApidocType = 'folder' | 'http' | 'markdown' | 'websocket';
+export type ApidocType = 'folder' | 'http' | 'httpMock' | 'markdown' | 'websocket';
 /**
  * 接口参数信息
  */
@@ -790,5 +806,8 @@ export type ApidocCodeInfo = {
    */
   _id: string;
 };
+
+
+
 
 

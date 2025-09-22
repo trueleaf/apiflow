@@ -6,7 +6,7 @@
  * @create             2021-06-15 22:55
  */
 import { nanoid } from 'nanoid/non-secure'
-import type { HttpNodeRequestMethod, ApidocProperty, HttpNodePropertyType, HttpNode, ApidocBanner, HttpNodeRequestParamTypes, ApidocCodeInfo, FolderNode, ApiNode, ApidocProjectInfo } from '@src/types'
+import type { HttpNodeRequestMethod, ApidocProperty, HttpNodePropertyType, HttpNode, ApidocBanner, HttpNodeRequestParamTypes, ApidocCodeInfo, FolderNode, ApiNode, MockHttpNode, ApidocProjectInfo } from '@src/types'
 import isEqual from 'lodash/isEqual';
 import lodashCloneDeep from 'lodash/cloneDeep';
 import lodashDebounce from 'lodash/debounce';
@@ -437,7 +437,8 @@ export const generateEmptyProject = (_id: string): ApidocProjectInfo => {
     projectName: '',
     remark: '',
     updatedAt: new Date().toISOString(),
-    isStared: false
+    isStared: false,
+    isDeleted: false,
   }
 }
 
@@ -498,6 +499,9 @@ export const generateEmptyHttpNode = (_id: string): HttpNode => {
     afterRequest: {
       raw: ''
     },
+    isDeleted: false,
+    createdAt: '',
+    updatedAt: '',
   }
 }
 
@@ -544,8 +548,78 @@ export const generateEmptyWebsocketNode = (_id: string): WebSocketNode => {
     afterRequest: {
       raw: ''
     },
+    createdAt: '',
+    updatedAt: '',
+    isDeleted: false,
   }
 }
+
+//生成一份空的HTTP mock节点
+export const generateEmptyHttpMockNode = (_id: string): MockHttpNode => {
+  return {
+    _id,
+    pid: '',
+    projectId: '',
+    sort: 0,
+    info: {
+      name: '',
+      description: '',
+      version: '1.0.0',
+      type: 'httpMock',
+      creator: '',
+      maintainer: '',
+      deletePerson: '',
+    },
+    requestCondition: {
+      method: 'ALL',
+      url: '',
+      port: 0,
+    },
+    config: {
+      delay: 0,
+    },
+    response: [
+      {
+        isDefault: true,
+        conditions: {
+          name: '',
+          scriptCode: '',
+        },
+        statusCode: 200,
+        headers: {},
+        dataType: 'json',
+        sseConfig: {},
+        jsonConfig: {
+          mode: 'fixed',
+          fixedData: '',
+          randomSize: 0,
+        },
+        textConfig: {
+          mode: 'fixed',
+          fixedData: '',
+          randomSize: 0,
+        },
+        imageConfig: {
+          mode: 'fixed',
+          randomSize: 0,
+          randomWidth: 0,
+          randomHeight: 0,
+          fixedFilePath: '',
+        },
+        fileConfig: {
+          fileType: 'doc',
+        },
+        binaryConfig: {
+          filePath: '',
+        },
+      },
+    ],
+    createdAt: '',
+    updatedAt: '',
+    isDeleted: false,
+  }
+}
+
 
 /**
  * @description        生成一份apidoc默认值(保持向后兼容)
@@ -583,7 +657,6 @@ export function generateHttpNode(id?: string): HttpNode {
 export const generateWebsocketNode = (id?: string): WebSocketNode => {
   const result = generateEmptyWebsocketNode(id || nanoid());
   // 添加一些字段以保持向后兼容
-  result.commonHeaders = [];
   result.createdAt = '';
   result.updatedAt = '';
   result.isDeleted = false;
@@ -824,6 +897,22 @@ export function convertNodesToBannerNodes(docs: ApiNode[] = []): ApidocBanner[] 
           readonly: false,
           children: [],
         };
+      } else if (node.info.type === 'httpMock') {
+        const mockNode = node as MockHttpNode;
+        bannerNode = {
+          _id: mockNode._id,
+          updatedAt: mockNode.updatedAt || '',
+          type: 'httpMock',
+          sort: mockNode.sort,
+          pid: mockNode.pid,
+          name: mockNode.info.name,
+          maintainer: mockNode.info.maintainer,
+          method: mockNode.requestCondition.method,
+          url: mockNode.requestCondition.url,
+          port: mockNode.requestCondition.port,
+          readonly: false,
+          children: [],
+        };
       } else if (node.info.type === 'websocket') {
         bannerNode = {
           _id: node._id,
@@ -975,3 +1064,4 @@ export const getIndexedDBItemCount = async (excludeDbNames?: string[]): Promise<
     return 0;
   }
 };
+
