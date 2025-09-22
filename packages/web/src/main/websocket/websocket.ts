@@ -2,6 +2,9 @@ import { WebSocket } from 'ws';
 import { ipcMain, IpcMainInvokeEvent } from 'electron';
 import { fileTypeFromBuffer } from 'file-type';
 import { WebsocketConnectParams } from '@src/types/websocket/websocket.ts';
+import {
+    ClientRequestArgs,
+} from "http";
 
 /**
  * WebSocket连接管理类
@@ -85,7 +88,9 @@ export class WebSocketManager {
       const connectionId = `ws_${++this.connectionId}`;
       
       // 构建WebSocket连接选项
-      const wsOptions: any = {};
+      const wsOptions: WebSocket.ClientOptions | ClientRequestArgs = {
+        perMessageDeflate: false,
+      };
       if (headers && Object.keys(headers).length > 0) {
         wsOptions.headers = headers;
       }

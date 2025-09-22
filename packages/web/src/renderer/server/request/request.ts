@@ -120,27 +120,30 @@ export const getWebSocketHeaders = async (websocketNode: WebSocketNode, defaultH
   const projectId = websocketNode.projectId;
   const tabs = apidocTabsStore.tabs[projectId];
   const currentSelectTab = tabs?.find((tab) => tab.selected) || null;
-  
+
   if (!currentSelectTab) {
     console.warn('未匹配到当前选中tab');
     return {};
   }
-  
+
   const defaultCommonHeaders = apidocBaseInfoStore.getCommonHeadersById(currentSelectTab?._id || "");
   const ignoreHeaderIds = webSocketNodeCache.getIgnoredCommonHeaderByTabId?.(projectId, currentSelectTab?._id ?? "") || [];
   const commonHeaders = defaultCommonHeaders.filter(header => !ignoreHeaderIds.includes(header._id));
   const headers = websocketNode.item.headers;
   const headersObject: Record<string, string> = {};
-  
-  // 生成Sec-WebSocket-Key
-  const generateWebSocketKey = () => {
+
+  // Web 环境生成 Sec-WebSocket-Key
+  const generateWebSocketKey = (): string => {
     const buffer = new Uint8Array(16);
-    for (let i = 0; i < 16; i++) {
-      buffer[i] = Math.floor(Math.random() * 256);
+    crypto.getRandomValues(buffer);
+    let binary = "";
+    for (let i = 0; i < buffer.length; i++) {
+      binary += String.fromCharCode(buffer[i]);
     }
-    return Buffer.from(buffer).toString('base64');
+    return btoa(binary);
   };
-  
+
+
   // 从URL中提取Host
   const getHostFromUrl = (url: string) => {
     try {
@@ -150,16 +153,16 @@ export const getWebSocketHeaders = async (websocketNode: WebSocketNode, defaultH
       return 'localhost';
     }
   };
-  
+
   // 处理默认请求头
   for (let i = 0; i < defaultHeaders.length; i++) {
     const header = defaultHeaders[i];
     if (!header.select && header.key !== 'Host' && header.key !== 'Upgrade' && header.key !== 'Connection' && header.key !== 'Sec-WebSocket-Key' && header.key !== 'Sec-WebSocket-Version') {
       continue; // 跳过未选中的可选请求头
     }
-    
+
     const headerKey = header.key.toLowerCase();
-    
+
     // 特殊处理必需的请求头
     if (header.key === 'Host') {
       headersObject[headerKey] = getHostFromUrl(fullUrl);
@@ -177,7 +180,7 @@ export const getWebSocketHeaders = async (websocketNode: WebSocketNode, defaultH
       headersObject[headerKey] = realValue;
     }
   }
-  
+
   // 处理公共请求头
   for (let i = 0; i < commonHeaders.length; i++) {
     const header = commonHeaders[i];
@@ -186,16 +189,16 @@ export const getWebSocketHeaders = async (websocketNode: WebSocketNode, defaultH
       continue;
     }
     const headerKeyLower = realKey.toLowerCase();
-    
+
     // 不允许覆盖关键的WebSocket握手头
     if (headerKeyLower === 'sec-websocket-key' || headerKeyLower === 'sec-websocket-version') {
       continue;
     }
-    
+
     const realValue = await convertTemplateValueToRealValue(header.value, objectVariable);
     headersObject[headerKeyLower] = realValue;
   }
-  
+
   // 处理用户填写的请求头 (会覆盖公共请求头)
   for (let i = 0; i < headers.length; i++) {
     const header = headers[i];
@@ -207,23 +210,23 @@ export const getWebSocketHeaders = async (websocketNode: WebSocketNode, defaultH
       continue;
     }
     const headerKeyLower = realKey.toLowerCase();
-    
+
     // 不允许覆盖关键的WebSocket握手头
     if (headerKeyLower === 'sec-websocket-key' || headerKeyLower === 'sec-websocket-version') {
       continue;
     }
-    
+
     const realValue = await convertTemplateValueToRealValue(header.value, objectVariable);
     headersObject[headerKeyLower] = realValue;
   }
-  
+
   // 处理Cookie
   const matchedCookies = getMachtedCookies(fullUrl);
   if (matchedCookies.length > 0) {
     const cookieHeader = matchedCookies.map(c => `${c.name}=${c.value}`).join('; ');
     headersObject['cookie'] = cookieHeader;
   }
-  
+  // console.log('最终WebSocket请求头', headersObject);
   return headersObject;
 };
 const getBody = async (apidoc: HttpNode): Promise<GotRequestOptions['body']> => {
@@ -319,7 +322,7 @@ const getBody = async (apidoc: HttpNode): Promise<GotRequestOptions['body']> => 
           path: filePath
         }
       };
-    } 
+    }
   }
   if (mode === 'none') {
     return undefined;
@@ -349,7 +352,7 @@ const getHeaders = async (apidoc: HttpNode) => {
   const commonHeaders = defaultCommonHeaders.filter(header => !ignoreHeaderIds.includes(header._id));
   const headers = apidoc.item.headers;
   const headersObject: Record<string, string | null> = {};
-  for(let i = 0; i < defaultHeaders.length; i++) {
+  for (let i = 0; i < defaultHeaders.length; i++) {
     const header = defaultHeaders[i];
     if (!header.disabled && !header.select) { //当前请求头可以被取消
       headersObject[header.key.toLowerCase()] = null;
@@ -358,7 +361,7 @@ const getHeaders = async (apidoc: HttpNode) => {
       headersObject[header.key.toLowerCase()] = realValue;
     }
   }
-  for(let i = 0; i < commonHeaders.length; i++) {
+  for (let i = 0; i < commonHeaders.length; i++) {
     const header = commonHeaders[i];
     const realKey = await convertTemplateValueToRealValue(header.key, objectVariable);
     if (realKey.trim() === '') {
@@ -373,7 +376,7 @@ const getHeaders = async (apidoc: HttpNode) => {
   //   headersObject['cookie'] = cookieHeader;
   // }
   //用户填写的请求头会覆盖公共请求头
-  for(let i = 0; i < headers.length; i++) {
+  for (let i = 0; i < headers.length; i++) {
     const header = headers[i];
     if (!header.disabled && !header.select) {
       continue
@@ -430,23 +433,23 @@ export async function sendRequest() {
   const apidocStore = useApidoc();
   const { updateCookiesBySetCookieHeader, getMachtedCookies } = useCookies();
   const { changeCancelRequestRef } = useApidocRequest()
-  
+
   // 缓存节流控制
   let lastCacheTime = 0;
   const cacheThrottleDelay = 2000;
-  
+
   // 清理函数，确保资源释放
   const cleanup = () => {
     worker.terminate();
   };
-  const { 
-    changeResponseInfo, 
-    changeResponseBody, 
-    changeResponseCacheAllowed, 
-    changeRequestState, 
-    changeLoadingProcess, 
+  const {
+    changeResponseInfo,
+    changeResponseBody,
+    changeResponseCacheAllowed,
+    changeRequestState,
+    changeLoadingProcess,
     addStreamData,
-    changeFileBlobUrl 
+    changeFileBlobUrl
   } = useApidocResponse()
   const copiedApidoc = cloneDeep(toRaw(apidocStore.$state.apidoc));
   const preSendMethod = getMethod(copiedApidoc);
@@ -526,7 +529,7 @@ export async function sendRequest() {
       },
       beforeRetry: () => {
       },
-      onReadFileFormDataError(options: {id: string, msg: string, fullMsg: string}) {
+      onReadFileFormDataError(options: { id: string, msg: string, fullMsg: string }) {
         cleanup(); // 清理 worker
         apidocStore.changeFormDataErrorInfoById(options.id, options.msg);
         changeResponseInfo({
@@ -537,7 +540,7 @@ export async function sendRequest() {
         });
         changeRequestState('finish');
       },
-      onReadBinaryDataError(options: {msg: string, fullMsg: string}) {
+      onReadBinaryDataError(options: { msg: string, fullMsg: string }) {
         cleanup(); // 清理 worker
         changeResponseInfo({
           responseData: {
@@ -561,7 +564,7 @@ export async function sendRequest() {
           transferred: loadedLength,
           percent: loadedLength / totalLength
         })
-        
+
         // 使用节流机制优化缓存操作，避免高频率的深拷贝和缓存写入
         const now = Date.now();
         if (now - lastCacheTime >= cacheThrottleDelay) {
@@ -738,12 +741,12 @@ export async function sendRequest() {
       httpNodeCache.setPreRequestLocalStorage(projectId, e.data.value);
     } else if (e.data.type === 'pre-request-delete-local-storage') {
       httpNodeCache.setPreRequestLocalStorage(projectId, {});
-    } 
+    }
   })
   worker.addEventListener('message', async (e: MessageEvent<OnEvalSuccess>) => {
     if (e.data.type === 'pre-request-eval-success') {
       invokeRequest()
-    } 
+    }
   });
   worker.addEventListener('error', (error) => {
     changeResponseInfo({
