@@ -28,7 +28,7 @@ import SApidoc from './apidoc/apidoc.vue';
 import SGuide from './guide/guide.vue';
 import SVariable from './variable/variable.vue';
 // import mindParams from './mind-params/mind-params.vue';
-
+import SHttpMock from './mock/mock.vue';
 import SExportDoc from './export/export.vue';
 import SImportDoc from './import/import.vue'
 import SCookies from './cookies/cookies.vue'

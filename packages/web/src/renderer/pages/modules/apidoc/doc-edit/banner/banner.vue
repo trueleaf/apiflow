@@ -54,8 +54,12 @@
                 </el-icon>
               </div>
             </template>
+            <!-- http mock -->
             <template v-else-if="scope.data.type === 'httpMock'">
-              <span class="file-icon mock">{{ scope.data.method }}</span>
+              <span class="mock-icon">
+                <span>mock</span>
+                <!-- <span>ck</span> -->
+              </span>
               <div v-if="editNode?._id !== scope.data._id" class="node-label-wrap">
                 <SEmphasize class="node-top" :title="scope.data.name" :value="scope.data.name" :keyword="filterString">
                 </SEmphasize>
@@ -666,7 +670,14 @@ onUnmounted(() => {
         display: block;
       }
     }
-
+    .mock-icon {
+      display: flex;
+      flex-direction: column;
+      font-size: 10px;
+      border-radius: 50%;
+      margin-right: 5px;
+      color: var(--blue);
+    }
     .file-icon {
       font-size: 14px;
       margin-right: 5px;

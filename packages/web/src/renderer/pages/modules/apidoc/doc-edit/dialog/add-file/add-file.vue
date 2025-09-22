@@ -17,6 +17,7 @@
         <el-radio-group v-model="formData.type">
           <el-radio value="http">HTTP</el-radio>
           <el-radio value="websocket">WebSocket</el-radio>
+          <el-radio value="httpMock">HTTP Mock</el-radio>
         </el-radio-group>
       </el-form-item>
     </el-form>

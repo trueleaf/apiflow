@@ -519,8 +519,7 @@ onUnmounted(() => {
       }
 
       .mock-tab-icon {
-        font-size: 12px;
-        font-weight: 600;
+        font-size: 10px;
         display: inline-flex;
         align-items: center;
         margin-right: 8px;
