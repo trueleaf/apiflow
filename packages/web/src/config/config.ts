@@ -46,8 +46,8 @@ export const config: Config = {
   },
   //主进程配置
   mainConfig: {
-    width: 1440,
-    height: 768,
+    minWidth: 1440,
+    minHeight: 768,
     useLocalFile: false, //使用本地文件作为主进程加载内容
     onlineUrl: 'https://online.jobtool.cn', //若useLocalFile为false则使用当前地址作为electron加载地址
   },

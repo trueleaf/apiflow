@@ -141,13 +141,13 @@ export type Config = {
    */
   mainConfig: {
     /**
-     * 默认electron窗口宽度
+     * 默认electron窗口最小宽度
      */
-    width: number,
+    minWidth: number,
     /**
-     * 默认electron窗口高度
+     * 默认electron窗口最小高度
      */
-    height: number,
+    minHeight: number,
     /**
      * 使用本地文件作为主进程加载内容
      */

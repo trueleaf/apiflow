@@ -6,6 +6,7 @@ import { useIpcEvent } from './ipcMessage/index.ts';
 import { bindMainProcessGlobalShortCut } from './shortcut/index.ts';
 import { overrideBrowserWindow } from './override/index.ts';
 import { webSocketManager } from './websocket/websocket.ts';
+import { config } from '../config/config.ts';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
@@ -18,6 +19,8 @@ const createWindow = () => {
   // 创建主窗口
   const mainWindow = new BrowserWindow({
     frame: false,
+    minWidth: config.mainConfig.minWidth,
+    minHeight: config.mainConfig.minHeight,
     webPreferences: {
       preload: path.join(__dirname, 'preload.mjs'),
       nodeIntegration: true,
