@@ -36,14 +36,11 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, defineAsyncComponent } from 'vue'
+import { ref, computed, defineAsyncComponent, onMounted } from 'vue'
 
 // 导入组件
-const ButtonComponent = defineAsyncComponent(() => import('./components/Button.vue'))
-const InputComponent = defineAsyncComponent(() => import('./components/Input.vue'))
-const DropdownComponent = defineAsyncComponent(() => import('./components/Dropdown.vue'))
-const DialogComponent = defineAsyncComponent(() => import('./components/Dialog.vue'))
-const AlertComponent = defineAsyncComponent(() => import('./components/Alert.vue'))
+const CardComponent = defineAsyncComponent(() => import('@/components/ui/cleanDesign/card/card.vue'))
+const TabsComponent = defineAsyncComponent(() => import('@/components/ui/cleanDesign/tabs/tabs.vue'))
 
 // 搜索词
 const searchTerm = ref('')
@@ -51,37 +48,52 @@ const searchTerm = ref('')
 // 选中的组件
 const selectedComponent = ref<any>(null)
 
+// 缓存键名
+const CACHE_KEY = 'componentLibrary_selectedComponent'
+
+// 从 localStorage 恢复选中的组件
+const restoreSelectedComponent = () => {
+  try {
+    const cached = localStorage.getItem(CACHE_KEY)
+    if (cached) {
+      const cachedComponent = JSON.parse(cached)
+      // 验证缓存的组件是否仍然存在于当前组件列表中
+      const foundComponent = components.value.find(comp => comp.name === cachedComponent.name)
+      if (foundComponent) {
+        selectedComponent.value = foundComponent
+      }
+    }
+  } catch (error) {
+    console.warn('恢复缓存的组件失败:', error)
+  }
+}
+
+// 保存选中的组件到 localStorage
+const saveSelectedComponent = (component: any) => {
+  try {
+    if (component) {
+      localStorage.setItem(CACHE_KEY, JSON.stringify(component))
+    } else {
+      localStorage.removeItem(CACHE_KEY)
+    }
+  } catch (error) {
+    console.warn('保存组件到缓存失败:', error)
+  }
+}
+
 // 组件库数据
 const components = ref([
   {
-    name: '按钮',
+    name: 'Card',
     icon: 'iconfont iconanniu',
-    description: '提供多种样式、状态和尺寸的按钮组件',
+    description: '卡片组件，用于展示相关信息的容器，具有清晰的边界和层次结构',
     category: '基础组件'
   },
   {
-    name: '输入框',
-    icon: 'iconfont iconbiaodan',
-    description: '用于创建交互式表单的组件集合',
-    category: '表单组件'
-  },
-  {
-    name: 'Dropdown',
+    name: 'Tabs',
     icon: 'iconfont iconbiaoge',
-    description: '展示和管理数据的高级表格组件',
-    category: '数据展示'
-  },
-  {
-    name: '对话框',
-    icon: 'iconfont iconduihuakuang',
-    description: '模态对话框，用于确认操作或展示重要信息',
-    category: '反馈组件'
-  },
-  {
-    name: 'alert提示',
-    icon: 'iconfont iconlunbotu',
-    description: '循环展示内容的轮播组件',
-    category: '数据展示'
+    description: '标签页组件，允许用户在不同的内容视图之间切换',
+    category: '导航组件'
   }
 ])
 
@@ -100,16 +112,10 @@ const filteredComponents = computed(() => {
 // 根据组件名称获取对应的组件
 const getComponentByName = (name: string) => {
   switch (name.toLowerCase()) {
-    case '按钮':
-      return ButtonComponent
-    case '输入框':
-      return InputComponent
-    case 'dropdown':
-      return DropdownComponent
-    case '对话框':
-      return DialogComponent
-    case 'alert提示':
-      return AlertComponent
+    case 'card':
+      return CardComponent
+    case 'tabs':
+      return TabsComponent
     default:
       return null
   }
@@ -119,7 +125,13 @@ const getComponentByName = (name: string) => {
 const viewComponentDetails = (component: any) => {
   console.log('查看组件详情:', component)
   selectedComponent.value = component
+  saveSelectedComponent(component)
 }
+
+// 页面加载时恢复缓存的组件
+onMounted(() => {
+  restoreSelectedComponent()
+})
 </script>
 
 <style lang="scss" scoped>
