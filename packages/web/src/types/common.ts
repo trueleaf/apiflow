@@ -149,6 +149,10 @@ export type Config = {
      */
     minHeight: number,
     /**
+     * 顶部栏视图高度
+     */
+    topbarViewHeight: number,
+    /**
      * 使用本地文件作为主进程加载内容
      */
     useLocalFile: boolean,

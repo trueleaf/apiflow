@@ -46,14 +46,14 @@ const createWindow = () => {
 
   // 设置顶部栏位置和大小
   const windowBounds = mainWindow.getContentBounds();
-  topBarView.setBounds({ x: 0, y: 0, width: windowBounds.width, height: 35 })
+  topBarView.setBounds({ x: 0, y: 0, width: windowBounds.width, height: config.mainConfig.topbarViewHeight })
 
   // 设置主内容位置和大小（在顶部栏下方）
   contentView.setBounds({
     x: 0,
-    y: 35,
+    y: config.mainConfig.topbarViewHeight,
     width: windowBounds.width,
-    height: windowBounds.height - 35
+    height: windowBounds.height - config.mainConfig.topbarViewHeight
   })
 
   // 加载内容 - 根据构建命令决定加载方式
@@ -90,13 +90,16 @@ app.whenReady().then(() => {
   const updateViewLayout = () => {
     const windowBounds = mainWindow.getContentBounds();
     const windowState = getWindowState(mainWindow);
-    topBarView.setBounds({ x: 0, y: 0, width: windowBounds.width, height: 35 });
-    contentView.setBounds({ x: 0, y: 35, width: windowBounds.width, height: windowBounds.height - 35 });
+    topBarView.setBounds({ x: 0, y: 0, width: windowBounds.width, height: config.mainConfig.topbarViewHeight });
+    contentView.setBounds({ x: 0, y: config.mainConfig.topbarViewHeight, width: windowBounds.width, height: windowBounds.height - config.mainConfig.topbarViewHeight });
     broadcastWindowState(windowState);
   };
   mainWindow.on('minimize', updateViewLayout);
   mainWindow.on('maximize', updateViewLayout);
-  mainWindow.on('unmaximize', updateViewLayout);
+  mainWindow.on('unmaximize', () => {
+    updateViewLayout();
+    mainWindow.center(); // 窗口取消最大化时居中显示
+  });
   mainWindow.on('restore', updateViewLayout);
   mainWindow.on('resize', updateViewLayout);
   mainWindow.maximize()
