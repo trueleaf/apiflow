@@ -46,7 +46,7 @@ export const config: Config = {
   },
   //主进程配置
   mainConfig: {
-    minWidth: 1440,
+    minWidth: 1200,
     minHeight: 768,
     topbarViewHeight: 35,
     useLocalFile: false, //使用本地文件作为主进程加载内容
