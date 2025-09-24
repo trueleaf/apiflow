@@ -1,0 +1,266 @@
+/* CleanTabs 组件样式 - 极简风格 */
+
+/* CSS 变量定义 - 参考图片极简设计系统 */
+:root {
+  /* 基础颜色 - 更贴近参考图片的色彩体系 */
+  --clean-tabs-bg: #ffffff;
+  --clean-tabs-border: #f1f3f4;
+  --clean-tabs-text: #1a1a1a;
+  --clean-tabs-text-secondary: #6b7280;
+  --clean-tabs-text-active: #000000;
+  --clean-tabs-text-hover: #374151;
+  
+  /* 卡片模式 - 参考图片风格 */
+  --clean-tabs-card-bg: oklch(0.97 0 0);
+  --clean-tabs-card-active-bg: #ffffff;
+  --clean-tabs-card-border: transparent;
+  --clean-tabs-card-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+  --clean-tabs-card-hover-shadow: 0 2px 8px 0 rgba(0, 0, 0, 0.12);
+  
+  /* 焦点状态 - 无障碍优化 */
+  --clean-tabs-focus-ring: 0 0 0 2px rgba(0, 0, 0, 0.1);
+  --clean-tabs-focus-border: #000000;
+  
+  /* 动画 - 参考图片流畅过渡 */
+  --clean-tabs-transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  --clean-tabs-transition-slow: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  
+  /* 极简间距 - 参考图片间距系统 */
+  --clean-tabs-padding-x: 20px;
+  --clean-tabs-padding-y: 12px;
+  --clean-tabs-gap: 3px;
+  --clean-tabs-radius: 4px;
+  --clean-tabs-radius-sm: 6px;
+}
+
+/* 暗色主题变量 - 参考图片适配 */
+[data-theme="dark"] {
+  --clean-tabs-bg: #1a1a1a;
+  --clean-tabs-border: #333333;
+  --clean-tabs-text: #e5e5e5;
+  --clean-tabs-text-secondary: #888888;
+  --clean-tabs-text-active: #ffffff;
+  --clean-tabs-text-hover: #f5f5f5;
+  
+  --clean-tabs-card-bg: #1e293b;
+  --clean-tabs-card-active-bg: #0f172a;
+  --clean-tabs-card-border: transparent;
+  --clean-tabs-card-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.3), 0 1px 3px 0 rgba(0, 0, 0, 0.4);
+  --clean-tabs-card-hover-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.4), 0 2px 4px -1px rgba(0, 0, 0, 0.3);
+  
+  --clean-tabs-focus-ring: 0 0 0 2px rgba(96, 165, 250, 0.3);
+  --clean-tabs-focus-border: #60a5fa;
+}
+
+/* 主容器 */
+.clean-tabs {
+  position: relative;
+  background: var(--clean-tabs-bg);
+  font-size: 14px;
+  line-height: 1.5;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  border-radius: var(--clean-tabs-radius);
+  overflow: hidden;
+}
+
+/* 标签头部 */
+.clean-tabs__header {
+  position: relative;
+  display: flex;
+  border-bottom: 1px solid var(--clean-tabs-border);
+  background: var(--clean-tabs-bg);
+  gap: var(--clean-tabs-gap);
+  overflow-x: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  padding: 0 4px;
+}
+
+.clean-tabs__header::-webkit-scrollbar {
+  display: none;
+}
+
+/* 标签项 */
+.clean-tabs__item {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 5px 10px;
+  /* padding: var(--clean-tabs-padding-y) var(--clean-tabs-padding-x); */
+  color: var(--clean-tabs-text-secondary);
+  font-weight: 400;
+  font-size: 15px;
+  cursor: pointer;
+  transition: var(--clean-tabs-transition);
+  white-space: nowrap;
+  user-select: none;
+  border: none;
+  background: transparent;
+  text-decoration: none;
+  border-radius: var(--clean-tabs-radius-sm);
+}
+
+.clean-tabs__item:hover {
+  color: var(--clean-tabs-text-hover);
+  background: rgba(0, 0, 0, 0.03);
+}
+
+.clean-tabs__item.is-active {
+  color: var(--clean-tabs-text-active);
+  font-weight: 500;
+  background: transparent;
+}
+
+[data-theme="dark"] .clean-tabs__item:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+[data-theme="dark"] .clean-tabs__item.is-active {
+  background: transparent;
+}
+
+/* 标签内容区域 */
+.clean-tabs__content {
+  padding: 16px 0;
+}
+
+/* 标签面板 */
+.clean-tab-pane {
+  display: block;
+}
+
+/* 卡片类型样式 - Figma 风格 */
+.clean-tabs--card .clean-tabs__header {
+  border-bottom: none;
+  background: var(--clean-tabs-card-bg);
+  border-radius: var(--clean-tabs-radius);
+  padding: var(--clean-tabs-gap);
+  gap: var(--clean-tabs-gap);
+  border: 1px solid var(--clean-tabs-border);
+}
+
+.clean-tabs--card .clean-tabs__item {
+  border: none;
+  border-radius: var(--clean-tabs-radius-sm);
+  margin: 0;
+  background: transparent;
+  transition: var(--clean-tabs-transition);
+  font-size: 14px;
+  font-weight: 500;
+  flex: 1; /* 等宽模式：让每个tab项平分宽度 */
+}
+
+.clean-tabs--card .clean-tabs__item.is-active {
+  background: var(--clean-tabs-card-active-bg);
+  color: var(--clean-tabs-text-active);
+  font-weight: 600;
+  box-shadow: var(--clean-tabs-card-shadow);
+}
+
+[data-theme="dark"] .clean-tabs--card .clean-tabs__item.is-active {
+  border-color: rgba(96, 165, 250, 0.3);
+}
+
+/* 响应式设计 - 参考图片移动端优化 */
+@media (max-width: 768px) {
+  .clean-tabs__item {
+    padding: 10px 16px;
+    font-size: 14px;
+    min-height: 44px;
+  }
+  
+  .clean-tabs--card .clean-tabs__item {
+    padding: 8px 14px;
+    font-size: 14px;
+    min-height: 36px;
+  }
+  
+  .clean-tabs__content {
+    padding: 16px 0;
+  }
+  
+  :root {
+    --clean-tabs-padding-x: 16px;
+    --clean-tabs-padding-y: 10px;
+  }
+}
+
+@media (max-width: 480px) {
+  .clean-tabs__item {
+    padding: 8px 12px;
+    font-size: 14px;
+    min-height: 40px;
+  }
+  
+  .clean-tabs--card .clean-tabs__item {
+    padding: 6px 10px;
+    font-size: 13px;
+    min-height: 32px;
+  }
+  
+  :root {
+    --clean-tabs-padding-x: 12px;
+    --clean-tabs-padding-y: 8px;
+  }
+}
+
+/* 移除下划线效果 - 采用纯色彩对比设计 */
+.clean-tabs__item::after {
+  display: none;
+}
+
+/* 禁用状态 */
+.clean-tabs__item.is-disabled {
+  color: var(--clean-tabs-text-secondary);
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.clean-tabs__item.is-disabled:hover {
+  color: var(--clean-tabs-text-secondary);
+  background: transparent;
+}
+
+.clean-tabs__item.is-disabled::after {
+  display: none;
+}
+
+/* 聚焦状态 - 参考图片无障碍优化 */
+.clean-tabs__item:focus-visible {
+  outline: none;
+  box-shadow: var(--clean-tabs-focus-ring);
+  border-radius: var(--clean-tabs-radius-sm);
+  z-index: 1;
+  background: rgba(0, 0, 0, 0.05);
+}
+
+[data-theme="dark"] .clean-tabs__item:focus-visible {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.clean-tabs--card .clean-tabs__item:focus-visible {
+  box-shadow: var(--clean-tabs-focus-ring), var(--clean-tabs-card-shadow);
+}
+
+/* 加载状态 */
+.clean-tabs__item.is-loading {
+  cursor: wait;
+  opacity: 0.7;
+}
+
+.clean-tabs__item.is-loading::before {
+  content: '';
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  margin-right: 6px;
+  border: 1px solid var(--clean-tabs-text-secondary);
+  border-top-color: var(--clean-tabs-text-active);
+  border-radius: 50%;
+  animation: clean-tabs-spin 1s linear infinite;
+}
+
+@keyframes clean-tabs-spin {
+  to { transform: rotate(360deg); }
+}
