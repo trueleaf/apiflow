@@ -571,9 +571,10 @@ export const generateEmptyHttpMockNode = (_id: string): MockHttpNode => {
       deletePerson: '',
     },
     requestCondition: {
-      method: 'ALL',
-      url: '',
-      port: 0,
+      method: ['ALL'],
+      url: '/mock/v1',
+      port: 4000,
+      enabled: false,
     },
     config: {
       delay: 0,
@@ -907,7 +908,7 @@ export function convertNodesToBannerNodes(docs: ApiNode[] = []): ApidocBanner[] 
           pid: mockNode.pid,
           name: mockNode.info.name,
           maintainer: mockNode.info.maintainer,
-          method: mockNode.requestCondition.method,
+          method: mockNode.requestCondition.method[0] || 'ALL',
           url: mockNode.requestCondition.url,
           port: mockNode.requestCondition.port,
           readonly: false,

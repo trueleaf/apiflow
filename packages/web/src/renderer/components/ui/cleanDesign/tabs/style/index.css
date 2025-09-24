@@ -5,9 +5,9 @@
   /* 基础颜色 - 更贴近参考图片的色彩体系 */
   --clean-tabs-bg: #ffffff;
   --clean-tabs-border: #f1f3f4;
-  --clean-tabs-text: #1a1a1a;
+  --clean-tabs-text: #333;
   --clean-tabs-text-secondary: #6b7280;
-  --clean-tabs-text-active: #000000;
+  --clean-tabs-text-active: #333;
   --clean-tabs-text-hover: #374151;
   
   /* 卡片模式 - 参考图片风格 */
@@ -19,7 +19,7 @@
   
   /* 焦点状态 - 无障碍优化 */
   --clean-tabs-focus-ring: 0 0 0 2px rgba(0, 0, 0, 0.1);
-  --clean-tabs-focus-border: #000000;
+  --clean-tabs-focus-border: #333;
   
   /* 动画 - 参考图片流畅过渡 */
   --clean-tabs-transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
@@ -35,7 +35,7 @@
 
 /* 暗色主题变量 - 参考图片适配 */
 [data-theme="dark"] {
-  --clean-tabs-bg: #1a1a1a;
+  --clean-tabs-bg: #333;
   --clean-tabs-border: #333333;
   --clean-tabs-text: #e5e5e5;
   --clean-tabs-text-secondary: #888888;
