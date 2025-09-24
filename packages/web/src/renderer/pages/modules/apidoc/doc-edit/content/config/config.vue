@@ -1,8 +1,8 @@
 <template>
   <SLoading :loading="loading" class="config">
     <el-form ref="form" v-flex1="20" :model="copyApiRules" class="api-rule" label-width="220px">
-      <!-- 基础配置 -->
-      <SFieldset title="基础配置">
+      <!-- 触发条件配置 -->
+      <SFieldset title="触发条件配置">
         <SConfig label="单个目录最大允许文档数量" :has-check="false" description="限制单个目录下文档个数，提高可阅读性">
           <el-input-number v-model="copyApiRules.fileInFolderLimit" :controls="false" size="default" :step="1"
             class="w-60" :min="1" :max="255"></el-input-number>

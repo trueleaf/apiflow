@@ -8,9 +8,10 @@ export type MockHttpNode = {
   sort: number;
   info: ApidocBaseInfo;
   requestCondition: {
-    method: Method | "ALL";
+    method: (Method | "ALL")[];
     url: string;
     port: number;
+    enabled: boolean;
   };
   config: {
     delay: number;
