@@ -1,5 +1,6 @@
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
+import vueJsx from '@vitejs/plugin-vue-jsx'
 import path from 'path'
 import { viteElectronPlugin } from './build/vite';
 import dayjs from 'dayjs'
@@ -14,6 +15,11 @@ export default defineConfig(({ mode, command }) => {
     plugins: [
       viteElectronPlugin(mode, command),
       vue(),
+      vueJsx({
+        // 配置JSX选项
+        transformOn: true,
+        mergeProps: false
+      }),
       AutoImport({
         resolvers: [ElementPlusResolver()],
       }),
@@ -29,7 +35,8 @@ export default defineConfig(({ mode, command }) => {
       alias: {
         "@": path.resolve(__dirname, './src/renderer'),
         "@src": path.resolve(__dirname, "./src"),
-      }
+      },
+      extensions: ['.mjs', '.js', '.ts', '.jsx', '.tsx', '.json', '.vue']
     },
     define: {
       __APP_BUILD_TIME__: JSON.stringify(dayjs().format('YYYY-MM-DD HH:mm:ss')),

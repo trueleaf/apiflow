@@ -78,6 +78,7 @@
     "@types/nprogress": "^0.2.3",
     "@types/set-cookie-parser": "^2.4.10",
     "@vitejs/plugin-vue": "^5.2.1",
+    "@vitejs/plugin-vue-jsx": "^5.1.1",
     "@vue/tsconfig": "^0.7.0",
     "chokidar": "^4.0.1",
     "electron": "36.2.0",

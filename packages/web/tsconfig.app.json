@@ -16,6 +16,8 @@
     "moduleDetection": "force",
     "noEmit": true,
     "jsx": "preserve",
+    "jsxFactory": "h",
+    "jsxFragmentFactory": "Fragment",
 
     /* Linting */
     "strict": true,
