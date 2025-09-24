@@ -1,8 +1,8 @@
 <template>
   <div class="mock-layout">
-    <el-tabs v-model="activeTab" type="card" class="mock-tabs">
+    <CleanTabs v-model="activeTab" type="card" class="mock-tabs">
       <!-- 配置与响应 Tab -->
-      <el-tab-pane :label="t('配置与响应')" name="config">
+      <CleanTabPane :label="t('配置与响应')" name="config">
         <div class="mock-config-content">
           <!-- 基础配置区域 -->
           <div class="config-section">
@@ -73,21 +73,22 @@
             </div>
           </div>
         </div>
-      </el-tab-pane>
+      </CleanTabPane>
       
       <!-- 日志 Tab -->
-      <el-tab-pane :label="t('日志')" name="logs">
+      <CleanTabPane :label="t('日志')" name="logs">
         <div class="mock-logs-content">
           <el-empty :description="t('日志功能暂未实现')" />
         </div>
-      </el-tab-pane>
-    </el-tabs>
+      </CleanTabPane>
+    </CleanTabs>
   </div>
 </template>
 
 <script lang="ts" setup>
 import { ref, reactive } from 'vue'
-import { ElTabs, ElTabPane, ElSwitch, ElInput, ElCheckboxGroup, ElCheckbox, ElButton, ElEmpty } from 'element-plus'
+import { ElSwitch, ElInput, ElCheckboxGroup, ElCheckbox, ElButton, ElEmpty } from 'element-plus'
+import { CleanTabs, CleanTabPane } from '@/components/ui/cleanDesign/tabs'
 import { useI18n } from 'vue-i18n'
 
 const { t } = useI18n()
@@ -126,38 +127,26 @@ const handleAddCondition = () => {
 .mock-layout {
   height: 100%;
   background: var(--white);
-  padding: 16px;
+  padding: 30px;
 }
 
-/* Tab样式 */
+/* CleanTabs 样式 */
 .mock-tabs {
   height: 100%;
   
-  :deep(.el-tabs__header) {
+  :deep(.clean-tabs__header) {
     margin-bottom: 16px;
-    border-bottom: 1px solid var(--gray-300);
   }
   
-  :deep(.el-tabs__item) {
-    font-size: var(--font-size-sm);
-    padding: 8px 16px;
-    height: auto;
-    line-height: 1.5;
-    
-    &.is-active {
-      font-weight: bold;
-    }
-  }
-  
-  :deep(.el-tabs__content) {
+  :deep(.clean-tabs__content) {
     height: calc(100% - 60px);
     overflow-y: auto;
+    padding: 0;
   }
 }
 
 /* 配置内容区域 */
 .mock-config-content {
-  max-width: 800px;
   margin: 0 auto;
 }
 

@@ -28,7 +28,6 @@
       
       <!-- 组件详情区域 -->
       <div v-if="selectedComponent" class="component-detail-container">
-        <h3 class="detail-title">{{ selectedComponent.name }} 详情</h3>
         <component :is="getComponentByName(selectedComponent.name)"></component>
       </div>
     </div>
@@ -40,7 +39,7 @@ import { ref, computed, defineAsyncComponent, onMounted } from 'vue'
 
 // 导入组件
 const CardComponent = defineAsyncComponent(() => import('@/components/ui/cleanDesign/card/card.vue'))
-const TabsComponent = defineAsyncComponent(() => import('@/components/ui/cleanDesign/tabs/tabs.vue'))
+const TabsComponent = defineAsyncComponent(() => import('@/components/ui/cleanDesign/tabs/demo/tabs.vue'))
 
 // 搜索词
 const searchTerm = ref('')
