@@ -265,10 +265,10 @@ onMounted(() => {
 <style scoped>
 .mock-layout {
   --footer-height: 40px;
-  height: calc(100vh - var(--footer-height) - var(--apiflow-doc-nav-height));
+  height: calc(100vh - var(--apiflow-doc-nav-height));
   background: var(--white);
   padding: 30px 30px 0;
-
+  overflow-y: auto;
   /* 保存按钮区域 */
   .save-footer {
     height: var(--footer-height);
@@ -276,11 +276,13 @@ onMounted(() => {
     justify-content: center;
     gap: 12px;
   }
+  :deep(.el-checkbox) {
+    margin-right: 20px;
+  }
 }
 
-/* CleanTabs 样式 */
 .mock-tabs {
-  height: 100%;
+  height: calc(100% - var(--footer-height));
 }
 
 /* 配置内容区域 */
