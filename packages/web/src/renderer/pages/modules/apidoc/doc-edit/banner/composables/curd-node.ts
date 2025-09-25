@@ -198,7 +198,7 @@ export function addFileAndFolderCb(currentOperationalNode: Ref<ApidocBanner | nu
     parentNode?.children.push({
       _id: data._id,
       pid: data.pid,
-      type: data.type as 'folder' | 'http' | 'websocket',
+      type: data.type as 'folder',
       commonHeaders: [],
       children: [],
     });
@@ -206,7 +206,7 @@ export function addFileAndFolderCb(currentOperationalNode: Ref<ApidocBanner | nu
     apidocBaseInfoStore.commonHeaders.push({
       _id: data._id,
       pid: '',
-      type: data.type as 'folder' | 'http' | 'websocket',
+      type: data.type as 'folder',
       commonHeaders: [],
       children: [],
     });
@@ -241,7 +241,22 @@ export function addFileAndFolderCb(currentOperationalNode: Ref<ApidocBanner | nu
         color: ''
       }
     })
-  }
+  } else if (data.type === 'httpMock') {
+    const projectId = router.currentRoute.value.query.id as string;
+    apidocTabsStore.addTab({
+      _id: data._id,
+      projectId,
+      tabType: 'httpMock',
+      label: data.name,
+      saved: true,
+      fixed: true,
+      selected: true,
+      head: {
+        icon: 'mock',
+        color: ''
+      }
+    })
+  } 
   // const banner = await standaloneCache.getDocTree(currentOperationalNode.value);
   // apidocBannerStore.changeAllDocBanner(banner);
 }

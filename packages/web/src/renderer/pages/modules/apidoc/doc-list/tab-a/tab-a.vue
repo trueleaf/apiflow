@@ -10,7 +10,7 @@
           </el-icon>
         </template>
       </el-input>
-      <el-button type="success" :icon="PlusIcon" @click="dialogVisible = true">{{ $t("新建项目") }}</el-button>
+      <el-button :icon="PlusIcon" @click="dialogVisible = true">{{ $t("新建项目") }}</el-button>
       <el-button v-if="0" type="success" :icon="DownloadIcon" @click="dialogVisible3 = true">{{ $t("导入项目") }}</el-button>
     </div>
     <!-- 高级搜索 -->
@@ -19,7 +19,7 @@
         :placeholder="$t('输入接口url eg: 接口url')" @keyup.enter="() => { debounceSearch() }"
         @change="() => { debounceSearch() }" @input="() => { debounceSearch() }">
         <template #append>
-          <el-button type="primary" :loading="loading" @click="() => { debounceSearch() }">
+          <el-button  :loading="loading" @click="() => { debounceSearch() }">
             <el-icon class="el-icon--right">
               <SearchIcon />
             </el-icon>
@@ -86,8 +86,8 @@
               <span class="teal">{{ item.docNum || 0 }}</span>
             </div>
             <div class="ml-auto">
-              <el-button type="primary" @click="handleJumpToProject(item)">{{ $t("编辑") }}</el-button>
-              <el-button v-if="!isStandalone" type="primary" @click="handleJumpToView(item)">{{ $t("预览") }}</el-button>
+              <el-button  @click="handleJumpToProject(item)">{{ $t("编辑") }}</el-button>
+              <el-button v-if="!isStandalone"  @click="handleJumpToView(item)">{{ $t("预览") }}</el-button>
             </div>
           </div>
         </div>
@@ -156,8 +156,8 @@
               <span class="teal">{{ item.docNum || 0 }}</span>
             </div>
             <div class="ml-auto">
-              <el-button type="primary" @click="handleJumpToProject(item)">{{ $t("编辑") }}</el-button>
-              <el-button v-if="!isStandalone" type="primary" @click="handleJumpToView(item)">{{ $t("预览") }}</el-button>
+              <el-button  @click="handleJumpToProject(item)">{{ $t("编辑") }}</el-button>
+              <el-button v-if="!isStandalone"  @click="handleJumpToView(item)">{{ $t("预览") }}</el-button>
             </div>
           </div>
         </div>
@@ -588,7 +588,7 @@ onMounted(() => {
 
     .project-bottom {
       width: 100%;
-      padding: 10px 0;
+      padding: 10px 0 0;
       bottom: 10px;
       display: flex;
       align-items: center;

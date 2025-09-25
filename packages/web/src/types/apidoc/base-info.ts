@@ -121,7 +121,7 @@ export type ApidocProjectCommonHeader = {
    /**
     * 类型
     */
-   type: 'folder' | 'http' | 'websocket',
+   type: 'folder',
    /**
       * 公共请求头信息
       */

@@ -74,7 +74,7 @@
     <!-- 底部保存按钮 -->
     <div class="save-footer">
       <el-button type="primary" :loading="httpMockStore.saveLoading" @click="handleSave">
-        {{ t('保存') }}
+        {{ t('保存配置') }}
       </el-button>
       <el-button type="default" :icon="Refresh" :loading="httpMockStore.refreshLoading" @click="handleRefresh">
         {{ t('刷新') }}

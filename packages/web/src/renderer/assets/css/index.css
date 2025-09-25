@@ -1,5 +1,3 @@
-
-
 :root {
   /* 基础颜色 */
   --white: #fff;
@@ -73,6 +71,19 @@
   --apiflow-banner-tool-height: 150px;
   --apiflow-apidoc-operation-height: 100px;
   --apiflow-apidoc-request-view-height: 170px;
+  /* element-plus样式替换 */
+  --el-color-primary: #5a87c7;
+  --el-color-primary-light-3: color-mix(in srgb, var(--el-color-primary) 70%, white);
+  --el-color-primary-light-5: color-mix(in srgb, var(--el-color-primary) 50%, white);
+  --el-color-primary-light-7: color-mix(in srgb, var(--el-color-primary) 30%, white);
+  --el-color-primary-light-9: color-mix(in srgb, var(--el-color-primary) 10%, white);
+  --el-color-primary-dark-2: color-mix(in srgb, var(--el-color-primary) 80%, black);
+
+  /* 主按钮（Primary Button） */
+  --btn-primary-bg: var(--el-color-primary);
+  --btn-primary-text: #ffffff;
+  --btn-primary-hover-bg: var(--el-color-primary-light-3);
+  --btn-primary-active-bg: var(--el-color-primary-dark-2);
 }
 
 * {
@@ -452,9 +463,11 @@ body .el-menu--horizontal {
   content: "";
   clear: both;
 }
+
 .text-underline {
   text-decoration: underline;
 }
+
 .text-ellipsis {
   white-space: nowrap;
   word-break: break-all;
