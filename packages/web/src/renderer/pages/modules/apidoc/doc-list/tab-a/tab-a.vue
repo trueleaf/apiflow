@@ -86,7 +86,7 @@
               <span class="teal">{{ item.docNum || 0 }}</span>
             </div>
             <div class="ml-auto">
-              <el-button  @click="handleJumpToProject(item)">{{ $t("编辑") }}</el-button>
+              <el-button type="default" @click="handleJumpToProject(item)">{{ $t("编辑") }}</el-button>
               <el-button v-if="!isStandalone"  @click="handleJumpToView(item)">{{ $t("预览") }}</el-button>
             </div>
           </div>
@@ -156,7 +156,7 @@
               <span class="teal">{{ item.docNum || 0 }}</span>
             </div>
             <div class="ml-auto">
-              <el-button  @click="handleJumpToProject(item)">{{ $t("编辑") }}</el-button>
+              <el-button type="default" @click="handleJumpToProject(item)">{{ $t("编辑") }}</el-button>
               <el-button v-if="!isStandalone"  @click="handleJumpToView(item)">{{ $t("预览") }}</el-button>
             </div>
           </div>

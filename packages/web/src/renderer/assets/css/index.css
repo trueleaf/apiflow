@@ -73,17 +73,10 @@
   --apiflow-apidoc-request-view-height: 170px;
   /* element-plus样式替换 */
   --el-color-primary: #5a87c7;
+  --el-color-primary-light-1: color-mix(in srgb, var(--el-color-primary) 90%, white);
+  --el-color-primary-light-2: color-mix(in srgb, var(--el-color-primary) 80%, white);
   --el-color-primary-light-3: color-mix(in srgb, var(--el-color-primary) 70%, white);
-  --el-color-primary-light-5: color-mix(in srgb, var(--el-color-primary) 50%, white);
-  --el-color-primary-light-7: color-mix(in srgb, var(--el-color-primary) 30%, white);
-  --el-color-primary-light-9: color-mix(in srgb, var(--el-color-primary) 10%, white);
-  --el-color-primary-dark-2: color-mix(in srgb, var(--el-color-primary) 80%, black);
 
-  /* 主按钮（Primary Button） */
-  --btn-primary-bg: var(--el-color-primary);
-  --btn-primary-text: #ffffff;
-  --btn-primary-hover-bg: var(--el-color-primary-light-3);
-  --btn-primary-active-bg: var(--el-color-primary-dark-2);
 }
 
 * {
@@ -103,6 +96,14 @@ body {
   height: 100vh;
   overflow-x: hidden;
   color: #495057;
+  .el-button--primary {
+    --el-color-primary-dark-1: color-mix(in srgb, var(--el-color-primary) 90%, black);
+    --el-button-hover-bg-color: var(--el-color-primary-dark-1);
+  }
+  .el-button--default {
+    --el-button-hover-bg-color: var(--gray-100);
+    --el-button-active-border-color: var(--gray-300);
+  }
 }
 
 button,
@@ -136,7 +137,7 @@ pre.pre {
   -webkit-text-stroke-width: 0.2px;
   -moz-osx-font-smoothing: grayscale;
 }
-
+/* 
 body .el-popper {
   font-size: 14px;
 }
@@ -208,7 +209,7 @@ body .el-input.is-disabled .el-input__inner {
 
 body .el-menu--horizontal {
   border-bottom: none;
-}
+} */
 
 .primary {
   color: #409EFF;
