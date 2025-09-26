@@ -54,3 +54,46 @@ export type MockHttpNode = {
   updatedAt: string;
   isDeleted: boolean;
 };
+
+type MockStartLog = {
+  type: "start",
+  data: {
+    port: number,
+  },
+  timestamp: number
+}
+type MockStopLog = {
+  type: "stop",
+  data: {
+    port: number,
+  },
+  timestamp: number
+}
+// 看看express可以获取到那些具体参数，都可以列出来
+type MockRequestLog = {
+  type: "request",
+  data: {
+    ip: string,
+    method: string,
+    url: string,
+    httpVersion: string,
+    statusCode: number,
+    bytesSent: number,
+    referer: string,
+    headers: {
+      [key: string]: string
+    },
+    body: string
+  },
+  timestamp: number,
+}
+type MockErrorLog = {
+  type: "error",
+  data: {
+    errorType: "portError" | "unknownError",
+    errorMsg: string,
+  },
+  timestamp: number,
+}
+
+export type MockLog = MockStartLog | MockStopLog | MockRequestLog | MockErrorLog;
