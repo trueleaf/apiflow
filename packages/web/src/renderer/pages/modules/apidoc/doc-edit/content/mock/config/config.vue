@@ -41,7 +41,15 @@
           </div>
           <div class="form-item flex-item">
             <label class="form-label">{{ t('启用Mock API') }}</label>
-            <el-switch v-model="httpMock.requestCondition.enabled" />
+            <div v-if="enabledStatusLoading" class="enabled-loading">
+              {{ t('状态查询中...') }}
+            </div>
+            <el-switch 
+              v-else
+              v-model="enabled" 
+              @change="handleEnabledToggle"
+              :loading="enabledStatusLoading"
+            />
           </div>
         </div>
       </div>
@@ -62,7 +70,7 @@
 </template>
 
 <script lang="ts" setup>
-import { watch } from 'vue'
+import { watch, ref } from 'vue'
 import { ElSwitch, ElInput, ElCheckboxGroup, ElCheckbox, ElButton } from 'element-plus'
 import { useI18n } from 'vue-i18n'
 import { storeToRefs } from 'pinia'
@@ -72,8 +80,30 @@ const { t } = useI18n()
 const httpMockStore = useHttpMock()
 const { httpMock } = storeToRefs(httpMockStore)
 
+// Mock enabled状态管理
+const enabled = ref(false)
+const enabledStatusLoading = ref(false)
+
 const handleAddCondition = () => {
   console.log('添加条件按钮被点击')
+}
+
+// 处理enabled状态切换
+const handleEnabledToggle = async (val: string | number | boolean) => {
+  const newEnabled = Boolean(val)
+  enabledStatusLoading.value = true
+  try {
+    // 模拟异步操作
+    await new Promise(resolve => setTimeout(resolve, 800))
+    enabled.value = newEnabled
+    console.log(`Mock API ${newEnabled ? '已启用' : '已禁用'}`)
+  } catch (error) {
+    console.error('切换Mock状态失败:', error)
+    // 恢复原状态
+    enabled.value = !newEnabled
+  } finally {
+    enabledStatusLoading.value = false
+  }
 }
 
 watch(
@@ -194,6 +224,15 @@ watch(
 .empty-hint {
   font-size: var(--font-size-sm);
   color: var(--gray-500);
+}
+
+.enabled-loading {
+  font-size: var(--font-size-sm);
+  color: var(--gray-600);
+  padding: 8px 12px;
+  background: var(--gray-100);
+  border-radius: var(--border-radius-sm);
+  border: 1px dashed var(--gray-300);
 }
 
 @media (max-width: 960px) {

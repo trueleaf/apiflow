@@ -1,5 +1,7 @@
 import { Method } from "got";
 import { ApidocBaseInfo } from "../types.ts";
+import type http from 'http';
+import type Koa from 'koa';
 
 export type MockHttpNode = {
   _id: string;
@@ -11,7 +13,6 @@ export type MockHttpNode = {
     method: (Method | "ALL")[];
     url: string;
     port: number;
-    enabled: boolean;
   };
   config: {
     delay: number;
@@ -57,6 +58,8 @@ export type MockHttpNode = {
 
 type MockStartLog = {
   type: "start",
+  nodeId: string,
+  projectId: string,
   data: {
     port: number,
   },
@@ -64,6 +67,8 @@ type MockStartLog = {
 }
 type MockStopLog = {
   type: "stop",
+  nodeId: string,
+  projectId: string,
   data: {
     port: number,
   },
@@ -72,6 +77,8 @@ type MockStopLog = {
 // 看看express可以获取到那些具体参数，都可以列出来
 type MockRequestLog = {
   type: "request",
+  nodeId: string,
+  projectId: string,
   data: {
     ip: string,
     method: string,
@@ -89,11 +96,21 @@ type MockRequestLog = {
 }
 type MockErrorLog = {
   type: "error",
+  nodeId: string,
+  projectId: string,
   data: {
-    errorType: "portError" | "unknownError",
+    errorType: "portError" | "bindError" | "serverStartError" | "configError" | "unknownError",
     errorMsg: string,
   },
   timestamp: number,
 }
 
 export type MockLog = MockStartLog | MockStopLog | MockRequestLog | MockErrorLog;
+
+export type MockInstance = {
+  nodeId: string;
+  projectId: string;
+  port: number;
+  app: Koa;
+  server: http.Server;
+}

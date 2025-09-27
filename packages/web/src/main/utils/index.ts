@@ -174,3 +174,74 @@ export const getWindowState = (mainWindow: BrowserWindow): WindowState => {
     height: size[1],
   }
 }
+
+export interface PathMatchResult {
+  matched: boolean;
+  params?: Record<string, string>;
+}
+
+export function matchPath(pattern: string, path: string): PathMatchResult {
+  if (pattern === path) {
+    return { matched: true };
+  }
+
+  const regex = patternToRegex(pattern);
+  const match = path.match(regex);
+  
+  if (!match) {
+    return { matched: false };
+  }
+
+  const params = extractParams(pattern, match);
+  return { matched: true, params };
+}
+
+function patternToRegex(pattern: string): RegExp {
+  let regex = pattern;
+  
+  regex = regex.replace(/[.+^${}()|[\]\\]/g, '\\$&');
+  regex = regex.replace(/:([^/]+)/g, '([^/]+)');
+  regex = regex.replace(/\*\*/g, '.*');
+  regex = regex.replace(/\*/g, '[^/]*');
+  regex = `^${regex}$`;
+  
+  return new RegExp(regex);
+}
+
+function extractParams(pattern: string, regexMatch: RegExpMatchArray): Record<string, string> {
+  const params: Record<string, string> = {};
+  
+  const paramNames = pattern.match(/:([^/]+)/g);
+  if (!paramNames) {
+    return params;
+  }
+
+  paramNames.forEach((paramName, index) => {
+    const cleanParamName = paramName.slice(1);
+    const paramValue = regexMatch[index + 1];
+    if (paramValue !== undefined) {
+      params[cleanParamName] = paramValue;
+    }
+  });
+
+  return params;
+}
+
+export function getPatternPriority(pattern: string): number {
+  let priority = 0;
+  
+  if (!pattern.includes(':') && !pattern.includes('*')) {
+    return priority;
+  }
+  
+  const paramCount = (pattern.match(/:/g) || []).length;
+  priority += paramCount * 10;
+  
+  const singleWildcardCount = (pattern.match(/(?<!\*)\*(?!\*)/g) || []).length;
+  priority += singleWildcardCount * 100;
+  
+  const multiWildcardCount = (pattern.match(/\*\*/g) || []).length;
+  priority += multiWildcardCount * 1000;
+  
+  return priority;
+}

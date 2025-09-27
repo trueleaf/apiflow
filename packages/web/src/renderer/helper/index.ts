@@ -574,7 +574,6 @@ export const generateEmptyHttpMockNode = (_id: string): MockHttpNode => {
       method: ['ALL'],
       url: '/mock/v1',
       port: 4000,
-      enabled: false,
     },
     config: {
       delay: 0,

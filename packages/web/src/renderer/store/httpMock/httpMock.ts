@@ -91,11 +91,7 @@ export const useHttpMock = defineStore('httpMock', () => {
     httpMock.value.requestCondition.port = port;
   };
 
-  // 改变启用状态
-  const changeEnabled = (enabled: boolean): void => {
-    if (!httpMock.value) return;
-    httpMock.value.requestCondition.enabled = enabled;
-  };
+
 
   /*
   |--------------------------------------------------------------------------
@@ -126,13 +122,12 @@ export const useHttpMock = defineStore('httpMock', () => {
     const methodIsEqual = JSON.stringify(cpCurrent.requestCondition.method) === JSON.stringify(cpOrigin.requestCondition.method);
     const urlIsEqual = cpCurrent.requestCondition.url === cpOrigin.requestCondition.url;
     const portIsEqual = cpCurrent.requestCondition.port === cpOrigin.requestCondition.port;
-    const enabledIsEqual = cpCurrent.requestCondition.enabled === cpOrigin.requestCondition.enabled;
     
     // 检查配置
     const delayIsEqual = cpCurrent.config.delay === cpOrigin.config.delay;
     
     return nameIsEqual && descriptionIsEqual && methodIsEqual && 
-           urlIsEqual && portIsEqual && enabledIsEqual && delayIsEqual;
+           urlIsEqual && portIsEqual && delayIsEqual;
   };
 
   /*
@@ -274,7 +269,6 @@ export const useHttpMock = defineStore('httpMock', () => {
     changeHttpMethod,
     changeRequestUrl,
     changePort,
-    changeEnabled,
     // 配置操作方法
     changeDelay,
     // 数据比较方法
