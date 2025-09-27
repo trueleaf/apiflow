@@ -245,3 +245,17 @@ export function getPatternPriority(pattern: string): number {
   
   return priority;
 }
+export const sleep = (delay: number): Promise<void> => {
+  return new Promise((resolve, reject) => {
+    try {
+      if (!delay) {
+        resolve();
+      }
+      setTimeout(() => {
+        resolve();
+      }, delay)
+    } catch (error) {
+      reject(error);
+    }
+  })
+}

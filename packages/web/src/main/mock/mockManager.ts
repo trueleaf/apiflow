@@ -1,12 +1,10 @@
 
 import { MockHttpNode, MockInstance, MockLog } from '@src/types/mock/mock';
 import { MockLogger } from './mockLogger';
-import { matchPath, getPatternPriority } from '../utils';
+import { matchPath, getPatternPriority, sleep } from '../utils';
 import detect from 'detect-port';
 import http from 'http';
 import Koa from 'koa';
-import { sleep } from '@/helper/index.ts';
-
 export class MockManager {
   private mockList: MockHttpNode[] = [];
   private logger: MockLogger = new MockLogger();

@@ -173,7 +173,7 @@ onMounted(() => {
 })
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
 .mock-layout {
   --footer-height: 40px;
   height: calc(100vh - var(--apiflow-doc-nav-height));
