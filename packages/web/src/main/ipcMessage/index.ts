@@ -6,6 +6,8 @@ import { exportHtml, exportWord, setMainWindow, setContentView, startExport, rec
 import { selectImportFile, analyzeImportFile, startImport, resetImport, setMainWindow as setImportMainWindow, setContentView as setImportContentView } from './import/import.ts';
 import { getWindowState } from '../utils/index.ts';
 import { IPCProjectData, WindowState } from '@src/types/types.ts';
+import { mockManager } from '../main.ts';
+import { MockHttpNode } from '@src/types/mock/mock.ts';
 
 export const useIpcEvent = (mainWindow: BrowserWindow, topBarView: WebContentsView, contentView: WebContentsView) => {
   // 设置窗口引用到导出模块
@@ -78,6 +80,55 @@ export const useIpcEvent = (mainWindow: BrowserWindow, topBarView: WebContentsVi
   ipcMain.handle('apiflow-export-word', async (_: IpcMainInvokeEvent, exportHtmlParams: StandaloneExportHtmlParams) => {
     return exportWord(exportHtmlParams)
   })
+
+  /*
+  |---------------------------------------------------------------------------
+  | Mock 服务相关
+  |---------------------------------------------------------------------------
+  */
+  // 检查mock是否已启用
+  ipcMain.handle('mock-get-by-node-id', async (_: IpcMainInvokeEvent, nodeId: string) => {
+    return mockManager.getMockByNodeId(nodeId);
+  });
+
+  // 启动mock服务
+  ipcMain.handle('mock-start-server', async (_: IpcMainInvokeEvent, httpMock: MockHttpNode) => {
+    return await mockManager.addAndStartMockServer(httpMock);
+  });
+
+  // 停止mock服务
+  ipcMain.handle('mock-stop-server', async (_: IpcMainInvokeEvent, nodeId: string) => {
+    try {
+      await mockManager.removeMockByNodeIdAndStopMockServer(nodeId);
+      return { success: true };
+    } catch (error) {
+      console.error('停止Mock服务器失败:', error);
+      return { 
+        success: false, 
+        error: error instanceof Error ? error.message : '未知错误' 
+      };
+    }
+  });
+
+  // 获取已使用的端口
+  ipcMain.handle('mock-get-used-ports', async () => {
+    return mockManager.getUsedPorts();
+  });
+
+  // 替换指定nodeId的Mock配置
+  ipcMain.handle('mock-replace-by-id', async (_: IpcMainInvokeEvent, nodeId: string, httpMock: MockHttpNode) => {
+    try {
+      mockManager.replaceMockById(nodeId, httpMock);
+      return { success: true };
+    } catch (error) {
+      console.error('替换Mock配置失败:', error);
+      return { 
+        success: false, 
+        error: error instanceof Error ? error.message : '未知错误' 
+      };
+    }
+  });
+
   /*
   |---------------------------------------------------------------------------
   | topBarView → contentView 通信（使用新的路由器）

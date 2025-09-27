@@ -96,6 +96,27 @@ const websocketDisconnectByNode = (nodeId: string) => {
   return ipcRenderer.invoke('websocket-disconnect-by-node', nodeId)
 }
 
+// Mock相关方法
+const mockGetByNodeId = (nodeId: string) => {
+  return ipcRenderer.invoke('mock-get-by-node-id', nodeId)
+}
+
+const mockStartServer = (httpMock: any) => {
+  return ipcRenderer.invoke('mock-start-server', httpMock)
+}
+
+const mockStopServer = (nodeId: string) => {
+  return ipcRenderer.invoke('mock-stop-server', nodeId)
+}
+
+const mockGetUsedPorts = () => {
+  return ipcRenderer.invoke('mock-get-used-ports')
+}
+
+const mockReplaceById = (nodeId: string, httpMock: any) => {
+  return ipcRenderer.invoke('mock-replace-by-id', nodeId, httpMock)
+}
+
 contextBridge.exposeInMainWorld('electronAPI', {
   got,
   ip: ip.address(),
@@ -124,5 +145,12 @@ contextBridge.exposeInMainWorld('electronAPI', {
     checkNodeConnection: websocketCheckNodeConnection,
     clearAllConnections: websocketClearAllConnections,
     disconnectByNode: websocketDisconnectByNode,
+  },
+  mock: {
+    getMockByNodeId: mockGetByNodeId,
+    startServer: mockStartServer,
+    stopServer: mockStopServer,
+    getUsedPorts: mockGetUsedPorts,
+    replaceById: mockReplaceById,
   }
 })

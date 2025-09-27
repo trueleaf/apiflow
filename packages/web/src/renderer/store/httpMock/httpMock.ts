@@ -238,6 +238,24 @@ export const useHttpMock = defineStore('httpMock', () => {
         value: true,
       })
       cacheHttpMock();
+      
+      // 检查Mock是否已启用，如果启用则更新主进程配置
+      try {
+        const isEnabled = await checkMockEnabledStatus(httpMockDetail._id);
+        if (isEnabled && window.electronAPI?.mock?.replaceById) {
+          // 准备更新数据，确保包含projectId
+          const updateData = { ...httpMockDetail, projectId };
+          const result = await window.electronAPI.mock.replaceById(httpMockDetail._id, updateData);
+          if (!result.success) {
+            console.warn('更新主进程Mock配置失败:', result.error);
+            // 这里可以选择显示警告给用户，但不影响保存流程
+          }
+        }
+      } catch (error) {
+        console.warn('更新主进程Mock配置时发生错误:', error);
+        // 不影响保存流程，只记录警告
+      }
+      
       // 添加0.1秒的saveLoading效果
       setTimeout(() => {
         saveLoading.value = false;
@@ -246,6 +264,101 @@ export const useHttpMock = defineStore('httpMock', () => {
       console.log('todo');
       cacheHttpMock();
       saveLoading.value = false;
+    }
+  };
+
+  /*
+  |--------------------------------------------------------------------------
+  | Mock服务状态管理
+  |--------------------------------------------------------------------------
+  */
+  // 检查Mock是否已启用
+  const checkMockEnabledStatus = async (nodeId: string): Promise<boolean> => {
+    try {
+      if (!window.electronAPI?.mock?.getMockByNodeId) {
+        console.warn('Mock API not available');
+        return false;
+      }
+      const mockData = await window.electronAPI.mock.getMockByNodeId(nodeId);
+      return mockData !== null;
+    } catch (error) {
+      console.error('检查Mock状态失败:', error);
+      return false;
+    }
+  };
+
+  // 启动Mock服务
+  const startMockServer = async (nodeId: string): Promise<{ success: boolean; error?: string }> => {
+    try {
+      if (!window.electronAPI?.mock?.startServer) {
+        return { success: false, error: '无法访问Mock API' };
+      }
+      
+      if (!httpMock.value) {
+        return { success: false, error: 'Mock配置不存在' };
+      }
+
+      // 验证nodeId是否匹配
+      if (httpMock.value._id !== nodeId) {
+        return { success: false, error: 'Mock ID不匹配' };
+      }
+
+      // 从路由获取projectId
+      const projectId = router.currentRoute.value.query.id as string;
+
+      // 设置projectId到httpMock
+      const mockData = { ...httpMock.value, projectId };
+      const result = await window.electronAPI.mock.startServer(JSON.parse(JSON.stringify(mockData)));
+      
+      if (result.success) {
+        return { success: true };
+      } else {
+        return { success: false, error: result.errorMsg || '启动Mock服务失败' };
+      }
+    } catch (error) {
+      console.error('启动Mock服务失败:', error);
+      return { success: false, error: `启动失败: ${error instanceof Error ? error.message : '未知错误'}` };
+    }
+  };
+
+  // 停止Mock服务
+  const stopMockServer = async (nodeId: string): Promise<{ success: boolean; error?: string }> => {
+    try {
+      if (!window.electronAPI?.mock?.stopServer) {
+        return { success: false, error: '无法访问Mock API' };
+      }
+      
+      const result = await window.electronAPI.mock.stopServer(nodeId);
+      
+      if (result.success) {
+        // 验证服务器确实已关闭
+        const checkResult = await checkMockEnabledStatus(nodeId);
+        if (checkResult) {
+          console.warn('服务器关闭验证失败，但主进程报告成功');
+          return { success: false, error: '服务器关闭验证失败' };
+        }
+        return { success: true };
+      } else {
+        return { success: false, error: result.error || '停止Mock服务失败' };
+      }
+    } catch (error) {
+      console.error('停止Mock服务失败:', error);
+      return { success: false, error: `停止失败: ${error instanceof Error ? error.message : '未知错误'}` };
+    }
+  };
+
+  // 获取已使用端口
+  const getUsedPorts = async (): Promise<{ port: number, projectId: string, nodeId: string, nodeName: string }[]> => {
+    try {
+      if (!window.electronAPI?.mock?.getUsedPorts) {
+        console.error('无法访问Mock API');
+        return [];
+      }
+      
+      return await window.electronAPI.mock.getUsedPorts();
+    } catch (error) {
+      console.error('获取已使用端口失败:', error);
+      return [];
     }
   };
   
@@ -278,5 +391,10 @@ export const useHttpMock = defineStore('httpMock', () => {
     // 接口调用
     getHttpMockDetail,
     saveHttpMock,
+    // Mock服务状态管理
+    checkMockEnabledStatus,
+    startMockServer,
+    stopMockServer,
+    getUsedPorts,
   }
 })

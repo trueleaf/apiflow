@@ -5,10 +5,15 @@ import { getWindowState } from './utils/index.ts';
 import { useIpcEvent } from './ipcMessage/index.ts';
 import { bindMainProcessGlobalShortCut } from './shortcut/index.ts';
 import { overrideBrowserWindow } from './override/index.ts';
-import { webSocketManager } from './websocket/websocket.ts';
+import { WebSocketManager } from './websocket/websocket.ts';
+import { MockManager } from './mock/mockManager.ts';
 import { config } from '../config/config.ts';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+
+// 创建全局实例
+export const mockManager = new MockManager();
+export const webSocketManager = new WebSocketManager();
 
 /*
 |--------------------------------------------------------------------------
