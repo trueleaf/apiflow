@@ -11,59 +11,97 @@
         <div class="mode-switch">
           <button
             class="mode-button"
-            :class="{ 'is-active': displayMode === 'card' }"
-            type="button"
-            @click="displayMode = 'card'"
-          >
-            卡片模式
-          </button>
-          <button
-            class="mode-button"
             :class="{ 'is-active': displayMode === 'plain' }"
             type="button"
             @click="displayMode = 'plain'"
           >
             普通模式
           </button>
+          <button
+            class="mode-button"
+            :class="{ 'is-active': displayMode === 'card' }"
+            type="button"
+            @click="displayMode = 'card'"
+          >
+            卡片模式
+          </button>
         </div>
+        <button class="refresh-button" type="button" :disabled="loading" @click="fetchLogs">
+          {{ loading ? '加载中…' : '刷新日志' }}
+        </button>
       </div>
     </div>
 
     <div class="filters">
-      <div class="filter-group">
-        <label class="filter-label">关键字</label>
-        <input
-          v-model="filters.keyword"
-          class="filter-input"
-          type="text"
-          placeholder="搜索 IP、路径、UA、Referer"
-        />
-      </div>
-      <div class="filter-group">
-        <label class="filter-label">请求方法</label>
-        <select v-model="filters.method" class="filter-select">
-          <option value="">全部</option>
-          <option v-for="method in methodOptions" :key="method" :value="method">{{ method }}</option>
-        </select>
-      </div>
-      <div class="filter-group">
-        <label class="filter-label">状态码</label>
-        <input v-model="filters.status" class="filter-input" type="text" placeholder="例如：200" />
-      </div>
-      <div class="filter-group">
-        <label class="filter-label">响应时间(ms)</label>
-        <div class="filter-input-group">
-          <input v-model="filters.minResponse" class="filter-input" type="number" min="0" placeholder="最小值" />
-          <span class="filter-input-divider">-</span>
-          <input v-model="filters.maxResponse" class="filter-input" type="number" min="0" placeholder="最大值" />
+      <div class="filters-header">
+        <div class="filter-group keyword-group">
+          <label class="filter-label">关键字</label>
+          <input
+            v-model="filters.keyword"
+            class="filter-input"
+            type="text"
+            placeholder="搜索 IP、路径、UA、Referer"
+          />
+        </div>
+        <div class="filter-actions">
+          <button
+            class="icon-button"
+            type="button"
+            :class="{ 'is-active': showAdvancedFilters }"
+            @click="toggleAdvancedFilters"
+          >
+            <span class="icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M7 12h10M10 18h4" />
+              </svg>
+            </span>
+            <span>高级筛选</span>
+          </button>
+          <button
+            class="icon-button"
+            type="button"
+            :class="{ 'is-active': showFormatPanel }"
+            :disabled="displayMode !== 'plain'"
+            @click="toggleFormatPanel"
+            :title="displayMode === 'plain' ? '自定义普通模式日志格式' : '仅普通模式支持格式模板'"
+          >
+            <span class="icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M5 5h9M5 12h14M5 19h9" />
+                <path stroke-linecap="round" stroke-linejoin="round" d="M16 5v2M14 19v-2" />
+              </svg>
+            </span>
+            <span>格式模板</span>
+          </button>
         </div>
       </div>
-      <div class="filter-buttons">
-        <button class="ghost-button" type="button" @click="handleResetFilters">重置</button>
+      <div v-if="showAdvancedFilters" class="advanced-grid">
+        <div class="filter-group">
+          <label class="filter-label">请求方法</label>
+          <select v-model="filters.method" class="filter-select">
+            <option value="">全部</option>
+            <option v-for="method in methodOptions" :key="method" :value="method">{{ method }}</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <label class="filter-label">状态码</label>
+          <input v-model="filters.status" class="filter-input" type="text" placeholder="例如：200" />
+        </div>
+        <div class="filter-group">
+          <label class="filter-label">响应时间 (ms)</label>
+          <div class="filter-input-group">
+            <input v-model="filters.minResponse" class="filter-input" type="number" min="0" placeholder="最小值" />
+            <span class="filter-input-divider">-</span>
+            <input v-model="filters.maxResponse" class="filter-input" type="number" min="0" placeholder="最大值" />
+          </div>
+        </div>
+      </div>
+      <div v-if="showAdvancedFilters" class="advanced-footer">
+        <button class="ghost-button" type="button" @click="handleResetFilters">重置条件</button>
       </div>
     </div>
 
-    <div class="format-panel" v-if="displayMode === 'plain'">
+    <div v-if="displayMode === 'plain' && showFormatPanel" class="format-panel">
       <div class="format-header">
         <div class="format-title">日志格式模板</div>
         <div class="format-hint" v-if="unknownTemplateVariables.length">
@@ -82,6 +120,7 @@
           <div v-for="variable in templateVariables" :key="variable.key" class="format-variable-item">
             <div class="variable-key">${{ variable.key }}</div>
             <div class="variable-desc">{{ variable.label }}</div>
+            <div class="variable-example">示例：{{ variable.example }}</div>
           </div>
         </div>
       </div>
@@ -168,7 +207,9 @@ const { currentSelectTab } = storeToRefs(apidocTabsStore)
 const loading = ref(false)
 const errorMessage = ref('')
 const requestLogs = ref<Extract<MockLog, { type: 'request' }>[]>([])
-const displayMode = ref<'card' | 'plain'>('card')
+const displayMode = ref<'card' | 'plain'>('plain')
+const showAdvancedFilters = ref(false)
+const showFormatPanel = ref(false)
 const formatTemplate = ref(defaultTemplate)
 const lastFetchedAt = ref<number | null>(null)
 const expandedMap = reactive<Record<string, boolean>>({})
@@ -182,23 +223,23 @@ const filters = reactive({
 })
 
 const templateVariables = [
-  { key: 'remote_addr', label: '客户端 IP' },
-  { key: 'remote_user', label: '客户端用户，默认 -' },
-  { key: 'time_local', label: '本地时间，格式：YYYY-MM-DD HH:mm:ss' },
-  { key: 'request', label: '请求行：METHOD URL HTTP/version' },
-  { key: 'status', label: 'HTTP 状态码' },
-  { key: 'body_bytes_sent', label: '响应字节数' },
-  { key: 'http_referer', label: 'Referer' },
-  { key: 'http_user_agent', label: 'User-Agent' },
-  { key: 'request_time', label: '响应耗时（秒）' },
-  { key: 'matched_route', label: '匹配的 Mock 路由' },
-  { key: 'mock_delay', label: 'Mock 延迟（毫秒）' },
-  { key: 'protocol', label: '协议名' },
-  { key: 'hostname', label: '主机名' },
-  { key: 'content_type', label: '内容类型' },
-  { key: 'content_length', label: '内容长度' },
-  { key: 'query_string', label: '查询字符串' },
-  { key: 'response_time_ms', label: '响应耗时（毫秒）' },
+  { key: 'remote_addr', label: '客户端 IP', example: '127.0.0.1' },
+  { key: 'remote_user', label: '客户端用户，默认 -', example: '-' },
+  { key: 'time_local', label: '本地时间，格式：YYYY-MM-DD HH:mm:ss', example: '2024-09-01 12:30:45' },
+  { key: 'request', label: '请求行：METHOD URL HTTP/version', example: 'GET /api/profile HTTP/1.1' },
+  { key: 'status', label: 'HTTP 状态码', example: '200' },
+  { key: 'body_bytes_sent', label: '响应字节数', example: '512' },
+  { key: 'http_referer', label: 'Referer', example: 'https://example.com/list' },
+  { key: 'http_user_agent', label: 'User-Agent', example: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 13_4)' },
+  { key: 'request_time', label: '响应耗时（秒）', example: '0.120' },
+  { key: 'matched_route', label: '匹配的 Mock 路由', example: '/api/profile' },
+  { key: 'mock_delay', label: 'Mock 延迟（毫秒）', example: '150' },
+  { key: 'protocol', label: '协议名', example: 'HTTP/1.1' },
+  { key: 'hostname', label: '主机名', example: 'mock.local' },
+  { key: 'content_type', label: '内容类型', example: 'application/json' },
+  { key: 'content_length', label: '内容长度', example: '512' },
+  { key: 'query_string', label: '查询字符串', example: 'id=1&lang=zh-CN' },
+  { key: 'response_time_ms', label: '响应耗时（毫秒）', example: '120' },
 ]
 
 const templateVariableKeys = computed(() => templateVariables.map(item => item.key))
@@ -300,6 +341,17 @@ const fetchLogs = async () => {
   }
 }
 
+const toggleAdvancedFilters = () => {
+  showAdvancedFilters.value = !showAdvancedFilters.value
+}
+
+const toggleFormatPanel = () => {
+  if (displayMode.value !== 'plain') {
+    return
+  }
+  showFormatPanel.value = !showFormatPanel.value
+}
+
 const handleResetFilters = () => {
   filters.keyword = ''
   filters.method = ''
@@ -338,7 +390,7 @@ const formatTimestamp = (value: number | null) => {
 }
 
 const renderPlainLog = (log: Extract<MockLog, { type: 'request' }>) => {
-  return formatTemplate.value.replace(/\$[a-zA-Z_]+/g, (match) => {
+  return formatTemplate.value.replace(/\$[a-zA-Z_]+/g, match => {
     const key = match.slice(1)
     const resolver = templateVariableResolvers[key]
     if (!resolver) {
@@ -374,6 +426,12 @@ const isExpanded = (log: Extract<MockLog, { type: 'request' }>, index: number) =
   const key = createLogKey(log, index)
   return Boolean(expandedMap[key])
 }
+
+watch(displayMode, value => {
+  if (value === 'card') {
+    showFormatPanel.value = false
+  }
+})
 
 watch(currentNodeId, (value, oldValue) => {
   if (value && value !== oldValue) {
@@ -420,7 +478,7 @@ watch(currentNodeId, (value, oldValue) => {
 .toolbar-actions {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 12px;
 }
 
 .mode-switch {
@@ -452,16 +510,44 @@ watch(currentNodeId, (value, oldValue) => {
   cursor: not-allowed;
 }
 
+.refresh-button {
+  border: 1px solid #1d4ed8;
+  background: #2563eb;
+  color: #fff;
+  font-size: 13px;
+  padding: 8px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
 
+.refresh-button:disabled {
+  background: #94a3b8;
+  border-color: #94a3b8;
+  cursor: not-allowed;
+}
 
 .filters {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  display: flex;
+  flex-direction: column;
   gap: 12px;
   background: #ffffff;
   padding: 16px;
   border-radius: 12px;
   box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04), 0 1px 3px rgba(15, 23, 42, 0.08);
+}
+
+.filters-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.keyword-group {
+  flex: 1;
+  min-width: 220px;
 }
 
 .filter-group {
@@ -495,6 +581,59 @@ watch(currentNodeId, (value, oldValue) => {
   box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
 }
 
+.filter-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.icon-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: 1px solid #e2e8f0;
+  background: #fff;
+  color: #475569;
+  font-size: 13px;
+  padding: 8px 14px;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.icon-button .icon {
+  display: inline-flex;
+  width: 16px;
+  height: 16px;
+}
+
+.icon-button svg {
+  width: 100%;
+  height: 100%;
+}
+
+.icon-button.is-active {
+  border-color: #6366f1;
+  color: #42389d;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.12);
+}
+
+.icon-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.icon-button:not(:disabled):hover {
+  border-color: #94a3b8;
+  color: #1e293b;
+}
+
+.advanced-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 12px;
+}
+
 .filter-input-group {
   display: flex;
   align-items: center;
@@ -506,9 +645,9 @@ watch(currentNodeId, (value, oldValue) => {
   font-size: 12px;
 }
 
-.filter-buttons {
+.advanced-footer {
   display: flex;
-  align-items: flex-end;
+  justify-content: flex-end;
 }
 
 .ghost-button {
@@ -599,7 +738,7 @@ watch(currentNodeId, (value, oldValue) => {
 
 .format-variables-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: 10px;
 }
 
@@ -622,6 +761,11 @@ watch(currentNodeId, (value, oldValue) => {
 .variable-desc {
   font-size: 12px;
   color: #64748b;
+}
+
+.variable-example {
+  font-size: 12px;
+  color: #1f2933;
 }
 
 .log-container {
@@ -840,9 +984,6 @@ watch(currentNodeId, (value, oldValue) => {
   .log-page {
     padding: 12px;
   }
-  .filters {
-    grid-template-columns: 1fr;
-  }
   .toolbar {
     flex-direction: column;
     align-items: flex-start;
@@ -851,7 +992,15 @@ watch(currentNodeId, (value, oldValue) => {
     align-self: stretch;
     justify-content: space-between;
   }
+  .filters-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .filter-actions {
+    justify-content: flex-start;
+  }
+  .filters {
+    padding: 14px;
+  }
 }
 </style>
-
-

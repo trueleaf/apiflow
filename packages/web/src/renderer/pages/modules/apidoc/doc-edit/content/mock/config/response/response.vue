@@ -1,120 +1,103 @@
 <template>
   <div class="response-content">
-    <div class="response-header">
-      <div class="config-title">{{ t('响应配置') }}</div>
-      <el-button type="primary" @click="handleAddCondition">
-        {{ t('添加条件') }}
-      </el-button>
-    </div>
+    <div class="config-title">{{ t('响应配置') }}</div>
     
-    <!-- 响应配置卡片 -->
-    <div v-if="currentResponse" class="response-card">
-      <!-- 条件头部 -->
-      <div class="response-card-header">
-        <div class="condition-info">
-          <div class="condition-tag-wrapper">
-            <span class="default-tag">{{ t('默认响应') }}</span>
-            <span v-if="currentResponse.conditions.name" class="condition-name">
-              {{ currentResponse.conditions.name }}
-            </span>
-          </div>
+    <!-- 响应配置表单 -->
+    <div v-if="currentResponse" class="config-form">
+      <!-- 基础配置 -->
+      <div class="form-row">
+        <div class="form-item flex-item">
+          <label class="form-label">{{ t('HTTP状态码') }} *</label>
+          <el-input
+            v-model.number="currentResponse.statusCode"
+            type="number"
+            :min="100"
+            :max="599"
+            class="status-code-input"
+            placeholder="200"
+          />
         </div>
-        <div class="condition-actions">
-          <el-button type="text" size="small">{{ t('编辑') }}</el-button>
-          <el-button type="text" size="small">{{ t('复制') }}</el-button>
-          <el-button type="text" size="small" class="danger-text">{{ t('删除') }}</el-button>
+        <div class="form-item flex-item">
+          <label class="form-label">{{ t('延迟时间 (ms)') }}</label>
+          <el-input-number
+            v-model="httpMock.config.delay"
+            :min="0"
+            :max="60000"
+            :step="100"
+            class="delay-input"
+            :controls="false"
+            placeholder="0"
+          />
         </div>
       </div>
       
-      <!-- 基础配置区域 -->
-      <div class="response-basic-config">
-        <div class="config-grid">
-          <div class="config-item">
-            <label class="config-label">{{ t('HTTP状态码') }}</label>
-            <el-input
-              v-model.number="currentResponse.statusCode"
-              type="number"
-              :min="100"
-              :max="599"
-              class="status-code-input"
-              placeholder="200"
-            />
-          </div>
-          <div class="config-item">
-            <label class="config-label">{{ t('延迟时间') }}</label>
-            <div class="delay-display">
-              <span class="delay-value">{{ httpMock.config.delay }}ms</span>
-              <span class="delay-note">{{ t('（从全局配置继承）') }}</span>
-            </div>
-          </div>
-        </div>
-        
-        <!-- 响应头配置 -->
-        <div class="headers-config">
-          <div class="headers-title">
-            <span>{{ t('响应头') }}</span>
-            <el-button type="text" size="small" @click="addHeader">
-              <el-icon><Plus /></el-icon>
-              {{ t('添加') }}
-            </el-button>
-          </div>
-          <div class="headers-list">
-            <div 
-              v-for="key in Object.keys(currentResponse.headers)" 
-              :key="key" 
-              class="header-item"
-            >
-              <el-input 
-                :model-value="key" 
-                @input="updateHeaderKey($event, key)"
-                placeholder="Header名称" 
-                class="header-key"
-              />
-              <el-input 
-                v-model="currentResponse.headers[key]" 
-                placeholder="Header值" 
-                class="header-value"
-              />
-              <el-button 
-                type="text" 
-                size="small" 
-                @click="removeHeader(key)"
-                class="header-remove"
-              >
-                <el-icon><Close /></el-icon>
+      <!-- 响应头配置 -->
+      <div class="form-row">
+        <div class="form-item full-width">
+          <div class="headers-section">
+            <div class="headers-header">
+              <label class="form-label">{{ t('响应头') }}</label>
+              <el-button type="text" size="small" @click="addHeader">
+                <el-icon><Plus /></el-icon>
+                {{ t('添加') }}
               </el-button>
             </div>
-            <div v-if="Object.keys(currentResponse.headers).length === 0" class="no-headers">
-              {{ t('暂无响应头，点击添加按钮创建') }}
+            <div class="headers-list">
+              <div 
+                v-for="key in Object.keys(currentResponse.headers)" 
+                :key="key" 
+                class="header-item"
+              >
+                <el-input 
+                  :model-value="key" 
+                  @input="updateHeaderKey($event, key)"
+                  placeholder="Header名称" 
+                  class="header-key"
+                />
+                <el-input 
+                  v-model="currentResponse.headers[key]" 
+                  placeholder="Header值" 
+                  class="header-value"
+                />
+                <el-button 
+                  type="text" 
+                  size="small" 
+                  @click="removeHeader(key)"
+                  class="header-remove"
+                >
+                  <el-icon><Close /></el-icon>
+                </el-button>
+              </div>
+              <div v-if="Object.keys(currentResponse.headers).length === 0" class="no-headers">
+                {{ t('暂无响应头，点击添加按钮创建') }}
+              </div>
             </div>
           </div>
         </div>
       </div>
       
-      <!-- 数据类型选择区域 -->
-      <div class="data-type-section">
-        <div class="section-title">{{ t('响应数据类型') }}</div>
-        <div class="data-type-options">
-          <div 
-            v-for="type in dataTypeOptions" 
-            :key="type.value"
-            :class="['data-type-option', { 'active': currentResponse.dataType === type.value }]"
-            @click="changeDataType(type.value)"
-          >
-            <div class="type-icon">
-              <span class="icon-text">{{ type.icon }}</span>
-            </div>
-            <div class="type-info">
-              <div class="type-name">{{ type.label }}</div>
-              <div class="type-desc">{{ type.description }}</div>
+      <!-- 数据类型选择 -->
+      <div class="form-row">
+        <div class="form-item full-width">
+          <label class="form-label">{{ t('响应数据类型') }}</label>
+          <div class="data-type-options">
+            <div 
+              v-for="type in dataTypeOptions" 
+              :key="type.value"
+              :class="['data-type-option', { 'active': currentResponse.dataType === type.value }]"
+              @click="changeDataType(type.value)"
+            >
+              <span class="type-icon">{{ type.icon }}</span>
+              <span class="type-name">{{ type.label }}</span>
             </div>
           </div>
         </div>
       </div>
       
-      <!-- 数据内容配置区域 -->
-      <div class="data-content-section">
-        <div class="section-title">{{ t('数据内容配置') }}</div>
+      <!-- 数据内容配置 -->
+      <div class="form-row">
+        <div class="form-item full-width">
+          <label class="form-label">{{ t('数据内容配置') }}</label>
         
         <!-- JSON配置 -->
         <div v-if="currentResponse.dataType === 'json'" class="json-config">
@@ -291,10 +274,11 @@
           </div>
         </div>
 
-        <!-- 其他数据类型的占位符 -->
-        <div v-else class="other-config-placeholder">
-          <div class="placeholder-text">
-            {{ t('未知数据类型配置') }}
+          <!-- 其他数据类型的占位符 -->
+          <div v-else class="other-config-placeholder">
+            <div class="placeholder-text">
+              {{ t('未知数据类型配置') }}
+            </div>
           </div>
         </div>
       </div>
@@ -368,10 +352,7 @@ const dataTypeOptions = computed(() => [
   }
 ])
 
-// 添加条件按钮处理（由父组件处理跨组件操作）
-const handleAddCondition = () => {
-  console.log('添加条件按钮被点击')
-}
+
 
 // 响应配置相关方法
 const addHeader = () => {
@@ -440,11 +421,45 @@ const validateJsonData = () => {
   margin-bottom: 16px;
 }
 
-.response-header {
+.config-form {
+  margin-left: 20px;
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 16px;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.form-row {
+  display: flex;
+  gap: 24px;
+  align-items: flex-start;
+}
+
+.form-item {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.flex-item {
+  flex: 0 0 auto;
+}
+
+.full-width {
+  flex: 1;
+}
+
+.form-label {
+  font-size: var(--font-size-sm);
+  color: var(--gray-700);
+  font-weight: 500;
+}
+
+.status-code-input {
+  max-width: 200px;
+}
+
+.delay-input {
+  max-width: 200px;
 }
 
 .empty-response {
@@ -466,136 +481,23 @@ const validateJsonData = () => {
   color: var(--gray-500);
 }
 
-/* 响应配置卡片样式 - 现代化极简风格 */
-.response-card {
-  background: #ffffff;
-  border: 1px solid #e5e7eb;
-  border-radius: 12px;
-  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
-  overflow: hidden;
-  transition: all 0.2s ease-in-out;
-}
-
-.response-card:hover {
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-}
-
-/* 卡片头部 */
-.response-card-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 16px 20px;
-  background: #f9fafb;
-  border-bottom: 1px solid #e5e7eb;
-}
-
-.condition-info {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.condition-tag-wrapper {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.default-tag {
-  display: inline-flex;
-  align-items: center;
-  padding: 4px 8px;
-  background: #dbeafe;
-  color: #1d4ed8;
-  border-radius: 6px;
-  font-size: 12px;
-  font-weight: 500;
-  line-height: 1.2;
-}
-
-.condition-name {
-  font-size: 14px;
-  font-weight: 500;
-  color: #374151;
-}
-
-.condition-actions {
-  display: flex;
-  gap: 8px;
-}
-
-.danger-text {
-  color: #dc2626 !important;
-}
-
-/* 基础配置区域 */
-.response-basic-config {
-  padding: 20px;
-  background: #ffffff;
-}
-
-.config-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 20px;
-  margin-bottom: 24px;
-}
-
-.config-item {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.config-label {
-  font-size: 14px;
-  font-weight: 500;
-  color: #374151;
-  line-height: 1.4;
-}
-
-.status-code-input {
-  max-width: 120px;
-}
-
-.delay-display {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.delay-value {
-  font-weight: 600;
-  color: #059669;
-  font-size: 14px;
-}
-
-.delay-note {
-  font-size: 12px;
-  color: #6b7280;
-}
-
 /* 响应头配置 */
-.headers-config {
-  border-top: 1px solid #f3f4f6;
-  padding-top: 20px;
+.headers-section {
+  width: 100%;
 }
 
-.headers-title {
+.headers-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 16px;
-  font-size: 14px;
-  font-weight: 500;
-  color: #374151;
+  margin-bottom: 12px;
 }
 
 .headers-list {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 8px;
+  margin-top: 8px;
 }
 
 .header-item {
@@ -620,117 +522,68 @@ const validateJsonData = () => {
 }
 
 .no-headers {
-  padding: 20px;
+  padding: 16px;
   text-align: center;
   color: #6b7280;
   font-size: 14px;
-  background: #f9fafb;
-  border: 1px dashed #d1d5db;
-  border-radius: 8px;
-}
-
-/* 数据类型选择区域 */
-.data-type-section {
-  padding: 20px;
-  background: #ffffff;
-  border-top: 1px solid #f3f4f6;
-}
-
-.section-title {
-  font-size: 16px;
-  font-weight: 600;
-  color: #111827;
-  margin-bottom: 16px;
+  background: var(--gray-100);
+  border: 1px dashed var(--gray-300);
+  border-radius: var(--border-radius-base);
 }
 
 .data-type-options {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 12px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 8px;
 }
 
 .data-type-option {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 16px;
-  border: 2px solid #e5e7eb;
-  border-radius: 8px;
+  gap: 8px;
+  padding: 8px 16px;
+  border: 1px solid var(--gray-300);
+  border-radius: var(--border-radius-base);
   cursor: pointer;
-  transition: all 0.2s ease-in-out;
-  background: #ffffff;
+  transition: all 0.2s ease;
+  background: var(--white);
 }
 
 .data-type-option:hover {
-  border-color: #3b82f6;
-  background: #f8faff;
+  border-color: var(--primary-color);
+  background: var(--primary-color-light);
 }
 
 .data-type-option.active {
-  border-color: #3b82f6;
-  background: #eff6ff;
-  box-shadow: 0 0 0 1px rgba(59, 130, 246, 0.1);
+  border-color: var(--primary-color);
+  background: var(--primary-color-light);
+  color: var(--primary-color);
 }
 
 .type-icon {
-  flex-shrink: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 32px;
-  height: 32px;
-  background: #f3f4f6;
-  border-radius: 6px;
-  color: #6b7280;
-}
-
-.icon-text {
   font-size: 16px;
   line-height: 1;
 }
 
-.data-type-option.active .type-icon {
-  background: #dbeafe;
-  color: #3b82f6;
-}
-
-.type-info {
-  flex: 1;
-  min-width: 0;
-}
-
 .type-name {
-  font-size: 14px;
+  font-size: var(--font-size-sm);
   font-weight: 500;
-  color: #111827;
   line-height: 1.3;
 }
 
-.type-desc {
-  font-size: 12px;
-  color: #6b7280;
-  line-height: 1.3;
-  margin-top: 2px;
-}
-
-/* 数据内容配置区域 */
-.data-content-section {
-  padding: 20px;
-  background: #ffffff;
-  border-top: 1px solid #f3f4f6;
-}
-
+/* 数据内容配置 */
 .mode-selector {
-  margin-bottom: 16px;
+  margin: 12px 0;
 }
 
 .mode-radio-group :deep(.el-radio-button) {
-  --el-radio-button-checked-bg-color: #3b82f6;
-  --el-radio-button-checked-border-color: #3b82f6;
+  --el-radio-button-checked-bg-color: var(--primary-color);
+  --el-radio-button-checked-border-color: var(--primary-color);
 }
 
 .fixed-data-config {
-  margin-top: 16px;
+  margin-top: 12px;
 }
 
 .json-textarea :deep(.el-textarea__inner) {
@@ -740,7 +593,7 @@ const validateJsonData = () => {
 }
 
 .random-data-config {
-  margin-top: 16px;
+  margin-top: 12px;
 }
 
 .random-item {
@@ -755,23 +608,21 @@ const validateJsonData = () => {
 
 .unit {
   font-size: 14px;
-  color: #6b7280;
+  color: var(--gray-600);
 }
 
-/* 文本配置样式 */
-.text-config {
-  margin-top: 16px;
+/* 各类型配置通用样式 */
+.text-config,
+.image-config, 
+.file-config,
+.binary-config {
+  margin-top: 12px;
 }
 
 .text-textarea :deep(.el-textarea__inner) {
   font-family: inherit;
   font-size: 14px;
   line-height: 1.6;
-}
-
-/* 图片配置样式 */
-.image-config {
-  margin-top: 16px;
 }
 
 .file-selector {
@@ -788,12 +639,7 @@ const validateJsonData = () => {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: 16px;
-  margin-top: 16px;
-}
-
-/* 文件配置样式 */
-.file-config {
-  margin-top: 16px;
+  margin-top: 12px;
 }
 
 .file-type-selector {
@@ -806,28 +652,23 @@ const validateJsonData = () => {
   width: 300px;
 }
 
-/* 二进制配置样式 */
-.binary-config {
-  margin-top: 16px;
-}
-
 /* SSE配置样式 */
 .sse-config {
-  margin-top: 16px;
+  margin-top: 12px;
 }
 
 .sse-note {
   display: flex;
   align-items: center;
-  gap: 16px;
-  padding: 20px;
-  background: #f0f9ff;
-  border: 1px solid #0ea5e9;
-  border-radius: 8px;
+  gap: 12px;
+  padding: 16px;
+  background: var(--primary-color-light);
+  border: 1px solid var(--primary-color);
+  border-radius: var(--border-radius-base);
 }
 
 .note-icon {
-  font-size: 24px;
+  font-size: 20px;
   line-height: 1;
 }
 
@@ -836,29 +677,29 @@ const validateJsonData = () => {
 }
 
 .note-title {
-  font-size: 16px;
+  font-size: var(--font-size-base);
   font-weight: 600;
-  color: #0c4a6e;
+  color: var(--primary-color);
   margin-bottom: 4px;
 }
 
 .note-desc {
-  font-size: 14px;
-  color: #075985;
+  font-size: var(--font-size-sm);
+  color: var(--primary-color);
   line-height: 1.4;
 }
 
 .other-config-placeholder {
-  padding: 40px 20px;
+  padding: 32px 20px;
   text-align: center;
-  background: #f9fafb;
-  border: 1px dashed #d1d5db;
-  border-radius: 8px;
+  background: var(--gray-100);
+  border: 1px dashed var(--gray-300);
+  border-radius: var(--border-radius-base);
 }
 
 .placeholder-text {
-  font-size: 14px;
-  color: #6b7280;
+  font-size: var(--font-size-sm);
+  color: var(--gray-600);
 }
 
 /* 验证错误样式 */
@@ -867,27 +708,30 @@ const validateJsonData = () => {
   padding: 8px 12px;
   background: #fef2f2;
   border: 1px solid #fecaca;
-  border-radius: 6px;
+  border-radius: var(--border-radius-base);
   color: #dc2626;
-  font-size: 13px;
+  font-size: var(--font-size-xs);
   line-height: 1.4;
 }
 
 @media (max-width: 960px) {
-  .response-header {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 12px;
+  .config-form {
+    gap: 14px;
   }
 
-  /* 响应式布局调整 */
-  .config-grid {
-    grid-template-columns: 1fr;
-    gap: 16px;
+  .form-row {
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .status-code-input,
+  .delay-input {
+    max-width: 100%;
   }
 
   .data-type-options {
-    grid-template-columns: 1fr;
+    flex-direction: column;
+    align-items: flex-start;
   }
 
   .header-item {
@@ -916,35 +760,17 @@ const validateJsonData = () => {
 }
 
 @media (max-width: 760px) {
+  .config-title {
+    font-size: var(--font-size-base);
+    margin-bottom: 12px;
+  }
+
   .empty-response {
     padding: 30px 16px;
   }
 
-  /* 移动端优化 */
-  .response-card-header {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 12px;
-  }
-
-  .condition-actions {
-    width: 100%;
-    justify-content: flex-end;
-  }
-
-  .response-basic-config,
-  .data-type-section,
-  .data-content-section {
-    padding: 16px;
-  }
-
-  .type-icon {
-    width: 28px;
-    height: 28px;
-  }
-
-  .section-title {
-    font-size: 14px;
+  .config-form {
+    margin-left: 12px;
   }
 }
 </style>

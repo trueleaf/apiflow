@@ -79,6 +79,7 @@ useShortcut('ctrl+s', (event: KeyboardEvent) => {
 <style scoped>
 .mock-config-content {
   margin: 0 auto;
+  padding-bottom: 80px; /* 为按钮留出空间 */
 }
 
 .config-section {
@@ -90,7 +91,7 @@ useShortcut('ctrl+s', (event: KeyboardEvent) => {
   justify-content: center;
   gap: 12px;
   margin-top: 20px;
-  padding: 16px 0;
+  padding: 16px 20px;
   border-top: 1px solid #e2e8f0;
 }
 </style>
