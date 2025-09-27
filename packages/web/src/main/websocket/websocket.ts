@@ -372,6 +372,3 @@ export class WebSocketManager {
     this.nodeIdToConnectionId.clear();
   }
 }
-
-// 创建WebSocket管理器实例
-export const webSocketManager = new WebSocketManager();

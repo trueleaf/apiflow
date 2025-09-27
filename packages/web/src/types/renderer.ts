@@ -2,6 +2,7 @@ import type { Got } from 'got';
 import type {GotRequestOptions, WindowState } from './types';
 import type { StandaloneExportHtmlParams } from './standalone';
 import { WebsocketConnectParams } from './websocket/websocket.ts';
+import { MockHttpNode } from './mock/mock.ts';
 
 
 export type ElectronAPI = {
@@ -32,6 +33,13 @@ export type ElectronAPI = {
     checkNodeConnection: (nodeId: string) => Promise<{ connected: boolean; connectionId?: string; state?: number }>;
     clearAllConnections: () => Promise<{ success: boolean; closedCount: number; error?: string }>;
     disconnectByNode: (nodeId: string) => Promise<{ success: boolean; error?: string }>;
+  };
+  mock: {
+    getMockByNodeId: (nodeId: string) => Promise<MockHttpNode | null>;
+    startServer: (httpMock: MockHttpNode) => Promise<{ success: boolean, errorMsg: string }>;
+    stopServer: (nodeId: string) => Promise<{ success: boolean; error?: string }>;
+    getUsedPorts: () => Promise<{ port: number, projectId: string, nodeId: string, nodeName: string }[]>;
+    replaceById: (nodeId: string, httpMock: MockHttpNode) => Promise<{ success: boolean; error?: string }>;
   };
 }
 

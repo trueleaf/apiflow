@@ -37,22 +37,60 @@
               :placeholder="t('请求URL')"
               class="url-input"
             />
-            <div class="hint-text">{{ t('标准URL路径') }}</div>
+            <div class="mock-url-container">
+              <div class="mock-url-text">{{ mockUrl }}</div>
+              <el-icon 
+                v-copy="mockUrl"
+                class="copy-icon"
+              >
+                <CopyDocument />
+              </el-icon>
+            </div>
           </div>
           <div class="form-item flex-item">
             <label class="form-label">{{ t('启用Mock API') }}</label>
-            <div v-if="enabledStatusLoading" class="enabled-loading">
-              {{ t('状态查询中...') }}
+            <div class="enabled-switch-wrapper">
+              <el-switch 
+                v-model="enabled" 
+                @change="handleEnabledToggle"
+                :loading="enabledStatusLoading"
+              />
+              <div v-if="mockError" class="mock-error">
+                {{ mockError }}
+              </div>
             </div>
-            <el-switch 
-              v-else
-              v-model="enabled" 
-              @change="handleEnabledToggle"
-              :loading="enabledStatusLoading"
-            />
+            <div class="used-port">
+              <div v-if="filteredUsedPorts.length > 0" class="used-ports-tags">
+                <div class="used-ports-label">{{ t('已占用端口') }}:</div>
+                <div class="ports-tags-container">
+                  <div v-if="usedPortsLoading" class="ports-loading">
+                    {{ t('加载中...') }}
+                  </div>
+                  <div v-else class="ports-tags">
+                    <el-tooltip 
+                      v-for="portInfo in filteredUsedPorts" 
+                      :key="portInfo.nodeId"
+                      :content="portInfo.nodeName"
+                      placement="top"
+                    >
+                      <el-tag
+                        closable
+                        type="info"
+                        size="small"
+                        @close="handleClosePortTag(portInfo)"
+                        class="port-tag"
+                      >
+                        {{ portInfo.port }}
+                      </el-tag>
+                    </el-tooltip>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
+
     </div>
     <div class="config-section">
       <div class="response-header">
@@ -70,41 +108,55 @@
 </template>
 
 <script lang="ts" setup>
-import { watch, ref } from 'vue'
-import { ElSwitch, ElInput, ElCheckboxGroup, ElCheckbox, ElButton } from 'element-plus'
+import { watch, ref, onMounted, computed } from 'vue'
+import { ElSwitch, ElInput, ElCheckboxGroup, ElCheckbox, ElButton, ElMessageBox, ElTag, ElTooltip, ElIcon } from 'element-plus'
+import { CopyDocument } from '@element-plus/icons-vue'
 import { useI18n } from 'vue-i18n'
 import { storeToRefs } from 'pinia'
 import { useHttpMock } from '@/store/httpMock/httpMock'
+import { useApidocTas } from '@/store/apidoc/tabs.ts'
 
 const { t } = useI18n()
 const httpMockStore = useHttpMock()
 const { httpMock } = storeToRefs(httpMockStore)
-
-// Mock enabled状态管理
+const apidocTabsStore = useApidocTas()
+const { currentSelectTab } = storeToRefs(apidocTabsStore)
 const enabled = ref(false)
 const enabledStatusLoading = ref(false)
+const mockError = ref('')
+const usedPorts = ref<{ port: number, projectId: string, nodeId: string, nodeName: string }[]>([])
+const usedPortsLoading = ref(false)
 
-const handleAddCondition = () => {
-  console.log('添加条件按钮被点击')
-}
-
-// 处理enabled状态切换
-const handleEnabledToggle = async (val: string | number | boolean) => {
-  const newEnabled = Boolean(val)
-  enabledStatusLoading.value = true
+// 获取本机IP地址，失败则使用默认值
+const getLocalIp = () => {
   try {
-    // 模拟异步操作
-    await new Promise(resolve => setTimeout(resolve, 800))
-    enabled.value = newEnabled
-    console.log(`Mock API ${newEnabled ? '已启用' : '已禁用'}`)
+    return window.electronAPI?.ip || '127.0.0.1'
   } catch (error) {
-    console.error('切换Mock状态失败:', error)
-    // 恢复原状态
-    enabled.value = !newEnabled
-  } finally {
-    enabledStatusLoading.value = false
+    console.warn('获取本机IP失败，使用默认值:', error)
+    return '127.0.0.1'
   }
 }
+
+// 生成完整的Mock地址
+const mockUrl = computed(() => {
+  const ip = getLocalIp()
+  const port = httpMock.value.requestCondition.port
+  const url = httpMock.value.requestCondition.url
+  return `http://${ip}:${port}${url}`
+})
+
+// 过滤已占用端口，排除当前节点
+const filteredUsedPorts = computed(() => {
+  if (!enabled.value || !currentSelectTab.value?._id) {
+    // 如果当前节点没有启动mock，显示所有已占用端口
+    return usedPorts.value
+  }
+  
+  // 如果当前节点启动了mock，过滤掉当前节点的端口
+  const currentNodeId = currentSelectTab.value._id
+  return usedPorts.value.filter(portInfo => portInfo.nodeId !== currentNodeId)
+})
+
 
 watch(
   () => httpMock.value.requestCondition.method,
@@ -125,10 +177,154 @@ watch(
       httpMockStore.changeHttpMethod(['ALL'])
     } else if (hasNewOther && newMethods.includes('ALL')) {
       const methodsWithoutAll = newMethods.filter((method) => method !== 'ALL')
-      httpMockStore.changeHttpMethod(methodsWithoutAll as any)
+      httpMockStore.changeHttpMethod(methodsWithoutAll)
     }
   }
 )
+
+// 监听 currentSelectTab 变化，重新加载状态
+watch(
+  () => currentSelectTab.value?._id,
+  () => {
+    checkEnabledStatus()
+    getUsedPortsList()
+    mockError.value = ''
+  }
+)
+const handleAddCondition = () => {
+  console.log('添加条件按钮被点击')
+}
+
+// 处理关闭端口标签
+const handleClosePortTag = (portInfo: { port: number, projectId: string, nodeId: string, nodeName: string }) => {
+  handleCloseMock(portInfo)
+}
+
+// 处理关闭Mock
+const handleCloseMock = async (portInfo: { port: number, projectId: string, nodeId: string, nodeName: string }) => {
+  try {
+    await ElMessageBox.confirm(
+      `${t('确定要关闭端口')} ${portInfo.port} ${t('上的Mock服务吗？')}`,
+      t('确认关闭'),
+      {
+        confirmButtonText: t('确定'),
+        cancelButtonText: t('取消'),
+        type: 'warning',
+      }
+    )
+    
+    // 调用停止Mock服务
+    const result = await httpMockStore.stopMockServer(portInfo.nodeId)
+    if (result.success) {
+      console.log(`端口 ${portInfo.port} 上的Mock服务已关闭`)
+      // 刷新已使用端口列表
+      await getUsedPortsList()
+      // 如果关闭的是当前节点的服务，需要更新当前状态
+      if (portInfo.nodeId === currentSelectTab.value?._id) {
+        await checkEnabledStatus()
+      }
+    } else {
+      console.error('关闭Mock服务失败:', result.error)
+      mockError.value = `关闭端口 ${portInfo.port} 失败: ${result.error}`
+    }
+  } catch (error) {
+    // 用户取消或其他错误
+    if (error !== 'cancel' && error !== 'close') {
+      console.error('关闭Mock服务失败:', error)
+    }
+  }
+}
+// 处理enabled状态切换
+const handleEnabledToggle = (val: string | number | boolean) => {
+  const newEnabled = Boolean(val)
+  const currentEnabled = enabled.value
+  
+  // 如果是关闭操作，先恢复switch状态，显示loading
+  if (!newEnabled && currentEnabled) {
+    enabled.value = true // 保持开启状态
+  }
+  
+  enabledStatusLoading.value = true
+  mockError.value = '' // 清除之前的错误
+  
+  return Promise.resolve()
+    .then(() => {
+      if (!currentSelectTab.value?._id) {
+        throw new Error('Mock配置ID不存在')
+      }
+
+      if (newEnabled) {
+        // 启动Mock服务
+        return httpMockStore.startMockServer(currentSelectTab.value._id)
+          .then((result) => {
+            if (result.success) {
+              enabled.value = true
+              console.log('Mock API已启用')
+            } else {
+              enabled.value = false
+              mockError.value = result.error || '启动Mock服务失败'
+            }
+          })
+      } else {
+        // 停止Mock服务
+        return httpMockStore.stopMockServer(currentSelectTab.value._id)
+          .then(async (result: { success: boolean; error?: string }) => {
+            if (result.success) {
+              enabled.value = false
+              console.log('Mock API已禁用')
+              // 刷新已使用端口列表，确保UI状态同步
+              await getUsedPortsList()
+            } else {
+              enabled.value = true
+              mockError.value = result.error || '停止Mock服务失败'
+            }
+          })
+      }
+    })
+    .catch((error) => {
+      console.error('切换Mock状态失败:', error)
+      mockError.value = `操作失败: ${error instanceof Error ? error.message : '未知错误'}`
+      // 恢复到操作前的状态
+      enabled.value = currentEnabled
+    })
+    .finally(() => {
+      enabledStatusLoading.value = false
+    })
+}
+// 获取已使用端口
+const getUsedPortsList = async () => {
+  usedPortsLoading.value = true
+  try {
+    const ports = await httpMockStore.getUsedPorts()
+    usedPorts.value = ports
+  } catch (error) {
+    console.error('获取已使用端口失败:', error)
+  } finally {
+    usedPortsLoading.value = false
+  }
+}
+// 检查Mock启用状态
+const checkEnabledStatus = () => {
+  if (currentSelectTab.value?._id) {
+    enabledStatusLoading.value = true
+    return httpMockStore.checkMockEnabledStatus(currentSelectTab.value._id)
+      .then((isEnabled) => {
+        enabled.value = isEnabled
+      })
+      .catch((error) => {
+        console.error('检查Mock状态失败:', error)
+        mockError.value = '无法检查Mock服务状态'
+      })
+      .finally(() => {
+        enabledStatusLoading.value = false
+      })
+  }
+  return Promise.resolve()
+}
+onMounted(() => {
+  checkEnabledStatus()
+  getUsedPortsList()
+})
 </script>
 
 <style scoped>
@@ -148,6 +344,7 @@ watch(
 }
 
 .config-form {
+  margin-left: 20px;
   display: flex;
   flex-direction: column;
   gap: 16px;
@@ -194,10 +391,30 @@ watch(
   margin-right: 20px;
 }
 
-.hint-text {
-  font-size: var(--font-size-xs);
+.mock-url-container {
+  display: flex;
+  align-items: center;
+  
+}
+
+.mock-url-text {
+  font-size: 12px;
+  color: var(--gray-600);
+  margin-right: 8px;
+  font-family: 'Monaco', 'Menlo', 'Consolas', monospace;
+  word-break: break-all;
+  line-height: 1.4;
+}
+
+.copy-icon {
+  flex-shrink: 0;
+  cursor: pointer;
   color: var(--gray-500);
-  margin-top: 4px;
+  transition: color 0.2s ease;
+}
+
+.copy-icon:hover {
+  color: var(--primary-color);
 }
 
 .response-header {
@@ -226,14 +443,57 @@ watch(
   color: var(--gray-500);
 }
 
-.enabled-loading {
-  font-size: var(--font-size-sm);
-  color: var(--gray-600);
-  padding: 8px 12px;
-  background: var(--gray-100);
-  border-radius: var(--border-radius-sm);
-  border: 1px dashed var(--gray-300);
+.enabled-switch-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
+
+.mock-error {
+  font-size: var(--font-size-xs);
+  color: #f56c6c;
+  line-height: 1.4;
+  background: #fef0f0;
+  padding: 6px 8px;
+  border-radius: var(--border-radius-sm);
+  border-left: 3px solid #f56c6c;
+}
+
+.used-ports-tags {
+  display: flex;
+}
+
+.used-ports-label {
+  font-size: var(--font-size-xs);
+  color: var(--gray-500);
+  margin-right: 6px;
+}
+
+.ports-tags-container {
+  min-height: 24px;
+}
+
+.ports-loading {
+  font-size: var(--font-size-xs);
+  color: var(--gray-500);
+  padding: 4px 0;
+}
+
+.ports-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.port-tag {
+  cursor: pointer;
+}
+
+.used-port {
+  max-width: 300px;
+}
+
+
 
 @media (max-width: 960px) {
   .config-form {
@@ -259,6 +519,10 @@ watch(
     flex-direction: column;
     align-items: flex-start;
     gap: 12px;
+  }
+
+  .used-port {
+    max-width: 100%;
   }
 }
 

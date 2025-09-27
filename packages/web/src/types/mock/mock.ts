@@ -74,23 +74,38 @@ type MockStopLog = {
   },
   timestamp: number
 }
-// 看看express可以获取到那些具体参数，都可以列出来
+// Mock 请求日志，参考 Nginx 访问日志格式
 type MockRequestLog = {
   type: "request",
   nodeId: string,
   projectId: string,
   data: {
-    ip: string,
-    method: string,
-    url: string,
-    httpVersion: string,
-    statusCode: number,
-    bytesSent: number,
-    referer: string,
-    headers: {
-      [key: string]: string
-    },
-    body: string
+    // 核心日志字段 (参考Nginx格式)
+    ip: string,                    // 客户端IP
+    method: string,                // HTTP方法
+    url: string,                   // 完整URL
+    path: string,                  // URL路径
+    query: string,                 // 查询字符串
+    httpVersion: string,           // HTTP版本
+    statusCode: number,            // 响应状态码
+    bytesSent: number,            // 发送字节数
+    referer: string,              // 引用页面
+    userAgent: string,            // 用户代理
+    responseTime: number,          // 响应耗时(ms)
+    
+    // Mock服务特有字段
+    mockDelay: number,            // Mock延迟时间
+    matchedRoute: string,         // 匹配的路由模式
+    
+    // 可选扩展字段
+    protocol: string,             // 协议类型
+    hostname: string,             // 主机名
+    contentType: string,          // 内容类型
+    contentLength: number,        // 内容长度
+    
+    // 保留原有但不显示在标准日志中的字段
+    headers: Record<string, string>, // 完整请求头(用于详细查看)
+    body: string,                 // 请求体(用于调试)
   },
   timestamp: number,
 }
@@ -104,8 +119,18 @@ type MockErrorLog = {
   },
   timestamp: number,
 }
+type MockAlreadyStoppedLog = {
+  type: "already-stopped",
+  nodeId: string,
+  projectId: string,
+  data: {
+    port: number,
+    reason: string,
+  },
+  timestamp: number
+}
 
-export type MockLog = MockStartLog | MockStopLog | MockRequestLog | MockErrorLog;
+export type MockLog = MockStartLog | MockStopLog | MockRequestLog | MockErrorLog | MockAlreadyStoppedLog;
 
 export type MockInstance = {
   nodeId: string;

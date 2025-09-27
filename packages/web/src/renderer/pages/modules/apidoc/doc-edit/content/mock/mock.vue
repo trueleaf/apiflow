@@ -1,17 +1,15 @@
 <template>
-  <div v-loading="httpMockStore.saveLoading" class="mock-layout">
+  <div class="mock-layout">
     <CleanTabs v-model="activeTab" type="card" class="mock-tabs">
       <!-- 配置与响应 Tab -->
       <CleanTabPane :label="t('配置与响应')" name="config">
         <MockConfig />
       </CleanTabPane>
-
       <!-- 日志 Tab -->
       <CleanTabPane :label="t('日志')" name="logs">
         <MockLog />
       </CleanTabPane>
     </CleanTabs>
-
     <!-- 底部保存按钮 -->
     <div class="save-footer">
       <el-button type="primary" :loading="httpMockStore.saveLoading" @click="handleSave">
@@ -101,16 +99,12 @@ const handleHttpMockDataChange = (mock: MockHttpNode) => {
   // 缓存HttpMock数据
   httpMockStore.cacheHttpMock()
 }
-
-
-
 // 初始化防抖数据变化处理
 const initDebouncDataChange = () => {
   debounceHttpMockDataChange.value = debounce(handleHttpMockDataChange, 200, {
     leading: true
   });
 };
-
 // 监听tab变化
 watch(currentSelectTab, (val, oldVal) => {
   const isHttpMock = val?.tabType === 'httpMock'

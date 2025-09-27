@@ -1,5 +1,5 @@
 import { BrowserWindow, globalShortcut, WebContentsView, app } from 'electron';
-import { webSocketManager } from '../websocket/websocket.ts';
+import { webSocketManager } from '../main.ts';
 
 /**
  * 快捷键管理器
@@ -37,11 +37,6 @@ class ShortcutManager {
     // 窗口最小化时注销快捷键
     this.mainWindow.on('minimize', () => {
       this.unregisterShortcuts();
-    });
-
-    // 窗口从最小化恢复时重新注册快捷键
-    this.mainWindow.on('restore', () => {
-      this.registerShortcuts();
     });
 
     // 窗口关闭时清理快捷键
