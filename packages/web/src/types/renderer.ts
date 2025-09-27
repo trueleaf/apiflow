@@ -2,7 +2,7 @@ import type { Got } from 'got';
 import type {GotRequestOptions, WindowState } from './types';
 import type { StandaloneExportHtmlParams } from './standalone';
 import { WebsocketConnectParams } from './websocket/websocket.ts';
-import { MockHttpNode } from './mock/mock.ts';
+import { MockHttpNode, MockLog } from './mock/mock.ts';
 
 
 export type ElectronAPI = {
@@ -39,6 +39,7 @@ export type ElectronAPI = {
     startServer: (httpMock: MockHttpNode) => Promise<{ success: boolean, errorMsg: string }>;
     stopServer: (nodeId: string) => Promise<{ success: boolean; error?: string }>;
     getUsedPorts: () => Promise<{ port: number, projectId: string, nodeId: string, nodeName: string }[]>;
+    getLogsByNodeId: (nodeId: string) => Promise<MockLog[]>;
     replaceById: (nodeId: string, httpMock: MockHttpNode) => Promise<{ success: boolean; error?: string }>;
   };
 }

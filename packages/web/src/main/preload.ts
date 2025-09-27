@@ -113,6 +113,10 @@ const mockGetUsedPorts = () => {
   return ipcRenderer.invoke('mock-get-used-ports')
 }
 
+const mockGetLogsByNodeId = (nodeId: string) => {
+  return ipcRenderer.invoke('mock-get-logs-by-node-id', nodeId)
+}
+
 const mockReplaceById = (nodeId: string, httpMock: any) => {
   return ipcRenderer.invoke('mock-replace-by-id', nodeId, httpMock)
 }
@@ -151,6 +155,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
     startServer: mockStartServer,
     stopServer: mockStopServer,
     getUsedPorts: mockGetUsedPorts,
+    getLogsByNodeId: mockGetLogsByNodeId,
     replaceById: mockReplaceById,
   }
 })
