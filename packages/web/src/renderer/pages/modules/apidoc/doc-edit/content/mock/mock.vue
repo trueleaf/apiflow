@@ -10,22 +10,11 @@
         <MockLog />
       </CleanTabPane>
     </CleanTabs>
-    <!-- 底部保存按钮 -->
-    <div class="save-footer">
-      <el-button type="primary" :loading="httpMockStore.saveLoading" @click="handleSave">
-        {{ t('保存配置') }}
-      </el-button>
-      <el-button type="default" :icon="Refresh" :loading="httpMockStore.refreshLoading" @click="handleRefresh">
-        {{ t('刷新') }}
-      </el-button>
-    </div>
   </div>
 </template>
 
 <script lang="ts" setup>
 import { ref, watch, onMounted } from 'vue'
-import { ElButton } from 'element-plus'
-import { Refresh } from '@element-plus/icons-vue'
 import { CleanTabs, CleanTabPane } from '@/components/ui/cleanDesign/tabs'
 import MockConfig from './config/config.vue'
 import MockLog from './log/log.vue'
@@ -37,7 +26,6 @@ import { debounce } from '@/helper'
 import type { MockHttpNode } from '@src/types/mock/mock'
 import type { DebouncedFunc } from 'lodash'
 import { router } from '@/router'
-import { useShortcut } from '@/hooks/use-shortcut'
 
 const { t } = useI18n()
 const activeTab = ref('config')
@@ -124,44 +112,7 @@ watch(() => httpMock.value, (mock: MockHttpNode) => {
 })
 
 
-// 保存HttpMock
-const handleSave = () => {
-  httpMockStore.saveHttpMock()
-}
 
-// 刷新HttpMock
-const handleRefresh = async () => {
-  if (!currentSelectTab.value) {
-    return
-  }
-  httpMockStore.refreshLoading = true
-  try {
-    const nodeId = currentSelectTab.value._id
-    if (nodeId) {
-      // 清除缓存的HttpMock数据
-      httpMockStore.cacheHttpMock()
-    }
-    
-    // 重新获取HttpMock数据
-    if (currentSelectTab.value) {
-      await httpMockStore.getHttpMockDetail({
-        id: currentSelectTab.value._id,
-        projectId: router.currentRoute.value.query.id as string,
-      })
-    }
-  } catch (error) {
-    console.error('刷新HttpMock数据失败:', error)
-  } finally {
-    setTimeout(() => {
-      httpMockStore.refreshLoading = false
-    }, 100)
-  }
-}
-// 快捷键保存
-useShortcut('ctrl+s', (event: KeyboardEvent) => {
-  event.preventDefault();
-  handleSave();
-})
 onMounted(() => {
   initDebouncDataChange()
 })
@@ -169,21 +120,14 @@ onMounted(() => {
 
 <style lang="scss" scoped>
 .mock-layout {
-  --footer-height: 40px;
   height: calc(100vh - var(--apiflow-doc-nav-height));
   background: var(--white);
   padding: 30px 30px 0;
   overflow-y: auto;
-  .save-footer {
-    height: var(--footer-height);
-    display: flex;
-    justify-content: center;
-    gap: 12px;
-  }
 }
 
 .mock-tabs {
-  height: calc(100% - var(--footer-height));
+  height: 100%;
 }
 
 @media (max-width: 960px) {
