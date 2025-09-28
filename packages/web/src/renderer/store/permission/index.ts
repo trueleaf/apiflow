@@ -7,6 +7,7 @@ import { RouteRecordRaw } from 'vue-router';
 import { ref } from 'vue';
 import { uniqueByKey } from '@/helper';
 import { request } from '@/api/api';
+import { permissionCache } from '@/cache/permission/permission';
 
 type ResUserInfo = PermissionUserInfo & {
   clientBanner: PermissionClientMenu[],
@@ -33,6 +34,7 @@ export const usePermissionStore = defineStore('permission', () => {
     phone: '',
     realName: '',
     roleIds: [],
+    token: '',
   });
   const routes = ref<PermissionClientRoute[]>([]);
   const menus = ref<{ path: string; name: string }[]>([]);
@@ -50,6 +52,7 @@ export const usePermissionStore = defineStore('permission', () => {
       phone: payload.phone,
       realName: payload.realName,
       roleIds: payload.roleIds,
+      token: payload.token,
     };
   }
   //动态生成路由
@@ -114,6 +117,13 @@ export const usePermissionStore = defineStore('permission', () => {
     routes.value = [];
     menus.value = [];
   };
+  //初始化用户信息（从缓存中恢复）
+  const initUserInfo = () => {
+    const cachedUserInfo = permissionCache.getUserInfo();
+    if (cachedUserInfo) {
+      changeUserInfo(cachedUserInfo);
+    }
+  };
   //获取权限
   const getPermission = async (): Promise<ResUserInfo> => {
     return new Promise((resolve, reject) => {
@@ -124,7 +134,7 @@ export const usePermissionStore = defineStore('permission', () => {
         changeGlobalConfig(res.data.globalConfig);
         generateRoutes();
         resolve(res.data);
-        sessionStorage.setItem('permission/userInfo', JSON.stringify(res.data));
+        permissionCache.setUserInfo(res.data);
       }).catch((err) => {
         reject(err);
       });
@@ -143,6 +153,7 @@ export const usePermissionStore = defineStore('permission', () => {
     changeRoutes,
     changeMenus,
     clearAllPermission,
+    initUserInfo,
     getPermission,
   }
 })

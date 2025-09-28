@@ -5,6 +5,7 @@ import { ElMessage, ElMessageBox } from 'element-plus';
 import { nanoid } from 'nanoid';
 import { parseUrl, getStrParams, getStrHeader, getStrJsonBody, getHashedContent } from './sign';
 import { i18n } from '@/i18n';
+import { permissionCache } from '@/cache/permission/permission';
 
 const axiosInstance = Axios.create();
 axiosInstance.defaults.withCredentials = config.renderConfig.httpRequest.withCredentials;//允许携带cookie
@@ -14,13 +15,12 @@ let isExpire = false; //是否登录过期
 
 //===============================axiosInstance请求钩子==========================================//
 axiosInstance.interceptors.request.use(async (reqConfig) => {
-  const userInfoStr = localStorage.getItem('userInfo') || '{}';
   try {
-    const userInfo = JSON.parse(userInfoStr);
+    const userInfo = permissionCache.getUserInfo();
     //接口加签
     const timestamp = Date.now();
     const nonce = nanoid(); // 生成16位随机字符串
-    reqConfig.headers.Authorization = userInfo.token;
+    reqConfig.headers.Authorization = userInfo?.token;
     const method = reqConfig.method!.toLowerCase();
     const parsedUrlInfo = parseUrl(reqConfig.url!);
     const url = parsedUrlInfo.url;

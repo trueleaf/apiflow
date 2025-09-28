@@ -111,7 +111,6 @@ router.beforeEach((to, _, next) => {
     return;
   }
   const permissionStore = usePermissionStore();
-  console.log(22, permissionStore.userInfo)
   if (!permissionStore.userInfo.id) {
     // 如果用户未登录且不是访问登录页面，则跳转到登录页面
     if (to.path !== '/login') {

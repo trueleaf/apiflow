@@ -33,6 +33,7 @@ import { request } from '@/api/api';
 import { router } from '@/router';
 import { usePermissionStore } from '@/store/permission';
 import { config } from '@src/config/config';
+import { permissionCache } from '@/cache/permission/permission';
 
 const { t } = useI18n()
 const userInfo = reactive({
@@ -106,7 +107,7 @@ const handleLogin = () => {
           ElMessage.warning(res.msg);
         } else {
           router.push('/v1/apidoc/doc-list');
-          localStorage.setItem('userInfo', JSON.stringify(res.data));
+          permissionCache.setUserInfo(res.data);
           permissionStore.getPermission()
           
         }

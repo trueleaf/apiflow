@@ -12,6 +12,7 @@ import { standaloneCache } from "./cache/standalone";
 import { i18n } from "./i18n";
 import { shortcutManager } from "./shortcut/index.ts";
 import { useRuntime } from "./store/runtime/runtime.ts";
+import { usePermissionStore } from "./store/permission";
 
 
 shortcutManager.init();
@@ -26,6 +27,11 @@ if (runtimeStore.networkMode === 'offline') {
   catch (e) { console.warn("本地缓存初始化失败，已跳过：", e); }
 }
 app.use(pinia);
+
+// 初始化权限信息
+const permissionStore = usePermissionStore();
+permissionStore.initUserInfo();
+
 app.use(router);
 
 app.use(customDirective)

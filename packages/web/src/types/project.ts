@@ -72,6 +72,7 @@ export type PermissionUserInfo = {
    * 角色id列表
    */
   roleIds: string[];
+  token: string;
 };
 
 //用户基本信息

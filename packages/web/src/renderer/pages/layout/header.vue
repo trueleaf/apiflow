@@ -115,6 +115,7 @@ import { isElectron } from '@/utils/utils';
 import 'element-plus/es/components/message-box/style/css';
 import { ElMessageBox } from 'element-plus';
 import { httpNodeCache } from '@/cache/http/httpNodeCache.ts';
+import { permissionCache } from '@/cache/permission/permission';
 
 const router = useRouter();
 const permissionStore = usePermissionStore();
@@ -152,6 +153,7 @@ const jumpToHome = () => router.push('/v1/apidoc/doc-list');
 const jumpToUserSetting = () => router.push('/user-center');
 const logout = () => {
   permissionStore.clearAllPermission()
+  permissionCache.clearUserInfo();
   sessionStorage.clear();
   router.push('/login');
 };
