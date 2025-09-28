@@ -63,6 +63,11 @@ const routerConfig = {
       redirect: getRedirectPath(),
     },
     {
+      path: "/login",
+      name: "Login",
+      component: () => import("@/pages/login/login.vue"),
+    },
+    {
       path: "/header",
       name: "Header",
       component: () => import("@/pages/layout/header.vue"),
@@ -105,30 +110,16 @@ router.beforeEach((to, _, next) => {
     next();
     return;
   }
-
   const permissionStore = usePermissionStore();
-  NProgress.start();
-  const hasPermission = permissionStore.routes.length > 0; // 已加载路由表示存在权限
-  if (config.renderConfig.permission.whiteList.find((val) => val === to.path)) {
-    next();
-    return;
+  console.log(22, permissionStore.userInfo)
+  if (!permissionStore.userInfo.id) {
+    // 如果用户未登录且不是访问登录页面，则跳转到登录页面
+    if (to.path !== '/login') {
+      next('/login');
+      return;
+    }
   }
-  if (!hasPermission) {
-    permissionStore
-      .getPermission()
-      .then(() => {
-        next(to.fullPath);
-      })
-      .catch((err) => {
-        router.push("/login");
-        console.error(err);
-      })
-      .finally(() => {
-        NProgress.done();
-      });
-  } else {
-    next();
-  }
+  next();
 });
 
 router.afterEach((to) => {

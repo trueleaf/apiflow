@@ -15,20 +15,20 @@
         <img :src="captchaUrl" @click="freshCapchaUrl" />
       </div>
     </el-form-item>
-    <el-form-item v-if="config.localization.enableGuest" class="mb-1">
+    <!-- <el-form-item v-if="config.localization.enableGuest" class="mb-1">
       <el-button :loading="loading" class="w-100" type="primary" @click="handleGuesttLogin">{{ $t("直接登录(体验账号，数据不会被保存)")
         }}</el-button>
-    </el-form-item>
+    </el-form-item> -->
     <el-form-item class="mb-1">
-      <el-button :loading="loading" :type="config.localization.enableGuest ? '' : 'primary'" native-type="submit"
+      <el-button :loading="loading" type="primary" native-type="submit"
         class="w-100">{{ $t("登录") }}</el-button>
     </el-form-item>
     <el-form-item v-if="config.localization.enableRegister" class="mb-1">
       <el-button class="w-100" @click="handleJumpToRegister">{{ $t("注册账号") }}</el-button>
     </el-form-item>
-    <div class="forget-pwd-wrap">
+    <!-- <div class="forget-pwd-wrap">
       <el-button text link type="primary" @click="handleJumpToResetPassword">{{ $t("已有账号，忘记密码?") }}</el-button>
-    </div>
+    </div> -->
     <div v-if="config.localization.enableDocLink" class="mt-2 d-flex j-around">
       <a href="https://github.com/trueleaf/apiflow" target="_blank" class="d-flex flex-column j-center a-center">
         <svg class="svg-icon" aria-hidden="true" :title="$t('跳转github')">
@@ -68,9 +68,11 @@ import { useI18n } from 'vue-i18n';
 import { ElMessage, FormInstance } from 'element-plus';
 import { request } from '@/api/api';
 import { router } from '@/router';
+import { usePermissionStore } from '@/store/permission';
 
 const emits = defineEmits(['jumpToRegister', 'jumpToResetPassword'])
 const { t } = useI18n()
+const permissionStore = usePermissionStore()
 const userInfo = ref({
   loginName: process.env.NODE_ENV === 'development' ? 'apiflow' : '', //-----------登录名称
   password: process.env.NODE_ENV === 'development' ? '111111aaa' : '', //---------密码
@@ -101,6 +103,8 @@ const handleLogin = async () => {
           ElMessage.warning(res.msg);
           isShowCapture.value = true;
         } else {
+          // 登录成功，更新用户信息到store
+          permissionStore.changeUserInfo(res.data);
           router.push('/v1/apidoc/doc-list');
           localStorage.setItem('userInfo', JSON.stringify(res.data));
           // $store.dispatch('permission/getPermission')
@@ -136,6 +140,8 @@ const handleJumpToResetPassword = () => {
 const handleGuesttLogin = () => {
   loading.value = true;
   request.post('/api/security/login_guest', userInfo).then((res) => {
+    // 体验账号登录成功，更新用户信息到store
+    permissionStore.changeUserInfo(res.data);
     router.push('/v1/apidoc/doc-list');
     localStorage.setItem('userInfo', JSON.stringify(res.data));
   }).catch((err) => {
