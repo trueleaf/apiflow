@@ -136,6 +136,7 @@ export const usePermissionStore = defineStore('permission', () => {
         resolve(res.data);
         permissionCache.setUserInfo(res.data);
       }).catch((err) => {
+        permissionCache.clearUserInfo();
         reject(err);
       });
     });

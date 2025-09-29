@@ -103,12 +103,14 @@ axiosInstance.interceptors.response.use(
           });
           return Promise.reject(new Error(i18n.global.t('密码错误')));
         case 4101: //登录有错
+          permissionCache.clearUserInfo();
           router.replace('/login');
           ElMessage.warning(i18n.global.t('暂无权限'));
           return Promise.reject(new Error(i18n.global.t('暂无权限')));
         case 4100: //登录过期
           if (!isExpire) {
             isExpire = true;
+            permissionCache.clearUserInfo();
             ElMessageBox.confirm(i18n.global.t('登录已过期'), i18n.global.t('提示'), {
               confirmButtonText: i18n.global.t('跳转登录'),
               cancelButtonText: i18n.global.t('取消'),
@@ -125,6 +127,7 @@ axiosInstance.interceptors.response.use(
         case 4200: //代理错误
           return Promise.reject(new Error(res.data.msg));
         case 4002: //暂无权限
+          permissionCache.clearUserInfo();
           ElMessage.warning(i18n.global.t(res.data.msg || '暂无权限'));
           return Promise.reject(new Error(i18n.global.t(res.data.msg || '暂无权限')));
         default:
