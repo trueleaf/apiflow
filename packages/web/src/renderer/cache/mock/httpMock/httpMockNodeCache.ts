@@ -3,7 +3,7 @@
  */
 
 import { MockHttpNode } from '@src/types/mock/mock';
-import { HttpResponseCache } from '../http/httpResponseCache';
+import { HttpResponseCache } from '../../http/httpResponseCache';
 
 class HttpMockNodeCache extends HttpResponseCache {
   constructor() {

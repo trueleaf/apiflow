@@ -3,7 +3,7 @@ import { defineStore, storeToRefs } from "pinia";
 import { ref } from "vue";
 import { uuid, cloneDeep, generateEmptyHttpMockNode } from "@/helper";
 import { standaloneCache } from "@/cache/standalone.ts";
-import { httpMockNodeCache } from "@/cache/httpMock/httpMockNodeCache.ts";
+import { httpMockNodeCache } from "@/cache/mock/httpMock/httpMockNodeCache.ts";
 import { ElMessageBox } from "element-plus";
 import { useApidocTas } from "../apidoc/tabs.ts";
 import { router } from "@/router/index.ts";

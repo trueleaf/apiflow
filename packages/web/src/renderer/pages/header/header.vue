@@ -10,9 +10,9 @@
       <i class="iconfont iconhome"></i>
       <span>{{ $t('主页面') }}</span>
     </div>
-    <div v-if="tabs.length > 0" class="divider"></div>
+    <div v-if="filteredTabs.length > 0" class="divider"></div>
     <div class="tabs">
-      <draggable v-model="tabs" class="tab-list" :animation="150" ghost-class="sortable-ghost"
+      <draggable v-model="draggableTabs" class="tab-list" :animation="150" ghost-class="sortable-ghost"
         chosen-class="sortable-chosen" drag-class="sortable-drag" @end="onDragEnd" item-key="id">
         <template #item="{ element: tab }">
           <li :class="['tab-item', { active: tab.id === activeTabId }]" :title="tab.title" :data-id="tab.id" @click="switchTab(tab.id)">
@@ -70,6 +70,7 @@ type HeaderTab = {
   id: string;
   title: string;
   type: 'project' | 'settings';
+  network: 'online' | 'offline';
 };
 
 const tabs = ref<HeaderTab[]>([])
@@ -84,6 +85,21 @@ const { t: $t } = useI18n()
 const runtime = useRuntime()
 const networkMode = computed(() => runtime.networkMode)
 
+// 根据当前网络模式过滤tabs
+const filteredTabs = computed(() => {
+  return tabs.value.filter(tab => tab.network === networkMode.value)
+})
+
+// 用于拖拽的可写计算属性
+const draggableTabs = computed({
+  get: () => tabs.value.filter(tab => tab.network === networkMode.value),
+  set: (newTabs: HeaderTab[]) => {
+    // 当拖拽改变顺序时，需要更新原始tabs数组中对应网络模式的tabs
+    const otherNetworkTabs = tabs.value.filter(tab => tab.network !== networkMode.value)
+    tabs.value = [...otherNetworkTabs, ...newTabs]
+  }
+})
+
 /*
 |--------------------------------------------------------------------------
 | 网络模式切换
@@ -92,6 +108,7 @@ const networkMode = computed(() => runtime.networkMode)
 const toggleNetworkMode = () => {
   const newMode = networkMode.value === 'online' ? 'offline' : 'online'
   runtime.setNetworkMode(newMode)
+  jumpToHome()
   // 切换网络模式后刷新contentView
   window.electronAPI?.sendToMain('apiflow-refresh-content-view')
 }
@@ -176,26 +193,31 @@ const deleteTab = (tabId: string) => {
   // 删除指定的标签页
   tabs.value = tabs.value.filter(t => t.id !== tabId)
 
+  // 获取当前网络模式下的tab列表
+  const currentNetworkTabs = tabs.value.filter(tab => tab.network === networkMode.value)
+
   // 检查删除后的标签页数量
-  if (tabs.value.length === 0) {
-    // 如果没有剩余标签页，自动跳转到主页面
+  if (currentNetworkTabs.length === 0) {
+    // 如果当前网络模式下没有剩余标签页，自动跳转到主页面
     jumpToHome()
   } else if (wasActive) {
     // 如果删除的是当前激活的标签页，智能选择下一个tab
     let newActiveTabId = '';
 
-    // 优先选择右侧相邻的tab，如果没有则选择左侧的
-    if (index < tabs.value.length) {
-      newActiveTabId = tabs.value[index].id;
-    } else if (index > 0) {
-      newActiveTabId = tabs.value[index - 1].id;
-    } else if (tabs.value.length > 0) {
-      newActiveTabId = tabs.value[0].id;
+    // 在当前网络模式的tab中寻找合适的tab
+    const currentModeIndex = currentNetworkTabs.findIndex(t => tabs.value.indexOf(t) >= index)
+    if (currentModeIndex !== -1) {
+      newActiveTabId = currentNetworkTabs[currentModeIndex].id;
+    } else if (currentNetworkTabs.length > 0) {
+      newActiveTabId = currentNetworkTabs[currentNetworkTabs.length - 1].id;
     }
 
     if (newActiveTabId) {
       // 调用switchTab方法来正确切换到新的tab并触发相应的页面切换逻辑
       switchTab(newActiveTabId)
+    } else {
+      // 如果没有找到合适的tab，跳转到主页面
+      jumpToHome()
     }
   }
 }
@@ -236,14 +258,15 @@ const jumpToUserCenter = () => {
     tabs.value.push({
       id: userCenterTabId,
       title: $t('个人中心'),
-      type: 'settings'
+      type: 'settings',
+      network: networkMode.value
     });
   }
   switchTab(userCenterTabId);
 }
 const bindAppEvent = () => {
   window.electronAPI?.onMain('apiflow-create-project-success', (data: { projectId: string, projectName: string }) => {
-    tabs.value.push({ id: data.projectId, title: data.projectName, type: 'project' })
+    tabs.value.push({ id: data.projectId, title: data.projectName, type: 'project', network: networkMode.value })
     activeTabId.value = data.projectId
     nextTick(() => { tabListRef.value && (tabListRef.value.scrollLeft = tabListRef.value.scrollWidth) })
   })
@@ -251,7 +274,7 @@ const bindAppEvent = () => {
     activeTabId.value = data.projectId;
     const matchedProject = tabs.value.find(t => t.id === data.projectId)
     if (!matchedProject) {
-      tabs.value.push({ id: data.projectId, title: data.projectName, type: 'project' })
+      tabs.value.push({ id: data.projectId, title: data.projectName, type: 'project', network: networkMode.value })
     } else if (matchedProject.title !== data.projectName) {
       matchedProject.title = data.projectName
     }
@@ -291,6 +314,7 @@ watch(tabs, (val) => {
 }, { deep: true })
 
 watch(activeTabId, (val) => {
+  console.log("change" ,val)
   httpNodeCache.setHeaderActiveTab(val)
 })
 </script>
@@ -355,7 +379,7 @@ body {
     color: #fff;
     background-color: rgba(255, 255, 255, 0.35);
   }
-  &:hover {
+  &:hover:not(.active) {
     color: #fff;
     background-color: rgba(255, 255, 255, 0.1);
   }
@@ -428,11 +452,12 @@ body {
   transform: translateY(-50%);
 }
 
-.tab-item:hover .close-btn {
+.tab-item:hover .close-btn,
+.tab-item.active .close-btn {
   opacity: 1;
 }
 
-.tab-item:hover {
+.tab-item:hover:not(.active) {
   background: var(--tab-hover-bg);
 }
 

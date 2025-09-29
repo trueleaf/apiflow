@@ -99,6 +99,12 @@ export const config: Config = {
       version: 1,
       storeName: 'histories',
       maxHistoryPerNode: 50, //每个节点最大历史记录数
+    },
+    mockVariableCache: {
+      dbName: 'mockVariableCache',
+      version: 1,
+      storeName: 'mockVariables',
+      projectIdIndex: 'projectId'
     }
   },
   standaloneCache: {
