@@ -26,6 +26,7 @@ import { debounce } from '@/helper'
 import type { MockHttpNode } from '@src/types/mock/mock'
 import type { DebouncedFunc } from 'lodash'
 import { router } from '@/router'
+import { useShortcut } from '@/hooks/use-shortcut'
 
 const { t } = useI18n()
 const activeTab = ref('config')
@@ -115,6 +116,12 @@ watch(() => httpMock.value, (mock: MockHttpNode) => {
 
 onMounted(() => {
   initDebouncDataChange()
+})
+
+// 快捷键保存
+useShortcut('ctrl+s', (event: KeyboardEvent) => {
+  event.preventDefault();
+  httpMockStore.saveHttpMock();
 })
 </script>
 

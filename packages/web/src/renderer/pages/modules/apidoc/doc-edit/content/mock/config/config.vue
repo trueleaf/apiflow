@@ -27,12 +27,13 @@ import { useI18n } from 'vue-i18n'
 import { storeToRefs } from 'pinia'
 import { useHttpMock } from '@/store/httpMock/httpMock'
 import { useApidocTas } from '@/store/apidoc/tabs'
+import { useRuntime } from '@/store/runtime/runtime'
 import { router } from '@/router'
-import { useShortcut } from '@/hooks/use-shortcut'
 
 const { t } = useI18n()
 const httpMockStore = useHttpMock()
 const apidocTabsStore = useApidocTas()
+const runtimeStore = useRuntime()
 const { currentSelectTab } = storeToRefs(apidocTabsStore)
 
 // 保存HttpMock
@@ -47,18 +48,12 @@ const handleRefresh = async () => {
   }
   httpMockStore.refreshLoading = true
   try {
-    const nodeId = currentSelectTab.value._id
-    if (nodeId) {
-      // 清除缓存的HttpMock数据
+    const isOffline = runtimeStore.networkMode === 'offline'
+    if (isOffline) {
+      httpMockStore.changeHttpMock(httpMockStore.originHttpMock)
       httpMockStore.cacheHttpMock()
-    }
-    
-    // 重新获取HttpMock数据
-    if (currentSelectTab.value) {
-      await httpMockStore.getHttpMockDetail({
-        id: currentSelectTab.value._id,
-        projectId: router.currentRoute.value.query.id as string,
-      })
+    } else {
+      // todo
     }
   } catch (error) {
     console.error('刷新HttpMock数据失败:', error)
@@ -68,12 +63,6 @@ const handleRefresh = async () => {
     }, 100)
   }
 }
-
-// 快捷键保存
-useShortcut('ctrl+s', (event: KeyboardEvent) => {
-  event.preventDefault();
-  handleSave();
-})
 </script>
 
 <style scoped>

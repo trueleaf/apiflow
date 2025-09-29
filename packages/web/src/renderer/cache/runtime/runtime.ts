@@ -5,11 +5,11 @@ class RuntimeCache {
   getNetworkMode(): RuntimeNetworkMode {
     try {
       const v = localStorage.getItem(RUNTIME_STORAGE_KEY)
-      if (!v) return 'online'
+      if (!v) return 'offline'
       if (v === 'online' || v === 'offline') return v
-      return 'online'
+      return 'offline'
     } catch {
-      return 'online'
+      return 'offline'
     }
   }
 
