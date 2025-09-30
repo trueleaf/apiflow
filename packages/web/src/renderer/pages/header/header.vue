@@ -13,7 +13,7 @@
     <div v-if="filteredTabs.length > 0" class="divider"></div>
     <div class="tabs">
       <draggable v-model="draggableTabs" class="tab-list" :animation="150" ghost-class="sortable-ghost"
-        chosen-class="sortable-chosen" drag-class="sortable-drag" @end="onDragEnd" item-key="id">
+        chosen-class="sortable-chosen" drag-class="sortable-drag" item-key="id">
         <template #item="{ element: tab }">
           <li :class="['tab-item', { active: tab.id === activeTabId }]" :title="tab.title" :data-id="tab.id" @click="switchTab(tab.id)">
             <span>{{ tab.title }}</span>
@@ -57,13 +57,14 @@
 
 <script setup lang="ts">
 import { WindowState } from '@src/types/types';
-import { ref, onMounted, nextTick, watch, computed } from 'vue'
+import { ref, onMounted, watch, computed } from 'vue'
 import draggable from 'vuedraggable'
 import { httpNodeCache } from '@/cache/http/httpNodeCache.ts'
 import { Language } from '@src/types'
 import { RefreshRight, Back, Right } from '@element-plus/icons-vue'
 import { useI18n } from 'vue-i18n'
 import { useRuntime } from '@/store/runtime/runtime'
+import { config } from '@src/config/config'
 
 // 定义Tab类型
 type HeaderTab = {
@@ -76,40 +77,23 @@ type HeaderTab = {
 const tabs = ref<HeaderTab[]>([])
 const activeTabId = ref('')
 const isMaximized = ref(false)
-const isDev = ref(false)
-const appTitle = ref('Apiflow')
-const tabListRef = ref<HTMLElement>()
+const isDev = config.isDev
+const appTitle = config.localization.title
 const { t } = useI18n()
-
-// 使用runtime store管理网络模式
 const runtime = useRuntime()
 const networkMode = computed(() => runtime.networkMode)
-
-// 根据当前网络模式过滤tabs
 const filteredTabs = computed(() => {
   return tabs.value.filter(tab => tab.network === networkMode.value)
 })
-
-// 用于拖拽的可写计算属性
 const draggableTabs = computed({
   get: () => tabs.value.filter(tab => tab.network === networkMode.value),
   set: (newTabs: HeaderTab[]) => {
-    // 当拖拽改变顺序时，需要更新原始tabs数组中对应网络模式的tabs
     const otherNetworkTabs = tabs.value.filter(tab => tab.network !== networkMode.value)
     tabs.value = [...otherNetworkTabs, ...newTabs]
   }
 })
 
-/*
-|--------------------------------------------------------------------------
-| 网络模式切换
-|--------------------------------------------------------------------------
-*/
-const toggleNetworkMode = () => {
-  const newMode = networkMode.value === 'online' ? 'offline' : 'online'
-  runtime.setNetworkMode(newMode)
-  window.electronAPI?.sendToMain('apiflow-network-mode-changed', newMode)
-}
+
 /*
 |--------------------------------------------------------------------------
 | 窗口控制
@@ -146,7 +130,6 @@ const goForward = () => {
 |--------------------------------------------------------------------------
 */
 const currentLanguage = ref<Language>(localStorage.getItem('language') as Language || 'zh-cn')
-
 const currentLanguageDisplay = computed(() => {
   const languageMap: Record<Language, string> = {
     'zh-cn': '中',
@@ -156,9 +139,7 @@ const currentLanguageDisplay = computed(() => {
   }
   return languageMap[currentLanguage.value] || '中'
 })
-
 const languageButtonRef = ref<HTMLElement>()
-
 const handleLanguageButtonClick = () => {
   if (languageButtonRef.value) {
     const rect = languageButtonRef.value.getBoundingClientRect()
@@ -184,24 +165,20 @@ const handleLanguageButtonClick = () => {
 const deleteTab = (tabId: string) => {
   const index = tabs.value.findIndex(t => t.id === tabId)
   if (index === -1) return
-  const wasActive = activeTabId.value === tabId;
+  
+  const wasActive = activeTabId.value === tabId
   tabs.value = tabs.value.filter(t => t.id !== tabId)
   const currentNetworkTabs = tabs.value.filter(tab => tab.network === networkMode.value)
+  
   if (currentNetworkTabs.length === 0) {
     jumpToHome()
   } else if (wasActive) {
-    let newActiveTabId = '';
     const currentModeIndex = currentNetworkTabs.findIndex(t => tabs.value.indexOf(t) >= index)
-    if (currentModeIndex !== -1) {
-      newActiveTabId = currentNetworkTabs[currentModeIndex].id;
-    } else if (currentNetworkTabs.length > 0) {
-      newActiveTabId = currentNetworkTabs[currentNetworkTabs.length - 1].id;
-    }
-    if (newActiveTabId) {
-      switchTab(newActiveTabId)
-    } else {
-      jumpToHome()
-    }
+    const newActiveTabId = currentModeIndex !== -1 
+      ? currentNetworkTabs[currentModeIndex].id 
+      : currentNetworkTabs[currentNetworkTabs.length - 1].id
+    
+    switchTab(newActiveTabId)
   }
 }
 const switchTab = (tabId: string) => {
@@ -217,19 +194,15 @@ const switchTab = (tabId: string) => {
     window.electronAPI?.sendToMain('apiflow-topbar-navigate', '/user-center')
   }
 }
-const onDragEnd = () => { }
 /*
 |--------------------------------------------------------------------------
-| 新增项目
+| 其他
 |--------------------------------------------------------------------------
 */
-const handleAddProject = () => window.electronAPI?.sendToMain('apiflow-topbar-create-project')
-
 const jumpToHome = () => {
   activeTabId.value = '';
   window.electronAPI?.sendToMain('apiflow-topbar-navigate', '/v1/apidoc/doc-list')
 }
-
 const jumpToUserCenter = () => {
   const userCenterTabId = 'user-center';
   const existingTab = tabs.value.find(t => t.id === userCenterTabId);
@@ -243,12 +216,29 @@ const jumpToUserCenter = () => {
   }
   switchTab(userCenterTabId);
 }
-const bindAppEvent = () => {
+const toggleNetworkMode = () => {
+  const newMode = networkMode.value === 'online' ? 'offline' : 'online'
+  runtime.setNetworkMode(newMode)
+  window.electronAPI?.sendToMain('apiflow-network-mode-changed', newMode)
+}
+const handleAddProject = () => window.electronAPI?.sendToMain('apiflow-topbar-create-project')
+// 绑定事件
+const bindEvent = () => {
+  window.electronAPI?.onWindowResize(handleWindowResize)
+  
+  window.electronAPI?.getWindowState().then((state) => {
+    isMaximized.value = state.isMaximized
+  })
+  
+  window.electronAPI?.onMain('apiflow-language-changed', (language: string) => {
+    currentLanguage.value = language as Language
+  })
+  
   window.electronAPI?.onMain('apiflow-create-project-success', (data: { projectId: string, projectName: string }) => {
     tabs.value.push({ id: data.projectId, title: data.projectName, type: 'project', network: networkMode.value })
     activeTabId.value = data.projectId
-    nextTick(() => { tabListRef.value && (tabListRef.value.scrollLeft = tabListRef.value.scrollWidth) })
   })
+  
   window.electronAPI?.onMain('apiflow-change-project', (data: { projectId: string, projectName: string }) => {
     activeTabId.value = data.projectId;
     const matchedProject = tabs.value.find(t => t.id === data.projectId)
@@ -258,34 +248,32 @@ const bindAppEvent = () => {
       matchedProject.title = data.projectName
     }
   })
+  
   window.electronAPI?.onMain('apiflow-delete-project', (projectId: string) => {
     deleteTab(projectId)
   })
+  
   window.electronAPI?.onMain('apiflow-change-project-name', (data: { projectId: string, projectName: string }) => {
     const index = tabs.value.findIndex(t => t.id === data.projectId)
     if (index !== -1) {
       tabs.value[index].title = data.projectName
     }
   })
-  
+}
+
+// 初始化tabs
+const initTabs = () => {
+  tabs.value = httpNodeCache.getHeaderTabs()
+  activeTabId.value = httpNodeCache.getHeaderActiveTab()
+  if (!activeTabId.value) {
+    window.electronAPI?.sendToMain('apiflow-topbar-navigate', '/v1/apidoc/doc-list')
+  }
 }
 
 
 onMounted(() => {
-  window.electronAPI?.onWindowResize(handleWindowResize)
-  bindAppEvent()
-  window.electronAPI?.getWindowState().then((state) => {
-    isMaximized.value = state.isMaximized
-  })
-  tabs.value = httpNodeCache.getHeaderTabs();
-  activeTabId.value = httpNodeCache.getHeaderActiveTab();
-  if (!activeTabId.value) { //如果没有缓存数据则跳转到主页
-    window.electronAPI?.sendToMain('apiflow-topbar-navigate', '/v1/apidoc/doc-list')
-  }
-  // 监听语言切换事件
-  window.electronAPI?.onMain('apiflow-language-changed', (language: string) => {
-    currentLanguage.value = language as Language
-  })
+  bindEvent()
+  initTabs()
 })
 
 watch(() => networkMode.value, (mode, prevMode) => {
