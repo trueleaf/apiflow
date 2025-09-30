@@ -24,14 +24,14 @@ export const useHttpMock = defineStore('httpMock', () => {
   |--------------------------------------------------------------------------
   */
   // 缓存当前httpMock配置
-  const cacheHttpMock = (): void => {
+  const cacheHttpMockNode = (): void => {
     if (httpMock.value) {
       httpMockNodeCache.setHttpMockNode(httpMock.value);
     }
   };
 
   // 从缓存获取httpMock配置
-  const getCachedHttpMockById = (id: string): MockHttpNode | null => {
+  const getCachedHttpMockNodeById = (id: string): MockHttpNode | null => {
     return httpMockNodeCache.getHttpMockNode(id);
   };
 
@@ -41,13 +41,13 @@ export const useHttpMock = defineStore('httpMock', () => {
   |--------------------------------------------------------------------------
   */
   // 重新赋值httpMock数据
-  const changeHttpMock = (payload: MockHttpNode): void => {
+  const replaceHttpMockNode = (payload: MockHttpNode): void => {
     httpMock.value = payload;
-    cacheHttpMock();
+    cacheHttpMockNode();
   };
 
   // 改变httpMock原始缓存值
-  const changeOriginHttpMock = (): void => {
+  const replaceOriginHttpMockNode = (): void => {
     originHttpMock.value = cloneDeep(httpMock.value);
   };
 
@@ -74,19 +74,19 @@ export const useHttpMock = defineStore('httpMock', () => {
   };
 
   // 改变HTTP方法
-  const changeHttpMethod = (method: MockHttpNode['requestCondition']['method']): void => {
+  const changeHttpMockNodeMethod = (method: MockHttpNode['requestCondition']['method']): void => {
     if (!httpMock.value) return;
     httpMock.value.requestCondition.method = method;
   };
 
   // 改变请求URL
-  const changeRequestUrl = (url: string): void => {
+  const changeHttpMockNodeRequestUrl = (url: string): void => {
     if (!httpMock.value) return;
     httpMock.value.requestCondition.url = url;
   };
 
   // 改变端口
-  const changePort = (port: number): void => {
+  const changeHttpMockNodePort = (port: number): void => {
     if (!httpMock.value) return;
     httpMock.value.requestCondition.port = port;
   };
@@ -98,8 +98,7 @@ export const useHttpMock = defineStore('httpMock', () => {
   | 配置操作方法
   |--------------------------------------------------------------------------
   */
-  // 改变延迟时间
-  const changeDelay = (delay: number): void => {
+  const changeHttpMockNodeDelay = (delay: number): void => {
     if (!httpMock.value) return;
     httpMock.value.config.delay = delay;
   };
@@ -110,7 +109,7 @@ export const useHttpMock = defineStore('httpMock', () => {
   |--------------------------------------------------------------------------
   */
   // 检查httpMock是否发生改变
-  const checkHttpMockIsEqual = (current: MockHttpNode, origin: MockHttpNode): boolean => {
+  const checkHttpMockNodeIsEqual = (current: MockHttpNode, origin: MockHttpNode): boolean => {
     const cpCurrent: MockHttpNode = JSON.parse(JSON.stringify(current));
     const cpOrigin: MockHttpNode = JSON.parse(JSON.stringify(origin));
     
@@ -130,17 +129,6 @@ export const useHttpMock = defineStore('httpMock', () => {
            urlIsEqual && portIsEqual && delayIsEqual;
   };
 
-  /*
-  |--------------------------------------------------------------------------
-  | 时间戳操作方法
-  |--------------------------------------------------------------------------
-  */
-  // 标记为已删除
-  const markHttpMockAsDeleted = (deleted: boolean = true): void => {
-    if (httpMock.value) {
-      httpMock.value.isDeleted = deleted;
-    }
-  };
 
   /*
   |--------------------------------------------------------------------------
@@ -148,15 +136,15 @@ export const useHttpMock = defineStore('httpMock', () => {
   |--------------------------------------------------------------------------
   */
   // 获取HttpMock详情
-  const getHttpMockDetail = async (payload: { id: string, projectId: string }): Promise<void> => {
+  const getHttpMockNodeDetail = async (payload: { id: string, projectId: string }): Promise<void> => {
     if (isOffline()) {
       const doc = await standaloneCache.getDocById(payload.id) as MockHttpNode;
       if (!doc) {
         // 如果standalone中没有找到，尝试从缓存中获取
-        const cachedHttpMock = getCachedHttpMockById(payload.id);
+        const cachedHttpMock = getCachedHttpMockNodeById(payload.id);
         if (cachedHttpMock) {
-          changeHttpMock(cachedHttpMock);
-          changeOriginHttpMock();
+          replaceHttpMockNode(cachedHttpMock);
+          replaceOriginHttpMockNode();
           return;
         }
         
@@ -175,20 +163,20 @@ export const useHttpMock = defineStore('httpMock', () => {
         });
         return;
       }
-      changeHttpMock(doc);
-      changeOriginHttpMock();
+      replaceHttpMockNode(doc);
+      replaceOriginHttpMockNode();
       // 缓存到本地存储
-      cacheHttpMock();
+      cacheHttpMockNode();
       return;
     } else {
       // 非standalone模式下尝试从缓存中获取
-      const cachedHttpMock = getCachedHttpMockById(payload.id);
+      const cachedHttpMock = getCachedHttpMockNodeById(payload.id);
       if (cachedHttpMock) {
-        changeHttpMock(cachedHttpMock);
-        changeOriginHttpMock();
+        replaceHttpMockNode(cachedHttpMock);
+        replaceOriginHttpMockNode();
         return;
       }
-      console.log('getHttpMockDetail called but not in standalone mode and no cache found');
+      console.log('getHttpMockNodeDetail called but not in standalone mode and no cache found');
     }
   };
 
@@ -198,7 +186,7 @@ export const useHttpMock = defineStore('httpMock', () => {
   |--------------------------------------------------------------------------
   */
   // 保存HttpMock配置
-  const saveHttpMock = async (): Promise<void> => {
+  const saveHttpMockNode = async (): Promise<void> => {
     const { changeTabInfoById } = useApidocTas();
     const { changeBannerInfoById } = useApidocBanner()
     const { tabs } = storeToRefs(useApidocTas())
@@ -230,18 +218,18 @@ export const useHttpMock = defineStore('httpMock', () => {
         value: httpMockDetail.requestCondition.method,
       })
       //改变origindoc的值
-      changeOriginHttpMock();
+      replaceOriginHttpMockNode();
       //改变tab未保存小圆点
       changeTabInfoById({
         id: currentSelectTab._id,
         field: 'saved',
         value: true,
       })
-      cacheHttpMock();
+      cacheHttpMockNode();
       
       // 检查Mock是否已启用，如果启用则更新主进程配置
       try {
-        const isEnabled = await checkMockEnabledStatus(httpMockDetail._id);
+        const isEnabled = await checkMockNodeEnabledStatus(httpMockDetail._id);
         if (isEnabled && window.electronAPI?.mock?.replaceById) {
           // 准备更新数据，确保包含projectId
           const updateData = { ...httpMockDetail, projectId };
@@ -262,7 +250,7 @@ export const useHttpMock = defineStore('httpMock', () => {
       }, 100);
     } else {
       console.log('todo');
-      cacheHttpMock();
+      cacheHttpMockNode();
       saveLoading.value = false;
     }
   };
@@ -273,7 +261,7 @@ export const useHttpMock = defineStore('httpMock', () => {
   |--------------------------------------------------------------------------
   */
   // 检查Mock是否已启用
-  const checkMockEnabledStatus = async (nodeId: string): Promise<boolean> => {
+  const checkMockNodeEnabledStatus = async (nodeId: string): Promise<boolean> => {
     try {
       if (!window.electronAPI?.mock?.getMockByNodeId) {
         console.warn('Mock API not available');
@@ -332,7 +320,7 @@ export const useHttpMock = defineStore('httpMock', () => {
       
       if (result.success) {
         // 验证服务器确实已关闭
-        const checkResult = await checkMockEnabledStatus(nodeId);
+        const checkResult = await checkMockNodeEnabledStatus(nodeId);
         if (checkResult) {
           console.warn('服务器关闭验证失败，但主进程报告成功');
           return { success: false, error: '服务器关闭验证失败' };
@@ -369,30 +357,28 @@ export const useHttpMock = defineStore('httpMock', () => {
     saveLoading,
     refreshLoading,
     // 缓存操作方法
-    cacheHttpMock,
-    getCachedHttpMockById,
+    cacheHttpMockNode,
+    getCachedHttpMockNodeById,
     // 基础状态变更方法
-    changeHttpMock,
-    changeOriginHttpMock,
+    replaceHttpMockNode,
+    replaceOriginHttpMockNode,
     changeSaveLoading,
     // 基础信息操作方法
     changeHttpMockName,
     changeHttpMockDescription,
     // 请求条件操作方法
-    changeHttpMethod,
-    changeRequestUrl,
-    changePort,
+    changeHttpMockNodeMethod,
+    changeHttpMockNodeRequestUrl,
+    changeHttpMockNodePort,
     // 配置操作方法
-    changeDelay,
+    changeHttpMockNodeDelay,
     // 数据比较方法
-    checkHttpMockIsEqual,
-    // 时间戳操作方法
-    markHttpMockAsDeleted,
+    checkHttpMockNodeIsEqual,
     // 接口调用
-    getHttpMockDetail,
-    saveHttpMock,
+    getHttpMockNodeDetail,
+    saveHttpMockNode,
     // Mock服务状态管理
-    checkMockEnabledStatus,
+    checkMockNodeEnabledStatus,
     startMockServer,
     stopMockServer,
     getUsedPorts,

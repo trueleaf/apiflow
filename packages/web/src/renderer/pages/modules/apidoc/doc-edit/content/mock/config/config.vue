@@ -38,7 +38,7 @@ const { currentSelectTab } = storeToRefs(apidocTabsStore)
 
 // 保存HttpMock
 const handleSave = () => {
-  httpMockStore.saveHttpMock()
+  httpMockStore.saveHttpMockNode()
 }
 
 // 刷新HttpMock
@@ -50,8 +50,8 @@ const handleRefresh = async () => {
   try {
     const isOffline = runtimeStore.networkMode === 'offline'
     if (isOffline) {
-      httpMockStore.changeHttpMock(httpMockStore.originHttpMock)
-      httpMockStore.cacheHttpMock()
+      httpMockStore.replaceHttpMockNode(httpMockStore.originHttpMock)
+      httpMockStore.cacheHttpMockNode()
     } else {
       // todo
     }

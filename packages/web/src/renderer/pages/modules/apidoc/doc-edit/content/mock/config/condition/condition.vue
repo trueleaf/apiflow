@@ -153,7 +153,7 @@ watch(
     }
 
     if (newMethods.length === 0) {
-      httpMockStore.changeHttpMethod(['ALL'])
+      httpMockStore.changeHttpMockNodeMethod(['ALL'])
       return
     }
 
@@ -161,10 +161,10 @@ watch(
     const hasNewOther = newMethods.some((method) => method !== 'ALL' && !oldMethods.includes(method))
 
     if (hasNewAll) {
-      httpMockStore.changeHttpMethod(['ALL'])
+      httpMockStore.changeHttpMockNodeMethod(['ALL'])
     } else if (hasNewOther && newMethods.includes('ALL')) {
       const methodsWithoutAll = newMethods.filter((method) => method !== 'ALL')
-      httpMockStore.changeHttpMethod(methodsWithoutAll)
+      httpMockStore.changeHttpMockNodeMethod(methodsWithoutAll)
     }
   }
 )
@@ -294,7 +294,7 @@ const getUsedPortsList = async () => {
 const checkEnabledStatus = () => {
   if (currentSelectTab.value?._id) {
     enabledStatusLoading.value = true
-    return httpMockStore.checkMockEnabledStatus(currentSelectTab.value._id)
+    return httpMockStore.checkMockNodeEnabledStatus(currentSelectTab.value._id)
       .then((isEnabled) => {
         enabled.value = isEnabled
       })

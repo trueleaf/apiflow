@@ -47,17 +47,17 @@ const getHttpMockInfo = () => {
     return
   }
   if (currentSelectTab.value.saved) { // 取最新值
-    httpMockStore.getHttpMockDetail({
+    httpMockStore.getHttpMockNodeDetail({
       id: currentSelectTab.value._id,
       projectId: router.currentRoute.value.query.id as string,
     })
   } else { // 取缓存值
-    const cachedHttpMock = httpMockStore.getCachedHttpMockById(currentSelectTab.value._id)
+    const cachedHttpMock = httpMockStore.getCachedHttpMockNodeById(currentSelectTab.value._id)
     if (cachedHttpMock) {
-      httpMockStore.changeHttpMock(cachedHttpMock)
+      httpMockStore.replaceHttpMockNode(cachedHttpMock)
     } else {
       // 如果缓存中也没有，尝试获取最新数据
-      httpMockStore.getHttpMockDetail({
+      httpMockStore.getHttpMockNodeDetail({
         id: currentSelectTab.value._id,
         projectId: router.currentRoute.value.query.id as string,
       })
@@ -66,7 +66,7 @@ const getHttpMockInfo = () => {
 }
 // 处理HttpMock数据变化
 const handleHttpMockDataChange = (mock: MockHttpNode) => {
-  const isEqual = httpMockStore.checkHttpMockIsEqual(mock, originHttpMock.value)
+  const isEqual = httpMockStore.checkHttpMockNodeIsEqual(mock, originHttpMock.value)
   if (!isEqual) {
     apidocTabsStore.changeTabInfoById({
       id: currentSelectTab.value?._id || "",
@@ -86,7 +86,7 @@ const handleHttpMockDataChange = (mock: MockHttpNode) => {
     })
   }
   // 缓存HttpMock数据
-  httpMockStore.cacheHttpMock()
+  httpMockStore.cacheHttpMockNode()
 }
 // 初始化防抖数据变化处理
 const initDebouncDataChange = () => {
@@ -121,7 +121,7 @@ onMounted(() => {
 // 快捷键保存
 useShortcut('ctrl+s', (event: KeyboardEvent) => {
   event.preventDefault();
-  httpMockStore.saveHttpMock();
+  httpMockStore.saveHttpMockNode();
 })
 </script>
 
@@ -135,18 +135,6 @@ useShortcut('ctrl+s', (event: KeyboardEvent) => {
 
 .mock-tabs {
   height: 100%;
-}
-
-@media (max-width: 960px) {
-  .mock-layout {
-    padding: 12px;
-  }
-}
-
-@media (max-width: 760px) {
-  .mock-layout {
-    padding: 8px;
-  }
 }
 </style>
 
