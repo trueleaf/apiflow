@@ -39,7 +39,6 @@ export type ElectronAPI = {
     getMockByNodeId: (nodeId: string) => Promise<MockHttpNode | null>;
     startServer: (httpMock: MockHttpNode) => Promise<CommonResponse<null>>;
     stopServer: (nodeId: string) => Promise<CommonResponse<null>>;
-    getUsedPorts: () => Promise<{ port: number, projectId: string, nodeId: string, nodeName: string }[]>;
     getLogsByNodeId: (nodeId: string) => Promise<MockLog[]>;
     replaceById: (nodeId: string, httpMock: MockHttpNode) => Promise<{ success: boolean; error?: string }>;
   };

@@ -58,34 +58,7 @@
               {{ mockError }}
             </div>
           </div>
-          <div class="used-port">
-            <div v-if="filteredUsedPorts.length > 0" class="used-ports-tags">
-              <div class="used-ports-label">{{ t('已占用端口') }}:</div>
-              <div class="ports-tags-container">
-                <div v-if="usedPortsLoading" class="ports-loading">
-                  {{ t('加载中...') }}
-                </div>
-                <div v-else class="ports-tags">
-                  <el-tooltip 
-                    v-for="portInfo in filteredUsedPorts" 
-                    :key="portInfo.nodeId"
-                    :content="portInfo.nodeName"
-                    placement="top"
-                  >
-                    <el-tag
-                      closable
-                      type="info"
-                      size="small"
-                      @close="handleClosePortTag(portInfo)"
-                      class="port-tag"
-                    >
-                      {{ portInfo.port }}
-                    </el-tag>
-                  </el-tooltip>
-                </div>
-              </div>
-            </div>
-          </div>
+          <!-- 已移除used-port相关页面逻辑 -->
         </div>
       </div>
     </div>
@@ -94,12 +67,13 @@
 
 <script lang="ts" setup>
 import { watch, ref, onMounted, computed } from 'vue'
-import { ElSwitch, ElInput, ElCheckboxGroup, ElCheckbox, ElMessageBox, ElTag, ElTooltip, ElIcon } from 'element-plus'
+import { ElSwitch, ElInput, ElCheckboxGroup, ElCheckbox, ElIcon } from 'element-plus'
 import { CopyDocument } from '@element-plus/icons-vue'
 import { useI18n } from 'vue-i18n'
 import { storeToRefs } from 'pinia'
 import { useHttpMock } from '@/store/httpMock/httpMock'
 import { useApidocTas } from '@/store/apidoc/tabs.ts'
+import { router } from '@/router/index.ts'
 
 const { t } = useI18n()
 const httpMockStore = useHttpMock()
@@ -111,8 +85,7 @@ const { currentSelectTab } = storeToRefs(apidocTabsStore)
 const enabled = ref(false)
 const enabledStatusLoading = ref(false)
 const mockError = ref('')
-const usedPorts = ref<{ port: number, projectId: string, nodeId: string, nodeName: string }[]>([])
-const usedPortsLoading = ref(false)
+// ...已移除usedPorts及usedPortsLoading相关逻辑...
 
 // 获取本机IP地址，失败则使用默认值
 const getLocalIp = () => {
@@ -132,17 +105,7 @@ const mockUrl = computed(() => {
   return `http://${ip}:${port}${url}`
 })
 
-// 过滤已占用端口，排除当前节点
-const filteredUsedPorts = computed(() => {
-  if (!enabled.value || !currentSelectTab.value?._id) {
-    // 如果当前节点没有启动mock，显示所有已占用端口
-    return usedPorts.value
-  }
-  
-  // 如果当前节点启动了mock，过滤掉当前节点的端口
-  const currentNodeId = currentSelectTab.value._id
-  return usedPorts.value.filter(portInfo => portInfo.nodeId !== currentNodeId)
-})
+// ...已移除filteredUsedPorts相关逻辑...
 
 // 监听HTTP方法变更
 watch(
@@ -174,50 +137,13 @@ watch(
   () => currentSelectTab.value?._id,
   () => {
     checkEnabledStatus()
-    getUsedPortsList()
     mockError.value = ''
   }
 )
 
-// 处理关闭端口标签
-const handleClosePortTag = (portInfo: { port: number, projectId: string, nodeId: string, nodeName: string }) => {
-  handleCloseMock(portInfo)
-}
+// ...已移除handleClosePortTag相关逻辑...
 
-// 处理关闭Mock
-const handleCloseMock = async (portInfo: { port: number, projectId: string, nodeId: string, nodeName: string }) => {
-  try {
-    await ElMessageBox.confirm(
-      `${t('确定要关闭端口')} ${portInfo.port} ${t('上的Mock服务吗？')}`,
-      t('确认关闭'),
-      {
-        confirmButtonText: t('确定'),
-        cancelButtonText: t('取消'),
-        type: 'warning',
-      }
-    )
-    
-    // 调用停止Mock服务
-    const result = await httpMockStore.stopMockServer(portInfo.nodeId)
-    if (result.success) {
-      console.log(`端口 ${portInfo.port} 上的Mock服务已关闭`)
-      // 刷新已使用端口列表
-      await getUsedPortsList()
-      // 如果关闭的是当前节点的服务，需要更新当前状态
-      if (portInfo.nodeId === currentSelectTab.value?._id) {
-        await checkEnabledStatus()
-      }
-    } else {
-      console.error('关闭Mock服务失败:', result.error)
-      mockError.value = `关闭端口 ${portInfo.port} 失败: ${result.error}`
-    }
-  } catch (error) {
-    // 用户取消或其他错误
-    if (error !== 'cancel' && error !== 'close') {
-      console.error('关闭Mock服务失败:', error)
-    }
-  }
-}
+// ...已移除handleCloseMock相关逻辑...
 
 // 处理enabled状态切换
 const handleEnabledToggle = (val: string | number | boolean) => {
@@ -239,29 +165,40 @@ const handleEnabledToggle = (val: string | number | boolean) => {
       }
 
       if (newEnabled) {
-        // 启动Mock服务
-        return httpMockStore.startMockServer(currentSelectTab.value._id)
+        const projectId = router.currentRoute.value.query.id as string;
+        const mockData = { ...httpMock.value, projectId };
+        return window.electronAPI!.mock.startServer(JSON.parse(JSON.stringify(mockData)))
           .then((result) => {
-            if (result.success) {
+            if (result.code === 0) {
               enabled.value = true
               console.log('Mock API已启用')
             } else {
               enabled.value = false
-              mockError.value = result.error || '启动Mock服务失败'
+              mockError.value = result.msg || '启动Mock服务失败'
             }
           })
       } else {
-        // 停止Mock服务
-        return httpMockStore.stopMockServer(currentSelectTab.value._id)
-          .then(async (result: { success: boolean; error?: string }) => {
-            if (result.success) {
-              enabled.value = false
-              console.log('Mock API已禁用')
-              // 刷新已使用端口列表，确保UI状态同步
-              await getUsedPortsList()
+        return window.electronAPI!.mock.stopServer(currentSelectTab.value._id)
+          .then(async (result) => {
+            if (result.code === 0) {
+              // 验证服务器确实已关闭
+              if (currentSelectTab.value?._id) {
+                const checkResult = await httpMockStore.checkMockNodeEnabledStatus(currentSelectTab.value._id);
+                if (checkResult) {
+                  console.warn('服务器关闭验证失败，但主进程报告成功');
+                  enabled.value = true
+                  mockError.value = '服务器关闭验证失败'
+                } else {
+                  enabled.value = false
+                  console.log('Mock API已禁用')
+                }
+              } else {
+                enabled.value = false
+                console.log('Mock API已禁用')
+              }
             } else {
               enabled.value = true
-              mockError.value = result.error || '停止Mock服务失败'
+              mockError.value = result.msg || '停止Mock服务失败'
             }
           })
       }
@@ -277,18 +214,7 @@ const handleEnabledToggle = (val: string | number | boolean) => {
     })
 }
 
-// 获取已使用端口
-const getUsedPortsList = async () => {
-  usedPortsLoading.value = true
-  try {
-    const ports = await httpMockStore.getUsedPorts()
-    usedPorts.value = ports
-  } catch (error) {
-    console.error('获取已使用端口失败:', error)
-  } finally {
-    usedPortsLoading.value = false
-  }
-}
+// ...已移除getUsedPortsList相关逻辑...
 
 // 检查Mock启用状态
 const checkEnabledStatus = () => {
@@ -312,7 +238,6 @@ const checkEnabledStatus = () => {
 // 组件挂载时初始化
 onMounted(() => {
   checkEnabledStatus()
-  getUsedPortsList()
 })
 </script>
 
