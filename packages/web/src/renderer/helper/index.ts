@@ -849,7 +849,7 @@ export const getCountdown = (expire: number) => {
 | docs转banner方法
 |--------------------------------------------------------------------------
 */
-export const arrayToTree = <T extends { _id: string; pid: string }>(list: T[]): (T & => { children: T[] })[] {
+export const arrayToTree = <T extends { _id: string; pid: string }>(list: T[]): (T & { children: T[] })[] => {
   const map = new Map<string, T & { children: T[] }>();
   const roots: (T & { children: T[] })[] = [];
   list.forEach(item => {

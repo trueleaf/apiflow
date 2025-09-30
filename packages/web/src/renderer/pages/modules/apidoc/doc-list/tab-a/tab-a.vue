@@ -214,12 +214,10 @@ const projectStore = useProjectStore();
 const { projectLoading, isStandalone } = storeToRefs(projectStore);
 const projectName = ref('');
 const projectKeyword = ref('')
-const recentVisitProjectIds = ref<string[]>([]);
-const starProjectIds = ref<string[]>([]);
 const projectListCopy = ref<ApidocProjectInfo[]>([]);
 const projectListCopy2 = ref<ApidocProjectInfo[]>([]);
 
-watch(() => projectStore.projectList.value, (list) => {
+watch(() => projectStore.projectList, (list) => {
   projectListCopy.value = list.slice();
   const isAdvancedSearch = projectKeyword.value.trim().length > 0 && isShowAdvanceSearch.value;
   if (isStandalone.value && !isAdvancedSearch) {
@@ -227,28 +225,20 @@ watch(() => projectStore.projectList.value, (list) => {
   }
 }, { deep: true, immediate: true });
 
-watch(() => projectStore.starProjectIds.value, (ids) => {
-  starProjectIds.value = ids.slice();
-}, { deep: true, immediate: true });
-
-watch(() => projectStore.recentVisitProjectIds.value, (ids) => {
-  recentVisitProjectIds.value = ids.slice();
-}, { deep: true, immediate: true });
-
 const syncOfflineProjectList = (list: ApidocProjectInfo[]): void => {
-  projectStore.projectList.value = list;
-  projectStore.starProjectIds.value = list.filter((item) => item.isStared).map((item) => item._id);
-  projectStore.recentVisitProjectIds.value = list.map((item) => item._id);
+  projectStore.projectList = list;
+  projectStore.starProjectIds = list.filter((item) => item.isStared).map((item) => item._id);
+  projectStore.recentVisitProjectIds = list.map((item) => item._id);
 };
 
 const ensureProjectStarState = (projectId: string, isStared: boolean): void => {
-  const projects = projectStore.projectList.value;
-  const target = projects.find((project) => project._id === projectId);
+  const projects = projectStore.projectList;
+  const target = projects.find((project: ApidocProjectInfo) => project._id === projectId);
   if (target) {
     target.isStared = isStared;
   }
-  const starIds = projectStore.starProjectIds.value;
-  const existIndex = starIds.findIndex((id) => id === projectId);
+  const starIds = projectStore.starProjectIds;
+  const existIndex = starIds.findIndex((id: string) => id === projectId);
   if (isStared && existIndex === -1) {
     starIds.push(projectId);
   }
@@ -272,7 +262,7 @@ const projectList = computed(() => {
   const list = (projectKeyword.value.trim().length > 0 && isShowAdvanceSearch.value) ? projectListCopy2.value : projectListCopy.value;
   const filteredProjectList = list.filter((val) => val.projectName.match(new RegExp(projectName.value, 'gi')))
   return filteredProjectList.map((val) => {
-    const isStared = starProjectIds.value.find((id) => id === val._id);
+    const isStared = projectStore.starProjectIds.find((id: string) => id === val._id);
     return {
       ...val,
       isStared: !!isStared,
@@ -282,8 +272,8 @@ const projectList = computed(() => {
 const starProjects = computed(() => {
   const list = (projectKeyword.value.trim().length > 0 && isShowAdvanceSearch.value) ? projectListCopy2.value : projectListCopy.value;
   const filteredProjectList = list.filter((val) => val.projectName.match(new RegExp(projectName.value, 'gi')))
-  return filteredProjectList.filter((projectInfo) => starProjectIds.value.find((id) => id === projectInfo._id)).map((val) => {
-    const isStared = starProjectIds.value.find((id) => id === val._id);
+  return filteredProjectList.filter((projectInfo) => projectStore.starProjectIds.find((id: string) => id === projectInfo._id)).map((val) => {
+    const isStared = projectStore.starProjectIds.find((id: string) => id === val._id);
     return {
       ...val,
       isStared: !!isStared,
@@ -486,7 +476,7 @@ const debounceSearch = debounce(async () => {
   searchLoading.value = true;
   if (projectKeyword.value?.trim().length === 0) {
     projectListCopy2.value = [];
-    starProjectIds.value = projectListCopy.value.filter((item) => item.isStared).map((item) => item._id);
+    // No need to update starProjectIds here as it's managed by the store
     setTimeout(() => {
       searchLoading.value = false;
     }, 100)
@@ -497,7 +487,10 @@ const debounceSearch = debounce(async () => {
     const docs = await standaloneCache.getDocsList();
     const projectList = await standaloneCache.getProjectList();
     const filteredDocs = docs.filter((doc) => {
-      const urlMatch = doc.item.url.path.toLowerCase().includes(keyword);
+      // Type guard to check if doc has an item property (HttpNode or WebSocketNode)
+      const hasItem = 'item' in doc && doc.item;
+      const urlMatch = hasItem && 'url' in doc.item && doc.item.url && 
+                      ('path' in doc.item.url ? doc.item.url.path.toLowerCase().includes(keyword) : false);
       const docNameMatch = doc.info.name.toLowerCase().includes(keyword);
       const creatorMatch = doc.info.creator.toLowerCase().includes(keyword);
       const lastModifierMatch = doc.info.maintainer.toLowerCase().includes(keyword);
@@ -510,8 +503,6 @@ const debounceSearch = debounce(async () => {
       const hasMatchingDoc = filteredDocs.some((doc) => doc.projectId === project._id);
       return projectNameMatch || hasMatchingDoc;
     });
-    recentVisitProjectIds.value = filteredProjects.map((item) => item._id);
-    starProjectIds.value = filteredProjects.filter((item) => item.isStared).map((item) => item._id);
     projectListCopy2.value = filteredProjects;
     setTimeout(() => {
       searchLoading.value = false;
@@ -521,8 +512,6 @@ const debounceSearch = debounce(async () => {
   request.get<CommonResponse<ApidocProjectListInfo>, CommonResponse<ApidocProjectListInfo>>('/api/project/project_list_by_keyword', {
     params: { keyword: projectKeyword.value }
   }).then((res) => {
-    recentVisitProjectIds.value = res.data.recentVisitProjects;
-    starProjectIds.value = res.data.starProjects;
     projectListCopy2.value = res.data.list;
   }).catch((err) => {
     console.error(err);
