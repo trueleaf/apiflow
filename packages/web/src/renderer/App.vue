@@ -26,6 +26,7 @@ import { Language } from '@src/types';
 import LanguageMenu from '@/components/common/language/language.vue';
 import type { RuntimeNetworkMode } from '@src/types/runtime';
 import { useRuntime } from './store/runtime/runtime.ts';
+import { useProjectStore } from './store/project/project.ts';
 
 const router = useRouter();
 const dialogVisible = ref(false);
@@ -33,7 +34,7 @@ const apidocBaseInfoStore = useApidocBaseInfo()
 const runtimeStore = useRuntime();
 const isOffline = computed(() => runtimeStore.networkMode === 'offline');
 const { t } = useI18n()
-
+const projectStore = useProjectStore();
 // 语言菜单相关状态
 const languageMenuVisible = ref(false)
 const languageMenuPosition = ref({ x: 0, y: 0, width: 0, height: 0 })
@@ -158,7 +159,8 @@ const bindTopBarEvent = () => {
       const projectList = await standaloneCache.getProjectList();
       matchedProject = projectList.find(p => p._id === data.projectId);
     } else {
-      // todo
+      const projectList = await projectStore.getProjectList(); // 确保获取最新项目列表
+      matchedProject = projectList.find(p => p._id === data.projectId);
     }
 
     if (!matchedProject) {
@@ -167,13 +169,11 @@ const bindTopBarEvent = () => {
         showClose: false,
         type: 'error'
       }).then(() => {
-        // 使用主进程中定义的事件名称：apiflow-content-project-deleted
         window.electronAPI?.sendToMain('apiflow-content-project-deleted', data.projectId)
       })
       return
     }
     if (matchedProject.projectName !== data.projectName) {
-      // 使用主进程中定义的事件名称：apiflow-content-project-renamed
       window.electronAPI?.sendToMain('apiflow-content-project-renamed', {
         projectId: data.projectId,
         projectName: matchedProject.projectName
