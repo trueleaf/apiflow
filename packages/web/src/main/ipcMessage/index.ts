@@ -6,6 +6,8 @@ import { exportHtml, exportWord, setMainWindow, setContentView, startExport, rec
 import { selectImportFile, analyzeImportFile, startImport, resetImport, setMainWindow as setImportMainWindow, setContentView as setImportContentView } from './import/import.ts';
 import { getWindowState } from '../utils/index.ts';
 import { IPCProjectData, WindowState } from '@src/types/types.ts';
+import type { RuntimeNetworkMode } from '@src/types/runtime';
+
 import { mockManager } from '../main.ts';
 import { MockHttpNode } from '@src/types/mock/mock.ts';
 
@@ -152,6 +154,11 @@ export const useIpcEvent = (mainWindow: BrowserWindow, topBarView: WebContentsVi
   ipcMain.on('apiflow-topbar-switch-project', (_, data: IPCProjectData) => {
     contentView.webContents.send('apiflow-change-project', data)
   })
+
+  ipcMain.on('apiflow-network-mode-changed', (_, mode: RuntimeNetworkMode) => {
+    contentView.webContents.send('apiflow-network-mode-changed', mode)
+  })
+
   /*
   |---------------------------------------------------------------------------
   | contentView → topBarView 通信（

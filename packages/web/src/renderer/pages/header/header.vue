@@ -3,12 +3,12 @@
     <div class="logo">
       <span class="app-title" @click="jumpToHome">
         <span>{{ appTitle }}</span>
-        <span v-if="isDev" id="devIndicator">({{ $t('本地') }})</span>
+        <span v-if="isDev" id="devIndicator">({{ t('本地') }})</span>
       </span>
     </div>
     <div class="home" :class="{ active: activeTabId === ''}" @click="jumpToHome">
       <i class="iconfont iconhome"></i>
-      <span>{{ $t('主页面') }}</span>
+      <span>{{ t('主页面') }}</span>
     </div>
     <div v-if="filteredTabs.length > 0" class="divider"></div>
     <div class="tabs">
@@ -21,35 +21,35 @@
           </li>
         </template>
       </draggable>
-      <button class="add-tab-btn" :title="$t('新建项目')" @click="handleAddProject">+</button>
+      <button class="add-tab-btn" :title="t('新建项目')" @click="handleAddProject">+</button>
     </div>
     <div class="right">
       <div class="navigation-control">
-        <el-icon class="icon" size="16" :title="$t('刷新主应用')" @click="refreshApp"><RefreshRight /></el-icon>
-        <el-icon class="icon" size="16" :title="$t('后退')" @click="goBack"><Back /></el-icon>
-        <el-icon class="icon" size="16" :title="$t('前进')" @click="goForward"><Right /></el-icon>
-        <el-icon class="icon" size="16" :title="$t('个人中心')" @click="jumpToUserCenter">
+        <el-icon class="icon" size="16" :title="t('刷新主应用')" @click="refreshApp"><RefreshRight /></el-icon>
+        <el-icon class="icon" size="16" :title="t('后退')" @click="goBack"><Back /></el-icon>
+        <el-icon class="icon" size="16" :title="t('前进')" @click="goForward"><Right /></el-icon>
+        <el-icon class="icon" size="16" :title="t('个人中心')" @click="jumpToUserCenter">
           <i class="iconfont icongerenzhongxin custom-icon"></i>
         </el-icon>
-        <div class="icon" size="16" :title="$t('切换语言')" @click="handleLanguageButtonClick" ref="languageButtonRef">
+        <div class="icon" size="16" :title="t('切换语言')" @click="handleLanguageButtonClick" ref="languageButtonRef">
           <i class="iconfont iconyuyan custom-icon"></i>
           <span class="language-text">{{ currentLanguageDisplay }}</span>
         </div>
         <el-icon 
           size="16" 
-          :title="networkMode === 'online' ? $t('互联网模式') : $t('离线模式')" 
+          :title="networkMode === 'online' ? t('互联网模式') : t('离线模式')" 
           @click="toggleNetworkMode" 
           class="network-btn icon"
         >
           <i class="iconfont network-icon" :class="networkMode === 'online' ? 'iconwifi' : 'iconwifi-off-line'"></i>
-          <span class="network-text">{{ networkMode === 'online' ? $t('互联网模式') : $t('离线模式') }}</span>
+          <span class="network-text">{{ networkMode === 'online' ? t('互联网模式') : t('离线模式') }}</span>
         </el-icon>
       </div>
       <div class="window-control">
-        <i class="iconfont iconjianhao" id="minimize" :title="$t('最小化')" @click="minimize"></i>
-        <i v-if="!isMaximized" class="iconfont iconmaxScreen" id="maximize" :title="$t('最大化')" @click="maximize"></i>
-        <i v-if="isMaximized" class="iconfont iconminiScreen" id="unmaximize" :title="$t('取消最大化')" @click="unmaximize"></i>
-        <i class="iconfont iconguanbi close" id="close" :title="$t('关闭')" @click="close"></i>
+        <i class="iconfont iconjianhao" id="minimize" :title="t('最小化')" @click="minimize"></i>
+        <i v-if="!isMaximized" class="iconfont iconmaxScreen" id="maximize" :title="t('最大化')" @click="maximize"></i>
+        <i v-if="isMaximized" class="iconfont iconminiScreen" id="unmaximize" :title="t('取消最大化')" @click="unmaximize"></i>
+        <i class="iconfont iconguanbi close" id="close" :title="t('关闭')" @click="close"></i>
       </div>
     </div>
   </div>
@@ -79,7 +79,7 @@ const isMaximized = ref(false)
 const isDev = ref(false)
 const appTitle = ref('Apiflow')
 const tabListRef = ref<HTMLElement>()
-const { t: $t } = useI18n()
+const { t } = useI18n()
 
 // 使用runtime store管理网络模式
 const runtime = useRuntime()
@@ -108,9 +108,7 @@ const draggableTabs = computed({
 const toggleNetworkMode = () => {
   const newMode = networkMode.value === 'online' ? 'offline' : 'online'
   runtime.setNetworkMode(newMode)
-  jumpToHome()
-  // 切换网络模式后刷新contentView
-  window.electronAPI?.sendToMain('apiflow-refresh-content-view')
+  window.electronAPI?.sendToMain('apiflow-network-mode-changed', newMode)
 }
 /*
 |--------------------------------------------------------------------------
@@ -186,37 +184,22 @@ const handleLanguageButtonClick = () => {
 const deleteTab = (tabId: string) => {
   const index = tabs.value.findIndex(t => t.id === tabId)
   if (index === -1) return
-
-  // 记录当前激活的tab，用于智能切换
   const wasActive = activeTabId.value === tabId;
-
-  // 删除指定的标签页
   tabs.value = tabs.value.filter(t => t.id !== tabId)
-
-  // 获取当前网络模式下的tab列表
   const currentNetworkTabs = tabs.value.filter(tab => tab.network === networkMode.value)
-
-  // 检查删除后的标签页数量
   if (currentNetworkTabs.length === 0) {
-    // 如果当前网络模式下没有剩余标签页，自动跳转到主页面
     jumpToHome()
   } else if (wasActive) {
-    // 如果删除的是当前激活的标签页，智能选择下一个tab
     let newActiveTabId = '';
-
-    // 在当前网络模式的tab中寻找合适的tab
     const currentModeIndex = currentNetworkTabs.findIndex(t => tabs.value.indexOf(t) >= index)
     if (currentModeIndex !== -1) {
       newActiveTabId = currentNetworkTabs[currentModeIndex].id;
     } else if (currentNetworkTabs.length > 0) {
       newActiveTabId = currentNetworkTabs[currentNetworkTabs.length - 1].id;
     }
-
     if (newActiveTabId) {
-      // 调用switchTab方法来正确切换到新的tab并触发相应的页面切换逻辑
       switchTab(newActiveTabId)
     } else {
-      // 如果没有找到合适的tab，跳转到主页面
       jumpToHome()
     }
   }
@@ -224,17 +207,13 @@ const deleteTab = (tabId: string) => {
 const switchTab = (tabId: string) => {
   activeTabId.value = tabId;
   const currentTab = tabs.value.find(t => t.id === tabId);
-
   if (!currentTab) return;
-
   if (currentTab.type === 'project') {
-    // 项目类型tab：发送项目切换事件
     window.electronAPI?.sendToMain('apiflow-topbar-switch-project', {
       projectId: tabId,
       projectName: currentTab.title
     })
   } else if (currentTab.type === 'settings') {
-    // 设置类型tab：发送路由跳转事件
     window.electronAPI?.sendToMain('apiflow-topbar-navigate', '/user-center')
   }
 }
@@ -257,7 +236,7 @@ const jumpToUserCenter = () => {
   if (!existingTab) {
     tabs.value.push({
       id: userCenterTabId,
-      title: $t('个人中心'),
+      title: t('个人中心'),
       type: 'settings',
       network: networkMode.value
     });
@@ -309,12 +288,17 @@ onMounted(() => {
   })
 })
 
+watch(() => networkMode.value, (mode, prevMode) => {
+  if (mode !== prevMode) {
+    activeTabId.value = ''
+  }
+})
+
 watch(tabs, (val) => {
   httpNodeCache.setHeaderTabs(val)
 }, { deep: true })
 
 watch(activeTabId, (val) => {
-  console.log("change" ,val)
   httpNodeCache.setHeaderActiveTab(val)
 })
 </script>
@@ -609,4 +593,6 @@ body {
   opacity: 0.6;
 }
 </style>
+
+
 

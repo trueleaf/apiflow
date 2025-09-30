@@ -24,6 +24,7 @@ import { ElMessageBox } from 'element-plus';
 import { useApidocBaseInfo } from './store/apidoc/base-info';
 import { Language } from '@src/types';
 import LanguageMenu from '@/components/common/language/language.vue';
+import type { RuntimeNetworkMode } from '@src/types/runtime';
 import { useRuntime } from './store/runtime/runtime.ts';
 
 const router = useRouter();
@@ -51,6 +52,16 @@ watch(() => router.currentRoute.value.path, (newPath) => {
 }, { immediate: true });
 
 
+
+watch(() => runtimeStore.networkMode, async (mode, prevMode) => {
+  if (mode === prevMode) {
+    return
+  }
+  if (router.currentRoute.value.path !== '/v1/apidoc/doc-list') {
+    await router.push('/v1/apidoc/doc-list')
+  }
+  window.electronAPI?.sendToMain('apiflow-refresh-content-view')
+})
 
 const handleAddSuccess = (data: { projectId: string, projectName: string }) => {
   dialogVisible.value = false;
@@ -114,7 +125,6 @@ const handleLanguageSelect = (language: Language) => {
 }
 
 
-
 const bindTopBarEvent = () => {
   window.electronAPI?.onMain('apiflow-create-project', () => {
     dialogVisible.value = true;
@@ -122,7 +132,11 @@ const bindTopBarEvent = () => {
   window.electronAPI?.onMain('apiflow-change-route', (path: string) => {
     router.push(path)
   })
-
+  window.electronAPI?.onMain('apiflow-network-mode-changed', (mode: RuntimeNetworkMode) => {
+    if (runtimeStore.networkMode !== mode) {
+      runtimeStore.setNetworkMode(mode)
+    }
+  })
 
   window.electronAPI?.onMain('apiflow-go-back', () => {
     handleGoBack()

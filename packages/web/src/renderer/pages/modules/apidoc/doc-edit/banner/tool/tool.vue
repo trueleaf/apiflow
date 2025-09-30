@@ -12,7 +12,7 @@
             </el-icon>
           </div>
         </template>
-        <SLoading :loading="loading" class="tool-toggle-project">
+        <SLoading :loading="projectLoading" class="tool-toggle-project">
           <h3 v-if="startProjectList.length > 0">收藏的项目</h3>
           <div class="project-wrap">
             <div v-for="(item, index) in startProjectList" :key="index" class="item" @click="handleChangeProject(item)">
@@ -144,9 +144,10 @@
 
 <script lang="ts" setup>
 import { ref, Ref, computed, watch, onMounted, onUnmounted } from 'vue'
+import { storeToRefs } from 'pinia'
 import SDraggable from 'vuedraggable'
 import { MoreFilled, Close, Switch } from '@element-plus/icons-vue'
-import type { Response, ApidocBanner, ApidocOperations, ApidocProjectListInfo, ApidocProjectInfo } from '@src/types'
+import type { ApidocBanner, ApidocOperations, ApidocProjectInfo } from '@src/types'
 import { forEachForest } from '@/helper/index'
 import { router } from '@/router/index'
 import { useI18n } from 'vue-i18n'
@@ -162,9 +163,7 @@ import { useApidocTas } from '@/store/apidoc/tabs'
 import { useApidocWorkerState } from '@/store/apidoc/worker-state'
 import SLoading from '@/components/common/loading/g-loading.vue'
 import SFieldset from '@/components/common/fieldset/g-fieldset.vue'
-import { useRuntime } from '@/store/runtime/runtime'
-
-import { standaloneCache } from '@/cache/standalone'
+import { useProjectStore } from '@/store/project/project'
 
 
 type Operation = {
@@ -187,8 +186,8 @@ const apidocBannerStore = useApidocBanner();
 const apidocWorkerStateStore = useApidocWorkerState();
 const apidocTabsStore = useApidocTas();
 const { t } = useI18n()
-const runtimeStore = useRuntime();
-const isStandalone = computed(() => runtimeStore.networkMode === 'offline')
+const projectStore = useProjectStore();
+const { projectList, projectLoading, isStandalone } = storeToRefs(projectStore);
 const emits = defineEmits(['fresh', 'filter', 'changeProject']);
 const isView = computed(() => apidocBaseInfoStore.mode === 'view') //当前工作区状态
 const toggleProjectVisible = ref(false);
@@ -622,24 +621,9 @@ const handleFilterBanner = () => {
 | 切换项目相关
 |--------------------------------------------------------------------------
 */
-const loading = ref(false);
-const projectList: Ref<ApidocProjectInfo[]> = ref([]); //项目列表
-const startProjectList: Ref<ApidocProjectInfo[]> = ref([]); //收藏项目列表
+const startProjectList = computed(() => projectList.value.filter((item) => item.isStared));
 const getProjectList = async () => {
-  if (isStandalone.value) {
-    projectList.value = await standaloneCache.getProjectList();
-    startProjectList.value = projectList.value.filter(v => v.isStared);
-    return;
-  }
-  loading.value = true;
-  request.get<Response<ApidocProjectListInfo>, Response<ApidocProjectListInfo>>('/api/project/project_list').then((res) => {
-    projectList.value = res.data.list;
-    startProjectList.value = res.data.list.filter(v => res.data.starProjects.find(v2 => v2 === v._id));
-  }).catch((err) => {
-    console.error(err);
-  }).finally(() => {
-    loading.value = false;
-  });
+  await projectStore.getProjectList();
 }
 //改变项目列表
 const handleChangeProject = (item: ApidocProjectInfo) => {
