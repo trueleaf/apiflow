@@ -8,6 +8,7 @@ import { fileURLToPath } from "url";
 import JSZip from "jszip";
 import { dialog, BrowserWindow, WebContentsView } from "electron";
 import { ExportStatus } from "@src/types/types.ts";
+import { CommonResponse } from "@src/types/project";
 import { createHash } from "crypto";
 import dayjs from "dayjs";
 
@@ -679,7 +680,7 @@ export const getExportStatus = (): ExportStatus => {
 };
 
 // 第一步：选择保存路径
-export const selectExportPath = async (): Promise<{ success: boolean; filePath?: string; tempPath?: string; error?: string }> => {
+export const selectExportPath = async (): Promise<CommonResponse<{ filePath?: string; tempPath?: string }>> => {
   try {
     if (!mainWindow) {
       throw new Error('主窗口未设置');
@@ -692,23 +693,26 @@ export const selectExportPath = async (): Promise<{ success: boolean; filePath?:
       ]
     });
     if (result.canceled || !result.filePath) {
-      return { success: false, error: '用户取消选择' };
+      return { code: 1, msg: '用户取消选择', data: {} };
     }
     finalFilePath = result.filePath;
     // JSZip 不需要临时文件，但保留变量以兼容现有逻辑
     const pathWithoutExt = finalFilePath.replace(/\.zip$/, '');
     tempFilePath = `${pathWithoutExt}.tmp`;
     exportStatus.status = 'pathSelected';
-    
-    return { 
-      success: true, 
-      filePath: finalFilePath,
-      tempPath: tempFilePath
+
+    return {
+      code: 0,
+      msg: '选择路径成功',
+      data: {
+        filePath: finalFilePath,
+        tempPath: tempFilePath
+      }
     };
     
   } catch (error) {
     console.error('选择保存路径失败:', error);
-    return { success: false, error: (error as Error).message };
+    return { code: 1, msg: (error as Error).message, data: {} };
   }
 };
 

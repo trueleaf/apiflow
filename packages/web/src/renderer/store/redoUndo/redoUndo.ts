@@ -1,6 +1,6 @@
 import { defineStore } from "pinia";
 import { ref } from "vue";
-import type { 
+import type {
   WsRedoUnDoOperation
 } from "@src/types/redoUndo";
 import type { ApidocProperty } from "@src/types";
@@ -8,6 +8,13 @@ import type { WebSocketNode } from "@src/types/websocket/websocket";
 import { useWebSocket } from "@/store/websocket/websocket";
 import { cloneDeep } from "@/helper";
 import { redoUndoCache } from "@/cache/redoUndo/redoUndo";
+
+// 自定义响应类型用于撤销重做操作
+type RedoUndoResponse = {
+  code: number;
+  msg: string;
+  operation?: WsRedoUnDoOperation;
+};
 
 export const useRedoUndo = defineStore('redoUndo', () => {
   const wsRedoList = ref<Record<string, WsRedoUnDoOperation[]>>({});
@@ -42,10 +49,10 @@ export const useRedoUndo = defineStore('redoUndo', () => {
   /**
    * 撤销操作
    */
-  const wsUndo = (nodeId: string): { success: boolean; operation?: WsRedoUnDoOperation } => {
+  const wsUndo = (nodeId: string): RedoUndoResponse => {
     const undoList = wsUndoList.value[nodeId];
     if (!undoList || undoList.length === 0) {
-      return { success: false };
+      return { code: 1, msg: '没有可撤销的操作' };
     }
     const operation = undoList.pop()!;
     try {
@@ -54,24 +61,24 @@ export const useRedoUndo = defineStore('redoUndo', () => {
         wsRedoList.value[nodeId] = [];
       }
       wsRedoList.value[nodeId].push(operation);
-      
+
       // 同步到cache
       redoUndoCache.setRedoUndoListByNodeId(nodeId, wsRedoList.value[nodeId], wsUndoList.value[nodeId]);
-      return { success: true, operation };
+      return { code: 0, msg: '撤销成功', operation };
     } catch (error) {
       console.error('撤销操作失败:', error);
       undoList.push(operation); // 回滚
-      return { success: false };
+      return { code: 1, msg: '撤销操作失败' };
     }
   };
 
   /**
    * 重做操作
    */
-  const wsRedo = (nodeId: string): { success: boolean; operation?: WsRedoUnDoOperation } => {
+  const wsRedo = (nodeId: string): RedoUndoResponse => {
     const redoList = wsRedoList.value[nodeId];
     if (!redoList || redoList.length === 0) {
-      return { success: false };
+      return { code: 1, msg: '没有可重做的操作' };
     }
     const operation = redoList.pop()!;
     try {
@@ -80,14 +87,14 @@ export const useRedoUndo = defineStore('redoUndo', () => {
         wsUndoList.value[nodeId] = [];
       }
       wsUndoList.value[nodeId].push(operation);
-      
+
       // 同步到cache
       redoUndoCache.setRedoUndoListByNodeId(nodeId, wsRedoList.value[nodeId], wsUndoList.value[nodeId]);
-      return { success: true, operation };
+      return { code: 0, msg: '重做成功', operation };
     } catch (error) {
       console.error('重做操作失败:', error);
       redoList.push(operation); // 回滚
-      return { success: false };
+      return { code: 1, msg: '重做操作失败' };
     }
   };
 

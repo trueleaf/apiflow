@@ -150,7 +150,7 @@ const initWorker = () => {
 const handleWorkerMessage = (event: MessageEvent) => {
   const { type, data } = event.data;
   if (type === 'clearAllResult') {
-    if (data.success) {
+    if (data.code === 0) {
       statusMessage.value = '数据清空完成，正在开始导入...';
       window.electronAPI?.sendToMain('import-start', {
         filePath: importStatus.filePath,
@@ -161,7 +161,7 @@ const handleWorkerMessage = (event: MessageEvent) => {
       });
       statusMessage.value = '正在准备导入数据...';
     } else {
-      console.error('清空数据失败:', data.error);
+      console.error('清空数据失败:', data.msg);
       importStatus.status = 'error';
       statusMessage.value = '清空数据失败';
       ElMessage.error('清空数据失败');
@@ -174,26 +174,26 @@ const initIpcListeners = () => {
   
   // 监听选择文件回复事件
   listenerRefs.value.importSelectFileReply = (result: any) => {
-    if (result?.success && result.filePath) {
+    if (result?.code === 0 && result.data?.filePath) {
       importStatus.status = 'fileSelected';
-      importStatus.filePath = result.filePath;
+      importStatus.filePath = result.data.filePath;
       fileErrorMessage.value = '';
       analyzeImportFile();
     } else {
       importStatus.status = 'notStarted';
-      statusMessage.value = result?.error || '用户取消选择';
+      statusMessage.value = result?.msg || '用户取消选择';
     }
   };
   window.electronAPI?.onMain('import-select-file-reply', listenerRefs.value.importSelectFileReply);
   
   // 监听文件分析完成事件
-  listenerRefs.value.importFileAnalyzed = (result: { success: boolean, itemCount?: number, error?: string }) => {
-    if (result.success && result.itemCount !== undefined) {
-      estimatedDataCount.value = result.itemCount;
-      importStatus.itemNum = result.itemCount;
+  listenerRefs.value.importFileAnalyzed = (result: { code: number, data?: { itemCount?: number }, msg?: string }) => {
+    if (result.code === 0 && result.data?.itemCount !== undefined) {
+      estimatedDataCount.value = result.data.itemCount;
+      importStatus.itemNum = result.data.itemCount;
       statusMessage.value = '';
     } else {
-      fileErrorMessage.value = result.error || '文件分析失败';
+      fileErrorMessage.value = result.msg || '文件分析失败';
       estimatedDataCount.value = 0;
     }
   };
@@ -210,15 +210,15 @@ const initIpcListeners = () => {
   window.electronAPI?.onMain('import-progress', listenerRefs.value.importProgress);
   
   // 监听ZIP文件读取完成事件
-  listenerRefs.value.importZipReadComplete = (result: { success: boolean, totalItems: number, message?: string }) => {
-    if (result.success) {
-      statusMessage.value = result.message || 'ZIP文件读取完成，正在导入到数据库...';
+  listenerRefs.value.importZipReadComplete = (result: { code: number, data?: { totalItems: number }, msg?: string }) => {
+    if (result.code === 0 && result.data) {
+      statusMessage.value = result.msg || 'ZIP文件读取完成，正在导入到数据库...';
       // 设置预期的总数据项数量，但不立即完成导入状态
-      importStatus.itemNum = result.totalItems;
+      importStatus.itemNum = result.data.totalItems;
       zipReadComplete.value = true;
-      
+
       // 如果没有数据项需要导入，直接标记为完成
-      if (result.totalItems === 0) {
+      if (result.data.totalItems === 0) {
         importStatus.status = 'completed';
         importStatus.progress = 100;
         statusMessage.value = '导入完成！没有数据需要导入';
@@ -229,8 +229,8 @@ const initIpcListeners = () => {
       }
     } else {
       importStatus.status = 'error';
-      statusMessage.value = result.message || 'ZIP文件读取失败';
-      ElMessage.error(result.message || 'ZIP文件读取失败');
+      statusMessage.value = result.msg || 'ZIP文件读取失败';
+      ElMessage.error(result.msg || 'ZIP文件读取失败');
     }
   };
   window.electronAPI?.onMain('import-zip-read-complete', listenerRefs.value.importZipReadComplete);

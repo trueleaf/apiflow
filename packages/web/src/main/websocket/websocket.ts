@@ -2,6 +2,7 @@ import { WebSocket } from 'ws';
 import { ipcMain, IpcMainInvokeEvent } from 'electron';
 import { fileTypeFromBuffer } from 'file-type';
 import { WebsocketConnectParams } from '@src/types/websocket/websocket.ts';
+import { CommonResponse } from '@src/types/project';
 import {
     ClientRequestArgs,
 } from "http";
@@ -77,7 +78,7 @@ export class WebSocketManager {
    * @param headers 可选的请求头对象
    * @returns 连接ID
    */
-  async connect(url: string, nodeId: string, event: IpcMainInvokeEvent, headers?: Record<string, string>): Promise<{ success: boolean; connectionId?: string; error?: string }> {
+  async connect(url: string, nodeId: string, event: IpcMainInvokeEvent, headers?: Record<string, string>): Promise<CommonResponse<{ connectionId?: string }>> {
     try {
       // 如果该节点已有连接，先断开旧连接
       const existingConnectionId = this.nodeIdToConnectionId.get(nodeId);
@@ -183,10 +184,10 @@ export class WebSocketManager {
       });
       // 保存连接
       this.connections.set(connectionId, ws);
-      return { success: true, connectionId };
+      return { code: 0, msg: '连接成功', data: { connectionId } };
     } catch (error) {
       console.error('WebSocket连接失败:', error);
-      return { success: false, error: error instanceof Error ? error.message : '未知错误' };
+      return { code: 1, msg: error instanceof Error ? error.message : '未知错误', data: {} };
     }
   }
 
@@ -194,7 +195,7 @@ export class WebSocketManager {
    * 断开WebSocket连接
    * @param connectionId 连接ID
    */
-  async disconnect(connectionId: string): Promise<{ success: boolean; error?: string }> {
+  async disconnect(connectionId: string): Promise<CommonResponse<null>> {
     console.log('主进程断开websocket连接')
 
     try {
@@ -219,10 +220,10 @@ export class WebSocketManager {
       this.connections.delete(connectionId);
       // 自动从连接ID集合中移除
       this.connectionIds.delete(connectionId);
-      return { success: true };
+      return { code: 0, msg: '断开连接成功', data: null };
     } catch (error) {
       console.error('断开WebSocket连接失败:', error);
-      return { success: false, error: error instanceof Error ? error.message : '未知错误' };
+      return { code: 1, msg: error instanceof Error ? error.message : '未知错误', data: null };
     }
   }
 
@@ -231,22 +232,22 @@ export class WebSocketManager {
    * @param connectionId 连接ID
    * @param message 消息内容
    */
-  async sendMessage(connectionId: string, message: string): Promise<{ success: boolean; error?: string }> {
+  async sendMessage(connectionId: string, message: string): Promise<CommonResponse<null>> {
     try {
       const ws = this.connections.get(connectionId);
       if (!ws) {
-        return { success: false, error: '连接不存在' };
+        return { code: 1, msg: '连接不存在', data: null };
       }
 
       if (ws.readyState !== WebSocket.OPEN) {
-        return { success: false, error: '连接未打开' };
+        return { code: 1, msg: '连接未打开', data: null };
       }
 
       ws.send(message);
-      return { success: true };
+      return { code: 0, msg: '消息发送成功', data: null };
     } catch (error) {
       console.error('发送WebSocket消息失败:', error);
-      return { success: false, error: error instanceof Error ? error.message : '未知错误' };
+      return { code: 1, msg: error instanceof Error ? error.message : '未知错误', data: null };
     }
   }
 
@@ -254,12 +255,12 @@ export class WebSocketManager {
    * 获取连接状态
    * @param connectionId 连接ID
    */
-  async getConnectionState(connectionId: string): Promise<{ state?: number; error?: string }> {
+  async getConnectionState(connectionId: string): Promise<CommonResponse<{ state?: number }>> {
     const ws = this.connections.get(connectionId);
     if (!ws) {
-      return { error: '连接不存在' };
+      return { code: 1, msg: '连接不存在', data: {} };
     }
-    return { state: ws.readyState };
+    return { code: 0, msg: '获取状态成功', data: { state: ws.readyState } };
   }
 
   /**
@@ -312,7 +313,7 @@ export class WebSocketManager {
   /**
    * 清空所有WebSocket连接
    */
-  async clearAllConnections(): Promise<{ success: boolean; closedCount: number; error?: string }> {
+  async clearAllConnections(): Promise<CommonResponse<{ closedCount: number }>> {
     try {
       let closedCount = 0;
       const connectionsToClose = Array.from(this.connections.entries());
@@ -331,10 +332,10 @@ export class WebSocketManager {
       this.connections.clear();
       this.connectionIds.clear();
       this.nodeIdToConnectionId.clear();
-      return { success: true, closedCount };
+      return { code: 0, msg: '清空连接成功', data: { closedCount } };
     } catch (error) {
       console.error('清空WebSocket连接失败:', error);
-      return { success: false, closedCount: 0, error: error instanceof Error ? error.message : '未知错误' };
+      return { code: 1, msg: error instanceof Error ? error.message : '未知错误', data: { closedCount: 0 } };
     }
   }
 
@@ -342,17 +343,17 @@ export class WebSocketManager {
    * 根据节点ID断开连接
    * @param nodeId 节点ID
    */
-  async disconnectByNode(nodeId: string): Promise<{ success: boolean; error?: string }> {
+  async disconnectByNode(nodeId: string): Promise<CommonResponse<null>> {
     try {
       const connectionId = this.nodeIdToConnectionId.get(nodeId);
       if (!connectionId) {
-        return { success: false, error: '该节点没有活跃连接' };
+        return { code: 1, msg: '该节点没有活跃连接', data: null };
       }
 
       return await this.disconnect(connectionId);
     } catch (error) {
       console.error('根据节点ID断开连接失败:', error);
-      return { success: false, error: error instanceof Error ? error.message : '未知错误' };
+      return { code: 1, msg: error instanceof Error ? error.message : '未知错误', data: null };
     }
   }
 
