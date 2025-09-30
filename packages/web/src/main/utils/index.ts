@@ -113,7 +113,7 @@ export const changeDevtoolsFont = (win: BrowserWindow) => {
     `);
   });
 }
-export function arrayToTree<T extends { _id: string; pid: string }>(list: T[]): (T & { children: T[] })[] {
+export const arrayToTree = <T extends { _id: string; pid: string }>(list: T[]): (T & { children: T[] })[] => {
   const map = new Map<string, T & { children: T[] }>();
   const roots: (T & { children: T[] })[] = [];
   list.forEach(item => {
@@ -180,7 +180,7 @@ export interface PathMatchResult {
   params?: Record<string, string>;
 }
 
-export function matchPath(pattern: string, path: string): PathMatchResult {
+export const matchPath = (pattern: string, path: string): PathMatchResult => {
   if (pattern === path) {
     return { matched: true };
   }
@@ -227,7 +227,7 @@ function extractParams(pattern: string, regexMatch: RegExpMatchArray): Record<st
   return params;
 }
 
-export function getPatternPriority(pattern: string): number {
+export const getPatternPriority = (pattern: string): number => {
   let priority = 0;
   
   if (!pattern.includes(':') && !pattern.includes('*')) {

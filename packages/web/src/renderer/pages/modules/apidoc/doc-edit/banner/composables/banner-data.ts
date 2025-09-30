@@ -5,7 +5,7 @@ type ReturnData = {
   getBannerData: () => Promise<void>,
 };
 
-export function useBannerData(): ReturnData {
+export const useBannerData = (): ReturnData => {
   const apidocBannerStore = useApidocBanner()
   const route = useRoute()
   const getBannerData = async () => {

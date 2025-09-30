@@ -67,7 +67,7 @@ const convertQueryToParams = (requestPath: string): void => {
 /**
  * 格式化url
  */
-export function handleFormatUrl():void {
+export const handleFormatUrl = ():void => {
   const apidocStore = useApidoc()
   // const projectId = router.currentRoute.value.query.id as string;
   const requestPath = computed<string>({

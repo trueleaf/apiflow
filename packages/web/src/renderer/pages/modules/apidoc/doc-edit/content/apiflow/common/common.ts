@@ -164,7 +164,7 @@ export type ResizeDotArea = {
   },
 }
 //返回节点上下左右四个连接点吸附区域
-export function getNodeStickyArea(toNode: FlowNodeInfo, options: StickyAreaPosition): StickyArea {
+export const getNodeStickyArea = (toNode: FlowNodeInfo, options: StickyAreaPosition): StickyArea => {
   const { styleInfo } = toNode;
   const { stickySize = 10, startPoint } = options
   const leftMidPoint: OffsetCoordinate = {
@@ -297,7 +297,7 @@ export const getContraryPosition = (position: Position): Position => {
   return 'left'
 }
 
-export function getCreateLineArea(nodeInfo: FlowNodeInfo): FlowValidCreateLineArea {
+export const getCreateLineArea = (nodeInfo: FlowNodeInfo): FlowValidCreateLineArea => {
   const configStore = useFlowConfigStore()
   const { createLineDotSize } = configStore
   const leftArea = {
@@ -339,7 +339,7 @@ export function getCreateLineArea(nodeInfo: FlowNodeInfo): FlowValidCreateLineAr
     bottomArea
   }
 }
-export function getResizeBarArea(nodeInfo: FlowNodeInfo): FlowValidResizeArea {
+export const getResizeBarArea = (nodeInfo: FlowNodeInfo): FlowValidResizeArea => {
   const configStore = useFlowConfigStore()
   const { resizeDotSize } = configStore
   const leftTopArea = {
@@ -382,7 +382,7 @@ export function getResizeBarArea(nodeInfo: FlowNodeInfo): FlowValidResizeArea {
   }
 }
 
-export function getDrawInfoByPoint(startPoint: Coordinate, endPoint: Coordinate, options: DrawInfoOptions): DrawInfo {
+export const getDrawInfoByPoint = (startPoint: Coordinate, endPoint: Coordinate, options: DrawInfoOptions): DrawInfo => {
   const result: DrawInfo = {
     x: 0,
     y: 0,
@@ -467,7 +467,7 @@ export function getDrawInfoByPoint(startPoint: Coordinate, endPoint: Coordinate,
 }
 //获取zIndex值
 let zIndex = 0;
-export function getZIndex(): number {
+export const getZIndex = (): number => {
   zIndex += 1;
   return zIndex;
 }
@@ -608,7 +608,7 @@ export const repaintRenderArea = (): void => {
     ctx.closePath()
   }
 }
-export function getDrawInfoByLineId(lineId: string): DrawInfo | null {
+export const getDrawInfoByLineId = (lineId: string): DrawInfo | null => {
   const linesStore = useFlowLinesStore()
   const nodesStore = useFlowNodesStore()
   const matchedLine = linesStore.lineList.find(line => line.id === lineId)

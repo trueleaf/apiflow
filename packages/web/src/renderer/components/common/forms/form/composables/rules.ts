@@ -1,7 +1,7 @@
 import {  VNode, Slots } from 'vue'
 import { forEachForest } from '@/helper/index'
 
-export default function initRules(slots: Slots): Record<string, unknown> {
+const initRules = (slots: Slots): Record<string, unknown> => {
   const rules: Record<string, unknown[]> = {};
   if (slots.default) {
     const allSlots = slots.default();
@@ -84,3 +84,4 @@ export default function initRules(slots: Slots): Record<string, unknown> {
   }
   return rules;
 }
+export default initRules;

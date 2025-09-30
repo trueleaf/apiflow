@@ -5,7 +5,7 @@ type Response = {
   handleOpenImportParams: (index: number) => void;
 }
 
-export default function useImportParams(): Response {
+const useImportParams = (): Response => {
   const importParamsdialogVisible = ref(false); //导入参数弹窗
   const currentEditResponseIndex = ref(0);
   //打开导入参数弹窗
@@ -19,3 +19,4 @@ export default function useImportParams(): Response {
     handleOpenImportParams,
   }
 }
+export default useImportParams;

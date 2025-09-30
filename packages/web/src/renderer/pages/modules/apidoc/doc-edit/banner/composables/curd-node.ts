@@ -31,7 +31,7 @@ const isOffline = () => useRuntime().networkMode === 'offline';
 /**
  * 删除某个(多个)节点
  */
-export function deleteNode(selectNodes: ApidocBannerWithProjectId[], silent?: boolean): void {
+export const deleteNode = (selectNodes: ApidocBannerWithProjectId[], silent?: boolean): void => {
   const apidocBannerStore = useApidocBanner();
   const apidocTabsStore = useApidocTas()
   const currentProjectId = router.currentRoute.value.query.id;
@@ -136,7 +136,7 @@ export function deleteNode(selectNodes: ApidocBannerWithProjectId[], silent?: bo
 /**
  * 新增文件和文件夹回调
  */
-export function addFileAndFolderCb(currentOperationalNode: Ref<ApidocBanner | null>, data: ApidocBanner): void {
+export const addFileAndFolderCb = (currentOperationalNode: Ref<ApidocBanner | null>, data: ApidocBanner): void => {
   const apidocBannerStore = useApidocBanner();
   const apidocBaseInfoStore = useApidocBaseInfo();
   const apidocTabsStore = useApidocTas()
@@ -268,7 +268,7 @@ export function addFileAndFolderCb(currentOperationalNode: Ref<ApidocBanner | nu
  * 3. 从去重数据中寻找无父元素的节点(pid在数组中无_id对应)
  * 4. 将这些
  */
-export function pasteNodes(currentOperationalNode: Ref<ApidocBanner | null>, pastedNodes: ApidocBannerWithProjectId[]): Promise<ApidocBanner[]> {
+export const pasteNodes = (currentOperationalNode: Ref<ApidocBanner | null>, pastedNodes: ApidocBannerWithProjectId[]): Promise<ApidocBanner[]> => {
   const copyPasteNodes: ApidocBanner[] = JSON.parse(JSON.stringify(pastedNodes));
   return new Promise(async (resolve, reject) => {
     try {
@@ -419,7 +419,7 @@ export function pasteNodes(currentOperationalNode: Ref<ApidocBanner | null>, pas
 /**
  * 生成文件副本
  */
-export async function forkNode(currentOperationalNode: ApidocBanner): Promise<void> {
+export const forkNode = async (currentOperationalNode: ApidocBanner): Promise<void> => {
   const apidocBannerStore = useApidocBanner();
   const projectId = router.currentRoute.value.query.id as string;
 
@@ -549,7 +549,7 @@ export async function forkNode(currentOperationalNode: ApidocBanner): Promise<vo
 /**
  * 拖拽节点
  */
-export async function dragNode(dragData: ApidocBanner, dropData: ApidocBanner, type: 'before' | 'after' | 'inner'): Promise<void> {
+export const dragNode = async (dragData: ApidocBanner, dropData: ApidocBanner, type: 'before' | 'after' | 'inner'): Promise<void> => {
   const apidocBannerStore = useApidocBanner();
   const projectId = router.currentRoute.value.query.id as string;
 
@@ -649,7 +649,7 @@ let isRename = false;
 /**
  * 重命名节点
  */
-export async function renameNode(e: FocusEvent | KeyboardEvent, data: ApidocBanner): Promise<void> {
+export const renameNode = async (e: FocusEvent | KeyboardEvent, data: ApidocBanner): Promise<void> => {
   const apidocBannerStore = useApidocBanner();
   const apidocTabsStore = useApidocTas()
   const apidocStore = useApidoc()

@@ -61,7 +61,7 @@ export const event = emitter;
  * @create             2021-01-20 22:52
  * @return {string}    返回uuid
  */
-export function uuid(): string {
+export const uuid = (): string => {
   return nanoid();
 }
 
@@ -72,7 +72,7 @@ export function uuid(): string {
     @param {any}   variable
     @return       小写对象类型(null,number,string,boolean,symbol,function,object,array,regexp)
 */
-export function getType(variable: unknown): string {
+export const getType = (variable: unknown): string => {
   return Object.prototype.toString.call(variable).slice(8, -1).toLocaleLowerCase();
 }
 
@@ -89,7 +89,7 @@ type ForestData = {
  * @param {function}   fn 每次遍历执行得函数
  * @param {string}     childrenKey children对应字段
  */
-export function forEachForest<T extends ForestData>(forest: T[], fn: (arg: T) => void, options?: { childrenKey?: string }): void {
+export const forEachForest = <T extends ForestData>(forest: T[], fn: (arg: T) => void, options?: { childrenKey?: string }): void => {
   if (!Array.isArray(forest)) {
     console.error('第一个参数必须为数组类型');
     return;
@@ -118,7 +118,7 @@ export function forEachForest<T extends ForestData>(forest: T[], fn: (arg: T) =>
 /**
  * 根据id查询父元素
  */
-export function findParentById<T extends ForestData>(forest: T[], id: string | number, options?: { childrenKey?: string, idKey?: string }): T | null {
+export const findParentById = <T extends ForestData>(forest: T[], id: string | number, options?: { childrenKey?: string, idKey?: string }): T | null => {
   if (!Array.isArray(forest)) {
     console.error('第一个参数必须为数组类型');
     return null;
@@ -145,7 +145,7 @@ export function findParentById<T extends ForestData>(forest: T[], id: string | n
 /**
  * 根据id查询下一个兄弟节点
  */
-export function findNextSiblingById<T extends ForestData>(forest: T[], id: string | number, options?: { childrenKey?: string, idKey?: string }): T | null {
+export const findNextSiblingById = <T extends ForestData>(forest: T[], id: string | number, options?: { childrenKey?: string, idKey?: string }): T | null => {
   if (!Array.isArray(forest)) {
     console.error('第一个参数必须为数组类型');
     return null;
@@ -171,7 +171,7 @@ export function findNextSiblingById<T extends ForestData>(forest: T[], id: strin
 /**
  * 根据id查询上一个兄弟节点
  */
-export function findPreviousSiblingById<T extends ForestData>(forest: T[], id: string | number, options?: { childrenKey?: string, idKey?: string }): T | null {
+export const findPreviousSiblingById = <T extends ForestData>(forest: T[], id: string | number, options?: { childrenKey?: string, idKey?: string }): T | null => {
   if (!Array.isArray(forest)) {
     console.error('第一个参数必须为数组类型');
     return null;
@@ -198,7 +198,7 @@ export function findPreviousSiblingById<T extends ForestData>(forest: T[], id: s
 /**
  * 根据id查询元素
  */
-export function findNodeById<T extends ForestData>(forest: T[], id: string | number, options?: { childrenKey?: string, idKey?: string }): T | null {
+export const findNodeById = <T extends ForestData>(forest: T[], id: string | number, options?: { childrenKey?: string, idKey?: string }): T | null => {
   if (!Array.isArray(forest)) {
     console.error('第一个参数必须为数组类型')
     return null;
@@ -228,7 +228,7 @@ type TreeNode<T> = {
 /**
  * 将树形数据所有节点转换为一维数组,数据会进行深拷贝
  */
-export function flatTree<T extends TreeNode<T>>(root: T): T[] {
+export const flatTree = <T extends TreeNode<T>>(root: T): T[] => {
   const result: T[] = [];
   const foo = (nodes: T[]): void => {
     for (let i = 0; i < nodes.length; i += 1) {
@@ -248,7 +248,7 @@ export function flatTree<T extends TreeNode<T>>(root: T): T[] {
 /**
  * 获取字符串宽度
  */
-export function getTextWidth(text: string, font: string): number {
+export const getTextWidth = (text: string, font: string): number => {
   let canvas: HTMLCanvasElement | null = document.createElement('canvas');
   const context = canvas.getContext('2d');
   (context as CanvasRenderingContext2D).font = font;
@@ -260,7 +260,7 @@ export function getTextWidth(text: string, font: string): number {
 /**
  * 获取提示信息
  */
-export function randomTip(): string {
+export const randomTip = (): string => {
   const len = tips.length;
   const randomIndex = Math.ceil(Math.random() * len) - 1;
   return tips[randomIndex];
@@ -269,7 +269,7 @@ export function randomTip(): string {
 /**
  * 格式化时间
  */
-export function formatDate(date: string | number | Date | dayjs.Dayjs | undefined, rule?: string): string {
+export const formatDate = (date: string | number | Date | dayjs.Dayjs | undefined, rule?: string): string => {
   const realRule = rule || 'YYYY-MM-DD HH:mm'
   const result = dayjs(date).format(realRule);
   return result;
@@ -289,7 +289,7 @@ export function formatDate(date: string | number | Date | dayjs.Dayjs | undefine
         unique([1, 2, 3, 4, 3, 3]) => [1, 2, 3, 4]
 */
 
-export function uniqueByKey<T extends Data, K extends keyof T>(data: T[], key: K): T[] {
+export const uniqueByKey = <T extends Data, K extends keyof T>(data: T[], key: K): T[] => {
   const result: T[] = [];
   for (let i = 0, len = data.length; i < len; i += 1) {
     const isInResult = result.find((val) => val[key] === data[i][key]);
@@ -303,14 +303,14 @@ export function uniqueByKey<T extends Data, K extends keyof T>(data: T[], key: K
 /**
  * 获取请求方法
  */
-export function getRequestMethodEnum(): HttpNodeRequestMethod[] {
+export const getRequestMethodEnum = (): HttpNodeRequestMethod[] => {
   return ['GET', 'POST', 'PUT', 'DELETE', 'TRACE', 'OPTIONS', 'PATCH', 'HEAD'];
 }
 
 /**
  * 生成一条接口参数
  */
-export function apidocGenerateProperty<T extends HttpNodePropertyType = 'string'>(type?: T): ApidocProperty<T> {
+export const apidocGenerateProperty = <T extends HttpNodePropertyType = 'string'>(type?: T): ApidocProperty<T> => {
   const result = {
     _id: uuid(),
     key: '',
@@ -326,7 +326,7 @@ export function apidocGenerateProperty<T extends HttpNodePropertyType = 'string'
 /**
  * 检查每个ApidocProperty是否一致
  */
-export function checkIsSameProperty(p: ApidocProperty, p2: ApidocProperty): boolean {
+export const checkIsSameProperty = (p: ApidocProperty, p2: ApidocProperty): boolean => {
   let isSame = true;
   const checkProperty = (prop: ApidocProperty, prop2: ApidocProperty) => {
     if (prop.key !== prop2.key) {
@@ -360,7 +360,7 @@ export function checkIsSameProperty(p: ApidocProperty, p2: ApidocProperty): bool
 /**
  * 检查ApidocProperty[]类型数据是否相同
  */
-export function checkPropertyIsEqual(value: ApidocProperty[], originValue: ApidocProperty[]): boolean {
+export const checkPropertyIsEqual = (value: ApidocProperty[], originValue: ApidocProperty[]): boolean => {
   if (value.length !== originValue.length) return false;
   for (let i = 0; i < value.length; i += 1) {
     const item = value[i];
@@ -391,7 +391,7 @@ type JsonObj = {
 /**
  * 将录入参数转换为json参数
  */
-export function apidocConvertParamsToJsonData(properties: Properties): JSON {
+export const apidocConvertParamsToJsonData = (properties: Properties): JSON => {
   if (properties.length === 0) {
     console.warn('无任何参数值')
     return null;
@@ -626,7 +626,7 @@ export const generateEmptyHttpMockNode = (_id: string): MockHttpNode => {
  * @author             shuxiaokai
  * @create             2021-09-07 22:35
  */
-export function generateHttpNode(id?: string): HttpNode {
+export const generateHttpNode = (id?: string): HttpNode => {
   const result = generateEmptyHttpNode(id || nanoid());
   // 添加默认的response参数以保持向后兼容
   result.item.responseParams = [{
@@ -669,7 +669,7 @@ export const generateWebsocketNode = (id?: string): WebSocketNode => {
  * @author             shuxiaokai
  * @create             2022-01-20 22:35
  */
-export function apidocGenerateRequestParamTypes(): HttpNodeRequestParamTypes {
+export const apidocGenerateRequestParamTypes = (): HttpNodeRequestParamTypes => {
   return ['path', 'params', 'json', 'x-www-form-urlencoded', 'formData', 'text/javascript', 'text/plain', 'text/html', 'application/xml'];
 }
 /**
@@ -679,7 +679,7 @@ export function apidocGenerateRequestParamTypes(): HttpNodeRequestParamTypes {
  * @param {number}      byteNum - 字节数量
  * @return {String}    返回字符串
  */
-export function formatBytes(byteNum: number): string {
+export const formatBytes = (byteNum: number): string => {
   let result = '';
   if (byteNum >= 0 && byteNum < 1024) {
     //b
@@ -704,7 +704,7 @@ export function formatBytes(byteNum: number): string {
  * @param {number}      ms - 毫秒
  * @return {String}    返回字符串
  */
-export function formatMs(ms: number): string {
+export const formatMs = (ms: number): string => {
   let result = '';
   if (!ms) {
     return '';
@@ -725,7 +725,7 @@ export function formatMs(ms: number): string {
  * @create             2020-10-26 21:56
  * @param {string}     str - 需要拷贝的文本
  */
-export function copy(str: string): void {
+export const copy = (str: string): void => {
   const dom = document.createElement('textarea');
   dom.value = str;
   dom.style.position = 'fixed';
@@ -736,7 +736,7 @@ export function copy(str: string): void {
   document.execCommand('Copy', false);
   document.body.removeChild(dom);
 }
-export function randomInt(start: number, end: number): number {
+export const randomInt = (start: number, end: number): number => {
   if (start > end) {
     console.log('第二个参数必须大于第一个');
     return 0;
@@ -745,7 +745,7 @@ export function randomInt(start: number, end: number): number {
   return Math.floor((Math.random() * range + 1))
 }
 //模拟延迟
-export async function sleep(delay: number): Promise<void> {
+export const sleep = async (delay: number): Promise<void> => {
   return new Promise((resolve, reject) => {
     try {
       if (!delay) {
@@ -761,7 +761,7 @@ export async function sleep(delay: number): Promise<void> {
 }
 
 
-export function getFileNameFromContentDisposition(contentDisposition: string) {
+export const getFileNameFromContentDisposition = (contentDisposition: string) => {
   if (!contentDisposition) {
     return '';
   }
@@ -799,7 +799,7 @@ export const formatHeader = (header: string) => {
  * @param url 输入的完整url字符串
  * @returns domain主机名
  */
-export function getDomainFromUrl(url: string): string {
+export const getDomainFromUrl = (url: string): string => {
   try {
     const { hostname } = new URL(url);
     return hostname;
@@ -812,7 +812,7 @@ export function getDomainFromUrl(url: string): string {
  * @param url 输入的完整url字符串
  * @returns 路径字符串（以/开头）
  */
-export function getPathFromUrl(url: string): string {
+export const getPathFromUrl = (url: string): string => {
   try {
     const { pathname } = new URL(url);
     return pathname;
@@ -849,7 +849,7 @@ export const getCountdown = (expire: number) => {
 | docs转banner方法
 |--------------------------------------------------------------------------
 */
-export function arrayToTree<T extends { _id: string; pid: string }>(list: T[]): (T & { children: T[] })[] {
+export const arrayToTree = <T extends { _id: string; pid: string }>(list: T[]): (T & => { children: T[] })[] {
   const map = new Map<string, T & { children: T[] }>();
   const roots: (T & { children: T[] })[] = [];
   list.forEach(item => {
@@ -865,7 +865,7 @@ export function arrayToTree<T extends { _id: string; pid: string }>(list: T[]): 
   return roots;
 }
 
-export function convertNodesToBannerNodes(docs: ApiNode[] = []): ApidocBanner[] {
+export const convertNodesToBannerNodes = (docs: ApiNode[] = []): ApidocBanner[] => {
   const treeData = arrayToTree(docs);
   const copyTreeData = cloneDeep(treeData)
   const banner: ApidocBanner[] = []

@@ -1,6 +1,6 @@
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
 
-export function useHoverProvider(): monaco.IDisposable {
+export const useHoverProvider = (): monaco.IDisposable => {
   return monaco.languages.registerHoverProvider('javascript', {
     provideHover(model, position) {
       const wordInfo = model.getWordAtPosition(position);

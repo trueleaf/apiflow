@@ -370,7 +370,7 @@ const suggestions: Suggestions = [{
 ...variableSuggestions,
 ...requestSuggestions]
 
-export function useCompletionItem(): monaco.IDisposable {
+export const useCompletionItem = (): monaco.IDisposable => {
   return monaco.languages.registerCompletionItemProvider('javascript', {
     triggerCharacters: ['.', '('],
     provideCompletionItems(model, position) {

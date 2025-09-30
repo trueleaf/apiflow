@@ -421,7 +421,7 @@ const convertObjectToProperty = (objectParams: Record<string, any>) => {
   return newQueryParams;
 }
 
-export async function sendRequest() {
+export const sendRequest = async () => {
   const worker = new preRequestWorker();
   const redirectList = ref<ResponseInfo['redirectList']>([]);
   const apidocBaseInfoStore = useApidocBaseInfo();
@@ -768,7 +768,7 @@ export async function sendRequest() {
   });
 }
 
-export function stopRequest(): void {
+export const stopRequest = (): void => {
   const apidocResponseStore = useApidocResponse()
   const { changeRequestState } = apidocResponseStore
   const { cancelRequest } = useApidocRequest()

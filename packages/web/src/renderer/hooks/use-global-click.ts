@@ -1,6 +1,6 @@
 import { onMounted, onUnmounted } from 'vue';
 
-export function useGlobalClick(handler: (event: MouseEvent) => void) {
+export const useGlobalClick = (handler: (event: MouseEvent) => void) => {
   const mountedHandler = (e: MouseEvent) => {
     handler(e)
   }
