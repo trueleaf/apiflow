@@ -61,7 +61,7 @@
 
 <script lang="ts" setup>
 import { config } from '@src/config/config';
-import { PermissionUserInfo, Response } from '@src/types'
+import { PermissionUserInfo, CommonResponse } from '@src/types'
 import { User, Lock } from '@element-plus/icons-vue'
 import { computed, nextTick, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
@@ -99,7 +99,7 @@ const handleLogin = async () => {
   form.value?.validate((valid: boolean) => {
     if (valid) {
       loading.value = true;
-      request.post<Response<PermissionUserInfo>, Response<PermissionUserInfo>>('/api/security/login_password', userInfo.value).then((res) => {
+      request.post<CommonResponse<PermissionUserInfo>, CommonResponse<PermissionUserInfo>>('/api/security/login_password', userInfo.value).then((res) => {
         if (res.code === 2006 || res.code === 2003) {
           ElMessage.warning(res.msg);
           isShowCapture.value = true;

@@ -54,7 +54,7 @@
 
 <script lang="ts" setup>
 import { Back } from '@element-plus/icons-vue'
-import type { Response } from '@src/types'
+import type { CommonResponse } from '@src/types'
 import SCard from '@/components/common/card/g-card.vue'
 import { useI18n } from 'vue-i18n'
 import { nextTick, onMounted, ref } from 'vue';
@@ -130,7 +130,7 @@ const validatePassword2 = (_: unknown, value: string, callback: (err?: Error) =>
 //=====================================获取远程数据==================================//
 const getUserBaseInfo = () => {
   loading.value = true;
-  request.get<Response<UserInfo>, Response<UserInfo>>('/api/security/user_info').then((res) => {
+  request.get<CommonResponse<UserInfo>, CommonResponse<UserInfo>>('/api/security/user_info').then((res) => {
     userInfo.value = res.data;
   }).catch((err) => {
     console.error(err);

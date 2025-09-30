@@ -47,7 +47,7 @@ export type {
 
 // 从project模块导出项目相关类型
 export type {
-  Response,
+  CommonResponse,
   ResponseTable,
   PermissionMenu,
   PermissionRoleEnum,
@@ -89,3 +89,4 @@ export type {
   ApidocOperationRecord,
   ApidocCodeInfo
 } from './apidoc';
+

@@ -34,7 +34,7 @@
 <script lang="ts" setup>
 import type { InternalRuleItem } from 'async-validator/dist-types/interface'
 import { nextTick, onMounted, reactive, ref } from 'vue';
-import type { Response } from '@src/types'
+import type { CommonResponse } from '@src/types'
 import { useI18n } from 'vue-i18n'
 import { ElMessage, FormInstance } from 'element-plus';
 import { request } from '@/api/api';
@@ -124,7 +124,7 @@ const getSmsCode = () => {
     captcha: registerInfo.captcha,
     clientKey
   };
-  request.get<Response<any>, Response<any>>('/api/security/sms', { params }).then(res => {
+  request.get<CommonResponse<any>, CommonResponse<any>>('/api/security/sms', { params }).then(res => {
     if (res.code === 4005) {
       getCaptcha();
       smsRef.value?.resetState();

@@ -99,7 +99,7 @@
 <script lang="ts" setup>
 import { ref, Ref, onMounted, computed } from 'vue'
 import { Close } from '@element-plus/icons-vue'
-import { HttpNode, Response } from '@src/types';
+import { HttpNode, CommonResponse } from '@src/types';
 import { router } from '@/router/index'
 import { request } from '@/api/api'
 import { useI18n } from 'vue-i18n'
@@ -149,7 +149,7 @@ const getDocDetail = async () => {
     _id: props.id,
     projectId,
   };
-  request.get<Response<HttpNode>, Response<HttpNode>>('/api/project/doc_detail', { params }).then((res) => {
+  request.get<CommonResponse<HttpNode>, CommonResponse<HttpNode>>('/api/project/doc_detail', { params }).then((res) => {
     docDetail.value = res.data
   }).catch((err) => {
     console.error(err);

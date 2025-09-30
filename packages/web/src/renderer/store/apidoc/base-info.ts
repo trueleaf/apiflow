@@ -7,7 +7,7 @@ import {
   ApidocProjectRules,
 } from "@src/types/apidoc/base-info";
 import { event } from '@/helper'
-import { ApidocProperty, Response } from '@src/types';
+import { ApidocProperty, CommonResponse } from '@src/types';
 import { defineStore } from "pinia"
 import { ref } from "vue";
 import { router } from "@/router";
@@ -235,7 +235,7 @@ export const useApidocBaseInfo = defineStore('apidocBaseInfo', () => {
       const params = {
         _id: payload.projectId,
       }
-      request.get<Response<ApidocProjectBaseInfoState>, Response<ApidocProjectBaseInfoState>>('/api/project/project_full_info', { params }).then((res) => {
+      request.get<CommonResponse<ApidocProjectBaseInfoState>, CommonResponse<ApidocProjectBaseInfoState>>('/api/project/project_full_info', { params }).then((res) => {
         changeProjectBaseInfo(res.data);
         replaceVariables(res.data.variables)
         event.emit('apidoc/getBaseInfo', res.data);
@@ -255,7 +255,7 @@ export const useApidocBaseInfo = defineStore('apidocBaseInfo', () => {
         shareId: payload.shareId,
         password: payload.password,
       };
-      request.get<Response<ApidocProjectBaseInfoState>, Response<ApidocProjectBaseInfoState>>('/api/project/export/share_project_info', { params }).then((res) => {
+      request.get<CommonResponse<ApidocProjectBaseInfoState>, CommonResponse<ApidocProjectBaseInfoState>>('/api/project/export/share_project_info', { params }).then((res) => {
         if (res.code === 101005) {
           //todo
           // shareRouter.replace({
@@ -288,7 +288,7 @@ export const useApidocBaseInfo = defineStore('apidocBaseInfo', () => {
       const params = {
         projectId
       }
-      request.get<Response<ApidocProjectBaseInfoState['commonHeaders']>, Response<ApidocProjectBaseInfoState['commonHeaders']>>('/api/project/common_headers', { params }).then((res) => {
+      request.get<CommonResponse<ApidocProjectBaseInfoState['commonHeaders']>, CommonResponse<ApidocProjectBaseInfoState['commonHeaders']>>('/api/project/common_headers', { params }).then((res) => {
         changeCommonHeaders(res.data)
         resolve();
       }).catch((err) => {
@@ -311,7 +311,7 @@ export const useApidocBaseInfo = defineStore('apidocBaseInfo', () => {
       const params = {
         projectId: router.currentRoute.value.query.id as string
       }
-      request.get<Response<GlobalCommonHeader[]>, Response<GlobalCommonHeader[]>>('/api/project/global_common_headers', {params}).then((res) => {
+      request.get<CommonResponse<GlobalCommonHeader[]>, CommonResponse<GlobalCommonHeader[]>>('/api/project/global_common_headers', {params}).then((res) => {
         globalCommonHeaders.value = res.data;
         resolve();
       }).catch((err) => {

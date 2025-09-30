@@ -1,7 +1,7 @@
 import { request } from '@/api/api';
 import { standaloneCache } from '@/cache/standalone.ts';
 import { findNodeById, forEachForest } from "@/helper";
-import { ApidocBanner, ApidocBannerOfWebsocketNode, ApidocBannerOfHttpNode, Response } from '@src/types';
+import { ApidocBanner, ApidocBannerOfWebsocketNode, ApidocBannerOfHttpNode, CommonResponse } from '@src/types';
 import { defineStore } from "pinia";
 import { ref } from "vue";
 import { useRuntime } from '../runtime/runtime';
@@ -130,7 +130,7 @@ export const useApidocBanner = defineStore('apidocBanner', () => {
         shareId: payload.shareId,
         password: payload.password,
       };
-      request.get<Response<ApidocBanner[]>, Response<ApidocBanner[]>>('/api/project/export/share_banner', { params }).then((res) => {
+      request.get<CommonResponse<ApidocBanner[]>, CommonResponse<ApidocBanner[]>>('/api/project/export/share_banner', { params }).then((res) => {
         if (res.code === 101005) {
           //todo
           // shareRouter.replace({

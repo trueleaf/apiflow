@@ -22,7 +22,7 @@
 
 <script lang="ts" setup>
 import { useI18n } from 'vue-i18n'
-import { PermissionRoleEnum, Response } from '@src/types'
+import { PermissionRoleEnum, CommonResponse } from '@src/types'
 import { nextTick, onMounted, ref } from 'vue';
 import { request } from '@/api/api';
 import { ElMessage, FormInstance } from 'element-plus';
@@ -73,7 +73,7 @@ const getUserInfo = () => {
 }
 //获取角色枚举信息
 const getRoleEnum = () => {
-  request.get<Response<PermissionRoleEnum>, Response<PermissionRoleEnum>>('/api/security/role_enum').then((res) => {
+  request.get<CommonResponse<PermissionRoleEnum>, CommonResponse<PermissionRoleEnum>>('/api/security/role_enum').then((res) => {
     roleEnum.value = res.data;
   }).catch((err) => {
     console.error(err);

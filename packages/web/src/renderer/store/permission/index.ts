@@ -1,6 +1,6 @@
 import { router, routes as allRoutes } from '@/router';
 import { config } from '@src/config/config';
-import { GlobalConfig, PermissionClientMenu, PermissionClientRoute, PermissionUserInfo, Response } from '@src/types';
+import { GlobalConfig, PermissionClientMenu, PermissionClientRoute, PermissionUserInfo, CommonResponse } from '@src/types';
 import { defineStore } from 'pinia'
 import layout from '@/pages/layout/layout.vue';
 import { RouteRecordRaw } from 'vue-router';
@@ -127,7 +127,7 @@ export const usePermissionStore = defineStore('permission', () => {
   //获取权限
   const getPermission = async (): Promise<ResUserInfo> => {
     return new Promise((resolve, reject) => {
-      request.get<Response<ResUserInfo>, Response<ResUserInfo>>('/api/security/user_base_info').then((res) => {
+      request.get<CommonResponse<ResUserInfo>, CommonResponse<ResUserInfo>>('/api/security/user_base_info').then((res) => {
         changeUserInfo(res.data);
         changeMenus(res.data.clientBanner);
         changeRoutes(res.data.clientRoutes);

@@ -100,7 +100,7 @@
 import { ref, Ref, onMounted, computed, ComponentPublicInstance, nextTick } from 'vue'
 import { ElMessage } from 'element-plus'
 import 'element-plus/es/components/message/style/css';
-import type { ApidocBanner, ApidocProjectEnum, Response } from '@src/types'
+import type { ApidocBanner, ApidocProjectEnum, CommonResponse } from '@src/types'
 import type TreeStore from 'element-plus/lib/components/tree/src/model/tree-store'
 import type Node from 'element-plus/lib/components/tree/src/model/node'
 import { request } from '@/api/api'
@@ -164,7 +164,7 @@ const handleChangeProject = (pid: string | number | boolean) => {
 //项目列表枚举
 const projectEnum: Ref<ApidocProjectEnum[]> = ref([]);
 const getProjectEnum = () => {
-  request.get<Response<ApidocProjectEnum[]>, Response<ApidocProjectEnum[]>>('/api/project/project_enum').then((res) => {
+  request.get<CommonResponse<ApidocProjectEnum[]>, CommonResponse<ApidocProjectEnum[]>>('/api/project/project_enum').then((res) => {
     res.data.forEach((val) => {
       if (val._id !== projectId.value) { //过滤掉当前项目
         projectEnum.value.push(val);

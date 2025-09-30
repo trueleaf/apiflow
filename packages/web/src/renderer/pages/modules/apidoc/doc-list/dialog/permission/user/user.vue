@@ -64,7 +64,7 @@
 
 <script lang="ts" setup>
 import { useI18n } from 'vue-i18n'
-import type { Response, ApidocProjectMemberInfo, ApidocProjectPermission, ApidocGroupUser } from '@src/types'
+import type { CommonResponse, ApidocProjectMemberInfo, ApidocProjectPermission, ApidocGroupUser } from '@src/types'
 import {  onMounted, ref } from 'vue';
 import { ElMessage, ElMessageBox } from 'element-plus';
 import { usePermissionStore } from '@/store/permission';
@@ -112,7 +112,7 @@ const loading2 = ref(false);
 //获取项目成员信息
 const getApidocProjectUserInfo = () => {
   loading.value = true;
-  request.get<Response<MemberInfo>, Response<MemberInfo>>('/api/project/project_members', { params: { _id: props.id } }).then((res) => {
+  request.get<CommonResponse<MemberInfo>, CommonResponse<MemberInfo>>('/api/project/project_members', { params: { _id: props.id } }).then((res) => {
     res.data.users.forEach((userInfo) => {
       memberList.value.push({
         name: userInfo.userName,

@@ -42,7 +42,7 @@
 </template>
 
 <script lang="ts" setup>
-import type { Response, PermissionServerRoute } from '@src/types'
+import type { CommonResponse, PermissionServerRoute } from '@src/types'
 import SAddServerRoute from './add/add.vue'
 import SEditServerRoute from './edit/edit.vue'
 import SMultiEditServerRoute from './edit/edit2.vue'
@@ -98,7 +98,7 @@ const handleChange = (params: { name: string, groupName: string }) => {
   })
 }
 //获取前端路由信息
-const hookRequest = (res: Response<PermissionServerRoute[]>, _this: HookThis) => {
+const hookRequest = (res: CommonResponse<PermissionServerRoute[]>, _this: HookThis) => {
   originTableData.value = res.data;
   _this.tableData.value = res.data;
   _this.total.value = res.data.length;

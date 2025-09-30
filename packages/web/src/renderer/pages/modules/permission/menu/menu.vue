@@ -56,7 +56,7 @@
 
 <script lang="ts" setup>
 import { useI18n } from 'vue-i18n'
-import type { Response, PermissionClientMenu } from '@src/types'
+import type { CommonResponse, PermissionClientMenu } from '@src/types'
 import type Node from 'element-plus/lib/components/tree/src/model/node'
 import SAddMenuDialog from './add/add.vue'
 import SEditMenuDialog from './edit/edit.vue'
@@ -94,7 +94,7 @@ const loading = ref(false)
 //获取树形菜单结构
 const getData = () => {
   loading.value = true;
-  request.get<Response<PermissionClientMenu[]>, Response<PermissionClientMenu[]>>('/api/security/client_menu_tree').then((res) => {
+  request.get<CommonResponse<PermissionClientMenu[]>, CommonResponse<PermissionClientMenu[]>>('/api/security/client_menu_tree').then((res) => {
     forEachForest(res.data, (val) => {
       val.id = val._id;
     })

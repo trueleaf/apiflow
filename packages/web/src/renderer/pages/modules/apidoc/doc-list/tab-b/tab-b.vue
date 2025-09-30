@@ -221,7 +221,7 @@ import { Plus, User, Search, ArrowDown, Check, Delete } from '@element-plus/icon
 import { computed, onMounted, ref } from 'vue';
 import AddProjectDialog from './dialog/add-group/add-group.vue'
 import { request } from '@/api/api';
-import { ApidocGroupItem, ApidocGroupUser, PermissionUserBaseInfo, Response } from '@src/types';
+import { ApidocGroupItem, ApidocGroupUser, PermissionUserBaseInfo, CommonResponse } from '@src/types';
 import { cloneDeep, uuid } from '@/helper';
 import { ElMessage, ElMessageBox } from 'element-plus';
 import RemoteSelector from '@/components/common/remote-select/g-remote-select.vue';
@@ -299,7 +299,7 @@ const handleAddUser = (item: PermissionUserBaseInfo) => {
     permission: 'readAndWrite',
   
   }
-  request.post<Response<void>, Response<void>>('/api/group/member/add', params).then(() => {
+  request.post<CommonResponse<void>, CommonResponse<void>>('/api/group/member/add', params).then(() => {
     changeGroupInfo();
     getGroupList();
   }).catch(err => {
@@ -318,7 +318,7 @@ const handleRemoveMember = (groupId: string, userId: string) => {
       groupId,
       userId,
     }
-    request.delete<Response<void>, Response<void>>('/api/group/member/remove', { data: params }).then(() => {
+    request.delete<CommonResponse<void>, CommonResponse<void>>('/api/group/member/remove', { data: params }).then(() => {
       const delIndex = groupInfo.value?.members.findIndex(item => item.userId === userId);
       if (delIndex !== undefined) {
         groupInfo.value?.members.splice(delIndex, 1);
@@ -333,7 +333,7 @@ const handleRemoveMember = (groupId: string, userId: string) => {
 //获取团队列表
 const getGroupList = () => {
   loading.value = true
-  request.get<Response<ApidocGroupItem[]>, Response<ApidocGroupItem[]>>('/api/group/list').then(res => {
+  request.get<CommonResponse<ApidocGroupItem[]>, CommonResponse<ApidocGroupItem[]>>('/api/group/list').then(res => {
     groupList.value = res.data;
     selectedGroupId.value = res.data[0]._id;
     groupInfo.value = cloneDeep(res.data[0]);
@@ -366,7 +366,7 @@ const changeGroupInfo = () => {
 const handleSaveGroupInfo = () => {
   if (!groupInfo.value) return;
   const { _id, groupName, description, isAllowInvite } = groupInfo.value;
-  request.put<Response<ApidocGroupItem>, Response<ApidocGroupItem>>('/api/group/update', {
+  request.put<CommonResponse<ApidocGroupItem>, CommonResponse<ApidocGroupItem>>('/api/group/update', {
     _id,
     groupName,
     description,
@@ -386,7 +386,7 @@ const handleChangePermission = (groupId: string, userId: string, permission: "ad
     userId,
     permission
   }
-  request.put<Response<ApidocGroupItem>, Response<ApidocGroupItem>>('/api/group/member/permission', params).then(() => {
+  request.put<CommonResponse<ApidocGroupItem>, CommonResponse<ApidocGroupItem>>('/api/group/member/permission', params).then(() => {
     ElMessage.success('修改成功');
     changeGroupInfo()
     getGroupList();
@@ -406,7 +406,7 @@ const handleDeleteGroup = (groupId: string) => {
     cancelButtonText: t('取消'),
     type: 'warning',
   }).then(() => {
-    request.delete<Response<void>, Response<void>>('/api/group/remove', { data: { ids: [groupId] } }).then(() => {
+    request.delete<CommonResponse<void>, CommonResponse<void>>('/api/group/remove', { data: { ids: [groupId] } }).then(() => {
       ElMessage.success('删除成功');
       getGroupList();
     }).catch(err => {

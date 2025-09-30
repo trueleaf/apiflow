@@ -28,7 +28,7 @@
 </template>
 
 <script lang="ts" setup>
-import { Response } from '@src/types'
+import { CommonResponse } from '@src/types'
 import { config } from '@src/config/config';
 import { nextTick, onMounted, reactive, ref } from 'vue';
 import { useI18n } from 'vue-i18n'
@@ -125,7 +125,7 @@ const getSmsCode = () => {
     captcha: userInfo.captcha,
     clientKey
   };
-  request.get<Response<any>, Response<any>>('/api/security/sms', { params }).then(res => {
+  request.get<CommonResponse<any>, CommonResponse<any>>('/api/security/sms', { params }).then(res => {
     if (res.code === 4005) {
       getCaptcha();
       smsRef.value?.resetState();
@@ -145,7 +145,7 @@ const handleResetPassword = () => {
         password: userInfo.password,
         smsCode: userInfo.smsCode,
       };
-      request.post<Response<{ loginName: string }>, Response<{ loginName: string }>>('/api/security/user_reset_password', params).then((res) => {
+      request.post<CommonResponse<{ loginName: string }>, CommonResponse<{ loginName: string }>>('/api/security/user_reset_password', params).then((res) => {
         if (res.code === 2006 || res.code === 2003) {
           ElMessage.warning(res.msg);
         } else {

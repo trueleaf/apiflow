@@ -30,7 +30,7 @@
 
 <script lang="ts" setup>
 import { useI18n } from 'vue-i18n'
-import { Response, ApidocBanner } from '@src/types'
+import { CommonResponse, ApidocBanner } from '@src/types'
 import { computed, ref, watch } from 'vue';
 import { ElMessage, FormInstance, ElInput } from 'element-plus';
 import { request } from '@/api/api';
@@ -172,7 +172,7 @@ const handleAddFile = () => {
         projectId: route.query.id as string,
         pid: props.pid,
       };
-      request.post<Response<ApidocBanner>, Response<ApidocBanner>>('/api/project/new_doc', params).then((res) => {
+      request.post<CommonResponse<ApidocBanner>, CommonResponse<ApidocBanner>>('/api/project/new_doc', params).then((res) => {
         emits('success', res.data); //一定要先成功然后才关闭弹窗,因为关闭弹窗会清除节点父元素id
         handleClose();
       }).catch((err) => {

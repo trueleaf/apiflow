@@ -216,7 +216,7 @@ import { useRoute } from 'vue-router';
 import SJsonEditor from '@/components/common/json-editor/g-json-editor.vue'
 import EditDialog from './dialog/edit.vue'
 import { useVariable } from '@/store/apidoc/variables';
-import { Response, ApidocVariable } from '@src/types';
+import { CommonResponse, ApidocVariable } from '@src/types';
 import { request as axiosInstance } from '@/api/api'
 import { standaloneCache } from '@/cache/standalone';
 import { useRuntime } from '@/store/runtime/runtime';
@@ -343,7 +343,7 @@ const getStandaloneVariables = async () => {
 }
 //获取变量枚举用于更新全部变量值
 const getVariableEnum = () => {
-  axiosInstance.get<Response<ApidocVariable[]>, Response<ApidocVariable[]>>('/api/project/project_variable_enum', { params: {
+  axiosInstance.get<CommonResponse<ApidocVariable[]>, CommonResponse<ApidocVariable[]>>('/api/project/project_variable_enum', { params: {
     projectId: route.query.id as string
   } }).then((res) => {
     variableStore.replaceVariables(res.data)

@@ -34,7 +34,7 @@
 
 <script lang="ts" setup>
 import type { TreeNodeOptions } from 'element-plus/lib/components/tree/src/tree.type'
-import { Response } from '@src/types'
+import { CommonResponse } from '@src/types'
 import { nextTick, onMounted, ref } from 'vue'
 import SClientMenus from './components/client-menus.vue'
 import SClientRoutes from './components/client-routes.vue'
@@ -97,7 +97,7 @@ const getRoleInfo = () => {
   const params = {
     _id: props.userId,
   };
-  request.get<Response<RoleInfo>, Response<RoleInfo>>('/api/security/role_info', { params }).then((res) => {
+  request.get<CommonResponse<RoleInfo>, CommonResponse<RoleInfo>>('/api/security/role_info', { params }).then((res) => {
     // res.data.clientBanner.forEach((val) => {
     //     ($refs.clientMenu as { tree: TreeNodeOptions["store"] }).tree.setChecked(val, true, false);
     // });

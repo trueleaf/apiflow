@@ -5,7 +5,7 @@
 import { Ref } from 'vue'
 import 'element-plus/es/components/message-box/style/css';
 import { ElMessage, ElMessageBox } from 'element-plus'
-import type { ApidocBanner, Response, HttpNode, FolderNode } from '@src/types'
+import type { ApidocBanner, CommonResponse, HttpNode, FolderNode } from '@src/types'
 import { WebSocketNode } from '@src/types/websocket/websocket'
 import { findNodeById, forEachForest, findParentById, flatTree, uniqueByKey, findPreviousSiblingById, findNextSiblingById, event } from '@/helper/index'
 import { router } from '@/router/index'
@@ -391,7 +391,7 @@ export function pasteNodes(currentOperationalNode: Ref<ApidocBanner | null>, pas
           // pid: v.pid,
         })),
       };
-      request.post<Response<MapId[]>, Response<MapId[]>>('/api/project/paste_docs', params).then((res) => {
+      request.post<CommonResponse<MapId[]>, CommonResponse<MapId[]>>('/api/project/paste_docs', params).then((res) => {
         const mapIds = res.data;
         forEachForest(copyPasteNodes, (node) => {
           const matchedIdInfo = mapIds.find((v) => v.oldId === node._id)
@@ -525,7 +525,7 @@ export async function forkNode(currentOperationalNode: ApidocBanner): Promise<vo
     _id: currentOperationalNode._id,
     projectId,
   };
-  request.post<Response<ApidocBanner>, Response<ApidocBanner>>('/api/project/copy_doc', params).then((res) => {
+  request.post<CommonResponse<ApidocBanner>, CommonResponse<ApidocBanner>>('/api/project/copy_doc', params).then((res) => {
     const pData = findParentById(apidocBannerStore.banner, currentOperationalNode._id, { idKey: '_id' });
     if (!pData) {
       apidocBannerStore.splice({

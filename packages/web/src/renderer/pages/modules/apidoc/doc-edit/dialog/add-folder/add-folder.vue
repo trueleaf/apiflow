@@ -15,7 +15,7 @@ import { ElMessage, FormInstance } from 'element-plus';
 import SForm from '@/components/common/forms/form/g-form.vue'
 import SFormItem from '@/components/common/forms/form/g-form-item.vue'
 import SDialog from '@/components/common/dialog/g-dialog.vue'
-import { Response, ApidocBanner } from '@src/types'
+import { CommonResponse, ApidocBanner } from '@src/types'
 import { useI18n } from 'vue-i18n'
 import { computed, ref } from 'vue';
 import { request } from '@/api/api';
@@ -89,7 +89,7 @@ const handleAddFolder = () => {
         projectId: route.query.id as string,
         pid: props.pid,
       };
-      request.post<Response<ApidocBanner>, Response<ApidocBanner>>('/api/project/new_doc', params).then((res) => {
+      request.post<CommonResponse<ApidocBanner>, CommonResponse<ApidocBanner>>('/api/project/new_doc', params).then((res) => {
         emits('success', res.data); //一定要先成功然后才关闭弹窗,因为关闭弹窗会清除节点父元素id
         handleClose();
       }).catch((err) => {

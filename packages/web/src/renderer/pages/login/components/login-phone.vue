@@ -23,7 +23,7 @@
 </template>
 
 <script lang="ts" setup>
-import { PermissionUserInfo, Response } from '@src/types';
+import { PermissionUserInfo, CommonResponse } from '@src/types';
 import SmsButton from '@/components/common/sms-button/g-sms-button.vue'
 import { User as IconUser } from '@element-plus/icons-vue'
 import { nextTick, onMounted, reactive, ref } from 'vue';
@@ -83,7 +83,7 @@ const getSmsCode = () => {
     captcha: userInfo.captcha,
     clientKey
   };
-  request.get<Response<any>, Response<any>>('/api/security/sms', { 
+  request.get<CommonResponse<any>, CommonResponse<any>>('/api/security/sms', { 
     params,
    }).then(res => {
     if (res.code === 4005) {
@@ -102,7 +102,7 @@ const handleLogin = () => {
   form.value?.validate((valid) => {
     if (valid) {
       loading.value = true;
-      request.post<Response<PermissionUserInfo>, Response<PermissionUserInfo>>('/api/security/login_phone', userInfo).then((res) => {
+      request.post<CommonResponse<PermissionUserInfo>, CommonResponse<PermissionUserInfo>>('/api/security/login_phone', userInfo).then((res) => {
         if (res.code === 2006 || res.code === 2003) {
           ElMessage.warning(res.msg);
         } else {

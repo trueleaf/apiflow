@@ -19,7 +19,7 @@
         :placeholder="$t('输入接口url eg: 接口url')" @keyup.enter="() => { debounceSearch() }"
         @change="() => { debounceSearch() }" @input="() => { debounceSearch() }">
         <template #append>
-          <el-button  :loading="loading" @click="() => { debounceSearch() }">
+          <el-button  :loading="projectLoading || searchLoading" @click="() => { debounceSearch() }">
             <el-icon class="el-icon--right">
               <SearchIcon />
             </el-icon>
@@ -29,7 +29,7 @@
       </el-input>
     </div>
     <!-- 项目列表 -->
-    <Loading :loading="!isStandalone && loading">
+    <Loading :loading="!isStandalone && (projectLoading || searchLoading)">
       <!-- 收藏的项目 -->
       <h2 v-show="starProjects.length > 0">{{ t("收藏的项目") }}</h2>
       <div v-show="starProjects.length > 0" class="project-wrap">
@@ -192,8 +192,9 @@ import AddProjectDialog from '../dialog/add-project/add-project.vue'
 import EditProjectDialog from '../dialog/edit-project/edit-project.vue'
 import EditPermissionDialog from '../dialog/permission/permission.vue'
 import { useI18n } from 'vue-i18n'
-import type { Response, ApidocProjectListInfo, ApidocProjectInfo } from '@src/types';
-import { computed, onMounted, ref } from 'vue';
+import type { CommonResponse, ApidocProjectListInfo, ApidocProjectInfo } from '@src/types';
+import { computed, onMounted, ref, watch } from 'vue';
+import { storeToRefs } from 'pinia';
 import { request } from '@/api/api';
 import 'element-plus/es/components/message-box/style/css';
 import { ElMessageBox } from 'element-plus';
@@ -201,7 +202,7 @@ import { router } from '@/router';
 import { debounce, formatDate } from '@/helper';
 import { useApidocBaseInfo } from '@/store/apidoc/base-info'
 import { standaloneCache } from '@/cache/standalone'
-import { useRuntime } from '@/store/runtime/runtime'
+import { useProjectStore } from '@/store/project/project'
 
 /*
 |--------------------------------------------------------------------------
@@ -209,25 +210,64 @@ import { useRuntime } from '@/store/runtime/runtime'
 |--------------------------------------------------------------------------
 */
 const { t } = useI18n()
-const runtimeStore = useRuntime();
+const projectStore = useProjectStore();
+const { projectLoading, isStandalone } = storeToRefs(projectStore);
 const projectName = ref('');
 const projectKeyword = ref('')
 const recentVisitProjectIds = ref<string[]>([]);
 const starProjectIds = ref<string[]>([]);
 const projectListCopy = ref<ApidocProjectInfo[]>([]);
 const projectListCopy2 = ref<ApidocProjectInfo[]>([]);
+
+watch(() => projectStore.projectList.value, (list) => {
+  projectListCopy.value = list.slice();
+  const isAdvancedSearch = projectKeyword.value.trim().length > 0 && isShowAdvanceSearch.value;
+  if (isStandalone.value && !isAdvancedSearch) {
+    projectListCopy2.value = list.slice();
+  }
+}, { deep: true, immediate: true });
+
+watch(() => projectStore.starProjectIds.value, (ids) => {
+  starProjectIds.value = ids.slice();
+}, { deep: true, immediate: true });
+
+watch(() => projectStore.recentVisitProjectIds.value, (ids) => {
+  recentVisitProjectIds.value = ids.slice();
+}, { deep: true, immediate: true });
+
+const syncOfflineProjectList = (list: ApidocProjectInfo[]): void => {
+  projectStore.projectList.value = list;
+  projectStore.starProjectIds.value = list.filter((item) => item.isStared).map((item) => item._id);
+  projectStore.recentVisitProjectIds.value = list.map((item) => item._id);
+};
+
+const ensureProjectStarState = (projectId: string, isStared: boolean): void => {
+  const projects = projectStore.projectList.value;
+  const target = projects.find((project) => project._id === projectId);
+  if (target) {
+    target.isStared = isStared;
+  }
+  const starIds = projectStore.starProjectIds.value;
+  const existIndex = starIds.findIndex((id) => id === projectId);
+  if (isStared && existIndex === -1) {
+    starIds.push(projectId);
+  }
+  if (!isStared && existIndex !== -1) {
+    starIds.splice(existIndex, 1);
+  }
+};
+
 const currentEditProjectId = ref('');
 const currentEditProjectName = ref('');
 const isShowAdvanceSearch = ref(false);
 const isFold = ref(false);
-const loading = ref(false);
+const searchLoading = ref(false);
 const starLoading = ref(false);
 const unStarLoading = ref(false);
 const dialogVisible = ref(false);
 const dialogVisible2 = ref(false);
 const dialogVisible3 = ref(false);
 const dialogVisible4 = ref(false);
-const isStandalone = computed(() => runtimeStore.networkMode === 'offline')
 const projectList = computed(() => {
   const list = (projectKeyword.value.trim().length > 0 && isShowAdvanceSearch.value) ? projectListCopy2.value : projectListCopy.value;
   const filteredProjectList = list.filter((val) => val.projectName.match(new RegExp(projectName.value, 'gi')))
@@ -257,29 +297,8 @@ const apidocBaseInfo = useApidocBaseInfo()
 |--------------------------------------------------------------------------
 */
 //获取项目列表
-const getProjectList = () => {
-  if (isStandalone.value) {
-    standaloneCache.getProjectList().then((projectList) => {
-      projectListCopy.value = projectList;
-      projectListCopy2.value = projectList;
-      recentVisitProjectIds.value = projectList.map((item) => item._id);
-      starProjectIds.value = projectList.filter((item) => item.isStared).map((item) => item._id);
-
-    }).catch((err) => {
-      console.error(err);
-    })
-    return;
-  }
-  loading.value = true;
-  request.get<Response<ApidocProjectListInfo>, Response<ApidocProjectListInfo>>('/api/project/project_list').then((res) => {
-    recentVisitProjectIds.value = res.data.recentVisitProjects;
-    starProjectIds.value = res.data.starProjects;
-    projectListCopy.value = res.data.list;
-  }).catch((err) => {
-    console.error(err);
-  }).finally(() => {
-    loading.value = false;
-  });
+const getProjectList = async () => {
+  await projectStore.getProjectList();
 };
 //编辑项目弹窗
 const handleOpenEditDialog = (item: ApidocProjectInfo) => {
@@ -340,19 +359,19 @@ const handleStar = async (item: ApidocProjectInfo) => {
   try {
     if (isStandalone.value) {
       const projectList = await standaloneCache.getProjectList();
-      const project = projectList.find(p => p._id === item._id);
+      const project = projectList.find((projectInfo) => projectInfo._id === item._id);
       if (project) {
         project.isStared = true;
         await standaloneCache.setProjectList(projectList);
+        syncOfflineProjectList(projectList);
         item.isStared = true;
-        starProjectIds.value.push(item._id);
       }
       starLoading.value = false;
       return;
     }
     request.put('/api/project/star', { projectId: item._id }).then(() => {
       item.isStared = true;
-      starProjectIds.value.push(item._id);
+      ensureProjectStarState(item._id, true);
     }).catch((err) => {
       console.error(err);
     }).finally(() => {
@@ -372,21 +391,19 @@ const handleUnStar = async (item: ApidocProjectInfo) => {
   try {
     if (isStandalone.value) {
       const projectList = await standaloneCache.getProjectList();
-      const project = projectList.find(p => p._id === item._id);
+      const project = projectList.find((projectInfo) => projectInfo._id === item._id);
       if (project) {
         project.isStared = false;
         await standaloneCache.setProjectList(projectList);
+        syncOfflineProjectList(projectList);
         item.isStared = false;
-        const delIndex = starProjectIds.value.findIndex((val) => val === item._id);
-        starProjectIds.value.splice(delIndex, 1);
       }
       unStarLoading.value = false;
       return;
     }
     request.put('/api/project/unstar', { projectId: item._id }).then(() => {
       item.isStared = false;
-      const delIndex = starProjectIds.value.findIndex((val) => val === item._id);
-      starProjectIds.value.splice(delIndex, 1);
+      ensureProjectStarState(item._id, false);
     }).catch((err) => {
       console.error(err);
     }).finally(() => {
@@ -466,12 +483,12 @@ const toggleCollapse = () => {
   localStorage.setItem('doc-list/isFold', isFold.value ? 'close' : 'open');
 }
 const debounceSearch = debounce(async () => {
-  loading.value = true;
+  searchLoading.value = true;
   if (projectKeyword.value?.trim().length === 0) {
     projectListCopy2.value = [];
     starProjectIds.value = projectListCopy.value.filter((item) => item.isStared).map((item) => item._id);
     setTimeout(() => {
-      loading.value = false;
+      searchLoading.value = false;
     }, 100)
     return
   }
@@ -497,11 +514,11 @@ const debounceSearch = debounce(async () => {
     starProjectIds.value = filteredProjects.filter((item) => item.isStared).map((item) => item._id);
     projectListCopy2.value = filteredProjects;
     setTimeout(() => {
-      loading.value = false;
+      searchLoading.value = false;
     }, 300)
     return;
   }
-  request.get<Response<ApidocProjectListInfo>, Response<ApidocProjectListInfo>>('/api/project/project_list_by_keyword', {
+  request.get<CommonResponse<ApidocProjectListInfo>, CommonResponse<ApidocProjectListInfo>>('/api/project/project_list_by_keyword', {
     params: { keyword: projectKeyword.value }
   }).then((res) => {
     recentVisitProjectIds.value = res.data.recentVisitProjects;
@@ -510,7 +527,7 @@ const debounceSearch = debounce(async () => {
   }).catch((err) => {
     console.error(err);
   }).finally(() => {
-    loading.value = false;
+    searchLoading.value = false;
   });
 }, isStandalone.value ? 100 : 1000)
 /*
@@ -616,3 +633,4 @@ onMounted(() => {
   }
 }
 </style>
+

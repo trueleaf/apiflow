@@ -52,7 +52,7 @@ import { ref, onMounted, onUnmounted, computed, watch } from 'vue'
 import { request } from '@/api/api'
 import { FormInstance } from 'element-plus'
 import { Loading, } from '@element-plus/icons-vue'
-import { ApidocBanner, HttpNode, ApidocVariable, Response } from '@src/types'
+import { ApidocBanner, HttpNode, ApidocVariable, CommonResponse } from '@src/types'
 import { httpNodeCache } from '@/cache/http/httpNodeCache'
 import { router } from '@/router'
 import SBanner from './banner/banner.vue'
@@ -138,7 +138,7 @@ const getSharedProjectInfo = async () => {
     const params = {
       shareId: shareId,
     };
-    const res = await request.get<Response<SharedProjectInfo>, Response<SharedProjectInfo>>('/api/project/share_info', { params });
+    const res = await request.get<CommonResponse<SharedProjectInfo>, CommonResponse<SharedProjectInfo>>('/api/project/share_info', { params });
     shareStore.setProject(res.data);
     expireCountdown.value = getCountdown(res.data.expire ?? 0);
     if (res.data.needPassword) {
@@ -170,7 +170,7 @@ const getDocDetail = async (docId: string) => {
       shareId: shareId,
       password: httpNodeCache.getSharePassword(shareId),
     }
-    const res = await request.get<Response<HttpNode>, Response<HttpNode>>('/api/project/share_doc_detail', { params });
+    const res = await request.get<CommonResponse<HttpNode>, CommonResponse<HttpNode>>('/api/project/share_doc_detail', { params });
     shareStore.setActiveDocInfo(res.data);
   } catch (error) {
     console.error(error)

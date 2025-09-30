@@ -13,7 +13,7 @@
 </template>
 
 <script lang="ts" setup>
-import { Response } from '@src/types'
+import { CommonResponse } from '@src/types'
 import SDialog from '@/components/common/dialog/g-dialog.vue'
 import SForm from '@/components/common/forms/form/g-form.vue'
 import SFormItem from '@/components/common/forms/form/g-form-item.vue'
@@ -61,7 +61,7 @@ const handleAddMenu = () => {
         ...formData,
         pid: props.pid,
       };
-      request.post<Response<{ _id: string }>, Response<{ _id: string }>>('/api/security/client_menu', params).then((res) => {
+      request.post<CommonResponse<{ _id: string }>, CommonResponse<{ _id: string }>>('/api/security/client_menu', params).then((res) => {
         handleClose();
         emits('success', res.data._id);
       }).catch((err) => {

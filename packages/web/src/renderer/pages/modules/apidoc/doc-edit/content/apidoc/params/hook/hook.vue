@@ -29,7 +29,7 @@ import {
 } from '@/helper';
 import { request } from '@/api/api';
 import { router } from '@/router';
-import type { ApidocCodeInfo, Response } from '@src/types'
+import type { ApidocCodeInfo, CommonResponse } from '@src/types'
 import { ElMessage } from 'element-plus'
 import 'element-plus/es/components/message/style/css';
 import { useI18n } from 'vue-i18n';
@@ -104,7 +104,7 @@ onMounted(() => {
   const params = {
     projectId,
   };
-  request.get<Response<CodeInfo[]>, Response<CodeInfo[]>>('/api/apidoc/project/code_enum', { params }).then((res) => {
+  request.get<CommonResponse<CodeInfo[]>, CommonResponse<CodeInfo[]>>('/api/apidoc/project/code_enum', { params }).then((res) => {
     codeList.value = res.data;
   }).catch((err) => {
     console.error(err);

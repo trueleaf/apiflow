@@ -21,7 +21,7 @@ import { onMounted, ref, computed, watch } from 'vue'
 import { ElMessage } from 'element-plus'
 import 'element-plus/es/components/message/style/css';
 import { router } from '@/router'
-import { ApidocProperty, Response } from '@src/types';
+import { ApidocProperty, CommonResponse } from '@src/types';
 import { request } from '@/api/api';
 import { apidocGenerateProperty } from '@/helper';
 import SFieldset from '@/components/common/fieldset/g-fieldset.vue'
@@ -56,7 +56,7 @@ const getCommonHeaderInfo = () => {
     const params = {
       projectId,
     }
-    request.get<Response<ApidocProperty[]>, Response<ApidocProperty[]>>('/api/project/global_common_headers', { params }).then((res) => {
+    request.get<CommonResponse<ApidocProperty[]>, CommonResponse<ApidocProperty[]>>('/api/project/global_common_headers', { params }).then((res) => {
       headerData.value = res.data || [];
       if (!headerData.value.length) {
         headerData.value.push(apidocGenerateProperty())
@@ -71,7 +71,7 @@ const getCommonHeaderInfo = () => {
       projectId,
       id: currentSelectTab.value?._id
     }
-    request.get<Response<CommonHeaderResponse>, Response<CommonHeaderResponse>>('/api/project/common_header_by_id', { params }).then((res) => {
+    request.get<CommonResponse<CommonHeaderResponse>, CommonResponse<CommonHeaderResponse>>('/api/project/common_header_by_id', { params }).then((res) => {
       headerData.value = res.data.commonHeaders || [];
       if (!headerData.value.length) {
         headerData.value.push(apidocGenerateProperty())

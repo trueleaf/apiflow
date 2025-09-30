@@ -20,7 +20,7 @@
 
 <script lang="ts" setup>
 import { request } from '@/api/api';
-import type { PermissionServerRoute, Response } from '@src/types'
+import type { PermissionServerRoute, CommonResponse } from '@src/types'
 import { useI18n } from 'vue-i18n'
 import { onMounted, ref, watch } from 'vue';
 import SLoading from '@/components/common/loading/g-loading.vue'
@@ -53,7 +53,7 @@ watch(selectedData, (val) => {
 //获取后端路由信息
 const getServerRoutes = () => {
   loading.value = true;
-  request.get<Response<PermissionServerRoute[]>, Response<PermissionServerRoute[]>>('/api/security/server_routes').then((res) => {
+  request.get<CommonResponse<PermissionServerRoute[]>, CommonResponse<PermissionServerRoute[]>>('/api/security/server_routes').then((res) => {
     res.data.forEach((val) => {
       if (!serverRoutes.value[val.groupName || '__default']) {
         serverRoutes.value[val.groupName || '__default'] = {

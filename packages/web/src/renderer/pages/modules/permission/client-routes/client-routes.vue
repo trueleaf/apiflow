@@ -29,7 +29,7 @@
 </template>
 
 <script lang="ts" setup>
-import { Response, PermissionClientRoute } from '@src/types'
+import { CommonResponse, PermissionClientRoute } from '@src/types'
 import SAddClientRoute from './add/add.vue'
 import SEditClientRoute from './edit/edit.vue'
 import SMultiEditClientRoute from './edit/edit2.vue'
@@ -83,7 +83,7 @@ const handleChange = (params: { name: string, groupName: string }) => {
   })
 }
 //获取前端路由信息
-const hookRequest = (res: Response<PermissionClientRoute[]>, _this: HookThis) => {
+const hookRequest = (res: CommonResponse<PermissionClientRoute[]>, _this: HookThis) => {
   originTableData.value = res.data;
   _this.tableData.value = res.data;
   _this.total.value = res.data.length;

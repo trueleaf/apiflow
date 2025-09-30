@@ -1,5 +1,5 @@
 import { IDBPDatabase } from "idb";
-import type { ApidocVariable, Response } from '@src/types';
+import type { ApidocVariable, CommonResponse } from '@src/types';
 import { nanoid } from "nanoid";
 
 export class StandaloneVariableCache {
@@ -8,7 +8,7 @@ export class StandaloneVariableCache {
   /**
    * 新增变量
    */
-  async add(variable: Omit<ApidocVariable, '_id'> & { _id?: string }): Promise<Response<ApidocVariable>> {
+  async add(variable: Omit<ApidocVariable, '_id'> & { _id?: string }): Promise<CommonResponse<ApidocVariable>> {
     try {
       if (!this.db) {
         return { code: 1, msg: "Database not initialized", data: null as any };
@@ -64,7 +64,7 @@ export class StandaloneVariableCache {
   /**
    * 修改变量
    */
-  async update(id: string, updates: Partial<ApidocVariable>): Promise<Response<ApidocVariable>> {
+  async update(id: string, updates: Partial<ApidocVariable>): Promise<CommonResponse<ApidocVariable>> {
     try {
       if (!this.db) {
         return { code: 1, msg: "Database not initialized", data: null as any };
@@ -139,7 +139,7 @@ export class StandaloneVariableCache {
   /**
    * 批量删除变量
    */
-  async delete(ids: string[]): Promise<Response<void>> {
+  async delete(ids: string[]): Promise<CommonResponse<void>> {
     try {
       if (!this.db) {
         return { code: 1, msg: "Database not initialized", data: null as any };
@@ -176,7 +176,7 @@ export class StandaloneVariableCache {
    * @param projectId 项目ID
    * @returns 变量数组
    */
-  async getAll(projectId: string): Promise<Response<ApidocVariable[]>> {
+  async getAll(projectId: string): Promise<CommonResponse<ApidocVariable[]>> {
     try {
       if (!this.db) {
         return { code: 1, msg: "Database not initialized", data: [] };
@@ -209,7 +209,7 @@ export class StandaloneVariableCache {
   /**
    * 根据变量ID获取单个变量
    */
-  async getById(variableId: string): Promise<Response<ApidocVariable | null>> {
+  async getById(variableId: string): Promise<CommonResponse<ApidocVariable | null>> {
     try {
       if (!this.db) {
         return { code: 1, msg: "Database not initialized", data: null };

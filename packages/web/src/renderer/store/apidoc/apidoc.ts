@@ -8,7 +8,7 @@ import {
 
 import {
   HttpNodeBodyMode,
-  Response,
+  CommonResponse,
   HttpNodeBodyRawType,
   HttpNodeContentType,
   HttpNode,
@@ -474,7 +474,7 @@ export const useApidoc = defineStore('apidoc', () => {
         projectId: payload.projectId,
         _id: payload.id,
       }
-      axiosInstance.get<Response<HttpNode>, Response<HttpNode>>('/api/project/doc_detail', {
+      axiosInstance.get<CommonResponse<HttpNode>, CommonResponse<HttpNode>>('/api/project/doc_detail', {
         params,
         cancelToken: new axios.CancelToken((c) => {
           cancel.push(c);
@@ -687,3 +687,4 @@ export const useApidoc = defineStore('apidoc', () => {
     handleChangeBinaryInfo
   }
 })
+
