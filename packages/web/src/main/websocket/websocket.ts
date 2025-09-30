@@ -201,7 +201,7 @@ export class WebSocketManager {
     try {
       const ws = this.connections.get(connectionId);
       if (!ws) {
-        return { success: false, error: '连接不存在' };
+        return { code: 1, msg: '连接不存在', data: null };
       }
 
       // 找到对应的节点ID并清理映射

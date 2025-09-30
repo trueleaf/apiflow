@@ -122,12 +122,13 @@ export const useIpcEvent = (mainWindow: BrowserWindow, topBarView: WebContentsVi
   ipcMain.handle('mock-replace-by-id', async (_: IpcMainInvokeEvent, nodeId: string, httpMock: MockHttpNode) => {
     try {
       mockManager.replaceMockById(nodeId, httpMock);
-      return { success: true };
+      return { code: 0, msg: '替换成功', data: null };
     } catch (error) {
       console.error('替换Mock配置失败:', error);
-      return { 
-        success: false, 
-        error: error instanceof Error ? error.message : '未知错误' 
+      return {
+        code: 1,
+        msg: error instanceof Error ? error.message : '未知错误',
+        data: null
       };
     }
   });
@@ -235,7 +236,7 @@ export const useIpcEvent = (mainWindow: BrowserWindow, topBarView: WebContentsVi
       event.reply('export-select-path-reply', result);
     } catch (error) {
       console.error('选择导出路径失败:', error);
-      event.reply('export-select-path-reply', { success: false, error: (error as Error).message });
+      event.reply('export-select-path-reply', { code: 1, msg: (error as Error).message, data: {} });
     }
   });
 
@@ -297,7 +298,7 @@ export const useIpcEvent = (mainWindow: BrowserWindow, topBarView: WebContentsVi
       event.reply('import-select-file-reply', result);
     } catch (error) {
       console.error('选择导入文件失败:', error);
-      event.reply('import-select-file-reply', { success: false, error: (error as Error).message });
+      event.reply('import-select-file-reply', { code: 1, msg: (error as Error).message, data: {} });
     }
   });
 

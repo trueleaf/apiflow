@@ -196,7 +196,7 @@ const deleteStore = async (dbName: string, storeName: string, size?: number): Pr
 
       self.postMessage({
         type: 'deleteStoreResult',
-        data: { success: true, dbName, storeName, size }
+        data: { code: 0, msg: '删除成功', data: { dbName, storeName, size } }
       });
 
     } finally {
@@ -233,7 +233,7 @@ const deleteStoreItem = async (dbName: string, storeName: string, key: string, s
 
       self.postMessage({
         type: 'deleteStoreItemResult',
-        data: { success: true, dbName, storeName, key, size }
+        data: { code: 0, msg: '删除成功', data: { dbName, storeName, key, size } }
       });
 
     } finally {
@@ -287,13 +287,13 @@ const clearAllIndexedDB = async (): Promise<void> => {
     // 发送清空完成消息
     self.postMessage({
       type: 'clearAllResult',
-      data: { success: true }
+      data: { code: 0, msg: '清空成功' }
     });
   } catch (error) {
     console.error('清空IndexedDB数据失败:', error);
     self.postMessage({
       type: 'clearAllResult',
-      data: { success: false, error }
+      data: { code: 1, msg: error instanceof Error ? error.message : '清空失败' }
     });
   }
 };

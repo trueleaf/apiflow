@@ -46,7 +46,7 @@ export const selectImportFile = async () => {
     });
 
     if (result.canceled || result.filePaths.length === 0) {
-      return { success: false, error: '用户取消选择' };
+      return { code: 1, msg: '用户取消选择', data: {} };
     }
 
     const filePath = result.filePaths[0];
@@ -55,18 +55,18 @@ export const selectImportFile = async () => {
     try {
       await fs.access(filePath, fs.constants.F_OK);
     } catch {
-      return { success: false, error: '文件不存在或无法访问' };
+      return { code: 1, msg: '文件不存在或无法访问', data: {} };
     }
 
     // 检查文件扩展名
     if (!filePath.toLowerCase().endsWith('.zip')) {
-      return { success: false, error: '请选择有效的备份文件（.zip格式）' };
+      return { code: 1, msg: '请选择有效的备份文件（.zip格式）', data: {} };
     }
 
-    return { success: true, filePath };
+    return { code: 0, msg: '文件选择成功', data: { filePath } };
   } catch (error) {
     console.error('选择导入文件失败:', error);
-    return { success: false, error: (error as Error).message };
+    return { code: 1, msg: (error as Error).message, data: {} };
   }
 };
 
@@ -85,14 +85,14 @@ export const analyzeImportFile = async (filePath: string) => {
     const itemCount = await getArchiveItemCount(filePath);
     
     contentView.webContents.send('import-file-analyzed', {
-      success: true,
-      itemCount
+      code: 0,
+      data: { itemCount }
     });
   } catch (error) {
     console.error('分析导入文件失败:', error);
     contentView.webContents.send('import-file-analyzed', {
-      success: false,
-      error: (error as Error).message
+      code: 1,
+      msg: (error as Error).message
     });
   }
 };
@@ -260,9 +260,9 @@ const extractAndImportData = async (filePath: string, totalItems: number) => {
     
     if (contentView) {
       contentView.webContents.send('import-zip-read-complete', {
-        success: true,
-        totalItems: processedItems,
-        message: `ZIP文件读取完成，正在导入到数据库...`
+        code: 0,
+        data: { totalItems: processedItems },
+        msg: `ZIP文件读取完成，正在导入到数据库...`
       });
     }
     
