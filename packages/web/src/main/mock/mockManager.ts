@@ -1,5 +1,6 @@
 
 import { MockHttpNode, MockInstance, MockLog } from '@src/types/mock/mock';
+import { CommonResponse } from '@src/types/project';
 import { MockLogger } from './mockLogger';
 import { matchPath, getPatternPriority, sleep } from '../utils';
 import detect from 'detect-port';
@@ -165,7 +166,7 @@ export class MockManager {
       }
     }
   }
-  public async addAndStartMockServer(httpMock: MockHttpNode): Promise<{ success: boolean, errorMsg: string }> {
+  public async addAndStartMockServer(httpMock: MockHttpNode): Promise<CommonResponse<null>> {
     // 检测端口冲突
     const hasConflict = await this.checkPortIsConflict(httpMock);
     if (hasConflict) {
@@ -173,7 +174,7 @@ export class MockManager {
       const logs = this.logger.getLogsByNodeId(httpMock._id);
       const latestErrorLog = logs.filter(log => log.type === 'error').pop();
       const errorMsg = latestErrorLog?.data.errorMsg || `端口 ${httpMock.requestCondition.port} 已被占用`;
-      return { success: false, errorMsg };
+      return { code: 1, msg: errorMsg, data: null };
     }
     try {
       const app = new Koa();
@@ -202,7 +203,7 @@ export class MockManager {
         timestamp: Date.now()
       });
       
-      return { success: true, errorMsg: '' };
+      return { code: 0, msg: '启动成功', data: null };
     } catch (error) {
       const errorMsg = `服务器启动失败: ${error instanceof Error ? error.message : 'Unknown error'}`;
       this.logger.addLog({
@@ -215,7 +216,7 @@ export class MockManager {
         },
         timestamp: Date.now()
       });
-      return { success: false, errorMsg };
+      return { code: 1, msg: errorMsg, data: null };
     }
   }
 
@@ -241,13 +242,12 @@ export class MockManager {
       this.mockList.splice(index, 1);
     }
   }
-  public async removeMockByNodeIdAndStopMockServer(nodeId: string): Promise<void> {
-    const instanceIndex = this.mockInstanceList.findIndex(instance => instance.nodeId === nodeId);
-    if (instanceIndex !== -1) {
-      const instance = this.mockInstanceList[instanceIndex];
-      
-      // 使用 Promise 包装 server.close 确保等待服务器完全关闭
-      await new Promise<void>((resolve, reject) => {
+  public removeMockByNodeIdAndStopMockServer(nodeId: string): Promise<CommonResponse<null>> {
+    return new Promise((resolve) => {
+      const instanceIndex = this.mockInstanceList.findIndex(instance => instance.nodeId === nodeId);
+      if (instanceIndex !== -1) {
+        const instance = this.mockInstanceList[instanceIndex];
+        
         // 强制关闭所有连接 (Node.js 18.2.0+)
         if (typeof instance.server.closeAllConnections === 'function') {
           instance.server.closeAllConnections();
@@ -269,7 +269,6 @@ export class MockManager {
                 },
                 timestamp: Date.now()
               });
-              resolve(); // 将此种情况视为成功
             } else {
               console.error(`关闭Mock服务器 ${instance.port} 失败:`, error);
               // 记录其他类型的错误日志
@@ -283,7 +282,10 @@ export class MockManager {
                 },
                 timestamp: Date.now()
               });
-              reject(error);
+              // 从 mockList 中移除
+              this.removeMockByNodeId(nodeId);
+              resolve({ code: 1, msg: error.message, data: null });
+              return;
             }
           } else {
             console.log(`Mock服务器 ${instance.port} 已完全关闭`);
@@ -295,23 +297,33 @@ export class MockManager {
               data: { port: instance.port },
               timestamp: Date.now()
             });
-            resolve();
           }
+          
+          // 清理映射关系
+          this.portToInstanceMap.delete(instance.port);
+          this.mockInstanceList.splice(instanceIndex, 1);
+          
+          // 从 mockList 中移除
+          this.removeMockByNodeId(nodeId);
+          resolve({ code: 0, msg: '停止成功', data: null });
         });
         
-        // 设置5秒超时，防止无限等待
+        // 设置20秒超时，防止无限等待
         setTimeout(() => {
-          reject(new Error(`关闭服务器超时: 端口 ${instance.port}`));
+          // 清理映射关系
+          this.portToInstanceMap.delete(instance.port);
+          this.mockInstanceList.splice(instanceIndex, 1);
+          
+          // 从 mockList 中移除
+          this.removeMockByNodeId(nodeId);
+          resolve({ code: 1, msg: `关闭服务器超时: 端口 ${instance.port}`, data: null });
         }, 20000);
-      });
-      
-      // 清理映射关系
-      this.portToInstanceMap.delete(instance.port);
-      this.mockInstanceList.splice(instanceIndex, 1);
-    }
-    
-    // 从 mockList 中移除
-    this.removeMockByNodeId(nodeId);
+      } else {
+        // 从 mockList 中移除
+        this.removeMockByNodeId(nodeId);
+        resolve({ code: 0, msg: '停止成功', data: null });
+      }
+    });
   }
   public removeMockByProjectId(projectId: string): void {
     this.mockList = this.mockList.filter(mock => mock.projectId !== projectId);
@@ -322,14 +334,6 @@ export class MockManager {
     await Promise.all(mocksToRemove.map(mock => 
       this.removeMockByNodeIdAndStopMockServer(mock._id)
     ));
-  }
-  public getUsedPorts(): { port: number, projectId: string, nodeId: string, nodeName: string }[] {
-    return this.mockList.map(mock => ({
-      port: mock.requestCondition.port,
-      projectId: mock.projectId,
-      nodeId: mock._id,
-      nodeName: mock.info.name
-    }));
   }
   public getMockList(): MockHttpNode[] {
     return [...this.mockList];

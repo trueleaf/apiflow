@@ -28,7 +28,6 @@ import { storeToRefs } from 'pinia'
 import { useHttpMock } from '@/store/httpMock/httpMock'
 import { useApidocTas } from '@/store/apidoc/tabs'
 import { useRuntime } from '@/store/runtime/runtime'
-import { router } from '@/router'
 
 const { t } = useI18n()
 const httpMockStore = useHttpMock()
@@ -46,7 +45,7 @@ const handleRefresh = async () => {
   if (!currentSelectTab.value) {
     return
   }
-  httpMockStore.refreshLoading = true
+  httpMockStore.changeRefreshLoading(true)
   try {
     const isOffline = runtimeStore.networkMode === 'offline'
     if (isOffline) {
@@ -59,7 +58,7 @@ const handleRefresh = async () => {
     console.error('刷新HttpMock数据失败:', error)
   } finally {
     setTimeout(() => {
-      httpMockStore.refreshLoading = false
+      httpMockStore.changeRefreshLoading(false)
     }, 100)
   }
 }

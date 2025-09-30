@@ -1,5 +1,6 @@
 import type { Got } from 'got';
 import type {GotRequestOptions, WindowState } from './types';
+import type { CommonResponse } from './project';
 import type { StandaloneExportHtmlParams } from './standalone';
 import { WebsocketConnectParams } from './websocket/websocket.ts';
 import { MockHttpNode, MockLog } from './mock/mock.ts';
@@ -36,8 +37,8 @@ export type ElectronAPI = {
   };
   mock: {
     getMockByNodeId: (nodeId: string) => Promise<MockHttpNode | null>;
-    startServer: (httpMock: MockHttpNode) => Promise<{ success: boolean, errorMsg: string }>;
-    stopServer: (nodeId: string) => Promise<{ success: boolean; error?: string }>;
+    startServer: (httpMock: MockHttpNode) => Promise<CommonResponse<null>>;
+    stopServer: (nodeId: string) => Promise<CommonResponse<null>>;
     getUsedPorts: () => Promise<{ port: number, projectId: string, nodeId: string, nodeName: string }[]>;
     getLogsByNodeId: (nodeId: string) => Promise<MockLog[]>;
     replaceById: (nodeId: string, httpMock: MockHttpNode) => Promise<{ success: boolean; error?: string }>;

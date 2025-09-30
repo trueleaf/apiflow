@@ -28,17 +28,20 @@ export type MockHttpNode = {
     dataType: "sse" | "json" | "text" | "image" | "file" | "binary";
     sseConfig: {};
     jsonConfig: {
-      mode: "random" | "fixed";
+      mode: "random" | "fixed" | "randomAi";
       fixedData: string;
       randomSize: number;
+      prompt: string;
     };
     textConfig: {
-      mode: "random" | "fixed";
+      mode: "random" | "fixed" | "randomAi";
       fixedData: string;
       randomSize: number;
+      prompt: string;
     };
     imageConfig: {
       mode: "random" | "fixed";
+      imageConfig: "png" | "jpg" | "gif" | "webp" | "bmp" | "svg";
       randomSize: number;
       randomWidth: number;
       randomHeight: number;

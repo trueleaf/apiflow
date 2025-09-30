@@ -100,21 +100,18 @@ export const useIpcEvent = (mainWindow: BrowserWindow, topBarView: WebContentsVi
 
   // 停止mock服务
   ipcMain.handle('mock-stop-server', async (_: IpcMainInvokeEvent, nodeId: string) => {
-    try {
-      await mockManager.removeMockByNodeIdAndStopMockServer(nodeId);
-      return { success: true };
-    } catch (error) {
-      console.error('停止Mock服务器失败:', error);
-      return { 
-        success: false, 
-        error: error instanceof Error ? error.message : '未知错误' 
-      };
-    }
+    return await mockManager.removeMockByNodeIdAndStopMockServer(nodeId);
   });
 
   // 获取已使用的端口
   ipcMain.handle('mock-get-used-ports', async () => {
-    return mockManager.getUsedPorts();
+    const mockList = mockManager.getMockList();
+    return mockList.map(mock => ({
+      port: mock.requestCondition.port,
+      projectId: mock.projectId,
+      nodeId: mock._id,
+      nodeName: mock.info.name
+    }));
   });
 
   ipcMain.handle('mock-get-logs-by-node-id', async (_: IpcMainInvokeEvent, nodeId: string) => {

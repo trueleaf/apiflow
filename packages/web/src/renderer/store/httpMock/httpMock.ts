@@ -62,6 +62,11 @@ export const useHttpMock = defineStore('httpMock', () => {
     saveLoading.value = state;
   };
 
+  // 改变httpMock刷新状态
+  const changeRefreshLoading = (state: boolean): void => {
+    refreshLoading.value = state;
+  };
+
   /*
   |--------------------------------------------------------------------------
   | 基础信息操作方法
@@ -70,11 +75,6 @@ export const useHttpMock = defineStore('httpMock', () => {
   // 改变httpMock名称
   const changeHttpMockName = (name: string): void => {
     httpMock.value.info.name = name;
-  };
-
-  // 改变httpMock描述
-  const changeHttpMockDescription = (description: string): void => {
-    httpMock.value.info.description = description;
   };
 
   // 改变HTTP方法
@@ -291,10 +291,10 @@ export const useHttpMock = defineStore('httpMock', () => {
       const mockData = { ...httpMock.value, projectId };
       const result = await window.electronAPI.mock.startServer(JSON.parse(JSON.stringify(mockData)));
       
-      if (result.success) {
+      if (result.code === 0) {
         return { success: true };
       } else {
-        return { success: false, error: result.errorMsg || '启动Mock服务失败' };
+        return { success: false, error: result.msg || '启动Mock服务失败' };
       }
     } catch (error) {
       console.error('启动Mock服务失败:', error);
@@ -311,7 +311,7 @@ export const useHttpMock = defineStore('httpMock', () => {
       
       const result = await window.electronAPI.mock.stopServer(nodeId);
       
-      if (result.success) {
+      if (result.code === 0) {
         // 验证服务器确实已关闭
         const checkResult = await checkMockNodeEnabledStatus(nodeId);
         if (checkResult) {
@@ -320,7 +320,7 @@ export const useHttpMock = defineStore('httpMock', () => {
         }
         return { success: true };
       } else {
-        return { success: false, error: result.error || '停止Mock服务失败' };
+        return { success: false, error: result.msg || '停止Mock服务失败' };
       }
     } catch (error) {
       console.error('停止Mock服务失败:', error);
@@ -356,9 +356,9 @@ export const useHttpMock = defineStore('httpMock', () => {
     replaceHttpMockNode,
     replaceOriginHttpMockNode,
     changeSaveLoading,
+    changeRefreshLoading,
     // 基础信息操作方法
     changeHttpMockName,
-    changeHttpMockDescription,
     // 请求条件操作方法
     changeHttpMockNodeMethod,
     changeHttpMockNodeRequestUrl,
