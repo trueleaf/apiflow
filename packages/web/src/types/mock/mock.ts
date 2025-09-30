@@ -157,9 +157,13 @@ type MockAlreadyStoppedLog = {
 export type MockLog = MockStartLog | MockStopLog | MockRequestLog | MockErrorLog | MockAlreadyStoppedLog;
 
 export type MockInstance = {
-  nodeId: string;
-  projectId: string;
   port: number;
   app: Koa;
   server: http.Server;
 }
+export type MockSSEEventData = {
+  id?: string;
+  event?: string;
+  data: string;
+  retry?: number;
+};
