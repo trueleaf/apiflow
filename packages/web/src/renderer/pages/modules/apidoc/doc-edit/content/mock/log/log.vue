@@ -979,28 +979,4 @@ watch(currentNodeId, (value, oldValue) => {
 .plain-log-line:hover {
   background: #f1f5f9;
 }
-
-@media (max-width: 768px) {
-  .log-page {
-    padding: 12px;
-  }
-  .toolbar {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-  .toolbar-actions {
-    align-self: stretch;
-    justify-content: space-between;
-  }
-  .filters-header {
-    flex-direction: column;
-    align-items: stretch;
-  }
-  .filter-actions {
-    justify-content: flex-start;
-  }
-  .filters {
-    padding: 14px;
-  }
-}
 </style>

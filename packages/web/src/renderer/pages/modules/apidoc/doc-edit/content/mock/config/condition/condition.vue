@@ -450,44 +450,4 @@ onMounted(() => {
 .used-port {
   max-width: 300px;
 }
-
-@media (max-width: 960px) {
-  .config-form {
-    gap: 14px;
-  }
-
-  .form-row {
-    flex-direction: column;
-    gap: 14px;
-  }
-
-  .port-input,
-  .url-input {
-    max-width: 100%;
-  }
-
-  .methods-group {
-    min-width: auto;
-    gap: 6px;
-  }
-
-  .used-port {
-    max-width: 100%;
-  }
-}
-
-@media (max-width: 760px) {
-  .config-title {
-    font-size: var(--font-size-base);
-    margin-bottom: 12px;
-  }
-
-  .methods-group {
-    gap: 8px;
-  }
-
-  .methods-group :deep(.el-checkbox) .el-checkbox__label {
-    font-size: var(--font-size-xs);
-  }
-}
 </style>
