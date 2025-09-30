@@ -1,4 +1,4 @@
-import { config } from '@/../config/config';
+import { config } from '../../config/config';
 
 type ChatRole = 'system' | 'user' | 'assistant';
 

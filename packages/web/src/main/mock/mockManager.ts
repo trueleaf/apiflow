@@ -2,7 +2,7 @@ import { MockHttpNode, MockInstance, MockLog } from '@src/types/mock/mock';
 import { CommonResponse } from '@src/types/project';
 import { MockLogger } from './mockLogger';
 import { matchPath, getPatternPriority, sleep } from '../utils';
-import { aiManager } from '@src/renderer/ai/ai';
+import { aiManager } from '../ai/ai';
 import { fakerZH_CN, fakerEN, fakerJA } from '@faker-js/faker';
 import sharp from 'sharp';
 import mime from 'mime-types';
