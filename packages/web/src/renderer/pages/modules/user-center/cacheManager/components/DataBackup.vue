@@ -129,14 +129,14 @@ const initIpcListeners = () => {
       statusMessage.value = result?.error || '用户取消选择';
     }
   };
-  window.electronAPI?.onMain('export-select-path-reply', listenerRefs.value.exportSelectPathReply);
+  window.electronAPI?.ipcManager.onMain('export-select-path-reply', listenerRefs.value.exportSelectPathReply);
   
   // 监听准备接收数据事件
   listenerRefs.value.exportReadyToReceive = () => {
     statusMessage.value = '正在读取和发送数据...';
     sendDataToMain();
   };
-  window.electronAPI?.onMain('export-ready-to-receive', listenerRefs.value.exportReadyToReceive);
+  window.electronAPI?.ipcManager.onMain('export-ready-to-receive', listenerRefs.value.exportReadyToReceive);
   
   // 监听导出完成事件
   listenerRefs.value.exportFinish = (result: { filePath: string, totalItems: number }) => {
@@ -145,7 +145,7 @@ const initIpcListeners = () => {
     statusMessage.value = `导出完成！文件已保存至: ${result.filePath}`;
     ElMessage.success(`成功导出 ${result.totalItems} 项数据`);
   };
-  window.electronAPI?.onMain('export-finish', listenerRefs.value.exportFinish);
+  window.electronAPI?.ipcManager.onMain('export-finish', listenerRefs.value.exportFinish);
   
   // 监听主进程错误事件
   listenerRefs.value.exportMainError = (errorMessage: string) => {
@@ -153,7 +153,7 @@ const initIpcListeners = () => {
     statusMessage.value = `导出失败: ${errorMessage}`;
     ElMessage.error(`导出失败: ${errorMessage}`);
   };
-  window.electronAPI?.onMain('export-main-error', listenerRefs.value.exportMainError);
+  window.electronAPI?.ipcManager.onMain('export-main-error', listenerRefs.value.exportMainError);
 };
 /*
 |--------------------------------------------------------------------------
@@ -162,7 +162,7 @@ const initIpcListeners = () => {
 */
 // 选择保存路径
 const handleSelectPath = async () => {
-  window.electronAPI?.sendToMain('export-select-path');
+  window.electronAPI?.ipcManager.sendToMain('export-select-path');
 };
 // 计算需要导出的数据量
 const calculateDataCount = async () => {
@@ -192,7 +192,7 @@ const handleStartExport = async () => {
   try {
     isStartingExport.value = true;
     statusMessage.value = '正在启动导出...';
-    window.electronAPI?.sendToMain('export-start', {
+    window.electronAPI?.ipcManager.sendToMain('export-start', {
       itemNum: exportStatus.itemNum,
       config: {
         includeResponseCache: exportConfig.includeResponseCache
@@ -257,7 +257,7 @@ const sendDataToMain = async () => {
                 };
 
                 // 发送数据到主进程
-                window.electronAPI?.sendToMain('export-renderer-data', data);
+                window.electronAPI?.ipcManager.sendToMain('export-renderer-data', data);
                 
                 processedCount++;
                 const progress = Math.round((processedCount / exportStatus.itemNum) * 100);
@@ -292,7 +292,7 @@ const sendDataToMain = async () => {
     statusMessage.value = '数据读取完成，正在打包...';
     
     // 通知主进程数据发送完毕
-    window.electronAPI?.sendToMain('export-renderer-data-finish');
+    window.electronAPI?.ipcManager.sendToMain('export-renderer-data-finish');
     
   } catch (error) {
     console.error('发送数据失败:', error);
@@ -311,30 +311,30 @@ const checkDbIsNeedExport = (dbName: string) => {
 // 清理IPC监听器
 const cleanupIpcListeners = () => {
   // 移除所有本组件注册的监听器
-  if (window.electronAPI?.removeListener && listenerRefs.value) {
+  if (window.electronAPI?.ipcManager.removeListener && listenerRefs.value) {
     // 移除选择路径回复监听器
     if (listenerRefs.value.exportSelectPathReply) {
-      window.electronAPI.removeListener('export-select-path-reply', listenerRefs.value.exportSelectPathReply);
+      window.electronAPI.ipcManager.removeListener('export-select-path-reply', listenerRefs.value.exportSelectPathReply);
     }
     
     // 移除准备接收数据监听器
     if (listenerRefs.value.exportReadyToReceive) {
-      window.electronAPI.removeListener('export-ready-to-receive', listenerRefs.value.exportReadyToReceive);
+      window.electronAPI.ipcManager.removeListener('export-ready-to-receive', listenerRefs.value.exportReadyToReceive);
     }
     
     // 移除导出完成监听器
     if (listenerRefs.value.exportFinish) {
-      window.electronAPI.removeListener('export-finish', listenerRefs.value.exportFinish);
+      window.electronAPI.ipcManager.removeListener('export-finish', listenerRefs.value.exportFinish);
     }
     
     // 移除主进程错误监听器
     if (listenerRefs.value.exportMainError) {
-      window.electronAPI.removeListener('export-main-error', listenerRefs.value.exportMainError);
+      window.electronAPI.ipcManager.removeListener('export-main-error', listenerRefs.value.exportMainError);
     }
     
     // 移除重置完成监听器
     if (listenerRefs.value.exportResetComplete) {
-      window.electronAPI.removeListener('export-reset-complete', listenerRefs.value.exportResetComplete);
+      window.electronAPI.ipcManager.removeListener('export-reset-complete', listenerRefs.value.exportResetComplete);
     }
     
     // 清空所有引用
@@ -345,7 +345,7 @@ watch(() => exportConfig.includeResponseCache, () => {
   calculateDataCount();
 });
 onMounted(() => {
-  window.electronAPI?.sendToMain('export-reset');
+  window.electronAPI?.ipcManager.sendToMain('export-reset');
   initIpcListeners();
 });
 onUnmounted(() => {

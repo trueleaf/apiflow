@@ -323,7 +323,7 @@ const deleteProject = (_id: string) => {
   }).then(async () => {
     // 发送IPC事件通知topBarView删除对应的tab
     const notifyProjectDeleted = () => {
-      window.electronAPI?.sendToMain('apiflow-content-project-deleted', _id);
+      window.electronAPI?.ipcManager.sendToMain('apiflow-content-project-deleted', _id);
     }
     if (isStandalone.value) {
       try {
@@ -474,7 +474,7 @@ const handleEditSuccess = (data?: { id: string, name: string }) => {
 
   // 如果有编辑数据，发送IPC事件通知topBarView更新tab名称
   if (data) {
-    window.electronAPI?.sendToMain('apiflow-content-project-renamed', {
+    window.electronAPI?.ipcManager.sendToMain('apiflow-content-project-renamed', {
       projectId: data.id,
       projectName: data.name
     });

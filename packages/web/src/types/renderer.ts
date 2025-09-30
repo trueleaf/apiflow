@@ -1,4 +1,3 @@
-import type { Got } from 'got';
 import type {GotRequestOptions, WindowState } from './types';
 import type { CommonResponse } from './project';
 import type { StandaloneExportHtmlParams } from './standalone';
@@ -8,22 +7,27 @@ import { MockHttpNode, MockLog } from './mock/mock.ts';
 
 export type ElectronAPI = {
   ip: string,
-  got: Got;
   sendRequest: (options: GotRequestOptions) => Promise<void>,
   openDevTools: () => void,
-  readFileAsUint8Array: (path: string) => Promise<Uint8Array | string>;
-  getFilePath: (file: File) => string;
-  getWindowState: () => Promise<WindowState>;
-  minimize: () => void;
-  maximize: () => void;
-  unmaximize: () => void;
-  close: () => void;
-  onWindowResize: (callback: (state: WindowState) => void) => void;
   exportHtml: (params: StandaloneExportHtmlParams) => Promise<string>;
   exportWord: (params: StandaloneExportHtmlParams) => Promise<Uint8Array>;
-  sendToMain: (channel: string, ...args: any[]) => void;
-  onMain: (channel: string, callback: (...args: any[]) => void) => void;
-  removeListener: (channel: string, callback?: (...args: any[]) => void) => void;
+  windowManager: {
+    closeWindow: () => void;
+    minimizeWindow: () => void;
+    maximizeWindow: () => void;
+    unMaximizeWindow: () => void;
+    getWindowState: () => Promise<WindowState>;
+    onWindowResize: (callback: (state: WindowState) => void) => void;
+  };
+  fileManager: {
+    readFileAsUint8Array: (path: string) => Promise<Uint8Array | string>;
+    getFilePath: (file: File) => string;
+  };
+  ipcManager: {
+    sendToMain: (channel: string, ...args: any[]) => void;
+    onMain: (channel: string, callback: (...args: any[]) => void) => void;
+    removeListener: (channel: string, callback?: (...args: any[]) => void) => void;
+  };
   websocket: {
     connect: (params: WebsocketConnectParams) => Promise<CommonResponse<{ connectionId?: string }>>;
     disconnect: (connectionId: string) => Promise<CommonResponse<null>>;

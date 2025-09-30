@@ -1,6 +1,5 @@
 
 import {contextBridge, ipcRenderer, webUtils } from 'electron'
-import got from 'got'
 import ip from 'ip'
 import { gotRequest } from './sendRequest'
 import { StandaloneExportHtmlParams } from '@src/types/standalone.ts'
@@ -10,19 +9,19 @@ const openDevTools = () => {
   ipcRenderer.invoke('apiflow-open-dev-tools')
 }
 
-const minimize = () => {
+const minimizeWindow = () => {
   ipcRenderer.invoke('apiflow-minimize-window')
 }
 
-const maximize = () => {
+const maximizeWindow = () => {
   ipcRenderer.invoke('apiflow-maximize-window')
 }
 
-const unmaximize = () => {
+const unMaximizeWindow = () => {
   ipcRenderer.invoke('apiflow-unmaximize-window')
 }
 
-const close = () => {
+const closeWindow = () => {
   ipcRenderer.invoke('apiflow-close-window')
 }
 
@@ -118,23 +117,28 @@ const mockReplaceById = (nodeId: string, httpMock: any) => {
 }
 
 contextBridge.exposeInMainWorld('electronAPI', {
-  got,
   ip: ip.address(),
   sendRequest: gotRequest,
   openDevTools,
-  readFileAsUint8Array,
-  getFilePath,
-  minimize,
-  maximize,
-  unmaximize,
-  close,
-  getWindowState,
-  onWindowResize,
   exportHtml,
   exportWord,
-  sendToMain,
-  onMain,
-  removeListener,
+  windowManager: {
+    closeWindow,
+    minimizeWindow,
+    maximizeWindow,
+    unMaximizeWindow,
+    getWindowState,
+    onWindowResize,
+  },
+  fileManager: {
+    readFileAsUint8Array,
+    getFilePath,
+  },
+  ipcManager: {
+    sendToMain,
+    onMain,
+    removeListener,
+  },
   websocket: {
     connect: websocketConnect,
     disconnect: websocketDisconnect,

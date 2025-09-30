@@ -281,7 +281,7 @@ const handleSelectFile = (e: Event) => {
   const { files } = (e.target as HTMLInputElement);
   if (files?.length) {
     const file = files[0];
-    const path = window.electronAPI?.getFilePath(file) || "";
+    const path = window.electronAPI?.fileManager.getFilePath(file) || "";
     apidocStore.handleChangeBinaryInfo({ 
       binaryValue: {
         path,

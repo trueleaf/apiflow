@@ -152,7 +152,7 @@ const handleWorkerMessage = (event: MessageEvent) => {
   if (type === 'clearAllResult') {
     if (data.code === 0) {
       statusMessage.value = '数据清空完成，正在开始导入...';
-      window.electronAPI?.sendToMain('import-start', {
+      window.electronAPI?.ipcManager.sendToMain('import-start', {
         filePath: importStatus.filePath,
         itemNum: importStatus.itemNum,
         config: {
@@ -184,7 +184,7 @@ const initIpcListeners = () => {
       statusMessage.value = result?.msg || '用户取消选择';
     }
   };
-  window.electronAPI?.onMain('import-select-file-reply', listenerRefs.value.importSelectFileReply);
+  window.electronAPI?.ipcManager.onMain('import-select-file-reply', listenerRefs.value.importSelectFileReply);
   
   // 监听文件分析完成事件
   listenerRefs.value.importFileAnalyzed = (result: { code: number, data?: { itemCount?: number }, msg?: string }) => {
@@ -197,7 +197,7 @@ const initIpcListeners = () => {
       estimatedDataCount.value = 0;
     }
   };
-  window.electronAPI?.onMain('import-file-analyzed', listenerRefs.value.importFileAnalyzed);
+  window.electronAPI?.ipcManager.onMain('import-file-analyzed', listenerRefs.value.importFileAnalyzed);
   
   // 监听导入进度事件
   listenerRefs.value.importProgress = (progress: { processed: number, total: number, message?: string }) => {
@@ -207,7 +207,7 @@ const initIpcListeners = () => {
       statusMessage.value = progress.message;
     }
   };
-  window.electronAPI?.onMain('import-progress', listenerRefs.value.importProgress);
+  window.electronAPI?.ipcManager.onMain('import-progress', listenerRefs.value.importProgress);
   
   // 监听ZIP文件读取完成事件
   listenerRefs.value.importZipReadComplete = (result: { code: number, data?: { totalItems: number }, msg?: string }) => {
@@ -233,7 +233,7 @@ const initIpcListeners = () => {
       ElMessage.error(result.msg || 'ZIP文件读取失败');
     }
   };
-  window.electronAPI?.onMain('import-zip-read-complete', listenerRefs.value.importZipReadComplete);
+  window.electronAPI?.ipcManager.onMain('import-zip-read-complete', listenerRefs.value.importZipReadComplete);
   
   // 监听主进程错误事件
   listenerRefs.value.importMainError = (errorMessage: string) => {
@@ -241,7 +241,7 @@ const initIpcListeners = () => {
     statusMessage.value = `导入失败: ${errorMessage}`;
     ElMessage.error(`导入失败: ${errorMessage}`);
   };
-  window.electronAPI?.onMain('import-main-error', listenerRefs.value.importMainError);
+  window.electronAPI?.ipcManager.onMain('import-main-error', listenerRefs.value.importMainError);
   
   // 监听导入数据项事件
   listenerRefs.value.importDataItem = async (item: any) => {
@@ -257,7 +257,7 @@ const initIpcListeners = () => {
       checkImportComplete();
     }
   };
-  window.electronAPI?.onMain('import-data-item', listenerRefs.value.importDataItem);
+  window.electronAPI?.ipcManager.onMain('import-data-item', listenerRefs.value.importDataItem);
 };
 /*
 |--------------------------------------------------------------------------
@@ -266,12 +266,12 @@ const initIpcListeners = () => {
 */
 // 选择导入文件
 const handleSelectFile = async () => {
-  window.electronAPI?.sendToMain('import-select-file');
+  window.electronAPI?.ipcManager.sendToMain('import-select-file');
 };
 // 分析导入文件
 const analyzeImportFile = async () => {
   statusMessage.value = '正在分析文件...';
-  window.electronAPI?.sendToMain('import-analyze-file', {
+  window.electronAPI?.ipcManager.sendToMain('import-analyze-file', {
     filePath: importStatus.filePath
   });
 };
@@ -324,7 +324,7 @@ const handleStartImport = async () => {
     
     // 发送导入请求到主进程（仅在非覆盖模式下执行）
     statusMessage.value = '正在启动导入...';
-    window.electronAPI?.sendToMain('import-start', {
+    window.electronAPI?.ipcManager.sendToMain('import-start', {
       filePath: importStatus.filePath,
       itemNum: importStatus.itemNum,
       config: {
@@ -358,7 +358,7 @@ const handleResetImport = () => {
   completedImports.value = 0;
   zipReadComplete.value = false;
   
-  window.electronAPI?.sendToMain('import-reset');
+  window.electronAPI?.ipcManager.sendToMain('import-reset');
 };
 
 /*
@@ -410,35 +410,35 @@ const importDataToIndexedDB = async (item: any) => {
 
 // 清理IPC监听器
 const cleanupIpcListeners = () => {
-  if (window.electronAPI?.removeListener && listenerRefs.value) {
+  if (window.electronAPI?.ipcManager.removeListener && listenerRefs.value) {
     // 移除选择文件回复监听器
     if (listenerRefs.value.importSelectFileReply) {
-      window.electronAPI.removeListener('import-select-file-reply', listenerRefs.value.importSelectFileReply);
+      window.electronAPI.ipcManager.removeListener('import-select-file-reply', listenerRefs.value.importSelectFileReply);
     }
     
     // 移除文件分析完成监听器
     if (listenerRefs.value.importFileAnalyzed) {
-      window.electronAPI.removeListener('import-file-analyzed', listenerRefs.value.importFileAnalyzed);
+      window.electronAPI.ipcManager.removeListener('import-file-analyzed', listenerRefs.value.importFileAnalyzed);
     }
     
     // 移除导入进度监听器
     if (listenerRefs.value.importProgress) {
-      window.electronAPI.removeListener('import-progress', listenerRefs.value.importProgress);
+      window.electronAPI.ipcManager.removeListener('import-progress', listenerRefs.value.importProgress);
     }
     
     // 移除ZIP文件读取完成监听器
     if (listenerRefs.value.importZipReadComplete) {
-      window.electronAPI.removeListener('import-zip-read-complete', listenerRefs.value.importZipReadComplete);
+      window.electronAPI.ipcManager.removeListener('import-zip-read-complete', listenerRefs.value.importZipReadComplete);
     }
     
     // 移除主进程错误监听器
     if (listenerRefs.value.importMainError) {
-      window.electronAPI.removeListener('import-main-error', listenerRefs.value.importMainError);
+      window.electronAPI.ipcManager.removeListener('import-main-error', listenerRefs.value.importMainError);
     }
     
     // 移除导入数据项监听器
     if (listenerRefs.value.importDataItem) {
-      window.electronAPI.removeListener('import-data-item', listenerRefs.value.importDataItem);
+      window.electronAPI.ipcManager.removeListener('import-data-item', listenerRefs.value.importDataItem);
     }
     
     // 清空所有引用
@@ -456,7 +456,7 @@ const cleanupWorker = () => {
 };
 
 onMounted(() => {
-  window.electronAPI?.sendToMain('import-reset');
+  window.electronAPI?.ipcManager.sendToMain('import-reset');
   initWorker();
   initIpcListeners();
 });

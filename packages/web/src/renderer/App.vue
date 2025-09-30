@@ -45,7 +45,7 @@ watch(() => router.currentRoute.value.path, (newPath) => {
   if (newPath === '/v1/apidoc/doc-edit') {
     const projectId = router.currentRoute.value.query.id as string;
     const projectName = router.currentRoute.value.query.name as string;
-    window.electronAPI?.sendToMain('apiflow-content-project-changed', {
+    window.electronAPI?.ipcManager.sendToMain('apiflow-content-project-changed', {
       projectId: projectId,
       projectName: projectName
     })
@@ -61,13 +61,13 @@ watch(() => runtimeStore.networkMode, async (mode, prevMode) => {
   if (router.currentRoute.value.path !== '/v1/apidoc/doc-list') {
     await router.push('/v1/apidoc/doc-list')
   }
-  window.electronAPI?.sendToMain('apiflow-refresh-content-view')
+  window.electronAPI?.ipcManager.sendToMain('apiflow-refresh-content-view')
 })
 
 const handleAddSuccess = (data: { projectId: string, projectName: string }) => {
   dialogVisible.value = false;
   // 使用新的事件名称
-  window.electronAPI?.sendToMain('apiflow-content-project-created', {
+  window.electronAPI?.ipcManager.sendToMain('apiflow-content-project-created', {
     projectId: data.projectId,
     projectName: data.projectName
   });
@@ -122,38 +122,38 @@ const handleLanguageSelect = (language: Language) => {
   changeLanguage(language)
   hideLanguageMenu()
   // 发送语言切换事件到主进程
-  window.electronAPI?.sendToMain('apiflow-language-changed', language)
+  window.electronAPI?.ipcManager.sendToMain('apiflow-language-changed', language)
 }
 
 
 const bindTopBarEvent = () => {
-  window.electronAPI?.onMain('apiflow-create-project', () => {
+  window.electronAPI?.ipcManager.onMain('apiflow-create-project', () => {
     dialogVisible.value = true;
   });
-  window.electronAPI?.onMain('apiflow-change-route', (path: string) => {
+  window.electronAPI?.ipcManager.onMain('apiflow-change-route', (path: string) => {
     router.push(path)
   })
-  window.electronAPI?.onMain('apiflow-network-mode-changed', (mode: RuntimeNetworkMode) => {
+  window.electronAPI?.ipcManager.onMain('apiflow-network-mode-changed', (mode: RuntimeNetworkMode) => {
     if (runtimeStore.networkMode !== mode) {
       runtimeStore.setNetworkMode(mode)
     }
   })
 
-  window.electronAPI?.onMain('apiflow-go-back', () => {
+  window.electronAPI?.ipcManager.onMain('apiflow-go-back', () => {
     handleGoBack()
   })
 
-  window.electronAPI?.onMain('apiflow-go-forward', () => {
+  window.electronAPI?.ipcManager.onMain('apiflow-go-forward', () => {
     handleGoForward()
   })
 
   // 显示语言菜单事件监听
-  window.electronAPI?.onMain('apiflow-show-language-menu', (data: { position: any, currentLanguage: string }) => {
+  window.electronAPI?.ipcManager.onMain('apiflow-show-language-menu', (data: { position: any, currentLanguage: string }) => {
     showLanguageMenu(data)
   })
 
   // 主进程发送的事件名称：apiflow-change-project
-  window.electronAPI?.onMain('apiflow-change-project', async (data: { projectId: string, projectName: string }) => {
+  window.electronAPI?.ipcManager.onMain('apiflow-change-project', async (data: { projectId: string, projectName: string }) => {
     let matchedProject = null;
     if (isOffline.value) {
       const projectList = await standaloneCache.getProjectList();
@@ -169,12 +169,12 @@ const bindTopBarEvent = () => {
         showClose: false,
         type: 'error'
       }).then(() => {
-        window.electronAPI?.sendToMain('apiflow-content-project-deleted', data.projectId)
+        window.electronAPI?.ipcManager.sendToMain('apiflow-content-project-deleted', data.projectId)
       })
       return
     }
     if (matchedProject.projectName !== data.projectName) {
-      window.electronAPI?.sendToMain('apiflow-content-project-renamed', {
+      window.electronAPI?.ipcManager.sendToMain('apiflow-content-project-renamed', {
         projectId: data.projectId,
         projectName: matchedProject.projectName
       })

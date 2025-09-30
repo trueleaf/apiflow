@@ -635,7 +635,7 @@ const handleSelectFile = (e: Event, data: ApidocProperty) => {
   const { files } = (e.target as HTMLInputElement);
   if (files) {
     const file = files[0];
-    const path = window.electronAPI?.getFilePath(file) || ""
+    const path = window.electronAPI?.fileManager.getFilePath(file) || ""
     apidocStore.changePropertyValue({
       data,
       field: 'value',

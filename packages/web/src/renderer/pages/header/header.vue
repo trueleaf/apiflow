@@ -99,10 +99,10 @@ const draggableTabs = computed({
 | 窗口控制
 |--------------------------------------------------------------------------
 */
-const minimize = () => window.electronAPI?.minimize()
-const maximize = () => window.electronAPI?.maximize()
-const unmaximize = () => window.electronAPI?.unmaximize()
-const close = () => window.electronAPI?.close()
+const minimize = () => window.electronAPI?.windowManager.minimizeWindow()
+const maximize = () => window.electronAPI?.windowManager.maximizeWindow()
+const unmaximize = () => window.electronAPI?.windowManager.unMaximizeWindow()
+const close = () => window.electronAPI?.windowManager.closeWindow()
 const handleWindowResize = (state: WindowState) => {
   isMaximized.value = state.isMaximized
 }
@@ -113,15 +113,15 @@ const handleWindowResize = (state: WindowState) => {
 |--------------------------------------------------------------------------
 */
 const refreshApp = () => {
-  window.electronAPI?.sendToMain('apiflow-refresh-app')
+  window.electronAPI?.ipcManager.sendToMain('apiflow-refresh-app')
 }
 
 const goBack = () => {
-  window.electronAPI?.sendToMain('apiflow-go-back')
+  window.electronAPI?.ipcManager.sendToMain('apiflow-go-back')
 }
 
 const goForward = () => {
-  window.electronAPI?.sendToMain('apiflow-go-forward')
+  window.electronAPI?.ipcManager.sendToMain('apiflow-go-forward')
 }
 
 /*
@@ -151,7 +151,7 @@ const handleLanguageButtonClick = () => {
     }
 
     // 发送显示语言菜单事件到主进程，包含按钮位置信息
-    window.electronAPI?.sendToMain('apiflow-show-language-menu', {
+    window.electronAPI?.ipcManager.sendToMain('apiflow-show-language-menu', {
       position: buttonPosition,
       currentLanguage: currentLanguage.value
     })
@@ -186,12 +186,12 @@ const switchTab = (tabId: string) => {
   const currentTab = tabs.value.find(t => t.id === tabId);
   if (!currentTab) return;
   if (currentTab.type === 'project') {
-    window.electronAPI?.sendToMain('apiflow-topbar-switch-project', {
+    window.electronAPI?.ipcManager.sendToMain('apiflow-topbar-switch-project', {
       projectId: tabId,
       projectName: currentTab.title
     })
   } else if (currentTab.type === 'settings') {
-    window.electronAPI?.sendToMain('apiflow-topbar-navigate', '/user-center')
+    window.electronAPI?.ipcManager.sendToMain('apiflow-topbar-navigate', '/user-center')
   }
 }
 /*
@@ -201,7 +201,7 @@ const switchTab = (tabId: string) => {
 */
 const jumpToHome = () => {
   activeTabId.value = '';
-  window.electronAPI?.sendToMain('apiflow-topbar-navigate', '/v1/apidoc/doc-list')
+  window.electronAPI?.ipcManager.sendToMain('apiflow-topbar-navigate', '/v1/apidoc/doc-list')
 }
 const jumpToUserCenter = () => {
   const userCenterTabId = 'user-center';
@@ -219,27 +219,27 @@ const jumpToUserCenter = () => {
 const toggleNetworkMode = () => {
   const newMode = networkMode.value === 'online' ? 'offline' : 'online'
   runtime.setNetworkMode(newMode)
-  window.electronAPI?.sendToMain('apiflow-network-mode-changed', newMode)
+  window.electronAPI?.ipcManager.sendToMain('apiflow-network-mode-changed', newMode)
 }
-const handleAddProject = () => window.electronAPI?.sendToMain('apiflow-topbar-create-project')
+const handleAddProject = () => window.electronAPI?.ipcManager.sendToMain('apiflow-topbar-create-project')
 // 绑定事件
 const bindEvent = () => {
-  window.electronAPI?.onWindowResize(handleWindowResize)
+  window.electronAPI?.windowManager.onWindowResize(handleWindowResize)
   
-  window.electronAPI?.getWindowState().then((state) => {
+  window.electronAPI?.windowManager.getWindowState().then((state) => {
     isMaximized.value = state.isMaximized
   })
   
-  window.electronAPI?.onMain('apiflow-language-changed', (language: string) => {
+  window.electronAPI?.ipcManager.onMain('apiflow-language-changed', (language: string) => {
     currentLanguage.value = language as Language
   })
   
-  window.electronAPI?.onMain('apiflow-create-project-success', (data: { projectId: string, projectName: string }) => {
+  window.electronAPI?.ipcManager.onMain('apiflow-create-project-success', (data: { projectId: string, projectName: string }) => {
     tabs.value.push({ id: data.projectId, title: data.projectName, type: 'project', network: networkMode.value })
     activeTabId.value = data.projectId
   })
   
-  window.electronAPI?.onMain('apiflow-change-project', (data: { projectId: string, projectName: string }) => {
+  window.electronAPI?.ipcManager.onMain('apiflow-change-project', (data: { projectId: string, projectName: string }) => {
     activeTabId.value = data.projectId;
     const matchedProject = tabs.value.find(t => t.id === data.projectId)
     if (!matchedProject) {
@@ -249,11 +249,11 @@ const bindEvent = () => {
     }
   })
   
-  window.electronAPI?.onMain('apiflow-delete-project', (projectId: string) => {
+  window.electronAPI?.ipcManager.onMain('apiflow-delete-project', (projectId: string) => {
     deleteTab(projectId)
   })
   
-  window.electronAPI?.onMain('apiflow-change-project-name', (data: { projectId: string, projectName: string }) => {
+  window.electronAPI?.ipcManager.onMain('apiflow-change-project-name', (data: { projectId: string, projectName: string }) => {
     const index = tabs.value.findIndex(t => t.id === data.projectId)
     if (index !== -1) {
       tabs.value[index].title = data.projectName
@@ -266,7 +266,7 @@ const initTabs = () => {
   tabs.value = httpNodeCache.getHeaderTabs()
   activeTabId.value = httpNodeCache.getHeaderActiveTab()
   if (!activeTabId.value) {
-    window.electronAPI?.sendToMain('apiflow-topbar-navigate', '/v1/apidoc/doc-list')
+    window.electronAPI?.ipcManager.sendToMain('apiflow-topbar-navigate', '/v1/apidoc/doc-list')
   }
 }
 
@@ -326,7 +326,6 @@ body {
   justify-content: space-between;
 }
 .logo {
-  width: 80px;
   height: 100%;
   color: #ccc;
   display: flex;

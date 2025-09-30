@@ -293,7 +293,7 @@ const standaloneLoading = ref(false)
 |--------------------------------------------------------------------------
 */
 const handleSelectFile = (file: UploadFile) => {
-  const filePath = window.electronAPI?.getFilePath(file.raw as File);
+  const filePath = window.electronAPI?.fileManager.getFilePath(file.raw as File);
   formInfo.value.fileValue = {
     name: file.name,
     path: filePath || '',
@@ -305,7 +305,7 @@ const handleExceed: UploadProps['onExceed'] = (files) => {
   upload.value!.clearFiles();
   const file = files[0] as UploadRawFile
   file.uid = genFileId()
-  const filePath = window.electronAPI?.getFilePath(file);
+  const filePath = window.electronAPI?.fileManager.getFilePath(file);
   upload.value!.handleStart(file)
   formInfo.value.fileValue = {
     name: file.name,

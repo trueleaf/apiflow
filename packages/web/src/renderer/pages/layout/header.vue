@@ -127,19 +127,19 @@ const windowState = ref<'normal' | 'minimized' | 'maximized'>('maximized');
 // 窗口控制函数
 const minimizeWindow = () => {
   console.log('minimizeWindow')
-  window.electronAPI?.minimize();
+  window.electronAPI?.windowManager.minimizeWindow();
 };
 
 const maximizeWindow = () => {
-  window.electronAPI?.maximize();
+  window.electronAPI?.windowManager.maximizeWindow();
 };
 
 const unmaximizeWindow = () => {
-  window.electronAPI?.unmaximize();
+  window.electronAPI?.windowManager.unMaximizeWindow();
 };
 
 const closeWindow = () => {
-  window.electronAPI?.close();
+  window.electronAPI?.windowManager.closeWindow();
 };
 
 //辅助操作按钮(electron不具备浏览器前进、后退、刷新)
@@ -255,7 +255,7 @@ onMounted(() => {
   if (config.updateConfig.autoUpdate) {
     handleCheckUpdate();
   }
-  window.electronAPI?.onWindowResize((state: WindowState) => {
+  window.electronAPI?.windowManager.onWindowResize((state: WindowState) => {
     if (state.isMaximized) {
       windowState.value = 'maximized';
     } else if (state.isMinimized) {

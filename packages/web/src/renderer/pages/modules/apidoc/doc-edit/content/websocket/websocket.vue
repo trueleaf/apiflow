@@ -203,7 +203,7 @@ const checkIsConnection = () => {
 };
 const initWebSocketEventListeners = () => {
   if (!window.electronAPI) return;
-  window.electronAPI.onMain('websocket-opened', (data: { connectionId: string; nodeId: string; url: string }) => {
+  window.electronAPI.ipcManager.onMain('websocket-opened', (data: { connectionId: string; nodeId: string; url: string }) => {
     if (currentSelectTab.value && data.nodeId === currentSelectTab.value._id) {
       websocketStore.changeConnectionId(data.connectionId);
       websocketStore.changeConnectionState('connected');
@@ -227,7 +227,7 @@ const initWebSocketEventListeners = () => {
     }
   });
   // 监听WebSocket连接关闭事件
-  window.electronAPI.onMain('websocket-closed', (data: { connectionId: string; nodeId: string; code: number; reason: string; url: string }) => {
+  window.electronAPI.ipcManager.onMain('websocket-closed', (data: { connectionId: string; nodeId: string; code: number; reason: string; url: string }) => {
     if (currentSelectTab.value && data.nodeId === currentSelectTab.value._id) {
       websocketStore.changeConnectionId('');
       websocketStore.changeConnectionState('disconnected');
@@ -255,7 +255,7 @@ const initWebSocketEventListeners = () => {
     }
   });
   // 监听WebSocket连接错误事件
-  window.electronAPI.onMain('websocket-error', (data: { connectionId: string; nodeId: string; error: string; url: string }) => {
+  window.electronAPI.ipcManager.onMain('websocket-error', (data: { connectionId: string; nodeId: string; error: string; url: string }) => {
     if (currentSelectTab.value && data.nodeId === currentSelectTab.value._id) {
       websocketStore.changeConnectionId('');
       websocketStore.changeConnectionState('error');
@@ -280,7 +280,7 @@ const initWebSocketEventListeners = () => {
   });
 
   // 监听WebSocket接收消息事件
-  window.electronAPI.onMain('websocket-message', (data: { 
+  window.electronAPI.ipcManager.onMain('websocket-message', (data: { 
     connectionId: string; 
     nodeId: string; 
     message: Uint8Array; 
@@ -322,10 +322,10 @@ const initWebSocketEventListeners = () => {
 const cleanupWebSocketEventListeners = () => {
   if (!window.electronAPI) return;
   // 清理所有WebSocket事件监听器
-  window.electronAPI.removeListener('websocket-opened');
-  window.electronAPI.removeListener('websocket-closed');
-  window.electronAPI.removeListener('websocket-error');
-  window.electronAPI.removeListener('websocket-message');
+  window.electronAPI.ipcManager.removeListener('websocket-opened');
+  window.electronAPI.ipcManager.removeListener('websocket-closed');
+  window.electronAPI.ipcManager.removeListener('websocket-error');
+  window.electronAPI.ipcManager.removeListener('websocket-message');
 };
 
 watch(currentSelectTab, (val, oldVal) => {
