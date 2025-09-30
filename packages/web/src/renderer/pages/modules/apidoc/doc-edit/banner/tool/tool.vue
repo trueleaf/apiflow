@@ -164,6 +164,7 @@ import { useApidocWorkerState } from '@/store/apidoc/worker-state'
 import SLoading from '@/components/common/loading/g-loading.vue'
 import SFieldset from '@/components/common/fieldset/g-fieldset.vue'
 import { useProjectStore } from '@/store/project/project'
+import { useRuntime } from '@/store/runtime/runtime'
 
 
 type Operation = {
@@ -187,7 +188,10 @@ const apidocWorkerStateStore = useApidocWorkerState();
 const apidocTabsStore = useApidocTas();
 const { t } = useI18n()
 const projectStore = useProjectStore();
-const { projectList, projectLoading, isStandalone } = storeToRefs(projectStore);
+const { projectList } = storeToRefs(projectStore);
+const runtimeStore = useRuntime();
+const projectLoading = ref(false);
+const isStandalone = computed(() => runtimeStore.networkMode === 'offline');
 const emits = defineEmits(['fresh', 'filter', 'changeProject']);
 const isView = computed(() => apidocBaseInfoStore.mode === 'view') //当前工作区状态
 const toggleProjectVisible = ref(false);
@@ -623,7 +627,17 @@ const handleFilterBanner = () => {
 */
 const startProjectList = computed(() => projectList.value.filter((item) => item.isStared));
 const getProjectList = async () => {
-  await projectStore.getProjectList();
+  if (projectLoading.value) {
+    return;
+  }
+  projectLoading.value = true;
+  try {
+    await projectStore.getProjectList();
+  } catch (err) {
+    console.error(err);
+  } finally {
+    projectLoading.value = false;
+  }
 }
 //改变项目列表
 const handleChangeProject = (item: ApidocProjectInfo) => {

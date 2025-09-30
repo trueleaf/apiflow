@@ -194,7 +194,6 @@ import EditPermissionDialog from '../dialog/permission/permission.vue'
 import { useI18n } from 'vue-i18n'
 import type { CommonResponse, ApidocProjectListInfo, ApidocProjectInfo } from '@src/types';
 import { computed, onMounted, ref, watch } from 'vue';
-import { storeToRefs } from 'pinia';
 import { request } from '@/api/api';
 import 'element-plus/es/components/message-box/style/css';
 import { ElMessageBox } from 'element-plus';
@@ -203,6 +202,7 @@ import { debounce, formatDate } from '@/helper';
 import { useApidocBaseInfo } from '@/store/apidoc/base-info'
 import { standaloneCache } from '@/cache/standalone'
 import { useProjectStore } from '@/store/project/project'
+import { useRuntime } from '@/store/runtime/runtime'
 
 /*
 |--------------------------------------------------------------------------
@@ -211,7 +211,10 @@ import { useProjectStore } from '@/store/project/project'
 */
 const { t } = useI18n()
 const projectStore = useProjectStore();
-const { projectLoading, isStandalone } = storeToRefs(projectStore);
+const runtimeStore = useRuntime();
+const isStandalone = computed(() => runtimeStore.networkMode === 'offline');
+const projectLoading = ref(false);
+const starProjectIds = ref<string[]>([]);
 const projectName = ref('');
 const projectKeyword = ref('')
 const projectListCopy = ref<ApidocProjectInfo[]>([]);
@@ -219,6 +222,7 @@ const projectListCopy2 = ref<ApidocProjectInfo[]>([]);
 
 watch(() => projectStore.projectList, (list) => {
   projectListCopy.value = list.slice();
+  starProjectIds.value = list.filter((item) => item.isStared).map((item) => item._id);
   const isAdvancedSearch = projectKeyword.value.trim().length > 0 && isShowAdvanceSearch.value;
   if (isStandalone.value && !isAdvancedSearch) {
     projectListCopy2.value = list.slice();
@@ -227,8 +231,7 @@ watch(() => projectStore.projectList, (list) => {
 
 const syncOfflineProjectList = (list: ApidocProjectInfo[]): void => {
   projectStore.projectList = list;
-  projectStore.starProjectIds = list.filter((item) => item.isStared).map((item) => item._id);
-  projectStore.recentVisitProjectIds = list.map((item) => item._id);
+  starProjectIds.value = list.filter((item) => item.isStared).map((item) => item._id);
 };
 
 const ensureProjectStarState = (projectId: string, isStared: boolean): void => {
@@ -237,7 +240,7 @@ const ensureProjectStarState = (projectId: string, isStared: boolean): void => {
   if (target) {
     target.isStared = isStared;
   }
-  const starIds = projectStore.starProjectIds;
+  const starIds = starProjectIds.value;
   const existIndex = starIds.findIndex((id: string) => id === projectId);
   if (isStared && existIndex === -1) {
     starIds.push(projectId);
@@ -262,7 +265,7 @@ const projectList = computed(() => {
   const list = (projectKeyword.value.trim().length > 0 && isShowAdvanceSearch.value) ? projectListCopy2.value : projectListCopy.value;
   const filteredProjectList = list.filter((val) => val.projectName.match(new RegExp(projectName.value, 'gi')))
   return filteredProjectList.map((val) => {
-    const isStared = projectStore.starProjectIds.find((id: string) => id === val._id);
+    const isStared = starProjectIds.value.find((id: string) => id === val._id);
     return {
       ...val,
       isStared: !!isStared,
@@ -272,8 +275,8 @@ const projectList = computed(() => {
 const starProjects = computed(() => {
   const list = (projectKeyword.value.trim().length > 0 && isShowAdvanceSearch.value) ? projectListCopy2.value : projectListCopy.value;
   const filteredProjectList = list.filter((val) => val.projectName.match(new RegExp(projectName.value, 'gi')))
-  return filteredProjectList.filter((projectInfo) => projectStore.starProjectIds.find((id: string) => id === projectInfo._id)).map((val) => {
-    const isStared = projectStore.starProjectIds.find((id: string) => id === val._id);
+  return filteredProjectList.filter((projectInfo) => starProjectIds.value.find((id: string) => id === projectInfo._id)).map((val) => {
+    const isStared = starProjectIds.value.find((id: string) => id === val._id);
     return {
       ...val,
       isStared: !!isStared,
@@ -288,7 +291,17 @@ const apidocBaseInfo = useApidocBaseInfo()
 */
 //获取项目列表
 const getProjectList = async () => {
-  await projectStore.getProjectList();
+  if (projectLoading.value) {
+    return;
+  }
+  projectLoading.value = true;
+  try {
+    await projectStore.getProjectList();
+  } catch (err) {
+    console.error(err);
+  } finally {
+    projectLoading.value = false;
+  }
 };
 //编辑项目弹窗
 const handleOpenEditDialog = (item: ApidocProjectInfo) => {
@@ -476,7 +489,7 @@ const debounceSearch = debounce(async () => {
   searchLoading.value = true;
   if (projectKeyword.value?.trim().length === 0) {
     projectListCopy2.value = [];
-    // No need to update starProjectIds here as it's managed by the store
+    // No need to update starProjectIds here as it's managed locally
     setTimeout(() => {
       searchLoading.value = false;
     }, 100)
