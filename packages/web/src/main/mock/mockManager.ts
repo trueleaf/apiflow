@@ -46,6 +46,7 @@ export class MockManager {
       });
     });
   }
+  // 核心逻辑
   private async handleRequest(ctx: Koa.Context, port: number): Promise<void> {
     const startTime = Date.now();
     let matchedMock: MockHttpNode | null = null;
@@ -54,7 +55,7 @@ export class MockManager {
       // 实时从 mockList 中查找匹配的 mock 配置
       const candidateMocks = this.mockList
         .filter(mock => mock.requestCondition.port === port)
-        .filter(mock => this.matchHttpMethod(ctx.method, mock.requestCondition.method))
+        .filter(mock => this.mockUtils.matchHttpMethod(ctx.method, mock.requestCondition.method))
         .map(mock => ({
           mock,
           matchResult: matchPath(mock.requestCondition.url, ctx.path),
@@ -246,9 +247,7 @@ export class MockManager {
     }
   }
   public async addAndStartMockServer(httpMock: MockHttpNode): Promise<CommonResponse<null>> {
-    // 检查端口是否已在 mockList 中存在（复用场景）
     const portExists = this.mockList.some(mock => mock.requestCondition.port === httpMock.requestCondition.port);
-    
     if (portExists) {
       // 端口复用场景：直接添加到 mockList
       this.mockList.push(httpMock);
@@ -338,24 +337,15 @@ export class MockManager {
   }
   public removeMockByNodeIdAndStopMockServer(nodeId: string): Promise<CommonResponse<null>> {
     return new Promise((resolve) => {
-      // 获取要删除的 Mock 配置
       const mockToRemove = this.getMockByNodeId(nodeId);
       if (!mockToRemove) {
-        // Mock 不存在，直接返回成功
         resolve({ code: 0, msg: '停止成功', data: null });
         return;
       }
-      
       const port = mockToRemove.requestCondition.port;
-      
-      // 从 mockList 中移除该 Mock
       this.removeMockByNodeId(nodeId);
-      
-      // 检查该端口上是否还有其他 Mock 配置
       const remainingMocksOnPort = this.mockList.filter(mock => mock.requestCondition.port === port);
-      
       if (remainingMocksOnPort.length > 0) {
-        // 该端口上还有其他 Mock，不关闭服务器，只记录日志
         this.logger.addLog({
           type: "stop",
           nodeId: mockToRemove._id,
@@ -366,11 +356,8 @@ export class MockManager {
         resolve({ code: 0, msg: '停止成功', data: null });
         return;
       }
-      
-      // 该端口上没有其他 Mock 了，需要关闭服务器
       const instance = this.portToInstanceMap.get(port);
       if (!instance) {
-        // 服务器实例不存在，只记录日志
         this.logger.addLog({
           type: "stop",
           nodeId: mockToRemove._id,
@@ -381,15 +368,10 @@ export class MockManager {
         resolve({ code: 0, msg: '停止成功', data: null });
         return;
       }
-      
-      // 强制关闭所有连接 (Node.js 18.2.0+)
-      if (typeof instance.server.closeAllConnections === 'function') {
-        instance.server.closeAllConnections();
-      }
-      
+      instance.server.closeAllConnections();
       instance.server.close((error) => {
         if (error) {
-          if (this.isServerNotRunningError(error)) {
+          if (this.mockUtils.isServerNotRunningError(error)) {
             this.logger.addLog({
               type: "already-stopped",
               nodeId: mockToRemove._id,
@@ -423,17 +405,13 @@ export class MockManager {
             timestamp: Date.now()
           });
         }
-        
-        // 清理服务器实例
         const instanceIndex = this.mockInstanceList.findIndex(inst => inst.port === port);
         if (instanceIndex !== -1) {
           this.mockInstanceList.splice(instanceIndex, 1);
         }
         this.portToInstanceMap.delete(port);
-        
         resolve({ code: 0, msg: '停止成功', data: null });
       });
-      
       // 设置20秒超时，防止无限等待
       setTimeout(() => {
         const instanceIndex = this.mockInstanceList.findIndex(inst => inst.port === port);
@@ -441,7 +419,6 @@ export class MockManager {
           this.mockInstanceList.splice(instanceIndex, 1);
         }
         this.portToInstanceMap.delete(port);
-        
         resolve({ code: 1, msg: `关闭服务器超时: 端口 ${port}`, data: null });
       }, 20000);
     });
@@ -451,8 +428,6 @@ export class MockManager {
   }
   public async removeMockAndStopMockServerByProjectId(projectId: string): Promise<void> {
     const mocksToRemove = this.mockList.filter(mock => mock.projectId === projectId);
-    
-    // 按端口分组，每个端口只处理一次
     const portGroups = new Map<number, string[]>();
     mocksToRemove.forEach(mock => {
       const port = mock.requestCondition.port;
@@ -461,7 +436,6 @@ export class MockManager {
       }
       portGroups.get(port)!.push(mock._id);
     });
-    
     // 对每个端口，只处理第一个 Mock，其余的会在移除第一个时自动处理
     const promises: Promise<CommonResponse<null>>[] = [];
     portGroups.forEach((nodeIds) => {
@@ -475,18 +449,6 @@ export class MockManager {
   }
   public getLogsByNodeId(nodeId: string): MockLog[] {
     return this.logger.getLogsByNodeId(nodeId);
-  }
-
-  /*
-  |--------------------------------------------------------------------------
-  | 工具方法
-  |--------------------------------------------------------------------------
-  */
-  // 判断是否为服务器未启动的错误
-  private isServerNotRunningError(error: any): boolean {
-    return error && 
-           (error.code === 'ERR_SERVER_NOT_RUNNING' || 
-            (error.message && error.message.toLowerCase().includes('server is not running')));
   }
   // 检测端口是否冲突
   private async checkPortIsConflict(httpMock: MockHttpNode): Promise<boolean> {
@@ -527,16 +489,5 @@ export class MockManager {
     }
 
     return false;
-  }
-
-  /*
-  |--------------------------------------------------------------------------
-  | 工具方法
-  |--------------------------------------------------------------------------
-  */
-  
-  // 匹配HTTP方法
-  private matchHttpMethod(requestMethod: string, allowedMethods: (string)[]): boolean {
-    return allowedMethods.includes('ALL') || allowedMethods.includes(requestMethod.toUpperCase());
   }
 }

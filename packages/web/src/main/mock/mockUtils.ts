@@ -7,38 +7,21 @@ import fs from 'fs';
 import path from 'path';
 import { randomUUID } from 'crypto';
 import Koa from 'koa';
+import { runtime } from '../runtime/runtime';
 
-// 定义单个响应配置的类型
 type MockResponseConfig = MockHttpNode['response'][0];
-
 export class MockUtils {
-  /*
-  |--------------------------------------------------------------------------
-  | 随机数据生成方法
-  |--------------------------------------------------------------------------
-  */
-
   // 生成随机文本内容
   public generateRandomText(size: number): string {
-    // 获取当前语言环境，默认为中文
     const currentLanguage = this.getCurrentLanguage();
-    
-    // 根据语言环境选择合适的 faker 实例
     const fakerInstance = this.getFakerInstance(currentLanguage);
-    
     let result = '';
-    
-    // 如果需要的大小很小，直接返回一个句子
     if (size <= 50) {
       const sentence = fakerInstance.lorem.sentence();
       return sentence.substring(0, size);
     }
-    
-    // 生成指定长度的文本
     while (result.length < size) {
-      // 随机选择不同类型的文本内容
       const randomType = Math.random();
-      
       if (randomType < 0.4) {
         // 40% 概率生成句子
         result += fakerInstance.lorem.sentence() + ' ';
@@ -81,26 +64,16 @@ export class MockUtils {
           return fakerEN; // 默认使用英文
       }
     } catch (error) {
-      // 如果特定语言不支持，回退到英文
-      console.warn(`Faker locale ${language} not supported, falling back to English`);
       return fakerEN;
     }
   }
 
   // 生成随机JSON数据
   public generateRandomJson(size: number): Record<string, unknown> {
-    // 获取当前语言环境，默认为中文
     const currentLanguage = this.getCurrentLanguage();
-    
-    // 根据语言环境选择合适的 faker 实例
     const fakerInstance = this.getFakerInstance(currentLanguage);
-    
-    // 根据 size 确定 JSON 对象的复杂度
     const complexity = Math.min(Math.max(Math.floor(size / 20), 1), 20); // 1-20个字段
-    
     const jsonData: Record<string, unknown> = {};
-    
-    // 生成基础字段
     const fieldTypes = [
       // 基础信息字段
       () => ({ id: fakerInstance.string.uuid() }),
@@ -140,14 +113,10 @@ export class MockUtils {
       () => ({ ipAddress: fakerInstance.internet.ip() }),
       () => ({ userAgent: fakerInstance.internet.userAgent() }),
     ];
-    
-    // 随机选择字段
     const selectedFields = fakerInstance.helpers.arrayElements(fieldTypes, complexity);
     selectedFields.forEach(fieldGenerator => {
       Object.assign(jsonData, fieldGenerator());
     });
-    
-    // 如果复杂度足够高，添加嵌套对象
     if (complexity >= 5) {
       jsonData.metadata = {
         version: fakerInstance.system.semver(),
@@ -156,8 +125,6 @@ export class MockUtils {
         permissions: fakerInstance.helpers.arrayElements(['read', 'write', 'delete', 'admin'], 2)
       };
     }
-    
-    // 如果复杂度足够高，添加数组字段
     if (complexity >= 8) {
       const itemCount = Math.min(Math.floor(complexity / 4), 5);
       jsonData.items = Array.from({ length: itemCount }, () => ({
@@ -168,23 +135,23 @@ export class MockUtils {
         available: fakerInstance.datatype.boolean()
       }));
     }
-    
     return jsonData;
   }
 
   // 获取当前语言环境
   public getCurrentLanguage(): 'zh-cn' | 'zh-tw' | 'en' | 'ja' {
-    // 在主进程中，我们可以从某个配置或默认值获取语言环境
-    // 这里先返回默认值，后续可以通过IPC或其他方式获取
-    return 'zh-cn';
+    return runtime.getLanguage();
   }
-
-  /*
-  |--------------------------------------------------------------------------
-  | 文件处理方法
-  |--------------------------------------------------------------------------
-  */
-
+  // 匹配HTTP方法
+  public matchHttpMethod(requestMethod: string, allowedMethods: string[]): boolean {
+    return allowedMethods.includes('ALL') || allowedMethods.includes(requestMethod.toUpperCase());
+  }
+  // 判断是否为服务器未启动的错误
+  public isServerNotRunningError(error: any): boolean {
+    return error && 
+           (error.code === 'ERR_SERVER_NOT_RUNNING' || 
+            (error.message && error.message.toLowerCase().includes('server is not running')));
+  }
   // 检测文件 MIME 类型
   public getFileMimeType(filePath: string): string {
     try {
@@ -201,28 +168,18 @@ export class MockUtils {
       return 'application/octet-stream';
     }
   }
-
   // 读取文件数据
   public async readFileData(filePath: string): Promise<{ data: Buffer; mimeType: string }> {
     try {
-      // 基本的路径安全检查
       const resolvedPath = path.resolve(filePath);
-      
-      // 检查文件是否存在
       if (!fs.existsSync(resolvedPath)) {
         throw new Error(`文件不存在: ${filePath}`);
       }
-      
-      // 检查是否为文件
       const stats = fs.statSync(resolvedPath);
       if (!stats.isFile()) {
         throw new Error(`路径不是文件: ${filePath}`);
       }
-      
-      // 读取文件数据
       const data = fs.readFileSync(resolvedPath);
-      
-      // 检测 MIME 类型
       const mimeType = this.getFileMimeType(resolvedPath);
       
       return { data, mimeType };
@@ -236,7 +193,6 @@ export class MockUtils {
   | SSE处理方法
   |--------------------------------------------------------------------------
   */
-
   // 生成SSE事件数据
   public generateSSEEventData(sseConfig: MockResponseConfig['sseConfig'], messageIndex: number): MockSSEEventData {
     const eventData: Partial<MockSSEEventData> = {};
@@ -373,14 +329,6 @@ export class MockUtils {
         case 'webp':
           sharpInstance = sharpInstance.webp();
           break;
-        case 'gif':
-          // sharp 不直接支持 gif 输出，转为 png
-          sharpInstance = sharpInstance.png();
-          break;
-        case 'bmp':
-          // sharp 不直接支持 bmp，转为 png
-          sharpInstance = sharpInstance.png();
-          break;
         default:
           sharpInstance = sharpInstance.png();
       }
@@ -409,19 +357,9 @@ export class MockUtils {
 
   // 处理SSE类型响应
   public handleSseResponse(responseConfig: MockResponseConfig, ctx: Koa.Context): void {
-    console.log('处理SSE类型响应:', {
-      dataType: responseConfig.dataType,
-      sseConfig: responseConfig.sseConfig
-    });
-
     const { sseConfig } = responseConfig;
-    
-    // 验证配置
     const interval = Math.max(sseConfig.interval || 1000, 100); // 最小100ms间隔
     const maxNum = Math.max(sseConfig.maxNum || 10, 1); // 最少发送1条数据
-    
-    console.log('SSE配置:', { interval, maxNum });
-    
     // 设置SSE响应头
     ctx.set({
       'Content-Type': 'text/event-stream',
@@ -661,12 +599,6 @@ export class MockUtils {
               break;
             case 'webp':
               mimeType = 'image/webp';
-              break;
-            case 'gif':
-              mimeType = 'image/gif';
-              break;
-            case 'bmp':
-              mimeType = 'image/bmp';
               break;
             case 'svg':
               mimeType = 'image/svg+xml';
