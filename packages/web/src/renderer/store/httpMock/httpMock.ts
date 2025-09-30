@@ -18,6 +18,12 @@ export const useHttpMock = defineStore('httpMock', () => {
   const saveLoading = ref(false);
   const refreshLoading = ref(false);
 
+  const apidocTabsStore = useApidocTas();
+  const apidocBannerStore = useApidocBanner();
+  const { deleteTabByIds, changeTabInfoById } = apidocTabsStore;
+  const { changeBannerInfoById } = apidocBannerStore;
+  const { tabs } = storeToRefs(apidocTabsStore);
+
   /*
   |--------------------------------------------------------------------------
   | 缓存操作方法
@@ -63,35 +69,28 @@ export const useHttpMock = defineStore('httpMock', () => {
   */
   // 改变httpMock名称
   const changeHttpMockName = (name: string): void => {
-    if (!httpMock.value) return;
     httpMock.value.info.name = name;
   };
 
   // 改变httpMock描述
   const changeHttpMockDescription = (description: string): void => {
-    if (!httpMock.value) return;
     httpMock.value.info.description = description;
   };
 
   // 改变HTTP方法
   const changeHttpMockNodeMethod = (method: MockHttpNode['requestCondition']['method']): void => {
-    if (!httpMock.value) return;
     httpMock.value.requestCondition.method = method;
   };
 
   // 改变请求URL
   const changeHttpMockNodeRequestUrl = (url: string): void => {
-    if (!httpMock.value) return;
     httpMock.value.requestCondition.url = url;
   };
 
   // 改变端口
   const changeHttpMockNodePort = (port: number): void => {
-    if (!httpMock.value) return;
     httpMock.value.requestCondition.port = port;
   };
-
-
 
   /*
   |--------------------------------------------------------------------------
@@ -99,7 +98,6 @@ export const useHttpMock = defineStore('httpMock', () => {
   |--------------------------------------------------------------------------
   */
   const changeHttpMockNodeDelay = (delay: number): void => {
-    if (!httpMock.value) return;
     httpMock.value.config.delay = delay;
   };
 
@@ -129,7 +127,6 @@ export const useHttpMock = defineStore('httpMock', () => {
            urlIsEqual && portIsEqual && delayIsEqual;
   };
 
-
   /*
   |--------------------------------------------------------------------------
   | 接口调用
@@ -153,8 +150,11 @@ export const useHttpMock = defineStore('httpMock', () => {
           cancelButtonText: '取消',
           type: 'warning',
         }).then(() => {
-          // TODO: 删除tab的逻辑需要根据实际情况实现
-          console.log('删除HttpMock tab');
+          return deleteTabByIds({
+            ids: [payload.id],
+            projectId: payload.projectId,
+            force: true,
+          });
         }).catch((err) => {
           if (err === 'cancel' || err === 'close') {
             return;
@@ -187,9 +187,6 @@ export const useHttpMock = defineStore('httpMock', () => {
   */
   // 保存HttpMock配置
   const saveHttpMockNode = async (): Promise<void> => {
-    const { changeTabInfoById } = useApidocTas();
-    const { changeBannerInfoById } = useApidocBanner()
-    const { tabs } = storeToRefs(useApidocTas())
     const projectId = router.currentRoute.value.query.id as string;
     const currentTabs = tabs.value[projectId];
     const currentSelectTab = currentTabs?.find((tab) => tab.selected) || null;
@@ -282,10 +279,6 @@ export const useHttpMock = defineStore('httpMock', () => {
         return { success: false, error: '无法访问Mock API' };
       }
       
-      if (!httpMock.value) {
-        return { success: false, error: 'Mock配置不存在' };
-      }
-
       // 验证nodeId是否匹配
       if (httpMock.value._id !== nodeId) {
         return { success: false, error: 'Mock ID不匹配' };
