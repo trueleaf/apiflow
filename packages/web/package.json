@@ -23,10 +23,12 @@
     "build:app:linux": "cross-env NODE_OPTIONS=--max-old-space-size=8192 vite build && electron-builder --linux"
   },
   "dependencies": {
+    "@faker-js/faker": "^10.0.0",
     "@tiptap/core": "^3.3.0",
     "@tiptap/extension-history": "^3.3.0",
     "@tiptap/starter-kit": "^3.3.0",
     "@tiptap/vue-3": "^3.3.0",
+    "@types/mime-types": "^3.0.1",
     "@types/ws": "^8.18.1",
     "axios": "^1.7.3",
     "brace": "^0.11.1",
@@ -52,6 +54,7 @@
     "koa": "^3.0.1",
     "lodash-es": "^4.17.21",
     "mime": "^4.0.6",
+    "mime-types": "^3.0.1",
     "mitt": "^3.0.1",
     "mockjs": "^1.1.0",
     "monaco-editor": "^0.52.2",
@@ -60,6 +63,7 @@
     "pinia": "^2.2.0",
     "prettier": "^3.4.2",
     "set-cookie-parser": "^2.7.1",
+    "sharp": "^0.34.4",
     "vue": "^3.5.13",
     "vue-i18n": "^10.0.8",
     "vue-router": "^4.4.2",
