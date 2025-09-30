@@ -15,21 +15,11 @@
         <img :src="captchaUrl" @click="freshCapchaUrl" />
       </div>
     </el-form-item>
-    <!-- <el-form-item v-if="config.localization.enableGuest" class="mb-1">
-      <el-button :loading="loading" class="w-100" type="primary" @click="handleGuesttLogin">{{ $t("直接登录(体验账号，数据不会被保存)")
-        }}</el-button>
-    </el-form-item> -->
     <el-form-item class="mb-1">
       <el-button :loading="loading" type="primary" native-type="submit"
         class="w-100">{{ $t("登录") }}</el-button>
     </el-form-item>
-    <el-form-item v-if="config.localization.enableRegister" class="mb-1">
-      <el-button class="w-100" @click="handleJumpToRegister">{{ $t("注册账号") }}</el-button>
-    </el-form-item>
-    <!-- <div class="forget-pwd-wrap">
-      <el-button text link type="primary" @click="handleJumpToResetPassword">{{ $t("已有账号，忘记密码?") }}</el-button>
-    </div> -->
-    <div v-if="config.localization.enableDocLink" class="mt-2 d-flex j-around">
+    <div class="mt-2 d-flex j-around">
       <a href="https://github.com/trueleaf/apiflow" target="_blank" class="d-flex flex-column j-center a-center">
         <svg class="svg-icon" aria-hidden="true" :title="$t('跳转github')">
           <use xlink:href="#icongithub"></use>
@@ -47,13 +37,6 @@
           <use xlink:href="#iconyuque"></use>
         </svg>
         <div class="mt-1">{{ $t("完整文档") }}</div>
-      </a>
-      <a :href="config.localization.download.url" target="__blank"
-        class="d-flex flex-column j-center a-center cursor-pointer hover-theme-color">
-        <svg class="svg-icon" aria-hidden="true" :title="$t('客户端下载')">
-          <use xlink:href="#iconkehuduan"></use>
-        </svg>
-        <div class="mt-1">{{ $t("客户端下载") }}</div>
       </a>
     </div>
   </el-form>

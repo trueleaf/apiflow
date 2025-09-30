@@ -20,10 +20,6 @@ export const usePermissionStore = defineStore('permission', () => {
   const globalConfig = ref<GlobalConfig>({
     title: "",
     version: "",
-    consoleWelcome: false,
-    enableRegister: false,
-    enableGuest: false,
-    enableDocLink: false,
     shareUrl: '',
     autoUpdate: false,
     updateUrl: '',

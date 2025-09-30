@@ -195,7 +195,7 @@ const bindTopBarEvent = () => {
 }
 
 const initWelcom = () => {
-  if (!config.isDev && config.localization.consoleWelcome) {
+  if (!config.isDev) {
     console.log(`
               _ _            _ _           _ _ _ _ _ _ _     _ _      _ _    _ _        _ _
             / _ \\          / _ \\         / _ _ _ _ _ _ \\    \\   \\   /   /   |  |       |  |
@@ -206,9 +206,9 @@ const initWelcom = () => {
         /_/         \\_\\/_/         \\_\\    \\_ _ _ _ _ _ _/       /_ _/         \\ _ _ _ _ _ /
 
         ${t('基于Vue和Electron的接口文档工具')}
-      
+
         ${t('GitHub地址')}：https://github.com/trueleaf/apiflow
-      
+
         ${t('Gitee地址')}：https://gitee.com/wildsell/apiflow
 
         ${t('最近一次更新')}：${__APP_BUILD_TIME__}

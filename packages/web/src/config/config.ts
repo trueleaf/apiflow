@@ -62,15 +62,7 @@ export const config: Config = {
   //本地部署相关配置
   localization: {
     version: '0.8.0', //当前项目版本
-    title: 'apiflow', //项目名称
-    consoleWelcome: true, //是否打印欢迎信息
-    download: {
-      isEnabled: false, //是否允许提示用户下载electron
-      url: 'https://gitee.com/shuzhikai/moyu/releases', //下载地址
-    },
-    enableRegister: true, //是否允许用户自主注册账号
-    enableGuest: true, //是否允许来宾用户体验
-    enableDocLink: true, //是否显示文档和帮助链接
+    title: 'Apiflow', //项目名称
   },
   requestTest: {
     responseLogDir: '/responseLog',

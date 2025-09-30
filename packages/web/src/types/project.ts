@@ -343,22 +343,6 @@ export type GlobalConfig = {
    */
   version: string;
   /**
-   * 是否打印欢迎信息
-   */
-  consoleWelcome: boolean;
-  /**
-   * 是否允许用户注册
-   */
-  enableRegister: boolean;
-  /**
-   * 是否允许来宾用户访问
-   */
-  enableGuest: boolean;
-  /**
-   * 是否允许显示文档链接
-   */
-  enableDocLink: boolean;
-  /**
    * 分享url
    */
   shareUrl: string;

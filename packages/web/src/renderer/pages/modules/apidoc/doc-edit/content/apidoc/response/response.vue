@@ -36,19 +36,7 @@
     <el-empty v-show="requestState === 'waiting' && !responseInfo.contentType">
       <template #description>
         <div v-if="requestState === 'waiting'">
-          <div v-if="isElectron()" class="no-select">{{ t("点击发送请求按钮发送请求") }}</div>
-          <div v-else>
-            <div>
-              <el-icon :size="18" class="orange mr-2">
-                <Warning />
-              </el-icon>
-              <span>{{ t("因浏览器限制，完整HTTP功能请下载Electron") }}</span>
-            </div>
-            <div class="mb-2">{{ t("跨域、、请求头(user-agent,accept-encoding)等受限") }}</div>
-            <div v-if="config.localization.download.isEnabled">
-              <a :href="config.localization.download.url">{{ t("下载Electron") }}</a>
-            </div>
-          </div>
+          <div class="no-select">{{ t("点击发送请求按钮发送请求") }}</div>
         </div>
       </template>
     </el-empty>
@@ -57,9 +45,6 @@
 
 <script lang="ts" setup>
 import { computed, ref } from 'vue'
-import { Warning } from '@element-plus/icons-vue'
-import { config } from '@/../config/config'
-// import { formatBytes } from '@/helper/index'
 import SBaseInfo from './base-info/base-info.vue'
 import SResInfo from './res-info/res-info.vue'
 import SCookie from './cookie/cookie.vue'
@@ -71,7 +56,6 @@ import { useI18n } from 'vue-i18n'
 import { useApidocResponse } from '@/store/apidoc/response'
 import { useApidocBaseInfo } from '@/store/apidoc/base-info'
 import { useApidoc } from '@/store/apidoc/apidoc'
-import { isElectron } from '@/utils/utils'
 import SLoading from '@/components/common/loading/g-loading.vue'
 
 

@@ -191,35 +191,6 @@ export type Config = {
      * 应用名称
      */
     title: string,
-    /**
-     * 是否开启控制台欢迎文案
-     */
-    consoleWelcome: boolean,
-    /**
-     * 客户端下载相关
-     */
-    download: {
-      /**
-       * 下载地址
-       */
-      url: string,
-      /**
-       * 是否允许下载
-       */
-      isEnabled: boolean,
-    },
-    /**
-     * 是否允许用户自主注册账号
-     */
-    enableRegister: boolean,
-    /**
-     * 是否允许来宾用户体验
-     */
-    enableGuest: boolean,
-    /**
-     * 是否显示文档和帮助链接
-     */
-    enableDocLink: boolean,
   },
   requestTest: {
     responseLogDir: string;
