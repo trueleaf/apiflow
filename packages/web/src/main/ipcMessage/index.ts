@@ -26,7 +26,7 @@ export const useIpcEvent = (mainWindow: BrowserWindow, topBarView: WebContentsVi
   | 2.打开开发者工具
   |--------------------------------------------------------------------------
   */
-  ipcMain.handle('apiflow-open-dev-tools', () => {
+  ipcMain.on('apiflow-open-dev-tools', () => {
     mainWindow.webContents.openDevTools()
   })
   ipcMain.handle('apiflow-read-file-as-blob', async (_: IpcMainInvokeEvent, path: string) => {
@@ -55,18 +55,18 @@ export const useIpcEvent = (mainWindow: BrowserWindow, topBarView: WebContentsVi
   | 窗口操作
   |---------------------------------------------------------------------------
   */
-  ipcMain.handle('apiflow-minimize-window', () => {
+  ipcMain.on('apiflow-minimize-window', () => {
     mainWindow.minimize()
   })
-  ipcMain.handle('apiflow-maximize-window', () => {
+  ipcMain.on('apiflow-maximize-window', () => {
     mainWindow.maximize()
   })
   
-  ipcMain.handle('apiflow-unmaximize-window', () => {
+  ipcMain.on('apiflow-unmaximize-window', () => {
     mainWindow.unmaximize()
   })
 
-  ipcMain.handle('apiflow-close-window', () => {
+  ipcMain.on('apiflow-close-window', () => {
     mainWindow.close()
   })
   ipcMain.handle('apiflow-get-window-state', () => {
@@ -223,13 +223,13 @@ export const useIpcEvent = (mainWindow: BrowserWindow, topBarView: WebContentsVi
   |---------------------------------------------------------------------------
   */
   // 选择导出路径
-  ipcMain.on('export-select-path', async (event) => {
+  ipcMain.handle('export-select-path', async () => {
     try {
       const result = await selectExportPath();
-      event.reply('export-select-path-reply', result);
+      return result;
     } catch (error) {
       console.error('选择导出路径失败:', error);
-      event.reply('export-select-path-reply', { code: 1, msg: (error as Error).message, data: {} });
+      return { code: 1, msg: (error as Error).message, data: {} };
     }
   });
 
@@ -264,9 +264,9 @@ export const useIpcEvent = (mainWindow: BrowserWindow, topBarView: WebContentsVi
   });
 
   // 获取导出状态
-  ipcMain.on('export-get-status', (event) => {
+  ipcMain.handle('export-get-status', () => {
     const status = getExportStatus();
-    event.reply('export-get-status-reply', status);
+    return status;
   });
 
   // 重置导出状态
@@ -285,13 +285,13 @@ export const useIpcEvent = (mainWindow: BrowserWindow, topBarView: WebContentsVi
   |---------------------------------------------------------------------------
   */
   // 选择导入文件
-  ipcMain.on('import-select-file', async (event) => {
+  ipcMain.handle('import-select-file', async () => {
     try {
       const result = await selectImportFile();
-      event.reply('import-select-file-reply', result);
+      return result;
     } catch (error) {
       console.error('选择导入文件失败:', error);
-      event.reply('import-select-file-reply', { code: 1, msg: (error as Error).message, data: {} });
+      return { code: 1, msg: (error as Error).message, data: {} };
     }
   });
 

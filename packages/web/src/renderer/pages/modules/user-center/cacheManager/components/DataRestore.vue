@@ -172,20 +172,6 @@ const handleWorkerMessage = (event: MessageEvent) => {
 const initIpcListeners = () => {
   cleanupIpcListeners();
   
-  // 监听选择文件回复事件
-  listenerRefs.value.importSelectFileReply = (result: any) => {
-    if (result?.code === 0 && result.data?.filePath) {
-      importStatus.status = 'fileSelected';
-      importStatus.filePath = result.data.filePath;
-      fileErrorMessage.value = '';
-      analyzeImportFile();
-    } else {
-      importStatus.status = 'notStarted';
-      statusMessage.value = result?.msg || '用户取消选择';
-    }
-  };
-  window.electronAPI?.ipcManager.onMain('import-select-file-reply', listenerRefs.value.importSelectFileReply);
-  
   // 监听文件分析完成事件
   listenerRefs.value.importFileAnalyzed = (result: { code: number, data?: { itemCount?: number }, msg?: string }) => {
     if (result.code === 0 && result.data?.itemCount !== undefined) {
@@ -266,7 +252,21 @@ const initIpcListeners = () => {
 */
 // 选择导入文件
 const handleSelectFile = async () => {
-  window.electronAPI?.ipcManager.sendToMain('import-select-file');
+  try {
+    const result = await window.electronAPI?.importManager.selectFile();
+    if (result && result.code === 0 && result.data?.filePath) {
+      importStatus.status = 'fileSelected';
+      importStatus.filePath = result.data.filePath;
+      fileErrorMessage.value = '';
+      analyzeImportFile();
+    } else {
+      importStatus.status = 'notStarted';
+      statusMessage.value = result?.msg || '用户取消选择';
+    }
+  } catch (error) {
+    console.error('选择文件失败:', error);
+    statusMessage.value = '选择文件失败';
+  }
 };
 // 分析导入文件
 const analyzeImportFile = async () => {
@@ -411,11 +411,6 @@ const importDataToIndexedDB = async (item: any) => {
 // 清理IPC监听器
 const cleanupIpcListeners = () => {
   if (window.electronAPI?.ipcManager.removeListener && listenerRefs.value) {
-    // 移除选择文件回复监听器
-    if (listenerRefs.value.importSelectFileReply) {
-      window.electronAPI.ipcManager.removeListener('import-select-file-reply', listenerRefs.value.importSelectFileReply);
-    }
-    
     // 移除文件分析完成监听器
     if (listenerRefs.value.importFileAnalyzed) {
       window.electronAPI.ipcManager.removeListener('import-file-analyzed', listenerRefs.value.importFileAnalyzed);

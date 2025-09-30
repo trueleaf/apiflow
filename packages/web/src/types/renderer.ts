@@ -46,6 +46,13 @@ export type ElectronAPI = {
     getLogsByNodeId: (nodeId: string) => Promise<MockLog[]>;
     replaceById: (nodeId: string, httpMock: MockHttpNode) => Promise<CommonResponse<null>>;
   };
+  exportManager: {
+    selectPath: () => Promise<CommonResponse<{ filePath?: string; tempPath?: string }>>;
+    getStatus: () => Promise<{ status: string; progress: number; itemNum: number }>;
+  };
+  importManager: {
+    selectFile: () => Promise<CommonResponse<{ filePath?: string }>>;
+  };
 }
 
 declare global {

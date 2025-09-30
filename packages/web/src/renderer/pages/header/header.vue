@@ -1,10 +1,7 @@
 <template>
   <div class="s-header">
     <div class="logo">
-      <span class="app-title" @click="jumpToHome">
-        <span>{{ appTitle }}</span>
-        <span v-if="isDev" id="devIndicator">({{ t('本地') }})</span>
-      </span>
+      <img :src="logoUrl" alt="Apiflow Logo" class="logo-img" draggable="false" @click="jumpToHome"/>
     </div>
     <div class="home" :class="{ active: activeTabId === ''}" @click="jumpToHome">
       <i class="iconfont iconhome"></i>
@@ -64,7 +61,7 @@ import { Language } from '@src/types'
 import { RefreshRight, Back, Right } from '@element-plus/icons-vue'
 import { useI18n } from 'vue-i18n'
 import { useRuntime } from '@/store/runtime/runtime'
-import { config } from '@src/config/config'
+
 
 // 定义Tab类型
 type HeaderTab = {
@@ -77,11 +74,11 @@ type HeaderTab = {
 const tabs = ref<HeaderTab[]>([])
 const activeTabId = ref('')
 const isMaximized = ref(false)
-const isDev = config.isDev
-const appTitle = config.localization.title
 const { t } = useI18n()
 const runtime = useRuntime()
 const networkMode = computed(() => runtime.networkMode)
+// logo图片路径
+const logoUrl = new URL('@/assets/imgs/logo.png', import.meta.url).href
 const filteredTabs = computed(() => {
   return tabs.value.filter(tab => tab.network === networkMode.value)
 })
@@ -327,11 +324,18 @@ body {
 }
 .logo {
   height: 100%;
-  color: #ccc;
   display: flex;
   -webkit-app-region: no-drag;
   align-items: center;
+  margin-right: 10px;
 }
+.logo-img {
+  height: 24px;
+  width: auto;
+  border-radius: 50%;
+  
+}
+
 .home {
   display: flex;
   align-items: center;

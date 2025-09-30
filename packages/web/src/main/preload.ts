@@ -6,23 +6,23 @@ import { StandaloneExportHtmlParams } from '@src/types/standalone.ts'
 import { WindowState } from '@src/types/types.ts'
 
 const openDevTools = () => {
-  ipcRenderer.invoke('apiflow-open-dev-tools')
+  ipcRenderer.send('apiflow-open-dev-tools')
 }
 
 const minimizeWindow = () => {
-  ipcRenderer.invoke('apiflow-minimize-window')
+  ipcRenderer.send('apiflow-minimize-window')
 }
 
 const maximizeWindow = () => {
-  ipcRenderer.invoke('apiflow-maximize-window')
+  ipcRenderer.send('apiflow-maximize-window')
 }
 
 const unMaximizeWindow = () => {
-  ipcRenderer.invoke('apiflow-unmaximize-window')
+  ipcRenderer.send('apiflow-unmaximize-window')
 }
 
 const closeWindow = () => {
-  ipcRenderer.invoke('apiflow-close-window')
+  ipcRenderer.send('apiflow-close-window')
 }
 
 const getWindowState = () => {
@@ -116,6 +116,20 @@ const mockReplaceById = (nodeId: string, httpMock: any) => {
   return ipcRenderer.invoke('mock-replace-by-id', nodeId, httpMock)
 }
 
+// 导出相关方法
+const exportSelectPath = () => {
+  return ipcRenderer.invoke('export-select-path')
+}
+
+const exportGetStatus = () => {
+  return ipcRenderer.invoke('export-get-status')
+}
+
+// 导入相关方法
+const importSelectFile = () => {
+  return ipcRenderer.invoke('import-select-file')
+}
+
 contextBridge.exposeInMainWorld('electronAPI', {
   ip: ip.address(),
   sendRequest: gotRequest,
@@ -156,5 +170,12 @@ contextBridge.exposeInMainWorld('electronAPI', {
     stopServer: mockStopServer,
     getLogsByNodeId: mockGetLogsByNodeId,
     replaceById: mockReplaceById,
+  },
+  exportManager: {
+    selectPath: exportSelectPath,
+    getStatus: exportGetStatus,
+  },
+  importManager: {
+    selectFile: importSelectFile,
   }
 })

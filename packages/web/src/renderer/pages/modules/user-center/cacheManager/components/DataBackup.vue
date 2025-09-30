@@ -117,20 +117,6 @@ const listenerRefs = ref<Record<string, (...args: any[]) => void>>({});
 // IPC事件监听器
 const initIpcListeners = () => {
   cleanupIpcListeners();
-  // 监听选择路径回复事件
-  listenerRefs.value.exportSelectPathReply = (result: any) => {
-    if (result?.success && result.filePath) {
-      exportStatus.status = 'pathSelected';
-      exportStatus.filePath = result.filePath;
-      pathErrorMessage.value = '';
-      calculateDataCount();
-    } else {
-      exportStatus.status = 'notStarted'
-      statusMessage.value = result?.error || '用户取消选择';
-    }
-  };
-  window.electronAPI?.ipcManager.onMain('export-select-path-reply', listenerRefs.value.exportSelectPathReply);
-  
   // 监听准备接收数据事件
   listenerRefs.value.exportReadyToReceive = () => {
     statusMessage.value = '正在读取和发送数据...';
@@ -162,7 +148,21 @@ const initIpcListeners = () => {
 */
 // 选择保存路径
 const handleSelectPath = async () => {
-  window.electronAPI?.ipcManager.sendToMain('export-select-path');
+  try {
+    const result = await window.electronAPI?.exportManager.selectPath();
+    if (result && result.code === 0 && result.data?.filePath) {
+      exportStatus.status = 'pathSelected';
+      exportStatus.filePath = result.data.filePath;
+      pathErrorMessage.value = '';
+      calculateDataCount();
+    } else {
+      exportStatus.status = 'notStarted'
+      statusMessage.value = result?.msg || '用户取消选择';
+    }
+  } catch (error) {
+    console.error('选择路径失败:', error);
+    statusMessage.value = '选择路径失败';
+  }
 };
 // 计算需要导出的数据量
 const calculateDataCount = async () => {
@@ -312,11 +312,6 @@ const checkDbIsNeedExport = (dbName: string) => {
 const cleanupIpcListeners = () => {
   // 移除所有本组件注册的监听器
   if (window.electronAPI?.ipcManager.removeListener && listenerRefs.value) {
-    // 移除选择路径回复监听器
-    if (listenerRefs.value.exportSelectPathReply) {
-      window.electronAPI.ipcManager.removeListener('export-select-path-reply', listenerRefs.value.exportSelectPathReply);
-    }
-    
     // 移除准备接收数据监听器
     if (listenerRefs.value.exportReadyToReceive) {
       window.electronAPI.ipcManager.removeListener('export-ready-to-receive', listenerRefs.value.exportReadyToReceive);

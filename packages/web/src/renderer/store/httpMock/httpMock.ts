@@ -230,15 +230,10 @@ export const useHttpMock = defineStore('httpMock', () => {
         if (isEnabled && window.electronAPI?.mock?.replaceById) {
           // 准备更新数据，确保包含projectId
           const updateData = { ...httpMockDetail, projectId };
-          const result = await window.electronAPI.mock.replaceById(httpMockDetail._id, updateData);
-          if (!result.success) {
-            console.warn('更新主进程Mock配置失败:', result.error);
-            // 这里可以选择显示警告给用户，但不影响保存流程
-          }
+          await window.electronAPI.mock.replaceById(httpMockDetail._id, updateData);
         }
       } catch (error) {
         console.warn('更新主进程Mock配置时发生错误:', error);
-        // 不影响保存流程，只记录警告
       }
       
       // 添加0.1秒的saveLoading效果
