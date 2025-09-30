@@ -162,6 +162,24 @@ export type Config = {
     onlineUrl: string,
   },
   /**
+   * AI配置
+   */
+  aiConfig: {
+    /**
+     * 默认模型
+     */
+    model: "DeepSeek",
+    /**
+     * 接口密钥
+     */
+    apiKey: string,
+    /**
+     * 接口地址
+     */
+    apiUrl: string,
+  },
+
+  /**
    * 本地部署相关配置
    */
   localization: {

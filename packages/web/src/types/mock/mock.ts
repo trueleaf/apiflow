@@ -26,7 +26,28 @@ export type MockHttpNode = {
     statusCode: number;
     headers: Record<string, string>;
     dataType: "sse" | "json" | "text" | "image" | "file" | "binary";
-    sseConfig: {};
+    sseConfig: {
+      event: {
+        id: {
+          enable: boolean,
+          valueMode: "increment" | "random" | 'timestamp',
+        },
+        event: {
+          enable: boolean,
+          value: string;
+        },
+        data: {
+          mode: "json" | "string",
+          value: string;
+        },
+        retry: {
+          enable: boolean,
+          value: number;
+        },
+      },
+      interval: number;
+      maxNum: number;
+    };
     jsonConfig: {
       mode: "random" | "fixed" | "randomAi";
       fixedData: string;
@@ -95,17 +116,17 @@ type MockRequestLog = {
     referer: string,              // 引用页面
     userAgent: string,            // 用户代理
     responseTime: number,          // 响应耗时(ms)
-    
+
     // Mock服务特有字段
     mockDelay: number,            // Mock延迟时间
     matchedRoute: string,         // 匹配的路由模式
-    
+
     // 可选扩展字段
     protocol: string,             // 协议类型
     hostname: string,             // 主机名
     contentType: string,          // 内容类型
     contentLength: number,        // 内容长度
-    
+
     // 保留原有但不显示在标准日志中的字段
     headers: Record<string, string>, // 完整请求头(用于详细查看)
     body: string,                 // 请求体(用于调试)

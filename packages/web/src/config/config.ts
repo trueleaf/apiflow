@@ -52,6 +52,13 @@ export const config: Config = {
     useLocalFile: false, //使用本地文件作为主进程加载内容
     onlineUrl: 'https://online.jobtool.cn', //若useLocalFile为false则使用当前地址作为electron加载地址
   },
+  // AI配置
+  aiConfig: {
+    model: 'DeepSeek',
+    apiKey: '',
+    apiUrl: '',
+  },
+
   //本地部署相关配置
   localization: {
     version: '0.8.0', //当前项目版本
