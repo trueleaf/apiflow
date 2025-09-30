@@ -374,7 +374,6 @@ export type HttpNodeResponseContentType =
   | 'text/plain'
   | 'text/css'
   | 'text/javascript'
-  | 'image/gif'
   | 'image/jpeg'
   | 'image/png'
   | 'image/svg+xml'

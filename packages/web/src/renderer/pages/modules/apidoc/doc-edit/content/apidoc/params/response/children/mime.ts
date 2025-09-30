@@ -13,9 +13,6 @@ export default [{
     alias: 'CSV',
     mimeType: 'text/csv'
   }, {
-    alias: 'GIF',
-    mimeType: 'image/gif'
-  }, {
     alias: 'JPEG JPG',
     mimeType: 'image/jpeg'
   }, {
@@ -67,9 +64,6 @@ export default [{
 }, {
   title: '图片类型',
   values: [{
-    alias: 'GIF',
-    mimeType: 'image/gif'
-  }, {
     alias: 'JPG JPEG',
     mimeType: 'image/jpeg'
   }, {

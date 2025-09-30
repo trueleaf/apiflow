@@ -10,6 +10,7 @@ import type { RuntimeNetworkMode } from '@src/types/runtime';
 
 import { mockManager } from '../main.ts';
 import { MockHttpNode } from '@src/types/mock/mock.ts';
+import { runtime } from '../runtime/runtime.ts';
 
 export const useIpcEvent = (mainWindow: BrowserWindow, topBarView: WebContentsView, contentView: WebContentsView) => {
   // 设置窗口引用到导出模块
@@ -101,17 +102,6 @@ export const useIpcEvent = (mainWindow: BrowserWindow, topBarView: WebContentsVi
   // 停止mock服务
   ipcMain.handle('mock-stop-server', async (_: IpcMainInvokeEvent, nodeId: string) => {
     return await mockManager.removeMockByNodeIdAndStopMockServer(nodeId);
-  });
-
-  // 获取已使用的端口
-  ipcMain.handle('mock-get-used-ports', async () => {
-    const mockList = mockManager.getMockList();
-    return mockList.map(mock => ({
-      port: mock.requestCondition.port,
-      projectId: mock.projectId,
-      nodeId: mock._id,
-      nodeName: mock.info.name
-    }));
   });
 
   ipcMain.handle('mock-get-logs-by-node-id', async (_: IpcMainInvokeEvent, nodeId: string) => {
@@ -215,6 +205,9 @@ export const useIpcEvent = (mainWindow: BrowserWindow, topBarView: WebContentsVi
 
   // 语言切换
   ipcMain.on('apiflow-language-changed', (_, language: string) => {
+    // 更新运行时语言状态
+    runtime.setLanguage(language as 'zh-cn' | 'zh-tw' | 'en' | 'ja');
+    
     // 同时通知 topBarView 和 contentView 更新语言显示
     contentView.webContents.send('apiflow-language-changed', language)
     topBarView.webContents.send('apiflow-language-changed', language)

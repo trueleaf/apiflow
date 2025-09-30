@@ -58,7 +58,6 @@
               {{ mockError }}
             </div>
           </div>
-          <!-- 已移除used-port相关页面逻辑 -->
         </div>
       </div>
     </div>
@@ -85,7 +84,6 @@ const { currentSelectTab } = storeToRefs(apidocTabsStore)
 const enabled = ref(false)
 const enabledStatusLoading = ref(false)
 const mockError = ref('')
-// ...已移除usedPorts及usedPortsLoading相关逻辑...
 
 // 获取本机IP地址，失败则使用默认值
 const getLocalIp = () => {
@@ -104,8 +102,6 @@ const mockUrl = computed(() => {
   const url = httpMock.value.requestCondition.url
   return `http://${ip}:${port}${url}`
 })
-
-// ...已移除filteredUsedPorts相关逻辑...
 
 // 监听HTTP方法变更
 watch(
@@ -140,10 +136,6 @@ watch(
     mockError.value = ''
   }
 )
-
-// ...已移除handleClosePortTag相关逻辑...
-
-// ...已移除handleCloseMock相关逻辑...
 
 // 处理enabled状态切换
 const handleEnabledToggle = (val: string | number | boolean) => {
@@ -213,8 +205,6 @@ const handleEnabledToggle = (val: string | number | boolean) => {
       enabledStatusLoading.value = false
     })
 }
-
-// ...已移除getUsedPortsList相关逻辑...
 
 // 检查Mock启用状态
 const checkEnabledStatus = () => {
@@ -340,39 +330,5 @@ onMounted(() => {
   padding: 6px 8px;
   border-radius: var(--border-radius-sm);
   border-left: 3px solid #f56c6c;
-}
-
-.used-ports-tags {
-  display: flex;
-}
-
-.used-ports-label {
-  font-size: var(--font-size-xs);
-  color: var(--gray-500);
-  margin-right: 6px;
-}
-
-.ports-tags-container {
-  min-height: 24px;
-}
-
-.ports-loading {
-  font-size: var(--font-size-xs);
-  color: var(--gray-500);
-  padding: 4px 0;
-}
-
-.ports-tags {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-}
-
-.port-tag {
-  cursor: pointer;
-}
-
-.used-port {
-  max-width: 300px;
 }
 </style>

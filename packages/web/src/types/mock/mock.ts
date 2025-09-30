@@ -62,7 +62,7 @@ export type MockHttpNode = {
     };
     imageConfig: {
       mode: "random" | "fixed";
-      imageConfig: "png" | "jpg" | "gif" | "webp" | "bmp" | "svg";
+      imageConfig: "png" | "jpg" | "webp" | "svg";
       randomSize: number;
       randomWidth: number;
       randomHeight: number;

@@ -261,7 +261,7 @@ const checkDisplayType = (mimeType: HttpNodeResponseContentType): 'text' | 'json
     return 'text';
   }
   // 图片展示
-  if (mimeType === 'image/gif' || mimeType === 'image/jpeg' || mimeType === 'image/png' || mimeType === 'image/svg+xml') {
+  if (mimeType === 'image/jpeg' || mimeType === 'image/png' || mimeType === 'image/svg+xml') {
     return 'image';
   }
   // 音频文件
