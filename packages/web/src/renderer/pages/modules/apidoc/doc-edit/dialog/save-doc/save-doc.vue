@@ -24,9 +24,9 @@
       </SFieldset>
     </el-form>
     <template #footer>
+      <el-button @click="handleClose">{{ t('取消') }}</el-button>
       <el-button :loading="loading" :title="!formInfo.name ? t('请输入接口名称') : ''" :disabled="!formInfo.name" type="primary"
         @click="handleSaveDoc">{{ t('保存') }}</el-button>
-      <el-button type="warning" @click="handleClose">{{ t('取消') }}</el-button>
     </template>
   </el-dialog>
 </template>

@@ -20,8 +20,8 @@
       </SForm>
       <template #footer>
         <div>
+          <el-button @click="dialogVisible = false">取消</el-button>
           <el-button :loading="loading" type="primary" @click="handleSaveCode">确定</el-button>
-          <el-button type="warning" @click="dialogVisible = false">取消</el-button>
         </div>
       </template>
     </el-dialog>

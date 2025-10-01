@@ -82,9 +82,9 @@
       </div>
     </div>
     <template #footer>
+      <el-button @click="handleClose">{{ t('取消') }}</el-button>
       <el-button :size="config.renderConfig.layout.size" :loading="loading" type="primary"
         @click="handleEditLink">{{ t('确认修改') }}</el-button>
-      <el-button type="warning" @click="handleClose">{{ t('取消') }}</el-button>
     </template>
   </el-dialog>
 </template>

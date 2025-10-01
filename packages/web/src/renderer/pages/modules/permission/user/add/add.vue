@@ -14,8 +14,8 @@
     <el-alert title="新添加用户默认密码：111111" type="warning" :closable="false" />
     <template #footer>
       <div>
+        <el-button @click="handleClose">{{ t("取消") }}</el-button>
         <el-button :loading="loading" type="primary" @click="handleAddUser">{{ t("确定") }}</el-button>
-        <el-button type="warning" @click="handleClose">{{ t("取消") }}</el-button>
       </div>
     </template>
   </el-dialog>
