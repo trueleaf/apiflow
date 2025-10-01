@@ -588,19 +588,43 @@ export const generateEmptyHttpMockNode = (_id: string): MockHttpNode => {
         statusCode: 200,
         headers: {},
         dataType: 'json',
-        sseConfig: {},
+        sseConfig: {
+          event: {
+            id: {
+              enable: false,
+              valueMode: 'increment',
+            },
+            event: {
+              enable: false,
+              value: '',
+            },
+            data: {
+              mode: 'json',
+              value: '',
+            },
+            retry: {
+              enable: false,
+              value: 3000,
+            },
+          },
+          interval: 1000,
+          maxNum: 10,
+        },
         jsonConfig: {
           mode: 'fixed',
           fixedData: '',
           randomSize: 0,
+          prompt: '',
         },
         textConfig: {
           mode: 'fixed',
           fixedData: '',
           randomSize: 0,
+          prompt: '',
         },
         imageConfig: {
           mode: 'fixed',
+          imageConfig: 'png',
           randomSize: 0,
           randomWidth: 0,
           randomHeight: 0,

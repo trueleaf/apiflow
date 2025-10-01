@@ -327,7 +327,7 @@ body {
   display: flex;
   -webkit-app-region: no-drag;
   align-items: center;
-  margin-right: 10px;
+  margin-right: 20px;
 }
 .logo-img {
   height: 24px;
@@ -341,7 +341,7 @@ body {
   align-items: center;
   font-size: 12px;
   height: 35px;
-  padding: 0 15px;
+  padding: 0 20px 0 15px;
   cursor: pointer;
   -webkit-app-region: no-drag;
 
@@ -390,7 +390,7 @@ body {
 
 .tab-item {
   height: 100%;
-  padding: 0 24px 0 24px;
+  padding: 0 30px 0 24px;
   max-width: 200px;
   display: flex;
   align-items: center;
