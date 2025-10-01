@@ -1,11 +1,9 @@
 <template>
   <div class="mock-layout">
     <CleanTabs v-model="activeTab" type="card" class="mock-tabs">
-      <!-- 配置与响应 Tab -->
       <CleanTabPane :label="t('配置与响应')" name="config">
         <MockConfig />
       </CleanTabPane>
-      <!-- 日志 Tab -->
       <CleanTabPane :label="t('日志')" name="logs">
         <MockLog />
       </CleanTabPane>

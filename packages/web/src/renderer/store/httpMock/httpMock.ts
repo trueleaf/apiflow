@@ -108,23 +108,16 @@ export const useHttpMock = defineStore('httpMock', () => {
   */
   // 检查httpMock是否发生改变
   const checkHttpMockNodeIsEqual = (current: MockHttpNode, origin: MockHttpNode): boolean => {
-    const cpCurrent: MockHttpNode = JSON.parse(JSON.stringify(current));
-    const cpOrigin: MockHttpNode = JSON.parse(JSON.stringify(origin));
+    // 使用JSON序列化进行深度比较，排除不需要比较的字段
+    const normalize = (node: MockHttpNode) => {
+      const { _id, projectId, pid, sort, createdAt, updatedAt, isDeleted, ...rest } = node;
+      return rest;
+    };
     
-    // 检查基本信息
-    const nameIsEqual = cpCurrent.info.name === cpOrigin.info.name;
-    const descriptionIsEqual = cpCurrent.info.description === cpOrigin.info.description;
+    const currentNormalized = normalize(current);
+    const originNormalized = normalize(origin);
     
-    // 检查请求条件
-    const methodIsEqual = JSON.stringify(cpCurrent.requestCondition.method) === JSON.stringify(cpOrigin.requestCondition.method);
-    const urlIsEqual = cpCurrent.requestCondition.url === cpOrigin.requestCondition.url;
-    const portIsEqual = cpCurrent.requestCondition.port === cpOrigin.requestCondition.port;
-    
-    // 检查配置
-    const delayIsEqual = cpCurrent.config.delay === cpOrigin.config.delay;
-    
-    return nameIsEqual && descriptionIsEqual && methodIsEqual && 
-           urlIsEqual && portIsEqual && delayIsEqual;
+    return JSON.stringify(currentNormalized) === JSON.stringify(originNormalized);
   };
 
   /*
