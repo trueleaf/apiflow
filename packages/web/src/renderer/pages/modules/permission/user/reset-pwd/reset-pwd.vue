@@ -1,6 +1,6 @@
 
 <template>
-  <SDialog :model-value="modelValue" title="重置密码" @close="handleClose">
+  <el-dialog :model-value="modelValue" title="重置密码" :before-close="handleClose">
     <SForm ref="form" v-loading="loading2" :edit-data="formInfo">
       <SFormItem label="新密码" prop="password" required :min-length="6" one-line></SFormItem>
     </SForm>
@@ -10,7 +10,7 @@
         <el-button type="warning" @click="handleClose">{{ t("取消") }}</el-button>
       </div>
     </template>
-  </SDialog>
+  </el-dialog>
 </template>
 
 <script lang="ts" setup>
@@ -18,7 +18,6 @@ import { request } from '@/api/api';
 import { ElMessage, FormInstance } from 'element-plus';
 import { useI18n } from 'vue-i18n'
 import { nextTick, ref } from 'vue';
-import SDialog from '@/components/common/dialog/g-dialog.vue'
 import SForm from '@/components/common/forms/form/g-form.vue'
 import SFormItem from '@/components/common/forms/form/g-form-item.vue'
 

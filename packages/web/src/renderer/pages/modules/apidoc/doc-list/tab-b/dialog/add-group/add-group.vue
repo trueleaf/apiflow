@@ -1,5 +1,5 @@
 <template>
-  <Dialog :model-value="modelValue" top="10vh" :title="t('创建团队')" @close="handleClose">
+  <el-dialog :model-value="modelValue" top="10vh" :title="t('创建团队')" :before-close="handleClose">
     <el-form ref="form" :model="formInfo" :rules="rules" label-width="150px">
       <el-form-item :label="`${t('团队名称')}：`" prop="groupName">
         <el-input v-model="formInfo.groupName" :size="config.renderConfig.layout.size" :placeholder="t('请输入团队名称')" @keydown.enter="handleAddGroup"></el-input>
@@ -61,7 +61,7 @@
       <el-button :loading="loading" type="primary" @click="handleAddGroup">{{ t("确定") }}</el-button>
       <el-button type="warning" @click="handleClose">{{ t("取消") }}</el-button>
     </template>
-  </Dialog>
+  </el-dialog>
 </template>
 
 <script lang="ts" setup>
@@ -73,7 +73,6 @@ import { useI18n } from 'vue-i18n'
 import { nextTick, ref } from 'vue';
 import RemoteSelector from '@/components/common/remote-select/g-remote-select.vue';
 import RemoteSelectorItem from '@/components/common/remote-select/g-remote-select-item.vue';
-import Dialog from '@/components/common/dialog/g-dialog.vue';
 
 defineProps({
   modelValue: {

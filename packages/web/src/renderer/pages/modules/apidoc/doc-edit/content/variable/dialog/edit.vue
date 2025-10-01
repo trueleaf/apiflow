@@ -1,5 +1,5 @@
 <template>
-  <Dialog :model-value="modelValue" top="10vh" :title="t('修改变量')" @close="handleClose">
+  <el-dialog :model-value="modelValue" top="10vh" :title="t('修改变量')" :before-close="handleClose">
     <el-form ref="formInstance" :model="formInfo" :rules="rules" label-width="120px">
       <el-form-item :label="`${t('变量名称')}：`" prop="name">
         <el-input v-model="formInfo.name" :size="config.renderConfig.layout.size" :placeholder="t('请输入变量名称')"
@@ -79,7 +79,7 @@
       <el-button :loading="loading" type="primary" @click="handleEditVariable">{{ t("确定") }}</el-button>
       <el-button type="warning" @click="handleClose">{{ t("取消") }}</el-button>
     </template>
-  </Dialog>
+  </el-dialog>
 </template>
 
 <script lang="ts" setup>
@@ -88,7 +88,6 @@ import { config } from '@src/config/config';
 import { ElMessage, FormInstance, genFileId, UploadFile, UploadInstance, UploadProps, UploadRawFile } from 'element-plus';
 import { useI18n } from 'vue-i18n'
 import { computed, nextTick, PropType, ref, watch } from 'vue';
-import Dialog from '@/components/common/dialog/g-dialog.vue';
 import { AddProjectVariableFormInfo, AddProjectVariableParams } from '../variable.vue';
 import SJsonEditor from '@/components/common/json-editor/g-json-editor.vue'
 import { useRoute } from 'vue-router';

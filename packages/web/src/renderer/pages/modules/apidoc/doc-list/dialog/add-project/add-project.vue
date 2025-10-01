@@ -1,5 +1,5 @@
 <template>
-  <Dialog :model-value="modelValue" top="10vh" :title="t('新增项目')" @close="handleClose">
+  <el-dialog :model-value="modelValue" width="35vw" top="10vh" :title="t('新增项目')" :before-close="handleClose">
     <el-form ref="form" :model="formInfo" :rules="rules" label-width="150px" @submit.prevent="() => {}">
       <el-form-item :label="`${t('项目名称')}：`" prop="projectName">
         <el-input v-model="formInfo.projectName" v-focus-select="isFocus" :size="config.renderConfig.layout.size" :placeholder="t('请输入项目名称')" @keydown.enter="handleAddProject"></el-input>
@@ -55,7 +55,7 @@
       <el-button :loading="loading2" type="primary" @click="handleAddProject">{{ t("确定") }}</el-button>
       <el-button type="warning" @click="handleClose">{{ t("取消") }}</el-button>
     </template>
-  </Dialog>
+  </el-dialog>
 </template>
 
 <script lang="ts" setup>
@@ -67,7 +67,6 @@ import { useI18n } from 'vue-i18n'
 import { computed, nextTick, ref } from 'vue';
 import RemoteSelector from '@/components/common/remote-select/g-remote-select.vue';
 import RemoteSelectorItem from '@/components/common/remote-select/g-remote-select-item.vue';
-import Dialog from '@/components/common/dialog/g-dialog.vue';
 import { standaloneCache } from '@/cache/standalone';
 import { generateEmptyProject } from '@/helper';
 import { nanoid } from 'nanoid';

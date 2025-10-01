@@ -1,5 +1,5 @@
 <template>
-  <SDialog :model-value="modelValue" top="10vh" width="500px" :title="t('新增文件夹')" @close="handleClose">
+  <el-dialog :model-value="modelValue" top="10vh" width="500px" :title="t('新增文件夹')" :before-close="handleClose">
     <SForm ref="form" @submit.prevent="handleAddFolder">
       <SFormItem :label="t('文件夹名称')" prop="name" focus one-line></SFormItem>
     </SForm>
@@ -7,14 +7,13 @@
       <el-button :loading="loading" type="primary" @click="handleAddFolder">{{ t("确定") }}</el-button>
       <el-button type="warning" @click="handleClose">{{ t("取消") }}</el-button>
     </template>
-  </SDialog>
+  </el-dialog>
 </template>
 
 <script lang="ts" setup>
 import { ElMessage, FormInstance } from 'element-plus';
 import SForm from '@/components/common/forms/form/g-form.vue'
 import SFormItem from '@/components/common/forms/form/g-form-item.vue'
-import SDialog from '@/components/common/dialog/g-dialog.vue'
 import { CommonResponse, ApidocBanner } from '@src/types'
 import { useI18n } from 'vue-i18n'
 import { computed, ref } from 'vue';

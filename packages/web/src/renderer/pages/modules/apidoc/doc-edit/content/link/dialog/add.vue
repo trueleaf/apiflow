@@ -1,5 +1,5 @@
 <template>
-  <SDialog :model-value="modelValue" top="10vh" width="50%" :title="t('生成链接')" @close="handleClose">
+  <el-dialog :model-value="modelValue" top="10vh" width="50%" :title="t('生成链接')" :before-close="handleClose">
     <div class="link-wrap">
       <SConfig :label="t('链接名称')" :has-check="false" required>
         <el-input v-model="formInfo.shareName" :size="config.renderConfig.layout.size" :placeholder="t('请输入链接名称 eg:xxx团队')"
@@ -86,7 +86,7 @@
         @click="handleGenerateLink">{{ t('生成链接') }}</el-button>
       <el-button type="warning" @click="handleClose">{{ t('取消') }}</el-button>
     </template>
-  </SDialog>
+  </el-dialog>
 </template>
 
 <script lang="ts" setup>
@@ -94,7 +94,6 @@ import { ref, computed, Ref } from 'vue'
 import { ElMessage } from 'element-plus'
 import 'element-plus/es/components/message/style/css'
 import { ApidocBanner } from '@src/types';
-import SDialog from '@/components/common/dialog/g-dialog.vue'
 import SEmphasize from '@/components/common/emphasize/g-emphasize.vue'
 import SConfig from '@/components/common/config/g-config.vue'
 import type { TreeNodeOptions } from 'element-plus/lib/components/tree/src/tree.type'

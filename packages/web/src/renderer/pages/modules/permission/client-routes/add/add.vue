@@ -1,6 +1,6 @@
 
 <template>
-  <SDialog :model-value="modelValue" top="10vh" :title="t('新增前端路由')" @close="handleClose">
+  <el-dialog :model-value="modelValue" top="10vh" :title="t('新增前端路由')" :before-close="handleClose">
     <SForm ref="form" :edit-data="formInfo">
       <SFormItem :label="t('名称')" prop="name" required one-line></SFormItem>
       <SFormItem :label="t('路径')" prop="path" required one-line></SFormItem>
@@ -10,14 +10,13 @@
       <el-button :loading="loading" type="primary" @click="handleSaveClientRoute">{{ t("确定") }}</el-button>
       <el-button type="warning" @click="handleClose">{{ t("取消") }}</el-button>
     </template>
-  </SDialog>
+  </el-dialog>
 </template>
 
 <script lang="ts" setup>
 import { FormInstance } from 'element-plus';
 import { nextTick, ref } from 'vue';
 import { useI18n } from 'vue-i18n'
-import SDialog from '@/components/common/dialog/g-dialog.vue'
 import SForm from '@/components/common/forms/form/g-form.vue'
 import SFormItem from '@/components/common/forms/form/g-form-item.vue'
 import { request } from '@/api/api';

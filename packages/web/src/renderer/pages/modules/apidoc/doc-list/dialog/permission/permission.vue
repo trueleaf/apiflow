@@ -1,12 +1,11 @@
 <template>
-  <SDialog :model-value="modelValue" top="10vh" :title="t('成员管理')" @close="handleClose">
+  <el-dialog :model-value="modelValue" top="10vh" :title="t('成员管理')" :before-close="handleClose">
     <SUser :id="projectId" @leave="handleLeave"></SUser>
-  </SDialog>
+  </el-dialog>
 </template>
 
 <script lang="ts" setup>
 import SUser from './user/user.vue'
-import SDialog from '@/components/common/dialog/g-dialog.vue'
 import { useI18n } from 'vue-i18n'
 
 defineProps({

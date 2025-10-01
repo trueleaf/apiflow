@@ -1,6 +1,6 @@
 
 <template>
-  <SDialog :model-value="modelValue" top="10vh" :title="t('新增菜单')" @close="handleClose">
+  <el-dialog :model-value="modelValue" top="10vh" :title="t('新增菜单')" :before-close="handleClose">
     <SForm ref="form">
       <SFormItem :label="t('菜单名称')" prop="name" one-line required></SFormItem>
       <SFormItem :label="t('路径')" prop="path" one-line required></SFormItem>
@@ -9,12 +9,11 @@
       <el-button :loading="loading" type="primary" @click="handleAddMenu">{{ t("确定") }}</el-button>
       <el-button type="warning" @click="handleClose">{{ t("取消") }}</el-button>
     </template>
-  </SDialog>
+  </el-dialog>
 </template>
 
 <script lang="ts" setup>
 import { CommonResponse } from '@src/types'
-import SDialog from '@/components/common/dialog/g-dialog.vue'
 import SForm from '@/components/common/forms/form/g-form.vue'
 import SFormItem from '@/components/common/forms/form/g-form-item.vue'
 import { nextTick, ref } from 'vue';

@@ -1,5 +1,5 @@
 <template>
-  <Dialog :model-value="modelValue" top="10vh" :title="t('修改项目')" @close="handleClose">
+  <el-dialog :model-value="modelValue" top="10vh" :title="t('修改项目')" :before-close="handleClose">
     <el-form ref="form" :model="formInfo" :rules="rules" label-width="150px" @submit.prevent="() => {}">
       <el-form-item :label="`${t('项目名称')}`" prop="projectName">
         <el-input v-model="formInfo.projectName" v-focus-select :size="config.renderConfig.layout.size"
@@ -10,7 +10,7 @@
       <el-button :loading="loading" type="primary" @click="handleEditProject">{{ t("确定") }}</el-button>
       <el-button type="warning" @click="handleClose">{{ t("取消") }}</el-button>
     </template>
-  </Dialog>
+  </el-dialog>
 </template>
 
 <script lang="ts" setup>
@@ -18,8 +18,7 @@ import { request } from '@/api/api';
 import { config } from '@src/config/config';
 import { ElMessage, FormInstance } from 'element-plus';
 import { useI18n } from 'vue-i18n'
-import { nextTick, ref, watch } from 'vue';
-import Dialog from '@/components/common/dialog/g-dialog.vue';
+import { computed, nextTick, ref, watch } from 'vue';
 import { standaloneCache } from '@/cache/standalone';
 import { useRuntime } from '@/store/runtime/runtime';
 

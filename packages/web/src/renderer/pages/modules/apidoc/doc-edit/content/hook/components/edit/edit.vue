@@ -13,7 +13,7 @@
         <SJsonEditor :model-value="result" read-only></SJsonEditor>
       </div>
     </SFieldset>
-    <SDialog v-model="dialogVisible" title="修改代码">
+    <el-dialog v-model="dialogVisible" title="修改代码">
       <SForm ref="form" :edit-data="editData">
         <SFormItem label="脚本名称" prop="codeName" one-line required></SFormItem>
         <SFormItem label="备注" prop="remark" one-line></SFormItem>
@@ -24,7 +24,7 @@
           <el-button type="warning" @click="dialogVisible = false">取消</el-button>
         </div>
       </template>
-    </SDialog>
+    </el-dialog>
   </div>
   <el-empty description="代码列表中点击修改按钮进行修改"></el-empty>
 </template>
@@ -37,7 +37,6 @@ import SFieldset from '@/components/common/fieldset/g-fieldset.vue'
 import SJsonEditor from '@/components/common/json-editor/g-json-editor.vue'
 import SForm from '@/components/common/forms/form/g-form.vue'
 import SFormItem from '@/components/common/forms/form/g-form-item.vue'
-import SDialog from '@/components/common/dialog/g-dialog.vue'
 import {
   apidocFormatUrl,
   apidocFormatQueryParams,

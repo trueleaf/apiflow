@@ -27,7 +27,7 @@
         </div>
       </div>
     </SCard>
-    <SDialog v-model="dialogVisible" :title="$t('修改密码')">
+    <el-dialog v-model="dialogVisible" :title="$t('修改密码')">
       <el-form v-if="dialogVisible" ref="form" :model="formInfo" :rules="rules" label-width="150px">
         <el-form-item :label="$t('原密码')" prop="oldPassword">
           <el-input v-model="formInfo.oldPassword" :size="config.renderConfig.layout.size" show-password
@@ -48,7 +48,7 @@
           <el-button type="warning" @click="dialogVisible = false">{{ $t('取消') }}</el-button>
         </div>
       </template>
-    </SDialog>
+    </el-dialog>
   </div>
 </template>
 

@@ -39,16 +39,15 @@
         </el-table-column>
       </el-table>
     </div>
-    <SDialog v-model="codeVisible" :title="title">
+    <el-dialog v-model="codeVisible" :title="title">
       <pre class="code-wrap pre">{{ code }}</pre>
-    </SDialog>
+    </el-dialog>
   </div>
 </template>
 
 <script lang="ts" setup>
 import { ElMessage, ElMessageBox, UploadRequestHandler, UploadRequestOptions } from 'element-plus';
 import { onMounted, Ref, ref } from 'vue';
-import SDialog from '@/components/common/dialog/g-dialog.vue'
 import SResizeX from '@/components/common/resize/g-resize-x.vue'
 import type { FormInstance } from 'element-plus/lib/components/form';
 import { useI18n } from 'vue-i18n';

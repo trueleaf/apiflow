@@ -31,7 +31,9 @@
     <!-- 项目列表 -->
     <Loading :loading="!isStandalone && (projectLoading || searchLoading)">
       <!-- 收藏的项目 -->
-      <h2 v-show="starProjects.length > 0">{{ t("收藏的项目") }}</h2>
+      <h2 v-show="starProjects.length > 0">
+        <span class="cursor-pointer">{{ t("收藏的项目") }}</span>
+      </h2>
       <div v-show="starProjects.length > 0" class="project-wrap">
         <div v-for="(item, index) in starProjects" :key="index" class="project-list">
           <div class="project-header">
@@ -92,14 +94,16 @@
           </div>
         </div>
       </div>
-      <h2 class="cursor-pointer" @click="toggleCollapse">
-        <el-icon v-if="!isFold" class="mr-1" :size="16">
-          <CaretBottomIcon />
-        </el-icon>
-        <el-icon v-if="isFold" class="mr-1" :size="16">
-          <CaretRightIcon />
-        </el-icon>
-        <span>{{ $t("全部项目") }}({{ projectList.length }})</span>
+      <h2>
+        <span class="cursor-pointer" @click="toggleCollapse">
+          <el-icon v-if="!isFold" class="mr-1" :size="16">
+            <CaretBottomIcon />
+          </el-icon>
+          <el-icon v-if="isFold" class="mr-1" :size="16">
+            <CaretRightIcon />
+          </el-icon>
+          <span>{{ $t("全部项目") }}({{ projectList.length }})</span>
+        </span>
       </h2>
       <!-- 项目列表 -->
       <div v-show="!isFold" class="project-wrap">

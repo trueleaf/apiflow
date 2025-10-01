@@ -1,6 +1,6 @@
 
 <template>
-  <SDialog :model-value="modelValue" top="10vh" :title="t('新增角色')" @close="handleClose">
+  <el-dialog :model-value="modelValue" top="10vh" :title="t('新增角色')" :before-close="handleClose">
     <div class="g-role">
       <SFieldset :title="t('基本信息')">
         <SForm ref="form" :edit-data="formInfo">
@@ -29,7 +29,7 @@
       <el-button :loading="loading" type="primary" @click="handleSaveRole">{{ t("确定") }}</el-button>
       <el-button type="warning" @click="handleClose">{{ t("取消") }}</el-button>
     </template>
-  </SDialog>
+  </el-dialog>
 </template>
 
 <script lang="ts" setup>
@@ -37,7 +37,6 @@ import { nextTick, ref } from 'vue'
 import SClientMenus from './components/client-menus.vue'
 import SClientRoutes from './components/client-routes.vue'
 import SServerRoutes from './components/server-routes.vue'
-import SDialog from '@/components/common/dialog/g-dialog.vue'
 import SForm from '@/components/common/forms/form/g-form.vue'
 import SFormItem from '@/components/common/forms/form/g-form-item.vue'
 import SFieldset from '@/components/common/fieldset/g-fieldset.vue'

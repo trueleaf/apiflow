@@ -1,6 +1,6 @@
 
 <template>
-  <SDialog :model-value="modelValue" :title="t('修改')" @close="handleClose">
+  <el-dialog :model-value="modelValue" :title="t('修改')" :before-close="handleClose">
     <el-divider content-position="left">{{ t("基础信息") }}</el-divider>
     <SForm ref="form" v-loading="loading2" :edit-data="formInfo">
       <SFormItem :label="t('登录名称')" prop="loginName" required half-line></SFormItem>
@@ -17,7 +17,7 @@
         <el-button type="warning" @click="handleClose">{{ t("取消") }}</el-button>
       </div>
     </template>
-  </SDialog>
+  </el-dialog>
 </template>
 
 <script lang="ts" setup>
@@ -26,7 +26,6 @@ import { PermissionRoleEnum, CommonResponse } from '@src/types'
 import { nextTick, onMounted, ref } from 'vue';
 import { request } from '@/api/api';
 import { ElMessage, FormInstance } from 'element-plus';
-import SDialog from '@/components/common/dialog/g-dialog.vue'
 import SForm from '@/components/common/forms/form/g-form.vue'
 import SFormItem from '@/components/common/forms/form/g-form-item.vue'
 

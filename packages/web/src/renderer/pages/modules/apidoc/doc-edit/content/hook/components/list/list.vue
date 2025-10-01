@@ -23,9 +23,9 @@
         </template>
       </el-table-column>
     </STable>
-    <SDialog v-model="dialogVisible" width="40%" :title="t('代码预览')" @close="handleClose">
+    <el-dialog v-model="dialogVisible" width="40%" :title="t('代码预览')" :before-close="handleClose">
       <pre class="pre">{{ code }}</pre>
-    </SDialog>
+    </el-dialog>
   </div>
 </template>
 
@@ -38,7 +38,6 @@ import type { ApidocCodeInfo } from '@src/types'
 import { event } from '@/helper';
 import { useI18n } from 'vue-i18n'
 import STable from '@/components/common/table/g-table.vue'
-import SDialog from '@/components/common/dialog/g-dialog.vue'
 import { request } from '@/api/api';
 
 const { t } = useI18n()

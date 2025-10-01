@@ -1,6 +1,6 @@
 
 <template>
-  <SDialog :model-value="modelValue" top="10vh" :title="t('批量修改前端路由类型')" @close="handleClose">
+  <el-dialog :model-value="modelValue" top="10vh" :title="t('批量修改前端路由类型')" :before-close="handleClose">
     <SForm ref="form">
       <SFormItem :label="t('分组名称')" prop="groupName" required one-line></SFormItem>
     </SForm>
@@ -8,13 +8,12 @@
       <el-button :loading="loading" type="primary" @click="handleSaveClientRoute">{{ t("确定") }}</el-button>
       <el-button type="warning" @click="handleClose">{{ t("取消") }}</el-button>
     </template>
-  </SDialog>
+  </el-dialog>
 </template>
 
 <script lang="ts" setup>
 import { nextTick, PropType, ref } from 'vue'
 import { PermissionClientRoute } from '@src/types'
-import SDialog from '@/components/common/dialog/g-dialog.vue'
 import SForm from '@/components/common/forms/form/g-form.vue'
 import SFormItem from '@/components/common/forms/form/g-form-item.vue'
 import { FormInstance } from 'element-plus'

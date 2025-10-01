@@ -1,5 +1,5 @@
 <template>
-  <SDialog :model-value="modelValue" top="10vh" :title="t('保存接口')" width="40%" @close="handleClose">
+  <el-dialog :model-value="modelValue" top="10vh" :title="t('保存接口')" width="40%" :before-close="handleClose">
     <el-form ref="form" :model="formInfo" :rules="rules" label-width="100px" class="save-doc"
       @submit.prevent="handleSaveDoc">
       <el-form-item :label="t('接口名称')" prop="name">
@@ -28,7 +28,7 @@
         @click="handleSaveDoc">{{ t('保存') }}</el-button>
       <el-button type="warning" @click="handleClose">{{ t('取消') }}</el-button>
     </template>
-  </SDialog>
+  </el-dialog>
 </template>
 
 <script lang="ts" setup>
@@ -39,7 +39,6 @@ import type { TreeNodeOptions } from 'element-plus/es/components/tree/src/tree.t
 import { router } from '@/router';
 import { request } from '@/api/api'
 import { event } from '@/helper';
-import SDialog from '@/components/common/dialog/g-dialog.vue'
 import SLoading from '@/components/common/loading/g-loading.vue'
 import SFieldset from '@/components/common/fieldset/g-fieldset.vue'
 import { useApidoc } from '@/store/apidoc/apidoc';

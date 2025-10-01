@@ -1,5 +1,5 @@
 <template>
-  <SDialog :model-value="modelValue" top="10vh" :title="t('修改服务端路由')" @close="handleClose">
+  <el-dialog :model-value="modelValue" top="10vh" :title="t('修改服务端路由')" :before-close="handleClose">
     <SForm ref="form" :edit-data="formInfo">
       <SFormItem :label="t('名称')" prop="name" required one-line></SFormItem>
       <SFormItem :label="t('请求方法')" prop="method" required one-line></SFormItem>
@@ -10,13 +10,12 @@
       <el-button :loading="loading" type="primary" @click="handleSaveServerRoute">{{ t("确定") }}</el-button>
       <el-button type="warning" @click="handleClose">{{ t("取消") }}</el-button>
     </template>
-  </SDialog>
+  </el-dialog>
 </template>
 
 <script lang="ts" setup>
 import { nextTick, PropType, ref, watch } from 'vue'
 import type { PermissionServerRoute } from '@src/types'
-import SDialog from '@/components/common/dialog/g-dialog.vue'
 import SForm from '@/components/common/forms/form/g-form.vue'
 import SFormItem from '@/components/common/forms/form/g-form-item.vue'
 import { FormInstance } from 'element-plus'

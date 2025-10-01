@@ -79,7 +79,6 @@
         </div>
       </div>
     </div>
-    <!-- <s-body-use-case-dialog v-model="bodyUseVisible"></s-body-use-case-dialog> -->
   </div>
 </template>
 
@@ -96,9 +95,6 @@ import SParamsTree from '@/components/apidoc/params-tree/g-params-tree.vue'
 import { Close } from '@element-plus/icons-vue'
 import { convertTemplateValueToRealValue } from '@/utils/utils';
 import mime from 'mime';
-
-// import { Switch } from '@element-plus/icons-vue'
-// import sBodyUseCaseDialog from "./dialog/body-use-case/body-use-case.vue"
 
 const bodyTipUrl = new URL('@/assets/imgs/apidoc/body-tip.png', import.meta.url).href
 const rawEditor = ref<InstanceType<typeof SJsonEditor> | null>(null)
