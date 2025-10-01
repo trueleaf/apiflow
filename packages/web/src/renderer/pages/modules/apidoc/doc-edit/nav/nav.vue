@@ -74,8 +74,6 @@
                 <el-icon v-if="element.tabType === 'recycler'" class="red mr-2" :size="16">
                   <IconDeleteFilled />
                 </el-icon>
-                <!-- 安装包 -->
-                <span v-if="element.tabType === 'package'" class="iconfont iconanzhuangbao f-base mr-2"></span>
                 <!-- 接口编排 -->
                 <span v-if="element.tabType === 'apiflow'" class="iconfont iconbianpaixin f-base mr-2"></span>
                 <!-- cookies管理 -->
@@ -133,7 +131,6 @@ import {
   Share as IconShare,
   Download as IconDownload,
   Timer as IconTimer,
-  CoffeeCup as IconCoffeeCup,
   DeleteFilled as IconDeleteFilled,
   Close as IconClose,
   ArrowRight as IconArrowRight,

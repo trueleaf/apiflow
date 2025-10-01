@@ -10,7 +10,6 @@
     <SConfig v-else-if="currentSelectTab.tabType === 'config'"></SConfig>
     <SHook v-else-if="currentSelectTab.tabType === 'hook'"></SHook>
     <SCommonHeader v-else-if="currentSelectTab.tabType === 'commonHeader'"></SCommonHeader>
-    <SPackage v-else-if="currentSelectTab.tabType === 'package'"></SPackage>
     <SApidoc v-else-if="currentSelectTab.tabType === 'http'"></SApidoc>
     <SCookies v-else-if="currentSelectTab.tabType === 'cookies'"></SCookies>
     <SHttpMock v-else-if="currentSelectTab.tabType === 'httpMock'"></SHttpMock>
@@ -38,7 +37,6 @@ import SHistory from './history/history.vue'
 import SConfig from './config/config.vue'
 import SHook from './hook/hook.vue'
 import SCommonHeader from './common-header/common-header.vue'
-import SPackage from './package/package.vue'
 import SWebsocket from './websocket/websocket.vue'
 
 const route = useRoute();

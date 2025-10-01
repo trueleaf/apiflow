@@ -9,7 +9,6 @@ export type ApidocTabType =
   'recycler' |
   'guide' |
   'hook' |
-  'package' |
   'commonHeader' |
   'apiflow' |
   'cookies' |

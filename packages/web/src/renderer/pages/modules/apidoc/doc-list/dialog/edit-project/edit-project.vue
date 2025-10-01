@@ -1,5 +1,5 @@
 <template>
-  <el-dialog :model-value="modelValue" top="10vh" :title="t('修改项目')" :before-close="handleClose">
+  <el-dialog :model-value="modelValue" top="10vh" width="35vw" :title="t('修改项目')" :before-close="handleClose">
     <el-form ref="form" :model="formInfo" :rules="rules" label-width="150px" @submit.prevent="() => {}">
       <el-form-item :label="`${t('项目名称')}`" prop="projectName">
         <el-input v-model="formInfo.projectName" v-focus-select :size="config.renderConfig.layout.size"
