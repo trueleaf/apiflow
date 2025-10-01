@@ -90,9 +90,9 @@
         <div class="filter-group">
           <label class="filter-label">响应时间 (ms)</label>
           <div class="filter-input-group">
-            <input v-model="filters.minResponse" class="filter-input" type="number" min="0" placeholder="最小值" />
+            <el-input-number v-model="filters.minResponse" class="filter-input" :min="0" :controls="false" placeholder="最小值" />
             <span class="filter-input-divider">-</span>
-            <input v-model="filters.maxResponse" class="filter-input" type="number" min="0" placeholder="最大值" />
+            <el-input-number v-model="filters.maxResponse" class="filter-input" :min="0" :controls="false" placeholder="最大值" />
           </div>
         </div>
       </div>
@@ -196,7 +196,7 @@
 import { ref, reactive, computed, watch } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useApidocTas } from '@/store/apidoc/tabs'
-import { ElEmpty } from 'element-plus'
+import { ElEmpty, ElInputNumber } from 'element-plus'
 import type { MockLog } from '@src/types/mock/mock'
 
 const defaultTemplate = '$remote_addr - $remote_user [$time_local] "$request" $status $body_bytes_sent "$http_referer" "$http_user_agent" $request_time'

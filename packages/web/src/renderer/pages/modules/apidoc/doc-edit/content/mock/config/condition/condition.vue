@@ -5,12 +5,12 @@
       <div class="form-row">
         <div class="form-item flex-item">
           <label class="form-label">{{ t('端口') }} *</label>
-          <el-input
-            v-model.number="httpMock.requestCondition.port"
-            type="number"
+          <el-input-number
+            v-model="httpMock.requestCondition.port"
             :placeholder="t('端口')"
             :min="1"
             :max="65535"
+            :controls="false"
             class="port-input"
           />
         </div>
@@ -66,7 +66,7 @@
 
 <script lang="ts" setup>
 import { watch, ref, onMounted, computed } from 'vue'
-import { ElSwitch, ElInput, ElCheckboxGroup, ElCheckbox, ElIcon } from 'element-plus'
+import { ElSwitch, ElInputNumber, ElCheckboxGroup, ElCheckbox, ElIcon } from 'element-plus'
 import { CopyDocument } from '@element-plus/icons-vue'
 import { useI18n } from 'vue-i18n'
 import { storeToRefs } from 'pinia'

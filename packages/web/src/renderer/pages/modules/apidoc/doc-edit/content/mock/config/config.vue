@@ -80,6 +80,5 @@ const handleRefresh = async () => {
   gap: 12px;
   margin-top: 20px;
   padding: 16px 20px;
-  border-top: 1px solid #e2e8f0;
 }
 </style>
