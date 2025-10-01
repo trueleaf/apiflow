@@ -62,6 +62,8 @@ import { RefreshRight, Back, Right } from '@element-plus/icons-vue'
 import { useI18n } from 'vue-i18n'
 import { useRuntime } from '@/store/runtime/runtime'
 
+// logo图片路径 - 移到模块顶部作为常量，避免组件刷新时重新计算
+const logoUrl = new URL('@/assets/imgs/logo.png', import.meta.url).href
 
 // 定义Tab类型
 type HeaderTab = {
@@ -77,8 +79,6 @@ const isMaximized = ref(false)
 const { t } = useI18n()
 const runtime = useRuntime()
 const networkMode = computed(() => runtime.networkMode)
-// logo图片路径
-const logoUrl = new URL('@/assets/imgs/logo.png', import.meta.url).href
 const filteredTabs = computed(() => {
   return tabs.value.filter(tab => tab.network === networkMode.value)
 })

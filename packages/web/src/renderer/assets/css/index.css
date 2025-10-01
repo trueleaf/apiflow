@@ -102,7 +102,20 @@ body {
   }
   .el-button--default {
     --el-button-hover-bg-color: var(--gray-100);
-    --el-button-active-border-color: var(--gray-300);
+    --el-button-active-border-color: transparent;
+  }
+  /* 移除默认按钮的 outline 和 active 状态的 border */
+  .el-button--default:hover,
+  .el-button--default:focus,
+  .el-button--default:active {
+    outline: none;
+  }
+  .el-button:active {
+    border-color: var(--gray-300);
+  }
+  /* 移除 el-tabs 下方的横线 */
+  .el-tabs__nav-wrap::after {
+    display: none;
   }
 }
 
