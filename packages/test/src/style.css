@@ -89,12 +89,12 @@
   --line-height-relaxed: 1.75;
   
   /* 圆角系统 */
-  --radius-sm: 0.25rem;    /* 4px */
-  --radius-base: 0.375rem; /* 6px */
-  --radius-md: 0.5rem;     /* 8px */
-  --radius-lg: 0.75rem;    /* 12px */
-  --radius-xl: 1rem;       /* 16px */
-  --radius-2xl: 1.5rem;    /* 24px */
+  --radius-sm: 2px;
+  --radius-base: 2px;
+  --radius-md: 2px;
+  --radius-lg: 2px;
+  --radius-xl: 2px;
+  --radius-2xl: 2px;
   --radius-full: 9999px;
   
   /* 阴影系统 */
@@ -363,8 +363,7 @@ body {
 .btn-primary:hover:not(:disabled) {
   background-color: var(--color-primary-dark);
   border-color: var(--color-primary-dark);
-  transform: translateY(-1px);
-  box-shadow: var(--shadow-base);
+  box-shadow: var(--shadow-sm);
 }
 
 .btn-secondary {
@@ -387,8 +386,7 @@ body {
 .btn-success:hover:not(:disabled) {
   background-color: var(--color-success-dark);
   border-color: var(--color-success-dark);
-  transform: translateY(-1px);
-  box-shadow: var(--shadow-base);
+  box-shadow: var(--shadow-sm);
 }
 
 .btn-lg {
@@ -412,8 +410,7 @@ body {
 }
 
 .card:hover {
-  box-shadow: var(--shadow-lg);
-  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
 }
 
 .card-header {
@@ -508,11 +505,9 @@ body {
 @keyframes slideUp {
   from {
     opacity: 0;
-    transform: translateY(20px);
   }
   to {
     opacity: 1;
-    transform: translateY(0);
   }
 }
 
@@ -652,7 +647,7 @@ body {
 .rounded-xl { border-radius: 0.75rem; }
 
 /* 阴影增强 */
-.hover\:shadow-lg:hover { box-shadow: var(--shadow-lg); }
+.hover\:shadow-lg:hover { box-shadow: var(--shadow-md); }
 
 /* 动画增强 */
 .transition-all { transition: all var(--duration-base) ease; }
@@ -731,9 +726,7 @@ body {
 .opacity-50 { opacity: 0.5; }
 .opacity-75 { opacity: 0.75; }
 
-.hover\:scale-105:hover {
-  transform: scale(1.05);
-}
+/* Removed hover scale animation */
 
 .group:hover .group-hover\:bg-primary {
   background-color: var(--color-primary);
@@ -747,7 +740,6 @@ body {
 .demo-page {
   min-height: 100vh;
   width: 100%;
-  background-color: var(--color-gray-50);
 }
 
 .demo-header {
@@ -780,7 +772,7 @@ body {
 
 .section-header {
   text-align: center;
-  margin-bottom: var(--spacing-4xl);
+  margin-bottom: 0;
 }
 
 .section-header h2 {
@@ -795,7 +787,7 @@ body {
   display: grid;
   grid-template-columns: repeat(1, minmax(0, 1fr));
   gap: var(--spacing-2xl);
-  margin-bottom: var(--spacing-4xl);
+  margin-bottom: 0;
 }
 
 @media (min-width: 768px) {
@@ -812,7 +804,7 @@ body {
   }
   
   .demo-content {
-    padding: var(--spacing-4xl) var(--spacing-xl);
+    padding: 0 var(--spacing-xl);
   }
 }
 
@@ -832,8 +824,7 @@ body {
 }
 
 .feature-card-demo:hover {
-  box-shadow: var(--shadow-lg);
-  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
 }
 
 .feature-card-demo.group:hover .feature-icon {
@@ -937,8 +928,7 @@ body {
 }
 
 .test-card:hover {
-  box-shadow: var(--shadow-lg);
-  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
 }
 
 .test-card-body {

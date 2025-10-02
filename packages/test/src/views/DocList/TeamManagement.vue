@@ -1,17 +1,5 @@
 <template>
   <div class="demo-page">
-    <!-- 页面头部 -->
-    <div class="demo-header">
-      <div class="demo-header-content">
-        <h1 class="demo-title">
-          团队管理功能演示
-        </h1>
-        <p class="demo-subtitle">
-          API Flow 团队管理模块功能展示与测试指南 - 构建高效协作的团队管理体系
-        </p>
-      </div>
-    </div>
-    
     <!-- 功能描述区域 -->
     <div class="demo-content">
       <div class="section-header">

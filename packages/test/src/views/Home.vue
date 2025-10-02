@@ -3,12 +3,9 @@
     <!-- Header -->
     <header class="page-header">
       <div class="container">
-        <h1 class="header-title">
-          API Flow 测试展示平台
-        </h1>
-        <p class="header-subtitle">
-          专业的 API 文档管理与协作平台
-        </p>
+        <h2 class="header-title">
+          APiflow测试功能展示平台
+        </h2>
       </div>
     </header>
 
@@ -91,14 +88,6 @@
             </div>
           </div>
         </div>
-
-        <!-- 底部信息区域 -->
-        <div class="status-section">
-          <div class="status-indicator">
-            <div class="status-dot animate-pulse"></div>
-            <span class="status-text">系统运行正常</span>
-          </div>
-        </div>
       </div>
     </main>
   </div>
@@ -175,8 +164,7 @@ import { Tickets, School, Setting } from '@element-plus/icons-vue'
 }
 
 .feature-card:hover {
-  box-shadow: var(--shadow-xl);
-  transform: translateY(-4px);
+  box-shadow: var(--shadow-md);
 }
 
 .feature-card.disabled {
@@ -184,7 +172,6 @@ import { Tickets, School, Setting } from '@element-plus/icons-vue'
 }
 
 .feature-card.disabled:hover {
-  transform: none;
   box-shadow: var(--shadow-sm);
 }
 
