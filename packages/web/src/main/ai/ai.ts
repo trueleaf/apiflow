@@ -1,5 +1,5 @@
 import got from 'got';
-import { config } from '../../config/config';
+import { mainConfig } from '@src/config/mainConfig';
 import type { DeepSeekMessage, DeepSeekRequestBody, DeepSeekResponse } from '@src/types/ai/ai';
 
 /**
@@ -11,12 +11,12 @@ export class aiManager {
 
   /**
    * 构造函数
-   * @param apiUrl - API地址，默认从config获取
-   * @param apiKey - API密钥，默认从config获取
+   * @param apiUrl - API地址，默认从mainConfig获取
+   * @param apiKey - API密钥，默认从mainConfig获取
    */
   constructor(apiUrl?: string, apiKey?: string) {
-    this.apiUrl = apiUrl || config.mainConfig.aiConfig.apiUrl || 'https://api.deepseek.com/v1/chat/completions';
-    this.apiKey = apiKey || config.mainConfig.aiConfig.apiKey;
+    this.apiUrl = apiUrl || mainConfig.aiConfig.apiUrl || 'https://api.deepseek.com/v1/chat/completions';
+    this.apiKey = apiKey || mainConfig.aiConfig.apiKey;
   }
 
   /**
@@ -25,10 +25,10 @@ export class aiManager {
    */
   private validateConfig(): void {
     if (!this.apiKey) {
-      throw new Error('AI API Key 未配置，请在配置文件中设置 mainConfig.aiConfig.apiKey');
+      throw new Error('AI API Key 未配置，请在配置文件中设置 aiConfig.apiKey');
     }
     if (!this.apiUrl) {
-      throw new Error('AI API URL 未配置，请在配置文件中设置 mainConfig.aiConfig.apiUrl');
+      throw new Error('AI API URL 未配置，请在配置文件中设置 aiConfig.apiUrl');
     }
   }
 

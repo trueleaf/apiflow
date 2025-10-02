@@ -22,10 +22,13 @@ const buildElectron = (mode: string, command: 'build' | 'serve') => {
     outExtension: {
       '.js': '.mjs',
     },
-    external: ['electron', 'ws', 'koa', 'sharp', 'mime-types'],
+    external: ['electron', 'ws', 'koa', 'sharp', 'mime-types', 'got'],
     define: {
       __MODE__: JSON.stringify(mode),
       __COMMAND__: JSON.stringify(command),
+    },
+    alias: {
+      '@src': path.resolve(process.cwd(), './src'),
     }
   });
 }

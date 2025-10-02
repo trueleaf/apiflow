@@ -7,7 +7,7 @@ import { bindMainProcessGlobalShortCut } from './shortcut/index.ts';
 import { overrideBrowserWindow } from './override/index.ts';
 import { WebSocketManager } from './websocket/websocket.ts';
 import { MockManager } from './mock/mockManager.ts';
-import { config } from '../config/config.ts';
+import { mainConfig } from '@src/config/mainConfig';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
@@ -24,8 +24,8 @@ const createWindow = () => {
   // 创建主窗口
   const mainWindow = new BrowserWindow({
     frame: false,
-    minWidth: config.mainConfig.minWidth,
-    minHeight: config.mainConfig.minHeight,
+    minWidth: mainConfig.minWidth,
+    minHeight: mainConfig.minHeight,
     webPreferences: {
       preload: path.join(__dirname, 'preload.mjs'),
       nodeIntegration: true,
@@ -51,14 +51,14 @@ const createWindow = () => {
 
   // 设置顶部栏位置和大小
   const windowBounds = mainWindow.getContentBounds();
-  topBarView.setBounds({ x: 0, y: 0, width: windowBounds.width, height: config.mainConfig.topbarViewHeight })
+  topBarView.setBounds({ x: 0, y: 0, width: windowBounds.width, height: mainConfig.topbarViewHeight })
 
   // 设置主内容位置和大小（在顶部栏下方）
   contentView.setBounds({
     x: 0,
-    y: config.mainConfig.topbarViewHeight,
+    y: mainConfig.topbarViewHeight,
     width: windowBounds.width,
-    height: windowBounds.height - config.mainConfig.topbarViewHeight
+    height: windowBounds.height - mainConfig.topbarViewHeight
   })
 
   // 加载内容 - 根据构建命令决定加载方式
@@ -95,8 +95,8 @@ app.whenReady().then(() => {
   const updateViewLayout = () => {
     const windowBounds = mainWindow.getContentBounds();
     const windowState = getWindowState(mainWindow);
-    topBarView.setBounds({ x: 0, y: 0, width: windowBounds.width, height: config.mainConfig.topbarViewHeight });
-    contentView.setBounds({ x: 0, y: config.mainConfig.topbarViewHeight, width: windowBounds.width, height: windowBounds.height - config.mainConfig.topbarViewHeight });
+    topBarView.setBounds({ x: 0, y: 0, width: windowBounds.width, height: mainConfig.topbarViewHeight });
+    contentView.setBounds({ x: 0, y: mainConfig.topbarViewHeight, width: windowBounds.width, height: windowBounds.height - mainConfig.topbarViewHeight });
     broadcastWindowState(windowState);
   };
   mainWindow.on('minimize', updateViewLayout);
@@ -106,7 +106,11 @@ app.whenReady().then(() => {
     mainWindow.center(); // 窗口取消最大化时居中显示
   });
   mainWindow.on('restore', updateViewLayout);
-  mainWindow.on('resize', updateViewLayout);
+    mainWindow.on('resize', () => {
+    const windowBounds = mainWindow.getBounds();
+    topBarView.setBounds({ x: 0, y: 0, width: windowBounds.width, height: mainConfig.topbarViewHeight });
+    contentView.setBounds({ x: 0, y: mainConfig.topbarViewHeight, width: windowBounds.width, height: windowBounds.height - mainConfig.topbarViewHeight });
+  });
   mainWindow.maximize()
 
   //重写默认逻辑
