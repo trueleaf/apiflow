@@ -1,12 +1,16 @@
 <template>
   <div class="mock-config-content">
-    <div class="config-section">
+    <!-- 触发条件配置（不滚动） -->
+    <div class="config-section condition-section">
       <ConditionVue />
     </div>
-    <div class="config-section">
+    
+    <!-- 响应配置（可滚动区域） -->
+    <div class="config-section response-section">
       <ResponseVue />
     </div>
-    <!-- 操作按钮 -->
+    
+    <!-- 操作按钮（固定在底部） -->
     <div class="action-buttons">
       <el-button type="primary" :loading="httpMockStore.saveLoading" @click="handleSave">
         {{ t('保存配置') }}
@@ -66,19 +70,60 @@ const handleRefresh = async () => {
 
 <style scoped>
 .mock-config-content {
+  display: flex;
+  flex-direction: column;
+  height: calc(100vh - var(--apiflow-header-height) - var(--apiflow-doc-nav-height) - 50px);
   margin: 0 auto;
-  padding-bottom: 80px; /* 为按钮留出空间 */
 }
 
 .config-section {
   margin-bottom: 12px;
 }
 
+/* 触发条件区域 - 不滚动 */
+.condition-section {
+  flex-shrink: 0;
+  padding: 0 20px;
+  background: var(--white);
+  border-bottom: 1px solid var(--gray-400);
+}
+
+/* 响应配置区域 - 可滚动 */
+.response-section {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0 20px 20px 20px;
+  background: var(--white);
+}
+
+/* 自定义滚动条样式 */
+.response-section::-webkit-scrollbar {
+  width: 8px;
+}
+
+.response-section::-webkit-scrollbar-track {
+  background: var(--gray-100);
+  border-radius: 4px;
+}
+
+.response-section::-webkit-scrollbar-thumb {
+  background: var(--gray-400);
+  border-radius: 4px;
+}
+
+.response-section::-webkit-scrollbar-thumb:hover {
+  background: var(--gray-500);
+}
+
+/* 操作按钮 - 固定在底部 */
 .action-buttons {
+  flex-shrink: 0;
   display: flex;
   justify-content: center;
-  gap: 12px;
-  margin-top: 20px;
+  /* gap: 12px; */
   padding: 16px 20px;
+  background: var(--white);
+  border-top: 1px solid var(--gray-200);
+  /* box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.05); */
 }
 </style>

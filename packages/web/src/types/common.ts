@@ -160,23 +160,23 @@ export type Config = {
      * 若useLocalFile为false则使用当前地址作为electron加载地址
      */
     onlineUrl: string,
-  },
-  /**
-   * AI配置
-   */
-  aiConfig: {
     /**
-     * 默认模型
+     * AI配置
      */
-    model: "DeepSeek",
-    /**
-     * 接口密钥
-     */
-    apiKey: string,
-    /**
-     * 接口地址
-     */
-    apiUrl: string,
+    aiConfig: {
+      /**
+       * 默认模型
+       */
+      model: "DeepSeek",
+      /**
+       * 接口密钥
+       */
+      apiKey: string,
+      /**
+       * 接口地址
+       */
+      apiUrl: string,
+    },
   },
 
   /**

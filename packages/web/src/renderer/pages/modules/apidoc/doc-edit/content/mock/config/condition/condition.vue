@@ -4,10 +4,10 @@
     <div class="config-form">
       <div class="form-row">
         <div class="form-item flex-item">
-          <label class="form-label">{{ t('端口') }} *</label>
+          <label class="form-label">{{ t('监听端口') }} *</label>
           <el-input-number
             v-model="httpMock.requestCondition.port"
-            :placeholder="t('端口')"
+            :placeholder="t('监听端口')"
             :min="1"
             :max="65535"
             :controls="false"
@@ -15,7 +15,7 @@
           />
         </div>
         <div class="form-item flex-item">
-          <label class="form-label">{{ t('HTTP方法') }}</label>
+          <label class="form-label">{{ t('允许的HTTP方法') }}</label>
           <el-checkbox-group v-model="httpMock.requestCondition.method" class="methods-group">
             <el-checkbox label="ALL">ALL</el-checkbox>
             <el-checkbox label="GET">GET</el-checkbox>
@@ -237,10 +237,10 @@ onMounted(() => {
 }
 
 .config-title {
-  font-size: var(--font-size-lg);
+  font-size: var(--font-size-base);
   font-weight: bold;
   color: var(--gray-800);
-  margin-bottom: 16px;
+  margin-bottom: 10px;
 }
 
 .config-form {

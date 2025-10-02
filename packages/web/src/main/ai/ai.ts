@@ -1,158 +1,192 @@
+import got from 'got';
 import { config } from '../../config/config';
+import type { DeepSeekMessage, DeepSeekRequestBody, DeepSeekResponse } from '@src/types/ai/ai';
 
-type ChatRole = 'system' | 'user' | 'assistant';
-
-type ChatMessage = {
-  role: ChatRole;
-  content: string;
-};
-
-type AiChoice = {
-  message?: {
-    content?: string;
-  };
-  content?: string;
-};
-
-type AiResponse = {
-  choices?: AiChoice[];
-};
-
-type ChatRequestPayload = {
-  model: 'DeepSeek';
-  messages: ChatMessage[];
-  max_output_tokens?: number;
-};
-
+/**
+ * AI管理器类，用于调用AI模型生成内容
+ */
 export class aiManager {
-  private readonly apiUrl: string;
-  private readonly apiKey: string;
+  private apiUrl: string;
+  private apiKey: string;
 
-  constructor() {
-    this.apiUrl = config.aiConfig.apiUrl;
-    this.apiKey = config.aiConfig.apiKey;
+  /**
+   * 构造函数
+   * @param apiUrl - API地址，默认从config获取
+   * @param apiKey - API密钥，默认从config获取
+   */
+  constructor(apiUrl?: string, apiKey?: string) {
+    this.apiUrl = apiUrl || config.mainConfig.aiConfig.apiUrl || 'https://api.deepseek.com/v1/chat/completions';
+    this.apiKey = apiKey || config.mainConfig.aiConfig.apiKey;
   }
 
-  public async chatWithJsonText(prompt: string[], model: 'DeepSeek', resLimitSize = 2000): Promise<string> {
-    const baseMessages = this.buildMessages(prompt, this.buildSystemPrompt(resLimitSize, true));
-    return this.tryRequest(baseMessages, model, resLimitSize, true);
-  }
-
-  public async chatWithText(prompt: string[], model: 'DeepSeek', resLimitSize = 2000): Promise<string> {
-    const baseMessages = this.buildMessages(prompt, this.buildSystemPrompt(resLimitSize, false));
-    return this.tryRequest(baseMessages, model, resLimitSize, false);
-  }
-
-  private buildSystemPrompt(limit: number, expectJson: boolean): string {
-    const limitStr = limit > 0 ? `${limit}` : '2000';
-    if (expectJson) {
-      return `You are an assistant that must respond with a valid JSON string only. The response length must not exceed ${limitStr} characters. Do not wrap the output with explanations or code fences.`;
+  /**
+   * 验证API配置
+   * @private
+   */
+  private validateConfig(): void {
+    if (!this.apiKey) {
+      throw new Error('AI API Key 未配置，请在配置文件中设置 mainConfig.aiConfig.apiKey');
     }
-    return `You are an assistant that must respond with plain text only. The response length must not exceed ${limitStr} characters. Do not include code fences or additional explanations.`;
+    if (!this.apiUrl) {
+      throw new Error('AI API URL 未配置，请在配置文件中设置 mainConfig.aiConfig.apiUrl');
+    }
   }
 
-  private buildMessages(userPrompts: string[], systemPrompt: string): ChatMessage[] {
-    const messages: ChatMessage[] = [{ role: 'system', content: systemPrompt }];
-    userPrompts.forEach((item) => {
-      const content = item.trim();
-      if (content.length > 0) {
-        messages.push({ role: 'user', content });
-      }
+  /**
+   * 构建API请求消息
+   * @param prompt - 提示词数组
+   * @param isJsonMode - 是否为JSON模式
+   * @private
+   */
+  private buildMessages(prompt: string[], isJsonMode: boolean): DeepSeekMessage[] {
+    const messages: DeepSeekMessage[] = [];
+
+    // 添加系统提示
+    if (isJsonMode) {
+      messages.push({
+        role: 'system',
+        content: '你是一个专业的数据生成助手。请根据用户的要求生成符合规范的JSON格式数据。你的回答必须是合法的JSON格式，不要包含任何解释性文字或markdown标记。'
+      });
+    }
+
+    // 将prompt数组合并为一个用户消息
+    const combinedPrompt = prompt.join('\n');
+    messages.push({
+      role: 'user',
+      content: combinedPrompt
     });
+
     return messages;
   }
 
-  private async tryRequest(messages: ChatMessage[], model: 'DeepSeek', limit: number, expectJson: boolean): Promise<string> {
-    let lastError: Error | undefined;
-    let currentMessages = messages;
-    for (let attempt = 0; attempt < 2; attempt += 1) {
-      try {
-        const responseText = await this.requestCompletion(currentMessages, model, limit);
-        if (limit > 0 && responseText.length > limit) {
-          lastError = new Error('AI response exceeded length limit.');
-          currentMessages = [...messages, { role: 'user', content: `Your previous reply exceeded ${limit} characters. Return output within the limit only.` }];
-          continue;
-        }
-        if (expectJson) {
-          const normalized = this.normalizeJson(responseText);
-          if (limit > 0 && normalized.length > limit) {
-            lastError = new Error('Normalized JSON response exceeded length limit.');
-            currentMessages = [...messages, { role: 'user', content: `Your previous reply exceeded ${limit} characters after normalization. Return compact JSON only.` }];
-            continue;
-          }
-          return normalized;
-        }
-        return responseText;
-      } catch (error) {
-        if (error instanceof Error) {
-          lastError = error;
-        } else {
-          lastError = new Error('Unexpected AI response error.');
-        }
-        currentMessages = [...messages, { role: 'user', content: 'Return the answer strictly following the previous instructions.' }];
-      }
-    }
-    throw lastError ?? new Error('AI request failed.');
-  }
-
-  private async requestCompletion(messages: ChatMessage[], model: 'DeepSeek', limit: number): Promise<string> {
-    this.assertConfiguration();
-    const payload: ChatRequestPayload = { model, messages };
-    if (limit > 0) {
-      payload.max_output_tokens = limit;
-    }
-    const response = await fetch(this.apiUrl, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${this.apiKey}`,
-      },
-      body: JSON.stringify(payload),
-    });
-    if (!response.ok) {
-      throw new Error(`AI request failed with status ${response.status}.`);
-    }
-    const data: AiResponse = await response.json();
-    const content = this.extractContent(data);
-    if (content.length === 0) {
-      throw new Error('AI response content is empty.');
-    }
-    return content.trim();
-  }
-
-  private normalizeJson(raw: string): string {
-    const trimmed = raw.trim();
-    if (!(trimmed.startsWith('{') || trimmed.startsWith('['))) {
-      throw new Error('Response is not a JSON string.');
-    }
+  /**
+   * 发送请求到DeepSeek API
+   * @param body - 请求体
+   * @private
+   */
+  private async sendRequest(body: DeepSeekRequestBody): Promise<string> {
     try {
-      const parsed = JSON.parse(trimmed) as unknown;
-      return JSON.stringify(parsed);
-    } catch {
-      throw new Error('Response is not valid JSON.');
+      console.log('发送 AI 请求:', {
+        url: this.apiUrl,
+        model: body.model,
+        max_tokens: body.max_tokens,
+        has_response_format: !!body.response_format
+      });
+
+      const response = await got.post(this.apiUrl, {
+        json: body,
+        headers: {
+          'Authorization': `Bearer ${this.apiKey}`,
+          'Content-Type': 'application/json',
+        },
+        timeout: {
+          request: 60000, // 60秒超时
+        },
+      }).json<DeepSeekResponse>();
+
+      // 提取返回内容
+      const content = response.choices?.[0]?.message?.content;
+      if (!content) {
+        throw new Error('AI 返回内容为空');
+      }
+
+      console.log('AI 请求成功:', {
+        usage: response.usage,
+        finish_reason: response.choices?.[0]?.finish_reason
+      });
+
+      return content;
+    } catch (error) {
+      console.error('AI API 调用失败:', error);
+      
+      if (error instanceof Error) {
+        // 处理got库的错误
+        if ('response' in error) {
+          const gotError = error as any;
+          const statusCode = gotError.response?.statusCode;
+          const body = gotError.response?.body;
+          throw new Error(`AI API 请求失败 (${statusCode}): ${body || error.message}`);
+        }
+        throw new Error(`AI API 请求失败: ${error.message}`);
+      }
+      
+      throw new Error('AI API 请求失败: 未知错误');
     }
   }
 
-  private extractContent(data: AiResponse): string {
-    const [choice] = data.choices ?? [];
-    if (!choice) {
-      return '';
+  /**
+   * 调用AI生成文本内容
+   * @param prompt - 提示词数组
+   * @param _model - 模型名称，目前仅支持 'DeepSeek'
+   * @param resLimitSize - 返回内容的token数量限制，默认2000
+   * @returns 生成的文本内容
+   */
+  async chatWithText(
+    prompt: string[], 
+    _model: 'DeepSeek' = 'DeepSeek', 
+    resLimitSize: number = 2000
+  ): Promise<string> {
+    // 验证配置
+    this.validateConfig();
+
+    // 验证参数
+    if (!prompt || prompt.length === 0) {
+      throw new Error('prompt 参数不能为空');
     }
-    if (choice.message?.content) {
-      return choice.message.content;
-    }
-    if (choice.content) {
-      return choice.content;
-    }
-    return '';
+
+    // 构建请求体
+    const requestBody: DeepSeekRequestBody = {
+      model: 'deepseek-chat', // DeepSeek的模型名称
+      messages: this.buildMessages(prompt, false),
+      max_tokens: resLimitSize,
+      temperature: 0.7,
+    };
+
+    // 发送请求并返回结果
+    return await this.sendRequest(requestBody);
   }
 
-  private assertConfiguration(): void {
-    if (!this.apiUrl) {
-      throw new Error('AI apiUrl is not configured.');
+  /**
+   * 调用AI生成JSON格式的文本内容
+   * @param prompt - 提示词数组
+   * @param _model - 模型名称，目前仅支持 'DeepSeek'
+   * @param resLimitSize - 返回内容的token数量限制，默认2000
+   * @returns 生成的JSON格式文本
+   */
+  async chatWithJsonText(
+    prompt: string[], 
+    _model: 'DeepSeek' = 'DeepSeek', 
+    resLimitSize: number = 2000
+  ): Promise<string> {
+    // 验证配置
+    this.validateConfig();
+
+    // 验证参数
+    if (!prompt || prompt.length === 0) {
+      throw new Error('prompt 参数不能为空');
     }
-    if (!this.apiKey) {
-      throw new Error('AI apiKey is not configured.');
+
+    // 构建请求体，强制JSON输出
+    const requestBody: DeepSeekRequestBody = {
+      model: 'deepseek-chat', // DeepSeek的模型名称
+      messages: this.buildMessages(prompt, true),
+      max_tokens: resLimitSize,
+      temperature: 0.7,
+      response_format: {
+        type: 'json_object', // 强制返回JSON格式
+      },
+    };
+
+    // 发送请求
+    const result = await this.sendRequest(requestBody);
+
+    // 验证返回的内容是否为合法JSON
+    try {
+      JSON.parse(result);
+      return result;
+    } catch (parseError) {
+      console.error('AI返回的内容不是合法的JSON格式:', result);
+      throw new Error('AI返回的内容不是合法的JSON格式');
     }
   }
 }
