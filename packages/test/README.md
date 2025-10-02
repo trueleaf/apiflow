@@ -14,4 +14,4 @@ npm install
 npm run test
 ```
 
-访问 `http://localhost:6666/` 即可查看页面效果。
+访问 `http://localhost:6543/` 即可查看页面效果。
