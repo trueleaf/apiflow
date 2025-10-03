@@ -73,13 +73,6 @@ export class AiManager {
    */
   private async sendRequest(body: DeepSeekRequestBody): Promise<string> {
     try {
-      console.log('发送 AI 请求:', {
-        url: this.apiUrl,
-        model: body.model,
-        max_tokens: body.max_tokens,
-        has_response_format: !!body.response_format
-      });
-
       const response = await got.post(this.apiUrl, {
         json: body,
         headers: {
@@ -273,14 +266,6 @@ export class AiManager {
               
               if (content) {
                 onData(content);
-              }
-
-              // 检查是否完成
-              if (data.choices?.[0]?.finish_reason) {
-                console.log('AI 流式请求完成:', {
-                  requestId,
-                  finish_reason: data.choices[0].finish_reason,
-                });
               }
             } catch (parseError) {
               console.error('解析流式数据失败:', parseError, trimmedLine);

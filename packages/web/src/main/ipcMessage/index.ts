@@ -9,6 +9,7 @@ import { IPCProjectData, WindowState } from '@src/types/types.ts';
 import type { RuntimeNetworkMode } from '@src/types/runtime';
 
 import { mockManager } from '../main.ts';
+import { MockUtils } from '../mock/mockUtils.ts';
 import { MockHttpNode } from '@src/types/mock/mock.ts';
 import { runtime } from '../runtime/runtime.ts';
 import { AiManager } from '../ai/ai.ts';
@@ -116,6 +117,21 @@ export const useIpcEvent = (mainWindow: BrowserWindow, topBarView: WebContentsVi
       return { code: 0, msg: '替换成功', data: null };
     } catch (error) {
       console.error('替换Mock配置失败:', error);
+      return {
+        code: 1,
+        msg: error instanceof Error ? error.message : '未知错误',
+        data: null
+      };
+    }
+  });
+
+  // 同步项目变量到主进程
+  ipcMain.handle('mock-sync-project-variables', async (_: IpcMainInvokeEvent, projectId: string, variables: any[]) => {
+    try {
+      MockUtils.syncProjectVariables(projectId, variables);
+      return { code: 0, msg: '同步成功', data: null };
+    } catch (error) {
+      console.error('同步项目变量失败:', error);
       return {
         code: 1,
         msg: error instanceof Error ? error.message : '未知错误',

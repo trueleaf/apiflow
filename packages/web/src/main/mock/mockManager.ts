@@ -84,11 +84,8 @@ export class MockManager {
         ctx.body = { error: 'No response configuration found' };
         return;
       } else if (matchedMock.response.length === 1) {
-        // 只有一个响应配置，直接使用
         responseConfig = matchedMock.response[0];
       } else {
-        // 多个响应配置，打印控制台日志并使用第一个
-        console.log(`Mock节点 ${matchedMock._id} 有 ${matchedMock.response.length} 个响应配置，当前使用第一个配置`);
         responseConfig = matchedMock.response[0];
       }
 
@@ -100,7 +97,6 @@ export class MockManager {
 
       // 对于SSE类型，进行特殊处理
       if (responseConfig.dataType === 'sse') {
-        // 检查是否已设置content-type
         const hasContentType = Object.keys(responseConfig.headers).some(key => 
           key.toLowerCase() === 'content-type'
         );
@@ -133,8 +129,11 @@ export class MockManager {
         }
       }
 
-      // 根据数据类型处理响应数据
-      const responseData = await this.mockUtils.processResponseByDataType(responseConfig, ctx);
+      // 获取项目变量（使用 MockUtils 静态方法）
+      const projectVariables = MockUtils.getProjectVariables(matchedMock.projectId);
+      
+      // 根据数据类型处理响应数据，传入项目变量
+      const responseData = await this.mockUtils.processResponseByDataType(responseConfig, ctx, projectVariables);
       
       // 对于image类型，如果没有设置content-type，则设置生成的MIME类型
       if (responseConfig.dataType === 'image') {
@@ -446,10 +445,14 @@ export class MockManager {
     });
     
     await Promise.all(promises);
+    
+    // 清理该项目的变量缓存（使用 MockUtils 静态方法）
+    MockUtils.clearProjectVariables(projectId);
   }
   public getLogsByNodeId(nodeId: string): MockLog[] {
     return this.logger.getLogsByNodeId(nodeId);
   }
+
   // 检测端口是否冲突
   private async checkPortIsConflict(httpMock: MockHttpNode): Promise<boolean> {
     // 检查 mockList 中是否已有相同端口（端口复用场景，不算冲突）

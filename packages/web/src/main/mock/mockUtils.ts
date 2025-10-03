@@ -8,9 +8,44 @@ import path from 'path';
 import { randomUUID } from 'crypto';
 import Koa from 'koa';
 import { runtime } from '../runtime/runtime';
+import ivm from 'isolated-vm';
+import json5 from 'json5';
+import { ApidocVariable } from '@src/types';
 
 type MockResponseConfig = MockHttpNode['response'][0];
 export class MockUtils {
+  // 项目变量缓存: projectId -> variables
+  private static projectVariablesMap: Map<string, ApidocVariable[]> = new Map();
+
+  /*
+  |--------------------------------------------------------------------------
+  | 项目变量管理（静态方法）
+  |--------------------------------------------------------------------------
+  */
+  // 同步项目变量到主进程缓存
+  public static syncProjectVariables(projectId: string, variables: ApidocVariable[]): void {
+    MockUtils.projectVariablesMap.set(projectId, variables);
+  }
+
+  // 获取项目变量
+  public static getProjectVariables(projectId: string): ApidocVariable[] {
+    const variables = MockUtils.projectVariablesMap.get(projectId);
+    if (!variables) {
+      return [];
+    }
+    return variables;
+  }
+
+  // 清理项目变量缓存
+  public static clearProjectVariables(projectId: string): void {
+    MockUtils.projectVariablesMap.delete(projectId);
+  }
+
+  /*
+  |--------------------------------------------------------------------------
+  | 实例方法
+  |--------------------------------------------------------------------------
+  */
   // 生成随机文本内容
   public generateRandomText(size: number): string {
     const currentLanguage = this.getCurrentLanguage();
@@ -438,23 +473,21 @@ export class MockUtils {
   }
 
   // 处理JSON类型响应
-  public async handleJsonResponse(responseConfig: MockResponseConfig): Promise<Record<string, unknown>> {
-    console.log('处理JSON类型响应:', {
-      dataType: responseConfig.dataType,
-      jsonConfig: responseConfig.jsonConfig
-    });
-
+  public async handleJsonResponse(
+    responseConfig: MockResponseConfig, 
+    variables: ApidocVariable[] = []
+  ): Promise<Record<string, unknown>> {
     const { jsonConfig } = responseConfig;
     
     try {
       switch (jsonConfig.mode) {
         case 'fixed':
-          // 固定模式：解析并返回固定JSON数据
+          // 固定模式：使用 getRealJson 解析并返回固定JSON数据，支持变量和表达式
           try {
             if (!jsonConfig.fixedData || jsonConfig.fixedData.trim() === '') {
-              return { message: 'No fixed data provided' };
+              return {};
             }
-            return JSON.parse(jsonConfig.fixedData);
+            return await this.getRealJson(jsonConfig.fixedData, variables);
           } catch (parseError) {
             console.error('JSON解析错误:', parseError);
             return { 
@@ -713,7 +746,11 @@ export class MockUtils {
   }
 
   // 根据数据类型分发到对应的处理函数
-  public async processResponseByDataType(responseConfig: MockResponseConfig, ctx?: Koa.Context): Promise<string | Record<string, unknown> | Buffer> {
+  public async processResponseByDataType(
+    responseConfig: MockResponseConfig, 
+    ctx?: Koa.Context,
+    variables: ApidocVariable[] = []
+  ): Promise<string | Record<string, unknown> | Buffer> {
     switch (responseConfig.dataType) {
       case 'sse':
         // SSE 类型需要 ctx 参数，如果没有则返回错误信息
@@ -723,7 +760,7 @@ export class MockUtils {
         this.handleSseResponse(responseConfig, ctx);
         return 'SSE streaming started'; // 占位返回值，实际不会被使用
       case 'json':
-        return await this.handleJsonResponse(responseConfig);
+        return await this.handleJsonResponse(responseConfig, variables);
       case 'text':
         return await this.handleTextResponse(responseConfig);
       case 'image': {
@@ -747,6 +784,358 @@ export class MockUtils {
       default:
         console.log('未知的数据类型:', responseConfig.dataType);
         return { error: 'Unsupported data type', dataType: responseConfig.dataType };
+    }
+  }
+
+  /*
+  |--------------------------------------------------------------------------
+  | getRealJson 相关辅助方法
+  |--------------------------------------------------------------------------
+  */
+
+  // 将 ApidocVariable[] 转换为 Record<string, any>
+  private getObjectVariable(variables: ApidocVariable[]): Record<string, any> {
+    const result: Record<string, any> = {};
+    
+    for (const variable of variables) {
+      const { name, value, type } = variable;
+      
+      // 根据类型转换值
+      switch (type) {
+        case 'number':
+          result[name] = Number(value);
+          break;
+        case 'boolean':
+          result[name] = value === 'true' || value === '1';
+          break;
+        case 'null':
+          result[name] = null;
+          break;
+        case 'any':
+          // 尝试解析为 JSON，失败则作为字符串
+          try {
+            result[name] = JSON.parse(value);
+          } catch {
+            result[name] = value;
+          }
+          break;
+        case 'file':
+          // 文件类型暂时保存路径字符串
+          result[name] = variable.fileValue?.path || value;
+          break;
+        case 'string':
+        default:
+          result[name] = value;
+          break;
+      }
+    }
+    
+    return result;
+  }
+
+  // 判断字符串是否为表达式
+  private isExpression(str: string): boolean {
+    const trimmed = str.trim();
+    
+    // 如果是纯数字，不视为表达式
+    if (/^\d+(\.\d+)?$/.test(trimmed)) {
+      return false;
+    }
+    
+    // 如果是纯变量名（字母、数字、下划线），不视为表达式
+    if (/^[a-zA-Z_]\w*$/.test(trimmed)) {
+      return false;
+    }
+    
+    // 包含运算符的视为表达式
+    return /[+\-*/()%<>=!&|]/.test(trimmed);
+  }
+
+  // 使用 isolated-vm 安全执行表达式
+  private async evaluateExpressionWithIsolatedVM(
+    expression: string,
+    variables: Record<string, any>
+  ): Promise<any> {
+    try {
+      // 创建一个新的 isolate（隔离的 V8 实例）
+      const isolate = new ivm.Isolate({ memoryLimit: 8 }); // 8MB 内存限制
+      
+      // 创建一个新的 context（执行上下文）
+      const context = await isolate.createContext();
+      
+      // 将变量注入到 context 中
+      const jail = context.global;
+      await jail.set('global', jail.derefInto());
+      
+      // 注入变量
+      for (const [key, value] of Object.entries(variables)) {
+        // 将 JavaScript 值转换为 isolated-vm 可以使用的值
+        const transferableValue = new ivm.ExternalCopy(value).copyInto();
+        await jail.set(key, transferableValue);
+      }
+      
+      // 注入安全的全局对象
+      await jail.set('Math', new ivm.ExternalCopy(Math).copyInto());
+      
+      // 执行表达式并获取结果
+      const result = await context.eval(expression, { timeout: 1000 }); // 1秒超时
+      
+      // 释放资源
+      isolate.dispose();
+      
+      return result;
+    } catch (error) {
+      console.error('isolated-vm 表达式执行失败:', expression, error);
+      throw new Error(`表达式执行错误: ${(error as Error).message}`);
+    }
+  }
+
+  // 将模板字符串转换为真实值
+  // 支持: {{ variable }}、{{ expression }}、{{ @xxx }}、\{{ }}
+  private async convertTemplateValueToRealValue(
+    stringValue: string,
+    objectVariable: Record<string, any>
+  ): Promise<any> {
+    // 检查是否为单模板：整个字符串是一个 {{ }} 包裹的内容
+    // 这种情况返回实际值，可能是数字、对象等，而不是字符串
+    const isSingleMustachTemplate = stringValue.match(/^\s*\{\{\s*(.*?)\s*\}\}\s*$/);
+    
+    if (isSingleMustachTemplate) {
+      const content = isSingleMustachTemplate[1];
+      
+      // 如果以 @ 开头，保留原始值
+      if (content.startsWith('@')) {
+        return content;
+      }
+      
+      // 如果变量存在，直接返回变量值
+      if (objectVariable[content] !== undefined) {
+        return objectVariable[content];
+      }
+      
+      // 检查是否为表达式
+      if (this.isExpression(content)) {
+        try {
+          const result = await this.evaluateExpressionWithIsolatedVM(content, objectVariable);
+          return result;
+        } catch (error) {
+          console.warn('表达式计算失败:', content, error);
+          return isSingleMustachTemplate[0]; // 返回原始字符串
+        }
+      }
+      
+      // 既不是变量也不是表达式，返回原始字符串
+      return isSingleMustachTemplate[0];
+    }
+    
+    // 多模板或混合文本：替换所有 {{ }} 中的内容
+    let result = stringValue;
+    
+    // 第一步：替换非转义的 {{ }} 中的变量和表达式
+    const promises: Promise<void>[] = [];
+    const replacements: Array<{ placeholder: string; value: string }> = [];
+    
+    // 使用正则匹配所有非转义的 {{ }}
+    const regex = /(?<!\\)\{\{\s*(.*?)\s*\}\}/g;
+    let match: RegExpExecArray | null;
+    
+    while ((match = regex.exec(stringValue)) !== null) {
+      const fullMatch = match[0];
+      const content = match[1];
+      const placeholder = `__PLACEHOLDER_${replacements.length}__`;
+      
+      const promise = (async () => {
+        // 如果以 @ 开头，保留原始内容
+        if (content.startsWith('@')) {
+          replacements.push({ placeholder, value: content });
+          return;
+        }
+        
+        // 如果变量存在，使用变量值
+        if (objectVariable[content] !== undefined) {
+          const value = objectVariable[content];
+          replacements.push({ 
+            placeholder, 
+            value: typeof value === 'string' ? value : String(value)
+          });
+          return;
+        }
+        
+        // 检查是否为表达式
+        if (this.isExpression(content)) {
+          try {
+            const result = await this.evaluateExpressionWithIsolatedVM(content, objectVariable);
+            replacements.push({ 
+              placeholder, 
+              value: typeof result === 'string' ? result : String(result)
+            });
+            return;
+          } catch (error) {
+            console.warn('表达式计算失败:', content, error);
+            replacements.push({ placeholder, value: fullMatch });
+            return;
+          }
+        }
+        
+        // 既不是变量也不是表达式，保留原始字符串
+        replacements.push({ placeholder, value: fullMatch });
+      })();
+      
+      promises.push(promise);
+    }
+    
+    // 等待所有替换完成
+    await Promise.all(promises);
+    
+    // 先用占位符替换所有 {{ }}
+    let index = 0;
+    result = result.replace(regex, () => {
+      return `__PLACEHOLDER_${index++}__`;
+    });
+    
+    // 然后用实际值替换占位符
+    for (const { placeholder, value } of replacements) {
+      result = result.replace(placeholder, value);
+    }
+    
+    // 第二步：处理 @variable 格式（不在 {{ }} 中的）
+    result = result.replace(/(@[^@\s]+)/g, (_, variableName: string) => {
+      return variableName;
+    });
+    
+    // 第三步：移除转义符 \ （\{{ 变成 {{，\@ 变成 @）
+    result = result.replace(/\\(?=\{\{|@)/g, '');
+    
+    return result;
+  }
+
+  // 递归处理 JSON 对象的 value，替换所有表达式和变量
+  private async processJsonValues(
+    jsonData: any,
+    objectVariable: Record<string, any>
+  ): Promise<any> {
+    // 处理 null
+    if (jsonData === null) {
+      return null;
+    }
+    
+    // 处理基本类型
+    const isSimpleValue = typeof jsonData === 'string' || 
+                         typeof jsonData === 'number' || 
+                         typeof jsonData === 'boolean';
+    
+    if (isSimpleValue) {
+      // 只有字符串类型才需要处理模板
+      if (typeof jsonData === 'string') {
+        return await this.convertTemplateValueToRealValue(jsonData, objectVariable);
+      }
+      return jsonData;
+    }
+    
+    // 处理数组
+    if (Array.isArray(jsonData)) {
+      const result: any[] = [];
+      for (const item of jsonData) {
+        const processedItem = await this.processJsonValues(item, objectVariable);
+        result.push(processedItem);
+      }
+      return result;
+    }
+    
+    // 处理对象
+    if (typeof jsonData === 'object') {
+      const result: Record<string, any> = {};
+      for (const key in jsonData) {
+        const value = jsonData[key];
+        const processedValue = await this.processJsonValues(value, objectVariable);
+        result[key] = processedValue;
+      }
+      return result;
+    }
+    
+    return jsonData;
+  }
+
+  // 处理 JSON 对象的 key，支持 key 中的表达式
+  private async processJsonKeys(
+    jsonData: any,
+    objectVariable: Record<string, any>
+  ): Promise<any> {
+    // 处理 null 和基本类型
+    if (jsonData === null || typeof jsonData !== 'object') {
+      return jsonData;
+    }
+    
+    // 处理数组：递归处理数组中的每个元素
+    if (Array.isArray(jsonData)) {
+      const result: any[] = [];
+      for (const item of jsonData) {
+        const processedItem = await this.processJsonKeys(item, objectVariable);
+        result.push(processedItem);
+      }
+      return result;
+    }
+    
+    // 处理对象：替换 key 中的表达式
+    const result: Record<string, any> = {};
+    
+    for (const key in jsonData) {
+      const value = jsonData[key];
+      
+      // 处理 key（如果包含模板或表达式）
+      let newKey = key;
+      if (key.includes('{{')) {
+        const processedKey = await this.convertTemplateValueToRealValue(key, objectVariable);
+        // 确保 key 是字符串
+        newKey = typeof processedKey === 'string' ? processedKey : String(processedKey);
+      }
+      
+      // 递归处理 value
+      const processedValue = await this.processJsonKeys(value, objectVariable);
+      
+      // 注意：这里不考虑 key 冲突，后面的会覆盖前面的
+      result[newKey] = processedValue;
+    }
+    
+    return result;
+  }
+
+  /*
+  |--------------------------------------------------------------------------
+  | getRealJson 主方法
+  |--------------------------------------------------------------------------
+  */
+
+  // 解析 JSON 字符串并处理变量和表达式
+  public async getRealJson(
+    strJson: string,
+    variables: ApidocVariable[]
+  ): Promise<Record<string, any>> {
+    // 参数验证
+    if (!strJson || !strJson.trim()) {
+      return {};
+    }
+    
+    try {
+      // 步骤1: 将变量数组转换为对象
+      const objectVariable = this.getObjectVariable(variables);
+      
+      // 步骤2: 使用 json5 解析 JSON 字符串（支持更灵活的 JSON 格式）
+      const jsonObject = json5.parse(strJson);
+      
+      // 步骤3: 处理 JSON 对象的所有 value
+      const processedValues = await this.processJsonValues(jsonObject, objectVariable);
+      
+      // 步骤4: 处理 JSON 对象的所有 key
+      const processedKeys = await this.processJsonKeys(processedValues, objectVariable);
+      
+      return processedKeys;
+      
+    } catch (error) {
+      console.error('getRealJson 解析失败:', error);
+      throw new Error(
+        `JSON 数据格式解析错误\n原始数据：${strJson}\n错误信息：${(error as Error).message}`
+      );
     }
   }
 }

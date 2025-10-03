@@ -45,6 +45,7 @@ export type ElectronAPI = {
     stopServer: (nodeId: string) => Promise<CommonResponse<null>>;
     getLogsByNodeId: (nodeId: string) => Promise<MockLog[]>;
     replaceById: (nodeId: string, httpMock: MockHttpNode) => Promise<CommonResponse<null>>;
+    syncProjectVariables: (projectId: string, variables: any[]) => Promise<CommonResponse<null>>;
   };
   exportManager: {
     selectPath: () => Promise<CommonResponse<{ filePath?: string; tempPath?: string }>>;

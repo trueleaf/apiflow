@@ -116,6 +116,10 @@ const mockReplaceById = (nodeId: string, httpMock: any) => {
   return ipcRenderer.invoke('mock-replace-by-id', nodeId, httpMock)
 }
 
+const mockSyncProjectVariables = (projectId: string, variables: any[]) => {
+  return ipcRenderer.invoke('mock-sync-project-variables', projectId, variables)
+}
+
 // 导出相关方法
 const exportSelectPath = () => {
   return ipcRenderer.invoke('export-select-path')
@@ -225,6 +229,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
     stopServer: mockStopServer,
     getLogsByNodeId: mockGetLogsByNodeId,
     replaceById: mockReplaceById,
+    syncProjectVariables: mockSyncProjectVariables,
   },
   exportManager: {
     selectPath: exportSelectPath,
