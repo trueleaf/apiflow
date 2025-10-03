@@ -53,6 +53,9 @@ export type ElectronAPI = {
   importManager: {
     selectFile: () => Promise<CommonResponse<{ filePath?: string }>>;
   };
+  aiManager: {
+    testChat: (params: { apiKey: string; apiUrl: string }) => Promise<CommonResponse<string>>;
+  };
 }
 
 declare global {

@@ -9,7 +9,7 @@
         <div class="menu-group">
           <div v-for="(tab, index) in tabs" :key="index" class="tab-item" :class="{ active: activeTab === tab.action }"
             @click="handleTabClick(tab)">
-            <i :class="tab.icon"></i>
+            <component :is="tab.icon" class="tab-icon" />
             <span>{{ tab.name }}</span>
           </div>
         </div>
@@ -26,7 +26,7 @@
             :class="{ active: activeTab === setting.action }"
             @click="handleSettingClick(setting)"
           >
-            <i :class="setting.icon"></i>
+            <component :is="setting.icon" class="tab-icon" />
             <span>{{ setting.name }}</span>
           </div>
         </div>
@@ -36,37 +36,42 @@
         <UserInfo v-if="activeTab === 'user-info'" />
         <CacheManagement v-if="activeTab === 'local-data'" />
         <ComponentLibrary v-if="activeTab === 'components'" />
+        <AiSettings v-if="activeTab === 'ai-settings'" />
       </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from 'vue'
+import { ref, watch, type Component } from 'vue'
 import { httpNodeCache } from '@/cache/http/httpNodeCache.ts'
 import CacheManagement from './cacheManager/CacheManagement.vue'
 import UserInfo from './userInfo/UserInfo.vue'
 import ComponentLibrary from './componentLibrary/ComponentLibrary.vue'
+import AiSettings from './aiSettings/AiSettings.vue'
+// 导入 lucide-vue-next 图标
+import { UserCircle, HardDrive, Settings, Command, Box, BrainCircuit } from 'lucide-vue-next'
 
 // 定义标签类型接口
 type TabItem = {
   name: string
-  icon: string
+  icon: Component
   action: string
 };
 
 // 初始化时从缓存中获取活跃标签，默认为 'user-info'
 const activeTab = ref(httpNodeCache.getActiveLocalDataMenu() || 'user-info')
 const tabs: TabItem[] = [
-  { name: '基本信息', icon: 'iconfont icongerenzhongxin', action: 'user-info' },
-  { name: '本地数据', icon: 'iconfont iconcipan', action: 'local-data' }
+  { name: '基本信息', icon: UserCircle, action: 'user-info' },
+  { name: '本地数据', icon: HardDrive, action: 'local-data' }
 ]
 
 // 偏好设置选项
 const settingTabs: TabItem[] = [
-  { name: '通用', icon: 'iconfont iconCookies', action: 'general' },
-  { name: '快捷键', icon: 'iconfont iconCookies', action: 'shortcuts' },
-  { name: '组件库', icon: 'iconfont iconzujian', action: 'components' }
+  { name: '通用', icon: Settings, action: 'general' },
+  { name: '快捷键', icon: Command, action: 'shortcuts' },
+  { name: '组件库', icon: Box, action: 'components' },
+  { name: 'AI 设置', icon: BrainCircuit, action: 'ai-settings' }
 ]
 
 // 处理所有标签点击
@@ -137,9 +142,10 @@ watch(activeTab, (newValue) => {
           border-right: 3px solid #007aff;
         }
 
-        i {
+        .tab-icon {
           margin-right: 10px;
-          font-size: 18px;
+          width: 18px;
+          height: 18px;
         }
       }
     }

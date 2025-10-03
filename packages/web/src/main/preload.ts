@@ -130,6 +130,11 @@ const importSelectFile = () => {
   return ipcRenderer.invoke('import-select-file')
 }
 
+// AI 相关方法
+const testAiChat = (params: { apiKey: string; apiUrl: string }) => {
+  return ipcRenderer.invoke('ai-test-chat', params)
+}
+
 contextBridge.exposeInMainWorld('electronAPI', {
   ip: ip.address(),
   sendRequest: gotRequest,
@@ -177,5 +182,8 @@ contextBridge.exposeInMainWorld('electronAPI', {
   },
   importManager: {
     selectFile: importSelectFile,
+  },
+  aiManager: {
+    testChat: testAiChat,
   }
 })

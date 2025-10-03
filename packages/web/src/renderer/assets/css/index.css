@@ -107,6 +107,7 @@ body {
   /* 移除默认按钮的 outline 和 active 状态的 border */
   .el-button--default:hover,
   .el-button--default:focus,
+  .el-button:focus-visible,
   .el-button--default:active {
     outline: none;
   }

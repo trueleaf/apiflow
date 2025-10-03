@@ -1,7 +1,7 @@
 <template>
   <div class="s-header">
     <div class="logo">
-      <img :src="logoUrl" alt="Apiflow Logo" class="logo-img" draggable="false" @click="jumpToHome"/>
+      <img src="@/assets/imgs/logo.png" alt="Apiflow Logo" class="logo-img" width="24" height="24" draggable="false" @click="jumpToHome"/>
     </div>
     <div class="home" :class="{ active: activeTabId === ''}" @click="jumpToHome">
       <i class="iconfont iconhome"></i>
@@ -61,9 +61,6 @@ import { Language } from '@src/types'
 import { RefreshRight, Back, Right } from '@element-plus/icons-vue'
 import { useI18n } from 'vue-i18n'
 import { useRuntime } from '@/store/runtime/runtime'
-
-// logo图片路径 - 移到模块顶部作为常量，避免组件刷新时重新计算
-const logoUrl = new URL('@/assets/imgs/logo.png', import.meta.url).href
 
 // 定义Tab类型
 type HeaderTab = {
@@ -331,9 +328,10 @@ body {
 }
 .logo-img {
   height: 24px;
-  width: auto;
+  width: 24px;
   border-radius: 50%;
-  
+  object-fit: cover;
+  will-change: auto;
 }
 
 .home {

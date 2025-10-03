@@ -11,6 +11,7 @@ import type { RuntimeNetworkMode } from '@src/types/runtime';
 import { mockManager } from '../main.ts';
 import { MockHttpNode } from '@src/types/mock/mock.ts';
 import { runtime } from '../runtime/runtime.ts';
+import { AiManager } from '../ai/ai.ts';
 
 export const useIpcEvent = (mainWindow: BrowserWindow, topBarView: WebContentsView, contentView: WebContentsView) => {
   // 设置窗口引用到导出模块
@@ -322,6 +323,23 @@ export const useIpcEvent = (mainWindow: BrowserWindow, topBarView: WebContentsVi
     } catch (error) {
       console.error('重置导入状态失败:', error);
       contentView.webContents.send('import-main-error', (error as Error).message);
+    }
+  });
+
+  /*
+  |---------------------------------------------------------------------------
+  | AI 测试请求
+  |---------------------------------------------------------------------------
+  */
+  // AI 测试聊天
+  ipcMain.handle('ai-test-chat', async (_: IpcMainInvokeEvent, params: { apiKey: string; apiUrl: string }) => {
+    try {
+      const aiManager = new AiManager(params.apiUrl, params.apiKey);
+      const result = await aiManager.chatWithText(['你是什么模型'], 'DeepSeek', 2000);
+      return { code: 0, data: result, msg: '请求成功' };
+    } catch (error) {
+      console.error('AI 测试请求失败:', error);
+      return { code: 1, data: null, msg: (error as Error).message };
     }
   });
 

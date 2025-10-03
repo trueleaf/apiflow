@@ -4,10 +4,10 @@ import vueJsx from '@vitejs/plugin-vue-jsx'
 import path from 'path'
 import { viteElectronPlugin } from './build/vite';
 import dayjs from 'dayjs'
+import { resolve } from 'path';
 import AutoImport from 'unplugin-auto-import/vite'
 import Components from 'unplugin-vue-components/vite'
 import { ElementPlusResolver } from 'unplugin-vue-components/resolvers'
-import { resolve } from 'path';
 
 export default defineConfig(({ mode, command }) => {
   return {
@@ -20,11 +20,16 @@ export default defineConfig(({ mode, command }) => {
         transformOn: true,
         mergeProps: false
       }),
+      // 自动导入 Vue 相关函数和 Element Plus 组件 API
       AutoImport({
         resolvers: [ElementPlusResolver()],
+        imports: ['vue', 'vue-router', 'pinia'],
+        dts: 'src/types/auto-imports.d.ts',
       }),
+      // 自动导入 Element Plus 组件
       Components({
         resolvers: [ElementPlusResolver()],
+        dts: 'src/types/components.d.ts',
       })
     ],
     server: {

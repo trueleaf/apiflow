@@ -30,5 +30,12 @@
       "@src/*": ["./src/*"],
     },
   },
-  "include": ["./src/**/*.ts", "./src/**/*.tsx", "./src/**/*.vue", "components.d.ts"]
+  "include": [
+    "./src/**/*.ts", 
+    "./src/**/*.tsx", 
+    "./src/**/*.vue", 
+    "src/vite-env.d.ts",
+    "src/types/auto-imports.d.ts",
+    "src/types/components.d.ts"
+  ]
 }
