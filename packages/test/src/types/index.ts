@@ -65,32 +65,49 @@ export interface TeamMember {
 export type Permission = 'readOnly' | 'readAndWrite' | 'admin'
 export type UserType = 'user' | 'group'
 
+// 测试案例状态
+export type TestStatus = 'pending' | 'passed' | 'failed'
+
 // 测试用例接口
 export interface TestCase {
   id: string
-  name: string // 案例名称，如："基础创建流程"、"批量创建测试"
-  description: string // 功能描述
-  steps: TestStep[] // 测试步骤
-  validations: ValidationItem[] // 结果验证
+  name: string // 用例名称
+  steps: {
+    description: string
+    expectedResult: string // 每一步的预期结果
+  }[] // 测试步骤
+  results: {
+    description: string // 实际执行结果
+  }[]
+  status: TestStatus // 执行状态
+  executedAt: string // 执行时间
+  executedBy: string // 执行人
+  remark?: string // 备注（失败时填写）
+  images?: string[] // 图片数组（base64格式）
 }
 
-// 测试步骤接口
-export interface TestStep {
-  stepNumber: number
-  description: string
-}
-
-// 验证项接口
-export interface ValidationItem {
-  description: string
-  status: 'success' | 'warning' | 'error'
-}
-
-// 功能模块接口
-export interface FeatureModule {
+// 测试模块接口
+export interface TestModule {
   id: string
-  title: string // 模块标题，如："项目创建与编辑"
-  icon: string // 图标名称
-  iconColor: string // 图标颜色类
-  testCases: TestCase[] // 该模块的所有测试案例
+  name: string // 模块名称
+  testCases: TestCase[] // 该模块下的所有测试用例
+}
+
+// 模块树节点接口
+export interface ModuleTreeNode {
+  id: string
+  label: string
+  children?: ModuleTreeNode[]
+  moduleId?: string // 对应的功能模块ID
+}
+
+// 模块统计数据接口
+export interface ModuleStatistics {
+  id: string // 模块ID（moduleId 或 节点ID）
+  name: string // 模块名称
+  level: 'parent' | 'leaf' // 层级：父节点或叶子节点
+  total: number // 用例总数
+  passed: number // 成功数量
+  failed: number // 失败数量
+  pending: number // 未执行数量
 }

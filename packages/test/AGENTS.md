@@ -3,6 +3,7 @@
 ## base
 - 中文回答
 - 你只能修改test目录下代码，禁止修改其他package代码
+- 不直接使用function定义函数，使用箭头函数定义函数
 
 ## Project Structure & Module Organization
 - `src/main.js` boots the Vue 3 app and wires Element Plus; keep global plugins here.

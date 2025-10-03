@@ -1,273 +1,143 @@
 <template>
-  <div class="page-container">
-    <!-- Header -->
-    <header class="page-header">
-      <div class="container">
-        <h2 class="header-title">
-          APiflow测试功能展示平台
-        </h2>
+  <div class="home-container">
+    <!-- 主内容区域 -->
+    <div class="main-content">
+      <!-- 左侧模块树 -->
+      <div class="left-panel">
+        <ModuleTree
+          ref="moduleTreeRef"
+          :tree-data="moduleTreeData"
+          :default-selected-key="userPreferenceStore.currentModuleId"
+          @node-click="handleModuleSelect"
+        />
       </div>
-    </header>
 
-    <!-- Main Content -->
-    <main class="page-content">
-      <div class="container">
-        <div class="feature-grid">
-          <!-- 项目管理卡片 -->
-          <div class="feature-card group">
-            <div class="card-body">
-              <div class="feature-header">
-                <div class="feature-icon bg-primary-light group-hover:bg-primary">
-                  <el-icon class="icon-primary group-hover:text-white">
-                    <Tickets />
-                  </el-icon>
-                </div>
-                <h3 class="feature-title">项目管理</h3>
-              </div>
-              <p class="feature-description">
-                展示项目创建、编辑、搜索等核心功能，体验完整的项目生命周期管理流程
-              </p>
-              <div class="feature-actions">
-                <button
-                  @click="$router.push('/doc-list/projects')"
-                  class="btn btn-primary btn-lg"
-                >
-                  进入项目管理
-                </button>
-              </div>
-            </div>
-          </div>
-
-          <!-- 团队管理卡片 -->
-          <div class="feature-card group">
-            <div class="card-body">
-              <div class="feature-header">
-                <div class="feature-icon bg-success-light group-hover:bg-success">
-                  <el-icon class="icon-success group-hover:text-white">
-                    <School />
-                  </el-icon>
-                </div>
-                <h3 class="feature-title">团队管理</h3>
-              </div>
-              <p class="feature-description">
-                展示团队创建、成员管理、权限控制等功能，打造高效的团队协作环境
-              </p>
-              <div class="feature-actions">
-                <button
-                  @click="$router.push('/doc-list/teams')"
-                  class="btn btn-success btn-lg"
-                >
-                  进入团队管理
-                </button>
-              </div>
-            </div>
-          </div>
-
-          <!-- 功能演示卡片 -->
-          <div class="feature-card disabled">
-            <div class="card-body">
-              <div class="feature-header">
-                <div class="feature-icon bg-secondary">
-                  <el-icon class="icon-muted">
-                    <Setting />
-                  </el-icon>
-                </div>
-                <h3 class="feature-title">功能演示</h3>
-              </div>
-              <p class="feature-description">
-                综合功能演示和测试用例展示，更多精彩功能即将上线
-              </p>
-              <div class="feature-actions">
-                <button
-                  disabled
-                  class="btn btn-secondary btn-lg"
-                >
-                  敬请期待
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
+      <!-- 右侧用例列表 -->
+      <div class="right-panel">
+        <TestCaseList
+          ref="testCaseListRef"
+          :test-cases="currentTestCases"
+          :default-selected-id="userPreferenceStore.currentTestCaseId"
+          @select-test-case="handleTestCaseSelect"
+        />
       </div>
-    </main>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { Tickets, School, Setting } from '@element-plus/icons-vue'
+import { ref, computed, onMounted, nextTick } from 'vue'
+import ModuleTree from '../components/ModuleTree.vue'
+import TestCaseList from '../components/TestCaseList.vue'
+import { moduleTreeData, testModulesData } from '../mock/testCaseData'
+import { useUserPreferenceStore } from '../stores/userPreference'
+import type { ModuleTreeNode, TestCase } from '../types'
+
+// 用户偏好 store
+const userPreferenceStore = useUserPreferenceStore()
+
+// 组件引用
+const moduleTreeRef = ref()
+const testCaseListRef = ref()
+
+// 当前选中的模块
+const selectedModuleId = ref<string>('')
+
+// 当前展示的测试用例
+const currentTestCases = computed(() => {
+  if (!selectedModuleId.value) {
+    return []
+  }
+  const module = testModulesData.find(m => m.id === selectedModuleId.value)
+  return module ? module.testCases : []
+})
+
+// 处理模块选择
+const handleModuleSelect = (node: ModuleTreeNode) => {
+  if (node.moduleId) {
+    selectedModuleId.value = node.moduleId
+    // 保存选中的模块到 store
+    userPreferenceStore.setSelectedModule(node.moduleId)
+  }
+}
+
+// 处理测试用例选择
+const handleTestCaseSelect = (testCase: TestCase) => {
+  // 保存选中的用例到 store
+  userPreferenceStore.setSelectedTestCase(testCase.id)
+}
+
+// 初始化页面状态
+const initPageState = () => {
+  // 加载用户偏好
+  userPreferenceStore.loadPreference()
+
+  nextTick(() => {
+    const savedModuleId = userPreferenceStore.currentModuleId
+    const savedTestCaseId = userPreferenceStore.currentTestCaseId
+
+    // ModuleTree 会自动初始化选中第一个模块或恢复选中状态
+    // 这里不需要手动处理，因为 ModuleTree 的 onMounted 会处理
+
+    // 如果有保存的用例ID，在 TestCaseList 加载后恢复
+    if (savedTestCaseId && testCaseListRef.value) {
+      setTimeout(() => {
+        testCaseListRef.value?.setSelectedTestCase(savedTestCaseId)
+      }, 100)
+    }
+  })
+}
+
+// 组件挂载
+onMounted(() => {
+  initPageState()
+})
 </script>
 
 <style scoped>
-.page-container {
-  min-height: 100vh;
-  width: 100%;
-  background: linear-gradient(135deg, var(--color-primary-bg) 0%, #ffffff 50%, #f0f9ff 100%);
+.home-container {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: #f0f2f5;
+  padding: 20px;
+  box-sizing: border-box;
 }
 
 .page-header {
-  width: 100%;
-  background-color: rgba(255, 255, 255, 0.8);
-  backdrop-filter: blur(12px);
-  border-bottom: 1px solid var(--color-border-light);
-  position: sticky;
-  top: 0;
-  z-index: var(--z-index-sticky);
+  margin-bottom: 20px;
 }
 
-.header-title {
-  font-size: var(--font-size-4xl);
-  font-weight: var(--font-weight-bold);
-  color: var(--color-text-primary);
-  text-align: center;
-  margin-bottom: var(--spacing-sm);
+.page-header h1 {
+  margin: 0;
+  font-size: 28px;
+  font-weight: 600;
+  color: #303133;
 }
 
-.header-subtitle {
-  color: var(--color-text-secondary);
-  text-align: center;
-  font-size: var(--font-size-lg);
+.page-header .subtitle {
+  margin: 8px 0 0 0;
+  font-size: 14px;
+  color: #909399;
 }
 
-.page-content {
-  width: 100%;
-  padding: var(--spacing-4xl) 0;
+.main-content {
+  flex: 1;
+  display: flex;
+  gap: 20px;
+  min-height: 0;
 }
 
-.feature-grid {
-  display: grid;
-  grid-template-columns: repeat(1, minmax(0, 1fr));
-  gap: var(--spacing-2xl);
-}
-
-@media (min-width: 1024px) {
-  .feature-grid {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: var(--spacing-3xl);
-  }
-  
-  .header-title {
-    font-size: var(--font-size-5xl);
-  }
-  
-  .page-content {
-    padding: var(--spacing-5xl) 0;
-  }
-}
-
-.feature-card {
-  background-color: var(--color-bg-card);
-  border-radius: var(--radius-2xl);
-  box-shadow: var(--shadow-sm);
-  border: 1px solid var(--color-border-light);
+.left-panel {
+  width: 280px;
+  flex-shrink: 0;
   overflow: hidden;
-  transition: all var(--duration-slow) ease;
 }
 
-.feature-card:hover {
-  box-shadow: var(--shadow-md);
-}
-
-.feature-card.disabled {
-  opacity: 0.75;
-}
-
-.feature-card.disabled:hover {
-  box-shadow: var(--shadow-sm);
-}
-
-.card-body {
-  padding: var(--spacing-2xl);
-}
-
-.feature-header {
+.right-panel {
+  flex: 1;
+  overflow: hidden;
   display: flex;
-  align-items: center;
-  gap: var(--spacing-lg);
-  margin-bottom: var(--spacing-xl);
-}
-
-.feature-icon {
-  width: 3rem;
-  height: 3rem;
-  border-radius: var(--radius-xl);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all var(--duration-slow) ease;
-}
-
-.icon-primary {
-  color: var(--color-primary);
-  font-size: var(--font-size-xl);
-  transition: color var(--duration-slow) ease;
-}
-
-.icon-success {
-  color: var(--color-success);
-  font-size: var(--font-size-xl);
-  transition: color var(--duration-slow) ease;
-}
-
-.icon-muted {
-  color: var(--color-text-muted);
-  font-size: var(--font-size-xl);
-}
-
-.feature-title {
-  font-size: var(--font-size-xl);
-  font-weight: var(--font-weight-semibold);
-  color: var(--color-text-primary);
-}
-
-.feature-description {
-  color: var(--color-text-secondary);
-  margin-bottom: var(--spacing-2xl);
-  line-height: var(--line-height-relaxed);
-}
-
-.feature-actions {
-  display: flex;
-  justify-content: center;
-}
-
-.status-section {
-  margin-top: var(--spacing-5xl);
-  text-align: center;
-}
-
-.status-indicator {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--spacing-sm);
-  padding: var(--spacing-sm) var(--spacing-lg);
-  background-color: rgba(255, 255, 255, 0.6);
-  backdrop-filter: blur(8px);
-  border: 1px solid var(--color-border-light);
-  border-radius: var(--radius-full);
-}
-
-.status-dot {
-  width: 0.5rem;
-  height: 0.5rem;
-  border-radius: var(--radius-full);
-  background-color: var(--color-success);
-}
-
-.status-text {
-  font-size: var(--font-size-sm);
-  color: var(--color-text-secondary);
-}
-
-/* 组响应式增强 */
-.group:hover .group-hover\:bg-primary {
-  background-color: var(--color-primary);
-}
-
-.group:hover .group-hover\:bg-success {
-  background-color: var(--color-success);
-}
-
-.group:hover .group-hover\:text-white {
-  color: var(--color-text-white);
+  flex-direction: column;
 }
 </style>

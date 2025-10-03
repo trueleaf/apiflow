@@ -15,3 +15,4 @@ npm run test
 ```
 
 访问 `http://localhost:6543/` 即可查看页面效果。
+当前目录父级目录../web  src\renderer\pages\modules\apidoc\doc-list
