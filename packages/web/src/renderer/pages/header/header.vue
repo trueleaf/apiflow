@@ -13,6 +13,7 @@
         chosen-class="sortable-chosen" drag-class="sortable-drag" item-key="id">
         <template #item="{ element: tab }">
           <li :class="['tab-item', { active: tab.id === activeTabId }]" :title="tab.title" :data-id="tab.id" @click="switchTab(tab.id)">
+            <FolderKanban v-if="tab.type === 'project'" class="tab-icon" :size="14" />
             <span>{{ tab.title }}</span>
             <span class="close-btn iconfont iconguanbi" @click.stop="deleteTab(tab.id)"></span>
           </li>
@@ -60,6 +61,7 @@ import { httpNodeCache } from '@/cache/http/httpNodeCache.ts'
 import { Language } from '@src/types'
 import { RefreshRight, Back, Right } from '@element-plus/icons-vue'
 import { useI18n } from 'vue-i18n'
+import { FolderKanban } from 'lucide-vue-next'
 import { useRuntime } from '@/store/runtime/runtime'
 
 // 定义Tab类型
@@ -388,7 +390,7 @@ body {
 
 .tab-item {
   height: 100%;
-  padding: 0 30px 0 24px;
+  padding: 0 30px 0 20px;
   max-width: 200px;
   display: flex;
   align-items: center;
@@ -402,6 +404,13 @@ body {
   overflow: hidden;
   margin-right: 2px;
   -webkit-app-region: no-drag;
+}
+
+.tab-icon {
+  width: 14px;
+  height: 14px;
+  margin-right: 6px;
+  flex-shrink: 0;
 }
 
 .tab-item span:first-child {
