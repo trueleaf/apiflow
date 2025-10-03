@@ -5,7 +5,7 @@ import type { DeepSeekMessage, DeepSeekRequestBody, DeepSeekResponse } from '@sr
 /**
  * AI管理器类，用于调用AI模型生成内容
  */
-export class aiManager {
+export class AiManager {
   private apiUrl: string;
   private apiKey: string;
 
@@ -126,7 +126,6 @@ export class aiManager {
     _model: 'DeepSeek' = 'DeepSeek', 
     resLimitSize: number = 2000
   ): Promise<string> {
-    // 验证配置
     this.validateConfig();
 
     // 验证参数
