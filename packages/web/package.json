@@ -43,7 +43,6 @@
     "html2canvas": "^1.4.1",
     "idb": "^8.0.1",
     "ip": "^2.0.1",
-    "isolated-vm": "^6.0.1",
     "js-beautify": "^1.15.1",
     "js-cookie": "^3.0.5",
     "js-yaml": "^4.1.0",

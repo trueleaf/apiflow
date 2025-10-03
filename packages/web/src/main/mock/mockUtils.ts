@@ -8,7 +8,7 @@ import path from 'path';
 import { randomUUID } from 'crypto';
 import Koa from 'koa';
 import { runtime } from '../runtime/runtime';
-import ivm from 'isolated-vm';
+import vm from 'vm';
 import json5 from 'json5';
 import { ApidocVariable } from '@src/types';
 
@@ -851,41 +851,35 @@ export class MockUtils {
     return /[+\-*/()%<>=!&|]/.test(trimmed);
   }
 
-  // 使用 isolated-vm 安全执行表达式
+  // 使用 Node.js vm 模块安全执行表达式
   private async evaluateExpressionWithIsolatedVM(
     expression: string,
     variables: Record<string, any>
   ): Promise<any> {
     try {
-      // 创建一个新的 isolate（隔离的 V8 实例）
-      const isolate = new ivm.Isolate({ memoryLimit: 8 }); // 8MB 内存限制
+      // 创建一个沙箱环境，包含变量和安全的全局对象
+      const sandbox = {
+        ...variables,
+        Math: Math,
+        Date: Date,
+        JSON: JSON,
+        String: String,
+        Number: Number,
+        Boolean: Boolean,
+        Array: Array,
+        Object: Object,
+      };
       
-      // 创建一个新的 context（执行上下文）
-      const context = await isolate.createContext();
+      // 创建一个 VM 上下文
+      const context = vm.createContext(sandbox);
       
-      // 将变量注入到 context 中
-      const jail = context.global;
-      await jail.set('global', jail.derefInto());
-      
-      // 注入变量
-      for (const [key, value] of Object.entries(variables)) {
-        // 将 JavaScript 值转换为 isolated-vm 可以使用的值
-        const transferableValue = new ivm.ExternalCopy(value).copyInto();
-        await jail.set(key, transferableValue);
-      }
-      
-      // 注入安全的全局对象
-      await jail.set('Math', new ivm.ExternalCopy(Math).copyInto());
-      
-      // 执行表达式并获取结果
-      const result = await context.eval(expression, { timeout: 1000 }); // 1秒超时
-      
-      // 释放资源
-      isolate.dispose();
+      // 执行表达式并获取结果（设置超时为 1000ms）
+      const script = new vm.Script(expression);
+      const result = script.runInContext(context, { timeout: 1000 });
       
       return result;
     } catch (error) {
-      console.error('isolated-vm 表达式执行失败:', expression, error);
+      console.error('表达式执行失败:', expression, error);
       throw new Error(`表达式执行错误: ${(error as Error).message}`);
     }
   }
