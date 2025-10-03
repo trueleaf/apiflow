@@ -2,12 +2,17 @@ import got from 'got';
 import { mainConfig } from '@src/config/mainConfig';
 import type { DeepSeekMessage, DeepSeekRequestBody, DeepSeekResponse } from '@src/types/ai/ai';
 
+type StreamCallback = (chunk: string) => void;
+type StreamEndCallback = () => void;
+type StreamErrorCallback = (error: string) => void;
+
 /**
  * AI管理器类，用于调用AI模型生成内容
  */
 export class AiManager {
   private apiUrl: string;
   private apiKey: string;
+  private abortControllers: Map<string, AbortController> = new Map();
 
   /**
    * 构造函数
@@ -15,7 +20,7 @@ export class AiManager {
    * @param apiKey - API密钥，默认从mainConfig获取
    */
   constructor(apiUrl?: string, apiKey?: string) {
-    this.apiUrl = apiUrl || mainConfig.aiConfig.apiUrl || 'https://api.deepseek.com/v1/chat/completions';
+    this.apiUrl = apiUrl || mainConfig.aiConfig.apiUrl || 'https://api.deepseek.com/chat/completions/v1/chat/completions';
     this.apiKey = apiKey || mainConfig.aiConfig.apiKey;
   }
 
@@ -25,10 +30,12 @@ export class AiManager {
    */
   private validateConfig(): void {
     if (!this.apiKey) {
-      throw new Error('AI API Key 未配置，请在配置文件中设置 aiConfig.apiKey');
+      console.error('AI API Key 未配置，请在配置文件中设置 aiConfig.apiKey');
+      return;
     }
     if (!this.apiUrl) {
-      throw new Error('AI API URL 未配置，请在配置文件中设置 aiConfig.apiUrl');
+      console.error('AI API URL 未配置，请在配置文件中设置 aiConfig.apiUrl');
+      return;
     }
   }
 
@@ -87,30 +94,25 @@ export class AiManager {
       // 提取返回内容
       const content = response.choices?.[0]?.message?.content;
       if (!content) {
-        throw new Error('AI 返回内容为空');
+        console.error('AI 返回内容为空');
+        return '';
       }
-
-      console.log('AI 请求成功:', {
-        usage: response.usage,
-        finish_reason: response.choices?.[0]?.finish_reason
-      });
-
       return content;
     } catch (error) {
-      console.error('AI API 调用失败:', error);
-      
       if (error instanceof Error) {
-        // 处理got库的错误
         if ('response' in error) {
           const gotError = error as any;
           const statusCode = gotError.response?.statusCode;
           const body = gotError.response?.body;
-          throw new Error(`AI API 请求失败 (${statusCode}): ${body || error.message}`);
+          console.error(`AI API 请求失败 (${statusCode}): ${body || error.message}`);
+          return '';
         }
-        throw new Error(`AI API 请求失败: ${error.message}`);
+        console.error(`AI API 请求失败: ${error.message}`);
+        return '';
       }
       
-      throw new Error('AI API 请求失败: 未知错误');
+      console.error('AI API 请求失败: 未知错误');
+      return '';
     }
   }
 
@@ -130,7 +132,8 @@ export class AiManager {
 
     // 验证参数
     if (!prompt || prompt.length === 0) {
-      throw new Error('prompt 参数不能为空');
+      console.error('prompt 参数不能为空');
+      return '';
     }
 
     // 构建请求体
@@ -162,7 +165,8 @@ export class AiManager {
 
     // 验证参数
     if (!prompt || prompt.length === 0) {
-      throw new Error('prompt 参数不能为空');
+      console.error('prompt 参数不能为空');
+      return '';
     }
 
     // 构建请求体，强制JSON输出
@@ -185,7 +189,150 @@ export class AiManager {
       return result;
     } catch (parseError) {
       console.error('AI返回的内容不是合法的JSON格式:', result);
-      throw new Error('AI返回的内容不是合法的JSON格式');
+      return '';
+    }
+  }
+
+  /**
+   * 调用AI生成文本内容（流式）
+   * @param prompt - 提示词数组
+   * @param requestId - 请求ID，用于取消请求
+   * @param onData - 数据回调
+   * @param onEnd - 完成回调
+   * @param onError - 错误回调
+   * @param _model - 模型名称，目前仅支持 'DeepSeek'
+   * @param resLimitSize - 返回内容的token数量限制，默认2000
+   */
+  async chatWithTextStream(
+    prompt: string[],
+    requestId: string,
+    onData: StreamCallback,
+    onEnd: StreamEndCallback,
+    onError: StreamErrorCallback,
+    _model: 'DeepSeek' = 'DeepSeek',
+    resLimitSize: number = 2000
+  ): Promise<void> {
+    this.validateConfig();
+
+    // 验证参数
+    if (!prompt || prompt.length === 0) {
+      console.error('prompt 参数不能为空');
+      onError('prompt 参数不能为空');
+      return;
+    }
+
+    // 创建 AbortController 用于取消请求
+    const abortController = new AbortController();
+    this.abortControllers.set(requestId, abortController);
+
+    try {
+      const requestBody: DeepSeekRequestBody & { stream: boolean } = {
+        model: 'deepseek-chat',
+        messages: this.buildMessages(prompt, false),
+        max_tokens: resLimitSize,
+        temperature: 0.7,
+        stream: true, // 启用流式响应
+      };
+
+      // 发送流式请求
+      const stream = got.stream.post(this.apiUrl, {
+        json: requestBody,
+        headers: {
+          'Authorization': `Bearer ${this.apiKey}`,
+          'Content-Type': 'application/json',
+        },
+        timeout: {
+          request: 120000, // 120秒超时
+        },
+      });
+
+      // 处理流式响应
+      let buffer = '';
+      
+      stream.on('data', (chunk: Buffer) => {
+        if (abortController.signal.aborted) {
+          stream.destroy();
+          return;
+        }
+
+        buffer += chunk.toString();
+        const lines = buffer.split('\n');
+        buffer = lines.pop() || '';
+
+        for (const line of lines) {
+          const trimmedLine = line.trim();
+          if (!trimmedLine || trimmedLine === 'data: [DONE]') {
+            continue;
+          }
+
+          if (trimmedLine.startsWith('data: ')) {
+            try {
+              const jsonStr = trimmedLine.slice(6);
+              const data = JSON.parse(jsonStr);
+              const content = data.choices?.[0]?.delta?.content;
+              
+              if (content) {
+                onData(content);
+              }
+
+              // 检查是否完成
+              if (data.choices?.[0]?.finish_reason) {
+                console.log('AI 流式请求完成:', {
+                  requestId,
+                  finish_reason: data.choices[0].finish_reason,
+                });
+              }
+            } catch (parseError) {
+              console.error('解析流式数据失败:', parseError, trimmedLine);
+            }
+          }
+        }
+      });
+
+      stream.on('end', () => {
+        this.abortControllers.delete(requestId);
+        if (!abortController.signal.aborted) {
+          onEnd();
+        }
+      });
+
+      stream.on('error', (error: Error) => {
+        this.abortControllers.delete(requestId);
+        console.error('AI 流式请求失败:', error);
+        
+        if (abortController.signal.aborted) {
+          onError('请求已取消');
+        } else if ('response' in error) {
+          const gotError = error as any;
+          const statusCode = gotError.response?.statusCode;
+          const body = gotError.response?.body;
+          onError(`AI API 请求失败 (${statusCode}): ${body || error.message}`);
+        } else {
+          onError(`AI API 请求失败: ${error.message}`);
+        }
+      });
+
+    } catch (error) {
+      this.abortControllers.delete(requestId);
+      console.error('AI 流式请求失败:', error);
+      
+      if (error instanceof Error) {
+        onError(`AI API 请求失败: ${error.message}`);
+      } else {
+        onError('AI API 请求失败: 未知错误');
+      }
+    }
+  }
+
+  /**
+   * 取消流式请求
+   * @param requestId - 请求ID
+   */
+  cancelStream(requestId: string): void {
+    const abortController = this.abortControllers.get(requestId);
+    if (abortController) {
+      abortController.abort();
+      this.abortControllers.delete(requestId);
     }
   }
 }

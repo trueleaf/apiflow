@@ -21,9 +21,11 @@ class AiCache {
         return { ...mainConfig.aiConfig };
       }
       const config = JSON.parse(configStr);
+      // 如果apiUrl不存在则取配置文件里面的apiUrl
       return {
         ...mainConfig.aiConfig,
         ...config,
+        apiUrl: config.apiUrl || mainConfig.aiConfig.apiUrl,
       };
     } catch (error) {
       console.error('获取AI配置失败:', error);

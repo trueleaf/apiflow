@@ -36,8 +36,14 @@
               <el-button type="primary" @click="handleSave" :loading="saving">
                 保存配置
               </el-button>
+              <el-button @click="handleReset">
+                重置
+              </el-button>
               <el-button @click="handleTest" :loading="testing" :disabled="!canTest">
                 测试请求
+              </el-button>
+              <el-button @click="handleStreamTest" :loading="streamTesting" :disabled="!canTest">
+                流式测试
               </el-button>
             </div>
           </el-form-item>
@@ -52,12 +58,15 @@
         <div class="result-content" v-if="testResult">
           <VueMarkdownRender :source="testResult" />
         </div>
-        <div class="result-empty" v-else-if="!testing">
-          <p>点击"测试请求"按钮查看大模型响应</p>
+        <div class="result-empty" v-else-if="!testing && !streamTesting">
+          <p>点击"测试请求"或"流式测试"按钮查看大模型响应</p>
         </div>
         <div class="result-loading" v-else>
           <el-icon class="is-loading"><Loading /></el-icon>
           <p>正在请求中...</p>
+          <el-button v-if="streamTesting" type="danger" size="small" @click="handleCancelStream">
+            取消请求
+          </el-button>
         </div>
         <div class="result-error" v-if="testError">
           <el-alert type="error" :title="testError" :closable="false" />
@@ -89,8 +98,13 @@ const formData = ref<AiConfig>({
 })
 const saving = ref(false)
 const testing = ref(false)
+const streamTesting = ref(false)
 const testResult = ref<string>('')
 const testError = ref<string>('')
+
+// 流式请求控制
+let streamController: { cancel: () => Promise<void> } | null = null
+let currentRequestId = ''
 
 // 是否可以测试
 const canTest = computed(() => {
@@ -136,6 +150,24 @@ const handleSave = async () => {
   }
 }
 
+// 重置配置
+const handleReset = () => {
+  formData.value = {
+    model: 'DeepSeek',
+    apiKey: '',
+    apiUrl: '',
+  }
+  testResult.value = ''
+  testError.value = ''
+  try {
+    aiCache.setAiConfig(formData.value)
+    ElMessage.success('配置已重置')
+  } catch (error) {
+    console.error('重置配置失败:', error)
+    ElMessage.error('重置配置失败')
+  }
+}
+
 // 测试请求
 const handleTest = async () => {
   if (!canTest.value) {
@@ -148,7 +180,7 @@ const handleTest = async () => {
   testError.value = ''
 
   try {
-    const result = await window.electronAPI?.aiManager.testChat({
+    const result = await window.electronAPI?.aiManager.textChat({
       apiKey: formData.value.apiKey,
       apiUrl: formData.value.apiUrl,
     })
@@ -166,6 +198,73 @@ const handleTest = async () => {
     ElMessage.error('测试请求失败')
   } finally {
     testing.value = false
+  }
+}
+
+// 流式测试请求
+const handleStreamTest = async () => {
+  if (!canTest.value) {
+    ElMessage.warning('请先配置 API Key 和 API 地址')
+    return
+  }
+
+  streamTesting.value = true
+  testResult.value = ''
+  testError.value = ''
+  currentRequestId = `stream-${Date.now()}`
+
+  try {
+    const controller = window.electronAPI?.aiManager.textChatWithStream(
+      {
+        apiKey: formData.value.apiKey,
+        apiUrl: formData.value.apiUrl,
+        requestId: currentRequestId,
+      },
+      (chunk: string) => {
+        // 接收数据块，逐步追加到结果中
+        testResult.value += chunk
+      },
+      () => {
+        // 流式请求完成
+        streamTesting.value = false
+        streamController = null
+        ElMessage.success('流式请求完成')
+      },
+      (error: string) => {
+        // 流式请求错误
+        streamTesting.value = false
+        streamController = null
+        testError.value = error
+        ElMessage.error(error)
+      }
+    )
+
+    if (controller) {
+      streamController = controller
+      // 等待启动请求
+      await controller.startPromise
+    }
+  } catch (error) {
+    console.error('流式测试请求失败:', error)
+    streamTesting.value = false
+    streamController = null
+    testError.value = (error as Error).message
+    ElMessage.error('流式测试请求失败')
+  }
+}
+
+// 取消流式请求
+const handleCancelStream = async () => {
+  if (streamController) {
+    try {
+      await streamController.cancel()
+      streamTesting.value = false
+      streamController = null
+      ElMessage.info('已取消请求')
+    } catch (error) {
+      console.error('取消请求失败:', error)
+      ElMessage.error('取消请求失败')
+    }
   }
 }
 
@@ -212,7 +311,7 @@ onMounted(() => {
   }
 
   .settings-form {
-    flex: 0 0 500px;
+    flex: 0 0 600px;
     background: #fff;
     border-radius: 8px;
     border: 1px solid #eaeaea;

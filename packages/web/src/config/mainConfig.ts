@@ -11,6 +11,6 @@ export const mainConfig: MainConfig = {
   aiConfig: {
     model: 'DeepSeek',
     apiKey: '',
-    apiUrl: 'https://api.deepseek.com',
+    apiUrl: 'https://api.deepseek.com/chat/completions',
   },
 };

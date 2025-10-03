@@ -331,14 +331,66 @@ export const useIpcEvent = (mainWindow: BrowserWindow, topBarView: WebContentsVi
   | AI 测试请求
   |---------------------------------------------------------------------------
   */
-  // AI 测试聊天
-  ipcMain.handle('ai-test-chat', async (_: IpcMainInvokeEvent, params: { apiKey: string; apiUrl: string }) => {
+  // AI 文本聊天
+  ipcMain.handle('ai-text-chat', async (_: IpcMainInvokeEvent, params: { apiKey: string; apiUrl: string }) => {
     try {
       const aiManager = new AiManager(params.apiUrl, params.apiKey);
       const result = await aiManager.chatWithText(['你是什么模型'], 'DeepSeek', 2000);
       return { code: 0, data: result, msg: '请求成功' };
     } catch (error) {
       console.error('AI 测试请求失败:', error);
+      return { code: 1, data: null, msg: (error as Error).message };
+    }
+  });
+
+  // AI 流式聊天
+  ipcMain.handle('ai-text-chat-stream', async (_: IpcMainInvokeEvent, params: { apiKey: string; apiUrl: string; requestId: string }) => {
+    try {
+      const aiManager = new AiManager(params.apiUrl, params.apiKey);
+      
+      // 开始流式请求
+      aiManager.chatWithTextStream(
+        ['你是什么模型'],
+        params.requestId,
+        (chunk: string) => {
+          // 发送数据块到渲染进程
+          contentView.webContents.send('ai-stream-data', {
+            requestId: params.requestId,
+            chunk,
+          });
+        },
+        () => {
+          // 发送完成信号到渲染进程
+          contentView.webContents.send('ai-stream-end', {
+            requestId: params.requestId,
+          });
+        },
+        (error: string) => {
+          // 发送错误信号到渲染进程
+          contentView.webContents.send('ai-stream-error', {
+            requestId: params.requestId,
+            error,
+          });
+        },
+        'DeepSeek',
+        2000
+      );
+
+      return { code: 0, data: { requestId: params.requestId }, msg: '流式请求已启动' };
+    } catch (error) {
+      console.error('AI 流式请求失败:', error);
+      return { code: 1, data: null, msg: (error as Error).message };
+    }
+  });
+
+  // 取消 AI 流式请求
+  ipcMain.handle('ai-cancel-stream', async (_: IpcMainInvokeEvent, requestId: string) => {
+    try {
+      const aiManager = new AiManager();
+      aiManager.cancelStream(requestId);
+      return { code: 0, data: null, msg: '已取消请求' };
+    } catch (error) {
+      console.error('取消 AI 流式请求失败:', error);
       return { code: 1, data: null, msg: (error as Error).message };
     }
   });

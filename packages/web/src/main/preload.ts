@@ -131,8 +131,58 @@ const importSelectFile = () => {
 }
 
 // AI 相关方法
-const testAiChat = (params: { apiKey: string; apiUrl: string }) => {
-  return ipcRenderer.invoke('ai-test-chat', params)
+const textChat = (params: { apiKey: string; apiUrl: string }) => {
+  return ipcRenderer.invoke('ai-text-chat', params)
+}
+
+const textChatWithStream = (
+  params: { apiKey: string; apiUrl: string; requestId: string },
+  onData: (chunk: string) => void,
+  onEnd: () => void,
+  onError: (error: string) => void
+) => {
+  // 设置事件监听器
+  const dataHandler = (_event: any, data: { requestId: string; chunk: string }) => {
+    if (data.requestId === params.requestId) {
+      onData(data.chunk)
+    }
+  }
+  
+  const endHandler = (_event: any, data: { requestId: string }) => {
+    if (data.requestId === params.requestId) {
+      ipcRenderer.removeListener('ai-stream-data', dataHandler)
+      ipcRenderer.removeListener('ai-stream-end', endHandler)
+      ipcRenderer.removeListener('ai-stream-error', errorHandler)
+      onEnd()
+    }
+  }
+  
+  const errorHandler = (_event: any, data: { requestId: string; error: string }) => {
+    if (data.requestId === params.requestId) {
+      ipcRenderer.removeListener('ai-stream-data', dataHandler)
+      ipcRenderer.removeListener('ai-stream-end', endHandler)
+      ipcRenderer.removeListener('ai-stream-error', errorHandler)
+      onError(data.error)
+    }
+  }
+  
+  ipcRenderer.on('ai-stream-data', dataHandler)
+  ipcRenderer.on('ai-stream-end', endHandler)
+  ipcRenderer.on('ai-stream-error', errorHandler)
+  
+  // 启动流式请求
+  const startPromise = ipcRenderer.invoke('ai-text-chat-stream', params)
+  
+  // 返回取消函数
+  return {
+    cancel: async () => {
+      ipcRenderer.removeListener('ai-stream-data', dataHandler)
+      ipcRenderer.removeListener('ai-stream-end', endHandler)
+      ipcRenderer.removeListener('ai-stream-error', errorHandler)
+      await ipcRenderer.invoke('ai-cancel-stream', params.requestId)
+    },
+    startPromise
+  }
 }
 
 contextBridge.exposeInMainWorld('electronAPI', {
@@ -184,6 +234,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
     selectFile: importSelectFile,
   },
   aiManager: {
-    testChat: testAiChat,
+    textChat: textChat,
+    textChatWithStream: textChatWithStream,
   }
 })

@@ -54,7 +54,13 @@ export type ElectronAPI = {
     selectFile: () => Promise<CommonResponse<{ filePath?: string }>>;
   };
   aiManager: {
-    testChat: (params: { apiKey: string; apiUrl: string }) => Promise<CommonResponse<string>>;
+    textChat: (params: { apiKey: string; apiUrl: string }) => Promise<CommonResponse<string>>;
+    textChatWithStream: (
+      params: { apiKey: string; apiUrl: string; requestId: string },
+      onData: (chunk: string) => void,
+      onEnd: () => void,
+      onError: (error: string) => void
+    ) => { cancel: () => Promise<void>; startPromise: Promise<CommonResponse<{ requestId: string }>> };
   };
 }
 
