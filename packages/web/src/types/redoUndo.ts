@@ -1,4 +1,4 @@
-import type { ApidocProperty } from "./apidoc";
+import type { ApidocProperty } from "./httpNode";
 import type { WebSocketNode } from "./websocketNode";
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
 

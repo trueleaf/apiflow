@@ -1,4 +1,4 @@
-import type { MainConfig } from '@src/types/common';
+import type { MainConfig } from '@src/types/config';
 
 // 主进程配置
 export const mainConfig: MainConfig = {

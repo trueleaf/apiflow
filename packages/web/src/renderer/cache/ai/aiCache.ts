@@ -2,7 +2,7 @@
  * AI配置缓存
  */
 
-import type { Config } from '@src/types/common';
+import type { Config } from '@src/types/config';
 import { mainConfig } from '@src/config/mainConfig';
 
 type AiConfig = Config['mainConfig']['aiConfig'];

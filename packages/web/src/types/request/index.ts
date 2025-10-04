@@ -7,7 +7,6 @@ import type { Method, Options, PlainResponse, RequestError } from "got";
 import type { Timings } from '@szmarczak/http-timer';
 import type { IncomingHttpHeaders, OutgoingHttpHeaders } from 'http'
 import type FormData from 'form-data';
-import type { Property } from '../common';
 
 // ============================================================================
 // SSE和数据流类型

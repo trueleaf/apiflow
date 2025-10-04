@@ -64,7 +64,7 @@ import { useWebSocket } from '@/store/websocket/websocket';
 import { useApidocTas } from '@/store/apidoc/tabs';
 import { router } from '@/router';
 import { ApidocProperty } from '@src/types';
-import { WebsocketConnectParams } from '@src/types/websocket/websocket';
+import { WebsocketConnectParams } from '@src/types/websocketNode';
 import { uuid } from '@/helper';
 import { websocketResponseCache } from '@/cache/websocket/websocketResponse';
 import { getWebSocketHeaders } from '@/server/request/request';
@@ -174,9 +174,9 @@ const handleConnect = async () => {
       headers
     };
     window.electronAPI?.websocket.connect(connectParams).then((result) => {
-    if (!result.success) {
+    if (result.code !== 0) {
       websocketStore.changeConnectionState('error');
-      console.error('WebSocket连接失败:', result.error);
+      console.error('WebSocket连接失败:', result.msg);
 
       // 添加连接错误消息
       const connectErrorMessage = {
@@ -184,7 +184,7 @@ const handleConnect = async () => {
         data: {
           id: uuid(),
           nodeId: currentTab._id,
-          error: result.error || t('连接失败'),
+          error: result.msg || t('连接失败'),
           timestamp: Date.now()
         }
       };
@@ -241,9 +241,9 @@ const handleDisconnect = async () => {
   }
   const currentTab = currentSelectTab.value;
   window.electronAPI?.websocket.disconnect(connectionId.value).then((result) => {
-    if (!result.success) {
+    if (result.code !== 0) {
       websocketStore.changeConnectionState('error');
-      console.error('WebSocket断开连接失败:', result.error);
+      console.error('WebSocket断开连接失败:', result.msg);
 
       // 添加断开连接错误消息
       const disconnectErrorMessage = {
@@ -251,7 +251,7 @@ const handleDisconnect = async () => {
         data: {
           id: uuid(),
           nodeId: currentTab._id,
-          error: result.error || t('断开连接失败'),
+          error: result.msg || t('断开连接失败'),
           timestamp: Date.now()
         }
       };

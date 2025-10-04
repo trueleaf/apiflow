@@ -243,7 +243,7 @@ const getBody = async (apidoc: HttpNode): Promise<GotRequestOptions['body']> => 
      */
     const bigNumberMap: Record<string, string> = {}; // 存储超长数字
     const MAX_SAFE_INTEGER_LENGTH = 16; // Number.MAX_SAFE_INTEGER 的长度
-    const replacedRawJson = apidoc.item.requestBody.rawJson.replace(/([+-]?\d+)(?=\s*[,}\]])/g, ($1) => {
+    const replacedRawJson = apidoc.item.requestBody.rawJson.replace(/([+-]?\d+)(?=\s*[,}\]])/g, ($1: string) => {
       // 只处理超过安全长度的整数
       const numberStr = $1.replace(/^[+-]/, ''); // 移除符号来计算长度
       if (numberStr.length > MAX_SAFE_INTEGER_LENGTH) {
@@ -284,8 +284,8 @@ const getBody = async (apidoc: HttpNode): Promise<GotRequestOptions['body']> => 
     };
   }
   if (mode === 'formdata') {
-    const validFormData = apidoc.item.requestBody.formdata.filter(formData => formData.select && formData.key !== '');
-    validFormData.forEach(formData => {
+    const validFormData = apidoc.item.requestBody.formdata.filter((formData: ApidocProperty<'string' | 'file'>) => formData.select && formData.key !== '');
+    validFormData.forEach((formData: ApidocProperty<'string' | 'file'>) => {
       changeFormDataErrorInfoById(formData._id, ''); //每次请求前清空错误信息
     })
     const formData = await getFormDataFromFormDataParams(validFormData, objectVariable);
@@ -584,7 +584,7 @@ export const sendRequest = async () => {
         responseInfo.redirectList = cloneDeep(redirectList.value); // 记录重定向列表
         changeResponseInfo(responseInfo);
         changeFileBlobUrl(rawBody as Uint8Array, responseInfo.contentType);
-        updateCookiesBySetCookieHeader(setCookieStrList, responseInfo.requestData.prefix, projectId);
+        updateCookiesBySetCookieHeader(setCookieStrList, copiedApidoc.item.url.prefix, projectId);
         console.log('responseInfo', responseInfo)
         const storedResponseInfo = cloneDeep(responseInfo);
         storedResponseInfo.body = rawBody;

@@ -131,7 +131,7 @@ import { useI18n } from 'vue-i18n'
 import type { TreeNodeOptions } from 'element-plus/lib/components/tree/src/tree.type'
 import OpenApiTranslator from './openapi';
 import PostmanTranslator from './postman';
-import { ApidocProjectRules } from '@src/types/apidoc/base-info'
+import { ApidocProjectRules } from '@src/types'
 import { useApidocBaseInfo } from '@/store/apidoc/base-info'
 import { useApidocBanner } from '@/store/apidoc/banner'
 import { standaloneCache } from '@/cache/standalone'

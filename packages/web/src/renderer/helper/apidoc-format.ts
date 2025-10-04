@@ -4,8 +4,7 @@
 |--------------------------------------------------------------------------
 */
 import { useApidocBaseInfo } from '@/store/apidoc/base-info';
-import { ApidocProjectVariable } from '@src/types/apidoc/base-info';
-import { HttpNodeResponseContentType, HttpNode } from '@src/types';
+import { ApidocProjectVariable, HttpNodeResponseContentType, HttpNode } from '@src/types';
 import { storeToRefs } from 'pinia';
 
 type UrlInfo = {

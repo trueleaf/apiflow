@@ -1,5 +1,5 @@
 import { IDBPDatabase } from "idb";
-import type { ApidocProjectRules } from "@src/types/apidoc/base-info";
+import type { ApidocProjectRules } from "@src/types";
 
 export class StandaloneRuleCache {
   constructor(private db: IDBPDatabase | null = null) {}

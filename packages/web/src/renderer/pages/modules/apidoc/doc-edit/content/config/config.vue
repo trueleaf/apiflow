@@ -60,11 +60,10 @@
 
 <script lang="ts" setup>
 import { ref, Ref, onMounted } from 'vue'
-import { HttpNodeRequestParamTypes } from '@src/types'
+import { HttpNodeRequestParamTypes, ApidocProjectBaseInfoState, ApidocProjectRules } from '@src/types'
 import { request } from '@/api/api'
 import { router } from '@/router/index'
 import { event, apidocGenerateRequestParamTypes } from '@/helper'
-import { ApidocProjectBaseInfoState, ApidocProjectRules } from '@src/types/apidoc/base-info'
 import SLoading from '@/components/common/loading/g-loading.vue'
 import SFieldset from '@/components/common/fieldset/g-fieldset.vue'
 import SConfig from '@/components/common/config/g-config.vue'

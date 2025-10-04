@@ -71,7 +71,7 @@
 <script lang="ts" setup>
 import { downloadStringAsText, formatDate } from '@/helper';
 import { computed, ref, onMounted, onBeforeUnmount, watch } from 'vue';
-import type { WebsocketResponse } from '@src/types/websocket/websocket';
+import type { WebsocketResponse } from '@src/types/websocketNode';
 import GVirtualScroll from '@/components/apidoc/virtual-scroll/g-virtual-scroll.vue';
 import WebsocketPopover from './components/popover/websocket-popover.vue';
 import WebsocketFilter from './components/filter/websocket-filter.vue';

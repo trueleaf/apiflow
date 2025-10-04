@@ -1,8 +1,8 @@
-import { ApidocCookieInfo } from "@src/types/apidoc/base-info"
+import { ApidocCookieInfo } from "@src/types"
 import { defineStore } from "pinia"
 import { ref } from "vue"
 import { generateEmptyResponse } from "@src/renderer/helper"
-import { ChunkWithTimestampe, DeepPartial, ResponseInfo } from "@src/types/types"
+import { ChunkWithTimestampe, DeepPartial, ResponseInfo } from "@src/types"
 import assign from "lodash/assign"
 
 export const useApidocResponse = defineStore('apidocResponse', () => {

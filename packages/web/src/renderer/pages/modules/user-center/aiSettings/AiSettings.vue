@@ -81,7 +81,7 @@ import { ref, onMounted, computed } from 'vue'
 import { ElMessage } from 'element-plus'
 import { Loading } from '@element-plus/icons-vue'
 import { aiCache } from '@/cache/ai/aiCache'
-import type { Config } from '@src/types/common'
+import type { Config } from '@src/types/config'
 import VueMarkdownRender from 'vue-markdown-render'
 
 type AiConfig = Config['mainConfig']['aiConfig']

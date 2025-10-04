@@ -3,7 +3,6 @@
 // 包含 HttpNode, FolderNode, ApiNode 等核心节点定义
 // ============================================================================
 
-import type { Method } from "got";
 import type { WebSocketNode } from "../websocketNode";
 import type { MockHttpNode } from "../mockNode";
 

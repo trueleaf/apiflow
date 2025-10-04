@@ -197,7 +197,7 @@ import { ref, reactive, computed, watch } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useApidocTas } from '@/store/apidoc/tabs'
 import { ElEmpty, ElInputNumber } from 'element-plus'
-import type { MockLog } from '@src/types/mock/mock'
+import type { MockLog } from '@src/types/mockNode'
 
 const defaultTemplate = '$remote_addr - $remote_user [$time_local] "$request" $status $body_bytes_sent "$http_referer" "$http_user_agent" $request_time'
 

@@ -5,7 +5,7 @@
 |
 */
 import { ref, Ref, computed, WritableComputedRef, ComputedRef } from 'vue'
-import { ApidocProjectHost } from '@src/types/apidoc/base-info'
+import { ApidocProjectHost } from '@src/types'
 import { useApidoc } from '@/store/apidoc/apidoc'
 import { useApidocBaseInfo } from '@/store/apidoc/base-info'
 

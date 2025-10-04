@@ -1,6 +1,5 @@
 
-import type { ApidocProjectInfo, ApidocProperty, ApidocVariable, ApiNode } from '@src/types';
-import type { ApidocProjectRules } from "@src/types/apidoc/base-info";
+import type { ApidocProjectInfo, ApidocProperty, ApidocVariable, ApiNode, ApidocProjectRules } from '@src/types';
 import { StandaloneHttpNodeCache } from "./standalone/httpNode";
 import { StandaloneProjectCache } from "./standalone/projects";
 import { StandaloneCommonHeaderCache } from "./standalone/commonHeaders";

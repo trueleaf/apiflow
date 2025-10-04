@@ -1,4 +1,4 @@
-import type { HttpNodeRequestMethod } from "./core";
+import type { HttpNodeRequestMethod } from "../httpNode";
 import type { Headers } from 'got'
 
 export type ApidocRequest = {

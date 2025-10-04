@@ -76,7 +76,7 @@ import { ref, watch, computed } from 'vue';
 import { isJsonString } from '@/helper';
 import dayjs from 'dayjs';
 import SJsonEditor from '@/components/common/json-editor/g-json-editor.vue';
-import type { WebsocketResponse } from '@src/types/websocket/websocket';
+import type { WebsocketResponse } from '@src/types/websocketNode';
 import { useI18n } from 'vue-i18n';
 
 const { t } = useI18n();

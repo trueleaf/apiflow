@@ -5,9 +5,10 @@ import {
   ApidocProjectCommonHeader,
   ApidocProjectHost,
   ApidocProjectRules,
-} from "@src/types/apidoc/base-info";
+  ApidocProperty,
+  CommonResponse
+} from "@src/types";
 import { event } from '@/helper'
-import { ApidocProperty, CommonResponse } from '@src/types';
 import { defineStore } from "pinia"
 import { ref } from "vue";
 import { router } from "@/router";

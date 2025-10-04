@@ -57,7 +57,7 @@ import { useI18n } from 'vue-i18n';
 import { useWebSocket } from '@/store/websocket/websocket';
 import { uuid } from '@/helper';
 import { ElMessage, type FormInstance, type FormRules } from 'element-plus';
-import type { WebsocketMessageType, WebsocketSendMessageTemplate } from '@src/types/websocket/websocket';
+import type { WebsocketMessageType, WebsocketSendMessageTemplate } from '@src/types/websocketNode';
 
 const props = defineProps<{
   modelValue: boolean;

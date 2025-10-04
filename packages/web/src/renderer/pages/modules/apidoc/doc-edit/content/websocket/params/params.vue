@@ -135,7 +135,7 @@ import { useRedoUndo } from '@/store/redoUndo/redoUndo'
 import { webSocketHistoryCache } from '@/cache/history'
 import type { WebSocketHistory } from '@src/types/history'
 import { ElMessageBox, ElMessage } from 'element-plus'
-import { WebsocketActiveTabType } from '@src/types/websocket/websocket'
+import { WebsocketActiveTabType } from '@src/types/websocketNode'
 
 const { t } = useI18n()
 const websocketStore = useWebSocket()

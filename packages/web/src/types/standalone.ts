@@ -1,6 +1,5 @@
-import { ApidocProjectRules } from "./apidoc/base-info";
-import type { HttpNode, ApidocProperty } from "./apidoc";
-import type { ApidocProjectInfo } from "./project";
+import type { ApidocProjectRules, ApidocProjectInfo } from "./project";
+import type { HttpNode, ApidocProperty } from "./httpNode";
 
 export type Standalone = {
   /**

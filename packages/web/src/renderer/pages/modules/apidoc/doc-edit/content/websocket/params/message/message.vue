@@ -159,7 +159,7 @@ import {
 } from '@element-plus/icons-vue'
 import SJsonEditor from '@/components/common/json-editor/g-json-editor.vue'
 import AddTemplateDialog from './dialog/add/add.vue'
-import type { WebsocketMessageType } from '@src/types/websocket/websocket'
+import type { WebsocketMessageType } from '@src/types/websocketNode'
 import { uuid, debounce } from '@/helper'
 import { websocketResponseCache } from '@/cache/websocket/websocketResponse'
 import { webSocketNodeCache } from '@/cache/websocket/websocketNodeCache'
@@ -223,7 +223,7 @@ const handleEditorUndo = () => {
   const nodeId = currentSelectTab.value?._id;
   if (nodeId) {
     const result = redoUndoStore.wsUndo(nodeId);
-    if (result.success && result.operation?.type === 'sendMessageOperation') {
+    if (result.code === 0 && result.operation?.type === 'sendMessageOperation') {
       const operation = result.operation;
       if (operation.cursorPosition) {
         const editor = jsonEditorRef.value;
@@ -238,7 +238,7 @@ const handleEditorRedo = () => {
   const nodeId = currentSelectTab.value?._id;
   if (nodeId) {
     const result = redoUndoStore.wsRedo(nodeId);
-    if (result.success && result.operation?.type === 'sendMessageOperation') {
+    if (result.code === 0 && result.operation?.type === 'sendMessageOperation') {
       const operation = result.operation;
       if (operation.cursorPosition) {
         const editor = jsonEditorRef.value;
@@ -354,7 +354,7 @@ const handleSendMessage = async () => {
   try {
     const messageContent = websocketStore.websocket.item.sendMessage;
     const result = await window.electronAPI?.websocket.send(connectionId.value, messageContent)
-    if (result?.success) {
+    if (result?.code === 0) {
       const sendMessage = {
         type: 'send' as const,
         data: {
@@ -372,15 +372,15 @@ const handleSendMessage = async () => {
 
       // 发送成功不再清空输入框
     } else {
-      ElMessage.error(t('消息发送失败') + ': ' + (result?.error || t('未知错误')))
-      console.error('WebSocket消息发送失败:', result?.error)
+      ElMessage.error(t('消息发送失败') + ': ' + (result?.msg || t('未知错误')))
+      console.error('WebSocket消息发送失败:', result?.msg)
 
       // 创建错误消息记录
       const errorMessage = {
         type: 'error' as const,
         data: {
           id: uuid(),
-          error: result?.error || t('消息发送失败'),
+          error: result?.msg || t('消息发送失败'),
           timestamp: Date.now(),
           nodeId: currentSelectTab.value?._id || ''
         }
@@ -452,7 +452,7 @@ const startAutoSend = () => {
       try {
         const autoSendContent = websocketStore.websocket.config.defaultAutoSendContent || 'ping'
         const result = await window.electronAPI?.websocket.send(connectionId.value, autoSendContent)
-        if (result?.success) {
+        if (result?.code === 0) {
           // 创建自动发送记录
           const autoSendMessage = {
             type: 'autoSend' as const,
@@ -471,14 +471,14 @@ const startAutoSend = () => {
           const nodeId = currentSelectTab.value!._id;
           await websocketResponseCache.setSingleData(nodeId, autoSendMessage);
         } else {
-          console.error('自动发送失败:', result?.error)
+          console.error('自动发送失败:', result?.msg)
 
           // 创建自动发送失败错误消息
           const errorMessage = {
             type: 'error' as const,
             data: {
               id: uuid(),
-              error: result?.error || t('自动发送失败'),
+              error: result?.msg || t('自动发送失败'),
               timestamp: Date.now(),
               nodeId: currentSelectTab.value?._id || ''
             }
