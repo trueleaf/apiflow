@@ -2,7 +2,7 @@
  * httpMock文档缓存
  */
 
-import { MockHttpNode } from '@src/types/mock/mock';
+import { MockHttpNode } from '@src/types/mockNode';
 import { HttpResponseCache } from '../../http/httpResponseCache';
 
 class HttpMockNodeCache extends HttpResponseCache {

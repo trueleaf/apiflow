@@ -4,7 +4,7 @@ import type {
   WsRedoUnDoOperation
 } from "@src/types/redoUndo";
 import type { ApidocProperty } from "@src/types";
-import type { WebSocketNode } from "@src/types/websocket/websocket";
+import type { WebSocketNode } from "@src/types/websocketNode";
 import { useWebSocket } from "@/store/websocket/websocket";
 import { cloneDeep } from "@/helper";
 import { redoUndoCache } from "@/cache/redoUndo/redoUndo";

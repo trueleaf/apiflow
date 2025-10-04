@@ -1,7 +1,7 @@
 import { WebSocket } from 'ws';
 import { ipcMain, IpcMainInvokeEvent } from 'electron';
 import { fileTypeFromBuffer } from 'file-type';
-import { WebsocketConnectParams } from '@src/types/websocket/websocket.ts';
+import { WebsocketConnectParams } from '@src/types/websocketNode';
 import { CommonResponse } from '@src/types/project';
 import {
     ClientRequestArgs,

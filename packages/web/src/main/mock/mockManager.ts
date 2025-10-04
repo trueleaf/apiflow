@@ -1,4 +1,4 @@
-import { MockHttpNode, MockInstance, MockLog } from '@src/types/mock/mock';
+import { MockHttpNode, MockInstance, MockLog } from '@src/types/mockNode';
 import { CommonResponse } from '@src/types/project';
 import { MockLogger } from './mockLogger';
 import { MockUtils } from './mockUtils';

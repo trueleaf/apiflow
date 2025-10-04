@@ -6,7 +6,7 @@ import { Ref } from 'vue'
 import 'element-plus/es/components/message-box/style/css';
 import { ElMessage, ElMessageBox } from 'element-plus'
 import type { ApidocBanner, CommonResponse, HttpNode, FolderNode } from '@src/types'
-import { WebSocketNode } from '@src/types/websocket/websocket'
+import { WebSocketNode } from '@src/types/websocketNode'
 import { findNodeById, forEachForest, findParentById, flatTree, uniqueByKey, findPreviousSiblingById, findNextSiblingById, event } from '@/helper/index'
 import { router } from '@/router/index'
 import { request } from '@/api/api'

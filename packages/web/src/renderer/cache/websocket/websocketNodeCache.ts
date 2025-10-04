@@ -2,7 +2,7 @@
  * websocket文档缓存
  */
 
-import { WebSocketNode, WebsocketActiveTabType, WebsocketConfig } from '@src/types/websocket/websocket';
+import { WebSocketNode, WebsocketActiveTabType, WebsocketConfig } from '@src/types/websocketNode';
 import { HttpResponseCache } from '../http/httpResponseCache';
 
 class WebSocketNodeCache extends HttpResponseCache {

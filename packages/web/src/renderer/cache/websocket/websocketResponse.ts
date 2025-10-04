@@ -3,7 +3,7 @@
  */
 
 import { openDB, IDBPDatabase } from 'idb';
-import { WebsocketResponse } from '@src/types/websocket/websocket';
+import { WebsocketResponse } from '@src/types/websocketNode';
 import { config } from '@src/config/config';
 import { uuid } from '@/helper/index.ts';
 

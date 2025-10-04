@@ -2,7 +2,6 @@ import { createRouter, createWebHashHistory, createWebHistory, RouteRecordRaw } 
 import NProgress from "nprogress";
 import "nprogress/nprogress.css";
 import docEdit from "@/pages/modules/apidoc/doc-edit/doc-edit.vue";
-import { config } from "@/../config/config";
 import { usePermissionStore } from "@/store/permission";
 import { useRuntime } from "@/store/runtime/runtime.ts";
 
@@ -12,7 +11,7 @@ const routes: Array<RouteRecordRaw> = [
   {
     path: "/header",
     name: "Header",
-    component: () => import("@/pages/layout/header.vue"),
+    component: () => import("@/pages/header/header.vue"),
   },
   {
     path: "/v1/apidoc/doc-list",
@@ -70,7 +69,7 @@ const routerConfig = {
     {
       path: "/header",
       name: "Header",
-      component: () => import("@/pages/layout/header.vue"),
+      component: () => import("@/pages/header/header.vue"),
     },
     {
       path: "/v1/apidoc/doc-list",

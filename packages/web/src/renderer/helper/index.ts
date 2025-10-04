@@ -17,7 +17,7 @@ import tips from './tips'
 import { ApidocProjectBaseInfoState } from '@src/types/apidoc/base-info';
 import { ApidocTab } from '@src/types/apidoc/tabs.ts';
 import { i18n } from '@/i18n';
-import { WebSocketNode } from '@src/types/websocket/websocket.ts';
+import { WebSocketNode } from '@src/types/websocketNode';
 
 type Data = Record<string, unknown>
 

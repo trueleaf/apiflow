@@ -1,4 +1,4 @@
-import { MockLog } from '@src/types/mock/mock';
+import { MockLog } from '@src/types/mockNode';
 
 export class MockLogger {
   private mockLogs: Map<string, MockLog[]> = new Map();

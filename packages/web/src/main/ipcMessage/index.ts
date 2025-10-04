@@ -10,7 +10,7 @@ import type { RuntimeNetworkMode } from '@src/types/runtime';
 
 import { mockManager } from '../main.ts';
 import { MockUtils } from '../mock/mockUtils.ts';
-import { MockHttpNode } from '@src/types/mock/mock.ts';
+import { MockHttpNode } from '@src/types/mockNode';
 import { runtime } from '../runtime/runtime.ts';
 import { AiManager } from '../ai/ai.ts';
 

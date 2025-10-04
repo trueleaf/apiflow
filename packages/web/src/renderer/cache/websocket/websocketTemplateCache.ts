@@ -1,4 +1,4 @@
-import type { WebsocketSendMessageTemplate } from '@src/types/websocket/websocket';
+import type { WebsocketSendMessageTemplate } from '@src/types/websocketNode';
 
 /**
  * WebSocket消息模板缓存管理类

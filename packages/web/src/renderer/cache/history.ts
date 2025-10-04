@@ -4,7 +4,7 @@
 
 import { openDB, IDBPDatabase } from 'idb';
 import { WebSocketHistory } from '@src/types/history';
-import { WebSocketNode } from '@src/types/websocket/websocket';
+import { WebSocketNode } from '@src/types/websocketNode';
 import { config } from '@src/config/config';
 import { uuid } from '@/helper/index';
 

@@ -1,4 +1,4 @@
-import { MockHttpNode } from "@src/types/mock/mock.ts";
+import { MockHttpNode } from "@src/types/mockNode";
 import { defineStore, storeToRefs } from "pinia";
 import { ref } from "vue";
 import { uuid, cloneDeep, generateEmptyHttpMockNode } from "@/helper";

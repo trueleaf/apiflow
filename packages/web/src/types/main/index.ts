@@ -1,9 +1,34 @@
-import type {GotRequestOptions, WindowState } from './types';
-import type { CommonResponse } from './project';
-import type { StandaloneExportHtmlParams } from './standalone';
-import { WebsocketConnectParams } from './websocketNode';
-import { MockHttpNode, MockLog } from './mockNode';
+// ============================================================================
+// 主进程相关模块
+// 包含主进程API和窗口状态类型
+// ============================================================================
 
+import type {GotRequestOptions } from '../request';
+import type { CommonResponse } from '../project';
+import type { StandaloneExportHtmlParams } from '../standalone';
+import { WebsocketConnectParams } from '../websocketNode';
+import { MockHttpNode, MockLog } from '../mockNode';
+
+// ============================================================================
+// 窗口状态类型
+// ============================================================================
+
+export type WindowState = {
+  isMaximized: boolean;
+  isMinimized: boolean;
+  isFullScreen: boolean;
+  isNormal: boolean;
+  isVisible: boolean;
+  isFocused: boolean;
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+}
+
+// ============================================================================
+// Electron API类型
+// ============================================================================
 
 export type ElectronAPI = {
   ip: string,
@@ -64,6 +89,10 @@ export type ElectronAPI = {
     ) => { cancel: () => Promise<void>; startPromise: Promise<CommonResponse<{ requestId: string }>> };
   };
 }
+
+// ============================================================================
+// 全局Window类型扩展
+// ============================================================================
 
 declare global {
   interface Window {

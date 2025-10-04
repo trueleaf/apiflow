@@ -1,4 +1,4 @@
-import { WebSocketNode, WebsocketMessageType, WebsocketResponse, WebsocketSendMessageTemplate, WebsocketActiveTabType } from "@src/types/websocket/websocket.ts";
+import { WebSocketNode, WebsocketMessageType, WebsocketResponse, WebsocketSendMessageTemplate, WebsocketActiveTabType } from "@src/types/websocketNode";
 import { defineStore, storeToRefs } from "pinia";
 import { ref, watch } from "vue";
 import { ApidocProperty } from "@src/types";

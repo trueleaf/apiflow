@@ -17,7 +17,7 @@ import { useCookies } from '@/store/apidoc/cookies';
 import { InitDataMessage, OnEvalSuccess, ReceivedEvent } from '@/worker/pre-request/types/types.ts';
 import { Method } from 'got';
 import preRequestWorker from '@/worker/pre-request/pre-request.ts?worker&inline';
-import { WebSocketNode } from '@src/types/websocket/websocket.ts';
+import { WebSocketNode } from '@src/types/websocketNode';
 import { webSocketNodeCache } from '@/cache/websocket/websocketNodeCache.ts';
 /*
 |--------------------------------------------------------------------------

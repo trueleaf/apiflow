@@ -1,4 +1,4 @@
-import { MockHttpNode, MockSSEEventData } from '@src/types/mock/mock';
+import { MockHttpNode, MockSSEEventData } from '@src/types/mockNode';
 import { AiManager } from '../ai/ai';
 import { fakerZH_CN, fakerEN, fakerJA } from '@faker-js/faker';
 import sharp from 'sharp';
