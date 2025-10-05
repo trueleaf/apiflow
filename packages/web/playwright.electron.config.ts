@@ -24,7 +24,7 @@ export default defineConfig({
   
   // 测试报告生成 HTML 格式
   reporter: [
-    ['html', { outputFolder: 'playwright-report' }],
+    ['html', { outputFolder: 'playwright-report', open: 'never' }],
     ['json', { outputFile: 'playwright-report/results.json' }],
     ['list']
   ],
