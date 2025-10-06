@@ -157,7 +157,7 @@ const handleRegister = () => {
       delete params.captcha;
       request.post('/api/security/register', params).then(() => {
         request.post('/api/security/login_password', userInfo).then((res) => {
-          router.push('/v1/apidoc/doc-list');
+          router.push('/home');
           sessionStorage.setItem('userInfo', JSON.stringify(res.data));
         }).catch((err) => {
           console.error(err);

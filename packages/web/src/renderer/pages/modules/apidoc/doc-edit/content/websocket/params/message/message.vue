@@ -164,7 +164,7 @@ import { uuid, debounce } from '@/helper'
 import { websocketResponseCache } from '@/cache/websocket/websocketResponse'
 import { webSocketNodeCache } from '@/cache/websocket/websocketNodeCache'
 import { ElMessageBox, ElMessage } from 'element-plus'
-import * as monaco from 'monaco-editor/esm/vs/editor/editor.api'
+import type * as Monaco from 'monaco-editor/esm/vs/editor/editor.api'
 
 
 const { t } = useI18n()
@@ -185,8 +185,8 @@ type JsonEditorRef = {
   focus: () => void;
   changeLanguage: (language: string) => void;
   updateEditorHeight: () => void;
-  getCursorPosition: () => monaco.Position | null;
-  setCursorPosition: (position: monaco.Position) => void;
+  getCursorPosition: () => Monaco.Position | null;
+  setCursorPosition: (position: Monaco.Position) => void;
 };
 
 const jsonEditorRef = ref<JsonEditorRef | null>(null)

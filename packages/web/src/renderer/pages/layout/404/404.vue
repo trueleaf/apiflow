@@ -11,7 +11,7 @@ import { router } from '@/router';
 
 const imgUrl = new URL('@/assets/imgs/logo.png', import.meta.url).href
 const handleJumpToHome = () => {
-  router.replace('/v1/apidoc/doc-list');
+  router.replace('/home');
 }
 </script>
 

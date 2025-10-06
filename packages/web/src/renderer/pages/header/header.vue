@@ -189,7 +189,7 @@ const switchTab = (tabId: string) => {
 */
 const jumpToHome = () => {
   activeTabId.value = '';
-  window.electronAPI?.ipcManager.sendToMain('apiflow-topbar-navigate', '/v1/apidoc/doc-list')
+  window.electronAPI?.ipcManager.sendToMain('apiflow-topbar-navigate', '/home')
 }
 const jumpToUserCenter = () => {
   const userCenterTabId = 'user-center';

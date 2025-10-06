@@ -12,8 +12,8 @@ const routes: Array<RouteRecordRaw> = [
     component: () => import("@/pages/header/header.vue"),
   },
   {
-    path: "/v1/apidoc/doc-list",
-    name: "DocList",
+    path: "/home",
+    name: "Home",
     component: () => import("@/pages/modules/apidoc/doc-list/doc-list.vue"),
   },
   {
@@ -42,7 +42,7 @@ const routes: Array<RouteRecordRaw> = [
 const getRedirectPath = () => {
   const lastVisitPage = localStorage.getItem("history/lastVisitePage");
   if (!lastVisitPage) {
-    return "/v1/apidoc/doc-list";
+    return "/home";
   }
   // 取路径部分，去掉查询字符串和 hash
   const lastVisitPath = lastVisitPage.split("?")[0].split("#")[0];
@@ -50,7 +50,7 @@ const getRedirectPath = () => {
   const isValidPath = allRoutePaths.some((routePath) => {
     return lastVisitPath === routePath;
   });
-  return isValidPath ? lastVisitPage : "/v1/apidoc/doc-list";
+  return isValidPath ? lastVisitPage : "/home";
 };
 
 const routerConfig = {
@@ -58,7 +58,7 @@ const routerConfig = {
   routes: [
     {
       path: "/",
-      redirect: getRedirectPath(),
+      redirect: () => getRedirectPath(),
     },
     {
       path: "/login",
@@ -71,8 +71,8 @@ const routerConfig = {
       component: () => import("@/pages/header/header.vue"),
     },
     {
-      path: "/v1/apidoc/doc-list",
-      name: "DocList",
+      path: "/home",
+      name: "Home",
       component: () => import("@/pages/modules/apidoc/doc-list/doc-list.vue"),
     },
     {

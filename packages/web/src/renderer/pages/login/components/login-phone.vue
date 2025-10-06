@@ -106,7 +106,7 @@ const handleLogin = () => {
         if (res.code === 2006 || res.code === 2003) {
           ElMessage.warning(res.msg);
         } else {
-          router.push('/v1/apidoc/doc-list');
+          router.push('/home');
           permissionCache.setUserInfo(res.data);
           permissionStore.getPermission()
           

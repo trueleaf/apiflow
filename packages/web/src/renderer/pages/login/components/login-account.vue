@@ -89,7 +89,7 @@ const handleLogin = async () => {
         } else {
           // 登录成功，更新用户信息到store
           permissionStore.changeUserInfo(res.data);
-          router.push('/v1/apidoc/doc-list');
+          router.push('/home');
           permissionCache.setUserInfo(res.data);
           // $store.dispatch('permission/getPermission')
         }
@@ -126,7 +126,7 @@ const handleGuesttLogin = () => {
   request.post('/api/security/login_guest', userInfo).then((res) => {
     // 体验账号登录成功，更新用户信息到store
     permissionStore.changeUserInfo(res.data);
-    router.push('/v1/apidoc/doc-list');
+    router.push('/home');
     permissionCache.setUserInfo(res.data);
   }).catch((err) => {
     console.error(err);

@@ -32,16 +32,14 @@
 
 <script lang="ts" setup>
 import { computed, onMounted, ref } from 'vue'
-import { Tickets, School, List } from '@element-plus/icons-vue'
+import { Tickets, School } from '@element-plus/icons-vue'
 import tabA from './tab-a/tab-a.vue'
 import tabB from './tab-b/tab-b.vue'
 import { useI18n } from 'vue-i18n'
 import { TabPaneName } from 'element-plus'
 import { httpNodeCache } from '@/cache/http/httpNodeCache.ts'
 import { useRuntime } from '@/store/runtime/runtime'
-import { useRouter } from 'vue-router'
 
-const router = useRouter()
 const { getActiveApidocTab, setActiveApidocTab } = httpNodeCache
 const { t } = useI18n()
 
@@ -59,9 +57,7 @@ const handleChangeActiveTab = (tabName: TabPaneName) => {
   setActiveApidocTab(tabName as string)
   activeName.value = tabName as string;
 }
-const handleOpenOverview = () => {
-  router.push({ path: '/v1/apidoc/doc-list/overview' })
-}
+
 onMounted(() => {
   activeName.value = getActiveApidocTab()
 })

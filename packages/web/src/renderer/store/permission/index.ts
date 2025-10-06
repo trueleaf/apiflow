@@ -93,7 +93,7 @@ export const usePermissionStore = defineStore('permission', () => {
   const changeMenus = (payload: PermissionClientMenu[]) => {
     if (config.renderConfig.permission.free && userInfo.value.loginName === 'admin') {
       menus.value = [{
-        path: '/v1/apidoc/doc-list',
+        path: '/home',
         name: 'api文档',
       }, {
         path: '/v1/permission/permission',
@@ -101,7 +101,7 @@ export const usePermissionStore = defineStore('permission', () => {
       }];
     } else if (config.renderConfig.permission.free) {
       menus.value = [{
-        path: '/v1/apidoc/doc-list',
+        path: '/home',
         name: 'api文档',
       }];
     } else {

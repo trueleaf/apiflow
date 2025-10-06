@@ -189,7 +189,7 @@ const initHeaderTabs = () => {
   
   // 如果没有 activeTabId，跳转到主页
   if (!activeTabId) {
-    router.push('/v1/apidoc/doc-list');
+    router.push('/home');
   }
 };
 
@@ -257,8 +257,8 @@ onMounted(() => {
       if (mode === prevMode) {
         return
       }
-      if (router.currentRoute.value.path !== '/v1/apidoc/doc-list') {
-        await router.push('/v1/apidoc/doc-list')
+      if (router.currentRoute.value.path !== '/home') {
+        await router.push('/home')
       }
       window.electronAPI?.ipcManager.sendToMain('apiflow-refresh-content-view')
     });
