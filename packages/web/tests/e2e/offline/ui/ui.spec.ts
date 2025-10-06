@@ -146,15 +146,12 @@ test.describe('离线模式首屏 UI 验证', () => {
     });
 
     // 通过刷新页面来模拟应用重载（localStorage 会保留）
-    await headerPage.reload(),
-    await contentPage.reload()
-    await Promise.all([
-    ]);
+    // 顺序重载，避免并发导致 WebSocket 连接冲突
+    await headerPage.reload();
+    await headerPage.waitForLoadState('domcontentloaded');
     
-    await headerPage.waitForLoadState('domcontentloaded'),
-    await contentPage.waitForLoadState('domcontentloaded')
-    await Promise.all([
-    ]);
+    await contentPage.reload();
+    await contentPage.waitForLoadState('domcontentloaded');
 
     // 等待tab恢复显示，确保Vue组件已完成初始化
     await headerPage.waitForSelector('.tab-item', { state: 'visible', timeout: 5000 });

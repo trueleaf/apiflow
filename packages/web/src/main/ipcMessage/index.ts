@@ -5,7 +5,7 @@ import fs from 'fs/promises';
 import { exportHtml, exportWord, setMainWindow, setContentView, startExport, receiveRendererData, finishRendererData, getExportStatus, resetExport, selectExportPath } from './export/export.ts';
 import { selectImportFile, analyzeImportFile, startImport, resetImport, setMainWindow as setImportMainWindow, setContentView as setImportContentView } from './import/import.ts';
 import { getWindowState } from '../utils/index.ts';
-import { IPCProjectData, WindowState } from '@src/types/types.ts';
+// import { IPCProjectData, WindowState } from '@src/types/types.ts';
 import type { RuntimeNetworkMode } from '@src/types/runtime';
 
 import { mockManager } from '../main.ts';
@@ -13,6 +13,7 @@ import { MockUtils } from '../mock/mockUtils.ts';
 import { MockHttpNode } from '@src/types/mockNode';
 import { runtime } from '../runtime/runtime.ts';
 import { AiManager } from '../ai/ai.ts';
+import { IPCProjectData, WindowState } from '@src/types/index.ts';
 
 export const useIpcEvent = (mainWindow: BrowserWindow, topBarView: WebContentsView, contentView: WebContentsView) => {
   // 设置窗口引用到导出模块
@@ -21,6 +22,45 @@ export const useIpcEvent = (mainWindow: BrowserWindow, topBarView: WebContentsVi
   // 设置窗口引用到导入模块
   setImportMainWindow(mainWindow);
   setImportContentView(contentView);
+
+  /*
+  |--------------------------------------------------------------------------
+  | 握手机制相关事件
+  |--------------------------------------------------------------------------
+  */
+  let topBarReady = false;
+  let contentViewReady = false;
+
+  // topBarView 就绪通知
+  ipcMain.on('apiflow-topbar-ready', () => {
+    topBarReady = true;
+    // 如果 contentView 也准备好了，通知双方可以通信
+    if (contentViewReady) {
+      contentView.webContents.send('apiflow-topbar-is-ready');
+      topBarView.webContents.send('apiflow-content-is-ready');
+    }
+  });
+
+  // contentView 就绪通知
+  ipcMain.on('apiflow-content-ready', () => {
+    contentViewReady = true;
+    // 如果 topBar 也准备好了，通知双方可以通信
+    if (topBarReady) {
+      contentView.webContents.send('apiflow-topbar-is-ready');
+      topBarView.webContents.send('apiflow-content-is-ready');
+    }
+  });
+
+  /*
+  |--------------------------------------------------------------------------
+  | contentView → topBarView 初始化数据传递
+  |--------------------------------------------------------------------------
+  */
+  // App.vue 发送初始化 tabs 数据给 header.vue
+  ipcMain.on('apiflow-content-init-tabs', (_, data: { tabs: any[], activeTabId: string }) => {
+    topBarView.webContents.send('apiflow-init-tabs-data', data);
+  });
+
   /*
   |--------------------------------------------------------------------------
   | 其他操作

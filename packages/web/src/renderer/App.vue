@@ -27,6 +27,7 @@ import LanguageMenu from '@/components/common/language/language.vue';
 import type { RuntimeNetworkMode } from '@src/types/runtime';
 import { useRuntime } from './store/runtime/runtime.ts';
 import { useProjectStore } from './store/project/project.ts';
+import { httpNodeCache } from '@/cache/http/httpNodeCache';
 
 const router = useRouter();
 const dialogVisible = ref(false);
@@ -39,30 +40,6 @@ const projectStore = useProjectStore();
 const languageMenuVisible = ref(false)
 const languageMenuPosition = ref({ x: 0, y: 0, width: 0, height: 0 })
 const currentLanguage = ref<Language>(localStorage.getItem('language') as Language || 'zh-cn')
-
-// 监听路由变化
-watch(() => router.currentRoute.value.path, (newPath) => {
-  if (newPath === '/v1/apidoc/doc-edit') {
-    const projectId = router.currentRoute.value.query.id as string;
-    const projectName = router.currentRoute.value.query.name as string;
-    window.electronAPI?.ipcManager.sendToMain('apiflow-content-project-changed', {
-      projectId: projectId,
-      projectName: projectName
-    })
-  }
-}, { immediate: true });
-
-
-
-watch(() => runtimeStore.networkMode, async (mode, prevMode) => {
-  if (mode === prevMode) {
-    return
-  }
-  if (router.currentRoute.value.path !== '/v1/apidoc/doc-list') {
-    await router.push('/v1/apidoc/doc-list')
-  }
-  window.electronAPI?.ipcManager.sendToMain('apiflow-refresh-content-view')
-})
 
 const handleAddSuccess = (data: { projectId: string, projectName: string }) => {
   dialogVisible.value = false;
@@ -194,6 +171,28 @@ const bindTopBarEvent = () => {
   })
 }
 
+/*
+|--------------------------------------------------------------------------
+| 初始化 Header Tabs
+|--------------------------------------------------------------------------
+*/
+const initHeaderTabs = () => {
+  // 从缓存读取 tabs 和 activeTabId
+  const tabs = httpNodeCache.getHeaderTabs();
+  const activeTabId = httpNodeCache.getHeaderActiveTab();
+  
+  // 发送给 header.vue
+  window.electronAPI?.ipcManager.sendToMain('apiflow-content-init-tabs', {
+    tabs,
+    activeTabId
+  });
+  
+  // 如果没有 activeTabId，跳转到主页
+  if (!activeTabId) {
+    router.push('/v1/apidoc/doc-list');
+  }
+};
+
 const initWelcom = () => {
   if (!config.isDev) {
     console.log(`
@@ -228,9 +227,44 @@ const initLanguage = () => {
 }
 onMounted(() => {
   initWelcom();
-  bindTopBarEvent();
   initLanguage();
-  document.title = `${config.isDev ? `${config.localization.title}(${t('本地')})` : config.localization.title} `;
+  
+  // 发送 content 就绪信号
+  window.electronAPI?.ipcManager.sendToMain('apiflow-content-ready');
+  
+  // 等待 topBar 就绪后再初始化和绑定事件
+  window.electronAPI?.ipcManager.onMain('apiflow-topbar-is-ready', async () => {
+    bindTopBarEvent();
+    initHeaderTabs();
+    
+    // 等待路由就绪后再创建 watch
+    await router.isReady();
+    
+    // 监听路由变化
+    watch(() => router.currentRoute.value.path, (newPath) => {
+      if (newPath === '/v1/apidoc/doc-edit') {
+        const projectId = router.currentRoute.value.query.id as string;
+        const projectName = router.currentRoute.value.query.name as string;
+        window.electronAPI?.ipcManager.sendToMain('apiflow-content-project-changed', {
+          projectId: projectId,
+          projectName: projectName
+        })
+      }
+    }, { immediate: true });
+    
+    // 监听网络模式变化
+    watch(() => runtimeStore.networkMode, async (mode, prevMode) => {
+      if (mode === prevMode) {
+        return
+      }
+      if (router.currentRoute.value.path !== '/v1/apidoc/doc-list') {
+        await router.push('/v1/apidoc/doc-list')
+      }
+      window.electronAPI?.ipcManager.sendToMain('apiflow-refresh-content-view')
+    });
+  });
+  
+  document.title = `${config.isDev ? `${config.localization.title}(${t('本地')})` : config.localization.title}`;
 })
 </script>
 

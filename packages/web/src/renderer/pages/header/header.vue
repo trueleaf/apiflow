@@ -29,7 +29,7 @@
         <el-icon class="icon" size="16" :title="t('个人中心')" @click="jumpToUserCenter">
           <i class="iconfont icongerenzhongxin custom-icon"></i>
         </el-icon>
-        <div class="icon" size="16" :title="t('切换语言')" @click="handleLanguageButtonClick" ref="languageButtonRef">
+        <div class="icon" size="16" :title="t('切换语言')" @click="handleChangeLanguage" ref="languageButtonRef">
           <i class="iconfont iconyuyan custom-icon"></i>
           <span class="language-text">{{ currentLanguageDisplay }}</span>
         </div>
@@ -54,23 +54,15 @@
 </template>
 
 <script setup lang="ts">
-// import { WindowState } from '@src/types/types';
 import { ref, onMounted, watch, computed } from 'vue'
 import draggable from 'vuedraggable'
 import { httpNodeCache } from '@/cache/http/httpNodeCache.ts'
 import { Language, WindowState } from '@src/types'
+import type { HeaderTab } from '@src/types/header'
 import { RefreshRight, Back, Right } from '@element-plus/icons-vue'
 import { useI18n } from 'vue-i18n'
 import { FolderKanban } from 'lucide-vue-next'
 import { useRuntime } from '@/store/runtime/runtime'
-
-// 定义Tab类型
-type HeaderTab = {
-  id: string;
-  title: string;
-  type: 'project' | 'settings';
-  network: 'online' | 'offline';
-};
 
 const tabs = ref<HeaderTab[]>([])
 const activeTabId = ref('')
@@ -136,7 +128,7 @@ const currentLanguageDisplay = computed(() => {
   return languageMap[currentLanguage.value] || '中'
 })
 const languageButtonRef = ref<HTMLElement>()
-const handleLanguageButtonClick = () => {
+const handleChangeLanguage = () => {
   if (languageButtonRef.value) {
     const rect = languageButtonRef.value.getBoundingClientRect()
     const buttonPosition = {
@@ -255,21 +247,18 @@ const bindEvent = () => {
       tabs.value[index].title = data.projectName
     }
   })
+  
+  // 监听来自 App.vue 的初始化数据
+  window.electronAPI?.ipcManager.onMain('apiflow-init-tabs-data', (data: { tabs: HeaderTab[], activeTabId: string }) => {
+    tabs.value = data.tabs;
+    activeTabId.value = data.activeTabId;
+  });
 }
-
-// 初始化tabs
-const initTabs = () => {
-  tabs.value = httpNodeCache.getHeaderTabs()
-  activeTabId.value = httpNodeCache.getHeaderActiveTab()
-  if (!activeTabId.value) {
-    window.electronAPI?.ipcManager.sendToMain('apiflow-topbar-navigate', '/v1/apidoc/doc-list')
-  }
-}
-
 
 onMounted(() => {
   bindEvent()
-  initTabs()
+  // 发送就绪信号
+  window.electronAPI?.ipcManager.sendToMain('apiflow-topbar-ready');
 })
 
 watch(() => networkMode.value, (mode, prevMode) => {
