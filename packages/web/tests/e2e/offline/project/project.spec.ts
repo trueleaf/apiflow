@@ -71,7 +71,7 @@ test.describe('离线模式项目增删改查测试', () => {
     // 先设置离线模式，再清空数据和设置lastVisitePage
     await contentPage.evaluate(() => {
       localStorage.setItem('runtime/networkMode', 'offline');
-      localStorage.setItem('history/lastVisitePage', '/v1/apidoc/doc-list');
+      localStorage.setItem('history/lastVisitePage', '/home');
     });
 
     await headerPage.evaluate(() => {
@@ -80,11 +80,11 @@ test.describe('离线模式项目增删改查测试', () => {
 
     // 导航到项目列表页面，而不是刷新
     await contentPage.evaluate(() => {
-      window.location.hash = '#/v1/apidoc/doc-list';
+      window.location.hash = '#/home';
     });
     
     // 等待导航完成
-    await contentPage.waitForURL(/doc-list/, { timeout: 5000 });
+    await contentPage.waitForURL(/home/, { timeout: 5000 });
     await contentPage.waitForLoadState('domcontentloaded');
     await contentPage.waitForTimeout(1000); // 等待IndexedDB初始化
   });
@@ -93,7 +93,7 @@ test.describe('离线模式项目增删改查测试', () => {
     test('页面加载后应正确显示项目列表容器', async () => {
       await contentPage.waitForTimeout(1000);
       // 验证页面URL
-      await expect(contentPage).toHaveURL(/doc-list/);
+      await expect(contentPage).toHaveURL(/home/);
 
       // 验证项目列表容器存在
       const docListContainer = contentPage.locator('.doc-list');
@@ -165,9 +165,9 @@ test.describe('离线模式项目增删改查测试', () => {
       
       // 返回项目列表验证项目是否被创建
       await contentPage.evaluate(() => {
-        window.location.hash = '#/v1/apidoc/doc-list';
+        window.location.hash = '#/home';
       });
-      await contentPage.waitForURL(/doc-list/, { timeout: 5000 });
+      await contentPage.waitForURL(/home/, { timeout: 5000 });
       await contentPage.waitForTimeout(2000); // 增加等待时间，确保页面和数据完全加载
 
       // 验证项目出现在列表中
@@ -219,9 +219,9 @@ test.describe('离线模式项目增删改查测试', () => {
       
       // 返回项目列表
       await contentPage.evaluate(() => {
-        window.location.hash = '#/v1/apidoc/doc-list';
+        window.location.hash = '#/home';
       });
-      await contentPage.waitForURL(/doc-list/, { timeout: 5000 });
+      await contentPage.waitForURL(/home/, { timeout: 5000 });
       await contentPage.waitForTimeout(1000);
 
       // 找到创建的项目卡片
@@ -261,9 +261,9 @@ test.describe('离线模式项目增删改查测试', () => {
       
       // 返回项目列表
       await contentPage.evaluate(() => {
-        window.location.hash = '#/v1/apidoc/doc-list';
+        window.location.hash = '#/home';
       });
-      await contentPage.waitForURL(/doc-list/, { timeout: 5000 });
+      await contentPage.waitForURL(/home/, { timeout: 5000 });
       await contentPage.waitForTimeout(1000);
     });
 
@@ -371,9 +371,9 @@ test.describe('离线模式项目增删改查测试', () => {
       
       // 返回项目列表
       await contentPage.evaluate(() => {
-        window.location.hash = '#/v1/apidoc/doc-list';
+        window.location.hash = '#/home';
       });
-      await contentPage.waitForURL(/doc-list/, { timeout: 5000 });
+      await contentPage.waitForURL(/home/, { timeout: 5000 });
       await contentPage.waitForTimeout(1000);
     });
 
@@ -467,9 +467,9 @@ test.describe('离线模式项目增删改查测试', () => {
         
         // 返回项目列表
         await contentPage.evaluate(() => {
-          window.location.hash = '#/v1/apidoc/doc-list';
+          window.location.hash = '#/home';
         });
-        await contentPage.waitForURL(/doc-list/, { timeout: 5000 });
+        await contentPage.waitForURL(/home/, { timeout: 5000 });
         await contentPage.waitForTimeout(800);
       }
     });

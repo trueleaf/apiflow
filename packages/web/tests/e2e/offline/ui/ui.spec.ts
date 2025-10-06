@@ -72,7 +72,7 @@ test.describe('离线模式首屏 UI 验证', () => {
     });
     await contentPage.evaluate(() => {
       localStorage.setItem('runtime/networkMode', 'offline');
-      localStorage.setItem('history/lastVisitePage', '/v1/apidoc/doc-list');
+      localStorage.setItem('history/lastVisitePage', '/home');
     });
   });
 
@@ -102,7 +102,7 @@ test.describe('离线模式首屏 UI 验证', () => {
   });
 
   test('主内容区域默认展示项目列表页', async () => {
-    await expect(contentPage).toHaveURL(/doc-list/);
+    await expect(contentPage).toHaveURL(/\/home/);
 
     const docListContainer = contentPage.locator('.doc-list');
     await expect(docListContainer).toBeVisible();
@@ -123,27 +123,14 @@ test.describe('离线模式首屏 UI 验证', () => {
   });
 
   test('缓存的顶部标签页和最后访问路由会在重载后恢复', async () => {
-    // 清空并设置测试数据
-    await headerPage.evaluate(() => {
-      localStorage.clear();
-    });
-    await contentPage.evaluate(() => {
-      localStorage.clear();
-    });
-
-    const cachedTabs = [
-      { id: 'user-center', title: '个人中心', type: 'settings', network: 'offline' as const }
-    ];
-
-    await headerPage.evaluate((tabs) => {
-      localStorage.setItem('httpNode/header/tabs', JSON.stringify(tabs));
-      localStorage.setItem('httpNode/header/activeTab', 'user-center');
-    }, cachedTabs);
-
-    await contentPage.evaluate(() => {
-      localStorage.setItem('history/lastVisitePage', '/user-center');
-      localStorage.setItem('runtime/networkMode', 'offline');
-    });
+    // 先创建一个标签页并跳转到个人中心
+    await headerPage.locator('.navigation-control [title="个人中心"]').click();
+    await headerPage.waitForSelector('.tab-item:has-text("个人中心")', { state: 'visible', timeout: 5000 });
+    await contentPage.waitForURL(/user-center/, { timeout: 5000 });
+    
+    // 验证标签页和路由已正确设置
+    await expect(headerPage.locator('.tab-item:has-text("个人中心")')).toBeVisible();
+    await expect(contentPage).toHaveURL(/user-center/);
 
     // 通过刷新页面来模拟应用重载（localStorage 会保留）
     // 顺序重载，避免并发导致 WebSocket 连接冲突
@@ -164,6 +151,8 @@ test.describe('离线模式首屏 UI 验证', () => {
     await expect(restoredTab).toContainText('个人中心');
     await expect(restoredTab.first()).toHaveClass(/active/);
 
+    // 等待内容页面跳转完成，增加超时时间
+    await contentPage.waitForURL(/user-center/, { timeout: 10000 });
     await expect(contentPage).toHaveURL(/user-center/);
     await expect(contentPage.locator('.user-center')).toBeVisible();
   });
@@ -172,24 +161,27 @@ test.describe('离线模式首屏 UI 验证', () => {
     // 验证初始状态（可能已经有项目列表的标签页）
     const initialTabCount = await headerPage.locator('.tab-item').count();
     
-    // 点击个人中心按钮（使用更具体的选择器，选择操作栏中的图标，排除已经存在的标签页）
-    const userCenterButton = headerPage.locator('.s-header__right [title="个人中心"]').first();
+    // 点击个人中心按钮（使用正确的选择器，定位到 navigation-control 中的个人中心图标）
+    const userCenterButton = headerPage.locator('.navigation-control [title="个人中心"]');
+    await userCenterButton.waitFor({ state: 'visible', timeout: 5000 });
     await userCenterButton.click();
     
     // 验证标签页创建
-    await headerPage.waitForSelector('.tab-item:has-text("个人中心")', { state: 'visible' });
+    await headerPage.waitForSelector('.tab-item:has-text("个人中心")', { state: 'visible', timeout: 10000 });
     const tab = headerPage.locator('.tab-item');
     await expect(tab).toHaveCount(initialTabCount + 1);
     await expect(headerPage.locator('.tab-item:has-text("个人中心")')).toBeVisible();
-    await expect(tab).toHaveClass(/active/);
+    
+    const userCenterTab = headerPage.locator('.tab-item:has-text("个人中心")');
+    await expect(userCenterTab).toHaveClass(/active/);
     
     // 验证内容页面跳转
-    await expect(contentPage).toHaveURL(/user-center/);
+    await expect(contentPage).toHaveURL(/\/user-center/, { timeout: 10000 });
   });
 
   test('关闭标签页后应正确清理状态', async () => {
     // 创建标签页
-    await headerPage.locator('[title="个人中心"]').click();
+    await headerPage.locator('.navigation-control [title="个人中心"]').click();
     await headerPage.waitForSelector('.tab-item');
     
     // 关闭标签页
@@ -200,14 +192,14 @@ test.describe('离线模式首屏 UI 验证', () => {
     
     // 验证跳转回主页
     await expect(headerPage.locator('.home')).toHaveClass(/active/);
-    await expect(contentPage).toHaveURL(/doc-list/);
+    await expect(contentPage).toHaveURL(/\/home/);
   });
 
   test('点击主页按钮应跳转到项目列表页', async () => {
     // 先跳转到其他页面
-    await headerPage.locator('[title="个人中心"]').click();
+    await headerPage.locator('.navigation-control [title="个人中心"]').click();
     await headerPage.waitForSelector('.tab-item');
-    await expect(contentPage).toHaveURL(/user-center/);
+    await expect(contentPage).toHaveURL(/\/user-center/);
     
     // 验证个人中心标签页是 active 的
     await expect(headerPage.locator('.tab-item')).toHaveClass(/active/);
@@ -219,7 +211,7 @@ test.describe('离线模式首屏 UI 验证', () => {
     await headerPage.waitForTimeout(500);
     
     // 验证跳转到项目列表页
-    await expect(contentPage).toHaveURL(/doc-list/);
+    await expect(contentPage).toHaveURL(/\/home/);
     await expect(headerPage.locator('.home')).toHaveClass(/active/);
     
     // 验证标签页仍然存在但不是 active 状态（业务逻辑：点击主页不删除标签页）

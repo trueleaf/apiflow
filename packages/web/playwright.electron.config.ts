@@ -42,6 +42,7 @@ export default defineConfig({
     
     // 设置超时
     actionTimeout: 10000,
+    
   },
   
   // 测试项目配置
