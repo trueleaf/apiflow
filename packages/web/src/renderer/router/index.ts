@@ -5,8 +5,6 @@ import docEdit from "@/pages/modules/apidoc/doc-edit/doc-edit.vue";
 import { usePermissionStore } from "@/store/permission";
 import { useRuntime } from "@/store/runtime/runtime.ts";
 
-let lastVisitPage = localStorage.getItem("history/lastVisitePage"); // 上次访问的页面
-
 const routes: Array<RouteRecordRaw> = [
   {
     path: "/header",
@@ -42,6 +40,7 @@ const routes: Array<RouteRecordRaw> = [
 
 // 判断 lastVisitPage 路径是否匹配 routes 中的 path
 const getRedirectPath = () => {
+  const lastVisitPage = localStorage.getItem("history/lastVisitePage");
   if (!lastVisitPage) {
     return "/v1/apidoc/doc-list";
   }

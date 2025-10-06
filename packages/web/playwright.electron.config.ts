@@ -32,7 +32,7 @@ export default defineConfig({
   // 全局测试配置
   use: {
     // 失败时重试录制 trace
-    trace: 'on-first-retry',
+    trace: 'retain-on-failure',
     
     // 失败时截图
     screenshot: 'only-on-failure',

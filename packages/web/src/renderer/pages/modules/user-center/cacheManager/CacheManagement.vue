@@ -142,6 +142,19 @@ const cacheInfo = ref<CacheInfo>({
   localStorageDetails: [],
   indexedDBDetails: []
 })
+type IdleScheduler = (callback: () => void, options?: { timeout?: number }) => number
+const scheduleDeferredTask = (task: () => void) => {
+  if (typeof window === 'undefined') {
+    task()
+    return
+  }
+  const idle = (window as unknown as { requestIdleCallback?: IdleScheduler }).requestIdleCallback
+  if (idle) {
+    idle(() => task(), { timeout: 200 })
+    return
+  }
+  window.setTimeout(task, 50)
+}
 /*
 |--------------------------------------------------------------------------
 | 初始化相关
@@ -149,6 +162,9 @@ const cacheInfo = ref<CacheInfo>({
 */
 //初始化 Web Worker
 const initWorker = () => {
+  if (indexedDBWorkerRef.value) {
+    return
+  }
   indexedDBWorkerRef.value = new Worker(new URL('@/worker/indexedDB.ts', import.meta.url), { type: 'module' });
   indexedDBWorkerRef.value.addEventListener('message', handleMessage);
 }
@@ -282,10 +298,19 @@ const handleSelectCacheType = (type: 'localStorage' | 'indexedDB' | 'backup' | '
   // 缓存用户选择的卡片类型
   httpNodeCache.setSelectedCacheType(type)
   if (type === 'localStorage' && cacheInfo.value.localStorageDetails.length === 0) {
-    getLocalStorage()
+    scheduleDeferredTask(() => {
+      getLocalStorage()
+    })
   }
-  if (type === 'indexedDB' && cacheInfo.value.indexedDBDetails.length === 0) {
-    getIndexedDB()
+  if (type === 'indexedDB') {
+    if (!indexedDBWorkerRef.value) {
+      initWorker()
+    }
+    if (cacheInfo.value.indexedDBDetails.length === 0) {
+      scheduleDeferredTask(() => {
+        getIndexedDB()
+      })
+    }
   }
 }
 /*
@@ -329,20 +354,22 @@ const handleRefreshCache = (): void => {
 |--------------------------------------------------------------------------
 */
 onMounted(() => {
-  getLocalStorage()
-  getIndexedDBCacheData() // 如果计算过indexedDB则默认取缓存数据
-  initWorker();
-  
-  // 根据缓存的选中状态初始化对应数据
-  const cachedType = selectedCacheType.value
-  if (cachedType === 'indexedDB' && cacheInfo.value.indexedDBDetails.length === 0) {
-    getIndexedDB()
-  }
+  scheduleDeferredTask(() => {
+    getLocalStorage()
+    getIndexedDBCacheData() // 如果计算过indexedDB则默认取缓存数据
+    initWorker()
+    const cachedType = selectedCacheType.value
+    if (cachedType === 'indexedDB' && cacheInfo.value.indexedDBDetails.length === 0) {
+      getIndexedDB()
+    }
+  })
 })
 // 组件卸载时移除事件监听器，防止内存泄漏
 onUnmounted(() => {
   if (indexedDBWorkerRef.value) {
     indexedDBWorkerRef.value.removeEventListener('message', handleMessage)
+    indexedDBWorkerRef.value.terminate()
+    indexedDBWorkerRef.value = null
   }
 })
 

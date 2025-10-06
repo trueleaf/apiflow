@@ -15,6 +15,9 @@ const __dirname = path.dirname(__filename);
 export const mockManager = new MockManager();
 export const webSocketManager = new WebSocketManager();
 
+// 单实例锁变量，用于存储主窗口引用
+let mainWindowInstance: BrowserWindow | null = null;
+
 /*
 |--------------------------------------------------------------------------
 | 创建窗口
@@ -31,6 +34,7 @@ const createWindow = () => {
       nodeIntegration: true,
     },
   })
+
   // 创建顶部栏视图
   const topBarView = new WebContentsView({
     webPreferences: {
@@ -87,37 +91,58 @@ const createWindow = () => {
 | 主进程启动
 |--------------------------------------------------------------------------
 */
-app.whenReady().then(() => {
-  const { mainWindow, topBarView, contentView } = createWindow()
-  const { broadcastWindowState } = useIpcEvent(mainWindow, topBarView, contentView);
-  bindMainProcessGlobalShortCut(mainWindow, topBarView, contentView);
-  // 窗口状态变化时的视图布局调整
-  const updateViewLayout = () => {
-    const windowBounds = mainWindow.getContentBounds();
-    const windowState = getWindowState(mainWindow);
-    topBarView.setBounds({ x: 0, y: 0, width: windowBounds.width, height: mainConfig.topbarViewHeight });
-    contentView.setBounds({ x: 0, y: mainConfig.topbarViewHeight, width: windowBounds.width, height: windowBounds.height - mainConfig.topbarViewHeight });
-    broadcastWindowState(windowState);
-  };
-  mainWindow.on('minimize', updateViewLayout);
-  mainWindow.on('maximize', updateViewLayout);
-  mainWindow.on('unmaximize', () => {
-    updateViewLayout();
-    mainWindow.center(); // 窗口取消最大化时居中显示
-  });
-  mainWindow.on('restore', updateViewLayout);
-    mainWindow.on('resize', () => {
-    const windowBounds = mainWindow.getBounds();
-    topBarView.setBounds({ x: 0, y: 0, width: windowBounds.width, height: mainConfig.topbarViewHeight });
-    contentView.setBounds({ x: 0, y: mainConfig.topbarViewHeight, width: windowBounds.width, height: windowBounds.height - mainConfig.topbarViewHeight });
-  });
-  mainWindow.maximize()
+// 获取单实例锁
+const gotTheLock = app.requestSingleInstanceLock();
 
-  //重写默认逻辑
-  overrideBrowserWindow(mainWindow, contentView, topBarView);
-}).catch((error) => {
-  console.error('Error during app initialization:', error);
-});
+if (!gotTheLock) {
+  // 如果没有获得锁，说明已经有实例在运行，直接退出
+  app.quit();
+} else {
+  // 当第二个实例尝试启动时，激活第一个实例的窗口
+  app.on('second-instance', () => {
+    if (mainWindowInstance) {
+      if (mainWindowInstance.isMinimized()) {
+        mainWindowInstance.restore();
+      }
+      mainWindowInstance.focus();
+    }
+  });
+
+  app.whenReady().then(() => {
+    const { mainWindow, topBarView, contentView } = createWindow();
+    // 保存主窗口引用，用于单实例锁激活
+    mainWindowInstance = mainWindow;
+    
+    const { broadcastWindowState } = useIpcEvent(mainWindow, topBarView, contentView);
+    bindMainProcessGlobalShortCut(mainWindow, topBarView, contentView);
+    // 窗口状态变化时的视图布局调整
+    const updateViewLayout = () => {
+      const windowBounds = mainWindow.getContentBounds();
+      const windowState = getWindowState(mainWindow);
+      topBarView.setBounds({ x: 0, y: 0, width: windowBounds.width, height: mainConfig.topbarViewHeight });
+      contentView.setBounds({ x: 0, y: mainConfig.topbarViewHeight, width: windowBounds.width, height: windowBounds.height - mainConfig.topbarViewHeight });
+      broadcastWindowState(windowState);
+    };
+    mainWindow.on('minimize', updateViewLayout);
+    mainWindow.on('maximize', updateViewLayout);
+    mainWindow.on('unmaximize', () => {
+      updateViewLayout();
+      mainWindow.center(); // 窗口取消最大化时居中显示
+    });
+    mainWindow.on('restore', updateViewLayout);
+    mainWindow.on('resize', () => {
+      const windowBounds = mainWindow.getBounds();
+      topBarView.setBounds({ x: 0, y: 0, width: windowBounds.width, height: mainConfig.topbarViewHeight });
+      contentView.setBounds({ x: 0, y: mainConfig.topbarViewHeight, width: windowBounds.width, height: windowBounds.height - mainConfig.topbarViewHeight });
+    });
+    mainWindow.maximize();
+
+    //重写默认逻辑
+    overrideBrowserWindow(mainWindow, contentView, topBarView);
+  }).catch((error) => {
+    console.error('Error during app initialization:', error);
+  });
+}
 
 app.on('window-all-closed', () => {
   // 清理WebSocket连接

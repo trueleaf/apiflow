@@ -53,19 +53,6 @@ const resolveHeaderAndContentPages = async (
   throw new Error('未能定位 header 与 content 页面');
 };
 
-const launchElectronApp = async (): Promise<ElectronApplication> => {
-  const mainPath = path.join(process.cwd(), 'dist', 'main', 'main.mjs');
-  const electronApp = await electron.launch({
-    args: [mainPath],
-    env: {
-      ...process.env,
-      NODE_ENV: 'test',
-      ELECTRON_DISABLE_SECURITY_WARNINGS: 'true'
-    }
-  });
-  await electronApp.evaluate(async ({ app }) => app.whenReady());
-  return electronApp;
-};
 
 test.describe('离线模式首屏 UI 验证', () => {
   let headerPage: Page;
@@ -96,9 +83,6 @@ test.describe('离线模式首屏 UI 验证', () => {
     await expect(headerPage.locator('.logo-img')).toBeVisible();
     const homeButton = headerPage.locator('.home');
     await expect(homeButton).toBeVisible();
-    // 在项目列表页时，home按钮不应该有active类（active类只在主页时显示）
-    // await expect(homeButton).toHaveClass(/active/);
-
     await expect(headerPage.locator('[title="刷新主应用"]')).toBeVisible();
     await expect(headerPage.locator('[title="后退"]')).toBeVisible();
     await expect(headerPage.locator('[title="前进"]')).toBeVisible();
@@ -162,14 +146,14 @@ test.describe('离线模式首屏 UI 验证', () => {
     });
 
     // 通过刷新页面来模拟应用重载（localStorage 会保留）
+    await headerPage.reload(),
+    await contentPage.reload()
     await Promise.all([
-      headerPage.reload(),
-      contentPage.reload()
     ]);
     
+    await headerPage.waitForLoadState('domcontentloaded'),
+    await contentPage.waitForLoadState('domcontentloaded')
     await Promise.all([
-      headerPage.waitForLoadState('domcontentloaded'),
-      contentPage.waitForLoadState('domcontentloaded')
     ]);
 
     // 等待tab恢复显示，确保Vue组件已完成初始化

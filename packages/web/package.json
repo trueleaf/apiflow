@@ -28,8 +28,7 @@
     "test:e2e:debug": "playwright test --config=playwright.electron.config.ts --debug",
     "test:e2e:headed": "playwright test --config=playwright.electron.config.ts --headed",
     "test:e2e:report": "playwright show-report",
-    "test:e2e:build": "vite build",
-    "pretest:e2e": "npm run test:e2e:build"
+    "test:e2e:build": "vite build"
   },
   "dependencies": {
     "@faker-js/faker": "^10.0.0",

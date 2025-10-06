@@ -54,11 +54,11 @@
 </template>
 
 <script setup lang="ts">
-import { WindowState } from '@src/types/types';
+// import { WindowState } from '@src/types/types';
 import { ref, onMounted, watch, computed } from 'vue'
 import draggable from 'vuedraggable'
 import { httpNodeCache } from '@/cache/http/httpNodeCache.ts'
-import { Language } from '@src/types'
+import { Language, WindowState } from '@src/types'
 import { RefreshRight, Back, Right } from '@element-plus/icons-vue'
 import { useI18n } from 'vue-i18n'
 import { FolderKanban } from 'lucide-vue-next'
