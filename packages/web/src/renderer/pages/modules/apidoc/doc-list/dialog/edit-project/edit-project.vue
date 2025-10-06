@@ -45,7 +45,19 @@ const formInfo = ref({
   projectName: '',
 })
 const rules = ref({
-  projectName: [{ required: true, trigger: 'blur', message: t('请填写项目名称') }],
+  projectName: [
+    { required: true, trigger: 'blur', message: t('请填写项目名称') },
+    { 
+      validator: (_rule: unknown, value: string, callback: (error?: Error) => void) => {
+        if (!value || !value.trim()) {
+          callback(new Error(t('项目名称不能为空或仅包含空格')));
+        } else {
+          callback();
+        }
+      }, 
+      trigger: 'blur' 
+    }
+  ],
 })
 const loading = ref(false);
 const form = ref<FormInstance>();

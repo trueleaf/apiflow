@@ -91,22 +91,25 @@ const createWindow = () => {
 | 主进程启动
 |--------------------------------------------------------------------------
 */
-// 获取单实例锁
-const gotTheLock = app.requestSingleInstanceLock();
+// 获取单实例锁（测试环境下禁用）
+const isTestEnv = process.env.NODE_ENV === 'test';
+const gotTheLock = isTestEnv ? true : app.requestSingleInstanceLock();
 
 if (!gotTheLock) {
   // 如果没有获得锁，说明已经有实例在运行，直接退出
   app.quit();
 } else {
-  // 当第二个实例尝试启动时，激活第一个实例的窗口
-  app.on('second-instance', () => {
-    if (mainWindowInstance) {
-      if (mainWindowInstance.isMinimized()) {
-        mainWindowInstance.restore();
+  // 当第二个实例尝试启动时，激活第一个实例的窗口（测试环境下不需要）
+  if (!isTestEnv) {
+    app.on('second-instance', () => {
+      if (mainWindowInstance) {
+        if (mainWindowInstance.isMinimized()) {
+          mainWindowInstance.restore();
+        }
+        mainWindowInstance.focus();
       }
-      mainWindowInstance.focus();
-    }
-  });
+    });
+  }
 
   app.whenReady().then(() => {
     const { mainWindow, topBarView, contentView } = createWindow();
