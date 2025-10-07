@@ -1,5 +1,7 @@
 {
   "关于我们": "About",
+  "关于我们_标题": "About Us",
+  "关于我们_副标题": "With AI we are recreating a variety of medium-to-large productivity tools at low cost. We're experimenting with how solo builders can compete with teams—follow along if that excites you!",
   "联系我们": "Contact",
   "GitHub": "GitHub",
   "🚀 新功能：高级 API 测试功能现已上线": "🚀 New: Advanced API Testing Features Now Available",
@@ -129,5 +131,8 @@
   "首页": "Home",
   "产品展示": "Product Showcase",
   "产品展示_标题": "Product Showcase",
-  "产品展示_描述": "Explore highlights of Apiflow's upcoming product experience. Full details coming soon."
+  "产品展示_描述": "Explore highlights of Apiflow's upcoming product experience. Full details coming soon.",
+  "社区渠道_B站": "Bilibili",
+  "社区渠道_QQ群": "QQ Group",
+  "社区渠道_微信群": "WeChat Group"
 }
