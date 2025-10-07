@@ -1064,7 +1064,7 @@ test.describe('离线模式项目增删改查测试', () => {
     });
   });
 
-  test.describe('P2: 批量操作和边界条件测试', () => {
+  test.describe('批量操作和边界条件测试', () => {
     test('连续创建多个项目应全部成功', async () => {
       const projectNames = [`批量测试A_${Date.now()}`, `批量测试B_${Date.now()}`, `批量测试C_${Date.now()}`];
 
@@ -1170,7 +1170,7 @@ test.describe('离线模式项目增删改查测试', () => {
     });
   });
 
-  test.describe('P2: 高级搜索和UI响应式测试', () => {
+  test.describe('高级搜索和UI响应式测试', () => {
     test('点击高级搜索图标应展开高级搜索区域', async () => {
       // 找到高级搜索图标
       const advanceSearchIcon = contentPage.locator('.el-icon[title*="高级搜索"]').first();
@@ -1239,7 +1239,7 @@ test.describe('离线模式项目增删改查测试', () => {
     });
   });
 
-  test.describe('P2: 数据持久化测试', () => {
+  test.describe('数据持久化测试', () => {
     test('创建项目后刷新页面，项目应保持', async () => {
       const testProjectName = `持久化测试A_${Date.now()}`;
       
