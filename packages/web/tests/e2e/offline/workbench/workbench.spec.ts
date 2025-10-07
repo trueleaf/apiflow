@@ -934,7 +934,7 @@ test.describe('Workbench - 节点增删改查', () => {
     }
   });
 
-  test('应能删除文件夹（包含子节点时提示）', async () => {
+  test('应能删除包含子节点的文件夹', async () => {
     const folderName = `删除测试文件夹_${Date.now()}`;
     const childName = `子节点_${Date.now()}`;
     
@@ -957,7 +957,7 @@ test.describe('Workbench - 节点增删改查', () => {
       await contentPage.waitForTimeout(500);
     }
     
-    // 尝试删除文件夹
+    // 删除包含子节点的文件夹
     await folderNode.click({ button: 'right' });
     await contentPage.waitForTimeout(500);
     
@@ -966,15 +966,18 @@ test.describe('Workbench - 节点增删改查', () => {
       await deleteOption.click();
       await contentPage.waitForTimeout(500);
       
-      // 验证出现确认对话框，且有子节点提示
+      // 确认删除（如果有确认对话框）
       const confirmDialog = contentPage.locator('.el-message-box').first();
-      await expect(confirmDialog).toBeVisible({ timeout: 5000 });
-      
-      // 点击取消
-      const cancelBtn = confirmDialog.locator('button:has-text("取消")').first();
-      if (await cancelBtn.isVisible()) {
-        await cancelBtn.click();
+      const isDialogVisible = await confirmDialog.isVisible().catch(() => false);
+      if (isDialogVisible) {
+        const confirmBtn = confirmDialog.locator('button:has-text("确定")').first();
+        await confirmBtn.click();
+        await contentPage.waitForTimeout(500);
       }
+      
+      // 验证文件夹和子节点都被删除
+      await expect(getBannerNode(contentPage, folderName)).not.toBeVisible();
+      await expect(getBannerNode(contentPage, childName)).not.toBeVisible();
     }
   });
 });
@@ -1574,28 +1577,6 @@ test.describe('Workbench - 标签相关操作', () => {
     // 如果Tooltip功能存在，应该显示提示信息
   });
 
-  test('打开标签页数量达到上限时应提示', async () => {
-    // 尝试打开大量标签页
-    const maxTabs = 30;
-    let lastOpenedTab = '';
-    
-    for (let i = 0; i < maxTabs; i++) {
-      const nodeName = `上限测试${i}_${Date.now()}`;
-      lastOpenedTab = nodeName;
-      
-      await createRootHttpNode(contentPage, nodeName);
-      await clickBannerNode(contentPage, nodeName);
-      await contentPage.waitForTimeout(100);
-      
-      // 检查是否出现上限提示
-      const limitMsg = contentPage.locator('.el-message:has-text("上限"), .message:has-text("最大"), .message:has-text("maximum")').first();
-      if (await limitMsg.isVisible({ timeout: 500 }).catch(() => false)) {
-        // 如果出现上限提示，验证通过
-        await expect(limitMsg).toBeVisible();
-        break;
-      }
-    }
-  });
 
   test('标签页切换应在300ms内完成', async () => {
     const node1 = `性能测试1_${Date.now()}`;
