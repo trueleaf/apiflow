@@ -117,6 +117,37 @@ test.describe('离线模式项目增删改查测试', () => {
       // 空列表时应该没有项目卡片
       expect(count).toBe(0);
     });
+
+    test('离线模式不显示团队入口和相关操作', async () => {
+      await contentPage.waitForTimeout(1000);
+
+      // 离线模式下不应显示团队管理标签
+      await expect(contentPage.locator('text=团队管理')).toHaveCount(0);
+
+      // 创建项目后验证项目卡片上没有成员管理与预览按钮
+      const offlineProjectName = `离线校验项目_${Date.now()}`;
+      await contentPage.locator('button:has-text("新建项目")').click();
+      await contentPage.waitForSelector('.el-dialog:has-text("新增项目")', { state: 'visible' });
+
+      const nameInput = contentPage.locator('.el-dialog .el-input input[placeholder*="项目名称"]');
+      await nameInput.fill(offlineProjectName);
+
+      await contentPage.locator('.el-dialog__footer button:has-text("确定")').click();
+      await contentPage.waitForSelector('.el-dialog:has-text("新增项目")', { state: 'hidden' });
+
+      await contentPage.waitForURL(/doc-edit/, { timeout: 5000 });
+
+      await contentPage.evaluate(() => {
+        window.location.hash = '#/home';
+      });
+      await contentPage.waitForURL(/home/, { timeout: 5000 });
+      await contentPage.waitForTimeout(1000);
+
+      const projectCard = contentPage.locator(`.project-list:has-text("${offlineProjectName}")`).first();
+      await expect(projectCard).toBeVisible();
+      await expect(projectCard.locator('[title="成员管理"]')).toHaveCount(0);
+      await expect(projectCard.locator('button:has-text("预览")')).toHaveCount(0);
+    });
   });
 
   test.describe('创建项目的基础流程', () => {
@@ -139,6 +170,19 @@ test.describe('离线模式项目增删改查测试', () => {
       // 验证确定和取消按钮
       await expect(contentPage.locator('.el-dialog__footer button:has-text("确定")')).toBeVisible();
       await expect(contentPage.locator('.el-dialog__footer button:has-text("取消")')).toBeVisible();
+    });
+
+    test('离线模式下新建项目弹窗不展示成员配置', async () => {
+      await contentPage.locator('button:has-text("新建项目")').click();
+      const dialog = contentPage.locator('.el-dialog:has-text("新增项目")');
+      await expect(dialog).toBeVisible({ timeout: 5000 });
+
+      await expect(dialog.locator('text=选择成员或组')).toHaveCount(0);
+      await expect(dialog.locator('.el-table')).toHaveCount(0);
+
+      const cancelButton = dialog.locator('.el-dialog__footer button:has-text("取消")');
+      await cancelButton.click();
+      await contentPage.waitForSelector('.el-dialog:has-text("新增项目")', { state: 'hidden' });
     });
 
     test('输入有效项目名称后应成功创建项目', async () => {
