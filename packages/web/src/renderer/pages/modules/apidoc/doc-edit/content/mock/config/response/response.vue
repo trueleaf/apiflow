@@ -194,9 +194,7 @@ const handleGeneratePreview = async (response: MockHttpNode['response'][0]) => {
   aiPreviewJson.value = ''
   try {
     const result = await window.electronAPI?.aiManager.generateJson({
-      prompt: promptText,
-      apiKey,
-      apiUrl
+      prompt: promptText
     })
     if (result && result.code === 0 && result.data) {
       aiPreviewJson.value = result.data

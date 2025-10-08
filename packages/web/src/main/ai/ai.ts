@@ -1,5 +1,5 @@
 import got from 'got';
-import { mainConfig } from '@src/config/mainConfig';
+// import { mainConfig } from '@src/config/mainConfig';
 import type { DeepSeekMessage, DeepSeekRequestBody, DeepSeekResponse } from '@src/types/ai/ai';
 
 type StreamCallback = (chunk: string) => void;
@@ -7,13 +7,20 @@ type StreamEndCallback = () => void;
 type StreamErrorCallback = (error: string) => void;
 
 export class AiManager {
-  private apiUrl: string;
-  private apiKey: string;
+  private apiUrl = '';
+  private apiKey = '';
   private abortControllers: Map<string, AbortController> = new Map();
-  constructor(apiUrl?: string, apiKey?: string) {
-    this.apiUrl = apiUrl || mainConfig.aiConfig.apiUrl || 'https://api.deepseek.com/chat/completions/v1/chat/completions';
-    this.apiKey = apiKey || mainConfig.aiConfig.apiKey;
+  // constructor(apiUrl?: string, apiKey?: string) {
+  //   this.apiUrl = apiUrl || mainConfig.aiConfig.apiUrl || 'https://api.deepseek.com/chat/completions/v1/chat/completions';
+  //   this.apiKey = apiKey || mainConfig.aiConfig.apiKey;
+  // }
+  
+  // 更新配置
+  updateConfig(apiUrl: string, apiKey: string): void {
+    this.apiUrl = apiUrl;
+    this.apiKey = apiKey;
   }
+  
   private validateConfig(): void {
     if (!this.apiKey) {
       console.error('AI API Key 未配置，请在配置文件中设置 aiConfig.apiKey');

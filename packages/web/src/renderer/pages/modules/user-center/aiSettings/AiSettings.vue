@@ -141,6 +141,11 @@ const handleSave = async () => {
   saving.value = true
   try {
     aiCache.setAiConfig(formData.value)
+    // 同步配置到主进程
+    window.electronAPI?.ipcManager.sendToMain('apiflow-sync-ai-config', {
+      apiKey: formData.value.apiKey,
+      apiUrl: formData.value.apiUrl
+    })
     ElMessage.success('配置保存成功')
   } catch (error) {
     console.error('保存配置失败:', error)
@@ -161,6 +166,11 @@ const handleReset = () => {
   testError.value = ''
   try {
     aiCache.setAiConfig(formData.value)
+    // 同步配置到主进程
+    window.electronAPI?.ipcManager.sendToMain('apiflow-sync-ai-config', {
+      apiKey: formData.value.apiKey,
+      apiUrl: formData.value.apiUrl
+    })
     ElMessage.success('配置已重置')
   } catch (error) {
     console.error('重置配置失败:', error)
@@ -180,10 +190,14 @@ const handleTest = async () => {
   testError.value = ''
 
   try {
-    const result = await window.electronAPI?.aiManager.textChat({
+    // 先保存配置，再测试
+    aiCache.setAiConfig(formData.value)
+    window.electronAPI?.ipcManager.sendToMain('apiflow-sync-ai-config', {
       apiKey: formData.value.apiKey,
-      apiUrl: formData.value.apiUrl,
+      apiUrl: formData.value.apiUrl
     })
+    
+    const result = await window.electronAPI?.aiManager.textChat()
 
     if (result?.code === 0 && result.data) {
       testResult.value = result.data
@@ -214,10 +228,15 @@ const handleStreamTest = async () => {
   currentRequestId = `stream-${Date.now()}`
 
   try {
+    // 先保存配置，再测试
+    aiCache.setAiConfig(formData.value)
+    window.electronAPI?.ipcManager.sendToMain('apiflow-sync-ai-config', {
+      apiKey: formData.value.apiKey,
+      apiUrl: formData.value.apiUrl
+    })
+    
     const controller = window.electronAPI?.aiManager.textChatWithStream(
       {
-        apiKey: formData.value.apiKey,
-        apiUrl: formData.value.apiUrl,
         requestId: currentRequestId,
       },
       (chunk: string) => {

@@ -1,5 +1,5 @@
 import { MockHttpNode, MockSSEEventData } from '@src/types/mockNode';
-import { AiManager } from '../ai/ai';
+import { globalAiManager } from '../ipcMessage/index';
 import { fakerZH_CN, fakerEN, fakerJA } from '@faker-js/faker';
 import sharp from 'sharp';
 import mime from 'mime-types';
@@ -532,9 +532,8 @@ export class MockUtils {
         case 'randomAi':
           // AI模式：调用AI生成JSON，失败时降级到随机模式
           try {
-            const ai = new AiManager();
             const prompt = jsonConfig.prompt || '请生成一个JSON对象数据';
-            const aiJsonText = await ai.chatWithJsonText([prompt], 'DeepSeek', jsonConfig.randomSize || 200);
+            const aiJsonText = await globalAiManager.chatWithJsonText([prompt], 'DeepSeek', jsonConfig.randomSize || 200);
             
             // 尝试解析AI返回的JSON
             try {
@@ -591,9 +590,8 @@ export class MockUtils {
         case 'randomAi':
           // AI模式：调用AI生成，失败时降级到随机模式
           try {
-            const ai = new AiManager();
             const prompt = textConfig.prompt || '请生成一段文本内容';
-            const aiText = await ai.chatWithText([prompt], 'DeepSeek', textConfig.randomSize || 100);
+            const aiText = await globalAiManager.chatWithText([prompt], 'DeepSeek', textConfig.randomSize || 100);
             return aiText;
           } catch (aiError) {
             console.warn('AI文本生成失败，降级到随机模式:', aiError);

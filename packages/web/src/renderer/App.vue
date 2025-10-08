@@ -28,6 +28,7 @@ import type { RuntimeNetworkMode } from '@src/types/runtime';
 import { useRuntime } from './store/runtime/runtime.ts';
 import { useProjectStore } from './store/project/project.ts';
 import { httpNodeCache } from '@/cache/http/httpNodeCache';
+import { aiCache } from '@/cache/ai/aiCache';
 
 const router = useRouter();
 const dialogVisible = ref(false);
@@ -225,9 +226,24 @@ const initLanguage = () => {
     changeLanguage('zh-cn');
   }
 }
+
+// 同步AI配置到主进程
+const syncAiConfig = () => {
+  try {
+    const config = aiCache.getAiConfig();
+    window.electronAPI?.ipcManager.sendToMain('apiflow-sync-ai-config', {
+      apiKey: config.apiKey || '',
+      apiUrl: config.apiUrl || ''
+    });
+  } catch (error) {
+    console.error('同步AI配置失败:', error);
+  }
+}
+
 onMounted(() => {
   initWelcom();
   initLanguage();
+  syncAiConfig();
   
   // 发送 content 就绪信号
   window.electronAPI?.ipcManager.sendToMain('apiflow-content-ready');

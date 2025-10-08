@@ -15,6 +15,12 @@ import { runtime } from '../runtime/runtime.ts';
 import { AiManager } from '../ai/ai.ts';
 import { IPCProjectData, WindowState } from '@src/types/index.ts';
 
+// 创建全局 AiManager 实例
+const globalAiManager = new AiManager();
+
+// 导出全局实例供其他模块使用
+export { globalAiManager };
+
 export const useIpcEvent = (mainWindow: BrowserWindow, topBarView: WebContentsView, contentView: WebContentsView) => {
   // 设置窗口引用到导出模块
   setMainWindow(mainWindow);
@@ -384,14 +390,28 @@ export const useIpcEvent = (mainWindow: BrowserWindow, topBarView: WebContentsVi
 
   /*
   |---------------------------------------------------------------------------
+  | AI 配置同步
+  |---------------------------------------------------------------------------
+  */
+  // 同步AI配置到主进程
+  ipcMain.on('apiflow-sync-ai-config', (_, params: { apiKey: string; apiUrl: string }) => {
+    try {
+      globalAiManager.updateConfig(params.apiUrl, params.apiKey);
+      console.log('AI配置已同步到主进程');
+    } catch (error) {
+      console.error('同步AI配置失败:', error);
+    }
+  });
+
+  /*
+  |---------------------------------------------------------------------------
   | AI 测试请求
   |---------------------------------------------------------------------------
   */
   // AI 文本聊天
-  ipcMain.handle('ai-text-chat', async (_: IpcMainInvokeEvent, params: { apiKey: string; apiUrl: string }) => {
+  ipcMain.handle('ai-text-chat', async (_: IpcMainInvokeEvent) => {
     try {
-      const aiManager = new AiManager(params.apiUrl, params.apiKey);
-      const result = await aiManager.chatWithText(['你是什么模型'], 'DeepSeek', 2000);
+      const result = await globalAiManager.chatWithText(['你是什么模型'], 'DeepSeek', 2000);
       return { code: 0, data: result, msg: '请求成功' };
     } catch (error) {
       console.error('AI 测试请求失败:', error);
@@ -400,12 +420,10 @@ export const useIpcEvent = (mainWindow: BrowserWindow, topBarView: WebContentsVi
   });
 
   // AI 流式聊天
-  ipcMain.handle('ai-text-chat-stream', async (_: IpcMainInvokeEvent, params: { apiKey: string; apiUrl: string; requestId: string }) => {
+  ipcMain.handle('ai-text-chat-stream', async (_: IpcMainInvokeEvent, params: { requestId: string }) => {
     try {
-      const aiManager = new AiManager(params.apiUrl, params.apiKey);
-      
       // 开始流式请求
-      aiManager.chatWithTextStream(
+      globalAiManager.chatWithTextStream(
         ['你是什么模型'],
         params.requestId,
         (chunk: string) => {
@@ -442,8 +460,7 @@ export const useIpcEvent = (mainWindow: BrowserWindow, topBarView: WebContentsVi
   // 取消 AI 流式请求
   ipcMain.handle('ai-cancel-stream', async (_: IpcMainInvokeEvent, requestId: string) => {
     try {
-      const aiManager = new AiManager();
-      aiManager.cancelStream(requestId);
+      globalAiManager.cancelStream(requestId);
       return { code: 0, data: null, msg: '已取消请求' };
     } catch (error) {
       console.error('取消 AI 流式请求失败:', error);
@@ -452,16 +469,9 @@ export const useIpcEvent = (mainWindow: BrowserWindow, topBarView: WebContentsVi
   });
 
   // AI 生成JSON数据
-  ipcMain.handle('ai-generate-json', async (_: IpcMainInvokeEvent, params: { prompt: string; apiKey: string; apiUrl: string }) => {
+  ipcMain.handle('ai-generate-json', async (_: IpcMainInvokeEvent, params: { prompt: string }) => {
     try {
-      if (!params.apiKey || !params.apiKey.trim()) {
-        return { code: 1, data: null, msg: 'AI API Key 未配置' };
-      }
-      if (!params.apiUrl || !params.apiUrl.trim()) {
-        return { code: 1, data: null, msg: 'AI API 地址未配置' };
-      }
-      const aiManager = new AiManager(params.apiUrl, params.apiKey);
-      const result = await aiManager.chatWithJsonText([params.prompt], 'DeepSeek', 2000);
+      const result = await globalAiManager.chatWithJsonText([params.prompt], 'DeepSeek', 2000);
       
       if (!result) {
         return { code: 1, data: null, msg: 'AI生成失败，请检查提示词或重试' };

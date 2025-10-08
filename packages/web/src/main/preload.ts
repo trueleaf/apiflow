@@ -136,12 +136,12 @@ const importSelectFile = () => {
 }
 
 // AI 相关方法
-const textChat = (params: { apiKey: string; apiUrl: string }) => {
-  return ipcRenderer.invoke('ai-text-chat', params)
+const textChat = () => {
+  return ipcRenderer.invoke('ai-text-chat')
 }
 
 const textChatWithStream = (
-  params: { apiKey: string; apiUrl: string; requestId: string },
+  params: { requestId: string },
   onData: (chunk: string) => void,
   onEnd: () => void,
   onError: (error: string) => void
@@ -191,7 +191,7 @@ const textChatWithStream = (
 }
 
 // AI 生成JSON数据
-const generateJson = (params: { prompt: string; apiKey: string; apiUrl: string }) => {
+const generateJson = (params: { prompt: string }) => {
   return ipcRenderer.invoke('ai-generate-json', params)
 }
 
