@@ -101,7 +101,7 @@ export class MockManager {
           key.toLowerCase() === 'content-type'
         );
         if (!hasContentType) {
-          ctx.set('content-type', 'text/event-stream');
+          ctx.set('content-type', 'text/event-stream; charset=utf-8');
         }
         
         // SSE 类型直接处理，不需要设置 ctx.body
@@ -115,7 +115,7 @@ export class MockManager {
           key.toLowerCase() === 'content-type'
         );
         if (!hasContentType) {
-          ctx.set('content-type', 'text/plain');
+          ctx.set('content-type', 'text/plain; charset=utf-8');
         }
       }
 
@@ -125,7 +125,7 @@ export class MockManager {
           key.toLowerCase() === 'content-type'
         );
         if (!hasContentType) {
-          ctx.set('content-type', 'application/json');
+          ctx.set('content-type', 'application/json; charset=utf-8');
         }
       }
       const projectVariables = MockUtils.getProjectVariables(matchedMock.projectId);
