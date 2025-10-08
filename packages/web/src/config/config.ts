@@ -1,4 +1,4 @@
-import { Config } from '@/../types/types';
+import { Config } from '@src/types';
 import { mainConfig } from './mainConfig';
 const isDev = process.env.NODE_ENV === 'development';
 

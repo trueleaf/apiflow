@@ -47,7 +47,7 @@
 
 <script lang="ts" setup>
 import { Delete, Refresh } from '@element-plus/icons-vue'
-import { config } from '@/../config/config'
+import { config } from '@src/config/config'
 import { useI18n } from 'vue-i18n'
 import SLoading from '@/components/common/loading/g-loading.vue'
 import { computed, nextTick, onMounted, ref } from 'vue';

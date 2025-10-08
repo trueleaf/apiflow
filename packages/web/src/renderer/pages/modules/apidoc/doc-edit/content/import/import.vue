@@ -124,7 +124,7 @@ import type { OpenAPIV3 } from 'openapi-types';
 import { ElMessage, ElMessageBox } from 'element-plus';
 import { Upload } from '@element-plus/icons-vue'
 import type { ApidocBanner, HttpNode } from '@src/types'
-import { config } from '@/../config/config'
+import { config } from '@src/config/config'
 import { router } from '@/router/index'
 import { request } from '@/api/api'
 import { useI18n } from 'vue-i18n'

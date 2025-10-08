@@ -8,7 +8,7 @@
 </template>
 
 <script lang="ts" setup>
-import { config } from '@/../config/config'
+import { config } from '@src/config/config'
 import { request } from '@/api/api';
 import { PropType, ref, watch } from 'vue';
 

@@ -6,7 +6,7 @@
 
 <script lang="ts" setup>
 import { ref, watch } from 'vue'
-import { config } from '@/../config/config'
+import { config } from '@src/config/config'
 
 const props = defineProps({
   value: {

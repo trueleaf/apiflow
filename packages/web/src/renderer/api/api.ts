@@ -1,5 +1,5 @@
 import Axios, { AxiosResponse, AxiosError } from 'axios';
-import { config } from '@/../config/config'
+import { config } from '@src/config/config'
 import { router } from '@/router';
 import { ElMessage, ElMessageBox } from 'element-plus';
 import { nanoid } from 'nanoid';

@@ -4,7 +4,7 @@
  * @create             2020-09-30 22:55
  */
 
-import { config } from '@/../config/config'
+import { config } from '@src/config/config'
 
 export default {
   config,

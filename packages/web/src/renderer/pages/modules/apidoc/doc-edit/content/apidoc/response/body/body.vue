@@ -296,7 +296,7 @@ import { useApidocResponse } from '@/store/apidoc/response';
 import { computed, onMounted, onUnmounted, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n'
 import { formatBytes, downloadStringAsText, formatHeader } from '@/helper/index'
-import { config } from '@/../config/config'
+import { config } from '@src/config/config'
 import SJsonEditor from '@/components/common/json-editor/g-json-editor.vue'
 import SSseView from '@/components/common/sse-view/g-sse-view.vue'
 import { useApidocTas } from '@/store/apidoc/tabs';

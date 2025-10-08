@@ -27,7 +27,7 @@
 import { useApidocBaseInfo } from '@/store/apidoc/base-info';
 import { useApidocResponse } from '@/store/apidoc/response';
 import { computed, ref, watch, onMounted } from 'vue';
-import { config } from '@/../config/config'
+import { config } from '@src/config/config'
 import { formatBytes, downloadStringAsText } from '@/helper/index'
 import { useI18n } from 'vue-i18n'
 import SJsonEditor from '@/components/common/json-editor/g-json-editor.vue'

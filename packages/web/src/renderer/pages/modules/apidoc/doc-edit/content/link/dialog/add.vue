@@ -98,7 +98,7 @@ import SEmphasize from '@/components/common/emphasize/g-emphasize.vue'
 import SConfig from '@/components/common/config/g-config.vue'
 import type { TreeNodeOptions } from 'element-plus/lib/components/tree/src/tree.type'
 import { request } from '@/api/api'
-import { config } from '@/../config/config'
+import { config } from '@src/config/config'
 import { router } from '@/router'
 import { useApidocBanner } from '@/store/apidoc/banner';
 import { useApidocBaseInfo } from '@/store/apidoc/base-info';

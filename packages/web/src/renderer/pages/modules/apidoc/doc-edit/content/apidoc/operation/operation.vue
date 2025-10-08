@@ -72,7 +72,7 @@
 import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { Refresh } from '@element-plus/icons-vue'
-import { config } from '@/../config/config'
+import { config } from '@src/config/config'
 import { router } from '@/router/index'
 import SSaveDocDialog from '@/pages/modules/apidoc/doc-edit/dialog/save-doc/save-doc.vue'
 import getHostPart from './composables/host'

@@ -57,7 +57,7 @@
 
 <script lang="ts" setup>
 import { computed, ref } from 'vue';
-import { config as globalConfig } from '@/../config/config'
+import { config as globalConfig } from '@src/config/config'
 import LoginAccount from './components/login-account.vue';
 import LoginPhone from './components/login-phone.vue';
 import Register from './components/register.vue';

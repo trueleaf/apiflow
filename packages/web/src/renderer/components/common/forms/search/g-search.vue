@@ -28,7 +28,7 @@
 
 <script lang="ts" setup>
 import { nextTick, onMounted, onUnmounted, provide, ref, useSlots, VNode, watch } from 'vue'
-import { config } from '@/../config/config'
+import { config } from '@src/config/config'
 import { FormInstance } from 'element-plus';
 import { forEachForest, getTextWidth, event } from '@/helper';
 import SCard from '@/components/common/card/g-card.vue'

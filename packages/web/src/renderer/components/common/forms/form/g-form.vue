@@ -16,7 +16,7 @@
 </template>
 
 <script lang="ts" setup>
-import { config } from '@/../config/config'
+import { config } from '@src/config/config'
 import initRules from './composables/rules'
 import { forEachForest, getTextWidth } from '@/helper';
 import { FormInstance } from 'element-plus';

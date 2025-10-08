@@ -22,7 +22,7 @@ import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { ApidocBanner } from '@src/types'
 import { forEachForest } from '@/helper'
-import { config } from '@/../config/config'
+import { config } from '@src/config/config'
 import { useApidocBanner } from '@/store/apidoc/banner'
 
 const apidocBannerStore = useApidocBanner()

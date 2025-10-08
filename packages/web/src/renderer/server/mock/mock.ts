@@ -1,7 +1,7 @@
 import { randomInt } from '@/helper';
 import dayjs from 'dayjs';
 import Mock from 'mockjs';
-import { config } from '@/../config/config';
+import { config } from '@src/config/config';
 
 const { Random } = Mock;
 let startTime = new Date();

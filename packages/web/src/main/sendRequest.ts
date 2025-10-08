@@ -3,7 +3,7 @@ import {
   GotRequestOptions,
   RendererFormDataBody,
   ChunkWithTimestampe,
-} from '@/../types/types';
+} from '@src/types';
 import { Options, got} from 'got';
 import type { OptionsInit, PlainResponse, RequestError } from 'got'
 import FormData from 'form-data';
