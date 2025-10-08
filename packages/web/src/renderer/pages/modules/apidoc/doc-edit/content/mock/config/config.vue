@@ -92,7 +92,7 @@ const handleRefresh = async () => {
 .response-section {
   flex: 1;
   overflow-y: auto;
-  padding: 0 20px 20px 20px;
+  padding: 0 20px 0 20px;
   background: var(--white);
 }
 
@@ -120,10 +120,7 @@ const handleRefresh = async () => {
   flex-shrink: 0;
   display: flex;
   justify-content: center;
-  /* gap: 12px; */
-  padding: 16px 20px;
+  padding: 0 16px 20px;
   background: var(--white);
-  border-top: 1px solid var(--gray-200);
-  /* box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.05); */
 }
 </style>

@@ -223,11 +223,10 @@
                 <span class="loading-text">{{ t('AI正在生成中，请稍候...') }}</span>
               </div>
               <div v-else-if="aiPreviewText" class="text-preview-wrapper">
-                <textarea
+                <SJsonEditor 
                   v-model="aiPreviewText"
-                  class="text-preview-textarea"
-                  readonly
-                />
+                  :config="{ fontSize: 13, language: getEditorLanguage(response.textConfig.textType), readOnly: true }">
+                </SJsonEditor>
               </div>
               <div v-else class="empty-preview">
                 <span class="empty-text">{{ t('请在左侧输入提示词并点击"生成预览"') }}</span>
@@ -240,11 +239,10 @@
         <div 
           v-if="response.dataType === 'text' && response.textConfig.mode === 'fixed'" 
           class="text-editor-wrapper">
-          <textarea
+          <SJsonEditor 
             v-model="response.textConfig.fixedData"
-            :placeholder="t('请输入固定返回的文本内容')"
-            class="text-editor-textarea"
-          />
+            :config="{ fontSize: 13, language: getEditorLanguage(response.textConfig.textType) }">
+          </SJsonEditor>
         </div>
       </div>
     </div>
@@ -281,6 +279,19 @@ const aiPreviewJson = ref('')
 const showRandomTextSizeHint = ref(true)
 const aiGeneratingText = ref(false)
 const aiPreviewText = ref('')
+
+// 将textType映射为编辑器支持的语言类型
+const getEditorLanguage = (textType: string): string => {
+  const languageMap: Record<string, string> = {
+    'text/plain': 'plaintext',
+    'html': 'html',
+    'xml': 'xml',
+    'yaml': 'yaml',
+    'csv': 'plaintext',
+    'any': 'plaintext'
+  }
+  return languageMap[textType] || 'plaintext'
+}
 
 // 计算 JSON 发送按钮是否禁用
 const isSendDisabled = (response: MockHttpNode['response'][0]) => {
@@ -755,24 +766,6 @@ onMounted(() => {
   overflow: hidden;
 }
 
-.text-preview-textarea {
-  width: 100%;
-  height: 100%;
-  padding: 12px;
-  border: none;
-  font-size: 14px;
-  line-height: 1.5;
-  color: var(--gray-800);
-  background: transparent;
-  outline: none;
-  resize: none;
-  font-family: inherit;
-  
-  &:focus {
-    outline: none;
-  }
-}
-
 /* Text 编辑器容器 */
 .text-editor-wrapper {
   flex: 1;
@@ -783,27 +776,5 @@ onMounted(() => {
   border-radius: var(--border-radius-sm);
   overflow: hidden;
   margin-top: 12px;
-}
-
-.text-editor-textarea {
-  flex: 1;
-  width: 100%;
-  padding: 12px;
-  border: none;
-  font-size: 14px;
-  line-height: 1.5;
-  color: var(--gray-800);
-  background: white;
-  outline: none;
-  resize: none;
-  font-family: inherit;
-  
-  &::placeholder {
-    color: var(--gray-400);
-  }
-  
-  &:focus {
-    outline: none;
-  }
 }
 </style>
