@@ -13,21 +13,10 @@ export class AiManager {
   private apiUrl: string;
   private apiKey: string;
   private abortControllers: Map<string, AbortController> = new Map();
-
-  /**
-   * 构造函数
-   * @param apiUrl - API地址，默认从mainConfig获取
-   * @param apiKey - API密钥，默认从mainConfig获取
-   */
   constructor(apiUrl?: string, apiKey?: string) {
     this.apiUrl = apiUrl || mainConfig.aiConfig.apiUrl || 'https://api.deepseek.com/chat/completions/v1/chat/completions';
     this.apiKey = apiKey || mainConfig.aiConfig.apiKey;
   }
-
-  /**
-   * 验证API配置
-   * @private
-   */
   private validateConfig(): void {
     if (!this.apiKey) {
       console.error('AI API Key 未配置，请在配置文件中设置 aiConfig.apiKey');
@@ -38,16 +27,8 @@ export class AiManager {
       return;
     }
   }
-
-  /**
-   * 构建API请求消息
-   * @param prompt - 提示词数组
-   * @param isJsonMode - 是否为JSON模式
-   * @private
-   */
   private buildMessages(prompt: string[], isJsonMode: boolean): DeepSeekMessage[] {
     const messages: DeepSeekMessage[] = [];
-
     // 添加系统提示
     if (isJsonMode) {
       messages.push({
@@ -66,12 +47,7 @@ export class AiManager {
     return messages;
   }
 
-  /**
-   * 发送请求到DeepSeek API
-   * @param body - 请求体
-   * @private
-   */
-  private async sendRequest(body: DeepSeekRequestBody): Promise<string> {
+  private async sendDeepSeekRequest(body: DeepSeekRequestBody): Promise<string> {
     try {
       const response = await got.post(this.apiUrl, {
         json: body,
@@ -109,13 +85,7 @@ export class AiManager {
     }
   }
 
-  /**
-   * 调用AI生成文本内容
-   * @param prompt - 提示词数组
-   * @param _model - 模型名称，目前仅支持 'DeepSeek'
-   * @param resLimitSize - 返回内容的token数量限制，默认2000
-   * @returns 生成的文本内容
-   */
+
   async chatWithText(
     prompt: string[], 
     _model: 'DeepSeek' = 'DeepSeek', 
@@ -134,20 +104,13 @@ export class AiManager {
       model: 'deepseek-chat', // DeepSeek的模型名称
       messages: this.buildMessages(prompt, false),
       max_tokens: resLimitSize,
-      temperature: 0.7,
     };
 
     // 发送请求并返回结果
-    return await this.sendRequest(requestBody);
+    return await this.sendDeepSeekRequest(requestBody);
   }
 
-  /**
-   * 调用AI生成JSON格式的文本内容
-   * @param prompt - 提示词数组
-   * @param _model - 模型名称，目前仅支持 'DeepSeek'
-   * @param resLimitSize - 返回内容的token数量限制，默认2000
-   * @returns 生成的JSON格式文本
-   */
+ 
   async chatWithJsonText(
     prompt: string[], 
     _model: 'DeepSeek' = 'DeepSeek', 
@@ -167,14 +130,13 @@ export class AiManager {
       model: 'deepseek-chat', // DeepSeek的模型名称
       messages: this.buildMessages(prompt, true),
       max_tokens: resLimitSize,
-      temperature: 0.7,
       response_format: {
         type: 'json_object', // 强制返回JSON格式
       },
     };
 
     // 发送请求
-    const result = await this.sendRequest(requestBody);
+    const result = await this.sendDeepSeekRequest(requestBody);
 
     // 验证返回的内容是否为合法JSON
     try {
@@ -186,16 +148,7 @@ export class AiManager {
     }
   }
 
-  /**
-   * 调用AI生成文本内容（流式）
-   * @param prompt - 提示词数组
-   * @param requestId - 请求ID，用于取消请求
-   * @param onData - 数据回调
-   * @param onEnd - 完成回调
-   * @param onError - 错误回调
-   * @param _model - 模型名称，目前仅支持 'DeepSeek'
-   * @param resLimitSize - 返回内容的token数量限制，默认2000
-   */
+  
   async chatWithTextStream(
     prompt: string[],
     requestId: string,
@@ -223,7 +176,6 @@ export class AiManager {
         model: 'deepseek-chat',
         messages: this.buildMessages(prompt, false),
         max_tokens: resLimitSize,
-        temperature: 0.7,
         stream: true, // 启用流式响应
       };
 
@@ -308,11 +260,6 @@ export class AiManager {
       }
     }
   }
-
-  /**
-   * 取消流式请求
-   * @param requestId - 请求ID
-   */
   cancelStream(requestId: string): void {
     const abortController = this.abortControllers.get(requestId);
     if (abortController) {

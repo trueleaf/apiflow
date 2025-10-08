@@ -3,7 +3,7 @@ import {contextBridge, ipcRenderer, webUtils } from 'electron'
 import ip from 'ip'
 import { gotRequest } from './sendRequest'
 import { StandaloneExportHtmlParams } from '@src/types/standalone.ts'
-import { WindowState } from '@src/types/types.ts'
+import { WindowState } from '@src/types/index.ts'
 
 const openDevTools = () => {
   ipcRenderer.send('apiflow-open-dev-tools')
@@ -117,6 +117,7 @@ const mockReplaceById = (nodeId: string, httpMock: any) => {
 }
 
 const mockSyncProjectVariables = (projectId: string, variables: any[]) => {
+  console.log(1, projectId, variables)
   return ipcRenderer.invoke('mock-sync-project-variables', projectId, variables)
 }
 

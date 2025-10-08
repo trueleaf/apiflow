@@ -93,6 +93,7 @@ import SJsonEditor from '@/components/common/json-editor/g-json-editor.vue'
 import { useRoute } from 'vue-router';
 import { standaloneCache } from '@/cache/standalone';
 import { useRuntime } from '@/store/runtime/runtime';
+import { useVariable } from '@/store/apidoc/variables';
 
 
 const props = defineProps({

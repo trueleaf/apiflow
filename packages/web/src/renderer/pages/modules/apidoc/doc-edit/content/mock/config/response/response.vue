@@ -36,9 +36,29 @@
             <label class="form-label">{{ t('数据模式') }}</label>
             <el-radio-group v-model="response.jsonConfig.mode">
               <el-radio label="fixed">{{ t('固定JSON返回') }}</el-radio>
-              <el-radio label="random">{{ t('随机JSON返回') }}</el-radio>
               <el-radio label="randomAi">{{ t('AI生成') }}</el-radio>
+              <el-radio label="random">{{ t('随机JSON返回') }}</el-radio>
             </el-radio-group>
+          </div>
+        </div>
+
+        <!-- 随机JSON大小配置（仅随机模式显示） -->
+        <div v-if="response.dataType === 'json' && response.jsonConfig.mode === 'random'" class="form-row">
+          <div class="form-item flex-item">
+            <label class="form-label">{{ t('随机字段个数') }}</label>
+            <el-input-number 
+              v-model="response.jsonConfig.randomSize" 
+              :min="1" 
+              :max="500" 
+              :step="1"
+              size="small"
+              controls-position="right"
+            />
+            <!-- 提示信息 -->
+            <div v-if="showRandomSizeHint" class="hint-text">
+              <span class="hint-message">{{ t('字段个数，最多500个字段') }}</span>
+              <span class="hint-dismiss" @click="handleDismissHint">{{ t('不再提示') }}</span>
+            </div>
           </div>
         </div>
 
@@ -57,13 +77,14 @@
 </template>
 
 <script lang="ts" setup>
-import { computed } from 'vue'
+import { computed, ref, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { ElMessage } from 'element-plus'
 import { Plus } from '@element-plus/icons-vue'
 import { storeToRefs } from 'pinia'
 import { useHttpMock } from '@/store/httpMock/httpMock'
 import SJsonEditor from '@/components/common/json-editor/g-json-editor.vue'
+import { getMockJsonRandomSizeHintVisible, setMockJsonRandomSizeHintVisible } from '@/cache/common/common'
 
 const { t } = useI18n()
 const httpMockStore = useHttpMock()
@@ -71,6 +92,20 @@ const { httpMock } = storeToRefs(httpMockStore)
 
 // 从 store 中获取响应配置
 const mockResponses = computed(() => httpMock.value.response)
+
+// 提示信息显示状态
+const showRandomSizeHint = ref(true)
+
+// 初始化提示状态
+onMounted(() => {
+  showRandomSizeHint.value = getMockJsonRandomSizeHintVisible()
+})
+
+// 处理"不再提示"点击
+const handleDismissHint = () => {
+  showRandomSizeHint.value = false
+  setMockJsonRandomSizeHintVisible(false)
+}
 
 // 新增返回值
 const handleAddResponse = () => {
@@ -237,5 +272,33 @@ const handleAddResponse = () => {
   border-radius: var(--border-radius-sm);
   overflow: hidden;
   margin-top: 12px;
+}
+
+/* 提示信息样式 */
+.hint-text {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 4px;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.hint-message {
+  color: var(--gray-500);
+  flex: 1;
+}
+
+.hint-dismiss {
+  color: var(--color-primary);
+  cursor: pointer;
+  margin-left: 12px;
+  white-space: nowrap;
+  transition: all 0.2s;
+  
+  &:hover {
+    text-decoration: underline;
+    opacity: 0.8;
+  }
 }
 </style>

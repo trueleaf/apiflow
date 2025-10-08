@@ -4,9 +4,9 @@
 // ============================================================================
 
 import { Method } from "got";
-import { ApidocBaseInfo } from "../apidoc";
 import type http from 'http';
 import type Koa from 'koa';
+import { ApidocBaseInfo } from "../httpNode/types.ts";
 
 export type MockHttpNode = {
   _id: string;

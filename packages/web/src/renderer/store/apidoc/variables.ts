@@ -11,21 +11,10 @@ export const useVariable = defineStore('apidocVariable', () => {
   // 同步变量到主进程
   const syncVariablesToMainProcess = async () => {
     try {
-      // 检查electronAPI是否可用
-      if (!window.electronAPI) {
-        return;
-      }
-      
-      // 获取当前项目ID
       const projectId = router.currentRoute.value.query.id as string;
-      if (!projectId) {
-        return;
-      }
-      
-      // 通过IPC同步到主进程
-      await window.electronAPI.mock.syncProjectVariables(projectId, variables.value);
+      await window.electronAPI!.mock.syncProjectVariables(projectId, JSON.parse(JSON.stringify(variables.value)));
     } catch (error) {
-      // 静默处理错误
+      console.error(error);
     }
   };
   
@@ -44,7 +33,7 @@ export const useVariable = defineStore('apidocVariable', () => {
   }
   //替换所有变量
   const replaceVariables = (varList: ApidocVariable[]) => {
-    variables.value.splice(0, varList.length, ...varList);
+    variables.value.splice(0, variables.value.length, ...varList);
     getObjectVariable(variables.value).then((value) => {
       objectVariable.value = value;
     })
