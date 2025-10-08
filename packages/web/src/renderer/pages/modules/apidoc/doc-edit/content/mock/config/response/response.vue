@@ -20,7 +20,7 @@
         <div class="form-row">
           <!-- 返回数据结构 -->
           <div class="form-item flex-item">
-            <label class="form-label">{{ t('返回数据结构') }}</label>
+            <label class="form-label mb-1">{{ t('返回数据结构') }}</label>
             <el-radio-group v-model="response.dataType" size="small">
               <el-radio-button label="json">JSON</el-radio-button>
               <el-radio-button label="text">Text</el-radio-button>
@@ -53,10 +53,9 @@
 
           <!-- 文本类型（仅 Text 类型显示） -->
           <div v-if="response.dataType === 'text'" class="form-item flex-item">
-            <label class="form-label">Text Type</label>
-            <el-select v-model="response.textConfig.textType" size="small" style="width: 150px;">
-              <el-option label="Plain" value="plain" />
-              <el-option label="Markdown" value="markdown" />
+            <label class="form-label mb-1">{{ t('文本类型') }}</label>
+            <el-select v-model="response.textConfig.textType" size="small" class="w-100px">
+              <el-option label="Text/Plain" value="text/plain" />
               <el-option label="HTML" value="html" />
               <el-option label="XML" value="xml" />
               <el-option label="YAML" value="yaml" />
@@ -358,8 +357,7 @@ const handleGenerateTextPreview = async (response: MockHttpNode['response'][0]) 
   aiPreviewText.value = ''
   try {
     const result = await window.electronAPI?.aiManager.generateText({
-      prompt: promptText,
-      maxLength: response.textConfig.randomSize || 100
+      prompt: promptText
     })
 
     if (result?.data) {
@@ -425,7 +423,7 @@ const handleAddResponse = () => {
     },
     textConfig: {
       mode: 'fixed',
-      textType: 'plain',
+      textType: 'text/plain',
       fixedData: '',
       randomSize: 100,
       prompt: '',

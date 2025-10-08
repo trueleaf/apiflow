@@ -484,9 +484,9 @@ export const useIpcEvent = (mainWindow: BrowserWindow, topBarView: WebContentsVi
   });
 
   // AI 生成文本数据
-  ipcMain.handle('ai-generate-text', async (_: IpcMainInvokeEvent, params: { prompt: string; maxLength: number }) => {
+  ipcMain.handle('ai-generate-text', async (_: IpcMainInvokeEvent, params: { prompt: string }) => {
     try {
-      const result = await globalAiManager.chatWithText([params.prompt], 'DeepSeek', params.maxLength || 100);
+      const result = await globalAiManager.chatWithText([params.prompt], 'DeepSeek', 100);
       
       if (!result) {
         return { code: 1, data: null, msg: 'AI生成失败，请检查提示词或重试' };

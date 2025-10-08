@@ -26,12 +26,17 @@ export class AiManager {
       return;
     }
   }
-  private buildMessages(prompt: string[], isJsonMode: boolean): DeepSeekMessage[] {
+  private buildMessages(prompt: string[], isJsonMode: boolean, systemPrompt?: string): DeepSeekMessage[] {
     const messages: DeepSeekMessage[] = [];
     if (isJsonMode) {
       messages.push({
         role: 'system',
         content: '你是一个专业的数据生成助手。请根据用户的要求生成符合规范的JSON格式数据。你的回答必须是合法的JSON格式，不要包含任何解释性文字或markdown标记。'
+      });
+    } else if (systemPrompt) {
+      messages.push({
+        role: 'system',
+        content: systemPrompt
       });
     }
 
@@ -46,6 +51,7 @@ export class AiManager {
 
   private async sendDeepSeekRequest(body: DeepSeekRequestBody): Promise<string> {
     try {
+      console.log(body)
       const response = await got.post(this.apiUrl, {
         json: body,
         headers: {
@@ -82,12 +88,12 @@ export class AiManager {
       return '';
     }
 
+    const systemPrompt = `你是一个专业的文案助手。请严格遵循用户指令生成内容，务必保证返回的文案条数不超过${resLimitSize}条，并尽量控制整体字数不超过${resLimitSize}个字符。`;
     const requestBody: DeepSeekRequestBody = {
       model: 'deepseek-chat',
-      messages: this.buildMessages(prompt, false),
-      max_tokens: resLimitSize,
+      messages: this.buildMessages(prompt, false, systemPrompt),
     };
-
+    console.log(prompt, requestBody, resLimitSize)
     return await this.sendDeepSeekRequest(requestBody);
   }
 

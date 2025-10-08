@@ -195,7 +195,7 @@ const generateJson = (params: { prompt: string }) => {
 }
 
 // AI 生成文本数据
-const generateText = (params: { prompt: string; maxLength: number }) => {
+const generateText = (params: { prompt: string }) => {
   return ipcRenderer.invoke('ai-generate-text', params)
 }
 

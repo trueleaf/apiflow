@@ -61,7 +61,7 @@ export type MockHttpNode = {
     };
     textConfig: {
       mode: "random" | "fixed" | "randomAi";
-      textType: "plain" | "markdown" | "html" | "xml" | "yaml" | "csv" | 'any';
+      textType: "text/plain" | "html" | "xml" | "yaml" | "csv" | 'any';
       fixedData: string;
       randomSize: number;
       prompt: string;

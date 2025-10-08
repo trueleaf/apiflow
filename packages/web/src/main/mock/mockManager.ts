@@ -115,10 +115,9 @@ export class MockManager {
           key.toLowerCase() === 'content-type'
         );
         if (!hasContentType) {
-          const textType = responseConfig.textConfig.textType || 'plain';
+          const textType = responseConfig.textConfig.textType || 'text/plain';
           const contentTypeMap: Record<string, string> = {
-            'plain': 'text/plain; charset=utf-8',
-            'markdown': 'text/markdown; charset=utf-8',
+            'text/plain': 'text/plain; charset=utf-8',
             'html': 'text/html; charset=utf-8',
             'xml': 'application/xml; charset=utf-8',
             'yaml': 'application/x-yaml; charset=utf-8',

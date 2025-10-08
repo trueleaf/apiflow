@@ -82,6 +82,125 @@ export class MockUtils {
     return result.substring(0, size).trim();
   }
 
+  // 生成随机HTML内容（body片段）
+  public generateRandomHtml(tagCount: number): string {
+    const currentLanguage = this.getCurrentLanguage();
+    const fakerInstance = this.getFakerInstance(currentLanguage);
+    const safeTagCount = Math.max(1, Math.min(tagCount, 100)); // 限制1-100个标签
+    
+    // HTML标签模板
+    const tagTemplates = [
+      () => `<h1>${fakerInstance.lorem.words(3)}</h1>`,
+      () => `<h2>${fakerInstance.lorem.words(4)}</h2>`,
+      () => `<h3>${fakerInstance.lorem.words(3)}</h3>`,
+      () => `<p>${fakerInstance.lorem.paragraph()}</p>`,
+      () => `<div class="${fakerInstance.lorem.word()}">${fakerInstance.lorem.sentence()}</div>`,
+      () => `<span>${fakerInstance.lorem.words(5)}</span>`,
+      () => `<a href="${fakerInstance.internet.url()}">${fakerInstance.lorem.words(2)}</a>`,
+      () => `<ul>\n  <li>${fakerInstance.lorem.sentence()}</li>\n  <li>${fakerInstance.lorem.sentence()}</li>\n  <li>${fakerInstance.lorem.sentence()}</li>\n</ul>`,
+      () => `<ol>\n  <li>${fakerInstance.lorem.sentence()}</li>\n  <li>${fakerInstance.lorem.sentence()}</li>\n</ol>`,
+      () => `<blockquote>${fakerInstance.lorem.paragraph()}</blockquote>`,
+      () => `<img src="${fakerInstance.image.url()}" alt="${fakerInstance.lorem.words(2)}" />`,
+      () => `<strong>${fakerInstance.lorem.words(3)}</strong>`,
+      () => `<em>${fakerInstance.lorem.words(3)}</em>`,
+      () => `<code>${fakerInstance.lorem.word()}.${fakerInstance.lorem.word()}()</code>`,
+    ];
+    
+    let html = '';
+    for (let i = 0; i < safeTagCount; i++) {
+      const template = fakerInstance.helpers.arrayElement(tagTemplates);
+      html += template() + '\n';
+    }
+    
+    return html.trim();
+  }
+
+  // 生成随机XML内容
+  public generateRandomXml(nodeCount: number): string {
+    const currentLanguage = this.getCurrentLanguage();
+    const fakerInstance = this.getFakerInstance(currentLanguage);
+    const safeNodeCount = Math.max(1, Math.min(nodeCount, 100)); // 限制1-100个节点
+    
+    let xml = '<?xml version="1.0" encoding="UTF-8"?>\n<root>\n';
+    
+    for (let i = 0; i < safeNodeCount; i++) {
+      const nodeName = fakerInstance.lorem.word();
+      const nodeValue = fakerInstance.helpers.arrayElement([
+        fakerInstance.lorem.sentence(),
+        fakerInstance.person.fullName(),
+        fakerInstance.internet.email(),
+        fakerInstance.number.int({ min: 1, max: 1000 }).toString(),
+        fakerInstance.date.recent().toISOString(),
+      ]);
+      xml += `  <${nodeName}>${nodeValue}</${nodeName}>\n`;
+    }
+    
+    xml += '</root>';
+    return xml;
+  }
+
+  // 生成随机YAML内容
+  public generateRandomYaml(keyCount: number): string {
+    const currentLanguage = this.getCurrentLanguage();
+    const fakerInstance = this.getFakerInstance(currentLanguage);
+    const safeKeyCount = Math.max(1, Math.min(keyCount, 100)); // 限制1-100个键值对
+    
+    let yaml = '';
+    
+    for (let i = 0; i < safeKeyCount; i++) {
+      const key = fakerInstance.lorem.word();
+      const valueType = Math.random();
+      
+      let value: string;
+      if (valueType < 0.3) {
+        // 字符串值
+        value = `"${fakerInstance.lorem.sentence()}"`;
+      } else if (valueType < 0.5) {
+        // 数字值
+        value = fakerInstance.number.int({ min: 1, max: 1000 }).toString();
+      } else if (valueType < 0.6) {
+        // 布尔值
+        value = fakerInstance.datatype.boolean().toString();
+      } else if (valueType < 0.8) {
+        // 简单数组
+        value = `\n  - ${fakerInstance.lorem.word()}\n  - ${fakerInstance.lorem.word()}\n  - ${fakerInstance.lorem.word()}`;
+      } else {
+        // 嵌套对象
+        value = `\n  name: "${fakerInstance.person.fullName()}"\n  email: "${fakerInstance.internet.email()}"`;
+      }
+      
+      yaml += `${key}: ${value}\n`;
+    }
+    
+    return yaml.trim();
+  }
+
+  // 生成随机CSV内容
+  public generateRandomCsv(rowCount: number): string {
+    const currentLanguage = this.getCurrentLanguage();
+    const fakerInstance = this.getFakerInstance(currentLanguage);
+    const safeRowCount = Math.max(1, Math.min(rowCount, 100)); // 限制1-100行
+    
+    // CSV表头
+    let csv = 'id,name,email,phone,company,city,status\n';
+    
+    // 生成数据行
+    for (let i = 0; i < safeRowCount; i++) {
+      const row = [
+        i + 1,
+        `"${fakerInstance.person.fullName()}"`,
+        fakerInstance.internet.email(),
+        `"${fakerInstance.phone.number()}"`,
+        `"${fakerInstance.company.name()}"`,
+        `"${fakerInstance.location.city()}"`,
+        fakerInstance.helpers.arrayElement(['active', 'inactive', 'pending'])
+      ];
+      csv += row.join(',') + '\n';
+    }
+    
+    return csv.trim();
+  }
+
   // 根据语言环境获取对应的 faker 实例
   public getFakerInstance(language: 'zh-cn' | 'zh-tw' | 'en' | 'ja') {
     try {
@@ -444,12 +563,10 @@ export class MockUtils {
         clearInterval(intervalId);
         intervalId = null;
       }
-      console.log(`SSE连接清理完成，共发送了 ${messageCount} 条消息`);
     };
     
     // 监听客户端断开连接
     ctx.req.on('close', () => {
-      console.log('SSE客户端断开连接');
       cleanup();
     });
     
@@ -463,7 +580,6 @@ export class MockUtils {
       try {
         // 检查是否已达到最大发送次数
         if (messageCount >= maxNum) {
-          console.log(`SSE已发送完所有数据 (${maxNum} 条)，结束连接`);
           cleanup();
           ctx.res.end();
           return;
@@ -476,13 +592,7 @@ export class MockUtils {
         // 发送数据
         ctx.res.write(message);
         messageCount++;
-        
-        console.log(`发送SSE消息 ${messageCount}/${maxNum}:`, { 
-          id: eventData.id, 
-          event: eventData.event,
-          dataLength: eventData.data.length 
-        });
-        
+
       } catch (error) {
         console.error('SSE消息发送失败:', error);
         cleanup();
@@ -493,7 +603,6 @@ export class MockUtils {
     // 设置超时保护 (最多运行1小时)
     setTimeout(() => {
       if (intervalId) {
-        console.log('SSE连接超时，强制关闭');
         cleanup();
         ctx.res.end();
       }
@@ -574,11 +683,6 @@ export class MockUtils {
 
   // 处理文本类型响应
   public async handleTextResponse(responseConfig: MockResponseConfig): Promise<string> {
-    console.log('处理文本类型响应:', {
-      dataType: responseConfig.dataType,
-      textConfig: responseConfig.textConfig
-    });
-
     const { textConfig } = responseConfig;
     
     try {
@@ -588,20 +692,35 @@ export class MockUtils {
           return textConfig.fixedData || '';
         
         case 'random':
-          // 随机模式：根据语言环境和大小生成随机文本
-          return this.generateRandomText(textConfig.randomSize || 100);
+          // 随机模式：根据textType生成对应格式的文本
+          const textType = textConfig.textType || 'text/plain';
+          const randomSize = textConfig.randomSize || 100;
+          
+          switch (textType) {
+            case 'html':
+              return this.generateRandomHtml(randomSize);
+            case 'xml':
+              return this.generateRandomXml(randomSize);
+            case 'yaml':
+              return this.generateRandomYaml(randomSize);
+            case 'csv':
+              return this.generateRandomCsv(randomSize);
+            case 'text/plain':
+            case 'any':
+            default:
+              return this.generateRandomText(randomSize);
+          }
         
         case 'randomAi':
           // AI模式：调用AI生成，失败时降级到随机模式
           try {
             let prompt = textConfig.prompt || '请生成一段文本内容';
-            const textType = textConfig.textType || 'plain';
+            const textType = textConfig.textType || 'text/plain';
             
             // 根据textType添加格式提示
             if (textType !== 'any') {
               const formatHints: Record<string, string> = {
-                'plain': 'Generate plain text content.',
-                'markdown': 'Generate content in Markdown format.',
+                'text/plain': 'Generate plain text content.',
                 'html': 'Generate content in HTML format.',
                 'xml': 'Generate content in XML format.',
                 'yaml': 'Generate content in YAML format.',
@@ -613,11 +732,28 @@ export class MockUtils {
               }
             }
             
-            const aiText = await globalAiManager.chatWithText([prompt], 'DeepSeek', textConfig.randomSize || 100);
+            const aiText = await globalAiManager.chatWithText([prompt], 'DeepSeek', 300);
             return aiText;
           } catch (aiError) {
             console.warn('AI文本生成失败，降级到随机模式:', aiError);
-            return this.generateRandomText(textConfig.randomSize || 100);
+            // 降级时也根据textType生成对应格式
+            const textType = textConfig.textType || 'text/plain';
+            const randomSize = textConfig.randomSize || 100;
+            
+            switch (textType) {
+              case 'html':
+                return this.generateRandomHtml(randomSize);
+              case 'xml':
+                return this.generateRandomXml(randomSize);
+              case 'yaml':
+                return this.generateRandomYaml(randomSize);
+              case 'csv':
+                return this.generateRandomCsv(randomSize);
+              case 'text/plain':
+              case 'any':
+              default:
+                return this.generateRandomText(randomSize);
+            }
           }
         
         default:
@@ -707,11 +843,6 @@ export class MockUtils {
 
   // 处理文件类型响应
   public async handleFileResponse(responseConfig: MockResponseConfig): Promise<{ data: Buffer; mimeType: string }> {
-    console.log('处理文件类型响应:', {
-      dataType: responseConfig.dataType,
-      fileConfig: responseConfig.fileConfig
-    });
-
     const { fileConfig } = responseConfig;
     
     try {
@@ -721,17 +852,9 @@ export class MockUtils {
       const sampleFileName = `sample.${fileExtension}`;
       const filePath = path.join(staticDir, sampleFileName);
       
-      console.log('尝试读取文件:', filePath);
-      
       // 读取文件数据
       const { data, mimeType } = await this.readFileData(filePath);
-      
-      console.log('文件读取成功:', { 
-        fileSize: data.length, 
-        mimeType,
-        fileName: sampleFileName 
-      });
-      
+
       return { data, mimeType };
     } catch (error) {
       console.error('文件类型响应处理失败:', error);
@@ -749,11 +872,6 @@ export class MockUtils {
 
   // 处理二进制类型响应
   public async handleBinaryResponse(responseConfig: MockResponseConfig): Promise<{ data: Buffer; mimeType: string }> {
-    console.log('处理二进制类型响应:', {
-      dataType: responseConfig.dataType,
-      binaryConfig: responseConfig.binaryConfig
-    });
-
     const { binaryConfig } = responseConfig;
     
     try {
@@ -762,17 +880,9 @@ export class MockUtils {
         throw new Error('未指定二进制文件路径');
       }
       
-      console.log('尝试读取二进制文件:', binaryConfig.filePath);
-      
       // 读取指定路径的文件数据
       const { data, mimeType } = await this.readFileData(binaryConfig.filePath);
-      
-      console.log('二进制文件读取成功:', { 
-        fileSize: data.length, 
-        mimeType,
-        filePath: binaryConfig.filePath 
-      });
-      
+
       return { data, mimeType };
     } catch (error) {
       console.error('二进制类型响应处理失败:', error);
@@ -825,7 +935,6 @@ export class MockUtils {
         return binaryResult.data;
       }
       default:
-        console.log('未知的数据类型:', responseConfig.dataType);
         return { error: 'Unsupported data type', dataType: responseConfig.dataType };
     }
   }
