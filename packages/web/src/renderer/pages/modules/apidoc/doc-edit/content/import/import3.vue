@@ -72,7 +72,7 @@ const importTypes = [
     value: 'paste',
     desc: '粘贴JSON或YAML内容',
     icon: 'iconfont iconfuzhi',
-    bg: 'var(--purple)',
+    bg: 'var(--theme-color)',
   },
 ]
 const { t } = useI18n()

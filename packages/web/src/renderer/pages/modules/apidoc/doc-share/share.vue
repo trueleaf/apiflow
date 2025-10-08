@@ -311,7 +311,7 @@ onUnmounted(() => {
 
 .loading-text {
   font-size: 20px;
-  font-weight: var(--font-weight-bold);
+  font-weight: 700;
   color: var(--gray-800);
   margin: 16px 0 12px 0;
   letter-spacing: 1px;
@@ -350,7 +350,7 @@ onUnmounted(() => {
 .loading-progress-bar {
   width: 40%;
   height: 100%;
-  background: linear-gradient(90deg, var(--primary) 0%, var(--purple) 100%);
+  background: linear-gradient(90deg, var(--primary) 0%, var(--theme-color) 100%);
   border-radius: var(--border-radius-xs);
   animation: loading-bar 1.2s infinite;
 }

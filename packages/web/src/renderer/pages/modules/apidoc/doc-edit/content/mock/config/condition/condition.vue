@@ -313,7 +313,7 @@ onMounted(() => {
 }
 
 .copy-icon:hover {
-  color: var(--primary-color);
+  color: var(--primary);
 }
 
 .enabled-switch-wrapper {

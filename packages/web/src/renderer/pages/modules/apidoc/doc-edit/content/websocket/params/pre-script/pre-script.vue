@@ -194,7 +194,7 @@ const insertTextAtCursor = (text: string) => {
       padding: 2px 4px;
       border-radius: 2px;
       font-size: 12px;
-      color: var(--primary-color);
+      color: var(--primary);
     }
   }
 

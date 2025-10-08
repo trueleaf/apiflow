@@ -62,6 +62,66 @@
           </div>
         </div>
 
+        <!-- AI生成模式区域 -->
+        <div 
+          v-if="response.dataType === 'json' && response.jsonConfig.mode === 'randomAi'" 
+          class="ai-generate-wrapper">
+          <!-- 左侧：提示词输入区 -->
+          <div class="prompt-section">
+            <div class="prompt-header">
+              <label class="form-label">{{ t('提示词') }}</label>
+            </div>
+            <div class="prompt-content">
+              <div class="textarea-wrapper">
+                <textarea
+                  v-model="response.jsonConfig.prompt"
+                  :placeholder="t('请输入JSON数据生成提示词，例如：生成一个用户列表，包含姓名、年龄、邮箱等字段')"
+                  maxlength="2000"
+                  class="prompt-textarea"
+                />
+                <div 
+                  class="send-btn"
+                  :class="{ 
+                    'is-loading': aiGenerating,
+                    'is-disabled': isSendDisabled(response)
+                  }"
+                  @click="!isSendDisabled(response) && handleGeneratePreview(response)">
+                  <el-icon v-if="aiGenerating" class="is-loading">
+                    <Loading />
+                  </el-icon>
+                  <el-icon v-else>
+                    <Top />
+                  </el-icon>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 右侧：JSON预览区 -->
+          <div class="preview-section">
+            <div class="preview-header">
+              <label class="form-label">{{ t('预览结果') }}</label>
+            </div>
+            <div class="preview-content">
+              <div v-if="aiGenerating" class="loading-wrapper">
+                <el-icon class="is-loading">
+                  <Loading />
+                </el-icon>
+                <span class="loading-text">{{ t('AI正在生成中，请稍候...') }}</span>
+              </div>
+              <div v-else-if="aiPreviewJson" class="json-preview-wrapper">
+                <SJsonEditor 
+                  v-model="aiPreviewJson"
+                  :config="{ fontSize: 13, language: 'json', readOnly: false }">
+                </SJsonEditor>
+              </div>
+              <div v-else class="empty-preview">
+                <span class="empty-text">{{ t('请在左侧输入提示词并点击"生成预览"') }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <!-- 固定JSON编辑器区域 -->
         <div 
           v-if="response.dataType === 'json' && response.jsonConfig.mode === 'fixed'" 
@@ -80,31 +140,74 @@
 import { computed, ref, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { ElMessage } from 'element-plus'
-import { Plus } from '@element-plus/icons-vue'
+import { Plus, Loading, Top } from '@element-plus/icons-vue'
 import { storeToRefs } from 'pinia'
 import { useHttpMock } from '@/store/httpMock/httpMock'
 import SJsonEditor from '@/components/common/json-editor/g-json-editor.vue'
 import { getMockJsonRandomSizeHintVisible, setMockJsonRandomSizeHintVisible } from '@/cache/common/common'
+import { aiCache } from '@/cache/ai/aiCache'
+import { MockHttpNode } from '@src/types'
 
 const { t } = useI18n()
 const httpMockStore = useHttpMock()
 const { httpMock } = storeToRefs(httpMockStore)
-
-// 从 store 中获取响应配置
 const mockResponses = computed(() => httpMock.value.response)
-
-// 提示信息显示状态
 const showRandomSizeHint = ref(true)
+const aiGenerating = ref(false)
+const aiPreviewJson = ref('')
 
-// 初始化提示状态
-onMounted(() => {
-  showRandomSizeHint.value = getMockJsonRandomSizeHintVisible()
-})
+// 计算发送按钮是否禁用
+const isSendDisabled = (response: MockHttpNode['response'][0]) => {
+  const promptText = (response.jsonConfig.prompt || '').trim()
+  return !promptText || aiGenerating.value
+}
 
 // 处理"不再提示"点击
 const handleDismissHint = () => {
   showRandomSizeHint.value = false
   setMockJsonRandomSizeHintVisible(false)
+}
+
+// 处理AI生成预览
+const handleGeneratePreview = async (response: MockHttpNode['response'][0]) => {
+  const promptText = (response.jsonConfig.prompt || '').trim()
+  if (!promptText) {
+    ElMessage.warning(t('请先输入提示词'))
+    return
+  }
+
+  const aiConfig = aiCache.getAiConfig()
+  const apiKey = (aiConfig.apiKey || '').trim()
+  const apiUrl = (aiConfig.apiUrl || '').trim()
+
+  if (!apiKey) {
+    ElMessage.error(t('请先配置AI API Key'))
+    return
+  }
+
+  if (!apiUrl) {
+    ElMessage.error(t('请先配置AI API 地址'))
+    return
+  }
+
+  aiGenerating.value = true
+  aiPreviewJson.value = ''
+  try {
+    const result = await window.electronAPI?.aiManager.generateJson({
+      prompt: promptText,
+      apiKey,
+      apiUrl
+    })
+    if (result && result.code === 0 && result.data) {
+      aiPreviewJson.value = result.data
+    } else {
+      ElMessage.error(t('AI生成失败，请稍后重试'))
+    }
+  } catch (error) {
+    console.error('AI生成失败:', error)
+  } finally {
+    aiGenerating.value = false
+  }
 }
 
 // 新增返回值
@@ -169,6 +272,9 @@ const handleAddResponse = () => {
   })
   ElMessage.success(t('添加成功'))
 }
+onMounted(() => {
+  showRandomSizeHint.value = getMockJsonRandomSizeHintVisible()
+})
 </script>
 
 <style scoped>
@@ -225,6 +331,7 @@ const handleAddResponse = () => {
   margin-left: 20px;
   flex: 1;
   min-height: 0;
+  overflow-y: auto;
 }
 
 /* 响应卡片 */
@@ -290,7 +397,7 @@ const handleAddResponse = () => {
 }
 
 .hint-dismiss {
-  color: var(--color-primary);
+  color: var(--primary);
   cursor: pointer;
   margin-left: 12px;
   white-space: nowrap;
@@ -299,6 +406,170 @@ const handleAddResponse = () => {
   &:hover {
     text-decoration: underline;
     opacity: 0.8;
+  }
+}
+
+/* AI生成模式布局 */
+.ai-generate-wrapper {
+  flex: 1;
+  display: flex;
+  gap: 16px;
+  min-height: 0;
+  margin-top: 12px;
+}
+
+/* 左侧提示词输入区 */
+.prompt-section {
+  flex: 0 0 40%;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.prompt-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.prompt-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--gray-300);
+  border-radius: var(--border-radius-sm);
+  overflow: hidden;
+  background: white;
+  min-height: 0;
+}
+
+.textarea-wrapper {
+  flex: 1;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.prompt-textarea {
+  flex: 1;
+  width: 100%;
+  padding: 12px;
+  padding-bottom: 48px;
+  border: none;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--gray-800);
+  background: transparent;
+  outline: none;
+  resize: none;
+  font-family: inherit;
+  
+  &::placeholder {
+    color: var(--gray-400);
+  }
+  
+  &:focus {
+    outline: none;
+  }
+}
+
+.send-btn {
+  position: absolute;
+  right: 8px;
+  bottom: 8px;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: var(--primary);
+  color: white;
+  cursor: pointer;
+  transition: all 0.3s;
+  z-index: 1;
+  
+  &:hover:not(.is-loading):not(.is-disabled) {
+    background: var(--el-color-primary-light-3);
+  }
+  
+  &.is-loading {
+    cursor: not-allowed;
+    opacity: 0.6;
+  }
+  
+  &.is-disabled {
+    background: var(--el-color-primary-light-5);
+    cursor: not-allowed;
+  }
+  
+  .el-icon {
+    font-size: 16px;
+  }
+}
+
+/* 右侧JSON预览区 */
+.preview-section {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.preview-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.preview-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--gray-300);
+  border-radius: var(--border-radius-sm);
+  overflow: hidden;
+  background: white;
+  min-height: 0;
+}
+
+.json-preview-wrapper {
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.loading-wrapper {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  color: var(--primary);
+
+  .el-icon {
+    font-size: 32px;
+  }
+
+  .loading-text {
+    font-size: 14px;
+    color: var(--gray-600);
+  }
+}
+
+.empty-preview {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  
+  .empty-text {
+    font-size: 14px;
+    color: var(--gray-400);
   }
 }
 </style>

@@ -455,7 +455,7 @@ onUnmounted(() => {
             
             .history-name {
               font-weight: 500;
-              color: var(--color-text-primary);
+              color: var(--gray-800);
               font-size: 14px;
               white-space: nowrap;
               overflow: hidden;
