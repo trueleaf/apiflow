@@ -128,11 +128,7 @@ export class MockManager {
           ctx.set('content-type', 'application/json');
         }
       }
-
-      // 获取项目变量（使用 MockUtils 静态方法）
       const projectVariables = MockUtils.getProjectVariables(matchedMock.projectId);
-      
-      // 根据数据类型处理响应数据，传入项目变量
       const responseData = await this.mockUtils.processResponseByDataType(responseConfig, ctx, projectVariables);
       
       // 对于image类型，如果没有设置content-type，则设置生成的MIME类型

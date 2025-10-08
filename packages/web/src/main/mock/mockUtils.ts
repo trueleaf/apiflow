@@ -107,7 +107,7 @@ export class MockUtils {
   public generateRandomJson(size: number): Record<string, unknown> {
     const currentLanguage = this.getCurrentLanguage();
     const fakerInstance = this.getFakerInstance(currentLanguage);
-    const complexity = Math.min(Math.max(Math.floor(size / 20), 1), 20); // 1-20个字段
+    const complexity = Math.min(Math.max(size, 1), 500); // 1-500个字段
     const jsonData: Record<string, unknown> = {};
     const fieldTypes = [
       // 基础信息字段
