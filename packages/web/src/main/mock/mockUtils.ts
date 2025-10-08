@@ -107,69 +107,97 @@ export class MockUtils {
   public generateRandomJson(size: number): Record<string, unknown> {
     const currentLanguage = this.getCurrentLanguage();
     const fakerInstance = this.getFakerInstance(currentLanguage);
-    const complexity = Math.min(Math.max(size, 1), 500); // 1-500个字段
-    const jsonData: Record<string, unknown> = {};
-    const fieldTypes = [
+    const complexity = Math.min(Math.max(size, 1), 9999); // 1-9999个字段
+
+    type RandomFieldGenerator = {
+      baseKey: string;
+      createValue: () => unknown;
+    };
+
+    const fieldTemplates: RandomFieldGenerator[] = [
       // 基础信息字段
-      () => ({ id: fakerInstance.string.uuid() }),
-      () => ({ name: fakerInstance.person.fullName() }),
-      () => ({ email: fakerInstance.internet.email() }),
-      () => ({ phone: fakerInstance.phone.number() }),
-      () => ({ address: fakerInstance.location.streetAddress() }),
-      () => ({ city: fakerInstance.location.city() }),
-      () => ({ country: fakerInstance.location.country() }),
-      () => ({ company: fakerInstance.company.name() }),
-      () => ({ department: fakerInstance.commerce.department() }),
-      () => ({ jobTitle: fakerInstance.person.jobTitle() }),
-      
+      { baseKey: 'id', createValue: () => fakerInstance.string.uuid() },
+      { baseKey: 'name', createValue: () => fakerInstance.person.fullName() },
+      { baseKey: 'email', createValue: () => fakerInstance.internet.email() },
+      { baseKey: 'phone', createValue: () => fakerInstance.phone.number() },
+      { baseKey: 'address', createValue: () => fakerInstance.location.streetAddress() },
+      { baseKey: 'city', createValue: () => fakerInstance.location.city() },
+      { baseKey: 'country', createValue: () => fakerInstance.location.country() },
+      { baseKey: 'company', createValue: () => fakerInstance.company.name() },
+      { baseKey: 'department', createValue: () => fakerInstance.commerce.department() },
+      { baseKey: 'jobTitle', createValue: () => fakerInstance.person.jobTitle() },
+
       // 数字和日期字段
-      () => ({ age: fakerInstance.number.int({ min: 18, max: 80 }) }),
-      () => ({ score: fakerInstance.number.float({ min: 0, max: 100, fractionDigits: 2 }) }),
-      () => ({ price: fakerInstance.commerce.price() }),
-      () => ({ createdAt: fakerInstance.date.past().toISOString() }),
-      () => ({ updatedAt: fakerInstance.date.recent().toISOString() }),
-      () => ({ birthDate: fakerInstance.date.birthdate().toISOString() }),
-      
+      { baseKey: 'age', createValue: () => fakerInstance.number.int({ min: 18, max: 80 }) },
+      { baseKey: 'score', createValue: () => fakerInstance.number.float({ min: 0, max: 100, fractionDigits: 2 }) },
+      { baseKey: 'price', createValue: () => fakerInstance.commerce.price() },
+      { baseKey: 'createdAt', createValue: () => fakerInstance.date.past().toISOString() },
+      { baseKey: 'updatedAt', createValue: () => fakerInstance.date.recent().toISOString() },
+      { baseKey: 'birthDate', createValue: () => fakerInstance.date.birthdate().toISOString() },
+
       // 布尔和状态字段
-      () => ({ isActive: fakerInstance.datatype.boolean() }),
-      () => ({ isVerified: fakerInstance.datatype.boolean() }),
-      () => ({ status: fakerInstance.helpers.arrayElement(['active', 'inactive', 'pending', 'completed']) }),
-      () => ({ priority: fakerInstance.helpers.arrayElement(['low', 'medium', 'high', 'urgent']) }),
-      
+      { baseKey: 'isActive', createValue: () => fakerInstance.datatype.boolean() },
+      { baseKey: 'isVerified', createValue: () => fakerInstance.datatype.boolean() },
+      { baseKey: 'status', createValue: () => fakerInstance.helpers.arrayElement(['active', 'inactive', 'pending', 'completed']) },
+      { baseKey: 'priority', createValue: () => fakerInstance.helpers.arrayElement(['low', 'medium', 'high', 'urgent']) },
+
       // 文本内容字段
-      () => ({ description: fakerInstance.lorem.sentence() }),
-      () => ({ content: fakerInstance.lorem.paragraph() }),
-      () => ({ notes: fakerInstance.lorem.words(10) }),
-      () => ({ tags: fakerInstance.lorem.words(3).split(' ') }),
-      
+      { baseKey: 'description', createValue: () => fakerInstance.lorem.sentence() },
+      { baseKey: 'content', createValue: () => fakerInstance.lorem.paragraph() },
+      { baseKey: 'notes', createValue: () => fakerInstance.lorem.words(10) },
+      { baseKey: 'tags', createValue: () => fakerInstance.lorem.words(3).split(' ') },
+
       // 网络和技术字段
-      () => ({ website: fakerInstance.internet.url() }),
-      () => ({ avatar: fakerInstance.image.avatar() }),
-      () => ({ ipAddress: fakerInstance.internet.ip() }),
-      () => ({ userAgent: fakerInstance.internet.userAgent() }),
+      { baseKey: 'website', createValue: () => fakerInstance.internet.url() },
+      { baseKey: 'avatar', createValue: () => fakerInstance.image.avatar() },
+      { baseKey: 'ipAddress', createValue: () => fakerInstance.internet.ip() },
+      { baseKey: 'userAgent', createValue: () => fakerInstance.internet.userAgent() }
     ];
-    const selectedFields = fakerInstance.helpers.arrayElements(fieldTypes, complexity);
-    selectedFields.forEach(fieldGenerator => {
-      Object.assign(jsonData, fieldGenerator());
-    });
+
+    const requiredFields: RandomFieldGenerator[] = [];
     if (complexity >= 5) {
-      jsonData.metadata = {
-        version: fakerInstance.system.semver(),
-        source: fakerInstance.helpers.arrayElement(['api', 'import', 'manual', 'system']),
-        lastModified: fakerInstance.date.recent().toISOString(),
-        permissions: fakerInstance.helpers.arrayElements(['read', 'write', 'delete', 'admin'], 2)
-      };
+      requiredFields.push({
+        baseKey: 'metadata',
+        createValue: () => ({
+          version: fakerInstance.system.semver(),
+          source: fakerInstance.helpers.arrayElement(['api', 'import', 'manual', 'system']),
+          lastModified: fakerInstance.date.recent().toISOString(),
+          permissions: fakerInstance.helpers.arrayElements(['read', 'write', 'delete', 'admin'], 2)
+        })
+      });
     }
     if (complexity >= 8) {
-      const itemCount = Math.min(Math.floor(complexity / 4), 5);
-      jsonData.items = Array.from({ length: itemCount }, () => ({
-        id: fakerInstance.string.uuid(),
-        name: fakerInstance.commerce.productName(),
-        price: fakerInstance.commerce.price(),
-        category: fakerInstance.commerce.department(),
-        available: fakerInstance.datatype.boolean()
-      }));
+      requiredFields.push({
+        baseKey: 'items',
+        createValue: () => {
+          const itemCount = Math.min(Math.floor(complexity / 4), 5);
+          return Array.from({ length: itemCount }, () => ({
+            id: fakerInstance.string.uuid(),
+            name: fakerInstance.commerce.productName(),
+            price: fakerInstance.commerce.price(),
+            category: fakerInstance.commerce.department(),
+            available: fakerInstance.datatype.boolean()
+          }));
+        }
+      });
     }
+
+    const jsonData: Record<string, unknown> = {};
+    const keyCount: Record<string, number> = {};
+
+    requiredFields.forEach(field => {
+      jsonData[field.baseKey] = field.createValue();
+      keyCount[field.baseKey] = 1;
+    });
+
+    for (let index = requiredFields.length; index < complexity; index += 1) {
+      const template = fakerInstance.helpers.arrayElement(fieldTemplates);
+      const currentCount = keyCount[template.baseKey] ?? 0;
+      const suffix = currentCount === 0 ? '' : `_${currentCount}`;
+      jsonData[`${template.baseKey}${suffix}`] = template.createValue();
+      keyCount[template.baseKey] = currentCount + 1;
+    }
+
     return jsonData;
   }
 
