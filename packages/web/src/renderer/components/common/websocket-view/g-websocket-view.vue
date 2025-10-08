@@ -347,11 +347,11 @@ watch(
 
         &.type-send,
         &.type-autoSend {
-          color: var(--color-success, #67c23a);
+          color: var(--success, #67c23a);
         }
 
         &.type-receive {
-          color: var(--color-danger, #f56c6c);
+          color: var(--danger, #f56c6c);
         }
       }
 
@@ -360,7 +360,7 @@ watch(
         min-width: 0;
         font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
         font-size: 12px;
-        color: var(--text-color-primary, #303133);
+        color: var(--gray-800, #303133);
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
@@ -381,22 +381,22 @@ watch(
           flex-shrink: 0;
           min-width: 20px;
           &.success {
-            color: var(--color-success, #67c23a);
+            color: var(--success, #67c23a);
           }
 
           &.warning {
-            color: var(--color-warning, #e6a23c);
+            color: var(--warning, #e6a23c);
           }
 
           &.danger {
-            color: var(--color-danger, #f56c6c);
+            color: var(--danger, #f56c6c);
           }
         }
 
         .status-type {
           font-size: 13px;
           font-weight: 500;
-          color: var(--text-color-primary, #303133);
+          color: var(--gray-800, #303133);
           margin-right: 4px;
           white-space: nowrap;
         }
@@ -405,7 +405,7 @@ watch(
           flex: 1;
           min-width: 0;
           font-size: 13px;
-          color: var(--text-color-regular, #606266);
+          color: var(--gray-700, #606266);
           white-space: nowrap;
           overflow: hidden;
           text-overflow: ellipsis;
@@ -414,7 +414,7 @@ watch(
 
       .message-timestamp {
         font-size: 12px;
-        color: var(--text-color-secondary, #909399);
+        color: var(--gray-600, #909399);
         font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
         min-width: 60px;
         text-align: right;
@@ -422,33 +422,33 @@ watch(
       }
 
       &:hover {
-        background-color: var(--fill-color-lighter, #f2f6fc);
+        background-color: var(--gray-100, #f2f6fc);
       }
 
       &.message-error {
-        border-left: 3px solid var(--color-danger, #f56c6c);
-        background-color: var(--color-danger-light-9, #fef0f0);
+        border-left: 3px solid var(--danger, #f56c6c);
+        background-color: var(--light, #fef0f0);
 
         &:hover {
-          background-color: var(--color-danger-light-8, #fde2e2);
+          background-color: var(--gray-100, #fde2e2);
         }
       }
 
       &.message-success {
-        border-left: 3px solid var(--color-success, #67c23a);
-        background-color: var(--color-success-light-9, #f0f9ff);
+        border-left: 3px solid var(--success, #67c23a);
+        background-color: var(--light, #f0f9ff);
 
         &:hover {
-          background-color: var(--color-success-light-8, #e1f3d8);
+          background-color: var(--gray-100, #e1f3d8);
         }
       }
 
       &.message-warning {
-        border-left: 3px solid var(--color-warning, #e6a23c);
-        background-color: var(--color-warning-light-9, #fdf6ec);
+        border-left: 3px solid var(--warning, #e6a23c);
+        background-color: var(--light, #fdf6ec);
 
         &:hover {
-          background-color: var(--color-warning-light-8, #faecd8);
+          background-color: var(--gray-100, #faecd8);
         }
       }
     }

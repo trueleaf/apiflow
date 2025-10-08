@@ -451,6 +451,29 @@ export const useIpcEvent = (mainWindow: BrowserWindow, topBarView: WebContentsVi
     }
   });
 
+  // AI 生成JSON数据
+  ipcMain.handle('ai-generate-json', async (_: IpcMainInvokeEvent, params: { prompt: string; apiKey: string; apiUrl: string }) => {
+    try {
+      if (!params.apiKey || !params.apiKey.trim()) {
+        return { code: 1, data: null, msg: 'AI API Key 未配置' };
+      }
+      if (!params.apiUrl || !params.apiUrl.trim()) {
+        return { code: 1, data: null, msg: 'AI API 地址未配置' };
+      }
+      const aiManager = new AiManager(params.apiUrl, params.apiKey);
+      const result = await aiManager.chatWithJsonText([params.prompt], 'DeepSeek', 2000);
+      
+      if (!result) {
+        return { code: 1, data: null, msg: 'AI生成失败，请检查提示词或重试' };
+      }
+      
+      return { code: 0, data: result, msg: '生成成功' };
+    } catch (error) {
+      console.error('AI 生成JSON失败:', error);
+      return { code: 1, data: null, msg: (error as Error).message };
+    }
+  });
+
   /*
   |---------------------------------------------------------------------------
   | 窗口状态同步

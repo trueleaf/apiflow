@@ -204,7 +204,7 @@ watch(() => props.message, (newMessage) => {
     align-items: center;
     justify-content: space-between;
     padding: 5px 16px;
-    border-bottom: 1px solid var(--border-color-lighter, #ebeef5);
+    border-bottom: 1px solid var(--gray-200, #ebeef5);
     background: linear-gradient(to right, #2c3e50, #3a4a5f);
     color: var(--white, #ffffff);
     border-top-left-radius: 5px;
@@ -265,13 +265,13 @@ watch(() => props.message, (newMessage) => {
       label {
         min-width: 80px;
         font-weight: 600;
-        color: var(--text-color-regular, #606266);
+        color: var(--gray-700, #606266);
         margin-right: 12px;
         flex-shrink: 0;
       }
 
       span {
-        color: var(--text-color-primary, #303133);
+        color: var(--gray-800, #303133);
         word-break: break-all;
       }
 
@@ -281,24 +281,24 @@ watch(() => props.message, (newMessage) => {
 
         .tab-header {
           display: flex;
-          border-bottom: 1px solid var(--border-color-lighter, #ebeef5);
+          border-bottom: 1px solid var(--gray-200, #ebeef5);
           margin-bottom: 12px;
 
           .tab-item {
             padding: 8px 16px;
             cursor: pointer;
             font-size: 14px;
-            color: var(--text-color-regular, #606266);
+            color: var(--gray-700, #606266);
             border-bottom: 2px solid transparent;
             transition: all 0.2s;
 
             &:hover {
-              color: var(--color-primary, #409eff);
+              color: var(--primary, #409eff);
             }
 
             &.active {
-              color: var(--color-primary, #409eff);
-              border-bottom-color: var(--color-primary, #409eff);
+              color: var(--primary, #409eff);
+              border-bottom-color: var(--primary, #409eff);
             }
           }
         }
@@ -311,14 +311,14 @@ watch(() => props.message, (newMessage) => {
 
           .full-content,
           .raw-block {
-            background-color: var(--fill-color-extra-light, #fafcff);
-            border: 1px solid var(--border-color-lighter, #ebeef5);
+            background-color: var(--gray-100, #fafcff);
+            border: 1px solid var(--gray-200, #ebeef5);
             border-radius: 4px;
             padding: 12px;
             margin: 0;
             font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
             font-size: 13px;
-            color: var(--text-color-primary, #303133);
+            color: var(--gray-800, #303133);
             white-space: pre-wrap;
             word-break: break-all;
             max-height: 350px;
@@ -327,8 +327,8 @@ watch(() => props.message, (newMessage) => {
           }
 
           .raw-block {
-            background-color: var(--color-info-light-9, #f4f4f5);
-            color: var(--text-color-secondary, #909399);
+            background-color: var(--light, #f4f4f5);
+            color: var(--gray-600, #909399);
           }
         }
       }

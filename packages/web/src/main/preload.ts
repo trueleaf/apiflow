@@ -190,6 +190,11 @@ const textChatWithStream = (
   }
 }
 
+// AI 生成JSON数据
+const generateJson = (params: { prompt: string; apiKey: string; apiUrl: string }) => {
+  return ipcRenderer.invoke('ai-generate-json', params)
+}
+
 contextBridge.exposeInMainWorld('electronAPI', {
   ip: ip.address(),
   sendRequest: gotRequest,
@@ -242,5 +247,6 @@ contextBridge.exposeInMainWorld('electronAPI', {
   aiManager: {
     textChat: textChat,
     textChatWithStream: textChatWithStream,
+    generateJson: generateJson,
   }
 })

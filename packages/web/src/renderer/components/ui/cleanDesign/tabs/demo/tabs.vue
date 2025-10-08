@@ -505,7 +505,7 @@ const multiTabCode = `<CleanTabs v-model="activeTab4" type="card">
         align-items: center;
         gap: 6px;
         padding: 6px 12px;
-        background: var(--gray-50);
+        background: var(--gray-100);
         border: 1px solid var(--gray-200);
         border-radius: 6px;
         cursor: pointer;
@@ -538,7 +538,7 @@ const multiTabCode = `<CleanTabs v-model="activeTab4" type="card">
 
   .demo-content {
     padding: 24px;
-    background: var(--gray-50);
+    background: var(--gray-100);
     border-radius: 8px;
     border: 1px solid var(--gray-100);
 
@@ -571,7 +571,7 @@ const multiTabCode = `<CleanTabs v-model="activeTab4" type="card">
       justify-content: space-between;
       align-items: center;
       padding: 12px 16px;
-      background: var(--gray-50);
+      background: var(--gray-100);
       border-bottom: 1px solid var(--gray-200);
       
       .code-title {
@@ -631,7 +631,7 @@ const multiTabCode = `<CleanTabs v-model="activeTab4" type="card">
     .badge {
       width: 6px;
       height: 6px;
-      background: var(--red-500);
+      background: var(--red);
       border-radius: 50%;
       display: inline-block;
       animation: pulse 2s infinite;
@@ -708,7 +708,7 @@ const multiTabCode = `<CleanTabs v-model="activeTab4" type="card">
       border-color: var(--gray-700);
       
       .code-header {
-        background: var(--gray-750);
+        background: var(--gray-700);
         border-color: var(--gray-600);
         
         .code-title {
@@ -734,7 +734,7 @@ const multiTabCode = `<CleanTabs v-model="activeTab4" type="card">
   }
 
   .api-example {
-    background: var(--gray-50);
+    background: var(--gray-100);
     border: 1px solid var(--gray-200);
     border-radius: 8px;
     padding: 20px;

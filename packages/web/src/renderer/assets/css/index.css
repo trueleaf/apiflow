@@ -21,7 +21,7 @@
   /* 主题色 */
   --theme-color: #409eff;
   /* 提示色 */
-  --primary: var(--blue);
+  --primary: var(--el-color-primary);
   --secondary: var(--gray-600);
   --success: var(--green);
   --info: var(--cyan);
@@ -76,6 +76,9 @@
   --el-color-primary-light-1: color-mix(in srgb, var(--el-color-primary) 90%, white);
   --el-color-primary-light-2: color-mix(in srgb, var(--el-color-primary) 80%, white);
   --el-color-primary-light-3: color-mix(in srgb, var(--el-color-primary) 70%, white);
+  --el-color-primary-light-4: color-mix(in srgb, var(--el-color-primary) 60%, white);
+  --el-color-primary-light-5: color-mix(in srgb, var(--el-color-primary) 50%, white);
+  
 
 }
 

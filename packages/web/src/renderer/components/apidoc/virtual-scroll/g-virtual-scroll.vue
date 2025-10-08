@@ -195,16 +195,16 @@ onBeforeUnmount(() => {
   }
   
   &::-webkit-scrollbar-track {
-    background: var(--fill-color-lighter, #f2f6fc);
+    background: var(--gray-100, #f2f6fc);
     border-radius: 4px;
   }
   
   &::-webkit-scrollbar-thumb {
-    background: var(--border-color, #dcdfe6);
+    background: var(--gray-300, #dcdfe6);
     border-radius: 4px;
     
     &:hover {
-      background: var(--border-color-darker, #c4c6cf);
+      background: var(--gray-500, #c4c6cf);
     }
   }
 }

@@ -387,7 +387,7 @@ onUnmounted(() => {
   .option-info {
     display: inline-block;
     padding: 8px 12px;
-    background: var(--bg-light);
+    background: var(--light);
     border: 1px solid var(--gray-300);
     border-radius: var(--border-radius);
     
@@ -402,7 +402,7 @@ onUnmounted(() => {
 .export-actions {
   .data-summary {
     margin-bottom: 20px;
-    background: var(--bg-light);
+    background: var(--light);
     border-radius: var(--border-radius-bg);
     gap: 4px;
     
@@ -426,7 +426,7 @@ onUnmounted(() => {
   .path-error-message {
     margin-bottom: 16px;
     padding: 8px 12px;
-    background: var(--danger-light);
+    background: color-mix(in srgb, var(--danger) 15%, white);
     border: 1px solid var(--danger);
     border-radius: var(--border-radius);
     color: var(--danger);

@@ -210,7 +210,7 @@ defineExpose({
           font-weight: bold;
           font-size: 10px;
           border-radius: 3px;
-          color: var(--text-color-regular, #606266);
+          color: var(--gray-700, #606266);
           cursor: pointer;
           display: flex;
           align-items: center;
@@ -221,18 +221,18 @@ defineExpose({
           margin-left: 4px;
 
           &:hover {
-            background-color: var(--fill-color, #f0f2f5);
-            border-color: var(--border-color, #dcdfe6);
+            background-color: var(--white, #f0f2f5);
+            border-color: var(--gray-300, #dcdfe6);
           }
 
           &.active {
-            background-color: var(--color-primary, #409eff);
-            border-color: var(--color-primary, #409eff);
+            background-color: var(--primary, #409eff);
+            border-color: var(--primary, #409eff);
             color: #ffffff;
 
             &:hover {
-              background-color: var(--color-primary-light-3, #79bbff);
-              border-color: var(--color-primary-light-3, #79bbff);
+              background-color: color-mix(in srgb, var(--primary) 70%, white);
+              border-color: color-mix(in srgb, var(--primary) 70%, white);
             }
           }
         }
@@ -257,26 +257,26 @@ defineExpose({
       margin: 0 1px;
       width: 28px;
       height: 28px;
-      color: var(--text-color-regular, #606266);
+      color: var(--gray-700, #606266);
       cursor: pointer;
       transition: all 0.2s;
 
       &:hover {
-        color: var(--color-primary, #409eff);
+        color: var(--primary, #409eff);
         background-color: #efefef;
       }
 
       &.active {
-        color: var(--color-primary, #409eff);
-        background-color: var(--color-primary-light-9, #ecf5ff);
+        color: var(--primary, #409eff);
+        background-color: var(--light, #ecf5ff);
       }
     }
 
     .download-icon:hover {
-      color: var(--color-success, #67c23a);
+      color: var(--success, #67c23a);
     }
     .clear-icon:hover {
-      color: var(--color-danger, #f56c6c);
+      color: var(--danger, #f56c6c);
     }
 
     .compact-filter-stats {
@@ -285,8 +285,8 @@ defineExpose({
       left: 0;
       right: 0;
       z-index: 10;
-      background-color: var(--bg-color, #ffffff);
-      border: 1px solid var(--border-color-lighter, #ebeef5);
+      background-color: var(--white, #ffffff);
+      border: 1px solid var(--gray-200, #ebeef5);
       border-top: none;
       border-radius: 0 0 4px 4px;
       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
@@ -297,15 +297,15 @@ defineExpose({
         margin: 0;
 
         &:not(.error):not(.no-result) {
-          color: var(--color-success, #67c23a);
+          color: var(--success, #67c23a);
         }
 
         &.no-result {
-          color: var(--color-warning, #e6a23c);
+          color: var(--warning, #e6a23c);
         }
 
         &.error {
-          color: var(--color-danger, #f56c6c);
+          color: var(--danger, #f56c6c);
         }
       }
     }

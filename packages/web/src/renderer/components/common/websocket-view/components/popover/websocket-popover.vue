@@ -294,7 +294,7 @@ watch(() => props.message, (newMessage) => {
     align-items: center;
     justify-content: space-between;
     padding: 5px 16px;
-    border-bottom: 1px solid var(--border-color-lighter, #ebeef5);
+    border-bottom: 1px solid var(--gray-200, #ebeef5);
     background: linear-gradient(to right, #2c3e50, #3a4a5f);
     color: var(--white, #ffffff);
     border-top-left-radius: 5px;
@@ -347,43 +347,43 @@ watch(() => props.message, (newMessage) => {
           font-weight: 500;
 
           &.type-send {
-            background-color: var(--color-primary-light-9, #ecf5ff);
-            color: var(--color-primary, #409eff);
+            background-color: var(--light, #ecf5ff);
+            color: var(--primary, #409eff);
           }
 
           &.type-receive {
-            background-color: var(--color-success-light-9, #f0f9ff);
-            color: var(--color-success, #67c23a);
+            background-color: var(--light, #f0f9ff);
+            color: var(--success, #67c23a);
           }
 
           &.type-connected {
-            background-color: var(--color-success-light-9, #f0f9ff);
-            color: var(--color-success, #67c23a);
+            background-color: var(--light, #f0f9ff);
+            color: var(--success, #67c23a);
           }
 
           &.type-disconnected {
-            background-color: var(--color-warning-light-9, #fdf6ec);
-            color: var(--color-warning, #e6a23c);
+            background-color: var(--light, #fdf6ec);
+            color: var(--warning, #e6a23c);
           }
 
           &.type-error {
-            background-color: var(--color-danger-light-9, #fef0f0);
-            color: var(--color-danger, #f56c6c);
+            background-color: var(--light, #fef0f0);
+            color: var(--danger, #f56c6c);
           }
 
           &.type-autoSend {
-            background-color: var(--color-info-light-9, #f4f4f5);
-            color: var(--color-info, #909399);
+            background-color: var(--light, #f4f4f5);
+            color: var(--info, #909399);
           }
 
           &.type-startConnect {
-            background-color: var(--color-primary-light-9, #ecf5ff);
-            color: var(--color-primary, #409eff);
+            background-color: var(--light, #ecf5ff);
+            color: var(--primary, #409eff);
           }
 
           &.type-reconnecting {
-            background-color: var(--color-warning-light-9, #fdf6ec);
-            color: var(--color-warning, #e6a23c);
+            background-color: var(--light, #fdf6ec);
+            color: var(--warning, #e6a23c);
           }
         }
       }
@@ -404,24 +404,24 @@ watch(() => props.message, (newMessage) => {
 
         .tab-header {
           display: flex;
-          border-bottom: 1px solid var(--border-color-lighter, #ebeef5);
+          border-bottom: 1px solid var(--gray-200, #ebeef5);
           margin-bottom: 12px;
 
           .tab-item {
             padding: 8px 16px;
             cursor: pointer;
             font-size: 14px;
-            color: var(--text-color-regular, #606266);
+            color: var(--gray-700, #606266);
             border-bottom: 2px solid transparent;
             transition: all 0.2s;
 
             &:hover {
-              color: var(--color-primary, #409eff);
+              color: var(--primary, #409eff);
             }
 
             &.active {
-              color: var(--color-primary, #409eff);
-              border-bottom-color: var(--color-primary, #409eff);
+              color: var(--primary, #409eff);
+              border-bottom-color: var(--primary, #409eff);
             }
           }
         }
@@ -433,14 +433,14 @@ watch(() => props.message, (newMessage) => {
           }
 
           .full-content {
-            background-color: var(--fill-color-extra-light, #fafcff);
-            border: 1px solid var(--border-color-lighter, #ebeef5);
+            background-color: var(--gray-100, #fafcff);
+            border: 1px solid var(--gray-200, #ebeef5);
             border-radius: 4px;
             padding: 12px;
             margin: 0;
             font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
             font-size: 13px;
-            color: var(--text-color-primary, #303133);
+            color: var(--gray-800, #303133);
             white-space: pre-wrap;
             word-break: break-all;
             max-height: 350px;

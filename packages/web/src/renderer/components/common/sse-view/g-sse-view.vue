@@ -480,7 +480,7 @@ onBeforeUnmount(() => {
             font-weight: bold;
             font-size: 10px;
             border-radius: 3px;
-            color: var(--text-color-regular, #606266);
+            color: var(--gray-700, #606266);
             cursor: pointer;
             display: flex;
             align-items: center;
@@ -491,18 +491,18 @@ onBeforeUnmount(() => {
             margin-left: 4px;
 
             &:hover {
-              background-color: var(--fill-color, #f0f2f5);
-              border-color: var(--border-color, #dcdfe6);
+              background-color: var(--white, #f0f2f5);
+              border-color: var(--gray-300, #dcdfe6);
             }
 
             &.active {
-              background-color: var(--color-primary, #409eff);
-              border-color: var(--color-primary, #409eff);
+              background-color: var(--primary, #409eff);
+              border-color: var(--primary, #409eff);
               color: #ffffff;
 
               &:hover {
-                background-color: var(--color-primary-light-3, #79bbff);
-                border-color: var(--color-primary-light-3, #79bbff);
+                background-color: color-mix(in srgb, var(--primary) 70%, white);
+                border-color: color-mix(in srgb, var(--primary) 70%, white);
               }
             }
           }
@@ -522,30 +522,30 @@ onBeforeUnmount(() => {
       .search-icon {
         width: 28px;
         height: 28px;
-        color: var(--text-color-regular, #606266);
+        color: var(--gray-700, #606266);
         cursor: pointer;
         transition: all 0.2s;
 
         &:hover {
-          color: var(--color-primary, #409eff);
+          color: var(--primary, #409eff);
           background-color: #efefef;
         }
 
         &.active {
-          color: var(--color-primary, #409eff);
-          background-color: var(--color-primary-light-9, #ecf5ff);
-        }
+          color: var(--primary, #409eff);
+          background-color: var(--light, #ecf5ff);
+      }
       }
 
       .download-icon {
         width: 28px;
         height: 28px;
-        color: var(--text-color-regular, #606266);
+        color: var(--gray-700, #606266);
         cursor: pointer;
         transition: color 0.2s;
 
         &:hover {
-          color: var(--color-success, #67c23a);
+          color: var(--success, #67c23a);
           background-color: #efefef;
         }
       }
@@ -553,18 +553,18 @@ onBeforeUnmount(() => {
       .raw-view-icon {
         width: 28px;
         height: 28px;
-        color: var(--text-color-regular, #606266);
+        color: var(--gray-700, #606266);
         cursor: pointer;
         transition: all 0.2s;
 
         &:hover {
-          color: var(--color-primary, #409eff);
+          color: var(--primary, #409eff);
           background-color: #efefef;
         }
 
         &.active {
-          color: var(--color-primary, #409eff);
-          background-color: var(--color-primary-light-9, #ecf5ff);
+          color: var(--primary, #409eff);
+          background-color: var(--light, #ecf5ff);
         }
       }
 
@@ -574,8 +574,8 @@ onBeforeUnmount(() => {
         left: 0;
         right: 0;
         z-index: 10;
-        background-color: var(--bg-color, #ffffff);
-        border: 1px solid var(--border-color-lighter, #ebeef5);
+        background-color: var(--white, #ffffff);
+        border: 1px solid var(--gray-200, #ebeef5);
         border-top: none;
         border-radius: 0 0 4px 4px;
         box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
@@ -586,15 +586,15 @@ onBeforeUnmount(() => {
           margin: 0;
 
           &:not(.error):not(.no-result) {
-            color: var(--color-success, #67c23a);
+            color: var(--success, #67c23a);
           }
 
           &.no-result {
-            color: var(--color-warning, #e6a23c);
+            color: var(--warning, #e6a23c);
           }
 
           &.error {
-            color: var(--color-danger, #f56c6c);
+            color: var(--danger, #f56c6c);
           }
         }
       }
@@ -625,10 +625,10 @@ onBeforeUnmount(() => {
             font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
             font-weight: bold;
             font-size: 10px;
-            background-color: var(--fill-color-light, #f5f7fa);
-            border: 1px solid var(--border-color-light, #e4e7ed);
+            background-color: var(--gray-100, #f5f7fa);
+            border: 1px solid var(--gray-200, #e4e7ed);
             border-radius: 3px;
-            color: var(--text-color-regular, #606266);
+            color: var(--gray-700, #606266);
             cursor: pointer;
             display: flex;
             align-items: center;
@@ -639,18 +639,18 @@ onBeforeUnmount(() => {
             margin-left: 4px;
 
             &:hover {
-              background-color: var(--fill-color, #f0f2f5);
-              border-color: var(--border-color, #dcdfe6);
+              background-color: var(--white, #f0f2f5);
+              border-color: var(--gray-300, #dcdfe6);
             }
 
             &.active {
-              background-color: var(--color-primary, #409eff);
-              border-color: var(--color-primary, #409eff);
+              background-color: var(--primary, #409eff);
+              border-color: var(--primary, #409eff);
               color: #ffffff;
 
               &:hover {
-                background-color: var(--color-primary-light-3, #79bbff);
-                border-color: var(--color-primary-light-3, #79bbff);
+                background-color: color-mix(in srgb, var(--primary) 70%, white);
+                border-color: color-mix(in srgb, var(--primary) 70%, white);
               }
             }
           }
@@ -659,13 +659,13 @@ onBeforeUnmount(() => {
         .close-btn {
           width: 24px;
           height: 24px;
-          color: var(--text-color-regular, #606266);
+          color: var(--gray-700, #606266);
           cursor: pointer;
           transition: color 0.2s;
           flex-shrink: 0;
 
           &:hover {
-            color: var(--color-danger, #f56c6c);
+            color: var(--danger, #f56c6c);
           }
         }
       }
@@ -678,15 +678,15 @@ onBeforeUnmount(() => {
           font-size: 12px;
 
           &:not(.error):not(.no-result) {
-            color: var(--color-success, #67c23a);
+            color: var(--success, #67c23a);
           }
 
           &.no-result {
-            color: var(--color-warning, #e6a23c);
+            color: var(--warning, #e6a23c);
           }
 
           &.error {
-            color: var(--color-danger, #f56c6c);
+            color: var(--danger, #f56c6c);
           }
         }
       }
@@ -699,7 +699,7 @@ onBeforeUnmount(() => {
     justify-content: center;
     flex-direction: column;
     height: 200px;
-    color: var(--text-color-secondary, #909399);
+    color: var(--gray-600, #909399);
     font-size: 14px;
     gap: 12px;
 
@@ -727,8 +727,8 @@ onBeforeUnmount(() => {
     flex: 1;
     overflow: auto;
     padding: 12px;
-    background-color: var(--fill-color-extra-light, #fafcff);
-    border: 1px solid var(--border-color-lighter, #ebeef5);
+    background-color: var(--gray-100, #fafcff);
+    border: 1px solid var(--gray-200, #ebeef5);
     border-radius: 4px;
     margin: 0 12px 12px 12px;
 
@@ -737,7 +737,7 @@ onBeforeUnmount(() => {
       padding: 0;
       font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
       font-size: 13px;
-      color: var(--text-color-primary, #303133);
+      color: var(--gray-800, #303133);
       white-space: pre-wrap;
       word-break: break-all;
       line-height: 1.4;
@@ -753,16 +753,16 @@ onBeforeUnmount(() => {
       padding: 4px 12px 4px 0;
       height: 100%;
       border-radius: 4px;
-      background-color: var(--bg-color, #ffffff);
+      background-color: var(--white, #ffffff);
 
       &.sse-message-hex {
-        border-left: 3px solid var(--color-warning, #e6a23c);
-        background-color: var(--color-warning-light-9, #fdf6ec);
+        border-left: 3px solid var(--warning, #e6a23c);
+        background-color: var(--light, #fdf6ec);
       }
 
       .message-index {
         font-size: 12px;
-        color: var(--color-primary, #409eff);
+        color: var(--primary, #409eff);
         font-weight: bold;
         min-width: 30px;
         text-align: right;
@@ -775,7 +775,7 @@ onBeforeUnmount(() => {
         min-width: 0;
         font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
         font-size: 13px;
-        color: var(--text-color-primary, #303133);
+        color: var(--gray-800, #303133);
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
@@ -784,7 +784,7 @@ onBeforeUnmount(() => {
 
       .message-timestamp {
         font-size: 11px;
-        color: var(--text-color-secondary, #909399);
+        color: var(--gray-600, #909399);
         font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
         min-width: 80px;
         text-align: right;
@@ -792,11 +792,11 @@ onBeforeUnmount(() => {
       }
 
       &:hover {
-        background-color: var(--fill-color-lighter, #f2f6fc);
+        background-color: var(--gray-100, #f2f6fc);
         cursor: pointer;
 
         &.sse-message-hex {
-          background-color: var(--color-warning-light-8, #faecd8);
+          background-color: var(--gray-100, #faecd8);
         }
       }
     }
@@ -805,8 +805,8 @@ onBeforeUnmount(() => {
 
 // 高亮样式
 :deep(.highlight) {
-  background-color: var(--color-warning-light-7, #fdf2d5);
-  color: var(--color-warning-dark-2, #b17a1a);
+  background-color: var(--gray-100, #fdf2d5);
+  color: var(--orange, #b17a1a);
   font-weight: 600;
   padding: 1px 2px;
   border-radius: 2px;

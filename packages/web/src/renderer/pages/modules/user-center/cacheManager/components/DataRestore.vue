@@ -507,7 +507,7 @@ onUnmounted(() => {
 .import-actions {
   .data-summary {
     margin-bottom: 20px;
-    background: var(--bg-light);
+    background: var(--light);
     border-radius: var(--border-radius-bg);
     gap: 4px;
     
