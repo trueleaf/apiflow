@@ -10,11 +10,6 @@ export class AiManager {
   private apiUrl = '';
   private apiKey = '';
   private abortControllers: Map<string, AbortController> = new Map();
-  // constructor(apiUrl?: string, apiKey?: string) {
-  //   this.apiUrl = apiUrl || mainConfig.aiConfig.apiUrl || 'https://api.deepseek.com/chat/completions/v1/chat/completions';
-  //   this.apiKey = apiKey || mainConfig.aiConfig.apiKey;
-  // }
-  
   // 更新配置
   updateConfig(apiUrl: string, apiKey: string): void {
     this.apiUrl = apiUrl;

@@ -529,23 +529,27 @@ export class MockUtils {
           // 随机模式：使用faker生成随机JSON数据
           return this.generateRandomJson(jsonConfig.randomSize || 10);
         
-        case 'randomAi':
-          // AI模式：调用AI生成JSON，失败时降级到随机模式
+        case 'randomAi': {
+          const prompt = jsonConfig.prompt?.trim();
+          if (!prompt) {
+            return { error: 'AI生成失败：提示词不能为空' };
+          }
+
           try {
-            const prompt = jsonConfig.prompt || '请生成一个JSON对象数据';
-            const aiJsonText = await globalAiManager.chatWithJsonText([prompt], 'DeepSeek', jsonConfig.randomSize || 200);
-            
-            // 尝试解析AI返回的JSON
+            const aiJsonText = await globalAiManager.chatWithJsonText([prompt]);
+            if (!aiJsonText) {
+              return { error: 'AI生成失败：返回内容为空' };
+            }
             try {
-              return JSON.parse(aiJsonText);
-            } catch (aiParseError) {
-              console.warn('AI返回的JSON格式无效，降级到随机模式:', aiParseError);
-              return this.generateRandomJson(jsonConfig.randomSize || 10);
+              return JSON.parse(aiJsonText) as Record<string, unknown>;
+            } catch {
+              return { error: 'AI生成失败：返回内容不是合法的JSON格式' };
             }
           } catch (aiError) {
-            console.warn('AI JSON生成失败，降级到随机模式:', aiError);
-            return this.generateRandomJson(jsonConfig.randomSize || 10);
+            const errorMessage = aiError instanceof Error ? aiError.message : '未知错误';
+            return { error: `AI生成失败：${errorMessage}` };
           }
+        }
         
         default:
           console.warn('未知的JSON配置模式:', jsonConfig.mode);
