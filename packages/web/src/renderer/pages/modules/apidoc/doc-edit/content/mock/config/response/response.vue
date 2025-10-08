@@ -40,6 +40,16 @@
               <el-radio label="random">{{ t('随机JSON返回') }}</el-radio>
             </el-radio-group>
           </div>
+
+          <!-- 数据模式（仅 Text 类型显示） -->
+          <div v-if="response.dataType === 'text'" class="form-item flex-item">
+            <label class="form-label">{{ t('数据模式') }}</label>
+            <el-radio-group v-model="response.textConfig.mode">
+              <el-radio label="fixed">{{ t('固定Text返回') }}</el-radio>
+              <el-radio label="randomAi">{{ t('AI生成') }}</el-radio>
+              <el-radio label="random">{{ t('随机Text返回') }}</el-radio>
+            </el-radio-group>
+          </div>
         </div>
 
         <!-- 随机JSON大小配置（仅随机模式显示） -->
@@ -57,7 +67,27 @@
             <!-- 提示信息 -->
             <div v-if="showRandomSizeHint" class="hint-text">
               <span class="hint-message">{{ t('字段个数，最多500个字段') }}</span>
-              <span class="hint-dismiss" @click="handleDismissHint">{{ t('不再提示') }}</span>
+              <span class="hint-dismiss" @click="handleDismissJsonHint">{{ t('不再提示') }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 随机Text大小配置（仅随机模式显示） -->
+        <div v-if="response.dataType === 'text' && response.textConfig.mode === 'random'" class="form-row">
+          <div class="form-item flex-item">
+            <label class="form-label">{{ t('随机字符个数') }}</label>
+            <el-input-number 
+              v-model="response.textConfig.randomSize" 
+              :min="1" 
+              :max="10000" 
+              :step="1"
+              size="small"
+              controls-position="right"
+            />
+            <!-- 提示信息 -->
+            <div v-if="showRandomTextSizeHint" class="hint-text">
+              <span class="hint-message">{{ t('字符个数，最多10000个字符') }}</span>
+              <span class="hint-dismiss" @click="handleDismissTextHint">{{ t('不再提示') }}</span>
             </div>
           </div>
         </div>
@@ -131,6 +161,78 @@
             :config="{ fontSize: 13, language: 'json' }">
           </SJsonEditor>
         </div>
+
+        <!-- Text AI生成模式区域 -->
+        <div 
+          v-if="response.dataType === 'text' && response.textConfig.mode === 'randomAi'" 
+          class="ai-generate-wrapper">
+          <!-- 左侧：提示词输入区 -->
+          <div class="prompt-section">
+            <div class="prompt-header">
+              <label class="form-label">{{ t('提示词') }}</label>
+            </div>
+            <div class="prompt-content">
+              <div class="textarea-wrapper">
+                <textarea
+                  v-model="response.textConfig.prompt"
+                  :placeholder="t('请输入文本生成提示词，例如：生成一篇关于人工智能的简短介绍')"
+                  maxlength="2000"
+                  class="prompt-textarea"
+                />
+                <div 
+                  class="send-btn"
+                  :class="{ 
+                    'is-loading': aiGeneratingText,
+                    'is-disabled': isSendTextDisabled(response)
+                  }"
+                  @click="!isSendTextDisabled(response) && handleGenerateTextPreview(response)">
+                  <el-icon v-if="aiGeneratingText" class="is-loading">
+                    <Loading />
+                  </el-icon>
+                  <el-icon v-else>
+                    <Top />
+                  </el-icon>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 右侧：文本预览区 -->
+          <div class="preview-section">
+            <div class="preview-header">
+              <label class="form-label">{{ t('预览结果') }}</label>
+            </div>
+            <div class="preview-content">
+              <div v-if="aiGeneratingText" class="loading-wrapper">
+                <el-icon class="is-loading">
+                  <Loading />
+                </el-icon>
+                <span class="loading-text">{{ t('AI正在生成中，请稍候...') }}</span>
+              </div>
+              <div v-else-if="aiPreviewText" class="text-preview-wrapper">
+                <textarea
+                  v-model="aiPreviewText"
+                  class="text-preview-textarea"
+                  readonly
+                />
+              </div>
+              <div v-else class="empty-preview">
+                <span class="empty-text">{{ t('请在左侧输入提示词并点击"生成预览"') }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 固定Text编辑器区域 -->
+        <div 
+          v-if="response.dataType === 'text' && response.textConfig.mode === 'fixed'" 
+          class="text-editor-wrapper">
+          <textarea
+            v-model="response.textConfig.fixedData"
+            :placeholder="t('请输入固定返回的文本内容')"
+            class="text-editor-textarea"
+          />
+        </div>
       </div>
     </div>
   </div>
@@ -144,49 +246,58 @@ import { Plus, Loading, Top } from '@element-plus/icons-vue'
 import { storeToRefs } from 'pinia'
 import { useHttpMock } from '@/store/httpMock/httpMock'
 import SJsonEditor from '@/components/common/json-editor/g-json-editor.vue'
-import { getMockJsonRandomSizeHintVisible, setMockJsonRandomSizeHintVisible } from '@/cache/common/common'
-import { aiCache } from '@/cache/ai/aiCache'
+import { 
+  getMockJsonRandomSizeHintVisible, 
+  setMockJsonRandomSizeHintVisible,
+  getMockTextRandomSizeHintVisible,
+  setMockTextRandomSizeHintVisible 
+} from '@/cache/common/common'
 import { MockHttpNode } from '@src/types'
 
 const { t } = useI18n()
 const httpMockStore = useHttpMock()
 const { httpMock } = storeToRefs(httpMockStore)
 const mockResponses = computed(() => httpMock.value.response)
+
+// JSON 相关状态
 const showRandomSizeHint = ref(true)
 const aiGenerating = ref(false)
 const aiPreviewJson = ref('')
 
-// 计算发送按钮是否禁用
+// Text 相关状态
+const showRandomTextSizeHint = ref(true)
+const aiGeneratingText = ref(false)
+const aiPreviewText = ref('')
+
+// 计算 JSON 发送按钮是否禁用
 const isSendDisabled = (response: MockHttpNode['response'][0]) => {
   const promptText = (response.jsonConfig.prompt || '').trim()
   return !promptText || aiGenerating.value
 }
 
-// 处理"不再提示"点击
-const handleDismissHint = () => {
+// 计算 Text 发送按钮是否禁用
+const isSendTextDisabled = (response: MockHttpNode['response'][0]) => {
+  const promptText = (response.textConfig.prompt || '').trim()
+  return !promptText || aiGeneratingText.value
+}
+
+// 处理 JSON "不再提示"点击
+const handleDismissJsonHint = () => {
   showRandomSizeHint.value = false
   setMockJsonRandomSizeHintVisible(false)
 }
 
-// 处理AI生成预览
+// 处理 Text "不再提示"点击
+const handleDismissTextHint = () => {
+  showRandomTextSizeHint.value = false
+  setMockTextRandomSizeHintVisible(false)
+}
+
+// 处理 JSON AI生成预览
 const handleGeneratePreview = async (response: MockHttpNode['response'][0]) => {
   const promptText = (response.jsonConfig.prompt || '').trim()
   if (!promptText) {
     ElMessage.warning(t('请先输入提示词'))
-    return
-  }
-
-  const aiConfig = aiCache.getAiConfig()
-  const apiKey = (aiConfig.apiKey || '').trim()
-  const apiUrl = (aiConfig.apiUrl || '').trim()
-
-  if (!apiKey) {
-    ElMessage.error(t('请先配置AI API Key'))
-    return
-  }
-
-  if (!apiUrl) {
-    ElMessage.error(t('请先配置AI API 地址'))
     return
   }
 
@@ -196,15 +307,66 @@ const handleGeneratePreview = async (response: MockHttpNode['response'][0]) => {
     const result = await window.electronAPI?.aiManager.generateJson({
       prompt: promptText
     })
+
+    if (result?.data) {
+      aiPreviewJson.value = typeof result.data === 'string'
+        ? result.data
+        : JSON.stringify(result.data)
+    } else {
+      aiPreviewJson.value = ''
+    }
+
     if (result && result.code === 0 && result.data) {
-      aiPreviewJson.value = result.data
+      return
+    }
+
+    if (result?.msg) {
+      ElMessage.error(result.msg)
     } else {
       ElMessage.error(t('AI生成失败，请稍后重试'))
     }
   } catch (error) {
-    console.error('AI生成失败:', error)
+    ElMessage.error(t('AI生成失败，请稍后重试'))
   } finally {
     aiGenerating.value = false
+  }
+}
+
+// 处理 Text AI生成预览
+const handleGenerateTextPreview = async (response: MockHttpNode['response'][0]) => {
+  const promptText = (response.textConfig.prompt || '').trim()
+  if (!promptText) {
+    ElMessage.warning(t('请先输入提示词'))
+    return
+  }
+
+  aiGeneratingText.value = true
+  aiPreviewText.value = ''
+  try {
+    const result = await window.electronAPI?.aiManager.generateText({
+      prompt: promptText,
+      maxLength: response.textConfig.randomSize || 100
+    })
+
+    if (result?.data) {
+      aiPreviewText.value = result.data
+    } else {
+      aiPreviewText.value = ''
+    }
+
+    if (result && result.code === 0 && result.data) {
+      return
+    }
+
+    if (result?.msg) {
+      ElMessage.error(result.msg)
+    } else {
+      ElMessage.error(t('AI生成失败，请稍后重试'))
+    }
+  } catch (error) {
+    ElMessage.error(t('AI生成失败，请稍后重试'))
+  } finally {
+    aiGeneratingText.value = false
   }
 }
 
@@ -270,8 +432,10 @@ const handleAddResponse = () => {
   })
   ElMessage.success(t('添加成功'))
 }
+
 onMounted(() => {
   showRandomSizeHint.value = getMockJsonRandomSizeHintVisible()
+  showRandomTextSizeHint.value = getMockTextRandomSizeHintVisible()
 })
 </script>
 
@@ -568,6 +732,65 @@ onMounted(() => {
   .empty-text {
     font-size: 14px;
     color: var(--gray-400);
+  }
+}
+
+/* Text 预览文本框 */
+.text-preview-wrapper {
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.text-preview-textarea {
+  width: 100%;
+  height: 100%;
+  padding: 12px;
+  border: none;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--gray-800);
+  background: transparent;
+  outline: none;
+  resize: none;
+  font-family: inherit;
+  
+  &:focus {
+    outline: none;
+  }
+}
+
+/* Text 编辑器容器 */
+.text-editor-wrapper {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  border: 1px solid var(--gray-300);
+  border-radius: var(--border-radius-sm);
+  overflow: hidden;
+  margin-top: 12px;
+}
+
+.text-editor-textarea {
+  flex: 1;
+  width: 100%;
+  padding: 12px;
+  border: none;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--gray-800);
+  background: white;
+  outline: none;
+  resize: none;
+  font-family: inherit;
+  
+  &::placeholder {
+    color: var(--gray-400);
+  }
+  
+  &:focus {
+    outline: none;
   }
 }
 </style>

@@ -484,6 +484,22 @@ export const useIpcEvent = (mainWindow: BrowserWindow, topBarView: WebContentsVi
     }
   });
 
+  // AI 生成文本数据
+  ipcMain.handle('ai-generate-text', async (_: IpcMainInvokeEvent, params: { prompt: string; maxLength: number }) => {
+    try {
+      const result = await globalAiManager.chatWithText([params.prompt], 'DeepSeek', params.maxLength || 100);
+      
+      if (!result) {
+        return { code: 1, data: null, msg: 'AI生成失败，请检查提示词或重试' };
+      }
+      
+      return { code: 0, data: result, msg: '生成成功' };
+    } catch (error) {
+      console.error('AI 生成文本失败:', error);
+      return { code: 1, data: null, msg: (error as Error).message };
+    }
+  });
+
   /*
   |---------------------------------------------------------------------------
   | 窗口状态同步

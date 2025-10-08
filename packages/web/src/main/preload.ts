@@ -195,6 +195,11 @@ const generateJson = (params: { prompt: string }) => {
   return ipcRenderer.invoke('ai-generate-json', params)
 }
 
+// AI 生成文本数据
+const generateText = (params: { prompt: string; maxLength: number }) => {
+  return ipcRenderer.invoke('ai-generate-text', params)
+}
+
 contextBridge.exposeInMainWorld('electronAPI', {
   ip: ip.address(),
   sendRequest: gotRequest,
@@ -248,5 +253,6 @@ contextBridge.exposeInMainWorld('electronAPI', {
     textChat: textChat,
     textChatWithStream: textChatWithStream,
     generateJson: generateJson,
+    generateText: generateText,
   }
 })
