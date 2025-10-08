@@ -6,9 +6,6 @@ type StreamCallback = (chunk: string) => void;
 type StreamEndCallback = () => void;
 type StreamErrorCallback = (error: string) => void;
 
-/**
- * AI管理器类，用于调用AI模型生成内容
- */
 export class AiManager {
   private apiUrl: string;
   private apiKey: string;
@@ -29,7 +26,6 @@ export class AiManager {
   }
   private buildMessages(prompt: string[], isJsonMode: boolean): DeepSeekMessage[] {
     const messages: DeepSeekMessage[] = [];
-    // 添加系统提示
     if (isJsonMode) {
       messages.push({
         role: 'system',
@@ -37,7 +33,6 @@ export class AiManager {
       });
     }
 
-    // 将prompt数组合并为一个用户消息
     const combinedPrompt = prompt.join('\n');
     messages.push({
       role: 'user',
@@ -56,11 +51,10 @@ export class AiManager {
           'Content-Type': 'application/json',
         },
         timeout: {
-          request: 60000, // 60秒超时
+          request: 60000, 
         },
       }).json<DeepSeekResponse>();
 
-      // 提取返回内容
       const content = response.choices?.[0]?.message?.content;
       if (!content) {
         console.error('AI 返回内容为空');
@@ -68,19 +62,7 @@ export class AiManager {
       }
       return content;
     } catch (error) {
-      if (error instanceof Error) {
-        if ('response' in error) {
-          const gotError = error as any;
-          const statusCode = gotError.response?.statusCode;
-          const body = gotError.response?.body;
-          console.error(`AI API 请求失败 (${statusCode}): ${body || error.message}`);
-          return '';
-        }
-        console.error(`AI API 请求失败: ${error.message}`);
-        return '';
-      }
-      
-      console.error('AI API 请求失败: 未知错误');
+      console.error(error);
       return '';
     }
   }
@@ -93,59 +75,70 @@ export class AiManager {
   ): Promise<string> {
     this.validateConfig();
 
-    // 验证参数
     if (!prompt || prompt.length === 0) {
       console.error('prompt 参数不能为空');
       return '';
     }
 
-    // 构建请求体
     const requestBody: DeepSeekRequestBody = {
-      model: 'deepseek-chat', // DeepSeek的模型名称
+      model: 'deepseek-chat',
       messages: this.buildMessages(prompt, false),
       max_tokens: resLimitSize,
     };
 
-    // 发送请求并返回结果
     return await this.sendDeepSeekRequest(requestBody);
   }
 
- 
+  // 生成JSON数据，如果返回不是JSON格式会自动重试一次
   async chatWithJsonText(
     prompt: string[], 
     _model: 'DeepSeek' = 'DeepSeek', 
-    resLimitSize: number = 2000
+    resLimitSize: number = 2000,
+    maxRetries: number = 1
   ): Promise<string> {
-    // 验证配置
     this.validateConfig();
-
-    // 验证参数
     if (!prompt || prompt.length === 0) {
       console.error('prompt 参数不能为空');
       return '';
     }
 
-    // 构建请求体，强制JSON输出
     const requestBody: DeepSeekRequestBody = {
-      model: 'deepseek-chat', // DeepSeek的模型名称
+      model: 'deepseek-chat',
       messages: this.buildMessages(prompt, true),
       max_tokens: resLimitSize,
       response_format: {
-        type: 'json_object', // 强制返回JSON格式
+        type: 'json_object',
       },
     };
 
-    // 发送请求
-    const result = await this.sendDeepSeekRequest(requestBody);
+    let lastError = '';
+    for (let attempt = 0; attempt <= maxRetries; attempt++) {
+      const result = await this.sendDeepSeekRequest(requestBody);
+      
+      if (!result) {
+        lastError = 'AI 返回内容为空';
+        if (attempt < maxRetries) {
+          console.warn(`第 ${attempt + 1} 次请求失败，准备重试...`);
+          continue;
+        }
+        break;
+      }
 
-    // 验证返回的内容是否为合法JSON
-    try {
-      JSON.parse(result);
-      return result;
-    } catch (parseError) {
-      console.error('AI返回的内容不是合法的JSON格式:', result);
-      return '';
+      try {
+        JSON.parse(result);
+        return result;
+      } catch (parseError) {
+        lastError = `AI返回的内容不是合法的JSON格式: ${result}`;
+        if (attempt < maxRetries) {
+          console.warn(`第 ${attempt + 1} 次返回非JSON格式，准备重试...`);
+          continue;
+        }
+        console.error(lastError);
+      }
     }
+
+    console.error(`JSON生成失败，已重试 ${maxRetries} 次: ${lastError}`);
+    return '';
   }
 
   
@@ -160,14 +153,12 @@ export class AiManager {
   ): Promise<void> {
     this.validateConfig();
 
-    // 验证参数
     if (!prompt || prompt.length === 0) {
       console.error('prompt 参数不能为空');
       onError('prompt 参数不能为空');
       return;
     }
 
-    // 创建 AbortController 用于取消请求
     const abortController = new AbortController();
     this.abortControllers.set(requestId, abortController);
 
@@ -176,10 +167,9 @@ export class AiManager {
         model: 'deepseek-chat',
         messages: this.buildMessages(prompt, false),
         max_tokens: resLimitSize,
-        stream: true, // 启用流式响应
+        stream: true,
       };
 
-      // 发送流式请求
       const stream = got.stream.post(this.apiUrl, {
         json: requestBody,
         headers: {
@@ -191,7 +181,6 @@ export class AiManager {
         },
       });
 
-      // 处理流式响应
       let buffer = '';
       
       stream.on('data', (chunk: Buffer) => {
