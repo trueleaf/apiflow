@@ -117,7 +117,6 @@ const mockReplaceById = (nodeId: string, httpMock: any) => {
 }
 
 const mockSyncProjectVariables = (projectId: string, variables: any[]) => {
-  console.log(1, projectId, variables)
   return ipcRenderer.invoke('mock-sync-project-variables', projectId, variables)
 }
 

@@ -753,7 +753,6 @@ test.describe('Workbench - 节点增删改查', () => {
         }
       } catch (error) {
         // 如果拖拽不支持，跳过测试
-        console.log('拖拽功能可能不支持');
       }
     }
   });
@@ -1256,7 +1255,6 @@ test.describe('Workbench - 标签相关操作', () => {
       // 如果中键关闭功能存在，标签页应该被关闭
     } catch (error) {
       // 如果中键点击不支持，跳过验证
-      console.log('中键点击功能可能不支持');
     }
   });
 
@@ -1449,7 +1447,6 @@ test.describe('Workbench - 标签相关操作', () => {
       // 如果拖拽排序功能存在，顺序应该改变
     } catch (error) {
       // 如果拖拽不支持，跳过测试
-      console.log('标签页拖拽功能可能不支持');
     }
   });
 

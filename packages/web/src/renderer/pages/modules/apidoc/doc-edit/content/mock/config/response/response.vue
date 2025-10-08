@@ -50,6 +50,20 @@
               <el-radio label="random">{{ t('随机Text返回') }}</el-radio>
             </el-radio-group>
           </div>
+
+          <!-- 文本类型（仅 Text 类型显示） -->
+          <div v-if="response.dataType === 'text'" class="form-item flex-item">
+            <label class="form-label">Text Type</label>
+            <el-select v-model="response.textConfig.textType" size="small" style="width: 150px;">
+              <el-option label="Plain" value="plain" />
+              <el-option label="Markdown" value="markdown" />
+              <el-option label="HTML" value="html" />
+              <el-option label="XML" value="xml" />
+              <el-option label="YAML" value="yaml" />
+              <el-option label="CSV" value="csv" />
+              <el-option label="Any" value="any" />
+            </el-select>
+          </div>
         </div>
 
         <!-- 随机JSON大小配置（仅随机模式显示） -->
@@ -411,6 +425,7 @@ const handleAddResponse = () => {
     },
     textConfig: {
       mode: 'fixed',
+      textType: 'plain',
       fixedData: '',
       randomSize: 100,
       prompt: '',

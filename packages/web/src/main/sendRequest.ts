@@ -479,7 +479,6 @@ export const gotRequest = async (options: GotRequestOptions) => {
         responseInfo.responseData.fileData.ext = fileTypeInfo?.ext || 'forceDownload';
       } else {
         responseInfo.responseData.canApiflowParseType = 'unknown';
-        console.log(`无法解析的类型\nContentType值为${responseInfo.contentType} \n读取到的文件类型为=${JSON.stringify(fileTypeInfo)}`)
         responseInfo.responseData.textData = `无法解析的类型\nContentType值为${responseInfo.contentType} \n读取到的文件类型为=${JSON.stringify(fileTypeInfo)}`
       }
       options.onResponseEnd?.(responseInfo);

@@ -397,7 +397,6 @@ export const useIpcEvent = (mainWindow: BrowserWindow, topBarView: WebContentsVi
   ipcMain.on('apiflow-sync-ai-config', (_, params: { apiKey: string; apiUrl: string }) => {
     try {
       globalAiManager.updateConfig(params.apiUrl, params.apiKey);
-      console.log('AI配置已同步到主进程');
     } catch (error) {
       console.error('同步AI配置失败:', error);
     }

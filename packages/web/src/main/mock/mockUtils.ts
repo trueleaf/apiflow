@@ -594,7 +594,25 @@ export class MockUtils {
         case 'randomAi':
           // AI模式：调用AI生成，失败时降级到随机模式
           try {
-            const prompt = textConfig.prompt || '请生成一段文本内容';
+            let prompt = textConfig.prompt || '请生成一段文本内容';
+            const textType = textConfig.textType || 'plain';
+            
+            // 根据textType添加格式提示
+            if (textType !== 'any') {
+              const formatHints: Record<string, string> = {
+                'plain': 'Generate plain text content.',
+                'markdown': 'Generate content in Markdown format.',
+                'html': 'Generate content in HTML format.',
+                'xml': 'Generate content in XML format.',
+                'yaml': 'Generate content in YAML format.',
+                'csv': 'Generate content in CSV format.',
+              };
+              const formatHint = formatHints[textType];
+              if (formatHint) {
+                prompt = `${formatHint} ${prompt}`;
+              }
+            }
+            
             const aiText = await globalAiManager.chatWithText([prompt], 'DeepSeek', textConfig.randomSize || 100);
             return aiText;
           } catch (aiError) {
@@ -614,11 +632,6 @@ export class MockUtils {
 
   // 处理图片类型响应
   public async handleImageResponse(responseConfig: MockResponseConfig): Promise<{ data: Buffer; mimeType: string }> {
-    console.log('处理图片类型响应:', {
-      dataType: responseConfig.dataType,
-      imageConfig: responseConfig.imageConfig
-    });
-
     const { imageConfig } = responseConfig;
     
     try {

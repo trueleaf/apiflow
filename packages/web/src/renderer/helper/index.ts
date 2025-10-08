@@ -615,6 +615,7 @@ export const generateEmptyHttpMockNode = (_id: string): MockHttpNode => {
         },
         textConfig: {
           mode: 'fixed',
+          textType: 'plain',
           fixedData: '',
           randomSize: 0,
           prompt: '',

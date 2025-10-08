@@ -109,13 +109,23 @@ export class MockManager {
         return; // 提前返回，不需要设置 ctx.body
       }
 
-      // 对于text类型，如果没有设置content-type，则设置默认值
+      // 对于text类型，如果没有设置content-type，则根据textType设置对应的Content-Type
       if (responseConfig.dataType === 'text') {
         const hasContentType = Object.keys(responseConfig.headers).some(key => 
           key.toLowerCase() === 'content-type'
         );
         if (!hasContentType) {
-          ctx.set('content-type', 'text/plain; charset=utf-8');
+          const textType = responseConfig.textConfig.textType || 'plain';
+          const contentTypeMap: Record<string, string> = {
+            'plain': 'text/plain; charset=utf-8',
+            'markdown': 'text/markdown; charset=utf-8',
+            'html': 'text/html; charset=utf-8',
+            'xml': 'application/xml; charset=utf-8',
+            'yaml': 'application/x-yaml; charset=utf-8',
+            'csv': 'text/csv; charset=utf-8',
+            'any': 'text/plain; charset=utf-8',
+          };
+          ctx.set('content-type', contentTypeMap[textType] || 'text/plain; charset=utf-8');
         }
       }
 

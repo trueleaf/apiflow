@@ -79,7 +79,6 @@ export const test = base.extend<EnhancedElectronFixtures>({
           path: path.join('test-results', 'screenshots', filename),
           fullPage: true,
         });
-        console.log(`📸 截图已保存: ${filename}`);
       },
 
       // 等待元素出现
@@ -146,7 +145,6 @@ export const test = base.extend<EnhancedElectronFixtures>({
           localStorage.clear();
           sessionStorage.clear();
         });
-        console.log('🧹 应用数据已清理');
       },
 
       // 通过文本查找元素
