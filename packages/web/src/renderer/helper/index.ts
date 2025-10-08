@@ -615,7 +615,7 @@ export const generateEmptyHttpMockNode = (_id: string): MockHttpNode => {
         },
         textConfig: {
           mode: 'fixed',
-          textType: 'plain',
+          textType: 'text/plain',
           fixedData: '',
           randomSize: 0,
           prompt: '',
@@ -623,9 +623,9 @@ export const generateEmptyHttpMockNode = (_id: string): MockHttpNode => {
         imageConfig: {
           mode: 'fixed',
           imageConfig: 'png',
-          randomSize: 0,
-          randomWidth: 0,
-          randomHeight: 0,
+          randomSize: 10,
+          randomWidth: 100,
+          randomHeight: 100,
           fixedFilePath: '',
         },
         fileConfig: {

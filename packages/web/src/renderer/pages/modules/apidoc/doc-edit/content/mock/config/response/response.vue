@@ -339,14 +339,18 @@
                       </div>
                     </div>
                     <div v-else class="upload-trigger has-image">
-                      <el-icon class="upload-icon">
-                        <Picture />
-                      </el-icon>
-                      <div class="upload-text">
-                        {{ getImageFileName(response.imageConfig.fixedFilePath) }}
-                      </div>
-                      <div class="upload-hint">
-                        {{ t('点击或拖拽更换图片') }}
+                      <img 
+                        :src="response.imageConfig.fixedFilePath" 
+                        :alt="getImageFileName(response.imageConfig.fixedFilePath)"
+                        class="image-thumbnail"
+                      />
+                      <div class="image-overlay">
+                        <el-icon class="overlay-icon">
+                          <Upload />
+                        </el-icon>
+                        <div class="overlay-text">
+                          {{ t('点击或拖拽更换图片') }}
+                        </div>
                       </div>
                     </div>
                   </el-upload>
@@ -364,7 +368,7 @@
 import { computed, ref, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { ElMessage } from 'element-plus'
-import { Plus, Loading, Top, Picture, Upload } from '@element-plus/icons-vue'
+import { Plus, Loading, Top, Upload } from '@element-plus/icons-vue'
 import { storeToRefs } from 'pinia'
 import { useHttpMock } from '@/store/httpMock/httpMock'
 import SJsonEditor from '@/components/common/json-editor/g-json-editor.vue'
@@ -375,6 +379,7 @@ import {
   setMockTextRandomSizeHintVisible 
 } from '@/cache/common/common'
 import { MockHttpNode } from '@src/types'
+import { uuid, generateEmptyHttpMockNode } from '@/helper'
 
 const { t } = useI18n()
 const httpMockStore = useHttpMock()
@@ -506,65 +511,17 @@ const handleGenerateTextPreview = async (response: MockHttpNode['response'][0]) 
 
 // 新增返回值
 const handleAddResponse = () => {
-  httpMock.value.response.push({
-    isDefault: false,
-    conditions: {
-      name: '',
-      scriptCode: '',
-    },
-    statusCode: 200,
-    headers: {},
-    dataType: 'json',
-    sseConfig: {
-      event: {
-        id: {
-          enable: false,
-          valueMode: 'increment',
-        },
-        event: {
-          enable: false,
-          value: '',
-        },
-        data: {
-          mode: 'json',
-          value: '',
-        },
-        retry: {
-          enable: false,
-          value: 3000,
-        },
-      },
-      interval: 1000,
-      maxNum: 10,
-    },
-    jsonConfig: {
-      mode: 'fixed',
-      fixedData: '',
-      randomSize: 10,
-      prompt: '',
-    },
-    textConfig: {
-      mode: 'fixed',
-      textType: 'text/plain',
-      fixedData: '',
-      randomSize: 100,
-      prompt: '',
-    },
-    imageConfig: {
-      mode: 'random',
-      imageConfig: 'png',
-      randomSize: 1,
-      randomWidth: 800,
-      randomHeight: 600,
-      fixedFilePath: '',
-    },
-    fileConfig: {
-      fileType: 'pdf',
-    },
-    binaryConfig: {
-      filePath: '',
-    },
-  })
+  const mockNodeTemplate = generateEmptyHttpMockNode(uuid())
+  const newResponse = mockNodeTemplate.response[0]
+  newResponse.isDefault = false
+  newResponse.jsonConfig.randomSize = 10
+  newResponse.textConfig.randomSize = 100
+  newResponse.imageConfig.mode = 'random'
+  newResponse.imageConfig.randomWidth = 800
+  newResponse.imageConfig.randomHeight = 600
+  newResponse.imageConfig.randomSize = 10
+  newResponse.fileConfig.fileType = 'pdf'
+  httpMock.value.response.push(newResponse)
   ElMessage.success(t('添加成功'))
 }
 
@@ -977,6 +934,23 @@ onMounted(() => {
 /* 文件上传区域 */
 .file-upload-wrapper {
   margin-top: 8px;
+  width: 200px;
+  height: 200px;
+}
+
+.file-upload-wrapper :deep(.el-upload) {
+  width: 100%;
+  height: 100%;
+}
+
+.file-upload-wrapper :deep(.el-upload-dragger) {
+  width: 200px;
+  height: 200px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--border-radius-sm);
 }
 
 .upload-trigger {
@@ -984,37 +958,86 @@ onMounted(() => {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 24px 16px;
+  width: 100%;
+  height: 100%;
   cursor: pointer;
   transition: all 0.3s;
 
   &.has-image {
-    background-color: var(--gray-50);
+    position: relative;
+    padding: 0;
+    overflow: hidden;
   }
 }
 
 .upload-icon {
-  font-size: 36px;
+  font-size: 32px;
   color: var(--gray-400);
   margin-bottom: 8px;
   transition: color 0.3s;
 }
 
 .upload-text {
-  font-size: 14px;
+  font-size: 13px;
   color: var(--gray-700);
   margin-bottom: 6px;
   font-weight: 500;
+  text-align: center;
+  padding: 0 12px;
 }
 
 .upload-hint {
-  font-size: 12px;
+  font-size: 11px;
   color: var(--gray-500);
+  text-align: center;
+  padding: 0 12px;
+  line-height: 1.4;
 }
 
 .upload-trigger:hover {
   .upload-icon {
     color: var(--primary);
   }
+}
+
+/* 图片缩略图样式 */
+.image-thumbnail {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* 图片覆盖层（hover 时显示） */
+.image-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.3s;
+  color: white;
+}
+
+.upload-trigger.has-image:hover .image-overlay {
+  opacity: 1;
+}
+
+.overlay-icon {
+  font-size: 28px;
+  margin-bottom: 6px;
+}
+
+.overlay-text {
+  font-size: 13px;
+  font-weight: 500;
+  text-align: center;
+  padding: 0 12px;
 }
 </style>
