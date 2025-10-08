@@ -244,6 +244,117 @@
             :config="{ fontSize: 13, language: getEditorLanguage(response.textConfig.textType) }">
           </SJsonEditor>
         </div>
+
+        <!-- Image 配置区域 -->
+        <div v-if="response.dataType === 'image'" class="image-config-wrapper">
+          <!-- 模式选择 -->
+          <div class="form-row">
+            <div class="form-item flex-item">
+              <label class="form-label">{{ t('图片模式') }}</label>
+              <el-radio-group v-model="response.imageConfig.mode">
+                <el-radio label="random">{{ t('随机图片') }}</el-radio>
+                <el-radio label="fixed">{{ t('固定图片') }}</el-radio>
+              </el-radio-group>
+            </div>
+          </div>
+
+          <!-- 随机模式配置 -->
+          <div v-if="response.imageConfig.mode === 'random'" class="random-image-config">
+            <!-- 图片格式 -->
+            <div class="form-row">
+              <div class="form-item flex-item">
+                <label class="form-label mb-1">{{ t('图片格式') }}</label>
+                <el-radio-group v-model="response.imageConfig.imageConfig" size="small">
+                  <el-radio-button label="png">PNG</el-radio-button>
+                  <el-radio-button label="jpg">JPG</el-radio-button>
+                  <el-radio-button label="webp">WEBP</el-radio-button>
+                  <el-radio-button label="svg">SVG</el-radio-button>
+                </el-radio-group>
+              </div>
+            </div>
+
+            <!-- 图片尺寸和大小 -->
+            <div class="form-row">
+              <div class="form-item flex-item">
+                <label class="form-label">{{ t('图片宽度(px)') }}</label>
+                <el-input-number 
+                  v-model="response.imageConfig.randomWidth" 
+                  :min="100" 
+                  :max="4096" 
+                  size="small"
+                  controls-position="right"
+                  class="w-120px"
+                />
+              </div>
+              
+              <div class="form-item flex-item">
+                <label class="form-label">{{ t('图片高度(px)') }}</label>
+                <el-input-number 
+                  v-model="response.imageConfig.randomHeight" 
+                  :min="100" 
+                  :max="4096" 
+                  size="small"
+                  controls-position="right"
+                  class="w-120px"
+                />
+              </div>
+
+              <div class="form-item flex-item">
+                <label class="form-label">{{ t('图片大小(kb)') }}</label>
+                <el-input-number 
+                  v-model="response.imageConfig.randomSize" 
+                  :min="1" 
+                  :max="10240" 
+                  size="small"
+                  controls-position="right"
+                  class="w-120px"
+                />
+              </div>
+            </div>
+          </div>
+
+          <!-- 固定模式配置 -->
+          <div v-if="response.imageConfig.mode === 'fixed'" class="fixed-image-config">
+            <!-- 文件选择 -->
+            <div class="form-row">
+              <div class="form-item full-width">
+                <label class="form-label">{{ t('图片文件') }}</label>
+                <div class="file-upload-wrapper">
+                  <el-upload
+                    :auto-upload="false"
+                    :show-file-list="false"
+                    accept="image/*"
+                    :on-change="(file: any) => handleImageChange(file, response)"
+                    drag
+                  >
+                    <div v-if="!response.imageConfig.fixedFilePath" class="upload-trigger">
+                      <el-icon class="upload-icon">
+                        <Upload />
+                      </el-icon>
+                      <div class="upload-text">
+                        {{ t('点击或拖拽图片到此处') }}
+                      </div>
+                      <div class="upload-hint">
+                        {{ t('支持 PNG、JPG、GIF、WEBP、SVG 等格式，最大 10MB') }}
+                      </div>
+                    </div>
+                    <div v-else class="upload-trigger has-image">
+                      <el-icon class="upload-icon">
+                        <Picture />
+                      </el-icon>
+                      <div class="upload-text">
+                        {{ getImageFileName(response.imageConfig.fixedFilePath) }}
+                      </div>
+                      <div class="upload-hint">
+                        {{ t('点击或拖拽更换图片') }}
+                      </div>
+                    </div>
+                  </el-upload>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -253,7 +364,7 @@
 import { computed, ref, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { ElMessage } from 'element-plus'
-import { Plus, Loading, Top } from '@element-plus/icons-vue'
+import { Plus, Loading, Top, Picture, Upload } from '@element-plus/icons-vue'
 import { storeToRefs } from 'pinia'
 import { useHttpMock } from '@/store/httpMock/httpMock'
 import SJsonEditor from '@/components/common/json-editor/g-json-editor.vue'
@@ -455,6 +566,62 @@ const handleAddResponse = () => {
     },
   })
   ElMessage.success(t('添加成功'))
+}
+
+// 图片文件变更处理
+type ImageFileInfo = {
+  size?: number
+}
+const imageFilesInfo = ref<Map<number, ImageFileInfo>>(new Map())
+
+const handleImageChange = (file: { raw: File }, response: MockHttpNode['response'][0]) => {
+  if (!file.raw) {
+    return
+  }
+
+  const maxSize = 10 * 1024 * 1024
+  if (file.raw.size > maxSize) {
+    ElMessage.error(t('图片大小不能超过 10MB'))
+    return
+  }
+
+  const validTypes = ['image/png', 'image/jpeg', 'image/jpg', 'image/gif', 'image/webp', 'image/svg+xml', 'image/bmp']
+  if (!validTypes.includes(file.raw.type)) {
+    ElMessage.error(t('不支持的图片格式，请选择 PNG、JPG、GIF、WEBP、SVG 或 BMP 格式'))
+    return
+  }
+
+  const reader = new FileReader()
+  reader.onload = (e) => {
+    if (e.target?.result) {
+      response.imageConfig.fixedFilePath = e.target.result as string
+      
+      const responseIndex = mockResponses.value.indexOf(response)
+      if (responseIndex !== -1) {
+        imageFilesInfo.value.set(responseIndex, {
+          size: file.raw.size
+        })
+      }
+      
+      ElMessage.success(t('图片上传成功'))
+    }
+  }
+  reader.onerror = () => {
+    ElMessage.error(t('图片读取失败，请重试'))
+  }
+  reader.readAsDataURL(file.raw)
+}
+
+// 获取图片文件名
+const getImageFileName = (filePath: string): string => {
+  if (!filePath) return ''
+  
+  if (filePath.startsWith('data:')) {
+    return t('已上传的图片')
+  }
+  
+  const parts = filePath.split('/')
+  return parts[parts.length - 1] || t('未知文件')
 }
 
 onMounted(() => {
@@ -776,5 +943,78 @@ onMounted(() => {
   border-radius: var(--border-radius-sm);
   overflow: hidden;
   margin-top: 12px;
+}
+
+/* ========== Image 配置样式 ========== */
+.image-config-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-top: 12px;
+}
+
+.random-image-config,
+.fixed-image-config {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.unit-text {
+  margin-left: 8px;
+  font-size: 14px;
+  color: var(--gray-600);
+}
+
+.w-120px {
+  width: 120px;
+}
+
+.full-width {
+  width: 100%;
+}
+
+/* 文件上传区域 */
+.file-upload-wrapper {
+  margin-top: 8px;
+}
+
+.upload-trigger {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 24px 16px;
+  cursor: pointer;
+  transition: all 0.3s;
+
+  &.has-image {
+    background-color: var(--gray-50);
+  }
+}
+
+.upload-icon {
+  font-size: 36px;
+  color: var(--gray-400);
+  margin-bottom: 8px;
+  transition: color 0.3s;
+}
+
+.upload-text {
+  font-size: 14px;
+  color: var(--gray-700);
+  margin-bottom: 6px;
+  font-weight: 500;
+}
+
+.upload-hint {
+  font-size: 12px;
+  color: var(--gray-500);
+}
+
+.upload-trigger:hover {
+  .upload-icon {
+    color: var(--primary);
+  }
 }
 </style>
