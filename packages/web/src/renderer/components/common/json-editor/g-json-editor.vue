@@ -59,6 +59,7 @@ const monacoDom: Ref<HTMLElement | null> = ref(null);
 let monacoInstance: monaco.editor.IStandaloneCodeEditor | null = null;
 let resizeObserver: ResizeObserver | null = null;
 let isComposing = false; // 中文输入状态标记
+let isDisposed = false; // 标记编辑器是否已被销毁
 
 /*
 |--------------------------------------------------------------------------
@@ -318,9 +319,29 @@ onActivated(() => {
 })
 
 onBeforeUnmount(() => {
-  resizeObserver?.disconnect();
-  resizeObserver = null;
-  monacoInstance?.dispose();
+  // 避免重复销毁
+  if (isDisposed) {
+    return;
+  }
+  
+  try {
+    // 先断开 ResizeObserver
+    if (resizeObserver) {
+      resizeObserver.disconnect();
+      resizeObserver = null;
+    }
+    
+    // 销毁 Monaco Editor 实例
+    if (monacoInstance) {
+      monacoInstance.dispose();
+      monacoInstance = null;
+    }
+    
+    isDisposed = true;
+  } catch (error) {
+    // 捕获 dispose 过程中的异常，避免控制台报错
+    // 这通常是由于编辑器内部的异步任务被取消导致的
+  }
 })
 
 const format = () => {

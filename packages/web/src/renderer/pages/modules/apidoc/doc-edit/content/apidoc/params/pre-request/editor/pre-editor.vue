@@ -33,6 +33,7 @@ const preEditor: Ref<HTMLElement | null> = ref(null);
 let monacoInstance: monaco.editor.IStandaloneCodeEditor | null = null;
 let monacoCompletionItem: monaco.IDisposable | null = null;
 let monacoHoverProvider: monaco.IDisposable | null = null;
+let isDisposed = false; // 标记编辑器是否已被销毁
 
 watch(() => props.modelValue, (newValue) => {
   const value = monacoInstance?.getValue();
@@ -86,13 +87,38 @@ onMounted(() => {
   })
 })
 event.on('apidoc/editor/removeAfterEditor', () => {
-  monacoCompletionItem?.dispose()
-  monacoHoverProvider?.dispose()
+  try {
+    monacoCompletionItem?.dispose()
+    monacoHoverProvider?.dispose()
+  } catch (error) {
+    // 捕获 dispose 异常
+  }
 });
 onBeforeUnmount(() => {
-  monacoInstance?.dispose();
-  monacoCompletionItem?.dispose()
-  monacoHoverProvider?.dispose()
+  // 避免重复销毁
+  if (isDisposed) {
+    return;
+  }
+  
+  try {
+    // 按顺序销毁资源
+    if (monacoInstance) {
+      monacoInstance.dispose();
+      monacoInstance = null;
+    }
+    if (monacoCompletionItem) {
+      monacoCompletionItem.dispose();
+      monacoCompletionItem = null;
+    }
+    if (monacoHoverProvider) {
+      monacoHoverProvider.dispose();
+      monacoHoverProvider = null;
+    }
+    
+    isDisposed = true;
+  } catch (error) {
+    // 捕获 dispose 过程中的异常
+  }
 })
 //格式化数据
 const handleFormat = () => {
