@@ -465,11 +465,13 @@ export class MockUtils {
   */
 
   // 生成图片方法
-  public async generateImage(width: number, height: number, formats: string[] = ['png']): Promise<Buffer> {
+  // randomSizeKB: 目标大小（KB），用于增加无用内容以接近目标体积
+  public async generateImage(width: number, height: number, formats: string[] = ['png'], randomSizeKB?: number): Promise<Buffer> {
     try {
       // 确保尺寸在合理范围内
       const safeWidth = Math.max(1, Math.min(width || 400, 2000));
       const safeHeight = Math.max(1, Math.min(height || 300, 2000));
+      const targetSizeBytes = Math.max(0, Math.floor((randomSizeKB || 0) * 1024));
       
       // 生成随机背景色
       const colors = [
@@ -500,9 +502,26 @@ export class MockUtils {
         </svg>
       `;
       
+      // 若请求生成 SVG，直接返回 SVG Buffer（不经 sharp 转换），并按需填充注释以增大体积
+      if (format.toLowerCase() === 'svg') {
+        let resultSvg = svgContent;
+        if (targetSizeBytes > 0) {
+          const baseLength = Buffer.byteLength(resultSvg);
+          if (baseLength < targetSizeBytes) {
+            const diff = targetSizeBytes - baseLength;
+            // 计算注释结构自身的开销: \n + '<!-- ' + ' -->' + \n = 11 字节
+            const commentOverhead = 11;
+            const fillerLen = Math.max(0, diff - commentOverhead);
+            const filler = 'x'.repeat(fillerLen);
+            resultSvg = resultSvg.replace('</svg>', `\n<!-- ${filler} -->\n</svg>`);
+          }
+        }
+        return Buffer.from(resultSvg);
+      }
+
       // 使用 sharp 将 SVG 转换为指定格式的图片
       let sharpInstance = sharp(Buffer.from(svgContent));
-      
+
       switch (format.toLowerCase()) {
         case 'png':
           sharpInstance = sharpInstance.png();
@@ -518,7 +537,13 @@ export class MockUtils {
           sharpInstance = sharpInstance.png();
       }
       
-      return await sharpInstance.toBuffer();
+      const buffer = await sharpInstance.toBuffer();
+      if (targetSizeBytes > 0 && buffer.length < targetSizeBytes) {
+        const pad = targetSizeBytes - buffer.length;
+        const padding = Buffer.alloc(pad, 0);
+        return Buffer.concat([buffer, padding]);
+      }
+      return buffer;
     } catch (error) {
       console.error('图片生成失败:', error);
       // 返回一个最小的 PNG 图片 Buffer
@@ -799,8 +824,8 @@ export class MockUtils {
           // 确定图片格式
           const imageFormat = imageConfig.imageConfig || 'png';
           const formats = [imageFormat];
-          
-          const randomBuffer = await this.generateImage(width, height, formats);
+          const targetKB = imageConfig.randomSize || 0;
+          const randomBuffer = await this.generateImage(width, height, formats, targetKB);
           
           // 根据格式返回对应的 MIME 类型
           let mimeType: string;

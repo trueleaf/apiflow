@@ -805,9 +805,9 @@ const handleImageChange = (file: { raw: File }, response: MockHttpNode['response
     return
   }
 
-  const maxSize = 10 * 1024 * 1024
+  const maxSize = 1024 * 1024 * 1024
   if (file.raw.size > maxSize) {
-    ElMessage.error(t('图片大小不能超过 10MB'))
+    ElMessage.error(t('图片大小不能超过 1GB'))
     return
   }
 
@@ -817,7 +817,7 @@ const handleImageChange = (file: { raw: File }, response: MockHttpNode['response
     return
   }
 
-  const filePath = (file.raw as any).path || ''
+  const filePath = window.electronAPI?.fileManager.getFilePath(file.raw)
   if (!filePath) {
     ElMessage.error(t('图片路径获取失败，请重试'))
     return
@@ -832,8 +832,6 @@ const handleImageChange = (file: { raw: File }, response: MockHttpNode['response
     })
     loadPreviewFromFile(file.raw, responseIndex)
   }
-
-  ElMessage.success(t('图片上传成功'))
 }
 
 // 获取图片文件名
