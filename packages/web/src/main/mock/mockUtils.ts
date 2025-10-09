@@ -14,6 +14,8 @@ import json5 from 'json5';
 import { ApidocVariable } from '@src/types';
 
 type MockResponseConfig = MockHttpNode['response'][0];
+type FileResponseResult = { data: Buffer; mimeType: string; fileName: string; contentDisposition: string };
+type BinaryResponseResult = { data: Buffer; mimeType: string };
 export class MockUtils {
   // 兼容ESM环境的当前模块目录
   private static readonly moduleDirname: string = path.dirname(fileURLToPath(import.meta.url));
@@ -351,6 +353,29 @@ export class MockUtils {
     } catch (error) {
       console.warn('MIME类型检测失败:', error);
       return 'application/octet-stream';
+    }
+  }
+  // 生成 Content-Disposition 响应头，支持中文文件名（RFC 5987）
+  public generateContentDisposition(fileName: string, type: 'attachment' | 'inline' = 'attachment'): string {
+    try {
+      // 对于纯ASCII文件名，使用简单格式
+      if (/^[\x20-\x7E]*$/.test(fileName)) {
+        return `${type}; filename="${fileName}"`;
+      }
+      
+      // 对于包含非ASCII字符（如中文）的文件名，使用 RFC 5987 编码
+      // 同时提供 filename 和 filename* 两个参数以兼容不同的客户端
+      const encodedFileName = encodeURIComponent(fileName);
+      
+      // filename 参数：使用ASCII近似值（移除非ASCII字符）
+      const asciiFileName = fileName.replace(/[^\x20-\x7E]/g, '_');
+      
+      // filename* 参数：使用 UTF-8 编码（RFC 5987格式：charset'lang'encoded-value）
+      return `${type}; filename="${asciiFileName}"; filename*=UTF-8''${encodedFileName}`;
+    } catch (error) {
+      console.warn('Content-Disposition生成失败:', error);
+      // 降级到简单格式
+      return `${type}; filename="download"`;
     }
   }
   // 读取文件数据
@@ -870,36 +895,68 @@ export class MockUtils {
   }
 
   // 处理文件类型响应
-  public async handleFileResponse(responseConfig: MockResponseConfig): Promise<{ data: Buffer; mimeType: string }> {
+  public async handleFileResponse(responseConfig: MockResponseConfig): Promise<FileResponseResult> {
     const { fileConfig } = responseConfig;
     
     try {
       // 根据fileType选择对应的样本文件
       const fileExtension = fileConfig.fileType;
-      const staticDir = path.join(MockUtils.moduleDirname, '../../static');
+      // 解析静态资源目录（兼容开发与打包环境）
+      const staticDir = MockUtils.resolveStaticDir();
       const sampleFileName = `sample.${fileExtension}`;
       const filePath = path.join(staticDir, sampleFileName);
       
       // 读取文件数据
       const { data, mimeType } = await this.readFileData(filePath);
 
-      return { data, mimeType };
+      // 生成 Content-Disposition 头
+      const contentDisposition = this.generateContentDisposition(sampleFileName, 'attachment');
+
+      return { data, mimeType, fileName: sampleFileName, contentDisposition };
     } catch (error) {
       console.error('文件类型响应处理失败:', error);
       
       // 生成一个错误提示文件 (使用简单的文本文件作为fallback)
       const errorMessage = `文件读取失败: ${error instanceof Error ? error.message : 'Unknown error'}\n文件类型: ${fileConfig.fileType}`;
       const errorBuffer = Buffer.from(errorMessage, 'utf-8');
+      const errorFileName = `error-${fileConfig.fileType}.txt`;
+      const contentDisposition = this.generateContentDisposition(errorFileName, 'attachment');
       
       return { 
         data: errorBuffer, 
-        mimeType: 'text/plain' 
+        mimeType: 'text/plain',
+        fileName: errorFileName,
+        contentDisposition
       };
     }
   }
 
+  // 解析静态资源根目录
+  private static resolveStaticDir(): string {
+    // 优先按 Electron 打包目录解析
+    const candidates: string[] = [];
+    if ((process as NodeJS.Process & { versions?: { electron?: string } }).versions?.electron) {
+      candidates.push(path.join(process.resourcesPath, 'static'));
+    }
+    // 兼容构建产物目录
+    candidates.push(path.resolve(process.cwd(), 'dist/static'));
+    // 开发场景：源码目录
+    candidates.push(path.resolve(process.cwd(), 'src/static'));
+    // 通过当前模块目录反推到项目根再定位 src/static（dist/main/mock -> ../../../src/static）
+    candidates.push(path.resolve(MockUtils.moduleDirname, '../../../src/static'));
+    // 去重并返回第一个存在的目录
+    const seen: Set<string> = new Set();
+    for (const dir of candidates) {
+      if (!seen.has(dir)) {
+        seen.add(dir);
+        if (fs.existsSync(dir)) return dir;
+      }
+    }
+    return path.resolve(process.cwd(), 'src/static');
+  }
+
   // 处理二进制类型响应
-  public async handleBinaryResponse(responseConfig: MockResponseConfig): Promise<{ data: Buffer; mimeType: string }> {
+  public async handleBinaryResponse(responseConfig: MockResponseConfig): Promise<BinaryResponseResult> {
     const { binaryConfig } = responseConfig;
     
     try {
@@ -921,7 +978,7 @@ export class MockUtils {
       
       return { 
         data: errorBuffer, 
-        mimeType: 'text/plain' 
+        mimeType: 'text/plain'
       };
     }
   }
@@ -952,8 +1009,9 @@ export class MockUtils {
       }
       case 'file': {
         const fileResult = await this.handleFileResponse(responseConfig);
-        // 将 mimeType 信息存储到响应配置中，供后续设置 content-type 使用
+        // 将 mimeType 和 contentDisposition 信息存储到响应配置中，供后续设置响应头使用
         (responseConfig as any)._generatedMimeType = fileResult.mimeType;
+        (responseConfig as any)._generatedContentDisposition = fileResult.contentDisposition;
         return fileResult.data;
       }
       case 'binary': {

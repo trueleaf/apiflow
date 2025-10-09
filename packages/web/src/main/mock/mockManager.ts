@@ -160,6 +160,17 @@ export class MockManager {
           const generatedMimeType = (responseConfig as any)._generatedMimeType || 'application/octet-stream';
           ctx.set('content-type', generatedMimeType);
         }
+        
+        // 设置 Content-Disposition 头
+        const hasContentDisposition = Object.keys(responseConfig.headers).some(key => 
+          key.toLowerCase() === 'content-disposition'
+        );
+        if (!hasContentDisposition) {
+          const generatedContentDisposition = (responseConfig as any)._generatedContentDisposition;
+          if (generatedContentDisposition) {
+            ctx.set('content-disposition', generatedContentDisposition);
+          }
+        }
       }
 
       // 对于binary类型，如果没有设置content-type，则设置生成的MIME类型
