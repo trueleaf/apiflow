@@ -5,6 +5,7 @@ import sharp from 'sharp';
 import mime from 'mime-types';
 import fs from 'fs';
 import path from 'path';
+import { fileURLToPath } from 'url';
 import { randomUUID } from 'crypto';
 import Koa from 'koa';
 import { runtime } from '../runtime/runtime';
@@ -14,6 +15,8 @@ import { ApidocVariable } from '@src/types';
 
 type MockResponseConfig = MockHttpNode['response'][0];
 export class MockUtils {
+  // 兼容ESM环境的当前模块目录
+  private static readonly moduleDirname: string = path.dirname(fileURLToPath(import.meta.url));
   // 项目变量缓存: projectId -> variables
   private static projectVariablesMap: Map<string, ApidocVariable[]> = new Map();
 
@@ -848,7 +851,7 @@ export class MockUtils {
     try {
       // 根据fileType选择对应的样本文件
       const fileExtension = fileConfig.fileType;
-      const staticDir = path.join(__dirname, '../../static');
+      const staticDir = path.join(MockUtils.moduleDirname, '../../static');
       const sampleFileName = `sample.${fileExtension}`;
       const filePath = path.join(staticDir, sampleFileName);
       
