@@ -340,7 +340,7 @@
                     </div>
                     <div v-else class="upload-trigger has-image">
                       <img 
-                        :src="response.imageConfig.fixedFilePath" 
+                        :src="getImagePreviewSrc(response, index)" 
                         :alt="getImageFileName(response.imageConfig.fixedFilePath)"
                         class="image-thumbnail"
                       />
@@ -528,6 +528,7 @@ const handleAddResponse = () => {
 // 图片文件变更处理
 type ImageFileInfo = {
   size?: number
+  previewSrc?: string
 }
 const imageFilesInfo = ref<Map<number, ImageFileInfo>>(new Map())
 
@@ -548,25 +549,37 @@ const handleImageChange = (file: { raw: File }, response: MockHttpNode['response
     return
   }
 
+  const filePath = window.electronAPI?.fileManager.getFilePath(file.raw) || ''
+  if (!filePath) {
+    ElMessage.error(t('图片路径获取失败，请重试'))
+    return
+  }
+
+  response.imageConfig.fixedFilePath = filePath
+  const responseIndex = mockResponses.value.indexOf(response)
+  if (responseIndex !== -1) {
+    imageFilesInfo.value.set(responseIndex, {
+      size: file.raw.size
+    })
+  }
+
   const reader = new FileReader()
-  reader.onload = (e) => {
-    if (e.target?.result) {
-      response.imageConfig.fixedFilePath = e.target.result as string
-      
-      const responseIndex = mockResponses.value.indexOf(response)
-      if (responseIndex !== -1) {
-        imageFilesInfo.value.set(responseIndex, {
-          size: file.raw.size
-        })
-      }
-      
-      ElMessage.success(t('图片上传成功'))
+  reader.onload = (event) => {
+    const result = event.target?.result
+    if (result && typeof result === 'string' && responseIndex !== -1) {
+      const info = imageFilesInfo.value.get(responseIndex)
+      imageFilesInfo.value.set(responseIndex, {
+        size: info?.size,
+        previewSrc: result
+      })
     }
   }
   reader.onerror = () => {
-    ElMessage.error(t('图片读取失败，请重试'))
+    ElMessage.error(t('图片预览加载失败，请重试'))
   }
   reader.readAsDataURL(file.raw)
+
+  ElMessage.success(t('图片上传成功'))
 }
 
 // 获取图片文件名
@@ -577,8 +590,38 @@ const getImageFileName = (filePath: string): string => {
     return t('已上传的图片')
   }
   
-  const parts = filePath.split('/')
+  let normalizedPath = filePath
+  if (normalizedPath.startsWith('file://')) {
+    normalizedPath = normalizedPath.replace(/^file:\/\//, '')
+  }
+  const parts = normalizedPath.split(/[/\\]/)
   return parts[parts.length - 1] || t('未知文件')
+}
+
+const getImagePreviewSrc = (response: MockHttpNode['response'][0], index: number): string => {
+  const previewInfo = imageFilesInfo.value.get(index)
+  if (previewInfo?.previewSrc) {
+    return previewInfo.previewSrc
+  }
+  const filePath = response.imageConfig.fixedFilePath
+  if (!filePath) {
+    return ''
+  }
+  if (filePath.startsWith('data:') || filePath.startsWith('blob:') || /^https?:\/\//i.test(filePath)) {
+    return filePath
+  }
+  if (filePath.startsWith('file://')) {
+    return filePath
+  }
+  const normalizedPath = filePath.replace(/\\/g, '/')
+  const encodedPath = encodeURI(normalizedPath)
+  if (/^[a-z]:\//i.test(normalizedPath)) {
+    return `file:///${encodedPath}`
+  }
+  if (normalizedPath.startsWith('/')) {
+    return `file://${encodedPath}`
+  }
+  return `file:///${encodedPath}`
 }
 
 onMounted(() => {
