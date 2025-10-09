@@ -39,6 +39,16 @@ let monacoInstance: monaco.editor.IStandaloneCodeEditor | null = null;
 let monacoCompletionItem: monaco.IDisposable | null = null;
 let monacoHoverProvider: monaco.IDisposable | null = null;
 let isDisposed = false; // 标记编辑器是否已被销毁
+// 处理 Monaco 内部 Promise 取消异常，避免控制台抛出未捕获错误
+const handleUnhandledRejection = (event: PromiseRejectionEvent) => {
+  const reason: unknown = event?.reason;
+  if (reason && typeof reason === 'object') {
+    const err = reason as { name?: string; message?: string };
+    if (err.name === 'Canceled' || err.message === 'Canceled') {
+      event.preventDefault();
+    }
+  }
+}
 
 watch(() => props.modelValue, (newValue) => {
   const value = monacoInstance?.getValue();
@@ -47,6 +57,8 @@ watch(() => props.modelValue, (newValue) => {
   }
 })
 onMounted(() => {
+  // 注册全局未捕获 Promise 拦截（仅处理 Monaco 的取消异常）
+  window.addEventListener('unhandledrejection', handleUnhandledRejection);
   self.MonacoEnvironment = {
     getWorker(_: string, label: string) {
       if (label === 'json') {
@@ -99,8 +111,15 @@ onBeforeUnmount(() => {
   }
   
   try {
+    // 移除全局取消异常拦截
+    window.removeEventListener('unhandledrejection', handleUnhandledRejection);
+    
     // 按顺序销毁资源
     if (monacoInstance) {
+      const model = monacoInstance.getModel();
+      if (model) {
+        model.dispose();
+      }
       monacoInstance.dispose();
       monacoInstance = null;
     }

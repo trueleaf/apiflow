@@ -87,8 +87,41 @@
 
         <!-- ========== SSE 配置区域 ========== -->
         <div v-if="response.dataType === 'sse'" class="sse-config-wrapper">
-          <!-- 事件基础配置 -->
-          <div class="form-row">
+          
+          <!-- 发送节奏配置 -->
+          <div class="form-row mb-3 mt-3">
+            <div class="form-item flex-item">
+              <label class="form-label">{{ t('发送间隔') }}({{ t('单位：毫秒') }})</label>
+              <el-input-number
+                v-model="response.sseConfig.interval"
+                :min="100"
+                :step="100"
+                size="small"
+                controls-position="right"
+              />
+            </div>
+            <div class="form-item flex-item">
+              <label class="form-label">{{ t('最大事件数量') }}({{ t('达到数量后结束推送') }})</label>
+              <el-input-number
+                v-model="response.sseConfig.maxNum"
+                :min="1"
+                :step="1"
+                size="small"
+                controls-position="right"
+              />
+            </div>
+          </div>
+          <!-- 事件数据、事件ID、事件名称、重试间隔 -->
+          <div class="form-row mb-3">
+            <!-- 事件数据 -->
+            <div class="form-item flex-item">
+              <label class="form-label">{{ t('事件数据') }}</label>
+              <el-radio-group v-model="response.sseConfig.event.data.mode" size="small">
+                <el-radio-button label="json">JSON</el-radio-button>
+                <el-radio-button label="string">Text</el-radio-button>
+              </el-radio-group>
+            </div>
+
             <!-- 事件ID -->
             <div class="form-item flex-item">
               <label class="form-label">{{ t('事件ID') }}</label>
@@ -118,7 +151,7 @@
 
             <!-- 重试间隔（retry） -->
             <div class="form-item flex-item">
-              <label class="form-label">{{ t('重试间隔（retry）') }}</label>
+              <label class="form-label">{{ t('重试间隔') }}({{ t('单位：毫秒') }})</label>
               <el-switch v-model="response.sseConfig.event.retry.enable" size="small" />
               <div v-if="response.sseConfig.event.retry.enable" style="margin-top: 6px;">
                 <el-input-number
@@ -128,59 +161,22 @@
                   size="small"
                   controls-position="right"
                 />
-                <span style="margin-left: 8px; color: var(--gray-500);">{{ t('单位：毫秒') }}</span>
               </div>
             </div>
           </div>
 
-          <!-- 发送节奏配置 -->
-          <div class="form-row">
-            <div class="form-item flex-item">
-              <label class="form-label">{{ t('发送间隔') }}</label>
-              <el-input-number
-                v-model="response.sseConfig.interval"
-                :min="0"
-                :step="100"
-                size="small"
-                controls-position="right"
-              />
-              <span style="margin-left: 8px; color: var(--gray-500);">{{ t('单位：毫秒，0表示尽快发送') }}</span>
-            </div>
-            <div class="form-item flex-item">
-              <label class="form-label">{{ t('最大事件数量') }}</label>
-              <el-input-number
-                v-model="response.sseConfig.maxNum"
-                :min="1"
-                :step="1"
-                size="small"
-                controls-position="right"
-              />
-              <span style="margin-left: 8px; color: var(--gray-500);">{{ t('达到数量后结束推送') }}</span>
-            </div>
-          </div>
 
-          <!-- 数据内容配置 -->
-          <div class="form-row">
-            <div class="form-item" style="flex: 1 1 auto; min-width: 0;">
-              <label class="form-label">{{ t('事件数据') }}</label>
-              <el-radio-group v-model="response.sseConfig.event.data.mode" size="small" style="margin-bottom: 6px;">
-                <el-radio-button label="json">JSON</el-radio-button>
-                <el-radio-button label="string">Text</el-radio-button>
-              </el-radio-group>
-
-              <!-- 使用统一编辑器，按模式切换语言，只做展示绑定，不做校验与转换 -->
-              <div class="json-editor-wrapper">
-                <SJsonEditor
-                  v-model="response.sseConfig.event.data.value"
-                  :config="{ fontSize: 13, language: response.sseConfig.event.data.mode === 'json' ? 'json' : 'plaintext' }"
-                />
-              </div>
-            </div>
+          <!-- 事件数据编辑器 -->
+          <div class="sse-editor-wrapper">
+            <SJsonEditor
+              v-model="response.sseConfig.event.data.value"
+              :config="{ fontSize: 13, language: response.sseConfig.event.data.mode === 'json' ? 'json' : 'plaintext' }"
+            />
           </div>
         </div>
 
         <!-- 随机Text大小配置（仅随机模式显示） -->
-        <div v-if="response.dataType === 'text' && response.textConfig.mode === 'random'" class="form-row">
+        <div v-if="response.dataType === 'text' && response.textConfig.mode === 'random'" class="form-row mt-2">
           <div class="form-item flex-item">
             <label class="form-label">{{ t('随机字符个数') }}</label>
             <el-input-number 
@@ -1485,6 +1481,16 @@ watch(mockResponses, (responses) => {
   flex-direction: column;
   gap: 12px;
   margin-top: 12px;
+  flex: 1;
+  min-height: 0;
+}
+
+.sse-editor-wrapper {
+  flex: 1;
+  min-height: 300px;
+  border: 1px solid var(--gray-300);
+  border-radius: var(--border-radius-sm);
+  overflow: hidden;
 }
 
 /* ========== Binary 配置样式 ========== */
