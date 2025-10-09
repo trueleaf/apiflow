@@ -343,7 +343,7 @@ const showProcess = computed(() => {
 //布局
 const layout = computed(() => apidocBaseInfoStore.layout);
 //返回参数格式化
-watch(() => apidocResponseStore.responseInfo.bodyByteLength, () => {
+watch(() => [apidocResponseStore.responseInfo.bodyByteLength, apidocResponseStore.responseInfo.responseData.textData], () => {
   const { jsonData, textData } = apidocResponseStore.responseInfo.responseData;
   // json 格式化
   if (apidocResponseStore.responseInfo.contentType.includes('application/json')) {

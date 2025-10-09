@@ -782,7 +782,6 @@ const handleSelectBinaryFile = (response: MockHttpNode['response'][0]) => {
         const filePath = window.electronAPI.fileManager.getFilePath(file)
         if (filePath) {
           response.binaryConfig.filePath = filePath
-          ElMessage.success(t('文件选择成功'))
         } else {
           ElMessage.error(t('文件路径获取失败，请重试'))
         }
