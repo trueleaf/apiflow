@@ -85,6 +85,100 @@
           </div>
         </div>
 
+        <!-- ========== SSE 配置区域 ========== -->
+        <div v-if="response.dataType === 'sse'" class="sse-config-wrapper">
+          <!-- 事件基础配置 -->
+          <div class="form-row">
+            <!-- 事件ID -->
+            <div class="form-item flex-item">
+              <label class="form-label">{{ t('事件ID') }}</label>
+              <el-switch v-model="response.sseConfig.event.id.enable" size="small" />
+              <div v-if="response.sseConfig.event.id.enable" style="margin-top: 6px;">
+                <el-radio-group v-model="response.sseConfig.event.id.valueMode" size="small">
+                  <el-radio-button label="increment">{{ t('自增') }}</el-radio-button>
+                  <el-radio-button label="timestamp">{{ t('时间戳') }}</el-radio-button>
+                  <el-radio-button label="random">{{ t('随机') }}</el-radio-button>
+                </el-radio-group>
+              </div>
+            </div>
+
+            <!-- 事件名称 -->
+            <div class="form-item flex-item">
+              <label class="form-label">{{ t('事件名称') }}</label>
+              <el-switch v-model="response.sseConfig.event.event.enable" size="small" />
+              <div v-if="response.sseConfig.event.event.enable" style="margin-top: 6px;">
+                <el-input
+                  v-model="response.sseConfig.event.event.value"
+                  size="small"
+                  :placeholder="t('例如：message')"
+                  style="width: 220px;"
+                />
+              </div>
+            </div>
+
+            <!-- 重试间隔（retry） -->
+            <div class="form-item flex-item">
+              <label class="form-label">{{ t('重试间隔（retry）') }}</label>
+              <el-switch v-model="response.sseConfig.event.retry.enable" size="small" />
+              <div v-if="response.sseConfig.event.retry.enable" style="margin-top: 6px;">
+                <el-input-number
+                  v-model="response.sseConfig.event.retry.value"
+                  :min="0"
+                  :step="100"
+                  size="small"
+                  controls-position="right"
+                />
+                <span style="margin-left: 8px; color: var(--gray-500);">{{ t('单位：毫秒') }}</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- 发送节奏配置 -->
+          <div class="form-row">
+            <div class="form-item flex-item">
+              <label class="form-label">{{ t('发送间隔') }}</label>
+              <el-input-number
+                v-model="response.sseConfig.interval"
+                :min="0"
+                :step="100"
+                size="small"
+                controls-position="right"
+              />
+              <span style="margin-left: 8px; color: var(--gray-500);">{{ t('单位：毫秒，0表示尽快发送') }}</span>
+            </div>
+            <div class="form-item flex-item">
+              <label class="form-label">{{ t('最大事件数量') }}</label>
+              <el-input-number
+                v-model="response.sseConfig.maxNum"
+                :min="1"
+                :step="1"
+                size="small"
+                controls-position="right"
+              />
+              <span style="margin-left: 8px; color: var(--gray-500);">{{ t('达到数量后结束推送') }}</span>
+            </div>
+          </div>
+
+          <!-- 数据内容配置 -->
+          <div class="form-row">
+            <div class="form-item" style="flex: 1 1 auto; min-width: 0;">
+              <label class="form-label">{{ t('事件数据') }}</label>
+              <el-radio-group v-model="response.sseConfig.event.data.mode" size="small" style="margin-bottom: 6px;">
+                <el-radio-button label="json">JSON</el-radio-button>
+                <el-radio-button label="string">Text</el-radio-button>
+              </el-radio-group>
+
+              <!-- 使用统一编辑器，按模式切换语言，只做展示绑定，不做校验与转换 -->
+              <div class="json-editor-wrapper">
+                <SJsonEditor
+                  v-model="response.sseConfig.event.data.value"
+                  :config="{ fontSize: 13, language: response.sseConfig.event.data.mode === 'json' ? 'json' : 'plaintext' }"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+
         <!-- 随机Text大小配置（仅随机模式显示） -->
         <div v-if="response.dataType === 'text' && response.textConfig.mode === 'random'" class="form-row">
           <div class="form-item flex-item">
@@ -359,13 +453,139 @@
             </div>
           </div>
         </div>
+
+        <!-- File 配置区域 -->
+        <div v-if="response.dataType === 'file'" class="file-config-wrapper">
+          <div class="form-row">
+            <div class="form-item full-width">
+              <label class="form-label">{{ t('文件类型') }}</label>
+              <div class="file-type-grid">
+                <!-- PDF -->
+                <div 
+                  class="file-type-item"
+                  :class="{ 'is-selected': response.fileConfig.fileType === 'pdf' }"
+                  @click="response.fileConfig.fileType = 'pdf'">
+                  <svg class="icon file-type-icon" aria-hidden="true">
+                    <use xlink:href="#iconpdfwenjian"></use>
+                  </svg>
+                  <div class="file-type-label">PDF</div>
+                </div>
+
+                <!-- DOC -->
+                <div 
+                  class="file-type-item"
+                  :class="{ 'is-selected': response.fileConfig.fileType === 'doc' }"
+                  @click="response.fileConfig.fileType = 'doc'">
+                  <svg class="icon file-type-icon" aria-hidden="true">
+                    <use xlink:href="#iconWORD"></use>
+                  </svg>
+                  <div class="file-type-label">DOC</div>
+                </div>
+
+                <!-- DOCX -->
+                <div 
+                  class="file-type-item"
+                  :class="{ 'is-selected': response.fileConfig.fileType === 'docx' }"
+                  @click="response.fileConfig.fileType = 'docx'">
+                  <svg class="icon file-type-icon" aria-hidden="true">
+                    <use xlink:href="#iconWORD"></use>
+                  </svg>
+                  <div class="file-type-label">DOCX</div>
+                </div>
+
+                <!-- XLS -->
+                <div 
+                  class="file-type-item"
+                  :class="{ 'is-selected': response.fileConfig.fileType === 'xls' }"
+                  @click="response.fileConfig.fileType = 'xls'">
+                  <svg class="icon file-type-icon" aria-hidden="true">
+                    <use xlink:href="#iconexcel"></use>
+                  </svg>
+                  <div class="file-type-label">XLS</div>
+                </div>
+
+                <!-- XLSX -->
+                <div 
+                  class="file-type-item"
+                  :class="{ 'is-selected': response.fileConfig.fileType === 'xlsx' }"
+                  @click="response.fileConfig.fileType = 'xlsx'">
+                  <svg class="icon file-type-icon" aria-hidden="true">
+                    <use xlink:href="#iconexcel"></use>
+                  </svg>
+                  <div class="file-type-label">XLSX</div>
+                </div>
+
+                <!-- PPT -->
+                <div 
+                  class="file-type-item"
+                  :class="{ 'is-selected': response.fileConfig.fileType === 'ppt' }"
+                  @click="response.fileConfig.fileType = 'ppt'">
+                  <svg class="icon file-type-icon" aria-hidden="true">
+                    <use xlink:href="#iconppt"></use>
+                  </svg>
+                  <div class="file-type-label">PPT</div>
+                </div>
+
+                <!-- PPTX -->
+                <div 
+                  class="file-type-item"
+                  :class="{ 'is-selected': response.fileConfig.fileType === 'pptx' }"
+                  @click="response.fileConfig.fileType = 'pptx'">
+                  <svg class="icon file-type-icon" aria-hidden="true">
+                    <use xlink:href="#iconppt"></use>
+                  </svg>
+                  <div class="file-type-label">PPTX</div>
+                </div>
+
+                <!-- ZIP -->
+                <div 
+                  class="file-type-item"
+                  :class="{ 'is-selected': response.fileConfig.fileType === 'zip' }"
+                  @click="response.fileConfig.fileType = 'zip'">
+                  <svg class="icon file-type-icon" aria-hidden="true">
+                    <use xlink:href="#iconyasuobao"></use>
+                  </svg>
+                  <div class="file-type-label">ZIP</div>
+                </div>
+
+                <!-- 7Z -->
+                <div 
+                  class="file-type-item"
+                  :class="{ 'is-selected': response.fileConfig.fileType === '7z' }"
+                  @click="response.fileConfig.fileType = '7z'">
+                  <svg class="icon file-type-icon" aria-hidden="true">
+                    <use xlink:href="#iconyasuobao"></use>
+                  </svg>
+                  <div class="file-type-label">7Z</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Binary 配置区域 -->
+        <div v-if="response.dataType === 'binary'" class="binary-config-wrapper">
+          <div class="form-row">
+            <div class="form-item flex-item">
+              <label class="form-label">{{ t('二进制文件') }}</label>
+              <div class="binary-file-selector">
+                <el-button size="small" @click="handleSelectBinaryFile(response)">
+                  {{ t('选择文件') }}
+                </el-button>
+                <div v-if="response.binaryConfig.filePath" class="file-path-display">
+                  {{ response.binaryConfig.filePath }}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
 </template>
 
 <script lang="ts" setup>
-import { computed, ref, onMounted } from 'vue'
+import { computed, ref, onMounted, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { ElMessage } from 'element-plus'
 import { Plus, Loading, Top, Upload } from '@element-plus/icons-vue'
@@ -380,6 +600,7 @@ import {
 } from '@/cache/common/common'
 import { MockHttpNode } from '@src/types'
 import { uuid, generateEmptyHttpMockNode } from '@/helper'
+import mime from 'mime'
 
 const { t } = useI18n()
 const httpMockStore = useHttpMock()
@@ -529,8 +750,55 @@ const handleAddResponse = () => {
 type ImageFileInfo = {
   size?: number
   previewSrc?: string
+  path?: string
 }
 const imageFilesInfo = ref<Map<number, ImageFileInfo>>(new Map())
+
+// Binary 文件选择
+const handleSelectBinaryFile = (response: MockHttpNode['response'][0]) => {
+  // 创建一个临时的 input 元素
+  const input = document.createElement('input')
+  input.type = 'file'
+  input.style.display = 'none'
+  
+  input.onchange = (event: Event) => {
+    const target = event.target as HTMLInputElement
+    const file = target.files?.[0]
+    
+    if (!file) {
+      return
+    }
+
+    const maxSize = 100 * 1024 * 1024 // 100MB
+    if (file.size > maxSize) {
+      ElMessage.error(t('文件大小不能超过 100MB'))
+      document.body.removeChild(input)
+      return
+    }
+
+    // 使用 Electron API 获取文件路径
+    if (window.electronAPI?.fileManager?.getFilePath) {
+      try {
+        const filePath = window.electronAPI.fileManager.getFilePath(file)
+        if (filePath) {
+          response.binaryConfig.filePath = filePath
+          ElMessage.success(t('文件选择成功'))
+        } else {
+          ElMessage.error(t('文件路径获取失败，请重试'))
+        }
+      } catch (error) {
+        ElMessage.error(t('文件路径获取失败，请重试'))
+      }
+    } else {
+      ElMessage.error(t('文件选择功能不可用'))
+    }
+    
+    document.body.removeChild(input)
+  }
+  
+  document.body.appendChild(input)
+  input.click()
+}
 
 const handleImageChange = (file: { raw: File }, response: MockHttpNode['response'][0]) => {
   if (!file.raw) {
@@ -549,7 +817,7 @@ const handleImageChange = (file: { raw: File }, response: MockHttpNode['response
     return
   }
 
-  const filePath = window.electronAPI?.fileManager.getFilePath(file.raw) || ''
+  const filePath = (file.raw as any).path || ''
   if (!filePath) {
     ElMessage.error(t('图片路径获取失败，请重试'))
     return
@@ -559,25 +827,11 @@ const handleImageChange = (file: { raw: File }, response: MockHttpNode['response
   const responseIndex = mockResponses.value.indexOf(response)
   if (responseIndex !== -1) {
     imageFilesInfo.value.set(responseIndex, {
-      size: file.raw.size
+      size: file.raw.size,
+      path: filePath
     })
+    loadPreviewFromFile(file.raw, responseIndex)
   }
-
-  const reader = new FileReader()
-  reader.onload = (event) => {
-    const result = event.target?.result
-    if (result && typeof result === 'string' && responseIndex !== -1) {
-      const info = imageFilesInfo.value.get(responseIndex)
-      imageFilesInfo.value.set(responseIndex, {
-        size: info?.size,
-        previewSrc: result
-      })
-    }
-  }
-  reader.onerror = () => {
-    ElMessage.error(t('图片预览加载失败，请重试'))
-  }
-  reader.readAsDataURL(file.raw)
 
   ElMessage.success(t('图片上传成功'))
 }
@@ -598,6 +852,8 @@ const getImageFileName = (filePath: string): string => {
   return parts[parts.length - 1] || t('未知文件')
 }
 
+
+
 const getImagePreviewSrc = (response: MockHttpNode['response'][0], index: number): string => {
   const previewInfo = imageFilesInfo.value.get(index)
   if (previewInfo?.previewSrc) {
@@ -607,27 +863,108 @@ const getImagePreviewSrc = (response: MockHttpNode['response'][0], index: number
   if (!filePath) {
     return ''
   }
+  // 只返回 data: 或 blob: 或 http(s): 协议的 URL
   if (filePath.startsWith('data:') || filePath.startsWith('blob:') || /^https?:\/\//i.test(filePath)) {
     return filePath
   }
-  if (filePath.startsWith('file://')) {
-    return filePath
+  // 对于本地文件路径,触发加载后返回空字符串,等待 watch 加载完成
+  void loadPreviewFromPath(filePath, index)
+  return ''
+}
+
+// 从文件加载预览
+const loadPreviewFromFile = (file: File, index: number) => {
+  const reader = new FileReader()
+  reader.onload = (event) => {
+    const result = event.target?.result
+    if (typeof result === 'string') {
+      const info = imageFilesInfo.value.get(index)
+      imageFilesInfo.value.set(index, {
+        size: info?.size,
+        path: info?.path,
+        previewSrc: result
+      })
+    }
   }
-  const normalizedPath = filePath.replace(/\\/g, '/')
-  const encodedPath = encodeURI(normalizedPath)
-  if (/^[a-z]:\//i.test(normalizedPath)) {
-    return `file:///${encodedPath}`
+  reader.readAsDataURL(file)
+}
+
+// 从文件路径加载预览
+const loadPreviewFromPath = async (filePath: string, index: number): Promise<void> => {
+  if (!window.electronAPI?.fileManager.readFileAsUint8Array) {
+    return
   }
-  if (normalizedPath.startsWith('/')) {
-    return `file://${encodedPath}`
+  try {
+    const readResult = await window.electronAPI.fileManager.readFileAsUint8Array(filePath)
+    if (!readResult || typeof readResult === 'string') {
+      return
+    }
+    let uint8Data: Uint8Array
+    if (readResult instanceof Uint8Array) {
+      uint8Data = readResult
+    } else if (Array.isArray(readResult)) {
+      uint8Data = Uint8Array.from(readResult as number[])
+    } else {
+      return
+    }
+    const mimeType = mime.getType(filePath) || 'application/octet-stream'
+    const blob = new Blob([uint8Data.buffer] as BlobPart[], { type: mimeType })
+    const reader = new FileReader()
+    reader.onload = (event) => {
+      const result = event.target?.result
+      if (typeof result === 'string') {
+        const existing = imageFilesInfo.value.get(index)
+        imageFilesInfo.value.set(index, {
+          size: existing?.size,
+          path: filePath,
+          previewSrc: result
+        })
+      }
+    }
+    reader.readAsDataURL(blob)
+  } catch {
+    // 忽略错误，使用文件路径作为 src
   }
-  return `file:///${encodedPath}`
 }
 
 onMounted(() => {
   showRandomSizeHint.value = getMockJsonRandomSizeHintVisible()
   showRandomTextSizeHint.value = getMockTextRandomSizeHintVisible()
 })
+
+watch(mockResponses, (responses) => {
+  const activeIndexes = new Set<number>()
+  responses.forEach((response, index) => {
+    activeIndexes.add(index)
+    
+    // 处理图片文件信息
+    if (response.imageConfig.mode !== 'fixed') {
+      imageFilesInfo.value.delete(index)
+    } else {
+      const filePath = response.imageConfig.fixedFilePath
+      if (!filePath) {
+        imageFilesInfo.value.delete(index)
+      } else {
+        const cached = imageFilesInfo.value.get(index)
+        if (cached?.path === filePath && cached.previewSrc) {
+          return
+        }
+        imageFilesInfo.value.set(index, {
+          size: cached?.size,
+          path: filePath,
+          previewSrc: cached?.previewSrc
+        })
+        void loadPreviewFromPath(filePath, index)
+      }
+    }
+  })
+  
+  imageFilesInfo.value.forEach((_value, key) => {
+    if (!activeIndexes.has(key)) {
+      imageFilesInfo.value.delete(key)
+    }
+  })
+}, { deep: true, immediate: true })
 </script>
 
 <style scoped>
@@ -1082,5 +1419,99 @@ onMounted(() => {
   font-weight: 500;
   text-align: center;
   padding: 0 12px;
+}
+
+/* ========== File 配置样式 ========== */
+.file-config-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-top: 12px;
+}
+
+/* 文件类型网格布局 */
+.file-type-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, 80px);
+  gap: 12px;
+  margin-top: 8px;
+}
+
+/* 单个文件类型卡片 */
+.file-type-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 80px;
+  height: 80px;
+  padding: 12px;
+  border: 1px solid var(--gray-300);
+  background: white;
+  cursor: pointer;
+  user-select: none;
+  
+  &:hover {
+    border-color: var(--primary);
+    background: var(--el-color-primary-light-9);
+  }
+  
+  &.is-selected {
+    border-color: var(--primary);
+    background: var(--el-color-primary-light-9);
+    
+    .file-type-label {
+      color: var(--primary);
+      font-weight: 600;
+    }
+  }
+}
+
+/* 文件类型图标 */
+.file-type-icon {
+  width: 32px;
+  height: 32px;
+  margin-bottom: 8px;
+}
+
+/* 文件类型标签 */
+.file-type-label {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--gray-700);
+  text-align: center;
+}
+
+/* ========== SSE 配置样式 ========== */
+.sse-config-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 12px;
+}
+
+/* ========== Binary 配置样式 ========== */
+.binary-config-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-top: 12px;
+}
+
+.binary-file-selector {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 6px;
+}
+
+.file-path-display {
+  font-size: 12px;
+  color: var(--gray-600);
+  word-break: break-all;
+  padding: 8px 12px;
+  background: var(--gray-100);
+  border-radius: 4px;
+  font-family: 'Consolas', 'Monaco', monospace;
 }
 </style>
