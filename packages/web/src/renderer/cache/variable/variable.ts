@@ -8,7 +8,7 @@ export class StandaloneVariableCache {
   /**
    * 新增变量
    */
-  async add(variable: Omit<ApidocVariable, '_id'> & { _id?: string }): Promise<CommonResponse<ApidocVariable>> {
+  async addVariable(variable: Omit<ApidocVariable, '_id'> & { _id?: string }): Promise<CommonResponse<ApidocVariable>> {
     try {
       if (!this.db) {
         return { code: 1, msg: "Database not initialized", data: null as any };
@@ -36,7 +36,6 @@ export class StandaloneVariableCache {
           return { code: 1, msg: "变量名称已存在", data: null as any };
         }
       } catch (checkError) {
-        console.error("检查变量名称重复失败:", checkError);
         // 如果检查失败，继续执行添加操作
       }
 
@@ -52,7 +51,6 @@ export class StandaloneVariableCache {
       await addTx.done;
       return { code: 0, msg: "success", data: variableWithId };
     } catch (error) {
-      console.error("添加变量失败:", error);
       return {
         code: 1,
         msg: error instanceof Error ? error.message : "添加变量失败",
@@ -64,7 +62,7 @@ export class StandaloneVariableCache {
   /**
    * 修改变量
    */
-  async update(id: string, updates: Partial<ApidocVariable>): Promise<CommonResponse<ApidocVariable>> {
+  async updateVariableById(id: string, updates: Partial<ApidocVariable>): Promise<CommonResponse<ApidocVariable>> {
     try {
       if (!this.db) {
         return { code: 1, msg: "Database not initialized", data: null as any };
@@ -108,7 +106,6 @@ export class StandaloneVariableCache {
             return { code: 1, msg: "变量名称已存在", data: null as any };
           }
         } catch (checkError) {
-          console.error("检查变量名称重复失败:", checkError);
           // 如果检查失败，继续执行更新操作
         }
       }
@@ -127,7 +124,6 @@ export class StandaloneVariableCache {
       await updateTx.done;
       return { code: 0, msg: "success", data: updatedVariable };
     } catch (error) {
-      console.error("更新变量失败:", error);
       return {
         code: 1,
         msg: error instanceof Error ? error.message : "更新变量失败",
@@ -139,7 +135,7 @@ export class StandaloneVariableCache {
   /**
    * 批量删除变量
    */
-  async delete(ids: string[]): Promise<CommonResponse<void>> {
+  async deleteVariableByIds(ids: string[]): Promise<CommonResponse<void>> {
     try {
       if (!this.db) {
         return { code: 1, msg: "Database not initialized", data: null as any };
@@ -162,7 +158,6 @@ export class StandaloneVariableCache {
 
       return { code: 0, msg: "success", data: null as any };
     } catch (error) {
-      console.error("删除变量失败:", error);
       return {
         code: 1,
         msg: error instanceof Error ? error.message : "删除变量失败",
@@ -176,7 +171,7 @@ export class StandaloneVariableCache {
    * @param projectId 项目ID
    * @returns 变量数组
    */
-  async getAll(projectId: string): Promise<CommonResponse<ApidocVariable[]>> {
+  async getVariableByProjectId(projectId: string): Promise<CommonResponse<ApidocVariable[]>> {
     try {
       if (!this.db) {
         return { code: 1, msg: "Database not initialized", data: [] };
@@ -197,7 +192,6 @@ export class StandaloneVariableCache {
         return { code: 0, msg: "success", data: projectVariables };
       }
     } catch (error) {
-      console.error("获取变量列表失败:", error);
       return {
         code: 1,
         msg: error instanceof Error ? error.message : "获取变量列表失败",
@@ -209,7 +203,7 @@ export class StandaloneVariableCache {
   /**
    * 根据变量ID获取单个变量
    */
-  async getById(variableId: string): Promise<CommonResponse<ApidocVariable | null>> {
+  async getVariableById(variableId: string): Promise<CommonResponse<ApidocVariable | null>> {
     try {
       if (!this.db) {
         return { code: 1, msg: "Database not initialized", data: null };
@@ -225,7 +219,6 @@ export class StandaloneVariableCache {
 
       return { code: 0, msg: "success", data: variable || null };
     } catch (error) {
-      console.error("获取变量失败:", error);
       return {
         code: 1,
         msg: error instanceof Error ? error.message : "获取变量失败",

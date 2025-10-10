@@ -4,7 +4,7 @@ import { StandaloneHttpNodeCache } from "./standalone/httpNode";
 import { StandaloneProjectCache } from "./project/projects";
 import { StandaloneCommonHeaderCache } from "./project/commonHeaders";
 import { StandaloneRuleCache } from "./standalone/rules";
-import { StandaloneVariableCache } from "./standalone/variable";
+import { StandaloneVariableCache } from "./variable/variable";
 import { IDBPDatabase, openDB } from "idb";
 import { config } from "@src/config/config.ts";
 
@@ -165,19 +165,19 @@ export class StandaloneCache {
 
   // 变量相关
   async addVariable(variable: Omit<ApidocVariable, '_id'> & { _id?: string }) {
-    return this.standaloneVariables.add(variable);
+    return this.standaloneVariables.addVariable(variable);
   }
   async updateVariable(variableId: string, updates: Partial<ApidocVariable>) {
-    return this.standaloneVariables.update(variableId, updates);
+    return this.standaloneVariables.updateVariableById(variableId, updates);
   }
   async deleteVariables(ids: string[]) {
-    return this.standaloneVariables.delete(ids);
+    return this.standaloneVariables.deleteVariableByIds(ids);
   }
   async getAllVariables(projectId: string) {
-    return this.standaloneVariables.getAll(projectId);
+    return this.standaloneVariables.getVariableByProjectId(projectId);
   }
   async getVariableById(variableId: string) {
-    return this.standaloneVariables.getById(variableId);
+    return this.standaloneVariables.getVariableById(variableId);
   }
 }
 
