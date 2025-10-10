@@ -2,7 +2,7 @@ import { IDBPDatabase } from "idb";
 import type { ApidocType, ApiNode } from "@src/types";
 import { nanoid } from "nanoid";
 
-export class StandaloneHttpNodeCache {
+export class ApiNodesCache {
   private bannerCache = new Map<
     string,
     { data: ApiNode[]; timestamp: number }

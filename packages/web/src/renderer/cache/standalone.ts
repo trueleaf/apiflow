@@ -1,10 +1,10 @@
 
 import type { ApidocProjectInfo, ApidocProperty, ApidocVariable, ApiNode, ApidocProjectRules } from '@src/types';
-import { StandaloneHttpNodeCache } from "./standalone/httpNode";
-import { StandaloneProjectCache } from "./project/projects";
-import { StandaloneCommonHeaderCache } from "./project/commonHeaders";
+import { ApiNodesCache } from "./standalone/httpNode";
+import { ProjectCache } from "./project/projects";
+import { CommonHeaderCache } from "./project/commonHeaders";
 import { StandaloneRuleCache } from "./standalone/rules";
-import { StandaloneVariableCache } from "./variable/variable";
+import { VariableCache } from "./variable/variable";
 import { IDBPDatabase, openDB } from "idb";
 import { config } from "@src/config/config.ts";
 
@@ -12,18 +12,18 @@ export class StandaloneCache {
   public db: IDBPDatabase | null = null;
   
   // 组合各 cache
-  standaloneHttpNodeList: StandaloneHttpNodeCache;
-  standaloneProjects: StandaloneProjectCache;
-  standaloneCommonHeaders: StandaloneCommonHeaderCache;
+  standaloneHttpNodeList: ApiNodesCache;
+  standaloneProjects: ProjectCache;
+  standaloneCommonHeaders: CommonHeaderCache;
   standaloneRules: StandaloneRuleCache;
-  standaloneVariables: StandaloneVariableCache;
+  standaloneVariables: VariableCache;
 
   constructor() {
-    this.standaloneHttpNodeList = new StandaloneHttpNodeCache(null);
-    this.standaloneProjects = new StandaloneProjectCache(null);
-    this.standaloneCommonHeaders = new StandaloneCommonHeaderCache(null);
+    this.standaloneHttpNodeList = new ApiNodesCache(null);
+    this.standaloneProjects = new ProjectCache(null);
+    this.standaloneCommonHeaders = new CommonHeaderCache(null);
     this.standaloneRules = new StandaloneRuleCache(null);
-    this.standaloneVariables = new StandaloneVariableCache(null);
+    this.standaloneVariables = new VariableCache(null);
   }
 
   async init() {
@@ -55,11 +55,11 @@ export class StandaloneCache {
         },
       }
     );
-    this.standaloneHttpNodeList = new StandaloneHttpNodeCache(this.db);
-    this.standaloneProjects = new StandaloneProjectCache(this.db);
-    this.standaloneCommonHeaders = new StandaloneCommonHeaderCache(this.db);
+    this.standaloneHttpNodeList = new ApiNodesCache(this.db);
+    this.standaloneProjects = new ProjectCache(this.db);
+    this.standaloneCommonHeaders = new CommonHeaderCache(this.db);
     this.standaloneRules = new StandaloneRuleCache(this.db);
-    this.standaloneVariables = new StandaloneVariableCache(this.db);
+    this.standaloneVariables = new VariableCache(this.db);
   }
 
   // 项目相关

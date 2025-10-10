@@ -1,7 +1,7 @@
 import { IDBPDatabase } from "idb";
 import type { ApidocProjectInfo } from '@src/types';
 
-export class StandaloneProjectCache {
+export class ProjectCache {
   constructor(private db: IDBPDatabase | null = null) {}
 
   async getProjectList(): Promise<ApidocProjectInfo[]> {
