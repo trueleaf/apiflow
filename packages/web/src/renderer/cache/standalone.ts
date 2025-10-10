@@ -2,7 +2,7 @@
 import type { ApidocProjectInfo, ApidocProperty, ApidocVariable, ApiNode, ApidocProjectRules } from '@src/types';
 import { StandaloneHttpNodeCache } from "./standalone/httpNode";
 import { StandaloneProjectCache } from "./project/projects";
-import { StandaloneCommonHeaderCache } from "./standalone/commonHeaders";
+import { StandaloneCommonHeaderCache } from "./project/commonHeaders";
 import { StandaloneRuleCache } from "./standalone/rules";
 import { StandaloneVariableCache } from "./standalone/variable";
 import { IDBPDatabase, openDB } from "idb";

@@ -112,4 +112,4 @@ export class StandaloneCommonHeaderCache {
     await tx.done;
     return true;
   }
-} 
+}
