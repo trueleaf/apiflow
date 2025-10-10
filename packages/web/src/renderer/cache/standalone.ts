@@ -179,41 +179,6 @@ export class StandaloneCache {
   async getVariableById(variableId: string) {
     return this.standaloneVariables.getById(variableId);
   }
-
-  /**
-   * 清除所有数据
-   */
-  async clearAllData(): Promise<boolean> {
-    try {
-      if (!this.db) throw new Error("Database not initialized");
-      
-      // 获取所有数据
-      const docsList = await this.standaloneHttpNodeList.getDocsList();
-      const projectList = await this.standaloneProjects.getProjectList();
-      
-      // 保留已删除的数据
-      const deletedDocs = docsList.filter(doc => doc.isDeleted);
-      const deletedProjects = projectList.filter(project => project.isDeleted);
-      
-      // 清空所有数据
-      const stores = ['httpNodeList', 'projects', 'commonHeaders', 'rules', 'variables'];
-      for (const storeName of stores) {
-        const tx = this.db.transaction(storeName, 'readwrite');
-        await tx.objectStore(storeName).clear();
-        await tx.done;
-      }
-      
-      // 恢复已删除的数据
-      for (const doc of deletedDocs) {
-        await this.standaloneHttpNodeList.addDoc(doc);
-      }
-      await this.standaloneProjects.setProjectList(deletedProjects);
-      return true;
-    } catch (err) {
-      console.error('Failed to clear all data:', err);
-      return false;
-    }
-  }
 }
 
 export const standaloneCache = new StandaloneCache();

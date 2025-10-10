@@ -50,7 +50,7 @@ class WebSocketNodeCache extends HttpResponseCache {
   /*
    * 根据tabId获取不发送公共请求头
    */
-  getIgnoredCommonHeaderByTabId(projectId: string, tabId: string): string[] | null {
+  getWsIgnoredCommonHeaderByTabId(projectId: string, tabId: string): string[] | null {
     try {
       const localData = JSON.parse(localStorage.getItem('websocketNode/commonHeaders/ignore') || '{}') as Record<string, Record<string, string[]>>;
       if (localData[projectId] == null) {
@@ -69,7 +69,7 @@ class WebSocketNodeCache extends HttpResponseCache {
   /*
    * 设置不发送的公共请求头
    */
-  setIgnoredCommonHeader(options: { projectId: string; tabId: string; ignoreHeaderId: string }) {
+  setWsIgnoredCommonHeader(options: { projectId: string; tabId: string; ignoreHeaderId: string }) {
     try {
       const { projectId, tabId, ignoreHeaderId } = options;
       const localData = JSON.parse(localStorage.getItem('websocketNode/commonHeaders/ignore') || '{}') as Record<string, Record<string, string[]>>;
@@ -91,7 +91,7 @@ class WebSocketNodeCache extends HttpResponseCache {
   /*
    * 删除不发送的公共请求头
    */
-  removeIgnoredCommonHeader(options: { projectId: string; tabId: string; ignoreHeaderId: string }) {
+  removeWsIgnoredCommonHeader(options: { projectId: string; tabId: string; ignoreHeaderId: string }) {
     try {
       const { projectId, tabId, ignoreHeaderId } = options;
       const localData = JSON.parse(localStorage.getItem('websocketNode/commonHeaders/ignore') || '{}') as Record<string, Record<string, string[]>>;

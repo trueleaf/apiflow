@@ -127,7 +127,7 @@ export const getWebSocketHeaders = async (websocketNode: WebSocketNode, defaultH
   }
 
   const defaultCommonHeaders = apidocBaseInfoStore.getCommonHeadersById(currentSelectTab?._id || "");
-  const ignoreHeaderIds = webSocketNodeCache.getIgnoredCommonHeaderByTabId?.(projectId, currentSelectTab?._id ?? "") || [];
+  const ignoreHeaderIds = webSocketNodeCache.getWsIgnoredCommonHeaderByTabId?.(projectId, currentSelectTab?._id ?? "") || [];
   const commonHeaders = defaultCommonHeaders.filter(header => !ignoreHeaderIds.includes(header._id));
   const headers = websocketNode.item.headers;
   const headersObject: Record<string, string> = {};
