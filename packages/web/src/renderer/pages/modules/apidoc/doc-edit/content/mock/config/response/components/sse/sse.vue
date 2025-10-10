@@ -1,7 +1,7 @@
 <template>
   <div class="sse-config-wrapper">
     <!-- 发送节奏配置 -->
-    <div class="form-row mb-3 mt-3">
+    <div class="form-row">
       <div class="form-item flex-item">
         <label class="form-label">{{ t('发送间隔') }}({{ t('单位：毫秒') }})</label>
         <el-input-number
@@ -25,7 +25,7 @@
     </div>
 
     <!-- 事件数据、事件ID、事件名称、重试间隔 -->
-    <div class="form-row mb-3">
+    <div class="form-row">
       <!-- 事件数据 -->
       <div class="form-item flex-item">
         <div class="label-with-switch">
@@ -122,14 +122,6 @@ const { t } = useI18n()
   min-height: 0;
 }
 
-.mb-3 {
-  margin-bottom: 12px;
-}
-
-.mt-3 {
-  margin-top: 12px;
-}
-
 /* 表单行 */
 .form-row {
   display: flex;
@@ -171,7 +163,6 @@ const { t } = useI18n()
 
 .sse-editor-wrapper {
   flex: 1;
-  min-height: 300px;
   border: 1px solid var(--gray-300);
   border-radius: var(--border-radius-sm);
   overflow: hidden;

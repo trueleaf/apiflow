@@ -85,7 +85,7 @@ const handleRefresh = async () => {
   flex-shrink: 0;
   padding: 0 20px;
   background: var(--white);
-  border-bottom: 1px solid var(--gray-400);
+  border-bottom: 1px dashed var(--gray-400);
 }
 
 /* 响应配置区域 - 可滚动 */
