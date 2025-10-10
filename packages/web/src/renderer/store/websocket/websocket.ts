@@ -14,7 +14,7 @@ import { getWebSocketUrl } from "@/server/request/request.ts";
 import { useVariable } from "../apidoc/variables.ts";
 import { useCookies } from "../apidoc/cookies.ts";
 import { i18n } from "@/i18n";
-import { webSocketHistoryCache } from "@/cache/history";
+import { webSocketHistoryCache } from "@/cache/websocketNode/websocketHistory";
 import { useRuntime } from '@/store/runtime/runtime';
 
 export const useWebSocket = defineStore('websocket', () => {
