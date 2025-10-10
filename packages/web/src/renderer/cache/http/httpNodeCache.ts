@@ -220,27 +220,6 @@ class HttpNodeCache extends HttpResponseCache {
       localStorage.setItem('httpNode/commonHeaders/ignore', '{}');
     }
   }
-  /*
-   * 项目列表和团队列表切换缓存
-   */
-  getActiveApidocTab(): string {
-    try {
-      const localData = localStorage.getItem('httpNode/activeApidocTab') || 'projectList';
-      return localData;
-    } catch (error) {
-      console.error(error);
-      return 'projectList'
-    }
-  }
-
-  setActiveApidocTab(activeTab: string) {
-    try {
-      localStorage.setItem('httpNode/activeApidocTab', activeTab);
-    } catch (error) {
-      console.error(error);
-      localStorage.setItem('httpNode/activeApidocTab', 'projectList');
-     }
-  }
 
   /*
    * 缓存cookie（ApidocCookie[]）

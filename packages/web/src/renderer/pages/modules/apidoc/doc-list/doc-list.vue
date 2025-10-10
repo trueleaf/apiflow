@@ -37,10 +37,10 @@ import tabA from './tab-a/tab-a.vue'
 import tabB from './tab-b/tab-b.vue'
 import { useI18n } from 'vue-i18n'
 import { TabPaneName } from 'element-plus'
-import { httpNodeCache } from '@/cache/http/httpNodeCache.ts'
+import { userState } from '@/cache/userState/userState.ts'
 import { useRuntime } from '@/store/runtime/runtime'
 
-const { getActiveApidocTab, setActiveApidocTab } = httpNodeCache
+const { getActiveHomeTab, setActiveHomeTab } = userState
 const { t } = useI18n()
 
 const activeName = ref('projectList'); //当前被选中的tab
@@ -54,12 +54,12 @@ const activeComponent = computed(() => {
   }
 })
 const handleChangeActiveTab = (tabName: TabPaneName) => {
-  setActiveApidocTab(tabName as string)
+  setActiveHomeTab(tabName as string)
   activeName.value = tabName as string;
 }
 
 onMounted(() => {
-  activeName.value = getActiveApidocTab()
+  activeName.value = getActiveHomeTab()
 })
 </script>
 

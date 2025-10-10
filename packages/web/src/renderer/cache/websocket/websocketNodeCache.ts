@@ -2,7 +2,7 @@
  * websocket文档缓存
  */
 
-import { WebSocketNode, WebsocketActiveTabType, WebsocketConfig } from '@src/types/websocketNode';
+import { WebSocketNode, WebsocketConfig } from '@src/types/websocketNode';
 import { HttpResponseCache } from '../http/httpResponseCache';
 
 class WebSocketNodeCache extends HttpResponseCache {
@@ -196,39 +196,6 @@ class WebSocketNodeCache extends HttpResponseCache {
       const data: Record<string, any> = {};
       data[projectId] = config;
       localStorage.setItem('websocketNode/autoReconnect', JSON.stringify(data));
-    }
-  }
-
-  /*
-   * 获取websocket连接页面的活跃tab
-   */
-  getActiveTab(id: string): WebsocketActiveTabType | null {
-    try {
-      const localActiveTab: Record<string, WebsocketActiveTabType> = JSON.parse(localStorage.getItem('websocketNode/connectionActiveTab') || '{}');
-      if (!localActiveTab[id]) {
-        return null;
-      }
-      return localActiveTab[id];
-    } catch (error) {
-      console.error(error);
-      localStorage.setItem('websocketNode/connectionActiveTab', '{}')
-      return null;
-    }
-  }
-
-  /*
-   * 设置websocket连接页面的活跃tab
-   */
-  setActiveTab(id: string, val: WebsocketActiveTabType) {
-    try {
-      const localActiveTab = JSON.parse(localStorage.getItem('websocketNode/connectionActiveTab') || '{}');
-      localActiveTab[id] = val;
-      localStorage.setItem('websocketNode/connectionActiveTab', JSON.stringify(localActiveTab));
-    } catch (error) {
-      console.error(error);
-      const data: Record<string, string> = {};
-      data[id] = val;
-      localStorage.setItem('websocketNode/connectionActiveTab', JSON.stringify(data));
     }
   }
 
