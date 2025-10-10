@@ -3,7 +3,8 @@
 // 包含WebSocket节点的核心类型定义
 // ============================================================================
 
-import { ApidocBaseInfo, ApidocProperty } from "../apidoc";
+import { ApidocBaseInfo, ApidocProperty } from "../httpNode/types.ts";
+
 
 /**
  * WebSocket消息类型
