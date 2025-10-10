@@ -99,7 +99,7 @@ const handleAddFile = () => {
       nodeInfo.pid = props.pid
       nodeInfo.sort = Date.now()
       nodeInfo.isDeleted = false;
-      await standaloneCache.addDoc(nodeInfo)
+      await standaloneCache.addNode(nodeInfo)
       emits('success', {
         _id: nodeInfo._id,
         pid: nodeInfo.pid,
@@ -124,7 +124,7 @@ const handleAddFile = () => {
       mockNode.isDeleted = false;
       mockNode.createdAt = new Date().toISOString()
       mockNode.updatedAt = mockNode.createdAt
-      await standaloneCache.addDoc(mockNode)
+      await standaloneCache.addNode(mockNode)
       emits('success', {
         _id: mockNode._id,
         pid: mockNode.pid,
@@ -148,7 +148,7 @@ const handleAddFile = () => {
       websocketNode.pid = props.pid
       websocketNode.sort = Date.now()
       websocketNode.isDeleted = false;
-      await standaloneCache.addDoc(websocketNode)
+      await standaloneCache.addNode(websocketNode)
       emits('success', {
         _id: websocketNode._id,
         pid: websocketNode.pid,

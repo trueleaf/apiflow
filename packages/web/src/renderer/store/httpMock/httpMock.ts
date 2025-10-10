@@ -128,7 +128,7 @@ export const useHttpMock = defineStore('httpMock', () => {
   // 获取HttpMock详情
   const getHttpMockNodeDetail = async (payload: { id: string, projectId: string }): Promise<void> => {
     if (isOffline()) {
-      const doc = await standaloneCache.getDocById(payload.id) as MockHttpNode;
+      const doc = await standaloneCache.getNodeById(payload.id) as MockHttpNode;
       if (!doc) {
         // 如果standalone中没有找到，尝试从缓存中获取
         const cachedHttpMock = getCachedHttpMockNodeById(payload.id);
@@ -191,7 +191,7 @@ export const useHttpMock = defineStore('httpMock', () => {
     if (isOffline()) {
       const httpMockDetail = cloneDeep(httpMock.value);
       httpMockDetail.updatedAt = new Date().toISOString();
-      await standaloneCache.updateDoc(httpMockDetail);
+      await standaloneCache.updateNode(httpMockDetail);
       //改变tab请求方法
       changeTabInfoById({
         id: currentSelectTab._id,

@@ -171,7 +171,7 @@ const loading = ref(false); //获取数据加载状态
 const deletedList: Ref<DeleteInfo[]> = ref([]); //已删除数据列表
 const getData = async () => {
   if (isStandalone.value) {
-    deletedList.value = await standaloneCache.getDeletedDocsList(projectId) as any;
+    deletedList.value = await standaloneCache.getDeletedNodesList(projectId) as any;
     return;
   }
   loading.value = true;
@@ -337,7 +337,7 @@ const restoreDocDirectly = (docInfo: DeleteInfo) => {
     type: 'warning',
   }).then(async () => {
     if (isStandalone.value) {
-      const delIds = await standaloneCache.restoreDoc(docInfo._id);
+      const delIds = await standaloneCache.restoreNode(docInfo._id);
       for (let i = 0; i < delIds.length; i += 1) {
         const id = delIds[i];
         const delIndex = deletedList.value.findIndex((val) => val._id === id);

@@ -15,7 +15,7 @@ export class ApiNodesCache {
   |--------------------------------------------------------------------------
   */
   // 获取所有节点
-  async getDocsList(): Promise<ApiNode[]> {
+  async getNodeList(): Promise<ApiNode[]> {
     if (!this.db) throw new Error("Database not initialized");
     try {
       const allDocs = await this.db.getAll("httpNodeList");
@@ -26,7 +26,7 @@ export class ApiNodesCache {
     }
   }
   // 获取项目下面所有节点
-  async getDocsByProjectId(projectId: string): Promise<ApiNode[]> {
+  async getNodesByProjectId(projectId: string): Promise<ApiNode[]> {
     const cached = this.bannerCache.get(projectId);
     if (cached && Date.now() - cached.timestamp < this.CACHE_TTL) {
       return cached.data;
@@ -60,10 +60,10 @@ export class ApiNodesCache {
     }
   }
   // 根据节点id获取节点信息
-  async getDocById(docId: string): Promise<ApiNode | null> {
+  async getNodeById(nodeId: string): Promise<ApiNode | null> {
     if (!this.db) throw new Error("Database not initialized");
     try {
-      const doc = await this.db.get("httpNodeList", docId);
+      const doc = await this.db.get("httpNodeList", nodeId);
       return doc && !doc.isDeleted ? doc : null;
     } catch (error) {
       console.error("Failed to get doc by id:", error);
@@ -71,12 +71,12 @@ export class ApiNodesCache {
     }
   }
   // 添加一个节点
-  async addDoc(doc: ApiNode): Promise<boolean> {
+  async addNode(node: ApiNode): Promise<boolean> {
     if (!this.db) throw new Error("Database not initialized");
     try {
-      await this.db.put("httpNodeList", doc, doc._id);
-      await this.updateProjectDocNum(doc.projectId);
-      this.clearBannerCache(doc.projectId);
+      await this.db.put("httpNodeList", node, node._id);
+      await this.updateProjectNodeNum(node.projectId);
+      this.clearBannerCache(node.projectId);
       return true;
     } catch (error) {
       console.error("Failed to add doc:", error);
@@ -84,14 +84,14 @@ export class ApiNodesCache {
     }
   }
   // 新增或修改一个节点
-  async updateDoc(doc: ApiNode): Promise<boolean> {
+  async updateNode(node: ApiNode): Promise<boolean> {
     if (!this.db) throw new Error("Database not initialized");
     try {
       // 先检查文档是否存在
-      const existingDoc = await this.db.get("httpNodeList", doc._id);
+      const existingDoc = await this.db.get("httpNodeList", node._id);
       if (!existingDoc) return false;
-      await this.db.put("httpNodeList", doc, doc._id);
-      this.clearBannerCache(doc.projectId);
+      await this.db.put("httpNodeList", node, node._id);
+      this.clearBannerCache(node.projectId);
       return true;
     } catch (error) {
       console.error("Failed to update doc:", error);
@@ -99,13 +99,13 @@ export class ApiNodesCache {
     }
   }
   // 更新节点名称
-  async updateDocName(docId: string, name: string): Promise<boolean> {
+  async updateNodeName(nodeId: string, name: string): Promise<boolean> {
     if (!this.db) throw new Error("Database not initialized");
     try {
-      const existingDoc = await this.db.get("httpNodeList", docId);
+      const existingDoc = await this.db.get("httpNodeList", nodeId);
       if (!existingDoc) return false;
       existingDoc.info.name = name;
-      await this.db.put("httpNodeList", existingDoc, docId);
+      await this.db.put("httpNodeList", existingDoc, nodeId);
       this.clearBannerCache(existingDoc.projectId);
       return true;
     } catch (error) {
@@ -114,18 +114,18 @@ export class ApiNodesCache {
     }
   }
   // 删除一个节点
-  async deleteDoc(docId: string): Promise<boolean> {
+  async deleteNode(nodeId: string): Promise<boolean> {
     if (!this.db) throw new Error("Database not initialized");
     try {
-      const existingDoc = await this.db.get("httpNodeList", docId);
+      const existingDoc = await this.db.get("httpNodeList", nodeId);
       if (!existingDoc) return false;
       const updatedDoc = {
         ...existingDoc,
         isDeleted: true,
         updatedAt: new Date().toISOString(),
       };
-      await this.db.put("httpNodeList", updatedDoc, docId);
-      await this.updateProjectDocNum(existingDoc.projectId);
+      await this.db.put("httpNodeList", updatedDoc, nodeId);
+      await this.updateProjectNodeNum(existingDoc.projectId);
       this.clearBannerCache(existingDoc.projectId);
       return true;
     } catch (error) {
@@ -134,9 +134,9 @@ export class ApiNodesCache {
     }
   }
   // 批量删除节点
-  async deleteDocs(docIds: string[]): Promise<boolean> {
+  async deleteNodes(nodeIds: string[]): Promise<boolean> {
     if (!this.db) throw new Error("Database not initialized");
-    if (docIds.length === 0) return true;
+    if (nodeIds.length === 0) return true;
 
     // 使用事务确保批量操作的原子性
     const tx = this.db.transaction("httpNodeList", "readwrite");
@@ -147,15 +147,15 @@ export class ApiNodesCache {
       const updatedTimestamp = new Date().toISOString();
 
       // 在事务中批量处理所有删除操作
-      for (const docId of docIds) {
-        const existingDoc = await store.get(docId);
+      for (const nodeId of nodeIds) {
+        const existingDoc = await store.get(nodeId);
         if (existingDoc) {
           projectId = existingDoc.projectId;
           await store.put({
             ...existingDoc,
             isDeleted: true,
             updatedAt: updatedTimestamp,
-          }, docId);
+          }, nodeId);
         }
       }
 
@@ -164,7 +164,7 @@ export class ApiNodesCache {
 
       // 更新项目文档数量和清除缓存
       if (projectId) {
-        await this.updateProjectDocNum(projectId);
+        await this.updateProjectNodeNum(projectId);
         this.clearBannerCache(projectId);
       }
       
@@ -176,13 +176,13 @@ export class ApiNodesCache {
     }
   }
   // 删除整个项目的节点
-  async deleteDocsByProjectId(projectId: string): Promise<boolean> {
-    const projectDocs = await this.getDocsByProjectId(projectId);
-    if (projectDocs.length === 0) return true;
-    return await this.deleteDocs(projectDocs.map((doc) => doc._id));
+  async deleteNodesByProjectId(projectId: string): Promise<boolean> {
+    const projectNodes = await this.getNodesByProjectId(projectId);
+    if (projectNodes.length === 0) return true;
+    return await this.deleteNodes(projectNodes.map((node) => node._id));
   }
   // 获取已删除节点列表
-  async getDeletedDocsList(projectId: string) {
+  async getDeletedNodesList(projectId: string) {
     if (!this.db) throw new Error("Database not initialized");
     try {
       const allDocs = await this.db.getAllFromIndex("httpNodeList", "projectId", projectId);
@@ -196,14 +196,14 @@ export class ApiNodesCache {
     }
   }
   // 恢复已删除的文档
-  async restoreDoc(docId: string): Promise<string[]> {
+  async restoreNode(nodeId: string): Promise<string[]> {
     if (!this.db) throw new Error("Database not initialized");
     try {
-      const existingDoc = await this.db.get("httpNodeList", docId);
-      const result: string[] = [docId];
+      const existingDoc = await this.db.get("httpNodeList", nodeId);
+      const result: string[] = [nodeId];
       if (!existingDoc) return [];
       existingDoc.isDeleted = false;
-      await this.db.put("httpNodeList", existingDoc, docId);
+      await this.db.put("httpNodeList", existingDoc, nodeId);
       // 递归恢复父级文档
       let currentPid = existingDoc.pid;
       while (currentPid) {
@@ -227,12 +227,12 @@ export class ApiNodesCache {
   /*
   |--------------------------------------------------------------------------
   | 项目导入
-  |    replaceAllDocs代表覆盖导入
-  |    appendDocs代表追加导入
+  |    replaceAllNodes代表覆盖导入
+  |    appendNodes代表追加导入
   |--------------------------------------------------------------------------
   */
   // 覆盖替换所有接口文档
-  async replaceAllDocs(docs: ApiNode[], projectId: string): Promise<boolean> {
+  async replaceAllNodes(nodes: ApiNode[], projectId: string): Promise<boolean> {
     if (!this.db) throw new Error("Database not initialized");
     // 使用事务确保替换操作的原子性
     const tx = this.db.transaction("httpNodeList", "readwrite");
@@ -256,7 +256,7 @@ export class ApiNodesCache {
         }, doc._id);
       }
       // 3. 处理文档ID和关系映射
-      const { processedDocs } = this.prepareDocsWithNewIds(docs, projectId);
+      const { processedDocs } = this.prepareDocsWithNewIds(nodes, projectId);
       // 4. 在事务中批量保存处理后的文档
       for (const doc of processedDocs) {
         await store.put(doc, doc._id);
@@ -264,7 +264,7 @@ export class ApiNodesCache {
       // 等待事务完成
       await tx.done;
       // 更新项目文档数量和清除缓存
-      await this.updateProjectDocNum(projectId);
+      await this.updateProjectNodeNum(projectId);
       this.clearBannerCache(projectId);
       return true;
     } catch (error) {
@@ -274,19 +274,19 @@ export class ApiNodesCache {
     }
   }
   // 批量追加接口文档
-  async appendDocs(docs: ApiNode[], projectId: string): Promise<string[]> {
+  async appendNodes(nodes: ApiNode[], projectId: string): Promise<string[]> {
     if (!this.db) throw new Error("Database not initialized");
     const successIds: string[] = [];
 
     try {
-      const { processedDocs } = this.prepareDocsWithNewIds(docs, projectId);
+      const { processedDocs } = this.prepareDocsWithNewIds(nodes, projectId);
       const savePromises = processedDocs.map(async (doc) => {
         await this.db!.put("httpNodeList", doc, doc._id);
         return doc._id;
       });
       const savedIds = await Promise.all(savePromises);
       successIds.push(...savedIds);
-      await this.updateProjectDocNum(projectId);
+      await this.updateProjectNodeNum(projectId);
       this.clearBannerCache(projectId);
       return successIds;
     } catch (error) {
@@ -300,7 +300,7 @@ export class ApiNodesCache {
   |--------------------------------------------------------------------------
   */
   // 更新项目内节点数量(不包含文件夹)
-  private async updateProjectDocNum(projectId: string): Promise<void> {
+  private async updateProjectNodeNum(projectId: string): Promise<void> {
     if (!this.db) throw new Error("Database not initialized");
     try {
       // 使用索引查询优化性能，只获取当前项目的文档
@@ -325,13 +325,13 @@ export class ApiNodesCache {
   */
   // 以树形方式获取文件夹
   async getApiNodesAsTree(projectId: string, filterType?: ApidocType) {
-    const projectDocs = await this.getDocsByProjectId(projectId);
+    const projectNodes = await this.getNodesByProjectId(projectId);
     const { convertNodesToBannerNodes } = await import("@/helper/index");
-    const folderNodes = projectDocs.filter(doc => {
+    const folderNodes = projectNodes.filter(node => {
       if (!filterType) {
         return true;
       }
-      return doc.info.type === 'folder';
+      return node.info.type === 'folder';
     });
     return convertNodesToBannerNodes(folderNodes);
   }

@@ -1,6 +1,6 @@
 
 import type { ApidocProjectInfo, ApidocProperty, ApidocVariable, ApiNode, ApidocProjectRules } from '@src/types';
-import { ApiNodesCache } from "./standalone/httpNode";
+import { ApiNodesCache } from "./standalone/apiNodes";
 import { ProjectCache } from "./project/projects";
 import { CommonHeaderCache } from "./project/commonHeaders";
 import { StandaloneRuleCache } from "./standalone/rules";
@@ -82,9 +82,9 @@ export class StandaloneCache {
     return this.standaloneProjects.deleteProject(projectId);
   }
   async updateProjectDocNum(projectId: string): Promise<boolean> {
-    const docsList = await this.standaloneHttpNodeList.getDocsList();
-    const projectDocs = docsList.filter(doc => doc.projectId === projectId && !doc.isDeleted);
-    const docNum = projectDocs.length;
+    const nodesList = await this.standaloneHttpNodeList.getNodeList();
+    const projectNodes = nodesList.filter(node => node.projectId === projectId && !node.isDeleted);
+    const docNum = projectNodes.length;
     const projectList = await this.standaloneProjects.getProjectList();
     const projectIndex = projectList.findIndex(p => p._id === projectId);
     if (projectIndex === -1) return false;
@@ -94,49 +94,49 @@ export class StandaloneCache {
     };
     return await this.standaloneProjects.setProjectList(projectList);
   }
-  async getDocsByProjectId(projectId: string): Promise<ApiNode[]> {
-    return this.standaloneHttpNodeList.getDocsByProjectId(projectId);
+  async getNodesByProjectId(projectId: string): Promise<ApiNode[]> {
+    return this.standaloneHttpNodeList.getNodesByProjectId(projectId);
   }
-  async getDocById(docId: string): Promise<ApiNode | null> {
-    return this.standaloneHttpNodeList.getDocById(docId);
+  async getNodeById(nodeId: string): Promise<ApiNode | null> {
+    return this.standaloneHttpNodeList.getNodeById(nodeId);
   }
-  async deleteDocsByProjectId(projectId: string): Promise<boolean> {
-    return this.standaloneHttpNodeList.deleteDocsByProjectId(projectId);
+  async deleteNodesByProjectId(projectId: string): Promise<boolean> {
+    return this.standaloneHttpNodeList.deleteNodesByProjectId(projectId);
   }
   async getApiNodesAsTree(projectId: string) {
     return this.standaloneHttpNodeList.getApiNodesAsTree(projectId);
   }
 
   // 文档相关
-  async getDocsList(): Promise<ApiNode[]> {
-    return this.standaloneHttpNodeList.getDocsList();
+  async getNodeList(): Promise<ApiNode[]> {
+    return this.standaloneHttpNodeList.getNodeList();
   }
-  async addDoc(doc: ApiNode): Promise<boolean> {
-    return this.standaloneHttpNodeList.addDoc(doc);
+  async addNode(node: ApiNode): Promise<boolean> {
+    return this.standaloneHttpNodeList.addNode(node);
   }
-  async updateDoc(doc: ApiNode): Promise<boolean> {
-    return this.standaloneHttpNodeList.updateDoc(doc);
+  async updateNode(node: ApiNode): Promise<boolean> {
+    return this.standaloneHttpNodeList.updateNode(node);
   }
-  async updateDocName(docId: string, name: string): Promise<boolean> {
-    return this.standaloneHttpNodeList.updateDocName(docId, name);
+  async updateNodeName(nodeId: string, name: string): Promise<boolean> {
+    return this.standaloneHttpNodeList.updateNodeName(nodeId, name);
   }
-  async deleteDoc(docId: string): Promise<boolean> {
-    return this.standaloneHttpNodeList.deleteDoc(docId);
+  async deleteNode(nodeId: string): Promise<boolean> {
+    return this.standaloneHttpNodeList.deleteNode(nodeId);
   }
-  async deleteDocs(docIds: string[]): Promise<boolean> {
-    return this.standaloneHttpNodeList.deleteDocs(docIds);
+  async deleteNodes(nodeIds: string[]): Promise<boolean> {
+    return this.standaloneHttpNodeList.deleteNodes(nodeIds);
   }
-  async restoreDoc(docId: string): Promise<string[]> {
-    return this.standaloneHttpNodeList.restoreDoc(docId);
+  async restoreNode(nodeId: string): Promise<string[]> {
+    return this.standaloneHttpNodeList.restoreNode(nodeId);
   }
-  async getDeletedDocsList(projectId: string) {
-    return this.standaloneHttpNodeList.getDeletedDocsList(projectId);
+  async getDeletedNodesList(projectId: string) {
+    return this.standaloneHttpNodeList.getDeletedNodesList(projectId);
   }
-  async replaceAllDocs(docs: ApiNode[], projectId: string): Promise<boolean> {
-    return this.standaloneHttpNodeList.replaceAllDocs(docs, projectId);
+  async replaceAllNodes(nodes: ApiNode[], projectId: string): Promise<boolean> {
+    return this.standaloneHttpNodeList.replaceAllNodes(nodes, projectId);
   }
-  async appendDocs(docs: ApiNode[], projectId: string): Promise<string[]> {
-    return this.standaloneHttpNodeList.appendDocs(docs, projectId);
+  async appendNodes(nodes: ApiNode[], projectId: string): Promise<string[]> {
+    return this.standaloneHttpNodeList.appendNodes(nodes, projectId);
   }
   // 公共请求头相关
   async getCommonHeaders(): Promise<ApidocProperty<'string'>[]> {

@@ -472,13 +472,13 @@ const handleSubmit = async () => {
 
     if (isStandalone.value && formInfo.value.cover) {
       const copiedDocs = JSON.parse(JSON.stringify(docs)) as HttpNode[];
-      await standaloneCache.replaceAllDocs(copiedDocs as HttpNode[], projectId);
+      await standaloneCache.replaceAllNodes(copiedDocs as HttpNode[], projectId);
       apidocBannerStore.getDocBanner({ projectId });
       ElMessage.success(t('导入成功'));
       return
     } else if (isStandalone.value && !formInfo.value.cover) {
       const copiedDocs = JSON.parse(JSON.stringify(docs)) as HttpNode[];
-      await standaloneCache.appendDocs(copiedDocs, projectId);
+      await standaloneCache.appendNodes(copiedDocs, projectId);
       apidocBannerStore.getDocBanner({ projectId });
       ElMessage.success(t('导入成功'));
       return

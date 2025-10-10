@@ -437,7 +437,7 @@ export const useApidoc = defineStore('apidoc', () => {
     const { deleteTabByIds } = useApidocTas();
 
     if (isOffline()) {
-      const doc = await standaloneCache.getDocById(payload.id) as HttpNode;
+      const doc = await standaloneCache.getNodeById(payload.id) as HttpNode;
       if (!doc) {
         ElMessageBox.confirm('当前接口不存在，可能已经被删除!', '提示', {
           confirmButtonText: '关闭接口',
@@ -542,7 +542,7 @@ export const useApidoc = defineStore('apidoc', () => {
       };
       if (isOffline()) {
         apidocDetail.updatedAt = new Date().toISOString();
-        await standaloneCache.updateDoc(apidocDetail);
+        await standaloneCache.updateNode(apidocDetail);
         //改变tab请求方法
         changeTabInfoById({
           id: currentSelectTab._id,

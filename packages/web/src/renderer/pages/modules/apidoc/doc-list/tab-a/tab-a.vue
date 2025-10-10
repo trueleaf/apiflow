@@ -501,7 +501,7 @@ const debounceSearch = debounce(async () => {
   }
   if (isStandalone.value) {
     const keyword = projectKeyword.value.toLowerCase().trim();
-    const docs = await standaloneCache.getDocsList();
+    const docs = await standaloneCache.getNodeList();
     const projectList = await standaloneCache.getProjectList();
     const filteredDocs = docs.filter((doc) => {
       // Type guard to check if doc has an item property (HttpNode or WebSocketNode)

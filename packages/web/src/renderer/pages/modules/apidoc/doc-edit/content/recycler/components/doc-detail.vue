@@ -141,7 +141,7 @@ const isOffline = () => runtimeStore.networkMode === 'offline';
 //获取文档详情
 const getDocDetail = async () => {
   if (isOffline()) {
-    docDetail.value = await standaloneCache.getDocById(props.id) as HttpNode;
+    docDetail.value = await standaloneCache.getNodeById(props.id) as HttpNode;
     return
   }
   loading.value = true;

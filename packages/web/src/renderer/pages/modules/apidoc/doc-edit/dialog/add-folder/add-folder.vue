@@ -60,7 +60,7 @@ const handleAddFolder = () => {
       nodeInfo.sort = Date.now()
       nodeInfo.isDeleted = false;
       nodeInfo.info.type = 'folder';
-      await standaloneCache.addDoc(nodeInfo)
+      await standaloneCache.addNode(nodeInfo)
       // const banner = await standaloneCache.getDocTree(nodeInfo.projectId);
       // apidocBannerStore.changeAllDocBanner(banner);
       emits('success', {

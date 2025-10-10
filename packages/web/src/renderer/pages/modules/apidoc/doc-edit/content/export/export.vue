@@ -150,7 +150,7 @@ const config: Ref<{ isEnabled: boolean } | null> = ref(null)
 const handleExportAsHTML = async () => {
   if (isStandalone.value) {
     const selectedIds = allCheckedNodes.value.map((val) => val._id);
-    const allDocs = await standaloneCache.getDocsByProjectId(apidocBaseInfoStore._id);
+    const allDocs = await standaloneCache.getNodesByProjectId(apidocBaseInfoStore._id);
     const selectedDocs = allDocs.filter((doc) => {
       if (selectedIds.length === 0) {
         return true;
@@ -209,7 +209,7 @@ const handleExportAsHTML = async () => {
 const handleExportAsApiflow = async () => {
   if (isStandalone.value) {
     const selectedIds = allCheckedNodes.value.map((val) => val._id);
-    const allDocs = await standaloneCache.getDocsByProjectId(apidocBaseInfoStore._id);
+    const allDocs = await standaloneCache.getNodesByProjectId(apidocBaseInfoStore._id);
     const selectedDocs = allDocs.filter((doc) => {
       if (selectedIds.length === 0) {
         return true;
@@ -266,7 +266,7 @@ const handleExportAsPdf = () => {
 const handleExportAsWord = async () => {
   if (isStandalone.value) {
     const selectedIds = allCheckedNodes.value.map((val) => val._id);
-    const allDocs = await standaloneCache.getDocsByProjectId(apidocBaseInfoStore._id);
+    const allDocs = await standaloneCache.getNodesByProjectId(apidocBaseInfoStore._id);
     const selectedDocs = allDocs.filter((doc) => {
       if (selectedIds.length === 0) {
         return true;

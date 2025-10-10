@@ -156,7 +156,7 @@ const handleSaveDoc = async () => {
   loading.value = true;
   if (isStandalone.value) {
     docInfo._id = nanoid(); //local_开头会被识别为未保存文档
-    await standaloneCache.addDoc(docInfo);
+    await standaloneCache.addNode(docInfo);
     saveDocCb(docInfo._id);
     return
   }
