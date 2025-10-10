@@ -7,7 +7,7 @@ import type { ApidocProperty } from "@src/types";
 import type { WebSocketNode } from "@src/types/websocketNode";
 import { useWebSocket } from "@/store/websocket/websocket";
 import { cloneDeep } from "@/helper";
-import { redoUndoCache } from "@/cache/redoUndo/redoUndo";
+import { wsRedoUndoCache } from "@/cache/redoUndo/wsRedoUndo";
 
 // 自定义响应类型用于撤销重做操作
 type RedoUndoResponse = {
@@ -43,7 +43,7 @@ export const useRedoUndo = defineStore('redoUndo', () => {
     }
     
     // 同步到cache
-    redoUndoCache.setRedoUndoListByNodeId(nodeId, wsRedoList.value[nodeId], wsUndoList.value[nodeId]);
+    wsRedoUndoCache.setRedoUndoListByNodeId(nodeId, wsRedoList.value[nodeId], wsUndoList.value[nodeId]);
   };
 
   /**
@@ -63,7 +63,7 @@ export const useRedoUndo = defineStore('redoUndo', () => {
       wsRedoList.value[nodeId].push(operation);
 
       // 同步到cache
-      redoUndoCache.setRedoUndoListByNodeId(nodeId, wsRedoList.value[nodeId], wsUndoList.value[nodeId]);
+      wsRedoUndoCache.setRedoUndoListByNodeId(nodeId, wsRedoList.value[nodeId], wsUndoList.value[nodeId]);
       return { code: 0, msg: '撤销成功', operation };
     } catch (error) {
       console.error('撤销操作失败:', error);
@@ -89,7 +89,7 @@ export const useRedoUndo = defineStore('redoUndo', () => {
       wsUndoList.value[nodeId].push(operation);
 
       // 同步到cache
-      redoUndoCache.setRedoUndoListByNodeId(nodeId, wsRedoList.value[nodeId], wsUndoList.value[nodeId]);
+      wsRedoUndoCache.setRedoUndoListByNodeId(nodeId, wsRedoList.value[nodeId], wsUndoList.value[nodeId]);
       return { code: 0, msg: '重做成功', operation };
     } catch (error) {
       console.error('重做操作失败:', error);
@@ -168,7 +168,7 @@ export const useRedoUndo = defineStore('redoUndo', () => {
     wsRedoList.value[nodeId] = redoList;
     // 同步到cache
     const undoList = wsUndoList.value[nodeId] || [];
-    redoUndoCache.setRedoUndoListByNodeId(nodeId, redoList, undoList);
+    wsRedoUndoCache.setRedoUndoListByNodeId(nodeId, redoList, undoList);
   };
 
   /**
@@ -178,14 +178,14 @@ export const useRedoUndo = defineStore('redoUndo', () => {
     wsUndoList.value[nodeId] = undoList;
     // 同步到cache
     const redoList = wsRedoList.value[nodeId] || [];
-    redoUndoCache.setRedoUndoListByNodeId(nodeId, redoList, undoList);
+    wsRedoUndoCache.setRedoUndoListByNodeId(nodeId, redoList, undoList);
   };
 
   /**
    * 从缓存初始化指定节点的数据
    */
   const initFromCache = (nodeId: string): void => {
-    const cacheData = redoUndoCache.getRedoUndoListByNodeId(nodeId);
+    const cacheData = wsRedoUndoCache.getRedoUndoListByNodeId(nodeId);
     if (cacheData) {
       wsUndoList.value[nodeId] = cacheData.undoList;
       wsRedoList.value[nodeId] = cacheData.redoList;
@@ -201,7 +201,7 @@ export const useRedoUndo = defineStore('redoUndo', () => {
   const clearRedoUndoListByNodeId = (nodeId: string): void => {
     wsRedoList.value[nodeId] = [];
     wsUndoList.value[nodeId] = [];
-    redoUndoCache.setRedoUndoListByNodeId(nodeId, [], []);
+    wsRedoUndoCache.setRedoUndoListByNodeId(nodeId, [], []);
   };
 
 
