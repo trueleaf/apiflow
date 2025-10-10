@@ -52,7 +52,7 @@ import { ElMessage, FormInstance } from 'element-plus';
 import { request } from '@/api/api';
 import { router } from '@/router';
 import { usePermissionStore } from '@/store/permission';
-import { permissionCache } from '@/cache/permission/permission';
+import { runtimeCache } from '@/cache/runtime/runtime';
 
 const emits = defineEmits(['jumpToRegister', 'jumpToResetPassword'])
 const { t } = useI18n()
@@ -90,7 +90,7 @@ const handleLogin = async () => {
           // 登录成功，更新用户信息到store
           permissionStore.changeUserInfo(res.data);
           router.push('/home');
-          permissionCache.setUserInfo(res.data);
+          runtimeCache.setUserInfo(res.data);
           // $store.dispatch('permission/getPermission')
         }
       }).catch((err) => {
@@ -127,7 +127,7 @@ const handleGuesttLogin = () => {
     // 体验账号登录成功，更新用户信息到store
     permissionStore.changeUserInfo(res.data);
     router.push('/home');
-    permissionCache.setUserInfo(res.data);
+    runtimeCache.setUserInfo(res.data);
   }).catch((err) => {
     console.error(err);
   }).finally(() => {

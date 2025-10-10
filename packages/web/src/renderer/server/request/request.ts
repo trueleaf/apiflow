@@ -18,7 +18,7 @@ import { InitDataMessage, OnEvalSuccess, ReceivedEvent } from '@/worker/pre-requ
 import { Method } from 'got';
 import preRequestWorker from '@/worker/pre-request/pre-request.ts?worker&inline';
 import { WebSocketNode } from '@src/types/websocketNode';
-import { webSocketNodeCache } from '@/cache/websocket/websocketNodeCache.ts';
+import { webSocketNodeCache } from '@/cache/websocketNode/websocketNodeCache.ts';
 /*
 |--------------------------------------------------------------------------
 | 发送请求

@@ -69,7 +69,7 @@ import { useWebSocket } from '@/store/websocket/websocket';
 import { useRedoUndo } from '@/store/redoUndo/redoUndo';
 import { useApidocTas } from '@/store/apidoc/tabs';
 import { useApidocBaseInfo } from '@/store/apidoc/base-info';
-import { webSocketNodeCache } from '@/cache/websocket/websocketNodeCache';
+import { webSocketNodeCache } from '@/cache/websocketNode/websocketNodeCache';
 import { storeToRefs } from 'pinia';
 import { CheckboxValueType } from 'element-plus';
 

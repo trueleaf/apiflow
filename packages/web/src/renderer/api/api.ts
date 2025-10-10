@@ -5,7 +5,7 @@ import { ElMessage, ElMessageBox } from 'element-plus';
 import { nanoid } from 'nanoid';
 import { parseUrl, getStrParams, getStrHeader, getStrJsonBody, getHashedContent } from './sign';
 import { i18n } from '@/i18n';
-import { permissionCache } from '@/cache/permission/permission';
+import { runtimeCache } from '@/cache/runtime/runtime';
 
 const axiosInstance = Axios.create();
 axiosInstance.defaults.withCredentials = config.renderConfig.httpRequest.withCredentials;//允许携带cookie
@@ -16,7 +16,7 @@ let isExpire = false; //是否登录过期
 //===============================axiosInstance请求钩子==========================================//
 axiosInstance.interceptors.request.use(async (reqConfig) => {
   try {
-    const userInfo = permissionCache.getUserInfo();
+    const userInfo = runtimeCache.getUserInfo();
     //接口加签
     const timestamp = Date.now();
     const nonce = nanoid(); // 生成16位随机字符串
@@ -103,14 +103,14 @@ axiosInstance.interceptors.response.use(
           });
           return Promise.reject(new Error(i18n.global.t('密码错误')));
         case 4101: //登录有错
-          permissionCache.clearUserInfo();
+          runtimeCache.clearUserInfo();
           router.replace('/login');
           ElMessage.warning(i18n.global.t('暂无权限'));
           return Promise.reject(new Error(i18n.global.t('暂无权限')));
         case 4100: //登录过期
           if (!isExpire) {
             isExpire = true;
-            permissionCache.clearUserInfo();
+            runtimeCache.clearUserInfo();
             ElMessageBox.confirm(i18n.global.t('登录已过期'), i18n.global.t('提示'), {
               confirmButtonText: i18n.global.t('跳转登录'),
               cancelButtonText: i18n.global.t('取消'),
@@ -127,7 +127,7 @@ axiosInstance.interceptors.response.use(
         case 4200: //代理错误
           return Promise.reject(new Error(res.data.msg));
         case 4002: //暂无权限
-          permissionCache.clearUserInfo();
+          runtimeCache.clearUserInfo();
           ElMessage.warning(i18n.global.t(res.data.msg || '暂无权限'));
           return Promise.reject(new Error(i18n.global.t(res.data.msg || '暂无权限')));
         default:

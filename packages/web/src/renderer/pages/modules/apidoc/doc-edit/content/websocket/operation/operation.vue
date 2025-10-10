@@ -66,7 +66,7 @@ import { router } from '@/router';
 import { ApidocProperty } from '@src/types';
 import { WebsocketConnectParams } from '@src/types/websocketNode';
 import { uuid } from '@/helper';
-import { websocketResponseCache } from '@/cache/websocket/websocketResponse';
+import { websocketResponseCache } from '@/cache/websocketNode/websocketResponse';
 import { getWebSocketHeaders } from '@/server/request/request';
 import { useRedoUndo } from '@/store/redoUndo/redoUndo';
 import { useRuntime } from '@/store/runtime/runtime';

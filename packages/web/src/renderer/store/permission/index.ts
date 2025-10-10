@@ -7,7 +7,7 @@ import { RouteRecordRaw } from 'vue-router';
 import { ref } from 'vue';
 import { uniqueByKey } from '@/helper';
 import { request } from '@/api/api';
-import { permissionCache } from '@/cache/permission/permission';
+import { runtimeCache } from '@/cache/runtime/runtime';
 
 type ResUserInfo = PermissionUserInfo & {
   clientBanner: PermissionClientMenu[],
@@ -115,7 +115,7 @@ export const usePermissionStore = defineStore('permission', () => {
   };
   //初始化用户信息（从缓存中恢复）
   const initUserInfo = () => {
-    const cachedUserInfo = permissionCache.getUserInfo();
+    const cachedUserInfo = runtimeCache.getUserInfo();
     if (cachedUserInfo) {
       changeUserInfo(cachedUserInfo);
     }
@@ -130,9 +130,9 @@ export const usePermissionStore = defineStore('permission', () => {
         changeGlobalConfig(res.data.globalConfig);
         generateRoutes();
         resolve(res.data);
-        permissionCache.setUserInfo(res.data);
+        runtimeCache.setUserInfo(res.data);
       }).catch((err) => {
-        permissionCache.clearUserInfo();
+        runtimeCache.clearUserInfo();
         reject(err);
       });
     });
