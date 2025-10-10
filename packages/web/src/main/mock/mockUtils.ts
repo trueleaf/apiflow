@@ -595,6 +595,12 @@ export class MockUtils {
     const { sseConfig } = responseConfig;
     const interval = Math.max(sseConfig.interval || 1000, 100); // 最小100ms间隔
     const maxNum = Math.max(sseConfig.maxNum || 10, 1); // 最少发送1条数据
+    
+    // 设置HTTP状态码
+    ctx.status = 200;
+    // 告诉Koa不要自动处理响应,我们手动控制
+    ctx.respond = false;
+    
     // 设置SSE响应头
     ctx.set({
       'Content-Type': 'text/event-stream',
@@ -603,9 +609,6 @@ export class MockUtils {
       'Access-Control-Allow-Origin': '*',
       'Access-Control-Allow-Headers': 'Cache-Control'
     });
-    
-    // 立即发送一个空的数据包来建立连接
-    ctx.res.write(': SSE connection established\n\n');
     
     let messageCount = 0;
     let intervalId: NodeJS.Timeout | null = null;

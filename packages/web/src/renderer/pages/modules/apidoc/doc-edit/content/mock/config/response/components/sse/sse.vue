@@ -28,18 +28,24 @@
     <div class="form-row mb-3">
       <!-- 事件数据 -->
       <div class="form-item flex-item">
-        <label class="form-label">{{ t('事件数据') }}</label>
-        <el-radio-group v-model="response.sseConfig.event.data.mode" size="small">
-          <el-radio-button label="json">JSON</el-radio-button>
-          <el-radio-button label="string">Text</el-radio-button>
-        </el-radio-group>
+        <div class="label-with-switch">
+          <label class="form-label">{{ t('事件数据') }}</label>
+        </div>
+        <div class="form-control-wrapper">
+          <el-radio-group v-model="response.sseConfig.event.data.mode" size="small">
+            <el-radio-button label="json">JSON</el-radio-button>
+            <el-radio-button label="string">Text</el-radio-button>
+          </el-radio-group>
+        </div>
       </div>
 
       <!-- 事件ID -->
       <div class="form-item flex-item">
-        <label class="form-label">{{ t('事件ID') }}</label>
-        <el-switch v-model="response.sseConfig.event.id.enable" size="small" />
-        <div v-if="response.sseConfig.event.id.enable" style="margin-top: 6px;">
+        <div class="label-with-switch">
+          <label class="form-label">{{ t('事件ID') }}</label>
+          <el-switch v-model="response.sseConfig.event.id.enable" size="small" />
+        </div>
+        <div class="form-control-wrapper" v-if="response.sseConfig.event.id.enable">
           <el-radio-group v-model="response.sseConfig.event.id.valueMode" size="small">
             <el-radio-button label="increment">{{ t('自增') }}</el-radio-button>
             <el-radio-button label="timestamp">{{ t('时间戳') }}</el-radio-button>
@@ -50,9 +56,11 @@
 
       <!-- 事件名称 -->
       <div class="form-item flex-item">
-        <label class="form-label">{{ t('事件名称') }}</label>
-        <el-switch v-model="response.sseConfig.event.event.enable" size="small" />
-        <div v-if="response.sseConfig.event.event.enable" style="margin-top: 6px;">
+        <div class="label-with-switch">
+          <label class="form-label">{{ t('事件名称') }}</label>
+          <el-switch v-model="response.sseConfig.event.event.enable" size="small" />
+        </div>
+        <div class="form-control-wrapper" v-if="response.sseConfig.event.event.enable">
           <el-input
             v-model="response.sseConfig.event.event.value"
             size="small"
@@ -64,9 +72,11 @@
 
       <!-- 重试间隔（retry） -->
       <div class="form-item flex-item">
-        <label class="form-label">{{ t('重试间隔') }}({{ t('单位：毫秒') }})</label>
-        <el-switch v-model="response.sseConfig.event.retry.enable" size="small" />
-        <div v-if="response.sseConfig.event.retry.enable" style="margin-top: 6px;">
+        <div class="label-with-switch">
+          <label class="form-label">{{ t('重试间隔') }}({{ t('单位：毫秒') }})</label>
+          <el-switch v-model="response.sseConfig.event.retry.enable" size="small" />
+        </div>
+        <div class="form-control-wrapper" v-if="response.sseConfig.event.retry.enable">
           <el-input-number
             v-model="response.sseConfig.event.retry.value"
             :min="0"
@@ -143,6 +153,20 @@ const { t } = useI18n()
   font-size: var(--font-size-sm);
   color: var(--gray-700);
   font-weight: 500;
+}
+
+.label-with-switch {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 32px;
+  min-height: 32px;
+}
+
+.form-control-wrapper {
+  min-height: 32px;
+  display: flex;
+  align-items: center;
 }
 
 .sse-editor-wrapper {

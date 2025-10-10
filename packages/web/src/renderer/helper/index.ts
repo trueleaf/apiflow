@@ -592,8 +592,8 @@ export const generateEmptyHttpMockNode = (_id: string): MockHttpNode => {
               valueMode: 'increment',
             },
             event: {
-              enable: false,
-              value: '',
+              enable: true,
+              value: 'message',
             },
             data: {
               mode: 'json',
