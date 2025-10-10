@@ -48,49 +48,6 @@ class WebSocketNodeCache extends HttpResponseCache {
   }
 
   /*
-   * 获取websocket连接状态缓存
-   */
-  getWebSocketConnectionState(connectionId: string): {
-    status: 'connecting' | 'connected' | 'disconnected' | 'error' | 'reconnecting';
-    lastConnectedTime?: number;
-    lastDisconnectedTime?: number;
-    reconnectAttempts?: number;
-  } | null {
-    try {
-      const localData: Record<string, any> = JSON.parse(localStorage.getItem('websocketNode/connectionState') || '{}');
-      if (!localData[connectionId]) {
-        return null;
-      }
-      return localData[connectionId];
-    } catch (error) {
-      console.error(error);
-      localStorage.setItem('websocketNode/connectionState', '{}');
-      return null;
-    }
-  }
-
-  /*
-   * 设置websocket连接状态缓存
-   */
-  setWebSocketConnectionState(connectionId: string, state: {
-    status: 'connecting' | 'connected' | 'disconnected' | 'error' | 'reconnecting';
-    lastConnectedTime?: number;
-    lastDisconnectedTime?: number;
-    reconnectAttempts?: number;
-  }) {
-    try {
-      const localData = JSON.parse(localStorage.getItem('websocketNode/connectionState') || '{}');
-      localData[connectionId] = state;
-      localStorage.setItem('websocketNode/connectionState', JSON.stringify(localData));
-    } catch (error) {
-      console.error(error);
-      const data: Record<string, any> = {};
-      data[connectionId] = state;
-      localStorage.setItem('websocketNode/connectionState', JSON.stringify(data));
-    }
-  }
-
-  /*
    * 根据tabId获取不发送公共请求头
    */
   getIgnoredCommonHeaderByTabId(projectId: string, tabId: string): string[] | null {
@@ -153,49 +110,6 @@ class WebSocketNodeCache extends HttpResponseCache {
     } catch (error) {
       console.error(error);
       localStorage.setItem('websocketNode/commonHeaders/ignore', '{}');
-    }
-  }
-
-  /*
-   * 获取websocket自动重连配置
-   */
-  getWebSocketAutoReconnectConfig(projectId: string): {
-    enabled: boolean;
-    maxAttempts: number;
-    delay: number;
-    backoffFactor: number;
-  } | null {
-    try {
-      const localData: Record<string, any> = JSON.parse(localStorage.getItem('websocketNode/autoReconnect') || '{}');
-      if (!localData[projectId]) {
-        return null;
-      }
-      return localData[projectId];
-    } catch (error) {
-      console.error(error);
-      localStorage.setItem('websocketNode/autoReconnect', '{}');
-      return null;
-    }
-  }
-
-  /*
-   * 设置websocket自动重连配置
-   */
-  setWebSocketAutoReconnectConfig(projectId: string, config: {
-    enabled: boolean;
-    maxAttempts: number;
-    delay: number;
-    backoffFactor: number;
-  }) {
-    try {
-      const localData = JSON.parse(localStorage.getItem('websocketNode/autoReconnect') || '{}');
-      localData[projectId] = config;
-      localStorage.setItem('websocketNode/autoReconnect', JSON.stringify(localData));
-    } catch (error) {
-      console.error(error);
-      const data: Record<string, any> = {};
-      data[projectId] = config;
-      localStorage.setItem('websocketNode/autoReconnect', JSON.stringify(data));
     }
   }
 

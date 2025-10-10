@@ -507,37 +507,6 @@ const updateWebSocketHeaderById = (id: string, header: Partial<ApidocProperty<'s
     return webSocketNodeCache.getWebSocketNode(id);
   };
 
-  // 获取websocket连接状态缓存
-  const getCachedConnectionState = (connectionId: string) => {
-    return webSocketNodeCache.getWebSocketConnectionState(connectionId);
-  };
-
-  // 设置websocket连接状态缓存
-  const setCachedConnectionState = (connectionId: string, state: {
-    status: 'connecting' | 'connected' | 'disconnected' | 'error' | 'reconnecting';
-    lastConnectedTime?: number;
-    lastDisconnectedTime?: number;
-    reconnectAttempts?: number;
-  }) => {
-    webSocketNodeCache.setWebSocketConnectionState(connectionId, state);
-  };
-
-
-
-  // 获取自动重连配置
-  const getAutoReconnectConfig = (projectId: string) => {
-    return webSocketNodeCache.getWebSocketAutoReconnectConfig(projectId);
-  };
-
-  // 设置自动重连配置
-  const setAutoReconnectConfig = (projectId: string, config: {
-    enabled: boolean;
-    maxAttempts: number;
-    delay: number;
-    backoffFactor: number;
-  }) => {
-    webSocketNodeCache.setWebSocketAutoReconnectConfig(projectId, config);
-  };
   const setResponseCacheLoading = (state: boolean) => {
     responseCacheLoading.value = state;
   };
@@ -780,10 +749,6 @@ const updateWebSocketHeaderById = (id: string, header: Partial<ApidocProperty<'s
     // 缓存相关方法
     cacheWebSocket,
     getCachedWebSocket,
-    getCachedConnectionState,
-    setCachedConnectionState,
-    getAutoReconnectConfig,
-    setAutoReconnectConfig,
     responseCacheLoading,
     setResponseCacheLoading,
     refreshLoading,
