@@ -8,7 +8,7 @@ import "@/assets/css/index.css";
 import { customDirective } from "./directive/directive";
 import "@/assets/font/iconfont.css";
 import "@/assets/font/iconfont.js";
-import { standaloneCache } from "./cache/standalone";
+import { initStandaloneDB } from "./cache/db";
 import { i18n } from "./i18n";
 import { shortcutManager } from "./shortcut/index.ts";
 import { useRuntime } from "./store/runtime/runtime.ts";
@@ -23,8 +23,8 @@ const app = createApp(App);
 // 在 app.use(pinia) 之前如需使用 store，必须将 pinia 实例显式传入
 const runtimeStore = useRuntime(pinia);
 if (runtimeStore.networkMode === 'offline') {
-  try { await standaloneCache.init(); }
-  catch (e) { console.warn("本地缓存初始化失败，已跳过：", e); }
+  try { await initStandaloneDB(); }
+  catch (e) { console.error("离线数据库初始化失败：", e); }
 }
 app.use(pinia);
 

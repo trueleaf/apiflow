@@ -45,7 +45,7 @@ import { useApidoc } from '@/store/apidoc/apidoc';
 import { usePermissionStore } from '@/store/permission';
 import { useApidocBanner } from '@/store/apidoc/banner';
 import { useApidocTas } from '@/store/apidoc/tabs';
-import { standaloneCache } from '@/cache/standalone';
+import { apiNodesCache } from '@/cache/index';
 import { nanoid } from 'nanoid';
 import { useRuntime } from '@/store/runtime/runtime';
 
@@ -98,7 +98,7 @@ const handleCheckChange = (data: HttpNode, { checkedKeys }: { checkedKeys: HttpN
 }
 onMounted(async () => {
   if (isStandalone.value) {
-    navTreeData.value = await standaloneCache.getDocTree(projectId);
+    navTreeData.value = await apiNodesCache.getDocTree(projectId);
     return
   }
   loading2.value = true;
@@ -156,7 +156,7 @@ const handleSaveDoc = async () => {
   loading.value = true;
   if (isStandalone.value) {
     docInfo._id = nanoid(); //local_开头会被识别为未保存文档
-    await standaloneCache.addNode(docInfo);
+    await apiNodesCache.addNode(docInfo);
     saveDocCb(docInfo._id);
     return
   }

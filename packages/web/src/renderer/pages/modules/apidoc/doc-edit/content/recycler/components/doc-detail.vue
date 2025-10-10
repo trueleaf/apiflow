@@ -112,7 +112,7 @@ import SJsonEditor from '@/components/common/json-editor/g-json-editor.vue'
 import { formatDate } from '@/helper'
 import { useApidocBaseInfo } from '@/store/apidoc/base-info';
 import { useApidocRequest } from '@/store/apidoc/request';
-import { standaloneCache } from '@/cache/standalone';
+import { apiNodesCache } from '@/cache/index';
 import { useRuntime } from '@/store/runtime/runtime';
 
 const emits = defineEmits(['close'])
@@ -141,7 +141,7 @@ const isOffline = () => runtimeStore.networkMode === 'offline';
 //获取文档详情
 const getDocDetail = async () => {
   if (isOffline()) {
-    docDetail.value = await standaloneCache.getNodeById(props.id) as HttpNode;
+    docDetail.value = await apiNodesCache.getNodeById(props.id) as HttpNode;
     return
   }
   loading.value = true;

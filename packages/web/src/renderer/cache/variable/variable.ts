@@ -1,18 +1,17 @@
-import { IDBPDatabase } from "idb";
 import type { ApidocVariable, CommonResponse } from '@src/types';
 import { nanoid } from "nanoid";
+import { getStandaloneDB } from "../db";
 
 export class VariableCache {
-  constructor(private db: IDBPDatabase | null = null) {}
+  private get db() {
+    return getStandaloneDB();
+  }
 
   /**
    * 新增变量
    */
   async addVariable(variable: Omit<ApidocVariable, '_id'> & { _id?: string }): Promise<CommonResponse<ApidocVariable>> {
     try {
-      if (!this.db) {
-        return { code: 1, msg: "Database not initialized", data: null as any };
-      }
 
       // 检查变量名称在同一项目下是否重复
       try {
@@ -64,9 +63,6 @@ export class VariableCache {
    */
   async updateVariableById(id: string, updates: Partial<ApidocVariable>): Promise<CommonResponse<ApidocVariable>> {
     try {
-      if (!this.db) {
-        return { code: 1, msg: "Database not initialized", data: null as any };
-      }
 
       if (!id) {
         return { code: 1, msg: "变量ID不能为空", data: null as any };
@@ -137,9 +133,6 @@ export class VariableCache {
    */
   async deleteVariableByIds(ids: string[]): Promise<CommonResponse<void>> {
     try {
-      if (!this.db) {
-        return { code: 1, msg: "Database not initialized", data: null as any };
-      }
 
       const tx = this.db.transaction("variables", "readwrite");
       const store = tx.objectStore("variables");
@@ -173,9 +166,6 @@ export class VariableCache {
    */
   async getVariableByProjectId(projectId: string): Promise<CommonResponse<ApidocVariable[]>> {
     try {
-      if (!this.db) {
-        return { code: 1, msg: "Database not initialized", data: [] };
-      }
 
       const tx = this.db.transaction("variables", "readonly");
       const store = tx.objectStore("variables");
@@ -205,9 +195,6 @@ export class VariableCache {
    */
   async getVariableById(variableId: string): Promise<CommonResponse<ApidocVariable | null>> {
     try {
-      if (!this.db) {
-        return { code: 1, msg: "Database not initialized", data: null };
-      }
 
       if (!variableId) {
         return { code: 1, msg: "变量ID不能为空", data: null };
@@ -227,3 +214,6 @@ export class VariableCache {
     }
   }
 }
+
+// 导出单例
+export const variableCache = new VariableCache();

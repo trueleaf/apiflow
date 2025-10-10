@@ -134,7 +134,7 @@ import PostmanTranslator from './postman';
 import { ApidocProjectRules } from '@src/types'
 import { useApidocBaseInfo } from '@/store/apidoc/base-info'
 import { useApidocBanner } from '@/store/apidoc/banner'
-import { standaloneCache } from '@/cache/standalone'
+import { apiNodesCache } from '@/cache/index'
 import { useRuntime } from '@/store/runtime/runtime'
 
 type FormInfo = {
@@ -427,7 +427,7 @@ const handleToggleTargetFolder = async (val: boolean) => {
   currentMountedNode.value = null;
   if (val) {
     if (isStandalone.value) {
-      const banner = await standaloneCache.getApiNodesAsTree(projectId);
+      const banner = await apiNodesCache.getApiNodesAsTree(projectId);
       navTreeData.value = banner;
       return
     }
@@ -472,13 +472,13 @@ const handleSubmit = async () => {
 
     if (isStandalone.value && formInfo.value.cover) {
       const copiedDocs = JSON.parse(JSON.stringify(docs)) as HttpNode[];
-      await standaloneCache.replaceAllNodes(copiedDocs as HttpNode[], projectId);
+      await apiNodesCache.replaceAllNodes(copiedDocs as HttpNode[], projectId);
       apidocBannerStore.getDocBanner({ projectId });
       ElMessage.success(t('导入成功'));
       return
     } else if (isStandalone.value && !formInfo.value.cover) {
       const copiedDocs = JSON.parse(JSON.stringify(docs)) as HttpNode[];
-      await standaloneCache.appendNodes(copiedDocs, projectId);
+      await apiNodesCache.appendNodes(copiedDocs, projectId);
       apidocBannerStore.getDocBanner({ projectId });
       ElMessage.success(t('导入成功'));
       return

@@ -1,5 +1,5 @@
 import { request } from '@/api/api';
-import { standaloneCache } from '@/cache/standalone';
+import { projectCache } from '@/cache/index';
 import { useRuntime } from '@/store/runtime/runtime';
 import type { ApidocProjectInfo, ApidocProjectListInfo, CommonResponse } from '@src/types';
 import { defineStore } from 'pinia';
@@ -13,7 +13,7 @@ export const useProjectStore = defineStore('project', () => {
   const getProjectList = async (): Promise<ApidocProjectInfo[]> => {
     try {
       if (isStandalone.value) {
-        const list = await standaloneCache.getProjectList();
+        const list = await projectCache.getProjectList();
         projectList.value = list;
         return list;
       }

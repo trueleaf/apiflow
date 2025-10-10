@@ -11,7 +11,6 @@ class WebSocketNodeCache extends HttpResponseCache {
     if (!localStorage.getItem('websocketNode/websocket')) {
       localStorage.setItem('websocketNode/websocket', '{}');
     }
-    this.initApiflowHttpResponseCache();
   }
 
   /*

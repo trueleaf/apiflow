@@ -13,7 +13,7 @@ import { defineStore } from "pinia"
 import { ref } from "vue";
 import { router } from "@/router";
 import { useVariable } from './variables';
-import { standaloneCache } from '@/cache/standalone.ts';
+import { projectCache, variableCache, commonHeaderCache } from '@/cache/index';
 import { requestMethods } from '@/data/data.ts';
 import { httpNodeCache } from '@/cache/http/httpNodeCache.ts';
 import { useRuntime } from '../runtime/runtime';
@@ -220,12 +220,12 @@ export const useApidocBaseInfo = defineStore('apidocBaseInfo', () => {
   const getProjectBaseInfo = async (payload: { projectId: string }): Promise<void> => {
     const { replaceVariables } = useVariable();
     if (isOffline()){
-      const projectInfo = await standaloneCache.getProjectInfo(payload.projectId);
+      const projectInfo = await projectCache.getProjectInfo(payload.projectId);
       if(projectInfo){
         projectName.value = projectInfo.projectName;
         _id.value = projectInfo._id;
       }
-      const response = await standaloneCache.getAllVariables(payload.projectId);
+      const response = await variableCache.getVariableByProjectId(payload.projectId);
       if (response.code === 0) {
         replaceVariables(response.data);
         return Promise.resolve();
@@ -304,7 +304,7 @@ export const useApidocBaseInfo = defineStore('apidocBaseInfo', () => {
   const getGlobalCommonHeaders = async (): Promise<void> => {
     return new Promise(async (resolve, reject) => {
       if (isOffline()){
-        const commonHeaders = await standaloneCache.getCommonHeaders();
+        const commonHeaders = await commonHeaderCache.getCommonHeaders();
         globalCommonHeaders.value = commonHeaders;
         resolve();
         return;

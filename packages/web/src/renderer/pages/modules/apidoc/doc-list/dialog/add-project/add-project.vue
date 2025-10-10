@@ -67,7 +67,7 @@ import { useI18n } from 'vue-i18n'
 import { computed, nextTick, ref } from 'vue';
 import RemoteSelector from '@/components/common/remote-select/g-remote-select.vue';
 import RemoteSelectorItem from '@/components/common/remote-select/g-remote-select-item.vue';
-import { standaloneCache } from '@/cache/standalone';
+import { projectCache } from '@/cache/index';
 import { generateEmptyProject } from '@/helper';
 import { nanoid } from 'nanoid';
 import { useRuntime } from '@/store/runtime/runtime';
@@ -142,7 +142,7 @@ const handleAddProject = () => {
       const projectId = nanoid();
       const project = generateEmptyProject(projectId);
       project.projectName = formInfo.value.projectName;
-      await standaloneCache.addProject(project);
+      await projectCache.addProject(project);
       handleClose();
       emits('success', {
         projectId,

@@ -32,7 +32,7 @@ import { i18n } from "@/i18n"
 import { getUrl } from "@/server/request/request.ts"
 import { useVariable } from "./variables.ts"
 import { config } from "@src/config/config.ts"
-import { standaloneCache } from "@/cache/standalone.ts";
+import { apiNodesCache } from "@/cache/index";
 import { useRuntime } from '../runtime/runtime';
 
 type EditApidocPropertyPayload<K extends keyof ApidocProperty> = {
@@ -437,7 +437,7 @@ export const useApidoc = defineStore('apidoc', () => {
     const { deleteTabByIds } = useApidocTas();
 
     if (isOffline()) {
-      const doc = await standaloneCache.getNodeById(payload.id) as HttpNode;
+      const doc = await apiNodesCache.getNodeById(payload.id) as HttpNode;
       if (!doc) {
         ElMessageBox.confirm('当前接口不存在，可能已经被删除!', '提示', {
           confirmButtonText: '关闭接口',
@@ -542,7 +542,7 @@ export const useApidoc = defineStore('apidoc', () => {
       };
       if (isOffline()) {
         apidocDetail.updatedAt = new Date().toISOString();
-        await standaloneCache.updateNode(apidocDetail);
+        await apiNodesCache.updateNode(apidocDetail);
         //改变tab请求方法
         changeTabInfoById({
           id: currentSelectTab._id,

@@ -62,6 +62,7 @@ export class ApiNodesCache {
   }
   // 根据节点id获取节点信息
   async getNodeById(nodeId: string): Promise<ApiNode | null> {
+    
     try {
       const doc = await this.db.get("httpNodeList", nodeId);
       return doc && !doc.isDeleted ? doc : null;
@@ -72,6 +73,7 @@ export class ApiNodesCache {
   }
   // 添加一个节点
   async addNode(node: ApiNode): Promise<boolean> {
+    
     try {
       await this.db.put("httpNodeList", node, node._id);
       await this.updateProjectNodeNum(node.projectId);
@@ -84,6 +86,7 @@ export class ApiNodesCache {
   }
   // 新增或修改一个节点
   async updateNode(node: ApiNode): Promise<boolean> {
+    
     try {
       // 先检查文档是否存在
       const existingDoc = await this.db.get("httpNodeList", node._id);
@@ -98,6 +101,7 @@ export class ApiNodesCache {
   }
   // 更新节点名称
   async updateNodeName(nodeId: string, name: string): Promise<boolean> {
+    
     try {
       const existingDoc = await this.db.get("httpNodeList", nodeId);
       if (!existingDoc) return false;
@@ -112,6 +116,7 @@ export class ApiNodesCache {
   }
   // 删除一个节点
   async deleteNode(nodeId: string): Promise<boolean> {
+    
     try {
       const existingDoc = await this.db.get("httpNodeList", nodeId);
       if (!existingDoc) return false;
@@ -131,6 +136,7 @@ export class ApiNodesCache {
   }
   // 批量删除节点
   async deleteNodes(nodeIds: string[]): Promise<boolean> {
+    
     if (nodeIds.length === 0) return true;
 
     // 使用事务确保批量操作的原子性
@@ -178,6 +184,7 @@ export class ApiNodesCache {
   }
   // 获取已删除节点列表
   async getDeletedNodesList(projectId: string) {
+    
     try {
       const allDocs = await this.db.getAllFromIndex("httpNodeList", "projectId", projectId);
       return allDocs
@@ -191,6 +198,7 @@ export class ApiNodesCache {
   }
   // 恢复已删除的文档
   async restoreNode(nodeId: string): Promise<string[]> {
+    
     try {
       const existingDoc = await this.db.get("httpNodeList", nodeId);
       const result: string[] = [nodeId];
@@ -226,6 +234,7 @@ export class ApiNodesCache {
   */
   // 覆盖替换所有接口文档
   async replaceAllNodes(nodes: ApiNode[], projectId: string): Promise<boolean> {
+    
     // 使用事务确保替换操作的原子性
     const tx = this.db.transaction("httpNodeList", "readwrite");
     const store = tx.objectStore("httpNodeList");
@@ -267,6 +276,7 @@ export class ApiNodesCache {
   }
   // 批量追加接口文档
   async appendNodes(nodes: ApiNode[], projectId: string): Promise<string[]> {
+    
     const successIds: string[] = [];
 
     try {
@@ -292,6 +302,7 @@ export class ApiNodesCache {
   */
   // 更新项目内节点数量(不包含文件夹)
   private async updateProjectNodeNum(projectId: string): Promise<void> {
+    
     try {
       // 使用索引查询优化性能，只获取当前项目的文档
       const projectDocs = await this.db.getAllFromIndex("httpNodeList", "projectId", projectId);
@@ -324,11 +335,6 @@ export class ApiNodesCache {
       return node.info.type === 'folder';
     });
     return convertNodesToBannerNodes(folderNodes);
-  }
-
-  // getDocTree是getApiNodesAsTree的别名，用于兼容性
-  async getDocTree(projectId: string) {
-    return this.getApiNodesAsTree(projectId, 'folder');
   }
   /*
   |--------------------------------------------------------------------------
@@ -382,6 +388,3 @@ export class ApiNodesCache {
     this.bannerCache.delete(projectId);
   }
 }
-
-// 导出单例
-export const apiNodesCache = new ApiNodesCache();

@@ -3,7 +3,7 @@ import { defineStore, storeToRefs } from "pinia";
 import { ref, watch } from "vue";
 import { ApidocProperty } from "@src/types";
 import { apidocGenerateProperty, generateEmptyWebsocketNode, uuid, cloneDeep, debounce } from "@/helper";
-import { standaloneCache } from "@/cache/standalone.ts";
+import { apiNodesCache } from "@/cache/index";
 import { webSocketNodeCache } from "@/cache/websocketNode/websocketNodeCache.ts";
 import { websocketTemplateCache } from "@/cache/websocketNode/websocketTemplateCache.ts";
 import { ElMessageBox } from "element-plus";
@@ -562,7 +562,7 @@ const updateWebSocketHeaderById = (id: string, header: Partial<ApidocProperty<'s
   // 获取WebSocket详情
   const getWebsocketDetail = async (payload: { id: string, projectId: string }): Promise<void> => {
     if (isOffline()) {
-      const doc = await standaloneCache.getNodeById(payload.id) as WebSocketNode;
+      const doc = await apiNodesCache.getNodeById(payload.id) as WebSocketNode;
       if (!doc) {
         // 如果standalone中没有找到，尝试从缓存中获取
         const cachedWebSocket = getCachedWebSocket(payload.id);
@@ -626,7 +626,7 @@ const updateWebSocketHeaderById = (id: string, header: Partial<ApidocProperty<'s
     if (isOffline()) {
       const websocketDetail = cloneDeep(websocket.value);
       websocketDetail.updatedAt = new Date().toISOString();
-      await standaloneCache.updateNode(websocketDetail);
+      await apiNodesCache.updateNode(websocketDetail);
       //改变tab请求方法
       changeTabInfoById({
         id: currentSelectTab._id,

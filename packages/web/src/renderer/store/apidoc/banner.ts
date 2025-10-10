@@ -1,5 +1,5 @@
 import { request } from '@/api/api';
-import { standaloneCache } from '@/cache/standalone.ts';
+import { apiNodesCache } from '@/cache/index';
 import { findNodeById, forEachForest } from "@/helper";
 import { ApidocBanner, ApidocBannerOfWebsocketNode, ApidocBannerOfHttpNode, CommonResponse } from '@src/types';
 import { defineStore } from "pinia";
@@ -104,7 +104,7 @@ export const useApidocBanner = defineStore('apidocBanner', () => {
   const getDocBanner = async(payload: { projectId: string }): Promise<ApidocBanner[]> => {
     return new Promise(async (resolve, reject) => {
       if (isOffline()) {
-        const banner = await standaloneCache.getApiNodesAsTree(payload.projectId);
+        const banner = await apiNodesCache.getApiNodesAsTree(payload.projectId);
         changeAllDocBanner(banner)
         resolve(banner)
         return

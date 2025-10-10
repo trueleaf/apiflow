@@ -1,64 +1,17 @@
 import { config } from "@src/config/config";
 import { ChunkWithTimestampe, ResponseInfo } from "@src/types/types";
-import { openDB, IDBPDatabase } from "idb";
+import { getHttpResponseDB } from "../db";
 
 export class HttpResponseCache {
-  public httpResponseCacheDb: IDBPDatabase | null = null;
-
-  /**
-   * 初始化 httpResponseCache 数据库
-   */
-  async initApiflowHttpResponseCache() {
-    try {
-      this.httpResponseCacheDb = await openDB(
-        config.cacheConfig.apiflowResponseCache.dbName,
-        config.cacheConfig.apiflowResponseCache.version,
-        {
-          upgrade(db: IDBPDatabase) {
-            // 创建响应缓存存储
-            if (!db.objectStoreNames.contains("httpResponseCache")) {
-              db.createObjectStore("httpResponseCache");
-            }
-            // 创建分块存储
-            if (!db.objectStoreNames.contains("responseChunks")) {
-              db.createObjectStore("responseChunks");
-            }
-            // 创建元数据存储
-            if (!db.objectStoreNames.contains("responseMetadata")) {
-              db.createObjectStore("responseMetadata");
-            }
-          },
-          blocked(
-            currentVersion: number,
-            blockedVersion: number,
-            event: Event
-          ) {
-            console.log("blocked", currentVersion, blockedVersion, event);
-          },
-          blocking(
-            currentVersion: number,
-            blockedVersion: number,
-            event: Event
-          ) {
-            console.log("blocking", currentVersion, blockedVersion, event);
-          },
-          terminated() {
-            console.log("terminated");
-          },
-        }
-      );
-    } catch (err) {
-      console.error(err);
-    }
+  private async getDB() {
+    return await getHttpResponseDB();
   }
 
   /**
    * 缓存返回值（支持分块存储）
    */
   async setResponse(id: string, response: ResponseInfo) {
-    if (!this.httpResponseCacheDb) {
-      return;
-    }
+    const httpResponseCacheDb = await this.getDB();
     try {
       const { singleResponseBodySize, chunkSize } = config.cacheConfig.apiflowResponseCache;
       const { streamData, ...responseWithoutStream } = response.responseData;

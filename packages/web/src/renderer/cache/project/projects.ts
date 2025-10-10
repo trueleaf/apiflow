@@ -1,11 +1,12 @@
-import { IDBPDatabase } from "idb";
 import type { ApidocProjectInfo } from '@src/types';
+import { getStandaloneDB } from "../db";
 
 export class ProjectCache {
-  constructor(private db: IDBPDatabase | null = null) {}
+  private get db() {
+    return getStandaloneDB();
+  }
 
   async getProjectList(): Promise<ApidocProjectInfo[]> {
-    if (!this.db) throw new Error("Database not initialized");
     const tx = this.db.transaction("projects", "readonly");
     const store = tx.objectStore("projects");
     const keys = await store.getAllKeys();
@@ -22,7 +23,6 @@ export class ProjectCache {
   }
 
   async setProjectList(projectList: ApidocProjectInfo[]): Promise<boolean> {
-    if (!this.db) throw new Error("Database not initialized");
     const tx = this.db.transaction("projects", "readwrite");
     const store = tx.objectStore("projects");
     
@@ -42,7 +42,6 @@ export class ProjectCache {
   }
 
   async getProjectInfo(projectId: string): Promise<ApidocProjectInfo | null> {
-    if (!this.db) throw new Error("Database not initialized");
     const tx = this.db.transaction("projects", "readonly");
     const store = tx.objectStore("projects");
     const project = await store.get(projectId);
@@ -50,7 +49,6 @@ export class ProjectCache {
   }
 
   async addProject(project: ApidocProjectInfo): Promise<boolean> {
-    if (!this.db) throw new Error("Database not initialized");
     const tx = this.db.transaction("projects", "readwrite");
     const store = tx.objectStore("projects");
     await store.put(project, project._id);
@@ -59,7 +57,6 @@ export class ProjectCache {
   }
 
   async updateProject(projectId: string, project: Partial<ApidocProjectInfo>): Promise<boolean> {
-    if (!this.db) throw new Error("Database not initialized");
     const tx = this.db.transaction("projects", "readwrite");
     const store = tx.objectStore("projects");
     const existingProject = await store.get(projectId);
@@ -77,7 +74,6 @@ export class ProjectCache {
   }
 
   async deleteProject(projectId: string): Promise<boolean> {
-    if (!this.db) throw new Error("Database not initialized");
     const tx = this.db.transaction("projects", "readwrite");
     const store = tx.objectStore("projects");
     const existingProject = await store.get(projectId);
@@ -94,3 +90,6 @@ export class ProjectCache {
     return true;
   }
 }
+
+// 导出单例
+export const projectCache = new ProjectCache();

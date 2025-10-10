@@ -1,11 +1,12 @@
-import { IDBPDatabase } from "idb";
 import type { ApidocProjectRules } from "@src/types";
+import { getStandaloneDB } from "../db";
 
 export class StandaloneRuleCache {
-  constructor(private db: IDBPDatabase | null = null) {}
+  private get db() {
+    return getStandaloneDB();
+  }
 
   async getAllProjectRules(): Promise<Record<string, ApidocProjectRules>> {
-    if (!this.db) throw new Error("Database not initialized");
     const tx = this.db.transaction("rules", "readonly");
     const store = tx.objectStore("rules");
     const keys = await store.getAllKeys();
@@ -22,7 +23,6 @@ export class StandaloneRuleCache {
   }
 
   async setAllProjectRules(rules: Record<string, ApidocProjectRules>): Promise<boolean> {
-    if (!this.db) throw new Error("Database not initialized");
     const tx = this.db.transaction("rules", "readwrite");
     const store = tx.objectStore("rules");
     
@@ -42,7 +42,6 @@ export class StandaloneRuleCache {
   }
 
   async getProjectRules(projectId: string): Promise<ApidocProjectRules | null> {
-    if (!this.db) throw new Error("Database not initialized");
     const tx = this.db.transaction("rules", "readonly");
     const store = tx.objectStore("rules");
     const rule = await store.get(projectId);
@@ -50,7 +49,6 @@ export class StandaloneRuleCache {
   }
 
   async setProjectRules(projectId: string, rules: ApidocProjectRules): Promise<boolean> {
-    if (!this.db) throw new Error("Database not initialized");
     const tx = this.db.transaction("rules", "readwrite");
     const store = tx.objectStore("rules");
     await store.put({ ...rules, isDeleted: false }, projectId);
@@ -59,7 +57,6 @@ export class StandaloneRuleCache {
   }
 
   async updateProjectRules(projectId: string, rules: Partial<ApidocProjectRules>): Promise<boolean> {
-    if (!this.db) throw new Error("Database not initialized");
     const tx = this.db.transaction("rules", "readwrite");
     const store = tx.objectStore("rules");
     const existingRules = await store.get(projectId);
@@ -77,7 +74,6 @@ export class StandaloneRuleCache {
   }
 
   async deleteProjectRules(projectId: string): Promise<boolean> {
-    if (!this.db) throw new Error("Database not initialized");
     const tx = this.db.transaction("rules", "readwrite");
     const store = tx.objectStore("rules");
     const existingRules = await store.get(projectId);
@@ -94,3 +90,5 @@ export class StandaloneRuleCache {
     return true;
   }
 } 
+// 导出单例
+export const standaloneRuleCache = new StandaloneRuleCache();

@@ -19,7 +19,7 @@ import { config } from '@src/config/config';
 import { ElMessage, FormInstance } from 'element-plus';
 import { useI18n } from 'vue-i18n'
 import { computed, nextTick, ref, watch } from 'vue';
-import { standaloneCache } from '@/cache/standalone';
+import { projectCache } from '@/cache/index';
 import { useRuntime } from '@/store/runtime/runtime';
 
 const props = defineProps({
@@ -73,7 +73,7 @@ const handleClose = () => {
 const handleEditProject = () => {
   form.value?.validate(async (valid) => {
     if(isStandalone.value && valid){
-      await standaloneCache.updateProject(props.projectId, {
+      await projectCache.updateProject(props.projectId, {
         projectName: formInfo.value.projectName,
       });
       handleClose();

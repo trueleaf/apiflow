@@ -11,7 +11,6 @@ class HttpMockNodeCache extends HttpResponseCache {
     if (!localStorage.getItem('httpMockNode/mock')) {
       localStorage.setItem('httpMockNode/mock', '{}');
     }
-    this.initApiflowHttpResponseCache();
   }
 
   /*

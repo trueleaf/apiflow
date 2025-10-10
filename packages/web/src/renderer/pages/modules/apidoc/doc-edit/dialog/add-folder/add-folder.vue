@@ -21,7 +21,7 @@ import { request } from '@/api/api';
 import { useRoute } from 'vue-router';
 import { generateEmptyHttpNode } from '@/helper';
 import { nanoid } from 'nanoid';
-import { standaloneCache } from '@/cache/standalone';
+import { apiNodesCache } from '@/cache/index';
 import { useRuntime } from '@/store/runtime/runtime';
 
 const props = defineProps({
@@ -60,8 +60,8 @@ const handleAddFolder = () => {
       nodeInfo.sort = Date.now()
       nodeInfo.isDeleted = false;
       nodeInfo.info.type = 'folder';
-      await standaloneCache.addNode(nodeInfo)
-      // const banner = await standaloneCache.getDocTree(nodeInfo.projectId);
+      await apiNodesCache.addNode(nodeInfo)
+      // const banner = await apiNodesCache.getDocTree(nodeInfo.projectId);
       // apidocBannerStore.changeAllDocBanner(banner);
       emits('success', {
         _id: nodeInfo._id,

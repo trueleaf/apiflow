@@ -15,7 +15,7 @@ import { useApidocBanner } from '@/store/apidoc/banner';
 import { useApidocTas } from '@/store/apidoc/tabs';
 import { useApidoc } from '@/store/apidoc/apidoc';
 import { useApidocBaseInfo } from '@/store/apidoc/base-info.ts';
-import { standaloneCache } from '@/cache/standalone.ts';
+import { apiNodesCache } from '@/cache/index';
 import { nanoid } from 'nanoid';
 import { useRuntime } from '@/store/runtime/runtime';
 
@@ -50,7 +50,7 @@ export const deleteNode = (selectNodes: ApidocBannerWithProjectId[], silent?: bo
   const deleteTip = selectNodes.length > 1 ? `${i18n.global.t('确定批量删除')} ${deleteIds.length} ${i18n.global.t('个节点?')}` : `${i18n.global.t('确定删除')} ${selectNodes[0].name} ${i18n.global.t('节点')}`
   const deleteOperation = async () => {
     if(isOffline()){
-      await standaloneCache.deleteNodes(deleteIds);
+      await apiNodesCache.deleteNodes(deleteIds);
       await apidocBannerStore.getDocBanner({ projectId: nodeProjectId });
       //删除所有nav节点
       const delNodeIds: string[] = [];
@@ -288,7 +288,7 @@ export const pasteNodes = (currentOperationalNode: Ref<ApidocBanner | null>, pas
         let docsToProcess: any[] = [];
         if (fromProjectId !== currentProjectId) {
           // 跨项目粘贴：使用优化的缓存查询获取完整文档数据
-          const sourceProjectDocs = await standaloneCache.getNodesByProjectId(fromProjectId);
+          const sourceProjectDocs = await apiNodesCache.getNodesByProjectId(fromProjectId);
           const sourceDocsMap = new Map(sourceProjectDocs.map(doc => [doc._id, doc]));
 
           docsToProcess = uniqueFlatNodes.map(node => {
@@ -300,7 +300,7 @@ export const pasteNodes = (currentOperationalNode: Ref<ApidocBanner | null>, pas
           });
         } else {
           // 同项目内粘贴：直接使用当前项目的数据
-          const currentProjectDocs = await standaloneCache.getNodesByProjectId(currentProjectId);
+          const currentProjectDocs = await apiNodesCache.getNodesByProjectId(currentProjectId);
           const currentDocsMap = new Map(currentProjectDocs.map(doc => [doc._id, doc]));
 
           docsToProcess = uniqueFlatNodes.map(node => {
@@ -349,7 +349,7 @@ export const pasteNodes = (currentOperationalNode: Ref<ApidocBanner | null>, pas
 
         // 4. 批量保存到数据库
         for (const doc of processedDocs) {
-          await standaloneCache.addNode(doc);
+          await apiNodesCache.addNode(doc);
         }
 
         // 5. 更新前端显示的节点ID和关系
@@ -428,7 +428,7 @@ export const forkNode = async (currentOperationalNode: ApidocBanner): Promise<vo
       // Standalone 模式下的文件副本生成逻辑
 
       // 1. 获取原始文档的完整数据
-      const originalDoc = await standaloneCache.getNodeById(currentOperationalNode._id);
+      const originalDoc = await apiNodesCache.getNodeById(currentOperationalNode._id);
       if (!originalDoc) {
         console.error('原始文档不存在');
         return;
@@ -447,7 +447,7 @@ export const forkNode = async (currentOperationalNode: ApidocBanner): Promise<vo
       };
 
       // 3. 保存副本到数据库
-      await standaloneCache.addNode(copyDoc);
+      await apiNodesCache.addNode(copyDoc);
 
       // 4. 创建用于前端显示的 banner 数据
       let bannerData: ApidocBanner;
@@ -558,7 +558,7 @@ export const dragNode = async (dragData: ApidocBanner, dropData: ApidocBanner, t
       // Standalone 模式下的拖拽节点逻辑
 
       // 1. 获取被拖拽文档的完整数据
-      const dragDoc = await standaloneCache.getNodeById(dragData._id);
+      const dragDoc = await apiNodesCache.getNodeById(dragData._id);
       if (!dragDoc) {
         ElMessage.error(`拖拽的文档 ${dragData.name} 未找到`);
         return;
@@ -606,7 +606,7 @@ export const dragNode = async (dragData: ApidocBanner, dropData: ApidocBanner, t
       };
 
       // 4. 保存到数据库
-      await standaloneCache.updateNode(updatedDoc);
+      await apiNodesCache.updateNode(updatedDoc);
 
       // 5. 更新前端显示的数据
       dragData.pid = newPid;
@@ -683,7 +683,7 @@ export const renameNode = async (e: FocusEvent | KeyboardEvent, data: ApidocBann
   if (isOffline()) {
     try {
       // Standalone 模式下的重命名逻辑
-      await standaloneCache.updateNodeName(data._id, iptValue);
+      await apiNodesCache.updateNodeName(data._id, iptValue);
 
       // 如果是文件夹，需要重新拉取一次公共请求头
       if (data.type === 'folder') {

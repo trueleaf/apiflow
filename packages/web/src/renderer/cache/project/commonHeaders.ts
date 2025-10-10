@@ -1,11 +1,12 @@
-import { IDBPDatabase } from "idb";
 import type { ApidocProperty } from '@src/types';
+import { getStandaloneDB } from "../db";
 
 export class CommonHeaderCache {
-  constructor(private db: IDBPDatabase | null = null) {}
+  private get db() {
+    return getStandaloneDB();
+  }
 
   async getCommonHeaders(): Promise<ApidocProperty<'string'>[]> {
-    if (!this.db) throw new Error("Database not initialized");
     const tx = this.db.transaction("commonHeaders", "readonly");
     const store = tx.objectStore("commonHeaders");
     const keys = await store.getAllKeys();
@@ -22,7 +23,6 @@ export class CommonHeaderCache {
   }
 
   async getHeaderById(headerId: string): Promise<ApidocProperty<'string'> | null> {
-    if (!this.db) throw new Error("Database not initialized");
     const tx = this.db.transaction("commonHeaders", "readonly");
     const store = tx.objectStore("commonHeaders");
     const header = await store.get(headerId);
@@ -30,7 +30,6 @@ export class CommonHeaderCache {
   }
 
   async addHeader(header: ApidocProperty<'string'>): Promise<boolean> {
-    if (!this.db) throw new Error("Database not initialized");
     const tx = this.db.transaction("commonHeaders", "readwrite");
     const store = tx.objectStore("commonHeaders");
     await store.put(header, header._id);
@@ -39,7 +38,6 @@ export class CommonHeaderCache {
   }
 
   async updateHeader(headerId: string, header: Partial<ApidocProperty<'string'>>): Promise<boolean> {
-    if (!this.db) throw new Error("Database not initialized");
     const tx = this.db.transaction("commonHeaders", "readwrite");
     const store = tx.objectStore("commonHeaders");
     const existingHeader = await store.get(headerId);
@@ -57,7 +55,6 @@ export class CommonHeaderCache {
   }
 
   async deleteHeader(headerId: string): Promise<boolean> {
-    if (!this.db) throw new Error("Database not initialized");
     const tx = this.db.transaction("commonHeaders", "readwrite");
     const store = tx.objectStore("commonHeaders");
     const existingHeader = await store.get(headerId);
@@ -75,7 +72,6 @@ export class CommonHeaderCache {
   }
 
   async deleteHeaders(headerIds: string[]): Promise<boolean> {
-    if (!this.db) throw new Error("Database not initialized");
     const tx = this.db.transaction("commonHeaders", "readwrite");
     const store = tx.objectStore("commonHeaders");
     
@@ -94,7 +90,6 @@ export class CommonHeaderCache {
   }
 
   async setCommonHeaders(headers: ApidocProperty<'string'>[]): Promise<boolean> {
-    if (!this.db) throw new Error("Database not initialized");
     const tx = this.db.transaction("commonHeaders", "readwrite");
     const store = tx.objectStore("commonHeaders");
     
@@ -113,3 +108,6 @@ export class CommonHeaderCache {
     return true;
   }
 }
+
+// 导出单例
+export const commonHeaderCache = new CommonHeaderCache();

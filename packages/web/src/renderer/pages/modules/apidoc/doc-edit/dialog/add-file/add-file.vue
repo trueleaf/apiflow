@@ -36,7 +36,7 @@ import { ElMessage, FormInstance, ElInput } from 'element-plus';
 import { request } from '@/api/api';
 import { useRoute } from 'vue-router';
 import { generateEmptyHttpNode, generateEmptyWebsocketNode, generateEmptyHttpMockNode } from '@/helper';
-import { standaloneCache } from '@/cache/standalone';
+import { apiNodesCache } from '@/cache/index';
 import { nanoid } from 'nanoid';
 import { useRuntime } from '@/store/runtime/runtime';
 
@@ -99,7 +99,7 @@ const handleAddFile = () => {
       nodeInfo.pid = props.pid
       nodeInfo.sort = Date.now()
       nodeInfo.isDeleted = false;
-      await standaloneCache.addNode(nodeInfo)
+      await apiNodesCache.addNode(nodeInfo)
       emits('success', {
         _id: nodeInfo._id,
         pid: nodeInfo.pid,
@@ -124,7 +124,7 @@ const handleAddFile = () => {
       mockNode.isDeleted = false;
       mockNode.createdAt = new Date().toISOString()
       mockNode.updatedAt = mockNode.createdAt
-      await standaloneCache.addNode(mockNode)
+      await apiNodesCache.addNode(mockNode)
       emits('success', {
         _id: mockNode._id,
         pid: mockNode.pid,
@@ -148,7 +148,7 @@ const handleAddFile = () => {
       websocketNode.pid = props.pid
       websocketNode.sort = Date.now()
       websocketNode.isDeleted = false;
-      await standaloneCache.addNode(websocketNode)
+      await apiNodesCache.addNode(websocketNode)
       emits('success', {
         _id: websocketNode._id,
         pid: websocketNode.pid,

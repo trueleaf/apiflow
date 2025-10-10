@@ -9,7 +9,6 @@ import type { ApidocCookie } from '@src/renderer/store/apidoc/cookies';
 class HttpNodeCache extends HttpResponseCache {
   constructor() {
     super();
-    this.initApiflowHttpResponseCache();
   }
 
   /**

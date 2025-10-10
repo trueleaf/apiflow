@@ -204,7 +204,7 @@ import { ElMessageBox } from 'element-plus';
 import { router } from '@/router';
 import { debounce, formatDate } from '@/helper';
 import { useApidocBaseInfo } from '@/store/apidoc/base-info'
-import { standaloneCache } from '@/cache/standalone'
+import { projectCache, apiNodesCache } from '@/cache/index'
 import { useProjectStore } from '@/store/project/project'
 import { useRuntime } from '@/store/runtime/runtime'
 
@@ -331,7 +331,7 @@ const deleteProject = (_id: string) => {
     }
     if (isStandalone.value) {
       try {
-        await standaloneCache.deleteProject(_id);
+        await projectCache.deleteProject(_id);
         getProjectList();
         notifyProjectDeleted();
       } catch (err) {
@@ -365,11 +365,11 @@ const handleStar = async (item: ApidocProjectInfo) => {
   starLoading.value = true;
   try {
     if (isStandalone.value) {
-      const projectList = await standaloneCache.getProjectList();
+      const projectList = await projectCache.getProjectList();
       const project = projectList.find((projectInfo) => projectInfo._id === item._id);
       if (project) {
         project.isStared = true;
-        await standaloneCache.setProjectList(projectList);
+        await projectCache.setProjectList(projectList);
         syncOfflineProjectList(projectList);
         item.isStared = true;
       }
@@ -397,11 +397,11 @@ const handleUnStar = async (item: ApidocProjectInfo) => {
   unStarLoading.value = true;
   try {
     if (isStandalone.value) {
-      const projectList = await standaloneCache.getProjectList();
+      const projectList = await projectCache.getProjectList();
       const project = projectList.find((projectInfo) => projectInfo._id === item._id);
       if (project) {
         project.isStared = false;
-        await standaloneCache.setProjectList(projectList);
+        await projectCache.setProjectList(projectList);
         syncOfflineProjectList(projectList);
         item.isStared = false;
       }
@@ -501,8 +501,8 @@ const debounceSearch = debounce(async () => {
   }
   if (isStandalone.value) {
     const keyword = projectKeyword.value.toLowerCase().trim();
-    const docs = await standaloneCache.getNodeList();
-    const projectList = await standaloneCache.getProjectList();
+    const docs = await apiNodesCache.getNodeList();
+    const projectList = await projectCache.getProjectList();
     const filteredDocs = docs.filter((doc) => {
       // Type guard to check if doc has an item property (HttpNode or WebSocketNode)
       const hasItem = 'item' in doc && doc.item;

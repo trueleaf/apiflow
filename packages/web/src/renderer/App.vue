@@ -19,7 +19,7 @@ import { useI18n } from 'vue-i18n';
 import { changeLanguage } from './i18n';
 import { useRouter } from 'vue-router';
 import AddProjectDialog from '@/pages/modules/apidoc/doc-list/dialog/add-project/add-project.vue';
-import { standaloneCache } from './cache/standalone';
+import { projectCache } from '@/cache/index';
 import { ElMessageBox } from 'element-plus';
 import { useApidocBaseInfo } from './store/apidoc/base-info';
 import { Language } from '@src/types';
@@ -134,7 +134,7 @@ const bindTopBarEvent = () => {
   window.electronAPI?.ipcManager.onMain('apiflow-change-project', async (data: { projectId: string, projectName: string }) => {
     let matchedProject = null;
     if (isOffline.value) {
-      const projectList = await standaloneCache.getProjectList();
+      const projectList = await projectCache.getProjectList();
       matchedProject = projectList.find(p => p._id === data.projectId);
     } else {
       const projectList = await projectStore.getProjectList(); // 确保获取最新项目列表
