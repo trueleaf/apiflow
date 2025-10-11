@@ -13,7 +13,7 @@
     <!-- 可导入类型tab卡片式切换 -->
     <div class="import-type-cards d-flex a-center mb-4">
       <div
-        v-for="(item, idx) in importTypes"
+        v-for="item in importTypes"
         :key="item.value"
         :class="['import-type-card', { active: importType === item.value }]"
         @click="handleTabChange(item.value)"
@@ -43,7 +43,7 @@
 
 <script lang="ts" setup>
 import { ref } from 'vue'
-import { ElMessage } from 'element-plus'
+// import { ElMessage } from 'element-plus'
 import gCard from '@/components/common/card/g-card.vue'
 import { useI18n } from 'vue-i18n'
 

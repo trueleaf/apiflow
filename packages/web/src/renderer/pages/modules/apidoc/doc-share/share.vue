@@ -61,6 +61,7 @@ import SContent from './content/content.vue'
 import {  LocalShareData, SharedProjectInfo } from '@src/types/index.ts'
 import { convertNodesToBannerNodes, getCountdown } from '@/helper/index'
 import { useShareStore } from './store'
+// @ts-ignore
 import localShareDataTest from './testData'
 import { useI18n } from 'vue-i18n'
 /*
@@ -112,7 +113,7 @@ const initShareData = () => {
         }
         // 设置文档
         if (Array.isArray(shareData.nodes)) {
-          shareStore.setDocs(shareData.nodes);
+          shareStore.setDocs(shareData.nodes as HttpNode[]);
         }
         shareStore.setBanner(convertNodesToBannerNodes(shareData.nodes));
         hasPermission.value = true;

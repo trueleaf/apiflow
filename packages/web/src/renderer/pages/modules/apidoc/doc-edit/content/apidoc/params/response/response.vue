@@ -171,14 +171,14 @@ const handleChangeTextValeu = (value: string, index: number) => {
 |--------------------------------------------------------------------------
 |
 */
-//新增一个response
-const handleAddResponse = () => {
-  apidocStroe.addResponseParam();
-}
-//删除一个response
-const handleDeleteResponse = (index: number) => {
-  apidocStroe.deleteResponseByIndex(index);
-}
+// //新增一个response
+// const handleAddResponse = () => {
+//   apidocStroe.addResponseParam();
+// }
+// //删除一个response
+// const handleDeleteResponse = (index: number) => {
+//   apidocStroe.deleteResponseByIndex(index);
+// }
 //response参数值
 const { t } = useI18n()
 

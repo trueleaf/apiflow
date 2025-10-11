@@ -112,28 +112,28 @@ const handleLogin = async () => {
 const freshCapchaUrl = () => {
   random.value = Math.random();
 }
-//用户注册
-const handleJumpToRegister = () => {
-  emits('jumpToRegister');
-}
-//重置密码
-const handleJumpToResetPassword = () => {
-  emits('jumpToResetPassword');
-}
-//体验账号登录
-const handleGuesttLogin = () => {
-  loading.value = true;
-  request.post('/api/security/login_guest', userInfo).then((res) => {
-    // 体验账号登录成功，更新用户信息到store
-    permissionStore.changeUserInfo(res.data);
-    router.push('/home');
-    runtimeCache.setUserInfo(res.data);
-  }).catch((err) => {
-    console.error(err);
-  }).finally(() => {
-    loading.value = false;
-  });
-}
+// //用户注册
+// const handleJumpToRegister = () => {
+//   emits('jumpToRegister');
+// }
+// //重置密码
+// const handleJumpToResetPassword = () => {
+//   emits('jumpToResetPassword');
+// }
+// //体验账号登录
+// const handleGuesttLogin = () => {
+//   loading.value = true;
+//   request.post('/api/security/login_guest', userInfo).then((res) => {
+//     // 体验账号登录成功，更新用户信息到store
+//     permissionStore.changeUserInfo(res.data);
+//     router.push('/home');
+//     runtimeCache.setUserInfo(res.data);
+//   }).catch((err) => {
+//     console.error(err);
+//   }).finally(() => {
+//     loading.value = false;
+//   });
+// }
 
 </script>
 

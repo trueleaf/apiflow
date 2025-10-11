@@ -119,11 +119,11 @@ class OpenApiTranslator {
     const openApiServers = this.openApiData.servers;
     const result: ServerInfo[] = [];
     if (!openApiServers) {
-      console.warn(i18next.t('缺少servers字段'));
+      console.warn(i18n.global.t('缺少servers字段'));
       return result;
     }
     if (!Array.isArray(openApiServers)) {
-      console.warn(i18next.t('servers字段必须为数组'));
+      console.warn(i18n.global.t('servers字段必须为数组'));
       return result;
     }
     openApiServers.forEach((server, index) => {
@@ -131,7 +131,7 @@ class OpenApiTranslator {
       const keys = Object.keys(variables);
       const varValue = keys.map((key) => {
         if (variables[key].enum) {
-          console.warn(i18next.t('server对象中存在多个变量枚举值，但接口工具仅解析默认值'));
+          console.warn(i18n.global.t('server对象中存在多个变量枚举值，但接口工具仅解析默认值'));
         }
         return {
           key,
@@ -143,7 +143,7 @@ class OpenApiTranslator {
         return matched?.value || $1
       })
       result.push({
-        name: `${i18next.t('服务器')}${index + 1}`,
+        name: `${i18n.global.t('服务器')}${index + 1}`,
         url,
         remark: server.description || '',
       });

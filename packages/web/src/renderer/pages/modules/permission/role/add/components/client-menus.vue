@@ -20,7 +20,7 @@ import { useI18n } from 'vue-i18n'
 import { onMounted, ref } from 'vue';
 
 const emits = defineEmits(['change']);
-const clientMenu = ref<string[]>([])
+const clientMenu = ref([])
 const { t } = useI18n()
 
 const loading = ref(false);

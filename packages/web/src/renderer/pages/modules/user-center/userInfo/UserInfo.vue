@@ -113,11 +113,11 @@ function getUserTeam() {
   return team ? team.name : '未分配'
 }
 
-function formatDate(timestamp: number) {
-  if (!timestamp) return '未知'
-  const date = new Date(timestamp)
-  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')} ${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`
-}
+// function formatDate(timestamp: number) {
+//   if (!timestamp) return '未知'
+//   const date = new Date(timestamp)
+//   return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')} ${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`
+// }
 </script>
 
 <style lang="scss" scoped>

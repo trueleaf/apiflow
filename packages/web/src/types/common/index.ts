@@ -49,3 +49,13 @@ export type SandboxErrorMessage = {
 
 export type SandboxReceiveMessage = SandboxEvalMessage
 export type SandboxPostMessage = SandboxErrorMessage | SandboxEvalSuccessMessage
+
+// ============================================================================
+// Mock 类型
+// ============================================================================
+
+export type MockItem = {
+  name: string;
+  value: string;
+  tags: string[];
+}

@@ -21,7 +21,7 @@ import SLoading from '@/components/common/loading/g-loading.vue'
 
 
 const emits = defineEmits(['change']);
-const clientMenu = ref<string[]>([]);
+const clientMenu = ref([])
 const { t } = useI18n()
 
 const loading = ref(false);

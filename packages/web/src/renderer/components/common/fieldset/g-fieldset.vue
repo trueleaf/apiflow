@@ -73,9 +73,8 @@ const updateContentHeight = async () => {
   // 获取内容的实际高度
   const contentElement = contentRef.value
   const scrollHeight = contentElement.scrollHeight
-  const clientHeight = contentElement.clientHeight
   
-  // 如果内容高度超过最大高度，则使用最大高度
+  // 如果内容高度超过最大高度,则使用最大高度
   if (props.maxHeight) {
     const maxHeightValue = parseInt(props.maxHeight)
     if (scrollHeight > maxHeightValue) {

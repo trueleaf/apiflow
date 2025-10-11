@@ -90,7 +90,7 @@ import { ElMessage } from 'element-plus'
 import 'element-plus/es/components/message/style/css';
 import { ref, Ref, computed } from 'vue'
 import type { TreeNodeOptions } from 'element-plus/lib/components/tree/src/tree.type'
-import { ApidocBanner } from '@src/types';
+import { ApidocBanner, HttpNode, WebSocketNode } from '@src/types';
 import { request } from '@/api/api'
 import { useI18n } from 'vue-i18n'
 import { useApidocBaseInfo } from '@/store/apidoc/base-info';
@@ -169,7 +169,7 @@ const handleExportAsHTML = async () => {
         projectId: apidocBaseInfoStore._id,
         sort: val.sort,
         info: val.info,
-        item: val.item,
+        item: (val as HttpNode).item || (val as WebSocketNode).item,
         isEnabled: true,
       })),
       variables: variableStore.variables,
@@ -286,7 +286,7 @@ const handleExportAsWord = async () => {
 
         sort: val.sort,
         info: val.info,
-        item: val.item,
+        item: (val as HttpNode).item || (val as WebSocketNode).item,
         isEnabled: true,
       })),
       variables: variableStore.variables,

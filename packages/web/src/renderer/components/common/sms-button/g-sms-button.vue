@@ -3,10 +3,8 @@
 </template>
 
 <script lang="ts" setup>
-import { useI18n } from 'vue-i18n'
 import { onUnmounted, ref } from 'vue';
 
-const { t } = useI18n()
 const props = defineProps({
   startLabel: {
     type: String,

@@ -105,7 +105,8 @@ const forceDeleteAllTab = (shareId: string): void => {
 };
 // 根据id批量删除tab
 const deleteTabByIds = (payload: { ids: string[]; shareId: string; force?: boolean }): void => {
-  const { ids, shareId, force } = payload;
+  const { ids, shareId } = payload;
+  // const { ids, shareId, force } = payload;
   const freshNewSeletedTab = () => {
     const selectTab = tabs.value[shareId]?.find((tab) => tab.selected);
     const hasTab = tabs.value[shareId]?.length > 0;

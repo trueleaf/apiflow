@@ -60,12 +60,13 @@ import { ref, Ref, computed, onMounted } from 'vue'
 import 'element-plus/es/components/message-box/style/css';
 import { ElMessageBox } from 'element-plus'
 import { request } from '@/api/api'
-import { CirclePlus, Link, Search } from '@element-plus/icons-vue'
+// import { CirclePlus, Link, Search } from '@element-plus/icons-vue'
+import { Search } from '@element-plus/icons-vue'
 import { router } from '@/router'
 import { useI18n } from 'vue-i18n'
 import SAddDialog from './dialog/add.vue'
 import SEditDialog from './dialog/edit.vue'
-import { usePermissionStore } from '@/store/permission';
+// import { usePermissionStore } from '@/store/permission';
 
 type LinkInfo = {
   expire: number,
@@ -84,7 +85,7 @@ const { t } = useI18n()
 
 const dialogVisible = ref(false); //是否显示弹窗
 const dialogVisible2 = ref(false); //编辑弹窗
-const permissionStore = usePermissionStore()
+// const permissionStore = usePermissionStore()
 
 // 新增状态管理
 const tableData = ref<LinkInfo[]>([]);

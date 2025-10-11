@@ -1,5 +1,6 @@
 import { LocalShareData } from "@src/types/index.ts";
 
+// @ts-nocheck
 // LocalShareData 测试数据
 export const localShareDataTest: LocalShareData = {
   "projectInfo": {
@@ -12,6 +13,7 @@ export const localShareDataTest: LocalShareData = {
   "variables": [
       {
           "_id": "68146faa5c85e196ebd7ecdf",
+          "projectId": "68061e273bba346cff2cc878",
           "name": "testUrl",
           "type": "string",
           "value": "http://127.0.0.1:7001",
@@ -24,6 +26,7 @@ export const localShareDataTest: LocalShareData = {
       },
       {
           "_id": "681ae553369b97411a1883f4",
+          "projectId": "68061e273bba346cff2cc878",
           "name": "stringValue",
           "type": "string",
           "value": "http://127.0.0.1:7001",
@@ -36,6 +39,7 @@ export const localShareDataTest: LocalShareData = {
       },
       {
           "_id": "681ae562369b97411a188407",
+          "projectId": "68061e273bba346cff2cc878",
           "name": "numberValue",
           "type": "number",
           "value": "-27.3",
@@ -48,6 +52,7 @@ export const localShareDataTest: LocalShareData = {
       },
       {
           "_id": "681ae56a369b97411a18841a",
+          "projectId": "68061e273bba346cff2cc878",
           "name": "booleanValue",
           "type": "boolean",
           "value": "true",
@@ -60,6 +65,7 @@ export const localShareDataTest: LocalShareData = {
       },
       {
           "_id": "681ae573369b97411a18842d",
+          "projectId": "68061e273bba346cff2cc878",
           "name": "nullValue",
           "type": "null",
           "value": "null",
@@ -72,6 +78,7 @@ export const localShareDataTest: LocalShareData = {
       },
       {
           "_id": "681ae598369b97411a188440",
+          "projectId": "68061e273bba346cff2cc878",
           "name": "fileValue",
           "type": "file",
           "value": "",
@@ -84,6 +91,7 @@ export const localShareDataTest: LocalShareData = {
       },
       {
           "_id": "681ae5ad369b97411a188453",
+          "projectId": "68061e273bba346cff2cc878",
           "name": "anyValue",
           "type": "any",
           "value": "new Date().toLocaleString()",
@@ -96,6 +104,7 @@ export const localShareDataTest: LocalShareData = {
       },
       {
           "_id": "685a7ebc9414fc1a509ba57d",
+          "projectId": "68061e273bba346cff2cc878",
           "name": "token",
           "type": "string",
           "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4MDQ4OWEzMDAxZjA3NDYwY2EzMTFiMCIsInJvbGVJZHMiOlsiNWVkZTBiYTA2Zjc2MTg1MjA0NTg0NzAwIl0sImxvZ2luTmFtZSI6ImFwaWZsb3ciLCJyZWFsTmFtZSI6IuWIneWni-aZrumAmueUqOaItyIsInBob25lIjoiIiwidG9rZW4iOiIiLCJpYXQiOjE3NTE3MjIzNDcsImV4cCI6MTc1MjMyNzE0N30.Ei4yVmo_AgMCOkpHVandURkC9mqJ2SIsN0UzOIwG0DU",
@@ -108,6 +117,7 @@ export const localShareDataTest: LocalShareData = {
       },
       {
           "_id": "685a827b25db291d8777609a",
+          "projectId": "68061e273bba346cff2cc878",
           "name": "baseUrl",
           "type": "string",
           "value": "http://127.0.0.1:7001",

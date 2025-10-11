@@ -1,5 +1,5 @@
 import { config } from "@src/config/config";
-import { ChunkWithTimestampe, ResponseInfo } from "@src/types/types";
+import { ChunkWithTimestampe, ResponseInfo } from "@src/types";
 import { getHttpResponseDB } from "../db";
 
 export class HttpResponseCache {

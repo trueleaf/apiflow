@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "composite": true,
+    "composite": false,
     "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.app.tsbuildinfo",
     "target": "ES2022",
     "useDefineForClassFields": true,
@@ -37,5 +37,10 @@
     "src/vite-env.d.ts",
     "src/types/auto-imports.d.ts",
     "src/types/components.d.ts"
+  ],
+  "exclude": [
+    "./src/renderer/pages/modules/apidoc/doc-edit/content/apiflow/**",
+    "./src/renderer/pages/modules/apidoc/doc-share/testData.ts",
+    "src/renderer/pages/modules/apidoc/doc-share/testData.ts"
   ]
 }

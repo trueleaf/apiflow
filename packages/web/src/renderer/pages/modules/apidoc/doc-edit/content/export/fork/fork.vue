@@ -53,7 +53,7 @@
               }}</el-radio>
           </el-radio-group>
           <el-select v-else v-model="targetProjectId" :size="config.renderConfig.layout.size" class="mt-2" filterable
-            @change="handleChangeProject">
+            @change="() => handleChangeProject(targetProjectId)">
             <el-option v-for="(item, index) in projectEnum" :key="index" :value="item._id"
               :label="item.projectName"></el-option>
           </el-select>
@@ -148,7 +148,8 @@ const targetTreeData: Ref<ApidocBanner[]> = ref([]);
 //目标项目 项目id
 const targetProjectId = ref('');
 //根据id获取目标项目详情数据
-const handleChangeProject = (pid: string | number | boolean) => {
+const handleChangeProject = (pid: string | number | boolean | undefined) => {
+  if (!pid) return;
   loading.value = true;
   const params = {
     projectId: pid,
@@ -210,7 +211,7 @@ const sourceTreeData = computed(() => {
 //是否在源树中，如果在则取消拖拽到目标树事件
 const isInSource = ref(false);
 //判断目标树是否允许drop
-const checkTargetCouldDrop = (draggingNode: Node, dropNode: Node, type: DropType) => {
+const checkTargetCouldDrop = (_draggingNode: unknown, _dropNode: unknown, type: string) => {
   // let realDragNode = draggingNode || targetTree.value?.dragState.draggingNode
   // if (realDragNode.data.type !== 'folder' && dropNode.data.type === 'folder' && type !== "inner") { //不允许文件在文件夹前面
   //     return type !== "prev";
@@ -236,7 +237,7 @@ const handleTargetNodeOver = () => {
   isInSource.value = false;
 }
 //排序目标树
-const sortTargetTree = (node: Node, dropNode: Node, type: DropType) => {
+const sortTargetTree = (node: Node, _dropNode: unknown, type: string) => {
   const params = {
     _id: node.data._id, //当前节点id
     pid: '', //父元素
@@ -260,7 +261,7 @@ const sortTargetTree = (node: Node, dropNode: Node, type: DropType) => {
   });
 }
 //目标树drop
-const handleTargetDrop = (dragNode: Node, dropNode: Node, type: DropType) => {
+const handleTargetDrop = (dragNode: Node, dropNode: Node, type: string) => {
   if (isInSource.value) { //拖拽到目标节点又拖拽回源节点代表取消
     targetTree.value?.remove(dragNode.data);
     return;
@@ -330,7 +331,7 @@ const handleSourceNodeDragOver = () => {
   isInSource.value = true;
 }
 //拖拽完毕(源)
-const handleSourceDragend = (draggingNode: Node, dropNode: Node, position: unknown, event: DragEvent) => {
+const handleSourceDragend = (draggingNode: Node, _dropNode: unknown, _position: unknown, _event: unknown) => {
   // 插入一个空节点用于占位
   const emptyData = {
     _id: uuid(),

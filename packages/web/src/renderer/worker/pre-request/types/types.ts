@@ -2,9 +2,9 @@ import { HttpNodeBodyMode } from "@src/types";
 import { RendererFormDataBody } from "@src/types/index.ts";
 
 type JsonPrimitive = string | number | boolean | null;
-type JsonValue = JsonPrimitive | JsonObject | JsonArray;
-type JsonObject = { [member: string]: JsonValue };
-type JsonArray = JsonValue[];
+export type JsonValue = JsonPrimitive | JsonObject | JsonArray;
+export type JsonObject = { [member: string]: JsonValue };
+export type JsonArray = JsonValue[];
 export type BasicJSON = JsonObject;
 
 export type InitDataMessage = {

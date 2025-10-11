@@ -88,7 +88,7 @@ import SResponseParams from './response/response.vue';
 import SPreRequestParams from './pre-request/pre-request.vue';
 import SAfterRequestParams from './after-request/after-request.vue';
 import SRemark from './remarks/remarks.vue';
-import SHook from './hook/hook.vue'
+// import SHook from './hook/hook.vue'
 import { computed, onMounted, onUnmounted, ref, watch, watchEffect } from 'vue'
 import { useApidocBaseInfo } from '@/store/apidoc/base-info'
 import { useApidoc } from '@/store/apidoc/apidoc'
@@ -105,7 +105,7 @@ import { router } from '@/router'
 const debounceFn = ref(null as (null | DebouncedFunc<(apidoc: HttpNode) => void>))
 const route = useRoute()
 const projectId = router.currentRoute.value.query.id as string;
-const mode = computed(() => apidocBaseInfoStore.mode)
+// const mode = computed(() => apidocBaseInfoStore.mode)
 const hasQueryOrPathsParams = computed(() => {
   const { queryParams, paths } = apidocStore.apidoc.item;
   const hasQueryParams = queryParams.filter(p => p.select).some((data) => data.key);
@@ -319,10 +319,10 @@ const checkApidocIsEqual = (apidoc: HttpNode, originApidoc: HttpNode) => {
   return true;
 }
 //=========================================================================//
-//切换工作模式
-const toggleMode = (mode: 'edit' | 'view') => {
-  apidocBaseInfoStore.changeMode(mode);
-}
+// //切换工作模式
+// const toggleMode = (mode: 'edit' | 'view') => {
+//   apidocBaseInfoStore.changeMode(mode);
+// }
 //打开变量维护页面
 const handleOpenVariable = () => {
   apidocTabsStore.addTab({

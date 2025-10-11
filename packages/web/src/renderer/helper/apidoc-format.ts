@@ -3,9 +3,8 @@
 | apidoc转换为更易读数据
 |--------------------------------------------------------------------------
 */
-import { useApidocBaseInfo } from '@/store/apidoc/base-info';
+import { useVariable } from '@/store/apidoc/variables';
 import { ApidocProjectVariable, HttpNodeResponseContentType, HttpNode } from '@src/types';
-import { storeToRefs } from 'pinia';
 
 type UrlInfo = {
   host: string,
@@ -46,9 +45,9 @@ type ResponseData = {
  * 转换{{}}的值
  */
 function convertPlaceholder(value: string) {
-  const { variables } = storeToRefs(useApidocBaseInfo())
+  const variableStore = useVariable()
   const matchdVariable = value.toString().match(/\{\{\s*([^} ]+)\s*\}\}/);
-  const allVariables: ApidocProjectVariable[] = JSON.parse(JSON.stringify(variables.value));
+  const allVariables: ApidocProjectVariable[] = JSON.parse(JSON.stringify(variableStore.variables));
   let convertValue = value;
   if (matchdVariable) {
     const realValue = allVariables.find(v => v.name === matchdVariable[1]);
@@ -146,7 +145,7 @@ export const apidocFormatHeaderParams = (apidoc: HttpNode): Record<string, strin
 export const apidocFormatUrl = (apidoc: HttpNode): UrlInfo => {
   let queryString = '';
   const { queryParams } = apidoc.item;
-  const { path, host } = apidoc.item.url
+  const { path, prefix } = apidoc.item.url
   //query参数解析
   queryParams.forEach((param) => {
     const key = param.key.trim();
@@ -160,9 +159,9 @@ export const apidocFormatUrl = (apidoc: HttpNode): UrlInfo => {
     queryString = `?${queryString}`;
   }
   return {
-    host,
+    host: prefix,
     path,
-    url: `${host}${path}${queryString}`,
+    url: `${prefix}${path}${queryString}`,
   };
 };
 /**

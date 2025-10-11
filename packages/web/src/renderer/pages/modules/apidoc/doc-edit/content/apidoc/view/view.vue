@@ -91,7 +91,7 @@ const requestMethods = computed(() => apidocBaseInfoStore.rules.requestMethods)
 const apidoc = computed(() => apidocStore.apidoc)
 const fullUrl = computed(() => {
   const { paths } = apidocStore.apidoc.item
-  const { host, path: requestPath } = apidocStore.apidoc.item.url;
+  const { prefix, path: requestPath } = apidocStore.apidoc.item.url;
   const { queryParams } = apidocStore.apidoc.item;
   let queryString = '';
   queryParams.forEach((v) => {
@@ -110,7 +110,7 @@ const fullUrl = computed(() => {
     }
   })
   const validPath = requestPath.replace(/\{([^\\}]+)\}/g, (_, $2) => pathMap[$2] || $2)
-  return host + validPath + queryString
+  return prefix + validPath + queryString
 })
 const hasQueryParams = computed(() => {
   const { queryParams } = apidocStore.apidoc.item;

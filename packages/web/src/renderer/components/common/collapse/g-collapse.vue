@@ -1,7 +1,3 @@
-/*
-模块名称：折叠面板
-备注：
-*/
 <template>
   <div class="s-collaps mb-1">
     <div class="header" :class="{ bold: bold }" @click="toggleCollapse">
@@ -25,10 +21,10 @@
 <script lang="ts" setup>
 import { ref, useSlots, watch } from 'vue'
 import { ArrowDown, ArrowRight } from '@element-plus/icons-vue'
-import { useI18n } from 'vue-i18n'
+// import { useI18n } from 'vue-i18n'
 
 const slots = useSlots()
-const { t } = useI18n()
+// const { t } = useI18n()
 const props = defineProps({
   title: {
     type: String,

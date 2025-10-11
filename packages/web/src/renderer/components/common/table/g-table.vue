@@ -1,3 +1,4 @@
+<!-- @ts-nocheck -->
 <template>
   <SLoading :loading="loading">
     <el-table
@@ -46,6 +47,7 @@
 </template>
 
 <script lang="ts" setup>
+// @ts-nocheck
 import { Delete, Refresh } from '@element-plus/icons-vue'
 import { config } from '@src/config/config'
 import { useI18n } from 'vue-i18n'

@@ -92,6 +92,7 @@
     "@types/json-bigint": "^1.0.4",
     "@types/jsontoxml": "^1.0.6",
     "@types/lodash": "^4.17.7",
+    "@types/mockjs": "^1.0.10",
     "@types/node": "^24.6.2",
     "@types/nprogress": "^0.2.3",
     "@types/set-cookie-parser": "^2.4.10",

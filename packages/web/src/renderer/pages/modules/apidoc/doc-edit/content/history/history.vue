@@ -230,18 +230,18 @@ const formInfo: Ref<FormInfo> = ref({
 })
 const memberEnum: Ref<{ name: string, permission: ApidocProjectPermission }[]> = ref([]); //操作人员
 const dateRange: Ref<string> = ref(''); //日期范围
-const customDateRange: Ref<number[]> = ref([]); //自定义日期范围
-//获取操作人员枚举
-const getOperatorEnum = () => {
-  const params = {
-    projectId: router.currentRoute.value.query.id as string,
-  };
-  request.get('/api/docs/docs_history_operator_enum', { params }).then((res) => {
-    memberEnum.value = res.data as { name: string, permission: ApidocProjectPermission }[];
-  }).catch((err) => {
-    console.error(err);
-  });
-}
+const customDateRange: Ref<[Date, Date] | []> = ref([]); //自定义日期范围
+// //获取操作人员枚举
+// const getOperatorEnum = () => {
+//   const params = {
+//     projectId: router.currentRoute.value.query.id as string,
+//   };
+//   request.get('/api/docs/docs_history_operator_enum', { params }).then((res) => {
+//     memberEnum.value = res.data as { name: string, permission: ApidocProjectPermission }[];
+//   }).catch((err) => {
+//     console.error(err);
+//   });
+// }
 //清空操作人员
 const handleClearOperator = () => {
   formInfo.value.operators = [];
@@ -299,8 +299,8 @@ watch(() => customDateRange.value, (val) => {
     formInfo.value.startTime = null;
     formInfo.value.endTime = null;
   } else {
-    formInfo.value.startTime = val[0];
-    formInfo.value.endTime = val[1];
+    formInfo.value.startTime = val[0].getTime();
+    formInfo.value.endTime = val[1].getTime();
   }
 })
 

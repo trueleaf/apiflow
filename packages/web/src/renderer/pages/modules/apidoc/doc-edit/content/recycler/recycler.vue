@@ -115,7 +115,7 @@ import { useApidocBanner } from '@/store/apidoc/banner'
 import { useApidocBaseInfo } from '@/store/apidoc/base-info'
 import { config } from '@src/config/config'
 import { formatDate } from '@/helper'
-import { Delete } from '@element-plus/icons-vue'
+// import { Delete } from '@element-plus/icons-vue'
 import { apiNodesCache } from '@/cache/index'
 import { useRuntime } from '@/store/runtime/runtime'
 

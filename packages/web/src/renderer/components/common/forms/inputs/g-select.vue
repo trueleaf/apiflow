@@ -3,7 +3,7 @@
     :size="config.renderConfig.layout.size" :class="className" clearable :visible-change="getSelectEnum"
     @change="handleChange">
     <el-option v-for="(item, index) in realSelectEnum" :key="index" :label="item[selectProps.name]"
-      :value="item[selectProps.id]"></el-option>
+      :value="item[selectProps.id] ?? ''"></el-option>
   </el-select>
 </template>
 

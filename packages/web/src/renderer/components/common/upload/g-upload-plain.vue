@@ -52,7 +52,7 @@ const props = defineProps({
 const emits = defineEmits(['start', 'finish', 'success']);
 
 //上传文件
-const upload = (file: { file: File }) => {
+const upload = (file: { file: File }): Promise<unknown> => {
   emits('start');
   const formData = new FormData();
   formData.append('file', file.file);
@@ -60,11 +60,13 @@ const upload = (file: { file: File }) => {
     formData.append(key, props.params[key]);
   })
   let response: string;
-  request.post<{ data: string }, { data: string }>(props.url, formData).then((res) => {
+  return request.post<{ data: string }, { data: string }>(props.url, formData).then((res) => {
     response = res.data;
     emits('success', response);
+    return res;
   }).catch((err) => {
     console.error(err);
+    throw err;
   }).finally(() => {
     emits('finish', response);
   });

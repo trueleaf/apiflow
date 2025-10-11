@@ -15,22 +15,13 @@ type MockVariableCacheDBSchema = {
 export class MockVariableCache {
   private readonly dbName = config.cacheConfig.mockVariableCache.dbName;
   private readonly version = config.cacheConfig.mockVariableCache.version;
-  private readonly storeName = config.cacheConfig.mockVariableCache.storeName;
 
   private dbPromise: Promise<IDBPDatabase<MockVariableCacheDBSchema>> | null = null;
 
   constructor() {
-    this.ensureStoreName();
     this.initDB().catch((error) => {
       console.error('Failed to init MockVariableCache database:', error);
     });
-  }
-
-  // 确保缓存配置中的存储名称与预期一致
-  private ensureStoreName(): void {
-    if (config.cacheConfig.mockVariableCache.storeName !== this.storeName) {
-      console.warn(`mockVariableCache.storeName is ${config.cacheConfig.mockVariableCache.storeName}, fallback to ${this.storeName}`);
-    }
   }
 
   private initDB(): Promise<IDBPDatabase<MockVariableCacheDBSchema>> {

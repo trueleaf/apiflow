@@ -74,7 +74,7 @@ const formInfo = ref({
   clientRoutes: [] as string[], //---已选前端路由
   serverRoutes: [] as string[], //---已选后端路由
 })
-const clientMenu = ref<string[]>([])
+// const clientMenu = ref<string[]>([])
 const activeName = ref('clientRoute')
 const loading = ref(false);
 const clientMenuRef = ref<{ tree: TreeNodeOptions['store'] }>();
