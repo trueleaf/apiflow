@@ -97,7 +97,7 @@ const handleChangeCommonHeaderIsSend = (isSend: CheckboxValueType, header: Pick<
       ignoreHeaderId: header._id
     })
   } else {
-    httpNodeCache.setIgnoredCommonHeader({
+    httpNodeCache.setWsIgnoredCommonHeader({
       projectId,
       tabId: currentSelectTab.value?._id ?? '',
       ignoreHeaderId: header._id
@@ -111,7 +111,7 @@ watch([currentSelectTab, cHeaders, globalCommonHeaders], () => {
   }
   const defaultCommonHeader = apidocBaseInfoStore.getCommonHeadersById(currentSelectTab.value?._id || "");
   commonHeaders.value = defaultCommonHeader.map(v => {
-    const ignoreHeaderIds = httpNodeCache.getIgnoredCommonHeaderByTabId(projectId, currentSelectTab.value?._id ?? "");
+    const ignoreHeaderIds = httpNodeCache.getWsIgnoredCommonHeaderByTabId(projectId, currentSelectTab.value?._id ?? "");
     const isSelect = ignoreHeaderIds?.find(headerId => headerId === v._id) ? false : true
     const property: ApidocProperty<'string'> & { path?: string[] } = apidocGenerateProperty();
     property._id = v._id;

@@ -160,7 +160,7 @@ const freshHasHeaders = () => {
   const commonHeaders = apidocBaseInfoStore.getCommonHeadersById(currentSelectTab.value?._id || "");
   const cpCommonHeaders = JSON.parse(JSON.stringify(commonHeaders)) as (typeof commonHeaders);
   cpCommonHeaders.forEach(header => {
-    const ignoreHeaderIds = httpNodeCache.getIgnoredCommonHeaderByTabId(projectId, currentSelectTab.value?._id ?? "");
+    const ignoreHeaderIds = httpNodeCache.getWsIgnoredCommonHeaderByTabId(projectId, currentSelectTab.value?._id ?? "");
     const isSelect = ignoreHeaderIds?.find(headerId => headerId === header._id) ? false : true;
     header.select = isSelect;
   })

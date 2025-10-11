@@ -158,7 +158,7 @@ class HttpNodeCache {
   /*
    * 根据tabId获取不发送公共请求头
    */
-  getIgnoredCommonHeaderByTabId(projectId: string, tabId: string): string[] | null {
+  getWsIgnoredCommonHeaderByTabId(projectId: string, tabId: string): string[] | null {
     try {
       const localData = JSON.parse(localStorage.getItem('httpNode/commonHeaders/ignore') || '{}') as Record<string, Record<string, string[]>>;
       if (localData[projectId] == null) {
@@ -177,7 +177,7 @@ class HttpNodeCache {
   /*
    * 设置不发送的公共请求头
    */
-  setIgnoredCommonHeader(options: { projectId: string; tabId: string; ignoreHeaderId: string }) {
+  setWsIgnoredCommonHeader(options: { projectId: string; tabId: string; ignoreHeaderId: string }) {
     try {
       const { projectId, tabId, ignoreHeaderId } = options;
       const localData = JSON.parse(localStorage.getItem('httpNode/commonHeaders/ignore') || '{}') as Record<string, Record<string, string[]>>;
@@ -411,32 +411,6 @@ class HttpNodeCache {
       const data: Record<string, Record<string, boolean>> = {};
       data[tabId] = { [blockName]: isExpanded };
       localStorage.setItem('httpNode/share/collapse', JSON.stringify(data));
-    }
-  }
-
-  /*
-   * 获取编辑tabs
-   */
-  getEditTabs(): Record<string, any[]> {
-    try {
-      const localData = JSON.parse(localStorage.getItem('httpNode/tabs') || '{}');
-      return localData;
-    } catch (error) {
-      console.error(error);
-      localStorage.setItem('httpNode/tabs', '{}');
-      return {};
-    }
-  }
-
-  /*
-   * 设置编辑tabs
-   */
-  setEditTabs(tabs: Record<string, any[]>) {
-    try {
-      localStorage.setItem('httpNode/tabs', JSON.stringify(tabs));
-    } catch (error) {
-      console.error(error);
-      localStorage.setItem('httpNode/tabs', '{}');
     }
   }
 

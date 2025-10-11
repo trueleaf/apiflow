@@ -54,6 +54,7 @@ import { FormInstance } from 'element-plus'
 import { Loading, } from '@element-plus/icons-vue'
 import { ApidocBanner, HttpNode, ApidocVariable, CommonResponse } from '@src/types'
 import { httpNodeCache } from '@/cache/http/httpNodeCache'
+import { workbenchCache } from '@/cache/workbench/workbench'
 import { router } from '@/router'
 import SBanner from './banner/banner.vue'
 import SNav from './nav/nav.vue'
@@ -124,7 +125,7 @@ const initShareData = () => {
   } else {
     getSharedProjectInfo();
   }
-  const tabs = httpNodeCache.getEditTabs();
+  const tabs = workbenchCache.getWorkbenchTabs();
   if (tabs[shareId]) {
     shareStore.updateAllTabs({
       tabs: tabs[shareId],

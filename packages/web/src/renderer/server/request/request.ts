@@ -349,7 +349,7 @@ const getHeaders = async (apidoc: HttpNode) => {
     return {}
   }
   const defaultCommonHeaders = apidocBaseInfoStore.getCommonHeadersById(currentSelectTab?._id || "");
-  const ignoreHeaderIds = httpNodeCache.getIgnoredCommonHeaderByTabId(projectId, currentSelectTab?._id ?? "") || [];
+  const ignoreHeaderIds = httpNodeCache.getWsIgnoredCommonHeaderByTabId(projectId, currentSelectTab?._id ?? "") || [];
   const commonHeaders = defaultCommonHeaders.filter(header => !ignoreHeaderIds.includes(header._id));
   const headers = apidoc.item.headers;
   const headersObject: Record<string, string | null> = {};
