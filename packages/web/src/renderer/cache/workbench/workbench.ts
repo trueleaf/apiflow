@@ -27,6 +27,30 @@ class WorkbenchCache {
       localStorage.setItem('workbench/node/tabs', '{}');
     }
   }
+
+  // 获取固定的工具栏操作
+  getPinToolbarOperations(): any[] {
+    try {
+      const localPinToolbarOperations = localStorage.getItem('workbench/pinToolbarOperations');
+      if (localPinToolbarOperations) {
+        return JSON.parse(localPinToolbarOperations);
+      }
+      return [];
+    } catch (error) {
+      console.error('获取固定工具栏操作失败:', error);
+      localStorage.setItem('workbench/pinToolbarOperations', '[]');
+      return [];
+    }
+  }
+
+  // 设置固定的工具栏操作
+  setPinToolbarOperations(operations: any[]) {
+    try {
+      localStorage.setItem('workbench/pinToolbarOperations', JSON.stringify(operations));
+    } catch (error) {
+      console.error('设置固定工具栏操作失败:', error);
+    }
+  }
 }
 
 export const workbenchCache = new WorkbenchCache();

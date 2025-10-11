@@ -525,40 +525,6 @@ class HttpNodeCache {
 
   /*
   |--------------------------------------------------------------------------
-  | 工具栏相关方法
-  |--------------------------------------------------------------------------
-  */
-
-  /**
-   * 获取固定的工具栏操作
-   */
-  getPinToolbarOperations(): any[] {
-    try {
-      const localPinToolbarOperations = localStorage.getItem('httpNode/pinToolbarOperations');
-      if (localPinToolbarOperations) {
-        return JSON.parse(localPinToolbarOperations);
-      }
-      return [];
-    } catch (error) {
-      console.error('获取固定工具栏操作失败:', error);
-      localStorage.setItem('httpNode/pinToolbarOperations', '[]');
-      return [];
-    }
-  }
-
-  /**
-   * 设置固定的工具栏操作
-   */
-  setPinToolbarOperations(operations: any[]) {
-    try {
-      localStorage.setItem('httpNode/pinToolbarOperations', JSON.stringify(operations));
-    } catch (error) {
-      console.error('设置固定工具栏操作失败:', error);
-    }
-  }
-
-  /*
-  |--------------------------------------------------------------------------
   | 全局设置相关方法
   |--------------------------------------------------------------------------
   */

@@ -153,6 +153,7 @@ import { router } from '@/router/index'
 import { useI18n } from 'vue-i18n'
 import { request } from '@/api/api'
 import { httpNodeCache } from '@/cache/http/httpNodeCache.ts'
+import { workbenchCache } from '@/cache/workbench/workbench.ts'
 import SAddFileDialog from '../../dialog/add-file/add-file.vue'
 import SAddFolderDialog from '../../dialog/add-folder/add-folder.vue'
 import { originOperaions } from './operations'
@@ -213,7 +214,7 @@ const projectName = computed(() => apidocBaseInfoStore.projectName)
 //=====================================操作相关数据====================================//
 //初始化缓存数据
 const initCacheOperation = () => {
-  const localPinToolbarOperations = httpNodeCache.getPinToolbarOperations();
+  const localPinToolbarOperations = workbenchCache.getPinToolbarOperations();
   operations.value = originOperaions.filter((v) => {
     if (isStandalone.value && v.op === 'generateLink') {
       return false;
@@ -235,7 +236,7 @@ const initCacheOperation = () => {
 }
 //缓存工具栏操作
 watch(pinOperations, (v) => {
-  httpNodeCache.setPinToolbarOperations(v)
+  workbenchCache.setPinToolbarOperations(v)
 }, {
   deep: true
 })
