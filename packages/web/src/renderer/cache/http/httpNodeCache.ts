@@ -445,59 +445,6 @@ class HttpNodeCache {
     }
   }
 
-  /*
-  |--------------------------------------------------------------------------
-  | 缓存管理相关方法
-  |--------------------------------------------------------------------------
-  */
-
-  /**
-   * 设置缓存信息
-   */
-  setCacheInfo(cacheInfo: { indexedDBSize: number; indexedDBDetails: unknown[] }) {
-    try {
-      const cacheData = {
-        indexedDBSize: cacheInfo.indexedDBSize,
-        indexedDBDetails: cacheInfo.indexedDBDetails,
-        timestamp: Date.now()
-      };
-      localStorage.setItem('httpNode/cache/info', JSON.stringify(cacheData));
-    } catch (error) {
-      console.error('设置缓存信息失败:', error);
-    }
-  }
-
-  /**
-   * 获取缓存信息
-   */
-  getCacheInfo(): { indexedDBSize: number; indexedDBDetails: unknown[] } | null {
-    try {
-      const cacheData = localStorage.getItem('httpNode/cache/info');
-      if (!cacheData) {
-        return null;
-      }
-      const parsedData = JSON.parse(cacheData);
-      return {
-        indexedDBSize: parsedData.indexedDBSize || -1,
-        indexedDBDetails: parsedData.indexedDBDetails || []
-      };
-    } catch (error) {
-      console.error('获取缓存信息失败:', error);
-      return null;
-    }
-  }
-
-  /**
-   * 清除缓存信息
-   */
-  clearCacheInfo() {
-    try {
-      localStorage.removeItem('httpNode/cache/info');
-    } catch (error) {
-      console.error('清除缓存信息失败:', error);
-    }
-  }
-
   /**
    * 设置选中的缓存卡片类型
    */

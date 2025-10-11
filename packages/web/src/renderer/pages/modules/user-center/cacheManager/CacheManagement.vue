@@ -122,6 +122,7 @@ import { formatBytes } from '@/helper'
 import { RefreshRight } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
 import { httpNodeCache } from '@/cache/http/httpNodeCache.ts'
+import { settingsCache } from '@/cache/settings/settings.ts'
 import LocalStorageDetail from './components/LocalStorageDetail.vue'
 import IndexedDBDetail from './components/IndexedDBDetail.vue'
 import DataBackup from './components/DataBackup.vue'
@@ -320,7 +321,7 @@ const handleSelectCacheType = (type: 'localStorage' | 'indexedDB' | 'backup' | '
 */
 // 加载本地数据
 const getIndexedDBCacheData = (): void => {
-  const cachedInfo = httpNodeCache.getCacheInfo()
+  const cachedInfo = settingsCache.getCacheManagerInfo()
   if (cachedInfo) {
     cacheInfo.value.indexedDBSize = cachedInfo.indexedDBSize
     cacheInfo.value.indexedDBDetails = cachedInfo.indexedDBDetails as IndexedDBItem[]
@@ -328,7 +329,7 @@ const getIndexedDBCacheData = (): void => {
 }
 // 保存本地数据
 const saveCacheData = (): void => {
-  httpNodeCache.setCacheInfo({
+  settingsCache.setCacheManagerInfo({
     indexedDBSize: cacheInfo.value.indexedDBSize,
     indexedDBDetails: cacheInfo.value.indexedDBDetails
   })
