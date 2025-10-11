@@ -207,7 +207,7 @@ import { defaultRequestMethods } from '../common';
 import SParamsView from '@/components/apidoc/params-view/g-params-view.vue';
 import { useShareStore } from '../store';
 import { useRoute } from 'vue-router';
-import { httpNodeCache } from '@/cache/http/httpNodeCache.ts';
+import { userState } from '@/cache/userState/userState.ts';
 import { convertTemplateValueToRealValue } from '@/utils/utils';
 
 const route = useRoute();
@@ -231,7 +231,7 @@ const expandedBlocks = ref({
 
 watchEffect(() => {
   if (apidocInfo.value?._id) {
-    const cache = httpNodeCache.getShareCollapseState(apidocInfo.value._id);
+    const cache = userState.getShareCollapseState(apidocInfo.value._id);
     if (cache) {
       expandedBlocks.value = { ...expandedBlocks.value, ...cache };
     }
@@ -278,7 +278,7 @@ const bodyType = computed(() => {
 const toggleBlock = (block: 'query' | 'headers' | 'body' | 'response') => {
   expandedBlocks.value[block] = !expandedBlocks.value[block];
   if (apidocInfo.value?._id) {
-    httpNodeCache.updateShareBlockCollapseState(apidocInfo.value._id, block, expandedBlocks.value[block]);
+    userState.updateShareBlockCollapseState(apidocInfo.value._id, block, expandedBlocks.value[block]);
   }
 }
 

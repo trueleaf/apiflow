@@ -44,7 +44,7 @@
 
 <script setup lang="ts">
 import { ref, watch, type Component } from 'vue'
-import { httpNodeCache } from '@/cache/http/httpNodeCache.ts'
+import { userState } from '@/cache/userState/userState.ts'
 import CacheManagement from './cacheManager/CacheManagement.vue'
 import UserInfo from './userInfo/UserInfo.vue'
 import ComponentLibrary from './componentLibrary/ComponentLibrary.vue'
@@ -60,7 +60,7 @@ type TabItem = {
 };
 
 // 初始化时从缓存中获取活跃标签，默认为 'user-info'
-const activeTab = ref(httpNodeCache.getActiveLocalDataMenu() || 'user-info')
+const activeTab = ref(userState.getActiveLocalDataMenu() || 'user-info')
 const tabs: TabItem[] = [
   { name: '基本信息', icon: UserCircle, action: 'user-info' },
   { name: '本地数据', icon: HardDrive, action: 'local-data' }
@@ -86,7 +86,7 @@ const handleTabClick = (tab: TabItem) => {
 
 // 监听 activeTab 变化，自动保存到缓存
 watch(activeTab, (newValue) => {
-  httpNodeCache.setActiveLocalDataMenu(newValue)
+  userState.setActiveLocalDataMenu(newValue)
 }, { immediate: false })
 </script>
 

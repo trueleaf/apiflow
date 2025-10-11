@@ -83,6 +83,94 @@ class UserState {
       localStorage.setItem('userState/httpNode/activeParamsTab', JSON.stringify(data));
     }
   }
+
+  // 设置分享文档参数块折叠状态
+  setShareCollapseState(tabId: string, blockStates: Record<string, boolean>) {
+    try {
+      const localData = JSON.parse(localStorage.getItem('userState/share/collapse') || '{}');
+      localData[tabId] = blockStates;
+      localStorage.setItem('userState/share/collapse', JSON.stringify(localData));
+    } catch (error) {
+      console.error(error);
+      const data: Record<string, Record<string, boolean>> = {};
+      data[tabId] = blockStates;
+      localStorage.setItem('userState/share/collapse', JSON.stringify(data));
+    }
+  }
+
+  // 获取分享文档参数块折叠状态
+  getShareCollapseState(tabId: string): Record<string, boolean> | null {
+    try {
+      const localData: Record<string, Record<string, boolean>> = JSON.parse(localStorage.getItem('userState/share/collapse') || '{}');
+      if (!localData[tabId]) {
+        return null;
+      }
+      return localData[tabId];
+    } catch (error) {
+      console.error(error);
+      localStorage.setItem('userState/share/collapse', '{}');
+      return null;
+    }
+  }
+
+  // 更新单个分享文档参数块折叠状态
+  updateShareBlockCollapseState(tabId: string, blockName: string, isExpanded: boolean) {
+    try {
+      const localData = JSON.parse(localStorage.getItem('userState/share/collapse') || '{}');
+      if (!localData[tabId]) {
+        localData[tabId] = {};
+      }
+      localData[tabId][blockName] = isExpanded;
+      localStorage.setItem('userState/share/collapse', JSON.stringify(localData));
+    } catch (error) {
+      console.error(error);
+      const data: Record<string, Record<string, boolean>> = {};
+      data[tabId] = { [blockName]: isExpanded };
+      localStorage.setItem('userState/share/collapse', JSON.stringify(data));
+    }
+  }
+
+  // 获取当前活跃的本地数据管理菜单
+  getActiveLocalDataMenu(): string {
+    try {
+      const activeMenu = localStorage.getItem('userState/localData/activeMenu') || 'localStorage';
+      return activeMenu;
+    } catch (error) {
+      console.error(error);
+      return 'localStorage';
+    }
+  }
+
+  // 设置当前活跃的本地数据管理菜单
+  setActiveLocalDataMenu(activeMenu: string) {
+    try {
+      localStorage.setItem('userState/localData/activeMenu', activeMenu);
+    } catch (error) {
+      console.error(error);
+      localStorage.setItem('userState/localData/activeMenu', 'localStorage');
+    }
+  }
+
+  // 设置选中的缓存卡片类型
+  setSelectedCacheType(cacheType: 'localStorage' | 'indexedDB' | 'backup' | 'restore') {
+    try {
+      localStorage.setItem('userState/cacheManager/cacheType', cacheType);
+    } catch (error) {
+      console.error('设置选中缓存类型失败:', error);
+      localStorage.setItem('userState/cacheManager/cacheType', 'localStorage');
+    }
+  }
+
+  // 获取选中的缓存卡片类型
+  getSelectedCacheType(): 'localStorage' | 'indexedDB' | 'backup' | 'restore' {
+    try {
+      const cacheType = localStorage.getItem('userState/cacheManager/cacheType') as 'localStorage' | 'indexedDB' | 'backup' | 'restore';
+      return cacheType || 'localStorage';
+    } catch (error) {
+      console.error('获取选中缓存类型失败:', error);
+      return 'localStorage';
+    }
+  }
 }
 
 export const userState = new UserState();

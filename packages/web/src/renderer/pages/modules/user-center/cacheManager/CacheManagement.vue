@@ -121,7 +121,7 @@ import { CacheInfo, LocalStorageItem, IndexedDBItem } from '@src/types/apidoc/ca
 import { formatBytes } from '@/helper'
 import { RefreshRight } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
-import { httpNodeCache } from '@/cache/http/httpNodeCache.ts'
+import { userState } from '@/cache/userState/userState.ts'
 import { settingsCache } from '@/cache/settings/settings.ts'
 import LocalStorageDetail from './components/LocalStorageDetail.vue'
 import IndexedDBDetail from './components/IndexedDBDetail.vue'
@@ -136,7 +136,7 @@ import DataRestore from './components/DataRestore.vue'
 const indexedDBLoading = ref(false)
 const localStorageLoading = ref(false)
 const indexedDBWorkerRef = ref<Worker | null>(null)
-const selectedCacheType = ref<'localStorage' | 'indexedDB' | 'backup' | 'restore'>(httpNodeCache.getSelectedCacheType())
+const selectedCacheType = ref<'localStorage' | 'indexedDB' | 'backup' | 'restore'>(userState.getSelectedCacheType())
 const cacheInfo = ref<CacheInfo>({
   localStroageSize: 0,
   indexedDBSize: -1,
@@ -255,11 +255,11 @@ const getLocalStorage = () => {
           description = '最近一次访问的页面'
         } else if (key === 'language') {
           description = '语言设置'
-        } else if (key === 'apidoc/localData/activeMenu') {
+        } else if (key === 'userState/localData/activeMenu') {
           description = '个人中心被选中菜单'
         } else if (key === 'apidoc/cache/info') {
           description = '缓存已计算的本地数据'
-        } else if (key === 'apidoc/cache/selectedType') {
+        } else if (key === 'userState/cacheManager/cacheType') {
           description = '选中的缓存卡片类型'
         } else {
           description = '其他本地数据'
@@ -297,7 +297,7 @@ const getIndexedDB = async () => {
 const handleSelectCacheType = (type: 'localStorage' | 'indexedDB' | 'backup' | 'restore'): void => {
   selectedCacheType.value = type
   // 缓存用户选择的卡片类型
-  httpNodeCache.setSelectedCacheType(type)
+  userState.setSelectedCacheType(type)
   if (type === 'localStorage' && cacheInfo.value.localStorageDetails.length === 0) {
     scheduleDeferredTask(() => {
       getLocalStorage()
