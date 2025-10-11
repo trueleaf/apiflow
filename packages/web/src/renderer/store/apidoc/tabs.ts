@@ -208,7 +208,7 @@ export const useApidocTas = defineStore('apidocTabs', () => {
           type: 'warning',
           distinguishCancelAndClose: true,
         })
-        const apidoc = httpNodeCache.getApidoc(unsavedTab._id)
+        const apidoc = httpNodeCache.getHttpNode(unsavedTab._id)
         if (!apidoc) {
           continue;
         }

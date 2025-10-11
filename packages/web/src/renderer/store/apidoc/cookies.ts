@@ -26,16 +26,16 @@ export const useCookies = defineStore('apidocCookies', () => {
   // 初始化时从缓存加载
   const initCookies = (projectId: string) => {
     const now = new Date();
-    const allCookies = httpNodeCache.getApidocCookies(projectId) || [];
+    const allCookies = httpNodeCache.getHttpNodeCookies(projectId) || [];
     const validCookies = allCookies.filter(cookie => {
       if (!cookie.expires) return false; // 初始化时如果没有expires字段则清空
       const expiresDate = new Date(cookie.expires);
       return isNaN(expiresDate.getTime()) || expiresDate > now;
     });
     if (validCookies.length !== allCookies.length) {
-      httpNodeCache.setApidocCookies(projectId, validCookies);
+      httpNodeCache.setHttpNodeCookies(projectId, validCookies);
     }
-    cookies.value = httpNodeCache.getApidocCookies(projectId) || [];
+    cookies.value = httpNodeCache.getHttpNodeCookies(projectId) || [];
   };
 
   // 通过Set-Cookie头批量更新
@@ -75,7 +75,7 @@ export const useCookies = defineStore('apidocCookies', () => {
     } else {
       cookies.value.push(cookie);
     }
-    httpNodeCache.setApidocCookies(projectId, cookies.value);
+    httpNodeCache.setHttpNodeCookies(projectId, cookies.value);
   };
 
   // 根据id修改cookie
@@ -83,7 +83,7 @@ export const useCookies = defineStore('apidocCookies', () => {
     const idx = cookies.value.findIndex(c => c.id === id);
     if (idx !== -1) {
       cookies.value[idx] = { ...cookies.value[idx], ...cookieInfo };
-      httpNodeCache.setApidocCookies(projectId, cookies.value);
+      httpNodeCache.setHttpNodeCookies(projectId, cookies.value);
     }
   };
 
@@ -92,7 +92,7 @@ export const useCookies = defineStore('apidocCookies', () => {
     const idx = cookies.value.findIndex(c => c.id === id);
     if (idx !== -1) {
       cookies.value.splice(idx, 1);
-      httpNodeCache.setApidocCookies(projectId, cookies.value);
+      httpNodeCache.setHttpNodeCookies(projectId, cookies.value);
     }
   };
   // 获取匹配的cookie列表

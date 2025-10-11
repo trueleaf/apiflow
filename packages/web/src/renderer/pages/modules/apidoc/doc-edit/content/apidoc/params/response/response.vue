@@ -305,7 +305,7 @@ const handleChangeCollapseState = (isShow: boolean, item: HttpNodeResponseParams
   httpNodeCache.setResponseCollapseState(item._id || "", isShow);
 }
 onMounted(() => {
-  collapseState.value = httpNodeCache.getAllResponseCollapseState();
+  collapseState.value = httpNodeCache.getResponseCollapseState();
 })
 </script>
 

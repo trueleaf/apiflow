@@ -1,5 +1,5 @@
 /**
- * apidoc文档缓存
+ * HTTP节点缓存
  */
 
 import { HttpNode } from '@src/types';
@@ -10,34 +10,34 @@ class HttpNodeCache {
   }
 
   /*
-   * 缓存接口信息
+   * 缓存HTTP节点信息
    */
-  setApidoc(val: HttpNode) {
+  setHttpNode(val: HttpNode) {
     try {
-      const localApidoc = JSON.parse(localStorage.getItem('httpNode/apidoc') || '{}');
-      localApidoc[val._id] = val;
-      localStorage.setItem('httpNode/apidoc', JSON.stringify(localApidoc));
+      const localHttpNode = JSON.parse(localStorage.getItem('httpNodeCache/httpNode') || '{}');
+      localHttpNode[val._id] = val;
+      localStorage.setItem('httpNodeCache/httpNode', JSON.stringify(localHttpNode));
     } catch (error) {
       console.error(error);
       const data: Record<string, HttpNode> = {};
       data[val._id] = val;
-      localStorage.setItem('httpNode/apidoc', JSON.stringify(data));
+      localStorage.setItem('httpNodeCache/httpNode', JSON.stringify(data));
     }
   }
 
   /*
-   * 获取缓存接口信息
+   * 获取缓存HTTP节点信息
    */
-  getApidoc(id: string): HttpNode | null {
+  getHttpNode(id: string): HttpNode | null {
     try {
-      const localApidoc: Record<string, HttpNode> = JSON.parse(localStorage.getItem('httpNode/apidoc') || '{}');
-      if (!localApidoc[id]) {
+      const localHttpNode: Record<string, HttpNode> = JSON.parse(localStorage.getItem('httpNodeCache/httpNode') || '{}');
+      if (!localHttpNode[id]) {
         return null;
       }
-      return localApidoc[id];
+      return localHttpNode[id];
     } catch (error) {
       console.error(error);
-      localStorage.setItem('httpNode/apidoc', '{}')
+      localStorage.setItem('httpNodeCache/httpNode', '{}')
       return null;
     }
   }
@@ -45,9 +45,9 @@ class HttpNodeCache {
   /*
    * 获取返回参数状态
    */
-  getAllResponseCollapseState(): Record<string, boolean> {
+  getResponseCollapseState(): Record<string, boolean> {
     try {
-      const localData: Record<string, boolean> = JSON.parse(localStorage.getItem('httpNode/responseCollapse') || '{}');
+      const localData: Record<string, boolean> = JSON.parse(localStorage.getItem('httpNodeCache/responseCollapse') || '{}');
       return localData;
     } catch (error) {
       console.error(error);
@@ -60,12 +60,12 @@ class HttpNodeCache {
    */
   setResponseCollapseState(id: string, isShow: boolean) {
     try {
-      const localData = JSON.parse(localStorage.getItem('httpNode/responseCollapse') || '{}');
+      const localData = JSON.parse(localStorage.getItem('httpNodeCache/responseCollapse') || '{}');
       localData[id] = isShow;
-      localStorage.setItem('httpNode/responseCollapse', JSON.stringify(localData));
+      localStorage.setItem('httpNodeCache/responseCollapse', JSON.stringify(localData));
     } catch (error) {
       console.error(error);
-      localStorage.setItem('httpNode/responseCollapse', '{}');
+      localStorage.setItem('httpNodeCache/responseCollapse', '{}');
     }
   }
 
@@ -74,10 +74,10 @@ class HttpNodeCache {
    */
   hideJsonBodyTip() {
     try {
-      localStorage.setItem('httpNode/hideJsonBodyTip', JSON.stringify(true));
+      localStorage.setItem('httpNodeCache/hideJsonBodyTip', JSON.stringify(true));
     } catch (error) {
       console.error(error);
-      localStorage.setItem('httpNode/hideJsonBodyTip', 'false');
+      localStorage.setItem('httpNodeCache/hideJsonBodyTip', 'false');
     }
   }
 
@@ -86,7 +86,7 @@ class HttpNodeCache {
    */
   getCouldShowJsonBodyTip(): boolean {
     try {
-      const isHidden = JSON.parse(localStorage.getItem('httpNode/hideJsonBodyTip') || 'false');
+      const isHidden = JSON.parse(localStorage.getItem('httpNodeCache/hideJsonBodyTip') || 'false');
       return !isHidden;
     } catch (error) {
       console.error(error);
@@ -99,7 +99,7 @@ class HttpNodeCache {
    */
   getWsIgnoredCommonHeaderByTabId(projectId: string, tabId: string): string[] | null {
     try {
-      const localData = JSON.parse(localStorage.getItem('httpNode/commonHeaders/ignore') || '{}') as Record<string, Record<string, string[]>>;
+      const localData = JSON.parse(localStorage.getItem('httpNodeCache/commonHeaders/ignore') || '{}') as Record<string, Record<string, string[]>>;
       if (localData[projectId] == null) {
         return [];
       }
@@ -119,7 +119,7 @@ class HttpNodeCache {
   setWsIgnoredCommonHeader(options: { projectId: string; tabId: string; ignoreHeaderId: string }) {
     try {
       const { projectId, tabId, ignoreHeaderId } = options;
-      const localData = JSON.parse(localStorage.getItem('httpNode/commonHeaders/ignore') || '{}') as Record<string, Record<string, string[]>>;
+      const localData = JSON.parse(localStorage.getItem('httpNodeCache/commonHeaders/ignore') || '{}') as Record<string, Record<string, string[]>>;
       if (localData[projectId] == null) {
         localData[projectId] = {}
       }
@@ -128,10 +128,10 @@ class HttpNodeCache {
       }
       const matchedTab = localData[projectId][tabId];
       matchedTab.push(ignoreHeaderId);
-      localStorage.setItem('httpNode/commonHeaders/ignore', JSON.stringify(localData));
+      localStorage.setItem('httpNodeCache/commonHeaders/ignore', JSON.stringify(localData));
     } catch (error) {
       console.error(error);
-      localStorage.setItem('httpNode/commonHeaders/ignore', '{}');
+      localStorage.setItem('httpNodeCache/commonHeaders/ignore', '{}');
     }
   }
   /*
@@ -140,7 +140,7 @@ class HttpNodeCache {
   removeIgnoredCommonHeader(options: { projectId: string; tabId: string; ignoreHeaderId: string }) {
     try {
       const { projectId, tabId, ignoreHeaderId } = options;
-      const localData = JSON.parse(localStorage.getItem('httpNode/commonHeaders/ignore') || '{}') as Record<string, Record<string, string[]>>;
+      const localData = JSON.parse(localStorage.getItem('httpNodeCache/commonHeaders/ignore') || '{}') as Record<string, Record<string, string[]>>;
       if (localData[projectId] == null) {
         return false;
       }
@@ -150,42 +150,42 @@ class HttpNodeCache {
       const matchedTab = localData[projectId][tabId];
       const deleteIndex = matchedTab.findIndex(id => ignoreHeaderId === id);
       matchedTab.splice(deleteIndex, 1)
-      localStorage.setItem('httpNode/commonHeaders/ignore', JSON.stringify(localData));
+      localStorage.setItem('httpNodeCache/commonHeaders/ignore', JSON.stringify(localData));
     } catch (error) {
       console.error(error);
-      localStorage.setItem('httpNode/commonHeaders/ignore', '{}');
+      localStorage.setItem('httpNodeCache/commonHeaders/ignore', '{}');
     }
   }
 
   /*
    * 缓存cookie（ApidocCookie[]）
    */
-  setApidocCookies(projectId: string, cookies: ApidocCookie[]) {
+  setHttpNodeCookies(projectId: string, cookies: ApidocCookie[]) {
     try {
-      const localData = JSON.parse(localStorage.getItem('httpNode/cookies') || '{}');
+      const localData = JSON.parse(localStorage.getItem('httpNodeCache/cookies') || '{}');
       localData[projectId] = cookies;
-      localStorage.setItem('httpNode/cookies', JSON.stringify(localData));
+      localStorage.setItem('httpNodeCache/cookies', JSON.stringify(localData));
     } catch (error) {
       console.error(error);
       const data: Record<string, ApidocCookie[]> = {};
       data[projectId] = cookies;
-      localStorage.setItem('httpNode/cookies', JSON.stringify(data));
+      localStorage.setItem('httpNodeCache/cookies', JSON.stringify(data));
     }
   }
 
   /*
    * 获取缓存cookie（ApidocCookie[]）
    */
-  getApidocCookies(projectId: string): ApidocCookie[] {
+  getHttpNodeCookies(projectId: string): ApidocCookie[] {
     try {
-      const localData: Record<string, ApidocCookie[]> = JSON.parse(localStorage.getItem('httpNode/cookies') || '{}');
+      const localData: Record<string, ApidocCookie[]> = JSON.parse(localStorage.getItem('httpNodeCache/cookies') || '{}');
       if (!localData[projectId]) {
         return [];
       }
       return localData[projectId];
     } catch (error) {
       console.error(error);
-      localStorage.setItem('httpNode/cookies', '{}');
+      localStorage.setItem('httpNodeCache/cookies', '{}');
       return [];
     }
   }
@@ -195,14 +195,14 @@ class HttpNodeCache {
    */
   getPreRequestSessionStorage(projectId: string): Record<string, unknown> | null {
     try {
-      const localData: Record<string, Record<string, unknown>> = JSON.parse(sessionStorage.getItem('httpNode/preRequest/sessionStorage') || '{}');
+      const localData: Record<string, Record<string, unknown>> = JSON.parse(sessionStorage.getItem('httpNodeCache/preRequest/sessionStorage') || '{}');
       if (!localData[projectId]) {
         return null;
       }
       return localData[projectId];
     } catch (error) {
       console.error(error);
-      sessionStorage.setItem('httpNode/preRequest/sessionStorage', '{}');
+      sessionStorage.setItem('httpNodeCache/preRequest/sessionStorage', '{}');
       return null;
     }
   }
@@ -211,14 +211,14 @@ class HttpNodeCache {
    */
   setPreRequestSessionStorage(projectId: string, data: Record<string, unknown>) {
     try {
-      const localData = JSON.parse(sessionStorage.getItem('httpNode/preRequest/sessionStorage') || '{}');
+      const localData = JSON.parse(sessionStorage.getItem('httpNodeCache/preRequest/sessionStorage') || '{}');
       localData[projectId] = data;
-      sessionStorage.setItem('httpNode/preRequest/sessionStorage', JSON.stringify(localData));
+      sessionStorage.setItem('httpNodeCache/preRequest/sessionStorage', JSON.stringify(localData));
     } catch (error) {
       console.error(error);
       const newData: Record<string, Record<string, unknown>> = {};
       newData[projectId] = data;
-      sessionStorage.setItem('httpNode/preRequest/sessionStorage', JSON.stringify(newData));
+      sessionStorage.setItem('httpNodeCache/preRequest/sessionStorage', JSON.stringify(newData));
     }
   }
 
@@ -227,14 +227,14 @@ class HttpNodeCache {
    */
   getPreRequestLocalStorage(projectId: string): Record<string, any> | null {
     try {
-      const localData: Record<string, Record<string, any>> = JSON.parse(localStorage.getItem('httpNode/preRequest/localStorage') || '{}');
+      const localData: Record<string, Record<string, any>> = JSON.parse(localStorage.getItem('httpNodeCache/preRequest/localStorage') || '{}');
       if (!localData[projectId]) {
         return null;
       }
       return localData[projectId];
     } catch (error) {
       console.error(error);
-      localStorage.setItem('httpNode/preRequest/localStorage', '{}');
+      localStorage.setItem('httpNodeCache/preRequest/localStorage', '{}');
       return null;
     }
   }
@@ -244,14 +244,14 @@ class HttpNodeCache {
    */
   setPreRequestLocalStorage(projectId: string, data: Record<string, any>) {
     try {
-      const localData = JSON.parse(localStorage.getItem('httpNode/preRequest/localStorage') || '{}');
+      const localData = JSON.parse(localStorage.getItem('httpNodeCache/preRequest/localStorage') || '{}');
       localData[projectId] = data;
-      localStorage.setItem('httpNode/preRequest/localStorage', JSON.stringify(localData));
+      localStorage.setItem('httpNodeCache/preRequest/localStorage', JSON.stringify(localData));
     } catch (error) {
       console.error(error);
       const newData: Record<string, Record<string, any>> = {};
       newData[projectId] = data;
-      localStorage.setItem('httpNode/preRequest/localStorage', JSON.stringify(newData));
+      localStorage.setItem('httpNodeCache/preRequest/localStorage', JSON.stringify(newData));
     }
   }
   /*
@@ -259,14 +259,14 @@ class HttpNodeCache {
    */
   setSharePassword(shareId: string, password: string) {
     try {
-      const localData = JSON.parse(localStorage.getItem('httpNode/share/password') || '{}');
+      const localData = JSON.parse(localStorage.getItem('httpNodeCache/share/password') || '{}');
       localData[shareId] = password;
-      localStorage.setItem('httpNode/share/password', JSON.stringify(localData));
+      localStorage.setItem('httpNodeCache/share/password', JSON.stringify(localData));
     } catch (error) {
       console.error(error);
       const data: Record<string, string> = {};
       data[shareId] = password;
-      localStorage.setItem('httpNode/share/password', JSON.stringify(data));
+      localStorage.setItem('httpNodeCache/share/password', JSON.stringify(data));
     }
   }
 
@@ -275,14 +275,14 @@ class HttpNodeCache {
    */
   getSharePassword(shareId: string): string | null {
     try {
-      const localData: Record<string, string> = JSON.parse(localStorage.getItem('httpNode/share/password') || '{}');
+      const localData: Record<string, string> = JSON.parse(localStorage.getItem('httpNodeCache/share/password') || '{}');
       if (!localData[shareId]) {
         return null;
       }
       return localData[shareId];
     } catch (error) {
       console.error(error);
-      localStorage.setItem('httpNode/share/password', '{}');
+      localStorage.setItem('httpNodeCache/share/password', '{}');
       return null;
     }
   }
@@ -292,12 +292,12 @@ class HttpNodeCache {
    */
   clearSharePassword(shareId: string) {
     try {
-      const localData = JSON.parse(localStorage.getItem('httpNode/share/password') || '{}');
+      const localData = JSON.parse(localStorage.getItem('httpNodeCache/share/password') || '{}');
       delete localData[shareId];
-      localStorage.setItem('httpNode/share/password', JSON.stringify(localData));
+      localStorage.setItem('httpNodeCache/share/password', JSON.stringify(localData));
     } catch (error) {
       console.error(error);
-      localStorage.setItem('httpNode/share/password', '{}');
+      localStorage.setItem('httpNodeCache/share/password', '{}');
     }
   }
 
@@ -312,11 +312,11 @@ class HttpNodeCache {
    */
   getGlobalCookies(): Record<string, ApidocCookie[]> {
     try {
-      const localCookies = localStorage.getItem('httpNode/globalCookies') || '{}';
+      const localCookies = localStorage.getItem('httpNodeCache/globalCookies') || '{}';
       return JSON.parse(localCookies);
     } catch (error) {
       console.error('获取全局cookies失败:', error);
-      localStorage.setItem('httpNode/globalCookies', '{}');
+      localStorage.setItem('httpNodeCache/globalCookies', '{}');
       return {};
     }
   }
@@ -326,7 +326,7 @@ class HttpNodeCache {
    */
   setGlobalCookies(cookies: Record<string, ApidocCookie[]>) {
     try {
-      localStorage.setItem('httpNode/globalCookies', JSON.stringify(cookies));
+      localStorage.setItem('httpNodeCache/globalCookies', JSON.stringify(cookies));
     } catch (error) {
       console.error('设置全局cookies失败:', error);
     }

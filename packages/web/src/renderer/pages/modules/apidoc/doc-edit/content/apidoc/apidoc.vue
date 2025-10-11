@@ -86,7 +86,7 @@ const getApidocInfo = async () => {
       projectId: route.query.id as string,
     })
   } else { //取缓存值
-    const catchedApidoc = httpNodeCache.getApidoc(currentSelectTab.value._id);
+    const catchedApidoc = httpNodeCache.getHttpNode(currentSelectTab.value._id);
     if (!catchedApidoc) {
       apidocStore.getApidocDetail({
         id: currentSelectTab.value._id,

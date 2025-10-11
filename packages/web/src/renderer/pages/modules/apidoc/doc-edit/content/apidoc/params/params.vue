@@ -407,7 +407,7 @@ onMounted(() => {
       })
     }
     //缓存接口信息
-    httpNodeCache.setApidoc(apidoc);
+    httpNodeCache.setHttpNode(apidoc);
   }, 200, {
     leading: true
   });
