@@ -16,6 +16,7 @@ import { useVariable } from './variables';
 import { projectCache, nodeVariableCache, commonHeaderCache } from '@/cache/index';
 import { requestMethods } from '@/data/data.ts';
 import { httpNodeCache } from '@/cache/http/httpNodeCache.ts';
+import { workbenchCache } from '@/cache/workbench/workbench.ts';
 import { useRuntime } from '../runtime/runtime';
 
 type ChangeProjectBaseInfo = {
@@ -137,11 +138,11 @@ export const useApidocBaseInfo = defineStore('apidocBaseInfo', () => {
   //改变布局方式
   const changeLayout = (layoutOption: 'horizontal' | 'vertical'): void => {
     layout.value = layoutOption;
-    httpNodeCache.setLayout(layoutOption)
+    workbenchCache.setLayout(layoutOption)
   }
   //初始化布局
   const initLayout = (): void => {
-    layout.value = httpNodeCache.getLayout();
+    layout.value = workbenchCache.getLayout();
   }
   //改变操作模式
   const changeMode = (modeOption: 'edit' | 'view'): void => {

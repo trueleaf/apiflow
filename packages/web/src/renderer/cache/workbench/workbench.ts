@@ -51,6 +51,29 @@ class WorkbenchCache {
       console.error('设置固定工具栏操作失败:', error);
     }
   }
+
+  // 获取布局方式
+  getLayout(): 'horizontal' | 'vertical' {
+    try {
+      const localLayout = localStorage.getItem('workbench/layout');
+      if (localLayout !== 'horizontal' && localLayout !== 'vertical') {
+        return 'horizontal';
+      }
+      return localLayout as 'horizontal' | 'vertical';
+    } catch (error) {
+      console.error('获取布局方式失败:', error);
+      return 'horizontal';
+    }
+  }
+
+  // 设置布局方式
+  setLayout(layout: 'horizontal' | 'vertical') {
+    try {
+      localStorage.setItem('workbench/layout', layout);
+    } catch (error) {
+      console.error('设置布局方式失败:', error);
+    }
+  }
 }
 
 export const workbenchCache = new WorkbenchCache();
