@@ -95,36 +95,6 @@ class HttpNodeCache {
   }
 
   /*
-   * 获取worker全局local状态
-   */
-  getApidocWorkerLocalStateById(projectId: string): null | Record<string, unknown> {
-    try {
-      const localData: Record<string, Record<string, unknown>> = JSON.parse(localStorage.getItem('httpNode/worker/localState') || '{}');
-      if (localData[projectId] == null) {
-        return null;
-      }
-      return localData[projectId];
-    } catch (error) {
-      console.error(error);
-      return null
-    }
-  }
-
-  /*
-   * 设置worker全局local状态
-   */
-  setApidocWorkerLocalState(projectId: string, state: Record<string, unknown>) {
-    try {
-      const localData = JSON.parse(localStorage.getItem('httpNode/worker/localState') || '{}');
-      localData[projectId] = state;
-      localStorage.setItem('httpNode/worker/localState', JSON.stringify(localData));
-    } catch (error) {
-      console.error(error);
-      localStorage.setItem('httpNode/worker/localState', '{}');
-    }
-  }
-
-  /*
    * 根据tabId获取不发送公共请求头
    */
   getWsIgnoredCommonHeaderByTabId(projectId: string, tabId: string): string[] | null {

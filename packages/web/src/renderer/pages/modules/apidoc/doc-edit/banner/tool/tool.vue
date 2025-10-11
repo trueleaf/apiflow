@@ -152,7 +152,6 @@ import { forEachForest } from '@/helper/index'
 import { router } from '@/router/index'
 import { useI18n } from 'vue-i18n'
 import { request } from '@/api/api'
-import { httpNodeCache } from '@/cache/http/httpNodeCache.ts'
 import { workbenchCache } from '@/cache/workbench/workbench.ts'
 import SAddFileDialog from '../../dialog/add-file/add-file.vue'
 import SAddFolderDialog from '../../dialog/add-folder/add-folder.vue'
@@ -161,7 +160,6 @@ import { addFileAndFolderCb } from '../composables/curd-node'
 import { useApidocBaseInfo } from '@/store/apidoc/base-info'
 import { useApidocBanner } from '@/store/apidoc/banner'
 import { useApidocTas } from '@/store/apidoc/tabs'
-import { useApidocWorkerState } from '@/store/apidoc/worker-state'
 import SLoading from '@/components/common/loading/g-loading.vue'
 import SFieldset from '@/components/common/fieldset/g-fieldset.vue'
 import { useProjectStore } from '@/store/project/project'
@@ -185,7 +183,6 @@ type Operation = {
 
 const apidocBaseInfoStore = useApidocBaseInfo();
 const apidocBannerStore = useApidocBanner();
-const apidocWorkerStateStore = useApidocWorkerState();
 const apidocTabsStore = useApidocTas();
 const { t } = useI18n()
 const projectStore = useProjectStore();
@@ -667,10 +664,6 @@ const handleChangeProject = (item: ApidocProjectInfo) => {
   apidocBaseInfoStore.changeProjectId(item._id);
   apidocBaseInfoStore.getProjectBaseInfo({ projectId: item._id });
   apidocBaseInfoStore.getCommonHeaders()
-  const localState = httpNodeCache.getApidocWorkerLocalStateById(item._id);
-  if (localState) {
-    apidocWorkerStateStore.changeLocalState({ projectId: item._id, value: localState })
-  }
   apidocBannerStore.changeBannerLoading(true)
   apidocBannerStore.getDocBanner({ projectId: item._id, }).finally(() => {
     apidocBannerStore.changeBannerLoading(false)

@@ -12,7 +12,6 @@
 <script lang="ts" setup>
 import { computed, onMounted, onBeforeUnmount } from 'vue'
 // import { ref } from 'vue'
-import { httpNodeCache } from '@/cache/http/httpNodeCache.ts'
 import SaveDocDialog from '@/pages/modules/apidoc/doc-edit/dialog/save-doc/save-doc.vue'
 import Banner from './banner/banner.vue';
 import Nav from './nav/nav.vue';
@@ -20,7 +19,6 @@ import Content from './content/content.vue';
 import { useApidocTas } from '@/store/apidoc/tabs'
 import { useApidoc } from '@/store/apidoc/apidoc'
 import { useApidocBaseInfo } from '@/store/apidoc/base-info'
-import { useApidocWorkerState } from '@/store/apidoc/worker-state'
 import { useRoute } from 'vue-router';
 import { useCookies } from '@/store/apidoc/cookies';
 import { useWebSocket } from '@/store/websocket/websocket';
@@ -30,7 +28,6 @@ const apidocTabsStore = useApidocTas();
 const apidocStore = useApidoc()
 const websocketStore = useWebSocket()
 const apidocBaseInfoStroe = useApidocBaseInfo();
-const apidocWorkerStateStore = useApidocWorkerState()
 const { initCookies } = useCookies();
 const projectId = route.query.id as string;
 //当前选中的tab
@@ -89,13 +86,6 @@ const initCommonHeaders = () => {
   apidocBaseInfoStroe.getCommonHeaders()
   apidocBaseInfoStroe.getGlobalCommonHeaders()
 }
-//初始化worker本地状态
-const initWorkerLocalState = () => {
-  const localState = httpNodeCache.getApidocWorkerLocalStateById(projectId);
-  if (localState) {
-    apidocWorkerStateStore.changeLocalState({ projectId, value: localState });
-  }
-}
 onMounted(() => {
   window.addEventListener('keydown', bindShortcut);
   apidocBaseInfoStroe.changeProjectId(projectId);
@@ -103,7 +93,6 @@ onMounted(() => {
   initCookies(projectId);
   initLayout();
   initCommonHeaders();
-  initWorkerLocalState();
 })
 onBeforeUnmount(() => {
   window.removeEventListener('keydown', bindShortcut);
