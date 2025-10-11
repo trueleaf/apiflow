@@ -15,7 +15,7 @@
     "build:web": "vite build",
     "preview": "vite preview",
     "build:font": "node build/share/script/build-font.mjs",
-    "type-check": "vue-tsc --noEmit",
+    "type-check": "vue-tsc -p tsconfig.app.json --noEmit",
     "build:app:pack": "vite build && electron-builder --dir",
     "build:app": "cross-env NODE_OPTIONS=--max-old-space-size=8192 vite build && electron-builder",
     "build:app:win": "cross-env NODE_OPTIONS=--max-old-space-size=8192 vite build && electron-builder --win",
