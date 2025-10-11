@@ -6,5 +6,5 @@ export { standaloneRuleCache } from './standalone/rules';
 export { nodeVariableCache } from './variable/nodeVariable';
 export { mockVariableCache } from './variable/mockVariable';
 export { headerCache } from './features/header/header';
-export { httpResponseCache } from './http/httpResponseCache';
+export { httpResponseCache } from './httpNode/httpResponseCache';
 export { initStandaloneDB, getStandaloneDB } from './db';

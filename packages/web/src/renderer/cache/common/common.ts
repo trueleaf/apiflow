@@ -67,3 +67,34 @@ export const setMockTextRandomSizeHintVisible = (visible: boolean): void => {
     console.error('设置 Mock Text 随机大小提示状态失败:', error)
   }
 }
+
+/*
+|--------------------------------------------------------------------------
+| JSON Body 提示
+|--------------------------------------------------------------------------
+*/
+const JSON_BODY_HINT_KEY = 'hint/hideJsonBodyTip'
+
+// 获取 JSON Body 提示是否可见
+export const getJsonBodyHintVisible = (): boolean => {
+  try {
+    const value = localStorage.getItem(JSON_BODY_HINT_KEY)
+    // 未设置时默认显示（返回 true）
+    if (value === null) {
+      return true
+    }
+    return value !== 'false'
+  } catch (error) {
+    console.error('获取 JSON Body 提示状态失败:', error)
+    return true // 出错时默认显示
+  }
+}
+
+// 设置 JSON Body 提示是否可见
+export const setJsonBodyHintVisible = (visible: boolean): void => {
+  try {
+    localStorage.setItem(JSON_BODY_HINT_KEY, visible ? 'true' : 'false')
+  } catch (error) {
+    console.error('设置 JSON Body 提示状态失败:', error)
+  }
+}

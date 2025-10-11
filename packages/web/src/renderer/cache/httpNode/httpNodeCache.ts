@@ -70,31 +70,6 @@ class HttpNodeCache {
   }
 
   /*
-   * 隐藏body参数提示信息
-   */
-  hideJsonBodyTip() {
-    try {
-      localStorage.setItem('httpNodeCache/hideJsonBodyTip', JSON.stringify(true));
-    } catch (error) {
-      console.error(error);
-      localStorage.setItem('httpNodeCache/hideJsonBodyTip', 'false');
-    }
-  }
-
-  /*
-   * 获取是否显示body提示
-   */
-  getCouldShowJsonBodyTip(): boolean {
-    try {
-      const isHidden = JSON.parse(localStorage.getItem('httpNodeCache/hideJsonBodyTip') || 'false');
-      return !isHidden;
-    } catch (error) {
-      console.error(error);
-      return false;
-    }
-  }
-
-  /*
    * 根据tabId获取不发送公共请求头
    */
   getWsIgnoredCommonHeaderByTabId(projectId: string, tabId: string): string[] | null {
