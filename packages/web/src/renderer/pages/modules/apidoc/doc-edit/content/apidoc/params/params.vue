@@ -79,6 +79,7 @@
 import { DebouncedFunc } from 'lodash'
 import type { HttpNode, ApidocProperty } from '@src/types'
 import { httpNodeCache } from '@/cache/http/httpNodeCache.ts'
+import { userState } from '@/cache/userState/userState.ts'
 import { debounce, checkPropertyIsEqual } from '@/helper/index'
 import { useI18n } from 'vue-i18n'
 import SParams from './params/params.vue';
@@ -198,7 +199,7 @@ const getComponent = () => {
 //初始化tab缓存
 const initTabCache = () => {
   if (currentSelectTab) {
-    const cachedTab = httpNodeCache.getActiveParamsTab(currentSelectTab.value?._id || "");
+    const cachedTab = userState.getHttpNodeActiveParamsTab(currentSelectTab.value?._id || "");
     const allowedTabs: ActiceName[] = [
       'SParams',
       'SRequestBody',
@@ -366,7 +367,7 @@ const handleCloseHook = () => {
 */
 watch(() => activeName.value, (val: string) => {
   if (currentSelectTab.value) {
-    httpNodeCache.setActiveParamsTab(currentSelectTab.value._id, val);
+    userState.setHttpNodeActiveParamsTab(currentSelectTab.value._id, val);
   }
 })
 watch(() => currentSelectTab.value, () => {

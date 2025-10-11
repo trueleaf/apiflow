@@ -9,37 +9,6 @@ class HttpNodeCache {
   constructor() {
   }
 
-  /**
-   * 获取当前被选中的tab
-   */
-  getActiveParamsTab(id: string): string | null {
-    try {
-      const localActiveTab: Record<string, string> = JSON.parse(localStorage.getItem('httpNode/paramsActiveTab') || '{}');
-      if (!localActiveTab[id]) {
-        return null;
-      }
-      return localActiveTab[id];
-    } catch (error) {
-      console.error(error);
-      localStorage.setItem('httpNode/paramsActiveTab', '{}')
-      return null;
-    }
-  }
-  /**
-   * 设置当前被选中的tab
-   */
-  setActiveParamsTab(id: string, val: string) {
-    try {
-      const localActiveTab = JSON.parse(localStorage.getItem('httpNode/paramsActiveTab') || '{}');
-      localActiveTab[id] = val;
-      localStorage.setItem('httpNode/paramsActiveTab', JSON.stringify(localActiveTab));
-    } catch (error) {
-      console.error(error);
-      const data: Record<string, string> = {};
-      data[id] = val;
-      localStorage.setItem('httpNode/paramsActiveTab', JSON.stringify(data));
-    }
-  }
   /*
    * 缓存接口信息
    */

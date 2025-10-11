@@ -54,6 +54,35 @@ class UserState {
       localStorage.setItem('userState/websocketNode/activeParamsTab', JSON.stringify(data));
     }
   }
+
+  // 获取HTTP节点激活的参数tab
+  getHttpNodeActiveParamsTab(id: string): string | null {
+    try {
+      const localActiveTab: Record<string, string> = JSON.parse(localStorage.getItem('userState/httpNode/activeParamsTab') || '{}');
+      if (!localActiveTab[id]) {
+        return null;
+      }
+      return localActiveTab[id];
+    } catch (error) {
+      console.error(error);
+      localStorage.setItem('userState/httpNode/activeParamsTab', '{}');
+      return null;
+    }
+  }
+
+  // 设置HTTP节点激活的参数tab
+  setHttpNodeActiveParamsTab(id: string, val: string) {
+    try {
+      const localActiveTab = JSON.parse(localStorage.getItem('userState/httpNode/activeParamsTab') || '{}');
+      localActiveTab[id] = val;
+      localStorage.setItem('userState/httpNode/activeParamsTab', JSON.stringify(localActiveTab));
+    } catch (error) {
+      console.error(error);
+      const data: Record<string, string> = {};
+      data[id] = val;
+      localStorage.setItem('userState/httpNode/activeParamsTab', JSON.stringify(data));
+    }
+  }
 }
 
 export const userState = new UserState();
