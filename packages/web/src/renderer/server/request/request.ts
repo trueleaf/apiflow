@@ -8,8 +8,8 @@ import { GotRequestOptions, JsonData, RedirectOptions, ResponseInfo } from '@src
 import { useApidocBaseInfo } from '@/store/apidoc/base-info';
 import { useApidocTas } from '@/store/apidoc/tabs';
 import { useApidocResponse } from '@/store/apidoc/response';
-import { httpNodeCache } from '@/cache/http/httpNodeCache';
-import { httpResponseCache } from '@/cache/http/httpResponseCache';
+import { httpNodeCache } from '@/cache/httpNode/httpNodeCache';
+import { httpResponseCache } from '@/cache/httpNode/httpResponseCache';
 import { config } from '@src/config/config';
 import { cloneDeep, uuid } from '@/helper';
 import { useApidocRequest } from '@/store/apidoc/request';

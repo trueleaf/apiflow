@@ -78,7 +78,7 @@
 <script lang="ts" setup>
 import { DebouncedFunc } from 'lodash'
 import type { HttpNode, ApidocProperty } from '@src/types'
-import { httpNodeCache } from '@/cache/http/httpNodeCache.ts'
+import { httpNodeCache } from '@/cache/httpNode/httpNodeCache.ts'
 import { userState } from '@/cache/userState/userState.ts'
 import { debounce, checkPropertyIsEqual } from '@/helper/index'
 import { useI18n } from 'vue-i18n'

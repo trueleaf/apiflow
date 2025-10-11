@@ -32,8 +32,8 @@
 <script lang="ts" setup>
 import SResizeX from '@/components/common/resize/g-resize-x.vue'
 import SResizeY from '@/components/common/resize/g-resize-y.vue'
-import { httpNodeCache } from '@/cache/http/httpNodeCache'
-import { httpResponseCache } from '@/cache/http/httpResponseCache'
+import { httpNodeCache } from '@/cache/httpNode/httpNodeCache'
+import { httpResponseCache } from '@/cache/httpNode/httpResponseCache'
 import SOperation from './operation/operation.vue'
 import SParams from './params/params.vue'
 import SResponse from './response/response.vue'
