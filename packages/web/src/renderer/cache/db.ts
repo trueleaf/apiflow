@@ -155,37 +155,3 @@ export async function getWebsocketHistoryDB(): Promise<IDBPDatabase> {
   }
   return websocketHistoryDB!;
 }
-
-// ============================================================================
-// Mock Variable Cache Database（懒加载）
-// ============================================================================
-let mockVariableDB: IDBPDatabase | null = null;
-
-async function initMockVariableDB(): Promise<IDBPDatabase> {
-  if (mockVariableDB) return mockVariableDB;
-
-  mockVariableDB = await openDB(
-    config.cacheConfig.mockVariableCache.dbName,
-    config.cacheConfig.mockVariableCache.version,
-    {
-      upgrade(database, _oldVersion, _newVersion, transaction) {
-        const store = database.objectStoreNames.contains(config.cacheConfig.mockVariableCache.storeName)
-          ? transaction.objectStore(config.cacheConfig.mockVariableCache.storeName)
-          : database.createObjectStore(config.cacheConfig.mockVariableCache.storeName, { keyPath: '_id' });
-        if (!store.indexNames.contains(config.cacheConfig.mockVariableCache.projectIdIndex)) {
-          store.createIndex(config.cacheConfig.mockVariableCache.projectIdIndex, 'projectId', { unique: false });
-        }
-      },
-    }
-  );
-
-  return mockVariableDB;
-}
-
-// 获取 Mock Variable DB（自动初始化）
-export async function getMockVariableDB(): Promise<IDBPDatabase> {
-  if (!mockVariableDB) {
-    await initMockVariableDB();
-  }
-  return mockVariableDB!;
-}

@@ -2,7 +2,7 @@ import { openDB, IDBPDatabase } from 'idb';
 import type { ApidocVariable } from '@src/types';
 import { config } from '@src/config/config';
 
-type MockVariableDBSchema = {
+type MockVariableCacheDBSchema = {
   mockVariables: {
     key: string;
     value: ApidocVariable;
@@ -12,17 +12,17 @@ type MockVariableDBSchema = {
   };
 };
 
-export class MockVariable {
+export class MockVariableCache {
   private readonly dbName = config.cacheConfig.mockVariableCache.dbName;
   private readonly version = config.cacheConfig.mockVariableCache.version;
   private readonly storeName = config.cacheConfig.mockVariableCache.storeName;
 
-  private dbPromise: Promise<IDBPDatabase<MockVariableDBSchema>> | null = null;
+  private dbPromise: Promise<IDBPDatabase<MockVariableCacheDBSchema>> | null = null;
 
   constructor() {
     this.ensureStoreName();
     this.initDB().catch((error) => {
-      console.error('Failed to init MockVariable database:', error);
+      console.error('Failed to init MockVariableCache database:', error);
     });
   }
 
@@ -33,9 +33,9 @@ export class MockVariable {
     }
   }
 
-  private initDB(): Promise<IDBPDatabase<MockVariableDBSchema>> {
+  private initDB(): Promise<IDBPDatabase<MockVariableCacheDBSchema>> {
     if (!this.dbPromise) {
-      this.dbPromise = openDB<MockVariableDBSchema>(this.dbName, this.version, {
+      this.dbPromise = openDB<MockVariableCacheDBSchema>(this.dbName, this.version, {
         upgrade(database, _oldVersion, _newVersion, transaction) {
           const store = database.objectStoreNames.contains('mockVariables')
             ? transaction.objectStore('mockVariables')
@@ -123,4 +123,4 @@ export class MockVariable {
   }
 }
 
-export const mockVariable = new MockVariable();
+export const mockVariableCache = new MockVariableCache();
