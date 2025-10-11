@@ -91,7 +91,7 @@ import { computed, nextTick, PropType, ref, watch } from 'vue';
 import { AddProjectVariableFormInfo, AddProjectVariableParams } from '../variable.vue';
 import SJsonEditor from '@/components/common/json-editor/g-json-editor.vue'
 import { useRoute } from 'vue-router';
-import { variableCache } from '@/cache/index';
+import { nodeVariableCache } from '@/cache/index';
 import { useRuntime } from '@/store/runtime/runtime';
 import { useVariable } from '@/store/apidoc/variables';
 
@@ -218,7 +218,7 @@ const handleEditVariable = () => {
       try {
         if (isStandalone.value) {
           // 独立模式
-          const response = await variableCache.updateVariableById(props.editData._id!, {
+          const response = await nodeVariableCache.updateVariableById(props.editData._id!, {
             name: params.name,
             type: params.type,
             value: params.value,

@@ -2,7 +2,7 @@ import type { ApidocVariable, CommonResponse } from '@src/types';
 import { nanoid } from "nanoid";
 import { getStandaloneDB } from "../db";
 
-export class VariableCache {
+export class NodeVariableCache {
   private get db() {
     return getStandaloneDB();
   }
@@ -216,4 +216,4 @@ export class VariableCache {
 }
 
 // 导出单例
-export const variableCache = new VariableCache();
+export const nodeVariableCache = new NodeVariableCache();

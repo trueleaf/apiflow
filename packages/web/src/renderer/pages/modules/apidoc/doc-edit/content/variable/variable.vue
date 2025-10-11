@@ -218,7 +218,7 @@ import EditDialog from './dialog/edit.vue'
 import { useVariable } from '@/store/apidoc/variables';
 import { CommonResponse, ApidocVariable } from '@src/types';
 import { request as axiosInstance } from '@/api/api'
-import { variableCache } from '@/cache/index';
+import { nodeVariableCache } from '@/cache/index';
 import { useRuntime } from '@/store/runtime/runtime';
 
 
@@ -326,7 +326,7 @@ const getData = () => {
 const getStandaloneVariables = async () => {
   try {
     standaloneLoading.value = true;
-    const response = await variableCache.getVariableByProjectId(route.query.id as string);
+    const response = await nodeVariableCache.getVariableByProjectId(route.query.id as string);
     if (response.code === 0) {
       standaloneVariables.value = response.data;
       // 更新变量枚举
@@ -384,7 +384,7 @@ const handleAddVariable = () => {
       try {
         if (isStandalone.value) {
           // 独立模式
-          const response = await variableCache.addVariable(params);
+          const response = await nodeVariableCache.addVariable(params);
           if (response.code === 0) {
             ElMessage.success('添加成功');
             getData();
@@ -442,7 +442,7 @@ const handleStandaloneDelete = (_id: string) => {
     type: 'warning',
   }).then(async () => {
     try {
-      const response = await variableCache.deleteVariableByIds([_id]);
+      const response = await nodeVariableCache.deleteVariableByIds([_id]);
       if (response.code === 0) {
         ElMessage.success(t('删除成功'));
         getData();

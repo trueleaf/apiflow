@@ -13,7 +13,7 @@ import { defineStore } from "pinia"
 import { ref } from "vue";
 import { router } from "@/router";
 import { useVariable } from './variables';
-import { projectCache, variableCache, commonHeaderCache } from '@/cache/index';
+import { projectCache, nodeVariableCache, commonHeaderCache } from '@/cache/index';
 import { requestMethods } from '@/data/data.ts';
 import { httpNodeCache } from '@/cache/http/httpNodeCache.ts';
 import { useRuntime } from '../runtime/runtime';
@@ -225,7 +225,7 @@ export const useApidocBaseInfo = defineStore('apidocBaseInfo', () => {
         projectName.value = projectInfo.projectName;
         _id.value = projectInfo._id;
       }
-      const response = await variableCache.getVariableByProjectId(payload.projectId);
+      const response = await nodeVariableCache.getVariableByProjectId(payload.projectId);
       if (response.code === 0) {
         replaceVariables(response.data);
         return Promise.resolve();

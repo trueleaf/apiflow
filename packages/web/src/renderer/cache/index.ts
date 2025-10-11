@@ -3,7 +3,7 @@ export { apiNodesCache } from './standalone/apiNodes';
 export { projectCache } from './project/projects';
 export { commonHeaderCache } from './project/commonHeaders';
 export { standaloneRuleCache } from './standalone/rules';
-export { variableCache } from './variable/variable';
+export { nodeVariableCache } from './variable/nodeVariable';
 export { mockVariableCache } from './variable/mockVariable';
 export { headerCache } from './features/header/header';
 export { httpResponseCache } from './http/httpResponseCache';
