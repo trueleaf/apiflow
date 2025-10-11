@@ -5,7 +5,7 @@ import fs from 'fs/promises';
 import { exportHtml, exportWord, setMainWindow, setContentView, startExport, receiveRendererData, finishRendererData, getExportStatus, resetExport, selectExportPath } from './export/export.ts';
 import { selectImportFile, analyzeImportFile, startImport, resetImport, setMainWindow as setImportMainWindow, setContentView as setImportContentView } from './import/import.ts';
 import { getWindowState } from '../utils/index.ts';
-// import { IPCProjectData, WindowState } from '@src/types/types.ts';
+// import { IPCProjectData, WindowState } from '@src/types/index.ts';
 import type { RuntimeNetworkMode } from '@src/types/runtime';
 
 import { mockManager } from '../main.ts';

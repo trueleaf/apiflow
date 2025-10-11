@@ -7,7 +7,7 @@ import { dfsForest, arrayToTree } from "../../utils/index";
 import { fileURLToPath } from "url";
 import JSZip from "jszip";
 import { dialog, BrowserWindow, WebContentsView } from "electron";
-import { ExportStatus } from "@src/types/types.ts";
+import { ExportStatus } from "@src/types/index.ts";
 import { CommonResponse } from "@src/types/project";
 import { createHash } from "crypto";
 import dayjs from "dayjs";

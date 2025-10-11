@@ -4,7 +4,7 @@ import {
   Property,
   RendererFormDataBody,
   ChunkWithTimestampe,
-} from "@src/types/types";
+} from "@src/types/index.ts";
 import { ApidocVariable, SandboxPostMessage } from "@src/types";
 import SandboxWorker from "@/worker/sandbox.ts?worker&inline";
 

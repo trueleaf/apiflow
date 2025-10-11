@@ -1,5 +1,5 @@
 import { dialog, BrowserWindow, WebContentsView } from "electron";
-import { ImportStatus } from "@src/types/types.ts";
+import { ImportStatus } from "@src/types/index.ts";
 import fs from "fs/promises";
 import JSZip from "jszip";
 import { createHash } from "crypto";

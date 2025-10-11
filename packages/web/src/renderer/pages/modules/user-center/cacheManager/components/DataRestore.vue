@@ -108,7 +108,7 @@
 <script setup lang="ts">
 import { ref, reactive, onMounted, onUnmounted } from 'vue';
 import { ElMessage, ElMessageBox } from 'element-plus';
-import { ImportStatus } from '@src/types/types';
+import { ImportStatus } from '@src/types/index.ts';
 
 // 定义emit事件
 const emit = defineEmits<{

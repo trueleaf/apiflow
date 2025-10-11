@@ -1,4 +1,4 @@
-import type { ResponseInfo, WindowState } from "@src/types/types"
+import type { ResponseInfo, WindowState } from "@src/types/index.ts"
 import { BrowserWindow } from "electron";
 
 export const generateEmptyResponse = (): ResponseInfo => {

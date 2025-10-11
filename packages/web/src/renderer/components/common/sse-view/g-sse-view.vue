@@ -8,7 +8,7 @@
           <el-input 
             ref="filterInputRef" 
             v-model="filterText"
-:placeholder="isRegexMode ? $t('支持正则表达式') : $t('输入关键词筛选')"
+:placeholder="isRegexMode ? t('支持正则表达式') : t('输入关键词筛选')"
             size="small"
             class="compact-filter-input" 
             @input="handleFilterChange" 
@@ -19,7 +19,7 @@
                 class="compact-regex-toggle-btn" 
                 :class="{ active: isRegexMode }" 
                 @click="toggleRegexMode"
-:title="$t('切换正则表达式模式')"
+:title="t('切换正则表达式模式')"
             >
                 .*
               </div>
@@ -31,10 +31,10 @@
           <el-icon class="icon search-icon" :class="{ active: isSearchInputVisible }" @click="toggleSearchInput">
             <Search />
           </el-icon>
-          <el-icon class="icon raw-view-icon" :class="{ active: isRawView }" @click="toggleRawView" :title="$t('切换原始数据视图')">
+          <el-icon class="icon raw-view-icon" :class="{ active: isRawView }" @click="toggleRawView" :title="t('切换原始数据视图')">
             <Document />
           </el-icon>
-          <el-icon class="icon download-icon" @click="downloadData" :title="$t('下载SSE数据')">
+          <el-icon class="icon download-icon" @click="downloadData" :title="t('下载SSE数据')">
             <Download />
           </el-icon>
         </div>
@@ -45,10 +45,10 @@
             {{ filterError }}
           </div>
           <div v-else-if="filteredData.length > 0" class="filter-stats">
-            {{ $t('找到') }} {{ filteredData.length }} {{ $t('条匹配结果') }}
+            {{ t('找到') }} {{ filteredData.length }} {{ t('条匹配结果') }}
           </div>
           <div v-else class="filter-stats no-result">
-            {{ $t('未找到匹配结果') }}
+            {{ t('未找到匹配结果') }}
           </div>
         </div>
       </div></div>
@@ -95,7 +95,7 @@ import { debounce, downloadStringAsText } from '@/helper';
 import { computed, ref, onMounted, onBeforeUnmount, nextTick, getCurrentInstance } from 'vue';
 import { parseChunkList } from '@/utils/utils';
 import dayjs from 'dayjs';
-import type { ChunkWithTimestampe } from '@src/types/types';
+import type { ChunkWithTimestampe } from '@src/types/index.ts';
 import GVirtualScroll from '@/components/apidoc/virtual-scroll/g-virtual-scroll.vue';
 import SsePopover from './components/popover/sse-popover.vue';
 import { Loading, Search, Download, Document } from '@element-plus/icons-vue';
@@ -111,7 +111,7 @@ const props = withDefaults(defineProps<{ dataList: ChunkWithTimestampe[]; virtua
 });
 
 const instance = getCurrentInstance();
-const $t = instance?.appContext.config.globalProperties.$t;
+const t = instance?.appContext.config.globalProperties.t;
 const sseViewContainerRef = ref<HTMLElement | null>(null);
 // 性能优化：增量数据处理
 const lastDataLength = ref(0);
@@ -301,7 +301,7 @@ const filteredData = computed(() => {
 
   } catch (error) {
     // 正则表达式错误
-    filterError.value = `${$t?.('正则表达式错误') || '正则表达式错误'}: ${error instanceof Error ? error.message : $t?.('未知错误') || '未知错误'}`;
+    filterError.value = `${t?.('正则表达式错误') || '正则表达式错误'}: ${error instanceof Error ? error.message : t?.('未知错误') || '未知错误'}`;
     return formattedData.value;
   }
 });

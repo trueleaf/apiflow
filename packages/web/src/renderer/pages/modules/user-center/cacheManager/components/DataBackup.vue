@@ -92,7 +92,7 @@
 <script setup lang="ts">
 import { ref, reactive, onMounted, onUnmounted, watch } from 'vue';
 import { ElMessage } from 'element-plus';
-import { ExportStatus } from '@src/types/types';
+import { ExportStatus } from '@src/types/index.ts';
 import { getIndexedDBItemCount } from '@/helper';
 
 const exportStatus = reactive<ExportStatus>({

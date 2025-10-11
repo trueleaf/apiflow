@@ -1,5 +1,5 @@
 import { HttpNodeBodyMode } from "@src/types";
-import { RendererFormDataBody } from "@src/types/types.ts";
+import { RendererFormDataBody } from "@src/types/index.ts";
 
 type JsonPrimitive = string | number | boolean | null;
 type JsonValue = JsonPrimitive | JsonObject | JsonArray;

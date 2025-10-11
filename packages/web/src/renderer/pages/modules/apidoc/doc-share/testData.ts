@@ -1,4 +1,4 @@
-import { LocalShareData } from "@src/types/types.ts";
+import { LocalShareData } from "@src/types/index.ts";
 
 // LocalShareData 测试数据
 export const localShareDataTest: LocalShareData = {
