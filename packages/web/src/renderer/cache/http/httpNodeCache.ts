@@ -443,47 +443,6 @@ class HttpNodeCache extends HttpResponseCache {
   }
 
   /*
-   * header tabs 缓存
-   */
-  setHeaderTabs(tabs: { id: string; title: string; type: 'project' | 'settings'; network: 'online' | 'offline' }[]) {
-    try {
-      localStorage.setItem('httpNode/header/tabs', JSON.stringify(tabs));
-    } catch (error) {
-      console.error(error);
-      localStorage.setItem('httpNode/header/tabs', '[]');
-    }
-  }
-
-  getHeaderTabs(): { id: string; title: string; type: 'project' | 'settings'; network: 'online' | 'offline' }[] {
-    try {
-      return JSON.parse(localStorage.getItem('httpNode/header/tabs') || '[]');
-    } catch (error) {
-      console.error(error);
-      localStorage.setItem('httpNode/header/tabs', '[]');
-      return [];
-    }
-  }
-
-  setHeaderActiveTab(tabId: string) {
-    try {
-      localStorage.setItem('httpNode/header/activeTab', tabId);
-    } catch (error) {
-      console.error(error);
-      localStorage.setItem('httpNode/header/activeTab', '');
-    }
-  }
-
-  getHeaderActiveTab(): string {
-    try {
-      return localStorage.getItem('httpNode/header/activeTab') || '';
-    } catch (error) {
-      console.error(error);
-      localStorage.setItem('httpNode/header/activeTab', '');
-      return '';
-    }
-  }
-
-  /*
   |--------------------------------------------------------------------------
   | 本地数据管理相关方法
   |--------------------------------------------------------------------------

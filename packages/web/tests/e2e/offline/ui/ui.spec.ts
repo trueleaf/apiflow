@@ -67,8 +67,8 @@ test.describe('离线模式首屏 UI 验证', () => {
       contentPage.waitForLoadState('domcontentloaded')
     ]);
     await headerPage.evaluate(() => {
-      localStorage.removeItem('httpNode/header/tabs');
-      localStorage.removeItem('httpNode/header/activeTab');
+      localStorage.removeItem('features/header/tabs');
+      localStorage.removeItem('features/header/activeTab');
     });
     await contentPage.evaluate(() => {
       localStorage.setItem('runtime/networkMode', 'offline');
@@ -237,14 +237,14 @@ test.describe('离线模式首屏 UI 验证', () => {
     
     // 模拟创建项目标签页（通过localStorage）
     await headerPage.evaluate(() => {
-      const tabs = JSON.parse(localStorage.getItem('httpNode/header/tabs') || '[]');
+      const tabs = JSON.parse(localStorage.getItem('features/header/tabs') || '[]');
       tabs.push({ 
         id: 'project-001', 
         title: '测试项目', 
         type: 'project' as const,
         network: 'offline' as const
       });
-      localStorage.setItem('httpNode/header/tabs', JSON.stringify(tabs));
+      localStorage.setItem('features/header/tabs', JSON.stringify(tabs));
     });
     await headerPage.reload();
     await headerPage.waitForLoadState('domcontentloaded');
@@ -266,7 +266,7 @@ test.describe('离线模式首屏 UI 验证', () => {
   test('localStorage数据损坏时应使用默认值', async () => {
     // 设置损坏的数据
     await headerPage.evaluate(() => {
-      localStorage.setItem('httpNode/header/tabs', 'invalid-json');
+      localStorage.setItem('features/header/tabs', 'invalid-json');
     });
     
     // 刷新页面
@@ -281,10 +281,10 @@ test.describe('离线模式首屏 UI 验证', () => {
 
   test('activeTab不存在时应正确处理', async () => {
     await headerPage.evaluate(() => {
-      localStorage.setItem('httpNode/header/tabs', JSON.stringify([
+      localStorage.setItem('features/header/tabs', JSON.stringify([
         { id: 'tab1', title: '标签1', type: 'project', network: 'offline' }
       ]));
-      localStorage.setItem('httpNode/header/activeTab', 'non-existent-tab');
+      localStorage.setItem('features/header/activeTab', 'non-existent-tab');
     });
     
     await headerPage.reload();
@@ -321,8 +321,8 @@ test.describe('离线模式首屏 UI 验证', () => {
     ];
     
     await headerPage.evaluate((tabs) => {
-      localStorage.setItem('httpNode/header/tabs', JSON.stringify(tabs));
-      localStorage.setItem('httpNode/header/activeTab', 'tab1');
+      localStorage.setItem('features/header/tabs', JSON.stringify(tabs));
+      localStorage.setItem('features/header/activeTab', 'tab1');
     }, testTabs);
     
     await contentPage.evaluate(() => {

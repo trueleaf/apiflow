@@ -27,7 +27,7 @@ import LanguageMenu from '@/components/common/language/language.vue';
 import type { RuntimeNetworkMode } from '@src/types/runtime';
 import { useRuntime } from './store/runtime/runtime.ts';
 import { useProjectStore } from './store/project/project.ts';
-import { httpNodeCache } from '@/cache/http/httpNodeCache';
+import { headerCache } from '@/cache/features/header/header';
 import { aiCache } from '@/cache/ai/aiCache';
 
 const router = useRouter();
@@ -179,8 +179,8 @@ const bindTopBarEvent = () => {
 */
 const initHeaderTabs = () => {
   // 从缓存读取 tabs 和 activeTabId
-  const tabs = httpNodeCache.getHeaderTabs();
-  const activeTabId = httpNodeCache.getHeaderActiveTab();
+  const tabs = headerCache.getHeaderTabs();
+  const activeTabId = headerCache.getHeaderActiveTab();
   
   // 发送给 header.vue
   window.electronAPI?.ipcManager.sendToMain('apiflow-content-init-tabs', {

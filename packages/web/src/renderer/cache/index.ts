@@ -4,4 +4,5 @@ export { projectCache } from './project/projects';
 export { commonHeaderCache } from './project/commonHeaders';
 export { standaloneRuleCache } from './standalone/rules';
 export { variableCache } from './variable/variable';
+export { headerCache } from './features/header/header';
 export { initStandaloneDB, getStandaloneDB } from './db';

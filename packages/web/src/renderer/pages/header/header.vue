@@ -56,7 +56,7 @@
 <script setup lang="ts">
 import { ref, onMounted, watch, computed } from 'vue'
 import draggable from 'vuedraggable'
-import { httpNodeCache } from '@/cache/http/httpNodeCache.ts'
+import { headerCache } from '@/cache/features/header/header.ts'
 import { Language, WindowState } from '@src/types'
 import type { HeaderTab } from '@src/types/header'
 import { RefreshRight, Back, Right } from '@element-plus/icons-vue'
@@ -268,11 +268,11 @@ watch(() => networkMode.value, (mode, prevMode) => {
 })
 
 watch(tabs, (val) => {
-  httpNodeCache.setHeaderTabs(val)
+  headerCache.setHeaderTabs(val)
 }, { deep: true })
 
 watch(activeTabId, (val) => {
-  httpNodeCache.setHeaderActiveTab(val)
+  headerCache.setHeaderActiveTab(val)
 })
 </script>
 
