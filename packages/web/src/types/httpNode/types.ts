@@ -428,6 +428,10 @@ export type ApidocASTInfo = {
 
 export type ApidocOperationDeleteInfo = {
   /**
+   * 节点类型
+   */
+  type: 'folder' | 'doc';
+  /**
    * 节点名称
    */
   nodeName: string;
