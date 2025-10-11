@@ -3,12 +3,10 @@
  */
 
 import { HttpNode } from '@src/types';
-import { HttpResponseCache } from './httpResponseCache';
 import type { ApidocCookie } from '@src/renderer/store/apidoc/cookies';
 
-class HttpNodeCache extends HttpResponseCache {
+class HttpNodeCache {
   constructor() {
-    super();
   }
 
   /**

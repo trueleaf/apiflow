@@ -7,7 +7,7 @@
 import { ref, Ref, computed } from 'vue'
 import { router } from '@/router/index'
 import { sendRequest, stopRequest } from '@/server/request/request'
-import { httpNodeCache } from '@/cache/http/httpNodeCache.ts'
+import { httpResponseCache } from '@/cache/http/httpResponseCache'
 import { useApidocTas } from '@/store/apidoc/tabs'
 import { useApidocResponse } from '@/store/apidoc/response'
 import { useApidoc } from '@/store/apidoc/apidoc'
@@ -65,7 +65,7 @@ export default (): OperationReturn => {
     apidocResponseStroe.changeRequestState('waiting');
     apidocResponseStroe.clearResponse()
     if (currentSelectTab.value) {
-      httpNodeCache.deleteResponse(currentSelectTab.value._id);
+      httpResponseCache.deleteResponse(currentSelectTab.value._id);
     }
     if (currentSelectTab.value?._id.startsWith('local_')) { //通过+按钮新增的空白文档
       const cpOriginApidoc = apidocStore.originApidoc;

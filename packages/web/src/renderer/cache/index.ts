@@ -5,4 +5,5 @@ export { commonHeaderCache } from './project/commonHeaders';
 export { standaloneRuleCache } from './standalone/rules';
 export { variableCache } from './variable/variable';
 export { headerCache } from './features/header/header';
+export { httpResponseCache } from './http/httpResponseCache';
 export { initStandaloneDB, getStandaloneDB } from './db';

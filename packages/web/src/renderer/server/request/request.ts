@@ -9,6 +9,7 @@ import { useApidocBaseInfo } from '@/store/apidoc/base-info';
 import { useApidocTas } from '@/store/apidoc/tabs';
 import { useApidocResponse } from '@/store/apidoc/response';
 import { httpNodeCache } from '@/cache/http/httpNodeCache';
+import { httpResponseCache } from '@/cache/http/httpResponseCache';
 import { config } from '@src/config/config';
 import { cloneDeep, uuid } from '@/helper';
 import { useApidocRequest } from '@/store/apidoc/request';
@@ -571,7 +572,7 @@ export const sendRequest = async () => {
           lastCacheTime = now;
           // 只有在数据大小合理的情况下才进行深拷贝和缓存
           if (apidocResponseStore.responseInfo.bodyByteLength <= config.cacheConfig.apiflowResponseCache.singleResponseBodySize) {
-            httpNodeCache.setResponse(selectedTab?._id ?? '', apidocResponseStore.responseInfo);
+            httpResponseCache.setResponse(selectedTab?._id ?? '', apidocResponseStore.responseInfo);
           }
         }
       },
@@ -602,7 +603,7 @@ export const sendRequest = async () => {
         } else {
           changeResponseCacheAllowed(selectedTab?._id ?? '', true);
         }
-        httpNodeCache.setResponse(selectedTab?._id ?? '', storedResponseInfo);
+        httpResponseCache.setResponse(selectedTab?._id ?? '', storedResponseInfo);
         cleanup(); // 请求完成后清理 worker
       },
     })

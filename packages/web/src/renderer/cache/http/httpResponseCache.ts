@@ -3,15 +3,20 @@ import { ChunkWithTimestampe, ResponseInfo } from "@src/types/types";
 import { getHttpResponseDB } from "../db";
 
 export class HttpResponseCache {
+  private httpResponseCacheDb?: Awaited<ReturnType<typeof getHttpResponseDB>>;
+
   private async getDB() {
-    return await getHttpResponseDB();
+    if (!this.httpResponseCacheDb) {
+      this.httpResponseCacheDb = await getHttpResponseDB();
+    }
+    return this.httpResponseCacheDb;
   }
 
   /**
    * 缓存返回值（支持分块存储）
    */
   async setResponse(id: string, response: ResponseInfo) {
-    const httpResponseCacheDb = await this.getDB();
+    await this.getDB();
     try {
       const { singleResponseBodySize, chunkSize } = config.cacheConfig.apiflowResponseCache;
       const { streamData, ...responseWithoutStream } = response.responseData;
@@ -48,7 +53,7 @@ export class HttpResponseCache {
         const responseBlob = new Blob([responseStr], {
           type: "application/json",
         });
-        await this.httpResponseCacheDb.put(
+        await this.httpResponseCacheDb!.put(
           "httpResponseCache",
           { data: responseBlob, size: responseByteSize },
           id
@@ -514,3 +519,5 @@ export class HttpResponseCache {
     }
   }
 }
+
+export const httpResponseCache = new HttpResponseCache();

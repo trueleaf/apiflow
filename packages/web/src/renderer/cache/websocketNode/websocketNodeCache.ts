@@ -3,11 +3,9 @@
  */
 
 import { WebSocketNode, WebsocketConfig } from '@src/types/websocketNode';
-import { HttpResponseCache } from '../http/httpResponseCache';
 
-class WebSocketNodeCache extends HttpResponseCache {
+class WebSocketNodeCache {
   constructor() {
-    super();
     if (!localStorage.getItem('websocketNode/websocket')) {
       localStorage.setItem('websocketNode/websocket', '{}');
     }

@@ -3,11 +3,9 @@
  */
 
 import { MockHttpNode } from '@src/types/mockNode';
-import { HttpResponseCache } from '../../http/httpResponseCache';
 
-class HttpMockNodeCache extends HttpResponseCache {
+class HttpMockNodeCache {
   constructor() {
-    super();
     if (!localStorage.getItem('httpMockNode/mock')) {
       localStorage.setItem('httpMockNode/mock', '{}');
     }

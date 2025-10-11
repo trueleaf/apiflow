@@ -33,6 +33,7 @@
 import SResizeX from '@/components/common/resize/g-resize-x.vue'
 import SResizeY from '@/components/common/resize/g-resize-y.vue'
 import { httpNodeCache } from '@/cache/http/httpNodeCache'
+import { httpResponseCache } from '@/cache/http/httpResponseCache'
 import SOperation from './operation/operation.vue'
 import SParams from './params/params.vue'
 import SResponse from './response/response.vue'
@@ -96,9 +97,9 @@ const getApidocInfo = async () => {
     }
   }
   //=====================================获取缓存的返回参数====================================//
-  // const localResponse = await httpNodeCache.getResponse(currentSelectTab.value._id);
+  // const localResponse = await httpResponseCache.getResponse(currentSelectTab.value._id);
   apidocStore.changeResponseBodyLoading(true);
-  httpNodeCache.getResponse(currentSelectTab.value._id).then((localResponse) => {
+  httpResponseCache.getResponse(currentSelectTab.value._id).then((localResponse) => {
     apidocResponseStore.clearResponse();
     if (localResponse) {
       const rawBody = localResponse.body;
