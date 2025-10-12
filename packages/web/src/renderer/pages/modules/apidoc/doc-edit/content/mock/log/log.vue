@@ -9,6 +9,16 @@
         </div>
       </div>
       <div class="toolbar-actions">
+        <button 
+          class="realtime-button" 
+          type="button" 
+          :class="{ 'is-active': isRealtimeMode }"
+          @click="toggleRealtimeMode"
+          :title="isRealtimeMode ? '实时模式已开启' : '实时模式已关闭'"
+        >
+          <span class="realtime-icon">●</span>
+          {{ isRealtimeMode ? '实时' : '暂停' }}
+        </button>
         <div class="mode-switch">
           <button
             class="mode-button"
@@ -194,11 +204,12 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, reactive, computed, watch } from 'vue'
+import { ref, reactive, computed, watch, onMounted, onUnmounted } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useApidocTas } from '@/store/apidoc/tabs'
 import { ElEmpty, ElInputNumber } from 'element-plus'
 import type { MockLog } from '@src/types/mockNode'
+import { httpMockLogsCache } from '@/cache/mock/httpMock/httpMockLogsCache'
 
 const defaultTemplate = '$remote_addr - $remote_user [$time_local] "$request" $status $body_bytes_sent "$http_referer" "$http_user_agent" $request_time'
 
@@ -213,6 +224,8 @@ const showFormatPanel = ref(false)
 const formatTemplate = ref(defaultTemplate)
 const lastFetchedAt = ref<number | null>(null)
 const expandedMap = reactive<Record<string, boolean>>({})
+const isRealtimeMode = ref(true)
+const MAX_LOGS_IN_MEMORY = 1000
 
 const filters = reactive({
   keyword: '',
@@ -320,9 +333,9 @@ const unknownTemplateVariables = computed(() => {
 })
 
 const currentNodeId = computed(() => currentSelectTab.value?._id || '')
-
+// 从缓存加载日志
 const fetchLogs = async () => {
-  if (!currentNodeId.value || !window.electronAPI?.mock) {
+  if (!currentNodeId.value) {
     requestLogs.value = []
     errorMessage.value = ''
     lastFetchedAt.value = null
@@ -331,14 +344,40 @@ const fetchLogs = async () => {
   loading.value = true
   errorMessage.value = ''
   try {
-    const response = await window.electronAPI.mock.getLogsByNodeId(currentNodeId.value)
-    requestLogs.value = response.filter((log): log is Extract<MockLog, { type: 'request' }> => log.type === 'request')
+    const allLogs = await httpMockLogsCache.getLogsByNodeId(currentNodeId.value)
+    requestLogs.value = allLogs.filter((log): log is Extract<MockLog, { type: 'request' }> => log.type === 'request')
     lastFetchedAt.value = Date.now()
   } catch (error) {
     errorMessage.value = error instanceof Error ? error.message : '日志加载失败'
   } finally {
     loading.value = false
   }
+}
+// 处理批量日志推送
+const handleLogsBatch = (logs: MockLog[]) => {
+  if (!isRealtimeMode.value || !currentNodeId.value) {
+    return
+  }
+  if (!logs || !Array.isArray(logs)) {
+    console.error('接收到的日志数据格式错误:', logs);
+    return
+  }
+  const relevantLogs = logs.filter(
+    (log): log is Extract<MockLog, { type: 'request' }> => 
+      log.type === 'request' && log.nodeId === currentNodeId.value
+  )
+  if (relevantLogs.length === 0) {
+    return
+  }
+  requestLogs.value.push(...relevantLogs)
+  if (requestLogs.value.length > MAX_LOGS_IN_MEMORY) {
+    requestLogs.value = requestLogs.value.slice(-MAX_LOGS_IN_MEMORY)
+  }
+  lastFetchedAt.value = Date.now()
+}
+// 切换实时模式
+const toggleRealtimeMode = () => {
+  isRealtimeMode.value = !isRealtimeMode.value
 }
 
 const toggleAdvancedFilters = () => {
@@ -438,6 +477,14 @@ watch(currentNodeId, (value, oldValue) => {
     fetchLogs()
   }
 }, { immediate: true })
+// 组件挂载时注册IPC监听器
+onMounted(() => {
+  window.electronAPI?.ipcManager.onMain('mock-logs-batch', handleLogsBatch)
+})
+// 组件卸载时移除监听器
+onUnmounted(() => {
+  window.electronAPI?.ipcManager.removeListener('mock-logs-batch', handleLogsBatch)
+})
 </script>
 
 <style scoped>
@@ -482,7 +529,43 @@ watch(currentNodeId, (value, oldValue) => {
   align-items: center;
   gap: 12px;
 }
-
+.realtime-button {
+  border: 1px solid var(--gray-300);
+  background: var(--white);
+  color: var(--gray-700);
+  font-size: var(--font-size-sm);
+  padding: 8px 12px;
+  border-radius: var(--border-radius-base);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.realtime-button.is-active {
+  background: var(--el-color-success-light-9);
+  color: var(--el-color-success);
+  border-color: var(--el-color-success-light-5);
+}
+.realtime-button.is-active .realtime-icon {
+  color: var(--el-color-success);
+  animation: pulse 1.5s ease-in-out infinite;
+}
+.realtime-button:hover {
+  border-color: var(--primary);
+}
+.realtime-icon {
+  font-size: 10px;
+  line-height: 1;
+}
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.4;
+  }
+}
 .mode-switch {
   display: inline-flex;
   background: var(--gray-200);

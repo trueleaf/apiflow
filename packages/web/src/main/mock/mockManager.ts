@@ -3,21 +3,40 @@ import { CommonResponse } from '@src/types/project';
 import { MockUtils } from './mockUtils';
 import { matchPath, getPatternPriority, sleep } from '../utils';
 import { contentViewInstance } from '../main';
-import { uuid } from '@/helper/index';
 import detect from 'detect-port';
 import http from 'http';
 import Koa from 'koa';
+import { nanoid } from 'nanoid/non-secure';
 
 export class MockManager {
   private mockList: MockHttpNode[] = [];
   private mockInstanceList: MockInstance[] = [];
   private portToInstanceMap: Map<number, MockInstance> = new Map();
   private mockUtils: MockUtils = new MockUtils();
-  // 推送日志到渲染进程
+  private logBuffer: MockLog[] = [];
+  private sendTimer: ReturnType<typeof setTimeout> | null = null;
+  private readonly BATCH_SEND_INTERVAL = 50;
+  // 推送日志到渲染进程（批量）
   private pushLogToRenderer(log: Omit<MockLog, 'id'>): void {
-    const logWithId = { ...log, id: uuid() } as MockLog;
+    const logWithId = { ...log, id: nanoid() } as MockLog;
+    this.logBuffer.push(logWithId);
+    if (!this.sendTimer) {
+      this.sendTimer = setTimeout(() => {
+        this.flushLogs();
+      }, this.BATCH_SEND_INTERVAL);
+    }
+  }
+  // 批量发送日志到渲染进程
+  private flushLogs(): void {
+    if (this.logBuffer.length === 0) {
+      this.sendTimer = null;
+      return;
+    }
+    const logsToSend = [...this.logBuffer];
+    this.logBuffer = [];
+    this.sendTimer = null;
     if (contentViewInstance && contentViewInstance.webContents) {
-      contentViewInstance.webContents.send('mock-log-added', logWithId);
+      contentViewInstance.webContents.send('mock-logs-batch', logsToSend);
     }
   }
   

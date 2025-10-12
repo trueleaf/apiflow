@@ -250,9 +250,15 @@ onMounted(() => {
   // 发送 content 就绪信号
   window.electronAPI?.ipcManager.sendToMain('apiflow-content-ready');
   
-  // 监听主进程推送的 Mock 日志
-  window.electronAPI?.ipcManager.onMain('mock-log-added', async (_event: unknown, log: MockLog) => {
-    await httpMockLogsCache.addLog(log);
+  // 监听主进程推送的批量 Mock 日志
+  window.electronAPI?.ipcManager.onMain('mock-logs-batch', async (logs: MockLog[]) => {
+    if (!logs || !Array.isArray(logs)) {
+      console.error('接收到的日志数据格式错误:', logs);
+      return;
+    }
+    for (const log of logs) {
+      await httpMockLogsCache.addLog(log);
+    }
   });
   
   // 等待 topBar 就绪后再初始化和绑定事件
