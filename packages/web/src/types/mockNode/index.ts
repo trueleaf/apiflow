@@ -87,6 +87,7 @@ export type MockHttpNode = {
 };
 
 type MockStartLog = {
+  id: string,
   type: "start",
   nodeId: string,
   projectId: string,
@@ -96,6 +97,7 @@ type MockStartLog = {
   timestamp: number
 }
 type MockStopLog = {
+  id: string,
   type: "stop",
   nodeId: string,
   projectId: string,
@@ -106,6 +108,7 @@ type MockStopLog = {
 }
 // Mock 请求日志，参考 Nginx 访问日志格式
 type MockRequestLog = {
+  id: string,
   type: "request",
   nodeId: string,
   projectId: string,
@@ -140,6 +143,7 @@ type MockRequestLog = {
   timestamp: number,
 }
 type MockErrorLog = {
+  id: string,
   type: "error",
   nodeId: string,
   projectId: string,
@@ -150,6 +154,7 @@ type MockErrorLog = {
   timestamp: number,
 }
 type MockAlreadyStoppedLog = {
+  id: string,
   type: "already-stopped",
   nodeId: string,
   projectId: string,

@@ -207,6 +207,7 @@ import { useApidocBaseInfo } from '@/store/apidoc/base-info'
 import { projectCache, apiNodesCache } from '@/cache/index'
 import { useProjectStore } from '@/store/project/project'
 import { useRuntime } from '@/store/runtime/runtime'
+import { httpMockLogsCache } from '@/cache/mock/httpMock/httpMockLogsCache';
 
 /*
 |--------------------------------------------------------------------------
@@ -329,9 +330,18 @@ const deleteProject = (_id: string) => {
     const notifyProjectDeleted = () => {
       window.electronAPI?.ipcManager.sendToMain('apiflow-content-project-deleted', _id);
     }
+    // 清理 Mock 日志缓存
+    const cleanupMockLogs = async () => {
+      try {
+        await httpMockLogsCache.clearLogsByProjectId(_id);
+      } catch (err) {
+        console.error('清理Mock日志失败:', err);
+      }
+    };
     if (isStandalone.value) {
       try {
         await projectCache.deleteProject(_id);
+        await cleanupMockLogs();
         getProjectList();
         notifyProjectDeleted();
       } catch (err) {
@@ -339,7 +349,8 @@ const deleteProject = (_id: string) => {
       }
       return;
     }
-    request.delete('/api/project/delete_project', { data: { ids: [_id] } }).then(() => {
+    request.delete('/api/project/delete_project', { data: { ids: [_id] } }).then(async () => {
+      await cleanupMockLogs();
       getProjectList();
       notifyProjectDeleted();
     }).catch((err) => {

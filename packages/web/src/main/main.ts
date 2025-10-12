@@ -15,6 +15,9 @@ const __dirname = path.dirname(__filename);
 export const mockManager = new MockManager();
 export const webSocketManager = new WebSocketManager();
 
+// 导出 contentView 供其他模块使用
+export let contentViewInstance: WebContentsView | null = null;
+
 // 单实例锁变量，用于存储主窗口引用
 let mainWindowInstance: BrowserWindow | null = null;
 
@@ -115,6 +118,8 @@ if (!gotTheLock) {
     const { mainWindow, topBarView, contentView } = createWindow();
     // 保存主窗口引用，用于单实例锁激活
     mainWindowInstance = mainWindow;
+    // 保存 contentView 引用供其他模块使用
+    contentViewInstance = contentView;
     
     const { broadcastWindowState } = useIpcEvent(mainWindow, topBarView, contentView);
     bindMainProcessGlobalShortCut(mainWindow, topBarView, contentView);

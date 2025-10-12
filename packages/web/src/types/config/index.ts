@@ -192,17 +192,8 @@ export type Config = {
   },
   cacheConfig: {
     apiflowResponseCache: {
-      /**
-       * 单个最大可缓存返回body大小
-       */
       singleResponseBodySize: number;
-      /**
-       * 最大可以缓存的返回值大小
-       */
       maxResponseBodySize: number;
-      /**
-       * 分块大小，用于大文件分块存储
-       */
       chunkSize: number;
       dbName: string,
       version: number,
@@ -224,6 +215,12 @@ export type Config = {
       version: number,
       storeName: string,
       projectIdIndex: string,
+    },
+    mockLogsCache: {
+      dbName: string,
+      version: number,
+      storeName: string,
+      maxLogsPerNode: number,
     }
   },
   standaloneCache: {

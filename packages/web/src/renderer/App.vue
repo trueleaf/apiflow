@@ -29,6 +29,8 @@ import { useRuntime } from './store/runtime/runtime.ts';
 import { useProjectStore } from './store/project/project.ts';
 import { headerCache } from '@/cache/features/header/headerCache';
 import { aiCache } from '@/cache/ai/aiCache';
+import { httpMockLogsCache } from '@/cache/mock/httpMock/httpMockLogsCache';
+import type { MockLog } from '@src/types/mockNode';
 
 const router = useRouter();
 const dialogVisible = ref(false);
@@ -247,6 +249,11 @@ onMounted(() => {
   
   // 发送 content 就绪信号
   window.electronAPI?.ipcManager.sendToMain('apiflow-content-ready');
+  
+  // 监听主进程推送的 Mock 日志
+  window.electronAPI?.ipcManager.onMain('mock-log-added', async (_event: unknown, log: MockLog) => {
+    await httpMockLogsCache.addLog(log);
+  });
   
   // 等待 topBar 就绪后再初始化和绑定事件
   window.electronAPI?.ipcManager.onMain('apiflow-topbar-is-ready', async () => {

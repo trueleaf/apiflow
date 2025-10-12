@@ -152,10 +152,6 @@ export const useIpcEvent = (mainWindow: BrowserWindow, topBarView: WebContentsVi
     return await mockManager.removeMockByNodeIdAndStopMockServer(nodeId);
   });
 
-  ipcMain.handle('mock-get-logs-by-node-id', async (_: IpcMainInvokeEvent, nodeId: string) => {
-    return mockManager.getLogsByNodeId(nodeId);
-  });
-
   // 替换指定nodeId的Mock配置
   ipcMain.handle('mock-replace-by-id', async (_: IpcMainInvokeEvent, nodeId: string, httpMock: MockHttpNode) => {
     try {

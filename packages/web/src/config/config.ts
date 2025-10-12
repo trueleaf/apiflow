@@ -93,6 +93,12 @@ export const config: Config = {
       version: 1,
       storeName: 'mockVariables',
       projectIdIndex: 'projectId'
+    },
+    mockLogsCache: {
+      dbName: 'mockLogsCache',
+      version: 1,
+      storeName: 'logs',
+      maxLogsPerNode: 1000
     }
   },
   standaloneCache: {

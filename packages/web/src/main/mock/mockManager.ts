@@ -1,18 +1,25 @@
 import { MockHttpNode, MockInstance, MockLog } from '@src/types/mockNode';
 import { CommonResponse } from '@src/types/project';
-import { MockLogger } from './mockLogger';
 import { MockUtils } from './mockUtils';
 import { matchPath, getPatternPriority, sleep } from '../utils';
+import { contentViewInstance } from '../main';
+import { uuid } from '@/helper/index';
 import detect from 'detect-port';
 import http from 'http';
 import Koa from 'koa';
 
 export class MockManager {
   private mockList: MockHttpNode[] = [];
-  private logger: MockLogger = new MockLogger();
   private mockInstanceList: MockInstance[] = [];
   private portToInstanceMap: Map<number, MockInstance> = new Map();
   private mockUtils: MockUtils = new MockUtils();
+  // 推送日志到渲染进程
+  private pushLogToRenderer(log: Omit<MockLog, 'id'>): void {
+    const logWithId = { ...log, id: uuid() } as MockLog;
+    if (contentViewInstance && contentViewInstance.webContents) {
+      contentViewInstance.webContents.send('mock-log-added', logWithId);
+    }
+  }
   
   /*
   |--------------------------------------------------------------------------
@@ -33,7 +40,7 @@ export class MockManager {
       // 记录该端口上所有 Mock 的错误日志
       const mocksOnPort = this.mockList.filter(mock => mock.requestCondition.port === port);
       mocksOnPort.forEach(mock => {
-        this.logger.addLog({
+        this.pushLogToRenderer({
           type: "error",
           nodeId: mock._id,
           projectId: mock.projectId,
@@ -191,7 +198,7 @@ export class MockManager {
       ctx.body = { error: 'Internal server error' };
       
       if (matchedMock) {
-        this.logger.addLog({
+        this.pushLogToRenderer({
           type: "error",
           nodeId: matchedMock._id,
           projectId: matchedMock.projectId,
@@ -224,7 +231,7 @@ export class MockManager {
         const protocol = ctx.protocol;
         const hostname = ctx.hostname;
         
-        this.logger.addLog({
+        this.pushLogToRenderer({
           type: "request",
           nodeId: matchedMock._id,
           projectId: matchedMock.projectId,
@@ -266,7 +273,7 @@ export class MockManager {
     if (portExists) {
       // 端口复用场景：直接添加到 mockList
       this.mockList.push(httpMock);
-      this.logger.addLog({
+      this.pushLogToRenderer({
         type: "start",
         nodeId: httpMock._id,
         projectId: httpMock.projectId,
@@ -279,11 +286,7 @@ export class MockManager {
     // 首次启动场景：检测端口冲突
     const hasConflict = await this.checkPortIsConflict(httpMock);
     if (hasConflict) {
-      // 从logger中获取最新的错误信息
-      const logs = this.logger.getLogsByNodeId(httpMock._id);
-      const latestErrorLog = logs.filter(log => log.type === 'error').pop();
-      const errorMsg = latestErrorLog?.data.errorMsg || `端口 ${httpMock.requestCondition.port} 已被占用`;
-      return { code: 1, msg: errorMsg, data: null };
+      return { code: 1, msg: `端口 ${httpMock.requestCondition.port} 已被占用`, data: null };
     }
     
     try {
@@ -305,7 +308,7 @@ export class MockManager {
       this.setupServerEventListeners(server, httpMock.requestCondition.port);
       this.mockList.push(httpMock);
       
-      this.logger.addLog({
+      this.pushLogToRenderer({
         type: "start",
         nodeId: httpMock._id,
         projectId: httpMock.projectId,
@@ -316,7 +319,7 @@ export class MockManager {
       return { code: 0, msg: '启动成功', data: null };
     } catch (error) {
       const errorMsg = `服务器启动失败: ${error instanceof Error ? error.message : 'Unknown error'}`;
-      this.logger.addLog({
+      this.pushLogToRenderer({
         type: "error",
         nodeId: httpMock._id,
         projectId: httpMock.projectId,
@@ -361,7 +364,7 @@ export class MockManager {
       this.removeMockByNodeId(nodeId);
       const remainingMocksOnPort = this.mockList.filter(mock => mock.requestCondition.port === port);
       if (remainingMocksOnPort.length > 0) {
-        this.logger.addLog({
+        this.pushLogToRenderer({
           type: "stop",
           nodeId: mockToRemove._id,
           projectId: mockToRemove.projectId,
@@ -373,7 +376,7 @@ export class MockManager {
       }
       const instance = this.portToInstanceMap.get(port);
       if (!instance) {
-        this.logger.addLog({
+        this.pushLogToRenderer({
           type: "stop",
           nodeId: mockToRemove._id,
           projectId: mockToRemove.projectId,
@@ -387,7 +390,7 @@ export class MockManager {
       instance.server.close((error) => {
         if (error) {
           if (this.mockUtils.isServerNotRunningError(error)) {
-            this.logger.addLog({
+            this.pushLogToRenderer({
               type: "already-stopped",
               nodeId: mockToRemove._id,
               projectId: mockToRemove.projectId,
@@ -398,7 +401,7 @@ export class MockManager {
               timestamp: Date.now()
             });
           } else {
-            this.logger.addLog({
+            this.pushLogToRenderer({
               type: "error",
               nodeId: mockToRemove._id,
               projectId: mockToRemove.projectId,
@@ -412,7 +415,7 @@ export class MockManager {
             return;
           }
         } else {
-          this.logger.addLog({
+          this.pushLogToRenderer({
             type: "stop",
             nodeId: mockToRemove._id,
             projectId: mockToRemove.projectId,
@@ -465,9 +468,6 @@ export class MockManager {
     // 清理该项目的变量缓存（使用 MockUtils 静态方法）
     MockUtils.clearProjectVariables(projectId);
   }
-  public getLogsByNodeId(nodeId: string): MockLog[] {
-    return this.logger.getLogsByNodeId(nodeId);
-  }
 
   // 检测端口是否冲突
   private async checkPortIsConflict(httpMock: MockHttpNode): Promise<boolean> {
@@ -481,7 +481,7 @@ export class MockManager {
     try {
       const availablePort = await detect(httpMock.requestCondition.port);
       if (availablePort !== httpMock.requestCondition.port) {
-        this.logger.addLog({
+        this.pushLogToRenderer({
           type: "error",
           nodeId: httpMock._id,
           projectId: httpMock.projectId,
@@ -494,7 +494,7 @@ export class MockManager {
         return true;
       }
     } catch (error) {
-      this.logger.addLog({
+      this.pushLogToRenderer({
         type: "error",
         nodeId: httpMock._id,
         projectId: httpMock.projectId,
@@ -510,3 +510,4 @@ export class MockManager {
     return false;
   }
 }
+
