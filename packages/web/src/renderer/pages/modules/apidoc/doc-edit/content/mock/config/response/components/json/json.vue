@@ -113,7 +113,7 @@ import SJsonEditor from '@/components/common/json-editor/g-json-editor.vue'
 import { 
   getMockJsonRandomSizeHintVisible, 
   setMockJsonRandomSizeHintVisible
-} from '@/cache/common/common'
+} from '@/cache/common/commonCache'
 import type { MockHttpNode } from '@src/types'
 
 type ResponseItem = MockHttpNode['response'][0]

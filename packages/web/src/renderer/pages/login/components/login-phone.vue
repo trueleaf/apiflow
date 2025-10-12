@@ -33,7 +33,7 @@ import { request } from '@/api/api';
 import { router } from '@/router';
 import { usePermissionStore } from '@/store/permission';
 import { config } from '@src/config/config';
-import { runtimeCache } from '@/cache/runtime/runtime';
+import { runtimeCache } from '@/cache/runtime/runtimeCache';
 
 const { t } = useI18n()
 const userInfo = reactive({

@@ -7,7 +7,7 @@ import { ElMessageBox } from "element-plus";
 import 'element-plus/es/components/message-box/style/css';
 import { i18n } from '@/i18n';
 import { httpNodeCache } from "@/cache/httpNode/httpNodeCache.ts";
-import { workbenchCache } from "@/cache/workbench/workbench.ts";
+import { workbenchCache } from "@/cache/workbench/workbenchCache.ts";
 import { request } from '@/api/api';
 import { useApidocBanner } from "./banner";
 

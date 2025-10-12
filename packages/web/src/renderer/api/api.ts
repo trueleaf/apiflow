@@ -5,7 +5,7 @@ import { ElMessage, ElMessageBox } from 'element-plus';
 import { nanoid } from 'nanoid';
 import { parseUrl, getStrParams, getStrHeader, getStrJsonBody, getHashedContent } from './sign';
 import { i18n } from '@/i18n';
-import { runtimeCache } from '@/cache/runtime/runtime';
+import { runtimeCache } from '@/cache/runtime/runtimeCache';
 
 const axiosInstance = Axios.create();
 axiosInstance.defaults.withCredentials = config.renderConfig.httpRequest.withCredentials;//允许携带cookie

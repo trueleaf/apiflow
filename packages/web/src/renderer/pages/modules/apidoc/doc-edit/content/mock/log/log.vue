@@ -3,6 +3,7 @@
     <div class="toolbar">
       <div class="toolbar-left">
         <div class="toolbar-title">日志管理</div>
+        {{  }}
         <div class="toolbar-meta" v-if="lastFetchedAt">
           最近刷新：{{ formatTimestamp(lastFetchedAt) }}
         </div>
@@ -203,7 +204,6 @@ const defaultTemplate = '$remote_addr - $remote_user [$time_local] "$request" $s
 
 const apidocTabsStore = useApidocTas()
 const { currentSelectTab } = storeToRefs(apidocTabsStore)
-
 const loading = ref(false)
 const errorMessage = ref('')
 const requestLogs = ref<Extract<MockLog, { type: 'request' }>[]>([])

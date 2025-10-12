@@ -27,7 +27,7 @@ import LanguageMenu from '@/components/common/language/language.vue';
 import type { RuntimeNetworkMode } from '@src/types/runtime';
 import { useRuntime } from './store/runtime/runtime.ts';
 import { useProjectStore } from './store/project/project.ts';
-import { headerCache } from '@/cache/features/header/header';
+import { headerCache } from '@/cache/features/header/headerCache';
 import { aiCache } from '@/cache/ai/aiCache';
 
 const router = useRouter();

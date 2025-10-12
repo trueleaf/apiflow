@@ -7,7 +7,7 @@ import { RouteRecordRaw } from 'vue-router';
 import { ref } from 'vue';
 import { uniqueByKey } from '@/helper';
 import { request } from '@/api/api';
-import { runtimeCache } from '@/cache/runtime/runtime';
+import { runtimeCache } from '@/cache/runtime/runtimeCache';
 
 type ResUserInfo = PermissionUserInfo & {
   clientBanner: PermissionClientMenu[],

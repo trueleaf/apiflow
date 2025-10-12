@@ -52,7 +52,7 @@ import { ElMessage, FormInstance } from 'element-plus';
 import { request } from '@/api/api';
 import { router } from '@/router';
 import { usePermissionStore } from '@/store/permission';
-import { runtimeCache } from '@/cache/runtime/runtime';
+import { runtimeCache } from '@/cache/runtime/runtimeCache';
 
 const emits = defineEmits(['jumpToRegister', 'jumpToResetPassword'])
 const { t } = useI18n()

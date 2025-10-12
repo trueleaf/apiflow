@@ -37,7 +37,7 @@ import tabA from './tab-a/tab-a.vue'
 import tabB from './tab-b/tab-b.vue'
 import { useI18n } from 'vue-i18n'
 import { TabPaneName } from 'element-plus'
-import { userState } from '@/cache/userState/userState.ts'
+import { userState } from '@/cache/userState/userStateCache.ts'
 import { useRuntime } from '@/store/runtime/runtime'
 
 const { getActiveHomeTab, setActiveHomeTab } = userState

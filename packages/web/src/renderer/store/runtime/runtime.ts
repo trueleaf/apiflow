@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
-import { runtimeCache } from '@/cache/runtime/runtime'
+import { runtimeCache } from '@/cache/runtime/runtimeCache'
 import type { RuntimeNetworkMode } from '@src/types/runtime'
 
 export const useRuntime = defineStore('runtime', () => {

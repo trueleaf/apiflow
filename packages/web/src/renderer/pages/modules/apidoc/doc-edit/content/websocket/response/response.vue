@@ -46,7 +46,7 @@ import { formatDate } from '@/helper';
 import SLabelValue from '@/components/common/label-value/g-label-value.vue';
 import GWebsocketView from '@/components/common/websocket-view/g-websocket-view.vue';
 import SLoading from '@/components/common/loading/g-loading.vue';
-import { websocketResponseCache } from '@/cache/websocketNode/websocketResponse';
+import { websocketResponseCache } from '@/cache/websocketNode/websocketResponseCache';
 
 const { t } = useI18n();
 const websocketStore = useWebSocket();

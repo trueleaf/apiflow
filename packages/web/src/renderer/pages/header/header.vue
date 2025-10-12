@@ -56,7 +56,7 @@
 <script setup lang="ts">
 import { ref, onMounted, watch, computed } from 'vue'
 import draggable from 'vuedraggable'
-import { headerCache } from '@/cache/features/header/header.ts'
+import { headerCache } from '@/cache/features/header/headerCache.ts'
 import { Language, WindowState } from '@src/types'
 import type { HeaderTab } from '@src/types/header'
 import { RefreshRight, Back, Right } from '@element-plus/icons-vue'

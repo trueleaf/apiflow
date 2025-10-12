@@ -47,23 +47,11 @@ const emitter = mitt<{
 }>()
 
 export const event = emitter;
-/**
- * @description        返回uuid
- * @author             shuxiaokai
- * @create             2021-01-20 22:52
- * @return {string}    返回uuid
- */
+// 返回uuid
 export const uuid = (): string => {
   return nanoid();
 }
-
-/**
-    @description   返回变量类型
-    @author        shuxiaokai
-    @create        2019-10-29 16:32"
-    @param {any}   variable
-    @return       小写对象类型(null,number,string,boolean,symbol,function,object,array,regexp)
-*/
+// 返回变量类型
 export const getType = (variable: unknown): string => {
   return Object.prototype.toString.call(variable).slice(8, -1).toLocaleLowerCase();
 }
@@ -72,15 +60,7 @@ type ForestData = {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   [propName: string]: any,
 }
-
-/**
- * @description        遍历森林
- * @author             shuxiaokai
- * @create             2020-03-02 10:17
- * @param {array}      arrData 数组数据
- * @param {function}   fn 每次遍历执行得函数
- * @param {string}     childrenKey children对应字段
- */
+// 遍历森林
 export const forEachForest = <T extends ForestData>(forest: T[], fn: (arg: T) => void, options?: { childrenKey?: string }): void => {
   if (!Array.isArray(forest)) {
     console.error('第一个参数必须为数组类型');
@@ -266,21 +246,7 @@ export const formatDate = (date: string | number | Date | dayjs.Dayjs | undefine
   const result = dayjs(date).format(realRule);
   return result;
 }
-
-/**
-    @description  将数组对象[{id: 1}]根据指定的key值进行去重,key值对应的数组元素不存在则直接过滤掉，若不传入id则默认按照set形式进行去重。
-    @create       2019-11-20 22:40
-    @update       2019-11-20 22:42
-    @param  {array}  array 需要处理的数组
-    @param  {string?} key 指定对象数组的去重依据
-    @return {Array}  返回一个去重后的新数组，不会改变原数组
-    @example
-        unique([{id: 1}, {id: 2}, {id: 1}], "id") => [{id: 1}, {id: 2}]
-        unique([{id: 1}, {id: 2}, {id: 1}]) => [{id: 1}, {id: 2}, {id: 1}]
-        unique([{id: 1}, {}, {id: 1}]) => [{id: 1}, {id: 2}, {id: 1}]
-        unique([1, 2, 3, 4, 3, 3]) => [1, 2, 3, 4]
-*/
-
+// 将数组对象[{id: 1}]根据指定的key值进行去重,key值对应的数组元素不存在则直接过滤掉，若不传入id则默认按照set形式进行去重。
 export const uniqueByKey = <T extends Data, K extends keyof T>(data: T[], key: K): T[] => {
   const result: T[] = [];
   for (let i = 0, len = data.length; i < len; i += 1) {
@@ -411,12 +377,7 @@ export const apidocConvertParamsToJsonData = (properties: Properties): JSON => {
   }
   return {};
 }
-
-/**
- * @description        生成一份空的项目默认值
- * @author             shuxiaokai
- * @create             2021-09-07 22:35
- */
+// 生成一份空的项目默认值
 export const generateEmptyProject = (_id: string): ApidocProjectInfo => {
   return {
     _id,
@@ -433,12 +394,7 @@ export const generateEmptyProject = (_id: string): ApidocProjectInfo => {
     isDeleted: false,
   }
 }
-
-/**
- * @description        生成一份空的HTTP节点默认值
- * @author             shuxiaokai
- * @create             2021-09-07 22:35
- */
+// 生成一份空的HTTP节点默认值
 export const generateEmptyHttpNode = (_id: string): HttpNode => {
   return {
     _id,
@@ -496,12 +452,7 @@ export const generateEmptyHttpNode = (_id: string): HttpNode => {
     updatedAt: '',
   }
 }
-
-/**
- * @description        生成一份空的WebSocket节点默认值
- * @author             shuxiaokai
- * @create             2021-09-07 22:35
- */
+// 生成一份空的WebSocket节点默认值
 export const generateEmptyWebsocketNode = (_id: string): WebSocketNode => {
   return {
     _id,
@@ -636,13 +587,7 @@ export const generateEmptyHttpMockNode = (_id: string): MockHttpNode => {
     isDeleted: false,
   }
 }
-
-
-/**
- * @description        生成一份apidoc默认值(保持向后兼容)
- * @author             shuxiaokai
- * @create             2021-09-07 22:35
- */
+// 生成一份apidoc默认值(保持向后兼容)
 export const generateHttpNode = (id?: string): HttpNode => {
   const result = generateEmptyHttpNode(id || nanoid());
   // 添加默认的response参数以保持向后兼容
@@ -665,12 +610,7 @@ export const generateHttpNode = (id?: string): HttpNode => {
   result.item.requestBody.binary.mode = 'file';
   return result;
 }
-
-/**
- * @description        生成一份websocket默认值(保持向后兼容)
- * @author             shuxiaokai
- * @create             2021-09-07 22:35
- */
+// 生成一份websocket默认值(保持向后兼容)
 export const generateWebsocketNode = (id?: string): WebSocketNode => {
   const result = generateEmptyWebsocketNode(id || nanoid());
   // 添加一些字段以保持向后兼容
@@ -679,23 +619,11 @@ export const generateWebsocketNode = (id?: string): WebSocketNode => {
   result.isDeleted = false;
   return result;
 };
-
-
-/**
- * @description        生成一份参数类型数组
- * @author             shuxiaokai
- * @create             2022-01-20 22:35
- */
+// 生成一份参数类型数组
 export const apidocGenerateRequestParamTypes = (): HttpNodeRequestParamTypes => {
   return ['path', 'params', 'json', 'x-www-form-urlencoded', 'formData', 'text/javascript', 'text/plain', 'text/html', 'application/xml'];
 }
-/**
- * @description        将byte转换为易读单位
- * @author              shuxiaokai
- * @create             2020-10-26 21:56
- * @param {number}      byteNum - 字节数量
- * @return {String}    返回字符串
- */
+// 将byte转换为易读单位
 export const formatBytes = (byteNum: number): string => {
   let result = '';
   if (byteNum >= 0 && byteNum < 1024) {
@@ -713,14 +641,7 @@ export const formatBytes = (byteNum: number): string => {
   }
   return result;
 }
-
-/**
- * @description        将毫秒转换为易读单位
- * @author              shuxiaokai
- * @create             2020-10-26 21:56
- * @param {number}      ms - 毫秒
- * @return {String}    返回字符串
- */
+// 将毫秒转换为易读单位
 export const formatMs = (ms: number): string => {
   let result = '';
   if (!ms) {
@@ -735,13 +656,7 @@ export const formatMs = (ms: number): string => {
   }
   return result;
 }
-
-/**
- * @description        拷贝文本
- * @author             shuxiaokai
- * @create             2020-10-26 21:56
- * @param {string}     str - 需要拷贝的文本
- */
+// 拷贝文本
 export const copy = (str: string): void => {
   const dom = document.createElement('textarea');
   dom.value = str;
@@ -753,6 +668,7 @@ export const copy = (str: string): void => {
   document.execCommand('Copy', false);
   document.body.removeChild(dom);
 }
+// 生成指定范围的随机整数
 export const randomInt = (start: number, end: number): number => {
   if (start > end) {
     console.log('第二个参数必须大于第一个');
@@ -761,7 +677,7 @@ export const randomInt = (start: number, end: number): number => {
   const range = end - start - 1;
   return Math.floor((Math.random() * range + 1))
 }
-//模拟延迟
+// 模拟延迟
 export const sleep = async (delay: number): Promise<void> => {
   return new Promise((resolve, reject) => {
     try {
@@ -776,8 +692,7 @@ export const sleep = async (delay: number): Promise<void> => {
     }
   })
 }
-
-
+// 从Content-Disposition响应头中提取文件名
 export const getFileNameFromContentDisposition = (contentDisposition: string) => {
   if (!contentDisposition) {
     return '';
@@ -788,7 +703,6 @@ export const getFileNameFromContentDisposition = (contentDisposition: string) =>
 }
 
 export * from './apidoc-format'
-
 // 导出文本为文件
 export const downloadStringAsText = (content: string, fileName: string, mimeType = 'text/plain;charset=utf-8'): void => {
   const blob = new Blob([content], { type: mimeType });
@@ -802,6 +716,7 @@ export const downloadStringAsText = (content: string, fileName: string, mimeType
   document.body.removeChild(a);
   window.URL.revokeObjectURL(url);
 }
+// 格式化HTTP请求头名称
 export const formatHeader = (header: string) => {
   return header
     .split('-') // 拆分成单词数组
@@ -811,11 +726,7 @@ export const formatHeader = (header: string) => {
     )
     .join('-'); // 重新连接成字符串
 }
-/**
- * 从url中获取domain信息（与cookie中的domain一致，仅主机名，不含端口和协议）
- * @param url 输入的完整url字符串
- * @returns domain主机名
- */
+// 从url中获取domain信息（与cookie中的domain一致，仅主机名，不含端口和协议）
 export const getDomainFromUrl = (url: string): string => {
   try {
     const { hostname } = new URL(url);
@@ -824,11 +735,7 @@ export const getDomainFromUrl = (url: string): string => {
     return '';
   }
 }
-/**
- * 从url中获取路径信息（不包含协议、主机名、端口和查询参数）
- * @param url 输入的完整url字符串
- * @returns 路径字符串（以/开头）
- */
+// 从url中获取路径信息（不包含协议、主机名、端口和查询参数）
 export const getPathFromUrl = (url: string): string => {
   try {
     const { pathname } = new URL(url);
@@ -837,6 +744,7 @@ export const getPathFromUrl = (url: string): string => {
     return '';
   }
 }
+// 计算距离过期时间的倒计时
 export const getCountdown = (expire: number) => {
   if (!expire) return '';
   const expireDate = new Date(expire).getTime();
@@ -866,6 +774,7 @@ export const getCountdown = (expire: number) => {
 | docs转banner方法
 |--------------------------------------------------------------------------
 */
+// 将数组转换为树形结构
 export const arrayToTree = <T extends { _id: string; pid: string }>(list: T[]): (T & { children: T[] })[] => {
   const map = new Map<string, T & { children: T[] }>();
   const roots: (T & { children: T[] })[] = [];
@@ -881,7 +790,7 @@ export const arrayToTree = <T extends { _id: string; pid: string }>(list: T[]): 
   });
   return roots;
 }
-
+// 将API节点转换为Banner节点
 export const convertNodesToBannerNodes = (docs: ApiNode[] = []): ApidocBanner[] => {
   const treeData = arrayToTree(docs);
   const copyTreeData = cloneDeep(treeData)
@@ -982,9 +891,7 @@ export const convertNodesToBannerNodes = (docs: ApiNode[] = []): ApidocBanner[] 
   foo(copyTreeData, banner)
   return banner
 }
-/**
- * 判断字符串是否为有效的 JSON 格式
- */
+// 判断字符串是否为有效的JSON格式
 export const isJsonString = (str: string): boolean => {
   if (!str || typeof str !== 'string') {
     return false;
@@ -1016,16 +923,11 @@ export const isJsonString = (str: string): boolean => {
 | 对象大小计算方法
 |--------------------------------------------------------------------------
 */
-/**
- * 计算JavaScript对象的字节大小
- * @param obj 需要计算大小的对象
- * @returns 对象的字节大小
- */
+// 计算JavaScript对象的字节大小
 export const getObjectSize = (obj: unknown): number => {
   const blob = new Blob([JSON.stringify(obj)], { type: 'application/json' });
   return blob.size;
 }
-
 // 获取IndexedDB中的数据项数量
 export const getIndexedDBItemCount = async (excludeDbNames?: string[]): Promise<number> => {
   try {
@@ -1081,7 +983,6 @@ export const getIndexedDBItemCount = async (excludeDbNames?: string[]): Promise<
     return 0;
   }
 };
-
 // 生成空响应信息
 export const generateEmptyResponse = (): ResponseInfo => {
   return {

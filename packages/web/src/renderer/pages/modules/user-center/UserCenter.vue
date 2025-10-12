@@ -44,7 +44,7 @@
 
 <script setup lang="ts">
 import { ref, watch, type Component } from 'vue'
-import { userState } from '@/cache/userState/userState.ts'
+import { userState } from '@/cache/userState/userStateCache.ts'
 import CacheManagement from './cacheManager/CacheManagement.vue'
 import UserInfo from './userInfo/UserInfo.vue'
 import ComponentLibrary from './componentLibrary/ComponentLibrary.vue'
