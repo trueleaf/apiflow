@@ -92,13 +92,14 @@
 
 <script lang="ts" setup>
 import { debounce, downloadStringAsText } from '@/helper';
-import { computed, ref, onMounted, onBeforeUnmount, nextTick, getCurrentInstance } from 'vue';
+import { computed, ref, onMounted, onBeforeUnmount, nextTick } from 'vue';
 import { parseChunkList } from '@/utils/utils';
 import dayjs from 'dayjs';
 import type { ChunkWithTimestampe } from '@src/types/index.ts';
 import GVirtualScroll from '@/components/apidoc/virtual-scroll/g-virtual-scroll.vue';
 import SsePopover from './components/popover/sse-popover.vue';
 import { Loading, Search, Download, Document } from '@element-plus/icons-vue';
+import { useI18n } from 'vue-i18n';
 
 /*
 |--------------------------------------------------------------------------
@@ -110,8 +111,8 @@ const props = withDefaults(defineProps<{ dataList: ChunkWithTimestampe[]; virtua
   isDataComplete: false,
 });
 
-const instance = getCurrentInstance();
-const t = instance?.appContext.config.globalProperties.t;
+// 获取翻译函数
+const { t } = useI18n();
 const sseViewContainerRef = ref<HTMLElement | null>(null);
 // 性能优化：增量数据处理
 const lastDataLength = ref(0);
@@ -301,7 +302,7 @@ const filteredData = computed(() => {
 
   } catch (error) {
     // 正则表达式错误
-    filterError.value = `${t?.('正则表达式错误') || '正则表达式错误'}: ${error instanceof Error ? error.message : t?.('未知错误') || '未知错误'}`;
+    filterError.value = `${t('正则表达式错误')}: ${error instanceof Error ? error.message : t('未知错误')}`;
     return formattedData.value;
   }
 });
