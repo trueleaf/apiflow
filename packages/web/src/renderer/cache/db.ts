@@ -62,15 +62,6 @@ async function initHttpResponseDB(): Promise<IDBPDatabase> {
     config.cacheConfig.apiflowResponseCache.version,
     {
       upgrade(db: IDBPDatabase) {
-        // 创建响应缓存存储
-        if (!db.objectStoreNames.contains('httpResponseCache')) {
-          db.createObjectStore('httpResponseCache');
-        }
-        // 创建分块存储
-        if (!db.objectStoreNames.contains('responseChunks')) {
-          db.createObjectStore('responseChunks');
-        }
-        // 创建元数据存储
         if (!db.objectStoreNames.contains('responseMetadata')) {
           db.createObjectStore('responseMetadata');
         }

@@ -51,7 +51,6 @@ export class AiManager {
 
   private async sendDeepSeekRequest(body: DeepSeekRequestBody): Promise<string> {
     try {
-      console.log(body)
       const response = await got.post(this.apiUrl, {
         json: body,
         headers: {
@@ -93,7 +92,6 @@ export class AiManager {
       model: 'deepseek-chat',
       messages: this.buildMessages(prompt, false, systemPrompt),
     };
-    console.log(prompt, requestBody, resLimitSize)
     return await this.sendDeepSeekRequest(requestBody);
   }
 

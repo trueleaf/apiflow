@@ -815,7 +815,6 @@ export const finishRendererData = async (): Promise<void> => {
           
           // 写入文件
           await fs.writeFile(finalFilePath, zipBuffer);
-          console.log(`导出完成，共处理 ${batchCounter} 个批次，${receivedDataLength} 项数据`);
         } catch (zipError) {
           console.error('生成ZIP文件失败:', zipError);
           throw new Error(`ZIP文件生成失败: ${(zipError as Error).message}`);
