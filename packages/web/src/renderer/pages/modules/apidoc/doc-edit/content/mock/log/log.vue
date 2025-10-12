@@ -1,130 +1,113 @@
 <template>
   <div class="log-page">
-    <div class="toolbar">
-      <div class="toolbar-left">
-        <div class="toolbar-title">日志管理</div>
-        {{  }}
-        <div class="toolbar-meta" v-if="lastFetchedAt">
-          最近刷新：{{ formatTimestamp(lastFetchedAt) }}
-        </div>
-      </div>
-      <div class="toolbar-actions">
-        <button 
-          class="realtime-button" 
-          type="button" 
-          :class="{ 'is-active': isRealtimeMode }"
-          @click="toggleRealtimeMode"
-          :title="isRealtimeMode ? '实时模式已开启' : '实时模式已关闭'"
-        >
-          <span class="realtime-icon">●</span>
-          {{ isRealtimeMode ? '实时' : '暂停' }}
-        </button>
-        <div class="mode-switch">
-          <button
-            class="mode-button"
-            :class="{ 'is-active': displayMode === 'plain' }"
-            type="button"
-            @click="displayMode = 'plain'"
-          >
-            普通模式
-          </button>
-          <button
-            class="mode-button"
-            :class="{ 'is-active': displayMode === 'card' }"
-            type="button"
-            @click="displayMode = 'card'"
-          >
-            卡片模式
-          </button>
-        </div>
-        <button class="refresh-button" type="button" :disabled="loading" @click="fetchLogs">
-          {{ loading ? '加载中…' : '刷新日志' }}
-        </button>
-      </div>
-    </div>
-
     <div class="filters">
-      <div class="filters-header">
-        <div class="filter-group keyword-group">
+      <div class="filters-grid">
+        <div class="filter-group">
           <label class="filter-label">关键字</label>
-          <input
+          <el-input
             v-model="filters.keyword"
-            class="filter-input"
-            type="text"
             placeholder="搜索 IP、路径、UA、Referer"
+            clearable
           />
         </div>
-        <div class="filter-actions">
-          <button
-            class="icon-button"
-            type="button"
-            :class="{ 'is-active': showAdvancedFilters }"
-            @click="toggleAdvancedFilters"
-          >
-            <span class="icon" aria-hidden="true">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M7 12h10M10 18h4" />
-              </svg>
-            </span>
-            <span>高级筛选</span>
-          </button>
-          <button
-            class="icon-button"
-            type="button"
-            :class="{ 'is-active': showFormatPanel }"
-            :disabled="displayMode !== 'plain'"
-            @click="toggleFormatPanel"
-            :title="displayMode === 'plain' ? '自定义普通模式日志格式' : '仅普通模式支持格式模板'"
-          >
-            <span class="icon" aria-hidden="true">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M5 5h9M5 12h14M5 19h9" />
-                <path stroke-linecap="round" stroke-linejoin="round" d="M16 5v2M14 19v-2" />
-              </svg>
-            </span>
-            <span>格式模板</span>
-          </button>
-        </div>
-      </div>
-      <div v-if="showAdvancedFilters" class="advanced-grid">
         <div class="filter-group">
           <label class="filter-label">请求方法</label>
-          <select v-model="filters.method" class="filter-select">
-            <option value="">全部</option>
-            <option v-for="method in methodOptions" :key="method" :value="method">{{ method }}</option>
-          </select>
+          <el-select v-model="filters.method" placeholder="全部" clearable>
+            <el-option
+              v-for="method in methodOptions"
+              :key="method"
+              :label="method"
+              :value="method"
+            />
+          </el-select>
         </div>
         <div class="filter-group">
           <label class="filter-label">状态码</label>
-          <input v-model="filters.status" class="filter-input" type="text" placeholder="例如：200" />
+          <el-input v-model="filters.status" placeholder="例如：200" clearable />
         </div>
-        <div class="filter-group">
-          <label class="filter-label">响应时间 (ms)</label>
-          <div class="filter-input-group">
-            <el-input-number v-model="filters.minResponse" class="filter-input" :min="0" :controls="false" placeholder="最小值" />
-            <span class="filter-input-divider">-</span>
-            <el-input-number v-model="filters.maxResponse" class="filter-input" :min="0" :controls="false" placeholder="最大值" />
-          </div>
+        <div class="filter-actions">
+          <el-button @click="handleResetFilters">重置条件</el-button>
+          <el-button type="primary" :loading="loading" @click="fetchLogs">
+            刷新日志
+          </el-button>
         </div>
-      </div>
-      <div v-if="showAdvancedFilters" class="advanced-footer">
-        <button class="ghost-button" type="button" @click="handleResetFilters">重置条件</button>
       </div>
     </div>
 
-    <div v-if="displayMode === 'plain' && showFormatPanel" class="format-panel">
-      <div class="format-header">
-        <div class="format-title">日志格式模板</div>
-        <div class="format-hint" v-if="unknownTemplateVariables.length">
-          未识别变量：
-          <span v-for="item in unknownTemplateVariables" :key="item" class="format-hint-token">${{ item }}</span>
+    <div class="log-container">
+      <div class="operation">
+        <div class="operation-btn" @click="handleClearLogs">
+          <Trash2 :size="16" />
+          <span>清除日志</span>
+        </div>
+        <div class="operation-btn" @click="openFormatDialog">
+          <FileText :size="16" />
+          <span>格式模板</span>
         </div>
       </div>
+      <div v-if="loading" class="log-loading">正在加载日志...</div>
+      <div v-else-if="errorMessage" class="log-error">{{ errorMessage }}</div>
+      <template v-else>
+        <ElEmpty
+          v-if="!filteredLogs.length"
+          description="暂无符合条件的日志"
+          class="log-empty"
+        />
+        <div v-else class="plain-log-list">
+          <div
+            v-for="(log, index) in filteredLogs"
+            :key="createLogKey(log, index)"
+            class="plain-log-line"
+            :class="statusClass(log.data.statusCode)"
+          >
+            <div class="log-content">
+              {{ renderPlainLog(log) }}
+            </div>
+            <div class="log-actions">
+              <el-button size="small" @click="showLogDetail(log)">
+                完整数据
+              </el-button>
+            </div>
+          </div>
+        </div>
+      </template>
+    </div>
+  </div>
+
+  <el-dialog
+    v-model="detailDialogVisible"
+    title="完整日志数据"
+    width="800px"
+    destroy-on-close
+  >
+    <s-json-editor
+      v-model="currentLogJson"
+      :read-only="true"
+      :auto-height="true"
+      :max-height="600"
+    />
+  </el-dialog>
+
+  <el-dialog
+    v-model="formatDialogVisible"
+    title="日志格式模板"
+    width="900px"
+    destroy-on-close
+  >
+    <div class="format-dialog-content">
+      <div class="format-hint" v-if="unknownTemplateVariables.length">
+        未识别变量：
+        <span v-for="item in unknownTemplateVariables" :key="item" class="format-hint-token">${{ item }}</span>
+      </div>
       <textarea
-        v-model="formatTemplate"
+        v-model="tempFormatTemplate"
         class="format-textarea"
         spellcheck="false"
       ></textarea>
+      <div class="format-actions">
+        <el-button @click="resetFormatTemplate">重置为默认</el-button>
+        <el-button type="primary" @click="saveFormatTemplate">保存</el-button>
+      </div>
       <div class="format-variables">
         <div class="format-variables-title">可用变量</div>
         <div class="format-variables-grid">
@@ -136,103 +119,38 @@
         </div>
       </div>
     </div>
-
-    <div class="log-container">
-      <div v-if="loading" class="log-loading">正在加载日志...</div>
-      <div v-else-if="errorMessage" class="log-error">{{ errorMessage }}</div>
-      <template v-else>
-        <ElEmpty
-          v-if="!filteredLogs.length"
-          description="暂无符合条件的日志"
-          class="log-empty"
-        />
-        <div v-else>
-          <div v-if="displayMode === 'card'" class="card-grid">
-            <div v-for="(log, index) in filteredLogs" :key="createLogKey(log, index)" class="log-card">
-              <div class="log-card-header">
-                <div class="log-status" :class="statusClass(log.data.statusCode)">{{ log.data.statusCode }}</div>
-                <div class="log-method">{{ log.data.method }}</div>
-                <div class="log-path" :title="log.data.url">{{ log.data.path || log.data.url }}</div>
-                <div class="log-time">{{ formatTimestamp(log.timestamp) }}</div>
-              </div>
-              <div class="log-card-meta">
-                <div class="meta-item"><span class="meta-label">IP</span>{{ log.data.ip }}</div>
-                <div class="meta-item"><span class="meta-label">耗时</span>{{ log.data.responseTime }}ms</div>
-                <div class="meta-item"><span class="meta-label">字节</span>{{ log.data.bytesSent }}</div>
-                <div class="meta-item"><span class="meta-label">路由</span>{{ log.data.matchedRoute || '未匹配' }}</div>
-              </div>
-              <button class="toggle-button" type="button" @click="toggleExpanded(log, index)">
-                {{ isExpanded(log, index) ? '收起详情' : '展开详情' }}
-              </button>
-              <div v-if="isExpanded(log, index)" class="log-card-body">
-                <div class="detail-grid">
-                  <div class="detail-item"><span>协议</span>{{ log.data.protocol || 'HTTP' }}</div>
-                  <div class="detail-item"><span>主机名</span>{{ log.data.hostname || '-' }}</div>
-                  <div class="detail-item"><span>Referer</span>{{ log.data.referer || '-' }}</div>
-                  <div class="detail-item"><span>User-Agent</span>{{ log.data.userAgent || '-' }}</div>
-                  <div class="detail-item"><span>Mock 延迟</span>{{ log.data.mockDelay }}ms</div>
-                  <div class="detail-item"><span>HTTP 版本</span>{{ log.data.httpVersion }}</div>
-                  <div class="detail-item"><span>内容类型</span>{{ log.data.contentType || '-' }}</div>
-                  <div class="detail-item"><span>内容长度</span>{{ log.data.contentLength || '-' }}</div>
-                  <div class="detail-item"><span>Query</span>{{ log.data.query || '-' }}</div>
-                </div>
-                <div class="detail-section">
-                  <div class="detail-title">Headers</div>
-                  <pre class="detail-pre">{{ formatHeaders(log.data.headers) }}</pre>
-                </div>
-                <div v-if="log.data.body" class="detail-section">
-                  <div class="detail-title">Body</div>
-                  <pre class="detail-pre">{{ log.data.body }}</pre>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div v-else class="plain-log-list">
-            <div
-              v-for="(log, index) in filteredLogs"
-              :key="createLogKey(log, index)"
-              class="plain-log-line"
-              :class="statusClass(log.data.statusCode)"
-            >
-              {{ renderPlainLog(log) }}
-            </div>
-          </div>
-        </div>
-      </template>
-    </div>
-  </div>
+  </el-dialog>
 </template>
 
 <script lang="ts" setup>
 import { ref, reactive, computed, watch, onMounted, onUnmounted } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useApidocTas } from '@/store/apidoc/tabs'
-import { ElEmpty, ElInputNumber } from 'element-plus'
+import { ElEmpty, ElButton, ElInput, ElSelect, ElOption, ElDialog, ElMessageBox } from 'element-plus'
 import type { MockLog } from '@src/types/mockNode'
 import { httpMockLogsCache } from '@/cache/mock/httpMock/httpMockLogsCache'
+import SJsonEditor from '@/components/common/json-editor/g-json-editor.vue'
+import { Trash2, FileText } from 'lucide-vue-next'
 
-const defaultTemplate = '$remote_addr - $remote_user [$time_local] "$request" $status $body_bytes_sent "$http_referer" "$http_user_agent" $request_time'
+const defaultTemplate = '[$time_local] $remote_addr - $remote_user "$request" $status $body_bytes_sent "$http_referer" "$http_user_agent" $response_time_ms ms'
 
 const apidocTabsStore = useApidocTas()
 const { currentSelectTab } = storeToRefs(apidocTabsStore)
 const loading = ref(false)
 const errorMessage = ref('')
 const requestLogs = ref<Extract<MockLog, { type: 'request' }>[]>([])
-const displayMode = ref<'card' | 'plain'>('plain')
-const showAdvancedFilters = ref(false)
-const showFormatPanel = ref(false)
 const formatTemplate = ref(defaultTemplate)
-const lastFetchedAt = ref<number | null>(null)
-const expandedMap = reactive<Record<string, boolean>>({})
 const isRealtimeMode = ref(true)
 const MAX_LOGS_IN_MEMORY = 1000
+const detailDialogVisible = ref(false)
+const currentLogJson = ref('')
+const formatDialogVisible = ref(false)
+const tempFormatTemplate = ref('')
 
 const filters = reactive({
   keyword: '',
   method: '',
   status: '',
-  minResponse: '',
-  maxResponse: '',
 })
 
 const templateVariables = [
@@ -268,8 +186,6 @@ const methodOptions = computed(() => {
 const filteredLogs = computed(() => {
   const keyword = filters.keyword.trim().toLowerCase()
   const statusFilter = filters.status.trim()
-  const minResponse = filters.minResponse ? Number(filters.minResponse) : null
-  const maxResponse = filters.maxResponse ? Number(filters.maxResponse) : null
 
   return requestLogs.value
     .slice()
@@ -278,12 +194,6 @@ const filteredLogs = computed(() => {
         return false
       }
       if (statusFilter && String(log.data.statusCode) !== statusFilter) {
-        return false
-      }
-      if (minResponse !== null && !Number.isNaN(minResponse) && log.data.responseTime < minResponse) {
-        return false
-      }
-      if (maxResponse !== null && !Number.isNaN(maxResponse) && log.data.responseTime > maxResponse) {
         return false
       }
       if (!keyword) {
@@ -315,7 +225,7 @@ const templateVariableResolvers: Record<string, (log: Extract<MockLog, { type: '
   body_bytes_sent: log => String(log.data.bytesSent ?? 0),
   http_referer: log => log.data.referer || '-',
   http_user_agent: log => log.data.userAgent || '-',
-  request_time: log => formatDurationSeconds(log.data.responseTime),
+  request_time: log => ((log.data.responseTime ?? 0) / 1000).toFixed(3),
   matched_route: log => log.data.matchedRoute || '-',
   mock_delay: log => `${log.data.mockDelay ?? 0}`,
   protocol: log => log.data.protocol || (log.data.httpVersion?.startsWith('2') ? 'HTTP/2' : 'HTTP/1.1'),
@@ -327,7 +237,7 @@ const templateVariableResolvers: Record<string, (log: Extract<MockLog, { type: '
 }
 
 const unknownTemplateVariables = computed(() => {
-  const matches = formatTemplate.value.match(/\$[a-zA-Z_]+/g) || []
+  const matches = tempFormatTemplate.value.match(/\$[a-zA-Z_]+/g) || []
   const keys = matches.map(item => item.slice(1))
   return Array.from(new Set(keys.filter(key => !templateVariableKeys.value.includes(key))))
 })
@@ -338,7 +248,6 @@ const fetchLogs = async () => {
   if (!currentNodeId.value) {
     requestLogs.value = []
     errorMessage.value = ''
-    lastFetchedAt.value = null
     return
   }
   loading.value = true
@@ -346,7 +255,6 @@ const fetchLogs = async () => {
   try {
     const allLogs = await httpMockLogsCache.getLogsByNodeId(currentNodeId.value)
     requestLogs.value = allLogs.filter((log): log is Extract<MockLog, { type: 'request' }> => log.type === 'request')
-    lastFetchedAt.value = Date.now()
   } catch (error) {
     errorMessage.value = error instanceof Error ? error.message : '日志加载失败'
   } finally {
@@ -373,47 +281,42 @@ const handleLogsBatch = (logs: MockLog[]) => {
   if (requestLogs.value.length > MAX_LOGS_IN_MEMORY) {
     requestLogs.value = requestLogs.value.slice(-MAX_LOGS_IN_MEMORY)
   }
-  lastFetchedAt.value = Date.now()
 }
-// 切换实时模式
-const toggleRealtimeMode = () => {
-  isRealtimeMode.value = !isRealtimeMode.value
-}
-
-const toggleAdvancedFilters = () => {
-  showAdvancedFilters.value = !showAdvancedFilters.value
-}
-
-const toggleFormatPanel = () => {
-  if (displayMode.value !== 'plain') {
-    return
+// 清除日志
+const handleClearLogs = async () => {
+  try {
+    await ElMessageBox.confirm('确定要清除所有日志吗？此操作不可恢复。', '确认清除', {
+      confirmButtonText: '确定',
+      cancelButtonText: '取消',
+      type: 'warning',
+    })
+    if (currentNodeId.value) {
+      await httpMockLogsCache.clearLogsByNodeId(currentNodeId.value)
+    }
+    requestLogs.value = []
+  } catch (error) {
+    // 用户取消操作
   }
-  showFormatPanel.value = !showFormatPanel.value
 }
-
+// 打开格式模板弹窗
+const openFormatDialog = () => {
+  tempFormatTemplate.value = formatTemplate.value
+  formatDialogVisible.value = true
+}
+// 保存格式模板
+const saveFormatTemplate = () => {
+  formatTemplate.value = tempFormatTemplate.value
+  formatDialogVisible.value = false
+}
+// 重置格式模板
+const resetFormatTemplate = () => {
+  tempFormatTemplate.value = defaultTemplate
+}
 const handleResetFilters = () => {
   filters.keyword = ''
   filters.method = ''
   filters.status = ''
-  filters.minResponse = ''
-  filters.maxResponse = ''
 }
-
-const formatDurationSeconds = (milliseconds: number) => {
-  if (!milliseconds && milliseconds !== 0) {
-    return '0'
-  }
-  return (milliseconds / 1000).toFixed(3)
-}
-
-const formatHeaders = (headers: Record<string, string>) => {
-  const entries = Object.entries(headers || {})
-  if (!entries.length) {
-    return '无 Headers'
-  }
-  return entries.map(([key, value]) => `${key}: ${value}`).join('\n')
-}
-
 const formatTimestamp = (value: number | null) => {
   if (!value) {
     return '-'
@@ -455,23 +358,11 @@ const statusClass = (status: number) => {
   }
   return 'status-success'
 }
-
-const toggleExpanded = (log: Extract<MockLog, { type: 'request' }>, index: number) => {
-  const key = createLogKey(log, index)
-  expandedMap[key] = !expandedMap[key]
+// 显示日志详情
+const showLogDetail = (log: Extract<MockLog, { type: 'request' }>) => {
+  currentLogJson.value = JSON.stringify(log, null, 2)
+  detailDialogVisible.value = true
 }
-
-const isExpanded = (log: Extract<MockLog, { type: 'request' }>, index: number) => {
-  const key = createLogKey(log, index)
-  return Boolean(expandedMap[key])
-}
-
-watch(displayMode, value => {
-  if (value === 'card') {
-    showFormatPanel.value = false
-  }
-})
-
 watch(currentNodeId, (value, oldValue) => {
   if (value && value !== oldValue) {
     fetchLogs()
@@ -493,152 +384,25 @@ onUnmounted(() => {
   flex-direction: column;
   gap: 12px;
   height: calc(100vh - var(--apiflow-header-height) - var(--apiflow-doc-nav-height) - 50px);
-  padding: 20px;
+  padding: 0 20px 20px 20px;
   background: var(--white);
   overflow: hidden;
 }
-
-/* 工具栏 */
-.toolbar {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 12px;
-  flex-shrink: 0;
-}
-
-.toolbar-left {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.toolbar-title {
-  font-size: 16px;
-  font-weight: 600;
-  color: var(--gray-800);
-}
-
-.toolbar-meta {
-  font-size: var(--font-size-xs);
-  color: var(--gray-500);
-}
-
-.toolbar-actions {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-.realtime-button {
-  border: 1px solid var(--gray-300);
-  background: var(--white);
-  color: var(--gray-700);
-  font-size: var(--font-size-sm);
-  padding: 8px 12px;
-  border-radius: var(--border-radius-base);
-  cursor: pointer;
-  transition: all 0.2s ease;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-.realtime-button.is-active {
-  background: var(--el-color-success-light-9);
-  color: var(--el-color-success);
-  border-color: var(--el-color-success-light-5);
-}
-.realtime-button.is-active .realtime-icon {
-  color: var(--el-color-success);
-  animation: pulse 1.5s ease-in-out infinite;
-}
-.realtime-button:hover {
-  border-color: var(--primary);
-}
-.realtime-icon {
-  font-size: 10px;
-  line-height: 1;
-}
-@keyframes pulse {
-  0%, 100% {
-    opacity: 1;
-  }
-  50% {
-    opacity: 0.4;
-  }
-}
-.mode-switch {
-  display: inline-flex;
-  background: var(--gray-200);
-  border-radius: var(--border-radius-base);
-  padding: 2px;
-}
-
-.mode-button {
-  border: none;
-  background: transparent;
-  color: var(--gray-600);
-  font-size: var(--font-size-sm);
-  padding: 6px 12px;
-  border-radius: var(--border-radius-sm);
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.mode-button.is-active {
-  background: var(--white);
-  color: var(--gray-800);
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
-}
-
-.mode-button:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-.refresh-button {
-  border: none;
-  background: var(--primary);
-  color: var(--white);
-  font-size: var(--font-size-sm);
-  padding: 8px 16px;
-  border-radius: var(--border-radius-base);
-  cursor: pointer;
-  transition: background 0.2s ease;
-}
-
-.refresh-button:hover {
-  background: var(--el-color-primary-light-3);
-}
-
-.refresh-button:disabled {
-  background: var(--gray-400);
-  cursor: not-allowed;
-}
-
 /* 筛选器 */
 .filters {
   display: flex;
   flex-direction: column;
   gap: 12px;
-  background: var(--gray-100);
-  padding: 16px;
+  padding: 0 16px 16px 16px;
   border-radius: var(--border-radius-base);
   flex-shrink: 0;
 }
-
-.filters-header {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: flex-end;
-  justify-content: space-between;
+.filters-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: 12px;
+  align-items: end;
 }
-
-.keyword-group {
-  flex: 1;
-  min-width: 220px;
-}
-
 .filter-group {
   display: flex;
   flex-direction: column;
@@ -650,223 +414,20 @@ onUnmounted(() => {
   font-weight: 500;
   color: var(--gray-700);
 }
-
-.filter-input,
-.filter-select {
-  width: 100%;
-  padding: 8px 12px;
-  border-radius: var(--border-radius-base);
-  border: 1px solid var(--gray-300);
-  background: var(--white);
-  font-size: var(--font-size-sm);
-  color: var(--gray-800);
-  transition: border 0.2s ease, box-shadow 0.2s ease;
-}
-
-.filter-input:focus,
-.filter-select:focus {
-  outline: none;
-  border-color: var(--primary);
-  box-shadow: 0 0 0 2px var(--el-color-primary-light-9);
-}
-
 .filter-actions {
   display: flex;
-  align-items: center;
+  align-items: flex-end;
   gap: 8px;
 }
-
-.icon-button {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  border: 1px solid var(--gray-300);
-  background: var(--white);
-  color: var(--gray-600);
-  font-size: var(--font-size-sm);
-  padding: 8px 12px;
-  border-radius: var(--border-radius-base);
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.icon-button .icon {
-  display: inline-flex;
-  width: 16px;
-  height: 16px;
-}
-
-.icon-button svg {
-  width: 100%;
-  height: 100%;
-}
-
-.icon-button.is-active {
-  border-color: var(--primary);
-  color: var(--primary);
-  background: var(--el-color-primary-light-9);
-}
-
-.icon-button:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-.icon-button:not(:disabled):hover {
-  border-color: var(--gray-400);
-  color: var(--gray-800);
-}
-
-.advanced-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 12px;
-}
-
-.filter-input-group {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.filter-input-divider {
-  color: var(--gray-500);
-  font-size: var(--font-size-xs);
-}
-
-.advanced-footer {
-  display: flex;
-  justify-content: flex-end;
-}
-
-.ghost-button {
-  border: 1px solid var(--gray-300);
-  background: var(--white);
-  color: var(--gray-600);
-  font-size: var(--font-size-sm);
-  padding: 8px 16px;
-  border-radius: var(--border-radius-base);
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.ghost-button:hover {
-  border-color: var(--gray-400);
-  color: var(--gray-800);
-}
-
-/* 格式模板面板 */
-.format-panel {
-  background: var(--gray-100);
-  border-radius: var(--border-radius-base);
-  padding: 16px;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  flex-shrink: 0;
-}
-
-.format-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 12px;
-}
-
-.format-title {
-  font-size: var(--font-size-base);
-  font-weight: 600;
-  color: var(--gray-800);
-}
-
-.format-hint {
-  font-size: var(--font-size-xs);
-  color: var(--danger);
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  flex-wrap: wrap;
-}
-
-.format-hint-token {
-  padding: 2px 6px;
-  background: var(--el-color-danger-light-9);
-  border-radius: var(--border-radius-sm);
-  font-weight: 500;
-}
-
-.format-textarea {
-  width: 100%;
-  min-height: 80px;
-  border-radius: var(--border-radius-base);
-  border: 1px solid var(--gray-300);
-  padding: 12px;
-  font-size: var(--font-size-sm);
-  font-family: 'Consolas', 'Monaco', monospace;
-  background: var(--white);
-  color: var(--gray-800);
-  transition: border 0.2s ease, box-shadow 0.2s ease;
-}
-
-.format-textarea:focus {
-  outline: none;
-  border-color: var(--primary);
-  box-shadow: 0 0 0 2px var(--el-color-primary-light-9);
-}
-
-.format-variables {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.format-variables-title {
-  font-size: var(--font-size-sm);
-  font-weight: 600;
-  color: var(--gray-700);
-}
-
-.format-variables-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 8px;
-}
-
-.format-variable-item {
-  border: 1px solid var(--gray-300);
-  border-radius: var(--border-radius-base);
-  background: var(--white);
-  padding: 10px;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.variable-key {
-  font-weight: 600;
-  font-size: var(--font-size-xs);
-  color: var(--gray-800);
-}
-
-.variable-desc {
-  font-size: var(--font-size-xs);
-  color: var(--gray-600);
-}
-
-.variable-example {
-  font-size: var(--font-size-xs);
-  color: var(--gray-500);
-}
-
 /* 日志容器 */
 .log-container {
   background: var(--white);
   border-radius: var(--border-radius-base);
-  border: 1px solid var(--gray-300);
-  padding: 16px;
+  padding: 0 16px 16px 16px;
   flex: 1;
   min-height: 0;
   overflow-y: auto;
+  border: 1px solid var(--gray-300);
 }
 
 /* 自定义滚动条样式 */
@@ -903,172 +464,22 @@ onUnmounted(() => {
 .log-empty :deep(.el-empty__description) {
   color: var(--gray-500);
 }
-
-/* 卡片模式 */
-.card-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-  gap: 12px;
-}
-
-.log-card {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  border: 1px solid var(--gray-300);
-  border-radius: var(--border-radius-base);
-  padding: 16px;
-  background: var(--white);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-
-.log-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-}
-
-.log-card-header {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.log-status {
-  padding: 4px 8px;
-  border-radius: var(--border-radius-base);
-  font-size: var(--font-size-xs);
-  font-weight: 600;
-}
-
 .status-success {
   background: var(--el-color-success-light-9);
   color: var(--el-color-success-dark-2);
 }
-
 .status-notice {
   background: var(--el-color-info-light-9);
   color: var(--el-color-info-dark-2);
 }
-
 .status-warn {
   background: var(--el-color-warning-light-9);
   color: var(--el-color-warning-dark-2);
 }
-
 .status-error {
   background: var(--el-color-danger-light-9);
   color: var(--el-color-danger-dark-2);
 }
-
-.log-method {
-  font-weight: 600;
-  font-size: var(--font-size-sm);
-  color: var(--gray-800);
-  padding: 2px 8px;
-  border-radius: var(--border-radius-base);
-  border: 1px solid var(--gray-300);
-  background: var(--gray-100);
-}
-
-.log-path {
-  flex: 1;
-  font-size: var(--font-size-sm);
-  color: var(--gray-700);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.log-time {
-  font-size: var(--font-size-xs);
-  color: var(--gray-500);
-}
-
-.log-card-meta {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 8px;
-  background: var(--gray-100);
-  border-radius: var(--border-radius-base);
-  padding: 12px;
-}
-
-.meta-item {
-  font-size: var(--font-size-xs);
-  color: var(--gray-600);
-  display: flex;
-  gap: 6px;
-}
-
-.meta-label {
-  font-weight: 600;
-  color: var(--gray-800);
-}
-
-.toggle-button {
-  align-self: flex-end;
-  border: none;
-  background: transparent;
-  color: var(--primary);
-  font-size: var(--font-size-xs);
-  cursor: pointer;
-  transition: color 0.2s ease;
-}
-
-.toggle-button:hover {
-  color: var(--el-color-primary-light-3);
-}
-
-.log-card-body {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  border-top: 1px solid var(--gray-300);
-  padding-top: 12px;
-}
-
-.detail-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-  gap: 8px;
-}
-
-.detail-item {
-  font-size: var(--font-size-xs);
-  color: var(--gray-600);
-  display: flex;
-  gap: 4px;
-}
-
-.detail-item span {
-  font-weight: 600;
-  color: var(--gray-800);
-}
-
-.detail-section {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.detail-title {
-  font-size: var(--font-size-xs);
-  font-weight: 600;
-  color: var(--gray-800);
-}
-
-.detail-pre {
-  max-height: 180px;
-  overflow: auto;
-  background: var(--gray-900);
-  color: var(--gray-200);
-  border-radius: var(--border-radius-base);
-  padding: 12px;
-  font-size: var(--font-size-xs);
-  line-height: 1.6;
-  font-family: 'Consolas', 'Monaco', monospace;
-}
-
 /* 普通模式 */
 .plain-log-list {
   display: flex;
@@ -1087,9 +498,127 @@ onUnmounted(() => {
   white-space: pre-wrap;
   word-break: break-all;
   transition: background 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 12px;
 }
 
 .plain-log-line:hover {
   background: var(--gray-200);
+}
+
+.log-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.log-actions {
+  flex-shrink: 0;
+}
+/* 操作区域 */
+.operation {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 8px;
+  /* margin-bottom: 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--gray-200); */
+}
+.operation-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 8px;
+  color: var(--gray-700);
+  font-size: 12px;
+  cursor: pointer;
+  transition: color 0.2s ease;
+  user-select: none;
+}
+.operation-btn:hover {
+  color: var(--primary);
+}
+/* 格式模板弹窗内容 */
+.format-dialog-content {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.format-hint {
+  font-size: var(--font-size-xs);
+  color: var(--danger);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.format-hint-token {
+  padding: 2px 6px;
+  background: var(--el-color-danger-light-9);
+  border-radius: var(--border-radius-sm);
+  font-weight: 500;
+}
+.format-textarea {
+  width: 100%;
+  min-height: 120px;
+  border-radius: var(--border-radius-base);
+  border: 1px solid var(--gray-300);
+  padding: 12px;
+  font-size: var(--font-size-sm);
+  font-family: 'Consolas', 'Monaco', monospace;
+  background: var(--white);
+  color: var(--gray-800);
+  transition: border 0.2s ease, box-shadow 0.2s ease;
+  resize: vertical;
+}
+.format-textarea:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 2px var(--el-color-primary-light-9);
+}
+.format-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+.format-variables {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.format-variables-title {
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  color: var(--gray-700);
+}
+.format-variables-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 8px;
+  max-height: 400px;
+  overflow-y: auto;
+}
+.format-variable-item {
+  border: 1px solid var(--gray-300);
+  border-radius: var(--border-radius-base);
+  background: var(--white);
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.variable-key {
+  font-weight: 600;
+  font-size: var(--font-size-xs);
+  color: var(--gray-800);
+}
+.variable-desc {
+  font-size: var(--font-size-xs);
+  color: var(--gray-600);
+}
+.variable-example {
+  font-size: var(--font-size-xs);
+  color: var(--gray-500);
 }
 </style>
