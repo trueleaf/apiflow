@@ -1,7 +1,3 @@
-/**
- * WebSocket历史记录缓存 - 基于IndexedDB存储
- */
-
 import { openDB, IDBPDatabase } from 'idb';
 import { WebSocketHistory } from '@src/types/history';
 import { WebSocketNode } from '@src/types/websocketNode';
@@ -60,9 +56,7 @@ class WebSocketHistoryCache {
     return this.db;
   }
 
-  /**
-   * 根据节点ID获取该节点的所有历史记录
-   */
+    // 根据节点ID获取该节点的所有历史记录
   async getWsHistoryListByNodeId(nodeId: string): Promise<WebSocketHistory[]> {
     try {
       const db = await this.ensureDB();
@@ -86,9 +80,7 @@ class WebSocketHistoryCache {
     }
   }
 
-  /**
-   * 根据历史记录ID获取单条历史记录的详细信息
-   */
+    // 根据历史记录ID获取单条历史记录的详细信息
   async getWsHistoryById(historyId: string): Promise<WebSocketHistory | null> {
     try {
       const db = await this.ensureDB();
@@ -111,9 +103,7 @@ class WebSocketHistoryCache {
     }
   }
 
-  /**
-   * 为指定节点添加新的历史记录
-   */
+    // 为指定节点添加新的历史记录
   async addWsHistoryByNodeId(nodeId: string, node: WebSocketNode, operatorId?: string, operatorName?: string): Promise<boolean> {
     try {
       const db = await this.ensureDB();
@@ -157,9 +147,7 @@ class WebSocketHistoryCache {
     }
   }
 
-  /**
-   * 删除指定节点的历史记录
-   */
+    // 删除指定节点的历史记录
   async deleteWsHistoryByNode(nodeId: string, historyIds?: string[]): Promise<boolean> {
     try {
       const db = await this.ensureDB();
@@ -191,9 +179,7 @@ class WebSocketHistoryCache {
     }
   }
 
-  /**
-   * 清空所有历史记录数据
-   */
+    // 清空所有历史记录数据
   async clearWsHistory(): Promise<boolean> {
     try {
       const db = await this.ensureDB();

@@ -1,7 +1,3 @@
-/**
- * Header相关缓存
- */
-
 // Header Tab类型定义
 type HeaderTab = {
   id: string;

@@ -1,7 +1,3 @@
-/**
- * 用户操作状态缓存
- */
-
 import type { WebsocketActiveTabType } from '@src/types/websocketNode';
 
 class UserState {
@@ -15,7 +11,6 @@ class UserState {
       return 'projectList';
     }
   }
-
   // 设置首页激活的tab（项目列表/团队管理）
   setActiveHomeTab(activeTab: string) {
     try {
@@ -25,7 +20,6 @@ class UserState {
       localStorage.setItem('userState/home/activeTab', 'projectList');
     }
   }
-
   // 获取websocket节点激活的参数tab
   getWsNodeActiveParamsTab(id: string): WebsocketActiveTabType | null {
     try {
@@ -40,7 +34,6 @@ class UserState {
       return null;
     }
   }
-
   // 设置websocket节点激活的参数tab
   setWsNodeActiveParamsTab(id: string, val: WebsocketActiveTabType) {
     try {
@@ -54,7 +47,6 @@ class UserState {
       localStorage.setItem('userState/websocketNode/activeParamsTab', JSON.stringify(data));
     }
   }
-
   // 获取HTTP节点激活的参数tab
   getHttpNodeActiveParamsTab(id: string): string | null {
     try {
@@ -69,7 +61,6 @@ class UserState {
       return null;
     }
   }
-
   // 设置HTTP节点激活的参数tab
   setHttpNodeActiveParamsTab(id: string, val: string) {
     try {
@@ -83,7 +74,6 @@ class UserState {
       localStorage.setItem('userState/httpNode/activeParamsTab', JSON.stringify(data));
     }
   }
-
   // 设置分享文档参数块折叠状态
   setShareCollapseState(tabId: string, blockStates: Record<string, boolean>) {
     try {
@@ -97,7 +87,6 @@ class UserState {
       localStorage.setItem('userState/share/collapse', JSON.stringify(data));
     }
   }
-
   // 获取分享文档参数块折叠状态
   getShareCollapseState(tabId: string): Record<string, boolean> | null {
     try {
@@ -112,7 +101,6 @@ class UserState {
       return null;
     }
   }
-
   // 更新单个分享文档参数块折叠状态
   updateShareBlockCollapseState(tabId: string, blockName: string, isExpanded: boolean) {
     try {
@@ -129,7 +117,6 @@ class UserState {
       localStorage.setItem('userState/share/collapse', JSON.stringify(data));
     }
   }
-
   // 获取当前活跃的本地数据管理菜单
   getActiveLocalDataMenu(): string {
     try {
@@ -140,7 +127,6 @@ class UserState {
       return 'localStorage';
     }
   }
-
   // 设置当前活跃的本地数据管理菜单
   setActiveLocalDataMenu(activeMenu: string) {
     try {
@@ -150,7 +136,6 @@ class UserState {
       localStorage.setItem('userState/localData/activeMenu', 'localStorage');
     }
   }
-
   // 设置选中的缓存卡片类型
   setSelectedCacheType(cacheType: 'localStorage' | 'indexedDB' | 'backup' | 'restore') {
     try {
@@ -160,7 +145,6 @@ class UserState {
       localStorage.setItem('userState/cacheManager/cacheType', 'localStorage');
     }
   }
-
   // 获取选中的缓存卡片类型
   getSelectedCacheType(): 'localStorage' | 'indexedDB' | 'backup' | 'restore' {
     try {

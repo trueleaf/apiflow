@@ -1,7 +1,3 @@
-/**
- * httpMock文档缓存
- */
-
 import { MockHttpNode } from '@src/types/mockNode';
 
 class HttpMockNodeCache {

@@ -22,7 +22,6 @@ class RuntimeCache {
       return false
     }
   }
-
   // 获取用户信息
   getUserInfo(): PermissionUserInfo | null {
     try {
@@ -43,7 +42,6 @@ class RuntimeCache {
       return null
     }
   }
-
   // 设置用户信息
   setUserInfo(userInfo: PermissionUserInfo): boolean {
     try {
@@ -59,7 +57,6 @@ class RuntimeCache {
       return false
     }
   }
-
   // 清除用户信息
   clearUserInfo(): boolean {
     try {

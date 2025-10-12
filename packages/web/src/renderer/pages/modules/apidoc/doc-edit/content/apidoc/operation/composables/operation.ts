@@ -1,9 +1,3 @@
-/*
-|--------------------------------------------------------------------------
-| 请求操作：刷新、保存接口、发送请求等
-|--------------------------------------------------------------------------
-|
-*/
 import { ref, Ref, computed } from 'vue'
 import { router } from '@/router/index'
 import { sendRequest, stopRequest } from '@/server/request/request'

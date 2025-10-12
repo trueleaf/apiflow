@@ -7,9 +7,7 @@ import type { WebsocketSendMessageTemplate } from '@src/types/websocketNode';
 class WebSocketTemplateCache {
   private readonly STORAGE_KEY = 'websocket/messageTemplates';
 
-  /**
-   * 获取所有消息模板
-   */
+    // 获取所有消息模板
   getAllTemplates(): WebsocketSendMessageTemplate[] {
     try {
       const data = localStorage.getItem(this.STORAGE_KEY);
@@ -25,9 +23,7 @@ class WebSocketTemplateCache {
     }
   }
 
-  /**
-   * 保存消息模板
-   */
+    // 保存消息模板
   saveTemplate(template: WebsocketSendMessageTemplate): void {
     try {
       const templates = this.getAllTemplates();
@@ -39,9 +35,7 @@ class WebSocketTemplateCache {
     }
   }
 
-  /**
-   * 根据ID删除消息模板
-   */
+    // 根据ID删除消息模板
   deleteTemplate(id: string): boolean {
     try {
       const templates = this.getAllTemplates();
@@ -58,9 +52,7 @@ class WebSocketTemplateCache {
     }
   }
 
-  /**
-   * 根据ID获取消息模板
-   */
+    // 根据ID获取消息模板
   getTemplateById(id: string): WebsocketSendMessageTemplate | null {
     try {
       const templates = this.getAllTemplates();
@@ -71,9 +63,7 @@ class WebSocketTemplateCache {
     }
   }
 
-  /**
-   * 更新消息模板
-   */
+    // 更新消息模板
   updateTemplate(id: string, updates: Partial<WebsocketSendMessageTemplate>): boolean {
     try {
       const templates = this.getAllTemplates();
@@ -94,9 +84,7 @@ class WebSocketTemplateCache {
     }
   }
 
-  /**
-   * 清空所有消息模板
-   */
+    // 清空所有消息模板
   clearAllTemplates(): void {
     try {
       localStorage.removeItem(this.STORAGE_KEY);

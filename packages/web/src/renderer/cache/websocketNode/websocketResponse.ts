@@ -1,7 +1,3 @@
-/**
- * WebSocket返回数据缓存 - 基于IndexedDB存储
- */
-
 import { openDB, IDBPDatabase } from 'idb';
 import { WebsocketResponse } from '@src/types/websocketNode';
 import { config } from '@src/config/config';
@@ -55,11 +51,7 @@ class WebsocketResponseCache {
     }
     return this.db;
   }
-  /**
-   * 存储数据
-   * @param nodeId 节点ID
-   * @param responses WebSocket响应数据数组
-   */
+    // 存储数据
   async setData(nodeId: string, responses: WebsocketResponse[]): Promise<void> {
     try {
       const db = await this.ensureDB();
@@ -89,11 +81,7 @@ class WebsocketResponseCache {
       console.error('存储WebSocket响应数据失败:', error);
     }
   }
-  /**
-   * 存储单个响应数据
-   * @param nodeId 节点ID
-   * @param response 单个WebSocket响应数据
-   */
+    // 存储单个响应数据
   async setSingleData(nodeId: string, response: WebsocketResponse): Promise<void> {
     try {
       // 检查单个响应大小限制
@@ -122,9 +110,7 @@ class WebsocketResponseCache {
     }
   }
 
-  /**
-   * 获取数据
-   */
+    // 获取数据
   async getData(nodeId: string): Promise<WebsocketResponse[]> {
     try {
       const db = await this.ensureDB();
@@ -142,10 +128,7 @@ class WebsocketResponseCache {
     }
   }
 
-  /**
-   * 清空数据
-   * @param nodeId 节点ID，如果不提供则清空所有数据
-   */
+    // 清空数据
   async clearData(nodeId?: string): Promise<void> {
     try {
       const db = await this.ensureDB();

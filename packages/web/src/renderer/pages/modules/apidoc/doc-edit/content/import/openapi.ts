@@ -1,13 +1,3 @@
-/*
-|--------------------------------------------------------------------------
-| 转换swagger，openapi格式数据
-|--------------------------------------------------------------------------
-| jsonSchema     https://json-schema.org/
-| openapi        https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.0.md
-| swaggerEditor  https://editor.swagger.io/
-|
-*/
-
 import jsontoxml from 'jsontoxml'
 import type { OpenAPIV3 } from 'openapi-types';
 import type { ApidocProperty, HttpNode, HttpNodePropertyType, HttpNodeRequestMethod, HttpNodeBodyRawType, HttpNodeResponseContentType } from '@src/types'
@@ -87,9 +77,7 @@ class OpenApiTranslator {
     this.openApiData = data; //openapi数据
   }
 
-  /**
-     * 获取openapi版本信息
-     */
+    // 获取openapi版本信息
   getVersion(): string {
     if (!this.openApiData.openapi) {
       console.warn(i18n.global.t('缺少Version信息'));
@@ -98,9 +86,7 @@ class OpenApiTranslator {
     return this.openApiData.openapi
   }
 
-  /**
-     * 获取项目信息 https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.0.md#infoObject
-     */
+    // 获取项目信息 https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.0.md#infoObject
   getProjectInfo(): ProjectInfo {
     const openApiInfo = this.openApiData.info;
     if (!openApiInfo) {
@@ -112,9 +98,7 @@ class OpenApiTranslator {
     };
   }
 
-  /**
-     * 获取服务器信息 https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.0.md#serverObject
-     */
+    // 获取服务器信息 https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.0.md#serverObject
   getServersInfo(): ServerInfo[] {
     const openApiServers = this.openApiData.servers;
     const result: ServerInfo[] = [];
@@ -151,9 +135,7 @@ class OpenApiTranslator {
     return result;
   }
 
-  /**
-     * 获取文档信息 https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.0.md#pathItemObject
-     */
+    // 获取文档信息 https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.0.md#pathItemObject
   getDocsInfo(folderNamedType: 'tag' | 'url' | 'none' = 'none'): HttpNode[] {
     const serversInfo = this.getServersInfo();
     const openApiDocInfo = this.openApiData.paths;
@@ -256,9 +238,7 @@ class OpenApiTranslator {
     return docsResult;
   }
 
-  /**
-     * 解析parameter参数
-     */
+    // 解析parameter参数
   convertParameters(parameters: OpenAPIV3.PathItemObject['parameters']): ConvertParams {
     const result = {
       paths: [],
@@ -300,9 +280,7 @@ class OpenApiTranslator {
     return result;
   }
 
-  /**
-     * 解析requestBody
-     */
+    // 解析requestBody
   convertRequestBody(requestBody: OpenAPIV3.ReferenceObject | OpenAPIV3.RequestBodyObject | undefined): ConvertRequestBody {
     const result = {
       json: [],
@@ -355,9 +333,7 @@ class OpenApiTranslator {
     return result;
   }
 
-  /**
-     * 解析response
-     */
+    // 解析response
   convertResponse(response: OpenAPIV3.ResponsesObject): ConvertResponse[] {
     const convertedResponse: ConvertResponse[] = [];
     Object.keys(response).forEach(code => {
@@ -414,9 +390,7 @@ class OpenApiTranslator {
     return convertedResponse;
   }
 
-  /**
-     * 解析schemaObject
-     */
+    // 解析schemaObject
   convertSchemaObjectToParams(schema: OpenAPIV3.SchemaObject | OpenAPIV3.ReferenceObject, key?: string, deep = 1): ApidocProperty {
     const apidocProperty = apidocGenerateProperty<HttpNodePropertyType>();
     apidocProperty.key = key || '';
@@ -468,9 +442,7 @@ class OpenApiTranslator {
     return apidocProperty;
   }
 
-  /**
-     * 获取ref对应的Schema
-     */
+    // 获取ref对应的Schema
   getRefSchema(ref: string): OpenAPIV3.SchemaObject | null {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let copiedOpenApiData: any = JSON.parse(JSON.stringify(this.openApiData));

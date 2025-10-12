@@ -1,8 +1,3 @@
-/*
-|--------------------------------------------------------------------------
-| apidoc转换为更易读数据
-|--------------------------------------------------------------------------
-*/
 import { useVariable } from '@/store/apidoc/variables';
 import { ApidocProjectVariable, HttpNodeResponseContentType, HttpNode } from '@src/types';
 
@@ -41,9 +36,7 @@ type ResponseData = {
   json?: JSON,
 }
 
-/**
- * 转换{{}}的值
- */
+// 转换{{}}的值
 function convertPlaceholder(value: string) {
   const variableStore = useVariable()
   const matchdVariable = value.toString().match(/\{\{\s*([^} ]+)\s*\}\}/);

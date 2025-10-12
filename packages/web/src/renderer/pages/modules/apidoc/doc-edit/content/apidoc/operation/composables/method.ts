@@ -1,9 +1,3 @@
-/*
-|--------------------------------------------------------------------------
-| 请求方法相关处理
-|--------------------------------------------------------------------------
-|
-*/
 import { ComputedRef, computed, WritableComputedRef } from 'vue'
 import { i18n } from '@/i18n'
 import { ApidocRequestMethodRule, HttpNodeRequestMethod } from '@src/types';

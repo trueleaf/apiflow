@@ -1,7 +1,3 @@
-/**
- * 将数组参数转换为json语法树
- */
-
 import { ApidocProperty, ApidocASTInfo } from '@src/types'
 
 //生成语法树基本数据结构

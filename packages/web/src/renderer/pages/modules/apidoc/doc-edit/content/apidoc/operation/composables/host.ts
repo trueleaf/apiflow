@@ -1,9 +1,3 @@
-/*
-|--------------------------------------------------------------------------
-| Host相关处理
-|--------------------------------------------------------------------------
-|
-*/
 import { ref, Ref, computed, WritableComputedRef, ComputedRef } from 'vue'
 import { ApidocProjectHost } from '@src/types'
 import { useApidoc } from '@/store/apidoc/apidoc'

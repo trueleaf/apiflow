@@ -1,7 +1,3 @@
-/**
- * 工作区缓存
- */
-
 class WorkbenchCache {
   constructor() {
   }

@@ -1,7 +1,3 @@
-/**
- * 删除节点
- */
-
 import { Ref } from 'vue'
 import 'element-plus/es/components/message-box/style/css';
 import { ElMessage, ElMessageBox } from 'element-plus'

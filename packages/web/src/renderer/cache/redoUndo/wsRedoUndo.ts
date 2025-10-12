@@ -9,9 +9,7 @@ import type {
 export class WsRedoUndoCache {
   private readonly storagePrefix = 'redoUndo/ws/';
 
-  /**
-   * 获取指定节点的redo/undo数据
-   */
+    // 获取指定节点的redo/undo数据
   getRedoUndoListByNodeId(nodeId: string): {
     redoList: WsRedoUnDoOperation[];
     undoList: WsRedoUnDoOperation[];
@@ -32,9 +30,7 @@ export class WsRedoUndoCache {
     }
   }
 
-  /**
-   * 设置指定节点的redo/undo数据
-   */
+    // 设置指定节点的redo/undo数据
   setRedoUndoListByNodeId(nodeId: string, redoList: WsRedoUnDoOperation[], undoList: WsRedoUnDoOperation[]): boolean {
     try {
       const data = {

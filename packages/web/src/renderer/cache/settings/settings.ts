@@ -1,11 +1,6 @@
-/**
- * 配置相关缓存
- */
-
 class SettingsCache {
   constructor() {
   }
-
   // 设置缓存管理信息
   setCacheManagerInfo(cacheInfo: { indexedDBSize: number; indexedDBDetails: unknown[] }) {
     try {
@@ -19,7 +14,6 @@ class SettingsCache {
       console.error('设置缓存信息失败:', error);
     }
   }
-
   // 获取缓存管理信息
   getCacheManagerInfo(): { indexedDBSize: number; indexedDBDetails: unknown[] } | null {
     try {
@@ -37,7 +31,6 @@ class SettingsCache {
       return null;
     }
   }
-
   // 清除缓存管理信息
   clearCacheManagerInfo() {
     try {

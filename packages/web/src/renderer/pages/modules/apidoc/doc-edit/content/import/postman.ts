@@ -1,10 +1,5 @@
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-/*
-|--------------------------------------------------------------------------
-| 转换postman格式数据
-|--------------------------------------------------------------------------
-*/
 import { uuid, generateHttpNode, apidocGenerateProperty } from '@/helper/index'
 
 class PostmanTranslator {

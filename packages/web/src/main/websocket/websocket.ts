@@ -70,14 +70,7 @@ export class WebSocketManager {
     });
   }
 
-  /**
-   * 连接到WebSocket服务器
-   * @param url WebSocket服务器URL
-   * @param nodeId 节点ID，用于标识连接
-   * @param event IPC事件对象，用于向渲染进程发送消息
-   * @param headers 可选的请求头对象
-   * @returns 连接ID
-   */
+    // 连接到WebSocket服务器
   async connect(url: string, nodeId: string, event: IpcMainInvokeEvent, headers?: Record<string, string>): Promise<CommonResponse<{ connectionId?: string }>> {
     try {
       // 如果该节点已有连接，先断开旧连接
@@ -191,10 +184,7 @@ export class WebSocketManager {
     }
   }
 
-  /**
-   * 断开WebSocket连接
-   * @param connectionId 连接ID
-   */
+    // 断开WebSocket连接
   async disconnect(connectionId: string): Promise<CommonResponse<null>> {
     try {
       const ws = this.connections.get(connectionId);
@@ -225,11 +215,7 @@ export class WebSocketManager {
     }
   }
 
-  /**
-   * 发送消息
-   * @param connectionId 连接ID
-   * @param message 消息内容
-   */
+    // 发送消息
   async sendMessage(connectionId: string, message: string): Promise<CommonResponse<null>> {
     try {
       const ws = this.connections.get(connectionId);
@@ -249,10 +235,7 @@ export class WebSocketManager {
     }
   }
 
-  /**
-   * 获取连接状态
-   * @param connectionId 连接ID
-   */
+    // 获取连接状态
   async getConnectionState(connectionId: string): Promise<CommonResponse<{ state?: number }>> {
     const ws = this.connections.get(connectionId);
     if (!ws) {
@@ -261,9 +244,7 @@ export class WebSocketManager {
     return { code: 0, msg: '获取状态成功', data: { state: ws.readyState } };
   }
 
-  /**
-   * 获取所有连接信息
-   */
+    // 获取所有连接信息
   async getAllConnections(): Promise<{ connectionId: string; state: number }[]> {
     const connections: { connectionId: string; state: number }[] = [];
     this.connections.forEach((ws, connectionId) => {
@@ -272,17 +253,12 @@ export class WebSocketManager {
     return connections;
   }
 
-  /**
-   * 获取所有连接ID
-   */
+    // 获取所有连接ID
   async getConnectionIds(): Promise<string[]> {
     return Array.from(this.connectionIds);
   }
 
-  /**
-   * 检查节点是否有活跃的WebSocket连接
-   * @param nodeId 节点ID
-   */
+    // 检查节点是否有活跃的WebSocket连接
   async checkNodeConnection(nodeId: string): Promise<{ 
     connected: boolean; 
     connectionId?: string; 
@@ -308,9 +284,7 @@ export class WebSocketManager {
     };
   }
 
-  /**
-   * 清空所有WebSocket连接
-   */
+    // 清空所有WebSocket连接
   async clearAllConnections(): Promise<CommonResponse<{ closedCount: number }>> {
     try {
       let closedCount = 0;
@@ -337,10 +311,7 @@ export class WebSocketManager {
     }
   }
 
-  /**
-   * 根据节点ID断开连接
-   * @param nodeId 节点ID
-   */
+    // 根据节点ID断开连接
   async disconnectByNode(nodeId: string): Promise<CommonResponse<null>> {
     try {
       const connectionId = this.nodeIdToConnectionId.get(nodeId);
@@ -355,9 +326,7 @@ export class WebSocketManager {
     }
   }
 
-  /**
-   * 清理所有连接
-   */
+    // 清理所有连接
   cleanup() {
     this.connections.forEach((ws, connectionId) => {
       try {

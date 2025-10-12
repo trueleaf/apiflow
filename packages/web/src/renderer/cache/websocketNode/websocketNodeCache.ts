@@ -1,7 +1,3 @@
-/**
- * websocket文档缓存
- */
-
 import { WebSocketNode, WebsocketConfig } from '@src/types/websocketNode';
 
 class WebSocketNodeCache {

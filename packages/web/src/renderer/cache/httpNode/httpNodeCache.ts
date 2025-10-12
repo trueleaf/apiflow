@@ -1,7 +1,3 @@
-/**
- * HTTP节点缓存
- */
-
 import { HttpNode } from '@src/types';
 import type { ApidocCookie } from '@src/renderer/store/apidoc/cookies';
 
@@ -282,9 +278,7 @@ class HttpNodeCache {
   |--------------------------------------------------------------------------
   */
 
-  /**
-   * 获取全局cookies
-   */
+    // 获取全局cookies
   getGlobalCookies(): Record<string, ApidocCookie[]> {
     try {
       const localCookies = localStorage.getItem('httpNodeCache/globalCookies') || '{}';
@@ -296,9 +290,7 @@ class HttpNodeCache {
     }
   }
 
-  /**
-   * 设置全局cookies
-   */
+    // 设置全局cookies
   setGlobalCookies(cookies: Record<string, ApidocCookie[]>) {
     try {
       localStorage.setItem('httpNodeCache/globalCookies', JSON.stringify(cookies));

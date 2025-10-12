@@ -1,7 +1,3 @@
-/**
- * AI配置缓存
- */
-
 import type { Config } from '@src/types/config';
 import { mainConfig } from '@src/config/mainConfig';
 
@@ -11,9 +7,7 @@ type AiConfig = Config['mainConfig']['aiConfig'];
 const AI_CONFIG_KEY = 'apiflow/ai/config';
 
 class AiCache {
-  /**
-   * 获取AI配置
-   */
+  // 获取AI配置
   getAiConfig(): AiConfig {
     try {
       const configStr = localStorage.getItem(AI_CONFIG_KEY);
@@ -32,10 +26,7 @@ class AiCache {
       return { ...mainConfig.aiConfig };
     }
   }
-
-  /**
-   * 设置AI配置
-   */
+  // 设置AI配置
   setAiConfig(config: Partial<AiConfig>): void {
     try {
       const currentConfig = this.getAiConfig();
@@ -49,10 +40,7 @@ class AiCache {
       throw error;
     }
   }
-
-  /**
-   * 重置AI配置为默认值
-   */
+  // 重置AI配置为默认值
   resetAiConfig(): void {
     try {
       localStorage.setItem(AI_CONFIG_KEY, JSON.stringify(mainConfig.aiConfig));
@@ -61,10 +49,7 @@ class AiCache {
       throw error;
     }
   }
-
-  /**
-   * 清除AI配置
-   */
+  // 清除AI配置
   clearAiConfig(): void {
     try {
       localStorage.removeItem(AI_CONFIG_KEY);

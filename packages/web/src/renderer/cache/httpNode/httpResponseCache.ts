@@ -12,9 +12,7 @@ export class HttpResponseCache {
     return this.httpResponseCacheDb;
   }
 
-  /**
-   * 缓存返回值（元数据、body、streamData 分离存储）
-   */
+    // 缓存返回值（元数据、body、streamData 分离存储）
   async setResponse(id: string, response: ResponseInfo) {
     await this.getDB();
     try {
@@ -217,9 +215,7 @@ export class HttpResponseCache {
     }
   }
 
-  /**
-   * 获取已缓存的返回值
-   */
+    // 获取已缓存的返回值
   async getResponse(id: string): Promise<ResponseInfo | null> {
     await this.getDB();
     if (!this.httpResponseCacheDb) {
@@ -322,9 +318,7 @@ export class HttpResponseCache {
     }
   }
 
-  /**
-   * 删除response缓存（包括分块数据）
-   */
+    // 删除response缓存（包括分块数据）
   async deleteResponse(id: string) {
     if (!this.httpResponseCacheDb) {
       return Promise.resolve(null);
@@ -338,9 +332,7 @@ export class HttpResponseCache {
     }
   }
 
-  /**
-   * 获取缓存统计信息
-   */
+    // 获取缓存统计信息
   async getCacheStats() {
     if (!this.httpResponseCacheDb) {
       return null;
@@ -365,9 +357,7 @@ export class HttpResponseCache {
     }
   }
 
-  /**
-   * 清理所有缓存
-   */
+    // 清理所有缓存
   async clearAllCache() {
     if (!this.httpResponseCacheDb) {
       return;

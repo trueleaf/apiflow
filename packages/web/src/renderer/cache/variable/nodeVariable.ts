@@ -7,9 +7,7 @@ export class NodeVariableCache {
     return getStandaloneDB();
   }
 
-  /**
-   * 新增变量
-   */
+    // 新增变量
   async addVariable(variable: Omit<ApidocVariable, '_id'> & { _id?: string }): Promise<CommonResponse<ApidocVariable>> {
     try {
 
@@ -58,9 +56,7 @@ export class NodeVariableCache {
     }
   }
 
-  /**
-   * 修改变量
-   */
+    // 修改变量
   async updateVariableById(id: string, updates: Partial<ApidocVariable>): Promise<CommonResponse<ApidocVariable>> {
     try {
 
@@ -128,9 +124,7 @@ export class NodeVariableCache {
     }
   }
 
-  /**
-   * 批量删除变量
-   */
+    // 批量删除变量
   async deleteVariableByIds(ids: string[]): Promise<CommonResponse<void>> {
     try {
 
@@ -159,11 +153,7 @@ export class NodeVariableCache {
     }
   }
 
-  /**
-   * 查询所有变量
-   * @param projectId 项目ID
-   * @returns 变量数组
-   */
+    // 查询所有变量
   async getVariableByProjectId(projectId: string): Promise<CommonResponse<ApidocVariable[]>> {
     try {
 
@@ -190,9 +180,7 @@ export class NodeVariableCache {
     }
   }
 
-  /**
-   * 根据变量ID获取单个变量
-   */
+    // 根据变量ID获取单个变量
   async getVariableById(variableId: string): Promise<CommonResponse<ApidocVariable | null>> {
     try {
 

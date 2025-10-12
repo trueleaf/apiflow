@@ -1,10 +1,5 @@
 /* eslint-disable no-lonely-if */
 /* eslint-disable no-continue */
-/**
- * @description        全局工具函数
- * @author             shuxiaokai
- * @create             2021-06-15 22:55
- */
 import { nanoid } from 'nanoid/non-secure'
 import type { HttpNodeRequestMethod, ApidocProperty, HttpNodePropertyType, HttpNode, ApidocBanner, HttpNodeRequestParamTypes, ApidocCodeInfo, FolderNode, ApiNode, MockHttpNode, ApidocProjectInfo, ResponseInfo, ApidocProjectBaseInfoState, ApidocTab, WebSocketNode } from '@src/types'
 import isEqual from 'lodash/isEqual';
