@@ -113,21 +113,11 @@ const handleAddResponse = () => {
 
 // 切换触发条件配置
 const handleToggleCondition = () => {
-  if (mockResponses.value.length === 0) {
-    ElMessage.warning(t('请先添加一个响应配置'))
-    return
-  }
-  
-  // 默认为最后一个响应添加/删除触发条件
   const lastIndex = mockResponses.value.length - 1
-  
-  // 如果已存在，则删除
   if (showConditionConfig.value[lastIndex]) {
     handleDeleteCondition(lastIndex)
     return
   }
-  
-  // 初始化条件数据
   if (!mockResponses.value[lastIndex].conditions.scriptCode) {
     mockResponses.value[lastIndex].conditions = {
       name: '',
@@ -137,7 +127,6 @@ const handleToggleCondition = () => {
   
   // 显示条件配置
   showConditionConfig.value[lastIndex] = true
-  ElMessage.success(t('添加成功'))
 }
 
 // 删除触发条件配置

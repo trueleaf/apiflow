@@ -61,7 +61,10 @@
             :class="statusClass(log.data.statusCode)"
           >
             <div class="log-content">
-              {{ renderPlainLog(log) }}
+              <template v-for="(segment, idx) in getLogSegments(log)" :key="idx">
+                <span v-if="segment.highlight" class="highlight-keyword">{{ segment.text }}</span>
+                <span v-else>{{ segment.text }}</span>
+              </template>
             </div>
             <div class="log-actions">
               <el-button size="small" @click="showLogDetail(log)">
@@ -199,19 +202,8 @@ const filteredLogs = computed(() => {
       if (!keyword) {
         return true
       }
-      const haystack = [
-        log.data.ip,
-        log.data.url,
-        log.data.path,
-        log.data.query,
-        log.data.userAgent,
-        log.data.referer,
-        log.data.matchedRoute,
-      ]
-        .filter(Boolean)
-        .join(' ')
-        .toLowerCase()
-      return haystack.includes(keyword)
+      const renderedText = renderLogText(log).toLowerCase()
+      return renderedText.includes(keyword)
     })
     .sort((a, b) => b.timestamp - a.timestamp)
 })
@@ -330,8 +322,8 @@ const formatTimestamp = (value: number | null) => {
   const ss = `${date.getSeconds()}`.padStart(2, '0')
   return `${yyyy}-${mm}-${dd} ${hh}:${mi}:${ss}`
 }
-
-const renderPlainLog = (log: Extract<MockLog, { type: 'request' }>) => {
+// 渲染日志文本
+const renderLogText = (log: Extract<MockLog, { type: 'request' }>) => {
   return formatTemplate.value.replace(/\$[a-zA-Z_]+/g, match => {
     const key = match.slice(1)
     const resolver = templateVariableResolvers[key]
@@ -340,6 +332,30 @@ const renderPlainLog = (log: Extract<MockLog, { type: 'request' }>) => {
     }
     return resolver(log)
   })
+}
+// 将日志文本分割成片段，用于高亮显示
+const getLogSegments = (log: Extract<MockLog, { type: 'request' }>) => {
+  const text = renderLogText(log)
+  const keyword = filters.keyword.trim()
+  if (!keyword) {
+    return [{ text, highlight: false }]
+  }
+  const segments: Array<{ text: string; highlight: boolean }> = []
+  const escapedKeyword = keyword.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+  const reg = new RegExp(escapedKeyword, 'gi')
+  let lastIndex = 0
+  let match
+  while ((match = reg.exec(text)) !== null) {
+    if (match.index > lastIndex) {
+      segments.push({ text: text.substring(lastIndex, match.index), highlight: false })
+    }
+    segments.push({ text: match[0], highlight: true })
+    lastIndex = reg.lastIndex
+  }
+  if (lastIndex < text.length) {
+    segments.push({ text: text.substring(lastIndex), highlight: false })
+  }
+  return segments.length > 0 ? segments : [{ text, highlight: false }]
 }
 
 const createLogKey = (log: Extract<MockLog, { type: 'request' }>, index: number) => {
@@ -511,7 +527,13 @@ onUnmounted(() => {
   flex: 1;
   min-width: 0;
 }
-
+.highlight-keyword {
+  background: var(--el-color-warning-light-9);
+  color: var(--orange);
+  font-weight: bold;
+  border-radius: var(--border-radius-xs);
+  padding: 0 2px;
+}
 .log-actions {
   flex-shrink: 0;
 }

@@ -2,12 +2,12 @@
   <div class="mock-config-content">
     <!-- 触发条件配置（不滚动） -->
     <div class="config-section condition-section">
-      <ConditionVue />
+      <Condition />
     </div>
     
     <!-- 响应配置（可滚动区域） -->
     <div class="config-section response-section">
-      <ResponseVue />
+      <Response />
     </div>
     
     <!-- 操作按钮（固定在底部） -->
@@ -25,8 +25,8 @@
 <script lang="ts" setup>
 import { ElButton } from 'element-plus'
 import { Refresh } from '@element-plus/icons-vue'
-import ConditionVue from './condition/condition.vue'
-import ResponseVue from './response/response.vue'
+import Condition from './condition/condition.vue'
+import Response from './response/response.vue'
 import { useI18n } from 'vue-i18n'
 import { storeToRefs } from 'pinia'
 import { useHttpMock } from '@/store/httpMock/httpMock'

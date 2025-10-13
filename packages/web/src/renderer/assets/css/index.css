@@ -117,10 +117,6 @@ body {
   .el-button:active {
     border-color: var(--gray-300);
   }
-  /* 移除 el-tabs 下方的横线 */
-  .el-tabs__nav-wrap::after {
-    display: none;
-  }
 }
 
 button,
