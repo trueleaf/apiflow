@@ -13,10 +13,6 @@
       <!-- 条件脚本 -->
       <div class="form-row">
         <div class="form-item full-width">
-          <label class="form-label">{{ t('条件脚本') }}</label>
-          <div class="script-hint">
-            {{ t('返回值为 true 时触发此响应，可访问 ctx (Koa Context)') }}
-          </div>
           <div class="script-editor-wrapper">
             <el-input
               v-model="response.conditions.scriptCode"
@@ -103,6 +99,7 @@ const handleDelete = () => {
 }
 
 .section-content {
+  margin-left: 20px;
   display: flex;
   flex-direction: column;
   gap: 12px;
