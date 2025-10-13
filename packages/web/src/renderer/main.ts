@@ -49,6 +49,17 @@ window.addEventListener("beforeunload", () => {
   });
 });
 
+// 全局拦截 Monaco 等库在销毁阶段触发的 Promise 取消异常，避免刷新/快速切换时控制台报 Uncaught (in promise) Canceled
+window.addEventListener('unhandledrejection', (event: PromiseRejectionEvent) => {
+  const reason: unknown = event?.reason;
+  if (reason && typeof reason === 'object') {
+    const err = reason as { name?: string; message?: string };
+    if (err.name === 'Canceled' || err.message === 'Canceled') {
+      event.preventDefault();
+    }
+  }
+});
+
 /*
 |--------------------------------------------------------------------------
 | 备忘录

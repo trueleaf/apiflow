@@ -60,16 +60,6 @@ let monacoInstance: monaco.editor.IStandaloneCodeEditor | null = null;
 let resizeObserver: ResizeObserver | null = null;
 let isComposing = false; // 中文输入状态标记
 let isDisposed = false; // 标记编辑器是否已被销毁
-// 处理 Monaco 内部 Promise 取消异常，避免控制台抛出未捕获错误
-const handleUnhandledRejection = (event: PromiseRejectionEvent) => {
-  const reason: unknown = event?.reason;
-  if (reason && typeof reason === 'object') {
-    const err = reason as { name?: string; message?: string };
-    if (err.name === 'Canceled' || err.message === 'Canceled') {
-      event.preventDefault();
-    }
-  }
-}
 
 /*
 |--------------------------------------------------------------------------
@@ -213,8 +203,6 @@ const initManualUndoRedo = () => {
 |--------------------------------------------------------------------------
 */
 onMounted(() => {
-  // 注册全局未捕获 Promise 拦截（仅处理 Monaco 的取消异常）
-  window.addEventListener('unhandledrejection', handleUnhandledRejection);
   self.MonacoEnvironment = {
     getWorker(_: string, label: string) {
       if (label === 'json') {
@@ -335,17 +323,13 @@ onBeforeUnmount(() => {
   if (isDisposed) {
     return;
   }
-  
   try {
-    // 移除全局取消异常拦截
-    window.removeEventListener('unhandledrejection', handleUnhandledRejection);
-    
     // 先断开 ResizeObserver
     if (resizeObserver) {
       resizeObserver.disconnect();
       resizeObserver = null;
     }
-    
+
     // 销毁 Monaco Editor 实例
     if (monacoInstance) {
       // 优先释放当前模型，减少异步校验/提示导致的取消异常
@@ -356,12 +340,11 @@ onBeforeUnmount(() => {
       monacoInstance.dispose();
       monacoInstance = null;
     }
-    
-    isDisposed = true;
   } catch (error) {
     // 捕获 dispose 过程中的异常，避免控制台报错
     // 这通常是由于编辑器内部的异步任务被取消导致的
   }
+  isDisposed = true;
 })
 
 const format = () => {
