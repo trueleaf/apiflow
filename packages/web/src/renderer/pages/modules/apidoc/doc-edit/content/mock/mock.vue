@@ -21,13 +21,14 @@ import { storeToRefs } from 'pinia'
 import { useHttpMock } from '@/store/httpMock/httpMock'
 import { useApidocTas } from '@/store/apidoc/tabs'
 import { debounce } from '@/helper'
-import type { MockHttpNode } from '@src/types/mockNode'
+import type { MockHttpNode, MockNodeActiveTabType } from '@src/types/mockNode'
 import type { DebouncedFunc } from 'lodash'
 import { router } from '@/router'
 import { useShortcut } from '@/hooks/use-shortcut'
+import { userState } from '@/cache/userState/userStateCache'
 
 const { t } = useI18n()
-const activeTab = ref('config')
+const activeTab = ref<MockNodeActiveTabType>('config')
 const httpMockStore = useHttpMock()
 const apidocTabsStore = useApidocTas()
 const { currentSelectTab } = storeToRefs(apidocTabsStore)
@@ -92,15 +93,27 @@ const initDebouncDataChange = () => {
     leading: true
   });
 };
+// 初始化激活的tab
+const initActiveTab = (): void => {
+  const cachedTab = userState.getMockNodeActiveTab(currentSelectTab.value?._id || '')
+  activeTab.value = cachedTab
+}
 // 监听tab变化
 watch(currentSelectTab, (val, oldVal) => {
   const isHttpMock = val?.tabType === 'httpMock'
   if (isHttpMock && val?._id !== oldVal?._id) {
     getHttpMockInfo();
+    initActiveTab()
   }
 }, {
   deep: true,
   immediate: true,
+})
+// 监听activeTab变化，保存到缓存
+watch(activeTab, (val) => {
+  if (currentSelectTab.value?._id) {
+    userState.setMockNodeActiveTab(currentSelectTab.value._id, val)
+  }
 })
 
 // 监听httpMock数据变化

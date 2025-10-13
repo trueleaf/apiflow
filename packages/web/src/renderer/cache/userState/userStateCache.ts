@@ -1,4 +1,5 @@
 import type { WebsocketActiveTabType } from '@src/types/websocketNode';
+import type { MockNodeActiveTabType } from '@src/types/mockNode';
 
 class UserState {
   // 获取首页激活的tab（项目列表/团队管理）
@@ -72,6 +73,33 @@ class UserState {
       const data: Record<string, string> = {};
       data[id] = val;
       localStorage.setItem('userState/httpNode/activeParamsTab', JSON.stringify(data));
+    }
+  }
+  // 获取Mock节点激活的tab
+  getMockNodeActiveTab(id: string): MockNodeActiveTabType {
+    try {
+      const localActiveTab: Record<string, MockNodeActiveTabType> = JSON.parse(localStorage.getItem('userState/mockNode/activeTab') || '{}');
+      if (!localActiveTab[id]) {
+        return 'config';
+      }
+      return localActiveTab[id];
+    } catch (error) {
+      console.error(error);
+      localStorage.setItem('userState/mockNode/activeTab', '{}');
+      return 'config';
+    }
+  }
+  // 设置Mock节点激活的tab
+  setMockNodeActiveTab(id: string, val: MockNodeActiveTabType) {
+    try {
+      const localActiveTab = JSON.parse(localStorage.getItem('userState/mockNode/activeTab') || '{}');
+      localActiveTab[id] = val;
+      localStorage.setItem('userState/mockNode/activeTab', JSON.stringify(localActiveTab));
+    } catch (error) {
+      console.error(error);
+      const data: Record<string, MockNodeActiveTabType> = {};
+      data[id] = val;
+      localStorage.setItem('userState/mockNode/activeTab', JSON.stringify(data));
     }
   }
   // 设置分享文档参数块折叠状态

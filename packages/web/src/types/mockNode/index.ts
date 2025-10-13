@@ -8,6 +8,9 @@ import type http from 'http';
 import type Koa from 'koa';
 import { ApidocBaseInfo } from "../httpNode/types.ts";
 
+// Mock节点激活选项卡类型
+export type MockNodeActiveTabType = 'config' | 'logs';
+
 export type MockHttpNode = {
   _id: string;
   pid: string;
