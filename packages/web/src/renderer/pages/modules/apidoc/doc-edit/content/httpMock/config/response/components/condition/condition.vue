@@ -10,26 +10,6 @@
     </div>
     
     <div class="section-content">
-      <!-- 使用说明 -->
-      <div class="form-row">
-        <div class="form-item full-width">
-          <div class="script-hint">
-            <div class="hint-title">{{ t('可用上下文变量') }}:</div>
-            <div class="hint-content">
-              <code>ctx.method</code> - HTTP 方法 (GET, POST 等) |
-              <code>ctx.url</code> - 完整 URL |
-              <code>ctx.path</code> - 路径部分 |
-              <code>ctx.query</code> - 查询参数对象 |
-              <code>ctx.headers</code> - 请求头对象 |
-              <code>ctx.body</code> - 请求体对象 |
-              <code>ctx.ip</code> - 客户端 IP |
-              <code>ctx.variables</code> - 项目变量
-            </div>
-            <div class="hint-note">{{ t('脚本应返回布尔值，返回 true 时使用此响应配置') }}</div>
-          </div>
-        </div>
-      </div>
-      
       <!-- 条件脚本 -->
       <div class="form-row">
         <div class="form-item full-width">

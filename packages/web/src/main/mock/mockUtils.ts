@@ -1091,6 +1091,71 @@ export class MockUtils {
     // 包含运算符的视为表达式
     return /[+\-*/()%<>=!&|]/.test(trimmed);
   }
+  // 解析Cookie字符串为对象
+  private parseCookies(cookieHeader: string): Record<string, string> {
+    const cookies: Record<string, string> = {};
+    if (!cookieHeader || cookieHeader.trim() === '') {
+      return cookies;
+    }
+    const pairs = cookieHeader.split(';');
+    for (const pair of pairs) {
+      const [key, ...valueParts] = pair.split('=');
+      const trimmedKey = key?.trim();
+      const value = valueParts.join('=').trim();
+      if (trimmedKey) {
+        cookies[trimmedKey] = decodeURIComponent(value || '');
+      }
+    }
+    return cookies;
+  }
+  // 构建Express风格的req对象
+  private buildRequestObject(ctx: Koa.Context, variables: Record<string, any>): any {
+    const cookieHeader = (ctx.headers.cookie || '') as string;
+    const cookies = this.parseCookies(cookieHeader);
+    const timestamp = Date.now();
+    const datetime = new Date(timestamp).toISOString();
+    const secure = ctx.protocol === 'https';
+    const xRequestedWith = ctx.headers['x-requested-with'];
+    const xhr = (typeof xRequestedWith === 'string' ? xRequestedWith : '').toLowerCase() === 'xmlhttprequest';
+    const search = ctx.search || '';
+    const host = ctx.host || ctx.hostname;
+    const origin = `${ctx.protocol}://${host}`;
+    const req = {
+      method: ctx.method,
+      url: ctx.url,
+      originalUrl: ctx.originalUrl || ctx.url,
+      path: ctx.path,
+      search: search,
+      query: ctx.query,
+      headers: ctx.headers,
+      body: ctx.request.body || {},
+      cookies: cookies,
+      ip: ctx.ip,
+      protocol: ctx.protocol,
+      secure: secure,
+      xhr: xhr,
+      hostname: ctx.hostname,
+      host: host,
+      origin: origin,
+      get: (headerName: string) => {
+        const lowerName = headerName.toLowerCase();
+        return ctx.headers[lowerName];
+      },
+      userAgent: ctx.headers['user-agent'] || '',
+      contentType: ctx.headers['content-type'] || '',
+      referer: ctx.headers['referer'] || ctx.headers['referrer'] || '',
+      authorization: ctx.headers['authorization'] || '',
+      accept: ctx.headers['accept'] || '',
+      acceptLanguage: ctx.headers['accept-language'] || '',
+      acceptEncoding: ctx.headers['accept-encoding'] || '',
+      contentLength: parseInt(ctx.headers['content-length'] || '0', 10),
+      timestamp: timestamp,
+      datetime: datetime,
+      params: {},
+      variables: variables,
+    };
+    return req;
+  }
 
   // 使用 Node.js vm 模块安全执行表达式
   private async evaluateExpressionWithIsolatedVM(
@@ -1135,20 +1200,9 @@ export class MockUtils {
     }
     const projectVariables = MockUtils.getProjectVariables(projectId);
     const variablesObj = this.getObjectVariable(projectVariables);
-    const contextObj = {
-      method: ctx.method,
-      url: ctx.url,
-      path: ctx.path,
-      query: ctx.query,
-      headers: ctx.headers,
-      body: ctx.request.body || {},
-      ip: ctx.ip,
-      protocol: ctx.protocol,
-      hostname: ctx.hostname,
-      variables: variablesObj,
-    };
+    const req = this.buildRequestObject(ctx, variablesObj);
     try {
-      const result = await this.evaluateExpressionWithIsolatedVM(scriptCode, contextObj);
+      const result = await this.evaluateExpressionWithIsolatedVM(`(() => { ${scriptCode} })()`, { req });
       return Boolean(result);
     } catch (error) {
       throw error;

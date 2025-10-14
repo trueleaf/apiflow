@@ -75,7 +75,7 @@ import ImageConfig from './components/image/image.vue'
 import FileConfig from './components/file/file.vue'
 import BinaryConfig from './components/binary/binary.vue'
 import SseConfig from './components/sse/sse.vue'
-import ConditionConfig from '@/components/condition/condition.vue'
+import ConditionConfig from './components/condition/condition.vue'
 
 const { t } = useI18n()
 const httpMockStore = useHttpMock()
