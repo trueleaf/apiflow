@@ -14,12 +14,13 @@
       <div class="form-row">
         <div class="form-item full-width">
           <div class="script-editor-wrapper">
-            <el-input
+            <code-editor
               v-model="response.conditions.scriptCode"
-              type="textarea"
-              :placeholder="t('// 示例1: 根据查询参数判断\nreturn ctx.query.userId === \'123\';\n\n// 示例2: 根据请求头判断\nreturn ctx.headers[\'x-api-version\'] === \'v2\';\n\n// 示例3: 根据请求体判断\nreturn ctx.body.type === \'premium\';')"
-              :rows="10"
-              class="script-textarea"
+              :config="editorConfig"
+              :min-height="200"
+              :max-height="400"
+              :auto-height="true"
+              :show-format-button="true"
             />
           </div>
         </div>
@@ -29,10 +30,14 @@
 </template>
 
 <script lang="ts" setup>
+import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { Close } from '@element-plus/icons-vue'
+import CodeEditor from '@/components/common/code-editor/code-editor.vue'
+import { reqCompletionSuggestions } from './completionSuggestions'
 import type { MockHttpNode } from '@src/types/mockNode'
+import type { EditorConfig } from '@/components/common/code-editor/types'
 
 type Props = {
   response: MockHttpNode['response'][0]
@@ -46,7 +51,17 @@ type Emits = {
 const props = defineProps<Props>()
 const emit = defineEmits<Emits>()
 const { t } = useI18n()
-
+// 编辑器配置
+const editorConfig = computed<EditorConfig>(() => ({
+  enableCompletion: true,
+  triggerCharacters: ['.', '('],
+  completionSuggestions: reqCompletionSuggestions,
+  editorOptions: {
+    fontSize: 14,
+    lineNumbers: 'on',
+    tabSize: 2
+  }
+}))
 // 删除触发条件配置
 const handleDelete = () => {
   ElMessageBox.confirm(
@@ -167,15 +182,8 @@ const handleDelete = () => {
   margin-top: 6px;
 }
 .script-editor-wrapper {
-  border: 1px solid var(--gray-300);
-  border-radius: var(--border-radius-sm);
+  width: 100%;
+  max-width: 100%;
   overflow: hidden;
-}
-
-.script-textarea :deep(.el-textarea__inner) {
-  font-family: 'Monaco', 'Menlo', 'Consolas', monospace;
-  font-size: var(--font-size-sm);
-  border: none;
-  border-radius: 0;
 }
 </style>
