@@ -12,7 +12,53 @@ on:
         default: 'manual-build'
 
 jobs:
+  test-web:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@v4
+        
+      - name: 设置Node.js环境
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          
+      - name: 安装依赖
+        run: npm ci --include=optional
+        env:
+          npm_config_ignore_optional: true
+          npm_config_ignore_scripts: false
+          
+      - name: 安装Playwright浏览器
+        run: npx playwright install --with-deps
+        working-directory: packages/web
+        
+      - name: 运行E2E测试
+        run: npm run test
+        working-directory: packages/web
+        env:
+          CI: true
+          
+      - name: 上传测试报告
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: packages/web/playwright-report/
+          retention-days: 30
+          
+      - name: 上传测试结果
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: packages/web/test-results/
+          retention-days: 30
+
   build-windows:
+    needs: [test-web]
     runs-on: windows-latest
     
     steps:
@@ -50,6 +96,7 @@ jobs:
           retention-days: 30
           
   build-linux:
+    needs: [test-web]
     runs-on: ubuntu-latest
     
     steps:
@@ -85,6 +132,7 @@ jobs:
           retention-days: 30
           
   build-macos:
+    needs: [test-web]
     runs-on: macos-latest
     
     steps:
