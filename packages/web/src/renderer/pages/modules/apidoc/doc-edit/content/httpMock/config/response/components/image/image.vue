@@ -303,6 +303,10 @@ watch(
   font-weight: 500;
 }
 
+.form-label ~ * {
+  margin-left: 12px;
+}
+
 /* 文件上传区域 */
 .file-upload-wrapper {
   margin-top: 8px;

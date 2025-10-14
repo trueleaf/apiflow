@@ -147,6 +147,10 @@ const { t } = useI18n()
   font-weight: 500;
 }
 
+.form-label ~ * {
+  margin-left: 12px;
+}
+
 .label-with-switch {
   display: flex;
   align-items: center;

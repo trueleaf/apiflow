@@ -260,6 +260,10 @@ const handleDeleteCondition = (index: number) => {
   font-weight: 500;
 }
 
+.form-label ~ * {
+  margin-left: 12px;
+}
+
 .mb-1 {
   margin-bottom: 4px;
 }

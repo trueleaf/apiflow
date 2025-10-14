@@ -220,6 +220,10 @@ onMounted(() => {
   font-weight: 500;
 }
 
+.form-label ~ * {
+  margin-left: 12px;
+}
+
 /* 提示信息样式 */
 .hint-text {
   display: flex;

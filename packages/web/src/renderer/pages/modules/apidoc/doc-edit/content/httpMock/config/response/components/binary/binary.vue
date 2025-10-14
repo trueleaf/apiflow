@@ -108,6 +108,10 @@ const handleSelectBinaryFile = () => {
   font-weight: 500;
 }
 
+.form-label ~ * {
+  margin-left: 12px;
+}
+
 .binary-file-selector {
   display: flex;
   flex-direction: column;

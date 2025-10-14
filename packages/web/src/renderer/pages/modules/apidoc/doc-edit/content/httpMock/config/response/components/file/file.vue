@@ -154,6 +154,10 @@ const { t } = useI18n()
   font-weight: 500;
 }
 
+.form-label ~ * {
+  margin-left: 12px;
+}
+
 /* 文件类型网格布局 */
 .file-type-grid {
   display: grid;
