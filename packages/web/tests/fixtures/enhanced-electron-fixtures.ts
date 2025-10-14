@@ -34,9 +34,17 @@ export const test = base.extend<EnhancedElectronFixtures>({
     // 构建 Electron 主进程入口路径
     const mainPath = path.join(process.cwd(), 'dist', 'main', 'main.mjs');
     
+    // 准备启动参数
+    const launchArgs = [mainPath];
+    
+    // CI 环境下添加沙箱禁用参数
+    if (process.env.CI) {
+      launchArgs.push('--no-sandbox', '--disable-setuid-sandbox');
+    }
+    
     // 启动 Electron 应用
     const electronApp = await electron.launch({
-      args: [mainPath],
+      args: launchArgs,
       env: {
         ...process.env,
         NODE_ENV: 'test',
