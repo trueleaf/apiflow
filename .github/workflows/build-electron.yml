@@ -226,7 +226,7 @@ jobs:
             - **macOS Intel**: `Apiflow-*-x64-mac.zip`
             - **macOS Apple Silicon**: `Apiflow-*-arm64-mac.zip`
             
-            ## � 下载地址
+            ## 📦 下载地址
             
             ### Windows版本
             
@@ -265,7 +265,7 @@ jobs:
             - **macOS Intel**: `Apiflow-*-x64-mac.zip`
             - **macOS Apple Silicon**: `Apiflow-*-arm64-mac.zip`
             
-            ## �🚀 What's New
+            ## 🚀 What's New
             
             Please check the commit history for detailed changes.
             
