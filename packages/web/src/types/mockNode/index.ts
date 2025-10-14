@@ -30,6 +30,7 @@ export type MockHttpNode = {
     conditions: {
       name: string;
       scriptCode: string;
+      enabled: boolean;
     };
     statusCode: number;
     headers: Record<string, string>;

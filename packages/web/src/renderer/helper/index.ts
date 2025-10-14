@@ -527,6 +527,7 @@ export const generateEmptyHttpMockNode = (_id: string): MockHttpNode => {
         conditions: {
           name: '',
           scriptCode: '',
+          enabled: false,
         },
         statusCode: 200,
         headers: {},

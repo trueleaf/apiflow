@@ -27,7 +27,7 @@
       <div v-for="(response, index) in mockResponses" :key="index" class="response-card">
         <!-- 触发条件配置区域 -->
         <ConditionConfig
-          v-if="showConditionConfig[index]"
+          v-if="response.conditions.enabled"
           :response="response"
           :response-index="index"
           @delete="handleDeleteCondition"
@@ -62,7 +62,7 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, ref } from 'vue'
+import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { ElMessage } from 'element-plus'
 import { Plus } from '@element-plus/icons-vue'
@@ -75,15 +75,12 @@ import ImageConfig from './components/image/image.vue'
 import FileConfig from './components/file/file.vue'
 import BinaryConfig from './components/binary/binary.vue'
 import SseConfig from './components/sse/sse.vue'
-import ConditionConfig from './components/condition-config.vue'
+import ConditionConfig from '@/components/condition/condition.vue'
 
 const { t } = useI18n()
 const httpMockStore = useHttpMock()
 const { httpMock } = storeToRefs(httpMockStore)
 const mockResponses = computed(() => httpMock.value.response)
-
-// 控制每个响应是否显示触发条件配置
-const showConditionConfig = ref<boolean[]>([])
 
 // 判断是否存在触发条件配置
 const hasConditionConfig = computed(() => {
@@ -91,7 +88,7 @@ const hasConditionConfig = computed(() => {
     return false
   }
   const lastIndex = mockResponses.value.length - 1
-  return showConditionConfig.value[lastIndex] === true
+  return mockResponses.value[lastIndex].conditions.enabled === true
 })
 
 // 新增返回值
@@ -107,35 +104,34 @@ const handleAddResponse = () => {
   newResponse.imageConfig.randomSize = 10
   newResponse.fileConfig.fileType = 'pdf'
   httpMock.value.response.push(newResponse)
-  showConditionConfig.value.push(false)
   ElMessage.success(t('添加成功'))
 }
 
 // 切换触发条件配置
 const handleToggleCondition = () => {
   const lastIndex = mockResponses.value.length - 1
-  if (showConditionConfig.value[lastIndex]) {
+  const lastResponse = mockResponses.value[lastIndex]
+  
+  if (lastResponse.conditions.enabled) {
+    // 已启用，点击后禁用
     handleDeleteCondition(lastIndex)
     return
   }
-  if (!mockResponses.value[lastIndex].conditions.scriptCode) {
-    mockResponses.value[lastIndex].conditions = {
-      name: '',
-      scriptCode: '// 返回 true 时触发此响应\nreturn true;'
-    }
-  }
   
-  // 显示条件配置
-  showConditionConfig.value[lastIndex] = true
+  // 未启用，点击后启用
+  if (!lastResponse.conditions.scriptCode) {
+    lastResponse.conditions.scriptCode = '// 返回 true 时触发此响应\nreturn true;'
+  }
+  lastResponse.conditions.enabled = true
 }
 
 // 删除触发条件配置
 const handleDeleteCondition = (index: number) => {
-  showConditionConfig.value[index] = false
-  // 清空条件数据
+  // 清空条件数据并禁用
   mockResponses.value[index].conditions = {
     name: '',
-    scriptCode: ''
+    scriptCode: '',
+    enabled: false
   }
 }
 </script>
