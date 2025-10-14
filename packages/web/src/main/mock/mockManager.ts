@@ -6,6 +6,7 @@ import { contentViewInstance } from '../main';
 import detect from 'detect-port';
 import http from 'http';
 import Koa from 'koa';
+import bodyParser from '@koa/bodyparser';
 import { nanoid } from 'nanoid/non-secure';
 
 export class MockManager {
@@ -103,16 +104,62 @@ export class MockManager {
         await sleep(matchedMock.config.delay);
       }
       
-      // 选择响应配置
-      let responseConfig;
+      // 选择响应配置（支持条件判断）
+      let responseConfig = null;
       if (matchedMock.response.length === 0) {
         ctx.status = 500;
         ctx.body = { error: 'No response configuration found' };
         return;
-      } else if (matchedMock.response.length === 1) {
-        responseConfig = matchedMock.response[0];
-      } else {
-        responseConfig = matchedMock.response[0];
+      }
+      for (const response of matchedMock.response) {
+        if (!response.conditions.enabled) {
+          responseConfig = response;
+          break;
+        }
+        try {
+          const conditionResult = await this.mockUtils.evaluateCondition(
+            response.conditions.scriptCode,
+            ctx,
+            matchedMock.projectId
+          );
+          if (conditionResult === true) {
+            responseConfig = response;
+            break;
+          }
+        } catch (error) {
+          this.pushLogToRenderer({
+            type: "error",
+            nodeId: matchedMock._id,
+            projectId: matchedMock.projectId,
+            data: {
+              errorType: "conditionScriptError",
+              errorMsg: `条件脚本执行失败: ${error instanceof Error ? error.message : 'Unknown error'}`,
+              conditionName: response.conditions.name
+            },
+            timestamp: Date.now()
+          });
+          ctx.status = 500;
+          ctx.body = { 
+            error: 'Condition script execution failed',
+            details: error instanceof Error ? error.message : 'Unknown error'
+          };
+          return;
+        }
+      }
+      if (!responseConfig) {
+        this.pushLogToRenderer({
+          type: "error",
+          nodeId: matchedMock._id,
+          projectId: matchedMock.projectId,
+          data: {
+            errorType: "conditionNotMet",
+            errorMsg: "所有响应配置的条件都不满足"
+          },
+          timestamp: Date.now()
+        });
+        ctx.status = 500;
+        ctx.body = { error: 'mock条件不满足' };
+        return;
       }
 
       // 设置响应状态码和头部
@@ -310,6 +357,12 @@ export class MockManager {
     
     try {
       const app = new Koa();
+      app.use(bodyParser({
+        enableTypes: ['json', 'form'],
+        jsonLimit: '10mb',
+        formLimit: '10mb',
+        textLimit: '10mb',
+      }));
       app.use(async (ctx) => {
         await this.handleRequest(ctx, httpMock.requestCondition.port);
       });

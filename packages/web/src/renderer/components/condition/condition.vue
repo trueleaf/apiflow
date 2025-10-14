@@ -10,6 +10,26 @@
     </div>
     
     <div class="section-content">
+      <!-- 使用说明 -->
+      <div class="form-row">
+        <div class="form-item full-width">
+          <div class="script-hint">
+            <div class="hint-title">{{ t('可用上下文变量') }}:</div>
+            <div class="hint-content">
+              <code>ctx.method</code> - HTTP 方法 (GET, POST 等) |
+              <code>ctx.url</code> - 完整 URL |
+              <code>ctx.path</code> - 路径部分 |
+              <code>ctx.query</code> - 查询参数对象 |
+              <code>ctx.headers</code> - 请求头对象 |
+              <code>ctx.body</code> - 请求体对象 |
+              <code>ctx.ip</code> - 客户端 IP |
+              <code>ctx.variables</code> - 项目变量
+            </div>
+            <div class="hint-note">{{ t('脚本应返回布尔值，返回 true 时使用此响应配置') }}</div>
+          </div>
+        </div>
+      </div>
+      
       <!-- 条件脚本 -->
       <div class="form-row">
         <div class="form-item full-width">
@@ -17,8 +37,8 @@
             <el-input
               v-model="response.conditions.scriptCode"
               type="textarea"
-              :placeholder="t('// 示例：\nreturn ctx.query.userId === \'123\';')"
-              :rows="8"
+              :placeholder="t('// 示例1: 根据查询参数判断\nreturn ctx.query.userId === \'123\';\n\n// 示例2: 根据请求头判断\nreturn ctx.headers[\'x-api-version\'] === \'v2\';\n\n// 示例3: 根据请求体判断\nreturn ctx.body.type === \'premium\';')"
+              :rows="10"
               class="script-textarea"
             />
           </div>
@@ -137,11 +157,35 @@ const handleDelete = () => {
 
 .script-hint {
   font-size: var(--font-size-xs);
-  color: var(--gray-500);
-  line-height: 1.5;
-  margin-bottom: 4px;
+  color: var(--gray-600);
+  line-height: 1.6;
+  padding: 12px;
+  background: var(--gray-50);
+  border-radius: var(--border-radius-sm);
+  border: 1px solid var(--gray-200);
 }
-
+.hint-title {
+  font-weight: 600;
+  margin-bottom: 6px;
+  color: var(--gray-700);
+}
+.hint-content {
+  margin-bottom: 8px;
+  line-height: 1.8;
+}
+.hint-content code {
+  background: var(--gray-100);
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-family: 'Monaco', 'Menlo', 'Consolas', monospace;
+  font-size: var(--font-size-xs);
+  color: var(--primary);
+}
+.hint-note {
+  font-style: italic;
+  color: var(--warning);
+  margin-top: 6px;
+}
 .script-editor-wrapper {
   border: 1px solid var(--gray-300);
   border-radius: var(--border-radius-sm);

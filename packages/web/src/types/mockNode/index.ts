@@ -152,8 +152,9 @@ type MockErrorLog = {
   nodeId: string,
   projectId: string,
   data: {
-    errorType: "portError" | "bindError" | "serverStartError" | "configError" | "unknownError",
+    errorType: "portError" | "bindError" | "serverStartError" | "configError" | "unknownError" | "conditionScriptError" | "conditionNotMet",
     errorMsg: string,
+    conditionName?: string,
   },
   timestamp: number,
 }

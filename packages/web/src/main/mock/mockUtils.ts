@@ -1124,6 +1124,36 @@ export class MockUtils {
       throw new Error(`表达式执行错误: ${(error as Error).message}`);
     }
   }
+  // 执行条件脚本，返回布尔值
+  public async evaluateCondition(
+    scriptCode: string,
+    ctx: Koa.Context,
+    projectId: string
+  ): Promise<boolean> {
+    if (!scriptCode || scriptCode.trim() === '') {
+      return true;
+    }
+    const projectVariables = MockUtils.getProjectVariables(projectId);
+    const variablesObj = this.getObjectVariable(projectVariables);
+    const contextObj = {
+      method: ctx.method,
+      url: ctx.url,
+      path: ctx.path,
+      query: ctx.query,
+      headers: ctx.headers,
+      body: ctx.request.body || {},
+      ip: ctx.ip,
+      protocol: ctx.protocol,
+      hostname: ctx.hostname,
+      variables: variablesObj,
+    };
+    try {
+      const result = await this.evaluateExpressionWithIsolatedVM(scriptCode, contextObj);
+      return Boolean(result);
+    } catch (error) {
+      throw error;
+    }
+  }
 
   // 将模板字符串转换为真实值
   // 支持: {{ variable }}、{{ expression }}、{{ @xxx }}、\{{ }}
