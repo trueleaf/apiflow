@@ -1,6 +1,6 @@
 import { MockHttpNode, MockInstance, MockLog } from '@src/types/mockNode';
 import { CommonResponse } from '@src/types/project';
-import { MockUtils } from './mockUtils';
+import { MockUtils, ConsoleLogCollector } from './mockUtils';
 import { matchPath, getPatternPriority, sleep } from '../utils';
 import { contentViewInstance } from '../main';
 import detect from 'detect-port';
@@ -77,6 +77,7 @@ export class MockManager {
   private async handleRequest(ctx: Koa.Context, port: number): Promise<void> {
     const startTime = Date.now();
     let matchedMock: MockHttpNode | null = null;
+    const consoleCollector = new ConsoleLogCollector();
     
     try {
       // 实时从 mockList 中查找匹配的 mock 配置
@@ -120,7 +121,8 @@ export class MockManager {
           const conditionResult = await this.mockUtils.evaluateCondition(
             response.conditions.scriptCode,
             ctx,
-            matchedMock.projectId
+            matchedMock.projectId,
+            consoleCollector
           );
           if (conditionResult === true) {
             responseConfig = response;
@@ -327,7 +329,10 @@ export class MockManager {
             
             // 保留原有但不显示在标准日志中的字段
             headers: ctx.headers as Record<string, string>,
-            body: '' // 不解析body，保持为空
+            body: '', // 不解析body，保持为空
+            
+            // Console日志收集
+            consoleLogs: consoleCollector.getLogs(),
           },
           timestamp: startTime
         });

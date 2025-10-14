@@ -117,22 +117,13 @@ const handleToggleCondition = () => {
     handleDeleteCondition(lastIndex)
     return
   }
-  
-  // 未启用，点击后启用
-  if (!lastResponse.conditions.scriptCode) {
-    lastResponse.conditions.scriptCode = '// 返回 true 时触发此响应\nreturn true;'
-  }
   lastResponse.conditions.enabled = true
 }
 
 // 删除触发条件配置
 const handleDeleteCondition = (index: number) => {
   // 清空条件数据并禁用
-  mockResponses.value[index].conditions = {
-    name: '',
-    scriptCode: '',
-    enabled: false
-  }
+  mockResponses.value[index].conditions.enabled = false
 }
 </script>
 

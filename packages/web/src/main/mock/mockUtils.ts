@@ -16,6 +16,79 @@ import { ApidocVariable } from '@src/types';
 type MockResponseConfig = MockHttpNode['response'][0];
 type FileResponseResult = { data: Buffer; mimeType: string; fileName: string; contentDisposition: string };
 type BinaryResponseResult = { data: Buffer; mimeType: string };
+
+// Console日志收集器
+export class ConsoleLogCollector {
+  private logs: Array<{
+    level: 'log' | 'warn' | 'error' | 'info' | 'debug',
+    message: string,
+    timestamp: number,
+  }> = [];
+  private readonly MAX_LOGS = 50;
+  private readonly MAX_MESSAGE_LENGTH = 500;
+  private readonly MAX_DEPTH = 3;
+  // 添加日志
+  public add(level: 'log' | 'warn' | 'error' | 'info' | 'debug', args: any[]): void {
+    if (this.logs.length >= this.MAX_LOGS) {
+      return;
+    }
+    const message = this.formatMessage(args);
+    this.logs.push({
+      level,
+      message,
+      timestamp: Date.now(),
+    });
+  }
+  // 格式化消息
+  private formatMessage(args: any[]): string {
+    const formatted = args.map(arg => this.serializeValue(arg, 0)).join(' ');
+    return formatted.length > this.MAX_MESSAGE_LENGTH 
+      ? formatted.substring(0, this.MAX_MESSAGE_LENGTH - 3) + '...' 
+      : formatted;
+  }
+  // 序列化值
+  private serializeValue(value: any, depth: number): string {
+    if (depth > this.MAX_DEPTH) {
+      return '[Object]';
+    }
+    if (value === null) return 'null';
+    if (value === undefined) return 'undefined';
+    const type = typeof value;
+    if (type === 'string') return value;
+    if (type === 'number' || type === 'boolean') return String(value);
+    if (type === 'function') return '[Function]';
+    if (type === 'object') {
+      try {
+        if (Array.isArray(value)) {
+          const items = value.slice(0, 10).map(item => this.serializeValue(item, depth + 1));
+          const suffix = value.length > 10 ? `, ... ${value.length - 10} more` : '';
+          return `[${items.join(', ')}${suffix}]`;
+        }
+        const seen = new WeakSet();
+        const replacer = (_key: string, val: any) => {
+          if (typeof val === 'object' && val !== null) {
+            if (seen.has(val)) return '[Circular]';
+            seen.add(val);
+          }
+          return val;
+        };
+        return JSON.stringify(value, replacer);
+      } catch {
+        return '[Object]';
+      }
+    }
+    return String(value);
+  }
+  // 获取收集的日志
+  public getLogs() {
+    return [...this.logs];
+  }
+  // 清空日志
+  public clear(): void {
+    this.logs = [];
+  }
+}
+
 export class MockUtils {
   // 兼容ESM环境的当前模块目录
   private static readonly moduleDirname: string = path.dirname(fileURLToPath(import.meta.url));
@@ -44,6 +117,27 @@ export class MockUtils {
   // 清理项目变量缓存
   public static clearProjectVariables(projectId: string): void {
     MockUtils.projectVariablesMap.delete(projectId);
+  }
+
+  /*
+  |--------------------------------------------------------------------------
+  | Console日志收集辅助方法
+  |--------------------------------------------------------------------------
+  */
+  // 创建自定义Console对象
+  private createCustomConsole(collector: ConsoleLogCollector): Console {
+    const createLogMethod = (level: 'log' | 'warn' | 'error' | 'info' | 'debug') => {
+      return (...args: any[]) => {
+        collector.add(level, args);
+      };
+    };
+    return {
+      log: createLogMethod('log'),
+      warn: createLogMethod('warn'),
+      error: createLogMethod('error'),
+      info: createLogMethod('info'),
+      debug: createLogMethod('debug'),
+    } as Console;
   }
 
   /*
@@ -1160,7 +1254,8 @@ export class MockUtils {
   // 使用 Node.js vm 模块安全执行表达式
   private async evaluateExpressionWithIsolatedVM(
     expression: string,
-    variables: Record<string, any>
+    variables: Record<string, any>,
+    consoleCollector?: ConsoleLogCollector
   ): Promise<any> {
     try {
       // 创建一个沙箱环境，包含变量和安全的全局对象
@@ -1174,6 +1269,7 @@ export class MockUtils {
         Boolean: Boolean,
         Array: Array,
         Object: Object,
+        console: consoleCollector ? this.createCustomConsole(consoleCollector) : console,
       };
       
       // 创建一个 VM 上下文
@@ -1193,7 +1289,8 @@ export class MockUtils {
   public async evaluateCondition(
     scriptCode: string,
     ctx: Koa.Context,
-    projectId: string
+    projectId: string,
+    consoleCollector?: ConsoleLogCollector
   ): Promise<boolean> {
     if (!scriptCode || scriptCode.trim() === '') {
       return true;
@@ -1202,7 +1299,11 @@ export class MockUtils {
     const variablesObj = this.getObjectVariable(projectVariables);
     const req = this.buildRequestObject(ctx, variablesObj);
     try {
-      const result = await this.evaluateExpressionWithIsolatedVM(`(() => { ${scriptCode} })()`, { req });
+      const result = await this.evaluateExpressionWithIsolatedVM(
+        `(() => { ${scriptCode} })()`, 
+        { req },
+        consoleCollector
+      );
       return Boolean(result);
     } catch (error) {
       throw error;

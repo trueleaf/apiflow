@@ -65,6 +65,21 @@
                 <span v-if="segment.highlight" class="highlight-keyword">{{ segment.text }}</span>
                 <span v-else>{{ segment.text }}</span>
               </template>
+              
+              <!-- Console日志徽章 -->
+              <template v-if="getConsoleLogStats(log).total > 0">
+                <span 
+                  class="console-badge" 
+                  :class="{
+                    'has-error': getConsoleLogStats(log).errorCount > 0,
+                    'has-warn': getConsoleLogStats(log).warnCount > 0 && getConsoleLogStats(log).errorCount === 0,
+                  }"
+                  :title="`点击查看 Console 日志: ${getConsoleLogStats(log).total} 条`"
+                  @click.stop="showConsoleLogs(log)"
+                >
+                  {{ getConsoleLogStats(log).total }}
+                </span>
+              </template>
             </div>
             <div class="log-actions">
               <el-button size="small" @click="showLogDetail(log)">
@@ -123,6 +138,34 @@
       </div>
     </div>
   </el-dialog>
+
+  <el-dialog
+    v-model="consoleDialogVisible"
+    title="Console 日志详情"
+    width="800px"
+    destroy-on-close
+  >
+    <div class="console-dialog-content">
+      <div class="console-logs-list">
+        <div
+          v-for="(log, index) in currentConsoleLogs"
+          :key="index"
+          class="console-log-item"
+          :class="`level-${log.level}`"
+        >
+          <div class="console-log-header">
+            <component :is="getConsoleLevelIcon(log.level)" :size="16" class="console-log-icon" />
+            <span class="console-log-level">{{ log.level.toUpperCase() }}</span>
+            <span v-if="log.timestamp" class="console-log-time">{{ formatTimestamp(log.timestamp) }}</span>
+          </div>
+          <div class="console-log-content">
+            <pre v-if="typeof log.message === 'object'">{{ formatConsoleLogValue(log.message) }}</pre>
+            <span v-else>{{ log.message }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </el-dialog>
 </template>
 
 <script lang="ts" setup>
@@ -133,7 +176,7 @@ import { ElEmpty, ElButton, ElInput, ElSelect, ElOption, ElDialog, ElMessageBox 
 import type { MockLog } from '@src/types/mockNode'
 import { httpMockLogsCache } from '@/cache/mock/httpMock/httpMockLogsCache'
 import SJsonEditor from '@/components/common/json-editor/g-json-editor.vue'
-import { Trash2, FileText } from 'lucide-vue-next'
+import { Trash2, FileText, AlertCircle, AlertTriangle, Info } from 'lucide-vue-next'
 
 const defaultTemplate = '[$time_local] $remote_addr - $remote_user "$request" $status $body_bytes_sent "$http_referer" "$http_user_agent" $response_time_ms ms'
 
@@ -149,6 +192,8 @@ const detailDialogVisible = ref(false)
 const currentLogJson = ref('')
 const formatDialogVisible = ref(false)
 const tempFormatTemplate = ref('')
+const consoleDialogVisible = ref(false)
+const currentConsoleLogs = ref<Array<{ level: string; message: unknown; timestamp?: number }>>([])
 
 const filters = reactive({
   keyword: '',
@@ -374,10 +419,47 @@ const statusClass = (status: number) => {
   }
   return 'status-success'
 }
+// 获取Console日志统计
+const getConsoleLogStats = (log: Extract<MockLog, { type: 'request' }>) => {
+  const logs = log.data.consoleLogs || []
+  return {
+    total: logs.length,
+    errorCount: logs.filter(l => l.level === 'error').length,
+    warnCount: logs.filter(l => l.level === 'warn').length,
+  }
+}
 // 显示日志详情
 const showLogDetail = (log: Extract<MockLog, { type: 'request' }>) => {
   currentLogJson.value = JSON.stringify(log, null, 2)
   detailDialogVisible.value = true
+}
+// 显示Console日志详情
+const showConsoleLogs = (log: Extract<MockLog, { type: 'request' }>) => {
+  currentConsoleLogs.value = log.data.consoleLogs || []
+  consoleDialogVisible.value = true
+}
+// 获取Console日志级别图标
+const getConsoleLevelIcon = (level: string) => {
+  switch (level) {
+    case 'error':
+      return AlertCircle
+    case 'warn':
+      return AlertTriangle
+    case 'info':
+      return Info
+    default:
+      return Info
+  }
+}
+// 格式化Console日志内容
+const formatConsoleLogValue = (value: unknown): string => {
+  if (typeof value === 'string') {
+    return value
+  }
+  if (typeof value === 'object' && value !== null) {
+    return JSON.stringify(value, null, 2)
+  }
+  return String(value)
 }
 watch(currentNodeId, (value, oldValue) => {
   if (value && value !== oldValue) {
@@ -537,6 +619,37 @@ onUnmounted(() => {
 .log-actions {
   flex-shrink: 0;
 }
+/* Console日志徽章 */
+.console-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 6px;
+  margin-left: 8px;
+  border-radius: 10px;
+  background: var(--el-color-info-light-8);
+  color: var(--el-color-info);
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  user-select: none;
+}
+.console-badge:hover {
+  background: var(--el-color-info-light-7);
+}
+.console-badge.has-warn {
+  background: var(--el-color-warning-light-8);
+  color: var(--el-color-warning-dark-2);
+}
+.console-badge.has-warn:hover {
+  background: var(--el-color-warning-light-7);
+}
+.console-badge.has-error {
+  background: var(--el-color-danger-light-8);
+  color: var(--el-color-danger-dark-2);
+}
+.console-badge.has-error:hover {
+  background: var(--el-color-danger-light-7);
+}
 /* 操作区域 */
 .operation {
   display: flex;
@@ -642,5 +755,117 @@ onUnmounted(() => {
 .variable-example {
   font-size: var(--font-size-xs);
   color: var(--gray-500);
+}
+/* Console日志弹框 */
+.console-dialog-content {
+  display: flex;
+  flex-direction: column;
+}
+.console-logs-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-height: 500px;
+  overflow-y: auto;
+  padding-right: 8px;
+}
+.console-logs-list::-webkit-scrollbar {
+  width: 6px;
+}
+.console-logs-list::-webkit-scrollbar-track {
+  background: var(--gray-100);
+  border-radius: var(--border-radius-sm);
+}
+.console-logs-list::-webkit-scrollbar-thumb {
+  background: var(--gray-400);
+  border-radius: var(--border-radius-sm);
+}
+.console-logs-list::-webkit-scrollbar-thumb:hover {
+  background: var(--gray-500);
+}
+.console-log-item {
+  border-radius: var(--border-radius-base);
+  padding: 12px;
+  background: var(--gray-50);
+  border-left: 3px solid var(--gray-400);
+  transition: all 0.2s ease;
+}
+.console-log-item:hover {
+  background: var(--gray-100);
+}
+.console-log-item.level-error {
+  border-left-color: var(--el-color-danger);
+  background: var(--el-color-danger-light-9);
+}
+.console-log-item.level-error:hover {
+  background: var(--el-color-danger-light-8);
+}
+.console-log-item.level-warn {
+  border-left-color: var(--el-color-warning);
+  background: var(--el-color-warning-light-9);
+}
+.console-log-item.level-warn:hover {
+  background: var(--el-color-warning-light-8);
+}
+.console-log-item.level-info {
+  border-left-color: var(--el-color-info);
+  background: var(--el-color-info-light-9);
+}
+.console-log-item.level-info:hover {
+  background: var(--el-color-info-light-8);
+}
+.console-log-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+.console-log-icon {
+  flex-shrink: 0;
+}
+.console-log-item.level-error .console-log-icon {
+  color: var(--el-color-danger);
+}
+.console-log-item.level-warn .console-log-icon {
+  color: var(--el-color-warning);
+}
+.console-log-item.level-info .console-log-icon {
+  color: var(--el-color-info);
+}
+.console-log-level {
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+  padding: 2px 6px;
+  border-radius: var(--border-radius-sm);
+  background: var(--white);
+}
+.console-log-item.level-error .console-log-level {
+  color: var(--el-color-danger);
+}
+.console-log-item.level-warn .console-log-level {
+  color: var(--el-color-warning);
+}
+.console-log-item.level-info .console-log-level {
+  color: var(--el-color-info);
+}
+.console-log-time {
+  font-size: var(--font-size-xs);
+  color: var(--gray-600);
+  margin-left: auto;
+}
+.console-log-content {
+  font-size: var(--font-size-sm);
+  color: var(--gray-800);
+  word-break: break-word;
+}
+.console-log-content pre {
+  margin: 0;
+  padding: 8px;
+  background: var(--white);
+  border-radius: var(--border-radius-sm);
+  font-family: 'Consolas', 'Monaco', monospace;
+  font-size: var(--font-size-xs);
+  white-space: pre-wrap;
+  word-break: break-all;
 }
 </style>

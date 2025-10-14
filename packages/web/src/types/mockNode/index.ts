@@ -143,6 +143,13 @@ type MockRequestLog = {
     // 保留原有但不显示在标准日志中的字段
     headers: Record<string, string>, // 完整请求头(用于详细查看)
     body: string,                 // 请求体(用于调试)
+
+    // Console日志收集
+    consoleLogs: Array<{
+      level: 'log' | 'warn' | 'error' | 'info' | 'debug',
+      message: string,
+      timestamp: number,
+    }>,
   },
   timestamp: number,
 }
