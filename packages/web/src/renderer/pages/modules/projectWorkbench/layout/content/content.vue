@@ -7,7 +7,6 @@
     <SOnlineLink v-else-if="currentSelectTab.tabType === 'onlineLink'"></SOnlineLink>
     <SRecycler v-else-if="currentSelectTab.tabType === 'recycler'" :key="recyclerKey.toString()"></SRecycler>
     <SHistory v-else-if="currentSelectTab.tabType === 'history'"></SHistory>
-    <SConfig v-else-if="currentSelectTab.tabType === 'config'"></SConfig>
     <SHook v-else-if="currentSelectTab.tabType === 'hook'"></SHook>
     <SCommonHeader v-else-if="currentSelectTab.tabType === 'commonHeader'"></SCommonHeader>
     <SApidoc v-else-if="currentSelectTab.tabType === 'http'"></SApidoc>
@@ -34,7 +33,6 @@ import SCookies from './cookies/cookies.vue'
 import SOnlineLink from './link/link.vue'
 import SRecycler from './recycler/recycler.vue'
 import SHistory from './history/history.vue'
-import SConfig from './config/config.vue'
 import SHook from './hook/hook.vue'
 import SCommonHeader from './common-header/common-header.vue'
 import SWebsocket from './websocket/websocket.vue'

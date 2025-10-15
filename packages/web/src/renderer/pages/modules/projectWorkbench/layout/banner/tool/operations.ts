@@ -24,13 +24,6 @@ export const originOperaions = [
     viewOnly: true,
   },
   {
-    name: i18n.global.t('全局设置'),
-    icon: "#iconshezhi",
-    op: "config",
-    shortcut: ["Ctrl", ","],
-    pin: true,
-  },
-  {
     name: i18n.global.t('Cookie管理'),
     icon: "#iconCookies",
     op: "cookies",

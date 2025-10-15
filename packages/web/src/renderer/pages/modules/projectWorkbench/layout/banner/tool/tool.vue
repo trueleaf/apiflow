@@ -346,21 +346,6 @@ const handleEmit = (op: ApidocOperations) => {
         selected: true,
       })
       break;
-    case 'config': //全局设置
-      apidocTabsStore.addTab({
-        _id: 'config',
-        projectId,
-        tabType: 'config',
-        label: t('全局设置'),
-        head: {
-          icon: '',
-          color: ''
-        },
-        saved: true,
-        fixed: true,
-        selected: true,
-      })
-      break;
     case 'hook': //生成代码
       apidocTabsStore.addTab({
         _id: 'hook',

@@ -41,11 +41,6 @@
               </template>
               <!-- 其他 -->
               <template v-else>
-                <!-- 配置 -->
-                <el-icon v-if="element.tabType === 'config'" class="mr-2" :size="16">
-                  <IconSetting />
-                </el-icon>
-
                 <!-- 链接 -->
                 <el-icon v-if="element.tabType === 'onlineLink'" class="orange mr-2" :size="16">
                   <IconLink />
@@ -125,7 +120,6 @@
 import * as SDraggable from 'vuedraggable'
 import { useI18n } from 'vue-i18n'
 import {
-  Setting as IconSetting,
   Plus as IconPlus,
   Link as IconLink,
   Share as IconShare,
