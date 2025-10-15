@@ -111,7 +111,7 @@ import { useApidocBanner } from '@/store/apidoc/banner';
 import SFieldset from '@/components/common/fieldset/g-fieldset.vue'
 import SLoading from '@/components/common/loading/g-loading.vue'
 import SEmphasize from '@/components/common/emphasize/g-emphasize.vue'
-import config from '../../config/config.vue';
+import { config } from '@src/config/config';
 // import type { TreeComponentProps }  from "element-plus/lib/components/tree/src/tree.type"
 
 type DragState = {
