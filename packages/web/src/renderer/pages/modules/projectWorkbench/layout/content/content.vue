@@ -22,20 +22,20 @@ import { computed, onMounted, ref } from 'vue';
 import { useApidocTas } from '@/store/apidoc/tabs';
 import { event } from '@/helper'
 import { useRoute } from 'vue-router';
-import SApidoc from './apidoc/apidoc.vue';
+import SApidoc from '../../httpNode/httpNode.vue';
 import SGuide from './guide/guide.vue';
-import SVariable from './variable/variable.vue';
+import SVariable from '../../variable/variable.vue';
 // import mindParams from './mind-params/mind-params.vue';
-import SHttpMock from './httpMock/httpMock.vue';
-import SExportDoc from './export/export.vue';
+import SHttpMock from '../../httpMockNode/httpMockNode.vue';
+import SExportDoc from '../../export/export.vue';
 import SImportDoc from './import/import.vue'
-import SCookies from './cookies/cookies.vue'
+import SCookies from '../../cookies/cookies.vue'
 import SOnlineLink from './link/link.vue'
 import SRecycler from './recycler/recycler.vue'
-import SHistory from './history/history.vue'
+import SHistory from '../../audit/audit.vue'
 import SHook from './hook/hook.vue'
-import SCommonHeader from './common-header/common-header.vue'
-import SWebsocket from './websocket/websocket.vue'
+import SCommonHeader from '../../common-header/common-header.vue'
+import SWebsocket from '../../websocketNode/websocketNode.vue'
 
 const route = useRoute();
 const apidocTabsStore = useApidocTas()
