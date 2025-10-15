@@ -104,7 +104,7 @@ test.describe('离线模式首屏 UI 验证', () => {
   test('主内容区域默认展示项目列表页', async () => {
     await expect(contentPage).toHaveURL(/\/home/);
 
-    const docListContainer = contentPage.locator('.doc-list');
+    const docListContainer = contentPage.locator('.home');
     await expect(docListContainer).toBeVisible();
 
     await expect(contentPage.locator('text=项目列表')).toBeVisible();
@@ -227,7 +227,7 @@ test.describe('离线模式首屏 UI 验证', () => {
     await contentPage.waitForLoadState('domcontentloaded');
     
     // 验证页面内容正常
-    await expect(contentPage.locator('.doc-list')).toBeVisible();
+    await expect(contentPage.locator('.home')).toBeVisible();
   });
 
   test('切换多个标签页时应正确更新active状态', async () => {

@@ -9,12 +9,12 @@ const routes: Array<RouteRecordRaw> = [
   {
     path: "/header",
     name: "Header",
-    component: () => import("@/pages/header/header.vue"),
+    component: () => import("@/pages/layout/header/header.vue"),
   },
   {
     path: "/home",
     name: "Home",
-    component: () => import("@/pages/modules/home/projectManager/home.vue"),
+    component: () => import("@/pages/modules/home/home.vue"),
   },
   {
     path: "/v1/apidoc/doc-edit",
@@ -68,12 +68,12 @@ const routerConfig = {
     {
       path: "/header",
       name: "Header",
-      component: () => import("@/pages/header/header.vue"),
+      component: () => import("@/pages/layout/header/header.vue"),
     },
     {
       path: "/home",
       name: "Home",
-      component: () => import("@/pages/modules/home/projectManager/home.vue"),
+      component: () => import("@/pages/modules/home/home.vue"),
     },
     {
       path: "/v1/apidoc/doc-edit",

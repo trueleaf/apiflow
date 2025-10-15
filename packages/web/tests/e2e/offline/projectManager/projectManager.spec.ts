@@ -96,7 +96,7 @@ test.describe('离线模式项目增删改查测试', () => {
       await expect(contentPage).toHaveURL(/home/);
 
       // 验证项目列表容器存在
-      const docListContainer = contentPage.locator('.doc-list');
+      const docListContainer = contentPage.locator('.home');
       await expect(docListContainer).toBeVisible();
 
       // 验证页面标题

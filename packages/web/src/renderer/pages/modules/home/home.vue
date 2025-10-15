@@ -1,7 +1,7 @@
 <template>
-  <div class="doc-list">
-    <div class="doc-list__header">
-      <div class="doc-list__tabs">
+  <div class="home">
+    <div class="home__header">
+      <div class="home__tabs">
         <el-tabs :model-value="activeName" @update:model-value="handleChangeActiveTab">
           <el-tab-pane name="projectList">
             <template #label>
@@ -33,8 +33,8 @@
 <script lang="ts" setup>
 import { computed, onMounted, ref } from 'vue'
 import { Tickets, School } from '@element-plus/icons-vue'
-import tabA from '../../apidoc/doc-list/tab-a/tab-a.vue'
-import tabB from '../../apidoc/doc-list/tab-b/tab-b.vue'
+import tabA from '../apidoc/doc-list/tab-a/tab-a.vue'
+import tabB from '../apidoc/doc-list/tab-b/tab-b.vue'
 import { useI18n } from 'vue-i18n'
 import { TabPaneName } from 'element-plus'
 import { userState } from '@/cache/userState/userStateCache.ts'
@@ -64,7 +64,7 @@ onMounted(() => {
 </script>
 
 <style lang='scss' scoped>
-.doc-list {
+.home {
   width: 70%;
   margin-left: auto;
   margin-right: auto;
