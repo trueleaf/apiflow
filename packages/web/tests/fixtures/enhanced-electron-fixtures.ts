@@ -71,6 +71,9 @@ export const test = base.extend<EnhancedElectronFixtures>({
     
     // 等待窗口加载完成
     await window.waitForLoadState('domcontentloaded');
+    
+    // 等待额外时间确保 WebContentsView 加载完成
+    await window.waitForTimeout(2000);
 
     // 将窗口传递给测试
     await use(window);
