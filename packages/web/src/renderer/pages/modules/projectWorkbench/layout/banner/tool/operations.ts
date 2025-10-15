@@ -82,12 +82,4 @@ export const originOperaions = [
     pin: false,
     viewOnly: true,
   },
-  {
-    name: i18n.global.t('接口编排'),
-    icon: "#iconbianpaixin",
-    op: "apiflow",
-    shortcut: [],
-    pin: false,
-    viewOnly: true,
-  },
 ];

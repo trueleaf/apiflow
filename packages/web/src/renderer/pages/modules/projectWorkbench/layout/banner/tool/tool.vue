@@ -376,21 +376,6 @@ const handleEmit = (op: ApidocOperations) => {
         selected: true,
       })
       break;
-    case 'apiflow': //接口编排
-      apidocTabsStore.addTab({
-        _id: 'apiflow',
-        projectId,
-        tabType: 'apiflow',
-        label: t('接口编排'),
-        head: {
-          icon: '',
-          color: ''
-        },
-        saved: true,
-        fixed: true,
-        selected: true,
-      })
-      break;
     case 'variable': //接口编排
       apidocTabsStore.addTab({
         _id: 'variable',

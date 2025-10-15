@@ -10,7 +10,6 @@ export type ApidocTabType =
   'guide' |
   'hook' |
   'commonHeader' |
-  'apiflow' |
   'cookies' |
   'websocket' |
   'httpMock' |

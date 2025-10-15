@@ -69,8 +69,6 @@
                 <el-icon v-if="element.tabType === 'recycler'" class="red mr-2" :size="16">
                   <IconDeleteFilled />
                 </el-icon>
-                <!-- 接口编排 -->
-                <span v-if="element.tabType === 'apiflow'" class="iconfont iconbianpaixin f-base mr-2"></span>
                 <!-- cookies管理 -->
                 <span v-if="element.tabType === 'cookies'" class="iconfont iconCookies f-base mr-2"></span>
               </template>
