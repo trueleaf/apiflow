@@ -9,31 +9,29 @@ export default function ComparisonSection() {
 
   const features = [
     {
-      category: '核心优势对比',
+      category: t('核心优势对比'),
       items: [
-        { feature: '是否开源', apiflow: true, postman: false, hoppscotch: true, apifox: false },
-        { feature: '是否免费', apiflow: true, postman: 'limit', hoppscotch: true, apifox: 'limit(公网版免费)' },
-        { feature: '是否支持本地部署', apiflow: true, postman: false, hoppscotch: true, apifox: '付费' },
+        { feature: t('是否开源'), apiflow: true, postman: false, hoppscotch: true, apifox: false },
+        { feature: t('是否免费'), apiflow: true, postman: t('有限'), hoppscotch: true, apifox: t('limit(公网版免费)') },
+        { feature: t('是否支持本地部署'), apiflow: true, postman: false, hoppscotch: true, apifox: t('付费') },
       ],
     },
     {
-      category: 'HTTP请求支持',
+      category: t('HTTP请求支持'),
       items: [
-        { feature: '基本 HTTP 请求方法支持 (GET, POST, PUT, DELETE, PATCH, HEAD, OPTIONS)', apiflow: true, postman:  true, hoppscotch: true, apifox:  true },
+        { feature: t('基本 HTTP 请求方法支持 (GET, POST, PUT, DELETE, PATCH, HEAD, OPTIONS)'), apiflow: true, postman:  true, hoppscotch: true, apifox:  true },
         { feature: 'HTTP/1.1', apiflow: true, postman: true, hoppscotch: true, apifox: true },
         { feature: 'HTTP/2', apiflow: false, postman: true, hoppscotch: false, apifox: true },
-        { feature: 'query参数、路径参数', apiflow: true, postman: true, hoppscotch: true, apifox: true },
-        { feature: 'body参数, json、formData、urlencoded、binary', apiflow: true, postman: true, hoppscotch: true, apifox: true },
-        { feature: '请求头自动添加Content-Type', apiflow: true, postman: true, hoppscotch: true, apifox: true },
-        { feature: 'Cookies管理', apiflow: true, postman: true, hoppscotch: 'limit(浏览器限制)', apifox: true },
-        { feature: '前置脚本/后置脚本', apiflow: true, postman: true, hoppscotch: true, apifox: true },
-        { feature: '调试本地服务 /跨域 (CORS / 本地 API)', apiflow: true, postman: true, hoppscotch: 'limit(浏览器限制)', apifox: true },
-        { feature: '前置脚本/后置脚本', apiflow: true, postman: true, hoppscotch: true, apifox: true },
-        { feature: '前置脚本/后置脚本', apiflow: true, postman: true, hoppscotch: true, apifox: true },
+        { feature: t('query参数、路径参数'), apiflow: true, postman: true, hoppscotch: true, apifox: true },
+        { feature: t('body参数, json、formData、urlencoded、binary'), apiflow: true, postman: true, hoppscotch: true, apifox: true },
+        { feature: t('请求头自动添加Content-Type'), apiflow: true, postman: true, hoppscotch: true, apifox: true },
+        { feature: t('Cookies管理'), apiflow: true, postman: true, hoppscotch: t('limit(浏览器限制)'), apifox: true },
+        { feature: t('前置脚本/后置脚本'), apiflow: true, postman: true, hoppscotch: true, apifox: true },
+        { feature: t('调试本地服务 /跨域 (CORS / 本地 API)'), apiflow: true, postman: true, hoppscotch: t('limit(浏览器限制)'), apifox: true },
       ],
     },
     {
-      category: '其他协议支持',
+      category: t('其他协议支持'),
       items: [
         { feature: 'Websocket', apiflow: true, postman: true, hoppscotch: true, apifox: true },
         { feature: 'Scoket.IO', apiflow: false, postman: true, hoppscotch: true, apifox: true },
@@ -42,20 +40,20 @@ export default function ComparisonSection() {
       ],
     },
     {
-      category: '历史记录',
+      category: t('历史记录'),
       items: [
-        { feature: '发送请求历史记录', apiflow: true, postman: true, hoppscotch: true, apifox: true },
-        { feature: '单个节点历史记录', apiflow: true, postman: 'limit(付费版)', hoppscotch: '??', apifox: '??' },
-        { feature: '回收站', apiflow: true, postman: true, hoppscotch: false, apifox: true },
+        { feature: t('发送请求历史记录'), apiflow: true, postman: true, hoppscotch: true, apifox: true },
+        { feature: t('单个节点历史记录'), apiflow: true, postman: t('limit(付费版)'), hoppscotch: '??', apifox: '??' },
+        { feature: t('回收站'), apiflow: true, postman: true, hoppscotch: false, apifox: true },
       ],
     },
     {
-      category: '团队协作',
+      category: t('团队协作'),
       items: [
-        { feature: '工作区', apiflow: true, postman: true, hoppscotch: true, apifox: true },
-        { feature: '角色与权限（RBAC', apiflow: true, postman: true, hoppscotch: true, apifox: true },
-        { feature: '评论/讨论', apiflow: false, postman: true, hoppscotch: false, apifox: true },
-        { feature: '审计功能', apiflow: true, postman: 'limit(付费版)', hoppscotch: false, apifox: 'limit(付费版)' },
+        { feature: t('工作区'), apiflow: true, postman: true, hoppscotch: true, apifox: true },
+        { feature: t('角色与权限（RBAC'), apiflow: true, postman: true, hoppscotch: true, apifox: true },
+        { feature: t('评论/讨论'), apiflow: false, postman: true, hoppscotch: false, apifox: true },
+        { feature: t('审计功能'), apiflow: true, postman: t('limit(付费版)'), hoppscotch: false, apifox: t('limit(付费版)') },
       ],
     },
   ];
@@ -110,7 +108,7 @@ export default function ComparisonSection() {
               <thead className="bg-gray-50">
                 <tr>
                   <th className="px-6 py-4 text-left text-base font-semibold text-gray-900">
-                    功能
+                    {t('功能')}
                   </th>
                   <th className="px-6 py-4 text-center text-base font-semibold text-blue-600">
                     Apiflow
@@ -175,9 +173,6 @@ export default function ComparisonSection() {
             <p className="text-sm text-gray-600 mb-4">
               {t('注：部分功能因版本不同可能略有差异')}
             </p>
-            <button className="inline-flex items-center rounded-lg bg-blue-600 px-6 py-3 text-base font-semibold text-white shadow-lg hover:bg-blue-700 transition-all duration-200">
-              {t('立即体验 Apiflow')}
-            </button>
           </div>
         </div>
       </div>

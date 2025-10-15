@@ -1,8 +1,14 @@
 import { MessageCircle, Users, Video } from 'lucide-react';
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 
 export default function AboutUsSection() {
   const t = useTranslations();
+  const locale = useLocale();
+
+  // 仅在中文模式下展示
+  if (!locale.startsWith('zh')) {
+    return null;
+  }
 
   const channels = [
     { icon: Video, label: t('社区渠道_B站') },
