@@ -1,5 +1,5 @@
 <template>
-  <div class="tab-a">
+  <div class="project-manager">
     <!-- 搜索条件 -->
     <div class="search-item d-flex a-center mb-3">
       <el-input v-model="projectName" :placeholder="$t('项目名称')" :prefix-icon="SearchIcon" class="w-200px mr-3" clearable>
@@ -209,11 +209,7 @@ import { useProjectStore } from '@/store/project/project'
 import { useRuntime } from '@/store/runtime/runtime'
 import { httpMockLogsCache } from '@/cache/mock/httpMock/httpMockLogsCache';
 
-/*
-|--------------------------------------------------------------------------
-| 变量
-|--------------------------------------------------------------------------
-*/
+//变量
 const { t } = useI18n()
 const projectStore = useProjectStore();
 const runtimeStore = useRuntime();
@@ -224,7 +220,6 @@ const projectName = ref('');
 const projectKeyword = ref('')
 const projectListCopy = ref<ApidocProjectInfo[]>([]);
 const projectListCopy2 = ref<ApidocProjectInfo[]>([]);
-
 watch(() => projectStore.projectList, (list) => {
   projectListCopy.value = list.slice();
   starProjectIds.value = list.filter((item) => item.isStared).map((item) => item._id);
@@ -233,12 +228,12 @@ watch(() => projectStore.projectList, (list) => {
     projectListCopy2.value = list.slice();
   }
 }, { deep: true, immediate: true });
-
+//同步离线项目列表
 const syncOfflineProjectList = (list: ApidocProjectInfo[]): void => {
   projectStore.projectList = list;
   starProjectIds.value = list.filter((item) => item.isStared).map((item) => item._id);
 };
-
+//确保项目收藏状态
 const ensureProjectStarState = (projectId: string, isStared: boolean): void => {
   const projects = projectStore.projectList;
   const target = projects.find((project: ApidocProjectInfo) => project._id === projectId);
@@ -254,7 +249,6 @@ const ensureProjectStarState = (projectId: string, isStared: boolean): void => {
     starIds.splice(existIndex, 1);
   }
 };
-
 const currentEditProjectId = ref('');
 const currentEditProjectName = ref('');
 const isShowAdvanceSearch = ref(false);
@@ -289,11 +283,6 @@ const starProjects = computed(() => {
   });
 });
 const apidocBaseInfo = useApidocBaseInfo()
-/*
-|--------------------------------------------------------------------------
-| 项目列表增删改查
-|--------------------------------------------------------------------------
-*/
 //获取项目列表
 const getProjectList = async () => {
   if (projectLoading.value) {
@@ -326,11 +315,9 @@ const deleteProject = (_id: string) => {
     cancelButtonText: t('取消'),
     type: 'warning'
   }).then(async () => {
-    // 发送IPC事件通知topBarView删除对应的tab
     const notifyProjectDeleted = () => {
       window.electronAPI?.ipcManager.sendToMain('apiflow-content-project-deleted', _id);
     }
-    // 清理 Mock 日志缓存
     const cleanupMockLogs = async () => {
       try {
         await httpMockLogsCache.clearLogsByProjectId(_id);
@@ -363,11 +350,6 @@ const deleteProject = (_id: string) => {
     console.error(err);
   });
 }
-/*
-|--------------------------------------------------------------------------
-| 其他操作
-|--------------------------------------------------------------------------
-*/
 //收藏项目
 const handleStar = async (item: ApidocProjectInfo) => {
   if (starLoading.value) {
@@ -486,8 +468,6 @@ const handleAddSuccess = async (data: { projectId: string, projectName: string }
 //编辑项目成功
 const handleEditSuccess = (data?: { id: string, name: string }) => {
   getProjectList();
-
-  // 如果有编辑数据，发送IPC事件通知topBarView更新tab名称
   if (data) {
     window.electronAPI?.ipcManager.sendToMain('apiflow-content-project-renamed', {
       projectId: data.id,
@@ -500,11 +480,11 @@ const toggleCollapse = () => {
   isFold.value = !isFold.value;
   localStorage.setItem('doc-list/isFold', isFold.value ? 'close' : 'open');
 }
+//防抖搜索
 const debounceSearch = debounce(async () => {
   searchLoading.value = true;
   if (projectKeyword.value?.trim().length === 0) {
     projectListCopy2.value = [];
-    // No need to update starProjectIds here as it's managed locally
     setTimeout(() => {
       searchLoading.value = false;
     }, 100)
@@ -515,7 +495,6 @@ const debounceSearch = debounce(async () => {
     const docs = await apiNodesCache.getNodeList();
     const projectList = await projectCache.getProjectList();
     const filteredDocs = docs.filter((doc) => {
-      // Type guard to check if doc has an item property (HttpNode or WebSocketNode)
       const hasItem = 'item' in doc && doc.item;
       const urlMatch = hasItem && 'url' in doc.item && doc.item.url && 
                       ('path' in doc.item.url ? doc.item.url.path.toLowerCase().includes(keyword) : false);
@@ -547,11 +526,6 @@ const debounceSearch = debounce(async () => {
     searchLoading.value = false;
   });
 }, isStandalone.value ? 100 : 1000)
-/*
-|--------------------------------------------------------------------------
-| 生命周期
-|--------------------------------------------------------------------------
-*/
 onMounted(() => {
   getProjectList();
   initCahce();
@@ -560,7 +534,7 @@ onMounted(() => {
 </script>
 
 <style lang='scss' scoped>
-.tab-a {
+.project-manager {
   .project-wrap {
     display: flex;
     flex-wrap: wrap;
@@ -650,4 +624,3 @@ onMounted(() => {
   }
 }
 </style>
-

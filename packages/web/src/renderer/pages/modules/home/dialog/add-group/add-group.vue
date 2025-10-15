@@ -98,14 +98,9 @@ const selectUserData = ref< {
     permission: "admin" | "readOnly" | "readAndWrite",
     expireAt?: string;
   }[]>([]) //-----已选中的用户
-const remoteQueryName = ref('') //-------------------------用户名称
+const remoteQueryName = ref('') //-------------------------用户名
 const loading = ref(false) //------------------------------成员数据加载状态
 const loading2 = ref(false) //-----------------------------新增团队
-/*
-|--------------------------------------------------------------------------
-| 
-|--------------------------------------------------------------------------
-*/
 //根据名称查询用户列表
 const getRemoteUserByName = (query: string) => {
   if (!query.trim()) {

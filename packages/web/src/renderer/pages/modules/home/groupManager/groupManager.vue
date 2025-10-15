@@ -1,5 +1,5 @@
 <template>
-  <div v-loading="loading" class="tab-b">
+  <div v-loading="loading" class="project-group">
     <div class="d-flex">
       <!-- banner -->
       <div class="side-menu-container">
@@ -219,7 +219,7 @@
 import { useI18n } from 'vue-i18n'
 import { Plus, User, Search, ArrowDown, Check, Delete } from '@element-plus/icons-vue'
 import { computed, onMounted, ref } from 'vue';
-import AddProjectDialog from './dialog/add-group/add-group.vue'
+import AddProjectDialog from '../dialog/add-group/add-group.vue'
 import { request } from '@/api/api';
 import { ApidocGroupItem, ApidocGroupUser, PermissionUserBaseInfo, CommonResponse } from '@src/types';
 import { cloneDeep, uuid } from '@/helper';
@@ -426,7 +426,7 @@ onMounted(() => {
 </script>
 
 <style lang='scss' scoped>
-.tab-b {
+.project-group {
   height: calc(100vh - 150px);
 }
 
