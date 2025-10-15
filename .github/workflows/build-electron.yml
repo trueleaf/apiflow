@@ -35,6 +35,9 @@ jobs:
         run: npx playwright install --with-deps
         working-directory: packages/web
         
+      - name: 构建Web应用
+        run: npm run build:web
+        
       - name: 运行E2E测试
         run: npm run test
         working-directory: packages/web
