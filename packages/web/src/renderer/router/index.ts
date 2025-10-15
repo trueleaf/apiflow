@@ -14,7 +14,7 @@ const routes: Array<RouteRecordRaw> = [
   {
     path: "/home",
     name: "Home",
-    component: () => import("@/pages/modules/apidoc/doc-list/doc-list.vue"),
+    component: () => import("@/pages/modules/home/projectManager/home.vue"),
   },
   {
     path: "/v1/apidoc/doc-edit",
@@ -73,7 +73,7 @@ const routerConfig = {
     {
       path: "/home",
       name: "Home",
-      component: () => import("@/pages/modules/apidoc/doc-list/doc-list.vue"),
+      component: () => import("@/pages/modules/home/projectManager/home.vue"),
     },
     {
       path: "/v1/apidoc/doc-edit",
