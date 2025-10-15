@@ -1,7 +1,7 @@
 import { createRouter, createWebHashHistory, createWebHistory, RouteRecordRaw } from "vue-router";
 import NProgress from "nprogress";
 import "nprogress/nprogress.css";
-import docEdit from "@/pages/modules/apidoc/doc-edit/doc-edit.vue";
+import docEdit from "@/pages/modules/projectWorkbench/projectWorkbench.vue";
 import { usePermissionStore } from "@/store/permission";
 import { useRuntime } from "@/store/runtime/runtime.ts";
 

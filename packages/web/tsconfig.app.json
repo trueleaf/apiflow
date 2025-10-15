@@ -39,7 +39,7 @@
     "src/types/components.d.ts"
   ],
   "exclude": [
-    "./src/renderer/pages/modules/apidoc/doc-edit/content/apiflow/**",
+    "./src/renderer/pages/modules/projectWorkbench/layout/content/apiflow/**",
     "./src/renderer/pages/modules/apidoc/doc-share/testData.ts",
     "src/renderer/pages/modules/apidoc/doc-share/testData.ts"
   ]
