@@ -1,65 +1,67 @@
 <template>
-  <div class="d-flex a-center mb-3">
-    <span class="flex0">{{ t("添加用户") }}：</span>
-    <RemoteSelector v-model="remoteQueryName" :remote-methods="getRemoteUserOrGroupByName" :loading="loading2"
-      :placeholder="t('输入【用户名】| 【完整手机号】 | 【组名称】')">
-      <RemoteSelectorItem v-for="(item, index) in remoteUserOrGroupList" :key="index">
-        <div class="d-flex a-center j-between w-100 h-100" @click="handleAddMember(item)">
-          <span>{{ item.name }}</span>
-          <el-tag v-if="item.type === 'user'">用户</el-tag>
-          <el-tag v-if="item.type === 'group'" type="success">组</el-tag>
-        </div>
-      </RemoteSelectorItem>
-      <div v-if="remoteUserOrGroupList.length === 0" class="d-flex a-center j-center w-100 h-40px gray-500">{{ t('暂无数据')
-        }}</div>
-    </RemoteSelector>
-  </div>
-  <!-- 表格展示 -->
-  <Loading :loading="loading">
-    <!-- 成员信息 -->
-    <el-table :data="memberList"  border max-height="50vh">
-      <el-table-column prop="name" :label="t('名称')" align="center"></el-table-column>
-      <el-table-column prop="type" :label="t('类型')" sortable align="center">
-        <template #default="{ row }">
-          <el-tag v-if="row.type === 'user'">用户</el-tag>
-          <el-tag v-if="row.type === 'group'" type="success">组</el-tag>
-        </template>
-      </el-table-column>
-      <el-table-column :label="t('角色(权限)')" align="center">
-        <template #default="scope">
-          <el-select 
-            v-if="scope.row.type === 'user'" 
-            :size="config.renderConfig.layout.size"
-            v-model="scope.row.permission"
-            @change="handleChangePermission(scope.row)"
-          
-          >
-            <el-option :label="t('只读')" value="readOnly">
-              <span>{{ t("只读") }}</span>
-              <span class="gray-500">({{ t("仅查看项目") }})</span>
-            </el-option>
-            <el-option :label="t('读写')" value="readAndWrite">
-              <span>{{ t("读写") }}</span>
-              <span class="gray-500">({{ t("新增和编辑文档") }})</span>
-            </el-option>
-            <el-option :label="t('管理员')" value="admin">
-              <span>{{ t("管理员") }}</span>
-              <span class="gray-500">({{ t("添加新成员") }})</span>
-            </el-option>
-          </el-select>
-          <span v-else>/</span>
-        </template>
-      </el-table-column>
-      <el-table-column :label="t('操作')" align="center" width="200px">
-        <template #default="scope">
-          <el-button v-if="userInfo.id === scope.row.id" type="primary" text
-            @click="handleLeaveGroup(scope.row, scope.$index)">{{ t("退出") }}</el-button>
-          <el-button v-else type="primary" text @click="handleDeleteMember(scope.row, scope.$index)">{{ t("删除")
-          }}</el-button>
-        </template>
-      </el-table-column>
-    </el-table>
-  </Loading>
+  <el-dialog :model-value="modelValue" top="10vh" :title="t('成员管理')" :before-close="handleClose">
+    <div class="d-flex a-center mb-3">
+      <span class="flex0">{{ t("添加用户") }}：</span>
+      <RemoteSelector v-model="remoteQueryName" :remote-methods="getRemoteUserOrGroupByName" :loading="loading2"
+        :placeholder="t('输入【用户名】| 【完整手机号】 | 【组名称】')">
+        <RemoteSelectorItem v-for="(item, index) in remoteUserOrGroupList" :key="index">
+          <div class="d-flex a-center j-between w-100 h-100" @click="handleAddMember(item)">
+            <span>{{ item.name }}</span>
+            <el-tag v-if="item.type === 'user'">用户</el-tag>
+            <el-tag v-if="item.type === 'group'" type="success">组</el-tag>
+          </div>
+        </RemoteSelectorItem>
+        <div v-if="remoteUserOrGroupList.length === 0" class="d-flex a-center j-center w-100 h-40px gray-500">{{ t('暂无数据')
+          }}</div>
+      </RemoteSelector>
+    </div>
+    <!-- 表格展示 -->
+    <Loading :loading="loading">
+      <!-- 成员信息 -->
+      <el-table :data="memberList"  border max-height="50vh">
+        <el-table-column prop="name" :label="t('名称')" align="center"></el-table-column>
+        <el-table-column prop="type" :label="t('类型')" sortable align="center">
+          <template #default="{ row }">
+            <el-tag v-if="row.type === 'user'">用户</el-tag>
+            <el-tag v-if="row.type === 'group'" type="success">组</el-tag>
+          </template>
+        </el-table-column>
+        <el-table-column :label="t('角色(权限)')" align="center">
+          <template #default="scope">
+            <el-select 
+              v-if="scope.row.type === 'user'" 
+              :size="config.renderConfig.layout.size"
+              v-model="scope.row.permission"
+              @change="handleChangePermission(scope.row)"
+            
+            >
+              <el-option :label="t('只读')" value="readOnly">
+                <span>{{ t("只读") }}</span>
+                <span class="gray-500">({{ t("仅查看项目") }})</span>
+              </el-option>
+              <el-option :label="t('读写')" value="readAndWrite">
+                <span>{{ t("读写") }}</span>
+                <span class="gray-500">({{ t("新增和编辑文档") }})</span>
+              </el-option>
+              <el-option :label="t('管理员')" value="admin">
+                <span>{{ t("管理员") }}</span>
+                <span class="gray-500">({{ t("添加新成员") }})</span>
+              </el-option>
+            </el-select>
+            <span v-else>/</span>
+          </template>
+        </el-table-column>
+        <el-table-column :label="t('操作')" align="center" width="200px">
+          <template #default="scope">
+            <el-button v-if="userInfo.id === scope.row.id" type="primary" text
+              @click="handleLeaveGroup(scope.row, scope.$index)">{{ t("退出") }}</el-button>
+            <el-button v-else type="primary" text @click="handleDeleteMember(scope.row, scope.$index)">{{ t("删除")
+            }}</el-button>
+          </template>
+        </el-table-column>
+      </el-table>
+    </Loading>
+  </el-dialog>
 </template>
 
 <script lang="ts" setup>
@@ -82,37 +84,30 @@ type MemberInfo = {
   }[];
   users: ApidocGroupUser[]
 }
-/*
-|--------------------------------------------------------------------------
-| 变量定义
-|--------------------------------------------------------------------------
-|
-*/
+
 const props = defineProps({
-  id: {
+  modelValue: {
+    type: Boolean,
+    default: false,
+  },
+  projectId: {
     type: String,
     default: '',
   },
 })
-const emits = defineEmits(['leave']);
-const { userInfo } = usePermissionStore()
-const remoteUserOrGroupList = ref<ApidocProjectMemberInfo[]>([]) //------远程用户和组列表
-const memberList = ref<MemberWithOldPermission[]>([]);
-const { t } = useI18n()
 
+const emits = defineEmits(['update:modelValue', 'leave'])
+const { t } = useI18n()
+const { userInfo } = usePermissionStore()
+const remoteUserOrGroupList = ref<ApidocProjectMemberInfo[]>([])
+const memberList = ref<MemberWithOldPermission[]>([]);
 const remoteQueryName = ref('');
 const loading = ref(false);
 const loading2 = ref(false);
-/*
-|--------------------------------------------------------------------------
-| 初始化
-|--------------------------------------------------------------------------
-|
-*/
 //获取项目成员信息
 const getApidocProjectUserInfo = () => {
   loading.value = true;
-  request.get<CommonResponse<MemberInfo>, CommonResponse<MemberInfo>>('/api/project/project_members', { params: { _id: props.id } }).then((res) => {
+  request.get<CommonResponse<MemberInfo>, CommonResponse<MemberInfo>>('/api/project/project_members', { params: { _id: props.projectId } }).then((res) => {
     res.data.users.forEach((userInfo) => {
       memberList.value.push({
         name: userInfo.userName,
@@ -150,12 +145,6 @@ const getRemoteUserOrGroupByName = (query: string) => {
     loading2.value = false;
   });
 }
-
-/*
-|--------------------------------------------------------------------------
-| 成员增删改查
-|--------------------------------------------------------------------------
-*/
 //添加成员
 const handleAddMember = (item: ApidocProjectMemberInfo) => {
   remoteUserOrGroupList.value = [];
@@ -169,7 +158,7 @@ const handleAddMember = (item: ApidocProjectMemberInfo) => {
     name: item.name,
     permission: item.type === 'user' ? 'readAndWrite' : undefined,
     id: item.id,
-    projectId: props.id,
+    projectId: props.projectId,
     type: item.type,
   };
   request.post('/api/project/add_user', params).then(() => {
@@ -195,7 +184,7 @@ const handleDeleteMember = (row: MemberWithOldPermission, index: number) => {
   }).then(() => {
     const params = {
       id: row.id,
-      projectId: props.id,
+      projectId: props.projectId,
       memberType: row.type,
     };
     request.delete('/api/project/delete_user', { data: params }).then(() => {
@@ -233,11 +222,12 @@ const handleLeaveGroup = (row: MemberWithOldPermission, index: number) => {
   }).then(() => {
     const params = {
       id: row.id,
-      projectId: props.id,
+      projectId: props.projectId,
     };
     request.delete('/api/project/delete_user', { data: params }).then(() => {
       memberList.value.splice(index, 1);
       emits('leave');
+      handleClose();
     }).catch((err) => {
       console.error(err);
     });
@@ -274,7 +264,7 @@ const handleChangePermission = (row: MemberWithOldPermission) => {
     }).then(() => {
       const params = {
         id: row.id,
-        projectId: props.id,
+        projectId: props.projectId,
         permission: row.permission,
       };
       request.put('/api/project/change_permission', params).then(() => {
@@ -293,7 +283,7 @@ const handleChangePermission = (row: MemberWithOldPermission) => {
   } else {
     const params = {
       id: row.id,
-      projectId: props.id,
+      projectId: props.projectId,
       permission: row.permission,
     };
     request.put('/api/project/change_permission', params).then(() => {
@@ -303,6 +293,9 @@ const handleChangePermission = (row: MemberWithOldPermission) => {
       console.error(err);
     });
   }
+}
+const handleClose = () => {
+  emits('update:modelValue', false);
 }
 onMounted(() => {
   getApidocProjectUserInfo();

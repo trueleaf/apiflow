@@ -194,7 +194,7 @@ import Loading from '@/components/common/loading/g-loading.vue'
 import Emphasize from '@/components/common/emphasize/g-emphasize.vue'
 import AddProjectDialog from '../dialog/add-project/add-project.vue'
 import EditProjectDialog from '../dialog/edit-project/edit-project.vue'
-import EditPermissionDialog from '../dialog/permission/permission.vue'
+import EditPermissionDialog from '../dialog/edit-permission/edit-permission.vue'
 import { useI18n } from 'vue-i18n'
 import type { CommonResponse, ApidocProjectListInfo, ApidocProjectInfo } from '@src/types';
 import { computed, onMounted, ref, watch } from 'vue';
