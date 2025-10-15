@@ -182,11 +182,11 @@ import { useI18n } from 'vue-i18n'
 import SResizeX from '@/components/common/resize/g-resize-x.vue'
 import SLoading from '@/components/common/loading/g-loading.vue'
 import SEmphasize from '@/components/common/emphasize/g-emphasize.vue'
-import SContextmenu from '@/components/common/contextmenu/g-contextmenu.vue'
-import SContextmenuItem from '@/components/common/contextmenu/g-contextmenu-item.vue'
-import SAddFileDialog from '../dialog/add-file/add-file.vue'
-import SAddFolderDialog from '../dialog/add-folder/add-folder.vue'
-import { ElMessage } from 'element-plus'
+import SContextmenu from "@/components/common/contextmenu/g-contextmenu.vue";
+import SContextmenuItem from "@/components/common/contextmenu/g-contextmenu-item.vue";
+import SAddFileDialog from "../../dialog/add-file/add-file.vue";
+import SAddFolderDialog from "../../dialog/add-folder/add-folder.vue";
+import { ElMessage } from "element-plus";
 import 'element-plus/es/components/message/style/css'
 import STool from './tool/tool.vue'
 import { useBannerData } from './composables/banner-data'
