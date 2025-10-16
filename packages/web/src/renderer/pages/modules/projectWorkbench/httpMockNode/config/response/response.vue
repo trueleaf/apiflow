@@ -1,41 +1,44 @@
 <template>
   <div class="response-content">
-    <!-- 顶部标题栏 + Tab页签 -->
+    <!-- 顶部标题栏 + Tag标签 -->
     <div class="header-with-tabs">
       <!-- 左侧：响应配置标题 -->
       <div class="main-title">{{ t('响应配置') }}</div>
-      <!-- Tab页签组件 -->
-      <el-tabs v-model="activeTabName" type="card" class="response-tabs" editable @tab-click="handleTabClick" @edit="handleTabEdit">
-        <el-tab-pane
+      <!-- Tag标签组件 -->
+      <div class="response-tags">
+        <el-tag
           v-for="(tab, index) in responseTabs"
           :key="tab.id"
-          :name="tab.id"
+          size="small"
+          :type="activeTabIndex === index ? 'primary' : 'info'"
+          :effect="activeTabIndex === index ? 'dark' : 'plain'"
           :closable="!tab.isDefault"
+          class="response-tag"
+          @click="handleTagClick(index)"
+          @close="handleCloseTab(index)"
         >
-          <template #label>
-            <div class="tab-label">
-              <!-- 正常显示模式 -->
-              <span 
-                v-if="editingTabIndex !== index"
-                class="tab-name"
-                @dblclick="handleEditTabName(index)"
-              >
-                {{ tab.name }}
-              </span>
-              <!-- 编辑模式 -->
-              <input
-                v-else
-                ref="tabNameInputRef"
-                v-model="editingTabName"
-                class="tab-name-input"
-                @blur="handleSaveTabName(index)"
-                @keyup.enter="handleSaveTabName(index)"
-                @click.stop
-              />
-            </div>
-          </template>
-        </el-tab-pane>
-      </el-tabs>
+          <!-- 正常显示模式 -->
+          <span 
+            v-if="editingTabIndex !== index"
+            class="tag-name"
+            @dblclick.stop="handleEditTabName(index)"
+          >
+            {{ tab.name }}
+          </span>
+          <!-- 编辑模式 -->
+          <input
+            v-else
+            ref="tabNameInputRef"
+            v-model="editingTabName"
+            class="tag-name-input"
+            @blur="handleSaveTabName(index)"
+            @keyup.enter="handleSaveTabName(index)"
+            @click.stop
+          />
+        </el-tag>
+        <!-- 新增按钮 -->
+        <el-icon class="add-btn" @click="handleAddTab"><Plus /></el-icon>
+      </div>
     </div>
     <!-- 当前Tab内容区域 -->
     <div class="tab-content-area">
@@ -86,10 +89,10 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, computed, nextTick, watch } from 'vue'
+import { ref, computed, nextTick } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import type { TabPaneName } from 'element-plus'
+import { Plus } from '@element-plus/icons-vue'
 import { storeToRefs } from 'pinia'
 import { useHttpMock } from '@/store/httpMock/httpMock'
 import { uuid, generateEmptyHttpMockNode } from '@/helper'
@@ -105,8 +108,6 @@ const { t } = useI18n()
 const httpMockStore = useHttpMock()
 const { httpMock } = storeToRefs(httpMockStore)
 const mockResponses = computed(() => httpMock.value.response)
-// 当前激活的Tab名称（用于el-tabs）
-const activeTabName = ref('tab-0')
 // 当前激活的Tab索引
 const activeTabIndex = ref(0)
 // 正在编辑的Tab索引（-1表示无编辑）
@@ -131,13 +132,6 @@ const responseTabs = computed(() => {
     }
   })
 })
-// 监听activeTabName变化，更新activeTabIndex
-watch(activeTabName, (newVal) => {
-  const index = responseTabs.value.findIndex(tab => tab.id === newVal)
-  if (index !== -1) {
-    activeTabIndex.value = index
-  }
-})
 // 当前激活的响应配置
 const currentResponse = computed(() => {
   return mockResponses.value[activeTabIndex.value]
@@ -149,24 +143,14 @@ const hasConditionConfig = computed(() => {
   }
   return currentResponse.value.conditions.enabled === true
 })
-// 点击Tab切换
-const handleTabClick = () => {
+// 点击Tag切换
+const handleTagClick = (index: number) => {
   if (editingTabIndex.value !== -1) {
     editingTabIndex.value = -1
   }
+  activeTabIndex.value = index
 }
-// 处理Tab编辑事件（新增/删除）
-const handleTabEdit = (targetName: TabPaneName | undefined, action: 'add' | 'remove') => {
-  if (action === 'add') {
-    handleAddTab()
-  } else if (action === 'remove' && targetName) {
-    const index = responseTabs.value.findIndex(tab => tab.id === targetName)
-    if (index !== -1) {
-      handleCloseTab(index)
-    }
-  }
-}
-// 双击编辑Tab名称
+// 双击编辑Tag名称
 const handleEditTabName = (index: number) => {
   editingTabIndex.value = index
   editingTabName.value = responseTabs.value[index].name
@@ -186,7 +170,7 @@ const handleSaveTabName = (index: number) => {
   }
   editingTabIndex.value = -1
 }
-// 新增Tab
+// 新增Tag
 const handleAddTab = () => {
   const mockNodeTemplate = generateEmptyHttpMockNode(uuid())
   const newResponse = mockNodeTemplate.response[0]
@@ -202,10 +186,9 @@ const handleAddTab = () => {
   newResponse.fileConfig.fileType = 'pdf'
   httpMock.value.response.push(newResponse)
   activeTabIndex.value = mockResponses.value.length - 1
-  activeTabName.value = `tab-${activeTabIndex.value}`
   ElMessage.success(t('添加成功'))
 }
-// 关闭Tab
+// 关闭Tag
 const handleCloseTab = async (index: number) => {
   try {
     await ElMessageBox.confirm(
@@ -220,10 +203,8 @@ const handleCloseTab = async (index: number) => {
     mockResponses.value.splice(index, 1)
     if (activeTabIndex.value === index) {
       activeTabIndex.value = 0
-      activeTabName.value = 'tab-0'
     } else if (activeTabIndex.value > index) {
       activeTabIndex.value--
-      activeTabName.value = `tab-${activeTabIndex.value}`
     }
     ElMessage.success(t('删除成功'))
   } catch {
@@ -265,83 +246,56 @@ const handleDeleteCondition = (index: number) => {
   font-size: 16px;
   font-weight: 600;
   color: var(--gray-800);
-  padding: 0;
 }
-.response-tabs {
+.response-tags {
   flex: 1;
-  min-width: 0;
-}
-.response-tabs :deep(.el-tabs__header) {
-  margin: 0;
-  border-bottom: none;
-}
-.response-tabs :deep(.el-tabs__nav) {
-  border: none;
-}
-.response-tabs :deep(.el-tabs__item) {
-  border: 1px solid var(--gray-200);
-  border-radius: 4px;
-  margin-right: 4px;
-  padding: 0;
-  height: auto;
-}
-.response-tabs :deep(.el-tabs__item.is-active) {
-  background: var(--primary);
-  color: white;
-  border-color: var(--primary);
-}
-.response-tabs :deep(.el-tabs__item .is-icon-close) {
-  color: var(--gray-400);
-  transition: color 0.2s;
-}
-.response-tabs :deep(.el-tabs__item .is-icon-close:hover) {
-  color: var(--danger);
-  background: transparent;
-}
-.response-tabs :deep(.el-tabs__item.is-active .is-icon-close) {
-  color: rgba(255, 255, 255, 0.8);
-}
-.response-tabs :deep(.el-tabs__item.is-active .is-icon-close:hover) {
-  color: white;
-  background: transparent;
-}
-.response-tabs :deep(.el-tabs__new-tab) {
-  width: 26px;
-  height: 26px;
-  border: none;
-  border-radius: 4px;
-  margin-left: 4px;
-  color: var(--gray-600);
-}
-.response-tabs :deep(.el-tabs__new-tab:hover) {
-  background: var(--gray-100);
-  color: var(--gray-700);
-}
-.tab-label {
   display: flex;
   align-items: center;
-  gap: 6px;
-  padding: 6px 14px;
+  gap: 8px;
+  flex-wrap: wrap;
 }
-.tab-name {
+.response-tag {
+  cursor: pointer;
+  user-select: none;
+  transition: opacity 0.2s;
+}
+.response-tag:hover {
+  opacity: 0.85;
+}
+.add-btn {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--gray-500);
+  transition: all 0.2s;
+}
+.add-btn:hover {
+  color: var(--primary);
+  background: var(--el-color-primary-light-9);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+.tag-name {
   max-width: 120px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-.tab-name-input {
-  min-width: 60px;
-  max-width: 120px;
+.tag-name-input {
+  width: 100px;
   padding: 2px 6px;
   border: 1px solid var(--primary);
   border-radius: 3px;
   outline: none;
   font-size: 13px;
   background: white;
+  color: var(--gray-800);
 }
 .tab-content-area {
   flex: 1;
-  min-height: 0;
   overflow-y: auto;
   padding: 16px 20px;
   background: var(--gray-50);
@@ -354,7 +308,6 @@ const handleDeleteCondition = (index: number) => {
 .condition {
   display: flex;
   gap: 12px;
-  flex-shrink: 0;
 }
 .condition-btn {
   padding: 4px 14px;
@@ -383,15 +336,11 @@ const handleDeleteCondition = (index: number) => {
   display: flex;
   gap: 24px;
   align-items: flex-start;
-  flex-shrink: 0;
 }
 .form-item {
   display: flex;
   flex-direction: column;
   gap: 6px;
-}
-.flex-item {
-  flex: 0 0 auto;
 }
 .form-label {
   font-size: var(--font-size-sm);
