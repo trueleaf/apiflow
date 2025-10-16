@@ -26,6 +26,7 @@ export type MockHttpNode = {
     delay: number;
   };
   response: {
+    name: string;
     isDefault: boolean;
     conditions: {
       name: string;

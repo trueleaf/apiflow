@@ -523,6 +523,7 @@ export const generateEmptyHttpMockNode = (_id: string): MockHttpNode => {
     },
     response: [
       {
+        name: '默认返回',
         isDefault: true,
         conditions: {
           name: '',

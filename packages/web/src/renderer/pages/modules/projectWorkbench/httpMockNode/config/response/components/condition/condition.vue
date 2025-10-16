@@ -2,6 +2,10 @@
   <div class="condition-config-section">
     <div class="section-header">
       <div class="section-title">
+        <el-icon class="collapse-icon" @click="handleToggleCollapse">
+          <ArrowRight v-if="isCollapsed" />
+          <ArrowDown v-if="!isCollapsed" />
+        </el-icon>
         <span>{{ t('触发条件配置') }}</span>
       </div>
       <el-icon class="delete-icon" @click="handleDelete">
@@ -9,7 +13,7 @@
       </el-icon>
     </div>
     
-    <div class="section-content">
+    <div v-if="!isCollapsed" class="section-content">
       <!-- 条件脚本 -->
       <div class="form-row">
         <div class="form-item full-width">
@@ -30,18 +34,20 @@
 </template>
 
 <script lang="ts" setup>
-import { computed } from 'vue'
+import { computed, ref, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { Close } from '@element-plus/icons-vue'
+import { Close, ArrowRight, ArrowDown } from '@element-plus/icons-vue'
 import CodeEditor from '@/components/common/code-editor/code-editor.vue'
 import { reqCompletionSuggestions } from './completionSuggestions'
+import { userState } from '@/cache/userState/userStateCache'
 import type { MockHttpNode } from '@src/types/mockNode'
 import type { EditorConfig } from '@/components/common/code-editor/types'
 
 type Props = {
   response: MockHttpNode['response'][0]
   responseIndex: number
+  mockNodeId: string
 }
 
 type Emits = {
@@ -51,6 +57,7 @@ type Emits = {
 const props = defineProps<Props>()
 const emit = defineEmits<Emits>()
 const { t } = useI18n()
+const isCollapsed = ref(false)
 // 编辑器配置
 const editorConfig = computed<EditorConfig>(() => ({
   enableCompletion: true,
@@ -62,6 +69,15 @@ const editorConfig = computed<EditorConfig>(() => ({
     tabSize: 2
   }
 }))
+// 初始化折叠状态
+onMounted(() => {
+  isCollapsed.value = userState.getHttpMockResponseCondtionCollapseState(props.mockNodeId, props.responseIndex)
+})
+// 切换折叠状态
+const handleToggleCollapse = () => {
+  isCollapsed.value = !isCollapsed.value
+  userState.setHttpMockResponseCondtionCollapseState(props.mockNodeId, props.responseIndex, isCollapsed.value)
+}
 // 删除触发条件配置
 const handleDelete = () => {
   ElMessageBox.confirm(
@@ -100,6 +116,23 @@ const handleDelete = () => {
   font-size: var(--font-size-sm);
   color: var(--gray-700);
   font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.collapse-icon {
+  cursor: pointer;
+  color: var(--gray-500);
+  transition: all 0.3s;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.collapse-icon:hover {
+  color: var(--gray-700);
 }
 
 .delete-icon {
