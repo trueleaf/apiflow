@@ -56,8 +56,7 @@ jobs:
         run: npm run web:build
         
       - name: 运行E2E测试
-        run: npm run test
-        working-directory: packages/web
+        run: npm run test -w apiflow
         env:
           CI: true
           
