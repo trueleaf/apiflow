@@ -23,8 +23,8 @@
 
 <script lang="ts" setup>
 import { ref } from 'vue';
-import SAddRole from './add/add.vue'
-import SEditRole from './edit/edit.vue'
+import SAddRole from './add/Add.vue'
+import SEditRole from './edit/Edit.vue'
 import { ElMessageBox } from 'element-plus';
 import { useI18n } from 'vue-i18n'
 import STable from '@/components/common/table/GTable.vue'

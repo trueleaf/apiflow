@@ -100,7 +100,7 @@ import SFieldset from '@/components/common/fieldset/GFieldset.vue'
 import SConfig from '@/components/common/config/GConfig.vue'
 import SEmphasize from '@/components/common/emphasize/GEmphasize.vue'
 import { useRoute } from 'vue-router';
-import SFork from './fork/fork.vue'
+import SFork from './fork/Fork.vue'
 import type { StandaloneExportHtmlParams } from '@src/types/standalone.ts';
 import { apiNodesCache } from '@/cache/index';
 import { downloadStringAsText } from '@/helper';

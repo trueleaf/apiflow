@@ -43,9 +43,9 @@
 
 <script lang="ts" setup>
 import type { CommonResponse, PermissionServerRoute } from '@src/types'
-import SAddServerRoute from './add/add.vue'
-import SEditServerRoute from './edit/edit.vue'
-import SMultiEditServerRoute from './edit/edit2.vue'
+import SAddServerRoute from './add/Add.vue'
+import SEditServerRoute from './edit/Edit.vue'
+import SMultiEditServerRoute from './edit/Edit2.vue'
 import SSearch from '@/components/common/forms/search/GSearch.vue'
 import SSearchItem from '@/components/common/forms/search/GSearchItem.vue'
 import STable from '@/components/common/table/GTable.vue'

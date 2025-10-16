@@ -1,5 +1,5 @@
 import { createApp } from 'vue'
-import Header from './header.vue'
+import Header from './Header.vue'
 import '@/assets/font/iconfont.css'
 import '@/assets/font/iconfont.js'
 import { initStandaloneDB } from '@/cache/db';

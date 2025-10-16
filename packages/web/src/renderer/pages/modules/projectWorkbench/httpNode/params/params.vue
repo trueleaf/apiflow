@@ -82,13 +82,13 @@ import { httpNodeCache } from '@/cache/httpNode/httpNodeCache.ts'
 import { userState } from '@/cache/userState/userStateCache.ts'
 import { debounce, checkPropertyIsEqual } from '@/helper/index'
 import { useI18n } from 'vue-i18n'
-import SParams from './params/params.vue';
-import SRequestBody from './body/body.vue';
-import SRequestHeaders from './headers/headers.vue';
-import SResponseParams from './response/response.vue';
+import SParams from './params/Params.vue';
+import SRequestBody from './body/Body.vue';
+import SRequestHeaders from './headers/Headers.vue';
+import SResponseParams from './response/Response.vue';
 import SPreRequestParams from './preRequest/PreRequest.vue';
 import SAfterRequestParams from './afterRequest/AfterRequest.vue';
-import SRemark from './remarks/remarks.vue';
+import SRemark from './remarks/Remarks.vue';
 // import SHook from './hook/hook.vue'
 import { computed, onMounted, onUnmounted, ref, watch, watchEffect } from 'vue'
 import { useApidocBaseInfo } from '@/store/apidoc/base-info'

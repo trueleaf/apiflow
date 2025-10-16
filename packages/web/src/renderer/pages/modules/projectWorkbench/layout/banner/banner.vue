@@ -211,7 +211,7 @@ import SAddFileDialog from "../../dialog/addFile/AddFile.vue";
 import SAddFolderDialog from "../../dialog/addFolder/AddFolder.vue";
 import { ElMessage } from "element-plus";
 import 'element-plus/es/components/message/style/css'
-import STool from './tool/tool.vue'
+import STool from './tool/Tool.vue'
 import { useBannerData } from './composables/banner-data'
 import { deleteNode, addFileAndFolderCb, pasteNodes, forkNode, dragNode, renameNode } from './composables/curd-node'
 import type { TreeNodeOptions } from 'element-plus/es/components/tree/src/tree.type.mjs'

@@ -33,8 +33,8 @@
 <script lang="ts" setup>
 import { computed, onMounted, ref } from 'vue'
 import { Tickets, School } from '@element-plus/icons-vue'
-import tabA from './projectManager/projectManager.vue'
-import tabB from './groupManager/groupManager.vue'
+import tabA from './projectManager/ProjectManager.vue'
+import tabB from './groupManager/GroupManager.vue'
 import { useI18n } from 'vue-i18n'
 import { TabPaneName } from 'element-plus'
 import { userState } from '@/cache/userState/userStateCache.ts'

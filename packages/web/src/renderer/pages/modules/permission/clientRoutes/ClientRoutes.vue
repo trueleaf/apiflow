@@ -30,9 +30,9 @@
 
 <script lang="ts" setup>
 import { CommonResponse, PermissionClientRoute } from '@src/types'
-import SAddClientRoute from './add/add.vue'
-import SEditClientRoute from './edit/edit.vue'
-import SMultiEditClientRoute from './edit/edit2.vue'
+import SAddClientRoute from './add/Add.vue'
+import SEditClientRoute from './edit/Edit.vue'
+import SMultiEditClientRoute from './edit/Edit2.vue'
 import { Ref, ref } from 'vue';
 import { uniqueByKey } from '@/helper';
 import { ElMessageBox } from 'element-plus';

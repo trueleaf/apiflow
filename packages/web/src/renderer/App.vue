@@ -23,7 +23,7 @@ import { projectCache } from '@/cache/index';
 import { ElMessageBox } from 'element-plus';
 import { useApidocBaseInfo } from './store/apidoc/base-info';
 import { Language } from '@src/types';
-import LanguageMenu from '@/components/common/language/language.vue';
+import LanguageMenu from '@/components/common/language/Language.vue';
 import type { RuntimeNetworkMode } from '@src/types/runtime';
 import { useRuntime } from './store/runtime/runtime.ts';
 import { useProjectStore } from './store/project/project.ts';

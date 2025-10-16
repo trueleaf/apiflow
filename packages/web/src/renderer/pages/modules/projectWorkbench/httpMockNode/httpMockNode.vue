@@ -14,8 +14,8 @@
 <script lang="ts" setup>
 import { ref, watch, onMounted } from 'vue'
 import { CleanTabs, CleanTabPane } from '@/components/ui/cleanDesign/tabs'
-import MockConfig from './config/config.vue'
-import MockLog from './log/log.vue'
+import MockConfig from './config/Config.vue'
+import MockLog from './log/Log.vue'
 import { useI18n } from 'vue-i18n'
 import { storeToRefs } from 'pinia'
 import { useHttpMock } from '@/store/httpMock/httpMock'

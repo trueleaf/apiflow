@@ -34,9 +34,9 @@
 
 <script lang="ts" setup>
 import { nextTick, ref } from 'vue'
-import SClientMenus from './components/client-menus.vue'
-import SClientRoutes from './components/client-routes.vue'
-import SServerRoutes from './components/server-routes.vue'
+import SClientMenus from './components/ClientMenus.vue'
+import SClientRoutes from './components/ClientRoutes.vue'
+import SServerRoutes from './components/ServerRoutes.vue'
 import SForm from '@/components/common/forms/form/GForm.vue'
 import SFormItem from '@/components/common/forms/form/GFormItem.vue'
 import SFieldset from '@/components/common/fieldset/GFieldset.vue'

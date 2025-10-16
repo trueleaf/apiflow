@@ -60,8 +60,8 @@
 
 <script lang="ts" setup>
 import { useI18n } from 'vue-i18n'
-import SAddUserDialog from './add/add.vue'
-import SEditUserDialog from './edit/edit.vue'
+import SAddUserDialog from './add/Add.vue'
+import SEditUserDialog from './edit/Edit.vue'
 import SResetPasswordDialog from './resetPassword/ResetPassword.vue'
 import { ref } from 'vue';
 import { formatDate } from '@/helper'
