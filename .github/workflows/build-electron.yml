@@ -31,32 +31,17 @@ jobs:
           npm_config_ignore_optional: true
           npm_config_ignore_scripts: false
       
-      - name: 获取Playwright版本
-        id: playwright-version
-        run: echo "version=$(node -p "require('./packages/web/package.json').devDependencies['@playwright/test']")" >> $GITHUB_OUTPUT
+      - name: 安装 Linux 依赖
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y xvfb libgtk-3-0 libgbm1 libnss3 libasound2
         
-      - name: 缓存Playwright浏览器
-        uses: actions/cache@v4
-        id: playwright-cache
-        with:
-          path: ~/.cache/ms-playwright
-          key: ${{ runner.os }}-playwright-${{ steps.playwright-version.outputs.version }}
-          
-      - name: 安装Playwright浏览器
-        if: steps.playwright-cache.outputs.cache-hit != 'true'
-        run: npx playwright install --with-deps
-        working-directory: packages/web
-        
-      - name: 安装Playwright系统依赖
-        if: steps.playwright-cache.outputs.cache-hit == 'true'
-        run: npx playwright install-deps
-        working-directory: packages/web
-        
-      - name: 构建Web应用
-        run: npm run web:build
+      - name: 构建 Electron 应用（包含主进程和渲染进程）
+        run: npm run web:build:app:pack
+        working-directory: .
         
       - name: 运行E2E测试
-        run: npm run test -w apiflow
+        run: xvfb-run --auto-servernum --server-args="-screen 0 1280x960x24" npm run test -w apiflow
         env:
           CI: true
           
