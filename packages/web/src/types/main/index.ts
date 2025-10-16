@@ -7,7 +7,7 @@ import type {GotRequestOptions } from '../request';
 import type { CommonResponse } from '../project';
 import type { StandaloneExportHtmlParams } from '../standalone';
 import { WebsocketConnectParams } from '../websocketNode';
-import { MockHttpNode, MockLog } from '../mockNode';
+import { MockHttpNode, MockLog, MockStatusChangedPayload } from '../mockNode';
 
 // ============================================================================
 // 窗口状态类型
@@ -71,6 +71,7 @@ export type ElectronAPI = {
     getLogsByNodeId: (nodeId: string) => Promise<MockLog[]>;
     replaceById: (nodeId: string, httpMock: MockHttpNode) => Promise<CommonResponse<null>>;
     syncProjectVariables: (projectId: string, variables: any[]) => Promise<CommonResponse<null>>;
+    getAllStates: (projectId: string) => Promise<MockStatusChangedPayload[]>;
   };
   exportManager: {
     selectPath: () => Promise<CommonResponse<{ filePath?: string; tempPath?: string }>>;

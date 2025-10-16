@@ -1,4 +1,4 @@
-import { MockHttpNode, MockInstance, MockLog } from '@src/types/mockNode';
+import { MockHttpNode, MockInstance, MockLog, MockStatusChangedPayload } from '@src/types/mockNode';
 import { CommonResponse } from '@src/types/project';
 import { MockUtils, ConsoleLogCollector } from './mockUtils';
 import { matchPath, getPatternPriority, sleep } from '../utils';
@@ -351,12 +351,24 @@ export class MockManager {
         data: { port: httpMock.requestCondition.port },
         timestamp: Date.now()
       });
+      this.pushMockStatusChanged({
+        nodeId: httpMock._id,
+        projectId: httpMock.projectId,
+        state: 'running',
+        port: httpMock.requestCondition.port
+      });
       return { code: 0, msg: '启动成功', data: null };
     }
     
     // 首次启动场景：检测端口冲突
     const hasConflict = await this.checkPortIsConflict(httpMock);
     if (hasConflict) {
+      this.pushMockStatusChanged({
+        nodeId: httpMock._id,
+        projectId: httpMock.projectId,
+        state: 'error',
+        error: `端口 ${httpMock.requestCondition.port} 已被占用`
+      });
       return { code: 1, msg: `端口 ${httpMock.requestCondition.port} 已被占用`, data: null };
     }
     
@@ -392,6 +404,12 @@ export class MockManager {
         data: { port: httpMock.requestCondition.port },
         timestamp: Date.now()
       });
+      this.pushMockStatusChanged({
+        nodeId: httpMock._id,
+        projectId: httpMock.projectId,
+        state: 'running',
+        port: httpMock.requestCondition.port
+      });
       
       return { code: 0, msg: '启动成功', data: null };
     } catch (error) {
@@ -405,6 +423,12 @@ export class MockManager {
           errorMsg
         },
         timestamp: Date.now()
+      });
+      this.pushMockStatusChanged({
+        nodeId: httpMock._id,
+        projectId: httpMock.projectId,
+        state: 'error',
+        error: errorMsg
       });
       return { code: 1, msg: errorMsg, data: null };
     }
@@ -448,6 +472,11 @@ export class MockManager {
           data: { port },
           timestamp: Date.now()
         });
+        this.pushMockStatusChanged({
+          nodeId: mockToRemove._id,
+          projectId: mockToRemove.projectId,
+          state: 'stopped'
+        });
         resolve({ code: 0, msg: '停止成功', data: null });
         return;
       }
@@ -459,6 +488,11 @@ export class MockManager {
           projectId: mockToRemove.projectId,
           data: { port },
           timestamp: Date.now()
+        });
+        this.pushMockStatusChanged({
+          nodeId: mockToRemove._id,
+          projectId: mockToRemove.projectId,
+          state: 'stopped'
         });
         resolve({ code: 0, msg: '停止成功', data: null });
         return;
@@ -477,6 +511,11 @@ export class MockManager {
               },
               timestamp: Date.now()
             });
+            this.pushMockStatusChanged({
+              nodeId: mockToRemove._id,
+              projectId: mockToRemove.projectId,
+              state: 'stopped'
+            });
           } else {
             this.pushLogToRenderer({
               type: "error",
@@ -488,6 +527,12 @@ export class MockManager {
               },
               timestamp: Date.now()
             });
+            this.pushMockStatusChanged({
+              nodeId: mockToRemove._id,
+              projectId: mockToRemove.projectId,
+              state: 'error',
+              error: error.message
+            });
             resolve({ code: 1, msg: error.message, data: null });
             return;
           }
@@ -498,6 +543,11 @@ export class MockManager {
             projectId: mockToRemove.projectId,
             data: { port },
             timestamp: Date.now()
+          });
+          this.pushMockStatusChanged({
+            nodeId: mockToRemove._id,
+            projectId: mockToRemove.projectId,
+            state: 'stopped'
           });
         }
         const instanceIndex = this.mockInstanceList.findIndex(inst => inst.port === port);
@@ -548,13 +598,6 @@ export class MockManager {
 
   // 检测端口是否冲突
   private async checkPortIsConflict(httpMock: MockHttpNode): Promise<boolean> {
-    // 检查 mockList 中是否已有相同端口（端口复用场景，不算冲突）
-    const hasPortInMockList = this.mockList.some(mock => mock.requestCondition.port === httpMock.requestCondition.port);
-    if (hasPortInMockList) {
-      // 端口已在 mockList 中，允许复用，不算冲突
-      return false;
-    }
-    // 使用 detect-port 检查系统端口是否被占用
     try {
       const availablePort = await detect(httpMock.requestCondition.port);
       if (availablePort !== httpMock.requestCondition.port) {
@@ -585,6 +628,22 @@ export class MockManager {
     }
 
     return false;
+  }
+  //推送Mock状态变更到渲染进程
+  private pushMockStatusChanged(payload: MockStatusChangedPayload): void {
+    if (contentViewInstance && contentViewInstance.webContents) {
+      contentViewInstance.webContents.send('mock-status-changed', payload);
+    }
+  }
+  //获取所有Mock状态
+  public getAllMockStates(projectId: string): MockStatusChangedPayload[] {
+    const projectMocks = this.mockList.filter(mock => mock.projectId === projectId);
+    return projectMocks.map(mock => ({
+      nodeId: mock._id,
+      projectId: mock.projectId,
+      state: 'running' as const,
+      port: mock.requestCondition.port
+    }));
   }
 }
 

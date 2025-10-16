@@ -1,7 +1,7 @@
 import { request } from '@/api/api';
 import { apiNodesCache } from '@/cache/index';
 import { findNodeById, forEachForest } from "@/helper";
-import { ApidocBanner, ApidocBannerOfWebsocketNode, ApidocBannerOfHttpNode, CommonResponse } from '@src/types';
+import { ApidocBanner, ApidocBannerOfWebsocketNode, ApidocBannerOfHttpNode, ApidocBannerOfHttpMockNode, CommonResponse, MockStatusChangedPayload } from '@src/types';
 import { defineStore } from "pinia";
 import { ref } from "vue";
 import { useRuntime } from '../runtime/runtime';
@@ -92,6 +92,37 @@ export const useApidocBanner = defineStore('apidocBanner', () => {
   const changeBannerLoading = (state: boolean): void => {
     loading.value = state
   }
+  //更新Mock节点状态
+  const updateMockNodeState = (payload: MockStatusChangedPayload): void => {
+    const node = findNodeById(banner.value, payload.nodeId, { idKey: '_id' }) as ApidocBannerOfHttpMockNode | null;
+    if (node && node.type === 'httpMock') {
+      node.state = payload.state;
+    }
+  }
+  //初始化所有Mock节点状态为stopped
+  const initializeMockNodeStates = (): void => {
+    forEachForest(banner.value, (node) => {
+      if (node.type === 'httpMock') {
+        (node as ApidocBannerOfHttpMockNode).state = 'stopped';
+      }
+    });
+  }
+  //批量查询并更新Mock节点状态
+  const refreshMockNodeStates = async (projectId: string): Promise<void> => {
+    if (!window.electronAPI?.mock?.getAllStates) {
+      return;
+    }
+    try {
+      const states = await window.electronAPI.mock.getAllStates(projectId);
+      if (states && states.length > 0) {
+        states.forEach((statePayload: MockStatusChangedPayload) => {
+          updateMockNodeState(statePayload);
+        });
+      }
+    } catch (error) {
+      console.error('刷新Mock状态失败:', error);
+    }
+  }
   /*
   |--------------------------------------------------------------------------
   | 接口调用
@@ -106,6 +137,8 @@ export const useApidocBanner = defineStore('apidocBanner', () => {
       if (isOffline()) {
         const banner = await apiNodesCache.getApiNodesAsTree(payload.projectId);
         changeAllDocBanner(banner)
+        initializeMockNodeStates()
+        refreshMockNodeStates(payload.projectId)
         resolve(banner)
         return
       }
@@ -115,6 +148,8 @@ export const useApidocBanner = defineStore('apidocBanner', () => {
       request.get('/api/project/doc_tree_node', { params }).then((res) => {
         const result = res.data;
         changeAllDocBanner(result)
+        initializeMockNodeStates()
+        refreshMockNodeStates(payload.projectId)
         resolve(result)
       }).catch((err) => {
         reject(err);
@@ -163,6 +198,9 @@ export const useApidocBanner = defineStore('apidocBanner', () => {
     addExpandItem,
     changeExpandItems,
     changeBannerLoading,
+    updateMockNodeState,
+    initializeMockNodeStates,
+    refreshMockNodeStates,
     getDocBanner,
     getSharedDocBanner,
   }

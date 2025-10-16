@@ -166,6 +166,10 @@ export const useIpcEvent = (mainWindow: BrowserWindow, topBarView: WebContentsVi
       };
     }
   });
+  //获取项目所有Mock状态
+  ipcMain.handle('mock-get-all-states', async (_: IpcMainInvokeEvent, projectId: string) => {
+    return mockManager.getAllMockStates(projectId);
+  });
 
   // 同步项目变量到主进程
   ipcMain.handle('mock-sync-project-variables', async (_: IpcMainInvokeEvent, projectId: string, variables: any[]) => {

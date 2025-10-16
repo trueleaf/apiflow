@@ -35,6 +35,7 @@ export type ApidocBannerOfHttpMockNode = {
   url: string;
   port: number;
   readonly: boolean;
+  state: 'stopped' | 'starting' | 'running' | 'stopping' | 'error';
   children: ApidocBanner[];
 }
 

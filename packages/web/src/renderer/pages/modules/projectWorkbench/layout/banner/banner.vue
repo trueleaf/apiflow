@@ -77,6 +77,29 @@
                 @input="handleWatchNodeInput($event)" 
                 @keydown.stop.enter="handleChangeNodeName($event, scope.data)"
               >
+              <!-- Mock状态指示器 -->
+              <div v-if="scope.data.state" class="mock-status">
+                <span 
+                  v-if="scope.data.state === 'running'" 
+                  class="status-dot running"
+                  :title="t('运行中') + (scope.data.port ? ` (${t('端口')}: ${scope.data.port})` : '')"
+                ></span>
+                <span 
+                  v-else-if="scope.data.state === 'starting'" 
+                  class="status-dot starting"
+                  :title="t('启动中...')"
+                ></span>
+                <span 
+                  v-else-if="scope.data.state === 'stopping'" 
+                  class="status-dot stopping"
+                  :title="t('停止中...')"
+                ></span>
+                <span 
+                  v-else-if="scope.data.state === 'error'" 
+                  class="status-dot error"
+                  :title="t('错误')"
+                ></span>
+              </div>
               <div class="more" @click.stop="handleShowContextmenu($event, scope.data)">
                 <el-icon class="more-op" :title="t('更多操作')" :size="16">
                   <more-filled />
@@ -615,15 +638,25 @@ watch(() => router.currentRoute.value.query.id, (newProjectId) => {
     getBannerData();
   }
 }, { immediate: false });
+//监听Mock状态变更
+const handleMockStatusChanged = (payload: any) => {
+  apidocBannerStore.updateMockNodeState(payload);
+}
 
 onMounted(() => {
   getBannerData();
   document.documentElement.addEventListener('click', handleGlobalClick);
   document.addEventListener('keyup', handleNodeKeyUp);
+  if (window.electronAPI?.ipcManager?.onMain) {
+    window.electronAPI.ipcManager.onMain('mock-status-changed', handleMockStatusChanged);
+  }
 })
 onUnmounted(() => {
   document.documentElement.removeEventListener('click', handleGlobalClick);
   document.removeEventListener('keyup', handleNodeKeyUp);
+  if (window.electronAPI?.ipcManager?.removeListener) {
+    window.electronAPI.ipcManager.removeListener('mock-status-changed', handleMockStatusChanged);
+  }
 })
 </script>
 
@@ -667,7 +700,8 @@ onUnmounted(() => {
 
     &:hover {
       .more {
-        display: block;
+        visibility: visible;
+        pointer-events: auto;
       }
     }
     .mock-icon {
@@ -677,6 +711,34 @@ onUnmounted(() => {
       border-radius: 50%;
       margin-right: 5px;
       color: var(--blue);
+    }
+    .mock-status {
+      display: flex;
+      align-items: center;
+      margin-left: 4px;
+      margin-right: 4px;
+      
+      .status-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        flex-shrink: 0;
+        
+        &.running {
+          background-color: #67c23a;
+          animation: pulse 2s infinite;
+        }
+        
+        &.starting,
+        &.stopping {
+          background-color: #e6a23c;
+          animation: pulse 2s infinite;
+        }
+        
+        &.error {
+          background-color: #f56c6c;
+        }
+      }
     }
     .file-icon {
       font-size: 14px;
@@ -732,7 +794,8 @@ onUnmounted(() => {
     }
 
     .more {
-      display: none;
+      visibility: hidden;
+      pointer-events: none;
       flex: 0 0 auto;
       margin-left: auto;
       padding: 5px 10px;
@@ -807,6 +870,17 @@ onUnmounted(() => {
     padding-top: 0;
     padding-bottom: 0;
     margin-top: -1px;
+  }
+}
+//Mock状态圆点脉动动画
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.6;
+    transform: scale(1.1);
   }
 }
 

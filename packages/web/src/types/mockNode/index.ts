@@ -190,3 +190,11 @@ export type MockSSEEventData = {
   data: string;
   retry?: number;
 };
+// Mock状态变更推送数据
+export type MockStatusChangedPayload = {
+  nodeId: string;
+  projectId: string;
+  state: 'stopped' | 'starting' | 'running' | 'stopping' | 'error';
+  port?: number;
+  error?: string;
+}
