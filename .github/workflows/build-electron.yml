@@ -34,7 +34,7 @@ jobs:
       - name: 安装 Linux 依赖
         run: |
           sudo apt-get update
-          sudo apt-get install -y xvfb libgtk-3-0 libgbm1 libnss3 libasound2
+          sudo apt-get install -y xvfb libgtk-3-0 libgbm1 libnss3 libxss1 libxtst6 libnotify4 libatspi2.0-0 libdrm2 libxcb-dri3-0 libx11-xcb1
         
       - name: 构建 Electron 应用（包含主进程和渲染进程）
         run: npm run web:build:app:pack

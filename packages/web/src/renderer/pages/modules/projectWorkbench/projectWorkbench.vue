@@ -12,7 +12,7 @@
 <script lang="ts" setup>
 import { computed, onMounted, onBeforeUnmount } from 'vue'
 // import { ref } from 'vue'
-import SaveDocDialog from './dialog/save-doc/save-doc.vue'
+import SaveDocDialog from './dialog/saveDoc/SaveDoc.vue'
 import Banner from './layout/banner/banner.vue';
 import Nav from './layout/nav/nav.vue';
 import Content from './layout/content/content.vue';

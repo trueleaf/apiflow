@@ -190,11 +190,11 @@ import {
   CaretRight as CaretRightIcon,
   Tools,
 } from '@element-plus/icons-vue'
-import Loading from '@/components/common/loading/g-loading.vue'
-import Emphasize from '@/components/common/emphasize/g-emphasize.vue'
-import AddProjectDialog from '../dialog/add-project/add-project.vue'
-import EditProjectDialog from '../dialog/edit-project/edit-project.vue'
-import EditPermissionDialog from '../dialog/edit-permission/edit-permission.vue'
+import Loading from '@/components/common/loading/GLoading.vue'
+import Emphasize from '@/components/common/emphasize/GEmphasize.vue'
+import AddProjectDialog from '../dialog/addProject/AddProject.vue'
+import EditProjectDialog from '../dialog/editProject/EditProject.vue'
+import EditPermissionDialog from '../dialog/editPermission/EditPermission.vue'
 import { useI18n } from 'vue-i18n'
 import type { CommonResponse, ApidocProjectListInfo, ApidocProjectInfo } from '@src/types';
 import { computed, onMounted, ref, watch } from 'vue';

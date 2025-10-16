@@ -99,7 +99,7 @@
 
 <script lang="ts" setup>
 import { useI18n } from 'vue-i18n'
-import SCollapseCard from '@/components/common/collapse-card/g-collapse-card.vue'
+import SCollapseCard from '@/components/common/collapseCard/GCollapseCard.vue'
 import { computed, ref, Ref, onMounted, onUnmounted } from 'vue'
 import { Effect } from 'element-plus';
 import { ArrowDown, Edit } from '@element-plus/icons-vue'
@@ -107,8 +107,8 @@ import type { HttpNodeResponseParams, HttpNodeResponseContentType, HttpNodeConte
 import { httpNodeCache } from '@/cache/httpNode/httpNodeCache.ts'
 import SStatus from './children/status.vue'
 import SMime from './children/mime.vue'
-import SRawEditor from '@/components/apidoc/raw-editor/g-raw-editor.vue'
-import SJsonEditor from '@/components/common/json-editor/g-json-editor.vue'
+import SRawEditor from '@/components/apidoc/rawEditor/GRawEditor.vue'
+import SJsonEditor from '@/components/common/jsonEditor/GJsonEditor.vue'
 import { useApidoc } from '@/store/apidoc/apidoc';
 import { useApidocBaseInfo } from '@/store/apidoc/base-info';
 

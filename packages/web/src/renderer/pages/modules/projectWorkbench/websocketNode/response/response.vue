@@ -43,9 +43,9 @@ import { storeToRefs } from 'pinia';
 import { useI18n } from 'vue-i18n';
 import { useWebSocket } from '@/store/websocket/websocket';
 import { formatDate } from '@/helper';
-import SLabelValue from '@/components/common/label-value/g-label-value.vue';
-import GWebsocketView from '@/components/common/websocket-view/g-websocket-view.vue';
-import SLoading from '@/components/common/loading/g-loading.vue';
+import SLabelValue from '@/components/common/labelValue/GLabelValue.vue';
+import GWebsocketView from '@/components/common/websocketView/GWebsocketView.vue';
+import SLoading from '@/components/common/loading/GLoading.vue';
 import { websocketResponseCache } from '@/cache/websocketNode/websocketResponseCache';
 
 const { t } = useI18n();

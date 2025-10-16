@@ -26,8 +26,8 @@ import { PermissionRoleEnum, CommonResponse } from '@src/types'
 import { nextTick, onMounted, ref } from 'vue';
 import { request } from '@/api/api';
 import { ElMessage, FormInstance } from 'element-plus';
-import SForm from '@/components/common/forms/form/g-form.vue'
-import SFormItem from '@/components/common/forms/form/g-form-item.vue'
+import SForm from '@/components/common/forms/form/GForm.vue'
+import SFormItem from '@/components/common/forms/form/GFormItem.vue'
 
 const props = defineProps({
   modelValue: {

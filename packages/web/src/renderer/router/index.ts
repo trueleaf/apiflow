@@ -1,7 +1,7 @@
 import { createRouter, createWebHashHistory, createWebHistory, RouteRecordRaw } from "vue-router";
 import NProgress from "nprogress";
 import "nprogress/nprogress.css";
-import docEdit from "@/pages/modules/projectWorkbench/projectWorkbench.vue";
+import docEdit from "@/pages/modules/projectWorkbench/ProjectWorkbench.vue";
 import { usePermissionStore } from "@/store/permission";
 import { useRuntime } from "@/store/runtime/runtime.ts";
 
@@ -9,12 +9,12 @@ const routes: Array<RouteRecordRaw> = [
   {
     path: "/header",
     name: "Header",
-    component: () => import("@/pages/layout/header/header.vue"),
+    component: () => import("@/pages/layout/header/Header.vue"),
   },
   {
     path: "/home",
     name: "Home",
-    component: () => import("@/pages/modules/home/home.vue"),
+    component: () => import("@/pages/modules/home/Home.vue"),
   },
   {
     path: "/v1/apidoc/doc-edit",
@@ -24,12 +24,12 @@ const routes: Array<RouteRecordRaw> = [
   {
     path: "/share",
     name: "Share",
-    component: () => import("@/pages/modules/apidoc/doc-share/share.vue"),
+    component: () => import("@/pages/modules/apidoc/docShare/Share.vue"),
   },
   {
     path: "/user-center",
     name: "UserCenter",
-    component: () => import("@/pages/modules/user-center/UserCenter.vue"),
+    component: () => import("@/pages/modules/userCenter/UserCenter.vue"),
   },
   {
     path: "/:pathMatch(.*)*",
@@ -63,17 +63,17 @@ const routerConfig = {
     {
       path: "/login",
       name: "Login",
-      component: () => import("@/pages/login/login.vue"),
+      component: () => import("@/pages/login/Login.vue"),
     },
     {
       path: "/header",
       name: "Header",
-      component: () => import("@/pages/layout/header/header.vue"),
+      component: () => import("@/pages/layout/header/Header.vue"),
     },
     {
       path: "/home",
       name: "Home",
-      component: () => import("@/pages/modules/home/home.vue"),
+      component: () => import("@/pages/modules/home/Home.vue"),
     },
     {
       path: "/v1/apidoc/doc-edit",
@@ -83,12 +83,12 @@ const routerConfig = {
     {
       path: "/share",
       name: "Share",
-      component: () => import("@/pages/modules/apidoc/doc-share/share.vue"),
+      component: () => import("@/pages/modules/apidoc/docShare/Share.vue"),
     },
     {
       path: "/user-center",
       name: "UserCenter",
-      component: () => import("@/pages/modules/user-center/UserCenter.vue"),
+      component: () => import("@/pages/modules/userCenter/UserCenter.vue"),
     },
     {
       path: "/:pathMatch(.*)*",

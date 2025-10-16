@@ -90,8 +90,8 @@ import { getJsonBodyHintVisible, setJsonBodyHintVisible } from '@/cache/common/c
 import { useVariable } from '@/store/apidoc/variables';
 import { useApidoc } from '@/store/apidoc/apidoc';
 import { config } from '@src/config/config';
-import SJsonEditor from '@/components/common/json-editor/g-json-editor.vue'
-import SParamsTree from '@/components/apidoc/params-tree/g-params-tree.vue'
+import SJsonEditor from '@/components/common/jsonEditor/GJsonEditor.vue'
+import SParamsTree from '@/components/apidoc/paramsTree/GParamsTree.vue'
 import { Close } from '@element-plus/icons-vue'
 import { convertTemplateValueToRealValue } from '@/utils/utils';
 import mime from 'mime';

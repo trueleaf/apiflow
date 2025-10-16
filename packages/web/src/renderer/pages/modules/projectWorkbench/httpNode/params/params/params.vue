@@ -10,7 +10,7 @@
 <script lang="ts" setup>
 import { useApidoc } from '@/store/apidoc/apidoc';
 import { computed } from 'vue'
-import SParamsTree from '@/components/apidoc/params-tree/g-params-tree.vue'
+import SParamsTree from '@/components/apidoc/paramsTree/GParamsTree.vue'
 import { useI18n } from 'vue-i18n'
 
 const apidocStore = useApidoc()

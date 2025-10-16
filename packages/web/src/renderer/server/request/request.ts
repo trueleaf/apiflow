@@ -15,9 +15,9 @@ import { cloneDeep, uuid } from '@/helper';
 import { useApidocRequest } from '@/store/apidoc/request';
 import { i18n } from '@/i18n';
 import { useCookies } from '@/store/apidoc/cookies';
-import { InitDataMessage, OnEvalSuccess, ReceivedEvent } from '@/worker/pre-request/types/types.ts';
+import { InitDataMessage, OnEvalSuccess, ReceivedEvent } from '@/worker/preRequest/types/types.ts';
 import { Method } from 'got';
-import preRequestWorker from '@/worker/pre-request/pre-request.ts?worker&inline';
+import preRequestWorker from '@/worker/preRequest/preRequest.ts?worker&inline';
 import { WebSocketNode } from '@src/types/websocketNode';
 import { webSocketNodeCache } from '@/cache/websocketNode/websocketNodeCache.ts';
 /*

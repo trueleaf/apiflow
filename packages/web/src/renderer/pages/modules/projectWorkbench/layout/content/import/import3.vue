@@ -44,7 +44,7 @@
 <script lang="ts" setup>
 import { ref } from 'vue'
 // import { ElMessage } from 'element-plus'
-import gCard from '@/components/common/card/g-card.vue'
+import gCard from '@/components/common/card/GCard.vue'
 import { useI18n } from 'vue-i18n'
 
 /*

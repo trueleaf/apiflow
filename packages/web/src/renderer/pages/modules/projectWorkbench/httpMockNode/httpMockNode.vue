@@ -24,7 +24,7 @@ import { debounce } from '@/helper'
 import type { MockHttpNode, MockNodeActiveTabType } from '@src/types/mockNode'
 import type { DebouncedFunc } from 'lodash'
 import { router } from '@/router'
-import { useShortcut } from '@/hooks/use-shortcut'
+import { useShortcut } from '@/hooks/useShortcut'
 import { userState } from '@/cache/userState/userStateCache'
 
 const { t } = useI18n()

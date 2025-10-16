@@ -100,7 +100,7 @@
 
 <script lang="ts" setup>
 import { useI18n } from 'vue-i18n'
-import SJsonEditor from '@/components/common/json-editor/g-json-editor.vue'
+import SJsonEditor from '@/components/common/jsonEditor/GJsonEditor.vue'
 import type { MockHttpNode } from '@src/types'
 
 type ResponseItem = MockHttpNode['response'][0]

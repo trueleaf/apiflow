@@ -297,8 +297,8 @@ import { computed, onMounted, onUnmounted, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n'
 import { formatBytes, downloadStringAsText, formatHeader } from '@/helper/index'
 import { config } from '@src/config/config'
-import SJsonEditor from '@/components/common/json-editor/g-json-editor.vue'
-import SSseView from '@/components/common/sse-view/g-sse-view.vue'
+import SJsonEditor from '@/components/common/jsonEditor/GJsonEditor.vue'
+import SSseView from '@/components/common/sseView/GSseView.vue'
 import { useApidocTas } from '@/store/apidoc/tabs';
 import { ElDialog } from 'element-plus';
 import worker from '@/worker/prettier.worker.ts?worker&inline';

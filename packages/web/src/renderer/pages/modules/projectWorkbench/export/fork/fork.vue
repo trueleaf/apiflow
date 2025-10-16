@@ -108,9 +108,9 @@ import { findNextSiblingById, findParentById, findPreviousSiblingById, forEachFo
 import { useI18n } from 'vue-i18n'
 import { useApidocBaseInfo } from '@/store/apidoc/base-info';
 import { useApidocBanner } from '@/store/apidoc/banner';
-import SFieldset from '@/components/common/fieldset/g-fieldset.vue'
-import SLoading from '@/components/common/loading/g-loading.vue'
-import SEmphasize from '@/components/common/emphasize/g-emphasize.vue'
+import SFieldset from '@/components/common/fieldset/GFieldset.vue'
+import SLoading from '@/components/common/loading/GLoading.vue'
+import SEmphasize from '@/components/common/emphasize/GEmphasize.vue'
 import { config } from '@src/config/config';
 // import type { TreeComponentProps }  from "element-plus/lib/components/tree/src/tree.type"
 

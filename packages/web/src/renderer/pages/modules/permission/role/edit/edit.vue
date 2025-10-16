@@ -39,12 +39,12 @@ import { nextTick, onMounted, ref } from 'vue'
 import SClientMenus from './components/client-menus.vue'
 import SClientRoutes from './components/client-routes.vue'
 import SServerRoutes from './components/server-routes.vue'
-import SForm from '@/components/common/forms/form/g-form.vue'
-import SFormItem from '@/components/common/forms/form/g-form-item.vue'
+import SForm from '@/components/common/forms/form/GForm.vue'
+import SFormItem from '@/components/common/forms/form/GFormItem.vue'
 import { request } from '@/api/api'
 import { FormInstance } from 'element-plus'
 import { useI18n } from 'vue-i18n'
-import SFieldset from '@/components/common/fieldset/g-fieldset.vue'
+import SFieldset from '@/components/common/fieldset/GFieldset.vue'
 
 type RoleInfo = {
   remark: string,

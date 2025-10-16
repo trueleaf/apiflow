@@ -14,8 +14,8 @@
 
 <script lang="ts" setup>
 import { nextTick, PropType, ref } from 'vue'
-import SForm from '@/components/common/forms/form/g-form.vue'
-import SFormItem from '@/components/common/forms/form/g-form-item.vue'
+import SForm from '@/components/common/forms/form/GForm.vue'
+import SFormItem from '@/components/common/forms/form/GFormItem.vue'
 import { useI18n } from 'vue-i18n'
 import { FormInstance } from 'element-plus'
 import { request } from '@/api/api'

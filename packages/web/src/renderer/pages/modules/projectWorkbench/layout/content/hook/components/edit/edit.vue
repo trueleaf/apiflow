@@ -33,10 +33,10 @@
 import { ref, Ref, PropType, onMounted } from 'vue'
 import { ElMessage } from 'element-plus'
 import 'element-plus/es/components/message/style/css';
-import SFieldset from '@/components/common/fieldset/g-fieldset.vue'
-import SJsonEditor from '@/components/common/json-editor/g-json-editor.vue'
-import SForm from '@/components/common/forms/form/g-form.vue'
-import SFormItem from '@/components/common/forms/form/g-form-item.vue'
+import SFieldset from '@/components/common/fieldset/GFieldset.vue'
+import SJsonEditor from '@/components/common/jsonEditor/GJsonEditor.vue'
+import SForm from '@/components/common/forms/form/GForm.vue'
+import SFormItem from '@/components/common/forms/form/GFormItem.vue'
 import {
   apidocFormatUrl,
   apidocFormatQueryParams,

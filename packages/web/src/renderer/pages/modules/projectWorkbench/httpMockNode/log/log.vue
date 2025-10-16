@@ -175,7 +175,7 @@ import { useApidocTas } from '@/store/apidoc/tabs'
 import { ElEmpty, ElButton, ElInput, ElSelect, ElOption, ElDialog, ElMessageBox } from 'element-plus'
 import type { MockLog } from '@src/types/mockNode'
 import { httpMockLogsCache } from '@/cache/mock/httpMock/httpMockLogsCache'
-import SJsonEditor from '@/components/common/json-editor/g-json-editor.vue'
+import SJsonEditor from '@/components/common/jsonEditor/GJsonEditor.vue'
 import { Trash2, FileText, AlertCircle, AlertTriangle, Info } from 'lucide-vue-next'
 
 const defaultTemplate = '[$time_local] $remote_addr - $remote_user "$request" $status $body_bytes_sent "$http_referer" "$http_user_agent" $response_time_ms ms'

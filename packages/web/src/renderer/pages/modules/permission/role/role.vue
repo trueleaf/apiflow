@@ -27,7 +27,7 @@ import SAddRole from './add/add.vue'
 import SEditRole from './edit/edit.vue'
 import { ElMessageBox } from 'element-plus';
 import { useI18n } from 'vue-i18n'
-import STable from '@/components/common/table/g-table.vue'
+import STable from '@/components/common/table/GTable.vue'
 import { request } from '@/api/api';
 import { formatDate } from '@/helper'
 

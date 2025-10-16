@@ -40,7 +40,7 @@ import { ElMessage, FormInstance } from 'element-plus';
 import { request } from '@/api/api';
 import { router } from '@/router';
 import { config } from '@src/config/config';
-import SmsButton from '@/components/common/sms-button/g-sms-button.vue'
+import SmsButton from '@/components/common/smsButton/GSmsButton.vue'
 
 const { t } = useI18n()
 const registerInfo = reactive({

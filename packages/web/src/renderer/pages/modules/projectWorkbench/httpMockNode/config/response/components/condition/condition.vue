@@ -38,11 +38,11 @@ import { computed, ref, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { Close, ArrowRight, ArrowDown } from '@element-plus/icons-vue'
-import CodeEditor from '@/components/common/code-editor/code-editor.vue'
+import CodeEditor from '@/components/common/codeEditor/CodeEditor.vue'
 import { reqCompletionSuggestions } from './completionSuggestions'
 import { userState } from '@/cache/userState/userStateCache'
 import type { MockHttpNode } from '@src/types/mockNode'
-import type { EditorConfig } from '@/components/common/code-editor/types'
+import type { EditorConfig } from '@/components/common/codeEditor/types'
 
 type Props = {
   response: MockHttpNode['response'][0]

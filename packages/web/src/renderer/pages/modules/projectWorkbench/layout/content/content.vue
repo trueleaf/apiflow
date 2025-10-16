@@ -34,7 +34,7 @@ import SOnlineLink from './link/link.vue'
 import SRecycler from './recycler/recycler.vue'
 import SHistory from '../../audit/audit.vue'
 import SHook from './hook/hook.vue'
-import SCommonHeader from '../../common-header/common-header.vue'
+import SCommonHeader from '../../commonHeader/CommonHeader.vue'
 import SWebsocket from '../../websocketNode/websocketNode.vue'
 
 const route = useRoute();

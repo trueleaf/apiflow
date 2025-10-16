@@ -30,8 +30,8 @@
 </template>
 
 <script lang="ts" setup>
-import SResizeX from '@/components/common/resize/g-resize-x.vue'
-import SResizeY from '@/components/common/resize/g-resize-y.vue'
+import SResizeX from '@/components/common/resize/GResizeX.vue'
+import SResizeY from '@/components/common/resize/GResizeY.vue'
 import { httpNodeCache } from '@/cache/httpNode/httpNodeCache'
 import { httpResponseCache } from '@/cache/httpNode/httpResponseCache'
 import SOperation from './operation/operation.vue'

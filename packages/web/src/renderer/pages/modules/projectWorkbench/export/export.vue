@@ -96,9 +96,9 @@ import { useI18n } from 'vue-i18n'
 import { useApidocBaseInfo } from '@/store/apidoc/base-info';
 import { useApidocBanner } from '@/store/apidoc/banner';
 import { useVariable } from '@/store/apidoc/variables';
-import SFieldset from '@/components/common/fieldset/g-fieldset.vue'
-import SConfig from '@/components/common/config/g-config.vue'
-import SEmphasize from '@/components/common/emphasize/g-emphasize.vue'
+import SFieldset from '@/components/common/fieldset/GFieldset.vue'
+import SConfig from '@/components/common/config/GConfig.vue'
+import SEmphasize from '@/components/common/emphasize/GEmphasize.vue'
 import { useRoute } from 'vue-router';
 import SFork from './fork/fork.vue'
 import type { StandaloneExportHtmlParams } from '@src/types/standalone.ts';

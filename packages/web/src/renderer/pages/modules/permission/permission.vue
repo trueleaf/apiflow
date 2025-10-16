@@ -17,8 +17,8 @@
 import SUser from './user/user.vue'
 import SRole from './role/role.vue'
 import SMenu from './menu/menu.vue'
-import SClientRoutes from './client-routes/client-routes.vue'
-import SServerRoutes from './server-routes/server-routes.vue'
+import SClientRoutes from './clientRoutes/client-routes.vue'
+import SServerRoutes from './serverRoutes/server-routes.vue'
 import { onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 

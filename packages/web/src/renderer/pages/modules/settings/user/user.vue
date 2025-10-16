@@ -55,7 +55,7 @@
 <script lang="ts" setup>
 import { Back } from '@element-plus/icons-vue'
 import type { CommonResponse } from '@src/types'
-import SCard from '@/components/common/card/g-card.vue'
+import SCard from '@/components/common/card/GCard.vue'
 import { useI18n } from 'vue-i18n'
 import { nextTick, onMounted, ref } from 'vue';
 import { ElMessage, FormInstance } from 'element-plus';

@@ -202,13 +202,13 @@ import { MoreFilled } from '@element-plus/icons-vue'
 import type { ApidocBanner } from '@src/types'
 import { router } from '@/router/index'
 import { useI18n } from 'vue-i18n'
-import SResizeX from '@/components/common/resize/g-resize-x.vue'
-import SLoading from '@/components/common/loading/g-loading.vue'
-import SEmphasize from '@/components/common/emphasize/g-emphasize.vue'
-import SContextmenu from "@/components/common/contextmenu/g-contextmenu.vue";
-import SContextmenuItem from "@/components/common/contextmenu/g-contextmenu-item.vue";
-import SAddFileDialog from "../../dialog/add-file/add-file.vue";
-import SAddFolderDialog from "../../dialog/add-folder/add-folder.vue";
+import SResizeX from '@/components/common/resize/GResizeX.vue'
+import SLoading from '@/components/common/loading/GLoading.vue'
+import SEmphasize from '@/components/common/emphasize/GEmphasize.vue'
+import SContextmenu from "@/components/common/contextmenu/GContextmenu.vue";
+import SContextmenuItem from "@/components/common/contextmenu/GContextmenuItem.vue";
+import SAddFileDialog from "../../dialog/addFile/AddFile.vue";
+import SAddFolderDialog from "../../dialog/addFolder/AddFolder.vue";
 import { ElMessage } from "element-plus";
 import 'element-plus/es/components/message/style/css'
 import STool from './tool/tool.vue'

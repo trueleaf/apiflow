@@ -45,18 +45,18 @@
 
 <script lang="ts" setup>
 import { computed, ref } from 'vue'
-import SBaseInfo from './base-info/base-info.vue'
-import SResInfo from './res-info/res-info.vue'
-import SCookie from './cookie/cookie.vue'
-import SHeaders from './headers/headers.vue'
-import SBody from './body/body.vue'
-import SRawBody from './raw-body/raw-body.vue'
-import SRequest from './request/request.vue'
+import SBaseInfo from './baseInfo/BaseInfo.vue'
+import SResInfo from './resInfo/ResInfo.vue'
+import SCookie from './cookie/Cookie.vue'
+import SHeaders from './headers/Headers.vue'
+import SBody from './body/Body.vue'
+import SRawBody from './rawBody/RawBody.vue'
+import SRequest from './request/Request.vue'
 import { useI18n } from 'vue-i18n'
 import { useApidocResponse } from '@/store/apidoc/response'
 import { useApidocBaseInfo } from '@/store/apidoc/base-info'
 import { useApidoc } from '@/store/apidoc/apidoc'
-import SLoading from '@/components/common/loading/g-loading.vue'
+import SLoading from '@/components/common/loading/GLoading.vue'
 
 
 const { t } = useI18n()

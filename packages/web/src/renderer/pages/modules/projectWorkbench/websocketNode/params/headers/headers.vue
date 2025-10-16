@@ -64,7 +64,7 @@ import { View } from '@element-plus/icons-vue'
 import { ApidocProperty } from '@src/types';
 import { apidocGenerateProperty, debounce, cloneDeep } from '@/helper';
 import { useI18n } from 'vue-i18n'
-import SParamsTree from '@/components/apidoc/params-tree/g-params-tree3.vue'
+import SParamsTree from '@/components/apidoc/paramsTree/GParamsTree3.vue'
 import { useWebSocket } from '@/store/websocket/websocket';
 import { useRedoUndo } from '@/store/redoUndo/redoUndo';
 import { useApidocTas } from '@/store/apidoc/tabs';

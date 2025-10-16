@@ -89,7 +89,7 @@ import { ElMessage, FormInstance, genFileId, UploadFile, UploadInstance, UploadP
 import { useI18n } from 'vue-i18n'
 import { computed, nextTick, PropType, ref, watch } from 'vue';
 import { AddProjectVariableFormInfo, AddProjectVariableParams } from '../variable.vue';
-import SJsonEditor from '@/components/common/json-editor/g-json-editor.vue'
+import SJsonEditor from '@/components/common/jsonEditor/GJsonEditor.vue'
 import { useRoute } from 'vue-router';
 import { nodeVariableCache } from '@/cache/index';
 import { useRuntime } from '@/store/runtime/runtime';

@@ -113,11 +113,11 @@
 </template>
 
 <script lang="ts" setup>
-import SFieldset from '@/components/common/fieldset/g-fieldset.vue'
-import SLoading from '@/components/common/loading/g-loading.vue'
-import SLableValue from '@/components/common/label-value/g-label-value.vue'
-import SConfig from '@/components/common/config/g-config.vue'
-import SEmphasize from '@/components/common/emphasize/g-emphasize.vue'
+import SFieldset from '@/components/common/fieldset/GFieldset.vue'
+import SLoading from '@/components/common/loading/GLoading.vue'
+import SLableValue from '@/components/common/labelValue/GLabelValue.vue'
+import SConfig from '@/components/common/config/GConfig.vue'
+import SEmphasize from '@/components/common/emphasize/GEmphasize.vue'
 import { ref, Ref, computed } from 'vue'
 import jsyaml from 'js-yaml'
 import type { OpenAPIV3 } from 'openapi-types';

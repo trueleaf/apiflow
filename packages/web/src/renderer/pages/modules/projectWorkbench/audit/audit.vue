@@ -194,8 +194,8 @@ import { ResponseTable, ApidocOperationRecord, ApidocProjectPermission } from '@
 import { debounce } from '@/helper'
 import { request } from '@/api/api';
 import { router } from '@/router';
-import SFieldset from '@/components/common/fieldset/g-fieldset.vue'
-import SLoading from '@/components/common/loading/g-loading.vue'
+import SFieldset from '@/components/common/fieldset/GFieldset.vue'
+import SLoading from '@/components/common/loading/GLoading.vue'
 import { useApidocBaseInfo } from '@/store/apidoc/base-info'
 import { formatDate } from '@/helper'
 const folderUrl = new URL('@/assets/imgs/apidoc/folder.png', import.meta.url).href;

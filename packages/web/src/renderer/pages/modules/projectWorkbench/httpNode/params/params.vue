@@ -86,8 +86,8 @@ import SParams from './params/params.vue';
 import SRequestBody from './body/body.vue';
 import SRequestHeaders from './headers/headers.vue';
 import SResponseParams from './response/response.vue';
-import SPreRequestParams from './pre-request/pre-request.vue';
-import SAfterRequestParams from './after-request/after-request.vue';
+import SPreRequestParams from './preRequest/PreRequest.vue';
+import SAfterRequestParams from './afterRequest/AfterRequest.vue';
 import SRemark from './remarks/remarks.vue';
 // import SHook from './hook/hook.vue'
 import { computed, onMounted, onUnmounted, ref, watch, watchEffect } from 'vue'

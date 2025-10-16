@@ -134,8 +134,8 @@ import { router } from '@/router';
 import { useApidocTas } from '@/store/apidoc/tabs';
 import { event, uuid } from '@/helper'
 import { useApidocBaseInfo } from '@/store/apidoc/base-info';
-import SContextmenu from '@/components/common/contextmenu/g-contextmenu.vue'
-import SContextmenuItem from '@/components/common/contextmenu/g-contextmenu-item.vue'
+import SContextmenu from '@/components/common/contextmenu/GContextmenu.vue'
+import SContextmenuItem from '@/components/common/contextmenu/GContextmenuItem.vue'
 import { useApidocBanner } from '@/store/apidoc/banner';
 import { useApidocRequest } from '@/store/apidoc/request';
 import { useApidocResponse } from '@/store/apidoc/response';

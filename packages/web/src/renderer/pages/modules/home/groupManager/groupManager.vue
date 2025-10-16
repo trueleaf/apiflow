@@ -219,14 +219,14 @@
 import { useI18n } from 'vue-i18n'
 import { Plus, User, Search, ArrowDown, Check, Delete } from '@element-plus/icons-vue'
 import { computed, onMounted, ref } from 'vue';
-import AddProjectDialog from '../dialog/add-group/add-group.vue'
+import AddProjectDialog from '../dialog/addGroup/AddGroup.vue'
 import { request } from '@/api/api';
 import { ApidocGroupItem, ApidocGroupUser, PermissionUserBaseInfo, CommonResponse } from '@src/types';
 import { cloneDeep, uuid } from '@/helper';
 import { ElMessage, ElMessageBox } from 'element-plus';
-import RemoteSelector from '@/components/common/remote-select/g-remote-select.vue';
-import RemoteSelectorItem from '@/components/common/remote-select/g-remote-select-item.vue';
-import { useGlobalClick } from '@/hooks/use-global-click';
+import RemoteSelector from '@/components/common/remoteSelect/GRemoteSelect.vue';
+import RemoteSelectorItem from '@/components/common/remoteSelect/GRemoteSelectItem.vue';
+import { useGlobalClick } from '@/hooks/useGlobalClick';
 import dayjs from 'dayjs'
 import { usePermissionStore } from '@/store/permission';
 

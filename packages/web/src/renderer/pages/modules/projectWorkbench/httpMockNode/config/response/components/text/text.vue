@@ -121,7 +121,7 @@ import { ref, computed, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { ElMessage } from 'element-plus'
 import { Loading, Top } from '@element-plus/icons-vue'
-import SJsonEditor from '@/components/common/json-editor/g-json-editor.vue'
+import SJsonEditor from '@/components/common/jsonEditor/GJsonEditor.vue'
 import { 
   getMockTextRandomSizeHintVisible,
   setMockTextRandomSizeHintVisible 

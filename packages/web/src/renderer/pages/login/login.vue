@@ -58,10 +58,10 @@
 <script lang="ts" setup>
 import { computed, ref } from 'vue';
 import { config as globalConfig } from '@src/config/config'
-import LoginAccount from './components/login-account.vue';
-import LoginPhone from './components/login-phone.vue';
-import Register from './components/register.vue';
-import ResetPassword from './components/reset-password.vue';
+import LoginAccount from './components/LoginAccount.vue';
+import LoginPhone from './components/LoginPhone.vue';
+import Register from './components/Register.vue';
+import ResetPassword from './components/ResetPassword.vue';
 const config = ref(globalConfig);
 const activeName = ref('loginAccount');
 

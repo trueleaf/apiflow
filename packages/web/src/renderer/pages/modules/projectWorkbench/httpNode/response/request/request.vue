@@ -61,12 +61,12 @@ import { useI18n } from 'vue-i18n'
 import { computed } from 'vue'
 import beautify from 'js-beautify'
 import { useApidoc } from '@/store/apidoc/apidoc';
-import SCollapse from '@/components/common/collapse/g-collapse.vue'
+import SCollapse from '@/components/common/collapse/GCollapse.vue'
 import { useApidocBaseInfo } from '@/store/apidoc/base-info';
 import { useApidocResponse } from '@/store/apidoc/response';
 import { formatBytes, downloadStringAsText } from '@/helper/index'
 import { storeToRefs } from 'pinia';
-import SJsonEditor from '@/components/common/json-editor/g-json-editor.vue'
+import SJsonEditor from '@/components/common/jsonEditor/GJsonEditor.vue'
 
 const apidocStore = useApidoc();
 const apidocBaseInfoStore = useApidocBaseInfo();

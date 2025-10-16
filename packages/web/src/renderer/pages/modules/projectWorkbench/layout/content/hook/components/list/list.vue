@@ -37,7 +37,7 @@ import { router } from '@/router';
 import type { ApidocCodeInfo } from '@src/types'
 import { event } from '@/helper';
 import { useI18n } from 'vue-i18n'
-import STable from '@/components/common/table/g-table.vue'
+import STable from '@/components/common/table/GTable.vue'
 import { request } from '@/api/api';
 
 const { t } = useI18n()

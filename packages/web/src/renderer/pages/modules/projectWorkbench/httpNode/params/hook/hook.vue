@@ -35,7 +35,7 @@ import 'element-plus/es/components/message/style/css';
 import { useI18n } from 'vue-i18n';
 import { useApidoc } from '@/store/apidoc/apidoc';
 import { useApidocTas } from '@/store/apidoc/tabs';
-import SLoading from '@/components/common/loading/g-loading.vue'
+import SLoading from '@/components/common/loading/GLoading.vue'
 
 
 type CodeInfo = Omit<ApidocCodeInfo, 'updatedAt'>;

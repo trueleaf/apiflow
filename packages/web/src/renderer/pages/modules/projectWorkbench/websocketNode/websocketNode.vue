@@ -22,7 +22,7 @@
 <script lang="ts" setup>
 import { onMounted, onUnmounted, ref, watch } from 'vue'
 import { storeToRefs } from 'pinia'
-import SResizeX from '@/components/common/resize/g-resize-x.vue'
+import SResizeX from '@/components/common/resize/GResizeX.vue'
 import SOperation from './operation/operation.vue'
 import SParams from './params/params.vue'
 import SResponse from './response/response.vue'
@@ -36,7 +36,7 @@ import { websocketTemplateCache } from '@/cache/websocketNode/websocketTemplateC
 import { uuid } from '@/helper'
 import { router } from '@/router'
 import { useRedoUndo } from '@/store/redoUndo/redoUndo'
-import { useShortcut } from '@/hooks/use-shortcut'
+import { useShortcut } from '@/hooks/useShortcut'
 
 const apidocTabsStore = useApidocTas()
 const websocketStore = useWebSocket()

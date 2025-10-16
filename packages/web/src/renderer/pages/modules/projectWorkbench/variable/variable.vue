@@ -205,15 +205,15 @@
 </template>
 
 <script lang="ts" setup>
-import SFieldset from '@/components/common/fieldset/g-fieldset.vue'
-import STable from '@/components/common/table/g-table.vue'
+import SFieldset from '@/components/common/fieldset/GFieldset.vue'
+import STable from '@/components/common/table/GTable.vue'
 import { config } from '@src/config/config'
 import { useI18n } from 'vue-i18n'
 import { computed, ref, onMounted } from 'vue';
 import { ElMessage, ElMessageBox, FormInstance, genFileId, UploadFile, UploadInstance, UploadProps, UploadRawFile } from 'element-plus';
 import { request } from '@/api/api';
 import { useRoute } from 'vue-router';
-import SJsonEditor from '@/components/common/json-editor/g-json-editor.vue'
+import SJsonEditor from '@/components/common/jsonEditor/GJsonEditor.vue'
 import EditDialog from './dialog/edit.vue'
 import { useVariable } from '@/store/apidoc/variables';
 import { CommonResponse, ApidocVariable } from '@src/types';
