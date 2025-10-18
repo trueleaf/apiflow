@@ -38,8 +38,8 @@
 import { ref, computed, defineAsyncComponent, onMounted } from 'vue'
 
 // 导入组件
-const CardComponent = defineAsyncComponent(() => import('@/components/ui/cleanDesign/card/card.vue'))
-const TabsComponent = defineAsyncComponent(() => import('@/components/ui/cleanDesign/tabs/demo/tabs.vue'))
+const CardComponent = defineAsyncComponent(() => import('@/components/ui/cleanDesign/card/Card.vue'))
+const TabsComponent = defineAsyncComponent(() => import('@/components/ui/cleanDesign/tabs/demo/Tabs.vue'))
 
 // 搜索词
 const searchTerm = ref('')
