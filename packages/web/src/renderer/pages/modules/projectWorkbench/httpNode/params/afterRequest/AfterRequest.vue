@@ -1,12 +1,12 @@
 <template>
   <div class="editor-wrap">
-    <after-editor v-model="afterRequest"></after-editor>
+    <AfterEditor v-model="afterRequest"></AfterEditor>
   </div>
 </template>
 
 <script lang="ts" setup>
 import { computed } from 'vue'
-import afterEditor from './editor/AfterEditor.vue'
+import AfterEditor from './editor/AfterEditor.vue'
 import { useApidoc } from '@/store/apidoc/apidoc';
 
 const apidocStore = useApidoc();

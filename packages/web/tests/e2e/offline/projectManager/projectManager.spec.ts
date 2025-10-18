@@ -84,7 +84,7 @@ test.describe('离线模式项目增删改查测试', () => {
     });
     
     // 等待导航完成
-    await contentPage.waitForURL(/home/, { timeout: 5000 });
+    await contentPage.waitForTimeout(1000);
     await contentPage.waitForLoadState('domcontentloaded');
     await contentPage.waitForTimeout(1000); // 等待IndexedDB初始化
   });

@@ -461,9 +461,10 @@ test.describe('HTTP Node - Header 参数', () => {
 
 		// 输入 value
 		const valueInput = headerSection.locator('input[placeholder*="请输入值"]').first();
+		await valueInput.waitFor({ state: 'visible', timeout: 10000 });
 		await valueInput.click();
 		await valueInput.type('Bearer token123');
-		await contentPage.waitForTimeout(300);
+		await contentPage.waitForTimeout(500);
 
 		await expect(keyInput).toHaveValue('Authorization');
 		await expect(valueInput).toHaveValue('Bearer token123');
@@ -592,9 +593,10 @@ test.describe('HTTP Node - Header 参数', () => {
 
 		// 使用变量引用
 		const valueInput = headerSection.locator('input[placeholder*="请输入值"]').first();
+		await valueInput.waitFor({ state: 'visible', timeout: 10000 });
 		await valueInput.click();
 		await valueInput.type('{{apiKey}}');
-		await contentPage.waitForTimeout(300);
+		await contentPage.waitForTimeout(500);
 
 		await expect(valueInput).toHaveValue('{{apiKey}}');
 	});

@@ -127,11 +127,12 @@ test.describe('语言切换功能测试', () => {
       localStorage.setItem('history/lastVisitePage', '/home');
       // 设置默认语言为简体中文
       localStorage.setItem('language', 'zh-cn');
+      // 导航到首页
+      window.location.hash = '#/home';
     });
     
-    // 刷新页面以应用语言设置
-    await headerPage.reload();
-    await contentPage.reload();
+    // 等待导航完成
+    await contentPage.waitForTimeout(1000);
     await Promise.all([
       headerPage.waitForLoadState('domcontentloaded'),
       contentPage.waitForLoadState('domcontentloaded')
@@ -242,24 +243,23 @@ test.describe('语言切换功能测试', () => {
   });
 
   test('切换语言后界面文本应正确更新', async () => {
+    // 等待页面完全加载
+    await contentPage.waitForTimeout(1000);
+    
     // 初始为简体中文，验证中文文本
-    const chineseButton = contentPage.locator('button:has-text("新建项目")').first();
-    await expect(chineseButton).toBeVisible({ timeout: 3000 });
+    const hasChineseText = await verifyPageLanguage(contentPage, ['项目列表', '新建项目', '主页面']);
+    expect(hasChineseText).toBe(true);
     
     // 切换到英文
     await openLanguageMenu(headerPage, contentPage);
     await selectLanguage(contentPage, 'English');
     await contentPage.waitForTimeout(500);
     
-    // 验证英文文本（按钮文本应该更新）
-    const englishButton = contentPage.locator('button:has-text("New Project")').first();
-    const hasEnglishButton = await englishButton.isVisible({ timeout: 3000 }).catch(() => false);
+    // 验证英文文本（页面文本应该更新）
+    const hasEnglishText = await verifyPageLanguage(contentPage, ['Project List', 'New Project', 'Home']);
+    expect(hasEnglishText).toBe(true);
     
-    // 至少验证header中的文本更新
-    const homeText = headerPage.locator('.home span');
-    const homeTextContent = await homeText.textContent();
-    
-    // 英文模式下，"主页面"应该变成"Home"或类似文本
+    // 验证localStorage中的语言设置
     const isEnglishMode = await getStoredLanguage(contentPage);
     expect(isEnglishMode).toBe('en');
   });

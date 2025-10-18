@@ -1,12 +1,12 @@
 <template>
   <div class="editor-wrap">
-    <pre-editor ref="editorWrap" v-model="preRequest"></pre-editor>
+    <PreEditor ref="editorWrap" v-model="preRequest"></PreEditor>
   </div>
 </template>
 
 <script lang="ts" setup>
 import { computed } from 'vue'
-import preEditor from './editor/PreEditor.vue'
+import PreEditor from './editor/PreEditor.vue'
 import { useApidoc } from '@/store/apidoc/apidoc';
 
 const apidocStore = useApidoc()

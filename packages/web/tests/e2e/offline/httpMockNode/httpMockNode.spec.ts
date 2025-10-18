@@ -52,6 +52,62 @@ const resolveHeaderAndContentPages = async (
   throw new Error('未能定位 header 与 content 页面');
 };
 
+// ==================== 辅助函数 ====================
+
+// 创建测试项目
+const createTestProject = async (headerPage: Page, contentPage: Page, projectName: string) => {
+  await contentPage.locator('button:has-text("新建项目")').click();
+  await contentPage.waitForSelector('.el-dialog:has-text("新增项目")', { state: 'visible', timeout: 10000 });
+  const nameInput = contentPage.locator('.el-dialog .el-input input[placeholder*="项目名称"]');
+  await nameInput.fill(projectName);
+  await contentPage.locator('.el-dialog__footer button:has-text("确定")').click();
+  await contentPage.waitForURL(/doc-edit/, { timeout: 15000 });
+  await contentPage.waitForLoadState('domcontentloaded');
+  await contentPage.waitForTimeout(2000);
+  await contentPage.waitForSelector('.banner', { timeout: 10000 });
+  return { name: projectName };
+};
+
+// 创建根级 HTTP Mock 节点
+const createRootHttpMockNode = async (contentPage: Page, nodeName: string) => {
+  await contentPage.waitForSelector('.tool-icon', { timeout: 10000 });
+  const addNodeBtn = contentPage.locator('.tool-icon [title="新增文件"]').first();
+  await addNodeBtn.waitFor({ state: 'visible', timeout: 5000 });
+  await addNodeBtn.click();
+  await contentPage.waitForSelector('.el-dialog:has-text("新建接口")', { state: 'visible', timeout: 10000 });
+  
+  // 选择Mock类型（如果有类型选择器）
+  const typeSelector = contentPage.locator('.el-dialog .el-select, .el-dialog select').first();
+  if (await typeSelector.isVisible({ timeout: 2000 }).catch(() => false)) {
+    await typeSelector.click();
+    await contentPage.waitForTimeout(300);
+    const mockOption = contentPage.locator('.el-select-dropdown li:has-text("Mock"), .el-option:has-text("Mock")').first();
+    if (await mockOption.isVisible({ timeout: 2000 }).catch(() => false)) {
+      await mockOption.click();
+      await contentPage.waitForTimeout(300);
+    }
+  }
+  
+  const nodeInput = contentPage.locator('.el-dialog:has-text("新建接口")').locator('input[placeholder*="接口名称"], input[placeholder*="名称"]').first();
+  await nodeInput.fill(nodeName);
+  await contentPage.locator('.el-dialog:has-text("新建接口")').locator('button:has-text("确定")').click();
+  await contentPage.waitForSelector('.el-dialog:has-text("新建接口")', { state: 'hidden', timeout: 10000 });
+  await contentPage.waitForTimeout(500);
+};
+
+// 获取Banner中的节点
+const getBannerNode = (contentPage: Page, nodeName: string) => {
+  return contentPage.locator(`.custom-tree-node:has-text("${nodeName}")`).first();
+};
+
+// 点击Banner中的节点
+const clickBannerNode = async (contentPage: Page, nodeName: string) => {
+  const node = getBannerNode(contentPage, nodeName);
+  await node.waitFor({ state: 'visible', timeout: 5000 });
+  await node.click();
+  await contentPage.waitForTimeout(2000);
+};
+
 // HTTP Mock 节点测试
 test.describe('HTTP Mock 节点 - Tab切换功能', () => {
   let headerPage: Page;
@@ -66,10 +122,30 @@ test.describe('HTTP Mock 节点 - Tab切换功能', () => {
       contentPage.waitForLoadState('domcontentloaded')
     ]);
     
-    // 设置离线模式
+    // 设置离线模式并跳转到首页
     await contentPage.evaluate(() => {
       localStorage.setItem('runtime/networkMode', 'offline');
+      localStorage.setItem('history/lastVisitePage', '/home');
     });
+    await contentPage.evaluate(() => {
+      window.location.hash = '#/home';
+    });
+    await contentPage.waitForURL(/home/, { timeout: 10000 });
+    await contentPage.waitForLoadState('domcontentloaded');
+    await contentPage.waitForTimeout(1000);
+    
+    // 创建测试项目
+    const testProjectName = `HTTPMock-Test-${Date.now()}`;
+    await createTestProject(headerPage, contentPage, testProjectName);
+    await contentPage.waitForSelector('.banner', { timeout: 10000 });
+    
+    // 创建Mock节点并打开
+    const nodeName = `Mock节点-${Date.now()}`;
+    await createRootHttpMockNode(contentPage, nodeName);
+    await clickBannerNode(contentPage, nodeName);
+    
+    // 等待 Mock 节点页面加载
+    await contentPage.waitForSelector('.mock-layout', { timeout: 10000 });
   });
 
   test('应能在"配置与响应"和"日志"标签页之间切换', async () => {
@@ -159,10 +235,25 @@ test.describe('HTTP Mock 节点 - 触发条件配置', () => {
     
     await contentPage.evaluate(() => {
       localStorage.setItem('runtime/networkMode', 'offline');
+      localStorage.setItem('history/lastVisitePage', '/home');
     });
+    await contentPage.evaluate(() => {
+      window.location.hash = '#/home';
+    });
+    await contentPage.waitForURL(/home/, { timeout: 10000 });
+    await contentPage.waitForLoadState('domcontentloaded');
+    await contentPage.waitForTimeout(1000);
+    
+    const testProjectName = `HTTPMock-Test-${Date.now()}`;
+    await createTestProject(headerPage, contentPage, testProjectName);
+    await contentPage.waitForSelector('.banner', { timeout: 10000 });
+    
+    const nodeName = `Mock节点-${Date.now()}`;
+    await createRootHttpMockNode(contentPage, nodeName);
+    await clickBannerNode(contentPage, nodeName);
     
     // 等待 Mock 配置页面加载
-    await contentPage.waitForSelector('.condition-content', { timeout: 5000 });
+    await contentPage.waitForSelector('.condition-content', { timeout: 10000 });
   });
 
   test('应能设置监听端口（1-65535）', async () => {
@@ -372,11 +463,26 @@ test.describe('HTTP Mock 节点 - 保存与刷新', () => {
       contentPage.waitForLoadState('domcontentloaded')
     ]);
     
+    // Set offline mode and ensure we're on home
     await contentPage.evaluate(() => {
       localStorage.setItem('runtime/networkMode', 'offline');
+      localStorage.setItem('history/lastVisitePage', '/home');
     });
-    
-    await contentPage.waitForSelector('.mock-config-content', { timeout: 5000 });
+    await contentPage.evaluate(() => {
+      window.location.hash = '#/home';
+    });
+    await contentPage.waitForURL(/home/, { timeout: 10000 });
+    await contentPage.waitForLoadState('domcontentloaded');
+    await contentPage.waitForTimeout(1000);
+
+    // Create a test project and a Mock node, then open it
+    const testProjectName = `HTTPMock-Test-${Date.now()}`;
+    await createTestProject(headerPage, contentPage, testProjectName);
+    await contentPage.waitForSelector('.banner', { timeout: 10000 });
+    const nodeName = `Mock节点-${Date.now()}`;
+    await createRootHttpMockNode(contentPage, nodeName);
+    await clickBannerNode(contentPage, nodeName);
+    await contentPage.waitForSelector('.mock-layout, .condition-content, .response-content', { timeout: 10000 });
   });
 
   test('应显示保存和刷新按钮', async () => {
@@ -488,9 +594,24 @@ test.describe('HTTP Mock 节点 - 响应配置Tab管理', () => {
     
     await contentPage.evaluate(() => {
       localStorage.setItem('runtime/networkMode', 'offline');
+      localStorage.setItem('history/lastVisitePage', '/home');
     });
+    await contentPage.evaluate(() => {
+      window.location.hash = '#/home';
+    });
+    await contentPage.waitForURL(/home/, { timeout: 10000 });
+    await contentPage.waitForLoadState('domcontentloaded');
+    await contentPage.waitForTimeout(1000);
     
-    await contentPage.waitForSelector('.response-content', { timeout: 5000 });
+    const testProjectName = `HTTPMock-Test-${Date.now()}`;
+    await createTestProject(headerPage, contentPage, testProjectName);
+    await contentPage.waitForSelector('.banner', { timeout: 10000 });
+    
+    const nodeName = `Mock节点-${Date.now()}`;
+    await createRootHttpMockNode(contentPage, nodeName);
+    await clickBannerNode(contentPage, nodeName);
+    
+    await contentPage.waitForSelector('.mock-layout, .response-content', { timeout: 10000 });
   });
 
   test('应显示默认返回Tab', async () => {
@@ -640,9 +761,24 @@ test.describe('HTTP Mock 节点 - 数据类型切换', () => {
     
     await contentPage.evaluate(() => {
       localStorage.setItem('runtime/networkMode', 'offline');
+      localStorage.setItem('history/lastVisitePage', '/home');
     });
+    await contentPage.evaluate(() => {
+      window.location.hash = '#/home';
+    });
+    await contentPage.waitForURL(/home/, { timeout: 10000 });
+    await contentPage.waitForLoadState('domcontentloaded');
+    await contentPage.waitForTimeout(1000);
     
-    await contentPage.waitForSelector('.response-content', { timeout: 5000 });
+    const testProjectName = `HTTPMock-Test-${Date.now()}`;
+    await createTestProject(headerPage, contentPage, testProjectName);
+    await contentPage.waitForSelector('.banner', { timeout: 10000 });
+    
+    const nodeName = `Mock节点-${Date.now()}`;
+    await createRootHttpMockNode(contentPage, nodeName);
+    await clickBannerNode(contentPage, nodeName);
+    
+    await contentPage.waitForSelector('.mock-layout, .response-content', { timeout: 10000 });
   });
 
   test('应显示所有数据类型选项', async () => {
