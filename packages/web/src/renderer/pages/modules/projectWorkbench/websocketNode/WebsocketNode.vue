@@ -37,9 +37,14 @@ import { uuid } from '@/helper'
 import { router } from '@/router'
 import { useRedoUndo } from '@/store/redoUndo/redoUndo'
 import { useShortcut } from '@/hooks/useShortcut'
+import { executeWebSocketAfterScript } from '@/server/websocket/executeAfterScript'
+import { useVariable } from '@/store/apidoc/variables'
+import { useCookies } from '@/store/apidoc/cookies'
 
 const apidocTabsStore = useApidocTas()
 const websocketStore = useWebSocket()
+const variableStore = useVariable()
+const cookiesStore = useCookies()
 const { currentSelectTab } = storeToRefs(apidocTabsStore)
 const { loading, } = storeToRefs(websocketStore)
 const debounceWebsocketDataChange = ref(null as (null | DebouncedFunc<(websocket: WebSocketNode) => void>))
@@ -280,21 +285,21 @@ const initWebSocketEventListeners = () => {
   });
 
   // 监听WebSocket接收消息事件
-  window.electronAPI.ipcManager.onMain('websocket-message', (data: { 
-    connectionId: string; 
-    nodeId: string; 
-    message: Uint8Array; 
-    mimeType: string; 
+  window.electronAPI.ipcManager.onMain('websocket-message', async (data: {
+    connectionId: string;
+    nodeId: string;
+    message: Uint8Array;
+    mimeType: string;
     contentType: 'text' | 'binary';
-    url: string 
+    url: string
   }) => {
     if (currentSelectTab.value && data.nodeId === currentSelectTab.value._id) {
       // 将 Uint8Array 转换为 ArrayBuffer
       const arrayBuffer = data.message.buffer.slice(
-        data.message.byteOffset, 
+        data.message.byteOffset,
         data.message.byteOffset + data.message.byteLength
       ) as ArrayBuffer;
-      
+
       // 添加接收消息记录
       const receiveMessage = {
         type: 'receive' as const,
@@ -313,6 +318,73 @@ const initWebSocketEventListeners = () => {
       // 缓存接收消息到IndexedDB
       if (currentSelectTab.value._id) {
         websocketResponseCache.setSingleData(currentSelectTab.value._id, receiveMessage);
+      }
+
+      // 执行后置脚本
+      if (websocketStore.websocket.afterRequest.raw && websocketStore.websocket.afterRequest.raw.trim() !== '') {
+        console.log('执行WebSocket后置脚本...');
+
+        // 将 cookies 数组转换为对象格式
+        const cookiesObject = cookiesStore.cookies.reduce((acc, cookie) => {
+          acc[cookie.name] = cookie.value;
+          return acc;
+        }, {} as Record<string, string>);
+
+        // 准备响应数据（转换为可序列化的格式）
+        let responseData: string | ArrayBuffer = arrayBuffer;
+        if (data.contentType === 'text') {
+          // 如果是文本消息，转换为字符串
+          const decoder = new TextDecoder();
+          responseData = decoder.decode(arrayBuffer);
+        }
+
+        const afterScriptResult = await executeWebSocketAfterScript(
+          websocketStore.websocket,
+          {
+            data: responseData,
+            type: data.contentType,
+            timestamp: Date.now(),
+            size: arrayBuffer.byteLength,
+            mimeType: data.mimeType,
+          },
+          variableStore.objectVariable,
+          cookiesObject,
+          {}, // localStorage - 需要从实际存储获取
+          {}  // sessionStorage - 需要从实际存储获取
+        );
+
+        if (!afterScriptResult.success) {
+          // 后置脚本执行失败，记录错误
+          const errorMsg = afterScriptResult.error?.message || '后置脚本执行失败';
+          console.error('WebSocket后置脚本执行失败:', errorMsg);
+
+          // 可选：添加错误消息到响应列表
+          const scriptErrorMessage = {
+            type: 'error' as const,
+            data: {
+              id: uuid(),
+              nodeId: data.nodeId,
+              error: `后置脚本执行失败: ${errorMsg}`,
+              timestamp: Date.now()
+            }
+          };
+          websocketStore.addMessage(scriptErrorMessage);
+          websocketResponseCache.setSingleData(currentSelectTab.value._id, scriptErrorMessage);
+        } else {
+          console.log('WebSocket后置脚本执行成功');
+
+          // 应用脚本更新的变量（如果有）
+          if (afterScriptResult.updatedVariables) {
+            // TODO: 更新变量到 variableStore
+            console.log('后置脚本更新的变量:', afterScriptResult.updatedVariables);
+          }
+
+          // 应用脚本更新的存储（如果有）
+          if (afterScriptResult.updatedStorage) {
+            // TODO: 更新存储
+            console.log('后置脚本更新的存储:', afterScriptResult.updatedStorage);
+          }
+        }
       }
     }
   });

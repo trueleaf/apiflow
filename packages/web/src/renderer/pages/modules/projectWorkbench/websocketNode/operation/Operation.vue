@@ -74,6 +74,7 @@ import { executeWebSocketPreScript } from '@/server/websocket/executePreScript';
 import { useVariable } from '@/store/apidoc/variables';
 import { useCookies } from '@/store/apidoc/cookies';
 import { ElMessage } from 'element-plus';
+import { httpNodeCache } from '@/cache/httpNode/httpNodeCache';
 
 const { t } = useI18n();
 const websocketStore = useWebSocket();
@@ -173,18 +174,25 @@ const handleConnect = async () => {
     if (websocketStore.websocket.preRequest.raw && websocketStore.websocket.preRequest.raw.trim() !== '') {
       console.log('执行WebSocket前置脚本...');
 
+      // 获取 projectId
+      const projectId = router.currentRoute.value.query.id as string;
+
       // 将 cookies 数组转换为对象格式
       const cookiesObject = cookiesStore.cookies.reduce((acc, cookie) => {
         acc[cookie.name] = cookie.value;
         return acc;
       }, {} as Record<string, string>);
 
+      // 获取实际的 localStorage 和 sessionStorage
+      const preRequestLocalStorage = httpNodeCache.getPreRequestLocalStorage(projectId) || {};
+      const preRequestSessionStorage = httpNodeCache.getPreRequestSessionStorage(projectId) || {};
+
       const preScriptResult = await executeWebSocketPreScript(
         websocketStore.websocket,
         variableStore.objectVariable,
         cookiesObject,
-        {}, // localStorage - 需要从实际存储获取
-        {}  // sessionStorage - 需要从实际存储获取
+        preRequestLocalStorage,
+        preRequestSessionStorage
       );
 
       if (!preScriptResult.success) {
