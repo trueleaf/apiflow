@@ -84,7 +84,7 @@
         :class="{ vertical: layout === 'vertical' }">
         <SJsonEditor ref="jsonComponents" :model-value="item.value.strJson"
           @update:modelValue="handleChangeResponseJson($event, index)"></SJsonEditor>
-        <el-button type="primary" text class="format-btn" @click="handleFormat(index)">格式化</el-button>
+        <el-button type="primary" text class="format-btn" @click="handleFormat(index)">{{ t('格式化') }}</el-button>
       </div>
       <!-- 文本类型 -->
       <div v-else-if="checkDisplayType(item.value.dataType) === 'text'" class="editor-wrap"

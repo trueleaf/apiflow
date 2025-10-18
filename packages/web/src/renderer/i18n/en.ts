@@ -791,4 +791,11 @@ export default {
   '随机': 'Random',
   '随机图片': 'Random Image',
   '预览结果': 'Preview Result',
+  '获取变量列表失败': 'Failed to get variable list',
+  '添加失败': 'Add failed',
+  '操作失败': 'Operation failed',
+  '初始化独立缓存失败': 'Failed to initialize standalone cache',
+  '初始化失败': 'Initialization failed',
+  '用户取消删除模板': 'User cancelled template deletion',
+  '修改消息内容': 'Modify message content',
 }

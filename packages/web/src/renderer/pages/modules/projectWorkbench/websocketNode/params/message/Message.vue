@@ -201,7 +201,7 @@ const debouncedRecordMessageOperation = debounce((oldValue: string, newValue: st
   redoUndoStore.recordOperation({
     nodeId: currentSelectTab.value._id,
     type: "sendMessageOperation",
-    operationName: "修改消息内容",
+    operationName: t("修改消息内容"),
     affectedModuleName: "messageContent",
     oldValue,
     newValue,
@@ -341,7 +341,7 @@ const handleDeleteTemplate = async (templateId: string) => {
     }
   } catch (error) {
     // 用户取消删除
-    console.log('用户取消删除模板')
+    console.log(t('用户取消删除模板'))
   }
 }
 
@@ -471,7 +471,7 @@ const startAutoSend = () => {
           const nodeId = currentSelectTab.value!._id;
           await websocketResponseCache.setSingleData(nodeId, autoSendMessage);
         } else {
-          console.error('自动发送失败:', result?.msg)
+          console.error(t('自动发送失败'), result?.msg)
 
           // 创建自动发送失败错误消息
           const errorMessage = {
@@ -492,7 +492,7 @@ const startAutoSend = () => {
           await websocketResponseCache.setSingleData(nodeId, errorMessage);
         }
       } catch (error) {
-        console.error('自动发送异常:', error)
+        console.error(t('自动发送异常'), error)
 
         // 创建自动发送异常错误消息
         const exceptionMessage = {

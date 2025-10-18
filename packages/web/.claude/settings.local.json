@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm run type-check)",
+      "Bash(npx vue-tsc --noEmit \"src/renderer/pages/modules/projectWorkbench/variable/Variable.vue\" \"src/renderer/pages/modules/projectWorkbench/httpNode/params/response/Response.vue\" \"src/renderer/pages/modules/projectWorkbench/websocketNode/params/message/Message.vue\")",
+      "Bash(node --check \"src/renderer/pages/modules/projectWorkbench/variable/Variable.vue\")"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

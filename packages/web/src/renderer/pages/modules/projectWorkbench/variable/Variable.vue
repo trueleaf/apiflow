@@ -117,15 +117,15 @@
           <template #default="scope">
             <div v-if="scope.row.type === 'file'">
               <div>
-                <span>文件名称：</span>
+                <span>{{ t('文件名称：') }}</span>
                 <span>{{ scope.row.fileValue.name }}</span>
               </div>
               <div>
-                <span>文件路径：</span>
+                <span>{{ t('文件路径：') }}</span>
                 <span>{{ scope.row.fileValue.path }}</span>
               </div>
               <div>
-                <span>mime类型：</span>
+                <span>{{ t('mime类型：') }}</span>
                 <span>{{ scope.row.fileValue.fileType }}</span>
               </div>
             </div>
@@ -171,15 +171,15 @@
           <template #default="scope">
             <div v-if="scope.row.type === 'file'">
               <div>
-                <span>文件名称：</span>
+                <span>{{ t('文件名称：') }}</span>
                 <span>{{ scope.row.fileValue.name }}</span>
               </div>
               <div>
-                <span>文件路径：</span>
+                <span>{{ t('文件路径：') }}</span>
                 <span>{{ scope.row.fileValue.path }}</span>
               </div>
               <div>
-                <span>mime类型：</span>
+                <span>{{ t('mime类型：') }}</span>
                 <span>{{ scope.row.fileValue.fileType }}</span>
               </div>
             </div>
@@ -332,11 +332,11 @@ const getStandaloneVariables = async () => {
       // 更新变量枚举
       variableStore.replaceVariables(response.data);
     } else {
-      ElMessage.error(response.msg || '获取变量列表失败');
+      ElMessage.error(response.msg || t('获取变量列表失败'));
     }
   } catch (error) {
-    console.error('获取变量列表失败:', error);
-    ElMessage.error('获取变量列表失败');
+    console.error(t('获取变量列表失败'), error);
+    ElMessage.error(t('获取变量列表失败'));
   } finally {
     standaloneLoading.value = false;
   }
@@ -386,10 +386,10 @@ const handleAddVariable = () => {
           // 独立模式
           const response = await nodeVariableCache.addVariable(params);
           if (response.code === 0) {
-            ElMessage.success('添加成功');
+            ElMessage.success(t('添加成功'));
             getData();
           } else {
-            ElMessage.error(response.msg || '添加失败');
+            ElMessage.error(response.msg || t('添加失败'));
           }
         } else {
           // 在线模式
@@ -398,7 +398,7 @@ const handleAddVariable = () => {
         }
       } catch (err) {
         console.error(err);
-        ElMessage.error('操作失败');
+        ElMessage.error(t('操作失败'));
       } finally {
         loading.value = false;
       }
@@ -447,11 +447,11 @@ const handleStandaloneDelete = (_id: string) => {
         ElMessage.success(t('删除成功'));
         getData();
       } else {
-        ElMessage.error(response.msg || '删除失败');
+        ElMessage.error(response.msg || t('删除失败'));
       }
     } catch (err) {
       console.error(err);
-      ElMessage.error('删除失败');
+      ElMessage.error(t('删除失败'));
     }
   });
 }
@@ -461,8 +461,8 @@ onMounted(() => {
   try {
     getData();
   } catch (error) {
-    console.error('初始化独立缓存失败:', error);
-    ElMessage.error('初始化失败');
+    console.error(t('初始化独立缓存失败'), error);
+    ElMessage.error(t('初始化失败'));
   }
 });
 </script>
