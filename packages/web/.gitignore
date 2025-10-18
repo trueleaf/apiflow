@@ -30,3 +30,4 @@ playwright/.cache/
 .augments
 .github/copilot-instructions.md
 AGENTS.md
+CLAUDE.md

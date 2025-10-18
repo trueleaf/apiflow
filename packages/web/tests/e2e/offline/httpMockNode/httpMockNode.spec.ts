@@ -1,4 +1,4 @@
-import { expect, type ElectronApplication, type Page } from '@playwright/test';
+﻿import { expect, type ElectronApplication, type Page } from '@playwright/test';
 import { test } from '../../../fixtures/enhanced-electron-fixtures';
 
 type HeaderAndContentPages = {
@@ -76,17 +76,11 @@ const createRootHttpMockNode = async (contentPage: Page, nodeName: string) => {
   await addNodeBtn.click();
   await contentPage.waitForSelector('.el-dialog:has-text("新建接口")', { state: 'visible', timeout: 10000 });
   
-  // 选择Mock类型（如果有类型选择器）
-  const typeSelector = contentPage.locator('.el-dialog .el-select, .el-dialog select').first();
-  if (await typeSelector.isVisible({ timeout: 2000 }).catch(() => false)) {
-    await typeSelector.click();
-    await contentPage.waitForTimeout(300);
-    const mockOption = contentPage.locator('.el-select-dropdown li:has-text("Mock"), .el-option:has-text("Mock")').first();
-    if (await mockOption.isVisible({ timeout: 2000 }).catch(() => false)) {
-      await mockOption.click();
-      await contentPage.waitForTimeout(300);
-    }
-  }
+  // 选择 HTTP Mock 类型（使用 radio 按钮）
+  const mockRadio = contentPage.locator('.el-dialog .el-radio-group label:has-text("HTTP Mock")').first();
+  await mockRadio.waitFor({ state: 'visible', timeout: 5000 });
+  await mockRadio.click();
+  await contentPage.waitForTimeout(300);
   
   const nodeInput = contentPage.locator('.el-dialog:has-text("新建接口")').locator('input[placeholder*="接口名称"], input[placeholder*="名称"]').first();
   await nodeInput.fill(nodeName);
@@ -157,7 +151,7 @@ test.describe('HTTP Mock 节点 - Tab切换功能', () => {
     await expect(configTab).toBeVisible();
     
     // 点击"日志"标签页
-    const logTabButton = contentPage.locator('.clean-tab-nav-item:has-text("日志")');
+    const logTabButton = contentPage.locator('.clean-tabs__item:has-text("日志")');
     await logTabButton.click();
     await contentPage.waitForTimeout(300);
     
@@ -166,7 +160,7 @@ test.describe('HTTP Mock 节点 - Tab切换功能', () => {
     await expect(logTab).toBeVisible();
     
     // 切换回"配置与响应"
-    const configTabButton = contentPage.locator('.clean-tab-nav-item:has-text("配置与响应")');
+    const configTabButton = contentPage.locator('.clean-tabs__item:has-text("配置与响应")');
     await configTabButton.click();
     await contentPage.waitForTimeout(300);
     
@@ -184,7 +178,7 @@ test.describe('HTTP Mock 节点 - Tab切换功能', () => {
     });
     
     // 点击"日志"标签页
-    const logTabButton = contentPage.locator('.clean-tab-nav-item:has-text("日志")');
+    const logTabButton = contentPage.locator('.clean-tabs__item:has-text("日志")');
     await logTabButton.click();
     await contentPage.waitForTimeout(500);
     
@@ -1261,7 +1255,7 @@ test.describe('HTTP Mock 节点 - 日志功能', () => {
     await contentPage.waitForSelector('.mock-layout', { timeout: 5000 });
     
     // 切换到日志标签页
-    const logTabButton = contentPage.locator('.clean-tab-nav-item:has-text("日志")');
+    const logTabButton = contentPage.locator('.clean-tabs__item:has-text("日志")');
     await logTabButton.click();
     await contentPage.waitForTimeout(500);
   });
@@ -2027,12 +2021,12 @@ test.describe('HTTP Mock 节点 - 集成测试', () => {
     await contentPage.waitForTimeout(300);
     
     // 步骤2：切换到日志标签页
-    const logTabButton = contentPage.locator('.clean-tab-nav-item:has-text("日志")');
+    const logTabButton = contentPage.locator('.clean-tabs__item:has-text("日志")');
     await logTabButton.click();
     await contentPage.waitForTimeout(500);
     
     // 步骤3：切换回配置标签页
-    const configTabButton = contentPage.locator('.clean-tab-nav-item:has-text("配置")');
+    const configTabButton = contentPage.locator('.clean-tabs__item:has-text("配置")');
     await configTabButton.click();
     await contentPage.waitForTimeout(500);
     
