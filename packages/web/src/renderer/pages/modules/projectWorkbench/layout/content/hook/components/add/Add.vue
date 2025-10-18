@@ -50,7 +50,7 @@ import {
 // import type { ApidocCodeInfo } from '@src/types'
 import { request } from '@/api/api';
 import { router } from '@/router';
-import SEditor from '../editor/editor.vue'
+import SEditor from '../editor/Editor.vue'
 import { useApidoc } from '@/store/apidoc/apidoc';
 
 type CodeInfo = {

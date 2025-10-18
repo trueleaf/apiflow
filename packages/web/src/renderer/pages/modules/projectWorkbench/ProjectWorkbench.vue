@@ -13,9 +13,9 @@
 import { computed, onMounted, onBeforeUnmount } from 'vue'
 // import { ref } from 'vue'
 import SaveDocDialog from './dialog/saveDoc/SaveDoc.vue'
-import Banner from './layout/banner/banner.vue';
-import Nav from './layout/nav/nav.vue';
-import Content from './layout/content/content.vue';
+import Banner from './layout/banner/Banner.vue';
+import Nav from './layout/nav/Nav.vue';
+import Content from './layout/content/Content.vue';
 import { useApidocTas } from '@/store/apidoc/tabs'
 import { useApidoc } from '@/store/apidoc/apidoc'
 import { useApidocBaseInfo } from '@/store/apidoc/base-info'

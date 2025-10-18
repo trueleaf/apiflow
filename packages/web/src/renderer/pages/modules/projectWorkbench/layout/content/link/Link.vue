@@ -64,8 +64,8 @@ import { request } from '@/api/api'
 import { Search } from '@element-plus/icons-vue'
 import { router } from '@/router'
 import { useI18n } from 'vue-i18n'
-import SAddDialog from './dialog/add.vue'
-import SEditDialog from './dialog/edit.vue'
+import SAddDialog from './dialog/Add.vue'
+import SEditDialog from './dialog/Edit.vue'
 // import { usePermissionStore } from '@/store/permission';
 
 type LinkInfo = {

@@ -105,8 +105,8 @@ import { Effect } from 'element-plus';
 import { ArrowDown, Edit } from '@element-plus/icons-vue'
 import type { HttpNodeResponseParams, HttpNodeResponseContentType, HttpNodeContentType } from '@src/types'
 import { httpNodeCache } from '@/cache/httpNode/httpNodeCache.ts'
-import SStatus from './children/status.vue'
-import SMime from './children/mime.vue'
+import SStatus from './children/Status.vue'
+import SMime from './children/Mime.vue'
 import SRawEditor from '@/components/apidoc/rawEditor/GRawEditor.vue'
 import SJsonEditor from '@/components/common/jsonEditor/GJsonEditor.vue'
 import { useApidoc } from '@/store/apidoc/apidoc';

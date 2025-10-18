@@ -51,7 +51,7 @@ import { ref } from 'vue'
 import { LocalStorageItem } from '@src/types/apidoc/cache'
 import { formatBytes } from '@/helper'
 import { ElMessageBox, ElMessage } from 'element-plus'
-import LocalStorageDialog from '../dialog/localStorageDialog.vue'
+import LocalStorageDialog from '../dialog/LocalStorageDialog.vue'
 
 type Props = {
   localStorageDetails: LocalStorageItem[]

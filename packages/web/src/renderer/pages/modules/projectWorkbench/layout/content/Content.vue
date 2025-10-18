@@ -22,20 +22,20 @@ import { computed, onMounted, ref } from 'vue';
 import { useApidocTas } from '@/store/apidoc/tabs';
 import { event } from '@/helper'
 import { useRoute } from 'vue-router';
-import SApidoc from '../../httpNode/httpNode.vue';
-import SGuide from './guide/guide.vue';
-import SVariable from '../../variable/variable.vue';
+import SApidoc from '../../httpNode/HttpNode.vue';
+import SGuide from './guide/Guide.vue';
+import SVariable from '../../variable/Variable.vue';
 // import mindParams from './mind-params/mind-params.vue';
-import SHttpMock from '../../httpMockNode/httpMockNode.vue';
-import SExportDoc from '../../export/export.vue';
-import SImportDoc from './import/import.vue'
-import SCookies from '../../cookies/cookies.vue'
-import SOnlineLink from './link/link.vue'
-import SRecycler from './recycler/recycler.vue'
-import SHistory from '../../audit/audit.vue'
-import SHook from './hook/hook.vue'
+import SHttpMock from '../../httpMockNode/HttpMockNode.vue';
+import SExportDoc from '../../export/Export.vue';
+import SImportDoc from './import/Import.vue'
+import SCookies from '../../cookies/Cookies.vue'
+import SOnlineLink from './link/Link.vue'
+import SRecycler from './recycler/Recycler.vue'
+import SHistory from '../../audit/Audit.vue'
+import SHook from './hook/Hook.vue'
 import SCommonHeader from '../../commonHeader/CommonHeader.vue'
-import SWebsocket from '../../websocketNode/websocketNode.vue'
+import SWebsocket from '../../websocketNode/WebsocketNode.vue'
 
 const route = useRoute();
 const apidocTabsStore = useApidocTas()

@@ -158,7 +158,7 @@ import {
   Delete,
 } from '@element-plus/icons-vue'
 import SJsonEditor from '@/components/common/jsonEditor/GJsonEditor.vue'
-import AddTemplateDialog from './dialog/add/add.vue'
+import AddTemplateDialog from './dialog/add/Add.vue'
 import type { WebsocketMessageType } from '@src/types/websocketNode'
 import { uuid, debounce } from '@/helper'
 import { websocketResponseCache } from '@/cache/websocketNode/websocketResponseCache'

@@ -214,7 +214,7 @@ import { ElMessage, ElMessageBox, FormInstance, genFileId, UploadFile, UploadIns
 import { request } from '@/api/api';
 import { useRoute } from 'vue-router';
 import SJsonEditor from '@/components/common/jsonEditor/GJsonEditor.vue'
-import EditDialog from './dialog/edit.vue'
+import EditDialog from './dialog/Edit.vue'
 import { useVariable } from '@/store/apidoc/variables';
 import { CommonResponse, ApidocVariable } from '@src/types';
 import { request as axiosInstance } from '@/api/api'

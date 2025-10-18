@@ -51,7 +51,7 @@ import { ref } from 'vue'
 import { IndexedDBItem } from '@src/types/apidoc/cache'
 import { formatBytes } from '@/helper'
 import { ElMessageBox, ElMessage } from 'element-plus'
-import IndexedDBDialog from '../dialog/indexedDBDialog.vue'
+import IndexedDBDialog from '../dialog/IndexedDBDialog.vue'
 
 type Props = {
   indexedDBDetails: IndexedDBItem[]

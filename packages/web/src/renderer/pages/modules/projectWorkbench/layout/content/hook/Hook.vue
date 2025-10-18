@@ -17,9 +17,9 @@
 import { ref, onUnmounted, onMounted, Ref } from 'vue'
 import { event } from '@/helper';
 import type { ApidocCodeInfo } from '@src/types'
-import add from './components/add/add.vue'
-import edit from './components/edit/edit.vue'
-import list from './components/list/list.vue'
+import add from './components/add/Add.vue'
+import edit from './components/edit/Edit.vue'
+import list from './components/list/List.vue'
 
 const activeName = ref('add');
 const editCodeInfo: Ref<ApidocCodeInfo | undefined> = ref(undefined)
