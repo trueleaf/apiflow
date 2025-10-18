@@ -44,6 +44,8 @@ const emitter = mitt<{
   'tabs/saveTabError': void,
   'tabs/cancelSaveTab': void,
   'tabs/deleteTab': ApidocTab,
+  'websocket/editor/removePreEditor': void;
+  'websocket/editor/removeAfterEditor': void;
 }>()
 
 export const event = emitter;

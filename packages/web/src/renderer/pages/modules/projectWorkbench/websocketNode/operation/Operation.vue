@@ -70,12 +70,18 @@ import { websocketResponseCache } from '@/cache/websocketNode/websocketResponseC
 import { getWebSocketHeaders } from '@/server/request/request';
 import { useRedoUndo } from '@/store/redoUndo/redoUndo';
 import { useRuntime } from '@/store/runtime/runtime';
+import { executeWebSocketPreScript } from '@/server/websocket/executePreScript';
+import { useVariable } from '@/store/apidoc/variables';
+import { useCookies } from '@/store/apidoc/cookies';
+import { ElMessage } from 'element-plus';
 
 const { t } = useI18n();
 const websocketStore = useWebSocket();
 const apidocTabsStore = useApidocTas();
 const redoUndoStore = useRedoUndo();
 const runtimeStore = useRuntime();
+const variableStore = useVariable();
+const cookiesStore = useCookies();
 const isStandalone = computed(() => runtimeStore.networkMode === 'offline');
 const { currentSelectTab } = storeToRefs(apidocTabsStore);
 const { saveLoading, refreshLoading, websocketFullUrl: fullUrl, connectionState, connectionId } = storeToRefs(websocketStore);
@@ -144,7 +150,7 @@ const handleConnect = async () => {
   }
   const currentTab = currentSelectTab.value;
   websocketStore.changeConnectionState('connecting');
-  
+
   // 添加发起连接消息
   const startConnectMessage = {
     type: 'startConnect' as const,
@@ -156,15 +162,70 @@ const handleConnect = async () => {
     }
   };
   websocketStore.addMessage(startConnectMessage);
-  
+
   // 缓存发起连接消息到IndexedDB
   websocketResponseCache.setSingleData(currentTab._id, startConnectMessage);
-  
+
   try {
-    // 获取处理后的请求头
+    // 执行前置脚本
+    let websocketToConnect = websocketStore.websocket;
+
+    if (websocketStore.websocket.preRequest.raw && websocketStore.websocket.preRequest.raw.trim() !== '') {
+      console.log('执行WebSocket前置脚本...');
+
+      // 将 cookies 数组转换为对象格式
+      const cookiesObject = cookiesStore.cookies.reduce((acc, cookie) => {
+        acc[cookie.name] = cookie.value;
+        return acc;
+      }, {} as Record<string, string>);
+
+      const preScriptResult = await executeWebSocketPreScript(
+        websocketStore.websocket,
+        variableStore.objectVariable,
+        cookiesObject,
+        {}, // localStorage - 需要从实际存储获取
+        {}  // sessionStorage - 需要从实际存储获取
+      );
+
+      if (!preScriptResult.success) {
+        // 前置脚本执行失败
+        websocketStore.changeConnectionState('error');
+
+        const errorMsg = preScriptResult.error?.message || '前置脚本执行失败';
+        ElMessage.error({
+          message: `前置脚本执行失败: ${errorMsg}`,
+          duration: 5000,
+        });
+
+        const scriptErrorMessage = {
+          type: 'error' as const,
+          data: {
+            id: uuid(),
+            nodeId: currentTab._id,
+            error: `前置脚本执行失败: ${errorMsg}`,
+            timestamp: Date.now()
+          }
+        };
+        websocketStore.addMessage(scriptErrorMessage);
+        websocketResponseCache.setSingleData(currentTab._id, scriptErrorMessage);
+
+        return;
+      }
+
+      // 应用前置脚本的修改
+      if (preScriptResult.modifiedWebsocket) {
+        console.log('应用前置脚本修改:', preScriptResult.modifiedWebsocket);
+        websocketToConnect = {
+          ...websocketStore.websocket,
+          ...preScriptResult.modifiedWebsocket,
+        };
+      }
+    }
+
+    // 获取处理后的请求头（使用可能被脚本修改过的 websocket 数据）
     const headers = await getWebSocketHeaders(
-      websocketStore.websocket, 
-      websocketStore.defaultHeaders, 
+      websocketToConnect,
+      websocketStore.defaultHeaders,
       fullUrl.value
     );
     const nodeId = currentTab._id;

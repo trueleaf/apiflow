@@ -31,4 +31,4 @@ playwright/.cache/
 .github/copilot-instructions.md
 AGENTS.md
 CLAUDE.md
-.claude
+.claude/**
