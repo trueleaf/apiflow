@@ -1,6 +1,7 @@
 import { WebSocketNode } from '@src/types/websocketNode';
-import { WSAfter } from '@/worker/websocketAfterRequest/types/types';
+import { WSAfter, WorkerMessage } from '@/worker/websocketAfterRequest/types/types';
 import WebSocketAfterRequestWorker from '@/worker/websocketAfterRequest/websocketAfterRequest.ts?worker';
+import { httpNodeCache } from '@/cache/httpNode/httpNodeCache';
 
 type ExecuteAfterScriptResult = {
   success: boolean;
@@ -37,7 +38,8 @@ export async function executeWebSocketAfterScript(
   variables: Record<string, unknown>,
   cookies: Record<string, unknown>,
   localStorage: Record<string, unknown>,
-  sessionStorage: Record<string, unknown>
+  sessionStorage: Record<string, unknown>,
+  projectId: string
 ): Promise<ExecuteAfterScriptResult> {
   // 如果没有后置脚本，直接返回成功
   if (!websocketNode.afterRequest.raw || websocketNode.afterRequest.raw.trim() === '') {
@@ -63,6 +65,19 @@ export async function executeWebSocketAfterScript(
         });
       }
     }, 10000);
+
+    // 处理 Worker 发送的存储更新消息
+    worker.addEventListener('message', (e: MessageEvent<WorkerMessage>) => {
+      if (e.data.type === 'ws-after-request-set-session-storage') {
+        httpNodeCache.setPreRequestSessionStorage(projectId, e.data.value);
+      } else if (e.data.type === 'ws-after-request-delete-session-storage') {
+        httpNodeCache.setPreRequestSessionStorage(projectId, {});
+      } else if (e.data.type === 'ws-after-request-set-local-storage') {
+        httpNodeCache.setPreRequestLocalStorage(projectId, e.data.value);
+      } else if (e.data.type === 'ws-after-request-delete-local-storage') {
+        httpNodeCache.setPreRequestLocalStorage(projectId, {});
+      }
+    });
 
     worker.onmessage = (e: MessageEvent) => {
       const { type } = e.data;

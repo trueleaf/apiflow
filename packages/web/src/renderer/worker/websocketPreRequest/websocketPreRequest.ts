@@ -1,9 +1,66 @@
-import { WS, InitDataMessage, EvalMessage } from './types/types.ts';
+import { WS, InitDataMessage, EvalMessage, OnSetLocalStorageEvent, OnDeleteLocalStorageEvent, OnSetSessionStorageEvent, OnDeleteSessionStorageEvent } from './types/types.ts';
 import { variables } from '../preRequest/variables/index.ts'
 import { cookies } from '../preRequest/cookies/index.ts'
-import { localStorage } from '../preRequest/localStorage/index.ts'
-import { sessionStorage } from '../preRequest/sessionStorage/index.ts'
 import axios from 'axios'
+
+// WebSocket 专用的 localStorage 和 sessionStorage（发送不同的消息类型）
+const _localStorage: Record<string, unknown> = {};
+const localStorageHandler = {
+  get(target: Record<string, unknown>, key: string) {
+    return target[key];
+  },
+  set(target: Record<string, unknown>, key: string, value: unknown) {
+    target[key] = value;
+    const valueStr = value?.toString?.();
+    if (valueStr && valueStr.length > 1024 * 100) {
+      console.warn(`localStorage 值最大为100kb，当前值为${valueStr.length / 1000}kb`);
+      return true
+    }
+    self.postMessage({
+      type: 'ws-pre-request-set-local-storage',
+      value: JSON.parse(JSON.stringify(target)),
+    } as OnSetLocalStorageEvent);
+    return true;
+  },
+  deleteProperty(target: Record<string, unknown>, key: string) {
+    delete target[key];
+    self.postMessage({
+      type: 'ws-pre-request-delete-local-storage',
+      value: JSON.parse(JSON.stringify(target)),
+    } as OnDeleteLocalStorageEvent);
+    return true;
+  },
+};
+const localStorage = new Proxy(_localStorage, localStorageHandler);
+
+const _sessionStorage: Record<string, unknown> = {};
+const sessionStorageHandler = {
+  get(target: Record<string, unknown>, key: string) {
+    return target[key];
+  },
+  set(target: Record<string, unknown>, key: string, value: unknown) {
+    target[key] = value;
+    const valueStr = value?.toString?.();
+    if (valueStr && valueStr.length > 1024 * 100) {
+      console.warn(`sessionStorage 值最大为100kb，当前值为${valueStr.length / 1000}kb`);
+      return true
+    }
+    self.postMessage({
+      type: 'ws-pre-request-set-session-storage',
+      value: JSON.parse(JSON.stringify(target)),
+    } as OnSetSessionStorageEvent);
+    return true;
+  },
+  deleteProperty(target: Record<string, unknown>, key: string) {
+    delete target[key];
+    self.postMessage({
+      type: 'ws-pre-request-delete-session-storage',
+      value: JSON.parse(JSON.stringify(target)),
+    } as OnDeleteSessionStorageEvent);
+    return true;
+  },
+};
+const sessionStorage = new Proxy(_sessionStorage, sessionStorageHandler);
 
 // 创建 WebSocket 请求代理对象
 const createWebSocketRequestProxy = () => {

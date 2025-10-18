@@ -192,7 +192,8 @@ const handleConnect = async () => {
         variableStore.objectVariable,
         cookiesObject,
         preRequestLocalStorage,
-        preRequestSessionStorage
+        preRequestSessionStorage,
+        projectId
       );
 
       if (!preScriptResult.success) {

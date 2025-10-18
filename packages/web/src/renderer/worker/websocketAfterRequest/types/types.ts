@@ -66,4 +66,32 @@ export type EvalErrorMessage = {
   } | string;
 }
 
-export type WorkerMessage = InitSuccessMessage | EvalSuccessMessage | EvalErrorMessage;
+// Storage 相关消息类型
+export type OnSetSessionStorageEvent = {
+  type: 'ws-after-request-set-session-storage';
+  value: Record<string, unknown>;
+};
+
+export type OnDeleteSessionStorageEvent = {
+  type: 'ws-after-request-delete-session-storage';
+  value: Record<string, unknown>;
+};
+
+export type OnSetLocalStorageEvent = {
+  type: 'ws-after-request-set-local-storage';
+  value: Record<string, unknown>;
+};
+
+export type OnDeleteLocalStorageEvent = {
+  type: 'ws-after-request-delete-local-storage';
+  value: Record<string, unknown>;
+};
+
+export type WorkerMessage =
+  | InitSuccessMessage
+  | EvalSuccessMessage
+  | EvalErrorMessage
+  | OnSetSessionStorageEvent
+  | OnDeleteSessionStorageEvent
+  | OnSetLocalStorageEvent
+  | OnDeleteLocalStorageEvent;

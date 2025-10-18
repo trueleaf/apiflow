@@ -40,6 +40,7 @@ import { useShortcut } from '@/hooks/useShortcut'
 import { executeWebSocketAfterScript } from '@/server/websocket/executeAfterScript'
 import { useVariable } from '@/store/apidoc/variables'
 import { useCookies } from '@/store/apidoc/cookies'
+import { httpNodeCache } from '@/cache/httpNode/httpNodeCache'
 
 const apidocTabsStore = useApidocTas()
 const websocketStore = useWebSocket()
@@ -330,6 +331,11 @@ const initWebSocketEventListeners = () => {
           return acc;
         }, {} as Record<string, string>);
 
+        // 获取 projectId 和实际的 localStorage 和 sessionStorage
+        const projectId = router.currentRoute.value.query.id as string;
+        const afterRequestLocalStorage = httpNodeCache.getPreRequestLocalStorage(projectId) || {};
+        const afterRequestSessionStorage = httpNodeCache.getPreRequestSessionStorage(projectId) || {};
+
         // 准备响应数据（转换为可序列化的格式）
         let responseData: string | ArrayBuffer = arrayBuffer;
         if (data.contentType === 'text') {
@@ -349,8 +355,9 @@ const initWebSocketEventListeners = () => {
           },
           variableStore.objectVariable,
           cookiesObject,
-          {}, // localStorage - 需要从实际存储获取
-          {}  // sessionStorage - 需要从实际存储获取
+          afterRequestLocalStorage,
+          afterRequestSessionStorage,
+          projectId
         );
 
         if (!afterScriptResult.success) {
@@ -375,13 +382,24 @@ const initWebSocketEventListeners = () => {
 
           // 应用脚本更新的变量（如果有）
           if (afterScriptResult.updatedVariables) {
-            // TODO: 更新变量到 variableStore
+            // 遍历更新后的变量，更新到 variableStore
+            Object.entries(afterScriptResult.updatedVariables).forEach(([key, value]) => {
+              // 查找对应的变量
+              const variable = variableStore.variables.find(v => v.name === key);
+              if (variable) {
+                // 更新已存在的变量值
+                variableStore.changeVariableById(variable._id, {
+                  ...variable,
+                  value: String(value),
+                });
+              }
+            });
             console.log('后置脚本更新的变量:', afterScriptResult.updatedVariables);
           }
 
           // 应用脚本更新的存储（如果有）
+          // storage 的更新已经通过 Worker 的消息处理自动保存，这里不需要额外处理
           if (afterScriptResult.updatedStorage) {
-            // TODO: 更新存储
             console.log('后置脚本更新的存储:', afterScriptResult.updatedStorage);
           }
         }
