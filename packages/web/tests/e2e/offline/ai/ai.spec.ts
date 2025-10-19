@@ -81,7 +81,7 @@ test.describe('AI 功能测试', () => {
       }));
 
       // 同步配置到主进程
-      window.electronAPI?.ipcRenderer?.send('apiflow-sync-ai-config', {
+      window.electronAPI?.ipcManager?.sendToMain('apiflow-sync-ai-config', {
         apiUrl: config.apiUrl,
         apiKey: config.apiKey
       });
@@ -105,7 +105,7 @@ test.describe('AI 功能测试', () => {
     // 调用 AI 生成 JSON 数据的 IPC 方法
     const result = await contentPage.evaluate(async (prompt) => {
       try {
-        const response = await window.electronAPI?.ai?.generateJson({ prompt });
+        const response = await window.electronAPI?.aiManager?.generateJson({ prompt });
         return response;
       } catch (error) {
         return { code: 1, msg: (error as Error).message };
@@ -125,7 +125,7 @@ test.describe('AI 功能测试', () => {
     // 调用 AI 生成文本数据的 IPC 方法
     const result = await contentPage.evaluate(async (prompt) => {
       try {
-        const response = await window.electronAPI?.ipcRenderer?.invoke('ai-generate-text', { prompt });
+        const response = await window.electronAPI?.aiManager?.generateText({ prompt });
         return response;
       } catch (error) {
         return { code: 1, msg: (error as Error).message };
@@ -150,7 +150,7 @@ test.describe('AI 功能测试', () => {
         let ended = false;
         let error = '';
 
-        const cleanup = window.electronAPI?.ai?.textChatWithStream(
+        const cleanup = window.electronAPI?.aiManager?.textChatWithStream(
           { requestId: reqId },
           (chunk: string) => {
             data += chunk;
@@ -192,7 +192,7 @@ test.describe('AI 功能测试', () => {
     // 调用 AI 文本聊天测试接口
     const result = await contentPage.evaluate(async () => {
       try {
-        const response = await window.electronAPI?.ai?.textChat();
+        const response = await window.electronAPI?.aiManager?.textChat();
         return response;
       } catch (error) {
         return { code: 1, msg: (error as Error).message };
@@ -210,7 +210,7 @@ test.describe('AI 功能测试', () => {
 
     // 启动流式请求
     const streamHandle = await contentPage.evaluateHandle((reqId) => {
-      return window.electronAPI?.ai?.textChatWithStream(
+      return window.electronAPI?.aiManager?.textChatWithStream(
         { requestId: reqId },
         (chunk: string) => {
           // 接收数据
@@ -250,7 +250,7 @@ test.describe('AI 功能测试', () => {
       }));
 
       // 同步到主进程
-      window.electronAPI?.ipcRenderer?.send('apiflow-sync-ai-config', {
+      window.electronAPI?.ipcManager?.sendToMain('apiflow-sync-ai-config', {
         apiUrl: 'https://invalid-api-url.example.com',
         apiKey: 'invalid-key'
       });
@@ -261,7 +261,7 @@ test.describe('AI 功能测试', () => {
     // 尝试调用 AI 接口
     const result = await contentPage.evaluate(async () => {
       try {
-        const response = await window.electronAPI?.ai?.textChat();
+        const response = await window.electronAPI?.aiManager?.textChat();
         return response;
       } catch (error) {
         return {
