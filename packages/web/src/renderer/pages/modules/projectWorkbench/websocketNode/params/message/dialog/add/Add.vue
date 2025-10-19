@@ -2,7 +2,7 @@
   <el-dialog
     v-model="visible"
     :title="t('创建消息模板')"
-    width="500px"
+    width="40vw"
     :before-close="handleClose"
   >
     <el-form
@@ -30,14 +30,15 @@
         </el-select>
       </el-form-item>
       <el-form-item :label="t('消息数据值')" prop="sendMessage">
-        <el-input
-          v-model="templateForm.sendMessage"
-          type="textarea"
-          :rows="6"
-          :placeholder="t('请输入消息数据值')"
-          maxlength="10000"
-          show-word-limit
-        />
+        <div class="json-editor-wrapper">
+          <SJsonEditor
+            v-model="templateForm.sendMessage"
+            :config="{ language: editorLanguage }"
+            :min-height="200"
+            :max-height="400"
+            :auto-height="true"
+          />
+        </div>
       </el-form-item>
     </el-form>
     <template #footer>
@@ -58,6 +59,7 @@ import { useWebSocket } from '@/store/websocket/websocket';
 import { uuid } from '@/helper';
 import { ElMessage, type FormInstance, type FormRules } from 'element-plus';
 import type { WebsocketMessageType, WebsocketSendMessageTemplate } from '@src/types/websocketNode';
+import SJsonEditor from '@/components/common/jsonEditor/GJsonEditor.vue';
 
 const props = defineProps<{
   modelValue: boolean;
@@ -78,6 +80,19 @@ const templateForm = reactive({
   name: '',
   messageType: 'text' as WebsocketMessageType,
   sendMessage: ''
+});
+
+// 根据消息类型映射编辑器语言
+const editorLanguage = computed(() => {
+  const languageMap: Record<WebsocketMessageType, string> = {
+    'text': 'plaintext',
+    'json': 'json',
+    'xml': 'xml',
+    'html': 'html',
+    'binary-base64': 'plaintext',
+    'binary-hex': 'plaintext'
+  };
+  return languageMap[templateForm.messageType] || 'plaintext';
 });
 
 // 模板表单验证规则
@@ -142,4 +157,10 @@ const handleCreateTemplate = async () => {
 </script>
 
 <style lang="scss" scoped>
+.json-editor-wrapper {
+  width: 100%;
+  border: 1px solid var(--gray-300);
+  border-radius: 4px;
+  overflow: hidden;
+}
 </style>

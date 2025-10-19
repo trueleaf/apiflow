@@ -39,11 +39,11 @@
           :placeholder="t('类型')"
           class="w-15 flex0 mr-2"
           :size="config.renderConfig.layout.size"
-          :disabled="!props.enableFile && data.type === 'file'"
+          :disabled="!props.enableFile"
           @update:modelValue="v => handleChangeType(v as 'string' | 'file', data)"
         >
           <el-option label="String" value="string"></el-option>
-          <el-option label="File" value="file"></el-option>
+          <el-option v-if="props.enableFile" label="File" value="file"></el-option>
         </el-select>
         <el-popover
           v-if="data.type === 'string'"

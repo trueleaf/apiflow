@@ -193,16 +193,32 @@ export const useCompletionItem = (): monaco.IDisposable => {
         const activeStrArr = replacedStr.split('.');
         const keywordArr = v.keyword.split('.');
         
+        // 计算期望的层级深度
+        // 如果输入以 . 结尾（如 "af."），说明要查找下一层
+        // 如果输入不以 . 结尾（如 "af"），说明还在当前层输入
+        const endsWithDot = replacedStr.endsWith('.');
+        
+        // 如果以.结尾，移除最后的空字符串元素（split('.')会产生）
+        if (endsWithDot && activeStrArr[activeStrArr.length - 1] === '') {
+          activeStrArr.pop();
+        }
+        
         // 精确匹配：确保层级数量匹配
-        if (activeStrArr.length !== keywordArr.length) {
+        const requiredDepth = endsWithDot ? activeStrArr.length + 1 : activeStrArr.length;
+        if (keywordArr.length !== requiredDepth) {
           return false;
         }
         
         // 检查每一层是否匹配（除了最后一层）
-        for (let i = 0; i < activeStrArr.length - 1; i += 1) {
+        for (let i = 0; i < activeStrArr.length; i += 1) {
           if (activeStrArr[i] !== keywordArr[i]) {
             return false;
           }
+        }
+        
+        // 如果以.结尾，说明前面层级已完全匹配，直接返回true
+        if (endsWithDot) {
+          return true;
         }
         
         // 最后一层：检查是否以当前输入开头
