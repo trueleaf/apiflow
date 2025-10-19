@@ -19,7 +19,7 @@ const requestSuggestions = [{
   kind: monaco.languages.CompletionItemKind.Method,
   insertText: 'request',
   sortText: '3',
-  keyword: 'ws.request',
+  keyword: 'af.request',
 }, {
   label: {
     label: 'url',
@@ -28,7 +28,7 @@ const requestSuggestions = [{
   sortText: 'a',
   kind: monaco.languages.CompletionItemKind.Module,
   insertText: 'url',
-  keyword: 'ws.request.url',
+  keyword: 'af.request.url',
 }, {
   label: {
     label: 'prefix',
@@ -37,7 +37,7 @@ const requestSuggestions = [{
   sortText: '1',
   kind: monaco.languages.CompletionItemKind.Property,
   insertText: 'prefix',
-  keyword: 'ws.request.url.prefix',
+  keyword: 'af.request.url.prefix',
 }, {
   label: {
     label: 'path',
@@ -46,7 +46,7 @@ const requestSuggestions = [{
   sortText: '2',
   kind: monaco.languages.CompletionItemKind.Property,
   insertText: 'path',
-  keyword: 'ws.request.url.path',
+  keyword: 'af.request.url.path',
 }, {
   label: {
     label: 'url',
@@ -55,7 +55,7 @@ const requestSuggestions = [{
   sortText: '3',
   kind: monaco.languages.CompletionItemKind.Property,
   insertText: 'url',
-  keyword: 'ws.request.url.url',
+  keyword: 'af.request.url.url',
 }, {
   label: {
     label: 'headers',
@@ -64,7 +64,7 @@ const requestSuggestions = [{
   sortText: '3c',
   kind: monaco.languages.CompletionItemKind.Module,
   insertText: 'headers',
-  keyword: 'ws.request.headers',
+  keyword: 'af.request.headers',
 }, {
   label: {
     label: 'queryParams',
@@ -73,7 +73,7 @@ const requestSuggestions = [{
   sortText: 'd',
   kind: monaco.languages.CompletionItemKind.Module,
   insertText: 'queryParams',
-  keyword: 'ws.request.queryParams',
+  keyword: 'af.request.queryParams',
 }, {
   label: {
     label: 'protocol',
@@ -82,7 +82,7 @@ const requestSuggestions = [{
   sortText: 'e',
   kind: monaco.languages.CompletionItemKind.Property,
   insertText: 'protocol',
-  keyword: 'ws.request.protocol',
+  keyword: 'af.request.protocol',
 }, {
   label: {
     label: 'replaceUrl',
@@ -91,7 +91,7 @@ const requestSuggestions = [{
   sortText: 'j',
   kind: monaco.languages.CompletionItemKind.Method,
   insertText: 'replaceUrl("替换后的url eg:wss://example.com/ws")',
-  keyword: 'ws.request.replaceUrl',
+  keyword: 'af.request.replaceUrl',
 }]
 
 const httpSuggestions = [
@@ -103,7 +103,7 @@ const httpSuggestions = [
     sortText: '2',
     kind: monaco.languages.CompletionItemKind.Method,
     insertText: 'http',
-    keyword: 'ws.http',
+    keyword: 'af.http',
   }, {
     label: {
       label: 'get',
@@ -112,7 +112,7 @@ const httpSuggestions = [
     sortText: '1',
     kind: monaco.languages.CompletionItemKind.Method,
     insertText: 'get("请求url", { headers: {}, params: {}, body: {} })',
-    keyword: 'ws.http.get',
+    keyword: 'af.http.get',
   }, {
     label: {
       label: 'post',
@@ -121,7 +121,7 @@ const httpSuggestions = [
     sortText: '2',
     kind: monaco.languages.CompletionItemKind.Method,
     insertText: 'post("请求url", { headers: {}, params: {}, body: {} })',
-    keyword: 'ws.http.post',
+    keyword: 'af.http.post',
   }, {
     label: {
       label: 'put',
@@ -130,7 +130,7 @@ const httpSuggestions = [
     sortText: '3',
     kind: monaco.languages.CompletionItemKind.Method,
     insertText: 'put("请求url", { headers: {}, params: {}, body: {} })',
-    keyword: 'ws.http.put',
+    keyword: 'af.http.put',
   }, {
     label: {
       label: 'delete',
@@ -139,7 +139,7 @@ const httpSuggestions = [
     sortText: '4',
     kind: monaco.languages.CompletionItemKind.Method,
     insertText: 'delete("请求url", { headers: {}, params: {}, body: {} })',
-    keyword: 'ws.http.delete',
+    keyword: 'af.http.delete',
   }
 ]
 
@@ -151,7 +151,7 @@ const sessionStorageSuggestions = [{
   kind: monaco.languages.CompletionItemKind.Module,
   insertText: 'sessionStorage',
   sortText: '4',
-  keyword: 'ws.sessionStorage',
+  keyword: 'af.sessionStorage',
 }]
 
 const localStorageSuggestions = [{
@@ -162,7 +162,7 @@ const localStorageSuggestions = [{
   kind: monaco.languages.CompletionItemKind.Module,
   insertText: 'localStorage',
   sortText: '5',
-  keyword: 'ws.localStorage',
+  keyword: 'af.localStorage',
 }]
 
 const cookiesSuggestions = [{
@@ -173,7 +173,7 @@ const cookiesSuggestions = [{
   kind: monaco.languages.CompletionItemKind.Module,
   insertText: 'cookies',
   sortText: '6',
-  keyword: 'ws.cookies',
+  keyword: 'af.cookies',
 }]
 
 const variableSuggestions = [{
@@ -184,17 +184,17 @@ const variableSuggestions = [{
   kind: monaco.languages.CompletionItemKind.Module,
   insertText: 'variables',
   sortText: '7',
-  keyword: 'ws.variables',
+  keyword: 'af.variables',
 }]
 
 const suggestions: Suggestions = [{
   label: {
-    label: 'ws',
+    label: 'af',
     description: 'WebSocket全局对象'
   },
   kind: monaco.languages.CompletionItemKind.Function,
-  insertText: 'ws',
-  keyword: 'ws',
+  insertText: 'af',
+  keyword: 'af',
 },
 {
   label: {
@@ -228,15 +228,23 @@ export const useCompletionItem = (): monaco.IDisposable => {
         const replacedStr = activeStr.replace(/^[^(]+\(\s*/, '')
         const activeStrArr = replacedStr.split('.');
         const keywordArr = v.keyword.split('.');
+        
+        // 精确匹配：确保层级数量匹配
+        if (activeStrArr.length !== keywordArr.length) {
+          return false;
+        }
+        
+        // 检查每一层是否匹配（除了最后一层）
         for (let i = 0; i < activeStrArr.length - 1; i += 1) {
           if (activeStrArr[i] !== keywordArr[i]) {
             return false;
           }
         }
-        if (activeStrArr.length < keywordArr.length) return false;
-        // console.log(v.keyword, activeStr)
-        const matchedTrigger = v.keyword.includes(replacedStr);
-        return matchedTrigger
+        
+        // 最后一层：检查是否以当前输入开头
+        const lastActive = activeStrArr[activeStrArr.length - 1];
+        const lastKeyword = keywordArr[keywordArr.length - 1];
+        return lastKeyword.startsWith(lastActive);
       });
       const word = model.getWordUntilPosition(position);
       const range = {
