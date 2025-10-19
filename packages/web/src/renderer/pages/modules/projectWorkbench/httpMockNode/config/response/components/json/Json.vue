@@ -418,7 +418,7 @@ onMounted(() => {
   flex: 1;
   display: flex;
   flex-direction: column;
-  min-height: 0;
+  min-height: 200px;
   border: 1px solid var(--gray-300);
   border-radius: var(--border-radius-sm);
   overflow: hidden;

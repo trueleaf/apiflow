@@ -6,45 +6,46 @@
       <div class="main-title">{{ t('响应配置') }}</div>
       <!-- Tag标签组件 -->
       <div class="response-tags">
-        <el-tag
-          v-for="(tab, index) in responseTabs"
-          :key="tab.id"
-          size="small"
-          :type="activeTabIndex === index ? 'primary' : 'info'"
-          :effect="activeTabIndex === index ? 'dark' : 'plain'"
-          :closable="!tab.isDefault"
-          class="response-tag"
-          @click="handleTagClick(index)"
-          @close="handleCloseTab(index)"
-        >
+        <template v-for="(tag, index) in responseTags" :key="tag.id">
           <!-- 正常显示模式 -->
-          <span 
-            v-if="editingTabIndex !== index"
-            class="tag-name"
-            @dblclick.stop="handleEditTabName(index)"
+          <el-tag
+            v-if="editingTagIndex !== index"
+            v-show="responseTags.length > 1"
+            size="small"
+            :type="activeTagIndex === index ? 'primary' : 'info'"
+            :effect="activeTagIndex === index ? 'dark' : 'plain'"
+            :closable="responseTags.length > 1"
+            class="response-tag"
+            @click="handleTagClick(index)"
+            @close="handleCloseTag(index)"
+            @dblclick.stop.prevent="handleEditTagName(index)"
           >
-            {{ tab.name }}
-          </span>
+            {{ tag.name }}
+          </el-tag>
           <!-- 编辑模式 -->
-          <input
+          <div
             v-else
-            ref="tabNameInputRef"
-            v-model="editingTabName"
-            class="tag-name-input"
-            @blur="handleSaveTabName(index)"
-            @keyup.enter="handleSaveTabName(index)"
-            @click.stop
-          />
-        </el-tag>
+            class="tag-editing-wrapper"
+          >
+            <input
+              ref="tagNameInputRef"
+              v-model="editingTagName"
+              class="tag-name-input"
+              @blur="handleSaveTagName(index)"
+              @keyup.enter="handleSaveTagName(index)"
+              @click.stop
+            />
+          </div>
+        </template>
         <!-- 新增按钮 -->
-        <el-icon class="add-btn" @click="handleAddTab"><Plus /></el-icon>
+        <el-icon class="add-btn" @click="handleAddTag"><Plus /></el-icon>
       </div>
     </div>
     <!-- 当前Tab内容区域 -->
     <div class="tab-content-area">
       <div v-if="currentResponse" class="response-config">
-        <!-- 条件按钮区域（仅非默认返回显示） -->
-        <div v-if="!currentResponse.isDefault" class="condition">
+        <!-- 条件按钮区域 -->
+        <div class="condition">
           <div 
             class="condition-btn" 
             :class="{ 'is-active': hasConditionConfig }"
@@ -58,7 +59,7 @@
         <ConditionConfig
           v-if="currentResponse.conditions.enabled"
           :response="currentResponse"
-          :response-index="activeTabIndex"
+          :response-index="activeTagIndex"
           :mock-node-id="httpMock._id"
           @delete="handleDeleteCondition"
         />
@@ -108,16 +109,16 @@ const { t } = useI18n()
 const httpMockStore = useHttpMock()
 const { httpMock } = storeToRefs(httpMockStore)
 const mockResponses = computed(() => httpMock.value.response)
-// 当前激活的Tab索引
-const activeTabIndex = ref(0)
-// 正在编辑的Tab索引（-1表示无编辑）
-const editingTabIndex = ref(-1)
-// 编辑中的Tab名称
-const editingTabName = ref('')
-// Tab名称输入框引用
-const tabNameInputRef = ref<HTMLInputElement[]>([])
-// 计算Tab列表
-const responseTabs = computed(() => {
+// 当前激活的Tag索引
+const activeTagIndex = ref(0)
+// 正在编辑的Tag索引（-1表示无编辑）
+const editingTagIndex = ref(-1)
+// 编辑中的Tag名称
+const editingTagName = ref('')
+// Tag名称输入框引用
+const tagNameInputRef = ref<HTMLInputElement[]>([])
+// 计算Tag列表
+const responseTags = computed(() => {
   return mockResponses.value.map((response, index) => {
     let defaultName = '默认返回'
     if (!response.isDefault) {
@@ -125,7 +126,7 @@ const responseTabs = computed(() => {
       defaultName = `条件返回${conditionIndex}`
     }
     return {
-      id: `tab-${index}`,
+      id: `tag-${index}`,
       name: response.name || defaultName,
       isDefault: response.isDefault,
       responseIndex: index,
@@ -134,7 +135,7 @@ const responseTabs = computed(() => {
 })
 // 当前激活的响应配置
 const currentResponse = computed(() => {
-  return mockResponses.value[activeTabIndex.value]
+  return mockResponses.value[activeTagIndex.value]
 })
 // 判断是否存在触发条件配置
 const hasConditionConfig = computed(() => {
@@ -145,33 +146,33 @@ const hasConditionConfig = computed(() => {
 })
 // 点击Tag切换
 const handleTagClick = (index: number) => {
-  if (editingTabIndex.value !== -1) {
-    editingTabIndex.value = -1
+  if (editingTagIndex.value !== -1) {
+    editingTagIndex.value = -1
   }
-  activeTabIndex.value = index
+  activeTagIndex.value = index
 }
 // 双击编辑Tag名称
-const handleEditTabName = (index: number) => {
-  editingTabIndex.value = index
-  editingTabName.value = responseTabs.value[index].name
+const handleEditTagName = (index: number) => {
+  editingTagIndex.value = index
+  editingTagName.value = responseTags.value[index].name
   nextTick(() => {
-    const input = tabNameInputRef.value[0]
+    const input = tagNameInputRef.value[0]
     if (input) {
       input.focus()
       input.select()
     }
   })
 }
-// 保存Tab名称
-const handleSaveTabName = (index: number) => {
-  const trimmedName = editingTabName.value.trim()
+// 保存Tag名称
+const handleSaveTagName = (index: number) => {
+  const trimmedName = editingTagName.value.trim()
   if (trimmedName) {
     mockResponses.value[index].name = trimmedName
   }
-  editingTabIndex.value = -1
+  editingTagIndex.value = -1
 }
 // 新增Tag
-const handleAddTab = () => {
+const handleAddTag = () => {
   const mockNodeTemplate = generateEmptyHttpMockNode(uuid())
   const newResponse = mockNodeTemplate.response[0]
   const conditionCount = mockResponses.value.filter(r => !r.isDefault).length
@@ -185,14 +186,25 @@ const handleAddTab = () => {
   newResponse.imageConfig.randomSize = 10
   newResponse.fileConfig.fileType = 'pdf'
   httpMock.value.response.push(newResponse)
-  activeTabIndex.value = mockResponses.value.length - 1
+  activeTagIndex.value = mockResponses.value.length - 1
   ElMessage.success(t('添加成功'))
 }
 // 关闭Tag
-const handleCloseTab = async (index: number) => {
+const handleCloseTag = async (index: number) => {
+  // 如果只剩一个，不允许删除
+  if (mockResponses.value.length <= 1) {
+    ElMessage.warning(t('至少需要保留一个返回配置'))
+    return
+  }
+
+  const isDefaultResponse = mockResponses.value[index].isDefault
+  const confirmMessage = isDefaultResponse 
+    ? t('确定要删除默认返回吗？删除后第一个条件返回将成为默认返回。')
+    : t('确定要删除此条件返回吗？')
+
   try {
     await ElMessageBox.confirm(
-      t('确定要删除此条件返回吗？'),
+      confirmMessage,
       t('提示'),
       {
         confirmButtonText: t('确定'),
@@ -200,12 +212,25 @@ const handleCloseTab = async (index: number) => {
         type: 'warning',
       }
     )
+    
     mockResponses.value.splice(index, 1)
-    if (activeTabIndex.value === index) {
-      activeTabIndex.value = 0
-    } else if (activeTabIndex.value > index) {
-      activeTabIndex.value--
+    
+    // 维护 isDefault 状态：确保第一个始终是默认返回
+    if (mockResponses.value.length > 0) {
+      mockResponses.value[0].isDefault = true
+      // 其他项设为非默认
+      for (let i = 1; i < mockResponses.value.length; i++) {
+        mockResponses.value[i].isDefault = false
+      }
     }
+    
+    // 调整激活的 tag 索引
+    if (activeTagIndex.value === index) {
+      activeTagIndex.value = 0
+    } else if (activeTagIndex.value > index) {
+      activeTagIndex.value--
+    }
+    
     ElMessage.success(t('删除成功'))
   } catch {
     // 用户取消删除
@@ -217,7 +242,7 @@ const handleToggleCondition = () => {
     return
   }
   if (currentResponse.value.conditions.enabled) {
-    handleDeleteCondition(activeTabIndex.value)
+    handleDeleteCondition(activeTagIndex.value)
     return
   }
   currentResponse.value.conditions.enabled = true
@@ -257,10 +282,32 @@ const handleDeleteCondition = (index: number) => {
 .response-tag {
   cursor: pointer;
   user-select: none;
-  transition: opacity 0.2s;
 }
 .response-tag:hover {
   opacity: 0.85;
+}
+.tag-editing-wrapper {
+  display: inline-flex;
+  align-items: center;
+  padding: 0 9px;
+  height: 20px;
+  border-radius: 4px;
+  border: 1px solid var(--gray-500);
+}
+.tag-name-input {
+  border: none;
+  outline: none;
+  background: transparent;
+  color: var(--gray-600);
+  font-size: 12px;
+  font-weight: 500;
+  padding: 0;
+  margin: 0;
+  width: auto;
+  min-width: 60px;
+  height: 18px;
+  line-height: 18px;
+  box-sizing: border-box;
 }
 .add-btn {
   width: 24px;
@@ -271,53 +318,37 @@ const handleDeleteCondition = (index: number) => {
   align-items: center;
   justify-content: center;
   color: var(--gray-500);
-  transition: all 0.2s;
 }
 .add-btn:hover {
   color: var(--primary);
   background: var(--el-color-primary-light-9);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
-.tag-name {
-  max-width: 120px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-.tag-name-input {
-  width: 100px;
-  padding: 2px 6px;
-  border: 1px solid var(--primary);
-  border-radius: 3px;
-  outline: none;
-  font-size: 13px;
-  background: white;
-  color: var(--gray-800);
-}
 .tab-content-area {
   flex: 1;
   overflow-y: auto;
   padding: 16px 20px;
   background: var(--gray-50);
+  min-height: 0;
 }
 .response-config {
   display: flex;
   flex-direction: column;
   gap: 16px;
+  min-height: 100%;
 }
 .condition {
   display: flex;
   gap: 12px;
 }
 .condition-btn {
-  padding: 4px 14px;
+  padding: 2px 10px;
   font-size: var(--font-size-xs);
   color: var(--gray-500);
   background-color: white;
-  border: 1px solid var(--gray-200);
+  border: 1px solid var(--gray-300);
   border-radius: 4px;
   cursor: pointer;
-  transition: all 0.2s;
 }
 .condition-btn:hover {
   color: var(--gray-700);
