@@ -93,14 +93,12 @@
     </div>
 
     <!-- 固定JSON编辑器区域 -->
-    <div 
-      v-if="response.jsonConfig.mode === 'fixed'" 
-      class="json-editor-wrapper">
-      <SJsonEditor 
-        v-model="response.jsonConfig.fixedData"
-        :config="{ fontSize: 13, language: 'json' }">
-      </SJsonEditor>
-    </div>
+    <SJsonEditor 
+      v-if="response.jsonConfig.mode === 'fixed'"
+      class="json-editor-wrapper"
+      v-model="response.jsonConfig.fixedData"
+      :config="{ fontSize: 13, language: 'json' }">
+    </SJsonEditor>
   </div>
 </template>
 
@@ -420,7 +418,7 @@ onMounted(() => {
   flex: 1;
   display: flex;
   flex-direction: column;
-  min-height: 200px;
+  min-height: 0;
   border: 1px solid var(--gray-300);
   border-radius: var(--border-radius-sm);
   overflow: hidden;
