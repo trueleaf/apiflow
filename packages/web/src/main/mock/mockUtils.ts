@@ -445,7 +445,6 @@ export class MockUtils {
       // 如果无法检测，返回默认类型
       return 'application/octet-stream';
     } catch (error) {
-      console.warn('MIME类型检测失败:', error);
       return 'application/octet-stream';
     }
   }
@@ -467,7 +466,6 @@ export class MockUtils {
       // filename* 参数：使用 UTF-8 编码（RFC 5987格式：charset'lang'encoded-value）
       return `${type}; filename="${asciiFileName}"; filename*=UTF-8''${encodedFileName}`;
     } catch (error) {
-      console.warn('Content-Disposition生成失败:', error);
       // 降级到简单格式
       return `${type}; filename="download"`;
     }
@@ -536,7 +534,6 @@ export class MockUtils {
         const jsonData = JSON.parse(sseConfig.event.data.value || '{}');
         dataContent = JSON.stringify(jsonData);
       } catch (error) {
-        console.warn('SSE data JSON解析失败，使用原始字符串:', error);
         dataContent = sseConfig.event.data.value || '{}';
       }
     } else {
@@ -811,7 +808,6 @@ export class MockUtils {
         }
         
         default:
-          console.warn('未知的JSON配置模式:', jsonConfig.mode);
           try {
             if (jsonConfig.fixedData) {
               return JSON.parse(jsonConfig.fixedData);
@@ -885,7 +881,6 @@ export class MockUtils {
             const aiText = await globalAiManager.chatWithText([prompt], 'DeepSeek', 300);
             return aiText;
           } catch (aiError) {
-            console.warn('AI文本生成失败，降级到随机模式:', aiError);
             // 降级时也根据textType生成对应格式
             const textType = textConfig.textType || 'text/plain';
             const randomSize = textConfig.randomSize || 100;
@@ -907,7 +902,6 @@ export class MockUtils {
           }
         
         default:
-          console.warn('未知的文本配置模式:', textConfig.mode);
           return textConfig.fixedData || '默认文本内容';
       }
     } catch (error) {
@@ -972,7 +966,6 @@ export class MockUtils {
           return { data: randomBuffer, mimeType };
         
         default:
-          console.warn('未知的图片配置模式:', imageConfig.mode);
           // 默认生成一个简单的图片
           const defaultBuffer = await this.generateImage(200, 150, ['png']);
           return { data: defaultBuffer, mimeType: 'image/png' };
@@ -1339,7 +1332,6 @@ export class MockUtils {
           const result = await this.evaluateExpressionWithIsolatedVM(content, objectVariable);
           return result;
         } catch (error) {
-          console.warn('表达式计算失败:', content, error);
           return isSingleMustachTemplate[0]; // 返回原始字符串
         }
       }
@@ -1391,7 +1383,6 @@ export class MockUtils {
             });
             return;
           } catch (error) {
-            console.warn('表达式计算失败:', content, error);
             replacements.push({ placeholder, value: fullMatch });
             return;
           }

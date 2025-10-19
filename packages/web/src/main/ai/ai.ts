@@ -124,7 +124,6 @@ export class AiManager {
       if (!result) {
         lastError = 'AI 返回内容为空';
         if (attempt < maxRetries) {
-          console.warn(`第 ${attempt + 1} 次请求失败，准备重试...`);
           continue;
         }
         break;
@@ -136,7 +135,6 @@ export class AiManager {
       } catch (parseError) {
         lastError = `AI返回的内容不是合法的JSON格式: ${result}`;
         if (attempt < maxRetries) {
-          console.warn(`第 ${attempt + 1} 次返回非JSON格式，准备重试...`);
           continue;
         }
         console.error(lastError);
