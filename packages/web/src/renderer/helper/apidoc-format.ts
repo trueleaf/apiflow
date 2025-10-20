@@ -1,19 +1,12 @@
 import { useVariable } from '@/store/apidoc/variables';
 import { ApidocProjectVariable, HttpNodeResponseContentType, HttpNode } from '@src/types';
+import type { JsonData } from '@src/types/common';
 
 type UrlInfo = {
   host: string,
   path: string,
   url: string,
 }
-
-// eslint-disable-next-line no-use-before-define
-type JSON = string | number | boolean | null | JsonObj | JsonArr
-type JsonArr = JSON[]
-type JsonObj = {
-  [x: string]: JSON
-}
-
 /**
  * 返回参数
  */
@@ -33,7 +26,7 @@ type ResponseData = {
   /**
      * json值
      */
-  json?: JSON,
+  json?: JsonData,
 }
 
 // 转换{{}}的值
@@ -84,7 +77,7 @@ export const apidocFormatPathParams = (apidoc: HttpNode): Record<string, string>
 /**
  * body json参数转换
  */
-export const apidocFormatJsonBodyParams = (apidoc: HttpNode): JSON => {
+export const apidocFormatJsonBodyParams = (apidoc: HttpNode): JsonData => {
   return apidoc.item.requestBody.rawJson
 }
 /**

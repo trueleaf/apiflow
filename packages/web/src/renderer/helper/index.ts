@@ -300,19 +300,7 @@ export const checkPropertyIsEqual = (value: ApidocProperty[], originValue: Apido
     }
   }
   return true;
-}/*
-|--------------------------------------------------------------------------
-|--------------------------------------------------------------------------
-|
-*/
-// eslint-disable-next-line no-use-before-define
-type JSON = string | number | boolean | null | JsonObj | JsonArr
-type JsonArr = JSON[]
-type JsonObj = {
-  [x: string]: JSON
 }
-
-
 // 生成一份空的项目默认值
 export const generateEmptyProject = (_id: string): ApidocProjectInfo => {
   return {
