@@ -1,5 +1,13 @@
 import { defineConfig } from '@playwright/test';
 import path from 'path';
+import * as dotenv from 'dotenv';
+import { fileURLToPath } from 'url';
+
+// 获取当前文件目录（ES Module）
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+
+// 加载测试环境变量
+dotenv.config({ path: path.resolve(__dirname, '.env.test') });
 
 /**
  * Playwright Electron 配置文件
