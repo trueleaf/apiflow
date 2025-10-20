@@ -40,3 +40,26 @@ export type DeepSeekResponse = {
     total_tokens: number;
   };
 };
+
+// AI 聊天选项类型
+export type ChatWithTextOptions = {
+  maxTokens?: number;
+  model?: 'DeepSeek';
+};
+
+// AI JSON 聊天选项类型（扩展基础选项）
+export type ChatWithJsonTextOptions = {
+  maxTokens?: number;
+};
+
+// AI 错误码常量
+export const AI_ERROR_CODES = {
+  INVALID_JSON_RESPONSE: 'INVALID_JSON_RESPONSE',
+  UNSUPPORTED_MODEL: 'UNSUPPORTED_MODEL',
+} as const;
+
+// AI 错误响应类型
+export type AiErrorResponse = {
+  code: string;
+  message: string;
+};

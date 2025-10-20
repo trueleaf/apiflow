@@ -792,7 +792,11 @@ export class MockUtils {
           }
 
           try {
-            const aiJsonText = await globalAiManager.chatWithJsonText([prompt]);
+            const aiResult = await globalAiManager.chatWithJsonText([prompt]);
+            if (aiResult.code !== 0 || !aiResult.data) {
+              return { error: `AI生成失败：${aiResult.msg || '返回内容为空'}` };
+            }
+            const aiJsonText = aiResult.data;
             if (!aiJsonText) {
               return { error: 'AI生成失败：返回内容为空' };
             }
@@ -878,8 +882,11 @@ export class MockUtils {
               }
             }
             
-            const aiText = await globalAiManager.chatWithText([prompt], 'DeepSeek', 300);
-            return aiText;
+            const aiResult = await globalAiManager.chatWithText([prompt], { maxTokens: 300 });
+            if (aiResult.code !== 0) {
+              throw new Error(aiResult.msg);
+            }
+            return aiResult.data;
           } catch (aiError) {
             // 降级时也根据textType生成对应格式
             const textType = textConfig.textType || 'text/plain';

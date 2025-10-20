@@ -235,7 +235,8 @@ const syncAiConfig = () => {
     const config = aiCache.getAiConfig();
     window.electronAPI?.ipcManager.sendToMain('apiflow-sync-ai-config', {
       apiKey: config.apiKey || '',
-      apiUrl: config.apiUrl || ''
+      apiUrl: config.apiUrl || '',
+      timeout: config.timeout || 60000
     });
   } catch (error) {
     console.error('同步AI配置失败:', error);

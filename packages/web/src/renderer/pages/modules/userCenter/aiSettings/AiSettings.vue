@@ -24,10 +24,21 @@
           </el-form-item>
 
           <el-form-item label="API 地址">
-            <el-input 
-              v-model="formData.apiUrl" 
+            <el-input
+              v-model="formData.apiUrl"
               placeholder="请输入 API 地址"
               clearable
+            />
+          </el-form-item>
+
+          <el-form-item label="超时时间(ms)">
+            <el-input-number
+              v-model="formData.timeout"
+              :min="1000"
+              :max="300000"
+              :step="1000"
+              placeholder="请输入超时时间"
+              style="width: 100%"
             />
           </el-form-item>
 
@@ -95,6 +106,7 @@ const formData = ref<AiConfig>({
   model: 'DeepSeek',
   apiKey: '',
   apiUrl: '',
+  timeout: 60000,
 })
 const saving = ref(false)
 const testing = ref(false)
@@ -144,7 +156,8 @@ const handleSave = async () => {
     // 同步配置到主进程
     window.electronAPI?.ipcManager.sendToMain('apiflow-sync-ai-config', {
       apiKey: formData.value.apiKey,
-      apiUrl: formData.value.apiUrl
+      apiUrl: formData.value.apiUrl,
+      timeout: formData.value.timeout
     })
     ElMessage.success('配置保存成功')
   } catch (error) {
@@ -161,6 +174,7 @@ const handleReset = () => {
     model: 'DeepSeek',
     apiKey: '',
     apiUrl: '',
+    timeout: 60000,
   }
   testResult.value = ''
   testError.value = ''
@@ -169,7 +183,8 @@ const handleReset = () => {
     // 同步配置到主进程
     window.electronAPI?.ipcManager.sendToMain('apiflow-sync-ai-config', {
       apiKey: formData.value.apiKey,
-      apiUrl: formData.value.apiUrl
+      apiUrl: formData.value.apiUrl,
+      timeout: formData.value.timeout
     })
     ElMessage.success('配置已重置')
   } catch (error) {
@@ -194,9 +209,10 @@ const handleTest = async () => {
     aiCache.setAiConfig(formData.value)
     window.electronAPI?.ipcManager.sendToMain('apiflow-sync-ai-config', {
       apiKey: formData.value.apiKey,
-      apiUrl: formData.value.apiUrl
+      apiUrl: formData.value.apiUrl,
+      timeout: formData.value.timeout
     })
-    
+
     const result = await window.electronAPI?.aiManager.textChat()
 
     if (result?.code === 0 && result.data) {
@@ -232,9 +248,10 @@ const handleStreamTest = async () => {
     aiCache.setAiConfig(formData.value)
     window.electronAPI?.ipcManager.sendToMain('apiflow-sync-ai-config', {
       apiKey: formData.value.apiKey,
-      apiUrl: formData.value.apiUrl
+      apiUrl: formData.value.apiUrl,
+      timeout: formData.value.timeout
     })
-    
+
     const controller = window.electronAPI?.aiManager.textChatWithStream(
       {
         requestId: currentRequestId,

@@ -48,7 +48,8 @@ test.describe('AI 功能测试', () => {
       // 同步配置到主进程
       window.electronAPI?.ipcManager?.sendToMain('apiflow-sync-ai-config', {
         apiUrl: config.apiUrl,
-        apiKey: config.apiKey
+        apiKey: config.apiKey,
+        timeout: 60000
       });
     }, { apiUrl: testApiUrl, apiKey: testApiKey });
 
@@ -217,7 +218,8 @@ test.describe('AI 功能测试', () => {
       // 同步到主进程
       window.electronAPI?.ipcManager?.sendToMain('apiflow-sync-ai-config', {
         apiUrl: 'https://invalid-api-url.example.com',
-        apiKey: 'invalid-key'
+        apiKey: 'invalid-key',
+        timeout: 60000
       });
     });
 

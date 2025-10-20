@@ -388,8 +388,8 @@ export const useIpcEvent = (mainWindow: BrowserWindow, topBarView: WebContentsVi
   |---------------------------------------------------------------------------
   */
   // 同步AI配置到主进程
-  ipcMain.on('apiflow-sync-ai-config', (_, params: { apiKey: string; apiUrl: string }) => {
-    globalAiManager.updateConfig(params.apiUrl, params.apiKey);
+  ipcMain.on('apiflow-sync-ai-config', (_, params: { apiKey: string; apiUrl: string; timeout?: number }) => {
+    globalAiManager.updateConfig(params.apiUrl, params.apiKey, params.timeout);
   });
 
   /*
@@ -399,7 +399,7 @@ export const useIpcEvent = (mainWindow: BrowserWindow, topBarView: WebContentsVi
   */
   // AI 文本聊天
   ipcMain.handle('ai-text-chat', async (_: IpcMainInvokeEvent) => {
-    return await globalAiManager.chatWithText(['你是什么模型'], 'DeepSeek', 2000);
+    return await globalAiManager.chatWithText(['你是什么模型'], { maxTokens: 2000 });
   });
 
   // AI 流式聊天
@@ -428,8 +428,7 @@ export const useIpcEvent = (mainWindow: BrowserWindow, topBarView: WebContentsVi
           ...response,
         });
       },
-      'DeepSeek',
-      2000
+      { maxTokens: 2000 }
     );
 
     return { code: 0, data: { requestId: params.requestId }, msg: '流式请求已启动' };
@@ -443,12 +442,12 @@ export const useIpcEvent = (mainWindow: BrowserWindow, topBarView: WebContentsVi
 
   // AI 生成JSON数据
   ipcMain.handle('ai-generate-json', async (_: IpcMainInvokeEvent, params: { prompt: string }) => {
-    return await globalAiManager.chatWithJsonText([params.prompt], 'DeepSeek', 2000);
+    return await globalAiManager.chatWithJsonText([params.prompt], { maxTokens: 2000 });
   });
 
   // AI 生成文本数据
   ipcMain.handle('ai-generate-text', async (_: IpcMainInvokeEvent, params: { prompt: string }) => {
-    return await globalAiManager.chatWithText([params.prompt], 'DeepSeek', 100);
+    return await globalAiManager.chatWithText([params.prompt], { maxTokens: 100 });
   });
 
   /*

@@ -13,5 +13,6 @@ export const mainConfig: MainConfig = {
     apiKey: '',
     apiUrl: 'https://api.deepseek.com/chat/completions',
     maxTokens: 2000,
+    timeout: 60000,
   },
 };

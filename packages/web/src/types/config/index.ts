@@ -160,6 +160,10 @@ export type Config = {
        * 最大令牌数限制
        */
       maxTokens?: number,
+      /**
+       * 请求超时时间（毫秒）
+       */
+      timeout: number,
     },
   },
 
