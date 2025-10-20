@@ -1,34 +1,6 @@
 
 import { expect, type ElectronApplication, type Page } from '@playwright/test';
-import { test } from '../../../fixtures/enhanced-electron-fixtures';
-
-// 辅助：定位 header 与 content 页面
-const HEADER_URL_HINTS = ['header.html', '/header'];
-const isHeaderUrl = (url: string): boolean => !!url && HEADER_URL_HINTS.some(h => url.includes(h));
-const resolveHeaderAndContentPages = async (
-  electronApp: ElectronApplication,
-  timeout = 10000
-): Promise<{ headerPage: Page; contentPage: Page }> => {
-  const start = Date.now();
-  while (Date.now() - start < timeout) {
-    const windows = electronApp.windows();
-    let headerPage: Page | undefined;
-    let contentPage: Page | undefined;
-    windows.forEach((page) => {
-      const url = page.url();
-      if (isHeaderUrl(url)) headerPage = page;
-      else if (url && url !== 'about:blank') contentPage = page;
-    });
-    if (headerPage && contentPage) return { headerPage, contentPage };
-    try {
-      await electronApp.waitForEvent('window', { timeout: 500, predicate: (p) => {
-        const u = p.url();
-        return isHeaderUrl(u) || (!!u && u !== 'about:blank');
-      }});
-    } catch {}
-  }
-  throw new Error('未能定位 header 与 content 页面');
-};
+import { test, resolveHeaderAndContentPages } from '../../../fixtures/enhanced-electron-fixtures';
 
 // 创建测试项目
 const createTestProject = async (headerPage: Page, contentPage: Page, projectName: string) => {

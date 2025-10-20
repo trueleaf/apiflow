@@ -310,35 +310,29 @@ test.describe('主题设置测试', () => {
 
 #### 页面解析工具
 
+`resolveHeaderAndContentPages` 函数已从 `enhanced-electron-fixtures.ts` 导出，可直接使用：
+
 ```typescript
-const resolveHeaderAndContentPages = async (
-  electronApp: ElectronApplication,
-  timeout = 10000
-): Promise<{ headerPage: Page; contentPage: Page }> => {
-  const startTime = Date.now();
-  while (Date.now() - startTime < timeout) {
-    const windows = electronApp.windows();
-    let headerPage: Page | undefined;
-    let contentPage: Page | undefined;
-    
-    windows.forEach((page) => {
-      const url = page.url();
-      if (url.includes('header.html')) {
-        headerPage = page;
-      } else if (url && url !== 'about:blank') {
-        contentPage = page;
-      }
-    });
-    
-    if (headerPage && contentPage) {
-      return { headerPage, contentPage };
-    }
-    
-    await new Promise(resolve => setTimeout(resolve, 100));
-  }
-  throw new Error('未能定位 header 与 content 页面');
-};
+import { test, resolveHeaderAndContentPages } from './fixtures/enhanced-electron-fixtures';
+
+test.describe('示例测试', () => {
+  let headerPage: Page;
+  let contentPage: Page;
+
+  test.beforeEach(async ({ electronApp }) => {
+    // 使用共享的页面解析工具
+    const pages = await resolveHeaderAndContentPages(electronApp);
+    headerPage = pages.headerPage;
+    contentPage = pages.contentPage;
+  });
+
+  test('测试用例', async () => {
+    // 使用 headerPage 和 contentPage 进行测试
+  });
+});
 ```
+
+**注意**：不需要在每个测试文件中重复定义此函数，直接从 fixtures 导入即可。
 
 ### 测试最佳实践
 

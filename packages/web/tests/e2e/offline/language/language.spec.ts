@@ -1,58 +1,5 @@
 import { expect, type ElectronApplication, type Page } from '@playwright/test';
-import { test } from '../../../fixtures/enhanced-electron-fixtures';
-
-type HeaderAndContentPages = {
-  headerPage: Page;
-  contentPage: Page;
-};
-
-const HEADER_URL_HINTS = ['header.html', '/header'];
-
-// 判断是否为header页面
-const isHeaderUrl = (url: string): boolean => {
-  if (!url) {
-    return false;
-  }
-  return HEADER_URL_HINTS.some((hint) => url.includes(hint));
-};
-
-// 解析获取header和content两个页面
-const resolveHeaderAndContentPages = async (
-  electronApp: ElectronApplication,
-  timeout = 10000
-): Promise<HeaderAndContentPages> => {
-  const startTime = Date.now();
-  while (Date.now() - startTime < timeout) {
-    const windows = electronApp.windows();
-    let headerPage: Page | undefined;
-    let contentPage: Page | undefined;
-    windows.forEach((page) => {
-      const url = page.url();
-      if (isHeaderUrl(url)) {
-        headerPage = page;
-        return;
-      }
-      if (url && url !== 'about:blank') {
-        contentPage = page;
-      }
-    });
-    if (headerPage && contentPage) {
-      return { headerPage, contentPage };
-    }
-    try {
-      await electronApp.waitForEvent('window', {
-        timeout: 500,
-        predicate: (page) => {
-          const url = page.url();
-          return isHeaderUrl(url) || (!!url && url !== 'about:blank');
-        }
-      });
-    } catch {
-      // 忽略短暂超时，继续轮询
-    }
-  }
-  throw new Error('未能定位 header 与 content 页面');
-};
+import { test, resolveHeaderAndContentPages } from '../../../fixtures/enhanced-electron-fixtures';
 
 // ==================== 辅助函数 ====================
 
