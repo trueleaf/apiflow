@@ -7,6 +7,7 @@ import { Method } from "got";
 import type http from 'http';
 import type Koa from 'koa';
 import { ApidocBaseInfo } from "../httpNode/types.ts";
+import { ApidocProperty } from "../httpNode/node.ts";
 
 // Mock节点激活选项卡类型
 export type MockNodeActiveTabType = 'config' | 'logs';
@@ -34,7 +35,11 @@ export type MockHttpNode = {
       enabled: boolean;
     };
     statusCode: number;
-    headers: Record<string, string>;
+    headers: {
+      enabled: boolean;
+      defaultHeaders: ApidocProperty<'string'>[];
+      customHeaders: ApidocProperty<'string'>[];
+    };
     dataType: "sse" | "json" | "text" | "image" | "file" | "binary";
     sseConfig: {
       event: {

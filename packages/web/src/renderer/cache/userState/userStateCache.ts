@@ -213,6 +213,36 @@ class UserState {
       localStorage.setItem('userState/mockNode/conditionCollapse', JSON.stringify(data));
     }
   }
+  // 获取HttpMock响应返回头配置折叠状态
+  getHttpMockResponseHeadersCollapseState(mockNodeId: string, responseIndex: number): boolean {
+    try {
+      const localData: Record<string, Record<number, boolean>> = JSON.parse(localStorage.getItem('userState/mockNode/headersCollapse') || '{}');
+      if (!localData[mockNodeId] || localData[mockNodeId][responseIndex] === undefined) {
+        return false;
+      }
+      return localData[mockNodeId][responseIndex];
+    } catch (error) {
+      console.error(error);
+      localStorage.setItem('userState/mockNode/headersCollapse', '{}');
+      return false;
+    }
+  }
+  // 设置HttpMock响应返回头配置折叠状态
+  setHttpMockResponseHeadersCollapseState(mockNodeId: string, responseIndex: number, isCollapsed: boolean) {
+    try {
+      const localData = JSON.parse(localStorage.getItem('userState/mockNode/headersCollapse') || '{}');
+      if (!localData[mockNodeId]) {
+        localData[mockNodeId] = {};
+      }
+      localData[mockNodeId][responseIndex] = isCollapsed;
+      localStorage.setItem('userState/mockNode/headersCollapse', JSON.stringify(localData));
+    } catch (error) {
+      console.error(error);
+      const data: Record<string, Record<number, boolean>> = {};
+      data[mockNodeId] = { [responseIndex]: isCollapsed };
+      localStorage.setItem('userState/mockNode/headersCollapse', JSON.stringify(data));
+    }
+  }
 }
 
 export const userState = new UserState();

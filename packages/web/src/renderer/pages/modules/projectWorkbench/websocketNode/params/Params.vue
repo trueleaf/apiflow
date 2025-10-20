@@ -103,15 +103,6 @@
         </template>
         <SAfterScript></SAfterScript>
       </el-tab-pane>
-      <el-tab-pane name="config">
-        <template #label>
-          {{ t("连接配置") }}
-        </template>
-        <SConfig></SConfig>
-      </el-tab-pane>
-      <el-tab-pane :label="t('备注信息')" name="remarks">
-        <SRemarks></SRemarks>
-      </el-tab-pane>
     </el-tabs>
   </div>
 </template>
@@ -126,8 +117,6 @@ import SQueryParams from './queryParams/QueryParams.vue'
 import SPreScript from './preScript/PreScript.vue'
 import SMessageContent from './message/Message.vue'
 import SAfterScript from './afterScript/AfterScript.vue'
-import SConfig from './config/Config.vue'
-import SRemarks from './remarks/Remarks.vue'
 import { useWebSocket } from '@/store/websocket/websocket'
 import { useApidocTas } from '@/store/apidoc/tabs'
 import { userState } from '@/cache/userState/userStateCache.ts'

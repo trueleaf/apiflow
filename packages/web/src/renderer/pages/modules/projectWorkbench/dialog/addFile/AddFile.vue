@@ -99,6 +99,8 @@ const handleAddFile = () => {
       nodeInfo.pid = props.pid
       nodeInfo.sort = Date.now()
       nodeInfo.isDeleted = false;
+      nodeInfo.createdAt = new Date().toISOString()
+      nodeInfo.updatedAt = nodeInfo.createdAt
       await apiNodesCache.addNode(nodeInfo)
       emits('success', {
         _id: nodeInfo._id,
@@ -148,6 +150,8 @@ const handleAddFile = () => {
       websocketNode.pid = props.pid
       websocketNode.sort = Date.now()
       websocketNode.isDeleted = false;
+      websocketNode.createdAt = new Date().toISOString()
+      websocketNode.updatedAt = websocketNode.createdAt
       await apiNodesCache.addNode(websocketNode)
       emits('success', {
         _id: websocketNode._id,

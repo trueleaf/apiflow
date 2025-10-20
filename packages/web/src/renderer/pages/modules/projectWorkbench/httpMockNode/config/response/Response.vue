@@ -53,16 +53,36 @@
           >
             {{ t('添加触发条件') }}
           </div>
-          <div class="condition-btn">{{ t('添加返回头') }}</div>
+          <div
+            class="condition-btn"
+            :class="{ 'is-active': hasResponseHeaders }"
+            @click="handleToggleResponseHeaders"
+          >
+            {{ t('添加返回头') }}
+          </div>
         </div>
-        <!-- 触发条件配置区域 -->
-        <ConditionConfig
-          v-if="currentResponse.conditions.enabled"
-          :response="currentResponse"
-          :response-index="activeTagIndex"
-          :mock-node-id="httpMock._id"
-          @delete="handleDeleteCondition"
-        />
+        <!-- 配置区域包裹容器 -->
+        <div
+          v-if="currentResponse.conditions.enabled || currentResponse.headers.enabled"
+          class="config-wrapper"
+        >
+          <!-- 触发条件配置区域 -->
+          <ConditionConfig
+            v-if="currentResponse.conditions.enabled"
+            :response="currentResponse"
+            :response-index="activeTagIndex"
+            :mock-node-id="httpMock._id"
+            @delete="handleDeleteCondition"
+          />
+          <!-- 返回头配置区域 -->
+          <ResponseHeaders
+            v-if="currentResponse.headers.enabled"
+            :response="currentResponse"
+            :response-index="activeTagIndex"
+            :mock-node-id="httpMock._id"
+            @delete="handleDeleteResponseHeaders"
+          />
+        </div>
         <!-- 数据类型选择行 -->
         <div class="form-row mb-4">
           <div class="form-item flex-item">
@@ -104,6 +124,7 @@ import FileConfig from './components/file/File.vue'
 import BinaryConfig from './components/binary/Binary.vue'
 import SseConfig from './components/sse/Sse.vue'
 import ConditionConfig from './components/condition/Condition.vue'
+import ResponseHeaders from './components/headers/Headers.vue'
 
 const { t } = useI18n()
 const httpMockStore = useHttpMock()
@@ -143,6 +164,13 @@ const hasConditionConfig = computed(() => {
     return false
   }
   return currentResponse.value.conditions.enabled === true
+})
+// 判断是否存在返回头配置
+const hasResponseHeaders = computed(() => {
+  if (!currentResponse.value) {
+    return false
+  }
+  return currentResponse.value.headers.enabled === true
 })
 // 点击Tag切换
 const handleTagClick = (index: number) => {
@@ -250,6 +278,21 @@ const handleToggleCondition = () => {
 // 删除触发条件配置
 const handleDeleteCondition = (index: number) => {
   mockResponses.value[index].conditions.enabled = false
+}
+// 切换返回头配置
+const handleToggleResponseHeaders = () => {
+  if (!currentResponse.value) {
+    return
+  }
+  if (currentResponse.value.headers.enabled) {
+    handleDeleteResponseHeaders(activeTagIndex.value)
+    return
+  }
+  currentResponse.value.headers.enabled = true
+}
+// 删除返回头配置
+const handleDeleteResponseHeaders = (index: number) => {
+  mockResponses.value[index].headers.enabled = false
 }
 </script>
 
@@ -382,6 +425,13 @@ const handleDeleteCondition = (index: number) => {
   margin-bottom: 4px;
 }
 .mb-4 {
+  margin-bottom: 16px;
+}
+.config-wrapper {
+  border: 1px solid var(--gray-300);
+  border-radius: 4px;
+  padding: 16px;
+  background-color: white;
   margin-bottom: 16px;
 }
 </style>

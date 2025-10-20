@@ -533,7 +533,19 @@ export const generateEmptyHttpMockNode = (_id: string): MockHttpNode => {
           enabled: false,
         },
         statusCode: 200,
-        headers: {},
+        headers: {
+          enabled: false,
+          defaultHeaders: [
+            { ...apidocGenerateProperty(), key: 'Content-Type', value: 'application/json; charset=utf-8', select: true, description: '响应内容类型' },
+            { ...apidocGenerateProperty(), key: 'Cache-Control', value: 'no-cache, no-store, must-revalidate', select: false, description: '禁用缓存' },
+            { ...apidocGenerateProperty(), key: 'Access-Control-Allow-Origin', value: '*', select: false, description: '允许所有域名跨域访问' },
+            { ...apidocGenerateProperty(), key: 'Access-Control-Allow-Methods', value: 'GET, POST, PUT, DELETE, PATCH, OPTIONS', select: false, description: '允许的HTTP方法' },
+            { ...apidocGenerateProperty(), key: 'Access-Control-Allow-Headers', value: 'Content-Type, Authorization, X-Requested-With', select: false, description: '允许的请求头字段' },
+            { ...apidocGenerateProperty(), key: 'X-Content-Type-Options', value: 'nosniff', select: false, description: '防止浏览器MIME类型嗅探' },
+            { ...apidocGenerateProperty(), key: 'X-Frame-Options', value: 'DENY', select: false, description: '禁止在iframe中加载' },
+          ],
+          customHeaders: [apidocGenerateProperty()],
+        },
         dataType: 'json',
         sseConfig: {
           event: {

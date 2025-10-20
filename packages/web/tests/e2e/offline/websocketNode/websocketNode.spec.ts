@@ -85,8 +85,8 @@ test.describe('WebSocket Node - 配置与持久化', () => {
     const node = getBannerNode(contentPage, nodeName);
     await expect(node).toBeVisible();
     await clickBannerNode(contentPage, nodeName);
-    // 验证存在"连接配置"标签
-    await expect(contentPage.locator('.el-tabs__item:has-text("连接配置")').first()).toBeVisible();
+    // 验证存在消息内容标签
+    await expect(contentPage.locator('.el-tabs__item:has-text("消息内容")').first()).toBeVisible();
   });
 
   test('应能切换消息类型并持久化到缓存', async () => {
@@ -151,20 +151,4 @@ test.describe('WebSocket Node - 配置与持久化', () => {
     expect(cfg[projectId].quickOperations).toContain('template');
   });
 
-  test('应能开启自动重连并持久化', async () => {
-    const nodeName = `WS-${Date.now()}`;
-    await createRootWebSocketNode(contentPage, nodeName);
-    await clickBannerNode(contentPage, nodeName);
-
-    // 切换到“连接配置”页
-    await contentPage.locator('.el-tabs__item:has-text("连接配置")').click();
-    // 切换开关
-    const switchEl = contentPage.locator('.ws-config .el-switch');
-    await switchEl.click();
-    await contentPage.waitForTimeout(300);
-
-    const cached = await getCachedWsByName(contentPage, nodeName);
-    expect(cached).not.toBeNull();
-    expect(cached!.node?.config?.autoReconnect).toBe(true);
-  });
 });

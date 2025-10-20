@@ -42,6 +42,8 @@ export default {
   '测试条件': 'Test Condition',
   '查看帮助文档': 'View Help',
   '确定删除此触发条件配置吗？': 'Are you sure to delete this trigger condition config?',
+  '返回头配置': 'Response Headers Configuration',
+  '确定删除此返回头配置吗？': 'Are you sure to delete this response headers configuration?',
   '测试功能开发中': 'Test feature in development',
   '帮助文档开发中': 'Help documentation in development',
   '请先添加一个响应配置': 'Please add a response config first',

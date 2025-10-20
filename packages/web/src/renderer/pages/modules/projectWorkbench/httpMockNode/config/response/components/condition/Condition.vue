@@ -102,7 +102,6 @@ const handleDelete = () => {
   display: flex;
   flex-direction: column;
   gap: 12px;
-  margin-bottom: 16px;
   flex-shrink: 0;
 }
 

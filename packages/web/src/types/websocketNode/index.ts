@@ -14,7 +14,7 @@ export type WebsocketMessageType = 'text' | 'json' | 'xml' | 'html' | 'binary-ba
 /**
  * WebSocket激活选项卡类型
  */
-export type WebsocketActiveTabType = 'messageContent' | 'params' | 'headers' | 'preScript' | 'afterScript' | 'config' | 'remarks';
+export type WebsocketActiveTabType = 'messageContent' | 'params' | 'headers' | 'preScript' | 'afterScript';
 
 /**
  * WebSocket连接参数
