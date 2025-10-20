@@ -139,8 +139,12 @@ const importSelectFile = () => {
 }
 
 // AI 相关方法
-const textChat = () => {
-  return ipcRenderer.invoke('ai-text-chat')
+const textChat = (params?: { prompt: string }) => {
+  return ipcRenderer.invoke('ai-text-chat', params)
+}
+
+const jsonChat = (params?: { prompt: string }) => {
+  return ipcRenderer.invoke('ai-json-chat', params)
 }
 
 const textChatWithStream = (
@@ -191,16 +195,6 @@ const textChatWithStream = (
     },
     startPromise
   }
-}
-
-// AI 生成JSON数据
-const generateJson = (params: { prompt: string }) => {
-  return ipcRenderer.invoke('ai-generate-json', params)
-}
-
-// AI 生成文本数据
-const generateText = (params: { prompt: string }) => {
-  return ipcRenderer.invoke('ai-generate-text', params)
 }
 
 contextBridge.exposeInMainWorld('electronAPI', {
@@ -255,8 +249,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
   },
   aiManager: {
     textChat: textChat,
+    jsonChat: jsonChat,
     textChatWithStream: textChatWithStream,
-    generateJson: generateJson,
-    generateText: generateText,
   }
 })

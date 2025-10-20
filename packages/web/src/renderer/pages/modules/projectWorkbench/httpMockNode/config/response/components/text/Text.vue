@@ -178,7 +178,7 @@ const handleGenerateTextPreview = async () => {
   aiGeneratingText.value = true
   aiPreviewText.value = ''
   try {
-    const result = await window.electronAPI?.aiManager.generateText({
+    const result = await window.electronAPI?.aiManager.textChat({
       prompt: promptText
     })
 

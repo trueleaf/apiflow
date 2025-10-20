@@ -71,7 +71,7 @@ test.describe('AI 功能测试', () => {
     // 调用 AI 生成 JSON 数据的 IPC 方法
     const result = await contentPage.evaluate(async (prompt) => {
       try {
-        const response = await window.electronAPI?.aiManager?.generateJson({ prompt });
+        const response = await window.electronAPI?.aiManager?.jsonChat({ prompt });
         return response;
       } catch (error) {
         return { code: 1, msg: (error as Error).message };
@@ -91,7 +91,7 @@ test.describe('AI 功能测试', () => {
     // 调用 AI 生成文本数据的 IPC 方法
     const result = await contentPage.evaluate(async (prompt) => {
       try {
-        const response = await window.electronAPI?.aiManager?.generateText({ prompt });
+        const response = await window.electronAPI?.aiManager?.textChat({ prompt });
         return response;
       } catch (error) {
         return { code: 1, msg: (error as Error).message };

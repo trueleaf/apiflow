@@ -151,7 +151,7 @@ const handleGeneratePreview = async () => {
   aiGenerating.value = true
   aiPreviewJson.value = ''
   try {
-    const result = await window.electronAPI?.aiManager.generateJson({
+    const result = await window.electronAPI?.aiManager.jsonChat({
       prompt: promptText
     })
 

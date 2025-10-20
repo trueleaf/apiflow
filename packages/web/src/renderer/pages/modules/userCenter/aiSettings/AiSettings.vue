@@ -51,7 +51,10 @@
                 重置
               </el-button>
               <el-button @click="handleTest" :loading="testing" :disabled="!canTest">
-                测试请求
+                文本测试
+              </el-button>
+              <el-button @click="handleJsonTest" :loading="jsonTesting" :disabled="!canTest">
+                JSON测试
               </el-button>
               <el-button @click="handleStreamTest" :loading="streamTesting" :disabled="!canTest">
                 流式测试
@@ -69,8 +72,8 @@
         <div class="result-content" v-if="testResult">
           <VueMarkdownRender :source="testResult" />
         </div>
-        <div class="result-empty" v-else-if="!testing && !streamTesting">
-          <p>点击"测试请求"或"流式测试"按钮查看大模型响应</p>
+        <div class="result-empty" v-else-if="!testing && !jsonTesting && !streamTesting">
+          <p>点击"文本测试"、"JSON测试"或"流式测试"按钮查看大模型响应</p>
         </div>
         <div class="result-loading" v-else>
           <el-icon class="is-loading"><Loading /></el-icon>
@@ -110,6 +113,7 @@ const formData = ref<AiConfig>({
 })
 const saving = ref(false)
 const testing = ref(false)
+const jsonTesting = ref(false)
 const streamTesting = ref(false)
 const testResult = ref<string>('')
 const testError = ref<string>('')
@@ -228,6 +232,50 @@ const handleTest = async () => {
     ElMessage.error('测试请求失败')
   } finally {
     testing.value = false
+  }
+}
+
+// JSON测试请求
+const handleJsonTest = async () => {
+  if (!canTest.value) {
+    ElMessage.warning('请先配置 API Key 和 API 地址')
+    return
+  }
+
+  jsonTesting.value = true
+  testResult.value = ''
+  testError.value = ''
+
+  try {
+    // 先保存配置，再测试
+    aiCache.setAiConfig(formData.value)
+    window.electronAPI?.ipcManager.sendToMain('apiflow-sync-ai-config', {
+      apiKey: formData.value.apiKey,
+      apiUrl: formData.value.apiUrl,
+      timeout: formData.value.timeout
+    })
+    
+    const result = await window.electronAPI?.aiManager.jsonChat()
+
+    if (result?.code === 0 && result.data) {
+      // 格式化 JSON 显示
+      try {
+        const jsonData = JSON.parse(result.data)
+        testResult.value = '```json\n' + JSON.stringify(jsonData, null, 2) + '\n```'
+      } catch {
+        testResult.value = '```json\n' + result.data + '\n```'
+      }
+      ElMessage.success('JSON测试成功')
+    } else {
+      testError.value = result?.msg || 'JSON测试失败'
+      ElMessage.error(testError.value)
+    }
+  } catch (error) {
+    console.error('JSON测试失败:', error)
+    testError.value = (error as Error).message
+    ElMessage.error('JSON测试失败')
+  } finally {
+    jsonTesting.value = false
   }
 }
 

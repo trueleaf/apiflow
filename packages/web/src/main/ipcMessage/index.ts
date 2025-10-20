@@ -399,8 +399,15 @@ export const useIpcEvent = (mainWindow: BrowserWindow, topBarView: WebContentsVi
   |---------------------------------------------------------------------------
   */
   // AI 文本聊天
-  ipcMain.handle('ai-text-chat', async (_: IpcMainInvokeEvent) => {
-    return await globalAiManager.chatWithText(['你是什么模型'], { maxTokens: 2000 });
+  ipcMain.handle('ai-text-chat', async (_: IpcMainInvokeEvent, params?: { prompt: string }) => {
+    const prompt = params?.prompt || '你是什么模型';
+    return await globalAiManager.chatWithText([prompt], { maxTokens: 2000 });
+  });
+
+  // AI JSON聊天
+  ipcMain.handle('ai-json-chat', async (_: IpcMainInvokeEvent, params?: { prompt: string }) => {
+    const prompt = params?.prompt || '生成一个简单的测试JSON对象，包含name和age字段';
+    return await globalAiManager.chatWithJsonText([prompt], { maxTokens: 2000 });
   });
 
   // AI 流式聊天
@@ -441,16 +448,6 @@ export const useIpcEvent = (mainWindow: BrowserWindow, topBarView: WebContentsVi
   ipcMain.handle('ai-cancel-stream', async (_: IpcMainInvokeEvent, requestId: string) => {
     globalAiManager.cancelStream(requestId);
     return { code: 0, data: null, msg: '已取消请求' };
-  });
-
-  // AI 生成JSON数据
-  ipcMain.handle('ai-generate-json', async (_: IpcMainInvokeEvent, params: { prompt: string }) => {
-    return await globalAiManager.chatWithJsonText([params.prompt], { maxTokens: 2000 });
-  });
-
-  // AI 生成文本数据
-  ipcMain.handle('ai-generate-text', async (_: IpcMainInvokeEvent, params: { prompt: string }) => {
-    return await globalAiManager.chatWithText([params.prompt], { maxTokens: 100 });
   });
 
   /*
