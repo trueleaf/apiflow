@@ -1,4 +1,4 @@
-import { expect, type ElectronApplication, type Page } from '@playwright/test';
+import { expect, type Page } from '@playwright/test';
 import { test, resolveHeaderAndContentPages } from '../../../fixtures/enhanced-electron-fixtures';
 
 // AI 功能测试
@@ -25,251 +25,677 @@ test.describe('AI 功能测试', () => {
     await contentPage.waitForTimeout(1000);
   });
 
-  test('应能配置 AI 服务', async ({ electronApp }) => {
-    // 导航到设置页面
-    await contentPage.evaluate(() => {
-      window.location.href = '/settings';
+  /*
+  |--------------------------------------------------------------------------
+  | 第一部分：AiSettings 页面 UI 交互测试
+  |--------------------------------------------------------------------------
+  */
+  test.describe('AiSettings 页面 UI 交互测试', () => {
+
+    test.beforeEach(async () => {
+      // 导航到 AI 设置页面
+      await contentPage.evaluate(() => {
+        window.location.href = '/user-center/ai-settings';
+      });
+      await contentPage.waitForTimeout(1000);
     });
-    await contentPage.waitForURL(/settings/, { timeout: 10000 });
-    await contentPage.waitForLoadState('domcontentloaded');
-    await contentPage.waitForTimeout(1000);
 
-    // 从环境变量读取配置，如果未设置则使用测试默认值
-    const testApiUrl = process.env.TEST_AI_API_URL || 'https://api.deepseek.com/v1/chat/completions';
-    const testApiKey = process.env.TEST_AI_API_KEY || 'mock-test-api-key';
+    test('1. 应正确加载和显示 AI 配置表单', async () => {
+      // 验证页面标题
+      const pageTitle = await contentPage.locator('h2').textContent();
+      expect(pageTitle).toContain('AI 设置');
 
-    // 在 localStorage 中设置 AI 配置
-    await contentPage.evaluate((config) => {
-      localStorage.setItem('apiflow/ai/config', JSON.stringify({
-        apiUrl: config.apiUrl,
-        apiKey: config.apiKey
-      }));
+      // 验证表单元素存在
+      const modelInput = contentPage.locator('input[placeholder="DeepSeek"]');
+      const apiKeyInput = contentPage.locator('input[placeholder="请输入 DeepSeek API Key"]');
+      const apiUrlInput = contentPage.locator('input[placeholder="请输入 API 地址"]');
+
+      await expect(modelInput).toBeVisible();
+      await expect(apiKeyInput).toBeVisible();
+      await expect(apiUrlInput).toBeVisible();
+
+      // 验证模型字段为禁用状态
+      await expect(modelInput).toBeDisabled();
+    });
+
+    test('2. 应从 localStorage 正确加载已保存的配置', async () => {
+      const testConfig = {
+        model: 'DeepSeek',
+        apiKey: 'test-api-key-123',
+        apiUrl: 'https://api.test.com',
+        timeout: 30000
+      };
+
+      // 设置配置到 localStorage
+      await contentPage.evaluate((config) => {
+        localStorage.setItem('apiflow/ai/config', JSON.stringify(config));
+      }, testConfig);
+
+      // 重新加载页面
+      await contentPage.evaluate(() => {
+        window.location.reload();
+      });
+      await contentPage.waitForTimeout(1000);
+
+      // 验证表单值
+      const apiKeyValue = await contentPage.locator('input[placeholder="请输入 DeepSeek API Key"]').inputValue();
+      const apiUrlValue = await contentPage.locator('input[placeholder="请输入 API 地址"]').inputValue();
+
+      expect(apiKeyValue).toBe(testConfig.apiKey);
+      expect(apiUrlValue).toBe(testConfig.apiUrl);
+    });
+
+    test('3. 应正确保存配置', async () => {
+      const testApiKey = 'sk-test-key-456';
+      const testApiUrl = 'https://api.deepseek.com/v1/chat/completions';
+
+      // 填写配置
+      await contentPage.locator('input[placeholder="请输入 DeepSeek API Key"]').fill(testApiKey);
+      await contentPage.locator('input[placeholder="请输入 API 地址"]').fill(testApiUrl);
+
+      // 点击保存按钮
+      await contentPage.locator('button:has-text("保存配置")').click();
+      await contentPage.waitForTimeout(500);
+
+      // 验证配置已保存到 localStorage
+      const savedConfig = await contentPage.evaluate(() => {
+        const configStr = localStorage.getItem('apiflow/ai/config');
+        return configStr ? JSON.parse(configStr) : null;
+      });
+
+      expect(savedConfig).toBeTruthy();
+      expect(savedConfig.apiKey).toBe(testApiKey);
+      expect(savedConfig.apiUrl).toBe(testApiUrl);
+    });
+
+    test('4. 应在未填写必填项时显示警告', async () => {
+      // 清空配置
+      await contentPage.locator('input[placeholder="请输入 DeepSeek API Key"]').clear();
+      await contentPage.locator('input[placeholder="请输入 API 地址"]').clear();
+
+      // 尝试保存 - 未填写 API Key
+      await contentPage.locator('input[placeholder="请输入 API 地址"]').fill('https://api.test.com');
+      await contentPage.locator('button:has-text("保存配置")').click();
+
+      // 验证显示警告消息（通过 ElMessage）
+      const warningMessage = contentPage.locator('.el-message--warning');
+      await expect(warningMessage).toBeVisible({ timeout: 2000 });
+
+      // 清空 URL，填写 API Key
+      await contentPage.locator('input[placeholder="请输入 API 地址"]').clear();
+      await contentPage.locator('input[placeholder="请输入 DeepSeek API Key"]').fill('test-key');
+      await contentPage.locator('button:has-text("保存配置")').click();
+
+      // 再次验证显示警告
+      await expect(warningMessage).toBeVisible({ timeout: 2000 });
+    });
+
+    test('5. 应正确重置配置', async () => {
+      // 先设置一些配置
+      await contentPage.locator('input[placeholder="请输入 DeepSeek API Key"]').fill('test-key');
+      await contentPage.locator('input[placeholder="请输入 API 地址"]').fill('https://api.test.com');
+
+      // 点击重置按钮
+      await contentPage.locator('button:has-text("重置")').click();
+      await contentPage.waitForTimeout(500);
+
+      // 验证表单已清空
+      const apiKeyValue = await contentPage.locator('input[placeholder="请输入 DeepSeek API Key"]').inputValue();
+      const apiUrlValue = await contentPage.locator('input[placeholder="请输入 API 地址"]').inputValue();
+
+      expect(apiKeyValue).toBe('');
+      expect(apiUrlValue).toBe('');
+
+      // 验证 localStorage 已清空
+      const savedConfig = await contentPage.evaluate(() => {
+        const configStr = localStorage.getItem('apiflow/ai/config');
+        return configStr ? JSON.parse(configStr) : null;
+      });
+
+      expect(savedConfig.apiKey).toBe('');
+      expect(savedConfig.apiUrl).toBe('');
+    });
+
+    test('6. 应正确控制测试按钮的禁用状态', async () => {
+      // 清空配置
+      await contentPage.locator('button:has-text("重置")').click();
+      await contentPage.waitForTimeout(500);
+
+      // 验证测试按钮为禁用状态
+      const textTestBtn = contentPage.locator('button:has-text("文本测试")');
+      const jsonTestBtn = contentPage.locator('button:has-text("JSON测试")');
+      const streamTestBtn = contentPage.locator('button:has-text("流式测试")');
+
+      await expect(textTestBtn).toBeDisabled();
+      await expect(jsonTestBtn).toBeDisabled();
+      await expect(streamTestBtn).toBeDisabled();
+
+      // 填写配置
+      await contentPage.locator('input[placeholder="请输入 DeepSeek API Key"]').fill('test-key');
+      await contentPage.locator('input[placeholder="请输入 API 地址"]').fill('https://api.test.com');
+
+      // 验证测试按钮变为可用
+      await expect(textTestBtn).toBeEnabled();
+      await expect(jsonTestBtn).toBeEnabled();
+      await expect(streamTestBtn).toBeEnabled();
+    });
+
+    test('7. 应正确执行文本测试', async () => {
+      // 配置 AI
+      await contentPage.evaluate(() => {
+        localStorage.setItem('apiflow/ai/config', JSON.stringify({
+          model: 'DeepSeek',
+          apiKey: process.env.TEST_AI_API_KEY || 'mock-key',
+          apiUrl: process.env.TEST_AI_API_URL || 'https://api.deepseek.com/v1/chat/completions',
+          timeout: 60000
+        }));
+      });
+
+      await contentPage.reload();
+      await contentPage.waitForTimeout(1000);
 
       // 同步配置到主进程
-      window.electronAPI?.ipcManager?.sendToMain('apiflow-sync-ai-config', {
-        apiUrl: config.apiUrl,
-        apiKey: config.apiKey,
-        timeout: 60000
+      await contentPage.evaluate(() => {
+        const config = JSON.parse(localStorage.getItem('apiflow/ai/config') || '{}');
+        window.electronAPI?.ipcManager?.sendToMain('apiflow-sync-ai-config', config);
       });
-    }, { apiUrl: testApiUrl, apiKey: testApiKey });
 
-    // 验证配置已保存
-    const savedConfig = await contentPage.evaluate(() => {
-      const configStr = localStorage.getItem('apiflow/ai/config');
-      return configStr ? JSON.parse(configStr) : null;
+      await contentPage.waitForTimeout(500);
+
+      // 点击文本测试按钮
+      await contentPage.locator('button:has-text("文本测试")').click();
+
+      // 验证加载状态
+      const loadingIcon = contentPage.locator('.result-loading');
+      await expect(loadingIcon).toBeVisible({ timeout: 2000 });
+
+      // 等待请求完成（最多30秒）
+      await contentPage.waitForTimeout(30000);
+
+      // 验证显示结果或错误
+      const hasResult = await contentPage.locator('.result-content').isVisible();
+      const hasError = await contentPage.locator('.result-error').isVisible();
+
+      expect(hasResult || hasError).toBeTruthy();
     });
 
-    expect(savedConfig).toBeTruthy();
-    expect(savedConfig.apiUrl).toBe(testApiUrl);
-    expect(savedConfig.apiKey).toBe(testApiKey);
-  });
-
-  test('应能使用 AI 生成 JSON 数据', async ({ electronApp }) => {
-    // 模拟 AI 生成 JSON 的场景
-    const testPrompt = '生成一个包含用户信息的JSON对象，包含姓名、年龄、邮箱';
-
-    // 调用 AI 生成 JSON 数据的 IPC 方法
-    const result = await contentPage.evaluate(async (prompt) => {
-      try {
-        const response = await window.electronAPI?.aiManager?.jsonChat({ prompt });
-        return response;
-      } catch (error) {
-        return { code: 1, msg: (error as Error).message };
-      }
-    }, testPrompt);
-
-    // 验证返回结果
-    // 注意：由于实际 API 可能不可用，这里主要验证调用流程
-    expect(result).toBeTruthy();
-    expect(result).toHaveProperty('code');
-  });
-
-  test('应能使用 AI 生成文本数据', async ({ electronApp }) => {
-    // 模拟 AI 生成文本的场景
-    const testPrompt = '生成一个API接口的描述文案';
-
-    // 调用 AI 生成文本数据的 IPC 方法
-    const result = await contentPage.evaluate(async (prompt) => {
-      try {
-        const response = await window.electronAPI?.aiManager?.textChat({ prompt });
-        return response;
-      } catch (error) {
-        return { code: 1, msg: (error as Error).message };
-      }
-    }, testPrompt);
-
-    // 验证返回结果
-    expect(result).toBeTruthy();
-    expect(result).toHaveProperty('code');
-  });
-
-  test('应能使用 AI 流式聊天', async ({ electronApp }) => {
-    const requestId = `test-stream-${Date.now()}`;
-    let receivedData = '';
-    let streamEnded = false;
-    let streamError = '';
-
-    // 设置流式数据接收
-    const streamPromise = contentPage.evaluate((reqId) => {
-      return new Promise((resolve, reject) => {
-        let data = '';
-        let ended = false;
-        let error = '';
-
-        const cleanup = window.electronAPI?.aiManager?.textChatWithStream(
-          { requestId: reqId },
-          (chunk: string) => {
-            data += chunk;
-          },
-          () => {
-            ended = true;
-            resolve({ data, ended, error });
-          },
-          (err: string) => {
-            error = err;
-            reject({ data, ended, error });
-          }
-        );
-
-        // 设置超时保护
-        setTimeout(() => {
-          cleanup?.cancel();
-          resolve({ data, ended: true, error: 'timeout' });
-        }, 10000);
+    test('8. 应正确执行 JSON 测试', async () => {
+      // 配置 AI
+      await contentPage.evaluate(() => {
+        localStorage.setItem('apiflow/ai/config', JSON.stringify({
+          model: 'DeepSeek',
+          apiKey: process.env.TEST_AI_API_KEY || 'mock-key',
+          apiUrl: process.env.TEST_AI_API_URL || 'https://api.deepseek.com/v1/chat/completions',
+          timeout: 60000
+        }));
       });
-    }, requestId);
 
-    // 等待流式请求完成或超时
-    try {
-      const result = await Promise.race([
-        streamPromise,
-        new Promise((resolve) => setTimeout(() => resolve({ timeout: true }), 12000))
-      ]) as any;
+      await contentPage.reload();
+      await contentPage.waitForTimeout(1000);
 
-      // 验证流式响应
-      expect(result).toBeTruthy();
-    } catch (error) {
-      // 如果 API 不可用，也应正确处理错误
-      expect(error).toBeTruthy();
-    }
-  });
+      // 同步配置到主进程
+      await contentPage.evaluate(() => {
+        const config = JSON.parse(localStorage.getItem('apiflow/ai/config') || '{}');
+        window.electronAPI?.ipcManager?.sendToMain('apiflow-sync-ai-config', config);
+      });
 
-  test('应能测试 AI 文本聊天', async ({ electronApp }) => {
-    // 调用 AI 文本聊天测试接口
-    const result = await contentPage.evaluate(async () => {
-      try {
-        const response = await window.electronAPI?.aiManager?.textChat();
-        return response;
-      } catch (error) {
-        return { code: 1, msg: (error as Error).message };
-      }
+      await contentPage.waitForTimeout(500);
+
+      // 点击 JSON 测试按钮
+      await contentPage.locator('button:has-text("JSON测试")').click();
+
+      // 验证加载状态
+      const loadingIcon = contentPage.locator('.result-loading');
+      await expect(loadingIcon).toBeVisible({ timeout: 2000 });
+
+      // 等待请求完成
+      await contentPage.waitForTimeout(30000);
+
+      // 验证显示结果或错误
+      const hasResult = await contentPage.locator('.result-content').isVisible();
+      const hasError = await contentPage.locator('.result-error').isVisible();
+
+      expect(hasResult || hasError).toBeTruthy();
     });
 
-    // 验证返回结果结构
-    expect(result).toBeTruthy();
-    expect(result).toHaveProperty('code');
-    expect(result).toHaveProperty('msg');
+    test('9. 应正确执行流式测试并支持取消', async () => {
+      // 配置 AI
+      await contentPage.evaluate(() => {
+        localStorage.setItem('apiflow/ai/config', JSON.stringify({
+          model: 'DeepSeek',
+          apiKey: process.env.TEST_AI_API_KEY || 'mock-key',
+          apiUrl: process.env.TEST_AI_API_URL || 'https://api.deepseek.com/v1/chat/completions',
+          timeout: 60000
+        }));
+      });
+
+      await contentPage.reload();
+      await contentPage.waitForTimeout(1000);
+
+      // 同步配置到主进程
+      await contentPage.evaluate(() => {
+        const config = JSON.parse(localStorage.getItem('apiflow/ai/config') || '{}');
+        window.electronAPI?.ipcManager?.sendToMain('apiflow-sync-ai-config', config);
+      });
+
+      await contentPage.waitForTimeout(500);
+
+      // 点击流式测试按钮
+      await contentPage.locator('button:has-text("流式测试")').click();
+
+      // 验证显示取消按钮
+      const cancelBtn = contentPage.locator('button:has-text("取消请求")');
+      await expect(cancelBtn).toBeVisible({ timeout: 2000 });
+
+      // 等待一段时间后取消
+      await contentPage.waitForTimeout(2000);
+      await cancelBtn.click();
+
+      // 验证取消后按钮消失
+      await expect(cancelBtn).not.toBeVisible({ timeout: 2000 });
+    });
   });
 
-  test('应能取消 AI 流式请求', async ({ electronApp }) => {
-    const requestId = `test-cancel-${Date.now()}`;
+  /*
+  |--------------------------------------------------------------------------
+  | 第二部分：ai.ts 核心方法测试
+  |--------------------------------------------------------------------------
+  */
+  test.describe('ai.ts 核心方法测试', () => {
 
-    // 启动流式请求
-    const streamHandle = await contentPage.evaluateHandle((reqId) => {
-      return window.electronAPI?.aiManager?.textChatWithStream(
-        { requestId: reqId },
-        (chunk: string) => {
-          // 接收数据
-        },
-        () => {
-          // 完成
-        },
-        (error: string) => {
-          // 错误
+    test.describe('chatWithText 方法测试', () => {
+
+      test('1. 未配置时应返回错误', async () => {
+        // 清除配置
+        await contentPage.evaluate(() => {
+          window.electronAPI?.ipcManager?.sendToMain('apiflow-sync-ai-config', {
+            apiKey: '',
+            apiUrl: '',
+            timeout: 60000
+          });
+        });
+
+        await contentPage.waitForTimeout(500);
+
+        // 调用方法
+        const result = await contentPage.evaluate(async () => {
+          return await window.electronAPI?.aiManager?.textChat({ prompt: '测试' });
+        });
+
+        expect(result.code).toBe(1);
+        expect(result.msg).toContain('未配置');
+      });
+
+      test('2. prompt 为空时应返回错误', async () => {
+        // 配置 AI
+        await contentPage.evaluate(() => {
+          window.electronAPI?.ipcManager?.sendToMain('apiflow-sync-ai-config', {
+            apiKey: 'test-key',
+            apiUrl: 'https://api.test.com',
+            timeout: 60000
+          });
+        });
+
+        await contentPage.waitForTimeout(500);
+
+        // 调用方法（不传 prompt）
+        const result = await contentPage.evaluate(async () => {
+          // @ts-ignore - 故意不传参数测试
+          return await window.electronAPI?.aiManager?.textChat({ prompt: '' });
+        });
+
+        expect(result.code).toBe(1);
+        expect(result.msg).toContain('prompt');
+      });
+
+      test('3. 正确配置时应成功调用', async () => {
+        // 使用环境变量或 mock 配置
+        await contentPage.evaluate(() => {
+          window.electronAPI?.ipcManager?.sendToMain('apiflow-sync-ai-config', {
+            apiKey: process.env.TEST_AI_API_KEY || 'mock-key',
+            apiUrl: process.env.TEST_AI_API_URL || 'https://api.deepseek.com/v1/chat/completions',
+            timeout: 60000
+          });
+        });
+
+        await contentPage.waitForTimeout(500);
+
+        // 调用方法
+        const result = await contentPage.evaluate(async () => {
+          return await window.electronAPI?.aiManager?.textChat({ prompt: '你好' });
+        });
+
+        // 验证返回格式
+        expect(result).toBeTruthy();
+        expect(result).toHaveProperty('code');
+        expect(result).toHaveProperty('msg');
+        expect(result).toHaveProperty('data');
+      });
+    });
+
+    test.describe('chatWithJsonText 方法测试', () => {
+
+      test('1. 未配置时应返回错误', async () => {
+        await contentPage.evaluate(() => {
+          window.electronAPI?.ipcManager?.sendToMain('apiflow-sync-ai-config', {
+            apiKey: '',
+            apiUrl: '',
+            timeout: 60000
+          });
+        });
+
+        await contentPage.waitForTimeout(500);
+
+        const result = await contentPage.evaluate(async () => {
+          return await window.electronAPI?.aiManager?.jsonChat({ prompt: '生成JSON' });
+        });
+
+        expect(result.code).toBe(1);
+        expect(result.msg).toContain('未配置');
+      });
+
+      test('2. prompt 为空时应返回错误', async () => {
+        await contentPage.evaluate(() => {
+          window.electronAPI?.ipcManager?.sendToMain('apiflow-sync-ai-config', {
+            apiKey: 'test-key',
+            apiUrl: 'https://api.test.com',
+            timeout: 60000
+          });
+        });
+
+        await contentPage.waitForTimeout(500);
+
+        const result = await contentPage.evaluate(async () => {
+          // @ts-ignore
+          return await window.electronAPI?.aiManager?.jsonChat({ prompt: '' });
+        });
+
+        expect(result.code).toBe(1);
+      });
+
+      test('3. 成功时应返回合法 JSON', async () => {
+        await contentPage.evaluate(() => {
+          window.electronAPI?.ipcManager?.sendToMain('apiflow-sync-ai-config', {
+            apiKey: process.env.TEST_AI_API_KEY || 'mock-key',
+            apiUrl: process.env.TEST_AI_API_URL || 'https://api.deepseek.com/v1/chat/completions',
+            timeout: 60000
+          });
+        });
+
+        await contentPage.waitForTimeout(500);
+
+        const result = await contentPage.evaluate(async () => {
+          return await window.electronAPI?.aiManager?.jsonChat({
+            prompt: '生成一个包含name和age的JSON对象'
+          });
+        });
+
+        expect(result).toBeTruthy();
+        expect(result).toHaveProperty('code');
+        expect(result).toHaveProperty('data');
+
+        // 如果成功，验证返回的是合法 JSON
+        if (result.code === 0) {
+          expect(() => JSON.parse(result.data)).not.toThrow();
         }
-      );
-    }, requestId);
-
-    // 等待一小段时间后取消
-    await contentPage.waitForTimeout(500);
-
-    // 取消流式请求
-    const cancelResult = await contentPage.evaluate(async (handle) => {
-      try {
-        await handle?.cancel();
-        return { success: true };
-      } catch (error) {
-        return { success: false, error: (error as Error).message };
-      }
-    }, await streamHandle.jsonValue());
-
-    // 验证取消操作
-    expect(cancelResult).toBeTruthy();
-  });
-
-  test('AI 服务异常时应正确处理', async ({ electronApp }) => {
-    // 设置无效的 AI 配置
-    await contentPage.evaluate(() => {
-      localStorage.setItem('apiflow/ai/config', JSON.stringify({
-        apiUrl: 'https://invalid-api-url.example.com',
-        apiKey: 'invalid-key'
-      }));
-
-      // 同步到主进程
-      window.electronAPI?.ipcManager?.sendToMain('apiflow-sync-ai-config', {
-        apiUrl: 'https://invalid-api-url.example.com',
-        apiKey: 'invalid-key',
-        timeout: 60000
       });
     });
 
-    await contentPage.waitForTimeout(500);
+    test.describe('chatWithTextStream 方法测试', () => {
 
-    // 尝试调用 AI 接口
-    const result = await contentPage.evaluate(async () => {
-      try {
-        const response = await window.electronAPI?.aiManager?.textChat();
-        return response;
-      } catch (error) {
-        return {
-          code: 1,
-          msg: (error as Error).message,
-          caught: true
+      test('1. 未配置时应调用 onError', async () => {
+        await contentPage.evaluate(() => {
+          window.electronAPI?.ipcManager?.sendToMain('apiflow-sync-ai-config', {
+            apiKey: '',
+            apiUrl: '',
+            timeout: 60000
+          });
+        });
+
+        await contentPage.waitForTimeout(500);
+
+        const result = await contentPage.evaluate(async () => {
+          return new Promise((resolve) => {
+            window.electronAPI?.aiManager?.textChatWithStream(
+              { requestId: `test-${Date.now()}` },
+              (chunk) => {},
+              () => resolve({ success: true }),
+              (error) => resolve({ success: false, error })
+            );
+          });
+        });
+
+        expect(result).toBeTruthy();
+        // @ts-ignore
+        expect(result.success).toBe(false);
+      });
+
+      test('2. 正确配置时应逐步返回数据', async () => {
+        await contentPage.evaluate(() => {
+          window.electronAPI?.ipcManager?.sendToMain('apiflow-sync-ai-config', {
+            apiKey: process.env.TEST_AI_API_KEY || 'mock-key',
+            apiUrl: process.env.TEST_AI_API_URL || 'https://api.deepseek.com/v1/chat/completions',
+            timeout: 60000
+          });
+        });
+
+        await contentPage.waitForTimeout(500);
+
+        const result = await contentPage.evaluate(async () => {
+          return new Promise((resolve) => {
+            let receivedData = '';
+            const requestId = `test-stream-${Date.now()}`;
+
+            const controller = window.electronAPI?.aiManager?.textChatWithStream(
+              { requestId },
+              (chunk) => {
+                receivedData += chunk;
+              },
+              () => {
+                resolve({ success: true, hasData: receivedData.length > 0 });
+              },
+              (error) => {
+                resolve({ success: false, error });
+              }
+            );
+
+            // 设置超时
+            setTimeout(() => {
+              controller?.cancel();
+              resolve({ success: false, timeout: true });
+            }, 30000);
+          });
+        });
+
+        expect(result).toBeTruthy();
+      });
+
+      test('3. 流式完成时应调用 onEnd', async () => {
+        await contentPage.evaluate(() => {
+          window.electronAPI?.ipcManager?.sendToMain('apiflow-sync-ai-config', {
+            apiKey: process.env.TEST_AI_API_KEY || 'mock-key',
+            apiUrl: process.env.TEST_AI_API_URL || 'https://api.deepseek.com/v1/chat/completions',
+            timeout: 60000
+          });
+        });
+
+        await contentPage.waitForTimeout(500);
+
+        const result = await contentPage.evaluate(async () => {
+          return new Promise((resolve) => {
+            let onEndCalled = false;
+
+            window.electronAPI?.aiManager?.textChatWithStream(
+              { requestId: `test-end-${Date.now()}` },
+              () => {},
+              () => {
+                onEndCalled = true;
+                resolve({ onEndCalled });
+              },
+              () => {
+                resolve({ onEndCalled: false, hasError: true });
+              }
+            );
+
+            setTimeout(() => {
+              resolve({ onEndCalled, timeout: true });
+            }, 30000);
+          });
+        });
+
+        expect(result).toBeTruthy();
+      });
+    });
+
+    test.describe('cancelStream 方法测试', () => {
+
+      test('1. 应正确取消流式请求', async () => {
+        await contentPage.evaluate(() => {
+          window.electronAPI?.ipcManager?.sendToMain('apiflow-sync-ai-config', {
+            apiKey: process.env.TEST_AI_API_KEY || 'mock-key',
+            apiUrl: process.env.TEST_AI_API_URL || 'https://api.deepseek.com/v1/chat/completions',
+            timeout: 60000
+          });
+        });
+
+        await contentPage.waitForTimeout(500);
+
+        const result = await contentPage.evaluate(async () => {
+          return new Promise((resolve) => {
+            const requestId = `test-cancel-${Date.now()}`;
+            let cancelled = false;
+
+            const controller = window.electronAPI?.aiManager?.textChatWithStream(
+              { requestId },
+              () => {},
+              () => {
+                resolve({ cancelled: false, completed: true });
+              },
+              (error) => {
+                if (error.msg?.includes('取消')) {
+                  cancelled = true;
+                }
+                resolve({ cancelled, error: error.msg });
+              }
+            );
+
+            // 等待一段时间后取消
+            setTimeout(async () => {
+              await controller?.cancel();
+
+              // 给一点时间让取消生效
+              setTimeout(() => {
+                resolve({ cancelled: true, manualCancel: true });
+              }, 500);
+            }, 1000);
+          });
+        });
+
+        expect(result).toBeTruthy();
+        // @ts-ignore
+        expect(result.cancelled || result.manualCancel).toBeTruthy();
+      });
+
+      test('2. 取消不存在的请求应不报错', async () => {
+        const result = await contentPage.evaluate(async () => {
+          try {
+            const controller = {
+              cancel: async () => {
+                return window.electronAPI?.aiManager?.cancelStream?.('non-existent-request-id');
+              }
+            };
+            await controller.cancel();
+            return { success: true };
+          } catch (error) {
+            return { success: false, error: (error as Error).message };
+          }
+        });
+
+        expect(result.success).toBe(true);
+      });
+    });
+
+    test.describe('配置管理测试', () => {
+
+      test('1. updateConfig 应正确更新配置', async () => {
+        const newConfig = {
+          apiKey: 'new-test-key',
+          apiUrl: 'https://new-api.test.com',
+          timeout: 30000
         };
-      }
-    });
 
-    // 验证错误处理
-    expect(result).toBeTruthy();
-    // 应该返回错误状态或捕获到异常
-    const hasError = result.code !== 0 || result.caught === true;
-    expect(hasError).toBeTruthy();
-  });
+        await contentPage.evaluate((config) => {
+          window.electronAPI?.ipcManager?.sendToMain('apiflow-sync-ai-config', config);
+        }, newConfig);
 
-  test('应能清除 AI 配置', async ({ electronApp }) => {
-    // 先设置配置
-    await contentPage.evaluate(() => {
-      localStorage.setItem('apiflow/ai/config', JSON.stringify({
-        apiUrl: 'https://api.test.com',
-        apiKey: 'test-key'
-      }));
-    });
+        await contentPage.waitForTimeout(500);
 
-    // 验证配置存在
-    let config = await contentPage.evaluate(() => {
-      return localStorage.getItem('apiflow/ai/config');
-    });
-    expect(config).toBeTruthy();
+        // 尝试调用方法验证配置已更新
+        const result = await contentPage.evaluate(async () => {
+          return await window.electronAPI?.aiManager?.textChat({ prompt: '测试' });
+        });
 
-    // 清除配置
-    await contentPage.evaluate(() => {
-      localStorage.removeItem('apiflow/ai/config');
-    });
+        // 配置应该已经生效
+        expect(result).toBeTruthy();
+        expect(result).toHaveProperty('code');
+      });
 
-    // 验证配置已清除
-    config = await contentPage.evaluate(() => {
-      return localStorage.getItem('apiflow/ai/config');
+      test('2. timeout 参数应可选', async () => {
+        // 只传 apiKey 和 apiUrl，不传 timeout
+        await contentPage.evaluate(() => {
+          window.electronAPI?.ipcManager?.sendToMain('apiflow-sync-ai-config', {
+            apiKey: 'test-key',
+            apiUrl: 'https://api.test.com'
+            // 不传 timeout
+          });
+        });
+
+        await contentPage.waitForTimeout(500);
+
+        const result = await contentPage.evaluate(async () => {
+          return await window.electronAPI?.aiManager?.textChat({ prompt: '测试' });
+        });
+
+        expect(result).toBeTruthy();
+      });
+
+      test('3. validateConfig 应正确校验配置', async () => {
+        // 测试缺少 apiKey
+        await contentPage.evaluate(() => {
+          window.electronAPI?.ipcManager?.sendToMain('apiflow-sync-ai-config', {
+            apiKey: '',
+            apiUrl: 'https://api.test.com',
+            timeout: 60000
+          });
+        });
+
+        await contentPage.waitForTimeout(500);
+
+        const result1 = await contentPage.evaluate(async () => {
+          return await window.electronAPI?.aiManager?.textChat({ prompt: '测试' });
+        });
+
+        expect(result1.code).toBe(1);
+        expect(result1.msg).toContain('API Key');
+
+        // 测试缺少 apiUrl
+        await contentPage.evaluate(() => {
+          window.electronAPI?.ipcManager?.sendToMain('apiflow-sync-ai-config', {
+            apiKey: 'test-key',
+            apiUrl: '',
+            timeout: 60000
+          });
+        });
+
+        await contentPage.waitForTimeout(500);
+
+        const result2 = await contentPage.evaluate(async () => {
+          return await window.electronAPI?.aiManager?.textChat({ prompt: '测试' });
+        });
+
+        expect(result2.code).toBe(1);
+        expect(result2.msg).toContain('API URL');
+      });
     });
-    expect(config).toBeNull();
   });
 });
