@@ -17,7 +17,7 @@
 <script lang="ts" setup>
 import { onMounted, ref, Ref } from 'vue';
 import {
-  apidocFormatUrl,
+  getUrlInfo,
   convertApidocPropertyToObject,
   apidocFormatResponseParams,
   copy,
@@ -51,7 +51,7 @@ const handleSelectCode = async (codeInfo: CodeInfo) => {
     type: 'init',
     value: {
       raw: apidoc,
-      url: await apidocFormatUrl(apidoc),
+      url: await getUrlInfo(apidoc),
       queryParams: await convertApidocPropertyToObject(apidoc.item.queryParams),
       pathParams: await convertApidocPropertyToObject(apidoc.item.paths),
       jsonParams: apidoc.item.requestBody.rawJson,

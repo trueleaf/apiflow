@@ -36,26 +36,26 @@ export const convertApidocPropertyToObject = async (params: ApidocProperty[]): P
   return result;
 }
 // 转换URL信息
-export const apidocFormatUrl = async (apidoc: HttpNode): Promise<UrlInfo> => {
-  let queryString = '';
+export const getUrlInfo = async (apidoc: HttpNode): Promise<UrlInfo> => {
   const { queryParams } = apidoc.item;
   const { path, prefix } = apidoc.item.url;
   const variableStore = useVariable();
   const variables = variableStore.variables;
+
   // query参数解析
-  const queryPairs: string[] = [];
-  await Promise.all(queryParams.map(async (param) => {
-    const key = param.key.trim();
-    const value = param.value.trim();
-    if (key !== '') {
-      const compiledValue = await getCompiledTemplate(value, variables);
-      queryPairs.push(`${key}=${String(compiledValue)}`);
-    }
-  }));
-  queryString = queryPairs.join('&');
-  if (queryString) {
-    queryString = `?${queryString}`;
-  }
+  const queryPairs = await Promise.all(
+    queryParams
+      .filter(param => param.key.trim() !== '')
+      .map(async (param) => {
+        const key = param.key.trim();
+        const value = param.value.trim();
+        const compiledValue = await getCompiledTemplate(value, variables);
+        return `${key}=${String(compiledValue)}`;
+      })
+  );
+
+  const queryString = queryPairs.length > 0 ? `?${queryPairs.join('&')}` : '';
+
   return {
     host: prefix,
     path,

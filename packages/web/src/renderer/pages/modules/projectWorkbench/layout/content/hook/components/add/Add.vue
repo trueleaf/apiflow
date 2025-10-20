@@ -38,7 +38,7 @@ import SForm from '@/components/common/forms/form/GForm.vue'
 import SFormItem from '@/components/common/forms/form/GFormItem.vue'
 
 import {
-  apidocFormatUrl,
+  getUrlInfo,
   convertApidocPropertyToObject,
   apidocFormatResponseParams,
 } from '@/helper';
@@ -78,7 +78,7 @@ const executeCode = async () => {
     type: 'init',
     value: {
       raw: JSON.parse(JSON.stringify(apidocStore.apidoc)),
-      url: await apidocFormatUrl(apidocStore.apidoc),
+      url: await getUrlInfo(apidocStore.apidoc),
       queryParams: await convertApidocPropertyToObject(apidocStore.apidoc.item.queryParams),
       pathParams: await convertApidocPropertyToObject(apidocStore.apidoc.item.paths),
       jsonParams: apidocStore.apidoc.item.requestBody.rawJson,
