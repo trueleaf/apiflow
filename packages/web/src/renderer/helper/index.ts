@@ -1,15 +1,16 @@
 /* eslint-disable no-lonely-if */
 /* eslint-disable no-continue */
 import { nanoid } from 'nanoid/non-secure'
-import type { HttpNodeRequestMethod, ApidocProperty, HttpNodePropertyType, HttpNode, ApidocBanner, HttpNodeRequestParamTypes, ApidocCodeInfo, FolderNode, ApiNode, MockHttpNode, ApidocProjectInfo, ResponseInfo, ApidocProjectBaseInfoState, ApidocTab, WebSocketNode } from '@src/types'
+import type { HttpNodeRequestMethod, ApidocProperty, HttpNodePropertyType, HttpNode, ApidocBanner, HttpNodeRequestParamTypes, ApidocCodeInfo, FolderNode, ApiNode, MockHttpNode, ApidocProjectInfo, ResponseInfo, ApidocProjectBaseInfoState, ApidocTab, WebSocketNode, ApidocVariable } from '@src/types'
 import isEqual from 'lodash/isEqual';
 import lodashCloneDeep from 'lodash/cloneDeep';
 import lodashDebounce from 'lodash/debounce';
 import lodashThrottle from 'lodash/throttle';
 import dayjs from 'dayjs';
 import mitt from 'mitt'
-import tips from './tips'
 import { i18n } from '@/i18n';
+import Mock from 'mockjs';
+import { faker } from '@faker-js/faker';
 
 type Data = Record<string, unknown>
 
@@ -53,11 +54,6 @@ export const event = emitter;
 export const uuid = (): string => {
   return nanoid();
 }
-// 返回变量类型
-export const getType = (variable: unknown): string => {
-  return Object.prototype.toString.call(variable).slice(8, -1).toLocaleLowerCase();
-}
-
 type ForestData = {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   [propName: string]: any,
@@ -230,16 +226,6 @@ export const getTextWidth = (text: string, font: string): number => {
   canvas = null;
   return metrics.width;
 }
-
-/**
- * 获取提示信息
- */
-export const randomTip = (): string => {
-  const len = tips.length;
-  const randomIndex = Math.ceil(Math.random() * len) - 1;
-  return tips[randomIndex];
-}
-
 /**
  * 格式化时间
  */
@@ -339,7 +325,6 @@ export const checkPropertyIsEqual = (value: ApidocProperty[], originValue: Apido
 |--------------------------------------------------------------------------
 |
 */
-type Properties = ApidocProperty<HttpNodePropertyType>[]
 // eslint-disable-next-line no-use-before-define
 type JSON = string | number | boolean | null | JsonObj | JsonArr
 type JsonArr = JSON[]
@@ -348,37 +333,6 @@ type JsonObj = {
 }
 
 
-/**
- * 将录入参数转换为json参数
- */
-export const apidocConvertParamsToJsonData = (properties: Properties): JSON => {
-  if (properties.length === 0) {
-    console.warn('无任何参数值')
-    return null;
-  }
-  const rootType = properties[0].type;
-  const rootValue = properties[0].value;
-
-  if (rootType === 'boolean') {
-    return rootValue === 'true';
-  }
-  if (rootType === 'string') {
-    return rootValue;
-  }
-  if (rootType === 'number') {
-    const isNumber = !Number.isNaN(Number(rootValue));
-    if (isNumber) {
-      return Number(rootValue);
-    }
-    console.warn('参数无法被转换为数字类型，默认为0');
-    return 0;
-  }
-  if (rootType === 'file') {
-    console.warn('根元素不允许为file');
-    return null;
-  }
-  return {};
-}
 // 生成一份空的项目默认值
 export const generateEmptyProject = (_id: string): ApidocProjectInfo => {
   return {
@@ -626,15 +580,6 @@ export const generateHttpNode = (id?: string): HttpNode => {
   result.item.requestBody.binary.mode = 'file';
   return result;
 }
-// 生成一份websocket默认值(保持向后兼容)
-export const generateWebsocketNode = (id?: string): WebSocketNode => {
-  const result = generateEmptyWebsocketNode(id || nanoid());
-  // 添加一些字段以保持向后兼容
-  result.createdAt = '';
-  result.updatedAt = '';
-  result.isDeleted = false;
-  return result;
-};
 // 生成一份参数类型数组
 export const apidocGenerateRequestParamTypes = (): HttpNodeRequestParamTypes => {
   return ['path', 'params', 'json', 'x-www-form-urlencoded', 'formData', 'text/javascript', 'text/plain', 'text/html', 'application/xml'];
@@ -852,6 +797,7 @@ export const convertNodesToBannerNodes = (docs: ApiNode[] = []): ApidocBanner[] 
           method: mockNode.requestCondition.method[0] || 'ALL',
           url: mockNode.requestCondition.url,
           port: mockNode.requestCondition.port,
+          state: 'stopped',
           readonly: false,
           children: [],
         };
@@ -933,17 +879,6 @@ export const isJsonString = (str: string): boolean => {
     return false;
   }
 };
-
-/*
-|--------------------------------------------------------------------------
-| 对象大小计算方法
-|--------------------------------------------------------------------------
-*/
-// 计算JavaScript对象的字节大小
-export const getObjectSize = (obj: unknown): number => {
-  const blob = new Blob([JSON.stringify(obj)], { type: 'application/json' });
-  return blob.size;
-}
 // 获取IndexedDB中的数据项数量
 export const getIndexedDBItemCount = async (excludeDbNames?: string[]): Promise<number> => {
   try {
@@ -1060,4 +995,116 @@ export const generateEmptyResponse = (): ResponseInfo => {
     },
   }
 }
+/*
+|--------------------------------------------------------------------------
+| 模板编译相关方法
+|--------------------------------------------------------------------------
+*/
+// 获取嵌套对象属性值，支持点语法访问
+const getNestedValue = (path: string, scope: Record<string, any>): any => {
+  try {
+    const keys = path.split('.');
+    let result: any = scope;
+    for (const key of keys) {
+      if (result === null || result === undefined) {
+        return undefined;
+      }
+      result = result[key];
+    }
+    return result;
+  } catch {
+    return undefined;
+  }
+}
+// Mock数据生成函数
+const evaluateMock = (mockExpr: string): any => {
+  try {
+    const result = Mock.mock(mockExpr);
+    return result;
+  } catch (mockError) {
+    try {
+      const fakerPath = mockExpr.slice(1);
+      const keys = fakerPath.split('.');
+      let fakerMethod: any = faker;
+      for (const key of keys) {
+        fakerMethod = fakerMethod[key];
+        if (!fakerMethod) {
+          return mockExpr;
+        }
+      }
+      if (typeof fakerMethod === 'function') {
+        return fakerMethod();
+      }
+      return fakerMethod;
+    } catch {
+      return mockExpr;
+    }
+  }
+}
+// 表达式求值函数
+const evaluateExpression = async (expr: string, scope: Record<string, any>): Promise<any> => {
+  const trimmed = expr.trim();
+  if (trimmed.startsWith('@')) {
+    return evaluateMock(trimmed);
+  }
+  if (/^[a-zA-Z_$][\w.$]*$/.test(trimmed)) {
+    return getNestedValue(trimmed, scope);
+  }
+  try {
+    const result = await (window as any).electronAPI.execCode(trimmed, scope);
+    if (result.code === 0) {
+      return result.data;
+    }
+    throw new Error(result.msg);
+  } catch {
+    return undefined;
+  }
+}
+// 将字符串模板转换为编译后的值
+export const getCompiledTemplate = async (
+  template: string,
+  variables: ApidocVariable[],
+  Context?: Record<string, any>
+): Promise<any> => {
+  try {
+    const { getObjectVariable } = await import('@/utils/utils');
+    const objectVariable = await getObjectVariable(variables);
+    const context = Context || {};
+    const scope = { ...objectVariable, _: context };
+    const pureMatch = template.match(/^\s*\{\{\s*(.+?)\s*\}\}\s*$/);
+    if (pureMatch) {
+      const result = await evaluateExpression(pureMatch[1], scope);
+      return result;
+    }
+    const matches = template.matchAll(/\{\{\s*(.+?)\s*\}\}/g);
+    const replacements: { match: string; value: string }[] = [];
+    for (const match of matches) {
+      try {
+        const expr = match[1];
+        const value = await evaluateExpression(expr, scope);
+        let replacement: string;
+        if (value === undefined) {
+          replacement = match[0];
+        } else if (value === null) {
+          replacement = 'null';
+        } else if (typeof value === 'object') {
+          replacement = JSON.stringify(value);
+        } else {
+          replacement = String(value);
+        }
+        replacements.push({ match: match[0], value: replacement });
+      } catch {
+        replacements.push({ match: match[0], value: match[0] });
+      }
+    }
+    let result = template;
+    for (const { match, value } of replacements) {
+      result = result.replace(match, value);
+    }
+    return result;
+  } catch (error) {
+    return template;
+  }
+}
+
 

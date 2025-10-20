@@ -1,5 +1,4 @@
 import {
-  FlowNode,
   ParsedSSeData,
   Property,
   RendererFormDataBody,
@@ -32,18 +31,6 @@ export const isElectron = () => {
   }
   return false;
 };
-export const updateObject = <T extends Partial<Record<string, unknown>>>(
-  draft: T,
-  payload: T
-) => {
-  (Object.keys(payload) as Array<keyof T>).forEach((field) => {
-    const value = payload[field];
-    if (value != null) {
-      draft[field] = value;
-    }
-  });
-};
-
 export const evalCode = (code: string) => {
   return new Promise((resolve, reject) => {
     const worker = new SandboxWorker();
@@ -329,33 +316,6 @@ export const getFormDataFromFormDataParams = async (
   }
   return renderedFormDataBody;
 };
-export const getNodeById = (
-  nodes: FlowNode[],
-  nodeId: string
-): FlowNode | null => {
-  let result = null;
-  const foo = (flowNodes: FlowNode[]) => {
-    for (let i = 0; i < flowNodes.length; i += 1) {
-      if (flowNodes[i].nodeId === nodeId) {
-        result = flowNodes[i];
-        return;
-      }
-    }
-  };
-  foo(nodes);
-  return result;
-};
-
-export const randomInt = (start: number, end: number): number => {
-  if (start > end) {
-    console.warn("第二个参数必须大于第一个");
-    return 0;
-  }
-  const range = end - start - 1;
-  return Math.floor(Math.random() * range + 1);
-};
-
-
 const parseSseBlock = (block: string, timestamp?: number) => {
   const lines = block.split(/\r?\n/);
   const msg: ParsedSSeData = {

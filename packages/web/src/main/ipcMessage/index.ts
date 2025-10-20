@@ -15,6 +15,7 @@ import { runtime } from '../runtime/runtime.ts';
 import { globalAiManager } from '../ai/ai.ts';
 import { IPCProjectData, WindowState } from '@src/types/index.ts';
 import type { CommonResponse } from '@src/types/project';
+import vm from 'vm';
 
 export const useIpcEvent = (mainWindow: BrowserWindow, topBarView: WebContentsView, contentView: WebContentsView) => {
   // 设置窗口引用到导出模块
@@ -448,6 +449,35 @@ export const useIpcEvent = (mainWindow: BrowserWindow, topBarView: WebContentsVi
   ipcMain.handle('ai-cancel-stream', async (_: IpcMainInvokeEvent, requestId: string) => {
     globalAiManager.cancelStream(requestId);
     return { code: 0, data: null, msg: '已取消请求' };
+  });
+
+  /*
+  |---------------------------------------------------------------------------
+  | 代码执行
+  |---------------------------------------------------------------------------
+  */
+  // 使用 Node.js vm 模块安全执行代码
+  ipcMain.handle('exec-code', async (_: IpcMainInvokeEvent, params: { code: string; variables: Record<string, any> }) => {
+    try {
+      const { code, variables } = params;
+      const sandbox = {
+        ...variables,
+        Math: Math,
+        Date: Date,
+        JSON: JSON,
+        String: String,
+        Number: Number,
+        Boolean: Boolean,
+        Array: Array,
+        Object: Object,
+      };
+      const context = vm.createContext(sandbox);
+      const script = new vm.Script(code);
+      const result = script.runInContext(context, { timeout: 1000 });
+      return { code: 0, data: result, msg: 'success' };
+    } catch (error) {
+      return { code: 1, data: null, msg: `代码执行错误: ${(error as Error).message}` };
+    }
   });
 
   /*

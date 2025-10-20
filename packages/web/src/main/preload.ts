@@ -203,6 +203,10 @@ contextBridge.exposeInMainWorld('electronAPI', {
   openDevTools,
   exportHtml,
   exportWord,
+  execCode: async (code: string, variables: Record<string, any>) => {
+    const result = await ipcRenderer.invoke('exec-code', { code, variables });
+    return result;
+  },
   windowManager: {
     closeWindow,
     minimizeWindow,
