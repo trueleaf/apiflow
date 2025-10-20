@@ -52,7 +52,7 @@ test.describe('HTTP Node - Cookie管理', () => {
 			localStorage.setItem('history/lastVisitePage', '/home');
 		});
 		await contentPage.evaluate(() => {
-			window.location.hash = '#/home';
+			(window as any).location.href = '/home';
 		});
 		await contentPage.waitForURL(/home/, { timeout: 10000 });
 		await contentPage.waitForLoadState('domcontentloaded');
@@ -127,7 +127,7 @@ test.describe('HTTP Node - 前置脚本', () => {
 			localStorage.setItem('history/lastVisitePage', '/home');
 		});
 		await contentPage.evaluate(() => {
-			window.location.hash = '#/home';
+			(window as any).location.href = '/home';
 		});
 		await contentPage.waitForURL(/home/, { timeout: 10000 });
 		await contentPage.waitForLoadState('domcontentloaded');
@@ -220,7 +220,7 @@ test.describe('HTTP Node - 后置脚本', () => {
 			localStorage.setItem('history/lastVisitePage', '/home');
 		});
 		await contentPage.evaluate(() => {
-			window.location.hash = '#/home';
+			(window as any).location.href = '/home';
 		});
 		await contentPage.waitForURL(/home/, { timeout: 10000 });
 		await contentPage.waitForLoadState('domcontentloaded');
@@ -325,7 +325,7 @@ test.describe('HTTP Node - 历史记录', () => {
 			localStorage.setItem('history/lastVisitePage', '/home');
 		});
 		await contentPage.evaluate(() => {
-			window.location.hash = '#/home';
+			(window as any).location.href = '/home';
 		});
 		await contentPage.waitForURL(/home/, { timeout: 10000 });
 		await contentPage.waitForLoadState('domcontentloaded');

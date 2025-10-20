@@ -52,7 +52,7 @@ test.describe('HTTP Node - 请求执行', () => {
 			localStorage.setItem('history/lastVisitePage', '/home');
 		});
 		await contentPage.evaluate(() => {
-			window.location.hash = '#/home';
+			(window as any).location.href = '/home';
 		});
 		await contentPage.waitForURL(/home/, { timeout: 10000 });
 		await contentPage.waitForLoadState('domcontentloaded');
@@ -142,7 +142,7 @@ test.describe('HTTP Node - 响应处理', () => {
 			localStorage.setItem('history/lastVisitePage', '/home');
 		});
 		await contentPage.evaluate(() => {
-			window.location.hash = '#/home';
+			(window as any).location.href = '/home';
 		});
 		await contentPage.waitForURL(/home/, { timeout: 10000 });
 		await contentPage.waitForLoadState('domcontentloaded');

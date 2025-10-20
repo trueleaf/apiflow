@@ -248,7 +248,7 @@ test.describe('项目列表展示测试', () => {
   test('页面加载后应正确显示项目列表容器', async () => {
     // 导航到项目列表页
     await contentPage.evaluate(() => {
-      window.location.hash = '#/home';
+      window.location.href = '/home';
     });
     await contentPage.waitForURL(/home/, { timeout: 5000 });
     
@@ -292,7 +292,7 @@ test.describe('主题设置测试', () => {
   test('应能切换到深色主题', async () => {
     // 打开设置页面
     await contentPage.evaluate(() => {
-      window.location.hash = '#/settings/style';
+      window.location.href = '/settings/style';
     });
     
     // 选择深色主题
@@ -461,7 +461,7 @@ test.afterEach(async ({ contentPage }) => {
 1. **页面导航**：
    ```typescript
    await contentPage.evaluate(() => {
-     window.location.hash = '#/doc-edit';
+     window.location.href = '/doc-edit';
    });
    await contentPage.waitForURL(/doc-edit/, { timeout: 5000 });
    ```

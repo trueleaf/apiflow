@@ -128,7 +128,7 @@ test.describe('Workbench - Banner 基础功能', () => {
     
     // 导航到首页
     await contentPage.evaluate(() => {
-      window.location.hash = '#/home';
+      (window as any).location.href = '/home';
     });
     await contentPage.waitForURL(/home/, { timeout: 10000 });
     await contentPage.waitForLoadState('domcontentloaded');
@@ -402,7 +402,7 @@ test.describe('Workbench - 节点增删改查', () => {
     
     // 导航到首页
     await contentPage.evaluate(() => {
-      window.location.hash = '#/home';
+      (window as any).location.href = '/home';
     });
     await contentPage.waitForURL(/home/, { timeout: 10000 });
     await contentPage.waitForLoadState('domcontentloaded');
@@ -956,7 +956,7 @@ test.describe('Workbench - 标签相关操作', () => {
     
     // 导航到首页
     await contentPage.evaluate(() => {
-      window.location.hash = '#/home';
+      (window as any).location.href = '/home';
     });
     await contentPage.waitForURL(/home/, { timeout: 10000 });
     await contentPage.waitForLoadState('domcontentloaded');
@@ -1586,7 +1586,7 @@ test.describe('Workbench - 错误和边界验证', () => {
     
     // 导航到首页
     await contentPage.evaluate(() => {
-      window.location.hash = '#/home';
+      (window as any).location.href = '/home';
     });
     await contentPage.waitForURL(/home/, { timeout: 10000 });
     await contentPage.waitForLoadState('domcontentloaded');

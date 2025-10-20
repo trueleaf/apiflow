@@ -52,7 +52,7 @@ test.describe('HTTP Node - 变量功能', () => {
 			localStorage.setItem('history/lastVisitePage', '/home');
 		});
 		await contentPage.evaluate(() => {
-			window.location.hash = '#/home';
+			(window as any).location.href = '/home';
 		});
 		await contentPage.waitForURL(/home/, { timeout: 10000 });
 		await contentPage.waitForLoadState('domcontentloaded');

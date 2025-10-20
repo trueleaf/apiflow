@@ -60,7 +60,7 @@ test.describe('HTTP Node - 基础功能', () => {
 			localStorage.setItem('history/lastVisitePage', '/home');
 		});
 		await contentPage.evaluate(() => {
-			window.location.hash = '#/home';
+			(window as any).location.href = '/home';
 		});
 		await contentPage.waitForURL(/home/, { timeout: 10000 });
 		await contentPage.waitForLoadState('domcontentloaded');
@@ -127,7 +127,7 @@ test.describe('HTTP Node - Query 参数', () => {
 			localStorage.setItem('history/lastVisitePage', '/home');
 		});
 		await contentPage.evaluate(() => {
-			window.location.hash = '#/home';
+			(window as any).location.href = '/home';
 		});
 		await contentPage.waitForURL(/home/, { timeout: 10000 });
 		await contentPage.waitForLoadState('domcontentloaded');
@@ -362,7 +362,7 @@ test.describe('HTTP Node - Header 参数', () => {
 			localStorage.setItem('history/lastVisitePage', '/home');
 		});
 		await contentPage.evaluate(() => {
-			window.location.hash = '#/home';
+			(window as any).location.href = '/home';
 		});
 		await contentPage.waitForURL(/home/, { timeout: 10000 });
 		await contentPage.waitForLoadState('domcontentloaded');
@@ -615,7 +615,7 @@ test.describe('HTTP Node - Path 参数', () => {
 			localStorage.setItem('history/lastVisitePage', '/home');
 		});
 		await contentPage.evaluate(() => {
-			window.location.hash = '#/home';
+			(window as any).location.href = '/home';
 		});
 		await contentPage.waitForURL(/home/, { timeout: 10000 });
 		await contentPage.waitForLoadState('domcontentloaded');
@@ -808,7 +808,7 @@ test.describe('HTTP Node - Request Body', () => {
 			localStorage.setItem('history/lastVisitePage', '/home');
 		});
 		await contentPage.evaluate(() => {
-			window.location.hash = '#/home';
+			(window as any).location.href = '/home';
 		});
 		await contentPage.waitForURL(/home/, { timeout: 10000 });
 		await contentPage.waitForLoadState('domcontentloaded');

@@ -75,7 +75,7 @@ test.describe('语言切换功能测试', () => {
       // 设置默认语言为简体中文
       localStorage.setItem('language', 'zh-cn');
       // 导航到首页
-      window.location.hash = '#/home';
+      (window as any).location.href = '/home';
     });
     
     // 等待导航完成

@@ -28,7 +28,7 @@ test.describe('AI 功能测试', () => {
   test('应能配置 AI 服务', async ({ electronApp }) => {
     // 导航到设置页面
     await contentPage.evaluate(() => {
-      window.location.hash = '#/settings';
+      window.location.href = '/settings';
     });
     await contentPage.waitForURL(/settings/, { timeout: 10000 });
     await contentPage.waitForLoadState('domcontentloaded');

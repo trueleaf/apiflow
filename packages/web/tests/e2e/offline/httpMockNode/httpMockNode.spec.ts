@@ -71,7 +71,7 @@ test.describe('HTTP Mock 节点 - Tab切换功能', () => {
       localStorage.setItem('history/lastVisitePage', '/home');
     });
     await contentPage.evaluate(() => {
-      window.location.hash = '#/home';
+      (window as any).location.href = '/home';
     });
     await contentPage.waitForURL(/home/, { timeout: 10000 });
     await contentPage.waitForLoadState('domcontentloaded');
@@ -181,7 +181,7 @@ test.describe('HTTP Mock 节点 - 触发条件配置', () => {
       localStorage.setItem('history/lastVisitePage', '/home');
     });
     await contentPage.evaluate(() => {
-      window.location.hash = '#/home';
+      (window as any).location.href = '/home';
     });
     await contentPage.waitForURL(/home/, { timeout: 10000 });
     await contentPage.waitForLoadState('domcontentloaded');
@@ -412,7 +412,7 @@ test.describe('HTTP Mock 节点 - 保存与刷新', () => {
       localStorage.setItem('history/lastVisitePage', '/home');
     });
     await contentPage.evaluate(() => {
-      window.location.hash = '#/home';
+      (window as any).location.href = '/home';
     });
     await contentPage.waitForURL(/home/, { timeout: 10000 });
     await contentPage.waitForLoadState('domcontentloaded');
@@ -540,7 +540,7 @@ test.describe('HTTP Mock 节点 - 响应配置Tab管理', () => {
       localStorage.setItem('history/lastVisitePage', '/home');
     });
     await contentPage.evaluate(() => {
-      window.location.hash = '#/home';
+      (window as any).location.href = '/home';
     });
     await contentPage.waitForURL(/home/, { timeout: 10000 });
     await contentPage.waitForLoadState('domcontentloaded');
@@ -707,7 +707,7 @@ test.describe('HTTP Mock 节点 - 数据类型切换', () => {
       localStorage.setItem('history/lastVisitePage', '/home');
     });
     await contentPage.evaluate(() => {
-      window.location.hash = '#/home';
+      (window as any).location.href = '/home';
     });
     await contentPage.waitForURL(/home/, { timeout: 10000 });
     await contentPage.waitForLoadState('domcontentloaded');

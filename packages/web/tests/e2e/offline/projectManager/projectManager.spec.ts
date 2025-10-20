@@ -27,7 +27,7 @@ test.describe('离线模式项目增删改查测试', () => {
 
     // 导航到项目列表页面，而不是刷新
     await contentPage.evaluate(() => {
-      window.location.hash = '#/home';
+      (window as any).location.href = '/home';
     });
     
     // 等待导航完成
@@ -85,7 +85,7 @@ test.describe('离线模式项目增删改查测试', () => {
       await contentPage.waitForURL(/doc-edit/, { timeout: 5000 });
 
       await contentPage.evaluate(() => {
-        window.location.hash = '#/home';
+        (window as any).location.href = '/home';
       });
       await contentPage.waitForURL(/home/, { timeout: 5000 });
       await contentPage.waitForTimeout(1000);
@@ -156,7 +156,7 @@ test.describe('离线模式项目增删改查测试', () => {
       
       // 返回项目列表验证项目是否被创建
       await contentPage.evaluate(() => {
-        window.location.hash = '#/home';
+        (window as any).location.href = '/home';
       });
       await contentPage.waitForURL(/home/, { timeout: 5000 });
       await contentPage.waitForTimeout(2000); // 增加等待时间，确保页面和数据完全加载
@@ -210,7 +210,7 @@ test.describe('离线模式项目增删改查测试', () => {
       
       // 返回项目列表
       await contentPage.evaluate(() => {
-        window.location.hash = '#/home';
+        (window as any).location.href = '/home';
       });
       await contentPage.waitForURL(/home/, { timeout: 5000 });
       await contentPage.waitForTimeout(1000);
@@ -252,7 +252,7 @@ test.describe('离线模式项目增删改查测试', () => {
       
       // 返回项目列表
       await contentPage.evaluate(() => {
-        window.location.hash = '#/home';
+        (window as any).location.href = '/home';
       });
       await contentPage.waitForURL(/home/, { timeout: 5000 });
       await contentPage.waitForTimeout(1000);
@@ -362,7 +362,7 @@ test.describe('离线模式项目增删改查测试', () => {
       
       // 返回项目列表
       await contentPage.evaluate(() => {
-        window.location.hash = '#/home';
+        (window as any).location.href = '/home';
       });
       await contentPage.waitForURL(/home/, { timeout: 5000 });
       await contentPage.waitForTimeout(1000);
@@ -458,7 +458,7 @@ test.describe('离线模式项目增删改查测试', () => {
         
         // 返回项目列表
         await contentPage.evaluate(() => {
-          window.location.hash = '#/home';
+          (window as any).location.href = '/home';
         });
         await contentPage.waitForURL(/home/, { timeout: 5000 });
         await contentPage.waitForTimeout(800);
@@ -591,7 +591,7 @@ test.describe('离线模式项目增删改查测试', () => {
       
       // 返回项目列表
       await contentPage.evaluate(() => {
-        window.location.hash = '#/home';
+        (window as any).location.href = '/home';
       });
       await contentPage.waitForURL(/home/, { timeout: 5000 });
       await contentPage.waitForTimeout(1000);
@@ -636,7 +636,7 @@ test.describe('离线模式项目增删改查测试', () => {
       
       // 返回项目列表验证
       await contentPage.evaluate(() => {
-        window.location.hash = '#/home';
+        (window as any).location.href = '/home';
       });
       await contentPage.waitForURL(/home/, { timeout: 5000 });
       await contentPage.waitForTimeout(1000);
@@ -668,7 +668,7 @@ test.describe('离线模式项目增删改查测试', () => {
       
       // 返回项目列表
       await contentPage.evaluate(() => {
-        window.location.hash = '#/home';
+        (window as any).location.href = '/home';
       });
       await contentPage.waitForURL(/home/, { timeout: 5000 });
       await contentPage.waitForTimeout(1000);
@@ -803,7 +803,7 @@ test.describe('离线模式项目增删改查测试', () => {
       
       // 返回项目列表
       await contentPage.evaluate(() => {
-        window.location.hash = '#/home';
+        (window as any).location.href = '/home';
       });
       await contentPage.waitForURL(/home/, { timeout: 5000 });
       await contentPage.waitForTimeout(1000);
@@ -917,7 +917,7 @@ test.describe('离线模式项目增删改查测试', () => {
       
       // 返回项目列表
       await contentPage.evaluate(() => {
-        window.location.hash = '#/home';
+        (window as any).location.href = '/home';
       });
       await contentPage.waitForURL(/home/, { timeout: 5000 });
       await contentPage.waitForTimeout(1000);
@@ -959,7 +959,7 @@ test.describe('离线模式项目增删改查测试', () => {
       
       // 返回项目列表
       await contentPage.evaluate(() => {
-        window.location.hash = '#/home';
+        (window as any).location.href = '/home';
       });
       await contentPage.waitForURL(/home/, { timeout: 5000 });
       await contentPage.waitForTimeout(1000);
@@ -1030,7 +1030,7 @@ test.describe('离线模式项目增删改查测试', () => {
         
         // 返回项目列表
         await contentPage.evaluate(() => {
-          window.location.hash = '#/home';
+          (window as any).location.href = '/home';
         });
         await contentPage.waitForURL(/home/, { timeout: 5000 });
         await contentPage.waitForTimeout(800);
@@ -1060,7 +1060,7 @@ test.describe('离线模式项目增删改查测试', () => {
       
       // 返回项目列表验证
       await contentPage.evaluate(() => {
-        window.location.hash = '#/home';
+        (window as any).location.href = '/home';
       });
       await contentPage.waitForURL(/home/, { timeout: 5000 });
       await contentPage.waitForTimeout(1000);
@@ -1087,7 +1087,7 @@ test.describe('离线模式项目增删改查测试', () => {
         await contentPage.waitForURL(/doc-edit/, { timeout: 5000 });
         
         await contentPage.evaluate(() => {
-          window.location.hash = '#/home';
+          (window as any).location.href = '/home';
         });
         await contentPage.waitForURL(/home/, { timeout: 5000 });
         await contentPage.waitForTimeout(800);
@@ -1165,7 +1165,7 @@ test.describe('离线模式项目增删改查测试', () => {
       await contentPage.waitForURL(/doc-edit/, { timeout: 5000 });
       
       await contentPage.evaluate(() => {
-        window.location.hash = '#/home';
+        (window as any).location.href = '/home';
       });
       await contentPage.waitForURL(/home/, { timeout: 5000 });
       await contentPage.waitForTimeout(1000);
@@ -1202,7 +1202,7 @@ test.describe('离线模式项目增删改查测试', () => {
       await contentPage.waitForURL(/doc-edit/, { timeout: 5000 });
       
       await contentPage.evaluate(() => {
-        window.location.hash = '#/home';
+        (window as any).location.href = '/home';
       });
       await contentPage.waitForURL(/home/, { timeout: 5000 });
       await contentPage.waitForTimeout(1000);
@@ -1238,7 +1238,7 @@ test.describe('离线模式项目增删改查测试', () => {
       await contentPage.waitForURL(/doc-edit/, { timeout: 5000 });
       
       await contentPage.evaluate(() => {
-        window.location.hash = '#/home';
+        (window as any).location.href = '/home';
       });
       await contentPage.waitForURL(/home/, { timeout: 5000 });
       await contentPage.waitForTimeout(1000);
@@ -1291,7 +1291,7 @@ test.describe('离线模式项目增删改查测试', () => {
       await contentPage.waitForURL(/doc-edit/, { timeout: 5000 });
       
       await contentPage.evaluate(() => {
-        window.location.hash = '#/home';
+        (window as any).location.href = '/home';
       });
       await contentPage.waitForURL(/home/, { timeout: 5000 });
       await contentPage.waitForTimeout(1000);
