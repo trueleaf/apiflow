@@ -164,7 +164,6 @@ const handleSaveDoc = async () => {
     saveDocCb(res.data)
   }).catch((err) => {
     console.error(err);
-    event.emit('tabs/saveTabError')
   }).finally(() => {
     loading.value = false;
   });

@@ -40,7 +40,7 @@ import SFormItem from '@/components/common/forms/form/GFormItem.vue'
 import {
   getUrlInfo,
   convertApidocPropertyToObject,
-  apidocFormatResponseParams,
+  getResponseParamsByHttpNode,
 } from '@/helper';
 import type { ApidocCodeInfo } from '@src/types'
 import { request } from '@/api/api';
@@ -95,7 +95,7 @@ const executeCode = async () => {
       urlencodedParams: await convertApidocPropertyToObject(apidocStore.apidoc.item.requestBody.urlencoded),
       headers: await convertApidocPropertyToObject(apidocStore.apidoc.item.headers),
       method: apidocStore.apidoc.item.method,
-      response: apidocFormatResponseParams(apidocStore.apidoc),
+      response: getResponseParamsByHttpNode(apidocStore.apidoc),
     },
   });
   worker.postMessage({

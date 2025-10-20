@@ -19,7 +19,7 @@ import { onMounted, ref, Ref } from 'vue';
 import {
   getUrlInfo,
   convertApidocPropertyToObject,
-  apidocFormatResponseParams,
+  getResponseParamsByHttpNode,
   copy,
 } from '@/helper';
 import { request } from '@/api/api';
@@ -59,7 +59,7 @@ const handleSelectCode = async (codeInfo: CodeInfo) => {
       urlencodedParams: await convertApidocPropertyToObject(apidoc.item.requestBody.urlencoded),
       headers: await convertApidocPropertyToObject(apidoc.item.headers),
       method: apidoc.item.method,
-      response: apidocFormatResponseParams(apidoc),
+      response: getResponseParamsByHttpNode(apidoc),
     },
   });
   worker.postMessage({

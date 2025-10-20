@@ -8,7 +8,6 @@ import {
   ApidocProperty,
   CommonResponse
 } from "@src/types";
-import { event } from '@/helper'
 import { defineStore } from "pinia"
 import { ref } from "vue";
 import { router } from "@/router";
@@ -240,7 +239,6 @@ export const useApidocBaseInfo = defineStore('apidocBaseInfo', () => {
       request.get<CommonResponse<ApidocProjectBaseInfoState>, CommonResponse<ApidocProjectBaseInfoState>>('/api/project/project_full_info', { params }).then((res) => {
         changeProjectBaseInfo(res.data);
         replaceVariables(res.data.variables)
-        event.emit('apidoc/getBaseInfo', res.data);
         resolve()
       }).catch((err) => {
         console.error(err);

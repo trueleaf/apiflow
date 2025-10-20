@@ -27,10 +27,10 @@
 </template>
 
 <script lang="ts" setup>
-import { nextTick, onMounted, onUnmounted, provide, ref, useSlots, VNode, watch } from 'vue'
+import { onMounted, onUnmounted, provide, ref, useSlots, VNode, watch } from 'vue'
 import { config } from '@src/config/config'
 import { FormInstance } from 'element-plus';
-import { forEachForest, getTextWidth, event } from '@/helper';
+import { forEachForest, getTextWidth } from '@/helper';
 import SCard from '@/components/common/card/GCard.vue'
 
 const props = defineProps({
@@ -70,12 +70,6 @@ watch(() => props.editData, (data) => {
 | 函数定义
 |--------------------------------------------------------------------------
 */
-//处理change事件
-const handleChangeEvent = () => {
-  nextTick(() => {
-    emits('change', formInfo.value);
-  });
-}
 //初始化label的宽度
 const initLabelWidth = () => {
   const searchItems: VNode[] = [];
@@ -135,10 +129,8 @@ onMounted(() => {
   initLabelWidth(); //初始化label的宽度
   initFormData(); //初始化表单数据绑定
   // checkFormHeight(); //检查是否显示折叠按钮
-  event.on('searchItem/change', handleChangeEvent);
 })
 onUnmounted(() => {
-  event.off('searchItem/change', handleChangeEvent)
 })
 
 </script>

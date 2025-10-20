@@ -1,7 +1,7 @@
 /* eslint-disable no-lonely-if */
 /* eslint-disable no-continue */
 import { nanoid } from 'nanoid/non-secure'
-import type { HttpNodeRequestMethod, ApidocProperty, HttpNodePropertyType, HttpNode, ApidocBanner, HttpNodeRequestParamTypes, ApidocCodeInfo, FolderNode, ApiNode, MockHttpNode, ApidocProjectInfo, ResponseInfo, ApidocProjectBaseInfoState, ApidocTab, WebSocketNode, ApidocVariable } from '@src/types'
+import type { HttpNodeRequestMethod, ApidocProperty, HttpNodePropertyType, HttpNode, ApidocBanner, HttpNodeRequestParamTypes, ApidocCodeInfo, FolderNode, ApiNode, MockHttpNode, ApidocProjectInfo, ResponseInfo, ApidocTab, WebSocketNode, ApidocVariable } from '@src/types'
 import { cloneDeep } from 'lodash-es';
 import dayjs from 'dayjs';
 import mitt from 'mitt'
@@ -14,15 +14,10 @@ type Data = Record<string, unknown>
  * 全局事件订阅发布
  */
 const emitter = mitt<{
-  'apidoc/editor/removePreEditor': void;
-  'apidoc/editor/removeAfterEditor': void;
   'apidoc/hook/jumpToEdit': ApidocCodeInfo;
   'apidoc/tabs/addOrDeleteTab': void,
   'apidoc/deleteDocs': void,
-  'apidoc/getBaseInfo': ApidocProjectBaseInfoState,
-  'searchItem/change': string,
   'tabs/saveTabSuccess': void,
-  'tabs/saveTabError': void,
   'tabs/cancelSaveTab': void,
   'tabs/deleteTab': ApidocTab,
   'websocket/editor/removePreEditor': void;

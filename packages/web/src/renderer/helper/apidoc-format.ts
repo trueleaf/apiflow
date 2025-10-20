@@ -63,7 +63,7 @@ export const getUrlInfo = async (apidoc: HttpNode): Promise<UrlInfo> => {
   };
 };
 // Response转换
-export const apidocFormatResponseParams = (apidoc: HttpNode): ResponseData[] => {
+export const getResponseParamsByHttpNode = (apidoc: HttpNode): ResponseData[] => {
   const { responseParams } = apidoc.item;
   const result: ResponseData[] = [];
   responseParams.forEach(res => {

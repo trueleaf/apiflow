@@ -6,7 +6,6 @@
 <script lang="ts" setup>
 import { ref, Ref, onMounted, onBeforeUnmount, watch } from 'vue'
 import beautify from 'js-beautify'
-import { event } from '@/helper/index'
 import { useCompletionItem } from './registerCompletionItem'
 import { useHoverProvider } from './registerHoverProvider'
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
@@ -55,7 +54,6 @@ onMounted(() => {
       return new EditorWorker()
     },
   }
-  event.emit('apidoc/editor/removePreEditor');
   monaco.languages.typescript.javascriptDefaults.setCompilerOptions({ noLib: true, allowNonTsExtensions: true });
   monacoInstance = monaco.editor.create(afterEditor.value as HTMLElement, {
     value: props.modelValue,
@@ -83,14 +81,6 @@ onMounted(() => {
   })
 })
 
-event.on('apidoc/editor/removeAfterEditor', () => {
-  try {
-    monacoCompletionItem?.dispose()
-    monacoHoverProvider?.dispose()
-  } catch (error) {
-    // 捕获 dispose 异常
-  }
-});
 onBeforeUnmount(() => {
   // 避免重复销毁
   if (isDisposed) {
