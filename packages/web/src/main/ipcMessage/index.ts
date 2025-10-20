@@ -14,6 +14,7 @@ import { MockHttpNode } from '@src/types/mockNode';
 import { runtime } from '../runtime/runtime.ts';
 import { globalAiManager } from '../ai/ai.ts';
 import { IPCProjectData, WindowState } from '@src/types/index.ts';
+import type { CommonResponse } from '@src/types/project';
 
 export const useIpcEvent = (mainWindow: BrowserWindow, topBarView: WebContentsView, contentView: WebContentsView) => {
   // 设置窗口引用到导出模块
@@ -407,28 +408,30 @@ export const useIpcEvent = (mainWindow: BrowserWindow, topBarView: WebContentsVi
     // 开始流式请求
     globalAiManager.chatWithTextStream(
       ['你是什么模型'],
-      params.requestId,
-      (chunk: string) => {
-        // 发送数据块到渲染进程
-        contentView.webContents.send('ai-stream-data', {
-          requestId: params.requestId,
-          chunk,
-        });
-      },
-      () => {
-        // 发送完成信号到渲染进程
-        contentView.webContents.send('ai-stream-end', {
-          requestId: params.requestId,
-        });
-      },
-      (response) => {
-        // 发送错误信号到渲染进程
-        contentView.webContents.send('ai-stream-error', {
-          requestId: params.requestId,
-          ...response,
-        });
-      },
-      { maxTokens: 2000 }
+      {
+        requestId: params.requestId,
+        onData: (chunk: string) => {
+          // 发送数据块到渲染进程
+          contentView.webContents.send('ai-stream-data', {
+            requestId: params.requestId,
+            chunk,
+          });
+        },
+        onEnd: () => {
+          // 发送完成信号到渲染进程
+          contentView.webContents.send('ai-stream-end', {
+            requestId: params.requestId,
+          });
+        },
+        onError: (response: CommonResponse<string>) => {
+          // 发送错误信号到渲染进程
+          contentView.webContents.send('ai-stream-error', {
+            requestId: params.requestId,
+            ...response,
+          });
+        },
+        maxTokens: 2000
+      }
     );
 
     return { code: 0, data: { requestId: params.requestId }, msg: '流式请求已启动' };

@@ -1,12 +1,8 @@
 import got from 'got';
 // import { mainConfig } from '@src/config/mainConfig';
-import type { DeepSeekMessage, DeepSeekRequestBody, DeepSeekResponse, ChatWithTextOptions, ChatWithJsonTextOptions } from '@src/types/ai';
+import type { DeepSeekMessage, DeepSeekRequestBody, DeepSeekResponse, ChatWithTextOptions, ChatWithJsonTextOptions, ChatWithTextStreamOptions } from '@src/types/ai';
 import { AI_ERROR_CODES } from '@src/types/ai';
 import type { CommonResponse } from '@src/types/project';
-
-type StreamCallback = (chunk: string) => void;
-type StreamEndCallback = () => void;
-type StreamErrorCallback = (response: CommonResponse<string>) => void;
 
 export class AiManager {
   private apiUrl = '';
@@ -162,12 +158,18 @@ export class AiManager {
 
   async chatWithTextStream(
     prompt: string[],
-    requestId: string,
-    onData: StreamCallback,
-    onEnd: StreamEndCallback,
-    onError: StreamErrorCallback,
-    options?: ChatWithTextOptions
+    options?: ChatWithTextStreamOptions
   ): Promise<void> {
+    // 从 options 中解构所有参数
+    const {
+      requestId = '',
+      onData = () => {},
+      onEnd = () => {},
+      onError = () => {},
+      model = 'DeepSeek',
+      maxTokens = 2000
+    } = options || {};
+
     const configCheck = this.validateConfig();
     if (configCheck.code !== 0) {
       onError({ ...configCheck, data: '' });
@@ -178,9 +180,6 @@ export class AiManager {
       onError({ code: 1, msg: 'prompt 参数不能为空', data: '' });
       return;
     }
-
-    const model = options?.model ?? 'DeepSeek';
-    const maxTokens = options?.maxTokens ?? 2000;
 
     // 判断模型类型
     if (model !== 'DeepSeek') {

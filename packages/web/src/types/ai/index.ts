@@ -52,6 +52,24 @@ export type ChatWithJsonTextOptions = {
   maxTokens?: number;
 };
 
+// 通用响应类型
+import type { CommonResponse } from '@src/types/project';
+
+// 流式回调函数类型
+export type StreamCallback = (chunk: string) => void;
+export type StreamEndCallback = () => void;
+export type StreamErrorCallback = (response: CommonResponse<string>) => void;
+
+// 流式聊天选项类型
+export type ChatWithTextStreamOptions = {
+  requestId: string;
+  onData: StreamCallback;
+  onEnd: StreamEndCallback;
+  onError: StreamErrorCallback;
+  model?: string;
+  maxTokens?: number;
+};
+
 // AI 错误码常量
 export const AI_ERROR_CODES = {
   INVALID_JSON_RESPONSE: 'INVALID_JSON_RESPONSE',
