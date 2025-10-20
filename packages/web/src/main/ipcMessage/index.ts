@@ -12,14 +12,8 @@ import { mockManager } from '../main.ts';
 import { MockUtils } from '../mock/mockUtils.ts';
 import { MockHttpNode } from '@src/types/mockNode';
 import { runtime } from '../runtime/runtime.ts';
-import { AiManager } from '../ai/ai.ts';
+import { globalAiManager } from '../ai/ai.ts';
 import { IPCProjectData, WindowState } from '@src/types/index.ts';
-
-// 创建全局 AiManager 实例
-const globalAiManager = new AiManager();
-
-// 导出全局实例供其他模块使用
-export { globalAiManager };
 
 export const useIpcEvent = (mainWindow: BrowserWindow, topBarView: WebContentsView, contentView: WebContentsView) => {
   // 设置窗口引用到导出模块

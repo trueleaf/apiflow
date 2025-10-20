@@ -261,3 +261,5 @@ export class AiManager {
     }
   }
 }
+const globalAiManager = new AiManager();
+export { globalAiManager };
