@@ -389,11 +389,7 @@ export const useIpcEvent = (mainWindow: BrowserWindow, topBarView: WebContentsVi
   */
   // 同步AI配置到主进程
   ipcMain.on('apiflow-sync-ai-config', (_, params: { apiKey: string; apiUrl: string }) => {
-    try {
-      globalAiManager.updateConfig(params.apiUrl, params.apiKey);
-    } catch (error) {
-      console.error('同步AI配置失败:', error);
-    }
+    globalAiManager.updateConfig(params.apiUrl, params.apiKey);
   });
 
   /*
@@ -403,94 +399,56 @@ export const useIpcEvent = (mainWindow: BrowserWindow, topBarView: WebContentsVi
   */
   // AI 文本聊天
   ipcMain.handle('ai-text-chat', async (_: IpcMainInvokeEvent) => {
-    try {
-      const result = await globalAiManager.chatWithText(['你是什么模型'], 'DeepSeek', 2000);
-      return { code: 0, data: result, msg: '请求成功' };
-    } catch (error) {
-      console.error('AI 测试请求失败:', error);
-      return { code: 1, data: null, msg: (error as Error).message };
-    }
+    return await globalAiManager.chatWithText(['你是什么模型'], 'DeepSeek', 2000);
   });
 
   // AI 流式聊天
   ipcMain.handle('ai-text-chat-stream', async (_: IpcMainInvokeEvent, params: { requestId: string }) => {
-    try {
-      // 开始流式请求
-      globalAiManager.chatWithTextStream(
-        ['你是什么模型'],
-        params.requestId,
-        (chunk: string) => {
-          // 发送数据块到渲染进程
-          contentView.webContents.send('ai-stream-data', {
-            requestId: params.requestId,
-            chunk,
-          });
-        },
-        () => {
-          // 发送完成信号到渲染进程
-          contentView.webContents.send('ai-stream-end', {
-            requestId: params.requestId,
-          });
-        },
-        (error: string) => {
-          // 发送错误信号到渲染进程
-          contentView.webContents.send('ai-stream-error', {
-            requestId: params.requestId,
-            error,
-          });
-        },
-        'DeepSeek',
-        2000
-      );
+    // 开始流式请求
+    globalAiManager.chatWithTextStream(
+      ['你是什么模型'],
+      params.requestId,
+      (chunk: string) => {
+        // 发送数据块到渲染进程
+        contentView.webContents.send('ai-stream-data', {
+          requestId: params.requestId,
+          chunk,
+        });
+      },
+      () => {
+        // 发送完成信号到渲染进程
+        contentView.webContents.send('ai-stream-end', {
+          requestId: params.requestId,
+        });
+      },
+      (response) => {
+        // 发送错误信号到渲染进程
+        contentView.webContents.send('ai-stream-error', {
+          requestId: params.requestId,
+          ...response,
+        });
+      },
+      'DeepSeek',
+      2000
+    );
 
-      return { code: 0, data: { requestId: params.requestId }, msg: '流式请求已启动' };
-    } catch (error) {
-      console.error('AI 流式请求失败:', error);
-      return { code: 1, data: null, msg: (error as Error).message };
-    }
+    return { code: 0, data: { requestId: params.requestId }, msg: '流式请求已启动' };
   });
 
   // 取消 AI 流式请求
   ipcMain.handle('ai-cancel-stream', async (_: IpcMainInvokeEvent, requestId: string) => {
-    try {
-      globalAiManager.cancelStream(requestId);
-      return { code: 0, data: null, msg: '已取消请求' };
-    } catch (error) {
-      console.error('取消 AI 流式请求失败:', error);
-      return { code: 1, data: null, msg: (error as Error).message };
-    }
+    globalAiManager.cancelStream(requestId);
+    return { code: 0, data: null, msg: '已取消请求' };
   });
 
   // AI 生成JSON数据
   ipcMain.handle('ai-generate-json', async (_: IpcMainInvokeEvent, params: { prompt: string }) => {
-    try {
-      const result = await globalAiManager.chatWithJsonText([params.prompt], 'DeepSeek', 2000);
-      
-      if (!result) {
-        return { code: 1, data: null, msg: 'AI生成失败，请检查提示词或重试' };
-      }
-      
-      return { code: 0, data: result, msg: '生成成功' };
-    } catch (error) {
-      console.error('AI 生成JSON失败:', error);
-      return { code: 1, data: null, msg: (error as Error).message };
-    }
+    return await globalAiManager.chatWithJsonText([params.prompt], 'DeepSeek', 2000);
   });
 
   // AI 生成文本数据
   ipcMain.handle('ai-generate-text', async (_: IpcMainInvokeEvent, params: { prompt: string }) => {
-    try {
-      const result = await globalAiManager.chatWithText([params.prompt], 'DeepSeek', 100);
-      
-      if (!result) {
-        return { code: 1, data: null, msg: 'AI生成失败，请检查提示词或重试' };
-      }
-      
-      return { code: 0, data: result, msg: '生成成功' };
-    } catch (error) {
-      console.error('AI 生成文本失败:', error);
-      return { code: 1, data: null, msg: (error as Error).message };
-    }
+    return await globalAiManager.chatWithText([params.prompt], 'DeepSeek', 100);
   });
 
   /*

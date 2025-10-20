@@ -1,10 +1,11 @@
 import got from 'got';
 // import { mainConfig } from '@src/config/mainConfig';
 import type { DeepSeekMessage, DeepSeekRequestBody, DeepSeekResponse } from '@src/types/ai/ai';
+import type { CommonResponse } from '@src/types/project';
 
 type StreamCallback = (chunk: string) => void;
 type StreamEndCallback = () => void;
-type StreamErrorCallback = (error: string) => void;
+type StreamErrorCallback = (response: CommonResponse<string>) => void;
 
 export class AiManager {
   private apiUrl = '';
@@ -16,15 +17,14 @@ export class AiManager {
     this.apiKey = apiKey;
   }
   
-  private validateConfig(): void {
+  private validateConfig(): CommonResponse<null> {
     if (!this.apiKey) {
-      console.error('AI API Key 未配置，请在配置文件中设置 aiConfig.apiKey');
-      return;
+      return { code: 1, msg: 'AI API Key 未配置，请在配置文件中设置 aiConfig.apiKey', data: null };
     }
     if (!this.apiUrl) {
-      console.error('AI API URL 未配置，请在配置文件中设置 aiConfig.apiUrl');
-      return;
+      return { code: 1, msg: 'AI API URL 未配置，请在配置文件中设置 aiConfig.apiUrl', data: null };
     }
+    return { code: 0, msg: '', data: null };
   }
   private buildMessages(prompt: string[], isJsonMode: boolean, systemPrompt?: string): DeepSeekMessage[] {
     const messages: DeepSeekMessage[] = [];
@@ -49,7 +49,7 @@ export class AiManager {
     return messages;
   }
 
-  private async sendDeepSeekRequest(body: DeepSeekRequestBody): Promise<string> {
+  private async sendDeepSeekRequest(body: DeepSeekRequestBody): Promise<CommonResponse<string>> {
     try {
       const response = await got.post(this.apiUrl, {
         json: body,
@@ -58,33 +58,34 @@ export class AiManager {
           'Content-Type': 'application/json',
         },
         timeout: {
-          request: 60000, 
+          request: 60000,
         },
       }).json<DeepSeekResponse>();
 
       const content = response.choices?.[0]?.message?.content;
       if (!content) {
-        console.error('AI 返回内容为空');
-        return '';
+        return { code: 1, msg: 'AI 返回内容为空', data: '' };
       }
-      return content;
+      return { code: 0, msg: '', data: content };
     } catch (error) {
-      console.error(error);
-      return '';
+      const msg = error instanceof Error ? error.message : 'AI API 请求失败';
+      return { code: 1, msg, data: '' };
     }
   }
 
 
   async chatWithText(
-    prompt: string[], 
-    _model: 'DeepSeek' = 'DeepSeek', 
+    prompt: string[],
+    _model: 'DeepSeek' = 'DeepSeek',
     resLimitSize: number = 2000
-  ): Promise<string> {
-    this.validateConfig();
+  ): Promise<CommonResponse<string>> {
+    const configCheck = this.validateConfig();
+    if (configCheck.code !== 0) {
+      return { ...configCheck, data: '' };
+    }
 
     if (!prompt || prompt.length === 0) {
-      console.error('prompt 参数不能为空');
-      return '';
+      return { code: 1, msg: 'prompt 参数不能为空', data: '' };
     }
 
     const systemPrompt = `你是一个专业的文案助手。请严格遵循用户指令生成内容，务必保证返回的文案条数不超过${resLimitSize}条，并尽量控制整体字数不超过${resLimitSize}个字符。`;
@@ -97,15 +98,18 @@ export class AiManager {
 
   // 生成JSON数据，如果返回不是JSON格式会自动重试一次
   async chatWithJsonText(
-    prompt: string[], 
-    _model: 'DeepSeek' = 'DeepSeek', 
+    prompt: string[],
+    _model: 'DeepSeek' = 'DeepSeek',
     resLimitSize: number = 2000,
     maxRetries: number = 1
-  ): Promise<string> {
-    this.validateConfig();
+  ): Promise<CommonResponse<string>> {
+    const configCheck = this.validateConfig();
+    if (configCheck.code !== 0) {
+      return { ...configCheck, data: '' };
+    }
+
     if (!prompt || prompt.length === 0) {
-      console.error('prompt 参数不能为空');
-      return '';
+      return { code: 1, msg: 'prompt 参数不能为空', data: '' };
     }
 
     const requestBody: DeepSeekRequestBody = {
@@ -120,29 +124,27 @@ export class AiManager {
     let lastError = '';
     for (let attempt = 0; attempt <= maxRetries; attempt++) {
       const result = await this.sendDeepSeekRequest(requestBody);
-      
-      if (!result) {
-        lastError = 'AI 返回内容为空';
+
+      if (result.code !== 0) {
         if (attempt < maxRetries) {
+          lastError = result.msg;
           continue;
         }
-        break;
+        return result;
       }
 
       try {
-        JSON.parse(result);
+        JSON.parse(result.data);
         return result;
       } catch (parseError) {
-        lastError = `AI返回的内容不是合法的JSON格式: ${result}`;
+        lastError = `AI返回的内容不是合法的JSON格式: ${result.data}`;
         if (attempt < maxRetries) {
           continue;
         }
-        console.error(lastError);
       }
     }
 
-    console.error(`JSON生成失败，已重试 ${maxRetries} 次: ${lastError}`);
-    return '';
+    return { code: 1, msg: `JSON生成失败，已重试 ${maxRetries} 次: ${lastError}`, data: '' };
   }
 
   
@@ -155,11 +157,14 @@ export class AiManager {
     _model: 'DeepSeek' = 'DeepSeek',
     resLimitSize: number = 2000
   ): Promise<void> {
-    this.validateConfig();
+    const configCheck = this.validateConfig();
+    if (configCheck.code !== 0) {
+      onError({ ...configCheck, data: '' });
+      return;
+    }
 
     if (!prompt || prompt.length === 0) {
-      console.error('prompt 参数不能为空');
-      onError('prompt 参数不能为空');
+      onError({ code: 1, msg: 'prompt 参数不能为空', data: '' });
       return;
     }
 
@@ -213,7 +218,7 @@ export class AiManager {
                 onData(content);
               }
             } catch (parseError) {
-              console.error('解析流式数据失败:', parseError, trimmedLine);
+              // 解析失败，跳过该行数据
             }
           }
         }
@@ -228,28 +233,26 @@ export class AiManager {
 
       stream.on('error', (error: Error) => {
         this.abortControllers.delete(requestId);
-        console.error('AI 流式请求失败:', error);
-        
+
         if (abortController.signal.aborted) {
-          onError('请求已取消');
+          onError({ code: 1, msg: '请求已取消', data: '' });
         } else if ('response' in error) {
           const gotError = error as any;
           const statusCode = gotError.response?.statusCode;
           const body = gotError.response?.body;
-          onError(`AI API 请求失败 (${statusCode}): ${body || error.message}`);
+          onError({ code: 1, msg: `AI API 请求失败 (${statusCode}): ${body || error.message}`, data: '' });
         } else {
-          onError(`AI API 请求失败: ${error.message}`);
+          onError({ code: 1, msg: `AI API 请求失败: ${error.message}`, data: '' });
         }
       });
 
     } catch (error) {
       this.abortControllers.delete(requestId);
-      console.error('AI 流式请求失败:', error);
-      
+
       if (error instanceof Error) {
-        onError(`AI API 请求失败: ${error.message}`);
+        onError({ code: 1, msg: `AI API 请求失败: ${error.message}`, data: '' });
       } else {
-        onError('AI API 请求失败: 未知错误');
+        onError({ code: 1, msg: 'AI API 请求失败: 未知错误', data: '' });
       }
     }
   }
