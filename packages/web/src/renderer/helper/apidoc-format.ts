@@ -1,67 +1,42 @@
 import { useVariable } from '@/store/apidoc/variables';
-import { ApidocProjectVariable, HttpNodeResponseContentType, HttpNode } from '@src/types';
+import { HttpNodeResponseContentType, HttpNode } from '@src/types';
 import type { JsonData } from '@src/types/common';
+import { getCompiledTemplate } from './index';
 
 type UrlInfo = {
   host: string,
   path: string,
   url: string,
 }
-/**
- * 返回参数
- */
+// 返回参数
 type ResponseData = {
-  /**
-     * 标题描述
-     */
+  // 标题描述
   title: string,
-  /**
-     * 状态码
-     */
+  // 状态码
   statusCode: number,
-  /**
-     * contentType
-     */
+  // contentType
   dataType: HttpNodeResponseContentType,
-  /**
-     * json值
-     */
+  // json值
   json?: JsonData,
 }
 
-// 转换{{}}的值
-function convertPlaceholder(value: string) {
-  const variableStore = useVariable()
-  const matchdVariable = value.toString().match(/\{\{\s*([^} ]+)\s*\}\}/);
-  const allVariables: ApidocProjectVariable[] = JSON.parse(JSON.stringify(variableStore.variables));
-  let convertValue = value;
-  if (matchdVariable) {
-    const realValue = allVariables.find(v => v.name === matchdVariable[1]);
-    if (realValue != null) {
-      convertValue = realValue.value
-    }
-  }
-  return convertValue;
-}
-
-/**
- * query参数转换
- */
-export const apidocFormatQueryParams = (apidoc: HttpNode): Record<string, string> => {
+// query参数转换
+export const apidocFormatQueryParams = async (apidoc: HttpNode): Promise<Record<string, string>> => {
   const { queryParams } = apidoc.item;
   const result: Record<string, string> = {};
-  queryParams.forEach(param => {
+  const variableStore = useVariable();
+  const variables = variableStore.variables;
+  await Promise.all(queryParams.map(async (param) => {
     const key = param.key.trim();
     const value = param.value.trim();
     if (key !== '') {
-      result[key] = convertPlaceholder(value);
+      const compiledValue = await getCompiledTemplate(value, variables);
+      result[key] = String(compiledValue);
     }
-  })
+  }));
   return result;
 }
-/**
- * path参数转换
- */
+// path参数转换
 export const apidocFormatPathParams = (apidoc: HttpNode): Record<string, string> => {
   const { paths } = apidoc.item;
   const result: Record<string, string> = {};
@@ -74,73 +49,76 @@ export const apidocFormatPathParams = (apidoc: HttpNode): Record<string, string>
   })
   return result;
 }
-/**
- * body json参数转换
- */
+// body json参数转换
 export const apidocFormatJsonBodyParams = (apidoc: HttpNode): JsonData => {
   return apidoc.item.requestBody.rawJson
 }
-/**
- * body form-data参数转换
- */
-export const apidocFormatFormdataParams = (apidoc: HttpNode): Record<string, string> => {
+// body form-data参数转换
+export const apidocFormatFormdataParams = async (apidoc: HttpNode): Promise<Record<string, string>> => {
   const { formdata } = apidoc.item.requestBody;
   const result: Record<string, string> = {};
-  formdata.forEach(param => {
+  const variableStore = useVariable();
+  const variables = variableStore.variables;
+  await Promise.all(formdata.map(async (param) => {
     const key = param.key.trim();
     const value = param.value.trim();
     if (key !== '') {
-      result[key] = convertPlaceholder(value);
+      const compiledValue = await getCompiledTemplate(value, variables);
+      result[key] = String(compiledValue);
     }
-  })
+  }));
   return result;
 }
-/**
- * body urlencoded参数转换
- */
-export const apidocFormatUrlencodedParams = (apidoc: HttpNode): Record<string, string> => {
+// body urlencoded参数转换
+export const apidocFormatUrlencodedParams = async (apidoc: HttpNode): Promise<Record<string, string>> => {
   const { urlencoded } = apidoc.item.requestBody;
   const result: Record<string, string> = {};
-  urlencoded.forEach(param => {
+  const variableStore = useVariable();
+  const variables = variableStore.variables;
+  await Promise.all(urlencoded.map(async (param) => {
     const key = param.key.trim();
     const value = param.value.trim();
     if (key !== '') {
-      result[key] = convertPlaceholder(value);
+      const compiledValue = await getCompiledTemplate(value, variables);
+      result[key] = String(compiledValue);
     }
-  })
+  }));
   return result;
 }
-/**
- * header参数转换
- */
-export const apidocFormatHeaderParams = (apidoc: HttpNode): Record<string, string> => {
+// header参数转换
+export const apidocFormatHeaderParams = async (apidoc: HttpNode): Promise<Record<string, string>> => {
   const { headers } = apidoc.item;
   const result: Record<string, string> = {};
-  headers.forEach(param => {
+  const variableStore = useVariable();
+  const variables = variableStore.variables;
+  await Promise.all(headers.map(async (param) => {
     const key = param.key.trim();
     const value = param.value.trim();
     if (key !== '') {
-      result[key] = convertPlaceholder(value);
+      const compiledValue = await getCompiledTemplate(value, variables);
+      result[key] = String(compiledValue);
     }
-  })
+  }));
   return result;
 }
-/**
- * 转换URL信息
- */
-export const apidocFormatUrl = (apidoc: HttpNode): UrlInfo => {
+// 转换URL信息
+export const apidocFormatUrl = async (apidoc: HttpNode): Promise<UrlInfo> => {
   let queryString = '';
   const { queryParams } = apidoc.item;
-  const { path, prefix } = apidoc.item.url
-  //query参数解析
-  queryParams.forEach((param) => {
+  const { path, prefix } = apidoc.item.url;
+  const variableStore = useVariable();
+  const variables = variableStore.variables;
+  // query参数解析
+  const queryPairs: string[] = [];
+  await Promise.all(queryParams.map(async (param) => {
     const key = param.key.trim();
     const value = param.value.trim();
     if (key !== '') {
-      queryString += `${key}=${convertPlaceholder(value)}&`
+      const compiledValue = await getCompiledTemplate(value, variables);
+      queryPairs.push(`${key}=${String(compiledValue)}`);
     }
-  })
-  queryString = queryString.replace(/&$/, '');
+  }));
+  queryString = queryPairs.join('&');
   if (queryString) {
     queryString = `?${queryString}`;
   }
@@ -150,9 +128,7 @@ export const apidocFormatUrl = (apidoc: HttpNode): UrlInfo => {
     url: `${prefix}${path}${queryString}`,
   };
 };
-/**
- * Response转换
- */
+// Response转换
 export const apidocFormatResponseParams = (apidoc: HttpNode): ResponseData[] => {
   const { responseParams } = apidoc.item;
   const result: ResponseData[] = [];

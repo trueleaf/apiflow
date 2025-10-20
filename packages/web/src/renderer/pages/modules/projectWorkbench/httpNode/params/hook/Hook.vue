@@ -50,19 +50,19 @@ const apidocStore = useApidoc();
 const apidocTabsStore = useApidocTas()
 
 //选择代码模板
-const handleSelectCode = (codeInfo: CodeInfo) => {
+const handleSelectCode = async (codeInfo: CodeInfo) => {
   const apidoc = JSON.parse(JSON.stringify(apidocStore.apidoc))
   worker.postMessage({
     type: 'init',
     value: {
       raw: apidoc,
-      url: apidocFormatUrl(apidoc),
-      queryParams: apidocFormatQueryParams(apidoc),
+      url: await apidocFormatUrl(apidoc),
+      queryParams: await apidocFormatQueryParams(apidoc),
       pathParams: apidocFormatPathParams(apidoc),
       jsonParams: apidocFormatJsonBodyParams(apidoc),
-      formdataParams: apidocFormatFormdataParams(apidoc),
-      urlencodedParams: apidocFormatUrlencodedParams(apidoc),
-      headers: apidocFormatHeaderParams(apidoc),
+      formdataParams: await apidocFormatFormdataParams(apidoc),
+      urlencodedParams: await apidocFormatUrlencodedParams(apidoc),
+      headers: await apidocFormatHeaderParams(apidoc),
       method: apidoc.item.method,
       response: apidocFormatResponseParams(apidoc),
     },

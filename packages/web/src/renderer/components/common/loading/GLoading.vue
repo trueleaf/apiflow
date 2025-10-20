@@ -6,7 +6,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, watch } from 'vue';
+import { ref } from 'vue';
 
 const props = defineProps({
   loading: {
@@ -15,12 +15,6 @@ const props = defineProps({
   }
 })
 const loadingText = ref('');
-
-watch(() => props.loading, () => {
-  // loadingText.value = randomTip()
-}, {
-  immediate: true
-})
 </script>
 
 <style lang='scss' scoped>

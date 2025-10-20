@@ -87,18 +87,18 @@ worker.addEventListener('error', (error) => {
   console.error(error);
 });
 //执行代码
-const executeCode = () => {
+const executeCode = async () => {
   worker.postMessage({
     type: 'init',
     value: {
       raw: JSON.parse(JSON.stringify(apidocStore.apidoc)),
-      url: apidocFormatUrl(apidocStore.apidoc),
-      queryParams: apidocFormatQueryParams(apidocStore.apidoc),
+      url: await apidocFormatUrl(apidocStore.apidoc),
+      queryParams: await apidocFormatQueryParams(apidocStore.apidoc),
       pathParams: apidocFormatPathParams(apidocStore.apidoc),
       jsonParams: apidocFormatJsonBodyParams(apidocStore.apidoc),
-      formdataParams: apidocFormatFormdataParams(apidocStore.apidoc),
-      urlencodedParams: apidocFormatUrlencodedParams(apidocStore.apidoc),
-      headers: apidocFormatHeaderParams(apidocStore.apidoc),
+      formdataParams: await apidocFormatFormdataParams(apidocStore.apidoc),
+      urlencodedParams: await apidocFormatUrlencodedParams(apidocStore.apidoc),
+      headers: await apidocFormatHeaderParams(apidocStore.apidoc),
       method: apidocStore.apidoc.item.method,
       response: apidocFormatResponseParams(apidocStore.apidoc),
     },
