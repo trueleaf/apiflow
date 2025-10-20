@@ -19,7 +19,6 @@ import { onMounted, ref, Ref } from 'vue';
 import {
   apidocFormatUrl,
   convertApidocPropertyToObject,
-  apidocFormatJsonBodyParams,
   apidocFormatResponseParams,
   copy,
 } from '@/helper';
@@ -55,7 +54,7 @@ const handleSelectCode = async (codeInfo: CodeInfo) => {
       url: await apidocFormatUrl(apidoc),
       queryParams: await convertApidocPropertyToObject(apidoc.item.queryParams),
       pathParams: await convertApidocPropertyToObject(apidoc.item.paths),
-      jsonParams: apidocFormatJsonBodyParams(apidoc),
+      jsonParams: apidoc.item.requestBody.rawJson,
       formdataParams: await convertApidocPropertyToObject(apidoc.item.requestBody.formdata),
       urlencodedParams: await convertApidocPropertyToObject(apidoc.item.requestBody.urlencoded),
       headers: await convertApidocPropertyToObject(apidoc.item.headers),

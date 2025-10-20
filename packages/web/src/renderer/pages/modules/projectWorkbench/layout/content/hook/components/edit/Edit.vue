@@ -40,7 +40,6 @@ import SFormItem from '@/components/common/forms/form/GFormItem.vue'
 import {
   apidocFormatUrl,
   convertApidocPropertyToObject,
-  apidocFormatJsonBodyParams,
   apidocFormatResponseParams,
 } from '@/helper';
 import type { ApidocCodeInfo } from '@src/types'
@@ -91,7 +90,7 @@ const executeCode = async () => {
       url: await apidocFormatUrl(apidocStore.apidoc),
       queryParams: await convertApidocPropertyToObject(apidocStore.apidoc.item.queryParams),
       pathParams: await convertApidocPropertyToObject(apidocStore.apidoc.item.paths),
-      jsonParams: apidocFormatJsonBodyParams(apidocStore.apidoc),
+      jsonParams: apidocStore.apidoc.item.requestBody.rawJson,
       formdataParams: await convertApidocPropertyToObject(apidocStore.apidoc.item.requestBody.formdata),
       urlencodedParams: await convertApidocPropertyToObject(apidocStore.apidoc.item.requestBody.urlencoded),
       headers: await convertApidocPropertyToObject(apidocStore.apidoc.item.headers),

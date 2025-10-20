@@ -35,10 +35,6 @@ export const convertApidocPropertyToObject = async (params: ApidocProperty[]): P
   }));
   return result;
 }
-// body json参数转换
-export const apidocFormatJsonBodyParams = (apidoc: HttpNode): JsonData => {
-  return apidoc.item.requestBody.rawJson
-}
 // 转换URL信息
 export const apidocFormatUrl = async (apidoc: HttpNode): Promise<UrlInfo> => {
   let queryString = '';
