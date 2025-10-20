@@ -4,6 +4,7 @@ import ip from 'ip'
 import { gotRequest } from './sendRequest'
 import { StandaloneExportHtmlParams } from '@src/types/standalone.ts'
 import { WindowState } from '@src/types/index.ts'
+import type { CommonResponse } from '@src/types/project'
 
 const openDevTools = () => {
   ipcRenderer.send('apiflow-open-dev-tools')
@@ -146,7 +147,7 @@ const textChatWithStream = (
   params: { requestId: string },
   onData: (chunk: string) => void,
   onEnd: () => void,
-  onError: (error: string) => void
+  onError: (response: CommonResponse<string>) => void
 ) => {
   // 设置事件监听器
   const dataHandler = (_event: any, data: { requestId: string; chunk: string }) => {
@@ -154,7 +155,7 @@ const textChatWithStream = (
       onData(data.chunk)
     }
   }
-  
+
   const endHandler = (_event: any, data: { requestId: string }) => {
     if (data.requestId === params.requestId) {
       ipcRenderer.removeListener('ai-stream-data', dataHandler)
@@ -163,13 +164,13 @@ const textChatWithStream = (
       onEnd()
     }
   }
-  
-  const errorHandler = (_event: any, data: { requestId: string; error: string }) => {
+
+  const errorHandler = (_event: any, data: { requestId: string; code: number; msg: string; data: string }) => {
     if (data.requestId === params.requestId) {
       ipcRenderer.removeListener('ai-stream-data', dataHandler)
       ipcRenderer.removeListener('ai-stream-end', endHandler)
       ipcRenderer.removeListener('ai-stream-error', errorHandler)
-      onError(data.error)
+      onError({ code: data.code, msg: data.msg, data: data.data })
     }
   }
   

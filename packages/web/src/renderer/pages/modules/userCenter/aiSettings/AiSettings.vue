@@ -249,12 +249,12 @@ const handleStreamTest = async () => {
         streamController = null
         ElMessage.success('流式请求完成')
       },
-      (error: string) => {
+      (response) => {
         // 流式请求错误
         streamTesting.value = false
         streamController = null
-        testError.value = error
-        ElMessage.error(error)
+        testError.value = response.msg
+        ElMessage.error(response.msg)
       }
     )
 

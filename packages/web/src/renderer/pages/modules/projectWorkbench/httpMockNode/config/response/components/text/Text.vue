@@ -182,23 +182,19 @@ const handleGenerateTextPreview = async () => {
       prompt: promptText
     })
 
-    if (result?.data) {
+    if (result?.code === 0 && result.data) {
+      // 生成成功
       aiPreviewText.value = result.data
     } else {
-      aiPreviewText.value = ''
-    }
-
-    if (result && result.code === 0 && result.data) {
-      return
-    }
-
-    if (result?.msg) {
-      ElMessage.error(result.msg)
-    } else {
-      ElMessage.error(t('AI生成失败，请稍后重试'))
+      // 生成失败，在预览区显示错误信息
+      const errorMsg = result?.msg || t('AI生成失败，请稍后重试')
+      ElMessage.error(errorMsg)
+      aiPreviewText.value = `[${t('生成失败')}] ${errorMsg}`
     }
   } catch (error) {
-    ElMessage.error(t('AI生成失败，请稍后重试'))
+    const errorMsg = (error as Error).message || t('AI生成失败，请稍后重试')
+    ElMessage.error(errorMsg)
+    aiPreviewText.value = `[${t('生成失败')}] ${errorMsg}`
   } finally {
     aiGeneratingText.value = false
   }
