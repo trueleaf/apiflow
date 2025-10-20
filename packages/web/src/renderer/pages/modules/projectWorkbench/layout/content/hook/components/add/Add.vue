@@ -39,12 +39,8 @@ import SFormItem from '@/components/common/forms/form/GFormItem.vue'
 
 import {
   apidocFormatUrl,
-  apidocFormatQueryParams,
-  apidocFormatPathParams,
+  convertApidocPropertyToObject,
   apidocFormatJsonBodyParams,
-  apidocFormatFormdataParams,
-  apidocFormatUrlencodedParams,
-  apidocFormatHeaderParams,
   apidocFormatResponseParams,
 } from '@/helper';
 // import type { ApidocCodeInfo } from '@src/types'
@@ -84,12 +80,12 @@ const executeCode = async () => {
     value: {
       raw: JSON.parse(JSON.stringify(apidocStore.apidoc)),
       url: await apidocFormatUrl(apidocStore.apidoc),
-      queryParams: await apidocFormatQueryParams(apidocStore.apidoc),
-      pathParams: apidocFormatPathParams(apidocStore.apidoc),
+      queryParams: await convertApidocPropertyToObject(apidocStore.apidoc.item.queryParams),
+      pathParams: await convertApidocPropertyToObject(apidocStore.apidoc.item.paths),
       jsonParams: apidocFormatJsonBodyParams(apidocStore.apidoc),
-      formdataParams: await apidocFormatFormdataParams(apidocStore.apidoc),
-      urlencodedParams: await apidocFormatUrlencodedParams(apidocStore.apidoc),
-      headers: await apidocFormatHeaderParams(apidocStore.apidoc),
+      formdataParams: await convertApidocPropertyToObject(apidocStore.apidoc.item.requestBody.formdata),
+      urlencodedParams: await convertApidocPropertyToObject(apidocStore.apidoc.item.requestBody.urlencoded),
+      headers: await convertApidocPropertyToObject(apidocStore.apidoc.item.headers),
       method: apidocStore.apidoc.item.method,
       response: apidocFormatResponseParams(apidocStore.apidoc),
     },

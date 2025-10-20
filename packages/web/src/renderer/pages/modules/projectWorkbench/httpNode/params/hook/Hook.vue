@@ -18,12 +18,8 @@
 import { onMounted, ref, Ref } from 'vue';
 import {
   apidocFormatUrl,
-  apidocFormatQueryParams,
-  apidocFormatPathParams,
+  convertApidocPropertyToObject,
   apidocFormatJsonBodyParams,
-  apidocFormatFormdataParams,
-  apidocFormatUrlencodedParams,
-  apidocFormatHeaderParams,
   apidocFormatResponseParams,
   copy,
 } from '@/helper';
@@ -57,12 +53,12 @@ const handleSelectCode = async (codeInfo: CodeInfo) => {
     value: {
       raw: apidoc,
       url: await apidocFormatUrl(apidoc),
-      queryParams: await apidocFormatQueryParams(apidoc),
-      pathParams: apidocFormatPathParams(apidoc),
+      queryParams: await convertApidocPropertyToObject(apidoc.item.queryParams),
+      pathParams: await convertApidocPropertyToObject(apidoc.item.paths),
       jsonParams: apidocFormatJsonBodyParams(apidoc),
-      formdataParams: await apidocFormatFormdataParams(apidoc),
-      urlencodedParams: await apidocFormatUrlencodedParams(apidoc),
-      headers: await apidocFormatHeaderParams(apidoc),
+      formdataParams: await convertApidocPropertyToObject(apidoc.item.requestBody.formdata),
+      urlencodedParams: await convertApidocPropertyToObject(apidoc.item.requestBody.urlencoded),
+      headers: await convertApidocPropertyToObject(apidoc.item.headers),
       method: apidoc.item.method,
       response: apidocFormatResponseParams(apidoc),
     },
