@@ -86,7 +86,7 @@ export type ElectronAPI = {
       params: { requestId: string },
       onData: (chunk: string) => void,
       onEnd: () => void,
-      onError: (error: string) => void
+      onError: (response: CommonResponse<string>) => void
     ) => { cancel: () => Promise<void>; startPromise: Promise<CommonResponse<{ requestId: string }>> };
     generateJson: (params: { prompt: string }) => Promise<CommonResponse<string>>;
     generateText: (params: { prompt: string }) => Promise<CommonResponse<string>>;

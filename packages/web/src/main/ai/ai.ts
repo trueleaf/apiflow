@@ -77,7 +77,7 @@ export class AiManager {
   async chatWithText(
     prompt: string[],
     _model: 'DeepSeek' = 'DeepSeek',
-    resLimitSize: number = 2000
+    maxTokens: number = 2000
   ): Promise<CommonResponse<string>> {
     const configCheck = this.validateConfig();
     if (configCheck.code !== 0) {
@@ -88,7 +88,7 @@ export class AiManager {
       return { code: 1, msg: 'prompt 参数不能为空', data: '' };
     }
 
-    const systemPrompt = `你是一个专业的文案助手。请严格遵循用户指令生成内容，务必保证返回的文案条数不超过${resLimitSize}条，并尽量控制整体字数不超过${resLimitSize}个字符。`;
+    const systemPrompt = `你是一个专业的文案助手。请严格遵循用户指令生成内容，务必保证返回的文案条数不超过${maxTokens}条，必须控制整体字数不超过${maxTokens}个字符。`;
     const requestBody: DeepSeekRequestBody = {
       model: 'deepseek-chat',
       messages: this.buildMessages(prompt, false, systemPrompt),
@@ -100,7 +100,7 @@ export class AiManager {
   async chatWithJsonText(
     prompt: string[],
     _model: 'DeepSeek' = 'DeepSeek',
-    resLimitSize: number = 2000,
+    maxTokens: number = 2000,
     maxRetries: number = 1
   ): Promise<CommonResponse<string>> {
     const configCheck = this.validateConfig();
@@ -115,7 +115,7 @@ export class AiManager {
     const requestBody: DeepSeekRequestBody = {
       model: 'deepseek-chat',
       messages: this.buildMessages(prompt, true),
-      max_tokens: resLimitSize,
+      max_tokens: maxTokens,
       response_format: {
         type: 'json_object',
       },
@@ -155,7 +155,7 @@ export class AiManager {
     onEnd: StreamEndCallback,
     onError: StreamErrorCallback,
     _model: 'DeepSeek' = 'DeepSeek',
-    resLimitSize: number = 2000
+    maxTokens: number = 2000
   ): Promise<void> {
     const configCheck = this.validateConfig();
     if (configCheck.code !== 0) {
@@ -175,7 +175,7 @@ export class AiManager {
       const requestBody: DeepSeekRequestBody & { stream: boolean } = {
         model: 'deepseek-chat',
         messages: this.buildMessages(prompt, false),
-        max_tokens: resLimitSize,
+        max_tokens: maxTokens,
         stream: true,
       };
 

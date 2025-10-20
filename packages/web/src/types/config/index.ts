@@ -156,6 +156,10 @@ export type Config = {
        * 接口地址
        */
       apiUrl: string,
+      /**
+       * 最大令牌数限制
+       */
+      maxTokens?: number,
     },
   },
 

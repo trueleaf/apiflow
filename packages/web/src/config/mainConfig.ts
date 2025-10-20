@@ -12,5 +12,6 @@ export const mainConfig: MainConfig = {
     model: 'DeepSeek',
     apiKey: '',
     apiUrl: 'https://api.deepseek.com/chat/completions',
+    maxTokens: 2000,
   },
 };
