@@ -44,6 +44,8 @@ jobs:
         run: xvfb-run --auto-servernum --server-args="-screen 0 1280x960x24" npm run test -w apiflow
         env:
           CI: true
+          TEST_AI_API_URL: ${{ secrets.TEST_AI_API_URL }}
+          TEST_AI_API_KEY: ${{ secrets.TEST_AI_API_KEY }}
           
       - name: 上传测试报告
         if: always()
