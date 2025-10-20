@@ -34,7 +34,7 @@
           <el-table-column prop="projectName" :label="t('项目名称')" align="center"></el-table-column>
           <el-table-column :label="t('过期倒计时')" align="center">
             <template #default="scope">
-              <span v-countdown="scope.row.expire"></span>
+              <span :key="countdownKey">{{ formatCountdown(scope.row.expire) }}</span>
             </template>
           </el-table-column>
           <el-table-column :label="t('操作')" width="200" align="center">
@@ -56,7 +56,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, Ref, computed, onMounted } from 'vue'
+import { ref, Ref, computed, onMounted, onUnmounted } from 'vue'
 import 'element-plus/es/components/message-box/style/css';
 import { ElMessageBox } from 'element-plus'
 import { request } from '@/api/api'
@@ -91,6 +91,35 @@ const dialogVisible2 = ref(false); //编辑弹窗
 const tableData = ref<LinkInfo[]>([]);
 const loading = ref(false);
 const searchKeyword = ref('');
+//倒计时相关
+const countdownKey = ref(0);
+let countdownTimer: number | null = null;
+//格式化倒计时显示
+const formatCountdown = (expireTime: number) => {
+  const restTime = Math.max(0, expireTime - Date.now());
+  if (restTime === 0) {
+    return t('已过期');
+  }
+  const hasFullDay = restTime > 86400000;
+  const day = hasFullDay ? Math.floor(restTime / 86400000) : 0;
+  const remainderAfterDay = hasFullDay ? restTime % 86400000 : restTime;
+  const hasFullHour = remainderAfterDay > 3600000;
+  const hour = hasFullHour ? Math.floor(remainderAfterDay / 3600000) : 0;
+  const remainderAfterHour = hasFullHour ? remainderAfterDay % 3600000 : remainderAfterDay;
+  const hasFullMinute = remainderAfterHour > 60000;
+  const minute = hasFullMinute ? Math.floor(remainderAfterHour / 60000) : 0;
+  const second = Math.floor((hasFullMinute ? remainderAfterHour % 60000 : remainderAfterHour) / 1000);
+  return `${day}${t('天')}${hour}${t('小时')}${minute}${t('分')}${second}${t('秒')}`;
+}
+//启动倒计时定时器
+const startCountdown = () => {
+  if (countdownTimer) {
+    clearInterval(countdownTimer);
+  }
+  countdownTimer = window.setInterval(() => {
+    countdownKey.value++;
+  }, 1000);
+}
 
 // 过滤后的表格数据
 const filteredTableData = computed(() => {
@@ -175,6 +204,13 @@ const handleEditSuccess = () => {
 // 页面加载时获取数据
 onMounted(() => {
   getTableData();
+  startCountdown();
+});
+//清理定时器
+onUnmounted(() => {
+  if (countdownTimer) {
+    clearInterval(countdownTimer);
+  }
 });
 
 </script>

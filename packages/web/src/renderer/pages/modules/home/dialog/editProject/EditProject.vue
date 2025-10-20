@@ -2,7 +2,7 @@
   <el-dialog :model-value="modelValue" top="10vh" width="35vw" :title="t('修改项目')" :before-close="handleClose">
     <el-form ref="form" :model="formInfo" :rules="rules" label-width="150px" @submit.prevent="() => {}">
       <el-form-item :label="`${t('项目名称')}`" prop="projectName">
-        <el-input v-model="formInfo.projectName" v-focus-select :size="config.renderConfig.layout.size"
+        <el-input ref="projectNameInput" v-model="formInfo.projectName" :size="config.renderConfig.layout.size"
           :placeholder="t('请输入项目名称')" @keydown.enter="handleEditProject"></el-input>
       </el-form-item>
     </el-form>
@@ -41,9 +41,22 @@ const { t } = useI18n()
 
 const runtimeStore = useRuntime();
 const isStandalone = computed(() => runtimeStore.networkMode === 'offline')
+const projectNameInput = ref()
 const formInfo = ref({
   projectName: '',
 })
+//监听弹窗打开，聚焦并选中输入框
+watch(() => props.modelValue, (val) => {
+  if (val) {
+    nextTick(() => {
+      const inputEl = projectNameInput.value?.$el?.querySelector('input') || projectNameInput.value?.$el;
+      if (inputEl && inputEl.tagName === 'INPUT') {
+        inputEl.focus();
+        inputEl.select();
+      }
+    });
+  }
+});
 const rules = ref({
   projectName: [
     { required: true, trigger: 'blur', message: t('请填写项目名称') },

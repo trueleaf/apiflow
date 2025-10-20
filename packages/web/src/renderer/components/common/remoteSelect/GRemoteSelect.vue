@@ -1,6 +1,6 @@
 <template>
   <div class="remote-select">
-    <input v-model="query" v-focus-select="autoFocus" class="remote-select-inner" type="text" :placeholder="placeholder" @input="handleInput">
+    <input ref="inputRef" v-model="query" class="remote-select-inner" type="text" :placeholder="placeholder" @input="handleInput">
     <div v-if="query" class="select-panel" :class="{ 'embedded': embedded }">
       <div v-if="dataLoading" class="loading">{{ t("加载中") }}...</div>
       <div v-if="!dataLoading && !slots.default" class="empty">{{ t("暂无数据") }}</div>
@@ -10,7 +10,7 @@
 </template>
 
 <script lang="ts" setup>
-import { PropType, ref, useSlots, watch } from 'vue'
+import { PropType, ref, useSlots, watch, nextTick, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { debounce } from '@/helper';
 
@@ -50,6 +50,16 @@ const slots = useSlots()
 const query = ref('')
 const debounceFn = ref<DebounceFn | null>(null)
 const dataLoading = ref(false)
+const inputRef = ref<HTMLInputElement>()
+//自动聚焦逻辑
+onMounted(() => {
+  if (props.autoFocus) {
+    nextTick(() => {
+      inputRef.value?.focus();
+      inputRef.value?.select();
+    });
+  }
+});
 
 const getData = (query: string) => {
   props.remoteMethods?.(query);

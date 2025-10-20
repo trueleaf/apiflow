@@ -2,7 +2,7 @@
   <SFieldset :title="t('将当前项目指定文档导出到其他项目')" class="fork">
     <!-- 选择区域 -->
     <div class="fork-wrap">
-      <div v-flex1="30" class="left">
+      <div class="left">
         <span class="orange">
           <span>{{ t("从左侧拖拽文档到右侧，右侧也可以进行简单的拖拽") }}</span>
         </span>
@@ -42,7 +42,7 @@
           </template>
         </el-tree>
       </div>
-      <div ref="target" v-flex1="30" class="right">
+      <div ref="target" class="right">
         <div>
           <div class="orange">
             <span>{{ t("鼠标右键可以新增文件夹或者删除文件夹") }}</span>
@@ -134,14 +134,25 @@ const apidocBaseInfoStore = useApidocBaseInfo();
 const apidocBannerStore = useApidocBanner();
 const projectId = computed(() => apidocBaseInfoStore.projectId);
 const projectRules = computed(() => apidocBaseInfoStore.rules);
+//目标树数据加载
+const { t } = useI18n()
+//目标数实例
+const targetTree: Ref<(TreeInstance) | null> = ref(null);
+//源树组件实例
+const sourceTree: Ref<(TreeInstance) | null> = ref(null);
+const target: Ref<HTMLElement | null> = ref(null);
+//计算并设置高度
+const updateHeight = () => {
+  if (target.value) {
+    const offsetY = target.value.getBoundingClientRect().y;
+    target.value.style.setProperty('--height', `${offsetY}px`);
+  }
+}
 /*
 |--------------------------------------------------------------------------
 | 项目列表信息
 |--------------------------------------------------------------------------
 */
-//目标树数据加载
-const { t } = useI18n()
-
 const loading = ref(false);
 //目标树数据
 const targetTreeData: Ref<ApidocBanner[]> = ref([]);
@@ -181,6 +192,9 @@ const getProjectEnum = () => {
 }
 onMounted(() => {
   getProjectEnum();
+  nextTick(() => {
+    updateHeight();
+  });
 })
 
 /*
@@ -189,11 +203,6 @@ onMounted(() => {
 |--------------------------------------------------------------------------
 |
 */
-//目标数实例
-const targetTree: Ref<(TreeInstance) | null> = ref(null);
-//源树组件实例
-const sourceTree: Ref<(TreeInstance) | null> = ref(null);
-
 //源树数据
 const sourceTreeData = computed(() => {
   const copyData: (ApidocBanner & { _isSource?: boolean })[] = JSON.parse(JSON.stringify(apidocBannerStore.banner));
@@ -372,12 +381,16 @@ const clearContextmenu = () => {
     .left {
       flex: 0 0 50%;
       border-right: 1px solid var(--gray-300);
+      height: calc(100vh - var(--height, 0px) - 30px);
+      overflow-y: auto;
     }
 
     .right {
       flex: 1;
       padding: 0 15px;
       border-bottom: 1px solid var(--gray-200);
+      height: calc(100vh - var(--height, 0px) - 30px);
+      overflow-y: auto;
     }
 
     .el-tree-node__content {
