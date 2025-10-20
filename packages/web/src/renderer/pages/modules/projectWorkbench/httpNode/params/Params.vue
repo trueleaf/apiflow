@@ -76,11 +76,12 @@
   </div>
 </template>
 <script lang="ts" setup>
-import { DebouncedFunc } from 'lodash'
+import type { DebouncedFunc } from 'lodash-es'
 import type { HttpNode, ApidocProperty } from '@src/types'
 import { httpNodeCache } from '@/cache/httpNode/httpNodeCache.ts'
 import { userState } from '@/cache/userState/userStateCache.ts'
-import { debounce, checkPropertyIsEqual } from '@/helper/index'
+import { checkPropertyIsEqual } from '@/helper/index'
+import { debounce } from "lodash-es"
 import { useI18n } from 'vue-i18n'
 import SParams from './params/Params.vue';
 import SRequestBody from './body/Body.vue';

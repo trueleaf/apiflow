@@ -6,7 +6,7 @@ import type {
 import type { ApidocProperty } from "@src/types";
 import type { WebSocketNode } from "@src/types/websocketNode";
 import { useWebSocket } from "@/store/websocket/websocket";
-import { cloneDeep } from "@/helper";
+import { cloneDeep } from "lodash-es";
 import { wsRedoUndoCache } from "@/cache/redoUndo/wsRedoUndoCache";
 
 // 自定义响应类型用于撤销重做操作

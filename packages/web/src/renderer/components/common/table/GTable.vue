@@ -53,7 +53,7 @@ import { config } from '@src/config/config'
 import { useI18n } from 'vue-i18n'
 import SLoading from '@/components/common/loading/GLoading.vue'
 import { computed, nextTick, onMounted, ref } from 'vue';
-import { debounce } from '@/helper';
+import { debounce } from "lodash-es";
 import { request } from '@/api/api';
 import { ElMessageBox } from 'element-plus';
 

@@ -3,7 +3,7 @@ import { defineStore } from "pinia"
 import { ref } from "vue"
 import { generateEmptyResponse } from "@src/renderer/helper"
 import { ChunkWithTimestampe, DeepPartial, ResponseInfo } from "@src/types"
-import assign from "lodash/assign"
+import { assign } from "lodash-es"
 
 export const useApidocResponse = defineStore('apidocResponse', () => {
   const responseInfo = ref<ResponseInfo>(generateEmptyResponse())

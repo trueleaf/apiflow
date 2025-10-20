@@ -73,7 +73,7 @@
 <script lang="ts" setup>
 import { ref, nextTick, computed } from 'vue';
 import { Search, Download, Delete } from '@element-plus/icons-vue';
-import { debounce } from '@/helper';
+import { debounce } from "lodash-es";
 import { useI18n } from 'vue-i18n';
 const { t } = useI18n();
 

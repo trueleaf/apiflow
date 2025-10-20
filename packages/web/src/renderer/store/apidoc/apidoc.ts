@@ -2,10 +2,9 @@ import {
   generateHttpNode,
   event,
   apidocGenerateProperty,
-  cloneDeep,
   uuid
 } from "@/helper"
-
+import { cloneDeep, assign } from "lodash-es"
 import {
   HttpNodeBodyMode,
   CommonResponse,
@@ -25,7 +24,6 @@ import { ElMessageBox } from "element-plus"
 import { router } from "@/router"
 import { useApidocTas } from "./tabs"
 import { useApidocBanner } from "./banner"
-import assign from "lodash/assign"
 import { DeepPartial } from "@src/types/index.ts"
 import { useCookies } from "./cookies.ts"
 import { i18n } from "@/i18n"

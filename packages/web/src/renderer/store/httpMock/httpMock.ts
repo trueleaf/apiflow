@@ -1,7 +1,8 @@
 import { MockHttpNode } from "@src/types/mockNode";
 import { defineStore, storeToRefs } from "pinia";
 import { ref } from "vue";
-import { uuid, cloneDeep, generateEmptyHttpMockNode } from "@/helper";
+import { uuid, generateEmptyHttpMockNode } from "@/helper";
+import { cloneDeep } from "lodash-es";
 import { apiNodesCache } from "@/cache/index";
 import { httpMockNodeCache } from "@/cache/mock/httpMock/httpMockNodeCache.ts";
 import { ElMessageBox } from "element-plus";

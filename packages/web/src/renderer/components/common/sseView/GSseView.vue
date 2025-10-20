@@ -91,7 +91,8 @@
 </template>
 
 <script lang="ts" setup>
-import { debounce, downloadStringAsText } from '@/helper';
+import { downloadStringAsText } from '@/helper';
+import { debounce } from "lodash-es";
 import { computed, ref, onMounted, onBeforeUnmount, nextTick } from 'vue';
 import { parseChunkList } from '@/utils/utils';
 import dayjs from 'dayjs';

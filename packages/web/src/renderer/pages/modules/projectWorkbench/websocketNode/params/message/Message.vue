@@ -160,7 +160,8 @@ import {
 import SJsonEditor from '@/components/common/jsonEditor/GJsonEditor.vue'
 import AddTemplateDialog from './dialog/add/Add.vue'
 import type { WebsocketMessageType } from '@src/types/websocketNode'
-import { uuid, debounce } from '@/helper'
+import { uuid } from '@/helper'
+import { debounce } from "lodash-es"
 import { websocketResponseCache } from '@/cache/websocketNode/websocketResponseCache'
 import { webSocketNodeCache } from '@/cache/websocketNode/websocketNodeCache'
 import { ElMessageBox, ElMessage } from 'element-plus'

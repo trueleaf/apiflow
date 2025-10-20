@@ -2,7 +2,8 @@ import { WebSocketNode, WebsocketMessageType, WebsocketResponse, WebsocketSendMe
 import { defineStore, storeToRefs } from "pinia";
 import { ref, watch } from "vue";
 import { ApidocProperty } from "@src/types";
-import { apidocGenerateProperty, generateEmptyWebsocketNode, uuid, cloneDeep, debounce } from "@/helper";
+import { apidocGenerateProperty, generateEmptyWebsocketNode, uuid } from "@/helper";
+import { cloneDeep, debounce } from "lodash-es";
 import { apiNodesCache } from "@/cache/index";
 import { webSocketNodeCache } from "@/cache/websocketNode/websocketNodeCache.ts";
 import { websocketTemplateCache } from "@/cache/websocketNode/websocketTemplateCache.ts";

@@ -191,13 +191,13 @@ import dayjs from 'dayjs'
 import isToday from 'dayjs/plugin/isToday'
 import isYesterday from 'dayjs/plugin/isYesterday'
 import { ResponseTable, ApidocOperationRecord, ApidocProjectPermission } from '@src/types'
-import { debounce } from '@/helper'
+import { formatDate } from '@/helper'
+import { debounce } from "lodash-es"
 import { request } from '@/api/api';
 import { router } from '@/router';
 import SFieldset from '@/components/common/fieldset/GFieldset.vue'
 import SLoading from '@/components/common/loading/GLoading.vue'
 import { useApidocBaseInfo } from '@/store/apidoc/base-info'
-import { formatDate } from '@/helper'
 const folderUrl = new URL('@/assets/imgs/apidoc/folder.png', import.meta.url).href;
 
 

@@ -9,7 +9,7 @@ import { computed } from 'vue'
 import AfterEditor from './editor/AfterEditor.vue'
 import { useWebSocket } from '@/store/websocket/websocket';
 import { useRedoUndo } from '@/store/redoUndo/redoUndo'
-import { debounce } from '@/helper'
+import { debounce } from "lodash-es"
 
 const websocketStore = useWebSocket()
 const redoUndoStore = useRedoUndo()

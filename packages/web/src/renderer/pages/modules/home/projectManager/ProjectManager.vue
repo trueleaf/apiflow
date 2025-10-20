@@ -202,7 +202,8 @@ import { request } from '@/api/api';
 import 'element-plus/es/components/message-box/style/css';
 import { ElMessageBox } from 'element-plus';
 import { router } from '@/router';
-import { debounce, formatDate } from '@/helper';
+import { formatDate } from '@/helper';
+import { debounce } from "lodash-es";
 import { useApidocBaseInfo } from '@/store/apidoc/base-info'
 import { projectCache, apiNodesCache } from '@/cache/index'
 import { useProjectStore } from '@/store/project/project'

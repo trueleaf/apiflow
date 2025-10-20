@@ -9,11 +9,10 @@
 import { useWebSocket } from '@/store/websocket/websocket'
 import { useRedoUndo } from '@/store/redoUndo/redoUndo'
 import { useApidocTas } from '@/store/apidoc/tabs'
-
 import { storeToRefs } from 'pinia'
 import SParamsTree from '@/components/apidoc/paramsTree/GParamsTree3.vue'
 import { useI18n } from 'vue-i18n'
-import { debounce, cloneDeep } from '@/helper'
+import { debounce, cloneDeep } from "lodash-es"
 import type { ApidocProperty } from '@src/types'
 
 const websocketStore = useWebSocket()

@@ -222,7 +222,8 @@ import { computed, onMounted, ref } from 'vue';
 import AddProjectDialog from '../dialog/addGroup/AddGroup.vue'
 import { request } from '@/api/api';
 import { ApidocGroupItem, ApidocGroupUser, PermissionUserBaseInfo, CommonResponse } from '@src/types';
-import { cloneDeep, uuid } from '@/helper';
+import { uuid } from '@/helper';
+import { cloneDeep } from "lodash-es";
 import { ElMessage, ElMessageBox } from 'element-plus';
 import RemoteSelector from '@/components/common/remoteSelect/GRemoteSelect.vue';
 import RemoteSelectorItem from '@/components/common/remoteSelect/GRemoteSelectItem.vue';

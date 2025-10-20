@@ -2,10 +2,7 @@
 /* eslint-disable no-continue */
 import { nanoid } from 'nanoid/non-secure'
 import type { HttpNodeRequestMethod, ApidocProperty, HttpNodePropertyType, HttpNode, ApidocBanner, HttpNodeRequestParamTypes, ApidocCodeInfo, FolderNode, ApiNode, MockHttpNode, ApidocProjectInfo, ResponseInfo, ApidocProjectBaseInfoState, ApidocTab, WebSocketNode, ApidocVariable } from '@src/types'
-import isEqual from 'lodash/isEqual';
-import lodashCloneDeep from 'lodash/cloneDeep';
-import lodashDebounce from 'lodash/debounce';
-import lodashThrottle from 'lodash/throttle';
+import { cloneDeep } from 'lodash-es';
 import dayjs from 'dayjs';
 import mitt from 'mitt'
 import { i18n } from '@/i18n';
@@ -13,23 +10,6 @@ import Mock from 'mockjs';
 import { faker } from '@faker-js/faker';
 
 type Data = Record<string, unknown>
-
-/**
- * 对象对比
- */
-export const lodashIsEqual = isEqual;
-/**
- * 深拷贝
- */
-export const cloneDeep = lodashCloneDeep;
-/**
- * 防抖函数
- */
-export const debounce = lodashDebounce;
-/**
- * 节流函数
- */
-export const throttle = lodashThrottle;
 /**
  * 全局事件订阅发布
  */

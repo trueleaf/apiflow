@@ -1,6 +1,6 @@
 import { getUrl } from "@/server/request/request.ts";
 import { ApidocRequest } from "@src/types/apidoc/request";
-import { debounce } from "lodash";
+import { debounce } from "lodash-es";
 import { defineStore } from "pinia";
 import { ref, toRaw, watch } from "vue";
 import { useApidoc } from "./apidoc.ts";
