@@ -162,26 +162,6 @@ export const useRedoUndo = defineStore('redoUndo', () => {
 
 
   /**
-   * 修改WebSocket重做列表
-   */
-  const changeWsRedoList = (nodeId: string, redoList: WsRedoUnDoOperation[]): void => {
-    wsRedoList.value[nodeId] = redoList;
-    // 同步到cache
-    const undoList = wsUndoList.value[nodeId] || [];
-    wsRedoUndoCache.setRedoUndoListByNodeId(nodeId, redoList, undoList);
-  };
-
-  /**
-   * 修改WebSocket撤销列表
-   */
-  const changeWsUndoList = (nodeId: string, undoList: WsRedoUnDoOperation[]): void => {
-    wsUndoList.value[nodeId] = undoList;
-    // 同步到cache
-    const redoList = wsRedoList.value[nodeId] || [];
-    wsRedoUndoCache.setRedoUndoListByNodeId(nodeId, redoList, undoList);
-  };
-
-  /**
    * 从缓存初始化指定节点的数据
    */
   const initFromCache = (nodeId: string): void => {
@@ -211,8 +191,6 @@ export const useRedoUndo = defineStore('redoUndo', () => {
     recordOperation,
     wsUndo,
     wsRedo,
-    changeWsRedoList,
-    changeWsUndoList,
     initFromCache,
     clearRedoUndoListByNodeId
   };
