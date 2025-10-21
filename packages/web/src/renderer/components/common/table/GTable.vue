@@ -56,6 +56,7 @@ import { computed, nextTick, onMounted, ref } from 'vue';
 import { debounce } from "lodash-es";
 import { request } from '@/api/api';
 import { ElMessageBox } from 'element-plus';
+import { useWindowEvent } from '@/hooks/useWindowEvent';
 
 const props = defineProps({
   plain: {
@@ -195,15 +196,16 @@ const getData = (searchParams?: unknown) => {
   });
 }
 //初始化
+const debouncedInitTableHeight = debounce(() => {
+  initTableHeight();
+}, 300);
 const init = () => {
   if (props.immediate) {
     getData();
   }
   initTableHeight();
-  window.addEventListener('resize', debounce(() => {
-    initTableHeight();
-  }, 300))
 }
+useWindowEvent('resize', debouncedInitTableHeight);
 
 // 分页
 const handleSizeChange = (size: number) => {

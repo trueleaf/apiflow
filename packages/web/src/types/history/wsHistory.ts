@@ -1,4 +1,4 @@
-import type { WebSocketNode } from './websocketNode';
+import type { WebSocketNode } from '../websocketNode';
 
 /**
  * WebSocket历史记录数据类型

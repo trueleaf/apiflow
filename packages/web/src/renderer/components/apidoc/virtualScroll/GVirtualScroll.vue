@@ -45,6 +45,7 @@
 
 <script lang="ts" setup>
 import { ref, computed, onMounted, onBeforeUnmount, watchEffect, nextTick } from 'vue';
+import { useWindowEvent } from '@/hooks/useWindowEvent';
 
 // 禁用自动属性继承，手动处理 class 等属性
 defineOptions({
@@ -163,13 +164,11 @@ watchEffect(() => {
 | 生命周期
 |--------------------------------------------------------------------------
 */
+useWindowEvent('resize', updateContainerHeight);
 onMounted(() => {
   updateContainerHeight();
-  window.addEventListener('resize', updateContainerHeight);
 });
-
 onBeforeUnmount(() => {
-  window.removeEventListener('resize', updateContainerHeight);
   // 清理未完成的 requestAnimationFrame
   if (rafId.value !== null) {
     cancelAnimationFrame(rafId.value);

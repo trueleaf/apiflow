@@ -227,7 +227,7 @@ import { cloneDeep } from "lodash-es";
 import { ElMessage, ElMessageBox } from 'element-plus';
 import RemoteSelector from '@/components/common/remoteSelect/GRemoteSelect.vue';
 import RemoteSelectorItem from '@/components/common/remoteSelect/GRemoteSelectItem.vue';
-import { useGlobalClick } from '@/hooks/useGlobalClick';
+import { useWindowEvent } from '@/hooks/useWindowEvent';
 import dayjs from 'dayjs'
 import { usePermissionStore } from '@/store/permission';
 
@@ -416,7 +416,7 @@ const handleDeleteGroup = (groupId: string) => {
   }).catch(() => {
   });
 }
-useGlobalClick(() => {
+useWindowEvent('click', () => {
   popoverVisibleId.value = '';
   popoverVisible.value = false;
 })

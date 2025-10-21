@@ -10,7 +10,7 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, onMounted, onBeforeUnmount } from 'vue'
+import { computed, onMounted } from 'vue'
 // import { ref } from 'vue'
 import SaveDocDialog from './dialog/saveDoc/SaveDoc.vue'
 import Banner from './layout/banner/Banner.vue';
@@ -22,6 +22,7 @@ import { useApidocBaseInfo } from '@/store/apidoc/base-info'
 import { useRoute } from 'vue-router';
 import { useCookies } from '@/store/apidoc/cookies';
 import { useWebSocket } from '@/store/websocket/websocket';
+import { useWindowEvent } from '@/hooks/useWindowEvent';
 
 const route = useRoute();
 const apidocTabsStore = useApidocTas();
@@ -86,16 +87,13 @@ const initCommonHeaders = () => {
   apidocBaseInfoStroe.getCommonHeaders()
   apidocBaseInfoStroe.getGlobalCommonHeaders()
 }
+useWindowEvent('keydown', bindShortcut);
 onMounted(() => {
-  window.addEventListener('keydown', bindShortcut);
   apidocBaseInfoStroe.changeProjectId(projectId);
   getProjectInfo();
   initCookies(projectId);
   initLayout();
   initCommonHeaders();
-})
-onBeforeUnmount(() => {
-  window.removeEventListener('keydown', bindShortcut);
 })
 //初始化预览模式或者编辑模式
 const routerMode = route.query.mode as string;
