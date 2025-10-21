@@ -1,24 +1,23 @@
-import type { 
-  WsRedoUnDoOperation
-} from "@src/types/redoUndo/wsRedoUndo";
+import type {
+  HttpRedoUnDoOperation
+} from "@src/types/redoUndo/httpRedoUndo";
 
 /**
- * WebSocket RedoUndo缓存管理类
- * 负责sessionStorage存储WebSocket redo/undo数据
+ * HTTP RedoUndo缓存管理类
+ * 负责sessionStorage存储HTTP redo/undo数据
  */
-export class WsRedoUndoCache {
-  private readonly storagePrefix = 'redoUndo/ws/';
-
+export class HttpRedoUndoCache {
+  private readonly storagePrefix = 'redoUndo/http/';
   // 获取指定节点的redo/undo数据
   getRedoUndoListByNodeId(nodeId: string): {
-    redoList: WsRedoUnDoOperation[];
-    undoList: WsRedoUnDoOperation[];
+    redoList: HttpRedoUnDoOperation[];
+    undoList: HttpRedoUnDoOperation[];
   } | null {
     try {
       const key = this.getStorageKey(nodeId);
       const data = sessionStorage.getItem(key);
       if (!data) return null;
-      
+
       const parsed = JSON.parse(data);
       return {
         redoList: parsed.redoList || [],
@@ -30,14 +29,14 @@ export class WsRedoUndoCache {
     }
   }
   // 设置指定节点的redo/undo数据
-  setRedoUndoListByNodeId(nodeId: string, redoList: WsRedoUnDoOperation[], undoList: WsRedoUnDoOperation[]): boolean {
+  setRedoUndoListByNodeId(nodeId: string, redoList: HttpRedoUnDoOperation[], undoList: HttpRedoUnDoOperation[]): boolean {
     try {
       const data = {
         redoList,
         undoList,
         lastUpdated: Date.now()
       };
-      
+
       const key = this.getStorageKey(nodeId);
       sessionStorage.setItem(key, JSON.stringify(data));
       return true;
@@ -54,4 +53,4 @@ export class WsRedoUndoCache {
 }
 
 // 导出单例实例
-export const wsRedoUndoCache = new WsRedoUndoCache();
+export const httpRedoUndoCache = new HttpRedoUndoCache();
