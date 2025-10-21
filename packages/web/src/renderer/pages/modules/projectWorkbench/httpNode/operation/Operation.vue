@@ -85,13 +85,19 @@ import { useApidocResponse } from '@/store/apidoc/response'
 import { isElectron } from '@/utils/utils'
 import { Warning } from '@element-plus/icons-vue'
 import { useApidocRequest } from '@/store/apidoc/request'
+import { useHttpRedoUndo } from '@/store/redoUndo/httpRedoUndoStore'
 
 const apidocTabsStore = useApidocTas()
 const apidocStore = useApidoc()
 const apidocResponseStore = useApidocResponse()
 const apidocRequestStore = useApidocRequest()
+const httpRedoUndoStore = useHttpRedoUndo()
 const projectId = router.currentRoute.value.query.id as string;
 const { t } = useI18n()
+const currentSelectTab = computed(() => {
+  const tabs = apidocTabsStore.tabs[projectId];
+  return tabs?.find((tab) => tab.selected) || null;
+})
 
 const showPrefixHelper = ref(false)
 /*
@@ -113,11 +119,6 @@ const { requestMethod, disabledTip, requestMethodEnum } = methodPart;
 | 发送请求、保存接口、刷新接口
 |--------------------------------------------------------------------------
 */
-const currentSelectTab = computed(() => {
-  const tabs = apidocTabsStore.tabs[projectId];
-  const currentTab = tabs?.find((tab) => tab.selected) || null;
-  return currentTab;
-});
 const requestState = computed(() => apidocResponseStore.requestState)
 const loading2 = computed(() => apidocStore.saveLoading)
 const saveDocDialogVisible = computed({
@@ -145,6 +146,20 @@ const requestPath = computed<string>({
     return apidocStore.apidoc.item.url.path;
   },
   set(path) {
+    if (!currentSelectTab.value) return;
+    const oldValue = apidocStore.apidoc.item.url.path;
+    if (oldValue !== path) {
+      // 记录URL路径变化操作
+      httpRedoUndoStore.recordOperation({
+        nodeId: currentSelectTab.value._id,
+        type: "pathOperation",
+        operationName: "修改URL路径",
+        affectedModuleName: "path",
+        oldValue,
+        newValue: path,
+        timestamp: Date.now()
+      });
+    }
     apidocStore.changeApidocUrl(path);
   },
 });

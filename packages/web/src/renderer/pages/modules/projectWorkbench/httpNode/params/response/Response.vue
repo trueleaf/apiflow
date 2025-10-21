@@ -100,7 +100,7 @@
 <script lang="ts" setup>
 import { useI18n } from 'vue-i18n'
 import SCollapseCard from '@/components/common/collapseCard/GCollapseCard.vue'
-import { computed, ref, Ref, onMounted, onUnmounted } from 'vue'
+import { computed, ref, Ref, onMounted, onUnmounted, watch } from 'vue'
 import { Effect } from 'element-plus';
 import { ArrowDown, Edit } from '@element-plus/icons-vue'
 import type { HttpNodeResponseParams, HttpNodeResponseContentType, HttpNodeContentType } from '@src/types'
@@ -111,9 +111,20 @@ import SRawEditor from '@/components/apidoc/rawEditor/GRawEditor.vue'
 import SJsonEditor from '@/components/common/jsonEditor/GJsonEditor.vue'
 import { useApidoc } from '@/store/apidoc/apidoc';
 import { useApidocBaseInfo } from '@/store/apidoc/base-info';
+import { useHttpRedoUndo } from '@/store/redoUndo/httpRedoUndoStore'
+import { useApidocTas } from '@/store/apidoc/tabs'
+import { router } from '@/router'
+import { debounce, cloneDeep } from 'lodash-es'
 
 const apidocStroe = useApidoc();
 const apidocBaseInfoStore = useApidocBaseInfo()
+const httpRedoUndoStore = useHttpRedoUndo()
+const apidocTabsStore = useApidocTas()
+const projectId = router.currentRoute.value.query.id as string;
+const currentSelectTab = computed(() => {
+  const tabs = apidocTabsStore.tabs[projectId];
+  return tabs?.find((tab) => tab.selected) || null;
+});
 /*
 |--------------------------------------------------------------------------
 | 编辑操作
@@ -307,6 +318,30 @@ const handleChangeCollapseState = (isShow: boolean, item: HttpNodeResponseParams
 onMounted(() => {
   collapseState.value = httpNodeCache.getResponseCollapseState();
 })
+
+// 防抖的响应参数记录函数
+const debouncedRecordResponseParamsOperation = debounce((oldValue: HttpNodeResponseParams[], newValue: HttpNodeResponseParams[]) => {
+  if (!currentSelectTab.value) return;
+
+  httpRedoUndoStore.recordOperation({
+    nodeId: currentSelectTab.value._id,
+    type: "responseParamsOperation",
+    operationName: "修改响应参数",
+    affectedModuleName: "responseParams",
+    oldValue: cloneDeep(oldValue),
+    newValue: cloneDeep(newValue),
+    timestamp: Date.now()
+  });
+}, 800);
+
+// watch 监听 responseParams 变化
+watch(() => responseData.value, (newVal, oldVal) => {
+  if (oldVal && newVal) {
+    debouncedRecordResponseParamsOperation(oldVal, newVal);
+  }
+}, {
+  deep: true
+});
 </script>
 
 <style lang='scss' scoped>

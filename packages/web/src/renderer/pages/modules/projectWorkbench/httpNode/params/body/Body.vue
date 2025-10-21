@@ -83,7 +83,7 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, ref, onMounted, Ref } from 'vue'
+import { computed, ref, onMounted, Ref, watch } from 'vue'
 import type { HttpNodeBodyMode, HttpNodeBodyParams, HttpNodeBodyRawType, HttpNodeContentType } from '@src/types'
 import { useI18n } from 'vue-i18n'
 import { getJsonBodyHintVisible, setJsonBodyHintVisible } from '@/cache/common/commonCache'
@@ -95,10 +95,21 @@ import SParamsTree from '@/components/apidoc/paramsTree/GParamsTree.vue'
 import { Close } from '@element-plus/icons-vue'
 import { convertTemplateValueToRealValue } from '@/utils/utils';
 import mime from 'mime';
+import { useHttpRedoUndo } from '@/store/redoUndo/httpRedoUndoStore'
+import { useApidocTas } from '@/store/apidoc/tabs'
+import { router } from '@/router'
+import { debounce, cloneDeep } from 'lodash-es'
 
 const bodyTipUrl = new URL('@/assets/imgs/apidoc/body-tip.png', import.meta.url).href
 const rawEditor = ref<InstanceType<typeof SJsonEditor> | null>(null)
 const apidocStore = useApidoc()
+const httpRedoUndoStore = useHttpRedoUndo()
+const apidocTabsStore = useApidocTas()
+const projectId = router.currentRoute.value.query.id as string;
+const currentSelectTab = computed(() => {
+  const tabs = apidocTabsStore.tabs[projectId];
+  return tabs?.find((tab) => tab.selected) || null;
+});
 const jsonComponent: Ref<null | {
   format: () => void,
   focus: () => void,
@@ -306,6 +317,33 @@ const handleClearSelectFile = () => {
 */
 onMounted(async () => {
   jsonBodyVisible.value = getJsonBodyHintVisible();
+});
+
+// 防抖的请求体记录函数
+const debouncedRecordBodyOperation = debounce((oldValue: { requestBody: HttpNodeBodyParams, contentType: HttpNodeContentType }, newValue: { requestBody: HttpNodeBodyParams, contentType: HttpNodeContentType }) => {
+  if (!currentSelectTab.value) return;
+
+  httpRedoUndoStore.recordOperation({
+    nodeId: currentSelectTab.value._id,
+    type: "bodyOperation",
+    operationName: "修改请求体",
+    affectedModuleName: "requestBody",
+    oldValue: cloneDeep(oldValue),
+    newValue: cloneDeep(newValue),
+    timestamp: Date.now()
+  });
+}, 800);
+
+// watch 监听 requestBody 和 contentType 变化
+watch(() => ({
+  requestBody: apidocStore.apidoc.item.requestBody,
+  contentType: apidocStore.apidoc.item.contentType
+}), (newVal, oldVal) => {
+  if (oldVal && newVal) {
+    debouncedRecordBodyOperation(oldVal, newVal);
+  }
+}, {
+  deep: true
 });
 </script>
 

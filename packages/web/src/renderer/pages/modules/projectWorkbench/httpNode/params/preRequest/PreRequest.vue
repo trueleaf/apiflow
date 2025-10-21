@@ -5,11 +5,23 @@
 </template>
 
 <script lang="ts" setup>
-import { computed } from 'vue'
+import { computed, watch } from 'vue'
 import PreEditor from './editor/PreEditor.vue'
 import { useApidoc } from '@/store/apidoc/apidoc';
+import { useHttpRedoUndo } from '@/store/redoUndo/httpRedoUndoStore'
+import { useApidocTas } from '@/store/apidoc/tabs'
+import { router } from '@/router'
+import { debounce, cloneDeep } from 'lodash-es'
 
 const apidocStore = useApidoc()
+const httpRedoUndoStore = useHttpRedoUndo()
+const apidocTabsStore = useApidocTas()
+const projectId = router.currentRoute.value.query.id as string;
+const currentSelectTab = computed(() => {
+  const tabs = apidocTabsStore.tabs[projectId];
+  return tabs?.find((tab) => tab.selected) || null;
+});
+
 const preRequest = computed<string>({
   get() {
     return apidocStore.apidoc?.preRequest.raw;
@@ -18,6 +30,30 @@ const preRequest = computed<string>({
     apidocStore.changePreRequest(val);
   },
 })
+
+// 防抖的前置脚本记录函数
+const debouncedRecordPreRequestOperation = debounce((oldValue: { raw: string }, newValue: { raw: string }) => {
+  if (!currentSelectTab.value) return;
+
+  httpRedoUndoStore.recordOperation({
+    nodeId: currentSelectTab.value._id,
+    type: "preRequestOperation",
+    operationName: "修改前置脚本",
+    affectedModuleName: "preRequest",
+    oldValue: cloneDeep(oldValue),
+    newValue: cloneDeep(newValue),
+    timestamp: Date.now()
+  });
+}, 800);
+
+// watch 监听 preRequest 变化
+watch(() => apidocStore.apidoc?.preRequest, (newVal, oldVal) => {
+  if (oldVal && newVal) {
+    debouncedRecordPreRequestOperation(oldVal, newVal);
+  }
+}, {
+  deep: true
+});
 
 </script>
 

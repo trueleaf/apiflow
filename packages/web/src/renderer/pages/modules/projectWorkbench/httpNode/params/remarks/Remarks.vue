@@ -20,10 +20,21 @@
 <script lang="ts" setup>
 import { useI18n } from 'vue-i18n'
 import { config } from '@src/config/config';
-import { computed } from 'vue'
+import { computed, watch } from 'vue'
 import { useApidoc } from '@/store/apidoc/apidoc';
+import { useHttpRedoUndo } from '@/store/redoUndo/httpRedoUndoStore'
+import { useApidocTas } from '@/store/apidoc/tabs'
+import { router } from '@/router'
+import { debounce, cloneDeep } from 'lodash-es'
 
 const apidocStore = useApidoc()
+const httpRedoUndoStore = useHttpRedoUndo()
+const apidocTabsStore = useApidocTas()
+const projectId = router.currentRoute.value.query.id as string;
+const currentSelectTab = computed(() => {
+  const tabs = apidocTabsStore.tabs[projectId];
+  return tabs?.find((tab) => tab.selected) || null;
+});
 const { t } = useI18n()
 
 const description = computed({
@@ -34,4 +45,31 @@ const description = computed({
     apidocStore.changeDescription(val)
   }
 })
+
+// 防抖的基本信息记录函数
+const debouncedRecordBasicInfoOperation = debounce((oldValue: { name: string, description: string }, newValue: { name: string, description: string }) => {
+  if (!currentSelectTab.value) return;
+
+  httpRedoUndoStore.recordOperation({
+    nodeId: currentSelectTab.value._id,
+    type: "basicInfoOperation",
+    operationName: "修改基本信息",
+    affectedModuleName: "basicInfo",
+    oldValue: cloneDeep(oldValue),
+    newValue: cloneDeep(newValue),
+    timestamp: Date.now()
+  });
+}, 800);
+
+// watch 监听 basicInfo 变化（包含 name 和 description）
+watch(() => ({
+  name: apidocStore.apidoc.info.name,
+  description: apidocStore.apidoc.info.description
+}), (newVal, oldVal) => {
+  if (oldVal && newVal) {
+    debouncedRecordBasicInfoOperation(oldVal, newVal);
+  }
+}, {
+  deep: true
+});
 </script>

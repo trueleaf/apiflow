@@ -72,11 +72,14 @@ import { useApidocBaseInfo } from '@/store/apidoc/base-info';
 import { httpNodeCache } from '@/cache/httpNode/httpNodeCache.ts';
 import { storeToRefs } from 'pinia';
 import { CheckboxValueType } from 'element-plus';
+import { useHttpRedoUndo } from '@/store/redoUndo/httpRedoUndoStore';
+import { debounce, cloneDeep } from 'lodash-es';
 
 const emits = defineEmits(['changeCommonHeaderSendStatus'])
 const apidocTabsStore = useApidocTas()
 const apidocStore = useApidoc()
 const apidocBaseInfoStore = useApidocBaseInfo()
+const httpRedoUndoStore = useHttpRedoUndo()
 const { commonHeaders: cHeaders, globalCommonHeaders } = storeToRefs(apidocBaseInfoStore)
 const projectId = router.currentRoute.value.query.id as string;
 const currentSelectTab = computed(() => { //当前选中的doc
@@ -89,6 +92,21 @@ const hideDefaultHeader = ref(true);
 const headerData = computed(() => apidocStore.apidoc.item.headers)
 const defaultHeaders = computed(() => apidocStore.defaultHeaders);
 const commonHeaders = ref<(Pick<ApidocProperty, "_id" | 'key' | 'value' | 'description' | 'select' & { path?: string[] }>)[]>([]);
+
+// 防抖的请求头记录函数
+const debouncedRecordHeadersOperation = debounce((oldValue: ApidocProperty<'string'>[], newValue: ApidocProperty<'string'>[]) => {
+  if (!currentSelectTab.value) return;
+
+  httpRedoUndoStore.recordOperation({
+    nodeId: currentSelectTab.value._id,
+    type: "headersOperation",
+    operationName: "修改请求头",
+    affectedModuleName: "headers",
+    oldValue: cloneDeep(oldValue),
+    newValue: cloneDeep(newValue),
+    timestamp: Date.now()
+  });
+}, 800);
 const handleChangeCommonHeaderIsSend = (isSend: CheckboxValueType, header: Pick<ApidocProperty, "_id" | 'key' | 'value' | 'description' | 'select'>) => {
   if (isSend) {
     httpNodeCache.removeIgnoredCommonHeader({
@@ -127,6 +145,16 @@ watch([currentSelectTab, cHeaders, globalCommonHeaders], () => {
   deep: true,
   immediate: true
 })
+
+// watch 监听 headerData 变化并记录操作
+watch(() => headerData.value, (newVal, oldVal) => {
+  if (oldVal && newVal) {
+    debouncedRecordHeadersOperation(oldVal, newVal);
+  }
+}, {
+  deep: true
+});
+
 //跳转公共请求头
 const handleJumpToCommonHeaderConfigPage = ({ nodeId, name }: { nodeId?: string, name?: string } = {}) => {
     apidocTabsStore.addTab({

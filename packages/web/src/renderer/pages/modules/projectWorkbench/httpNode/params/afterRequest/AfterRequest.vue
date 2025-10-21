@@ -5,11 +5,23 @@
 </template>
 
 <script lang="ts" setup>
-import { computed } from 'vue'
+import { computed, watch } from 'vue'
 import AfterEditor from './editor/AfterEditor.vue'
 import { useApidoc } from '@/store/apidoc/apidoc';
+import { useHttpRedoUndo } from '@/store/redoUndo/httpRedoUndoStore'
+import { useApidocTas } from '@/store/apidoc/tabs'
+import { router } from '@/router'
+import { debounce, cloneDeep } from 'lodash-es'
 
 const apidocStore = useApidoc();
+const httpRedoUndoStore = useHttpRedoUndo()
+const apidocTabsStore = useApidocTas()
+const projectId = router.currentRoute.value.query.id as string;
+const currentSelectTab = computed(() => {
+  const tabs = apidocTabsStore.tabs[projectId];
+  return tabs?.find((tab) => tab.selected) || null;
+});
+
 const afterRequest = computed<string>({
   get() {
     return apidocStore.apidoc?.afterRequest.raw;
@@ -18,6 +30,30 @@ const afterRequest = computed<string>({
     apidocStore.changeAfterRequest(val);
   },
 })
+
+// 防抖的后置脚本记录函数
+const debouncedRecordAfterRequestOperation = debounce((oldValue: { raw: string }, newValue: { raw: string }) => {
+  if (!currentSelectTab.value) return;
+
+  httpRedoUndoStore.recordOperation({
+    nodeId: currentSelectTab.value._id,
+    type: "afterRequestOperation",
+    operationName: "修改后置脚本",
+    affectedModuleName: "afterRequest",
+    oldValue: cloneDeep(oldValue),
+    newValue: cloneDeep(newValue),
+    timestamp: Date.now()
+  });
+}, 800);
+
+// watch 监听 afterRequest 变化
+watch(() => apidocStore.apidoc?.afterRequest, (newVal, oldVal) => {
+  if (oldVal && newVal) {
+    debouncedRecordAfterRequestOperation(oldVal, newVal);
+  }
+}, {
+  deep: true
+});
 
 </script>
 
