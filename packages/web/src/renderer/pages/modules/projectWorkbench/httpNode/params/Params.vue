@@ -1,41 +1,100 @@
 <template>
   <div class="api-params" :class="{ vertical: layout === 'vertical' }">
-    <div class="view-type" :class="{ vertical: layout === 'vertical' }">
-      <!-- <div class="cursor-pointer" :class="{ active: mode === 'edit' }" @click="toggleMode('edit')">{{ t("编辑") }}</div>
-      <el-divider direction="vertical"></el-divider>
-      <div class="cursor-pointer mr-5" :class="{ active: mode === 'view' }" @click="toggleMode('view')">{{ t("预览") }}
-      </div> -->
-      <el-dropdown trigger="click">
-        <div class="gray-700 cursor-pointer mr-3 hover-theme-color">
-          <span class="mr-1 f-sm iconfont iconbuju"></span>
-          <span>{{ t("布局") }}</span>
+    <!-- 快捷操作区域 -->
+    <div class="quick-actions" :class="{ vertical: layout === 'vertical' }">
+      <!-- 左侧操作组 -->
+      <div class="action-group action-group-left">
+        <div
+          class="action-item"
+          :class="{ disabled: !canUndo }"
+          :title="t('撤销') + ' (Ctrl+Z)'"
+          @click="handleUndo"
+        >
+          <el-icon size="16"><RefreshLeft /></el-icon>
+          <span>{{ t('撤销') }}</span>
         </div>
-        <template #dropdown>
-          <el-dropdown-menu>
-            <el-dropdown-item @click="handleChangeLayout('horizontal')">
-              <span :class="{ 'theme-color': layout === 'horizontal' }">{{ t("左右布局") }}</span>
-            </el-dropdown-item>
-            <el-dropdown-item @click="handleChangeLayout('vertical')">
-              <span :class="{ 'theme-color': layout === 'vertical' }">{{ t("上下布局") }}</span>
-            </el-dropdown-item>
-          </el-dropdown-menu>
-        </template>
-      </el-dropdown>
-      <div class="gray-700 cursor-pointer mr-3 hover-theme-color" @click="handleOpenVariable">
-        <span class="mr-1 f-sm iconfont iconvariable"></span>
-        <span>{{ t("变量") }}</span>
+        <div
+          class="action-item"
+          :class="{ disabled: !canRedo }"
+          :title="t('重做') + ' (Ctrl+Y)'"
+          @click="handleRedo"
+        >
+          <el-icon size="16"><RefreshRight /></el-icon>
+          <span>{{ t('重做') }}</span>
+        </div>
+        <div
+          class="action-item history-action"
+          :title="t('历史记录')"
+          @click="handleToggleHistory"
+          ref="historyButtonRef"
+        >
+          <el-icon size="16"><Clock /></el-icon>
+        </div>
       </div>
-      <!-- <div class="d-flex a-center gray-700 cursor-pointer mr-3 hover-theme-color">
-        <el-popover :visible="generateCodeVisible" width="300px" placement="bottom">
-          <template #reference>
-            <span @click.stop="generateCodeVisible = true">
-              <i class="iconfont iconshengchengdaima"></i>
-              <span>生成代码</span>
-            </span>
+      <!-- 分隔符 -->
+      <div class="action-divider"></div>
+      <!-- 右侧操作组 -->
+      <div class="action-group action-group-right">
+        <el-dropdown trigger="click">
+          <div class="action-item">
+            <LayoutGrid :size="16" />
+            <span>{{ t("布局") }}</span>
+          </div>
+          <template #dropdown>
+            <el-dropdown-menu>
+              <el-dropdown-item @click="handleChangeLayout('horizontal')">
+                <span :class="{ 'theme-color': layout === 'horizontal' }">{{ t("左右布局") }}</span>
+              </el-dropdown-item>
+              <el-dropdown-item @click="handleChangeLayout('vertical')">
+                <span :class="{ 'theme-color': layout === 'vertical' }">{{ t("上下布局") }}</span>
+              </el-dropdown-item>
+            </el-dropdown-menu>
           </template>
-          <SHook v-if="generateCodeVisible" @close="generateCodeVisible = false"></SHook>
-        </el-popover>
-      </div> -->
+        </el-dropdown>
+        <div class="action-item" @click="handleOpenVariable">
+          <Variable :size="16" />
+          <span>{{ t("变量") }}</span>
+        </div>
+      </div>
+      <!-- 历史记录下拉列表 -->
+      <div
+        v-if="showHistoryDropdown"
+        class="history-dropdown"
+        ref="historyDropdownRef"
+      >
+        <div v-if="historyLoading" class="history-loading">
+          <el-icon class="loading-icon"><Loading /></el-icon>
+          <span>{{ t('加载中...') }}</span>
+        </div>
+        <div v-else-if="historyList.length === 0" class="history-empty">
+          <span>{{ t('暂无历史记录') }}</span>
+        </div>
+        <div v-else class="history-list">
+          <div
+            v-for="(history, index) in historyList"
+            :key="history._id"
+            class="history-item"
+            @click="handleSelectHistory(history)"
+          >
+            <div class="history-main">
+              <div class="history-info">
+                <span class="history-name">{{ t('历史记录') }}{{ index + 1 }}</span>
+                <span class="history-operator">{{ history.operatorName }}</span>
+              </div>
+              <div class="history-time">{{ formatRelativeTime(history.timestamp) }}</div>
+            </div>
+            <div class="history-actions">
+              <el-icon
+                class="delete-icon"
+                @click.stop="handleDeleteHistory(history)"
+                :title="t('删除')"
+              >
+                <Delete />
+              </el-icon>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
     <el-tabs v-model="activeName">
       <el-tab-pane name="SParams">
@@ -83,6 +142,8 @@ import { userState } from '@/cache/userState/userStateCache.ts'
 import { checkPropertyIsEqual } from '@/helper/index'
 import { debounce } from "lodash-es"
 import { useI18n } from 'vue-i18n'
+import { RefreshLeft, RefreshRight, Clock, Delete, Loading } from '@element-plus/icons-vue'
+import { LayoutGrid, Variable } from 'lucide-vue-next'
 import SParams from './params/Params.vue';
 import SRequestBody from './body/Body.vue';
 import SRequestHeaders from './headers/Headers.vue';
@@ -107,6 +168,12 @@ import { router } from '@/router'
 const debounceFn = ref(null as (null | DebouncedFunc<(apidoc: HttpNode) => void>))
 const route = useRoute()
 const projectId = router.currentRoute.value.query.id as string;
+// 历史记录相关
+const showHistoryDropdown = ref(false)
+const historyLoading = ref(false)
+const historyList = ref<{ _id: string; operatorName: string; timestamp: number }[]>([])
+const historyButtonRef = ref<HTMLElement>()
+const historyDropdownRef = ref<HTMLElement>()
 // const mode = computed(() => apidocBaseInfoStore.mode)
 const hasQueryOrPathsParams = computed(() => {
   const { queryParams, paths } = apidocStore.apidoc.item;
@@ -175,6 +242,15 @@ watchEffect(freshHasHeaders, {
 });
 const layout = computed(() => apidocBaseInfoStore.layout)
 const apidoc = computed(() => apidocStore.apidoc)
+// 撤销/重做相关计算属性
+const canUndo = computed(() => {
+  // TODO: 实现撤销逻辑时返回真实的状态
+  return false;
+});
+const canRedo = computed(() => {
+  // TODO: 实现重做逻辑时返回真实的状态
+  return false;
+});
 /*
 |--------------------------------------------------------------------------
 | 方法定义
@@ -221,6 +297,71 @@ const initTabCache = () => {
 const handleChangeLayout = (layout: 'vertical' | 'horizontal') => {
   apidocBaseInfoStore.changeLayout(layout);
 }
+// 撤销/重做事件处理
+const handleUndo = (): void => {
+  // TODO: 实现撤销逻辑
+};
+const handleRedo = (): void => {
+  // TODO: 实现重做逻辑
+};
+/*
+|--------------------------------------------------------------------------
+| 历史记录相关方法
+|--------------------------------------------------------------------------
+*/
+const handleToggleHistory = (): void => {
+  if (showHistoryDropdown.value) {
+    showHistoryDropdown.value = false;
+    return;
+  }
+  showHistoryDropdown.value = true;
+  // TODO: 实现加载历史记录逻辑
+};
+const handleSelectHistory = (_history: { _id: string; operatorName: string; timestamp: number }): void => {
+  // TODO: 实现选择历史记录逻辑
+};
+const handleDeleteHistory = (_history: { _id: string; operatorName: string; timestamp: number }): void => {
+  // TODO: 实现删除历史记录逻辑
+};
+const formatRelativeTime = (timestamp: number): string => {
+  const now = Date.now();
+  const diff = now - timestamp;
+  const seconds = Math.floor(diff / 1000);
+  const minutes = Math.floor(diff / (1000 * 60));
+  const hours = Math.floor(diff / (1000 * 60 * 60));
+  
+  if (seconds < 60) {
+    return t('刚刚');
+  } else if (minutes < 60) {
+    return t('{count}分钟前', { count: minutes });
+  } else if (hours < 24) {
+    const remainingMinutes = minutes % 60;
+    return t('{hours}小时{minutes}分钟前', { 
+      hours, 
+      minutes: remainingMinutes
+    });
+  } else {
+    const date = new Date(timestamp);
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    const hour = String(date.getHours()).padStart(2, '0');
+    const minute = String(date.getMinutes()).padStart(2, '0');
+    return `${year}-${month}-${day} ${hour}:${minute}`;
+  }
+};
+// 点击外部关闭下拉列表
+const handleClickOutside = (event: MouseEvent): void => {
+  if (
+    showHistoryDropdown.value &&
+    historyButtonRef.value &&
+    historyDropdownRef.value &&
+    !historyButtonRef.value.contains(event.target as Node) &&
+    !historyDropdownRef.value.contains(event.target as Node)
+  ) {
+    showHistoryDropdown.value = false;
+  }
+};
 //=========================================================================//
 //检查请求方法是否发生改变
 const checkMethodIsEqual = (apidoc: HttpNode, originApidoc: HttpNode) => {
@@ -414,9 +555,11 @@ onMounted(() => {
   });
   initTabCache();
   document.documentElement.addEventListener('click', handleCloseHook)
+  document.addEventListener('click', handleClickOutside)
 })
 onUnmounted(() => {
   document.documentElement.removeEventListener('click', handleCloseHook)
+  document.removeEventListener('click', handleClickOutside)
 })
 </script>
 <style lang='scss' scoped>
@@ -427,6 +570,165 @@ onUnmounted(() => {
   position: relative;
   &.vertical {
     height: auto;
+  }
+  .quick-actions {
+    height: 35px;
+    display: flex;
+    align-items: flex-end;
+    padding: 0 20px;
+    justify-content: flex-end;
+    position: relative;
+    background: var(--white);
+    position: sticky;
+    top: 3px;
+    z-index: var(--zIndex-request-info-wrap);
+    &.vertical {
+      z-index: 1;
+    }
+    
+    .action-group {
+      display: flex;
+      align-items: center;
+      
+      .action-item {
+        display: flex;
+        align-items: center;
+        padding: 4px 5px;
+        font-size: 13px;
+        cursor: pointer;
+        border-radius: 4px;
+        gap: 4px;
+        
+        &:hover:not(.disabled) {
+          background-color: var(--gray-200);
+        }
+        
+        &.disabled {
+          opacity: 0.5;
+          cursor: default;
+        }
+        
+        &.history-action {
+          position: relative;
+        }
+        
+        span {
+          user-select: none;
+        }
+        
+        .iconfont {
+          line-height: 1;
+        }
+      }
+    }
+    
+    .action-divider {
+      width: 1px;
+      height: 20px;
+      background-color: var(--gray-300);
+      margin: 0 10px;
+    }
+    
+    .history-dropdown {
+      position: absolute;
+      top: 100%;
+      right: 20px;
+      background: var(--white);
+      border: 1px solid var(--gray-300);
+      border-radius: 6px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      z-index: var(--zIndex-history-dropdown);
+      min-width: 280px;
+      max-height: 350px;
+      overflow-y: auto;
+      margin-top: 5px;
+      
+      .history-loading,
+      .history-empty {
+        padding: 16px;
+        text-align: center;
+        color: var(--gray-500);
+        font-size: 14px;
+        
+        .loading-icon {
+          margin-right: 8px;
+          animation: rotate 1s linear infinite;
+        }
+      }
+      
+      .history-list {
+        padding: 8px 0;
+      }
+      
+      .history-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 10px 16px;
+        cursor: pointer;
+        border-bottom: 1px solid var(--gray-100);
+        
+        &:last-child {
+          border-bottom: none;
+        }
+        
+        &:hover {
+          background-color: var(--gray-200);
+          
+          .history-actions {
+            opacity: 1;
+          }
+        }
+        
+        .history-main {
+          flex: 1;
+          min-width: 0;
+          
+          .history-info {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 4px;
+            
+            .history-name {
+              font-weight: 500;
+              color: var(--gray-800);
+              font-size: 14px;
+              white-space: nowrap;
+              overflow: hidden;
+              text-overflow: ellipsis;
+              max-width: 140px;
+            }
+            
+            .history-operator {
+              font-size: 12px;
+              color: var(--gray-500);
+              background: var(--gray-100);
+              padding: 2px 6px;
+              border-radius: 4px;
+              white-space: nowrap;
+            }
+          }
+          
+          .history-time {
+            font-size: 12px;
+            color: var(--gray-500);
+          }
+        }
+        
+        .history-actions {
+          opacity: 0;
+          
+          .delete-icon {
+            cursor: pointer;
+            border-radius: 4px;
+            &:hover {
+              color: var(--red);
+            }
+          }
+        }
+      }
+    }
   }
   .el-tabs,
   .workbench {
@@ -444,32 +746,20 @@ onUnmounted(() => {
       right: 3px;
     }
   }
-  .view-type {
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
-    position: sticky;
-    top: 3px;
-    color: var(--gray-500);
-    padding: 0 20px;
-    height: 30px;
-    display: flex;
-    align-items: center;
-    background: var(--white);
-    z-index: var(--zIndex-request-info-wrap);
-    &.vertical {
-      z-index: 1;
-    }
-    .active {
-      color: var(--theme-color);
-    }
-  }
   .el-tabs__item {
     height: 30px;
     line-height: 30px;
   }
   .el-dropdown {
     line-height: initial;
+  }
+}
+@keyframes rotate {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
   }
 }
 </style>
