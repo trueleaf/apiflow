@@ -300,21 +300,6 @@ export const getStringFromParams = async (
 };
 
 /**
- * 从 Query 参数生成查询字符串
- * @deprecated 使用 getStringFromParams(queryParams, objectVariable, { checkSelect: true, addQuestionMark: true }) 代替
- * 兼容性保留：此函数内部调用新的 getStringFromParams 函数
- */
-export const getQueryStringFromQueryParams = async (
-  queryParams: Property[],
-  objectVariable: Record<string, any>
-): Promise<string> => {
-  return getStringFromParams(queryParams, objectVariable, {
-    checkSelect: true,
-    addQuestionMark: true
-  });
-};
-
-/**
  * 从 Path 参数生成对象
  */
 export const getObjectPathParams = async (
@@ -333,20 +318,6 @@ export const getObjectPathParams = async (
     }
   }
   return objectPathParams;
-};
-
-/**
- * 从 URL 编码参数生成编码字符串
- * @deprecated 使用 getStringFromParams(encodedParams, objectVariable, { checkSelect: true }) 代替
- * 兼容性保留：此函数内部调用新的 getStringFromParams 函数
- */
-export const getEncodedStringFromEncodedParams = async (
-  encodedParams: Property[],
-  objectVariable: Record<string, any>
-): Promise<string> => {
-  return getStringFromParams(encodedParams, objectVariable, {
-    checkSelect: true
-  });
 };
 
 /**
@@ -600,24 +571,6 @@ export const findSiblingById = <T extends Record<string, any>>(
   };
   foo(forest);
   return sibling;
-}
-
-/**
- * 根据id查询下一个兄弟节点
- * @deprecated 使用 findSiblingById(forest, id, 'next', options) 代替
- * 兼容性保留：此函数内部调用新的 findSiblingById 函数
- */
-export const findNextSiblingById = <T extends Record<string, any>>(forest: T[], id: string | number, options?: { childrenKey?: string, idKey?: string }): T | null => {
-  return findSiblingById(forest, id, 'next', options);
-}
-
-/**
- * 根据id查询上一个兄弟节点
- * @deprecated 使用 findSiblingById(forest, id, 'previous', options) 代替
- * 兼容性保留：此函数内部调用新的 findSiblingById 函数
- */
-export const findPreviousSiblingById = <T extends Record<string, any>>(forest: T[], id: string | number, options?: { childrenKey?: string, idKey?: string }): T | null => {
-  return findSiblingById(forest, id, 'previous', options);
 }
 
 /**
@@ -1067,23 +1020,6 @@ export const formatUnit = (value: number, type: 'bytes' | 'time'): string => {
   }
 }
 
-/**
- * 将byte转换为易读单位
- * @deprecated 使用 formatUnit(byteNum, 'bytes') 代替
- * 兼容性保留：此函数内部调用新的 formatUnit 函数
- */
-export const formatBytes = (byteNum: number): string => {
-  return formatUnit(byteNum, 'bytes');
-}
-
-/**
- * 将毫秒转换为易读单位
- * @deprecated 使用 formatUnit(ms, 'time') 代替
- * 兼容性保留：此函数内部调用新的 formatUnit 函数
- */
-export const formatMs = (ms: number): string => {
-  return formatUnit(ms, 'time');
-}
 // 拷贝文本
 export const copy = (str: string): void => {
   const dom = document.createElement('textarea');
@@ -1252,23 +1188,6 @@ export const parseUrlInfo = (url: string): {
   }
 }
 
-/**
- * 从url中获取domain信息（与cookie中的domain一致，仅主机名，不含端口和协议）
- * @deprecated 使用 parseUrlInfo(url).domain 代替
- * 兼容性保留：此函数内部调用新的 parseUrlInfo 函数
- */
-export const getDomainFromUrl = (url: string): string => {
-  return parseUrlInfo(url).domain;
-}
-
-/**
- * 从url中获取路径信息（不包含协议、主机名、端口和查询参数）
- * @deprecated 使用 parseUrlInfo(url).path 代替
- * 兼容性保留：此函数内部调用新的 parseUrlInfo 函数
- */
-export const getPathFromUrl = (url: string): string => {
-  return parseUrlInfo(url).path;
-}
 // 计算距离过期时间的倒计时
 export const getCountdown = (expire: number) => {
   if (!expire) return '';

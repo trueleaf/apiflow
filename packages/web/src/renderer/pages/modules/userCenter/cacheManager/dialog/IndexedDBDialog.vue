@@ -13,7 +13,7 @@
         </div>
         <div class="info-item">
           <span class="label">总大小：</span>
-          <span class="value">{{ formatBytes(currentStoreInfo.size) }}</span>
+          <span class="value">{{ formatUnit(currentStoreInfo.size, 'bytes') }}</span>
         </div>
       </div>
 
@@ -26,7 +26,7 @@
           <el-table-column prop="key" label="键名" width="200" />
           <el-table-column prop="size" label="大小" width="100">
             <template #default="scope">
-              {{ formatBytes(scope.row.size) }}
+              {{ formatUnit(scope.row.size, 'bytes') }}
             </template>
           </el-table-column>
           <el-table-column prop="value" label="值">
@@ -83,7 +83,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { IndexedDBItem, StoreDetailResponse, StoreDetailItem } from '@src/types/apidoc/cache'
-import { formatBytes } from '@/helper'
+import { formatUnit } from '@/helper'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import SJsonEditor from '@/components/common/jsonEditor/GJsonEditor.vue'
 

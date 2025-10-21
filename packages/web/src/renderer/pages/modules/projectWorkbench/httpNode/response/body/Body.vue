@@ -4,9 +4,9 @@
       <!-- 返回数据大小超过单个允许缓存数据，数据无法被缓存，切换tab或者刷新页面缓存值将会清空 -->
       <div class="mb-1">
         <span class="mr-1">返回数据大小为</span>
-        <span class="text-bold">{{ formatBytes(loadingProcess.total) }}</span>
+        <span class="text-bold">{{ formatUnit(loadingProcess.total, 'bytes') }}</span>
         <span class="mx-1">超过单个允许缓存数据大小</span>
-        <span class="text-bold">{{ formatBytes(config.cacheConfig.apiflowResponseCache.singleResponseBodySize) }}</span>
+        <span class="text-bold">{{ formatUnit(config.cacheConfig.apiflowResponseCache.singleResponseBodySize, 'bytes') }}</span>
       </div>
       <span class="">数据无法被缓存，切换tab或者刷新页面缓存值将会清空</span>
     </div>
@@ -97,9 +97,9 @@
       <div v-else-if="apidocResponseStore.responseInfo.responseData.canApiflowParseType === 'xml'" class="text-wrap">
         <div v-if="formatedText.length > config.requestConfig.maxTextBodySize">
           <span>{{ t('数据大小为') }}</span>
-          <span class="orange mr-3 ml-1">{{ formatBytes(formatedText.length) }}</span>
+          <span class="orange mr-3 ml-1">{{ formatUnit(formatedText.length, 'bytes') }}</span>
           <span>{{ t('超过最大预览限制') }}</span>
-          <span class="ml-1 mr-3">{{ formatBytes(config.requestConfig.maxTextBodySize) }}</span>
+          <span class="ml-1 mr-3">{{ formatUnit(config.requestConfig.maxTextBodySize, 'bytes') }}</span>
           <el-button link type="primary" text @click="() => downloadStringAsText(formatedText, 'response.xml')">{{ t("下载到本地预览") }}</el-button>
         </div>
         <SJsonEditor v-else :modelValue="formatedText" read-only :config="{ fontSize: 13, language: 'xml' }"></SJsonEditor>
@@ -108,9 +108,9 @@
       <div v-else-if="apidocResponseStore.responseInfo.responseData.canApiflowParseType === 'js'" class="text-wrap">
         <div v-if="formatedText.length > config.requestConfig.maxTextBodySize">
           <span>{{ t('数据大小为') }}</span>
-          <span class="orange mr-3 ml-1">{{ formatBytes(formatedText.length) }}</span>
+          <span class="orange mr-3 ml-1">{{ formatUnit(formatedText.length, 'bytes') }}</span>
           <span>{{ t('超过最大预览限制') }}</span>
-          <span class="ml-1 mr-3">{{ formatBytes(config.requestConfig.maxTextBodySize) }}</span>
+          <span class="ml-1 mr-3">{{ formatUnit(config.requestConfig.maxTextBodySize, 'bytes') }}</span>
           <el-button link type="primary" text @click="() => downloadStringAsText(formatedText, 'response.js')">{{ t("下载到本地预览") }}</el-button>
         </div>
         <SJsonEditor v-else :modelValue="formatedText || formatedText" read-only :config="{ fontSize: 13, language: 'javascript' }"></SJsonEditor>
@@ -119,9 +119,9 @@
       <div v-else-if="apidocResponseStore.responseInfo.responseData.canApiflowParseType === 'html'" class="text-wrap">
         <div v-if="formatedText.length > config.requestConfig.maxTextBodySize">
           <span>{{ t('数据大小为') }}</span>
-          <span class="orange mr-3 ml-1">{{ formatBytes(formatedText.length) }}</span>
+          <span class="orange mr-3 ml-1">{{ formatUnit(formatedText.length, 'bytes') }}</span>
           <span>{{ t('超过最大预览限制') }}</span>
-          <span class="ml-1 mr-3">{{ formatBytes(config.requestConfig.maxTextBodySize) }}</span>
+          <span class="ml-1 mr-3">{{ formatUnit(config.requestConfig.maxTextBodySize, 'bytes') }}</span>
           <el-button link type="primary" text @click="() => downloadStringAsText(formatedText, 'response.html')">{{ t("下载到本地预览") }}</el-button>
         </div>
         <SJsonEditor v-else :modelValue="formatedText" read-only :config="{ fontSize: 13, language: 'html' }"></SJsonEditor>
@@ -130,9 +130,9 @@
       <div v-else-if="apidocResponseStore.responseInfo.responseData.canApiflowParseType === 'css'" class="text-wrap">
         <div v-if="formatedText.length > config.requestConfig.maxTextBodySize">
           <span>{{ t('数据大小为') }}</span>
-          <span class="orange mr-3 ml-1">{{ formatBytes(formatedText.length) }}</span>
+          <span class="orange mr-3 ml-1">{{ formatUnit(formatedText.length, 'bytes') }}</span>
           <span>{{ t('超过最大预览限制') }}</span>
-          <span class="ml-1 mr-3">{{ formatBytes(config.requestConfig.maxTextBodySize) }}</span>
+          <span class="ml-1 mr-3">{{ formatUnit(config.requestConfig.maxTextBodySize, 'bytes') }}</span>
           <el-button link type="primary" text @click="() => downloadStringAsText(formatedText, 'response.css')">{{ t("下载到本地预览") }}</el-button>
         </div>
         <SJsonEditor v-else :modelValue="formatedText || formatedText" read-only :config="{ fontSize: 13, language: 'css' }"></SJsonEditor>
@@ -141,9 +141,9 @@
       <div v-else-if="apidocResponseStore.responseInfo.responseData.canApiflowParseType === 'csv'" class="text-wrap">
         <div v-if="formatedText.length > config.requestConfig.maxTextBodySize">
           <span>{{ t('数据大小为') }}</span>
-          <span class="orange mr-3 ml-1">{{ formatBytes(formatedText.length) }}</span>
+          <span class="orange mr-3 ml-1">{{ formatUnit(formatedText.length, 'bytes') }}</span>
           <span>{{ t('超过最大预览限制') }}</span>
-          <span class="ml-1 mr-3">{{ formatBytes(config.requestConfig.maxTextBodySize) }}</span>
+          <span class="ml-1 mr-3">{{ formatUnit(config.requestConfig.maxTextBodySize, 'bytes') }}</span>
           <el-button link type="primary" text @click="() => downloadStringAsText(formatedText, 'response.csv')">{{ t("下载到本地预览") }}</el-button>
         </div>
         <SJsonEditor v-else :modelValue="formatedText || formatedText" read-only :config="{ fontSize: 13, language: 'csv' }"></SJsonEditor>
@@ -152,9 +152,9 @@
       <div v-else-if="apidocResponseStore.responseInfo.responseData.canApiflowParseType === 'text'" class="text-wrap">
         <div v-if="formatedText.length > config.requestConfig.maxTextBodySize">
           <span>{{ t('数据大小为') }}</span>
-          <span class="orange mr-3 ml-1">{{ formatBytes(formatedText.length) }}</span>
+          <span class="orange mr-3 ml-1">{{ formatUnit(formatedText.length, 'bytes') }}</span>
           <span>{{ t('超过最大预览限制') }}</span>
-          <span class="ml-1 mr-3">{{ formatBytes(config.requestConfig.maxTextBodySize) }}</span>
+          <span class="ml-1 mr-3">{{ formatUnit(config.requestConfig.maxTextBodySize, 'bytes') }}</span>
           <el-button link type="primary" text @click="() => downloadStringAsText(formatedText, 'response.txt')">{{ t("下载到本地预览") }}</el-button>
         </div>
         <SJsonEditor v-else :model-value="formatedText" read-only :config="{ fontSize: 13, language: 'text' }"></SJsonEditor>
@@ -163,9 +163,9 @@
       <div v-else-if="apidocResponseStore.responseInfo.responseData.canApiflowParseType === 'json'" class="text-wrap">
         <div v-if="formatedText.length > config.requestConfig.maxTextBodySize">
           <span>{{ t('数据大小为') }}</span>
-          <span class="orange mr-3 ml-1">{{ formatBytes(formatedText.length) }}</span>
+          <span class="orange mr-3 ml-1">{{ formatUnit(formatedText.length, 'bytes') }}</span>
           <span>{{ t('超过最大预览限制') }}</span>
-          <span class="ml-1 mr-3">{{ formatBytes(config.requestConfig.maxTextBodySize) }}</span>
+          <span class="ml-1 mr-3">{{ formatUnit(config.requestConfig.maxTextBodySize, 'bytes') }}</span>
           <el-button link type="primary" text @click="() => downloadStringAsText(formatedText, 'response.json')">{{ t("下载到本地预览") }}</el-button>
         </div>
         <SJsonEditor v-else-if="apidocResponseStore.requestState === 'finish'" :model-value="formatedText || apidocResponseStore.responseInfo.responseData.jsonData" read-only :config="{ fontSize: 13, language: 'json' }"></SJsonEditor>
@@ -272,9 +272,9 @@
       </div>
     </template>
     <div v-show="showProcess" class="process">
-      <span>{{ t("总大小") }}：{{ formatBytes(loadingProcess.total) }}</span>
+      <span>{{ t("总大小") }}：{{ formatUnit(loadingProcess.total, 'bytes') }}</span>
       <el-divider direction="vertical"></el-divider>
-      <span>{{ t("已传输") }}：{{ formatBytes(loadingProcess.transferred) }}</span>
+      <span>{{ t("已传输") }}：{{ formatUnit(loadingProcess.transferred, 'bytes') }}</span>
       <el-divider direction="vertical"></el-divider>
       <span>{{ t("进度") }}：{{ (loadingProcess.total === 0) ? 100 : (loadingProcess.percent * 100).toFixed(2) }}%</span>
     </div>
@@ -282,7 +282,7 @@
       v-if="apidocResponseStore.responseInfo.responseData.canApiflowParseType === 'cachedBodyIsTooLarge'" 
       class="d-flex a-center j-center red"
     >
-      返回值大于{{ formatBytes(config.cacheConfig.apiflowResponseCache.singleResponseBodySize) }}，返回body值缓存失效。
+      返回值大于{{ formatUnit(config.cacheConfig.apiflowResponseCache.singleResponseBodySize, 'bytes') }}，返回body值缓存失效。
       需重新请求最新数据
     </div>
     <div v-if="apidocResponseStore.responseInfo.responseData.canApiflowParseType === 'error'" class="red">{{ apidocResponseStore.responseInfo.responseData.errorData }}</div>
@@ -295,7 +295,7 @@ import { useApidocBaseInfo } from '@/store/apidoc/baseInfoStore';
 import { useApidocResponse } from '@/store/apidoc/responseStore';
 import { computed, onMounted, onUnmounted, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n'
-import { formatBytes, downloadStringAsText, formatHeader } from '@/helper/index'
+import { formatUnit, downloadStringAsText, formatHeader } from '@/helper/index'
 import { config } from '@src/config/config'
 import SJsonEditor from '@/components/common/jsonEditor/GJsonEditor.vue'
 import SSseView from '@/components/common/sseView/GSseView.vue'

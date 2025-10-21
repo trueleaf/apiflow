@@ -44,7 +44,7 @@
           @click="() => downloadStringAsText(responseInfo.requestData.body as string, 'multiPartBody.txt')"
         >
           <span>{{t('下载完整数据')}}</span>
-          <span>({{ formatBytes((responseInfo.requestData.body as string).length) }})</span>
+          <span>({{ formatUnit((responseInfo.requestData.body as string).length, 'bytes') }})</span>
         </div>{{ safedMultipart((responseInfo.requestData.body as string)) }}
       </pre>
       <pre v-else-if="contentType === 'text/html'" class="pre pre-body">{{ responseInfo.requestData.body }}</pre>
@@ -64,7 +64,7 @@ import { useApidoc } from '@/store/apidoc/apidocStore';
 import SCollapse from '@/components/common/collapse/GCollapse.vue'
 import { useApidocBaseInfo } from '@/store/apidoc/baseInfoStore';
 import { useApidocResponse } from '@/store/apidoc/responseStore';
-import { formatBytes, downloadStringAsText } from '@/helper/index'
+import { formatUnit, downloadStringAsText } from '@/helper/index'
 import { storeToRefs } from 'pinia';
 import SJsonEditor from '@/components/common/jsonEditor/GJsonEditor.vue'
 

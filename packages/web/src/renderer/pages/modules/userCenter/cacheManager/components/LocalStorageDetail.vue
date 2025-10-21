@@ -17,7 +17,7 @@
       <el-table-column prop="key" label="键名" show-overflow-tooltip />
       <el-table-column prop="size" label="大小">
         <template #default="scope">
-          {{ formatBytes(scope.row.size) }}
+          {{ formatUnit(scope.row.size, 'bytes') }}
         </template>
       </el-table-column>
       <el-table-column label="操作" width="150" fixed="right">
@@ -49,7 +49,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { LocalStorageItem } from '@src/types/apidoc/cache'
-import { formatBytes } from '@/helper'
+import { formatUnit } from '@/helper'
 import { ElMessageBox, ElMessage } from 'element-plus'
 import LocalStorageDialog from '../dialog/LocalStorageDialog.vue'
 

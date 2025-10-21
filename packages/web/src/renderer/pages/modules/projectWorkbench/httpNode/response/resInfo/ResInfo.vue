@@ -55,7 +55,7 @@
 <script lang="ts" setup>
 import { computed } from 'vue'
 import { QuestionFilled } from '@element-plus/icons-vue'
-import { formatBytes, formatMs } from '@/helper/index'
+import { formatUnit } from '@/helper/index'
 import { useI18n } from 'vue-i18n'
 import { useApidocResponse } from '@/store/apidoc/responseStore';
 
@@ -65,9 +65,9 @@ const { t } = useI18n()
 
 const responseInfo = computed(() => apidocResponseStore.responseInfo);
 //格式化返回值大小
-const formatedBytes = computed(() => formatBytes(responseInfo.value.bodyByteLength))
+const formatedBytes = computed(() => formatUnit(responseInfo.value.bodyByteLength, 'bytes'))
 //格式化返回时间
-const formatedMs = computed(() => formatMs(responseInfo.value.rt))
+const formatedMs = computed(() => formatUnit(responseInfo.value.rt, 'time'))
 </script>
 
 <style lang="scss" scoped>

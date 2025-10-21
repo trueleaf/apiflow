@@ -104,7 +104,7 @@ import type { ApidocBanner, ApidocProjectEnum, CommonResponse } from '@src/types
 import type TreeStore from 'element-plus/lib/components/tree/src/model/tree-store'
 import type Node from 'element-plus/lib/components/tree/src/model/node'
 import { request } from '@/api/api'
-import { findNextSiblingById, findParentById, findPreviousSiblingById, forEachForest } from '@/helper'
+import { findSiblingById, findParentById, forEachForest } from '@/helper'
 import { nanoid } from 'nanoid/non-secure'
 import { useI18n } from 'vue-i18n'
 import { useApidocBaseInfo } from '@/store/apidoc/baseInfoStore';
@@ -259,8 +259,8 @@ const sortTargetTree = (node: Node, _dropNode: unknown, type: string) => {
   if (type === 'inner') {
     params.sort = Date.now();
   } else {
-    const nextSibling = findNextSiblingById(targetTreeData.value, node.data._id, { idKey: '_id' }) || { sort: 0 };
-    const previousSibling = findPreviousSiblingById(targetTreeData.value, node.data._id, { idKey: '_id' }) || { sort: 0 };
+    const nextSibling = findSiblingById(targetTreeData.value, node.data._id, 'next', { idKey: '_id' }) || { sort: 0 };
+    const previousSibling = findSiblingById(targetTreeData.value, node.data._id, 'previous', { idKey: '_id' }) || { sort: 0 };
     const previousSiblingSort = previousSibling.sort || 0;
     const nextSiblingSort = nextSibling.sort || Date.now();
     params.sort = (nextSiblingSort + previousSiblingSort) / 2;
@@ -286,8 +286,8 @@ const handleTargetDrop = (dragNode: Node, dropNode: Node, type: string) => {
       targetMountedId = dropNodeId;
     } else {
       const dropNodeParentNode = findParentById(targetTreeData.value, dropNodeId, { idKey: '_id' });
-      const nextSibling = findNextSiblingById(targetTreeData.value, dragNodeId, { idKey: '_id' }) || { sort: 0 };
-      const previousSibling = findPreviousSiblingById(targetTreeData.value, dragNodeId, { idKey: '_id' }) || { sort: 0 };
+      const nextSibling = findSiblingById(targetTreeData.value, dragNodeId, 'next', { idKey: '_id' }) || { sort: 0 };
+      const previousSibling = findSiblingById(targetTreeData.value, dragNodeId, 'previous', { idKey: '_id' }) || { sort: 0 };
       const previousSiblingSort = previousSibling.sort || 0;
       const nextSiblingSort = nextSibling.sort || Date.now();
       targetNodeSort = (nextSiblingSort + previousSiblingSort) / 2;

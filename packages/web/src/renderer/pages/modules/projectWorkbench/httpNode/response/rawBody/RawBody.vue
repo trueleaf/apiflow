@@ -2,9 +2,9 @@
   <div class="raw-body" :class="{ vertical: layout === 'vertical' }">
     <div v-if="rawResponseIsOverflow" class="tip">
       <span>{{ t('数据大小为') }}</span>
-      <span class="orange mr-3 ml-1">{{ formatBytes(textResponse.length) }}</span>
+      <span class="orange mr-3 ml-1">{{ formatUnit(textResponse.length, 'bytes') }}</span>
       <span>{{ t('超过最大预览限制') }}</span>
-      <span class="ml-1 mr-3">{{ formatBytes(config.requestConfig.maxRawBodySize) }}</span>
+      <span class="ml-1 mr-3">{{ formatUnit(config.requestConfig.maxRawBodySize, 'bytes') }}</span>
       <el-button link type="primary" text @click="() => downloadStringAsText(textResponse, 'raw.txt')">{{ t("下载到本地预览") }}</el-button>
     </div>
     <SJsonEditor 
@@ -17,7 +17,7 @@
 
     <!-- <pre v-else-if="apidocResponseStore.responseInfo.responseData.canApiflowParseType !== 'cachedBodyIsTooLarge'" class="str-wrap pre">{{ textResponse }}</pre> -->
     <div v-else class="d-flex a-center j-center red">
-      返回值大于{{ formatBytes(config.cacheConfig.apiflowResponseCache.singleResponseBodySize) }}，返回body值缓存失效。
+      返回值大于{{ formatUnit(config.cacheConfig.apiflowResponseCache.singleResponseBodySize, 'bytes') }}，返回body值缓存失效。
       需重新请求最新数据
     </div>
   </div>
@@ -28,7 +28,7 @@ import { useApidocBaseInfo } from '@/store/apidoc/baseInfoStore';
 import { useApidocResponse } from '@/store/apidoc/responseStore';
 import { computed, ref, watch, onMounted } from 'vue';
 import { config } from '@src/config/config'
-import { formatBytes, downloadStringAsText } from '@/helper/index'
+import { formatUnit, downloadStringAsText } from '@/helper/index'
 import { useI18n } from 'vue-i18n'
 import SJsonEditor from '@/components/common/jsonEditor/GJsonEditor.vue'
 

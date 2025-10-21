@@ -13,7 +13,7 @@
         </div>
         <div class="info-item">
           <span class="label">{{ t('大小') }}：</span>
-          <span class="value">{{ formatBytes(currentItem?.size || 0) }}</span>
+          <span class="value">{{ formatUnit(currentItem?.size || 0, 'bytes') }}</span>
         </div>
       </div>
       
@@ -32,7 +32,7 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import { formatBytes } from '@/helper'
+import { formatUnit } from '@/helper'
 import SJsonEditor from '@/components/common/jsonEditor/GJsonEditor.vue'
 import { LocalStorageItem } from '@src/types/apidoc/cache'
 import { useI18n } from 'vue-i18n'

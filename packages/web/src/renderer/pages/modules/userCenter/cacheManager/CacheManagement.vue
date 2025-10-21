@@ -28,7 +28,7 @@
           </div>
         </div>
         <div class="card-body">
-          <div class="cache-size">{{ formatBytes(cacheInfo.localStroageSize) }}</div>
+          <div class="cache-size">{{ formatUnit(cacheInfo.localStroageSize, 'bytes') }}</div>
         </div>
       </div>
       <!-- IndexedDB 本地数据卡片 -->
@@ -56,7 +56,7 @@
           </div>
         </div>
         <div class="card-body">
-          <div class="cache-size">{{ formatBytes(cacheInfo.indexedDBSize === -1 ? 0 : cacheInfo.indexedDBSize) }}</div>
+          <div class="cache-size">{{ formatUnit(cacheInfo.indexedDBSize === -1 ? 0 : cacheInfo.indexedDBSize, 'bytes') }}</div>
         </div>
         <div v-if="!indexedDBLoading && cacheInfo.indexedDBSize === -1" class="gray-500" @click.stop="getIndexedDB">点击计算本地数据大小</div>
         <div v-if="indexedDBLoading" class="gray-500">计算中...</div>
@@ -118,7 +118,7 @@
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted } from 'vue'
 import { CacheInfo, LocalStorageItem, IndexedDBItem } from '@src/types/apidoc/cache'
-import { formatBytes } from '@/helper'
+import { formatUnit } from '@/helper'
 import { RefreshRight } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
 import { userState } from '@/cache/userState/userStateCache.ts'
