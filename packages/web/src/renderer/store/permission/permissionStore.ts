@@ -7,7 +7,7 @@ import { RouteRecordRaw } from 'vue-router';
 import { ref } from 'vue';
 import { uniqueByKey } from '@/helper';
 import { request } from '@/api/api';
-import { runtimeCache } from '@/cache/runtime/runtimeCache';
+import { useRuntime } from '@/store/runtime/runtimeStore';
 
 type ResUserInfo = PermissionUserInfo & {
   clientBanner: PermissionClientMenu[],
@@ -24,14 +24,6 @@ export const usePermissionStore = defineStore('permission', () => {
     autoUpdate: false,
     updateUrl: '',
   })
-  const userInfo = ref<PermissionUserInfo>({
-    id: "",
-    loginName: '',
-    phone: '',
-    realName: '',
-    roleIds: [],
-    token: '',
-  });
   const routes = ref<PermissionClientRoute[]>([]);
   const menus = ref<{ path: string; name: string }[]>([]);
   const loadingBanner = ref(false);
@@ -39,17 +31,6 @@ export const usePermissionStore = defineStore('permission', () => {
   //改变全局配置
   const changeGlobalConfig = (payload: GlobalConfig) => {
     globalConfig.value = payload;
-  }
-  //改变用户信息
-  const changeUserInfo = (payload: PermissionUserInfo): void => {
-    userInfo.value = {
-      id: payload.id,
-      loginName: payload.loginName,
-      phone: payload.phone,
-      realName: payload.realName,
-      roleIds: payload.roleIds,
-      token: payload.token,
-    };
   }
   //动态生成路由
   const generateRoutes = () => {
@@ -91,7 +72,8 @@ export const usePermissionStore = defineStore('permission', () => {
   }
   //改变当前访问菜单
   const changeMenus = (payload: PermissionClientMenu[]) => {
-    if (config.renderConfig.permission.free && userInfo.value.loginName === 'admin') {
+    const runtimeStore = useRuntime();
+    if (config.renderConfig.permission.free && runtimeStore.userInfo.loginName === 'admin') {
       menus.value = [{
         path: '/home',
         name: 'api文档',
@@ -113,44 +95,34 @@ export const usePermissionStore = defineStore('permission', () => {
     routes.value = [];
     menus.value = [];
   };
-  //初始化用户信息（从缓存中恢复）
-  const initUserInfo = () => {
-    const cachedUserInfo = runtimeCache.getUserInfo();
-    if (cachedUserInfo) {
-      changeUserInfo(cachedUserInfo);
-    }
-  };
   //获取权限
   const getPermission = async (): Promise<ResUserInfo> => {
+    const runtimeStore = useRuntime();
     return new Promise((resolve, reject) => {
       request.get<CommonResponse<ResUserInfo>, CommonResponse<ResUserInfo>>('/api/security/user_base_info').then((res) => {
-        changeUserInfo(res.data);
+        runtimeStore.setUserInfo(res.data);
         changeMenus(res.data.clientBanner);
         changeRoutes(res.data.clientRoutes);
         changeGlobalConfig(res.data.globalConfig);
         generateRoutes();
         resolve(res.data);
-        runtimeCache.setUserInfo(res.data);
       }).catch((err) => {
-        runtimeCache.clearUserInfo();
+        runtimeStore.clearUserInfo();
         reject(err);
       });
     });
   }
 
   return {
-    userInfo,
     routes,
     menus,
     loadingBanner,
     globalConfig,
     changeGlobalConfig,
-    changeUserInfo,
     generateRoutes,
     changeRoutes,
     changeMenus,
     clearAllPermission,
-    initUserInfo,
     getPermission,
   }
 })

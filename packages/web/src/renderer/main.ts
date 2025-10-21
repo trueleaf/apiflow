@@ -12,7 +12,6 @@ import { initStandaloneDB } from "./cache/db";
 import { i18n } from "./i18n";
 import { shortcutManager } from "./shortcut/index.ts";
 import { useRuntime } from "./store/runtime/runtimeStore.ts";
-import { usePermissionStore } from "./store/permission/permissionStore";
 
 
 shortcutManager.init();
@@ -28,9 +27,8 @@ if (runtimeStore.networkMode === 'offline') {
 }
 app.use(pinia);
 
-// 初始化权限信息
-const permissionStore = usePermissionStore();
-permissionStore.initUserInfo();
+// 初始化用户信息
+runtimeStore.initUserInfo();
 
 app.use(router);
 

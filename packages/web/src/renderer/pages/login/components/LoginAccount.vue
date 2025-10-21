@@ -51,12 +51,11 @@ import { useI18n } from 'vue-i18n';
 import { ElMessage, FormInstance } from 'element-plus';
 import { request } from '@/api/api';
 import { router } from '@/router';
-import { usePermissionStore } from '@/store/permission/permissionStore';
-import { runtimeCache } from '@/cache/runtime/runtimeCache';
+import { useRuntime } from '@/store/runtime/runtimeStore';
 
 const emits = defineEmits(['jumpToRegister', 'jumpToResetPassword'])
 const { t } = useI18n()
-const permissionStore = usePermissionStore()
+const runtimeStore = useRuntime()
 const userInfo = ref({
   loginName: process.env.NODE_ENV === 'development' ? 'apiflow' : '', //-----------登录名称
   password: process.env.NODE_ENV === 'development' ? '111111aaa' : '', //---------密码
@@ -88,9 +87,8 @@ const handleLogin = async () => {
           isShowCapture.value = true;
         } else {
           // 登录成功，更新用户信息到store
-          permissionStore.changeUserInfo(res.data);
+          runtimeStore.setUserInfo(res.data);
           router.push('/home');
-          runtimeCache.setUserInfo(res.data);
           // $store.dispatch('permission/getPermission')
         }
       }).catch((err) => {
@@ -125,9 +123,8 @@ const freshCapchaUrl = () => {
 //   loading.value = true;
 //   request.post('/api/security/login_guest', userInfo).then((res) => {
 //     // 体验账号登录成功，更新用户信息到store
-//     permissionStore.changeUserInfo(res.data);
+//     runtimeStore.setUserInfo(res.data);
 //     router.push('/home');
-//     runtimeCache.setUserInfo(res.data);
 //   }).catch((err) => {
 //     console.error(err);
 //   }).finally(() => {

@@ -33,7 +33,6 @@ import { request } from '@/api/api';
 import { router } from '@/router';
 import { usePermissionStore } from '@/store/permission/permissionStore';
 import { config } from '@src/config/config';
-import { runtimeCache } from '@/cache/runtime/runtimeCache';
 
 const { t } = useI18n()
 const userInfo = reactive({
@@ -107,7 +106,6 @@ const handleLogin = () => {
           ElMessage.warning(res.msg);
         } else {
           router.push('/home');
-          runtimeCache.setUserInfo(res.data);
           permissionStore.getPermission()
           
         }

@@ -42,7 +42,6 @@ import { event } from '@/helper';
 import SLoading from '@/components/common/loading/GLoading.vue'
 import SFieldset from '@/components/common/fieldset/GFieldset.vue'
 import { useApidoc } from '@/store/apidoc/apidocStore';
-import { usePermissionStore } from '@/store/permission/permissionStore';
 import { useApidocBanner } from '@/store/apidoc/bannerStore';
 import { useApidocTas } from '@/store/apidoc/tabsStore';
 import { apiNodesCache } from '@/cache/index';
@@ -73,7 +72,7 @@ const rules = ref({
 const apidocStore = useApidoc();
 const apidocTabsStore = useApidocTas()
 const apidocBannerStore = useApidocBanner();
-const permissionStore = usePermissionStore();
+const runtimeStore = useRuntime();
 /*
 |--------------------------------------------------------------------------
 | 挂载树
@@ -83,7 +82,6 @@ const projectId = router.currentRoute.value.query.id as string;
 const loading = ref(false); //保存按钮loading状态
 const loading2 = ref(false);
 const navTreeData = ref<ApidocBanner[]>([]);
-const runtimeStore = useRuntime();
 const isStandalone = computed(() => runtimeStore.networkMode === 'offline');
 //目标树
 const docTree: Ref<TreeNodeOptions['store'] | null> = ref(null);
@@ -120,7 +118,7 @@ const handleClose = () => {
 const handleSaveDoc = async () => {
   const docInfo = JSON.parse(JSON.stringify(apidocStore.apidoc))
   docInfo.info.name = formInfo.value.name;
-  docInfo.info.creator = permissionStore.userInfo.realName
+  docInfo.info.creator = runtimeStore.userInfo.realName
   docInfo.pid = currentMountedNode.value?._id;
   docInfo.projectId = projectId;
   docInfo.sort = Date.now();

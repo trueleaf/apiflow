@@ -53,7 +53,7 @@
         </el-table-column>
         <el-table-column :label="t('操作')" align="center" width="200px">
           <template #default="scope">
-            <el-button v-if="userInfo.id === scope.row.id" type="primary" text
+            <el-button v-if="runtimeStore.userInfo.id === scope.row.id" type="primary" text
               @click="handleLeaveGroup(scope.row, scope.$index)">{{ t("退出") }}</el-button>
             <el-button v-else type="primary" text @click="handleDeleteMember(scope.row, scope.$index)">{{ t("删除")
             }}</el-button>
@@ -69,7 +69,7 @@ import { useI18n } from 'vue-i18n'
 import type { CommonResponse, ApidocProjectMemberInfo, ApidocProjectPermission, ApidocGroupUser } from '@src/types'
 import {  onMounted, ref } from 'vue';
 import { ElMessage, ElMessageBox } from 'element-plus';
-import { usePermissionStore } from '@/store/permission/permissionStore';
+import { useRuntime } from '@/store/runtime/runtimeStore';
 import { config } from '@src/config/config';
 import { request } from '@/api/api';
 import Loading from '@/components/common/loading/GLoading.vue'
@@ -98,7 +98,7 @@ const props = defineProps({
 
 const emits = defineEmits(['update:modelValue', 'leave'])
 const { t } = useI18n()
-const { userInfo } = usePermissionStore()
+const runtimeStore = useRuntime()
 const remoteUserOrGroupList = ref<ApidocProjectMemberInfo[]>([])
 const memberList = ref<MemberWithOldPermission[]>([]);
 const remoteQueryName = ref('');
@@ -202,7 +202,7 @@ const handleDeleteMember = (row: MemberWithOldPermission, index: number) => {
 //离开团队
 const handleLeaveGroup = (row: MemberWithOldPermission, index: number) => {
   const hasAdmin = memberList.value.find((member) => {
-    if (member.id !== userInfo.id && member.permission === 'admin') {
+    if (member.id !== runtimeStore.userInfo.id && member.permission === 'admin') {
       return true
     }
     return false;

@@ -155,7 +155,7 @@
                 </el-table-column>
                 <el-table-column prop="expireAt" label="操作" width="70" align="center">
                   <template #default="{ row }">
-                    <el-button v-if="row.userId === permissionStore.userInfo.id" link type="primary" @click="() => handleRemoveMember(groupInfo!._id, row.userId)">退出</el-button>
+                    <el-button v-if="row.userId === runtimeStore.userInfo.id" link type="primary" @click="() => handleRemoveMember(groupInfo!._id, row.userId)">退出</el-button>
                     <el-button v-else link type="primary" @click="() => handleRemoveMember(groupInfo!._id, row.userId)">删除</el-button>
                   </template>
                 </el-table-column>
@@ -229,7 +229,7 @@ import RemoteSelector from '@/components/common/remoteSelect/GRemoteSelect.vue';
 import RemoteSelectorItem from '@/components/common/remoteSelect/GRemoteSelectItem.vue';
 import { useWindowEvent } from '@/hooks/useWindowEvent';
 import dayjs from 'dayjs'
-import { usePermissionStore } from '@/store/permission/permissionStore';
+import { useRuntime } from '@/store/runtime/runtimeStore';
 
 
 
@@ -248,7 +248,7 @@ const originGroupInfo = ref<ApidocGroupItem | null>(null)
 const remoteQueryName = ref('');
 const memberMode = ref<'list' | 'card'>('list')
 const remoteMembers = ref<PermissionUserBaseInfo[]>([]);
-const permissionStore = usePermissionStore();
+const runtimeStore = useRuntime();
 const isEdited = computed(() => {
   if (!groupInfo.value || !originGroupInfo.value) return false;
   const isSameGroupName = groupInfo.value.groupName === originGroupInfo.value.groupName;
@@ -309,7 +309,7 @@ const handleAddUser = (item: PermissionUserBaseInfo) => {
 }
 //删除用户
 const handleRemoveMember = (groupId: string, userId: string) => {
-  const removeTip = userId === permissionStore.userInfo.id ? t('确认要退出当前团队吗') : t('确定要移除该用户吗？') 
+  const removeTip = userId === runtimeStore.userInfo.id ? t('确认要退出当前团队吗') : t('确定要移除该用户吗？') 
   ElMessageBox.confirm(removeTip, t('提示'), {
     confirmButtonText: t('确定'),
     cancelButtonText: t('取消') ,
@@ -356,11 +356,11 @@ const changeGroupInfo = () => {
   if (!groupInfo.value?.updator) {
     groupInfo.value!.updator = {
       userId: nanoid(),
-      userName: permissionStore.userInfo.loginName || permissionStore.userInfo.realName,
+      userName: runtimeStore.userInfo.loginName || runtimeStore.userInfo.realName,
       _id: nanoid(),
     }
   } else {
-    groupInfo.value!.updator.userName = permissionStore.userInfo.loginName || permissionStore.userInfo.realName;
+    groupInfo.value!.updator.userName = runtimeStore.userInfo.loginName || runtimeStore.userInfo.realName;
   }
 }
 //保存修改
