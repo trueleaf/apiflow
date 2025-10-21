@@ -1,5 +1,5 @@
-import type { ApidocProperty } from "./httpNode";
-import type { WebSocketNode } from "./websocketNode";
+import type { ApidocProperty } from "../httpNode";
+import type { WebSocketNode } from "../websocketNode";
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
 
 // WebSocket模块名称联合类型
@@ -130,8 +130,3 @@ export type WsRedoUnDoOperation =
   | WsPreRequestOperation 
   | WsAfterRequestOperation
   | WsBasicInfoOperation;
-
-
-
-
-

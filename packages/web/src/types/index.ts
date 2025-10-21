@@ -14,4 +14,4 @@ export * from './websocketNode';
 export * from './mockNode';
 export * from './standalone';
 export * from './history';
-export * from './redoUndo';
+export * from './redoUndo/wsRedoUndo';

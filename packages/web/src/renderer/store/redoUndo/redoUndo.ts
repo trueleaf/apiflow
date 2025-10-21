@@ -2,7 +2,7 @@ import { defineStore } from "pinia";
 import { ref } from "vue";
 import type {
   WsRedoUnDoOperation
-} from "@src/types/redoUndo";
+} from "@src/types/redoUndo/wsRedoUndo";
 import type { ApidocProperty } from "@src/types";
 import type { WebSocketNode } from "@src/types/websocketNode";
 import { useWebSocket } from "@/store/websocket/websocket";

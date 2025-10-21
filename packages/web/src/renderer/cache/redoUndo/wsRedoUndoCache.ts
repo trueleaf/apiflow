@@ -1,6 +1,6 @@
 import type { 
   WsRedoUnDoOperation
-} from "@src/types/redoUndo";
+} from "@src/types/redoUndo/wsRedoUndo";
 
 /**
  * WebSocket RedoUndo缓存管理类
