@@ -3,6 +3,9 @@ import { i18n } from '@/i18n'
 import { ApidocRequestMethodRule, HttpNodeRequestMethod } from '@src/types';
 import { useApidoc } from '@/store/apidoc/apidoc';
 import { useApidocBaseInfo } from '@/store/apidoc/base-info';
+import { useHttpRedoUndo } from '@/store/redoUndo/httpRedoUndoStore';
+import { useApidocTas } from '@/store/apidoc/tabs';
+import { router } from '@/router';
 
 type MethodReturn = {
   /**
@@ -22,12 +25,33 @@ type MethodReturn = {
 export default (): MethodReturn => {
   const apidocStore = useApidoc()
   const apidocBaseInfo = useApidocBaseInfo()
+  const httpRedoUndoStore = useHttpRedoUndo()
+  const apidocTabsStore = useApidocTas()
+  const projectId = router.currentRoute.value.query.id as string;
+  const currentSelectTab = computed(() => {
+    const tabs = apidocTabsStore.tabs[projectId];
+    return tabs?.find((tab) => tab.selected) || null;
+  });
   //请求方法
   const requestMethod = computed({
     get() {
       return apidocStore.apidoc.item.method;
     },
     set(method: HttpNodeRequestMethod) {
+      if (!currentSelectTab.value) return;
+      const oldValue = apidocStore.apidoc.item.method;
+      if (oldValue !== method) {
+        // 记录请求方法变化操作
+        httpRedoUndoStore.recordOperation({
+          nodeId: currentSelectTab.value._id,
+          type: "methodOperation",
+          operationName: "修改请求方法",
+          affectedModuleName: "method",
+          oldValue,
+          newValue: method,
+          timestamp: Date.now()
+        });
+      }
       apidocStore.changeApidocMethod(method)
     },
   });
