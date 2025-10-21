@@ -62,7 +62,7 @@ import type { HeaderTab } from '@src/types/header'
 import { RefreshRight, Back, Right } from '@element-plus/icons-vue'
 import { useI18n } from 'vue-i18n'
 import { FolderKanban } from 'lucide-vue-next'
-import { useRuntime } from '@/store/runtime/runtime'
+import { useRuntime } from '@/store/runtime/runtimeStore'
 import { IPC_EVENTS } from '@src/types/ipc'
 
 const tabs = ref<HeaderTab[]>([])

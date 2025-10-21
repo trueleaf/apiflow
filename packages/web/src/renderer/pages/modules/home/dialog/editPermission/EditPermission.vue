@@ -69,7 +69,7 @@ import { useI18n } from 'vue-i18n'
 import type { CommonResponse, ApidocProjectMemberInfo, ApidocProjectPermission, ApidocGroupUser } from '@src/types'
 import {  onMounted, ref } from 'vue';
 import { ElMessage, ElMessageBox } from 'element-plus';
-import { usePermissionStore } from '@/store/permission';
+import { usePermissionStore } from '@/store/permission/permissionStore';
 import { config } from '@src/config/config';
 import { request } from '@/api/api';
 import Loading from '@/components/common/loading/GLoading.vue'

@@ -11,8 +11,8 @@ import "@/assets/font/iconfont.js";
 import { initStandaloneDB } from "./cache/db";
 import { i18n } from "./i18n";
 import { shortcutManager } from "./shortcut/index.ts";
-import { useRuntime } from "./store/runtime/runtime.ts";
-import { usePermissionStore } from "./store/permission";
+import { useRuntime } from "./store/runtime/runtimeStore.ts";
+import { usePermissionStore } from "./store/permission/permissionStore";
 
 
 shortcutManager.init();

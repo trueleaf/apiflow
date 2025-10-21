@@ -93,9 +93,9 @@ import type { TreeNodeOptions } from 'element-plus/lib/components/tree/src/tree.
 import { ApidocBanner, HttpNode, WebSocketNode } from '@src/types';
 import { request } from '@/api/api'
 import { useI18n } from 'vue-i18n'
-import { useApidocBaseInfo } from '@/store/apidoc/base-info';
-import { useApidocBanner } from '@/store/apidoc/banner';
-import { useVariable } from '@/store/apidoc/variables';
+import { useApidocBaseInfo } from '@/store/apidoc/baseInfoStore';
+import { useApidocBanner } from '@/store/apidoc/bannerStore';
+import { useVariable } from '@/store/apidoc/variablesStore';
 import SFieldset from '@/components/common/fieldset/GFieldset.vue'
 import SConfig from '@/components/common/config/GConfig.vue'
 import SEmphasize from '@/components/common/emphasize/GEmphasize.vue'
@@ -104,7 +104,7 @@ import SFork from './fork/Fork.vue'
 import type { StandaloneExportHtmlParams } from '@src/types/standalone.ts';
 import { apiNodesCache } from '@/cache/index';
 import { downloadStringAsText } from '@/helper';
-import { useRuntime } from '@/store/runtime/runtime';
+import { useRuntime } from '@/store/runtime/runtimeStore';
 
 const apidocBaseInfoStore = useApidocBaseInfo();
 const apidocBannerStore = useApidocBanner();

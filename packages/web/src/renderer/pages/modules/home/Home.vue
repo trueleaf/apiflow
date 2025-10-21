@@ -38,7 +38,7 @@ import tabB from './groupManager/GroupManager.vue'
 import { useI18n } from 'vue-i18n'
 import { TabPaneName } from 'element-plus'
 import { userState } from '@/cache/userState/userStateCache.ts'
-import { useRuntime } from '@/store/runtime/runtime'
+import { useRuntime } from '@/store/runtime/runtimeStore'
 
 const { getActiveHomeTab, setActiveHomeTab } = userState
 const { t } = useI18n()

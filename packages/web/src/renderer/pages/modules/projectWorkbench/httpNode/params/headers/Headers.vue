@@ -66,9 +66,9 @@ import { ApidocProperty } from '@src/types';
 import { apidocGenerateProperty } from '@/helper';
 import { useI18n } from 'vue-i18n'
 import SParamsTree from '@/components/apidoc/paramsTree/GParamsTree3.vue'
-import { useApidoc } from '@/store/apidoc/apidoc';
-import { useApidocTas } from '@/store/apidoc/tabs';
-import { useApidocBaseInfo } from '@/store/apidoc/base-info';
+import { useApidoc } from '@/store/apidoc/apidocStore';
+import { useApidocTas } from '@/store/apidoc/tabsStore';
+import { useApidocBaseInfo } from '@/store/apidoc/baseInfoStore';
 import { httpNodeCache } from '@/cache/httpNode/httpNodeCache.ts';
 import { storeToRefs } from 'pinia';
 import { CheckboxValueType } from 'element-plus';

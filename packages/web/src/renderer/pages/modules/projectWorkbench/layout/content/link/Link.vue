@@ -66,7 +66,7 @@ import { router } from '@/router'
 import { useI18n } from 'vue-i18n'
 import SAddDialog from './dialog/Add.vue'
 import SEditDialog from './dialog/Edit.vue'
-// import { usePermissionStore } from '@/store/permission';
+// import { usePermissionStore } from '@/store/permission/permissionStore';
 
 type LinkInfo = {
   expire: number,

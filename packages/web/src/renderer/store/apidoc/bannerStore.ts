@@ -4,7 +4,7 @@ import { findNodeById, forEachForest } from "@/helper";
 import { ApidocBanner, ApidocBannerOfWebsocketNode, ApidocBannerOfHttpNode, ApidocBannerOfHttpMockNode, CommonResponse, MockStatusChangedPayload } from '@src/types';
 import { defineStore } from "pinia";
 import { ref } from "vue";
-import { useRuntime } from '../runtime/runtime';
+import { useRuntime } from '../runtime/runtimeStore';
 
 type SplicePayload = {
   opData?: ApidocBanner[],

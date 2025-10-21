@@ -7,7 +7,7 @@ import zhCn from 'element-plus/es/locale/lang/zh-cn'
 import ElementPlus from 'element-plus';
 import { i18n } from '@/i18n';
 import { createPinia } from 'pinia';
-import { useRuntime } from '@/store/runtime/runtime';
+import { useRuntime } from '@/store/runtime/runtimeStore';
 
 const pinia = createPinia();
 const app = createApp(Header);

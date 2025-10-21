@@ -21,9 +21,9 @@
 import { useI18n } from 'vue-i18n'
 import { config } from '@src/config/config';
 import { computed, watch } from 'vue'
-import { useApidoc } from '@/store/apidoc/apidoc';
+import { useApidoc } from '@/store/apidoc/apidocStore';
 import { useHttpRedoUndo } from '@/store/redoUndo/httpRedoUndoStore'
-import { useApidocTas } from '@/store/apidoc/tabs'
+import { useApidocTas } from '@/store/apidoc/tabsStore'
 import { router } from '@/router'
 import { debounce, cloneDeep } from 'lodash-es'
 

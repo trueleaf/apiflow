@@ -101,8 +101,8 @@ import type { TreeNodeOptions } from 'element-plus/lib/components/tree/src/tree.
 import { request } from '@/api/api'
 import { config } from '@src/config/config'
 import { router } from '@/router'
-import { useApidocBanner } from '@/store/apidoc/banner'
-import { useApidocBaseInfo } from '@/store/apidoc/base-info'
+import { useApidocBanner } from '@/store/apidoc/bannerStore'
+import { useApidocBaseInfo } from '@/store/apidoc/baseInfoStore'
 import dayjs from 'dayjs'
 
 //=========================================================================//

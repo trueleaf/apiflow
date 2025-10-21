@@ -6,9 +6,9 @@
 </template>
 
 <script lang="ts" setup>
-import { useWebSocket } from '@/store/websocket/websocket'
+import { useWebSocket } from '@/store/websocket/websocketStore'
 import { useWsRedoUndo } from '@/store/redoUndo/wsRedoUndoStore'
-import { useApidocTas } from '@/store/apidoc/tabs'
+import { useApidocTas } from '@/store/apidoc/tabsStore'
 import { storeToRefs } from 'pinia'
 import SParamsTree from '@/components/apidoc/paramsTree/GParamsTree3.vue'
 import { useI18n } from 'vue-i18n'

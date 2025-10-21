@@ -3,8 +3,8 @@ import { ApidocRequest } from "@src/types/apidoc/request";
 import { debounce } from "lodash-es";
 import { defineStore } from "pinia";
 import { ref, toRaw, watch } from "vue";
-import { useApidoc } from "./apidoc.ts";
-import { useVariable } from "./variables.ts";
+import { useApidoc } from "./apidocStore.ts";
+import { useVariable } from "./variablesStore.ts";
 
 export const useApidocRequest = defineStore('apidocRequest', () => {
   const url = ref('');

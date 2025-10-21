@@ -31,7 +31,7 @@ import { useI18n } from 'vue-i18n'
 import { ElMessage, FormInstance } from 'element-plus';
 import { request } from '@/api/api';
 import { router } from '@/router';
-import { usePermissionStore } from '@/store/permission';
+import { usePermissionStore } from '@/store/permission/permissionStore';
 import { config } from '@src/config/config';
 import { runtimeCache } from '@/cache/runtime/runtimeCache';
 

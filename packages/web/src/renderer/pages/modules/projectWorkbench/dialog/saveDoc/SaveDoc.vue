@@ -41,13 +41,13 @@ import { request } from '@/api/api'
 import { event } from '@/helper';
 import SLoading from '@/components/common/loading/GLoading.vue'
 import SFieldset from '@/components/common/fieldset/GFieldset.vue'
-import { useApidoc } from '@/store/apidoc/apidoc';
-import { usePermissionStore } from '@/store/permission';
-import { useApidocBanner } from '@/store/apidoc/banner';
-import { useApidocTas } from '@/store/apidoc/tabs';
+import { useApidoc } from '@/store/apidoc/apidocStore';
+import { usePermissionStore } from '@/store/permission/permissionStore';
+import { useApidocBanner } from '@/store/apidoc/bannerStore';
+import { useApidocTas } from '@/store/apidoc/tabsStore';
 import { apiNodesCache } from '@/cache/index';
 import { nanoid } from 'nanoid';
-import { useRuntime } from '@/store/runtime/runtime';
+import { useRuntime } from '@/store/runtime/runtimeStore';
 
 type FormInfo = {
   name: string, //接口名称

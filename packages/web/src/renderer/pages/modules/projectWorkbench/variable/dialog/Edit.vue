@@ -92,8 +92,8 @@ import { AddProjectVariableFormInfo, AddProjectVariableParams } from '../Variabl
 import SJsonEditor from '@/components/common/jsonEditor/GJsonEditor.vue'
 import { useRoute } from 'vue-router';
 import { nodeVariableCache } from '@/cache/index';
-import { useRuntime } from '@/store/runtime/runtime';
-// import { useVariable } from '@/store/apidoc/variables';
+import { useRuntime } from '@/store/runtime/runtimeStore';
+// import { useVariable } from '@/store/apidoc/variablesStore';
 
 
 const props = defineProps({

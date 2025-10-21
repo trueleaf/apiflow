@@ -110,10 +110,10 @@ import SParamsView from '@/components/apidoc/paramsView/GParamsView.vue'
 import SRawEditor from '@/components/apidoc/rawEditor/GRawEditor.vue'
 import SJsonEditor from '@/components/common/jsonEditor/GJsonEditor.vue'
 import { formatDate } from '@/helper'
-import { useApidocBaseInfo } from '@/store/apidoc/base-info';
-import { useApidocRequest } from '@/store/apidoc/request';
+import { useApidocBaseInfo } from '@/store/apidoc/baseInfoStore';
+import { useApidocRequest } from '@/store/apidoc/requestStore';
 import { apiNodesCache } from '@/cache/index';
-import { useRuntime } from '@/store/runtime/runtime';
+import { useRuntime } from '@/store/runtime/runtimeStore';
 
 const emits = defineEmits(['close'])
 const props = defineProps({

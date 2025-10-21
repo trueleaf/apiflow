@@ -41,7 +41,7 @@
 import { computed } from 'vue';
 import { storeToRefs } from 'pinia';
 import { useI18n } from 'vue-i18n';
-import { useWebSocket } from '@/store/websocket/websocket';
+import { useWebSocket } from '@/store/websocket/websocketStore';
 import { formatDate } from '@/helper';
 import SLabelValue from '@/components/common/labelValue/GLabelValue.vue';
 import GWebsocketView from '@/components/common/websocketView/GWebsocketView.vue';

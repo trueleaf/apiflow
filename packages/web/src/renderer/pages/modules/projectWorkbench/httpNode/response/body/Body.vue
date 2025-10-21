@@ -291,15 +291,15 @@
 </template>
 
 <script lang="ts" setup>
-import { useApidocBaseInfo } from '@/store/apidoc/base-info';
-import { useApidocResponse } from '@/store/apidoc/response';
+import { useApidocBaseInfo } from '@/store/apidoc/baseInfoStore';
+import { useApidocResponse } from '@/store/apidoc/responseStore';
 import { computed, onMounted, onUnmounted, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n'
 import { formatBytes, downloadStringAsText, formatHeader } from '@/helper/index'
 import { config } from '@src/config/config'
 import SJsonEditor from '@/components/common/jsonEditor/GJsonEditor.vue'
 import SSseView from '@/components/common/sseView/GSseView.vue'
-import { useApidocTas } from '@/store/apidoc/tabs';
+import { useApidocTas } from '@/store/apidoc/tabsStore';
 import { ElDialog } from 'element-plus';
 import worker from '@/worker/prettier.worker.ts?worker&inline';
 import { Download, Loading } from '@element-plus/icons-vue';

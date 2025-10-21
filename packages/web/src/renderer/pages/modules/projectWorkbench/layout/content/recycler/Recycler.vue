@@ -112,12 +112,12 @@ import SLoading from '@/components/common/loading/GLoading.vue'
 import { forEachForest, event, formatDate } from '@/helper'
 import { debounce } from "lodash-es"
 import docDetail from './components/DocDetail.vue'
-import { useApidocBanner } from '@/store/apidoc/banner'
-import { useApidocBaseInfo } from '@/store/apidoc/base-info'
+import { useApidocBanner } from '@/store/apidoc/bannerStore'
+import { useApidocBaseInfo } from '@/store/apidoc/baseInfoStore'
 import { config } from '@src/config/config'
 // import { Delete } from '@element-plus/icons-vue'
 import { apiNodesCache } from '@/cache/index'
-import { useRuntime } from '@/store/runtime/runtime'
+import { useRuntime } from '@/store/runtime/runtimeStore'
 
 
 dayjs.extend(isYesterday)

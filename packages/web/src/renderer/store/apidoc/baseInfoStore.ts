@@ -11,12 +11,12 @@ import {
 import { defineStore } from "pinia"
 import { ref } from "vue";
 import { router } from "@/router";
-import { useVariable } from './variables';
+import { useVariable } from './variablesStore';
 import { projectCache, nodeVariableCache, commonHeaderCache } from '@/cache/index';
 import { requestMethods } from '@/data/data.ts';
 import { httpNodeCache } from '@/cache/httpNode/httpNodeCache.ts';
 import { workbenchCache } from '@/cache/workbench/workbenchCache.ts';
-import { useRuntime } from '../runtime/runtime';
+import { useRuntime } from '../runtime/runtimeStore';
 
 type ChangeProjectBaseInfo = {
   _id: string;

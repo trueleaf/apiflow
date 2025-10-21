@@ -132,10 +132,10 @@ import type { TreeNodeOptions } from 'element-plus/lib/components/tree/src/tree.
 import OpenApiTranslator from './openapi';
 import PostmanTranslator from './postman';
 import { ApidocProjectRules } from '@src/types'
-import { useApidocBaseInfo } from '@/store/apidoc/base-info'
-import { useApidocBanner } from '@/store/apidoc/banner'
+import { useApidocBaseInfo } from '@/store/apidoc/baseInfoStore'
+import { useApidocBanner } from '@/store/apidoc/bannerStore'
 import { apiNodesCache } from '@/cache/index'
-import { useRuntime } from '@/store/runtime/runtime'
+import { useRuntime } from '@/store/runtime/runtimeStore'
 
 type FormInfo = {
   moyuData: {

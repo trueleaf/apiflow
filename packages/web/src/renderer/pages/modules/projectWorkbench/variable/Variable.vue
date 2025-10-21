@@ -215,11 +215,11 @@ import { request } from '@/api/api';
 import { useRoute } from 'vue-router';
 import SJsonEditor from '@/components/common/jsonEditor/GJsonEditor.vue'
 import EditDialog from './dialog/Edit.vue'
-import { useVariable } from '@/store/apidoc/variables';
+import { useVariable } from '@/store/apidoc/variablesStore';
 import { CommonResponse, ApidocVariable } from '@src/types';
 import { request as axiosInstance } from '@/api/api'
 import { nodeVariableCache } from '@/cache/index';
-import { useRuntime } from '@/store/runtime/runtime';
+import { useRuntime } from '@/store/runtime/runtimeStore';
 
 
 export type AddProjectVariableParams = {

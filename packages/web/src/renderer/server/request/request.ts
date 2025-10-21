@@ -1,21 +1,21 @@
-import { useApidoc } from '@/store/apidoc/apidoc';
+import { useApidoc } from '@/store/apidoc/apidocStore';
 import { ref, toRaw } from 'vue';
 import json5 from 'json5'
 import { HttpNode, ApidocProperty } from '@src/types';
 import { convertTemplateValueToRealValue, getEncodedStringFromEncodedParams, getFormDataFromFormDataParams, getObjectPathParams, getQueryStringFromQueryParams } from '@/utils/utils';
-import { useVariable } from '@/store/apidoc/variables';
+import { useVariable } from '@/store/apidoc/variablesStore';
 import { GotRequestOptions, JsonData, RedirectOptions, ResponseInfo } from '@src/types/index.ts';
-import { useApidocBaseInfo } from '@/store/apidoc/base-info';
-import { useApidocTas } from '@/store/apidoc/tabs';
-import { useApidocResponse } from '@/store/apidoc/response';
+import { useApidocBaseInfo } from '@/store/apidoc/baseInfoStore';
+import { useApidocTas } from '@/store/apidoc/tabsStore';
+import { useApidocResponse } from '@/store/apidoc/responseStore';
 import { httpNodeCache } from '@/cache/httpNode/httpNodeCache';
 import { httpResponseCache } from '@/cache/httpNode/httpResponseCache';
 import { config } from '@src/config/config';
 import { nanoid } from 'nanoid/non-secure';
 import { cloneDeep } from "lodash-es";
-import { useApidocRequest } from '@/store/apidoc/request';
+import { useApidocRequest } from '@/store/apidoc/requestStore';
 import { i18n } from '@/i18n';
-import { useCookies } from '@/store/apidoc/cookies';
+import { useCookies } from '@/store/apidoc/cookiesStore';
 import { InitDataMessage, OnEvalSuccess, ReceivedEvent } from '@/worker/preRequest/types/types.ts';
 import { Method } from 'got';
 import preRequestWorker from '@/worker/preRequest/preRequest.ts?worker&inline';

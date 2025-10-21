@@ -9,15 +9,15 @@ import { apiNodesCache } from "@/cache/index";
 import { webSocketNodeCache } from "@/cache/websocketNode/websocketNodeCache.ts";
 import { websocketTemplateCache } from "@/cache/websocketNode/websocketTemplateCache.ts";
 import { ElMessageBox } from "element-plus";
-import { useApidocTas } from "../apidoc/tabs.ts";
+import { useApidocTas } from "../apidoc/tabsStore.ts";
 import { router } from "@/router/index.ts";
-import { useApidocBanner } from "../apidoc/banner.ts";
+import { useApidocBanner } from "../apidoc/bannerStore.ts";
 import { getWebSocketUrl } from "@/server/request/request.ts";
-import { useVariable } from "../apidoc/variables.ts";
-import { useCookies } from "../apidoc/cookies.ts";
+import { useVariable } from "../apidoc/variablesStore.ts";
+import { useCookies } from "../apidoc/cookiesStore.ts";
 import { i18n } from "@/i18n";
 import { webSocketHistoryCache } from "@/cache/websocketNode/websocketHistoryCache";
-import { useRuntime } from '@/store/runtime/runtime';
+import { useRuntime } from '@/store/runtime/runtimeStore';
 
 export const useWebSocket = defineStore('websocket', () => {
   const runtimeStore = useRuntime();

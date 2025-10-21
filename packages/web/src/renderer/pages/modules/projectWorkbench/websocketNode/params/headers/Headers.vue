@@ -66,10 +66,10 @@ import { apidocGenerateProperty } from '@/helper';
 import { debounce, cloneDeep } from "lodash-es";
 import { useI18n } from 'vue-i18n'
 import SParamsTree from '@/components/apidoc/paramsTree/GParamsTree3.vue'
-import { useWebSocket } from '@/store/websocket/websocket';
+import { useWebSocket } from '@/store/websocket/websocketStore';
 import { useWsRedoUndo } from '@/store/redoUndo/wsRedoUndoStore';
-import { useApidocTas } from '@/store/apidoc/tabs';
-import { useApidocBaseInfo } from '@/store/apidoc/base-info';
+import { useApidocTas } from '@/store/apidoc/tabsStore';
+import { useApidocBaseInfo } from '@/store/apidoc/baseInfoStore';
 import { webSocketNodeCache } from '@/cache/websocketNode/websocketNodeCache';
 import { storeToRefs } from 'pinia';
 import { CheckboxValueType } from 'element-plus';

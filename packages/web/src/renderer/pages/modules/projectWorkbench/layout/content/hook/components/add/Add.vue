@@ -46,7 +46,7 @@ import {
 import { request } from '@/api/api';
 import { router } from '@/router';
 import SEditor from '../editor/Editor.vue'
-import { useApidoc } from '@/store/apidoc/apidoc';
+import { useApidoc } from '@/store/apidoc/apidocStore';
 
 type CodeInfo = {
   codeName: string,

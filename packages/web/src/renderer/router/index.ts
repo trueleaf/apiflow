@@ -2,8 +2,8 @@ import { createRouter, createWebHistory, RouteRecordRaw } from "vue-router";
 import NProgress from "nprogress";
 import "nprogress/nprogress.css";
 import docEdit from "@/pages/modules/projectWorkbench/ProjectWorkbench.vue";
-import { usePermissionStore } from "@/store/permission";
-import { useRuntime } from "@/store/runtime/runtime.ts";
+import { usePermissionStore } from "@/store/permission/permissionStore";
+import { useRuntime } from "@/store/runtime/runtimeStore.ts";
 
 const routes: Array<RouteRecordRaw> = [
   {

@@ -29,9 +29,9 @@ import Condition from './condition/Condition.vue'
 import Response from './response/Response.vue'
 import { useI18n } from 'vue-i18n'
 import { storeToRefs } from 'pinia'
-import { useHttpMock } from '@/store/httpMock/httpMock'
-import { useApidocTas } from '@/store/apidoc/tabs'
-import { useRuntime } from '@/store/runtime/runtime'
+import { useHttpMock } from '@/store/httpMock/httpMockStore'
+import { useApidocTas } from '@/store/apidoc/tabsStore'
+import { useRuntime } from '@/store/runtime/runtimeStore'
 
 const { t } = useI18n()
 const httpMockStore = useHttpMock()

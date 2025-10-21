@@ -57,7 +57,7 @@ import { computed } from 'vue'
 import { QuestionFilled } from '@element-plus/icons-vue'
 import { formatBytes, formatMs } from '@/helper/index'
 import { useI18n } from 'vue-i18n'
-import { useApidocResponse } from '@/store/apidoc/response';
+import { useApidocResponse } from '@/store/apidoc/responseStore';
 
 //远端返回值
 const apidocResponseStore = useApidocResponse();

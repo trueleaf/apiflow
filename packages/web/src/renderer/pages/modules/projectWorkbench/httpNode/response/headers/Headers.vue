@@ -64,8 +64,8 @@
 </template>
 
 <script lang="ts" setup>
-import { useApidocBaseInfo } from '@/store/apidoc/base-info';
-import { useApidocResponse } from '@/store/apidoc/response';
+import { useApidocBaseInfo } from '@/store/apidoc/baseInfoStore';
+import { useApidocResponse } from '@/store/apidoc/responseStore';
 import { computed, ref } from 'vue';
 import { useI18n } from 'vue-i18n'
 import { FullScreen } from '@element-plus/icons-vue';

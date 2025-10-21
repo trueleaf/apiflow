@@ -229,7 +229,7 @@ import RemoteSelector from '@/components/common/remoteSelect/GRemoteSelect.vue';
 import RemoteSelectorItem from '@/components/common/remoteSelect/GRemoteSelectItem.vue';
 import { useWindowEvent } from '@/hooks/useWindowEvent';
 import dayjs from 'dayjs'
-import { usePermissionStore } from '@/store/permission';
+import { usePermissionStore } from '@/store/permission/permissionStore';
 
 
 

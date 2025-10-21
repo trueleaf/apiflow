@@ -7,13 +7,13 @@ import { findNodeById, forEachForest, findParentById, flatTree, uniqueByKey, fin
 import { router } from '@/router/index'
 import { request } from '@/api/api'
 import { i18n } from '@/i18n'
-import { useApidocBanner } from '@/store/apidoc/banner';
-import { useApidocTas } from '@/store/apidoc/tabs';
-import { useApidoc } from '@/store/apidoc/apidoc';
-import { useApidocBaseInfo } from '@/store/apidoc/base-info.ts';
+import { useApidocBanner } from '@/store/apidoc/bannerStore';
+import { useApidocTas } from '@/store/apidoc/tabsStore';
+import { useApidoc } from '@/store/apidoc/apidocStore';
+import { useApidocBaseInfo } from '@/store/apidoc/baseInfoStore.ts';
 import { apiNodesCache } from '@/cache/index';
 import { nanoid } from 'nanoid';
-import { useRuntime } from '@/store/runtime/runtime';
+import { useRuntime } from '@/store/runtime/runtimeStore';
 
 type MapId = {
   oldId: string, //历史id

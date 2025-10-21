@@ -53,9 +53,9 @@ import SBody from './body/Body.vue'
 import SRawBody from './rawBody/RawBody.vue'
 import SRequest from './request/Request.vue'
 import { useI18n } from 'vue-i18n'
-import { useApidocResponse } from '@/store/apidoc/response'
-import { useApidocBaseInfo } from '@/store/apidoc/base-info'
-import { useApidoc } from '@/store/apidoc/apidoc'
+import { useApidocResponse } from '@/store/apidoc/responseStore'
+import { useApidocBaseInfo } from '@/store/apidoc/baseInfoStore'
+import { useApidoc } from '@/store/apidoc/apidocStore'
 import SLoading from '@/components/common/loading/GLoading.vue'
 
 

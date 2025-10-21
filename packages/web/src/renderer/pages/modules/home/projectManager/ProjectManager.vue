@@ -204,10 +204,10 @@ import { ElMessageBox } from 'element-plus';
 import { router } from '@/router';
 import { formatDate } from '@/helper';
 import { debounce } from "lodash-es";
-import { useApidocBaseInfo } from '@/store/apidoc/base-info'
+import { useApidocBaseInfo } from '@/store/apidoc/baseInfoStore'
 import { projectCache, apiNodesCache } from '@/cache/index'
-import { useProjectStore } from '@/store/project/project'
-import { useRuntime } from '@/store/runtime/runtime'
+import { useProjectStore } from '@/store/project/projectStore'
+import { useRuntime } from '@/store/runtime/runtimeStore'
 import { httpMockLogsCache } from '@/cache/mock/httpMock/httpMockLogsCache';
 import { IPC_EVENTS } from '@src/types/ipc';
 

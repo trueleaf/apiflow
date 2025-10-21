@@ -22,16 +22,16 @@ import { ref, watch } from "vue"
 import 'element-plus/es/components/message-box/style/css';
 import { ElMessageBox } from "element-plus"
 import { router } from "@/router"
-import { useApidocTas } from "./tabs"
-import { useApidocBanner } from "./banner"
+import { useApidocTas } from "./tabsStore"
+import { useApidocBanner } from "./bannerStore"
 import { DeepPartial } from "@src/types/index.ts"
-import { useCookies } from "./cookies.ts"
+import { useCookies } from "./cookiesStore.ts"
 import { i18n } from "@/i18n"
 import { getUrl } from "@/server/request/request.ts"
-import { useVariable } from "./variables.ts"
+import { useVariable } from "./variablesStore.ts"
 import { config } from "@src/config/config.ts"
 import { apiNodesCache } from "@/cache/index";
-import { useRuntime } from '../runtime/runtime';
+import { useRuntime } from '../runtime/runtimeStore';
 import { httpNodeHistoryCache } from "@/cache/httpNode/httpNodeHistoryCache";
 
 type EditApidocPropertyPayload<K extends keyof ApidocProperty> = {

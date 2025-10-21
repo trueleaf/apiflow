@@ -38,7 +38,7 @@ import { useRoute } from 'vue-router';
 import { generateEmptyHttpNode, generateEmptyWebsocketNode, generateEmptyHttpMockNode } from '@/helper';
 import { apiNodesCache } from '@/cache/index';
 import { nanoid } from 'nanoid';
-import { useRuntime } from '@/store/runtime/runtime';
+import { useRuntime } from '@/store/runtime/runtimeStore';
 
 const props = defineProps({
   modelValue: {

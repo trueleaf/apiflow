@@ -9,7 +9,7 @@ import { i18n } from '@/i18n';
 import { httpNodeCache } from "@/cache/httpNode/httpNodeCache.ts";
 import { workbenchCache } from "@/cache/workbench/workbenchCache.ts";
 import { request } from '@/api/api';
-import { useApidocBanner } from "./banner";
+import { useApidocBanner } from "./bannerStore";
 
 type EditTabPayload<K extends keyof ApidocTab> = {
   id: string,

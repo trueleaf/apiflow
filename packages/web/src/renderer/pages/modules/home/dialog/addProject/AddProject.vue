@@ -70,7 +70,7 @@ import RemoteSelectorItem from '@/components/common/remoteSelect/GRemoteSelectIt
 import { projectCache } from '@/cache/index';
 import { generateEmptyProject } from '@/helper';
 import { nanoid } from 'nanoid';
-import { useRuntime } from '@/store/runtime/runtime';
+import { useRuntime } from '@/store/runtime/runtimeStore';
 
 
 

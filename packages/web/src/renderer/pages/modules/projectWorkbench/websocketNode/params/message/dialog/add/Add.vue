@@ -55,7 +55,7 @@
 <script lang="ts" setup>
 import { ref, reactive, computed, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
-import { useWebSocket } from '@/store/websocket/websocket';
+import { useWebSocket } from '@/store/websocket/websocketStore';
 import { nanoid } from 'nanoid/non-secure';
 import { ElMessage, type FormInstance, type FormRules } from 'element-plus';
 import type { WebsocketMessageType, WebsocketSendMessageTemplate } from '@src/types/websocketNode';

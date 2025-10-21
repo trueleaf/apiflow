@@ -1,6 +1,6 @@
 import { request } from '@/api/api';
 import { projectCache } from '@/cache/index';
-import { useRuntime } from '@/store/runtime/runtime';
+import { useRuntime } from '@/store/runtime/runtimeStore';
 import type { ApidocProjectInfo, ApidocProjectListInfo, CommonResponse } from '@src/types';
 import { defineStore } from 'pinia';
 import { computed, ref } from 'vue';

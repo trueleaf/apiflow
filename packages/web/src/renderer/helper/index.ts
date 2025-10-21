@@ -9,7 +9,7 @@ import mitt from 'mitt'
 import { i18n } from '@/i18n';
 import Mock from 'mockjs';
 import { faker } from '@faker-js/faker';
-import { useVariable } from '@/store/apidoc/variables';
+import { useVariable } from '@/store/apidoc/variablesStore';
 
 type Data = Record<string, unknown>
 type UrlInfo = {

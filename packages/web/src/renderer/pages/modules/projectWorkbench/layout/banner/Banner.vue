@@ -215,9 +215,9 @@ import STool from './tool/Tool.vue'
 import { useBannerData } from './composables/banner-data'
 import { deleteNode, addFileAndFolderCb, pasteNodes, forkNode, dragNode, renameNode } from './composables/curd-node'
 import type { TreeNodeOptions } from 'element-plus/es/components/tree/src/tree.type.mjs'
-import { useApidocBaseInfo } from '@/store/apidoc/base-info'
-import { useApidocBanner } from '@/store/apidoc/banner'
-import { useApidocTas } from '@/store/apidoc/tabs'
+import { useApidocBaseInfo } from '@/store/apidoc/baseInfoStore'
+import { useApidocBanner } from '@/store/apidoc/bannerStore'
+import { useApidocTas } from '@/store/apidoc/tabsStore'
 import { IPC_EVENTS } from '@src/types/ipc'
 
 

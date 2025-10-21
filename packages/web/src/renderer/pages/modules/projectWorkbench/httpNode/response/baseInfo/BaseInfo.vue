@@ -34,13 +34,13 @@
 </template>
 
 <script lang="ts" setup>
-import { useApidoc } from '@/store/apidoc/apidoc';
-import { useApidocBaseInfo } from '@/store/apidoc/base-info';
+import { useApidoc } from '@/store/apidoc/apidocStore';
+import { useApidocBaseInfo } from '@/store/apidoc/baseInfoStore';
 import { useI18n } from 'vue-i18n'
 import { computed } from 'vue';
 import { formatDate } from '@/helper'
 import SLabelValue from '@/components/common/labelValue/GLabelValue.vue'
-import { useApidocRequest } from '@/store/apidoc/request';
+import { useApidocRequest } from '@/store/apidoc/requestStore';
 
 
 

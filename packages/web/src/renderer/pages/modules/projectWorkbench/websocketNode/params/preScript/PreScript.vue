@@ -7,7 +7,7 @@
 <script lang="ts" setup>
 import { computed } from 'vue'
 import PreEditor from './editor/PreEditor.vue'
-import { useWebSocket } from '@/store/websocket/websocket';
+import { useWebSocket } from '@/store/websocket/websocketStore';
 import { useWsRedoUndo } from '@/store/redoUndo/wsRedoUndoStore'
 import { debounce } from "lodash-es"
 

@@ -87,8 +87,8 @@ import { computed, ref, onMounted, Ref } from 'vue'
 import type { HttpNodeBodyMode, HttpNodeBodyParams, HttpNodeBodyRawType, HttpNodeContentType, ApidocProperty } from '@src/types'
 import { useI18n } from 'vue-i18n'
 import { getJsonBodyHintVisible, setJsonBodyHintVisible } from '@/cache/common/commonCache'
-import { useVariable } from '@/store/apidoc/variables';
-import { useApidoc } from '@/store/apidoc/apidoc';
+import { useVariable } from '@/store/apidoc/variablesStore';
+import { useApidoc } from '@/store/apidoc/apidocStore';
 import { config } from '@src/config/config';
 import SJsonEditor from '@/components/common/jsonEditor/GJsonEditor.vue'
 import SParamsTree from '@/components/apidoc/paramsTree/GParamsTree3.vue'
@@ -96,7 +96,7 @@ import { Close } from '@element-plus/icons-vue'
 import { convertTemplateValueToRealValue } from '@/utils/utils';
 import mime from 'mime';
 import { useHttpRedoUndo } from '@/store/redoUndo/httpRedoUndoStore'
-import { useApidocTas } from '@/store/apidoc/tabs'
+import { useApidocTas } from '@/store/apidoc/tabsStore'
 import { router } from '@/router'
 import { debounce, cloneDeep } from 'lodash-es'
 

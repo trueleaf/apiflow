@@ -5,7 +5,7 @@ import type {
 } from "@src/types/redoUndo/wsRedoUndo";
 import type { ApidocProperty } from "@src/types";
 import type { WebSocketNode } from "@src/types/websocketNode";
-import { useWebSocket } from "@/store/websocket/websocket";
+import { useWebSocket } from "@/store/websocket/websocketStore";
 import { cloneDeep } from "lodash-es";
 import { wsRedoUndoCache } from "@/cache/redoUndo/wsRedoUndoCache";
 

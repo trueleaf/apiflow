@@ -74,12 +74,12 @@
 </template>
 
 <script lang="ts" setup>
-import { useApidocBaseInfo } from '@/store/apidoc/base-info';
-import { useApidocResponse } from '@/store/apidoc/response';
+import { useApidocBaseInfo } from '@/store/apidoc/baseInfoStore';
+import { useApidocResponse } from '@/store/apidoc/responseStore';
 import { computed, ref, } from 'vue';
 import { FullScreen } from '@element-plus/icons-vue';
 import { parse } from 'set-cookie-parser';
-import { useApidocTas } from '@/store/apidoc/tabs'
+import { useApidocTas } from '@/store/apidoc/tabsStore'
 import { useI18n } from 'vue-i18n';
 import { useRoute } from 'vue-router'
 

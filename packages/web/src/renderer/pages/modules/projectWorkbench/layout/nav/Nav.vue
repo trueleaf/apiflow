@@ -131,15 +131,15 @@ import {
 import { ComponentPublicInstance, computed, onMounted, onUnmounted, ref } from 'vue';
 import { ApidocTab } from '@src/types/apidoc/tabs';
 import { router } from '@/router';
-import { useApidocTas } from '@/store/apidoc/tabs';
+import { useApidocTas } from '@/store/apidoc/tabsStore';
 import { event } from '@/helper'
 import { nanoid } from 'nanoid/non-secure'
-import { useApidocBaseInfo } from '@/store/apidoc/base-info';
+import { useApidocBaseInfo } from '@/store/apidoc/baseInfoStore';
 import SContextmenu from '@/components/common/contextmenu/GContextmenu.vue'
 import SContextmenuItem from '@/components/common/contextmenu/GContextmenuItem.vue'
-import { useApidocBanner } from '@/store/apidoc/banner';
-import { useApidocRequest } from '@/store/apidoc/request';
-import { useApidocResponse } from '@/store/apidoc/response';
+import { useApidocBanner } from '@/store/apidoc/bannerStore';
+import { useApidocRequest } from '@/store/apidoc/requestStore';
+import { useApidocResponse } from '@/store/apidoc/responseStore';
 
 
 /*
