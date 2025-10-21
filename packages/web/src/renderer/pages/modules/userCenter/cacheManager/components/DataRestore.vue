@@ -109,6 +109,7 @@
 import { ref, reactive, onMounted, onUnmounted } from 'vue';
 import { ElMessage, ElMessageBox } from 'element-plus';
 import { ImportStatus } from '@src/types/index.ts';
+import { IPC_EVENTS } from '@src/types/ipc';
 
 // 定义emit事件
 const emit = defineEmits<{
@@ -152,7 +153,7 @@ const handleWorkerMessage = (event: MessageEvent) => {
   if (type === 'clearAllResult') {
     if (data.code === 0) {
       statusMessage.value = '数据清空完成，正在开始导入...';
-      window.electronAPI?.ipcManager.sendToMain('import-start', {
+      window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.IMPORT.RENDERER_NOTIFY_MAIN.START, {
         filePath: importStatus.filePath,
         itemNum: importStatus.itemNum,
         config: {
@@ -183,7 +184,7 @@ const initIpcListeners = () => {
       estimatedDataCount.value = 0;
     }
   };
-  window.electronAPI?.ipcManager.onMain('import-file-analyzed', listenerRefs.value.importFileAnalyzed);
+  window.electronAPI?.ipcManager.onMain(IPC_EVENTS.IMPORT.MAIN_TO_RENDERER.FILE_ANALYZED, listenerRefs.value.importFileAnalyzed);
   
   // 监听导入进度事件
   listenerRefs.value.importProgress = (progress: { processed: number, total: number, message?: string }) => {
@@ -193,7 +194,7 @@ const initIpcListeners = () => {
       statusMessage.value = progress.message;
     }
   };
-  window.electronAPI?.ipcManager.onMain('import-progress', listenerRefs.value.importProgress);
+  window.electronAPI?.ipcManager.onMain(IPC_EVENTS.IMPORT.MAIN_TO_RENDERER.PROGRESS, listenerRefs.value.importProgress);
   
   // 监听ZIP文件读取完成事件
   listenerRefs.value.importZipReadComplete = (result: { code: number, data?: { totalItems: number }, msg?: string }) => {
@@ -219,7 +220,7 @@ const initIpcListeners = () => {
       ElMessage.error(result.msg || 'ZIP文件读取失败');
     }
   };
-  window.electronAPI?.ipcManager.onMain('import-zip-read-complete', listenerRefs.value.importZipReadComplete);
+  window.electronAPI?.ipcManager.onMain(IPC_EVENTS.IMPORT.MAIN_TO_RENDERER.ZIP_READ_COMPLETE, listenerRefs.value.importZipReadComplete);
   
   // 监听主进程错误事件
   listenerRefs.value.importMainError = (errorMessage: string) => {
@@ -227,7 +228,7 @@ const initIpcListeners = () => {
     statusMessage.value = `导入失败: ${errorMessage}`;
     ElMessage.error(`导入失败: ${errorMessage}`);
   };
-  window.electronAPI?.ipcManager.onMain('import-main-error', listenerRefs.value.importMainError);
+  window.electronAPI?.ipcManager.onMain(IPC_EVENTS.IMPORT.MAIN_TO_RENDERER.ERROR, listenerRefs.value.importMainError);
   
   // 监听导入数据项事件
   listenerRefs.value.importDataItem = async (item: any) => {
@@ -243,7 +244,7 @@ const initIpcListeners = () => {
       checkImportComplete();
     }
   };
-  window.electronAPI?.ipcManager.onMain('import-data-item', listenerRefs.value.importDataItem);
+  window.electronAPI?.ipcManager.onMain(IPC_EVENTS.IMPORT.MAIN_TO_RENDERER.DATA_ITEM, listenerRefs.value.importDataItem);
 };
 /*
 |--------------------------------------------------------------------------
@@ -271,7 +272,7 @@ const handleSelectFile = async () => {
 // 分析导入文件
 const analyzeImportFile = async () => {
   statusMessage.value = '正在分析文件...';
-  window.electronAPI?.ipcManager.sendToMain('import-analyze-file', {
+  window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.IMPORT.RENDERER_NOTIFY_MAIN.ANALYZE_FILE, {
     filePath: importStatus.filePath
   });
 };
@@ -324,7 +325,7 @@ const handleStartImport = async () => {
     
     // 发送导入请求到主进程（仅在非覆盖模式下执行）
     statusMessage.value = '正在启动导入...';
-    window.electronAPI?.ipcManager.sendToMain('import-start', {
+    window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.IMPORT.RENDERER_NOTIFY_MAIN.START, {
       filePath: importStatus.filePath,
       itemNum: importStatus.itemNum,
       config: {
@@ -357,8 +358,8 @@ const handleResetImport = () => {
   pendingImports.value = 0;
   completedImports.value = 0;
   zipReadComplete.value = false;
-  
-  window.electronAPI?.ipcManager.sendToMain('import-reset');
+
+  window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.IMPORT.RENDERER_NOTIFY_MAIN.RESET);
 };
 
 /*
@@ -413,29 +414,29 @@ const cleanupIpcListeners = () => {
   if (window.electronAPI?.ipcManager.removeListener && listenerRefs.value) {
     // 移除文件分析完成监听器
     if (listenerRefs.value.importFileAnalyzed) {
-      window.electronAPI.ipcManager.removeListener('import-file-analyzed', listenerRefs.value.importFileAnalyzed);
+      window.electronAPI.ipcManager.removeListener(IPC_EVENTS.IMPORT.MAIN_TO_RENDERER.FILE_ANALYZED, listenerRefs.value.importFileAnalyzed);
     }
-    
+
     // 移除导入进度监听器
     if (listenerRefs.value.importProgress) {
-      window.electronAPI.ipcManager.removeListener('import-progress', listenerRefs.value.importProgress);
+      window.electronAPI.ipcManager.removeListener(IPC_EVENTS.IMPORT.MAIN_TO_RENDERER.PROGRESS, listenerRefs.value.importProgress);
     }
-    
+
     // 移除ZIP文件读取完成监听器
     if (listenerRefs.value.importZipReadComplete) {
-      window.electronAPI.ipcManager.removeListener('import-zip-read-complete', listenerRefs.value.importZipReadComplete);
+      window.electronAPI.ipcManager.removeListener(IPC_EVENTS.IMPORT.MAIN_TO_RENDERER.ZIP_READ_COMPLETE, listenerRefs.value.importZipReadComplete);
     }
-    
+
     // 移除主进程错误监听器
     if (listenerRefs.value.importMainError) {
-      window.electronAPI.ipcManager.removeListener('import-main-error', listenerRefs.value.importMainError);
+      window.electronAPI.ipcManager.removeListener(IPC_EVENTS.IMPORT.MAIN_TO_RENDERER.ERROR, listenerRefs.value.importMainError);
     }
-    
+
     // 移除导入数据项监听器
     if (listenerRefs.value.importDataItem) {
-      window.electronAPI.ipcManager.removeListener('import-data-item', listenerRefs.value.importDataItem);
+      window.electronAPI.ipcManager.removeListener(IPC_EVENTS.IMPORT.MAIN_TO_RENDERER.DATA_ITEM, listenerRefs.value.importDataItem);
     }
-    
+
     // 清空所有引用
     listenerRefs.value = {};
   }
@@ -451,7 +452,7 @@ const cleanupWorker = () => {
 };
 
 onMounted(() => {
-  window.electronAPI?.ipcManager.sendToMain('import-reset');
+  window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.IMPORT.RENDERER_NOTIFY_MAIN.RESET);
   initWorker();
   initIpcListeners();
 });

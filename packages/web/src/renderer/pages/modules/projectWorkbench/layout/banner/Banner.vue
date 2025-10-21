@@ -218,6 +218,7 @@ import type { TreeNodeOptions } from 'element-plus/es/components/tree/src/tree.t
 import { useApidocBaseInfo } from '@/store/apidoc/base-info'
 import { useApidocBanner } from '@/store/apidoc/banner'
 import { useApidocTas } from '@/store/apidoc/tabs'
+import { IPC_EVENTS } from '@src/types/ipc'
 
 
 //搜索数据
@@ -648,14 +649,14 @@ onMounted(() => {
   document.documentElement.addEventListener('click', handleGlobalClick);
   document.addEventListener('keyup', handleNodeKeyUp);
   if (window.electronAPI?.ipcManager?.onMain) {
-    window.electronAPI.ipcManager.onMain('mock-status-changed', handleMockStatusChanged);
+    window.electronAPI.ipcManager.onMain(IPC_EVENTS.MOCK.MAIN_TO_RENDERER.STATUS_CHANGED, handleMockStatusChanged);
   }
 })
 onUnmounted(() => {
   document.documentElement.removeEventListener('click', handleGlobalClick);
   document.removeEventListener('keyup', handleNodeKeyUp);
   if (window.electronAPI?.ipcManager?.removeListener) {
-    window.electronAPI.ipcManager.removeListener('mock-status-changed', handleMockStatusChanged);
+    window.electronAPI.ipcManager.removeListener(IPC_EVENTS.MOCK.MAIN_TO_RENDERER.STATUS_CHANGED, handleMockStatusChanged);
   }
 })
 </script>

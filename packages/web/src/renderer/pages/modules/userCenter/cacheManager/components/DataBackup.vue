@@ -94,6 +94,7 @@ import { ref, reactive, onMounted, onUnmounted, watch } from 'vue';
 import { ElMessage } from 'element-plus';
 import { ExportStatus } from '@src/types/index.ts';
 import { getIndexedDBItemCount } from '@/helper';
+import { IPC_EVENTS } from '@src/types/ipc';
 
 const exportStatus = reactive<ExportStatus>({
   status: 'notStarted',
@@ -122,7 +123,7 @@ const initIpcListeners = () => {
     statusMessage.value = '正在读取和发送数据...';
     sendDataToMain();
   };
-  window.electronAPI?.ipcManager.onMain('export-ready-to-receive', listenerRefs.value.exportReadyToReceive);
+  window.electronAPI?.ipcManager.onMain(IPC_EVENTS.EXPORT.MAIN_TO_RENDERER.READY_TO_RECEIVE, listenerRefs.value.exportReadyToReceive);
   
   // 监听导出完成事件
   listenerRefs.value.exportFinish = (result: { filePath: string, totalItems: number }) => {
@@ -131,7 +132,7 @@ const initIpcListeners = () => {
     statusMessage.value = `导出完成！文件已保存至: ${result.filePath}`;
     ElMessage.success(`成功导出 ${result.totalItems} 项数据`);
   };
-  window.electronAPI?.ipcManager.onMain('export-finish', listenerRefs.value.exportFinish);
+  window.electronAPI?.ipcManager.onMain(IPC_EVENTS.EXPORT.MAIN_TO_RENDERER.FINISH, listenerRefs.value.exportFinish);
   
   // 监听主进程错误事件
   listenerRefs.value.exportMainError = (errorMessage: string) => {
@@ -139,7 +140,7 @@ const initIpcListeners = () => {
     statusMessage.value = `导出失败: ${errorMessage}`;
     ElMessage.error(`导出失败: ${errorMessage}`);
   };
-  window.electronAPI?.ipcManager.onMain('export-main-error', listenerRefs.value.exportMainError);
+  window.electronAPI?.ipcManager.onMain(IPC_EVENTS.EXPORT.MAIN_TO_RENDERER.ERROR, listenerRefs.value.exportMainError);
 };
 /*
 |--------------------------------------------------------------------------
@@ -192,7 +193,7 @@ const handleStartExport = async () => {
   try {
     isStartingExport.value = true;
     statusMessage.value = '正在启动导出...';
-    window.electronAPI?.ipcManager.sendToMain('export-start', {
+    window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.EXPORT.RENDERER_NOTIFY_MAIN.START, {
       itemNum: exportStatus.itemNum,
       config: {
         includeResponseCache: exportConfig.includeResponseCache
@@ -257,7 +258,7 @@ const sendDataToMain = async () => {
                 };
 
                 // 发送数据到主进程
-                window.electronAPI?.ipcManager.sendToMain('export-renderer-data', data);
+                window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.EXPORT.RENDERER_NOTIFY_MAIN.RENDERER_DATA, data);
                 
                 processedCount++;
                 const progress = Math.round((processedCount / exportStatus.itemNum) * 100);
@@ -290,9 +291,9 @@ const sendDataToMain = async () => {
     }
     
     statusMessage.value = '数据读取完成，正在打包...';
-    
+
     // 通知主进程数据发送完毕
-    window.electronAPI?.ipcManager.sendToMain('export-renderer-data-finish');
+    window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.EXPORT.RENDERER_NOTIFY_MAIN.RENDERER_DATA_FINISH);
     
   } catch (error) {
     console.error('发送数据失败:', error);
@@ -314,24 +315,24 @@ const cleanupIpcListeners = () => {
   if (window.electronAPI?.ipcManager.removeListener && listenerRefs.value) {
     // 移除准备接收数据监听器
     if (listenerRefs.value.exportReadyToReceive) {
-      window.electronAPI.ipcManager.removeListener('export-ready-to-receive', listenerRefs.value.exportReadyToReceive);
+      window.electronAPI.ipcManager.removeListener(IPC_EVENTS.EXPORT.MAIN_TO_RENDERER.READY_TO_RECEIVE, listenerRefs.value.exportReadyToReceive);
     }
-    
+
     // 移除导出完成监听器
     if (listenerRefs.value.exportFinish) {
-      window.electronAPI.ipcManager.removeListener('export-finish', listenerRefs.value.exportFinish);
+      window.electronAPI.ipcManager.removeListener(IPC_EVENTS.EXPORT.MAIN_TO_RENDERER.FINISH, listenerRefs.value.exportFinish);
     }
-    
+
     // 移除主进程错误监听器
     if (listenerRefs.value.exportMainError) {
-      window.electronAPI.ipcManager.removeListener('export-main-error', listenerRefs.value.exportMainError);
+      window.electronAPI.ipcManager.removeListener(IPC_EVENTS.EXPORT.MAIN_TO_RENDERER.ERROR, listenerRefs.value.exportMainError);
     }
-    
+
     // 移除重置完成监听器
     if (listenerRefs.value.exportResetComplete) {
-      window.electronAPI.ipcManager.removeListener('export-reset-complete', listenerRefs.value.exportResetComplete);
+      window.electronAPI.ipcManager.removeListener(IPC_EVENTS.EXPORT.MAIN_TO_RENDERER.RESET_COMPLETE, listenerRefs.value.exportResetComplete);
     }
-    
+
     // 清空所有引用
     listenerRefs.value = {};
   }
@@ -340,7 +341,7 @@ watch(() => exportConfig.includeResponseCache, () => {
   calculateDataCount();
 });
 onMounted(() => {
-  window.electronAPI?.ipcManager.sendToMain('export-reset');
+  window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.EXPORT.RENDERER_NOTIFY_MAIN.RESET);
   initIpcListeners();
 });
 onUnmounted(() => {

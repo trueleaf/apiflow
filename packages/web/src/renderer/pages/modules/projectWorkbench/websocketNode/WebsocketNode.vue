@@ -41,6 +41,7 @@ import { executeWebSocketAfterScript } from '@/server/websocket/executeAfterScri
 import { useVariable } from '@/store/apidoc/variables'
 import { useCookies } from '@/store/apidoc/cookies'
 import { httpNodeCache } from '@/cache/httpNode/httpNodeCache'
+import { IPC_EVENTS } from '@src/types/ipc'
 
 const apidocTabsStore = useApidocTas()
 const websocketStore = useWebSocket()
@@ -209,7 +210,7 @@ const checkIsConnection = () => {
 };
 const initWebSocketEventListeners = () => {
   if (!window.electronAPI) return;
-  window.electronAPI.ipcManager.onMain('websocket-opened', (data: { connectionId: string; nodeId: string; url: string }) => {
+  window.electronAPI.ipcManager.onMain(IPC_EVENTS.WEBSOCKET.MAIN_TO_RENDERER.OPENED, (data: { connectionId: string; nodeId: string; url: string }) => {
     if (currentSelectTab.value && data.nodeId === currentSelectTab.value._id) {
       websocketStore.changeConnectionId(data.connectionId);
       websocketStore.changeConnectionState('connected');
@@ -233,7 +234,7 @@ const initWebSocketEventListeners = () => {
     }
   });
   // 监听WebSocket连接关闭事件
-  window.electronAPI.ipcManager.onMain('websocket-closed', (data: { connectionId: string; nodeId: string; code: number; reason: string; url: string }) => {
+  window.electronAPI.ipcManager.onMain(IPC_EVENTS.WEBSOCKET.MAIN_TO_RENDERER.CLOSED, (data: { connectionId: string; nodeId: string; code: number; reason: string; url: string }) => {
     if (currentSelectTab.value && data.nodeId === currentSelectTab.value._id) {
       websocketStore.changeConnectionId('');
       websocketStore.changeConnectionState('disconnected');
@@ -261,7 +262,7 @@ const initWebSocketEventListeners = () => {
     }
   });
   // 监听WebSocket连接错误事件
-  window.electronAPI.ipcManager.onMain('websocket-error', (data: { connectionId: string; nodeId: string; error: string; url: string }) => {
+  window.electronAPI.ipcManager.onMain(IPC_EVENTS.WEBSOCKET.MAIN_TO_RENDERER.ERROR, (data: { connectionId: string; nodeId: string; error: string; url: string }) => {
     if (currentSelectTab.value && data.nodeId === currentSelectTab.value._id) {
       websocketStore.changeConnectionId('');
       websocketStore.changeConnectionState('error');
@@ -286,7 +287,7 @@ const initWebSocketEventListeners = () => {
   });
 
   // 监听WebSocket接收消息事件
-  window.electronAPI.ipcManager.onMain('websocket-message', async (data: {
+  window.electronAPI.ipcManager.onMain(IPC_EVENTS.WEBSOCKET.MAIN_TO_RENDERER.MESSAGE, async (data: {
     connectionId: string;
     nodeId: string;
     message: Uint8Array;

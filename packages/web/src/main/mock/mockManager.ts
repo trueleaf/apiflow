@@ -8,6 +8,7 @@ import http from 'http';
 import Koa from 'koa';
 import bodyParser from '@koa/bodyparser';
 import { nanoid } from 'nanoid/non-secure';
+import { IPC_EVENTS } from '@src/types/ipc';
 
 export class MockManager {
   private mockList: MockHttpNode[] = [];
@@ -37,7 +38,7 @@ export class MockManager {
     this.logBuffer = [];
     this.sendTimer = null;
     if (contentViewInstance && contentViewInstance.webContents) {
-      contentViewInstance.webContents.send('mock-logs-batch', logsToSend);
+      contentViewInstance.webContents.send(IPC_EVENTS.MOCK.MAIN_TO_RENDERER.LOGS_BATCH, logsToSend);
     }
   }
   
@@ -632,7 +633,7 @@ export class MockManager {
   //推送Mock状态变更到渲染进程
   private pushMockStatusChanged(payload: MockStatusChangedPayload): void {
     if (contentViewInstance && contentViewInstance.webContents) {
-      contentViewInstance.webContents.send('mock-status-changed', payload);
+      contentViewInstance.webContents.send(IPC_EVENTS.MOCK.MAIN_TO_RENDERER.STATUS_CHANGED, payload);
     }
   }
   //获取所有Mock状态

@@ -63,6 +63,7 @@ import { RefreshRight, Back, Right } from '@element-plus/icons-vue'
 import { useI18n } from 'vue-i18n'
 import { FolderKanban } from 'lucide-vue-next'
 import { useRuntime } from '@/store/runtime/runtime'
+import { IPC_EVENTS } from '@src/types/ipc'
 
 const tabs = ref<HeaderTab[]>([])
 const activeTabId = ref('')
@@ -101,15 +102,15 @@ const handleWindowResize = (state: WindowState) => {
 |--------------------------------------------------------------------------
 */
 const refreshApp = () => {
-  window.electronAPI?.ipcManager.sendToMain('apiflow-refresh-app')
+  window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.APIFLOW.RENDERER_TO_MAIN.REFRESH_APP)
 }
 
 const goBack = () => {
-  window.electronAPI?.ipcManager.sendToMain('apiflow-go-back')
+  window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.APIFLOW.RENDERER_TO_MAIN.GO_BACK)
 }
 
 const goForward = () => {
-  window.electronAPI?.ipcManager.sendToMain('apiflow-go-forward')
+  window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.APIFLOW.RENDERER_TO_MAIN.GO_FORWARD)
 }
 
 /*
@@ -139,7 +140,7 @@ const handleChangeLanguage = () => {
     }
 
     // 发送显示语言菜单事件到主进程，包含按钮位置信息
-    window.electronAPI?.ipcManager.sendToMain('apiflow-show-language-menu', {
+    window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.APIFLOW.CONTENT_TO_TOPBAR.SHOW_LANGUAGE_MENU, {
       position: buttonPosition,
       currentLanguage: currentLanguage.value
     })
@@ -174,12 +175,12 @@ const switchTab = (tabId: string) => {
   const currentTab = tabs.value.find(t => t.id === tabId);
   if (!currentTab) return;
   if (currentTab.type === 'project') {
-    window.electronAPI?.ipcManager.sendToMain('apiflow-topbar-switch-project', {
+    window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.APIFLOW.CONTENT_TO_TOPBAR.SWITCH_PROJECT, {
       projectId: tabId,
       projectName: currentTab.title
     })
   } else if (currentTab.type === 'settings') {
-    window.electronAPI?.ipcManager.sendToMain('apiflow-topbar-navigate', '/user-center')
+    window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.APIFLOW.TOPBAR_TO_CONTENT.NAVIGATE, '/user-center')
   }
 }
 /*
@@ -189,7 +190,7 @@ const switchTab = (tabId: string) => {
 */
 const jumpToHome = () => {
   activeTabId.value = '';
-  window.electronAPI?.ipcManager.sendToMain('apiflow-topbar-navigate', '/home')
+  window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.APIFLOW.TOPBAR_TO_CONTENT.NAVIGATE, '/home')
 }
 const jumpToUserCenter = () => {
   const userCenterTabId = 'user-center';
@@ -207,9 +208,9 @@ const jumpToUserCenter = () => {
 const toggleNetworkMode = () => {
   const newMode = networkMode.value === 'online' ? 'offline' : 'online'
   runtime.setNetworkMode(newMode)
-  window.electronAPI?.ipcManager.sendToMain('apiflow-network-mode-changed', newMode)
+  window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.APIFLOW.TOPBAR_TO_CONTENT.NETWORK_MODE_CHANGED, newMode)
 }
-const handleAddProject = () => window.electronAPI?.ipcManager.sendToMain('apiflow-topbar-create-project')
+const handleAddProject = () => window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.APIFLOW.CONTENT_TO_TOPBAR.CREATE_PROJECT)
 // 绑定事件
 const bindEvent = () => {
   window.electronAPI?.windowManager.onWindowResize(handleWindowResize)
@@ -218,16 +219,16 @@ const bindEvent = () => {
     isMaximized.value = state.isMaximized
   })
   
-  window.electronAPI?.ipcManager.onMain('apiflow-language-changed', (language: string) => {
+  window.electronAPI?.ipcManager.onMain(IPC_EVENTS.APIFLOW.TOPBAR_TO_CONTENT.LANGUAGE_CHANGED, (language: string) => {
     currentLanguage.value = language as Language
   })
   
-  window.electronAPI?.ipcManager.onMain('apiflow-create-project-success', (data: { projectId: string, projectName: string }) => {
+  window.electronAPI?.ipcManager.onMain(IPC_EVENTS.APIFLOW.TOPBAR_TO_CONTENT.PROJECT_CREATED, (data: { projectId: string, projectName: string }) => {
     tabs.value.push({ id: data.projectId, title: data.projectName, type: 'project', network: networkMode.value })
     activeTabId.value = data.projectId
   })
   
-  window.electronAPI?.ipcManager.onMain('apiflow-change-project', (data: { projectId: string, projectName: string }) => {
+  window.electronAPI?.ipcManager.onMain(IPC_EVENTS.APIFLOW.TOPBAR_TO_CONTENT.PROJECT_CHANGED, (data: { projectId: string, projectName: string }) => {
     activeTabId.value = data.projectId;
     const matchedProject = tabs.value.find(t => t.id === data.projectId)
     if (!matchedProject) {
@@ -237,11 +238,11 @@ const bindEvent = () => {
     }
   })
   
-  window.electronAPI?.ipcManager.onMain('apiflow-delete-project', (projectId: string) => {
+  window.electronAPI?.ipcManager.onMain(IPC_EVENTS.APIFLOW.TOPBAR_TO_CONTENT.PROJECT_DELETED, (projectId: string) => {
     deleteTab(projectId)
   })
   
-  window.electronAPI?.ipcManager.onMain('apiflow-change-project-name', (data: { projectId: string, projectName: string }) => {
+  window.electronAPI?.ipcManager.onMain(IPC_EVENTS.APIFLOW.TOPBAR_TO_CONTENT.PROJECT_RENAMED, (data: { projectId: string, projectName: string }) => {
     const index = tabs.value.findIndex(t => t.id === data.projectId)
     if (index !== -1) {
       tabs.value[index].title = data.projectName
@@ -249,7 +250,7 @@ const bindEvent = () => {
   })
   
   // 监听来自 App.vue 的初始化数据
-  window.electronAPI?.ipcManager.onMain('apiflow-init-tabs-data', (data: { tabs: HeaderTab[], activeTabId: string }) => {
+  window.electronAPI?.ipcManager.onMain(IPC_EVENTS.APIFLOW.TOPBAR_TO_CONTENT.INIT_TABS_DATA, (data: { tabs: HeaderTab[], activeTabId: string }) => {
     tabs.value = data.tabs;
     activeTabId.value = data.activeTabId;
   });
@@ -258,7 +259,7 @@ const bindEvent = () => {
 onMounted(() => {
   bindEvent()
   // 发送就绪信号
-  window.electronAPI?.ipcManager.sendToMain('apiflow-topbar-ready');
+  window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.APIFLOW.TOPBAR_TO_CONTENT.TOPBAR_READY);
 })
 
 watch(() => networkMode.value, (mode, prevMode) => {

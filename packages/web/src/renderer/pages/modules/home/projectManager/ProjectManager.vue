@@ -209,6 +209,7 @@ import { projectCache, apiNodesCache } from '@/cache/index'
 import { useProjectStore } from '@/store/project/project'
 import { useRuntime } from '@/store/runtime/runtime'
 import { httpMockLogsCache } from '@/cache/mock/httpMock/httpMockLogsCache';
+import { IPC_EVENTS } from '@src/types/ipc';
 
 //变量
 const { t } = useI18n()
@@ -317,7 +318,7 @@ const deleteProject = (_id: string) => {
     type: 'warning'
   }).then(async () => {
     const notifyProjectDeleted = () => {
-      window.electronAPI?.ipcManager.sendToMain('apiflow-content-project-deleted', _id);
+      window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.APIFLOW.CONTENT_TO_TOPBAR.PROJECT_DELETED, _id);
     }
     const cleanupMockLogs = async () => {
       try {
@@ -470,7 +471,7 @@ const handleAddSuccess = async (data: { projectId: string, projectName: string }
 const handleEditSuccess = (data?: { id: string, name: string }) => {
   getProjectList();
   if (data) {
-    window.electronAPI?.ipcManager.sendToMain('apiflow-content-project-renamed', {
+    window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.APIFLOW.CONTENT_TO_TOPBAR.PROJECT_RENAMED, {
       projectId: data.id,
       projectName: data.name
     });

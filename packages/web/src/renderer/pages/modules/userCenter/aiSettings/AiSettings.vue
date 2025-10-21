@@ -97,6 +97,7 @@ import { Loading } from '@element-plus/icons-vue'
 import { aiCache } from '@/cache/ai/aiCache'
 import type { Config } from '@src/types/config'
 import VueMarkdownRender from 'vue-markdown-render'
+import { IPC_EVENTS } from '@src/types/ipc'
 
 type AiConfig = Config['mainConfig']['aiConfig']
 
@@ -158,7 +159,7 @@ const handleSave = async () => {
   try {
     aiCache.setAiConfig(formData.value)
     // 同步配置到主进程
-    window.electronAPI?.ipcManager.sendToMain('apiflow-sync-ai-config', {
+    window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.APIFLOW.TOPBAR_TO_CONTENT.SYNC_AI_CONFIG, {
       apiKey: formData.value.apiKey,
       apiUrl: formData.value.apiUrl,
       timeout: formData.value.timeout
@@ -185,7 +186,7 @@ const handleReset = () => {
   try {
     aiCache.setAiConfig(formData.value)
     // 同步配置到主进程
-    window.electronAPI?.ipcManager.sendToMain('apiflow-sync-ai-config', {
+    window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.APIFLOW.TOPBAR_TO_CONTENT.SYNC_AI_CONFIG, {
       apiKey: formData.value.apiKey,
       apiUrl: formData.value.apiUrl,
       timeout: formData.value.timeout
@@ -211,7 +212,7 @@ const handleTest = async () => {
   try {
     // 先保存配置，再测试
     aiCache.setAiConfig(formData.value)
-    window.electronAPI?.ipcManager.sendToMain('apiflow-sync-ai-config', {
+    window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.APIFLOW.TOPBAR_TO_CONTENT.SYNC_AI_CONFIG, {
       apiKey: formData.value.apiKey,
       apiUrl: formData.value.apiUrl,
       timeout: formData.value.timeout
@@ -249,7 +250,7 @@ const handleJsonTest = async () => {
   try {
     // 先保存配置，再测试
     aiCache.setAiConfig(formData.value)
-    window.electronAPI?.ipcManager.sendToMain('apiflow-sync-ai-config', {
+    window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.APIFLOW.TOPBAR_TO_CONTENT.SYNC_AI_CONFIG, {
       apiKey: formData.value.apiKey,
       apiUrl: formData.value.apiUrl,
       timeout: formData.value.timeout
@@ -294,7 +295,7 @@ const handleStreamTest = async () => {
   try {
     // 先保存配置，再测试
     aiCache.setAiConfig(formData.value)
-    window.electronAPI?.ipcManager.sendToMain('apiflow-sync-ai-config', {
+    window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.APIFLOW.TOPBAR_TO_CONTENT.SYNC_AI_CONFIG, {
       apiKey: formData.value.apiKey,
       apiUrl: formData.value.apiUrl,
       timeout: formData.value.timeout

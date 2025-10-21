@@ -177,6 +177,7 @@ import type { MockLog } from '@src/types/mockNode'
 import { httpMockLogsCache } from '@/cache/mock/httpMock/httpMockLogsCache'
 import SJsonEditor from '@/components/common/jsonEditor/GJsonEditor.vue'
 import { Trash2, FileText, AlertCircle, AlertTriangle, Info } from 'lucide-vue-next'
+import { IPC_EVENTS } from '@src/types/ipc'
 
 const defaultTemplate = '[$time_local] $remote_addr - $remote_user "$request" $status $body_bytes_sent "$http_referer" "$http_user_agent" $response_time_ms ms'
 
@@ -468,11 +469,11 @@ watch(currentNodeId, (value, oldValue) => {
 }, { immediate: true })
 // 组件挂载时注册IPC监听器
 onMounted(() => {
-  window.electronAPI?.ipcManager.onMain('mock-logs-batch', handleLogsBatch)
+  window.electronAPI?.ipcManager.onMain(IPC_EVENTS.MOCK.MAIN_TO_RENDERER.LOGS_BATCH, handleLogsBatch)
 })
 // 组件卸载时移除监听器
 onUnmounted(() => {
-  window.electronAPI?.ipcManager.removeListener('mock-logs-batch', handleLogsBatch)
+  window.electronAPI?.ipcManager.removeListener(IPC_EVENTS.MOCK.MAIN_TO_RENDERER.LOGS_BATCH, handleLogsBatch)
 })
 </script>
 
