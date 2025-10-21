@@ -122,10 +122,7 @@ import { useI18n } from 'vue-i18n'
 import { ElMessage } from 'element-plus'
 import { Loading, Top } from '@element-plus/icons-vue'
 import SJsonEditor from '@/components/common/jsonEditor/GJsonEditor.vue'
-import { 
-  getMockTextRandomSizeHintVisible,
-  setMockTextRandomSizeHintVisible 
-} from '@/cache/common/commonCache'
+import { userState } from '@/cache/userState/userStateCache'
 import type { MockHttpNode } from '@src/types'
 
 type ResponseItem = MockHttpNode['response'][0]
@@ -164,7 +161,7 @@ const isSendDisabled = computed(() => {
 // 处理"不再提示"点击
 const handleDismissHint = () => {
   showRandomTextSizeHint.value = false
-  setMockTextRandomSizeHintVisible(false)
+  userState.setMockTextRandomSizeHintVisible(false)
 }
 
 // 处理 Text AI生成预览
@@ -201,7 +198,7 @@ const handleGenerateTextPreview = async () => {
 }
 
 onMounted(() => {
-  showRandomTextSizeHint.value = getMockTextRandomSizeHintVisible()
+  showRandomTextSizeHint.value = userState.getMockTextRandomSizeHintVisible()
 })
 </script>
 

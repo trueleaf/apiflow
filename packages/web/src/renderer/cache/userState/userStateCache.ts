@@ -243,6 +243,66 @@ class UserState {
       localStorage.setItem('userState/mockNode/headersCollapse', JSON.stringify(data));
     }
   }
+  // 获取 Mock JSON 随机大小提示是否可见
+  getMockJsonRandomSizeHintVisible(): boolean {
+    try {
+      const value = localStorage.getItem('userState/hint/mockJsonRandomSizeHint')
+      if (value === null) {
+        return true
+      }
+      return value !== 'false'
+    } catch (error) {
+      return true
+    }
+  }
+  // 设置 Mock JSON 随机大小提示是否可见
+  setMockJsonRandomSizeHintVisible(visible: boolean): void {
+    try {
+      localStorage.setItem('userState/hint/mockJsonRandomSizeHint', visible ? 'true' : 'false')
+    } catch (error) {
+      // 忽略错误
+    }
+  }
+  // 获取 Mock Text 随机大小提示是否可见
+  getMockTextRandomSizeHintVisible(): boolean {
+    try {
+      const value = localStorage.getItem('userState/hint/mockTextRandomSizeHint')
+      if (value === null) {
+        return true
+      }
+      return value !== 'false'
+    } catch (error) {
+      return true
+    }
+  }
+  // 设置 Mock Text 随机大小提示是否可见
+  setMockTextRandomSizeHintVisible(visible: boolean): void {
+    try {
+      localStorage.setItem('userState/hint/mockTextRandomSizeHint', visible ? 'true' : 'false')
+    } catch (error) {
+      // 忽略错误
+    }
+  }
+  // 获取 JSON Body 提示是否可见
+  getJsonBodyHintVisible(): boolean {
+    try {
+      const value = localStorage.getItem('userState/hint/hideJsonBodyTip')
+      if (value === null) {
+        return true
+      }
+      return value !== 'false'
+    } catch (error) {
+      return true
+    }
+  }
+  // 设置 JSON Body 提示是否可见
+  setJsonBodyHintVisible(visible: boolean): void {
+    try {
+      localStorage.setItem('userState/hint/hideJsonBodyTip', visible ? 'true' : 'false')
+    } catch (error) {
+      // 忽略错误
+    }
+  }
 }
 
 export const userState = new UserState();

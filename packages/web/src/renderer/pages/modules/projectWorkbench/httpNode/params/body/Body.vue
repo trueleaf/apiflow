@@ -86,7 +86,7 @@
 import { computed, ref, onMounted, Ref } from 'vue'
 import type { HttpNodeBodyMode, HttpNodeBodyParams, HttpNodeBodyRawType, HttpNodeContentType, ApidocProperty } from '@src/types'
 import { useI18n } from 'vue-i18n'
-import { getJsonBodyHintVisible, setJsonBodyHintVisible } from '@/cache/common/commonCache'
+import { userState } from '@/cache/userState/userStateCache'
 import { useVariable } from '@/store/apidoc/variablesStore';
 import { useApidoc } from '@/store/apidoc/apidocStore';
 import { config } from '@src/config/config';
@@ -158,7 +158,7 @@ const { t } = useI18n()
 
 const jsonBodyVisible = ref(false);
 const handleHideTip = () => {
-  setJsonBodyHintVisible(false);
+  userState.setJsonBodyHintVisible(false);
   jsonBodyVisible.value = false;
 }
 //body类型
@@ -349,7 +349,7 @@ const handleClearSelectFile = () => {
 |--------------------------------------------------------------------------
 */
 onMounted(async () => {
-  jsonBodyVisible.value = getJsonBodyHintVisible();
+  jsonBodyVisible.value = userState.getJsonBodyHintVisible();
 });
 
 // 防抖的请求体记录函数
