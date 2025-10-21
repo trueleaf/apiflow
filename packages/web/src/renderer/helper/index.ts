@@ -11,7 +11,6 @@ import Mock from 'mockjs';
 import { faker } from '@faker-js/faker';
 import { useVariable } from '@/store/apidoc/variablesStore';
 
-type Data = Record<string, unknown>
 type UrlInfo = {
   host: string,
   path: string,
@@ -43,12 +42,8 @@ const emitter = mitt<{
 }>()
 
 export const event = emitter;
-type ForestData = {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  [propName: string]: any,
-}
 // 遍历森林
-export const forEachForest = <T extends ForestData>(forest: T[], fn: (arg: T) => void, options?: { childrenKey?: string }): void => {
+export const forEachForest = <T extends Record<string, any>>(forest: T[], fn: (arg: T) => void, options?: { childrenKey?: string }): void => {
   if (!Array.isArray(forest)) {
     console.error('第一个参数必须为数组类型');
     return;
@@ -77,7 +72,7 @@ export const forEachForest = <T extends ForestData>(forest: T[], fn: (arg: T) =>
 /**
  * 根据id查询父元素
  */
-export const findParentById = <T extends ForestData>(forest: T[], id: string | number, options?: { childrenKey?: string, idKey?: string }): T | null => {
+export const findParentById = <T extends Record<string, any>>(forest: T[], id: string | number, options?: { childrenKey?: string, idKey?: string }): T | null => {
   if (!Array.isArray(forest)) {
     console.error('第一个参数必须为数组类型');
     return null;
@@ -85,7 +80,7 @@ export const findParentById = <T extends ForestData>(forest: T[], id: string | n
   const childrenKey = options?.childrenKey || 'children';
   const idKey = options?.idKey || 'id';
   let pNode: T | null = null;
-  const foo = (forestData: ForestData, p: T | null) => {
+  const foo = (forestData: Record<string, any>, p: T | null) => {
     for (let i = 0; i < forestData.length; i += 1) {
       const currentData = forestData[i];
       if (currentData[idKey] === id) {
@@ -104,7 +99,7 @@ export const findParentById = <T extends ForestData>(forest: T[], id: string | n
 /**
  * 根据id查询下一个兄弟节点
  */
-export const findNextSiblingById = <T extends ForestData>(forest: T[], id: string | number, options?: { childrenKey?: string, idKey?: string }): T | null => {
+export const findNextSiblingById = <T extends Record<string, any>>(forest: T[], id: string | number, options?: { childrenKey?: string, idKey?: string }): T | null => {
   if (!Array.isArray(forest)) {
     console.error('第一个参数必须为数组类型');
     return null;
@@ -112,7 +107,7 @@ export const findNextSiblingById = <T extends ForestData>(forest: T[], id: strin
   const childrenKey = options?.childrenKey || 'children';
   const idKey = options?.idKey || 'id';
   let nextSibling: T | null = null;
-  const foo = (forestData: ForestData) => {
+  const foo = (forestData: Record<string, any>) => {
     for (let i = 0; i < forestData.length; i += 1) {
       const currentData = forestData[i];
       if (currentData[idKey] === id) {
@@ -130,7 +125,7 @@ export const findNextSiblingById = <T extends ForestData>(forest: T[], id: strin
 /**
  * 根据id查询上一个兄弟节点
  */
-export const findPreviousSiblingById = <T extends ForestData>(forest: T[], id: string | number, options?: { childrenKey?: string, idKey?: string }): T | null => {
+export const findPreviousSiblingById = <T extends Record<string, any>>(forest: T[], id: string | number, options?: { childrenKey?: string, idKey?: string }): T | null => {
   if (!Array.isArray(forest)) {
     console.error('第一个参数必须为数组类型');
     return null;
@@ -138,7 +133,7 @@ export const findPreviousSiblingById = <T extends ForestData>(forest: T[], id: s
   const childrenKey = options?.childrenKey || 'children';
   const idKey = options?.idKey || 'id';
   let previousSibling: T | null = null;
-  const foo = (forestData: ForestData) => {
+  const foo = (forestData: Record<string, any>) => {
     for (let i = 0; i < forestData.length; i += 1) {
       const currentData = forestData[i];
       if (currentData[idKey] === id) {
@@ -157,7 +152,7 @@ export const findPreviousSiblingById = <T extends ForestData>(forest: T[], id: s
 /**
  * 根据id查询元素
  */
-export const findNodeById = <T extends ForestData>(forest: T[], id: string | number, options?: { childrenKey?: string, idKey?: string }): T | null => {
+export const findNodeById = <T extends Record<string, any>>(forest: T[], id: string | number, options?: { childrenKey?: string, idKey?: string }): T | null => {
   if (!Array.isArray(forest)) {
     console.error('第一个参数必须为数组类型')
     return null;
@@ -165,7 +160,7 @@ export const findNodeById = <T extends ForestData>(forest: T[], id: string | num
   let result = null;
   const childrenKey = options?.childrenKey || 'children';
   const idKey = options?.idKey || 'id';
-  const foo = (forestData: ForestData) => {
+  const foo = (forestData: Record<string, any>) => {
     for (let i = 0; i < forestData.length; i += 1) {
       const currentData = forestData[i];
       if (currentData[idKey] === id) {
@@ -224,7 +219,7 @@ export const formatDate = (date: string | number | Date | dayjs.Dayjs | undefine
   return result;
 }
 // 将数组对象[{id: 1}]根据指定的key值进行去重,key值对应的数组元素不存在则直接过滤掉，若不传入id则默认按照set形式进行去重。
-export const uniqueByKey = <T extends Data, K extends keyof T>(data: T[], key: K): T[] => {
+export const uniqueByKey = <T extends Record<string, unknown>, K extends keyof T>(data: T[], key: K): T[] => {
   const result: T[] = [];
   for (let i = 0, len = data.length; i < len; i += 1) {
     const isInResult = result.find((val) => val[key] === data[i][key]);
