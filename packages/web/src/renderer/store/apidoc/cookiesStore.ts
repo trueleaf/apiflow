@@ -2,7 +2,7 @@ import { defineStore } from "pinia";
 import { ref } from "vue";
 import { parse } from 'set-cookie-parser';
 import { httpNodeCache } from '@/cache/httpNode/httpNodeCache.ts';
-import { getDomainFromUrl, getPathFromUrl } from "@/helper/index.ts";
+import { parseUrlInfo } from "@/helper/index.ts";
 import { nanoid } from 'nanoid/non-secure';
 import dayjs from "dayjs";
 
@@ -98,8 +98,9 @@ export const useCookies = defineStore('apidocCookies', () => {
   };
   // 获取匹配的cookie列表
   const getMachtedCookies = (url: string) => {
-    const requestDomain = getDomainFromUrl(url);
-    const requestPath = getPathFromUrl(url);
+    const urlInfo = parseUrlInfo(url);
+    const requestDomain = urlInfo.domain;
+    const requestPath = urlInfo.path;
     // console.log(cookies.value)
     const matchedCookies = cookies.value.filter(cookie => {
       /**

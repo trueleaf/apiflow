@@ -251,35 +251,67 @@ export const convertTemplateValueToRealValue = async (
 };
 
 /**
+ * 通用参数字符串生成函数
+ * @param params 参数数组
+ * @param objectVariable 变量对象
+ * @param options 配置选项
+ */
+export const getStringFromParams = async (
+  params: Property[],
+  objectVariable: Record<string, any>,
+  options?: {
+    checkSelect?: boolean,  // 是否检查 select 属性
+    addQuestionMark?: boolean,  // 是否添加问号前缀
+  }
+): Promise<string> => {
+  const { checkSelect = false, addQuestionMark = false } = options || {};
+  let resultString = "";
+
+  for (let i = 0; i < params.length; i++) {
+    const param = params[i];
+
+    // 如果需要检查 select 且未选中，则跳过
+    if (checkSelect && !param.select) {
+      continue;
+    }
+
+    if (param.key) {
+      const realKey = await convertTemplateValueToRealValue(
+        param.key,
+        objectVariable
+      );
+      const realValue = await convertTemplateValueToRealValue(
+        param.value,
+        objectVariable
+      );
+      resultString += `${realKey}=${realValue}&`;
+    }
+  }
+
+  // 移除末尾的 &
+  resultString = resultString.replace(/&$/, "");
+
+  // 如果需要添加问号前缀
+  if (addQuestionMark && resultString) {
+    resultString = `?${resultString}`;
+  }
+
+  return resultString;
+};
+
+/**
  * 从 Query 参数生成查询字符串
+ * @deprecated 使用 getStringFromParams(queryParams, objectVariable, { checkSelect: true, addQuestionMark: true }) 代替
+ * 兼容性保留：此函数内部调用新的 getStringFromParams 函数
  */
 export const getQueryStringFromQueryParams = async (
   queryParams: Property[],
   objectVariable: Record<string, any>
 ): Promise<string> => {
-  let queryString = "";
-  for (let i = 0; i < queryParams.length; i++) {
-    const queryParam = queryParams[i];
-    if (!queryParam.select) {
-      continue; //如果没有选中，则跳过
-    }
-    if (queryParam.key) {
-      const realKey = await convertTemplateValueToRealValue(
-        queryParam.key,
-        objectVariable
-      );
-      const realValue = await convertTemplateValueToRealValue(
-        queryParam.value,
-        objectVariable
-      );
-      queryString += `${realKey}=${realValue}&`;
-    }
-  }
-  queryString = queryString.replace(/&$/, "");
-  if (queryString) {
-    queryString = `?${queryString}`;
-  }
-  return queryString;
+  return getStringFromParams(queryParams, objectVariable, {
+    checkSelect: true,
+    addQuestionMark: true
+  });
 };
 
 /**
@@ -305,31 +337,16 @@ export const getObjectPathParams = async (
 
 /**
  * 从 URL 编码参数生成编码字符串
+ * @deprecated 使用 getStringFromParams(encodedParams, objectVariable, { checkSelect: true }) 代替
+ * 兼容性保留：此函数内部调用新的 getStringFromParams 函数
  */
 export const getEncodedStringFromEncodedParams = async (
   encodedParams: Property[],
   objectVariable: Record<string, any>
 ): Promise<string> => {
-  let encodedString = "";
-  for (let i = 0; i < encodedParams.length; i++) {
-    const queryParam = encodedParams[i];
-    if (!queryParam.select) {
-      continue; //如果没有选中，则跳过
-    }
-    if (queryParam.key) {
-      const realKey = await convertTemplateValueToRealValue(
-        queryParam.key,
-        objectVariable
-      );
-      const realValue = await convertTemplateValueToRealValue(
-        queryParam.value,
-        objectVariable
-      );
-      encodedString += `${realKey}=${realValue}&`;
-    }
-  }
-  encodedString = encodedString.replace(/&$/, "");
-  return encodedString;
+  return getStringFromParams(encodedParams, objectVariable, {
+    checkSelect: true
+  });
 };
 
 /**
@@ -548,56 +565,59 @@ export const findParentById = <T extends Record<string, any>>(forest: T[], id: s
 }
 
 /**
+ * 根据id查询兄弟节点（通用函数）
+ * @param forest 树形数组
+ * @param id 节点id
+ * @param direction 方向：'next' 为下一个，'previous' 为上一个
+ * @param options 配置选项
+ */
+export const findSiblingById = <T extends Record<string, any>>(
+  forest: T[],
+  id: string | number,
+  direction: 'next' | 'previous',
+  options?: { childrenKey?: string, idKey?: string }
+): T | null => {
+  if (!Array.isArray(forest)) {
+    console.error('第一个参数必须为数组类型');
+    return null;
+  }
+  const childrenKey = options?.childrenKey || 'children';
+  const idKey = options?.idKey || 'id';
+  let sibling: T | null = null;
+  const offset = direction === 'next' ? 1 : -1;
+
+  const foo = (forestData: Record<string, any>) => {
+    for (let i = 0; i < forestData.length; i += 1) {
+      const currentData = forestData[i];
+      if (currentData[idKey] === id) {
+        sibling = forestData[i + offset] || null;
+        break;
+      }
+      if (currentData[childrenKey] && currentData[childrenKey].length > 0) {
+        foo(currentData[childrenKey]);
+      }
+    }
+  };
+  foo(forest);
+  return sibling;
+}
+
+/**
  * 根据id查询下一个兄弟节点
+ * @deprecated 使用 findSiblingById(forest, id, 'next', options) 代替
+ * 兼容性保留：此函数内部调用新的 findSiblingById 函数
  */
 export const findNextSiblingById = <T extends Record<string, any>>(forest: T[], id: string | number, options?: { childrenKey?: string, idKey?: string }): T | null => {
-  if (!Array.isArray(forest)) {
-    console.error('第一个参数必须为数组类型');
-    return null;
-  }
-  const childrenKey = options?.childrenKey || 'children';
-  const idKey = options?.idKey || 'id';
-  let nextSibling: T | null = null;
-  const foo = (forestData: Record<string, any>) => {
-    for (let i = 0; i < forestData.length; i += 1) {
-      const currentData = forestData[i];
-      if (currentData[idKey] === id) {
-        nextSibling = forestData[i + 1]
-        break;
-      }
-      if (currentData[childrenKey] && currentData[childrenKey].length > 0) {
-        foo(currentData[childrenKey]);
-      }
-    }
-  };
-  foo(forest);
-  return nextSibling;
+  return findSiblingById(forest, id, 'next', options);
 }
+
 /**
  * 根据id查询上一个兄弟节点
+ * @deprecated 使用 findSiblingById(forest, id, 'previous', options) 代替
+ * 兼容性保留：此函数内部调用新的 findSiblingById 函数
  */
 export const findPreviousSiblingById = <T extends Record<string, any>>(forest: T[], id: string | number, options?: { childrenKey?: string, idKey?: string }): T | null => {
-  if (!Array.isArray(forest)) {
-    console.error('第一个参数必须为数组类型');
-    return null;
-  }
-  const childrenKey = options?.childrenKey || 'children';
-  const idKey = options?.idKey || 'id';
-  let previousSibling: T | null = null;
-  const foo = (forestData: Record<string, any>) => {
-    for (let i = 0; i < forestData.length; i += 1) {
-      const currentData = forestData[i];
-      if (currentData[idKey] === id) {
-        previousSibling = forestData[i - 1]
-        break;
-      }
-      if (currentData[childrenKey] && currentData[childrenKey].length > 0) {
-        foo(currentData[childrenKey]);
-      }
-    }
-  };
-  foo(forest);
-  return previousSibling;
+  return findSiblingById(forest, id, 'previous', options);
 }
 
 /**
@@ -1007,38 +1027,62 @@ export const generateHttpNode = (id?: string): HttpNode => {
 export const apidocGenerateRequestParamTypes = (): HttpNodeRequestParamTypes => {
   return ['path', 'params', 'json', 'x-www-form-urlencoded', 'formData', 'text/javascript', 'text/plain', 'text/html', 'application/xml'];
 }
-// 将byte转换为易读单位
-export const formatBytes = (byteNum: number): string => {
-  let result = '';
-  if (byteNum >= 0 && byteNum < 1024) {
-    //b
-    result = `${byteNum}B`;
-  } else if (byteNum >= 1024 && byteNum < 1024 * 1024) {
-    //KB
-    result = `${(byteNum / 1024).toFixed(2)}KB`;
-  } else if (byteNum >= 1024 * 1024 && byteNum < 1024 * 1024 * 1024) {
-    //MB
-    result = `${(byteNum / 1024 / 1024).toFixed(2)}MB`;
-  } else if (byteNum >= 1024 * 1024 * 1024 && byteNum < 1024 * 1024 * 1024 * 1024) {
-    //GB
-    result = `${(byteNum / 1024 / 1024 / 1024).toFixed(2)}GB`;
-  }
-  return result;
-}
-// 将毫秒转换为易读单位
-export const formatMs = (ms: number): string => {
-  let result = '';
-  if (!ms) {
+/**
+ * 通用单位格式化函数
+ * @param value 要格式化的数值
+ * @param type 格式化类型：'bytes' 或 'time'
+ */
+export const formatUnit = (value: number, type: 'bytes' | 'time'): string => {
+  if (!value && type === 'time') {
     return '';
   }
-  if (ms > 0 && ms < 1000) { //毫秒
-    result = `${ms}ms`;
-  } else if (ms >= 1000 && ms < 1000 * 60) { //秒
-    result = `${(ms / 1000).toFixed(2)}s`;
-  } else if (ms >= 1000 * 60) { //分钟
-    result = `${(ms / 1000 / 60).toFixed(2)}m`;
+
+  if (type === 'bytes') {
+    // 字节转换
+    const units = ['B', 'KB', 'MB', 'GB'];
+    const threshold = 1024;
+
+    if (value >= 0 && value < threshold) {
+      return `${value}B`;
+    }
+
+    let index = 0;
+    let result = value;
+    while (result >= threshold && index < units.length - 1) {
+      result /= threshold;
+      index++;
+    }
+
+    return `${result.toFixed(2)}${units[index]}`;
+  } else {
+    // 时间转换（毫秒）
+    if (value > 0 && value < 1000) {
+      return `${value}ms`;
+    } else if (value >= 1000 && value < 1000 * 60) {
+      return `${(value / 1000).toFixed(2)}s`;
+    } else if (value >= 1000 * 60) {
+      return `${(value / 1000 / 60).toFixed(2)}m`;
+    }
+    return '';
   }
-  return result;
+}
+
+/**
+ * 将byte转换为易读单位
+ * @deprecated 使用 formatUnit(byteNum, 'bytes') 代替
+ * 兼容性保留：此函数内部调用新的 formatUnit 函数
+ */
+export const formatBytes = (byteNum: number): string => {
+  return formatUnit(byteNum, 'bytes');
+}
+
+/**
+ * 将毫秒转换为易读单位
+ * @deprecated 使用 formatUnit(ms, 'time') 代替
+ * 兼容性保留：此函数内部调用新的 formatUnit 函数
+ */
+export const formatMs = (ms: number): string => {
+  return formatUnit(ms, 'time');
 }
 // 拷贝文本
 export const copy = (str: string): void => {
@@ -1170,23 +1214,60 @@ export const formatHeader = (header: string) => {
     )
     .join('-'); // 重新连接成字符串
 }
-// 从url中获取domain信息（与cookie中的domain一致，仅主机名，不含端口和协议）
-export const getDomainFromUrl = (url: string): string => {
+/**
+ * 解析URL信息（通用函数）
+ * @param url URL字符串
+ * @returns 包含多个URL组成部分的对象
+ */
+export const parseUrlInfo = (url: string): {
+  domain: string,
+  path: string,
+  protocol: string,
+  port: string,
+  search: string,
+  hash: string,
+  host: string,
+} => {
   try {
-    const { hostname } = new URL(url);
-    return hostname;
+    const urlObj = new URL(url);
+    return {
+      domain: urlObj.hostname,
+      path: urlObj.pathname,
+      protocol: urlObj.protocol,
+      port: urlObj.port,
+      search: urlObj.search,
+      hash: urlObj.hash,
+      host: urlObj.host,
+    };
   } catch {
-    return '';
+    return {
+      domain: '',
+      path: '',
+      protocol: '',
+      port: '',
+      search: '',
+      hash: '',
+      host: '',
+    };
   }
 }
-// 从url中获取路径信息（不包含协议、主机名、端口和查询参数）
+
+/**
+ * 从url中获取domain信息（与cookie中的domain一致，仅主机名，不含端口和协议）
+ * @deprecated 使用 parseUrlInfo(url).domain 代替
+ * 兼容性保留：此函数内部调用新的 parseUrlInfo 函数
+ */
+export const getDomainFromUrl = (url: string): string => {
+  return parseUrlInfo(url).domain;
+}
+
+/**
+ * 从url中获取路径信息（不包含协议、主机名、端口和查询参数）
+ * @deprecated 使用 parseUrlInfo(url).path 代替
+ * 兼容性保留：此函数内部调用新的 parseUrlInfo 函数
+ */
 export const getPathFromUrl = (url: string): string => {
-  try {
-    const { pathname } = new URL(url);
-    return pathname;
-  } catch {
-    return '';
-  }
+  return parseUrlInfo(url).path;
 }
 // 计算距离过期时间的倒计时
 export const getCountdown = (expire: number) => {

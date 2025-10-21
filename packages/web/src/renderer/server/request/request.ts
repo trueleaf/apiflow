@@ -2,7 +2,7 @@ import { useApidoc } from '@/store/apidoc/apidocStore';
 import { ref, toRaw } from 'vue';
 import json5 from 'json5'
 import { HttpNode, ApidocProperty } from '@src/types';
-import { convertTemplateValueToRealValue, getEncodedStringFromEncodedParams, getFormDataFromFormDataParams, getObjectPathParams, getQueryStringFromQueryParams } from '@/helper';
+import { convertTemplateValueToRealValue, getStringFromParams, getFormDataFromFormDataParams, getObjectPathParams } from '@/helper';
 import { useVariable } from '@/store/apidoc/variablesStore';
 import { GotRequestOptions, JsonData, RedirectOptions, ResponseInfo } from '@src/types/index.ts';
 import { useApidocBaseInfo } from '@/store/apidoc/baseInfoStore';
@@ -76,7 +76,7 @@ const getMethod = (apidoc: HttpNode) => {
 export const getUrl = async (httpNode: HttpNode) => {
   const { objectVariable } = useVariable();
   const { url, queryParams, paths, } = httpNode.item;
-  const queryString = await getQueryStringFromQueryParams(queryParams, objectVariable);
+  const queryString = await getStringFromParams(queryParams, objectVariable, { checkSelect: true, addQuestionMark: true });
   const objectPathParams = await getObjectPathParams(paths, objectVariable);
   const replacedPathParamsString = url.path.replace(/(?<!\{)\{([^{}]+)\}(?!\})/g, (_, variableName) => {
     return objectPathParams[variableName] || ''
@@ -95,7 +95,7 @@ export const getUrl = async (httpNode: HttpNode) => {
 export const getWebSocketUrl = async (websocketNode: WebSocketNode) => {
   const { objectVariable } = useVariable();
   const { url, queryParams } = websocketNode.item;
-  const queryString = await getQueryStringFromQueryParams(queryParams, objectVariable);
+  const queryString = await getStringFromParams(queryParams, objectVariable, { checkSelect: true, addQuestionMark: true });
   let fullUrl = url.path + queryString;
   if (!fullUrl.startsWith('ws') && !fullUrl.startsWith('wss')) {
     fullUrl = `ws://${fullUrl}`
@@ -279,7 +279,7 @@ const getBody = async (apidoc: HttpNode): Promise<GotRequestOptions['body']> => 
     return undefined;
   }
   if (mode === 'urlencoded') {
-    const urlencodedString = await getEncodedStringFromEncodedParams(urlencoded, objectVariable);
+    const urlencodedString = await getStringFromParams(urlencoded, objectVariable, { checkSelect: true });
     return {
       type: 'urlencoded',
       value: urlencodedString

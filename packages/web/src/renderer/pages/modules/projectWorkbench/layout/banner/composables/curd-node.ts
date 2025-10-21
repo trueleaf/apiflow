@@ -3,7 +3,7 @@ import 'element-plus/es/components/message-box/style/css';
 import { ElMessage, ElMessageBox } from 'element-plus'
 import type { ApidocBanner, CommonResponse, HttpNode, FolderNode } from '@src/types'
 import { WebSocketNode } from '@src/types/websocketNode'
-import { findNodeById, forEachForest, findParentById, flatTree, uniqueByKey, findPreviousSiblingById, findNextSiblingById, event } from '@/helper/index'
+import { findNodeById, forEachForest, findParentById, flatTree, uniqueByKey, findSiblingById, event } from '@/helper/index'
 import { router } from '@/router/index'
 import { request } from '@/api/api'
 import { i18n } from '@/i18n'
@@ -575,8 +575,8 @@ export const dragNode = async (dragData: ApidocBanner, dropData: ApidocBanner, t
         newPid = pData ? pData._id : '';
 
         // 计算排序值
-        const nextSibling = findNextSiblingById<ApidocBanner>(apidocBannerStore.banner, dropData._id, { idKey: '_id' });
-        const previousSibling = findPreviousSiblingById<ApidocBanner>(apidocBannerStore.banner, dropData._id, { idKey: '_id' });
+        const nextSibling = findSiblingById<ApidocBanner>(apidocBannerStore.banner, dropData._id, 'next', { idKey: '_id' });
+        const previousSibling = findSiblingById<ApidocBanner>(apidocBannerStore.banner, dropData._id, 'previous', { idKey: '_id' });
 
         if (type === 'before') {
           // 拖拽到目标节点前面
@@ -629,8 +629,8 @@ export const dragNode = async (dragData: ApidocBanner, dropData: ApidocBanner, t
     params.sort = Date.now();
     dragData.pid = dropData._id;
   } else {
-    const nextSibling = findNextSiblingById<ApidocBanner>(apidocBannerStore.banner, dragData._id, { idKey: '_id' });
-    const previousSibling = findPreviousSiblingById<ApidocBanner>(apidocBannerStore.banner, dragData._id, { idKey: '_id' });
+    const nextSibling = findSiblingById<ApidocBanner>(apidocBannerStore.banner, dragData._id, 'next', { idKey: '_id' });
+    const previousSibling = findSiblingById<ApidocBanner>(apidocBannerStore.banner, dragData._id, 'previous', { idKey: '_id' });
     const previousSiblingSort = previousSibling ? previousSibling.sort : 0;
     const nextSiblingSort = nextSibling ? nextSibling.sort : Date.now();
     params.sort = (nextSiblingSort + previousSiblingSort) / 2;
