@@ -56,7 +56,7 @@
 import { ref, reactive, computed, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useWebSocket } from '@/store/websocket/websocket';
-import { uuid } from '@/helper';
+import { nanoid } from 'nanoid/non-secure';
 import { ElMessage, type FormInstance, type FormRules } from 'element-plus';
 import type { WebsocketMessageType, WebsocketSendMessageTemplate } from '@src/types/websocketNode';
 import SJsonEditor from '@/components/common/jsonEditor/GJsonEditor.vue';
@@ -137,7 +137,7 @@ const handleCreateTemplate = async () => {
     createTemplateLoading.value = true;
 
     const newTemplate: WebsocketSendMessageTemplate = {
-      id: uuid(),
+      id: nanoid(),
       name: templateForm.name,
       sendMessage: templateForm.sendMessage,
       messageType: templateForm.messageType,

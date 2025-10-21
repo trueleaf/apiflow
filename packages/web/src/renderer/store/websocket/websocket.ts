@@ -2,7 +2,8 @@ import { WebSocketNode, WebsocketMessageType, WebsocketResponse, WebsocketSendMe
 import { defineStore, storeToRefs } from "pinia";
 import { ref, watch } from "vue";
 import { ApidocProperty } from "@src/types";
-import { apidocGenerateProperty, generateEmptyWebsocketNode, uuid } from "@/helper";
+import { apidocGenerateProperty, generateEmptyWebsocketNode } from "@/helper";
+import { nanoid } from 'nanoid/non-secure';
 import { cloneDeep, debounce } from "lodash-es";
 import { apiNodesCache } from "@/cache/index";
 import { webSocketNodeCache } from "@/cache/websocketNode/websocketNodeCache.ts";
@@ -23,8 +24,8 @@ export const useWebSocket = defineStore('websocket', () => {
   const apidocVariableStore = useVariable();
   const websocketCookies = useCookies();
   const isOffline = () => runtimeStore.networkMode === 'offline';
-  const websocket = ref<WebSocketNode>(generateEmptyWebsocketNode(uuid()));
-  const originWebsocket = ref<WebSocketNode>(generateEmptyWebsocketNode(uuid()));
+  const websocket = ref<WebSocketNode>(generateEmptyWebsocketNode(nanoid()));
+  const originWebsocket = ref<WebSocketNode>(generateEmptyWebsocketNode(nanoid()));
   const loading = ref(false);
   const saveLoading = ref(false);
   const refreshLoading = ref(false);

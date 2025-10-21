@@ -1,7 +1,8 @@
 import { MockHttpNode } from "@src/types/mockNode";
 import { defineStore, storeToRefs } from "pinia";
 import { ref } from "vue";
-import { uuid, generateEmptyHttpMockNode } from "@/helper";
+import { generateEmptyHttpMockNode } from "@/helper";
+import { nanoid } from 'nanoid/non-secure';
 import { cloneDeep } from "lodash-es";
 import { apiNodesCache } from "@/cache/index";
 import { httpMockNodeCache } from "@/cache/mock/httpMock/httpMockNodeCache.ts";
@@ -14,8 +15,8 @@ import { useRuntime } from '@/store/runtime/runtime';
 export const useHttpMock = defineStore('httpMock', () => {
   const runtimeStore = useRuntime();
   const isOffline = () => runtimeStore.networkMode === 'offline';
-  const httpMock = ref<MockHttpNode>(generateEmptyHttpMockNode(uuid()));
-  const originHttpMock = ref<MockHttpNode>(generateEmptyHttpMockNode(uuid()));
+  const httpMock = ref<MockHttpNode>(generateEmptyHttpMockNode(nanoid()));
+  const originHttpMock = ref<MockHttpNode>(generateEmptyHttpMockNode(nanoid()));
   const saveLoading = ref(false);
   const refreshLoading = ref(false);
 

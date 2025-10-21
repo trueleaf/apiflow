@@ -66,7 +66,7 @@ import { useApidocTas } from '@/store/apidoc/tabs';
 import { router } from '@/router';
 import { ApidocProperty } from '@src/types';
 import { WebsocketConnectParams } from '@src/types/websocketNode';
-import { uuid } from '@/helper';
+import { nanoid } from 'nanoid/non-secure';
 import { websocketResponseCache } from '@/cache/websocketNode/websocketResponseCache';
 import { getWebSocketHeaders } from '@/server/request/request';
 import { useWsRedoUndo } from '@/store/redoUndo/wsRedoUndoStore';
@@ -157,7 +157,7 @@ const handleConnect = async () => {
   const startConnectMessage = {
     type: 'startConnect' as const,
     data: {
-      id: uuid(),
+      id: nanoid(),
       nodeId: currentTab._id,
       url: fullUrl.value,
       timestamp: Date.now()
@@ -210,7 +210,7 @@ const handleConnect = async () => {
         const scriptErrorMessage = {
           type: 'error' as const,
           data: {
-            id: uuid(),
+            id: nanoid(),
             nodeId: currentTab._id,
             error: `前置脚本执行失败: ${errorMsg}`,
             timestamp: Date.now()
@@ -253,7 +253,7 @@ const handleConnect = async () => {
       const connectErrorMessage = {
         type: 'error' as const,
         data: {
-          id: uuid(),
+          id: nanoid(),
           nodeId: currentTab._id,
           error: result.msg || t('连接失败'),
           timestamp: Date.now()
@@ -273,7 +273,7 @@ const handleConnect = async () => {
     const connectExceptionMessage = {
       type: 'error' as const,
       data: {
-        id: uuid(),
+        id: nanoid(),
         nodeId: currentTab._id,
         error: error.message || t('连接异常'),
         timestamp: Date.now()
@@ -293,7 +293,7 @@ const handleConnect = async () => {
     const paramErrorMessage = {
       type: 'error' as const,
       data: {
-        id: uuid(),
+        id: nanoid(),
         nodeId: currentTab._id,
         error: `请求头处理异常: ${error instanceof Error ? error.message : '未知错误'}`,
         timestamp: Date.now()
@@ -320,7 +320,7 @@ const handleDisconnect = async () => {
       const disconnectErrorMessage = {
         type: 'error' as const,
         data: {
-          id: uuid(),
+          id: nanoid(),
           nodeId: currentTab._id,
           error: result.msg || t('断开连接失败'),
           timestamp: Date.now()
@@ -339,7 +339,7 @@ const handleDisconnect = async () => {
     const disconnectExceptionMessage = {
       type: 'error' as const,
       data: {
-        id: uuid(),
+        id: nanoid(),
         nodeId: currentTab._id,
         error: error.message || t('断开连接异常'),
         timestamp: Date.now()
@@ -411,7 +411,7 @@ const handleFormatUrl = () => {
     const newParams: ApidocProperty<'string'>[] = [];
     Object.keys(objectParams).forEach(field => {
       const property: ApidocProperty<'string'> = {
-        _id: uuid(),
+        _id: nanoid(),
         key: field,
         value: objectParams[field] || '',
         description: '',
@@ -564,3 +564,4 @@ const handleFormatUrl = () => {
 
 }
 </style>
+

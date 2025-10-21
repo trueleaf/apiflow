@@ -2,7 +2,8 @@ import { defineStore } from "pinia";
 import { ref } from "vue";
 import { parse } from 'set-cookie-parser';
 import { httpNodeCache } from '@/cache/httpNode/httpNodeCache.ts';
-import { getDomainFromUrl, getPathFromUrl, uuid } from "@/helper/index.ts";
+import { getDomainFromUrl, getPathFromUrl } from "@/helper/index.ts";
+import { nanoid } from 'nanoid/non-secure';
 import dayjs from "dayjs";
 
 export type ApidocCookie = {
@@ -53,7 +54,7 @@ export const useCookies = defineStore('apidocCookies', () => {
       }
       if (!objCookie.path) objCookie.path = '/';
       const newCookie: ApidocCookie = {
-        id: uuid(),
+        id: nanoid(),
         name: objCookie.name,
         value: objCookie.value,
         domain: realDomain,

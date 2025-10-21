@@ -132,7 +132,8 @@ import { ComponentPublicInstance, computed, onMounted, onUnmounted, ref } from '
 import { ApidocTab } from '@src/types/apidoc/tabs';
 import { router } from '@/router';
 import { useApidocTas } from '@/store/apidoc/tabs';
-import { event, uuid } from '@/helper'
+import { event } from '@/helper'
+import { nanoid } from 'nanoid/non-secure'
 import { useApidocBaseInfo } from '@/store/apidoc/base-info';
 import SContextmenu from '@/components/common/contextmenu/GContextmenu.vue'
 import SContextmenuItem from '@/components/common/contextmenu/GContextmenuItem.vue'
@@ -373,7 +374,7 @@ const fixCurrentTab = (element: ApidocTab) => {
 //打开一个新的tab
 const handleAddNewTab = () => {
   apidocTabsStore.addTab({
-    _id: `local_${uuid()}`,
+    _id: `local_${nanoid()}`,
     projectId: router.currentRoute.value.query.id as string,
     tabType: 'http',
     label: `未命名接口${tabIndex.value}`,

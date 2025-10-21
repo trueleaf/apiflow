@@ -104,7 +104,8 @@ import type { ApidocBanner, ApidocProjectEnum, CommonResponse } from '@src/types
 import type TreeStore from 'element-plus/lib/components/tree/src/model/tree-store'
 import type Node from 'element-plus/lib/components/tree/src/model/node'
 import { request } from '@/api/api'
-import { findNextSiblingById, findParentById, findPreviousSiblingById, forEachForest, uuid } from '@/helper'
+import { findNextSiblingById, findParentById, findPreviousSiblingById, forEachForest } from '@/helper'
+import { nanoid } from 'nanoid/non-secure'
 import { useI18n } from 'vue-i18n'
 import { useApidocBaseInfo } from '@/store/apidoc/base-info';
 import { useApidocBanner } from '@/store/apidoc/banner';
@@ -343,7 +344,7 @@ const handleSourceNodeDragOver = () => {
 const handleSourceDragend = (draggingNode: Node, _dropNode: unknown, _position: unknown, _event: unknown) => {
   // 插入一个空节点用于占位
   const emptyData = {
-    _id: uuid(),
+    _id: nanoid(),
   };
   sourceTree.value?.insertBefore(emptyData, draggingNode);
   // targetTree.value?.$emits('node-drag-end', event);
@@ -353,7 +354,7 @@ const handleSourceDragend = (draggingNode: Node, _dropNode: unknown, _position: 
     } else { //在挂载点完成拖拽
       const data = JSON.parse(JSON.stringify(draggingNode.data));
       data._id2 = data._id2 || data._id;
-      data._id = uuid();
+      data._id = nanoid();
       data._isSource = true; //当前节点还原为source
       sourceTree.value?.insertAfter(data, sourceTree.value?.getNode(emptyData));
       sourceTree.value?.remove(emptyData);

@@ -28,7 +28,8 @@ import SParams from './params/Params.vue'
 import SResponse from './response/Response.vue'
 import { useApidocTas } from '@/store/apidoc/tabs'
 import { useWebSocket } from '@/store/websocket/websocket'
-import { checkPropertyIsEqual, uuid } from '@/helper'
+import { checkPropertyIsEqual } from '@/helper'
+import { nanoid } from 'nanoid/non-secure'
 import { debounce } from "lodash-es"
 import type { WebSocketNode } from '@src/types/websocketNode'
 import { DebouncedFunc } from 'lodash-es'
@@ -219,7 +220,7 @@ const initWebSocketEventListeners = () => {
       const connectedMessage = {
         type: 'connected' as const,
         data: {
-          id: uuid(),
+          id: nanoid(),
           nodeId: data.nodeId,
           url: data.url,
           timestamp: Date.now()
@@ -246,7 +247,7 @@ const initWebSocketEventListeners = () => {
       const disconnectedMessage = {
         type: 'disconnected' as const,
         data: {
-          id: uuid(),
+          id: nanoid(),
           nodeId: data.nodeId,
           url: data.url,
           reasonType,
@@ -271,7 +272,7 @@ const initWebSocketEventListeners = () => {
       const wsErrorMessage = {
         type: 'error' as const,
         data: {
-          id: uuid(),
+          id: nanoid(),
           nodeId: data.nodeId,
           error: data.error,
           timestamp: Date.now()
@@ -306,7 +307,7 @@ const initWebSocketEventListeners = () => {
       const receiveMessage = {
         type: 'receive' as const,
         data: {
-          id: uuid(),
+          id: nanoid(),
           nodeId: data.nodeId,
           content: arrayBuffer,
           timestamp: Date.now(),
@@ -370,7 +371,7 @@ const initWebSocketEventListeners = () => {
           const scriptErrorMessage = {
             type: 'error' as const,
             data: {
-              id: uuid(),
+              id: nanoid(),
               nodeId: data.nodeId,
               error: `后置脚本执行失败: ${errorMsg}`,
               timestamp: Date.now()

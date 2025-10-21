@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { uuid, generateHttpNode, apidocGenerateProperty } from '@/helper/index'
+import { generateHttpNode, apidocGenerateProperty } from '@/helper/index'
+import { nanoid } from 'nanoid/non-secure'
 
 class PostmanTranslator {
   public projectId: string;
@@ -28,7 +29,7 @@ class PostmanTranslator {
     const foo = (items: any, pid = '') => {
       for (let i = 0; i < items.length; i += 1) {
         const doc = generateHttpNode();
-        const id = uuid();
+        const id = nanoid();
         doc._id = id;
         doc.pid = pid;
         const item = items[i];

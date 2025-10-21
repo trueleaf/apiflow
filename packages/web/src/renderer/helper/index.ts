@@ -43,10 +43,6 @@ const emitter = mitt<{
 }>()
 
 export const event = emitter;
-// 返回uuid
-export const uuid = (): string => {
-  return nanoid();
-}
 type ForestData = {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   [propName: string]: any,
@@ -251,7 +247,7 @@ export const getRequestMethodEnum = (): HttpNodeRequestMethod[] => {
  */
 export const apidocGenerateProperty = <T extends HttpNodePropertyType = 'string'>(type?: T): ApidocProperty<T> => {
   const result = {
-    _id: uuid(),
+    _id: nanoid(),
     key: '',
     type: type || 'string',
     description: '',

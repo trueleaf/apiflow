@@ -116,7 +116,8 @@ import { ElMessage, ElMessageBox } from 'element-plus'
 import { Plus } from '@element-plus/icons-vue'
 import { storeToRefs } from 'pinia'
 import { useHttpMock } from '@/store/httpMock/httpMock'
-import { uuid, generateEmptyHttpMockNode } from '@/helper'
+import { generateEmptyHttpMockNode } from '@/helper'
+import { nanoid } from 'nanoid/non-secure'
 import JsonConfig from './components/json/Json.vue'
 import TextConfig from './components/text/Text.vue'
 import ImageConfig from './components/image/Image.vue'
@@ -201,7 +202,7 @@ const handleSaveTagName = (index: number) => {
 }
 // 新增Tag
 const handleAddTag = () => {
-  const mockNodeTemplate = generateEmptyHttpMockNode(uuid())
+  const mockNodeTemplate = generateEmptyHttpMockNode(nanoid())
   const newResponse = mockNodeTemplate.response[0]
   const conditionCount = mockResponses.value.filter(r => !r.isDefault).length
   newResponse.name = `条件返回${conditionCount + 1}`

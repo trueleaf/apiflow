@@ -154,7 +154,7 @@ import { useCookies } from '@/store/apidoc/cookies';
 import { ElMessage, ElMessageBox } from 'element-plus';
 import type { ApidocCookie } from '@/store/apidoc/cookies';
 import { useI18n } from 'vue-i18n';
-import { uuid } from '@/helper';
+import { nanoid } from 'nanoid/non-secure';
 import { useRoute } from 'vue-router'
 import dayjs from 'dayjs';
 
@@ -253,7 +253,7 @@ const formatCookieExpires = (date: Date | null) => {
 */
 const handleOpenAddDialog = () => {
   editMode.value = false;
-  editCookie.value = { id: uuid(), name: '', value: '', domain: '', path: '/', expires: '', httpOnly: false, secure: false, sameSite: '' };
+  editCookie.value = { id: nanoid(), name: '', value: '', domain: '', path: '/', expires: '', httpOnly: false, secure: false, sameSite: '' };
   dialogVisible.value = true;
   nextTick(() => formRef.value?.clearValidate());
 };
@@ -277,7 +277,7 @@ const handleSaveCookie = () => {
       ElMessage.success(t('修改成功'));
     } else {
       const newCookie: ApidocCookie = {
-        id: uuid(),
+        id: nanoid(),
         name: encodeURIComponent(editCookie.value.name!),
         value: encodeURIComponent(editCookie.value.value!),
         domain: editCookie.value.domain || '',

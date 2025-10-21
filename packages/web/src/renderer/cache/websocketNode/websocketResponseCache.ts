@@ -1,7 +1,7 @@
 import { openDB, IDBPDatabase } from 'idb';
 import { WebsocketResponse } from '@src/types/websocketNode';
 import { config } from '@src/config/config';
-import { uuid } from '@/helper/index.ts';
+import { nanoid } from 'nanoid/non-secure';
 
 type WebsocketResponseCacheData = {
   id: string; // 数据唯一ID作为主键
@@ -65,7 +65,7 @@ class WebsocketResponseCache {
           continue;
         }
 
-        const dataId = uuid();
+        const dataId = nanoid();
         const data: WebsocketResponseCacheData = {
           id: dataId,
           nodeId,
@@ -93,7 +93,7 @@ class WebsocketResponseCache {
 
       const db = await this.ensureDB();
       // 为响应创建唯一ID
-      const dataId = uuid();
+      const dataId = nanoid();
       
       const data: WebsocketResponseCacheData = {
         id: dataId,
@@ -155,3 +155,4 @@ class WebsocketResponseCache {
 }
 
 export const websocketResponseCache = new WebsocketResponseCache();
+

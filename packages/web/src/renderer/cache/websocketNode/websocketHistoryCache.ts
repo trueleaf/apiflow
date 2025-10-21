@@ -2,7 +2,7 @@ import { openDB, IDBPDatabase } from 'idb';
 import { WebSocketHistory } from '@src/types/history';
 import { WebSocketNode } from '@src/types/websocketNode';
 import { config } from '@src/config/config';
-import { uuid } from '@/helper/index';
+import { nanoid } from 'nanoid/non-secure';
 
 type WebSocketHistoryCacheData = {
   _id: string; // 历史记录唯一ID作为主键
@@ -128,7 +128,7 @@ class WebSocketHistoryCache {
       
       // 添加新的历史记录
       const newRecord: WebSocketHistoryCacheData = {
-        _id: uuid(),
+        _id: nanoid(),
         nodeId,
         node: JSON.parse(JSON.stringify(node)), // 深拷贝节点数据
         operatorId: operatorId || 'me',

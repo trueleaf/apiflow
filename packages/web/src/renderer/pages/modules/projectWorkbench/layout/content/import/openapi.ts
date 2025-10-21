@@ -1,7 +1,8 @@
 import jsontoxml from 'jsontoxml'
 import type { OpenAPIV3 } from 'openapi-types';
 import type { ApidocProperty, HttpNode, HttpNodePropertyType, HttpNodeRequestMethod, HttpNodeBodyRawType, HttpNodeResponseContentType } from '@src/types'
-import { uuid, apidocGenerateProperty, generateHttpNode } from '@/helper/index'
+import { apidocGenerateProperty, generateHttpNode } from '@/helper/index'
+import { nanoid } from 'nanoid/non-secure'
 import { i18n } from '@/i18n'
 
 //=====================================项目信息====================================//
@@ -149,7 +150,7 @@ class OpenApiTranslator {
       const pathObjectInfo = openApiDocInfo[reqUrl];
       let pid = '';
       if (folderNamedType === 'url') {
-        pid = uuid();
+        pid = nanoid();
         const folderDoc = generateHttpNode();
         folderDoc.projectId = this.projectId;
         folderDoc._id = pid; //目录id
@@ -166,7 +167,7 @@ class OpenApiTranslator {
       }
       Object.keys(pathObjectInfo).forEach((pathKey) => {
         const moyuDoc = generateHttpNode();
-        moyuDoc._id = uuid();
+        moyuDoc._id = nanoid();
         moyuDoc.projectId = this.projectId;
         const matchedMethodKey = HTTP_METHOD.find(v => v === pathKey); //属性是否为http请求方法
         if (matchedMethodKey) {
@@ -221,7 +222,7 @@ class OpenApiTranslator {
     if (!folderNamedType || folderNamedType === 'tag') {
       const tags = Array.from(allTags);
       tags.sort().forEach((tag) => {
-        const pid = uuid();
+        const pid = nanoid();
         const folderDoc = generateHttpNode();
         folderDoc.projectId = this.projectId;
         folderDoc._id = pid; //目录id
@@ -339,7 +340,7 @@ class OpenApiTranslator {
     Object.keys(response).forEach(code => {
       const resItem = response[code] as OpenAPIV3.ResponseObject;
       const result = {
-        _id: uuid(),
+        _id: nanoid(),
         title: '',
         statusCode: 200,
         value: {
@@ -465,3 +466,4 @@ class OpenApiTranslator {
 }
 
 export default OpenApiTranslator;
+

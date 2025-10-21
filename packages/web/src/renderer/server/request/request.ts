@@ -11,7 +11,7 @@ import { useApidocResponse } from '@/store/apidoc/response';
 import { httpNodeCache } from '@/cache/httpNode/httpNodeCache';
 import { httpResponseCache } from '@/cache/httpNode/httpResponseCache';
 import { config } from '@src/config/config';
-import { uuid } from '@/helper';
+import { nanoid } from 'nanoid/non-secure';
 import { cloneDeep } from "lodash-es";
 import { useApidocRequest } from '@/store/apidoc/request';
 import { i18n } from '@/i18n';
@@ -414,7 +414,7 @@ const convertObjectToProperty = (objectParams: Record<string, any>) => {
       key,
       value: objectParams[key],
       select: true,
-      _id: uuid(),
+      _id: nanoid(),
       type: 'string',
       required: false,
       description: ''
@@ -708,7 +708,7 @@ export const sendRequest = async () => {
       copiedApidoc.item.requestBody.binary = {
         mode,
         varValue: mode === 'var' ? path : '',
-        binaryValue: mode === 'file' ? { path, raw: '', id: uuid() } : { path: '', raw: '', id: uuid() }
+        binaryValue: mode === 'file' ? { path, raw: '', id: nanoid() } : { path: '', raw: '', id: nanoid() }
       };
     } else if (e.data.type === 'pre-request-set-formdata' || e.data.type === 'pre-request-delete-formdata') {
       const evaledValue = e.data.value;
@@ -717,7 +717,7 @@ export const sendRequest = async () => {
         const value = evaledValue[key];
         newParams.push({
           select: true,
-          _id: uuid(),
+          _id: nanoid(),
           required: false,
           description: '',
           key,

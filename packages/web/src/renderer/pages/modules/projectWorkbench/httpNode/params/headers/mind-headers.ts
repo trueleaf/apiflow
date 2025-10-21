@@ -1,4 +1,5 @@
-import { apidocGenerateProperty, uuid } from '@/helper'
+import { apidocGenerateProperty } from '@/helper'
+import { nanoid } from 'nanoid/non-secure'
 import { ApidocProperty } from '@src/types';
 
 //https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Headers
@@ -44,7 +45,7 @@ const standarHeaders = [{
 }]
 
 const headers: ApidocProperty[] = [{
-  _id: uuid(),
+  _id: nanoid(),
   key: 'Authorization',
   value: '',
   type: 'string',

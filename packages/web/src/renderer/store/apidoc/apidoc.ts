@@ -1,9 +1,9 @@
 import {
   generateHttpNode,
   event,
-  apidocGenerateProperty,
-  uuid
+  apidocGenerateProperty
 } from "@/helper"
+import { nanoid } from 'nanoid/non-secure';
 import { cloneDeep, assign } from "lodash-es"
 import {
   HttpNodeBodyMode,
@@ -230,7 +230,7 @@ export const useApidoc = defineStore('apidoc', () => {
   //新增一个response
   const addResponseParam = (): void => {
     apidoc.value.item.responseParams.push({
-      _id: uuid(),
+      _id: nanoid(),
       title: '返回参数名称',
       statusCode: 200,
       value: {

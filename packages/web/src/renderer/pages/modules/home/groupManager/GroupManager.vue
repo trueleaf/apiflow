@@ -222,7 +222,7 @@ import { computed, onMounted, ref } from 'vue';
 import AddProjectDialog from '../dialog/addGroup/AddGroup.vue'
 import { request } from '@/api/api';
 import { ApidocGroupItem, ApidocGroupUser, PermissionUserBaseInfo, CommonResponse } from '@src/types';
-import { uuid } from '@/helper';
+import { nanoid } from 'nanoid/non-secure';
 import { cloneDeep } from "lodash-es";
 import { ElMessage, ElMessageBox } from 'element-plus';
 import RemoteSelector from '@/components/common/remoteSelect/GRemoteSelect.vue';
@@ -355,9 +355,9 @@ const changeGroupInfo = () => {
   groupInfo.value!.updatedAt = dayjs().format('YYYY-MM-DD HH:mm');
   if (!groupInfo.value?.updator) {
     groupInfo.value!.updator = {
-      userId: uuid(),
+      userId: nanoid(),
       userName: permissionStore.userInfo.loginName || permissionStore.userInfo.realName,
-      _id: uuid(),
+      _id: nanoid(),
     }
   } else {
     groupInfo.value!.updator.userName = permissionStore.userInfo.loginName || permissionStore.userInfo.realName;
@@ -584,3 +584,4 @@ onMounted(() => {
   max-height: 200px;
 }
 </style>
+

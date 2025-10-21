@@ -160,7 +160,7 @@ import {
 import SJsonEditor from '@/components/common/jsonEditor/GJsonEditor.vue'
 import AddTemplateDialog from './dialog/add/Add.vue'
 import type { WebsocketMessageType } from '@src/types/websocketNode'
-import { uuid } from '@/helper'
+import { nanoid } from 'nanoid/non-secure'
 import { debounce } from "lodash-es"
 import { websocketResponseCache } from '@/cache/websocketNode/websocketResponseCache'
 import { webSocketNodeCache } from '@/cache/websocketNode/websocketNodeCache'
@@ -359,7 +359,7 @@ const handleSendMessage = async () => {
       const sendMessage = {
         type: 'send' as const,
         data: {
-          id: uuid(),
+          id: nanoid(),
           content: messageContent,
           timestamp: Date.now(),
           contentType: websocketStore.websocket.config.messageType,
@@ -380,7 +380,7 @@ const handleSendMessage = async () => {
       const errorMessage = {
         type: 'error' as const,
         data: {
-          id: uuid(),
+          id: nanoid(),
           error: result?.msg || t('消息发送失败'),
           timestamp: Date.now(),
           nodeId: currentSelectTab.value?._id || ''
@@ -402,7 +402,7 @@ const handleSendMessage = async () => {
     const exceptionMessage = {
       type: 'error' as const,
       data: {
-        id: uuid(),
+        id: nanoid(),
         error: error instanceof Error ? error.message : t('消息发送异常'),
         timestamp: Date.now(),
         nodeId: currentSelectTab.value?._id || ''
@@ -458,7 +458,7 @@ const startAutoSend = () => {
           const autoSendMessage = {
             type: 'autoSend' as const,
             data: {
-              id: uuid(),
+              id: nanoid(),
               message: autoSendContent,
               timestamp: Date.now(),
               nodeId: currentSelectTab.value?._id || ''
@@ -478,7 +478,7 @@ const startAutoSend = () => {
           const errorMessage = {
             type: 'error' as const,
             data: {
-              id: uuid(),
+              id: nanoid(),
               error: result?.msg || t('自动发送失败'),
               timestamp: Date.now(),
               nodeId: currentSelectTab.value?._id || ''
@@ -499,7 +499,7 @@ const startAutoSend = () => {
         const exceptionMessage = {
           type: 'error' as const,
           data: {
-            id: uuid(),
+            id: nanoid(),
             error: error instanceof Error ? error.message : t('自动发送异常'),
             timestamp: Date.now(),
             nodeId: currentSelectTab.value?._id || ''
@@ -736,3 +736,4 @@ onUnmounted(() => {
   }
 }
 </style>
+
