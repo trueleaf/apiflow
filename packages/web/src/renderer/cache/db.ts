@@ -148,6 +148,41 @@ export async function getWebsocketHistoryDB(): Promise<IDBPDatabase> {
 }
 
 // ============================================================================
+// HTTP History Cache Database（懒加载）
+// ============================================================================
+let httpHistoryDB: IDBPDatabase | null = null;
+
+async function initHttpHistoryDB(): Promise<IDBPDatabase> {
+  if (httpHistoryDB) return httpHistoryDB;
+
+  httpHistoryDB = await openDB(
+    config.cacheConfig.httpHistoryCache.dbName,
+    config.cacheConfig.httpHistoryCache.version,
+    {
+      upgrade(db) {
+        if (!db.objectStoreNames.contains(config.cacheConfig.httpHistoryCache.storeName)) {
+          const store = db.createObjectStore(config.cacheConfig.httpHistoryCache.storeName, {
+            keyPath: '_id',
+          });
+          store.createIndex('nodeId', 'nodeId', { unique: false });
+          store.createIndex('timestamp', 'timestamp', { unique: false });
+        }
+      },
+    }
+  );
+
+  return httpHistoryDB;
+}
+
+// 获取 HTTP History DB（自动初始化）
+export async function getHttpHistoryDB(): Promise<IDBPDatabase> {
+  if (!httpHistoryDB) {
+    await initHttpHistoryDB();
+  }
+  return httpHistoryDB!;
+}
+
+// ============================================================================
 // Mock Logs Cache Database（懒加载）
 // ============================================================================
 let mockLogsDB: IDBPDatabase | null = null;

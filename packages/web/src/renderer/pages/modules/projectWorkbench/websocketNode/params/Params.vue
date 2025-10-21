@@ -122,7 +122,7 @@ import { useApidocTas } from '@/store/apidoc/tabs'
 import { userState } from '@/cache/userState/userStateCache.ts'
 import { useWsRedoUndo } from '@/store/redoUndo/wsRedoUndoStore'
 import { webSocketHistoryCache } from '@/cache/websocketNode/websocketHistoryCache'
-import type { WebSocketHistory } from '@src/types/history'
+import type { WebSocketHistory } from '@src/types/history/wsHistory'
 import { ElMessageBox, ElMessage } from 'element-plus'
 import { WebsocketActiveTabType } from '@src/types/websocketNode'
 

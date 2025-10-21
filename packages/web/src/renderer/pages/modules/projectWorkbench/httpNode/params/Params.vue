@@ -158,7 +158,9 @@ import { useApidoc } from '@/store/apidoc/apidoc'
 import { useRoute } from 'vue-router'
 import { useApidocTas } from '@/store/apidoc/tabs'
 import { useHttpRedoUndo } from '@/store/redoUndo/httpRedoUndoStore'
-import { ElMessage } from 'element-plus'
+import { ElMessage, ElMessageBox } from 'element-plus'
+import { httpNodeHistoryCache } from '@/cache/httpNode/httpNodeHistoryCache'
+import type { HttpHistory } from '@src/types/history/httpHistory'
 type ActiceName = 'SParams' | 'SRequestBody' | 'SResponseParams' | 'SRequestHeaders' | 'SRemarks' | 'SPreRequest' | 'SAfterRequest'
 const apidocBaseInfoStore = useApidocBaseInfo()
 const apidocStore = useApidoc()
@@ -174,7 +176,7 @@ const projectId = router.currentRoute.value.query.id as string;
 // 历史记录相关
 const showHistoryDropdown = ref(false)
 const historyLoading = ref(false)
-const historyList = ref<{ _id: string; operatorName: string; timestamp: number }[]>([])
+const historyList = ref<HttpHistory[]>([])
 const historyButtonRef = ref<HTMLElement>()
 const historyDropdownRef = ref<HTMLElement>()
 // const mode = computed(() => apidocBaseInfoStore.mode)
@@ -336,13 +338,81 @@ const handleToggleHistory = (): void => {
     return;
   }
   showHistoryDropdown.value = true;
-  // TODO: 实现加载历史记录逻辑
+  // 非阻塞方式加载历史记录
+  getHistoryList().catch(error => {
+    console.error('加载历史记录失败:', error);
+  });
 };
-const handleSelectHistory = (_history: { _id: string; operatorName: string; timestamp: number }): void => {
-  // TODO: 实现选择历史记录逻辑
+
+const getHistoryList = (): Promise<void> => {
+  if (!currentSelectTab.value) return Promise.resolve();
+
+  historyLoading.value = true;
+  return httpNodeHistoryCache.getHttpHistoryListByNodeId(currentSelectTab.value._id)
+    .then((histories) => {
+      historyList.value = histories;
+    })
+    .catch((error) => {
+      console.error('加载历史记录失败:', error);
+      ElMessage.error(t('加载历史记录失败'));
+    })
+    .finally(() => {
+      historyLoading.value = false;
+    });
 };
-const handleDeleteHistory = (_history: { _id: string; operatorName: string; timestamp: number }): void => {
-  // TODO: 实现删除历史记录逻辑
+
+const handleSelectHistory = (history: HttpHistory): void => {
+  ElMessageBox.confirm(
+    t('当前操作将覆盖原有数据,是否继续?'),
+    t('确认覆盖'),
+    {
+      confirmButtonText: t('确定'),
+      cancelButtonText: t('取消'),
+      type: 'warning'
+    }
+  ).then(() => {
+    // 调用changeApidoc重新赋值
+    apidocStore.changeApidoc(history.node);
+    showHistoryDropdown.value = false;
+  }).catch((error) => {
+    // 用户取消操作
+    if (error !== 'cancel' && error !== 'close') {
+      console.error('恢复历史记录失败:', error);
+    }
+  });
+};
+
+const handleDeleteHistory = (history: HttpHistory): void => {
+  ElMessageBox.confirm(
+    t('确定要删除这条历史记录吗?'),
+    t('确认删除'),
+    {
+      confirmButtonText: t('删除'),
+      cancelButtonText: t('取消'),
+      type: 'warning'
+    }
+  ).then(() => {
+    if (!currentSelectTab.value) return;
+    httpNodeHistoryCache.deleteHttpHistoryByNode(currentSelectTab.value._id, [history._id])
+      .then((success) => {
+        if (success) {
+          // 从列表中移除已删除的记录
+          historyList.value = historyList.value.filter(h => h._id !== history._id);
+          ElMessage.success(t('删除成功'));
+        } else {
+          ElMessage.error(t('删除失败'));
+        }
+      })
+      .catch((error) => {
+        console.error('删除历史记录失败:', error);
+        ElMessage.error(t('删除失败'));
+      });
+  }).catch((error) => {
+    // 用户取消操作
+    if (error !== 'cancel' && error !== 'close') {
+      console.error('删除历史记录失败:', error);
+    }
+  });
 };
 const formatRelativeTime = (timestamp: number): string => {
   const now = Date.now();

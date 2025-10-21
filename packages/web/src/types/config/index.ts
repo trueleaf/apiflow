@@ -218,6 +218,12 @@ export type Config = {
       storeName: string,
       maxHistoryPerNode: number, //每个节点最大历史记录数
     },
+    httpHistoryCache: {
+      dbName: string,
+      version: number,
+      storeName: string,
+      maxHistoryPerNode: number, //每个节点最大历史记录数
+    },
     mockVariableCache: {
       dbName: string,
       version: number,

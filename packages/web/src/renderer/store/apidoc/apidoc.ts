@@ -32,6 +32,7 @@ import { useVariable } from "./variables.ts"
 import { config } from "@src/config/config.ts"
 import { apiNodesCache } from "@/cache/index";
 import { useRuntime } from '../runtime/runtime';
+import { httpNodeHistoryCache } from "@/cache/httpNode/httpNodeHistoryCache";
 
 type EditApidocPropertyPayload<K extends keyof ApidocProperty> = {
   data: ApidocProperty,
@@ -564,6 +565,13 @@ export const useApidoc = defineStore('apidoc', () => {
           field: 'saved',
           value: true,
         })
+        // 添加历史记录
+        httpNodeHistoryCache.addHttpHistoryByNodeId(
+          currentSelectTab._id,
+          apidoc.value
+        ).catch(error => {
+          console.error('添加历史记录失败:', error);
+        });
         // 添加0.2秒的saveLoading效果
         setTimeout(() => {
           changeApidocSaveLoading(false);
@@ -596,6 +604,13 @@ export const useApidoc = defineStore('apidoc', () => {
           field: 'saved',
           value: true,
         })
+        // 添加历史记录
+        httpNodeHistoryCache.addHttpHistoryByNodeId(
+          currentSelectTab._id,
+          apidoc.value
+        ).catch(error => {
+          console.error('添加历史记录失败:', error);
+        });
         //   id: currentSelectTab._id,
         //   projectId,
         //   url: apidocDetail.item.url.path,
