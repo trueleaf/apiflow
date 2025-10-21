@@ -12,7 +12,7 @@
         <View />
       </el-icon>
     </div>
-    <SParamsTree :drag="false" show-checkbox :data="headerData" no-add></SParamsTree>
+    <SParamsTree :drag="false" show-checkbox :data="headerData" no-add @change="handleHeadersChange"></SParamsTree>
     <template v-if="commonHeaders.length > 0">
       <el-divider content-position="left">{{ t('公共请求头') }}</el-divider>
       <el-table :data="commonHeaders"  border size="small">
@@ -59,13 +59,13 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, computed, watch, } from 'vue'
+import { ref, computed, watch } from 'vue'
 import { router } from '@/router'
 import { View } from '@element-plus/icons-vue'
 import { ApidocProperty } from '@src/types';
 import { apidocGenerateProperty } from '@/helper';
 import { useI18n } from 'vue-i18n'
-import SParamsTree from '@/components/apidoc/paramsTree/GParamsTree.vue'
+import SParamsTree from '@/components/apidoc/paramsTree/GParamsTree3.vue'
 import { useApidoc } from '@/store/apidoc/apidoc';
 import { useApidocTas } from '@/store/apidoc/tabs';
 import { useApidocBaseInfo } from '@/store/apidoc/base-info';
@@ -93,6 +93,14 @@ const headerData = computed(() => apidocStore.apidoc.item.headers)
 const defaultHeaders = computed(() => apidocStore.defaultHeaders);
 const commonHeaders = ref<(Pick<ApidocProperty, "_id" | 'key' | 'value' | 'description' | 'select' & { path?: string[] }>)[]>([]);
 
+// 处理 Headers 变化
+const handleHeadersChange = (newData: ApidocProperty<'string' | 'file'>[]) => {
+  const oldValue = cloneDeep(apidocStore.apidoc.item.headers);
+  apidocStore.apidoc.item.headers = newData as ApidocProperty<'string'>[];
+  
+  debouncedRecordHeadersOperation(oldValue, newData as ApidocProperty<'string'>[]);
+};
+
 // 防抖的请求头记录函数
 const debouncedRecordHeadersOperation = debounce((oldValue: ApidocProperty<'string'>[], newValue: ApidocProperty<'string'>[]) => {
   if (!currentSelectTab.value) return;
@@ -106,7 +114,7 @@ const debouncedRecordHeadersOperation = debounce((oldValue: ApidocProperty<'stri
     newValue: cloneDeep(newValue),
     timestamp: Date.now()
   });
-}, 800);
+}, 300);
 const handleChangeCommonHeaderIsSend = (isSend: CheckboxValueType, header: Pick<ApidocProperty, "_id" | 'key' | 'value' | 'description' | 'select'>) => {
   if (isSend) {
     httpNodeCache.removeIgnoredCommonHeader({
@@ -145,15 +153,6 @@ watch([currentSelectTab, cHeaders, globalCommonHeaders], () => {
   deep: true,
   immediate: true
 })
-
-// watch 监听 headerData 变化并记录操作
-watch(() => headerData.value, (newVal, oldVal) => {
-  if (oldVal && newVal) {
-    debouncedRecordHeadersOperation(oldVal, newVal);
-  }
-}, {
-  deep: true
-});
 
 //跳转公共请求头
 const handleJumpToCommonHeaderConfigPage = ({ nodeId, name }: { nodeId?: string, name?: string } = {}) => {

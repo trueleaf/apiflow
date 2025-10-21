@@ -74,7 +74,7 @@ watch(query, (val) => {
     if (!debounceFn.value) {
       debounceFn.value = debounce<DebounceFn>((query) => {
         getData(query);
-      }, 800);
+      }, 300);
     }
     debounceFn.value(val);
   }

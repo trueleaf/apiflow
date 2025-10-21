@@ -1,16 +1,16 @@
 <template>
   <div class="query-path-params">
     <div class="title">Query&nbsp;{{ t("参数") }}</div>
-    <SParamsTree show-checkbox :data="queryTreeData"></SParamsTree>
+    <SParamsTree show-checkbox :data="queryTreeData" @change="handleQueryParamsChange"></SParamsTree>
     <div v-show="hasPathParams" class="title">Path&nbsp;{{ t("参数") }}</div>
-    <SParamsTree v-show="hasPathParams" disable-add disable-delete :data="pathTreeData"></SParamsTree>
+    <SParamsTree v-show="hasPathParams" :data="pathTreeData" @change="handlePathParamsChange"></SParamsTree>
   </div>
 </template>
 
 <script lang="ts" setup>
 import { useApidoc } from '@/store/apidoc/apidoc';
-import { computed, watch } from 'vue'
-import SParamsTree from '@/components/apidoc/paramsTree/GParamsTree.vue'
+import { computed } from 'vue'
+import SParamsTree from '@/components/apidoc/paramsTree/GParamsTree3.vue'
 import { useI18n } from 'vue-i18n'
 import { useHttpRedoUndo } from '@/store/redoUndo/httpRedoUndoStore'
 import { useApidocTas } from '@/store/apidoc/tabs'
@@ -40,6 +40,22 @@ const hasPathParams = computed(() => {
   return hasPathsParams;
 })
 
+// 处理 Query 参数变化
+const handleQueryParamsChange = (newData: ApidocProperty<'string' | 'file'>[]) => {
+  const oldValue = cloneDeep(apidocStore.apidoc.item.queryParams);
+  apidocStore.apidoc.item.queryParams = newData as ApidocProperty<'string'>[];
+  
+  debouncedRecordQueryParamsOperation(oldValue, newData as ApidocProperty<'string'>[]);
+};
+
+// 处理 Path 参数变化
+const handlePathParamsChange = (newData: ApidocProperty<'string' | 'file'>[]) => {
+  const oldValue = cloneDeep(apidocStore.apidoc.item.paths);
+  apidocStore.apidoc.item.paths = newData as ApidocProperty<'string'>[];
+  
+  debouncedRecordPathsOperation(oldValue, newData as ApidocProperty<'string'>[]);
+};
+
 // 防抖的查询参数记录函数
 const debouncedRecordQueryParamsOperation = debounce((oldValue: ApidocProperty<'string'>[], newValue: ApidocProperty<'string'>[]) => {
   if (!currentSelectTab.value) return;
@@ -53,7 +69,7 @@ const debouncedRecordQueryParamsOperation = debounce((oldValue: ApidocProperty<'
     newValue: cloneDeep(newValue),
     timestamp: Date.now()
   });
-}, 800);
+}, 300);
 
 // 防抖的路径参数记录函数
 const debouncedRecordPathsOperation = debounce((oldValue: ApidocProperty<'string'>[], newValue: ApidocProperty<'string'>[]) => {
@@ -68,25 +84,7 @@ const debouncedRecordPathsOperation = debounce((oldValue: ApidocProperty<'string
     newValue: cloneDeep(newValue),
     timestamp: Date.now()
   });
-}, 800);
-
-// watch 监听 queryParams 变化
-watch(() => queryTreeData.value, (newVal, oldVal) => {
-  if (oldVal && newVal) {
-    debouncedRecordQueryParamsOperation(oldVal, newVal);
-  }
-}, {
-  deep: true
-});
-
-// watch 监听 paths 变化
-watch(() => pathTreeData.value, (newVal, oldVal) => {
-  if (oldVal && newVal) {
-    debouncedRecordPathsOperation(oldVal, newVal);
-  }
-}, {
-  deep: true
-});
+}, 300);
 
 </script>
 <style lang='scss' scoped>

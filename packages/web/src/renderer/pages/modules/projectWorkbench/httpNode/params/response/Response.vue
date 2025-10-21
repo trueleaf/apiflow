@@ -332,7 +332,7 @@ const debouncedRecordResponseParamsOperation = debounce((oldValue: HttpNodeRespo
     newValue: cloneDeep(newValue),
     timestamp: Date.now()
   });
-}, 800);
+}, 300);
 
 // watch 监听 responseParams 变化
 watch(() => responseData.value, (newVal, oldVal) => {

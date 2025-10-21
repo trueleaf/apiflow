@@ -44,7 +44,7 @@ const debouncedRecordAfterRequestOperation = debounce((oldValue: { raw: string }
     newValue: cloneDeep(newValue),
     timestamp: Date.now()
   });
-}, 800);
+}, 300);
 
 // watch 监听 afterRequest 变化
 watch(() => apidocStore.apidoc?.afterRequest, (newVal, oldVal) => {

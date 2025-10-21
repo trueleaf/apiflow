@@ -44,7 +44,7 @@ const debouncedRecordPreRequestOperation = debounce((oldValue: { raw: string }, 
     newValue: cloneDeep(newValue),
     timestamp: Date.now()
   });
-}, 800);
+}, 300);
 
 // watch 监听 preRequest 变化
 watch(() => apidocStore.apidoc?.preRequest, (newVal, oldVal) => {

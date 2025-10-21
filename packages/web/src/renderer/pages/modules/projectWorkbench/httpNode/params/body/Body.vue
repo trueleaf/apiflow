@@ -15,9 +15,9 @@
       <SJsonEditor v-show="bodyType === 'json'" ref="jsonComponent" v-model="rawJsonData" :config="jsonEditorConfig"
         class="json-wrap" @ready="handleJsonEditorReady" @change="checkContentType"></SJsonEditor>
       <SParamsTree v-if="bodyType === 'formdata'" enable-file show-checkbox :data="formData"
-        @change="checkContentType"></SParamsTree>
+        @change="handleFormdataChange"></SParamsTree>
       <SParamsTree v-if="bodyType === 'urlencoded'" show-checkbox :data="urlencodedData"
-        @change="checkContentType"></SParamsTree>
+        @change="handleUrlencodedChange"></SParamsTree>
       <div v-show="bodyType === 'json'" class="body-op">
         <span class="btn" @click="handleFormat">格式化</span>
         <!-- <span class="btn" @click="handleOpenSaveDialog">保存用例</span>
@@ -83,15 +83,15 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, ref, onMounted, Ref, watch } from 'vue'
-import type { HttpNodeBodyMode, HttpNodeBodyParams, HttpNodeBodyRawType, HttpNodeContentType } from '@src/types'
+import { computed, ref, onMounted, Ref } from 'vue'
+import type { HttpNodeBodyMode, HttpNodeBodyParams, HttpNodeBodyRawType, HttpNodeContentType, ApidocProperty } from '@src/types'
 import { useI18n } from 'vue-i18n'
 import { getJsonBodyHintVisible, setJsonBodyHintVisible } from '@/cache/common/commonCache'
 import { useVariable } from '@/store/apidoc/variables';
 import { useApidoc } from '@/store/apidoc/apidoc';
 import { config } from '@src/config/config';
 import SJsonEditor from '@/components/common/jsonEditor/GJsonEditor.vue'
-import SParamsTree from '@/components/apidoc/paramsTree/GParamsTree.vue'
+import SParamsTree from '@/components/apidoc/paramsTree/GParamsTree3.vue'
 import { Close } from '@element-plus/icons-vue'
 import { convertTemplateValueToRealValue } from '@/utils/utils';
 import mime from 'mime';
@@ -266,6 +266,39 @@ const handleChangeRawType = () => {
 */
 //formData格式body参数
 const formData = computed(() => apidocStore.apidoc.item.requestBody.formdata)
+
+// 处理 formdata 变化
+const handleFormdataChange = (newData: ApidocProperty<'string' | 'file'>[]) => {
+  const oldValue = {
+    requestBody: cloneDeep(apidocStore.apidoc.item.requestBody),
+    contentType: apidocStore.apidoc.item.contentType
+  };
+  apidocStore.apidoc.item.requestBody.formdata = newData as ApidocProperty<'string'>[];
+  
+  const newValue = {
+    requestBody: cloneDeep(apidocStore.apidoc.item.requestBody),
+    contentType: apidocStore.apidoc.item.contentType
+  };
+  debouncedRecordBodyOperation(oldValue, newValue);
+  checkContentType();
+};
+
+// 处理 urlencoded 变化
+const handleUrlencodedChange = (newData: ApidocProperty<'string' | 'file'>[]) => {
+  const oldValue = {
+    requestBody: cloneDeep(apidocStore.apidoc.item.requestBody),
+    contentType: apidocStore.apidoc.item.contentType
+  };
+  apidocStore.apidoc.item.requestBody.urlencoded = newData as ApidocProperty<'string'>[];
+  
+  const newValue = {
+    requestBody: cloneDeep(apidocStore.apidoc.item.requestBody),
+    contentType: apidocStore.apidoc.item.contentType
+  };
+  debouncedRecordBodyOperation(oldValue, newValue);
+  checkContentType();
+};
+
 /*
 |--------------------------------------------------------------------------
 | binary类型参数
@@ -332,19 +365,8 @@ const debouncedRecordBodyOperation = debounce((oldValue: { requestBody: HttpNode
     newValue: cloneDeep(newValue),
     timestamp: Date.now()
   });
-}, 800);
+}, 300);
 
-// watch 监听 requestBody 和 contentType 变化
-watch(() => ({
-  requestBody: apidocStore.apidoc.item.requestBody,
-  contentType: apidocStore.apidoc.item.contentType
-}), (newVal, oldVal) => {
-  if (oldVal && newVal) {
-    debouncedRecordBodyOperation(oldVal, newVal);
-  }
-}, {
-  deep: true
-});
 </script>
 
 <style lang='scss' scoped>

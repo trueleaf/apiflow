@@ -59,7 +59,7 @@ const debouncedRecordBasicInfoOperation = debounce((oldValue: { name: string, de
     newValue: cloneDeep(newValue),
     timestamp: Date.now()
   });
-}, 800);
+}, 300);
 
 // watch 监听 basicInfo 变化（包含 name 和 description）
 watch(() => ({
