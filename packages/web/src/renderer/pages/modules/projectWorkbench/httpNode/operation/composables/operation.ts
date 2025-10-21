@@ -6,6 +6,7 @@ import { useApidocTas } from '@/store/apidoc/tabs'
 import { useApidocResponse } from '@/store/apidoc/response'
 import { useApidoc } from '@/store/apidoc/apidoc'
 import { useRuntime } from '@/store/runtime/runtime'
+import { useHttpRedoUndo } from '@/store/redoUndo/httpRedoUndoStore'
 
 type OperationReturn = {
   /**
@@ -35,6 +36,7 @@ export default (): OperationReturn => {
   const apidocStore = useApidoc()
   const apidocResponseStroe = useApidocResponse()
   const runtimeStore = useRuntime()
+  const httpRedoUndoStore = useHttpRedoUndo()
   const loading2 = ref(false); //保存接口
   const loading3 = ref(false); //刷新接口
   const projectId = router.currentRoute.value.query.id as string;
@@ -59,7 +61,9 @@ export default (): OperationReturn => {
     apidocResponseStroe.changeRequestState('waiting');
     apidocResponseStroe.clearResponse()
     if (currentSelectTab.value) {
-      httpResponseCache.deleteResponse(currentSelectTab.value._id);
+      const nodeId = currentSelectTab.value._id;
+      httpResponseCache.deleteResponse(nodeId);
+      httpRedoUndoStore.clearRedoUndoListByNodeId(nodeId);
     }
     if (currentSelectTab.value?._id.startsWith('local_')) { //通过+按钮新增的空白文档
       const cpOriginApidoc = apidocStore.originApidoc;

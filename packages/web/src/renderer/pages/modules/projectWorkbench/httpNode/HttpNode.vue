@@ -45,11 +45,13 @@ import { useRoute } from 'vue-router'
 import { useApidoc } from '@/store/apidoc/apidoc'
 import { generateHttpNode } from '@/helper'
 import { useApidocResponse } from '@/store/apidoc/response'
+import { useHttpRedoUndo } from '@/store/redoUndo/httpRedoUndoStore'
 
 const apidocBaseInfoStore = useApidocBaseInfo();
 const apidocTabsStore = useApidocTas();
 const apidocStore = useApidoc();
 const apidocResponseStore = useApidocResponse();
+const httpRedoUndoStore = useHttpRedoUndo();
 const isVerticalDrag = ref(false);
 const route = useRoute()
 
@@ -127,6 +129,7 @@ watch(currentSelectTab, (val, oldVal) => {
   const isApidoc = val?.tabType === 'http';
   if (isApidoc && val?._id !== oldVal?._id) {
     getApidocInfo();
+    httpRedoUndoStore.initFromCache(val._id);
   }
 }, {
   deep: true,
