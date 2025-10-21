@@ -157,10 +157,13 @@ import { useApidocBaseInfo } from '@/store/apidoc/base-info'
 import { useApidoc } from '@/store/apidoc/apidoc'
 import { useRoute } from 'vue-router'
 import { useApidocTas } from '@/store/apidoc/tabs'
+import { useHttpRedoUndo } from '@/store/redoUndo/httpRedoUndoStore'
+import { ElMessage } from 'element-plus'
 type ActiceName = 'SParams' | 'SRequestBody' | 'SResponseParams' | 'SRequestHeaders' | 'SRemarks' | 'SPreRequest' | 'SAfterRequest'
 const apidocBaseInfoStore = useApidocBaseInfo()
 const apidocStore = useApidoc()
 const apidocTabsStore = useApidocTas()
+const httpRedoUndoStore = useHttpRedoUndo()
 const activeName = ref<ActiceName>('SParams');
 const { t } = useI18n()
 const generateCodeVisible = ref(false);
@@ -244,12 +247,14 @@ const layout = computed(() => apidocBaseInfoStore.layout)
 const apidoc = computed(() => apidocStore.apidoc)
 // 撤销/重做相关计算属性
 const canUndo = computed(() => {
-  // TODO: 实现撤销逻辑时返回真实的状态
-  return false;
+  if (!currentSelectTab.value) return false;
+  const undoList = httpRedoUndoStore.httpUndoList[currentSelectTab.value._id];
+  return undoList && undoList.length > 0;
 });
 const canRedo = computed(() => {
-  // TODO: 实现重做逻辑时返回真实的状态
-  return false;
+  if (!currentSelectTab.value) return false;
+  const redoList = httpRedoUndoStore.httpRedoList[currentSelectTab.value._id];
+  return redoList && redoList.length > 0;
 });
 /*
 |--------------------------------------------------------------------------
@@ -299,10 +304,26 @@ const handleChangeLayout = (layout: 'vertical' | 'horizontal') => {
 }
 // 撤销/重做事件处理
 const handleUndo = (): void => {
-  // TODO: 实现撤销逻辑
+  if (!currentSelectTab.value) return;
+  if (!canUndo.value) {
+    return; // 按钮已禁用时不显示提示
+  }
+  const result = httpRedoUndoStore.httpUndo(currentSelectTab.value._id);
+  if (result.code !== 0) {
+    ElMessage.error(result.msg);
+  }
+  // 成功时不显示提示，避免干扰用户操作
 };
 const handleRedo = (): void => {
-  // TODO: 实现重做逻辑
+  if (!currentSelectTab.value) return;
+  if (!canRedo.value) {
+    return; // 按钮已禁用时不显示提示
+  }
+  const result = httpRedoUndoStore.httpRedo(currentSelectTab.value._id);
+  if (result.code !== 0) {
+    ElMessage.error(result.msg);
+  }
+  // 成功时不显示提示，避免干扰用户操作
 };
 /*
 |--------------------------------------------------------------------------
