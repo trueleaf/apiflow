@@ -59,6 +59,18 @@ export default defineConfig({
       name: 'electron',
       testMatch: '**/*.spec.ts',
     },
+    {
+      name: 'electron-trace',
+      testMatch: '**/*.spec.ts',
+      use: {
+        // 记录所有测试的完整 trace（包括成功的测试）
+        trace: 'on',
+        // 记录所有测试的截图
+        screenshot: 'on',
+        // 记录所有测试的视频
+        video: 'on',
+      },
+    },
   ],
   
   // 全局超时设置（30 秒）

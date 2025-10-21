@@ -28,6 +28,8 @@
     "test:e2e:debug": "playwright test --config=playwright.electron.config.ts --debug",
     "test:e2e:headed": "playwright test --config=playwright.electron.config.ts --headed",
     "test:e2e:report": "playwright show-report",
+    "test:e2e:trace": "playwright test --config=playwright.electron.config.ts --project=electron-trace",
+    "test:e2e:trace:show": "playwright show-trace",
     "test:e2e:build": "vite build"
   },
   "dependencies": {

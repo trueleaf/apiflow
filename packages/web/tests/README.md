@@ -38,6 +38,12 @@ npm run test:e2e:debug
 # Headed 模式运行测试（显示 Electron 窗口）
 npm run test:e2e:headed
 
+# 运行测试并记录完整 Trace（包括成功的测试）
+npm run test:e2e:trace
+
+# 查看最新的 Trace 文件
+npm run test:e2e:trace:show
+
 # 查看测试报告
 npm run test:e2e:report
 ```
@@ -204,6 +210,79 @@ tests/
 ### 通用测试 (Common)
 
 > 📌 **计划中**：通用测试将包含跨模式的共享测试用例和工具函数。
+
+## 🎬 Playwright Trace 功能
+
+### 什么是 Trace？
+
+Playwright Trace 是一个强大的调试工具，可以记录测试执行的完整过程，包括：
+- 每个操作步骤的截图
+- 网络请求和响应
+- 控制台日志
+- DOM 快照
+- 时间轴视图
+
+通过 Trace 可以回放整个测试过程，帮助分析测试失败原因或优化测试用例。
+
+### 使用 Trace 功能
+
+#### 1. 运行测试并记录 Trace
+
+```bash
+# 运行所有测试并记录完整 Trace（包括成功的测试）
+npm run test:e2e:trace
+
+# 运行特定模块的测试并记录 Trace
+npx playwright test tests/e2e/offline/projectManager --config=playwright.electron.config.ts --project=electron-trace
+
+# 运行单个测试文件并记录 Trace
+npx playwright test tests/e2e/offline/projectManager/projectManager.spec.ts --config=playwright.electron.config.ts --project=electron-trace
+```
+
+#### 2. 查看 Trace 文件
+
+测试完成后，Trace 文件会保存在 `test-results/` 目录下，每个测试都有独立的文件夹。
+
+```bash
+# 自动打开 Trace 查看器（会列出所有可用的 trace 文件）
+npm run test:e2e:trace:show
+
+# 查看特定测试的 Trace
+npx playwright show-trace test-results/[测试名称]/trace.zip
+```
+
+#### 3. Trace 查看器功能
+
+打开 Trace 后，你可以：
+- **时间轴视图**：查看每个操作的执行时间和顺序
+- **操作列表**：点击任意操作查看该时刻的截图和 DOM 状态
+- **控制台**：查看测试过程中的日志输出
+- **网络**：查看所有网络请求和响应
+- **源代码**：查看触发操作的测试代码
+- **快照**：查看每个步骤的完整 DOM 快照
+
+### Trace 模式对比
+
+| 特性 | 常规测试 (`test:e2e`) | Trace 模式 (`test:e2e:trace`) |
+|------|----------------------|------------------------------|
+| 执行速度 | 快 | 较慢（约 1.5-2 倍时间） |
+| Trace 记录 | 仅失败时 | 所有测试 |
+| 截图 | 仅失败时 | 每个操作 |
+| 视频 | 仅失败时 | 所有测试 |
+| 适用场景 | 日常开发、CI 流水线 | 深度分析、问题排查 |
+
+### 使用场景建议
+
+1. **日常测试**：使用 `npm run test:e2e`，只记录失败的测试
+2. **调试单个测试**：使用 `npm run test:e2e:ui` 或 `npm run test:e2e:debug`
+3. **分析测试过程**：使用 `npm run test:e2e:trace` 记录完整过程
+4. **查看历史记录**：使用 `npm run test:e2e:trace:show` 查看之前的 trace
+
+### 注意事项
+
+- Trace 文件可能较大，建议定期清理 `test-results/` 目录
+- CI 环境下建议只在失败时记录 Trace，避免存储空间占用过多
+- 查看 Trace 需要现代浏览器支持
 
 ## ✍️ 编写测试
 
