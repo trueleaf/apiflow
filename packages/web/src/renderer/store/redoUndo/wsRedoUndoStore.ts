@@ -16,7 +16,7 @@ type RedoUndoResponse = {
   operation?: WsRedoUnDoOperation;
 };
 
-export const useRedoUndo = defineStore('redoUndo', () => {
+export const useWsRedoUndo = defineStore('wsRedoUndo', () => {
   const wsRedoList = ref<Record<string, WsRedoUnDoOperation[]>>({});
   const wsUndoList = ref<Record<string, WsRedoUnDoOperation[]>>({});
   const websocketStore = useWebSocket();

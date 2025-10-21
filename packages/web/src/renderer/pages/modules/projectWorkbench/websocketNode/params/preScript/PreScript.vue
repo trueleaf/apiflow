@@ -8,11 +8,11 @@
 import { computed } from 'vue'
 import PreEditor from './editor/PreEditor.vue'
 import { useWebSocket } from '@/store/websocket/websocket';
-import { useRedoUndo } from '@/store/redoUndo/redoUndo'
+import { useWsRedoUndo } from '@/store/redoUndo/wsRedoUndoStore'
 import { debounce } from "lodash-es"
 
 const websocketStore = useWebSocket()
-const redoUndoStore = useRedoUndo()
+const redoUndoStore = useWsRedoUndo()
 
 // 防抖记录前置脚本操作
 const debouncedRecordPreRequestOperation = debounce((oldValue: string, newValue: string) => {

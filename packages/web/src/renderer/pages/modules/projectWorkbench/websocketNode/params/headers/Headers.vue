@@ -67,7 +67,7 @@ import { debounce, cloneDeep } from "lodash-es";
 import { useI18n } from 'vue-i18n'
 import SParamsTree from '@/components/apidoc/paramsTree/GParamsTree3.vue'
 import { useWebSocket } from '@/store/websocket/websocket';
-import { useRedoUndo } from '@/store/redoUndo/redoUndo';
+import { useWsRedoUndo } from '@/store/redoUndo/wsRedoUndoStore';
 import { useApidocTas } from '@/store/apidoc/tabs';
 import { useApidocBaseInfo } from '@/store/apidoc/base-info';
 import { webSocketNodeCache } from '@/cache/websocketNode/websocketNodeCache';
@@ -77,7 +77,7 @@ import { CheckboxValueType } from 'element-plus';
 const emits = defineEmits(['changeCommonHeaderSendStatus'])
 const apidocTabsStore = useApidocTas()
 const websocketStore = useWebSocket()
-const redoUndoStore = useRedoUndo()
+const redoUndoStore = useWsRedoUndo()
 const apidocBaseInfoStore = useApidocBaseInfo()
 const { commonHeaders: cHeaders, globalCommonHeaders } = storeToRefs(apidocBaseInfoStore)
 const { websocket, defaultHeaders } = storeToRefs(websocketStore)

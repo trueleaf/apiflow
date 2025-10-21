@@ -120,7 +120,7 @@ import SAfterScript from './afterScript/AfterScript.vue'
 import { useWebSocket } from '@/store/websocket/websocket'
 import { useApidocTas } from '@/store/apidoc/tabs'
 import { userState } from '@/cache/userState/userStateCache.ts'
-import { useRedoUndo } from '@/store/redoUndo/redoUndo'
+import { useWsRedoUndo } from '@/store/redoUndo/wsRedoUndoStore'
 import { webSocketHistoryCache } from '@/cache/websocketNode/websocketHistoryCache'
 import type { WebSocketHistory } from '@src/types/history'
 import { ElMessageBox, ElMessage } from 'element-plus'
@@ -129,7 +129,7 @@ import { WebsocketActiveTabType } from '@src/types/websocketNode'
 const { t } = useI18n()
 const websocketStore = useWebSocket()
 const apidocTabsStore = useApidocTas()
-const redoUndoStore = useRedoUndo()
+const redoUndoStore = useWsRedoUndo()
 const { currentSelectTab } = storeToRefs(apidocTabsStore)
 const { websocket } = storeToRefs(websocketStore)
 const currentActiveTab = computed({

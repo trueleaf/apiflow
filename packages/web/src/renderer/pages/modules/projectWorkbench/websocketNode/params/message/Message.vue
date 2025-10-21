@@ -151,7 +151,7 @@ import { storeToRefs } from 'pinia'
 import { useI18n } from 'vue-i18n'
 import { useApidocTas } from '@/store/apidoc/tabs'
 import { useWebSocket } from '@/store/websocket/websocket'
-import { useRedoUndo } from '@/store/redoUndo/redoUndo'
+import { useWsRedoUndo } from '@/store/redoUndo/wsRedoUndoStore'
 import {
   Position,
   Setting,
@@ -171,7 +171,7 @@ import type * as Monaco from 'monaco-editor/esm/vs/editor/editor.api'
 const { t } = useI18n()
 const apidocTabsStore = useApidocTas()
 const websocketStore = useWebSocket()
-const redoUndoStore = useRedoUndo()
+const redoUndoStore = useWsRedoUndo()
 const { connectionState, connectionId } = storeToRefs(websocketStore)
 // const { changeMessageEditorRef } = websocketStore
 // 获取当前选中的tab

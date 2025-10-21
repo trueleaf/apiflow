@@ -7,7 +7,7 @@
 
 <script lang="ts" setup>
 import { useWebSocket } from '@/store/websocket/websocket'
-import { useRedoUndo } from '@/store/redoUndo/redoUndo'
+import { useWsRedoUndo } from '@/store/redoUndo/wsRedoUndoStore'
 import { useApidocTas } from '@/store/apidoc/tabs'
 import { storeToRefs } from 'pinia'
 import SParamsTree from '@/components/apidoc/paramsTree/GParamsTree3.vue'
@@ -16,7 +16,7 @@ import { debounce, cloneDeep } from "lodash-es"
 import type { ApidocProperty } from '@src/types'
 
 const websocketStore = useWebSocket()
-const redoUndoStore = useRedoUndo()
+const redoUndoStore = useWsRedoUndo()
 const apidocTabsStore = useApidocTas()
 const { websocket } = storeToRefs(websocketStore)
 const { currentSelectTab } = storeToRefs(apidocTabsStore)

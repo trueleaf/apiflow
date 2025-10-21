@@ -35,7 +35,7 @@ import { DebouncedFunc } from 'lodash-es'
 import { websocketResponseCache } from '@/cache/websocketNode/websocketResponseCache'
 import { websocketTemplateCache } from '@/cache/websocketNode/websocketTemplateCache'
 import { router } from '@/router'
-import { useRedoUndo } from '@/store/redoUndo/redoUndo'
+import { useWsRedoUndo } from '@/store/redoUndo/wsRedoUndoStore'
 import { useShortcut } from '@/hooks/useShortcut'
 import { executeWebSocketAfterScript } from '@/server/websocket/executeAfterScript'
 import { useVariable } from '@/store/apidoc/variables'
@@ -50,7 +50,7 @@ const cookiesStore = useCookies()
 const { currentSelectTab } = storeToRefs(apidocTabsStore)
 const { loading, } = storeToRefs(websocketStore)
 const debounceWebsocketDataChange = ref(null as (null | DebouncedFunc<(websocket: WebSocketNode) => void>))
-const redoUndoStore = useRedoUndo()
+const redoUndoStore = useWsRedoUndo()
 /*
 |--------------------------------------------------------------------------
 | 方法定义
