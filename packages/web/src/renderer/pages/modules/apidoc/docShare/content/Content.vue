@@ -208,7 +208,7 @@ import SParamsView from '@/components/apidoc/paramsView/GParamsView.vue';
 import { useShareStore } from '../store';
 import { useRoute } from 'vue-router';
 import { userState } from '@/cache/userState/userStateCache.ts';
-import { convertTemplateValueToRealValue } from '@/utils/utils';
+import { convertTemplateValueToRealValue } from '@/helper';
 
 const route = useRoute();
 const shareId = route.query?.share_id as string || 'local_share';

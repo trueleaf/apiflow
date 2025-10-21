@@ -2,7 +2,7 @@ import { useApidoc } from '@/store/apidoc/apidocStore';
 import { ref, toRaw } from 'vue';
 import json5 from 'json5'
 import { HttpNode, ApidocProperty } from '@src/types';
-import { convertTemplateValueToRealValue, getEncodedStringFromEncodedParams, getFormDataFromFormDataParams, getObjectPathParams, getQueryStringFromQueryParams } from '@/utils/utils';
+import { convertTemplateValueToRealValue, getEncodedStringFromEncodedParams, getFormDataFromFormDataParams, getObjectPathParams, getQueryStringFromQueryParams } from '@/helper';
 import { useVariable } from '@/store/apidoc/variablesStore';
 import { GotRequestOptions, JsonData, RedirectOptions, ResponseInfo } from '@src/types/index.ts';
 import { useApidocBaseInfo } from '@/store/apidoc/baseInfoStore';

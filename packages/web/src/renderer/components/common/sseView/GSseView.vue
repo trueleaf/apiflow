@@ -94,7 +94,7 @@
 import { downloadStringAsText } from '@/helper';
 import { debounce } from "lodash-es";
 import { computed, ref, onMounted, onBeforeUnmount, nextTick } from 'vue';
-import { parseChunkList } from '@/utils/utils';
+import { parseChunkList } from '@/helper';
 import dayjs from 'dayjs';
 import type { ChunkWithTimestampe } from '@src/types/index.ts';
 import GVirtualScroll from '@/components/apidoc/virtualScroll/GVirtualScroll.vue';
