@@ -167,14 +167,20 @@ export class MockManager {
 
       // 设置响应状态码和头部
       ctx.status = responseConfig.statusCode;
-      Object.entries(responseConfig.headers).forEach(([key, value]) => {
-        ctx.set(key, value);
+      const allHeaders = [
+        ...responseConfig.headers.defaultHeaders.filter(h => h.select),
+        ...responseConfig.headers.customHeaders.filter(h => h.select)
+      ];
+      allHeaders.forEach(header => {
+        if (header.key && header.value) {
+          ctx.set(header.key, header.value);
+        }
       });
 
       // 对于SSE类型，进行特殊处理
       if (responseConfig.dataType === 'sse') {
-        const hasContentType = Object.keys(responseConfig.headers).some(key => 
-          key.toLowerCase() === 'content-type'
+        const hasContentType = allHeaders.some(header => 
+          header.key && header.key.toLowerCase() === 'content-type'
         );
         if (!hasContentType) {
           ctx.set('content-type', 'text/event-stream; charset=utf-8');
@@ -187,8 +193,8 @@ export class MockManager {
 
       // 对于text类型，如果没有设置content-type，则根据textType设置对应的Content-Type
       if (responseConfig.dataType === 'text') {
-        const hasContentType = Object.keys(responseConfig.headers).some(key => 
-          key.toLowerCase() === 'content-type'
+        const hasContentType = allHeaders.some(header => 
+          header.key && header.key.toLowerCase() === 'content-type'
         );
         if (!hasContentType) {
           const textType = responseConfig.textConfig.textType || 'text/plain';
@@ -206,8 +212,8 @@ export class MockManager {
 
       // 对于json类型，如果没有设置content-type，则设置默认值
       if (responseConfig.dataType === 'json') {
-        const hasContentType = Object.keys(responseConfig.headers).some(key => 
-          key.toLowerCase() === 'content-type'
+        const hasContentType = allHeaders.some(header => 
+          header.key && header.key.toLowerCase() === 'content-type'
         );
         if (!hasContentType) {
           ctx.set('content-type', 'application/json; charset=utf-8');
@@ -218,8 +224,8 @@ export class MockManager {
       
       // 对于image类型，如果没有设置content-type，则设置生成的MIME类型
       if (responseConfig.dataType === 'image') {
-        const hasContentType = Object.keys(responseConfig.headers).some(key => 
-          key.toLowerCase() === 'content-type'
+        const hasContentType = allHeaders.some(header => 
+          header.key && header.key.toLowerCase() === 'content-type'
         );
         if (!hasContentType) {
           const generatedMimeType = (responseConfig as any)._generatedMimeType || 'application/octet-stream';
@@ -229,8 +235,8 @@ export class MockManager {
 
       // 对于file类型，如果没有设置content-type，则设置生成的MIME类型
       if (responseConfig.dataType === 'file') {
-        const hasContentType = Object.keys(responseConfig.headers).some(key => 
-          key.toLowerCase() === 'content-type'
+        const hasContentType = allHeaders.some(header => 
+          header.key && header.key.toLowerCase() === 'content-type'
         );
         if (!hasContentType) {
           const generatedMimeType = (responseConfig as any)._generatedMimeType || 'application/octet-stream';
@@ -238,8 +244,8 @@ export class MockManager {
         }
         
         // 设置 Content-Disposition 头
-        const hasContentDisposition = Object.keys(responseConfig.headers).some(key => 
-          key.toLowerCase() === 'content-disposition'
+        const hasContentDisposition = allHeaders.some(header => 
+          header.key && header.key.toLowerCase() === 'content-disposition'
         );
         if (!hasContentDisposition) {
           const generatedContentDisposition = (responseConfig as any)._generatedContentDisposition;
@@ -251,8 +257,8 @@ export class MockManager {
 
       // 对于binary类型，如果没有设置content-type，则设置生成的MIME类型
       if (responseConfig.dataType === 'binary') {
-        const hasContentType = Object.keys(responseConfig.headers).some(key => 
-          key.toLowerCase() === 'content-type'
+        const hasContentType = allHeaders.some(header => 
+          header.key && header.key.toLowerCase() === 'content-type'
         );
         if (!hasContentType) {
           const generatedMimeType = (responseConfig as any)._generatedMimeType || 'application/octet-stream';
