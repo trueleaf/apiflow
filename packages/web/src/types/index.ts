@@ -15,3 +15,4 @@ export * from './mockNode';
 export * from './standalone';
 export * from './history';
 export * from './redoUndo/wsRedoUndo';
+export * from './redoUndo/httpRedoUndo';
