@@ -89,6 +89,44 @@ export class ProjectCache {
     await tx.done;
     return true;
   }
+  // 缓存项目分享密码
+  setProjectSharePassword(shareId: string, password: string) {
+    try {
+      const localData = JSON.parse(localStorage.getItem('projectCache/share/password') || '{}');
+      localData[shareId] = password;
+      localStorage.setItem('projectCache/share/password', JSON.stringify(localData));
+    } catch (error) {
+      console.error(error);
+      const data: Record<string, string> = {};
+      data[shareId] = password;
+      localStorage.setItem('projectCache/share/password', JSON.stringify(data));
+    }
+  }
+  // 获取缓存的项目分享密码
+  getProjectSharePassword(shareId: string): string | null {
+    try {
+      const localData: Record<string, string> = JSON.parse(localStorage.getItem('projectCache/share/password') || '{}');
+      if (!localData[shareId]) {
+        return null;
+      }
+      return localData[shareId];
+    } catch (error) {
+      console.error(error);
+      localStorage.setItem('projectCache/share/password', '{}');
+      return null;
+    }
+  }
+  // 清除项目分享密码缓存
+  clearProjectSharePassword(shareId: string) {
+    try {
+      const localData = JSON.parse(localStorage.getItem('projectCache/share/password') || '{}');
+      delete localData[shareId];
+      localStorage.setItem('projectCache/share/password', JSON.stringify(localData));
+    } catch (error) {
+      console.error(error);
+      localStorage.setItem('projectCache/share/password', '{}');
+    }
+  }
 }
 
 // 导出单例

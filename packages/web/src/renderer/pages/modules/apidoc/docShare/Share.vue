@@ -53,7 +53,7 @@ import { request } from '@/api/api'
 import { FormInstance } from 'element-plus'
 import { Loading, } from '@element-plus/icons-vue'
 import { ApidocBanner, HttpNode, ApidocVariable, CommonResponse } from '@src/types'
-import { httpNodeCache } from '@/cache/httpNode/httpNodeCache'
+import { projectCache } from '@/cache/project/projectCache'
 import { workbenchCache } from '@/cache/workbench/workbenchCache'
 import { router } from '@/router'
 import SBanner from './banner/Banner.vue'
@@ -145,7 +145,7 @@ const getSharedProjectInfo = async () => {
     expireCountdown.value = getCountdown(res.data.expire ?? 0);
     if (res.data.needPassword) {
       // 检查是否有缓存的密码
-      const cachedPassword = httpNodeCache.getSharePassword(shareId);
+      const cachedPassword = projectCache.getProjectSharePassword(shareId);
       if (cachedPassword) {
         // 自动使用缓存的密码进行验证
         await verifyPassword(cachedPassword);
@@ -159,7 +159,7 @@ const getSharedProjectInfo = async () => {
   } catch (error) {
     console.error(error)
     // 发生异常时清空密码缓存
-    httpNodeCache.clearSharePassword(shareId);
+    projectCache.clearProjectSharePassword(shareId);
   } finally {
     loading.value = false;
   }
@@ -170,7 +170,7 @@ const getDocDetail = async (docId: string) => {
     const params = {
       docId,
       shareId: shareId,
-      password: httpNodeCache.getSharePassword(shareId),
+      password: projectCache.getProjectSharePassword(shareId),
     }
     const res = await request.get<CommonResponse<HttpNode>, CommonResponse<HttpNode>>('/api/project/share_doc_detail', { params });
     shareStore.setActiveDocInfo(res.data);
@@ -190,12 +190,12 @@ const verifyPassword = async (password: string) => {
     })
     shareStore.replaceVaribles(response.data.variables);
     shareStore.setBanner(response.data.banner);
-    httpNodeCache.setSharePassword(shareId, password);
+    projectCache.setProjectSharePassword(shareId, password);
     hasPermission.value = true;
   } catch (error) {
     console.error('缓存密码验证失败:', error);
     // 缓存密码验证失败，清空缓存
-    httpNodeCache.clearSharePassword(shareId);
+    projectCache.clearProjectSharePassword(shareId);
     hasPermission.value = false;
   } finally {
     passwordLoading.value = false;

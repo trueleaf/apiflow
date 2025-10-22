@@ -131,52 +131,6 @@ class HttpNodeCache {
       localStorage.setItem('httpNodeCache/preRequest/localStorage', JSON.stringify(newData));
     }
   }
-  /*
-   * 缓存分享密码
-   */
-  setSharePassword(shareId: string, password: string) {
-    try {
-      const localData = JSON.parse(localStorage.getItem('httpNodeCache/share/password') || '{}');
-      localData[shareId] = password;
-      localStorage.setItem('httpNodeCache/share/password', JSON.stringify(localData));
-    } catch (error) {
-      console.error(error);
-      const data: Record<string, string> = {};
-      data[shareId] = password;
-      localStorage.setItem('httpNodeCache/share/password', JSON.stringify(data));
-    }
-  }
-
-  /*
-   * 获取缓存的分享密码
-   */
-  getSharePassword(shareId: string): string | null {
-    try {
-      const localData: Record<string, string> = JSON.parse(localStorage.getItem('httpNodeCache/share/password') || '{}');
-      if (!localData[shareId]) {
-        return null;
-      }
-      return localData[shareId];
-    } catch (error) {
-      console.error(error);
-      localStorage.setItem('httpNodeCache/share/password', '{}');
-      return null;
-    }
-  }
-
-  /*
-   * 清除分享密码缓存
-   */
-  clearSharePassword(shareId: string) {
-    try {
-      const localData = JSON.parse(localStorage.getItem('httpNodeCache/share/password') || '{}');
-      delete localData[shareId];
-      localStorage.setItem('httpNodeCache/share/password', JSON.stringify(localData));
-    } catch (error) {
-      console.error(error);
-      localStorage.setItem('httpNodeCache/share/password', '{}');
-    }
-  }
 
   /*
   |--------------------------------------------------------------------------
