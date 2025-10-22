@@ -1,18 +1,31 @@
+import { openDB, IDBPDatabase } from 'idb';
 import { config } from "@src/config/config";
 import { ChunkWithTimestampe, ResponseInfo } from "@src/types";
-import { getHttpResponseDB } from "../db";
 
 export class HttpResponseCache {
-  private httpResponseCacheDb?: Awaited<ReturnType<typeof getHttpResponseDB>>;
-
-  private async getDB() {
-    if (!this.httpResponseCacheDb) {
-      this.httpResponseCacheDb = await getHttpResponseDB();
-    }
+  private httpResponseCacheDb: IDBPDatabase | null = null;
+  private async initHttpResponseDB(): Promise<IDBPDatabase> {
+    if (this.httpResponseCacheDb) return this.httpResponseCacheDb;
+    this.httpResponseCacheDb = await openDB(
+      config.cacheConfig.apiflowResponseCache.dbName,
+      config.cacheConfig.apiflowResponseCache.version,
+      {
+        upgrade(db: IDBPDatabase) {
+          if (!db.objectStoreNames.contains('responseMetadata')) {
+            db.createObjectStore('responseMetadata');
+          }
+        },
+      }
+    );
     return this.httpResponseCacheDb;
   }
-
-    // 缓存返回值（元数据、body、streamData 分离存储）
+  private async getDB() {
+    if (!this.httpResponseCacheDb) {
+      await this.initHttpResponseDB();
+    }
+    return this.httpResponseCacheDb!;
+  }
+  // 缓存返回值（元数据、body、streamData 分离存储）
   async setResponse(id: string, response: ResponseInfo) {
     await this.getDB();
     try {
@@ -72,150 +85,7 @@ export class HttpResponseCache {
       console.error("存储响应数据失败", error);
     }
   }
-
-  /**
-   * 存储 body 数据
-   */
-  private async storeBodyData(id: string, body: unknown) {
-    if (!this.httpResponseCacheDb) {
-      return;
-    }
-
-    try {
-      const bodyKey = `${id}_body`;
-      let bodyData: { type: string; data: any };
-
-      // 根据 body 类型进行序列化
-      if (body instanceof Uint8Array) {
-        bodyData = {
-          type: 'Uint8Array',
-          data: body
-        };
-      } else if (body instanceof ArrayBuffer) {
-        bodyData = {
-          type: 'ArrayBuffer',
-          data: new Uint8Array(body)
-        };
-      } else if (typeof body === 'string') {
-        bodyData = {
-          type: 'string',
-          data: body
-        };
-      } else {
-        // 其他类型序列化为 JSON
-        bodyData = {
-          type: 'json',
-          data: JSON.stringify(body)
-        };
-      }
-
-      await this.httpResponseCacheDb.put("responseMetadata", bodyData, bodyKey);
-    } catch (error) {
-      console.error("存储 body 数据失败", error);
-    }
-  }
-
-  /**
-   * 存储 streamData（分开存储每个 chunk）
-   */
-  private async storeStreamData(id: string, streamData: ChunkWithTimestampe[]) {
-    if (!this.httpResponseCacheDb) {
-      return;
-    }
-    
-    try {
-      // 存储每个 streamData 项（包含 Uint8Array）
-      for (let i = 0; i < streamData.length; i++) {
-        const streamKey = `${id}_stream_${i}`;
-        const streamItem = {
-          chunk: streamData[i].chunk, // Uint8Array 可以直接存储
-          timestamp: streamData[i].timestamp
-        };
-        await this.httpResponseCacheDb.put("responseMetadata", streamItem, streamKey);
-      }
-      
-      // 存储 streamData 数量元数据
-      const streamMetaKey = `${id}_stream_meta`;
-      await this.httpResponseCacheDb.put("responseMetadata", { count: streamData.length }, streamMetaKey);
-    } catch (error) {
-      console.error("存储 streamData 失败", error);
-    }
-  }
-
-  /**
-   * 获取 streamData
-   */
-  private async getStreamData(id: string): Promise<ChunkWithTimestampe[] | null> {
-    if (!this.httpResponseCacheDb) {
-      return null;
-    }
-
-    try {
-      // 获取 streamData 数量
-      const streamMetaKey = `${id}_stream_meta`;
-      const streamMeta = await this.httpResponseCacheDb.get("responseMetadata", streamMetaKey);
-      
-      if (!streamMeta) {
-        return null;
-      }
-      
-      const { count } = streamMeta as { count: number };
-      const streamData: ChunkWithTimestampe[] = [];
-      
-      // 读取所有 streamData 项
-      for (let i = 0; i < count; i++) {
-        const streamKey = `${id}_stream_${i}`;
-        const streamItem = await this.httpResponseCacheDb.get("responseMetadata", streamKey);
-        if (streamItem) {
-          streamData.push(streamItem as ChunkWithTimestampe);
-        }
-      }
-      
-      return streamData.length > 0 ? streamData : null;
-    } catch (error) {
-      console.error("获取 streamData 失败", error);
-      return null;
-    }
-  }
-
-  /**
-   * 获取 body 数据
-   */
-  private async getBodyData(id: string): Promise<unknown | null> {
-    if (!this.httpResponseCacheDb) {
-      return null;
-    }
-
-    try {
-      const bodyKey = `${id}_body`;
-      const bodyRecord = await this.httpResponseCacheDb.get("responseMetadata", bodyKey);
-      
-      if (!bodyRecord) {
-        return null;
-      }
-
-      const { type, data } = bodyRecord as { type: string; data: any };
-
-      // 根据类型恢复原始数据
-      switch (type) {
-        case 'Uint8Array':
-          return data;
-        case 'ArrayBuffer':
-          return data.buffer;
-        case 'string':
-          return data;
-        case 'json':
-          return JSON.parse(data);
-        default:
-          return data;
-      }
-    } catch (error) {
-      console.error("获取 body 数据失败", error);
-      return null;
-    }
-  }
-
-    // 获取已缓存的返回值
+  // 获取已缓存的返回值
   async getResponse(id: string): Promise<ResponseInfo | null> {
     await this.getDB();
     if (!this.httpResponseCacheDb) {
@@ -249,15 +119,11 @@ export class HttpResponseCache {
       return null;
     }
   }
-
-  /**
-   * 清理响应数据（包括元数据、body、streamData）
-   */
-  private async clearResponseData(id: string) {
+  // 清理响应数据（包括元数据、body、streamData）
+  private async clearResponse(id: string) {
     if (!this.httpResponseCacheDb) {
       return;
     }
-
     try {
       // 清理元数据
       await this.httpResponseCacheDb.delete("responseMetadata", id);
@@ -271,10 +137,129 @@ export class HttpResponseCache {
       console.error("清理响应数据失败", error);
     }
   }
-
-  /**
-   * 清理 body 数据
-   */
+  // 存储 body 数据
+  private async storeBodyData(id: string, body: unknown) {
+    if (!this.httpResponseCacheDb) {
+      return;
+    }
+    try {
+      const bodyKey = `${id}_body`;
+      let bodyData: { type: string; data: any };
+      // 根据 body 类型进行序列化
+      if (body instanceof Uint8Array) {
+        bodyData = {
+          type: 'Uint8Array',
+          data: body
+        };
+      } else if (body instanceof ArrayBuffer) {
+        bodyData = {
+          type: 'ArrayBuffer',
+          data: new Uint8Array(body)
+        };
+      } else if (typeof body === 'string') {
+        bodyData = {
+          type: 'string',
+          data: body
+        };
+      } else {
+        // 其他类型序列化为 JSON
+        bodyData = {
+          type: 'json',
+          data: JSON.stringify(body)
+        };
+      }
+      await this.httpResponseCacheDb.put("responseMetadata", bodyData, bodyKey);
+    } catch (error) {
+      console.error("存储 body 数据失败", error);
+    }
+  }
+  // 存储 streamData（分开存储每个 chunk）
+  private async storeStreamData(id: string, streamData: ChunkWithTimestampe[]) {
+    if (!this.httpResponseCacheDb) {
+      return;
+    }
+    try {
+      // 存储每个 streamData 项（包含 Uint8Array）
+      for (let i = 0; i < streamData.length; i++) {
+        const streamKey = `${id}_stream_${i}`;
+        const streamItem = {
+          chunk: streamData[i].chunk, // Uint8Array 可以直接存储
+          timestamp: streamData[i].timestamp
+        };
+        await this.httpResponseCacheDb.put("responseMetadata", streamItem, streamKey);
+      }
+      
+      // 存储 streamData 数量元数据
+      const streamMetaKey = `${id}_stream_meta`;
+      await this.httpResponseCacheDb.put("responseMetadata", { count: streamData.length }, streamMetaKey);
+    } catch (error) {
+      console.error("存储 streamData 失败", error);
+    }
+  }
+  // 获取 body 数据
+  private async getBodyData(id: string): Promise<unknown | null> {
+    if (!this.httpResponseCacheDb) {
+      return null;
+    }
+    try {
+      const bodyKey = `${id}_body`;
+      const bodyRecord = await this.httpResponseCacheDb.get("responseMetadata", bodyKey);
+      
+      if (!bodyRecord) {
+        return null;
+      }
+      const { type, data } = bodyRecord as { type: string; data: any };
+      // 根据类型恢复原始数据
+      switch (type) {
+        case 'Uint8Array':
+          return data;
+        case 'ArrayBuffer':
+          return data.buffer;
+        case 'string':
+          return data;
+        case 'json':
+          return JSON.parse(data);
+        default:
+          return data;
+      }
+    } catch (error) {
+      console.error("获取 body 数据失败", error);
+      return null;
+    }
+  }
+  // 获取 streamData
+  private async getStreamData(id: string): Promise<ChunkWithTimestampe[] | null> {
+    if (!this.httpResponseCacheDb) {
+      return null;
+    }
+    try {
+      // 获取 streamData 数量
+      const streamMetaKey = `${id}_stream_meta`;
+      const streamMeta = await this.httpResponseCacheDb.get("responseMetadata", streamMetaKey);
+      
+      if (!streamMeta) {
+        return null;
+      }
+      
+      const { count } = streamMeta as { count: number };
+      const streamData: ChunkWithTimestampe[] = [];
+      
+      // 读取所有 streamData 项
+      for (let i = 0; i < count; i++) {
+        const streamKey = `${id}_stream_${i}`;
+        const streamItem = await this.httpResponseCacheDb.get("responseMetadata", streamKey);
+        if (streamItem) {
+          streamData.push(streamItem as ChunkWithTimestampe);
+        }
+      }
+      
+      return streamData.length > 0 ? streamData : null;
+    } catch (error) {
+      console.error("获取 streamData 失败", error);
+      return null;
+    }
+  }
+  // 清理 body 数据
   private async clearBodyData(id: string) {
     if (!this.httpResponseCacheDb) {
       return;
@@ -287,10 +272,7 @@ export class HttpResponseCache {
       console.error("清理 body 数据失败", error);
     }
   }
-
-  /**
-   * 清理 streamData 数据
-   */
+  // 清理 streamData 数据
   private async clearStreamData(id: string) {
     if (!this.httpResponseCacheDb) {
       return;
@@ -317,22 +299,20 @@ export class HttpResponseCache {
       console.error("清理 streamData 失败", error);
     }
   }
-
-    // 删除response缓存（包括分块数据）
+  // 删除response缓存（包括分块数据）
   async deleteResponse(id: string) {
     if (!this.httpResponseCacheDb) {
       return Promise.resolve(null);
     }
     try {
-      await this.clearResponseData(id);
+      await this.clearResponse(id);
       return Promise.resolve(true);
     } catch (error) {
       console.error(error);
       return Promise.resolve(null);
     }
   }
-
-    // 获取缓存统计信息
+  // 获取缓存统计信息
   async getCacheStats() {
     if (!this.httpResponseCacheDb) {
       return null;
@@ -356,8 +336,7 @@ export class HttpResponseCache {
       return null;
     }
   }
-
-    // 清理所有缓存
+  // 清理所有缓存
   async clearAllCache() {
     if (!this.httpResponseCacheDb) {
       return;

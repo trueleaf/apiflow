@@ -50,37 +50,6 @@ export function getStandaloneDB(): IDBPDatabase {
 }
 
 // ============================================================================
-// HTTP Response Cache Database（懒加载）
-// ============================================================================
-let httpResponseDB: IDBPDatabase | null = null;
-
-async function initHttpResponseDB(): Promise<IDBPDatabase> {
-  if (httpResponseDB) return httpResponseDB;
-
-  httpResponseDB = await openDB(
-    config.cacheConfig.apiflowResponseCache.dbName,
-    config.cacheConfig.apiflowResponseCache.version,
-    {
-      upgrade(db: IDBPDatabase) {
-        if (!db.objectStoreNames.contains('responseMetadata')) {
-          db.createObjectStore('responseMetadata');
-        }
-      },
-    }
-  );
-
-  return httpResponseDB;
-}
-
-// 获取 HTTP Response DB（自动初始化）
-export async function getHttpResponseDB(): Promise<IDBPDatabase> {
-  if (!httpResponseDB) {
-    await initHttpResponseDB();
-  }
-  return httpResponseDB!;
-}
-
-// ============================================================================
 // WebSocket Response Cache Database（懒加载）
 // ============================================================================
 let websocketResponseDB: IDBPDatabase | null = null;
