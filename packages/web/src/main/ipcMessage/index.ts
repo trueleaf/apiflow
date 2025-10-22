@@ -138,23 +138,23 @@ export const useIpcEvent = (mainWindow: BrowserWindow, topBarView: WebContentsVi
   */
   // 检查mock是否已启用
   ipcMain.handle(IPC_EVENTS.MOCK.RENDERER_TO_MAIN.GET_BY_NODE_ID, async (_: IpcMainInvokeEvent, nodeId: string) => {
-    return mockManager.getMockByNodeId(nodeId);
+    return mockManager.getHttpMockByNodeId(nodeId);
   });
 
   // 启动mock服务
   ipcMain.handle(IPC_EVENTS.MOCK.RENDERER_TO_MAIN.START_SERVER, async (_: IpcMainInvokeEvent, httpMock: MockHttpNode) => {
-    return await mockManager.addAndStartMockServer(httpMock);
+    return await mockManager.addAndStartHttpServer(httpMock);
   });
 
   // 停止mock服务
   ipcMain.handle(IPC_EVENTS.MOCK.RENDERER_TO_MAIN.STOP_SERVER, async (_: IpcMainInvokeEvent, nodeId: string) => {
-    return await mockManager.removeMockByNodeIdAndStopMockServer(nodeId);
+    return await mockManager.removeHttpMockAndStopServer(nodeId);
   });
 
   // 替换指定nodeId的Mock配置
   ipcMain.handle(IPC_EVENTS.MOCK.RENDERER_TO_MAIN.REPLACE_BY_ID, async (_: IpcMainInvokeEvent, nodeId: string, httpMock: MockHttpNode) => {
     try {
-      mockManager.replaceMockById(nodeId, httpMock);
+      mockManager.replaceHttpMockById(nodeId, httpMock);
       return { code: 0, msg: '替换成功', data: null };
     } catch (error) {
       console.error('替换Mock配置失败:', error);
@@ -167,7 +167,7 @@ export const useIpcEvent = (mainWindow: BrowserWindow, topBarView: WebContentsVi
   });
   //获取项目所有Mock状态
   ipcMain.handle(IPC_EVENTS.MOCK.RENDERER_TO_MAIN.GET_ALL_STATES, async (_: IpcMainInvokeEvent, projectId: string) => {
-    return mockManager.getAllMockStates(projectId);
+    return mockManager.getAllHttpMockStates(projectId);
   });
 
   // 同步项目变量到主进程

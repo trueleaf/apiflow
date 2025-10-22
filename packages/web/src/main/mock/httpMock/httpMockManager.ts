@@ -11,17 +11,17 @@ import { nanoid } from 'nanoid/non-secure';
 import { IPC_EVENTS } from '@src/types/ipc';
 
 export class HttpMockManager {
-  private mockList: MockHttpNode[] = [];
-  private mockInstanceList: MockInstance[] = [];
-  private portToInstanceMap: Map<number, MockInstance> = new Map();
+  private httpMockList: MockHttpNode[] = [];
+  private httpServerInstances: MockInstance[] = [];
+  private httpPortToInstanceMap: Map<number, MockInstance> = new Map();
   private mockUtils: MockUtils = new MockUtils();
-  private logBuffer: MockLog[] = [];
+  private httpLogBuffer: MockLog[] = [];
   private sendTimer: ReturnType<typeof setTimeout> | null = null;
   private readonly BATCH_SEND_INTERVAL = 50;
   // 推送日志到渲染进程（批量）
   private pushLogToRenderer(log: Omit<MockLog, 'id'>): void {
     const logWithId = { ...log, id: nanoid() } as MockLog;
-    this.logBuffer.push(logWithId);
+    this.httpLogBuffer.push(logWithId);
     if (!this.sendTimer) {
       this.sendTimer = setTimeout(() => {
         this.flushLogs();
@@ -30,12 +30,12 @@ export class HttpMockManager {
   }
   // 批量发送日志到渲染进程
   private flushLogs(): void {
-    if (this.logBuffer.length === 0) {
+    if (this.httpLogBuffer.length === 0) {
       this.sendTimer = null;
       return;
     }
-    const logsToSend = [...this.logBuffer];
-    this.logBuffer = [];
+    const logsToSend = [...this.httpLogBuffer];
+    this.httpLogBuffer = [];
     this.sendTimer = null;
     if (contentViewInstance && contentViewInstance.webContents) {
       contentViewInstance.webContents.send(IPC_EVENTS.MOCK.MAIN_TO_RENDERER.LOGS_BATCH, logsToSend);
@@ -44,22 +44,22 @@ export class HttpMockManager {
   
   /*
   |--------------------------------------------------------------------------
-  | 添加mock并且启动 Mock 服务器
+  | 添加并启动 HTTP Mock 服务器
   |--------------------------------------------------------------------------
   */
   // 设置服务器事件监听
-  private setupServerEventListeners(server: http.Server, port: number): void {
+  private setupHttpServerListeners(server: http.Server, port: number): void {
     server.on('close', () => {
       // 服务器关闭时清理该端口的所有 Mock 配置
-      const mocksOnPort = this.mockList.filter(mock => mock.requestCondition.port === port);
+      const mocksOnPort = this.httpMockList.filter(mock => mock.requestCondition.port === port);
       mocksOnPort.forEach(mock => {
-        this.removeMockByNodeId(mock._id);
+        this.removeHttpMockByNodeId(mock._id);
       });
     });
 
     server.on('error', (error: unknown) => {
       // 记录该端口上所有 Mock 的错误日志
-      const mocksOnPort = this.mockList.filter(mock => mock.requestCondition.port === port);
+      const mocksOnPort = this.httpMockList.filter(mock => mock.requestCondition.port === port);
       mocksOnPort.forEach(mock => {
         this.pushLogToRenderer({
           type: "error",
@@ -67,22 +67,22 @@ export class HttpMockManager {
           projectId: mock.projectId,
           data: {
             errorType: "serverStartError",
-            errorMsg: `服务器错误: ${(error as Error).message}`
+            errorMsg: `HTTP 服务器错误: ${(error as Error).message}`
           },
           timestamp: Date.now()
         });
       });
     });
   }
-  // 核心逻辑
-  private async handleRequest(ctx: Koa.Context, port: number): Promise<void> {
+  // 处理 HTTP 请求
+  private async handleHttpRequest(ctx: Koa.Context, port: number): Promise<void> {
     const startTime = Date.now();
     let matchedMock: MockHttpNode | null = null;
     const consoleCollector = new ConsoleLogCollector();
     
     try {
-      // 实时从 mockList 中查找匹配的 mock 配置
-      const candidateMocks = this.mockList
+      // 实时从 httpMockList 中查找匹配的 mock 配置
+      const candidateMocks = this.httpMockList
         .filter(mock => mock.requestCondition.port === port)
         .filter(mock => this.mockUtils.matchHttpMethod(ctx.method, mock.requestCondition.method))
         .map(mock => ({
@@ -95,7 +95,7 @@ export class HttpMockManager {
 
       if (candidateMocks.length === 0) {
         ctx.status = 404;
-        ctx.body = { error: 'Mock not found' };
+        ctx.body = { error: 'HTTP Mock not found' };
         return;
       }
 
@@ -110,7 +110,7 @@ export class HttpMockManager {
       let responseConfig = null;
       if (matchedMock.response.length === 0) {
         ctx.status = 500;
-        ctx.body = { error: 'No response configuration found' };
+        ctx.body = { error: 'No HTTP response configuration found' };
         return;
       }
       for (const response of matchedMock.response) {
@@ -161,7 +161,7 @@ export class HttpMockManager {
           timestamp: Date.now()
         });
         ctx.status = 500;
-        ctx.body = { error: 'mock条件不满足' };
+        ctx.body = { error: 'HTTP Mock 条件不满足' };
         return;
       }
 
@@ -346,11 +346,12 @@ export class HttpMockManager {
       }
     }
   }
-  public async addAndStartMockServer(httpMock: MockHttpNode): Promise<CommonResponse<null>> {
-    const portExists = this.mockList.some(mock => mock.requestCondition.port === httpMock.requestCondition.port);
+  // 添加并启动 HTTP Mock 服务器
+  public async addAndStartHttpServer(httpMock: MockHttpNode): Promise<CommonResponse<null>> {
+    const portExists = this.httpMockList.some(mock => mock.requestCondition.port === httpMock.requestCondition.port);
     if (portExists) {
-      // 端口复用场景：直接添加到 mockList
-      this.mockList.push(httpMock);
+      // 端口复用场景：直接添加到 httpMockList
+      this.httpMockList.push(httpMock);
       this.pushLogToRenderer({
         type: "start",
         nodeId: httpMock._id,
@@ -364,19 +365,19 @@ export class HttpMockManager {
         state: 'running',
         port: httpMock.requestCondition.port
       });
-      return { code: 0, msg: '启动成功', data: null };
+      return { code: 0, msg: 'HTTP Mock 启动成功', data: null };
     }
     
     // 首次启动场景：检测端口冲突
-    const hasConflict = await this.checkPortIsConflict(httpMock);
+    const hasConflict = await this.checkHttpPortConflict(httpMock);
     if (hasConflict) {
       this.pushMockStatusChanged({
         nodeId: httpMock._id,
         projectId: httpMock.projectId,
         state: 'error',
-        error: `端口 ${httpMock.requestCondition.port} 已被占用`
+        error: `HTTP 端口 ${httpMock.requestCondition.port} 已被占用`
       });
-      return { code: 1, msg: `端口 ${httpMock.requestCondition.port} 已被占用`, data: null };
+      return { code: 1, msg: `HTTP 端口 ${httpMock.requestCondition.port} 已被占用`, data: null };
     }
     
     try {
@@ -388,7 +389,7 @@ export class HttpMockManager {
         textLimit: '10mb',
       }));
       app.use(async (ctx) => {
-        await this.handleRequest(ctx, httpMock.requestCondition.port);
+        await this.handleHttpRequest(ctx, httpMock.requestCondition.port);
       });
       const server = app.listen(httpMock.requestCondition.port);
       
@@ -399,10 +400,10 @@ export class HttpMockManager {
         server
       };
       
-      this.mockInstanceList.push(mockInstance);
-      this.portToInstanceMap.set(httpMock.requestCondition.port, mockInstance);
-      this.setupServerEventListeners(server, httpMock.requestCondition.port);
-      this.mockList.push(httpMock);
+      this.httpServerInstances.push(mockInstance);
+      this.httpPortToInstanceMap.set(httpMock.requestCondition.port, mockInstance);
+      this.setupHttpServerListeners(server, httpMock.requestCondition.port);
+      this.httpMockList.push(httpMock);
       
       this.pushLogToRenderer({
         type: "start",
@@ -418,9 +419,9 @@ export class HttpMockManager {
         port: httpMock.requestCondition.port
       });
       
-      return { code: 0, msg: '启动成功', data: null };
+      return { code: 0, msg: 'HTTP Mock 启动成功', data: null };
     } catch (error) {
-      const errorMsg = `服务器启动失败: ${error instanceof Error ? error.message : 'Unknown error'}`;
+      const errorMsg = `HTTP 服务器启动失败: ${error instanceof Error ? error.message : 'Unknown error'}`;
       this.pushLogToRenderer({
         type: "error",
         nodeId: httpMock._id,
@@ -442,35 +443,39 @@ export class HttpMockManager {
   }
   /*
   |--------------------------------------------------------------------------
-  | mockList 相关操作
+  | HTTP Mock 相关操作
   |--------------------------------------------------------------------------
   */
-  public getMockByNodeId(nodeId: string): MockHttpNode | null {
-    const mock = this.mockList.find(mock => mock._id === nodeId);
+  // 根据节点ID获取 HTTP Mock 配置
+  public getHttpMockByNodeId(nodeId: string): MockHttpNode | null {
+    const mock = this.httpMockList.find(mock => mock._id === nodeId);
     return mock || null;
   }
-  public replaceMockById(nodeId: string, httpMock: MockHttpNode): void {
-    const index = this.mockList.findIndex(mock => mock._id === nodeId);
+  // 根据ID替换 HTTP Mock 配置
+  public replaceHttpMockById(nodeId: string, httpMock: MockHttpNode): void {
+    const index = this.httpMockList.findIndex(mock => mock._id === nodeId);
     if (index !== -1) {
-      this.mockList[index] = httpMock;
+      this.httpMockList[index] = httpMock;
     }
   }
-  public removeMockByNodeId(nodeId: string): void {
-    const index = this.mockList.findIndex(mock => mock._id === nodeId);
+  // 根据节点ID移除 HTTP Mock 配置
+  public removeHttpMockByNodeId(nodeId: string): void {
+    const index = this.httpMockList.findIndex(mock => mock._id === nodeId);
     if (index !== -1) {
-      this.mockList.splice(index, 1);
+      this.httpMockList.splice(index, 1);
     }
   }
-  public removeMockByNodeIdAndStopMockServer(nodeId: string): Promise<CommonResponse<null>> {
+  // 移除 HTTP Mock 并停止服务器
+  public removeHttpMockAndStopServer(nodeId: string): Promise<CommonResponse<null>> {
     return new Promise((resolve) => {
-      const mockToRemove = this.getMockByNodeId(nodeId);
+      const mockToRemove = this.getHttpMockByNodeId(nodeId);
       if (!mockToRemove) {
-        resolve({ code: 0, msg: '停止成功', data: null });
+        resolve({ code: 0, msg: 'HTTP Mock 停止成功', data: null });
         return;
       }
       const port = mockToRemove.requestCondition.port;
-      this.removeMockByNodeId(nodeId);
-      const remainingMocksOnPort = this.mockList.filter(mock => mock.requestCondition.port === port);
+      this.removeHttpMockByNodeId(nodeId);
+      const remainingMocksOnPort = this.httpMockList.filter(mock => mock.requestCondition.port === port);
       if (remainingMocksOnPort.length > 0) {
         this.pushLogToRenderer({
           type: "stop",
@@ -484,10 +489,10 @@ export class HttpMockManager {
           projectId: mockToRemove.projectId,
           state: 'stopped'
         });
-        resolve({ code: 0, msg: '停止成功', data: null });
+        resolve({ code: 0, msg: 'HTTP Mock 停止成功', data: null });
         return;
       }
-      const instance = this.portToInstanceMap.get(port);
+      const instance = this.httpPortToInstanceMap.get(port);
       if (!instance) {
         this.pushLogToRenderer({
           type: "stop",
@@ -501,7 +506,7 @@ export class HttpMockManager {
           projectId: mockToRemove.projectId,
           state: 'stopped'
         });
-        resolve({ code: 0, msg: '停止成功', data: null });
+        resolve({ code: 0, msg: 'HTTP Mock 停止成功', data: null });
         return;
       }
       instance.server.closeAllConnections();
@@ -557,29 +562,31 @@ export class HttpMockManager {
             state: 'stopped'
           });
         }
-        const instanceIndex = this.mockInstanceList.findIndex(inst => inst.port === port);
+        const instanceIndex = this.httpServerInstances.findIndex(inst => inst.port === port);
         if (instanceIndex !== -1) {
-          this.mockInstanceList.splice(instanceIndex, 1);
+          this.httpServerInstances.splice(instanceIndex, 1);
         }
-        this.portToInstanceMap.delete(port);
-        resolve({ code: 0, msg: '停止成功', data: null });
+        this.httpPortToInstanceMap.delete(port);
+        resolve({ code: 0, msg: 'HTTP Mock 停止成功', data: null });
       });
       // 设置20秒超时，防止无限等待
       setTimeout(() => {
-        const instanceIndex = this.mockInstanceList.findIndex(inst => inst.port === port);
+        const instanceIndex = this.httpServerInstances.findIndex(inst => inst.port === port);
         if (instanceIndex !== -1) {
-          this.mockInstanceList.splice(instanceIndex, 1);
+          this.httpServerInstances.splice(instanceIndex, 1);
         }
-        this.portToInstanceMap.delete(port);
-        resolve({ code: 1, msg: `关闭服务器超时: 端口 ${port}`, data: null });
+        this.httpPortToInstanceMap.delete(port);
+        resolve({ code: 1, msg: `HTTP 服务器关闭超时: 端口 ${port}`, data: null });
       }, 20000);
     });
   }
-  public removeMockByProjectId(projectId: string): void {
-    this.mockList = this.mockList.filter(mock => mock.projectId !== projectId);
+  // 根据项目ID移除 HTTP Mock 配置
+  public removeHttpMocksByProjectId(projectId: string): void {
+    this.httpMockList = this.httpMockList.filter(mock => mock.projectId !== projectId);
   }
-  public async removeMockAndStopMockServerByProjectId(projectId: string): Promise<void> {
-    const mocksToRemove = this.mockList.filter(mock => mock.projectId === projectId);
+  // 根据项目ID移除 HTTP Mock 并停止服务器
+  public async removeHttpMocksAndStopServersByProjectId(projectId: string): Promise<void> {
+    const mocksToRemove = this.httpMockList.filter(mock => mock.projectId === projectId);
     const portGroups = new Map<number, string[]>();
     mocksToRemove.forEach(mock => {
       const port = mock.requestCondition.port;
@@ -591,9 +598,9 @@ export class HttpMockManager {
     // 对每个端口，只处理第一个 Mock，其余的会在移除第一个时自动处理
     const promises: Promise<CommonResponse<null>>[] = [];
     portGroups.forEach((nodeIds) => {
-      // 只处理第一个，因为 removeMockByNodeIdAndStopMockServer 会检查端口上的剩余 Mock
+      // 只处理第一个，因为 removeHttpMockAndStopServer 会检查端口上的剩余 Mock
       nodeIds.forEach(nodeId => {
-        promises.push(this.removeMockByNodeIdAndStopMockServer(nodeId));
+        promises.push(this.removeHttpMockAndStopServer(nodeId));
       });
     });
     
@@ -603,8 +610,8 @@ export class HttpMockManager {
     MockUtils.clearProjectVariables(projectId);
   }
 
-  // 检测端口是否冲突
-  private async checkPortIsConflict(httpMock: MockHttpNode): Promise<boolean> {
+  // 检测 HTTP 端口是否冲突
+  private async checkHttpPortConflict(httpMock: MockHttpNode): Promise<boolean> {
     try {
       const availablePort = await detect(httpMock.requestCondition.port);
       if (availablePort !== httpMock.requestCondition.port) {
@@ -614,7 +621,7 @@ export class HttpMockManager {
           projectId: httpMock.projectId,
           data: {
             errorType: "portError",
-            errorMsg: `端口 ${httpMock.requestCondition.port} 已被系统占用`
+            errorMsg: `HTTP 端口 ${httpMock.requestCondition.port} 已被系统占用`
           },
           timestamp: Date.now()
         });
@@ -627,7 +634,7 @@ export class HttpMockManager {
         projectId: httpMock.projectId,
         data: {
           errorType: "portError",
-          errorMsg: `端口检测失败: ${error instanceof Error ? error.message : 'Unknown error'}`
+          errorMsg: `HTTP 端口检测失败: ${error instanceof Error ? error.message : 'Unknown error'}`
         },
         timestamp: Date.now()
       });
@@ -642,9 +649,9 @@ export class HttpMockManager {
       contentViewInstance.webContents.send(IPC_EVENTS.MOCK.MAIN_TO_RENDERER.STATUS_CHANGED, payload);
     }
   }
-  //获取所有Mock状态
-  public getAllMockStates(projectId: string): MockStatusChangedPayload[] {
-    const projectMocks = this.mockList.filter(mock => mock.projectId === projectId);
+  // 获取所有 HTTP Mock 状态
+  public getAllHttpMockStates(projectId: string): MockStatusChangedPayload[] {
+    const projectMocks = this.httpMockList.filter(mock => mock.projectId === projectId);
     return projectMocks.map(mock => ({
       nodeId: mock._id,
       projectId: mock.projectId,
