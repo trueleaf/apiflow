@@ -221,17 +221,17 @@ export const useIpcEvent = (mainWindow: BrowserWindow, topBarView: WebContentsVi
 
   // 主内容区项目切换通知
   ipcMain.on(IPC_EVENTS.APIFLOW.TOPBAR_TO_CONTENT.PROJECT_CHANGED, (_, payload: IPCProjectData) => {
-    topBarView.webContents.send(IPC_EVENTS.APIFLOW.RENDERER_TO_MAIN.CHANGE_PROJECT, payload)
+    topBarView.webContents.send(IPC_EVENTS.APIFLOW.TOPBAR_TO_CONTENT.PROJECT_CHANGED, payload)
   })
 
   // 主内容区删除项目
   ipcMain.on(IPC_EVENTS.APIFLOW.TOPBAR_TO_CONTENT.PROJECT_DELETED, (_, projectId: string) => {
-    topBarView.webContents.send(IPC_EVENTS.APIFLOW.RENDERER_TO_MAIN.DELETE_PROJECT, projectId)
+    topBarView.webContents.send(IPC_EVENTS.APIFLOW.TOPBAR_TO_CONTENT.PROJECT_DELETED, projectId)
   })
 
   // 主内容区修改项目名称请求
   ipcMain.on(IPC_EVENTS.APIFLOW.TOPBAR_TO_CONTENT.PROJECT_RENAMED, (_, payload: IPCProjectData) => {
-    topBarView.webContents.send(IPC_EVENTS.APIFLOW.RENDERER_TO_MAIN.CHANGE_PROJECT_NAME, payload)
+    topBarView.webContents.send(IPC_EVENTS.APIFLOW.TOPBAR_TO_CONTENT.PROJECT_RENAMED, payload)
   })
 
   /*

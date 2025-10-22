@@ -229,6 +229,7 @@ const bindEvent = () => {
   })
   
   window.electronAPI?.ipcManager.onMain(IPC_EVENTS.APIFLOW.TOPBAR_TO_CONTENT.PROJECT_CHANGED, (data: { projectId: string, projectName: string }) => {
+    console.log('PROJECT_CHANGED', data)
     activeTabId.value = data.projectId;
     const matchedProject = tabs.value.find(t => t.id === data.projectId)
     if (!matchedProject) {
