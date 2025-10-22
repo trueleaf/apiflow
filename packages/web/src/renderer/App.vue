@@ -27,7 +27,7 @@ import LanguageMenu from '@/components/common/language/Language.vue';
 import type { RuntimeNetworkMode } from '@src/types/runtime';
 import { useRuntime } from './store/runtime/runtimeStore.ts';
 import { useProjectStore } from './store/project/projectStore.ts';
-import { headerCache } from '@/cache/features/header/headerCache';
+import { appWorkbenchCache } from '@/cache/index';
 import { aiCache } from '@/cache/ai/aiCache';
 import { httpMockLogsCache } from '@/cache/mock/httpMock/httpMockLogsCache';
 import type { MockLog } from '@src/types/mockNode';
@@ -182,8 +182,8 @@ const bindTopBarEvent = () => {
 */
 const initHeaderTabs = () => {
   // 从缓存读取 tabs 和 activeTabId
-  const tabs = headerCache.getHeaderTabs();
-  const activeTabId = headerCache.getHeaderActiveTab();
+  const tabs = appWorkbenchCache.getAppWorkbenchHeaderTabs();
+  const activeTabId = appWorkbenchCache.getAppWorkbenchHeaderActiveTab();
 
   // 发送给 header.vue
   window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.APIFLOW.CONTENT_TO_TOPBAR.INIT_TABS, {

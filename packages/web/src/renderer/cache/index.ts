@@ -5,7 +5,7 @@ export { commonHeaderCache } from './project/commonHeadersCache';
 export { standaloneRuleCache } from './standalone/rulesCache';
 export { nodeVariableCache } from './variable/nodeVariableCache';
 export { mockVariableCache } from './variable/mockVariableCache';
-export { headerCache } from './features/header/headerCache';
+export { appWorkbenchCache } from './appWorkbench/appWorkbenchCache';
 export { httpResponseCache } from './httpNode/httpResponseCache';
 export { httpRedoUndoCache } from './redoUndo/httpRedoUndoCache';
 export { initStandaloneDB, getStandaloneDB } from './db';
