@@ -4,6 +4,7 @@ import {
   configureMockBasics,
   saveMockConfig,
   switchResponseDataType,
+  toggleMockService,
 } from './httpMockNode-helpers';
 
 /**
@@ -344,7 +345,7 @@ test.describe('httpMockNode 核心功能测试', () => {
   // Mock服务管理详细测试 (12个)
   // ========================================================================
 
-  test.skip('应该验证端口号有效性 - 有效端口', async () => {
+  test('应该验证端口号有效性 - 有效端口', async () => {
     const validPorts = [3000, 8080, 8888, 9000];
 
     for (const port of validPorts) {
@@ -357,7 +358,7 @@ test.describe('httpMockNode 核心功能测试', () => {
     }
   });
 
-  test.skip('应该验证端口号有效性 - 无效端口边界', async () => {
+  test('应该验证端口号有效性 - 无效端口边界', async () => {
     const invalidPorts = [0, 65536, 70000, -1];
 
     for (const port of invalidPorts) {
@@ -372,7 +373,7 @@ test.describe('httpMockNode 核心功能测试', () => {
     }
   });
 
-  test.skip('应该支持URL路径格式验证', async () => {
+  test('应该支持URL路径格式验证', async () => {
     const validUrls = ['/api/test', '/users/:id', '/api/v1/resource', '/'];
 
     for (const url of validUrls) {
@@ -387,6 +388,7 @@ test.describe('httpMockNode 核心功能测试', () => {
   });
 
   test.skip('应该支持HTTP方法ALL选项', async () => {
+    // TODO: 修复checkbox选中状态验证逻辑
     const allCheckbox = contentPage.locator('.el-checkbox:has-text("ALL")').first();
     await allCheckbox.click();
     await contentPage.waitForTimeout(500);
@@ -400,7 +402,7 @@ test.describe('httpMockNode 核心功能测试', () => {
     }
   });
 
-  test.skip('应该支持HTTP方法多选组合', async () => {
+  test('应该支持HTTP方法多选组合', async () => {
     const methodCombinations = [
       ['GET', 'POST'],
       ['PUT', 'DELETE'],
@@ -425,7 +427,7 @@ test.describe('httpMockNode 核心功能测试', () => {
     }
   });
 
-  test.skip('应该能够启动Mock服务', async () => {
+  test('应该能够启动Mock服务', async () => {
     await configureMockBasics(contentPage, {
       port: 3100,
       url: '/api/test',
@@ -444,7 +446,7 @@ test.describe('httpMockNode 核心功能测试', () => {
     }
   });
 
-  test.skip('应该能够停止Mock服务', async () => {
+  test('应该能够停止Mock服务', async () => {
     // 先启动服务
     await toggleMockService(contentPage, true);
     await contentPage.waitForTimeout(2000);
@@ -461,12 +463,12 @@ test.describe('httpMockNode 核心功能测试', () => {
     }
   });
 
-  test.skip('应该显示服务状态指示器', async () => {
+  test('应该显示服务状态指示器', async () => {
     const statusIndicator = contentPage.locator('.status-indicator, .service-status, .el-switch').first();
     await expect(statusIndicator).toBeVisible();
   });
 
-  test.skip('应该处理端口冲突', async () => {
+  test('应该处理端口冲突', async () => {
     // 配置一个可能已被占用的端口
     await configureMockBasics(contentPage, { port: 80 });
     await saveMockConfig(contentPage);
@@ -483,6 +485,7 @@ test.describe('httpMockNode 核心功能测试', () => {
   });
 
   test.skip('应该在服务运行时禁用端口配置', async () => {
+    // TODO: 确认UI设计上是否需要在服务运行时禁用端口配置
     await toggleMockService(contentPage, true);
     await contentPage.waitForTimeout(1000);
 
@@ -491,7 +494,7 @@ test.describe('httpMockNode 核心功能测试', () => {
     expect(isDisabled).toBe(true);
   });
 
-  test.skip('应该在服务停止后启用端口配置', async () => {
+  test('应该在服务停止后启用端口配置', async () => {
     await toggleMockService(contentPage, true);
     await contentPage.waitForTimeout(1000);
 
@@ -503,7 +506,7 @@ test.describe('httpMockNode 核心功能测试', () => {
     expect(isDisabled).toBe(false);
   });
 
-  test.skip('应该保存服务运行状态', async () => {
+  test('应该保存服务运行状态', async () => {
     await toggleMockService(contentPage, true);
     await saveMockConfig(contentPage);
     await contentPage.waitForTimeout(1000);
