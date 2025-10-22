@@ -1,0 +1,64 @@
+import { type Page } from '@playwright/test';
+
+/**
+ * HttpNode测试辅助函数
+ */
+
+// 通过UI创建测试项目
+export async function createTestProjectViaUI(headerPage: Page, contentPage: Page, projectName: string) {
+  await contentPage.locator('button:has-text("新建项目")').click();
+  await contentPage.waitForSelector('.el-dialog:has-text("新增项目")', { state: 'visible', timeout: 10000 });
+  const nameInput = contentPage.locator('.el-dialog .el-input input[placeholder*="项目名称"]').first();
+  await nameInput.fill(projectName);
+  await contentPage.locator('.el-dialog__footer button:has-text("确定")').click();
+  await contentPage.waitForURL(/doc-edit/, { timeout: 15000 });
+  await contentPage.waitForLoadState('domcontentloaded');
+  await contentPage.waitForSelector('.banner', { timeout: 10000 });
+}
+
+// 通过UI创建HttpNode节点
+export async function createHttpNodeViaUI(contentPage: Page, nodeName: string) {
+  await contentPage.waitForSelector('.tool-icon', { timeout: 10000 });
+  const addNodeBtn = contentPage.locator('.tool-icon [title="新增文件"]').first();
+  await addNodeBtn.click();
+  await contentPage.waitForSelector('.el-dialog:has-text("新建接口")', { state: 'visible', timeout: 10000 });
+  const httpRadio = contentPage.locator('.el-dialog:has-text("新建接口") .el-radio:has-text("HTTP"), .el-dialog:has-text("新建接口") .el-radio:has-text("Http")').first();
+  await httpRadio.click();
+  await contentPage.waitForTimeout(300);
+  const nodeInput = contentPage.locator('.el-dialog:has-text("新建接口") input[placeholder*="接口名称"], .el-dialog:has-text("新建接口") input[placeholder*="名称"]').first();
+  await nodeInput.fill(nodeName);
+  await contentPage.locator('.el-dialog:has-text("新建接口") button:has-text("确定")').click();
+  await contentPage.waitForSelector('.el-dialog:has-text("新建接口")', { state: 'hidden', timeout: 10000 });
+  await contentPage.waitForTimeout(500);
+}
+
+// 点击并打开HttpNode节点
+export async function clickHttpNode(contentPage: Page, nodeName: string) {
+  const node = contentPage.locator(`.custom-tree-node:has-text("${nodeName}")`).first();
+  await node.waitFor({ state: 'visible', timeout: 5000 });
+  await node.click();
+  await contentPage.waitForTimeout(1500);
+}
+
+// 初始化测试环境
+export async function initTestEnvironment(headerPage: Page, contentPage: Page) {
+  await Promise.all([
+    headerPage.waitForLoadState('domcontentloaded'),
+    contentPage.waitForLoadState('domcontentloaded')
+  ]);
+
+  await contentPage.evaluate(() => {
+    localStorage.setItem('runtime/networkMode', 'offline');
+    localStorage.setItem('history/lastVisitePage', '/home');
+  });
+
+  await contentPage.evaluate(() => {
+    (window as any).location.hash = '#/home';
+  });
+  await contentPage.waitForTimeout(1000);
+}
+
+// 生成唯一测试名称
+export function generateTestName(prefix: string): string {
+  return `${prefix}_${Date.now()}`;
+}
