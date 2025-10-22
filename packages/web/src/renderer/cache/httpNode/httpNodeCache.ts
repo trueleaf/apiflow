@@ -132,33 +132,6 @@ class HttpNodeCache {
     }
   }
 
-  /*
-  |--------------------------------------------------------------------------
-  | 全局设置相关方法
-  |--------------------------------------------------------------------------
-  */
-
-    // 获取全局cookies
-  getGlobalCookies(): Record<string, ApidocCookie[]> {
-    try {
-      const localCookies = localStorage.getItem('httpNodeCache/globalCookies') || '{}';
-      return JSON.parse(localCookies);
-    } catch (error) {
-      console.error('获取全局cookies失败:', error);
-      localStorage.setItem('httpNodeCache/globalCookies', '{}');
-      return {};
-    }
-  }
-
-    // 设置全局cookies
-  setGlobalCookies(cookies: Record<string, ApidocCookie[]>) {
-    try {
-      localStorage.setItem('httpNodeCache/globalCookies', JSON.stringify(cookies));
-    } catch (error) {
-      console.error('设置全局cookies失败:', error);
-    }
-  }
-
 }
 
 export const httpNodeCache = new HttpNodeCache();

@@ -14,7 +14,6 @@ import { router } from "@/router";
 import { useVariable } from './variablesStore';
 import { projectCache, nodeVariableCache, commonHeaderCache } from '@/cache/index';
 import { requestMethods } from '@/data/data.ts';
-import { httpNodeCache } from '@/cache/httpNode/httpNodeCache.ts';
 import { workbenchCache } from '@/cache/workbench/workbenchCache.ts';
 import { useRuntime } from '../runtime/runtimeStore';
 
@@ -115,24 +114,6 @@ export const useApidocBaseInfo = defineStore('apidocBaseInfo', () => {
       matchedHost.url = payload.url;
       matchedHost.name = payload.name;
     }
-  }
-  //初始化cookie值
-  const initCookies = (): void => {
-    const jsonCookies = httpNodeCache.getGlobalCookies();
-    globalCookies.value = jsonCookies;
-  }
-  //更新全局cookies
-  const updateGlobalCookies = (cookies: Record<string, ApidocCookieInfo[]>): void => {
-    globalCookies.value = cookies;
-    // 将ApidocCookieInfo转换为ApidocCookie格式用于缓存
-    const cookiesForCache: Record<string, any[]> = {};
-    Object.keys(cookies).forEach(key => {
-      cookiesForCache[key] = cookies[key].map(cookie => ({
-        id: cookie.name + '_' + cookie.domain, // 生成一个简单的id
-        ...cookie
-      }));
-    });
-    httpNodeCache.setGlobalCookies(cookiesForCache);
   }
   //改变布局方式
   const changeLayout = (layoutOption: 'horizontal' | 'vertical'): void => {
@@ -335,8 +316,6 @@ export const useApidocBaseInfo = defineStore('apidocBaseInfo', () => {
     changeProjectId,
     changeProjectBaseInfo,
     updateHostById,
-    initCookies,
-    updateGlobalCookies,
     changeLayout,
     initLayout,
     changeMode,
