@@ -1,14 +1,7 @@
-// Header Tab类型定义
-type HeaderTab = {
-  id: string;
-  title: string;
-  type: 'project' | 'settings';
-  network: 'online' | 'offline';
-}
-
+import type { AppWorkbenchHeaderTab } from '@src/types/appWorkbench/appWorkbenchType';
 class HeaderCache {
   // 设置header tabs
-  setHeaderTabs(tabs: HeaderTab[]) {
+  setHeaderTabs(tabs: AppWorkbenchHeaderTab[]) {
     try {
       localStorage.setItem('features/header/tabs', JSON.stringify(tabs));
     } catch (error) {
@@ -18,7 +11,7 @@ class HeaderCache {
   }
 
   // 获取header tabs
-  getHeaderTabs(): HeaderTab[] {
+  getHeaderTabs(): AppWorkbenchHeaderTab[] {
     try {
       return JSON.parse(localStorage.getItem('features/header/tabs') || '[]');
     } catch (error) {
