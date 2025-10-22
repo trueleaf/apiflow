@@ -10,6 +10,7 @@ import { useApidocTas } from '@/store/apidoc/tabsStore';
 import { useApidocResponse } from '@/store/apidoc/responseStore';
 import { httpNodeCache } from '@/cache/httpNode/httpNodeCache';
 import { httpResponseCache } from '@/cache/httpNode/httpResponseCache';
+import { webSocketNodeCache } from '@/cache/websocketNode/websocketNodeCache';
 import { config } from '@src/config/config';
 import { nanoid } from 'nanoid/non-secure';
 import { cloneDeep } from "lodash-es";
@@ -20,7 +21,6 @@ import { InitDataMessage, OnEvalSuccess, ReceivedEvent } from '@/worker/preReque
 import { Method } from 'got';
 import preRequestWorker from '@/worker/preRequest/preRequest.ts?worker&inline';
 import { WebSocketNode } from '@src/types/websocketNode';
-import { webSocketNodeCache } from '@/cache/websocketNode/websocketNodeCache.ts';
 /*
 |--------------------------------------------------------------------------
 | 发送请求
@@ -350,7 +350,7 @@ const getHeaders = async (apidoc: HttpNode) => {
     return {}
   }
   const defaultCommonHeaders = apidocBaseInfoStore.getCommonHeadersById(currentSelectTab?._id || "");
-  const ignoreHeaderIds = httpNodeCache.getWsIgnoredCommonHeaderByTabId(projectId, currentSelectTab?._id ?? "") || [];
+  const ignoreHeaderIds = webSocketNodeCache.getWsIgnoredCommonHeaderByTabId(projectId, currentSelectTab?._id ?? "") || [];
   const commonHeaders = defaultCommonHeaders.filter(header => !ignoreHeaderIds.includes(header._id));
   const headers = apidoc.item.headers;
   const headersObject: Record<string, string | null> = {};

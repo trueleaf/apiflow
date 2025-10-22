@@ -104,7 +104,7 @@ import { computed, ref, Ref, onMounted, onUnmounted, watch } from 'vue'
 import { Effect } from 'element-plus';
 import { ArrowDown, Edit } from '@element-plus/icons-vue'
 import type { HttpNodeResponseParams, HttpNodeResponseContentType, HttpNodeContentType } from '@src/types'
-import { httpNodeCache } from '@/cache/httpNode/httpNodeCache.ts'
+import { userState } from '@/cache/userState/userStateCache.ts'
 import SStatus from './children/Status.vue'
 import SMime from './children/Mime.vue'
 import SRawEditor from '@/components/apidoc/rawEditor/GRawEditor.vue'
@@ -313,10 +313,10 @@ const handleFormat = (index: number) => {
 }
 const collapseState: Ref<Record<string, boolean>> = ref({});
 const handleChangeCollapseState = (isShow: boolean, item: HttpNodeResponseParams) => {
-  httpNodeCache.setResponseCollapseState(item._id || "", isShow);
+  userState.setHttpNodeResponseCollapseState(item._id || "", isShow);
 }
 onMounted(() => {
-  collapseState.value = httpNodeCache.getResponseCollapseState();
+  collapseState.value = userState.getHttpNodeResponseCollapseState();
 })
 
 // 防抖的响应参数记录函数

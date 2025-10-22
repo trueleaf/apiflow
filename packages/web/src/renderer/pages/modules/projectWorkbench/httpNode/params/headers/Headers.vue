@@ -69,7 +69,7 @@ import SParamsTree from '@/components/apidoc/paramsTree/GParamsTree3.vue'
 import { useApidoc } from '@/store/apidoc/apidocStore';
 import { useApidocTas } from '@/store/apidoc/tabsStore';
 import { useApidocBaseInfo } from '@/store/apidoc/baseInfoStore';
-import { httpNodeCache } from '@/cache/httpNode/httpNodeCache.ts';
+import { webSocketNodeCache } from '@/cache/websocketNode/websocketNodeCache.ts';
 import { storeToRefs } from 'pinia';
 import { CheckboxValueType } from 'element-plus';
 import { useHttpRedoUndo } from '@/store/redoUndo/httpRedoUndoStore';
@@ -117,13 +117,13 @@ const debouncedRecordHeadersOperation = debounce((oldValue: ApidocProperty<'stri
 }, 300);
 const handleChangeCommonHeaderIsSend = (isSend: CheckboxValueType, header: Pick<ApidocProperty, "_id" | 'key' | 'value' | 'description' | 'select'>) => {
   if (isSend) {
-    httpNodeCache.removeIgnoredCommonHeader({
+    webSocketNodeCache.removeWsIgnoredCommonHeader({
       projectId,
       tabId: currentSelectTab.value?._id ?? '',
       ignoreHeaderId: header._id
     })
   } else {
-    httpNodeCache.setWsIgnoredCommonHeader({
+    webSocketNodeCache.setWsIgnoredCommonHeader({
       projectId,
       tabId: currentSelectTab.value?._id ?? '',
       ignoreHeaderId: header._id
@@ -137,7 +137,7 @@ watch([currentSelectTab, cHeaders, globalCommonHeaders], () => {
   }
   const defaultCommonHeader = apidocBaseInfoStore.getCommonHeadersById(currentSelectTab.value?._id || "");
   commonHeaders.value = defaultCommonHeader.map(v => {
-    const ignoreHeaderIds = httpNodeCache.getWsIgnoredCommonHeaderByTabId(projectId, currentSelectTab.value?._id ?? "");
+    const ignoreHeaderIds = webSocketNodeCache.getWsIgnoredCommonHeaderByTabId(projectId, currentSelectTab.value?._id ?? "");
     const isSelect = ignoreHeaderIds?.find(headerId => headerId === v._id) ? false : true
     const property: ApidocProperty<'string'> & { path?: string[] } = apidocGenerateProperty();
     property._id = v._id;

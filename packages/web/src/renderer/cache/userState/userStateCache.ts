@@ -303,6 +303,27 @@ class UserState {
       // 忽略错误
     }
   }
+  // 获取HTTP节点返回参数折叠状态
+  getHttpNodeResponseCollapseState(): Record<string, boolean> {
+    try {
+      const localData: Record<string, boolean> = JSON.parse(localStorage.getItem('userState/httpNode/responseCollapse') || '{}');
+      return localData;
+    } catch (error) {
+      console.error(error);
+      return {};
+    }
+  }
+  // 设置HTTP节点返回参数折叠状态
+  setHttpNodeResponseCollapseState(id: string, isShow: boolean) {
+    try {
+      const localData = JSON.parse(localStorage.getItem('userState/httpNode/responseCollapse') || '{}');
+      localData[id] = isShow;
+      localStorage.setItem('userState/httpNode/responseCollapse', JSON.stringify(localData));
+    } catch (error) {
+      console.error(error);
+      localStorage.setItem('userState/httpNode/responseCollapse', '{}');
+    }
+  }
 }
 
 export const userState = new UserState();

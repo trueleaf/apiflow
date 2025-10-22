@@ -2,9 +2,6 @@ import { HttpNode } from '@src/types';
 import type { ApidocCookie } from '@src/renderer/store/apidoc/cookiesStore';
 
 class HttpNodeCache {
-  constructor() {
-  }
-
   /*
    * 缓存HTTP节点信息
    */
@@ -37,97 +34,6 @@ class HttpNodeCache {
       return null;
     }
   }
-
-  /*
-   * 获取返回参数状态
-   */
-  getResponseCollapseState(): Record<string, boolean> {
-    try {
-      const localData: Record<string, boolean> = JSON.parse(localStorage.getItem('httpNodeCache/responseCollapse') || '{}');
-      return localData;
-    } catch (error) {
-      console.error(error);
-      return {};
-    }
-  }
-
-  /*
-   * 设置返回参数状态
-   */
-  setResponseCollapseState(id: string, isShow: boolean) {
-    try {
-      const localData = JSON.parse(localStorage.getItem('httpNodeCache/responseCollapse') || '{}');
-      localData[id] = isShow;
-      localStorage.setItem('httpNodeCache/responseCollapse', JSON.stringify(localData));
-    } catch (error) {
-      console.error(error);
-      localStorage.setItem('httpNodeCache/responseCollapse', '{}');
-    }
-  }
-
-  /*
-   * 根据tabId获取不发送公共请求头
-   */
-  getWsIgnoredCommonHeaderByTabId(projectId: string, tabId: string): string[] | null {
-    try {
-      const localData = JSON.parse(localStorage.getItem('httpNodeCache/commonHeaders/ignore') || '{}') as Record<string, Record<string, string[]>>;
-      if (localData[projectId] == null) {
-        return [];
-      }
-      if (localData[projectId][tabId] == null) {
-        return [];
-      }
-      return localData[projectId][tabId];
-    } catch (error) {
-      console.error(error);
-      return []
-    }
-  }
-
-  /*
-   * 设置不发送的公共请求头
-   */
-  setWsIgnoredCommonHeader(options: { projectId: string; tabId: string; ignoreHeaderId: string }) {
-    try {
-      const { projectId, tabId, ignoreHeaderId } = options;
-      const localData = JSON.parse(localStorage.getItem('httpNodeCache/commonHeaders/ignore') || '{}') as Record<string, Record<string, string[]>>;
-      if (localData[projectId] == null) {
-        localData[projectId] = {}
-      }
-      if (localData[projectId][tabId] == null) {
-        localData[projectId][tabId] = []
-      }
-      const matchedTab = localData[projectId][tabId];
-      matchedTab.push(ignoreHeaderId);
-      localStorage.setItem('httpNodeCache/commonHeaders/ignore', JSON.stringify(localData));
-    } catch (error) {
-      console.error(error);
-      localStorage.setItem('httpNodeCache/commonHeaders/ignore', '{}');
-    }
-  }
-  /*
-   * 删除不发送的公共请求头
-   */
-  removeIgnoredCommonHeader(options: { projectId: string; tabId: string; ignoreHeaderId: string }) {
-    try {
-      const { projectId, tabId, ignoreHeaderId } = options;
-      const localData = JSON.parse(localStorage.getItem('httpNodeCache/commonHeaders/ignore') || '{}') as Record<string, Record<string, string[]>>;
-      if (localData[projectId] == null) {
-        return false;
-      }
-      if (localData[projectId][tabId] == null) {
-        return false;
-      }
-      const matchedTab = localData[projectId][tabId];
-      const deleteIndex = matchedTab.findIndex(id => ignoreHeaderId === id);
-      matchedTab.splice(deleteIndex, 1)
-      localStorage.setItem('httpNodeCache/commonHeaders/ignore', JSON.stringify(localData));
-    } catch (error) {
-      console.error(error);
-      localStorage.setItem('httpNodeCache/commonHeaders/ignore', '{}');
-    }
-  }
-
   /*
    * 缓存cookie（ApidocCookie[]）
    */

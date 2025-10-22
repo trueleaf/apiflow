@@ -139,6 +139,7 @@ import type { DebouncedFunc } from 'lodash-es'
 import type { HttpNode, ApidocProperty } from '@src/types'
 import { httpNodeCache } from '@/cache/httpNode/httpNodeCache.ts'
 import { userState } from '@/cache/userState/userStateCache.ts'
+import { webSocketNodeCache } from '@/cache/websocketNode/websocketNodeCache.ts'
 import { checkPropertyIsEqual } from '@/helper/index'
 import { debounce } from "lodash-es"
 import { useI18n } from 'vue-i18n'
@@ -234,7 +235,7 @@ const freshHasHeaders = () => {
   const commonHeaders = apidocBaseInfoStore.getCommonHeadersById(currentSelectTab.value?._id || "");
   const cpCommonHeaders = JSON.parse(JSON.stringify(commonHeaders)) as (typeof commonHeaders);
   cpCommonHeaders.forEach(header => {
-    const ignoreHeaderIds = httpNodeCache.getWsIgnoredCommonHeaderByTabId(projectId, currentSelectTab.value?._id ?? "");
+    const ignoreHeaderIds = webSocketNodeCache.getWsIgnoredCommonHeaderByTabId(projectId, currentSelectTab.value?._id ?? "");
     const isSelect = ignoreHeaderIds?.find(headerId => headerId === header._id) ? false : true;
     header.select = isSelect;
   })
