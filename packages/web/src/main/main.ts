@@ -6,13 +6,13 @@ import { useIpcEvent } from './ipcMessage/index.ts';
 import { bindMainProcessGlobalShortCut } from './shortcut/index.ts';
 import { overrideBrowserWindow } from './override/index.ts';
 import { WebSocketManager } from './websocket/websocket.ts';
-import { MockManager } from './mock/mockManager.ts';
+import { HttpMockManager } from './mock/httpMock/httpMockManager.ts';
 import { mainConfig } from '@src/config/mainConfig';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 // 创建全局实例
-export const mockManager = new MockManager();
+export const mockManager = new HttpMockManager();
 export const webSocketManager = new WebSocketManager();
 
 // 导出 contentView 供其他模块使用

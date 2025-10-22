@@ -1,8 +1,8 @@
 import { MockHttpNode, MockInstance, MockLog, MockStatusChangedPayload } from '@src/types/mockNode';
 import { CommonResponse } from '@src/types/project';
-import { MockUtils, ConsoleLogCollector } from './mockUtils';
-import { matchPath, getPatternPriority, sleep } from '../utils';
-import { contentViewInstance } from '../main';
+import { MockUtils, ConsoleLogCollector } from '../mockUtils';
+import { matchPath, getPatternPriority, sleep } from '../../utils';
+import { contentViewInstance } from '../../main';
 import detect from 'detect-port';
 import http from 'http';
 import Koa from 'koa';
@@ -10,7 +10,7 @@ import bodyParser from '@koa/bodyparser';
 import { nanoid } from 'nanoid/non-secure';
 import { IPC_EVENTS } from '@src/types/ipc';
 
-export class MockManager {
+export class HttpMockManager {
   private mockList: MockHttpNode[] = [];
   private mockInstanceList: MockInstance[] = [];
   private portToInstanceMap: Map<number, MockInstance> = new Map();
