@@ -1,7 +1,36 @@
-import { IDBPDatabase } from 'idb';
+import { IDBPDatabase, openDB } from 'idb';
 import { MockLog } from '@src/types/mockNode';
 import { config } from '@src/config/config';
-import { getMockLogsDB } from '../../db';
+let mockLogsDB: IDBPDatabase | null = null;
+// 初始化 Mock Logs DB
+async function initMockLogsDB(): Promise<IDBPDatabase> {
+  if (mockLogsDB) return mockLogsDB;
+  mockLogsDB = await openDB(
+    config.cacheConfig.mockLogsCache.dbName,
+    config.cacheConfig.mockLogsCache.version,
+    {
+      upgrade(db) {
+        if (!db.objectStoreNames.contains(config.cacheConfig.mockLogsCache.storeName)) {
+          const store = db.createObjectStore(config.cacheConfig.mockLogsCache.storeName, {
+            keyPath: 'id',
+          });
+          store.createIndex('nodeId', 'nodeId', { unique: false });
+          store.createIndex('projectId', 'projectId', { unique: false });
+          store.createIndex('timestamp', 'timestamp', { unique: false });
+          store.createIndex('type', 'type', { unique: false });
+        }
+      },
+    }
+  );
+  return mockLogsDB;
+}
+// 获取 Mock Logs DB（自动初始化）
+async function getMockLogsDB(): Promise<IDBPDatabase> {
+  if (!mockLogsDB) {
+    await initMockLogsDB();
+  }
+  return mockLogsDB!;
+}
 class HttpMockLogsCache {
   private storeName = config.cacheConfig.mockLogsCache.storeName;
   private maxLogsPerNode = config.cacheConfig.mockLogsCache.maxLogsPerNode;
