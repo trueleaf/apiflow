@@ -12,6 +12,19 @@ import { mainConfig } from '@src/config/mainConfig';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+// 注册自定义协议的 scheme privileges（必须在 app.ready 之前）
+protocol.registerSchemesAsPrivileged([
+  {
+    scheme: 'app',
+    privileges: {
+      standard: true,
+      secure: true,
+      supportFetchAPI: true,
+      corsEnabled: false
+    }
+  }
+]);
+
 // 创建全局实例
 export const mockManager = new HttpMockManager();
 export const webSocketManager = new WebSocketManager();
@@ -114,21 +127,26 @@ if (!gotTheLock) {
   }
 
   app.whenReady().then(() => {
-    // 注册自定义 app 协议，支持 Vue Router history 模式
     protocol.handle('app', async (request) => {
-      const url = request.url.slice(6);
-      const filePath = path.join(__dirname, '../renderer', url);
-      // 静态资源直接返回
+      let url = request.url.slice(6);
+      if (url.endsWith('/')) {
+        url = url.slice(0, -1);
+      }
+      url = url.replace(/^(header|index)\.html\//, '');
+      
+      let filePath = path.join(__dirname, '../renderer', url);
+      filePath = path.normalize(filePath);
+      
       if (/\.(js|css|png|jpg|jpeg|gif|svg|woff|woff2|ttf|eot|ico|json|mjs|map)$/i.test(filePath)) {
         if (fs.existsSync(filePath)) {
           return net.fetch(`file://${filePath}`);
+        } else {
+          return new Response('Not Found', { status: 404 });
         }
       }
-      // HTML 文件存在则返回
       if (filePath.endsWith('.html') && fs.existsSync(filePath)) {
         return net.fetch(`file://${filePath}`);
       }
-      // 其他所有请求（路由路径）都返回 index.html
       const indexPath = path.join(__dirname, '../renderer/index.html');
       return net.fetch(`file://${indexPath}`);
     });
