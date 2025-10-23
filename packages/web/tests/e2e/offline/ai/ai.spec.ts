@@ -1,5 +1,5 @@
 import { expect, type Page } from '@playwright/test';
-import { test, resolveHeaderAndContentPages } from '../../../fixtures/enhanced-electron-fixtures';
+import { test, initOfflineWorkbench } from '../../../fixtures/fixtures';
 
 // AI 功能测试
 test.describe('AI 功能测试', () => {
@@ -7,22 +7,9 @@ test.describe('AI 功能测试', () => {
   let contentPage: Page;
 
   test.beforeEach(async ({ electronApp }) => {
-    const result = await resolveHeaderAndContentPages(electronApp);
+    const result = await initOfflineWorkbench(electronApp, { timeout: 30000 });
     headerPage = result.headerPage;
     contentPage = result.contentPage;
-
-    await Promise.all([
-      headerPage.waitForLoadState('domcontentloaded'),
-      contentPage.waitForLoadState('domcontentloaded')
-    ]);
-
-    // 设置离线模式
-    await contentPage.evaluate(() => {
-      localStorage.setItem('runtime/networkMode', 'offline');
-      localStorage.setItem('history/lastVisitePage', '/home');
-    });
-
-    await contentPage.waitForTimeout(1000);
   });
 
   /*
@@ -33,10 +20,11 @@ test.describe('AI 功能测试', () => {
   test.describe('AiSettings 页面 UI 交互测试', () => {
 
     test.beforeEach(async () => {
-      // 导航到 AI 设置页面
-      await contentPage.evaluate(() => {
-        window.location.href = '/user-center/ai-settings';
-      });
+      await headerPage.waitForSelector('.icongerenzhongxin', { timeout: 10000 });
+      await headerPage.locator('.icongerenzhongxin').click();
+      await contentPage.waitForTimeout(500);
+      await contentPage.waitForSelector('.user-center', { timeout: 5000 });
+      await contentPage.locator('.tab-item:has-text("AI 设置")').click();
       await contentPage.waitForTimeout(1000);
     });
 
@@ -72,9 +60,14 @@ test.describe('AI 功能测试', () => {
       }, testConfig);
 
       // 重新加载页面
-      await contentPage.evaluate(() => {
-        window.location.reload();
-      });
+      await contentPage.reload();
+
+      // 重新导航到 AI 设置页面
+      await headerPage.waitForSelector('.icongerenzhongxin', { timeout: 10000 });
+      await headerPage.locator('.icongerenzhongxin').click();
+      await contentPage.waitForTimeout(500);
+      await contentPage.waitForSelector('.user-center', { timeout: 5000 });
+      await contentPage.locator('.tab-item:has-text("AI 设置")').click();
       await contentPage.waitForTimeout(1000);
 
       // 验证表单值

@@ -1,5 +1,5 @@
 import { expect, type ElectronApplication, type Page } from '@playwright/test';
-import { test } from '../../../fixtures/enhanced-electron-fixtures';
+import { test } from '../../../fixtures/fixtures';
 
 // 通用设置功能测试（开机启动、最小化到系统托盘、自动更新设置、快捷键）
 test.describe('通用设置功能测试', () => {

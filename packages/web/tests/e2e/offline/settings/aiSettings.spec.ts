@@ -1,5 +1,5 @@
 import { expect, type ElectronApplication, type Page } from '@playwright/test';
-import { test } from '../../../fixtures/enhanced-electron-fixtures';
+import { test } from '../../../fixtures/fixtures';
 
 // AI 设置功能测试
 test.describe('AI 设置功能测试', () => {

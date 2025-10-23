@@ -1,5 +1,5 @@
 import { expect, type Page } from '@playwright/test';
-import { test, resolveHeaderAndContentPages } from '../../../fixtures/enhanced-electron-fixtures';
+import { test, getPages } from '../../../fixtures/fixtures';
 import {
   configureMockBasics,
   saveMockConfig,
@@ -88,14 +88,9 @@ test.describe('httpMockNode 扩展功能测试', () => {
   let testMockName: string;
 
   test.beforeEach(async ({ electronApp }) => {
-    const pages = await resolveHeaderAndContentPages(electronApp);
+    const pages = await getPages(electronApp);
     headerPage = pages.headerPage;
     contentPage = pages.contentPage;
-
-    await Promise.all([
-      headerPage.waitForLoadState('domcontentloaded'),
-      contentPage.waitForLoadState('domcontentloaded')
-    ]);
 
     await contentPage.evaluate(() => {
       localStorage.setItem('runtime/networkMode', 'offline');

@@ -1,5 +1,5 @@
 import { expect, type ElectronApplication, type Page } from '@playwright/test';
-import { test, resolveHeaderAndContentPages } from '../../../fixtures/enhanced-electron-fixtures';
+import { test, getPages } from '../../../fixtures/fixtures';
 
 // ==================== 辅助函数 ====================
 
@@ -59,14 +59,9 @@ test.describe('语言切换功能测试', () => {
   let contentPage: Page;
 
   test.beforeEach(async ({ electronApp }) => {
-    const result = await resolveHeaderAndContentPages(electronApp);
+    const result = await getPages(electronApp);
     headerPage = result.headerPage;
     contentPage = result.contentPage;
-    
-    await Promise.all([
-      headerPage.waitForLoadState('domcontentloaded'),
-      contentPage.waitForLoadState('domcontentloaded')
-    ]);
     
     // 设置离线模式和初始页面
     await contentPage.evaluate(() => {

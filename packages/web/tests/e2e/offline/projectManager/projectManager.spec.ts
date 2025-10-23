@@ -1,19 +1,14 @@
 import { expect, type ElectronApplication, type Page } from '@playwright/test';
-import { test, resolveHeaderAndContentPages } from '../../../fixtures/enhanced-electron-fixtures';
+import { test, getPages } from '../../../fixtures/fixtures';
 
 test.describe('离线模式项目增删改查测试', () => {
   let headerPage: Page;
   let contentPage: Page;
 
   test.beforeEach(async ({ electronApp }) => {
-    const pages = await resolveHeaderAndContentPages(electronApp);
+    const pages = await getPages(electronApp);
     headerPage = pages.headerPage;
     contentPage = pages.contentPage;
-    
-    await Promise.all([
-      headerPage.waitForLoadState('domcontentloaded'),
-      contentPage.waitForLoadState('domcontentloaded')
-    ]);
 
     // 先设置离线模式，再清空数据和设置lastVisitePage
     await contentPage.evaluate(() => {

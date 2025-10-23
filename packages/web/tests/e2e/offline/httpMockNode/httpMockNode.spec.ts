@@ -1,5 +1,5 @@
 import { expect, type Page } from '@playwright/test';
-import { test, resolveHeaderAndContentPages } from '../../../fixtures/enhanced-electron-fixtures';
+import { test, getPages } from '../../../fixtures/fixtures';
 import {
   configureMockBasics,
   saveMockConfig,
@@ -79,15 +79,9 @@ test.describe('httpMockNode 核心功能测试', () => {
   let testMockName: string;
 
   test.beforeEach(async ({ electronApp }) => {
-    const pages = await resolveHeaderAndContentPages(electronApp);
+    const pages = await getPages(electronApp);
     headerPage = pages.headerPage;
     contentPage = pages.contentPage;
-
-    // 确保页面完全加载
-    await Promise.all([
-      headerPage.waitForLoadState('domcontentloaded'),
-      contentPage.waitForLoadState('domcontentloaded')
-    ]);
 
     // 设置离线模式
     await contentPage.evaluate(() => {

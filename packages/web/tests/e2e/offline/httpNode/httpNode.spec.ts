@@ -1,5 +1,5 @@
 import { expect, type Page } from '@playwright/test';
-import { test, resolveHeaderAndContentPages } from '../../../fixtures/enhanced-electron-fixtures';
+import { test, getPages } from '../../../fixtures/fixtures';
 import {
   createTestProjectViaUI,
   createHttpNodeViaUI,
@@ -44,7 +44,7 @@ test.describe('1. 基本信息测试', () => {
   let testProjectName: string;
 
   test.beforeEach(async ({ electronApp }) => {
-    const pages = await resolveHeaderAndContentPages(electronApp);
+    const pages = await getPages(electronApp);
     headerPage = pages.headerPage;
     contentPage = pages.contentPage;
 
@@ -111,7 +111,7 @@ test.describe('2. 请求配置测试', () => {
   let testNodeName: string;
 
   test.beforeEach(async ({ electronApp }) => {
-    const pages = await resolveHeaderAndContentPages(electronApp);
+    const pages = await getPages(electronApp);
     headerPage = pages.headerPage;
     contentPage = pages.contentPage;
 
@@ -362,7 +362,7 @@ test.describe('3. 请求体(Body)测试', () => {
   let testNodeName: string;
 
   test.beforeEach(async ({ electronApp }) => {
-    const pages = await resolveHeaderAndContentPages(electronApp);
+    const pages = await getPages(electronApp);
     headerPage = pages.headerPage;
     contentPage = pages.contentPage;
 
@@ -680,7 +680,7 @@ test.describe('4. 脚本测试', () => {
   let testNodeName: string;
 
   test.beforeEach(async ({ electronApp }) => {
-    const pages = await resolveHeaderAndContentPages(electronApp);
+    const pages = await getPages(electronApp);
     headerPage = pages.headerPage;
     contentPage = pages.contentPage;
 
@@ -779,7 +779,7 @@ test.describe('5. 返回结果测试', () => {
   let testNodeName: string;
 
   test.beforeEach(async ({ electronApp }) => {
-    const pages = await resolveHeaderAndContentPages(electronApp);
+    const pages = await getPages(electronApp);
     headerPage = pages.headerPage;
     contentPage = pages.contentPage;
 
@@ -872,7 +872,7 @@ test.describe('6. 高级功能测试', () => {
   let testNodeName: string;
 
   test.beforeEach(async ({ electronApp }) => {
-    const pages = await resolveHeaderAndContentPages(electronApp);
+    const pages = await getPages(electronApp);
     headerPage = pages.headerPage;
     contentPage = pages.contentPage;
 

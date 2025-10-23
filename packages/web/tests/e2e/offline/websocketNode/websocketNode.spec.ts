@@ -1,6 +1,6 @@
 
 import { expect, type ElectronApplication, type Page } from '@playwright/test';
-import { test, resolveHeaderAndContentPages } from '../../../fixtures/enhanced-electron-fixtures';
+import { test, getPages } from '../../../fixtures/fixtures';
 
 // 创建测试项目
 const createTestProject = async (headerPage: Page, contentPage: Page, projectName: string) => {
@@ -60,12 +60,8 @@ test.describe('WebSocket Node - 配置与持久化', () => {
   let headerPage: Page; let contentPage: Page;
 
   test.beforeEach(async ({ electronApp }) => {
-    const result = await resolveHeaderAndContentPages(electronApp);
+    const result = await getPages(electronApp);
     headerPage = result.headerPage; contentPage = result.contentPage;
-    await Promise.all([
-      headerPage.waitForLoadState('domcontentloaded'),
-      contentPage.waitForLoadState('domcontentloaded')
-    ]);
     await contentPage.evaluate(() => {
       localStorage.setItem('runtime/networkMode', 'offline');
       localStorage.setItem('history/lastVisitePage', '/home');

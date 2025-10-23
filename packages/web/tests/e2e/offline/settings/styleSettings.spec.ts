@@ -1,5 +1,5 @@
 import { expect, type ElectronApplication, type Page } from '@playwright/test';
-import { test } from '../../../fixtures/enhanced-electron-fixtures';
+import { test } from '../../../fixtures/fixtures';
 
 // 样式设置功能测试（主题模式、语言选择）
 test.describe('样式设置功能测试', () => {

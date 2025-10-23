@@ -1,5 +1,5 @@
 import { expect, type ElectronApplication, type Page } from '@playwright/test';
-import { test } from '../../../fixtures/enhanced-electron-fixtures';
+import { test } from '../../../fixtures/fixtures';
 
 // WebSocket Mock 节点测试
 test.describe('WebSocket Mock 节点功能测试', () => {

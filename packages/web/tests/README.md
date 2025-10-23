@@ -129,7 +129,7 @@ tests/
 │   │   └── websocketNodeRedoUndo/          # WebSocket 节点撤销重做测试
 │   └── online/                             # 在线模式测试（待实现）
 ├── fixtures/                               # 测试夹具和辅助函数
-│   └── enhanced-electron-fixtures.ts       # 增强型 Electron fixtures
+│   └── fixtures.ts                         # 增强型 Electron fixtures
 ├── mocks/                                  # Mock 数据和服务
 ├── specs/                                  # 测试规格说明
 └── utils/                                  # 测试工具函数
@@ -294,7 +294,7 @@ npx playwright show-trace test-results/[测试名称]/trace.zip
 
 ```typescript
 import { expect, type ElectronApplication, type Page } from '@playwright/test';
-import { test } from '../../../fixtures/enhanced-electron-fixtures';
+import { test } from '../../../fixtures/fixtures';
 
 test.describe('模块功能测试', () => {
   let headerPage: Page;
@@ -302,7 +302,7 @@ test.describe('模块功能测试', () => {
 
   test.beforeEach(async ({ electronApp }) => {
     // 初始化页面引用
-    const pages = await resolveHeaderAndContentPages(electronApp);
+    const pages = await getPages(electronApp);
     headerPage = pages.headerPage;
     contentPage = pages.contentPage;
     
@@ -389,20 +389,21 @@ test.describe('主题设置测试', () => {
 
 #### 页面解析工具
 
-`resolveHeaderAndContentPages` 函数已从 `enhanced-electron-fixtures.ts` 导出，可直接使用：
+`getPages` 函数已从 `fixtures.ts` 导出，可直接使用。该函数会自动等待 headerPage 和 contentPage 的 `domcontentloaded` 事件完成后再返回：
 
 ```typescript
-import { test, resolveHeaderAndContentPages } from './fixtures/enhanced-electron-fixtures';
+import { test, getPages } from './fixtures/fixtures';
 
 test.describe('示例测试', () => {
   let headerPage: Page;
   let contentPage: Page;
 
   test.beforeEach(async ({ electronApp }) => {
-    // 使用共享的页面解析工具
-    const pages = await resolveHeaderAndContentPages(electronApp);
+    // 使用共享的页面解析工具，返回时页面已加载完成
+    const pages = await getPages(electronApp);
     headerPage = pages.headerPage;
     contentPage = pages.contentPage;
+    // 无需再手动等待 domcontentloaded
   });
 
   test('测试用例', async () => {
@@ -411,7 +412,51 @@ test.describe('示例测试', () => {
 });
 ```
 
-**注意**：不需要在每个测试文件中重复定义此函数，直接从 fixtures 导入即可。
+**注意**：
+- 不需要在每个测试文件中重复定义此函数，直接从 fixtures 导入即可
+- `getPages` 函数内部已处理页面加载等待，无需再手动调用 `waitForLoadState('domcontentloaded')`
+
+#### 离线工作台初始化工具
+
+`initOfflineWorkbench` 函数用于快速初始化离线模式测试环境，自动完成以下操作：
+1. 获取并等待 headerPage 和 contentPage 加载完成
+2. 设置应用为离线模式（`runtime/networkMode = 'offline'`）
+3. 设置最后访问页面为 home（`history/lastVisitePage = '/home'`）
+4. 跳转到 home 页面并等待加载完成
+
+```typescript
+import { test, initOfflineWorkbench } from './fixtures/fixtures';
+
+test.describe('离线模式测试', () => {
+  let headerPage: Page;
+  let contentPage: Page;
+
+  test.beforeEach(async ({ electronApp }) => {
+    // 快速初始化离线工作台，返回已加载完成的页面
+    const pages = await initOfflineWorkbench(electronApp);
+    headerPage = pages.headerPage;
+    contentPage = pages.contentPage;
+    // 此时已自动完成：离线模式设置 + 跳转到 home 页面
+  });
+
+  test('测试用例', async () => {
+    // 直接开始测试，无需手动设置离线模式和跳转页面
+  });
+});
+```
+
+**配置选项**：
+```typescript
+await initOfflineWorkbench(electronApp, {
+  clearStorage: true,  // 是否清空 localStorage，默认 false
+  timeout: 10000       // 页面跳转超时时间（毫秒），默认 10000
+});
+```
+
+**使用场景**：
+- 离线模式的功能测试
+- 需要在 home 页面开始的测试流程
+- 需要干净的离线环境（使用 `clearStorage: true`）
 
 ### 测试最佳实践
 

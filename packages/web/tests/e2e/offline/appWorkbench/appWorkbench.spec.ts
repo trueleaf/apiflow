@@ -1,5 +1,5 @@
 import { expect, type Page } from '@playwright/test';
-import { test } from '../../../fixtures/enhanced-electron-fixtures';
+import { test } from '../../../fixtures/fixtures';
 import {
   createMockTab,
   createMockHttpNode,

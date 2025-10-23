@@ -1,5 +1,5 @@
 import { expect, type ElectronApplication, type Page } from '@playwright/test';
-import { test, resolveHeaderAndContentPages } from '../../../fixtures/enhanced-electron-fixtures';
+import { test, getPages } from '../../../fixtures/fixtures';
 
 // ==================== 辅助函数 ====================
 
@@ -111,14 +111,9 @@ test.describe('Workbench - Banner 基础功能', () => {
   let contentPage: Page;
 
   test.beforeEach(async ({ electronApp }) => {
-    const result = await resolveHeaderAndContentPages(electronApp);
+    const result = await getPages(electronApp);
     headerPage = result.headerPage;
     contentPage = result.contentPage;
-    
-    await Promise.all([
-      headerPage.waitForLoadState('domcontentloaded'),
-      contentPage.waitForLoadState('domcontentloaded')
-    ]);
     
     // 设置离线模式
     await contentPage.evaluate(() => {
@@ -385,14 +380,9 @@ test.describe('Workbench - 节点增删改查', () => {
   let contentPage: Page;
 
   test.beforeEach(async ({ electronApp }) => {
-    const result = await resolveHeaderAndContentPages(electronApp);
+    const result = await getPages(electronApp);
     headerPage = result.headerPage;
     contentPage = result.contentPage;
-    
-    await Promise.all([
-      headerPage.waitForLoadState('domcontentloaded'),
-      contentPage.waitForLoadState('domcontentloaded')
-    ]);
     
     // 设置离线模式
     await contentPage.evaluate(() => {
@@ -939,14 +929,9 @@ test.describe('Workbench - 标签相关操作', () => {
   let contentPage: Page;
 
   test.beforeEach(async ({ electronApp }) => {
-    const result = await resolveHeaderAndContentPages(electronApp);
+    const result = await getPages(electronApp);
     headerPage = result.headerPage;
     contentPage = result.contentPage;
-    
-    await Promise.all([
-      headerPage.waitForLoadState('domcontentloaded'),
-      contentPage.waitForLoadState('domcontentloaded')
-    ]);
     
     // 设置离线模式
     await contentPage.evaluate(() => {
@@ -1569,14 +1554,9 @@ test.describe('Workbench - 错误和边界验证', () => {
   let contentPage: Page;
 
   test.beforeEach(async ({ electronApp }) => {
-    const result = await resolveHeaderAndContentPages(electronApp);
+    const result = await getPages(electronApp);
     headerPage = result.headerPage;
     contentPage = result.contentPage;
-    
-    await Promise.all([
-      headerPage.waitForLoadState('domcontentloaded'),
-      contentPage.waitForLoadState('domcontentloaded')
-    ]);
     
     // 设置离线模式
     await contentPage.evaluate(() => {

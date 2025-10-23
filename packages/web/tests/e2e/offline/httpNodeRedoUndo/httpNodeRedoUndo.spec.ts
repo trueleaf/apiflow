@@ -1,5 +1,5 @@
 import { expect, type ElectronApplication, type Page } from '@playwright/test';
-import { test } from '../../../fixtures/enhanced-electron-fixtures';
+import { test } from '../../../fixtures/fixtures';
 
 // HTTP 节点撤销重做功能测试
 test.describe('HTTP 节点撤销重做功能测试', () => {
