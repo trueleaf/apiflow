@@ -1,0 +1,19 @@
+{
+  "extends": "./tsconfig.app.json",
+  "compilerOptions": {
+    "composite": false,
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./src/renderer/*"],
+      "@src/*": ["./src/*"]
+    },
+    "types": ["@playwright/test", "node"],
+    "noUnusedLocals": false,
+    "noUnusedParameters": false
+  },
+  "include": [
+    "tests/**/*.ts",
+    "tests/**/*.tsx"
+  ],
+  "exclude": []
+}

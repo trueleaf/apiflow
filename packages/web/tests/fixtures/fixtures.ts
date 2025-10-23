@@ -1,26 +1,16 @@
 import { test as base, _electron as electron, ElectronApplication, Page, expect } from '@playwright/test';
 import path from 'path';
 
-/**
- * 增强的 Electron 测试 Fixtures
- * 提供测试辅助功能
- */
-
-// Header 和 Content 页面类型定义
 export type HeaderAndContentPages = {
   headerPage: Page;
   contentPage: Page;
 };
 
-// Header URL 识别提示
 const HEADER_URL_HINTS = ['header.html', '/header'];
-
-// 判断是否为 header 页面
 const isHeaderUrl = (url: string): boolean => {
   if (!url) return false;
   return HEADER_URL_HINTS.some((hint) => url.includes(hint));
 };
-
 export const getPages = async (
   electronApp: ElectronApplication,
   timeout = 30000
@@ -92,15 +82,33 @@ export const initOfflineWorkbench = async (
   
   return { headerPage, contentPage };
 };
-
-
-
-// 扩展 Fixtures 类型定义
-type EnhancedElectronFixtures = {
-  electronApp: ElectronApplication;
+// 导航到AI设置页面
+export const navigateToAiSettings = async (
+  headerPage: Page,
+  contentPage: Page
+): Promise<void> => {
+  await headerPage.waitForSelector('.icongerenzhongxin', { timeout: 10000 });
+  await headerPage.locator('.icongerenzhongxin').click();
+  await contentPage.waitForTimeout(500);
+  await contentPage.waitForSelector('.user-center', { timeout: 5000 });
+  await contentPage.locator('.tab-item:has-text("AI 设置")').click();
+  await contentPage.waitForTimeout(1000);
+};
+// 保存AI配置（通过UI操作）
+export const saveAiConfig = async (
+  contentPage: Page,
+  apiKey: string,
+  apiUrl: string
+): Promise<void> => {
+  await contentPage.locator('input[placeholder="请输入 DeepSeek API Key"]').fill(apiKey);
+  await contentPage.locator('input[placeholder="请输入 API 地址"]').fill(apiUrl);
+  await contentPage.locator('button:has-text("保存配置")').click();
+  await contentPage.waitForTimeout(500);
 };
 
-export const test = base.extend<EnhancedElectronFixtures>({
+export const test = base.extend<{
+  electronApp: ElectronApplication;
+}>({
   electronApp: async ({}, use) => {
     const mainPath = path.join(process.cwd(), 'dist', 'main', 'main.mjs');
     
