@@ -25,9 +25,3 @@ export type WebSocketHistory = {
    */
   timestamp: number;
 };
-
-/**
- * WebSocket历史记录存储类型
- * key为nodeId，value为该节点的历史记录数组
- */
-export type WebsocketHistoryStore = Record<string, WebSocketHistory[]>;
