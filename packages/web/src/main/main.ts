@@ -1,6 +1,7 @@
-import { app, BrowserWindow, WebContentsView } from 'electron'
+import { app, BrowserWindow, WebContentsView, protocol, net } from 'electron'
 import path from 'path'
 import { fileURLToPath } from 'url';
+import fs from 'fs';
 import { getWindowState } from './utils/index.ts';
 import { useIpcEvent } from './ipcMessage/index.ts';
 import { bindMainProcessGlobalShortCut } from './shortcut/index.ts';
@@ -70,10 +71,8 @@ const createWindow = () => {
 
   // 加载内容 - 根据构建命令决定加载方式
   if (__COMMAND__ === 'build') {
-    const headerFilePath = path.join(__dirname, '../renderer/header.html');
-    const indexFilePath = path.join(__dirname, '../renderer/index.html');
-    topBarView.webContents.loadFile(headerFilePath);
-    contentView.webContents.loadFile(indexFilePath);
+    topBarView.webContents.loadURL('app://header.html');
+    contentView.webContents.loadURL('app://index.html');
   } else {
     topBarView.webContents.loadURL('http://localhost:4000/header.html');
     contentView.webContents.loadURL('http://localhost:4000');
@@ -115,6 +114,24 @@ if (!gotTheLock) {
   }
 
   app.whenReady().then(() => {
+    // 注册自定义 app 协议，支持 Vue Router history 模式
+    protocol.handle('app', async (request) => {
+      const url = request.url.slice(6);
+      const filePath = path.join(__dirname, '../renderer', url);
+      // 静态资源直接返回
+      if (/\.(js|css|png|jpg|jpeg|gif|svg|woff|woff2|ttf|eot|ico|json|mjs|map)$/i.test(filePath)) {
+        if (fs.existsSync(filePath)) {
+          return net.fetch(`file://${filePath}`);
+        }
+      }
+      // HTML 文件存在则返回
+      if (filePath.endsWith('.html') && fs.existsSync(filePath)) {
+        return net.fetch(`file://${filePath}`);
+      }
+      // 其他所有请求（路由路径）都返回 index.html
+      const indexPath = path.join(__dirname, '../renderer/index.html');
+      return net.fetch(`file://${indexPath}`);
+    });
     const { mainWindow, topBarView, contentView } = createWindow();
     // 保存主窗口引用，用于单实例锁激活
     mainWindowInstance = mainWindow;
