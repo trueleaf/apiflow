@@ -1,6 +1,6 @@
 import { expect, type Page } from '@playwright/test';
-import { test } from '../../../fixtures/fixtures';
 import {
+  test,
   createMockTab,
   createMockHttpNode,
   createMockFolder,
@@ -30,7 +30,7 @@ import {
   pressModifierKey,
   setupIPCListener,
   getCapturedIPCEvents,
-} from './fixtures/appWorkbench-helpers';
+} from './appWorkbench.fixture';
 
 /**
  * 主工作区综合测试

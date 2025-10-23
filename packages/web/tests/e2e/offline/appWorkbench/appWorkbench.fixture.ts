@@ -1,10 +1,6 @@
-import { type Page, expect } from '@playwright/test';
+import { test, expect, getPages } from '../../../fixtures/fixtures';
+import { type Page } from '@playwright/test';
 import { type ElectronApplication } from '@playwright/test';
-
-/**
- * 共享测试工具函数和数据工厂
- * 用于 appWorkbench 测试套件
- */
 
 // ==================== 数据工厂 ====================
 
@@ -477,3 +473,5 @@ export async function setupIPCListener(page: Page) {
 export async function getCapturedIPCEvents(page: Page): Promise<Array<{ event: string; data?: any }>> {
   return await page.evaluate(() => (window as any)._ipcEvents || []);
 }
+// 重新导出通用功能
+export { test, expect, getPages };

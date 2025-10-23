@@ -1,10 +1,5 @@
+import { test, expect, getPages } from '../../../fixtures/fixtures';
 import { type Page } from '@playwright/test';
-
-/**
- * httpMockNode 测试辅助函数
- *
- * 这个文件包含了所有用于 httpMockNode E2E 测试的辅助函数
- */
 
 // ==================== 类型定义 ====================
 
@@ -701,3 +696,5 @@ export async function configureImageResponse(
     await page.waitForTimeout(200);
   }
 }
+// 重新导出通用功能
+export { test, expect, getPages };

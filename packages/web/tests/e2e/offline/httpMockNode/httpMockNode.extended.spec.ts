@@ -1,6 +1,7 @@
 import { expect, type Page } from '@playwright/test';
-import { test, getPages } from '../../../fixtures/fixtures';
 import {
+  test,
+  getPages,
   configureMockBasics,
   saveMockConfig,
   switchResponseDataType,
@@ -15,7 +16,7 @@ import {
   configureImageResponse,
   configureResponseDelay,
   configureStatusCode,
-} from './httpMockNode-helpers';
+} from './httpMockNode.fixture';
 
 /**
  * httpMockNode 扩展测试 (85个补充测试)

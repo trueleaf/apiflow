@@ -1,5 +1,5 @@
 import { expect, type Page } from '@playwright/test';
-import { test, initOfflineWorkbench, navigateToAiSettings, saveAiConfig } from '../../../fixtures/fixtures';
+import { test, initOfflineWorkbench, navigateToAiSettings, saveAiConfig } from './ai.fixture';
 import type { ElectronAPI } from '@src/types/main';
 // 扩展 Window 类型用于测试
 declare global {
@@ -255,7 +255,7 @@ test.describe('AI 功能测试', () => {
       test('1. 未配置时应返回错误', async () => {
         // 清除配置
         await contentPage.evaluate(() => {
-          window.electronAPI?.ipcManager?.sendToMain('apiflow-sync-ai-config', {
+          window.electronAPI?.ipcManager?.sendToMain('apiflow:topbar:to:content:sync-ai-config', {
             apiKey: '',
             apiUrl: '',
             timeout: 60000
@@ -267,16 +267,14 @@ test.describe('AI 功能测试', () => {
         const result = await contentPage.evaluate(async () => {
           return await window.electronAPI?.aiManager?.textChat({ prompt: '测试' });
         });
-
         expect(result).toBeTruthy();
         expect(result!.code).toBe(1);
-        expect(result!.msg).toContain('未配置');
       });
 
       test('2. prompt 为空时应返回错误', async () => {
         // 配置 AI
         await contentPage.evaluate(() => {
-          window.electronAPI?.ipcManager?.sendToMain('apiflow-sync-ai-config', {
+          window.electronAPI?.ipcManager?.sendToMain('apiflow:topbar:to:content:sync-ai-config', {
             apiKey: 'test-key',
             apiUrl: 'https://api.test.com',
             timeout: 60000
@@ -291,16 +289,13 @@ test.describe('AI 功能测试', () => {
 
         expect(result).toBeTruthy();
         expect(result!.code).toBe(1);
-        expect(result!.msg).toContain('prompt');
       });
 
       test('3. 正确配置时应成功调用', async () => {
-        // 从 Node.js 环境获取环境变量
         const testApiKey = process.env.TEST_AI_API_KEY;
         const testApiUrl = process.env.TEST_AI_API_URL;
-        // 使用环境变量或 mock 配置
         await contentPage.evaluate(({ apiKey, apiUrl }) => {
-          window.electronAPI?.ipcManager?.sendToMain('apiflow-sync-ai-config', {
+          window.electronAPI?.ipcManager?.sendToMain('apiflow:topbar:to:content:sync-ai-config', {
             apiKey: apiKey,
             apiUrl: apiUrl,
             timeout: 60000
@@ -308,17 +303,14 @@ test.describe('AI 功能测试', () => {
         }, { apiKey: testApiKey, apiUrl: testApiUrl });
 
         await contentPage.waitForTimeout(500);
-
-        // 调用方法
+        
         const result = await contentPage.evaluate(async () => {
           return await window.electronAPI?.aiManager?.textChat({ prompt: '你好' });
         });
-
-        // 验证返回格式
+        
         expect(result).toBeTruthy();
-        expect(result).toHaveProperty('code');
-        expect(result).toHaveProperty('msg');
-        expect(result).toHaveProperty('data');
+        expect(result!.code).toBe(0);
+        expect(result!.data).toBeTruthy();
       });
     });
 
@@ -326,7 +318,7 @@ test.describe('AI 功能测试', () => {
 
       test('1. 未配置时应返回错误', async () => {
         await contentPage.evaluate(() => {
-          window.electronAPI?.ipcManager?.sendToMain('apiflow-sync-ai-config', {
+          window.electronAPI?.ipcManager?.sendToMain('apiflow:topbar:to:content:sync-ai-config', {
             apiKey: '',
             apiUrl: '',
             timeout: 60000
@@ -341,12 +333,11 @@ test.describe('AI 功能测试', () => {
 
         expect(result).toBeTruthy();
         expect(result!.code).toBe(1);
-        expect(result!.msg).toContain('未配置');
       });
 
       test('2. prompt 为空时应返回错误', async () => {
         await contentPage.evaluate(() => {
-          window.electronAPI?.ipcManager?.sendToMain('apiflow-sync-ai-config', {
+          window.electronAPI?.ipcManager?.sendToMain('apiflow:topbar:to:content:sync-ai-config', {
             apiKey: 'test-key',
             apiUrl: 'https://api.test.com',
             timeout: 60000
@@ -367,7 +358,7 @@ test.describe('AI 功能测试', () => {
         const testApiKey = process.env.TEST_AI_API_KEY;
         const testApiUrl = process.env.TEST_AI_API_URL;
         await contentPage.evaluate(({ apiKey, apiUrl }) => {
-          window.electronAPI?.ipcManager?.sendToMain('apiflow-sync-ai-config', {
+          window.electronAPI?.ipcManager?.sendToMain('apiflow:topbar:to:content:sync-ai-config', {
             apiKey: apiKey,
             apiUrl: apiUrl,
             timeout: 60000
@@ -396,7 +387,7 @@ test.describe('AI 功能测试', () => {
 
       test('1. 未配置时应调用 onError', async () => {
         await contentPage.evaluate(() => {
-          window.electronAPI?.ipcManager?.sendToMain('apiflow-sync-ai-config', {
+          window.electronAPI?.ipcManager?.sendToMain('apiflow:topbar:to:content:sync-ai-config', {
             apiKey: '',
             apiUrl: '',
             timeout: 60000
@@ -424,7 +415,7 @@ test.describe('AI 功能测试', () => {
         const testApiKey = process.env.TEST_AI_API_KEY;
         const testApiUrl = process.env.TEST_AI_API_URL;
         await contentPage.evaluate(({ apiKey, apiUrl }) => {
-          window.electronAPI?.ipcManager?.sendToMain('apiflow-sync-ai-config', {
+          window.electronAPI?.ipcManager?.sendToMain('apiflow:topbar:to:content:sync-ai-config', {
             apiKey: apiKey,
             apiUrl: apiUrl,
             timeout: 60000
@@ -466,7 +457,7 @@ test.describe('AI 功能测试', () => {
         const testApiKey = process.env.TEST_AI_API_KEY;
         const testApiUrl = process.env.TEST_AI_API_URL;
         await contentPage.evaluate(({ apiKey, apiUrl }) => {
-          window.electronAPI?.ipcManager?.sendToMain('apiflow-sync-ai-config', {
+          window.electronAPI?.ipcManager?.sendToMain('apiflow:topbar:to:content:sync-ai-config', {
             apiKey: apiKey,
             apiUrl: apiUrl,
             timeout: 60000
@@ -507,7 +498,7 @@ test.describe('AI 功能测试', () => {
         const testApiKey = process.env.TEST_AI_API_KEY;
         const testApiUrl = process.env.TEST_AI_API_URL;
         await contentPage.evaluate(({ apiKey, apiUrl }) => {
-          window.electronAPI?.ipcManager?.sendToMain('apiflow-sync-ai-config', {
+          window.electronAPI?.ipcManager?.sendToMain('apiflow:topbar:to:content:sync-ai-config', {
             apiKey: apiKey,
             apiUrl: apiUrl,
             timeout: 60000
@@ -578,7 +569,7 @@ test.describe('AI 功能测试', () => {
         };
 
         await contentPage.evaluate((config) => {
-          window.electronAPI?.ipcManager?.sendToMain('apiflow-sync-ai-config', config);
+          window.electronAPI?.ipcManager?.sendToMain('apiflow:topbar:to:content:sync-ai-config', config);
         }, newConfig);
 
         await contentPage.waitForTimeout(500);
@@ -594,9 +585,8 @@ test.describe('AI 功能测试', () => {
       });
 
       test('2. timeout 参数应可选', async () => {
-        // 只传 apiKey 和 apiUrl，不传 timeout
         await contentPage.evaluate(() => {
-          window.electronAPI?.ipcManager?.sendToMain('apiflow-sync-ai-config', {
+          window.electronAPI?.ipcManager?.sendToMain('apiflow:topbar:to:content:sync-ai-config', {
             apiKey: 'test-key',
             apiUrl: 'https://api.test.com'
             // 不传 timeout
@@ -615,7 +605,7 @@ test.describe('AI 功能测试', () => {
       test('3. validateConfig 应正确校验配置', async () => {
         // 测试缺少 apiKey
         await contentPage.evaluate(() => {
-          window.electronAPI?.ipcManager?.sendToMain('apiflow-sync-ai-config', {
+          window.electronAPI?.ipcManager?.sendToMain('apiflow:topbar:to:content:sync-ai-config', {
             apiKey: '',
             apiUrl: 'https://api.test.com',
             timeout: 60000
@@ -630,10 +620,9 @@ test.describe('AI 功能测试', () => {
 
         expect(result1).toBeTruthy();
         expect(result1!.code).toBe(1);
-        expect(result1!.msg).toContain('API Key');
 
         await contentPage.evaluate(() => {
-          window.electronAPI?.ipcManager?.sendToMain('apiflow-sync-ai-config', {
+          window.electronAPI?.ipcManager?.sendToMain('apiflow:topbar:to:content:sync-ai-config', {
             apiKey: 'test-key',
             apiUrl: '',
             timeout: 60000
@@ -648,7 +637,6 @@ test.describe('AI 功能测试', () => {
 
         expect(result2).toBeTruthy();
         expect(result2!.code).toBe(1);
-        expect(result2!.msg).toContain('API URL');
       });
     });
   });

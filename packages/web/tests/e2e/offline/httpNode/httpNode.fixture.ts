@@ -1,9 +1,5 @@
+import { test, expect, getPages } from '../../../fixtures/fixtures';
 import { type Page } from '@playwright/test';
-
-/**
- * HttpNode测试辅助函数
- */
-
 // 通过UI创建测试项目
 export async function createTestProjectViaUI(headerPage: Page, contentPage: Page, projectName: string) {
   await contentPage.locator('button:has-text("新建项目")').click();
@@ -15,7 +11,6 @@ export async function createTestProjectViaUI(headerPage: Page, contentPage: Page
   await contentPage.waitForLoadState('domcontentloaded');
   await contentPage.waitForSelector('.banner', { timeout: 10000 });
 }
-
 // 通过UI创建HttpNode节点
 export async function createHttpNodeViaUI(contentPage: Page, nodeName: string) {
   await contentPage.waitForSelector('.tool-icon', { timeout: 10000 });
@@ -31,7 +26,6 @@ export async function createHttpNodeViaUI(contentPage: Page, nodeName: string) {
   await contentPage.waitForSelector('.el-dialog:has-text("新建接口")', { state: 'hidden', timeout: 10000 });
   await contentPage.waitForTimeout(500);
 }
-
 // 点击并打开HttpNode节点
 export async function clickHttpNode(contentPage: Page, nodeName: string) {
   const node = contentPage.locator(`.custom-tree-node:has-text("${nodeName}")`).first();
@@ -39,26 +33,24 @@ export async function clickHttpNode(contentPage: Page, nodeName: string) {
   await node.click();
   await contentPage.waitForTimeout(1500);
 }
-
 // 初始化测试环境
 export async function initTestEnvironment(headerPage: Page, contentPage: Page) {
   await Promise.all([
     headerPage.waitForLoadState('domcontentloaded'),
     contentPage.waitForLoadState('domcontentloaded')
   ]);
-
   await contentPage.evaluate(() => {
     localStorage.setItem('runtime/networkMode', 'offline');
     localStorage.setItem('history/lastVisitePage', '/home');
   });
-
   await contentPage.evaluate(() => {
     (window as any).location.hash = '#/home';
   });
   await contentPage.waitForTimeout(1000);
 }
-
 // 生成唯一测试名称
 export function generateTestName(prefix: string): string {
   return `${prefix}_${Date.now()}`;
 }
+// 重新导出通用功能
+export { test, expect, getPages };

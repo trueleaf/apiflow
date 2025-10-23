@@ -1,11 +1,12 @@
 import { expect, type Page } from '@playwright/test';
-import { test, getPages } from '../../../fixtures/fixtures';
 import {
+  test,
+  getPages,
   configureMockBasics,
   saveMockConfig,
   switchResponseDataType,
   toggleMockService,
-} from './httpMockNode-helpers';
+} from './httpMockNode.fixture';
 
 /**
  * httpMockNode 核心 E2E 测试

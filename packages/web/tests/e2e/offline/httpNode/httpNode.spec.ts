@@ -1,12 +1,13 @@
 import { expect, type Page } from '@playwright/test';
-import { test, getPages } from '../../../fixtures/fixtures';
 import {
+  test,
+  getPages,
   createTestProjectViaUI,
   createHttpNodeViaUI,
   clickHttpNode,
   initTestEnvironment,
   generateTestName
-} from './httpNode-helpers';
+} from './httpNode.fixture';
 
 /**
  * httpNode E2E 测试套件
