@@ -16,7 +16,7 @@ import {
   configureImageResponse,
   configureResponseDelay,
   configureStatusCode,
-} from './httpMockNode.fixture';
+} from '../fixtures/httpMockNode.fixture';
 
 /**
  * httpMockNode 扩展测试 (85个补充测试)

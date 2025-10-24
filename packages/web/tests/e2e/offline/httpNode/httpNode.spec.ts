@@ -7,7 +7,7 @@ import {
   clickHttpNode,
   initTestEnvironment,
   generateTestName
-} from './httpNode.fixture';
+} from '../fixtures/httpNode.fixture';
 
 /**
  * httpNode E2E 测试套件

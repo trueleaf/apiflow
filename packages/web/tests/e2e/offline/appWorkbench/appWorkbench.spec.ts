@@ -1,11 +1,11 @@
 import { expect, type Page } from '@playwright/test';
 import {
   test,
+  getPages,
   createMockTab,
   createMockHttpNode,
   createMockFolder,
   createMockWebSocketNode,
-  initAppWorkbenchPages,
   clearAppWorkbenchState,
   navigateToProjectWorkbench,
   createTabInStorage,
@@ -30,7 +30,8 @@ import {
   pressModifierKey,
   setupIPCListener,
   getCapturedIPCEvents,
-} from './appWorkbench.fixture';
+} from '../fixtures/appWorkbench.fixture';
+import { createProject, initOfflineWorkbench, createNodes } from '../../../fixtures/fixtures.ts';
 
 /**
  * 主工作区综合测试
@@ -41,33 +42,70 @@ import {
 const TEST_PROJECT_ID = 'test-project-001';
 const TEST_PROJECT_ID_2 = 'test-project-002';
 
-// ==================== 导航测试 ====================
-
+/*
+|--------------------------------------------------------------------------
+| 导航测试
+|--------------------------------------------------------------------------
+*/
 test.describe('主工作区导航测试 - Tab 管理核心功能', () => {
   let headerPage: Page;
   let contentPage: Page;
 
   test.beforeEach(async ({ electronApp }) => {
-    const pages = await initAppWorkbenchPages(electronApp);
+    const pages = await initOfflineWorkbench(electronApp);
     headerPage = pages.headerPage;
     contentPage = pages.contentPage;
-
-    await clearAppWorkbenchState(headerPage, contentPage);
-    await navigateToProjectWorkbench(contentPage, TEST_PROJECT_ID);
+    await createProject(contentPage, '测试项目');
+    
+  });
+ test('点击不同类型节点创建 Tab', async () => {
+    const results = await createNodes(contentPage, [
+      { name: 'HTTP接口测试', type: 'http' },
+      { name: 'WebSocket接口测试', type: 'websocket' },
+      { name: 'Mock接口测试', type: 'httpMock' }
+    ]);
+    results.forEach(result => {
+      expect(result.success).toBe(true);
+    });
+    await contentPage.waitForTimeout(1000);
+    const httpNode = contentPage.locator('.custom-tree-node').filter({ hasText: 'HTTP接口测试' }).first();
+    await httpNode.click();
+    await contentPage.waitForTimeout(500);
+    const httpTab = contentPage.locator('.item').filter({ hasText: 'HTTP接口测试' });
+    await expect(httpTab).toBeVisible();
+    await expect(httpTab).toHaveClass(/active/);
+    const wsNode = contentPage.locator('.custom-tree-node').filter({ hasText: 'WebSocket接口测试' }).first();
+    await wsNode.click();
+    await contentPage.waitForTimeout(500);
+    const wsTab = contentPage.locator('.item').filter({ hasText: 'WebSocket接口测试' });
+    await expect(wsTab).toBeVisible();
+    await expect(wsTab).toHaveClass(/active/);
+    const mockNode = contentPage.locator('.custom-tree-node').filter({ hasText: 'Mock接口测试' }).first();
+    await mockNode.click();
+    await contentPage.waitForTimeout(500);
+    const mockTab = contentPage.locator('.item').filter({ hasText: 'Mock接口测试' });
+    await expect(mockTab).toBeVisible();
+    await expect(mockTab).toHaveClass(/active/);
+    const tabCount = await contentPage.locator('.item').count();
+    expect(tabCount).toBe(3);
+    const projectId = await contentPage.evaluate(() => {
+      return new URL(window.location.href).searchParams.get('id');
+    });
+    const tabs = await contentPage.evaluate((pid) => {
+      const allTabs = JSON.parse(localStorage.getItem('workbench/node/tabs') || '{}');
+      return allTabs[pid || ''] || [];
+    }, projectId);
+    expect(tabs.length).toBe(3);
+    const httpTabData = tabs.find((t: any) => t.label && t.label.includes('HTTP接口测试'));
+    const wsTabData = tabs.find((t: any) => t.label && t.label.includes('WebSocket接口测试'));
+    const mockTabData = tabs.find((t: any) => t.label && t.label.includes('Mock接口测试'));
+    expect(httpTabData?.tabType).toBe('http');
+    expect(wsTabData?.tabType).toBe('websocket');
+    expect(mockTabData?.tabType).toBe('httpMock');
   });
 
-  test('创建新 Tab 并自动激活', async () => {
-    // 模拟点击 Banner 节点创建 Tab
-    const mockNode = createMockHttpNode({ name: '用户登录接口' });
-    await setBannerData(contentPage, TEST_PROJECT_ID, [mockNode]);
-    await contentPage.reload();
-    await waitForVueComponentReady(contentPage);
-
-    await clickBannerNode(contentPage, '用户登录接口');
-
-    // 验证 Tab 创建并激活
-    await expectTabExists(contentPage, '用户登录接口');
-    await expectActiveTab(contentPage, '用户登录接口');
+  test('点击节点激活tab,双击固定tab', async () => {
+    // 
   });
 
   test('切换 Tab 后取消上一个 Tab 的请求', async () => {
@@ -225,7 +263,7 @@ test.describe('主工作区导航测试 - Tab 持久化', () => {
   let contentPage: Page;
 
   test.beforeEach(async ({ electronApp }) => {
-    const pages = await initAppWorkbenchPages(electronApp);
+    const pages = await getPages(electronApp);
     headerPage = pages.headerPage;
     contentPage = pages.contentPage;
 
@@ -302,7 +340,7 @@ test.describe('主工作区导航测试 - Banner 树导航', () => {
   let contentPage: Page;
 
   test.beforeEach(async ({ electronApp }) => {
-    const pages = await initAppWorkbenchPages(electronApp);
+    const pages = await getPages(electronApp);
     headerPage = pages.headerPage;
     contentPage = pages.contentPage;
 
@@ -402,7 +440,7 @@ test.describe('主工作区导航测试 - 键盘快捷键', () => {
   let contentPage: Page;
 
   test.beforeEach(async ({ electronApp }) => {
-    const pages = await initAppWorkbenchPages(electronApp);
+    const pages = await getPages(electronApp);
     headerPage = pages.headerPage;
     contentPage = pages.contentPage;
 
@@ -476,7 +514,7 @@ test.describe('主工作区导航测试 - 请求取消', () => {
   let contentPage: Page;
 
   test.beforeEach(async ({ electronApp }) => {
-    const pages = await initAppWorkbenchPages(electronApp);
+    const pages = await getPages(electronApp);
     headerPage = pages.headerPage;
     contentPage = pages.contentPage;
 
@@ -574,7 +612,7 @@ test.describe('主工作区导航测试 - 边界条件', () => {
   let contentPage: Page;
 
   test.beforeEach(async ({ electronApp }) => {
-    const pages = await initAppWorkbenchPages(electronApp);
+    const pages = await getPages(electronApp);
     headerPage = pages.headerPage;
     contentPage = pages.contentPage;
 
@@ -659,7 +697,7 @@ test.describe('主工作区导航测试 - 用户交互细节', () => {
   let contentPage: Page;
 
   test.beforeEach(async ({ electronApp }) => {
-    const pages = await initAppWorkbenchPages(electronApp);
+    const pages = await getPages(electronApp);
     headerPage = pages.headerPage;
     contentPage = pages.contentPage;
 
@@ -759,7 +797,7 @@ test.describe('主工作区操作测试 - HTTP 节点 CRUD', () => {
   let contentPage: Page;
 
   test.beforeEach(async ({ electronApp }) => {
-    const pages = await initAppWorkbenchPages(electronApp);
+    const pages = await getPages(electronApp);
     headerPage = pages.headerPage;
     contentPage = pages.contentPage;
 
@@ -943,7 +981,7 @@ test.describe('主工作区操作测试 - 文件夹操作', () => {
   let contentPage: Page;
 
   test.beforeEach(async ({ electronApp }) => {
-    const pages = await initAppWorkbenchPages(electronApp);
+    const pages = await getPages(electronApp);
     headerPage = pages.headerPage;
     contentPage = pages.contentPage;
 
@@ -1093,7 +1131,7 @@ test.describe('主工作区操作测试 - 复制/剪切/粘贴', () => {
   let contentPage: Page;
 
   test.beforeEach(async ({ electronApp }) => {
-    const pages = await initAppWorkbenchPages(electronApp);
+    const pages = await getPages(electronApp);
     headerPage = pages.headerPage;
     contentPage = pages.contentPage;
 
@@ -1257,7 +1295,7 @@ test.describe('主工作区操作测试 - Fork/复制', () => {
   let contentPage: Page;
 
   test.beforeEach(async ({ electronApp }) => {
-    const pages = await initAppWorkbenchPages(electronApp);
+    const pages = await getPages(electronApp);
     headerPage = pages.headerPage;
     contentPage = pages.contentPage;
 
@@ -1343,7 +1381,7 @@ test.describe('主工作区操作测试 - 拖拽排序', () => {
   let contentPage: Page;
 
   test.beforeEach(async ({ electronApp }) => {
-    const pages = await initAppWorkbenchPages(electronApp);
+    const pages = await getPages(electronApp);
     headerPage = pages.headerPage;
     contentPage = pages.contentPage;
 
@@ -1475,7 +1513,7 @@ test.describe('主工作区操作测试 - 工具栏操作', () => {
   let contentPage: Page;
 
   test.beforeEach(async ({ electronApp }) => {
-    const pages = await initAppWorkbenchPages(electronApp);
+    const pages = await getPages(electronApp);
     headerPage = pages.headerPage;
     contentPage = pages.contentPage;
 
@@ -1595,7 +1633,7 @@ test.describe('主工作区操作测试 - 右键菜单', () => {
   let contentPage: Page;
 
   test.beforeEach(async ({ electronApp }) => {
-    const pages = await initAppWorkbenchPages(electronApp);
+    const pages = await getPages(electronApp);
     headerPage = pages.headerPage;
     contentPage = pages.contentPage;
 
@@ -1683,7 +1721,7 @@ test.describe('主工作区操作测试 - View 模式限制', () => {
   let contentPage: Page;
 
   test.beforeEach(async ({ electronApp }) => {
-    const pages = await initAppWorkbenchPages(electronApp);
+    const pages = await getPages(electronApp);
     headerPage = pages.headerPage;
     contentPage = pages.contentPage;
 
@@ -1779,7 +1817,7 @@ test.describe('主工作区操作测试 - 边界条件', () => {
   let contentPage: Page;
 
   test.beforeEach(async ({ electronApp }) => {
-    const pages = await initAppWorkbenchPages(electronApp);
+    const pages = await getPages(electronApp);
     headerPage = pages.headerPage;
     contentPage = pages.contentPage;
 
@@ -1891,7 +1929,7 @@ test.describe('主工作区窗口状态管理 - 布局状态管理', () => {
   let contentPage: Page;
 
   test.beforeEach(async ({ electronApp }) => {
-    const pages = await initAppWorkbenchPages(electronApp);
+    const pages = await getPages(electronApp);
     headerPage = pages.headerPage;
     contentPage = pages.contentPage;
 
@@ -1987,7 +2025,7 @@ test.describe('主工作区窗口状态管理 - Tab 状态按项目隔离', () =
   let contentPage: Page;
 
   test.beforeEach(async ({ electronApp }) => {
-    const pages = await initAppWorkbenchPages(electronApp);
+    const pages = await getPages(electronApp);
     headerPage = pages.headerPage;
     contentPage = pages.contentPage;
 
@@ -2092,7 +2130,7 @@ test.describe('主工作区窗口状态管理 - 工具栏状态', () => {
   let contentPage: Page;
 
   test.beforeEach(async ({ electronApp }) => {
-    const pages = await initAppWorkbenchPages(electronApp);
+    const pages = await getPages(electronApp);
     headerPage = pages.headerPage;
     contentPage = pages.contentPage;
 
@@ -2183,7 +2221,7 @@ test.describe('主工作区窗口状态管理 - 全局状态持久化', () => {
   let contentPage: Page;
 
   test.beforeEach(async ({ electronApp }) => {
-    const pages = await initAppWorkbenchPages(electronApp);
+    const pages = await getPages(electronApp);
     headerPage = pages.headerPage;
     contentPage = pages.contentPage;
 
@@ -2256,7 +2294,7 @@ test.describe('主工作区窗口状态管理 - Mode 管理', () => {
   let contentPage: Page;
 
   test.beforeEach(async ({ electronApp }) => {
-    const pages = await initAppWorkbenchPages(electronApp);
+    const pages = await getPages(electronApp);
     headerPage = pages.headerPage;
     contentPage = pages.contentPage;
 
@@ -2341,7 +2379,7 @@ test.describe('主工作区窗口状态管理 - 边界条件', () => {
   let contentPage: Page;
 
   test.beforeEach(async ({ electronApp }) => {
-    const pages = await initAppWorkbenchPages(electronApp);
+    const pages = await getPages(electronApp);
     headerPage = pages.headerPage;
     contentPage = pages.contentPage;
 
@@ -2422,7 +2460,7 @@ test.describe('主工作区窗口状态管理 - 数据同步', () => {
   let contentPage: Page;
 
   test.beforeEach(async ({ electronApp }) => {
-    const pages = await initAppWorkbenchPages(electronApp);
+    const pages = await getPages(electronApp);
     headerPage = pages.headerPage;
     contentPage = pages.contentPage;
 
@@ -2476,4 +2514,5 @@ test.describe('主工作区窗口状态管理 - 数据同步', () => {
     await expect(workbenchContainer).toBeVisible();
   });
 });
+
 

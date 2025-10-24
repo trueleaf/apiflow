@@ -8,7 +8,7 @@ import {
   clickBannerNode,
   getCachedWsByName,
   getProjectConfig
-} from './websocketNode.fixture';
+} from '../fixtures/websocketNode.fixture';
 
 test.describe('WebSocket Node - 配置与持久化', () => {
   let headerPage: Page; let contentPage: Page;

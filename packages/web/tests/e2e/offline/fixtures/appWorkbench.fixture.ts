@@ -1,25 +1,9 @@
 import { test, expect, getPages } from '../../../fixtures/fixtures';
 import { type Page } from '@playwright/test';
 import { type ElectronApplication } from '@playwright/test';
+import type { TabData, NodeData } from '../../../types/test.type';
 
 // ==================== 数据工厂 ====================
-
-export interface TabData {
-  id: string;
-  title: string;
-  type: 'http' | 'httpMock' | 'websocket' | 'settings' | 'project';
-  network: 'offline' | 'online';
-  saved?: boolean;
-  fixed?: boolean;
-}
-
-export interface NodeData {
-  _id: string;
-  name: string;
-  type: 'http' | 'httpMock' | 'websocket' | 'folder';
-  pid?: string;
-  children?: NodeData[];
-}
 
 /**
  * 创建模拟 Tab 数据
@@ -75,31 +59,8 @@ export function createMockWebSocketNode(overrides: Partial<NodeData> = {}): Node
 
 // ==================== Page 初始化 ====================
 
-/**
- * 初始化 appWorkbench 测试页面
- * 返回 headerPage 和 contentPage
- */
-export async function initAppWorkbenchPages(electronApp: ElectronApplication) {
-  const windows = electronApp.windows();
-  if (windows.length < 2) {
-    throw new Error('Expected at least 2 windows (header and content)');
-  }
+// 清理 appWorkbench 测试状态，清除 localStorage 和重置页面状态
 
-  const headerPage = windows[0];
-  const contentPage = windows[1];
-
-  await Promise.all([
-    headerPage.waitForLoadState('domcontentloaded'),
-    contentPage.waitForLoadState('domcontentloaded')
-  ]);
-
-  return { headerPage, contentPage };
-}
-
-/**
- * 清理 appWorkbench 测试状态
- * 清除 localStorage 和重置页面状态
- */
 export async function clearAppWorkbenchState(headerPage: Page, contentPage: Page) {
   // 清理 header 页面状态
   await headerPage.evaluate(() => {

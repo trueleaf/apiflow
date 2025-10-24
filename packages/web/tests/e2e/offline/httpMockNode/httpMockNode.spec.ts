@@ -6,7 +6,7 @@ import {
   saveMockConfig,
   switchResponseDataType,
   toggleMockService,
-} from './httpMockNode.fixture';
+} from '../fixtures/httpMockNode.fixture';
 
 /**
  * httpMockNode 核心 E2E 测试

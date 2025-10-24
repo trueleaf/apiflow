@@ -1,10 +1,6 @@
 import { test as base, _electron as electron, ElectronApplication, Page, expect } from '@playwright/test';
 import path from 'path';
-
-export type HeaderAndContentPages = {
-  headerPage: Page;
-  contentPage: Page;
-};
+import type { HeaderAndContentPages, CreateProjectOptions, CreateNodeOptions, CreateNodeResult, NodeType } from '../types/test.type';
 
 const HEADER_URL_HINTS = ['header.html', '/header'];
 const isHeaderUrl = (url: string): boolean => {
@@ -81,6 +77,100 @@ export const initOfflineWorkbench = async (
   await contentPage.waitForTimeout(1000);
   
   return { headerPage, contentPage };
+};
+// 创建单个节点的内部辅助方法
+const createSingleNode = async (
+  contentPage: Page,
+  options: CreateNodeOptions
+): Promise<CreateNodeResult> => {
+  const { name, type, pid = '', timeout = 10000 } = options;
+  try {
+    if (type === 'folder') {
+      const addFolderBtn = contentPage.locator('.tool-icon [title="新增文件夹"]').first();
+      await addFolderBtn.waitFor({ state: 'visible', timeout: 5000 });
+      await addFolderBtn.click();
+      await contentPage.waitForSelector('.el-dialog:has-text("新增文件夹")', { 
+        state: 'visible', 
+        timeout 
+      });
+      const folderInput = contentPage.locator('.el-dialog:has-text("新增文件夹")').locator('input[placeholder*="文件夹名称"], input[placeholder*="名称"]').first();
+      await folderInput.fill(name);
+      await contentPage.locator('.el-dialog:has-text("新增文件夹")').locator('button:has-text("确定")').click();
+      await contentPage.waitForSelector('.el-dialog:has-text("新增文件夹")', { 
+        state: 'hidden', 
+        timeout 
+      });
+    } else {
+      const addNodeBtn = contentPage.locator('.tool-icon [title="新增文件"]').first();
+      await addNodeBtn.waitFor({ state: 'visible', timeout: 5000 });
+      await addNodeBtn.click();
+      await contentPage.waitForSelector('.el-dialog:has-text("新建接口")', { 
+        state: 'visible', 
+        timeout 
+      });
+      const nodeInput = contentPage.locator('.el-dialog:has-text("新建接口")').locator('input[placeholder*="接口名称"], input[placeholder*="名称"]').first();
+      await nodeInput.fill(name);
+      if (type !== 'http') {
+        const typeRadio = contentPage.locator('.el-dialog:has-text("新建接口")').locator(`input[value="${type}"]`);
+        await typeRadio.click();
+      }
+      await contentPage.locator('.el-dialog:has-text("新建接口")').locator('button:has-text("确定")').click();
+      await contentPage.waitForSelector('.el-dialog:has-text("新建接口")', { 
+        state: 'hidden', 
+        timeout 
+      });
+    }
+    await contentPage.waitForTimeout(500);
+    return {
+      name,
+      type,
+      success: true,
+    };
+  } catch (error) {
+    return {
+      name,
+      type,
+      success: false,
+    };
+  }
+};
+// 批量创建节点方法，支持所有类型：http、websocket、httpMock、folder
+export const createNodes = async (
+  contentPage: Page,
+  options: CreateNodeOptions | CreateNodeOptions[]
+): Promise<CreateNodeResult[]> => {
+  const nodeOptions = Array.isArray(options) ? options : [options];
+  const results: CreateNodeResult[] = [];
+  for (const option of nodeOptions) {
+    const result = await createSingleNode(contentPage, option);
+    results.push(result);
+  }
+  return results;
+};
+// 通过UI方式创建项目，创建后会自动跳转到项目编辑页面
+export const createProject = async (
+  contentPage: Page,
+  projectName: string,
+  options: CreateProjectOptions = {}
+): Promise<void> => {
+  const { waitForBanner = true, timeout = 15000 } = options;
+  await contentPage.locator('button:has-text("新建项目")').click();
+  await contentPage.waitForSelector('.el-dialog:has-text("新增项目")', { 
+    state: 'visible', 
+    timeout 
+  });
+  const nameInput = contentPage.locator('.el-dialog .el-input input[placeholder*="项目名称"]');
+  await nameInput.fill(projectName);
+  await contentPage.locator('.el-dialog__footer button:has-text("确定")').click();
+  await contentPage.waitForSelector('.el-dialog:has-text("新增项目")', { 
+    state: 'hidden',
+    timeout 
+  });
+  await contentPage.waitForURL(/doc-edit/, { timeout });
+  await contentPage.waitForLoadState('domcontentloaded');
+  if (waitForBanner) {
+    await contentPage.waitForSelector('.banner', { timeout: 10000 });
+  }
 };
 
 export const test = base.extend<{

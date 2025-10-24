@@ -1,5 +1,5 @@
 import { expect, type Page } from '@playwright/test';
-import { test, initOfflineWorkbench, navigateToAiSettings, saveAiConfig } from './ai.fixture';
+import { test, initOfflineWorkbench, navigateToAiSettings, saveAiConfig } from '../fixtures/ai.fixture';
 import type { ElectronAPI } from '@src/types/main';
 // 扩展 Window 类型用于测试
 declare global {

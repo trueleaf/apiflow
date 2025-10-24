@@ -1,43 +1,6 @@
 import { test, expect, getPages } from '../../../fixtures/fixtures';
 import { type Page } from '@playwright/test';
-
-// ==================== 类型定义 ====================
-
-export interface MockNodeConfig {
-  port: number;
-  url: string;
-  methods: string[];
-  dataType: 'json' | 'text' | 'image' | 'file' | 'binary' | 'sse';
-  responseData?: any;
-}
-
-export interface ProjectData {
-  _id: string;
-  name: string;
-  createdAt: number;
-  updatedAt: number;
-}
-
-export interface MockNodeData {
-  _id: string;
-  name: string;
-  type: 'httpMock';
-  pid: string; // project id
-  config: {
-    port: number;
-    url: string;
-    methods: string[];
-  };
-  response: Array<{
-    name: string;
-    statusCode: number;
-    dataType: string;
-    jsonConfig?: any;
-    textConfig?: any;
-    imageConfig?: any;
-    sseConfig?: any;
-  }>;
-}
+import type { MockNodeConfig, ProjectData, MockNodeData } from '../../../types/test.type';
 
 // ==================== 数据初始化函数 ====================
 

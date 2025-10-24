@@ -4,7 +4,7 @@ import {
   getPages,
   configureMockBasics,
   saveMockConfig,
-} from './httpMockNode.fixture';
+} from '../fixtures/httpMockNode.fixture';
 
 /**
  * httpMockNode 任务组1: Mock服务管理测试
