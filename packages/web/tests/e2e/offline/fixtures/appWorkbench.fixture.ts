@@ -139,7 +139,7 @@ export async function setActiveTab(
  * 期望 Tab 存在
  */
 export async function expectTabExists(page: Page, tabTitle: string) {
-  const tabLocator = page.locator('.s-tab-item').filter({ hasText: tabTitle });
+  const tabLocator = page.locator('.nav .tab-list .item').filter({ hasText: tabTitle });
   await expect(tabLocator).toBeVisible({ timeout: 5000 });
 }
 
@@ -147,7 +147,7 @@ export async function expectTabExists(page: Page, tabTitle: string) {
  * 期望 Tab 是激活状态
  */
 export async function expectActiveTab(page: Page, tabTitle: string) {
-  const activeTabLocator = page.locator('.s-tab-item.active').filter({ hasText: tabTitle });
+  const activeTabLocator = page.locator('.nav .tab-list .item.active').filter({ hasText: tabTitle });
   await expect(activeTabLocator).toBeVisible({ timeout: 5000 });
 }
 
@@ -155,14 +155,14 @@ export async function expectActiveTab(page: Page, tabTitle: string) {
  * 获取 Tab 数量
  */
 export async function getTabCount(page: Page): Promise<number> {
-  return await page.locator('.s-tab-item').count();
+  return await page.locator('.nav .tab-list .item').count();
 }
 
 /**
  * 关闭指定 Tab
  */
 export async function closeTab(page: Page, tabTitle: string) {
-  const tab = page.locator('.s-tab-item').filter({ hasText: tabTitle });
+  const tab = page.locator('.nav .tab-list .item').filter({ hasText: tabTitle });
   await tab.hover();
   const closeBtn = tab.locator('.close-icon');
   await closeBtn.click();

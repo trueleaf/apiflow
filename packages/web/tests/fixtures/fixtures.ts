@@ -72,6 +72,10 @@ export const initOfflineWorkbench = async (
       localStorage.clear();
     });
   }
+  await contentPage.evaluate(() => {
+    localStorage.setItem('runtime/networkMode', 'offline');
+    localStorage.setItem('history/lastVisitePage', '/home');
+  });
   await contentPage.waitForURL(/home/, { timeout });
   await contentPage.waitForLoadState('domcontentloaded');
   await contentPage.waitForTimeout(1000);
@@ -112,9 +116,13 @@ const createSingleNode = async (
       await nodeInput.fill(name);
       if (type !== 'http') {
         const typeRadio = contentPage.locator('.el-dialog:has-text("新建接口")').locator(`input[value="${type}"]`);
-        await typeRadio.click();
+        await typeRadio.waitFor({ state: 'visible', timeout: 5000 });
+        await typeRadio.check({ force: true });
+        await contentPage.waitForTimeout(300);
       }
-      await contentPage.locator('.el-dialog:has-text("新建接口")').locator('button:has-text("确定")').click();
+      const confirmBtn = contentPage.locator('.el-dialog:has-text("新建接口")').locator('button:has-text("确定")');
+      await confirmBtn.waitFor({ state: 'visible', timeout: 5000 });
+      await confirmBtn.click();
       await contentPage.waitForSelector('.el-dialog:has-text("新建接口")', { 
         state: 'hidden', 
         timeout 
