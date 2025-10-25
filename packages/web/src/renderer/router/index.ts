@@ -1,4 +1,4 @@
-import { createRouter, createWebHistory, RouteRecordRaw } from "vue-router";
+import { createRouter, createWebHashHistory, RouteRecordRaw } from "vue-router";
 import NProgress from "nprogress";
 import "nprogress/nprogress.css";
 import docEdit from "@/pages/modules/projectWorkbench/ProjectWorkbench.vue";
@@ -53,7 +53,7 @@ const getRedirectPath = () => {
 };
 
 const routerConfig = {
-  history: createWebHistory(),
+  history: createWebHashHistory(),
   routes: [
     {
       path: "/",

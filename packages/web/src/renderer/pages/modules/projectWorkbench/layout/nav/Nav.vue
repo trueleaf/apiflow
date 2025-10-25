@@ -13,6 +13,7 @@
           <template #item="{ element }">
             <div :title="element.label" class="item" :class="{ active: element.selected }"
               @click="selectCurrentTab(element)" @dblclick="fixCurrentTab(element)"
+              @mousedown="handleMiddleClick($event, element)"
               @contextmenu.stop.prevent="handleContextmenu($event, element)">
               <!-- http节点 -->
               <template v-if="element.tabType === 'http'">
@@ -207,6 +208,13 @@ const handleContextmenu = (e: MouseEvent, item: ApidocTab) => {
   contextmenuLeft.value = e.clientX;
   contextmenuTop.value = e.clientY;
   showContextmenu.value = true;
+}
+// 中键点击关闭Tab
+const handleMiddleClick = (e: MouseEvent, tab: ApidocTab) => {
+  if (e.button === 1) {
+    e.preventDefault();
+    handleCloseCurrentTab(tab);
+  }
 }
 //关闭当前tab
 const handleCloseCurrentTab = (tab?: ApidocTab) => {
