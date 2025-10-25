@@ -53,7 +53,7 @@ test.describe('主工作区导航测试 - Tab 管理核心功能', () => {
   let contentPage: Page;
   
   test.beforeEach(async ({ electronApp }) => {
-    const pages = await initOfflineWorkbench(electronApp);
+    const pages = await initOfflineWorkbench(electronApp, { clearStorage: true });
     console.log('beforeEach')
     headerPage = pages.headerPage;
     contentPage = pages.contentPage;
@@ -651,6 +651,7 @@ test.describe('主工作区导航测试 - Tab 管理核心功能', () => {
   });
 
   test('中键点击 Tab 关闭', async () => {
+    // 创建3个Tab（createNodes会自动打开）
     const results = await createNodes(contentPage, [
       { name: '中键1', type: 'http' },
       { name: '中键2', type: 'http' },
@@ -658,35 +659,59 @@ test.describe('主工作区导航测试 - Tab 管理核心功能', () => {
     ]);
     results.forEach(result => expect(result.success).toBe(true));
 
-    await contentPage.waitForTimeout(1000);
+    // 等待所有Tab渲染完成
+    await expect(contentPage.locator('.nav .tab-list .item')).toHaveCount(3);
 
-    // 打开3个Tab
-    await contentPage.locator('.custom-tree-node').filter({ hasText: '中键1' }).first().click();
-    await contentPage.waitForTimeout(500);
-    await contentPage.locator('.custom-tree-node').filter({ hasText: '中键2' }).first().click();
-    await contentPage.waitForTimeout(500);
-    await contentPage.locator('.custom-tree-node').filter({ hasText: '中键3' }).first().click();
-    await contentPage.waitForTimeout(500);
-
+    // 验证3个Tab都存在
+    const tab1 = contentPage.locator('.nav .tab-list .item').filter({ hasText: '中键1' });
     const tab2 = contentPage.locator('.nav .tab-list .item').filter({ hasText: '中键2' });
+    const tab3 = contentPage.locator('.nav .tab-list .item').filter({ hasText: '中键3' });
+    
+    await expect(tab1).toBeVisible();
+    await expect(tab2).toBeVisible();
+    await expect(tab3).toBeVisible();
 
-    // 尝试使用中键点击Tab
-    try {
-      await tab2.click({ button: 'middle' });
-      await contentPage.waitForTimeout(500);
+    // 验证Tab3是激活状态（最后创建的）
+    await expect(tab3).toHaveClass(/active/);
 
-      // 验证Tab2关闭（如果支持中键关闭）
-      const tab2Exists = await contentPage.locator('.nav .tab-list .item').filter({ hasText: '中键2' }).count();
-      // 可能支持也可能不支持中键关闭
-      const tabCount = await contentPage.locator('.nav .tab-list .item').count();
-      expect(tabCount).toBeGreaterThanOrEqual(2);
-    } catch (error) {
-      // 中键点击可能不被支持
-      console.log('中键点击关闭Tab功能可能未实现');
+    // 获取Tab2的位置用于中键点击
+    const tab2Box = await tab2.boundingBox();
+    expect(tab2Box).not.toBeNull();
+
+    if (tab2Box) {
+      // 使用中键点击Tab2（模拟mousedown事件，button=1表示中键）
+      await contentPage.mouse.move(
+        tab2Box.x + tab2Box.width / 2, 
+        tab2Box.y + tab2Box.height / 2
+      );
+      await contentPage.mouse.down({ button: 'middle' });
+      await contentPage.mouse.up({ button: 'middle' });
     }
+
+    // 等待Tab2消失
+    await expect(tab2).toHaveCount(0, { timeout: 2000 });
+
+    // 验证Tab数量减少为2
+    await expect(contentPage.locator('.nav .tab-list .item')).toHaveCount(2);
+
+    // 验证Tab2不存在
+    const tab2Exists = await contentPage.locator('.nav .tab-list .item').filter({ hasText: '中键2' }).count();
+    expect(tab2Exists).toBe(0);
+
+    // 验证剩余的Tab存在
+    await expect(tab1).toBeVisible();
+    await expect(tab3).toBeVisible();
+
+    // 验证Tab3仍然是激活状态（关闭Tab2后应保持Tab3激活）
+    await expect(tab3).toHaveClass(/active/);
+
+    // 验证只有一个Tab处于激活状态
+    const activeTabCount = await contentPage.locator('.nav .tab-list .item.active').count();
+    expect(activeTabCount).toBe(1);
   });
 
   test('快捷键 Ctrl+W 关闭当前激活 Tab', async () => {
+    // 创建3个Tab（createNodes会自动打开）
     const results = await createNodes(contentPage, [
       { name: 'Ctrl+W_1', type: 'http' },
       { name: 'Ctrl+W_2', type: 'http' },
@@ -694,176 +719,215 @@ test.describe('主工作区导航测试 - Tab 管理核心功能', () => {
     ]);
     results.forEach(result => expect(result.success).toBe(true));
 
-    await contentPage.waitForTimeout(1000);
+    // 等待所有Tab渲染完成
+    await expect(contentPage.locator('.nav .tab-list .item')).toHaveCount(3);
 
-    // 打开3个Tab
-    await contentPage.locator('.custom-tree-node').filter({ hasText: 'Ctrl+W_1' }).first().click();
-    await contentPage.waitForTimeout(500);
-    await contentPage.locator('.custom-tree-node').filter({ hasText: 'Ctrl+W_2' }).first().click();
-    await contentPage.waitForTimeout(500);
-    await contentPage.locator('.custom-tree-node').filter({ hasText: 'Ctrl+W_3' }).first().click();
-    await contentPage.waitForTimeout(500);
-
-    // 激活第2个Tab
+    // 验证3个Tab都存在
+    const tab1 = contentPage.locator('.nav .tab-list .item').filter({ hasText: 'Ctrl+W_1' });
     const tab2 = contentPage.locator('.nav .tab-list .item').filter({ hasText: 'Ctrl+W_2' });
+    const tab3 = contentPage.locator('.nav .tab-list .item').filter({ hasText: 'Ctrl+W_3' });
+    
+    await expect(tab1).toBeVisible();
+    await expect(tab2).toBeVisible();
+    await expect(tab3).toBeVisible();
+
+    // 验证Tab3是激活状态（最后创建的）
+    await expect(tab3).toHaveClass(/active/);
+
+    // 点击激活第2个Tab
     await tab2.click();
     await contentPage.waitForTimeout(300);
 
-    let tabCount = await contentPage.locator('.nav .tab-list .item').count();
-    expect(tabCount).toBe(3);
+    // 验证Tab2现在是激活状态
+    await expect(tab2).toHaveClass(/active/);
 
-    // 按下 Ctrl+W
+    // 按下 Ctrl+W 关闭当前激活的Tab2
     await contentPage.keyboard.press('Control+w');
     await contentPage.waitForTimeout(500);
 
-    // 验证Tab被关闭（如果支持快捷键）
-    tabCount = await contentPage.locator('.nav .tab-list .item').count();
-    // 可能支持也可能不支持Ctrl+W，或者可能关闭整个窗口
-    expect(tabCount).toBeGreaterThanOrEqual(0);
+    // 验证Tab2被关闭
+    await expect(tab2).toHaveCount(0, { timeout: 2000 });
+
+    // 验证Tab数量减少为2
+    await expect(contentPage.locator('.nav .tab-list .item')).toHaveCount(2);
+
+    // 验证Tab2不存在
+    const tab2Exists = await contentPage.locator('.nav .tab-list .item').filter({ hasText: 'Ctrl+W_2' }).count();
+    expect(tab2Exists).toBe(0);
+
+    // 验证剩余的Tab存在
+    await expect(tab1).toBeVisible();
+    await expect(tab3).toBeVisible();
+
+    // 验证有一个Tab被激活（关闭Tab2后应自动激活Tab3）
+    await expect(tab3).toHaveClass(/active/);
+
+    // 验证只有一个Tab处于激活状态
+    const activeTabCount = await contentPage.locator('.nav .tab-list .item.active').count();
+    expect(activeTabCount).toBe(1);
   });
 
-  test('快捷键切换 Tab - Ctrl+Tab 向右切换', async () => {
+
+  test('Tab 固定功能 - 固定Tab不会被新Tab覆盖', async () => {
+    // 创建第一个节点（createNodes会自动打开Tab）
+    const results1 = await createNodes(contentPage, [
+      { name: '固定Tab1', type: 'http' }
+    ]);
+    expect(results1[0].success).toBe(true);
+
+    // 验证Tab已自动创建
+    await expect(contentPage.locator('.nav .tab-list .item')).toHaveCount(1);
+
+    // 双击Banner节点固定Tab
+    const bannerNode = contentPage.locator('.custom-tree-node').filter({ hasText: '固定Tab1' }).first();
+    await bannerNode.dblclick();
+    await contentPage.waitForTimeout(300);
+
+    // 创建第二个节点（createNodes会自动打开Tab）
+    const results2 = await createNodes(contentPage, [
+      { name: '新Tab2', type: 'http' }
+    ]);
+    expect(results2[0].success).toBe(true);
+
+    // 验证Tab数量增加到2（固定Tab没有被覆盖）
+    await expect(contentPage.locator('.nav .tab-list .item')).toHaveCount(2);
+
+    // 验证两个Tab都存在
+    await expect(contentPage.locator('.nav .tab-list .item').filter({ hasText: '固定Tab1' })).toBeVisible();
+    await expect(contentPage.locator('.nav .tab-list .item').filter({ hasText: '新Tab2' })).toBeVisible();
+  });
+
+  test('Tab 覆盖逻辑 - 点击Banner打开未固定Tab会覆盖已存在的未固定Tab', async () => {
+    // 创建两个节点
     const results = await createNodes(contentPage, [
-      { name: 'CtrlTab1', type: 'http' },
-      { name: 'CtrlTab2', type: 'http' },
-      { name: 'CtrlTab3', type: 'http' }
+      { name: '节点1', type: 'http' },
+      { name: '节点2', type: 'http' }
     ]);
     results.forEach(result => expect(result.success).toBe(true));
 
-    await contentPage.waitForTimeout(1000);
-
-    // 打开3个Tab
-    await contentPage.locator('.custom-tree-node').filter({ hasText: 'CtrlTab1' }).first().click();
-    await contentPage.waitForTimeout(500);
-    await contentPage.locator('.custom-tree-node').filter({ hasText: 'CtrlTab2' }).first().click();
-    await contentPage.waitForTimeout(500);
-    await contentPage.locator('.custom-tree-node').filter({ hasText: 'CtrlTab3' }).first().click();
-    await contentPage.waitForTimeout(500);
-
-    // 激活第1个Tab
-    const tab1 = contentPage.locator('.nav .tab-list .item').filter({ hasText: 'CtrlTab1' });
-    await tab1.click();
+    // 关闭createNodes自动打开的固定Tab
+    await expect(contentPage.locator('.nav .tab-list .item')).toHaveCount(2);
+    
+    const tab1 = contentPage.locator('.nav .tab-list .item').filter({ hasText: '节点1' });
+    await tab1.hover();
     await contentPage.waitForTimeout(300);
+    const closeBtn1 = tab1.locator('.operaion .close');
+    await expect(closeBtn1).toBeVisible({ timeout: 1000 });
+    await closeBtn1.click();
+    await expect(tab1).toHaveCount(0, { timeout: 2000 });
 
-    // 按下 Ctrl+Tab
-    await contentPage.keyboard.down('Control');
-    await contentPage.keyboard.press('Tab');
-    await contentPage.keyboard.up('Control');
+    const tab2 = contentPage.locator('.nav .tab-list .item').filter({ hasText: '节点2' });
+    await tab2.hover();
+    await contentPage.waitForTimeout(300);
+    const closeBtn2 = tab2.locator('.operaion .close');
+    await expect(closeBtn2).toBeVisible({ timeout: 1000 });
+    await closeBtn2.click();
+    await expect(tab2).toHaveCount(0, { timeout: 2000 });
+
+    // 验证所有Tab已关闭
+    await expect(contentPage.locator('.nav .tab-list .item')).toHaveCount(0);
+
+    // 点击Banner节点1打开未固定Tab（fixed=false）
+    const bannerNode1 = contentPage.locator('.custom-tree-node').filter({ hasText: '节点1' }).first();
+    await bannerNode1.click();
     await contentPage.waitForTimeout(500);
 
-    // 验证Tab切换（如果支持）
-    const activeTab = contentPage.locator('.nav .tab-list .item.active');
-    const activeTabExists = await activeTab.count();
-    expect(activeTabExists).toBeGreaterThanOrEqual(0);
+    // 验证未固定Tab1已打开
+    await expect(contentPage.locator('.nav .tab-list .item')).toHaveCount(1);
+    await expect(contentPage.locator('.nav .tab-list .item').filter({ hasText: '节点1' })).toBeVisible();
+
+    // 点击Banner节点2打开未固定Tab（fixed=false）
+    // 根据业务逻辑：未固定Tab2会覆盖未固定Tab1
+    const bannerNode2 = contentPage.locator('.custom-tree-node').filter({ hasText: '节点2' }).first();
+    await bannerNode2.click();
+    await contentPage.waitForTimeout(500);
+
+    // 验证Tab数量仍然是1（未固定Tab1被未固定Tab2覆盖）
+    await expect(contentPage.locator('.nav .tab-list .item')).toHaveCount(1);
+
+    // 验证节点1的Tab被覆盖，只剩节点2的Tab
+    await expect(contentPage.locator('.nav .tab-list .item').filter({ hasText: '节点1' })).toHaveCount(0);
+    await expect(contentPage.locator('.nav .tab-list .item').filter({ hasText: '节点2' })).toBeVisible();
   });
 
-  test('快捷键切换 Tab - Ctrl+Shift+Tab 向左切换', async () => {
+  test('Tab 覆盖逻辑 - 固定Tab和未固定Tab可以共存', async () => {
+    // 创建两个节点（createNodes会自动打开固定Tab）
     const results = await createNodes(contentPage, [
-      { name: 'ShiftTab1', type: 'http' },
-      { name: 'ShiftTab2', type: 'http' },
-      { name: 'ShiftTab3', type: 'http' }
+      { name: '固定节点', type: 'http' },
+      { name: '未固定节点', type: 'http' }
     ]);
     results.forEach(result => expect(result.success).toBe(true));
 
-    await contentPage.waitForTimeout(1000);
+    // 验证两个固定Tab都已创建
+    await expect(contentPage.locator('.nav .tab-list .item')).toHaveCount(2);
 
-    // 打开3个Tab
-    await contentPage.locator('.custom-tree-node').filter({ hasText: 'ShiftTab1' }).first().click();
-    await contentPage.waitForTimeout(500);
-    await contentPage.locator('.custom-tree-node').filter({ hasText: 'ShiftTab2' }).first().click();
-    await contentPage.waitForTimeout(500);
-    await contentPage.locator('.custom-tree-node').filter({ hasText: 'ShiftTab3' }).first().click();
-    await contentPage.waitForTimeout(500);
+    // 关闭"未固定节点"的固定Tab
+    const unfixedTab = contentPage.locator('.nav .tab-list .item').filter({ hasText: '未固定节点' });
+    await unfixedTab.hover();
+    await contentPage.waitForTimeout(300);
+    const closeBtn = unfixedTab.locator('.operaion .close');
+    await expect(closeBtn).toBeVisible({ timeout: 1000 });
+    await closeBtn.click();
+    await expect(unfixedTab).toHaveCount(0, { timeout: 2000 });
 
-    // 激活第3个Tab
-    const tab3 = contentPage.locator('.nav .tab-list .item').filter({ hasText: 'ShiftTab3' });
-    await tab3.click();
+    // 验证只剩1个Tab
+    await expect(contentPage.locator('.nav .tab-list .item')).toHaveCount(1);
+
+    // 点击Banner打开"未固定节点"的未固定Tab（fixed=false）
+    const bannerNode = contentPage.locator('.custom-tree-node').filter({ hasText: '未固定节点' }).first();
+    await bannerNode.click();
+    await contentPage.waitForTimeout(500);
+    // 验证固定Tab和未固定Tab共存（Tab数量为2）
+    await expect(contentPage.locator('.nav .tab-list .item')).toHaveCount(2);
+    // 验证两个Tab都存在（使用精确文本匹配避免"固定节点"匹配到"未固定节点"）
+    const tab1 = contentPage.locator('.nav .tab-list .item').filter({ hasText: /^GET固定节点$/ });
+    const tab2 = contentPage.locator('.nav .tab-list .item').filter({ hasText: /^GET未固定节点$/ });
+    await expect(tab1).toHaveCount(1);
+    await expect(tab2).toHaveCount(1);
+  });
+
+  test('Tab 固定功能 - 固定Tab可以正常关闭', async () => {
+    // 创建节点（createNodes会自动打开Tab）
+    const results = await createNodes(contentPage, [
+      { name: '可关闭固定Tab', type: 'http' }
+    ]);
+    expect(results[0].success).toBe(true);
+
+    // 验证Tab已自动创建
+    await expect(contentPage.locator('.nav .tab-list .item')).toHaveCount(1);
+
+    // 双击Banner节点固定Tab
+    const bannerNode = contentPage.locator('.custom-tree-node').filter({ hasText: '可关闭固定Tab' }).first();
+    await bannerNode.dblclick();
     await contentPage.waitForTimeout(300);
 
-    // 按下 Ctrl+Shift+Tab
-    await contentPage.keyboard.down('Control');
-    await contentPage.keyboard.down('Shift');
-    await contentPage.keyboard.press('Tab');
-    await contentPage.keyboard.up('Shift');
-    await contentPage.keyboard.up('Control');
-    await contentPage.waitForTimeout(500);
+    const tab = contentPage.locator('.nav .tab-list .item').filter({ hasText: '可关闭固定Tab' });
+    await expect(tab).toBeVisible();
 
-    // 验证Tab切换（如果支持）
-    const activeTab = contentPage.locator('.nav .tab-list .item.active');
-    const activeTabExists = await activeTab.count();
-    expect(activeTabExists).toBeGreaterThanOrEqual(0);
-  });
-
-  test('Tab 固定功能 - 固定后不可关闭', async () => {
-    const results = await createNodes(contentPage, [
-      { name: '固定Tab', type: 'http' }
-    ]);
-    expect(results[0].success).toBe(true);
-
-    await contentPage.waitForTimeout(1000);
-
-    await contentPage.locator('.custom-tree-node').filter({ hasText: '固定Tab' }).first().click();
-    await contentPage.waitForTimeout(500);
-
-    const tab = contentPage.locator('.nav .tab-list .item').filter({ hasText: '固定Tab' });
-
-    // 尝试右键固定Tab
-    await tab.click({ button: 'right' });
-    await contentPage.waitForTimeout(500);
-
-    const pinMenuItem = contentPage.locator('.context-menu-item, .menu-item').filter({ hasText: /固定|Pin/ });
-    if (await pinMenuItem.count() > 0) {
-      await pinMenuItem.first().click();
-      await contentPage.waitForTimeout(500);
-
-      // 验证固定图标（可能存在）
-      const pinnedIcon = tab.locator('.pinned-icon, .pin-icon, .fixed-icon');
-      // 固定功能可能未实现
-      console.log('Tab固定功能已测试');
-    }
-  });
-
-  test('Tab 固定功能 - 取消固定后可关闭', async () => {
-    const results = await createNodes(contentPage, [
-      { name: '取消固定Tab', type: 'http' }
-    ]);
-    expect(results[0].success).toBe(true);
-
-    await contentPage.waitForTimeout(1000);
-
-    await contentPage.locator('.custom-tree-node').filter({ hasText: '取消固定Tab' }).first().click();
-    await contentPage.waitForTimeout(500);
-
-    const tab = contentPage.locator('.nav .tab-list .item').filter({ hasText: '取消固定Tab' });
-
-    // 尝试取消固定（如果之前已固定）
-    await tab.click({ button: 'right' });
-    await contentPage.waitForTimeout(500);
-
-    const unpinMenuItem = contentPage.locator('.context-menu-item, .menu-item').filter({ hasText: /取消固定|Unpin/ });
-    if (await unpinMenuItem.count() > 0) {
-      await unpinMenuItem.first().click();
-      await contentPage.waitForTimeout(500);
-    }
-
-    // 尝试关闭Tab
+    // 尝试通过hover+点击关闭按钮关闭（固定Tab也可以关闭）
     await tab.hover();
-    const closeBtn = tab.locator('.close-icon, .close-btn, .tab-close');
-    if (await closeBtn.count() > 0) {
-      await closeBtn.first().click();
-      await contentPage.waitForTimeout(500);
-    }
+    await contentPage.waitForTimeout(300);
+    
+    const closeBtn = tab.locator('.operaion .close');
+    await expect(closeBtn).toBeVisible({ timeout: 1000 });
+    await closeBtn.click();
+    
+    // 等待Tab消失
+    await expect(tab).toHaveCount(0, { timeout: 2000 });
+
+    // 验证固定的Tab也能被正常关闭
+    await expect(contentPage.locator('.nav .tab-list .item')).toHaveCount(0);
   });
 
-  test('Tab 脏状态标记 - 内容修改未保存', async () => {
+  test('Tab 未保存标记 - 内容修改未保存', async () => {
     const results = await createNodes(contentPage, [
-      { name: '脏状态Tab', type: 'http' }
+      { name: '未保存Tab', type: 'http' }
     ]);
     expect(results[0].success).toBe(true);
 
     await contentPage.waitForTimeout(1000);
 
-    await contentPage.locator('.custom-tree-node').filter({ hasText: '脏状态Tab' }).first().click();
+    await contentPage.locator('.custom-tree-node').filter({ hasText: '未保存Tab' }).first().click();
     await contentPage.waitForTimeout(1000);
 
     // 尝试修改内容（查找输入框并修改）
@@ -872,15 +936,15 @@ test.describe('主工作区导航测试 - Tab 管理核心功能', () => {
       await urlInput.fill('https://modified-url.com');
       await contentPage.waitForTimeout(500);
 
-      // 验证脏状态标记（可能存在）
-      const tab = contentPage.locator('.nav .tab-list .item').filter({ hasText: '脏状态Tab' });
-      const dirtyMarker = tab.locator('.dirty, .unsaved, .modified, [data-dirty="true"]');
-      // 脏状态功能可能未实现
-      console.log('Tab脏状态标记已测试');
+      // 验证未保存标记（可能存在）
+      const tab = contentPage.locator('.nav .tab-list .item').filter({ hasText: '未保存Tab' });
+      const unsavedMarker = tab.locator('.dirty, .unsaved, .modified, [data-dirty="true"]');
+      // 未保存标记功能可能未实现
+      console.log('Tab未保存标记已测试');
     }
   });
 
-  test('Tab 脏状态 - 关闭未保存Tab显示确认提示', async () => {
+  test('Tab 未保存状态 - 关闭未保存Tab显示确认提示', async () => {
     const results = await createNodes(contentPage, [
       { name: '确认关闭Tab', type: 'http' }
     ]);
@@ -918,31 +982,6 @@ test.describe('主工作区导航测试 - Tab 管理核心功能', () => {
     }
   });
 
-  test('Tab 最大数量限制', async () => {
-    // 尝试创建大量Tab测试限制
-    const maxTabs = 15; // 假设最大限制可能是15个
-    const nodes: CreateNodeOptions[] = [];
-    for (let i = 1; i <= maxTabs; i++) {
-      nodes.push({ name: `限制Tab${i}`, type: 'http' });
-    }
-
-    const results = await createNodes(contentPage, nodes);
-    await contentPage.waitForTimeout(1000);
-
-    // 打开所有Tab
-    for (let i = 1; i <= maxTabs; i++) {
-      const node = contentPage.locator('.custom-tree-node').filter({ hasText: `限制Tab${i}` }).first();
-      if (await node.count() > 0) {
-        await node.click();
-        await contentPage.waitForTimeout(300);
-      }
-    }
-
-    // 验证Tab数量
-    const tabCount = await contentPage.locator('.nav .tab-list .item').count();
-    expect(tabCount).toBeGreaterThan(0);
-    expect(tabCount).toBeLessThanOrEqual(maxTabs);
-  });
 
   test('Tab 标题过长省略显示', async () => {
     const longName = '这是一个非常非常非常非常非常非常长的Tab标题用于测试省略号显示功能';
@@ -1002,37 +1041,6 @@ test.describe('主工作区导航测试 - Tab 管理核心功能', () => {
     console.log('Tab类型图标显示已测试');
   });
 
-  test('双击 Tab 标题重命名', async () => {
-    const results = await createNodes(contentPage, [
-      { name: '重命名Tab', type: 'http' }
-    ]);
-    expect(results[0].success).toBe(true);
-
-    await contentPage.waitForTimeout(1000);
-
-    await contentPage.locator('.custom-tree-node').filter({ hasText: '重命名Tab' }).first().click();
-    await contentPage.waitForTimeout(500);
-
-    const tab = contentPage.locator('.nav .tab-list .item').filter({ hasText: '重命名Tab' });
-
-    // 尝试双击Tab标题
-    await tab.dblclick();
-    await contentPage.waitForTimeout(500);
-
-    // 检查是否进入重命名模式
-    const renameInput = contentPage.locator('input.rename, input.edit, .tab-rename-input');
-    if (await renameInput.count() > 0) {
-      await renameInput.fill('新Tab名称');
-      await contentPage.keyboard.press('Enter');
-      await contentPage.waitForTimeout(500);
-
-      // 验证名称更新
-      const renamedTab = contentPage.locator('.nav .tab-list .item').filter({ hasText: '新Tab名称' });
-      const exists = await renamedTab.count();
-      // 重命名功能可能未实现
-      console.log('Tab双击重命名已测试');
-    }
-  });
 
   test('Tab 列表滚动 - Tab 过多时显示滚动', async () => {
     // 创建大量Tab

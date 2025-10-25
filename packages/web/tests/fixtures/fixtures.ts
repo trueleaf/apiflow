@@ -63,19 +63,12 @@ export const initOfflineWorkbench = async (
   
   const pages = await getPages(electronApp);
   const { headerPage, contentPage } = pages;
-  
   if (clearStorage) {
-    await headerPage.evaluate(() => {
-      localStorage.clear();
-    });
     await contentPage.evaluate(() => {
       localStorage.clear();
     });
   }
-  await contentPage.evaluate(() => {
-    localStorage.setItem('runtime/networkMode', 'offline');
-    localStorage.setItem('history/lastVisitePage', '/home');
-  });
+  await contentPage.reload();
   await contentPage.waitForURL(/home/, { timeout });
   await contentPage.waitForLoadState('domcontentloaded');
   await contentPage.waitForTimeout(1000);
