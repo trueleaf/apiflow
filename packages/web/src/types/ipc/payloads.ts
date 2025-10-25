@@ -66,6 +66,16 @@ export interface IPCEventMap {
     response: void;
   };
 
+  [IPC_EVENTS.APIFLOW.TOPBAR_TO_CONTENT.TABS_UPDATED]: {
+    request: any[];
+    response: void;
+  };
+
+  [IPC_EVENTS.APIFLOW.TOPBAR_TO_CONTENT.ACTIVE_TAB_UPDATED]: {
+    request: string;
+    response: void;
+  };
+
   // 内容窗口 -> 顶栏
   [IPC_EVENTS.APIFLOW.CONTENT_TO_TOPBAR.CONTENT_READY]: {
     request: void;

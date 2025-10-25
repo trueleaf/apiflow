@@ -234,6 +234,16 @@ export const useIpcEvent = (mainWindow: BrowserWindow, topBarView: WebContentsVi
     topBarView.webContents.send(IPC_EVENTS.APIFLOW.TOPBAR_TO_CONTENT.PROJECT_RENAMED, payload)
   })
 
+  // Header Tabs 更新通知 - 转发给 contentView 进行缓存
+  ipcMain.on(IPC_EVENTS.APIFLOW.TOPBAR_TO_CONTENT.TABS_UPDATED, (_, tabs: any[]) => {
+    contentView.webContents.send(IPC_EVENTS.APIFLOW.TOPBAR_TO_CONTENT.TABS_UPDATED, tabs)
+  })
+
+  // Header 激活 Tab 更新通知 - 转发给 contentView 进行缓存
+  ipcMain.on(IPC_EVENTS.APIFLOW.TOPBAR_TO_CONTENT.ACTIVE_TAB_UPDATED, (_, activeTabId: string) => {
+    contentView.webContents.send(IPC_EVENTS.APIFLOW.TOPBAR_TO_CONTENT.ACTIVE_TAB_UPDATED, activeTabId)
+  })
+
   /*
   |---------------------------------------------------------------------------
   | 导航控制事件处理

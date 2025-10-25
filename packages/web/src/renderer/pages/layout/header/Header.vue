@@ -56,7 +56,6 @@
 <script setup lang="ts">
 import { ref, onMounted, watch, computed } from 'vue'
 import draggable from 'vuedraggable'
-import { appWorkbenchCache } from '@/cache/index'
 import { Language, WindowState } from '@src/types'
 import type { HeaderTab } from '@src/types/header'
 import { RefreshRight, Back, Right } from '@element-plus/icons-vue'
@@ -268,14 +267,15 @@ watch(() => networkMode.value, (mode, prevMode) => {
     activeTabId.value = ''
   }
 })
-
+// 监听 tabs 变化,通知 contentView 进行缓存
 watch(tabs, (val) => {
-  appWorkbenchCache.setAppWorkbenchHeaderTabs(val)
+  window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.APIFLOW.TOPBAR_TO_CONTENT.TABS_UPDATED, val)
 }, { deep: true })
-
+// 监听 activeTabId 变化,通知 contentView 进行缓存
 watch(activeTabId, (val) => {
-  appWorkbenchCache.setAppWorkbenchHeaderActiveTab(val)
+  window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.APIFLOW.TOPBAR_TO_CONTENT.ACTIVE_TAB_UPDATED, val)
 })
+
 </script>
 
 <style lang="scss">
