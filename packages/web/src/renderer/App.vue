@@ -176,11 +176,13 @@ const bindTopBarEvent = () => {
   
   // 监听 Header Tabs 更新事件,进行缓存
   window.electronAPI?.ipcManager.onMain(IPC_EVENTS.APIFLOW.TOPBAR_TO_CONTENT.TABS_UPDATED, (tabs: any[]) => {
+    console.log('App.vue Received tabs update:', tabs);
     appWorkbenchCache.setAppWorkbenchHeaderTabs(tabs)
   })
   
   // 监听 Header 激活 Tab 更新事件,进行缓存
   window.electronAPI?.ipcManager.onMain(IPC_EVENTS.APIFLOW.TOPBAR_TO_CONTENT.ACTIVE_TAB_UPDATED, (activeTabId: string) => {
+    console.log('App.vue Received active tab update:', activeTabId);
     appWorkbenchCache.setAppWorkbenchHeaderActiveTab(activeTabId)
   })
 }
@@ -190,20 +192,21 @@ const bindTopBarEvent = () => {
 | 初始化 Header Tabs
 |--------------------------------------------------------------------------
 */
-const initHeaderTabs = () => {
-  // 从缓存读取 tabs 和 activeTabId
-  const tabs = appWorkbenchCache.getAppWorkbenchHeaderTabs();
-  const activeTabId = appWorkbenchCache.getAppWorkbenchHeaderActiveTab();
-
+const initHeaderTabs = async () => {
+  // 从缓存读取 tabs 和 activeTabId，如果不存在则使用空值
+  const tabs = appWorkbenchCache.getAppWorkbenchHeaderTabs() || [];
+  const activeTabId = appWorkbenchCache.getAppWorkbenchHeaderActiveTab() || '';
   // 发送给 header.vue
-  window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.APIFLOW.CONTENT_TO_TOPBAR.INIT_TABS, {
-    tabs,
-    activeTabId
-  });
-
+  window.electronAPI?.ipcManager.sendToMain(
+    IPC_EVENTS.APIFLOW.CONTENT_TO_TOPBAR.INIT_TABS, 
+    {
+      tabs,
+      activeTabId
+    }
+  );
   // 如果没有 activeTabId，跳转到主页
   if (!activeTabId) {
-    router.push('/home');
+    await router.push('/home');
   }
 };
 
@@ -275,12 +278,11 @@ onMounted(() => {
 
   // 等待 topBar 就绪后再初始化和绑定事件
   window.electronAPI?.ipcManager.onMain(IPC_EVENTS.APIFLOW.RENDERER_TO_MAIN.TOPBAR_IS_READY, async () => {
+    console.log('topBar 已就绪，开始绑定事件和初始化 Tabs');
     bindTopBarEvent();
-    initHeaderTabs();
-
-    // 等待路由就绪后再创建 watch
+    await initHeaderTabs();
+    // 等待路由就绪
     await router.isReady();
-
     // 监听路由变化
     watch(() => router.currentRoute.value.path, (newPath) => {
       if (newPath === '/v1/apidoc/doc-edit') {

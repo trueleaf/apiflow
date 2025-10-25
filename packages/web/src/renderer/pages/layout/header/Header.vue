@@ -78,6 +78,7 @@ const draggableTabs = computed({
   set: (newTabs: HeaderTab[]) => {
     const otherNetworkTabs = tabs.value.filter(tab => tab.network !== networkMode.value)
     tabs.value = [...otherNetworkTabs, ...newTabs]
+    syncTabsToContentView()
   }
 })
 
@@ -145,6 +146,25 @@ const handleChangeLanguage = () => {
     })
   }
 }
+/*
+|--------------------------------------------------------------------------
+| 同步函数
+|--------------------------------------------------------------------------
+*/
+// 同步 tabs 到 contentView
+const syncTabsToContentView = () => {
+  window.electronAPI?.ipcManager.sendToMain(
+    IPC_EVENTS.APIFLOW.TOPBAR_TO_CONTENT.TABS_UPDATED, 
+    JSON.parse(JSON.stringify(tabs.value))
+  )
+}
+// 同步 activeTabId 到 contentView
+const syncActiveTabToContentView = () => {
+  window.electronAPI?.ipcManager.sendToMain(
+    IPC_EVENTS.APIFLOW.TOPBAR_TO_CONTENT.ACTIVE_TAB_UPDATED, 
+    JSON.parse(JSON.stringify(activeTabId.value))
+  )
+}
 /* 
 |--------------------------------------------------------------------------
 | tabs操作
@@ -156,6 +176,7 @@ const deleteTab = (tabId: string) => {
   
   const wasActive = activeTabId.value === tabId
   tabs.value = tabs.value.filter(t => t.id !== tabId)
+  syncTabsToContentView()
   const currentNetworkTabs = tabs.value.filter(tab => tab.network === networkMode.value)
   
   if (currentNetworkTabs.length === 0) {
@@ -171,6 +192,7 @@ const deleteTab = (tabId: string) => {
 }
 const switchTab = (tabId: string) => {
   activeTabId.value = tabId;
+  syncActiveTabToContentView()
   const currentTab = tabs.value.find(t => t.id === tabId);
   if (!currentTab) return;
   if (currentTab.type === 'project') {
@@ -189,6 +211,7 @@ const switchTab = (tabId: string) => {
 */
 const jumpToHome = () => {
   activeTabId.value = '';
+  syncActiveTabToContentView()
   window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.APIFLOW.TOPBAR_TO_CONTENT.NAVIGATE, '/home')
 }
 const jumpToUserCenter = () => {
@@ -201,6 +224,7 @@ const jumpToUserCenter = () => {
       type: 'settings',
       network: networkMode.value
     });
+    syncTabsToContentView()
   }
   switchTab(userCenterTabId);
 }
@@ -225,17 +249,21 @@ const bindEvent = () => {
   window.electronAPI?.ipcManager.onMain(IPC_EVENTS.APIFLOW.TOPBAR_TO_CONTENT.PROJECT_CREATED, (data: { projectId: string, projectName: string }) => {
     tabs.value.push({ id: data.projectId, title: data.projectName, type: 'project', network: networkMode.value })
     activeTabId.value = data.projectId
+    syncTabsToContentView()
+    syncActiveTabToContentView()
   })
   
   window.electronAPI?.ipcManager.onMain(IPC_EVENTS.APIFLOW.TOPBAR_TO_CONTENT.PROJECT_CHANGED, (data: { projectId: string, projectName: string }) => {
-    console.log('PROJECT_CHANGED', data)
     activeTabId.value = data.projectId;
     const matchedProject = tabs.value.find(t => t.id === data.projectId)
     if (!matchedProject) {
       tabs.value.push({ id: data.projectId, title: data.projectName, type: 'project', network: networkMode.value })
+      syncTabsToContentView()
     } else if (matchedProject.title !== data.projectName) {
       matchedProject.title = data.projectName
+      syncTabsToContentView()
     }
+    syncActiveTabToContentView()
   })
   
   window.electronAPI?.ipcManager.onMain(IPC_EVENTS.APIFLOW.TOPBAR_TO_CONTENT.PROJECT_DELETED, (projectId: string) => {
@@ -246,13 +274,15 @@ const bindEvent = () => {
     const index = tabs.value.findIndex(t => t.id === data.projectId)
     if (index !== -1) {
       tabs.value[index].title = data.projectName
+      syncTabsToContentView()
     }
   })
-  
   // 监听来自 App.vue 的初始化数据
   window.electronAPI?.ipcManager.onMain(IPC_EVENTS.APIFLOW.TOPBAR_TO_CONTENT.INIT_TABS_DATA, (data: { tabs: HeaderTab[], activeTabId: string }) => {
-    tabs.value = data.tabs;
-    activeTabId.value = data.activeTabId;
+    tabs.value = data.tabs || [];
+    activeTabId.value = data.activeTabId || '';
+    syncTabsToContentView();
+    syncActiveTabToContentView();
   });
 }
 
@@ -260,20 +290,15 @@ onMounted(() => {
   bindEvent()
   // 发送就绪信号
   window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.APIFLOW.TOPBAR_TO_CONTENT.TOPBAR_READY);
+
+
 })
 
 watch(() => networkMode.value, (mode, prevMode) => {
   if (mode !== prevMode) {
     activeTabId.value = ''
+    syncActiveTabToContentView()
   }
-})
-// 监听 tabs 变化,通知 contentView 进行缓存
-watch(tabs, (val) => {
-  window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.APIFLOW.TOPBAR_TO_CONTENT.TABS_UPDATED, val)
-}, { deep: true })
-// 监听 activeTabId 变化,通知 contentView 进行缓存
-watch(activeTabId, (val) => {
-  window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.APIFLOW.TOPBAR_TO_CONTENT.ACTIVE_TAB_UPDATED, val)
 })
 
 </script>
