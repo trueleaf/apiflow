@@ -24,13 +24,14 @@
     </div>
     <!-- 请求地址，发送请求 -->
     <div class="op-wrap">
-      <el-input 
-        v-model="requestPath" 
-        :placeholder="t('path参数') + ' eg: http://test.com/{id}'" 
-        autocomplete="off" 
-        autocorrect="off" 
+      <el-input
+        v-model="requestPath"
+        data-testid="url-input"
+        :placeholder="t('path参数') + ' eg: http://test.com/{id}'"
+        autocomplete="off"
+        autocorrect="off"
         spellcheck="false"
-        @input="handleChangeUrl" 
+        @input="handleChangeUrl"
         @blur="handleFormatUrl"
         @keyup.enter.stop="handleFormatUrl"
       >

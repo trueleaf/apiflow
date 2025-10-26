@@ -74,7 +74,7 @@
                 <span v-if="element.tabType === 'cookies'" class="iconfont iconCookies f-base mr-2"></span>
               </template>
               <span class="item-text" :class="{ unfixed: !element.fixed }">{{ element.label }}</span>
-              <span class="operaion">
+              <span class="operation">
                 <span v-show="!element.saved" class="has-change">
                   <span class="dot"></span>
                 </span>
@@ -531,7 +531,7 @@ onUnmounted(() => {
       }
     }
 
-    .operaion {
+    .operation {
       position: absolute;
       right: 0;
       width: 25px;
