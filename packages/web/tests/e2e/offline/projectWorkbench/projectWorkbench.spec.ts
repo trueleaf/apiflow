@@ -173,7 +173,7 @@ test.describe('Workbench - Banner 基础功能', () => {
   });
 
   test('应能创建不同请求方法的接口', async () => {
-    const methods = ['POST', 'PUT', 'DELETE'];
+    const methods = ['POST', 'PUT', 'DELETE', 'PATCH', 'HEAD', 'OPTIONS'];
     
     for (const method of methods) {
       const nodeName = `测试${method}接口_${Date.now()}`;

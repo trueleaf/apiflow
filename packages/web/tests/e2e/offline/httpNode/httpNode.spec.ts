@@ -125,7 +125,7 @@ test.describe('2. 请求配置测试', () => {
     await clickHttpNode(contentPage, testNodeName);
   });
 
-  test('2.1 应该能切换请求方法(GET/POST/PUT/DELETE等)', async () => {
+  test('2.1 应该能切换请求方法(GET/POST/PUT/DELETE/PATCH/HEAD/OPTIONS)', async () => {
     // 查找请求方法选择器
     const methodSelector = contentPage.locator('.http-method-selector, .method-selector, .el-select:has-text("GET")').first();
     
@@ -180,6 +180,63 @@ test.describe('2. 请求配置测试', () => {
               if (await methodSelector5.isVisible({ timeout: 5000 }).catch(() => false)) {
                 const currentMethod3 = await methodSelector5.textContent();
                 expect(currentMethod3?.trim()).toContain('DELETE');
+              }
+            }
+          }
+
+          // 测试切换到PATCH
+          const methodSelector6 = contentPage.locator('.http-method-selector, .method-selector, .el-select').first();
+          if (await methodSelector6.isVisible({ timeout: 5000 }).catch(() => false)) {
+            await methodSelector6.click();
+            await contentPage.waitForTimeout(500);
+            const patchOption = contentPage.locator('.el-select-dropdown__item:has-text("PATCH")').first();
+            if (await patchOption.isVisible({ timeout: 3000 }).catch(() => false)) {
+              await patchOption.click();
+              await contentPage.waitForTimeout(800);
+              await contentPage.waitForLoadState('domcontentloaded');
+              
+              const methodSelector7 = contentPage.locator('.http-method-selector, .method-selector, .el-select').first();
+              if (await methodSelector7.isVisible({ timeout: 5000 }).catch(() => false)) {
+                const currentMethod4 = await methodSelector7.textContent();
+                expect(currentMethod4?.trim()).toContain('PATCH');
+              }
+            }
+          }
+
+          // 测试切换到HEAD
+          const methodSelector8 = contentPage.locator('.http-method-selector, .method-selector, .el-select').first();
+          if (await methodSelector8.isVisible({ timeout: 5000 }).catch(() => false)) {
+            await methodSelector8.click();
+            await contentPage.waitForTimeout(500);
+            const headOption = contentPage.locator('.el-select-dropdown__item:has-text("HEAD")').first();
+            if (await headOption.isVisible({ timeout: 3000 }).catch(() => false)) {
+              await headOption.click();
+              await contentPage.waitForTimeout(800);
+              await contentPage.waitForLoadState('domcontentloaded');
+              
+              const methodSelector9 = contentPage.locator('.http-method-selector, .method-selector, .el-select').first();
+              if (await methodSelector9.isVisible({ timeout: 5000 }).catch(() => false)) {
+                const currentMethod5 = await methodSelector9.textContent();
+                expect(currentMethod5?.trim()).toContain('HEAD');
+              }
+            }
+          }
+
+          // 测试切换到OPTIONS
+          const methodSelector10 = contentPage.locator('.http-method-selector, .method-selector, .el-select').first();
+          if (await methodSelector10.isVisible({ timeout: 5000 }).catch(() => false)) {
+            await methodSelector10.click();
+            await contentPage.waitForTimeout(500);
+            const optionsOption = contentPage.locator('.el-select-dropdown__item:has-text("OPTIONS")').first();
+            if (await optionsOption.isVisible({ timeout: 3000 }).catch(() => false)) {
+              await optionsOption.click();
+              await contentPage.waitForTimeout(800);
+              await contentPage.waitForLoadState('domcontentloaded');
+              
+              const methodSelector11 = contentPage.locator('.http-method-selector, .method-selector, .el-select').first();
+              if (await methodSelector11.isVisible({ timeout: 5000 }).catch(() => false)) {
+                const currentMethod6 = await methodSelector11.textContent();
+                expect(currentMethod6?.trim()).toContain('OPTIONS');
               }
             }
           }

@@ -176,7 +176,7 @@ test.describe('任务组1: Mock服务管理测试', () => {
       await contentPage.waitForTimeout(500);
 
       // 验证所有方法都被选中
-      const methods = ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'];
+      const methods = ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'HEAD', 'OPTIONS'];
       for (const method of methods) {
         const checkbox = contentPage.locator(`.el-checkbox:has-text("${method}")`).first();
         if (await checkbox.count() > 0) {
