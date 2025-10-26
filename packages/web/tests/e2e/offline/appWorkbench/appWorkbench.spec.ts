@@ -1155,11 +1155,119 @@ test.describe('主工作区导航测试 - Tab 管理核心功能', () => {
 
 
   test('Tab 列表滚动 - Tab 过多时显示滚动', async () => {
+    // 创建足够多的节点以触发滚动
+    const nodeNames = [];
+    for (let i = 1; i <= 10; i++) {
+      nodeNames.push({ name: `节点${i}`, type: 'http' as const });
+    }
+    const results = await createNodes(contentPage, nodeNames);
+    results.forEach(result => expect(result.success).toBe(true));
 
+    await contentPage.waitForTimeout(1000);
+
+    // 依次点击所有节点，创建Tab
+    for (let i = 1; i <= 10; i++) {
+      const node = contentPage.locator('.custom-tree-node').filter({ hasText: `节点${i}` }).first();
+      await node.click();
+      await contentPage.waitForTimeout(300);
+    }
+
+    // 获取Tab列表容器
+    const tabList = contentPage.locator('.nav .tab-list').first();
+
+    // 验证容器可滚动（scrollWidth > clientWidth）
+    const scrollInfo = await tabList.evaluate((el) => ({
+      scrollWidth: el.scrollWidth,
+      clientWidth: el.clientWidth,
+      overflowX: window.getComputedStyle(el).overflowX
+    }));
+
+    expect(scrollInfo.scrollWidth).toBeGreaterThan(scrollInfo.clientWidth);
+    expect(scrollInfo.overflowX).toBe('auto');
+
+    // 验证Tab数量正确
+    const tabCount = await contentPage.locator('.nav .tab-list .item').count();
+    expect(tabCount).toBe(10);
+
+    // 验证可以滚动（设置scrollLeft并验证）
+    const scrolled = await tabList.evaluate((el) => {
+      const initialScrollLeft = el.scrollLeft;
+      el.scrollLeft = 100;
+      const newScrollLeft = el.scrollLeft;
+      return newScrollLeft > initialScrollLeft;
+    });
+    expect(scrolled).toBe(true);
   });
 
   test('Tab 自动滚动到激活项', async () => {
+    // 创建足够多的节点以触发滚动
+    const nodeNames = [];
+    for (let i = 1; i <= 10; i++) {
+      nodeNames.push({ name: `自动滚动${i}`, type: 'http' as const });
+    }
+    const results = await createNodes(contentPage, nodeNames);
+    results.forEach(result => expect(result.success).toBe(true));
 
+    await contentPage.waitForTimeout(1000);
+
+    // 依次点击所有节点，创建Tab
+    for (let i = 1; i <= 10; i++) {
+      const node = contentPage.locator('.custom-tree-node').filter({ hasText: `自动滚动${i}` }).first();
+      await node.click();
+      await contentPage.waitForTimeout(200);
+    }
+
+    // 辅助函数：检查Tab是否在容器的可视区域内
+    const isTabInView = async (tabText: string) => {
+      const tabList = contentPage.locator('.nav .tab-list').first();
+      const tab = contentPage.locator('.nav .tab-list .item').filter({ hasText: tabText }).first();
+
+      return await contentPage.evaluate(({ tabEl, containerEl }) => {
+        if (!tabEl || !containerEl) return false;
+
+        const tabRect = tabEl.getBoundingClientRect();
+        const containerRect = containerEl.getBoundingClientRect();
+
+        // Tab的左边和右边都应该在容器的可视范围内
+        return tabRect.left >= containerRect.left &&
+               tabRect.right <= containerRect.right;
+      }, {
+        tabEl: await tab.elementHandle(),
+        containerEl: await tabList.elementHandle()
+      });
+    };
+
+    // 测试1：点击第一个Tab，验证其在可视区域
+    await contentPage.locator('.nav .tab-list .item').filter({ hasText: '自动滚动1' }).first().click();
+    await contentPage.waitForTimeout(500);
+
+    let inView = await isTabInView('自动滚动1');
+    expect(inView).toBe(true);
+
+    // 测试2：点击最后一个Tab，应该自动滚动，验证其在可视区域
+    await contentPage.locator('.nav .tab-list .item').filter({ hasText: '自动滚动10' }).first().click();
+    await contentPage.waitForTimeout(500);
+
+    inView = await isTabInView('自动滚动10');
+    expect(inView).toBe(true);
+
+    // 测试3：再次点击第一个Tab，应该滚动回左侧，验证其在可视区域
+    await contentPage.locator('.nav .tab-list .item').filter({ hasText: '自动滚动1' }).first().click();
+    await contentPage.waitForTimeout(500);
+
+    inView = await isTabInView('自动滚动1');
+    expect(inView).toBe(true);
+
+    // 测试4：点击中间的Tab，验证也在可视区域
+    await contentPage.locator('.nav .tab-list .item').filter({ hasText: '自动滚动5' }).first().click();
+    await contentPage.waitForTimeout(500);
+
+    inView = await isTabInView('自动滚动5');
+    expect(inView).toBe(true);
+
+    // 验证激活的Tab确实是预期的Tab
+    const activeTab = contentPage.locator('.nav .tab-list .item.active').first();
+    await expect(activeTab).toHaveText(/自动滚动5/);
   });
 
   test('Tab 数据同步 - 节点重命名后Tab标题同步更新', async () => {
