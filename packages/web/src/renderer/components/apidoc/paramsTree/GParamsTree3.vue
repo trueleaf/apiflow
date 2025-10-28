@@ -25,7 +25,27 @@
           <Close />
         </el-icon>
         <div class="w-15 flex0 mr-2 d-flex a-center">
+          <el-autocomplete
+            v-if="props.mindKeyParams && props.mindKeyParams.length > 0"
+            :model-value="data.key"
+            :debounce="0"
+            :placeholder="t('输入参数名称自动换行')"
+            :fetch-suggestions="querySearchKey"
+            popper-class="params-tree-autocomplete"
+            @select="(item: any) => handleSelectKey(item, data)"
+            @update:modelValue="(v: string | number) => handleChangeKey(String(v), data)"
+            @focus="handleDisableDrag()"
+            @blur="handleEnableDrag()"
+          >
+            <template #default="{ item }">
+              <div class="autocomplete-item">
+                <div class="value" v-html="highlightText(item.key, currentKeyQuery)"></div>
+                <div class="description" v-html="highlightText(item.description || '', currentKeyQuery)"></div>
+              </div>
+            </template>
+          </el-autocomplete>
           <el-input
+            v-else
             :model-value="data.key"
             :placeholder="t('输入参数名称自动换行')"
             @update:modelValue="v => handleChangeKey(v, data)"
@@ -45,6 +65,7 @@
           <el-option label="String" value="string"></el-option>
           <el-option v-if="props.enableFile" label="File" value="file"></el-option>
         </el-select>
+        <!-- 参数值 string -->
         <el-popover
           v-if="data.type === 'string'"
           :visible="data._id === currentOpData?._id && (data.value || '').includes('@')"
@@ -53,16 +74,32 @@
         >
           <SMock :search-value="data.value.split('@').pop() || ''" @close="handleCloseMock()" @select="v => handleSelectMockValue(v, data)"></SMock>
           <template #reference>
-            <el-input
-              :model-value="data.value"
-              class="w-25 mr-2"
-              :placeholder="t('参数值、@代表mock数据、{{ 变量 }}')"
-              @update:modelValue="v => handleChangeValue(v, data)"
-              @blur="handleBlurValue()"
-            >
-            </el-input>
+            <div class="value-input-wrap w-25 mr-2">
+              <input
+                v-show="focusedValueId !== data._id"
+                :value="data.value"
+                type="text"
+                class="value-text-input"
+                :placeholder="t('参数值、@代表mock数据、{{ 变量 }}')"
+                @input="e => handleChangeValue((e.target as HTMLInputElement).value, data)"
+                @focus="handleFocusValue(data)"
+              />
+              <el-input
+                v-if="focusedValueId === data._id"
+                ref="valueTextarea"
+                :model-value="data.value"
+                class="value-textarea"
+                type="textarea"
+                :autosize="{ minRows: 1, maxRows: 10 }"
+                resize="none"
+                :placeholder="t('参数值、@代表mock数据、{{ 变量 }}')"
+                @update:modelValue="v => handleChangeValue(v, data)"
+                @blur="handleBlurValueAndEnableDrag()"
+              />
+            </div>
           </template>
         </el-popover>
+        <!-- 参数值 File -->
         <div
           v-if="data.type === 'file'"
           class="w-25 mr-2"
@@ -121,8 +158,10 @@
         <el-input
           :model-value="data.description"
           class="w-40"
+          :type="expandedInputs[data._id]?.description ? 'textarea' : 'text'"
+          :autosize="expandedInputs[data._id]?.description ? { minRows: 2, maxRows: 6 } : undefined"
           :placeholder="t('参数描述与备注')"
-          @focus="handleDisableDrag()"
+          @focus="handleFocusDescription(data)"
           @blur="handleEnableDrag()"
           @update:modelValue="v => handleChangeDescription(v, data)"
         >
@@ -144,6 +183,7 @@ import { config } from '@src/config/config';
 const props = defineProps<{ 
   data: ApidocProperty<'string' | 'file'>[];
   enableFile?: boolean;
+  mindKeyParams?: ApidocProperty[];
 }>();
 const emits = defineEmits<{ (e: 'change', value: ApidocProperty<'string' | 'file'>[]): void }>();
 const { t } = useI18n();
@@ -151,9 +191,19 @@ const { t } = useI18n();
 const localData: Ref<ApidocProperty<'string' | 'file'>[]> = ref([]);
 const enableDrag = ref(true);
 const currentOpData: Ref<ApidocProperty<'string' | 'file'> | null> = ref(null);
+const expandedInputs = ref<Record<string, { value: boolean, description: boolean }>>({});
+const currentKeyQuery = ref('');
+const focusedValueId = ref<string>('');
+const valueTextarea = ref();
 const checkedKeys = computed(() => localData.value.filter(v => v.select).map(v => v._id));
 const emitChange = () => {
   emits('change', localData.value);
+};
+// 高亮文本工具函数
+const highlightText = (text: string, query: string): string => {
+  if (!query || !text) return text;
+  const regex = new RegExp(`(${query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
+  return text.replace(regex, '<span class="highlight">$1</span>');
 };
 
 watch(
@@ -256,9 +306,32 @@ const handleChangeType = (v: 'string' | 'file', data: ApidocProperty<'string' | 
 const handleBlurValue = () => {
   setTimeout(() => (currentOpData.value = null), 150);
 };
+// 组合函数：同时处理 Mock 弹窗关闭、恢复拖拽和重置为 text 类型
+const handleBlurValueAndEnableDrag = () => {
+  handleBlurValue();
+  handleEnableDrag();
+  focusedValueId.value = '';
+};
 
 const handleCloseMock = () => {
   currentOpData.value = null;
+};
+// 处理参数值聚焦时的展开逻辑
+const handleFocusValue = (data: ApidocProperty<'string' | 'file'>) => {
+  handleDisableDrag();
+  focusedValueId.value = data._id;
+  setTimeout(() => {
+    valueTextarea.value?.focus();
+  });
+};
+// 处理描述聚焦时的展开逻辑
+const handleFocusDescription = (data: ApidocProperty<'string' | 'file'>) => {
+  handleDisableDrag();
+  if (!expandedInputs.value[data._id]) {
+    expandedInputs.value[data._id] = { value: false, description: false };
+  }
+  const shouldExpand = (data.description?.length || 0) > 50 || (data.description?.includes('\n') || false);
+  expandedInputs.value[data._id].description = shouldExpand;
 };
 
 const handleSelectMockValue = (item: any, data: ApidocProperty<'string' | 'file'>) => {
@@ -311,6 +384,29 @@ const handleCheckChange = (data: ApidocProperty<'string' | 'file'>, select: bool
   data.select = select;
   emitChange();
 };
+// 参数名称联想查询函数
+const querySearchKey = (queryString: string, cb: (results: ApidocProperty[]) => void) => {
+  if (!props.mindKeyParams || props.mindKeyParams.length === 0) {
+    cb([]);
+    return;
+  }
+  const query = (queryString || '').trim();
+  if (!query) {
+    currentKeyQuery.value = '';
+    cb([]);
+    return;
+  }
+  currentKeyQuery.value = query;
+  const lowerQuery = query.toLowerCase();
+  const results = props.mindKeyParams.filter(item => item.key.toLowerCase().includes(lowerQuery) || (item.description || '').toLowerCase().includes(lowerQuery));
+  cb(results.slice(0, 10));
+};
+// 处理参数名称选中事件
+const handleSelectKey = (item: ApidocProperty, data: ApidocProperty<'string' | 'file'>) => {
+  data.key = item.key;
+  autoAppendIfNeeded(data);
+  emitChange();
+};
 </script>
 <style lang='scss' scoped>
 .custom-params {
@@ -333,6 +429,10 @@ const handleCheckChange = (data: ApidocProperty<'string' | 'file'>, select: bool
     min-height: 28px;
     line-height: 28px;
   }
+  :deep(.el-autocomplete) {
+    width: 100%;
+  }
+
   .delete-icon {
     height: 30px;
     display: flex;
@@ -342,6 +442,45 @@ const handleCheckChange = (data: ApidocProperty<'string' | 'file'>, select: bool
     &.disabled {
       opacity: 0.4;
       cursor: not-allowed;
+    }
+  }
+  .value-input-wrap {
+    position: relative;
+    height: 29px;
+    .value-text-input {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      border: none;
+      border-bottom: 1px solid var(--gray-400);
+      padding: 0 10px;
+      font-size: 12px;
+      color: var(--el-input-text-color, var(--el-text-color-regular));
+      &::placeholder {
+        color: var(--gray-400);
+      }
+    }
+    .value-textarea {
+      position: absolute;
+      z-index: 1;
+      top: 0;
+      left: 0;
+      width: 100%;
+      :deep(.el-textarea__inner) {
+        font-size: 12px;
+        color: var(--el-input-text-color, var(--el-text-color-regular));
+        &::-webkit-scrollbar {
+          width: 3px;
+          height: 3px;
+        }
+        &::-webkit-scrollbar-thumb {
+          background: var(--gray-500);
+        }
+        &::placeholder {
+          color: var(--gray-400);
+        }
+      }
     }
   }
   .file-input-wrap {
@@ -416,4 +555,32 @@ const handleCheckChange = (data: ApidocProperty<'string' | 'file'>, select: bool
   }
 }
 
+</style>
+<style lang='scss'>
+.params-tree-autocomplete {
+  width: 500px;
+  .autocomplete-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    .value {
+      flex: 0 0 150px;
+      font-size: 13px;
+      color: var(--color-text-1);
+      font-weight: 500;
+    }
+    .description {
+      // flex: 1;
+      font-size: 12px;
+      color: var(--color-text-3);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+  }
+  .highlight {
+    color: var(--theme-color);
+    font-weight: 600;
+  }
+}
 </style>
