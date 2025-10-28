@@ -467,18 +467,22 @@ export const sendRequest = async () => {
   const preRequestSessionStorage = httpNodeCache.getPreRequestSessionStorage(projectId) || {};
   const preRequestLocalStorage = httpNodeCache.getPreRequestLocalStorage(projectId) || {};
   let finalSendHeaders = preSendHeaders;
+
   let finalCookies = objCookies;
   //实际发送请求
   const invokeRequest = async () => {
     const method = getMethod(copiedApidoc);
     const url = await getUrl(copiedApidoc);
     const body = await getBody(copiedApidoc);
-    if (Object.values(finalCookies).length > 0) {
-      finalSendHeaders.cookie = Object.entries(finalCookies)
-        .map(([key, value]) => `${key}=${value}`)
-        .join('; ');
-    } else {
-      delete finalSendHeaders.cookie;
+    // 只有当用户未在 headers 中配置 cookie 时，才使用 cookie store 的值
+    if (finalSendHeaders.cookie === undefined || finalSendHeaders.cookie === null) {
+      if (Object.values(finalCookies).length > 0) {
+        finalSendHeaders.cookie = Object.entries(finalCookies)
+          .map(([key, value]) => `${key}=${value}`)
+          .join('; ');
+      } else {
+        delete finalSendHeaders.cookie;
+      }
     }
     window.electronAPI?.sendRequest({
       url,
