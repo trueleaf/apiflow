@@ -26,7 +26,7 @@ const standarHeaders = [{
   description: '跨域头，允许跨域的请求方法',
 }, {
   name: 'Access-Control-Allow-Headers',
-  description: '跨域头，允许客户端添加额外的HTTP请求头',
+  description: '跨域头，允许额外的HTTP请求头',
 }, {
   name: 'Access-Control-Max-Age',
   description: '跨域头，多长时间内不再发送预请求',

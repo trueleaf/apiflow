@@ -12,7 +12,7 @@
         <View />
       </el-icon>
     </div>
-    <SParamsTree :drag="false" show-checkbox :data="headerData" no-add @change="handleHeadersChange"></SParamsTree>
+    <SParamsTree :drag="false" show-checkbox :data="headerData" :mind-key-params="mindHeaders" no-add @change="handleHeadersChange"></SParamsTree>
     <template v-if="commonHeaders.length > 0">
       <el-divider content-position="left">{{ t('公共请求头') }}</el-divider>
       <el-table :data="commonHeaders"  border size="small">
@@ -74,6 +74,7 @@ import { storeToRefs } from 'pinia';
 import { CheckboxValueType } from 'element-plus';
 import { useHttpRedoUndo } from '@/store/redoUndo/httpRedoUndoStore';
 import { debounce, cloneDeep } from 'lodash-es';
+import mindHeaders from './mind-headers'
 
 const emits = defineEmits(['changeCommonHeaderSendStatus'])
 const apidocTabsStore = useApidocTas()

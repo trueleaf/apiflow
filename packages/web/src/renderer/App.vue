@@ -176,13 +176,11 @@ const bindTopBarEvent = () => {
   
   // 监听 Header Tabs 更新事件,进行缓存
   window.electronAPI?.ipcManager.onMain(IPC_EVENTS.APIFLOW.TOPBAR_TO_CONTENT.TABS_UPDATED, (tabs: any[]) => {
-    console.log('App.vue Received tabs update:', tabs);
     appWorkbenchCache.setAppWorkbenchHeaderTabs(tabs)
   })
   
   // 监听 Header 激活 Tab 更新事件,进行缓存
   window.electronAPI?.ipcManager.onMain(IPC_EVENTS.APIFLOW.TOPBAR_TO_CONTENT.ACTIVE_TAB_UPDATED, (activeTabId: string) => {
-    console.log('App.vue Received active tab update:', activeTabId);
     appWorkbenchCache.setAppWorkbenchHeaderActiveTab(activeTabId)
   })
 }

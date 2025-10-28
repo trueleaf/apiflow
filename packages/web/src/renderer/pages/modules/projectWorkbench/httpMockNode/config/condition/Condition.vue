@@ -36,14 +36,25 @@
             :placeholder="t('请求URL')"
             class="url-input"
           />
-          <div class="mock-url-container">
-            <div class="mock-url-text">{{ mockUrl }}</div>
-            <el-icon 
-              v-copy="mockUrl"
-              class="copy-icon"
-            >
-              <CopyDocument />
-            </el-icon>
+          <div class="mock-urls-wrapper">
+            <div class="mock-url-item">
+              <div class="mock-url-text">{{ localMockUrl }}</div>
+              <el-icon 
+                v-copy="localMockUrl"
+                class="copy-icon"
+              >
+                <CopyDocument />
+              </el-icon>
+            </div>
+            <div class="mock-url-item">
+              <div class="mock-url-text">{{ networkMockUrl }}</div>
+              <el-icon 
+                v-copy="networkMockUrl"
+                class="copy-icon"
+              >
+                <CopyDocument />
+              </el-icon>
+            </div>
           </div>
         </div>
         <div class="form-item flex-item">
@@ -94,9 +105,14 @@ const getLocalIp = () => {
     return '127.0.0.1'
   }
 }
-
-// 生成完整的Mock地址
-const mockUrl = computed(() => {
+// 生成本地回环地址URL
+const localMockUrl = computed(() => {
+  const port = httpMock.value.requestCondition.port
+  const url = httpMock.value.requestCondition.url
+  return `http://127.0.0.1:${port}${url}`
+})
+// 生成局域网地址URL
+const networkMockUrl = computed(() => {
   const ip = getLocalIp()
   const port = httpMock.value.requestCondition.port
   const url = httpMock.value.requestCondition.url
@@ -290,28 +306,29 @@ onMounted(() => {
 .methods-group :deep(.el-checkbox) {
   margin-right: 20px;
 }
-
-.mock-url-container {
+.mock-urls-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.mock-url-item {
   display: flex;
   align-items: center;
+  gap: 6px;
 }
-
 .mock-url-text {
   font-size: 12px;
   color: var(--gray-600);
-  margin-right: 8px;
   font-family: 'Monaco', 'Menlo', 'Consolas', monospace;
   word-break: break-all;
   line-height: 1.4;
 }
-
 .copy-icon {
   flex-shrink: 0;
   cursor: pointer;
   color: var(--gray-500);
   transition: color 0.2s ease;
 }
-
 .copy-icon:hover {
   color: var(--primary);
 }
