@@ -34,7 +34,7 @@
             popper-class="params-tree-autocomplete"
             @select="(item: any) => handleSelectKey(item, data)"
             @update:modelValue="(v: string | number) => handleChangeKey(String(v), data)"
-            @focus="handleDisableDrag()"
+            @focus="handleFocusKey()"
             @blur="handleEnableDrag()"
             @keydown="(e: any) => handleKeyDown(e, data)"
           >
@@ -198,6 +198,7 @@ const focusedValueId = ref<string>('');
 const valueTextarea = ref();
 const currentSuggestions = ref<ApidocProperty[]>([]);
 const highlightedIndex = ref(-1);
+const hasUserInput = ref(false);
 const checkedKeys = computed(() => localData.value.filter(v => v.select).map(v => v._id));
 const emitChange = () => {
   emits('change', localData.value);
@@ -228,6 +229,11 @@ const handleDisableDrag = () => {
 };
 const handleEnableDrag = () => {
   enableDrag.value = true;
+};
+// 处理参数名称输入框聚焦
+const handleFocusKey = () => {
+  hasUserInput.value = false;
+  handleDisableDrag();
 };
 
 const handleAllowDrop = (_: Node, __drop: Node, type: 'inner' | 'prev' | 'next') => {
@@ -275,6 +281,7 @@ const autoAppendIfNeeded = (data: ApidocProperty<'string' | 'file'>) => {
 };
 
 const handleChangeKey = (v: string, data: ApidocProperty<'string' | 'file'>) => {
+  hasUserInput.value = true;
   data.key = v;
   autoAppendIfNeeded(data);
   emitChange();
@@ -395,6 +402,12 @@ const querySearchKey = (queryString: string, cb: (results: ApidocProperty[]) => 
     highlightedIndex.value = -1;
     return;
   }
+  if (!hasUserInput.value) {
+    cb([]);
+    currentSuggestions.value = [];
+    highlightedIndex.value = -1;
+    return;
+  }
   const query = (queryString || '').trim();
   if (!query) {
     currentKeyQuery.value = '';
@@ -413,7 +426,9 @@ const querySearchKey = (queryString: string, cb: (results: ApidocProperty[]) => 
 // 处理参数名称选中事件
 const handleSelectKey = (item: ApidocProperty, data: ApidocProperty<'string' | 'file'>) => {
   data.key = item.key;
-  data.description = item.description || '';
+  if (!(data.description || '').trim()) {
+    data.description = item.description || '';
+  }
   autoAppendIfNeeded(data);
   emitChange();
 };
@@ -428,7 +443,9 @@ const handleTabComplete = (data: ApidocProperty<'string' | 'file'>) => {
   const selectedItem = currentSuggestions.value[targetIndex];
   if (selectedItem) {
     data.key = selectedItem.key;
-    data.description = selectedItem.description || '';
+    if (!(data.description || '').trim()) {
+      data.description = selectedItem.description || '';
+    }
     autoAppendIfNeeded(data);
     emitChange();
   }
