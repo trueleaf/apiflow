@@ -69,31 +69,42 @@
         <div v-else-if="historyList.length === 0" class="history-empty">
           <span>{{ t('暂无历史记录') }}</span>
         </div>
-        <div v-else class="history-list">
-          <div
-            v-for="(history, index) in historyList"
-            :key="history._id"
-            class="history-item"
-            @click="handleSelectHistory(history)"
-          >
-            <div class="history-main">
-              <div class="history-info">
-                <span class="history-name">{{ t('历史记录') }}{{ index + 1 }}</span>
-                <span class="history-operator">{{ history.operatorName }}</span>
+        <template v-else>
+          <div class="history-list">
+            <div
+              v-for="(history, index) in historyList"
+              :key="history._id"
+              class="history-item"
+              @click="handleSelectHistory(history)"
+              @mouseenter="handleHistoryItemMouseEnter(history)"
+              @mouseleave="handleHistoryItemMouseLeave"
+            >
+              <div class="history-main">
+                <div class="history-info">
+                  <span class="history-name">{{ t('历史记录') }}{{ index + 1 }}</span>
+                  <span class="history-operator">{{ history.operatorName }}</span>
+                </div>
+                <div class="history-time">{{ formatRelativeTime(history.timestamp) }}</div>
               </div>
-              <div class="history-time">{{ formatRelativeTime(history.timestamp) }}</div>
-            </div>
-            <div class="history-actions">
-              <el-icon
-                class="delete-icon"
-                @click.stop="handleDeleteHistory(history)"
-                :title="t('删除')"
-              >
-                <Delete />
-              </el-icon>
+              <div class="history-actions">
+                <el-icon
+                  class="delete-icon"
+                  @click.stop="handleDeleteHistory(history)"
+                  :title="t('删除')"
+                >
+                  <Delete />
+                </el-icon>
+              </div>
             </div>
           </div>
-        </div>
+          <!-- 底部清除全部按钮 -->
+          <div class="history-footer">
+            <button class="clear-all-btn" @click="handleClearAllHistory">
+              <el-icon><Delete /></el-icon>
+              <span>{{ t('清除全部历史记录') }}</span>
+            </button>
+          </div>
+        </template>
       </div>
     </div>
     <el-tabs v-model="activeName">
@@ -132,6 +143,138 @@
     <keep-alive>
       <component :is="getComponent()" class="workbench" @changeCommonHeaderSendStatus="freshHasHeaders"></component>
     </keep-alive>
+
+    <!-- 历史记录详情框 -->
+    <Teleport to="body">
+      <div
+        v-if="showHistoryDetail && detailHistory"
+        class="history-detail-panel"
+        ref="historyDetailRef"
+        @mouseenter="handleDetailMouseEnter"
+        @mouseleave="handleDetailMouseLeave"
+      >
+        <div class="detail-header">
+          <span class="detail-title">{{ t('历史记录详情') }}</span>
+          <el-icon class="close-icon" @click="handleCloseDetail"><Close /></el-icon>
+        </div>
+
+        <div class="detail-content">
+          <!-- 基本信息 -->
+          <div class="detail-section">
+            <div class="section-title">{{ t('基本信息') }}</div>
+            <div class="section-content">
+              <div class="info-row">
+                <span class="info-label">{{ t('请求方法') }}:</span>
+                <span class="info-value method-tag" :class="detailHistory.node.item.method.toLowerCase()">
+                  {{ detailHistory.node.item.method }}
+                </span>
+              </div>
+              <div class="info-row">
+                <span class="info-label">{{ t('请求路径') }}:</span>
+                <span class="info-value url-text">{{ detailHistory.node.item.url.prefix }}{{ detailHistory.node.item.url.path }}</span>
+              </div>
+              <div class="info-row">
+                <span class="info-label">{{ t('操作者') }}:</span>
+                <span class="info-value">{{ detailHistory.operatorName }}</span>
+              </div>
+              <div class="info-row">
+                <span class="info-label">{{ t('记录时间') }}:</span>
+                <span class="info-value">{{ new Date(detailHistory.timestamp).toLocaleString() }}</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- 请求信息 -->
+          <div class="detail-section">
+            <div class="section-title">{{ t('请求信息') }}</div>
+            <div class="section-content">
+              <!-- Headers -->
+              <div v-if="detailHistory.node.item.headers.filter(h => h.key).length > 0" class="info-group">
+                <div class="group-title">Headers ({{ detailHistory.node.item.headers.filter(h => h.key).length }})</div>
+                <div class="param-list">
+                  <div v-for="header in detailHistory.node.item.headers.filter(h => h.key)" :key="header._id" class="param-item">
+                    <span class="param-key">{{ header.key }}:</span>
+                    <span class="param-value">{{ header.value }}</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Query Parameters -->
+              <div v-if="detailHistory.node.item.queryParams.filter(q => q.key).length > 0" class="info-group">
+                <div class="group-title">Query Parameters ({{ detailHistory.node.item.queryParams.filter(q => q.key).length }})</div>
+                <div class="param-list">
+                  <div v-for="param in detailHistory.node.item.queryParams.filter(q => q.key)" :key="param._id" class="param-item">
+                    <span class="param-key">{{ param.key }}:</span>
+                    <span class="param-value">{{ param.value }}</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Path Parameters -->
+              <div v-if="detailHistory.node.item.paths.filter(p => p.key).length > 0" class="info-group">
+                <div class="group-title">Path Parameters ({{ detailHistory.node.item.paths.filter(p => p.key).length }})</div>
+                <div class="param-list">
+                  <div v-for="param in detailHistory.node.item.paths.filter(p => p.key)" :key="param._id" class="param-item">
+                    <span class="param-key">{{ param.key }}:</span>
+                    <span class="param-value">{{ param.value }}</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Request Body -->
+              <div v-if="detailHistory.node.item.requestBody.mode !== 'none'" class="info-group">
+                <div class="group-title">Body ({{ detailHistory.node.item.requestBody.mode }})</div>
+                <div class="body-content">
+                  <!-- JSON Body -->
+                  <pre v-if="detailHistory.node.item.requestBody.mode === 'json'" class="json-code">{{ detailHistory.node.item.requestBody.rawJson || '{}' }}</pre>
+
+                  <!-- FormData Body -->
+                  <div v-else-if="detailHistory.node.item.requestBody.mode === 'formdata'" class="param-list">
+                    <div v-for="param in detailHistory.node.item.requestBody.formdata.filter(f => f.key)" :key="param._id" class="param-item">
+                      <span class="param-key">{{ param.key }}:</span>
+                      <span class="param-value">{{ param.value }}</span>
+                    </div>
+                  </div>
+
+                  <!-- URL-encoded Body -->
+                  <div v-else-if="detailHistory.node.item.requestBody.mode === 'urlencoded'" class="param-list">
+                    <div v-for="param in detailHistory.node.item.requestBody.urlencoded.filter(u => u.key)" :key="param._id" class="param-item">
+                      <span class="param-key">{{ param.key }}:</span>
+                      <span class="param-value">{{ param.value }}</span>
+                    </div>
+                  </div>
+
+                  <!-- Raw Body -->
+                  <pre v-else-if="detailHistory.node.item.requestBody.mode === 'raw'" class="raw-code">{{ detailHistory.node.item.requestBody.raw.data }}</pre>
+
+                  <!-- Binary Body -->
+                  <div v-else-if="detailHistory.node.item.requestBody.mode === 'binary'" class="binary-info">
+                    {{ t('二进制文件') }}: {{ detailHistory.node.item.requestBody.binary.binaryValue.path || detailHistory.node.item.requestBody.binary.varValue }}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 返回参数 -->
+          <div v-if="detailHistory.node.item.responseParams.length > 0" class="detail-section">
+            <div class="section-title">{{ t('返回参数') }}</div>
+            <div class="section-content">
+              <div v-for="response in detailHistory.node.item.responseParams" :key="response._id" class="info-group">
+                <div class="group-title">
+                  {{ response.statusCode }} - {{ response.title }}
+                </div>
+                <div class="body-content">
+                  <pre v-if="response.value.strJson" class="json-code">{{ response.value.strJson }}</pre>
+                  <pre v-else-if="response.value.text" class="raw-code">{{ response.value.text }}</pre>
+                  <div v-else class="empty-response">{{ t('无返回内容') }}</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </Teleport>
   </div>
 </template>
 <script lang="ts" setup>
@@ -143,7 +286,7 @@ import { webSocketNodeCache } from '@/cache/websocketNode/websocketNodeCache.ts'
 import { checkPropertyIsEqual } from '@/helper/index'
 import { debounce } from "lodash-es"
 import { useI18n } from 'vue-i18n'
-import { RefreshLeft, RefreshRight, Clock, Delete, Loading } from '@element-plus/icons-vue'
+import { RefreshLeft, RefreshRight, Clock, Delete, Loading, Close } from '@element-plus/icons-vue'
 import { LayoutGrid, Variable } from 'lucide-vue-next'
 import SParams from './params/Params.vue';
 import SRequestBody from './body/Body.vue';
@@ -180,6 +323,12 @@ const historyLoading = ref(false)
 const historyList = ref<HttpHistory[]>([])
 const historyButtonRef = ref<HTMLElement>()
 const historyDropdownRef = ref<HTMLElement>()
+// 历史记录详情相关
+const showHistoryDetail = ref(false)
+const detailHistory = ref<HttpHistory | null>(null)
+const hoverTimer = ref<number | null>(null)
+const hideTimer = ref<number | null>(null)
+const historyDetailRef = ref<HTMLElement>()
 // const mode = computed(() => apidocBaseInfoStore.mode)
 const hasQueryOrPathsParams = computed(() => {
   const { queryParams, paths } = apidocStore.apidoc.item;
@@ -415,6 +564,118 @@ const handleDeleteHistory = (history: HttpHistory): void => {
     }
   });
 };
+
+const handleClearAllHistory = (): void => {
+  ElMessageBox.confirm(
+    t('确定要清除所有历史记录吗？此操作不可恢复。'),
+    t('确认清除'),
+    {
+      confirmButtonText: t('确定清除'),
+      cancelButtonText: t('取消'),
+      type: 'warning'
+    }
+  ).then(() => {
+    if (!currentSelectTab.value) return;
+    // 获取所有历史记录的ID
+    const allHistoryIds = historyList.value.map(h => h._id);
+    httpNodeHistoryCache.deleteHttpHistoryByNode(currentSelectTab.value._id, allHistoryIds)
+      .then((success) => {
+        if (success) {
+          // 清空列表
+          historyList.value = [];
+          ElMessage.success(t('清除成功'));
+          // 关闭历史记录弹窗
+          showHistoryDropdown.value = false;
+        } else {
+          ElMessage.error(t('清除失败'));
+        }
+      })
+      .catch((error) => {
+        console.error('清除历史记录失败:', error);
+        ElMessage.error(t('清除失败'));
+      });
+  }).catch((error) => {
+    // 用户取消操作
+    if (error !== 'cancel' && error !== 'close') {
+      console.error('清除历史记录失败:', error);
+    }
+  });
+};
+
+// 历史记录项鼠标进入
+const handleHistoryItemMouseEnter = (history: HttpHistory): void => {
+  // 清除隐藏计时器
+  if (hideTimer.value !== null) {
+    clearTimeout(hideTimer.value);
+    hideTimer.value = null;
+  }
+
+  // 如果已经在显示同一个详情，不需要重新计时
+  if (showHistoryDetail.value && detailHistory.value?._id === history._id) {
+    return;
+  }
+
+  // 开始新的悬停计时
+  if (hoverTimer.value !== null) {
+    clearTimeout(hoverTimer.value);
+  }
+
+  hoverTimer.value = window.setTimeout(() => {
+    detailHistory.value = history;
+    showHistoryDetail.value = true;
+    hoverTimer.value = null;
+  }, 1000); // 1秒后显示
+};
+
+// 历史记录项鼠标离开
+const handleHistoryItemMouseLeave = (): void => {
+  // 清除悬停计时器
+  if (hoverTimer.value !== null) {
+    clearTimeout(hoverTimer.value);
+    hoverTimer.value = null;
+  }
+
+  // 延迟隐藏，给时间移到详情框
+  hideTimer.value = window.setTimeout(() => {
+    showHistoryDetail.value = false;
+    detailHistory.value = null;
+    hideTimer.value = null;
+  }, 300);
+};
+
+// 详情框鼠标进入
+const handleDetailMouseEnter = (): void => {
+  // 取消隐藏计时
+  if (hideTimer.value !== null) {
+    clearTimeout(hideTimer.value);
+    hideTimer.value = null;
+  }
+};
+
+// 详情框鼠标离开
+const handleDetailMouseLeave = (): void => {
+  // 延迟隐藏
+  hideTimer.value = window.setTimeout(() => {
+    showHistoryDetail.value = false;
+    detailHistory.value = null;
+    hideTimer.value = null;
+  }, 300);
+};
+
+// 关闭详情框
+const handleCloseDetail = (): void => {
+  showHistoryDetail.value = false;
+  detailHistory.value = null;
+  if (hoverTimer.value !== null) {
+    clearTimeout(hoverTimer.value);
+    hoverTimer.value = null;
+  }
+  if (hideTimer.value !== null) {
+    clearTimeout(hideTimer.value);
+    hideTimer.value = null;
+  }
+};
+
 const formatRelativeTime = (timestamp: number): string => {
   const now = Date.now();
   const diff = now - timestamp;
@@ -652,6 +913,15 @@ onMounted(() => {
 onUnmounted(() => {
   document.documentElement.removeEventListener('click', handleCloseHook)
   document.removeEventListener('click', handleClickOutside)
+  // 清理计时器
+  if (hoverTimer.value !== null) {
+    clearTimeout(hoverTimer.value)
+    hoverTimer.value = null
+  }
+  if (hideTimer.value !== null) {
+    clearTimeout(hideTimer.value)
+    hideTimer.value = null
+  }
 })
 </script>
 <style lang='scss' scoped>
@@ -810,13 +1080,44 @@ onUnmounted(() => {
         
         .history-actions {
           opacity: 0;
-          
+
           .delete-icon {
             cursor: pointer;
             border-radius: 4px;
             &:hover {
               color: var(--red);
             }
+          }
+        }
+      }
+
+      .history-footer {
+        border-top: 1px solid var(--gray-200);
+        padding: 12px 16px;
+        background: var(--white);
+
+        .clear-all-btn {
+          width: 100%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 6px;
+          padding: 8px 16px;
+          font-size: 13px;
+          color: #f56c6c;
+          background: transparent;
+          border: 1px solid #f56c6c;
+          border-radius: 4px;
+          cursor: pointer;
+          transition: all 0.2s;
+
+          &:hover {
+            background: rgba(245, 108, 108, 0.1);
+            border-color: #f56c6c;
+          }
+
+          &:active {
+            background: rgba(245, 108, 108, 0.15);
           }
         }
       }
@@ -852,6 +1153,218 @@ onUnmounted(() => {
   }
   to {
     transform: rotate(360deg);
+  }
+}
+
+// 历史记录详情框样式
+.history-detail-panel {
+  position: fixed;
+  right: 20px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 400px;
+  max-height: 80vh;
+  background: var(--white);
+  border: 1px solid var(--gray-300);
+  border-radius: 8px;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+  z-index: calc(var(--zIndex-history-dropdown) + 1);
+  display: flex;
+  flex-direction: column;
+  animation: detailFadeIn 150ms ease-out;
+
+  .detail-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px;
+    border-bottom: 1px solid var(--gray-200);
+    background: var(--gray-50);
+    border-radius: 8px 8px 0 0;
+
+    .detail-title {
+      font-size: 15px;
+      font-weight: 500;
+      color: var(--gray-800);
+    }
+
+    .close-icon {
+      cursor: pointer;
+      font-size: 18px;
+      color: var(--gray-500);
+      transition: color 0.2s;
+
+      &:hover {
+        color: var(--gray-800);
+      }
+    }
+  }
+
+  .detail-content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 16px;
+
+    .detail-section {
+      margin-bottom: 20px;
+
+      &:last-child {
+        margin-bottom: 0;
+      }
+
+      .section-title {
+        font-size: 14px;
+        font-weight: 600;
+        color: var(--gray-800);
+        margin-bottom: 12px;
+        padding-bottom: 8px;
+        border-bottom: 1px solid var(--gray-200);
+      }
+
+      .section-content {
+        .info-row {
+          display: flex;
+          align-items: flex-start;
+          margin-bottom: 8px;
+          font-size: 13px;
+
+          .info-label {
+            min-width: 80px;
+            color: var(--gray-600);
+            font-weight: 500;
+          }
+
+          .info-value {
+            flex: 1;
+            color: var(--gray-800);
+            word-break: break-all;
+
+            &.method-tag {
+              display: inline-block;
+              padding: 2px 8px;
+              border-radius: 4px;
+              font-weight: 600;
+              font-size: 12px;
+
+              &.get {
+                background: #e1f5fe;
+                color: #0277bd;
+              }
+
+              &.post {
+                background: #e8f5e9;
+                color: #2e7d32;
+              }
+
+              &.put {
+                background: #fff3e0;
+                color: #ef6c00;
+              }
+
+              &.delete {
+                background: #ffebee;
+                color: #c62828;
+              }
+
+              &.patch {
+                background: #f3e5f5;
+                color: #6a1b9a;
+              }
+            }
+
+            &.url-text {
+              font-family: 'Consolas', 'Monaco', monospace;
+              font-size: 12px;
+            }
+          }
+        }
+
+        .info-group {
+          margin-top: 12px;
+
+          .group-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--gray-700);
+            margin-bottom: 8px;
+            padding: 6px 10px;
+            background: var(--gray-100);
+            border-radius: 4px;
+          }
+
+          .param-list {
+            padding-left: 10px;
+
+            .param-item {
+              display: flex;
+              align-items: flex-start;
+              margin-bottom: 6px;
+              font-size: 12px;
+
+              .param-key {
+                min-width: 120px;
+                color: var(--gray-700);
+                font-weight: 500;
+                font-family: 'Consolas', 'Monaco', monospace;
+              }
+
+              .param-value {
+                flex: 1;
+                color: var(--gray-600);
+                word-break: break-all;
+                font-family: 'Consolas', 'Monaco', monospace;
+              }
+            }
+          }
+
+          .body-content {
+            padding-left: 10px;
+
+            .json-code,
+            .raw-code {
+              background: var(--gray-50);
+              border: 1px solid var(--gray-200);
+              border-radius: 4px;
+              padding: 10px;
+              font-size: 12px;
+              font-family: 'Consolas', 'Monaco', monospace;
+              color: var(--gray-800);
+              overflow-x: auto;
+              max-height: 300px;
+              line-height: 1.5;
+              white-space: pre-wrap;
+              word-break: break-all;
+            }
+
+            .binary-info {
+              padding: 8px 10px;
+              background: var(--gray-100);
+              border-radius: 4px;
+              font-size: 12px;
+              color: var(--gray-700);
+            }
+
+            .empty-response {
+              padding: 8px 10px;
+              color: var(--gray-500);
+              font-size: 12px;
+              text-align: center;
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+@keyframes detailFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-45%);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(-50%);
   }
 }
 </style>
