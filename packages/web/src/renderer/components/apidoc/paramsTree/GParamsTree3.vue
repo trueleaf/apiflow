@@ -1,15 +1,15 @@
 <template>
   <el-tree
-    ref="tree"
+    ref="treeRef"
     :data="localData"
     :indent="50"
     node-key="_id"
     :expand-on-click-node="false"
     :draggable="enableDrag"
     :allow-drop="handleAllowDrop"
-    :show-checkbox="true"
+    :show-checkbox="showCheckbox"
     :check-on-click-leaf="false"
-    :default-checked-keys="checkedKeys"
+    :default-checked-keys="defaultCheckedKeys"
     @node-drop="handleNodeDrop"
     @check-change="handleCheckChange"
   >
@@ -172,7 +172,7 @@
   </el-tree>
 </template>
 <script lang="ts" setup>
-import { ref, Ref, watch, computed } from 'vue';
+import { ref, Ref, watch } from 'vue';
 import { Close, Switch } from '@element-plus/icons-vue';
 import type Node from 'element-plus/es/components/tree/src/model/node';
 import type { ApidocProperty } from '@src/types';
@@ -181,14 +181,18 @@ import { useI18n } from 'vue-i18n';
 import SMock from '@/components/apidoc/mock/GMock.vue';
 import { config } from '@src/config/config';
 
-const props = defineProps<{ 
+const props = withDefaults(defineProps<{
   data: ApidocProperty<'string' | 'file'>[];
   enableFile?: boolean;
   mindKeyParams?: ApidocProperty[];
-}>();
+  showCheckbox?: boolean;
+}>(), {
+  showCheckbox: true,
+});
 const emits = defineEmits<{ (e: 'change', value: ApidocProperty<'string' | 'file'>[]): void }>();
 const { t } = useI18n();
 
+const treeRef = ref();
 const localData: Ref<ApidocProperty<'string' | 'file'>[]> = ref([]);
 const enableDrag = ref(true);
 const currentOpData: Ref<ApidocProperty<'string' | 'file'> | null> = ref(null);
@@ -199,7 +203,7 @@ const valueTextarea = ref();
 const currentSuggestions = ref<ApidocProperty[]>([]);
 const highlightedIndex = ref(-1);
 const hasUserInput = ref(false);
-const checkedKeys = computed(() => localData.value.filter(v => v.select).map(v => v._id));
+const defaultCheckedKeys = ref<string[]>([]);
 const emitChange = () => {
   emits('change', localData.value);
 };
@@ -212,14 +216,20 @@ const highlightText = (text: string, query: string): string => {
 
 watch(
   () => props.data,
-  v => {
-    if (!v) {
+  (newVal) => {
+    if (!newVal) {
       return;
     }
-    localData.value = v.map(i => ({ ...i }));
+    // 如果props.data就是localData.value（引用相同），说明是通过emit回传的，跳过更新
+    if (newVal === localData.value) {
+      return;
+    }
+    localData.value = newVal.map(i => ({ ...i }));
     if (localData.value.length === 0) {
       localData.value.push(apidocGenerateProperty<'string'>());
     }
+    // 更新默认选中keys
+    defaultCheckedKeys.value = localData.value.filter(item => item.select).map(item => item._id);
   },
   { deep: true, immediate: true },
 );

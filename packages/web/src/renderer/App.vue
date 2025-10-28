@@ -276,7 +276,6 @@ onMounted(() => {
 
   // 等待 topBar 就绪后再初始化和绑定事件
   window.electronAPI?.ipcManager.onMain(IPC_EVENTS.APIFLOW.RENDERER_TO_MAIN.TOPBAR_IS_READY, async () => {
-    console.log('topBar 已就绪，开始绑定事件和初始化 Tabs');
     bindTopBarEvent();
     await initHeaderTabs();
     // 等待路由就绪
