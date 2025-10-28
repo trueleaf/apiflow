@@ -36,6 +36,7 @@
             @update:modelValue="(v: string | number) => handleChangeKey(String(v), data)"
             @focus="handleDisableDrag()"
             @blur="handleEnableDrag()"
+            @keydown="(e: any) => handleKeyDown(e, data)"
           >
             <template #default="{ item }">
               <div class="autocomplete-item">
@@ -195,6 +196,8 @@ const expandedInputs = ref<Record<string, { value: boolean, description: boolean
 const currentKeyQuery = ref('');
 const focusedValueId = ref<string>('');
 const valueTextarea = ref();
+const currentSuggestions = ref<ApidocProperty[]>([]);
+const highlightedIndex = ref(-1);
 const checkedKeys = computed(() => localData.value.filter(v => v.select).map(v => v._id));
 const emitChange = () => {
   emits('change', localData.value);
@@ -388,24 +391,70 @@ const handleCheckChange = (data: ApidocProperty<'string' | 'file'>, select: bool
 const querySearchKey = (queryString: string, cb: (results: ApidocProperty[]) => void) => {
   if (!props.mindKeyParams || props.mindKeyParams.length === 0) {
     cb([]);
+    currentSuggestions.value = [];
+    highlightedIndex.value = -1;
     return;
   }
   const query = (queryString || '').trim();
   if (!query) {
     currentKeyQuery.value = '';
     cb([]);
+    currentSuggestions.value = [];
+    highlightedIndex.value = -1;
     return;
   }
   currentKeyQuery.value = query;
   const lowerQuery = query.toLowerCase();
   const results = props.mindKeyParams.filter(item => item.key.toLowerCase().includes(lowerQuery) || (item.description || '').toLowerCase().includes(lowerQuery));
-  cb(results.slice(0, 10));
+  currentSuggestions.value = results.slice(0, 10);
+  highlightedIndex.value = -1;
+  cb(currentSuggestions.value);
 };
 // 处理参数名称选中事件
 const handleSelectKey = (item: ApidocProperty, data: ApidocProperty<'string' | 'file'>) => {
   data.key = item.key;
+  data.description = item.description || '';
   autoAppendIfNeeded(data);
   emitChange();
+};
+// Tab键自动填充函数
+const handleTabComplete = (data: ApidocProperty<'string' | 'file'>) => {
+  if (currentSuggestions.value.length === 0) {
+    return;
+  }
+  const targetIndex = highlightedIndex.value >= 0 && highlightedIndex.value < currentSuggestions.value.length 
+    ? highlightedIndex.value 
+    : 0;
+  const selectedItem = currentSuggestions.value[targetIndex];
+  if (selectedItem) {
+    data.key = selectedItem.key;
+    data.description = selectedItem.description || '';
+    autoAppendIfNeeded(data);
+    emitChange();
+  }
+};
+// 键盘事件处理函数
+const handleKeyDown = (e: KeyboardEvent, data: ApidocProperty<'string' | 'file'>) => {
+  if (e.key === 'Tab') {
+    if (currentSuggestions.value.length > 0) {
+      e.preventDefault();
+      handleTabComplete(data);
+    }
+  } else if (e.key === 'ArrowUp') {
+    if (currentSuggestions.value.length > 0) {
+      highlightedIndex.value = highlightedIndex.value <= 0 
+        ? currentSuggestions.value.length - 1 
+        : highlightedIndex.value - 1;
+    }
+  } else if (e.key === 'ArrowDown') {
+    if (currentSuggestions.value.length > 0) {
+      highlightedIndex.value = highlightedIndex.value >= currentSuggestions.value.length - 1 
+        ? 0 
+        : highlightedIndex.value + 1;
+    }
+  } else if (e.key !== 'Enter') {
+    highlightedIndex.value = -1;
+  }
 };
 </script>
 <style lang='scss' scoped>
