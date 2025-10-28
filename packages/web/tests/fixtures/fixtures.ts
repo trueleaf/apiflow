@@ -59,7 +59,7 @@ export const initOfflineWorkbench = async (
     timeout?: number;
   } = {}
 ): Promise<HeaderAndContentPages> => {
-  const { clearStorage = false, timeout = 10000 } = options;
+  const { clearStorage = true, timeout = 10000 } = options;
   
   const pages = await getPages(electronApp);
   const { headerPage, contentPage } = pages;
