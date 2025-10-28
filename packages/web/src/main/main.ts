@@ -128,25 +128,44 @@ if (!gotTheLock) {
 
   app.whenReady().then(() => {
     protocol.handle('app', async (request) => {
+      const originalUrl = request.url;
       let url = request.url.slice(6);
+      // 移除 URL 查询参数（如 ?t=1758346084498）
+      const queryIndex = url.indexOf('?');
+      if (queryIndex !== -1) {
+        url = url.slice(0, queryIndex);
+      }
+      // 移除尾部斜杠
       if (url.endsWith('/')) {
         url = url.slice(0, -1);
       }
+      // 处理从 header.html 或 index.html 开始的路径
       url = url.replace(/^(header|index)\.html\//, '');
       
       let filePath = path.join(__dirname, '../renderer', url);
       filePath = path.normalize(filePath);
       
+      // 处理静态资源文件（包括字体文件）
       if (/\.(js|css|png|jpg|jpeg|gif|svg|woff|woff2|ttf|eot|ico|json|mjs|map)$/i.test(filePath)) {
         if (fs.existsSync(filePath)) {
+          // 仅在加载字体文件时输出日志（便于调试）
+          if (/\.(woff|woff2|ttf|eot)$/i.test(filePath)) {
+            console.log(`[Font] Loading: ${originalUrl} -> ${filePath}`);
+          }
           return net.fetch(`file://${filePath}`);
         } else {
+          // 文件未找到时输出警告
+          if (/\.(woff|woff2|ttf|eot)$/i.test(filePath)) {
+            console.warn(`[Font] Not found: ${originalUrl} -> ${filePath}`);
+          }
           return new Response('Not Found', { status: 404 });
         }
       }
+      // 处理 HTML 文件
       if (filePath.endsWith('.html') && fs.existsSync(filePath)) {
         return net.fetch(`file://${filePath}`);
       }
+      // 默认返回 index.html（用于 SPA 路由）
       const indexPath = path.join(__dirname, '../renderer/index.html');
       return net.fetch(`file://${indexPath}`);
     });
