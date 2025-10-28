@@ -166,7 +166,8 @@ const { t } = useI18n()
 }
 
 .sse-editor-wrapper {
-  flex: 1;
+  height: 200px;
+  min-height: 100px;
   border: 1px solid var(--gray-300);
   border-radius: var(--border-radius-sm);
   overflow: hidden;
