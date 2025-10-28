@@ -63,7 +63,7 @@
       <pre class="raw-data" v-html="rawDataContent"></pre>
     </div>
     <!-- 虚拟滚动视图 -->
-    <GVirtualScroll v-else class="sse-content" :items="displayData" :auto-scroll="true" :virtual="isDataComplete"
+    <GVirtualScroll v-else class="sse-content" :items="displayData" :auto-scroll="true" :virtual="isVirtualEnabled"
       :item-height="25">
       <template #default="{ item }">
         <div :ref="el => setMessageRef(el, item.originalIndex)" class="sse-message"
@@ -83,7 +83,7 @@
       :visible="activePopoverIndex !== -1"
       :message="currentMessage"
       :message-index="activePopoverIndex"
-      :virtual-ref="currentMessageRef"
+  :virtual-ref="popoverVirtualRef"
       @hide="handlePopoverHide"
       @close="handleClosePopover"
     />
@@ -93,7 +93,8 @@
 <script lang="ts" setup>
 import { downloadStringAsText } from '@/helper';
 import { debounce } from "lodash-es";
-import { computed, ref, onMounted, onBeforeUnmount, nextTick } from 'vue';
+import { computed, ref, onMounted, onBeforeUnmount, nextTick, watch } from 'vue';
+import type { ComponentPublicInstance } from 'vue';
 import { parseChunkList } from '@/helper';
 import dayjs from 'dayjs';
 import type { ChunkWithTimestampe } from '@src/types/index.ts';
@@ -126,6 +127,8 @@ const filterInputRef = ref<HTMLInputElement | null>(null);
 const isSearchInputVisible = ref(false);
 // 视图相关
 const isRawView = ref(false);
+const popoverVirtualRef = ref<HTMLElement | null>(null);
+const isVirtualEnabled = computed(() => props.isDataComplete && activePopoverIndex.value === -1);
 // 切换原始视图模式
 const toggleRawView = () => {
   isRawView.value = !isRawView.value;
@@ -194,14 +197,9 @@ const downloadData = () => {
   }
 
   try {
-    // 生成原始返回数据内容
     const rawContent = generateRawContent();
-
-    // 生成文件名
     const timestamp = dayjs().format('YYYY-MM-DD_HH-mm-ss');
     const fileName = `sse-raw-data_${timestamp}.txt`;
-
-    // 使用downloadStringAsText方法下载
     downloadStringAsText(rawContent, fileName);
   } catch (error) {
     console.error('下载失败:', error);
@@ -318,11 +316,33 @@ const displayData = computed(() => filterText.value.trim() ? filteredData.value 
 */
 const activePopoverIndex = ref<number>(-1);
 const messageRefs = ref<Record<number, HTMLElement>>({});
-const currentMessageRef = computed(() => activePopoverIndex.value !== -1 ? messageRefs.value[activePopoverIndex.value] : null);
 const currentMessage = computed(() => activePopoverIndex.value !== -1 ? formattedData.value[activePopoverIndex.value] : null);
-const setMessageRef = (el: any, index: number) => {
-  if (el && el instanceof HTMLElement) {
-    messageRefs.value[index] = el;
+const resolveMessageElement = (node: Element | ComponentPublicInstance | null): HTMLElement | null => {
+  if (!node) {
+    return null;
+  }
+  if (node instanceof HTMLElement) {
+    return node;
+  }
+  const component = node as ComponentPublicInstance;
+  if (component.$el instanceof HTMLElement) {
+    return component.$el;
+  }
+  return null;
+};
+
+const setMessageRef = (el: Element | ComponentPublicInstance | null, index: number) => {
+  const element = resolveMessageElement(el);
+  if (!element) {
+    delete messageRefs.value[index];
+    if (index === activePopoverIndex.value) {
+      popoverVirtualRef.value = null;
+    }
+    return;
+  }
+  messageRefs.value[index] = element;
+  if (index === activePopoverIndex.value) {
+    popoverVirtualRef.value = element;
   }
 };
 
@@ -340,11 +360,13 @@ const handleMessageClick = debounce((index: number, event: Event) => {
 // 处理 popover 隐藏事件
 const handlePopoverHide = () => {
   activePopoverIndex.value = -1;
+  popoverVirtualRef.value = null;
 };
 
 // 关闭 popover
 const handleClosePopover = () => {
   activePopoverIndex.value = -1;
+  popoverVirtualRef.value = null;
 };
 
 // 处理点击外部区域关闭 popover
@@ -423,6 +445,35 @@ const cleanup = () => {
 };
 // 定期清理
 const cleanupInterval = setInterval(cleanup, 30000); // 每30秒清理一次
+
+const syncPopoverRef = () => {
+  if (activePopoverIndex.value === -1) {
+    popoverVirtualRef.value = null;
+    return;
+  }
+  nextTick(() => {
+    const target = messageRefs.value[activePopoverIndex.value];
+    popoverVirtualRef.value = target ?? null;
+  });
+};
+
+watch(() => props.dataList.length, () => {
+  if (activePopoverIndex.value === -1) {
+    return;
+  }
+  syncPopoverRef();
+});
+
+watch(() => props.isDataComplete, () => {
+  if (activePopoverIndex.value === -1) {
+    return;
+  }
+  syncPopoverRef();
+});
+
+watch(activePopoverIndex, () => {
+  syncPopoverRef();
+});
 
 onMounted(() => {
   document.addEventListener('click', handleClickOutside);
