@@ -1,12 +1,6 @@
 import { expect, type Page } from '@playwright/test';
-import { test, initOfflineWorkbench, navigateToAiSettings, saveAiConfig } from '../fixtures/ai.fixture';
-import type { ElectronAPI } from '@src/types/main';
-// 扩展 Window 类型用于测试
-declare global {
-  interface Window {
-    electronAPI?: ElectronAPI;
-  }
-}
+import { test, initOfflineWorkbench } from '../../../fixtures/fixtures';
+import { navigateToAiSettings, saveAiConfig } from '../fixtures/ai.fixture';
 // AI 功能测试
 test.describe('AI 功能测试', () => {
   let headerPage: Page;

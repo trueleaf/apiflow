@@ -1,15 +1,10 @@
 import { expect, type ElectronApplication, type Page } from '@playwright/test';
 import { test, getPages } from '../../../fixtures/fixtures';
+import type { ProjectInfo } from '../../../types/test.type';
 
 // ==================== 辅助函数 ====================
 
 // 创建测试项目
-// 定义项目信息类型
-type ProjectInfo = {
-  name: string;
-  id?: string;
-};
-
 // 创建测试项目并返回项目信息
 // 注意：创建项目后会自动跳转到 doc-edit 页面
 const createTestProject = async (headerPage: Page, contentPage: Page, projectName: string): Promise<ProjectInfo> => {

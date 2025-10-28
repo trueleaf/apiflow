@@ -1,4 +1,3 @@
-import { test, expect, getPages, initOfflineWorkbench } from '../../../fixtures/fixtures';
 import type { Page } from '@playwright/test';
 // 导航到AI设置页面
 export const navigateToAiSettings = async (
@@ -23,5 +22,3 @@ export const saveAiConfig = async (
   await contentPage.locator('button:has-text("保存配置")').click();
   await contentPage.waitForTimeout(500);
 };
-// 重新导出通用功能，方便AI测试一站式导入
-export { test, expect, getPages, initOfflineWorkbench };

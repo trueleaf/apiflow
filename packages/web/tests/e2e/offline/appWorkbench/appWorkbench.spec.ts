@@ -1,93 +1,49 @@
 import { expect, type ElectronApplication, type Page } from '@playwright/test';
-import { test, getPages } from '../../../fixtures/fixtures';
+import { test, initOfflineWorkbench } from '../../../fixtures/fixtures';
 import {
   setupIPCListener,
   getCapturedIPCEvents,
   triggerIPCEvent,
 } from '../fixtures/appWorkbench.fixture';
-
-// ==================== 辅助函数 ====================
-
-/**
- * 初始化测试环境
- */
-const initTestEnvironment = async (headerPage: Page, contentPage: Page) => {
-  // 设置离线模式
-  await contentPage.evaluate(() => {
-    localStorage.setItem('runtime/networkMode', 'offline');
-    localStorage.setItem('history/lastVisitePage', '/home');
-    localStorage.setItem('language', 'zh-cn');
-  });
-
-  // 导航到首页
-  await contentPage.goto('/#/home');
-  await contentPage.waitForLoadState('domcontentloaded');
-  await headerPage.waitForLoadState('domcontentloaded');
-  await contentPage.waitForTimeout(1000);
-};
-
-/**
- * 创建测试标签数据
- */
+// 创建测试标签数据
 const createTestTab = (id: string, title: string, type: 'project' | 'settings', network: 'online' | 'offline' = 'offline') => ({
   id,
   title,
   type,
   network,
 });
-
-/**
- * 设置 Header 标签数据到 localStorage
- */
-const setHeaderTabs = async (headerPage: Page, tabs: any[]) => {
+// 设置 Header 标签数据到 localStorage
+const setHeaderTabs = async (headerPage: Page, tabs: Record<string, unknown>[]) => {
   await headerPage.evaluate((tabsData) => {
     localStorage.setItem('features/header/tabs', JSON.stringify(tabsData));
   }, tabs);
 };
-
-/**
- * 设置激活的 Header 标签
- */
+// 设置激活的 Header 标签
 const setActiveHeaderTab = async (headerPage: Page, tabId: string) => {
   await headerPage.evaluate((id) => {
     localStorage.setItem('features/header/activeTab', id);
   }, tabId);
 };
-
-/**
- * 获取所有 Header 标签元素
- */
+// 获取所有 Header 标签元素
 const getAllHeaderTabs = (headerPage: Page) => {
   return headerPage.locator('.s-header .tabs .tab-item');
 };
-
-/**
- * 获取激活的 Header 标签
- */
+// 获取激活的 Header 标签
 const getActiveHeaderTab = (headerPage: Page) => {
   return headerPage.locator('.s-header .tabs .tab-item.active');
 };
-
-/**
- * 通过标题获取 Header 标签
- */
+// 通过标题获取 Header 标签
 const getHeaderTabByTitle = (headerPage: Page, title: string) => {
   return headerPage.locator(`.s-header .tabs .tab-item:has-text("${title}")`);
 };
-
-/**
- * 点击 Header 标签
- */
+// 点击 Header 标签
 const clickHeaderTab = async (headerPage: Page, title: string) => {
   const tab = getHeaderTabByTitle(headerPage, title);
   await tab.waitFor({ state: 'visible', timeout: 5000 });
   await tab.click();
   await headerPage.waitForTimeout(300);
 };
-
-/**
- * 关闭 Header 标签
- */
+// 关闭 Header 标签
 const closeHeaderTab = async (headerPage: Page, title: string) => {
   const tab = getHeaderTabByTitle(headerPage, title);
   await tab.hover();
@@ -96,19 +52,24 @@ const closeHeaderTab = async (headerPage: Page, title: string) => {
   await closeBtn.click();
   await headerPage.waitForTimeout(300);
 };
-
-// ==================== 测试套件 ====================
-
-// ==================== 1. 基础布局和显示测试 ====================
+/*
+|--------------------------------------------------------------------------
+| 应用工作台 Header 测试
+|--------------------------------------------------------------------------
+*/
+/*
+|--------------------------------------------------------------------------
+| 第一部分：基础布局和显示测试
+|--------------------------------------------------------------------------
+*/
 test.describe('应用工作台 Header - 基础布局和显示', () => {
   let headerPage: Page;
   let contentPage: Page;
 
   test.beforeEach(async ({ electronApp }) => {
-    const result = await getPages(electronApp);
+    const result = await initOfflineWorkbench(electronApp);
     headerPage = result.headerPage;
     contentPage = result.contentPage;
-    await initTestEnvironment(headerPage, contentPage);
   });
 
   test('Header 组件应正常显示', async () => {
@@ -166,17 +127,19 @@ test.describe('应用工作台 Header - 基础布局和显示', () => {
     }
   });
 });
-
-// ==================== 2. Logo 和 Home 功能测试 ====================
+/*
+|--------------------------------------------------------------------------
+| 第二部分：Logo 和 Home 功能测试
+|--------------------------------------------------------------------------
+*/
 test.describe('应用工作台 Header - Logo 和 Home 功能', () => {
   let headerPage: Page;
   let contentPage: Page;
 
   test.beforeEach(async ({ electronApp }) => {
-    const result = await getPages(electronApp);
+    const result = await initOfflineWorkbench(electronApp);
     headerPage = result.headerPage;
     contentPage = result.contentPage;
-    await initTestEnvironment(headerPage, contentPage);
     await setupIPCListener(headerPage);
   });
 
@@ -216,17 +179,19 @@ test.describe('应用工作台 Header - Logo 和 Home 功能', () => {
     await expect(homeBtn).toHaveClass(/active/);
   });
 });
-
-// ==================== 3. 标签页基础功能测试 ====================
+/*
+|--------------------------------------------------------------------------
+| 第三部分：标签页基础功能测试
+|--------------------------------------------------------------------------
+*/
 test.describe('应用工作台 Header - 标签页基础功能', () => {
   let headerPage: Page;
   let contentPage: Page;
 
   test.beforeEach(async ({ electronApp }) => {
-    const result = await getPages(electronApp);
+    const result = await initOfflineWorkbench(electronApp);
     headerPage = result.headerPage;
     contentPage = result.contentPage;
-    await initTestEnvironment(headerPage, contentPage);
   });
 
   test('初始状态应无标签页显示', async () => {
@@ -425,17 +390,19 @@ test.describe('应用工作台 Header - 标签页基础功能', () => {
     expect(title).toBe('Test Project');
   });
 });
-
-// ==================== 4. 标签页高级功能测试 ====================
+/*
+|--------------------------------------------------------------------------
+| 第四部分：标签页高级功能测试
+|--------------------------------------------------------------------------
+*/
 test.describe('应用工作台 Header - 标签页高级功能', () => {
   let headerPage: Page;
   let contentPage: Page;
 
   test.beforeEach(async ({ electronApp }) => {
-    const result = await getPages(electronApp);
+    const result = await initOfflineWorkbench(electronApp);
     headerPage = result.headerPage;
     contentPage = result.contentPage;
-    await initTestEnvironment(headerPage, contentPage);
   });
 
   test('应能拖拽标签调整顺序', async () => {
@@ -591,17 +558,19 @@ test.describe('应用工作台 Header - 标签页高级功能', () => {
     expect(storedTabs[0].title).toBe('Test Project');
   });
 });
-
-// ==================== 5. 导航控制功能测试 ====================
+/*
+|--------------------------------------------------------------------------
+| 第五部分：导航控制功能测试
+|--------------------------------------------------------------------------
+*/
 test.describe('应用工作台 Header - 导航控制功能', () => {
   let headerPage: Page;
   let contentPage: Page;
 
   test.beforeEach(async ({ electronApp }) => {
-    const result = await getPages(electronApp);
+    const result = await initOfflineWorkbench(electronApp);
     headerPage = result.headerPage;
     contentPage = result.contentPage;
-    await initTestEnvironment(headerPage, contentPage);
     await setupIPCListener(headerPage);
   });
 
@@ -669,17 +638,19 @@ test.describe('应用工作台 Header - 导航控制功能', () => {
     await expect(userCenterTab).toHaveClass(/active/);
   });
 });
-
-// ==================== 6. 语言切换功能测试 ====================
+/*
+|--------------------------------------------------------------------------
+| 第六部分：语言切换功能测试
+|--------------------------------------------------------------------------
+*/
 test.describe('应用工作台 Header - 语言切换功能', () => {
   let headerPage: Page;
   let contentPage: Page;
 
   test.beforeEach(async ({ electronApp }) => {
-    const result = await getPages(electronApp);
+    const result = await initOfflineWorkbench(electronApp);
     headerPage = result.headerPage;
     contentPage = result.contentPage;
-    await initTestEnvironment(headerPage, contentPage);
   });
 
   test('语言按钮应显示当前语言（中/繁/EN/JP）', async () => {
@@ -760,17 +731,19 @@ test.describe('应用工作台 Header - 语言切换功能', () => {
     expect(text).toBe('JP');
   });
 });
-
-// ==================== 7. 网络模式切换功能测试 ====================
+/*
+|--------------------------------------------------------------------------
+| 第七部分：网络模式切换功能测试
+|--------------------------------------------------------------------------
+*/
 test.describe('应用工作台 Header - 网络模式切换功能', () => {
   let headerPage: Page;
   let contentPage: Page;
 
   test.beforeEach(async ({ electronApp }) => {
-    const result = await getPages(electronApp);
+    const result = await initOfflineWorkbench(electronApp);
     headerPage = result.headerPage;
     contentPage = result.contentPage;
-    await initTestEnvironment(headerPage, contentPage);
   });
 
   test('网络模式按钮应正确显示', async () => {
@@ -852,17 +825,19 @@ test.describe('应用工作台 Header - 网络模式切换功能', () => {
     expect(storedMode).toBe('online');
   });
 });
-
-// ==================== 8. 窗口控制功能测试 ====================
+/*
+|--------------------------------------------------------------------------
+| 第八部分：窗口控制功能测试
+|--------------------------------------------------------------------------
+*/
 test.describe('应用工作台 Header - 窗口控制功能', () => {
   let headerPage: Page;
   let contentPage: Page;
 
   test.beforeEach(async ({ electronApp }) => {
-    const result = await getPages(electronApp);
+    const result = await initOfflineWorkbench(electronApp);
     headerPage = result.headerPage;
     contentPage = result.contentPage;
-    await initTestEnvironment(headerPage, contentPage);
   });
 
   test('最小化按钮应正确显示', async () => {
@@ -956,17 +931,19 @@ test.describe('应用工作台 Header - 窗口控制功能', () => {
     expect(backgroundColor).toBeTruthy();
   });
 });
-
-// ==================== 9. IPC 事件通信测试 ====================
+/*
+|--------------------------------------------------------------------------
+| 第九部分：IPC 事件通信测试
+|--------------------------------------------------------------------------
+*/
 test.describe('应用工作台 Header - IPC 事件通信', () => {
   let headerPage: Page;
   let contentPage: Page;
 
   test.beforeEach(async ({ electronApp }) => {
-    const result = await getPages(electronApp);
+    const result = await initOfflineWorkbench(electronApp);
     headerPage = result.headerPage;
     contentPage = result.contentPage;
-    await initTestEnvironment(headerPage, contentPage);
     await setupIPCListener(headerPage);
   });
 

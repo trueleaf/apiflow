@@ -123,3 +123,13 @@ export interface TabData {
   saved?: boolean;
   fixed?: boolean;
 }
+
+// ==================== 全局类型扩展 ====================
+
+import type { ElectronAPI } from '@src/types/main';
+
+declare global {
+  interface Window {
+    electronAPI?: ElectronAPI;
+  }
+}
