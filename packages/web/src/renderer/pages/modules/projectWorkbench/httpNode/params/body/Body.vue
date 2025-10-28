@@ -12,8 +12,8 @@
       </el-radio-group>
     </div>
     <div v-if="bodyType === 'json' || bodyType === 'formdata' || bodyType === 'urlencoded'" class="params-wrap" @click="handleFocus">
-      <SJsonEditor v-show="bodyType === 'json'" ref="jsonComponent" v-model="rawJsonData" :config="jsonEditorConfig"
-        class="json-wrap" @ready="handleJsonEditorReady" @change="checkContentType"></SJsonEditor>
+      <SJsonEditor v-show="bodyType === 'json'" ref="jsonComponent" manual-undo-redo :model-value="rawJsonData" :config="jsonEditorConfig"
+        class="json-wrap" @ready="handleJsonEditorReady" @update:model-value="handleJsonChange" @undo="handleEditorUndo" @redo="handleEditorRedo"></SJsonEditor>
       <SParamsTree v-if="bodyType === 'formdata'" enable-file show-checkbox :data="formData"
         @change="handleFormdataChange"></SParamsTree>
       <SParamsTree v-if="bodyType === 'urlencoded'" show-checkbox :data="urlencodedData"
@@ -99,6 +99,7 @@ import { useHttpRedoUndo } from '@/store/redoUndo/httpRedoUndoStore'
 import { useApidocTas } from '@/store/apidoc/tabsStore'
 import { router } from '@/router'
 import { debounce, cloneDeep } from 'lodash-es'
+import type * as Monaco from 'monaco-editor/esm/vs/editor/editor.api'
 
 const bodyTipUrl = new URL('@/assets/imgs/apidoc/body-tip.png', import.meta.url).href
 const rawEditor = ref<InstanceType<typeof SJsonEditor> | null>(null)
@@ -113,6 +114,8 @@ const currentSelectTab = computed(() => {
 const jsonComponent: Ref<null | {
   format: () => void,
   focus: () => void,
+  getCursorPosition?: () => Monaco.Position | null,
+  setCursorPosition?: (position: Monaco.Position) => void,
 }> = ref(null)
 //根据参数内容校验对应的contentType值
 const checkContentType = () => {
@@ -193,6 +196,37 @@ const rawJsonData = computed<string>({
     apidocStore.changeRawJson(val);
   }
 })
+//处理JSON内容变化
+const handleJsonChange = (newValue: string) => {
+  const oldValue = apidocStore.apidoc.item.requestBody.rawJson;
+  apidocStore.changeRawJson(newValue);
+  debouncedRecordJsonOperation(oldValue, newValue);
+  checkContentType();
+}
+//处理编辑器undo
+const handleEditorUndo = () => {
+  const nodeId = currentSelectTab.value?._id;
+  if (nodeId) {
+    const result = httpRedoUndoStore.httpUndo(nodeId);
+    if (result.code === 0 && result.operation?.type === 'rawJsonOperation') {
+      if (result.operation.cursorPosition) {
+        jsonComponent.value?.setCursorPosition?.(result.operation.cursorPosition);
+      }
+    }
+  }
+}
+//处理编辑器redo
+const handleEditorRedo = () => {
+  const nodeId = currentSelectTab.value?._id;
+  if (nodeId) {
+    const result = httpRedoUndoStore.httpRedo(nodeId);
+    if (result.code === 0 && result.operation?.type === 'rawJsonOperation') {
+      if (result.operation.cursorPosition) {
+        jsonComponent.value?.setCursorPosition?.(result.operation.cursorPosition);
+      }
+    }
+  }
+}
 //格式化json
 const handleFormat = () => {
   jsonComponent.value?.format()
@@ -351,6 +385,24 @@ const handleClearSelectFile = () => {
 onMounted(async () => {
   jsonBodyVisible.value = userState.getJsonBodyHintVisible();
 });
+
+// 防抖的JSON记录函数
+const debouncedRecordJsonOperation = debounce((oldValue: string, newValue: string) => {
+  if (!currentSelectTab.value || oldValue === newValue) return;
+  
+  const cursorPosition = jsonComponent.value?.getCursorPosition?.() || undefined;
+  
+  httpRedoUndoStore.recordOperation({
+    nodeId: currentSelectTab.value._id,
+    type: "rawJsonOperation",
+    operationName: "修改JSON Body",
+    affectedModuleName: "rawJson",
+    oldValue,
+    newValue,
+    cursorPosition,
+    timestamp: Date.now()
+  });
+}, 300, { leading: true, trailing: true });
 
 // 防抖的请求体记录函数
 const debouncedRecordBodyOperation = debounce((oldValue: { requestBody: HttpNodeBodyParams, contentType: HttpNodeContentType }, newValue: { requestBody: HttpNodeBodyParams, contentType: HttpNodeContentType }) => {

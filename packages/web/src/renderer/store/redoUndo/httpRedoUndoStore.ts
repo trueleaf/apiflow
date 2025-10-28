@@ -133,6 +133,10 @@ export const useHttpRedoUndo = defineStore('httpRedoUndo', () => {
         }
         break;
 
+      case 'rawJsonOperation':
+        apidocStore.changeRawJson(targetValue as string);
+        break;
+
       case 'preRequestOperation':
         apidocStore.apidoc.preRequest = cloneDeep(targetValue as HttpNode['preRequest']);
         break;

@@ -12,6 +12,7 @@ export type HttpModuleName =
   | 'queryParams'
   | 'paths'
   | 'requestBody'
+  | 'rawJson'
   | 'preRequest'
   | 'afterRequest'
   | 'basicInfo'
@@ -100,6 +101,18 @@ export type HttpBodyOperation = {
   timestamp: number;
 };
 
+// HTTP Raw JSON操作（用于JSON类型的body编辑）
+export type HttpRawJsonOperation = {
+  nodeId: string;
+  type: "rawJsonOperation";
+  operationName: string;
+  affectedModuleName: HttpModuleName;
+  oldValue: string;
+  newValue: string;
+  cursorPosition?: monaco.Position;
+  timestamp: number;
+};
+
 // HTTP前置脚本操作
 export type HttpPreRequestOperation = {
   nodeId: string;
@@ -161,6 +174,7 @@ export type HttpRedoUnDoOperation =
   | HttpQueryParamsOperation
   | HttpPathsOperation
   | HttpBodyOperation
+  | HttpRawJsonOperation
   | HttpPreRequestOperation
   | HttpAfterRequestOperation
   | HttpBasicInfoOperation
