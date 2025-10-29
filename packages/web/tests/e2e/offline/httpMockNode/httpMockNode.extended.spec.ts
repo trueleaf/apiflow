@@ -1,22 +1,5 @@
 import { expect, type Page } from '@playwright/test';
-import {
-  test,
-  getPages,
-  configureMockBasics,
-  saveMockConfig,
-  switchResponseDataType,
-  switchJsonMode,
-  switchTextType,
-  addNewResponse,
-  switchToResponse,
-  addResponseHeader,
-  addTriggerCondition,
-  configureSseEventId,
-  configureSseEventName,
-  configureImageResponse,
-  configureResponseDelay,
-  configureStatusCode,
-} from '../fixtures/httpMockNode.fixture';
+import { test } from '../../../fixtures/fixtures';
 
 test.describe('httpMockNode 扩展功能测试', () => {
   let headerPage: Page;

@@ -68,6 +68,8 @@ export const initOfflineWorkbench = async (
       localStorage.clear();
     });
   }
+
+  await contentPage.waitForTimeout(30000);
   await contentPage.reload();
   await contentPage.waitForURL(/home/, { timeout });
   await contentPage.waitForLoadState('domcontentloaded');
@@ -172,6 +174,69 @@ export const createProject = async (
   if (waitForBanner) {
     await contentPage.waitForSelector('.banner', { timeout: 10000 });
   }
+};
+
+// 登录函数，用于在线模式下的用户认证
+export const login = async (
+  contentPage: Page,
+  options: {
+    username?: string;
+    password?: string;
+    timeout?: number;
+  } = {}
+): Promise<void> => {
+  const {
+    username = process.env.TEST_LOGIN_NAME || 'apiflow',
+    password = process.env.TEST_LOGIN_PASSWORD || '111111',
+    timeout = 10000
+  } = options;
+
+  // 等待登录表单加载
+  await contentPage.waitForSelector('input[name="loginName"]', {
+    state: 'visible',
+    timeout
+  });
+
+  // 填写用户名
+  await contentPage.fill('input[name="loginName"]', username);
+
+  // 填写密码
+  await contentPage.fill('input[name="password"]', password);
+
+  // 点击登录按钮
+  await contentPage.click('button:has-text("登录")');
+
+  // 等待登录成功跳转到 home 页面
+  await contentPage.waitForURL(/home/, { timeout });
+};
+
+// 切换到在线模式并执行登录
+export const switchToOnlineMode = async (
+  headerPage: Page,
+  contentPage: Page,
+  options: {
+    username?: string;
+    password?: string;
+    timeout?: number;
+  } = {}
+): Promise<void> => {
+  const { timeout = 10000 } = options;
+
+  // 点击网络模式按钮切换到 online
+  const networkBtn = headerPage.locator('.network-btn');
+  await networkBtn.click();
+  await contentPage.waitForTimeout(500);
+
+  // 等待跳转到登录页面
+  await contentPage.waitForURL(/login/, { timeout });
+
+  // 执行登录
+  await login(contentPage, options);
+
+  // 等待登录成功并跳转到 home
+  await contentPage.waitForURL(/home/, { timeout });
+  await contentPage.waitForLoadState('domcontentloaded');
+  await contentPage.waitForTimeout(500);
 };
 
 export const test = base.extend<{

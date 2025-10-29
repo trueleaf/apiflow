@@ -1,5 +1,5 @@
 import { expect, type ElectronApplication, type Page } from '@playwright/test';
-import { test, initOfflineWorkbench, createProject } from '../../../fixtures/fixtures';
+import { test, initOfflineWorkbench, createProject, login } from '../../../fixtures/fixtures';
 
 /*
 |--------------------------------------------------------------------------
@@ -379,9 +379,10 @@ test.describe('应用工作台 Header - 标签页基础功能', () => {
 
     // 9. 验证标签数量减少到2个
     await expect(tabs).toHaveCount(2);
+
     // 10. 验证自动激活了相邻的标签（应该激活原位置之后的标签，即原来的项目3）
-    const remainingTabs = headerPage.locator('.tab-item');
-    const activeTabs = remainingTabs.locator('.active');
+    await contentPage.waitForTimeout(200); // 等待激活状态更新
+    const activeTabs = headerPage.locator('.tab-item.active');
     await expect(activeTabs).toHaveCount(1);
   });
   test('关闭最后一个标签应跳转到首页', async () => {
@@ -514,14 +515,424 @@ test.describe('应用工作台 Header - 标签页高级功能', () => {
     contentPage = result.contentPage;
   });
 
-  test('应能拖拽标签调整顺序', async () => {});
-  test('拖拽标签到新位置后顺序应保持', async () => {});
-  test('点击新增项目按钮（+）应触发创建项目事件', async () => {});
-  test('标签应根据网络模式过滤显示（offline/online）', async () => {});
-  test('切换网络模式后当前模式的标签应正确显示', async () => {});
-  test('切换网络模式后其他模式的标签应隐藏', async () => {});
-  test('切换回原网络模式后标签应恢复显示', async () => {});
-  test('标签数据应同步到 localStorage', async () => {});
+  test('应能拖拽标签调整顺序', async () => {
+    // 1. 创建3个测试项目
+    await createProject(contentPage, '项目A');
+    await contentPage.waitForTimeout(500);
+    await headerPage.locator('.home').click();
+    await contentPage.waitForURL('**/#/home', { timeout: 10000 });
+
+    await createProject(contentPage, '项目B');
+    await contentPage.waitForTimeout(500);
+    await headerPage.locator('.home').click();
+    await contentPage.waitForURL('**/#/home', { timeout: 10000 });
+
+    await createProject(contentPage, '项目C');
+    await contentPage.waitForTimeout(500);
+
+    // 2. 验证初始标签顺序
+    const tabs = headerPage.locator('.tab-item');
+    await expect(tabs).toHaveCount(3);
+
+    // 3. 获取初始顺序
+    const initialOrder: string[] = [];
+    for (let i = 0; i < 3; i++) {
+      const text = await tabs.nth(i).locator('.tab-title').textContent();
+      if (text) initialOrder.push(text.trim());
+    }
+    expect(initialOrder).toEqual(['项目A', '项目B', '项目C']);
+
+    // 4. 执行拖拽：将第一个标签（项目A）拖到最后
+    const tabA = tabs.first();
+    const tabC = tabs.nth(2);
+
+    const tabABox = await tabA.boundingBox();
+    const tabCBox = await tabC.boundingBox();
+
+    if (tabABox && tabCBox) {
+      // 移动到源元素中心
+      await headerPage.mouse.move(
+        tabABox.x + tabABox.width / 2,
+        tabABox.y + tabABox.height / 2
+      );
+
+      // 按下鼠标
+      await headerPage.mouse.down();
+      await contentPage.waitForTimeout(150);
+
+      // 移动到目标位置（项目C之后）
+      await headerPage.mouse.move(
+        tabCBox.x + tabCBox.width - 5,
+        tabCBox.y + tabCBox.height / 2,
+        { steps: 10 }
+      );
+      await contentPage.waitForTimeout(150);
+
+      // 释放鼠标
+      await headerPage.mouse.up();
+      await contentPage.waitForTimeout(300);
+
+      // 5. 验证拖拽后的顺序
+      const finalOrder: string[] = [];
+      for (let i = 0; i < 3; i++) {
+        const text = await tabs.nth(i).locator('.tab-title').textContent();
+        if (text) finalOrder.push(text.trim());
+      }
+      expect(finalOrder).toEqual(['项目B', '项目C', '项目A']);
+    }
+  });
+  test('拖拽标签到新位置后顺序应保持', async () => {
+    // 1. 创建3个测试项目
+    await createProject(contentPage, '项目1');
+    await contentPage.waitForTimeout(500);
+    await headerPage.locator('.home').click();
+    await contentPage.waitForURL('**/#/home', { timeout: 10000 });
+
+    await createProject(contentPage, '项目2');
+    await contentPage.waitForTimeout(500);
+    await headerPage.locator('.home').click();
+    await contentPage.waitForURL('**/#/home', { timeout: 10000 });
+
+    await createProject(contentPage, '项目3');
+    await contentPage.waitForTimeout(500);
+
+    // 2. 执行拖拽：将第二个标签（项目2）拖到第一个位置
+    const tabs = headerPage.locator('.tab-item');
+    const tab2 = tabs.nth(1);
+    const tab1 = tabs.first();
+
+    const tab2Box = await tab2.boundingBox();
+    const tab1Box = await tab1.boundingBox();
+
+    if (tab2Box && tab1Box) {
+      await headerPage.mouse.move(
+        tab2Box.x + tab2Box.width / 2,
+        tab2Box.y + tab2Box.height / 2
+      );
+      await headerPage.mouse.down();
+      await contentPage.waitForTimeout(150);
+
+      await headerPage.mouse.move(
+        tab1Box.x + 5,
+        tab1Box.y + tab1Box.height / 2,
+        { steps: 10 }
+      );
+      await contentPage.waitForTimeout(150);
+
+      await headerPage.mouse.up();
+      await contentPage.waitForTimeout(500);
+
+      // 3. 验证拖拽后的顺序
+      const orderAfterDrag: string[] = [];
+      for (let i = 0; i < 3; i++) {
+        const text = await tabs.nth(i).locator('.tab-title').textContent();
+        if (text) orderAfterDrag.push(text.trim());
+      }
+      expect(orderAfterDrag).toEqual(['项目2', '项目1', '项目3']);
+
+      // 4. 点击某个标签，再点击另一个标签，验证顺序不变
+      await tabs.nth(2).click();
+      await contentPage.waitForTimeout(300);
+      await tabs.nth(0).click();
+      await contentPage.waitForTimeout(300);
+
+      // 5. 再次验证顺序保持不变
+      const orderAfterClick: string[] = [];
+      for (let i = 0; i < 3; i++) {
+        const text = await tabs.nth(i).locator('.tab-title').textContent();
+        if (text) orderAfterClick.push(text.trim());
+      }
+      expect(orderAfterClick).toEqual(['项目2', '项目1', '项目3']);
+
+      // 6. 回到首页再验证顺序
+      await headerPage.locator('.home').click();
+      await contentPage.waitForURL('**/#/home', { timeout: 10000 });
+      await contentPage.waitForTimeout(300);
+
+      // 7. 最终验证顺序仍然保持
+      const finalOrder: string[] = [];
+      for (let i = 0; i < 3; i++) {
+        const text = await tabs.nth(i).locator('.tab-title').textContent();
+        if (text) finalOrder.push(text.trim());
+      }
+      expect(finalOrder).toEqual(['项目2', '项目1', '项目3']);
+    }
+  });
+  test('点击新增项目按钮（+）应触发创建项目事件', async () => {
+    // 1. 验证新增项目按钮存在
+    const addBtn = headerPage.locator('.add-tab-btn');
+    await expect(addBtn).toBeVisible();
+    await expect(addBtn).toContainText('+');
+
+    // 2. 点击新增项目按钮
+    await addBtn.click();
+    await contentPage.waitForTimeout(300);
+
+    // 3. 验证创建项目对话框在 contentPage 显示
+    const dialog = contentPage.locator('.el-dialog:has-text("新增项目")');
+    await expect(dialog).toBeVisible({ timeout: 5000 });
+
+    // 4. 验证对话框包含必要的元素
+    const nameInput = contentPage.locator('.el-dialog .el-input input[placeholder*="项目名称"]');
+    await expect(nameInput).toBeVisible();
+
+    const confirmBtn = contentPage.locator('.el-dialog__footer button:has-text("确定")');
+    await expect(confirmBtn).toBeVisible();
+
+    // 5. 关闭对话框
+    const cancelBtn = contentPage.locator('.el-dialog__footer button:has-text("取消")');
+    await cancelBtn.click();
+    await contentPage.waitForTimeout(300);
+
+    // 6. 验证对话框已关闭
+    await expect(dialog).not.toBeVisible();
+  });
+  test('标签应根据网络模式过滤显示（offline/online）', async () => {
+    // 1. 验证初始为 offline 模式
+    const networkBtn = headerPage.locator('.network-btn');
+    const networkText = headerPage.locator('.network-text');
+    let netMode = await networkText.textContent();
+    expect(netMode).toBe('离线模式');
+
+    // 2. 在 offline 模式下创建2个项目
+    await createProject(contentPage, 'Offline项目1');
+    await contentPage.waitForTimeout(500);
+    await headerPage.locator('.home').click();
+    await contentPage.waitForURL('**/#/home', { timeout: 10000 });
+
+    await createProject(contentPage, 'Offline项目2');
+    await contentPage.waitForTimeout(500);
+    await headerPage.locator('.home').click();
+    await contentPage.waitForURL('**/#/home', { timeout: 10000 });
+
+    // 3. 验证显示2个 offline 标签
+    const tabs = headerPage.locator('.tab-item');
+    await expect(tabs).toHaveCount(2);
+
+    // 4. 切换到 online 模式
+    await networkBtn.click();
+    await contentPage.waitForTimeout(500);
+
+    // 4.1 等待跳转到登录页面
+    await contentPage.waitForURL(/login/, { timeout: 10000 });
+
+    // 4.2 执行登录
+    await login(contentPage);
+
+    // 4.3 等待登录成功跳转到 home
+    await contentPage.waitForURL(/home/, { timeout: 10000 });
+    await contentPage.waitForTimeout(500);
+
+    // 5. 验证网络模式已切换
+    netMode = await networkText.textContent();
+    expect(netMode).toBe('联网模式');
+
+    // 6. 验证 offline 标签被隐藏（标签数量为0）
+    await expect(tabs).toHaveCount(0);
+
+    // 7. 在 online 模式下创建1个项目
+    await createProject(contentPage, 'Online项目1');
+    await contentPage.waitForTimeout(500);
+
+    // 8. 验证只显示1个 online 标签
+    await expect(tabs).toHaveCount(1);
+    const onlineTab = tabs.first();
+    await expect(onlineTab).toContainText('Online项目1');
+
+    // 9. 切换回 offline 模式
+    await networkBtn.click();
+    await contentPage.waitForTimeout(500);
+
+    // 10. 验证只显示2个 offline 标签，online 标签被隐藏
+    await expect(tabs).toHaveCount(2);
+  });
+  test('切换网络模式后当前模式的标签应正确显示', async () => {
+    // 1. 在 offline 模式下创建项目A
+    await createProject(contentPage, '项目A');
+    await contentPage.waitForTimeout(500);
+    await headerPage.locator('.home').click();
+    await contentPage.waitForURL('**/#/home', { timeout: 10000 });
+
+    // 2. 切换到 online 模式
+    const networkBtn = headerPage.locator('.network-btn');
+    await networkBtn.click();
+    await contentPage.waitForTimeout(500);
+
+    // 2.1 等待跳转到登录页面并登录
+    await contentPage.waitForURL(/login/, { timeout: 10000 });
+    await login(contentPage);
+    await contentPage.waitForURL(/home/, { timeout: 10000 });
+    await contentPage.waitForTimeout(500);
+
+    // 3. 在 online 模式下创建项目B
+    await createProject(contentPage, '项目B');
+    await contentPage.waitForTimeout(500);
+
+    // 4. 验证当前只显示项目B标签
+    const tabs = headerPage.locator('.tab-item');
+    await expect(tabs).toHaveCount(1);
+
+    // 5. 验证项目B标签包含正确文本
+    const tabB = tabs.first();
+    await expect(tabB).toContainText('项目B');
+
+    // 6. 验证项目B标签为激活状态
+    await expect(tabB).toHaveClass(/active/);
+
+    // 7. 验证标签有正确的图标
+    const tabIcon = tabB.locator('.tab-icon');
+    await expect(tabIcon).toBeVisible();
+
+    // 8. 验证 Home 按钮不是激活状态
+    const homeBtn = headerPage.locator('.home');
+    await expect(homeBtn).not.toHaveClass(/active/);
+  });
+  test('切换网络模式后其他模式的标签应隐藏', async () => {
+    // 1. 在 offline 模式下创建2个项目
+    await createProject(contentPage, '项目A');
+    await contentPage.waitForTimeout(500);
+    await headerPage.locator('.home').click();
+    await contentPage.waitForURL('**/#/home', { timeout: 10000 });
+
+    await createProject(contentPage, '项目B');
+    await contentPage.waitForTimeout(500);
+    await headerPage.locator('.home').click();
+    await contentPage.waitForURL('**/#/home', { timeout: 10000 });
+
+    // 2. 验证显示2个 offline 标签
+    const tabs = headerPage.locator('.tab-item');
+    await expect(tabs).toHaveCount(2);
+
+    // 3. 切换到 online 模式
+    const networkBtn = headerPage.locator('.network-btn');
+    await networkBtn.click();
+    await contentPage.waitForTimeout(500);
+
+    // 4. 验证所有标签都不可见（标签数量为0）
+    await expect(tabs).toHaveCount(0);
+
+    // 5. 验证项目A、项目B标签都找不到
+    const tabA = headerPage.locator('.tab-item:has-text("项目A")');
+    const tabB = headerPage.locator('.tab-item:has-text("项目B")');
+    await expect(tabA).toHaveCount(0);
+    await expect(tabB).toHaveCount(0);
+
+    // 6. 验证 Home 按钮是激活状态（因为没有可见标签，自动激活首页）
+    const homeBtn = headerPage.locator('.home');
+    await expect(homeBtn).toHaveClass(/active/);
+  });
+  test('切换回原网络模式后标签应恢复显示', async () => {
+    // 1. 在 offline 模式下创建2个项目
+    await createProject(contentPage, '项目A');
+    await contentPage.waitForTimeout(500);
+    await headerPage.locator('.home').click();
+    await contentPage.waitForURL('**/#/home', { timeout: 10000 });
+
+    await createProject(contentPage, '项目B');
+    await contentPage.waitForTimeout(500);
+    await headerPage.locator('.home').click();
+    await contentPage.waitForURL('**/#/home', { timeout: 10000 });
+
+    // 2. 记录 offline 模式下的标签
+    const tabs = headerPage.locator('.tab-item');
+    await expect(tabs).toHaveCount(2);
+
+    const offlineTabs: string[] = [];
+    for (let i = 0; i < 2; i++) {
+      const text = await tabs.nth(i).locator('.tab-title').textContent();
+      if (text) offlineTabs.push(text.trim());
+    }
+    expect(offlineTabs).toEqual(['项目A', '项目B']);
+
+    // 3. 切换到 online 模式
+    const networkBtn = headerPage.locator('.network-btn');
+    await networkBtn.click();
+    await contentPage.waitForTimeout(500);
+
+    // 4. 验证 offline 标签被隐藏
+    await expect(tabs).toHaveCount(0);
+
+    // 5. 再次点击切换回 offline 模式
+    await networkBtn.click();
+    await contentPage.waitForTimeout(500);
+
+    // 6. 验证网络模式已切换回 offline
+    const networkText = headerPage.locator('.network-text');
+    const netMode = await networkText.textContent();
+    expect(netMode).toBe('离线模式');
+
+    // 7. 验证2个 offline 标签恢复显示
+    await expect(tabs).toHaveCount(2);
+
+    // 8. 验证标签文本正确（项目A、项目B）
+    const restoredTabs: string[] = [];
+    for (let i = 0; i < 2; i++) {
+      const text = await tabs.nth(i).locator('.tab-title').textContent();
+      if (text) restoredTabs.push(text.trim());
+    }
+    expect(restoredTabs).toEqual(['项目A', '项目B']);
+
+    // 9. 验证标签顺序与切换前一致
+    expect(restoredTabs).toEqual(offlineTabs);
+  });
+  test('标签数据应同步到 localStorage', async () => {
+    // 1. 创建2个项目
+    await createProject(contentPage, '项目X');
+    await contentPage.waitForTimeout(500);
+    await headerPage.locator('.home').click();
+    await contentPage.waitForURL('**/#/home', { timeout: 10000 });
+
+    await createProject(contentPage, '项目Y');
+    await contentPage.waitForTimeout(500);
+
+    // 2. 等待同步完成
+    await contentPage.waitForTimeout(500);
+
+    // 3. 从 contentPage 读取 localStorage
+    const tabsData = await contentPage.evaluate(() => {
+      const data = localStorage.getItem('appWorkbench/header/tabs');
+      return data ? JSON.parse(data) : [];
+    });
+
+    // 4. 验证数组长度为 2
+    expect(tabsData).toHaveLength(2);
+
+    // 5. 验证每个标签对象包含必要字段
+    for (const tab of tabsData) {
+      expect(tab).toHaveProperty('id');
+      expect(tab).toHaveProperty('title');
+      expect(tab).toHaveProperty('type');
+      expect(tab).toHaveProperty('network');
+
+      // 6. 验证字段类型和值
+      expect(typeof tab.id).toBe('string');
+      expect(tab.id.length).toBeGreaterThan(0);
+      expect(tab.type).toBe('project');
+      expect(tab.network).toBe('offline');
+    }
+
+    // 7. 验证标签标题
+    const titles = tabsData.map((tab: any) => tab.title);
+    expect(titles).toContain('项目X');
+    expect(titles).toContain('项目Y');
+
+    // 8. 关闭一个标签，验证 localStorage 更新
+    const tabs = headerPage.locator('.tab-item');
+    const firstTab = tabs.first();
+    await firstTab.hover();
+    const closeBtn = firstTab.locator('.close-btn');
+    await closeBtn.click();
+    await contentPage.waitForTimeout(500);
+
+    // 9. 再次读取 localStorage
+    const updatedTabsData = await contentPage.evaluate(() => {
+      const data = localStorage.getItem('appWorkbench/header/tabs');
+      return data ? JSON.parse(data) : [];
+    });
+
+    // 10. 验证数组长度变为 1
+    expect(updatedTabsData).toHaveLength(1);
+  });
 });
 /*
 |--------------------------------------------------------------------------

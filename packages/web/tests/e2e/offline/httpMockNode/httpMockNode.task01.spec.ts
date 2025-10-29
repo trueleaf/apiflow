@@ -1,10 +1,5 @@
 import { expect, type Page } from '@playwright/test';
-import {
-  test,
-  getPages,
-  configureMockBasics,
-  saveMockConfig,
-} from '../fixtures/httpMockNode.fixture';
+import { test } from '../../../fixtures/fixtures';
 
 test.describe('任务组1: Mock服务管理测试', () => {
   let headerPage: Page;
