@@ -156,11 +156,11 @@ const handleAddProject = () => {
       const project = generateEmptyProject(projectId);
       project.projectName = formInfo.value.projectName;
       await projectCache.addProject(project);
-      handleClose();
       emits('success', {
         projectId,
         projectName: project.projectName,
       });
+      handleClose();
       return;
     }
     if (valid) {

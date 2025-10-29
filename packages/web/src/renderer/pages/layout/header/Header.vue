@@ -399,7 +399,7 @@ body {
   padding: 0 8px;
   overflow-x: auto;
   overflow-y: hidden;
-  width: 600px;
+  max-width: 600px;
   scrollbar-width: none;
 
   &:hover {
