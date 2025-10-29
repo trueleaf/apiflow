@@ -21,7 +21,9 @@ test.describe('应用工作台 Header - 基础布局和显示', () => {
     contentPage = result.contentPage;
   });
 
-  test('Header 组件应正常显示', async () => {});
+  test('Header 组件应正常显示', async () => {
+    
+  });
   test('Logo 应正确显示', async () => {});
   test('Home 按钮应正确显示', async () => {});
   test('所有功能区域应正确布局（左中右三区域）', async () => {});
