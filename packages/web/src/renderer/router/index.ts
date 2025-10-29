@@ -8,7 +8,7 @@ const routes: Array<RouteRecordRaw> = [
   {
     path: "/header",
     name: "Header",
-    component: () => import("@/pages/layout/header/Header.vue"),
+    component: () => import("@/pages/appWorkbench/header/Header.vue"),
   },
   {
     path: "/home",
@@ -33,7 +33,7 @@ const routes: Array<RouteRecordRaw> = [
   {
     path: "/:pathMatch(.*)*",
     name: "NotFound",
-    component: () => import("@/pages/layout/404/404.vue"),
+    component: () => import("@/pages/appWorkbench/404/404.vue"),
   },
 ];
 
@@ -67,7 +67,7 @@ const routerConfig = {
     {
       path: "/header",
       name: "Header",
-      component: () => import("@/pages/layout/header/Header.vue"),
+      component: () => import("@/pages/appWorkbench/header/Header.vue"),
     },
     {
       path: "/home",
@@ -92,7 +92,7 @@ const routerConfig = {
     {
       path: "/:pathMatch(.*)*",
       name: "NotFound",
-      component: () => import("@/pages/layout/404/404.vue"),
+      component: () => import("@/pages/appWorkbench/404/404.vue"),
     },
   ],
 };

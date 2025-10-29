@@ -396,7 +396,6 @@ body {
   height: 100%;
   display: flex;
   align-items: center;
-  padding: 0 8px;
   overflow-x: auto;
   overflow-y: hidden;
   max-width: 600px;

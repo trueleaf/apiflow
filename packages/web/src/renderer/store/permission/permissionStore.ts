@@ -2,7 +2,7 @@ import { router, routes as allRoutes } from '@/router';
 import { config } from '@src/config/config';
 import { GlobalConfig, PermissionClientMenu, PermissionClientRoute, PermissionUserInfo, CommonResponse } from '@src/types';
 import { defineStore } from 'pinia'
-import layout from '@/pages/layout/Layout.vue';
+import layout from '@/pages/appWorkbench/content/content.vue';
 import { RouteRecordRaw } from 'vue-router';
 import { ref } from 'vue';
 import { uniqueByKey } from '@/helper';
