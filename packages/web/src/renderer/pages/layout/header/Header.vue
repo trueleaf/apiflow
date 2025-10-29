@@ -35,12 +35,12 @@
         </div>
         <el-icon 
           size="16" 
-          :title="networkMode === 'online' ? t('互联网模式') : t('离线模式')" 
+          :title="networkMode === 'online' ? t('联网模式') : t('离线模式')" 
           @click="toggleNetworkMode" 
           class="network-btn icon"
         >
           <i class="iconfont network-icon" :class="networkMode === 'online' ? 'iconwifi' : 'iconwifi-off-line'"></i>
-          <span class="network-text">{{ networkMode === 'online' ? t('互联网模式') : t('离线模式') }}</span>
+          <span class="network-text">{{ networkMode === 'online' ? t('联网模式') : t('离线模式') }}</span>
         </el-icon>
       </div>
       <div class="window-control">

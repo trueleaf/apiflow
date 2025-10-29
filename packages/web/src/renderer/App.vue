@@ -47,7 +47,6 @@ const currentLanguage = ref<Language>(localStorage.getItem('language') as Langua
 
 const handleAddSuccess = (data: { projectId: string, projectName: string }) => {
   dialogVisible.value = false;
-  // 发送项目创建成功事件
   window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.APIFLOW.TOPBAR_TO_CONTENT.PROJECT_CREATED, {
     projectId: data.projectId,
     projectName: data.projectName
@@ -56,6 +55,7 @@ const handleAddSuccess = (data: { projectId: string, projectName: string }) => {
     path: '/v1/apidoc/doc-edit',
     query: {
       id: data.projectId,
+      name: data.projectName,
       mode: 'edit'
     }
   });

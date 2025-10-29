@@ -160,7 +160,6 @@ const handleAddProject = () => {
         projectId,
         projectName: project.projectName,
       });
-      handleClose();
       return;
     }
     if (valid) {
@@ -180,7 +179,6 @@ const handleAddProject = () => {
         ),
       };
       request.post('/api/project/add_project', params).then((res) => {
-        handleClose();
         emits('success', {
           projectId: res.data,
           projectName: formInfo.value.projectName,
