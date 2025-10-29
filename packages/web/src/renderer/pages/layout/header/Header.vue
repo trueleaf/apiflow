@@ -9,18 +9,18 @@
     </div>
     <div v-if="filteredTabs.length > 0" class="divider"></div>
     <div class="tabs">
-      <draggable v-model="draggableTabs" class="tab-list" :animation="150" ghost-class="sortable-ghost"
+      <draggable ref="tabListRef" v-model="draggableTabs" class="tab-list" :animation="150" ghost-class="sortable-ghost"
         chosen-class="sortable-chosen" drag-class="sortable-drag" item-key="id">
         <template #item="{ element: tab }">
           <li :class="['tab-item', { active: tab.id === activeTabId }]" :title="tab.title" :data-id="tab.id" @click="switchTab(tab.id)">
             <FolderKanban v-if="tab.type === 'project'" class="tab-icon" :size="14" />
-            <span>{{ tab.title }}</span>
+            <span class="tab-title">{{ tab.title }}</span>
             <span class="close-btn iconfont iconguanbi" @click.stop="deleteTab(tab.id)"></span>
           </li>
         </template>
       </draggable>
-      <button class="add-tab-btn" :title="t('新建项目')" @click="handleAddProject">+</button>
     </div>
+    <button class="add-tab-btn" :title="t('新建项目')" @click="handleAddProject">+</button>
     <div class="right">
       <div class="navigation-control">
         <el-icon class="icon" size="16" :title="t('刷新主应用')" @click="refreshApp"><RefreshRight /></el-icon>
@@ -54,7 +54,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, watch, computed } from 'vue'
+import { ref, onMounted, watch, computed, ComponentPublicInstance } from 'vue'
 import draggable from 'vuedraggable'
 import { Language, WindowState } from '@src/types'
 import type { HeaderTab } from '@src/types/header'
@@ -67,6 +67,7 @@ import { IPC_EVENTS } from '@src/types/ipc'
 const tabs = ref<HeaderTab[]>([])
 const activeTabId = ref('')
 const isMaximized = ref(false)
+const tabListRef = ref<ComponentPublicInstance | null>(null)
 const { t } = useI18n()
 const runtime = useRuntime()
 const networkMode = computed(() => runtime.networkMode)
@@ -94,6 +95,14 @@ const unmaximize = () => window.electronAPI?.windowManager.unMaximizeWindow()
 const close = () => window.electronAPI?.windowManager.closeWindow()
 const handleWindowResize = (state: WindowState) => {
   isMaximized.value = state.isMaximized
+}
+// 自动滚动到激活的tab
+const scrollToActiveTab = () => {
+  setTimeout(() => {
+    const tabWrap = tabListRef.value?.$el
+    const activeNode = tabWrap?.querySelector('.tab-item.active') as HTMLElement | null
+    activeNode?.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' })
+  })
 }
 
 /*
@@ -193,6 +202,7 @@ const deleteTab = (tabId: string) => {
 const switchTab = (tabId: string) => {
   activeTabId.value = tabId;
   syncActiveTabToContentView()
+  scrollToActiveTab()
   const currentTab = tabs.value.find(t => t.id === tabId);
   if (!currentTab) return;
   if (currentTab.type === 'project') {
@@ -251,6 +261,7 @@ const bindEvent = () => {
     activeTabId.value = data.projectId
     syncTabsToContentView()
     syncActiveTabToContentView()
+    scrollToActiveTab()
   })
   
   window.electronAPI?.ipcManager.onMain(IPC_EVENTS.APIFLOW.TOPBAR_TO_CONTENT.PROJECT_CHANGED, (data: { projectId: string, projectName: string }) => {
@@ -264,6 +275,7 @@ const bindEvent = () => {
       syncTabsToContentView()
     }
     syncActiveTabToContentView()
+    scrollToActiveTab()
   })
   
   window.electronAPI?.ipcManager.onMain(IPC_EVENTS.APIFLOW.TOPBAR_TO_CONTENT.PROJECT_DELETED, (projectId: string) => {
@@ -283,15 +295,14 @@ const bindEvent = () => {
     activeTabId.value = data.activeTabId || '';
     syncTabsToContentView();
     syncActiveTabToContentView();
+    scrollToActiveTab();
   });
 }
 
 onMounted(() => {
   bindEvent()
-  // 发送就绪信号
+  scrollToActiveTab()
   window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.APIFLOW.TOPBAR_TO_CONTENT.TOPBAR_READY);
-
-
 })
 
 watch(() => networkMode.value, (mode, prevMode) => {
@@ -335,14 +346,14 @@ body {
   -webkit-app-region: drag;
   color: var(--white);
   padding: 0 0 0 20px;
-  justify-content: space-between;
+  // justify-content: space-between;
 }
 .logo {
+  width: 44px;
   height: 100%;
   display: flex;
   -webkit-app-region: no-drag;
   align-items: center;
-  margin-right: 20px;
 }
 .logo-img {
   height: 24px;
@@ -353,11 +364,12 @@ body {
 }
 
 .home {
+  width: 80px;
   display: flex;
   align-items: center;
+  justify-content: center;
   font-size: 12px;
   height: 35px;
-  padding: 0 20px 0 15px;
   cursor: pointer;
   -webkit-app-region: no-drag;
 
@@ -381,18 +393,30 @@ body {
   background-color: rgba(255, 255, 255, 0.15);
 }
 .tabs {
-  flex: 1;
   height: 100%;
   display: flex;
   align-items: center;
   padding: 0 8px;
   overflow-x: auto;
   overflow-y: hidden;
+  width: 600px;
   scrollbar-width: none;
-}
 
-.tabs::-webkit-scrollbar {
-  display: none;
+  &:hover {
+    &::-webkit-scrollbar {
+      display: block;
+    }
+  }
+
+  &::-webkit-scrollbar {
+    width: 5px;
+    height: 5px;
+    display: none;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: var(--gray-500);
+  }
 }
 
 .tab-list {
@@ -406,8 +430,10 @@ body {
 
 .tab-item {
   height: 100%;
-  padding: 0 30px 0 20px;
+  // padding: 0 30px 0 20px;
   max-width: 200px;
+  min-width: 120px;
+  padding: 0 10px;
   display: flex;
   align-items: center;
   // background: var(--tab-bg);
@@ -429,7 +455,8 @@ body {
   flex-shrink: 0;
 }
 
-.tab-item span:first-child {
+.tab-title {
+  flex: 1;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -470,7 +497,6 @@ body {
 }
 
 .add-tab-btn {
-  margin-left: 4px;
   padding: 0;
   width: 24px;
   height: 24px;
@@ -484,6 +510,8 @@ body {
   font-size: 21px;
   transition: all 0.2s;
   -webkit-app-region: no-drag;
+  flex-shrink: 0;
+  margin: 0 8px;
 }
 
 .add-tab-btn:focus {
@@ -493,13 +521,15 @@ body {
 
 .add-tab-btn:hover {
   background: var(--tab-hover-bg);
+  border-radius: 3px;
 }
 
 .right {
   height: 100%;
   display: flex;
   align-items: center;
-  padding-right: 15px;
+  width: 375px;
+  margin-left: auto;
 }
 
 .navigation-control {
