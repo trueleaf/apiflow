@@ -205,6 +205,11 @@ export const useIpcEvent = (mainWindow: BrowserWindow, topBarView: WebContentsVi
     contentView.webContents.send(IPC_EVENTS.APIFLOW.RENDERER_TO_MAIN.CHANGE_PROJECT, data)
   })
 
+  // 内容区导航到首页通知 - 转发给 topBarView
+  ipcMain.on(IPC_EVENTS.APIFLOW.CONTENT_TO_TOPBAR.NAVIGATE_TO_HOME, () => {
+    topBarView.webContents.send(IPC_EVENTS.APIFLOW.CONTENT_TO_TOPBAR.NAVIGATE_TO_HOME)
+  })
+
   ipcMain.on(IPC_EVENTS.APIFLOW.TOPBAR_TO_CONTENT.NETWORK_MODE_CHANGED, (_, mode: RuntimeNetworkMode) => {
     contentView.webContents.send(IPC_EVENTS.APIFLOW.TOPBAR_TO_CONTENT.NETWORK_MODE_CHANGED, mode)
   })

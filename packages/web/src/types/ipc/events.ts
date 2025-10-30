@@ -59,6 +59,8 @@ export const IPC_EVENTS = {
       PROJECT_RENAMED: 'apiflow:content:to:topbar:project-renamed',
       /** 显示语言菜单 */
       SHOW_LANGUAGE_MENU: 'apiflow:content:to:topbar:show-language-menu',
+      /** 导航到首页 */
+      NAVIGATE_TO_HOME: 'apiflow:content:to:topbar:navigate-to-home',
     },
 
     /** 渲染进程 -> 主进程 (请求-响应) */

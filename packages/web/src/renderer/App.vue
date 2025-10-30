@@ -280,17 +280,28 @@ onMounted(() => {
     await initHeaderTabs();
     // 等待路由就绪
     await router.isReady();
-    // 监听路由变化
-    watch(() => router.currentRoute.value.path, (newPath) => {
-      if (newPath === '/v1/apidoc/doc-edit') {
-        const projectId = router.currentRoute.value.query.id as string;
-        const projectName = router.currentRoute.value.query.name as string;
-        window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.APIFLOW.TOPBAR_TO_CONTENT.PROJECT_CHANGED, {
-          projectId: projectId,
-          projectName: projectName
-        })
-      }
-    }, { immediate: true });
+    // 监听路由变化，包括 query 参数变化
+    watch(
+      () => ({
+        path: router.currentRoute.value.path,
+        query: router.currentRoute.value.query
+      }),
+      (newRoute) => {
+        if (newRoute.path === '/v1/apidoc/doc-edit') {
+          const projectId = newRoute.query.id as string;
+          const projectName = newRoute.query.name as string;
+          if (projectId && projectName) {
+            window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.APIFLOW.TOPBAR_TO_CONTENT.PROJECT_CHANGED, {
+              projectId: projectId,
+              projectName: projectName
+            })
+          }
+        } else if (newRoute.path === '/home') {
+          window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.APIFLOW.CONTENT_TO_TOPBAR.NAVIGATE_TO_HOME)
+        }
+      },
+      { immediate: true, deep: true }
+    );
 
     // 监听网络模式变化
     watch(() => runtimeStore.networkMode, async (mode, prevMode) => {

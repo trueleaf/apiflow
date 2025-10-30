@@ -7,7 +7,9 @@
       <i class="iconfont iconhome"></i>
       <span>{{ t('主页面') }}</span>
     </div>
-    <div v-if="filteredTabs.length > 0" class="divider"></div>
+    <div v-if="filteredTabs.length > 0" class="divider">
+      <span class="divider-content"></span>
+    </div>
     <div class="tabs">
       <draggable ref="tabListRef" v-model="draggableTabs" class="tab-list" :animation="150" ghost-class="sortable-ghost"
         chosen-class="sortable-chosen" drag-class="sortable-drag" item-key="id">
@@ -63,6 +65,7 @@ import { useI18n } from 'vue-i18n'
 import { FolderKanban } from 'lucide-vue-next'
 import { useRuntime } from '@/store/runtime/runtimeStore'
 import { IPC_EVENTS } from '@src/types/ipc'
+import { changeLanguage } from '@/i18n'
 
 const tabs = ref<HeaderTab[]>([])
 const activeTabId = ref('')
@@ -254,6 +257,7 @@ const bindEvent = () => {
   
   window.electronAPI?.ipcManager.onMain(IPC_EVENTS.APIFLOW.TOPBAR_TO_CONTENT.LANGUAGE_CHANGED, (language: string) => {
     currentLanguage.value = language as Language
+    changeLanguage(language as Language)
   })
   
   window.electronAPI?.ipcManager.onMain(IPC_EVENTS.APIFLOW.TOPBAR_TO_CONTENT.PROJECT_CREATED, (data: { projectId: string, projectName: string }) => {
@@ -289,6 +293,13 @@ const bindEvent = () => {
       syncTabsToContentView()
     }
   })
+  
+  // 监听导航到首页事件
+  window.electronAPI?.ipcManager.onMain(IPC_EVENTS.APIFLOW.CONTENT_TO_TOPBAR.NAVIGATE_TO_HOME, () => {
+    activeTabId.value = ''
+    syncActiveTabToContentView()
+  })
+  
   // 监听来自 App.vue 的初始化数据
   window.electronAPI?.ipcManager.onMain(IPC_EVENTS.APIFLOW.TOPBAR_TO_CONTENT.INIT_TABS_DATA, (data: { tabs: HeaderTab[], activeTabId: string }) => {
     tabs.value = data.tabs || [];
@@ -388,9 +399,16 @@ body {
   }
 }
 .divider {
-  width: 1px;
-  height: 20px;
-  background-color: rgba(255, 255, 255, 0.15);
+  width: 20px;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  .divider-content {
+    width: 1px;
+    height: 70%;
+    background-color: rgba(255, 255, 255, 0.15);
+  }
 }
 .tabs {
   height: 100%;
@@ -431,7 +449,7 @@ body {
   height: 100%;
   // padding: 0 30px 0 20px;
   max-width: 200px;
-  min-width: 120px;
+  min-width: 100px;
   padding: 0 10px;
   display: flex;
   align-items: center;
