@@ -133,6 +133,12 @@ const bindTopBarEvent = () => {
     showLanguageMenu(data)
   })
 
+  // 隐藏语言菜单事件监听
+  window.electronAPI?.ipcManager.onMain(IPC_EVENTS.APIFLOW.CONTENT_TO_TOPBAR.HIDE_LANGUAGE_MENU, () => {
+    console.log('hide')
+    hideLanguageMenu()
+  })
+
   // 监听项目切换事件
   window.electronAPI?.ipcManager.onMain(IPC_EVENTS.APIFLOW.RENDERER_TO_MAIN.CHANGE_PROJECT, async (data: { projectId: string, projectName: string }) => {
     let matchedProject = null;

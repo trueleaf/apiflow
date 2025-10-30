@@ -280,6 +280,11 @@ export const useIpcEvent = (mainWindow: BrowserWindow, topBarView: WebContentsVi
     contentView.webContents.send(IPC_EVENTS.APIFLOW.CONTENT_TO_TOPBAR.SHOW_LANGUAGE_MENU, data)
   })
 
+  // 隐藏语言菜单
+  ipcMain.on(IPC_EVENTS.APIFLOW.CONTENT_TO_TOPBAR.HIDE_LANGUAGE_MENU, () => {
+    contentView.webContents.send(IPC_EVENTS.APIFLOW.CONTENT_TO_TOPBAR.HIDE_LANGUAGE_MENU)
+  })
+
   // 语言切换
   ipcMain.on(IPC_EVENTS.APIFLOW.TOPBAR_TO_CONTENT.LANGUAGE_CHANGED, (_, language: string) => {
     // 更新运行时语言状态

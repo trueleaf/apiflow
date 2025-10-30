@@ -1,5 +1,5 @@
 <template>
-  <div class="s-header">
+  <div class="s-header" @click="handleDocumentClick">
     <div class="logo">
       <img src="@/assets/imgs/logo.png" alt="Apiflow Logo" class="logo-img" width="24" height="24" draggable="false" @click="jumpToHome"/>
     </div>
@@ -56,7 +56,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, watch, computed, ComponentPublicInstance } from 'vue'
+import { ref, onMounted, onUnmounted, watch, computed, ComponentPublicInstance } from 'vue'
 import draggable from 'vuedraggable'
 import { Language, WindowState } from '@src/types'
 import type { HeaderTab } from '@src/types/header'
@@ -310,10 +310,22 @@ const bindEvent = () => {
   });
 }
 
+// 处理document点击事件以关闭语言菜单
+const handleDocumentClick = (event: MouseEvent) => {
+  if (languageButtonRef.value && !languageButtonRef.value.contains(event.target as Node)) {
+    window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.APIFLOW.CONTENT_TO_TOPBAR.HIDE_LANGUAGE_MENU)
+  }
+}
+
 onMounted(() => {
   bindEvent()
   scrollToActiveTab()
   window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.APIFLOW.TOPBAR_TO_CONTENT.TOPBAR_READY);
+  window.addEventListener('click', handleDocumentClick)
+})
+
+onUnmounted(() => {
+  document.removeEventListener('click', handleDocumentClick)
 })
 
 watch(() => networkMode.value, (mode, prevMode) => {
