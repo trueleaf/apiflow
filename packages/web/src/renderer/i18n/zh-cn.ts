@@ -6,6 +6,7 @@
 export default {
   基于Vue和Electron的接口文档工具: '基于Vue和Electron的接口文档工具',
   项目列表: '项目列表',
+  '暂无项目，点击上方按钮创建第一个项目': '暂无项目，点击上方按钮创建第一个项目',
   GitHub地址: 'GitHub地址',
   Gitee地址: 'Gitee地址',
   最近一次更新: '最近一次更新',

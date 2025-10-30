@@ -1,6 +1,7 @@
 export default {
   基于Vue和Electron的接口文档工具: '基于Vue和Electron的接口文档工具',
   项目列表: 'Project List',
+  '暂无项目，点击上方按钮创建第一个项目': 'No projects yet, click the button above to create your first project',
   项目名称: 'Project Name',
   GitHub地址: 'GitHub Address',
   Gitee地址: 'Gitee Address',

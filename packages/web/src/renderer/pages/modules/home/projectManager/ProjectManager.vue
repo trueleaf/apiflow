@@ -105,8 +105,12 @@
           <span>{{ $t("全部项目") }}({{ projectList.length }})</span>
         </span>
       </h2>
+      <!-- 空状态 -->
+      <div v-if="isEmptyState && !isFold" class="empty-container">
+        <el-empty :description="$t('暂无项目，点击上方按钮创建第一个项目')"></el-empty>
+      </div>
       <!-- 项目列表 -->
-      <div v-show="!isFold" class="project-wrap">
+      <div v-show="!isFold && !isEmptyState" class="project-wrap">
         <div v-for="(item, index) in projectList" :key="index" class="project-list">
           <div class="project-header">
             <div :title="item.projectName" class="title theme-color text-ellipsis">
@@ -283,6 +287,11 @@ const starProjects = computed(() => {
       isStared: !!isStared,
     };
   });
+});
+//判断是否显示空状态
+const isEmptyState = computed(() => {
+  const hasSearchCondition = projectName.value.trim().length > 0 || (isShowAdvanceSearch.value && projectKeyword.value.trim().length > 0);
+  return !hasSearchCondition && projectList.value.length === 0;
 });
 const apidocBaseInfo = useApidocBaseInfo()
 //获取项目列表
@@ -537,6 +546,12 @@ onMounted(() => {
 
 <style lang='scss' scoped>
 .project-manager {
+  .empty-container {
+    min-height: 500px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
   .project-wrap {
     display: flex;
     flex-wrap: wrap;
