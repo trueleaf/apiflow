@@ -60,21 +60,36 @@ export const initOfflineWorkbench = async (
   } = {}
 ): Promise<HeaderAndContentPages> => {
   const { clearStorage = true, timeout = 10000 } = options;
-  
+
   const pages = await getPages(electronApp);
   const { headerPage, contentPage } = pages;
+
+  // 检查并切换到 offline 模式
+  const networkText = headerPage.locator('.network-text');
+  await networkText.waitFor({ state: 'visible', timeout: 5000 });
+  const currentMode = await networkText.textContent();
+
+  if (currentMode?.includes('联网') || currentMode?.includes('在线')) {
+    // 当前是 online 模式，需要切换到 offline
+    const networkBtn = headerPage.locator('.network-btn');
+    await networkBtn.click();
+    await contentPage.waitForURL(/home/, { timeout });
+    await contentPage.waitForLoadState('domcontentloaded');
+    await contentPage.waitForTimeout(500);
+  }
+
   if (clearStorage) {
     await contentPage.evaluate(() => {
       localStorage.clear();
     });
   }
 
-  await contentPage.waitForTimeout(30000);
+  // await contentPage.waitForTimeout(30000);
   await contentPage.reload();
   await contentPage.waitForURL(/home/, { timeout });
   await contentPage.waitForLoadState('domcontentloaded');
   await contentPage.waitForTimeout(1000);
-  
+
   return { headerPage, contentPage };
 };
 // 创建单个节点的内部辅助方法
@@ -202,7 +217,6 @@ export const login = async (
 
   // 填写密码
   await contentPage.fill('input[name="password"]', password);
-
   // 点击登录按钮
   await contentPage.click('button:has-text("登录")');
 
