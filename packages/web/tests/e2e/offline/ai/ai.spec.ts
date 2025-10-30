@@ -1,6 +1,5 @@
 import { expect, type Page } from '@playwright/test';
-import { test, initOfflineWorkbench } from '../../../fixtures/fixtures';
-import { navigateToAiSettings, saveAiConfig } from '../fixtures/ai.fixture';
+import { test, initOfflineWorkbench, navigateToAiSettings, saveAiConfig } from '../../../fixtures/fixtures';
 // AI 功能测试
 test.describe('AI 功能测试', () => {
   let headerPage: Page;
