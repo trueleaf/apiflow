@@ -1,5 +1,5 @@
 import { createApp } from 'vue'
-import ShareComponent from '../../src/renderer/pages/apidoc/docShare/Share.vue'
+import ShareComponent from '../../src/renderer/pages/share/Share.vue'
 import { createPinia } from 'pinia';
 import { zhCn } from 'element-plus/es/locale/index.mjs';
 import { customDirective } from '../../src/renderer/directive/directive';

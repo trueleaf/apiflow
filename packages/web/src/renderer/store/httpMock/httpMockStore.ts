@@ -7,9 +7,9 @@ import { cloneDeep } from "lodash-es";
 import { apiNodesCache } from "@/cache/index";
 import { httpMockNodeCache } from "@/cache/mock/httpMock/httpMockNodeCache.ts";
 import { ElMessageBox } from "element-plus";
-import { useApidocTas } from "../apidoc/tabsStore.ts";
+import { useApidocTas } from "../share/tabsStore.ts";
 import { router } from "@/router/index.ts";
-import { useApidocBanner } from "../apidoc/bannerStore.ts";
+import { useApidocBanner } from "../share/bannerStore.ts";
 import { useRuntime } from '@/store/runtime/runtimeStore';
 
 export const useHttpMock = defineStore('httpMock', () => {

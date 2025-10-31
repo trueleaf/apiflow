@@ -8,12 +8,12 @@
 </template>
 
 <script lang="ts" setup>
-import { useApidoc } from '@/store/apidoc/apidocStore';
+import { useApidoc } from '@/store/share/apidocStore';
 import { computed } from 'vue'
 import SParamsTree from '@/components/apidoc/paramsTree/GParamsTree3.vue'
 import { useI18n } from 'vue-i18n'
 import { useHttpRedoUndo } from '@/store/redoUndo/httpRedoUndoStore'
-import { useApidocTas } from '@/store/apidoc/tabsStore'
+import { useApidocTas } from '@/store/share/tabsStore'
 import { router } from '@/router'
 import { debounce, cloneDeep } from 'lodash-es'
 import type { ApidocProperty } from '@src/types'

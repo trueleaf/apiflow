@@ -68,8 +68,8 @@ import { useI18n } from 'vue-i18n'
 import SParamsTree from '@/components/apidoc/paramsTree/GParamsTree3.vue'
 import { useWebSocket } from '@/store/websocket/websocketStore';
 import { useWsRedoUndo } from '@/store/redoUndo/wsRedoUndoStore';
-import { useApidocTas } from '@/store/apidoc/tabsStore';
-import { useApidocBaseInfo } from '@/store/apidoc/baseInfoStore';
+import { useApidocTas } from '@/store/share/tabsStore';
+import { useApidocBaseInfo } from '@/store/share/baseInfoStore';
 import { webSocketNodeCache } from '@/cache/websocketNode/websocketNodeCache';
 import { storeToRefs } from 'pinia';
 import { CheckboxValueType } from 'element-plus';

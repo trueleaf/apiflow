@@ -117,7 +117,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted } from 'vue'
-import { CacheInfo, LocalStorageItem, IndexedDBItem } from '@src/types/apidoc/cache'
+import { CacheInfo, LocalStorageItem, IndexedDBItem } from '@src/types/share/cache'
 import { formatUnit } from '@/helper'
 import { RefreshRight } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'

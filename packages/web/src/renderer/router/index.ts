@@ -23,7 +23,7 @@ const routes: Array<RouteRecordRaw> = [
   {
     path: "/share",
     name: "Share",
-    component: () => import("@/pages/apidoc/docShare/Share.vue"),
+    component: () => import("@/pages/share/Share.vue"),
   },
   {
     path: "/settings",
@@ -82,7 +82,7 @@ const routerConfig = {
     {
       path: "/share",
       name: "Share",
-      component: () => import("@/pages/apidoc/docShare/Share.vue"),
+      component: () => import("@/pages/share/Share.vue"),
     },
     {
       path: "/settings",

@@ -7,9 +7,9 @@
 <script lang="ts" setup>
 import { computed, watch } from 'vue'
 import AfterEditor from './editor/AfterEditor.vue'
-import { useApidoc } from '@/store/apidoc/apidocStore';
+import { useApidoc } from '@/store/share/apidocStore';
 import { useHttpRedoUndo } from '@/store/redoUndo/httpRedoUndoStore'
-import { useApidocTas } from '@/store/apidoc/tabsStore'
+import { useApidocTas } from '@/store/share/tabsStore'
 import { router } from '@/router'
 import { debounce, cloneDeep } from 'lodash-es'
 

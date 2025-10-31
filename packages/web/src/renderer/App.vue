@@ -21,7 +21,7 @@ import { useRouter } from 'vue-router';
 import AddProjectDialog from '@/pages/home/dialog/addProject/AddProject.vue';
 import { projectCache } from '@/cache/index';
 import { ElMessageBox } from 'element-plus';
-import { useApidocBaseInfo } from './store/apidoc/baseInfoStore';
+import { useApidocBaseInfo } from './store/share/baseInfoStore';
 import { Language } from '@src/types';
 import LanguageMenu from '@/components/common/language/Language.vue';
 import type { RuntimeNetworkMode } from '@src/types/runtime';
@@ -166,10 +166,7 @@ const bindTopBarEvent = () => {
         projectName: matchedProject.projectName
       })
     }
-    if (isOffline.value) {
-      await apidocBaseInfoStore.getProjectBaseInfo({ projectId: data.projectId })
-      await apidocBaseInfoStore.changeProjectId(data.projectId)
-    }
+    await apidocBaseInfoStore.getProjectBaseInfo({ projectId: data.projectId })
     router.push({
       path: '/v1/apidoc/doc-edit',
       query: {

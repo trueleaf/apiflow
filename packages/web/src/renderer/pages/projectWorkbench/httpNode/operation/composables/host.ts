@@ -1,9 +1,9 @@
 import { ref, Ref, computed, WritableComputedRef, ComputedRef } from 'vue'
 import { ApidocProjectHost } from '@src/types'
-import { useApidoc } from '@/store/apidoc/apidocStore'
-import { useApidocBaseInfo } from '@/store/apidoc/baseInfoStore'
+import { useApidoc } from '@/store/share/apidocStore'
+import { useApidocBaseInfo } from '@/store/share/baseInfoStore'
 import { useHttpRedoUndo } from '@/store/redoUndo/httpRedoUndoStore'
-import { useApidocTas } from '@/store/apidoc/tabsStore'
+import { useApidocTas } from '@/store/share/tabsStore'
 import { router } from '@/router'
 
 type HostReturn = {

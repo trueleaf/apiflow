@@ -109,10 +109,10 @@ import SStatus from './children/Status.vue'
 import SMime from './children/Mime.vue'
 import SRawEditor from '@/components/apidoc/rawEditor/GRawEditor.vue'
 import SJsonEditor from '@/components/common/jsonEditor/GJsonEditor.vue'
-import { useApidoc } from '@/store/apidoc/apidocStore';
-import { useApidocBaseInfo } from '@/store/apidoc/baseInfoStore';
+import { useApidoc } from '@/store/share/apidocStore';
+import { useApidocBaseInfo } from '@/store/share/baseInfoStore';
 import { useHttpRedoUndo } from '@/store/redoUndo/httpRedoUndoStore'
-import { useApidocTas } from '@/store/apidoc/tabsStore'
+import { useApidocTas } from '@/store/share/tabsStore'
 import { router } from '@/router'
 import { debounce, cloneDeep } from 'lodash-es'
 

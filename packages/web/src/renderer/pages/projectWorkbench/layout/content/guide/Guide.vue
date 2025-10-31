@@ -23,7 +23,7 @@ import { useI18n } from 'vue-i18n'
 import { ApidocBanner } from '@src/types'
 import { forEachForest } from '@/helper'
 import { config } from '@src/config/config'
-import { useApidocBanner } from '@/store/apidoc/bannerStore'
+import { useApidocBanner } from '@/store/share/bannerStore'
 
 const apidocBannerStore = useApidocBanner()
 const logoUrl = new URL('@/assets/imgs/logo.png', import.meta.url).href

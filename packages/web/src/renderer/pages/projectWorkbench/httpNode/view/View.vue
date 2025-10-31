@@ -80,8 +80,8 @@
 <script lang="ts" setup>
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { useApidocBaseInfo } from '@/store/apidoc/baseInfoStore';
-import { useApidoc } from '@/store/apidoc/apidocStore';
+import { useApidocBaseInfo } from '@/store/share/baseInfoStore';
+import { useApidoc } from '@/store/share/apidocStore';
 
 const apidocBaseInfoStore = useApidocBaseInfo()
 const apidocStore = useApidoc()

@@ -1,4 +1,4 @@
-import { ApidocTab } from "@src/types/apidoc/tabs";
+import { ApidocTab } from "@src/types/share/tabs";
 import { defineStore } from "pinia";
 import { ref, computed } from "vue";
 import { event, findNodeById } from "@/helper";

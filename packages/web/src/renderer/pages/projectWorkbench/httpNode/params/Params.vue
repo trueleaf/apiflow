@@ -297,10 +297,10 @@ import SAfterRequestParams from './afterRequest/AfterRequest.vue';
 import SRemark from './remarks/Remarks.vue';
 // import SHook from './hook/hook.vue'
 import { computed, onMounted, onUnmounted, ref, watch, watchEffect } from 'vue'
-import { useApidocBaseInfo } from '@/store/apidoc/baseInfoStore'
-import { useApidoc } from '@/store/apidoc/apidocStore'
+import { useApidocBaseInfo } from '@/store/share/baseInfoStore'
+import { useApidoc } from '@/store/share/apidocStore'
 import { useRoute } from 'vue-router'
-import { useApidocTas } from '@/store/apidoc/tabsStore'
+import { useApidocTas } from '@/store/share/tabsStore'
 import { useHttpRedoUndo } from '@/store/redoUndo/httpRedoUndoStore'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { httpNodeHistoryCache } from '@/cache/httpNode/httpNodeHistoryCache'

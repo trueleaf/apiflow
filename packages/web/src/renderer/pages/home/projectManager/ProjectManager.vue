@@ -208,7 +208,7 @@ import { ElMessageBox } from 'element-plus';
 import { router } from '@/router';
 import { formatDate } from '@/helper';
 import { debounce } from "lodash-es";
-import { useApidocBaseInfo } from '@/store/apidoc/baseInfoStore'
+import { useApidocBaseInfo } from '@/store/share/baseInfoStore'
 import { projectCache, apiNodesCache } from '@/cache/index'
 import { useProjectStore } from '@/store/project/projectStore'
 import { useRuntime } from '@/store/runtime/runtimeStore'

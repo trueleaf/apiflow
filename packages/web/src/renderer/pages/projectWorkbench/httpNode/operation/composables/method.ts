@@ -1,10 +1,10 @@
 import { ComputedRef, computed, WritableComputedRef } from 'vue'
 import { i18n } from '@/i18n'
 import { ApidocRequestMethodRule, HttpNodeRequestMethod } from '@src/types';
-import { useApidoc } from '@/store/apidoc/apidocStore';
-import { useApidocBaseInfo } from '@/store/apidoc/baseInfoStore';
+import { useApidoc } from '@/store/share/apidocStore';
+import { useApidocBaseInfo } from '@/store/share/baseInfoStore';
 import { useHttpRedoUndo } from '@/store/redoUndo/httpRedoUndoStore';
-import { useApidocTas } from '@/store/apidoc/tabsStore';
+import { useApidocTas } from '@/store/share/tabsStore';
 import { router } from '@/router';
 
 type MethodReturn = {

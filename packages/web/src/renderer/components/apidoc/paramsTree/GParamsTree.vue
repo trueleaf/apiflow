@@ -176,7 +176,7 @@ import type { TreeNodeOptions } from 'element-plus/lib/components/tree/src/tree.
 import type { ApidocProperty, HttpNodePropertyType } from '@src/types'
 import { apidocGenerateProperty, forEachForest } from '@/helper/index'
 import { useI18n } from 'vue-i18n'
-import { useApidoc } from '@/store/apidoc/apidocStore'
+import { useApidoc } from '@/store/share/apidocStore'
 import SValidInput from '@/components/common/validInput/GValidInput.vue'
 import { config } from '@src/config/config'
 

@@ -1,4 +1,4 @@
-import { IndexedDBItem, StoreDetailItem, StoreDetailResponse } from '@src/types/apidoc/cache.ts';
+import { IndexedDBItem, StoreDetailItem, StoreDetailResponse } from '@src/types/share/cache.ts';
 import { openDB } from 'idb';
 
 

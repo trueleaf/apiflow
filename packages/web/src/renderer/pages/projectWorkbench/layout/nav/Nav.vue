@@ -130,17 +130,17 @@ import {
   ArrowLeft as IconArrowLeft
 } from '@element-plus/icons-vue';
 import { ComponentPublicInstance, computed, onMounted, onUnmounted, ref } from 'vue';
-import { ApidocTab } from '@src/types/apidoc/tabs';
+import { ApidocTab } from '@src/types/share/tabs';
 import { router } from '@/router';
-import { useApidocTas } from '@/store/apidoc/tabsStore';
+import { useApidocTas } from '@/store/share/tabsStore';
 import { event } from '@/helper'
 import { nanoid } from 'nanoid/non-secure'
-import { useApidocBaseInfo } from '@/store/apidoc/baseInfoStore';
+import { useApidocBaseInfo } from '@/store/share/baseInfoStore';
 import SContextmenu from '@/components/common/contextmenu/GContextmenu.vue'
 import SContextmenuItem from '@/components/common/contextmenu/GContextmenuItem.vue'
-import { useApidocBanner } from '@/store/apidoc/bannerStore';
-import { useApidocRequest } from '@/store/apidoc/requestStore';
-import { useApidocResponse } from '@/store/apidoc/responseStore';
+import { useApidocBanner } from '@/store/share/bannerStore';
+import { useApidocRequest } from '@/store/share/requestStore';
+import { useApidocResponse } from '@/store/share/responseStore';
 
 
 /*

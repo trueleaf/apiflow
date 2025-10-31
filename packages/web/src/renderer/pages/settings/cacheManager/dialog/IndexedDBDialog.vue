@@ -82,7 +82,7 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted } from 'vue'
-import { IndexedDBItem, StoreDetailResponse, StoreDetailItem } from '@src/types/apidoc/cache'
+import { IndexedDBItem, StoreDetailResponse, StoreDetailItem } from '@src/types/share/cache'
 import { formatUnit } from '@/helper'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import SJsonEditor from '@/components/common/jsonEditor/GJsonEditor.vue'

@@ -1,4 +1,4 @@
-import { useApidocBanner } from '@/store/apidoc/bannerStore';
+import { useApidocBanner } from '@/store/share/bannerStore';
 import { useRoute } from 'vue-router'
 
 type ReturnData = {

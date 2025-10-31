@@ -41,9 +41,9 @@ import { request } from '@/api/api'
 import { event } from '@/helper';
 import SLoading from '@/components/common/loading/GLoading.vue'
 import SFieldset from '@/components/common/fieldset/GFieldset.vue'
-import { useApidoc } from '@/store/apidoc/apidocStore';
-import { useApidocBanner } from '@/store/apidoc/bannerStore';
-import { useApidocTas } from '@/store/apidoc/tabsStore';
+import { useApidoc } from '@/store/share/apidocStore';
+import { useApidocBanner } from '@/store/share/bannerStore';
+import { useApidocTas } from '@/store/share/tabsStore';
 import { apiNodesCache } from '@/cache/index';
 import { nanoid } from 'nanoid';
 import { useRuntime } from '@/store/runtime/runtimeStore';

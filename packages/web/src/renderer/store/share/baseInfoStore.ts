@@ -199,6 +199,9 @@ export const useApidocBaseInfo = defineStore('apidocBaseInfo', () => {
    * 获取项目基本信息
    */
   const getProjectBaseInfo = async (payload: { projectId: string }): Promise<void> => {
+    // 无论在线/离线模式都先设置 projectId
+    projectId.value = payload.projectId;
+
     const { replaceVariables } = useVariable();
     if (isOffline()){
       const projectInfo = await projectCache.getProjectInfo(payload.projectId);

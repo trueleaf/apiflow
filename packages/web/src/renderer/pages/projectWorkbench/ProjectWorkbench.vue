@@ -16,11 +16,11 @@ import SaveDocDialog from './dialog/saveDoc/SaveDoc.vue'
 import Banner from './layout/banner/Banner.vue';
 import Nav from './layout/nav/Nav.vue';
 import Content from './layout/content/Content.vue';
-import { useApidocTas } from '@/store/apidoc/tabsStore'
-import { useApidoc } from '@/store/apidoc/apidocStore'
-import { useApidocBaseInfo } from '@/store/apidoc/baseInfoStore'
+import { useApidocTas } from '@/store/share/tabsStore'
+import { useApidoc } from '@/store/share/apidocStore'
+import { useApidocBaseInfo } from '@/store/share/baseInfoStore'
 import { useRoute } from 'vue-router';
-import { useCookies } from '@/store/apidoc/cookiesStore';
+import { useCookies } from '@/store/share/cookiesStore';
 import { useWebSocket } from '@/store/websocket/websocketStore';
 import { useWindowEvent } from '@/hooks/useWindowEvent';
 

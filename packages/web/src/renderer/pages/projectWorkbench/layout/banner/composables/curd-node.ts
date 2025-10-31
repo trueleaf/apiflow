@@ -7,10 +7,10 @@ import { findNodeById, forEachForest, findParentById, flatTree, uniqueByKey, fin
 import { router } from '@/router/index'
 import { request } from '@/api/api'
 import { i18n } from '@/i18n'
-import { useApidocBanner } from '@/store/apidoc/bannerStore';
-import { useApidocTas } from '@/store/apidoc/tabsStore';
-import { useApidoc } from '@/store/apidoc/apidocStore';
-import { useApidocBaseInfo } from '@/store/apidoc/baseInfoStore.ts';
+import { useApidocBanner } from '@/store/share/bannerStore';
+import { useApidocTas } from '@/store/share/tabsStore';
+import { useApidoc } from '@/store/share/apidocStore';
+import { useApidocBaseInfo } from '@/store/share/baseInfoStore.ts';
 import { apiNodesCache } from '@/cache/index';
 import { nanoid } from 'nanoid';
 import { useRuntime } from '@/store/runtime/runtimeStore';

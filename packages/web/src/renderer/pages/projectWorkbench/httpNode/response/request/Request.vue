@@ -60,10 +60,10 @@
 import { useI18n } from 'vue-i18n'
 import { computed } from 'vue'
 import beautify from 'js-beautify'
-import { useApidoc } from '@/store/apidoc/apidocStore';
+import { useApidoc } from '@/store/share/apidocStore';
 import SCollapse from '@/components/common/collapse/GCollapse.vue'
-import { useApidocBaseInfo } from '@/store/apidoc/baseInfoStore';
-import { useApidocResponse } from '@/store/apidoc/responseStore';
+import { useApidocBaseInfo } from '@/store/share/baseInfoStore';
+import { useApidocResponse } from '@/store/share/responseStore';
 import { formatUnit, downloadStringAsText } from '@/helper/index'
 import { storeToRefs } from 'pinia';
 import SJsonEditor from '@/components/common/jsonEditor/GJsonEditor.vue'

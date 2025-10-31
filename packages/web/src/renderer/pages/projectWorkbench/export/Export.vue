@@ -93,9 +93,9 @@ import type { TreeNodeOptions } from 'element-plus/lib/components/tree/src/tree.
 import { ApidocBanner, HttpNode, WebSocketNode } from '@src/types';
 import { request } from '@/api/api'
 import { useI18n } from 'vue-i18n'
-import { useApidocBaseInfo } from '@/store/apidoc/baseInfoStore';
-import { useApidocBanner } from '@/store/apidoc/bannerStore';
-import { useVariable } from '@/store/apidoc/variablesStore';
+import { useApidocBaseInfo } from '@/store/share/baseInfoStore';
+import { useApidocBanner } from '@/store/share/bannerStore';
+import { useVariable } from '@/store/share/variablesStore';
 import SFieldset from '@/components/common/fieldset/GFieldset.vue'
 import SConfig from '@/components/common/config/GConfig.vue'
 import SEmphasize from '@/components/common/emphasize/GEmphasize.vue'

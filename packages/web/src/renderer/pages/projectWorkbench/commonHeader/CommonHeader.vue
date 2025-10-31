@@ -27,8 +27,8 @@ import { apidocGenerateProperty } from '@/helper';
 import SFieldset from '@/components/common/fieldset/GFieldset.vue'
 import SLoading from '@/components/common/loading/GLoading.vue'
 import SParamsTree from '@/components/apidoc/paramsTree/GParamsTree.vue'
-import { useApidocTas } from '@/store/apidoc/tabsStore';
-import { useApidocBaseInfo } from '@/store/apidoc/baseInfoStore';
+import { useApidocTas } from '@/store/share/tabsStore';
+import { useApidocBaseInfo } from '@/store/share/baseInfoStore';
 
 
 

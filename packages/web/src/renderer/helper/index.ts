@@ -11,7 +11,7 @@ import Mock from 'mockjs';
 import { faker } from '@faker-js/faker';
 import type { ParsedSSeData, Property, RendererFormDataBody, ChunkWithTimestampe, SandboxPostMessage } from '@src/types';
 import SandboxWorker from '@/worker/sandbox.ts?worker&inline';
-import { useVariable } from '@/store/apidoc/variablesStore';
+import { useVariable } from '@/store/share/variablesStore';
 
 type UrlInfo = {
   host: string,
