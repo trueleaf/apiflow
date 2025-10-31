@@ -48,7 +48,7 @@ export const config: Config = {
     version: '0.8.0', //当前项目版本
     title: 'Apiflow', //项目名称
   },
-  requestConfig: {
+  httpNodeRequestConfig: {
     maxTextBodySize: 1024 * 1024 * 50, //最大可展示文本格式数大小
     maxRawBodySize: 1024 * 1024 * 50, //最大可以显示原始值类型
     userAgent: "https://github.com/trueleaf/apiflow",
@@ -57,11 +57,11 @@ export const config: Config = {
     maxHeaderValueDisplayLength: 1024,
   },
   cacheConfig: {
-    apiflowResponseCache: {
+    httpNodeResponseCache: {
       singleResponseBodySize: 1024 * 1024 * 200, //单个返回值大小
       maxResponseBodySize: 1024 * 1024 * 1024 * 10, //最大可以缓存的返回值大小
       chunkSize: 1024 * 1024 * 5, //分块大小，默认5MB
-      dbName: 'apiflowResponseCache',
+      dbName: 'httpNodeResponseCache',
       version: 1, //升级版本以支持分块存储
     },
     websocketNodeResponseCache: {
@@ -82,14 +82,14 @@ export const config: Config = {
       storeName: 'histories',
       maxHistoryPerNode: 50, //每个节点最大历史记录数
     },
-    mockVariableCache: {
-      dbName: 'mockVariableCache',
+    mockNodeVariableCache: {
+      dbName: 'mockNodeVariableCache',
       version: 1,
       storeName: 'mockVariables',
       projectIdIndex: 'projectId'
     },
-    mockLogsCache: {
-      dbName: 'mockLogsCache',
+    mockNodeLogsCache: {
+      dbName: 'mockNodeLogsCache',
       version: 1,
       storeName: 'logs',
       maxLogsPerNode: 1000

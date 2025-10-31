@@ -119,7 +119,7 @@ export type Config = {
      */
     title: string,
   },
-  requestConfig: {
+  httpNodeRequestConfig: {
     maxTextBodySize: number;
     maxRawBodySize: number
     userAgent: string;
@@ -131,7 +131,7 @@ export type Config = {
     maxHeaderValueDisplayLength: number;
   },
   cacheConfig: {
-    apiflowResponseCache: {
+    httpNodeResponseCache: {
       singleResponseBodySize: number;
       maxResponseBodySize: number;
       chunkSize: number;
@@ -156,13 +156,13 @@ export type Config = {
       storeName: string,
       maxHistoryPerNode: number, //每个节点最大历史记录数
     },
-    mockVariableCache: {
+    mockNodeVariableCache: {
       dbName: string,
       version: number,
       storeName: string,
       projectIdIndex: string,
     },
-    mockLogsCache: {
+    mockNodeLogsCache: {
       dbName: string,
       version: number,
       storeName: string,

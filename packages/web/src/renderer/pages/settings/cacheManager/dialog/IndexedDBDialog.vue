@@ -121,7 +121,7 @@ const visible = computed({
 // 定义消息处理函数，以便可以在卸载时移除
 const detailMessageHandler = (event: MessageEvent) => {
   const { type, data } = event.data;
-  if (props.currentStoreInfo.dbName === 'apiflowResponseCache' && props.currentStoreInfo.storeName === 'httpResponseCache') {
+  if (props.currentStoreInfo.dbName === 'httpNodeResponseCache' && props.currentStoreInfo.storeName === 'httpResponseCache') {
     data.data?.forEach((item: StoreDetailItem) => {
       (item as any).value.data.body = "<数据过大，无法显示>";
     });

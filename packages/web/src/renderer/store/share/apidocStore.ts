@@ -315,7 +315,7 @@ export const useApidoc = defineStore('apidoc', () => {
     //=========================================================================//
     const params2 = apidocGenerateProperty();
     params2.key = 'User-Agent';
-    params2._valuePlaceholder = config.requestConfig.userAgent;
+    params2._valuePlaceholder = config.httpNodeRequestConfig.userAgent;
     params2.description = '<用户代理软件信息>';
     params2._disableKey = true;
     params2._disableKeyTip = ''

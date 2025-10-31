@@ -576,7 +576,7 @@ export const sendRequest = async () => {
         if (now - lastCacheTime >= cacheThrottleDelay) {
           lastCacheTime = now;
           // 只有在数据大小合理的情况下才进行深拷贝和缓存
-          if (apidocResponseStore.responseInfo.bodyByteLength <= config.cacheConfig.apiflowResponseCache.singleResponseBodySize) {
+          if (apidocResponseStore.responseInfo.bodyByteLength <= config.cacheConfig.httpNodeResponseCache.singleResponseBodySize) {
             httpResponseCache.setResponse(selectedTab?._id ?? '', apidocResponseStore.responseInfo);
           }
         }
@@ -594,7 +594,7 @@ export const sendRequest = async () => {
         console.log('responseInfo', responseInfo)
         const storedResponseInfo = cloneDeep(responseInfo);
         storedResponseInfo.body = rawBody;
-        if (responseInfo.bodyByteLength > config.cacheConfig.apiflowResponseCache.singleResponseBodySize) {
+        if (responseInfo.bodyByteLength > config.cacheConfig.httpNodeResponseCache.singleResponseBodySize) {
           storedResponseInfo.body = [];
           storedResponseInfo.responseData.textData = '';
           storedResponseInfo.responseData.jsonData = '';

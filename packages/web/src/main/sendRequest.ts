@@ -163,7 +163,7 @@ export const gotRequest = async (options: GotRequestOptions) => {
     }
 
     //更user-agent,accept-encoding和accept，不能放在for循环后面，否则参数勾选将无效
-    headers['user-agent'] = options.headers['user-agent'] ?? config.requestConfig.userAgent;
+    headers['user-agent'] = options.headers['user-agent'] ?? config.httpNodeRequestConfig.userAgent;
     headers['accept'] = options.headers['accept'] ?? '*/*';
     headers['accept-encoding'] = options.headers['accept-encoding'] ?? 'gzip, deflate, br';
     //更新请求头信息
@@ -210,8 +210,8 @@ export const gotRequest = async (options: GotRequestOptions) => {
       },
       body: willSendBody,
       headers,
-      followRedirect: config.requestConfig.followRedirect,
-      maxRedirects: config.requestConfig.maxRedirects,
+      followRedirect: config.httpNodeRequestConfig.followRedirect,
+      maxRedirects: config.httpNodeRequestConfig.maxRedirects,
       throwHttpErrors: false,
       hooks: {
         beforeError: [(error: RequestError) => {

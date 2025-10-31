@@ -99,7 +99,7 @@ const dialogVisible = ref(false);
 const expandedRows = ref<Record<string, boolean>>({});
 
 function isExpandable(row: { key: string, value: string }) {
-  return row.value.length > config.requestConfig.maxHeaderValueDisplayLength;
+  return row.value.length > config.httpNodeRequestConfig.maxHeaderValueDisplayLength;
 }
 function isCollapsed(row: { key: string, value: string }) {
   return isExpandable(row) && !expandedRows.value[row.key];

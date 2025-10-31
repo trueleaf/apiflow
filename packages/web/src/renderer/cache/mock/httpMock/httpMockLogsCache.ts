@@ -6,12 +6,12 @@ let mockLogsDB: IDBPDatabase | null = null;
 async function initMockLogsDB(): Promise<IDBPDatabase> {
   if (mockLogsDB) return mockLogsDB;
   mockLogsDB = await openDB(
-    config.cacheConfig.mockLogsCache.dbName,
-    config.cacheConfig.mockLogsCache.version,
+    config.cacheConfig.mockNodeLogsCache.dbName,
+    config.cacheConfig.mockNodeLogsCache.version,
     {
       upgrade(db) {
-        if (!db.objectStoreNames.contains(config.cacheConfig.mockLogsCache.storeName)) {
-          const store = db.createObjectStore(config.cacheConfig.mockLogsCache.storeName, {
+        if (!db.objectStoreNames.contains(config.cacheConfig.mockNodeLogsCache.storeName)) {
+          const store = db.createObjectStore(config.cacheConfig.mockNodeLogsCache.storeName, {
             keyPath: 'id',
           });
           store.createIndex('nodeId', 'nodeId', { unique: false });
@@ -32,8 +32,8 @@ async function getMockLogsDB(): Promise<IDBPDatabase> {
   return mockLogsDB!;
 }
 class HttpMockLogsCache {
-  private storeName = config.cacheConfig.mockLogsCache.storeName;
-  private maxLogsPerNode = config.cacheConfig.mockLogsCache.maxLogsPerNode;
+  private storeName = config.cacheConfig.mockNodeLogsCache.storeName;
+  private maxLogsPerNode = config.cacheConfig.mockNodeLogsCache.maxLogsPerNode;
   private db: IDBPDatabase | null = null;
   private logQueue: MockLog[] = [];
   private flushTimer: ReturnType<typeof setTimeout> | null = null;

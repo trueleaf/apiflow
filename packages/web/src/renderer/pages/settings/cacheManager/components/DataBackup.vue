@@ -169,7 +169,7 @@ const handleSelectPath = async () => {
 const calculateDataCount = async () => {
   try {
     statusMessage.value = '正在计算数据量...';
-    estimatedDataCount.value = await getIndexedDBItemCount([exportConfig.includeResponseCache ? '' : 'apiflowResponseCache']);
+    estimatedDataCount.value = await getIndexedDBItemCount([exportConfig.includeResponseCache ? '' : 'httpNodeResponseCache']);
     exportStatus.itemNum = estimatedDataCount.value;
     statusMessage.value = '';
   } catch (error) {
@@ -304,7 +304,7 @@ const sendDataToMain = async () => {
 };
 // 检查是否统计当前数据库
 const checkDbIsNeedExport = (dbName: string) => {
-  if (!exportConfig.includeResponseCache && dbName === 'apiflowResponseCache') {
+  if (!exportConfig.includeResponseCache && dbName === 'httpNodeResponseCache') {
     return false;
   }
   return true

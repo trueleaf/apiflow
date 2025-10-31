@@ -57,7 +57,7 @@ export type FlowNode = {
   name: string;
   state: 'waiting' | 'pending' | 'finish' | 'error' | 'cancel';
   invokeNum: number;
-  requestConfig: {
+  httpNodeRequestConfig: {
     timeout?: number;
     variables: Record<string, any>;
     concurrency: number;

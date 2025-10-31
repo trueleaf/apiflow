@@ -13,8 +13,8 @@ type MockVariableCacheDBSchema = {
 };
 
 export class MockVariableCache {
-  private readonly dbName = config.cacheConfig.mockVariableCache.dbName;
-  private readonly version = config.cacheConfig.mockVariableCache.version;
+  private readonly dbName = config.cacheConfig.mockNodeVariableCache.dbName;
+  private readonly version = config.cacheConfig.mockNodeVariableCache.version;
 
   private dbPromise: Promise<IDBPDatabase<MockVariableCacheDBSchema>> | null = null;
 

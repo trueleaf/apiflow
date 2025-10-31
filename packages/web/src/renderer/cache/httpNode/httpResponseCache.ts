@@ -7,8 +7,8 @@ export class HttpResponseCache {
   private async initHttpResponseDB(): Promise<IDBPDatabase> {
     if (this.httpResponseCacheDb) return this.httpResponseCacheDb;
     this.httpResponseCacheDb = await openDB(
-      config.cacheConfig.apiflowResponseCache.dbName,
-      config.cacheConfig.apiflowResponseCache.version,
+      config.cacheConfig.httpNodeResponseCache.dbName,
+      config.cacheConfig.httpNodeResponseCache.version,
       {
         upgrade(db: IDBPDatabase) {
           if (!db.objectStoreNames.contains('responseMetadata')) {
@@ -29,7 +29,7 @@ export class HttpResponseCache {
   async setResponse(id: string, response: ResponseInfo) {
     await this.getDB();
     try {
-      const { singleResponseBodySize } = config.cacheConfig.apiflowResponseCache;
+      const { singleResponseBodySize } = config.cacheConfig.httpNodeResponseCache;
       
       // 分离数据
       const { streamData, ...responseWithoutStream } = response.responseData;
