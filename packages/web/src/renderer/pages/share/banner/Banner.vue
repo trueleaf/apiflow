@@ -67,6 +67,7 @@
 <script lang="ts" setup>
 import { computed, ref, Ref, watch } from 'vue'
 import type { ApidocBanner } from '@src/types'
+import type { ApidocTab } from '@src/types/share/tabs'
 import SResizeX from '@/components/common/resize/GResizeX.vue'
 import SEmphasize from '@/components/common/emphasize/GEmphasize.vue'
 import { TreeNodeOptions } from 'element-plus/es/components/tree/src/tree.type.mjs'
@@ -90,7 +91,7 @@ const showMoreNodeInfo = ref(false); //banner是否显示更多内容
 const searchValue = ref('');
 const requestMethods = ref(defaultRequestMethods);
 const bannerData = computed(() => shareStore.banner);
-const activeNode = computed(() => shareStore.tabs[shareId]?.find((v) => v.selected));
+const activeNode = computed(() => shareStore.tabs[shareId]?.find((v: ApidocTab) => v.selected));
 const projectName = computed(() => shareStore.project.projectName);
 const defaultExpandedKeys = computed(() => activeNode.value ? [activeNode.value._id] : []);
 /*

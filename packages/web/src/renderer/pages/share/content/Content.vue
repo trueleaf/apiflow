@@ -209,6 +209,7 @@ import SParamsView from '@/components/apidoc/paramsView/GParamsView.vue';
 import { useShareStore } from '../store';
 import { useRoute } from 'vue-router';
 import { userState } from '@/cache/userState/userStateCache.ts';
+import type { ApidocProperty } from '@src/types';
 ;
 
 const route = useRoute();
@@ -251,11 +252,11 @@ watchEffect(async () => {
   fullUrl.value = await convertTemplateValueToRealValue(rawUrl, shareStore.objectVariable);
 });
 
-const hasQueryParams = computed(() => apidocInfo.value?.item?.queryParams?.filter(p => p.select).some((data) => data.key));
-const actualQueryParams = computed(() => apidocInfo.value?.item?.queryParams?.filter(p => p.select && p.key) || []);
+const hasQueryParams = computed(() => apidocInfo.value?.item?.queryParams?.filter((p: ApidocProperty) => p.select).some((data: ApidocProperty) => data.key));
+const actualQueryParams = computed(() => apidocInfo.value?.item?.queryParams?.filter((p: ApidocProperty) => p.select && p.key) || []);
 
-const hasHeaders = computed(() => apidocInfo.value?.item.headers?.filter(p => p.select).some((data) => data.key));
-const actualHeaders = computed(() => apidocInfo.value?.item.headers?.filter(p => p.select && p.key) || []);
+const hasHeaders = computed(() => apidocInfo.value?.item.headers?.filter((p: ApidocProperty) => p.select).some((data: ApidocProperty) => data.key));
+const actualHeaders = computed(() => apidocInfo.value?.item.headers?.filter((p: ApidocProperty) => p.select && p.key) || []);
 
 const bodyType = computed(() => {
   if (!apidocInfo.value) return '';

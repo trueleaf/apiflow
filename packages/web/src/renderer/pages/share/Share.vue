@@ -53,6 +53,7 @@ import { request } from '@/api/api'
 import { FormInstance } from 'element-plus'
 import { Loading, } from '@element-plus/icons-vue'
 import { ApidocBanner, HttpNode, ApidocVariable, CommonResponse } from '@src/types'
+import { ApidocTab } from '@src/types/share/tabs'
 import { projectCache } from '@/cache/project/projectCache'
 import { workbenchCache } from '@/cache/workbench/workbenchCache'
 import { router } from '@/router'
@@ -219,10 +220,10 @@ watch([() => tabs.value[shareId], () => hasPermission.value],
   () => {
     const sharedTabs = tabs.value[shareId];
     if (!sharedTabs || !hasPermission.value) return;
-    const selectedTab = sharedTabs.find(tab => tab.selected);
+    const selectedTab = sharedTabs.find((tab: ApidocTab) => tab.selected);
     if (selectedTab && isForHtml.value) {
       // 查找对应文档
-      const doc = docs.value.find(doc => doc._id === selectedTab._id);
+      const doc = docs.value.find((doc: HttpNode) => doc._id === selectedTab._id);
       if (doc) {
         shareStore.setActiveDocInfo(doc);
       }

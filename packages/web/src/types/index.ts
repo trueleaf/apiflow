@@ -7,7 +7,6 @@ export * from './request';
 export * from './httpNode';
 export * from './project';
 export * from './workbench';
-export * from './apidoc';
 export * from './ai';
 export * from './runtime';
 export * from './websocketNode';
