@@ -130,7 +130,6 @@ const goForward = () => {
 | 语言切换
 |--------------------------------------------------------------------------
 */
-const currentLanguage = ref<Language>(localStorage.getItem('language') as Language || 'zh-cn')
 const currentLanguageDisplay = computed(() => {
   const languageMap: Record<Language, string> = {
     'zh-cn': '中',
@@ -138,7 +137,7 @@ const currentLanguageDisplay = computed(() => {
     'en': 'EN',
     'ja': 'JP'
   }
-  return languageMap[currentLanguage.value] || '中'
+  return languageMap[runtime.language] || '中'
 })
 const languageButtonRef = ref<HTMLElement>()
 const handleChangeLanguage = () => {
@@ -154,7 +153,7 @@ const handleChangeLanguage = () => {
     // 发送显示语言菜单事件到主进程，包含按钮位置信息
     window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.topBarToContent.showLanguageMenu, {
       position: buttonPosition,
-      currentLanguage: currentLanguage.value
+      currentLanguage: runtime.language
     })
   }
 }
@@ -256,7 +255,7 @@ const bindEvent = () => {
   })
   
   window.electronAPI?.ipcManager.onMain(IPC_EVENTS.apiflow.topBarToContent.languageChanged, (language: string) => {
-    currentLanguage.value = language as Language
+    runtime.setLanguage(language as Language)
     changeLanguage(language as Language)
   })
 

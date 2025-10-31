@@ -1,5 +1,6 @@
 import { createI18n } from 'vue-i18n';
 import type { Language } from '@src/types';
+import { runtimeCache } from '@/cache/runtime/runtimeCache';
 
 // 导入语言资源
 import zhCn from './zh-cn';
@@ -17,8 +18,7 @@ const messages = {
 
 // 获取初始语言
 const getInitialLanguage = (): Language => {
-  const savedLanguage = localStorage.getItem('language') as Language;
-  return savedLanguage || 'zh-cn';
+  return runtimeCache.getLanguage();
 };
 
 // 创建 i18n 实例
@@ -35,7 +35,7 @@ export const i18n = createI18n({
 // 切换语言的辅助函数
 export const changeLanguage = (language: Language) => {
   i18n.global.locale.value = language;
-  localStorage.setItem('language', language);
+  runtimeCache.setLanguage(language);
 };
 
 export default i18n;

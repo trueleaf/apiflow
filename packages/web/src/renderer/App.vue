@@ -4,7 +4,7 @@
   <LanguageMenu
     :visible="languageMenuVisible"
     :position="languageMenuPosition"
-    :current-language="currentLanguage"
+    :current-language="runtimeStore.language"
     @language-select="handleLanguageSelect"
     @close="hideLanguageMenu"
   />
@@ -40,7 +40,6 @@ const { t } = useI18n()
 // 语言菜单相关状态
 const languageMenuVisible = ref(false)
 const languageMenuPosition = ref({ x: 0, y: 0, width: 0, height: 0 })
-const currentLanguage = ref<Language>(localStorage.getItem('language') as Language || 'zh-cn')
 
 const handleAddSuccess = (data: { projectId: string, projectName: string }) => {
   dialogVisible.value = false;
@@ -86,7 +85,6 @@ const handleGoForward = () => {
 */
 const showLanguageMenu = (data: { position: any, currentLanguage: string }) => {
   languageMenuPosition.value = data.position
-  currentLanguage.value = data.currentLanguage as Language
   languageMenuVisible.value = true
 }
 
@@ -95,8 +93,7 @@ const hideLanguageMenu = () => {
 }
 
 const handleLanguageSelect = (language: Language) => {
-  currentLanguage.value = language;
-  localStorage.setItem('language', language);
+  runtimeStore.setLanguage(language);
   changeLanguage(language)
   hideLanguageMenu()
   // 发送语言切换事件到主进程
@@ -225,15 +222,7 @@ const initWelcom = () => {
   }
 }
 const initLanguage = () => {
-  const savedLanguage = localStorage.getItem('language') as Language;
-  if (savedLanguage) {
-    currentLanguage.value = savedLanguage;
-    changeLanguage(savedLanguage);
-  } else {
-    // 默认语言
-    currentLanguage.value = 'zh-cn';
-    changeLanguage('zh-cn');
-  }
+  changeLanguage(runtimeStore.language);
 }
 
 const initAppTitle = () => {

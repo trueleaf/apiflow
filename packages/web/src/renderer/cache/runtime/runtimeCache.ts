@@ -1,6 +1,9 @@
 import type { RuntimeNetworkMode } from '@src/types/runtime'
 import type { PermissionUserInfo } from '@src/types/project'
+import type { Language } from '@src/types/common'
 import { RUNTIME_STORAGE_KEY, RUNTIME_USERINFO_STORAGE_KEY } from '@src/types/runtime'
+
+const RUNTIME_LANGUAGE_STORAGE_KEY = 'runtime/language'
 
 class RuntimeCache {
   getNetworkMode(): RuntimeNetworkMode {
@@ -64,6 +67,27 @@ class RuntimeCache {
       return true
     } catch (error) {
       localStorage.removeItem(RUNTIME_USERINFO_STORAGE_KEY)
+      return false
+    }
+  }
+  // 获取语言
+  getLanguage(): Language {
+    try {
+      const language = localStorage.getItem(RUNTIME_LANGUAGE_STORAGE_KEY)
+      if (language === 'zh-cn' || language === 'zh-tw' || language === 'en' || language === 'ja') {
+        return language
+      }
+      return 'zh-cn'
+    } catch {
+      return 'zh-cn'
+    }
+  }
+  // 设置语言
+  setLanguage(language: Language): boolean {
+    try {
+      localStorage.setItem(RUNTIME_LANGUAGE_STORAGE_KEY, language)
+      return true
+    } catch (error) {
       return false
     }
   }
