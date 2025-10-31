@@ -152,7 +152,7 @@ const handleChangeLanguage = () => {
     }
 
     // 发送显示语言菜单事件到主进程，包含按钮位置信息
-    window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.contentToTopBar.showLanguageMenu, {
+    window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.topBarToContent.showLanguageMenu, {
       position: buttonPosition,
       currentLanguage: currentLanguage.value
     })
@@ -313,7 +313,7 @@ const bindEvent = () => {
 // 处理document点击事件以关闭语言菜单
 const handleDocumentClick = (event: MouseEvent) => {
   if (languageButtonRef.value && !languageButtonRef.value.contains(event.target as Node)) {
-    window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.contentToTopBar.hideLanguageMenu)
+    window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.topBarToContent.hideLanguageMenu)
   }
 }
 

@@ -276,13 +276,13 @@ export const useIpcEvent = (mainWindow: BrowserWindow, topBarView: WebContentsVi
   })
 
   // 显示语言菜单
-  ipcMain.on(IPC_EVENTS.apiflow.contentToTopBar.showLanguageMenu, (_, data: { position: any, currentLanguage: string }) => {
-    contentView.webContents.send(IPC_EVENTS.apiflow.contentToTopBar.showLanguageMenu, data)
+  ipcMain.on(IPC_EVENTS.apiflow.topBarToContent.showLanguageMenu, (_, data: { position: any, currentLanguage: string }) => {
+    contentView.webContents.send(IPC_EVENTS.apiflow.topBarToContent.showLanguageMenu, data)
   })
 
   // 隐藏语言菜单
-  ipcMain.on(IPC_EVENTS.apiflow.contentToTopBar.hideLanguageMenu, () => {
-    contentView.webContents.send(IPC_EVENTS.apiflow.contentToTopBar.hideLanguageMenu)
+  ipcMain.on(IPC_EVENTS.apiflow.topBarToContent.hideLanguageMenu, () => {
+    contentView.webContents.send(IPC_EVENTS.apiflow.topBarToContent.hideLanguageMenu)
   })
 
   // 语言切换

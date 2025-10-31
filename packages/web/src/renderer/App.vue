@@ -126,12 +126,12 @@ const initAppHeaderEvent = () => {
   })
 
   // 显示语言菜单事件监听
-  window.electronAPI?.ipcManager.onMain(IPC_EVENTS.apiflow.contentToTopBar.showLanguageMenu, (data: { position: any, currentLanguage: string }) => {
+  window.electronAPI?.ipcManager.onMain(IPC_EVENTS.apiflow.topBarToContent.showLanguageMenu, (data: { position: any, currentLanguage: string }) => {
     showLanguageMenu(data)
   })
 
   // 隐藏语言菜单事件监听
-  window.electronAPI?.ipcManager.onMain(IPC_EVENTS.apiflow.contentToTopBar.hideLanguageMenu, () => {
+  window.electronAPI?.ipcManager.onMain(IPC_EVENTS.apiflow.topBarToContent.hideLanguageMenu, () => {
     console.log('hide')
     hideLanguageMenu()
   })

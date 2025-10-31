@@ -37,6 +37,10 @@ export const IPC_EVENTS = {
       networkModeChanged: 'apiflow:topbar:to:content:network-mode-changed',
       /** 同步AI配置 */
       syncAiConfig: 'apiflow:topbar:to:content:sync-ai-config',
+      /** 显示语言菜单 */
+      showLanguageMenu: 'apiflow:topbar:to:content:show-language-menu',
+      /** 隐藏语言菜单 */
+      hideLanguageMenu: 'apiflow:topbar:to:content:hide-language-menu',
       /** Header Tabs 列表已更新 */
       tabsUpdated: 'apiflow:topbar:to:content:tabs-updated',
       /** Header 激活的 Tab 已变化 */
