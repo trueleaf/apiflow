@@ -32,7 +32,7 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import { formatUnit } from '@/helper'
+import { formatUnit } from '@/helper/format'
 import SJsonEditor from '@/components/common/jsonEditor/GJsonEditor.vue'
 import { LocalStorageItem } from '@src/types/share/cache'
 import { useI18n } from 'vue-i18n'

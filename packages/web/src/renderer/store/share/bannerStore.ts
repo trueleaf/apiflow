@@ -1,6 +1,6 @@
 import { request } from '@/api/api';
 import { apiNodesCache } from '@/cache/index';
-import { findNodeById, forEachForest } from "@/helper";
+import { findNodeById, forEachForest } from '@/helper/tree';
 import { ApidocBanner, ApidocBannerOfWebsocketNode, ApidocBannerOfHttpNode, ApidocBannerOfHttpMockNode, CommonResponse, MockStatusChangedPayload } from '@src/types';
 import { defineStore } from "pinia";
 import { ref } from "vue";

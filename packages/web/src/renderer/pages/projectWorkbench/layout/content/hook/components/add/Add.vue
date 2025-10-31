@@ -37,11 +37,8 @@ import SJsonEditor from '@/components/common/jsonEditor/GJsonEditor.vue'
 import SForm from '@/components/common/forms/form/GForm.vue'
 import SFormItem from '@/components/common/forms/form/GFormItem.vue'
 
-import {
-  getUrlInfo,
-  convertApidocPropertyToObject,
-  getResponseParamsByHttpNode,
-} from '@/helper';
+import { getResponseParamsByHttpNode, getUrlInfo } from '@/helper/apidoc'
+import { convertApidocPropertyToObject } from '@/helper/params';
 // import type { ApidocCodeInfo } from '@src/types'
 import { request } from '@/api/api';
 import { router } from '@/router';

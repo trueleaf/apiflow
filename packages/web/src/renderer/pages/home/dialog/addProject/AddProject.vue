@@ -68,7 +68,7 @@ import { computed, nextTick, ref, watch } from 'vue';
 import RemoteSelector from '@/components/common/remoteSelect/GRemoteSelect.vue';
 import RemoteSelectorItem from '@/components/common/remoteSelect/GRemoteSelectItem.vue';
 import { projectCache } from '@/cache/index';
-import { generateEmptyProject } from '@/helper';
+import { generateEmptyProject } from '@/helper/apidoc';
 import { nanoid } from 'nanoid';
 import { useRuntime } from '@/store/runtime/runtimeStore';
 

@@ -51,7 +51,7 @@ import SSearchItem from '@/components/common/forms/search/GSearchItem.vue'
 import STable from '@/components/common/table/GTable.vue'
 import { Ref, ref } from 'vue';
 import { useI18n } from 'vue-i18n'
-import { uniqueByKey } from '@/helper';
+import { uniqueByKey } from '@/helper/common';
 import { ElMessageBox } from 'element-plus';
 import { request } from '@/api/api';
 

@@ -28,7 +28,8 @@ import { useApidocBaseInfo } from '@/store/share/baseInfoStore';
 import { useApidocResponse } from '@/store/share/responseStore';
 import { computed, ref, watch, onMounted } from 'vue';
 import { config } from '@src/config/config'
-import { formatUnit, downloadStringAsText } from '@/helper/index'
+import { downloadStringAsText } from '@/helper/common'
+import { formatUnit } from '@/helper/format'
 import { useI18n } from 'vue-i18n'
 import SJsonEditor from '@/components/common/jsonEditor/GJsonEditor.vue'
 

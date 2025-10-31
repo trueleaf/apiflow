@@ -60,6 +60,7 @@ export default {
   更新进度: 'Update Progress',
   安装: 'Install',
   个人中心: 'Personal Center',
+  设置: 'Settings',
   检查更新: 'Check for Updates',
   版本: 'Version',
   退出登录: 'Logout',

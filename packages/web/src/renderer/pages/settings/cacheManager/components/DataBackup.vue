@@ -93,7 +93,7 @@
 import { ref, reactive, onMounted, onUnmounted, watch } from 'vue';
 import { ElMessage } from 'element-plus';
 import { ExportStatus } from '@src/types/index.ts';
-import { getIndexedDBItemCount } from '@/helper';
+import { getIndexedDBItemCount } from '@/helper/storage';
 import { IPC_EVENTS } from '@src/types/ipc';
 
 const exportStatus = reactive<ExportStatus>({

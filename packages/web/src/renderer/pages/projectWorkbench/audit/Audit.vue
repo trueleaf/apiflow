@@ -191,7 +191,7 @@ import dayjs from 'dayjs'
 import isToday from 'dayjs/plugin/isToday'
 import isYesterday from 'dayjs/plugin/isYesterday'
 import { ResponseTable, ApidocOperationRecord, ApidocProjectPermission } from '@src/types'
-import { formatDate } from '@/helper'
+import { formatDate } from '@/helper/format'
 import { debounce } from "lodash-es"
 import { request } from '@/api/api';
 import { router } from '@/router';

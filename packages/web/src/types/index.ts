@@ -13,6 +13,7 @@ export * from './runtime';
 export * from './websocketNode';
 export * from './mockNode';
 export * from './standalone';
+export * from './helper';
 export * from './history/wsHistory';
 export * from './history/httpHistory';
 export * from './redoUndo/wsRedoUndo';

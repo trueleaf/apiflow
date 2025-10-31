@@ -1,4 +1,4 @@
-import { randomInt } from '@/helper';
+import { randomInt } from '@/helper/common';
 import dayjs from 'dayjs';
 import Mock from 'mockjs';
 import { config } from '@src/config/config';

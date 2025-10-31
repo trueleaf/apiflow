@@ -66,9 +66,9 @@ test.describe('应用工作台 Header - 基础布局和显示', () => {
     const forwardBtn = headerPage.locator('.navigation-control .icon[title*="前进"]');
     await expect(forwardBtn).toBeVisible();
 
-    // 12. 验证个人中心按钮
-    const userCenterBtn = headerPage.locator('.navigation-control .icon:has(.icongerenzhongxin)');
-    await expect(userCenterBtn).toBeVisible();
+    // 12. 验证设置按钮
+    const settingsBtn = headerPage.locator('.navigation-control .icon[title*="设置"]');
+    await expect(settingsBtn).toBeVisible();
 
     // 13. 验证语言切换按钮
     const languageBtn = headerPage.locator('.navigation-control .icon:has(.iconyuyan)');
@@ -206,18 +206,18 @@ test.describe('应用工作台 Header - 标签页基础功能', () => {
     await expect(tabIcon).toBeVisible();
   });
   test('设置标签应正确显示设置名称和图标', async () => {
-    // 1. 点击个人中心按钮创建设置标签
-    const userCenterBtn = headerPage.locator('.navigation-control .icon:has(.icongerenzhongxin)');
-    await userCenterBtn.click();
+    // 1. 点击设置按钮创建设置标签
+    const settingsBtn = headerPage.locator('.navigation-control .icon[title*="设置"]');
+    await settingsBtn.click();
     await contentPage.waitForTimeout(1000);
 
     // 2. 验证设置标签存在
     const tabs = headerPage.locator('.tab-item');
     await expect(tabs).toHaveCount(1);
 
-    // 3. 验证标签页显示正确的设置名称（个人中心）
+    // 3. 验证标签页显示正确的设置名称
     const tab = tabs.first();
-    await expect(tab).toContainText('个人中心');
+    await expect(tab).toContainText('设置');
 
     // 4. 验证设置标签不显示图标（只有项目标签有图标）
     const tabIcon = tab.locator('.tab-icon');
@@ -1115,24 +1115,24 @@ test.describe('应用工作台 Header - 导航控制功能', () => {
     expect(contentPage.url()).toBe(initialUrl);
     expect(contentPage.url()).toContain('#/home');
   });
-  test('个人中心按钮应正确显示并可点击', async () => {
-    // 1. 定位个人中心按钮
-    const userCenterBtn = headerPage.locator('.navigation-control .icon:has(.icongerenzhongxin)');
+  test('设置按钮应正确显示并可点击', async () => {
+    // 1. 定位设置按钮
+    const settingsBtn = headerPage.locator('.navigation-control .icon[title*="设置"]');
 
     // 2. 验证按钮可见
-    await expect(userCenterBtn).toBeVisible();
+    await expect(settingsBtn).toBeVisible();
 
     // 3. 验证按钮可点击（未被禁用）
-    await expect(userCenterBtn).toBeEnabled();
+    await expect(settingsBtn).toBeEnabled();
   });
-  test('点击个人中心按钮应创建个人中心标签', async () => {
+  test('点击设置按钮应创建设置标签', async () => {
     // 1. 验证初始无标签
     const tabs = headerPage.locator('.tab-item');
     await expect(tabs).toHaveCount(0);
 
-    // 2. 点击个人中心按钮
-    const userCenterBtn = headerPage.locator('.navigation-control .icon:has(.icongerenzhongxin)');
-    await userCenterBtn.click();
+    // 2. 点击设置按钮
+    const settingsBtn = headerPage.locator('.navigation-control .icon[title*="设置"]');
+    await settingsBtn.click();
     await contentPage.waitForTimeout(1000);
 
     // 3. 验证创建了标签
@@ -1140,7 +1140,7 @@ test.describe('应用工作台 Header - 导航控制功能', () => {
 
     // 4. 验证标签内容正确
     const tab = tabs.first();
-    await expect(tab).toContainText('个人中心');
+    await expect(tab).toContainText('设置');
 
     // 5. 验证标签为激活状态
     await expect(tab).toHaveClass(/active/);
@@ -1149,7 +1149,7 @@ test.describe('应用工作台 Header - 导航控制功能', () => {
     const tabIcon = tab.locator('.tab-icon');
     await expect(tabIcon).toHaveCount(0);
 
-    // 7. 验证跳转到个人中心页面
+    // 7. 验证跳转到设置页面
     await contentPage.waitForURL(/settings/, { timeout: 10000 });
     expect(contentPage.url()).toContain('settings');
 
@@ -1157,12 +1157,12 @@ test.describe('应用工作台 Header - 导航控制功能', () => {
     const homeBtn = headerPage.locator('.home');
     await expect(homeBtn).not.toHaveClass(/active/);
   });
-  test('再次点击个人中心按钮应激活已存在的标签', async () => {
-    const userCenterBtn = headerPage.locator('.navigation-control .icon:has(.icongerenzhongxin)');
+  test('再次点击设置按钮应激活已存在的标签', async () => {
+    const settingsBtn = headerPage.locator('.navigation-control .icon[title*="设置"]');
     const tabs = headerPage.locator('.tab-item');
 
     // 1. 第一次点击，创建标签
-    await userCenterBtn.click();
+    await settingsBtn.click();
     await contentPage.waitForTimeout(500);
     await expect(tabs).toHaveCount(1);
 
@@ -1176,8 +1176,8 @@ test.describe('应用工作台 Header - 导航控制功能', () => {
     const tab = tabs.first();
     await expect(tab).not.toHaveClass(/active/);
 
-    // 4. 再次点击个人中心按钮
-    await userCenterBtn.click();
+    // 4. 再次点击设置按钮
+    await settingsBtn.click();
     await contentPage.waitForTimeout(500);
 
     // 5. 验证仍然只有1个标签（未创建新标签）
@@ -1186,7 +1186,7 @@ test.describe('应用工作台 Header - 导航控制功能', () => {
     // 6. 验证标签被激活
     await expect(tab).toHaveClass(/active/);
 
-    // 7. 验证再次跳转到个人中心页面
+    // 7. 验证再次跳转到设置页面
     await contentPage.waitForURL(/settings/, { timeout: 10000 });
     expect(contentPage.url()).toContain('settings');
   });

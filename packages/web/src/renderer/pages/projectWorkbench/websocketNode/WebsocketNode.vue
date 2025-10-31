@@ -28,7 +28,7 @@ import SParams from './params/Params.vue'
 import SResponse from './response/Response.vue'
 import { useApidocTas } from '@/store/share/tabsStore'
 import { useWebSocket } from '@/store/websocket/websocketStore'
-import { checkPropertyIsEqual } from '@/helper'
+import { checkPropertyIsEqual } from '@/helper/apidoc'
 import { nanoid } from 'nanoid/non-secure'
 import { debounce } from "lodash-es"
 import type { WebSocketNode } from '@src/types/websocketNode'

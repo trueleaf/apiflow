@@ -3,7 +3,7 @@
     <div class="tab-container">
       <div class="vertical-tabs">
         <div class="sidebar-title">
-          <span>账号信息</span>
+          <span>基本设置</span>
         </div>
 
         <div class="menu-group">
@@ -15,7 +15,7 @@
         </div>
 
         <div class="sidebar-title sidebar-settings-title">
-          <span>偏好设置</span>
+          <span>其他设置</span>
         </div>
 
         <div class="menu-group">

@@ -176,7 +176,7 @@ import { ref, Ref, watch } from 'vue';
 import { Close, Switch } from '@element-plus/icons-vue';
 import type Node from 'element-plus/es/components/tree/src/model/node';
 import type { ApidocProperty } from '@src/types';
-import { apidocGenerateProperty } from '@/helper/index';
+import { apidocGenerateProperty } from '@/helper/apidoc';
 import { useI18n } from 'vue-i18n';
 import SMock from '@/components/apidoc/mock/GMock.vue';
 import { config } from '@src/config/config';

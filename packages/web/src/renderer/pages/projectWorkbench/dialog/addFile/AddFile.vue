@@ -35,7 +35,7 @@ import { computed, ref, watch } from 'vue';
 import { ElMessage, FormInstance, ElInput } from 'element-plus';
 import { request } from '@/api/api';
 import { useRoute } from 'vue-router';
-import { generateEmptyHttpNode, generateEmptyWebsocketNode, generateEmptyHttpMockNode } from '@/helper';
+import { generateEmptyHttpMockNode, generateEmptyHttpNode, generateEmptyWebsocketNode } from '@/helper/apidoc';
 import { apiNodesCache } from '@/cache/index';
 import { nanoid } from 'nanoid';
 import { useRuntime } from '@/store/runtime/runtimeStore';

@@ -103,7 +103,7 @@ import { useRoute } from 'vue-router';
 import SFork from './fork/Fork.vue'
 import type { StandaloneExportHtmlParams } from '@src/types/standalone.ts';
 import { apiNodesCache } from '@/cache/index';
-import { downloadStringAsText } from '@/helper';
+import { downloadStringAsText } from '@/helper/common';
 import { useRuntime } from '@/store/runtime/runtimeStore';
 
 const apidocBaseInfoStore = useApidocBaseInfo();

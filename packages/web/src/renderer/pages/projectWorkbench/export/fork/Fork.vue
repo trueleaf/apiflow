@@ -104,7 +104,7 @@ import type { ApidocBanner, ApidocProjectEnum, CommonResponse } from '@src/types
 import type TreeStore from 'element-plus/lib/components/tree/src/model/tree-store'
 import type Node from 'element-plus/lib/components/tree/src/model/node'
 import { request } from '@/api/api'
-import { findSiblingById, findParentById, forEachForest } from '@/helper'
+import { findParentById, findSiblingById, forEachForest } from '@/helper/tree'
 import { nanoid } from 'nanoid/non-secure'
 import { useI18n } from 'vue-i18n'
 import { useApidocBaseInfo } from '@/store/share/baseInfoStore';

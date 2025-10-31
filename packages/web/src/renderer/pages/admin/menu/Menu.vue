@@ -65,7 +65,7 @@ import SLoading from '@/components/common/loading/GLoading.vue'
 import SCard from '@/components/common/card/GCard.vue'
 import { onMounted, onUnmounted, ref } from 'vue'
 import { request } from '@/api/api'
-import { findParentById, forEachForest } from '@/helper'
+import { findParentById, forEachForest } from '@/helper/tree'
 import { ElMessage, ElMessageBox } from 'element-plus'
 type TreeNode = Node & {
   data: PermissionClientMenu,

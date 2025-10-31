@@ -133,7 +133,7 @@ import { ComponentPublicInstance, computed, onMounted, onUnmounted, ref } from '
 import { ApidocTab } from '@src/types/share/tabs';
 import { router } from '@/router';
 import { useApidocTas } from '@/store/share/tabsStore';
-import { event } from '@/helper'
+
 import { nanoid } from 'nanoid/non-secure'
 import { useApidocBaseInfo } from '@/store/share/baseInfoStore';
 import SContextmenu from '@/components/common/contextmenu/GContextmenu.vue'

@@ -35,7 +35,7 @@ import 'element-plus/es/components/message-box/style/css';
 import { ElMessageBox } from 'element-plus';
 import { router } from '@/router';
 import type { ApidocCodeInfo } from '@src/types'
-import { event } from '@/helper';
+;
 import { useI18n } from 'vue-i18n'
 import STable from '@/components/common/table/GTable.vue'
 import { request } from '@/api/api';

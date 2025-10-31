@@ -16,6 +16,7 @@
         <template #item="{ element: tab }">
           <li :class="['tab-item', { active: tab.id === activeTabId }]" :title="tab.title" :data-id="tab.id" @click="switchTab(tab.id)">
             <FolderKanban v-if="tab.type === 'project'" class="tab-icon" :size="14" />
+            <Settings v-if="tab.type === 'settings'" class="tab-icon" :size="14" />
             <span class="tab-title">{{ tab.title }}</span>
             <span class="close-btn iconfont iconguanbi" @click.stop="deleteTab(tab.id)"></span>
           </li>
@@ -28,8 +29,8 @@
         <el-icon class="icon" size="16" :title="t('刷新主应用')" @click="refreshApp"><RefreshRight /></el-icon>
         <el-icon class="icon" size="16" :title="t('后退')" @click="goBack"><Back /></el-icon>
         <el-icon class="icon" size="16" :title="t('前进')" @click="goForward"><Right /></el-icon>
-        <el-icon class="icon" size="16" :title="t('个人中心')" @click="jumpToUserCenter">
-          <i class="iconfont icongerenzhongxin custom-icon"></i>
+        <el-icon class="icon" size="16" :title="t('设置')" @click="jumpToSettings">
+          <Settings :size="16" />
         </el-icon>
         <div class="icon" size="16" :title="t('切换语言')" @click="handleChangeLanguage" ref="languageButtonRef">
           <i class="iconfont iconyuyan custom-icon"></i>
@@ -62,7 +63,7 @@ import { Language, WindowState } from '@src/types'
 import type { HeaderTab } from '@src/types/header'
 import { RefreshRight, Back, Right } from '@element-plus/icons-vue'
 import { useI18n } from 'vue-i18n'
-import { FolderKanban } from 'lucide-vue-next'
+import { FolderKanban, Settings } from 'lucide-vue-next'
 import { useRuntime } from '@/store/runtime/runtimeStore'
 import { IPC_EVENTS } from '@src/types/ipc'
 import { changeLanguage } from '@/i18n'
@@ -226,13 +227,14 @@ const jumpToHome = () => {
   syncActiveTabToContentView()
   window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.topBarToContent.navigate, '/home')
 }
-const jumpToUserCenter = () => {
+// 跳转到设置
+const jumpToSettings = () => {
   const settingsTabId = 'settings';
   const existingTab = tabs.value.find(t => t.id === settingsTabId);
   if (!existingTab) {
     tabs.value.push({
       id: settingsTabId,
-      title: t('个人中心'),
+      title: t('设置'),
       type: 'settings',
       network: networkMode.value
     });

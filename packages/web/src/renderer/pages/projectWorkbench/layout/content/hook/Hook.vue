@@ -15,7 +15,7 @@
 
 <script lang="ts" setup>
 import { ref, onUnmounted, onMounted, Ref } from 'vue'
-import { event } from '@/helper';
+;
 import type { ApidocCodeInfo } from '@src/types'
 import add from './components/add/Add.vue'
 import edit from './components/edit/Edit.vue'

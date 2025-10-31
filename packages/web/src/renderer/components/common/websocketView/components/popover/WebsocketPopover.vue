@@ -73,7 +73,7 @@
 
 <script lang="ts" setup>
 import { ref, watch, computed } from 'vue';
-import { isJsonString } from '@/helper';
+import { isJsonString } from '@/helper/validator';
 import dayjs from 'dayjs';
 import SJsonEditor from '@/components/common/jsonEditor/GJsonEditor.vue';
 import type { WebsocketResponse } from '@src/types/websocketNode';

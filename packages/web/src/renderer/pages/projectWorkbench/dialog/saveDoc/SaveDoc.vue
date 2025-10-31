@@ -38,7 +38,7 @@ import { ApidocBanner, HttpNode } from '@src/types';
 import type { TreeNodeOptions } from 'element-plus/es/components/tree/src/tree.type';
 import { router } from '@/router';
 import { request } from '@/api/api'
-import { event } from '@/helper';
+;
 import SLoading from '@/components/common/loading/GLoading.vue'
 import SFieldset from '@/components/common/fieldset/GFieldset.vue'
 import { useApidoc } from '@/store/share/apidocStore';

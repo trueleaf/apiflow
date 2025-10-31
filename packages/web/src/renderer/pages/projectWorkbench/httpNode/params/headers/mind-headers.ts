@@ -1,4 +1,4 @@
-import { apidocGenerateProperty } from '@/helper'
+import { apidocGenerateProperty } from '@/helper/apidoc'
 import { nanoid } from 'nanoid/non-secure'
 import { ApidocProperty } from '@src/types';
 

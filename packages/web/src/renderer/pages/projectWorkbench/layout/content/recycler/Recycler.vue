@@ -109,7 +109,8 @@ import type { HttpNodeRequestMethod, ApidocType, ResponseTable } from '@src/type
 import { router } from '@/router/index'
 import { request } from '@/api/api'
 import SLoading from '@/components/common/loading/GLoading.vue'
-import { forEachForest, event, formatDate } from '@/helper'
+import { formatDate } from '@/helper/format'
+import { forEachForest } from '@/helper/tree'
 import { debounce } from "lodash-es"
 import docDetail from './components/DocDetail.vue'
 import { useApidocBanner } from '@/store/share/bannerStore'

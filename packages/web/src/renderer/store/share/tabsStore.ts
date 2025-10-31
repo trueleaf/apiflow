@@ -1,7 +1,7 @@
 import { ApidocTab } from "@src/types/share/tabs";
 import { defineStore } from "pinia";
 import { ref, computed } from "vue";
-import { event, findNodeById } from "@/helper";
+import { findNodeById } from '@/helper/tree';
 import { router } from "@/router";
 import { ElMessageBox } from "element-plus";
 import 'element-plus/es/components/message-box/style/css';

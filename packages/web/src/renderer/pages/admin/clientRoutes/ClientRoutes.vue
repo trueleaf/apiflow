@@ -34,7 +34,7 @@ import SAddClientRoute from './add/Add.vue'
 import SEditClientRoute from './edit/Edit.vue'
 import SMultiEditClientRoute from './edit/Edit2.vue'
 import { Ref, ref } from 'vue';
-import { uniqueByKey } from '@/helper';
+import { uniqueByKey } from '@/helper/common';
 import { ElMessageBox } from 'element-plus';
 import { useI18n } from 'vue-i18n'
 import { request } from '@/api/api';

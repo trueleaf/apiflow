@@ -19,7 +19,7 @@ import { useI18n } from 'vue-i18n'
 import { computed, ref } from 'vue';
 import { request } from '@/api/api';
 import { useRoute } from 'vue-router';
-import { generateEmptyHttpNode } from '@/helper';
+import { generateEmptyHttpNode } from '@/helper/apidoc';
 import { nanoid } from 'nanoid';
 import { apiNodesCache } from '@/cache/index';
 import { useRuntime } from '@/store/runtime/runtimeStore';

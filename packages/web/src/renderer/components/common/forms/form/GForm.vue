@@ -18,7 +18,8 @@
 <script lang="ts" setup>
 import { config } from '@src/config/config'
 import initRules from './composables/rules'
-import { forEachForest, getTextWidth } from '@/helper';
+import { getTextWidth } from '@/helper/format'
+import { forEachForest } from '@/helper/tree';
 import { FormInstance } from 'element-plus';
 import { onMounted, provide, ref, useSlots, VNode, watch } from 'vue';
 

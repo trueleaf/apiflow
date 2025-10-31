@@ -93,7 +93,7 @@ import { config } from '@src/config/config';
 import SJsonEditor from '@/components/common/jsonEditor/GJsonEditor.vue'
 import SParamsTree from '@/components/apidoc/paramsTree/GParamsTree3.vue'
 import { Close } from '@element-plus/icons-vue'
-import { convertTemplateValueToRealValue } from '@/helper';
+import { convertTemplateValueToRealValue } from '@/helper/template';
 import mime from 'mime';
 import { useHttpRedoUndo } from '@/store/redoUndo/httpRedoUndoStore'
 import { useApidocTas } from '@/store/share/tabsStore'

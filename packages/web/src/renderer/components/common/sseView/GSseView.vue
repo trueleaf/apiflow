@@ -91,11 +91,12 @@
 </template>
 
 <script lang="ts" setup>
-import { downloadStringAsText } from '@/helper';
+import { downloadStringAsText } from '@/helper/common'
+import { parseChunkList } from '@/helper/sse';
 import { debounce } from "lodash-es";
 import { computed, ref, onMounted, onBeforeUnmount, nextTick, watch } from 'vue';
 import type { ComponentPublicInstance } from 'vue';
-import { parseChunkList } from '@/helper';
+;
 import dayjs from 'dayjs';
 import type { ChunkWithTimestampe } from '@src/types/index.ts';
 import GVirtualScroll from '@/components/apidoc/virtualScroll/GVirtualScroll.vue';

@@ -18,7 +18,7 @@
 import SForm from '@/components/common/forms/form/GForm.vue'
 import SFormItem from '@/components/common/forms/form/GFormItem.vue'
 import { nextTick, onMounted, ref } from 'vue';
-import { getRequestMethodEnum } from '@/helper';
+import { getRequestMethodEnum } from '@/helper/apidoc';
 import { FormInstance } from 'element-plus';
 import { request } from '@/api/api';
 import { useI18n } from 'vue-i18n'

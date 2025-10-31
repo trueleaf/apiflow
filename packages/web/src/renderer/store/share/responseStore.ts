@@ -1,7 +1,7 @@
 import { ApidocCookieInfo } from "@src/types"
 import { defineStore } from "pinia"
 import { ref } from "vue"
-import { generateEmptyResponse } from "@src/renderer/helper"
+import { generateEmptyResponse } from "@/helper/apidoc"
 import { ChunkWithTimestampe, DeepPartial, ResponseInfo } from "@src/types"
 import { assign } from "lodash-es"
 

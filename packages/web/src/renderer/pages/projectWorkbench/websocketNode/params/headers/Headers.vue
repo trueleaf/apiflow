@@ -62,7 +62,7 @@ import { ref, computed, watch } from 'vue'
 import { router } from '@/router'
 import { View } from '@element-plus/icons-vue'
 import { ApidocProperty } from '@src/types';
-import { apidocGenerateProperty } from '@/helper';
+import { apidocGenerateProperty } from '@/helper/apidoc';
 import { debounce, cloneDeep } from "lodash-es";
 import { useI18n } from 'vue-i18n'
 import SParamsTree from '@/components/apidoc/paramsTree/GParamsTree3.vue'

@@ -202,13 +202,14 @@
 import { ref, computed, watchEffect } from 'vue';
 import { ArrowDown } from '@element-plus/icons-vue';
 import SJsonEditor from '@/components/common/jsonEditor/GJsonEditor.vue';
-import { formatDate } from '@/helper';
+import { formatDate } from '@/helper/format'
+import { convertTemplateValueToRealValue } from '@/helper/template';
 import { defaultRequestMethods } from '../common';
 import SParamsView from '@/components/apidoc/paramsView/GParamsView.vue';
 import { useShareStore } from '../store';
 import { useRoute } from 'vue-router';
 import { userState } from '@/cache/userState/userStateCache.ts';
-import { convertTemplateValueToRealValue } from '@/helper';
+;
 
 const route = useRoute();
 const shareId = route.query?.share_id as string || 'local_share';
