@@ -39,7 +39,7 @@
     "src/types/components.d.ts"
   ],
   "exclude": [
-    "./src/renderer/pages/modules/apidoc/doc-share/testData.ts",
-    "src/renderer/pages/modules/apidoc/doc-share/testData.ts"
+    "./src/renderer/pages/apidoc/docShare/testData.ts",
+    "src/renderer/pages/apidoc/docShare/testData.ts"
   ]
 }

@@ -18,7 +18,7 @@ import { computed, onMounted, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { changeLanguage } from './i18n';
 import { useRouter } from 'vue-router';
-import AddProjectDialog from '@/pages/modules/home/dialog/addProject/AddProject.vue';
+import AddProjectDialog from '@/pages/home/dialog/addProject/AddProject.vue';
 import { projectCache } from '@/cache/index';
 import { ElMessageBox } from 'element-plus';
 import { useApidocBaseInfo } from './store/apidoc/baseInfoStore';
