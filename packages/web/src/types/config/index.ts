@@ -24,19 +24,6 @@ export type Config = {
       size: ComponentSize,
     },
     /**
-     * 权限相关
-     */
-    permission: {
-      /**
-       * 是否开启严格权限校验
-       */
-      free: boolean,
-      /**
-       * 路由白名单，free模式下所有路由都不拦截
-       */
-      whiteList: string[],
-    },
-    /**
      * http请求相关
      */
     httpRequest: {

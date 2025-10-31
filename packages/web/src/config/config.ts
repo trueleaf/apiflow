@@ -10,11 +10,6 @@ export const config: Config = {
     layout: {
       size: 'default', //项目中组件库大小
     },
-    //权限相关
-    permission: {
-      free: false,
-      whiteList: ['/', '/login', '/share'],
-    },
     //http请求相关
     httpRequest: {
       url: isDev ? 'http://127.0.0.1:7001' : 'https://online.jobtool.cn',

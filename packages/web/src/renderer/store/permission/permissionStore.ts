@@ -1,9 +1,7 @@
 import { router, routes as allRoutes } from '@/router';
-import { config } from '@src/config/config';
 import { GlobalConfig, PermissionClientMenu, PermissionClientRoute, PermissionUserInfo, CommonResponse } from '@src/types';
 import { defineStore } from 'pinia'
 import layout from '@/pages/appWorkbench/content/content.vue';
-import { RouteRecordRaw } from 'vue-router';
 import { ref } from 'vue';
 import { uniqueByKey } from '@/helper';
 import { request } from '@/api/api';
@@ -34,33 +32,13 @@ export const usePermissionStore = defineStore('permission', () => {
   }
   //动态生成路由
   const generateRoutes = () => {
-    if (config.renderConfig.permission.free) { //free模式允许看见所有路由信息
-      router.addRoute({
-        path: '/v1',
-        component: layout,
-        children: [
-          ...allRoutes,
-        ],
-      });
-    } else {
-      const matchedRoutes: RouteRecordRaw[] = [];
-      allRoutes.forEach((route: RouteRecordRaw) => { //遍历本地所有路由
-        routes.value.forEach((val) => {
-          if (val.path === route.path) {
-            if (!matchedRoutes.find((m) => m.path === val.path)) { //如果已经存在匹配的数据则不再push
-              matchedRoutes.push(route);
-            }
-          }
-        });
-      });
-      router.addRoute({
-        path: '/v1',
-        component: layout,
-        children: [
-          ...matchedRoutes,
-        ],
-      });
-    }
+    router.addRoute({
+      path: '/v1',
+      component: layout,
+      children: [
+        ...allRoutes,
+      ],
+    });
   }
   //改变用户可访问路由
   const changeRoutes = (payload: PermissionClientRoute[]): void => {
@@ -71,9 +49,9 @@ export const usePermissionStore = defineStore('permission', () => {
     routes.value = storeRoutes;
   }
   //改变当前访问菜单
-  const changeMenus = (payload: PermissionClientMenu[]) => {
+  const changeMenus = () => {
     const runtimeStore = useRuntime();
-    if (config.renderConfig.permission.free && runtimeStore.userInfo.loginName === 'admin') {
+    if (runtimeStore.userInfo.loginName === 'admin') {
       menus.value = [{
         path: '/home',
         name: 'api文档',
@@ -81,13 +59,11 @@ export const usePermissionStore = defineStore('permission', () => {
         path: '/v1/admin/admin',
         name: '系统管理',
       }];
-    } else if (config.renderConfig.permission.free) {
+    } else {
       menus.value = [{
         path: '/home',
         name: 'api文档',
       }];
-    } else {
-      menus.value = payload;
     }
   }
   //清空全部权限
@@ -101,7 +77,7 @@ export const usePermissionStore = defineStore('permission', () => {
     return new Promise((resolve, reject) => {
       request.get<CommonResponse<ResUserInfo>, CommonResponse<ResUserInfo>>('/api/security/user_base_info').then((res) => {
         runtimeStore.setUserInfo(res.data);
-        changeMenus(res.data.clientBanner);
+        changeMenus();
         changeRoutes(res.data.clientRoutes);
         changeGlobalConfig(res.data.globalConfig);
         generateRoutes();
