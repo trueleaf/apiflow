@@ -107,7 +107,7 @@ const handleLanguageSelect = (language: Language) => {
 }
 
 
-const bindTopBarEvent = () => {
+const initAppHeaderEvent = () => {
   window.electronAPI?.ipcManager.onMain(IPC_EVENTS.apiflow.rendererToMain.createProject, () => {
     dialogVisible.value = true;
   });
@@ -188,7 +188,7 @@ const bindTopBarEvent = () => {
 | 初始化 Header Tabs
 |--------------------------------------------------------------------------
 */
-const initHeaderTabs = async () => {
+const initAppHeaderTabs = async () => {
   // 从缓存读取 tabs 和 activeTabId，如果不存在则使用空值
   const tabs = appWorkbenchCache.getAppWorkbenchHeaderTabs() || [];
   const activeTabId = appWorkbenchCache.getAppWorkbenchHeaderActiveTab() || '';
@@ -257,30 +257,11 @@ const syncAiConfig = () => {
   }
 }
 
-onMounted(() => {
-  initWelcom();
-  initLanguage();
-  initAppTitle();
-  syncAiConfig();
-
-  // 发送 content 就绪信号
-  window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.contentToTopBar.contentReady);
-
-  // 监听主进程推送的批量 Mock 日志
-  window.electronAPI?.ipcManager.onMain(IPC_EVENTS.mock.mainToRenderer.logsBatch, async (logs: MockLog[]) => {
-    if (!logs || !Array.isArray(logs)) {
-      console.error('接收到的日志数据格式错误:', logs);
-      return;
-    }
-    for (const log of logs) {
-      await httpMockLogsCache.addLog(log);
-    }
-  });
-
+const initAppHeader = () => {
   // 等待 topBar 就绪后再初始化和绑定事件
   window.electronAPI?.ipcManager.onMain(IPC_EVENTS.apiflow.rendererToMain.topBarIsReady, async () => {
-    bindTopBarEvent();
-    await initHeaderTabs();
+    initAppHeaderEvent();
+    await initAppHeaderTabs();
     // 等待路由就绪
     await router.isReady();
     // 监听路由变化，包括 query 参数变化
@@ -317,6 +298,30 @@ onMounted(() => {
       window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.rendererToMain.refreshContentView)
     });
   });
+}
+
+onMounted(() => {
+  initWelcom();
+  initLanguage();
+  initAppTitle();
+  syncAiConfig();
+
+  // 发送 content 就绪信号
+  window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.contentToTopBar.contentReady);
+
+  // 监听主进程推送的批量 Mock 日志
+  window.electronAPI?.ipcManager.onMain(IPC_EVENTS.mock.mainToRenderer.logsBatch, async (logs: MockLog[]) => {
+    if (!logs || !Array.isArray(logs)) {
+      console.error('接收到的日志数据格式错误:', logs);
+      return;
+    }
+    for (const log of logs) {
+      await httpMockLogsCache.addLog(log);
+    }
+  });
+
+  // 初始化应用 Header
+  initAppHeader();
 })
 </script>
 
