@@ -216,26 +216,26 @@ export const useIpcEvent = (mainWindow: BrowserWindow, topBarView: WebContentsVi
 
   /*
   |---------------------------------------------------------------------------
-  | contentView → topBarView 通信（
+  | contentView → topBarView 通信（使用新的路由器）
   |---------------------------------------------------------------------------
   */
   // 主内容区创建项目成功通知
-  ipcMain.on(IPC_EVENTS.apiflow.topBarToContent.projectCreated, (_, payload: IPCProjectData) => {
+  ipcMain.on(IPC_EVENTS.apiflow.contentToTopBar.projectCreated, (_, payload: IPCProjectData) => {
     topBarView.webContents.send(IPC_EVENTS.apiflow.topBarToContent.projectCreated, payload)
   })
 
   // 主内容区项目切换通知
-  ipcMain.on(IPC_EVENTS.apiflow.topBarToContent.projectChanged, (_, payload: IPCProjectData) => {
+  ipcMain.on(IPC_EVENTS.apiflow.contentToTopBar.projectChanged, (_, payload: IPCProjectData) => {
     topBarView.webContents.send(IPC_EVENTS.apiflow.topBarToContent.projectChanged, payload)
   })
 
   // 主内容区删除项目
-  ipcMain.on(IPC_EVENTS.apiflow.topBarToContent.projectDeleted, (_, projectId: string) => {
+  ipcMain.on(IPC_EVENTS.apiflow.contentToTopBar.projectDeleted, (_, projectId: string) => {
     topBarView.webContents.send(IPC_EVENTS.apiflow.topBarToContent.projectDeleted, projectId)
   })
 
   // 主内容区修改项目名称请求
-  ipcMain.on(IPC_EVENTS.apiflow.topBarToContent.projectRenamed, (_, payload: IPCProjectData) => {
+  ipcMain.on(IPC_EVENTS.apiflow.contentToTopBar.projectRenamed, (_, payload: IPCProjectData) => {
     topBarView.webContents.send(IPC_EVENTS.apiflow.topBarToContent.projectRenamed, payload)
   })
 
@@ -286,7 +286,7 @@ export const useIpcEvent = (mainWindow: BrowserWindow, topBarView: WebContentsVi
   })
 
   // 语言切换
-  ipcMain.on(IPC_EVENTS.apiflow.topBarToContent.languageChanged, (_, language: string) => {
+  ipcMain.on(IPC_EVENTS.apiflow.contentToTopBar.languageChanged, (_, language: string) => {
     // 更新运行时语言状态
     runtime.setLanguage(language as 'zh-cn' | 'zh-tw' | 'en' | 'ja');
 
@@ -413,7 +413,7 @@ export const useIpcEvent = (mainWindow: BrowserWindow, topBarView: WebContentsVi
   |---------------------------------------------------------------------------
   */
   // 同步AI配置到主进程
-  ipcMain.on(IPC_EVENTS.apiflow.topBarToContent.syncAiConfig, (_, params: { apiKey: string; apiUrl: string; timeout?: number }) => {
+  ipcMain.on(IPC_EVENTS.apiflow.contentToTopBar.syncAiConfig, (_, params: { apiKey: string; apiUrl: string; timeout?: number }) => {
     globalAiManager.updateConfig(params.apiUrl, params.apiKey, params.timeout);
   });
 

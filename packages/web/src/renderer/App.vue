@@ -14,7 +14,7 @@
 
 <script setup lang="ts">
 import { config } from '@src/config/config';
-import { computed, onMounted, ref, watch } from 'vue';
+import { onMounted, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { changeLanguage } from './i18n';
 import { useRouter } from 'vue-router';
@@ -26,7 +26,6 @@ import { Language } from '@src/types';
 import LanguageMenu from '@/components/common/language/Language.vue';
 import type { RuntimeNetworkMode } from '@src/types/runtime';
 import { useRuntime } from './store/runtime/runtimeStore.ts';
-import { useProjectStore } from './store/project/projectStore.ts';
 import { appWorkbenchCache } from '@/cache/index';
 import { aiCache } from '@/cache/ai/aiCache';
 import { httpMockLogsCache } from '@/cache/mock/httpMock/httpMockLogsCache';
@@ -37,9 +36,7 @@ const router = useRouter();
 const dialogVisible = ref(false);
 const apidocBaseInfoStore = useApidocBaseInfo()
 const runtimeStore = useRuntime();
-const isOffline = computed(() => runtimeStore.networkMode === 'offline');
 const { t } = useI18n()
-const projectStore = useProjectStore();
 // 语言菜单相关状态
 const languageMenuVisible = ref(false)
 const languageMenuPosition = ref({ x: 0, y: 0, width: 0, height: 0 })
@@ -47,7 +44,7 @@ const currentLanguage = ref<Language>(localStorage.getItem('language') as Langua
 
 const handleAddSuccess = (data: { projectId: string, projectName: string }) => {
   dialogVisible.value = false;
-  window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.topBarToContent.projectCreated, {
+  window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.contentToTopBar.projectCreated, {
     projectId: data.projectId,
     projectName: data.projectName
   });
@@ -103,7 +100,7 @@ const handleLanguageSelect = (language: Language) => {
   changeLanguage(language)
   hideLanguageMenu()
   // 发送语言切换事件到主进程
-  window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.topBarToContent.languageChanged, language)
+  window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.contentToTopBar.languageChanged, language)
 }
 
 
@@ -151,17 +148,17 @@ const initAppHeaderEvent = () => {
         showClose: false,
         type: 'error'
       }).then(() => {
-        window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.topBarToContent.projectDeleted, data.projectId)
+        window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.contentToTopBar.projectDeleted, data.projectId)
       })
       return
     }
     if (matchedProject.projectName !== data.projectName) {
-      window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.topBarToContent.projectRenamed, {
+      window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.contentToTopBar.projectRenamed, {
         projectId: data.projectId,
         projectName: matchedProject.projectName
       })
     }
-    await apidocBaseInfoStore.getProjectBaseInfo({ projectId: data.projectId })
+    await apidocBaseInfoStore.initProjectBaseInfo({ projectId: data.projectId })
     router.push({
       path: '/v1/apidoc/doc-edit',
       query: {
@@ -244,10 +241,10 @@ const initAppTitle = () => {
 }
 
 // 同步AI配置到主进程
-const syncAiConfig = () => {
+const initAiConfig = () => {
   try {
     const config = aiCache.getAiConfig();
-    window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.topBarToContent.syncAiConfig, {
+    window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.contentToTopBar.syncAiConfig, {
       apiKey: config.apiKey || '',
       apiUrl: config.apiUrl || '',
       timeout: config.timeout || 60000
@@ -256,15 +253,28 @@ const syncAiConfig = () => {
     console.error('同步AI配置失败:', error);
   }
 }
-
+// 监听主进程推送的批量 Mock 日志
+const initMockLogsListener = () => {
+  window.electronAPI?.ipcManager.onMain(IPC_EVENTS.mock.mainToRenderer.logsBatch, async (logs: MockLog[]) => {
+    if (!logs || !Array.isArray(logs)) {
+      console.error('接收到的日志数据格式错误:', logs);
+      return;
+    }
+    for (const log of logs) {
+      await httpMockLogsCache.addLog(log);
+    }
+  });
+}
+// 发送 content 就绪信号到主进程
+const sendContentReadySignal = () => {
+  window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.contentToTopBar.contentReady);
+}
 const initAppHeader = () => {
   // 等待 topBar 就绪后再初始化和绑定事件
   window.electronAPI?.ipcManager.onMain(IPC_EVENTS.apiflow.rendererToMain.topBarIsReady, async () => {
     initAppHeaderEvent();
-    await initAppHeaderTabs();
-    // 等待路由就绪
     await router.isReady();
-    // 监听路由变化，包括 query 参数变化
+    await initAppHeaderTabs();
     watch(
       () => ({
         path: router.currentRoute.value.path,
@@ -275,7 +285,7 @@ const initAppHeader = () => {
           const projectId = newRoute.query.id as string;
           const projectName = newRoute.query.name as string;
           if (projectId && projectName) {
-            window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.topBarToContent.projectChanged, {
+            window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.contentToTopBar.projectChanged, {
               projectId: projectId,
               projectName: projectName
             })
@@ -304,23 +314,9 @@ onMounted(() => {
   initWelcom();
   initLanguage();
   initAppTitle();
-  syncAiConfig();
-
-  // 发送 content 就绪信号
-  window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.contentToTopBar.contentReady);
-
-  // 监听主进程推送的批量 Mock 日志
-  window.electronAPI?.ipcManager.onMain(IPC_EVENTS.mock.mainToRenderer.logsBatch, async (logs: MockLog[]) => {
-    if (!logs || !Array.isArray(logs)) {
-      console.error('接收到的日志数据格式错误:', logs);
-      return;
-    }
-    for (const log of logs) {
-      await httpMockLogsCache.addLog(log);
-    }
-  });
-
-  // 初始化应用 Header
+  initAiConfig();
+  initMockLogsListener();
+  sendContentReadySignal();
   initAppHeader();
 })
 </script>

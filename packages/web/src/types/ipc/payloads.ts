@@ -32,37 +32,37 @@ export interface IPCEventMap {
   };
 
   [IPC_EVENTS.apiflow.topBarToContent.projectChanged]: {
-    request: { projectId: string };
+    request: { projectId: string; projectName: string };
     response: void;
   };
 
   [IPC_EVENTS.apiflow.topBarToContent.projectDeleted]: {
-    request: { projectId: string };
+    request: string;
     response: void;
   };
 
   [IPC_EVENTS.apiflow.topBarToContent.projectRenamed]: {
-    request: { projectId: string; newName: string };
+    request: { projectId: string; projectName: string };
     response: void;
   };
 
   [IPC_EVENTS.apiflow.topBarToContent.navigate]: {
-    request: { route: string };
+    request: string;
     response: void;
   };
 
   [IPC_EVENTS.apiflow.topBarToContent.languageChanged]: {
-    request: { language: string };
+    request: string;
     response: void;
   };
 
   [IPC_EVENTS.apiflow.topBarToContent.networkModeChanged]: {
-    request: { mode: string };
+    request: string;
     response: void;
   };
 
   [IPC_EVENTS.apiflow.topBarToContent.syncAiConfig]: {
-    request: any;
+    request: { apiKey: string; apiUrl: string; timeout?: number };
     response: void;
   };
 
@@ -83,7 +83,7 @@ export interface IPCEventMap {
   };
 
   [IPC_EVENTS.apiflow.contentToTopBar.initTabs]: {
-    request: { tabs: any[] };
+    request: { tabs: any[]; activeTabId: string };
     response: void;
   };
 
@@ -92,7 +92,17 @@ export interface IPCEventMap {
     response: void;
   };
 
+  [IPC_EVENTS.apiflow.contentToTopBar.projectCreated]: {
+    request: { projectId: string; projectName: string };
+    response: void;
+  };
+
   [IPC_EVENTS.apiflow.contentToTopBar.switchProject]: {
+    request: { projectId: string; projectName: string };
+    response: void;
+  };
+
+  [IPC_EVENTS.apiflow.contentToTopBar.projectChanged]: {
     request: { projectId: string; projectName: string };
     response: void;
   };
@@ -107,7 +117,27 @@ export interface IPCEventMap {
     response: void;
   };
 
+  [IPC_EVENTS.apiflow.contentToTopBar.languageChanged]: {
+    request: string;
+    response: void;
+  };
+
+  [IPC_EVENTS.apiflow.contentToTopBar.syncAiConfig]: {
+    request: { apiKey: string; apiUrl: string; timeout?: number };
+    response: void;
+  };
+
   [IPC_EVENTS.apiflow.contentToTopBar.showLanguageMenu]: {
+    request: { position: any; currentLanguage: string };
+    response: void;
+  };
+
+  [IPC_EVENTS.apiflow.contentToTopBar.hideLanguageMenu]: {
+    request: void;
+    response: void;
+  };
+
+  [IPC_EVENTS.apiflow.contentToTopBar.navigateToHome]: {
     request: void;
     response: void;
   };

@@ -51,12 +51,20 @@ export const IPC_EVENTS = {
       initTabs: 'apiflow:content:to:topbar:init-tabs',
       /** 创建项目 */
       createProject: 'apiflow:content:to:topbar:create-project',
+      /** 项目已创建 */
+      projectCreated: 'apiflow:content:to:topbar:project-created',
       /** 切换项目 */
       switchProject: 'apiflow:content:to:topbar:switch-project',
+      /** 项目已切换 */
+      projectChanged: 'apiflow:content:to:topbar:project-changed',
       /** 项目已删除 */
       projectDeleted: 'apiflow:content:to:topbar:project-deleted',
       /** 项目已重命名 */
       projectRenamed: 'apiflow:content:to:topbar:project-renamed',
+      /** 语言已变更 */
+      languageChanged: 'apiflow:content:to:topbar:language-changed',
+      /** 同步AI配置 */
+      syncAiConfig: 'apiflow:content:to:topbar:sync-ai-config',
       /** 显示语言菜单 */
       showLanguageMenu: 'apiflow:content:to:topbar:show-language-menu',
       /** 隐藏语言菜单 */

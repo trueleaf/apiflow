@@ -178,7 +178,7 @@ const handleSave = async () => {
   try {
     aiCache.setAiConfig(formData.value)
     // 同步配置到主进程
-    window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.topBarToContent.syncAiConfig, {
+    window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.contentToTopBar.syncAiConfig, {
       apiKey: formData.value.apiKey,
       apiUrl: formData.value.apiUrl,
       timeout: formData.value.timeout
@@ -204,7 +204,7 @@ const handleReset = () => {
   try {
     aiCache.setAiConfig(formData.value)
     // 同步配置到主进程
-    window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.topBarToContent.syncAiConfig, {
+    window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.contentToTopBar.syncAiConfig, {
       apiKey: formData.value.apiKey,
       apiUrl: formData.value.apiUrl,
       timeout: formData.value.timeout
@@ -231,7 +231,7 @@ const handleTest = async () => {
   try {
     // 先保存配置，再测试
     aiCache.setAiConfig(formData.value)
-    window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.topBarToContent.syncAiConfig, {
+    window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.contentToTopBar.syncAiConfig, {
       apiKey: formData.value.apiKey,
       apiUrl: formData.value.apiUrl,
       timeout: formData.value.timeout
@@ -269,7 +269,7 @@ const handleJsonTest = async () => {
   try {
     // 先保存配置，再测试
     aiCache.setAiConfig(formData.value)
-    window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.topBarToContent.syncAiConfig, {
+    window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.contentToTopBar.syncAiConfig, {
       apiKey: formData.value.apiKey,
       apiUrl: formData.value.apiUrl,
       timeout: formData.value.timeout
@@ -313,7 +313,7 @@ const handleStreamTest = async () => {
   try {
     // 先保存配置，再测试
     aiCache.setAiConfig(formData.value)
-    window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.topBarToContent.syncAiConfig, {
+    window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.contentToTopBar.syncAiConfig, {
       apiKey: formData.value.apiKey,
       apiUrl: formData.value.apiUrl,
       timeout: formData.value.timeout

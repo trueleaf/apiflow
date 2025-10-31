@@ -76,7 +76,7 @@ const bindShortcut = (e: KeyboardEvent) => {
 //=====================================基本数据获取====================================//
 //获取项目基本信息
 const getProjectInfo = () => {
-  apidocBaseInfoStroe.getProjectBaseInfo({ projectId });
+  apidocBaseInfoStroe.initProjectBaseInfo({ projectId });
 }
 //初始化布局
 const initLayout = () => {
