@@ -78,8 +78,8 @@ export const usePermissionStore = defineStore('permission', () => {
         path: '/home',
         name: 'api文档',
       }, {
-        path: '/v1/permission/permission',
-        name: '权限管理',
+        path: '/v1/admin/admin',
+        name: '系统管理',
       }];
     } else if (config.renderConfig.permission.free) {
       menus.value = [{

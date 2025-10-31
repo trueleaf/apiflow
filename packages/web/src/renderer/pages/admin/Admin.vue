@@ -45,14 +45,14 @@ const getComponent = () => {
 }
 //恢复上次访问的tab
 const restoreLastVisitTab = () => {
-  const localTab = localStorage.getItem('permission/activeTab');
+  const localTab = localStorage.getItem('admin/activeTab');
   if (localTab) {
     activeName.value = localTab;
   }
 }
 //缓存上一次访问的tab
 const handleChangeTabs = () => {
-  localStorage.setItem('permission/activeTab', activeName.value)
+  localStorage.setItem('admin/activeTab', activeName.value)
 }
 onMounted(() => {
   restoreLastVisitTab();
