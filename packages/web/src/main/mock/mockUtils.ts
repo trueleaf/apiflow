@@ -8,7 +8,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import { randomUUID } from 'crypto';
 import Koa from 'koa';
-import { runtime } from '../runtime/runtime';
+import { mainRuntime } from '../runtime/mainRuntime';
 import vm from 'vm';
 import json5 from 'json5';
 import { ApidocVariable } from '@src/types';
@@ -421,7 +421,7 @@ export class MockUtils {
 
   // 获取当前语言环境
   public getCurrentLanguage(): 'zh-cn' | 'zh-tw' | 'en' | 'ja' {
-    return runtime.getLanguage();
+    return mainRuntime.getLanguage();
   }
   // 匹配HTTP方法
   public matchHttpMethod(requestMethod: string, allowedMethods: string[]): boolean {

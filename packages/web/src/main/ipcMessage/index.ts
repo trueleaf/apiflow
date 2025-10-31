@@ -11,7 +11,7 @@ import type { RuntimeNetworkMode } from '@src/types/runtime';
 import { mockManager } from '../main.ts';
 import { MockUtils } from '../mock/mockUtils.ts';
 import { MockHttpNode } from '@src/types/mockNode';
-import { runtime } from '../runtime/runtime.ts';
+import { mainRuntime } from '../runtime/mainRuntime.ts';
 import { globalAiManager } from '../ai/ai.ts';
 import { IPCProjectData, WindowState } from '@src/types/index.ts';
 import type { CommonResponse } from '@src/types/project';
@@ -288,7 +288,7 @@ export const useIpcEvent = (mainWindow: BrowserWindow, topBarView: WebContentsVi
   // 语言切换
   ipcMain.on(IPC_EVENTS.apiflow.contentToTopBar.languageChanged, (_, language: string) => {
     // 更新运行时语言状态
-    runtime.setLanguage(language as 'zh-cn' | 'zh-tw' | 'en' | 'ja');
+    mainRuntime.setLanguage(language as 'zh-cn' | 'zh-tw' | 'en' | 'ja');
 
     // 同时通知 topBarView 和 contentView 更新语言显示
     contentView.webContents.send(IPC_EVENTS.apiflow.topBarToContent.languageChanged, language)
