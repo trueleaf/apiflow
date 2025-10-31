@@ -17,6 +17,7 @@
 import { ref, onUnmounted, onMounted, Ref } from 'vue'
 ;
 import type { ApidocCodeInfo } from '@src/types'
+import { event } from '@/helper'
 import add from './components/add/Add.vue'
 import edit from './components/edit/Edit.vue'
 import list from './components/list/List.vue'

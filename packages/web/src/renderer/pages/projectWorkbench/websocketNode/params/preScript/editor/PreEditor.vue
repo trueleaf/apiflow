@@ -8,7 +8,7 @@
 <script lang="ts" setup>
 import { ref, Ref, onMounted, onBeforeUnmount, watch } from 'vue'
 import beautify from 'js-beautify'
-
+import { event } from '@/helper';
 import { useCompletionItem } from './registerCompletionItem'
 import { useHoverProvider } from './registerHoverProvider'
 import { useI18n } from 'vue-i18n'

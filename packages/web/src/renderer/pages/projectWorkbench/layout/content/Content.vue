@@ -20,7 +20,7 @@
 <script lang="ts" setup>
 import { computed, onMounted, ref } from 'vue';
 import { useApidocTas } from '@/store/share/tabsStore';
-
+import { event } from '@/helper';
 import { useRoute } from 'vue-router';
 import SApidoc from '../../httpNode/HttpNode.vue';
 import SGuide from './guide/Guide.vue';

@@ -15,7 +15,7 @@
         chosen-class="sortable-chosen" drag-class="sortable-drag" item-key="id">
         <template #item="{ element: tab }">
           <li :class="['tab-item', { active: tab.id === activeTabId }]" :title="tab.title" :data-id="tab.id" @click="switchTab(tab.id)">
-            <FolderKanban v-if="tab.type === 'project'" class="tab-icon" :size="14" />
+            <Folder v-if="tab.type === 'project'" class="tab-icon" :size="14" />
             <Settings v-if="tab.type === 'settings'" class="tab-icon" :size="14" />
             <span class="tab-title">{{ tab.title }}</span>
             <span class="close-btn iconfont iconguanbi" @click.stop="deleteTab(tab.id)"></span>
@@ -63,7 +63,7 @@ import { Language, WindowState } from '@src/types'
 import type { HeaderTab } from '@src/types/header'
 import { RefreshRight, Back, Right } from '@element-plus/icons-vue'
 import { useI18n } from 'vue-i18n'
-import { FolderKanban, Settings } from 'lucide-vue-next'
+import { Folder, Settings } from 'lucide-vue-next'
 import { useRuntime } from '@/store/runtime/runtimeStore'
 import { IPC_EVENTS } from '@src/types/ipc'
 import { changeLanguage } from '@/i18n'

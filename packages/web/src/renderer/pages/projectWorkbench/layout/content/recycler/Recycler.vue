@@ -110,6 +110,7 @@ import { router } from '@/router/index'
 import { request } from '@/api/api'
 import SLoading from '@/components/common/loading/GLoading.vue'
 import { formatDate } from '@/helper/format'
+import { event } from '@/helper'
 import { forEachForest } from '@/helper/tree'
 import { debounce } from "lodash-es"
 import docDetail from './components/DocDetail.vue'

@@ -2,6 +2,7 @@ import { ApidocTab } from "@src/types/share/tabs";
 import { defineStore } from "pinia";
 import { ref, computed } from "vue";
 import { findNodeById } from '@/helper/tree';
+import { event } from '@/helper';
 import { router } from "@/router";
 import { ElMessageBox } from "element-plus";
 import 'element-plus/es/components/message-box/style/css';
