@@ -649,14 +649,14 @@ onMounted(() => {
   document.documentElement.addEventListener('click', handleGlobalClick);
   document.addEventListener('keyup', handleNodeKeyUp);
   if (window.electronAPI?.ipcManager?.onMain) {
-    window.electronAPI.ipcManager.onMain(IPC_EVENTS.MOCK.MAIN_TO_RENDERER.STATUS_CHANGED, handleMockStatusChanged);
+    window.electronAPI.ipcManager.onMain(IPC_EVENTS.mock.mainToRenderer.statusChanged, handleMockStatusChanged);
   }
 })
 onUnmounted(() => {
   document.documentElement.removeEventListener('click', handleGlobalClick);
   document.removeEventListener('keyup', handleNodeKeyUp);
   if (window.electronAPI?.ipcManager?.removeListener) {
-    window.electronAPI.ipcManager.removeListener(IPC_EVENTS.MOCK.MAIN_TO_RENDERER.STATUS_CHANGED, handleMockStatusChanged);
+    window.electronAPI.ipcManager.removeListener(IPC_EVENTS.mock.mainToRenderer.statusChanged, handleMockStatusChanged);
   }
 })
 </script>

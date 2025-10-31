@@ -620,7 +620,7 @@ const handleChangeProject = (item: ApidocProjectInfo) => {
   }
 
   // 同步更新header tabs - 发送事件通知header添加或激活对应的项目tab
-  window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.APIFLOW.CONTENT_TO_TOPBAR.SWITCH_PROJECT, {
+  window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.contentToTopBar.switchProject, {
     projectId: item._id,
     projectName: item.projectName
   });

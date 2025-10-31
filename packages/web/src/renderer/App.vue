@@ -47,7 +47,7 @@ const currentLanguage = ref<Language>(localStorage.getItem('language') as Langua
 
 const handleAddSuccess = (data: { projectId: string, projectName: string }) => {
   dialogVisible.value = false;
-  window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.APIFLOW.TOPBAR_TO_CONTENT.PROJECT_CREATED, {
+  window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.topBarToContent.projectCreated, {
     projectId: data.projectId,
     projectName: data.projectName
   });
@@ -103,44 +103,44 @@ const handleLanguageSelect = (language: Language) => {
   changeLanguage(language)
   hideLanguageMenu()
   // 发送语言切换事件到主进程
-  window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.APIFLOW.TOPBAR_TO_CONTENT.LANGUAGE_CHANGED, language)
+  window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.topBarToContent.languageChanged, language)
 }
 
 
 const bindTopBarEvent = () => {
-  window.electronAPI?.ipcManager.onMain(IPC_EVENTS.APIFLOW.RENDERER_TO_MAIN.CREATE_PROJECT, () => {
+  window.electronAPI?.ipcManager.onMain(IPC_EVENTS.apiflow.rendererToMain.createProject, () => {
     dialogVisible.value = true;
   });
-  window.electronAPI?.ipcManager.onMain(IPC_EVENTS.APIFLOW.RENDERER_TO_MAIN.CHANGE_ROUTE, (path: string) => {
+  window.electronAPI?.ipcManager.onMain(IPC_EVENTS.apiflow.rendererToMain.changeRoute, (path: string) => {
     router.push(path)
   })
-  window.electronAPI?.ipcManager.onMain(IPC_EVENTS.APIFLOW.TOPBAR_TO_CONTENT.NETWORK_MODE_CHANGED, (mode: RuntimeNetworkMode) => {
+  window.electronAPI?.ipcManager.onMain(IPC_EVENTS.apiflow.topBarToContent.networkModeChanged, (mode: RuntimeNetworkMode) => {
     if (runtimeStore.networkMode !== mode) {
       runtimeStore.setNetworkMode(mode)
     }
   })
 
-  window.electronAPI?.ipcManager.onMain(IPC_EVENTS.APIFLOW.RENDERER_TO_MAIN.GO_BACK, () => {
+  window.electronAPI?.ipcManager.onMain(IPC_EVENTS.apiflow.rendererToMain.goBack, () => {
     handleGoBack()
   })
 
-  window.electronAPI?.ipcManager.onMain(IPC_EVENTS.APIFLOW.RENDERER_TO_MAIN.GO_FORWARD, () => {
+  window.electronAPI?.ipcManager.onMain(IPC_EVENTS.apiflow.rendererToMain.goForward, () => {
     handleGoForward()
   })
 
   // 显示语言菜单事件监听
-  window.electronAPI?.ipcManager.onMain(IPC_EVENTS.APIFLOW.CONTENT_TO_TOPBAR.SHOW_LANGUAGE_MENU, (data: { position: any, currentLanguage: string }) => {
+  window.electronAPI?.ipcManager.onMain(IPC_EVENTS.apiflow.contentToTopBar.showLanguageMenu, (data: { position: any, currentLanguage: string }) => {
     showLanguageMenu(data)
   })
 
   // 隐藏语言菜单事件监听
-  window.electronAPI?.ipcManager.onMain(IPC_EVENTS.APIFLOW.CONTENT_TO_TOPBAR.HIDE_LANGUAGE_MENU, () => {
+  window.electronAPI?.ipcManager.onMain(IPC_EVENTS.apiflow.contentToTopBar.hideLanguageMenu, () => {
     console.log('hide')
     hideLanguageMenu()
   })
 
   // 监听项目切换事件
-  window.electronAPI?.ipcManager.onMain(IPC_EVENTS.APIFLOW.RENDERER_TO_MAIN.CHANGE_PROJECT, async (data: { projectId: string, projectName: string }) => {
+  window.electronAPI?.ipcManager.onMain(IPC_EVENTS.apiflow.rendererToMain.changeProject, async (data: { projectId: string, projectName: string }) => {
     let matchedProject = null;
     if (isOffline.value) {
       const projectList = await projectCache.getProjectList();
@@ -156,12 +156,12 @@ const bindTopBarEvent = () => {
         showClose: false,
         type: 'error'
       }).then(() => {
-        window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.APIFLOW.TOPBAR_TO_CONTENT.PROJECT_DELETED, data.projectId)
+        window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.topBarToContent.projectDeleted, data.projectId)
       })
       return
     }
     if (matchedProject.projectName !== data.projectName) {
-      window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.APIFLOW.TOPBAR_TO_CONTENT.PROJECT_RENAMED, {
+      window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.topBarToContent.projectRenamed, {
         projectId: data.projectId,
         projectName: matchedProject.projectName
       })
@@ -181,12 +181,12 @@ const bindTopBarEvent = () => {
   })
   
   // 监听 Header Tabs 更新事件,进行缓存
-  window.electronAPI?.ipcManager.onMain(IPC_EVENTS.APIFLOW.TOPBAR_TO_CONTENT.TABS_UPDATED, (tabs: any[]) => {
+  window.electronAPI?.ipcManager.onMain(IPC_EVENTS.apiflow.topBarToContent.tabsUpdated, (tabs: any[]) => {
     appWorkbenchCache.setAppWorkbenchHeaderTabs(tabs)
   })
-  
+
   // 监听 Header 激活 Tab 更新事件,进行缓存
-  window.electronAPI?.ipcManager.onMain(IPC_EVENTS.APIFLOW.TOPBAR_TO_CONTENT.ACTIVE_TAB_UPDATED, (activeTabId: string) => {
+  window.electronAPI?.ipcManager.onMain(IPC_EVENTS.apiflow.topBarToContent.activeTabUpdated, (activeTabId: string) => {
     appWorkbenchCache.setAppWorkbenchHeaderActiveTab(activeTabId)
   })
 }
@@ -202,7 +202,7 @@ const initHeaderTabs = async () => {
   const activeTabId = appWorkbenchCache.getAppWorkbenchHeaderActiveTab() || '';
   // 发送给 header.vue
   window.electronAPI?.ipcManager.sendToMain(
-    IPC_EVENTS.APIFLOW.CONTENT_TO_TOPBAR.INIT_TABS, 
+    IPC_EVENTS.apiflow.contentToTopBar.initTabs,
     {
       tabs,
       activeTabId
@@ -251,7 +251,7 @@ const initLanguage = () => {
 const syncAiConfig = () => {
   try {
     const config = aiCache.getAiConfig();
-    window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.APIFLOW.TOPBAR_TO_CONTENT.SYNC_AI_CONFIG, {
+    window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.topBarToContent.syncAiConfig, {
       apiKey: config.apiKey || '',
       apiUrl: config.apiUrl || '',
       timeout: config.timeout || 60000
@@ -267,10 +267,10 @@ onMounted(() => {
   syncAiConfig();
 
   // 发送 content 就绪信号
-  window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.APIFLOW.CONTENT_TO_TOPBAR.CONTENT_READY);
+  window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.contentToTopBar.contentReady);
 
   // 监听主进程推送的批量 Mock 日志
-  window.electronAPI?.ipcManager.onMain(IPC_EVENTS.MOCK.MAIN_TO_RENDERER.LOGS_BATCH, async (logs: MockLog[]) => {
+  window.electronAPI?.ipcManager.onMain(IPC_EVENTS.mock.mainToRenderer.logsBatch, async (logs: MockLog[]) => {
     if (!logs || !Array.isArray(logs)) {
       console.error('接收到的日志数据格式错误:', logs);
       return;
@@ -281,7 +281,7 @@ onMounted(() => {
   });
 
   // 等待 topBar 就绪后再初始化和绑定事件
-  window.electronAPI?.ipcManager.onMain(IPC_EVENTS.APIFLOW.RENDERER_TO_MAIN.TOPBAR_IS_READY, async () => {
+  window.electronAPI?.ipcManager.onMain(IPC_EVENTS.apiflow.rendererToMain.topBarIsReady, async () => {
     bindTopBarEvent();
     await initHeaderTabs();
     // 等待路由就绪
@@ -297,13 +297,13 @@ onMounted(() => {
           const projectId = newRoute.query.id as string;
           const projectName = newRoute.query.name as string;
           if (projectId && projectName) {
-            window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.APIFLOW.TOPBAR_TO_CONTENT.PROJECT_CHANGED, {
+            window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.topBarToContent.projectChanged, {
               projectId: projectId,
               projectName: projectName
             })
           }
         } else if (newRoute.path === '/home') {
-          window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.APIFLOW.CONTENT_TO_TOPBAR.NAVIGATE_TO_HOME)
+          window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.contentToTopBar.navigateToHome)
         }
       },
       { immediate: true, deep: true }
@@ -317,7 +317,7 @@ onMounted(() => {
       if (router.currentRoute.value.path !== '/home') {
         await router.push('/home')
       }
-      window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.APIFLOW.RENDERER_TO_MAIN.REFRESH_CONTENT_VIEW)
+      window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.rendererToMain.refreshContentView)
     });
   });
 

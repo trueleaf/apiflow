@@ -37,22 +37,22 @@ export const useIpcEvent = (mainWindow: BrowserWindow, topBarView: WebContentsVi
   let contentViewReady = false;
 
   // topBarView 就绪通知
-  ipcMain.on(IPC_EVENTS.APIFLOW.TOPBAR_TO_CONTENT.TOPBAR_READY, () => {
+  ipcMain.on(IPC_EVENTS.apiflow.topBarToContent.topBarReady, () => {
     topBarReady = true;
     // 如果 contentView 也准备好了，通知双方可以通信
     if (contentViewReady) {
-      contentView.webContents.send(IPC_EVENTS.APIFLOW.RENDERER_TO_MAIN.TOPBAR_IS_READY);
-      topBarView.webContents.send(IPC_EVENTS.APIFLOW.RENDERER_TO_MAIN.CONTENT_IS_READY);
+      contentView.webContents.send(IPC_EVENTS.apiflow.rendererToMain.topBarIsReady);
+      topBarView.webContents.send(IPC_EVENTS.apiflow.rendererToMain.contentIsReady);
     }
   });
 
   // contentView 就绪通知
-  ipcMain.on(IPC_EVENTS.APIFLOW.CONTENT_TO_TOPBAR.CONTENT_READY, () => {
+  ipcMain.on(IPC_EVENTS.apiflow.contentToTopBar.contentReady, () => {
     contentViewReady = true;
     // 如果 topBar 也准备好了，通知双方可以通信
     if (topBarReady) {
-      contentView.webContents.send(IPC_EVENTS.APIFLOW.RENDERER_TO_MAIN.TOPBAR_IS_READY);
-      topBarView.webContents.send(IPC_EVENTS.APIFLOW.RENDERER_TO_MAIN.CONTENT_IS_READY);
+      contentView.webContents.send(IPC_EVENTS.apiflow.rendererToMain.topBarIsReady);
+      topBarView.webContents.send(IPC_EVENTS.apiflow.rendererToMain.contentIsReady);
     }
   });
 
@@ -62,8 +62,8 @@ export const useIpcEvent = (mainWindow: BrowserWindow, topBarView: WebContentsVi
   |--------------------------------------------------------------------------
   */
   // App.vue 发送初始化 tabs 数据给 header.vue
-  ipcMain.on(IPC_EVENTS.APIFLOW.CONTENT_TO_TOPBAR.INIT_TABS, (_, data: { tabs: any[], activeTabId: string }) => {
-    topBarView.webContents.send(IPC_EVENTS.APIFLOW.TOPBAR_TO_CONTENT.INIT_TABS_DATA, data);
+  ipcMain.on(IPC_EVENTS.apiflow.contentToTopBar.initTabs, (_, data: { tabs: any[], activeTabId: string }) => {
+    topBarView.webContents.send(IPC_EVENTS.apiflow.topBarToContent.initTabsData, data);
   });
 
   /*
@@ -73,10 +73,10 @@ export const useIpcEvent = (mainWindow: BrowserWindow, topBarView: WebContentsVi
   | 2.打开开发者工具
   |--------------------------------------------------------------------------
   */
-  ipcMain.on(IPC_EVENTS.WINDOW.RENDERER_TO_MAIN.OPEN_DEV_TOOLS, () => {
+  ipcMain.on(IPC_EVENTS.window.rendererToMain.openDevTools, () => {
     mainWindow.webContents.openDevTools()
   })
-  ipcMain.handle(IPC_EVENTS.APIFLOW.RENDERER_TO_MAIN.READ_FILE_AS_BLOB, async (_: IpcMainInvokeEvent, path: string) => {
+  ipcMain.handle(IPC_EVENTS.apiflow.rendererToMain.readFileAsBlob, async (_: IpcMainInvokeEvent, path: string) => {
     try {
       await fs.access(path, fs.constants.F_OK)
     } catch {
@@ -102,21 +102,21 @@ export const useIpcEvent = (mainWindow: BrowserWindow, topBarView: WebContentsVi
   | 窗口操作
   |---------------------------------------------------------------------------
   */
-  ipcMain.on(IPC_EVENTS.WINDOW.RENDERER_TO_MAIN.MINIMIZE, () => {
+  ipcMain.on(IPC_EVENTS.window.rendererToMain.minimize, () => {
     mainWindow.minimize()
   })
-  ipcMain.on(IPC_EVENTS.WINDOW.RENDERER_TO_MAIN.MAXIMIZE, () => {
+  ipcMain.on(IPC_EVENTS.window.rendererToMain.maximize, () => {
     mainWindow.maximize()
   })
 
-  ipcMain.on(IPC_EVENTS.WINDOW.RENDERER_TO_MAIN.UNMAXIMIZE, () => {
+  ipcMain.on(IPC_EVENTS.window.rendererToMain.unmaximize, () => {
     mainWindow.unmaximize()
   })
 
-  ipcMain.on(IPC_EVENTS.WINDOW.RENDERER_TO_MAIN.CLOSE, () => {
+  ipcMain.on(IPC_EVENTS.window.rendererToMain.close, () => {
     mainWindow.close()
   })
-  ipcMain.handle(IPC_EVENTS.WINDOW.RENDERER_TO_MAIN.GET_STATE, () => {
+  ipcMain.handle(IPC_EVENTS.window.rendererToMain.getState, () => {
     return getWindowState(mainWindow)
   });
   /*
@@ -137,22 +137,22 @@ export const useIpcEvent = (mainWindow: BrowserWindow, topBarView: WebContentsVi
   |---------------------------------------------------------------------------
   */
   // 检查mock是否已启用
-  ipcMain.handle(IPC_EVENTS.MOCK.RENDERER_TO_MAIN.GET_BY_NODE_ID, async (_: IpcMainInvokeEvent, nodeId: string) => {
+  ipcMain.handle(IPC_EVENTS.mock.rendererToMain.getByNodeId, async (_: IpcMainInvokeEvent, nodeId: string) => {
     return mockManager.getHttpMockByNodeId(nodeId);
   });
 
   // 启动mock服务
-  ipcMain.handle(IPC_EVENTS.MOCK.RENDERER_TO_MAIN.START_SERVER, async (_: IpcMainInvokeEvent, httpMock: MockHttpNode) => {
+  ipcMain.handle(IPC_EVENTS.mock.rendererToMain.startServer, async (_: IpcMainInvokeEvent, httpMock: MockHttpNode) => {
     return await mockManager.addAndStartHttpServer(httpMock);
   });
 
   // 停止mock服务
-  ipcMain.handle(IPC_EVENTS.MOCK.RENDERER_TO_MAIN.STOP_SERVER, async (_: IpcMainInvokeEvent, nodeId: string) => {
+  ipcMain.handle(IPC_EVENTS.mock.rendererToMain.stopServer, async (_: IpcMainInvokeEvent, nodeId: string) => {
     return await mockManager.removeHttpMockAndStopServer(nodeId);
   });
 
   // 替换指定nodeId的Mock配置
-  ipcMain.handle(IPC_EVENTS.MOCK.RENDERER_TO_MAIN.REPLACE_BY_ID, async (_: IpcMainInvokeEvent, nodeId: string, httpMock: MockHttpNode) => {
+  ipcMain.handle(IPC_EVENTS.mock.rendererToMain.replaceById, async (_: IpcMainInvokeEvent, nodeId: string, httpMock: MockHttpNode) => {
     try {
       mockManager.replaceHttpMockById(nodeId, httpMock);
       return { code: 0, msg: '替换成功', data: null };
@@ -166,12 +166,12 @@ export const useIpcEvent = (mainWindow: BrowserWindow, topBarView: WebContentsVi
     }
   });
   //获取项目所有Mock状态
-  ipcMain.handle(IPC_EVENTS.MOCK.RENDERER_TO_MAIN.GET_ALL_STATES, async (_: IpcMainInvokeEvent, projectId: string) => {
+  ipcMain.handle(IPC_EVENTS.mock.rendererToMain.getAllStates, async (_: IpcMainInvokeEvent, projectId: string) => {
     return mockManager.getAllHttpMockStates(projectId);
   });
 
   // 同步项目变量到主进程
-  ipcMain.handle(IPC_EVENTS.MOCK.RENDERER_TO_MAIN.SYNC_PROJECT_VARIABLES, async (_: IpcMainInvokeEvent, projectId: string, variables: any[]) => {
+  ipcMain.handle(IPC_EVENTS.mock.rendererToMain.syncProjectVariables, async (_: IpcMainInvokeEvent, projectId: string, variables: any[]) => {
     try {
       MockUtils.syncProjectVariables(projectId, variables);
       return { code: 0, msg: '同步成功', data: null };
@@ -191,27 +191,27 @@ export const useIpcEvent = (mainWindow: BrowserWindow, topBarView: WebContentsVi
   |---------------------------------------------------------------------------
   */
   // 顶部栏创建项目请求
-  ipcMain.on(IPC_EVENTS.APIFLOW.CONTENT_TO_TOPBAR.CREATE_PROJECT, () => {
-    contentView.webContents.send(IPC_EVENTS.APIFLOW.RENDERER_TO_MAIN.CREATE_PROJECT)
+  ipcMain.on(IPC_EVENTS.apiflow.contentToTopBar.createProject, () => {
+    contentView.webContents.send(IPC_EVENTS.apiflow.rendererToMain.createProject)
   })
 
   // 顶部栏路由切换请求
-  ipcMain.on(IPC_EVENTS.APIFLOW.TOPBAR_TO_CONTENT.NAVIGATE, (_, path: string) => {
-    contentView.webContents.send(IPC_EVENTS.APIFLOW.RENDERER_TO_MAIN.CHANGE_ROUTE, path)
+  ipcMain.on(IPC_EVENTS.apiflow.topBarToContent.navigate, (_, path: string) => {
+    contentView.webContents.send(IPC_EVENTS.apiflow.rendererToMain.changeRoute, path)
   })
 
   // 顶部栏project切换请求,tabs切换就是项目切换
-  ipcMain.on(IPC_EVENTS.APIFLOW.CONTENT_TO_TOPBAR.SWITCH_PROJECT, (_, data: IPCProjectData) => {
-    contentView.webContents.send(IPC_EVENTS.APIFLOW.RENDERER_TO_MAIN.CHANGE_PROJECT, data)
+  ipcMain.on(IPC_EVENTS.apiflow.contentToTopBar.switchProject, (_, data: IPCProjectData) => {
+    contentView.webContents.send(IPC_EVENTS.apiflow.rendererToMain.changeProject, data)
   })
 
   // 内容区导航到首页通知 - 转发给 topBarView
-  ipcMain.on(IPC_EVENTS.APIFLOW.CONTENT_TO_TOPBAR.NAVIGATE_TO_HOME, () => {
-    topBarView.webContents.send(IPC_EVENTS.APIFLOW.CONTENT_TO_TOPBAR.NAVIGATE_TO_HOME)
+  ipcMain.on(IPC_EVENTS.apiflow.contentToTopBar.navigateToHome, () => {
+    topBarView.webContents.send(IPC_EVENTS.apiflow.contentToTopBar.navigateToHome)
   })
 
-  ipcMain.on(IPC_EVENTS.APIFLOW.TOPBAR_TO_CONTENT.NETWORK_MODE_CHANGED, (_, mode: RuntimeNetworkMode) => {
-    contentView.webContents.send(IPC_EVENTS.APIFLOW.TOPBAR_TO_CONTENT.NETWORK_MODE_CHANGED, mode)
+  ipcMain.on(IPC_EVENTS.apiflow.topBarToContent.networkModeChanged, (_, mode: RuntimeNetworkMode) => {
+    contentView.webContents.send(IPC_EVENTS.apiflow.topBarToContent.networkModeChanged, mode)
   })
 
   /*
@@ -220,33 +220,33 @@ export const useIpcEvent = (mainWindow: BrowserWindow, topBarView: WebContentsVi
   |---------------------------------------------------------------------------
   */
   // 主内容区创建项目成功通知
-  ipcMain.on(IPC_EVENTS.APIFLOW.TOPBAR_TO_CONTENT.PROJECT_CREATED, (_, payload: IPCProjectData) => {
-    topBarView.webContents.send(IPC_EVENTS.APIFLOW.TOPBAR_TO_CONTENT.PROJECT_CREATED, payload)
+  ipcMain.on(IPC_EVENTS.apiflow.topBarToContent.projectCreated, (_, payload: IPCProjectData) => {
+    topBarView.webContents.send(IPC_EVENTS.apiflow.topBarToContent.projectCreated, payload)
   })
 
   // 主内容区项目切换通知
-  ipcMain.on(IPC_EVENTS.APIFLOW.TOPBAR_TO_CONTENT.PROJECT_CHANGED, (_, payload: IPCProjectData) => {
-    topBarView.webContents.send(IPC_EVENTS.APIFLOW.TOPBAR_TO_CONTENT.PROJECT_CHANGED, payload)
+  ipcMain.on(IPC_EVENTS.apiflow.topBarToContent.projectChanged, (_, payload: IPCProjectData) => {
+    topBarView.webContents.send(IPC_EVENTS.apiflow.topBarToContent.projectChanged, payload)
   })
 
   // 主内容区删除项目
-  ipcMain.on(IPC_EVENTS.APIFLOW.TOPBAR_TO_CONTENT.PROJECT_DELETED, (_, projectId: string) => {
-    topBarView.webContents.send(IPC_EVENTS.APIFLOW.TOPBAR_TO_CONTENT.PROJECT_DELETED, projectId)
+  ipcMain.on(IPC_EVENTS.apiflow.topBarToContent.projectDeleted, (_, projectId: string) => {
+    topBarView.webContents.send(IPC_EVENTS.apiflow.topBarToContent.projectDeleted, projectId)
   })
 
   // 主内容区修改项目名称请求
-  ipcMain.on(IPC_EVENTS.APIFLOW.TOPBAR_TO_CONTENT.PROJECT_RENAMED, (_, payload: IPCProjectData) => {
-    topBarView.webContents.send(IPC_EVENTS.APIFLOW.TOPBAR_TO_CONTENT.PROJECT_RENAMED, payload)
+  ipcMain.on(IPC_EVENTS.apiflow.topBarToContent.projectRenamed, (_, payload: IPCProjectData) => {
+    topBarView.webContents.send(IPC_EVENTS.apiflow.topBarToContent.projectRenamed, payload)
   })
 
   // Header Tabs 更新通知 - 转发给 contentView 进行缓存
-  ipcMain.on(IPC_EVENTS.APIFLOW.TOPBAR_TO_CONTENT.TABS_UPDATED, (_, tabs: any[]) => {
-    contentView.webContents.send(IPC_EVENTS.APIFLOW.TOPBAR_TO_CONTENT.TABS_UPDATED, tabs)
+  ipcMain.on(IPC_EVENTS.apiflow.topBarToContent.tabsUpdated, (_, tabs: any[]) => {
+    contentView.webContents.send(IPC_EVENTS.apiflow.topBarToContent.tabsUpdated, tabs)
   })
 
   // Header 激活 Tab 更新通知 - 转发给 contentView 进行缓存
-  ipcMain.on(IPC_EVENTS.APIFLOW.TOPBAR_TO_CONTENT.ACTIVE_TAB_UPDATED, (_, activeTabId: string) => {
-    contentView.webContents.send(IPC_EVENTS.APIFLOW.TOPBAR_TO_CONTENT.ACTIVE_TAB_UPDATED, activeTabId)
+  ipcMain.on(IPC_EVENTS.apiflow.topBarToContent.activeTabUpdated, (_, activeTabId: string) => {
+    contentView.webContents.send(IPC_EVENTS.apiflow.topBarToContent.activeTabUpdated, activeTabId)
   })
 
   /*
@@ -255,7 +255,7 @@ export const useIpcEvent = (mainWindow: BrowserWindow, topBarView: WebContentsVi
   |---------------------------------------------------------------------------
   */
   // 刷新主应用
-  ipcMain.on(IPC_EVENTS.APIFLOW.RENDERER_TO_MAIN.REFRESH_APP, () => {
+  ipcMain.on(IPC_EVENTS.apiflow.rendererToMain.refreshApp, () => {
     if (app.isPackaged) {
       app.relaunch();
       app.exit();
@@ -266,37 +266,37 @@ export const useIpcEvent = (mainWindow: BrowserWindow, topBarView: WebContentsVi
   })
 
   // 后退
-  ipcMain.on(IPC_EVENTS.APIFLOW.RENDERER_TO_MAIN.GO_BACK, () => {
-    contentView.webContents.send(IPC_EVENTS.APIFLOW.RENDERER_TO_MAIN.GO_BACK)
+  ipcMain.on(IPC_EVENTS.apiflow.rendererToMain.goBack, () => {
+    contentView.webContents.send(IPC_EVENTS.apiflow.rendererToMain.goBack)
   })
 
   // 前进
-  ipcMain.on(IPC_EVENTS.APIFLOW.RENDERER_TO_MAIN.GO_FORWARD, () => {
-    contentView.webContents.send(IPC_EVENTS.APIFLOW.RENDERER_TO_MAIN.GO_FORWARD)
+  ipcMain.on(IPC_EVENTS.apiflow.rendererToMain.goForward, () => {
+    contentView.webContents.send(IPC_EVENTS.apiflow.rendererToMain.goForward)
   })
 
   // 显示语言菜单
-  ipcMain.on(IPC_EVENTS.APIFLOW.CONTENT_TO_TOPBAR.SHOW_LANGUAGE_MENU, (_, data: { position: any, currentLanguage: string }) => {
-    contentView.webContents.send(IPC_EVENTS.APIFLOW.CONTENT_TO_TOPBAR.SHOW_LANGUAGE_MENU, data)
+  ipcMain.on(IPC_EVENTS.apiflow.contentToTopBar.showLanguageMenu, (_, data: { position: any, currentLanguage: string }) => {
+    contentView.webContents.send(IPC_EVENTS.apiflow.contentToTopBar.showLanguageMenu, data)
   })
 
   // 隐藏语言菜单
-  ipcMain.on(IPC_EVENTS.APIFLOW.CONTENT_TO_TOPBAR.HIDE_LANGUAGE_MENU, () => {
-    contentView.webContents.send(IPC_EVENTS.APIFLOW.CONTENT_TO_TOPBAR.HIDE_LANGUAGE_MENU)
+  ipcMain.on(IPC_EVENTS.apiflow.contentToTopBar.hideLanguageMenu, () => {
+    contentView.webContents.send(IPC_EVENTS.apiflow.contentToTopBar.hideLanguageMenu)
   })
 
   // 语言切换
-  ipcMain.on(IPC_EVENTS.APIFLOW.TOPBAR_TO_CONTENT.LANGUAGE_CHANGED, (_, language: string) => {
+  ipcMain.on(IPC_EVENTS.apiflow.topBarToContent.languageChanged, (_, language: string) => {
     // 更新运行时语言状态
     runtime.setLanguage(language as 'zh-cn' | 'zh-tw' | 'en' | 'ja');
 
     // 同时通知 topBarView 和 contentView 更新语言显示
-    contentView.webContents.send(IPC_EVENTS.APIFLOW.TOPBAR_TO_CONTENT.LANGUAGE_CHANGED, language)
-    topBarView.webContents.send(IPC_EVENTS.APIFLOW.TOPBAR_TO_CONTENT.LANGUAGE_CHANGED, language)
+    contentView.webContents.send(IPC_EVENTS.apiflow.topBarToContent.languageChanged, language)
+    topBarView.webContents.send(IPC_EVENTS.apiflow.topBarToContent.languageChanged, language)
   })
 
   // 刷新contentView
-  ipcMain.on(IPC_EVENTS.APIFLOW.RENDERER_TO_MAIN.REFRESH_CONTENT_VIEW, () => {
+  ipcMain.on(IPC_EVENTS.apiflow.rendererToMain.refreshContentView, () => {
     contentView.webContents.reloadIgnoringCache()
   })
   /*
@@ -305,7 +305,7 @@ export const useIpcEvent = (mainWindow: BrowserWindow, topBarView: WebContentsVi
   |---------------------------------------------------------------------------
   */
   // 选择导出路径
-  ipcMain.handle(IPC_EVENTS.EXPORT.RENDERER_TO_MAIN.SELECT_PATH, async () => {
+  ipcMain.handle(IPC_EVENTS.export.rendererToMain.selectPath, async () => {
     try {
       const result = await selectExportPath();
       return result;
@@ -316,48 +316,48 @@ export const useIpcEvent = (mainWindow: BrowserWindow, topBarView: WebContentsVi
   });
 
   // 开始导出
-  ipcMain.on(IPC_EVENTS.EXPORT.RENDERER_NOTIFY_MAIN.START, async (_, params: { itemNum: number, config?: { includeResponseCache: boolean } }) => {
+  ipcMain.on(IPC_EVENTS.export.rendererNotifyMain.start, async (_, params: { itemNum: number, config?: { includeResponseCache: boolean } }) => {
     try {
       await startExport(params.itemNum);
     } catch (error) {
       console.error('导出开始失败:', error);
-      contentView.webContents.send(IPC_EVENTS.EXPORT.MAIN_TO_RENDERER.ERROR, (error as Error).message);
+      contentView.webContents.send(IPC_EVENTS.export.mainToRenderer.error, (error as Error).message);
     }
   });
 
   // 接收渲染进程传输的数据
-  ipcMain.on(IPC_EVENTS.EXPORT.RENDERER_NOTIFY_MAIN.RENDERER_DATA, (_, data: any) => {
+  ipcMain.on(IPC_EVENTS.export.rendererNotifyMain.rendererData, (_, data: any) => {
     try {
       receiveRendererData(data);
     } catch (error) {
       console.error('接收渲染进程数据失败:', error);
-      contentView.webContents.send(IPC_EVENTS.EXPORT.MAIN_TO_RENDERER.ERROR, (error as Error).message);
+      contentView.webContents.send(IPC_EVENTS.export.mainToRenderer.error, (error as Error).message);
     }
   });
 
   // 渲染进程数据传输完毕
-  ipcMain.on(IPC_EVENTS.EXPORT.RENDERER_NOTIFY_MAIN.RENDERER_DATA_FINISH, async () => {
+  ipcMain.on(IPC_EVENTS.export.rendererNotifyMain.rendererDataFinish, async () => {
     try {
       await finishRendererData();
     } catch (error) {
       console.error('完成渲染进程数据传输失败:', error);
-      contentView.webContents.send(IPC_EVENTS.EXPORT.MAIN_TO_RENDERER.ERROR, (error as Error).message);
+      contentView.webContents.send(IPC_EVENTS.export.mainToRenderer.error, (error as Error).message);
     }
   });
 
   // 获取导出状态
-  ipcMain.handle(IPC_EVENTS.EXPORT.RENDERER_TO_MAIN.GET_STATUS, () => {
+  ipcMain.handle(IPC_EVENTS.export.rendererToMain.getStatus, () => {
     const status = getExportStatus();
     return status;
   });
 
   // 重置导出状态
-  ipcMain.on(IPC_EVENTS.EXPORT.RENDERER_NOTIFY_MAIN.RESET, () => {
+  ipcMain.on(IPC_EVENTS.export.rendererNotifyMain.reset, () => {
     try {
       resetExport();
     } catch (error) {
       console.error('重置导出状态失败:', error);
-      contentView.webContents.send(IPC_EVENTS.EXPORT.MAIN_TO_RENDERER.ERROR, (error as Error).message);
+      contentView.webContents.send(IPC_EVENTS.export.mainToRenderer.error, (error as Error).message);
     }
   });
 
@@ -367,7 +367,7 @@ export const useIpcEvent = (mainWindow: BrowserWindow, topBarView: WebContentsVi
   |---------------------------------------------------------------------------
   */
   // 选择导入文件
-  ipcMain.handle(IPC_EVENTS.IMPORT.RENDERER_TO_MAIN.SELECT_FILE, async () => {
+  ipcMain.handle(IPC_EVENTS.import.rendererToMain.selectFile, async () => {
     try {
       const result = await selectImportFile();
       return result;
@@ -378,32 +378,32 @@ export const useIpcEvent = (mainWindow: BrowserWindow, topBarView: WebContentsVi
   });
 
   // 分析导入文件
-  ipcMain.on(IPC_EVENTS.IMPORT.RENDERER_NOTIFY_MAIN.ANALYZE_FILE, async (_, params: { filePath: string }) => {
+  ipcMain.on(IPC_EVENTS.import.rendererNotifyMain.analyzeFile, async (_, params: { filePath: string }) => {
     try {
       await analyzeImportFile(params.filePath);
     } catch (error) {
       console.error('分析导入文件失败:', error);
-      contentView.webContents.send(IPC_EVENTS.IMPORT.MAIN_TO_RENDERER.ERROR, (error as Error).message);
+      contentView.webContents.send(IPC_EVENTS.import.mainToRenderer.error, (error as Error).message);
     }
   });
 
   // 开始导入
-  ipcMain.on(IPC_EVENTS.IMPORT.RENDERER_NOTIFY_MAIN.START, async (_, params: { filePath: string, itemNum: number, config?: { importMode: 'merge' | 'override' } }) => {
+  ipcMain.on(IPC_EVENTS.import.rendererNotifyMain.start, async (_, params: { filePath: string, itemNum: number, config?: { importMode: 'merge' | 'override' } }) => {
     try {
       await startImport(params.filePath, params.itemNum);
     } catch (error) {
       console.error('导入开始失败:', error);
-      contentView.webContents.send(IPC_EVENTS.IMPORT.MAIN_TO_RENDERER.ERROR, (error as Error).message);
+      contentView.webContents.send(IPC_EVENTS.import.mainToRenderer.error, (error as Error).message);
     }
   });
 
   // 重置导入状态
-  ipcMain.on(IPC_EVENTS.IMPORT.RENDERER_NOTIFY_MAIN.RESET, () => {
+  ipcMain.on(IPC_EVENTS.import.rendererNotifyMain.reset, () => {
     try {
       resetImport();
     } catch (error) {
       console.error('重置导入状态失败:', error);
-      contentView.webContents.send(IPC_EVENTS.IMPORT.MAIN_TO_RENDERER.ERROR, (error as Error).message);
+      contentView.webContents.send(IPC_EVENTS.import.mainToRenderer.error, (error as Error).message);
     }
   });
 
@@ -413,7 +413,7 @@ export const useIpcEvent = (mainWindow: BrowserWindow, topBarView: WebContentsVi
   |---------------------------------------------------------------------------
   */
   // 同步AI配置到主进程
-  ipcMain.on(IPC_EVENTS.APIFLOW.TOPBAR_TO_CONTENT.SYNC_AI_CONFIG, (_, params: { apiKey: string; apiUrl: string; timeout?: number }) => {
+  ipcMain.on(IPC_EVENTS.apiflow.topBarToContent.syncAiConfig, (_, params: { apiKey: string; apiUrl: string; timeout?: number }) => {
     globalAiManager.updateConfig(params.apiUrl, params.apiKey, params.timeout);
   });
 
@@ -423,19 +423,19 @@ export const useIpcEvent = (mainWindow: BrowserWindow, topBarView: WebContentsVi
   |---------------------------------------------------------------------------
   */
   // AI 文本聊天
-  ipcMain.handle(IPC_EVENTS.AI.RENDERER_TO_MAIN.TEXT_CHAT, async (_: IpcMainInvokeEvent, params?: { prompt: string }) => {
+  ipcMain.handle(IPC_EVENTS.ai.rendererToMain.textChat, async (_: IpcMainInvokeEvent, params?: { prompt: string }) => {
     const prompt = params?.prompt || '你是什么模型';
     return await globalAiManager.chatWithText([prompt], { maxTokens: 2000 });
   });
 
   // AI JSON聊天
-  ipcMain.handle(IPC_EVENTS.AI.RENDERER_TO_MAIN.JSON_CHAT, async (_: IpcMainInvokeEvent, params?: { prompt: string }) => {
+  ipcMain.handle(IPC_EVENTS.ai.rendererToMain.jsonChat, async (_: IpcMainInvokeEvent, params?: { prompt: string }) => {
     const prompt = params?.prompt || '生成一个简单的测试JSON对象，包含name和age字段';
     return await globalAiManager.chatWithJsonText([prompt], { maxTokens: 2000 });
   });
 
   // AI 流式聊天
-  ipcMain.handle(IPC_EVENTS.AI.RENDERER_TO_MAIN.TEXT_CHAT_STREAM, async (_: IpcMainInvokeEvent, params: { requestId: string }) => {
+  ipcMain.handle(IPC_EVENTS.ai.rendererToMain.textChatStream, async (_: IpcMainInvokeEvent, params: { requestId: string }) => {
     // 开始流式请求
     globalAiManager.chatWithTextStream(
       ['你是什么模型'],
@@ -443,20 +443,20 @@ export const useIpcEvent = (mainWindow: BrowserWindow, topBarView: WebContentsVi
         requestId: params.requestId,
         onData: (chunk: string) => {
           // 发送数据块到渲染进程
-          contentView.webContents.send(IPC_EVENTS.AI.MAIN_TO_RENDERER.STREAM_DATA, {
+          contentView.webContents.send(IPC_EVENTS.ai.mainToRenderer.streamData, {
             requestId: params.requestId,
             chunk,
           });
         },
         onEnd: () => {
           // 发送完成信号到渲染进程
-          contentView.webContents.send(IPC_EVENTS.AI.MAIN_TO_RENDERER.STREAM_END, {
+          contentView.webContents.send(IPC_EVENTS.ai.mainToRenderer.streamEnd, {
             requestId: params.requestId,
           });
         },
         onError: (response: CommonResponse<string>) => {
           // 发送错误信号到渲染进程
-          contentView.webContents.send(IPC_EVENTS.AI.MAIN_TO_RENDERER.STREAM_ERROR, {
+          contentView.webContents.send(IPC_EVENTS.ai.mainToRenderer.streamError, {
             requestId: params.requestId,
             ...response,
           });
@@ -469,7 +469,7 @@ export const useIpcEvent = (mainWindow: BrowserWindow, topBarView: WebContentsVi
   });
 
   // 取消 AI 流式请求
-  ipcMain.handle(IPC_EVENTS.AI.RENDERER_TO_MAIN.CANCEL_STREAM, async (_: IpcMainInvokeEvent, requestId: string) => {
+  ipcMain.handle(IPC_EVENTS.ai.rendererToMain.cancelStream, async (_: IpcMainInvokeEvent, requestId: string) => {
     globalAiManager.cancelStream(requestId);
     return { code: 0, data: null, msg: '已取消请求' };
   });
@@ -480,7 +480,7 @@ export const useIpcEvent = (mainWindow: BrowserWindow, topBarView: WebContentsVi
   |---------------------------------------------------------------------------
   */
   // 使用 Node.js vm 模块安全执行代码
-  ipcMain.handle(IPC_EVENTS.UTIL.RENDERER_TO_MAIN.EXEC_CODE, async (_: IpcMainInvokeEvent, params: { code: string; variables: Record<string, any> }) => {
+  ipcMain.handle(IPC_EVENTS.util.rendererToMain.execCode, async (_: IpcMainInvokeEvent, params: { code: string; variables: Record<string, any> }) => {
     try {
       const { code, variables } = params;
       const sandbox = {
@@ -510,8 +510,8 @@ export const useIpcEvent = (mainWindow: BrowserWindow, topBarView: WebContentsVi
   */
   // 提供一个统一的窗口状态广播方法
   const broadcastWindowState = (windowState: WindowState) => {
-    contentView.webContents.send(IPC_EVENTS.WINDOW.RENDERER_TO_MAIN.RESIZE, windowState);
-    topBarView.webContents.send(IPC_EVENTS.WINDOW.RENDERER_TO_MAIN.RESIZE, windowState);
+    contentView.webContents.send(IPC_EVENTS.window.rendererToMain.resize, windowState);
+    topBarView.webContents.send(IPC_EVENTS.window.rendererToMain.resize, windowState);
   }
 
   // 返回包含路由器和广播方法的对象

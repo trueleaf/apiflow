@@ -327,7 +327,7 @@ const deleteProject = (_id: string) => {
     type: 'warning'
   }).then(async () => {
     const notifyProjectDeleted = () => {
-      window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.APIFLOW.CONTENT_TO_TOPBAR.PROJECT_DELETED, _id);
+      window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.contentToTopBar.projectDeleted, _id);
     }
     const cleanupMockLogs = async () => {
       try {
@@ -480,7 +480,7 @@ const handleAddSuccess = async (data: { projectId: string, projectName: string }
 const handleEditSuccess = (data?: { id: string, name: string }) => {
   getProjectList();
   if (data) {
-    window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.APIFLOW.CONTENT_TO_TOPBAR.PROJECT_RENAMED, {
+    window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.contentToTopBar.projectRenamed, {
       projectId: data.id,
       projectName: data.name
     });

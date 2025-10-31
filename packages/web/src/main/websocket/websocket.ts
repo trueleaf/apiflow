@@ -26,47 +26,47 @@ export class WebSocketManager {
    */
   private registerIpcHandlers() {
     // 连接WebSocket
-    ipcMain.handle(IPC_EVENTS.WEBSOCKET.RENDERER_TO_MAIN.CONNECT, async (event: IpcMainInvokeEvent, params: WebsocketConnectParams) => {
+    ipcMain.handle(IPC_EVENTS.websocket.rendererToMain.connect, async (event: IpcMainInvokeEvent, params: WebsocketConnectParams) => {
       return this.connect(params.url, params.nodeId, event, params.headers);
     });
 
     // 断开WebSocket连接
-    ipcMain.handle(IPC_EVENTS.WEBSOCKET.RENDERER_TO_MAIN.DISCONNECT, async (_: IpcMainInvokeEvent, connectionId: string) => {
+    ipcMain.handle(IPC_EVENTS.websocket.rendererToMain.disconnect, async (_: IpcMainInvokeEvent, connectionId: string) => {
       return this.disconnect(connectionId);
     });
 
     // 发送WebSocket消息
-    ipcMain.handle(IPC_EVENTS.WEBSOCKET.RENDERER_TO_MAIN.SEND, async (_: IpcMainInvokeEvent, connectionId: string, message: string) => {
+    ipcMain.handle(IPC_EVENTS.websocket.rendererToMain.send, async (_: IpcMainInvokeEvent, connectionId: string, message: string) => {
       return this.sendMessage(connectionId, message);
     });
 
     // 获取连接状态
-    ipcMain.handle(IPC_EVENTS.WEBSOCKET.RENDERER_TO_MAIN.GET_STATE, async (_: IpcMainInvokeEvent, connectionId: string) => {
+    ipcMain.handle(IPC_EVENTS.websocket.rendererToMain.getState, async (_: IpcMainInvokeEvent, connectionId: string) => {
       return this.getConnectionState(connectionId);
     });
 
     // 获取所有连接
-    ipcMain.handle(IPC_EVENTS.WEBSOCKET.RENDERER_TO_MAIN.GET_ALL_CONNECTIONS, async () => {
+    ipcMain.handle(IPC_EVENTS.websocket.rendererToMain.getAllConnections, async () => {
       return this.getAllConnections();
     });
 
     // 获取所有连接ID
-    ipcMain.handle(IPC_EVENTS.WEBSOCKET.RENDERER_TO_MAIN.GET_CONNECTION_IDS, async () => {
+    ipcMain.handle(IPC_EVENTS.websocket.rendererToMain.getConnectionIds, async () => {
       return this.getConnectionIds();
     });
 
     // 检查节点ID是否有活跃连接
-    ipcMain.handle(IPC_EVENTS.WEBSOCKET.RENDERER_TO_MAIN.CHECK_NODE_CONNECTION, async (_: IpcMainInvokeEvent, nodeId: string) => {
+    ipcMain.handle(IPC_EVENTS.websocket.rendererToMain.checkNodeConnection, async (_: IpcMainInvokeEvent, nodeId: string) => {
       return this.checkNodeConnection(nodeId);
     });
 
     // 清空所有WebSocket连接
-    ipcMain.handle(IPC_EVENTS.WEBSOCKET.RENDERER_TO_MAIN.CLEAR_ALL_CONNECTIONS, async () => {
+    ipcMain.handle(IPC_EVENTS.websocket.rendererToMain.clearAllConnections, async () => {
       return this.clearAllConnections();
     });
 
     // 断开指定节点的连接
-    ipcMain.handle(IPC_EVENTS.WEBSOCKET.RENDERER_TO_MAIN.DISCONNECT_BY_NODE, async (_: IpcMainInvokeEvent, nodeId: string) => {
+    ipcMain.handle(IPC_EVENTS.websocket.rendererToMain.disconnectByNode, async (_: IpcMainInvokeEvent, nodeId: string) => {
       return this.disconnectByNode(nodeId);
     });
   }
@@ -98,7 +98,7 @@ export class WebSocketManager {
         this.connectionIds.add(connectionId);
         // 建立节点ID到连接ID的映射
         this.nodeIdToConnectionId.set(nodeId, connectionId);
-        event.sender.send(IPC_EVENTS.WEBSOCKET.MAIN_TO_RENDERER.OPENED, { connectionId, nodeId, url });
+        event.sender.send(IPC_EVENTS.websocket.mainToRenderer.opened, { connectionId, nodeId, url });
       });
 
       // 接收消息事件
@@ -150,7 +150,7 @@ export class WebSocketManager {
           }
         }
         
-        event.sender.send(IPC_EVENTS.WEBSOCKET.MAIN_TO_RENDERER.MESSAGE, {
+        event.sender.send(IPC_EVENTS.websocket.mainToRenderer.message, {
           connectionId,
           nodeId,
           message: buffer,
@@ -165,7 +165,7 @@ export class WebSocketManager {
         this.connections.delete(connectionId);
         this.connectionIds.delete(connectionId);
         this.nodeIdToConnectionId.delete(nodeId);
-        event.sender.send(IPC_EVENTS.WEBSOCKET.MAIN_TO_RENDERER.CLOSED, { connectionId, nodeId, code, reason: reason.toString(), url });
+        event.sender.send(IPC_EVENTS.websocket.mainToRenderer.closed, { connectionId, nodeId, code, reason: reason.toString(), url });
       });
 
       // 连接错误事件
@@ -174,7 +174,7 @@ export class WebSocketManager {
         this.connections.delete(connectionId);
         this.connectionIds.delete(connectionId);
         this.nodeIdToConnectionId.delete(nodeId);
-        event.sender.send(IPC_EVENTS.WEBSOCKET.MAIN_TO_RENDERER.ERROR, { connectionId, nodeId, error: error.message, url });
+        event.sender.send(IPC_EVENTS.websocket.mainToRenderer.error, { connectionId, nodeId, error: error.message, url });
       });
       // 保存连接
       this.connections.set(connectionId, ws);

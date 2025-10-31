@@ -38,7 +38,7 @@ export class HttpMockManager {
     this.httpLogBuffer = [];
     this.sendTimer = null;
     if (contentViewInstance && contentViewInstance.webContents) {
-      contentViewInstance.webContents.send(IPC_EVENTS.MOCK.MAIN_TO_RENDERER.LOGS_BATCH, logsToSend);
+      contentViewInstance.webContents.send(IPC_EVENTS.mock.mainToRenderer.logsBatch, logsToSend);
     }
   }
   
@@ -646,7 +646,7 @@ export class HttpMockManager {
   //推送Mock状态变更到渲染进程
   private pushMockStatusChanged(payload: MockStatusChangedPayload): void {
     if (contentViewInstance && contentViewInstance.webContents) {
-      contentViewInstance.webContents.send(IPC_EVENTS.MOCK.MAIN_TO_RENDERER.STATUS_CHANGED, payload);
+      contentViewInstance.webContents.send(IPC_EVENTS.mock.mainToRenderer.statusChanged, payload);
     }
   }
   // 获取所有 HTTP Mock 状态

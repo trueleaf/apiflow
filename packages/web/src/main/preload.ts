@@ -8,35 +8,35 @@ import type { CommonResponse } from '@src/types/project'
 import { IPC_EVENTS } from '@src/types/ipc'
 
 const openDevTools = () => {
-  ipcRenderer.send(IPC_EVENTS.WINDOW.RENDERER_TO_MAIN.OPEN_DEV_TOOLS)
+  ipcRenderer.send(IPC_EVENTS.window.rendererToMain.openDevTools)
 }
 
 const minimizeWindow = () => {
-  ipcRenderer.send(IPC_EVENTS.WINDOW.RENDERER_TO_MAIN.MINIMIZE)
+  ipcRenderer.send(IPC_EVENTS.window.rendererToMain.minimize)
 }
 
 const maximizeWindow = () => {
-  ipcRenderer.send(IPC_EVENTS.WINDOW.RENDERER_TO_MAIN.MAXIMIZE)
+  ipcRenderer.send(IPC_EVENTS.window.rendererToMain.maximize)
 }
 
 const unMaximizeWindow = () => {
-  ipcRenderer.send(IPC_EVENTS.WINDOW.RENDERER_TO_MAIN.UNMAXIMIZE)
+  ipcRenderer.send(IPC_EVENTS.window.rendererToMain.unmaximize)
 }
 
 const closeWindow = () => {
-  ipcRenderer.send(IPC_EVENTS.WINDOW.RENDERER_TO_MAIN.CLOSE)
+  ipcRenderer.send(IPC_EVENTS.window.rendererToMain.close)
 }
 
 const getWindowState = () => {
-  return ipcRenderer.invoke(IPC_EVENTS.WINDOW.RENDERER_TO_MAIN.GET_STATE)
+  return ipcRenderer.invoke(IPC_EVENTS.window.rendererToMain.getState)
 }
 
 const onWindowResize = (callback: (state: WindowState) => void) => {
-  ipcRenderer.on(IPC_EVENTS.WINDOW.RENDERER_TO_MAIN.RESIZE, (_event, state) => callback(state))
+  ipcRenderer.on(IPC_EVENTS.window.rendererToMain.resize, (_event, state) => callback(state))
 }
 
 const readFileAsUint8Array = async (path: string): Promise<Uint8Array | string> => {
-  const result = await ipcRenderer.invoke(IPC_EVENTS.APIFLOW.RENDERER_TO_MAIN.READ_FILE_AS_BLOB, path);
+  const result = await ipcRenderer.invoke(IPC_EVENTS.apiflow.rendererToMain.readFileAsBlob, path);
   return result;
 }
 const getFilePath = (file: File) => {
@@ -62,90 +62,90 @@ const removeListener = (channel: string, callback?: (...args: any[]) => void) =>
 
 // WebSocket相关方法
 const websocketConnect = (params: { url: string; nodeId: string; headers?: Record<string, string> }) => {
-  return ipcRenderer.invoke(IPC_EVENTS.WEBSOCKET.RENDERER_TO_MAIN.CONNECT, params)
+  return ipcRenderer.invoke(IPC_EVENTS.websocket.rendererToMain.connect, params)
 }
 
 const websocketDisconnect = (connectionId: string) => {
-  return ipcRenderer.invoke(IPC_EVENTS.WEBSOCKET.RENDERER_TO_MAIN.DISCONNECT, connectionId)
+  return ipcRenderer.invoke(IPC_EVENTS.websocket.rendererToMain.disconnect, connectionId)
 }
 
 const websocketSend = (connectionId: string, message: string) => {
-  return ipcRenderer.invoke(IPC_EVENTS.WEBSOCKET.RENDERER_TO_MAIN.SEND, connectionId, message)
+  return ipcRenderer.invoke(IPC_EVENTS.websocket.rendererToMain.send, connectionId, message)
 }
 
 const websocketGetState = (connectionId: string) => {
-  return ipcRenderer.invoke(IPC_EVENTS.WEBSOCKET.RENDERER_TO_MAIN.GET_STATE, connectionId)
+  return ipcRenderer.invoke(IPC_EVENTS.websocket.rendererToMain.getState, connectionId)
 }
 
 const websocketGetAllConnections = () => {
-  return ipcRenderer.invoke(IPC_EVENTS.WEBSOCKET.RENDERER_TO_MAIN.GET_ALL_CONNECTIONS)
+  return ipcRenderer.invoke(IPC_EVENTS.websocket.rendererToMain.getAllConnections)
 }
 
 const websocketGetConnectionIds = () => {
-  return ipcRenderer.invoke(IPC_EVENTS.WEBSOCKET.RENDERER_TO_MAIN.GET_CONNECTION_IDS)
+  return ipcRenderer.invoke(IPC_EVENTS.websocket.rendererToMain.getConnectionIds)
 }
 
 const websocketCheckNodeConnection = (nodeId: string) => {
-  return ipcRenderer.invoke(IPC_EVENTS.WEBSOCKET.RENDERER_TO_MAIN.CHECK_NODE_CONNECTION, nodeId)
+  return ipcRenderer.invoke(IPC_EVENTS.websocket.rendererToMain.checkNodeConnection, nodeId)
 }
 
 const websocketClearAllConnections = () => {
-  return ipcRenderer.invoke(IPC_EVENTS.WEBSOCKET.RENDERER_TO_MAIN.CLEAR_ALL_CONNECTIONS)
+  return ipcRenderer.invoke(IPC_EVENTS.websocket.rendererToMain.clearAllConnections)
 }
 
 const websocketDisconnectByNode = (nodeId: string) => {
-  return ipcRenderer.invoke(IPC_EVENTS.WEBSOCKET.RENDERER_TO_MAIN.DISCONNECT_BY_NODE, nodeId)
+  return ipcRenderer.invoke(IPC_EVENTS.websocket.rendererToMain.disconnectByNode, nodeId)
 }
 
 // Mock相关方法
 const mockGetByNodeId = (nodeId: string) => {
-  return ipcRenderer.invoke(IPC_EVENTS.MOCK.RENDERER_TO_MAIN.GET_BY_NODE_ID, nodeId)
+  return ipcRenderer.invoke(IPC_EVENTS.mock.rendererToMain.getByNodeId, nodeId)
 }
 
 const mockStartServer = (httpMock: any) => {
-  return ipcRenderer.invoke(IPC_EVENTS.MOCK.RENDERER_TO_MAIN.START_SERVER, httpMock)
+  return ipcRenderer.invoke(IPC_EVENTS.mock.rendererToMain.startServer, httpMock)
 }
 
 const mockStopServer = (nodeId: string) => {
-  return ipcRenderer.invoke(IPC_EVENTS.MOCK.RENDERER_TO_MAIN.STOP_SERVER, nodeId)
+  return ipcRenderer.invoke(IPC_EVENTS.mock.rendererToMain.stopServer, nodeId)
 }
 
 const mockGetLogsByNodeId = (nodeId: string) => {
-  return ipcRenderer.invoke(IPC_EVENTS.MOCK.RENDERER_TO_MAIN.GET_LOGS_BY_NODE_ID, nodeId)
+  return ipcRenderer.invoke(IPC_EVENTS.mock.rendererToMain.getLogsByNodeId, nodeId)
 }
 
 const mockReplaceById = (nodeId: string, httpMock: any) => {
-  return ipcRenderer.invoke(IPC_EVENTS.MOCK.RENDERER_TO_MAIN.REPLACE_BY_ID, nodeId, httpMock)
+  return ipcRenderer.invoke(IPC_EVENTS.mock.rendererToMain.replaceById, nodeId, httpMock)
 }
 
 const mockSyncProjectVariables = (projectId: string, variables: any[]) => {
-  return ipcRenderer.invoke(IPC_EVENTS.MOCK.RENDERER_TO_MAIN.SYNC_PROJECT_VARIABLES, projectId, variables)
+  return ipcRenderer.invoke(IPC_EVENTS.mock.rendererToMain.syncProjectVariables, projectId, variables)
 }
 const mockGetAllStates = (projectId: string) => {
-  return ipcRenderer.invoke(IPC_EVENTS.MOCK.RENDERER_TO_MAIN.GET_ALL_STATES, projectId)
+  return ipcRenderer.invoke(IPC_EVENTS.mock.rendererToMain.getAllStates, projectId)
 }
 
 // 导出相关方法
 const exportSelectPath = () => {
-  return ipcRenderer.invoke(IPC_EVENTS.EXPORT.RENDERER_TO_MAIN.SELECT_PATH)
+  return ipcRenderer.invoke(IPC_EVENTS.export.rendererToMain.selectPath)
 }
 
 const exportGetStatus = () => {
-  return ipcRenderer.invoke(IPC_EVENTS.EXPORT.RENDERER_TO_MAIN.GET_STATUS)
+  return ipcRenderer.invoke(IPC_EVENTS.export.rendererToMain.getStatus)
 }
 
 // 导入相关方法
 const importSelectFile = () => {
-  return ipcRenderer.invoke(IPC_EVENTS.IMPORT.RENDERER_TO_MAIN.SELECT_FILE)
+  return ipcRenderer.invoke(IPC_EVENTS.import.rendererToMain.selectFile)
 }
 
 // AI 相关方法
 const textChat = (params?: { prompt: string }) => {
-  return ipcRenderer.invoke(IPC_EVENTS.AI.RENDERER_TO_MAIN.TEXT_CHAT, params)
+  return ipcRenderer.invoke(IPC_EVENTS.ai.rendererToMain.textChat, params)
 }
 
 const jsonChat = (params?: { prompt: string }) => {
-  return ipcRenderer.invoke(IPC_EVENTS.AI.RENDERER_TO_MAIN.JSON_CHAT, params)
+  return ipcRenderer.invoke(IPC_EVENTS.ai.rendererToMain.jsonChat, params)
 }
 
 const textChatWithStream = (
@@ -163,36 +163,36 @@ const textChatWithStream = (
 
   const endHandler = (_event: any, data: { requestId: string }) => {
     if (data.requestId === params.requestId) {
-      ipcRenderer.removeListener(IPC_EVENTS.AI.MAIN_TO_RENDERER.STREAM_DATA, dataHandler)
-      ipcRenderer.removeListener(IPC_EVENTS.AI.MAIN_TO_RENDERER.STREAM_END, endHandler)
-      ipcRenderer.removeListener(IPC_EVENTS.AI.MAIN_TO_RENDERER.STREAM_ERROR, errorHandler)
+      ipcRenderer.removeListener(IPC_EVENTS.ai.mainToRenderer.streamData, dataHandler)
+      ipcRenderer.removeListener(IPC_EVENTS.ai.mainToRenderer.streamEnd, endHandler)
+      ipcRenderer.removeListener(IPC_EVENTS.ai.mainToRenderer.streamError, errorHandler)
       onEnd()
     }
   }
 
   const errorHandler = (_event: any, data: { requestId: string; code: number; msg: string; data: string }) => {
     if (data.requestId === params.requestId) {
-      ipcRenderer.removeListener(IPC_EVENTS.AI.MAIN_TO_RENDERER.STREAM_DATA, dataHandler)
-      ipcRenderer.removeListener(IPC_EVENTS.AI.MAIN_TO_RENDERER.STREAM_END, endHandler)
-      ipcRenderer.removeListener(IPC_EVENTS.AI.MAIN_TO_RENDERER.STREAM_ERROR, errorHandler)
+      ipcRenderer.removeListener(IPC_EVENTS.ai.mainToRenderer.streamData, dataHandler)
+      ipcRenderer.removeListener(IPC_EVENTS.ai.mainToRenderer.streamEnd, endHandler)
+      ipcRenderer.removeListener(IPC_EVENTS.ai.mainToRenderer.streamError, errorHandler)
       onError({ code: data.code, msg: data.msg, data: data.data })
     }
   }
 
-  ipcRenderer.on(IPC_EVENTS.AI.MAIN_TO_RENDERER.STREAM_DATA, dataHandler)
-  ipcRenderer.on(IPC_EVENTS.AI.MAIN_TO_RENDERER.STREAM_END, endHandler)
-  ipcRenderer.on(IPC_EVENTS.AI.MAIN_TO_RENDERER.STREAM_ERROR, errorHandler)
+  ipcRenderer.on(IPC_EVENTS.ai.mainToRenderer.streamData, dataHandler)
+  ipcRenderer.on(IPC_EVENTS.ai.mainToRenderer.streamEnd, endHandler)
+  ipcRenderer.on(IPC_EVENTS.ai.mainToRenderer.streamError, errorHandler)
 
   // 启动流式请求
-  const startPromise = ipcRenderer.invoke(IPC_EVENTS.AI.RENDERER_TO_MAIN.TEXT_CHAT_STREAM, params)
+  const startPromise = ipcRenderer.invoke(IPC_EVENTS.ai.rendererToMain.textChatStream, params)
 
   // 返回取消函数
   return {
     cancel: async () => {
-      ipcRenderer.removeListener(IPC_EVENTS.AI.MAIN_TO_RENDERER.STREAM_DATA, dataHandler)
-      ipcRenderer.removeListener(IPC_EVENTS.AI.MAIN_TO_RENDERER.STREAM_END, endHandler)
-      ipcRenderer.removeListener(IPC_EVENTS.AI.MAIN_TO_RENDERER.STREAM_ERROR, errorHandler)
-      await ipcRenderer.invoke(IPC_EVENTS.AI.RENDERER_TO_MAIN.CANCEL_STREAM, params.requestId)
+      ipcRenderer.removeListener(IPC_EVENTS.ai.mainToRenderer.streamData, dataHandler)
+      ipcRenderer.removeListener(IPC_EVENTS.ai.mainToRenderer.streamEnd, endHandler)
+      ipcRenderer.removeListener(IPC_EVENTS.ai.mainToRenderer.streamError, errorHandler)
+      await ipcRenderer.invoke(IPC_EVENTS.ai.rendererToMain.cancelStream, params.requestId)
     },
     startPromise
   }
@@ -205,7 +205,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
   exportHtml,
   exportWord,
   execCode: async (code: string, variables: Record<string, any>) => {
-    const result = await ipcRenderer.invoke(IPC_EVENTS.UTIL.RENDERER_TO_MAIN.EXEC_CODE, { code, variables });
+    const result = await ipcRenderer.invoke(IPC_EVENTS.util.rendererToMain.execCode, { code, variables });
     return result;
   },
   windowManager: {
