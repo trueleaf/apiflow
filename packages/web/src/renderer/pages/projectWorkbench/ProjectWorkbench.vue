@@ -89,7 +89,6 @@ const initCommonHeaders = () => {
 }
 useWindowEvent('keydown', bindShortcut);
 onMounted(() => {
-  apidocBaseInfoStroe.changeProjectId(projectId);
   getProjectInfo();
   initCookies(projectId);
   initLayout();

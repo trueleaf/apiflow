@@ -632,7 +632,6 @@ const handleChangeProject = (item: ApidocProjectInfo) => {
       mode: router.currentRoute.value.query.mode,
     },
   });
-  apidocBaseInfoStore.changeProjectId(item._id);
   apidocBaseInfoStore.getProjectBaseInfo({ projectId: item._id });
   apidocBaseInfoStore.getCommonHeaders()
   apidocBannerStore.changeBannerLoading(true)

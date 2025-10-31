@@ -142,13 +142,8 @@ const bindTopBarEvent = () => {
   // 监听项目切换事件
   window.electronAPI?.ipcManager.onMain(IPC_EVENTS.apiflow.rendererToMain.changeProject, async (data: { projectId: string, projectName: string }) => {
     let matchedProject = null;
-    if (isOffline.value) {
-      const projectList = await projectCache.getProjectList();
-      matchedProject = projectList.find(p => p._id === data.projectId);
-    } else {
-      const projectList = await projectStore.getProjectList(); // 确保获取最新项目列表
-      matchedProject = projectList.find(p => p._id === data.projectId);
-    }
+    const projectList = await projectCache.getProjectList();
+    matchedProject = projectList.find(p => p._id === data.projectId);
 
     if (!matchedProject) {
       ElMessageBox.alert(`${data.projectName}${t('已被删除')}`, t('提示'), {
@@ -244,6 +239,10 @@ const initLanguage = () => {
   }
 }
 
+const initAppTitle = () => {
+  document.title = `${config.isDev ? `${config.localization.title}(${t('本地')})` : config.localization.title}`;
+}
+
 // 同步AI配置到主进程
 const syncAiConfig = () => {
   try {
@@ -261,6 +260,7 @@ const syncAiConfig = () => {
 onMounted(() => {
   initWelcom();
   initLanguage();
+  initAppTitle();
   syncAiConfig();
 
   // 发送 content 就绪信号
@@ -317,8 +317,6 @@ onMounted(() => {
       window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.rendererToMain.refreshContentView)
     });
   });
-
-  document.title = `${config.isDev ? `${config.localization.title}(${t('本地')})` : config.localization.title}`;
 })
 </script>
 
