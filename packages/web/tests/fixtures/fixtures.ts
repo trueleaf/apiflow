@@ -275,7 +275,7 @@ export const navigateToAiSettings = async (
   await headerPage.waitForSelector('.icongerenzhongxin', { timeout: 10000 });
   await headerPage.locator('.icongerenzhongxin').click();
   await contentPage.waitForTimeout(500);
-  await contentPage.waitForSelector('.user-center', { timeout: 5000 });
+  await contentPage.waitForSelector('.settings', { timeout: 5000 });
   await contentPage.locator('.tab-item:has-text("AI 设置")').click();
   await contentPage.waitForTimeout(1000);
 };

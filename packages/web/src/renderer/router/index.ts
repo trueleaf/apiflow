@@ -26,9 +26,9 @@ const routes: Array<RouteRecordRaw> = [
     component: () => import("@/pages/apidoc/docShare/Share.vue"),
   },
   {
-    path: "/user-center",
-    name: "UserCenter",
-    component: () => import("@/pages/userCenter/UserCenter.vue"),
+    path: "/settings",
+    name: "Settings",
+    component: () => import("@/pages/settings/Settings.vue"),
   },
   {
     path: "/:pathMatch(.*)*",
@@ -85,9 +85,9 @@ const routerConfig = {
       component: () => import("@/pages/apidoc/docShare/Share.vue"),
     },
     {
-      path: "/user-center",
-      name: "UserCenter",
-      component: () => import("@/pages/userCenter/UserCenter.vue"),
+      path: "/settings",
+      name: "Settings",
+      component: () => import("@/pages/settings/Settings.vue"),
     },
     {
       path: "/:pathMatch(.*)*",

@@ -214,7 +214,7 @@ const switchTab = (tabId: string) => {
       projectName: currentTab.title
     })
   } else if (currentTab.type === 'settings') {
-    window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.APIFLOW.TOPBAR_TO_CONTENT.NAVIGATE, '/user-center')
+    window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.APIFLOW.TOPBAR_TO_CONTENT.NAVIGATE, '/settings')
   }
 }
 /*
@@ -228,18 +228,18 @@ const jumpToHome = () => {
   window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.APIFLOW.TOPBAR_TO_CONTENT.NAVIGATE, '/home')
 }
 const jumpToUserCenter = () => {
-  const userCenterTabId = 'user-center';
-  const existingTab = tabs.value.find(t => t.id === userCenterTabId);
+  const settingsTabId = 'settings';
+  const existingTab = tabs.value.find(t => t.id === settingsTabId);
   if (!existingTab) {
     tabs.value.push({
-      id: userCenterTabId,
+      id: settingsTabId,
       title: t('个人中心'),
       type: 'settings',
       network: networkMode.value
     });
     syncTabsToContentView()
   }
-  switchTab(userCenterTabId);
+  switchTab(settingsTabId);
 }
 const toggleNetworkMode = () => {
   const newMode = networkMode.value === 'online' ? 'offline' : 'online'

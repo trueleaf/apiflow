@@ -1,5 +1,5 @@
 <template>
-  <div class="user-center">
+  <div class="settings">
     <div class="tab-container">
       <div class="vertical-tabs">
         <div class="sidebar-title">
@@ -49,49 +49,38 @@ import CacheManagement from './cacheManager/CacheManagement.vue'
 import UserInfo from './userInfo/UserInfo.vue'
 import ComponentLibrary from './componentLibrary/ComponentLibrary.vue'
 import AiSettings from './aiSettings/AiSettings.vue'
-// 导入 lucide-vue-next 图标
 import { UserCircle, HardDrive, Settings, Command, Box, BrainCircuit } from 'lucide-vue-next'
 
-// 定义标签类型接口
 type TabItem = {
   name: string
   icon: Component
   action: string
 };
 
-// 初始化时从缓存中获取活跃标签，默认为 'user-info'
 const activeTab = ref(userState.getActiveLocalDataMenu() || 'user-info')
 const tabs: TabItem[] = [
   { name: '基本信息', icon: UserCircle, action: 'user-info' },
   { name: '本地数据', icon: HardDrive, action: 'local-data' }
 ]
-
-// 偏好设置选项
 const settingTabs: TabItem[] = [
   { name: '通用', icon: Settings, action: 'general' },
   { name: '快捷键', icon: Command, action: 'shortcuts' },
   { name: '组件库', icon: Box, action: 'components' },
   { name: 'AI 设置', icon: BrainCircuit, action: 'ai-settings' }
 ]
-
-// 处理所有标签点击
 const handleSettingClick = (setting: TabItem) => {
   activeTab.value = setting.action
 }
-
-// 处理基本信息标签点击
 const handleTabClick = (tab: TabItem) => {
   activeTab.value = tab.action
 }
-
-// 监听 activeTab 变化，自动保存到缓存
 watch(activeTab, (newValue) => {
   userState.setActiveLocalDataMenu(newValue)
 }, { immediate: false })
 </script>
 
 <style lang="scss" scoped>
-.user-center {
+.settings {
   display: flex;
   height: 100%;
   width: 100%;
@@ -161,13 +150,10 @@ watch(activeTab, (newValue) => {
     }
   }
 }
-
-// Transition effects
 .fade-enter-active,
 .fade-leave-active {
   transition: opacity 0.3s ease;
 }
-
 .fade-enter-from,
 .fade-leave-to {
   opacity: 0;

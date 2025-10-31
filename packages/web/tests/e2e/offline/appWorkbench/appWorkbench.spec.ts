@@ -1150,8 +1150,8 @@ test.describe('应用工作台 Header - 导航控制功能', () => {
     await expect(tabIcon).toHaveCount(0);
 
     // 7. 验证跳转到个人中心页面
-    await contentPage.waitForURL(/user-center/, { timeout: 10000 });
-    expect(contentPage.url()).toContain('user-center');
+    await contentPage.waitForURL(/settings/, { timeout: 10000 });
+    expect(contentPage.url()).toContain('settings');
 
     // 8. 验证 Home 按钮未激活
     const homeBtn = headerPage.locator('.home');
@@ -1187,8 +1187,8 @@ test.describe('应用工作台 Header - 导航控制功能', () => {
     await expect(tab).toHaveClass(/active/);
 
     // 7. 验证再次跳转到个人中心页面
-    await contentPage.waitForURL(/user-center/, { timeout: 10000 });
-    expect(contentPage.url()).toContain('user-center');
+    await contentPage.waitForURL(/settings/, { timeout: 10000 });
+    expect(contentPage.url()).toContain('settings');
   });
 });
 /*
@@ -1977,8 +1977,8 @@ test.describe('应用工作台 Header - IPC 事件通信', () => {
     await contentPage.waitForTimeout(500);
 
     // 2. 验证跳转到个人中心（说明 NAVIGATE 事件生效）
-    await contentPage.waitForURL(/user-center/, { timeout: 10000 });
-    expect(contentPage.url()).toContain('user-center');
+    await contentPage.waitForURL(/settings/, { timeout: 10000 });
+    expect(contentPage.url()).toContain('settings');
 
     // 3. 验证设置标签创建
     const tabs = headerPage.locator('.tab-item');
