@@ -13,27 +13,13 @@ export const config: Config = {
     //http请求相关
     httpRequest: {
       url: isDev ? 'http://127.0.0.1:7001' : 'https://online.jobtool.cn',
-      imgUrl: isDev ? 'http://happymoyu.oss-cn-beijing.aliyuncs.com' : 'http://happymoyu.oss-cn-beijing.aliyuncs.com',
       timeout: 20000,
       withCredentials: true,
     },
-    //全局组件配置
-    components: {
-      tableConfig: {
-        pageSizes: [10, 20, 30, 50, 70, 100], //每页条数
-        pageSize: 20, //每页默认显示数量
-      },
-    },
-    //本地数据库配置
-    indexedDB: {
-      dbName: 'apiflow', //indexedDB名称
-      version: 1, //indexedDB版本信息
-    },
     //导入文档相关配置
-    import: {
-      size: 1024 * 1024 * 5, //导入文件大小
+    importProjectConfig: {
+      maxSize: 1024 * 1024 * 5,
     },
-    shareUrl: 'https://share.jobtool.cn'
   },
   //主进程配置
   mainConfig,

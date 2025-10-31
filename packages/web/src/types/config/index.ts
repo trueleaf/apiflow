@@ -32,10 +32,6 @@ export type Config = {
        */
       url: string,
       /**
-       * 图片url
-       */
-      imgUrl: string,
-      /**
        * 超时时间
        */
       timeout: number,
@@ -45,49 +41,14 @@ export type Config = {
       withCredentials: boolean,
     },
     /**
-     * 全局组件配置
-     */
-    components: {
-      /**
-       * 表格相关配置信息
-       */
-      tableConfig: {
-        /**
-         * 每页条数
-         */
-        pageSizes: number[],
-        /**
-         * 每页默认显示数量
-         */
-        pageSize: number,
-      },
-    },
-    /**
-     * 本地数据库配置
-     */
-    indexedDB: {
-      /**
-       * indexedDB数据库名称
-       */
-      dbName: string,
-      /**
-       * indexedDB数据库版本
-       */
-      version: number,
-    },
-    /**
      * 导入文档相关配置
      */
-    import: {
+    importProjectConfig: {
       /**
        * 导入文件大小限制
        */
-      size: number,
+      maxSize: number,
     },
-    /**
-     * 分享url
-     */
-    shareUrl: string
   },
   /**
    * 主进程配置
@@ -191,14 +152,6 @@ export type MainConfig = {
    * 顶部栏视图高度
    */
   topbarViewHeight: number,
-  /**
-   * 使用本地文件作为主进程加载内容
-   */
-  useLocalFile: boolean,
-  /**
-   * 若useLocalFile为false则使用当前地址作为electron加载地址
-   */
-  onlineUrl: string,
   /**
    * AI配置
    */

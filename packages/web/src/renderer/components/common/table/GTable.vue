@@ -36,8 +36,8 @@
         :layout="paging ? 'total, sizes, prev, pager, next, jumper' : 'total'"
         :total="total"
         background
-        :page-sizes="config.renderConfig.components.tableConfig.pageSizes"
-        :page-size="config.renderConfig.components.tableConfig.pageSize"
+        :page-sizes="[10, 20, 30, 50, 70, 100]"
+        :page-size="20"
         @size-change="handleSizeChange"
         @current-change="handleCurrentChange"
       >
@@ -123,8 +123,8 @@ const props = defineProps({
 const emits = defineEmits(['finish', 'select', 'deleteMany'])
 const { t } = useI18n()
 const formInfo = ref({
-  pageSize: config.renderConfig.components.tableConfig.pageSize, //----分页大小
-  pageNum: 1, //-------------------------------------------------------当前页数
+  pageSize: 20,
+  pageNum: 1,
 })
 const tableData = ref([])
 const tableHeight = ref('100')

@@ -547,10 +547,6 @@ export type GlobalConfig = {
    */
   version: string;
   /**
-   * 分享url
-   */
-  shareUrl: string;
-  /**
    * 是否开启自动更新
    */
   autoUpdate: boolean;

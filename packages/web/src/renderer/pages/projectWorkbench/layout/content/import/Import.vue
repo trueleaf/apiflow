@@ -247,9 +247,9 @@ const handleBeforeUpload = (file: File) => {
     })
     return false;
   }
-  if (file.size > config.renderConfig.import.size) {
+  if (file.size > config.renderConfig.importProjectConfig.maxSize) {
     ElMessage({
-      message: `${t('文件大小不超过')}${config.renderConfig.import.size / 1024 / 1024}M`,
+      message: `${t('文件大小不超过')}${config.renderConfig.importProjectConfig.maxSize / 1024 / 1024}M`,
       grouping: true,
       type: 'error',
     })
