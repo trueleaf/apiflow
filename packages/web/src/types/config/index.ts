@@ -11,20 +11,6 @@ export type Config = {
    */
   isDev: boolean,
   /**
-   * 更新相关配置
-   */
-  updateConfig: {
-    /**
-     * 更新服务器地址
-     */
-    url: string,
-    /**
-     * 是否开启自动更新
-     */
-    autoUpdate: boolean,
-  },
-
-  /**
    * 渲染进程配置
    */
   renderConfig: {
@@ -119,54 +105,7 @@ export type Config = {
   /**
    * 主进程配置
    */
-  mainConfig: {
-    /**
-     * 默认electron窗口最小宽度
-     */
-    minWidth: number,
-    /**
-     * 默认electron窗口最小高度
-     */
-    minHeight: number,
-    /**
-     * 顶部栏视图高度
-     */
-    topbarViewHeight: number,
-    /**
-     * 使用本地文件作为主进程加载内容
-     */
-    useLocalFile: boolean,
-    /**
-     * 若useLocalFile为false则使用当前地址作为electron加载地址
-     */
-    onlineUrl: string,
-    /**
-     * AI配置
-     */
-    aiConfig: {
-      /**
-       * 默认模型
-       */
-      model: "DeepSeek",
-      /**
-       * 接口密钥
-       */
-      apiKey: string,
-      /**
-       * 接口地址
-       */
-      apiUrl: string,
-      /**
-       * 最大令牌数限制
-       */
-      maxTokens?: number,
-      /**
-       * 请求超时时间（毫秒）
-       */
-      timeout: number,
-    },
-  },
-
+  mainConfig: MainConfig,
   /**
    * 本地部署相关配置
    */
@@ -179,13 +118,6 @@ export type Config = {
      * 应用名称
      */
     title: string,
-  },
-  requestTest: {
-    responseLogDir: string;
-    autoSaveResponseLog: boolean;
-    maxLocalResponseLogSize: number;
-    maxLocalWebStorageResponseLogSize: number;
-    canLogResponsebodyByteLength: number;
   },
   requestConfig: {
     maxTextBodySize: number;
@@ -245,6 +177,64 @@ export type Config = {
 
 /**
  * 主进程配置类型
- * 从 Config 中提取，便于主进程独立使用
  */
-export type MainConfig = Config['mainConfig'];
+export type MainConfig = {
+  /**
+   * 更新相关配置
+   */
+  updateConfig: {
+    /**
+     * 更新服务器地址
+     */
+    url: string,
+    /**
+     * 是否开启自动更新
+     */
+    autoUpdate: boolean,
+  },
+  /**
+   * 默认electron窗口最小宽度
+   */
+  minWidth: number,
+  /**
+   * 默认electron窗口最小高度
+   */
+  minHeight: number,
+  /**
+   * 顶部栏视图高度
+   */
+  topbarViewHeight: number,
+  /**
+   * 使用本地文件作为主进程加载内容
+   */
+  useLocalFile: boolean,
+  /**
+   * 若useLocalFile为false则使用当前地址作为electron加载地址
+   */
+  onlineUrl: string,
+  /**
+   * AI配置
+   */
+  aiConfig: {
+    /**
+     * 默认模型
+     */
+    model: "DeepSeek",
+    /**
+     * 接口密钥
+     */
+    apiKey: string,
+    /**
+     * 接口地址
+     */
+    apiUrl: string,
+    /**
+     * 最大令牌数限制
+     */
+    maxTokens?: number,
+    /**
+     * 请求超时时间（毫秒）
+     */
+    timeout: number,
+  },
+}

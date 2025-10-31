@@ -4,11 +4,6 @@ const isDev = process.env.NODE_ENV === 'development';
 
 export const config: Config = {
   isDev,
-  //更新相关配置
-  updateConfig: {
-    url: 'http://xxx.xxx.cn/electron/windows', //更新服务器地址
-    autoUpdate: false, //是否开启自动更新
-  },
   //渲染进程配置
   renderConfig: {
     //布局相关
@@ -52,13 +47,6 @@ export const config: Config = {
   localization: {
     version: '0.8.0', //当前项目版本
     title: 'Apiflow', //项目名称
-  },
-  requestTest: {
-    responseLogDir: '/responseLog',
-    autoSaveResponseLog: false,
-    maxLocalResponseLogSize: 1024 * 1024 * 1024 * 10,
-    maxLocalWebStorageResponseLogSize: 1024 * 1024 * 100,
-    canLogResponsebodyByteLength: 1024 * 1024,
   },
   requestConfig: {
     maxTextBodySize: 1024 * 1024 * 50, //最大可展示文本格式数大小
