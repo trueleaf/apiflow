@@ -9,11 +9,7 @@
       <div class="avatar-section">
         <div class="avatar">
           <img :src="userInfo.avatar || defaultAvatar" :alt="$t('用户头像')">
-          <div class="upload-overlay" v-if="!isLocalMode">
-            <i class="iconfont icon-upload"></i>
-          </div>
         </div>
-        <button class="upload-btn" v-if="!isLocalMode">{{ $t('更换头像') }}</button>
       </div>
       
       <div class="info-section">
@@ -69,8 +65,9 @@
 
 <script setup lang="ts">
 import { ref, reactive } from 'vue'
+import defaultAvatarImg from '@/assets/imgs/logo.png'
 
-const defaultAvatar = '/src/renderer/assets/imgs/logo.png'
+const defaultAvatar = defaultAvatarImg
 
 // Determine if we're in standalone/local mode
 const isLocalMode = ref(true) // This would come from your actual app state
@@ -151,65 +148,16 @@ function getUserTeam() {
       display: flex;
       flex-direction: column;
       align-items: center;
-      
+
       .avatar {
         width: 120px;
         height: 120px;
-        // border-radius: 50%;
         overflow: hidden;
-        position: relative;
-        margin-bottom: 16px;
-        // border: 1px solid #ccc;
+
         img {
           width: 100%;
           height: 100%;
-        }
-        
-        .upload-overlay {
-          position: absolute;
-          bottom: 0;
-          left: 0;
-          right: 0;
-          background: rgba(0, 0, 0, 0.5);
-          color: white;
-          height: 40px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          opacity: 0;
-          transition: opacity 0.3s;
-          
-          i {
-            font-size: 20px;
-          }
-        }
-        
-        &:hover .upload-overlay {
-          opacity: 1;
-          cursor: pointer;
-        }
-      }
-      
-      .upload-btn {
-        padding: 8px 15px;
-        background: #ecf5ff;
-        color: #409eff;
-        border: 1px solid #d9ecff;
-        border-radius: 4px;
-        cursor: pointer;
-        font-size: 14px;
-        transition: all 0.3s ease;
-        
-        &:hover {
-          background: #d9ecff;
-          color: #3a8ee6;
-        }
-        
-        &:disabled {
-          background: #f5f7fa;
-          color: #c0c4cc;
-          border-color: #e4e7ed;
-          cursor: not-allowed;
+          object-fit: cover;
         }
       }
     }
