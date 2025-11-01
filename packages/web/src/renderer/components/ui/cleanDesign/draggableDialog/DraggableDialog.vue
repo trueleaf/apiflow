@@ -140,37 +140,74 @@ onBeforeUnmount(() => {
   display: flex;
   align-items: center;
   justify-content: center;
+  background: transparent; // 移除遮罩
 }
+
 .draggable-dialog {
-  background: #fff;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
-  border: 1px solid #e5e5e5;
+  // 定义 CSS 变量（亮色模式默认值）
+  --dialog-bg: #ffffff;
+  --dialog-header-bg: #f9f9f9;
+  --dialog-border: #e5e5e5;
+  --dialog-title-color: #333333;
+  --dialog-icon-color: #c0c4cc;
+  --dialog-close-color: #909399;
+  --dialog-close-hover-color: #606266;
+  --dialog-close-hover-bg: rgba(0, 0, 0, 0.1);
+  --dialog-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+
+  background: var(--dialog-bg);
+  box-shadow: var(--dialog-shadow);
+  border: 1px solid var(--dialog-border);
   display: flex;
   flex-direction: column;
+  transition: background-color 0.2s ease,
+              border-color 0.2s ease,
+              box-shadow 0.2s ease;
 }
+
+// 暗色模式覆盖
+:global([data-theme="dark"]) .draggable-dialog {
+  --dialog-bg: #2a2a2a;
+  --dialog-header-bg: #1e1e1e;
+  --dialog-border: #404040;
+  --dialog-title-color: #e0e0e0;
+  --dialog-icon-color: #808080;
+  --dialog-close-color: #b0b0b0;
+  --dialog-close-hover-color: #e0e0e0;
+  --dialog-close-hover-bg: rgba(255, 255, 255, 0.1);
+  --dialog-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+}
+
 .dialog-header {
-  background: #f9f9f9;
-  border-bottom: 1px solid #e5e5e5;
+  background: var(--dialog-header-bg);
+  border-bottom: 1px solid var(--dialog-border);
   padding: 12px 16px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   cursor: move;
   user-select: none;
+  transition: background-color 0.2s ease, border-color 0.2s ease;
+
   .header-left {
     display: flex;
     align-items: center;
     gap: 8px;
   }
+
   .drag-icon {
-    color: #c0c4cc;
+    color: var(--dialog-icon-color);
     font-size: 14px;
+    transition: color 0.2s ease;
   }
+
   .dialog-title {
     font-size: 14px;
     font-weight: 500;
-    color: #333;
+    color: var(--dialog-title-color);
+    transition: color 0.2s ease;
   }
+
   .close-button {
     width: 20px;
     height: 20px;
@@ -180,25 +217,29 @@ onBeforeUnmount(() => {
     background: transparent;
     border: none;
     border-radius: 50%;
-    color: #909399;
+    color: var(--dialog-close-color);
     cursor: pointer;
     font-size: 10px;
-    transition: all 0.2s;
+    transition: all 0.2s ease;
+
     &:hover {
-      background: rgba(0, 0, 0, 0.1);
-      color: #606266;
+      background: var(--dialog-close-hover-bg);
+      color: var(--dialog-close-hover-color);
     }
   }
 }
+
 .dialog-body {
   flex: 1;
   overflow: auto;
   padding: 16px;
 }
+
 .dialog-fade-enter-active,
 .dialog-fade-leave-active {
   transition: opacity 0.2s ease;
 }
+
 .dialog-fade-enter-from,
 .dialog-fade-leave-to {
   opacity: 0;

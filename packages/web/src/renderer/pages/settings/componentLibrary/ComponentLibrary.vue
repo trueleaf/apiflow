@@ -40,7 +40,7 @@
 import { ref, computed, defineAsyncComponent, onMounted } from 'vue'
 
 // 导入组件
-const CardComponent = defineAsyncComponent(() => import('@/components/ui/cleanDesign/card/Card.vue'))
+const CardComponent = defineAsyncComponent(() => import('@/components/ui/cleanDesign/card/demo/Card.vue'))
 const TabsComponent = defineAsyncComponent(() => import('@/components/ui/cleanDesign/tabs/demo/Tabs.vue'))
 const DraggableDialogComponent = defineAsyncComponent(() => import('@/components/ui/cleanDesign/draggableDialog/demo/DraggableDialog.vue'))
 
