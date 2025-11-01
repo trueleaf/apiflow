@@ -42,6 +42,7 @@ import { ref, computed, defineAsyncComponent, onMounted } from 'vue'
 // 导入组件
 const CardComponent = defineAsyncComponent(() => import('@/components/ui/cleanDesign/card/Card.vue'))
 const TabsComponent = defineAsyncComponent(() => import('@/components/ui/cleanDesign/tabs/demo/Tabs.vue'))
+const DraggableDialogComponent = defineAsyncComponent(() => import('@/components/ui/cleanDesign/draggableDialog/demo/DraggableDialog.vue'))
 
 // 搜索词
 const searchTerm = ref('')
@@ -95,6 +96,12 @@ const components = ref([
     icon: 'iconfont iconbiaoge',
     description: '标签页组件，允许用户在不同的内容视图之间切换',
     category: '导航组件'
+  },
+  {
+    name: 'DraggableDialog',
+    icon: 'iconfont iconanniu',
+    description: '可拖拽弹窗组件，支持通过标题栏拖拽移动位置，Tailwind 极简风格',
+    category: '反馈组件'
   }
 ])
 
@@ -117,6 +124,8 @@ const getComponentByName = (name: string) => {
       return CardComponent
     case 'tabs':
       return TabsComponent
+    case 'draggabledialog':
+      return DraggableDialogComponent
     default:
       return null
   }
