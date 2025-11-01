@@ -148,7 +148,7 @@ class UserState {
   // 获取当前活跃的本地数据管理菜单
   getActiveLocalDataMenu(): string {
     try {
-      const activeMenu = localStorage.getItem('userState/localData/activeMenu') || 'localStorage';
+      const activeMenu = localStorage.getItem('userState/localData/activeMenu') || 'common-settings';
       return activeMenu;
     } catch (error) {
       console.error(error);

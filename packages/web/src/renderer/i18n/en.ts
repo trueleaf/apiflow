@@ -687,6 +687,7 @@ export default {
   项目特色功能视频演示: 'Project Feature Video Demo',
   下载: 'Download',
   个人基本信息: 'Personal Basic Information',
+  通用配置: 'Common Settings',
   用户头像: 'User Avatar',
   更换头像: 'Change Avatar',
   所属团队: 'Team',

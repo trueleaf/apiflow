@@ -5,6 +5,8 @@
 
 import type { ComponentSize } from "element-plus";
 
+export type AppTheme = 'light' | 'dark' | 'auto';
+
 export type Config = {
   /**
    * 是否为开发环境
@@ -55,17 +57,25 @@ export type Config = {
    */
   mainConfig: MainConfig,
   /**
-   * 本地部署相关配置
+   * 应用相关配置
    */
-  localization: {
+  appConfig: {
     /**
      *  版本信息 eg: 0.6.3
      */
     version: string,
     /**
-     * 应用名称
+     * 应用标题
      */
-    title: string,
+    appTitle: string,
+    /**
+     * 应用Logo
+     */
+    appLogo: string,
+    /**
+     * 应用主题
+     */
+    appTheme: AppTheme,
   },
   httpNodeRequestConfig: {
     maxTextBodySize: number;

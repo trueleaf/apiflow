@@ -33,7 +33,7 @@
       </div>
 
       <div class="content-area">
-        <UserInfo v-if="activeTab === 'user-info'" />
+        <CommonSettings v-if="activeTab === 'common-settings'" />
         <CacheManagement v-if="activeTab === 'local-data'" />
         <ComponentLibrary v-if="activeTab === 'components'" />
         <AiSettings v-if="activeTab === 'ai-settings'" />
@@ -46,10 +46,10 @@
 import { ref, watch, type Component } from 'vue'
 import { userState } from '@/cache/userState/userStateCache.ts'
 import CacheManagement from './cacheManager/CacheManagement.vue'
-import UserInfo from './userInfo/UserInfo.vue'
+import CommonSettings from './commonSettings/CommonSettings.vue'
 import ComponentLibrary from './componentLibrary/ComponentLibrary.vue'
 import AiSettings from './aiSettings/AiSettings.vue'
-import { UserCircle, HardDrive, Settings, Command, Box, BrainCircuit } from 'lucide-vue-next'
+import { UserCircle, HardDrive, Command, Box, BrainCircuit } from 'lucide-vue-next'
 
 type TabItem = {
   name: string
@@ -57,13 +57,12 @@ type TabItem = {
   action: string
 };
 
-const activeTab = ref(userState.getActiveLocalDataMenu() || 'user-info')
+const activeTab = ref(userState.getActiveLocalDataMenu() || 'common-settings')
 const tabs: TabItem[] = [
-  { name: '基本信息', icon: UserCircle, action: 'user-info' },
+  { name: '通用配置', icon: UserCircle, action: 'common-settings' },
   { name: '本地数据', icon: HardDrive, action: 'local-data' }
 ]
 const settingTabs: TabItem[] = [
-  { name: '通用', icon: Settings, action: 'general' },
   { name: '快捷键', icon: Command, action: 'shortcuts' },
   { name: '组件库', icon: Box, action: 'components' },
   { name: 'AI 设置', icon: BrainCircuit, action: 'ai-settings' }

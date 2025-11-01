@@ -226,7 +226,7 @@ const initLanguage = () => {
 }
 
 const initAppTitle = () => {
-  document.title = `${config.isDev ? `${config.localization.title}(${t('本地')})` : config.localization.title}`;
+  document.title = `${config.isDev ? `${config.appConfig.appTitle}(${t('本地')})` : config.appConfig.appTitle}`;
 }
 
 // 同步AI配置到主进程

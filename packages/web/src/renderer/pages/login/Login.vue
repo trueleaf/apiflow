@@ -33,8 +33,8 @@
       </div>
       <div class="right">
         <h2 class="text-center">
-          <span>{{ config.localization.title }}</span>
-          <span v-if="config.localization.version">({{ config.localization.version }})</span>
+          <span>{{ config.appConfig.appTitle }}</span>
+          <span v-if="config.appConfig.version">({{ config.appConfig.version }})</span>
         </h2>
         <el-tabs v-model="activeName" class="w-100">
           <!-- 账号登录 -->

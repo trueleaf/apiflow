@@ -2,7 +2,7 @@
   <div class="guide">
     <div class="wrap">
       <img :src="logoUrl" width="150" height="150" alt="logo" class="logo">
-      <h2>{{ t("当前版本") }}{{ config.localization.version }}</h2>
+      <h2>{{ t("当前版本") }}{{ config.appConfig.version }}</h2>
       <div class="d-flex a-center f-base j-center">
         <div class="d-flex a-center mr-5">
           <div>{{ t("今日新增") }}：</div>

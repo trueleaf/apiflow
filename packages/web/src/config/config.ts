@@ -24,10 +24,12 @@ export const config: Config = {
   //主进程配置
   mainConfig,
 
-  //本地部署相关配置
-  localization: {
+  //应用相关配置
+  appConfig: {
     version: '0.8.0', //当前项目版本
-    title: 'Apiflow', //项目名称
+    appTitle: 'Apiflow', //应用标题
+    appLogo: '', //应用Logo
+    appTheme: 'light', //应用主题
   },
   httpNodeRequestConfig: {
     maxTextBodySize: 1024 * 1024 * 50, //最大可展示文本格式数大小
