@@ -820,4 +820,8 @@ export default {
   '确认重置所有应用设置吗？': 'Are you sure you want to reset all application settings?',
   '用户名不能为空': 'Username cannot be empty',
   '邮箱格式不正确': 'Invalid email format',
+  // SSE Filter Configuration
+  '过滤配置': 'Filter Configuration',
+  '此处为过滤配置区域': 'Configuration area for filtering',
+  '此处为过滤结果预览区域': 'Preview area for filtering results',
 }

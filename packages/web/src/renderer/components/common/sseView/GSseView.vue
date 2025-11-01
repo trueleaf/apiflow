@@ -31,6 +31,9 @@
           <el-icon class="icon search-icon" :class="{ active: isSearchInputVisible }" @click="toggleSearchInput">
             <Search />
           </el-icon>
+          <el-icon class="icon filter-icon" :class="{ active: isFilterDialogVisible }" @click="toggleFilterDialog" :title="t('过滤配置')">
+            <Filter :size="16" />
+          </el-icon>
           <el-icon class="icon raw-view-icon" :class="{ active: isRawView }" @click="toggleRawView" :title="t('切换原始数据视图')">
             <Document />
           </el-icon>
@@ -87,6 +90,21 @@
       @hide="handlePopoverHide"
       @close="handleClosePopover"
     />
+    <!-- 过滤配置弹窗 -->
+    <DraggableDialog
+      v-model="isFilterDialogVisible"
+      :title="t('过滤配置')"
+      :width="1000"
+    >
+      <div class="filter-dialog-content">
+        <div class="config-area">
+          <div class="placeholder-text">{{ t('此处为过滤配置区域') }}</div>
+        </div>
+        <div class="preview-area">
+          <div class="placeholder-text">{{ t('此处为过滤结果预览区域') }}</div>
+        </div>
+      </div>
+    </DraggableDialog>
   </div>
 </template>
 
@@ -96,12 +114,14 @@ import { parseChunkList } from '@/helper/sse';
 import { debounce } from "lodash-es";
 import { computed, ref, onMounted, onBeforeUnmount, nextTick, watch } from 'vue';
 import type { ComponentPublicInstance } from 'vue';
-;
+
 import dayjs from 'dayjs';
 import type { ChunkWithTimestampe } from '@src/types/index.ts';
 import GVirtualScroll from '@/components/apidoc/virtualScroll/GVirtualScroll.vue';
 import SsePopover from './components/popover/SsePopover.vue';
+import DraggableDialog from '@/components/ui/cleanDesign/draggableDialog/DraggableDialog.vue';
 import { Loading, Search, Download, Document } from '@element-plus/icons-vue';
+import { Filter } from 'lucide-vue-next';
 import { useI18n } from 'vue-i18n';
 
 /*
@@ -130,6 +150,12 @@ const isSearchInputVisible = ref(false);
 const isRawView = ref(false);
 const popoverVirtualRef = ref<HTMLElement | null>(null);
 const isVirtualEnabled = computed(() => props.isDataComplete && activePopoverIndex.value === -1);
+// 过滤配置弹窗相关
+const isFilterDialogVisible = ref(false);
+// 切换过滤配置弹窗
+const toggleFilterDialog = () => {
+  isFilterDialogVisible.value = !isFilterDialogVisible.value;
+};
 // 切换原始视图模式
 const toggleRawView = () => {
   isRawView.value = !isRawView.value;
@@ -591,6 +617,27 @@ onBeforeUnmount(() => {
       }
       }
 
+      .filter-icon {
+        width: 28px;
+        height: 28px;
+        color: var(--gray-700, #606266);
+        cursor: pointer;
+        transition: all 0.2s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        &:hover {
+          color: var(--primary, #409eff);
+          background-color: #efefef;
+        }
+
+        &.active {
+          color: var(--primary, #409eff);
+          background-color: var(--light, #ecf5ff);
+        }
+      }
+
       .download-icon {
         width: 28px;
         height: 28px;
@@ -864,5 +911,42 @@ onBeforeUnmount(() => {
   font-weight: 600;
   padding: 1px 2px;
   border-radius: 2px;
+}
+
+// 过滤配置弹窗内容样式
+.filter-dialog-content {
+  display: flex;
+  height: 500px;
+
+  .config-area {
+    width: 400px;
+    border-right: 1px solid var(--gray-200, #ebeef5);
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--gray-50, #fafafa);
+
+    .placeholder-text {
+      color: var(--gray-500, #909399);
+      font-size: 14px;
+      text-align: center;
+    }
+  }
+
+  .preview-area {
+    flex: 1;
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--white, #ffffff);
+
+    .placeholder-text {
+      color: var(--gray-500, #909399);
+      font-size: 14px;
+      text-align: center;
+    }
+  }
 }
 </style>
