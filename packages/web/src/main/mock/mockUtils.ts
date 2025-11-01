@@ -496,8 +496,13 @@ export class MockUtils {
   |--------------------------------------------------------------------------
   */
   // 生成SSE事件数据
-  public generateSSEEventData(sseConfig: MockResponseConfig['sseConfig'], messageIndex: number): MockSSEEventData {
+  public async generateSSEEventData(
+    sseConfig: MockResponseConfig['sseConfig'], 
+    messageIndex: number,
+    variables: ApidocVariable[] = []
+  ): Promise<MockSSEEventData> {
     const eventData: Partial<MockSSEEventData> = {};
+    const objectVariable = this.getObjectVariable(variables);
     
     // 处理 id 字段
     if (sseConfig.event.id.enable) {
@@ -516,9 +521,13 @@ export class MockUtils {
       }
     }
     
-    // 处理 event 字段
+    // 处理 event 字段，支持变量替换
     if (sseConfig.event.event.enable && sseConfig.event.event.value) {
-      eventData.event = sseConfig.event.event.value;
+      try {
+        eventData.event = await this.convertTemplateValueToRealValue(sseConfig.event.event.value, objectVariable);
+      } catch (error) {
+        eventData.event = sseConfig.event.event.value;
+      }
     }
     
     // 处理 retry 字段
@@ -526,19 +535,23 @@ export class MockUtils {
       eventData.retry = sseConfig.event.retry.value;
     }
     
-    // 处理 data 字段
+    // 处理 data 字段，支持变量和表达式
     let dataContent: string;
     if (sseConfig.event.data.mode === 'json') {
       try {
-        // 尝试解析为 JSON 对象，然后序列化
-        const jsonData = JSON.parse(sseConfig.event.data.value || '{}');
+        // 使用 getRealJson 解析模板 JSON，支持变量和表达式
+        const jsonData = await this.getRealJson(sseConfig.event.data.value || '{}', variables);
         dataContent = JSON.stringify(jsonData);
       } catch (error) {
         dataContent = sseConfig.event.data.value || '{}';
       }
     } else {
-      // string 模式直接使用值
-      dataContent = sseConfig.event.data.value || '';
+      // string 模式使用 convertTemplateValueToRealValue 支持变量替换
+      try {
+        dataContent = await this.convertTemplateValueToRealValue(sseConfig.event.data.value || '', objectVariable);
+      } catch (error) {
+        dataContent = sseConfig.event.data.value || '';
+      }
     }
     
     eventData.data = dataContent;
@@ -682,9 +695,13 @@ export class MockUtils {
   */
 
   // 处理SSE类型响应
-  public handleSseResponse(responseConfig: MockResponseConfig, ctx: Koa.Context): void {
+  public handleSseResponse(
+    responseConfig: MockResponseConfig, 
+    ctx: Koa.Context,
+    variables: ApidocVariable[] = []
+  ): void {
     const { sseConfig } = responseConfig;
-    const interval = Math.max(sseConfig.interval || 1000, 100); // 最小100ms间隔
+    const interval = Math.max(sseConfig.interval || 100, 100); // 最小100ms间隔
     const maxNum = Math.max(sseConfig.maxNum || 10, 1); // 最少发送1条数据
     
     // 设置HTTP状态码
@@ -723,7 +740,7 @@ export class MockUtils {
     });
     
     // 开始发送数据
-    intervalId = setInterval(() => {
+    intervalId = setInterval(async () => {
       try {
         // 检查是否已达到最大发送次数
         if (messageCount >= maxNum) {
@@ -732,8 +749,8 @@ export class MockUtils {
           return;
         }
         
-        // 生成事件数据
-        const eventData = this.generateSSEEventData(sseConfig, messageCount);
+        // 生成事件数据（每次都重新计算变量，支持动态表达式）
+        const eventData = await this.generateSSEEventData(sseConfig, messageCount, variables);
         const message = this.formatSSEMessage(eventData);
         
         // 发送数据
@@ -1092,7 +1109,7 @@ export class MockUtils {
         if (!ctx) {
           return { error: 'SSE requires context parameter' };
         }
-        this.handleSseResponse(responseConfig, ctx);
+        this.handleSseResponse(responseConfig, ctx, variables);
         return 'SSE streaming started'; // 占位返回值，实际不会被使用
       case 'json':
         return await this.handleJsonResponse(responseConfig, variables);

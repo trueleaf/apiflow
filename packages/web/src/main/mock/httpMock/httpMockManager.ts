@@ -186,8 +186,9 @@ export class HttpMockManager {
           ctx.set('content-type', 'text/event-stream; charset=utf-8');
         }
         
-        // SSE 类型直接处理，不需要设置 ctx.body
-        this.mockUtils.handleSseResponse(responseConfig, ctx);
+        // SSE 类型直接处理，不需要设置 ctx.body，传递项目变量
+        const projectVariables = MockUtils.getProjectVariables(matchedMock.projectId);
+        this.mockUtils.handleSseResponse(responseConfig, ctx, projectVariables);
         return; // 提前返回，不需要设置 ctx.body
       }
 

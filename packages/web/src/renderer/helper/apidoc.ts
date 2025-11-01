@@ -292,7 +292,7 @@ export const generateEmptyHttpMockNode = (_id: string): MockHttpNode => {
               value: 3000,
             },
           },
-          interval: 1000,
+          interval: 100,
           maxNum: 10,
         },
         jsonConfig: {
