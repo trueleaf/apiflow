@@ -1,4 +1,5 @@
 import type { WebsocketSendMessageTemplate } from '@src/types/websocketNode';
+import { logger } from '@/utils/logger';
 
 /**
  * WebSocket消息模板缓存管理类
@@ -17,7 +18,7 @@ class WebSocketTemplateCache {
       const templates = JSON.parse(data);
       return Array.isArray(templates) ? templates : [];
     } catch (error) {
-      console.error('获取消息模板失败:', error);
+      logger.error('获取消息模板失败', { error });
       localStorage.removeItem(this.STORAGE_KEY);
       return [];
     }
@@ -30,7 +31,7 @@ class WebSocketTemplateCache {
       templates.push(template);
       localStorage.setItem(this.STORAGE_KEY, JSON.stringify(templates));
     } catch (error) {
-      console.error('保存消息模板失败:', error);
+      logger.error('保存消息模板失败', { error });
       throw new Error('保存模板失败');
     }
   }
@@ -47,7 +48,7 @@ class WebSocketTemplateCache {
       localStorage.setItem(this.STORAGE_KEY, JSON.stringify(templates));
       return true;
     } catch (error) {
-      console.error('删除消息模板失败:', error);
+      logger.error('删除消息模板失败', { error });
       return false;
     }
   }
@@ -58,7 +59,7 @@ class WebSocketTemplateCache {
       const templates = this.getAllTemplates();
       return templates.find(template => template.id === id) || null;
     } catch (error) {
-      console.error('获取消息模板失败:', error);
+      logger.error('获取消息模板失败', { error });
       return null;
     }
   }
@@ -79,7 +80,7 @@ class WebSocketTemplateCache {
       localStorage.setItem(this.STORAGE_KEY, JSON.stringify(templates));
       return true;
     } catch (error) {
-      console.error('更新消息模板失败:', error);
+      logger.error('更新消息模板失败', { error });
       return false;
     }
   }
@@ -89,7 +90,7 @@ class WebSocketTemplateCache {
     try {
       localStorage.removeItem(this.STORAGE_KEY);
     } catch (error) {
-      console.error('清空消息模板失败:', error);
+      logger.error('清空消息模板失败', { error });
     }
   }
 }

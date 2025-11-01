@@ -1,6 +1,7 @@
 import type {
   HttpRedoUnDoOperation
 } from "@src/types/redoUndo/httpRedoUndo";
+import { logger } from '@/utils/logger';
 
 /**
  * HTTP RedoUndo缓存管理类
@@ -24,7 +25,7 @@ export class HttpRedoUndoCache {
         undoList: parsed.undoList || []
       };
     } catch (error) {
-      console.error('获取RedoUndo缓存数据失败:', error);
+      logger.error('获取RedoUndo缓存数据失败', { error });
       return null;
     }
   }
@@ -41,7 +42,7 @@ export class HttpRedoUndoCache {
       sessionStorage.setItem(key, JSON.stringify(data));
       return true;
     } catch (error) {
-      console.error('保存RedoUndo缓存数据失败:', error);
+      logger.error('保存RedoUndo缓存数据失败', { error });
       return false;
     }
   }

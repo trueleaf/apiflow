@@ -5,6 +5,7 @@ import { ApidocBanner, ApidocBannerOfWebsocketNode, ApidocBannerOfHttpNode, Apid
 import { defineStore } from "pinia";
 import { ref } from "vue";
 import { useRuntime } from '../runtime/runtimeStore';
+import { logger } from '@/utils/logger';
 
 type SplicePayload = {
   opData?: ApidocBanner[],
@@ -120,7 +121,7 @@ export const useApidocBanner = defineStore('apidocBanner', () => {
         });
       }
     } catch (error) {
-      console.error('刷新Mock状态失败:', error);
+      logger.error('刷新Mock状态失败', { error });
     }
   }
   /*

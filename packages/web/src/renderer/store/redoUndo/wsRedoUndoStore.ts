@@ -8,6 +8,7 @@ import type { WebSocketNode } from "@src/types/websocketNode";
 import { useWebSocket } from "@/store/websocket/websocketStore";
 import { cloneDeep } from "lodash-es";
 import { wsRedoUndoCache } from "@/cache/redoUndo/wsRedoUndoCache";
+import { logger } from '@/utils/logger';
 
 // 自定义响应类型用于撤销重做操作
 type RedoUndoResponse = {
@@ -66,7 +67,7 @@ export const useWsRedoUndo = defineStore('wsRedoUndo', () => {
       wsRedoUndoCache.setRedoUndoListByNodeId(nodeId, wsRedoList.value[nodeId], wsUndoList.value[nodeId]);
       return { code: 0, msg: '撤销成功', operation };
     } catch (error) {
-      console.error('撤销操作失败:', error);
+      logger.error('撤销操作失败', { error });
       undoList.push(operation); // 回滚
       return { code: 1, msg: '撤销操作失败' };
     }
@@ -92,7 +93,7 @@ export const useWsRedoUndo = defineStore('wsRedoUndo', () => {
       wsRedoUndoCache.setRedoUndoListByNodeId(nodeId, wsRedoList.value[nodeId], wsUndoList.value[nodeId]);
       return { code: 0, msg: '重做成功', operation };
     } catch (error) {
-      console.error('重做操作失败:', error);
+      logger.error('重做操作失败', { error });
       redoList.push(operation); // 回滚
       return { code: 1, msg: '重做操作失败' };
     }
@@ -155,7 +156,7 @@ export const useWsRedoUndo = defineStore('wsRedoUndo', () => {
         break;
         
       default:
-        console.warn('未知的操作类型:', (operation as any).type);
+        logger.warn('未知的操作类型', { type: (operation as any).type });
     }
   };
 

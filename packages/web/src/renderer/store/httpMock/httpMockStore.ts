@@ -11,6 +11,7 @@ import { useApidocTas } from "../share/tabsStore.ts";
 import { router } from "@/router/index.ts";
 import { useApidocBanner } from "../share/bannerStore.ts";
 import { useRuntime } from '@/store/runtime/runtimeStore';
+import { logger } from '@/utils/logger';
 
 
 export const useHttpMock = defineStore('httpMock', () => {
@@ -187,7 +188,7 @@ export const useHttpMock = defineStore('httpMock', () => {
     const currentTabs = tabs.value[projectId];
     const currentSelectTab = currentTabs?.find((tab) => tab.selected) || null;
     if (!currentSelectTab) {
-      console.warn('缺少tab信息');
+      logger.warn('缺少tab信息');
       return;
     }
     saveLoading.value = true;
@@ -229,7 +230,7 @@ export const useHttpMock = defineStore('httpMock', () => {
           await window.electronAPI.mock.replaceById(httpMockDetail._id, updateData);
         }
       } catch (error) {
-        console.warn('更新主进程Mock配置时发生错误:', error);
+        logger.warn('更新主进程Mock配置时发生错误', { error });
       }
       
       // 添加0.1秒的saveLoading效果
@@ -258,7 +259,7 @@ export const useHttpMock = defineStore('httpMock', () => {
       const mockData = await window.electronAPI.mock.getMockByNodeId(nodeId);
       return mockData !== null;
     } catch (error) {
-      console.error('检查Mock状态失败:', error);
+      logger.error('检查Mock状态失败', { error });
       return false;
     }
   };

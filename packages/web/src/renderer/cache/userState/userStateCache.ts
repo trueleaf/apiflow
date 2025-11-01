@@ -1,5 +1,6 @@
 import type { WebsocketActiveTabType } from '@src/types/websocketNode';
 import type { MockNodeActiveTabType } from '@src/types/mockNode';
+import { logger } from '@/utils/logger';
 
 class UserState {
   // 获取首页激活的tab（项目列表/团队管理）
@@ -169,7 +170,7 @@ class UserState {
     try {
       localStorage.setItem('userState/cacheManager/cacheType', cacheType);
     } catch (error) {
-      console.error('设置选中缓存类型失败:', error);
+      logger.error('设置选中缓存类型失败', { error });
       localStorage.setItem('userState/cacheManager/cacheType', 'localStorage');
     }
   }
@@ -179,7 +180,7 @@ class UserState {
       const cacheType = localStorage.getItem('userState/cacheManager/cacheType') as 'localStorage' | 'indexedDB' | 'backup' | 'restore';
       return cacheType || 'localStorage';
     } catch (error) {
-      console.error('获取选中缓存类型失败:', error);
+      logger.error('获取选中缓存类型失败', { error });
       return 'localStorage';
     }
   }

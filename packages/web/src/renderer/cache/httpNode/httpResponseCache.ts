@@ -1,6 +1,7 @@
 import { openDB, IDBPDatabase } from 'idb';
 import { config } from "@src/config/config";
 import { ChunkWithTimestampe, ResponseInfo } from "@src/types";
+import { logger } from '@/utils/logger';
 
 export class HttpResponseCache {
   private httpResponseCacheDb: IDBPDatabase | null = null;
@@ -65,7 +66,7 @@ export class HttpResponseCache {
       
       // 检查是否超出限制
       if (totalSize > singleResponseBodySize) {
-        console.error(`单个缓存数据超出限制，无法缓存。总大小: ${totalSize}, 限制: ${singleResponseBodySize}`);
+        logger.error(`单个缓存数据超出限制，无法缓存。总大小: ${totalSize}, 限制: ${singleResponseBodySize}`);
         return;
       }
       
@@ -82,7 +83,7 @@ export class HttpResponseCache {
         await this.storeStreamData(id, streamData);
       }
     } catch (error) {
-      console.error("存储响应数据失败", error);
+      logger.error('存储响应数据失败', { error });
     }
   }
   // 获取已缓存的返回值
@@ -115,7 +116,7 @@ export class HttpResponseCache {
       
       return response;
     } catch (error) {
-      console.error("获取响应数据失败", error);
+      logger.error('获取响应数据失败', { error });
       return null;
     }
   }
@@ -134,7 +135,7 @@ export class HttpResponseCache {
       // 清理 streamData 数据
       await this.clearStreamData(id);
     } catch (error) {
-      console.error("清理响应数据失败", error);
+      logger.error('清理响应数据失败', { error });
     }
   }
   // 存储 body 数据
@@ -170,7 +171,7 @@ export class HttpResponseCache {
       }
       await this.httpResponseCacheDb.put("responseMetadata", bodyData, bodyKey);
     } catch (error) {
-      console.error("存储 body 数据失败", error);
+      logger.error('存储 body 数据失败', { error });
     }
   }
   // 存储 streamData（分开存储每个 chunk）
@@ -193,7 +194,7 @@ export class HttpResponseCache {
       const streamMetaKey = `${id}_stream_meta`;
       await this.httpResponseCacheDb.put("responseMetadata", { count: streamData.length }, streamMetaKey);
     } catch (error) {
-      console.error("存储 streamData 失败", error);
+      logger.error('存储 streamData 失败', { error });
     }
   }
   // 获取 body 数据
@@ -223,7 +224,7 @@ export class HttpResponseCache {
           return data;
       }
     } catch (error) {
-      console.error("获取 body 数据失败", error);
+      logger.error('获取 body 数据失败', { error });
       return null;
     }
   }
@@ -252,10 +253,10 @@ export class HttpResponseCache {
           streamData.push(streamItem as ChunkWithTimestampe);
         }
       }
-      
+
       return streamData.length > 0 ? streamData : null;
     } catch (error) {
-      console.error("获取 streamData 失败", error);
+      logger.error('获取 streamData 失败', { error });
       return null;
     }
   }
@@ -269,7 +270,7 @@ export class HttpResponseCache {
       const bodyKey = `${id}_body`;
       await this.httpResponseCacheDb.delete("responseMetadata", bodyKey);
     } catch (error) {
-      console.error("清理 body 数据失败", error);
+      logger.error('清理 body 数据失败', { error });
     }
   }
   // 清理 streamData 数据
@@ -296,7 +297,7 @@ export class HttpResponseCache {
         await this.httpResponseCacheDb.delete("responseMetadata", streamMetaKey);
       }
     } catch (error) {
-      console.error("清理 streamData 失败", error);
+      logger.error('清理 streamData 失败', { error });
     }
   }
   // 删除response缓存（包括分块数据）
@@ -332,7 +333,7 @@ export class HttpResponseCache {
         totalKeys: allKeys.length
       };
     } catch (error) {
-      console.error("获取缓存统计信息失败", error);
+      logger.error('获取缓存统计信息失败', { error });
       return null;
     }
   }
@@ -345,7 +346,7 @@ export class HttpResponseCache {
     try {
       await this.httpResponseCacheDb.clear("responseMetadata");
     } catch (error) {
-      console.error("清理所有缓存失败", error);
+      logger.error('清理所有缓存失败', { error });
     }
   }
 }

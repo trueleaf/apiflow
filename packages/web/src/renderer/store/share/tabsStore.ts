@@ -11,6 +11,7 @@ import { httpNodeCache } from "@/cache/httpNode/httpNodeCache.ts";
 import { workbenchCache } from "@/cache/workbench/workbenchCache.ts";
 import { request } from '@/api/api';
 import { useApidocBanner } from "./bannerStore";
+import { logger } from '@/utils/logger';
 
 
 type EditTabPayload<K extends keyof ApidocTab> = {
@@ -61,7 +62,7 @@ export const useApidocTas = defineStore('apidocTabs', () => {
       // 检查被覆盖的标签页是否为WebSocket类型，如果是则断开连接
       if (unFixedTab.tabType === 'websocket') {
         window.electronAPI?.websocket.disconnectByNode(unFixedTab._id).catch((error) => {
-          console.error(`覆盖WebSocket标签页时断开连接失败 [${unFixedTab._id}]:`, error);
+          logger.error(`覆盖WebSocket标签页时断开连接失败 [${unFixedTab._id}]`, { error });
         });
       }
       tabs.value[projectId].splice(unFixedTabIndex, 1, tabInfo)
@@ -99,7 +100,7 @@ export const useApidocTas = defineStore('apidocTabs', () => {
     // 删除标签页时断开对应的WebSocket连接（检查标签页类型）
     if (deletedTab && deletedTab.tabType === 'websocket') {
       window.electronAPI?.websocket.disconnectByNode(deletedTab._id).catch((error) => {
-        console.error(`删除WebSocket标签页时断开连接失败 [${deletedTab._id}]:`, error);
+        logger.error(`删除WebSocket标签页时断开连接失败 [${deletedTab._id}]`, { error });
       });
     }
     
@@ -147,7 +148,7 @@ export const useApidocTas = defineStore('apidocTabs', () => {
     const hasWebSocketTabs = tabsToDelete.some(tab => tab.tabType === 'websocket');
     if (hasWebSocketTabs) {
       window.electronAPI?.websocket.clearAllConnections().catch((error) => {
-        console.error('强制关闭所有标签页时清空WebSocket连接失败:', error);
+        logger.error('强制关闭所有标签页时清空WebSocket连接失败', { error });
       });
     }
     

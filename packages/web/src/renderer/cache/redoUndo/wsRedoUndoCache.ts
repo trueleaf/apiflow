@@ -1,6 +1,7 @@
-import type { 
+import type {
   WsRedoUnDoOperation
 } from "@src/types/redoUndo/wsRedoUndo";
+import { logger } from '@/utils/logger';
 
 /**
  * WebSocket RedoUndo缓存管理类
@@ -25,7 +26,7 @@ export class WsRedoUndoCache {
         undoList: parsed.undoList || []
       };
     } catch (error) {
-      console.error('获取RedoUndo缓存数据失败:', error);
+      logger.error('获取RedoUndo缓存数据失败', { error });
       return null;
     }
   }
@@ -42,7 +43,7 @@ export class WsRedoUndoCache {
       sessionStorage.setItem(key, JSON.stringify(data));
       return true;
     } catch (error) {
-      console.error('保存RedoUndo缓存数据失败:', error);
+      logger.error('保存RedoUndo缓存数据失败', { error });
       return false;
     }
   }

@@ -8,6 +8,7 @@ import type { HttpNode } from "@src/types/httpNode";
 import { useApidoc } from "@/store/share/apidocStore";
 import { cloneDeep } from "lodash-es";
 import { httpRedoUndoCache } from "@/cache";
+import { logger } from '@/utils/logger';
 
 // 自定义响应类型用于撤销重做操作
 type RedoUndoResponse = {
@@ -59,7 +60,7 @@ export const useHttpRedoUndo = defineStore('httpRedoUndo', () => {
       httpRedoUndoCache.setRedoUndoListByNodeId(nodeId, httpRedoList.value[nodeId], httpUndoList.value[nodeId]);
       return { code: 0, msg: '撤销成功', operation };
     } catch (error) {
-      console.error('撤销操作失败:', error);
+      logger.error('撤销操作失败', { error });
       undoList.push(operation); // 回滚
       return { code: 1, msg: '撤销操作失败' };
     }
@@ -85,7 +86,7 @@ export const useHttpRedoUndo = defineStore('httpRedoUndo', () => {
       httpRedoUndoCache.setRedoUndoListByNodeId(nodeId, httpRedoList.value[nodeId], httpUndoList.value[nodeId]);
       return { code: 0, msg: '重做成功', operation };
     } catch (error) {
-      console.error('重做操作失败:', error);
+      logger.error('重做操作失败', { error });
       redoList.push(operation); // 回滚
       return { code: 1, msg: '重做操作失败' };
     }
@@ -162,7 +163,7 @@ export const useHttpRedoUndo = defineStore('httpRedoUndo', () => {
         break;
 
       default:
-        console.warn('未知的操作类型:', (operation as any).type);
+        logger.warn('未知的操作类型', { type: (operation as any).type });
     }
   };
 

@@ -826,4 +826,153 @@ export default {
   '此处为过滤结果预览区域': 'Preview area for filtering results',
   '隐藏预览区域': 'Hide preview area',
   '显示预览区域': 'Show preview area',
+
+  // ==================== Log Messages ====================
+  log: {
+    // AI Configuration
+    '获取AI配置失败': 'Failed to get AI configuration',
+    '设置AI配置失败': 'Failed to set AI configuration',
+    '重置AI配置失败': 'Failed to reset AI configuration',
+    '清除AI配置失败': 'Failed to clear AI configuration',
+    '同步AI配置失败': 'Failed to sync AI configuration',
+
+    // IndexedDB Operations
+    '获取store详情失败': 'Failed to get store details',
+    '删除store失败': 'Failed to delete store',
+    '删除数据项失败': 'Failed to delete data item',
+    '清空IndexedDB数据失败': 'Failed to clear IndexedDB data',
+    '获取IndexedDB数据项数量失败': 'Failed to get IndexedDB item count',
+    '离线数据库初始化失败': 'Failed to initialize offline database',
+
+    // HTTP History
+    '初始化HTTP历史记录数据库失败': 'Failed to initialize HTTP history database',
+    '获取历史记录列表失败': 'Failed to get history list',
+    '获取历史记录详情失败': 'Failed to get history details',
+    '添加历史记录失败': 'Failed to add history',
+    '删除历史记录失败': 'Failed to delete history',
+    '清空历史记录失败': 'Failed to clear history',
+
+    // WebSocket Message Templates
+    '获取消息模板失败': 'Failed to get message template',
+    '保存消息模板失败': 'Failed to save message template',
+    '删除消息模板失败': 'Failed to delete message template',
+    '更新消息模板失败': 'Failed to update message template',
+    '清空消息模板失败': 'Failed to clear message templates',
+    '添加消息模板失败': 'Failed to add message template',
+
+    // WebSocket Response Cache
+    '初始化WebSocket历史记录数据库失败': 'Failed to initialize WebSocket history database',
+    '初始化WebSocket响应缓存数据库失败': 'Failed to initialize WebSocket response cache database',
+    '存储WebSocket响应数据失败': 'Failed to store WebSocket response data',
+    '存储单个WebSocket响应数据失败': 'Failed to store single WebSocket response',
+    '获取WebSocket响应数据失败': 'Failed to get WebSocket response data',
+    '清空WebSocket响应数据失败': 'Failed to clear WebSocket response data',
+    '从缓存加载消息失败': 'Failed to load message from cache',
+
+    // Response Data Cache
+    '存储响应数据失败': 'Failed to store response data',
+    '获取响应数据失败': 'Failed to get response data',
+    '清理响应数据失败': 'Failed to clean response data',
+    '存储 body 数据失败': 'Failed to store body data',
+    '存储 streamData 失败': 'Failed to store stream data',
+    '获取 body 数据失败': 'Failed to get body data',
+    '获取 streamData 失败': 'Failed to get stream data',
+    '清理 body 数据失败': 'Failed to clean body data',
+    '清理 streamData 失败': 'Failed to clean stream data',
+
+    // Cache Management
+    '获取缓存统计信息失败': 'Failed to get cache statistics',
+    '清理所有缓存失败': 'Failed to clear all caches',
+    '获取缓存信息失败': 'Failed to get cache information',
+    '设置缓存信息失败': 'Failed to set cache information',
+    '清除缓存信息失败': 'Failed to clear cache information',
+    '设置选中缓存类型失败': 'Failed to set selected cache type',
+    '获取选中缓存类型失败': 'Failed to get selected cache type',
+    '清空缓存失败': 'Failed to clear cache',
+    '缓存密码验证失败': 'Cache password verification failed',
+
+    // User State Configuration
+    '设置固定工具栏操作失败': 'Failed to set fixed toolbar',
+    '获取固定工具栏操作失败': 'Failed to get fixed toolbar',
+    '获取布局方式失败': 'Failed to get layout mode',
+    '设置布局方式失败': 'Failed to set layout mode',
+    '设置应用标题失败': 'Failed to set app title',
+    '重置应用标题失败': 'Failed to reset app title',
+    '设置应用Logo失败': 'Failed to set app logo',
+    '重置应用Logo失败': 'Failed to reset app logo',
+    '设置应用主题失败': 'Failed to set app theme',
+    '重置应用主题失败': 'Failed to reset app theme',
+
+    // Undo/Redo
+    '获取RedoUndo缓存数据失败': 'Failed to get undo/redo cache data',
+    '保存RedoUndo缓存数据失败': 'Failed to save undo/redo cache data',
+    '撤销操作失败': 'Undo operation failed',
+    '重做操作失败': 'Redo operation failed',
+
+    // Mock Server
+    '缺少tab信息': 'Missing tab information',
+    '更新主进程Mock配置时发生错误': 'Error updating main process mock configuration',
+    '检查Mock状态失败': 'Failed to check mock status',
+    '清理Mock日志失败': 'Failed to clear mock logs',
+    '刷新Mock状态失败': 'Failed to refresh mock status',
+    '切换Mock状态失败': 'Failed to toggle mock status',
+    '服务器关闭验证失败，但主进程报告成功': 'Server close verification failed, but main process reported success',
+
+    // WebSocket Connection
+    '页面卸载时清理 WebSocket 连接失败': 'Failed to clean WebSocket connections on page unmount',
+    '强制关闭所有标签页时清空WebSocket连接失败': 'Failed to force close all WebSocket connections',
+    '删除WebSocket tab': 'Delete WebSocket tab',
+    '发送数据失败': 'Failed to send data',
+    '检查WebSocket连接状态异常': 'Error checking WebSocket connection status',
+    '执行WebSocket前置脚本': 'Executing WebSocket pre-request script',
+    '应用前置脚本修改': 'Applying pre-script changes',
+    '执行WebSocket后置脚本': 'Executing WebSocket post-request script',
+    '后置脚本更新的变量': 'Variables updated by post-script',
+    '后置脚本更新的存储': 'Storage updated by post-script',
+    '最终WebSocket请求头': 'Final WebSocket request headers',
+
+    // General Operations
+    '表达式计算失败': 'Expression calculation failed',
+    '未匹配到当前选中tab': 'No matched current tab',
+    '复制失败': 'Copy failed',
+    '代码已复制到剪贴板': 'Code copied to clipboard',
+    '接收到的日志数据格式错误': 'Received log data format error',
+    '第一个参数必须为数组类型': 'First parameter must be an array',
+    '第二个参数必须大于第一个': 'Second parameter must be greater than first',
+    '图片处理失败': 'Image processing failed',
+    '本地缓存初始化失败，已跳过': 'Local cache initialization failed, skipped',
+    '未知的操作类型': 'Unknown operation type',
+    '重置配置失败': 'Failed to reset configuration',
+    '取消请求失败': 'Failed to cancel request',
+    '获取或解析localStorage数据失败': 'Failed to get or parse localStorage data',
+    '恢复缓存的组件失败': 'Failed to restore cached component',
+    '保存组件到缓存失败': 'Failed to save component to cache',
+    '查看组件详情': 'View component details',
+    '校验': 'Validate',
+    '操作失败': 'Operation failed',
+    '未找到当前选中的标签页': 'Current tab not found',
+
+    // Data Import/Export
+    '清空数据失败': 'Failed to clear data',
+    '导入数据项失败': 'Failed to import data item',
+    '选择文件失败': 'Failed to select file',
+    '开始导入失败': 'Failed to start import',
+    '无效的数据项': 'Invalid data item',
+    '选择路径失败': 'Failed to select path',
+    '计算数据量失败': 'Failed to calculate data size',
+    '开始导出失败': 'Failed to start export',
+    '关闭数据库连接时出错': 'Error closing database connection',
+
+    // Others
+    '初始化 SHARE_DATA 失败': 'Failed to initialize SHARE_DATA',
+    '获取 localStorage 本地数据信息失败': 'Failed to get localStorage local data information',
+    '下载失败': 'Download failed',
+    '获取本机IP失败，使用默认值': 'Failed to get local IP, using default value',
+
+    // Worker Script API Warnings (with parameters)
+    'localStorage 值最大为100kb，当前值为{size}kb': 'localStorage value exceeds 100kb limit, current: {size}kb',
+    'header参数在给【{key}】字段赋值时，值不为string类型，将通过toString进行转换': 'Header parameter value for [{key}] is not a string, converting using toString',
+    'header参数在给【{key}】字段赋值时出错，header参数值类型只能为字符串': 'Error setting header parameter [{key}], value must be a string',
+    'cookie参数在给【{key}】字段赋值时出错，cookie参数值类型只能为字符串': 'Error setting cookie parameter [{key}], value must be a string',
+  },
 }

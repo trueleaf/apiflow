@@ -1,5 +1,6 @@
 import type { Config } from '@src/types/config';
 import { mainConfig } from '@src/config/mainConfig';
+import { logger } from '@/utils/logger';
 
 type AiConfig = Config['mainConfig']['aiConfig'];
 
@@ -22,7 +23,7 @@ class AiCache {
         apiUrl: config.apiUrl || mainConfig.aiConfig.apiUrl,
       };
     } catch (error) {
-      console.error('获取AI配置失败:', error);
+      logger.error('获取AI配置失败', { error });
       return { ...mainConfig.aiConfig };
     }
   }
@@ -36,7 +37,7 @@ class AiCache {
       };
       localStorage.setItem(AI_CONFIG_KEY, JSON.stringify(newConfig));
     } catch (error) {
-      console.error('设置AI配置失败:', error);
+      logger.error('设置AI配置失败', { error });
       throw error;
     }
   }
@@ -45,7 +46,7 @@ class AiCache {
     try {
       localStorage.setItem(AI_CONFIG_KEY, JSON.stringify(mainConfig.aiConfig));
     } catch (error) {
-      console.error('重置AI配置失败:', error);
+      logger.error('重置AI配置失败', { error });
       throw error;
     }
   }
@@ -54,7 +55,7 @@ class AiCache {
     try {
       localStorage.removeItem(AI_CONFIG_KEY);
     } catch (error) {
-      console.error('清除AI配置失败:', error);
+      logger.error('清除AI配置失败', { error });
     }
   }
 }

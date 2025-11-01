@@ -2,6 +2,7 @@ import { openDB, IDBPDatabase } from 'idb';
 import { WebsocketResponse } from '@src/types/websocketNode';
 import { config } from '@src/config/config';
 import { nanoid } from 'nanoid/non-secure';
+import { logger } from '@/utils/logger';
 
 type WebsocketResponseCacheData = {
   id: string; // 数据唯一ID作为主键
@@ -35,7 +36,7 @@ class WebsocketResponseCache {
         }
       });
     } catch (error) {
-      console.error('初始化WebSocket响应缓存数据库失败:', error);
+      logger.error('初始化WebSocket响应缓存数据库失败', { error });
     }
   }
 
@@ -61,7 +62,7 @@ class WebsocketResponseCache {
         // 检查单个响应大小限制
         const responseSize = new Blob([JSON.stringify(response)]).size;
         if (responseSize > this.singleResponseSize) {
-          console.warn(`单个WebSocket响应过大 (${responseSize} bytes)，超过限制 (${this.singleResponseSize} bytes)`);
+          logger.warn(`单个WebSocket响应过大 (${responseSize} bytes)，超过限制 (${this.singleResponseSize} bytes)`);
           continue;
         }
 
@@ -75,10 +76,10 @@ class WebsocketResponseCache {
 
         await tx.store.put(data);
       }
-      
+
       await tx.done;
     } catch (error) {
-      console.error('存储WebSocket响应数据失败:', error);
+      logger.error('存储WebSocket响应数据失败', { error });
     }
   }
     // 存储单个响应数据
@@ -87,7 +88,7 @@ class WebsocketResponseCache {
       // 检查单个响应大小限制
       const responseSize = new Blob([JSON.stringify(response)]).size;
       if (responseSize > this.singleResponseSize) {
-        console.warn(`单个WebSocket响应过大 (${responseSize} bytes)，超过限制 (${this.singleResponseSize} bytes)`);
+        logger.warn(`单个WebSocket响应过大 (${responseSize} bytes)，超过限制 (${this.singleResponseSize} bytes)`);
         return;
       }
 
@@ -106,7 +107,7 @@ class WebsocketResponseCache {
       await tx.store.put(data);
       await tx.done;
     } catch (error) {
-      console.error('存储单个WebSocket响应数据失败:', error);
+      logger.error('存储单个WebSocket响应数据失败', { error });
     }
   }
 
@@ -123,7 +124,7 @@ class WebsocketResponseCache {
         .sort((a, b) => a.updatedAt - b.updatedAt)
         .map(item => item.response);
     } catch (error) {
-      console.error('获取WebSocket响应数据失败:', error);
+      logger.error('获取WebSocket响应数据失败', { error });
       return [];
     }
   }
@@ -146,10 +147,10 @@ class WebsocketResponseCache {
         // 清空所有数据
         await tx.store.clear();
       }
-      
+
       await tx.done;
     } catch (error) {
-      console.error('清空WebSocket响应数据失败:', error);
+      logger.error('清空WebSocket响应数据失败', { error });
     }
   }
 }

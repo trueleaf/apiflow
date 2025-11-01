@@ -18,6 +18,7 @@ import { useCookies } from "../share/cookiesStore.ts";
 import { i18n } from "@/i18n";
 import { webSocketHistoryCache } from "@/cache/websocketNode/websocketHistoryCache";
 import { useRuntime } from '@/store/runtime/runtimeStore';
+import { logger } from '@/utils/logger';
 
 
 export const useWebSocket = defineStore('websocket', () => {
@@ -407,7 +408,7 @@ const updateWebSocketHeaderById = (id: string, header: Partial<ApidocProperty<'s
       websocketTemplateCache.saveTemplate(template);
       sendMessageTemplateList.value.push(template);
     } catch (error) {
-      console.error('添加消息模板失败:', error);
+      logger.error('添加消息模板失败', { error });
       throw error;
     }
   };
@@ -417,7 +418,7 @@ const updateWebSocketHeaderById = (id: string, header: Partial<ApidocProperty<'s
     try {
       const success = websocketTemplateCache.updateTemplate(id, updates);
       if (!success) {
-        console.warn(`消息模板 ID ${id} 不存在`);
+        logger.warn(`消息模板 ID ${id} 不存在`);
         return null;
       }
       const index = sendMessageTemplateList.value.findIndex(template => template.id === id);
@@ -432,7 +433,7 @@ const updateWebSocketHeaderById = (id: string, header: Partial<ApidocProperty<'s
       }
       return null;
     } catch (error) {
-      console.error('更新消息模板失败:', error);
+      logger.error('更新消息模板失败', { error });
       return null;
     }
   };
@@ -449,7 +450,7 @@ const updateWebSocketHeaderById = (id: string, header: Partial<ApidocProperty<'s
       }
       return success;
     } catch (error) {
-      console.error('删除消息模板失败:', error);
+      logger.error('删除消息模板失败', { error });
       return false;
     }
   };
@@ -470,7 +471,7 @@ const updateWebSocketHeaderById = (id: string, header: Partial<ApidocProperty<'s
       websocketTemplateCache.clearAllTemplates();
       sendMessageTemplateList.value = [];
     } catch (error) {
-      console.error('清空消息模板失败:', error);
+      logger.error('清空消息模板失败', { error });
     }
   };
 
@@ -581,7 +582,7 @@ const updateWebSocketHeaderById = (id: string, header: Partial<ApidocProperty<'s
           type: 'warning',
         }).then(() => {
           // TODO: 删除tab的逻辑需要根据实际情况实现
-          console.log('删除WebSocket tab');
+          logger.log('删除WebSocket tab');
         }).catch((err) => {
           if (err === 'cancel' || err === 'close') {
             return;
@@ -622,7 +623,7 @@ const updateWebSocketHeaderById = (id: string, header: Partial<ApidocProperty<'s
     const currentSelectTab = currentTabs?.find((tab) => tab.selected) || null;
     let isSaved = currentSelectTab?.saved
     if (!currentSelectTab) {
-      console.warn('缺少tab信息');
+      logger.warn('缺少tab信息');
       return;
     }
     saveLoading.value = true;

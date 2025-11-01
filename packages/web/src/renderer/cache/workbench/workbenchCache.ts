@@ -1,3 +1,5 @@
+import { logger } from '@/utils/logger';
+
 class WorkbenchCache {
   constructor() {
   }
@@ -33,7 +35,7 @@ class WorkbenchCache {
       }
       return [];
     } catch (error) {
-      console.error('获取固定工具栏操作失败:', error);
+      logger.error('获取固定工具栏操作失败', { error });
       localStorage.setItem('workbench/pinToolbarOperations', '[]');
       return [];
     }
@@ -44,7 +46,7 @@ class WorkbenchCache {
     try {
       localStorage.setItem('workbench/pinToolbarOperations', JSON.stringify(operations));
     } catch (error) {
-      console.error('设置固定工具栏操作失败:', error);
+      logger.error('设置固定工具栏操作失败', { error });
     }
   }
 
@@ -57,7 +59,7 @@ class WorkbenchCache {
       }
       return localLayout as 'horizontal' | 'vertical';
     } catch (error) {
-      console.error('获取布局方式失败:', error);
+      logger.error('获取布局方式失败', { error });
       return 'horizontal';
     }
   }
@@ -67,7 +69,7 @@ class WorkbenchCache {
     try {
       localStorage.setItem('workbench/layout', layout);
     } catch (error) {
-      console.error('设置布局方式失败:', error);
+      logger.error('设置布局方式失败', { error });
     }
   }
 }

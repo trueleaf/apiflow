@@ -3,6 +3,7 @@ import { HttpHistory } from '@src/types/history/httpHistory';
 import { HttpNode } from '@src/types/httpNode';
 import { config } from '@src/config/config';
 import { nanoid } from 'nanoid/non-secure';
+import { logger } from '@/utils/logger';
 
 type HttpHistoryCacheData = {
   _id: string; // 历史记录唯一ID作为主键
@@ -39,7 +40,7 @@ class HttpNodeHistoryCache {
         }
       });
     } catch (error) {
-      console.error('初始化HTTP历史记录数据库失败:', error);
+      logger.error('初始化HTTP历史记录数据库失败', { error });
     }
   }
 
@@ -75,7 +76,7 @@ class HttpNodeHistoryCache {
         timestamp: record.timestamp
       }));
     } catch (error) {
-      console.error('获取历史记录列表失败:', error);
+      logger.error('获取历史记录列表失败', { error });
       return [];
     }
   }
@@ -98,7 +99,7 @@ class HttpNodeHistoryCache {
         timestamp: record.timestamp
       };
     } catch (error) {
-      console.error('获取历史记录详情失败:', error);
+      logger.error('获取历史记录详情失败', { error });
       return null;
     }
   }
@@ -140,9 +141,10 @@ class HttpNodeHistoryCache {
       await tx3.store.add(newRecord);
       await tx3.done;
 
+
       return true;
     } catch (error) {
-      console.error('添加历史记录失败:', error);
+      logger.error('添加历史记录失败', { error });
       return false;
     }
   }
@@ -174,7 +176,7 @@ class HttpNodeHistoryCache {
 
       return true;
     } catch (error) {
-      console.error('删除历史记录失败:', error);
+      logger.error('删除历史记录失败', { error });
       return false;
     }
   }
@@ -188,7 +190,7 @@ class HttpNodeHistoryCache {
       await tx.done;
       return true;
     } catch (error) {
-      console.error('清空历史记录失败:', error);
+      logger.error('清空历史记录失败', { error });
       return false;
     }
   }

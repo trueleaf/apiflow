@@ -1,5 +1,6 @@
 import type { AppTheme } from '@src/types';
 import { config } from '@src/config/config';
+import { logger } from '@/utils/logger';
 
 class AppSettingsCache {
   constructor() {
@@ -18,7 +19,7 @@ class AppSettingsCache {
     try {
       localStorage.setItem('settings/app/title', title);
     } catch (error) {
-      console.error('设置应用标题失败:', error);
+      logger.error('设置应用标题失败', { error });
     }
   }
   // 重置应用标题
@@ -26,7 +27,7 @@ class AppSettingsCache {
     try {
       localStorage.removeItem('settings/app/title');
     } catch (error) {
-      console.error('重置应用标题失败:', error);
+      logger.error('重置应用标题失败', { error });
     }
   }
   // 获取应用Logo
@@ -43,7 +44,7 @@ class AppSettingsCache {
     try {
       localStorage.setItem('settings/app/logo', logo);
     } catch (error) {
-      console.error('设置应用Logo失败:', error);
+      logger.error('设置应用Logo失败', { error });
     }
   }
   // 重置应用Logo
@@ -51,7 +52,7 @@ class AppSettingsCache {
     try {
       localStorage.removeItem('settings/app/logo');
     } catch (error) {
-      console.error('重置应用Logo失败:', error);
+      logger.error('重置应用Logo失败', { error });
     }
   }
   // 获取应用主题
@@ -71,7 +72,7 @@ class AppSettingsCache {
     try {
       localStorage.setItem('settings/app/theme', theme);
     } catch (error) {
-      console.error('设置应用主题失败:', error);
+      logger.error('设置应用主题失败', { error });
     }
   }
   // 重置应用主题
@@ -79,7 +80,7 @@ class AppSettingsCache {
     try {
       localStorage.removeItem('settings/app/theme');
     } catch (error) {
-      console.error('重置应用主题失败:', error);
+      logger.error('重置应用主题失败', { error });
     }
   }
 }

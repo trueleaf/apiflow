@@ -30,6 +30,7 @@ import { config } from "@src/config/config.ts"
 import { apiNodesCache } from "@/cache/index";
 import { useRuntime } from '../runtime/runtimeStore';
 import { httpNodeHistoryCache } from "@/cache/httpNode/httpNodeHistoryCache";
+import { logger } from '@/utils/logger';
 
 
 type EditApidocPropertyPayload<K extends keyof ApidocProperty> = {
@@ -518,7 +519,7 @@ export const useApidoc = defineStore('apidoc', () => {
       const currentTabs = tabs.value[projectId];
       const currentSelectTab = currentTabs?.find((tab) => tab.selected) || null;
       if (!currentSelectTab) {
-        console.warn('缺少tab信息');
+        logger.warn('缺少tab信息');
         return;
       }
       changeApidocSaveLoading(true);
@@ -568,7 +569,7 @@ export const useApidoc = defineStore('apidoc', () => {
           currentSelectTab._id,
           apidoc.value
         ).catch(error => {
-          console.error('添加历史记录失败:', error);
+          logger.error('添加历史记录失败', { error });
         });
         // 添加0.2秒的saveLoading效果
         setTimeout(() => {
@@ -607,7 +608,7 @@ export const useApidoc = defineStore('apidoc', () => {
           currentSelectTab._id,
           apidoc.value
         ).catch(error => {
-          console.error('添加历史记录失败:', error);
+          logger.error('添加历史记录失败', { error });
         });
         //   id: currentSelectTab._id,
         //   projectId,

@@ -1,3 +1,5 @@
+import { logger } from '@/utils/logger';
+
 class SettingsCache {
   constructor() {
   }
@@ -11,7 +13,7 @@ class SettingsCache {
       };
       localStorage.setItem('settings/cacheManager/info', JSON.stringify(cacheData));
     } catch (error) {
-      console.error('设置缓存信息失败:', error);
+      logger.error('设置缓存信息失败', { error });
     }
   }
   // 获取缓存管理信息
@@ -27,7 +29,7 @@ class SettingsCache {
         indexedDBDetails: parsedData.indexedDBDetails || []
       };
     } catch (error) {
-      console.error('获取缓存信息失败:', error);
+      logger.error('获取缓存信息失败', { error });
       return null;
     }
   }
@@ -36,7 +38,7 @@ class SettingsCache {
     try {
       localStorage.removeItem('settings/cacheManager/info');
     } catch (error) {
-      console.error('清除缓存信息失败:', error);
+      logger.error('清除缓存信息失败', { error });
     }
   }
 }
