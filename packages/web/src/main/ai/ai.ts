@@ -214,38 +214,14 @@ export class AiManager {
         },
       });
 
-      let buffer = '';
-      
       stream.on('data', (chunk: Buffer) => {
         if (abortController.signal.aborted) {
           stream.destroy();
           return;
         }
 
-        buffer += chunk.toString();
-        const lines = buffer.split('\n');
-        buffer = lines.pop() || '';
-
-        for (const line of lines) {
-          const trimmedLine = line.trim();
-          if (!trimmedLine || trimmedLine === 'data: [DONE]') {
-            continue;
-          }
-
-          if (trimmedLine.startsWith('data: ')) {
-            try {
-              const jsonStr = trimmedLine.slice(6);
-              const data = JSON.parse(jsonStr);
-              const content = data.choices?.[0]?.delta?.content;
-              
-              if (content) {
-                onData(content);
-              }
-            } catch (parseError) {
-              // 解析失败，跳过该行数据
-            }
-          }
-        }
+        // 直接转发原始数据块到渲染进程
+        onData(chunk.toString());
       });
 
       stream.on('end', () => {

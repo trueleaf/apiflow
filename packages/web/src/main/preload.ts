@@ -154,15 +154,48 @@ const textChatWithStream = (
   onEnd: () => void,
   onError: (response: CommonResponse<string>) => void
 ) => {
+  // 用于拼接不完整的数据行
+  let buffer = '';
+
   // 设置事件监听器
   const dataHandler = (_event: any, data: { requestId: string; chunk: string }) => {
     if (data.requestId === params.requestId) {
-      onData(data.chunk)
+      // 处理接收到的原始数据块
+      buffer += data.chunk;
+      const lines = buffer.split('\n');
+      // 保留最后的不完整行
+      buffer = lines.pop() || '';
+
+      // 处理每一行完整的数据
+      for (const line of lines) {
+        const trimmedLine = line.trim();
+        if (!trimmedLine || trimmedLine === 'data: [DONE]') {
+          continue;
+        }
+
+        if (trimmedLine.startsWith('data: ')) {
+          try {
+            const jsonStr = trimmedLine.slice(6);
+            const parsedData = JSON.parse(jsonStr);
+            const content = parsedData.choices?.[0]?.delta?.content;
+
+            if (content) {
+              // 只传递解析后的内容给回调
+              onData(content);
+            }
+          } catch (parseError) {
+            // 解析失败，跳过该行数据
+            console.warn('Failed to parse stream data:', trimmedLine);
+          }
+        }
+      }
     }
   }
 
   const endHandler = (_event: any, data: { requestId: string }) => {
     if (data.requestId === params.requestId) {
+      // 清理 buffer
+      buffer = '';
       ipcRenderer.removeListener(IPC_EVENTS.ai.mainToRenderer.streamData, dataHandler)
       ipcRenderer.removeListener(IPC_EVENTS.ai.mainToRenderer.streamEnd, endHandler)
       ipcRenderer.removeListener(IPC_EVENTS.ai.mainToRenderer.streamError, errorHandler)
@@ -172,6 +205,8 @@ const textChatWithStream = (
 
   const errorHandler = (_event: any, data: { requestId: string; code: number; msg: string; data: string }) => {
     if (data.requestId === params.requestId) {
+      // 清理 buffer
+      buffer = '';
       ipcRenderer.removeListener(IPC_EVENTS.ai.mainToRenderer.streamData, dataHandler)
       ipcRenderer.removeListener(IPC_EVENTS.ai.mainToRenderer.streamEnd, endHandler)
       ipcRenderer.removeListener(IPC_EVENTS.ai.mainToRenderer.streamError, errorHandler)
@@ -189,6 +224,8 @@ const textChatWithStream = (
   // 返回取消函数
   return {
     cancel: async () => {
+      // 清理 buffer
+      buffer = '';
       ipcRenderer.removeListener(IPC_EVENTS.ai.mainToRenderer.streamData, dataHandler)
       ipcRenderer.removeListener(IPC_EVENTS.ai.mainToRenderer.streamEnd, endHandler)
       ipcRenderer.removeListener(IPC_EVENTS.ai.mainToRenderer.streamError, errorHandler)
