@@ -35,8 +35,6 @@ export const IPC_EVENTS = {
       languageChanged: 'apiflow:topbar:to:content:language-changed',
       /** 网络模式已变更 */
       networkModeChanged: 'apiflow:topbar:to:content:network-mode-changed',
-      /** 同步AI配置 */
-      syncAiConfig: 'apiflow:topbar:to:content:sync-ai-config',
       /** 显示语言菜单 */
       showLanguageMenu: 'apiflow:topbar:to:content:show-language-menu',
       /** 隐藏语言菜单 */
@@ -67,8 +65,6 @@ export const IPC_EVENTS = {
       projectRenamed: 'apiflow:content:to:topbar:project-renamed',
       /** 语言已变更 */
       languageChanged: 'apiflow:content:to:topbar:language-changed',
-      /** 同步AI配置 */
-      syncAiConfig: 'apiflow:content:to:topbar:sync-ai-config',
       /** 显示语言菜单 */
       showLanguageMenu: 'apiflow:content:to:topbar:show-language-menu',
       /** 隐藏语言菜单 */
@@ -277,6 +273,8 @@ export const IPC_EVENTS = {
   ai: {
     /** 渲染进程 -> 主进程 */
     rendererToMain: {
+      /** 更新AI配置 */
+      updateConfig: 'ai:renderer:to:main:update-config',
       /** 文本聊天 */
       textChat: 'ai:renderer:to:main:text-chat',
       /** JSON聊天 */

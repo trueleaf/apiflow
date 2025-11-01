@@ -61,10 +61,10 @@ import { ref, onMounted, onUnmounted, watch, computed, ComponentPublicInstance }
 import draggable from 'vuedraggable'
 import { Language, WindowState } from '@src/types'
 import type { HeaderTab } from '@src/types/header'
+import type { RuntimeNetworkMode } from '@src/types/runtime'
 import { RefreshRight, Back, Right } from '@element-plus/icons-vue'
 import { useI18n } from 'vue-i18n'
 import { Folder, Settings } from 'lucide-vue-next'
-import { useRuntime } from '@/store/runtime/runtimeStore'
 import { IPC_EVENTS } from '@src/types/ipc'
 import { changeLanguage } from '@/i18n'
 
@@ -73,8 +73,8 @@ const activeTabId = ref('')
 const isMaximized = ref(false)
 const tabListRef = ref<ComponentPublicInstance | null>(null)
 const { t } = useI18n()
-const runtime = useRuntime()
-const networkMode = computed(() => runtime.networkMode)
+const language = ref<Language>('zh-cn')
+const networkMode = ref<RuntimeNetworkMode>('offline')
 const filteredTabs = computed(() => {
   return tabs.value.filter(tab => tab.network === networkMode.value)
 })
@@ -138,7 +138,7 @@ const currentLanguageDisplay = computed(() => {
     'en': 'EN',
     'ja': 'JP'
   }
-  return languageMap[runtime.language] || '中'
+  return languageMap[language.value] || '中'
 })
 const languageButtonRef = ref<HTMLElement>()
 const handleChangeLanguage = () => {
@@ -154,7 +154,7 @@ const handleChangeLanguage = () => {
     // 发送显示语言菜单事件到主进程，包含按钮位置信息
     window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.topBarToContent.showLanguageMenu, {
       position: buttonPosition,
-      currentLanguage: runtime.language
+      currentLanguage: language.value
     })
   }
 }
@@ -244,7 +244,6 @@ const jumpToSettings = () => {
 }
 const toggleNetworkMode = () => {
   const newMode = networkMode.value === 'online' ? 'offline' : 'online'
-  runtime.setNetworkMode(newMode)
   window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.topBarToContent.networkModeChanged, newMode)
 }
 const handleAddProject = () => window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.contentToTopBar.createProject)
@@ -256,9 +255,9 @@ const bindEvent = () => {
     isMaximized.value = state.isMaximized
   })
   
-  window.electronAPI?.ipcManager.onMain(IPC_EVENTS.apiflow.topBarToContent.languageChanged, (language: string) => {
-    runtime.setLanguage(language as Language)
-    changeLanguage(language as Language)
+  window.electronAPI?.ipcManager.onMain(IPC_EVENTS.apiflow.topBarToContent.languageChanged, (lang: string) => {
+    language.value = lang as Language
+    changeLanguage(lang as Language)
   })
 
   window.electronAPI?.ipcManager.onMain(IPC_EVENTS.apiflow.topBarToContent.projectCreated, (data: { projectId: string, projectName: string }) => {
@@ -302,12 +301,20 @@ const bindEvent = () => {
   })
 
   // 监听来自 App.vue 的初始化数据
-  window.electronAPI?.ipcManager.onMain(IPC_EVENTS.apiflow.topBarToContent.initTabsData, (data: { tabs: HeaderTab[], activeTabId: string }) => {
+  window.electronAPI?.ipcManager.onMain(IPC_EVENTS.apiflow.topBarToContent.initTabsData, (data: { tabs: HeaderTab[], activeTabId: string, language: Language, networkMode: RuntimeNetworkMode }) => {
     tabs.value = data.tabs || [];
     activeTabId.value = data.activeTabId || '';
+    language.value = data.language || 'zh-cn';
+    networkMode.value = data.networkMode || 'offline';
+    changeLanguage(language.value);
     syncTabsToContentView();
     syncActiveTabToContentView();
     scrollToActiveTab();
+  });
+
+  // 监听网络模式变更
+  window.electronAPI?.ipcManager.onMain(IPC_EVENTS.apiflow.topBarToContent.networkModeChanged, (mode: RuntimeNetworkMode) => {
+    networkMode.value = mode;
   });
 }
 

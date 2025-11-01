@@ -61,11 +61,6 @@ export interface IPCEventMap {
     response: void;
   };
 
-  [IPC_EVENTS.apiflow.topBarToContent.syncAiConfig]: {
-    request: { apiKey: string; apiUrl: string; timeout?: number };
-    response: void;
-  };
-
   [IPC_EVENTS.apiflow.topBarToContent.showLanguageMenu]: {
     request: { position: any; currentLanguage: string };
     response: void;
@@ -129,11 +124,6 @@ export interface IPCEventMap {
 
   [IPC_EVENTS.apiflow.contentToTopBar.languageChanged]: {
     request: string;
-    response: void;
-  };
-
-  [IPC_EVENTS.apiflow.contentToTopBar.syncAiConfig]: {
-    request: { apiKey: string; apiUrl: string; timeout?: number };
     response: void;
   };
 
@@ -488,6 +478,19 @@ export interface IPCEventMap {
   };
 
   // ==================== AI ====================
+
+  [IPC_EVENTS.ai.rendererToMain.updateConfig]: {
+    request: {
+      apiKey: string;
+      apiUrl: string;
+      timeout: number;
+    };
+    response: {
+      code: number;
+      msg: string;
+      data: null;
+    };
+  };
 
   [IPC_EVENTS.ai.rendererToMain.textChat]: {
     request: {

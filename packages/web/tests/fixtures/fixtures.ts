@@ -335,8 +335,8 @@ export const navigateToAiSettings = async (
   headerPage: Page,
   contentPage: Page
 ): Promise<void> => {
-  await headerPage.waitForSelector('.icongerenzhongxin', { timeout: 10000 });
-  await headerPage.locator('.icongerenzhongxin').click();
+  const settingsBtn = headerPage.locator('.navigation-control .icon[title*="设置"]');
+  await settingsBtn.click();
   await contentPage.waitForTimeout(500);
   await contentPage.waitForSelector('.settings', { timeout: 5000 });
   await contentPage.locator('.tab-item:has-text("AI 设置")').click();

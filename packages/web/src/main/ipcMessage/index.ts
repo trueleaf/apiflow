@@ -62,7 +62,7 @@ export const useIpcEvent = (mainWindow: BrowserWindow, topBarView: WebContentsVi
   |--------------------------------------------------------------------------
   */
   // App.vue 发送初始化 tabs 数据给 header.vue
-  ipcMain.on(IPC_EVENTS.apiflow.contentToTopBar.initTabs, (_, data: { tabs: any[], activeTabId: string }) => {
+  ipcMain.on(IPC_EVENTS.apiflow.contentToTopBar.initTabs, (_, data: { tabs: any[], activeTabId: string, language: string, networkMode: string }) => {
     topBarView.webContents.send(IPC_EVENTS.apiflow.topBarToContent.initTabsData, data);
   });
 
@@ -218,6 +218,7 @@ export const useIpcEvent = (mainWindow: BrowserWindow, topBarView: WebContentsVi
 
   ipcMain.on(IPC_EVENTS.apiflow.topBarToContent.networkModeChanged, (_, mode: RuntimeNetworkMode) => {
     contentView.webContents.send(IPC_EVENTS.apiflow.topBarToContent.networkModeChanged, mode)
+    topBarView.webContents.send(IPC_EVENTS.apiflow.topBarToContent.networkModeChanged, mode)
   })
 
   /*
@@ -418,16 +419,17 @@ export const useIpcEvent = (mainWindow: BrowserWindow, topBarView: WebContentsVi
   | AI 配置同步
   |---------------------------------------------------------------------------
   */
-  // 同步AI配置到主进程
-  ipcMain.on(IPC_EVENTS.apiflow.contentToTopBar.syncAiConfig, (_, params: { apiKey: string; apiUrl: string; timeout: number }) => {
-    globalAiManager.updateConfig(params.apiUrl, params.apiKey, params.timeout);
-  });
-
   /*
   |---------------------------------------------------------------------------
   | AI 测试请求
   |---------------------------------------------------------------------------
   */
+  // 更新AI配置
+  ipcMain.handle(IPC_EVENTS.ai.rendererToMain.updateConfig, async (_: IpcMainInvokeEvent, params: { apiKey: string; apiUrl: string; timeout: number }) => {
+    globalAiManager.updateConfig(params.apiUrl, params.apiKey, params.timeout);
+    return { code: 0, msg: '配置更新成功', data: null };
+  });
+
   // AI 文本聊天
   ipcMain.handle(IPC_EVENTS.ai.rendererToMain.textChat, async (_: IpcMainInvokeEvent, params?: { prompt: string }) => {
     const prompt = params?.prompt || '你是什么模型';

@@ -112,7 +112,6 @@ import { Loading } from '@element-plus/icons-vue'
 import { aiCache } from '@/cache/ai/aiCache'
 import type { Config } from '@src/types/config'
 import VueMarkdownRender from 'vue-markdown-render'
-import { IPC_EVENTS } from '@src/types/ipc'
 import SJsonEditor from '@/components/common/jsonEditor/GJsonEditor.vue'
 import { message, parseAiStream } from '@/helper'
 
@@ -179,7 +178,7 @@ const handleSave = async () => {
   try {
     aiCache.setAiConfig(formData.value)
     // 同步配置到主进程
-    window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.contentToTopBar.syncAiConfig, {
+    await window.electronAPI?.aiManager.updateConfig({
       apiKey: formData.value.apiKey,
       apiUrl: formData.value.apiUrl,
       timeout: formData.value.timeout
@@ -193,7 +192,7 @@ const handleSave = async () => {
 }
 
 // 重置配置
-const handleReset = () => {
+const handleReset = async () => {
   formData.value = {
     model: 'DeepSeek',
     apiKey: '',
@@ -205,7 +204,7 @@ const handleReset = () => {
   try {
     aiCache.setAiConfig(formData.value)
     // 同步配置到主进程
-    window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.contentToTopBar.syncAiConfig, {
+    await window.electronAPI?.aiManager.updateConfig({
       apiKey: formData.value.apiKey,
       apiUrl: formData.value.apiUrl,
       timeout: formData.value.timeout
@@ -232,7 +231,7 @@ const handleTest = async () => {
   try {
     // 先保存配置，再测试
     aiCache.setAiConfig(formData.value)
-    window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.contentToTopBar.syncAiConfig, {
+    await window.electronAPI?.aiManager.updateConfig({
       apiKey: formData.value.apiKey,
       apiUrl: formData.value.apiUrl,
       timeout: formData.value.timeout
@@ -270,7 +269,7 @@ const handleJsonTest = async () => {
   try {
     // 先保存配置，再测试
     aiCache.setAiConfig(formData.value)
-    window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.contentToTopBar.syncAiConfig, {
+    await window.electronAPI?.aiManager.updateConfig({
       apiKey: formData.value.apiKey,
       apiUrl: formData.value.apiUrl,
       timeout: formData.value.timeout
@@ -315,7 +314,7 @@ const handleStreamTest = async () => {
   try {
     // 先保存配置，再测试
     aiCache.setAiConfig(formData.value)
-    window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.contentToTopBar.syncAiConfig, {
+    await window.electronAPI?.aiManager.updateConfig({
       apiKey: formData.value.apiKey,
       apiUrl: formData.value.apiUrl,
       timeout: formData.value.timeout

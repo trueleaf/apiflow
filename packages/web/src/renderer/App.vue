@@ -186,12 +186,14 @@ const initAppHeaderTabs = async () => {
   // 从缓存读取 tabs 和 activeTabId，如果不存在则使用空值
   const tabs = appWorkbenchCache.getAppWorkbenchHeaderTabs() || [];
   const activeTabId = appWorkbenchCache.getAppWorkbenchHeaderActiveTab() || '';
-  // 发送给 header.vue
+  // 发送给 header.vue，包含当前的语言和网络模式
   window.electronAPI?.ipcManager.sendToMain(
     IPC_EVENTS.apiflow.contentToTopBar.initTabs,
     {
       tabs,
-      activeTabId
+      activeTabId,
+      language: runtimeStore.language,
+      networkMode: runtimeStore.networkMode
     }
   );
   // 如果没有 activeTabId，跳转到主页
@@ -230,10 +232,10 @@ const initAppTitle = () => {
 }
 
 // 同步AI配置到主进程
-const initAiConfig = () => {
+const initAiConfig = async () => {
   try {
     const config = aiCache.getAiConfig();
-    window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.contentToTopBar.syncAiConfig, {
+    await window.electronAPI?.aiManager.updateConfig({
       apiKey: config.apiKey,
       apiUrl: config.apiUrl,
       timeout: config.timeout

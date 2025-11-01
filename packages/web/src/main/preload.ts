@@ -140,6 +140,10 @@ const importSelectFile = () => {
 }
 
 // AI 相关方法
+const updateAiConfig = (params: { apiKey: string; apiUrl: string; timeout: number }) => {
+  return ipcRenderer.invoke(IPC_EVENTS.ai.rendererToMain.updateConfig, params)
+}
+
 const textChat = (params?: { prompt: string }) => {
   return ipcRenderer.invoke(IPC_EVENTS.ai.rendererToMain.textChat, params)
 }
@@ -254,6 +258,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
     selectFile: importSelectFile,
   },
   aiManager: {
+    updateConfig: updateAiConfig,
     textChat: textChat,
     jsonChat: jsonChat,
     textChatWithStream: textChatWithStream,

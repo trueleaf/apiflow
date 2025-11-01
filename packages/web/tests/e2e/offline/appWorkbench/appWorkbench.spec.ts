@@ -1972,19 +1972,19 @@ test.describe('appWorkbench测试案例', () => {
         await expect(tabs.nth(1)).not.toHaveClass(/active/);
       });
       test('切换设置标签应发送 NAVIGATE 事件', async () => {
-        // 1. 点击个人中心按钮
-        const userCenterBtn = headerPage.locator('.navigation-control .icon:has(.icongerenzhongxin)');
-        await userCenterBtn.click();
+        // 1. 点击设置按钮
+        const settingsBtn = headerPage.locator('.navigation-control .icon[title*="设置"]');
+        await settingsBtn.click();
         await contentPage.waitForTimeout(500);
     
-        // 2. 验证跳转到个人中心（说明 NAVIGATE 事件生效）
+        // 2. 验证跳转到设置页面（说明 NAVIGATE 事件生效）
         await contentPage.waitForURL(/settings/, { timeout: 10000 });
         expect(contentPage.url()).toContain('settings');
     
         // 3. 验证设置标签创建
         const tabs = headerPage.locator('.tab-item');
         await expect(tabs).toHaveCount(1);
-        await expect(tabs.first()).toContainText('个人中心');
+        await expect(tabs.first()).toContainText('设置');
     
         // 4. 验证标签为激活状态
         await expect(tabs.first()).toHaveClass(/active/);
