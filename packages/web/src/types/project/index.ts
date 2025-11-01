@@ -84,6 +84,18 @@ export type PermissionUserInfo = {
    * 用户头像（base64字符串）
    */
   avatar: string;
+  /**
+   * 邮箱地址
+   */
+  email?: string;
+  /**
+   * 注册时间（ISO格式字符串）
+   */
+  registerTime?: string;
+  /**
+   * 最后登录时间（ISO格式字符串）
+   */
+  lastLoginTime?: string;
 };
 
 // 用户基本信息

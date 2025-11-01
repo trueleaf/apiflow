@@ -59,6 +59,24 @@ export const useRuntime = defineStore('runtime', () => {
     language.value = lang;
     runtimeCache.setLanguage(lang);
   };
+  // 更新用户头像
+  const updateUserAvatar = (avatar: string): void => {
+    if (runtimeCache.updateUserAvatar(avatar)) {
+      userInfo.value.avatar = avatar;
+    }
+  };
+  // 更新用户邮箱
+  const updateUserEmail = (email: string): void => {
+    if (runtimeCache.updateUserEmail(email)) {
+      userInfo.value.email = email;
+    }
+  };
+  // 更新用户昵称
+  const updateUserRealName = (realName: string): void => {
+    if (runtimeCache.updateUserRealName(realName)) {
+      userInfo.value.realName = realName;
+    }
+  };
   return {
     networkMode,
     userInfo,
@@ -68,6 +86,9 @@ export const useRuntime = defineStore('runtime', () => {
     initUserInfo,
     clearUserInfo,
     setLanguage,
+    updateUserAvatar,
+    updateUserEmail,
+    updateUserRealName,
   }
 })
 

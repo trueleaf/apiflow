@@ -466,7 +466,6 @@ body {
   padding: 0 10px;
   display: flex;
   align-items: center;
-  // background: var(--tab-bg);
   cursor: pointer;
   user-select: none;
   font-size: 12px;

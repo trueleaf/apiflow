@@ -70,6 +70,39 @@ class RuntimeCache {
       return false
     }
   }
+  // 更新用户头像
+  updateUserAvatar(avatar: string): boolean {
+    try {
+      const userInfo = this.getUserInfo()
+      if (!userInfo) return false
+      userInfo.avatar = avatar
+      return this.setUserInfo(userInfo)
+    } catch (error) {
+      return false
+    }
+  }
+  // 更新用户邮箱
+  updateUserEmail(email: string): boolean {
+    try {
+      const userInfo = this.getUserInfo()
+      if (!userInfo) return false
+      userInfo.email = email
+      return this.setUserInfo(userInfo)
+    } catch (error) {
+      return false
+    }
+  }
+  // 更新用户昵称
+  updateUserRealName(realName: string): boolean {
+    try {
+      const userInfo = this.getUserInfo()
+      if (!userInfo) return false
+      userInfo.realName = realName
+      return this.setUserInfo(userInfo)
+    } catch (error) {
+      return false
+    }
+  }
   // 获取语言
   getLanguage(): Language {
     try {

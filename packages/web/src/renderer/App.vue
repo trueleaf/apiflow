@@ -129,7 +129,6 @@ const initAppHeaderEvent = () => {
 
   // 隐藏语言菜单事件监听
   window.electronAPI?.ipcManager.onMain(IPC_EVENTS.apiflow.topBarToContent.hideLanguageMenu, () => {
-    console.log('hide')
     hideLanguageMenu()
   })
 

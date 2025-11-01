@@ -1,5 +1,5 @@
 <template>
-  <el-dialog :model-value="modelValue" width="35vw" top="10vh" :title="t('新增项目')" :before-close="handleClose">
+  <el-dialog :model-value="modelValue" width="35vw" top="10vh" :title="t('新增项目')" :before-close="handleClose" @opened="handleDialogOpened">
     <el-form ref="form" :model="formInfo" :rules="rules" label-width="150px" @submit.prevent="() => {}">
       <el-form-item :label="`${t('项目名称')}：`" prop="projectName">
         <el-input ref="projectNameInput" v-model="formInfo.projectName" :size="config.renderConfig.layout.size" :placeholder="t('请输入项目名称')" @keydown.enter="handleAddProject"></el-input>
@@ -64,7 +64,7 @@ import { config } from '@src/config/config';
 import type { ApidocProjectMemberInfo } from '@src/types'
 import { ElMessage, FormInstance } from 'element-plus';
 import { useI18n } from 'vue-i18n'
-import { computed, nextTick, ref, watch } from 'vue';
+import { computed, nextTick, ref } from 'vue';
 import RemoteSelector from '@/components/common/remoteSelect/GRemoteSelect.vue';
 import RemoteSelectorItem from '@/components/common/remoteSelect/GRemoteSelectItem.vue';
 import { projectCache } from '@/cache/index';
@@ -96,18 +96,18 @@ const formInfo = ref({
   projectName: '', //-------------------------项目名称
   remark: '', //------------------------------项目备注
 })
-//监听 modelValue 变化，弹窗打开时聚焦并选中输入框
-watch(() => props.modelValue, (val) => {
-  if (val && props.isFocus) {
+//对话框打开后聚焦输入框
+const handleDialogOpened = () => {
+  console.log(props.isFocus, 22)
+  if (props.isFocus) {
     nextTick(() => {
       const inputEl = projectNameInput.value?.$el?.querySelector('input') || projectNameInput.value?.$el;
       if (inputEl && inputEl.tagName === 'INPUT') {
         inputEl.focus();
-        inputEl.select();
       }
     });
   }
-});
+};
 const rules = ref({
   projectName: [
     { required: true, trigger: 'blur', message: t('请填写项目名称') },

@@ -233,17 +233,22 @@ test.describe('离线模式项目增删改查测试', () => {
       await expect(nameInput).toBeEditable();
       await expect(nameInput).toHaveValue(''); // 初始为空
 
-      // 5. 验证确定按钮存在且可用
+      // 5. 验证输入框自动获得焦点
+      await contentPage.waitForTimeout(500);
+      const focusedElement = await contentPage.evaluate(() => document.activeElement?.getAttribute('placeholder'));
+      expect(focusedElement).toContain('项目名称');
+
+      // 6. 验证确定按钮存在且可用
       const confirmBtn = contentPage.locator('.el-dialog__footer button:has-text("确定")');
       await expect(confirmBtn).toBeVisible();
       await expect(confirmBtn).toBeEnabled();
 
-      // 6. 验证取消按钮存在且可用
+      // 7. 验证取消按钮存在且可用
       const cancelBtn = contentPage.locator('.el-dialog__footer button:has-text("取消")');
       await expect(cancelBtn).toBeVisible();
       await expect(cancelBtn).toBeEnabled();
 
-      // 7. 验证离线模式下不显示成员/组选择区域（合并的验证点）
+      // 8. 验证离线模式下不显示成员/组选择区域（合并的验证点）
       const memberSelectLabel = contentPage.locator('.el-dialog').filter({ hasText: '新增项目' }).locator('text=选择成员或组');
       await expect(memberSelectLabel).toHaveCount(0);
 

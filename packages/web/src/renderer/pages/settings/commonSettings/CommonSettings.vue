@@ -1,44 +1,131 @@
 <template>
-  <div class="user-info-container">
-    <!-- 页面标题区域 -->
+  <div class="common-settings-container">
+    <!-- 页面标题 -->
     <div class="page-title">
       <h2>{{ $t('通用配置') }}</h2>
     </div>
-    
-    <div class="info-card">
-      <div class="avatar-section">
-        <div class="avatar">
-          <img :src="userInfo.avatar || defaultAvatar" :alt="$t('用户头像')">
+
+    <!-- 用户信息卡片 -->
+    <div class="settings-card">
+      <div class="card-header">
+        <h3>{{ $t('用户信息') }}</h3>
+      </div>
+      <div class="card-body">
+        <div class="avatar-section">
+          <div class="avatar-wrapper">
+            <img :src="displayAvatar" :alt="$t('用户头像')" class="avatar-image">
+          </div>
+          <el-upload
+            :auto-upload="false"
+            :show-file-list="false"
+            :on-change="handleAvatarChange"
+            accept="image/jpeg,image/jpg,image/png,image/gif"
+          >
+            <el-button size="small" type="primary">{{ $t('更换头像') }}</el-button>
+          </el-upload>
+        </div>
+
+        <div class="info-section">
+          <div class="info-row">
+            <div class="info-label">{{ $t('用户名称') }}</div>
+            <div class="info-value">
+              <el-input
+                v-model="localUserName"
+                :placeholder="$t('用户名称')"
+                @blur="handleUserNameBlur"
+                clearable
+              />
+            </div>
+          </div>
+
+          <div class="info-row">
+            <div class="info-label">{{ $t('邮箱地址') }}</div>
+            <div class="info-value">
+              <el-input
+                v-model="localEmail"
+                :placeholder="$t('邮箱地址')"
+                @blur="handleEmailBlur"
+                clearable
+              />
+            </div>
+          </div>
+
+          <div class="info-row">
+            <div class="info-label">{{ $t('所属团队') }}</div>
+            <div class="info-value">
+              <span :class="{ 'disabled-value': isLocalMode }">{{ teamDisplay }}</span>
+            </div>
+          </div>
+
+          <div class="info-row">
+            <div class="info-label">{{ $t('注册时间') }}</div>
+            <div class="info-value">
+              <span :class="{ 'disabled-value': isLocalMode }">{{ registerTimeDisplay }}</span>
+            </div>
+          </div>
+
+          <div class="info-row">
+            <div class="info-label">{{ $t('最后登录') }}</div>
+            <div class="info-value">
+              <span :class="{ 'disabled-value': isLocalMode }">{{ lastLoginTimeDisplay }}</span>
+            </div>
+          </div>
         </div>
       </div>
-      
-      <div class="info-section">
-        <div class="info-row">
-          <div class="info-label">{{ $t('用户名') }}</div>
-          <div class="info-value">
-            <span>{{ userInfo.realName }}</span>
+    </div>
+
+    <!-- 应用配置卡片 -->
+    <div class="settings-card">
+      <div class="card-header">
+        <h3>{{ $t('应用配置') }}</h3>
+      </div>
+      <div class="card-body">
+        <div class="avatar-section">
+          <div class="logo-wrapper">
+            <img :src="displayLogo" :alt="$t('应用Logo')" class="logo-image">
           </div>
+          <el-upload
+            :auto-upload="false"
+            :show-file-list="false"
+            :on-change="handleLogoChange"
+            accept="image/jpeg,image/jpg,image/png,image/gif"
+          >
+            <el-button size="small" type="primary">{{ $t('更换Logo') }}</el-button>
+          </el-upload>
         </div>
-        <div class="info-row">
-          <div class="info-label">{{ $t('邮箱') }}</div>
-          <div class="info-value">
-            <span v-if="isLocalMode" class="local-mode-value">/</span>
-            <span v-else>/</span>
+
+        <div class="info-section">
+          <div class="info-row">
+            <div class="info-label">{{ $t('应用名称') }}</div>
+            <div class="info-value">
+              <el-input
+                v-model="localAppTitle"
+                :placeholder="$t('应用名称')"
+                @blur="handleAppTitleBlur"
+                clearable
+              />
+            </div>
           </div>
-        </div>
-        <div class="info-row">
-          <div class="info-label">{{ $t('所属团队') }}</div>
-          <div class="info-value">
-            <span class="local-mode-value">/</span>
+
+          <div class="info-row">
+            <div class="info-label">{{ $t('应用主题') }}</div>
+            <div class="info-value">
+              <el-select v-model="localAppTheme" @change="handleAppThemeChange">
+                <el-option :label="$t('浅色')" value="light" />
+                <el-option :label="$t('深色')" value="dark" />
+                <el-option :label="$t('跟随系统')" value="auto" />
+              </el-select>
+            </div>
           </div>
-        </div>
-        <div class="info-row">
-          <div class="info-label">{{ $t('注册时间') }}</div>
-          <div class="info-value">/</div>
-        </div>
-        <div class="info-row">
-          <div class="info-label">{{ $t('最后登录') }}</div>
-          <div class="info-value">/</div>
+
+          <div class="info-row">
+            <div class="info-label"></div>
+            <div class="info-value">
+              <el-button @click="handleResetSettings" type="danger" plain>
+                {{ $t('重置为默认') }}
+              </el-button>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -46,24 +133,206 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRuntime } from '@/store/runtime/runtimeStore'
+import { useAppSettings } from '@/store/appSettings/appSettingsStore'
+import { processImageUpload } from '@/utils/imageHelper'
+import { ElMessage, ElMessageBox } from 'element-plus'
+import { useI18n } from 'vue-i18n'
 import defaultAvatarImg from '@/assets/imgs/logo.png'
+import type { UploadFile } from 'element-plus'
+import type { AppTheme } from '@src/types'
 
-const defaultAvatar = defaultAvatarImg
+const { t } = useI18n()
 const runtimeStore = useRuntime()
-const isLocalMode = computed(() => runtimeStore.networkMode === 'offline')
-const userInfo = computed(() => runtimeStore.userInfo)
+const appSettingsStore = useAppSettings()
 
+// 默认头像和Logo
+const defaultAvatar = defaultAvatarImg
+const defaultLogo = defaultAvatarImg
+
+// 离线模式判断
+const isLocalMode = computed(() => runtimeStore.networkMode === 'offline')
+
+// 用户信息
+const userInfo = computed(() => runtimeStore.userInfo)
+const localUserName = ref('')
+const localEmail = ref('')
+
+// 应用配置
+const localAppTitle = ref('')
+const localAppTheme = ref<AppTheme>('light')
+
+// 显示的头像和Logo
+const displayAvatar = computed(() => {
+  return userInfo.value.avatar || defaultAvatar
+})
+
+const displayLogo = computed(() => {
+  return appSettingsStore.appLogo || defaultLogo
+})
+
+// 团队显示
+const teamDisplay = computed(() => {
+  if (isLocalMode.value) {
+    return '/'
+  }
+  return userInfo.value.id ? '/' : '/'
+})
+
+// 注册时间显示
+const registerTimeDisplay = computed(() => {
+  if (isLocalMode.value || !userInfo.value.registerTime) {
+    return '/'
+  }
+  return formatDateTime(userInfo.value.registerTime)
+})
+
+// 最后登录时间显示
+const lastLoginTimeDisplay = computed(() => {
+  if (isLocalMode.value || !userInfo.value.lastLoginTime) {
+    return '/'
+  }
+  return formatDateTime(userInfo.value.lastLoginTime)
+})
+
+// 格式化日期时间
+function formatDateTime(isoString: string): string {
+  try {
+    const date = new Date(isoString)
+    return date.toLocaleString()
+  } catch {
+    return '/'
+  }
+}
+
+// 邮箱格式验证
+function isValidEmail(email: string): boolean {
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+  return emailRegex.test(email)
+}
+
+// 处理头像更换
+async function handleAvatarChange(uploadFile: UploadFile) {
+  if (!uploadFile.raw) {
+    ElMessage.warning(t('请选择图片文件'))
+    return
+  }
+
+  const result = await processImageUpload(uploadFile.raw, 'avatar')
+  if (result.success && result.data) {
+    runtimeStore.updateUserAvatar(result.data)
+    ElMessage.success(t('图片上传成功'))
+  } else {
+    ElMessage.error(result.message || t('图片上传失败'))
+  }
+}
+
+// 处理Logo更换
+async function handleLogoChange(uploadFile: UploadFile) {
+  if (!uploadFile.raw) {
+    ElMessage.warning(t('请选择图片文件'))
+    return
+  }
+
+  const result = await processImageUpload(uploadFile.raw, 'logo')
+  if (result.success && result.data) {
+    appSettingsStore.setAppLogo(result.data)
+    ElMessage.success(t('图片上传成功'))
+  } else {
+    ElMessage.error(result.message || t('图片上传失败'))
+  }
+}
+
+// 处理用户名失去焦点
+function handleUserNameBlur() {
+  const trimmedName = localUserName.value.trim()
+  if (!trimmedName) {
+    ElMessage.warning(t('用户名不能为空'))
+    localUserName.value = userInfo.value.realName || 'me'
+    return
+  }
+
+  if (trimmedName !== userInfo.value.realName) {
+    runtimeStore.updateUserRealName(trimmedName)
+    ElMessage.success(t('保存成功'))
+  }
+}
+
+// 处理邮箱失去焦点
+function handleEmailBlur() {
+  const trimmedEmail = localEmail.value.trim()
+
+  if (trimmedEmail && !isValidEmail(trimmedEmail)) {
+    ElMessage.warning(t('邮箱格式不正确'))
+    localEmail.value = userInfo.value.email || ''
+    return
+  }
+
+  if (trimmedEmail !== userInfo.value.email) {
+    runtimeStore.updateUserEmail(trimmedEmail)
+    ElMessage.success(t('保存成功'))
+  }
+}
+
+// 处理应用标题失去焦点
+function handleAppTitleBlur() {
+  const trimmedTitle = localAppTitle.value.trim()
+  if (trimmedTitle && trimmedTitle !== appSettingsStore.appTitle) {
+    appSettingsStore.setAppTitle(trimmedTitle)
+    ElMessage.success(t('保存成功'))
+  }
+}
+
+// 处理应用主题变更
+function handleAppThemeChange(theme: AppTheme) {
+  appSettingsStore.setAppTheme(theme)
+  ElMessage.success(t('保存成功'))
+}
+
+// 处理重置设置
+async function handleResetSettings() {
+  try {
+    await ElMessageBox.confirm(
+      t('确认重置所有应用设置吗？'),
+      {
+        type: 'warning',
+        confirmButtonText: t('确定'),
+        cancelButtonText: t('取消'),
+      }
+    )
+
+    appSettingsStore.resetAllSettings()
+    localAppTitle.value = appSettingsStore.appTitle
+    localAppTheme.value = appSettingsStore.appTheme
+    ElMessage.success(t('重置成功'))
+  } catch {
+    // 用户取消
+  }
+}
+
+// 初始化
+onMounted(() => {
+  // 初始化用户信息
+  runtimeStore.initUserInfo()
+  localUserName.value = userInfo.value.realName || 'me'
+  localEmail.value = userInfo.value.email || ''
+
+  // 初始化应用配置
+  localAppTitle.value = appSettingsStore.appTitle
+  localAppTheme.value = appSettingsStore.appTheme
+})
 </script>
 
 <style lang="scss" scoped>
-.user-info-container {
+.common-settings-container {
   width: 100%;
   height: 100%;
   display: flex;
   flex-direction: column;
-  
+  padding: 24px;
+  overflow-y: auto;
+
   .page-title {
     margin-bottom: 24px;
 
@@ -74,58 +343,130 @@ const userInfo = computed(() => runtimeStore.userInfo)
       color: #333;
     }
   }
-  
-  .info-card {
+
+  .settings-card {
     background: white;
     border: 1px solid #eaeaea;
-    padding: 24px;
-    display: flex;
-    flex: 1;
-    min-height: calc(100% - 60px);
-    
-    .avatar-section {
-      margin-right: 40px;
+    border-radius: 8px;
+    margin-bottom: 24px;
+    overflow: hidden;
+
+    .card-header {
+      padding: 16px 24px;
+      background: #f5f7fa;
+      border-bottom: 1px solid #eaeaea;
+
+      h3 {
+        margin: 0;
+        font-size: 16px;
+        font-weight: 600;
+        color: #333;
+      }
+    }
+
+    .card-body {
+      padding: 24px;
       display: flex;
-      flex-direction: column;
-      align-items: center;
+      gap: 40px;
 
-      .avatar {
-        width: 120px;
-        height: 120px;
-        overflow: hidden;
+      .avatar-section,
+      .logo-section {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 12px;
 
-        img {
-          width: 100%;
-          height: 100%;
-          object-fit: cover;
+        .avatar-wrapper,
+        .logo-wrapper {
+          width: 120px;
+          height: 120px;
+          border-radius: 8px;
+          overflow: hidden;
+          border: 1px solid #eaeaea;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          background: #f5f7fa;
+
+          .avatar-image,
+          .logo-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+          }
+        }
+      }
+
+      .info-section {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+
+        .info-row {
+          display: flex;
+          align-items: center;
+
+          .info-label {
+            width: 120px;
+            color: #606266;
+            font-weight: 500;
+            font-size: 14px;
+            flex-shrink: 0;
+          }
+
+          .info-value {
+            flex: 1;
+            min-width: 0;
+
+            .el-input,
+            .el-select {
+              max-width: 400px;
+            }
+
+            span {
+              color: #303133;
+              font-size: 14px;
+
+              &.disabled-value {
+                color: #909399;
+                cursor: not-allowed;
+              }
+            }
+          }
         }
       }
     }
-    
-    .info-section {
-      flex: 1;
-      
-      .info-row {
-        display: flex;
-        margin-bottom: 20px;
-        align-items: center;
-        
-        .info-label {
-          width: 100px;
-          color: #606266;
-          font-weight: 500;
-        }
-        
-        .info-value {
-          flex: 1;
-          
-          .local-mode-value {
-            color: #909399;
-            cursor:  not-allowed;
-            position: relative;
-            
-            &:hover {
-              text-decoration: underline dotted;
+  }
+}
+
+// 响应式设计
+@media (max-width: 768px) {
+  .common-settings-container {
+    padding: 16px;
+
+    .settings-card {
+      .card-body {
+        flex-direction: column;
+        gap: 24px;
+
+        .info-section {
+          .info-row {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 8px;
+
+            .info-label {
+              width: 100%;
+            }
+
+            .info-value {
+              width: 100%;
+
+              .el-input,
+              .el-select {
+                max-width: 100%;
+              }
             }
           }
         }
