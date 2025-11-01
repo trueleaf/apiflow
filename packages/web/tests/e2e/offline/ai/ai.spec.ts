@@ -577,12 +577,12 @@ test.describe('AI 功能测试', () => {
         expect(result).toHaveProperty('code');
       });
 
-      test('2. timeout 参数应可选', async () => {
+      test('2. timeout 参数应正确传递', async () => {
         await contentPage.evaluate(() => {
           window.electronAPI?.ipcManager?.sendToMain('apiflow:topbar:to:content:sync-ai-config', {
             apiKey: 'test-key',
-            apiUrl: 'https://api.test.com'
-            // 不传 timeout
+            apiUrl: 'https://api.test.com',
+            timeout: 30000
           });
         });
 

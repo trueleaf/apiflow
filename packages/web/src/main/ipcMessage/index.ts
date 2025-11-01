@@ -419,7 +419,7 @@ export const useIpcEvent = (mainWindow: BrowserWindow, topBarView: WebContentsVi
   |---------------------------------------------------------------------------
   */
   // 同步AI配置到主进程
-  ipcMain.on(IPC_EVENTS.apiflow.contentToTopBar.syncAiConfig, (_, params: { apiKey: string; apiUrl: string; timeout?: number }) => {
+  ipcMain.on(IPC_EVENTS.apiflow.contentToTopBar.syncAiConfig, (_, params: { apiKey: string; apiUrl: string; timeout: number }) => {
     globalAiManager.updateConfig(params.apiUrl, params.apiKey, params.timeout);
   });
 

@@ -69,15 +69,3 @@ export type ChatWithTextStreamOptions = {
   model?: string;
   maxTokens?: number;
 };
-
-// AI 错误码常量
-export const AI_ERROR_CODES = {
-  INVALID_JSON_RESPONSE: 'INVALID_JSON_RESPONSE',
-  UNSUPPORTED_MODEL: 'UNSUPPORTED_MODEL',
-} as const;
-
-// AI 错误响应类型
-export type AiErrorResponse = {
-  code: string;
-  message: string;
-};

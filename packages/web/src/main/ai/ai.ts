@@ -1,21 +1,18 @@
 import got from 'got';
-// import { mainConfig } from '@src/config/mainConfig';
+import { mainConfig } from '@src/config/mainConfig';
 import type { DeepSeekMessage, DeepSeekRequestBody, DeepSeekResponse, ChatWithTextOptions, ChatWithJsonTextOptions, ChatWithTextStreamOptions } from '@src/types/ai';
-import { AI_ERROR_CODES } from '@src/types/ai';
 import type { CommonResponse } from '@src/types/project';
 
 export class AiManager {
   private apiUrl = '';
   private apiKey = '';
-  private timeout = 60000;
+  private timeout = mainConfig.aiConfig.timeout;
   private abortControllers: Map<string, AbortController> = new Map();
   // 更新配置
-  updateConfig(apiUrl: string, apiKey: string, timeout?: number): void {
+  updateConfig(apiUrl: string, apiKey: string, timeout: number): void {
     this.apiUrl = apiUrl;
     this.apiKey = apiKey;
-    if (timeout !== undefined) {
-      this.timeout = timeout;
-    }
+    this.timeout = timeout;
   }
   
   private validateConfig(): CommonResponse<null> {
@@ -66,7 +63,7 @@ export class AiManager {
     }
 
     const model = options?.model ?? 'DeepSeek';
-    const maxTokens = options?.maxTokens ?? 2000;
+    const maxTokens = options?.maxTokens ?? mainConfig.aiConfig.maxTokens;
 
     // 判断模型类型
     if (model === 'DeepSeek') {
@@ -86,6 +83,7 @@ export class AiManager {
       const requestBody: DeepSeekRequestBody = {
         model: 'deepseek-chat',
         messages,
+        max_tokens: maxTokens,
       };
       return await this.sendDeepSeekRequest(requestBody);
     }
@@ -108,7 +106,7 @@ export class AiManager {
     }
 
     const model = 'DeepSeek';
-    const maxTokens = options?.maxTokens ?? 2000;
+    const maxTokens = options?.maxTokens ?? mainConfig.aiConfig.maxTokens;
 
     // 判断模型类型
     if (model === 'DeepSeek') {
@@ -146,7 +144,7 @@ export class AiManager {
       } catch (parseError) {
         return {
           code: 1,
-          msg: AI_ERROR_CODES.INVALID_JSON_RESPONSE,
+          msg: '响应内容不是有效的JSON格式',
           data: `响应内容不是有效的JSON格式: ${result.data}`
         };
       }
@@ -167,7 +165,7 @@ export class AiManager {
       onEnd = () => {},
       onError = () => {},
       model = 'DeepSeek',
-      maxTokens = 2000
+      maxTokens = mainConfig.aiConfig.maxTokens
     } = options || {};
 
     const configCheck = this.validateConfig();
