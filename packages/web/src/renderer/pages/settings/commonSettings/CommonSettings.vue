@@ -156,12 +156,13 @@ import { ref, computed, onMounted } from 'vue'
 import { useRuntime } from '@/store/runtime/runtimeStore'
 import { useAppSettings } from '@/store/appSettings/appSettingsStore'
 import { processImageUpload } from '@/utils/imageHelper'
-import { ElMessage, ElMessageBox } from 'element-plus'
+import { ElMessageBox } from 'element-plus'
 import { useI18n } from 'vue-i18n'
 import { User, Mail, Users, Calendar, Clock, AppWindow, Palette } from 'lucide-vue-next'
 import defaultAvatarImg from '@/assets/imgs/logo.png'
 import type { UploadFile } from 'element-plus'
 import type { AppTheme } from '@src/types'
+import { message } from '@/helper'
 
 const { t } = useI18n()
 const runtimeStore = useRuntime()
@@ -233,29 +234,29 @@ const isValidEmail = (email: string): boolean => {
 // 处理头像更换
 const handleAvatarChange = async (uploadFile: UploadFile) => {
   if (!uploadFile.raw) {
-    ElMessage.warning(t('请选择图片文件'))
+    message.warning(t('请选择图片文件'))
     return
   }
   const result = await processImageUpload(uploadFile.raw, 'avatar')
   if (result.success && result.data) {
     runtimeStore.updateUserAvatar(result.data)
-    ElMessage.success(t('图片上传成功'))
+    message.success(t('图片上传成功'))
   } else {
-    ElMessage.error(result.message || t('图片上传失败'))
+    message.error(result.message || t('图片上传失败'))
   }
 }
 // 处理Logo更换
 const handleLogoChange = async (uploadFile: UploadFile) => {
   if (!uploadFile.raw) {
-    ElMessage.warning(t('请选择图片文件'))
+    message.warning(t('请选择图片文件'))
     return
   }
   const result = await processImageUpload(uploadFile.raw, 'logo')
   if (result.success && result.data) {
     appSettingsStore.setAppLogo(result.data)
-    ElMessage.success(t('图片上传成功'))
+    message.success(t('图片上传成功'))
   } else {
-    ElMessage.error(result.message || t('图片上传失败'))
+    message.error(result.message || t('图片上传失败'))
   }
 }
 // 检测是否有未保存的修改
@@ -273,11 +274,11 @@ const handleConfirm = () => {
   const trimmedEmail = localEmail.value.trim()
   const trimmedAppTitle = localAppTitle.value.trim()
   if (!trimmedUserName) {
-    ElMessage.warning(t('用户名不能为空'))
+    message.warning(t('用户名不能为空'))
     return
   }
   if (trimmedEmail && !isValidEmail(trimmedEmail)) {
-    ElMessage.warning(t('邮箱格式不正确'))
+    message.warning(t('邮箱格式不正确'))
     return
   }
   if (trimmedUserName !== userInfo.value.realName) {
@@ -292,7 +293,7 @@ const handleConfirm = () => {
   if (localAppTheme.value !== appSettingsStore.appTheme) {
     appSettingsStore.setAppTheme(localAppTheme.value)
   }
-  ElMessage.success(t('保存成功'))
+  message.success(t('保存成功'))
 }
 // 重置修改
 const handleReset = async () => {
@@ -314,7 +315,7 @@ const handleReset = async () => {
   localEmail.value = userInfo.value.email || ''
   localAppTitle.value = appSettingsStore.appTitle
   localAppTheme.value = appSettingsStore.appTheme
-  ElMessage.info(t('已重置'))
+  message.info(t('已重置'))
 }
 // 初始化
 onMounted(() => {

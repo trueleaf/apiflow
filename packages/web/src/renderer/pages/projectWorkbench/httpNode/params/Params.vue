@@ -302,8 +302,9 @@ import { useApidoc } from '@/store/share/apidocStore'
 import { useRoute } from 'vue-router'
 import { useApidocTas } from '@/store/share/tabsStore'
 import { useHttpRedoUndo } from '@/store/redoUndo/httpRedoUndoStore'
-import { ElMessage, ElMessageBox } from 'element-plus'
+import { ElMessageBox } from 'element-plus'
 import { httpNodeHistoryCache } from '@/cache/httpNode/httpNodeHistoryCache'
+import { message } from '@/helper'
 import type { HttpHistory } from '@src/types/history/httpHistory'
 type ActiceName = 'SParams' | 'SRequestBody' | 'SResponseParams' | 'SRequestHeaders' | 'SRemarks' | 'SPreRequest' | 'SAfterRequest'
 const apidocBaseInfoStore = useApidocBaseInfo()
@@ -462,7 +463,7 @@ const handleUndo = (): void => {
   }
   const result = httpRedoUndoStore.httpUndo(currentSelectTab.value._id);
   if (result.code !== 0) {
-    ElMessage.error(result.msg);
+    message.error(result.msg);
   }
   // 成功时不显示提示，避免干扰用户操作
 };
@@ -473,7 +474,7 @@ const handleRedo = (): void => {
   }
   const result = httpRedoUndoStore.httpRedo(currentSelectTab.value._id);
   if (result.code !== 0) {
-    ElMessage.error(result.msg);
+    message.error(result.msg);
   }
   // 成功时不显示提示，避免干扰用户操作
 };
@@ -504,7 +505,7 @@ const getHistoryList = (): Promise<void> => {
     })
     .catch((error) => {
       console.error('加载历史记录失败:', error);
-      ElMessage.error(t('加载历史记录失败'));
+      message.error(t('加载历史记录失败'));
     })
     .finally(() => {
       historyLoading.value = false;
@@ -548,14 +549,14 @@ const handleDeleteHistory = (history: HttpHistory): void => {
         if (success) {
           // 从列表中移除已删除的记录
           historyList.value = historyList.value.filter(h => h._id !== history._id);
-          ElMessage.success(t('删除成功'));
+          message.success(t('删除成功'));
         } else {
-          ElMessage.error(t('删除失败'));
+          message.error(t('删除失败'));
         }
       })
       .catch((error) => {
         console.error('删除历史记录失败:', error);
-        ElMessage.error(t('删除失败'));
+        message.error(t('删除失败'));
       });
   }).catch((error) => {
     // 用户取消操作
@@ -583,16 +584,16 @@ const handleClearAllHistory = (): void => {
         if (success) {
           // 清空列表
           historyList.value = [];
-          ElMessage.success(t('清除成功'));
+          message.success(t('清除成功'));
           // 关闭历史记录弹窗
           showHistoryDropdown.value = false;
         } else {
-          ElMessage.error(t('清除失败'));
+          message.error(t('清除失败'));
         }
       })
       .catch((error) => {
         console.error('清除历史记录失败:', error);
-        ElMessage.error(t('清除失败'));
+        message.error(t('清除失败'));
       });
   }).catch((error) => {
     // 用户取消操作

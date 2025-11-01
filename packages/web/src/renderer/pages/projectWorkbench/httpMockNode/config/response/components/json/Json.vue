@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <div class="json-config">
     <!-- 数据模式选择 -->
     <div class="form-row">
@@ -105,12 +105,13 @@
 <script lang="ts" setup>
 import { ref, computed, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { ElMessage } from 'element-plus'
 import { Loading, Top } from '@element-plus/icons-vue'
 import SJsonEditor from '@/components/common/jsonEditor/GJsonEditor.vue'
 import { userState } from '@/cache/userState/userStateCache'
 import type { MockHttpNode } from '@src/types'
 
+
+import { message } from '@/helper'
 type ResponseItem = MockHttpNode['response'][0]
 
 type Props = {
@@ -141,7 +142,7 @@ const handleDismissHint = () => {
 const handleGeneratePreview = async () => {
   const promptText = (props.response.jsonConfig.prompt || '').trim()
   if (!promptText) {
-    ElMessage.warning(t('请先输入提示词'))
+    message.warning(t('请先输入提示词'))
     return
   }
 
@@ -160,12 +161,12 @@ const handleGeneratePreview = async () => {
     } else {
       // 生成失败，在预览区显示错误信息
       const errorMsg = result?.msg || t('AI生成失败，请稍后重试')
-      ElMessage.error(errorMsg)
+      message.error(errorMsg)
       aiPreviewJson.value = `// ${t('生成失败')}\n// ${errorMsg}`
     }
   } catch (error) {
     const errorMsg = (error as Error).message || t('AI生成失败，请稍后重试')
-    ElMessage.error(errorMsg)
+    message.error(errorMsg)
     aiPreviewJson.value = `// ${t('生成失败')}\n// ${errorMsg}`
   } finally {
     aiGenerating.value = false

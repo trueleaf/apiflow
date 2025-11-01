@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <el-dialog
     v-model="visible"
     :title="t('创建消息模板')"
@@ -57,10 +57,12 @@ import { ref, reactive, computed, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useWebSocket } from '@/store/websocket/websocketStore';
 import { nanoid } from 'nanoid/non-secure';
-import { ElMessage, type FormInstance, type FormRules } from 'element-plus';
+import { type FormInstance, type FormRules } from 'element-plus';
 import type { WebsocketMessageType, WebsocketSendMessageTemplate } from '@src/types/websocketNode';
 import SJsonEditor from '@/components/common/jsonEditor/GJsonEditor.vue';
 
+
+import { message } from '@/helper'
 const props = defineProps<{
   modelValue: boolean;
 }>();
@@ -149,7 +151,7 @@ const handleCreateTemplate = async () => {
     handleClose();
   } catch (error) {
     console.error('创建模板失败:', error);
-    ElMessage.error(t('模板创建失败'));
+    message.error(t('模板创建失败'));
   } finally {
     createTemplateLoading.value = false;
   }

@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <el-dialog :model-value="modelValue" top="10vh" width="50%" :title="t('生成链接')" :before-close="handleClose">
     <div class="link-wrap">
       <SConfig :label="t('链接名称')" :has-check="false" required>
@@ -91,7 +91,6 @@
 
 <script lang="ts" setup>
 import { ref, computed, Ref, PropType, onMounted, nextTick } from 'vue'
-import { ElMessage } from 'element-plus'
 import 'element-plus/es/components/message/style/css'
 import { useI18n } from 'vue-i18n'
 import SEmphasize from '@/components/common/emphasize/GEmphasize.vue'
@@ -104,6 +103,7 @@ import { router } from '@/router'
 import { useApidocBanner } from '@/store/share/bannerStore'
 import { useApidocBaseInfo } from '@/store/share/baseInfoStore'
 import dayjs from 'dayjs'
+import { message } from '@/helper'
 
 //=========================================================================//
 // 时间常量定义
@@ -203,11 +203,11 @@ const handleEditLink = () => {
   const customExportIsEmpty = allCheckedNodes.value.length === 0;
   const { maxAge, password, shareName } = formInfo.value; //默认一个月过期
   if (enableCustomExport && customExportIsEmpty) { //允许自定义分享并且数据为空
-    ElMessage.warning(t('请至少选择一个文档分享'));
+    message.warning(t('请至少选择一个文档分享'));
     return;
   }
   if (!shareName) { //必须填写分享备注
-    ElMessage.warning(t('请输入链接名称'));
+    message.warning(t('请输入链接名称'));
     return;
   }
   loading.value = true;

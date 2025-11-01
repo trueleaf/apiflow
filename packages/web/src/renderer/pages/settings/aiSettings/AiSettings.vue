@@ -108,13 +108,13 @@
 
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue'
-import { ElMessage } from 'element-plus'
 import { Loading } from '@element-plus/icons-vue'
 import { aiCache } from '@/cache/ai/aiCache'
 import type { Config } from '@src/types/config'
 import VueMarkdownRender from 'vue-markdown-render'
 import { IPC_EVENTS } from '@src/types/ipc'
 import SJsonEditor from '@/components/common/jsonEditor/GJsonEditor.vue'
+import { message, parseAiStream } from '@/helper'
 
 type AiConfig = Config['mainConfig']['aiConfig']
 
@@ -141,6 +141,7 @@ const jsonTestData = ref<string>('')
 // 流式请求控制
 let streamController: { cancel: () => Promise<void> } | null = null
 let currentRequestId = ''
+let streamBuffer = ''
 
 // 是否可以测试
 const canTest = computed(() => {
@@ -166,11 +167,11 @@ const loadConfig = () => {
 // 保存配置
 const handleSave = async () => {
   if (!formData.value.apiKey.trim()) {
-    ElMessage.warning({ message: '请输入 API Key', grouping: true })
+    message.warning('请输入 API Key')
     return
   }
   if (!formData.value.apiUrl.trim()) {
-    ElMessage.warning({ message: '请输入 API 地址', grouping: true })
+    message.warning('请输入 API 地址')
     return
   }
 
@@ -183,9 +184,9 @@ const handleSave = async () => {
       apiUrl: formData.value.apiUrl,
       timeout: formData.value.timeout
     })
-    ElMessage.success({ message: '配置保存成功', grouping: true })
+    message.success('配置保存成功')
   } catch (error) {
-    ElMessage.error({ message: '配置保存失败', grouping: true })
+    message.error('配置保存失败')
   } finally {
     saving.value = false
   }
@@ -211,14 +212,14 @@ const handleReset = () => {
     })
   } catch (error) {
     console.error('重置配置失败:', error)
-    ElMessage.error('重置配置失败')
+    message.error('重置配置失败')
   }
 }
 
 // 测试请求
 const handleTest = async () => {
   if (!canTest.value) {
-    ElMessage.warning({ message: '请先配置 API Key 和 API 地址', grouping: true })
+    message.warning('请先配置 API Key 和 API 地址')
     return
   }
 
@@ -243,11 +244,11 @@ const handleTest = async () => {
       testResult.value = result.data
     } else {
       testError.value = result?.msg || '测试请求失败'
-      ElMessage.error({ message: testError.value, grouping: true })
+      message.error(testError.value)
     }
   } catch (error) {
     testError.value = (error as Error).message
-    ElMessage.error({ message: '测试请求失败', grouping: true })
+    message.error('测试请求失败')
   } finally {
     testing.value = false
   }
@@ -256,7 +257,7 @@ const handleTest = async () => {
 // JSON测试请求
 const handleJsonTest = async () => {
   if (!canTest.value) {
-    ElMessage.warning({ message: '请先配置 API Key 和 API 地址', grouping: true })
+    message.warning('请先配置 API Key 和 API 地址')
     return
   }
 
@@ -286,11 +287,11 @@ const handleJsonTest = async () => {
       }
     } else {
       testError.value = result?.msg || 'JSON测试失败'
-      ElMessage.error({ message: testError.value, grouping: true })
+      message.error(testError.value)
     }
   } catch (error) {
     testError.value = (error as Error).message
-    ElMessage.error({ message: 'JSON测试失败', grouping: true })
+    message.error('JSON测试失败')
   } finally {
     jsonTesting.value = false
   }
@@ -299,7 +300,7 @@ const handleJsonTest = async () => {
 // 流式测试请求
 const handleStreamTest = async () => {
   if (!canTest.value) {
-    ElMessage.warning({ message: '请先配置 API Key 和 API 地址', grouping: true })
+    message.warning('请先配置 API Key 和 API 地址')
     return
   }
 
@@ -309,6 +310,7 @@ const handleStreamTest = async () => {
   currentTestType.value = 'stream'
   jsonTestData.value = ''
   currentRequestId = `stream-${Date.now()}`
+  streamBuffer = ''
 
   try {
     // 先保存配置，再测试
@@ -323,21 +325,26 @@ const handleStreamTest = async () => {
       {
         requestId: currentRequestId,
       },
-      (chunk: string) => {
-        // 接收数据块，逐步追加到结果中
-        testResult.value += chunk
+      (rawChunk: string) => {
+        // 使用纯函数解析原始数据块
+        streamBuffer = parseAiStream(streamBuffer, rawChunk, (content: string) => {
+          // 接收解析后的内容，逐步追加到结果中
+          testResult.value += content
+        })
       },
       () => {
         // 流式请求完成
+        streamBuffer = ''
         streamTesting.value = false
         streamController = null
       },
       (response) => {
         // 流式请求错误
+        streamBuffer = ''
         streamTesting.value = false
         streamController = null
         testError.value = response.msg
-        ElMessage.error({ message: response.msg, grouping: true })
+        message.error(response.msg)
       }
     )
 
@@ -347,10 +354,11 @@ const handleStreamTest = async () => {
       await controller.startPromise
     }
   } catch (error) {
+    streamBuffer = ''
     streamTesting.value = false
     streamController = null
     testError.value = (error as Error).message
-    ElMessage.error({ message: '流式测试请求失败', grouping: true })
+    message.error('流式测试请求失败')
   }
 }
 
@@ -363,7 +371,7 @@ const handleCancelStream = async () => {
       streamController = null
     } catch (error) {
       console.error('取消请求失败:', error)
-      ElMessage.error('取消请求失败')
+      message.error('取消请求失败')
     }
   }
 }

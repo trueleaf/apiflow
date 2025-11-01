@@ -112,7 +112,7 @@
 <script lang="ts" setup>
 import { ref, computed, nextTick } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { ElMessage, ElMessageBox } from 'element-plus'
+import { ElMessageBox } from 'element-plus'
 import { Plus } from '@element-plus/icons-vue'
 import { storeToRefs } from 'pinia'
 import { useHttpMock } from '@/store/httpMock/httpMockStore'
@@ -127,6 +127,8 @@ import SseConfig from './components/sse/Sse.vue'
 import ConditionConfig from './components/condition/Condition.vue'
 import ResponseHeaders from './components/headers/Headers.vue'
 
+
+import { message } from '@/helper'
 const { t } = useI18n()
 const httpMockStore = useHttpMock()
 const { httpMock } = storeToRefs(httpMockStore)
@@ -216,13 +218,13 @@ const handleAddTag = () => {
   newResponse.fileConfig.fileType = 'pdf'
   httpMock.value.response.push(newResponse)
   activeTagIndex.value = mockResponses.value.length - 1
-  ElMessage.success(t('添加成功'))
+  message.success(t('添加成功'))
 }
 // 关闭Tag
 const handleCloseTag = async (index: number) => {
   // 如果只剩一个，不允许删除
   if (mockResponses.value.length <= 1) {
-    ElMessage.warning(t('至少需要保留一个返回配置'))
+    message.warning(t('至少需要保留一个返回配置'))
     return
   }
 
@@ -260,7 +262,7 @@ const handleCloseTag = async (index: number) => {
       activeTagIndex.value--
     }
     
-    ElMessage.success(t('删除成功'))
+    message.success(t('删除成功'))
   } catch {
     // 用户取消删除
   }
@@ -351,7 +353,7 @@ const handleDeleteResponseHeaders = (index: number) => {
   min-width: 60px;
   height: 18px;
   line-height: 18px;
-  box-sizing: border-box;
+  ElMessageBox-sizing: border-ElMessageBox;
 }
 .add-btn {
   width: 24px;

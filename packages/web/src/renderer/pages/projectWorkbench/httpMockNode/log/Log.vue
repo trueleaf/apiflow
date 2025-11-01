@@ -179,6 +179,7 @@ import SJsonEditor from '@/components/common/jsonEditor/GJsonEditor.vue'
 import { Trash2, FileText, AlertCircle, AlertTriangle, Info } from 'lucide-vue-next'
 import { IPC_EVENTS } from '@src/types/ipc'
 
+
 const defaultTemplate = '[$time_local] $remote_addr - $remote_user "$request" $status $body_bytes_sent "$http_referer" "$http_user_agent" $response_time_ms ms'
 
 const apidocTabsStore = useApidocTas()

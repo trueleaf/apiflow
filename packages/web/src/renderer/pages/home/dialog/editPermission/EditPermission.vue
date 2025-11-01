@@ -68,7 +68,7 @@
 import { useI18n } from 'vue-i18n'
 import type { CommonResponse, ApidocProjectMemberInfo, ApidocProjectPermission, ApidocGroupUser } from '@src/types'
 import {  onMounted, ref } from 'vue';
-import { ElMessage, ElMessageBox } from 'element-plus';
+import { ElMessageBox } from 'element-plus';
 import { useRuntime } from '@/store/runtime/runtimeStore';
 import { config } from '@src/config/config';
 import { request } from '@/api/api';
@@ -76,6 +76,8 @@ import Loading from '@/components/common/loading/GLoading.vue'
 import RemoteSelector from '@/components/common/remoteSelect/GRemoteSelect.vue';
 import RemoteSelectorItem from '@/components/common/remoteSelect/GRemoteSelectItem.vue';
 
+
+import { message } from '@/helper'
 type MemberWithOldPermission = ApidocProjectMemberInfo & { _permission?: ApidocProjectPermission };
 type MemberInfo = {
   groups: {
@@ -151,7 +153,7 @@ const handleAddMember = (item: ApidocProjectMemberInfo) => {
   remoteQueryName.value = '';
   const hasMember = memberList.value.find((memberInfo) => memberInfo.id === item.id);
   if (hasMember) {
-    ElMessage.warning(t('用户已经存在，请勿重复添加'));
+    message.warning(t('用户已经存在，请勿重复添加'));
     return;
   }
   const params = {

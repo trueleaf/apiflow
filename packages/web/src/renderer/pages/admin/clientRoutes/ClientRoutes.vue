@@ -43,6 +43,7 @@ import SSearchItem from '@/components/common/forms/search/GSearchItem.vue'
 import STable from '@/components/common/table/GTable.vue'
 
 
+
 type HookThis = {
   tableData: Ref<PermissionClientRoute[]>,
   total: Ref<number>,

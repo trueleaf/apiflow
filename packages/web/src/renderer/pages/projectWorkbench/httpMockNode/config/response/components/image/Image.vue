@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <div class="image-config-wrapper">
     <!-- 模式选择 -->
     <div class="form-row">
@@ -117,12 +117,13 @@
 <script lang="ts" setup>
 import { ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { ElMessage } from 'element-plus'
 import { Upload } from '@element-plus/icons-vue'
 import mime from 'mime'
 import type { MockHttpNode } from '@src/types'
 import type { UploadFile } from 'element-plus'
 
+
+import { message } from '@/helper'
 type ResponseItem = MockHttpNode['response'][0]
 
 type Props = {
@@ -143,19 +144,19 @@ const handleImageChange = (file: UploadFile) => {
 
   const maxSize = 1024 * 1024 * 1024
   if (file.raw.size > maxSize) {
-    ElMessage.error(t('图片大小不能超过 1GB'))
+    message.error(t('图片大小不能超过 1GB'))
     return
   }
 
   const validTypes = ['image/png', 'image/jpeg', 'image/jpg', 'image/gif', 'image/webp', 'image/svg+xml', 'image/bmp']
   if (!validTypes.includes(file.raw.type)) {
-    ElMessage.error(t('不支持的图片格式，请选择 PNG、JPG、GIF、WEBP、SVG 或 BMP 格式'))
+    message.error(t('不支持的图片格式，请选择 PNG、JPG、GIF、WEBP、SVG 或 BMP 格式'))
     return
   }
 
   const filePath = window.electronAPI?.fileManager.getFilePath(file.raw)
   if (!filePath) {
-    ElMessage.error(t('图片路径获取失败，请重试'))
+    message.error(t('图片路径获取失败，请重试'))
     return
   }
 

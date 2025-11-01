@@ -210,8 +210,9 @@ import STable from '@/components/common/table/GTable.vue'
 import { config } from '@src/config/config'
 import { useI18n } from 'vue-i18n'
 import { computed, ref, onMounted } from 'vue';
-import { ElMessage, ElMessageBox, FormInstance, genFileId, UploadFile, UploadInstance, UploadProps, UploadRawFile } from 'element-plus';
+import { ElMessageBox, FormInstance, genFileId, UploadFile, UploadInstance, UploadProps, UploadRawFile } from 'element-plus';
 import { request } from '@/api/api';
+import { message } from '@/helper';
 import { useRoute } from 'vue-router';
 import SJsonEditor from '@/components/common/jsonEditor/GJsonEditor.vue'
 import EditDialog from './dialog/Edit.vue'
@@ -332,11 +333,11 @@ const getStandaloneVariables = async () => {
       // 更新变量枚举
       variableStore.replaceVariables(response.data);
     } else {
-      ElMessage.error(response.msg || t('获取变量列表失败'));
+      message.error(response.msg || t('获取变量列表失败'));
     }
   } catch (error) {
     console.error(t('获取变量列表失败'), error);
-    ElMessage.error(t('获取变量列表失败'));
+    message.error(t('获取变量列表失败'));
   } finally {
     standaloneLoading.value = false;
   }
@@ -386,10 +387,10 @@ const handleAddVariable = () => {
           // 独立模式
           const response = await nodeVariableCache.addVariable(params);
           if (response.code === 0) {
-            ElMessage.success(t('添加成功'));
+            message.success(t('添加成功'));
             getData();
           } else {
-            ElMessage.error(response.msg || t('添加失败'));
+            message.error(response.msg || t('添加失败'));
           }
         } else {
           // 在线模式
@@ -398,7 +399,7 @@ const handleAddVariable = () => {
         }
       } catch (err) {
         console.error(err);
-        ElMessage.error(t('操作失败'));
+        message.error(t('操作失败'));
       } finally {
         loading.value = false;
       }
@@ -426,7 +427,7 @@ const handleDelete = (_id: string) => {
       projectId: route.query.id,
     };
     request.delete('/api/project/project_variable', { data: params }).then(() => {
-      ElMessage.success(t('删除成功'));
+      message.success(t('删除成功'));
       getData();
     }).catch((err) => {
       console.error(err);
@@ -444,14 +445,14 @@ const handleStandaloneDelete = (_id: string) => {
     try {
       const response = await nodeVariableCache.deleteVariableByIds([_id]);
       if (response.code === 0) {
-        ElMessage.success(t('删除成功'));
+        message.success(t('删除成功'));
         getData();
       } else {
-        ElMessage.error(response.msg || t('删除失败'));
+        message.error(response.msg || t('删除失败'));
       }
     } catch (err) {
       console.error(err);
-      ElMessage.error(t('删除失败'));
+      message.error(t('删除失败'));
     }
   });
 }
@@ -462,7 +463,7 @@ onMounted(() => {
     getData();
   } catch (error) {
     console.error(t('初始化独立缓存失败'), error);
-    ElMessage.error(t('初始化失败'));
+    message.error(t('初始化失败'));
   }
 });
 </script>

@@ -123,9 +123,11 @@ import { userState } from '@/cache/userState/userStateCache.ts'
 import { useWsRedoUndo } from '@/store/redoUndo/wsRedoUndoStore'
 import { webSocketHistoryCache } from '@/cache/websocketNode/websocketHistoryCache'
 import type { WebSocketHistory } from '@src/types/history/wsHistory'
-import { ElMessageBox, ElMessage } from 'element-plus'
+import { ElMessageBox } from 'element-plus'
 import { WebsocketActiveTabType } from '@src/types/websocketNode'
 
+
+import { message } from '@/helper'
 const { t } = useI18n()
 const websocketStore = useWebSocket()
 const apidocTabsStore = useApidocTas()
@@ -210,7 +212,7 @@ const getHistoryList = (): Promise<void> => {
     })
     .catch((error) => {
       console.error('加载历史记录失败:', error);
-      ElMessage.error(t('加载历史记录失败'));
+      message.error(t('加载历史记录失败'));
     })
     .finally(() => {
       historyLoading.value = false;
@@ -252,24 +254,24 @@ const handleDeleteHistory = (history: WebSocketHistory): void => {
     webSocketHistoryCache.deleteWsHistoryByNode(websocket.value._id, [history._id])
       .then((success) => {
         if (success) {
-          ElMessage.success(t('删除成功'));
+          message.success(t('删除成功'));
           // 重新加载列表 - 非阻塞方式
           getHistoryList().catch(error => {
             console.error('重新加载历史记录失败:', error);
           });
         } else {
-          ElMessage.error(t('删除失败'));
+          message.error(t('删除失败'));
         }
       })
       .catch((error) => {
         console.error('删除历史记录失败:', error);
-        ElMessage.error(t('删除失败'));
+        message.error(t('删除失败'));
       });
   }).catch((error) => {
     // 用户取消操作
     if (error !== 'cancel' && error !== 'close') {
       console.error('删除历史记录失败:', error);
-      ElMessage.error(t('删除失败'));
+      message.error(t('删除失败'));
     }
   });
 };

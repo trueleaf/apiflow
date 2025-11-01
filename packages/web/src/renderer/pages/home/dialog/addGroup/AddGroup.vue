@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <el-dialog :model-value="modelValue" top="10vh" :title="t('创建团队')" :before-close="handleClose">
     <el-form ref="form" :model="formInfo" :rules="rules" label-width="150px">
       <el-form-item :label="`${t('团队名称')}：`" prop="groupName">
@@ -68,12 +68,14 @@
 import { request } from '@/api/api';
 import { config } from '@src/config/config';
 import type { PermissionUserBaseInfo, ApidocGroupUser } from '@src/types'
-import { ElMessage, FormInstance } from 'element-plus';
+import { FormInstance } from 'element-plus';
 import { useI18n } from 'vue-i18n'
 import { nextTick, ref } from 'vue';
 import RemoteSelector from '@/components/common/remoteSelect/GRemoteSelect.vue';
 import RemoteSelectorItem from '@/components/common/remoteSelect/GRemoteSelectItem.vue';
 
+
+import { message } from '@/helper'
 defineProps({
   modelValue: {
     type: Boolean,
@@ -146,7 +148,7 @@ const handleAddGroup = () => {
           input.focus();
         }
       });
-      ElMessage.warning('请完善必填信息');
+      message.warning('请完善必填信息');
       loading.value = false;
     }
   });
@@ -157,7 +159,7 @@ const handleSelectUser = (item: PermissionUserBaseInfo) => {
   remoteQueryName.value = '';
   const hasUser = selectUserData.value.find((val) => val.userId === item.userId);
   if (hasUser) {
-    ElMessage.warning(t('请勿重复添加'));
+    message.warning(t('请勿重复添加'));
     return;
   }
   const userInfo: ApidocGroupUser = {

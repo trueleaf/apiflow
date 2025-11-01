@@ -209,8 +209,8 @@ import SContextmenu from "@/components/common/contextmenu/GContextmenu.vue";
 import SContextmenuItem from "@/components/common/contextmenu/GContextmenuItem.vue";
 import SAddFileDialog from "../../dialog/addFile/AddFile.vue";
 import SAddFolderDialog from "../../dialog/addFolder/AddFolder.vue";
-import { ElMessage } from "element-plus";
 import 'element-plus/es/components/message/style/css'
+import { message } from '@/helper'
 import STool from './tool/Tool.vue'
 import { useBannerData } from './composables/banner-data'
 import { deleteNode, addFileAndFolderCb, pasteNodes, forkNode, dragNode, renameNode } from './composables/curd-node'
@@ -423,7 +423,7 @@ const handleOpenAddFileDialog = () => {
   if (!currentOperationalNode.value) { //在根节点操作,不作限制
     addFileDialogVisible.value = true;
   } else if (childFileNodeNum >= projectInfo.value.rules.fileInFolderLimit) {
-    ElMessage.warning(`${t('单个文件夹里面文档个数不超过')} ${childFileNodeNum}${t('个')} ${t('全局设置中可配置')}`);
+    message.warning(`${t('单个文件夹里面文档个数不超过')} ${childFileNodeNum}${t('个')} ${t('全局设置中可配置')}`);
   } else {
     addFileDialogVisible.value = true;
   }

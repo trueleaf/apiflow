@@ -1,4 +1,4 @@
-
+﻿
 <template>
   <el-form ref="form" :model="registerInfo" :rules="rules" @submit.stop.prevent="handleRegister">
     <el-form-item prop="loginName">
@@ -36,12 +36,14 @@ import type { InternalRuleItem } from 'async-validator/dist-types/interface'
 import { nextTick, onMounted, reactive, ref } from 'vue';
 import type { CommonResponse } from '@src/types'
 import { useI18n } from 'vue-i18n'
-import { ElMessage, FormInstance } from 'element-plus';
+import { FormInstance } from 'element-plus';
 import { request } from '@/api/api';
 import { router } from '@/router';
 import { config } from '@src/config/config';
 import SmsButton from '@/components/common/smsButton/GSmsButton.vue'
 
+
+import { message } from '@/helper'
 const { t } = useI18n()
 const registerInfo = reactive({
   loginName: '', //---登录名称
@@ -107,11 +109,11 @@ const form = ref<FormInstance>()
 //校验手机号码
 const smsCodeHook = () => {
   if (registerInfo.phone.length !== 11) {
-    ElMessage.warning(t('请填写正确手机号'));
+    message.warning(t('请填写正确手机号'));
     return false;
   }
   if (!registerInfo.captcha) {
-    ElMessage.warning(t('请输入图形验证码'))
+    message.warning(t('请输入图形验证码'))
     return
   }
   return true;
@@ -128,7 +130,7 @@ const getSmsCode = () => {
     if (res.code === 4005) {
       getCaptcha();
       smsRef.value?.resetState();
-      ElMessage.warning(res.msg);
+      message.warning(res.msg);
     }
   }).catch((err) => {
     console.error(err);
@@ -176,7 +178,7 @@ const handleRegister = () => {
           (input as HTMLElement).focus();
         }
       });
-      ElMessage.warning(t('请完善必填信息'));
+      message.warning(t('请完善必填信息'));
       loading.value = false;
     }
   });

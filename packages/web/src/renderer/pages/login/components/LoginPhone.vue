@@ -1,4 +1,4 @@
-
+﻿
 <template>
   <el-form ref="form" :model="userInfo" :rules="rules" @submit.stop.prevent="handleLogin">
     <el-form-item prop="phone">
@@ -28,12 +28,14 @@ import SmsButton from '@/components/common/smsButton/GSmsButton.vue'
 import { User as IconUser } from '@element-plus/icons-vue'
 import { nextTick, onMounted, reactive, ref } from 'vue';
 import { useI18n } from 'vue-i18n'
-import { ElMessage, FormInstance } from 'element-plus';
+import { FormInstance } from 'element-plus';
 import { request } from '@/api/api';
 import { router } from '@/router';
 import { usePermissionStore } from '@/store/permission/permissionStore';
 import { config } from '@src/config/config';
 
+
+import { message } from '@/helper'
 const { t } = useI18n()
 const userInfo = reactive({
   phone: '', //------------------手机号码
@@ -55,11 +57,11 @@ const permissionStore = usePermissionStore()
 //校验手机号码
 const smsCodeHook = () => {
   if (userInfo.phone.length !== 11) {
-    ElMessage.warning(t('请填写正确手机号'))
+    message.warning(t('请填写正确手机号'))
     return false
   }
   if (!userInfo.captcha) {
-    ElMessage.warning(t('请输入图形验证码'))
+    message.warning(t('请输入图形验证码'))
     return
   }
   return true
@@ -88,7 +90,7 @@ const getSmsCode = () => {
     if (res.code === 4005) {
       getCaptcha();
       smsRef.value?.resetState();
-      ElMessage.warning(res.msg);
+      message.warning(res.msg);
     }
    }).catch((err) => {
     console.error(err);
@@ -103,7 +105,7 @@ const handleLogin = () => {
       loading.value = true;
       request.post<CommonResponse<PermissionUserInfo>, CommonResponse<PermissionUserInfo>>('/api/security/login_phone', userInfo).then((res) => {
         if (res.code === 2006 || res.code === 2003) {
-          ElMessage.warning(res.msg);
+          message.warning(res.msg);
         } else {
           router.push('/home');
           permissionStore.getPermission()

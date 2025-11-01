@@ -4,7 +4,7 @@
       <!-- banner -->
       <div class="side-menu-container">
         <div class="menu-title f-mid">{{ t('团队列表') }}</div>
-        <div class="search-box">
+        <div class="search-ElMessageBox">
           <el-input v-model="searchText" :placeholder="t('搜索团队')" clearable :prefix-icon="Search" />
         </div>
         <div class="group-title f-mid">
@@ -224,7 +224,7 @@ import { request } from '@/api/api';
 import { ApidocGroupItem, ApidocGroupUser, PermissionUserBaseInfo, CommonResponse } from '@src/types';
 import { nanoid } from 'nanoid/non-secure';
 import { cloneDeep } from "lodash-es";
-import { ElMessage, ElMessageBox } from 'element-plus';
+import { ElMessageBox } from 'element-plus';
 import RemoteSelector from '@/components/common/remoteSelect/GRemoteSelect.vue';
 import RemoteSelectorItem from '@/components/common/remoteSelect/GRemoteSelectItem.vue';
 import { useWindowEvent } from '@/hooks/useWindowEvent';
@@ -233,6 +233,8 @@ import { useRuntime } from '@/store/runtime/runtimeStore';
 
 
 
+
+import { message } from '@/helper'
 const { t } = useI18n()
 
 const searchText = ref('')
@@ -284,7 +286,7 @@ const handleAddUser = (item: PermissionUserBaseInfo) => {
   remoteQueryName.value = '';
   const hasUser = groupInfo.value?.members.find((val) => val.userId === item.userId);
   if (hasUser) {
-    ElMessage.warning(t('用户已存在、请勿重复添加'));
+    message.warning(t('用户已存在、请勿重复添加'));
     return;
   }
   const userInfo: ApidocGroupUser = {
@@ -324,7 +326,7 @@ const handleRemoveMember = (groupId: string, userId: string) => {
       if (delIndex !== undefined) {
         groupInfo.value?.members.splice(delIndex, 1);
       }
-      ElMessage.success('移除成功');
+      message.success('移除成功');
     }).catch(err => {
       console.error(err)
     })
@@ -373,7 +375,7 @@ const handleSaveGroupInfo = () => {
     description,
     isAllowInvite
   }).then(() => {
-    ElMessage.success('保存成功')
+    message.success('保存成功')
     changeGroupInfo()
     originGroupInfo.value = cloneDeep(groupInfo.value);
   }).catch(err => {
@@ -388,7 +390,7 @@ const handleChangePermission = (groupId: string, userId: string, permission: "ad
     permission
   }
   request.put<CommonResponse<ApidocGroupItem>, CommonResponse<ApidocGroupItem>>('/api/group/member/permission', params).then(() => {
-    ElMessage.success('修改成功');
+    message.success('修改成功');
     changeGroupInfo()
     getGroupList();
     groupInfo.value?.members.forEach(member => {
@@ -408,7 +410,7 @@ const handleDeleteGroup = (groupId: string) => {
     type: 'warning',
   }).then(() => {
     request.delete<CommonResponse<void>, CommonResponse<void>>('/api/group/remove', { data: { ids: [groupId] } }).then(() => {
-      ElMessage.success('删除成功');
+      message.success('删除成功');
       getGroupList();
     }).catch(err => {
       console.error(err)

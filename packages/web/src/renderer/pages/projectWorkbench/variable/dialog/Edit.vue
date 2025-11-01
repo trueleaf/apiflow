@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <el-dialog :model-value="modelValue" top="10vh" :title="t('修改变量')" :before-close="handleClose">
     <el-form ref="formInstance" :model="formInfo" :rules="rules" label-width="120px">
       <el-form-item :label="`${t('变量名称')}：`" prop="name">
@@ -85,7 +85,7 @@
 <script lang="ts" setup>
 import { request } from '@/api/api';
 import { config } from '@src/config/config';
-import { ElMessage, FormInstance, genFileId, UploadFile, UploadInstance, UploadProps, UploadRawFile } from 'element-plus';
+import { FormInstance, genFileId, UploadFile, UploadInstance, UploadProps, UploadRawFile } from 'element-plus';
 import { useI18n } from 'vue-i18n'
 import { computed, nextTick, PropType, ref, watch } from 'vue';
 import { AddProjectVariableFormInfo, AddProjectVariableParams } from '../Variable.vue';
@@ -96,6 +96,8 @@ import { useRuntime } from '@/store/runtime/runtimeStore';
 // import { useVariable } from '@/store/share/variablesStore';
 
 
+
+import { message } from '@/helper'
 const props = defineProps({
   modelValue: {
     type: Boolean,
@@ -225,11 +227,11 @@ const handleEditVariable = () => {
             fileValue: params.fileValue
           });
           if (response.code === 0) {
-            ElMessage.success('修改成功');
+            message.success('修改成功');
             handleClose();
             emits('success');
           } else {
-            ElMessage.error(response.msg || '修改失败');
+            message.error(response.msg || '修改失败');
           }
         } else {
           // 在线模式
@@ -239,7 +241,7 @@ const handleEditVariable = () => {
         }
       } catch (err) {
         console.error(err);
-        ElMessage.error('操作失败');
+        message.error('操作失败');
       } finally {
         loading.value = false;
       }
@@ -250,7 +252,7 @@ const handleEditVariable = () => {
           input.focus();
         }
       });
-      ElMessage.warning(t('请完善必填信息'));
+      message.warning(t('请完善必填信息'));
       loading.value = false;
     }
   })

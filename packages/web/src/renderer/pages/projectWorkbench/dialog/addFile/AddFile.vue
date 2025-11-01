@@ -32,8 +32,9 @@
 import { useI18n } from 'vue-i18n'
 import { CommonResponse, ApidocBanner } from '@src/types'
 import { computed, ref, watch } from 'vue';
-import { ElMessage, FormInstance, ElInput } from 'element-plus';
+import { FormInstance, ElInput } from 'element-plus';
 import { request } from '@/api/api';
+import { message } from '@/helper'
 import { useRoute } from 'vue-router';
 import { generateEmptyHttpMockNode, generateEmptyHttpNode, generateEmptyWebsocketNode } from '@/helper/apidoc';
 import { apiNodesCache } from '@/cache/index';
@@ -88,7 +89,7 @@ watch(() => props.modelValue, (newVal) => {
 const handleAddFile = () => {
   form.value?.validate(async (valid) => {
     if (!valid) {
-      ElMessage.warning(t('请完善必填信息'));
+      message.warning(t('请完善必填信息'));
       return;
     }
     loading.value = true;
@@ -185,7 +186,7 @@ const handleAddFile = () => {
         loading.value = false;
       });
     } else {
-      ElMessage.warning(t('请完善必填信息'));
+      message.warning(t('请完善必填信息'));
       loading.value = false;
     }
   });

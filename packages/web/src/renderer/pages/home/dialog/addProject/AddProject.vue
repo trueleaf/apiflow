@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <el-dialog :model-value="modelValue" width="35vw" top="10vh" :title="t('新增项目')" :before-close="handleClose" @opened="handleDialogOpened">
     <el-form ref="form" :model="formInfo" :rules="rules" label-width="150px" @submit.prevent="() => {}">
       <el-form-item :label="`${t('项目名称')}：`" prop="projectName">
@@ -62,7 +62,7 @@
 import { request } from '@/api/api';
 import { config } from '@src/config/config';
 import type { ApidocProjectMemberInfo } from '@src/types'
-import { ElMessage, FormInstance } from 'element-plus';
+import { FormInstance } from 'element-plus';
 import { useI18n } from 'vue-i18n'
 import { computed, nextTick, ref } from 'vue';
 import RemoteSelector from '@/components/common/remoteSelect/GRemoteSelect.vue';
@@ -75,6 +75,8 @@ import { useRuntime } from '@/store/runtime/runtimeStore';
 
 
 
+
+import { message } from '@/helper'
 const props = defineProps({
   modelValue: {
     type: Boolean,
@@ -194,7 +196,7 @@ const handleAddProject = () => {
           input.focus();
         }
       });
-      ElMessage.warning('请完善必填信息');
+      message.warning('请完善必填信息');
       loading.value = false;
     }
   });
@@ -205,7 +207,7 @@ const handleSelectUser = (item: ApidocProjectMemberInfo) => {
   remoteQueryName.value = '';
   const matchedMember = selectMemberData.value.find((val) => val.id === item.id);
   if (matchedMember) {
-    ElMessage.warning(t('请勿重复添加'));
+    message.warning(t('请勿重复添加'));
     return;
   }
   const memberInfo: ApidocProjectMemberInfo = {

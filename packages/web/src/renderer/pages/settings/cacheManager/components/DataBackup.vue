@@ -91,10 +91,10 @@
 
 <script setup lang="ts">
 import { ref, reactive, onMounted, onUnmounted, watch } from 'vue';
-import { ElMessage } from 'element-plus';
 import { ExportStatus } from '@src/types/index.ts';
 import { getIndexedDBItemCount } from '@/helper/storage';
 import { IPC_EVENTS } from '@src/types/ipc';
+import { message } from '@/helper';
 
 const exportStatus = reactive<ExportStatus>({
   status: 'notStarted',
@@ -130,7 +130,7 @@ const initIpcListeners = () => {
     exportStatus.status = 'completed';
     exportStatus.progress = 100;
     statusMessage.value = `导出完成！文件已保存至: ${result.filePath}`;
-    ElMessage.success(`成功导出 ${result.totalItems} 项数据`);
+    message.success(`成功导出 ${result.totalItems} 项数据`);
   };
   window.electronAPI?.ipcManager.onMain(IPC_EVENTS.export.mainToRenderer.finish, listenerRefs.value.exportFinish);
   
@@ -138,7 +138,7 @@ const initIpcListeners = () => {
   listenerRefs.value.exportMainError = (errorMessage: string) => {
     exportStatus.status = 'error';
     statusMessage.value = `导出失败: ${errorMessage}`;
-    ElMessage.error(`导出失败: ${errorMessage}`);
+    message.error(`导出失败: ${errorMessage}`);
   };
   window.electronAPI?.ipcManager.onMain(IPC_EVENTS.export.mainToRenderer.error, listenerRefs.value.exportMainError);
 };
@@ -175,7 +175,7 @@ const calculateDataCount = async () => {
   } catch (error) {
     console.error('计算数据量失败:', error);
     statusMessage.value = '数据量计算失败';
-    ElMessage.error('数据量计算失败');
+    message.error('数据量计算失败');
   }
 };
 // 开始导出
@@ -206,7 +206,7 @@ const handleStartExport = async () => {
     console.error('开始导出失败:', error);
     exportStatus.status = 'error';
     statusMessage.value = '导出启动失败';
-    ElMessage.error('导出启动失败');
+    message.error('导出启动失败');
   } finally {
     isStartingExport.value = false;
   }
@@ -299,7 +299,7 @@ const sendDataToMain = async () => {
     console.error('发送数据失败:', error);
     exportStatus.status = 'error';
     statusMessage.value = '数据发送失败';
-    ElMessage.error(`数据发送失败: ${(error as Error).message}`);
+    message.error(`数据发送失败: ${(error as Error).message}`);
   }
 };
 // 检查是否统计当前数据库

@@ -107,9 +107,10 @@
 
 <script setup lang="ts">
 import { ref, reactive, onMounted, onUnmounted } from 'vue';
-import { ElMessage, ElMessageBox } from 'element-plus';
+import { ElMessageBox } from 'element-plus';
 import { ImportStatus } from '@src/types/index.ts';
 import { IPC_EVENTS } from '@src/types/ipc';
+import { message } from '@/helper';
 
 // 定义emit事件
 const emit = defineEmits<{
@@ -165,7 +166,7 @@ const handleWorkerMessage = (event: MessageEvent) => {
       console.error('清空数据失败:', data.msg);
       importStatus.status = 'error';
       statusMessage.value = '清空数据失败';
-      ElMessage.error('清空数据失败');
+      message.error('清空数据失败');
     }
   }
 };
@@ -217,7 +218,7 @@ const initIpcListeners = () => {
     } else {
       importStatus.status = 'error';
       statusMessage.value = result.msg || 'ZIP文件读取失败';
-      ElMessage.error(result.msg || 'ZIP文件读取失败');
+      message.error(result.msg || 'ZIP文件读取失败');
     }
   };
   window.electronAPI?.ipcManager.onMain(IPC_EVENTS.import.mainToRenderer.zipReadComplete, listenerRefs.value.importZipReadComplete);
@@ -226,7 +227,7 @@ const initIpcListeners = () => {
   listenerRefs.value.importMainError = (errorMessage: string) => {
     importStatus.status = 'error';
     statusMessage.value = `导入失败: ${errorMessage}`;
-    ElMessage.error(`导入失败: ${errorMessage}`);
+    message.error(`导入失败: ${errorMessage}`);
   };
   window.electronAPI?.ipcManager.onMain(IPC_EVENTS.import.mainToRenderer.error, listenerRefs.value.importMainError);
   
@@ -337,7 +338,7 @@ const handleStartImport = async () => {
     console.error('开始导入失败:', error);
     importStatus.status = 'error';
     statusMessage.value = '导入启动失败';
-    ElMessage.error('导入启动失败');
+    message.error('导入启动失败');
   } finally {
     isStartingImport.value = false;
   }

@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <el-form ref="form" :model="userInfo" :rules="rules" @submit.stop.prevent="handleResetPassword">
     <el-form-item prop="phone">
       <el-input v-model="userInfo.phone" :size="config.renderConfig.layout.size" name="phone" type="text" :placeholder="`${$t('请输入手机号')}...`"></el-input>
@@ -32,11 +32,13 @@ import { CommonResponse } from '@src/types'
 import { config } from '@src/config/config';
 import { nextTick, onMounted, reactive, ref } from 'vue';
 import { useI18n } from 'vue-i18n'
-import { ElMessage, FormInstance } from 'element-plus';
+import { FormInstance } from 'element-plus';
 import { request } from '@/api/api';
 import SmsButton from '@/components/common/smsButton/GSmsButton.vue'
 
 
+
+import { message } from '@/helper'
 const emits = defineEmits(['jumpToLogin']);
 const { t } = useI18n()
 const form = ref<FormInstance>();
@@ -99,11 +101,11 @@ const loading = ref(false);
 //校验手机号码
 const smsCodeHook = () => {
   if (userInfo.phone.length !== 11) {
-    ElMessage.warning(t('请填写正确手机号'));
+    message.warning(t('请填写正确手机号'));
     return false;
   }
   if (!userInfo.captcha) {
-    ElMessage.warning(t('请输入图形验证码'))
+    message.warning(t('请输入图形验证码'))
     return
   }
   return true;
@@ -129,7 +131,7 @@ const getSmsCode = () => {
     if (res.code === 4005) {
       getCaptcha();
       smsRef.value?.resetState();
-      ElMessage.warning(res.msg);
+      message.warning(res.msg);
     }
   }).catch((err) => {
     console.error(err);
@@ -147,9 +149,9 @@ const handleResetPassword = () => {
       };
       request.post<CommonResponse<{ loginName: string }>, CommonResponse<{ loginName: string }>>('/api/security/user_reset_password', params).then((res) => {
         if (res.code === 2006 || res.code === 2003) {
-          ElMessage.warning(res.msg);
+          message.warning(res.msg);
         } else {
-          ElMessage.success(`${res.data.loginName} ${t('重置密码成功')}`);
+          message.success(`${res.data.loginName} ${t('重置密码成功')}`);
           emits('jumpToLogin', res.data.loginName);
         }
       }).catch((err) => {
@@ -164,7 +166,7 @@ const handleResetPassword = () => {
           (input as HTMLElement).focus();
         }
       });
-      ElMessage.warning(t('请完善必填信息'));
+      message.warning(t('请完善必填信息'));
       loading.value = false;
     }
   });

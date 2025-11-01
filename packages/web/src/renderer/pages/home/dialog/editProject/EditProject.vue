@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <el-dialog :model-value="modelValue" top="10vh" width="35vw" :title="t('修改项目')" :before-close="handleClose" @opened="handleDialogOpened">
     <el-form ref="form" :model="formInfo" :rules="rules" label-width="150px" @submit.prevent="() => {}">
       <el-form-item :label="`${t('项目名称')}`" prop="projectName">
@@ -16,12 +16,14 @@
 <script lang="ts" setup>
 import { request } from '@/api/api';
 import { config } from '@src/config/config';
-import { ElMessage, FormInstance } from 'element-plus';
+import { FormInstance } from 'element-plus';
 import { useI18n } from 'vue-i18n'
 import { computed, nextTick, ref, watch } from 'vue';
 import { projectCache } from '@/cache/index';
 import { useRuntime } from '@/store/runtime/runtimeStore';
 
+
+import { message } from '@/helper'
 const props = defineProps({
   modelValue: {
     type: Boolean,
@@ -125,7 +127,7 @@ const handleEditProject = () => {
           input.focus();
         }
       });
-      ElMessage.warning(t('请完善必填信息'));
+      message.warning(t('请完善必填信息'));
       loading.value = false;
     }
   })

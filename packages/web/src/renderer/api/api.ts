@@ -1,11 +1,12 @@
 import Axios, { AxiosResponse, AxiosError } from 'axios';
 import { config } from '@src/config/config'
 import { router } from '@/router';
-import { ElMessage, ElMessageBox } from 'element-plus';
+import { ElMessageBox } from 'element-plus';
 import { nanoid } from 'nanoid';
 import { parseUrl, getStrParams, getStrHeader, getStrJsonBody, getHashedContent } from './sign';
 import { i18n } from '@/i18n';
 import { runtimeCache } from '@/cache/runtime/runtimeCache';
+import { message } from '@/helper';
 
 const axiosInstance = Axios.create();
 axiosInstance.defaults.withCredentials = config.renderConfig.httpRequest.withCredentials;//允许携带cookie
@@ -96,16 +97,12 @@ axiosInstance.interceptors.response.use(
           });
           return Promise.reject(new Error(i18n.global.t('分享链接无需密码')));
         case 1023: //密码错误
-          ElMessage({
-            message: i18n.global.t('密码错误'),
-            grouping: true,
-            type: 'warning',
-          });
+          message.warning(i18n.global.t('密码错误'));
           return Promise.reject(new Error(i18n.global.t('密码错误')));
         case 4101: //登录有错
           runtimeCache.clearUserInfo();
           router.replace('/login');
-          ElMessage.warning(i18n.global.t('暂无权限'));
+          message.warning(i18n.global.t('暂无权限'));
           return Promise.reject(new Error(i18n.global.t('暂无权限')));
         case 4100: //登录过期
           if (!isExpire) {
@@ -128,7 +125,7 @@ axiosInstance.interceptors.response.use(
           return Promise.reject(new Error(res.data.msg));
         case 4002: //暂无权限
           runtimeCache.clearUserInfo();
-          ElMessage.warning(i18n.global.t(res.data.msg || '暂无权限'));
+          message.warning(i18n.global.t(res.data.msg || '暂无权限'));
           return Promise.reject(new Error(i18n.global.t(res.data.msg || '暂无权限')));
         default:
           ElMessageBox.confirm(i18n.global.t(res.data.msg ? res.data.msg : '操作失败'), i18n.global.t('提示'), {

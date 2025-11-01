@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <div class="hook-add-wrap d-flex">
     <SFieldset title="代码编写" class="w-50">
       <SEditor v-model="code" class="editor"></SEditor>
@@ -30,7 +30,6 @@
 
 <script lang="ts" setup>
 import { ref, Ref } from 'vue'
-import { ElMessage } from 'element-plus'
 import 'element-plus/es/components/message/style/css';
 import SFieldset from '@/components/common/fieldset/GFieldset.vue'
 import SJsonEditor from '@/components/common/jsonEditor/GJsonEditor.vue'
@@ -45,6 +44,8 @@ import { router } from '@/router';
 import SEditor from '../editor/Editor.vue'
 import { useApidoc } from '@/store/share/apidocStore';
 
+
+import { message } from '@/helper'
 type CodeInfo = {
   codeName: string,
   remark: string
@@ -116,7 +117,7 @@ const handleSaveCode = () => {
     code: code.value
   };
   request.post('/api/apidoc/project/code', params).then(() => {
-    ElMessage.success('保存成功');
+    message.success('保存成功');
     dialogVisible.value = false;
   }).catch((err) => {
     console.error(err);

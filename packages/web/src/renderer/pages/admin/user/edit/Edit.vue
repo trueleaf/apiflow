@@ -1,4 +1,4 @@
-
+﻿
 <template>
   <el-dialog :model-value="modelValue" :title="t('修改')" :before-close="handleClose">
     <el-divider content-position="left">{{ t("基础信息") }}</el-divider>
@@ -25,10 +25,12 @@ import { useI18n } from 'vue-i18n'
 import { PermissionRoleEnum, CommonResponse } from '@src/types'
 import { nextTick, onMounted, ref } from 'vue';
 import { request } from '@/api/api';
-import { ElMessage, FormInstance } from 'element-plus';
+import { FormInstance } from 'element-plus';
 import SForm from '@/components/common/forms/form/GForm.vue'
 import SFormItem from '@/components/common/forms/form/GFormItem.vue'
 
+
+import { message } from '@/helper'
 const props = defineProps({
   modelValue: {
     type: Boolean,
@@ -106,7 +108,7 @@ const handleEditUser = () => {
       });
     } else {
       nextTick(() => (document.querySelector('.el-form-item.is-error input') as HTMLInputElement)?.focus());
-      ElMessage.warning('请完善必填信息');
+      message.warning('请完善必填信息');
       loading.value = false;
     }
   });

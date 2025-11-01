@@ -86,9 +86,9 @@
 </template>
 
 <script lang="ts" setup>
-import { ElMessage } from 'element-plus'
 import 'element-plus/es/components/message/style/css';
 import { ref, Ref, computed } from 'vue'
+import { message } from '@/helper'
 import type { TreeNodeOptions } from 'element-plus/lib/components/tree/src/tree.type'
 import { ApidocBanner, HttpNode, WebSocketNode } from '@src/types';
 import { request } from '@/api/api'
@@ -181,7 +181,7 @@ const handleExportAsHTML = async () => {
       })
       .catch((err: Error) => {
         console.error(err);
-        ElMessage.error(t('导出失败'));
+        message.error(t('导出失败'));
       })
       .finally(() => {
         loading.value = false;
@@ -306,7 +306,7 @@ const handleExportAsWord = async () => {
       })
       .catch((err: Error) => {
         console.error(err);
-        ElMessage.error(t('导出失败'));
+        message.error(t('导出失败'));
       })
       .finally(() => {
         loading.value = false;
@@ -334,7 +334,7 @@ const handleExport = () => {
   const enableCustomExport = config.value?.isEnabled;
   const customExportIsEmpty = allCheckedNodes.value.length === 0;
   if (enableCustomExport && customExportIsEmpty) { //允许自定义导出并且数据为空
-    ElMessage.warning(t('请至少选择一个文档导出'));
+    message.warning(t('请至少选择一个文档导出'));
     return;
   }
   if (selectedType.value === 'html') {

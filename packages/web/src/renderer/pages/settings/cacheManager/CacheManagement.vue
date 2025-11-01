@@ -120,13 +120,13 @@ import { ref, onMounted, onUnmounted } from 'vue'
 import { CacheInfo, LocalStorageItem, IndexedDBItem } from '@src/types/share/cache'
 import { formatUnit } from '@/helper/format'
 import { RefreshRight } from '@element-plus/icons-vue'
-import { ElMessage } from 'element-plus'
 import { userState } from '@/cache/userState/userStateCache.ts'
 import { settingsCache } from '@/cache/settings/settingsCache.ts'
 import LocalStorageDetail from './components/LocalStorageDetail.vue'
 import IndexedDBDetail from './components/IndexedDBDetail.vue'
 import DataBackup from './components/DataBackup.vue'
 import DataRestore from './components/DataRestore.vue'
+import { message } from '@/helper'
 
 /*
 |--------------------------------------------------------------------------
@@ -180,7 +180,7 @@ const handleMessage = (event: MessageEvent) => {
     saveCacheData() // 保存本地数据
   } else if (data.type === 'deleteStoreResult') {
     if (data.data.success) {
-      ElMessage.success('删除成功')
+      message.success('删除成功')
       // 更新总本地数据大小
       if (data.data.size) {
         cacheInfo.value.indexedDBSize -= data.data.size;
@@ -211,18 +211,18 @@ const handleMessage = (event: MessageEvent) => {
     }
   } else if (data.type === 'clearAllResult') {
     if (data.data.success) {
-      ElMessage.success('已清空所有IndexedDB中的数据')
+      message.success('已清空所有IndexedDB中的数据')
       // 重置IndexedDB相关数据
       cacheInfo.value.indexedDBSize = 0;
       cacheInfo.value.indexedDBDetails = [];
       saveCacheData(); // 保存更新后的本地数据
       getIndexedDB();
     } else {
-      ElMessage.error('清空IndexedDB数据失败')
+      message.error('清空IndexedDB数据失败')
     }
   } else if (data.type === 'error') {
     console.error('操作失败:', data.error)
-    ElMessage.error('操作失败: ' + (data.error?.message || '未知错误'))
+    message.error('操作失败: ' + (data.error?.message || '未知错误'))
   }
 };
 const getLocalStorage = () => {

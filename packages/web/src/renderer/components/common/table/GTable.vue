@@ -58,6 +58,8 @@ import { request } from '@/api/api';
 import { ElMessageBox } from 'element-plus';
 import { useWindowEvent } from '@/hooks/useWindowEvent';
 
+
+import { message } from '@/helper'
 const props = defineProps({
   plain: {
     type: Boolean,

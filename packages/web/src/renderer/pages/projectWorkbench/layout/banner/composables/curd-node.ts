@@ -1,7 +1,8 @@
 import { Ref } from 'vue'
 import 'element-plus/es/components/message-box/style/css';
-import { ElMessage, ElMessageBox } from 'element-plus'
+import { ElMessageBox } from 'element-plus'
 import type { ApidocBanner, CommonResponse, HttpNode, FolderNode } from '@src/types'
+import { message } from '@/helper'
 import { WebSocketNode } from '@src/types/websocketNode'
 import { uniqueByKey } from '@/helper/common'
 import { event } from '@/helper'
@@ -292,7 +293,7 @@ export const pasteNodes = (currentOperationalNode: Ref<ApidocBanner | null>, pas
           docsToProcess = uniqueFlatNodes.map(node => {
             const fullDoc = sourceDocsMap.get(node._id);
             if (!fullDoc) {
-              ElMessage.error(`粘贴的文档 ${node.name} 在原项目中未找到`);
+              message.error(`粘贴的文档 ${node.name} 在原项目中未找到`);
             }
             return fullDoc;
           });
@@ -304,7 +305,7 @@ export const pasteNodes = (currentOperationalNode: Ref<ApidocBanner | null>, pas
           docsToProcess = uniqueFlatNodes.map(node => {
             const fullDoc = currentDocsMap.get(node._id);
             if (!fullDoc) {
-              ElMessage.error(`粘贴的文档 ${node.name} 在当前项目中未找到`);
+              message.error(`粘贴的文档 ${node.name} 在当前项目中未找到`);
             }
             return fullDoc;
           });
@@ -558,7 +559,7 @@ export const dragNode = async (dragData: ApidocBanner, dropData: ApidocBanner, t
       // 1. 获取被拖拽文档的完整数据
       const dragDoc = await apiNodesCache.getNodeById(dragData._id);
       if (!dragDoc) {
-        ElMessage.error(`拖拽的文档 ${dragData.name} 未找到`);
+        message.error(`拖拽的文档 ${dragData.name} 未找到`);
         return;
       }
 
@@ -613,7 +614,7 @@ export const dragNode = async (dragData: ApidocBanner, dropData: ApidocBanner, t
       return;
     } catch (error) {
       console.error('拖拽节点失败:', error);
-      ElMessage.error('拖拽操作失败，请重试');
+      message.error('拖拽操作失败，请重试');
       return;
     }
   }

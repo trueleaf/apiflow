@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <div class="binary-config-wrapper">
     <div class="form-row">
       <div class="form-item flex-item">
@@ -18,9 +18,10 @@
 
 <script lang="ts" setup>
 import { useI18n } from 'vue-i18n'
-import { ElMessage } from 'element-plus'
 import type { MockHttpNode } from '@src/types'
 
+
+import { message } from '@/helper'
 type ResponseItem = MockHttpNode['response'][0]
 
 type Props = {
@@ -47,7 +48,7 @@ const handleSelectBinaryFile = () => {
 
     const maxSize = 100 * 1024 * 1024 // 100MB
     if (file.size > maxSize) {
-      ElMessage.error(t('文件大小不能超过 100MB'))
+      message.error(t('文件大小不能超过 100MB'))
       document.body.removeChild(input)
       return
     }
@@ -59,13 +60,13 @@ const handleSelectBinaryFile = () => {
         if (filePath) {
           props.response.binaryConfig.filePath = filePath
         } else {
-          ElMessage.error(t('文件路径获取失败，请重试'))
+          message.error(t('文件路径获取失败，请重试'))
         }
       } catch (error) {
-        ElMessage.error(t('文件路径获取失败，请重试'))
+        message.error(t('文件路径获取失败，请重试'))
       }
     } else {
-      ElMessage.error(t('文件选择功能不可用'))
+      message.error(t('文件选择功能不可用'))
     }
     
     document.body.removeChild(input)

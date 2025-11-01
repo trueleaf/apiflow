@@ -58,11 +58,12 @@ import type { CommonResponse } from '@src/types'
 import SCard from '@/components/common/card/GCard.vue'
 import { useI18n } from 'vue-i18n'
 import { nextTick, onMounted, ref } from 'vue';
-import { ElMessage, FormInstance } from 'element-plus';
+import type { FormInstance } from 'element-plus';
 import { request } from '@/api/api';
 import { useRouter } from 'vue-router';
 import { config } from '@src/config/config';
 import { formatDate } from '@/helper/format'
+import { message } from '@/helper'
 
 
 type UserInfo = {
@@ -146,7 +147,7 @@ const handleChangePassword = () => {
       loading2.value = true;
       request.put('/api/security/user_password', formInfo).then(() => {
         dialogVisible.value = false;
-        ElMessage.success('修改成功');
+        message.success('修改成功');
       }).catch((err) => {
         console.error(err)
       }).finally(() => {
@@ -164,7 +165,7 @@ const handleChangePassword = () => {
           input.focus();
         }
       });
-      ElMessage.warning('请完善必填信息');
+      message.warning('请完善必填信息');
       loading.value = false;
     }
   });

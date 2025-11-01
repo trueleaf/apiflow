@@ -164,10 +164,12 @@ import { nanoid } from 'nanoid/non-secure'
 import { debounce } from "lodash-es"
 import { websocketResponseCache } from '@/cache/websocketNode/websocketResponseCache'
 import { webSocketNodeCache } from '@/cache/websocketNode/websocketNodeCache'
-import { ElMessageBox, ElMessage } from 'element-plus'
+import { ElMessageBox } from 'element-plus'
 import type * as Monaco from 'monaco-editor/esm/vs/editor/editor.api'
 
 
+
+import { message } from '@/helper'
 const { t } = useI18n()
 const apidocTabsStore = useApidocTas()
 const websocketStore = useWebSocket()
@@ -332,13 +334,13 @@ const handleDeleteTemplate = async (templateId: string) => {
 
     const success = websocketStore.deleteMessageTemplate(templateId)
     if (success) {
-      ElMessage.success(t('消息模板删除成功'))
+      message.success(t('消息模板删除成功'))
       // 如果删除的是当前选中的模板，清空选择
       if (selectedTemplateId.value === templateId) {
         selectedTemplateId.value = ''
       }
     } else {
-      ElMessage.error(t('模板删除失败'))
+      message.error(t('模板删除失败'))
     }
   } catch (error) {
     // 用户取消删除
@@ -373,7 +375,7 @@ const handleSendMessage = async () => {
 
       // 发送成功不再清空输入框
     } else {
-      ElMessage.error(t('消息发送失败') + ': ' + (result?.msg || t('未知错误')))
+      message.error(t('消息发送失败') + ': ' + (result?.msg || t('未知错误')))
       console.error('WebSocket消息发送失败:', result?.msg)
 
       // 创建错误消息记录
@@ -395,7 +397,7 @@ const handleSendMessage = async () => {
       await websocketResponseCache.setSingleData(nodeId, errorMessage);
     }
   } catch (error) {
-    ElMessage.error(t('消息发送异常'))
+    message.error(t('消息发送异常'))
     console.error('WebSocket消息发送异常:', error)
 
     // 创建异常消息记录

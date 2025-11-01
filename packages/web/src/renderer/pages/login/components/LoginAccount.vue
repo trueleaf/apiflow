@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <el-form ref="form" class="login-account" :model="userInfo" :rules="rules" @submit.stop.prevent="handleLogin">
     <el-form-item prop="loginName">
       <el-input v-model="userInfo.loginName" :prefix-icon="User" name="loginName" type="text"
@@ -48,11 +48,13 @@ import { PermissionUserInfo, CommonResponse } from '@src/types'
 import { User, Lock } from '@element-plus/icons-vue'
 import { computed, nextTick, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
-import { ElMessage, FormInstance } from 'element-plus';
+import { FormInstance } from 'element-plus';
 import { request } from '@/api/api';
 import { router } from '@/router';
 import { useRuntime } from '@/store/runtime/runtimeStore';
 
+
+import { message } from '@/helper'
 const emits = defineEmits(['jumpToRegister', 'jumpToResetPassword'])
 const { t } = useI18n()
 const runtimeStore = useRuntime()
@@ -83,7 +85,7 @@ const handleLogin = async () => {
       loading.value = true;
       request.post<CommonResponse<PermissionUserInfo>, CommonResponse<PermissionUserInfo>>('/api/security/login_password', userInfo.value).then((res) => {
         if (res.code === 2006 || res.code === 2003) {
-          ElMessage.warning(res.msg);
+          message.warning(res.msg);
           isShowCapture.value = true;
         } else {
           // 登录成功，更新用户信息到store

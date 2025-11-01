@@ -50,8 +50,9 @@
 import { ref } from 'vue'
 import { LocalStorageItem } from '@src/types/share/cache'
 import { formatUnit } from '@/helper/format'
-import { ElMessageBox, ElMessage } from 'element-plus'
+import { ElMessageBox } from 'element-plus'
 import LocalStorageDialog from '../dialog/LocalStorageDialog.vue'
+import { message } from '@/helper'
 
 type Props = {
   localStorageDetails: LocalStorageItem[]
@@ -96,7 +97,7 @@ const handleDeleteLocalStorage = async (row: LocalStorageItem): Promise<void> =>
     )
     localStorage.removeItem(row.key)
     emit('refresh')
-    ElMessage.success('删除成功')
+    message.success('删除成功')
 
   } catch {
     // 用户取消删除操作，不做任何处理
@@ -121,7 +122,7 @@ const handleClearAllLocalStorage = async (): Promise<void> => {
     // 清空所有localStorage数据
     localStorage.clear()
     emit('refresh')
-    ElMessage.success('已清空所有localStorage数据')
+    message.success('已清空所有localStorage数据')
 
   } catch {
     // 用户取消或输入错误，不做任何处理

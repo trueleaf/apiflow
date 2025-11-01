@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <SLoading :loading="loading">
     <div class="hook-popover">
       <div class="header">
@@ -22,9 +22,9 @@ import { convertApidocPropertyToObject } from '@/helper/params';
 import { request } from '@/api/api';
 import { router } from '@/router';
 import type { ApidocCodeInfo, CommonResponse } from '@src/types'
-import { ElMessage } from 'element-plus'
 import 'element-plus/es/components/message/style/css';
 import { useI18n } from 'vue-i18n';
+import { message } from '@/helper'
 import { useApidoc } from '@/store/share/apidocStore';
 import { useApidocTas } from '@/store/share/tabsStore';
 import SLoading from '@/components/common/loading/GLoading.vue'
@@ -70,7 +70,7 @@ const handleSelectCode = async (codeInfo: CodeInfo) => {
     if (e.data.type === 'success') {
       console.log(e.data.value)
       copy(e.data.value);
-      ElMessage.success('代码已复制到剪切板！');
+      message.success('代码已复制到剪切板！');
     }
   })
   emits('close');

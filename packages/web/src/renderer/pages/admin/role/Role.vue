@@ -31,6 +31,7 @@ import STable from '@/components/common/table/GTable.vue'
 import { request } from '@/api/api';
 import { formatDate } from '@/helper/format'
 
+
 const { t } = useI18n()
 
 const userId = ref('');

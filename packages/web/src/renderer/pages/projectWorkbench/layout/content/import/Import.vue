@@ -121,13 +121,14 @@ import SEmphasize from '@/components/common/emphasize/GEmphasize.vue'
 import { ref, Ref, computed } from 'vue'
 import jsyaml from 'js-yaml'
 import type { OpenAPIV3 } from 'openapi-types';
-import { ElMessage, ElMessageBox } from 'element-plus';
+import { ElMessageBox } from 'element-plus';
 import { Upload } from '@element-plus/icons-vue'
 import type { ApidocBanner, HttpNode } from '@src/types'
 import { config } from '@src/config/config'
 import { router } from '@/router/index'
 import { request } from '@/api/api'
 import { useI18n } from 'vue-i18n'
+import { message } from '@/helper'
 import type { TreeNodeOptions } from 'element-plus/lib/components/tree/src/tree.type'
 import OpenApiTranslator from './openapi';
 import PostmanTranslator from './postman';
@@ -454,7 +455,7 @@ const handleToggleTargetFolder = async (val: boolean) => {
 const handleSubmit = async () => {
   try {
     if (!formInfo.value.moyuData.docs) {
-      ElMessage.warning(t('请选择需要导入的文件'));
+      message.warning(t('请选择需要导入的文件'));
       return;
     }
     const mountedId = currentMountedNode.value?._id;
@@ -474,13 +475,13 @@ const handleSubmit = async () => {
       const copiedDocs = JSON.parse(JSON.stringify(docs)) as HttpNode[];
       await apiNodesCache.replaceAllNodes(copiedDocs as HttpNode[], projectId);
       apidocBannerStore.getDocBanner({ projectId });
-      ElMessage.success(t('导入成功'));
+      message.success(t('导入成功'));
       return
     } else if (isStandalone.value && !formInfo.value.cover) {
       const copiedDocs = JSON.parse(JSON.stringify(docs)) as HttpNode[];
       await apiNodesCache.appendNodes(copiedDocs, projectId);
       apidocBannerStore.getDocBanner({ projectId });
-      ElMessage.success(t('导入成功'));
+      message.success(t('导入成功'));
       return
     }
     loading.value = true;
@@ -500,7 +501,7 @@ const handleSubmit = async () => {
       loading.value = false;
     });
   } catch (error) {
-    ElMessage.warning((error as Error).message);
+    message.warning((error as Error).message);
     loading.value = false;
   }
 }

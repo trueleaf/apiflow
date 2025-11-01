@@ -16,3 +16,5 @@ const emitter = mitt<{
 }>()
 
 export const event = emitter;
+export { message } from './message'
+export { parseAiStream, type DeepSeekStreamDelta } from './aiStreamParser'

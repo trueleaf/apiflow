@@ -151,9 +151,10 @@
 <script setup lang="ts">
 import { ref, computed, nextTick, onMounted, onUnmounted } from 'vue';
 import { useCookies } from '@/store/share/cookiesStore';
-import { ElMessage, ElMessageBox } from 'element-plus';
+import { ElMessageBox } from 'element-plus';
 import type { ApidocCookie } from '@/store/share/cookiesStore';
 import { useI18n } from 'vue-i18n';
+import { message } from '@/helper';
 import { nanoid } from 'nanoid/non-secure';
 import { useRoute } from 'vue-router'
 import dayjs from 'dayjs';
@@ -274,7 +275,7 @@ const handleSaveCookie = () => {
       editCookie.value.name = encodeURIComponent(editCookie.value.name!);
       editCookie.value.value = encodeURIComponent(editCookie.value.value!);
       cookiesStore.updateCookiesById(projectId, editCookie.value.id, editCookie.value);
-      ElMessage.success(t('修改成功'));
+      message.success(t('修改成功'));
     } else {
       const newCookie: ApidocCookie = {
         id: nanoid(),
@@ -288,7 +289,7 @@ const handleSaveCookie = () => {
         sameSite: editCookie.value.sameSite || '',
       };
       cookiesStore.addCookie(projectId, newCookie);
-      ElMessage.success(t('新增成功'));
+      message.success(t('新增成功'));
     }
     dialogVisible.value = false;
   });
@@ -307,7 +308,7 @@ const handleRemoveCookie = (id: string) => {
     }
   ).then(() => {
     cookiesStore.deleteCookiesById(projectId, id);
-    ElMessage.success(t('删除成功'));
+    message.success(t('删除成功'));
   }).catch(() => {
     // 用户取消删除
   });
@@ -327,7 +328,7 @@ const handleBatchDelete = () => {
     selectedCookies.value.forEach(cookie => {
       cookiesStore.deleteCookiesById(projectId, cookie.id);
     });
-    ElMessage.success(t('批量删除成功'));
+    message.success(t('批量删除成功'));
   }).catch(() => {
     // 用户取消删除
   });

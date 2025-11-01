@@ -47,12 +47,14 @@
 <script lang="ts" setup>
 import { ref, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { ElMessage, ElMessageBox } from 'element-plus'
+import { ElMessageBox } from 'element-plus'
 import { Close, ArrowRight, ArrowDown, View } from '@element-plus/icons-vue'
 import SParamsTree from '@/components/apidoc/paramsTree/GParamsTree3.vue'
 import { userState } from '@/cache/userState/userStateCache'
 import type { MockHttpNode } from '@src/types/mockNode'
 
+
+import { message } from '@/helper'
 type Props = {
   response: MockHttpNode['response'][0]
   responseIndex: number
@@ -92,7 +94,7 @@ const handleDelete = () => {
     }
   ).then(() => {
     emit('delete', props.responseIndex)
-    ElMessage.success(t('删除成功'))
+    message.success(t('删除成功'))
   }).catch(() => {
     // 取消删除
   })

@@ -98,8 +98,8 @@
 
 <script lang="ts" setup>
 import { ref, Ref, onMounted, computed, ComponentPublicInstance, nextTick } from 'vue'
-import { ElMessage } from 'element-plus'
 import 'element-plus/es/components/message/style/css';
+import { message } from '@/helper'
 import type { ApidocBanner, ApidocProjectEnum, CommonResponse } from '@src/types'
 import type TreeStore from 'element-plus/lib/components/tree/src/model/tree-store'
 import type Node from 'element-plus/lib/components/tree/src/model/node'
@@ -317,7 +317,7 @@ const handleTargetDrop = (dragNode: Node, dropNode: Node, type: string) => {
           data._id = newId;
         }
       });
-      ElMessage.success(t('导入成功'));
+      message.success(t('导入成功'));
     }).catch((err) => {
       console.error(err);
     });

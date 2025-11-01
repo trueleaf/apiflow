@@ -11,13 +11,14 @@
 </template>
 
 <script lang="ts" setup>
-import { ElMessage, FormInstance } from 'element-plus';
+import { FormInstance } from 'element-plus';
 import SForm from '@/components/common/forms/form/GForm.vue'
 import SFormItem from '@/components/common/forms/form/GFormItem.vue'
 import { CommonResponse, ApidocBanner } from '@src/types'
 import { useI18n } from 'vue-i18n'
 import { computed, ref } from 'vue';
 import { request } from '@/api/api';
+import { message } from '@/helper'
 import { useRoute } from 'vue-router';
 import { generateEmptyHttpNode } from '@/helper/apidoc';
 import { nanoid } from 'nanoid';
@@ -97,7 +98,7 @@ const handleAddFolder = () => {
         loading.value = false;
       });
     } else {
-      ElMessage.warning(t('请完善必填信息'));
+      message.warning(t('请完善必填信息'));
       loading.value = false;
     }
   });

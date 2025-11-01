@@ -66,7 +66,8 @@ import SCard from '@/components/common/card/GCard.vue'
 import { onMounted, onUnmounted, ref } from 'vue'
 import { request } from '@/api/api'
 import { findParentById, forEachForest } from '@/helper/tree'
-import { ElMessage, ElMessageBox } from 'element-plus'
+import { ElMessageBox } from 'element-plus'
+import { message } from '@/helper'
 type TreeNode = Node & {
   data: PermissionClientMenu,
 }
@@ -109,7 +110,7 @@ const getData = () => {
 //打开修改弹窗
 const handleOpenEditDialog = (data: PermissionClientMenu | null) => {
   if (data === null) {
-    ElMessage.warning(t('参数值不能为null'));
+    message.warning(t('参数值不能为null'));
     return
   }
   editMenuDialogVisible.value = true;
@@ -123,7 +124,7 @@ const handleOpenAddDialog = (data?: PermissionClientMenu | null) => {
 //删除节点
 const handleDeleteCurrentNode = (data: PermissionClientMenu | null) => {
   if (data === null) {
-    ElMessage.warning(t('参数值不能为null'));
+    message.warning(t('参数值不能为null'));
     return
   }
   const cpData = JSON.parse(JSON.stringify(data));

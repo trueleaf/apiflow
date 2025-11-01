@@ -41,6 +41,7 @@ import { useI18n } from 'vue-i18n'
 import STable from '@/components/common/table/GTable.vue'
 import { request } from '@/api/api';
 
+
 const { t } = useI18n()
 
 const projectId = ref(router.currentRoute.value.query.id as string); //项目id

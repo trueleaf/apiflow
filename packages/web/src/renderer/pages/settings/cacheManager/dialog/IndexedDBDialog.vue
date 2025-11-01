@@ -84,8 +84,9 @@
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { IndexedDBItem, StoreDetailResponse, StoreDetailItem } from '@src/types/share/cache'
 import { formatUnit } from '@/helper/format'
-import { ElMessage, ElMessageBox } from 'element-plus'
+import { ElMessageBox } from 'element-plus'
 import SJsonEditor from '@/components/common/jsonEditor/GJsonEditor.vue'
+import { message } from '@/helper'
 
 /*
 |--------------------------------------------------------------------------
@@ -138,7 +139,7 @@ const detailMessageHandler = (event: MessageEvent) => {
       break
     case 'error':
       console.error('操作失败:', data.error)
-      ElMessage.error('操作失败: ' + (data.error?.message || '未知错误'))
+      message.error('操作失败: ' + (data.error?.message || '未知错误'))
       tableLoading.value = false
       break
   }

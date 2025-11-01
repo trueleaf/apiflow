@@ -50,8 +50,9 @@
 import { ref } from 'vue'
 import { IndexedDBItem } from '@src/types/share/cache'
 import { formatUnit } from '@/helper/format'
-import { ElMessageBox, ElMessage } from 'element-plus'
+import { ElMessageBox } from 'element-plus'
 import IndexedDBDialog from '../dialog/IndexedDBDialog.vue'
+import { message } from '@/helper'
 
 type Props = {
   indexedDBDetails: IndexedDBItem[]
@@ -102,7 +103,7 @@ const handleDelete = async (row: IndexedDBItem): Promise<void> => {
     )
 
     if (!props.indexedDBWorkerRef) {
-      ElMessage.error('Worker未初始化')
+      message.error('Worker未初始化')
       return
     }
 
@@ -135,7 +136,7 @@ const handleClearAllIndexedDB = async (): Promise<void> => {
     )
 
     if (!props.indexedDBWorkerRef) {
-      ElMessage.error('Worker未初始化')
+      message.error('Worker未初始化')
       return
     }
 

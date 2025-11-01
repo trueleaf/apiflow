@@ -1,4 +1,4 @@
-
+﻿
  <template>
   <div class="ws-operation">
     <div class="connection-wrap">
@@ -74,9 +74,10 @@ import { useRuntime } from '@/store/runtime/runtimeStore';
 import { executeWebSocketPreScript } from '@/server/websocket/executePreScript';
 import { useVariable } from '@/store/share/variablesStore';
 import { useCookies } from '@/store/share/cookiesStore';
-import { ElMessage } from 'element-plus';
 import { httpNodeCache } from '@/cache/httpNode/httpNodeCache';
 
+
+import { message } from '@/helper'
 const { t } = useI18n();
 const websocketStore = useWebSocket();
 const apidocTabsStore = useApidocTas();
@@ -202,7 +203,7 @@ const handleConnect = async () => {
         websocketStore.changeConnectionState('error');
 
         const errorMsg = preScriptResult.error?.message || '前置脚本执行失败';
-        ElMessage.error({
+        message.error({
           message: `前置脚本执行失败: ${errorMsg}`,
           duration: 5000,
         });

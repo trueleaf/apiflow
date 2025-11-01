@@ -1,4 +1,4 @@
-
+﻿
 <template>
   <el-dialog :model-value="modelValue" title="重置密码" :before-close="handleClose">
     <SForm ref="form" v-loading="loading2" :edit-data="formInfo">
@@ -15,12 +15,14 @@
 
 <script lang="ts" setup>
 import { request } from '@/api/api';
-import { ElMessage, FormInstance } from 'element-plus';
+import { FormInstance } from 'element-plus';
 import { useI18n } from 'vue-i18n'
 import { nextTick, ref } from 'vue';
 import SForm from '@/components/common/forms/form/GForm.vue'
 import SFormItem from '@/components/common/forms/form/GFormItem.vue'
 
+
+import { message } from '@/helper'
 const props = defineProps({
   modelValue: {
     type: Boolean,
@@ -58,7 +60,7 @@ const handleEditUser = () => {
       loading.value = true;
       request.put('/api/security/reset_password', params).then(() => {
         emits('success');
-        ElMessage.success('重置成功')
+        message.success('重置成功')
         handleClose();
       }).catch((err) => {
         console.error(err);
@@ -67,7 +69,7 @@ const handleEditUser = () => {
       });
     } else {
       nextTick(() => (document.querySelector('.el-form-item.is-error input') as HTMLInputElement)?.focus());
-      ElMessage.warning('请完善必填信息');
+      message.warning('请完善必填信息');
       loading.value = false;
     }
   });

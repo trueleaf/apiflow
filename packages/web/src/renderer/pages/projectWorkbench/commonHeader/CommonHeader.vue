@@ -18,9 +18,9 @@
 <script lang="ts" setup>
 import { useI18n } from 'vue-i18n'
 import { onMounted, ref, computed, watch } from 'vue'
-import { ElMessage } from 'element-plus'
 import 'element-plus/es/components/message/style/css';
 import { router } from '@/router'
+import { message } from '@/helper'
 import { ApidocProperty, CommonResponse } from '@src/types';
 import { request } from '@/api/api';
 import { apidocGenerateProperty } from '@/helper/apidoc';
@@ -99,7 +99,7 @@ const handleEditCommonHeader = () => {
       })),
     }
     request.put('/api/project/replace_global_common_headers', params).then(() => {
-      ElMessage.success('修改成功');
+      message.success('修改成功');
       apidocBaseInfoStore.getGlobalCommonHeaders();
     }).catch((err) => {
       console.error(err);
@@ -119,7 +119,7 @@ const handleEditCommonHeader = () => {
       })),
     }
     request.put('/api/project/common_header', params).then(() => {
-      ElMessage.success('修改成功');
+      message.success('修改成功');
       apidocBaseInfoStore.getCommonHeaders();
     }).catch((err) => {
       console.error(err);
