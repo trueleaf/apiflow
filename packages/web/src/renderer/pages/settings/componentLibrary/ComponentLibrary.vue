@@ -1,7 +1,9 @@
 <template>
   <div class="component-library">
-    <h2 class="page-title">组件库</h2>
-    
+    <div class="page-title">
+      <h2>组件库</h2>
+    </div>
+
     <div class="library-container">
       <div class="search-bar">
         <input type="text" v-model="searchTerm" placeholder="搜索组件..." />
@@ -137,13 +139,17 @@ onMounted(() => {
 .component-library {
   width: 100%;
   height: 100%;
-  
+  padding: 0;
+
   .page-title {
-    margin-top: 0;
-    margin-bottom: 20px;
-    font-size: 24px;
-    font-weight: 500;
-    color: #333;
+    margin-bottom: 24px;
+
+    h2 {
+      margin: 0;
+      font-size: 24px;
+      font-weight: 600;
+      color: #333;
+    }
   }
   
   .library-container {
