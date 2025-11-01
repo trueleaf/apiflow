@@ -1,7 +1,7 @@
 <template>
   <Teleport to="body">
     <Transition name="dialog-fade">
-      <div v-if="props.modelValue" class="draggable-dialog-overlay">
+      <div v-if="props.modelValue" class="draggable-dialog-overlay" :class="overlayClass">
         <div
           ref="dialogRef"
           class="draggable-dialog"
@@ -38,10 +38,12 @@ interface DraggableDialogProps {
   modelValue: boolean
   title?: string
   width?: string | number
+  overlay?: boolean
 }
 const props = withDefaults(defineProps<DraggableDialogProps>(), {
   title: '弹窗',
   width: '500px',
+  overlay: false,
 })
 const emit = defineEmits<{
   'update:modelValue': [value: boolean]
@@ -68,6 +70,10 @@ const dialogStyle = computed(() => {
 })
 const contentStyle = computed(() => ({
   maxHeight: '60vh',
+}))
+const overlayClass = computed(() => ({
+  'has-overlay': props.overlay,
+  'no-overlay': !props.overlay,
 }))
 const centerDialog = () => {
   if (!dialogRef.value) {
@@ -136,11 +142,25 @@ onBeforeUnmount(() => {
   left: 0;
   right: 0;
   bottom: 0;
-  z-index: 50;
+  z-index: var(--zIndex-dialog);
   display: flex;
   align-items: center;
   justify-content: center;
-  background: transparent; // 移除遮罩
+  background: transparent;
+  pointer-events: none;
+
+  &.has-overlay {
+    background: rgba(0, 0, 0, 0.5);
+    pointer-events: auto;
+  }
+
+  .draggable-dialog {
+    pointer-events: auto;
+  }
+}
+
+:global([data-theme="dark"]) .draggable-dialog-overlay.has-overlay {
+  background: rgba(0, 0, 0, 0.7);
 }
 
 .draggable-dialog {

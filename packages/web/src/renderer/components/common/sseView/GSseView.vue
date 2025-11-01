@@ -77,12 +77,35 @@
       :message-index="activePopoverIndex" :virtual-ref="popoverVirtualRef" @hide="handlePopoverHide"
       @close="handleClosePopover" />
     <!-- 过滤配置弹窗 -->
-    <DraggableDialog v-model="isFilterDialogVisible" :title="t('过滤配置')" :width="1000">
+    <DraggableDialog v-model="isFilterDialogVisible" :title="t('过滤配置')" :width="600">
       <div class="filter-dialog-content">
-        <div class="config-area">
-          <div class="placeholder-text">{{ t('此处为过滤配置区域') }}</div>
+        <div class="config-area" :class="{ expanded: !isPreviewVisible }">
+          <div class="config-content">
+            <div class="config-item">
+              <label class="config-label">数据路径：</label>
+              <el-input 
+                v-model="filterConfig.pathExpression" 
+                placeholder="如：_.name.test"
+                size="small"
+                clearable
+              />
+              <div class="config-hint">
+                支持多级嵌套（_.a.b.c）和数组索引（_.users[0].name）
+              </div>
+            </div>
+            <div v-if="filterConfigError" class="config-error">
+              {{ filterConfigError }}
+            </div>
+          </div>
         </div>
-        <div class="preview-area">
+        <div class="divider-container">
+          <div class="toggle-button" @click="togglePreview"
+            :title="isPreviewVisible ? t('隐藏预览区域') : t('显示预览区域')">
+            <PanelRightClose v-if="isPreviewVisible" :size="16" />
+            <PanelRightOpen v-else :size="16" />
+          </div>
+        </div>
+        <div class="preview-area" :class="{ hidden: !isPreviewVisible }">
           <div class="placeholder-text">{{ t('此处为过滤结果预览区域') }}</div>
         </div>
       </div>
@@ -93,7 +116,7 @@
 <script lang="ts" setup>
 import { downloadStringAsText } from '@/helper/common'
 import { parseChunkList } from '@/helper/sse';
-import { debounce } from "lodash-es";
+import { debounce, get } from "lodash-es";
 import { computed, ref, onMounted, onBeforeUnmount, nextTick, watch } from 'vue';
 import type { ComponentPublicInstance } from 'vue';
 
@@ -103,7 +126,7 @@ import GVirtualScroll from '@/components/apidoc/virtualScroll/GVirtualScroll.vue
 import SsePopover from './components/popover/SsePopover.vue';
 import DraggableDialog from '@/components/ui/cleanDesign/draggableDialog/DraggableDialog.vue';
 import { Loading, Search, Download, Document } from '@element-plus/icons-vue';
-import { Filter } from 'lucide-vue-next';
+import { Filter, PanelRightClose, PanelRightOpen } from 'lucide-vue-next';
 import { useI18n } from 'vue-i18n';
 
 /*
@@ -134,9 +157,20 @@ const popoverVirtualRef = ref<HTMLElement | null>(null);
 const isVirtualEnabled = computed(() => props.isDataComplete && activePopoverIndex.value === -1);
 // 过滤配置弹窗相关
 const isFilterDialogVisible = ref(false);
+// 预览区域显示状态
+const isPreviewVisible = ref(true);
+// 过滤配置
+const filterConfig = ref({
+  pathExpression: '',
+});
+const filterConfigError = ref('');
 // 切换过滤配置弹窗
 const toggleFilterDialog = () => {
   isFilterDialogVisible.value = !isFilterDialogVisible.value;
+};
+// 切换预览区域显示状态
+const togglePreview = () => {
+  isPreviewVisible.value = !isPreviewVisible.value;
 };
 // 切换原始视图模式
 const toggleRawView = () => {
@@ -239,7 +273,16 @@ const handleFilterChange = debounce(() => {
   activePopoverIndex.value = -1;
   filterError.value = '';
 }, 300);
-
+// 从JSON数据中根据路径提取值
+const extractValueByPath = (dataStr: string, pathExpression: string): unknown => {
+  if (!pathExpression || !pathExpression.startsWith('_.')) {
+    throw new Error('路径表达式必须以 "_." 开头')
+  }
+  const dataObj = JSON.parse(dataStr)
+  const actualPath = pathExpression.substring(2)
+  const value = get(dataObj, actualPath)
+  return value
+}
 // 高亮显示匹配的文本
 const highlightText = (text: string): string => {
   if (!filterText.value.trim() || filterError.value) {
@@ -273,10 +316,36 @@ const highlightText = (text: string): string => {
     return text;
   }
 };
+// 基于路径配置过滤数据
+const pathFilteredData = computed(() => {
+  if (!filterConfig.value.pathExpression.trim()) {
+    filterConfigError.value = ''
+    return formattedData.value
+  }
+  try {
+    const filtered = formattedData.value.filter(item => {
+      if (!item.data) {
+        return false
+      }
+      try {
+        const value = extractValueByPath(item.data, filterConfig.value.pathExpression)
+        return value !== undefined && value !== null
+      } catch {
+        return false
+      }
+    })
+    filterConfigError.value = ''
+    return filtered
+  } catch (error) {
+    filterConfigError.value = error instanceof Error ? error.message : '配置错误'
+    return formattedData.value
+  }
+})
 // 筛选后的数据
 const filteredData = computed(() => {
+  const baseData = pathFilteredData.value
   if (!filterText.value.trim()) {
-    return formattedData.value;
+    return baseData;
   }
   try {
     let regex: RegExp;
@@ -301,7 +370,7 @@ const filteredData = computed(() => {
     // 清除错误状态
     filterError.value = '';
 
-    return formattedData.value
+    return baseData
       .map((item, index) => ({ ...item, originalIndex: index }))
       .filter((item) => {
         const content = (item.event || '') + ' ' + (item.data || '');
@@ -311,12 +380,12 @@ const filteredData = computed(() => {
   } catch (error) {
     // 正则表达式错误
     filterError.value = `${t('正则表达式错误')}: ${error instanceof Error ? error.message : t('未知错误')}`;
-    return formattedData.value;
+    return baseData;
   }
 });
 
 // 最终显示的数据
-const displayData = computed(() => filterText.value.trim() ? filteredData.value : formattedData.value.map((item, index) => ({ ...item, originalIndex: index })));
+const displayData = computed(() => filterText.value.trim() ? filteredData.value : pathFilteredData.value.map((item, index) => ({ ...item, originalIndex: index })));
 
 /*
 |--------------------------------------------------------------------------
@@ -484,9 +553,27 @@ watch(activePopoverIndex, () => {
   syncPopoverRef();
 });
 
+watch(isPreviewVisible, (newVal) => {
+  localStorage.setItem('sseFilterPreviewVisible', String(newVal));
+});
+watch(filterConfig, (newVal) => {
+  localStorage.setItem('sseFilterConfig', JSON.stringify(newVal))
+}, { deep: true })
 onMounted(() => {
   document.addEventListener('click', handleClickOutside);
   document.addEventListener('keydown', handleGlobalKeydown);
+  const saved = localStorage.getItem('sseFilterPreviewVisible');
+  if (saved !== null) {
+    isPreviewVisible.value = saved === 'true';
+  }
+  const savedConfig = localStorage.getItem('sseFilterConfig')
+  if (savedConfig) {
+    try {
+      filterConfig.value = JSON.parse(savedConfig)
+    } catch {
+      // 忽略解析错误
+    }
+  }
 });
 
 onBeforeUnmount(() => {
@@ -900,21 +987,87 @@ onBeforeUnmount(() => {
 // 过滤配置弹窗内容样式
 .filter-dialog-content {
   display: flex;
-  height: 500px;
-
   .config-area {
-    width: 400px;
+    width: 200px;
     border-right: 1px solid var(--gray-200, #ebeef5);
     padding: 20px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
     background-color: var(--gray-50, #fafafa);
+    transition: width 0.3s ease;
+
+    &.expanded {
+      width: 100%;
+    }
+
+    .config-content {
+      width: 100%;
+      
+      .config-item {
+        margin-bottom: 16px;
+        
+        .config-label {
+          display: block;
+          font-size: 14px;
+          color: var(--gray-800, #303133);
+          margin-bottom: 8px;
+          font-weight: 500;
+        }
+        
+        .config-hint {
+          font-size: 12px;
+          color: var(--gray-500, #909399);
+          margin-top: 4px;
+          line-height: 1.5;
+        }
+      }
+      
+      .config-error {
+        padding: 8px 12px;
+        background-color: var(--danger-light, #fef0f0);
+        color: var(--danger, #f56c6c);
+        border-radius: 4px;
+        font-size: 12px;
+        margin-top: 8px;
+        line-height: 1.5;
+      }
+    }
 
     .placeholder-text {
       color: var(--gray-500, #909399);
       font-size: 14px;
       text-align: center;
+    }
+  }
+
+  .divider-container {
+    position: relative;
+    width: 1px;
+    background: var(--gray-200, #ebeef5);
+    flex-shrink: 0;
+
+    .toggle-button {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: white;
+      border: 1px solid var(--gray-300, #dcdfe6);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      z-index: 10;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      color: var(--gray-700, #606266);
+
+      &:hover {
+        border-color: var(--primary, #409eff);
+        color: var(--primary, #409eff);
+        box-shadow: 0 2px 8px rgba(64, 158, 255, 0.3);
+      }
     }
   }
 
@@ -925,6 +1078,14 @@ onBeforeUnmount(() => {
     align-items: center;
     justify-content: center;
     background-color: var(--white, #ffffff);
+    transition: all 0.3s ease;
+
+    &.hidden {
+      width: 0;
+      padding: 0;
+      opacity: 0;
+      overflow: hidden;
+    }
 
     .placeholder-text {
       color: var(--gray-500, #909399);

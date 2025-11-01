@@ -824,4 +824,6 @@ export default {
   '过滤配置': 'Filter Configuration',
   '此处为过滤配置区域': 'Configuration area for filtering',
   '此处为过滤结果预览区域': 'Preview area for filtering results',
+  '隐藏预览区域': 'Hide preview area',
+  '显示预览区域': 'Show preview area',
 }
