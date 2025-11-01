@@ -192,16 +192,22 @@ export const useIpcEvent = (mainWindow: BrowserWindow, topBarView: WebContentsVi
   */
   // 顶部栏创建项目请求
   ipcMain.on(IPC_EVENTS.apiflow.contentToTopBar.createProject, () => {
+    // 将焦点转移到 contentView，确保弹窗中的输入框可以获取焦点
+    contentView.webContents.focus()
     contentView.webContents.send(IPC_EVENTS.apiflow.rendererToMain.createProject)
   })
 
   // 顶部栏路由切换请求
   ipcMain.on(IPC_EVENTS.apiflow.topBarToContent.navigate, (_, path: string) => {
+    // 将焦点转移到 contentView，确保用户可以在新页面中进行操作
+    contentView.webContents.focus()
     contentView.webContents.send(IPC_EVENTS.apiflow.rendererToMain.changeRoute, path)
   })
 
   // 顶部栏project切换请求,tabs切换就是项目切换
   ipcMain.on(IPC_EVENTS.apiflow.contentToTopBar.switchProject, (_, data: IPCProjectData) => {
+    // 将焦点转移到 contentView，确保用户可以在项目工作区中进行操作
+    contentView.webContents.focus()
     contentView.webContents.send(IPC_EVENTS.apiflow.rendererToMain.changeProject, data)
   })
 
