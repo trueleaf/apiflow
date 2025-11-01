@@ -1,5 +1,5 @@
 <template>
-  <el-dialog :model-value="modelValue" top="10vh" width="35vw" :title="t('修改项目')" :before-close="handleClose">
+  <el-dialog :model-value="modelValue" top="10vh" width="35vw" :title="t('修改项目')" :before-close="handleClose" @opened="handleDialogOpened">
     <el-form ref="form" :model="formInfo" :rules="rules" label-width="150px" @submit.prevent="() => {}">
       <el-form-item :label="`${t('项目名称')}`" prop="projectName">
         <el-input ref="projectNameInput" v-model="formInfo.projectName" :size="config.renderConfig.layout.size"
@@ -35,6 +35,10 @@ const props = defineProps({
     type: String,
     default: '',
   },
+  isFocus: {
+    type: Boolean,
+    default: true,
+  },
 })
 const emits = defineEmits(['update:modelValue', 'success'])
 const { t } = useI18n()
@@ -45,9 +49,9 @@ const projectNameInput = ref()
 const formInfo = ref({
   projectName: '',
 })
-//监听弹窗打开，聚焦并选中输入框
-watch(() => props.modelValue, (val) => {
-  if (val) {
+//对话框打开后聚焦并选中输入框
+const handleDialogOpened = () => {
+  if (props.isFocus) {
     nextTick(() => {
       const inputEl = projectNameInput.value?.$el?.querySelector('input') || projectNameInput.value?.$el;
       if (inputEl && inputEl.tagName === 'INPUT') {
@@ -56,7 +60,7 @@ watch(() => props.modelValue, (val) => {
       }
     });
   }
-});
+};
 const rules = ref({
   projectName: [
     { required: true, trigger: 'blur', message: t('请填写项目名称') },

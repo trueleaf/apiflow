@@ -1,5 +1,5 @@
 import { expect, type Page } from '@playwright/test';
-import { test, initOfflineWorkbench, clearAllAppData } from '../../../fixtures/fixtures';
+import { test, initOfflineWorkbench, clearAllAppData, createProject, editProject } from '../../../fixtures/fixtures';
 test.describe('离线模式项目增删改查测试', () => {
   let headerPage: Page;
   let contentPage: Page;
@@ -416,12 +416,109 @@ test.describe('离线模式项目增删改查测试', () => {
   });
   test.describe('编辑项目名称', () => {
     test('点击编辑按钮应打开编辑弹窗并预填充项目名称', async () => {
+      // 待实现
     });
     test('修改项目名称后应保存成功并更新列表', async () => {
-     
+      // 待实现
     });
     test('编辑时点击取消应不保存更改', async () => {
-    
+      // 待实现
+    });
+  });
+
+  test.describe('输入框焦点测试', () => {
+    test('新建项目弹窗打开后输入框应自动获得焦点', async () => {
+      // 清空数据确保从干净状态开始
+      await clearAllAppData(contentPage);
+      await contentPage.reload();
+      await contentPage.waitForLoadState('domcontentloaded');
+      await contentPage.waitForTimeout(1000);
+
+      // 点击新建项目按钮
+      await contentPage.locator('button:has-text("新建项目")').click();
+
+      // 等待弹窗出现
+      await contentPage.waitForSelector('.el-dialog:has-text("新增项目")', {
+        state: 'visible',
+        timeout: 5000
+      });
+
+      // 验证输入框获得焦点
+      const nameInput = contentPage.locator('.el-dialog .el-input input[placeholder*="项目名称"]');
+      await expect(nameInput).toBeFocused({ timeout: 2000 });
+
+      // 关闭弹窗
+      await contentPage.locator('.el-dialog__footer button:has-text("取消")').click();
+    });
+
+    test('编辑项目弹窗打开后输入框应自动获得焦点并选中文本', async () => {
+      // 清空数据
+      await clearAllAppData(contentPage);
+      await contentPage.reload();
+      await contentPage.waitForLoadState('domcontentloaded');
+      await contentPage.waitForTimeout(1000);
+
+      // 创建一个测试项目
+      const testProjectName = '焦点测试项目';
+      await contentPage.locator('button:has-text("新建项目")').click();
+      await contentPage.waitForSelector('.el-dialog:has-text("新增项目")', {
+        state: 'visible'
+      });
+      const nameInput = contentPage.locator('.el-dialog .el-input input[placeholder*="项目名称"]');
+      await nameInput.fill(testProjectName);
+      await contentPage.locator('.el-dialog__footer button:has-text("确定")').click();
+      await contentPage.waitForSelector('.el-dialog:has-text("新增项目")', {
+        state: 'hidden'
+      });
+
+      // 等待跳转到项目编辑页面
+      await contentPage.waitForURL(/doc-edit/, { timeout: 10000 });
+
+      // 导航回首页
+      await headerPage.locator('.home').click();
+      await contentPage.waitForURL(/home/, { timeout: 10000 });
+      await contentPage.waitForTimeout(500);
+
+      // 使用 editProject 辅助函数测试焦点（shouldTestFocus: true）
+      // 这个测试会失败如果焦点没有正确设置
+      await editProject(contentPage, testProjectName, '焦点测试项目-已编辑', {
+        shouldTestFocus: true
+      });
+
+      // 验证项目名称已更新
+      const updatedProject = contentPage.locator('.project-list .title:has-text("焦点测试项目-已编辑")');
+      await expect(updatedProject).toBeVisible();
+    });
+
+    test('从 header 点击 + 按钮创建项目，输入框应能获得焦点', async () => {
+      // 清空数据
+      await clearAllAppData(contentPage);
+      await contentPage.reload();
+      await contentPage.waitForLoadState('domcontentloaded');
+      await contentPage.waitForTimeout(1000);
+
+      // 从 header 点击 + 按钮
+      const addButton = headerPage.locator('button.add-tab-btn');
+      await addButton.click();
+
+      // 等待弹窗出现
+      await contentPage.waitForSelector('.el-dialog:has-text("新增项目")', {
+        state: 'visible',
+        timeout: 5000
+      });
+
+      // 验证输入框获得焦点（这个测试验证了我们之前在 IPC 中添加的 focus() 调用）
+      const nameInput = contentPage.locator('.el-dialog .el-input input[placeholder*="项目名称"]');
+      await expect(nameInput).toBeFocused({ timeout: 2000 });
+
+      // 输入项目名称验证输入框可用
+      await nameInput.fill('Header创建的项目');
+
+      // 验证输入成功
+      await expect(nameInput).toHaveValue('Header创建的项目');
+
+      // 关闭弹窗
+      await contentPage.locator('.el-dialog__footer button:has-text("取消")').click();
     });
   });
   test.describe('删除项目的基础流程', () => {

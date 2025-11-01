@@ -191,6 +191,69 @@ export const createProject = async (
   }
 };
 
+/**
+ * 编辑项目名称
+ * @param contentPage - 内容页面对象
+ * @param currentProjectName - 当前项目名称（用于定位项目卡片）
+ * @param newProjectName - 新的项目名称
+ * @param options - 可选配置项
+ */
+export const editProject = async (
+  contentPage: Page,
+  currentProjectName: string,
+  newProjectName: string,
+  options: { timeout?: number; shouldTestFocus?: boolean } = {}
+): Promise<void> => {
+  const { timeout = 10000, shouldTestFocus = false } = options;
+
+  // 找到项目卡片
+  const projectCard = contentPage.locator('.project-list').filter({
+    has: contentPage.locator(`.title:has-text("${currentProjectName}")`)
+  });
+
+  // 点击编辑按钮
+  const editButton = projectCard.locator('.operator div[title*="编辑"]').first();
+  await editButton.click();
+
+  // 等待编辑弹窗出现
+  await contentPage.waitForSelector('.el-dialog:has-text("修改项目")', {
+    state: 'visible',
+    timeout
+  });
+
+  // 如果需要测试焦点
+  if (shouldTestFocus) {
+    // 等待输入框获得焦点
+    const nameInput = contentPage.locator('.el-dialog .el-input input[placeholder*="项目名称"]');
+    await expect(nameInput).toBeFocused({ timeout: 2000 });
+
+    // 验证文本被选中（通过检查 selectionStart 和 selectionEnd）
+    const isTextSelected = await nameInput.evaluate((input: HTMLInputElement) => {
+      return input.selectionStart === 0 && input.selectionEnd === input.value.length;
+    });
+    expect(isTextSelected).toBe(true);
+  }
+
+  // 清空并填写新名称
+  const nameInput = contentPage.locator('.el-dialog .el-input input[placeholder*="项目名称"]');
+  await nameInput.clear();
+  await nameInput.fill(newProjectName);
+
+  // 点击确定按钮
+  await contentPage.locator('.el-dialog__footer button:has-text("确定")').click();
+
+  // 等待弹窗关闭
+  await contentPage.waitForSelector('.el-dialog:has-text("修改项目")', {
+    state: 'hidden',
+    timeout
+  });
+
+  // 等待项目列表更新，验证新名称出现
+  await contentPage.waitForSelector(`.project-list .title:has-text("${newProjectName}")`, {
+    timeout
+  });
+};
+
 // 登录函数，用于在线模式下的用户认证
 export const login = async (
   contentPage: Page,

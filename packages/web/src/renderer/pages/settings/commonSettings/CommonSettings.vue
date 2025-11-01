@@ -110,11 +110,11 @@
           <div class="info-row">
             <div class="info-label">{{ $t('应用主题') }}</div>
             <div class="info-value">
-              <el-select v-model="localAppTheme" @change="handleAppThemeChange">
-                <el-option :label="$t('浅色')" value="light" />
-                <el-option :label="$t('深色')" value="dark" />
-                <el-option :label="$t('跟随系统')" value="auto" />
-              </el-select>
+              <el-radio-group v-model="localAppTheme" @change="handleAppThemeChange">
+                <el-radio value="light">{{ $t('浅色') }}</el-radio>
+                <el-radio value="dark">{{ $t('深色') }}</el-radio>
+                <el-radio value="auto">{{ $t('跟随系统') }}</el-radio>
+              </el-radio-group>
             </div>
           </div>
 
@@ -285,9 +285,11 @@ function handleAppTitleBlur() {
 }
 
 // 处理应用主题变更
-function handleAppThemeChange(theme: AppTheme) {
-  appSettingsStore.setAppTheme(theme)
-  ElMessage.success(t('保存成功'))
+function handleAppThemeChange(theme: string | number | boolean | undefined) {
+  if (theme && typeof theme === 'string' && ['light', 'dark', 'auto'].includes(theme)) {
+    appSettingsStore.setAppTheme(theme as AppTheme)
+    ElMessage.success(t('保存成功'))
+  }
 }
 
 // 处理重置设置
@@ -330,42 +332,46 @@ onMounted(() => {
   height: 100%;
   display: flex;
   flex-direction: column;
-  padding: 24px;
+  padding: 32px 0;
+  max-width: 800px;
+  margin: 0 auto;
   overflow-y: auto;
 
   .page-title {
-    margin-bottom: 24px;
+    margin-bottom: 32px;
 
     h2 {
       margin: 0;
-      font-size: 24px;
-      font-weight: 600;
-      color: #333;
+      font-size: 28px;
+      font-weight: 700;
+      color: #111827;
     }
   }
 
   .settings-card {
-    background: white;
-    border: 1px solid #eaeaea;
-    border-radius: 8px;
-    margin-bottom: 24px;
-    overflow: hidden;
+    background: transparent;
+    border: none;
+    border-radius: 0;
+    margin-bottom: 32px;
+    overflow: visible;
 
     .card-header {
-      padding: 16px 24px;
-      background: #f5f7fa;
-      border-bottom: 1px solid #eaeaea;
+      padding: 0 0 16px 0;
+      background: transparent;
+      border-bottom: 1px solid #e5e7eb;
 
       h3 {
         margin: 0;
-        font-size: 16px;
-        font-weight: 600;
-        color: #333;
+        font-size: 14px;
+        font-weight: 500;
+        color: #374151;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
       }
     }
 
     .card-body {
-      padding: 24px;
+      padding: 24px 0;
       display: flex;
       gap: 40px;
 
@@ -380,13 +386,13 @@ onMounted(() => {
         .logo-wrapper {
           width: 120px;
           height: 120px;
-          border-radius: 8px;
+          border-radius: 50%;
           overflow: hidden;
-          border: 1px solid #eaeaea;
+          border: 1px solid #e5e7eb;
           display: flex;
           align-items: center;
           justify-content: center;
-          background: #f5f7fa;
+          background: #f9fafb;
 
           .avatar-image,
           .logo-image {
@@ -409,7 +415,7 @@ onMounted(() => {
 
           .info-label {
             width: 120px;
-            color: #606266;
+            color: #6b7280;
             font-weight: 500;
             font-size: 14px;
             flex-shrink: 0;
@@ -420,16 +426,17 @@ onMounted(() => {
             min-width: 0;
 
             .el-input,
-            .el-select {
+            .el-select,
+            .el-radio-group {
               max-width: 400px;
             }
 
             span {
-              color: #303133;
+              color: #111827;
               font-size: 14px;
 
               &.disabled-value {
-                color: #909399;
+                color: #9ca3af;
                 cursor: not-allowed;
               }
             }

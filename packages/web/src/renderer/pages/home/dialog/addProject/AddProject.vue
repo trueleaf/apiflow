@@ -98,7 +98,6 @@ const formInfo = ref({
 })
 //对话框打开后聚焦输入框
 const handleDialogOpened = () => {
-  console.log(props.isFocus, 22)
   if (props.isFocus) {
     nextTick(() => {
       const inputEl = projectNameInput.value?.$el?.querySelector('input') || projectNameInput.value?.$el;
