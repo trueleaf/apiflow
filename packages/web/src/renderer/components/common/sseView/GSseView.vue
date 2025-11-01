@@ -5,22 +5,11 @@
       <!-- 收起状态：只显示搜索图标 -->
       <div class="filter-collapsed">
         <div v-if="isSearchInputVisible" class="compact-search-row">
-          <el-input 
-            ref="filterInputRef" 
-            v-model="filterText"
-:placeholder="isRegexMode ? t('支持正则表达式') : t('输入关键词筛选')"
-            size="small"
-            class="compact-filter-input" 
-            @input="handleFilterChange" 
-            @keyup.enter="handleFilterChange"
-          >
+          <el-input ref="filterInputRef" v-model="filterText" :placeholder="isRegexMode ? t('支持正则表达式') : t('输入关键词筛选')"
+            size="small" class="compact-filter-input" @input="handleFilterChange" @keyup.enter="handleFilterChange">
             <template #suffix>
-              <div 
-                class="compact-regex-toggle-btn" 
-                :class="{ active: isRegexMode }" 
-                @click="toggleRegexMode"
-:title="t('切换正则表达式模式')"
-            >
+              <div class="compact-regex-toggle-btn" :class="{ active: isRegexMode }" @click="toggleRegexMode"
+                :title="t('切换正则表达式模式')">
                 .*
               </div>
             </template>
@@ -31,10 +20,12 @@
           <el-icon class="icon search-icon" :class="{ active: isSearchInputVisible }" @click="toggleSearchInput">
             <Search />
           </el-icon>
-          <el-icon class="icon filter-icon" :class="{ active: isFilterDialogVisible }" @click="toggleFilterDialog" :title="t('过滤配置')">
+          <el-icon class="icon filter-icon" :class="{ active: isFilterDialogVisible }" @click="toggleFilterDialog"
+            :title="t('过滤配置')">
             <Filter :size="16" />
           </el-icon>
-          <el-icon class="icon raw-view-icon" :class="{ active: isRawView }" @click="toggleRawView" :title="t('切换原始数据视图')">
+          <el-icon class="icon raw-view-icon" :class="{ active: isRawView }" @click="toggleRawView"
+            :title="t('切换原始数据视图')">
             <Document />
           </el-icon>
           <el-icon class="icon download-icon" @click="downloadData" :title="t('下载SSE数据')">
@@ -54,7 +45,8 @@
             {{ t('未找到匹配结果') }}
           </div>
         </div>
-      </div></div>
+      </div>
+    </div>
     <div v-if="!dataList || dataList.length === 0" class="empty-state">
       <el-icon class="loading-icon">
         <Loading />
@@ -81,21 +73,11 @@
       </template>
     </GVirtualScroll>
     <!-- SSE 消息详情弹窗 -->
-    <SsePopover
-      v-if="!isRawView"
-      :visible="activePopoverIndex !== -1"
-      :message="currentMessage"
-      :message-index="activePopoverIndex"
-  :virtual-ref="popoverVirtualRef"
-      @hide="handlePopoverHide"
-      @close="handleClosePopover"
-    />
+    <SsePopover v-if="!isRawView" :visible="activePopoverIndex !== -1" :message="currentMessage"
+      :message-index="activePopoverIndex" :virtual-ref="popoverVirtualRef" @hide="handlePopoverHide"
+      @close="handleClosePopover" />
     <!-- 过滤配置弹窗 -->
-    <DraggableDialog
-      v-model="isFilterDialogVisible"
-      :title="t('过滤配置')"
-      :width="1000"
-    >
+    <DraggableDialog v-model="isFilterDialogVisible" :title="t('过滤配置')" :width="1000">
       <div class="filter-dialog-content">
         <div class="config-area">
           <div class="placeholder-text">{{ t('此处为过滤配置区域') }}</div>
@@ -596,9 +578,11 @@ onBeforeUnmount(() => {
         height: 28px;
         margin-left: auto;
       }
+
       .icon {
         margin: 0 1px;
       }
+
       .search-icon {
         width: 28px;
         height: 28px;
@@ -614,7 +598,7 @@ onBeforeUnmount(() => {
         &.active {
           color: var(--primary, #409eff);
           background-color: var(--light, #ecf5ff);
-      }
+        }
       }
 
       .filter-icon {
