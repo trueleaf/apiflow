@@ -14,6 +14,7 @@ export const useRuntime = defineStore('runtime', () => {
     realName: '',
     roleIds: [],
     token: '',
+    avatar: '',
   });
   const language = ref<Language>(runtimeCache.getLanguage());
   const setNetworkMode = (mode: RuntimeNetworkMode): void => {
@@ -29,6 +30,7 @@ export const useRuntime = defineStore('runtime', () => {
       realName: payload.realName,
       roleIds: payload.roleIds,
       token: payload.token,
+      avatar: payload.avatar,
     };
     runtimeCache.setUserInfo(payload);
   }
@@ -48,6 +50,7 @@ export const useRuntime = defineStore('runtime', () => {
       realName: '',
       roleIds: [],
       token: '',
+      avatar: '',
     };
     runtimeCache.clearUserInfo();
   };

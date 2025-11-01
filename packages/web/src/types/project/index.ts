@@ -80,6 +80,10 @@ export type PermissionUserInfo = {
    */
   roleIds: string[];
   token: string;
+  /**
+   * 用户头像（base64字符串）
+   */
+  avatar: string;
 };
 
 // 用户基本信息

@@ -17,7 +17,7 @@
           <div class="info-label">{{ $t('用户名') }}</div>
           <div class="info-value">
             <input v-if="editing" v-model="editedInfo.username" />
-            <span v-else>{{ userInfo.username }}</span>
+            <span v-else>{{ userInfo.realName }}</span>
           </div>
         </div>
         
@@ -26,7 +26,7 @@
           <div class="info-value">
             <input v-if="editing" v-model="editedInfo.email" />
             <span v-else-if="isLocalMode" class="local-mode-value">/</span>
-            <span v-else>{{ userInfo.email }}</span>
+            <span v-else>/</span>
           </div>
         </div>
         
@@ -43,12 +43,12 @@
         
         <div class="info-row">
           <div class="info-label">{{ $t('注册时间') }}</div>
-          <div class="info-value">{{ userInfo.registerTime }}</div>
+          <div class="info-value">/</div>
         </div>
         
         <div class="info-row">
           <div class="info-label">{{ $t('最后登录') }}</div>
-          <div class="info-value">{{ userInfo.lastLoginTime }}</div>
+          <div class="info-value">/</div>
         </div>
         
         <div class="action-buttons">
@@ -64,22 +64,14 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive } from 'vue'
+import { ref, reactive, computed } from 'vue'
+import { useRuntime } from '@/store/runtime/runtimeStore'
 import defaultAvatarImg from '@/assets/imgs/logo.png'
 
 const defaultAvatar = defaultAvatarImg
-
-// Determine if we're in standalone/local mode
-const isLocalMode = ref(true) // This would come from your actual app state
-
-const userInfo = reactive({
-  username: 'me',
-  email: 'user@apiflow.example',
-  team: 1,
-  avatar: '',
-  registerTime: '/',
-  lastLoginTime: '/'
-})
+const runtimeStore = useRuntime()
+const isLocalMode = computed(() => runtimeStore.networkMode === 'offline')
+const userInfo = computed(() => runtimeStore.userInfo)
 
 const teams = [
   { id: 1, name: '研发团队' },
@@ -88,10 +80,16 @@ const teams = [
 ]
 
 const editing = ref(false)
-const editedInfo = reactive({ ...userInfo })
+const editedInfo = reactive({
+  username: '',
+  email: '',
+  team: 1
+})
 
 function startEditing() {
-  Object.assign(editedInfo, userInfo)
+  editedInfo.username = userInfo.value.realName
+  editedInfo.email = ''
+  editedInfo.team = 1
   editing.value = true
 }
 
@@ -100,21 +98,12 @@ function cancelEditing() {
 }
 
 function saveChanges() {
-  Object.assign(userInfo, editedInfo)
   editing.value = false
-  // In a real app, you would save to backend here
 }
 
 function getUserTeam() {
-  const team = teams.find(t => t.id === userInfo.team)
-  return team ? team.name : '未分配'
+  return '未分配'
 }
-
-// function formatDate(timestamp: number) {
-//   if (!timestamp) return '未知'
-//   const date = new Date(timestamp)
-//   return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')} ${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`
-// }
 </script>
 
 <style lang="scss" scoped>
