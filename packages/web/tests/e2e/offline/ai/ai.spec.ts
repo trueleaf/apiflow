@@ -1,5 +1,5 @@
 import { expect, type Page } from '@playwright/test';
-import { test, initOfflineWorkbench, navigateToAiSettings, saveAiConfig } from '../../../fixtures/fixtures';
+import { test, initOfflineWorkbench, navigateToAiSettings, saveAiConfig, configureAiWithEnv } from '../../../fixtures/fixtures';
 // AI 功能测试
 test.describe('AI 功能测试', () => {
   let headerPage: Page;
@@ -19,7 +19,7 @@ test.describe('AI 功能测试', () => {
   test.describe('AiSettings 页面 UI 交互测试', () => {
 
     test.beforeEach(async () => {
-      
+
       await navigateToAiSettings(headerPage, contentPage);
     });
 
@@ -169,11 +169,11 @@ test.describe('AI 功能测试', () => {
     test('7. 应正确执行文本测试', async () => {
       const testApiKey = process.env.TEST_AI_API_KEY;
       const testApiUrl = process.env.TEST_AI_API_URL;
-      
+
       if (!testApiKey || !testApiUrl) {
         throw new Error('测试需要配置 TEST_AI_API_KEY 和 TEST_AI_API_URL 环境变量');
       }
-      
+
       await saveAiConfig(contentPage, testApiKey, testApiUrl);
 
       await contentPage.locator('button:has-text("文本测试")').click();
@@ -192,11 +192,11 @@ test.describe('AI 功能测试', () => {
     test('8. 应正确执行 JSON 测试', async () => {
       const testApiKey = process.env.TEST_AI_API_KEY;
       const testApiUrl = process.env.TEST_AI_API_URL;
-      
+
       if (!testApiKey || !testApiUrl) {
         throw new Error('测试需要配置 TEST_AI_API_KEY 和 TEST_AI_API_URL 环境变量');
       }
-      
+
       await saveAiConfig(contentPage, testApiKey, testApiUrl);
 
       await contentPage.locator('button:has-text("JSON测试")').click();
@@ -215,11 +215,11 @@ test.describe('AI 功能测试', () => {
     test('9. 应正确执行流式测试并支持取消', async () => {
       const testApiKey = process.env.TEST_AI_API_KEY;
       const testApiUrl = process.env.TEST_AI_API_URL;
-      
+
       if (!testApiKey || !testApiUrl) {
         throw new Error('测试需要配置 TEST_AI_API_KEY 和 TEST_AI_API_URL 环境变量');
       }
-      
+
       await saveAiConfig(contentPage, testApiKey, testApiUrl);
 
       await contentPage.locator('button:has-text("流式测试")').click();
@@ -266,38 +266,18 @@ test.describe('AI 功能测试', () => {
       });
 
       test('2. prompt 为空时应返回错误', async () => {
-        // 配置 AI
-        await contentPage.evaluate(async () => {
-          await window.electronAPI?.aiManager?.updateConfig({
-            apiKey: 'test-key',
-            apiUrl: 'https://api.test.com',
-            timeout: 60000
-          });
-        });
-
-        await contentPage.waitForTimeout(500);
+        await configureAiWithEnv(contentPage);
 
         const result = await contentPage.evaluate(async () => {
           return await window.electronAPI?.aiManager?.textChat({ prompt: '' });
         });
-
         expect(result).toBeTruthy();
         expect(result!.code).toBe(1);
       });
 
       test('3. 正确配置时应成功调用', async () => {
-        const testApiKey = process.env.TEST_AI_API_KEY;
-        const testApiUrl = process.env.TEST_AI_API_URL;
-        await contentPage.evaluate(async ({ apiKey, apiUrl }) => {
-          await window.electronAPI?.aiManager?.updateConfig({
-            apiKey: apiKey!,
-            apiUrl: apiUrl!,
-            timeout: 60000
-          });
-        }, { apiKey: testApiKey, apiUrl: testApiUrl });
+        await configureAiWithEnv(contentPage);
 
-        await contentPage.waitForTimeout(500);
-        
         const result = await contentPage.evaluate(async () => {
           return await window.electronAPI?.aiManager?.textChat({ prompt: '你好' });
         });
@@ -329,36 +309,17 @@ test.describe('AI 功能测试', () => {
       });
 
       test('2. prompt 为空时应返回错误', async () => {
-        await contentPage.evaluate(async () => {
-          await window.electronAPI?.aiManager?.updateConfig({
-            apiKey: 'test-key',
-            apiUrl: 'https://api.test.com',
-            timeout: 60000
-          });
-        });
-
-        await contentPage.waitForTimeout(500);
+        await configureAiWithEnv(contentPage);
 
         const result = await contentPage.evaluate(async () => {
           return await window.electronAPI?.aiManager?.jsonChat({ prompt: '' });
         });
-
         expect(result).toBeTruthy();
         expect(result!.code).toBe(1);
       });
 
       test('3. 成功时应返回合法 JSON', async () => {
-        const testApiKey = process.env.TEST_AI_API_KEY;
-        const testApiUrl = process.env.TEST_AI_API_URL;
-        await contentPage.evaluate(async ({ apiKey, apiUrl }) => {
-          await window.electronAPI?.aiManager?.updateConfig({
-            apiKey: apiKey!,
-            apiUrl: apiUrl!,
-            timeout: 60000
-          });
-        }, { apiKey: testApiKey, apiUrl: testApiUrl });
-
-        await contentPage.waitForTimeout(500);
+        await configureAiWithEnv(contentPage);
 
         const result = await contentPage.evaluate(async () => {
           return await window.electronAPI?.aiManager?.jsonChat({
@@ -393,7 +354,7 @@ test.describe('AI 功能测试', () => {
           return new Promise((resolve) => {
             window.electronAPI?.aiManager?.textChatWithStream(
               { requestId: `test-${Date.now()}` },
-              (chunk: string) => {},
+              (chunk: string) => { },
               () => resolve({ success: true }),
               (error: any) => resolve({ success: false, error })
             );
@@ -405,17 +366,7 @@ test.describe('AI 功能测试', () => {
       });
 
       test('2. 正确配置时应逐步返回数据', async () => {
-        const testApiKey = process.env.TEST_AI_API_KEY;
-        const testApiUrl = process.env.TEST_AI_API_URL;
-        await contentPage.evaluate(async ({ apiKey, apiUrl }) => {
-          await window.electronAPI?.aiManager?.updateConfig({
-            apiKey: apiKey!,
-            apiUrl: apiUrl!,
-            timeout: 60000
-          });
-        }, { apiKey: testApiKey, apiUrl: testApiUrl });
-
-        await contentPage.waitForTimeout(500);
+        await configureAiWithEnv(contentPage);
 
         const result = await contentPage.evaluate(async () => {
           return new Promise((resolve) => {
@@ -447,17 +398,7 @@ test.describe('AI 功能测试', () => {
       });
 
       test('3. 流式完成时应调用 onEnd', async () => {
-        const testApiKey = process.env.TEST_AI_API_KEY;
-        const testApiUrl = process.env.TEST_AI_API_URL;
-        await contentPage.evaluate(async ({ apiKey, apiUrl }) => {
-          await window.electronAPI?.aiManager?.updateConfig({
-            apiKey: apiKey!,
-            apiUrl: apiUrl!,
-            timeout: 60000
-          });
-        }, { apiKey: testApiKey, apiUrl: testApiUrl });
-
-        await contentPage.waitForTimeout(500);
+        await configureAiWithEnv(contentPage);
 
         const result = await contentPage.evaluate(async () => {
           return new Promise((resolve) => {
@@ -465,7 +406,7 @@ test.describe('AI 功能测试', () => {
 
             window.electronAPI?.aiManager?.textChatWithStream(
               { requestId: `test-end-${Date.now()}` },
-              () => {},
+              () => { },
               () => {
                 onEndCalled = true;
                 resolve({ onEndCalled });
@@ -488,17 +429,7 @@ test.describe('AI 功能测试', () => {
     test.describe('cancelStream 方法测试', () => {
 
       test('1. 应正确取消流式请求', async () => {
-        const testApiKey = process.env.TEST_AI_API_KEY;
-        const testApiUrl = process.env.TEST_AI_API_URL;
-        await contentPage.evaluate(async ({ apiKey, apiUrl }) => {
-          await window.electronAPI?.aiManager?.updateConfig({
-            apiKey: apiKey!,
-            apiUrl: apiUrl!,
-            timeout: 60000
-          });
-        }, { apiKey: testApiKey, apiUrl: testApiUrl });
-
-        await contentPage.waitForTimeout(500);
+        await configureAiWithEnv(contentPage);
 
         const result = await contentPage.evaluate(async () => {
           return new Promise((resolve) => {
@@ -507,7 +438,7 @@ test.describe('AI 功能测试', () => {
 
             const controller = window.electronAPI?.aiManager?.textChatWithStream(
               { requestId },
-              () => {},
+              () => { },
               () => {
                 resolve({ cancelled: false, completed: true });
               },
@@ -555,17 +486,7 @@ test.describe('AI 功能测试', () => {
     test.describe('配置管理测试', () => {
 
       test('1. updateConfig 应正确更新配置', async () => {
-        const newConfig = {
-          apiKey: 'new-test-key',
-          apiUrl: 'https://new-api.test.com',
-          timeout: 30000
-        };
-
-        await contentPage.evaluate(async (config) => {
-          await window.electronAPI?.aiManager?.updateConfig(config);
-        }, newConfig);
-
-        await contentPage.waitForTimeout(500);
+        await configureAiWithEnv(contentPage);
 
         // 尝试调用方法验证配置已更新
         const result = await contentPage.evaluate(async () => {
@@ -578,21 +499,16 @@ test.describe('AI 功能测试', () => {
       });
 
       test('2. timeout 参数应正确传递', async () => {
-        await contentPage.evaluate(async () => {
-          await window.electronAPI?.aiManager?.updateConfig({
-            apiKey: 'test-key',
-            apiUrl: 'https://api.test.com',
-            timeout: 30000
-          });
-        });
-
-        await contentPage.waitForTimeout(500);
-
+        await configureAiWithEnv(contentPage, 30000);
         const result = await contentPage.evaluate(async () => {
           return await window.electronAPI?.aiManager?.textChat({ prompt: '测试' });
         });
 
         expect(result).toBeTruthy();
+        expect(result).toHaveProperty('code');
+        if (result && result.code === 0) {
+          expect(result.data).toBeTruthy();
+        }
       });
 
       test('3. validateConfig 应正确校验配置', async () => {
@@ -630,6 +546,16 @@ test.describe('AI 功能测试', () => {
 
         expect(result2).toBeTruthy();
         expect(result2!.code).toBe(1);
+      });
+
+      test('4. 应在超时时返回错误', async () => {
+        await configureAiWithEnv(contentPage, 100);
+
+        const result = await contentPage.evaluate(async () => {
+          return await window.electronAPI?.aiManager?.textChat({ prompt: '测试超时场景' });
+        });
+        expect(result).toBeTruthy();
+        expect(result!.code).toBe(1);
       });
     });
   });

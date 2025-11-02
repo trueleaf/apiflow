@@ -353,6 +353,22 @@ export const saveAiConfig = async (
   await contentPage.locator('button:has-text("保存配置")').click();
   await contentPage.waitForTimeout(500);
 };
+// 使用环境变量配置AI（通过API调用）
+export const configureAiWithEnv = async (
+  contentPage: Page,
+  timeout = 60000
+): Promise<void> => {
+  const testApiKey = process.env.TEST_AI_API_KEY;
+  const testApiUrl = process.env.TEST_AI_API_URL;
+  await contentPage.evaluate(async ({ apiKey, apiUrl, timeoutValue }) => {
+    await window.electronAPI?.aiManager?.updateConfig({
+      apiKey: apiKey!,
+      apiUrl: apiUrl!,
+      timeout: timeoutValue
+    });
+  }, { apiKey: testApiKey, apiUrl: testApiUrl, timeoutValue: timeout });
+  await contentPage.waitForTimeout(500);
+};
 
 /**
  * 在项目列表页创建测试项目（不跳转到编辑页面）
