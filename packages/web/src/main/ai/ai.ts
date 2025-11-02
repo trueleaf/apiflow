@@ -58,7 +58,7 @@ export class AiManager {
       return { ...configCheck, data: '' };
     }
 
-    if (!prompt || prompt.length === 0) {
+    if (!prompt || prompt.length === 0 || prompt.every(p => !p || p.trim() === '')) {
       return { code: 1, msg: 'prompt 参数不能为空', data: '' };
     }
 
@@ -101,7 +101,7 @@ export class AiManager {
       return { ...configCheck, data: '' };
     }
 
-    if (!prompt || prompt.length === 0) {
+    if (!prompt || prompt.length === 0 || prompt.every(p => !p || p.trim() === '')) {
       return { code: 1, msg: 'prompt 参数不能为空', data: '' };
     }
 
@@ -174,7 +174,7 @@ export class AiManager {
       return;
     }
 
-    if (!prompt || prompt.length === 0) {
+    if (!prompt || prompt.length === 0 || prompt.every(p => !p || p.trim() === '')) {
       onError({ code: 1, msg: 'prompt 参数不能为空', data: '' });
       return;
     }

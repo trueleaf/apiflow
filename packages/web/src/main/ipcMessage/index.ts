@@ -432,13 +432,13 @@ export const useIpcEvent = (mainWindow: BrowserWindow, topBarView: WebContentsVi
 
   // AI 文本聊天
   ipcMain.handle(IPC_EVENTS.ai.rendererToMain.textChat, async (_: IpcMainInvokeEvent, params?: { prompt: string }) => {
-    const prompt = params?.prompt || '你是什么模型';
+    const prompt = params?.prompt ?? '你是什么模型';
     return await globalAiManager.chatWithText([prompt], { maxTokens: 2000 });
   });
 
   // AI JSON聊天
   ipcMain.handle(IPC_EVENTS.ai.rendererToMain.jsonChat, async (_: IpcMainInvokeEvent, params?: { prompt: string }) => {
-    const prompt = params?.prompt || '生成一个简单的测试JSON对象，包含name和age字段';
+    const prompt = params?.prompt ?? '生成一个简单的测试JSON对象，包含name和age字段';
     return await globalAiManager.chatWithJsonText([prompt], { maxTokens: 2000 });
   });
 
