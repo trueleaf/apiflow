@@ -37,7 +37,7 @@
       <div v-show="starProjects.length > 0" class="project-wrap">
         <div v-for="(item, index) in starProjects" :key="index" class="project-list">
           <div class="project-header">
-            <div :title="item.projectName" class="title theme-color text-ellipsis">
+            <div :title="item.projectName" class="title project-name theme-color text-ellipsis">
               <Emphasize :value="item.projectName" :keyword="projectName"></Emphasize>
             </div>
             <div class="operator">
@@ -76,14 +76,14 @@
           </div>
           <div class="d-flex j-end a-center gray-500 mt-2">
             <span>{{ $t("最新更新") }}:</span>
-            <span>{{ formatDate(item.updatedAt) }}</span>&nbsp;&nbsp;
+            <span class="project-update-time">{{ formatDate(item.updatedAt) }}</span>&nbsp;&nbsp;
           </div>
           <div class="d-flex j-end a-center gray-500">
             <span>{{ $t("创建者") }}:</span>
-            <span>{{ item.owner.name }}</span>&nbsp;&nbsp;
+            <span class="project-creator">{{ item.owner.name }}</span>&nbsp;&nbsp;
           </div>
           <div class="project-bottom d-flex">
-            <div>
+            <div class="project-api-count">
               <span class="f-sm">{{ $t("接口数") }}:</span>
               <span class="teal">{{ item.docNum || 0 }}</span>
             </div>
@@ -113,7 +113,7 @@
       <div v-show="!isFold && !isEmptyState" class="project-wrap">
         <div v-for="(item, index) in projectList" :key="index" class="project-list">
           <div class="project-header">
-            <div :title="item.projectName" class="title theme-color text-ellipsis">
+            <div :title="item.projectName" class="title project-name theme-color text-ellipsis">
               <Emphasize :value="item.projectName" :keyword="projectName"></Emphasize>
             </div>
             <div class="operator">
@@ -152,14 +152,14 @@
           </div>
           <div class="d-flex j-end a-center gray-600 mt-2">
             <span>{{ $t("创建者") }}:</span>
-            <span>{{ item.owner.name }}</span>&nbsp;&nbsp;
+            <span class="project-creator">{{ item.owner.name }}</span>&nbsp;&nbsp;
           </div>
           <div class="d-flex j-end a-center gray-600">
             <span>{{ $t("最新更新") }}:</span>
-            <span>{{ formatDate(item.updatedAt) }}</span>&nbsp;&nbsp;
+            <span class="project-update-time">{{ formatDate(item.updatedAt) }}</span>&nbsp;&nbsp;
           </div>
           <div class="project-bottom d-flex">
-            <div>
+            <div class="project-api-count">
               <span class="f-sm">{{ $t("接口数") }}:</span>
               <span class="teal">{{ item.docNum || 0 }}</span>
             </div>
