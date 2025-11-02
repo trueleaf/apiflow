@@ -1,5 +1,5 @@
 import { expect, type Page } from '@playwright/test';
-import { test, initOfflineWorkbench, clearAllAppData, createProject, editProject } from '../../../fixtures/fixtures';
+import { test, initOfflineWorkbench, clearAllAppData, editProject } from '../../../fixtures/fixtures';
 test.describe('离线模式项目增删改查测试', () => {
   let headerPage: Page;
   let contentPage: Page;
@@ -376,18 +376,19 @@ test.describe('离线模式项目增删改查测试', () => {
       await expect(projectCard).toBeVisible();
 
       // 验证点 1: 项目名称
-      const projectNameDisplay = projectCard.locator('.project-info-name, .name, [class*="name"]').filter({ hasText: projectName });
+      const projectNameDisplay = projectCard.locator('.project-name');
+
       await expect(projectNameDisplay).toBeVisible();
       await expect(projectNameDisplay).toContainText(projectName);
 
       // 验证点 2: 创建者信息（离线模式默认为 'me'）
-      const creatorInfo = projectCard.locator('.creator, .owner, [class*="creator"], [class*="owner"]');
+      const creatorInfo = projectCard.locator('.project-creator');
       await expect(creatorInfo).toBeVisible();
       const creatorText = await creatorInfo.textContent();
       expect(creatorText).toContain('me');
 
       // 验证点 3: 更新时间（应该是最近创建的，验证包含时间相关文字）
-      const updateTime = projectCard.locator('.time, .date, [class*="time"], [class*="update"]');
+      const updateTime = projectCard.locator('.project-update-time');
       await expect(updateTime).toBeVisible();
       const timeText = await updateTime.textContent();
       // 验证时间文本存在（可能是相对时间如"刚刚"、"1分钟前"，或绝对时间）
@@ -395,7 +396,7 @@ test.describe('离线模式项目增删改查测试', () => {
       expect(timeText!.length).toBeGreaterThan(0);
 
       // 验证点 4: 接口数量（新项目应该是 0）
-      const apiCount = projectCard.locator('.count, .api-count, [class*="count"]');
+      const apiCount = projectCard.locator('.project-api-count');
       await expect(apiCount).toBeVisible();
       const countText = await apiCount.textContent();
       // 验证包含数字 0（格式可能是"0"、"0个接口"、"接口: 0"等）
@@ -425,7 +426,6 @@ test.describe('离线模式项目增删改查测试', () => {
       // 待实现
     });
   });
-
   test.describe('输入框焦点测试', () => {
     test('新建项目弹窗打开后输入框应自动获得焦点', async () => {
       // 清空数据确保从干净状态开始

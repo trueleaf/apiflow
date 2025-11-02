@@ -88,10 +88,6 @@ const clickBannerNode = async (contentPage: Page, nodeName: string): Promise<voi
   await contentPage.waitForTimeout(2000);  // 等待标签页创建
 };
 
-// 获取当前激活的标签页
-const getActiveTab = (headerPage: Page) => {
-  return headerPage.locator('.tab-item.active').first();
-};
 
 // 获取所有标签页
 const getAllTabs = (headerPage: Page) => {

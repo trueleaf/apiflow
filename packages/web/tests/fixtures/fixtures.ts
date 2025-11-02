@@ -286,35 +286,6 @@ export const login = async (
   // 等待登录成功跳转到 home 页面
   await contentPage.waitForURL(/home/, { timeout });
 };
-
-// 切换到在线模式并执行登录
-export const switchToOnlineMode = async (
-  headerPage: Page,
-  contentPage: Page,
-  options: {
-    username?: string;
-    password?: string;
-    timeout?: number;
-  } = {}
-): Promise<void> => {
-  const { timeout = 10000 } = options;
-
-  // 点击网络模式按钮切换到 online
-  const networkBtn = headerPage.locator('.network-btn');
-  await networkBtn.click();
-  await contentPage.waitForTimeout(500);
-
-  // 等待跳转到登录页面
-  await contentPage.waitForURL(/login/, { timeout });
-
-  // 执行登录
-  await login(contentPage, options);
-
-  // 等待登录成功并跳转到 home
-  await contentPage.waitForURL(/home/, { timeout });
-  await contentPage.waitForLoadState('domcontentloaded');
-  await contentPage.waitForTimeout(500);
-};
 // 通过点击菜单切换语言
 export const switchLanguageByClick = async (
   headerPage: Page,
@@ -369,57 +340,6 @@ export const configureAiWithEnv = async (
   }, { apiKey: testApiKey, apiUrl: testApiUrl, timeoutValue: timeout });
   await contentPage.waitForTimeout(500);
 };
-
-/**
- * 在项目列表页创建测试项目（不跳转到编辑页面）
- * 注意：此函数假设当前已在项目列表页面（/home）
- * 与 createProject 不同，此函数通过代码方式避免自动跳转，适用于需要在列表页连续创建多个项目的场景
- */
-export const createTestProject = async (
-  contentPage: Page,
-  projectName: string,
-  options: {
-    timeout?: number;
-    waitAfterCreate?: number;
-  } = {}
-): Promise<void> => {
-  const { timeout = 10000, waitAfterCreate = 500 } = options;
-
-  // 打开新建项目对话框
-  await contentPage.locator('button:has-text("新建项目")').click();
-  await contentPage.waitForSelector('.el-dialog:has-text("新增项目")', {
-    state: 'visible',
-    timeout
-  });
-
-  // 填写项目名称
-  const nameInput = contentPage.locator('.el-dialog .el-input input[placeholder*="项目名称"]');
-  await nameInput.fill(projectName);
-
-  // 提交创建
-  await contentPage.locator('.el-dialog__footer button:has-text("确定")').click();
-  await contentPage.waitForSelector('.el-dialog:has-text("新增项目")', {
-    state: 'hidden',
-    timeout
-  });
-
-  // 等待跳转回项目列表页（离线模式会自动跳转）
-  await contentPage.waitForURL(/home/, { timeout });
-  await contentPage.waitForTimeout(waitAfterCreate);
-};
-
-/**
- * 验证元素不存在的辅助函数
- * 比 not.toBeVisible() 更可靠，因为它验证元素在DOM中完全不存在
- */
-export const expectNotExists = async (
-  contentPage: Page,
-  selector: string
-): Promise<void> => {
-  const locator = contentPage.locator(selector);
-  await expect(locator).toHaveCount(0);
-};
-
 /**
  * 清空所有应用数据（IndexedDB + localStorage + sessionStorage）
  * 适用于需要完全重置应用状态的测试场景
