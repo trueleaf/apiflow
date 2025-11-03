@@ -2,7 +2,8 @@
   <div class="project-manager">
     <!-- 搜索条件 -->
     <div class="search-item d-flex a-center mb-3">
-      <el-input v-model="projectName" :placeholder="$t('项目名称')" :prefix-icon="SearchIcon" class="w-200px mr-3" clearable>
+      <el-input v-model="projectName" :placeholder="$t('搜索项目、文档、URL、创建者等')" :prefix-icon="SearchIcon" class="w-200px mr-3" clearable
+        @input="debounceSearch" @change="debounceSearch" @keyup.enter="debounceSearch">
         <template #suffix>
           <el-icon :title="$t('高级搜索')" class="cursor-pointer" :color="isShowAdvanceSearch ? '#409EFF' : '#aaa'"
             @click.stop.prevent="() => isShowAdvanceSearch = !isShowAdvanceSearch">
@@ -14,19 +15,71 @@
       <el-button v-if="0" type="success" :icon="DownloadIcon" @click="dialogVisible3 = true">{{ $t("导入项目") }}</el-button>
     </div>
     <!-- 高级搜索 -->
-    <div v-if="isShowAdvanceSearch">
-      <el-input v-model="projectKeyword" :prefix-icon="SearchIcon" class="w-50 mr-3" clearable
-        :placeholder="$t('输入接口url eg: 接口url')" @keyup.enter="() => { debounceSearch() }"
-        @change="() => { debounceSearch() }" @input="() => { debounceSearch() }">
-        <template #append>
-          <el-button  :loading="projectLoading || searchLoading" @click="() => { debounceSearch() }">
-            <el-icon class="el-icon--right">
-              <SearchIcon />
-            </el-icon>
-            <span>搜索</span>
-          </el-button>
-        </template>
-      </el-input>
+    <div v-if="isShowAdvanceSearch" class="advanced-search-panel mb-3">
+      <!-- 搜索范围选择器 -->
+      <div class="search-scope-selector">
+        <div class="d-flex a-center mb-2">
+          <span class="gray-600 f-sm mr-2">{{ $t("搜索范围") }}:</span>
+          <el-button size="small" text @click="selectAllScopes">{{ $t("全选") }}</el-button>
+          <el-button size="small" text @click="clearAllScopes">{{ $t("清空") }}</el-button>
+        </div>
+        <el-checkbox-group v-model="selectedSearchScopes" class="search-scope-checkboxes">
+          <div class="search-scope-group">
+            <div class="search-scope-group-label">{{ $t("基础信息") }}:</div>
+            <div class="search-scope-group-items">
+              <el-checkbox :value="MatchedFieldTypeEnum.ProjectName" :label="MatchedFieldTypeEnum.ProjectName">
+                {{ $t("项目名称") }}
+              </el-checkbox>
+              <el-checkbox :value="MatchedFieldTypeEnum.DocumentName" :label="MatchedFieldTypeEnum.DocumentName">
+                {{ $t("文档名称") }}
+              </el-checkbox>
+              <el-checkbox :value="MatchedFieldTypeEnum.URL" :label="MatchedFieldTypeEnum.URL">
+                {{ $t("请求URL") }}
+              </el-checkbox>
+              <el-checkbox :value="MatchedFieldTypeEnum.Creator" :label="MatchedFieldTypeEnum.Creator">
+                {{ $t("创建者") }}
+              </el-checkbox>
+              <el-checkbox :value="MatchedFieldTypeEnum.Maintainer" :label="MatchedFieldTypeEnum.Maintainer">
+                {{ $t("维护者") }}
+              </el-checkbox>
+              <el-checkbox :value="MatchedFieldTypeEnum.HttpMethod" :label="MatchedFieldTypeEnum.HttpMethod">
+                {{ $t("请求方法") }}
+              </el-checkbox>
+            </div>
+          </div>
+          <div class="search-scope-group">
+            <div class="search-scope-group-label">{{ $t("文档属性") }}:</div>
+            <div class="search-scope-group-items">
+              <el-checkbox :value="MatchedFieldTypeEnum.Description" :label="MatchedFieldTypeEnum.Description">
+                {{ $t("文档描述") }}
+              </el-checkbox>
+              <el-checkbox :value="MatchedFieldTypeEnum.Version" :label="MatchedFieldTypeEnum.Version">
+                {{ $t("版本信息") }}
+              </el-checkbox>
+              <el-checkbox :value="MatchedFieldTypeEnum.ProjectRemark" :label="MatchedFieldTypeEnum.ProjectRemark">
+                {{ $t("项目备注") }}
+              </el-checkbox>
+            </div>
+          </div>
+          <div class="search-scope-group">
+            <div class="search-scope-group-label">{{ $t("接口参数") }}:</div>
+            <div class="search-scope-group-items">
+              <el-checkbox :value="MatchedFieldTypeEnum.QueryParam" :label="MatchedFieldTypeEnum.QueryParam">
+                {{ $t("查询参数") }}
+              </el-checkbox>
+              <el-checkbox :value="MatchedFieldTypeEnum.Header" :label="MatchedFieldTypeEnum.Header">
+                {{ $t("请求头") }}
+              </el-checkbox>
+              <el-checkbox :value="MatchedFieldTypeEnum.RequestBodyParam" :label="MatchedFieldTypeEnum.RequestBodyParam">
+                {{ $t("请求参数") }}
+              </el-checkbox>
+              <el-checkbox :value="MatchedFieldTypeEnum.ResponseParam" :label="MatchedFieldTypeEnum.ResponseParam">
+                {{ $t("返回参数") }}
+              </el-checkbox>
+            </div>
+          </div>
+        </el-checkbox-group>
+      </div>
     </div>
     <!-- 项目列表 -->
     <Loading :loading="!isStandalone && (projectLoading || searchLoading)">
@@ -81,6 +134,33 @@
           <div class="d-flex j-end a-center gray-500">
             <span>{{ $t("创建者") }}:</span>
             <span class="project-creator">{{ item.owner.name }}</span>&nbsp;&nbsp;
+          </div>
+          <!-- 高级搜索匹配详情 -->
+          <div v-if="projectName.trim().length > 0 && isProjectWithMatchDetails(item)" class="match-details-section mt-3">
+            <div class="match-header cursor-pointer d-flex a-center" @click="toggleMatchDetails(item._id)">
+              <el-icon :size="14" class="mr-1">
+                <CaretBottomIcon v-if="isMatchDetailsExpanded(item._id)" />
+                <CaretRightIcon v-else />
+              </el-icon>
+              <span class="f-sm font-600">{{ $t("匹配详情") }} ({{ item.matchCount }}{{ $t("项匹配") }})</span>
+            </div>
+            <div v-show="isMatchDetailsExpanded(item._id)" class="match-content mt-2">
+              <!-- 项目名匹配 -->
+              <div v-if="item.matchedFields.includes(MatchedFieldTypeEnum.ProjectName)" class="match-item mb-2">
+                <span class="gray-600 f-sm">{{ $t("项目名称") }}:</span>
+                <SearchHighlight :text="item.projectName" :keyword="projectName" />
+              </div>
+              <!-- 匹配的文档列表 -->
+              <div v-if="item.matchedDocuments.length > 0" class="matched-docs">
+                <div class="gray-600 f-sm mb-2">{{ $t("匹配的文档") }} ({{ item.matchedDocuments.length }}{{ $t("个") }}):</div>
+                <MatchedDocumentList 
+                  :documents="item.matchedDocuments" 
+                  :keyword="projectName"
+                  :project-id="item._id"
+                  @doc-click="handleDocumentClick"
+                />
+              </div>
+            </div>
           </div>
           <div class="project-bottom d-flex">
             <div class="project-api-count">
@@ -158,6 +238,33 @@
             <span>{{ $t("最新更新") }}:</span>
             <span class="project-update-time">{{ formatDate(item.updatedAt) }}</span>&nbsp;&nbsp;
           </div>
+          <!-- 高级搜索匹配详情 -->
+          <div v-if="projectName.trim().length > 0 && isProjectWithMatchDetails(item)" class="match-details-section mt-3">
+            <div class="match-header cursor-pointer d-flex a-center" @click="toggleMatchDetails(item._id)">
+              <el-icon :size="14" class="mr-1">
+                <CaretBottomIcon v-if="isMatchDetailsExpanded(item._id)" />
+                <CaretRightIcon v-else />
+              </el-icon>
+              <span class="f-sm font-600">{{ $t("匹配详情") }} ({{ item.matchCount }}{{ $t("项匹配") }})</span>
+            </div>
+            <div v-show="isMatchDetailsExpanded(item._id)" class="match-content mt-2">
+              <!-- 项目名匹配 -->
+              <div v-if="item.matchedFields.includes(MatchedFieldTypeEnum.ProjectName)" class="match-item mb-2">
+                <span class="gray-600 f-sm">{{ $t("项目名称") }}:</span>
+                <SearchHighlight :text="item.projectName" :keyword="projectName" />
+              </div>
+              <!-- 匹配的文档列表 -->
+              <div v-if="item.matchedDocuments.length > 0" class="matched-docs">
+                <div class="gray-600 f-sm mb-2">{{ $t("匹配的文档") }} ({{ item.matchedDocuments.length }}{{ $t("个") }}):</div>
+                <MatchedDocumentList 
+                  :documents="item.matchedDocuments" 
+                  :keyword="projectName"
+                  :project-id="item._id"
+                  @doc-click="handleDocumentClick"
+                />
+              </div>
+            </div>
+          </div>
           <div class="project-bottom d-flex">
             <div class="project-api-count">
               <span class="f-sm">{{ $t("接口数") }}:</span>
@@ -196,11 +303,14 @@ import {
 } from '@element-plus/icons-vue'
 import Loading from '@/components/common/loading/GLoading.vue'
 import Emphasize from '@/components/common/emphasize/GEmphasize.vue'
+import SearchHighlight from '@/components/common/searchHighlight/SearchHighlight.vue'
+import MatchedDocumentList from './components/MatchedDocumentList.vue'
 import AddProjectDialog from '../dialog/addProject/AddProject.vue'
 import EditProjectDialog from '../dialog/editProject/EditProject.vue'
 import EditPermissionDialog from '../dialog/editPermission/EditPermission.vue'
 import { useI18n } from 'vue-i18n'
-import type { CommonResponse, ApidocProjectListInfo, ApidocProjectInfo } from '@src/types';
+import type { CommonResponse, ApidocProjectListInfo, ApidocProjectInfo, ProjectWithMatchDetails, MatchedFieldType } from '@src/types';
+import { MatchedFieldType as MatchedFieldTypeEnum } from '@src/types';
 import { computed, onMounted, ref, watch } from 'vue';
 import { request } from '@/api/api';
 import 'element-plus/es/components/message-box/style/css';
@@ -215,7 +325,6 @@ import { useRuntime } from '@/store/runtime/runtimeStore'
 import { httpMockLogsCache } from '@/cache/mock/httpMock/httpMockLogsCache';
 import { IPC_EVENTS } from '@src/types/ipc';
 
-
 //变量
 const { t } = useI18n()
 const projectStore = useProjectStore();
@@ -224,15 +333,29 @@ const isStandalone = computed(() => runtimeStore.networkMode === 'offline');
 const projectLoading = ref(false);
 const starProjectIds = ref<string[]>([]);
 const projectName = ref('');
-const projectKeyword = ref('')
+const selectedSearchScopes = ref<MatchedFieldType[]>([
+  MatchedFieldTypeEnum.ProjectName,
+  MatchedFieldTypeEnum.DocumentName,
+  MatchedFieldTypeEnum.URL,
+  MatchedFieldTypeEnum.Creator,
+  MatchedFieldTypeEnum.Maintainer,
+  MatchedFieldTypeEnum.HttpMethod,
+  MatchedFieldTypeEnum.Description,
+  MatchedFieldTypeEnum.Version,
+  MatchedFieldTypeEnum.QueryParam,
+  MatchedFieldTypeEnum.Header,
+  MatchedFieldTypeEnum.RequestBodyParam,
+  MatchedFieldTypeEnum.ResponseParam,
+  MatchedFieldTypeEnum.ProjectRemark
+]);
 const projectListCopy = ref<ApidocProjectInfo[]>([]);
-const projectListCopy2 = ref<ApidocProjectInfo[]>([]);
+const projectListCopy2 = ref<ProjectWithMatchDetails[]>([]);
 watch(() => projectStore.projectList, (list) => {
   projectListCopy.value = list.slice();
   starProjectIds.value = list.filter((item) => item.isStared).map((item) => item._id);
-  const isAdvancedSearch = projectKeyword.value.trim().length > 0 && isShowAdvanceSearch.value;
+  const isAdvancedSearch = projectName.value.trim().length > 0 && isShowAdvanceSearch.value;
   if (isStandalone.value && !isAdvancedSearch) {
-    projectListCopy2.value = list.slice();
+    projectListCopy2.value = [];
   }
 }, { deep: true, immediate: true });
 //同步离线项目列表
@@ -263,13 +386,45 @@ const isFold = ref(false);
 const searchLoading = ref(false);
 const starLoading = ref(false);
 const unStarLoading = ref(false);
+const expandedProjectIds = ref<Set<string>>(new Set());
+//全选搜索范围
+const selectAllScopes = (): void => {
+  selectedSearchScopes.value = [
+    MatchedFieldTypeEnum.ProjectName,
+    MatchedFieldTypeEnum.DocumentName,
+    MatchedFieldTypeEnum.URL,
+    MatchedFieldTypeEnum.Creator,
+    MatchedFieldTypeEnum.Maintainer,
+    MatchedFieldTypeEnum.HttpMethod,
+    MatchedFieldTypeEnum.Description,
+    MatchedFieldTypeEnum.Version,
+    MatchedFieldTypeEnum.QueryParam,
+    MatchedFieldTypeEnum.Header,
+    MatchedFieldTypeEnum.RequestBodyParam,
+    MatchedFieldTypeEnum.ResponseParam,
+    MatchedFieldTypeEnum.ProjectRemark
+  ];
+};
+//清空搜索范围
+const clearAllScopes = (): void => {
+  selectedSearchScopes.value = [];
+};
+//监听搜索范围变化,触发重新搜索
+watch(selectedSearchScopes, () => {
+  if (projectName.value.trim().length > 0 && isShowAdvanceSearch.value) {
+    debounceSearch();
+  }
+}, { deep: true });
 const dialogVisible = ref(false);
 const dialogVisible2 = ref(false);
 const dialogVisible3 = ref(false);
 const dialogVisible4 = ref(false);
-const projectList = computed(() => {
-  const list = (projectKeyword.value.trim().length > 0 && isShowAdvanceSearch.value) ? projectListCopy2.value : projectListCopy.value;
-  const filteredProjectList = list.filter((val) => val.projectName.match(new RegExp(projectName.value, 'gi')))
+const projectList = computed<(ApidocProjectInfo | ProjectWithMatchDetails)[]>(() => {
+  const hasKeyword = projectName.value.trim().length > 0;
+  const list = hasKeyword ? projectListCopy2.value : projectListCopy.value;
+  const filteredProjectList = hasKeyword 
+    ? list 
+    : list.filter((val) => val.projectName.match(new RegExp(projectName.value, 'gi')));
   return filteredProjectList.map((val) => {
     const isStared = starProjectIds.value.find((id: string) => id === val._id);
     return {
@@ -278,9 +433,12 @@ const projectList = computed(() => {
     };
   });
 });
-const starProjects = computed(() => {
-  const list = (projectKeyword.value.trim().length > 0 && isShowAdvanceSearch.value) ? projectListCopy2.value : projectListCopy.value;
-  const filteredProjectList = list.filter((val) => val.projectName.match(new RegExp(projectName.value, 'gi')))
+const starProjects = computed<(ApidocProjectInfo | ProjectWithMatchDetails)[]>(() => {
+  const hasKeyword = projectName.value.trim().length > 0;
+  const list = hasKeyword ? projectListCopy2.value : projectListCopy.value;
+  const filteredProjectList = hasKeyword 
+    ? list 
+    : list.filter((val) => val.projectName.match(new RegExp(projectName.value, 'gi')));
   return filteredProjectList.filter((projectInfo) => starProjectIds.value.find((id: string) => id === projectInfo._id)).map((val) => {
     const isStared = starProjectIds.value.find((id: string) => id === val._id);
     return {
@@ -291,7 +449,7 @@ const starProjects = computed(() => {
 });
 //判断是否显示空状态
 const isEmptyState = computed(() => {
-  const hasSearchCondition = projectName.value.trim().length > 0 || (isShowAdvanceSearch.value && projectKeyword.value.trim().length > 0);
+  const hasSearchCondition = projectName.value.trim().length > 0;
   return !hasSearchCondition && projectList.value.length === 0;
 });
 const apidocBaseInfo = useApidocBaseInfo()
@@ -492,52 +650,216 @@ const toggleCollapse = () => {
   isFold.value = !isFold.value;
   localStorage.setItem('doc-list/isFold', isFold.value ? 'close' : 'open');
 }
+//切换匹配详情展开状态
+const toggleMatchDetails = (projectId: string) => {
+  if (expandedProjectIds.value.has(projectId)) {
+    expandedProjectIds.value.delete(projectId);
+  } else {
+    expandedProjectIds.value.add(projectId);
+  }
+}
+//判断匹配详情是否展开
+const isMatchDetailsExpanded = (projectId: string): boolean => {
+  return expandedProjectIds.value.has(projectId);
+}
+//类型守卫：判断是否为带匹配详情的项目
+const isProjectWithMatchDetails = (project: ApidocProjectInfo | ProjectWithMatchDetails): project is ProjectWithMatchDetails => {
+  return 'matchCount' in project && project.matchCount > 0;
+}
+//处理文档点击跳转
+const handleDocumentClick = (docId: string, projectId: string) => {
+  const project = projectListCopy2.value.find((p) => p._id === projectId);
+  if (!project) return;
+  router.push({
+    path: '/v1/apidoc/doc-edit',
+    query: {
+      id: projectId,
+      name: project.projectName,
+      mode: 'edit',
+      docId: docId
+    },
+  });
+  apidocBaseInfo.changeProjectId(projectId);
+}
 //防抖搜索
 const debounceSearch = debounce(async () => {
   searchLoading.value = true;
-  if (projectKeyword.value?.trim().length === 0) {
+  if (projectName.value?.trim().length === 0) {
     projectListCopy2.value = [];
+    expandedProjectIds.value.clear();
     setTimeout(() => {
       searchLoading.value = false;
     }, 100)
     return
   }
   if (isStandalone.value) {
-    const keyword = projectKeyword.value.toLowerCase().trim();
+    const keyword = projectName.value.toLowerCase().trim();
     const docs = await apiNodesCache.getNodeList();
     const projectList = await projectCache.getProjectList();
-    const filteredDocs = docs.filter((doc) => {
+    const projectMatchMap = new Map<string, ProjectWithMatchDetails>();
+    const scopes = isShowAdvanceSearch.value ? selectedSearchScopes.value : [
+      MatchedFieldTypeEnum.ProjectName,
+      MatchedFieldTypeEnum.DocumentName,
+      MatchedFieldTypeEnum.URL,
+      MatchedFieldTypeEnum.Creator,
+      MatchedFieldTypeEnum.Maintainer,
+      MatchedFieldTypeEnum.HttpMethod,
+      MatchedFieldTypeEnum.Description,
+      MatchedFieldTypeEnum.Version,
+      MatchedFieldTypeEnum.QueryParam,
+      MatchedFieldTypeEnum.Header,
+      MatchedFieldTypeEnum.RequestBodyParam,
+      MatchedFieldTypeEnum.ResponseParam,
+      MatchedFieldTypeEnum.ProjectRemark
+    ];
+    docs.forEach((doc) => {
       const hasItem = 'item' in doc && doc.item;
-      const urlMatch = hasItem && 'url' in doc.item && doc.item.url && 
-                      ('path' in doc.item.url ? doc.item.url.path.toLowerCase().includes(keyword) : false);
-      const docNameMatch = doc.info.name.toLowerCase().includes(keyword);
-      const creatorMatch = doc.info.creator.toLowerCase().includes(keyword);
-      const lastModifierMatch = doc.info.maintainer.toLowerCase().includes(keyword);
-      return (
-        urlMatch || docNameMatch || creatorMatch || lastModifierMatch
-      );
+      const matchedFields: MatchedFieldType[] = [];
+      let urlPath = '';
+      let method = '';
+      if (scopes.includes(MatchedFieldTypeEnum.URL) && hasItem && 'url' in doc.item && doc.item.url && 'path' in doc.item.url) {
+        urlPath = doc.item.url.path;
+        if (urlPath.toLowerCase().includes(keyword)) {
+          matchedFields.push(MatchedFieldTypeEnum.URL);
+        }
+      }
+      if (hasItem && 'method' in doc.item) {
+        method = doc.item.method as string;
+        if (scopes.includes(MatchedFieldTypeEnum.HttpMethod) && method.toLowerCase().includes(keyword)) {
+          matchedFields.push(MatchedFieldTypeEnum.HttpMethod);
+        }
+      }
+      const docName = doc.info.name;
+      if (scopes.includes(MatchedFieldTypeEnum.DocumentName) && docName.toLowerCase().includes(keyword)) {
+        matchedFields.push(MatchedFieldTypeEnum.DocumentName);
+      }
+      const creator = doc.info.creator;
+      if (scopes.includes(MatchedFieldTypeEnum.Creator) && creator.toLowerCase().includes(keyword)) {
+        matchedFields.push(MatchedFieldTypeEnum.Creator);
+      }
+      const maintainer = doc.info.maintainer;
+      if (scopes.includes(MatchedFieldTypeEnum.Maintainer) && maintainer.toLowerCase().includes(keyword)) {
+        matchedFields.push(MatchedFieldTypeEnum.Maintainer);
+      }
+      const description = doc.info.description;
+      if (scopes.includes(MatchedFieldTypeEnum.Description) && description.toLowerCase().includes(keyword)) {
+        matchedFields.push(MatchedFieldTypeEnum.Description);
+      }
+      const version = doc.info.version;
+      if (scopes.includes(MatchedFieldTypeEnum.Version) && version.toLowerCase().includes(keyword)) {
+        matchedFields.push(MatchedFieldTypeEnum.Version);
+      }
+      if (scopes.includes(MatchedFieldTypeEnum.QueryParam) && hasItem && 'queryParams' in doc.item && Array.isArray(doc.item.queryParams)) {
+        const hasQueryParamMatch = doc.item.queryParams.some((param) => param.key.toLowerCase().includes(keyword));
+        if (hasQueryParamMatch) {
+          matchedFields.push(MatchedFieldTypeEnum.QueryParam);
+        }
+      }
+      if (scopes.includes(MatchedFieldTypeEnum.Header) && hasItem && 'headers' in doc.item && Array.isArray(doc.item.headers)) {
+        const hasHeaderMatch = doc.item.headers.some((header) => header.key.toLowerCase().includes(keyword));
+        if (hasHeaderMatch) {
+          matchedFields.push(MatchedFieldTypeEnum.Header);
+        }
+      }
+      if (scopes.includes(MatchedFieldTypeEnum.RequestBodyParam) && hasItem && 'requestBody' in doc.item && doc.item.requestBody) {
+        const requestBody = doc.item.requestBody;
+        let hasRequestBodyMatch = false;
+        if ('formData' in requestBody && Array.isArray(requestBody.formData)) {
+          hasRequestBodyMatch = requestBody.formData.some((param) => param.key.toLowerCase().includes(keyword));
+        }
+        if (!hasRequestBodyMatch && 'urlencoded' in requestBody && Array.isArray(requestBody.urlencoded)) {
+          hasRequestBodyMatch = requestBody.urlencoded.some((param) => param.key.toLowerCase().includes(keyword));
+        }
+        if (hasRequestBodyMatch) {
+          matchedFields.push(MatchedFieldTypeEnum.RequestBodyParam);
+        }
+      }
+      if (scopes.includes(MatchedFieldTypeEnum.ResponseParam) && hasItem && 'responseParams' in doc.item && Array.isArray(doc.item.responseParams)) {
+        const hasResponseMatch = doc.item.responseParams.some((response) => {
+          if ('values' in response && Array.isArray(response.values)) {
+            return response.values.some((param) => param.key.toLowerCase().includes(keyword));
+          }
+          return false;
+        });
+        if (hasResponseMatch) {
+          matchedFields.push(MatchedFieldTypeEnum.ResponseParam);
+        }
+      }
+      if (matchedFields.length > 0) {
+        const projectId = doc.projectId;
+        if (!projectMatchMap.has(projectId)) {
+          const project = projectList.find((p) => p._id === projectId);
+          if (project) {
+            projectMatchMap.set(projectId, {
+              ...project,
+              matchedFields: [],
+              matchedDocuments: [],
+              matchCount: 0
+            });
+          }
+        }
+        const projectMatch = projectMatchMap.get(projectId);
+        if (projectMatch) {
+          projectMatch.matchedDocuments.push({
+            _id: doc._id,
+            name: docName,
+            method: method,
+            url: urlPath,
+            creator: creator,
+            maintainer: maintainer,
+            matchedFields: matchedFields
+          });
+          projectMatch.matchCount++;
+        }
+      }
     });
-    const filteredProjects = projectList.filter((project) => {
-      const projectNameMatch = project.projectName.toLowerCase().includes(keyword);
-      const hasMatchingDoc = filteredDocs.some((doc) => doc.projectId === project._id);
-      return projectNameMatch || hasMatchingDoc;
+    projectList.forEach((project) => {
+      const projectNameMatch = scopes.includes(MatchedFieldTypeEnum.ProjectName) && project.projectName.toLowerCase().includes(keyword);
+      const projectRemarkMatch = scopes.includes(MatchedFieldTypeEnum.ProjectRemark) && project.remark.toLowerCase().includes(keyword);
+      if (projectNameMatch || projectRemarkMatch) {
+        if (!projectMatchMap.has(project._id)) {
+          projectMatchMap.set(project._id, {
+            ...project,
+            matchedFields: [],
+            matchedDocuments: [],
+            matchCount: 0
+          });
+        }
+        const existing = projectMatchMap.get(project._id);
+        if (existing) {
+          if (projectNameMatch && !existing.matchedFields.includes(MatchedFieldTypeEnum.ProjectName)) {
+            existing.matchedFields.push(MatchedFieldTypeEnum.ProjectName);
+            existing.matchCount++;
+          }
+          if (projectRemarkMatch && !existing.matchedFields.includes(MatchedFieldTypeEnum.ProjectRemark)) {
+            existing.matchedFields.push(MatchedFieldTypeEnum.ProjectRemark);
+            existing.matchCount++;
+          }
+        }
+      }
     });
-    projectListCopy2.value = filteredProjects;
+    projectListCopy2.value = Array.from(projectMatchMap.values());
+    expandedProjectIds.value = new Set(projectMatchMap.keys());
     setTimeout(() => {
       searchLoading.value = false;
     }, 300)
     return;
   }
   request.get<CommonResponse<ApidocProjectListInfo>, CommonResponse<ApidocProjectListInfo>>('/api/project/project_list_by_keyword', {
-    params: { keyword: projectKeyword.value }
+    params: { keyword: projectName.value }
   }).then((res) => {
-    projectListCopy2.value = res.data.list;
+    projectListCopy2.value = res.data.list.map((project) => ({
+      ...project,
+      matchedFields: [],
+      matchedDocuments: [],
+      matchCount: 0
+    }));
   }).catch((err) => {
     console.error(err);
   }).finally(() => {
     searchLoading.value = false;
   });
-}, isStandalone.value ? 100 : 1000)
+}, 300)
 onMounted(() => {
   getProjectList();
   initCahce();
@@ -547,6 +869,45 @@ onMounted(() => {
 
 <style lang='scss' scoped>
 .project-manager {
+  .advanced-search-panel {
+    .search-hint {
+      line-height: 1.5;
+    }
+    .search-scope-selector {
+      .search-scope-checkboxes {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        .search-scope-group {
+          display: flex;
+          align-items: flex-start;
+          margin-bottom: 0;
+          .search-scope-group-label {
+            width: 80px;
+            flex-shrink: 0;
+            text-align: right;
+            font-size: 13px;
+            color: #666;
+            font-weight: 500;
+            padding-right: 12px;
+            line-height: 32px;
+          }
+          .search-scope-group-items {
+            flex: 1;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+          }
+        }
+        :deep(.el-checkbox) {
+          margin-right: 0;
+          .el-checkbox__label {
+            padding-left: 4px;
+          }
+        }
+      }
+    }
+  }
   .empty-container {
     min-height: 500px;
     display: flex;
@@ -608,6 +969,28 @@ onMounted(() => {
           &:hover {
             background: var(--gray-200);
           }
+        }
+      }
+    }
+
+    .match-details-section {
+      padding: 12px;
+      background-color: var(--gray-50);
+      border: 1px solid var(--gray-200);
+      border-radius: 4px;
+      .match-header {
+        color: var(--primary-color);
+        &:hover {
+          opacity: 0.8;
+        }
+      }
+      .match-content {
+        padding-left: 20px;
+        .match-item {
+          line-height: 1.8;
+        }
+        .matched-docs {
+          margin-top: 8px;
         }
       }
     }
