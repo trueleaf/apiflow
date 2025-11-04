@@ -62,7 +62,7 @@ import type { FormInstance } from 'element-plus';
 import { request } from '@/api/api';
 import { useRouter } from 'vue-router';
 import { config } from '@src/config/config';
-import { formatDate } from '@/helper/format'
+import { formatDate } from '@/helper'
 import { message } from '@/helper'
 
 

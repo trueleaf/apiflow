@@ -55,7 +55,7 @@
 <script lang="ts" setup>
 import { computed } from 'vue'
 import { QuestionFilled } from '@element-plus/icons-vue'
-import { formatUnit } from '@/helper/format'
+import { formatUnit } from '@/helper'
 import { useI18n } from 'vue-i18n'
 import { useApidocResponse } from '@/store/share/responseStore';
 

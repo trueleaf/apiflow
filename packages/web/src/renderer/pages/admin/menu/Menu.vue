@@ -65,7 +65,7 @@ import SLoading from '@/components/common/loading/GLoading.vue'
 import SCard from '@/components/common/card/GCard.vue'
 import { onMounted, onUnmounted, ref } from 'vue'
 import { request } from '@/api/api'
-import { findParentById, forEachForest } from '@/helper/tree'
+import { findParentById, forEachForest } from '@/helper'
 import { ElMessageBox } from 'element-plus'
 import { message } from '@/helper'
 type TreeNode = Node & {

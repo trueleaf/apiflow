@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
 import { ApidocVariable } from '@src/types';
-import { getObjectVariable } from '@/helper/template';
+import { getObjectVariable } from '@/helper';
 
 export const useShareDocStore = defineStore('shareDoc', () => {
   // 分享项目变量

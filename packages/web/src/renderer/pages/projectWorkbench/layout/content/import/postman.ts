@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { apidocGenerateProperty, generateHttpNode } from '@/helper/apidoc'
+import { apidocGenerateProperty, generateHttpNode } from '@/helper'
 import { nanoid } from 'nanoid/non-secure'
 
 class PostmanTranslator {

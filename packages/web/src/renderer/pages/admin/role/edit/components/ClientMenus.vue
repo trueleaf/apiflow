@@ -13,7 +13,7 @@
 
 <script lang="ts" setup>
 import { request } from '@/api/api';
-import { forEachForest } from '@/helper/tree';
+import { forEachForest } from '@/helper';
 import { TreeInstance } from 'element-plus';
 import { onMounted, ref } from 'vue';
 import { useI18n } from 'vue-i18n'

@@ -90,7 +90,7 @@
 
 <script lang="ts" setup>
 import { ref, watch } from 'vue';
-import { isJsonString } from '@/helper/validator';
+import { isJsonString } from '@/helper';
 import dayjs from 'dayjs';
 import SJsonEditor from '@/components/common/jsonEditor/GJsonEditor.vue';
 

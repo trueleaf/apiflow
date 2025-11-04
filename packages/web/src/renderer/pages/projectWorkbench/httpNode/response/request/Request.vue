@@ -64,8 +64,8 @@ import { useApidoc } from '@/store/share/apidocStore';
 import SCollapse from '@/components/common/collapse/GCollapse.vue'
 import { useApidocBaseInfo } from '@/store/share/baseInfoStore';
 import { useApidocResponse } from '@/store/share/responseStore';
-import { downloadStringAsText } from '@/helper/common'
-import { formatUnit } from '@/helper/format'
+import { downloadStringAsText } from '@/helper'
+import { formatUnit } from '@/helper'
 import { storeToRefs } from 'pinia';
 import SJsonEditor from '@/components/common/jsonEditor/GJsonEditor.vue'
 

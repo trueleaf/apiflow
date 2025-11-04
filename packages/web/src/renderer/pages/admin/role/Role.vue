@@ -29,7 +29,7 @@ import { ElMessageBox } from 'element-plus';
 import { useI18n } from 'vue-i18n'
 import STable from '@/components/common/table/GTable.vue'
 import { request } from '@/api/api';
-import { formatDate } from '@/helper/format'
+import { formatDate } from '@/helper'
 
 
 const { t } = useI18n()

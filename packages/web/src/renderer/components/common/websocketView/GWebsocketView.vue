@@ -69,8 +69,8 @@
 </template>
 
 <script lang="ts" setup>
-import { downloadStringAsText } from '@/helper/common'
-import { formatDate } from '@/helper/format';
+import { downloadStringAsText } from '@/helper'
+import { formatDate } from '@/helper';
 import { computed, ref, onMounted, onBeforeUnmount, watch } from 'vue';
 import type { WebsocketResponse } from '@src/types/websocketNode';
 import GVirtualScroll from '@/components/apidoc/virtualScroll/GVirtualScroll.vue';

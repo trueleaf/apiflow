@@ -202,8 +202,8 @@
 import { ref, computed, watchEffect } from 'vue';
 import { ArrowDown } from '@element-plus/icons-vue';
 import SJsonEditor from '@/components/common/jsonEditor/GJsonEditor.vue';
-import { formatDate } from '@/helper/format'
-import { convertTemplateValueToRealValue } from '@/helper/template';
+import { formatDate } from '@/helper'
+import { convertTemplateValueToRealValue } from '@/helper';
 import { defaultRequestMethods } from '../common';
 import SParamsView from '@/components/apidoc/paramsView/GParamsView.vue';
 import { useShareStore } from '../store';

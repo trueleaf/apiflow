@@ -23,7 +23,7 @@ import { router } from '@/router'
 import { message } from '@/helper'
 import { ApidocProperty, CommonResponse } from '@src/types';
 import { request } from '@/api/api';
-import { apidocGenerateProperty } from '@/helper/apidoc';
+import { apidocGenerateProperty } from '@/helper';
 import SFieldset from '@/components/common/fieldset/GFieldset.vue'
 import SLoading from '@/components/common/loading/GLoading.vue'
 import SParamsTree from '@/components/apidoc/paramsTree/GParamsTree.vue'

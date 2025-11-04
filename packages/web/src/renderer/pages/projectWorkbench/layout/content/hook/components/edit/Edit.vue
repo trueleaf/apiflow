@@ -36,8 +36,8 @@ import SFieldset from '@/components/common/fieldset/GFieldset.vue'
 import SJsonEditor from '@/components/common/jsonEditor/GJsonEditor.vue'
 import SForm from '@/components/common/forms/form/GForm.vue'
 import SFormItem from '@/components/common/forms/form/GFormItem.vue'
-import { getResponseParamsByHttpNode, getUrlInfo } from '@/helper/apidoc'
-import { convertApidocPropertyToObject } from '@/helper/params';
+import { getResponseParamsByHttpNode, getUrlInfo } from '@/helper'
+import { convertApidocPropertyToObject } from '@/helper';
 import type { ApidocCodeInfo } from '@src/types'
 import { request } from '@/api/api';
 import { router } from '@/router';

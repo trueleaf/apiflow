@@ -283,7 +283,7 @@ import type { HttpNode, ApidocProperty } from '@src/types'
 import { httpNodeCache } from '@/cache/httpNode/httpNodeCache.ts'
 import { userState } from '@/cache/userState/userStateCache.ts'
 import { webSocketNodeCache } from '@/cache/websocketNode/websocketNodeCache.ts'
-import { checkPropertyIsEqual } from '@/helper/apidoc'
+import { checkPropertyIsEqual } from '@/helper'
 import { debounce } from "lodash-es"
 import { useI18n } from 'vue-i18n'
 import { RefreshLeft, RefreshRight, Clock, Delete, Loading, Close } from '@element-plus/icons-vue'

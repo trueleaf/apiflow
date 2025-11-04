@@ -1,7 +1,7 @@
 import { MockHttpNode } from "@src/types/mockNode";
 import { defineStore, storeToRefs } from "pinia";
 import { ref } from "vue";
-import { generateEmptyHttpMockNode } from '@/helper/apidoc';
+import { generateEmptyHttpMockNode } from '@/helper';
 import { nanoid } from 'nanoid/non-secure';
 import { cloneDeep } from "lodash-es";
 import { apiNodesCache } from "@/cache/index";

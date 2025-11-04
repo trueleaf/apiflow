@@ -3,7 +3,7 @@ import { GlobalConfig, PermissionClientMenu, PermissionClientRoute, PermissionUs
 import { defineStore } from 'pinia'
 import layout from '@/pages/appWorkbench/content/content.vue';
 import { ref } from 'vue';
-import { uniqueByKey } from '@/helper/common';
+import { uniqueByKey } from '@/helper';
 import { request } from '@/api/api';
 import { useRuntime } from '@/store/runtime/runtimeStore';
 

@@ -295,8 +295,8 @@ import { useApidocBaseInfo } from '@/store/share/baseInfoStore';
 import { useApidocResponse } from '@/store/share/responseStore';
 import { computed, onMounted, onUnmounted, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n'
-import { downloadStringAsText } from '@/helper/common'
-import { formatHeader, formatUnit } from '@/helper/format'
+import { downloadStringAsText } from '@/helper'
+import { formatHeader, formatUnit } from '@/helper'
 import { config } from '@src/config/config'
 import SJsonEditor from '@/components/common/jsonEditor/GJsonEditor.vue'
 import SSseView from '@/components/common/sseView/GSseView.vue'

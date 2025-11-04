@@ -16,9 +16,9 @@
 
 <script lang="ts" setup>
 import { onMounted, ref, Ref } from 'vue';
-import { getResponseParamsByHttpNode, getUrlInfo } from '@/helper/apidoc'
-import { copy } from '@/helper/common'
-import { convertApidocPropertyToObject } from '@/helper/params';
+import { getResponseParamsByHttpNode, getUrlInfo } from '@/helper'
+import { copy } from '@/helper'
+import { convertApidocPropertyToObject } from '@/helper';
 import { request } from '@/api/api';
 import { router } from '@/router';
 import type { ApidocCodeInfo, CommonResponse } from '@src/types'

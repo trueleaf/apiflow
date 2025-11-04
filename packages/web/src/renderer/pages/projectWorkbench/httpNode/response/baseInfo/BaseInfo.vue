@@ -38,7 +38,7 @@ import { useApidoc } from '@/store/share/apidocStore';
 import { useApidocBaseInfo } from '@/store/share/baseInfoStore';
 import { useI18n } from 'vue-i18n'
 import { computed } from 'vue';
-import { formatDate } from '@/helper/format'
+import { formatDate } from '@/helper'
 import SLabelValue from '@/components/common/labelValue/GLabelValue.vue'
 import { useApidocRequest } from '@/store/share/requestStore';
 

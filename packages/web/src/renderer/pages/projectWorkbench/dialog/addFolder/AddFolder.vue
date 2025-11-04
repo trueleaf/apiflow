@@ -20,7 +20,7 @@ import { computed, ref } from 'vue';
 import { request } from '@/api/api';
 import { message } from '@/helper'
 import { useRoute } from 'vue-router';
-import { generateEmptyHttpNode } from '@/helper/apidoc';
+import { generateEmptyHttpNode } from '@/helper';
 import { nanoid } from 'nanoid';
 import { apiNodesCache } from '@/cache/index';
 import { useRuntime } from '@/store/runtime/runtimeStore';

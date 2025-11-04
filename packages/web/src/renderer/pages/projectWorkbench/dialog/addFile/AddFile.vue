@@ -36,7 +36,7 @@ import { FormInstance, ElInput } from 'element-plus';
 import { request } from '@/api/api';
 import { message } from '@/helper'
 import { useRoute } from 'vue-router';
-import { generateEmptyHttpMockNode, generateEmptyHttpNode, generateEmptyWebsocketNode } from '@/helper/apidoc';
+import { generateEmptyHttpMockNode, generateEmptyHttpNode, generateEmptyWebsocketNode } from '@/helper';
 import { apiNodesCache } from '@/cache/index';
 import { nanoid } from 'nanoid';
 import { useRuntime } from '@/store/runtime/runtimeStore';

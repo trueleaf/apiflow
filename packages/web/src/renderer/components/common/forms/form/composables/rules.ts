@@ -1,5 +1,5 @@
 import {  VNode, Slots } from 'vue'
-import { forEachForest } from '@/helper/tree'
+import { forEachForest } from '@/helper'
 
 const initRules = (slots: Slots): Record<string, unknown> => {
   const rules: Record<string, unknown[]> = {};

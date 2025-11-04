@@ -316,7 +316,7 @@ export class ApiNodesCache {
   // 以树形方式获取文件夹
   async getApiNodesAsTree(projectId: string, filterType?: ApidocType) {
     const projectNodes = await this.getNodesByProjectId(projectId);
-    const { convertNodesToBannerNodes } = await import("@/helper/apidoc");
+    const { convertNodesToBannerNodes } = await import("@/helper");
     const folderNodes = projectNodes.filter(node => {
       if (!filterType) {
         return true;

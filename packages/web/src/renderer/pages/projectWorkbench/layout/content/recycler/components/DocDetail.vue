@@ -109,7 +109,7 @@ import SFieldset from '@/components/common/fieldset/GFieldset.vue'
 import SParamsView from '@/components/apidoc/paramsView/GParamsView.vue'
 import SRawEditor from '@/components/apidoc/rawEditor/GRawEditor.vue'
 import SJsonEditor from '@/components/common/jsonEditor/GJsonEditor.vue'
-import { formatDate } from '@/helper/format'
+import { formatDate } from '@/helper'
 import { useApidocBaseInfo } from '@/store/share/baseInfoStore';
 import { useApidocRequest } from '@/store/share/requestStore';
 import { apiNodesCache } from '@/cache/index';

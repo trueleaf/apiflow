@@ -1,7 +1,7 @@
 import { computed } from 'vue'
 import type { ApidocProperty } from '@src/types'
 // import type { ApidocProjectHost } from "@src/types/store"
-import { apidocGenerateProperty } from '@/helper/apidoc'
+import { apidocGenerateProperty } from '@/helper'
 import { useApidoc } from '@/store/share/apidocStore';
 // import globalConfig from "@/../config/config"
 // import { router } from "@/router/index"

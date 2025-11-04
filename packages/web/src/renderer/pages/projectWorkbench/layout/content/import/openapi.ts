@@ -1,7 +1,7 @@
 import jsontoxml from 'jsontoxml'
 import type { OpenAPIV3 } from 'openapi-types';
 import type { ApidocProperty, HttpNode, HttpNodePropertyType, HttpNodeRequestMethod, HttpNodeBodyRawType, HttpNodeResponseContentType } from '@src/types'
-import { apidocGenerateProperty, generateHttpNode } from '@/helper/apidoc'
+import { apidocGenerateProperty, generateHttpNode } from '@/helper'
 import { nanoid } from 'nanoid/non-secure'
 import { i18n } from '@/i18n'
 

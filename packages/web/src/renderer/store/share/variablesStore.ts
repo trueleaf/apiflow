@@ -1,4 +1,4 @@
-import { getObjectVariable } from '@/helper/template';
+import { getObjectVariable } from '@/helper';
 import { ApidocVariable } from "@src/types";
 import { defineStore } from "pinia"
 import { ref } from 'vue';

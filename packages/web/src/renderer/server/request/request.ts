@@ -2,8 +2,8 @@ import { useApidoc } from '@/store/share/apidocStore';
 import { ref, toRaw } from 'vue';
 import json5 from 'json5'
 import { HttpNode, ApidocProperty } from '@src/types';
-import { getFormDataFromFormDataParams, getObjectPathParams, getStringFromParams } from '@/helper/params'
-import { convertTemplateValueToRealValue } from '@/helper/template';
+import { getFormDataFromFormDataParams, getObjectPathParams, getStringFromParams } from '@/helper'
+import { convertTemplateValueToRealValue } from '@/helper';
 import { useVariable } from '@/store/share/variablesStore';
 import { GotRequestOptions, JsonData, RedirectOptions, ResponseInfo } from '@src/types/index.ts';
 import { useApidocBaseInfo } from '@/store/share/baseInfoStore';

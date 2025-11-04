@@ -30,8 +30,8 @@
 import { onMounted, onUnmounted, provide, ref, useSlots, VNode, watch } from 'vue'
 import { config } from '@src/config/config'
 import { FormInstance } from 'element-plus';
-import { getTextWidth } from '@/helper/format'
-import { forEachForest } from '@/helper/tree';
+import { getTextWidth } from '@/helper'
+import { forEachForest } from '@/helper';
 import SCard from '@/components/common/card/GCard.vue'
 
 const props = defineProps({

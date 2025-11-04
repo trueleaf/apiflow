@@ -2,7 +2,7 @@ import { WebSocketNode, WebsocketMessageType, WebsocketResponse, WebsocketSendMe
 import { defineStore, storeToRefs } from "pinia";
 import { ref, watch } from "vue";
 import { ApidocProperty } from "@src/types";
-import { apidocGenerateProperty, generateEmptyWebsocketNode } from '@/helper/apidoc';
+import { apidocGenerateProperty, generateEmptyWebsocketNode } from '@/helper';
 import { nanoid } from 'nanoid/non-secure';
 import { cloneDeep, debounce } from "lodash-es";
 import { apiNodesCache } from "@/cache/index";

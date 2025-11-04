@@ -14,7 +14,7 @@
 <script lang="ts" setup>
 import { request } from '@/api/api';
 import SLoading from '@/components/common/loading/GLoading.vue'
-import { forEachForest } from '@/helper/tree';
+import { forEachForest } from '@/helper';
 import { TreeInstance } from 'element-plus';
 import { useI18n } from 'vue-i18n'
 import { onMounted, ref } from 'vue';

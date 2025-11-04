@@ -114,8 +114,8 @@
 </template>
 
 <script lang="ts" setup>
-import { downloadStringAsText } from '@/helper/common'
-import { parseChunkList } from '@/helper/sse';
+import { downloadStringAsText } from '@/helper'
+import { parseChunkList } from '@/helper';
 import { debounce, get } from "lodash-es";
 import { computed, ref, onMounted, onBeforeUnmount, nextTick, watch } from 'vue';
 import type { ComponentPublicInstance } from 'vue';

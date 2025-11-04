@@ -316,7 +316,7 @@ import { request } from '@/api/api';
 import 'element-plus/es/components/message-box/style/css';
 import { ElMessageBox } from 'element-plus';
 import { router } from '@/router';
-import { formatDate } from '@/helper/format';
+import { formatDate } from '@/helper';
 import { debounce } from "lodash-es";
 import { useApidocBaseInfo } from '@/store/share/baseInfoStore'
 import { projectCache, apiNodesCache } from '@/cache/index'

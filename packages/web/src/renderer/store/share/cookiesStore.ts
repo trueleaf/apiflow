@@ -2,7 +2,7 @@ import { defineStore } from "pinia";
 import { ref } from "vue";
 import { parse } from 'set-cookie-parser';
 import { httpNodeCache } from '@/cache/httpNode/httpNodeCache.ts';
-import { parseUrlInfo } from "@/helper/url";
+import { parseUrlInfo } from "@/helper";
 import { nanoid } from 'nanoid/non-secure';
 import dayjs from "dayjs";
 

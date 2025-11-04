@@ -1,4 +1,4 @@
-import { apidocGenerateProperty, generateHttpNode } from '@/helper/apidoc'
+import { apidocGenerateProperty, generateHttpNode } from '@/helper'
 import { event } from '@/helper'
 import { nanoid } from 'nanoid/non-secure';
 import { cloneDeep, assign } from "lodash-es"

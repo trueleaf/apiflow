@@ -64,7 +64,7 @@ import SAddUserDialog from './add/Add.vue'
 import SEditUserDialog from './edit/Edit.vue'
 import SResetPasswordDialog from './resetPassword/ResetPassword.vue'
 import { ref } from 'vue';
-import { formatDate } from '@/helper/format'
+import { formatDate } from '@/helper'
 import { ElMessageBox } from 'element-plus';
 import { request } from '@/api/api';
 import SSearch from '@/components/common/forms/search/GSearch.vue'

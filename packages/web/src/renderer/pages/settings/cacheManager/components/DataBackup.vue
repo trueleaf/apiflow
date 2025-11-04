@@ -92,7 +92,7 @@
 <script setup lang="ts">
 import { ref, reactive, onMounted, onUnmounted, watch } from 'vue';
 import { ExportStatus } from '@src/types/index.ts';
-import { getIndexedDBItemCount } from '@/helper/storage';
+import { getIndexedDBItemCount } from '@/helper';
 import { IPC_EVENTS } from '@src/types/ipc';
 import { message } from '@/helper';
 
