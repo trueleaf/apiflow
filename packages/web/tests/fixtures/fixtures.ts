@@ -75,7 +75,6 @@ export const initOfflineWorkbench = async (
     await networkBtn.click();
     await contentPage.waitForURL(/home/, { timeout });
     await contentPage.waitForLoadState('domcontentloaded');
-    await contentPage.waitForTimeout(500);
   }
 
   if (clearStorage) {
@@ -88,7 +87,6 @@ export const initOfflineWorkbench = async (
   await contentPage.reload();
   await contentPage.waitForURL(/home/, { timeout });
   await contentPage.waitForLoadState('domcontentloaded');
-  await contentPage.waitForTimeout(1000);
 
   return { headerPage, contentPage };
 };

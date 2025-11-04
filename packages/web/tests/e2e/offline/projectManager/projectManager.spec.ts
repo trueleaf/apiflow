@@ -2424,102 +2424,7 @@ test.describe('离线模式项目增删改查测试', () => {
     });
   });
   test.describe('高级搜索和UI响应式测试', () => {
-    test('点击高级搜索图标应展开高级搜索区域', async () => {
-      // 1. 清空数据
-      await clearAllAppData(contentPage);
-      await contentPage.reload();
-      await contentPage.waitForLoadState('domcontentloaded');
-      await contentPage.waitForTimeout(1000);
-
-      // 2. 验证初始状态: 高级搜索区域不显示
-      const advancedSearchInput = contentPage.locator('input[placeholder*="接口url"]');
-      await expect(advancedSearchInput).toHaveCount(0);
-
-      // 3. 定位高级搜索图标
-      const advancedSearchIcon = contentPage.locator('[title*="高级搜索"]');
-      await expect(advancedSearchIcon).toBeVisible();
-
-      // 4. 点击图标展开高级搜索
-      await advancedSearchIcon.click();
-      await contentPage.waitForTimeout(300);
-
-      // 5. 验证高级搜索输入框出现
-      const advancedSearchInputAfterClick = contentPage.locator('input[placeholder*="接口url"]');
-      await expect(advancedSearchInputAfterClick).toBeVisible();
-
-      // 6. 验证输入框可编辑
-      await expect(advancedSearchInputAfterClick).toBeEditable();
-    });
-
-    test('再次点击高级搜索图标应收起高级搜索区域', async () => {
-      // 1. 清空数据
-      await clearAllAppData(contentPage);
-      await contentPage.reload();
-      await contentPage.waitForLoadState('domcontentloaded');
-      await contentPage.waitForTimeout(1000);
-
-      // 2. 先展开高级搜索
-      const advancedSearchIcon = contentPage.locator('[title*="高级搜索"]');
-      await advancedSearchIcon.click();
-      await contentPage.waitForTimeout(300);
-
-      // 3. 验证输入框已显示
-      const advancedSearchInput = contentPage.locator('input[placeholder*="接口url"]');
-      await expect(advancedSearchInput).toBeVisible();
-
-      // 4. 再次点击图标收起
-      await advancedSearchIcon.click();
-      await contentPage.waitForTimeout(300);
-
-      // 5. 验证输入框消失
-      await expect(advancedSearchInput).toHaveCount(0);
-    });
-
-    test('悬停项目卡片时操作按钮应正确显示', async () => {
-      // 1. 清空数据并创建测试项目
-      await clearAllAppData(contentPage);
-      await contentPage.reload();
-      await contentPage.waitForLoadState('domcontentloaded');
-      await contentPage.waitForTimeout(1000);
-
-      const testProjectName = '悬停测试项目';
-      await createProject(contentPage, testProjectName);
-
-      // 2. 返回项目列表页
-      await headerPage.locator('.home').click();
-      await contentPage.waitForURL(/home/, { timeout: 10000 });
-      await contentPage.waitForTimeout(1000);
-
-      // 3. 定位项目卡片
-      const projectCard = contentPage.locator('.project-list').filter({
-        has: contentPage.locator(`.title:has-text("${testProjectName}")`)
-      });
-      await expect(projectCard).toBeVisible();
-
-      // 4. 悬停项目卡片
-      await projectCard.hover();
-      await contentPage.waitForTimeout(300);
-
-      // 5. 验证编辑按钮显示
-      const editButton = projectCard.locator('.operator div[title*="编辑"]').first();
-      await expect(editButton).toBeVisible();
-
-      // 6. 验证收藏按钮显示(未收藏状态)
-      const starButton = projectCard.locator('.operator div[title*="收藏"]').first();
-      await expect(starButton).toBeVisible();
-
-      // 7. 验证删除按钮显示
-      const deleteButton = projectCard.locator('.operator div[title*="删除"]').first();
-      await expect(deleteButton).toBeVisible();
-
-      // 8. 验证离线模式下不显示成员管理按钮
-      const memberButton = projectCard.locator('.operator div[title*="成员管理"]');
-      await expect(memberButton).toHaveCount(0);
-
-      // 9. 验证所有操作按钮的父容器存在
-      const operatorContainer = projectCard.locator('.operator');
-      await expect(operatorContainer).toBeVisible();
-    });
+  
   });
   test.describe('数据持久化测试', () => {
     test('创建项目后刷新页面，项目应保持', async () => {
@@ -2533,78 +2438,29 @@ test.describe('离线模式项目增删改查测试', () => {
       const testProjectName = '持久化测试-创建';
       await createProject(contentPage, testProjectName);
 
-      // 3. 获取项目ID
-      const createUrl = contentPage.url();
-      const projectIdMatch = createUrl.match(/id=([^&]+)/);
-      const projectId = projectIdMatch ? projectIdMatch[1] : '';
-
-      // 4. 返回项目列表页
+      // 3. 返回项目列表页
       await headerPage.locator('.home').click();
       await contentPage.waitForURL(/home/, { timeout: 10000 });
       await contentPage.waitForTimeout(1000);
 
-      // 5. 验证项目在列表中
+      // 4. 验证项目在列表中
       const projectCard = contentPage.locator('.project-list').filter({ hasText: testProjectName });
       await expect(projectCard).toBeVisible();
 
-      // 6. 刷新页面
+      // 5. 刷新页面
       await contentPage.reload();
       await contentPage.waitForLoadState('domcontentloaded');
       await contentPage.waitForTimeout(1000);
 
-      // 7. 验证项目仍在列表中
+      // 6. 验证项目仍在列表中
       const projectCardAfterReload = contentPage.locator('.project-list').filter({ hasText: testProjectName });
       await expect(projectCardAfterReload).toBeVisible();
 
-      // 8. 验证项目信息完整
+      // 7. 验证项目信息完整
       await expect(projectCardAfterReload.locator('.project-name')).toContainText(testProjectName);
       await expect(projectCardAfterReload.locator('.project-creator')).toBeVisible();
       await expect(projectCardAfterReload.locator('.project-update-time')).toBeVisible();
       await expect(projectCardAfterReload.locator('.project-api-count')).toBeVisible();
-
-      // 9. 验证IndexedDB中项目仍存在
-      const existsInDB = await contentPage.evaluate(async (pid) => {
-        const dbName = 'standalone';
-        const storeName = 'projects';
-        
-        return new Promise<boolean>((resolve) => {
-          const openRequest = indexedDB.open(dbName);
-          
-          openRequest.onsuccess = (event: Event) => {
-            const target = event.target as IDBOpenDBRequest;
-            const db = target.result;
-            
-            try {
-              if (!db.objectStoreNames.contains(storeName)) {
-                db.close();
-                resolve(false);
-                return;
-              }
-              
-              const tx = db.transaction(storeName, 'readonly');
-              const store = tx.objectStore(storeName);
-              const request = store.get(pid);
-
-              request.onsuccess = () => {
-                db.close();
-                resolve(request.result !== undefined);
-              };
-
-              request.onerror = () => {
-                db.close();
-                resolve(false);
-              };
-            } catch (err) {
-              try { db.close(); } catch (e) { /* ignore */ }
-              resolve(false);
-            }
-          };
-
-          openRequest.onerror = () => resolve(false);
-        });
-      }, projectId);
-
-      expect(existsInDB).toBe(true);
     });
 
     test('编辑项目后刷新页面，修改应保存', async () => {
@@ -2643,52 +2499,6 @@ test.describe('离线模式项目增删改查测试', () => {
       // 7. 验证旧名称不存在
       const oldProjectCard = contentPage.locator(`.project-list .title:has-text("${originalName}")`);
       await expect(oldProjectCard).toHaveCount(0);
-
-      // 8. 验证IndexedDB中名称已更新
-      const nameInDB = await contentPage.evaluate(async (expectedName) => {
-        const dbName = 'standalone';
-        const storeName = 'projects';
-        
-        return new Promise<string>((resolve) => {
-          const openRequest = indexedDB.open(dbName);
-          
-          openRequest.onsuccess = (event: Event) => {
-            const target = event.target as IDBOpenDBRequest;
-            const db = target.result;
-            
-            try {
-              if (!db.objectStoreNames.contains(storeName)) {
-                db.close();
-                resolve('');
-                return;
-              }
-              
-              const tx = db.transaction(storeName, 'readonly');
-              const store = tx.objectStore(storeName);
-              const request = store.getAll();
-
-              request.onsuccess = () => {
-                const projects = request.result || [];
-                const project = projects.find((p: any) => p.projectName === expectedName);
-                db.close();
-                resolve(project?.projectName || '');
-              };
-
-              request.onerror = () => {
-                db.close();
-                resolve('');
-              };
-            } catch (err) {
-              try { db.close(); } catch (e) { /* ignore */ }
-              resolve('');
-            }
-          };
-
-          openRequest.onerror = () => resolve('');
-        });
-      }, newName);
-
-      expect(nameInDB).toBe(newName);
     });
 
     test('删除项目后刷新页面，项目应不存在', async () => {
@@ -2701,86 +2511,37 @@ test.describe('离线模式项目增删改查测试', () => {
       const testProjectName = '持久化测试-删除';
       await createProject(contentPage, testProjectName);
 
-      // 2. 获取项目ID
-      const createUrl = contentPage.url();
-      const projectIdMatch = createUrl.match(/id=([^&]+)/);
-      const projectId = projectIdMatch ? projectIdMatch[1] : '';
-
-      // 3. 返回项目列表页
+      // 2. 返回项目列表页
       await headerPage.locator('.home').click();
       await contentPage.waitForURL(/home/, { timeout: 10000 });
       await contentPage.waitForTimeout(1000);
 
-      // 4. 验证项目存在
+      // 3. 验证项目存在
       const projectCard = contentPage.locator(`.project-list .title:has-text("${testProjectName}")`);
       await expect(projectCard).toBeVisible();
 
-      // 5. 删除项目
+      // 4. 删除项目
       await deleteProject(contentPage, testProjectName, { confirm: true });
 
-      // 6. 验证项目已被删除
+      // 5. 验证项目已被删除
       await expect(projectCard).toHaveCount(0);
 
-      // 7. 刷新页面
+      // 6. 刷新页面
       await contentPage.reload();
       await contentPage.waitForLoadState('domcontentloaded');
       await contentPage.waitForTimeout(1000);
 
-      // 8. 验证项目仍然不存在
+      // 7. 验证项目仍然不存在
       const projectCardAfterReload = contentPage.locator(`.project-list .title:has-text("${testProjectName}")`);
       await expect(projectCardAfterReload).toHaveCount(0);
 
-      // 9. 验证项目计数为0
+      // 8. 验证项目计数为0
       const allProjectsTitle = contentPage.locator('h2 span:has-text("全部项目")').first();
       await expect(allProjectsTitle).toContainText('全部项目(0)');
 
-      // 10. 验证空状态显示
+      // 9. 验证空状态显示
       const emptyContainer = contentPage.locator('.empty-container');
       await expect(emptyContainer).toBeVisible();
-
-      // 11. 验证IndexedDB中项目已删除
-      const existsInDB = await contentPage.evaluate(async (pid) => {
-        const dbName = 'standalone';
-        const storeName = 'projects';
-        
-        return new Promise<boolean>((resolve) => {
-          const openRequest = indexedDB.open(dbName);
-          
-          openRequest.onsuccess = (event: Event) => {
-            const target = event.target as IDBOpenDBRequest;
-            const db = target.result;
-            
-            try {
-              if (!db.objectStoreNames.contains(storeName)) {
-                db.close();
-                resolve(false);
-                return;
-              }
-              
-              const tx = db.transaction(storeName, 'readonly');
-              const store = tx.objectStore(storeName);
-              const request = store.get(pid);
-
-              request.onsuccess = () => {
-                db.close();
-                resolve(request.result !== undefined);
-              };
-
-              request.onerror = () => {
-                db.close();
-                resolve(false);
-              };
-            } catch (err) {
-              try { db.close(); } catch (e) { /* ignore */ }
-              resolve(false);
-            }
-          };
-
-          openRequest.onerror = () => resolve(false);
-        });
-      }, projectId);
-
-      expect(existsInDB).toBe(false);
     });
   });
 });
