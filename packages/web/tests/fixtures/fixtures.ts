@@ -418,7 +418,7 @@ export const clearAllAppData = async (
     waitAfterClear?: number;
   } = {}
 ): Promise<void> => {
-  const { waitAfterClear = 500 } = options;
+  const { waitAfterClear = 1000 } = options;
 
   await contentPage.evaluate(async () => {
     // 清空 localStorage
@@ -429,11 +429,21 @@ export const clearAllAppData = async (
 
     // 清空所有 IndexedDB 数据库
     const databases = await indexedDB.databases();
-    for (const db of databases) {
-      if (db.name) {
-        indexedDB.deleteDatabase(db.name);
-      }
-    }
+    const deletePromises = databases.map((db) => {
+      return new Promise<void>((resolve, reject) => {
+        if (db.name) {
+          const deleteRequest = indexedDB.deleteDatabase(db.name);
+          deleteRequest.onsuccess = () => resolve();
+          deleteRequest.onerror = () => reject(new Error(`删除数据库 ${db.name} 失败`));
+          deleteRequest.onblocked = () => {
+            setTimeout(() => resolve(), 1000);
+          };
+        } else {
+          resolve();
+        }
+      });
+    });
+    await Promise.all(deletePromises);
   });
 
   // 等待数据库删除操作完成

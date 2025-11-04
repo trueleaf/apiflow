@@ -115,7 +115,7 @@ test.describe('离线模式项目增删改查测试', () => {
 
     test('项目列表容器应显示正确的顶部操作栏', async () => {
       // 1. 验证搜索输入框
-      const searchInput = contentPage.locator('input[placeholder*="项目名称"]');
+      const searchInput = contentPage.locator('input[placeholder*="搜索项目"]');
       await expect(searchInput).toBeVisible();
       await expect(searchInput).toBeEditable();
 
@@ -310,6 +310,11 @@ test.describe('离线模式项目增删改查测试', () => {
     });
 
     test('点击取消按钮应关闭弹窗且不创建项目', async () => {
+      // 0. 清空所有数据，确保从干净状态开始
+      await clearAllAppData(contentPage);
+      await contentPage.reload();
+      await contentPage.waitForLoadState('domcontentloaded');
+
       // 1. 记录当前项目数量
       const initialProjectCount = contentPage.locator('h2 span:has-text("全部项目")').first();
       const initialCountText = await initialProjectCount.textContent();
