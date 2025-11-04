@@ -2543,5 +2543,218 @@ test.describe('离线模式项目增删改查测试', () => {
       const emptyContainer = contentPage.locator('.empty-container');
       await expect(emptyContainer).toBeVisible();
     });
+
+    test('批量收藏项目后刷新页面应保持所有收藏状态', async () => {
+      // 1. 清空数据并创建3个测试项目
+      await clearAllAppData(contentPage);
+      await contentPage.reload();
+      await contentPage.waitForLoadState('domcontentloaded');
+      await contentPage.waitForTimeout(1000);
+
+      const projectNames = ['持久化收藏项目1', '持久化收藏项目2', '持久化收藏项目3'];
+      for (const name of projectNames) {
+        await createProject(contentPage, name);
+        await headerPage.locator('.home').click();
+        await contentPage.waitForURL(/home/, { timeout: 10000 });
+        await contentPage.waitForTimeout(500);
+      }
+
+      // 2. 依次收藏这3个项目
+      for (const name of projectNames) {
+        const projectCard = contentPage.locator('h2:has(span:has-text("全部项目")) + .project-wrap .project-list').filter({
+          has: contentPage.locator(`.title:has-text("${name}")`)
+        }).first();
+        await projectCard.hover();
+        await contentPage.waitForTimeout(300);
+
+        const starButton = projectCard.locator('.operator div[title*="收藏"]').first();
+        await starButton.click();
+        await contentPage.waitForTimeout(500);
+      }
+
+      // 3. 验证"收藏的项目"区域显示且有3个项目
+      const starProjectsSection = contentPage.locator('h2 span:has-text("收藏的项目")');
+      await expect(starProjectsSection).toBeVisible();
+      const starredProjectCards = contentPage.locator('h2:has(span:has-text("收藏的项目")) + .project-wrap .project-list');
+      await expect(starredProjectCards).toHaveCount(3);
+
+      // 4. 刷新页面
+      await contentPage.reload();
+      await contentPage.waitForLoadState('domcontentloaded');
+      await contentPage.waitForTimeout(1000);
+
+      // 5. 验证"收藏的项目"区域仍然显示
+      const starProjectsSectionAfterReload = contentPage.locator('h2 span:has-text("收藏的项目")');
+      await expect(starProjectsSectionAfterReload).toBeVisible();
+
+      // 6. 验证3个项目都在收藏列表中
+      const starredProjectCardsAfterReload = contentPage.locator('h2:has(span:has-text("收藏的项目")) + .project-wrap .project-list');
+      await expect(starredProjectCardsAfterReload).toHaveCount(3);
+
+      // 7. 验证每个项目都在收藏列表中且名称正确
+      for (const name of projectNames) {
+        const starredProject = contentPage.locator('h2:has(span:has-text("收藏的项目")) + .project-wrap .project-list').filter({
+          hasText: name
+        });
+        await expect(starredProject).toBeVisible();
+      }
+
+      // 8. 验证每个项目的收藏图标状态为已收藏（在全部项目区域检查）
+      for (const name of projectNames) {
+        const projectCard = contentPage.locator('h2:has(span:has-text("全部项目")) + .project-wrap .project-list').filter({
+          has: contentPage.locator(`.title:has-text("${name}")`)
+        }).first();
+        await projectCard.hover();
+        await contentPage.waitForTimeout(300);
+        const unstarButton = projectCard.locator('[title*="取消收藏"]').first();
+        await expect(unstarButton).toBeVisible();
+      }
+    });
+
+    test('折叠状态和收藏状态组合后刷新应同时保持', async () => {
+      // 1. 清空数据并创建2个测试项目
+      await clearAllAppData(contentPage);
+      await contentPage.reload();
+      await contentPage.waitForLoadState('domcontentloaded');
+      await contentPage.waitForTimeout(1000);
+
+      const project1Name = '组合测试收藏项目';
+      const project2Name = '组合测试普通项目';
+
+      await createProject(contentPage, project1Name);
+      await headerPage.locator('.home').click();
+      await contentPage.waitForURL(/home/, { timeout: 10000 });
+      await contentPage.waitForTimeout(500);
+
+      await createProject(contentPage, project2Name);
+      await headerPage.locator('.home').click();
+      await contentPage.waitForURL(/home/, { timeout: 10000 });
+      await contentPage.waitForTimeout(1000);
+
+      // 2. 收藏第一个项目
+      const projectCard = contentPage.locator('.project-list').filter({
+        has: contentPage.locator(`.title:has-text("${project1Name}")`)
+      });
+      await projectCard.hover();
+      await contentPage.waitForTimeout(300);
+
+      const starButton = projectCard.locator('.operator div[title*="收藏"]').first();
+      await starButton.click();
+      await contentPage.waitForTimeout(500);
+
+      // 3. 折叠"全部项目"列表
+      const allProjectsTitle = contentPage.locator('h2 span:has-text("全部项目")').first();
+      await allProjectsTitle.click();
+      await contentPage.waitForTimeout(500);
+
+      // 4. 验证列表已折叠且收藏区域显示
+      const projectWrap = contentPage.locator('h2:has-text("全部项目")').locator('~ .project-wrap').first();
+      await expect(projectWrap).toBeHidden();
+      const starProjectsSection = contentPage.locator('h2 span:has-text("收藏的项目")');
+      await expect(starProjectsSection).toBeVisible();
+
+      // 5. 刷新页面
+      await contentPage.reload();
+      await contentPage.waitForLoadState('domcontentloaded');
+      await contentPage.waitForTimeout(1000);
+
+      // 6. 验证"全部项目"列表仍是折叠状态
+      const projectWrapAfterReload = contentPage.locator('h2:has-text("全部项目")').locator('~ .project-wrap').first();
+      await expect(projectWrapAfterReload).toBeHidden();
+
+      // 7. 验证"收藏的项目"区域仍然显示
+      const starProjectsSectionAfterReload = contentPage.locator('h2 span:has-text("收藏的项目")');
+      await expect(starProjectsSectionAfterReload).toBeVisible();
+
+      // 8. 验证收藏的项目在收藏列表中
+      const starredProject = contentPage.locator('h2:has(span:has-text("收藏的项目")) + .project-wrap .project-list').filter({
+        hasText: project1Name
+      });
+      await expect(starredProject).toBeVisible();
+
+      // 9. 验证localStorage中折叠状态为'close'
+      const isFoldInStorage = await contentPage.evaluate(() => {
+        return localStorage.getItem('doc-list/isFold');
+      });
+      expect(isFoldInStorage).toBe('close');
+
+      // 10. 展开列表验证项目计数和收藏状态
+      await allProjectsTitle.click();
+      await contentPage.waitForTimeout(500);
+      const allProjectsCards = contentPage.locator('h2:has(span:has-text("全部项目")) + .project-wrap .project-list');
+      await expect(allProjectsCards).toHaveCount(2);
+    });
+
+    test('编辑已收藏项目名称后刷新应保持收藏和新名称', async () => {
+      // 1. 清空数据并创建测试项目
+      await clearAllAppData(contentPage);
+      await contentPage.reload();
+      await contentPage.waitForLoadState('domcontentloaded');
+      await contentPage.waitForTimeout(1000);
+
+      const originalName = '编辑前的收藏项目';
+      const newName = '编辑后的收藏项目';
+
+      await createProject(contentPage, originalName);
+
+      // 2. 返回项目列表页
+      await headerPage.locator('.home').click();
+      await contentPage.waitForURL(/home/, { timeout: 10000 });
+      await contentPage.waitForTimeout(1000);
+
+      // 3. 收藏该项目
+      const projectCard = contentPage.locator('.project-list').filter({
+        has: contentPage.locator(`.title:has-text("${originalName}")`)
+      });
+      await projectCard.hover();
+      await contentPage.waitForTimeout(300);
+
+      const starButton = projectCard.locator('.operator div[title*="收藏"]').first();
+      await starButton.click();
+      await contentPage.waitForTimeout(500);
+
+      // 4. 验证收藏成功
+      const starProjectsSection = contentPage.locator('h2 span:has-text("收藏的项目")');
+      await expect(starProjectsSection).toBeVisible();
+
+      // 5. 编辑项目名称
+      await editProject(contentPage, originalName, newName);
+
+      // 6. 验证新名称在收藏列表中
+      const starredProjectWithNewName = contentPage.locator('h2:has(span:has-text("收藏的项目")) + .project-wrap .project-list').filter({
+        hasText: newName
+      });
+      await expect(starredProjectWithNewName).toBeVisible();
+
+      // 7. 刷新页面
+      await contentPage.reload();
+      await contentPage.waitForLoadState('domcontentloaded');
+      await contentPage.waitForTimeout(1000);
+
+      // 8. 验证"收藏的项目"区域仍然显示
+      const starProjectsSectionAfterReload = contentPage.locator('h2 span:has-text("收藏的项目")');
+      await expect(starProjectsSectionAfterReload).toBeVisible();
+
+      // 9. 验证新名称在收藏列表中显示
+      const starredProjectAfterReload = contentPage.locator('h2:has(span:has-text("收藏的项目")) + .project-wrap .project-list').filter({
+        hasText: newName
+      });
+      await expect(starredProjectAfterReload).toBeVisible();
+
+      // 10. 验证旧名称不存在
+      const oldNameInStarList = contentPage.locator('h2:has(span:has-text("收藏的项目")) + .project-wrap .project-list').filter({
+        hasText: originalName
+      });
+      await expect(oldNameInStarList).toHaveCount(0);
+
+      // 11. 验证收藏图标状态为已收藏（在全部项目区域检查）
+      const projectCardAfterReload = contentPage.locator('h2:has(span:has-text("全部项目")) + .project-wrap .project-list').filter({
+        has: contentPage.locator(`.title:has-text("${newName}")`)
+      }).first();
+      await projectCardAfterReload.hover();
+      await contentPage.waitForTimeout(300);
+      const unstarButton = projectCardAfterReload.locator('[title*="取消收藏"]').first();
+      await expect(unstarButton).toBeVisible();
+    });
   });
 });
