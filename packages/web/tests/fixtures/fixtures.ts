@@ -202,14 +202,24 @@ export const editProject = async (
   contentPage: Page,
   currentProjectName: string,
   newProjectName: string,
-  options: { timeout?: number; shouldTestFocus?: boolean } = {}
+  options: { timeout?: number; shouldTestFocus?: boolean; section?: 'star' | 'all' } = {}
 ): Promise<void> => {
-  const { timeout = 10000, shouldTestFocus = false } = options;
+  const { timeout = 10000, shouldTestFocus = false, section } = options;
 
-  // 找到项目卡片
-  const projectCard = contentPage.locator('.project-list').filter({
-    has: contentPage.locator(`.title:has-text("${currentProjectName}")`)
-  });
+  let projectCard;
+  if (section === 'star') {
+    projectCard = contentPage.locator('h2:has(span:has-text("收藏的项目")) + .project-wrap .project-list').filter({
+      has: contentPage.locator(`.title:has-text("${currentProjectName}")`)
+    });
+  } else if (section === 'all') {
+    projectCard = contentPage.locator('h2:has(span:has-text("全部项目")) + .project-wrap .project-list').filter({
+      has: contentPage.locator(`.title:has-text("${currentProjectName}")`)
+    });
+  } else {
+    projectCard = contentPage.locator('.project-list').filter({
+      has: contentPage.locator(`.title:has-text("${currentProjectName}")`)
+    }).first();
+  }
 
   // 点击编辑按钮
   const editButton = projectCard.locator('.operator div[title*="编辑"]').first();
@@ -340,6 +350,71 @@ export const configureAiWithEnv = async (
   }, { apiKey: testApiKey, apiUrl: testApiUrl, timeoutValue: timeout });
   await contentPage.waitForTimeout(500);
 };
+/**
+ * 删除项目
+ * @param contentPage - 内容页面对象
+ * @param projectName - 要删除的项目名称（用于定位项目卡片）
+ * @param options - 可选配置项
+ */
+export const deleteProject = async (
+  contentPage: Page,
+  projectName: string,
+  options: {
+    confirm?: boolean;
+    timeout?: number;
+    section?: 'star' | 'all';
+  } = {}
+): Promise<void> => {
+  const { confirm = true, timeout = 10000, section } = options;
+
+  let projectCard;
+  if (section === 'star') {
+    projectCard = contentPage.locator('h2:has(span:has-text("收藏的项目")) + .project-wrap .project-list').filter({
+      has: contentPage.locator(`.title:has-text("${projectName}")`)
+    });
+  } else if (section === 'all') {
+    projectCard = contentPage.locator('h2:has(span:has-text("全部项目")) + .project-wrap .project-list').filter({
+      has: contentPage.locator(`.title:has-text("${projectName}")`)
+    });
+  } else {
+    projectCard = contentPage.locator('.project-list').filter({
+      has: contentPage.locator(`.title:has-text("${projectName}")`)
+    }).first();
+  }
+
+  // 悬停项目卡片以显示操作按钮
+  await projectCard.hover();
+  await contentPage.waitForTimeout(300); // 等待悬停动画
+
+  // 点击删除按钮
+  const deleteButton = projectCard.locator('.operator div[title*="删除"]').first();
+  await deleteButton.click();
+
+  // 等待确认对话框出现
+  await contentPage.waitForSelector('.el-message-box', {
+    state: 'visible',
+    timeout
+  });
+
+  // 根据 confirm 参数点击确定或取消
+  if (confirm) {
+    const confirmBtn = contentPage.locator('.el-message-box button:has-text("确定")');
+    await confirmBtn.click();
+  } else {
+    const cancelBtn = contentPage.locator('.el-message-box button:has-text("取消")');
+    await cancelBtn.click();
+  }
+
+  // 等待对话框关闭
+  await contentPage.waitForSelector('.el-message-box', {
+    state: 'hidden',
+    timeout
+  });
+
+  // 等待列表更新
+  await contentPage.waitForTimeout(500);
+};
+
 /**
  * 清空所有应用数据（IndexedDB + localStorage + sessionStorage）
  * 适用于需要完全重置应用状态的测试场景
