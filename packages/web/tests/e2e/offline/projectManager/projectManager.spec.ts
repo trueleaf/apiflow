@@ -37,7 +37,6 @@ test.describe('离线模式项目增删改查测试', () => {
       // 重新加载页面以应用清空后的状态
       await contentPage.reload();
       await contentPage.waitForLoadState('domcontentloaded');
-      await contentPage.waitForTimeout(1000);
 
       // 1. 验证"全部项目"区域显示 (0)
       const allProjectsTitle = contentPage.locator('h2 span:has-text("全部项目")').first();
@@ -100,12 +99,10 @@ test.describe('离线模式项目增删改查测试', () => {
       // 点击返回首页按钮(点击header中的"主页面"按钮)
       await headerPage.locator('.home').click();
       await contentPage.waitForURL(/home/, { timeout: 10000 });
-      await contentPage.waitForTimeout(1000);
 
       // 验证点 4: 成员管理图标不显示
       const projectCard = contentPage.locator('.project-list').first();
       await projectCard.hover();
-      await contentPage.waitForTimeout(300); // 等待悬停动画
       const memberManageIcon = projectCard.locator('[title*="成员管理"]');
       await expect(memberManageIcon).toHaveCount(0);
 
@@ -170,7 +167,6 @@ test.describe('离线模式项目增删改查测试', () => {
       // 点击返回首页
       await headerPage.locator('.home').click();
       await contentPage.waitForURL(/home/, { timeout: 10000 });
-      await contentPage.waitForTimeout(1000);
 
       // 3. 验证计数变为 (1)
       await expect(allProjectsTitle).toContainText('全部项目(1)');
@@ -190,7 +186,6 @@ test.describe('离线模式项目增删改查测试', () => {
       // 点击返回首页
       await headerPage.locator('.home').click();
       await contentPage.waitForURL(/home/, { timeout: 10000 });
-      await contentPage.waitForTimeout(1000);
 
       // 5. 验证计数变为 (2)
       await expect(allProjectsTitle).toContainText('全部项目(2)');
@@ -299,7 +294,6 @@ test.describe('离线模式项目增删改查测试', () => {
       // 导航回主页
       await headerPage.locator('.home').click();
       await contentPage.waitForURL(/home/, { timeout: 10000 });
-      await contentPage.waitForTimeout(1000);
 
       // 创建包含特殊字符的项目
       const specialProjectName = '测试-API_2024@v1.0';
@@ -343,7 +337,7 @@ test.describe('离线模式项目增删改查测试', () => {
       await expect(contentPage).toHaveURL(/home/);
 
       // 7. 等待确保没有异步创建操作
-      await contentPage.waitForTimeout(1000);
+
 
       // 8. 验证项目数量没有变化
       const finalCountText = await initialProjectCount.textContent();
@@ -369,7 +363,6 @@ test.describe('离线模式项目增删改查测试', () => {
       // 2. 导航回项目列表页
       await headerPage.locator('.home').click();
       await contentPage.waitForURL(/home/, { timeout: 10000 });
-      await contentPage.waitForTimeout(1000);
 
       // 3. 定位到新创建的项目卡片
       const projectCard = contentPage.locator('.project-list').filter({ hasText: projectName });
@@ -404,7 +397,6 @@ test.describe('离线模式项目增删改查测试', () => {
 
       // 额外验证：悬停后显示操作按钮
       await projectCard.hover();
-      await contentPage.waitForTimeout(300);
 
       // 验证编辑按钮存在
       const editBtn = projectCard.locator('button:has-text("编辑")');
@@ -421,7 +413,6 @@ test.describe('离线模式项目增删改查测试', () => {
       await clearAllAppData(contentPage);
       await contentPage.reload();
       await contentPage.waitForLoadState('domcontentloaded');
-      await contentPage.waitForTimeout(1000);
 
       // 2. 创建测试项目
       const projectName = '编辑测试项目';
@@ -434,7 +425,6 @@ test.describe('离线模式项目增删改查测试', () => {
       // 3. 返回项目列表页
       await headerPage.locator('.home').click();
       await contentPage.waitForURL(/home/, { timeout: 10000 });
-      await contentPage.waitForTimeout(1000);
 
       // 4. 定位项目卡片并点击编辑按钮
       const projectCard = contentPage.locator('.project-list').filter({
@@ -486,7 +476,6 @@ test.describe('离线模式项目增删改查测试', () => {
       await clearAllAppData(contentPage);
       await contentPage.reload();
       await contentPage.waitForLoadState('domcontentloaded');
-      await contentPage.waitForTimeout(1000);
 
       // 2. 创建测试项目
       const oldProjectName = '旧项目名称';
@@ -499,7 +488,6 @@ test.describe('离线模式项目增删改查测试', () => {
       // 3. 返回项目列表页
       await headerPage.locator('.home').click();
       await contentPage.waitForURL(/home/, { timeout: 10000 });
-      await contentPage.waitForTimeout(1000);
 
       // 4. 记录当前项目数量
       const allProjectsTitle = contentPage.locator('h2 span:has-text("全部项目")').first();
@@ -537,7 +525,6 @@ test.describe('离线模式项目增删改查测试', () => {
       await clearAllAppData(contentPage);
       await contentPage.reload();
       await contentPage.waitForLoadState('domcontentloaded');
-      await contentPage.waitForTimeout(1000);
 
       // 2. 创建测试项目
       const originalProjectName = '不应被修改的项目';
@@ -550,7 +537,6 @@ test.describe('离线模式项目增删改查测试', () => {
       // 3. 返回项目列表页
       await headerPage.locator('.home').click();
       await contentPage.waitForURL(/home/, { timeout: 10000 });
-      await contentPage.waitForTimeout(1000);
 
       // 4. 记录当前项目数量
       const allProjectsTitle = contentPage.locator('h2 span:has-text("全部项目")').first();
@@ -590,7 +576,7 @@ test.describe('离线模式项目增删改查测试', () => {
       await expect(contentPage).toHaveURL(/home/);
 
       // 11. 等待确保没有异步更新
-      await contentPage.waitForTimeout(1000);
+
 
       // 12. 验证原项目名称保持不变
       const originalProject = contentPage.locator(`.project-list .title:has-text("${originalProjectName}")`);
@@ -611,7 +597,6 @@ test.describe('离线模式项目增删改查测试', () => {
       await clearAllAppData(contentPage);
       await contentPage.reload();
       await contentPage.waitForLoadState('domcontentloaded');
-      await contentPage.waitForTimeout(1000);
 
       // 2. 创建测试项目
       const projectName = '验证测试项目';
@@ -624,7 +609,6 @@ test.describe('离线模式项目增删改查测试', () => {
       // 3. 返回项目列表页
       await headerPage.locator('.home').click();
       await contentPage.waitForURL(/home/, { timeout: 10000 });
-      await contentPage.waitForTimeout(1000);
 
       // 4. 打开编辑弹窗
       const projectCard = contentPage.locator('.project-list').filter({
@@ -668,7 +652,6 @@ test.describe('离线模式项目增删改查测试', () => {
       await clearAllAppData(contentPage);
       await contentPage.reload();
       await contentPage.waitForLoadState('domcontentloaded');
-      await contentPage.waitForTimeout(1000);
 
       // 2. 创建测试项目
       const projectName = '空格验证项目';
@@ -681,7 +664,6 @@ test.describe('离线模式项目增删改查测试', () => {
       // 3. 返回项目列表页
       await headerPage.locator('.home').click();
       await contentPage.waitForURL(/home/, { timeout: 10000 });
-      await contentPage.waitForTimeout(1000);
 
       // 4. 打开编辑弹窗
       const projectCard = contentPage.locator('.project-list').filter({
@@ -727,7 +709,6 @@ test.describe('离线模式项目增删改查测试', () => {
       await clearAllAppData(contentPage);
       await contentPage.reload();
       await contentPage.waitForLoadState('domcontentloaded');
-      await contentPage.waitForTimeout(1000);
 
       // 点击新建项目按钮
       await contentPage.locator('button:has-text("新建项目")').click();
@@ -751,7 +732,6 @@ test.describe('离线模式项目增删改查测试', () => {
       await clearAllAppData(contentPage);
       await contentPage.reload();
       await contentPage.waitForLoadState('domcontentloaded');
-      await contentPage.waitForTimeout(1000);
 
       // 创建一个测试项目
       const testProjectName = '焦点测试项目';
@@ -790,7 +770,6 @@ test.describe('离线模式项目增删改查测试', () => {
       await clearAllAppData(contentPage);
       await contentPage.reload();
       await contentPage.waitForLoadState('domcontentloaded');
-      await contentPage.waitForTimeout(1000);
 
       // 从 header 点击 + 按钮
       const addButton = headerPage.locator('button.add-tab-btn');
@@ -822,7 +801,6 @@ test.describe('离线模式项目增删改查测试', () => {
       await clearAllAppData(contentPage);
       await contentPage.reload();
       await contentPage.waitForLoadState('domcontentloaded');
-      await contentPage.waitForTimeout(1000);
 
       const testProjectName = '待删除测试项目';
       await createProject(contentPage, testProjectName);
@@ -830,14 +808,12 @@ test.describe('离线模式项目增删改查测试', () => {
       // 2. 返回项目列表页
       await headerPage.locator('.home').click();
       await contentPage.waitForURL(/home/, { timeout: 10000 });
-      await contentPage.waitForTimeout(1000);
 
       // 3. 定位项目卡片并悬停
       const projectCard = contentPage.locator('.project-list').filter({
         has: contentPage.locator(`.title:has-text("${testProjectName}")`)
       });
       await projectCard.hover();
-      await contentPage.waitForTimeout(300); // 等待悬停动画
 
       // 4. 验证删除按钮存在且可见
       const deleteButton = projectCard.locator('.operator div[title*="删除"]').first();
@@ -882,7 +858,6 @@ test.describe('离线模式项目增删改查测试', () => {
       await clearAllAppData(contentPage);
       await contentPage.reload();
       await contentPage.waitForLoadState('domcontentloaded');
-      await contentPage.waitForTimeout(1000);
 
       const testProjectName = '要被删除的项目';
       await createProject(contentPage, testProjectName);
@@ -890,7 +865,6 @@ test.describe('离线模式项目增删改查测试', () => {
       // 2. 返回项目列表页
       await headerPage.locator('.home').click();
       await contentPage.waitForURL(/home/, { timeout: 10000 });
-      await contentPage.waitForTimeout(1000);
 
       // 3. 记录当前项目总数
       const allProjectsTitle = contentPage.locator('h2 span:has-text("全部项目")').first();
@@ -917,7 +891,6 @@ test.describe('离线模式项目增删改查测试', () => {
       await clearAllAppData(contentPage);
       await contentPage.reload();
       await contentPage.waitForLoadState('domcontentloaded');
-      await contentPage.waitForTimeout(1000);
 
       const testProjectName = '不应该被删除的项目';
       await createProject(contentPage, testProjectName);
@@ -925,7 +898,6 @@ test.describe('离线模式项目增删改查测试', () => {
       // 2. 返回项目列表页
       await headerPage.locator('.home').click();
       await contentPage.waitForURL(/home/, { timeout: 10000 });
-      await contentPage.waitForTimeout(1000);
 
       // 3. 记录当前项目总数和项目名称
       const allProjectsTitle = contentPage.locator('h2 span:has-text("全部项目")').first();
@@ -961,7 +933,6 @@ test.describe('离线模式项目增删改查测试', () => {
       await clearAllAppData(contentPage);
       await contentPage.reload();
       await contentPage.waitForLoadState('domcontentloaded');
-      await contentPage.waitForTimeout(1000);
 
       // 2. 创建单个测试项目
       const testProjectName = '唯一的项目';
@@ -970,7 +941,6 @@ test.describe('离线模式项目增删改查测试', () => {
       // 3. 返回项目列表页
       await headerPage.locator('.home').click();
       await contentPage.waitForURL(/home/, { timeout: 10000 });
-      await contentPage.waitForTimeout(1000);
 
       // 4. 验证初始状态：有一个项目
       const allProjectsTitle = contentPage.locator('h2 span:has-text("全部项目")').first();
@@ -1009,14 +979,12 @@ test.describe('离线模式项目增删改查测试', () => {
       await clearAllAppData(contentPage);
       await contentPage.reload();
       await contentPage.waitForLoadState('domcontentloaded');
-      await contentPage.waitForTimeout(1000);
 
       const projectNames = ['项目1', '项目2', '项目3'];
       for (const name of projectNames) {
         await createProject(contentPage, name);
         await headerPage.locator('.home').click();
         await contentPage.waitForURL(/home/, { timeout: 10000 });
-        await contentPage.waitForTimeout(500);
       }
 
       // 2. 验证"全部项目(3)"
@@ -1051,7 +1019,6 @@ test.describe('离线模式项目增删改查测试', () => {
       await clearAllAppData(contentPage);
       await contentPage.reload();
       await contentPage.waitForLoadState('domcontentloaded');
-      await contentPage.waitForTimeout(1000);
 
       const projectName1 = '收藏项目1';
       const projectName2 = '普通项目2';
@@ -1059,12 +1026,10 @@ test.describe('离线模式项目增删改查测试', () => {
       await createProject(contentPage, projectName1);
       await headerPage.locator('.home').click();
       await contentPage.waitForURL(/home/, { timeout: 10000 });
-      await contentPage.waitForTimeout(500);
 
       await createProject(contentPage, projectName2);
       await headerPage.locator('.home').click();
       await contentPage.waitForURL(/home/, { timeout: 10000 });
-      await contentPage.waitForTimeout(1000);
 
       // 2. 收藏第一个项目
       const projectCard1 = contentPage.locator('.project-list').filter({
@@ -1240,7 +1205,6 @@ test.describe('离线模式项目增删改查测试', () => {
       // 5. 返回项目列表页
       await headerPage.locator('.home').click();
       await contentPage.waitForURL(/home/, { timeout: 10000 });
-      await contentPage.waitForTimeout(1000);
 
       // 6. 删除项目
       await deleteProject(contentPage, testProjectName, { confirm: true });
@@ -1296,14 +1260,12 @@ test.describe('离线模式项目增删改查测试', () => {
       await clearAllAppData(contentPage);
       await contentPage.reload();
       await contentPage.waitForLoadState('domcontentloaded');
-      await contentPage.waitForTimeout(1000);
 
       const projectNames = ['项目A', '项目B', '项目C', '项目D', '项目E'];
       for (const name of projectNames) {
         await createProject(contentPage, name);
         await headerPage.locator('.home').click();
         await contentPage.waitForURL(/home/, { timeout: 10000 });
-        await contentPage.waitForTimeout(500);
       }
 
       // 2. 验证初始计数"全部项目(5)"
@@ -1360,7 +1322,6 @@ test.describe('离线模式项目增删改查测试', () => {
       await clearAllAppData(contentPage);
       await contentPage.reload();
       await contentPage.waitForLoadState('domcontentloaded');
-      await contentPage.waitForTimeout(1000);
 
       // 2. 打开新建项目弹窗
       await contentPage.locator('button:has-text("新建项目")').click();
@@ -1369,7 +1330,6 @@ test.describe('离线模式项目增删改查测试', () => {
       // 3. 不输入任何内容,直接点击确定
       const confirmBtn = contentPage.locator('.el-dialog__footer button:has-text("确定")');
       await confirmBtn.click();
-      await contentPage.waitForTimeout(500);
 
       // 4. 验证弹窗未关闭
       await expect(contentPage.locator('.el-dialog:has-text("新增项目")')).toBeVisible();
@@ -1395,7 +1355,6 @@ test.describe('离线模式项目增删改查测试', () => {
       await clearAllAppData(contentPage);
       await contentPage.reload();
       await contentPage.waitForLoadState('domcontentloaded');
-      await contentPage.waitForTimeout(1000);
 
       // 2. 打开新建项目弹窗
       await contentPage.locator('button:has-text("新建项目")').click();
@@ -1436,7 +1395,6 @@ test.describe('离线模式项目增删改查测试', () => {
       await clearAllAppData(contentPage);
       await contentPage.reload();
       await contentPage.waitForLoadState('domcontentloaded');
-      await contentPage.waitForTimeout(1000);
 
       const testProjectName = '测试项目';
       await createProject(contentPage, testProjectName);
@@ -1444,7 +1402,6 @@ test.describe('离线模式项目增删改查测试', () => {
       // 2. 返回项目列表页
       await headerPage.locator('.home').click();
       await contentPage.waitForURL(/home/, { timeout: 10000 });
-      await contentPage.waitForTimeout(1000);
 
       // 3. 打开编辑弹窗
       const projectCard = contentPage.locator('.project-list').filter({
@@ -1488,7 +1445,6 @@ test.describe('离线模式项目增删改查测试', () => {
       await clearAllAppData(contentPage);
       await contentPage.reload();
       await contentPage.waitForLoadState('domcontentloaded');
-      await contentPage.waitForTimeout(1000);
 
       // 测试多种特殊字符组合
       const specialCharProjects = [
@@ -1537,7 +1493,6 @@ test.describe('离线模式项目增删改查测试', () => {
       await clearAllAppData(contentPage);
       await contentPage.reload();
       await contentPage.waitForLoadState('domcontentloaded');
-      await contentPage.waitForTimeout(1000);
 
       // 测试Emoji和多语言字符
       const multiLangProjects = [
@@ -1589,7 +1544,6 @@ test.describe('离线模式项目增删改查测试', () => {
       await clearAllAppData(contentPage);
       await contentPage.reload();
       await contentPage.waitForLoadState('domcontentloaded');
-      await contentPage.waitForTimeout(1000);
 
       // 测试SQL注入和XSS相关字符
       const securityTestProjects = [
@@ -1662,13 +1616,11 @@ test.describe('离线模式项目增删改查测试', () => {
         has: contentPage.locator(`.title:has-text("${testProjectName}")`)
       }).first();
       await projectCard.hover();
-      await contentPage.waitForTimeout(300);
 
       // 5. 定位并点击收藏按钮(未收藏状态)
       const starButton = projectCard.locator('.operator div[title*="收藏"]').first();
       await expect(starButton).toBeVisible();
       await starButton.click();
-      await contentPage.waitForTimeout(500);
 
       // 6. 验证"收藏的项目"区域出现
       await expect(starProjectsSection).toBeVisible();
@@ -1682,7 +1634,6 @@ test.describe('离线模式项目增删改查测试', () => {
 
       // 8. 验证图标变为已收藏状态(实心星,黄色,在全部项目区域)
       await projectCard.hover();
-      await contentPage.waitForTimeout(300);
       const unstarButton = projectCard.locator('.operator div[title*="取消收藏"]').first();
       await expect(unstarButton).toBeVisible();
 
@@ -1698,7 +1649,6 @@ test.describe('离线模式项目增删改查测试', () => {
       await clearAllAppData(contentPage);
       await contentPage.reload();
       await contentPage.waitForLoadState('domcontentloaded');
-      await contentPage.waitForTimeout(1000);
 
       const testProjectName = '收藏区取消项目';
       await createProject(contentPage, testProjectName);
@@ -1715,7 +1665,6 @@ test.describe('离线模式项目增删改查测试', () => {
 
       const starButton = projectCardInAll.locator('.operator div[title*="收藏"]').first();
       await starButton.click();
-      await contentPage.waitForTimeout(500);
 
       // 4. 验证收藏成功
       const starProjectsSection = contentPage.locator('h2 span:has-text("收藏的项目")');
@@ -1727,19 +1676,16 @@ test.describe('离线模式项目增删改查测试', () => {
         has: contentPage.locator(`.title:has-text("${testProjectName}")`)
       }).first();
       await projectCardInStar.hover();
-      await contentPage.waitForTimeout(300);
 
       const unstarButton = projectCardInStar.locator('.operator div[title*="取消收藏"]').first();
       await expect(unstarButton).toBeVisible();
       await unstarButton.click();
-      await contentPage.waitForTimeout(500);
 
       // 6. 验证"收藏的项目"区域消失
       await expect(starProjectsSection).not.toBeVisible();
 
       // 7. 验证"全部项目"区域中的图标变回未收藏状态(空心星)
       await projectCardInAll.hover();
-      await contentPage.waitForTimeout(300);
       const starButtonAgain = projectCardInAll.locator('.operator div[title*="收藏"]').first();
       await expect(starButtonAgain).toBeVisible();
 
@@ -1756,7 +1702,6 @@ test.describe('离线模式项目增删改查测试', () => {
       await clearAllAppData(contentPage);
       await contentPage.reload();
       await contentPage.waitForLoadState('domcontentloaded');
-      await contentPage.waitForTimeout(1000);
 
       const testProjectName = '全部项目区取消项目';
       await createProject(contentPage, testProjectName);
@@ -1773,7 +1718,6 @@ test.describe('离线模式项目增删改查测试', () => {
 
       const starButton = projectCardInAll.locator('.operator div[title*="收藏"]').first();
       await starButton.click();
-      await contentPage.waitForTimeout(500);
 
       // 4. 验证收藏成功
       const starProjectsSection = contentPage.locator('h2 span:has-text("收藏的项目")');
@@ -1782,19 +1726,16 @@ test.describe('离线模式项目增删改查测试', () => {
 
       // 5. 在"全部项目"区域定位项目卡片并点击取消收藏
       await projectCardInAll.hover();
-      await contentPage.waitForTimeout(300);
 
       const unstarButton = projectCardInAll.locator('.operator div[title*="取消收藏"]').first();
       await expect(unstarButton).toBeVisible();
       await unstarButton.click();
-      await contentPage.waitForTimeout(500);
 
       // 6. 验证"收藏的项目"区域消失
       await expect(starProjectsSection).not.toBeVisible();
 
       // 7. 验证"全部项目"区域中的图标变回未收藏状态(空心星)
       await projectCardInAll.hover();
-      await contentPage.waitForTimeout(300);
       const starButtonAgain = projectCardInAll.locator('.operator div[title*="收藏"]').first();
       await expect(starButtonAgain).toBeVisible();
 
@@ -1811,7 +1752,6 @@ test.describe('离线模式项目增删改查测试', () => {
       await clearAllAppData(contentPage);
       await contentPage.reload();
       await contentPage.waitForLoadState('domcontentloaded');
-      await contentPage.waitForTimeout(1000);
 
       const testProjectName = '持久化收藏项目';
       await createProject(contentPage, testProjectName);
@@ -1819,18 +1759,15 @@ test.describe('离线模式项目增删改查测试', () => {
       // 2. 返回项目列表页
       await headerPage.locator('.home').click();
       await contentPage.waitForURL(/home/, { timeout: 10000 });
-      await contentPage.waitForTimeout(1000);
 
       // 3. 收藏该项目
       const projectCard = contentPage.locator('.project-list').filter({
         has: contentPage.locator(`.title:has-text("${testProjectName}")`)
       });
       await projectCard.hover();
-      await contentPage.waitForTimeout(300);
 
       const starButton = projectCard.locator('.operator div[title*="收藏"]').first();
       await starButton.click();
-      await contentPage.waitForTimeout(500);
 
       // 4. 验证收藏成功
       const starProjectsSection = contentPage.locator('h2 span:has-text("收藏的项目")');
@@ -1839,7 +1776,6 @@ test.describe('离线模式项目增删改查测试', () => {
       // 5. 刷新页面
       await contentPage.reload();
       await contentPage.waitForLoadState('domcontentloaded');
-      await contentPage.waitForTimeout(1000);
 
       // 6. 验证"收藏的项目"区域仍然显示
       const starProjectsSectionAfterReload = contentPage.locator('h2 span:has-text("收藏的项目")');
@@ -1857,7 +1793,6 @@ test.describe('离线模式项目增删改查测试', () => {
         has: contentPage.locator(`.title:has-text("${testProjectName}")`)
       }).first();
       await projectCardAfterReload.hover();
-      await contentPage.waitForTimeout(300);
       const unstarButton = projectCardAfterReload.locator('[title*="取消收藏"]').first();
       await expect(unstarButton).toBeVisible();
     });
@@ -1867,7 +1802,6 @@ test.describe('离线模式项目增删改查测试', () => {
       await clearAllAppData(contentPage);
       await contentPage.reload();
       await contentPage.waitForLoadState('domcontentloaded');
-      await contentPage.waitForTimeout(1000);
 
       const testProjectName = '图标状态测试项目';
       await createProject(contentPage, testProjectName);
@@ -1875,14 +1809,12 @@ test.describe('离线模式项目增删改查测试', () => {
       // 2. 返回项目列表页
       await headerPage.locator('.home').click();
       await contentPage.waitForURL(/home/, { timeout: 10000 });
-      await contentPage.waitForTimeout(1000);
 
       // 3. 定位项目卡片(在全部项目区域)
       const projectCard = contentPage.locator('h2:has(span:has-text("全部项目")) + .project-wrap .project-list').filter({
         has: contentPage.locator(`.title:has-text("${testProjectName}")`)
       }).first();
       await projectCard.hover();
-      await contentPage.waitForTimeout(300);
 
       // 4. 验证未收藏状态: 空心星图标
       const starButton = projectCard.locator('[title*="收藏"]').first();
@@ -1894,11 +1826,9 @@ test.describe('离线模式项目增删改查测试', () => {
 
       // 5. 点击收藏
       await starButton.click();
-      await contentPage.waitForTimeout(500);
 
       // 6. 验证已收藏状态: 黄色实心星图标(在全部项目区域)
       await projectCard.hover();
-      await contentPage.waitForTimeout(300);
       const unstarButton = projectCard.locator('[title*="取消收藏"]').first();
       await expect(unstarButton).toBeVisible();
 
@@ -1908,11 +1838,9 @@ test.describe('离线模式项目增删改查测试', () => {
 
       // 7. 点击取消收藏
       await unstarButton.click();
-      await contentPage.waitForTimeout(500);
 
       // 8. 验证恢复为未收藏状态
       await projectCard.hover();
-      await contentPage.waitForTimeout(300);
       const starButtonAgain = projectCard.locator('[title*="收藏"]').first();
       await expect(starButtonAgain).toBeVisible();
 
@@ -1931,7 +1859,6 @@ test.describe('离线模式项目增删改查测试', () => {
       await clearAllAppData(contentPage);
       await contentPage.reload();
       await contentPage.waitForLoadState('domcontentloaded');
-      await contentPage.waitForTimeout(1000);
 
       const testProjectName = '折叠测试项目';
       await createProject(contentPage, testProjectName);
@@ -1939,7 +1866,6 @@ test.describe('离线模式项目增删改查测试', () => {
       // 2. 返回项目列表页
       await headerPage.locator('.home').click();
       await contentPage.waitForURL(/home/, { timeout: 10000 });
-      await contentPage.waitForTimeout(1000);
 
       // 3. 验证初始状态: 列表展开,箭头向下
       const projectWrap = contentPage.locator('h2:has-text("全部项目")').locator('~ .project-wrap').first();
@@ -1951,7 +1877,6 @@ test.describe('离线模式项目增删改查测试', () => {
 
       // 4. 点击"全部项目"标题触发折叠
       await allProjectsTitle.click();
-      await contentPage.waitForTimeout(500);
 
       // 5. 验证列表被隐藏
       await expect(projectWrap).toBeHidden();
@@ -1968,7 +1893,6 @@ test.describe('离线模式项目增删改查测试', () => {
       await clearAllAppData(contentPage);
       await contentPage.reload();
       await contentPage.waitForLoadState('domcontentloaded');
-      await contentPage.waitForTimeout(1000);
 
       const testProjectName = '展开测试项目';
       await createProject(contentPage, testProjectName);
@@ -1976,12 +1900,10 @@ test.describe('离线模式项目增删改查测试', () => {
       // 2. 返回项目列表页
       await headerPage.locator('.home').click();
       await contentPage.waitForURL(/home/, { timeout: 10000 });
-      await contentPage.waitForTimeout(1000);
 
       // 3. 先折叠列表
       const allProjectsTitle = contentPage.locator('h2 span:has-text("全部项目")').first();
       await allProjectsTitle.click();
-      await contentPage.waitForTimeout(500);
 
       // 4. 验证列表已折叠
       const projectWrap = contentPage.locator('h2:has-text("全部项目")').locator('~ .project-wrap').first();
@@ -1989,7 +1911,6 @@ test.describe('离线模式项目增删改查测试', () => {
 
       // 5. 再次点击标题展开列表
       await allProjectsTitle.click();
-      await contentPage.waitForTimeout(500);
 
       // 6. 验证列表重新显示
       await expect(projectWrap).toBeVisible();
@@ -2010,7 +1931,6 @@ test.describe('离线模式项目增删改查测试', () => {
       await clearAllAppData(contentPage);
       await contentPage.reload();
       await contentPage.waitForLoadState('domcontentloaded');
-      await contentPage.waitForTimeout(1000);
 
       const testProjectName = '折叠持久化项目';
       await createProject(contentPage, testProjectName);
@@ -2018,12 +1938,10 @@ test.describe('离线模式项目增删改查测试', () => {
       // 2. 返回项目列表页
       await headerPage.locator('.home').click();
       await contentPage.waitForURL(/home/, { timeout: 10000 });
-      await contentPage.waitForTimeout(1000);
 
       // 3. 折叠列表
       const allProjectsTitle = contentPage.locator('h2 span:has-text("全部项目")').first();
       await allProjectsTitle.click();
-      await contentPage.waitForTimeout(500);
 
       // 4. 验证折叠成功
       const projectWrap = contentPage.locator('h2:has-text("全部项目")').locator('~ .project-wrap').first();
@@ -2032,7 +1950,6 @@ test.describe('离线模式项目增删改查测试', () => {
       // 5. 刷新页面
       await contentPage.reload();
       await contentPage.waitForLoadState('domcontentloaded');
-      await contentPage.waitForTimeout(1000);
 
       // 6. 验证列表仍然是折叠状态
       const projectWrapAfterReload = contentPage.locator('h2:has-text("全部项目")').locator('~ .project-wrap').first();
@@ -2053,7 +1970,6 @@ test.describe('离线模式项目增删改查测试', () => {
       await clearAllAppData(contentPage);
       await contentPage.reload();
       await contentPage.waitForLoadState('domcontentloaded');
-      await contentPage.waitForTimeout(1000);
 
       const testProjectName = '展开持久化项目';
       await createProject(contentPage, testProjectName);
@@ -2061,7 +1977,6 @@ test.describe('离线模式项目增删改查测试', () => {
       // 2. 返回项目列表页
       await headerPage.locator('.home').click();
       await contentPage.waitForURL(/home/, { timeout: 10000 });
-      await contentPage.waitForTimeout(1000);
 
       // 3. 确保列表是展开状态(默认应该是展开的)
       const projectWrap = contentPage.locator('h2:has-text("全部项目")').locator('~ .project-wrap').first();
@@ -2075,7 +1990,6 @@ test.describe('离线模式项目增删改查测试', () => {
       // 5. 刷新页面
       await contentPage.reload();
       await contentPage.waitForLoadState('domcontentloaded');
-      await contentPage.waitForTimeout(1000);
 
       // 6. 验证列表仍然是展开状态
       const projectWrapAfterReload = contentPage.locator('h2:has-text("全部项目")').locator('~ .project-wrap').first();
@@ -2098,7 +2012,6 @@ test.describe('离线模式项目增删改查测试', () => {
       await clearAllAppData(contentPage);
       await contentPage.reload();
       await contentPage.waitForLoadState('domcontentloaded');
-      await contentPage.waitForTimeout(1000);
 
       const testProjectName = '跳转测试项目';
       await createProject(contentPage, testProjectName);
@@ -2112,14 +2025,12 @@ test.describe('离线模式项目增删改查测试', () => {
       // 3. 返回项目列表页
       await headerPage.locator('.home').click();
       await contentPage.waitForURL(/home/, { timeout: 10000 });
-      await contentPage.waitForTimeout(1000);
 
       // 4. 定位项目卡片并悬停
       const projectCard = contentPage.locator('.project-list').filter({
         has: contentPage.locator(`.title:has-text("${testProjectName}")`)
       });
       await projectCard.hover();
-      await contentPage.waitForTimeout(300);
 
       // 5. 点击"编辑"按钮
       const editButton = projectCard.locator('button:has-text("编辑")');
@@ -2152,7 +2063,6 @@ test.describe('离线模式项目增删改查测试', () => {
       await clearAllAppData(contentPage);
       await contentPage.reload();
       await contentPage.waitForLoadState('domcontentloaded');
-      await contentPage.waitForTimeout(1000);
 
       const testProjectName = '创建者信息测试';
       await createProject(contentPage, testProjectName);
@@ -2160,7 +2070,6 @@ test.describe('离线模式项目增删改查测试', () => {
       // 2. 返回项目列表页
       await headerPage.locator('.home').click();
       await contentPage.waitForURL(/home/, { timeout: 10000 });
-      await contentPage.waitForTimeout(1000);
 
       // 3. 定位项目卡片
       const projectCard = contentPage.locator('.project-list').filter({ hasText: testProjectName });
@@ -2180,7 +2089,6 @@ test.describe('离线模式项目增删改查测试', () => {
       await clearAllAppData(contentPage);
       await contentPage.reload();
       await contentPage.waitForLoadState('domcontentloaded');
-      await contentPage.waitForTimeout(1000);
 
       // 记录创建时间(当前时间)
       const createTime = new Date();
@@ -2191,7 +2099,6 @@ test.describe('离线模式项目增删改查测试', () => {
       // 2. 返回项目列表页
       await headerPage.locator('.home').click();
       await contentPage.waitForURL(/home/, { timeout: 10000 });
-      await contentPage.waitForTimeout(1000);
 
       // 3. 定位项目卡片
       const projectCard = contentPage.locator('.project-list').filter({ hasText: testProjectName });
@@ -2219,7 +2126,6 @@ test.describe('离线模式项目增删改查测试', () => {
       await clearAllAppData(contentPage);
       await contentPage.reload();
       await contentPage.waitForLoadState('domcontentloaded');
-      await contentPage.waitForTimeout(1000);
 
       const testProjectName = '接口数量测试';
       await createProject(contentPage, testProjectName);
@@ -2227,7 +2133,6 @@ test.describe('离线模式项目增删改查测试', () => {
       // 2. 返回项目列表页
       await headerPage.locator('.home').click();
       await contentPage.waitForURL(/home/, { timeout: 10000 });
-      await contentPage.waitForTimeout(1000);
 
       // 3. 定位项目卡片
       const projectCard = contentPage.locator('.project-list').filter({ hasText: testProjectName });
@@ -2247,7 +2152,6 @@ test.describe('离线模式项目增删改查测试', () => {
       await clearAllAppData(contentPage);
       await contentPage.reload();
       await contentPage.waitForLoadState('domcontentloaded');
-      await contentPage.waitForTimeout(1000);
 
       const testProjectName = '完整信息测试项目';
 
@@ -2257,7 +2161,6 @@ test.describe('离线模式项目增删改查测试', () => {
       // 3. 返回项目列表页
       await headerPage.locator('.home').click();
       await contentPage.waitForURL(/home/, { timeout: 10000 });
-      await contentPage.waitForTimeout(1000);
 
       // 4. 验证项目在列表中显示
       const projectCard = contentPage.locator('.project-list').filter({ hasText: testProjectName });
@@ -2297,7 +2200,6 @@ test.describe('离线模式项目增删改查测试', () => {
       await clearAllAppData(contentPage);
       await contentPage.reload();
       await contentPage.waitForLoadState('domcontentloaded');
-      await contentPage.waitForTimeout(1000);
 
       // 2. 连续创建5个项目
       const projectNames = ['批量项目1', '批量项目2', '批量项目3', '批量项目4', '批量项目5'];
@@ -2335,7 +2237,6 @@ test.describe('离线模式项目增删改查测试', () => {
       await clearAllAppData(contentPage);
       await contentPage.reload();
       await contentPage.waitForLoadState('domcontentloaded');
-      await contentPage.waitForTimeout(1000);
 
       // 2. 创建包含所有类型字符的项目名称
       const mixedProjectName = '中文EnglishNumber123Emoji🎉特殊符号@#$';
@@ -2359,7 +2260,6 @@ test.describe('离线模式项目增删改查测试', () => {
       // 5. 返回首页
       await headerPage.locator('.home').click();
       await contentPage.waitForURL(/home/, { timeout: 10000 });
-      await contentPage.waitForTimeout(1000);
 
       // 6. 验证项目在列表中正确显示所有字符
       const projectCard = contentPage.locator('.project-list').filter({ hasText: '中文' });
@@ -2381,7 +2281,6 @@ test.describe('离线模式项目增删改查测试', () => {
       await clearAllAppData(contentPage);
       await contentPage.reload();
       await contentPage.waitForLoadState('domcontentloaded');
-      await contentPage.waitForTimeout(1000);
 
       const projectNames = ['删除项目A', '删除项目B', '删除项目C', '删除项目D', '删除项目E'];
 
@@ -2389,7 +2288,6 @@ test.describe('离线模式项目增删改查测试', () => {
         await createProject(contentPage, name);
         await headerPage.locator('.home').click();
         await contentPage.waitForURL(/home/, { timeout: 10000 });
-        await contentPage.waitForTimeout(500);
       }
 
       // 2. 验证所有项目都创建成功
@@ -2432,7 +2330,6 @@ test.describe('离线模式项目增删改查测试', () => {
       await clearAllAppData(contentPage);
       await contentPage.reload();
       await contentPage.waitForLoadState('domcontentloaded');
-      await contentPage.waitForTimeout(1000);
 
       // 2. 创建测试项目
       const testProjectName = '持久化测试-创建';
@@ -2441,7 +2338,6 @@ test.describe('离线模式项目增删改查测试', () => {
       // 3. 返回项目列表页
       await headerPage.locator('.home').click();
       await contentPage.waitForURL(/home/, { timeout: 10000 });
-      await contentPage.waitForTimeout(1000);
 
       // 4. 验证项目在列表中
       const projectCard = contentPage.locator('.project-list').filter({ hasText: testProjectName });
@@ -2450,7 +2346,6 @@ test.describe('离线模式项目增删改查测试', () => {
       // 5. 刷新页面
       await contentPage.reload();
       await contentPage.waitForLoadState('domcontentloaded');
-      await contentPage.waitForTimeout(1000);
 
       // 6. 验证项目仍在列表中
       const projectCardAfterReload = contentPage.locator('.project-list').filter({ hasText: testProjectName });
@@ -2468,7 +2363,6 @@ test.describe('离线模式项目增删改查测试', () => {
       await clearAllAppData(contentPage);
       await contentPage.reload();
       await contentPage.waitForLoadState('domcontentloaded');
-      await contentPage.waitForTimeout(1000);
 
       const originalName = '持久化测试-原始名称';
       const newName = '持久化测试-修改后名称';
@@ -2478,7 +2372,6 @@ test.describe('离线模式项目增删改查测试', () => {
       // 2. 返回项目列表页
       await headerPage.locator('.home').click();
       await contentPage.waitForURL(/home/, { timeout: 10000 });
-      await contentPage.waitForTimeout(1000);
 
       // 3. 编辑项目名称
       await editProject(contentPage, originalName, newName);
@@ -2490,7 +2383,6 @@ test.describe('离线模式项目增删改查测试', () => {
       // 5. 刷新页面
       await contentPage.reload();
       await contentPage.waitForLoadState('domcontentloaded');
-      await contentPage.waitForTimeout(1000);
 
       // 6. 验证修改后的名称仍然显示
       const newProjectCardAfterReload = contentPage.locator(`.project-list .title:has-text("${newName}")`);
@@ -2506,7 +2398,6 @@ test.describe('离线模式项目增删改查测试', () => {
       await clearAllAppData(contentPage);
       await contentPage.reload();
       await contentPage.waitForLoadState('domcontentloaded');
-      await contentPage.waitForTimeout(1000);
 
       const testProjectName = '持久化测试-删除';
       await createProject(contentPage, testProjectName);
@@ -2514,7 +2405,6 @@ test.describe('离线模式项目增删改查测试', () => {
       // 2. 返回项目列表页
       await headerPage.locator('.home').click();
       await contentPage.waitForURL(/home/, { timeout: 10000 });
-      await contentPage.waitForTimeout(1000);
 
       // 3. 验证项目存在
       const projectCard = contentPage.locator(`.project-list .title:has-text("${testProjectName}")`);
@@ -2529,7 +2419,6 @@ test.describe('离线模式项目增删改查测试', () => {
       // 6. 刷新页面
       await contentPage.reload();
       await contentPage.waitForLoadState('domcontentloaded');
-      await contentPage.waitForTimeout(1000);
 
       // 7. 验证项目仍然不存在
       const projectCardAfterReload = contentPage.locator(`.project-list .title:has-text("${testProjectName}")`);
@@ -2549,14 +2438,12 @@ test.describe('离线模式项目增删改查测试', () => {
       await clearAllAppData(contentPage);
       await contentPage.reload();
       await contentPage.waitForLoadState('domcontentloaded');
-      await contentPage.waitForTimeout(1000);
 
       const projectNames = ['持久化收藏项目1', '持久化收藏项目2', '持久化收藏项目3'];
       for (const name of projectNames) {
         await createProject(contentPage, name);
         await headerPage.locator('.home').click();
         await contentPage.waitForURL(/home/, { timeout: 10000 });
-        await contentPage.waitForTimeout(500);
       }
 
       // 2. 依次收藏这3个项目
@@ -2565,11 +2452,9 @@ test.describe('离线模式项目增删改查测试', () => {
           has: contentPage.locator(`.title:has-text("${name}")`)
         }).first();
         await projectCard.hover();
-        await contentPage.waitForTimeout(300);
 
         const starButton = projectCard.locator('.operator div[title*="收藏"]').first();
         await starButton.click();
-        await contentPage.waitForTimeout(500);
       }
 
       // 3. 验证"收藏的项目"区域显示且有3个项目
@@ -2581,7 +2466,6 @@ test.describe('离线模式项目增删改查测试', () => {
       // 4. 刷新页面
       await contentPage.reload();
       await contentPage.waitForLoadState('domcontentloaded');
-      await contentPage.waitForTimeout(1000);
 
       // 5. 验证"收藏的项目"区域仍然显示
       const starProjectsSectionAfterReload = contentPage.locator('h2 span:has-text("收藏的项目")');
@@ -2605,7 +2489,6 @@ test.describe('离线模式项目增删改查测试', () => {
           has: contentPage.locator(`.title:has-text("${name}")`)
         }).first();
         await projectCard.hover();
-        await contentPage.waitForTimeout(300);
         const unstarButton = projectCard.locator('[title*="取消收藏"]').first();
         await expect(unstarButton).toBeVisible();
       }
@@ -2616,7 +2499,6 @@ test.describe('离线模式项目增删改查测试', () => {
       await clearAllAppData(contentPage);
       await contentPage.reload();
       await contentPage.waitForLoadState('domcontentloaded');
-      await contentPage.waitForTimeout(1000);
 
       const project1Name = '组合测试收藏项目';
       const project2Name = '组合测试普通项目';
@@ -2624,28 +2506,23 @@ test.describe('离线模式项目增删改查测试', () => {
       await createProject(contentPage, project1Name);
       await headerPage.locator('.home').click();
       await contentPage.waitForURL(/home/, { timeout: 10000 });
-      await contentPage.waitForTimeout(500);
 
       await createProject(contentPage, project2Name);
       await headerPage.locator('.home').click();
       await contentPage.waitForURL(/home/, { timeout: 10000 });
-      await contentPage.waitForTimeout(1000);
 
       // 2. 收藏第一个项目
       const projectCard = contentPage.locator('.project-list').filter({
         has: contentPage.locator(`.title:has-text("${project1Name}")`)
       });
       await projectCard.hover();
-      await contentPage.waitForTimeout(300);
 
       const starButton = projectCard.locator('.operator div[title*="收藏"]').first();
       await starButton.click();
-      await contentPage.waitForTimeout(500);
 
       // 3. 折叠"全部项目"列表
       const allProjectsTitle = contentPage.locator('h2 span:has-text("全部项目")').first();
       await allProjectsTitle.click();
-      await contentPage.waitForTimeout(500);
 
       // 4. 验证列表已折叠且收藏区域显示
       const projectWrap = contentPage.locator('h2:has-text("全部项目")').locator('~ .project-wrap').first();
@@ -2656,7 +2533,6 @@ test.describe('离线模式项目增删改查测试', () => {
       // 5. 刷新页面
       await contentPage.reload();
       await contentPage.waitForLoadState('domcontentloaded');
-      await contentPage.waitForTimeout(1000);
 
       // 6. 验证"全部项目"列表仍是折叠状态
       const projectWrapAfterReload = contentPage.locator('h2:has-text("全部项目")').locator('~ .project-wrap').first();
@@ -2680,7 +2556,6 @@ test.describe('离线模式项目增删改查测试', () => {
 
       // 10. 展开列表验证项目计数和收藏状态
       await allProjectsTitle.click();
-      await contentPage.waitForTimeout(500);
       const allProjectsCards = contentPage.locator('h2:has(span:has-text("全部项目")) + .project-wrap .project-list');
       await expect(allProjectsCards).toHaveCount(2);
     });
@@ -2690,7 +2565,6 @@ test.describe('离线模式项目增删改查测试', () => {
       await clearAllAppData(contentPage);
       await contentPage.reload();
       await contentPage.waitForLoadState('domcontentloaded');
-      await contentPage.waitForTimeout(1000);
 
       const originalName = '编辑前的收藏项目';
       const newName = '编辑后的收藏项目';
@@ -2700,18 +2574,15 @@ test.describe('离线模式项目增删改查测试', () => {
       // 2. 返回项目列表页
       await headerPage.locator('.home').click();
       await contentPage.waitForURL(/home/, { timeout: 10000 });
-      await contentPage.waitForTimeout(1000);
 
       // 3. 收藏该项目
       const projectCard = contentPage.locator('.project-list').filter({
         has: contentPage.locator(`.title:has-text("${originalName}")`)
       });
       await projectCard.hover();
-      await contentPage.waitForTimeout(300);
 
       const starButton = projectCard.locator('.operator div[title*="收藏"]').first();
       await starButton.click();
-      await contentPage.waitForTimeout(500);
 
       // 4. 验证收藏成功
       const starProjectsSection = contentPage.locator('h2 span:has-text("收藏的项目")');
@@ -2729,7 +2600,6 @@ test.describe('离线模式项目增删改查测试', () => {
       // 7. 刷新页面
       await contentPage.reload();
       await contentPage.waitForLoadState('domcontentloaded');
-      await contentPage.waitForTimeout(1000);
 
       // 8. 验证"收藏的项目"区域仍然显示
       const starProjectsSectionAfterReload = contentPage.locator('h2 span:has-text("收藏的项目")');
@@ -2752,7 +2622,6 @@ test.describe('离线模式项目增删改查测试', () => {
         has: contentPage.locator(`.title:has-text("${newName}")`)
       }).first();
       await projectCardAfterReload.hover();
-      await contentPage.waitForTimeout(300);
       const unstarButton = projectCardAfterReload.locator('[title*="取消收藏"]').first();
       await expect(unstarButton).toBeVisible();
     });

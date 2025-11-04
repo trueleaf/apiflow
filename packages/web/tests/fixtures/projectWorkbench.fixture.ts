@@ -44,7 +44,7 @@ export async function navigateToProjectWorkbench(
 ) {
   await contentPage.goto(`/#/project/workbench?id=${projectId}`);
   await contentPage.waitForLoadState('domcontentloaded');
-  await contentPage.waitForTimeout(500);
+  await contentPage.waitForLoadState('networkidle', { timeout: 5000 }).catch(() => {});
 }
 
 // ==================== Tab 操作辅助 ====================
@@ -122,7 +122,7 @@ export async function expectTabPersisted(
 
 // 等待 Vue 组件完成渲染
 export async function waitForVueComponentReady(page: Page) {
-  await page.waitForTimeout(500);
+  await page.waitForLoadState('networkidle', { timeout: 3000 }).catch(() => {});
 }
 
 // 重新导出通用功能

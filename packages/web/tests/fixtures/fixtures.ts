@@ -126,7 +126,6 @@ export const createSingleNode = async (
         const typeRadio = contentPage.locator('.el-dialog:has-text("新建接口")').locator(`input[value="${type}"]`);
         await typeRadio.waitFor({ state: 'visible', timeout: 5000 });
         await typeRadio.check({ force: true });
-        await contentPage.waitForTimeout(300);
       }
       const confirmBtn = contentPage.locator('.el-dialog:has-text("新建接口")').locator('button:has-text("确定")');
       await confirmBtn.waitFor({ state: 'visible', timeout: 5000 });
@@ -302,12 +301,10 @@ export const switchLanguageByClick = async (
 ): Promise<void> => {
   const languageBtn = headerPage.locator('.navigation-control .icon:has(.iconyuyan)');
   await languageBtn.click();
-  await contentPage.waitForTimeout(300);
   const languageMenu = contentPage.locator('.language-dropdown-menu');
   await expect(languageMenu).toBeVisible({ timeout: 5000 });
   const languageItem = contentPage.locator('.language-menu-item').filter({ hasText: languageName });
   await languageItem.click();
-  await contentPage.waitForTimeout(500);
 };
 // 导航到AI设置页面
 export const navigateToAiSettings = async (
@@ -316,7 +313,6 @@ export const navigateToAiSettings = async (
 ): Promise<void> => {
   const settingsBtn = headerPage.locator('.navigation-control .icon[title*="设置"]');
   await settingsBtn.click();
-  await contentPage.waitForTimeout(500);
   await contentPage.waitForSelector('.settings', { timeout: 5000 });
   await contentPage.locator('.tab-item:has-text("AI 设置")').click();
   await contentPage.waitForTimeout(1000);
@@ -382,7 +378,6 @@ export const deleteProject = async (
 
   // 悬停项目卡片以显示操作按钮
   await projectCard.hover();
-  await contentPage.waitForTimeout(300); // 等待悬停动画
 
   // 点击删除按钮
   const deleteButton = projectCard.locator('.operator div[title*="删除"]').first();

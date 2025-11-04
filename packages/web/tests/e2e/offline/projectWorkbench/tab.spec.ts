@@ -64,25 +64,21 @@ test.describe('主工作区 - Tab 管理', () => {
       results.forEach(result => {
         expect(result.success).toBe(true);
       });
-      await contentPage.waitForTimeout(1000);
 
       const httpNode = contentPage.locator('.custom-tree-node').filter({ hasText: 'HTTP接口测试' }).first();
       await httpNode.click();
-      await contentPage.waitForTimeout(500);
       const httpTab = contentPage.locator('.nav .tab-list .item').filter({ hasText: 'HTTP接口测试' });
       await expect(httpTab).toBeVisible();
       await expect(httpTab).toHaveClass(/active/);
 
       const wsNode = contentPage.locator('.custom-tree-node').filter({ hasText: 'WebSocket接口测试' }).first();
       await wsNode.click();
-      await contentPage.waitForTimeout(500);
       const wsTab = contentPage.locator('.nav .tab-list .item').filter({ hasText: 'WebSocket接口测试' });
       await expect(wsTab).toBeVisible();
       await expect(wsTab).toHaveClass(/active/);
 
       const mockNode = contentPage.locator('.custom-tree-node').filter({ hasText: 'Mock接口测试' }).first();
       await mockNode.click();
-      await contentPage.waitForTimeout(500);
       const mockTab = contentPage.locator('.nav .tab-list .item').filter({ hasText: 'Mock接口测试' });
       await expect(mockTab).toBeVisible();
       await expect(mockTab).toHaveClass(/active/);
@@ -113,13 +109,11 @@ test.describe('主工作区 - Tab 管理', () => {
         { name: 'HTTP节点测试', type: 'http' }
       ]);
       expect(results[0].success).toBe(true);
-      await contentPage.waitForTimeout(1000);
 
       const httpNode = contentPage.locator('.custom-tree-node').filter({ hasText: 'HTTP节点测试' }).first();
 
       // 第一次点击节点
       await httpNode.click();
-      await contentPage.waitForTimeout(500);
       const firstTab = contentPage.locator('.nav .tab-list .item').filter({ hasText: 'HTTP节点测试' });
       await expect(firstTab).toBeVisible();
       await expect(firstTab).toHaveClass(/active/);
@@ -128,7 +122,6 @@ test.describe('主工作区 - Tab 管理', () => {
 
       // 再次点击相同节点
       await httpNode.click();
-      await contentPage.waitForTimeout(500);
 
       // 验证Tab数量仍然为1
       tabCount = await contentPage.locator('.nav .tab-list .item').count();
@@ -202,7 +195,6 @@ test.describe('主工作区 - Tab 管理', () => {
       await expect(contentPage.locator('.nav .tab-list .item')).toHaveCount(2);
       const tabA = contentPage.locator('.nav .tab-list .item').filter({ hasText: '双击节点A' });
       await tabA.hover();
-      await contentPage.waitForTimeout(300);
       const closeBtnA = tabA.locator('.operation .close');
       await expect(closeBtnA).toBeVisible({ timeout: 1000 });
       await closeBtnA.click();
@@ -210,7 +202,6 @@ test.describe('主工作区 - Tab 管理', () => {
 
       const tabB = contentPage.locator('.nav .tab-list .item').filter({ hasText: '双击节点B' });
       await tabB.hover();
-      await contentPage.waitForTimeout(300);
       const closeBtnB = tabB.locator('.operation .close');
       await expect(closeBtnB).toBeVisible({ timeout: 1000 });
       await closeBtnB.click();
@@ -221,7 +212,6 @@ test.describe('主工作区 - Tab 管理', () => {
       // 3. 双击Banner中的节点A创建固定Tab
       const bannerNodeA = contentPage.locator('.custom-tree-node').filter({ hasText: '双击节点A' }).first();
       await bannerNodeA.dblclick();
-      await contentPage.waitForTimeout(500);
 
       // 4. 验证固定Tab已创建
       await expect(contentPage.locator('.nav .tab-list .item')).toHaveCount(1);
@@ -251,7 +241,6 @@ test.describe('主工作区 - Tab 管理', () => {
       // 6. 单击Banner中的节点B创建未固定Tab
       const bannerNodeB = contentPage.locator('.custom-tree-node').filter({ hasText: '双击节点B' }).first();
       await bannerNodeB.click();
-      await contentPage.waitForTimeout(500);
 
       // 7. 验证固定Tab不会被未固定Tab覆盖，两个Tab共存
       await expect(contentPage.locator('.nav .tab-list .item')).toHaveCount(2);
@@ -308,7 +297,6 @@ test.describe('主工作区 - Tab 管理', () => {
         { name: 'Tab3', type: 'http' }
       ]);
       results.forEach(result => expect(result.success).toBe(true));
-      await contentPage.waitForTimeout(1000);
 
       // 打开3个Tab
       await contentPage.locator('.custom-tree-node').filter({ hasText: 'Tab1' }).first().click();
@@ -406,7 +394,6 @@ test.describe('主工作区 - Tab 管理', () => {
 
       const bannerNode = contentPage.locator('.custom-tree-node').filter({ hasText: '固定Tab1' }).first();
       await bannerNode.dblclick();
-      await contentPage.waitForTimeout(300);
 
       const results2 = await createNodes(contentPage, [
         { name: '新Tab2', type: 'http' }
@@ -429,13 +416,11 @@ test.describe('主工作区 - Tab 管理', () => {
 
       const bannerNode = contentPage.locator('.custom-tree-node').filter({ hasText: '可关闭固定Tab' }).first();
       await bannerNode.dblclick();
-      await contentPage.waitForTimeout(300);
 
       const tab = contentPage.locator('.nav .tab-list .item').filter({ hasText: '可关闭固定Tab' });
       await expect(tab).toBeVisible();
 
       await tab.hover();
-      await contentPage.waitForTimeout(300);
       const closeBtn = tab.locator('.operation .close');
       await expect(closeBtn).toBeVisible({ timeout: 1000 });
       await closeBtn.click();
@@ -456,7 +441,6 @@ test.describe('主工作区 - Tab 管理', () => {
 
       const unfixedTab = contentPage.locator('.nav .tab-list .item').filter({ hasText: '未固定节点' });
       await unfixedTab.hover();
-      await contentPage.waitForTimeout(300);
       const closeBtn = unfixedTab.locator('.operation .close');
       await expect(closeBtn).toBeVisible({ timeout: 1000 });
       await closeBtn.click();
@@ -466,7 +450,6 @@ test.describe('主工作区 - Tab 管理', () => {
 
       const bannerNode = contentPage.locator('.custom-tree-node').filter({ hasText: '未固定节点' }).first();
       await bannerNode.click();
-      await contentPage.waitForTimeout(500);
 
       await expect(contentPage.locator('.nav .tab-list .item')).toHaveCount(2);
 
@@ -882,7 +865,6 @@ test.describe('主工作区 - Tab 管理', () => {
         await expect(tabB).toHaveClass(/active/);
 
         await tabB.hover();
-        await contentPage.waitForTimeout(300);
         const closeBtn = tabB.locator('.operation .close');
         await expect(closeBtn).toBeVisible({ timeout: 1000 });
         await closeBtn.click();
@@ -920,13 +902,11 @@ test.describe('主工作区 - Tab 管理', () => {
         const contextmenu = contentPage.locator('.s-contextmenu');
         const deleteOption = contextmenu.locator('.s-contextmenu-item').filter({ hasText: '删除' });
         await deleteOption.click();
-        await contentPage.waitForTimeout(300);
 
         const confirmDialog = contentPage.locator('.el-message-box');
         if (await confirmDialog.isVisible({ timeout: 1000 }).catch(() => false)) {
           const confirmBtn = confirmDialog.locator('button').filter({ hasText: '确定' });
           await confirmBtn.click();
-          await contentPage.waitForTimeout(500);
         }
 
         await expect(contentPage.locator('.nav .tab-list .item')).toHaveCount(0, { timeout: 2000 });
@@ -937,12 +917,10 @@ test.describe('主工作区 - Tab 管理', () => {
           { name: '测试文件夹', type: 'folder' }
         ]);
         expect(folderResults[0].success).toBe(true);
-        await contentPage.waitForTimeout(1000);
 
         const folderNode = contentPage.locator('.custom-tree-node').filter({ hasText: '测试文件夹' }).first();
         const expandIcon = folderNode.locator('.el-icon').first();
         await expandIcon.click();
-        await contentPage.waitForTimeout(500);
 
         await folderNode.click({ button: 'right' });
         await contentPage.waitForTimeout(300);
@@ -951,14 +929,12 @@ test.describe('主工作区 - Tab 管理', () => {
         const newNodeOption = contextmenu.locator('.s-contextmenu-item').filter({ hasText: /新建接口|新增HTTP/ }).first();
         if (await newNodeOption.isVisible({ timeout: 1000 }).catch(() => false)) {
           await newNodeOption.click();
-          await contentPage.waitForTimeout(500);
 
           const dialog = contentPage.locator('.el-dialog');
           const nameInput = dialog.locator('input[placeholder*="名称"]').first();
           await nameInput.fill('子节点1');
           const confirmBtn = dialog.locator('button').filter({ hasText: '确定' });
           await confirmBtn.click();
-          await contentPage.waitForTimeout(1000);
 
           await folderNode.click({ button: 'right' });
           await contentPage.waitForTimeout(300);
@@ -973,7 +949,6 @@ test.describe('主工作区 - Tab 管理', () => {
             await nameInput2.fill('子节点2');
             const confirmBtn2 = dialog2.locator('button').filter({ hasText: '确定' });
             await confirmBtn2.click();
-            await contentPage.waitForTimeout(1000);
           }
 
           const childNode1 = contentPage.locator('.custom-tree-node').filter({ hasText: '子节点1' }).first();
@@ -996,13 +971,11 @@ test.describe('主工作区 - Tab 管理', () => {
             const deleteOption = contentPage.locator('.s-contextmenu').locator('.s-contextmenu-item').filter({ hasText: '删除' });
             if (await deleteOption.isVisible({ timeout: 1000 }).catch(() => false)) {
               await deleteOption.click();
-              await contentPage.waitForTimeout(300);
 
               const confirmDialog = contentPage.locator('.el-message-box');
               if (await confirmDialog.isVisible({ timeout: 1000 }).catch(() => false)) {
                 const confirmButton = confirmDialog.locator('button').filter({ hasText: '确定' });
                 await confirmButton.click();
-                await contentPage.waitForTimeout(500);
               }
 
               const finalTabCount = await contentPage.locator('.nav .tab-list .item').count();
@@ -1049,7 +1022,6 @@ test.describe('主工作区 - Tab 管理', () => {
 
         const closeMenuItem = contextmenu.locator('.s-contextmenu-item').first();
         await closeMenuItem.click();
-        await contentPage.waitForTimeout(500);
 
         const messageBox = contentPage.locator('.el-message-box');
         await expect(messageBox).toBeVisible({ timeout: 2000 });
@@ -1060,7 +1032,6 @@ test.describe('主工作区 - Tab 管理', () => {
 
         const cancelBtn = messageBox.locator('button.el-message-box__headerbtn');
         await cancelBtn.click();
-        await contentPage.waitForTimeout(300);
 
         await expect(tab).toBeVisible();
       });
@@ -1091,14 +1062,12 @@ test.describe('主工作区 - Tab 管理', () => {
         const contextmenu = contentPage.locator('.s-contextmenu');
         const closeMenuItem = contextmenu.locator('.s-contextmenu-item').first();
         await closeMenuItem.click();
-        await contentPage.waitForTimeout(500);
 
         const messageBox = contentPage.locator('.el-message-box');
         await expect(messageBox).toBeVisible({ timeout: 2000 });
 
         const dontSaveBtn = messageBox.locator('button').filter({ hasText: '不保存' });
         await dontSaveBtn.click();
-        await contentPage.waitForTimeout(500);
 
         await expect(tab).toHaveCount(0, { timeout: 2000 });
         await expect(contentPage.locator('.nav .tab-list .item')).toHaveCount(0);
@@ -1123,14 +1092,12 @@ test.describe('主工作区 - Tab 管理', () => {
         const contextmenu = contentPage.locator('.s-contextmenu');
         const closeMenuItem = contextmenu.locator('.s-contextmenu-item').first();
         await closeMenuItem.click();
-        await contentPage.waitForTimeout(500);
 
         const messageBox = contentPage.locator('.el-message-box');
         await expect(messageBox).toBeVisible({ timeout: 2000 });
 
         const closeXBtn = messageBox.locator('button.el-message-box__headerbtn');
         await closeXBtn.click();
-        await contentPage.waitForTimeout(300);
 
         await expect(tab).toBeVisible();
         await expect(contentPage.locator('.nav .tab-list .item')).toHaveCount(1);
@@ -1163,17 +1130,14 @@ test.describe('主工作区 - Tab 管理', () => {
         const sendBtn = contentPage.locator('button').filter({ hasText: /发送|Send/ }).first();
         if (await sendBtn.isVisible({ timeout: 1000 }).catch(() => false)) {
           await sendBtn.click();
-          await contentPage.waitForTimeout(500);
 
           const cancelBtn = contentPage.locator('button').filter({ hasText: /取消|Cancel/ });
           if (await cancelBtn.isVisible({ timeout: 1000 }).catch(() => false)) {
             const tab = contentPage.locator('.nav .tab-list .item').filter({ hasText: '请求测试' });
             await tab.hover();
-            await contentPage.waitForTimeout(300);
             const closeBtn = tab.locator('.operation .close');
             if (await closeBtn.isVisible({ timeout: 1000 }).catch(() => false)) {
               await closeBtn.click();
-              await contentPage.waitForTimeout(300);
               await expect(tab).toHaveCount(0, { timeout: 2000 });
             }
           }
@@ -1202,10 +1166,8 @@ test.describe('主工作区 - Tab 管理', () => {
         { name: '未保存Tab', type: 'http' }
       ]);
       expect(results[0].success).toBe(true);
-      await contentPage.waitForTimeout(1000);
 
       await contentPage.locator('.custom-tree-node').filter({ hasText: '未保存Tab' }).first().click();
-      await contentPage.waitForTimeout(1000);
 
       const tab = contentPage.locator('.nav .tab-list .item').filter({ hasText: '未保存Tab' });
       await expect(tab).toBeVisible();
@@ -1233,7 +1195,6 @@ test.describe('主工作区 - Tab 管理', () => {
 
       const saveBtn = contentPage.locator('button').filter({ hasText: /保存接口|Save/ });
       await saveBtn.click();
-      await contentPage.waitForTimeout(1000);
 
       await expect(unsavedMarker).not.toBeVisible();
     });
@@ -1243,10 +1204,8 @@ test.describe('主工作区 - Tab 管理', () => {
         { name: '确认关闭Tab', type: 'http' }
       ]);
       expect(results[0].success).toBe(true);
-      await contentPage.waitForTimeout(1000);
 
       await contentPage.locator('.custom-tree-node').filter({ hasText: '确认关闭Tab' }).first().click();
-      await contentPage.waitForTimeout(1000);
 
       const urlInput = contentPage.locator('[data-testid="url-input"]');
       await urlInput.fill('https://unsaved-changes.com');
@@ -1258,12 +1217,10 @@ test.describe('主工作区 - Tab 管理', () => {
 
       const operation = tab.locator('.operation');
       await operation.hover();
-      await contentPage.waitForTimeout(300);
 
       const closeBtn = operation.locator('.close');
       await expect(closeBtn).toBeVisible();
       await closeBtn.click();
-      await contentPage.waitForTimeout(500);
 
       const confirmDialog = contentPage.locator('.el-message-box');
       await expect(confirmDialog).toBeVisible();
@@ -1272,7 +1229,6 @@ test.describe('主工作区 - Tab 管理', () => {
 
       const cancelBtn = confirmDialog.locator('button').filter({ hasText: /不保存|Cancel/ });
       await cancelBtn.click();
-      await contentPage.waitForTimeout(500);
 
       await expect(tab).not.toBeVisible();
     });
@@ -1522,7 +1478,6 @@ test.describe('主工作区 - Tab 管理', () => {
         { name: longName, type: 'http' }
       ]);
       expect(results[0].success).toBe(true);
-      await contentPage.waitForTimeout(1000);
 
       await contentPage.locator('.custom-tree-node').filter({ hasText: longName }).first().click();
       await contentPage.waitForTimeout(500);
@@ -1564,7 +1519,6 @@ test.describe('主工作区 - Tab 管理', () => {
         { name: 'Mock图标', type: 'httpMock' }
       ]);
       results.forEach(result => expect(result.success).toBe(true));
-      await contentPage.waitForTimeout(1000);
 
       const changeMethodAndVerify = async (method: string, expectedColor: string) => {
         await contentPage.locator('.custom-tree-node').filter({ hasText: 'HTTP测试' }).first().click();
@@ -1572,15 +1526,12 @@ test.describe('主工作区 - Tab 管理', () => {
 
         const methodSelect = contentPage.locator('.request-method .el-select');
         await methodSelect.click();
-        await contentPage.waitForTimeout(300);
 
         const methodOption = contentPage.locator('.el-select-dropdown__item').filter({ hasText: new RegExp(`^${method}$`) });
         await methodOption.click();
-        await contentPage.waitForTimeout(500);
 
         const saveButton = contentPage.locator('button').filter({ hasText: '保存接口' });
         await saveButton.click();
-        await contentPage.waitForTimeout(500);
 
         const tab = contentPage.locator('.nav .tab-list .item').filter({ hasText: 'HTTP测试' }).first();
         const unsavedDot = tab.locator('.has-change .dot');
@@ -1653,12 +1604,10 @@ test.describe('主工作区 - Tab 管理', () => {
       }
       const results = await createNodes(contentPage, nodeNames);
       results.forEach(result => expect(result.success).toBe(true));
-      await contentPage.waitForTimeout(1000);
 
       for (let i = 1; i <= 10; i++) {
         const node = contentPage.locator('.custom-tree-node').filter({ hasText: `节点${i}` }).first();
         await node.click();
-        await contentPage.waitForTimeout(300);
       }
 
       const tabList = contentPage.locator('.nav .tab-list').first();
@@ -1693,12 +1642,10 @@ test.describe('主工作区 - Tab 管理', () => {
       }
       const results = await createNodes(contentPage, nodeNames);
       results.forEach(result => expect(result.success).toBe(true));
-      await contentPage.waitForTimeout(1000);
 
       for (let i = 1; i <= 10; i++) {
         const node = contentPage.locator('.custom-tree-node').filter({ hasText: `自动滚动${i}` }).first();
         await node.click();
-        await contentPage.waitForTimeout(200);
       }
 
       const isTabInView = async (tabText: string) => {
@@ -1718,22 +1665,18 @@ test.describe('主工作区 - Tab 管理', () => {
       };
 
       await contentPage.locator('.nav .tab-list .item').filter({ hasText: '自动滚动1' }).first().click();
-      await contentPage.waitForTimeout(1000);
       let inView = await isTabInView('自动滚动1');
       expect(inView).toBe(true);
 
       await contentPage.locator('.nav .tab-list .item').filter({ hasText: '自动滚动10' }).first().click();
-      await contentPage.waitForTimeout(1000);
       inView = await isTabInView('自动滚动10');
       expect(inView).toBe(true);
 
       await contentPage.locator('.nav .tab-list .item').filter({ hasText: '自动滚动1' }).first().click();
-      await contentPage.waitForTimeout(1000);
       inView = await isTabInView('自动滚动1');
       expect(inView).toBe(true);
 
       await contentPage.locator('.nav .tab-list .item').filter({ hasText: '自动滚动5' }).first().click();
-      await contentPage.waitForTimeout(1000);
       inView = await isTabInView('自动滚动5');
       expect(inView).toBe(true);
 
@@ -1760,7 +1703,6 @@ test.describe('主工作区 - Tab 管理', () => {
         { name: '同步测试', type: 'http' }
       ]);
       expect(results[0].success).toBe(true);
-      await contentPage.waitForTimeout(1000);
 
       await contentPage.locator('.custom-tree-node').filter({ hasText: '同步测试' }).first().click();
       await contentPage.waitForTimeout(500);
@@ -1770,7 +1712,6 @@ test.describe('主工作区 - Tab 管理', () => {
 
       const node = contentPage.locator('.custom-tree-node').filter({ hasText: '同步测试' }).first();
       await node.click();
-      await contentPage.waitForTimeout(300);
 
       await contentPage.keyboard.press('F2');
       await contentPage.waitForTimeout(500);

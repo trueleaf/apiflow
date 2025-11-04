@@ -78,7 +78,6 @@ test.describe.skip('WebSocket Node - 配置与持久化', () => {
     // 勾选自动发送
     const autoSend = contentPage.locator('.content-actions .config-controls .el-checkbox:has-text("自动发送")');
     await autoSend.click();
-    await contentPage.waitForTimeout(400);
 
     // const cached = await getCachedWsByName(contentPage, nodeName);
     // expect(cached).not.toBeNull();
