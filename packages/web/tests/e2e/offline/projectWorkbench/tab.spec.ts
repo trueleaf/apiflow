@@ -36,40 +36,87 @@ test.describe('Nav组件 - Tab功能测试', () => {
       const tab = contentPage.locator('.nav .tab-list .item').filter({ hasText: 'POST请求' });
       await expect(tab).toBeVisible();
 
+      // 验证初始方法为GET
+      let methodIcon = tab.locator('span').first();
+      await expect(methodIcon).toHaveText('GET');
+
       // 修改节点为POST方法
-      const methodSelect = contentPage.locator('.request-line .method-select');
+      const methodSelect = contentPage.locator('[data-testid="method-select"]');
       await methodSelect.click();
       await contentPage.locator('.el-select-dropdown__item:has-text("POST")').click();
 
+      // 验证tab上的方法仍显示GET（未保存状态）
+      methodIcon = tab.locator('span').first();
+      await expect(methodIcon).toHaveText('GET');
+
+      // 验证显示未保存圆点
+      const dot = tab.locator('.has-change .dot');
+      await expect(dot).toBeVisible();
+
+      // 保存节点
+      await contentPage.keyboard.press('Control+S');
+      await contentPage.waitForTimeout(500);
+
       // 验证tab上的方法显示更新为POST
-      const methodIcon = tab.locator('span').first();
+      methodIcon = tab.locator('span').first();
       await expect(methodIcon).toHaveText('POST');
+
+      // 验证未保存圆点消失
+      await expect(dot).not.toBeVisible();
     });
 
     test('应正确显示HTTP PUT节点的tab', async ({ electronApp }) => {
       await createNodes(contentPage, { name: 'PUT请求', type: 'http' });
 
+      const tab = contentPage.locator('.nav .tab-list .item').filter({ hasText: 'PUT请求' });
+
+      // 验证初始方法为GET
+      let methodIcon = tab.locator('span').first();
+      await expect(methodIcon).toHaveText('GET');
+
       // 修改节点为PUT方法
-      const methodSelect = contentPage.locator('.request-line .method-select');
+      const methodSelect = contentPage.locator('[data-testid="method-select"]');
       await methodSelect.click();
       await contentPage.locator('.el-select-dropdown__item:has-text("PUT")').click();
 
-      const tab = contentPage.locator('.nav .tab-list .item').filter({ hasText: 'PUT请求' });
-      const methodIcon = tab.locator('span').first();
+      // 验证tab上的方法仍显示GET（未保存状态）
+      methodIcon = tab.locator('span').first();
+      await expect(methodIcon).toHaveText('GET');
+
+      // 保存节点
+      await contentPage.keyboard.press('Control+S');
+      await contentPage.waitForTimeout(500);
+
+      // 验证tab上的方法显示更新为PUT
+      methodIcon = tab.locator('span').first();
       await expect(methodIcon).toHaveText('PUT');
     });
 
     test('应正确显示HTTP DELETE节点的tab', async ({ electronApp }) => {
       await createNodes(contentPage, { name: 'DELETE请求', type: 'http' });
 
-      // 修改节点为DELETE方法
-      const methodSelect = contentPage.locator('.request-line .method-select');
-      await methodSelect.click();
-      await contentPage.locator('.el-select-dropdown__item:has-text("DELETE")').click();
-
       const tab = contentPage.locator('.nav .tab-list .item').filter({ hasText: 'DELETE请求' });
-      const methodIcon = tab.locator('span').first();
-      await expect(methodIcon).toHaveText('DELETE');
+
+      // 验证初始方法为GET
+      let methodIcon = tab.locator('span').first();
+      await expect(methodIcon).toHaveText('GET');
+
+      // 修改节点为DELETE方法
+      const methodSelect = contentPage.locator('[data-testid="method-select"]');
+      await methodSelect.click();
+      await contentPage.locator('.el-select-dropdown__item:has-text("DEL")').click();
+
+      // 验证tab上的方法仍显示GET（未保存状态）
+      methodIcon = tab.locator('span').first();
+      await expect(methodIcon).toHaveText('GET');
+
+      // 保存节点
+      await contentPage.keyboard.press('Control+S');
+      await contentPage.waitForTimeout(500);
+
+      // 验证tab上的方法显示更新为DELETE
+      methodIcon = tab.locator('span').first();
+      await expect(methodIcon).toHaveText('DEL');
     });
 
     test('应正确显示WebSocket节点的tab', async ({ electronApp }) => {
@@ -111,14 +158,58 @@ test.describe('Nav组件 - Tab功能测试', () => {
       const tab = contentPage.locator('.nav .tab-list .item').filter({ hasText: longName });
       await expect(tab).toBeVisible();
 
-      // 验证title属性存在（悬停提示）
-      const textSpan = tab.locator('.text');
-      const title = await textSpan.getAttribute('title');
+      // 验证title属性存在（悬停提示） - 从.item元素获取
+      const title = await tab.getAttribute('title');
       expect(title).toBe(longName);
 
-      // 验证CSS text-overflow
-      const overflow = await textSpan.evaluate((el: HTMLElement) => window.getComputedStyle(el).textOverflow);
-      expect(overflow).toBe('ellipsis');
+      // 验证CSS属性 - 从.item-text元素验证
+      const textSpan = tab.locator('.item-text');
+      const styles = await textSpan.evaluate((el: HTMLElement) => {
+        const computed = window.getComputedStyle(el);
+        return {
+          textOverflow: computed.textOverflow,
+          overflow: computed.overflow,
+          whiteSpace: computed.whiteSpace,
+          scrollWidth: el.scrollWidth,
+          clientWidth: el.clientWidth
+        };
+      });
+
+      // 验证必要的CSS属性
+      expect(styles.textOverflow).toBe('ellipsis');
+      expect(styles.overflow).toContain('hidden');
+      expect(styles.whiteSpace).toBe('nowrap');
+
+      // 验证文本确实被截断了（scrollWidth > clientWidth）
+      expect(styles.scrollWidth).toBeGreaterThan(styles.clientWidth);
+    });
+
+    test('Tab标签文本较短时不应显示省略号', async ({ electronApp }) => {
+      const shortName = '短名称';
+      await createNodes(contentPage, { name: shortName, type: 'http' });
+
+      const tab = contentPage.locator('.nav .tab-list .item').filter({ hasText: shortName });
+      await expect(tab).toBeVisible();
+
+      // 验证title属性仍然存在（所有tab都有title）
+      const title = await tab.getAttribute('title');
+      expect(title).toBe(shortName);
+
+      // 验证CSS属性依然设置
+      const textSpan = tab.locator('.item-text');
+      const styles = await textSpan.evaluate((el: HTMLElement) => {
+        const computed = window.getComputedStyle(el);
+        return {
+          textOverflow: computed.textOverflow,
+          scrollWidth: el.scrollWidth,
+          clientWidth: el.clientWidth
+        };
+      });
+
+      expect(styles.textOverflow).toBe('ellipsis');
+
+      // 验证短文本没有被截断（scrollWidth <= clientWidth）
+      expect(styles.scrollWidth).toBeLessThanOrEqual(styles.clientWidth);
     });
   });
 
@@ -220,7 +311,7 @@ test.describe('Nav组件 - Tab功能测试', () => {
 
       // 修改第一个API的URL
       await contentPage.locator('.nav .tab-list .item').filter({ hasText: 'API1' }).click();
-      const urlInput = contentPage.locator('.url-input input');
+      const urlInput = contentPage.locator('[data-testid="url-input"]');
       await urlInput.fill('https://api1.example.com');
 
       // 切换到第二个tab
@@ -344,7 +435,7 @@ test.describe('Nav组件 - Tab功能测试', () => {
       await createNodes(contentPage, { name: '未保存节点', type: 'http' });
 
       // 修改URL使其变为未保存状态
-      const urlInput = contentPage.locator('.url-input input');
+      const urlInput = contentPage.locator('[data-testid="url-input"]');
       await urlInput.fill('https://example.com');
 
       // 验证显示未保存标识
@@ -366,7 +457,7 @@ test.describe('Nav组件 - Tab功能测试', () => {
       await createNodes(contentPage, { name: '测试节点', type: 'http' });
 
       // 修改URL
-      const urlInput = contentPage.locator('.url-input input');
+      const urlInput = contentPage.locator('[data-testid="url-input"]');
       await urlInput.fill('https://example.com');
 
       // 关闭tab
@@ -667,7 +758,6 @@ test.describe('Nav组件 - Tab功能测试', () => {
 
       // 拖拽X到最后
       await tabX.dragTo(tabZ);
-      await contentPage.waitForTimeout(300);
 
       // 刷新页面验证持久化
       await contentPage.reload();
@@ -706,7 +796,6 @@ test.describe('Nav组件 - Tab功能测试', () => {
       const tabAlpha = contentPage.locator('.nav .tab-list .item').filter({ hasText: 'Alpha' });
       const tabGamma = contentPage.locator('.nav .tab-list .item').filter({ hasText: 'Gamma' });
       await tabAlpha.dragTo(tabGamma);
-      await contentPage.waitForTimeout(300);
 
       // 验证当前顺序
       let tabs = contentPage.locator('.nav .tab-list .item');
@@ -732,25 +821,14 @@ test.describe('Nav组件 - Tab功能测试', () => {
 
       const tab = contentPage.locator('.nav .tab-list .item').filter({ hasText: '测试节点' });
 
-      // 初始状态应该是未固定
+      // 初始状态应该是固定的（新创建的tab默认fixed: true）
       let fixed = await tab.evaluate((el: HTMLElement) => {
-        const transform = window.getComputedStyle(el).transform;
-        return transform === 'none';
-      });
-      expect(fixed).toBe(false);
-
-      // 双击固定
-      await tab.dblclick();
-      await contentPage.waitForTimeout(200);
-
-      // 验证已固定
-      fixed = await tab.evaluate((el: HTMLElement) => {
         const transform = window.getComputedStyle(el).transform;
         return transform === 'none';
       });
       expect(fixed).toBe(true);
 
-      // 再次双击取消固定
+      // 双击取消固定
       await tab.dblclick();
       await contentPage.waitForTimeout(200);
 
@@ -760,6 +838,17 @@ test.describe('Nav组件 - Tab功能测试', () => {
         return transform === 'none';
       });
       expect(fixed).toBe(false);
+
+      // 再次双击固定
+      await tab.dblclick();
+      await contentPage.waitForTimeout(200);
+
+      // 验证已固定
+      fixed = await tab.evaluate((el: HTMLElement) => {
+        const transform = window.getComputedStyle(el).transform;
+        return transform === 'none';
+      });
+      expect(fixed).toBe(true);
     });
 
     test('固定的tab文本不应倾斜', async ({ electronApp }) => {
@@ -772,7 +861,7 @@ test.describe('Nav组件 - Tab功能测试', () => {
       await contentPage.waitForTimeout(200);
 
       // 验证transform为none（不倾斜）
-      const textSpan = tab.locator('.text').first();
+      const textSpan = tab.locator('.item-text').first();
       const transform = await textSpan.evaluate((el: HTMLElement) => window.getComputedStyle(el).transform);
       expect(transform).toBe('none');
     });
@@ -782,8 +871,12 @@ test.describe('Nav组件 - Tab功能测试', () => {
 
       const tab = contentPage.locator('.nav .tab-list .item').filter({ hasText: '未固定节点' });
 
+      // 新创建的节点默认是固定的，需要先取消固定
+      await tab.dblclick();
+      await contentPage.waitForTimeout(200);
+
       // 验证transform不为none（有倾斜）
-      const textSpan = tab.locator('.text').first();
+      const textSpan = tab.locator('.item-text').first();
       const transform = await textSpan.evaluate((el: HTMLElement) => window.getComputedStyle(el).transform);
       expect(transform).not.toBe('none');
       // 应该包含skewX的matrix值
@@ -837,7 +930,7 @@ test.describe('Nav组件 - Tab功能测试', () => {
       await createNodes(contentPage, { name: 'API节点', type: 'http' });
 
       // 修改URL
-      const urlInput = contentPage.locator('.url-input input');
+      const urlInput = contentPage.locator('[data-testid="url-input"]');
       await urlInput.fill('https://api.example.com');
 
       // 验证显示未保存圆点
@@ -859,7 +952,6 @@ test.describe('Nav组件 - Tab功能测试', () => {
       await bannerTitle.fill('修改后名称');
 
       // 验证显示未保存圆点
-      await contentPage.waitForTimeout(300);
       const tab = contentPage.locator('.nav .tab-list .item').filter({ hasText: '修改后名称' });
       const hasDot = await tab.isVisible() && await tab.locator('.has-change .dot').isVisible();
       expect(hasDot).toBe(true);
@@ -869,7 +961,7 @@ test.describe('Nav组件 - Tab功能测试', () => {
       await createNodes(contentPage, { name: '待保存节点', type: 'http' });
 
       // 修改URL
-      const urlInput = contentPage.locator('.url-input input');
+      const urlInput = contentPage.locator('[data-testid="url-input"]');
       await urlInput.fill('https://api.example.com/test');
 
       // 验证显示圆点
@@ -896,7 +988,7 @@ test.describe('Nav组件 - Tab功能测试', () => {
       await createNodes(contentPage, { name: '测试节点', type: 'http' });
 
       // 修改URL
-      const urlInput = contentPage.locator('.url-input input');
+      const urlInput = contentPage.locator('[data-testid="url-input"]');
       await urlInput.fill('https://api.example.com');
 
       const tab = contentPage.locator('.nav .tab-list .item').filter({ hasText: '测试节点' });
@@ -1043,7 +1135,6 @@ test.describe('Nav组件 - Tab功能测试', () => {
       // 固定第一个和第三个节点
       await contentPage.locator('.nav .tab-list .item').filter({ hasText: '固定节点A' }).dblclick();
       await contentPage.locator('.nav .tab-list .item').filter({ hasText: '固定节点C' }).dblclick();
-      await contentPage.waitForTimeout(300);
 
       // 验证固定状态
       let tabA = contentPage.locator('.nav .tab-list .item').filter({ hasText: '固定节点A' });
@@ -1106,7 +1197,7 @@ test.describe('Nav组件 - Tab功能测试', () => {
 
       // 在第一个tab设置一个会超时的URL
       await contentPage.locator('.nav .tab-list .item').filter({ hasText: 'API1' }).click();
-      const urlInput = contentPage.locator('.url-input input');
+      const urlInput = contentPage.locator('[data-testid="url-input"]');
       await urlInput.fill('https://httpbin.org/delay/10');
 
       // 发送请求（不等待完成）
@@ -1126,7 +1217,6 @@ test.describe('Nav组件 - Tab功能测试', () => {
       await contentPage.locator('.nav .tab-list .item').filter({ hasText: 'API2' }).click();
 
       // 等待tab切换完成
-      await contentPage.waitForTimeout(300);
 
       // 切换回第一个tab
       await contentPage.locator('.nav .tab-list .item').filter({ hasText: 'API1' }).click();

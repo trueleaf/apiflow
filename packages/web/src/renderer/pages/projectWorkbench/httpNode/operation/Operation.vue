@@ -37,7 +37,7 @@
       >
         <template #prepend>
           <div class="request-method">
-            <el-select v-model="requestMethod" :size="config.renderConfig.layout.size" value-key="name">
+            <el-select v-model="requestMethod" :size="config.renderConfig.layout.size" value-key="name" data-testid="method-select">
               <el-option v-for="(item, index) in requestMethodEnum" :key="index" :value="item.value" :label="item.name"
                 :title="disabledTip(item)" :disabled="!item.isEnabled">
               </el-option>
