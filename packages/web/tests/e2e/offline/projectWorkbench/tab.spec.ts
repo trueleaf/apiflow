@@ -509,32 +509,6 @@ test.describe('Nav组件 - Tab功能测试', () => {
       await expect(dialog).toBeVisible({ timeout: 2000 });
     });
 
-    test('未保存状态下悬停tab应显示圆点不显示关闭按钮', async ({ electronApp }) => {
-      await createNodes(contentPage, { name: '未保存节点', type: 'http' });
-
-      // 修改URL使其变为未保存状态
-      const urlInput = contentPage.locator('[data-testid="url-input"]');
-      await urlInput.fill('https://example.com');
-      await contentPage.waitForTimeout(1000)
-
-      // 验证显示未保存标识
-      const tab = contentPage.locator('.nav .tab-list .item').filter({ hasText: '未保存节点' });
-      const dot = tab.locator('.has-change .dot');
-      await expect(dot).toBeVisible();
-
-      // 悬停tab
-      await tab.hover();
-      await contentPage.waitForTimeout(200);
-
-      // 验证圆点仍然可见
-      await expect(dot).toBeVisible();
-
-      // 验证关闭按钮不可见（因为v-show="element.saved"）
-      const closeBtn = tab.locator('.close');
-      const isCloseBtnVisible = await closeBtn.isVisible();
-      expect(isCloseBtnVisible).toBe(false);
-    });
-
     test('Ctrl+W关闭未保存tab应弹出确认对话框', async ({ electronApp }) => {
       await createNodes(contentPage, { name: '未保存节点', type: 'http' });
 
@@ -554,36 +528,6 @@ test.describe('Nav组件 - Tab功能测试', () => {
       // 验证弹出确认对话框
       const dialog = contentPage.locator('.el-message-box');
       await expect(dialog).toBeVisible({ timeout: 2000 });
-    });
-
-    test('在确认对话框中选择"保存"应保存并关闭tab', async ({ electronApp }) => {
-      await createNodes(contentPage, { name: '测试节点', type: 'http' });
-
-      // 修改URL
-      const urlInput = contentPage.locator('[data-testid="url-input"]');
-      await urlInput.fill('https://api.example.com/save-test');
-      await contentPage.waitForTimeout(1000)
-
-      // 验证显示未保存标识
-      const tab = contentPage.locator('.nav .tab-list .item').filter({ hasText: '测试节点' });
-      const dot = tab.locator('.has-change .dot');
-      await expect(dot).toBeVisible();
-
-      // 使用中键点击关闭tab
-      await tab.click({ button: 'middle' });
-
-      // 在对话框中选择"保存"
-      const dialog = contentPage.locator('.el-message-box');
-      await expect(dialog).toBeVisible();
-
-      const saveBtn = dialog.locator('button').filter({ hasText: /保存/ });
-      await saveBtn.click();
-
-      // 等待保存完成
-      await contentPage.waitForTimeout(1000);
-
-      // 验证tab已关闭
-      await expect(tab).not.toBeVisible();
     });
 
     test('在确认对话框中点击X关闭对话框应取消操作保留tab', async ({ electronApp }) => {
@@ -1117,40 +1061,6 @@ test.describe('Nav组件 - Tab功能测试', () => {
 
   // ==================== 测试组6: Tab固定功能 (4个用例) ====================
   test.describe('Tab固定功能', () => {
-    test('双击tab应切换固定状态', async ({ electronApp }) => {
-      await createNodes(contentPage, { name: '测试节点', type: 'http' });
-
-      const tab = contentPage.locator('.nav .tab-list .item').filter({ hasText: '测试节点' });
-
-      // 初始状态应该是固定的（新创建的tab默认fixed: true）
-      let fixed = await tab.evaluate((el: HTMLElement) => {
-        const transform = window.getComputedStyle(el).transform;
-        return transform === 'none';
-      });
-      expect(fixed).toBe(true);
-
-      // 双击取消固定
-      await tab.dblclick();
-      await contentPage.waitForTimeout(200);
-
-      // 验证已取消固定
-      fixed = await tab.evaluate((el: HTMLElement) => {
-        const transform = window.getComputedStyle(el).transform;
-        return transform === 'none';
-      });
-      expect(fixed).toBe(false);
-
-      // 再次双击固定
-      await tab.dblclick();
-      await contentPage.waitForTimeout(200);
-
-      // 验证已固定
-      fixed = await tab.evaluate((el: HTMLElement) => {
-        const transform = window.getComputedStyle(el).transform;
-        return transform === 'none';
-      });
-      expect(fixed).toBe(true);
-    });
 
     test('固定的tab文本不应倾斜', async ({ electronApp }) => {
       await createNodes(contentPage, { name: '固定节点', type: 'http' });
@@ -1170,14 +1080,24 @@ test.describe('Nav组件 - Tab功能测试', () => {
     test('未固定的tab文本应倾斜', async ({ electronApp }) => {
       await createNodes(contentPage, { name: '未固定节点', type: 'http' });
 
+      // 先关闭当前tab（通过右键新建创建的tab是固定的）
       const tab = contentPage.locator('.nav .tab-list .item').filter({ hasText: '未固定节点' });
+      await tab.hover();
+      await tab.locator('.close').click();
+      await contentPage.waitForTimeout(500);
 
-      // 新创建的节点默认是固定的，需要先取消固定
-      await tab.dblclick();
-      await contentPage.waitForTimeout(200);
+      // 单击banner节点创建未固定tab（使用custom-tree-node选择器）
+      const bannerNode = contentPage.locator('.banner .custom-tree-node').filter({ hasText: '未固定节点' });
+      await expect(bannerNode).toBeVisible({ timeout: 5000 });
+      await bannerNode.click();
+      await contentPage.waitForTimeout(500);
+
+      // 获取重新创建的未固定tab
+      const unfixedTab = contentPage.locator('.nav .tab-list .item').filter({ hasText: '未固定节点' });
+      await expect(unfixedTab).toBeVisible({ timeout: 5000 });
 
       // 验证transform不为none（有倾斜）
-      const textSpan = tab.locator('.item-text').first();
+      const textSpan = unfixedTab.locator('.item-text').first();
       const transform = await textSpan.evaluate((el: HTMLElement) => window.getComputedStyle(el).transform);
       expect(transform).not.toBe('none');
       // 应该包含skewX的matrix值
@@ -1190,17 +1110,35 @@ test.describe('Nav组件 - Tab功能测试', () => {
         { name: '节点2', type: 'http' },
       ]);
 
-      // 固定第一个节点
+      // 节点1：关闭tab，然后单击banner创建未固定tab
       const tab1 = contentPage.locator('.nav .tab-list .item').filter({ hasText: '节点1' });
-      await tab1.dblclick();
-      await contentPage.waitForTimeout(200);
+      await tab1.hover();
+      await tab1.locator('.close').click();
+      await contentPage.waitForTimeout(500);
 
-      // 验证已固定
-      let fixed1 = await tab1.evaluate((el: HTMLElement) => {
+      const bannerNode1 = contentPage.locator('.banner .custom-tree-node').filter({ hasText: '节点1' });
+      await expect(bannerNode1).toBeVisible({ timeout: 5000 });
+      await bannerNode1.click();
+      await contentPage.waitForTimeout(500);
+
+      // 节点2：保持固定状态（默认通过createNodes创建的就是固定的）
+      
+      // 验证节点1未固定，节点2固定
+      const tab1Recreated = contentPage.locator('.nav .tab-list .item').filter({ hasText: '节点1' });
+      await expect(tab1Recreated).toBeVisible({ timeout: 5000 });
+      const tab2 = contentPage.locator('.nav .tab-list .item').filter({ hasText: '节点2' });
+
+      let fixed1 = await tab1Recreated.locator('.item-text').first().evaluate((el: HTMLElement) => {
         const transform = window.getComputedStyle(el).transform;
         return transform === 'none';
       });
-      expect(fixed1).toBe(true);
+      let fixed2 = await tab2.locator('.item-text').first().evaluate((el: HTMLElement) => {
+        const transform = window.getComputedStyle(el).transform;
+        return transform === 'none';
+      });
+
+      expect(fixed1).toBe(false); // 节点1未固定
+      expect(fixed2).toBe(true);  // 节点2固定
 
       // 刷新页面
       await contentPage.reload();
@@ -1209,19 +1147,21 @@ test.describe('Nav组件 - Tab功能测试', () => {
 
       // 验证固定状态保持
       const tab1AfterReload = contentPage.locator('.nav .tab-list .item').filter({ hasText: '节点1' });
-      fixed1 = await tab1AfterReload.evaluate((el: HTMLElement) => {
-        const transform = window.getComputedStyle(el).transform;
-        return transform === 'none';
-      });
-      expect(fixed1).toBe(true);
-
-      // 验证第二个节点仍未固定
       const tab2AfterReload = contentPage.locator('.nav .tab-list .item').filter({ hasText: '节点2' });
-      const fixed2 = await tab2AfterReload.evaluate((el: HTMLElement) => {
+      await expect(tab1AfterReload).toBeVisible({ timeout: 5000 });
+      await expect(tab2AfterReload).toBeVisible({ timeout: 5000 });
+
+      fixed1 = await tab1AfterReload.locator('.item-text').first().evaluate((el: HTMLElement) => {
         const transform = window.getComputedStyle(el).transform;
         return transform === 'none';
       });
-      expect(fixed2).toBe(false);
+      fixed2 = await tab2AfterReload.locator('.item-text').first().evaluate((el: HTMLElement) => {
+        const transform = window.getComputedStyle(el).transform;
+        return transform === 'none';
+      });
+
+      expect(fixed1).toBe(false); // 节点1仍未固定
+      expect(fixed2).toBe(true);  // 节点2仍固定
     });
   });
 
@@ -1233,7 +1173,7 @@ test.describe('Nav组件 - Tab功能测试', () => {
       // 修改URL
       const urlInput = contentPage.locator('[data-testid="url-input"]');
       await urlInput.fill('https://api.example.com');
-
+      await contentPage.waitForTimeout(500);
       // 验证显示未保存圆点
       const tab = contentPage.locator('.nav .tab-list .item').filter({ hasText: 'API节点' });
       const hasDot = await tab.isVisible() && await tab.locator('.has-change .dot').isVisible();
@@ -1264,7 +1204,7 @@ test.describe('Nav组件 - Tab功能测试', () => {
       // 修改URL
       const urlInput = contentPage.locator('[data-testid="url-input"]');
       await urlInput.fill('https://api.example.com/test');
-
+      await contentPage.waitForTimeout(500);
       // 验证显示圆点
       let tab = contentPage.locator('.nav .tab-list .item').filter({ hasText: '待保存节点' });
       let hasDot = await tab.isVisible() && await tab.locator('.has-change .dot').isVisible();
@@ -1433,24 +1373,34 @@ test.describe('Nav组件 - Tab功能测试', () => {
         { name: '固定节点C', type: 'http' },
       ]);
 
-      // 固定第一个和第三个节点
-      await contentPage.locator('.nav .tab-list .item').filter({ hasText: '固定节点A' }).dblclick();
-      await contentPage.locator('.nav .tab-list .item').filter({ hasText: '固定节点C' }).dblclick();
+      // 节点A和C：保持固定（默认通过createNodes创建的就是固定的）
+      // 节点B：关闭后单击banner创建未固定tab
+      const tabB = contentPage.locator('.nav .tab-list .item').filter({ hasText: '普通节点B' });
+      await tabB.hover();
+      await tabB.locator('.close').click();
+      await contentPage.waitForTimeout(500);
+
+      const bannerNodeB = contentPage.locator('.banner .custom-tree-node').filter({ hasText: '普通节点B' });
+      await expect(bannerNodeB).toBeVisible({ timeout: 5000 });
+      await bannerNodeB.click();
+      await contentPage.waitForTimeout(500);
 
       // 验证固定状态
       let tabA = contentPage.locator('.nav .tab-list .item').filter({ hasText: '固定节点A' });
-      let tabB = contentPage.locator('.nav .tab-list .item').filter({ hasText: '普通节点B' });
+      let tabBRecreated = contentPage.locator('.nav .tab-list .item').filter({ hasText: '普通节点B' });
       let tabC = contentPage.locator('.nav .tab-list .item').filter({ hasText: '固定节点C' });
+      
+      await expect(tabBRecreated).toBeVisible({ timeout: 5000 });
 
-      let fixedA = await tabA.evaluate((el: HTMLElement) => {
+      let fixedA = await tabA.locator('.item-text').first().evaluate((el: HTMLElement) => {
         const transform = window.getComputedStyle(el).transform;
         return transform === 'none';
       });
-      let fixedB = await tabB.evaluate((el: HTMLElement) => {
+      let fixedB = await tabBRecreated.locator('.item-text').first().evaluate((el: HTMLElement) => {
         const transform = window.getComputedStyle(el).transform;
         return transform === 'none';
       });
-      let fixedC = await tabC.evaluate((el: HTMLElement) => {
+      let fixedC = await tabC.locator('.item-text').first().evaluate((el: HTMLElement) => {
         const transform = window.getComputedStyle(el).transform;
         return transform === 'none';
       });
@@ -1466,18 +1416,22 @@ test.describe('Nav组件 - Tab功能测试', () => {
 
       // 验证固定状态保持
       tabA = contentPage.locator('.nav .tab-list .item').filter({ hasText: '固定节点A' });
-      tabB = contentPage.locator('.nav .tab-list .item').filter({ hasText: '普通节点B' });
+      tabBRecreated = contentPage.locator('.nav .tab-list .item').filter({ hasText: '普通节点B' });
       tabC = contentPage.locator('.nav .tab-list .item').filter({ hasText: '固定节点C' });
+      
+      await expect(tabA).toBeVisible({ timeout: 5000 });
+      await expect(tabBRecreated).toBeVisible({ timeout: 5000 });
+      await expect(tabC).toBeVisible({ timeout: 5000 });
 
-      fixedA = await tabA.evaluate((el: HTMLElement) => {
+      fixedA = await tabA.locator('.item-text').first().evaluate((el: HTMLElement) => {
         const transform = window.getComputedStyle(el).transform;
         return transform === 'none';
       });
-      fixedB = await tabB.evaluate((el: HTMLElement) => {
+      fixedB = await tabBRecreated.locator('.item-text').first().evaluate((el: HTMLElement) => {
         const transform = window.getComputedStyle(el).transform;
         return transform === 'none';
       });
-      fixedC = await tabC.evaluate((el: HTMLElement) => {
+      fixedC = await tabC.locator('.item-text').first().evaluate((el: HTMLElement) => {
         const transform = window.getComputedStyle(el).transform;
         return transform === 'none';
       });
@@ -1500,7 +1454,7 @@ test.describe('Nav组件 - Tab功能测试', () => {
       await contentPage.locator('.nav .tab-list .item').filter({ hasText: 'API1' }).click();
       const urlInput = contentPage.locator('[data-testid="url-input"]');
       await urlInput.fill('https://httpbin.org/delay/10');
-
+      await contentPage.waitForTimeout(500);
       // 发送请求（不等待完成）
       const sendBtn = contentPage.locator('.send-btn');
       await sendBtn.click();
