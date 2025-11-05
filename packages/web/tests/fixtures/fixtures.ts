@@ -135,7 +135,7 @@ export const createSingleNode = async (
         timeout 
       });
     }
-    await contentPage.waitForTimeout(500);
+    // await contentPage.waitForTimeout(500);
     return {
       name,
       type,

@@ -431,16 +431,50 @@ test.describe('appWorkbench测试案例', () => {
 
       // 4. 验证标签内容应用了文本省略样式
       const tabContent = tab.locator('span').first();
-      const textOverflow = await tabContent.evaluate((el) => {
-        return window.getComputedStyle(el).textOverflow;
+      const styles = await tabContent.evaluate((el) => {
+        const computed = window.getComputedStyle(el);
+        return {
+          textOverflow: computed.textOverflow,
+          overflow: computed.overflow,
+          whiteSpace: computed.whiteSpace,
+          scrollWidth: el.scrollWidth,
+          clientWidth: el.clientWidth
+        };
       });
-      expect(textOverflow).toBe('ellipsis');
 
-      // 5. 验证标签内容不换行
-      const whiteSpace = await tabContent.evaluate((el) => {
-        return window.getComputedStyle(el).whiteSpace;
+      // 5. 验证必要的CSS属性
+      expect(styles.textOverflow).toBe('ellipsis');
+      expect(styles.overflow).toContain('hidden');
+      expect(styles.whiteSpace).toBe('nowrap');
+
+      // 6. 验证文本确实被截断了（scrollWidth > clientWidth）
+      expect(styles.scrollWidth).toBeGreaterThan(styles.clientWidth);
+    });
+    test('标签文本较短时不应被截断', async () => {
+      // 1. 创建一个名称较短的项目
+      const shortProjectName = '短项目';
+      await createProject(contentPage, shortProjectName);
+      await contentPage.waitForTimeout(500);
+
+      // 2. 获取标签页
+      const tab = headerPage.locator('.tab-item').first();
+
+      // 3. 验证标签内容的CSS属性和截断状态
+      const tabContent = tab.locator('span').first();
+      const styles = await tabContent.evaluate((el) => {
+        const computed = window.getComputedStyle(el);
+        return {
+          textOverflow: computed.textOverflow,
+          scrollWidth: el.scrollWidth,
+          clientWidth: el.clientWidth
+        };
       });
-      expect(whiteSpace).toBe('nowrap');
+
+      // 4. 验证CSS属性仍然设置
+      expect(styles.textOverflow).toBe('ellipsis');
+
+      // 5. 验证短文本没有被截断（scrollWidth <= clientWidth）
+      expect(styles.scrollWidth).toBeLessThanOrEqual(styles.clientWidth);
     });
     test('多个标签应支持横向滚动', async () => {
       // 1. 创建多个项目（足够多以触发滚动）

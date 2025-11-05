@@ -288,11 +288,12 @@ test.describe('Nav组件 - Tab功能测试', () => {
       }));
       await createNodes(contentPage, nodes);
 
-      // 点击第一个节点
-      await contentPage.locator('.nav .tab-list .item').filter({ hasText: '节点1' }).click();
+      // 点击第一个节点 - 使用nth(0)精确定位第一个tab
+      const allTabs = contentPage.locator('.nav .tab-list .item');
+      await allTabs.nth(0).click();
 
       // 验证第一个tab可见
-      const tab1 = contentPage.locator('.nav .tab-list .item').filter({ hasText: '节点1' });
+      const tab1 = allTabs.nth(0);
       await expect(tab1).toBeVisible();
 
       // 检查是否在视口内
@@ -313,10 +314,10 @@ test.describe('Nav组件 - Tab功能测试', () => {
       await contentPage.locator('.nav .tab-list .item').filter({ hasText: 'API1' }).click();
       const urlInput = contentPage.locator('[data-testid="url-input"]');
       await urlInput.fill('https://api1.example.com');
-
+      // 切换太快数据还未赋值，添加等待
+      await contentPage.waitForTimeout(1000)
       // 切换到第二个tab
       await contentPage.locator('.nav .tab-list .item').filter({ hasText: 'API2' }).click();
-
       // 验证URL输入框已清空（新节点默认为空）
       const currentUrl = await urlInput.inputValue();
       expect(currentUrl).not.toBe('https://api1.example.com');
@@ -431,12 +432,13 @@ test.describe('Nav组件 - Tab功能测试', () => {
       expect(url).toContain('doc-edit');
     });
 
-    test('关闭未保存tab应弹出保存确认对话框', async ({ electronApp }) => {
+    test('中键点击未保存tab应弹出保存确认对话框', async ({ electronApp }) => {
       await createNodes(contentPage, { name: '未保存节点', type: 'http' });
 
       // 修改URL使其变为未保存状态
       const urlInput = contentPage.locator('[data-testid="url-input"]');
       await urlInput.fill('https://example.com');
+      await contentPage.waitForTimeout(1000)
 
       // 验证显示未保存标识
       const tab = contentPage.locator('.nav .tab-list .item').filter({ hasText: '未保存节点' });
@@ -444,9 +446,8 @@ test.describe('Nav组件 - Tab功能测试', () => {
       const hasDot = await dot.isVisible();
       expect(hasDot).toBe(true);
 
-      // 尝试关闭tab
-      await tab.hover();
-      await tab.locator('.close').click();
+      // 使用中键点击关闭tab
+      await tab.click({ button: 'middle' });
 
       // 验证弹出确认对话框
       const dialog = contentPage.locator('.el-message-box');
@@ -459,11 +460,11 @@ test.describe('Nav组件 - Tab功能测试', () => {
       // 修改URL
       const urlInput = contentPage.locator('[data-testid="url-input"]');
       await urlInput.fill('https://example.com');
+      await contentPage.waitForTimeout(1000)
 
-      // 关闭tab
+      // 使用中键点击关闭tab
       const tab = contentPage.locator('.nav .tab-list .item').filter({ hasText: '测试节点' });
-      await tab.hover();
-      await tab.locator('.close').click();
+      await tab.click({ button: 'middle' });
 
       // 在对话框中选择"不保存"
       const dialog = contentPage.locator('.el-message-box');
@@ -481,6 +482,144 @@ test.describe('Nav组件 - Tab功能测试', () => {
         await cancelBtn.click();
       }
     });
+
+    test('右键菜单关闭未保存tab应弹出确认对话框', async ({ electronApp }) => {
+      await createNodes(contentPage, { name: '未保存节点', type: 'http' });
+
+      // 修改URL使其变为未保存状态
+      const urlInput = contentPage.locator('[data-testid="url-input"]');
+      await urlInput.fill('https://example.com');
+      await contentPage.waitForTimeout(1000)
+
+      // 验证显示未保存标识
+      const tab = contentPage.locator('.nav .tab-list .item').filter({ hasText: '未保存节点' });
+      const dot = tab.locator('.has-change .dot');
+      const hasDot = await dot.isVisible();
+      expect(hasDot).toBe(true);
+
+      // 右键点击tab
+      await tab.click({ button: 'right' });
+
+      // 点击"关闭"菜单项
+      const closeItem = contentPage.locator('.s-contextmenu').locator('text="关闭"');
+      await closeItem.click();
+
+      // 验证弹出确认对话框
+      const dialog = contentPage.locator('.el-message-box');
+      await expect(dialog).toBeVisible({ timeout: 2000 });
+    });
+
+    test('未保存状态下悬停tab应显示圆点不显示关闭按钮', async ({ electronApp }) => {
+      await createNodes(contentPage, { name: '未保存节点', type: 'http' });
+
+      // 修改URL使其变为未保存状态
+      const urlInput = contentPage.locator('[data-testid="url-input"]');
+      await urlInput.fill('https://example.com');
+      await contentPage.waitForTimeout(1000)
+
+      // 验证显示未保存标识
+      const tab = contentPage.locator('.nav .tab-list .item').filter({ hasText: '未保存节点' });
+      const dot = tab.locator('.has-change .dot');
+      await expect(dot).toBeVisible();
+
+      // 悬停tab
+      await tab.hover();
+      await contentPage.waitForTimeout(200);
+
+      // 验证圆点仍然可见
+      await expect(dot).toBeVisible();
+
+      // 验证关闭按钮不可见（因为v-show="element.saved"）
+      const closeBtn = tab.locator('.close');
+      const isCloseBtnVisible = await closeBtn.isVisible();
+      expect(isCloseBtnVisible).toBe(false);
+    });
+
+    test('Ctrl+W关闭未保存tab应弹出确认对话框', async ({ electronApp }) => {
+      await createNodes(contentPage, { name: '未保存节点', type: 'http' });
+
+      // 修改URL使其变为未保存状态
+      const urlInput = contentPage.locator('[data-testid="url-input"]');
+      await urlInput.fill('https://example.com');
+      await contentPage.waitForTimeout(1000)
+
+      // 验证显示未保存标识
+      const tab = contentPage.locator('.nav .tab-list .item').filter({ hasText: '未保存节点' });
+      const dot = tab.locator('.has-change .dot');
+      await expect(dot).toBeVisible();
+
+      // 按下Ctrl+W
+      await contentPage.keyboard.press('Control+W');
+
+      // 验证弹出确认对话框
+      const dialog = contentPage.locator('.el-message-box');
+      await expect(dialog).toBeVisible({ timeout: 2000 });
+    });
+
+    test('在确认对话框中选择"保存"应保存并关闭tab', async ({ electronApp }) => {
+      await createNodes(contentPage, { name: '测试节点', type: 'http' });
+
+      // 修改URL
+      const urlInput = contentPage.locator('[data-testid="url-input"]');
+      await urlInput.fill('https://api.example.com/save-test');
+      await contentPage.waitForTimeout(1000)
+
+      // 验证显示未保存标识
+      const tab = contentPage.locator('.nav .tab-list .item').filter({ hasText: '测试节点' });
+      const dot = tab.locator('.has-change .dot');
+      await expect(dot).toBeVisible();
+
+      // 使用中键点击关闭tab
+      await tab.click({ button: 'middle' });
+
+      // 在对话框中选择"保存"
+      const dialog = contentPage.locator('.el-message-box');
+      await expect(dialog).toBeVisible();
+
+      const saveBtn = dialog.locator('button').filter({ hasText: /保存/ });
+      await saveBtn.click();
+
+      // 等待保存完成
+      await contentPage.waitForTimeout(1000);
+
+      // 验证tab已关闭
+      await expect(tab).not.toBeVisible();
+    });
+
+    test('在确认对话框中点击X关闭对话框应取消操作保留tab', async ({ electronApp }) => {
+      await createNodes(contentPage, { name: '保留节点', type: 'http' });
+
+      // 修改URL
+      const urlInput = contentPage.locator('[data-testid="url-input"]');
+      await urlInput.fill('https://example.com/keep');
+      await contentPage.waitForTimeout(1000)
+
+      // 验证显示未保存标识
+      const tab = contentPage.locator('.nav .tab-list .item').filter({ hasText: '保留节点' });
+      const dot = tab.locator('.has-change .dot');
+      await expect(dot).toBeVisible();
+
+      // 使用中键点击关闭tab
+      await tab.click({ button: 'middle' });
+
+      // 验证对话框显示
+      const dialog = contentPage.locator('.el-message-box');
+      await expect(dialog).toBeVisible();
+
+      // 点击对话框右上角的关闭按钮（X）
+      const closeDialogBtn = dialog.locator('.el-message-box__headerbtn');
+      await closeDialogBtn.click();
+
+      // 等待对话框关闭
+      await contentPage.waitForTimeout(500);
+
+      // 验证tab仍然存在
+      await expect(tab).toBeVisible();
+
+      // 验证仍然是未保存状态
+      await expect(dot).toBeVisible();
+    });
+
   });
 
   // ==================== 测试组4: 右键菜单 (10个用例) ====================
@@ -592,7 +731,7 @@ test.describe('Nav组件 - Tab功能测试', () => {
       expect(tabCount).toBe(1);
     });
 
-    test('关闭全部菜单项应关闭所有tab', async ({ electronApp }) => {
+    test('全部关闭菜单项应关闭所有tab', async ({ electronApp }) => {
       await createNodes(contentPage, [
         { name: '节点1', type: 'http' },
         { name: '节点2', type: 'http' },
@@ -601,8 +740,8 @@ test.describe('Nav组件 - Tab功能测试', () => {
       const tab = contentPage.locator('.nav .tab-list .item').filter({ hasText: '节点1' });
       await tab.click({ button: 'right' });
 
-      // 点击"关闭全部"
-      const closeAllItem = contentPage.locator('.s-contextmenu').locator(`text="关闭全部"`);
+      // 点击"全部关闭"
+      const closeAllItem = contentPage.locator('.s-contextmenu').locator(`text="全部关闭"`);
       await closeAllItem.click();
 
       // 可能会有确认对话框（如果有未保存的tab）
@@ -634,50 +773,212 @@ test.describe('Nav组件 - Tab功能测试', () => {
       }
     });
 
-    test('最左侧tab右键菜单关闭左侧应禁用或不显示', async ({ electronApp }) => {
+    test('右键"关闭其他"包含未保存tab应弹出确认对话框', async ({ electronApp }) => {
       await createNodes(contentPage, [
         { name: '节点1', type: 'http' },
         { name: '节点2', type: 'http' },
+        { name: '节点3', type: 'http' },
       ]);
 
-      // 右键点击第一个tab
-      const tab = contentPage.locator('.nav .tab-list .item').filter({ hasText: '节点1' });
-      await tab.click({ button: 'right' });
+      // 修改节点1和节点3的URL
+      await contentPage.locator('.nav .tab-list .item').filter({ hasText: '节点1' }).click();
+      let urlInput = contentPage.locator('[data-testid="url-input"]');
+      await urlInput.fill('https://api1.example.com');
+      await contentPage.waitForTimeout(1000);
 
-      // 验证"关闭左侧"菜单项不可用或不显示
-      const closeLeftItem = contentPage.locator('.s-contextmenu').locator('text="关闭左侧"');
-      const count = await closeLeftItem.count();
+      await contentPage.locator('.nav .tab-list .item').filter({ hasText: '节点3' }).click();
+      urlInput = contentPage.locator('[data-testid="url-input"]');
+      await urlInput.fill('https://api3.example.com');
+      await contentPage.waitForTimeout(1000);
 
-      if (count > 0) {
-        // 如果显示，检查是否禁用
-        const isDisabled = await closeLeftItem.evaluate((el: HTMLElement) => {
-          return el.classList.contains('disabled') || el.hasAttribute('disabled');
-        });
-        expect(isDisabled).toBe(true);
+      // 验证节点1和节点3显示未保存标识
+      const tab1 = contentPage.locator('.nav .tab-list .item').filter({ hasText: '节点1' });
+      const tab3 = contentPage.locator('.nav .tab-list .item').filter({ hasText: '节点3' });
+      await expect(tab1.locator('.has-change .dot')).toBeVisible();
+      await expect(tab3.locator('.has-change .dot')).toBeVisible();
+
+      // 在节点2右键选择"关闭其他"
+      const tab2 = contentPage.locator('.nav .tab-list .item').filter({ hasText: '节点2' });
+      await tab2.click({ button: 'right' });
+
+      const closeOthersItem = contentPage.locator('.s-contextmenu').locator('text="关闭其他"');
+      await closeOthersItem.click();
+
+      // 验证弹出确认对话框（针对未保存的节点1）
+      const dialog = contentPage.locator('.el-message-box');
+      await expect(dialog).toBeVisible({ timeout: 2000 });
+
+      // 选择"不保存"以继续关闭流程
+      const noSaveBtn = dialog.locator('button').filter({ hasText: /不保存|放弃/ });
+      if (await noSaveBtn.count() > 0) {
+        await noSaveBtn.click();
+        await contentPage.waitForTimeout(500);
+
+        // 可能会有第二个确认对话框（针对节点3）
+        if (await dialog.isVisible({ timeout: 1000 })) {
+          const noSaveBtn2 = dialog.locator('button').filter({ hasText: /不保存|放弃/ });
+          if (await noSaveBtn2.count() > 0) {
+            await noSaveBtn2.click();
+          }
+        }
       }
+
+      // 验证只剩下节点2
+      await contentPage.waitForTimeout(500);
+      await expect(tab2).toBeVisible();
+      const tabCount = await contentPage.locator('.nav .tab-list .item').count();
+      expect(tabCount).toBe(1);
     });
 
-    test('最右侧tab右键菜单关闭右侧应禁用或不显示', async ({ electronApp }) => {
+    test('右键"关闭左侧"包含未保存tab应弹出确认对话框', async ({ electronApp }) => {
       await createNodes(contentPage, [
-        { name: '节点1', type: 'http' },
-        { name: '节点2', type: 'http' },
+        { name: '左节点1', type: 'http' },
+        { name: '左节点2', type: 'http' },
+        { name: '右节点3', type: 'http' },
       ]);
 
-      // 右键点击最后一个tab
-      const tab = contentPage.locator('.nav .tab-list .item').filter({ hasText: '节点2' });
-      await tab.click({ button: 'right' });
+      // 修改左节点1
+      await contentPage.locator('.nav .tab-list .item').filter({ hasText: '左节点1' }).click();
+      const urlInput = contentPage.locator('[data-testid="url-input"]');
+      await urlInput.fill('https://left1.example.com');
+      await contentPage.waitForTimeout(1000);
 
-      // 验证"关闭右侧"菜单项不可用或不显示
+      // 验证显示未保存标识
+      const tab1 = contentPage.locator('.nav .tab-list .item').filter({ hasText: '左节点1' });
+      await expect(tab1.locator('.has-change .dot')).toBeVisible();
+
+      // 在右节点3右键选择"关闭左侧"
+      const tab3 = contentPage.locator('.nav .tab-list .item').filter({ hasText: '右节点3' });
+      await tab3.click({ button: 'right' });
+
+      const closeLeftItem = contentPage.locator('.s-contextmenu').locator('text="关闭左侧"');
+      await closeLeftItem.click();
+
+      // 验证弹出确认对话框
+      const dialog = contentPage.locator('.el-message-box');
+      await expect(dialog).toBeVisible({ timeout: 2000 });
+    });
+
+    test('右键"关闭右侧"包含未保存tab应弹出确认对话框', async ({ electronApp }) => {
+      await createNodes(contentPage, [
+        { name: '左节点1', type: 'http' },
+        { name: '右节点2', type: 'http' },
+        { name: '右节点3', type: 'http' },
+      ]);
+
+      // 修改右节点2
+      await contentPage.locator('.nav .tab-list .item').filter({ hasText: '右节点2' }).click();
+      const urlInput = contentPage.locator('[data-testid="url-input"]');
+      await urlInput.fill('https://right2.example.com');
+      await contentPage.waitForTimeout(1000);
+
+      // 验证显示未保存标识
+      const tab2 = contentPage.locator('.nav .tab-list .item').filter({ hasText: '右节点2' });
+      await expect(tab2.locator('.has-change .dot')).toBeVisible();
+
+      // 在左节点1右键选择"关闭右侧"
+      const tab1 = contentPage.locator('.nav .tab-list .item').filter({ hasText: '左节点1' });
+      await tab1.click({ button: 'right' });
+
       const closeRightItem = contentPage.locator('.s-contextmenu').locator('text="关闭右侧"');
-      const count = await closeRightItem.count();
+      await closeRightItem.click();
 
-      if (count > 0) {
-        // 如果显示，检查是否禁用
-        const isDisabled = await closeRightItem.evaluate((el: HTMLElement) => {
-          return el.classList.contains('disabled') || el.hasAttribute('disabled');
-        });
-        expect(isDisabled).toBe(true);
+      // 验证弹出确认对话框
+      const dialog = contentPage.locator('.el-message-box');
+      await expect(dialog).toBeVisible({ timeout: 2000 });
+    });
+
+    test('右键"全部关闭"包含未保存tab应逐个弹出确认对话框', async ({ electronApp }) => {
+      await createNodes(contentPage, [
+        { name: '全部节点1', type: 'http' },
+        { name: '全部节点2', type: 'http' },
+        { name: '全部节点3', type: 'http' },
+      ]);
+
+      // 修改节点1和节点2
+      await contentPage.locator('.nav .tab-list .item').filter({ hasText: '全部节点1' }).click();
+      let urlInput = contentPage.locator('[data-testid="url-input"]');
+      await urlInput.fill('https://all1.example.com');
+      await contentPage.waitForTimeout(1000);
+
+      await contentPage.locator('.nav .tab-list .item').filter({ hasText: '全部节点2' }).click();
+      urlInput = contentPage.locator('[data-testid="url-input"]');
+      await urlInput.fill('https://all2.example.com');
+      await contentPage.waitForTimeout(1000);
+
+      // 验证显示未保存标识
+      const tab1 = contentPage.locator('.nav .tab-list .item').filter({ hasText: '全部节点1' });
+      const tab2 = contentPage.locator('.nav .tab-list .item').filter({ hasText: '全部节点2' });
+      await expect(tab1.locator('.has-change .dot')).toBeVisible();
+      await expect(tab2.locator('.has-change .dot')).toBeVisible();
+
+      // 右键点击任意tab选择"全部关闭"
+      const tab3 = contentPage.locator('.nav .tab-list .item').filter({ hasText: '全部节点3' });
+      await tab3.click({ button: 'right' });
+
+      const closeAllItem = contentPage.locator('.s-contextmenu').locator('text="全部关闭"');
+      await closeAllItem.click();
+
+      // 验证弹出第一个确认对话框
+      const dialog = contentPage.locator('.el-message-box');
+      await expect(dialog).toBeVisible({ timeout: 2000 });
+
+      // 选择"不保存"继续关闭
+      let noSaveBtn = dialog.locator('button').filter({ hasText: /不保存|放弃/ });
+      if (await noSaveBtn.count() > 0) {
+        await noSaveBtn.click();
+        await contentPage.waitForTimeout(500);
+
+        // 验证弹出第二个确认对话框（针对第二个未保存的tab）
+        if (await dialog.isVisible({ timeout: 1000 })) {
+          noSaveBtn = dialog.locator('button').filter({ hasText: /不保存|放弃/ });
+          if (await noSaveBtn.count() > 0) {
+            await noSaveBtn.click();
+          }
+        }
       }
+
+      // 验证所有tab都已关闭
+      await contentPage.waitForTimeout(500);
+      const tabCount = await contentPage.locator('.nav .tab-list .item').count();
+      expect(tabCount).toBe(0);
+    });
+
+    test('右键"强制全部关闭"应直接关闭所有tab无确认对话框', async ({ electronApp }) => {
+      await createNodes(contentPage, [
+        { name: '强制节点1', type: 'http' },
+        { name: '强制节点2', type: 'http' },
+      ]);
+
+      // 修改节点1使其未保存
+      await contentPage.locator('.nav .tab-list .item').filter({ hasText: '强制节点1' }).click();
+      const urlInput = contentPage.locator('[data-testid="url-input"]');
+      await urlInput.fill('https://force1.example.com');
+      await contentPage.waitForTimeout(1000);
+
+      // 验证显示未保存标识
+      const tab1 = contentPage.locator('.nav .tab-list .item').filter({ hasText: '强制节点1' });
+      await expect(tab1.locator('.has-change .dot')).toBeVisible();
+
+      // 右键点击任意tab
+      const tab2 = contentPage.locator('.nav .tab-list .item').filter({ hasText: '强制节点2' });
+      await tab2.click({ button: 'right' });
+
+      // 点击"强制全部关闭"
+      const forceCloseAllItem = contentPage.locator('.s-contextmenu').locator('text="强制全部关闭"');
+      await forceCloseAllItem.click();
+
+      // 等待一小段时间
+      await contentPage.waitForTimeout(500);
+
+      // 验证没有弹出确认对话框（对话框不应出现）
+      const dialog = contentPage.locator('.el-message-box');
+      const dialogVisible = await dialog.isVisible({ timeout: 500 }).catch(() => false);
+      expect(dialogVisible).toBe(false);
+
+      // 验证所有tab已直接关闭
+      const tabCount = await contentPage.locator('.nav .tab-list .item').count();
+      expect(tabCount).toBe(0);
     });
   });
 
