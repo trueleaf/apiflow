@@ -470,7 +470,7 @@ body {
   // padding: 0 30px 0 20px;
   max-width: 200px;
   min-width: 100px;
-  padding: 0 10px;
+  padding: 0 5px 0 10px;
   display: flex;
   align-items: center;
   cursor: pointer;
@@ -507,10 +507,6 @@ body {
   border-radius: 50%;
   font-size: 10px;
   opacity: 0;
-  position: absolute;
-  right: 0px;
-  top: 53%;
-  transform: translateY(-50%);
 }
 
 .tab-item:hover .close-btn,
