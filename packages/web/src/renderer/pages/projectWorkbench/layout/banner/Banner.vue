@@ -294,6 +294,7 @@ const handleShowContextmenu = async (e: MouseEvent, data: ApidocBanner) => {
     }];
   }
   try {
+    
     const copyData = await navigator.clipboard.readText();
     const copyDataJson = JSON.parse(copyData);
     if (copyDataJson.type !== 'apiflow-apidoc-node') {
@@ -303,7 +304,6 @@ const handleShowContextmenu = async (e: MouseEvent, data: ApidocBanner) => {
   } catch {
     pasteValue.value = null;
   }
-  
   contextmenuLeft.value = e.clientX;
   contextmenuTop.value = e.clientY;
   currentOperationalNode.value = data;

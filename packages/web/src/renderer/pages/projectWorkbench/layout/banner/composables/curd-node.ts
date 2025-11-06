@@ -1,7 +1,8 @@
 import { Ref } from 'vue'
 import 'element-plus/es/components/message-box/style/css';
 import { ElMessageBox } from 'element-plus'
-import type { ApidocBanner, CommonResponse, HttpNode, FolderNode } from '@src/types'
+import type { Method } from 'got'
+import type { ApidocBanner, CommonResponse, HttpNode, FolderNode, MockHttpNode } from '@src/types'
 import { message } from '@/helper'
 import { WebSocketNode } from '@src/types/websocketNode'
 import { uniqueByKey } from '@/helper'
@@ -424,38 +425,38 @@ export const forkNode = async (currentOperationalNode: ApidocBanner): Promise<vo
 
   if (isOffline()) {
     try {
-      // Standalone 模式下的文件副本生成逻辑
-
       // 1. 获取原始文档的完整数据
       const originalDoc = await apiNodesCache.getNodeById(currentOperationalNode._id);
       if (!originalDoc) {
         console.error('原始文档不存在');
         return;
       }
-
-      // 2. 生成副本文档
+      // 2. 计算副本的 sort 值
+      const nextSibling = findSiblingById<ApidocBanner>(apidocBannerStore.banner, currentOperationalNode._id, 'next', { idKey: '_id' });
+      const newSort = nextSibling ? (currentOperationalNode.sort + nextSibling.sort) / 2 : Date.now();
+      // 3. 生成副本文档
       const newId = nanoid();
       const copyDoc = {
         ...originalDoc,
         _id: newId,
+        sort: newSort,
         updatedAt: new Date().toISOString(),
         info: {
           ...originalDoc.info,
-          name: `${originalDoc.info.name}_副本`, // 添加副本后缀
+          name: `${originalDoc.info.name}_副本`,
         }
       };
-
-      // 3. 保存副本到数据库
+      const nodes = await apiNodesCache.getNodesByProjectId(projectId);
+      // 4. 保存副本到数据库
       await apiNodesCache.addNode(copyDoc);
-
-      // 4. 创建用于前端显示的 banner 数据
+      // 5. 创建用于前端显示的 banner 数据
       let bannerData: ApidocBanner;
       if (copyDoc.info.type === 'http') {
         bannerData = {
           _id: newId,
           updatedAt: copyDoc.updatedAt,
           type: 'http',
-          sort: Date.now(), // 使用当前时间戳作为排序
+          sort: newSort,
           pid: copyDoc.pid,
           name: copyDoc.info.name,
           maintainer: copyDoc.info.maintainer,
@@ -469,7 +470,7 @@ export const forkNode = async (currentOperationalNode: ApidocBanner): Promise<vo
           _id: newId,
           updatedAt: copyDoc.updatedAt,
           type: 'websocket',
-          sort: Date.now(),
+          sort: newSort,
           pid: copyDoc.pid,
           name: copyDoc.info.name,
           maintainer: copyDoc.info.maintainer,
@@ -478,12 +479,28 @@ export const forkNode = async (currentOperationalNode: ApidocBanner): Promise<vo
           readonly: false,
           children: [],
         };
+      } else if (copyDoc.info.type === 'httpMock') {
+        bannerData = {
+          _id: newId,
+          updatedAt: copyDoc.updatedAt,
+          type: 'httpMock',
+          sort: newSort,
+          pid: copyDoc.pid,
+          name: copyDoc.info.name,
+          maintainer: copyDoc.info.maintainer,
+          method: 'ALL',
+          url: (copyDoc as MockHttpNode).requestCondition.url,
+          port: (copyDoc as MockHttpNode).requestCondition.port,
+          state: 'stopped',
+          readonly: false,
+          children: [],
+        };
       } else {
         bannerData = {
           _id: newId,
           updatedAt: copyDoc.updatedAt,
           type: 'folder',
-          sort: Date.now(),
+          sort: newSort,
           pid: copyDoc.pid,
           name: copyDoc.info.name,
           maintainer: copyDoc.info.maintainer,
@@ -492,34 +509,31 @@ export const forkNode = async (currentOperationalNode: ApidocBanner): Promise<vo
           children: [],
         };
       }
-
-      // 5. 更新前端界面
+      // 6. 更新前端界面：找到当前节点的位置并在其后插入副本
       const pData = findParentById(apidocBannerStore.banner, currentOperationalNode._id, { idKey: '_id' });
       if (!pData) {
-        // 插入到根级别
+        const currentIndex = apidocBannerStore.banner.findIndex((node) => node._id === currentOperationalNode._id);
         apidocBannerStore.splice({
-          start: apidocBannerStore.banner.length,
+          start: currentIndex + 1,
           deleteCount: 0,
           item: bannerData,
         });
       } else {
-        // 插入到父节点的子级
+        const currentIndex = pData.children.findIndex((node) => node._id === currentOperationalNode._id);
         apidocBannerStore.splice({
-          start: pData.children.length,
+          start: currentIndex + 1,
           deleteCount: 0,
           item: bannerData,
           opData: pData.children
         });
       }
-
       return;
     } catch (error) {
       console.error('生成文件副本失败:', error);
       return;
     }
   }
-
-  // 在线模式的原有逻辑保持不变
+  // 在线模式：同样插入到当前节点后面
   const params = {
     _id: currentOperationalNode._id,
     projectId,
@@ -527,14 +541,16 @@ export const forkNode = async (currentOperationalNode: ApidocBanner): Promise<vo
   request.post<CommonResponse<ApidocBanner>, CommonResponse<ApidocBanner>>('/api/project/copy_doc', params).then((res) => {
     const pData = findParentById(apidocBannerStore.banner, currentOperationalNode._id, { idKey: '_id' });
     if (!pData) {
+      const currentIndex = apidocBannerStore.banner.findIndex((node) => node._id === currentOperationalNode._id);
       apidocBannerStore.splice({
-        start: apidocBannerStore.banner.length,
+        start: currentIndex + 1,
         deleteCount: 0,
         item: res.data,
       })
     } else {
+      const currentIndex = pData.children.findIndex((node) => node._id === currentOperationalNode._id);
       apidocBannerStore.splice({
-        start: pData.children.length,
+        start: currentIndex + 1,
         deleteCount: 0,
         item: res.data,
         opData: pData.children
@@ -554,48 +570,30 @@ export const dragNode = async (dragData: ApidocBanner, dropData: ApidocBanner, t
 
   if (isOffline()) {
     try {
-      // Standalone 模式下的拖拽节点逻辑
-
       // 1. 获取被拖拽文档的完整数据
       const dragDoc = await apiNodesCache.getNodeById(dragData._id);
       if (!dragDoc) {
         message.error(`拖拽的文档 ${dragData.name} 未找到`);
         return;
       }
-
       // 2. 计算新的父节点ID和排序值
       let newPid = '';
       let newSort = 0;
-
       if (type === 'inner') {
-        // 拖拽到目标节点内部
         newPid = dropData._id;
         newSort = Date.now();
         dragData.pid = dropData._id;
       } else {
-        // 拖拽到目标节点前面或后面
-        const pData = findParentById(apidocBannerStore.banner, dropData._id, { idKey: '_id' });
+        const pData = findParentById(apidocBannerStore.banner, dragData._id, { idKey: '_id' });
         newPid = pData ? pData._id : '';
-
-        // 计算排序值
-        const nextSibling = findSiblingById<ApidocBanner>(apidocBannerStore.banner, dropData._id, 'next', { idKey: '_id' });
-        const previousSibling = findSiblingById<ApidocBanner>(apidocBannerStore.banner, dropData._id, 'previous', { idKey: '_id' });
-
-        if (type === 'before') {
-          // 拖拽到目标节点前面
-          const previousSiblingSort = previousSibling ? previousSibling.sort : 0;
-          const dropDataSort = dropData.sort;
-          newSort = (previousSiblingSort + dropDataSort) / 2;
-        } else {
-          // 拖拽到目标节点后面
-          const dropDataSort = dropData.sort;
-          const nextSiblingSort = nextSibling ? nextSibling.sort : Date.now();
-          newSort = (dropDataSort + nextSiblingSort) / 2;
-        }
-
+        const nextSibling = findSiblingById<ApidocBanner>(apidocBannerStore.banner, dragData._id, 'next', { idKey: '_id' });
+        const previousSibling = findSiblingById<ApidocBanner>(apidocBannerStore.banner, dragData._id, 'previous', { idKey: '_id' });
+        const previousSiblingSort = previousSibling ? previousSibling.sort : 0;
+        const nextSiblingSort = nextSibling ? nextSibling.sort : Date.now();
+        newSort = (nextSiblingSort + previousSiblingSort) / 2;
         dragData.sort = newSort;
+        dragData.pid = newPid;
       }
-
       // 3. 更新文档数据
       const updatedDoc = {
         ...dragDoc,
@@ -603,14 +601,8 @@ export const dragNode = async (dragData: ApidocBanner, dropData: ApidocBanner, t
         sort: newSort,
         updatedAt: new Date().toISOString(),
       };
-
       // 4. 保存到数据库
       await apiNodesCache.updateNode(updatedDoc);
-
-      // 5. 更新前端显示的数据
-      dragData.pid = newPid;
-      dragData.sort = newSort;
-
       return;
     } catch (error) {
       console.error('拖拽节点失败:', error);
