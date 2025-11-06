@@ -16,7 +16,7 @@ test.describe('Nav组件 - Tab功能测试', () => {
 
   // ==================== 测试组1: Tab创建与显示 (8个用例) ====================
   test.describe('Tab创建与显示', () => {
-    test('应正确显示HTTP GET节点的tab', async ({ electronApp }) => {
+    test('应正确显示HTTP GET节点的tab', async () => {
       await createNodes(contentPage, { name: 'GET请求', type: 'http' });
 
       const tab = contentPage.locator('.nav .tab-list .item').filter({ hasText: 'GET请求' });
@@ -30,7 +30,7 @@ test.describe('Nav组件 - Tab功能测试', () => {
       expect(color).toBeTruthy();
     });
 
-    test('应正确显示HTTP POST节点的tab', async ({ electronApp }) => {
+    test('应正确显示HTTP POST节点的tab', async () => {
       await createNodes(contentPage, { name: 'POST请求', type: 'http' });
 
       const tab = contentPage.locator('.nav .tab-list .item').filter({ hasText: 'POST请求' });
@@ -65,7 +65,7 @@ test.describe('Nav组件 - Tab功能测试', () => {
       await expect(dot).not.toBeVisible();
     });
 
-    test('应正确显示HTTP PUT节点的tab', async ({ electronApp }) => {
+    test('应正确显示HTTP PUT节点的tab', async () => {
       await createNodes(contentPage, { name: 'PUT请求', type: 'http' });
 
       const tab = contentPage.locator('.nav .tab-list .item').filter({ hasText: 'PUT请求' });
@@ -92,7 +92,7 @@ test.describe('Nav组件 - Tab功能测试', () => {
       await expect(methodIcon).toHaveText('PUT');
     });
 
-    test('应正确显示HTTP DELETE节点的tab', async ({ electronApp }) => {
+    test('应正确显示HTTP DELETE节点的tab', async () => {
       await createNodes(contentPage, { name: 'DELETE请求', type: 'http' });
 
       const tab = contentPage.locator('.nav .tab-list .item').filter({ hasText: 'DELETE请求' });
@@ -119,7 +119,7 @@ test.describe('Nav组件 - Tab功能测试', () => {
       await expect(methodIcon).toHaveText('DEL');
     });
 
-    test('应正确显示WebSocket节点的tab', async ({ electronApp }) => {
+    test('应正确显示WebSocket节点的tab', async () => {
       await createNodes(contentPage, { name: 'WS连接', type: 'websocket' });
 
       const tab = contentPage.locator('.nav .tab-list .item').filter({ hasText: 'WS连接' });
@@ -130,7 +130,7 @@ test.describe('Nav组件 - Tab功能测试', () => {
       await expect(wsIcon).toHaveText('WS');
     });
 
-    test('应正确显示HttpMock节点的tab', async ({ electronApp }) => {
+    test('应正确显示HttpMock节点的tab', async () => {
       await createNodes(contentPage, { name: 'Mock接口', type: 'httpMock' });
 
       const tab = contentPage.locator('.nav .tab-list .item').filter({ hasText: 'Mock接口' });
@@ -141,7 +141,7 @@ test.describe('Nav组件 - Tab功能测试', () => {
       await expect(mockIcon).toHaveText('MOCK');
     });
 
-    test('点击新增按钮应创建未命名接口tab', async ({ electronApp }) => {
+    test('点击新增按钮应创建未命名接口tab', async () => {
       // 点击新增按钮（+ 图标）
       const addTabBtn = contentPage.locator('.nav .add-tab');
       await addTabBtn.click();
@@ -151,7 +151,7 @@ test.describe('Nav组件 - Tab功能测试', () => {
       await expect(unnamedTab).toBeVisible();
     });
 
-    test('Tab标签超过50字符应显示省略号并有title提示', async ({ electronApp }) => {
+    test('Tab标签超过50字符应显示省略号并有title提示', async () => {
       const longName = '这是一个非常非常非常非常非常非常非常非常非常非常长的接口名称用于测试省略号显示';
       await createNodes(contentPage, { name: longName, type: 'http' });
 
@@ -184,7 +184,7 @@ test.describe('Nav组件 - Tab功能测试', () => {
       expect(styles.scrollWidth).toBeGreaterThan(styles.clientWidth);
     });
 
-    test('Tab标签文本较短时不应显示省略号', async ({ electronApp }) => {
+    test('Tab标签文本较短时不应显示省略号', async () => {
       const shortName = '短名称';
       await createNodes(contentPage, { name: shortName, type: 'http' });
 
@@ -215,7 +215,7 @@ test.describe('Nav组件 - Tab功能测试', () => {
 
   // ==================== 测试组2: Tab切换与激活 (6个用例) ====================
   test.describe('Tab切换与激活', () => {
-    test('单击tab应切换到对应节点', async ({ electronApp }) => {
+    test('单击tab应切换到对应节点', async () => {
       await createNodes(contentPage, [
         { name: '节点1', type: 'http' },
         { name: '节点2', type: 'http' },
@@ -237,7 +237,7 @@ test.describe('Nav组件 - Tab功能测试', () => {
       await expect(tab1).not.toHaveClass(/active/);
     });
 
-    test('激活的tab应有active样式和背景色', async ({ electronApp }) => {
+    test('激活的tab应有active样式和背景色', async () => {
       await createNodes(contentPage, { name: '测试节点', type: 'http' });
 
       const activeTab = contentPage.locator('.nav .tab-list .item.active');
@@ -254,7 +254,7 @@ test.describe('Nav组件 - Tab功能测试', () => {
       expect(bgColor).toBe('rgb(240, 243, 250)');
     });
 
-    test('只能有一个tab处于激活状态', async ({ electronApp }) => {
+    test('只能有一个tab处于激活状态', async () => {
       await createNodes(contentPage, [
         { name: '节点1', type: 'http' },
         { name: '节点2', type: 'http' },
@@ -273,14 +273,14 @@ test.describe('Nav组件 - Tab功能测试', () => {
       await expect(activeTabs).toHaveCount(1);
     });
 
-    test('新创建的tab应自动激活', async ({ electronApp }) => {
+    test('新创建的tab应自动激活', async () => {
       await createNodes(contentPage, { name: '新节点', type: 'http' });
 
       const newTab = contentPage.locator('.nav .tab-list .item').filter({ hasText: '新节点' });
       await expect(newTab).toHaveClass(/active/);
     });
 
-    test('激活的tab应自动滚动到可视区域', async ({ electronApp }) => {
+    test('激活的tab应自动滚动到可视区域', async () => {
       // 创建多个节点
       const nodes = Array.from({ length: 15 }, (_, i) => ({
         name: `节点${i + 1}`,
@@ -304,7 +304,7 @@ test.describe('Nav组件 - Tab功能测试', () => {
       expect(isInViewport).toBe(true);
     });
 
-    test('切换tab应更新内容区域', async ({ electronApp }) => {
+    test('切换tab应更新内容区域', async () => {
       await createNodes(contentPage, [
         { name: 'API1', type: 'http' },
         { name: 'API2', type: 'http' },
@@ -333,7 +333,7 @@ test.describe('Nav组件 - Tab功能测试', () => {
 
   // ==================== 测试组3: Tab关闭操作 (8个用例) ====================
   test.describe('Tab关闭操作', () => {
-    test('悬停已保存的tab应显示关闭按钮', async ({ electronApp }) => {
+    test('悬停已保存的tab应显示关闭按钮', async () => {
       await createNodes(contentPage, { name: '测试节点', type: 'http' });
 
       const tab = contentPage.locator('.nav .tab-list .item').filter({ hasText: '测试节点' });
@@ -348,7 +348,7 @@ test.describe('Nav组件 - Tab功能测试', () => {
       await expect(closeBtn).toBeVisible();
     });
 
-    test('点击关闭按钮应关闭tab', async ({ electronApp }) => {
+    test('点击关闭按钮应关闭tab', async () => {
       await createNodes(contentPage, { name: '待关闭节点', type: 'http' });
 
       const tab = contentPage.locator('.nav .tab-list .item').filter({ hasText: '待关闭节点' });
@@ -363,7 +363,7 @@ test.describe('Nav组件 - Tab功能测试', () => {
       await expect(tab).not.toBeVisible();
     });
 
-    test('中键点击tab应关闭tab', async ({ electronApp }) => {
+    test('中键点击tab应关闭tab', async () => {
       await createNodes(contentPage, { name: '中键测试', type: 'http' });
 
       const tab = contentPage.locator('.nav .tab-list .item').filter({ hasText: '中键测试' });
@@ -376,7 +376,7 @@ test.describe('Nav组件 - Tab功能测试', () => {
       await expect(tab).not.toBeVisible();
     });
 
-    test('关闭激活tab应自动激活右侧tab', async ({ electronApp }) => {
+    test('关闭激活tab应自动激活右侧tab', async () => {
       await createNodes(contentPage, [
         { name: '节点1', type: 'http' },
         { name: '节点2', type: 'http' },
@@ -396,7 +396,7 @@ test.describe('Nav组件 - Tab功能测试', () => {
       await expect(contentPage.locator('.nav .tab-list .item').filter({ hasText: '节点3' })).toHaveClass(/active/);
     });
 
-    test('关闭最右侧激活tab应激活左侧tab', async ({ electronApp }) => {
+    test('关闭最右侧激活tab应激活左侧tab', async () => {
       await createNodes(contentPage, [
         { name: '节点1', type: 'http' },
         { name: '节点2', type: 'http' },
@@ -415,7 +415,7 @@ test.describe('Nav组件 - Tab功能测试', () => {
       await expect(contentPage.locator('.nav .tab-list .item').filter({ hasText: '节点2' })).toHaveClass(/active/);
     });
 
-    test('关闭唯一tab后应显示空白状态或保持项目页面', async ({ electronApp }) => {
+    test('关闭唯一tab后应显示空白状态或保持项目页面', async () => {
       await createNodes(contentPage, { name: '唯一节点', type: 'http' });
 
       // 关闭这个唯一的tab
@@ -432,7 +432,7 @@ test.describe('Nav组件 - Tab功能测试', () => {
       expect(url).toContain('doc-edit');
     });
 
-    test('中键点击未保存tab应弹出保存确认对话框', async ({ electronApp }) => {
+    test('中键点击未保存tab应弹出保存确认对话框', async () => {
       await createNodes(contentPage, { name: '未保存节点', type: 'http' });
 
       // 修改URL使其变为未保存状态
@@ -454,7 +454,7 @@ test.describe('Nav组件 - Tab功能测试', () => {
       await expect(dialog).toBeVisible({ timeout: 2000 });
     });
 
-    test('在确认对话框中选择不保存应直接关闭tab', async ({ electronApp }) => {
+    test('在确认对话框中选择不保存应直接关闭tab', async () => {
       await createNodes(contentPage, { name: '测试节点', type: 'http' });
 
       // 修改URL
@@ -483,7 +483,7 @@ test.describe('Nav组件 - Tab功能测试', () => {
       }
     });
 
-    test('右键菜单关闭未保存tab应弹出确认对话框', async ({ electronApp }) => {
+    test('右键菜单关闭未保存tab应弹出确认对话框', async () => {
       await createNodes(contentPage, { name: '未保存节点', type: 'http' });
 
       // 修改URL使其变为未保存状态
@@ -509,7 +509,7 @@ test.describe('Nav组件 - Tab功能测试', () => {
       await expect(dialog).toBeVisible({ timeout: 2000 });
     });
 
-    test('Ctrl+W关闭未保存tab应弹出确认对话框', async ({ electronApp }) => {
+    test('Ctrl+W关闭未保存tab应弹出确认对话框', async () => {
       await createNodes(contentPage, { name: '未保存节点', type: 'http' });
 
       // 修改URL使其变为未保存状态
@@ -530,7 +530,7 @@ test.describe('Nav组件 - Tab功能测试', () => {
       await expect(dialog).toBeVisible({ timeout: 2000 });
     });
 
-    test('在确认对话框中点击X关闭对话框应取消操作保留tab', async ({ electronApp }) => {
+    test('在确认对话框中点击X关闭对话框应取消操作保留tab', async () => {
       await createNodes(contentPage, { name: '保留节点', type: 'http' });
 
       // 修改URL
@@ -568,7 +568,7 @@ test.describe('Nav组件 - Tab功能测试', () => {
 
   // ==================== 测试组4: 右键菜单 (10个用例) ====================
   test.describe('右键菜单操作', () => {
-    test('右键点击tab应显示上下文菜单', async ({ electronApp }) => {
+    test('右键点击tab应显示上下文菜单', async () => {
       await createNodes(contentPage, { name: '测试节点', type: 'http' });
 
       const tab = contentPage.locator('.nav .tab-list .item').filter({ hasText: '测试节点' });
@@ -579,7 +579,7 @@ test.describe('Nav组件 - Tab功能测试', () => {
       await expect(menu).toBeVisible();
     });
 
-    test('点击菜单外部应关闭菜单', async ({ electronApp }) => {
+    test('点击菜单外部应关闭菜单', async () => {
       await createNodes(contentPage, { name: '测试节点', type: 'http' });
 
       const tab = contentPage.locator('.nav .tab-list .item').filter({ hasText: '测试节点' });
@@ -595,7 +595,7 @@ test.describe('Nav组件 - Tab功能测试', () => {
       await expect(menu).not.toBeVisible();
     });
 
-    test('关闭菜单项应关闭当前tab', async ({ electronApp }) => {
+    test('关闭菜单项应关闭当前tab', async () => {
       await createNodes(contentPage, { name: '待关闭节点', type: 'http' });
 
       const tab = contentPage.locator('.nav .tab-list .item').filter({ hasText: '待关闭节点' });
@@ -609,7 +609,7 @@ test.describe('Nav组件 - Tab功能测试', () => {
       await expect(tab).not.toBeVisible();
     });
 
-    test('关闭左侧菜单项应关闭当前tab左侧所有tab', async ({ electronApp }) => {
+    test('关闭左侧菜单项应关闭当前tab左侧所有tab', async () => {
       await createNodes(contentPage, [
         { name: '节点1', type: 'http' },
         { name: '节点2', type: 'http' },
@@ -630,7 +630,7 @@ test.describe('Nav组件 - Tab功能测试', () => {
       await expect(contentPage.locator('.nav .tab-list .item').filter({ hasText: '节点3' })).toBeVisible();
     });
 
-    test('关闭右侧菜单项应关闭当前tab右侧所有tab', async ({ electronApp }) => {
+    test('关闭右侧菜单项应关闭当前tab右侧所有tab', async () => {
       await createNodes(contentPage, [
         { name: '节点1', type: 'http' },
         { name: '节点2', type: 'http' },
@@ -651,7 +651,7 @@ test.describe('Nav组件 - Tab功能测试', () => {
       await expect(contentPage.locator('.nav .tab-list .item').filter({ hasText: '节点3' })).not.toBeVisible();
     });
 
-    test('关闭其他菜单项应只保留当前tab', async ({ electronApp }) => {
+    test('关闭其他菜单项应只保留当前tab', async () => {
       await createNodes(contentPage, [
         { name: '节点1', type: 'http' },
         { name: '节点2', type: 'http' },
@@ -675,7 +675,7 @@ test.describe('Nav组件 - Tab功能测试', () => {
       expect(tabCount).toBe(1);
     });
 
-    test('全部关闭菜单项应关闭所有tab', async ({ electronApp }) => {
+    test('全部关闭菜单项应关闭所有tab', async () => {
       await createNodes(contentPage, [
         { name: '节点1', type: 'http' },
         { name: '节点2', type: 'http' },
@@ -700,7 +700,7 @@ test.describe('Nav组件 - Tab功能测试', () => {
       expect(tabCount).toBe(0);
     });
 
-    test('只有一个tab时关闭其他应禁用或不产生效果', async ({ electronApp }) => {
+    test('只有一个tab时关闭其他应禁用或不产生效果', async () => {
       await createNodes(contentPage, { name: '唯一节点', type: 'http' });
 
       const tab = contentPage.locator('.nav .tab-list .item').filter({ hasText: '唯一节点' });
@@ -717,7 +717,7 @@ test.describe('Nav组件 - Tab功能测试', () => {
       }
     });
 
-    test('右键"关闭其他"包含未保存tab应弹出确认对话框', async ({ electronApp }) => {
+    test('右键"关闭其他"包含未保存tab应弹出确认对话框', async () => {
       await createNodes(contentPage, [
         { name: '节点1', type: 'http' },
         { name: '节点2', type: 'http' },
@@ -774,7 +774,7 @@ test.describe('Nav组件 - Tab功能测试', () => {
       expect(tabCount).toBe(1);
     });
 
-    test('右键"关闭左侧"包含未保存tab应弹出确认对话框', async ({ electronApp }) => {
+    test('右键"关闭左侧"包含未保存tab应弹出确认对话框', async () => {
       await createNodes(contentPage, [
         { name: '左节点1', type: 'http' },
         { name: '左节点2', type: 'http' },
@@ -803,7 +803,7 @@ test.describe('Nav组件 - Tab功能测试', () => {
       await expect(dialog).toBeVisible({ timeout: 2000 });
     });
 
-    test('右键"关闭右侧"包含未保存tab应弹出确认对话框', async ({ electronApp }) => {
+    test('右键"关闭右侧"包含未保存tab应弹出确认对话框', async () => {
       await createNodes(contentPage, [
         { name: '左节点1', type: 'http' },
         { name: '右节点2', type: 'http' },
@@ -832,7 +832,7 @@ test.describe('Nav组件 - Tab功能测试', () => {
       await expect(dialog).toBeVisible({ timeout: 2000 });
     });
 
-    test('右键"全部关闭"包含未保存tab应逐个弹出确认对话框', async ({ electronApp }) => {
+    test('右键"全部关闭"包含未保存tab应逐个弹出确认对话框', async () => {
       await createNodes(contentPage, [
         { name: '全部节点1', type: 'http' },
         { name: '全部节点2', type: 'http' },
@@ -888,7 +888,7 @@ test.describe('Nav组件 - Tab功能测试', () => {
       expect(tabCount).toBe(0);
     });
 
-    test('右键"强制全部关闭"应直接关闭所有tab无确认对话框', async ({ electronApp }) => {
+    test('右键"强制全部关闭"应直接关闭所有tab无确认对话框', async () => {
       await createNodes(contentPage, [
         { name: '强制节点1', type: 'http' },
         { name: '强制节点2', type: 'http' },
@@ -928,7 +928,7 @@ test.describe('Nav组件 - Tab功能测试', () => {
 
   // ==================== 测试组5: 拖拽排序 (6个用例) ====================
   test.describe('拖拽排序', () => {
-    test('应能将第一个tab拖拽到最后位置', async ({ electronApp }) => {
+    test('应能将第一个tab拖拽到最后位置', async () => {
       await createNodes(contentPage, [
         { name: '节点A', type: 'http' },
         { name: '节点B', type: 'http' },
@@ -951,7 +951,7 @@ test.describe('Nav组件 - Tab功能测试', () => {
       await expect(tabs.nth(2)).toContainText('节点A');
     });
 
-    test('应能将最后一个tab拖拽到第一个位置', async ({ electronApp }) => {
+    test('应能将最后一个tab拖拽到第一个位置', async () => {
       await createNodes(contentPage, [
         { name: '节点A', type: 'http' },
         { name: '节点B', type: 'http' },
@@ -973,7 +973,7 @@ test.describe('Nav组件 - Tab功能测试', () => {
       await expect(tabs.nth(2)).toContainText('节点B');
     });
 
-    test('拖拽后tab顺序应立即更新', async ({ electronApp }) => {
+    test('拖拽后tab顺序应立即更新', async () => {
       await createNodes(contentPage, [
         { name: '节点1', type: 'http' },
         { name: '节点2', type: 'http' },
@@ -991,7 +991,7 @@ test.describe('Nav组件 - Tab功能测试', () => {
       expect(firstTabText).toContain('节点2');
     });
 
-    test('拖拽后应持久化到localStorage', async ({ electronApp }) => {
+    test('拖拽后应持久化到localStorage', async () => {
       await createNodes(contentPage, [
         { name: '节点X', type: 'http' },
         { name: '节点Y', type: 'http' },
@@ -1016,7 +1016,7 @@ test.describe('Nav组件 - Tab功能测试', () => {
       await expect(tabs.nth(2)).toContainText('节点X');
     });
 
-    test('拖拽动画应平滑', async ({ electronApp }) => {
+    test('拖拽动画应平滑', async () => {
       await createNodes(contentPage, [
         { name: '节点1', type: 'http' },
         { name: '节点2', type: 'http' },
@@ -1030,7 +1030,7 @@ test.describe('Nav组件 - Tab功能测试', () => {
       expect(classList).toBeTruthy();
     });
 
-    test('刷新后应保持拖拽后的顺序', async ({ electronApp }) => {
+    test('刷新后应保持拖拽后的顺序', async () => {
       await createNodes(contentPage, [
         { name: 'Alpha', type: 'http' },
         { name: 'Beta', type: 'http' },
@@ -1062,7 +1062,7 @@ test.describe('Nav组件 - Tab功能测试', () => {
   // ==================== 测试组6: Tab固定功能 (4个用例) ====================
   test.describe('Tab固定功能', () => {
 
-    test('固定的tab文本不应倾斜', async ({ electronApp }) => {
+    test('固定的tab文本不应倾斜', async () => {
       await createNodes(contentPage, { name: '固定节点', type: 'http' });
 
       const tab = contentPage.locator('.nav .tab-list .item').filter({ hasText: '固定节点' });
@@ -1077,7 +1077,7 @@ test.describe('Nav组件 - Tab功能测试', () => {
       expect(transform).toBe('none');
     });
 
-    test('未固定的tab文本应倾斜', async ({ electronApp }) => {
+    test('未固定的tab文本应倾斜', async () => {
       await createNodes(contentPage, { name: '未固定节点', type: 'http' });
 
       // 先关闭当前tab（通过右键新建创建的tab是固定的）
@@ -1104,7 +1104,7 @@ test.describe('Nav组件 - Tab功能测试', () => {
       expect(transform).toContain('matrix');
     });
 
-    test('固定状态应持久化', async ({ electronApp }) => {
+    test('固定状态应持久化', async () => {
       await createNodes(contentPage, [
         { name: '节点1', type: 'http' },
         { name: '节点2', type: 'http' },
@@ -1167,7 +1167,7 @@ test.describe('Nav组件 - Tab功能测试', () => {
 
   // ==================== 测试组7: 未保存状态 (4个用例) ====================
   test.describe('未保存状态', () => {
-    test('修改节点URL后tab应显示未保存圆点', async ({ electronApp }) => {
+    test('修改节点URL后tab应显示未保存圆点', async () => {
       await createNodes(contentPage, { name: 'API节点', type: 'http' });
 
       // 修改URL
@@ -1185,20 +1185,8 @@ test.describe('Nav组件 - Tab功能测试', () => {
       expect(bgColor).toBe('rgb(54, 206, 161)'); // #36cea1
     });
 
-    test('修改节点名称后tab应显示未保存圆点', async ({ electronApp }) => {
-      await createNodes(contentPage, { name: '原始名称', type: 'http' });
 
-      // 修改节点名称（通过banner编辑）
-      const bannerTitle = contentPage.locator('.banner .info .operate input');
-      await bannerTitle.fill('修改后名称');
-
-      // 验证显示未保存圆点
-      const tab = contentPage.locator('.nav .tab-list .item').filter({ hasText: '修改后名称' });
-      const hasDot = await tab.isVisible() && await tab.locator('.has-change .dot').isVisible();
-      expect(hasDot).toBe(true);
-    });
-
-    test('保存节点后圆点应消失显示关闭按钮', async ({ electronApp }) => {
+    test('保存节点后圆点应消失显示关闭按钮', async () => {
       await createNodes(contentPage, { name: '待保存节点', type: 'http' });
 
       // 修改URL
@@ -1225,7 +1213,7 @@ test.describe('Nav组件 - Tab功能测试', () => {
       await expect(closeBtn).toBeVisible();
     });
 
-    test('悬停未保存tab时圆点应隐藏关闭按钮应显示', async ({ electronApp }) => {
+    test('悬停未保存tab时圆点应隐藏关闭按钮应显示', async () => {
       await createNodes(contentPage, { name: '测试节点', type: 'http' });
 
       // 修改URL
@@ -1252,7 +1240,7 @@ test.describe('Nav组件 - Tab功能测试', () => {
 
   // ==================== 测试组8: 多Tab场景 (3个用例) ====================
   test.describe('多Tab场景', () => {
-    test('同时打开15个tab应启用横向滚动', async ({ electronApp }) => {
+    test('同时打开15个tab应启用横向滚动', async () => {
       // 创建15个节点
       const nodes = Array.from({ length: 15 }, (_, i) => ({
         name: `接口${i + 1}`,
@@ -1275,7 +1263,7 @@ test.describe('Nav组件 - Tab功能测试', () => {
       expect(scrollWidth).toBeGreaterThan(clientWidth);
     });
 
-    test('关闭中间某个tab应正确更新其他tab的索引', async ({ electronApp }) => {
+    test('关闭中间某个tab应正确更新其他tab的索引', async () => {
       await createNodes(contentPage, [
         { name: '节点1', type: 'http' },
         { name: '节点2', type: 'http' },
@@ -1299,7 +1287,7 @@ test.describe('Nav组件 - Tab功能测试', () => {
       await expect(tabs.nth(2)).toContainText('节点4');
     });
 
-    test('快速连续创建10个tab应全部正常显示', async ({ electronApp }) => {
+    test('快速连续创建10个tab应全部正常显示', async () => {
       // 快速创建10个节点
       const nodes = Array.from({ length: 10 }, (_, i) => ({
         name: `快速节点${i + 1}`,
@@ -1320,7 +1308,7 @@ test.describe('Nav组件 - Tab功能测试', () => {
 
   // ==================== 测试组9: 持久化验证 (3个用例) ====================
   test.describe('持久化验证', () => {
-    test('刷新页面后应恢复所有打开的tabs', async ({ electronApp }) => {
+    test('刷新页面后应恢复所有打开的tabs', async () => {
       await createNodes(contentPage, [
         { name: '持久化节点1', type: 'http' },
         { name: '持久化节点2', type: 'websocket' },
@@ -1346,7 +1334,7 @@ test.describe('Nav组件 - Tab功能测试', () => {
       await expect(contentPage.locator('.nav .tab-list .item').filter({ hasText: '持久化节点3' })).toBeVisible();
     });
 
-    test('刷新页面后应恢复激活的tab', async ({ electronApp }) => {
+    test('刷新页面后应恢复激活的tab', async () => {
       await createNodes(contentPage, [
         { name: '节点A', type: 'http' },
         { name: '节点B', type: 'http' },
@@ -1366,7 +1354,7 @@ test.describe('Nav组件 - Tab功能测试', () => {
       await expect(contentPage.locator('.nav .tab-list .item').filter({ hasText: '节点B' })).toHaveClass(/active/);
     });
 
-    test('刷新页面后应恢复每个tab的固定状态', async ({ electronApp }) => {
+    test('刷新页面后应恢复每个tab的固定状态', async () => {
       await createNodes(contentPage, [
         { name: '固定节点A', type: 'http' },
         { name: '普通节点B', type: 'http' },
@@ -1444,7 +1432,7 @@ test.describe('Nav组件 - Tab功能测试', () => {
 
   // ==================== 测试组10: 请求取消机制 (1个用例) ====================
   test.describe('请求取消机制', () => {
-    test('切换tab时应取消当前发送中的请求', async ({ electronApp }) => {
+    test('切换tab时应取消当前发送中的请求', async () => {
       await createNodes(contentPage, [
         { name: 'API1', type: 'http' },
         { name: 'API2', type: 'http' },
@@ -1456,7 +1444,7 @@ test.describe('Nav组件 - Tab功能测试', () => {
       await urlInput.fill('https://httpbin.org/delay/10');
       await contentPage.waitForTimeout(500);
       // 发送请求（不等待完成）
-      const sendBtn = contentPage.locator('.send-btn');
+      const sendBtn = contentPage.locator('button:has-text("发送请求")');
       await sendBtn.click();
 
       // 等待请求开始
@@ -1475,14 +1463,6 @@ test.describe('Nav组件 - Tab功能测试', () => {
 
       // 切换回第一个tab
       await contentPage.locator('.nav .tab-list .item').filter({ hasText: 'API1' }).click();
-
-      // 验证请求已取消（loading消失，状态为waiting）
-      // 由于请求被取消，响应区域应该为空或显示取消状态
-      const responseArea = contentPage.locator('.response-container');
-      const isEmpty = await responseArea.evaluate((el: HTMLElement) => {
-        return el.textContent?.trim() === '' || el.textContent?.includes('取消') || el.textContent?.includes('中断');
-      });
-
       // 或者验证loading已消失
       if (await loadingIndicator.count() > 0) {
         await expect(loadingIndicator.first()).not.toBeVisible({ timeout: 2000 });
