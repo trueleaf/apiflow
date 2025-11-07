@@ -1,7 +1,6 @@
 import { Ref } from 'vue'
 import 'element-plus/es/components/message-box/style/css';
 import { ElMessageBox } from 'element-plus'
-import type { Method } from 'got'
 import type { ApidocBanner, CommonResponse, HttpNode, FolderNode, MockHttpNode } from '@src/types'
 import { message } from '@/helper'
 import { WebSocketNode } from '@src/types/websocketNode'
@@ -446,7 +445,6 @@ export const forkNode = async (currentOperationalNode: ApidocBanner): Promise<vo
           name: `${originalDoc.info.name}_副本`,
         }
       };
-      const nodes = await apiNodesCache.getNodesByProjectId(projectId);
       // 4. 保存副本到数据库
       await apiNodesCache.addNode(copyDoc);
       // 5. 创建用于前端显示的 banner 数据

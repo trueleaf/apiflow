@@ -16,7 +16,7 @@
         @node-contextmenu="handleShowContextmenu">
         <template #default="scope">
           <div class="custom-tree-node" :class="{
-            'select-node': selectNodes.find(v => v._id === scope.data._id) && !showContextmenu,
+            'select-node': selectNodes.find(v => v._id === scope.data._id),
             'active-node': activeNode && activeNode._id === scope.data._id,
             'cut-node': cutNodes.find(v => v._id === scope.data._id),
             'readonly': scope.data.readonly
@@ -287,7 +287,8 @@ const contextmenuTop = ref(0); //contextmenu top值
 
 const handleShowContextmenu = async (e: MouseEvent, data: ApidocBanner) => {
   showContextmenu.value = true;
-  if (selectNodes.value.length < 2) { //处理单个节点
+  const isAlreadySelected = selectNodes.value.find(v => v._id === data._id);
+  if (!isAlreadySelected) {
     selectNodes.value = [{
       ...data,
       projectId: projectId.value,
