@@ -13,6 +13,8 @@ export default {
   日志: 'Logs',
   '触发条件配置': 'Trigger Condition Config',
   '启用Mock API': 'Enable Mock API',
+  '响应延时 (ms)': 'Response Delay (ms)',
+  '模拟网络延迟，修改后重启服务生效': 'Simulate network latency, restart service to apply changes',
   'HTTP方法': 'HTTP Method',
   '响应配置': 'Response Config',
   '数据模式': 'Data Mode',

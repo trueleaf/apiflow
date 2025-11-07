@@ -70,6 +70,18 @@
             </div>
           </div>
         </div>
+        
+        <div class="form-item flex-item">
+          <label class="form-label">{{ t('响应延时 (ms)') }}</label>
+          <el-input-number
+            v-model="httpMock.config.delay"
+            :placeholder="t('响应延时 (ms)')"
+            :min="0"
+            :max="1000 * 60 * 60 * 24"
+            :controls="false"
+            class="delay-input"
+          />
+        </div>
       </div>
     </div>
   </div>
@@ -347,5 +359,9 @@ onMounted(() => {
   padding: 6px 8px;
   border-radius: var(--border-radius-sm);
   border-left: 3px solid #f56c6c;
+}
+
+.delay-input {
+  width: 200px;
 }
 </style>
