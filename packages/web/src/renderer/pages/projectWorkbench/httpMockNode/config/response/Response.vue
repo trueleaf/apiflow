@@ -83,6 +83,21 @@
             @delete="handleDeleteResponseHeaders"
           />
         </div>
+        <!-- 响应延时配置 -->
+        <div class="form-row">
+          <div class="form-item flex-item">
+            <label class="form-label">{{ t('响应延时(单位：毫秒)') }}</label>
+            <el-input-number
+              v-model="httpMock.config.delay"
+              size="small"
+              :placeholder="t('响应延时 (ms)')"
+              :min="0"
+              :max="1000 * 60 * 60 * 24"
+              :controls="false"
+              class="delay-input"
+            />
+          </div>
+        </div>
         <!-- 数据类型选择行 -->
         <div class="form-row mb-4">
           <div class="form-item flex-item">
@@ -353,7 +368,7 @@ const handleDeleteResponseHeaders = (index: number) => {
   min-width: 60px;
   height: 18px;
   line-height: 18px;
-  ElMessageBox-sizing: border-ElMessageBox;
+  box-sizing: border-box;
 }
 .add-btn {
   width: 24px;
@@ -436,5 +451,8 @@ const handleDeleteResponseHeaders = (index: number) => {
   padding: 16px;
   background-color: white;
   margin-bottom: 16px;
+}
+.delay-input {
+  width: 100px;
 }
 </style>
