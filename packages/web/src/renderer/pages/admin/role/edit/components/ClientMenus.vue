@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <SLoading :loading="loading" class="client-menus">
     <el-tree ref="tree" :data="clientMenu" show-checkbox node-key="_id" :draggable="false" :empty-text="t('暂无数据')"
       :expand-on-click-node="false" :highlight-current="true" @check-change="handleSelectClientMenu">
@@ -17,7 +17,7 @@ import { forEachForest } from '@/helper';
 import { TreeInstance } from 'element-plus';
 import { onMounted, ref } from 'vue';
 import { useI18n } from 'vue-i18n'
-import SLoading from '@/components/common/loading/GLoading.vue'
+import SLoading from '@/components/common/loading/ClLoading.vue'
 
 
 const emits = defineEmits(['change']);

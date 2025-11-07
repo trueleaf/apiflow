@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <div class="tool">
     <div class="d-flex a-center j-center">
       <h2 v-if="projectName" class="gray-700 f-lg text-center text-ellipsis" :title="projectName">{{ projectName }}</h2>
@@ -160,8 +160,8 @@ import { addFileAndFolderCb } from '../composables/curd-node'
 import { useApidocBaseInfo } from '@/store/share/baseInfoStore'
 import { useApidocBanner } from '@/store/share/bannerStore'
 import { useApidocTas } from '@/store/share/tabsStore'
-import SLoading from '@/components/common/loading/GLoading.vue'
-import SFieldset from '@/components/common/fieldset/GFieldset.vue'
+import SLoading from '@/components/common/loading/ClLoading.vue'
+import SFieldset from '@/components/common/fieldset/ClFieldset.vue'
 import { useProjectStore } from '@/store/project/projectStore'
 import { useRuntime } from '@/store/runtime/runtimeStore'
 import { IPC_EVENTS } from '@src/types/ipc'

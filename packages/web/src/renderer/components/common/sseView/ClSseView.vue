@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <div ref="sseViewContainerRef" class="sse-view">
     <!-- 筛选框 -->
     <div v-if="dataList && dataList.length > 0 && props.isDataComplete" class="filter-container">
@@ -122,7 +122,7 @@ import type { ComponentPublicInstance } from 'vue';
 
 import dayjs from 'dayjs';
 import type { ChunkWithTimestampe } from '@src/types/index.ts';
-import GVirtualScroll from '@/components/apidoc/virtualScroll/GVirtualScroll.vue';
+import GVirtualScroll from '@/components/apidoc/virtualScroll/ClVirtualScroll.vue';
 import SsePopover from './components/popover/SsePopover.vue';
 import DraggableDialog from '@/components/ui/cleanDesign/draggableDialog/DraggableDialog.vue';
 import { Loading, Search, Download, Document } from '@element-plus/icons-vue';

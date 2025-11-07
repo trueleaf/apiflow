@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <div class="ai-settings">
     <div class="page-title">
       <h2>AI 设置</h2>
@@ -112,7 +112,7 @@ import { Loading } from '@element-plus/icons-vue'
 import { aiCache } from '@/cache/ai/aiCache'
 import type { Config } from '@src/types/config'
 import VueMarkdownRender from 'vue-markdown-render'
-import SJsonEditor from '@/components/common/jsonEditor/GJsonEditor.vue'
+import SJsonEditor from '@/components/common/jsonEditor/ClJsonEditor.vue'
 import { message, parseAiStream } from '@/helper'
 
 type AiConfig = Config['mainConfig']['aiConfig']

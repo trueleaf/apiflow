@@ -93,8 +93,8 @@
 import { ref, computed, Ref } from 'vue'
 import 'element-plus/es/components/message/style/css'
 import { ApidocBanner } from '@src/types';
-import SEmphasize from '@/components/common/emphasize/GEmphasize.vue'
-import SConfig from '@/components/common/config/GConfig.vue'
+import SEmphasize from '@/components/common/emphasize/ClEmphasize.vue'
+import SConfig from '@/components/common/config/ClConfig.vue'
 import type { TreeNodeOptions } from 'element-plus/lib/components/tree/src/tree.type'
 import { request } from '@/api/api'
 import { config } from '@src/config/config'

@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <el-dialog
     :title="`${currentItem?.description || 'localStorage'} ${t('详情')}`"
     v-model="visible"
@@ -33,7 +33,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { formatUnit } from '@/helper'
-import SJsonEditor from '@/components/common/jsonEditor/GJsonEditor.vue'
+import SJsonEditor from '@/components/common/jsonEditor/ClJsonEditor.vue'
 import { LocalStorageItem } from '@src/types/share/cache'
 import { useI18n } from 'vue-i18n'
 

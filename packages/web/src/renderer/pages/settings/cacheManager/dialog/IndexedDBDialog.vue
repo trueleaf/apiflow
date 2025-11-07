@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <el-dialog v-model="visible" :title="`${currentStoreInfo?.description || '详情信息'} - 数据详情`" width="80%"
     :before-close="handleClose">
     <div class="detail-content">
@@ -85,7 +85,7 @@ import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { IndexedDBItem, StoreDetailResponse, StoreDetailItem } from '@src/types/share/cache'
 import { formatUnit } from '@/helper'
 import { ElMessageBox } from 'element-plus'
-import SJsonEditor from '@/components/common/jsonEditor/GJsonEditor.vue'
+import SJsonEditor from '@/components/common/jsonEditor/ClJsonEditor.vue'
 import { message } from '@/helper'
 
 /*

@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <SLoading :loading="loading" class="client-routes">
     <div v-for="(item, title) in clientRoutes" :key="title">
       <el-divider content-position="left">{{ title }}</el-divider>
@@ -22,7 +22,7 @@
 import { request } from '@/api/api';
 import { PermissionClientRoute, CommonResponse } from '@src/types'
 import { useI18n } from 'vue-i18n'
-import SLoading from '@/components/common/loading/GLoading.vue'
+import SLoading from '@/components/common/loading/ClLoading.vue'
 import { onMounted, ref, watch } from 'vue';
 
 type RouteInfo = {

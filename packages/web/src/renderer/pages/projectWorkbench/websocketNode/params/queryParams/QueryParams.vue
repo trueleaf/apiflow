@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <div class="ws-query-params">
     <div class="title">Query&nbsp;{{ t("参数") }}</div>
     <SParamsTree show-checkbox :data="websocket.item.queryParams" @change="handleChange"></SParamsTree>
@@ -10,7 +10,7 @@ import { useWebSocket } from '@/store/websocket/websocketStore'
 import { useWsRedoUndo } from '@/store/redoUndo/wsRedoUndoStore'
 import { useApidocTas } from '@/store/share/tabsStore'
 import { storeToRefs } from 'pinia'
-import SParamsTree from '@/components/apidoc/paramsTree/GParamsTree3.vue'
+import SParamsTree from '@/components/apidoc/paramsTree/ClParamsTree3.vue'
 import { useI18n } from 'vue-i18n'
 import { debounce, cloneDeep } from "lodash-es"
 import type { ApidocProperty } from '@src/types'

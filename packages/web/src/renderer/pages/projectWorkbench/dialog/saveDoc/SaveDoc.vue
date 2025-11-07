@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <el-dialog :model-value="modelValue" top="10vh" :title="t('保存接口')" width="40%" :before-close="handleClose">
     <el-form ref="form" :model="formInfo" :rules="rules" label-width="100px" class="save-doc"
       @submit.prevent="handleSaveDoc">
@@ -40,8 +40,8 @@ import { router } from '@/router';
 import { request } from '@/api/api'
 ;
 import { eventEmitter } from '@/helper';
-import SLoading from '@/components/common/loading/GLoading.vue'
-import SFieldset from '@/components/common/fieldset/GFieldset.vue'
+import SLoading from '@/components/common/loading/ClLoading.vue'
+import SFieldset from '@/components/common/fieldset/ClFieldset.vue'
 import { useApidoc } from '@/store/share/apidocStore';
 import { useApidocBanner } from '@/store/share/bannerStore';
 import { useApidocTas } from '@/store/share/tabsStore';

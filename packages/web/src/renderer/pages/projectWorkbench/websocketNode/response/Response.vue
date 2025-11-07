@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <div class="websocket-response">
     <!-- 基本信息部分 -->
     <div class="websocket-base-info">
@@ -43,9 +43,9 @@ import { storeToRefs } from 'pinia';
 import { useI18n } from 'vue-i18n';
 import { useWebSocket } from '@/store/websocket/websocketStore';
 import { formatDate } from '@/helper';
-import SLabelValue from '@/components/common/labelValue/GLabelValue.vue';
-import GWebsocketView from '@/components/common/websocketView/GWebsocketView.vue';
-import SLoading from '@/components/common/loading/GLoading.vue';
+import SLabelValue from '@/components/common/labelValue/ClLabelValue.vue';
+import GWebsocketView from '@/components/common/websocketView/ClWebsocketView.vue';
+import SLoading from '@/components/common/loading/ClLoading.vue';
 import { websocketResponseCache } from '@/cache/websocketNode/websocketResponseCache';
 
 const { t } = useI18n();

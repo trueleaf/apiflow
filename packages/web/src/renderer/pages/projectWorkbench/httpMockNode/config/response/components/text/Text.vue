@@ -120,7 +120,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { Loading, Top } from '@element-plus/icons-vue'
-import SJsonEditor from '@/components/common/jsonEditor/GJsonEditor.vue'
+import SJsonEditor from '@/components/common/jsonEditor/ClJsonEditor.vue'
 import { userState } from '@/cache/userState/userStateCache'
 import type { HttpMockNode } from '@src/types'
 

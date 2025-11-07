@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <SLeftRight :left-width="500">
     <template #left>
       <SLoading :loading="loading">
@@ -60,9 +60,9 @@ import type { CommonResponse, PermissionClientMenu } from '@src/types'
 import type Node from 'element-plus/lib/components/tree/src/model/node'
 import SAddMenuDialog from './add/Add.vue'
 import SEditMenuDialog from './edit/Edit.vue'
-import SLeftRight from '@/components/common/leftRight/GLeftRight.vue'
-import SLoading from '@/components/common/loading/GLoading.vue'
-import SCard from '@/components/common/card/GCard.vue'
+import SLeftRight from '@/components/common/leftRight/ClLeftRight.vue'
+import SLoading from '@/components/common/loading/ClLoading.vue'
+import SCard from '@/components/common/card/ClCard.vue'
 import { onMounted, onUnmounted, ref } from 'vue'
 import { request } from '@/api/api'
 import { findParentById, forEachForest } from '@/helper'

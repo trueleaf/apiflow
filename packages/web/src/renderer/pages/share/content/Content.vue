@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <div class="share-doc-detail">
     <!-- 当tabs为空时显示提示信息 -->
     <div v-if="!tabs?.length" class="empty-tabs">
@@ -201,11 +201,11 @@
 <script lang="ts" setup>
 import { ref, computed, watchEffect } from 'vue';
 import { ArrowDown } from '@element-plus/icons-vue';
-import SJsonEditor from '@/components/common/jsonEditor/GJsonEditor.vue';
+import SJsonEditor from '@/components/common/jsonEditor/ClJsonEditor.vue';
 import { formatDate } from '@/helper'
 import { convertTemplateValueToRealValue } from '@/helper';
 import { defaultRequestMethods } from '../common';
-import SParamsView from '@/components/apidoc/paramsView/GParamsView.vue';
+import SParamsView from '@/components/apidoc/paramsView/ClParamsView.vue';
 import { useShareStore } from '../store';
 import { useRoute } from 'vue-router';
 import { userState } from '@/cache/userState/userStateCache.ts';

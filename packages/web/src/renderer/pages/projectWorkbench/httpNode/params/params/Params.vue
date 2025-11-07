@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <div class="query-path-params">
     <div class="title">Query&nbsp;{{ t("参数") }}</div>
     <SParamsTree show-checkbox :data="queryTreeData" @change="handleQueryParamsChange"></SParamsTree>
@@ -10,7 +10,7 @@
 <script lang="ts" setup>
 import { useApidoc } from '@/store/share/apidocStore';
 import { computed } from 'vue'
-import SParamsTree from '@/components/apidoc/paramsTree/GParamsTree3.vue'
+import SParamsTree from '@/components/apidoc/paramsTree/ClParamsTree3.vue'
 import { useI18n } from 'vue-i18n'
 import { useHttpRedoUndo } from '@/store/redoUndo/httpRedoUndoStore'
 import { useApidocTas } from '@/store/share/tabsStore'

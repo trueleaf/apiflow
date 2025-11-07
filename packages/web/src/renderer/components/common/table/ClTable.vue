@@ -1,4 +1,4 @@
-<!-- @ts-nocheck -->
+﻿<!-- @ts-nocheck -->
 <template>
   <SLoading :loading="loading">
     <el-table
@@ -51,7 +51,7 @@
 import { Delete, Refresh } from '@element-plus/icons-vue'
 import { config } from '@src/config/config'
 import { useI18n } from 'vue-i18n'
-import SLoading from '@/components/common/loading/GLoading.vue'
+import SLoading from '@/components/common/loading/ClLoading.vue'
 import { computed, nextTick, onMounted, ref } from 'vue';
 import { debounce } from "lodash-es";
 import { request } from '@/api/api';

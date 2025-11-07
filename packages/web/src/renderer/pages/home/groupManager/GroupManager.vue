@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <div v-loading="loading" class="project-group">
     <div class="d-flex">
       <!-- banner -->
@@ -225,8 +225,8 @@ import { ApidocGroupItem, ApidocGroupUser, PermissionUserBaseInfo, CommonRespons
 import { nanoid } from 'nanoid/non-secure';
 import { cloneDeep } from "lodash-es";
 import { ElMessageBox } from 'element-plus';
-import RemoteSelector from '@/components/common/remoteSelect/GRemoteSelect.vue';
-import RemoteSelectorItem from '@/components/common/remoteSelect/GRemoteSelectItem.vue';
+import RemoteSelector from '@/components/common/remoteSelect/ClRemoteSelect.vue';
+import RemoteSelectorItem from '@/components/common/remoteSelect/ClRemoteSelectItem.vue';
 import { useWindowEvent } from '@/hooks/useWindowEvent';
 import dayjs from 'dayjs'
 import { useRuntime } from '@/store/runtime/runtimeStore';

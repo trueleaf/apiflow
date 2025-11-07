@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <div class="nav">
     <div class="tab-wrap">
       <div ref="tabList" class="tab-list">
@@ -50,8 +50,8 @@ import { ComponentPublicInstance, computed, onMounted, onUnmounted, ref } from '
 import { ApidocTab } from '@src/types/share/tabs';
 import { useShareStore } from '../store';
 import { eventEmitter } from '@/helper';
-import SContextmenu from '@/components/common/contextmenu/GContextmenu.vue'
-import SContextmenuItem from '@/components/common/contextmenu/GContextmenuItem.vue'
+import SContextmenu from '@/components/common/contextmenu/ClContextmenu.vue'
+import SContextmenuItem from '@/components/common/contextmenu/ClContextmenuItem.vue'
 import { defaultRequestMethods } from '../common';
 import { useRoute } from 'vue-router';
 // import { findNodeById, findParentById } from '@/helper';

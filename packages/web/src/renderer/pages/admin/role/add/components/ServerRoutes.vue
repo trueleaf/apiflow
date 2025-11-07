@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <SLoading :loading="loading" class="server-routes">
     <div v-for="(item, title) in serverRoutes" :key="title">
       <el-divider content-position="left">{{ title }}</el-divider>
@@ -19,7 +19,7 @@ import type { PermissionServerRoute, CommonResponse } from '@src/types'
 import { request } from '@/api/api';
 import { useI18n } from 'vue-i18n'
 import { onMounted, ref, watch } from 'vue';
-import SLoading from '@/components/common/loading/GLoading.vue'
+import SLoading from '@/components/common/loading/ClLoading.vue'
 
 type RouteInfo = {
   selected: boolean,

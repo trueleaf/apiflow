@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <div class="raw-body" :class="{ vertical: layout === 'vertical' }">
     <div v-if="rawResponseIsOverflow" class="tip">
       <span>{{ t('数据大小为') }}</span>
@@ -31,7 +31,7 @@ import { config } from '@src/config/config'
 import { downloadStringAsText } from '@/helper'
 import { formatUnit } from '@/helper'
 import { useI18n } from 'vue-i18n'
-import SJsonEditor from '@/components/common/jsonEditor/GJsonEditor.vue'
+import SJsonEditor from '@/components/common/jsonEditor/ClJsonEditor.vue'
 
 const apidocBaseInfoStore = useApidocBaseInfo();
 const apidocResponseStore = useApidocResponse();

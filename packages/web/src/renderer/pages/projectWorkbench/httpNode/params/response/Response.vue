@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <div class="response-params">
     <SCollapseCard v-for="(item, index) in responseData" :key="index" :fold="collapseState[item._id || ''] === false"
       @change="handleChangeCollapseState($event, item)">
@@ -99,7 +99,7 @@
 
 <script lang="ts" setup>
 import { useI18n } from 'vue-i18n'
-import SCollapseCard from '@/components/common/collapseCard/GCollapseCard.vue'
+import SCollapseCard from '@/components/common/collapseCard/ClCollapseCard.vue'
 import { computed, ref, Ref, onMounted, onUnmounted, watch } from 'vue'
 import { Effect } from 'element-plus';
 import { ArrowDown, Edit } from '@element-plus/icons-vue'
@@ -107,8 +107,8 @@ import type { HttpNodeResponseParams, HttpNodeResponseContentType, HttpNodeConte
 import { userState } from '@/cache/userState/userStateCache.ts'
 import SStatus from './children/Status.vue'
 import SMime from './children/Mime.vue'
-import SRawEditor from '@/components/apidoc/rawEditor/GRawEditor.vue'
-import SJsonEditor from '@/components/common/jsonEditor/GJsonEditor.vue'
+import SRawEditor from '@/components/apidoc/rawEditor/ClRawEditor.vue'
+import SJsonEditor from '@/components/common/jsonEditor/ClJsonEditor.vue'
 import { useApidoc } from '@/store/share/apidocStore';
 import { useApidocBaseInfo } from '@/store/share/baseInfoStore';
 import { useHttpRedoUndo } from '@/store/redoUndo/httpRedoUndoStore'

@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <div class="sse-config-wrapper">
     <!-- 发送节奏配置 -->
     <div class="form-row">
@@ -100,7 +100,7 @@
 
 <script lang="ts" setup>
 import { useI18n } from 'vue-i18n'
-import SJsonEditor from '@/components/common/jsonEditor/GJsonEditor.vue'
+import SJsonEditor from '@/components/common/jsonEditor/ClJsonEditor.vue'
 import type { HttpMockNode } from '@src/types'
 
 type ResponseItem = HttpMockNode['response'][0]

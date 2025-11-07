@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <div v-loading="loading" class="apidoc" :class="{ vertical: layout === 'vertical' }">
     <template v-if="mode === 'edit'">
       <div class="request-layout" :class="{ vertical: layout === 'vertical' }">
@@ -30,8 +30,8 @@
 </template>
 
 <script lang="ts" setup>
-import SResizeX from '@/components/common/resize/GResizeX.vue'
-import SResizeY from '@/components/common/resize/GResizeY.vue'
+import SResizeX from '@/components/common/resize/ClResizeX.vue'
+import SResizeY from '@/components/common/resize/ClResizeY.vue'
 import { httpNodeCache } from '@/cache/httpNode/httpNodeCache'
 import { httpResponseCache } from '@/cache/httpNode/httpResponseCache'
 import SOperation from './operation/Operation.vue'

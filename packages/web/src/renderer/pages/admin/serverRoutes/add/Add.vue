@@ -1,4 +1,4 @@
-
+﻿
 <template>
   <el-dialog :model-value="modelValue" top="10vh" :title="t('新增服务端路由')" :before-close="handleClose">
     <SForm ref="form" :edit-data="formInfo">
@@ -15,8 +15,8 @@
 </template>
 
 <script lang="ts" setup>
-import SForm from '@/components/common/forms/form/GForm.vue'
-import SFormItem from '@/components/common/forms/form/GFormItem.vue'
+import SForm from '@/components/common/forms/form/ClForm.vue'
+import SFormItem from '@/components/common/forms/form/ClFormItem.vue'
 import { nextTick, onMounted, ref } from 'vue';
 import { getRequestMethodEnum } from '@/helper';
 import { FormInstance } from 'element-plus';

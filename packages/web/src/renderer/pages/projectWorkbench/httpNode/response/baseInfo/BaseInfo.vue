@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <div class="request-view">
     <div class="text-bold">{{ t("基本信息") }}</div>
     <div class="px-4">
@@ -39,7 +39,7 @@ import { useApidocBaseInfo } from '@/store/share/baseInfoStore';
 import { useI18n } from 'vue-i18n'
 import { computed } from 'vue';
 import { formatDate } from '@/helper'
-import SLabelValue from '@/components/common/labelValue/GLabelValue.vue'
+import SLabelValue from '@/components/common/labelValue/ClLabelValue.vue'
 import { useApidocRequest } from '@/store/share/requestStore';
 
 

@@ -1,4 +1,4 @@
-
+﻿
 <template>
   <el-dialog :model-value="modelValue" top="10vh" :title="t('编辑菜单')" :before-close="handleClose">
     <SForm ref="form" :edit-data="data">
@@ -14,8 +14,8 @@
 
 <script lang="ts" setup>
 import { nextTick, PropType, ref } from 'vue'
-import SForm from '@/components/common/forms/form/GForm.vue'
-import SFormItem from '@/components/common/forms/form/GFormItem.vue'
+import SForm from '@/components/common/forms/form/ClForm.vue'
+import SFormItem from '@/components/common/forms/form/ClFormItem.vue'
 import { useI18n } from 'vue-i18n'
 import { FormInstance } from 'element-plus'
 import { request } from '@/api/api'

@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <el-dialog :model-value="modelValue" top="10vh" :title="t('批量修改服务端路由类型')" :before-close="handleClose">
     <SForm ref="form">
       <SFormItem :label="t('分组名称')" prop="groupName" required one-line></SFormItem>
@@ -13,8 +13,8 @@
 <script lang="ts" setup>
 import { nextTick, PropType, ref } from 'vue'
 import type { PermissionServerRoute } from '@src/types'
-import SForm from '@/components/common/forms/form/GForm.vue'
-import SFormItem from '@/components/common/forms/form/GFormItem.vue'
+import SForm from '@/components/common/forms/form/ClForm.vue'
+import SFormItem from '@/components/common/forms/form/ClFormItem.vue'
 import { FormInstance } from 'element-plus'
 import { request } from '@/api/api'
 import { useI18n } from 'vue-i18n'

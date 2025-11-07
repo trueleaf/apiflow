@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <div>
     <!-- 搜索条件 -->
     <SSearch auto-request @change="handleChange">
@@ -46,9 +46,9 @@ import type { CommonResponse, PermissionServerRoute } from '@src/types'
 import SAddServerRoute from './add/Add.vue'
 import SEditServerRoute from './edit/Edit.vue'
 import SMultiEditServerRoute from './edit/Edit2.vue'
-import SSearch from '@/components/common/forms/search/GSearch.vue'
-import SSearchItem from '@/components/common/forms/search/GSearchItem.vue'
-import STable from '@/components/common/table/GTable.vue'
+import SSearch from '@/components/common/forms/search/ClSearch.vue'
+import SSearchItem from '@/components/common/forms/search/ClSearchItem.vue'
+import STable from '@/components/common/table/ClTable.vue'
 import { Ref, ref } from 'vue';
 import { useI18n } from 'vue-i18n'
 import { uniqueByKey } from '@/helper';

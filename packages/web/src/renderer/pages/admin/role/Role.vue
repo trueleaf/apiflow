@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <STable ref="table" url="/api/security/role_list">
     <el-table-column prop="roleName" :label="t('角色名称')" align="center"></el-table-column>
     <el-table-column prop="remark" :label="t('备注')" align="center"></el-table-column>
@@ -27,7 +27,7 @@ import SAddRole from './add/Add.vue'
 import SEditRole from './edit/Edit.vue'
 import { ElMessageBox } from 'element-plus';
 import { useI18n } from 'vue-i18n'
-import STable from '@/components/common/table/GTable.vue'
+import STable from '@/components/common/table/ClTable.vue'
 import { request } from '@/api/api';
 import { formatDate } from '@/helper'
 

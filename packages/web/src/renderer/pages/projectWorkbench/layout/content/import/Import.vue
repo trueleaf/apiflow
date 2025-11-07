@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <div class="doc-import">
     <!-- 文件选择 -->
     <!-- <SFieldset title="支持：Yapi、Postman、摸鱼文档、Swagger/OpenApi 3.0"> -->
@@ -113,11 +113,11 @@
 </template>
 
 <script lang="ts" setup>
-import SFieldset from '@/components/common/fieldset/GFieldset.vue'
-import SLoading from '@/components/common/loading/GLoading.vue'
-import SLableValue from '@/components/common/labelValue/GLabelValue.vue'
-import SConfig from '@/components/common/config/GConfig.vue'
-import SEmphasize from '@/components/common/emphasize/GEmphasize.vue'
+import SFieldset from '@/components/common/fieldset/ClFieldset.vue'
+import SLoading from '@/components/common/loading/ClLoading.vue'
+import SLableValue from '@/components/common/labelValue/ClLabelValue.vue'
+import SConfig from '@/components/common/config/ClConfig.vue'
+import SEmphasize from '@/components/common/emphasize/ClEmphasize.vue'
 import { ref, Ref, computed } from 'vue'
 import jsyaml from 'js-yaml'
 import type { OpenAPIV3 } from 'openapi-types';

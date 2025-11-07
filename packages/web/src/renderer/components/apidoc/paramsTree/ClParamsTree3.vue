@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <el-tree
     ref="treeRef"
     :data="localData"
@@ -178,7 +178,7 @@ import type Node from 'element-plus/es/components/tree/src/model/node';
 import type { ApidocProperty } from '@src/types';
 import { apidocGenerateProperty } from '@/helper';
 import { useI18n } from 'vue-i18n';
-import SMock from '@/components/apidoc/mock/GMock.vue';
+import SMock from '@/components/apidoc/mock/ClMock.vue';
 import { config } from '@src/config/config';
 
 const props = withDefaults(defineProps<{

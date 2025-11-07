@@ -59,7 +59,7 @@ import { useWebSocket } from '@/store/websocket/websocketStore';
 import { nanoid } from 'nanoid/non-secure';
 import { type FormInstance, type FormRules } from 'element-plus';
 import type { WebsocketMessageType, WebsocketSendMessageTemplate } from '@src/types/websocketNode';
-import SJsonEditor from '@/components/common/jsonEditor/GJsonEditor.vue';
+import SJsonEditor from '@/components/common/jsonEditor/ClJsonEditor.vue';
 
 
 import { message } from '@/helper'

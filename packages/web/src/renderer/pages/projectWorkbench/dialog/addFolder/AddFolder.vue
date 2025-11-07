@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <el-dialog :model-value="modelValue" top="10vh" width="500px" :title="t('新增文件夹')" :before-close="handleClose">
     <SForm ref="form" @submit.prevent="handleAddFolder">
       <SFormItem :label="t('文件夹名称')" prop="name" focus one-line></SFormItem>
@@ -12,8 +12,8 @@
 
 <script lang="ts" setup>
 import { FormInstance } from 'element-plus';
-import SForm from '@/components/common/forms/form/GForm.vue'
-import SFormItem from '@/components/common/forms/form/GFormItem.vue'
+import SForm from '@/components/common/forms/form/ClForm.vue'
+import SFormItem from '@/components/common/forms/form/ClFormItem.vue'
 import { CommonResponse, ApidocBanner } from '@src/types'
 import { useI18n } from 'vue-i18n'
 import { computed, ref } from 'vue';

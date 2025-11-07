@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <div class="log-page">
     <div class="filters">
       <div class="filters-grid">
@@ -175,7 +175,7 @@ import { useApidocTas } from '@/store/share/tabsStore'
 import { ElEmpty, ElButton, ElInput, ElSelect, ElOption, ElDialog, ElMessageBox } from 'element-plus'
 import type { MockLog } from '@src/types/mockNode'
 import { httpMockLogsCache } from '@/cache/mock/httpMock/httpMockLogsCache'
-import SJsonEditor from '@/components/common/jsonEditor/GJsonEditor.vue'
+import SJsonEditor from '@/components/common/jsonEditor/ClJsonEditor.vue'
 import { Trash2, FileText, AlertCircle, AlertTriangle, Info } from 'lucide-vue-next'
 import { IPC_EVENTS } from '@src/types/ipc'
 

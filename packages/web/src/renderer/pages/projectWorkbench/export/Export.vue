@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <div class="doc-export">
     <SFieldset :title="t('导出类型')">
       <div class="download-wrap">
@@ -96,9 +96,9 @@ import { useI18n } from 'vue-i18n'
 import { useApidocBaseInfo } from '@/store/share/baseInfoStore';
 import { useApidocBanner } from '@/store/share/bannerStore';
 import { useVariable } from '@/store/share/variablesStore';
-import SFieldset from '@/components/common/fieldset/GFieldset.vue'
-import SConfig from '@/components/common/config/GConfig.vue'
-import SEmphasize from '@/components/common/emphasize/GEmphasize.vue'
+import SFieldset from '@/components/common/fieldset/ClFieldset.vue'
+import SConfig from '@/components/common/config/ClConfig.vue'
+import SEmphasize from '@/components/common/emphasize/ClEmphasize.vue'
 import { useRoute } from 'vue-router';
 import SFork from './fork/Fork.vue'
 import type { StandaloneExportHtmlParams } from '@src/types/standalone.ts';

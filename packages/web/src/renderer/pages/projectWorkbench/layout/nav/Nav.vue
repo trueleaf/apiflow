@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <div class="nav">
     <div class="tab-wrap">
       <div v-if="0" class="btn left" @click="handleMoveLeft">
@@ -134,8 +134,8 @@ import { useApidocTas } from '@/store/share/tabsStore';
 import { eventEmitter } from '@/helper';
 import { nanoid } from 'nanoid/non-secure'
 import { useApidocBaseInfo } from '@/store/share/baseInfoStore';
-import SContextmenu from '@/components/common/contextmenu/GContextmenu.vue'
-import SContextmenuItem from '@/components/common/contextmenu/GContextmenuItem.vue'
+import SContextmenu from '@/components/common/contextmenu/ClContextmenu.vue'
+import SContextmenuItem from '@/components/common/contextmenu/ClContextmenuItem.vue'
 import { useApidocBanner } from '@/store/share/bannerStore';
 import { useApidocRequest } from '@/store/share/requestStore';
 import { useApidocResponse } from '@/store/share/responseStore';

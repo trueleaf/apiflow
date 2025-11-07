@@ -1,4 +1,4 @@
-
+﻿
 <template>
   <el-dialog :model-value="modelValue" top="10vh" :title="t('新增前端路由')" :before-close="handleClose">
     <SForm ref="form" :edit-data="formInfo">
@@ -17,8 +17,8 @@
 import { FormInstance } from 'element-plus';
 import { nextTick, ref } from 'vue';
 import { useI18n } from 'vue-i18n'
-import SForm from '@/components/common/forms/form/GForm.vue'
-import SFormItem from '@/components/common/forms/form/GFormItem.vue'
+import SForm from '@/components/common/forms/form/ClForm.vue'
+import SFormItem from '@/components/common/forms/form/ClFormItem.vue'
 import { request } from '@/api/api';
 
 

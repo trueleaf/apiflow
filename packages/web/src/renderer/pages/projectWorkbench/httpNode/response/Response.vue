@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <SBaseInfo v-show="layout === 'horizontal'"></SBaseInfo>
   <SResInfo v-show="layout === 'horizontal'"></SResInfo>
   <SLoading :loading="requestState === 'sending' || responseBodyLoading" :class="{ 'h-100': layout === 'vertical' }" class="loading-wrap w-100">
@@ -56,7 +56,7 @@ import { useI18n } from 'vue-i18n'
 import { useApidocResponse } from '@/store/share/responseStore'
 import { useApidocBaseInfo } from '@/store/share/baseInfoStore'
 import { useApidoc } from '@/store/share/apidocStore'
-import SLoading from '@/components/common/loading/GLoading.vue'
+import SLoading from '@/components/common/loading/ClLoading.vue'
 
 
 const { t } = useI18n()

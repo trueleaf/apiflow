@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <div class="s-variable">
     <!-- 新增变量 -->
     <SFieldset :title="t('新增变量')" class="left">
@@ -205,8 +205,8 @@
 </template>
 
 <script lang="ts" setup>
-import SFieldset from '@/components/common/fieldset/GFieldset.vue'
-import STable from '@/components/common/table/GTable.vue'
+import SFieldset from '@/components/common/fieldset/ClFieldset.vue'
+import STable from '@/components/common/table/ClTable.vue'
 import { config } from '@src/config/config'
 import { useI18n } from 'vue-i18n'
 import { computed, ref, onMounted } from 'vue';
@@ -214,7 +214,7 @@ import { ElMessageBox, FormInstance, genFileId, UploadFile, UploadInstance, Uplo
 import { request } from '@/api/api';
 import { message } from '@/helper';
 import { useRoute } from 'vue-router';
-import SJsonEditor from '@/components/common/jsonEditor/GJsonEditor.vue'
+import SJsonEditor from '@/components/common/jsonEditor/ClJsonEditor.vue'
 import EditDialog from './dialog/Edit.vue'
 import { useVariable } from '@/store/share/variablesStore';
 import { CommonResponse, ApidocVariable } from '@src/types';

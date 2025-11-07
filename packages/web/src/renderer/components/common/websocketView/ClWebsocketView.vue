@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <div class="websocket-view">
     <!-- 筛选框组件 -->
     <WebsocketFilter
@@ -73,7 +73,7 @@ import { downloadStringAsText } from '@/helper'
 import { formatDate } from '@/helper';
 import { computed, ref, onMounted, onBeforeUnmount, watch } from 'vue';
 import type { WebsocketResponse } from '@src/types/websocketNode';
-import GVirtualScroll from '@/components/apidoc/virtualScroll/GVirtualScroll.vue';
+import GVirtualScroll from '@/components/apidoc/virtualScroll/ClVirtualScroll.vue';
 import WebsocketPopover from './components/popover/WebsocketPopover.vue';
 import WebsocketFilter from './components/filter/WebsocketFilter.vue';
 import { Top, Bottom, SuccessFilled, WarnTriangleFilled, CircleCloseFilled } from '@element-plus/icons-vue';

@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <SResizeX :min="280" :max="450" :width="300" name="banner" class="banner" tabindex="1">
     <!-- 添加项目名称和搜索框 -->
     <div class="tool">
@@ -68,8 +68,8 @@
 import { computed, ref, Ref, watch } from 'vue'
 import type { ApidocBanner } from '@src/types'
 import type { ApidocTab } from '@src/types/share/tabs'
-import SResizeX from '@/components/common/resize/GResizeX.vue'
-import SEmphasize from '@/components/common/emphasize/GEmphasize.vue'
+import SResizeX from '@/components/common/resize/ClResizeX.vue'
+import SEmphasize from '@/components/common/emphasize/ClEmphasize.vue'
 import { TreeNodeOptions } from 'element-plus/es/components/tree/src/tree.type.mjs'
 import { useShareStore } from '../store/index'
 import { defaultRequestMethods } from '../common'

@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <div class="recycler">
     <!-- 头部 -->
     <div class="recycler-header">
@@ -108,7 +108,7 @@ import { ElMessageBox } from 'element-plus'
 import type { HttpNodeRequestMethod, ApidocType, ResponseTable } from '@src/types'
 import { router } from '@/router/index'
 import { request } from '@/api/api'
-import SLoading from '@/components/common/loading/GLoading.vue'
+import SLoading from '@/components/common/loading/ClLoading.vue'
 import { formatDate } from '@/helper'
 import { eventEmitter } from '@/helper'
 import { forEachForest } from '@/helper'

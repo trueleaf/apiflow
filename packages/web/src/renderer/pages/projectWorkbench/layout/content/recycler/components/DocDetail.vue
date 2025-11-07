@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <SLoading :loading="loading" class="doc-detail">
     <el-icon :size="18" class="close" @click="handleClose">
       <Close />
@@ -103,12 +103,12 @@ import { HttpNode, CommonResponse } from '@src/types';
 import { router } from '@/router/index'
 import { request } from '@/api/api'
 import { useI18n } from 'vue-i18n'
-import SLoading from '@/components/common/loading/GLoading.vue'
-import SLableValue from '@/components/common/labelValue/GLabelValue.vue'
-import SFieldset from '@/components/common/fieldset/GFieldset.vue'
-import SParamsView from '@/components/apidoc/paramsView/GParamsView.vue'
-import SRawEditor from '@/components/apidoc/rawEditor/GRawEditor.vue'
-import SJsonEditor from '@/components/common/jsonEditor/GJsonEditor.vue'
+import SLoading from '@/components/common/loading/ClLoading.vue'
+import SLableValue from '@/components/common/labelValue/ClLabelValue.vue'
+import SFieldset from '@/components/common/fieldset/ClFieldset.vue'
+import SParamsView from '@/components/apidoc/paramsView/ClParamsView.vue'
+import SRawEditor from '@/components/apidoc/rawEditor/ClRawEditor.vue'
+import SJsonEditor from '@/components/common/jsonEditor/ClJsonEditor.vue'
 import { formatDate } from '@/helper'
 import { useApidocBaseInfo } from '@/store/share/baseInfoStore';
 import { useApidocRequest } from '@/store/share/requestStore';

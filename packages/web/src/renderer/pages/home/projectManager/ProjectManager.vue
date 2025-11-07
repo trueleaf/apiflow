@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <div class="project-manager">
     <!-- 搜索条件 -->
     <div class="search-item d-flex a-center mb-3">
@@ -301,8 +301,8 @@ import {
   CaretRight as CaretRightIcon,
   Tools,
 } from '@element-plus/icons-vue'
-import Loading from '@/components/common/loading/GLoading.vue'
-import Emphasize from '@/components/common/emphasize/GEmphasize.vue'
+import Loading from '@/components/common/loading/ClLoading.vue'
+import Emphasize from '@/components/common/emphasize/ClEmphasize.vue'
 import SearchHighlight from '@/components/common/searchHighlight/SearchHighlight.vue'
 import MatchedDocumentList from './components/MatchedDocumentList.vue'
 import AddProjectDialog from '../dialog/addProject/AddProject.vue'

@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <div class="message-content">
     <!-- 内容编辑器 -->
     <div class="content-wrapper">
@@ -157,7 +157,7 @@ import {
   Setting,
   Delete,
 } from '@element-plus/icons-vue'
-import SJsonEditor from '@/components/common/jsonEditor/GJsonEditor.vue'
+import SJsonEditor from '@/components/common/jsonEditor/ClJsonEditor.vue'
 import AddTemplateDialog from './dialog/add/Add.vue'
 import type { WebsocketMessageType } from '@src/types/websocketNode'
 import { nanoid } from 'nanoid/non-secure'

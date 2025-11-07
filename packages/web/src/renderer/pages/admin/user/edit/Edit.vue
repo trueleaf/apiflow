@@ -26,8 +26,8 @@ import { PermissionRoleEnum, CommonResponse } from '@src/types'
 import { nextTick, onMounted, ref } from 'vue';
 import { request } from '@/api/api';
 import { FormInstance } from 'element-plus';
-import SForm from '@/components/common/forms/form/GForm.vue'
-import SFormItem from '@/components/common/forms/form/GFormItem.vue'
+import SForm from '@/components/common/forms/form/ClForm.vue'
+import SFormItem from '@/components/common/forms/form/ClFormItem.vue'
 
 
 import { message } from '@/helper'

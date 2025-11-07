@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <div class="body-params">
     <div class="body-type d-flex a-center mb-1">
       <!-- body类型选择 -->
@@ -90,8 +90,8 @@ import { userState } from '@/cache/userState/userStateCache'
 import { useVariable } from '@/store/share/variablesStore';
 import { useApidoc } from '@/store/share/apidocStore';
 import { config } from '@src/config/config';
-import SJsonEditor from '@/components/common/jsonEditor/GJsonEditor.vue'
-import SParamsTree from '@/components/apidoc/paramsTree/GParamsTree3.vue'
+import SJsonEditor from '@/components/common/jsonEditor/ClJsonEditor.vue'
+import SParamsTree from '@/components/apidoc/paramsTree/ClParamsTree3.vue'
 import { Close } from '@element-plus/icons-vue'
 import { convertTemplateValueToRealValue } from '@/helper';
 import mime from 'mime';

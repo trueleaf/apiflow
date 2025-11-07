@@ -43,7 +43,7 @@
 
 <script lang="ts" setup>
 import { ref } from 'vue'
-// import gCard from '@/components/common/card/GCard.vue'
+// import gCard from '@/components/common/card/ClCard.vue'
 import { useI18n } from 'vue-i18n'
 
 /*

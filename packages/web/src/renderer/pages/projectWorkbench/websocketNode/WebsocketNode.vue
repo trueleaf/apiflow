@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <div v-loading="loading" class="websocket">
     <div class="connection-layout">
       <SOperation></SOperation>
@@ -22,7 +22,7 @@
 <script lang="ts" setup>
 import { onMounted, onUnmounted, ref, watch } from 'vue'
 import { storeToRefs } from 'pinia'
-import SResizeX from '@/components/common/resize/GResizeX.vue'
+import SResizeX from '@/components/common/resize/ClResizeX.vue'
 import SOperation from './operation/Operation.vue'
 import SParams from './params/Params.vue'
 import SResponse from './response/Response.vue'

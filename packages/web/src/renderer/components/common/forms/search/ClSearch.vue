@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <SCard class="s-search">
     <div v-if="config.isDev && showTip">
       {{ formInfo }}
@@ -32,7 +32,7 @@ import { config } from '@src/config/config'
 import { FormInstance } from 'element-plus';
 import { getTextWidth } from '@/helper'
 import { forEachForest } from '@/helper';
-import SCard from '@/components/common/card/GCard.vue'
+import SCard from '@/components/common/card/ClCard.vue'
 
 const props = defineProps({
   editData: {

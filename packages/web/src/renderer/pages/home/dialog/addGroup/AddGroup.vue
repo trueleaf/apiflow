@@ -71,8 +71,8 @@ import type { PermissionUserBaseInfo, ApidocGroupUser } from '@src/types'
 import { FormInstance } from 'element-plus';
 import { useI18n } from 'vue-i18n'
 import { nextTick, ref } from 'vue';
-import RemoteSelector from '@/components/common/remoteSelect/GRemoteSelect.vue';
-import RemoteSelectorItem from '@/components/common/remoteSelect/GRemoteSelectItem.vue';
+import RemoteSelector from '@/components/common/remoteSelect/ClRemoteSelect.vue';
+import RemoteSelectorItem from '@/components/common/remoteSelect/ClRemoteSelectItem.vue';
 
 
 import { message } from '@/helper'

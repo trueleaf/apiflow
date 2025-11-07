@@ -40,7 +40,7 @@ import { FormInstance } from 'element-plus';
 import { request } from '@/api/api';
 import { router } from '@/router';
 import { config } from '@src/config/config';
-import SmsButton from '@/components/common/smsButton/GSmsButton.vue'
+import SmsButton from '@/components/common/smsButton/ClSmsButton.vue'
 
 
 import { message } from '@/helper'

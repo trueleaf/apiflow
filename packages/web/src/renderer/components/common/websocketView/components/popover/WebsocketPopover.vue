@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <el-popover 
     v-if="visible" 
     :visible="visible" 
@@ -75,7 +75,7 @@
 import { ref, watch, computed } from 'vue';
 import { isJsonString } from '@/helper';
 import dayjs from 'dayjs';
-import SJsonEditor from '@/components/common/jsonEditor/GJsonEditor.vue';
+import SJsonEditor from '@/components/common/jsonEditor/ClJsonEditor.vue';
 import type { WebsocketResponse } from '@src/types/websocketNode';
 import { useI18n } from 'vue-i18n';
 

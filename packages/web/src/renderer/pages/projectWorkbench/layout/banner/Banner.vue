@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <SResizeX :min="280" :max="450" :width="300" name="banner" class="banner" tabindex="1">
     <STool @fresh="getBannerData" @filter="handleFilterNode" @changeProject="handleChangeProject"></STool>
     <SLoading :loading="loading" class="tree-wrap" @contextmenu.prevent="handleWrapContextmenu">
@@ -202,11 +202,11 @@ import { MoreFilled } from '@element-plus/icons-vue'
 import type { ApidocBanner } from '@src/types'
 import { router } from '@/router/index'
 import { useI18n } from 'vue-i18n'
-import SResizeX from '@/components/common/resize/GResizeX.vue'
-import SLoading from '@/components/common/loading/GLoading.vue'
-import SEmphasize from '@/components/common/emphasize/GEmphasize.vue'
-import SContextmenu from "@/components/common/contextmenu/GContextmenu.vue";
-import SContextmenuItem from "@/components/common/contextmenu/GContextmenuItem.vue";
+import SResizeX from '@/components/common/resize/ClResizeX.vue'
+import SLoading from '@/components/common/loading/ClLoading.vue'
+import SEmphasize from '@/components/common/emphasize/ClEmphasize.vue'
+import SContextmenu from "@/components/common/contextmenu/ClContextmenu.vue";
+import SContextmenuItem from "@/components/common/contextmenu/ClContextmenuItem.vue";
 import SAddFileDialog from "../../dialog/addFile/AddFile.vue";
 import SAddFolderDialog from "../../dialog/addFolder/AddFolder.vue";
 import 'element-plus/es/components/message/style/css'

@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <div ref="inputWrap" class="valid-input" tabindex="-1" @keydown="handleInputKeydown"
     @mouseenter="handleMouseoverWrap">
     <div class="ipt-wrap">
@@ -27,7 +27,7 @@
 
 <script lang="ts" setup>
 import type { ApidocProperty } from '@src/types'
-import SEmphasize from '@/components/common/emphasize/GEmphasize.vue'
+import SEmphasize from '@/components/common/emphasize/ClEmphasize.vue'
 import { computed, nextTick, onMounted, onUnmounted, PropType, ref } from 'vue';
 import { config } from '@src/config/config';
 

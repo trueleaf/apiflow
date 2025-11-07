@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <div class="body-view" :class="{ vertical: layout === 'vertical' }">
     <div v-if="selectedTab && apidocResponseStore.responseCacheAllowedMap[selectedTab._id] === false" class="response-tip">
       <!-- 返回数据大小超过单个允许缓存数据，数据无法被缓存，切换tab或者刷新页面缓存值将会清空 -->
@@ -298,8 +298,8 @@ import { useI18n } from 'vue-i18n'
 import { downloadStringAsText } from '@/helper'
 import { formatHeader, formatUnit } from '@/helper'
 import { config } from '@src/config/config'
-import SJsonEditor from '@/components/common/jsonEditor/GJsonEditor.vue'
-import SSseView from '@/components/common/sseView/GSseView.vue'
+import SJsonEditor from '@/components/common/jsonEditor/ClJsonEditor.vue'
+import SSseView from '@/components/common/sseView/ClSseView.vue'
 import { useApidocTas } from '@/store/share/tabsStore';
 import { ElDialog } from 'element-plus';
 import worker from '@/worker/prettier.worker.ts?worker&inline';

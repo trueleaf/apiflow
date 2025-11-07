@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <el-dialog :model-value="modelValue" top="10vh" :title="t('成员管理')" :before-close="handleClose">
     <div class="d-flex a-center mb-3">
       <span class="flex0">{{ t("添加用户") }}：</span>
@@ -72,9 +72,9 @@ import { ElMessageBox } from 'element-plus';
 import { useRuntime } from '@/store/runtime/runtimeStore';
 import { config } from '@src/config/config';
 import { request } from '@/api/api';
-import Loading from '@/components/common/loading/GLoading.vue'
-import RemoteSelector from '@/components/common/remoteSelect/GRemoteSelect.vue';
-import RemoteSelectorItem from '@/components/common/remoteSelect/GRemoteSelectItem.vue';
+import Loading from '@/components/common/loading/ClLoading.vue'
+import RemoteSelector from '@/components/common/remoteSelect/ClRemoteSelect.vue';
+import RemoteSelectorItem from '@/components/common/remoteSelect/ClRemoteSelectItem.vue';
 
 
 import { message } from '@/helper'

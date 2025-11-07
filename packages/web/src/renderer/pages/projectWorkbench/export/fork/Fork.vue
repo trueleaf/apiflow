@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <SFieldset :title="t('将当前项目指定文档导出到其他项目')" class="fork">
     <!-- 选择区域 -->
     <div class="fork-wrap">
@@ -109,9 +109,9 @@ import { nanoid } from 'nanoid/non-secure'
 import { useI18n } from 'vue-i18n'
 import { useApidocBaseInfo } from '@/store/share/baseInfoStore';
 import { useApidocBanner } from '@/store/share/bannerStore';
-import SFieldset from '@/components/common/fieldset/GFieldset.vue'
-import SLoading from '@/components/common/loading/GLoading.vue'
-import SEmphasize from '@/components/common/emphasize/GEmphasize.vue'
+import SFieldset from '@/components/common/fieldset/ClFieldset.vue'
+import SLoading from '@/components/common/loading/ClLoading.vue'
+import SEmphasize from '@/components/common/emphasize/ClEmphasize.vue'
 import { config } from '@src/config/config';
 // import type { TreeComponentProps }  from "element-plus/lib/components/tree/src/tree.type"
 

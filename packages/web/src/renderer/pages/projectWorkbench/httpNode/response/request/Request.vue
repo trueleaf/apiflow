@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <div v-if="responseInfo.requestData.url" class="request-info" :class="{ vertical: layout === 'vertical' }">
     <SCollapse :title="t('基本信息')" bold>
       <div class="pl-1 d-flex a-top">
@@ -61,13 +61,13 @@ import { useI18n } from 'vue-i18n'
 import { computed } from 'vue'
 import beautify from 'js-beautify'
 import { useApidoc } from '@/store/share/apidocStore';
-import SCollapse from '@/components/common/collapse/GCollapse.vue'
+import SCollapse from '@/components/common/collapse/ClCollapse.vue'
 import { useApidocBaseInfo } from '@/store/share/baseInfoStore';
 import { useApidocResponse } from '@/store/share/responseStore';
 import { downloadStringAsText } from '@/helper'
 import { formatUnit } from '@/helper'
 import { storeToRefs } from 'pinia';
-import SJsonEditor from '@/components/common/jsonEditor/GJsonEditor.vue'
+import SJsonEditor from '@/components/common/jsonEditor/ClJsonEditor.vue'
 
 const apidocStore = useApidoc();
 const apidocBaseInfoStore = useApidocBaseInfo();

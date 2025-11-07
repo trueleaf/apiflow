@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <SLoading :loading="loading" class="common-header">
     <SFieldset title="说明">
       <p>{{ t('1. 公共请求头针对目录内所有接口生效') }}</p>
@@ -24,9 +24,9 @@ import { message } from '@/helper'
 import { ApidocProperty, CommonResponse } from '@src/types';
 import { request } from '@/api/api';
 import { apidocGenerateProperty } from '@/helper';
-import SFieldset from '@/components/common/fieldset/GFieldset.vue'
-import SLoading from '@/components/common/loading/GLoading.vue'
-import SParamsTree from '@/components/apidoc/paramsTree/GParamsTree.vue'
+import SFieldset from '@/components/common/fieldset/ClFieldset.vue'
+import SLoading from '@/components/common/loading/ClLoading.vue'
+import SParamsTree from '@/components/apidoc/paramsTree/ClParamsTree.vue'
 import { useApidocTas } from '@/store/share/tabsStore';
 import { useApidocBaseInfo } from '@/store/share/baseInfoStore';
 

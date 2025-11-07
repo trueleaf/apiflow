@@ -1,4 +1,4 @@
-
+﻿
 <template>
   <div>
     <SSearch @change="handleChange">
@@ -67,11 +67,11 @@ import { ref } from 'vue';
 import { formatDate } from '@/helper'
 import { ElMessageBox } from 'element-plus';
 import { request } from '@/api/api';
-import SSearch from '@/components/common/forms/search/GSearch.vue'
-import SSearchItem from '@/components/common/forms/search/GSearchItem.vue'
-import STable from '@/components/common/table/GTable.vue'
-import SDownload from '@/components/common/download/GDownload.vue'
-import SUploadPlain from '@/components/common/upload/GUploadPlain.vue'
+import SSearch from '@/components/common/forms/search/ClSearch.vue'
+import SSearchItem from '@/components/common/forms/search/ClSearchItem.vue'
+import STable from '@/components/common/table/ClTable.vue'
+import SDownload from '@/components/common/download/ClDownload.vue'
+import SUploadPlain from '@/components/common/upload/ClUploadPlain.vue'
 
 const { t } = useI18n()
 const addUserDialog = ref(false) //------------------新增用户弹窗

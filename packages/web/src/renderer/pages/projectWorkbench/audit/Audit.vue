@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <div class="history">
     <SFieldset title="过滤条件" class="search">
       <!-- 操作人员 -->
@@ -195,8 +195,8 @@ import { formatDate } from '@/helper'
 import { debounce } from "lodash-es"
 import { request } from '@/api/api';
 import { router } from '@/router';
-import SFieldset from '@/components/common/fieldset/GFieldset.vue'
-import SLoading from '@/components/common/loading/GLoading.vue'
+import SFieldset from '@/components/common/fieldset/ClFieldset.vue'
+import SLoading from '@/components/common/loading/ClLoading.vue'
 import { useApidocBaseInfo } from '@/store/share/baseInfoStore'
 const folderUrl = new URL('@/assets/imgs/apidoc/folder.png', import.meta.url).href;
 

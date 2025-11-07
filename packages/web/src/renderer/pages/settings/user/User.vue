@@ -1,4 +1,4 @@
-/*
+﻿/*
   模块名称：用户设置
   备注：
 */
@@ -55,7 +55,7 @@
 <script lang="ts" setup>
 import { Back } from '@element-plus/icons-vue'
 import type { CommonResponse } from '@src/types'
-import SCard from '@/components/common/card/GCard.vue'
+import SCard from '@/components/common/card/ClCard.vue'
 import { useI18n } from 'vue-i18n'
 import { nextTick, onMounted, ref } from 'vue';
 import type { FormInstance } from 'element-plus';

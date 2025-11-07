@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <div class="ws-headers">
     <div v-if="!hideDefaultHeader">
       <span class="cursor-pointer no-select" @click="hideDefaultHeader = true">
@@ -65,7 +65,7 @@ import { ApidocProperty } from '@src/types';
 import { apidocGenerateProperty } from '@/helper';
 import { debounce, cloneDeep } from "lodash-es";
 import { useI18n } from 'vue-i18n'
-import SParamsTree from '@/components/apidoc/paramsTree/GParamsTree3.vue'
+import SParamsTree from '@/components/apidoc/paramsTree/ClParamsTree3.vue'
 import { useWebSocket } from '@/store/websocket/websocketStore';
 import { useWsRedoUndo } from '@/store/redoUndo/wsRedoUndoStore';
 import { useApidocTas } from '@/store/share/tabsStore';

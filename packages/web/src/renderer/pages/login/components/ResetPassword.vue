@@ -34,7 +34,7 @@ import { nextTick, onMounted, reactive, ref } from 'vue';
 import { useI18n } from 'vue-i18n'
 import { FormInstance } from 'element-plus';
 import { request } from '@/api/api';
-import SmsButton from '@/components/common/smsButton/GSmsButton.vue'
+import SmsButton from '@/components/common/smsButton/ClSmsButton.vue'
 
 
 

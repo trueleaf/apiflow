@@ -1,4 +1,4 @@
-
+﻿
 <template>
   <el-dialog :model-value="modelValue" top="10vh" :title="t('修改角色')" :before-close="handleClose">
     <div class="g-role">
@@ -39,12 +39,12 @@ import { nextTick, onMounted, ref } from 'vue'
 import SClientMenus from './components/ClientMenus.vue'
 import SClientRoutes from './components/ClientRoutes.vue'
 import SServerRoutes from './components/ServerRoutes.vue'
-import SForm from '@/components/common/forms/form/GForm.vue'
-import SFormItem from '@/components/common/forms/form/GFormItem.vue'
+import SForm from '@/components/common/forms/form/ClForm.vue'
+import SFormItem from '@/components/common/forms/form/ClFormItem.vue'
 import { request } from '@/api/api'
 import { FormInstance } from 'element-plus'
 import { useI18n } from 'vue-i18n'
-import SFieldset from '@/components/common/fieldset/GFieldset.vue'
+import SFieldset from '@/components/common/fieldset/ClFieldset.vue'
 
 type RoleInfo = {
   remark: string,

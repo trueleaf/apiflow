@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <div class="header-info">
     <div v-if="!hideDefaultHeader">
       <span class="cursor-pointer no-select" @click="hideDefaultHeader = true">
@@ -65,7 +65,7 @@ import { View } from '@element-plus/icons-vue'
 import { ApidocProperty } from '@src/types';
 import { apidocGenerateProperty } from '@/helper';
 import { useI18n } from 'vue-i18n'
-import SParamsTree from '@/components/apidoc/paramsTree/GParamsTree3.vue'
+import SParamsTree from '@/components/apidoc/paramsTree/ClParamsTree3.vue'
 import { useApidoc } from '@/store/share/apidocStore';
 import { useApidocTas } from '@/store/share/tabsStore';
 import { useApidocBaseInfo } from '@/store/share/baseInfoStore';

@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <el-tree 
     ref="tree" 
     :data="data" 
@@ -178,7 +178,7 @@ import { apidocGenerateProperty } from '@/helper'
 import { forEachForest } from '@/helper'
 import { useI18n } from 'vue-i18n'
 import { useApidoc } from '@/store/share/apidocStore'
-import SValidInput from '@/components/common/validInput/GValidInput.vue'
+import SValidInput from '@/components/common/validInput/ClValidInput.vue'
 import { config } from '@src/config/config'
 
 type TreeNode = {
