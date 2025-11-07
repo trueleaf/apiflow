@@ -59,7 +59,9 @@
                   <IconTimer />
                 </el-icon>
                 <!-- 全局变量配置 -->
-                <span v-if="element.tabType === 'variable'" class="iconfont iconvariable blue f-base mr-2"></span>
+                <el-icon v-if="element.tabType === 'variable'" class="blue mr-2" :size="16">
+                  <Variable :size="16" />
+                </el-icon>
                 <!-- 同步功能 -->
                 <span v-if="element.tabType === 'sync'" class="iconfont icontongbu f-base mr-2"></span>
                 <!-- 公共请求头 -->
@@ -127,6 +129,7 @@ import {
   ArrowRight as IconArrowRight,
   ArrowLeft as IconArrowLeft
 } from '@element-plus/icons-vue';
+import { Variable } from 'lucide-vue-next'
 import { ComponentPublicInstance, computed, onMounted, onUnmounted, ref } from 'vue';
 import { ApidocTab } from '@src/types/share/tabs';
 import { router } from '@/router';

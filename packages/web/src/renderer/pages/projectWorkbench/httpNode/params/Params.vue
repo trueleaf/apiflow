@@ -826,7 +826,7 @@ const handleOpenVariable = () => {
     tabType: 'variable',
     label: t('变量维护'),
     head: {
-      icon: 'iconvariable',
+      icon: '',
       color: ''
     },
     saved: true,

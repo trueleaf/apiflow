@@ -68,7 +68,7 @@ export const originOperaions = [
   // },
   {
     name: i18n.global.t('全局变量'),
-    icon: "#iconvariable",
+    icon: "variable",
     op: "variable",
     shortcut: [],
     pin: false,

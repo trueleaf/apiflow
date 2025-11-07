@@ -221,6 +221,7 @@ import { CommonResponse, ApidocVariable } from '@src/types';
 import { request as axiosInstance } from '@/api/api'
 import { nodeVariableCache } from '@/cache/index';
 import { useRuntime } from '@/store/runtime/runtimeStore';
+import { useShortcut } from '@/hooks/useShortcut';
 
 
 export type AddProjectVariableParams = {
@@ -288,6 +289,12 @@ const upload = ref<UploadInstance>()
 // 独立模式的数据状态
 const standaloneVariables = ref<ApidocVariable[]>([])
 const standaloneLoading = ref(false)
+
+// 注册 Ctrl+S 快捷键保存变量
+useShortcut('ctrl+s', (event: KeyboardEvent) => {
+  event.preventDefault();
+  handleAddVariable();
+})
 /*
 |--------------------------------------------------------------------------
 | 方法定义

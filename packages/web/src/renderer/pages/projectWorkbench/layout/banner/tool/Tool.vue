@@ -94,7 +94,10 @@
         <template #item="{ element }">
           <div :title="t(element.name)" class="cursor-pointer"
             :class="{ 'cursor-not-allowed': isView && !element.viewOnly }">
-            <svg class="svg-icon" aria-hidden="true" @click="handleEmit(element.op)">
+            <template v-if="element.icon === 'variable'">
+              <Variable :size="20" :stroke-width="1.5" class="lucide-icon" @click="handleEmit(element.op)" />
+            </template>
+            <svg v-else class="svg-icon" aria-hidden="true" @click="handleEmit(element.op)">
               <use :xlink:href="element.icon"></use>
             </svg>
           </div>
@@ -119,7 +122,10 @@
           <template #item="{ element }">
             <div class="dropdown-item cursor-pointer" :class="{ 'cursor-not-allowed': isView && !element.viewOnly }"
               @click="handleEmit(element.op)">
-              <svg class="svg-icon mr-2" aria-hidden="true">
+              <template v-if="element.icon === 'variable'">
+                <Variable :size="20" :stroke-width="1.5" class="lucide-icon mr-2" />
+              </template>
+              <svg v-else class="svg-icon mr-2" aria-hidden="true">
                 <use :xlink:href="element.icon"></use>
               </svg>
               <div class="label">{{ t(element.name) }}</div>
@@ -147,6 +153,7 @@ import { ref, Ref, computed, watch, onMounted, onUnmounted } from 'vue'
 import { storeToRefs } from 'pinia'
 import SDraggable from 'vuedraggable'
 import { MoreFilled, Close, Switch } from '@element-plus/icons-vue'
+import { Variable } from 'lucide-vue-next'
 import type { ApidocBanner, ApidocOperations, ApidocProjectInfo } from '@src/types'
 import { forEachForest } from '@/helper'
 import { router } from '@/router/index'
@@ -719,6 +726,17 @@ const handleToggleProjectModel = () => {
         background: var(--gray-400);
       }
     }
+
+    .lucide-icon {
+      width: 25px;
+      height: 25px;
+      padding: 2px;
+      cursor: pointer;
+
+      &:hover {
+        background: var(--gray-400);
+      }
+    }
   }
 
   .more-op {
@@ -759,6 +777,12 @@ const handleToggleProjectModel = () => {
     width: 25px;
     height: 25px;
     padding: 5px;
+  }
+
+  .lucide-icon {
+    width: 25px;
+    height: 25px;
+    padding: 2px;
   }
 
   .pin {
