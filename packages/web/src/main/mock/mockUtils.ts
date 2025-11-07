@@ -1,4 +1,4 @@
-import { MockHttpNode, MockSSEEventData } from '@src/types/mockNode';
+import { HttpMockNode, MockSSEEventData } from '@src/types/mockNode';
 import { globalAiManager } from '../ai/ai';
 import { fakerZH_CN, fakerEN, fakerJA } from '@faker-js/faker';
 import sharp from 'sharp';
@@ -13,7 +13,7 @@ import vm from 'vm';
 import json5 from 'json5';
 import { ApidocVariable } from '@src/types';
 
-type MockResponseConfig = MockHttpNode['response'][0];
+type MockResponseConfig = HttpMockNode['response'][0];
 type FileResponseResult = { data: Buffer; mimeType: string; fileName: string; contentDisposition: string };
 type BinaryResponseResult = { data: Buffer; mimeType: string };
 

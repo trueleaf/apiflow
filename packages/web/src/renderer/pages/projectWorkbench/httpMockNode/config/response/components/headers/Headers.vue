@@ -51,12 +51,12 @@ import { ElMessageBox } from 'element-plus'
 import { Close, ArrowRight, ArrowDown, View } from '@element-plus/icons-vue'
 import SParamsTree from '@/components/apidoc/paramsTree/GParamsTree3.vue'
 import { userState } from '@/cache/userState/userStateCache'
-import type { MockHttpNode } from '@src/types/mockNode'
+import type { HttpMockNode } from '@src/types/mockNode'
 
 
 import { message } from '@/helper'
 type Props = {
-  response: MockHttpNode['response'][0]
+  response: HttpMockNode['response'][0]
   responseIndex: number
   mockNodeId: string
 }

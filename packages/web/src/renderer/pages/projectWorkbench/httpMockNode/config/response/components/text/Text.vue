@@ -122,11 +122,11 @@ import { useI18n } from 'vue-i18n'
 import { Loading, Top } from '@element-plus/icons-vue'
 import SJsonEditor from '@/components/common/jsonEditor/GJsonEditor.vue'
 import { userState } from '@/cache/userState/userStateCache'
-import type { MockHttpNode } from '@src/types'
+import type { HttpMockNode } from '@src/types'
 
 
 import { message } from '@/helper'
-type ResponseItem = MockHttpNode['response'][0]
+type ResponseItem = HttpMockNode['response'][0]
 
 type Props = {
   response: ResponseItem

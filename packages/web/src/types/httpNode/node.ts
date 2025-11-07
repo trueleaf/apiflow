@@ -4,7 +4,7 @@
 // ============================================================================
 
 import type { WebSocketNode } from "../websocketNode";
-import type { MockHttpNode } from "../mockNode";
+import type { HttpMockNode } from "../mockNode";
 
 // 从其他 httpNode 子模块导入
 import type { 
@@ -25,7 +25,7 @@ import type {
 |  
 |--------------------------------------------------------------------------
 */
-export type ApiNode = HttpNode | WebSocketNode | MockHttpNode | FolderNode;
+export type ApiNode = HttpNode | WebSocketNode | HttpMockNode | FolderNode;
 
 export type HttpNode = {
   /**

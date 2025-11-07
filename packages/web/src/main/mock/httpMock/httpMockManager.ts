@@ -1,4 +1,4 @@
-import { MockHttpNode, MockInstance, MockLog, MockStatusChangedPayload } from '@src/types/mockNode';
+import { HttpMockNode, MockInstance, MockLog, MockStatusChangedPayload } from '@src/types/mockNode';
 import { CommonResponse } from '@src/types/project';
 import { MockUtils, ConsoleLogCollector } from '../mockUtils';
 import { matchPath, getPatternPriority, sleep } from '../../utils';
@@ -11,7 +11,7 @@ import { nanoid } from 'nanoid/non-secure';
 import { IPC_EVENTS } from '@src/types/ipc';
 
 export class HttpMockManager {
-  private httpMockList: MockHttpNode[] = [];
+  private httpMockList: HttpMockNode[] = [];
   private httpServerInstances: MockInstance[] = [];
   private httpPortToInstanceMap: Map<number, MockInstance> = new Map();
   private mockUtils: MockUtils = new MockUtils();
@@ -77,7 +77,7 @@ export class HttpMockManager {
   // 处理 HTTP 请求
   private async handleHttpRequest(ctx: Koa.Context, port: number): Promise<void> {
     const startTime = Date.now();
-    let matchedMock: MockHttpNode | null = null;
+    let matchedMock: HttpMockNode | null = null;
     const consoleCollector = new ConsoleLogCollector();
     
     try {
@@ -348,7 +348,7 @@ export class HttpMockManager {
     }
   }
   // 添加并启动 HTTP Mock 服务器
-  public async addAndStartHttpServer(httpMock: MockHttpNode): Promise<CommonResponse<null>> {
+  public async addAndStartHttpServer(httpMock: HttpMockNode): Promise<CommonResponse<null>> {
     const portExists = this.httpMockList.some(mock => mock.requestCondition.port === httpMock.requestCondition.port);
     if (portExists) {
       // 端口复用场景：直接添加到 httpMockList
@@ -448,12 +448,12 @@ export class HttpMockManager {
   |--------------------------------------------------------------------------
   */
   // 根据节点ID获取 HTTP Mock 配置
-  public getHttpMockByNodeId(nodeId: string): MockHttpNode | null {
+  public getHttpMockByNodeId(nodeId: string): HttpMockNode | null {
     const mock = this.httpMockList.find(mock => mock._id === nodeId);
     return mock || null;
   }
   // 根据ID替换 HTTP Mock 配置
-  public replaceHttpMockById(nodeId: string, httpMock: MockHttpNode): void {
+  public replaceHttpMockById(nodeId: string, httpMock: HttpMockNode): void {
     const index = this.httpMockList.findIndex(mock => mock._id === nodeId);
     if (index !== -1) {
       this.httpMockList[index] = httpMock;
@@ -612,7 +612,7 @@ export class HttpMockManager {
   }
 
   // 检测 HTTP 端口是否冲突
-  private async checkHttpPortConflict(httpMock: MockHttpNode): Promise<boolean> {
+  private async checkHttpPortConflict(httpMock: HttpMockNode): Promise<boolean> {
     try {
       const availablePort = await detect(httpMock.requestCondition.port);
       if (availablePort !== httpMock.requestCondition.port) {

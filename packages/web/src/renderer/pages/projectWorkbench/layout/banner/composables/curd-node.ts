@@ -1,7 +1,7 @@
 import { Ref } from 'vue'
 import 'element-plus/es/components/message-box/style/css';
 import { ElMessageBox } from 'element-plus'
-import type { ApidocBanner, CommonResponse, HttpNode, FolderNode, MockHttpNode } from '@src/types'
+import type { ApidocBanner, CommonResponse, HttpNode, FolderNode, HttpMockNode } from '@src/types'
 import { message } from '@/helper'
 import { WebSocketNode } from '@src/types/websocketNode'
 import { uniqueByKey } from '@/helper'
@@ -487,8 +487,8 @@ export const forkNode = async (currentOperationalNode: ApidocBanner): Promise<vo
           name: copyDoc.info.name,
           maintainer: copyDoc.info.maintainer,
           method: 'ALL',
-          url: (copyDoc as MockHttpNode).requestCondition.url,
-          port: (copyDoc as MockHttpNode).requestCondition.port,
+          url: (copyDoc as HttpMockNode).requestCondition.url,
+          port: (copyDoc as HttpMockNode).requestCondition.port,
           state: 'stopped',
           readonly: false,
           children: [],

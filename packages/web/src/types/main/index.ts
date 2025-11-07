@@ -7,7 +7,7 @@ import type {GotRequestOptions } from '../request';
 import type { CommonResponse } from '../project';
 import type { StandaloneExportHtmlParams } from '../standalone';
 import { WebsocketConnectParams } from '../websocketNode';
-import { MockHttpNode, MockLog, MockStatusChangedPayload } from '../mockNode';
+import { HttpMockNode, MockLog, MockStatusChangedPayload } from '../mockNode';
 
 // ============================================================================
 // 窗口状态类型
@@ -65,11 +65,11 @@ export type ElectronAPI = {
     disconnectByNode: (nodeId: string) => Promise<CommonResponse<null>>;
   };
   mock: {
-    getMockByNodeId: (nodeId: string) => Promise<MockHttpNode | null>;
-    startServer: (httpMock: MockHttpNode) => Promise<CommonResponse<null>>;
+    getMockByNodeId: (nodeId: string) => Promise<HttpMockNode | null>;
+    startServer: (httpMock: HttpMockNode) => Promise<CommonResponse<null>>;
     stopServer: (nodeId: string) => Promise<CommonResponse<null>>;
     getLogsByNodeId: (nodeId: string) => Promise<MockLog[]>;
-    replaceById: (nodeId: string, httpMock: MockHttpNode) => Promise<CommonResponse<null>>;
+    replaceById: (nodeId: string, httpMock: HttpMockNode) => Promise<CommonResponse<null>>;
     syncProjectVariables: (projectId: string, variables: any[]) => Promise<CommonResponse<null>>;
     getAllStates: (projectId: string) => Promise<MockStatusChangedPayload[]>;
   };

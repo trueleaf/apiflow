@@ -21,7 +21,7 @@ import { storeToRefs } from 'pinia'
 import { useHttpMock } from '@/store/httpMock/httpMockStore'
 import { useApidocTas } from '@/store/share/tabsStore'
 import { debounce } from "lodash-es"
-import type { MockHttpNode, MockNodeActiveTabType } from '@src/types/mockNode'
+import type { HttpMockNode, MockNodeActiveTabType } from '@src/types/mockNode'
 import type { DebouncedFunc } from 'lodash-es'
 import { router } from '@/router'
 import { useShortcut } from '@/hooks/useShortcut'
@@ -33,7 +33,7 @@ const httpMockStore = useHttpMock()
 const apidocTabsStore = useApidocTas()
 const { currentSelectTab } = storeToRefs(apidocTabsStore)
 const { httpMock, originHttpMock } = storeToRefs(httpMockStore)
-const debounceHttpMockDataChange = ref<null | DebouncedFunc<(mock: MockHttpNode) => void>>(null)
+const debounceHttpMockDataChange = ref<null | DebouncedFunc<(mock: HttpMockNode) => void>>(null)
 
 /*
 |--------------------------------------------------------------------------
@@ -64,7 +64,7 @@ const getHttpMockInfo = () => {
   }
 }
 // 处理HttpMock数据变化
-const handleHttpMockDataChange = (mock: MockHttpNode) => {
+const handleHttpMockDataChange = (mock: HttpMockNode) => {
   const isEqual = httpMockStore.checkHttpMockNodeIsEqual(mock, originHttpMock.value)
   if (!isEqual) {
     apidocTabsStore.changeTabInfoById({
@@ -117,7 +117,7 @@ watch(activeTab, (val) => {
 })
 
 // 监听httpMock数据变化
-watch(() => httpMock.value, (mock: MockHttpNode) => {
+watch(() => httpMock.value, (mock: HttpMockNode) => {
   debounceHttpMockDataChange.value?.(mock);
 }, {
   deep: true,

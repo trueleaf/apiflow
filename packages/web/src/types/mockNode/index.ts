@@ -11,7 +11,7 @@ import { ApidocBaseInfo, ApidocProperty } from "../httpNode";
 // Mock节点激活选项卡类型
 export type MockNodeActiveTabType = 'config' | 'logs';
 
-export type MockHttpNode = {
+export type HttpMockNode = {
   _id: string;
   pid: string;
   projectId: string;

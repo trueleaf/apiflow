@@ -119,12 +119,12 @@ import { ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { Upload } from '@element-plus/icons-vue'
 import mime from 'mime'
-import type { MockHttpNode } from '@src/types'
+import type { HttpMockNode } from '@src/types'
 import type { UploadFile } from 'element-plus'
 
 
 import { message } from '@/helper'
-type ResponseItem = MockHttpNode['response'][0]
+type ResponseItem = HttpMockNode['response'][0]
 
 type Props = {
   response: ResponseItem

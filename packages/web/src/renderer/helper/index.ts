@@ -22,7 +22,7 @@ import type {
   ApidocBanner,
   HttpNodeRequestParamTypes,
   ApiNode,
-  MockHttpNode,
+  HttpMockNode,
   ApidocProjectInfo,
   ResponseInfo,
   WebSocketNode,
@@ -1487,7 +1487,7 @@ export const generateEmptyWebsocketNode = (_id: string): WebSocketNode => {
 /**
  * 生成一份空的HTTP mock节点
  */
-export const generateEmptyHttpMockNode = (_id: string): MockHttpNode => {
+export const generateEmptyHttpMockNode = (_id: string): HttpMockNode => {
   return {
     _id,
     pid: '',
@@ -1660,7 +1660,7 @@ export const convertNodesToBannerNodes = (docs: ApiNode[] = []): ApidocBanner[] 
           children: [],
         };
       } else if (node.info.type === 'httpMock') {
-        const mockNode = node as MockHttpNode;
+        const mockNode = node as HttpMockNode;
         bannerNode = {
           _id: mockNode._id,
           updatedAt: mockNode.updatedAt || '',

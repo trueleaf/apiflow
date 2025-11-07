@@ -1,4 +1,4 @@
-import { MockHttpNode } from "@src/types/mockNode";
+import { HttpMockNode } from "@src/types/mockNode";
 import { defineStore, storeToRefs } from "pinia";
 import { ref } from "vue";
 import { generateEmptyHttpMockNode } from '@/helper';
@@ -17,8 +17,8 @@ import { logger } from '@/utils/logger';
 export const useHttpMock = defineStore('httpMock', () => {
   const runtimeStore = useRuntime();
   const isOffline = () => runtimeStore.networkMode === 'offline';
-  const httpMock = ref<MockHttpNode>(generateEmptyHttpMockNode(nanoid()));
-  const originHttpMock = ref<MockHttpNode>(generateEmptyHttpMockNode(nanoid()));
+  const httpMock = ref<HttpMockNode>(generateEmptyHttpMockNode(nanoid()));
+  const originHttpMock = ref<HttpMockNode>(generateEmptyHttpMockNode(nanoid()));
   const saveLoading = ref(false);
   const refreshLoading = ref(false);
 
@@ -41,7 +41,7 @@ export const useHttpMock = defineStore('httpMock', () => {
   };
 
   // 从缓存获取httpMock配置
-  const getCachedHttpMockNodeById = (id: string): MockHttpNode | null => {
+  const getCachedHttpMockNodeById = (id: string): HttpMockNode | null => {
     return httpMockNodeCache.getHttpMockNode(id);
   };
 
@@ -51,7 +51,7 @@ export const useHttpMock = defineStore('httpMock', () => {
   |--------------------------------------------------------------------------
   */
   // 重新赋值httpMock数据
-  const replaceHttpMockNode = (payload: MockHttpNode): void => {
+  const replaceHttpMockNode = (payload: HttpMockNode): void => {
     httpMock.value = payload;
     cacheHttpMockNode();
   };
@@ -82,7 +82,7 @@ export const useHttpMock = defineStore('httpMock', () => {
   };
 
   // 改变HTTP方法
-  const changeHttpMockNodeMethod = (method: MockHttpNode['requestCondition']['method']): void => {
+  const changeHttpMockNodeMethod = (method: HttpMockNode['requestCondition']['method']): void => {
     httpMock.value.requestCondition.method = method;
   };
 
@@ -111,9 +111,9 @@ export const useHttpMock = defineStore('httpMock', () => {
   |--------------------------------------------------------------------------
   */
   // 检查httpMock是否发生改变
-  const checkHttpMockNodeIsEqual = (current: MockHttpNode, origin: MockHttpNode): boolean => {
+  const checkHttpMockNodeIsEqual = (current: HttpMockNode, origin: HttpMockNode): boolean => {
     // 使用JSON序列化进行深度比较，排除不需要比较的字段
-    const normalize = (node: MockHttpNode) => {
+    const normalize = (node: HttpMockNode) => {
       const { _id, projectId, pid, sort, createdAt, updatedAt, isDeleted, ...rest } = node;
       return rest;
     };
@@ -132,7 +132,7 @@ export const useHttpMock = defineStore('httpMock', () => {
   // 获取HttpMock详情
   const getHttpMockNodeDetail = async (payload: { id: string, projectId: string }): Promise<void> => {
     if (isOffline()) {
-      const doc = await apiNodesCache.getNodeById(payload.id) as MockHttpNode;
+      const doc = await apiNodesCache.getNodeById(payload.id) as HttpMockNode;
       if (!doc) {
         // 如果standalone中没有找到，尝试从缓存中获取
         const cachedHttpMock = getCachedHttpMockNodeById(payload.id);

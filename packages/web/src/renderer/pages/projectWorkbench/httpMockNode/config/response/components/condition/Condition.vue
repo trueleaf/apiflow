@@ -41,13 +41,13 @@ import { Close, ArrowRight, ArrowDown } from '@element-plus/icons-vue'
 import CodeEditor from '@/components/common/codeEditor/CodeEditor.vue'
 import { reqCompletionSuggestions } from './completionSuggestions'
 import { userState } from '@/cache/userState/userStateCache'
-import type { MockHttpNode } from '@src/types/mockNode'
+import type { HttpMockNode } from '@src/types/mockNode'
 import type { EditorConfig } from '@/components/common/codeEditor/types'
 
 
 import { message } from '@/helper'
 type Props = {
-  response: MockHttpNode['response'][0]
+  response: HttpMockNode['response'][0]
   responseIndex: number
   mockNodeId: string
 }

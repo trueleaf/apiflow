@@ -1,4 +1,4 @@
-import { MockHttpNode } from '@src/types/mockNode';
+import { HttpMockNode } from '@src/types/mockNode';
 
 class HttpMockNodeCache {
   constructor() {
@@ -10,14 +10,14 @@ class HttpMockNodeCache {
   /*
    * 缓存httpMock节点信息
    */
-  setHttpMockNode(val: MockHttpNode) {
+  setHttpMockNode(val: HttpMockNode) {
     try {
       const localHttpMock = JSON.parse(localStorage.getItem('httpMockNode/mock') || '{}');
       localHttpMock[val._id] = val;
       localStorage.setItem('httpMockNode/mock', JSON.stringify(localHttpMock));
     } catch (error) {
       console.error(error);
-      const data: Record<string, MockHttpNode> = {};
+      const data: Record<string, HttpMockNode> = {};
       data[val._id] = val;
       localStorage.setItem('httpMockNode/mock', JSON.stringify(data));
     }
@@ -26,9 +26,9 @@ class HttpMockNodeCache {
   /*
    * 获取缓存httpMock节点信息
    */
-  getHttpMockNode(id: string): MockHttpNode | null {
+  getHttpMockNode(id: string): HttpMockNode | null {
     try {
-      const localHttpMock: Record<string, MockHttpNode> = JSON.parse(localStorage.getItem('httpMockNode/mock') || '{}');
+      const localHttpMock: Record<string, HttpMockNode> = JSON.parse(localStorage.getItem('httpMockNode/mock') || '{}');
       if (!localHttpMock[id]) {
         return null;
       }

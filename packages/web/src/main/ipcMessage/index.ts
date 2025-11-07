@@ -10,7 +10,7 @@ import type { RuntimeNetworkMode } from '@src/types/runtime';
 
 import { mockManager } from '../main.ts';
 import { MockUtils } from '../mock/mockUtils.ts';
-import { MockHttpNode } from '@src/types/mockNode';
+import { HttpMockNode } from '@src/types/mockNode';
 import { mainRuntime } from '../runtime/mainRuntime.ts';
 import { globalAiManager } from '../ai/ai.ts';
 import { IPCProjectData, WindowState } from '@src/types/index.ts';
@@ -142,7 +142,7 @@ export const useIpcEvent = (mainWindow: BrowserWindow, topBarView: WebContentsVi
   });
 
   // 启动mock服务
-  ipcMain.handle(IPC_EVENTS.mock.rendererToMain.startServer, async (_: IpcMainInvokeEvent, httpMock: MockHttpNode) => {
+  ipcMain.handle(IPC_EVENTS.mock.rendererToMain.startServer, async (_: IpcMainInvokeEvent, httpMock: HttpMockNode) => {
     return await mockManager.addAndStartHttpServer(httpMock);
   });
 
@@ -152,7 +152,7 @@ export const useIpcEvent = (mainWindow: BrowserWindow, topBarView: WebContentsVi
   });
 
   // 替换指定nodeId的Mock配置
-  ipcMain.handle(IPC_EVENTS.mock.rendererToMain.replaceById, async (_: IpcMainInvokeEvent, nodeId: string, httpMock: MockHttpNode) => {
+  ipcMain.handle(IPC_EVENTS.mock.rendererToMain.replaceById, async (_: IpcMainInvokeEvent, nodeId: string, httpMock: HttpMockNode) => {
     try {
       mockManager.replaceHttpMockById(nodeId, httpMock);
       return { code: 0, msg: '替换成功', data: null };
