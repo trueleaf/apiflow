@@ -295,7 +295,6 @@ import SResponseParams from './response/Response.vue';
 import SPreRequestParams from './preRequest/PreRequest.vue';
 import SAfterRequestParams from './afterRequest/AfterRequest.vue';
 import SRemark from './remarks/Remarks.vue';
-// import SHook from './hook/hook.vue'
 import { computed, onMounted, onUnmounted, ref, watch, watchEffect } from 'vue'
 import { useApidocBaseInfo } from '@/store/share/baseInfoStore'
 import { useApidoc } from '@/store/share/apidocStore'
@@ -313,7 +312,6 @@ const apidocTabsStore = useApidocTas()
 const httpRedoUndoStore = useHttpRedoUndo()
 const activeName = ref<ActiceName>('SParams');
 const { t } = useI18n()
-const generateCodeVisible = ref(false);
 import { router } from '@/router'
 const debounceFn = ref(null as (null | DebouncedFunc<(apidoc: HttpNode) => void>))
 const route = useRoute()
@@ -852,10 +850,6 @@ const handleOpenVariable = () => {
 //     selected: true,
 //   })
 // }
-//关闭生成代码popover
-const handleCloseHook = () => {
-  generateCodeVisible.value = false;
-}
 /*
 |--------------------------------------------------------------------------
 | 监听定义
@@ -908,11 +902,9 @@ onMounted(() => {
     leading: true
   });
   initTabCache();
-  document.documentElement.addEventListener('click', handleCloseHook)
   document.addEventListener('click', handleClickOutside)
 })
 onUnmounted(() => {
-  document.documentElement.removeEventListener('click', handleCloseHook)
   document.removeEventListener('click', handleClickOutside)
   // 清理计时器
   if (hoverTimer.value !== null) {

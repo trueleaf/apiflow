@@ -555,7 +555,6 @@ export default {
   变量类型: 'Variable Type',
   后置脚本: 'Post-request Script',
   请求信息: 'Request Information',
-  生成代码: 'Generate Code',
   全局变量: 'Global Variables',
   '开始时间，可接受两个可选参数startTime(\'2022-xx-xx\', \'YYYY-MM-DD\')': 'Start time, accepts two optional parameters startTime(\'2022-xx-xx\', \'YYYY-MM-DD\')',
   '结束时间(结束时间晚于开始时间)': 'End time (end time later than start time)',

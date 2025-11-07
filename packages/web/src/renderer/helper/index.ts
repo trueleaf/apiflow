@@ -1,5 +1,5 @@
 import mitt from 'mitt'
-import type { ApidocCodeInfo, ApidocTab } from '@src/types'
+import type { ApidocTab } from '@src/types'
 import { ElMessage } from 'element-plus'
 import type { MessageOptions as ElMessageOptions, MessageHandler } from 'element-plus'
 import type { VNode } from 'vue'
@@ -41,7 +41,6 @@ import { useVariable } from '@/store/share/variablesStore'
  * 全局事件订阅发布
  */
 const emitter = mitt<{
-  'apidoc/hook/jumpToEdit': ApidocCodeInfo;
   'apidoc/tabs/addOrDeleteTab': void,
   'apidoc/deleteDocs': void,
   'tabs/saveTabSuccess': void,

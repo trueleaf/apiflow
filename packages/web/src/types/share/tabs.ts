@@ -8,7 +8,6 @@ export type ApidocTabType =
   'variable' |
   'recycler' |
   'guide' |
-  'hook' |
   'commonHeader' |
   'cookies' |
   'websocket' |

@@ -347,21 +347,6 @@ const handleEmit = (op: ApidocOperations) => {
         selected: true,
       })
       break;
-    case 'hook': //生成代码
-      apidocTabsStore.addTab({
-        _id: 'hook',
-        projectId,
-        tabType: 'hook',
-        label: t('生成代码'),
-        head: {
-          icon: '',
-          color: ''
-        },
-        saved: true,
-        fixed: true,
-        selected: true,
-      })
-      break;
     case 'commonHeader': //公共请求头
       apidocTabsStore.addTab({
         _id: 'commonHeader',

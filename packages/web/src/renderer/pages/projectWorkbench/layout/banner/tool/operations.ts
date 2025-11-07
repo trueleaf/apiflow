@@ -67,14 +67,6 @@ export const originOperaions = [
   //   viewOnly: true,
   // },
   {
-    name: i18n.global.t('生成代码'),
-    icon: "#iconshengchengdaima",
-    op: "hook",
-    shortcut: ["Ctrl", "H"],
-    pin: false,
-    viewOnly: true,
-  },
-  {
     name: i18n.global.t('全局变量'),
     icon: "#iconvariable",
     op: "variable",

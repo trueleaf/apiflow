@@ -62,8 +62,6 @@
                 <span v-if="element.tabType === 'variable'" class="iconfont iconvariable blue f-base mr-2"></span>
                 <!-- 同步功能 -->
                 <span v-if="element.tabType === 'sync'" class="iconfont icontongbu f-base mr-2"></span>
-                <!-- 生成代码 -->
-                <span v-if="element.tabType === 'hook'" class="iconfont iconshengchengdaima f-base mr-2"></span>
                 <!-- 公共请求头 -->
                 <span v-if="element.tabType === 'commonHeader'" class="iconfont icondaimakuai f-base mr-2"></span>
                 <!-- 回收站管理 -->

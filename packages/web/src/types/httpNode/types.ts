@@ -541,41 +541,6 @@ export type ApidocOperationRecord = {
   createdAt: string;
 };
 
-export type ApidocCodeInfo = {
-  /**
-   * 源码
-   */
-  code: string;
-  /**
-   * 代码名称
-   */
-  codeName: string;
-  /**
-   * 创建者
-   */
-  creator: string;
-  /**
-   * 是否共享
-   */
-  isPublic: boolean;
-  /**
-   * 项目id
-   */
-  projectId: string;
-  /**
-   * 备注
-   */
-  remark: string;
-  /**
-   * 更新时间
-   */
-  updatedAt: string;
-  /**
-   * id值
-   */
-  _id: string;
-};
-
 // 工具栏操作
 export type ApidocOperations =
   | 'addRootFolder'
@@ -588,7 +553,6 @@ export type ApidocOperations =
   | 'importDoc'
   | 'history'
   | 'config'
-  | 'hook'
   | 'commonHeader'
   | 'variable'
   | 'cookies';
