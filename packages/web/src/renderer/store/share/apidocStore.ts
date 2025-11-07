@@ -1,5 +1,5 @@
 import { apidocGenerateProperty, generateHttpNode } from '@/helper'
-import { event } from '@/helper'
+import { eventEmitter } from '@/helper'
 import { nanoid } from 'nanoid/non-secure';
 import { cloneDeep, assign } from "lodash-es"
 import {
@@ -638,10 +638,10 @@ export const useApidoc = defineStore('apidoc', () => {
     changeSavedDocId(id)
     return new Promise((resolve, reject) => {
       try {
-        event.on('tabs/saveTabSuccess', () => {
+        eventEmitter.on('tabs/saveTabSuccess', () => {
           resolve('save');
         })
-        event.on('tabs/cancelSaveTab', () => {
+        eventEmitter.on('tabs/cancelSaveTab', () => {
           resolve('cancel');
         })
       } catch (error) {

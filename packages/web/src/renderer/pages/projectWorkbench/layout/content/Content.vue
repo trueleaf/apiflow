@@ -19,7 +19,7 @@
 <script lang="ts" setup>
 import { computed, onMounted, ref } from 'vue';
 import { useApidocTas } from '@/store/share/tabsStore';
-import { event } from '@/helper';
+import { eventEmitter } from '@/helper';
 import { useRoute } from 'vue-router';
 import SApidoc from '../../httpNode/HttpNode.vue';
 import SGuide from './guide/Guide.vue';
@@ -45,7 +45,7 @@ const currentSelectTab = computed(() => {
 })
 const recyclerKey = ref(0);
 onMounted(() => {
-  event.on('tabs/deleteTab', () => {
+  eventEmitter.on('tabs/deleteTab', () => {
     recyclerKey.value++;
   })
 })

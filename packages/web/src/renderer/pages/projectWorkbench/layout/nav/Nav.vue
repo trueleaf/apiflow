@@ -131,7 +131,7 @@ import { ComponentPublicInstance, computed, onMounted, onUnmounted, ref } from '
 import { ApidocTab } from '@src/types/share/tabs';
 import { router } from '@/router';
 import { useApidocTas } from '@/store/share/tabsStore';
-import { event } from '@/helper';
+import { eventEmitter } from '@/helper';
 import { nanoid } from 'nanoid/non-secure'
 import { useApidocBaseInfo } from '@/store/share/baseInfoStore';
 import SContextmenu from '@/components/common/contextmenu/GContextmenu.vue'
@@ -183,7 +183,7 @@ const initViewTab = () => {
     const activeNode = tabWrap?.querySelector('.item.active') as HTMLElement | null;
     activeNode?.scrollIntoView();
   })
-  event.on('apidoc/tabs/addOrDeleteTab', () => {
+  eventEmitter.on('apidoc/tabs/addOrDeleteTab', () => {
     setTimeout(() => {
       const tabWrap = tabListWrap.value?.$el;
       const activeNode = tabWrap?.querySelector('.item.active') as HTMLElement | null;
@@ -235,7 +235,7 @@ const handleCloseCurrentTab = (tab?: ApidocTab) => {
     ids: [tabId]
   });
   if (tab) {
-    event.emit('tabs/deleteTab', tab);
+    eventEmitter.emit('tabs/deleteTab', tab);
   }
 }
 //关闭其他
@@ -411,7 +411,7 @@ onMounted(() => {
 onUnmounted(() => {
   document.body.removeEventListener('click', bindGlobalClick);
   document.body.removeEventListener('contextmenu', bindGlobalClick);
-  event.off('apidoc/tabs/addOrDeleteTab');
+  eventEmitter.off('apidoc/tabs/addOrDeleteTab');
 })
 </script>
 

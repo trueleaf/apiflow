@@ -2,7 +2,7 @@ import { ApidocTab } from "@src/types/share/tabs";
 import { defineStore } from "pinia";
 import { ref, computed } from "vue";
 import { findNodeById } from '@/helper';
-import { event } from '@/helper';
+import { eventEmitter } from '@/helper';
 import { router } from "@/router";
 import { ElMessageBox } from 'element-plus';
 import 'element-plus/es/components/message-box/style/css';
@@ -75,7 +75,7 @@ export const useApidocTas = defineStore('apidocTabs', () => {
     const matchedTab = tabs.value[projectId].find((val) => val._id === _id) as ApidocTab;
     matchedTab.selected = true;
     workbenchCache.setWorkbenchTabs(tabs.value);
-    event.emit('apidoc/tabs/addOrDeleteTab')
+    eventEmitter.emit('apidoc/tabs/addOrDeleteTab')
     changeExpandItems([_id])
   }
   //更新全部的tab
@@ -105,7 +105,7 @@ export const useApidocTas = defineStore('apidocTabs', () => {
     }
     
     tabs.value[projectId].splice(deleteIndex, 1);
-    event.emit('apidoc/tabs/addOrDeleteTab')
+    eventEmitter.emit('apidoc/tabs/addOrDeleteTab')
   }
   //根据id选中tab
   const selectTabById = (payload: { id: string, projectId: string }): void => {
@@ -121,7 +121,7 @@ export const useApidocTas = defineStore('apidocTabs', () => {
       }
     })
     workbenchCache.setWorkbenchTabs(tabs.value);
-    event.emit('apidoc/tabs/addOrDeleteTab')
+    eventEmitter.emit('apidoc/tabs/addOrDeleteTab')
   }
   //根据id改变节点属性
   const changeTabInfoById = <K extends keyof ApidocTab>(payload: EditTabPayload<K>): void => {
@@ -157,7 +157,7 @@ export const useApidocTas = defineStore('apidocTabs', () => {
       const deleteIndex = tabs.value[projectId].findIndex((tab) => tab._id === id);
       if (deleteIndex !== -1) {
         tabs.value[projectId].splice(deleteIndex, 1);
-        event.emit('apidoc/tabs/addOrDeleteTab')
+        eventEmitter.emit('apidoc/tabs/addOrDeleteTab')
       }
     })
     workbenchCache.setWorkbenchTabs(tabs.value);

@@ -43,6 +43,7 @@ import { useVariable } from '@/store/share/variablesStore'
 const emitter = mitt<{
   'apidoc/tabs/addOrDeleteTab': void,
   'apidoc/deleteDocs': void,
+  'apidoc/hook/jumpToEdit': unknown,
   'tabs/saveTabSuccess': void,
   'tabs/cancelSaveTab': void,
   'tabs/deleteTab': ApidocTab,
@@ -50,7 +51,7 @@ const emitter = mitt<{
   'websocket/editor/removeAfterEditor': void;
 }>()
 
-export const event = emitter;
+export const eventEmitter = emitter;
 
 /*
 |--------------------------------------------------------------------------

@@ -39,7 +39,7 @@ import type { TreeNodeOptions } from 'element-plus/es/components/tree/src/tree.t
 import { router } from '@/router';
 import { request } from '@/api/api'
 ;
-import { event } from '@/helper';
+import { eventEmitter } from '@/helper';
 import SLoading from '@/components/common/loading/GLoading.vue'
 import SFieldset from '@/components/common/fieldset/GFieldset.vue'
 import { useApidoc } from '@/store/share/apidocStore';
@@ -114,7 +114,7 @@ onMounted(async () => {
 })
 const handleClose = () => {
   emits('update:modelValue', false)
-  event.emit('tabs/cancelSaveTab')
+  eventEmitter.emit('tabs/cancelSaveTab')
 }
 const handleSaveDoc = async () => {
   const docInfo = JSON.parse(JSON.stringify(apidocStore.apidoc))
@@ -144,7 +144,7 @@ const handleSaveDoc = async () => {
         field: 'saved',
         value: true,
       })
-      event.emit('tabs/saveTabSuccess')
+      eventEmitter.emit('tabs/saveTabSuccess')
     })
     emits('update:modelValue', false)
   }

@@ -110,7 +110,7 @@ import { router } from '@/router/index'
 import { request } from '@/api/api'
 import SLoading from '@/components/common/loading/GLoading.vue'
 import { formatDate } from '@/helper'
-import { event } from '@/helper'
+import { eventEmitter } from '@/helper'
 import { forEachForest } from '@/helper'
 import { debounce } from "lodash-es"
 import docDetail from './components/DocDetail.vue'
@@ -280,7 +280,7 @@ onMounted(() => {
     getOperatorEnum();
   }
   document.documentElement.addEventListener('click', closeAllDetailPopovers);
-  event.on('apidoc/deleteDocs', getData);
+  eventEmitter.on('apidoc/deleteDocs', getData);
 });
 
 onUnmounted(() => {

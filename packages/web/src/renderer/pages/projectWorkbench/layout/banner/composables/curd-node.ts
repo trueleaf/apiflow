@@ -6,7 +6,7 @@ import type { ApidocBanner, CommonResponse, HttpNode, FolderNode, MockHttpNode }
 import { message } from '@/helper'
 import { WebSocketNode } from '@src/types/websocketNode'
 import { uniqueByKey } from '@/helper'
-import { event } from '@/helper'
+import { eventEmitter } from '@/helper'
 import { findNodeById, findParentById, findSiblingById, flatTree, forEachForest } from '@/helper'
 import { router } from '@/router/index'
 import { request } from '@/api/api'
@@ -64,7 +64,7 @@ export const deleteNode = (selectNodes: ApidocBannerWithProjectId[], silent?: bo
         ids: delNodeIds,
         force: true,
       })
-      event.emit('apidoc/deleteDocs')
+      eventEmitter.emit('apidoc/deleteDocs')
       return
     }
     const params = {
@@ -110,7 +110,7 @@ export const deleteNode = (selectNodes: ApidocBannerWithProjectId[], silent?: bo
         ids: delNodeIds,
         force: true,
       })
-      event.emit('apidoc/deleteDocs')
+      eventEmitter.emit('apidoc/deleteDocs')
     }).catch((err) => {
       console.error(err);
     });

@@ -8,7 +8,7 @@
 <script lang="ts" setup>
 import { ref, Ref, onMounted, onBeforeUnmount, watch } from 'vue'
 import beautify from 'js-beautify'
-import { event } from '@/helper'
+import { eventEmitter } from '@/helper'
 import { useCompletionItem } from './registerCompletionItem'
 import { useHoverProvider } from './registerHoverProvider'
 import { useI18n } from 'vue-i18n'
@@ -59,7 +59,7 @@ onMounted(() => {
       return new EditorWorker()
     },
   }
-  event.emit('websocket/editor/removeAfterEditor');
+  eventEmitter.emit('websocket/editor/removeAfterEditor');
   monaco.languages.typescript.javascriptDefaults.setCompilerOptions({ noLib: true, allowNonTsExtensions: true })
   monacoInstance = monaco.editor.create(afterEditor.value as HTMLElement, {
     value: props.modelValue,
@@ -86,7 +86,7 @@ onMounted(() => {
     emits('update:modelValue', monacoInstance?.getValue())
   })
 })
-event.on('websocket/editor/removeAfterEditor', () => {
+eventEmitter.on('websocket/editor/removeAfterEditor', () => {
   try {
     monacoCompletionItem?.dispose()
     monacoHoverProvider?.dispose()
