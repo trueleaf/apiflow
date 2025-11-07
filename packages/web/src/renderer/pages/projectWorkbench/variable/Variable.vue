@@ -222,6 +222,7 @@ import { request as axiosInstance } from '@/api/api'
 import { nodeVariableCache } from '@/cache/index';
 import { useRuntime } from '@/store/runtime/runtimeStore';
 import { useShortcut } from '@/hooks/useShortcut';
+import { useApidocTas } from '@/store/share/tabsStore';
 
 
 export type AddProjectVariableParams = {
@@ -285,6 +286,8 @@ const table = ref<{
 const form = ref<FormInstance>();
 const variableStore = useVariable()
 const upload = ref<UploadInstance>()
+const apidocTabsStore = useApidocTas()
+const currentSelectTab = computed(() => apidocTabsStore.currentSelectTab)
 
 // 独立模式的数据状态
 const standaloneVariables = ref<ApidocVariable[]>([])
@@ -293,7 +296,9 @@ const standaloneLoading = ref(false)
 // 注册 Ctrl+S 快捷键保存变量
 useShortcut('ctrl+s', (event: KeyboardEvent) => {
   event.preventDefault();
-  handleAddVariable();
+  if (currentSelectTab.value?.tabType === 'variable') {
+    handleAddVariable();
+  }
 })
 /*
 |--------------------------------------------------------------------------

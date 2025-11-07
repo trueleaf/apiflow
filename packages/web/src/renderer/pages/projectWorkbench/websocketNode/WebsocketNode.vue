@@ -450,13 +450,17 @@ onUnmounted(() => {
 })
 useShortcut('ctrl+z', (event: KeyboardEvent) => {
   event.preventDefault();
-  const nodeId = websocketStore.websocket._id;
-  redoUndoStore.wsUndo(nodeId);
+  if (currentSelectTab.value?.tabType === 'websocket') {
+    const nodeId = websocketStore.websocket._id;
+    redoUndoStore.wsUndo(nodeId);
+  }
 })
 useShortcut('ctrl+y', (event: KeyboardEvent) => {
   event.preventDefault();
-  const nodeId = websocketStore.websocket._id;
-  redoUndoStore.wsRedo(nodeId);
+  if (currentSelectTab.value?.tabType === 'websocket') {
+    const nodeId = websocketStore.websocket._id;
+    redoUndoStore.wsRedo(nodeId);
+  }
 })
 </script>
 
