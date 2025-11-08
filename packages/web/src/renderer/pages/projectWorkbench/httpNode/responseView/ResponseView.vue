@@ -1,6 +1,6 @@
 ﻿<template>
   <SBaseInfo v-show="layout === 'horizontal'"></SBaseInfo>
-  <SResInfo v-show="layout === 'horizontal'"></SResInfo>
+  <SResponseSummary v-show="layout === 'horizontal'"></SResponseSummary>
   <SLoading :loading="requestState === 'sending' || responseBodyLoading" :class="{ 'h-100': layout === 'vertical' }" class="loading-wrap w-100">
     <div 
       v-show="responseInfo.bodyByteLength || requestState !== 'waiting'" 
@@ -46,7 +46,7 @@
 <script lang="ts" setup>
 import { computed, ref } from 'vue'
 import SBaseInfo from './baseInfo/BaseInfo.vue'
-import SResInfo from './resInfo/ResInfo.vue'
+import SResponseSummary from './responseSummary/ResponseSummary.vue'
 import SCookie from './cookie/Cookie.vue'
 import SHeaders from './headers/Headers.vue'
 import SBody from './body/Body.vue'
