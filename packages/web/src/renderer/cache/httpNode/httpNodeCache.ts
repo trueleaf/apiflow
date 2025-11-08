@@ -1,5 +1,6 @@
 import { HttpNode } from '@src/types';
 import type { ApidocCookie } from '@src/renderer/store/share/cookiesStore';
+import { cacheKey } from '../cacheKey';
 
 class HttpNodeCache {
   /*
@@ -7,14 +8,14 @@ class HttpNodeCache {
    */
   setHttpNode(val: HttpNode) {
     try {
-      const localHttpNode = JSON.parse(localStorage.getItem('httpNodeCache/httpNode') || '{}');
+      const localHttpNode = JSON.parse(localStorage.getItem(cacheKey.httpNodeCache.httpNode) || '{}');
       localHttpNode[val._id] = val;
-      localStorage.setItem('httpNodeCache/httpNode', JSON.stringify(localHttpNode));
+      localStorage.setItem(cacheKey.httpNodeCache.httpNode, JSON.stringify(localHttpNode));
     } catch (error) {
       console.error(error);
       const data: Record<string, HttpNode> = {};
       data[val._id] = val;
-      localStorage.setItem('httpNodeCache/httpNode', JSON.stringify(data));
+      localStorage.setItem(cacheKey.httpNodeCache.httpNode, JSON.stringify(data));
     }
   }
 
@@ -23,14 +24,14 @@ class HttpNodeCache {
    */
   getHttpNode(id: string): HttpNode | null {
     try {
-      const localHttpNode: Record<string, HttpNode> = JSON.parse(localStorage.getItem('httpNodeCache/httpNode') || '{}');
+      const localHttpNode: Record<string, HttpNode> = JSON.parse(localStorage.getItem(cacheKey.httpNodeCache.httpNode) || '{}');
       if (!localHttpNode[id]) {
         return null;
       }
       return localHttpNode[id];
     } catch (error) {
       console.error(error);
-      localStorage.setItem('httpNodeCache/httpNode', '{}')
+      localStorage.setItem(cacheKey.httpNodeCache.httpNode, '{}')
       return null;
     }
   }
@@ -39,14 +40,14 @@ class HttpNodeCache {
    */
   setHttpNodeCookies(projectId: string, cookies: ApidocCookie[]) {
     try {
-      const localData = JSON.parse(localStorage.getItem('httpNodeCache/cookies') || '{}');
+      const localData = JSON.parse(localStorage.getItem(cacheKey.httpNodeCache.cookies) || '{}');
       localData[projectId] = cookies;
-      localStorage.setItem('httpNodeCache/cookies', JSON.stringify(localData));
+      localStorage.setItem(cacheKey.httpNodeCache.cookies, JSON.stringify(localData));
     } catch (error) {
       console.error(error);
       const data: Record<string, ApidocCookie[]> = {};
       data[projectId] = cookies;
-      localStorage.setItem('httpNodeCache/cookies', JSON.stringify(data));
+      localStorage.setItem(cacheKey.httpNodeCache.cookies, JSON.stringify(data));
     }
   }
 
@@ -55,14 +56,14 @@ class HttpNodeCache {
    */
   getHttpNodeCookies(projectId: string): ApidocCookie[] {
     try {
-      const localData: Record<string, ApidocCookie[]> = JSON.parse(localStorage.getItem('httpNodeCache/cookies') || '{}');
+      const localData: Record<string, ApidocCookie[]> = JSON.parse(localStorage.getItem(cacheKey.httpNodeCache.cookies) || '{}');
       if (!localData[projectId]) {
         return [];
       }
       return localData[projectId];
     } catch (error) {
       console.error(error);
-      localStorage.setItem('httpNodeCache/cookies', '{}');
+      localStorage.setItem(cacheKey.httpNodeCache.cookies, '{}');
       return [];
     }
   }
@@ -104,14 +105,14 @@ class HttpNodeCache {
    */
   getPreRequestLocalStorage(projectId: string): Record<string, any> | null {
     try {
-      const localData: Record<string, Record<string, any>> = JSON.parse(localStorage.getItem('httpNodeCache/preRequest/localStorage') || '{}');
+      const localData: Record<string, Record<string, any>> = JSON.parse(localStorage.getItem(cacheKey.httpNodeCache.preRequest.localStorage) || '{}');
       if (!localData[projectId]) {
         return null;
       }
       return localData[projectId];
     } catch (error) {
       console.error(error);
-      localStorage.setItem('httpNodeCache/preRequest/localStorage', '{}');
+      localStorage.setItem(cacheKey.httpNodeCache.preRequest.localStorage, '{}');
       return null;
     }
   }
@@ -121,14 +122,14 @@ class HttpNodeCache {
    */
   setPreRequestLocalStorage(projectId: string, data: Record<string, any>) {
     try {
-      const localData = JSON.parse(localStorage.getItem('httpNodeCache/preRequest/localStorage') || '{}');
+      const localData = JSON.parse(localStorage.getItem(cacheKey.httpNodeCache.preRequest.localStorage) || '{}');
       localData[projectId] = data;
-      localStorage.setItem('httpNodeCache/preRequest/localStorage', JSON.stringify(localData));
+      localStorage.setItem(cacheKey.httpNodeCache.preRequest.localStorage, JSON.stringify(localData));
     } catch (error) {
       console.error(error);
       const newData: Record<string, Record<string, any>> = {};
       newData[projectId] = data;
-      localStorage.setItem('httpNodeCache/preRequest/localStorage', JSON.stringify(newData));
+      localStorage.setItem(cacheKey.httpNodeCache.preRequest.localStorage, JSON.stringify(newData));
     }
   }
 

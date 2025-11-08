@@ -1,14 +1,12 @@
 import type { RuntimeNetworkMode } from '@src/types/runtime'
 import type { PermissionUserInfo } from '@src/types/project'
 import type { Language } from '@src/types/common'
-import { RUNTIME_STORAGE_KEY, RUNTIME_USERINFO_STORAGE_KEY } from '@src/types/runtime'
-
-const RUNTIME_LANGUAGE_STORAGE_KEY = 'runtime/language'
+import { cacheKey } from '../cacheKey'
 
 class RuntimeCache {
   getNetworkMode(): RuntimeNetworkMode {
     try {
-      const v = localStorage.getItem(RUNTIME_STORAGE_KEY)
+      const v = localStorage.getItem(cacheKey.runtime.networkMode)
       if (!v) return 'offline'
       if (v === 'online' || v === 'offline') return v
       return 'offline'
@@ -19,7 +17,7 @@ class RuntimeCache {
 
   setNetworkMode(mode: RuntimeNetworkMode): boolean {
     try {
-      localStorage.setItem(RUNTIME_STORAGE_KEY, mode)
+      localStorage.setItem(cacheKey.runtime.networkMode, mode)
       return true
     } catch (e) {
       return false
@@ -28,20 +26,20 @@ class RuntimeCache {
   // 获取用户信息
   getUserInfo(): PermissionUserInfo | null {
     try {
-      const userInfo = localStorage.getItem(RUNTIME_USERINFO_STORAGE_KEY)
+      const userInfo = localStorage.getItem(cacheKey.runtime.userInfo)
       if (!userInfo) return null
       
       const parsedInfo = JSON.parse(userInfo) as PermissionUserInfo
       
       // 数据有效性验证
       if (!parsedInfo.id || !parsedInfo.loginName) {
-        localStorage.removeItem(RUNTIME_USERINFO_STORAGE_KEY)
+        localStorage.removeItem(cacheKey.runtime.userInfo)
         return null
       }
       
       return parsedInfo
     } catch (error) {
-      localStorage.removeItem(RUNTIME_USERINFO_STORAGE_KEY)
+      localStorage.removeItem(cacheKey.runtime.userInfo)
       return null
     }
   }
@@ -53,20 +51,20 @@ class RuntimeCache {
         return false
       }
       
-      localStorage.setItem(RUNTIME_USERINFO_STORAGE_KEY, JSON.stringify(userInfo))
+      localStorage.setItem(cacheKey.runtime.userInfo, JSON.stringify(userInfo))
       return true
     } catch (error) {
-      localStorage.removeItem(RUNTIME_USERINFO_STORAGE_KEY)
+      localStorage.removeItem(cacheKey.runtime.userInfo)
       return false
     }
   }
   // 清除用户信息
   clearUserInfo(): boolean {
     try {
-      localStorage.removeItem(RUNTIME_USERINFO_STORAGE_KEY)
+      localStorage.removeItem(cacheKey.runtime.userInfo)
       return true
     } catch (error) {
-      localStorage.removeItem(RUNTIME_USERINFO_STORAGE_KEY)
+      localStorage.removeItem(cacheKey.runtime.userInfo)
       return false
     }
   }
@@ -106,7 +104,7 @@ class RuntimeCache {
   // 获取语言
   getLanguage(): Language {
     try {
-      const language = localStorage.getItem(RUNTIME_LANGUAGE_STORAGE_KEY)
+      const language = localStorage.getItem(cacheKey.runtime.language)
       if (language === 'zh-cn' || language === 'zh-tw' || language === 'en' || language === 'ja') {
         return language
       }
@@ -118,7 +116,7 @@ class RuntimeCache {
   // 设置语言
   setLanguage(language: Language): boolean {
     try {
-      localStorage.setItem(RUNTIME_LANGUAGE_STORAGE_KEY, language)
+      localStorage.setItem(cacheKey.runtime.language, language)
       return true
     } catch (error) {
       return false

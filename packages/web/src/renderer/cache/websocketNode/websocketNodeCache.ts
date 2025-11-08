@@ -1,9 +1,10 @@
 import { WebSocketNode, WebsocketConfig } from '@src/types/websocketNode';
+import { cacheKey } from '../cacheKey';
 
 class WebSocketNodeCache {
   constructor() {
-    if (!localStorage.getItem('websocketNode/websocket')) {
-      localStorage.setItem('websocketNode/websocket', '{}');
+    if (!localStorage.getItem(cacheKey.websocketNode.websocket)) {
+      localStorage.setItem(cacheKey.websocketNode.websocket, '{}');
     }
   }
 
@@ -12,14 +13,14 @@ class WebSocketNodeCache {
    */
   setWebSocketNode(val: WebSocketNode) {
     try {
-      const localWebSocket = JSON.parse(localStorage.getItem('websocketNode/websocket') || '{}');
+      const localWebSocket = JSON.parse(localStorage.getItem(cacheKey.websocketNode.websocket) || '{}');
       localWebSocket[val._id] = val;
-      localStorage.setItem('websocketNode/websocket', JSON.stringify(localWebSocket));
+      localStorage.setItem(cacheKey.websocketNode.websocket, JSON.stringify(localWebSocket));
     } catch (error) {
       console.error(error);
       const data: Record<string, WebSocketNode> = {};
       data[val._id] = val;
-      localStorage.setItem('websocketNode/websocket', JSON.stringify(data));
+      localStorage.setItem(cacheKey.websocketNode.websocket, JSON.stringify(data));
     }
   }
 
@@ -28,14 +29,14 @@ class WebSocketNodeCache {
    */
   getWebSocketNode(id: string): WebSocketNode | null {
     try {
-      const localWebSocket: Record<string, WebSocketNode> = JSON.parse(localStorage.getItem('websocketNode/websocket') || '{}');
+      const localWebSocket: Record<string, WebSocketNode> = JSON.parse(localStorage.getItem(cacheKey.websocketNode.websocket) || '{}');
       if (!localWebSocket[id]) {
         return null;
       }
       return localWebSocket[id];
     } catch (error) {
       console.error(error);
-      localStorage.setItem('websocketNode/websocket', '{}')
+      localStorage.setItem(cacheKey.websocketNode.websocket, '{}')
       return null;
     }
   }
@@ -45,7 +46,7 @@ class WebSocketNodeCache {
    */
   getWsIgnoredCommonHeaderByTabId(projectId: string, tabId: string): string[] | null {
     try {
-      const localData = JSON.parse(localStorage.getItem('websocketNode/commonHeaders/ignore') || '{}') as Record<string, Record<string, string[]>>;
+      const localData = JSON.parse(localStorage.getItem(cacheKey.websocketNode.commonHeaders.ignore) || '{}') as Record<string, Record<string, string[]>>;
       if (localData[projectId] == null) {
         return [];
       }
@@ -65,7 +66,7 @@ class WebSocketNodeCache {
   setWsIgnoredCommonHeader(options: { projectId: string; tabId: string; ignoreHeaderId: string }) {
     try {
       const { projectId, tabId, ignoreHeaderId } = options;
-      const localData = JSON.parse(localStorage.getItem('websocketNode/commonHeaders/ignore') || '{}') as Record<string, Record<string, string[]>>;
+      const localData = JSON.parse(localStorage.getItem(cacheKey.websocketNode.commonHeaders.ignore) || '{}') as Record<string, Record<string, string[]>>;
       if (localData[projectId] == null) {
         localData[projectId] = {}
       }
@@ -74,10 +75,10 @@ class WebSocketNodeCache {
       }
       const matchedTab = localData[projectId][tabId];
       matchedTab.push(ignoreHeaderId);
-      localStorage.setItem('websocketNode/commonHeaders/ignore', JSON.stringify(localData));
+      localStorage.setItem(cacheKey.websocketNode.commonHeaders.ignore, JSON.stringify(localData));
     } catch (error) {
       console.error(error);
-      localStorage.setItem('websocketNode/commonHeaders/ignore', '{}');
+      localStorage.setItem(cacheKey.websocketNode.commonHeaders.ignore, '{}');
     }
   }
 
@@ -87,7 +88,7 @@ class WebSocketNodeCache {
   deleteWsIgnoredCommonHeader(options: { projectId: string; tabId: string; ignoreHeaderId: string }) {
     try {
       const { projectId, tabId, ignoreHeaderId } = options;
-      const localData = JSON.parse(localStorage.getItem('websocketNode/commonHeaders/ignore') || '{}') as Record<string, Record<string, string[]>>;
+      const localData = JSON.parse(localStorage.getItem(cacheKey.websocketNode.commonHeaders.ignore) || '{}') as Record<string, Record<string, string[]>>;
       if (localData[projectId] == null) {
         return false;
       }
@@ -98,11 +99,11 @@ class WebSocketNodeCache {
       const deleteIndex = matchedTab.findIndex(id => ignoreHeaderId === id);
       if (deleteIndex !== -1) {
         matchedTab.splice(deleteIndex, 1);
-        localStorage.setItem('websocketNode/commonHeaders/ignore', JSON.stringify(localData));
+        localStorage.setItem(cacheKey.websocketNode.commonHeaders.ignore, JSON.stringify(localData));
       }
     } catch (error) {
       console.error(error);
-      localStorage.setItem('websocketNode/commonHeaders/ignore', '{}');
+      localStorage.setItem(cacheKey.websocketNode.commonHeaders.ignore, '{}');
     }
   }
 
@@ -111,14 +112,14 @@ class WebSocketNodeCache {
    */
   getWebsocketConfig(projectId: string): WebsocketConfig | null {
     try {
-      const localData: Record<string, WebsocketConfig> = JSON.parse(localStorage.getItem('websocketNode/config') || '{}');
+      const localData: Record<string, WebsocketConfig> = JSON.parse(localStorage.getItem(cacheKey.websocketNode.config) || '{}');
       if (!localData[projectId]) {
         return null;
       }
       return localData[projectId];
     } catch (error) {
       console.error(error);
-      localStorage.setItem('websocketNode/config', '{}');
+      localStorage.setItem(cacheKey.websocketNode.config, '{}');
       return null;
     }
   }
@@ -128,14 +129,14 @@ class WebSocketNodeCache {
    */
   setWebsocketConfig(projectId: string, config: Partial<WebsocketConfig>) {
     try {
-      const localData = JSON.parse(localStorage.getItem('websocketNode/config') || '{}');
+      const localData = JSON.parse(localStorage.getItem(cacheKey.websocketNode.config) || '{}');
       localData[projectId] = { ...(localData[projectId] || {}), ...config };
-      localStorage.setItem('websocketNode/config', JSON.stringify(localData));
+      localStorage.setItem(cacheKey.websocketNode.config, JSON.stringify(localData));
     } catch (error) {
       console.error(error);
       const data: Record<string, any> = {};
       data[projectId] = config;
-      localStorage.setItem('websocketNode/config', JSON.stringify(data));
+      localStorage.setItem(cacheKey.websocketNode.config, JSON.stringify(data));
     }
   }
 }

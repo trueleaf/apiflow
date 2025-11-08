@@ -2,14 +2,13 @@ import type {
   WsRedoUnDoOperation
 } from "@src/types/redoUndo/wsRedoUndo";
 import { logger } from '@/helper';
+import { cacheKey } from '../cacheKey';
 
 /**
  * WebSocket RedoUndo缓存管理类
  * 负责sessionStorage存储WebSocket redo/undo数据
  */
 export class WsRedoUndoCache {
-  private readonly storagePrefix = 'redoUndo/ws/';
-
   // 获取指定节点的redo/undo数据
   getRedoUndoListByNodeId(nodeId: string): {
     redoList: WsRedoUnDoOperation[];
@@ -49,7 +48,7 @@ export class WsRedoUndoCache {
   }
   // 获取存储键名
   private getStorageKey(nodeId: string): string {
-    return `${this.storagePrefix}${nodeId}`;
+    return `${cacheKey.redoUndo.ws}${nodeId}`;
   }
 
 }

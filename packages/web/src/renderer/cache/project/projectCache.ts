@@ -1,5 +1,6 @@
 import type { ApidocProjectInfo } from '@src/types';
 import { getStandaloneDB } from "../db";
+import { cacheKey } from '../cacheKey';
 
 export class ProjectCache {
   private get db() {
@@ -92,39 +93,39 @@ export class ProjectCache {
   // 缓存项目分享密码
   setProjectSharePassword(shareId: string, password: string) {
     try {
-      const localData = JSON.parse(localStorage.getItem('projectCache/share/password') || '{}');
+      const localData = JSON.parse(localStorage.getItem(cacheKey.projectCache.share.password) || '{}');
       localData[shareId] = password;
-      localStorage.setItem('projectCache/share/password', JSON.stringify(localData));
+      localStorage.setItem(cacheKey.projectCache.share.password, JSON.stringify(localData));
     } catch (error) {
       console.error(error);
       const data: Record<string, string> = {};
       data[shareId] = password;
-      localStorage.setItem('projectCache/share/password', JSON.stringify(data));
+      localStorage.setItem(cacheKey.projectCache.share.password, JSON.stringify(data));
     }
   }
   // 获取缓存的项目分享密码
   getProjectSharePassword(shareId: string): string | null {
     try {
-      const localData: Record<string, string> = JSON.parse(localStorage.getItem('projectCache/share/password') || '{}');
+      const localData: Record<string, string> = JSON.parse(localStorage.getItem(cacheKey.projectCache.share.password) || '{}');
       if (!localData[shareId]) {
         return null;
       }
       return localData[shareId];
     } catch (error) {
       console.error(error);
-      localStorage.setItem('projectCache/share/password', '{}');
+      localStorage.setItem(cacheKey.projectCache.share.password, '{}');
       return null;
     }
   }
   // 清除项目分享密码缓存
   clearProjectSharePassword(shareId: string) {
     try {
-      const localData = JSON.parse(localStorage.getItem('projectCache/share/password') || '{}');
+      const localData = JSON.parse(localStorage.getItem(cacheKey.projectCache.share.password) || '{}');
       delete localData[shareId];
-      localStorage.setItem('projectCache/share/password', JSON.stringify(localData));
+      localStorage.setItem(cacheKey.projectCache.share.password, JSON.stringify(localData));
     } catch (error) {
       console.error(error);
-      localStorage.setItem('projectCache/share/password', '{}');
+      localStorage.setItem(cacheKey.projectCache.share.password, '{}');
     }
   }
 }

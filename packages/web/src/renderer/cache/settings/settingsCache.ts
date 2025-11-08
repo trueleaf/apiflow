@@ -1,4 +1,5 @@
 import { logger } from '@/helper';
+import { cacheKey } from '../cacheKey';
 
 class SettingsCache {
   constructor() {
@@ -11,7 +12,7 @@ class SettingsCache {
         indexedDBDetails: cacheInfo.indexedDBDetails,
         timestamp: Date.now()
       };
-      localStorage.setItem('settings/cacheManager/info', JSON.stringify(cacheData));
+      localStorage.setItem(cacheKey.settings.cacheManager.info, JSON.stringify(cacheData));
     } catch (error) {
       logger.error('设置缓存信息失败', { error });
     }
@@ -19,7 +20,7 @@ class SettingsCache {
   // 获取缓存管理信息
   getCacheManagerInfo(): { indexedDBSize: number; indexedDBDetails: unknown[] } | null {
     try {
-      const cacheData = localStorage.getItem('settings/cacheManager/info');
+      const cacheData = localStorage.getItem(cacheKey.settings.cacheManager.info);
       if (!cacheData) {
         return null;
       }
@@ -36,7 +37,7 @@ class SettingsCache {
   // 清除缓存管理信息
   clearCacheManagerInfo() {
     try {
-      localStorage.removeItem('settings/cacheManager/info');
+      localStorage.removeItem(cacheKey.settings.cacheManager.info);
     } catch (error) {
       logger.error('清除缓存信息失败', { error });
     }

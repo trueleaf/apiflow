@@ -1,6 +1,7 @@
 import type { AppTheme } from '@src/types';
 import { config } from '@src/config/config';
 import { logger } from '@/helper';
+import { cacheKey } from '../cacheKey';
 
 class AppSettingsCache {
   constructor() {
@@ -8,7 +9,7 @@ class AppSettingsCache {
   // 获取应用标题
   getAppTitle(): string {
     try {
-      const title = localStorage.getItem('settings/app/title');
+      const title = localStorage.getItem(cacheKey.settings.app.title);
       return title || config.appConfig.appTitle;
     } catch (error) {
       return config.appConfig.appTitle;
@@ -17,7 +18,7 @@ class AppSettingsCache {
   // 设置应用标题
   setAppTitle(title: string) {
     try {
-      localStorage.setItem('settings/app/title', title);
+      localStorage.setItem(cacheKey.settings.app.title, title);
     } catch (error) {
       logger.error('设置应用标题失败', { error });
     }
@@ -25,7 +26,7 @@ class AppSettingsCache {
   // 重置应用标题
   resetAppTitle() {
     try {
-      localStorage.removeItem('settings/app/title');
+      localStorage.removeItem(cacheKey.settings.app.title);
     } catch (error) {
       logger.error('重置应用标题失败', { error });
     }
@@ -33,7 +34,7 @@ class AppSettingsCache {
   // 获取应用Logo
   getAppLogo(): string {
     try {
-      const logo = localStorage.getItem('settings/app/logo');
+      const logo = localStorage.getItem(cacheKey.settings.app.logo);
       return logo || config.appConfig.appLogo;
     } catch (error) {
       return config.appConfig.appLogo;
@@ -42,7 +43,7 @@ class AppSettingsCache {
   // 设置应用Logo
   setAppLogo(logo: string) {
     try {
-      localStorage.setItem('settings/app/logo', logo);
+      localStorage.setItem(cacheKey.settings.app.logo, logo);
     } catch (error) {
       logger.error('设置应用Logo失败', { error });
     }
@@ -50,7 +51,7 @@ class AppSettingsCache {
   // 重置应用Logo
   resetAppLogo() {
     try {
-      localStorage.removeItem('settings/app/logo');
+      localStorage.removeItem(cacheKey.settings.app.logo);
     } catch (error) {
       logger.error('重置应用Logo失败', { error });
     }
@@ -58,7 +59,7 @@ class AppSettingsCache {
   // 获取应用主题
   getAppTheme(): AppTheme {
     try {
-      const theme = localStorage.getItem('settings/app/theme');
+      const theme = localStorage.getItem(cacheKey.settings.app.theme);
       if (theme === 'light' || theme === 'dark' || theme === 'auto') {
         return theme;
       }
@@ -70,7 +71,7 @@ class AppSettingsCache {
   // 设置应用主题
   setAppTheme(theme: AppTheme) {
     try {
-      localStorage.setItem('settings/app/theme', theme);
+      localStorage.setItem(cacheKey.settings.app.theme, theme);
     } catch (error) {
       logger.error('设置应用主题失败', { error });
     }
@@ -78,7 +79,7 @@ class AppSettingsCache {
   // 重置应用主题
   resetAppTheme() {
     try {
-      localStorage.removeItem('settings/app/theme');
+      localStorage.removeItem(cacheKey.settings.app.theme);
     } catch (error) {
       logger.error('重置应用主题失败', { error });
     }

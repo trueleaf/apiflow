@@ -2,13 +2,13 @@ import type {
   HttpRedoUnDoOperation
 } from "@src/types/redoUndo/httpRedoUndo";
 import { logger } from '@/helper';
+import { cacheKey } from '../cacheKey';
 
 /**
  * HTTP RedoUndo缓存管理类
  * 负责sessionStorage存储HTTP redo/undo数据
  */
 export class HttpRedoUndoCache {
-  private readonly storagePrefix = 'redoUndo/http/';
   // 获取指定节点的redo/undo数据
   getRedoUndoListByNodeId(nodeId: string): {
     redoList: HttpRedoUnDoOperation[];
@@ -48,7 +48,7 @@ export class HttpRedoUndoCache {
   }
   // 获取存储键名
   private getStorageKey(nodeId: string): string {
-    return `${this.storagePrefix}${nodeId}`;
+    return `${cacheKey.redoUndo.http}${nodeId}`;
   }
 
 }

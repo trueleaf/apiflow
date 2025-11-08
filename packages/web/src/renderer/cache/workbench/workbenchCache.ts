@@ -1,4 +1,5 @@
 import { logger } from '@/helper';
+import { cacheKey } from '../cacheKey';
 
 class WorkbenchCache {
   constructor() {
@@ -7,11 +8,11 @@ class WorkbenchCache {
   // 获取工作区tabs
   getWorkbenchTabs(): Record<string, any[]> {
     try {
-      const localData = JSON.parse(localStorage.getItem('workbench/node/tabs') || '{}');
+      const localData = JSON.parse(localStorage.getItem(cacheKey.workbench.node.tabs) || '{}');
       return localData;
     } catch (error) {
       console.error(error);
-      localStorage.setItem('workbench/node/tabs', '{}');
+      localStorage.setItem(cacheKey.workbench.node.tabs, '{}');
       return {};
     }
   }
@@ -19,24 +20,24 @@ class WorkbenchCache {
   // 设置工作区tabs
   setWorkbenchTabs(tabs: Record<string, any[]>) {
     try {
-      localStorage.setItem('workbench/node/tabs', JSON.stringify(tabs));
+      localStorage.setItem(cacheKey.workbench.node.tabs, JSON.stringify(tabs));
     } catch (error) {
       console.error(error);
-      localStorage.setItem('workbench/node/tabs', '{}');
+      localStorage.setItem(cacheKey.workbench.node.tabs, '{}');
     }
   }
 
   // 获取固定的工具栏操作
   getPinToolbarOperations(): any[] {
     try {
-      const localPinToolbarOperations = localStorage.getItem('workbench/pinToolbarOperations');
+      const localPinToolbarOperations = localStorage.getItem(cacheKey.workbench.pinToolbarOperations);
       if (localPinToolbarOperations) {
         return JSON.parse(localPinToolbarOperations);
       }
       return [];
     } catch (error) {
       logger.error('获取固定工具栏操作失败', { error });
-      localStorage.setItem('workbench/pinToolbarOperations', '[]');
+      localStorage.setItem(cacheKey.workbench.pinToolbarOperations, '[]');
       return [];
     }
   }
@@ -44,7 +45,7 @@ class WorkbenchCache {
   // 设置固定的工具栏操作
   setPinToolbarOperations(operations: any[]) {
     try {
-      localStorage.setItem('workbench/pinToolbarOperations', JSON.stringify(operations));
+      localStorage.setItem(cacheKey.workbench.pinToolbarOperations, JSON.stringify(operations));
     } catch (error) {
       logger.error('设置固定工具栏操作失败', { error });
     }
@@ -53,7 +54,7 @@ class WorkbenchCache {
   // 获取布局方式
   getLayout(): 'horizontal' | 'vertical' {
     try {
-      const localLayout = localStorage.getItem('workbench/layout');
+      const localLayout = localStorage.getItem(cacheKey.workbench.layout);
       if (localLayout !== 'horizontal' && localLayout !== 'vertical') {
         return 'horizontal';
       }
@@ -67,7 +68,7 @@ class WorkbenchCache {
   // 设置布局方式
   setLayout(layout: 'horizontal' | 'vertical') {
     try {
-      localStorage.setItem('workbench/layout', layout);
+      localStorage.setItem(cacheKey.workbench.layout, layout);
     } catch (error) {
       logger.error('设置布局方式失败', { error });
     }
