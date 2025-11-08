@@ -167,6 +167,7 @@ type MockErrorLog = {
     errorType: "portError" | "bindError" | "serverStartError" | "configError" | "unknownError" | "conditionScriptError" | "conditionNotMet",
     errorMsg: string,
     conditionName?: string,
+    conditionResult?: unknown,
   },
   timestamp: number,
 }

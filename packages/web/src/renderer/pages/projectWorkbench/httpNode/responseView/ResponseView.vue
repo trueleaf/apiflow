@@ -11,14 +11,14 @@
           <SBody class="h-100"></SBody>
         </el-tab-pane>
         <el-tab-pane :label="t('请求信息')" name="SRequest">
-          <SRequest class="h-100"></SRequest>
+          <SRequest class="h-100 mt-2"></SRequest>
         </el-tab-pane>
         <el-tab-pane name="Sheaders">
           <template #label>
             <span>{{ t("返回头") }}&nbsp;</span>
             <span v-if="headers.length > 0" class="orange">({{ headers.length }})</span>
           </template>
-          <SHeaders v-if="activeName === 'Sheaders'"></SHeaders>
+          <SHeaders v-if="activeName === 'Sheaders'" class="mt-2"></SHeaders>
         </el-tab-pane>
         <el-tab-pane name="SCookie">
           <template #label>
@@ -26,10 +26,10 @@
             <span v-if="cookies?.length" class="orange">({{ cookies?.length }})</span>
           </template>
           <!-- fix: 文字隐藏组件获取dom宽度失败 -->
-          <SCookie v-if="activeName === 'SCookie'"></SCookie>
+          <SCookie v-if="activeName === 'SCookie'" class="mt-2"></SCookie>
         </el-tab-pane>
         <el-tab-pane :label="t('原始值')" name="SRawBody" class="w-100">
-          <SRawBody v-if="activeName === 'SRawBody'" class="h-100"></SRawBody>
+          <SRawBody v-if="activeName === 'SRawBody'" class="h-100 mt-2"></SRawBody>
         </el-tab-pane>
       </el-tabs>
     </div>

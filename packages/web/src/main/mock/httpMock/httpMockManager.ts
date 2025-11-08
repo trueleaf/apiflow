@@ -41,7 +41,7 @@ export class HttpMockManager {
       contentViewInstance.webContents.send(IPC_EVENTS.mock.mainToRenderer.logsBatch, logsToSend);
     }
   }
-  
+
   /*
   |--------------------------------------------------------------------------
   | 添加并启动 HTTP Mock 服务器
@@ -79,7 +79,7 @@ export class HttpMockManager {
     const startTime = Date.now();
     let matchedMock: HttpMockNode | null = null;
     const consoleCollector = new ConsoleLogCollector();
-    
+
     try {
       // 实时从 httpMockList 中查找匹配的 mock 配置
       const candidateMocks = this.httpMockList
@@ -100,12 +100,12 @@ export class HttpMockManager {
       }
 
       matchedMock = candidateMocks[0].mock;
-      
+
       // 处理延迟
       if (matchedMock.config.delay > 0) {
         await sleep(matchedMock.config.delay);
       }
-      
+
       // 选择响应配置（支持条件判断）
       let responseConfig = null;
       if (matchedMock.response.length === 0) {
@@ -118,16 +118,35 @@ export class HttpMockManager {
           responseConfig = response;
           break;
         }
+        let conditionResult: unknown;
         try {
-          const conditionResult = await this.mockUtils.evaluateCondition(
+          conditionResult = await this.mockUtils.evaluateCondition(
             response.conditions.scriptCode,
             ctx,
             matchedMock.projectId,
             consoleCollector
           );
-          if (conditionResult === true) {
-            responseConfig = response;
+          responseConfig = response;
+          if (conditionResult) {
             break;
+          } else {
+            this.pushLogToRenderer({
+              type: "error",
+              nodeId: matchedMock._id,
+              projectId: matchedMock.projectId,
+              data: {
+                errorType: "conditionNotMet",
+                errorMsg: "所有响应配置的条件都不满足"
+              },
+              timestamp: Date.now()
+            });
+            ctx.status = 500;
+            ctx.body = {
+              error: 'HTTP Mock 条件不满足，执行代码返回值不是truly',
+              scriptCode: matchedMock.response.map(r => r.conditions.scriptCode).join('\n---\n'),
+              conditionResult
+            };
+            return;
           }
         } catch (error) {
           this.pushLogToRenderer({
@@ -137,12 +156,13 @@ export class HttpMockManager {
             data: {
               errorType: "conditionScriptError",
               errorMsg: `条件脚本执行失败: ${error instanceof Error ? error.message : 'Unknown error'}`,
-              conditionName: response.conditions.name
+              conditionName: response.conditions.name,
+              conditionResult
             },
             timestamp: Date.now()
           });
           ctx.status = 500;
-          ctx.body = { 
+          ctx.body = {
             error: 'Condition script execution failed',
             details: error instanceof Error ? error.message : 'Unknown error'
           };
@@ -161,7 +181,10 @@ export class HttpMockManager {
           timestamp: Date.now()
         });
         ctx.status = 500;
-        ctx.body = { error: 'HTTP Mock 条件不满足' };
+        ctx.body = {
+          error: 'HTTP Mock 条件不满足，执行代码返回值不是truly',
+          scriptCode: matchedMock.response.map(r => r.conditions.scriptCode).join('\n---\n')
+        };
         return;
       }
 
@@ -179,13 +202,13 @@ export class HttpMockManager {
 
       // 对于SSE类型，进行特殊处理
       if (responseConfig.dataType === 'sse') {
-        const hasContentType = allHeaders.some(header => 
+        const hasContentType = allHeaders.some(header =>
           header.key && header.key.toLowerCase() === 'content-type'
         );
         if (!hasContentType) {
           ctx.set('content-type', 'text/event-stream; charset=utf-8');
         }
-        
+
         // SSE 类型直接处理，不需要设置 ctx.body，传递项目变量
         const projectVariables = MockUtils.getProjectVariables(matchedMock.projectId);
         this.mockUtils.handleSseResponse(responseConfig, ctx, projectVariables);
@@ -194,7 +217,7 @@ export class HttpMockManager {
 
       // 对于text类型，如果没有设置content-type，则根据textType设置对应的Content-Type
       if (responseConfig.dataType === 'text') {
-        const hasContentType = allHeaders.some(header => 
+        const hasContentType = allHeaders.some(header =>
           header.key && header.key.toLowerCase() === 'content-type'
         );
         if (!hasContentType) {
@@ -213,7 +236,7 @@ export class HttpMockManager {
 
       // 对于json类型，如果没有设置content-type，则设置默认值
       if (responseConfig.dataType === 'json') {
-        const hasContentType = allHeaders.some(header => 
+        const hasContentType = allHeaders.some(header =>
           header.key && header.key.toLowerCase() === 'content-type'
         );
         if (!hasContentType) {
@@ -222,10 +245,10 @@ export class HttpMockManager {
       }
       const projectVariables = MockUtils.getProjectVariables(matchedMock.projectId);
       const responseData = await this.mockUtils.processResponseByDataType(responseConfig, ctx, projectVariables);
-      
+
       // 对于image类型，如果没有设置content-type，则设置生成的MIME类型
       if (responseConfig.dataType === 'image') {
-        const hasContentType = allHeaders.some(header => 
+        const hasContentType = allHeaders.some(header =>
           header.key && header.key.toLowerCase() === 'content-type'
         );
         if (!hasContentType) {
@@ -236,16 +259,16 @@ export class HttpMockManager {
 
       // 对于file类型，如果没有设置content-type，则设置生成的MIME类型
       if (responseConfig.dataType === 'file') {
-        const hasContentType = allHeaders.some(header => 
+        const hasContentType = allHeaders.some(header =>
           header.key && header.key.toLowerCase() === 'content-type'
         );
         if (!hasContentType) {
           const generatedMimeType = (responseConfig as any)._generatedMimeType || 'application/octet-stream';
           ctx.set('content-type', generatedMimeType);
         }
-        
+
         // 设置 Content-Disposition 头
-        const hasContentDisposition = allHeaders.some(header => 
+        const hasContentDisposition = allHeaders.some(header =>
           header.key && header.key.toLowerCase() === 'content-disposition'
         );
         if (!hasContentDisposition) {
@@ -258,7 +281,7 @@ export class HttpMockManager {
 
       // 对于binary类型，如果没有设置content-type，则设置生成的MIME类型
       if (responseConfig.dataType === 'binary') {
-        const hasContentType = allHeaders.some(header => 
+        const hasContentType = allHeaders.some(header =>
           header.key && header.key.toLowerCase() === 'content-type'
         );
         if (!hasContentType) {
@@ -268,11 +291,11 @@ export class HttpMockManager {
       }
 
       ctx.body = responseData;
-      
+
     } catch (error) {
       ctx.status = 500;
       ctx.body = { error: 'Internal server error' };
-      
+
       if (matchedMock) {
         this.pushLogToRenderer({
           type: "error",
@@ -290,23 +313,23 @@ export class HttpMockManager {
       if (matchedMock) {
         const endTime = Date.now();
         const responseTime = endTime - startTime;
-        
+
         // 解析URL获取path和query
         const url = new URL(ctx.url, `${ctx.protocol}://${ctx.host}`);
         const path = url.pathname;
         const query = url.search;
-        
+
         // 获取用户代理
         const userAgent = ctx.get('user-agent') || '';
-        
+
         // 获取内容类型和长度
         const contentType = ctx.get('content-type') || '';
         const contentLength = parseInt(ctx.get('content-length') || '0', 10);
-        
+
         // 获取协议和主机名
         const protocol = ctx.protocol;
         const hostname = ctx.hostname;
-        
+
         this.pushLogToRenderer({
           type: "request",
           nodeId: matchedMock._id,
@@ -324,21 +347,21 @@ export class HttpMockManager {
             referer: ctx.get('referer') || '',
             userAgent: userAgent,
             responseTime: responseTime,
-            
+
             // Mock服务特有字段
             mockDelay: matchedMock.config.delay,
             matchedRoute: matchedMock.requestCondition.url,
-            
+
             // 可选扩展字段
             protocol: protocol,
             hostname: hostname,
             contentType: contentType,
             contentLength: contentLength,
-            
+
             // 保留原有但不显示在标准日志中的字段
             headers: ctx.headers as Record<string, string>,
             body: '', // 不解析body，保持为空
-            
+
             // Console日志收集
             consoleLogs: consoleCollector.getLogs(),
           },
@@ -368,7 +391,7 @@ export class HttpMockManager {
       });
       return { code: 0, msg: 'HTTP Mock 启动成功', data: null };
     }
-    
+
     // 首次启动场景：检测端口冲突
     const hasConflict = await this.checkHttpPortConflict(httpMock);
     if (hasConflict) {
@@ -380,7 +403,7 @@ export class HttpMockManager {
       });
       return { code: 1, msg: `HTTP 端口 ${httpMock.requestCondition.port} 已被占用`, data: null };
     }
-    
+
     try {
       const app = new Koa();
       app.use(bodyParser({
@@ -393,19 +416,19 @@ export class HttpMockManager {
         await this.handleHttpRequest(ctx, httpMock.requestCondition.port);
       });
       const server = app.listen(httpMock.requestCondition.port);
-      
+
       // 存储实例信息
       const mockInstance: MockInstance = {
         port: httpMock.requestCondition.port,
         app,
         server
       };
-      
+
       this.httpServerInstances.push(mockInstance);
       this.httpPortToInstanceMap.set(httpMock.requestCondition.port, mockInstance);
       this.setupHttpServerListeners(server, httpMock.requestCondition.port);
       this.httpMockList.push(httpMock);
-      
+
       this.pushLogToRenderer({
         type: "start",
         nodeId: httpMock._id,
@@ -419,7 +442,7 @@ export class HttpMockManager {
         state: 'running',
         port: httpMock.requestCondition.port
       });
-      
+
       return { code: 0, msg: 'HTTP Mock 启动成功', data: null };
     } catch (error) {
       const errorMsg = `HTTP 服务器启动失败: ${error instanceof Error ? error.message : 'Unknown error'}`;
@@ -518,7 +541,7 @@ export class HttpMockManager {
               type: "already-stopped",
               nodeId: mockToRemove._id,
               projectId: mockToRemove.projectId,
-              data: { 
+              data: {
                 port,
                 reason: "服务器未启动或已经关闭"
               },
@@ -604,9 +627,9 @@ export class HttpMockManager {
         promises.push(this.removeHttpMockAndStopServer(nodeId));
       });
     });
-    
+
     await Promise.all(promises);
-    
+
     // 清理该项目的变量缓存（使用 MockUtils 静态方法）
     MockUtils.clearProjectVariables(projectId);
   }

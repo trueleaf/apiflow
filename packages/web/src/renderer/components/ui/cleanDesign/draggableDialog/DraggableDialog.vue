@@ -17,10 +17,11 @@
               <span class="drag-icon">≡</span>
               <span class="dialog-title">{{ props.title }}</span>
             </div>
-            <span
-              class="close-button iconfont iconguanbi"
+            <X
+              class="close-button"
+              :size="20"
               @click="closeDialog"
-            ></span>
+            />
           </div>
           <div class="dialog-body" :style="contentStyle">
             <slot></slot>
@@ -33,6 +34,7 @@
 
 <script lang="ts" setup>
 import { ref, computed, watch, onMounted, onBeforeUnmount } from 'vue'
+import { X } from 'lucide-vue-next'
 
 interface DraggableDialogProps {
   modelValue: boolean
@@ -229,17 +231,16 @@ onBeforeUnmount(() => {
   }
 
   .close-button {
-    width: 20px;
-    height: 20px;
     display: flex;
     align-items: center;
     justify-content: center;
     background: transparent;
     border: none;
-    border-radius: 50%;
     color: var(--dialog-close-color);
     cursor: pointer;
-    font-size: 10px;
+    padding: 4px;
+    min-width: 24px;
+    min-height: 24px;
     transition: all 0.2s ease;
 
     &:hover {

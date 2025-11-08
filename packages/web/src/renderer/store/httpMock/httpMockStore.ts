@@ -193,6 +193,7 @@ export const useHttpMock = defineStore('httpMock', () => {
     }
     saveLoading.value = true;
     if (isOffline()) {
+      console.log(123, httpMock.value);
       const httpMockDetail = cloneDeep(httpMock.value);
       httpMockDetail.updatedAt = new Date().toISOString();
       await apiNodesCache.updateNode(httpMockDetail);
