@@ -11,6 +11,3 @@ export type RuntimeState = {
   networkMode: RuntimeNetworkMode
   userInfo: PermissionUserInfo | null
 }
-
-export const RUNTIME_STORAGE_KEY = 'runtime/networkMode'
-export const RUNTIME_USERINFO_STORAGE_KEY = 'runtime/userInfo'

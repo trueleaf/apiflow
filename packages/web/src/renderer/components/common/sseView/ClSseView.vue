@@ -20,12 +20,11 @@
           <el-icon class="icon search-icon" :class="{ active: isSearchInputVisible }" @click="toggleSearchInput">
             <Search />
           </el-icon>
-          <el-badge :is-dot="filterConfig.enabled" class="filter-badge-wrapper">
-            <el-icon class="icon filter-icon" :class="{ active: isFilterDialogVisible }" @click="toggleFilterDialog"
-              :title="t('过滤配置')">
-              <Filter :size="16" />
-            </el-icon>
-          </el-badge>
+          <FilterConfigDialog
+            v-model="isFilterDialogVisible"
+            :source-data="formattedData"
+            @filtered-data-change="handleFilteredDataChange"
+          />
           <el-icon class="icon raw-view-icon" :class="{ active: isRawView }" @click="toggleRawView"
             :title="t('切换原始数据视图')">
             <Document />
@@ -78,35 +77,6 @@
     <SsePopover v-if="!isRawView" :visible="activePopoverIndex !== -1" :message="currentMessage"
       :message-index="activePopoverIndex" :virtual-ref="popoverVirtualRef" @hide="handlePopoverHide"
       @close="handleClosePopover" />
-    <!-- 过滤配置弹窗 -->
-    <DraggableDialog v-model="isFilterDialogVisible" :title="t('过滤配置')" :width="800">
-      <div class="filter-dialog-content">
-        <div class="editor-header">
-          <div class="header-left">
-            <label class="switch-label">{{ t('启用') }}</label>
-            <el-switch v-model="filterConfig.enabled" />
-          </div>
-        </div>
-        <div class="editor-container">
-          <CodeEditor 
-            v-model="filterConfig.code" 
-            language="javascript"
-            :auto-height="true"
-            :min-height="300"
-            :max-height="500"
-          >
-            <template #toolbar>
-              <el-button text type="primary" @click="handleResetFilterCode">
-                {{ t('重置') }}
-              </el-button>
-            </template>
-          </CodeEditor>
-        </div>
-        <div v-if="filterConfigError" class="config-error">
-          <el-alert :title="t('函数执行错误')" :description="filterConfigError" type="error" :closable="false" show-icon />
-        </div>
-      </div>
-    </DraggableDialog>
   </div>
 </template>
 
@@ -121,15 +91,13 @@ import dayjs from 'dayjs';
 import type { ChunkWithTimestampe } from '@src/types/index.ts';
 import GVirtualScroll from '@/components/apidoc/virtualScroll/ClVirtualScroll.vue';
 import SsePopover from './components/popover/SsePopover.vue';
-import DraggableDialog from '@/components/ui/cleanDesign/draggableDialog/DraggableDialog.vue';
-import CodeEditor from '@/components/common/codeEditor/CodeEditor.vue';
+import FilterConfigDialog from './components/filter/FilterConfigDialog.vue';
 import { Loading, Search, Download, Document } from '@element-plus/icons-vue';
-import { Filter } from 'lucide-vue-next';
 import { useI18n } from 'vue-i18n';
 
 /*
 |--------------------------------------------------------------------------
-| 全局变量
+| Props / Emits
 |--------------------------------------------------------------------------
 */
 const props = withDefaults(defineProps<{ dataList: ChunkWithTimestampe[]; virtual?: boolean; isDataComplete?: boolean }>(), {
@@ -137,65 +105,98 @@ const props = withDefaults(defineProps<{ dataList: ChunkWithTimestampe[]; virtua
   isDataComplete: false,
 });
 
-// 获取翻译函数
+/*
+|--------------------------------------------------------------------------
+| 响应式状态
+|--------------------------------------------------------------------------
+*/
 const { t } = useI18n();
 const sseViewContainerRef = ref<HTMLElement | null>(null);
-// 性能优化：增量数据处理
 const lastDataLength = ref(0);
 const incrementalData = ref<any[]>([]);
-// 筛选相关
 const filterText = ref('');
 const isRegexMode = ref(false);
 const filterError = ref('');
 const filterInputRef = ref<HTMLInputElement | null>(null);
 const isSearchInputVisible = ref(false);
-// 视图相关
 const isRawView = ref(false);
 const popoverVirtualRef = ref<HTMLElement | null>(null);
-const isVirtualEnabled = computed(() => props.isDataComplete && activePopoverIndex.value === -1);
-// 过滤配置弹窗相关
+const activePopoverIndex = ref<number>(-1);
+const messageRefs = ref<Record<number, HTMLElement>>({});
 
 const isFilterDialogVisible = ref(false);
-// 过滤配置 - 改为自定义函数模式
-const DEFAULT_FILTER_CODE = `function filter(chunk) {\n  // chunk格式: { event: string, data: string, timestamp: number }\n  // 返回处理后的chunk或null（过滤掉该条数据）\n  console.log(chunk); \n  return chunk;\n}`;
-const filterConfig = ref({
-  enabled: false,
-  code: DEFAULT_FILTER_CODE,
-});
-const filterConfigError = ref('');
-const originalFilterCode = ref(DEFAULT_FILTER_CODE);
-// 切换过滤配置弹窗
-const toggleFilterDialog = () => {
-  isFilterDialogVisible.value = !isFilterDialogVisible.value;
-  if (isFilterDialogVisible.value) {
-    originalFilterCode.value = filterConfig.value.code;
-  }
-};
-// 重置过滤代码
-const handleResetFilterCode = () => {
-  filterConfig.value.code = DEFAULT_FILTER_CODE;
-};
-// 切换原始视图模式
-const toggleRawView = () => {
-  isRawView.value = !isRawView.value;
-  // 切换到原始视图时关闭 popover
-  if (isRawView.value) {
-    activePopoverIndex.value = -1;
-  }
-};
+const customFilteredDataFromChild = ref<unknown[]>([]);
 
-// 生成原始数据内容（计算属性）
+/*
+|--------------------------------------------------------------------------
+| 计算属性
+|--------------------------------------------------------------------------
+*/
+const isVirtualEnabled = computed(() => props.isDataComplete && activePopoverIndex.value === -1);
+const currentMessage = computed(() => activePopoverIndex.value !== -1 ? formattedData.value[activePopoverIndex.value] : null);
+const formattedData = computed(() => {
+  if (!props.dataList || props.dataList.length === 0) {
+    lastDataLength.value = 0;
+    incrementalData.value = [];
+    return [];
+  }
+  if (props.dataList.length === lastDataLength.value && incrementalData.value.length > 0) {
+    return incrementalData.value;
+  }
+  if (props.dataList.length > lastDataLength.value && lastDataLength.value > 0) {
+    const newChunks = props.dataList.slice(lastDataLength.value);
+    const newParsedData = parseChunkList(newChunks);
+    incrementalData.value = [...incrementalData.value, ...newParsedData];
+    lastDataLength.value = props.dataList.length;
+    return incrementalData.value;
+  }
+  const parsed = parseChunkList(props.dataList);
+  incrementalData.value = parsed;
+  lastDataLength.value = props.dataList.length;
+  return parsed;
+});
+const customFilteredData = computed(() => {
+  return customFilteredDataFromChild.value.length > 0 ? customFilteredDataFromChild.value : formattedData.value;
+});
+const filteredData = computed(() => {
+  const baseData = customFilteredData.value;
+  if (!filterText.value.trim()) {
+    return baseData;
+  }
+  try {
+    let regex: RegExp;
+    if (isRegexMode.value) {
+      const trimmedText = filterText.value.trim();
+      const regexMatch = trimmedText.match(/^\/(.+)\/([gimuy]*)$/);
+      if (regexMatch) {
+        regex = new RegExp(regexMatch[1], regexMatch[2]);
+      } else {
+        regex = new RegExp(trimmedText, 'gi');
+      }
+    } else {
+      const escapedText = filterText.value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      regex = new RegExp(escapedText, 'gi');
+    }
+    filterError.value = '';
+    return baseData
+      .map((item: any, index: number) => ({ ...item, originalIndex: index }))
+      .filter((item: any) => {
+        const content = (item.event || '') + ' ' + (item.data || '');
+        return regex.test(content);
+      });
+  } catch (error) {
+    filterError.value = `${t('正则表达式错误')}: ${error instanceof Error ? error.message : t('未知错误')}`;
+    return baseData;
+  }
+});
+const displayData = computed(() => filterText.value.trim() ? filteredData.value : customFilteredData.value.map((item: any, index: number) => ({ ...item, originalIndex: index })));
 const rawDataContent = computed(() => {
   if (!props.dataList || props.dataList.length === 0) {
     return '';
   }
-
   const lines: string[] = [];
-
-  // 遍历原始数据列表，直接输出原始数据块
   props.dataList.forEach((chunkData) => {
     if (chunkData.chunk && chunkData.chunk.byteLength > 0) {
-      // 将 Uint8Array 转换为字符串
       const textDecoder = new TextDecoder('utf-8');
       const chunkText = textDecoder.decode(chunkData.chunk);
       if (chunkText.trim()) {
@@ -203,45 +204,82 @@ const rawDataContent = computed(() => {
       }
     }
   });
-
   const rawContent = lines.join('');
-
-  // 如果有筛选条件，对原始内容进行高亮处理
   if (filterText.value.trim() && !filterError.value) {
     return highlightText(rawContent);
   }
-
   return rawContent;
 });
 
-// 切换搜索输入框显示状态
+/*
+|--------------------------------------------------------------------------
+| 函数方法 - 筛选相关
+|--------------------------------------------------------------------------
+*/
 const toggleSearchInput = () => {
   isSearchInputVisible.value = !isSearchInputVisible.value;
   if (isSearchInputVisible.value) {
-    // 显示输入框后自动聚焦
     nextTick(() => {
       filterInputRef.value?.focus();
     });
   } else {
-    // 隐藏输入框时清空筛选条件
     filterText.value = '';
     filterError.value = '';
   }
 };
-
-// 切换正则表达式模式
 const toggleRegexMode = () => {
   isRegexMode.value = !isRegexMode.value;
-  // 切换模式时重新应用筛选
   handleFilterChange();
 };
+const handleFilterChange = debounce(() => {
+  activePopoverIndex.value = -1;
+  filterError.value = '';
+}, 300);
+const highlightText = (text: string): string => {
+  if (!filterText.value.trim() || filterError.value) {
+    return text;
+  }
+  try {
+    let regex: RegExp;
+    if (isRegexMode.value) {
+      const trimmedText = filterText.value.trim();
+      const regexMatch = trimmedText.match(/^\/(.+)\/([gimuy]*)$/);
+      if (regexMatch) {
+        regex = new RegExp(regexMatch[1], regexMatch[2]);
+      } else {
+        regex = new RegExp(trimmedText, 'gi');
+      }
+    } else {
+      const escapedText = filterText.value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      regex = new RegExp(`(${escapedText})`, 'gi');
+    }
+    return text.replace(regex, '<mark class="highlight">$1</mark>');
+  } catch (error) {
+    return text;
+  }
+};
 
-// 下载SSE数据
+/*
+|--------------------------------------------------------------------------
+| 函数方法 - 视图切换相关
+|--------------------------------------------------------------------------
+*/
+const toggleRawView = () => {
+  isRawView.value = !isRawView.value;
+  if (isRawView.value) {
+    activePopoverIndex.value = -1;
+  }
+};
+
+/*
+|--------------------------------------------------------------------------
+| 函数方法 - 下载相关
+|--------------------------------------------------------------------------
+*/
 const downloadData = () => {
   if (!props.dataList || props.dataList.length === 0) {
     return;
   }
-
   try {
     const rawContent = generateRawContent();
     const timestamp = dayjs().format('YYYY-MM-DD_HH-mm-ss');
@@ -251,15 +289,10 @@ const downloadData = () => {
     console.error('下载失败:', error);
   }
 };
-
-// 生成原始返回数据内容
 const generateRawContent = (): string => {
   const lines: string[] = [];
-
-  // 遍历原始数据列表，直接输出原始数据块
   props.dataList.forEach((chunkData) => {
     if (chunkData.chunk && chunkData.chunk.byteLength > 0) {
-      // 将 Uint8Array 转换为字符串
       const textDecoder = new TextDecoder('utf-8');
       const chunkText = textDecoder.decode(chunkData.chunk);
       if (chunkText.trim()) {
@@ -267,154 +300,18 @@ const generateRawContent = (): string => {
       }
     }
   });
-
   return lines.join('');
 };
 
-// 处理筛选输入变化
-const handleFilterChange = debounce(() => {
-  activePopoverIndex.value = -1;
-  filterError.value = '';
-}, 300);
-// 执行自定义filter函数
-const executeFilterCode = (code: string, chunk: any): any => {
-  try {
-    // 使用Function构造器创建沙箱环境
-    const func = new Function('chunk', `
-      ${code}
-      return filter(chunk);
-    `);
-    return func(chunk);
-  } catch (error) {
-    console.error('Filter execution error:', error);
-    throw error;
-  }
-}
-// 高亮显示匹配的文本
-const highlightText = (text: string): string => {
-  if (!filterText.value.trim() || filterError.value) {
-    return text;
-  }
-
-  try {
-    let regex: RegExp;
-
-    if (isRegexMode.value) {
-      // 正则表达式模式
-      const trimmedText = filterText.value.trim();
-
-      // 检查是否是 /pattern/flags 格式
-      const regexMatch = trimmedText.match(/^\/(.+)\/([gimuy]*)$/);
-      if (regexMatch) {
-        regex = new RegExp(regexMatch[1], regexMatch[2]);
-      } else {
-        // 普通正则表达式字符串
-        regex = new RegExp(trimmedText, 'gi');
-      }
-    } else {
-      // 普通文本模式，转义特殊字符
-      const escapedText = filterText.value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-      regex = new RegExp(`(${escapedText})`, 'gi');
-    }
-
-    return text.replace(regex, '<mark class="highlight">$1</mark>');
-  } catch (error) {
-    // 正则表达式错误时不高亮
-    return text;
-  }
+const handleFilteredDataChange = (data: unknown[]) => {
+  customFilteredDataFromChild.value = data;
 };
-// 基于自定义函数过滤数据
-const customFilteredData = computed(() => {
-  // 如果未启用自定义过滤，直接返回原始数据
-  if (!filterConfig.value.enabled) {
-    filterConfigError.value = '';
-    return formattedData.value;
-  }
-
-  // 如果代码为空，返回原始数据
-  if (!filterConfig.value.code.trim()) {
-    filterConfigError.value = '';
-    return formattedData.value;
-  }
-
-  try {
-    const filtered = formattedData.value
-      .map(item => {
-        try {
-          const result = executeFilterCode(filterConfig.value.code, item);
-          // 如果返回null或undefined，过滤掉该条数据
-          return result;
-        } catch (error) {
-          // 单条数据执行错误时，返回原始数据
-          console.warn('Filter error for item:', error);
-          return item;
-        }
-      })
-      .filter(item => item !== null && item !== undefined);
-    
-    filterConfigError.value = '';
-    return filtered;
-  } catch (error) {
-    filterConfigError.value = error instanceof Error ? error.message : '过滤函数执行错误';
-    return formattedData.value;
-  }
-});
-
-// 筛选后的数据
-const filteredData = computed(() => {
-  const baseData = customFilteredData.value;
-  
-  if (!filterText.value.trim()) {
-    return baseData;
-  }
-  try {
-    let regex: RegExp;
-    if (isRegexMode.value) {
-      // 正则表达式模式
-      const trimmedText = filterText.value.trim();
-
-      // 检查是否是 /pattern/flags 格式
-      const regexMatch = trimmedText.match(/^\/(.+)\/([gimuy]*)$/);
-      if (regexMatch) {
-        regex = new RegExp(regexMatch[1], regexMatch[2]);
-      } else {
-        // 普通正则表达式字符串
-        regex = new RegExp(trimmedText, 'gi');
-      }
-    } else {
-      // 普通文本模式，大小写不敏感
-      const escapedText = filterText.value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-      regex = new RegExp(escapedText, 'gi');
-    }
-
-    // 清除错误状态
-    filterError.value = '';
-
-    return baseData
-      .map((item: any, index: number) => ({ ...item, originalIndex: index }))
-      .filter((item: any) => {
-        const content = (item.event || '') + ' ' + (item.data || '');
-        return regex.test(content);
-      });
-
-  } catch (error) {
-    // 正则表达式错误
-    filterError.value = `${t('正则表达式错误')}: ${error instanceof Error ? error.message : t('未知错误')}`;
-    return baseData;
-  }
-});
-
-// 最终显示的数据
-const displayData = computed(() => filterText.value.trim() ? filteredData.value : customFilteredData.value.map((item: any, index: number) => ({ ...item, originalIndex: index })));
 
 /*
 |--------------------------------------------------------------------------
-| Popover 相关
+| 函数方法 - Popover相关
 |--------------------------------------------------------------------------
 */
-const activePopoverIndex = ref<number>(-1);
-const messageRefs = ref<Record<number, HTMLElement>>({});
-const currentMessage = computed(() => activePopoverIndex.value !== -1 ? formattedData.value[activePopoverIndex.value] : null);
 const resolveMessageElement = (node: Element | ComponentPublicInstance | null): HTMLElement | null => {
   if (!node) {
     return null;
@@ -428,7 +325,6 @@ const resolveMessageElement = (node: Element | ComponentPublicInstance | null): 
   }
   return null;
 };
-
 const setMessageRef = (el: Element | ComponentPublicInstance | null, index: number) => {
   const element = resolveMessageElement(el);
   if (!element) {
@@ -443,39 +339,27 @@ const setMessageRef = (el: Element | ComponentPublicInstance | null, index: numb
     popoverVirtualRef.value = element;
   }
 };
-
-// 处理消息点击事件（添加防抖）
 const handleMessageClick = debounce((index: number, event: Event) => {
   event.stopPropagation();
-  // 如果点击的是同一条消息，保持 popover 打开状态
   if (activePopoverIndex.value === index) {
     return;
   }
-  // 切换到新的消息或打开 popover
   activePopoverIndex.value = index;
 }, 100);
-
-// 处理 popover 隐藏事件
 const handlePopoverHide = () => {
   activePopoverIndex.value = -1;
   popoverVirtualRef.value = null;
 };
-
-// 关闭 popover
 const handleClosePopover = () => {
   activePopoverIndex.value = -1;
   popoverVirtualRef.value = null;
 };
-
-// 处理点击外部区域关闭 popover
 const handleClickOutside = (event: Event) => {
   const target = event.target as HTMLElement;
   if (!target.closest('.sse-message') && !target.closest('.el-popover')) {
     activePopoverIndex.value = -1;
   }
 };
-
-// 处理全局 ESC 键关闭 popover
 const handleGlobalKeydown = (event: KeyboardEvent) => {
   if (event.key === 'Escape' && activePopoverIndex.value !== -1) {
     activePopoverIndex.value = -1;
@@ -483,67 +367,6 @@ const handleGlobalKeydown = (event: KeyboardEvent) => {
     event.stopPropagation();
   }
 };
-
-
-/*
-|--------------------------------------------------------------------------
-| sse数据处理
-|--------------------------------------------------------------------------
-*/
-
-// 性能优化：增量解析SSE数据
-const formattedData = computed(() => {
-  if (!props.dataList || props.dataList.length === 0) {
-    lastDataLength.value = 0;
-    incrementalData.value = [];
-    return [];
-  }
-
-  // 如果数据长度没有变化，直接返回缓存的结果
-  if (props.dataList.length === lastDataLength.value && incrementalData.value.length > 0) {
-    return incrementalData.value;
-  }
-
-  // 如果是新增数据，只解析新增部分
-  if (props.dataList.length > lastDataLength.value && lastDataLength.value > 0) {
-    const newChunks = props.dataList.slice(lastDataLength.value);
-    const newParsedData = parseChunkList(newChunks);
-    incrementalData.value = [...incrementalData.value, ...newParsedData];
-    lastDataLength.value = props.dataList.length;
-
-    return incrementalData.value;
-  }
-
-  // 完全重新解析（首次加载或数据重置）
-  const parsed = parseChunkList(props.dataList);
-  incrementalData.value = parsed;
-  lastDataLength.value = props.dataList.length;
-  return parsed;
-});
-
-// 格式化时间戳为毫秒显示
-const formatTimestamp = (timestamp: number): string => {
-  return dayjs(timestamp).format('HH:mm:ss');
-};
-
-// 清理函数
-const cleanup = () => {
-  // 清理 messageRefs 中超过限制的旧引用
-  const maxRefs = 1000; // 最多保留1000条消息的引用
-  const currentLength = Object.keys(messageRefs.value).length;
-  if (currentLength > maxRefs) {
-    const sortedKeys = Object.keys(messageRefs.value)
-      .map(Number)
-      .sort((a, b) => a - b);
-    const keysToDelete = sortedKeys.slice(0, currentLength - maxRefs);
-    keysToDelete.forEach(key => {
-      delete messageRefs.value[key];
-    });
-  }
-};
-// 定期清理
-const cleanupInterval = setInterval(cleanup, 30000); // 每30秒清理一次
-
 const syncPopoverRef = () => {
   if (activePopoverIndex.value === -1) {
     popoverVirtualRef.value = null;
@@ -555,49 +378,53 @@ const syncPopoverRef = () => {
   });
 };
 
+/*
+|--------------------------------------------------------------------------
+| 函数方法 - SSE数据处理
+|--------------------------------------------------------------------------
+*/
+const formatTimestamp = (timestamp: number): string => {
+  return dayjs(timestamp).format('HH:mm:ss');
+};
+const cleanup = () => {
+  const maxRefs = 1000;
+  const currentLength = Object.keys(messageRefs.value).length;
+  if (currentLength > maxRefs) {
+    const sortedKeys = Object.keys(messageRefs.value)
+      .map(Number)
+      .sort((a, b) => a - b);
+    const keysToDelete = sortedKeys.slice(0, currentLength - maxRefs);
+    keysToDelete.forEach(key => {
+      delete messageRefs.value[key];
+    });
+  }
+};
+const cleanupInterval = setInterval(cleanup, 30000);
+
+/*
+|--------------------------------------------------------------------------
+| 生命周期钩子
+|--------------------------------------------------------------------------
+*/
 watch(() => props.dataList.length, () => {
   if (activePopoverIndex.value === -1) {
     return;
   }
   syncPopoverRef();
 });
-
 watch(() => props.isDataComplete, () => {
   if (activePopoverIndex.value === -1) {
     return;
   }
   syncPopoverRef();
 });
-
 watch(activePopoverIndex, () => {
   syncPopoverRef();
 });
-
-watch(filterConfig, (newVal) => {
-  localStorage.setItem('sseFilterConfig', JSON.stringify(newVal));
-}, { deep: true });
-
 onMounted(() => {
   document.addEventListener('click', handleClickOutside);
   document.addEventListener('keydown', handleGlobalKeydown);
-  
-  // 从localStorage恢复过滤配置
-  const savedConfig = localStorage.getItem('sseFilterConfig');
-  if (savedConfig) {
-    try {
-      const parsed = JSON.parse(savedConfig);
-      // 确保有默认值
-      filterConfig.value = {
-        enabled: parsed.enabled ?? false,
-        code: parsed.code || DEFAULT_FILTER_CODE,
-      };
-    } catch {
-      // 忽略解析错误，使用默认值
-    }
-  }
-  originalFilterCode.value = filterConfig.value.code;
 });
-
 onBeforeUnmount(() => {
   document.removeEventListener('click', handleClickOutside);
   document.removeEventListener('keydown', handleGlobalKeydown);
@@ -692,41 +519,12 @@ onBeforeUnmount(() => {
         margin: 0 1px;
       }
 
-      .filter-badge-wrapper {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-          width: 23px;
-        height: 23px;
-      }
-
       .search-icon {
         width: 28px;
         height: 28px;
         color: var(--gray-700, #606266);
         cursor: pointer;
         transition: all 0.2s;
-
-        &:hover {
-          color: var(--primary, #409eff);
-          background-color: #efefef;
-        }
-
-        &.active {
-          color: var(--primary, #409eff);
-          background-color: var(--light, #ecf5ff);
-        }
-      }
-
-      .filter-icon {
-        width: 28px;
-        height: 28px;
-        color: var(--gray-700, #606266);
-        cursor: pointer;
-        transition: all 0.2s;
-        display: flex;
-        align-items: center;
-        justify-content: center;
 
         &:hover {
           color: var(--primary, #409eff);
@@ -1005,57 +803,11 @@ onBeforeUnmount(() => {
   }
 }
 
-// 高亮样式
 :deep(.highlight) {
   background-color: var(--gray-100, #fdf2d5);
   color: var(--orange, #b17a1a);
   font-weight: 600;
   padding: 1px 2px;
   border-radius: 2px;
-}
-
-// 过滤配置弹窗内容样式
-.filter-dialog-content {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  padding: 5px;
-
-  .editor-header {
-    display: flex;
-    align-items: center;
-    .header-left {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-
-      .switch-label {
-        font-size: 14px;
-        color: var(--gray-800, #303133);
-        font-weight: 500;
-        user-select: none;
-      }
-    }
-  }
-
-  .filter-description {
-    padding: 12px 0;
-  }
-
-  .editor-container {
-    width: 100%;
-    min-height: 300px;
-  }
-
-  .config-error {
-    margin-top: 8px;
-  }
-
-  .editor-hint {
-    padding: 8px 12px;
-    background-color: var(--info-light, #f4f4f5);
-    border-radius: 4px;
-    border-left: 3px solid var(--info, #909399);
-  }
 }
 </style>
