@@ -659,6 +659,19 @@ export const getFileNameFromContentDisposition = (contentDisposition: string) =>
  * 解析 SSE 数据块
  */
 const parseSseBlock = (block: string, timestamp?: number) => {
+  // 如果block为空，返回空消息
+  if (!block || !block.trim()) {
+    return {
+      id: "",
+      type: "",
+      data: '',
+      retry: 0,
+      timestamp: timestamp || Date.now(),
+      dataType: 'normal' as const,
+      rawBlock: block,
+    };
+  }
+
   const lines = block.split(/\r?\n/);
   const msg: ParsedSSeData = {
     id: "",
@@ -671,9 +684,26 @@ const parseSseBlock = (block: string, timestamp?: number) => {
   };
 
   for (let line of lines) {
-    if (line === '' || line.startsWith(':')) continue; // 空行或注释行忽略
-    const [field, ...rest] = line.split(':');
-    const value = rest.join(':').replace(/^ /, '');  // 去掉冒号后可能的空格
+    // 空行或注释行忽略
+    if (line === '' || line.startsWith(':')) continue;
+    
+    // SSE规范：冒号前的是字段名，冒号后的是值
+    const colonIndex = line.indexOf(':');
+    if (colonIndex === -1) {
+      // 如果没有冒号，整行作为字段名，值为空字符串
+      const field = line.trim();
+      if (field === 'data') {
+        msg.data += (msg.data ? '\n' : '');
+      }
+      continue;
+    }
+
+    const field = line.slice(0, colonIndex);
+    // 值部分：如果冒号后第一个字符是空格，则去掉这个空格（SSE规范）
+    let value = line.slice(colonIndex + 1);
+    if (value.startsWith(' ')) {
+      value = value.slice(1);
+    }
 
     switch (field) {
       case 'data':
@@ -688,7 +718,10 @@ const parseSseBlock = (block: string, timestamp?: number) => {
         break;
       case 'retry':
         const n = parseInt(value, 10);
-        if (!isNaN(n)) msg.retry = n;
+        if (!isNaN(n) && n >= 0) msg.retry = n;
+        break;
+      default:
+        // 忽略未知字段（符合SSE规范）
         break;
     }
   }
@@ -743,7 +776,10 @@ export const parseChunkList = (chunkList: ChunkWithTimestampe[]): ParsedSSeData[
 
   // 正常的文本解码模式
   let buffer = '';
+  let lastTimestamp = Date.now();
+  
   for (let streamChunk of chunkList) {
+    lastTimestamp = streamChunk.timestamp;
     buffer += decoder!.decode(streamChunk.chunk, { stream: true });
     let boundary: number;
     while ((boundary = buffer.indexOf('\n\n')) !== -1) {
@@ -753,12 +789,22 @@ export const parseChunkList = (chunkList: ChunkWithTimestampe[]): ParsedSSeData[
       parsedData.push(msg);
     }
   }
+  
+  // 刷新解码器，获取可能残留的数据
   buffer += decoder!.decode();
-  if (buffer.includes('\n\n')) {
-    // 对于最后的 buffer，使用最后一个 chunk 的时间戳（如果有的话）
-    const lastTimestamp = chunkList.length > 0 ? chunkList[chunkList.length - 1].timestamp : Date.now();
-    buffer.split(/\r?\n\r?\n/).forEach(block => {
-      if (block.trim()) parsedData.push(parseSseBlock(block, lastTimestamp));
+
+  // 处理最后剩余的buffer数据
+  if (buffer.trim()) {
+    // 检查是否有完整的消息（以\n\n分隔）
+    const blocks = buffer.split(/\r?\n\r?\n/);
+    
+    blocks.forEach((block) => {
+      const trimmedBlock = block.trim();
+      if (trimmedBlock) {
+        // 对于不完整的最后一块（没有\n\n结尾），也解析它
+        // 这样可以确保即使流未完成，也能看到部分数据
+        parsedData.push(parseSseBlock(trimmedBlock, lastTimestamp));
+      }
     });
   }
 

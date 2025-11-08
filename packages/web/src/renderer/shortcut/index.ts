@@ -57,7 +57,6 @@ class ShortcutManager {
       }
 
       if (matched) {
-        event.preventDefault();
         s.handler(event);
       }
     });
