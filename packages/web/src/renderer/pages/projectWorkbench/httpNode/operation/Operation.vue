@@ -34,6 +34,7 @@
         @input="handleChangeUrl"
         @blur="handleFormatUrl"
         @keyup.enter.stop="handleFormatUrl"
+        @paste="handlePaste"
       >
         <template #prepend>
           <div class="request-method">
@@ -140,6 +141,12 @@ const handleSaveApidoc = () => {
     apidocStore.saveApidoc();
   }
 }
+const handlePaste = (event: ClipboardEvent) => {
+  event.preventDefault();
+  const pastedText = event.clipboardData?.getData('text') || '';
+  const trimmedText = pastedText.trim();
+  requestPath.value = trimmedText;
+};
 const { loading3, handleSendRequest, handleStopRequest, handleFreshApidoc } = operationPart;
 //请求url、完整url
 const requestPath = computed<string>({
