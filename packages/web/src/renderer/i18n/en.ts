@@ -759,6 +759,8 @@ export default {
   // WebSocket撤销重做相关
   撤销: 'Undo',
   重做: 'Redo', 
+  撤回: 'Undo',
+  '已删除项目 "{name}"': 'Project "{name}" deleted',
   撤销上一步操作: 'Undo last operation',
   重做下一步操作: 'Redo next operation',
   没有可撤销的操作: 'No operations to undo',

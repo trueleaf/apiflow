@@ -969,6 +969,8 @@ export default {
   全局: '全局',
   全局公共头: '全局公共头',
   '确定要删除此项目吗?': '确定要删除此项目吗?',
+  撤回: '撤回',
+  '已删除项目 "{name}"': '已删除项目 "{name}"',
   '确定要删除该团队吗？': '确定要删除该团队吗？',
   '确定要删除选中的 ${selectedCookies.value.length} 个 Cookie 吗？': '确定要删除选中的 ${selectedCookies.value.length} 个 Cookie 吗？',
   '确定要删除这个 Cookie 吗？': '确定要删除这个 Cookie 吗？',

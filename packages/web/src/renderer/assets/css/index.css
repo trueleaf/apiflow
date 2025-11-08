@@ -19,7 +19,7 @@
   --green: #28a745;
   --teal: #20c997;
   /* 主题色 */
-  --theme-color: #409eff;
+  --theme-color: var(--el-color-primary);
   /* 提示色 */
   --primary: var(--el-color-primary);
   --secondary: var(--gray-600);

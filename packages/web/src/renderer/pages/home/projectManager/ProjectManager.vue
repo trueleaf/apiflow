@@ -284,6 +284,14 @@
     :project-name="currentEditProjectName" @success="handleEditSuccess"></EditProjectDialog>
   <EditPermissionDialog v-if="dialogVisible4" v-model="dialogVisible4" :project-id="currentEditProjectId"
     @leave="getProjectList"></EditPermissionDialog>
+  <UndoNotification
+    v-if="showUndoNotification"
+    :message="undoMessage"
+    :duration="60000"
+    :show-progress="true"
+    @undo="handleUndoDelete"
+    @close="handleCloseUndo"
+  />
 </template>
 
 <script lang="ts" setup>
@@ -308,8 +316,9 @@ import MatchedDocumentList from './components/MatchedDocumentList.vue'
 import AddProjectDialog from '../dialog/addProject/AddProject.vue'
 import EditProjectDialog from '../dialog/editProject/EditProject.vue'
 import EditPermissionDialog from '../dialog/editPermission/EditPermission.vue'
+import UndoNotification from '@/components/common/undoNotification/UndoNotification.vue'
 import { useI18n } from 'vue-i18n'
-import type { CommonResponse, ApidocProjectListInfo, ApidocProjectInfo, ProjectWithMatchDetails, MatchedFieldType } from '@src/types';
+import type { CommonResponse, ApidocProjectListInfo, ApidocProjectInfo, ProjectWithMatchDetails, MatchedFieldType, ApiNode } from '@src/types';
 import { MatchedFieldType as MatchedFieldTypeEnum } from '@src/types';
 import { computed, onMounted, ref, watch } from 'vue';
 import { request } from '@/api/api';
@@ -387,6 +396,14 @@ const searchLoading = ref(false);
 const starLoading = ref(false);
 const unStarLoading = ref(false);
 const expandedProjectIds = ref<Set<string>>(new Set());
+const showUndoNotification = ref(false);
+const undoMessage = ref('');
+interface DeletedProjectData {
+  project: ApidocProjectInfo
+  apiNodes: ApiNode[]
+}
+const deletedProjectData = ref<DeletedProjectData | null>(null);
+let deleteTimer: NodeJS.Timeout | null = null;
 //全选搜索范围
 const selectAllScopes = (): void => {
   selectedSearchScopes.value = [
@@ -497,10 +514,35 @@ const deleteProject = (_id: string) => {
     };
     if (isStandalone.value) {
       try {
+        const projectList = await projectCache.getProjectList();
+        const project = projectList.find((p) => p._id === _id);
+        if (!project) {
+          console.error('项目不存在');
+          return;
+        }
+        const apiNodes = await apiNodesCache.getNodeList();
+        const projectApiNodes = apiNodes.filter((node) => node.projectId === _id);
+        const clonedProject = JSON.parse(JSON.stringify(project)) as ApidocProjectInfo;
+        const clonedNodes: ApiNode[] = projectApiNodes.length > 0
+          ? (JSON.parse(JSON.stringify(projectApiNodes)) as ApiNode[])
+          : [];
+        deletedProjectData.value = {
+          project: clonedProject,
+          apiNodes: clonedNodes
+        };
         await projectCache.deleteProject(_id);
-        await cleanupMockLogs();
-        getProjectList();
+        await getProjectList();
         notifyProjectDeleted();
+        undoMessage.value = t('已删除项目 "{name}"', { name: project.projectName });
+        showUndoNotification.value = true;
+        if (deleteTimer) {
+          clearTimeout(deleteTimer);
+        }
+        deleteTimer = setTimeout(async () => {
+          await cleanupMockLogs();
+          deletedProjectData.value = null;
+          deleteTimer = null;
+        }, 60000);
       } catch (err) {
         console.error(err);
       }
@@ -519,6 +561,56 @@ const deleteProject = (_id: string) => {
     }
     console.error(err);
   });
+}
+//撤回删除
+const handleUndoDelete = async () => {
+  if (!deletedProjectData.value) {
+    return;
+  }
+  if (deleteTimer) {
+    clearTimeout(deleteTimer);
+    deleteTimer = null;
+  }
+  showUndoNotification.value = false;
+  try {
+    const projectId = deletedProjectData.value.project._id;
+    const restoredProject = JSON.parse(JSON.stringify(deletedProjectData.value.project)) as ApidocProjectInfo;
+    restoredProject.isDeleted = false;
+    const updateResult = await projectCache.updateProject(projectId, restoredProject);
+    if (!updateResult) {
+      await projectCache.addProject(restoredProject);
+    }
+    const savedNodes = deletedProjectData.value.apiNodes;
+    if (savedNodes && savedNodes.length > 0) {
+      const restorePromises = savedNodes.map((node) => {
+        const clonedNode = JSON.parse(JSON.stringify(node)) as ApiNode;
+        clonedNode.isDeleted = false;
+        return apiNodesCache.addNode(clonedNode);
+      });
+      await Promise.all(restorePromises);
+    }
+    deletedProjectData.value = null;
+    await getProjectList();
+  } catch (err) {
+    console.error('撤回删除失败:', err);
+  }
+}
+//关闭撤回通知
+const handleCloseUndo = async () => {
+  showUndoNotification.value = false;
+  if (deleteTimer) {
+    clearTimeout(deleteTimer);
+    deleteTimer = null;
+  }
+  if (deletedProjectData.value) {
+    const projectId = deletedProjectData.value.project._id;
+    try {
+      await httpMockLogsCache.clearLogsByProjectId(projectId);
+    } catch (err) {
+      console.error('清理Mock日志失败:', err);
+    }
+    deletedProjectData.value = null;
+  }
 }
 //收藏项目
 const handleStar = async (item: ApidocProjectInfo) => {
