@@ -5,6 +5,7 @@
         <span>{{ t("点击隐藏") }}</span>
       </span>
       <SParamsTree :drag="false" show-checkbox :data="defaultHeaders" no-add></SParamsTree>
+      <el-divider border-style="dashed" class="header-divider" />
     </div>
     <div v-else class="cursor-pointer no-select d-flex a-center" @click="hideDefaultHeader = false">
       <span>{{ defaultHeaders.length }}{{ t("个隐藏") }}</span>
@@ -187,6 +188,9 @@ const handleJumpToCommonHeaderConfigPage = ({ nodeId, name }: { nodeId?: string,
 
 <style lang='scss' scoped>
 .header-info {
+  .header-divider {
+    margin: 12px 0;
+  }
   .value-wrap {
     max-height: 140px;
     overflow-y: auto;

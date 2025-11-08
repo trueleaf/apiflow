@@ -43,6 +43,7 @@ import { ref, computed, defineAsyncComponent, onMounted } from 'vue'
 const CardComponent = defineAsyncComponent(() => import('@/components/ui/cleanDesign/card/demo/Card.vue'))
 const TabsComponent = defineAsyncComponent(() => import('@/components/ui/cleanDesign/tabs/demo/Tabs.vue'))
 const DraggableDialogComponent = defineAsyncComponent(() => import('@/components/ui/cleanDesign/draggableDialog/demo/DraggableDialog.vue'))
+const ClDialogComponent = defineAsyncComponent(() => import('@/components/ui/cleanDesign/clDialog/demo/ClDialog.vue'))
 
 // 搜索词
 const searchTerm = ref('')
@@ -59,14 +60,13 @@ const restoreSelectedComponent = () => {
     const cached = localStorage.getItem(CACHE_KEY)
     if (cached) {
       const cachedComponent = JSON.parse(cached)
-      // 验证缓存的组件是否仍然存在于当前组件列表中
       const foundComponent = components.value.find(comp => comp.name === cachedComponent.name)
       if (foundComponent) {
         selectedComponent.value = foundComponent
       }
     }
-  } catch (error) {
-    console.warn('恢复缓存的组件失败:', error)
+  } catch {
+    // 恢复缓存失败，忽略错误
   }
 }
 
@@ -78,8 +78,8 @@ const saveSelectedComponent = (component: any) => {
     } else {
       localStorage.removeItem(CACHE_KEY)
     }
-  } catch (error) {
-    console.warn('保存组件到缓存失败:', error)
+  } catch {
+    // 保存缓存失败，忽略错误
   }
 }
 
@@ -101,6 +101,12 @@ const components = ref([
     name: 'DraggableDialog',
     icon: 'iconfont iconanniu',
     description: '可拖拽弹窗组件，支持通过标题栏拖拽移动位置，Tailwind 极简风格',
+    category: '反馈组件'
+  },
+  {
+    name: 'ClDialog',
+    icon: 'iconfont iconanniu',
+    description: '基于 Element Plus 封装的对话框组件，支持亮色/暗色主题切换',
     category: '反馈组件'
   }
 ])
@@ -126,6 +132,8 @@ const getComponentByName = (name: string) => {
       return TabsComponent
     case 'draggabledialog':
       return DraggableDialogComponent
+    case 'cldialog':
+      return ClDialogComponent
     default:
       return null
   }
@@ -133,7 +141,6 @@ const getComponentByName = (name: string) => {
 
 // 查看组件详情
 const viewComponentDetails = (component: any) => {
-  console.log('查看组件详情:', component)
   selectedComponent.value = component
   saveSelectedComponent(component)
 }
