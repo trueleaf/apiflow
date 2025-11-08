@@ -40,6 +40,12 @@ declare module '@vue/runtime-dom' {
   }
 }
 
+// Worker 模块类型声明
+declare module '*?worker&inline' {
+  const WorkerFactory: new () => Worker
+  export default WorkerFactory
+}
+
 // JSX 命名空间声明
 declare global {
   namespace JSX {

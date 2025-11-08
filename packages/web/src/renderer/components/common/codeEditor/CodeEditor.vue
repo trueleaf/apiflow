@@ -8,7 +8,7 @@
 <script lang="ts" setup>
 import { ref, Ref, onMounted, onBeforeUnmount, onActivated, watch, computed } from 'vue'
 import beautify from 'js-beautify'
-import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
+import * as monaco from 'monaco-editor'
 import 'monaco-editor/esm/vs/basic-languages/javascript/javascript.contribution'
 import 'monaco-editor/esm/vs/basic-languages/typescript/typescript.contribution'
 import jsonWorker from 'monaco-editor/esm/vs/language/json/json.worker?worker&inline'

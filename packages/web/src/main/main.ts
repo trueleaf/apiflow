@@ -187,10 +187,7 @@ if (!gotTheLock) {
     };
     mainWindow.on('minimize', updateViewLayout);
     mainWindow.on('maximize', updateViewLayout);
-    mainWindow.on('unmaximize', () => {
-      updateViewLayout();
-      mainWindow.center(); // 窗口取消最大化时居中显示
-    });
+    mainWindow.on('unmaximize', updateViewLayout);
     mainWindow.on('restore', updateViewLayout);
     mainWindow.on('resize', () => {
       const windowBounds = mainWindow.getBounds();

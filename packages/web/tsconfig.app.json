@@ -34,9 +34,9 @@
     "./src/**/*.ts", 
     "./src/**/*.tsx", 
     "./src/**/*.vue", 
-    "src/vite-env.d.ts",
-    "src/types/auto-imports.d.ts",
-    "src/types/components.d.ts"
+    "./src/vite-env.d.ts",
+    "./src/types/auto-imports.d.ts",
+    "./src/types/components.d.ts"
   ],
   "exclude": [
     "./src/renderer/pages/share/testData.ts",
