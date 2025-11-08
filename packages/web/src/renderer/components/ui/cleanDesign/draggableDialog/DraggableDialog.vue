@@ -168,14 +168,14 @@ onBeforeUnmount(() => {
 .draggable-dialog {
   // 定义 CSS 变量（亮色模式默认值）
   --dialog-bg: #ffffff;
-  --dialog-header-bg: #f9f9f9;
+  --dialog-header-bg: #eee;
   --dialog-border: #e5e5e5;
   --dialog-title-color: #333333;
   --dialog-icon-color: #c0c4cc;
   --dialog-close-color: #909399;
   --dialog-close-hover-color: #606266;
   --dialog-close-hover-bg: rgba(0, 0, 0, 0.1);
-  --dialog-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+  --dialog-shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
 
   background: var(--dialog-bg);
   box-shadow: var(--dialog-shadow);

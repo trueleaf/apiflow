@@ -94,6 +94,8 @@ import SsePopover from './components/popover/SsePopover.vue';
 import FilterConfigDialog from './components/filter/FilterConfigDialog.vue';
 import { Loading, Search, Download, Document } from '@element-plus/icons-vue';
 import { useI18n } from 'vue-i18n';
+import { useApidocTas } from '@/store/share/tabsStore';
+import { router } from '@/router';
 
 /*
 |--------------------------------------------------------------------------
@@ -111,6 +113,7 @@ const props = withDefaults(defineProps<{ dataList: ChunkWithTimestampe[]; virtua
 |--------------------------------------------------------------------------
 */
 const { t } = useI18n();
+const apidocTabsStore = useApidocTas();
 const sseViewContainerRef = ref<HTMLElement | null>(null);
 const lastDataLength = ref(0);
 const incrementalData = ref<any[]>([]);
@@ -156,7 +159,10 @@ const formattedData = computed(() => {
   return parsed;
 });
 const customFilteredData = computed(() => {
-  return customFilteredDataFromChild.value.length > 0 ? customFilteredDataFromChild.value : formattedData.value;
+  if (customFilteredDataFromChild.value.length === 0) {
+    return formattedData.value;
+  }
+  return processFilteredData(customFilteredDataFromChild.value);
 });
 const filteredData = computed(() => {
   const baseData = customFilteredData.value;
@@ -210,6 +216,36 @@ const rawDataContent = computed(() => {
   }
   return rawContent;
 });
+
+/*
+|--------------------------------------------------------------------------
+| 函数方法 - 数据处理
+|--------------------------------------------------------------------------
+*/
+const processFilteredData = (data: unknown[]): any[] => {
+  return data.map((item) => {
+    let processedData: string;
+    if (typeof item === 'string') {
+      processedData = item;
+    } else {
+      try {
+        processedData = JSON.stringify(item);
+      } catch (error) {
+        processedData = '[Invalid Data]';
+      }
+    }
+    return {
+      id: '',
+      type: '',
+      retry: 0,
+      data: processedData,
+      event: '',
+      timestamp: Date.now(),
+      dataType: 'normal',
+      rawBlock: '',
+    };
+  });
+};
 
 /*
 |--------------------------------------------------------------------------
@@ -421,6 +457,15 @@ watch(() => props.isDataComplete, () => {
 watch(activePopoverIndex, () => {
   syncPopoverRef();
 });
+watch(() => apidocTabsStore.currentSelectTab?._id, () => {
+  isFilterDialogVisible.value = false;
+});
+watch(() => router.currentRoute.value.query.id, () => {
+  isFilterDialogVisible.value = false;
+});
+watch(() => router.currentRoute.value.path, () => {
+  isFilterDialogVisible.value = false;
+});
 onMounted(() => {
   document.addEventListener('click', handleClickOutside);
   document.addEventListener('keydown', handleGlobalKeydown);
@@ -429,6 +474,7 @@ onBeforeUnmount(() => {
   document.removeEventListener('click', handleClickOutside);
   document.removeEventListener('keydown', handleGlobalKeydown);
   clearInterval(cleanupInterval);
+  isFilterDialogVisible.value = false;
 });
 </script>
 

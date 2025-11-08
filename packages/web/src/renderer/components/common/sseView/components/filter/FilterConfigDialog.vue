@@ -44,7 +44,17 @@ import CodeEditor from '@/components/common/codeEditor/CodeEditor.vue';
 import { Filter } from 'lucide-vue-next';
 import { useI18n } from 'vue-i18n';
 
-const DEFAULT_FILTER_CODE = `function filter(chunk) {\n  // chunk格式: { event: string, data: string, timestamp: number }\n  // 返回处理后的chunk或null（过滤掉该条数据）\n  return chunk;\n}`;
+const DEFAULT_FILTER_CODE = `function filter(chunk) {
+  // chunk代表当前行的原始数据，例如：{ event: string, data: string, timestamp: number }
+  // 如果返回null(falsly)则代表什么都不处理
+  // 返回什么代表最后显示什么
+  try {
+    const json = JSON.parse(chunk.data);
+    return json.message;
+  } catch {
+    return null;
+  }
+}`;
 
 const props = withDefaults(defineProps<{
   modelValue: boolean;
@@ -86,11 +96,11 @@ const executeFilterCode = (code: string, chunk: unknown): unknown => {
 const customFilteredData = computed(() => {
   if (!localFilterConfig.value.enabled) {
     localFilterConfigError.value = '';
-    return props.sourceData;
+    return [];
   }
   if (!localFilterConfig.value.code.trim()) {
     localFilterConfigError.value = '';
-    return props.sourceData;
+    return [];
   }
   try {
     const filtered = props.sourceData
@@ -107,7 +117,7 @@ const customFilteredData = computed(() => {
     return filtered;
   } catch (error) {
     localFilterConfigError.value = error instanceof Error ? error.message : '过滤函数执行错误';
-    return props.sourceData;
+    return [];
   }
 });
 watch(isDialogVisible, (newVal) => {

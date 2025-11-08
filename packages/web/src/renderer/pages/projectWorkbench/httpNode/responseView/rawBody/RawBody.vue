@@ -70,7 +70,7 @@ onMounted(() => {
 <style lang='scss' scoped>
 .raw-body {
   width: 100%;
-  height: calc(100vh - 400px);
+  height: calc(100% - 20px);
   overflow: hidden;
   &.vertical {
     height: 100%;
