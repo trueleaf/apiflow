@@ -457,7 +457,7 @@ test.describe('Banner 组件 - 离线工作台', () => {
       }
     });
 
-    
+
 
     test('复制时剪贴板应包含正确数据格式', async ({ }) => {
       await createNodes(contentPage, { name: '剪贴板测试', type: 'http' });
@@ -1085,8 +1085,8 @@ test.describe('Banner 组件 - 离线工作台', () => {
   // ==================== 测试组9: 右键菜单功能 ====================
   test.describe('右键菜单功能', () => {
     test('单节点右键应显示完整菜单', async ({ }) => {
-      await createNodes(contentPage, { name: '右键测试节点', type: 'http' }); 
-      
+      await createNodes(contentPage, { name: '右键测试节点', type: 'http' });
+
       const node = contentPage.locator('.banner .custom-tree-node').filter({ hasText: '右键测试节点' }).first();
       await node.click({ button: 'right' });
       await contentPage.waitForTimeout(300);
@@ -1102,7 +1102,7 @@ test.describe('Banner 组件 - 离线工作台', () => {
       // 验证包含核心菜单项：剪切、复制、生成副本、重命名、删除
       const hasBasicItems = /剪切|复制|生成副本|重命名|删除/i.test(fullMenuText);
       expect(hasBasicItems).toBe(true);
-      
+
       // 验证菜单项数量合理（单节点应该有多个选项）
       const menuItems = await menuContainer.locator('> *').count();
       expect(menuItems).toBeGreaterThan(3);
@@ -1286,7 +1286,7 @@ test.describe('Banner 组件 - 离线工作台', () => {
       // 创建一个文件夹用于粘贴目标
       await createNodes(contentPage, { name: '目标文件夹', type: 'folder' });
       await createNodes(contentPage, { name: 'Ctrl+V测试', type: 'http' });
-      
+
       // 先复制节点
       const node = contentPage.locator('.banner .custom-tree-node').filter({ hasText: 'Ctrl+V测试' }).first();
       await node.click();
@@ -1772,7 +1772,7 @@ test.describe('Banner 组件 - 离线工作台', () => {
       // 验证最后一个节点的Tab处于激活状态
       const activeTab = contentPage.locator('.nav .tab-list .item.active');
       await expect(activeTab).toBeVisible();
-      
+
       // 验证激活的Tab包含最后打开的节点名称
       const activeTabText = await activeTab.textContent();
       expect(activeTabText).toContain('覆盖测试');
@@ -2437,18 +2437,10 @@ test.describe('Banner 组件 - 离线工作台', () => {
       const node = contentPage.locator('.banner .custom-tree-node').filter({ hasText: /测试.*节点/ }).first();
       await expect(node).toBeVisible();
     });
-
-    test('网络断开时应显示离线提示', async ({ }) => {
-      // 网络状态 mock 较为复杂,标记为 skip
-    });
-
-    test('IndexedDB 读取失败应显示错误提示', async ({ }) => {
-      // IndexedDB 失败场景 mock 较为复杂,标记为 skip
-    });
   });
 
-  // ==================== 测试组: P0 核心拖拽功能增强 ====================
-  test.describe('P0核心拖拽功能', () => {
+  // ==================== 测试组: 21 核心拖拽功能增强 ====================
+  test.describe('核心拖拽功能', () => {
 
     test('文件节点在根节点间拖拽排序（before）', async ({ }) => {
       // 创建3个HTTP节点
@@ -2634,11 +2626,6 @@ test.describe('Banner 组件 - 离线工作台', () => {
         expect(afterData.updatedAt).toBeGreaterThanOrEqual(beforeData.updatedAt);
       }
     });
-  });
-
-  // ==================== 测试组: P1 重要场景 ====================
-  test.describe('P1重要场景测试', () => {
-
     test('跨文件夹拖拽：从文件夹A拖到文件夹B', async ({ }) => {
       // 创建两个文件夹
       await createNodes(contentPage, [
@@ -2834,11 +2821,6 @@ test.describe('Banner 组件 - 离线工作台', () => {
         expect(index3After).toBeLessThan(index1After);
       }
     });
-  });
-
-  // ==================== 测试组: P2 边缘情况 ====================
-  test.describe('P2边缘情况测试', () => {
-
     test('Sort值精度测试：连续10次插入同一位置', async ({ }) => {
       // 创建两个基准节点
       await createNodes(contentPage, [
@@ -2968,5 +2950,4 @@ test.describe('Banner 组件 - 离线工作台', () => {
       }
     });
   });
-
 });
