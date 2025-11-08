@@ -24,8 +24,8 @@ class WebSocketTemplateCache {
     }
   }
 
-    // 保存消息模板
-  saveTemplate(template: WebsocketSendMessageTemplate): void {
+    // 添加消息模板
+  addTemplate(template: WebsocketSendMessageTemplate): void {
     try {
       const templates = this.getAllTemplates();
       templates.push(template);

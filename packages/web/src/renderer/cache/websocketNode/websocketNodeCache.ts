@@ -84,7 +84,7 @@ class WebSocketNodeCache {
   /*
    * 删除不发送的公共请求头
    */
-  removeWsIgnoredCommonHeader(options: { projectId: string; tabId: string; ignoreHeaderId: string }) {
+  deleteWsIgnoredCommonHeader(options: { projectId: string; tabId: string; ignoreHeaderId: string }) {
     try {
       const { projectId, tabId, ignoreHeaderId } = options;
       const localData = JSON.parse(localStorage.getItem('websocketNode/commonHeaders/ignore') || '{}') as Record<string, Record<string, string[]>>;
