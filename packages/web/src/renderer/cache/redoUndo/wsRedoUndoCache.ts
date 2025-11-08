@@ -1,7 +1,7 @@
 import type {
   WsRedoUnDoOperation
 } from "@src/types/redoUndo/wsRedoUndo";
-import { logger } from '@/utils/logger';
+import { logger } from '@/helper';
 
 /**
  * WebSocket RedoUndo缓存管理类

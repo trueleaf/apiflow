@@ -1,6 +1,6 @@
 import type { Config } from '@src/types/config';
 import { mainConfig } from '@src/config/mainConfig';
-import { logger } from '@/utils/logger';
+import { logger } from '@/helper';
 
 type AiConfig = Config['mainConfig']['aiConfig'];
 

@@ -1,5 +1,5 @@
 import type { WebsocketSendMessageTemplate } from '@src/types/websocketNode';
-import { logger } from '@/utils/logger';
+import { logger } from '@/helper';
 
 /**
  * WebSocket消息模板缓存管理类

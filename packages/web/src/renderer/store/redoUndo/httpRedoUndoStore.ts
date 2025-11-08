@@ -8,7 +8,7 @@ import type { HttpNode } from "@src/types/httpNode";
 import { useApidoc } from "@/store/share/apidocStore";
 import { cloneDeep } from "lodash-es";
 import { httpRedoUndoCache } from "@/cache";
-import { logger } from '@/utils/logger';
+import { logger } from '@/helper';
 
 // 自定义响应类型用于撤销重做操作
 type RedoUndoResponse = {

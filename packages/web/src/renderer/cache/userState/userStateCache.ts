@@ -1,6 +1,6 @@
 import type { WebsocketActiveTabType } from '@src/types/websocketNode';
 import type { MockNodeActiveTabType } from '@src/types/mockNode';
-import { logger } from '@/utils/logger';
+import { logger } from '@/helper';
 
 class UserState {
   // 获取首页激活的tab（项目列表/团队管理）

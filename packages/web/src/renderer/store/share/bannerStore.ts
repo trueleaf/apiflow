@@ -5,7 +5,7 @@ import { ApidocBanner, ApidocBannerOfWebsocketNode, ApidocBannerOfHttpNode, Apid
 import { defineStore } from "pinia";
 import { ref } from "vue";
 import { useRuntime } from '../runtime/runtimeStore';
-import { logger } from '@/utils/logger';
+import { logger } from '@/helper';
 
 type SplicePayload = {
   opData?: ApidocBanner[],

@@ -1,7 +1,7 @@
 import type {
   HttpRedoUnDoOperation
 } from "@src/types/redoUndo/httpRedoUndo";
-import { logger } from '@/utils/logger';
+import { logger } from '@/helper';
 
 /**
  * HTTP RedoUndo缓存管理类

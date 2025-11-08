@@ -3,7 +3,7 @@ import { WebSocketHistory } from '@src/types/history/wsHistory';
 import { WebSocketNode } from '@src/types/websocketNode';
 import { config } from '@src/config/config';
 import { nanoid } from 'nanoid/non-secure';
-import { logger } from '@/utils/logger';
+import { logger } from '@/helper';
 
 type WebSocketHistoryCacheData = {
   _id: string; // 历史记录唯一ID作为主键

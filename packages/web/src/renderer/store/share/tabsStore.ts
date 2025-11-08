@@ -11,7 +11,7 @@ import { httpNodeCache } from "@/cache/httpNode/httpNodeCache.ts";
 import { workbenchCache } from "@/cache/workbench/workbenchCache.ts";
 import { request } from '@/api/api';
 import { useApidocBanner } from "./bannerStore";
-import { logger } from '@/utils/logger';
+import { logger } from '@/helper';
 
 
 type EditTabPayload<K extends keyof ApidocTab> = {

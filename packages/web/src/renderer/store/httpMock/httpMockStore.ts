@@ -11,7 +11,7 @@ import { useApidocTas } from "../share/tabsStore.ts";
 import { router } from "@/router/index.ts";
 import { useApidocBanner } from "../share/bannerStore.ts";
 import { useRuntime } from '@/store/runtime/runtimeStore';
-import { logger } from '@/utils/logger';
+import { logger } from '@/helper';
 
 
 export const useHttpMock = defineStore('httpMock', () => {

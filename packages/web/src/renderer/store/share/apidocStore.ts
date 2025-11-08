@@ -30,7 +30,7 @@ import { config } from "@src/config/config.ts"
 import { apiNodesCache } from "@/cache/index";
 import { useRuntime } from '../runtime/runtimeStore';
 import { httpNodeHistoryCache } from "@/cache/httpNode/httpNodeHistoryCache";
-import { logger } from '@/utils/logger';
+import { logger } from '@/helper';
 
 
 type EditApidocPropertyPayload<K extends keyof ApidocProperty> = {
