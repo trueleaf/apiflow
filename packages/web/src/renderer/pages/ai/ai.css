@@ -166,10 +166,6 @@
 }
 
 .ai-dialog-footer {
-  padding: 10px 16px;
-  border-top: 1px solid #d1d5db;
-  /* background: #f3f3f3; */
-  flex-shrink: 0;
 }
 
 .ai-input-wrapper {
@@ -183,13 +179,14 @@
   padding: 10px 12px;
   padding-bottom: 56px;
   background: #f3f3f3;
-  border: 1px solid #d4d4d4;
-  border-radius: 6px;
+  border: none;
+  border-top: 1px solid #d4d4d4;
+  /* border: 1px solid #d4d4d4; */
   color: #111827;
   font-size: 13px;
   font-family: inherit;
   line-height: 1.5;
-  resize: vertical;
+  resize: none;
   background: #ffffff;
   transition: border-color 0.2s, background-color 0.2s;
 }
@@ -200,16 +197,15 @@
 
 .ai-input:focus {
   outline: none;
-  border-color: #0078d4;
+  /* border-color: #0078d4; */
 }
 
 .ai-input-controls {
   position: absolute;
   left: 16px;
-  bottom: 16px;
+  bottom: 10px;
   display: flex;
   align-items: center;
-  gap: 8px;
 }
 
 .ai-input-toolbar {
@@ -230,18 +226,17 @@
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  border: 1px solid #d4d4d4;
-  background: #f3f3f3;
+  border: 1px solid #fff;
+  background: #ffffff;
   color: #1f2937;
-  border-radius: 5px;
+  border-radius: 3px;
   font-size: 12px;
   cursor: pointer;
   transition: background-color 0.2s, color 0.2s, border-color 0.2s;
 }
 
 .ai-input-trigger:hover {
-  background: #e6e6e6;
-  border-color: #c8c8c8;
+  background: #f8f8f8;
 }
 
 .ai-dropdown {
@@ -250,9 +245,9 @@
   left: 0;
   min-width: 132px;
   padding: 6px;
-  background: #f3f3f3;
+  background: #ffffff;
   border-radius: 2px;
-  border: 1px solid #d4d4d4;
+  border: 1px solid #f2f2f2;
   box-shadow: 0 12px 24px rgba(15, 23, 42, 0.16);
   display: flex;
   flex-direction: column;
@@ -269,14 +264,23 @@
   background: transparent;
   border: none;
   border-radius: 2px;
-  color: #1f2937;
+  color: var(--gray-700);
   font-size: 12px;
   cursor: pointer;
   transition: background-color 0.2s;
 }
 
+.ai-dropdown-icon {
+  width: 16px;
+  height: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
 .ai-dropdown-item:hover {
-  background: #e6f2fb;
+  background: #f3f3f3;
 }
 
 .ai-send-btn {
@@ -377,7 +381,7 @@
 
 
 [data-theme="dark"] .ai-dropdown {
-  background: #2a2a2a;
+  background: #2d2d2d;
   border: 1px solid #3d3d3d;
   box-shadow: 0 12px 24px rgba(0, 0, 0, 0.45);
 }

@@ -20,6 +20,7 @@
             class="ai-input"
             :placeholder="t('输入消息...')"
             @keydown="handleKeydown"
+            @focus="handleInputFocus"
           ></textarea>
           <div class="ai-input-controls">
             <div class="ai-input-trigger-group">
@@ -39,8 +40,10 @@
                   class="ai-dropdown-item"
                   @click="handleSelectMode(item)"
                 >
-                  <Check v-if="mode === item" :size="14" />
-                  <span>{{ t(modeLabelMap[item]) }}</span>
+                  <span class="ai-dropdown-icon">
+                    <Check v-if="mode === item" :size="14" />
+                  </span>
+                  <span class="ai-dropdown-label">{{ t(modeLabelMap[item]) }}</span>
                 </button>
               </div>
             </div>
@@ -61,8 +64,10 @@
                   class="ai-dropdown-item"
                   @click="handleSelectModel(item)"
                 >
-                  <Check v-if="model === item" :size="14" />
-                  <span>{{ t(modelLabelMap[item]) }}</span>
+                  <span class="ai-dropdown-icon">
+                    <Check v-if="model === item" :size="14" />
+                  </span>
+                  <span class="ai-dropdown-label">{{ t(modelLabelMap[item]) }}</span>
                 </button>
               </div>
             </div>
@@ -322,6 +327,10 @@ const handleKeydown = (event: KeyboardEvent) => {
 const handleSend = () => {
   if (!inputMessage.value.trim()) return
   inputMessage.value = ''
+}
+const handleInputFocus = () => {
+  isModeMenuVisible.value = false
+  isModelMenuVisible.value = false
 }
 const handleClickOutside = (event: MouseEvent) => {
   if (!inputWrapperRef.value) return
