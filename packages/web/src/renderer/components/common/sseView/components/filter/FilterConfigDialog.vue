@@ -50,7 +50,7 @@ const DEFAULT_FILTER_CODE = `function filter(chunk) {
   // 返回什么代表最后显示什么
   try {
     const json = JSON.parse(chunk.data);
-    return json.message;
+    return json.choices[0]?.delta?.content;
   } catch {
     return null;
   }

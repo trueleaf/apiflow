@@ -88,7 +88,7 @@ import { computed, ref, onMounted, onBeforeUnmount, nextTick, watch } from 'vue'
 import type { ComponentPublicInstance } from 'vue';
 
 import dayjs from 'dayjs';
-import type { ChunkWithTimestampe } from '@src/types/index.ts';
+import type { ChunkWithTimestampe, ParsedSSeData } from '@src/types/index.ts';
 import GVirtualScroll from '@/components/apidoc/virtualScroll/ClVirtualScroll.vue';
 import SsePopover from './components/popover/SsePopover.vue';
 import FilterConfigDialog from './components/filter/FilterConfigDialog.vue';
@@ -116,7 +116,8 @@ const { t } = useI18n();
 const apidocTabsStore = useApidocTas();
 const sseViewContainerRef = ref<HTMLElement | null>(null);
 const lastDataLength = ref(0);
-const incrementalData = ref<any[]>([]);
+const lastDataSignature = ref('');
+const incrementalData = ref<ParsedSSeData[]>([]);
 const filterText = ref('');
 const isRegexMode = ref(false);
 const filterError = ref('');
@@ -130,44 +131,66 @@ const messageRefs = ref<Record<number, HTMLElement>>({});
 const isFilterDialogVisible = ref(false);
 const customFilteredDataFromChild = ref<unknown[]>([]);
 
+type SseDisplayItem = ParsedSSeData & { originalIndex: number };
+
 /*
 |--------------------------------------------------------------------------
 | 计算属性
 |--------------------------------------------------------------------------
 */
 const isVirtualEnabled = computed(() => props.isDataComplete && activePopoverIndex.value === -1);
-const currentMessage = computed(() => activePopoverIndex.value !== -1 ? formattedData.value[activePopoverIndex.value] : null);
-const formattedData = computed(() => {
+const currentMessage = computed<ParsedSSeData | null>(() => activePopoverIndex.value !== -1 ? formattedData.value[activePopoverIndex.value] : null);
+const formattedData = computed<ParsedSSeData[]>(() => {
   if (!props.dataList || props.dataList.length === 0) {
     lastDataLength.value = 0;
+    lastDataSignature.value = '';
     incrementalData.value = [];
+    resetPopoverState();
+    messageRefs.value = {};
     return [];
   }
-  if (props.dataList.length === lastDataLength.value && incrementalData.value.length > 0) {
+  const currentSignature = buildChunkSignature(props.dataList);
+  const isLengthIncreased = props.dataList.length > lastDataLength.value;
+  const shouldReuseCache = !isLengthIncreased && currentSignature === lastDataSignature.value && incrementalData.value.length > 0;
+  if (shouldReuseCache) {
     return incrementalData.value;
   }
-  if (props.dataList.length > lastDataLength.value && lastDataLength.value > 0) {
+  if (isLengthIncreased && lastDataLength.value > 0 && lastDataSignature.value) {
+    const [previousFirstKey] = lastDataSignature.value.split('|');
+    if (previousFirstKey && currentSignature.startsWith(previousFirstKey)) {
+      const newChunks = props.dataList.slice(lastDataLength.value);
+      const newParsedData = parseChunkList(newChunks);
+      incrementalData.value = [...incrementalData.value, ...newParsedData];
+    } else {
+      const parsed = parseChunkList(props.dataList);
+      incrementalData.value = parsed;
+      cleanupAfterDataReset();
+    }
+  } else {
     const newChunks = props.dataList.slice(lastDataLength.value);
-    const newParsedData = parseChunkList(newChunks);
-    incrementalData.value = [...incrementalData.value, ...newParsedData];
-    lastDataLength.value = props.dataList.length;
-    return incrementalData.value;
+    if (isLengthIncreased && newChunks.length > 0) {
+      const newParsedData = parseChunkList(newChunks);
+      incrementalData.value = [...incrementalData.value, ...newParsedData];
+    } else {
+      const parsed = parseChunkList(props.dataList);
+      incrementalData.value = parsed;
+      cleanupAfterDataReset();
+    }
   }
-  const parsed = parseChunkList(props.dataList);
-  incrementalData.value = parsed;
   lastDataLength.value = props.dataList.length;
-  return parsed;
+  lastDataSignature.value = currentSignature;
+  return incrementalData.value;
 });
-const customFilteredData = computed(() => {
+const customFilteredData = computed<ParsedSSeData[]>(() => {
   if (customFilteredDataFromChild.value.length === 0) {
     return formattedData.value;
   }
   return processFilteredData(customFilteredDataFromChild.value);
 });
-const filteredData = computed(() => {
+const filteredData = computed<SseDisplayItem[]>(() => {
   const baseData = customFilteredData.value;
   if (!filterText.value.trim()) {
-    return baseData;
+    return baseData.map((item, index) => ({ ...item, originalIndex: index }));
   }
   try {
     let regex: RegExp;
@@ -184,18 +207,22 @@ const filteredData = computed(() => {
       regex = new RegExp(escapedText, 'gi');
     }
     filterError.value = '';
-    return baseData
-      .map((item: any, index: number) => ({ ...item, originalIndex: index }))
-      .filter((item: any) => {
-        const content = (item.event || '') + ' ' + (item.data || '');
-        return regex.test(content);
-      });
+    const mappedData: SseDisplayItem[] = baseData.map((item, index) => ({ ...item, originalIndex: index }));
+    return mappedData.filter(item => {
+      const content = (item.event || '') + ' ' + (item.data || '');
+      return regex.test(content);
+    });
   } catch (error) {
     filterError.value = `${t('正则表达式错误')}: ${error instanceof Error ? error.message : t('未知错误')}`;
-    return baseData;
+    return baseData.map((item, index) => ({ ...item, originalIndex: index }));
   }
 });
-const displayData = computed(() => filterText.value.trim() ? filteredData.value : customFilteredData.value.map((item: any, index: number) => ({ ...item, originalIndex: index })));
+const displayData = computed<SseDisplayItem[]>(() => {
+  if (filterText.value.trim()) {
+    return filteredData.value;
+  }
+  return customFilteredData.value.map((item, index) => ({ ...item, originalIndex: index }));
+});
 const rawDataContent = computed(() => {
   if (!props.dataList || props.dataList.length === 0) {
     return '';
@@ -222,7 +249,7 @@ const rawDataContent = computed(() => {
 | 函数方法 - 数据处理
 |--------------------------------------------------------------------------
 */
-const processFilteredData = (data: unknown[]): any[] => {
+const processFilteredData = (data: unknown[]): ParsedSSeData[] => {
   return data.map((item) => {
     let processedData: string;
     if (typeof item === 'string') {
@@ -436,6 +463,25 @@ const cleanup = () => {
   }
 };
 const cleanupInterval = setInterval(cleanup, 30000);
+
+const buildChunkSignature = (chunkList: ChunkWithTimestampe[]): string => {
+  if (!chunkList || chunkList.length === 0) {
+    return '';
+  }
+  const firstItem = chunkList[0];
+  const lastItem = chunkList[chunkList.length - 1];
+  const firstKey = `${firstItem.timestamp}-${firstItem.chunk.byteLength}`;
+  const lastKey = `${lastItem.timestamp}-${lastItem.chunk.byteLength}`;
+  return `${firstKey}|${lastKey}|${chunkList.length}`;
+};
+const resetPopoverState = () => {
+  activePopoverIndex.value = -1;
+  popoverVirtualRef.value = null;
+};
+const cleanupAfterDataReset = () => {
+  resetPopoverState();
+  messageRefs.value = {};
+};
 
 /*
 |--------------------------------------------------------------------------
