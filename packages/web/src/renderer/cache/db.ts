@@ -20,7 +20,6 @@ export async function initStandaloneDB(): Promise<IDBPDatabase> {
         }
         if (!db.objectStoreNames.contains('httpNodeList')) {
           const httpNodeListStore = db.createObjectStore('httpNodeList');
-          // 添加 projectId 索引以优化按项目查询
           httpNodeListStore.createIndex('projectId', 'projectId', { unique: false });
         }
         if (!db.objectStoreNames.contains('commonHeaders')) {
@@ -31,7 +30,6 @@ export async function initStandaloneDB(): Promise<IDBPDatabase> {
         }
         if (!db.objectStoreNames.contains('variables')) {
           const variablesStore = db.createObjectStore('variables');
-          // 添加 projectId 索引以优化按项目查询变量
           variablesStore.createIndex('projectId', 'projectId', { unique: false });
         }
       },

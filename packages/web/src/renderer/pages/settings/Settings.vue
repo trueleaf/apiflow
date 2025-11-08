@@ -35,6 +35,7 @@
       <div class="content-area">
         <CommonSettings v-if="activeTab === 'common-settings'" />
         <CacheManagement v-if="activeTab === 'local-data'" />
+        <ProjectRecovery v-if="activeTab === 'project-recovery'" />
         <ComponentLibrary v-if="activeTab === 'components'" />
         <AiSettings v-if="activeTab === 'ai-settings'" />
       </div>
@@ -49,7 +50,8 @@ import CacheManagement from './cacheManager/CacheManagement.vue'
 import CommonSettings from './commonSettings/CommonSettings.vue'
 import ComponentLibrary from './componentLibrary/ComponentLibrary.vue'
 import AiSettings from './aiSettings/AiSettings.vue'
-import { UserCircle, HardDrive, Command, Box, BrainCircuit } from 'lucide-vue-next'
+import ProjectRecovery from './projectRecovery/ProjectRecovery.vue'
+import { UserCircle, HardDrive, Command, Box, BrainCircuit, Trash2 } from 'lucide-vue-next'
 
 type TabItem = {
   name: string
@@ -60,7 +62,8 @@ type TabItem = {
 const activeTab = ref(userState.getActiveLocalDataMenu() || 'common-settings')
 const tabs: TabItem[] = [
   { name: '通用配置', icon: UserCircle, action: 'common-settings' },
-  { name: '本地数据', icon: HardDrive, action: 'local-data' }
+  { name: '本地数据', icon: HardDrive, action: 'local-data' },
+  { name: '项目回收站', icon: Trash2, action: 'project-recovery' }
 ]
 const settingTabs: TabItem[] = [
   { name: '快捷键', icon: Command, action: 'shortcuts' },

@@ -261,6 +261,10 @@ export type ApidocProjectInfo = {
    * 是否被删除
    */
   isDeleted: boolean;
+  /**
+   * 删除时间戳
+   */
+  deletedAt?: number;
 };
 
 // 项目列表信息
