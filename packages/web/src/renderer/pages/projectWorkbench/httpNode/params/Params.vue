@@ -291,7 +291,7 @@ import { LayoutGrid, Variable } from 'lucide-vue-next'
 import SParams from './params/Params.vue';
 import SRequestBody from './body/Body.vue';
 import SRequestHeaders from './headers/Headers.vue';
-import SResponseParams from './response/Response.vue';
+import SResponseParams from './responseConfig/ResponseConfig.vue';
 import SPreRequestParams from './preRequest/PreRequest.vue';
 import SAfterRequestParams from './afterRequest/AfterRequest.vue';
 import SRemark from './remarks/Remarks.vue';
