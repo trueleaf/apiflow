@@ -118,7 +118,7 @@ const handleChange = (newData: ApidocProperty<'string' | 'file'>[]) => {
 
 const handleChangeCommonHeaderIsSend = (isSend: CheckboxValueType, header: Pick<ApidocProperty, "_id" | 'key' | 'value' | 'description' | 'select'>) => {
   if (isSend) {
-    webSocketNodeCache.removeWsIgnoredCommonHeader({
+    webSocketNodeCache.deleteWsIgnoredCommonHeader({
       projectId,
       tabId: currentSelectTab.value?._id ?? '',
       ignoreHeaderId: header._id

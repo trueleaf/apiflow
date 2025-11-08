@@ -233,7 +233,6 @@ const handleAddTag = () => {
   newResponse.fileConfig.fileType = 'pdf'
   httpMock.value.response.push(newResponse)
   activeTagIndex.value = mockResponses.value.length - 1
-  message.success(t('添加成功'))
 }
 // 关闭Tag
 const handleCloseTag = async (index: number) => {
@@ -277,7 +276,6 @@ const handleCloseTag = async (index: number) => {
       activeTagIndex.value--
     }
     
-    message.success(t('删除成功'))
   } catch {
     // 用户取消删除
   }

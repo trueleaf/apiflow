@@ -467,10 +467,10 @@ const debouncedRecordBodyOperation = debounce((oldValue: { requestBody: HttpNode
   .params-wrap {
     border-top: 1px dashed var(--gray-400);
     position: relative;
-    height: calc(100vh - 350px);
+    height: calc(100vh - 300px);
 
     .json-wrap {
-      height: calc(100vh - 350px);
+      height: calc(100vh - 300px);
     }
 
     .body-op {

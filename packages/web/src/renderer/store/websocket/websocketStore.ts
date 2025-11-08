@@ -405,7 +405,7 @@ const updateWebSocketHeaderById = (id: string, header: Partial<ApidocProperty<'s
   // 新增消息模板
   const addMessageTemplate = (template: WebsocketSendMessageTemplate): void => {
     try {
-      websocketTemplateCache.saveTemplate(template);
+      websocketTemplateCache.addTemplate(template);
       sendMessageTemplateList.value.push(template);
     } catch (error) {
       logger.error('添加消息模板失败', { error });

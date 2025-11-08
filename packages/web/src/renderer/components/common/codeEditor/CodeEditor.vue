@@ -1,7 +1,11 @@
 <template>
   <div class="s-code-editor-wrapper">
     <div ref="editorDom" class="s-code-editor" :style="editorStyle"></div>
-    <el-button v-if="showFormatButton" type="primary" text class="format-btn" @click="handleFormat">格式化</el-button>
+    <div class="toolbar-wrapper">
+      <slot name="toolbar">
+        <el-button v-if="showFormatButton" type="primary" text class="format-btn" @click="handleFormat">格式化</el-button>
+      </slot>
+    </div>
   </div>
 </template>
 
@@ -398,10 +402,13 @@ defineExpose({
     border: 1px solid var(--gray-300);
     box-sizing: border-box;
 }
-.format-btn {
+.toolbar-wrapper {
     position: absolute;
     right: 20px;
     top: 0;
     z-index: 10;
+    display: flex;
+    align-items: center;
+    gap: 8px;
 }
 </style>

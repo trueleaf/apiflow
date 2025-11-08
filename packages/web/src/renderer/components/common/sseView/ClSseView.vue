@@ -20,10 +20,12 @@
           <el-icon class="icon search-icon" :class="{ active: isSearchInputVisible }" @click="toggleSearchInput">
             <Search />
           </el-icon>
-          <el-icon class="icon filter-icon" :class="{ active: isFilterDialogVisible }" @click="toggleFilterDialog"
-            :title="t('过滤配置')">
-            <Filter :size="16" />
-          </el-icon>
+          <el-badge :is-dot="filterConfig.enabled" class="filter-badge-wrapper">
+            <el-icon class="icon filter-icon" :class="{ active: isFilterDialogVisible }" @click="toggleFilterDialog"
+              :title="t('过滤配置')">
+              <Filter :size="16" />
+            </el-icon>
+          </el-badge>
           <el-icon class="icon raw-view-icon" :class="{ active: isRawView }" @click="toggleRawView"
             :title="t('切换原始数据视图')">
             <Document />
@@ -77,36 +79,31 @@
       :message-index="activePopoverIndex" :virtual-ref="popoverVirtualRef" @hide="handlePopoverHide"
       @close="handleClosePopover" />
     <!-- 过滤配置弹窗 -->
-    <DraggableDialog v-model="isFilterDialogVisible" :title="t('过滤配置')" :width="600">
+    <DraggableDialog v-model="isFilterDialogVisible" :title="t('过滤配置')" :width="800">
       <div class="filter-dialog-content">
-        <div class="config-area" :class="{ expanded: !isPreviewVisible }">
-          <div class="config-content">
-            <div class="config-item">
-              <label class="config-label">数据路径：</label>
-              <el-input 
-                v-model="filterConfig.pathExpression" 
-                placeholder="如：_.name.test"
-                size="small"
-                clearable
-              />
-              <div class="config-hint">
-                支持多级嵌套（_.a.b.c）和数组索引（_.users[0].name）
-              </div>
-            </div>
-            <div v-if="filterConfigError" class="config-error">
-              {{ filterConfigError }}
-            </div>
+        <div class="editor-header">
+          <div class="header-left">
+            <label class="switch-label">{{ t('启用') }}</label>
+            <el-switch v-model="filterConfig.enabled" />
           </div>
         </div>
-        <div class="divider-container">
-          <div class="toggle-button" @click="togglePreview"
-            :title="isPreviewVisible ? t('隐藏预览区域') : t('显示预览区域')">
-            <PanelRightClose v-if="isPreviewVisible" :size="16" />
-            <PanelRightOpen v-else :size="16" />
-          </div>
+        <div class="editor-container">
+          <CodeEditor 
+            v-model="filterConfig.code" 
+            language="javascript"
+            :auto-height="true"
+            :min-height="300"
+            :max-height="500"
+          >
+            <template #toolbar>
+              <el-button text type="primary" @click="handleResetFilterCode">
+                {{ t('重置') }}
+              </el-button>
+            </template>
+          </CodeEditor>
         </div>
-        <div class="preview-area" :class="{ hidden: !isPreviewVisible }">
-          <div class="placeholder-text">{{ t('此处为过滤结果预览区域') }}</div>
+        <div v-if="filterConfigError" class="config-error">
+          <el-alert :title="t('函数执行错误')" :description="filterConfigError" type="error" :closable="false" show-icon />
         </div>
       </div>
     </DraggableDialog>
@@ -116,7 +113,7 @@
 <script lang="ts" setup>
 import { downloadStringAsText } from '@/helper'
 import { parseChunkList } from '@/helper';
-import { debounce, get } from "lodash-es";
+import { debounce } from "lodash-es";
 import { computed, ref, onMounted, onBeforeUnmount, nextTick, watch } from 'vue';
 import type { ComponentPublicInstance } from 'vue';
 
@@ -125,8 +122,9 @@ import type { ChunkWithTimestampe } from '@src/types/index.ts';
 import GVirtualScroll from '@/components/apidoc/virtualScroll/ClVirtualScroll.vue';
 import SsePopover from './components/popover/SsePopover.vue';
 import DraggableDialog from '@/components/ui/cleanDesign/draggableDialog/DraggableDialog.vue';
+import CodeEditor from '@/components/common/codeEditor/CodeEditor.vue';
 import { Loading, Search, Download, Document } from '@element-plus/icons-vue';
-import { Filter, PanelRightClose, PanelRightOpen } from 'lucide-vue-next';
+import { Filter } from 'lucide-vue-next';
 import { useI18n } from 'vue-i18n';
 
 /*
@@ -156,21 +154,26 @@ const isRawView = ref(false);
 const popoverVirtualRef = ref<HTMLElement | null>(null);
 const isVirtualEnabled = computed(() => props.isDataComplete && activePopoverIndex.value === -1);
 // 过滤配置弹窗相关
+
 const isFilterDialogVisible = ref(false);
-// 预览区域显示状态
-const isPreviewVisible = ref(true);
-// 过滤配置
+// 过滤配置 - 改为自定义函数模式
+const DEFAULT_FILTER_CODE = `function filter(chunk) {\n  // chunk格式: { event: string, data: string, timestamp: number }\n  // 返回处理后的chunk或null（过滤掉该条数据）\n  console.log(chunk); \n  return chunk;\n}`;
 const filterConfig = ref({
-  pathExpression: '',
+  enabled: false,
+  code: DEFAULT_FILTER_CODE,
 });
 const filterConfigError = ref('');
+const originalFilterCode = ref(DEFAULT_FILTER_CODE);
 // 切换过滤配置弹窗
 const toggleFilterDialog = () => {
   isFilterDialogVisible.value = !isFilterDialogVisible.value;
+  if (isFilterDialogVisible.value) {
+    originalFilterCode.value = filterConfig.value.code;
+  }
 };
-// 切换预览区域显示状态
-const togglePreview = () => {
-  isPreviewVisible.value = !isPreviewVisible.value;
+// 重置过滤代码
+const handleResetFilterCode = () => {
+  filterConfig.value.code = DEFAULT_FILTER_CODE;
 };
 // 切换原始视图模式
 const toggleRawView = () => {
@@ -273,15 +276,19 @@ const handleFilterChange = debounce(() => {
   activePopoverIndex.value = -1;
   filterError.value = '';
 }, 300);
-// 从JSON数据中根据路径提取值
-const extractValueByPath = (dataStr: string, pathExpression: string): unknown => {
-  if (!pathExpression || !pathExpression.startsWith('_.')) {
-    throw new Error('路径表达式必须以 "_." 开头')
+// 执行自定义filter函数
+const executeFilterCode = (code: string, chunk: any): any => {
+  try {
+    // 使用Function构造器创建沙箱环境
+    const func = new Function('chunk', `
+      ${code}
+      return filter(chunk);
+    `);
+    return func(chunk);
+  } catch (error) {
+    console.error('Filter execution error:', error);
+    throw error;
   }
-  const dataObj = JSON.parse(dataStr)
-  const actualPath = pathExpression.substring(2)
-  const value = get(dataObj, actualPath)
-  return value
 }
 // 高亮显示匹配的文本
 const highlightText = (text: string): string => {
@@ -316,34 +323,47 @@ const highlightText = (text: string): string => {
     return text;
   }
 };
-// 基于路径配置过滤数据
-const pathFilteredData = computed(() => {
-  if (!filterConfig.value.pathExpression.trim()) {
-    filterConfigError.value = ''
-    return formattedData.value
+// 基于自定义函数过滤数据
+const customFilteredData = computed(() => {
+  // 如果未启用自定义过滤，直接返回原始数据
+  if (!filterConfig.value.enabled) {
+    filterConfigError.value = '';
+    return formattedData.value;
   }
+
+  // 如果代码为空，返回原始数据
+  if (!filterConfig.value.code.trim()) {
+    filterConfigError.value = '';
+    return formattedData.value;
+  }
+
   try {
-    const filtered = formattedData.value.filter(item => {
-      if (!item.data) {
-        return false
-      }
-      try {
-        const value = extractValueByPath(item.data, filterConfig.value.pathExpression)
-        return value !== undefined && value !== null
-      } catch {
-        return false
-      }
-    })
-    filterConfigError.value = ''
-    return filtered
+    const filtered = formattedData.value
+      .map(item => {
+        try {
+          const result = executeFilterCode(filterConfig.value.code, item);
+          // 如果返回null或undefined，过滤掉该条数据
+          return result;
+        } catch (error) {
+          // 单条数据执行错误时，返回原始数据
+          console.warn('Filter error for item:', error);
+          return item;
+        }
+      })
+      .filter(item => item !== null && item !== undefined);
+    
+    filterConfigError.value = '';
+    return filtered;
   } catch (error) {
-    filterConfigError.value = error instanceof Error ? error.message : '配置错误'
-    return formattedData.value
+    filterConfigError.value = error instanceof Error ? error.message : '过滤函数执行错误';
+    return formattedData.value;
   }
-})
+});
+
 // 筛选后的数据
 const filteredData = computed(() => {
-  const baseData = pathFilteredData.value
+  const baseData = customFilteredData.value;
+  
   if (!filterText.value.trim()) {
     return baseData;
   }
@@ -371,8 +391,8 @@ const filteredData = computed(() => {
     filterError.value = '';
 
     return baseData
-      .map((item, index) => ({ ...item, originalIndex: index }))
-      .filter((item) => {
+      .map((item: any, index: number) => ({ ...item, originalIndex: index }))
+      .filter((item: any) => {
         const content = (item.event || '') + ' ' + (item.data || '');
         return regex.test(content);
       });
@@ -385,7 +405,7 @@ const filteredData = computed(() => {
 });
 
 // 最终显示的数据
-const displayData = computed(() => filterText.value.trim() ? filteredData.value : pathFilteredData.value.map((item, index) => ({ ...item, originalIndex: index })));
+const displayData = computed(() => filterText.value.trim() ? filteredData.value : customFilteredData.value.map((item: any, index: number) => ({ ...item, originalIndex: index })));
 
 /*
 |--------------------------------------------------------------------------
@@ -553,27 +573,29 @@ watch(activePopoverIndex, () => {
   syncPopoverRef();
 });
 
-watch(isPreviewVisible, (newVal) => {
-  localStorage.setItem('sseFilterPreviewVisible', String(newVal));
-});
 watch(filterConfig, (newVal) => {
-  localStorage.setItem('sseFilterConfig', JSON.stringify(newVal))
-}, { deep: true })
+  localStorage.setItem('sseFilterConfig', JSON.stringify(newVal));
+}, { deep: true });
+
 onMounted(() => {
   document.addEventListener('click', handleClickOutside);
   document.addEventListener('keydown', handleGlobalKeydown);
-  const saved = localStorage.getItem('sseFilterPreviewVisible');
-  if (saved !== null) {
-    isPreviewVisible.value = saved === 'true';
-  }
-  const savedConfig = localStorage.getItem('sseFilterConfig')
+  
+  // 从localStorage恢复过滤配置
+  const savedConfig = localStorage.getItem('sseFilterConfig');
   if (savedConfig) {
     try {
-      filterConfig.value = JSON.parse(savedConfig)
+      const parsed = JSON.parse(savedConfig);
+      // 确保有默认值
+      filterConfig.value = {
+        enabled: parsed.enabled ?? false,
+        code: parsed.code || DEFAULT_FILTER_CODE,
+      };
     } catch {
-      // 忽略解析错误
+      // 忽略解析错误，使用默认值
     }
   }
+  originalFilterCode.value = filterConfig.value.code;
 });
 
 onBeforeUnmount(() => {
@@ -668,6 +690,14 @@ onBeforeUnmount(() => {
 
       .icon {
         margin: 0 1px;
+      }
+
+      .filter-badge-wrapper {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+          width: 23px;
+        height: 23px;
       }
 
       .search-icon {
@@ -987,111 +1017,45 @@ onBeforeUnmount(() => {
 // 过滤配置弹窗内容样式
 .filter-dialog-content {
   display: flex;
-  .config-area {
-    width: 200px;
-    border-right: 1px solid var(--gray-200, #ebeef5);
-    padding: 20px;
-    background-color: var(--gray-50, #fafafa);
-    transition: width 0.3s ease;
+  flex-direction: column;
+  gap: 16px;
+  padding: 5px;
 
-    &.expanded {
-      width: 100%;
-    }
-
-    .config-content {
-      width: 100%;
-      
-      .config-item {
-        margin-bottom: 16px;
-        
-        .config-label {
-          display: block;
-          font-size: 14px;
-          color: var(--gray-800, #303133);
-          margin-bottom: 8px;
-          font-weight: 500;
-        }
-        
-        .config-hint {
-          font-size: 12px;
-          color: var(--gray-500, #909399);
-          margin-top: 4px;
-          line-height: 1.5;
-        }
-      }
-      
-      .config-error {
-        padding: 8px 12px;
-        background-color: var(--danger-light, #fef0f0);
-        color: var(--danger, #f56c6c);
-        border-radius: 4px;
-        font-size: 12px;
-        margin-top: 8px;
-        line-height: 1.5;
-      }
-    }
-
-    .placeholder-text {
-      color: var(--gray-500, #909399);
-      font-size: 14px;
-      text-align: center;
-    }
-  }
-
-  .divider-container {
-    position: relative;
-    width: 1px;
-    background: var(--gray-200, #ebeef5);
-    flex-shrink: 0;
-
-    .toggle-button {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      width: 28px;
-      height: 28px;
-      border-radius: 50%;
-      background: white;
-      border: 1px solid var(--gray-300, #dcdfe6);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      z-index: 10;
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-      color: var(--gray-700, #606266);
-
-      &:hover {
-        border-color: var(--primary, #409eff);
-        color: var(--primary, #409eff);
-        box-shadow: 0 2px 8px rgba(64, 158, 255, 0.3);
-      }
-    }
-  }
-
-  .preview-area {
-    flex: 1;
-    padding: 20px;
+  .editor-header {
     display: flex;
     align-items: center;
-    justify-content: center;
-    background-color: var(--white, #ffffff);
-    transition: all 0.3s ease;
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
 
-    &.hidden {
-      width: 0;
-      padding: 0;
-      opacity: 0;
-      overflow: hidden;
+      .switch-label {
+        font-size: 14px;
+        color: var(--gray-800, #303133);
+        font-weight: 500;
+        user-select: none;
+      }
     }
+  }
 
-    .placeholder-text {
-      color: var(--gray-500, #909399);
-      font-size: 14px;
-      text-align: center;
-    }
+  .filter-description {
+    padding: 12px 0;
+  }
+
+  .editor-container {
+    width: 100%;
+    min-height: 300px;
+  }
+
+  .config-error {
+    margin-top: 8px;
+  }
+
+  .editor-hint {
+    padding: 8px 12px;
+    background-color: var(--info-light, #f4f4f5);
+    border-radius: 4px;
+    border-left: 3px solid var(--info, #909399);
   }
 }
 </style>
