@@ -131,7 +131,7 @@ onMounted(() => {
 
 // 快捷键保存
 useShortcut('ctrl+s', (event: KeyboardEvent) => {
-  event.preventDefault();
+  // event.preventDefault();
   if (currentSelectTab.value?.tabType === 'httpMock') {
     httpMockStore.saveHttpMockNode();
   }

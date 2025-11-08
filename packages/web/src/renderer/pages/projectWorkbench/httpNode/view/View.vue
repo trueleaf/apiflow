@@ -13,24 +13,24 @@
     <div class="view-block">{{ t('请求参数') }}</div>
     <template v-if="hasQueryParams">
       <div class="title">{{ t("Query参数") }}</div>
-      <s-params-view :data="apidoc.item.queryParams" plain class="mb-3"></s-params-view>
+      <SParamsView :data="apidoc.item.queryParams" plain class="mb-3" />
     </template>
     <template v-if="hasPathsParams">
       <div class="title">{{ t("Path参数") }}</div>
-      <s-params-view :data="apidoc.item.paths" plain class="mb-3"></s-params-view>
+      <SParamsView :data="apidoc.item.paths" plain class="mb-3" />
     </template>
     <template v-if="hasJsonBodyParams">
       <div class="title">{{ t("Body参数") }}(application/json)</div>
       <pre v-if="apidoc.item.requestBody.rawJson">{{ apidoc.item.requestBody.rawJson }}</pre>
-      <s-params-view v-else :data="apidoc.item.requestBody.rawJson"></s-params-view>
+      <SParamsView v-else :data="apidoc.item.requestBody.rawJson" />
     </template>
     <template v-if="hasFormDataParams">
       <div class="title">{{ t("Body参数") }}(multipart/formdata)</div>
-      <s-params-view :data="apidoc.item.requestBody.formdata" plain></s-params-view>
+      <SParamsView :data="apidoc.item.requestBody.formdata" plain />
     </template>
     <template v-if="hasUrlEncodedParams">
       <div class="title">{{ t("Body参数") }}(x-www-form-urlencoded)</div>
-      <s-params-view :data="apidoc.item.requestBody.urlencoded" plain></s-params-view>
+      <SParamsView :data="apidoc.item.requestBody.urlencoded" plain />
     </template>
     <template v-if="hasRawParams">
       <div class="title">{{ t("Body参数") }}({{ apidoc.item.requestBody.raw.dataType }})</div>
@@ -67,7 +67,7 @@
     </div>
     <div class="view-block mt-5">请求头</div>
     <template v-if="hasHeaders">
-      <s-params-view :data="apidoc.item.headers" plain class="mb-3"></s-params-view>
+      <SParamsView :data="apidoc.item.headers" plain class="mb-3" />
     </template>
     <div v-else class="ml-2 gray-500">{{ t("暂无数据") }}</div>
     <SFieldset :title="t('备注')">

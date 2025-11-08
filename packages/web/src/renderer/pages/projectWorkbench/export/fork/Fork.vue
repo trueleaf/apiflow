@@ -28,14 +28,14 @@
                     :key="req.name" class="file-icon" :style="{ color: req.iconColor }">{{ req.name }}</span>
                 </template>
                 <div class="node-label-wrap">
-                  <s-emphasize class="node-top" :title="scope.data.name" :value="scope.data.name"></s-emphasize>
+                  <SEmphasize class="node-top" :title="scope.data.name" :value="scope.data.name" />
                 </div>
               </template>
               <!-- 文件夹渲染 -->
               <template v-if="scope.data.type === 'folder'">
                 <i class="iconfont folder-icon iconweibiaoti-_huabanfuben"></i>
                 <div class="node-label-wrap">
-                  <s-emphasize class="node-top" :title="scope.data.name" :value="scope.data.name"></s-emphasize>
+                  <SEmphasize class="node-top" :title="scope.data.name" :value="scope.data.name" />
                 </div>
               </template>
             </div>
@@ -75,14 +75,14 @@
                         class="file-icon" :style="{ color: req.iconColor }">{{ req.name }}</span>
                     </template>
                     <div class="node-label-wrap">
-                      <s-emphasize class="node-top" :title="scope.data.name" :value="scope.data.name"></s-emphasize>
+                      <SEmphasize class="node-top" :title="scope.data.name" :value="scope.data.name" />
                     </div>
                   </template>
                   <!-- 文件夹渲染 -->
                   <template v-if="scope.data.type === 'folder'">
                     <i class="iconfont folder-icon iconweibiaoti-_huabanfuben"></i>
                     <div class="node-label-wrap">
-                      <s-emphasize class="node-top" :title="scope.data.name" :value="scope.data.name"></s-emphasize>
+                      <SEmphasize class="node-top" :title="scope.data.name" :value="scope.data.name" />
                     </div>
                   </template>
                 </div>

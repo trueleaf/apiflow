@@ -295,7 +295,7 @@ const standaloneLoading = ref(false)
 
 // 注册 Ctrl+S 快捷键保存变量
 useShortcut('ctrl+s', (event: KeyboardEvent) => {
-  event.preventDefault();
+  // event.preventDefault();
   if (currentSelectTab.value?.tabType === 'variable') {
     handleAddVariable();
   }

@@ -29,13 +29,13 @@
     </div>
     <div class="import-type-content">
       <div v-if="importType === 'file'">
-        <g-card>{{ t('上传本地文件') }}</g-card>
+        <GCard>{{ t('上传本地文件') }}</GCard>
       </div>
       <div v-else-if="importType === 'url'">
-        <g-card>{{ t('从URL中导入') }}</g-card>
+        <GCard>{{ t('从URL中导入') }}</GCard>
       </div>
       <div v-else-if="importType === 'paste'">
-        <g-card>{{ t('从粘贴内容中导入') }}</g-card>
+        <GCard>{{ t('从粘贴内容中导入') }}</GCard>
       </div>
     </div>
   </div>

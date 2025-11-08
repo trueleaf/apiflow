@@ -139,7 +139,7 @@ watch(currentSelectTab, (val, oldVal) => {
 
 // 注册快捷键 - 撤销（Ctrl+Z / Cmd+Z）
 useShortcut('ctrl+z', (event: KeyboardEvent) => {
-  event.preventDefault();
+  // event.preventDefault();
   if (currentSelectTab.value?.tabType === 'http') {
     const nodeId = apidocStore.apidoc._id;
     httpRedoUndoStore.httpUndo(nodeId);
@@ -148,7 +148,7 @@ useShortcut('ctrl+z', (event: KeyboardEvent) => {
 
 // 注册快捷键 - 重做（Ctrl+Y / Cmd+Shift+Z）
 useShortcut('ctrl+y', (event: KeyboardEvent) => {
-  event.preventDefault();
+  // event.preventDefault();
   if (currentSelectTab.value?.tabType === 'http') {
     const nodeId = apidocStore.apidoc._id;
     httpRedoUndoStore.httpRedo(nodeId);
@@ -157,7 +157,7 @@ useShortcut('ctrl+y', (event: KeyboardEvent) => {
 
 // Mac 上的 Cmd+Shift+Z 也触发重做
 useShortcut('cmd+shift+z', (event: KeyboardEvent) => {
-  event.preventDefault();
+  // event.preventDefault();
   if (currentSelectTab.value?.tabType === 'http') {
     const nodeId = apidocStore.apidoc._id;
     httpRedoUndoStore.httpRedo(nodeId);

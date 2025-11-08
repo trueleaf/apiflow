@@ -449,14 +449,14 @@ onUnmounted(() => {
   cleanupWebSocketEventListeners()
 })
 useShortcut('ctrl+z', (event: KeyboardEvent) => {
-  event.preventDefault();
+  // event.preventDefault();
   if (currentSelectTab.value?.tabType === 'websocket') {
     const nodeId = websocketStore.websocket._id;
     redoUndoStore.wsUndo(nodeId);
   }
 })
 useShortcut('ctrl+y', (event: KeyboardEvent) => {
-  event.preventDefault();
+  // event.preventDefault();
   if (currentSelectTab.value?.tabType === 'websocket') {
     const nodeId = websocketStore.websocket._id;
     redoUndoStore.wsRedo(nodeId);

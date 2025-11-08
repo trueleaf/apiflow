@@ -18,7 +18,7 @@
       <div class="form-row">
         <div class="form-item full-width">
           <div class="script-editor-wrapper">
-            <code-editor
+            <CodeEditor
               v-model="response.conditions.scriptCode"
               :config="editorConfig"
               :min-height="200"

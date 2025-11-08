@@ -38,7 +38,6 @@ class ShortcutManager {
       .filter(Boolean)
       .join("+");
 
-    // console.log(123, combo, this.shortcuts);
     this.shortcuts.forEach((s) => {
       // 支持 ctrl 和 cmd 的兼容性
       // 例如注册 "ctrl+z" 时，在 Mac 上也会匹配 "cmd+z"

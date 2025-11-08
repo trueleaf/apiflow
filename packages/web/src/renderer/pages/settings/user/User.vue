@@ -18,11 +18,11 @@
             <el-button link type="primary" text class="ml-3" @click="dialogVisible = true">{{ $t('修改密码') }}</el-button>
           </div>
           <div class="px-3">
-            <s-label-value :label="$t('登录名称') + '：'" :value="userInfo.loginName" class="w-45"></s-label-value>
-            <s-label-value :label="$t('手机号') + '：'" :value="userInfo.phone" class="w-45"></s-label-value>
-            <s-label-value :label="$t('最后登录') + '：'" class="w-45">
+            <SLabelValue :label="$t('登录名称') + '：'" :value="userInfo.loginName" class="w-45" />
+            <SLabelValue :label="$t('手机号') + '：'" :value="userInfo.phone" class="w-45" />
+            <SLabelValue :label="$t('最后登录') + '：'" class="w-45">
               <span class="orange">{{ formatDate(userInfo.lastLogin) }}</span>
-            </s-label-value>
+            </SLabelValue>
           </div>
         </div>
       </div>

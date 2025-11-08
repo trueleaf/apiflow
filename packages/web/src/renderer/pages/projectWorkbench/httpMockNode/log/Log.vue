@@ -98,7 +98,7 @@
     width="800px"
     destroy-on-close
   >
-    <s-json-editor
+    <SJsonEditor
       v-model="currentLogJson"
       :read-only="true"
       :auto-height="true"

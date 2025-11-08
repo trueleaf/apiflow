@@ -21,7 +21,7 @@
             @click.stop="handleCheckBraceMatch(item)">
             <span v-for="(indent) in item.indent" :key="indent" class="indent"></span>
             <span class="path">
-              <s-emphasize :value="item.path.value" :keyword="queryString"></s-emphasize>
+              <SEmphasize :value="item.path.value" :keyword="queryString" />
             </span>
             <span v-if="item.colon && item.path.value" class="colon">{{ item.colon }}</span>
             <span v-if="item.leftBracket.value" class="bracket"
@@ -32,7 +32,7 @@
                 item.leftCurlBrace.value }}</span>
             <el-tooltip v-if="item.valueType === 'string'" :effect="Effect.LIGHT" :show-after="1500"
               :content="item.value" placement="bottom-start">
-              <s-emphasize class="string-value" :value="item.value" :keyword="queryString"></s-emphasize>
+              <SEmphasize class="string-value" :value="item.value" :keyword="queryString" />
             </el-tooltip>
             <span>
               <span v-if="item.valueType === 'number'" class="number-value">{{ item.value }}</span>
