@@ -368,6 +368,23 @@ export const useApidoc = defineStore('apidoc', () => {
     if (payload.item.headers.length === 0) {
       payload.item.headers.push(apidocGenerateProperty());
     }
+    //responseParams如果没有数据则默认添加一条空数据
+    if (payload.item.responseParams.length === 0) {
+      payload.item.responseParams.push({
+        _id: nanoid(),
+        title: '成功返回',
+        statusCode: 200,
+        value: {
+          file: {
+            url: '',
+            raw: ''
+          },
+          strJson: '',
+          dataType: 'application/json',
+          text: ''
+        },
+      });
+    }
     initDefaultHeaders(payload.item.contentType)
     if (payload.item.headers.length === 0) {
       payload.item.headers.push(apidocGenerateProperty());
