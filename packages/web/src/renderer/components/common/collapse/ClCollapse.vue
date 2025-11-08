@@ -1,13 +1,9 @@
 <template>
   <div class="s-collaps mb-1">
     <div class="header" :class="{ bold: bold }" @click="toggleCollapse">
-      <span v-if="!disabled" class="gray-700">
-        <el-icon v-if="isActive" :size="16">
-          <arrow-down />
-        </el-icon>
-        <el-icon v-else :size="16">
-          <arrow-right />
-        </el-icon>
+      <span v-if="!disabled" class="gray-700 icon-wrapper">
+        <ChevronDown v-if="isActive" :size="16" />
+        <ChevronRight v-else :size="16" />
       </span>
       <span v-if="!slots.title" class="ml-1">{{ title }}</span>
       <slot v-else name="title" />
@@ -20,11 +16,9 @@
 
 <script lang="ts" setup>
 import { ref, useSlots, watch } from 'vue'
-import { ArrowDown, ArrowRight } from '@element-plus/icons-vue'
-// import { useI18n } from 'vue-i18n'
+import { ChevronDown, ChevronRight } from 'lucide-vue-next'
 
 const slots = useSlots()
-// const { t } = useI18n()
 const props = defineProps({
   title: {
     type: String,
@@ -82,6 +76,10 @@ const toggleCollapse = () => {
 
     &:hover {
       background: var(--gray-200);
+    }
+
+    .icon-wrapper {
+      margin-top: 3px;
     }
   }
 }
