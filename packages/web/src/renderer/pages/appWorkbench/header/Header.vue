@@ -24,6 +24,10 @@
       </draggable>
     </div>
     <button class="add-tab-btn" :title="t('新建项目')" @click="handleAddProject">+</button>
+    <button class="ai-trigger-btn" :title="t('AI助手')" @click="handleShowAiDialog" ref="aiButtonRef">
+      <Bot :size="14" />
+      <span>{{ t('AI助手') }}</span>
+    </button>
     <div class="right">
       <div class="navigation-control">
         <el-icon class="icon" size="16" :title="t('刷新主应用')" @click="refreshApp"><RefreshRight /></el-icon>
@@ -64,7 +68,8 @@ import type { HeaderTab } from '@src/types/header'
 import type { RuntimeNetworkMode } from '@src/types/runtime'
 import { RefreshRight, Back, Right } from '@element-plus/icons-vue'
 import { useI18n } from 'vue-i18n'
-import { Folder, Settings } from 'lucide-vue-next'
+import { Folder, Settings, Bot } from 'lucide-vue-next'
+import type { AnchorRect } from '@src/types/common'
 import { IPC_EVENTS } from '@src/types/ipc'
 import { changeLanguage } from '@/i18n'
 
@@ -72,6 +77,7 @@ const tabs = ref<HeaderTab[]>([])
 const activeTabId = ref('')
 const isMaximized = ref(false)
 const tabListRef = ref<ComponentPublicInstance | null>(null)
+const aiButtonRef = ref<HTMLElement>()
 const { t } = useI18n()
 const language = ref<Language>('zh-cn')
 const networkMode = ref<RuntimeNetworkMode>('offline')
@@ -247,6 +253,19 @@ const toggleNetworkMode = () => {
   window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.topBarToContent.networkModeChanged, newMode)
 }
 const handleAddProject = () => window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.contentToTopBar.createProject)
+const handleShowAiDialog = () => {
+  let position: AnchorRect | undefined
+  if (aiButtonRef.value) {
+    const rect = aiButtonRef.value.getBoundingClientRect()
+    position = {
+      x: rect.left,
+      y: rect.top,
+      width: rect.width,
+      height: rect.height
+    }
+  }
+  window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.contentToTopBar.showAiDialog, { position })
+}
 // 绑定事件
 const bindEvent = () => {
   window.electronAPI?.windowManager.onWindowResize(handleWindowResize)
@@ -554,6 +573,33 @@ body {
 .add-tab-btn:hover {
   background: var(--tab-hover-bg);
   border-radius: 3px;
+}
+
+.ai-trigger-btn {
+  padding: 0 12px;
+  height: 28px;
+  border: none;
+  background: transparent;
+  color: var(--white);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  transition: all 0.2s;
+  -webkit-app-region: no-drag;
+  flex-shrink: 0;
+  border-radius: 3px;
+  margin-right: 8px;
+}
+
+.ai-trigger-btn:focus {
+  outline: none;
+  box-shadow: none;
+}
+
+.ai-trigger-btn:hover {
+  background: var(--tab-hover-bg);
 }
 
 .right {

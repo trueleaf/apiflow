@@ -326,6 +326,102 @@ class UserState {
       localStorage.setItem(cacheKey.userState.httpNode.responseCollapse, '{}');
     }
   }
+  // 获取AI对话框宽度
+  getAiDialogWidth(): number | null {
+    try {
+      const width = localStorage.getItem(cacheKey.userState.aiDialog.width);
+      return width ? parseInt(width, 10) : null;
+    } catch (error) {
+      console.error(error);
+      return null;
+    }
+  }
+  // 设置AI对话框宽度
+  setAiDialogWidth(width: number) {
+    try {
+      localStorage.setItem(cacheKey.userState.aiDialog.width, width.toString());
+    } catch (error) {
+      console.error(error);
+    }
+  }
+  // 获取AI对话框高度
+  getAiDialogHeight(): number | null {
+    try {
+      const height = localStorage.getItem(cacheKey.userState.aiDialog.height);
+      return height ? parseInt(height, 10) : null;
+    } catch (error) {
+      console.error(error);
+      return null;
+    }
+  }
+  // 设置AI对话框高度
+  setAiDialogHeight(height: number) {
+    try {
+      localStorage.setItem(cacheKey.userState.aiDialog.height, height.toString());
+    } catch (error) {
+      console.error(error);
+    }
+  }
+  // 获取AI对话框模式
+  getAiDialogMode(): 'agent' | 'ask' | null {
+    try {
+      const mode = localStorage.getItem(cacheKey.userState.aiDialog.mode);
+      if (mode === 'agent' || mode === 'ask') {
+        return mode;
+      }
+      return null;
+    } catch (error) {
+      console.error(error);
+      return null;
+    }
+  }
+  // 设置AI对话框模式
+  setAiDialogMode(mode: 'agent' | 'ask') {
+    try {
+      localStorage.setItem(cacheKey.userState.aiDialog.mode, mode);
+    } catch (error) {
+      console.error(error);
+    }
+  }
+  // 获取AI对话框模型
+  getAiDialogModel(): 'deepseek' | null {
+    try {
+      const model = localStorage.getItem(cacheKey.userState.aiDialog.model);
+      if (model === 'deepseek') {
+        return model;
+      }
+      return null;
+    } catch (error) {
+      console.error(error);
+      return null;
+    }
+  }
+  // 设置AI对话框模型
+  setAiDialogModel(model: 'deepseek') {
+    try {
+      localStorage.setItem(cacheKey.userState.aiDialog.model, model);
+    } catch (error) {
+      console.error(error);
+    }
+  }
+  // 获取AI对话框位置
+  getAiDialogPosition(): { x: number, y: number } | null {
+    try {
+      const position = localStorage.getItem(cacheKey.userState.aiDialog.position);
+      return position ? JSON.parse(position) : null;
+    } catch (error) {
+      console.error(error);
+      return null;
+    }
+  }
+  // 设置AI对话框位置
+  setAiDialogPosition(position: { x: number, y: number }) {
+    try {
+      localStorage.setItem(cacheKey.userState.aiDialog.position, JSON.stringify(position));
+    } catch (error) {
+      console.error(error);
+    }
+  }
 }
 
 export const userState = new UserState();

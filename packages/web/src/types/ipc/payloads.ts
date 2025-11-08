@@ -6,6 +6,7 @@
  * - response: 接收方返回的数据 (invoke/handle 模式)
  */
 
+import type { AnchorRect } from '@src/types/common';
 import type { IPC_EVENTS } from './events';
 
 /**
@@ -97,6 +98,11 @@ export interface IPCEventMap {
     response: void;
   };
 
+  [IPC_EVENTS.apiflow.contentToTopBar.showAiDialog]: {
+    request: { position?: AnchorRect };
+    response: void;
+  };
+
   [IPC_EVENTS.apiflow.contentToTopBar.projectCreated]: {
     request: { projectId: string; projectName: string };
     response: void;
@@ -156,6 +162,11 @@ export interface IPCEventMap {
   [IPC_EVENTS.apiflow.rendererToMain.createProject]: {
     request: { name: string; path?: string };
     response: { success: boolean; projectId?: string; error?: string };
+  };
+
+  [IPC_EVENTS.apiflow.rendererToMain.showAiDialog]: {
+    request: { position?: AnchorRect };
+    response: void;
   };
 
   [IPC_EVENTS.apiflow.rendererToMain.changeProject]: {

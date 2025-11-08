@@ -26,6 +26,35 @@ export type Config = {
       size: ComponentSize,
     },
     /**
+     * AI对话框相关
+     */
+    aiDialog: {
+      /**
+       * 默认宽度
+       */
+      defaultWidth: number,
+      /**
+       * 默认高度
+       */
+      defaultHeight: number,
+      /**
+       * 最小宽度
+       */
+      minWidth: number,
+      /**
+       * 最大宽度
+       */
+      maxWidth: number,
+      /**
+       * 最小高度
+       */
+      minHeight: number,
+      /**
+       * 最大高度
+       */
+      maxHeight: number,
+    },
+    /**
      * http请求相关
      */
     httpRequest: {

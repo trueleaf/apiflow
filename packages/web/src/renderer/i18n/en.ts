@@ -1012,5 +1012,15 @@ export default {
     'header参数在给【{key}】字段赋值时，值不为string类型，将通过toString进行转换': 'Header parameter value for [{key}] is not a string, converting using toString',
     'header参数在给【{key}】字段赋值时出错，header参数值类型只能为字符串': 'Error setting header parameter [{key}], value must be a string',
     'cookie参数在给【{key}】字段赋值时出错，cookie参数值类型只能为字符串': 'Error setting cookie parameter [{key}], value must be a string',
+
+    // AI Assistant
+    'AI助手': 'AI Assistant',
+    '问我任何问题': 'Ask me anything',
+    '输入消息...': 'Type a message...',
+    '发送': 'Send',
+    '模式': 'Mode',
+    '模型': 'Model',
+    'Agent模式': 'Agent Mode',
+    'Ask模式': 'Ask Mode',
   },
 }

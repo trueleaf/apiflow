@@ -53,6 +53,8 @@ export const IPC_EVENTS = {
       initTabs: 'apiflow:content:to:topbar:init-tabs',
       /** 创建项目 */
       createProject: 'apiflow:content:to:topbar:create-project',
+      /** 显示AI对话框 */
+      showAiDialog: 'apiflow:content:to:topbar:show-ai-dialog',
       /** 项目已创建 */
       projectCreated: 'apiflow:content:to:topbar:project-created',
       /** 切换项目 */
@@ -81,6 +83,8 @@ export const IPC_EVENTS = {
       contentIsReady: 'apiflow:renderer:to:main:content-is-ready',
       /** 创建项目 */
       createProject: 'apiflow:renderer:to:main:create-project',
+      /** 显示AI对话框 */
+      showAiDialog: 'apiflow:renderer:to:main:show-ai-dialog',
       /** 切换项目 */
       changeProject: 'apiflow:renderer:to:main:change-project',
       /** 删除项目 */

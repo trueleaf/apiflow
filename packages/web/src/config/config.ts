@@ -10,6 +10,15 @@ export const config: Config = {
     layout: {
       size: 'default', //项目中组件库大小
     },
+    //AI对话框相关
+    aiDialog: {
+      defaultWidth: 400,
+      defaultHeight: 600,
+      minWidth: 300,
+      maxWidth: 800,
+      minHeight: 400,
+      maxHeight: 900,
+    },
     //http请求相关
     httpRequest: {
       url: isDev ? 'http://127.0.0.1:7001' : 'https://online.jobtool.cn',

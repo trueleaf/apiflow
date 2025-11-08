@@ -22,6 +22,13 @@ export type DeepPartial<T> = {
 
 export type JsonData = string | number | boolean | null | JsonData[] | { [key: string]: JsonData };
 
+export type AnchorRect = {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+};
+
 // ============================================================================
 // 语言类型
 // ============================================================================

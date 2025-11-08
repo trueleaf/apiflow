@@ -7,6 +7,7 @@ import { selectImportFile, analyzeImportFile, startImport, resetImport, setMainW
 import { getWindowState } from '../utils/index.ts';
 // import { IPCProjectData, WindowState } from '@src/types/index.ts';
 import type { RuntimeNetworkMode } from '@src/types/runtime';
+import type { AnchorRect } from '@src/types/common';
 
 import { mockManager } from '../main.ts';
 import { MockUtils } from '../mock/mockUtils.ts';
@@ -195,6 +196,13 @@ export const useIpcEvent = (mainWindow: BrowserWindow, topBarView: WebContentsVi
     // 将焦点转移到 contentView，确保弹窗中的输入框可以获取焦点
     contentView.webContents.focus()
     contentView.webContents.send(IPC_EVENTS.apiflow.rendererToMain.createProject)
+  })
+
+  // 顶部栏显示AI对话框请求
+  ipcMain.on(IPC_EVENTS.apiflow.contentToTopBar.showAiDialog, (_, payload?: { position?: AnchorRect }) => {
+    // 将焦点转移到 contentView，确保对话框中的输入框可以获取焦点
+    contentView.webContents.focus()
+    contentView.webContents.send(IPC_EVENTS.apiflow.rendererToMain.showAiDialog, payload ?? {})
   })
 
   // 顶部栏路由切换请求

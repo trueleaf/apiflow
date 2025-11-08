@@ -8,6 +8,13 @@ export const cacheKey = {
     language: 'runtime/language',
   },
   userState: {
+    aiDialog: {
+      width: 'userState/aiDialog/width',
+      height: 'userState/aiDialog/height',
+      position: 'userState/aiDialog/position',
+      mode: 'userState/aiDialog/mode',
+      model: 'userState/aiDialog/model',
+    },
     home: {
       activeTab: 'userState/home/activeTab',
     },

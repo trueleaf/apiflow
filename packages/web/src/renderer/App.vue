@@ -1,6 +1,7 @@
 <template>
   <router-view></router-view>
   <AddProjectDialog v-if="dialogVisible" v-model="dialogVisible" @success="handleAddSuccess"></AddProjectDialog>
+  <Ai v-if="aiDialogVisible" v-model:visible="aiDialogVisible" :anchor-rect="aiAnchorRect" />
   <LanguageMenu
     :visible="languageMenuVisible"
     :position="languageMenuPosition"
@@ -19,6 +20,7 @@ import { useI18n } from 'vue-i18n';
 import { changeLanguage } from './i18n';
 import { useRouter } from 'vue-router';
 import AddProjectDialog from '@/pages/home/dialog/addProject/AddProject.vue';
+import Ai from '@/pages/ai/Ai.vue';
 import { projectCache } from '@/cache/index';
 import { ElMessageBox } from 'element-plus';
 import { useApidocBaseInfo } from './store/share/baseInfoStore';
@@ -31,10 +33,13 @@ import { aiCache } from '@/cache/ai/aiCache';
 import { httpMockLogsCache } from '@/cache/mock/httpMock/httpMockLogsCache';
 import type { MockLog } from '@src/types/mockNode';
 import { IPC_EVENTS } from '@src/types/ipc';
+import type { AnchorRect } from '@src/types/common';
 
 
 const router = useRouter();
 const dialogVisible = ref(false);
+const aiDialogVisible = ref(false);
+const aiAnchorRect = ref<AnchorRect | null>(null);
 const apidocBaseInfoStore = useApidocBaseInfo()
 const runtimeStore = useRuntime();
 const { t } = useI18n()
@@ -105,6 +110,10 @@ const handleLanguageSelect = (language: Language) => {
 const initAppHeaderEvent = () => {
   window.electronAPI?.ipcManager.onMain(IPC_EVENTS.apiflow.rendererToMain.createProject, () => {
     dialogVisible.value = true;
+  });
+  window.electronAPI?.ipcManager.onMain(IPC_EVENTS.apiflow.rendererToMain.showAiDialog, (payload?: { position?: AnchorRect }) => {
+    aiAnchorRect.value = payload?.position ?? null;
+    aiDialogVisible.value = true;
   });
   window.electronAPI?.ipcManager.onMain(IPC_EVENTS.apiflow.rendererToMain.changeRoute, (path: string) => {
     router.push(path)
@@ -300,6 +309,12 @@ const initAppHeader = () => {
     });
   });
 }
+
+watch(aiDialogVisible, value => {
+  if (!value) {
+    aiAnchorRect.value = null;
+  }
+})
 
 onMounted(() => {
   initWelcom();

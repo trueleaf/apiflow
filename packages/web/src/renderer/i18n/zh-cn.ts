@@ -1300,5 +1300,15 @@ export default {
     'header参数在给【{key}】字段赋值时，值不为string类型，将通过toString进行转换': 'header参数在给【{key}】字段赋值时，值不为string类型，将通过toString进行转换',
     'header参数在给【{key}】字段赋值时出错，header参数值类型只能为字符串': 'header参数在给【{key}】字段赋值时出错，header参数值类型只能为字符串',
     'cookie参数在给【{key}】字段赋值时出错，cookie参数值类型只能为字符串': 'cookie参数在给【{key}】字段赋值时出错，cookie参数值类型只能为字符串',
+
+    // AI助手相关
+    'AI助手': 'AI助手',
+    '问我任何问题': '问我任何问题',
+    '输入消息...': '输入消息...',
+    '发送': '发送',
+    '模式': '模式',
+    '模型': '模型',
+    'Agent模式': 'Agent模式',
+    'Ask模式': 'Ask模式',
   },
 }
