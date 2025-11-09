@@ -1,6 +1,7 @@
 export const cacheKey = {
   ai: {
     config: 'apiflow/ai/config',
+    lastSessionId: 'apiflow/ai/lastSessionId',
   },
   runtime: {
     networkMode: 'runtime/networkMode',

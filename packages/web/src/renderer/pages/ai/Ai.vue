@@ -2,9 +2,44 @@
   <div v-if="visible" class="ai-dialog" :style="dialogStyle">
     <div class="ai-dialog-header" @mousedown="handleDragStart">
       <span class="ai-dialog-title">{{ t('AI助手') }}</span>
-      <button class="ai-dialog-close" type="button" @click="handleClose">
-        <X :size="16" />
-      </button>
+      <div class="ai-dialog-header-actions" @mousedown.stop>
+        <div class="ai-dialog-header-group">
+          <button
+            class="ai-dialog-action"
+            type="button"
+            @mousedown.stop
+            @click="handleCreateConversation"
+            :title="t('新增')"
+            :aria-label="t('新增')"
+          >
+            <Plus :size="18" />
+          </button>
+          <button
+            class="ai-dialog-action"
+            type="button"
+            @mousedown.stop
+            @click="handleOpenHistory"
+            :title="t('历史记录')"
+            :aria-label="t('历史记录')"
+          >
+            <History :size="16" />
+          </button>
+          <button
+            class="ai-dialog-action"
+            type="button"
+            @mousedown.stop
+            @click="handleOpenAiSettings"
+            :title="t('设置')"
+            :aria-label="t('设置')"
+          >
+            <Settings :size="16" />
+          </button>
+        </div>
+        <div class="ai-dialog-header-separator" aria-hidden="true"></div>
+        <button class="ai-dialog-close" type="button" @mousedown.stop @click="handleClose" :title="t('关闭')" :aria-label="t('关闭')">
+          <X :size="18" />
+        </button>
+      </div>
     </div>
     <div class="ai-dialog-body">
       <div class="ai-messages">
@@ -120,7 +155,7 @@
 import { ref, computed, onUnmounted, onMounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
-import { X, Bot, Send, ChevronDown, Check, AlertTriangle, BrainCircuit, ArrowUpRight, ArrowRight } from 'lucide-vue-next'
+import { X, Bot, Send, ChevronDown, Check, AlertTriangle, ArrowRight, Plus, History, Settings } from 'lucide-vue-next'
 import type { AnchorRect } from '@src/types/common'
 import { IPC_EVENTS } from '@src/types/ipc'
 import { config } from '@src/config/config'
@@ -130,6 +165,7 @@ import './ai.css'
 
 const { t } = useI18n()
 const props = defineProps<{ anchorRect: AnchorRect | null }>()
+const emit = defineEmits<{ (event: 'create'): void, (event: 'history'): void }>()
 const visible = defineModel<boolean>('visible', { default: false })
 const inputMessage = ref('')
 const modeOptions = ['agent', 'ask'] as const
@@ -179,6 +215,12 @@ watch(visible, value => {
 
 const handleClose = () => {
   visible.value = false
+}
+const handleCreateConversation = () => {
+  emit('create')
+}
+const handleOpenHistory = () => {
+  emit('history')
 }
 const isAiConfigValid = () => {
   const configState = aiCache.getAiConfig()

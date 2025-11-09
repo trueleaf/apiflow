@@ -66,6 +66,27 @@ export type ChatWithTextStreamOptions = {
 };
 
 
-export type AgentMessage = {
-  role: 'system' | 'user' | 'assistant' | 'tool';
+export type AskMessage = {
+  id: string;
+  type: "ask";
+  content: string;
+  timestamp: string;
+  sessionId: string;
 }
+
+export type LoadingMessage = {
+  id: string;
+  type: "loading";
+  content: string;
+  timestamp: string;
+  sessionId: string;
+}
+
+export type ToolMessage = {
+  id: string;
+  type: "tool";
+  content: string;
+  timestamp: string;
+  sessionId: string;
+}
+export type AgentMessage = AskMessage | LoadingMessage | ToolMessage;

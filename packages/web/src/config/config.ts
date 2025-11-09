@@ -85,6 +85,11 @@ export const config: Config = {
       version: 1,
       storeName: 'logs',
       maxLogsPerNode: 1000
+    },
+    agentMessageCache: {
+      dbName: 'agentMessageCache',
+      version: 1,
+      storeName: 'messages'
     }
   },
   standaloneCache: {

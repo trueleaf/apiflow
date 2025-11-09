@@ -154,6 +154,11 @@ export type Config = {
       version: number,
       storeName: string,
       maxLogsPerNode: number,
+    },
+    agentMessageCache: {
+      dbName: string,
+      version: number,
+      storeName: string,
     }
   },
   standaloneCache: {
