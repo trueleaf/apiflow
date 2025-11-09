@@ -75,7 +75,13 @@ export type AskMessage = {
   timestamp: string;
   sessionId: string;
 }
-
+export type TextResponseMessage = {
+  id: string;
+  type: "textResponse";
+  content: string;
+  timestamp: string;
+  sessionId: string;
+}
 export type LoadingMessage = {
   id: string;
   type: "loading";
@@ -91,4 +97,4 @@ export type ToolMessage = {
   timestamp: string;
   sessionId: string;
 }
-export type AgentMessage = AskMessage | LoadingMessage | ToolMessage;
+export type AgentMessage = AskMessage | LoadingMessage | ToolMessage | TextResponseMessage;

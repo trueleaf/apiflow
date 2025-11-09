@@ -42,7 +42,7 @@
       </div>
     </div>
     <div class="ai-dialog-body">
-      <div class="ai-messages">
+      <div class="ai-messages" ref="messagesRef">
         <div v-if="!isAiConfigValid()" class="ai-empty-state ai-empty-state-setup">
           <AlertTriangle class="ai-empty-icon" :size="48" />
           <p class="ai-empty-text mb-2">{{ t('请先前往AI设置配置apiKey与apiUrl') }}</p>
@@ -51,10 +51,18 @@
             <ArrowRight :size="14" class="config-icon"/>
           </button>
         </div>
-        <div v-else class="ai-empty-state">
+        <div v-else-if="agentStore.agentMessageList.length === 0" class="ai-empty-state">
           <Bot class="ai-empty-icon" :size="48" />
           <p class="ai-empty-text">{{ t('问我任何问题') }}</p>
         </div>
+        <template v-else>
+          <template v-for="message in agentStore.agentMessageList" :key="message.id">
+            <AskMessageItem v-if="message.type === 'ask'" :message="message" />
+            <LoadingMessageItem v-else-if="message.type === 'loading'" :message="message" />
+            <ToolMessageItem v-else-if="message.type === 'tool'" :message="message" />
+            <TextResponseMessageItem v-else-if="message.type === 'textResponse'" :message="message" />
+          </template>
+        </template>
       </div>
       <div class="ai-dialog-footer">
         <div class="ai-input-wrapper" ref="inputWrapperRef">
@@ -152,7 +160,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onUnmounted, onMounted, watch } from 'vue'
+import { ref, computed, onUnmounted, onMounted, watch, nextTick } from 'vue'
 import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { X, Bot, Send, ChevronDown, Check, AlertTriangle, ArrowRight, Plus, History, Settings } from 'lucide-vue-next'
@@ -161,12 +169,19 @@ import { IPC_EVENTS } from '@src/types/ipc'
 import { config } from '@src/config/config'
 import { userState } from '@/cache/userState/userStateCache'
 import { aiCache } from '@/cache/ai/aiCache'
+import { useAgentStore } from '@/store/agent/agentStore'
+import AskMessageItem from './components/AskMessageItem.vue'
+import LoadingMessageItem from './components/LoadingMessageItem.vue'
+import ToolMessageItem from './components/ToolMessageItem.vue'
+import TextResponseMessageItem from './components/TextResponseMessageItem.vue'
 import './ai.css'
 
 const { t } = useI18n()
 const props = defineProps<{ anchorRect: AnchorRect | null }>()
 const emit = defineEmits<{ (event: 'create'): void, (event: 'history'): void }>()
 const visible = defineModel<boolean>('visible', { default: false })
+const agentStore = useAgentStore()
+const messagesRef = ref<HTMLElement | null>(null)
 const inputMessage = ref('')
 const modeOptions = ['agent', 'ask'] as const
 type AiMode = typeof modeOptions[number]
@@ -212,6 +227,17 @@ watch(visible, value => {
     isModelMenuVisible.value = false
   }
 })
+watch(() => agentStore.agentMessageList.length, () => {
+  scrollToBottom()
+})
+
+const scrollToBottom = () => {
+  nextTick(() => {
+    if (messagesRef.value) {
+      messagesRef.value.scrollTop = messagesRef.value.scrollHeight
+    }
+  })
+}
 
 const handleClose = () => {
   visible.value = false

@@ -1313,5 +1313,6 @@ export default {
     '尚未配置完整的AI接入信息': '尚未配置完整的AI接入信息',
     '请先前往AI设置配置apiKey与apiUrl': '请先前往AI设置配置apiKey与apiUrl',
     '配置APIKey': '配置APIKey',
+    '工具执行': '工具执行',
   },
 }
