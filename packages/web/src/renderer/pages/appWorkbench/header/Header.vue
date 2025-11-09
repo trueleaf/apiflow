@@ -313,6 +313,10 @@ const bindEvent = () => {
     }
   })
 
+  window.electronAPI?.ipcManager.onMain(IPC_EVENTS.apiflow.topBarToContent.openSettingsTab, () => {
+    jumpToSettings()
+  })
+
   // 监听导航到首页事件
   window.electronAPI?.ipcManager.onMain(IPC_EVENTS.apiflow.contentToTopBar.navigateToHome, () => {
     activeTabId.value = ''

@@ -13,7 +13,7 @@ export const config: Config = {
     //AI对话框相关
     aiDialog: {
       defaultWidth: 400,
-      defaultHeight: 600,
+      defaultHeight: 400,
       minWidth: 300,
       maxWidth: 800,
       minHeight: 400,

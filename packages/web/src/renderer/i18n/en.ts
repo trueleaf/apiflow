@@ -1023,4 +1023,7 @@ export default {
     'Agent模式': 'Agent Mode',
     'Ask模式': 'Ask Mode',
   },
+    '尚未配置完整的AI接入信息': 'AI access is not fully configured',
+    '请先前往AI设置配置apiKey与apiUrl': 'Please open AI Settings to configure apiKey and apiUrl',
+    '配置APIKey': 'Configure API Key',
 }

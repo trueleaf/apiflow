@@ -1,8 +1,3 @@
-// ============================================================================
-// AI相关模块
-// 包含AI服务的请求和响应类型
-// ============================================================================
-
 // DeepSeek API 消息类型
 export type DeepSeekMessage = {
   role: 'system' | 'user' | 'assistant';
@@ -69,3 +64,8 @@ export type ChatWithTextStreamOptions = {
   model?: string;
   maxTokens?: number;
 };
+
+
+export type AgentMessage = {
+  role: 'system' | 'user' | 'assistant' | 'tool';
+}

@@ -82,6 +82,11 @@ export interface IPCEventMap {
     response: void;
   };
 
+  [IPC_EVENTS.apiflow.topBarToContent.openSettingsTab]: {
+    request: void;
+    response: void;
+  };
+
   // 内容窗口 -> 顶栏
   [IPC_EVENTS.apiflow.contentToTopBar.contentReady]: {
     request: void;
@@ -144,6 +149,11 @@ export interface IPCEventMap {
   };
 
   [IPC_EVENTS.apiflow.contentToTopBar.navigateToHome]: {
+    request: void;
+    response: void;
+  };
+
+  [IPC_EVENTS.apiflow.contentToTopBar.openSettingsTab]: {
     request: void;
     response: void;
   };

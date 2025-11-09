@@ -43,6 +43,8 @@ export const IPC_EVENTS = {
       tabsUpdated: 'apiflow:topbar:to:content:tabs-updated',
       /** Header 激活的 Tab 已变化 */
       activeTabUpdated: 'apiflow:topbar:to:content:active-tab-updated',
+      /** 打开设置标签 */
+      openSettingsTab: 'apiflow:topbar:to:content:open-settings-tab',
     },
 
     /** 内容窗口 -> 顶栏 */
@@ -73,6 +75,8 @@ export const IPC_EVENTS = {
       hideLanguageMenu: 'apiflow:content:to:topbar:hide-language-menu',
       /** 导航到首页 */
       navigateToHome: 'apiflow:content:to:topbar:navigate-to-home',
+      /** 打开设置标签 */
+      openSettingsTab: 'apiflow:content:to:topbar:open-settings-tab',
     },
 
     /** 渲染进程 -> 主进程 (请求-响应) */

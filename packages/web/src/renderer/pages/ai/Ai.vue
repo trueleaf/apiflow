@@ -8,7 +8,15 @@
     </div>
     <div class="ai-dialog-body">
       <div class="ai-messages">
-        <div class="ai-empty-state">
+        <div v-if="!isAiConfigValid()" class="ai-empty-state ai-empty-state-setup">
+          <AlertTriangle class="ai-empty-icon" :size="48" />
+          <p class="ai-empty-text mb-2">{{ t('请先前往AI设置配置apiKey与apiUrl') }}</p>
+          <button class="ai-config-btn" type="button" @click="handleOpenAiSettings">
+            <span>{{ t('配置ApiKey') }}</span>
+            <ArrowRight :size="14" class="config-icon"/>
+          </button>
+        </div>
+        <div v-else class="ai-empty-state">
           <Bot class="ai-empty-icon" :size="48" />
           <p class="ai-empty-text">{{ t('问我任何问题') }}</p>
         </div>
@@ -76,7 +84,6 @@
             <button
               class="ai-send-btn"
               type="button"
-              :disabled="!inputMessage.trim()"
               @click="handleSend"
               :title="t('发送')"
             >
@@ -111,11 +118,14 @@
 
 <script setup lang="ts">
 import { ref, computed, onUnmounted, onMounted, watch } from 'vue'
+import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
-import { X, Bot, Send, ChevronDown, Check } from 'lucide-vue-next'
+import { X, Bot, Send, ChevronDown, Check, AlertTriangle, BrainCircuit, ArrowUpRight, ArrowRight } from 'lucide-vue-next'
 import type { AnchorRect } from '@src/types/common'
+import { IPC_EVENTS } from '@src/types/ipc'
 import { config } from '@src/config/config'
 import { userState } from '@/cache/userState/userStateCache'
+import { aiCache } from '@/cache/ai/aiCache'
 import './ai.css'
 
 const { t } = useI18n()
@@ -149,6 +159,7 @@ const initialHeight = ref(0)
 const inputWrapperRef = ref<HTMLElement | null>(null)
 const isModeMenuVisible = ref(false)
 const isModelMenuVisible = ref(false)
+const router = useRouter()
 
 const dialogStyle = computed(() => ({
   left: position.value.x !== null ? `${position.value.x}px` : 'auto',
@@ -168,6 +179,10 @@ watch(visible, value => {
 
 const handleClose = () => {
   visible.value = false
+}
+const isAiConfigValid = () => {
+  const configState = aiCache.getAiConfig()
+  return configState.apiKey.trim() !== '' && configState.apiUrl.trim() !== ''
 }
 const handleDragStart = (event: MouseEvent) => {
   isDragging.value = true
@@ -325,6 +340,7 @@ const handleKeydown = (event: KeyboardEvent) => {
   }
 }
 const handleSend = () => {
+  if (!isAiConfigValid()) return
   if (!inputMessage.value.trim()) return
   inputMessage.value = ''
 }
@@ -340,6 +356,12 @@ const handleClickOutside = (event: MouseEvent) => {
   }
   isModeMenuVisible.value = false
   isModelMenuVisible.value = false
+}
+const handleOpenAiSettings = () => {
+  userState.setActiveLocalDataMenu('ai-settings')
+  window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.contentToTopBar.openSettingsTab)
+  visible.value = false
+  router.push('/settings')
 }
 const clampPositionToBounds = (pos: { x: number, y: number }, width: number, height: number): { x: number, y: number } => {
   const maxX = window.innerWidth - width
