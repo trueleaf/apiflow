@@ -111,6 +111,8 @@ import { ref, onMounted, computed } from 'vue'
 import { Loading } from '@element-plus/icons-vue'
 import { aiCache } from '@/cache/ai/aiCache'
 import type { Config } from '@src/types/config'
+import { mainConfig } from '@src/config/mainConfig'
+import type { DeepSeekRequestBody, DeepSeekResponse } from '@src/types/ai'
 import VueMarkdownRender from 'vue-markdown-render'
 import SJsonEditor from '@/components/common/jsonEditor/ClJsonEditor.vue'
 import { message, parseAiStream } from '@/helper'
@@ -141,6 +143,14 @@ const jsonTestData = ref<string>('')
 let streamController: { cancel: () => Promise<void> } | null = null
 let currentRequestId = ''
 let streamBuffer = ''
+
+const getMessageContent = (response: DeepSeekResponse | null): string => {
+  if (!response) {
+    return ''
+  }
+  const content = response.choices?.[0]?.message?.content
+  return content || ''
+}
 
 // 是否可以测试
 const canTest = computed(() => {
@@ -237,10 +247,32 @@ const handleTest = async () => {
       timeout: formData.value.timeout
     })
 
-    const result = await window.electronAPI?.aiManager.textChat()
+    const maxTokens = mainConfig.aiConfig.maxTokens ?? 2000
+    const requestBody: DeepSeekRequestBody = {
+      model: 'deepseek-chat',
+      messages: [
+        {
+          role: 'system',
+          content: `你是一个专业的文案助手。请严格遵循用户指令生成内容，务必保证返回的文案条数不超过${maxTokens}条，必须控制整体字数不超过${maxTokens}个字符。`
+        },
+        {
+          role: 'user',
+          content: '你是什么模型'
+        }
+      ],
+      max_tokens: maxTokens
+    }
+
+    const result = await window.electronAPI?.aiManager.textChat(requestBody)
 
     if (result?.code === 0 && result.data) {
-      testResult.value = result.data
+      const content = getMessageContent(result.data)
+      if (content) {
+        testResult.value = content
+      } else {
+        testError.value = 'AI 返回内容为空'
+        message.error(testError.value)
+      }
     } else {
       testError.value = result?.msg || '测试请求失败'
       message.error(testError.value)
@@ -275,14 +307,37 @@ const handleJsonTest = async () => {
       timeout: formData.value.timeout
     })
 
-    const result = await window.electronAPI?.aiManager.jsonChat()
+    const maxTokens = mainConfig.aiConfig.maxTokens ?? 2000
+    const requestBody: DeepSeekRequestBody = {
+      model: 'deepseek-chat',
+      messages: [
+        {
+          role: 'system',
+          content: '你是一个专业的数据生成助手。请根据用户的要求生成符合规范的JSON格式数据。你的回答必须是合法的JSON格式，不要包含任何解释性文字或markdown标记。'
+        },
+        {
+          role: 'user',
+          content: '生成一个简单的测试JSON对象，包含name和age字段'
+        }
+      ],
+      max_tokens: maxTokens,
+      response_format: { type: 'json_object' }
+    }
+
+    const result = await window.electronAPI?.aiManager.jsonChat(requestBody)
 
     if (result?.code === 0 && result.data) {
-      try {
-        const jsonData = JSON.parse(result.data)
-        jsonTestData.value = JSON.stringify(jsonData, null, 2)
-      } catch {
-        jsonTestData.value = result.data
+      const content = getMessageContent(result.data)
+      if (content) {
+        try {
+          const jsonData = JSON.parse(content)
+          jsonTestData.value = JSON.stringify(jsonData, null, 2)
+        } catch {
+          jsonTestData.value = content
+        }
+      } else {
+        testError.value = 'AI 返回内容为空'
+        message.error(testError.value)
       }
     } else {
       testError.value = result?.msg || 'JSON测试失败'
@@ -320,9 +375,27 @@ const handleStreamTest = async () => {
       timeout: formData.value.timeout
     })
 
+    const maxTokens = mainConfig.aiConfig.maxTokens ?? 2000
+    const requestBody: DeepSeekRequestBody & { stream: true } = {
+      model: 'deepseek-chat',
+      messages: [
+        {
+          role: 'system',
+          content: `你是一个专业的文案助手。请严格遵循用户指令生成内容，务必保证返回的文案条数不超过${maxTokens}条，必须控制整体字数不超过${maxTokens}个字符。`
+        },
+        {
+          role: 'user',
+          content: '你是什么模型'
+        }
+      ],
+      max_tokens: maxTokens,
+      stream: true
+    }
+
     const controller = window.electronAPI?.aiManager.textChatWithStream(
       {
         requestId: currentRequestId,
+        requestBody
       },
       (rawChunk: string) => {
         // 使用纯函数解析原始数据块

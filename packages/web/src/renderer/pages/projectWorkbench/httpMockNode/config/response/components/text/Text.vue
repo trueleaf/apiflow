@@ -123,8 +123,7 @@ import { Loading, Top } from '@element-plus/icons-vue'
 import SJsonEditor from '@/components/common/jsonEditor/ClJsonEditor.vue'
 import { userState } from '@/cache/userState/userStateCache'
 import type { HttpMockNode } from '@src/types'
-
-
+import type { DeepSeekRequestBody, DeepSeekResponse } from '@src/types/ai'
 import { message } from '@/helper'
 type ResponseItem = HttpMockNode['response'][0]
 
@@ -139,6 +138,14 @@ const { t } = useI18n()
 const showRandomTextSizeHint = ref(true)
 const aiGeneratingText = ref(false)
 const aiPreviewText = ref('')
+
+const getMessageContent = (response: DeepSeekResponse | null): string => {
+  if (!response) {
+    return ''
+  }
+  const content = response.choices?.[0]?.message?.content
+  return content || ''
+}
 
 // 将textType映射为编辑器支持的语言类型
 const getEditorLanguage = (textType: string): string => {
@@ -176,13 +183,32 @@ const handleGenerateTextPreview = async () => {
   aiGeneratingText.value = true
   aiPreviewText.value = ''
   try {
-    const result = await window.electronAPI?.aiManager.textChat({
-      prompt: promptText
-    })
+    const requestBody: DeepSeekRequestBody = {
+      model: 'deepseek-chat',
+      messages: [
+        {
+          role: 'system',
+          content: '你是一个专业的文案助手。请根据用户指令输出文本内容。'
+        },
+        {
+          role: 'user',
+          content: promptText
+        }
+      ],
+      max_tokens: 300
+    }
+
+    const result = await window.electronAPI?.aiManager.textChat(requestBody)
 
     if (result?.code === 0 && result.data) {
-      // 生成成功
-      aiPreviewText.value = result.data
+      const content = getMessageContent(result.data)
+      if (content) {
+        aiPreviewText.value = content
+      } else {
+        const errorMsg = t('AI生成失败，请稍后重试')
+        message.error(errorMsg)
+        aiPreviewText.value = `[${t('生成失败')}] ${errorMsg}`
+      }
     } else {
       // 生成失败，在预览区显示错误信息
       const errorMsg = result?.msg || t('AI生成失败，请稍后重试')

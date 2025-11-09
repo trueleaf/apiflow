@@ -1,4 +1,4 @@
-﻿<template>
+<template>
   <div class="json-config">
     <!-- 数据模式选择 -->
     <div class="form-row">
@@ -16,10 +16,10 @@
     <div v-if="response.jsonConfig.mode === 'random'" class="form-row">
       <div class="form-item flex-item">
         <label class="form-label">{{ t('随机字段个数') }}</label>
-        <el-input-number 
-          v-model="response.jsonConfig.randomSize" 
-          :min="1" 
-          :max="500" 
+        <el-input-number
+          v-model="response.jsonConfig.randomSize"
+          :min="1"
+          :max="500"
           :step="1"
           size="small"
           controls-position="right"
@@ -33,9 +33,7 @@
     </div>
 
     <!-- AI生成模式区域 -->
-    <div 
-      v-if="response.jsonConfig.mode === 'randomAi'" 
-      class="ai-generate-wrapper">
+    <div v-if="response.jsonConfig.mode === 'randomAi'" class="ai-generate-wrapper">
       <!-- 左侧：提示词输入区 -->
       <div class="prompt-section">
         <div class="prompt-header">
@@ -49,20 +47,17 @@
               maxlength="2000"
               class="prompt-textarea"
             />
-            <div 
+            <button
               class="send-btn"
-              :class="{ 
+              :class="{
                 'is-loading': aiGenerating,
                 'is-disabled': isSendDisabled
               }"
+              type="button"
               @click="!isSendDisabled && handleGeneratePreview()">
-              <el-icon v-if="aiGenerating" class="is-loading">
-                <Loading />
-              </el-icon>
-              <el-icon v-else>
-                <Top />
-              </el-icon>
-            </div>
+              <Loader2 v-if="aiGenerating" class="icon-loading" />
+              <Send v-else class="icon-send" />
+            </button>
           </div>
         </div>
       </div>
@@ -74,15 +69,14 @@
         </div>
         <div class="preview-content">
           <div v-if="aiGenerating" class="loading-wrapper">
-            <el-icon class="is-loading">
-              <Loading />
-            </el-icon>
+            <Loader2 class="loading-spinner" />
             <span class="loading-text">{{ t('AI正在生成中，请稍候...') }}</span>
           </div>
           <div v-else-if="aiPreviewJson" class="json-preview-wrapper">
-            <SJsonEditor 
+            <SJsonEditor
               v-model="aiPreviewJson"
-              :config="{ fontSize: 13, language: 'json', readOnly: false }">
+              :config="{ fontSize: 13, language: 'json', readOnly: false }"
+            >
             </SJsonEditor>
           </div>
           <div v-else class="empty-preview">
@@ -93,25 +87,27 @@
     </div>
 
     <!-- 固定JSON编辑器区域 -->
-    <SJsonEditor 
+    <SJsonEditor
       v-if="response.jsonConfig.mode === 'fixed'"
       class="json-editor-wrapper"
       v-model="response.jsonConfig.fixedData"
-      :config="{ fontSize: 13, language: 'json' }">
+      :config="{ fontSize: 13, language: 'json' }"
+    >
     </SJsonEditor>
   </div>
 </template>
 
 <script lang="ts" setup>
-import { ref, computed, onMounted } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { Loading, Top } from '@element-plus/icons-vue'
+import { Loader2, Send } from 'lucide-vue-next'
 import SJsonEditor from '@/components/common/jsonEditor/ClJsonEditor.vue'
 import { userState } from '@/cache/userState/userStateCache'
 import type { HttpMockNode } from '@src/types'
-
-
+import { mainConfig } from '@src/config/mainConfig'
+import type { DeepSeekRequestBody, DeepSeekResponse } from '@src/types/ai'
 import { message } from '@/helper'
+
 type ResponseItem = HttpMockNode['response'][0]
 
 type Props = {
@@ -121,24 +117,28 @@ type Props = {
 const props = defineProps<Props>()
 const { t } = useI18n()
 
-// JSON 相关状态
 const showRandomSizeHint = ref(true)
 const aiGenerating = ref(false)
 const aiPreviewJson = ref('')
 
-// 计算发送按钮是否禁用
+const getMessageContent = (response: DeepSeekResponse | null): string => {
+  if (!response) {
+    return ''
+  }
+  const content = response.choices?.[0]?.message?.content
+  return content || ''
+}
+
 const isSendDisabled = computed(() => {
   const promptText = (props.response.jsonConfig.prompt || '').trim()
   return !promptText || aiGenerating.value
 })
 
-// 处理"不再提示"点击
 const handleDismissHint = () => {
   showRandomSizeHint.value = false
   userState.setMockJsonRandomSizeHintVisible(false)
 }
 
-// 处理 AI生成预览
 const handleGeneratePreview = async () => {
   const promptText = (props.response.jsonConfig.prompt || '').trim()
   if (!promptText) {
@@ -149,25 +149,48 @@ const handleGeneratePreview = async () => {
   aiGenerating.value = true
   aiPreviewJson.value = ''
   try {
-    const result = await window.electronAPI?.aiManager.jsonChat({
-      prompt: promptText
-    })
+    const maxTokens = mainConfig.aiConfig.maxTokens ?? 2000
+    const requestBody: DeepSeekRequestBody = {
+      model: 'deepseek-chat',
+      messages: [
+        {
+          role: 'system',
+          content: '你是一个专业的数据生成助手。请根据用户的要求生成符合规范的JSON格式数据。你的回答必须是合法的JSON格式，不要包含任何解释性文字或markdown标记。'
+        },
+        {
+          role: 'user',
+          content: promptText
+        }
+      ],
+      max_tokens: maxTokens,
+      response_format: { type: 'json_object' }
+    }
+
+    const result = await window.electronAPI?.aiManager.jsonChat(requestBody)
 
     if (result?.code === 0 && result.data) {
-      // 生成成功
-      aiPreviewJson.value = typeof result.data === 'string'
-        ? result.data
-        : JSON.stringify(result.data)
+      const content = getMessageContent(result.data)
+      if (content) {
+        try {
+          const parsed = JSON.parse(content)
+          aiPreviewJson.value = JSON.stringify(parsed, null, 2)
+        } catch {
+          aiPreviewJson.value = content
+        }
+      } else {
+        const errorMsg = t('AI生成失败，请稍后重试')
+        message.error(errorMsg)
+        aiPreviewJson.value = `// ${t('生成失败')}` + '\n' + `// ${errorMsg}`
+      }
     } else {
-      // 生成失败，在预览区显示错误信息
       const errorMsg = result?.msg || t('AI生成失败，请稍后重试')
       message.error(errorMsg)
-      aiPreviewJson.value = `// ${t('生成失败')}\n// ${errorMsg}`
+      aiPreviewJson.value = `// ${t('生成失败')}` + '\n' + `// ${errorMsg}`
     }
   } catch (error) {
     const errorMsg = (error as Error).message || t('AI生成失败，请稍后重试')
     message.error(errorMsg)
-    aiPreviewJson.value = `// ${t('生成失败')}\n// ${errorMsg}`
+    aiPreviewJson.value = `// ${t('生成失败')}` + '\n' + `// ${errorMsg}`
   } finally {
     aiGenerating.value = false
   }
@@ -187,7 +210,6 @@ onMounted(() => {
   min-height: 0;
 }
 
-/* 表单行 */
 .form-row {
   display: flex;
   gap: 24px;
@@ -195,7 +217,6 @@ onMounted(() => {
   flex-shrink: 0;
 }
 
-/* 表单项 */
 .form-item {
   display: flex;
   flex-direction: column;
@@ -216,7 +237,6 @@ onMounted(() => {
   margin-left: 12px;
 }
 
-/* 提示信息样式 */
 .hint-text {
   display: flex;
   justify-content: space-between;
@@ -236,15 +256,14 @@ onMounted(() => {
   cursor: pointer;
   margin-left: 12px;
   white-space: nowrap;
-  transition: all 0.2s;
-  
-  &:hover {
-    text-decoration: underline;
-    opacity: 0.8;
-  }
+  transition: all 0.2s ease;
 }
 
-/* AI生成模式布局 */
+.hint-dismiss:hover {
+  text-decoration: underline;
+  opacity: 0.8;
+}
+
 .ai-generate-wrapper {
   flex: 1;
   display: flex;
@@ -252,7 +271,6 @@ onMounted(() => {
   min-height: 0;
 }
 
-/* 左侧提示词输入区 */
 .prompt-section {
   flex: 0 0 40%;
   display: flex;
@@ -274,7 +292,7 @@ onMounted(() => {
   border: 1px solid var(--gray-300);
   border-radius: var(--border-radius-sm);
   overflow: hidden;
-  background: white;
+  background: #fff;
   min-height: 0;
 }
 
@@ -299,14 +317,10 @@ onMounted(() => {
   outline: none;
   resize: none;
   font-family: inherit;
-  
-  &::placeholder {
-    color: var(--gray-400);
-  }
-  
-  &:focus {
-    outline: none;
-  }
+}
+
+.prompt-textarea::placeholder {
+  color: var(--gray-400);
 }
 
 .send-btn {
@@ -320,31 +334,36 @@ onMounted(() => {
   justify-content: center;
   border-radius: 50%;
   background: var(--primary);
-  color: white;
+  color: #fff;
   cursor: pointer;
-  transition: all 0.3s;
-  z-index: 1;
-  
-  &:hover:not(.is-loading):not(.is-disabled) {
-    background: var(--el-color-primary-light-3);
-  }
-  
-  &.is-loading {
-    cursor: not-allowed;
-    opacity: 0.6;
-  }
-  
-  &.is-disabled {
-    background: var(--el-color-primary-light-5);
-    cursor: not-allowed;
-  }
-  
-  .el-icon {
-    font-size: 16px;
-  }
+  transition: all 0.3s ease;
+  border: none;
 }
 
-/* 右侧JSON预览区 */
+.send-btn:hover:not(.is-loading):not(.is-disabled) {
+  background: var(--el-color-primary-light-3);
+}
+
+.send-btn.is-loading,
+.send-btn.is-disabled {
+  cursor: not-allowed;
+}
+
+.send-btn.is-disabled {
+  background: var(--el-color-primary-light-5);
+}
+
+.icon-loading {
+  width: 16px;
+  height: 16px;
+  animation: spin 1s linear infinite;
+}
+
+.icon-send {
+  width: 16px;
+  height: 16px;
+}
+
 .preview-section {
   flex: 1;
   display: flex;
@@ -366,7 +385,7 @@ onMounted(() => {
   border: 1px solid var(--gray-300);
   border-radius: var(--border-radius-sm);
   overflow: hidden;
-  background: white;
+  background: #fff;
   min-height: 0;
 }
 
@@ -384,15 +403,17 @@ onMounted(() => {
   justify-content: center;
   gap: 12px;
   color: var(--primary);
+}
 
-  .el-icon {
-    font-size: 32px;
-  }
+.loading-spinner {
+  width: 32px;
+  height: 32px;
+  animation: spin 1s linear infinite;
+}
 
-  .loading-text {
-    font-size: 14px;
-    color: var(--gray-600);
-  }
+.loading-text {
+  font-size: 14px;
+  color: var(--gray-600);
 }
 
 .empty-preview {
@@ -400,14 +421,13 @@ onMounted(() => {
   display: flex;
   align-items: center;
   justify-content: center;
-  
-  .empty-text {
-    font-size: 14px;
-    color: var(--gray-400);
-  }
 }
 
-/* JSON编辑器容器 */
+.empty-text {
+  font-size: 14px;
+  color: var(--gray-400);
+}
+
 .json-editor-wrapper {
   flex: 1;
   display: flex;
@@ -416,5 +436,14 @@ onMounted(() => {
   border: 1px solid var(--gray-300);
   border-radius: var(--border-radius-sm);
   overflow: hidden;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
 }
 </style>

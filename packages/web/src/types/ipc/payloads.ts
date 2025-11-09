@@ -7,6 +7,8 @@
  */
 
 import type { AnchorRect } from '@src/types/common';
+import type { CommonResponse } from '@src/types/project';
+import type { DeepSeekRequestBody, DeepSeekResponse } from '../ai';
 import type { IPC_EVENTS } from './events';
 
 /**
@@ -514,47 +516,40 @@ export interface IPCEventMap {
   };
 
   [IPC_EVENTS.ai.rendererToMain.textChat]: {
-    request: {
-      messages: Array<{ role: string; content: string }>;
-      config: any;
-    };
-    response: { content: string; error?: string };
+    request: DeepSeekRequestBody;
+    response: CommonResponse<DeepSeekResponse | null>;
   };
 
   [IPC_EVENTS.ai.rendererToMain.jsonChat]: {
-    request: {
-      messages: Array<{ role: string; content: string }>;
-      config: any;
-    };
-    response: { data: any; error?: string };
+    request: DeepSeekRequestBody;
+    response: CommonResponse<DeepSeekResponse | null>;
   };
 
   [IPC_EVENTS.ai.rendererToMain.textChatStream]: {
     request: {
-      correlationId: string;
-      messages: Array<{ role: string; content: string }>;
-      config: any;
+      requestId: string;
+      requestBody: DeepSeekRequestBody & { stream: true };
     };
-    response: { success: boolean; correlationId: string };
+    response: CommonResponse<{ requestId: string } | null>;
   };
 
   [IPC_EVENTS.ai.rendererToMain.cancelStream]: {
-    request: { correlationId: string };
-    response: { success: boolean };
+    request: string;
+    response: CommonResponse<null>;
   };
 
   [IPC_EVENTS.ai.mainToRenderer.streamData]: {
-    request: { correlationId: string; chunk: string };
+    request: { requestId: string; chunk: string };
     response: void;
   };
 
   [IPC_EVENTS.ai.mainToRenderer.streamEnd]: {
-    request: { correlationId: string };
+    request: { requestId: string };
     response: void;
   };
 
   [IPC_EVENTS.ai.mainToRenderer.streamError]: {
-    request: { correlationId: string; error: string };
+    request: { requestId: string; code: number; msg: string; data: string };
     response: void;
   };
 

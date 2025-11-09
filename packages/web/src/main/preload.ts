@@ -5,6 +5,7 @@ import { gotRequest } from './sendRequest'
 import { StandaloneExportHtmlParams } from '@src/types/standalone.ts'
 import { WindowState } from '@src/types/index.ts'
 import type { CommonResponse } from '@src/types/project'
+import type { DeepSeekRequestBody } from '@src/types/ai'
 import { IPC_EVENTS } from '@src/types/ipc'
 
 const openDevTools = () => {
@@ -144,16 +145,16 @@ const updateAiConfig = (params: { apiKey: string; apiUrl: string; timeout: numbe
   return ipcRenderer.invoke(IPC_EVENTS.ai.rendererToMain.updateConfig, params)
 }
 
-const textChat = (params?: { prompt: string }) => {
-  return ipcRenderer.invoke(IPC_EVENTS.ai.rendererToMain.textChat, params)
+const textChat = (request: DeepSeekRequestBody) => {
+  return ipcRenderer.invoke(IPC_EVENTS.ai.rendererToMain.textChat, request)
 }
 
-const jsonChat = (params?: { prompt: string }) => {
-  return ipcRenderer.invoke(IPC_EVENTS.ai.rendererToMain.jsonChat, params)
+const jsonChat = (request: DeepSeekRequestBody) => {
+  return ipcRenderer.invoke(IPC_EVENTS.ai.rendererToMain.jsonChat, request)
 }
 
 const textChatWithStream = (
-  params: { requestId: string },
+  params: { requestId: string; requestBody: DeepSeekRequestBody & { stream: true } },
   onData: (chunk: string) => void,
   onEnd: () => void,
   onError: (response: CommonResponse<string>) => void
@@ -197,7 +198,7 @@ const textChatWithStream = (
       ipcRenderer.removeListener(IPC_EVENTS.ai.mainToRenderer.streamData, dataHandler)
       ipcRenderer.removeListener(IPC_EVENTS.ai.mainToRenderer.streamEnd, endHandler)
       ipcRenderer.removeListener(IPC_EVENTS.ai.mainToRenderer.streamError, errorHandler)
-      await ipcRenderer.invoke(IPC_EVENTS.ai.rendererToMain.cancelStream, params.requestId)
+  await ipcRenderer.invoke(IPC_EVENTS.ai.rendererToMain.cancelStream, params.requestId)
     },
     startPromise
   }

@@ -1,3 +1,5 @@
+import type { CommonResponse } from '@src/types/project';
+
 // DeepSeek API 消息类型
 export type DeepSeekMessage = {
   role: 'system' | 'user' | 'assistant';
@@ -37,33 +39,33 @@ export type DeepSeekResponse = {
 };
 
 // AI 聊天选项类型
-export type ChatWithTextOptions = {
-  maxTokens?: number;
-  model?: 'DeepSeek';
-};
-
-// AI JSON 聊天选项类型（扩展基础选项）
-export type ChatWithJsonTextOptions = {
-  maxTokens?: number;
-};
-
-// 通用响应类型
-import type { CommonResponse } from '@src/types/project';
+export type DeepSeekRequestMode = 'text' | 'json';
 
 // 流式回调函数类型
 export type StreamCallback = (chunk: string) => void;
 export type StreamEndCallback = () => void;
 export type StreamErrorCallback = (response: CommonResponse<string>) => void;
 
-// 流式聊天选项类型
-export type ChatWithTextStreamOptions = {
-  requestId: string;
-  onData: StreamCallback;
-  onEnd: StreamEndCallback;
-  onError: StreamErrorCallback;
-  model?: string;
-  maxTokens?: number;
+export type SendRequestByDeepSeekParams = DeepSeekRequestBody;
+
+type StreamRequestCallbacks = {
+  onData?: StreamCallback;
+  onEnd?: StreamEndCallback;
+  onError?: StreamErrorCallback;
 };
+
+export type SendStreamRequestStartParams = {
+  action: 'start';
+  requestId: string;
+  requestBody: DeepSeekRequestBody & { stream: true };
+} & StreamRequestCallbacks;
+
+export type SendStreamRequestCancelParams = {
+  action: 'cancel';
+  requestId: string;
+};
+
+export type SendStreamRequestByDeepSeekParams = SendStreamRequestStartParams | SendStreamRequestCancelParams;
 
 
 export type AskMessage = {

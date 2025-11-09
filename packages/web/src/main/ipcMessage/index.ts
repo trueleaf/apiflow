@@ -14,6 +14,7 @@ import { MockUtils } from '../mock/mockUtils.ts';
 import { HttpMockNode } from '@src/types/mockNode';
 import { mainRuntime } from '../runtime/mainRuntime.ts';
 import { globalAiManager } from '../ai/ai.ts';
+import type { DeepSeekRequestBody } from '@src/types/ai';
 import { IPCProjectData, WindowState } from '@src/types/index.ts';
 import type { CommonResponse } from '@src/types/project';
 import vm from 'vm';
@@ -443,55 +444,44 @@ export const useIpcEvent = (mainWindow: BrowserWindow, topBarView: WebContentsVi
   });
 
   // AI 文本聊天
-  ipcMain.handle(IPC_EVENTS.ai.rendererToMain.textChat, async (_: IpcMainInvokeEvent, params?: { prompt: string }) => {
-    const prompt = params?.prompt ?? '你是什么模型';
-    return await globalAiManager.chatWithText([prompt], { maxTokens: 2000 });
+  ipcMain.handle(IPC_EVENTS.ai.rendererToMain.textChat, async (_: IpcMainInvokeEvent, params: DeepSeekRequestBody) => {
+    return await globalAiManager.sendRequestByDeepSeek(params);
   });
 
   // AI JSON聊天
-  ipcMain.handle(IPC_EVENTS.ai.rendererToMain.jsonChat, async (_: IpcMainInvokeEvent, params?: { prompt: string }) => {
-    const prompt = params?.prompt ?? '生成一个简单的测试JSON对象，包含name和age字段';
-    return await globalAiManager.chatWithJsonText([prompt], { maxTokens: 2000 });
+  ipcMain.handle(IPC_EVENTS.ai.rendererToMain.jsonChat, async (_: IpcMainInvokeEvent, params: DeepSeekRequestBody) => {
+    return await globalAiManager.sendRequestByDeepSeek(params);
   });
 
   // AI 流式聊天
-  ipcMain.handle(IPC_EVENTS.ai.rendererToMain.textChatStream, async (_: IpcMainInvokeEvent, params: { requestId: string }) => {
-    // 开始流式请求
-    globalAiManager.chatWithTextStream(
-      ['你是什么模型'],
-      {
-        requestId: params.requestId,
-        onData: (chunk: string) => {
-          // 发送数据块到渲染进程
-          contentView.webContents.send(IPC_EVENTS.ai.mainToRenderer.streamData, {
-            requestId: params.requestId,
-            chunk,
-          });
-        },
-        onEnd: () => {
-          // 发送完成信号到渲染进程
-          contentView.webContents.send(IPC_EVENTS.ai.mainToRenderer.streamEnd, {
-            requestId: params.requestId,
-          });
-        },
-        onError: (response: CommonResponse<string>) => {
-          // 发送错误信号到渲染进程
-          contentView.webContents.send(IPC_EVENTS.ai.mainToRenderer.streamError, {
-            requestId: params.requestId,
-            ...response,
-          });
-        },
-        maxTokens: 2000
-      }
-    );
-
-    return { code: 0, data: { requestId: params.requestId }, msg: '流式请求已启动' };
+  ipcMain.handle(IPC_EVENTS.ai.rendererToMain.textChatStream, async (_: IpcMainInvokeEvent, params: { requestId: string; requestBody: DeepSeekRequestBody & { stream: true } }) => {
+    return await globalAiManager.sendStreamRequestByDeepSeek({
+      action: 'start',
+      requestId: params.requestId,
+      requestBody: params.requestBody,
+      onData: (chunk: string) => {
+        contentView.webContents.send(IPC_EVENTS.ai.mainToRenderer.streamData, {
+          requestId: params.requestId,
+          chunk,
+        });
+      },
+      onEnd: () => {
+        contentView.webContents.send(IPC_EVENTS.ai.mainToRenderer.streamEnd, {
+          requestId: params.requestId,
+        });
+      },
+      onError: (response: CommonResponse<string>) => {
+        contentView.webContents.send(IPC_EVENTS.ai.mainToRenderer.streamError, {
+          requestId: params.requestId,
+          ...response,
+        });
+      },
+    });
   });
 
   // 取消 AI 流式请求
   ipcMain.handle(IPC_EVENTS.ai.rendererToMain.cancelStream, async (_: IpcMainInvokeEvent, requestId: string) => {
-    globalAiManager.cancelStream(requestId);
-    return { code: 0, data: null, msg: '已取消请求' };
+    return await globalAiManager.sendStreamRequestByDeepSeek({ action: 'cancel', requestId });
   });
 
   /*

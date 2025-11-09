@@ -1,4 +1,5 @@
 import { HttpMockNode, MockSSEEventData } from '@src/types/mockNode';
+import { mainConfig } from '@src/config/mainConfig';
 import { globalAiManager } from '../ai/ai';
 import { fakerZH_CN, fakerEN, fakerJA } from '@faker-js/faker';
 import sharp from 'sharp';
@@ -809,11 +810,25 @@ export class MockUtils {
           }
 
           try {
-            const aiResult = await globalAiManager.chatWithJsonText([prompt]);
+            const aiResult = await globalAiManager.sendRequestByDeepSeek({
+              model: 'deepseek-chat',
+              messages: [
+                {
+                  role: 'system',
+                  content: '你是一个专业的数据生成助手。请根据用户的要求生成符合规范的JSON格式数据。你的回答必须是合法的JSON格式，不要包含任何解释性文字或markdown标记。'
+                },
+                {
+                  role: 'user',
+                  content: prompt
+                }
+              ],
+              max_tokens: mainConfig.aiConfig.maxTokens,
+              response_format: { type: 'json_object' }
+            });
             if (aiResult.code !== 0 || !aiResult.data) {
               return { error: `AI生成失败：${aiResult.msg || '返回内容为空'}` };
             }
-            const aiJsonText = aiResult.data;
+            const aiJsonText = aiResult.data.choices?.[0]?.message?.content || '';
             if (!aiJsonText) {
               return { error: 'AI生成失败：返回内容为空' };
             }
@@ -899,11 +914,28 @@ export class MockUtils {
               }
             }
             
-            const aiResult = await globalAiManager.chatWithText([prompt], { maxTokens: 300 });
-            if (aiResult.code !== 0) {
+            const aiResult = await globalAiManager.sendRequestByDeepSeek({
+              model: 'deepseek-chat',
+              messages: [
+                {
+                  role: 'system',
+                  content: '你是一个专业的文案助手。请根据用户指令输出文本内容。'
+                },
+                {
+                  role: 'user',
+                  content: prompt
+                }
+              ],
+              max_tokens: 300
+            });
+            if (aiResult.code !== 0 || !aiResult.data) {
               throw new Error(aiResult.msg);
             }
-            return aiResult.data;
+            const aiText = aiResult.data.choices?.[0]?.message?.content || '';
+            if (!aiText) {
+              throw new Error('AI生成失败：返回内容为空');
+            }
+            return aiText;
           } catch (aiError) {
             // 降级时也根据textType生成对应格式
             const textType = textConfig.textType || 'text/plain';
