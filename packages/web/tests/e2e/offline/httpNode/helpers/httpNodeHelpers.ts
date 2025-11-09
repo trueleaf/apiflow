@@ -78,7 +78,8 @@ export const switchToTab = async (
   page: Page,
   tabName: 'Params' | 'Body' | 'Headers' | '返回参数' | '前置脚本' | '后置脚本' | '备注信息'
 ): Promise<void> => {
-  const tab = page.locator(`.el-tabs__item:has-text("${tabName}")`);
+  const targetName = tabName === 'Headers' ? '请求头' : tabName;
+  const tab = page.locator(`.el-tabs__item:has-text("${targetName}")`);
   await tab.click();
   await page.waitForTimeout(300);
 };
@@ -91,22 +92,103 @@ export const addQueryParam = async (
   options: { enabled?: boolean; description?: string } = {}
 ): Promise<void> => {
   const { enabled = true, description = '' } = options;
-  await switchToTab(page, 'Params');
-  const paramsTable = page.locator('.params-table, .s-params').first();
-  const lastRow = paramsTable.locator('tbody tr').last();
-  const keyInput = lastRow.locator('input[placeholder*="参数"], input[placeholder*="key"]').first();
-  await keyInput.fill(key);
-  const valueInput = lastRow.locator('input[placeholder*="值"], input[placeholder*="value"]').nth(1);
-  await valueInput.fill(value);
-  if (description) {
-    const descInput = lastRow.locator('input[placeholder*="描述"], input[placeholder*="说明"]').first();
-    await descInput.fill(description);
+  const paramsActive = await page
+    .locator('.el-tabs__item.is-active:has-text("Params"), .el-tabs__item.is-active:has-text("参数")')
+    .first()
+    .isVisible()
+    .catch(() => false);
+  if (!paramsActive) {
+    await switchToTab(page, 'Params');
   }
-  if (!enabled) {
-    const checkbox = lastRow.locator('input[type="checkbox"]').first();
-    await checkbox.uncheck();
+  const tree = page.locator('.body-params .el-tree, .query-path-params .el-tree').first();
+  if (await tree.count()) {
+    await tree.waitFor({ state: 'visible', timeout: 5000 });
+    const rows = tree.locator('.custom-params');
+    const count = await rows.count();
+    const lastIndex = count > 0 ? count - 1 : 0;
+    const targetRow = rows.nth(lastIndex);
+    const keyInput = targetRow.locator('input[placeholder*="参数"], input[placeholder*="key"]').first();
+    await keyInput.fill(key);
+    const valueInput = targetRow.locator(
+      '.value-text-input, textarea, input[placeholder*="值"], input[placeholder*="value"]'
+    ).first();
+    if (value.includes('\n')) {
+      await valueInput.click({ force: true });
+      await page.waitForTimeout(50);
+      const textarea = targetRow
+        .locator('.value-textarea textarea, .value-textarea .el-textarea__inner, textarea')
+        .first();
+      await textarea.waitFor({ state: 'visible', timeout: 3000 });
+      await textarea.fill(value);
+      await textarea.blur();
+    } else {
+      await valueInput.fill(value);
+    }
+    if (description) {
+      const descInput = targetRow.locator('input[placeholder*="描述"], input[placeholder*="说明"]').first();
+      if (await descInput.count()) {
+        await descInput.fill(description);
+      }
+    }
+    if (!enabled) {
+      const checkbox = targetRow.locator('input[type="checkbox"]').first();
+      if (await checkbox.isChecked()) {
+        const checkboxWrapper = targetRow.locator('.el-checkbox').first();
+        await checkboxWrapper.click();
+      }
+    }
+  } else {
+    let keyInput = page.locator('input[placeholder="输入参数名称自动换行"]').first();
+    if (!(await keyInput.count())) {
+      keyInput = page.locator('input[placeholder*="参数名称"]').first();
+    }
+    if (!(await keyInput.count())) {
+      keyInput = page.locator('input[placeholder*="参数"], input[placeholder*="key"]').first();
+    }
+    await keyInput.fill(key);
+    let valueInput = page.locator('input[placeholder="参数值、@代表mock数据、{{ 变量 }}"]').first();
+    if (!(await valueInput.count())) {
+      valueInput = page.locator('input[placeholder*="参数值"]').first();
+    }
+    if (!(await valueInput.count())) {
+      valueInput = page.locator('input[placeholder*="值"], input[placeholder*="value"]').first();
+    }
+    if (value.includes('\n')) {
+      await valueInput.click({ force: true });
+      await page.waitForTimeout(50);
+      const paramRow = page.locator('.custom-params').filter({ has: valueInput }).first();
+      const textarea = paramRow
+        .locator('.value-textarea textarea, .value-textarea .el-textarea__inner, textarea')
+        .first();
+      await textarea.waitFor({ state: 'visible', timeout: 3000 });
+      await textarea.fill(value);
+      await textarea.blur();
+    } else {
+      await valueInput.fill(value);
+    }
+    if (description) {
+      let descInput = page.locator('input[placeholder="参数描述与备注"]').first();
+      if (!(await descInput.count())) {
+        descInput = page.locator('input[placeholder*="描述"], input[placeholder*="说明"]').first();
+      }
+      if (await descInput.count()) {
+        await descInput.fill(description);
+      }
+    }
+    if (!enabled) {
+      let checkbox = page.locator('label:has-text("必有") input[type="checkbox"]').first();
+      if (!(await checkbox.count())) {
+        checkbox = page.locator('.params-table input[type="checkbox"], .s-params input[type="checkbox"]').first();
+      }
+      if (!(await checkbox.count())) {
+        checkbox = page.locator('input[type="checkbox"]').first();
+      }
+      if (await checkbox.count()) {
+        await checkbox.uncheck();
+      }
+    }
   }
-  await page.waitForTimeout(200);
+  await page.waitForTimeout(20);
 };
 
 //删除Query参数
@@ -124,9 +206,24 @@ export const switchBodyMode = async (
   mode: 'none' | 'JSON' | 'form-data' | 'x-www-form-urlencoded' | 'raw' | 'binary'
 ): Promise<void> => {
   await switchToTab(page, 'Body');
-  const modeSelector = page.locator('.body-mode-select, .el-select').first();
-  await modeSelector.click();
-  await page.locator(`.el-select-dropdown__item:has-text("${mode}")`).click();
+  const modeMap: Record<typeof mode, string> = {
+    none: 'none',
+    JSON: 'json',
+    'form-data': 'formdata',
+    'x-www-form-urlencoded': 'urlencoded',
+    raw: 'raw',
+    binary: 'binary'
+  };
+  const targetValue = modeMap[mode];
+  const radioOption = page
+    .locator('.body-params .el-radio-group .el-radio')
+    .filter({ hasText: targetValue });
+  if (await radioOption.count()) {
+    await radioOption.first().click();
+  } else {
+    const radioInput = page.locator(`.body-params input[value="${targetValue}"]`).first();
+    await radioInput.check({ force: true });
+  }
   await page.waitForTimeout(300);
 };
 
@@ -137,8 +234,13 @@ export const fillJsonBody = async (
 ): Promise<void> => {
   await switchBodyMode(page, 'JSON');
   const jsonString = typeof json === 'string' ? json : JSON.stringify(json, null, 2);
-  const editor = page.locator('.monaco-editor').first();
-  await editor.click();
+  const editor = page.locator('.workbench .monaco-editor').first();
+  const jsonTip = page.locator('.workbench .json-tip').first();
+  if (await jsonTip.isVisible()) {
+    await jsonTip.click({ force: true });
+    await page.waitForTimeout(100);
+  }
+  await editor.click({ force: true });
   await page.keyboard.press('Control+A');
   await page.keyboard.type(jsonString);
   await page.waitForTimeout(300);
@@ -147,7 +249,7 @@ export const fillJsonBody = async (
 //填充Raw Body
 export const fillRawBody = async (page: Page, content: string): Promise<void> => {
   await switchBodyMode(page, 'raw');
-  const editor = page.locator('.monaco-editor, textarea').first();
+  const editor = page.locator('.workbench .monaco-editor, .workbench textarea').first();
   await editor.click();
   await page.keyboard.press('Control+A');
   await page.keyboard.type(content);
@@ -163,20 +265,37 @@ export const addFormDataField = async (
 ): Promise<void> => {
   const { type = 'text', enabled = true } = options;
   await switchBodyMode(page, 'form-data');
-  const table = page.locator('.form-data-table, .s-params').first();
-  const lastRow = table.locator('tbody tr').last();
+  const container = page.locator('.body-params .el-tree').first();
+  await container.waitFor({ state: 'visible', timeout: 5000 });
+  const rows = container.locator('.custom-params');
+  const count = await rows.count();
+  const targetIndex = count > 0 ? count - 1 : 0;
+  const lastRow = rows.nth(targetIndex);
   const keyInput = lastRow.locator('input[placeholder*="参数"], input[placeholder*="key"]').first();
   await keyInput.fill(key);
   if (type === 'file') {
     const typeSelect = lastRow.locator('.el-select').first();
     await typeSelect.click();
-    await page.locator('.el-select-dropdown__item:has-text("file")').click();
+    await page.locator('.el-select-dropdown__item:has-text("file")').first().click();
+    const varModeTrigger = lastRow.locator('.var-mode').first();
+    if (await varModeTrigger.isVisible()) {
+      await varModeTrigger.click();
+      await page.waitForTimeout(100);
+    }
+    const fileVarInput = lastRow.locator('input[placeholder*="变量模式"], input[placeholder*="variable"]').first();
+    if (await fileVarInput.count()) {
+      await fileVarInput.fill(value);
+    }
+  } else {
+    const valueInput = lastRow.locator('.value-text-input, textarea, input[placeholder*="值"], input[placeholder*="value"]').first();
+    await valueInput.fill(value);
   }
-  const valueInput = lastRow.locator('input[placeholder*="值"], input[placeholder*="value"]').first();
-  await valueInput.fill(value);
   if (!enabled) {
     const checkbox = lastRow.locator('input[type="checkbox"]').first();
-    await checkbox.uncheck();
+    if (await checkbox.isChecked()) {
+      const checkboxWrapper = lastRow.locator('.el-checkbox').first();
+      await checkboxWrapper.click();
+    }
   }
   await page.waitForTimeout(200);
 };
@@ -190,20 +309,25 @@ export const addUrlEncodedField = async (
 ): Promise<void> => {
   const { enabled = true } = options;
   await switchBodyMode(page, 'x-www-form-urlencoded');
-  const table = page.locator('.url-encoded-table, .s-params').first();
-  const lastRow = table.locator('tbody tr').last();
+  const container = page.locator('.body-params .el-tree').first();
+  await container.waitFor({ state: 'visible', timeout: 5000 });
+  const rows = container.locator('.custom-params');
+  const count = await rows.count();
+  const lastRow = rows.nth(count > 0 ? count - 1 : 0);
   const keyInput = lastRow.locator('input[placeholder*="参数"], input[placeholder*="key"]').first();
   await keyInput.fill(key);
-  const valueInput = lastRow.locator('input[placeholder*="值"], input[placeholder*="value"]').first();
+  const valueInput = lastRow.locator('.value-text-input, textarea, input[placeholder*="值"], input[placeholder*="value"]').first();
   await valueInput.fill(value);
   if (!enabled) {
     const checkbox = lastRow.locator('input[type="checkbox"]').first();
-    await checkbox.uncheck();
+    if (await checkbox.isChecked()) {
+      const checkboxWrapper = lastRow.locator('.el-checkbox').first();
+      await checkboxWrapper.click();
+    }
   }
   await page.waitForTimeout(200);
 };
 
-//添加请求头
 export const addHeader = async (
   page: Page,
   key: string,
@@ -211,22 +335,37 @@ export const addHeader = async (
   options: { enabled?: boolean; description?: string } = {}
 ): Promise<void> => {
   const { enabled = true, description = '' } = options;
-  await switchToTab(page, 'Headers');
-  const table = page.locator('.headers-table, .s-params').first();
-  const lastRow = table.locator('tbody tr').last();
-  const keyInput = lastRow.locator('input[placeholder*="请求头"], input[placeholder*="key"]').first();
+  const headersActive = await page
+    .locator('.el-tabs__item.is-active:has-text("Headers"), .el-tabs__item.is-active:has-text("请求头")')
+    .first()
+    .isVisible()
+    .catch(() => false);
+  if (!headersActive) {
+    await switchToTab(page, 'Headers');
+  }
+  const container = page.locator('.header-info .el-tree').first();
+  await container.waitFor({ state: 'visible', timeout: 5000 });
+  const rows = container.locator('.custom-params');
+  const count = await rows.count();
+  const lastIndex = count > 0 ? count - 1 : 0;
+  const lastRow = rows.nth(lastIndex);
+  const keyInput = lastRow.locator('input[placeholder*="请求头"], input[placeholder="输入参数名称自动换行"], input[placeholder*="参数"], input[placeholder*="key"]').first();
   await keyInput.fill(key);
-  const valueInput = lastRow.locator('input[placeholder*="值"], input[placeholder*="value"]').first();
+  const valueInput = lastRow.locator('.value-text-input, textarea, input[placeholder*="值"], input[placeholder*="value"]').first();
   await valueInput.fill(value);
   if (description) {
-    const descInput = lastRow.locator('input[placeholder*="描述"], input[placeholder*="说明"]').first();
-    await descInput.fill(description);
+    const descInput = lastRow.locator('input[placeholder="参数描述与备注"], input[placeholder*="描述"], input[placeholder*="说明"]').first();
+    if (await descInput.count()) {
+      await descInput.fill(description);
+    }
   }
   if (!enabled) {
-    const checkbox = lastRow.locator('input[type="checkbox"]').first();
-    await checkbox.uncheck();
+    const checkboxWrapper = lastRow.locator('.el-checkbox').first();
+    if (await checkboxWrapper.count()) {
+      await checkboxWrapper.click();
+    }
   }
-  await page.waitForTimeout(200);
+  await page.waitForTimeout(20);
 };
 
 //删除请求头
@@ -319,7 +458,25 @@ export const verifyHttpMethod = async (
   expectedMethod: string
 ): Promise<void> => {
   const methodSelect = getMethodSelector(page);
-  const selectedText = await methodSelect.locator('.el-select__selected-item, input').first().inputValue();
+  const selectedItem = methodSelect.locator('.el-select__selected-item');
+  let selectedText = '';
+  if (await selectedItem.count()) {
+    selectedText = (await selectedItem.first().textContent())?.trim() || '';
+  } else {
+    const inputElement = methodSelect.locator('input');
+    if (await inputElement.count()) {
+      selectedText = await inputElement.first().inputValue();
+    } else {
+      const comboBox = methodSelect.locator('[role="combobox"]');
+      if (await comboBox.count()) {
+        selectedText = (await comboBox.first().textContent())?.trim() || '';
+      }
+    }
+  }
+  if (!selectedText) {
+    const containerText = (await methodSelect.textContent())?.trim() || '';
+    selectedText = containerText.split(/\s+/).shift() || '';
+  }
   expect(selectedText).toBe(expectedMethod);
 };
 
@@ -337,15 +494,79 @@ export const verifyQueryParamExists = async (
   key: string
 ): Promise<void> => {
   await switchToTab(page, 'Params');
-  const row = page.locator(`tr:has(input[value="${key}"])`);
-  await expect(row).toBeVisible();
+  const container = page.locator('.query-path-params .el-tree').first();
+  await container.waitFor({ state: 'visible', timeout: 5000 });
+  const keyInputs = container.locator('input[placeholder="输入参数名称自动换行"], input[placeholder*="参数"], input[placeholder*="key"]');
+  const count = await keyInputs.count();
+  for (let i = 0; i < count; i++) {
+    const candidate = keyInputs.nth(i);
+    const value = await candidate.inputValue();
+    if (value === key) {
+      await expect(candidate).toBeVisible();
+      return;
+    }
+  }
+  throw new Error(`Query param ${key} not found`);
+};
+
+export const verifyQueryParamValue = async (
+  page: Page,
+  key: string,
+  expectedValue: string
+): Promise<void> => {
+  await switchToTab(page, 'Params');
+  const container = page.locator('.query-path-params .el-tree').first();
+  await container.waitFor({ state: 'visible', timeout: 5000 });
+  const rows = container.locator('.custom-params');
+  const rowCount = await rows.count();
+  for (let i = 0; i < rowCount; i++) {
+    const row = rows.nth(i);
+    const keyInput = row.locator('input[placeholder="输入参数名称自动换行"], input[placeholder*="参数"], input[placeholder*="key"]').first();
+    if (!(await keyInput.count())) {
+      continue;
+    }
+    const keyValue = await keyInput.inputValue();
+    if (keyValue === key) {
+      const valueInput = row.locator('.value-text-input, textarea, input[placeholder*="值"], input[placeholder*="value"]').first();
+      if (expectedValue.includes('\n')) {
+        await valueInput.click({ force: true });
+        await page.waitForTimeout(50);
+        const textarea = row.locator('.value-textarea textarea, .value-textarea .el-textarea__inner, textarea').first();
+        await textarea.waitFor({ state: 'visible', timeout: 3000 });
+        const value = await textarea.inputValue();
+        expect(value).toBe(expectedValue);
+        await textarea.blur();
+      } else {
+        const value = await valueInput.inputValue();
+        expect(value).toBe(expectedValue);
+      }
+      return;
+    }
+  }
+  throw new Error(`Query param ${key} not found`);
 };
 
 //验证请求头存在
 export const verifyHeaderExists = async (page: Page, key: string): Promise<void> => {
   await switchToTab(page, 'Headers');
-  const row = page.locator(`tr:has(input[value="${key}"])`);
-  await expect(row).toBeVisible();
+  const headerSection = page.locator('.header-info, .headers-table, .s-params').first();
+  await headerSection.waitFor({ state: 'visible', timeout: 5000 });
+  const exactInput = headerSection.locator(`input[value="${key}"]`).first();
+  if (await exactInput.count()) {
+    await expect(exactInput).toBeVisible();
+    return;
+  }
+  const keyInputs = headerSection.locator('input[placeholder*="参数"], input[placeholder*="key"], input[placeholder*="请求头"]');
+  const inputCount = await keyInputs.count();
+  for (let i = 0; i < inputCount; i++) {
+    const candidate = keyInputs.nth(i);
+    const value = await candidate.inputValue();
+    if (value === key) {
+      await expect(candidate).toBeVisible();
+      return;
+    }
+  }
+  throw new Error(`Header ${key} not found`);
 };
 
 //清空所有Query参数
@@ -562,6 +783,9 @@ export const switchToPreRequestTab = async (page: Page): Promise<void> => {
   const preRequestTab = page.locator('.el-tabs__item:has-text("前置"), .pre-request-tab').first();
   await preRequestTab.click();
   await page.waitForTimeout(300);
+  await page.waitForSelector('.workbench .s-monaco-editor', {
+    timeout: 15000
+  });
 };
 
 //切换到后置脚本标签
@@ -569,12 +793,16 @@ export const switchToAfterRequestTab = async (page: Page): Promise<void> => {
   const afterRequestTab = page.locator('.el-tabs__item:has-text("后置"), .after-request-tab').first();
   await afterRequestTab.click();
   await page.waitForTimeout(300);
+  await page.waitForSelector('.workbench .s-monaco-editor', {
+    timeout: 15000
+  });
 };
 
 //填写前置脚本代码
 export const fillPreRequestScript = async (page: Page, script: string): Promise<void> => {
   await switchToPreRequestTab(page);
-  const editor = page.locator('.monaco-editor').first();
+  const editor = page.locator('.workbench .monaco-editor').first();
+  await editor.waitFor({ state: 'visible', timeout: 15000 });
   await editor.click();
   await page.keyboard.press('Control+A');
   await page.keyboard.type(script);
@@ -584,7 +812,8 @@ export const fillPreRequestScript = async (page: Page, script: string): Promise<
 //填写后置脚本代码
 export const fillAfterRequestScript = async (page: Page, script: string): Promise<void> => {
   await switchToAfterRequestTab(page);
-  const editor = page.locator('.monaco-editor').first();
+  const editor = page.locator('.workbench .monaco-editor').first();
+  await editor.waitFor({ state: 'visible', timeout: 15000 });
   await editor.click();
   await page.keyboard.press('Control+A');
   await page.keyboard.type(script);
@@ -593,7 +822,7 @@ export const fillAfterRequestScript = async (page: Page, script: string): Promis
 
 //获取脚本编辑器内容
 export const getScriptContent = async (page: Page): Promise<string> => {
-  const editor = page.locator('.monaco-editor').first();
+  const editor = page.locator('.workbench .monaco-editor').first();
   const content = await editor.evaluate((el) => {
     const monaco = (window as any).monaco;
     if (monaco) {
@@ -604,12 +833,16 @@ export const getScriptContent = async (page: Page): Promise<string> => {
     }
     return '';
   });
-  return content;
+  if (content) {
+    return content;
+  }
+  const fallback = await editor.locator('.view-lines').innerText();
+  return fallback;
 };
 
 //验证脚本编辑器显示
 export const verifyScriptEditorVisible = async (page: Page): Promise<void> => {
-  const editor = page.locator('.monaco-editor').first();
+  const editor = page.locator('.workbench .monaco-editor').first();
   await expect(editor).toBeVisible();
 };
 

@@ -32,7 +32,9 @@ test.describe('1. HTTP节点 - 基础功能测试', () => {
       });
       expect(result.success).toBe(true);
       await waitForHttpNodeReady(contentPage);
-      const treeNode = contentPage.locator('.tree-node:has-text("Test API")').first();
+      const treeNode = contentPage
+        .locator('.tree-node:has-text("Test API"), .el-tree-node__content:has-text("Test API"), .el-tree-node__label:has-text("Test API")')
+        .first();
       await expect(treeNode).toBeVisible();
       await verifyHttpMethod(contentPage, 'GET');
       const apiOperation = contentPage.locator('.api-operation').first();
@@ -69,7 +71,9 @@ test.describe('1. HTTP节点 - 基础功能测试', () => {
       await expect(paramsTab).toBeVisible();
       const bodyTab = contentPage.locator('.el-tabs__item:has-text("Body")').first();
       await expect(bodyTab).toBeVisible();
-      const headersTab = contentPage.locator('.el-tabs__item:has-text("Headers")').first();
+      const headersTab = contentPage
+        .locator('.el-tabs__item:has-text("Headers"), .el-tabs__item:has-text("请求头")')
+        .first();
       await expect(headersTab).toBeVisible();
     });
 
@@ -81,11 +85,13 @@ test.describe('1. HTTP节点 - 基础功能测试', () => {
       });
       await waitForHttpNodeReady(contentPage);
       await switchToTab(contentPage, 'Params');
-      const paramsContent = contentPage.locator('.params-table, .s-params').first();
-      await expect(paramsContent).toBeVisible();
+      const paramsActiveTab = contentPage.locator('.el-tabs__item.is-active:has-text("Params")');
+      await expect(paramsActiveTab).toBeVisible();
       await switchToTab(contentPage, 'Headers');
-      const headersContent = contentPage.locator('.headers-table, .s-params').first();
-      await expect(headersContent).toBeVisible();
+      const headersActiveTab = contentPage
+        .locator('.el-tabs__item.is-active:has-text("Headers"), .el-tabs__item.is-active:has-text("请求头")')
+        .first();
+      await expect(headersActiveTab).toBeVisible();
     });
 
     test('标签页切换应保持数据', async () => {
@@ -111,14 +117,15 @@ test.describe('1. HTTP节点 - 基础功能测试', () => {
       });
       await waitForHttpNodeReady(contentPage);
       await switchToTab(contentPage, 'Params');
-      const paramsModule = contentPage.locator('.params-table, .s-params').first();
-      await expect(paramsModule).toBeVisible();
+      await expect(contentPage.locator('text=Query 参数')).toBeVisible();
       await switchToTab(contentPage, 'Body');
       const bodyModule = contentPage.locator('.body-config, .monaco-editor').first();
       await expect(bodyModule).toBeVisible();
       await switchToTab(contentPage, 'Headers');
-      const headersModule = contentPage.locator('.headers-table, .s-params').first();
-      await expect(headersModule).toBeVisible();
+      const headersActive = contentPage
+        .locator('.el-tabs__item.is-active:has-text("Headers"), .el-tabs__item.is-active:has-text("请求头")')
+        .first();
+      await expect(headersActive).toBeVisible();
     });
 
     test('各模块应能正常交互', async () => {
@@ -167,7 +174,7 @@ test.describe('1. HTTP节点 - 基础功能测试', () => {
         type: 'http'
       });
       await waitForHttpNodeReady(contentPage);
-      const saveBtn = contentPage.locator('[title*="保存"], .save-btn').first();
+      const saveBtn = contentPage.locator('button:has-text("保存接口")').first();
       await expect(saveBtn).toBeVisible();
     });
 
@@ -189,8 +196,8 @@ test.describe('1. HTTP节点 - 基础功能测试', () => {
         type: 'http'
       });
       await waitForHttpNodeReady(contentPage);
-      const toolbar = contentPage.locator('.toolbar, .operation-bar').first();
-      await expect(toolbar).toBeVisible();
+      await expect(contentPage.locator('text=撤销')).toBeVisible();
+      await expect(contentPage.locator('text=重做')).toBeVisible();
     });
   });
 
@@ -227,8 +234,8 @@ test.describe('1. HTTP节点 - 基础功能测试', () => {
       });
       await waitForHttpNodeReady(contentPage);
       await switchToTab(contentPage, 'Params');
-      const paramsTable = contentPage.locator('.params-table, .s-params').first();
-      await expect(paramsTable).toBeVisible();
+      const paramInput = contentPage.locator('input[placeholder="输入参数名称自动换行"], input[placeholder*="参数名称"]').first();
+      await expect(paramInput).toBeVisible();
     });
 
     test('各标签页应显示正确的默认状态', async () => {

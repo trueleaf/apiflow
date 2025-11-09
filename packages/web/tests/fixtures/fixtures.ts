@@ -84,7 +84,12 @@ export const initOfflineWorkbench = async (
   }
 
   // await contentPage.waitForTimeout(30000);
-  await contentPage.reload();
+  const targetHash = '/home';
+  await contentPage.evaluate((hash) => {
+    if (window.location.hash !== hash) {
+      window.location.hash = hash;
+    }
+  }, targetHash);
   await contentPage.waitForURL(/home/, { timeout });
   await contentPage.waitForLoadState('domcontentloaded');
 

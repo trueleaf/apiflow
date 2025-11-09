@@ -8,7 +8,8 @@ import {
   fillJsonBody,
   fillRawBody,
   addFormDataField,
-  addUrlEncodedField
+  addUrlEncodedField,
+  verifyHeaderExists
 } from './helpers/httpNodeHelpers';
 
 test.describe('4. HTTP节点 - Body模块测试', () => {
@@ -57,9 +58,7 @@ test.describe('4. HTTP节点 - Body模块测试', () => {
     test('应验证JSON语法', async () => {
       await switchToTab(contentPage, 'Body');
       await switchBodyMode(contentPage, 'JSON');
-      const editor = contentPage.locator('.monaco-editor').first();
-      await editor.click();
-      await contentPage.keyboard.type('{"invalid json');
+      await fillJsonBody(contentPage, '{"invalid json');
       await contentPage.waitForTimeout(500);
     });
 
@@ -82,44 +81,69 @@ test.describe('4. HTTP节点 - Body模块测试', () => {
     });
 
     test('应自动设置Content-Type为application/json', async () => {
-      await switchBodyMode(contentPage, 'JSON');
-      await contentPage.waitForTimeout(300);
+      await fillJsonBody(contentPage, { key: 'value' });
       await switchToTab(contentPage, 'Headers');
-      const headers = await contentPage.locator('.headers-table, .s-params').first().textContent();
-      expect(headers || '').toBeTruthy();
+      const hiddenToggle = contentPage
+        .locator('.header-info span')
+        .filter({ hasText: /隐藏|hidden/i })
+        .first();
+      if (await hiddenToggle.isVisible()) {
+        await hiddenToggle.click();
+        await contentPage.waitForTimeout(200);
+      }
+      await verifyHeaderExists(contentPage, 'Content-Type');
     });
   });
 
   test.describe('4.2 FormData模式测试', () => {
     test('应能切换到FormData模式', async () => {
       await switchBodyMode(contentPage, 'form-data');
-      const table = contentPage.locator('.form-data-table, .s-params').first();
-      await expect(table).toBeVisible();
+      const tree = contentPage.locator('.body-params .el-tree').first();
+      await expect(tree).toBeVisible();
     });
 
     test('应能添加文本字段', async () => {
       await addFormDataField(contentPage, 'username', 'testuser');
-      const row = contentPage.locator('tr:has(input[value="username"])');
-      await expect(row).toBeVisible();
+      const keyInput = contentPage.locator('.body-params .custom-params input[placeholder*="参数"]').first();
+      await expect(keyInput).toHaveValue('username');
+      const valueInput = contentPage.locator('.body-params .custom-params .value-text-input').first();
+      await expect(valueInput).toHaveValue('testuser');
     });
 
     test('应能添加文件字段', async () => {
       await addFormDataField(contentPage, 'avatar', '/path/to/file.jpg', { type: 'file' });
-      const row = contentPage.locator('tr:has(input[value="avatar"])');
-      await expect(row).toBeVisible();
+      const keyInputs = await contentPage
+        .locator('.body-params .custom-params input[placeholder*="参数"]')
+        .evaluateAll((elements) => elements.map((element) => (element as HTMLInputElement).value));
+      const targetIndex = keyInputs.indexOf('avatar');
+      expect(targetIndex).toBeGreaterThan(-1);
+      const row = contentPage.locator('.custom-params').nth(targetIndex);
+      const valueInput = row.locator('input[placeholder*="变量模式"], input[placeholder*="variable"]').first();
+      await expect(valueInput).toHaveValue('/path/to/file.jpg');
     });
 
     test('应能删除表单字段', async () => {
       await addFormDataField(contentPage, 'testField', 'testValue');
-      const row = contentPage.locator('tr:has(input[value="testField"])');
-      const deleteBtn = row.locator('.icon-shanchu, [title*="删除"]').first();
+      const keyLocator = contentPage.locator('.body-params .custom-params input[placeholder*="参数"]');
+      const initialValues = await keyLocator.evaluateAll((elements) => elements.map((element) => (element as HTMLInputElement).value));
+      const targetIndex = initialValues.indexOf('testField');
+      expect(targetIndex).toBeGreaterThan(-1);
+      const row = contentPage.locator('.custom-params').nth(targetIndex);
+      const deleteBtn = row.locator('.delete-icon, .icon-shanchu, [title*="删除"]').first();
       await deleteBtn.click();
       await contentPage.waitForTimeout(300);
+      const afterValues = await keyLocator.evaluateAll((elements) => elements.map((element) => (element as HTMLInputElement).value));
+      expect(afterValues.includes('testField')).toBe(false);
     });
 
     test('表单字段应支持启用/禁用', async () => {
       await addFormDataField(contentPage, 'disabledField', 'value', { enabled: false });
-      const row = contentPage.locator('tr:has(input[value="disabledField"])');
+      const keyValues = await contentPage
+        .locator('.body-params .custom-params input[placeholder*="参数"]')
+        .evaluateAll((elements) => elements.map((element) => (element as HTMLInputElement).value));
+      const targetIndex = keyValues.indexOf('disabledField');
+      expect(targetIndex).toBeGreaterThan(-1);
+      const row = contentPage.locator('.custom-params').nth(targetIndex);
       const checkbox = row.locator('input[type="checkbox"]').first();
       const isChecked = await checkbox.isChecked();
       expect(isChecked).toBe(false);
@@ -127,57 +151,104 @@ test.describe('4. HTTP节点 - Body模块测试', () => {
 
     test('表单字段value应支持变量', async () => {
       await addFormDataField(contentPage, 'userId', '{{userId}}');
-      const row = contentPage.locator('tr:has(input[value="userId"])');
-      await expect(row).toBeVisible();
+      const keyValues = await contentPage
+        .locator('.body-params .custom-params input[placeholder*="参数"]')
+        .evaluateAll((elements) => elements.map((element) => (element as HTMLInputElement).value));
+      const targetIndex = keyValues.indexOf('userId');
+      expect(targetIndex).toBeGreaterThan(-1);
+      const row = contentPage.locator('.custom-params').nth(targetIndex);
+      const valueInput = row.locator('.value-text-input, textarea').first();
+      await expect(valueInput).toHaveValue('{{userId}}');
     });
 
     test('应自动设置Content-Type为multipart/form-data', async () => {
-      await switchBodyMode(contentPage, 'form-data');
-      await contentPage.waitForTimeout(300);
+      await addFormDataField(contentPage, 'formKey', 'formValue');
+      await switchToTab(contentPage, 'Headers');
+      const hiddenToggle = contentPage
+        .locator('.header-info span')
+        .filter({ hasText: /隐藏|hidden/i })
+        .first();
+      if (await hiddenToggle.isVisible()) {
+        await hiddenToggle.click();
+        await contentPage.waitForTimeout(200);
+      }
+      await verifyHeaderExists(contentPage, 'Content-Type');
     });
   });
 
   test.describe('4.3 x-www-form-urlencoded模式测试', () => {
     test('应能切换到urlencoded模式', async () => {
       await switchBodyMode(contentPage, 'x-www-form-urlencoded');
-      const table = contentPage.locator('.url-encoded-table, .s-params').first();
-      await expect(table).toBeVisible();
+      const tree = contentPage.locator('.body-params .el-tree').first();
+      await expect(tree).toBeVisible();
     });
 
     test('应能添加参数对', async () => {
       await addUrlEncodedField(contentPage, 'username', 'testuser');
-      const row = contentPage.locator('tr:has(input[value="username"])');
-      await expect(row).toBeVisible();
+      const keyInput = contentPage.locator('.body-params .custom-params input[placeholder*="参数"]').first();
+      await expect(keyInput).toHaveValue('username');
+      const valueInput = contentPage.locator('.body-params .custom-params .value-text-input').first();
+      await expect(valueInput).toHaveValue('testuser');
     });
 
     test('应能编辑参数', async () => {
       await addUrlEncodedField(contentPage, 'editKey', 'oldValue');
-      const row = contentPage.locator('tr:has(input[value="editKey"])');
-      const valueInput = row.locator('input[placeholder*="值"], input[placeholder*="value"]').first();
-      await valueInput.clear();
-      await valueInput.fill('newValue');
+      const keyValues = await contentPage
+        .locator('.body-params .custom-params input[placeholder*="参数"]')
+        .evaluateAll((elements) => elements.map((element) => (element as HTMLInputElement).value));
+      const targetIndex = keyValues.indexOf('editKey');
+      expect(targetIndex).toBeGreaterThan(-1);
+      const row = contentPage.locator('.custom-params').nth(targetIndex);
+      const valueInput = row.locator('.value-text-input').first();
+      await valueInput.evaluate((element, newValue) => {
+        const input = element as HTMLInputElement;
+        input.focus();
+        input.value = newValue as string;
+        input.dispatchEvent(new Event('input', { bubbles: true }));
+        input.dispatchEvent(new Event('change', { bubbles: true }));
+      }, 'newValue');
       await contentPage.waitForTimeout(200);
     });
 
     test('应能删除参数', async () => {
       await addUrlEncodedField(contentPage, 'deleteKey', 'value');
-      const row = contentPage.locator('tr:has(input[value="deleteKey"])');
-      const deleteBtn = row.locator('.icon-shanchu, [title*="删除"]').first();
+      const keyLocator = contentPage.locator('.body-params .custom-params input[placeholder*="参数"]');
+      const initialValues = await keyLocator.evaluateAll((elements) => elements.map((element) => (element as HTMLInputElement).value));
+      const targetIndex = initialValues.indexOf('deleteKey');
+      expect(targetIndex).toBeGreaterThan(-1);
+      const row = contentPage.locator('.custom-params').nth(targetIndex);
+      const deleteBtn = row.locator('.delete-icon, .icon-shanchu, [title*="删除"]').first();
       await deleteBtn.click();
       await contentPage.waitForTimeout(300);
+      const afterValues = await keyLocator.evaluateAll((elements) => elements.map((element) => (element as HTMLInputElement).value));
+      expect(afterValues.includes('deleteKey')).toBe(false);
     });
 
     test('参数应支持启用/禁用', async () => {
       await addUrlEncodedField(contentPage, 'disabledKey', 'value', { enabled: false });
-      const row = contentPage.locator('tr:has(input[value="disabledKey"])');
+      const keyValues = await contentPage
+        .locator('.body-params .custom-params input[placeholder*="参数"]')
+        .evaluateAll((elements) => elements.map((element) => (element as HTMLInputElement).value));
+      const targetIndex = keyValues.indexOf('disabledKey');
+      expect(targetIndex).toBeGreaterThan(-1);
+      const row = contentPage.locator('.custom-params').nth(targetIndex);
       const checkbox = row.locator('input[type="checkbox"]').first();
       const isChecked = await checkbox.isChecked();
       expect(isChecked).toBe(false);
     });
 
     test('应自动设置Content-Type为application/x-www-form-urlencoded', async () => {
-      await switchBodyMode(contentPage, 'x-www-form-urlencoded');
-      await contentPage.waitForTimeout(300);
+      await addUrlEncodedField(contentPage, 'formKey', 'formValue');
+      await switchToTab(contentPage, 'Headers');
+      const hiddenToggle = contentPage
+        .locator('.header-info span')
+        .filter({ hasText: /隐藏|hidden/i })
+        .first();
+      if (await hiddenToggle.isVisible()) {
+        await hiddenToggle.click();
+        await contentPage.waitForTimeout(200);
+      }
+      await verifyHeaderExists(contentPage, 'Content-Type');
     });
   });
 
@@ -209,24 +280,52 @@ test.describe('4. HTTP节点 - Body模块测试', () => {
       const typeSelector = contentPage.locator('.content-type-select, .el-select').first();
       if (await typeSelector.isVisible()) {
         await typeSelector.click();
-        const plainOption = contentPage.locator('.el-select-dropdown__item:has-text("text/plain")');
-        await expect(plainOption).toBeVisible({ timeout: 2000 });
+        await contentPage.waitForTimeout(200);
+        const optionTexts = await contentPage
+          .locator('.el-select-dropdown__item')
+          .evaluateAll((elements) => elements.map((element) => (element.textContent || '').trim().toLowerCase()));
+        expect(optionTexts.includes('text')).toBe(true);
       }
     });
 
     test('支持的数据类型应包括text/html', async () => {
       await switchBodyMode(contentPage, 'raw');
       await contentPage.waitForTimeout(300);
+      const typeSelector = contentPage.locator('.content-type-select, .el-select').first();
+      if (await typeSelector.isVisible()) {
+        await typeSelector.click();
+        await contentPage.waitForTimeout(200);
+        const optionTexts = await contentPage
+          .locator('.el-select-dropdown__item')
+          .evaluateAll((elements) => elements.map((element) => (element.textContent || '').trim().toLowerCase()));
+        expect(optionTexts.includes('html')).toBe(true);
+      }
     });
 
     test('支持的数据类型应包括application/xml', async () => {
       await switchBodyMode(contentPage, 'raw');
-      await contentPage.waitForTimeout(300);
+      const typeSelector = contentPage.locator('.content-type-select, .el-select').first();
+      if (await typeSelector.isVisible()) {
+        await typeSelector.click();
+        await contentPage.waitForTimeout(200);
+        const optionTexts = await contentPage
+          .locator('.el-select-dropdown__item')
+          .evaluateAll((elements) => elements.map((element) => (element.textContent || '').trim().toLowerCase()));
+        expect(optionTexts.includes('xml')).toBe(true);
+      }
     });
 
     test('支持的数据类型应包括text/javascript', async () => {
       await switchBodyMode(contentPage, 'raw');
-      await contentPage.waitForTimeout(300);
+      const typeSelector = contentPage.locator('.content-type-select, .el-select').first();
+      if (await typeSelector.isVisible()) {
+        await typeSelector.click();
+        await contentPage.waitForTimeout(200);
+        const optionTexts = await contentPage
+          .locator('.el-select-dropdown__item')
+          .evaluateAll((elements) => elements.map((element) => (element.textContent || '').trim().toLowerCase()));
+        expect(optionTexts.includes('javascript')).toBe(true);
+      }
     });
 
     test('Raw模式应支持变量替换', async () => {
@@ -235,32 +334,49 @@ test.describe('4. HTTP节点 - Body模块测试', () => {
     });
 
     test('应根据选择的类型设置Content-Type', async () => {
-      await switchBodyMode(contentPage, 'raw');
-      await contentPage.waitForTimeout(300);
+      await fillRawBody(contentPage, 'Raw body sample');
+      const typeSelector = contentPage.locator('.content-type-select, .el-select').first();
+      if (await typeSelector.isVisible()) {
+        await typeSelector.click();
+        const htmlOption = contentPage.locator('.el-select-dropdown__item:has-text("html")').first();
+        if (await htmlOption.isVisible()) {
+          await htmlOption.click();
+        }
+      }
+      await switchToTab(contentPage, 'Headers');
+      const hiddenToggle = contentPage
+        .locator('.header-info span')
+        .filter({ hasText: /隐藏|hidden/i })
+        .first();
+      if (await hiddenToggle.isVisible()) {
+        await hiddenToggle.click();
+        await contentPage.waitForTimeout(200);
+      }
+      await verifyHeaderExists(contentPage, 'Content-Type');
     });
   });
 
   test.describe('4.5 Binary模式测试', () => {
     test('应能切换到Binary模式', async () => {
       await switchBodyMode(contentPage, 'binary');
-      const binaryConfig = contentPage.locator('.binary-config, .binary-mode').first();
-      await expect(binaryConfig).toBeVisible({ timeout: 2000 });
+      const binaryWrap = contentPage.locator('.binary-wrap').first();
+      await expect(binaryWrap).toBeVisible({ timeout: 2000 });
     });
 
     test('应支持文件模式', async () => {
       await switchBodyMode(contentPage, 'binary');
-      const fileMode = contentPage.locator('input[type="radio"][value="file"], .mode-file').first();
-      if (await fileMode.isVisible()) {
-        await fileMode.check({ force: true });
+      const fileRadio = contentPage.locator('.binary-wrap .el-radio').filter({ hasText: '文件模式' }).first();
+      if (await fileRadio.isVisible()) {
+        await fileRadio.click();
         await contentPage.waitForTimeout(300);
       }
     });
 
     test('应支持变量模式', async () => {
       await switchBodyMode(contentPage, 'binary');
-      const varMode = contentPage.locator('input[type="radio"][value="variable"], .mode-variable').first();
-      if (await varMode.isVisible()) {
-        await varMode.check({ force: true });
+      const varRadio = contentPage.locator('.binary-wrap .el-radio').filter({ hasText: '变量模式' }).first();
+      if (await varRadio.isVisible()) {
+        await varRadio.click();
         await contentPage.waitForTimeout(300);
       }
     });
@@ -272,7 +388,7 @@ test.describe('4. HTTP节点 - Body模块测试', () => {
 
     test('应能清除选择的文件', async () => {
       await switchBodyMode(contentPage, 'binary');
-      const clearBtn = contentPage.locator('[title*="清除"], .clear-btn').first();
+      const clearBtn = contentPage.locator('[title*="清除"], .clear-btn, .binary-wrap .close').first();
       if (await clearBtn.isVisible()) {
         await clearBtn.click();
         await contentPage.waitForTimeout(300);
@@ -283,19 +399,34 @@ test.describe('4. HTTP节点 - Body模块测试', () => {
   test.describe('4.6 None模式测试', () => {
     test('应能切换到None模式', async () => {
       await switchBodyMode(contentPage, 'none');
-      const emptyState = contentPage.locator('.empty-body, .none-mode').first();
-      await expect(emptyState).toBeVisible({ timeout: 2000 });
+      const noneInput = contentPage.locator('.body-params input[value="none"]').first();
+      await expect(noneInput).toBeChecked();
     });
 
     test('None模式应清空Body内容', async () => {
       await fillJsonBody(contentPage, { key: 'value' });
       await switchBodyMode(contentPage, 'none');
       await contentPage.waitForTimeout(300);
+      const editors = await contentPage.locator('.body-params .monaco-editor').count();
+      expect(editors).toBe(0);
     });
 
     test('None模式不应设置Content-Type', async () => {
       await switchBodyMode(contentPage, 'none');
       await contentPage.waitForTimeout(300);
+      await switchToTab(contentPage, 'Headers');
+      const hiddenToggle = contentPage
+        .locator('.header-info span')
+        .filter({ hasText: /隐藏|hidden/i })
+        .first();
+      if (await hiddenToggle.isVisible()) {
+        await hiddenToggle.click();
+        await contentPage.waitForTimeout(200);
+      }
+      const headerKeys = await contentPage
+        .locator('.header-info input[placeholder*="请求头"], .header-info input[placeholder*="参数"], .header-info input[placeholder*="key"]')
+        .evaluateAll((elements) => elements.map((element) => (element as HTMLInputElement).value));
+      expect(headerKeys.includes('Content-Type')).toBe(false);
     });
   });
 
