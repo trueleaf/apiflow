@@ -132,7 +132,7 @@ class AgentCache {
       sessionList.sort((a, b) => {
         return new Date(b.lastMessageTime).getTime() - new Date(a.lastMessageTime).getTime();
       });
-      return sessionList;
+      return sessionList.filter(session => session.messageCount > 0);
     } catch (error) {
       logger.error('获取会话列表失败', { error });
       return [];

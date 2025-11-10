@@ -17,9 +17,9 @@
 
 .resize-bar-right {
   position: absolute;
-  right: -5px;
+  right: -3px;
   top: 0;
-  width: 10px;
+  width: 6px;
   height: 100%;
   background: transparent;
   cursor: ew-resize;
@@ -34,10 +34,10 @@
 
 .resize-bar-bottom {
   position: absolute;
-  bottom: -5px;
+  bottom: -3px;
   left: 0;
   width: 100%;
-  height: 10px;
+  height: 6px;
   background: transparent;
   cursor: ns-resize;
   z-index: 1;
@@ -880,4 +880,320 @@
 [data-theme="dark"] .resize-corner:hover,
 [data-theme="dark"] .resize-corner.active {
   background: var(--theme-color);
+}
+
+.conversation-history {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+}
+
+.conversation-history-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+  border-bottom: 1px solid #e5e7eb;
+  flex-shrink: 0;
+}
+
+.conversation-history-back {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: none;
+  background: transparent;
+  border-radius: 4px;
+  cursor: pointer;
+  color: var(--gray-700);
+  transition: all 0.2s;
+  flex-shrink: 0;
+}
+
+.conversation-history-back:hover {
+  background: #f3f4f6;
+  color: var(--theme-color);
+}
+
+.conversation-history-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--gray-900);
+}
+
+.conversation-history-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 8px;
+}
+
+.conversation-history-body::-webkit-scrollbar {
+  width: 6px;
+}
+
+.conversation-history-body::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.conversation-history-body::-webkit-scrollbar-thumb {
+  background: #d1d5db;
+  border-radius: 3px;
+}
+
+.conversation-history-body::-webkit-scrollbar-thumb:hover {
+  background: #9ca3af;
+}
+
+.conversation-history-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  gap: 12px;
+}
+
+.conversation-history-loading-icon {
+  color: var(--theme-color);
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.conversation-history-loading-text {
+  font-size: 14px;
+  color: var(--gray-500);
+}
+
+.conversation-history-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  gap: 12px;
+  padding: 24px;
+  text-align: center;
+}
+
+.conversation-history-empty-icon {
+  color: var(--gray-300);
+}
+
+.conversation-history-empty-text {
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--gray-700);
+  margin: 0;
+}
+
+.conversation-history-empty-hint {
+  font-size: 14px;
+  color: var(--gray-500);
+  margin: 0;
+}
+
+.conversation-history-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.conversation-history-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s;
+  background: #ffffff;
+}
+
+.conversation-history-item:hover {
+  border-color: var(--theme-color);
+  background: #f9fafb;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.conversation-history-item.is-current {
+  border-color: var(--theme-color);
+  background: rgba(74, 158, 255, 0.05);
+}
+
+.conversation-history-item.is-current:hover {
+  background: rgba(74, 158, 255, 0.08);
+}
+
+.conversation-history-item-content {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.conversation-history-item-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--gray-900);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.conversation-history-item-badge {
+  padding: 2px 6px;
+  background: var(--theme-color);
+  color: #ffffff;
+  font-size: 11px;
+  font-weight: 500;
+  border-radius: 3px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.conversation-history-item-icon {
+  flex-shrink: 0;
+  color: var(--theme-color);
+}
+
+.conversation-history-item-meta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--gray-500);
+}
+
+.conversation-history-item-count {
+  white-space: nowrap;
+}
+
+.conversation-history-item-separator {
+  color: var(--gray-300);
+}
+
+.conversation-history-item-time {
+  white-space: nowrap;
+}
+
+.conversation-history-item-delete {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: none;
+  background: transparent;
+  border-radius: 4px;
+  cursor: pointer;
+  color: var(--gray-400);
+  transition: all 0.2s;
+  flex-shrink: 0;
+  opacity: 0;
+}
+
+.conversation-history-item:hover .conversation-history-item-delete {
+  opacity: 1;
+}
+
+.conversation-history-item-delete:hover {
+  background: #fee2e2;
+  color: #dc2626;
+}
+
+[data-theme="dark"] .conversation-history-header {
+  border-bottom-color: #3d3d3d;
+}
+
+[data-theme="dark"] .conversation-history-back {
+  color: #9e9e9e;
+}
+
+[data-theme="dark"] .conversation-history-back:hover {
+  background: #2d2d2d;
+  color: var(--theme-color);
+}
+
+[data-theme="dark"] .conversation-history-title {
+  color: #e0e0e0;
+}
+
+[data-theme="dark"] .conversation-history-loading-text {
+  color: #9e9e9e;
+}
+
+[data-theme="dark"] .conversation-history-empty-icon {
+  color: #4d4d4d;
+}
+
+[data-theme="dark"] .conversation-history-empty-text {
+  color: #b0b0b0;
+}
+
+[data-theme="dark"] .conversation-history-empty-hint {
+  color: #7d7d7d;
+}
+
+[data-theme="dark"] .conversation-history-item {
+  border-color: #3d3d3d;
+  background: #1e1e1e;
+}
+
+[data-theme="dark"] .conversation-history-item:hover {
+  border-color: var(--theme-color);
+  background: #2d2d2d;
+}
+
+[data-theme="dark"] .conversation-history-item.is-current {
+  border-color: var(--theme-color);
+  background: rgba(74, 158, 255, 0.1);
+}
+
+[data-theme="dark"] .conversation-history-item.is-current:hover {
+  background: rgba(74, 158, 255, 0.15);
+}
+
+[data-theme="dark"] .conversation-history-item-title {
+  color: #e0e0e0;
+}
+
+[data-theme="dark"] .conversation-history-item-meta {
+  color: #7d7d7d;
+}
+
+[data-theme="dark"] .conversation-history-item-separator {
+  color: #4d4d4d;
+}
+
+[data-theme="dark"] .conversation-history-item-delete {
+  color: #7d7d7d;
+}
+
+[data-theme="dark"] .conversation-history-item-delete:hover {
+  background: rgba(220, 38, 38, 0.2);
+  color: #ef4444;
+}
+
+[data-theme="dark"] .conversation-history-body::-webkit-scrollbar-thumb {
+  background: #4d4d4d;
+}
+
+[data-theme="dark"] .conversation-history-body::-webkit-scrollbar-thumb:hover {
+  background: #5d5d5d;
 }

@@ -9,6 +9,7 @@ export const useAgentStore = defineStore('agent', () => {
   const agentMessageList = ref<AgentMessage[]>([]);
   const currentSessionId = ref<string>('test-session');
   const loading = ref<boolean>(false);
+  const workingStatus = ref<'working' | 'finish'>('finish');
   const addAgentMessage = async (message: AgentMessage): Promise<boolean> => {
     try {
       agentMessageList.value.push(message);
@@ -71,10 +72,22 @@ export const useAgentStore = defineStore('agent', () => {
   const getLatestMessages = (count: number): AgentMessage[] => {
     return agentMessageList.value.slice(-count);
   };
+  const initStore = async (): Promise<void> => {
+    const lastSessionId = agentCache.getLastSessionId();
+    if (lastSessionId) {
+      await loadMessagesForSession(lastSessionId);
+    } else {
+      createNewSession();
+    }
+  };
+  const setWorkingStatus = (status: 'working' | 'finish'): void => {
+    workingStatus.value = status;
+  };
   return {
     agentMessageList,
     currentSessionId,
     loading,
+    workingStatus,
     addAgentMessage,
     setAgentMessageList,
     clearAgentMessageList,
@@ -85,5 +98,7 @@ export const useAgentStore = defineStore('agent', () => {
     clearCurrentSession,
     getMessageById,
     getLatestMessages,
+    initStore,
+    setWorkingStatus,
   };
 });

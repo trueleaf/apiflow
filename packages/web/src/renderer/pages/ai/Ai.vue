@@ -9,8 +9,8 @@
             type="button"
             @mousedown.stop
             @click="handleCreateConversation"
-            :title="t('新增')"
-            :aria-label="t('新增')"
+            :title="t('新建对话')"
+            :aria-label="t('新建对话')"
           >
             <Plus :size="18" />
           </button>
@@ -42,7 +42,13 @@
       </div>
     </div>
     <div class="ai-dialog-body">
-      <div class="ai-messages" ref="messagesRef">
+      <ConversationHistory
+        v-if="currentView === 'history'"
+        @back="handleBackToChat"
+        @select="handleSelectSession"
+      />
+      <template v-else>
+        <div class="ai-messages" ref="messagesRef">
         <div v-if="!isAiConfigValid()" class="ai-empty-state ai-empty-state-setup">
           <AlertTriangle class="ai-empty-icon" :size="48" />
           <p class="ai-empty-text mb-2">{{ t('请先前往AI设置配置apiKey与apiUrl') }}</p>
@@ -63,8 +69,9 @@
             <TextResponseMessageItem v-else-if="message.type === 'textResponse'" :message="message" />
           </template>
         </template>
-      </div>
-      <div class="ai-dialog-footer">
+        </div>
+      </template>
+      <div class="ai-dialog-footer" v-if="currentView === 'chat'">
         <div class="ai-input-wrapper" ref="inputWrapperRef">
           <textarea
             v-model="inputMessage"
@@ -129,8 +136,10 @@
               type="button"
               @click="handleSend"
               :title="t('发送')"
+              :disabled="agentStore.workingStatus === 'working'"
             >
-              <Send :size="16" />
+              <Send v-if="agentStore.workingStatus === 'finish'" :size="16" />
+              <CircleDot v-else :size="16" />
             </button>
           </div>
         </div>
@@ -173,7 +182,7 @@
 import { ref, computed, onUnmounted, onMounted, watch, nextTick } from 'vue'
 import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
-import { X, Bot, Send, ChevronDown, Check, AlertTriangle, ArrowRight, Plus, History, Settings } from 'lucide-vue-next'
+import { X, Bot, Send, ChevronDown, Check, AlertTriangle, ArrowRight, Plus, History, Settings, CircleDot } from 'lucide-vue-next'
 import { nanoid } from 'nanoid/non-secure'
 import type { AnchorRect } from '@src/types/common'
 import type { DeepSeekRequestBody, DeepSeekMessage, AskMessage, TextResponseMessage, LoadingMessage } from '@src/types/ai'
@@ -186,15 +195,16 @@ import AskMessageItem from './components/AskMessageItem.vue'
 import LoadingMessageItem from './components/LoadingMessageItem.vue'
 import ToolMessageItem from './components/ToolMessageItem.vue'
 import TextResponseMessageItem from './components/TextResponseMessageItem.vue'
+import ConversationHistory from './components/ConversationHistory.vue'
 import './ai.css'
 
 const { t } = useI18n()
 const props = defineProps<{ anchorRect: AnchorRect | null }>()
-const emit = defineEmits<{ (event: 'create'): void, (event: 'history'): void }>()
 const visible = defineModel<boolean>('visible', { default: false })
 const agentStore = useAgentStore()
 const messagesRef = ref<HTMLElement | null>(null)
 const inputMessage = ref('')
+const currentView = ref<'chat' | 'history'>('chat')
 const modeOptions = ['agent', 'ask'] as const
 type AiMode = typeof modeOptions[number]
 const modeLabelMap: Record<AiMode, string> = {
@@ -243,6 +253,7 @@ watch(visible, value => {
   if (!value) {
     isModeMenuVisible.value = false
     isModelMenuVisible.value = false
+    currentView.value = 'chat'
   }
 })
 watch(() => agentStore.agentMessageList.length, () => {
@@ -292,10 +303,20 @@ const handleClose = () => {
   visible.value = false
 }
 const handleCreateConversation = () => {
-  emit('create')
+  if (agentStore.agentMessageList.length > 0) {
+    agentStore.createNewSession()
+  }
+  currentView.value = 'chat'
 }
 const handleOpenHistory = () => {
-  emit('history')
+  currentView.value = 'history'
+}
+const handleBackToChat = () => {
+  currentView.value = 'chat'
+}
+const handleSelectSession = async (sessionId: string) => {
+  await agentStore.loadMessagesForSession(sessionId)
+  currentView.value = 'chat'
 }
 const isAiConfigValid = () => {
   const configState = aiCache.getAiConfig()
@@ -560,6 +581,7 @@ const handleSend = async () => {
   loadingMessageId.value = loadingMsgId
   isFirstChunk.value = true
   streamingMessageId.value = null
+  agentStore.setWorkingStatus('working')
   
   const requestBody = buildDeepSeekRequestBody(message)
   
@@ -584,6 +606,7 @@ const handleSend = async () => {
     currentStreamRequestId.value = null
     streamingMessageId.value = null
     isFirstChunk.value = false
+    agentStore.setWorkingStatus('finish')
     return
   }
   
@@ -621,6 +644,7 @@ const handleSend = async () => {
     currentStreamRequestId.value = null
     streamingMessageId.value = null
     isFirstChunk.value = false
+    agentStore.setWorkingStatus('finish')
   }
 }
 const handleStreamData = (requestId: string, chunk: string) => {
@@ -679,6 +703,7 @@ const handleStreamEnd = (requestId: string) => {
   currentStreamRequestId.value = null
   streamingMessageId.value = null
   isFirstChunk.value = false
+  agentStore.setWorkingStatus('finish')
 }
 const handleStreamError = (requestId: string, response: { code: number; msg: string; data: string }) => {
   if (currentStreamRequestId.value !== requestId) return
@@ -704,6 +729,7 @@ const handleStreamError = (requestId: string, response: { code: number; msg: str
   currentStreamRequestId.value = null
   streamingMessageId.value = null
   isFirstChunk.value = false
+  agentStore.setWorkingStatus('finish')
 }
 const handleInputFocus = () => {
   isModeMenuVisible.value = false
@@ -721,7 +747,7 @@ const handleClickOutside = (event: MouseEvent) => {
 const handleOpenAiSettings = () => {
   userState.setActiveLocalDataMenu('ai-settings')
   window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.contentToTopBar.openSettingsTab)
-  visible.value = false
+  // visible.value = false
   router.push('/settings')
 }
 const clampPositionToBounds = (pos: { x: number, y: number }, width: number, height: number): { x: number, y: number } => {
@@ -775,6 +801,7 @@ const initDialogState = () => {
 
 onMounted(() => {
   initDialogState()
+  agentStore.initStore()
   document.addEventListener('click', handleClickOutside)
   
   const aiConfig = aiCache.getAiConfig()
