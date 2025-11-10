@@ -76,6 +76,9 @@ export const useAgentStore = defineStore('agent', () => {
     const lastSessionId = agentCache.getLastSessionId();
     if (lastSessionId) {
       await loadMessagesForSession(lastSessionId);
+      if (agentMessageList.value.length === 0) {
+        createNewSession();
+      }
     } else {
       createNewSession();
     }

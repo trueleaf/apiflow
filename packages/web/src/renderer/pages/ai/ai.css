@@ -709,6 +709,10 @@
   background: var(--gray-200);
 }
 
+.ai-send-btn-loading {
+  animation: spin 1s linear infinite;
+}
+
 [data-theme="dark"] .ai-dialog {
   background: #1e1e1e;
   border: 1px solid #2d2d2d;

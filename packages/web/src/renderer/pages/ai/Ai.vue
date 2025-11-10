@@ -136,10 +136,9 @@
               type="button"
               @click="handleSend"
               :title="t('发送')"
-              :disabled="agentStore.workingStatus === 'working'"
             >
               <Send v-if="agentStore.workingStatus === 'finish'" :size="16" />
-              <CircleDot v-else :size="16" />
+              <LoaderCircle v-else :size="16" class="ai-send-btn-loading" />
             </button>
           </div>
         </div>
@@ -182,7 +181,7 @@
 import { ref, computed, onUnmounted, onMounted, watch, nextTick } from 'vue'
 import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
-import { X, Bot, Send, ChevronDown, Check, AlertTriangle, ArrowRight, Plus, History, Settings, CircleDot } from 'lucide-vue-next'
+import { X, Bot, Send, ChevronDown, Check, AlertTriangle, ArrowRight, Plus, History, Settings, CircleDot, Loader, LoaderCircle, Disc } from 'lucide-vue-next'
 import { nanoid } from 'nanoid/non-secure'
 import type { AnchorRect } from '@src/types/common'
 import type { DeepSeekRequestBody, DeepSeekMessage, AskMessage, TextResponseMessage, LoadingMessage } from '@src/types/ai'
