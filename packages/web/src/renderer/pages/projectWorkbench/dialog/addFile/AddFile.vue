@@ -210,6 +210,9 @@ const mergeAiDataToHttpNode = (node: HttpNode, aiData: any) => {
   if (aiData.requestBodyMode) {
     node.item.requestBody.mode = aiData.requestBodyMode
   }
+  if (aiData.contentType) {
+    node.item.contentType = aiData.contentType
+  }
   if (aiData.requestBodyJson && aiData.requestBodyMode === 'json') {
     node.item.requestBody.rawJson = aiData.requestBodyJson
   }

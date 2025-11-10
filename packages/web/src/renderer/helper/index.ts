@@ -1788,6 +1788,7 @@ export const buildAiSystemPromptForNode = (nodeType: 'http' | 'websocket' | 'htt
     }
   ],
   "requestBodyMode": "请求体模式(json/formdata/urlencoded/raw/binary/none之一)",
+  "contentType": "Content-Type值(根据requestBodyMode自动设置: json对应application/json, formdata对应multipart/form-data, urlencoded对应application/x-www-form-urlencoded, raw根据内容类型设置, binary对应application/octet-stream, none为空字符串)",
   "requestBodyJson": "当 requestBodyMode 为 json 时的 JSON 字符串示例(需要转义双引号)",
   "responseParams": [
     {
@@ -1840,13 +1841,45 @@ export const buildAiSystemPromptForNode = (nodeType: 'http' | 'websocket' | 'htt
 - X-Request-ID: uuid (请求追踪ID)
 - User-Agent: custom-client/1.0 (客户端标识)
 
-### 4. requestBodyMode 选项
-- **json**: JSON格式数据 (最常用,适合复杂数据结构)
-- **formdata**: 表单数据,支持文件上传
-- **urlencoded**: URL编码表单,如: key1=value1&key2=value2
-- **raw**: 原始文本数据 (XML, HTML, Plain Text等)
-- **binary**: 二进制文件上传
-- **none**: 无请求体 (通常用于GET/DELETE请求)
+### 4. requestBodyMode 与 contentType 映射关系
+
+requestBodyMode 和 contentType 必须配套设置,严格遵循以下映射规则:
+
+- **json**: 
+  - requestBodyMode: "json"
+  - contentType: "application/json"
+  - 用途: 最常用,适合复杂数据结构
+
+- **formdata**: 
+  - requestBodyMode: "formdata"
+  - contentType: "multipart/form-data"
+  - 用途: 表单数据,支持文件上传
+
+- **urlencoded**: 
+  - requestBodyMode: "urlencoded"
+  - contentType: "application/x-www-form-urlencoded"
+  - 用途: URL编码表单,如: key1=value1&key2=value2
+
+- **raw**: 
+  - requestBodyMode: "raw"
+  - contentType: 根据实际内容设置
+    - XML: "application/xml" 或 "text/xml"
+    - HTML: "text/html"
+    - 纯文本: "text/plain"
+    - JavaScript: "text/javascript"
+  - 用途: 原始文本数据
+
+- **binary**: 
+  - requestBodyMode: "binary"
+  - contentType: "application/octet-stream"
+  - 用途: 二进制文件上传
+
+- **none**: 
+  - requestBodyMode: "none"
+  - contentType: "" (空字符串)
+  - 用途: 无请求体 (通常用于GET/DELETE请求)
+
+**重要**: contentType 字段是必需的,必须根据 requestBodyMode 正确设置对应的值
 
 ### 5. requestBodyJson 格式
 仅当 requestBodyMode 为 "json" 时需要提供,要求:
@@ -1892,21 +1925,25 @@ export const buildAiSystemPromptForNode = (nodeType: 'http' | 'websocket' | 'htt
 
 ### GET 请求
 - requestBodyMode: "none"
+- contentType: ""
 - 使用 queryParams 传递参数
 - 响应: 200成功, 404未找到, 401未授权
 
 ### POST 请求
 - requestBodyMode: "json" 或 "formdata"
-- 提供完整的 requestBodyJson
+- contentType: "application/json" 或 "multipart/form-data"
+- 提供完整的 requestBodyJson (当mode为json时)
 - 响应: 200/201成功, 400参数错误, 401未授权
 
 ### PUT/PATCH 请求
 - requestBodyMode: "json"
+- contentType: "application/json"
 - 提供更新字段的 requestBodyJson
 - 响应: 200成功, 400参数错误, 404资源不存在
 
 ### DELETE 请求
 - requestBodyMode: "none"
+- contentType: ""
 - 使用路径参数或查询参数
 - 响应: 200/204成功, 404资源不存在
 
@@ -1941,7 +1978,14 @@ export const buildAiSystemPromptForNode = (nodeType: 'http' | 'websocket' | 'htt
 6. description 字段要详细说明接口用途、参数要求、注意事项
 7. 生成的数据要符合实际业务逻辑,不要使用无意义的占位符
 8. queryParams 和 headers 中的 type 字段必须固定为 "string"
-9. queryParams 和 headers 中使用 "select" 字段而不是 "enabled" 字段`;
+9. queryParams 和 headers 中使用 "select" 字段而不是 "enabled" 字段
+10. **contentType 字段是必需的**,必须根据 requestBodyMode 正确设置:
+    - json → "application/json"
+    - formdata → "multipart/form-data"
+    - urlencoded → "application/x-www-form-urlencoded"
+    - raw → 根据实际内容类型设置 (如 "text/plain", "application/xml")
+    - binary → "application/octet-stream"
+    - none → "" (空字符串)`;
   }
 
   if (nodeType === 'websocket') {
