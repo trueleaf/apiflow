@@ -1,5 +1,5 @@
 import { expect, type Page } from '@playwright/test';
-import { test, initOfflineWorkbench, createProject, createSingleNode } from '../../fixtures/fixtures';
+import { test, initOfflineWorkbench, createProject, createSingleNode } from '../../../fixtures/fixtures';
 import {
   waitForWebSocketNodeReady,
   switchToTab,

@@ -4,11 +4,8 @@ import {
   waitForHttpNodeReady,
   fillUrl,
   clickSendRequest,
-  sendRequestAndWait,
   switchToResponseTab,
-  verifyResponseStatus,
   getResponseBody,
-  verifyResponseBodyContains,
   getResponseTime
 } from './helpers/httpNodeHelpers';
 

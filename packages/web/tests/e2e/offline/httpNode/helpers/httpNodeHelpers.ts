@@ -63,7 +63,7 @@ export const clickCancelRequest = async (page: Page): Promise<void> => {
 export const clickSaveApi = async (page: Page): Promise<void> => {
   const saveBtn = page.locator('button:has-text("保存接口")');
   await saveBtn.click();
-  await page.waitForTimeout(500);
+  await page.waitForTimeout(200);
 };
 
 //点击刷新按钮
@@ -371,9 +371,29 @@ export const addHeader = async (
 //删除请求头
 export const deleteHeader = async (page: Page, key: string): Promise<void> => {
   await switchToTab(page, 'Headers');
-  const row = page.locator(`tr:has(input[value="${key}"])`);
-  const deleteBtn = row.locator('.icon-shanchu, [title*="删除"]').first();
-  await deleteBtn.click();
+  const removed = await page.evaluate((targetKey) => {
+    const rowElements = Array.from(
+      document.querySelectorAll<HTMLElement>(
+        '.header-info .custom-params, .headers-table .custom-params, .s-params .custom-params'
+      )
+    );
+    for (const row of rowElements) {
+      const inputs = Array.from(row.querySelectorAll<HTMLInputElement>('input'));
+      const matched = inputs.some((input) => input.value === targetKey);
+      if (!matched) {
+        continue;
+      }
+      const deleteButton = row.querySelector<HTMLElement>('.icon-shanchu, [title*="删除"]');
+      if (deleteButton) {
+        deleteButton.click();
+        return true;
+      }
+    }
+    return false;
+  }, key);
+  if (!removed) {
+    throw new Error(`未找到请求头 ${key}`);
+  }
   await page.waitForTimeout(200);
 };
 
@@ -509,6 +529,28 @@ export const verifyQueryParamExists = async (
   throw new Error(`Query param ${key} not found`);
 };
 
+//验证Path参数存在
+export const verifyPathParamExists = async (
+  page: Page,
+  key: string
+): Promise<void> => {
+  await switchToTab(page, 'Params');
+  const pathTitle = page.locator('text=Path 参数').first();
+  await expect(pathTitle).toBeVisible();
+  const container = page.locator('.query-path-params').first();
+  const keyInputs = container.locator('input[placeholder="输入参数名称自动换行"], input[placeholder*="参数"], input[placeholder*="key"]');
+  const count = await keyInputs.count();
+  for (let i = 0; i < count; i++) {
+    const candidate = keyInputs.nth(i);
+    const value = await candidate.inputValue();
+    if (value === key) {
+      await expect(candidate).toBeVisible();
+      return;
+    }
+  }
+  throw new Error(`Path param ${key} not found`);
+};
+
 export const verifyQueryParamValue = async (
   page: Page,
   key: string,
@@ -583,9 +625,10 @@ export const clearAllQueryParams = async (page: Page): Promise<void> => {
 //清空所有请求头
 export const clearAllHeaders = async (page: Page): Promise<void> => {
   await switchToTab(page, 'Headers');
-  const deleteButtons = page.locator('.headers-table tr .icon-shanchu, [title*="删除"]');
-  const count = await deleteButtons.count();
-  for (let i = 0; i < count; i++) {
+  const container = page.locator('.header-info, .headers-table, .s-params').first();
+  await container.waitFor({ state: 'visible', timeout: 5000 });
+  const deleteButtons = container.locator('.custom-params .icon-shanchu, .custom-params [title*="删除"]');
+  while ((await deleteButtons.count()) > 0) {
     await deleteButtons.first().click();
     await page.waitForTimeout(200);
   }
@@ -850,15 +893,25 @@ export const verifyScriptEditorVisible = async (page: Page): Promise<void> => {
 export const openHistoryPanel = async (page: Page): Promise<void> => {
   const historyBtn = page.locator('[title*="历史"], .history-btn, button:has-text("历史")').first();
   await historyBtn.click();
-  await page.waitForTimeout(300);
+  await page.waitForSelector('.history-dropdown, .history-detail-panel', { state: 'visible', timeout: 5000 });
+  await page.waitForTimeout(100);
 };
 
 //关闭历史记录面板
 export const closeHistoryPanel = async (page: Page): Promise<void> => {
-  const closeBtn = page.locator('.el-dialog__close, .history-close').first();
-  if (await closeBtn.isVisible()) {
-    await closeBtn.click();
-    await page.waitForTimeout(300);
+  const detailPanel = page.locator('.history-detail-panel').first();
+  if (await detailPanel.isVisible()) {
+    const closeIcon = detailPanel.locator('.close-icon').first();
+    if (await closeIcon.isVisible()) {
+      await closeIcon.click();
+      await page.waitForTimeout(300);
+    }
+  }
+  const dropdown = page.locator('.history-dropdown').first();
+  if (await dropdown.isVisible()) {
+    const historyBtn = page.locator('[title*="历史"], .history-btn, button:has-text("历史")').first();
+    await historyBtn.click();
+    await page.waitForTimeout(200);
   }
 };
 
@@ -882,6 +935,11 @@ export const deleteHistoryItem = async (page: Page, index: number): Promise<void
   const deleteBtn = item.locator('[title*="删除"], .delete-btn').first();
   await deleteBtn.click();
   await page.waitForTimeout(300);
+  const confirmBtn = page.locator('.el-message-box__btns .el-button--primary, button:has-text("删除")').first();
+  if (await confirmBtn.isVisible()) {
+    await confirmBtn.click();
+    await page.waitForTimeout(300);
+  }
 };
 
 //清空所有历史记录

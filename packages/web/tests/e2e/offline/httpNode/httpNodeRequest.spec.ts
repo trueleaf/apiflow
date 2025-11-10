@@ -15,8 +15,7 @@ import {
   switchToTab,
   addQueryParam,
   verifyQueryParamExists,
-  getFullRequestUrl,
-  verifyFullRequestUrl
+  getFullRequestUrl
 } from './helpers/httpNodeHelpers';
 
 test.describe('2. HTTP节点 - 请求操作模块测试', () => {

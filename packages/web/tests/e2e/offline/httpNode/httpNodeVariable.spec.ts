@@ -13,7 +13,6 @@ import {
   switchBodyMode,
   addFormDataField,
   fillRawBody,
-  clickSendRequest,
   addLocalVariable,
   addEnvironmentVariable,
   addGlobalVariable,

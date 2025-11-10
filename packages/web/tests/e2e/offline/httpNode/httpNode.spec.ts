@@ -1,5 +1,5 @@
 import { expect, type Page } from '@playwright/test';
-import { test, initOfflineWorkbench, createProject, createSingleNode } from '../../../fixtures/fixtures';
+import { test, initOfflineWorkbench, createProject, createSingleNode, clearAllAppData } from '../../../fixtures/fixtures';
 import {
   waitForHttpNodeReady,
   getMethodSelector,
@@ -8,9 +8,8 @@ import {
   switchToTab,
   addQueryParam,
   verifyQueryParamExists,
-  clickSendRequest,
-  clickSaveApi,
-  clickRefresh
+  fillUrl,
+  verifyPathParamExists,
 } from './helpers/httpNodeHelpers';
 
 test.describe('1. HTTP节点 - 基础功能测试', () => {
@@ -108,8 +107,8 @@ test.describe('1. HTTP节点 - 基础功能测试', () => {
     });
   });
 
-  test.describe('1.3 各个模块测试', () => {
-    test('应显示Params模块各个功能', async () => {
+  test.describe('1.3 Params模块功能测试', () => {
+    test('1.3.1 应正确显示Params标签页基础结构', async () => {
       await createProject(contentPage, '测试项目');
       await createSingleNode(contentPage, {
         name: 'Test API',
@@ -118,14 +117,66 @@ test.describe('1. HTTP节点 - 基础功能测试', () => {
       await waitForHttpNodeReady(contentPage);
       await switchToTab(contentPage, 'Params');
       await expect(contentPage.locator('text=Query 参数')).toBeVisible();
+      const paramInput = contentPage.locator('input[placeholder="输入参数名称自动换行"], input[placeholder*="参数名称"]').first();
+      await expect(paramInput).toBeVisible();
+    });
+
+    test('1.3.2 Query参数应支持添加和编辑', async () => {
+      await createProject(contentPage, '测试项目');
+      await createSingleNode(contentPage, {
+        name: 'Test API',
+        type: 'http'
+      });
+      await waitForHttpNodeReady(contentPage);
+      await addQueryParam(contentPage, 'testKey', 'testValue');
+      await verifyQueryParamExists(contentPage, 'testKey');
+      await addQueryParam(contentPage, 'key2', 'value2', { description: '测试描述' });
+      await verifyQueryParamExists(contentPage, 'key2');
+    });
+
+    test('1.3.3 Query参数应支持启用和禁用', async () => {
+      await createProject(contentPage, '测试项目');
+      await createSingleNode(contentPage, {
+        name: 'Test API',
+        type: 'http'
+      });
+      await waitForHttpNodeReady(contentPage);
+      await addQueryParam(contentPage, 'enabledParam', 'value1', { enabled: true });
+      await addQueryParam(contentPage, 'disabledParam', 'value2', { enabled: false });
+      await verifyQueryParamExists(contentPage, 'enabledParam');
+      await verifyQueryParamExists(contentPage, 'disabledParam');
+    });
+
+    test('1.3.4 Path参数应自动识别URL中的路径变量', async () => {
+      await createProject(contentPage, '测试项目');
+      await createSingleNode(contentPage, {
+        name: 'Test API',
+        type: 'http'
+      });
+      await waitForHttpNodeReady(contentPage);
+      await fillUrl(contentPage, '/api/:id/:userId');
+      await contentPage.waitForTimeout(500);
+      await switchToTab(contentPage, 'Params');
+      await expect(contentPage.locator('text=Path 参数')).toBeVisible();
+      await verifyPathParamExists(contentPage, 'id');
+      await verifyPathParamExists(contentPage, 'userId');
+    });
+
+    test('1.3.5 Params数据应在标签页切换时保持', async () => {
+      await createProject(contentPage, '测试项目');
+      await createSingleNode(contentPage, {
+        name: 'Test API',
+        type: 'http'
+      });
+      await waitForHttpNodeReady(contentPage);
+      await addQueryParam(contentPage, 'persistKey', 'persistValue');
+      await fillUrl(contentPage, '/api/:pathParam');
+      await contentPage.waitForTimeout(500);
       await switchToTab(contentPage, 'Body');
-      const bodyModule = contentPage.locator('.body-config, .monaco-editor').first();
-      await expect(bodyModule).toBeVisible();
       await switchToTab(contentPage, 'Headers');
-      const headersActive = contentPage
-        .locator('.el-tabs__item.is-active:has-text("Headers"), .el-tabs__item.is-active:has-text("请求头")')
-        .first();
-      await expect(headersActive).toBeVisible();
+      await switchToTab(contentPage, 'Params');
+      await verifyQueryParamExists(contentPage, 'persistKey');
+      await verifyPathParamExists(contentPage, 'pathParam');
     });
 
     test('各模块应能正常交互', async () => {
