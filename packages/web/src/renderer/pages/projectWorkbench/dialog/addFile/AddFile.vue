@@ -148,7 +148,6 @@ const callAiToGenerateNodeData = async (nodeType: 'http' | 'websocket' | 'httpMo
         content: userPrompt
       }
     ],
-    temperature: 0.3,
     response_format: {
       type: 'json_object'
     }
@@ -167,6 +166,7 @@ const callAiToGenerateNodeData = async (nodeType: 'http' | 'websocket' | 'httpMo
     }
 
     const parsedData = JSON.parse(aiContent)
+    console.log('AI生成的数据:', parsedData)
     return { success: true, data: parsedData }
   } catch (error) {
     return { success: false, error: error instanceof Error ? error.message : 'AI生成失败' }
@@ -190,9 +190,10 @@ const mergeAiDataToHttpNode = (node: HttpNode, aiData: any) => {
       _id: nanoid(),
       key: param.key || '',
       value: param.value || '',
+      type: param.type || 'string',
       description: param.description || '',
       required: param.required ?? true,
-      enabled: true
+      select: param.select ?? param.enabled ?? true
     }))
   }
   if (aiData.headers && Array.isArray(aiData.headers)) {
@@ -200,8 +201,10 @@ const mergeAiDataToHttpNode = (node: HttpNode, aiData: any) => {
       _id: nanoid(),
       key: header.key || '',
       value: header.value || '',
+      type: header.type || 'string',
       description: header.description || '',
-      enabled: header.enabled ?? true
+      required: header.required ?? false,
+      select: header.select ?? header.enabled ?? true
     }))
   }
   if (aiData.requestBodyMode) {
@@ -252,9 +255,10 @@ const mergeAiDataToWebSocketNode = (node: WebSocketNode, aiData: any) => {
       _id: nanoid(),
       key: param.key || '',
       value: param.value || '',
+      type: param.type || 'string',
       description: param.description || '',
       required: param.required ?? true,
-      enabled: true
+      select: param.select ?? param.enabled ?? true
     }))
   }
   if (aiData.headers && Array.isArray(aiData.headers)) {
@@ -262,8 +266,10 @@ const mergeAiDataToWebSocketNode = (node: WebSocketNode, aiData: any) => {
       _id: nanoid(),
       key: header.key || '',
       value: header.value || '',
+      type: header.type || 'string',
       description: header.description || '',
-      enabled: header.enabled ?? true
+      required: header.required ?? false,
+      select: header.select ?? header.enabled ?? true
     }))
   }
   if (aiData.sendMessage) {

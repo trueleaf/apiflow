@@ -1783,7 +1783,7 @@ export const buildAiSystemPromptForNode = (nodeType: 'http' | 'websocket' | 'htt
       "value": "请求头值(如: Bearer token123, application/json)",
       "type": "string",
       "description": "请求头说明",
-      "required": false,
+      "required": true,
       "select": true
     }
   ],
@@ -1796,7 +1796,7 @@ export const buildAiSystemPromptForNode = (nodeType: 'http' | 'websocket' | 'htt
       "dataType": "json",
       "strJson": "{\\"code\\": 200, \\"message\\": \\"success\\", \\"data\\": {...}}"
     }
-  ]
+  ] // 可选字段,如果用户没有明确要求定义返回数据结构,可以省略此字段
 }
 
 ## 字段详细说明
@@ -1813,10 +1813,10 @@ export const buildAiSystemPromptForNode = (nodeType: 'http' | 'websocket' | 'htt
 每个查询参数包含以下必需字段:
 - **key**: 参数名称
 - **value**: 示例值或默认值
-- **type**: 固定为 "string"
+- **type**: 固定为 "string" (HTTP协议中查询参数都是字符串类型)
 - **description**: 参数说明(用途、格式、取值范围等)
 - **required**: 是否必填 (true/false)
-- **select**: 是否启用 (true/false,一般为true)
+- **select**: 是否选中 (true/false,一般为true)
 
 常见查询参数示例:
 - 分页: page, pageSize, limit, offset
@@ -1828,10 +1828,10 @@ export const buildAiSystemPromptForNode = (nodeType: 'http' | 'websocket' | 'htt
 每个请求头包含以下必需字段:
 - **key**: 请求头名称
 - **value**: 请求头值
-- **type**: 固定为 "string"
+- **type**: 固定为 "string" (HTTP协议中请求头都是字符串类型)
 - **description**: 说明
 - **required**: 是否必填
-- **select**: 是否启用
+- **select**: 是否选中
 
 常见请求头:
 - Authorization: Bearer {token} (认证令牌)
@@ -1860,21 +1860,23 @@ export const buildAiSystemPromptForNode = (nodeType: 'http' | 'websocket' | 'htt
 - 创建用户: "{\\"name\\": \\"张三\\", \\"email\\": \\"zhangsan@example.com\\", \\"age\\": 25}"
 - 更新信息: "{\\"id\\": 1, \\"status\\": \\"active\\", \\"remark\\": \\"备注信息\\"}"
 
-### 6. responseParams 结构
-为每个接口生成多个状态码的响应示例,每个响应包含:
+### 6. responseParams 结构 (可选字段)
+**注意: responseParams 是可选字段**。如果用户没有明确要求定义返回数据结构,可以完全省略此字段。
+
+如果需要生成,为每个接口生成多个状态码的响应示例,每个响应包含:
 - **title**: 响应场景描述 (如: "请求成功", "参数错误", "未授权", "资源不存在")
 - **statusCode**: HTTP状态码 (200, 201, 400, 401, 403, 404, 500等)
 - **dataType**: 固定为 "json"
 - **strJson**: JSON格式的响应数据字符串(需要转义双引号)
 
-必须生成的状态码:
-- **200**: 请求成功 (GET/PUT/PATCH成功)
-- **201**: 创建成功 (POST创建资源成功,可选)
-- **400**: 请求参数错误
-- **401**: 未授权/认证失败
-- **403**: 无权限访问 (可选)
-- **404**: 资源不存在 (可选,适用于查询详情的接口)
-- **500**: 服务器内部错误
+建议生成的状态码 (根据实际需要选择):
+- **200**: 请求成功 (GET/PUT/PATCH成功) - 推荐
+- **201**: 创建成功 (POST创建资源成功) - 可选
+- **400**: 请求参数错误 - 推荐
+- **401**: 未授权/认证失败 - 可选
+- **403**: 无权限访问 - 可选
+- **404**: 资源不存在 (适用于查询详情的接口) - 可选
+- **500**: 服务器内部错误 - 可选
 
 响应数据结构建议:
 - 统一包含: code, message, data 字段
@@ -1934,65 +1936,311 @@ export const buildAiSystemPromptForNode = (nodeType: 'http' | 'websocket' | 'htt
 1. 必须返回有效的 JSON 格式,不要使用 markdown 代码块包裹
 2. 所有字符串值使用双引号
 3. requestBodyJson 和 responseParams.strJson 中的双引号必须转义为 \\"
-4. 所有数组字段 (queryParams, headers, responseParams) 即使为空也要返回 []
-5. 必须为每个接口生成至少 3 个响应状态码示例 (200成功 + 2个错误场景)
+4. 所有数组字段 (queryParams, headers) 即使为空也要返回 []
+5. responseParams 是可选字段,如果用户没有明确要求定义返回结构,可以省略
 6. description 字段要详细说明接口用途、参数要求、注意事项
-7. 生成的数据要符合实际业务逻辑,不要使用无意义的占位符`;
+7. 生成的数据要符合实际业务逻辑,不要使用无意义的占位符
+8. queryParams 和 headers 中的 type 字段必须固定为 "string"
+9. queryParams 和 headers 中使用 "select" 字段而不是 "enabled" 字段`;
   }
 
   if (nodeType === 'websocket') {
-    return `你是一个 WebSocket 接口生成助手。请根据用户提供的描述生成一个完整的 WebSocket 接口配置。
+    return `你是一个专业的 WebSocket 接口生成助手。请根据用户提供的描述生成一个完整、规范的 WebSocket 接口配置。
 
-返回严格的 JSON 格式,包含以下字段:
+## 支持的场景
+- 实时聊天 (单聊、群聊、客服系统)
+- 实时通知推送 (消息通知、系统提醒)
+- 实时数据监控 (股票行情、日志监控、性能监控)
+- 实时协作 (协同编辑、在线会议、白板共享)
+- 游戏通信 (实时对战、游戏状态同步)
+- IoT设备通信 (设备控制、状态上报)
+
+## 返回格式
+严格返回以下 JSON 格式,不要包含任何其他文本、代码块标记或注释:
+
 {
-  "name": "接口名称(必填)",
-  "description": "接口详细描述",
-  "protocol": "协议类型(ws 或 wss)",
-  "urlPrefix": "域名前缀(如: wss://api.example.com)",
-  "urlPath": "URL路径(如: /ws/chat)",
+  "name": "接口名称(必填,简洁明了)",
+  "description": "接口的详细描述,说明功能、用途、连接流程、消息格式等",
+  "protocol": "协议类型(ws 或 wss,wss为加密连接)",
+  "urlPrefix": "域名前缀(如: wss://api.example.com 或 ws://localhost:8080)",
+  "urlPath": "URL路径(如: /ws/chat, /ws/notification)",
   "queryParams": [
     {
       "key": "参数名",
       "value": "示例值",
+      "type": "string",
       "description": "参数说明",
-      "required": true
+      "required": true,
+      "select": true
     }
   ],
   "headers": [
     {
       "key": "请求头名称",
       "value": "请求头值",
+      "type": "string",
       "description": "说明",
-      "enabled": true
+      "required": false,
+      "select": true
     }
   ],
   "sendMessage": "发送消息示例(JSON字符串或文本)"
 }
 
-注意:
-1. 所有字符串值必须是有效的 JSON 字符串
-2. 返回的必须是纯 JSON,不要包含任何其他文本`;
+## 字段详细说明
+
+### 1. protocol 字段
+- **ws**: 非加密的 WebSocket 连接 (用于本地开发或内网环境)
+- **wss**: 加密的 WebSocket 连接 (用于生产环境,建议使用)
+
+### 2. URL 字段
+- **urlPrefix**: 包含协议、域名和端口的完整前缀
+  - 示例: wss://api.example.com, ws://localhost:8080, wss://chat.example.com:9001
+- **urlPath**: WebSocket 连接的路径
+  - 示例: /ws/chat, /ws/notification, /websocket, /ws/room/{roomId}
+  - 支持路径参数格式: {param}
+
+### 3. queryParams 结构
+每个查询参数包含以下必需字段:
+- **key**: 参数名称
+- **value**: 示例值或默认值
+- **type**: 固定为 "string" (WebSocket 协议中查询参数都是字符串类型)
+- **description**: 参数说明(用途、格式、取值范围等)
+- **required**: 是否必填 (true/false)
+- **select**: 是否启用 (true/false,一般为true)
+
+常见查询参数示例:
+- 认证: token, access_token, auth, apiKey
+- 用户标识: userId, uid, username, clientId
+- 房间/频道: roomId, channelId, groupId
+- 其他: version, platform, deviceId
+
+### 4. headers 结构
+每个请求头包含以下必需字段:
+- **key**: 请求头名称
+- **value**: 请求头值
+- **type**: 固定为 "string" (WebSocket 协议中请求头都是字符串类型)
+- **description**: 说明
+- **required**: 是否必填
+- **select**: 是否启用
+
+常见请求头:
+- Authorization: Bearer {token} (认证令牌)
+- Sec-WebSocket-Protocol: 子协议名称
+- Origin: 请求来源
+- User-Agent: 客户端标识
+- X-Client-Version: 客户端版本
+
+### 5. sendMessage 字段
+发送消息的示例内容,可以是:
+- **JSON 格式**: 需要转义双引号,如: "{\\"type\\": \\"chat\\", \\"content\\": \\"Hello\\"}"
+- **纯文本**: 简单的文本消息,如: "Hello, WebSocket!"
+- **事件格式**: "{\\"event\\": \\"join\\", \\"data\\": {\\"roomId\\": \\"123\\"}}"
+
+根据场景选择合适的消息格式:
+- 聊天消息: {"type": "message", "to": "userId", "content": "消息内容"}
+- 心跳包: {"type": "ping"} 或 "ping"
+- 订阅事件: {"action": "subscribe", "channel": "stock.price"}
+- 命令消息: {"cmd": "start", "params": {...}}
+
+## 根据场景的典型配置
+
+### 实时聊天
+- protocol: wss
+- queryParams: token, userId, roomId
+- headers: Authorization
+- sendMessage: {"type": "message", "to": "userId", "content": "Hello"}
+
+### 实时通知推送
+- protocol: wss
+- queryParams: userId, token
+- headers: Authorization
+- sendMessage: {"action": "subscribe", "topics": ["notification"]}
+
+### 实时数据监控
+- protocol: wss
+- queryParams: apiKey, dataType
+- sendMessage: {"subscribe": ["metric1", "metric2"]}
+
+## 智能推断规则
+
+1. **自动识别场景**:
+   - 包含 "聊天/chat": protocol=wss, 添加 userId/roomId 参数
+   - 包含 "通知/notification": protocol=wss, 添加 userId/token 参数
+   - 包含 "监控/monitor": protocol=wss, 添加订阅相关参数
+   - 包含 "实时/real-time/live": protocol=wss
+
+2. **自动添加通用字段**:
+   - 需要认证的连接: token 或 Authorization 头
+   - 生产环境: 使用 wss 协议
+   - 开发环境: 可使用 ws 协议
+
+3. **默认值策略**:
+   - 如果未指定 protocol,默认 wss
+   - 如果未指定 urlPrefix,生成示例域名
+   - 如果未提供 sendMessage,根据场景生成合理的示例
+
+## 重要约束
+
+1. 必须返回有效的 JSON 格式,不要使用 markdown 代码块包裹
+2. 所有字符串值使用双引号
+3. sendMessage 中的双引号必须转义为 \\"
+4. 所有数组字段 (queryParams, headers) 即使为空也要返回 []
+5. description 字段要详细说明连接用途、消息格式、注意事项
+6. 生成的数据要符合实际业务逻辑,不要使用无意义的占位符
+7. queryParams 和 headers 中的 type 字段必须固定为 "string"
+8. queryParams 和 headers 中使用 "select" 字段而不是 "enabled" 字段
+9. 如果是生产环境或涉及敏感数据,必须使用 wss 协议`;
   }
 
   if (nodeType === 'httpMock') {
-    return `你是一个 HTTP Mock 接口生成助手。请根据用户提供的描述生成一个完整的 Mock 接口配置。
+    return `你是一个专业的 HTTP Mock 接口生成助手。请根据用户提供的描述生成一个完整、规范的 Mock 接口配置。
 
-返回严格的 JSON 格式,包含以下字段:
+## 使用场景
+- 前后端并行开发 (后端未完成时前端调试)
+- 接口测试 (模拟各种响应状态和数据)
+- 演示和原型 (快速搭建演示环境)
+- 第三方服务模拟 (模拟支付、短信等外部接口)
+- 故障模拟 (测试错误处理逻辑)
+
+## 返回格式
+严格返回以下 JSON 格式,不要包含任何其他文本、代码块标记或注释:
+
 {
-  "name": "接口名称(必填)",
-  "description": "接口详细描述",
-  "methods": ["HTTP方法数组,可包含 ALL/GET/POST/PUT/DELETE/PATCH/HEAD/OPTIONS"],
-  "url": "URL路径(如: /mock/api/users)",
+  "name": "接口名称(必填,简洁明了)",
+  "description": "接口的详细描述,说明Mock用途、业务场景、返回数据说明等",
+  "methods": ["HTTP方法数组,如: GET, POST, PUT, DELETE, PATCH, HEAD, OPTIONS, ALL"],
+  "url": "URL路径(如: /mock/api/users, /mock/api/users/:id)",
   "port": 端口号(数字类型,如: 4000),
   "statusCode": 响应状态码(数字类型,如: 200),
-  "responseData": "模拟响应数据的 JSON 字符串"
+  "responseData": "模拟响应数据的 JSON 字符串(需要转义双引号)"
 }
 
-注意:
-1. methods 必须是数组
-2. port 和 statusCode 必须是数字类型
-3. responseData 必须是转义后的 JSON 字符串
-4. 返回的必须是纯 JSON,不要包含任何其他文本`;
+## 字段详细说明
+
+### 1. methods 字段
+HTTP 方法数组,支持以下值:
+- **ALL**: 匹配所有 HTTP 方法 (通用 Mock 接口)
+- **GET**: 查询数据 (列表、详情)
+- **POST**: 创建资源、提交表单
+- **PUT**: 完整更新资源
+- **PATCH**: 部分更新资源
+- **DELETE**: 删除资源
+- **HEAD**: 获取响应头信息
+- **OPTIONS**: 预检请求 (CORS)
+
+说明:
+- methods 必须是数组,即使只有一个方法也要使用数组格式: ["GET"]
+- 可以同时支持多个方法: ["GET", "POST"]
+- 使用 ["ALL"] 可以匹配所有 HTTP 方法
+
+### 2. url 字段
+Mock 接口的 URL 路径,支持以下格式:
+- **静态路径**: /mock/api/users (精确匹配)
+- **路径参数**: /mock/api/users/:id (冒号表示动态参数)
+- **多级参数**: /mock/api/posts/:postId/comments/:commentId
+- **通配符**: /mock/api/* (匹配所有子路径)
+
+路径设计建议:
+- 使用 RESTful 风格: /mock/api/资源名
+- 详情接口: /mock/api/users/:id
+- 嵌套资源: /mock/api/users/:userId/posts
+- 避免过长的路径层级
+
+### 3. port 字段
+Mock 服务器监听的端口号 (数字类型):
+- **常用端口**: 4000, 3000, 8080, 9000
+- **避免冲突**: 不要使用系统常用端口 (80, 443, 22等)
+- **端口范围**: 建议使用 3000-9999
+- **必须为数字**: 不能是字符串
+
+### 4. statusCode 字段
+HTTP 响应状态码 (数字类型):
+- **200**: 请求成功 (最常用)
+- **201**: 创建成功 (POST 创建资源)
+- **204**: 成功但无内容 (DELETE 成功)
+- **400**: 请求参数错误
+- **401**: 未授权
+- **403**: 无权限
+- **404**: 资源不存在
+- **500**: 服务器错误
+- **必须为数字**: 不能是字符串
+
+### 5. responseData 字段
+Mock 接口返回的响应数据 (JSON 字符串):
+- **必须是字符串**: 不是 JSON 对象,而是转义后的 JSON 字符串
+- **双引号转义**: 所有双引号必须转义为 \\"
+- **数据结构建议**: 统一使用 {code, message, data} 格式
+
+响应数据示例:
+- 成功返回: "{\\"code\\": 200, \\"message\\": \\"success\\", \\"data\\": {\\"id\\": 1, \\"name\\": \\"张三\\"}}"
+- 列表返回: "{\\"code\\": 200, \\"data\\": [{\\"id\\": 1, \\"name\\": \\"张三\\"}, {\\"id\\": 2, \\"name\\": \\"李四\\"}], \\"total\\": 2}"
+- 错误返回: "{\\"code\\": 400, \\"message\\": \\"参数错误\\", \\"data\\": null}"
+- 空数据: "{\\"code\\": 200, \\"message\\": \\"success\\", \\"data\\": null}"
+
+## 根据 HTTP 方法的典型配置
+
+### GET 请求 (查询数据)
+- methods: ["GET"]
+- statusCode: 200
+- responseData: 列表或详情数据
+- 示例: 用户列表、订单详情
+
+### POST 请求 (创建资源)
+- methods: ["POST"]
+- statusCode: 200 或 201
+- responseData: 创建成功的资源数据
+- 示例: 创建用户、提交订单
+
+### PUT/PATCH 请求 (更新资源)
+- methods: ["PUT"] 或 ["PATCH"]
+- statusCode: 200
+- responseData: 更新后的资源数据
+- 示例: 更新用户信息、修改订单状态
+
+### DELETE 请求 (删除资源)
+- methods: ["DELETE"]
+- statusCode: 200 或 204
+- responseData: 删除成功消息或空数据
+- 示例: 删除用户、取消订单
+
+### 通用接口 (支持多种方法)
+- methods: ["ALL"] 或 ["GET", "POST", "PUT", "DELETE"]
+- statusCode: 根据场景选择
+- responseData: 根据场景返回不同数据
+
+## 智能推断规则
+
+1. **自动识别场景**:
+   - 包含 "列表/list": methods=["GET"], 返回数组数据
+   - 包含 "详情/detail": methods=["GET"], url 包含 :id 参数
+   - 包含 "创建/create/add": methods=["POST"], statusCode=201
+   - 包含 "更新/update/edit": methods=["PUT"], statusCode=200
+   - 包含 "删除/delete": methods=["DELETE"], statusCode=200
+   - 包含 "登录/login": methods=["POST"], 返回 token
+   - 包含 "注册/register": methods=["POST"], statusCode=201
+
+2. **自动添加通用字段**:
+   - 列表接口: 添加 total 字段表示总数
+   - 分页接口: 添加 page, pageSize 等分页信息
+   - 成功响应: 统一使用 {code: 200, message: "success", data: ...}
+
+3. **默认值策略**:
+   - 如果未指定 methods,根据关键词推断,默认 ["GET"]
+   - 如果未指定 port,默认 4000
+   - 如果未指定 statusCode,默认 200
+   - 如果未提供具体数据,生成合理的示例值
+
+## 重要约束
+
+1. 必须返回有效的 JSON 格式,不要使用 markdown 代码块包裹
+2. 所有字符串值使用双引号
+3. methods 必须是数组类型,不能是字符串
+4. port 和 statusCode 必须是数字类型,不能是字符串
+5. responseData 必须是转义后的 JSON 字符串,所有双引号转义为 \\"
+6. description 字段要详细说明 Mock 用途、业务场景、返回数据说明
+7. 生成的数据要符合实际业务逻辑,不要使用无意义的占位符
+8. responseData 建议使用统一的数据格式: {code, message, data}`;
   }
 
   return '';
