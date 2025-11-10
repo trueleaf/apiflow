@@ -62,6 +62,10 @@ const props = defineProps({
   showFormatButton: {
     type: Boolean,
     default: false
+  },
+  placeholder: {
+    type: String,
+    default: ''
   }
 });
 const emits = defineEmits(['update:modelValue', 'change', 'ready', 'undo', 'redo'])
@@ -277,8 +281,15 @@ onMounted(() => {
     ...defaultOptions,
     ...props.config?.editorOptions
   };
+  if (props.placeholder) {
+    mergedOptions.placeholder = props.placeholder;
+  }
   monacoInstance = monaco.editor.create(editorDom.value as HTMLElement, mergedOptions)
   registerProviders();
+  if (mergedOptions.find?.autoFindInSelection === 'never') {
+    monacoInstance.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyF, () => {});
+    monacoInstance.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyH, () => {});
+  }
   monacoInstance.onDidChangeModelContent(() => {
     if (!isComposing) {
       emits('update:modelValue', monacoInstance?.getValue())

@@ -29,6 +29,8 @@ export default {
   '不再提示': 'Don\'t show again',
   '大模型json返回': 'AI Model JSON Response',
   'AI生成': 'AI Generate',
+  'AI提示词': 'AI Prompt',
+  '可自动识别自然语言描述、cURL请求、任意类型接口结构数据': 'Auto-recognize natural language descriptions, cURL requests, and any type of API structure data',
   '返回数据结构': 'Response Data Structure',
   '新增一个条件返回': 'Add a conditional response',
   '监听端口': 'Listen Port',

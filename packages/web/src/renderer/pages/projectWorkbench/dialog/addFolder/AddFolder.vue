@@ -45,6 +45,24 @@ const runtimeStore = useRuntime();
 const loading = ref(false);
 const route = useRoute()
 const isStandalone = computed(() => runtimeStore.networkMode === 'offline');
+
+let keydownHandler: ((e: KeyboardEvent) => void) | null = null;
+watch(() => props.modelValue, (newVal) => {
+  if (newVal) {
+    keydownHandler = (e: KeyboardEvent) => {
+      if (e.key === 'Enter' && !loading.value) {
+        e.preventDefault();
+        handleAddFolder();
+      }
+    };
+    document.addEventListener('keydown', keydownHandler);
+  } else {
+    if (keydownHandler) {
+      document.removeEventListener('keydown', keydownHandler);
+      keydownHandler = null;
+    }
+  }
+});
 /*
 |--------------------------------------------------------------------------
 | 方法定义

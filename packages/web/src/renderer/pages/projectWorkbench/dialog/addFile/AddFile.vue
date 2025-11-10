@@ -2,7 +2,7 @@
   <el-dialog 
     :model-value="modelValue" 
     top="10vh" 
-    width="500px" 
+    width="650px" 
     :title="t('新建接口')" 
     footer-class="add-file-dialog__footer"
     content-class="add-file-dialog__content"
@@ -19,6 +19,17 @@
           <el-radio value="websocket">WebSocket</el-radio>
           <el-radio value="httpMock">HTTP Mock</el-radio>
         </el-radio-group>
+      </el-form-item>
+      <el-form-item v-if="isStandalone" :label="t('AI提示词')" prop="aiPrompt">
+        <CodeEditor
+          v-model="formData.aiPrompt"
+          language="javascript"
+          :auto-height="true"
+          :min-height="120"
+          :max-height="300"
+          :config="editorConfig"
+          placeholder="可自动识别自然语言描述、cURL请求、任意类型接口结构数据"
+        />
       </el-form-item>
     </el-form>
     <template #footer>
@@ -40,6 +51,7 @@ import { generateEmptyHttpMockNode, generateEmptyHttpNode, generateEmptyWebsocke
 import { apiNodesCache } from '@/cache/index';
 import { nanoid } from 'nanoid';
 import { useRuntime } from '@/store/runtime/runtimeStore';
+import CodeEditor from '@/components/common/codeEditor/CodeEditor.vue';
 
 const props = defineProps({
   modelValue: {
@@ -62,7 +74,8 @@ const nameInput = ref<InstanceType<typeof ElInput>>();
 const route = useRoute()
 const formData = ref({
   type: 'http',
-  name: ''
+  name: '',
+  aiPrompt: ''
 })
 const isStandalone = computed(() => runtimeStore.networkMode === 'offline')
 const formRules = {
@@ -70,13 +83,45 @@ const formRules = {
     { required: true, message: t('请输入接口名称'), trigger: 'change' }
   ]
 }
+const editorConfig = {
+  editorOptions: {
+    lineNumbers: 'off' as const,
+    quickSuggestions: false,
+    suggestOnTriggerCharacters: false,
+    acceptSuggestionOnCommitCharacter: false,
+    acceptSuggestionOnEnter: 'off' as const,
+    wordBasedSuggestions: 'off' as const,
+    find: {
+      addExtraSpaceOnTop: false,
+      autoFindInSelection: 'never' as const,
+      seedSearchStringFromSelection: 'never' as const,
+    },
+  }
+}
 
-// 监听对话框打开状态，自动聚焦输入框
+let keydownHandler: ((e: KeyboardEvent) => void) | null = null;
 watch(() => props.modelValue, (newVal) => {
   if (newVal) {
+    keydownHandler = (e: KeyboardEvent) => {
+      if (e.key === 'Enter' && !loading.value) {
+        const target = e.target as HTMLElement;
+        const isInMonaco = target.closest('.monaco-editor');
+        if (isInMonaco) {
+          return;
+        }
+        e.preventDefault();
+        handleAddFile();
+      }
+    };
+    document.addEventListener('keydown', keydownHandler);
     setTimeout(() => {
       nameInput.value?.focus();
     }, 100);
+  } else {
+    if (keydownHandler) {
+      document.removeEventListener('keydown', keydownHandler);
+      keydownHandler = null;
+    }
   }
 }, {
   immediate: true,
@@ -194,6 +239,7 @@ const handleAddFile = () => {
 const handleClose = () => {
   formData.value.type = 'http';
   formData.value.name = '';
+  formData.value.aiPrompt = '';
   form.value?.resetFields();
   emits('update:modelValue', false);
 }
