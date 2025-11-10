@@ -6,7 +6,7 @@
     <div class="message-content">
       <div class="message-bubble">
         <div class="markdown-content">
-          <VueMarkdownRender :source="message.content" />
+          <VueMarkdownRender :source="message.content" :options="markdownOptions" />
         </div>
       </div>
     </div>
@@ -21,4 +21,10 @@ import type { TextResponseMessage } from '@src/types/ai'
 defineProps<{
   message: TextResponseMessage
 }>()
+
+const markdownOptions = {
+  html: false,
+  breaks: true,
+  linkify: true
+}
 </script>
