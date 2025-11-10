@@ -66,6 +66,10 @@ const props = defineProps({
   placeholder: {
     type: String,
     default: ''
+  },
+  disableValidation: {
+    type: Boolean,
+    default: false
   }
 });
 const emits = defineEmits(['update:modelValue', 'change', 'ready', 'undo', 'redo'])
@@ -247,6 +251,19 @@ onMounted(() => {
     noLib: true, 
     allowNonTsExtensions: true 
   });
+  if (props.disableValidation) {
+    monaco.languages.typescript.javascriptDefaults.setDiagnosticsOptions({
+      noSemanticValidation: true,
+      noSyntaxValidation: true
+    });
+    monaco.languages.typescript.typescriptDefaults.setDiagnosticsOptions({
+      noSemanticValidation: true,
+      noSyntaxValidation: true
+    });
+    monaco.languages.json.jsonDefaults.setDiagnosticsOptions({
+      validate: false
+    });
+  }
   const defaultOptions: monaco.editor.IStandaloneEditorConstructionOptions = {
     value: props.modelValue,
     language: props.language,

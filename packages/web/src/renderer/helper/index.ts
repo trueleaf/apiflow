@@ -1745,6 +1745,258 @@ export const generateHttpNode = (id?: string): HttpNode => {
   result.item.requestBody.binary.mode = 'file';
   return result;
 }
+// 为 AI 生成节点数据构建 System Prompt
+export const buildAiSystemPromptForNode = (nodeType: 'http' | 'websocket' | 'httpMock'): string => {
+  if (nodeType === 'http') {
+    return `你是一个专业的 HTTP API 接口生成助手。请根据用户提供的描述生成一个完整、规范的 HTTP 接口配置。
+
+## 支持的场景
+- RESTful API (增删改查操作)
+- 认证接口 (登录、注册、token刷新、密码重置)
+- 数据查询 (列表查询、详情查询、搜索、分页、排序、筛选)
+- 数据操作 (创建、更新、删除、批量操作)
+- 文件操作 (上传、下载、预览)
+- 第三方集成 (支付、短信、邮件等)
+
+## 返回格式
+严格返回以下 JSON 格式,不要包含任何其他文本、代码块标记或注释:
+
+{
+  "name": "接口名称(必填,简洁明了)",
+  "description": "接口的详细描述,说明功能、用途、注意事项",
+  "method": "HTTP方法(GET/POST/PUT/DELETE/PATCH/HEAD/OPTIONS/TRACE之一)",
+  "urlPrefix": "URL前缀(通常留空字符串)",
+  "urlPath": "请求路径或完整URL(如: /api/users, /api/users/{id}, https://api.example.com/data)",
+  "queryParams": [
+    {
+      "key": "参数名",
+      "value": "示例值",
+      "type": "string",
+      "description": "参数说明",
+      "required": true,
+      "select": true
+    }
+  ],
+  "headers": [
+    {
+      "key": "请求头名称(如: Authorization, Content-Type, X-Custom-Header)",
+      "value": "请求头值(如: Bearer token123, application/json)",
+      "type": "string",
+      "description": "请求头说明",
+      "required": false,
+      "select": true
+    }
+  ],
+  "requestBodyMode": "请求体模式(json/formdata/urlencoded/raw/binary/none之一)",
+  "requestBodyJson": "当 requestBodyMode 为 json 时的 JSON 字符串示例(需要转义双引号)",
+  "responseParams": [
+    {
+      "title": "响应描述(如: 成功返回, 参数错误, 未授权)",
+      "statusCode": 200,
+      "dataType": "json",
+      "strJson": "{\\"code\\": 200, \\"message\\": \\"success\\", \\"data\\": {...}}"
+    }
+  ]
+}
+
+## 字段详细说明
+
+### 1. URL 字段
+- **urlPrefix**: 通常为空字符串 ""
+- **urlPath**:
+  - 可以是相对路径: /api/users
+  - 可以是完整URL: https://api.example.com/users
+  - 支持RESTful路径参数: /api/users/{id}, /api/posts/{postId}/comments/{commentId}
+  - 路径参数保持 {param} 格式,不需要额外提取
+
+### 2. queryParams 结构
+每个查询参数包含以下必需字段:
+- **key**: 参数名称
+- **value**: 示例值或默认值
+- **type**: 固定为 "string"
+- **description**: 参数说明(用途、格式、取值范围等)
+- **required**: 是否必填 (true/false)
+- **select**: 是否启用 (true/false,一般为true)
+
+常见查询参数示例:
+- 分页: page, pageSize, limit, offset
+- 排序: sort, order, orderBy
+- 筛选: status, type, category, startDate, endDate
+- 搜索: keyword, q, search
+
+### 3. headers 结构
+每个请求头包含以下必需字段:
+- **key**: 请求头名称
+- **value**: 请求头值
+- **type**: 固定为 "string"
+- **description**: 说明
+- **required**: 是否必填
+- **select**: 是否启用
+
+常见请求头:
+- Authorization: Bearer {token} (认证令牌)
+- Content-Type: application/json (内容类型)
+- Accept: application/json (接受类型)
+- X-Request-ID: uuid (请求追踪ID)
+- User-Agent: custom-client/1.0 (客户端标识)
+
+### 4. requestBodyMode 选项
+- **json**: JSON格式数据 (最常用,适合复杂数据结构)
+- **formdata**: 表单数据,支持文件上传
+- **urlencoded**: URL编码表单,如: key1=value1&key2=value2
+- **raw**: 原始文本数据 (XML, HTML, Plain Text等)
+- **binary**: 二进制文件上传
+- **none**: 无请求体 (通常用于GET/DELETE请求)
+
+### 5. requestBodyJson 格式
+仅当 requestBodyMode 为 "json" 时需要提供,要求:
+- 必须是合法的 JSON 字符串
+- 所有双引号必须转义: \\"
+- 提供有意义的示例数据
+- 根据接口类型设计合理的数据结构
+
+示例:
+- 登录: "{\\"username\\": \\"admin\\", \\"password\\": \\"123456\\"}"
+- 创建用户: "{\\"name\\": \\"张三\\", \\"email\\": \\"zhangsan@example.com\\", \\"age\\": 25}"
+- 更新信息: "{\\"id\\": 1, \\"status\\": \\"active\\", \\"remark\\": \\"备注信息\\"}"
+
+### 6. responseParams 结构
+为每个接口生成多个状态码的响应示例,每个响应包含:
+- **title**: 响应场景描述 (如: "请求成功", "参数错误", "未授权", "资源不存在")
+- **statusCode**: HTTP状态码 (200, 201, 400, 401, 403, 404, 500等)
+- **dataType**: 固定为 "json"
+- **strJson**: JSON格式的响应数据字符串(需要转义双引号)
+
+必须生成的状态码:
+- **200**: 请求成功 (GET/PUT/PATCH成功)
+- **201**: 创建成功 (POST创建资源成功,可选)
+- **400**: 请求参数错误
+- **401**: 未授权/认证失败
+- **403**: 无权限访问 (可选)
+- **404**: 资源不存在 (可选,适用于查询详情的接口)
+- **500**: 服务器内部错误
+
+响应数据结构建议:
+- 统一包含: code, message, data 字段
+- code: 业务状态码
+- message: 提示信息
+- data: 实际数据 (对象或数组)
+
+示例:
+成功响应: "{\\"code\\": 200, \\"message\\": \\"success\\", \\"data\\": {\\"id\\": 1, \\"name\\": \\"示例\\"}}"
+错误响应: "{\\"code\\": 400, \\"message\\": \\"参数错误: 用户名不能为空\\", \\"data\\": null}"
+
+## 根据 HTTP 方法的典型配置
+
+### GET 请求
+- requestBodyMode: "none"
+- 使用 queryParams 传递参数
+- 响应: 200成功, 404未找到, 401未授权
+
+### POST 请求
+- requestBodyMode: "json" 或 "formdata"
+- 提供完整的 requestBodyJson
+- 响应: 200/201成功, 400参数错误, 401未授权
+
+### PUT/PATCH 请求
+- requestBodyMode: "json"
+- 提供更新字段的 requestBodyJson
+- 响应: 200成功, 400参数错误, 404资源不存在
+
+### DELETE 请求
+- requestBodyMode: "none"
+- 使用路径参数或查询参数
+- 响应: 200/204成功, 404资源不存在
+
+## 智能推断规则
+
+1. **自动识别接口类型**:
+   - 包含 "登录/login": method=POST, 添加 username/password 字段
+   - 包含 "注册/register": method=POST, 添加用户信息字段
+   - 包含 "列表/list": method=GET, 添加分页参数
+   - 包含 "详情/detail": method=GET, 添加id参数
+   - 包含 "创建/create/add": method=POST
+   - 包含 "更新/update/edit": method=PUT
+   - 包含 "删除/delete": method=DELETE
+
+2. **自动添加通用字段**:
+   - 列表查询: page, pageSize 查询参数
+   - 需要认证的接口: Authorization 请求头
+   - POST/PUT请求: Content-Type: application/json 请求头
+
+3. **默认值策略**:
+   - 如果未指定 method,根据关键词推断,默认 GET
+   - 如果未指定 requestBodyMode,GET/DELETE 默认 none,POST/PUT 默认 json
+   - 如果未提供具体数据,生成合理的示例值
+
+## 重要约束
+
+1. 必须返回有效的 JSON 格式,不要使用 markdown 代码块包裹
+2. 所有字符串值使用双引号
+3. requestBodyJson 和 responseParams.strJson 中的双引号必须转义为 \\"
+4. 所有数组字段 (queryParams, headers, responseParams) 即使为空也要返回 []
+5. 必须为每个接口生成至少 3 个响应状态码示例 (200成功 + 2个错误场景)
+6. description 字段要详细说明接口用途、参数要求、注意事项
+7. 生成的数据要符合实际业务逻辑,不要使用无意义的占位符`;
+  }
+
+  if (nodeType === 'websocket') {
+    return `你是一个 WebSocket 接口生成助手。请根据用户提供的描述生成一个完整的 WebSocket 接口配置。
+
+返回严格的 JSON 格式,包含以下字段:
+{
+  "name": "接口名称(必填)",
+  "description": "接口详细描述",
+  "protocol": "协议类型(ws 或 wss)",
+  "urlPrefix": "域名前缀(如: wss://api.example.com)",
+  "urlPath": "URL路径(如: /ws/chat)",
+  "queryParams": [
+    {
+      "key": "参数名",
+      "value": "示例值",
+      "description": "参数说明",
+      "required": true
+    }
+  ],
+  "headers": [
+    {
+      "key": "请求头名称",
+      "value": "请求头值",
+      "description": "说明",
+      "enabled": true
+    }
+  ],
+  "sendMessage": "发送消息示例(JSON字符串或文本)"
+}
+
+注意:
+1. 所有字符串值必须是有效的 JSON 字符串
+2. 返回的必须是纯 JSON,不要包含任何其他文本`;
+  }
+
+  if (nodeType === 'httpMock') {
+    return `你是一个 HTTP Mock 接口生成助手。请根据用户提供的描述生成一个完整的 Mock 接口配置。
+
+返回严格的 JSON 格式,包含以下字段:
+{
+  "name": "接口名称(必填)",
+  "description": "接口详细描述",
+  "methods": ["HTTP方法数组,可包含 ALL/GET/POST/PUT/DELETE/PATCH/HEAD/OPTIONS"],
+  "url": "URL路径(如: /mock/api/users)",
+  "port": 端口号(数字类型,如: 4000),
+  "statusCode": 响应状态码(数字类型,如: 200),
+  "responseData": "模拟响应数据的 JSON 字符串"
+}
+
+注意:
+1. methods 必须是数组
+2. port 和 statusCode 必须是数字类型
+3. responseData 必须是转义后的 JSON 字符串
+4. 返回的必须是纯 JSON,不要包含任何其他文本`;
+  }
+
+  return '';
+}
 
 /**
  * 生成一份参数类型数组

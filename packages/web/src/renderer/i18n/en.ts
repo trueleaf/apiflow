@@ -1041,6 +1041,7 @@ export default {
     '无法删除当前会话': 'Cannot delete current session',
     '删除成功': 'Deleted successfully',
     '当前': 'Current',
+    'AI生成接口数据失败,已创建空接口': 'AI failed to generate API data, empty API created',
   },
     '尚未配置完整的AI接入信息': 'AI access is not fully configured',
     '请先前往AI设置配置apiKey与apiUrl': 'Please open AI Settings to configure apiKey and apiUrl',
