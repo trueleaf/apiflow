@@ -110,6 +110,25 @@ export class ApiNodesCache {
       return false;
     }
   }
+  // 根据节点ID更新节点的部分字段
+  async updateNodeById(nodeId: string, updates: Partial<ApiNode>): Promise<boolean> {
+    try {
+      const existingDoc = await this.db.get("httpNodeList", nodeId);
+      if (!existingDoc) return false;
+      const updatedDoc = {
+        ...existingDoc,
+        ...updates,
+        _id: nodeId,
+        updatedAt: new Date().toISOString(),
+      };
+      await this.db.put("httpNodeList", updatedDoc, nodeId);
+      this.clearBannerCache(existingDoc.projectId);
+      return true;
+    } catch (error) {
+      console.error("Failed to update node by id:", error);
+      return false;
+    }
+  }
   // 删除一个节点
   async deleteNode(nodeId: string): Promise<boolean> {
     try {

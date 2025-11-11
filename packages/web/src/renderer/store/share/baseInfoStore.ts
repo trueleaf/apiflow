@@ -13,6 +13,7 @@ import { ref } from "vue";
 import { router } from "@/router";
 import { useVariable } from './variablesStore';
 import { projectCache, nodeVariableCache, commonHeaderCache } from '@/cache/index';
+import { apiNodesCache } from '@/cache/standalone/apiNodesCache';
 import { requestMethods } from '@/data/data.ts';
 import { workbenchCache } from '@/cache/workbench/workbenchCache.ts';
 import { useRuntime } from '../runtime/runtimeStore';
@@ -262,7 +263,32 @@ export const useApidocBaseInfo = defineStore('apidocBaseInfo', () => {
    */
   const getCommonHeaders = async (): Promise<void> => {
     if (isOffline()){
-      // todo
+      const projectId = router.currentRoute.value.query.id as string;
+      const allNodes = await apiNodesCache.getNodesByProjectId(projectId);
+      const folderNodes = allNodes.filter(node => node.info.type === 'folder');
+      const buildTree = (pid: string): ApidocProjectCommonHeader[] => {
+        return folderNodes
+          .filter(node => node.pid === pid)
+          .map(node => {
+            const folderNode = node as import('@src/types').FolderNode;
+            return {
+              _id: folderNode._id,
+              name: folderNode.info.name,
+              pid: folderNode.pid,
+              type: 'folder' as const,
+              commonHeaders: (folderNode.commonHeaders || []).map(h => ({
+                _id: h._id,
+                key: h.key,
+                value: h.value,
+                description: h.description,
+                select: h.select
+              })),
+              children: buildTree(folderNode._id)
+            };
+          });
+      };
+      const treeData = buildTree(projectId);
+      changeCommonHeaders(treeData);
       return;
     }
     return new Promise((resolve, reject) => {

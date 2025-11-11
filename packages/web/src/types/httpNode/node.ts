@@ -141,20 +141,7 @@ export type FolderNode = {
   /**
    * 公共请求头
    */
-  commonHeaders: {
-    /**
-     * 请求头名称
-     */
-    key: string;
-    /**
-     * 请求头值
-     */
-    value: string;
-    /**
-     * 请求头描述
-     */
-    description: string;
-  }[];
+  commonHeaders?: ApidocProperty<'string'>[];
   /**
    * 创建时间
    */

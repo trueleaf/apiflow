@@ -29,6 +29,7 @@ import SLoading from '@/components/common/loading/ClLoading.vue'
 import SParamsTree from '@/components/apidoc/paramsTree/ClParamsTree.vue'
 import { useApidocTas } from '@/store/share/tabsStore';
 import { useApidocBaseInfo } from '@/store/share/baseInfoStore';
+import { useRuntime } from '@/store/runtime/runtimeStore';
 
 
 
@@ -50,82 +51,129 @@ const currentSelectTab = computed(() => { //当前选中的doc
 const { t } = useI18n()
 
 const loading = ref(false);
-const getCommonHeaderInfo = () => {
+const getCommonHeaderInfo = async () => {
   loading.value = true;
-  if (currentSelectTab.value?._id === projectId) { //代表添加全局公共请求头
-    const params = {
-      projectId,
-    }
-    request.get<CommonResponse<ApidocProperty[]>, CommonResponse<ApidocProperty[]>>('/api/project/global_common_headers', { params }).then((res) => {
-      headerData.value = res.data || [];
-      if (!headerData.value.length) {
-        headerData.value.push(generateEmptyProperty())
+  const runtimeStore = useRuntime();
+  const isOffline = runtimeStore.networkMode === 'offline';
+
+  try {
+    if (currentSelectTab.value?._id === projectId) {
+      if (isOffline) {
+        const { commonHeaderCache } = await import('@/cache/index');
+        const commonHeaders = await commonHeaderCache.getCommonHeaders();
+        headerData.value = commonHeaders || [];
+        if (!headerData.value.length) {
+          headerData.value.push(generateEmptyProperty())
+        }
+      } else {
+        const params = {
+          projectId,
+        }
+        const res = await request.get<CommonResponse<ApidocProperty[]>, CommonResponse<ApidocProperty[]>>('/api/project/global_common_headers', { params });
+        headerData.value = res.data || [];
+        if (!headerData.value.length) {
+          headerData.value.push(generateEmptyProperty())
+        }
       }
-    }).catch((err) => {
-      console.error(err);
-    }).finally(() => {
-      loading.value = false;
-    });
-  } else {
-    const params = {
-      projectId,
-      id: currentSelectTab.value?._id
-    }
-    request.get<CommonResponse<CommonHeaderResponse>, CommonResponse<CommonHeaderResponse>>('/api/project/common_header_by_id', { params }).then((res) => {
-      headerData.value = res.data.commonHeaders || [];
-      if (!headerData.value.length) {
-        headerData.value.push(generateEmptyProperty())
+    } else {
+      if (isOffline) {
+        const { apiNodesCache } = await import('@/cache/standalone/apiNodesCache');
+        const node = await apiNodesCache.getNodeById(currentSelectTab.value?._id || '');
+        if (node && node.info.type === 'folder') {
+          const folderNode = node as import('@src/types').FolderNode;
+          headerData.value = folderNode.commonHeaders || [];
+          if (!headerData.value.length) {
+            headerData.value.push(generateEmptyProperty())
+          }
+        }
+      } else {
+        const params = {
+          projectId,
+          id: currentSelectTab.value?._id
+        }
+        const res = await request.get<CommonResponse<CommonHeaderResponse>, CommonResponse<CommonHeaderResponse>>('/api/project/common_header_by_id', { params });
+        headerData.value = res.data.commonHeaders || [];
+        if (!headerData.value.length) {
+          headerData.value.push(generateEmptyProperty())
+        }
       }
-    }).catch((err) => {
-      console.error(err);
-    }).finally(() => {
-      loading.value = false;
-    });
+    }
+  } catch (err) {
+    console.error(err);
+  } finally {
+    loading.value = false;
   }
 }
 //修改公共请求头
 const loading2 = ref(false);
-const handleEditCommonHeader = () => {
+const handleEditCommonHeader = async () => {
   loading2.value = true;
-  if (currentSelectTab.value?._id === projectId) { //代表添加全局公共请求头
-    const params = {
-      projectId,
-      commonHeaders: headerData.value.map(v => ({
+  const runtimeStore = useRuntime();
+  const isOffline = runtimeStore.networkMode === 'offline';
+
+  try {
+    if (currentSelectTab.value?._id === projectId) {
+      const commonHeadersData = headerData.value.map(v => ({
         _id: v._id,
         key: v.key,
         value: v.value,
         description: v.description,
         select: v.select,
-      })),
-    }
-    request.put('/api/project/replace_global_common_headers', params).then(() => {
-      message.success('修改成功');
-      apidocBaseInfoStore.getGlobalCommonHeaders();
-    }).catch((err) => {
-      console.error(err);
-    }).finally(() => {
-      loading2.value = false;
-    });
-  } else {
-    const params = {
-      projectId,
-      id: currentSelectTab.value?._id,
-      commonHeaders: headerData.value.map(v => ({
+      }));
+
+      if (isOffline) {
+        const { commonHeaderCache } = await import('@/cache/index');
+        await commonHeaderCache.setCommonHeaders(commonHeadersData.map(v => ({
+          ...v,
+          type: 'string' as const,
+          required: false,
+        })));
+        message.success('修改成功');
+        await apidocBaseInfoStore.getGlobalCommonHeaders();
+      } else {
+        const params = {
+          projectId,
+          commonHeaders: commonHeadersData,
+        }
+        await request.put('/api/project/replace_global_common_headers', params);
+        message.success('修改成功');
+        await apidocBaseInfoStore.getGlobalCommonHeaders();
+      }
+    } else {
+      const commonHeadersData = headerData.value.map(v => ({
         _id: v._id,
         key: v.key,
         value: v.value,
         description: v.description,
         select: v.select,
-      })),
+      }));
+
+      if (isOffline) {
+        const { apiNodesCache } = await import('@/cache/standalone/apiNodesCache');
+        await apiNodesCache.updateNodeById(currentSelectTab.value?._id || '', {
+          commonHeaders: commonHeadersData.map(v => ({
+            ...v,
+            type: 'string' as const,
+            required: false,
+          })),
+        } as Partial<import('@src/types').FolderNode>);
+        message.success('修改成功');
+        await apidocBaseInfoStore.getCommonHeaders();
+      } else {
+        const params = {
+          projectId,
+          id: currentSelectTab.value?._id,
+          commonHeaders: commonHeadersData,
+        }
+        await request.put('/api/project/common_header', params);
+        message.success('修改成功');
+        await apidocBaseInfoStore.getCommonHeaders();
+      }
     }
-    request.put('/api/project/common_header', params).then(() => {
-      message.success('修改成功');
-      apidocBaseInfoStore.getCommonHeaders();
-    }).catch((err) => {
-      console.error(err);
-    }).finally(() => {
-      loading2.value = false;
-    });
+  } catch (err) {
+    console.error(err);
+  } finally {
+    loading2.value = false;
   }
 }
 watch(currentSelectTab, (newVal) => {
