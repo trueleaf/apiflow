@@ -1,4 +1,4 @@
-﻿<template>
+<template>
   <SResizeX :min="280" :max="450" :width="300" name="banner" class="banner" tabindex="1">
     <!-- 添加项目名称和搜索框 -->
     <div class="tool">

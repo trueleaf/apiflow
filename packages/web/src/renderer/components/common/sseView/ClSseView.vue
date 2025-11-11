@@ -1,4 +1,4 @@
-﻿<template>
+<template>
   <div ref="sseViewContainerRef" class="sse-view">
     <!-- 筛选框 -->
     <div v-if="dataList && dataList.length > 0 && props.isDataComplete" class="filter-container">

@@ -1,4 +1,4 @@
-﻿<!-- @ts-nocheck -->
+<!-- @ts-nocheck -->
 <template>
   <SLoading :loading="loading">
     <el-table

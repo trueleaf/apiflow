@@ -1,4 +1,4 @@
-﻿<template>
+<template>
   <div v-if="responseInfo.requestData.url" class="request-info" :class="{ vertical: layout === 'vertical' }">
     <SCollapse :title="t('基本信息')" bold>
       <div class="pl-1 d-flex a-top">

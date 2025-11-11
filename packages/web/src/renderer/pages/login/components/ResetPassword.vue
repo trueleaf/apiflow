@@ -1,4 +1,4 @@
-﻿<template>
+<template>
   <el-form ref="form" :model="userInfo" :rules="rules" @submit.stop.prevent="handleResetPassword">
     <el-form-item prop="phone">
       <el-input v-model="userInfo.phone" :size="config.renderConfig.layout.size" name="phone" type="text" :placeholder="`${$t('请输入手机号')}...`"></el-input>

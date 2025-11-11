@@ -1,4 +1,4 @@
-﻿<template>
+<template>
   <div class="websocket-view">
     <!-- 筛选框组件 -->
     <WebsocketFilter

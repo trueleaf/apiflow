@@ -1,4 +1,4 @@
-﻿<template>
+<template>
   <div v-loading="loading" class="apidoc" :class="{ vertical: layout === 'vertical' }">
     <template v-if="mode === 'edit'">
       <div class="request-layout" :class="{ vertical: layout === 'vertical' }">

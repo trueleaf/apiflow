@@ -1,7 +1,7 @@
 import jsontoxml from 'jsontoxml'
 import type { OpenAPIV3 } from 'openapi-types';
 import type { ApidocProperty, HttpNode, HttpNodePropertyType, HttpNodeRequestMethod, HttpNodeBodyRawType, HttpNodeResponseContentType } from '@src/types'
-import { apidocGenerateProperty, generateHttpNode } from '@/helper'
+import { generateEmptyProperty, generateHttpNode } from '@/helper'
 import { nanoid } from 'nanoid/non-secure'
 import { i18n } from '@/i18n'
 
@@ -252,7 +252,7 @@ class OpenApiTranslator {
       return result;
     }
     for (let i = 0; i < parameters.length; i += 1) {
-      const apidocProperty = apidocGenerateProperty();
+      const apidocProperty = generateEmptyProperty();
       const parameter = parameters[i];
       const paramsPosition = (parameter as OpenAPIV3.ParameterObject).in;
       const { name, description, required } = (parameter as OpenAPIV3.ParameterObject);
@@ -295,7 +295,7 @@ class OpenApiTranslator {
     if (!requestBody) {
       return result;
     }
-    const apidocProperty = apidocGenerateProperty<HttpNodePropertyType>();
+    const apidocProperty = generateEmptyProperty<HttpNodePropertyType>();
     const { description, required, content } = (requestBody as OpenAPIV3.RequestBodyObject);
     apidocProperty.description = description || '';
     apidocProperty.required = required || true;
@@ -393,7 +393,7 @@ class OpenApiTranslator {
 
     // 解析schemaObject
   convertSchemaObjectToParams(schema: OpenAPIV3.SchemaObject | OpenAPIV3.ReferenceObject, key?: string, deep = 1): ApidocProperty {
-    const apidocProperty = apidocGenerateProperty<HttpNodePropertyType>();
+    const apidocProperty = generateEmptyProperty<HttpNodePropertyType>();
     apidocProperty.key = key || '';
     if (deep === 5) { //防止无线死循环
       return apidocProperty;

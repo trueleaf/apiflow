@@ -1,4 +1,4 @@
-﻿
+
 <template>
   <el-dialog :model-value="modelValue" :title="t('修改')" :before-close="handleClose">
     <el-divider content-position="left">{{ t("基础信息") }}</el-divider>

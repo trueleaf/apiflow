@@ -1,4 +1,4 @@
-﻿<template>
+<template>
   <el-dialog :model-value="modelValue" top="10vh" :title="t('修改前端路由')" :before-close="handleClose">
     <SForm ref="form" :edit-data="formInfo">
       <SFormItem :label="t('名称')" prop="name" required one-line></SFormItem>

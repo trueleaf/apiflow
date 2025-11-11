@@ -1,4 +1,4 @@
-﻿<template>
+<template>
   <SLoading :loading="loading" class="common-header">
     <SFieldset title="说明">
       <p>{{ t('1. 公共请求头针对目录内所有接口生效') }}</p>
@@ -23,7 +23,7 @@ import { router } from '@/router'
 import { message } from '@/helper'
 import { ApidocProperty, CommonResponse } from '@src/types';
 import { request } from '@/api/api';
-import { apidocGenerateProperty } from '@/helper';
+import { generateEmptyProperty } from '@/helper';
 import SFieldset from '@/components/common/fieldset/ClFieldset.vue'
 import SLoading from '@/components/common/loading/ClLoading.vue'
 import SParamsTree from '@/components/apidoc/paramsTree/ClParamsTree.vue'
@@ -59,7 +59,7 @@ const getCommonHeaderInfo = () => {
     request.get<CommonResponse<ApidocProperty[]>, CommonResponse<ApidocProperty[]>>('/api/project/global_common_headers', { params }).then((res) => {
       headerData.value = res.data || [];
       if (!headerData.value.length) {
-        headerData.value.push(apidocGenerateProperty())
+        headerData.value.push(generateEmptyProperty())
       }
     }).catch((err) => {
       console.error(err);
@@ -74,7 +74,7 @@ const getCommonHeaderInfo = () => {
     request.get<CommonResponse<CommonHeaderResponse>, CommonResponse<CommonHeaderResponse>>('/api/project/common_header_by_id', { params }).then((res) => {
       headerData.value = res.data.commonHeaders || [];
       if (!headerData.value.length) {
-        headerData.value.push(apidocGenerateProperty())
+        headerData.value.push(generateEmptyProperty())
       }
     }).catch((err) => {
       console.error(err);

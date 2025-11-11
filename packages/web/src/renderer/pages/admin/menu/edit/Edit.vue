@@ -1,4 +1,4 @@
-﻿
+
 <template>
   <el-dialog :model-value="modelValue" top="10vh" :title="t('编辑菜单')" :before-close="handleClose">
     <SForm ref="form" :edit-data="data">

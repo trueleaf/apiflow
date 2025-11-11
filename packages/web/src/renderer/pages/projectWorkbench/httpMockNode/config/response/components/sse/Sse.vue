@@ -1,4 +1,4 @@
-﻿<template>
+<template>
   <div class="sse-config-wrapper">
     <!-- 发送节奏配置 -->
     <div class="form-row">

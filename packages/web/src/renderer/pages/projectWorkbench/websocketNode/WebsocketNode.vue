@@ -1,4 +1,4 @@
-﻿<template>
+<template>
   <div v-loading="loading" class="websocket">
     <div class="connection-layout">
       <SOperation></SOperation>

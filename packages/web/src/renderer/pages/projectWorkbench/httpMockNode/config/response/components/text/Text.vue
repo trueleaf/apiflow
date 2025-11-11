@@ -1,4 +1,4 @@
-﻿<template>
+<template>
   <div class="text-config">
     <!-- 数据模式和文本类型选择 -->
     <div class="form-row">

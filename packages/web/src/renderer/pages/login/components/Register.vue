@@ -1,4 +1,4 @@
-﻿
+
 <template>
   <el-form ref="form" :model="registerInfo" :rules="rules" @submit.stop.prevent="handleRegister">
     <el-form-item prop="loginName">

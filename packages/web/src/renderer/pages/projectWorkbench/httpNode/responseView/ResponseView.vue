@@ -1,4 +1,4 @@
-﻿<template>
+<template>
   <SBaseInfo v-show="layout === 'horizontal'"></SBaseInfo>
   <SResponseSummary v-show="layout === 'horizontal'"></SResponseSummary>
   <SLoading :loading="requestState === 'sending' || responseBodyLoading" :class="{ 'h-100': layout === 'vertical' }" class="loading-wrap w-100">

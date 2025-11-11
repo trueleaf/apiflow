@@ -1,4 +1,4 @@
-﻿<template>
+<template>
   <SFieldset :title="t('将当前项目指定文档导出到其他项目')" class="fork">
     <!-- 选择区域 -->
     <div class="fork-wrap">

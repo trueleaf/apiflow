@@ -1,4 +1,4 @@
-﻿
+
 <template>
   <!-- 普通输入框 -->
   <SCol v-if="type === 'input'" v-bind="$attrs">

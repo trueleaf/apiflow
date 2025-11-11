@@ -1,4 +1,4 @@
-﻿<template>
+<template>
   <SCard class="s-search">
     <div v-if="config.isDev && showTip">
       {{ formInfo }}

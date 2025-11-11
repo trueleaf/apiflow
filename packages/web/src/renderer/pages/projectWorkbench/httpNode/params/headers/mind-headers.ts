@@ -1,4 +1,4 @@
-import { apidocGenerateProperty } from '@/helper'
+import { generateEmptyProperty } from '@/helper'
 import { nanoid } from 'nanoid/non-secure'
 import { ApidocProperty } from '@src/types';
 
@@ -54,7 +54,7 @@ const headers: ApidocProperty[] = [{
   select: true,
 }]
 standarHeaders.forEach(header => {
-  const property = apidocGenerateProperty();
+  const property = generateEmptyProperty();
   property.key = header.name;
   property.description = header.description;
   headers.push(property)

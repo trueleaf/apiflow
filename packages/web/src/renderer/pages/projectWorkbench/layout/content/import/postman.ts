@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { apidocGenerateProperty, generateHttpNode } from '@/helper'
+import { generateEmptyProperty, generateHttpNode } from '@/helper'
 import { nanoid } from 'nanoid/non-secure'
 
 class PostmanTranslator {
@@ -51,19 +51,19 @@ class PostmanTranslator {
             doc.item.url.prefix = `${item.request.url?.protocol ? `${item.request.url?.protocol}://` : ''}${item.request.url?.host?.join('/')}`;
           }
           doc.item.queryParams = item.request.url.query?.map((v: any) => ({
-            ...apidocGenerateProperty(),
+            ...generateEmptyProperty(),
             key: v.key,
             value: this.convertVariable(v.value),
           })) || [];
           doc.item.headers = item.request.header.filter((v: any) => v.value)?.map((v: any) => ({
-            ...apidocGenerateProperty(),
+            ...generateEmptyProperty(),
             key: v.key,
             value: this.convertVariable(v.value),
           })) || [];
           if (item.request?.body?.mode === 'formdata') { //formdata数据
             doc.item.contentType = 'multipart/form-data'
             doc.item.requestBody.formdata = item.request?.body?.formdata.map((v: any) => ({
-              ...apidocGenerateProperty(),
+              ...generateEmptyProperty(),
               key: v.key,
               value: this.convertVariable(v.value),
             })) || [];
@@ -71,7 +71,7 @@ class PostmanTranslator {
           if (item.request?.body?.mode === 'urlencoded') { //urlencoded数据
             doc.item.contentType = 'application/x-www-form-urlencoded'
             doc.item.requestBody.urlencoded = item.request?.body?.urlencoded.map((v: any) => ({
-              ...apidocGenerateProperty(),
+              ...generateEmptyProperty(),
               key: v.key,
               value: this.convertVariable(v.value),
             })) || [];
@@ -91,7 +91,7 @@ class PostmanTranslator {
           doc.afterRequest.raw = afterScriptList?.script?.exec.join('') || '';
 
           doc.item.headers = item.request.header.filter((v: any) => v.value)?.map((v: any) => ({
-            ...apidocGenerateProperty(),
+            ...generateEmptyProperty(),
             key: v.key,
             value: this.convertVariable(v.value),
           })) || [];

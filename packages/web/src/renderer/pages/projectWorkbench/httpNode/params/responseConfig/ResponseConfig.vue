@@ -1,4 +1,4 @@
-﻿<template>
+<template>
   <div class="response-params">
     <SCollapseCard v-for="(item, index) in responseData" :key="index" :fold="collapseState[item._id || ''] === false"
       @change="handleChangeCollapseState($event, item)">

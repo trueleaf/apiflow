@@ -1,4 +1,4 @@
-﻿<template>
+<template>
   <div class="history">
     <SFieldset title="过滤条件" class="search">
       <!-- 操作人员 -->

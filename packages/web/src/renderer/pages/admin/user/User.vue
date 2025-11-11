@@ -1,4 +1,4 @@
-﻿
+
 <template>
   <div>
     <SSearch @change="handleChange">

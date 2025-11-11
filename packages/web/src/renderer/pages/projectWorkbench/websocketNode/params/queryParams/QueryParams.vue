@@ -1,4 +1,4 @@
-﻿<template>
+<template>
   <div class="ws-query-params">
     <div class="title">Query&nbsp;{{ t("参数") }}</div>
     <SParamsTree show-checkbox :data="websocket.item.queryParams" @change="handleChange"></SParamsTree>

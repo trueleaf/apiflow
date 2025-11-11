@@ -1,4 +1,4 @@
-﻿<template>
+<template>
   <el-tree 
     ref="tree" 
     :data="data" 
@@ -174,7 +174,7 @@ import { Plus, Close, Switch } from '@element-plus/icons-vue'
 import type Node from 'element-plus/es/components/tree/src/model/node'
 import type { TreeNodeOptions } from 'element-plus/lib/components/tree/src/tree.type'
 import type { ApidocProperty, HttpNodePropertyType } from '@src/types'
-import { apidocGenerateProperty } from '@/helper'
+import { generateEmptyProperty } from '@/helper'
 import { forEachForest } from '@/helper'
 import { useI18n } from 'vue-i18n'
 import { useApidoc } from '@/store/share/apidocStore'
@@ -365,7 +365,7 @@ const deleteTip = (scope: TreeNode) => {
 
 //新增嵌套数据
 const addNestTreeData = (data: ApidocProperty) => {
-  const params = apidocGenerateProperty();
+  const params = generateEmptyProperty();
   if (data.type !== 'object' && data.type !== 'array') {
     apidocStore.changePropertyValue({
       data,
@@ -435,13 +435,13 @@ const handleChangeKeyData = (val: string, { node, data }: { node: TreeNode | Roo
       if ((rootParentData)[(rootParentData).length - 1].key && (rootParentData)[(rootParentData).length - 1].key.trim() !== '') {
         apidocStore.addProperty({
           data: rootParentData,
-          params: apidocGenerateProperty(),
+          params: generateEmptyProperty(),
         })
       }
     } else if (parentData.children?.[parentData.children.length - 1].key && parentData.children[parentData.children.length - 1].key.trim() !== '') {
       apidocStore.addProperty({
         data: parentData.children,
-        params: apidocGenerateProperty(),
+        params: generateEmptyProperty(),
       })
     }
     tree.value?.setChecked(data._id, true, true);

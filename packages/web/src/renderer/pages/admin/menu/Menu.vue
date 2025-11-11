@@ -1,4 +1,4 @@
-﻿<template>
+<template>
   <SLeftRight :left-width="500">
     <template #left>
       <SLoading :loading="loading">

@@ -1,4 +1,4 @@
-﻿<template>
+<template>
   <div class="tool">
     <div class="d-flex a-center j-center">
       <h2 v-if="projectName" class="gray-700 f-lg text-center text-ellipsis" :title="projectName">{{ projectName }}</h2>

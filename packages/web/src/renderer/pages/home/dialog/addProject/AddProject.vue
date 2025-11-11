@@ -1,4 +1,4 @@
-﻿<template>
+<template>
   <el-dialog :model-value="modelValue" width="35vw" top="10vh" :title="t('新增项目')" :before-close="handleClose" @opened="handleDialogOpened">
     <el-form ref="form" :model="formInfo" :rules="rules" label-width="150px" @submit.prevent="() => {}">
       <el-form-item :label="`${t('项目名称')}：`" prop="projectName">

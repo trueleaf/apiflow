@@ -1,4 +1,4 @@
-﻿<template>
+<template>
   <el-dialog :model-value="modelValue" top="10vh" :title="t('创建团队')" :before-close="handleClose">
     <el-form ref="form" :model="formInfo" :rules="rules" label-width="150px">
       <el-form-item :label="`${t('团队名称')}：`" prop="groupName">

@@ -1,4 +1,4 @@
-﻿<template>
+<template>
   <div class="websocket-response">
     <!-- 基本信息部分 -->
     <div class="websocket-base-info">

@@ -1,7 +1,7 @@
 import { computed } from 'vue'
 import type { ApidocProperty } from '@src/types'
 // import type { ApidocProjectHost } from "@src/types/store"
-import { apidocGenerateProperty } from '@/helper'
+import { generateEmptyProperty } from '@/helper'
 import { useApidoc } from '@/store/share/apidocStore';
 // import globalConfig from "@/../config/config"
 // import { router } from "@/router/index"
@@ -17,7 +17,7 @@ export const handleChangeUrl = (): void => {
   if (matchedPathParams) {
     matchedPathParams = matchedPathParams.map((val) => val.replace(/[{}]+/g, '')) as RegExpMatchArray
     const result = matchedPathParams.map((param) => {
-      const property = apidocGenerateProperty();
+      const property = generateEmptyProperty();
       property.key = param;
       return property;
     });
@@ -41,7 +41,7 @@ const convertQueryToParams = (requestPath: string): void => {
   });
   const newParams: ApidocProperty<'string'>[] = [];
   Object.keys(objectParams).forEach(field => {
-    const property = apidocGenerateProperty();
+    const property = generateEmptyProperty();
     property.key = field;
     property.value = objectParams[field] || ''; //防止undefined导致字段缺失
     newParams.push(property)

@@ -1,4 +1,4 @@
-﻿<template>
+<template>
   <div class="body-params">
     <div class="body-type d-flex a-center mb-1">
       <!-- body类型选择 -->

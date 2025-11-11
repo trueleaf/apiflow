@@ -1,4 +1,4 @@
-﻿<template>
+<template>
   <el-dialog
     v-model="visible"
     :title="t('创建消息模板')"

@@ -1,4 +1,4 @@
-﻿<template>
+<template>
   <div class="binary-config-wrapper">
     <div class="form-row">
       <div class="form-item flex-item">

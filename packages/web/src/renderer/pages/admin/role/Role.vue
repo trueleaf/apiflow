@@ -1,4 +1,4 @@
-﻿<template>
+<template>
   <STable ref="table" url="/api/security/role_list">
     <el-table-column prop="roleName" :label="t('角色名称')" align="center"></el-table-column>
     <el-table-column prop="remark" :label="t('备注')" align="center"></el-table-column>

@@ -1,4 +1,4 @@
-﻿<template>
+<template>
   <div class="image-config-wrapper">
     <!-- 模式选择 -->
     <div class="form-row">

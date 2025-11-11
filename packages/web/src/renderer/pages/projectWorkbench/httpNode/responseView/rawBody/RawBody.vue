@@ -1,4 +1,4 @@
-﻿<template>
+<template>
   <div class="raw-body" :class="{ vertical: layout === 'vertical' }">
     <div v-if="rawResponseIsOverflow" class="tip">
       <span>{{ t('数据大小为') }}</span>

@@ -1,4 +1,4 @@
-﻿<template>
+<template>
   <div class="recycler">
     <!-- 头部 -->
     <div class="recycler-header">

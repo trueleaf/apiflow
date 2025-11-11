@@ -1,4 +1,4 @@
-﻿<template>
+<template>
   <div ref="inputWrap" class="valid-input" tabindex="-1" @keydown="handleInputKeydown"
     @mouseenter="handleMouseoverWrap">
     <div class="ipt-wrap">

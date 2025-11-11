@@ -1,4 +1,4 @@
-﻿<template>
+<template>
   <el-dialog :model-value="modelValue" top="10vh" width="50%" :title="t('生成链接')" :before-close="handleClose">
     <div class="link-wrap">
       <SConfig :label="t('链接名称')" :has-check="false" required>

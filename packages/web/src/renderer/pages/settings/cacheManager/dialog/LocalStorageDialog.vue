@@ -1,4 +1,4 @@
-﻿<template>
+<template>
   <el-dialog
     :title="`${currentItem?.description || 'localStorage'} ${t('详情')}`"
     v-model="visible"

@@ -1,4 +1,4 @@
-﻿<template>
+<template>
   <div class="query-path-params">
     <div class="title">Query&nbsp;{{ t("参数") }}</div>
     <SParamsTree show-checkbox :data="queryTreeData" @change="handleQueryParamsChange"></SParamsTree>

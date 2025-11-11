@@ -1,4 +1,4 @@
-﻿<template>
+<template>
   <div v-loading="loading" class="project-group">
     <div class="d-flex">
       <!-- banner -->

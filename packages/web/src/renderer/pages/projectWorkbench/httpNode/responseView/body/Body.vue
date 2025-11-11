@@ -1,4 +1,4 @@
-﻿<template>
+<template>
   <div class="body-view" :class="{ vertical: layout === 'vertical' }">
     <div v-if="selectedTab && apidocResponseStore.responseCacheAllowedMap[selectedTab._id] === false" class="response-tip">
       <!-- 返回数据大小超过单个允许缓存数据，数据无法被缓存，切换tab或者刷新页面缓存值将会清空 -->

@@ -1,4 +1,4 @@
-﻿<template>
+<template>
   <div class="request-view">
     <div class="text-bold">{{ t("基本信息") }}</div>
     <div class="px-4">

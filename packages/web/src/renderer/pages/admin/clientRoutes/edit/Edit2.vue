@@ -1,4 +1,4 @@
-﻿
+
 <template>
   <el-dialog :model-value="modelValue" top="10vh" :title="t('批量修改前端路由类型')" :before-close="handleClose">
     <SForm ref="form">

@@ -1,4 +1,4 @@
-﻿<template>
+<template>
   <el-dialog v-model="visible" :title="`${currentStoreInfo?.description || '详情信息'} - 数据详情`" width="80%"
     :before-close="handleClose">
     <div class="detail-content">

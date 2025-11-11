@@ -1419,7 +1419,7 @@ export const getRequestMethodEnum = (): HttpNodeRequestMethod[] => {
 /**
  * 生成一条接口参数
  */
-export const apidocGenerateProperty = <T extends HttpNodePropertyType = 'string'>(type?: T): ApidocProperty<T> => {
+export const generateEmptyProperty = <T extends HttpNodePropertyType = 'string'>(type?: T): ApidocProperty<T> => {
   const result = {
     _id: nanoid(),
     key: '',
@@ -1483,6 +1483,26 @@ export const checkPropertyIsEqual = (value: ApidocProperty[], originValue: Apido
     }
   }
   return true;
+}
+
+/**
+ * 从URL路径中提取路径参数
+ */
+export const extractPathParams = (urlPath: string): ApidocProperty<'string'>[] => {
+  const pathParams: ApidocProperty<'string'>[] = [];
+  const regex = /\{([^}]+)\}/g;
+  let match;
+  
+  while ((match = regex.exec(urlPath)) !== null) {
+    const paramName = match[1];
+    pathParams.push({
+      ...generateEmptyProperty('string'),
+      key: paramName,
+      description: `路径参数: ${paramName}`
+    });
+  }
+  
+  return pathParams;
 }
 
 /**
@@ -1652,15 +1672,15 @@ export const generateEmptyHttpMockNode = (_id: string): HttpMockNode => {
         headers: {
           enabled: false,
           defaultHeaders: [
-            { ...apidocGenerateProperty(), key: 'Content-Type', value: 'application/json; charset=utf-8', select: true, description: '响应内容类型' },
-            { ...apidocGenerateProperty(), key: 'Cache-Control', value: 'no-cache, no-store, must-revalidate', select: false, description: '禁用缓存' },
-            { ...apidocGenerateProperty(), key: 'Access-Control-Allow-Origin', value: '*', select: false, description: '允许所有域名跨域访问' },
-            { ...apidocGenerateProperty(), key: 'Access-Control-Allow-Methods', value: 'GET, POST, PUT, DELETE, PATCH, OPTIONS', select: false, description: '允许的HTTP方法' },
-            { ...apidocGenerateProperty(), key: 'Access-Control-Allow-Headers', value: 'Content-Type, Authorization, X-Requested-With', select: false, description: '允许的请求头字段' },
-            { ...apidocGenerateProperty(), key: 'X-Content-Type-Options', value: 'nosniff', select: false, description: '防止浏览器MIME类型嗅探' },
-            { ...apidocGenerateProperty(), key: 'X-Frame-Options', value: 'DENY', select: false, description: '禁止在iframe中加载' },
+            { ...generateEmptyProperty(), key: 'Content-Type', value: 'application/json; charset=utf-8', select: true, description: '响应内容类型' },
+            { ...generateEmptyProperty(), key: 'Cache-Control', value: 'no-cache, no-store, must-revalidate', select: false, description: '禁用缓存' },
+            { ...generateEmptyProperty(), key: 'Access-Control-Allow-Origin', value: '*', select: false, description: '允许所有域名跨域访问' },
+            { ...generateEmptyProperty(), key: 'Access-Control-Allow-Methods', value: 'GET, POST, PUT, DELETE, PATCH, OPTIONS', select: false, description: '允许的HTTP方法' },
+            { ...generateEmptyProperty(), key: 'Access-Control-Allow-Headers', value: 'Content-Type, Authorization, X-Requested-With', select: false, description: '允许的请求头字段' },
+            { ...generateEmptyProperty(), key: 'X-Content-Type-Options', value: 'nosniff', select: false, description: '防止浏览器MIME类型嗅探' },
+            { ...generateEmptyProperty(), key: 'X-Frame-Options', value: 'DENY', select: false, description: '禁止在iframe中加载' },
           ],
-          customHeaders: [apidocGenerateProperty()],
+          customHeaders: [generateEmptyProperty()],
         },
         dataType: 'json',
         sseConfig: {

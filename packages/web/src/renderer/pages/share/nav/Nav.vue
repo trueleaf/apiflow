@@ -1,4 +1,4 @@
-﻿<template>
+<template>
   <div class="nav">
     <div class="tab-wrap">
       <div ref="tabList" class="tab-list">

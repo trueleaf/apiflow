@@ -1,4 +1,4 @@
-﻿<template>
+<template>
   <el-dialog :model-value="modelValue" top="10vh" :title="t('批量修改服务端路由类型')" :before-close="handleClose">
     <SForm ref="form">
       <SFormItem :label="t('分组名称')" prop="groupName" required one-line></SFormItem>

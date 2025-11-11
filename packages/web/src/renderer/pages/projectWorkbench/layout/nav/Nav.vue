@@ -1,4 +1,4 @@
-﻿<template>
+<template>
   <div class="nav">
     <div class="tab-wrap">
       <div v-if="0" class="btn left" @click="handleMoveLeft">

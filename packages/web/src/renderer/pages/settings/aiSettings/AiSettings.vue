@@ -1,4 +1,4 @@
-﻿<template>
+<template>
   <div class="ai-settings">
     <div class="page-title">
       <h2>AI 设置</h2>

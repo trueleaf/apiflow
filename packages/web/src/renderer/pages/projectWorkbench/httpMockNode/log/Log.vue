@@ -1,4 +1,4 @@
-﻿<template>
+<template>
   <div class="log-page">
     <div class="filters">
       <div class="filters-grid">

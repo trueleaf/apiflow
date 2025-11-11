@@ -1,4 +1,4 @@
-﻿<template>
+<template>
   <div class="doc-export">
     <SFieldset :title="t('导出类型')">
       <div class="download-wrap">

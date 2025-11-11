@@ -1,4 +1,4 @@
-﻿<template>
+<template>
   <div class="response-headers-section">
     <div class="section-header">
       <div class="section-title">

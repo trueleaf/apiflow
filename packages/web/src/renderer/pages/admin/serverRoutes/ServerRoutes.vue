@@ -1,4 +1,4 @@
-﻿<template>
+<template>
   <div>
     <!-- 搜索条件 -->
     <SSearch auto-request @change="handleChange">

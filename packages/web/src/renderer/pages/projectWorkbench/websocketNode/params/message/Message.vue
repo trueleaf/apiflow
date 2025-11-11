@@ -1,4 +1,4 @@
-﻿<template>
+<template>
   <div class="message-content">
     <!-- 内容编辑器 -->
     <div class="content-wrapper">

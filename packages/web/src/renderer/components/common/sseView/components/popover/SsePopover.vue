@@ -1,4 +1,4 @@
-﻿<template>
+<template>
   <el-popover 
     v-if="visible" 
     :visible="visible" 

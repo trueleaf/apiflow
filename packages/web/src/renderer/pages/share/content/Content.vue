@@ -1,4 +1,4 @@
-﻿<template>
+<template>
   <div class="share-doc-detail">
     <!-- 当tabs为空时显示提示信息 -->
     <div v-if="!tabs?.length" class="empty-tabs">

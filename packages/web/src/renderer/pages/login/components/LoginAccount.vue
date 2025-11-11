@@ -1,4 +1,4 @@
-﻿<template>
+<template>
   <el-form ref="form" class="login-account" :model="userInfo" :rules="rules" @submit.stop.prevent="handleLogin">
     <el-form-item prop="loginName">
       <el-input v-model="userInfo.loginName" :prefix-icon="User" name="loginName" type="text"

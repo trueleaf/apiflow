@@ -2,7 +2,7 @@ import { WebSocketNode, WebsocketMessageType, WebsocketResponse, WebsocketSendMe
 import { defineStore, storeToRefs } from "pinia";
 import { ref, watch } from "vue";
 import { ApidocProperty } from "@src/types";
-import { apidocGenerateProperty, generateEmptyWebsocketNode } from '@/helper';
+import { generateEmptyProperty, generateEmptyWebsocketNode } from '@/helper';
 import { nanoid } from 'nanoid/non-secure';
 import { cloneDeep, debounce } from "lodash-es";
 import { apiNodesCache } from "@/cache/index";
@@ -56,7 +56,7 @@ export const useWebSocket = defineStore('websocket', () => {
   }], async () => {
     const fullUrl = await getWebSocketUrl(websocket.value);
     const matchedCookies = websocketCookies.getMachtedCookies(fullUrl);
-    const property: ApidocProperty<'string'> = apidocGenerateProperty();
+    const property: ApidocProperty<'string'> = generateEmptyProperty();
     property.key = "Cookie";
     let cookieValue = '';
     
@@ -125,7 +125,7 @@ export const useWebSocket = defineStore('websocket', () => {
   
     //=========================================================================//
     // Host - 必需请求头，值可以覆盖
-    const hostHeader = apidocGenerateProperty();
+    const hostHeader = generateEmptyProperty();
     hostHeader.key = "Host";
     hostHeader.description = i18n.global.t("<主机信息，WebSocket连接必需，值可覆盖>");
     hostHeader._disableKey = true;
@@ -137,7 +137,7 @@ export const useWebSocket = defineStore('websocket', () => {
   
     //=========================================================================//
     // Upgrade - 必需请求头，值可以覆盖
-    const upgradeHeader = apidocGenerateProperty();
+    const upgradeHeader = generateEmptyProperty();
     upgradeHeader.key = "Upgrade";
     upgradeHeader.value = "websocket";
     upgradeHeader.description = i18n.global.t("<升级协议，WebSocket必需，值可覆盖>");
@@ -147,7 +147,7 @@ export const useWebSocket = defineStore('websocket', () => {
   
     //=========================================================================//
     // Connection - 必需请求头，值可以覆盖
-    const connectionHeader = apidocGenerateProperty();
+    const connectionHeader = generateEmptyProperty();
     connectionHeader.key = "Connection";
     connectionHeader.value = "Upgrade";
     connectionHeader.description = i18n.global.t("<保持连接升级，WebSocket必需，值可覆盖>");
@@ -157,7 +157,7 @@ export const useWebSocket = defineStore('websocket', () => {
   
     //=========================================================================//
     // Sec-WebSocket-Key - 必需请求头，值不可覆盖
-    const secKeyHeader = apidocGenerateProperty();
+    const secKeyHeader = generateEmptyProperty();
     secKeyHeader.key = "Sec-WebSocket-Key";
     secKeyHeader._valuePlaceholder = i18n.global.t("<客户端自动生成随机Key>");
     secKeyHeader.description = i18n.global.t("<握手校验Key，客户端每次随机生成，值不可覆盖>");
@@ -168,7 +168,7 @@ export const useWebSocket = defineStore('websocket', () => {
   
     //=========================================================================//
     // Sec-WebSocket-Version - 必需请求头，值不可覆盖
-    const secVersionHeader = apidocGenerateProperty();
+    const secVersionHeader = generateEmptyProperty();
     secVersionHeader.key = "Sec-WebSocket-Version";
     secVersionHeader.value = "13";
     secVersionHeader.description = i18n.global.t("<WebSocket协议版本，固定为13，值不可覆盖>");
@@ -179,7 +179,7 @@ export const useWebSocket = defineStore('websocket', () => {
   
     //=========================================================================//
     // Origin - 可选请求头，用于CORS验证
-    // const originHeader = apidocGenerateProperty();
+    // const originHeader = generateEmptyProperty();
     // originHeader.key = "Origin";
     // originHeader.value = "";
     // originHeader.description = i18n.global.t("<源验证，用于CORS安全检查，可选>");
@@ -195,7 +195,7 @@ export const useWebSocket = defineStore('websocket', () => {
 const addWebSocketHeader = (header?: Partial<ApidocProperty<'string'>>): void => {
   if (!websocket.value) return;
   
-  const newHeader = apidocGenerateProperty();
+  const newHeader = generateEmptyProperty();
   Object.assign(newHeader, header);
   websocket.value.item.headers.push(newHeader);
 };
@@ -233,7 +233,7 @@ const updateWebSocketHeaderById = (id: string, header: Partial<ApidocProperty<'s
   // 添加查询参数
   const addWebSocketQueryParam = (): void => {
     if (websocket.value) {
-      const newQueryParam = apidocGenerateProperty();
+      const newQueryParam = generateEmptyProperty();
       websocket.value.item.queryParams.push(newQueryParam);
     }
   };
@@ -267,7 +267,7 @@ const updateWebSocketHeaderById = (id: string, header: Partial<ApidocProperty<'s
     websocket.value.item.queryParams = params;
     // 如果没有数据则默认添加一条空数据
     if (websocket.value.item.queryParams.length === 0) {
-      websocket.value.item.queryParams.push(apidocGenerateProperty());
+      websocket.value.item.queryParams.push(generateEmptyProperty());
     }
   };
   /*
@@ -537,11 +537,11 @@ const updateWebSocketHeaderById = (id: string, header: Partial<ApidocProperty<'s
   const changeWebsocket = (payload: WebSocketNode): void => {
     // headers如果没有数据则默认添加一条空数据
     if (payload.item.headers.length === 0) {
-      payload.item.headers.push(apidocGenerateProperty());
+      payload.item.headers.push(generateEmptyProperty());
     }
     // queryParams如果没有数据则默认添加一条空数据
     if (payload.item.queryParams.length === 0) {
-      payload.item.queryParams.push(apidocGenerateProperty());
+      payload.item.queryParams.push(generateEmptyProperty());
     }
     // 初始化默认请求头
     initDefaultHeaders();

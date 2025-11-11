@@ -1,4 +1,4 @@
-﻿<template>
+<template>
   <SLoading :loading="loading" class="doc-detail">
     <el-icon :size="18" class="close" @click="handleClose">
       <Close />

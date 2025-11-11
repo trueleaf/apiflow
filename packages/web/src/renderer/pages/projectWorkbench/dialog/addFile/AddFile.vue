@@ -48,7 +48,7 @@ import { FormInstance, ElInput } from 'element-plus';
 import { request } from '@/api/api';
 import { message } from '@/helper'
 import { useRoute } from 'vue-router';
-import { generateEmptyHttpMockNode, generateEmptyHttpNode, generateEmptyWebsocketNode, buildAiSystemPromptForNode } from '@/helper';
+import { generateEmptyHttpMockNode, generateEmptyHttpNode, generateEmptyWebsocketNode, buildAiSystemPromptForNode, generateEmptyProperty, extractPathParams } from '@/helper';
 import { apiNodesCache } from '@/cache/index';
 import { nanoid } from 'nanoid';
 import { useRuntime } from '@/store/runtime/runtimeStore';
@@ -195,6 +195,7 @@ const mergeAiDataToHttpNode = (node: HttpNode, aiData: any) => {
       required: param.required ?? true,
       select: param.select ?? param.enabled ?? true
     }))
+    node.item.queryParams.push(generateEmptyProperty())
   }
   if (aiData.headers && Array.isArray(aiData.headers)) {
     node.item.headers = aiData.headers.map((header: any) => ({
@@ -206,6 +207,14 @@ const mergeAiDataToHttpNode = (node: HttpNode, aiData: any) => {
       required: header.required ?? false,
       select: header.select ?? header.enabled ?? true
     }))
+    node.item.headers.push(generateEmptyProperty())
+  }
+  if (aiData.urlPath) {
+    const pathParams = extractPathParams(aiData.urlPath)
+    if (pathParams.length > 0) {
+      node.item.paths = pathParams
+      node.item.paths.push(generateEmptyProperty())
+    }
   }
   if (aiData.requestBodyMode) {
     node.item.requestBody.mode = aiData.requestBodyMode
@@ -263,6 +272,7 @@ const mergeAiDataToWebSocketNode = (node: WebSocketNode, aiData: any) => {
       required: param.required ?? true,
       select: param.select ?? param.enabled ?? true
     }))
+    node.item.queryParams.push(generateEmptyProperty())
   }
   if (aiData.headers && Array.isArray(aiData.headers)) {
     node.item.headers = aiData.headers.map((header: any) => ({
@@ -274,6 +284,7 @@ const mergeAiDataToWebSocketNode = (node: WebSocketNode, aiData: any) => {
       required: header.required ?? false,
       select: header.select ?? header.enabled ?? true
     }))
+    node.item.headers.push(generateEmptyProperty())
   }
   if (aiData.sendMessage) {
     node.item.sendMessage = aiData.sendMessage
@@ -326,6 +337,7 @@ const handleAddFile = () => {
         if (aiResult.success && aiResult.data) {
           mergeAiDataToHttpNode(nodeInfo, aiResult.data)
         } else {
+          console.log(aiResult)
           message.warning(t('AI生成接口数据失败,已创建空接口') + (aiResult.error ? `: ${aiResult.error}` : ''))
         }
       }

@@ -1,4 +1,4 @@
-﻿<template>
+<template>
   <SLoading :loading="loading" class="client-routes">
     <div v-for="(item, title) in clientRoutes" :key="title">
       <el-divider content-position="left">{{ title }}</el-divider>

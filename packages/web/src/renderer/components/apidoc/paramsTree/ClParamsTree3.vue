@@ -1,4 +1,4 @@
-﻿<template>
+<template>
   <el-tree
     ref="treeRef"
     :data="localData"
@@ -176,7 +176,7 @@ import { ref, Ref, watch } from 'vue';
 import { Close, Switch } from '@element-plus/icons-vue';
 import type Node from 'element-plus/es/components/tree/src/model/node';
 import type { ApidocProperty } from '@src/types';
-import { apidocGenerateProperty } from '@/helper';
+import { generateEmptyProperty } from '@/helper';
 import { useI18n } from 'vue-i18n';
 import SMock from '@/components/apidoc/mock/ClMock.vue';
 import { config } from '@src/config/config';
@@ -226,7 +226,7 @@ watch(
     }
     localData.value = newVal.map(i => ({ ...i }));
     if (localData.value.length === 0) {
-      localData.value.push(apidocGenerateProperty<'string'>());
+      localData.value.push(generateEmptyProperty<'string'>());
     }
     // 更新默认选中keys
     defaultCheckedKeys.value = localData.value.filter(item => item.select).map(item => item._id);
@@ -277,7 +277,7 @@ const handleDeleteRow = (data: ApidocProperty<'string' | 'file'>) => {
     localData.value.splice(idx, 1);
   }
   if (localData.value.length === 0) {
-    localData.value.push(apidocGenerateProperty<'string'>());
+    localData.value.push(generateEmptyProperty<'string'>());
   }
   emitChange();
 };
@@ -286,7 +286,7 @@ const autoAppendIfNeeded = (data: ApidocProperty<'string' | 'file'>) => {
   const isLast = localData.value[localData.value.length - 1]?._id === data._id;
   const hasKey = (data.key ?? '').trim() !== '';
   if (isLast && hasKey) {
-    localData.value.push(apidocGenerateProperty<'string'>());
+    localData.value.push(generateEmptyProperty<'string'>());
   }
 };
 

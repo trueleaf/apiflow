@@ -1,4 +1,4 @@
-﻿<template>
+<template>
   <div class="project-manager">
     <!-- 搜索条件 -->
     <div class="search-item d-flex a-center mb-3">

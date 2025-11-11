@@ -1,4 +1,4 @@
-﻿<template>
+<template>
   <div class="ws-headers">
     <div v-if="!hideDefaultHeader">
       <span class="cursor-pointer no-select" @click="hideDefaultHeader = true">
@@ -62,7 +62,7 @@ import { ref, computed, watch } from 'vue'
 import { router } from '@/router'
 import { View } from '@element-plus/icons-vue'
 import { ApidocProperty } from '@src/types';
-import { apidocGenerateProperty } from '@/helper';
+import { generateEmptyProperty } from '@/helper';
 import { debounce, cloneDeep } from "lodash-es";
 import { useI18n } from 'vue-i18n'
 import SParamsTree from '@/components/apidoc/paramsTree/ClParamsTree3.vue'
@@ -111,7 +111,7 @@ const handleChange = (newData: ApidocProperty<'string' | 'file'>[]) => {
   websocket.value.item.headers = newData as ApidocProperty<'string'>[];
   // 如果没有数据则默认添加一条空数据
   if (websocket.value.item.headers.length === 0) {
-    websocket.value.item.headers.push(apidocGenerateProperty());
+    websocket.value.item.headers.push(generateEmptyProperty());
   }
   debouncedRecordHeadersOperation(previousHeaders, cloneDeep(newData) as ApidocProperty<'string'>[]);
 };
@@ -141,7 +141,7 @@ watch([currentSelectTab, cHeaders, globalCommonHeaders], () => {
   commonHeaders.value = defaultCommonHeader.map(v => {
     const ignoreHeaderIds = webSocketNodeCache.getWsIgnoredCommonHeaderByTabId(projectId, currentSelectTab.value?._id ?? "");
     const isSelect = ignoreHeaderIds?.find(headerId => headerId === v._id) ? false : true
-    const property: ApidocProperty<'string'> & { path?: string[] } = apidocGenerateProperty();
+    const property: ApidocProperty<'string'> & { path?: string[] } = generateEmptyProperty();
     property._id = v._id;
     property.select = isSelect;
     property.key = v.key;

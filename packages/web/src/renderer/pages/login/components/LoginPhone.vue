@@ -1,4 +1,4 @@
-﻿
+
 <template>
   <el-form ref="form" :model="userInfo" :rules="rules" @submit.stop.prevent="handleLogin">
     <el-form-item prop="phone">

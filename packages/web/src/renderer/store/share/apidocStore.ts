@@ -1,4 +1,4 @@
-import { apidocGenerateProperty, generateHttpNode } from '@/helper'
+import { generateEmptyProperty, generateHttpNode } from '@/helper'
 import { eventEmitter } from '@/helper'
 import { nanoid } from 'nanoid/non-secure';
 import { cloneDeep, assign } from "lodash-es"
@@ -68,7 +68,7 @@ export const useApidoc = defineStore('apidoc', () => {
   }], async () => {
     const fullUrl = await getUrl(apidoc.value);
     const matchedCookies = apidocCookies.getMachtedCookies(fullUrl);
-    const property: ApidocProperty<'string'> = apidocGenerateProperty();
+    const property: ApidocProperty<'string'> = generateEmptyProperty();
     property.key = "Cookie";
     let cookieValue = '';
     // console.log('initDefaultHeaders', fullUrl, matchedCookies);
@@ -175,7 +175,7 @@ export const useApidoc = defineStore('apidoc', () => {
     if (contentType && matchedValue) { //存在contentType并且默认header值也有
       matchedValue.value = contentType
     } else if (contentType && !matchedValue) { //存在contentType但是默认header没有
-      const params = apidocGenerateProperty();
+      const params = generateEmptyProperty();
       params.key = 'Content-Type';
       params.value = contentType;
       params.description = '<根据body类型自动处理>';
@@ -257,7 +257,7 @@ export const useApidoc = defineStore('apidoc', () => {
   const initDefaultHeaders = (contentType?: HttpNodeContentType) => {
     defaultHeaders.value = [];
     //=========================================================================//
-    const params3 = apidocGenerateProperty();
+    const params3 = generateEmptyProperty();
     params3.key = 'Host';
     params3.description = '<主机信息>';
     params3._disableKey = true;
@@ -272,7 +272,7 @@ export const useApidoc = defineStore('apidoc', () => {
     params3.disabled = true;
     defaultHeaders.value.push(params3);
     //=========================================================================//
-    const params4 = apidocGenerateProperty();
+    const params4 = generateEmptyProperty();
     params4.key = 'Accept-Encoding';
     params4._valuePlaceholder = 'gzip, deflate, br';
     params4.description = '<客户端理解的编码方式>';
@@ -285,7 +285,7 @@ export const useApidoc = defineStore('apidoc', () => {
     params4.disabled = true;
     defaultHeaders.value.push(params4);
     //=========================================================================//
-    const params5 = apidocGenerateProperty();
+    const params5 = generateEmptyProperty();
     params5.key = 'Connection';
     params5._valuePlaceholder = '<默认为：keep-alive>';
     params5.description = '<当前的事务完成后，是否会关闭网络连接>';
@@ -299,7 +299,7 @@ export const useApidoc = defineStore('apidoc', () => {
     params5.disabled = true;
     defaultHeaders.value.push(params5);
     //=========================================================================//
-    const params = apidocGenerateProperty();
+    const params = generateEmptyProperty();
     params.key = 'Content-Length';
     params._valuePlaceholder = '<发送请求时候自动计算,尽量不要手动填写>';
     params.description = '<消息的长度>';
@@ -312,7 +312,7 @@ export const useApidoc = defineStore('apidoc', () => {
     params.disabled = true;
     defaultHeaders.value.push(params);
     //=========================================================================//
-    const params2 = apidocGenerateProperty();
+    const params2 = generateEmptyProperty();
     params2.key = 'User-Agent';
     params2._valuePlaceholder = config.httpNodeRequestConfig.userAgent;
     params2.description = '<用户代理软件信息>';
@@ -323,7 +323,7 @@ export const useApidoc = defineStore('apidoc', () => {
     params2._disableDelete = true;
     defaultHeaders.value.push(params2);
     //=========================================================================//
-    const params7 = apidocGenerateProperty();
+    const params7 = generateEmptyProperty();
     params7.key = 'Accept';
     params7._valuePlaceholder = '*/*';
     params7.description = '<工具支持解析所有类型返回>';
@@ -335,7 +335,7 @@ export const useApidoc = defineStore('apidoc', () => {
     defaultHeaders.value.push(params7);
     //=========================================================================//
     if (contentType) {
-      const params6 = apidocGenerateProperty();
+      const params6 = generateEmptyProperty();
       params6.key = 'Content-Type';
       params6.value = contentType;
       params6.description = '资源的原始媒体类型';
@@ -354,19 +354,19 @@ export const useApidoc = defineStore('apidoc', () => {
   const changeApidoc = (payload: HttpNode): void => {
     // queryParams如果没有数据则默认添加一条空数据
     if (payload.item.queryParams.length === 0) {
-      payload.item.queryParams.push(apidocGenerateProperty());
+      payload.item.queryParams.push(generateEmptyProperty());
     }
     //formData如果没有数据则默认添加一条空数据
     if (payload.item.requestBody.formdata.length === 0) {
-      payload.item.requestBody.formdata.push(apidocGenerateProperty());
+      payload.item.requestBody.formdata.push(generateEmptyProperty());
     }
     //urlencoded如果没有数据则默认添加一条空数据
     if (payload.item.requestBody.urlencoded.length === 0) {
-      payload.item.requestBody.urlencoded.push(apidocGenerateProperty());
+      payload.item.requestBody.urlencoded.push(generateEmptyProperty());
     }
     //headers如果没有数据则默认添加一条空数据
     if (payload.item.headers.length === 0) {
-      payload.item.headers.push(apidocGenerateProperty());
+      payload.item.headers.push(generateEmptyProperty());
     }
     //responseParams如果没有数据则默认添加一条空数据
     if (payload.item.responseParams.length === 0) {
@@ -387,7 +387,7 @@ export const useApidoc = defineStore('apidoc', () => {
     }
     initDefaultHeaders(payload.item.contentType)
     if (payload.item.headers.length === 0) {
-      payload.item.headers.push(apidocGenerateProperty());
+      payload.item.headers.push(generateEmptyProperty());
     }
     // if (!payload.item.url.prefix && !payload.item.url.path.startsWith("http")) {
     // }

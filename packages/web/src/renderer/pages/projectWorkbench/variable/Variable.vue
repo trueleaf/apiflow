@@ -1,4 +1,4 @@
-﻿<template>
+<template>
   <div class="s-variable">
     <!-- 新增变量 -->
     <SFieldset :title="t('新增变量')" class="left">

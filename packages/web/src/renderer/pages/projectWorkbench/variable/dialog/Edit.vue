@@ -1,4 +1,4 @@
-﻿<template>
+<template>
   <el-dialog :model-value="modelValue" top="10vh" :title="t('修改变量')" :before-close="handleClose">
     <el-form ref="formInstance" :model="formInfo" :rules="rules" label-width="120px">
       <el-form-item :label="`${t('变量名称')}：`" prop="name">
