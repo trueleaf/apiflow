@@ -46,14 +46,14 @@ export const originOperaions = [
   },
   {
     name: i18n.global.t('导出文档'),
-    icon: "#icondaochu1",
+    icon: "arrowUpToLine",
     op: "exportDoc",
     shortcut: ["Ctrl", "E"],
     pin: false,
   },
   {
     name: i18n.global.t('导入文档'),
-    icon: "#icondaoru",
+    icon: "arrowDownToLine",
     op: "importDoc",
     shortcut: ["Ctrl", "I"],
     pin: false,

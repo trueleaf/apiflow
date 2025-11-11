@@ -20,8 +20,24 @@
           <el-radio value="httpMock">HTTP Mock</el-radio>
         </el-radio-group>
       </el-form-item>
-      <el-form-item v-if="isStandalone" :label="t('AI提示词')" prop="aiPrompt">
+      <el-form-item v-if="isStandalone" prop="aiPrompt">
+        <template #label>
+          <div class="ai-prompt-label">
+            <span>{{ t('AI提示词') }}</span>
+            <button 
+              v-if="!isAiConfigValid()" 
+              class="ai-config-btn-inline" 
+              type="button"
+              @click.prevent="handleOpenAiSettings"
+              :title="t('配置ApiKey')"
+            >
+              <span>{{ t('配置ApiKey') }}</span>
+              <ArrowRight :size="12" />
+            </button>
+          </div>
+        </template>
         <CodeEditor
+          v-if="isAiConfigValid()" 
           v-model="formData.aiPrompt"
           language="javascript"
           :auto-height="true"
@@ -47,7 +63,7 @@ import { computed, ref, watch } from 'vue';
 import { FormInstance, ElInput } from 'element-plus';
 import { request } from '@/api/api';
 import { message } from '@/helper'
-import { useRoute } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 import { generateEmptyHttpMockNode, generateEmptyHttpNode, generateEmptyWebsocketNode, buildAiSystemPromptForNode, generateEmptyProperty, extractPathParams } from '@/helper';
 import { apiNodesCache } from '@/cache/index';
 import { nanoid } from 'nanoid';
@@ -55,6 +71,10 @@ import { useRuntime } from '@/store/runtime/runtimeStore';
 import CodeEditor from '@/components/common/codeEditor/CodeEditor.vue';
 import type { DeepSeekRequestBody } from '@src/types/ai';
 import type { HttpNode, WebSocketNode, HttpMockNode } from '@src/types';
+import { ArrowRight } from 'lucide-vue-next';
+import { aiCache } from '@/cache/ai/aiCache';
+import { userState } from '@/cache/userState/userStateCache';
+import { IPC_EVENTS } from '@src/types/ipc';
 
 const props = defineProps({
   modelValue: {
@@ -71,6 +91,7 @@ const emits = defineEmits(['update:modelValue', 'success']);
 const { t } = useI18n()
 
 const runtimeStore = useRuntime();
+const router = useRouter();
 const loading = ref(false);
 const form = ref<FormInstance>();
 const nameInput = ref<InstanceType<typeof ElInput>>();
@@ -81,6 +102,10 @@ const formData = ref({
   aiPrompt: ''
 })
 const isStandalone = computed(() => runtimeStore.networkMode === 'offline')
+const isAiConfigValid = () => {
+  const configState = aiCache.getAiConfig()
+  return configState.apiKey.trim() !== '' && configState.apiUrl.trim() !== ''
+}
 const formRules = {
   name: [
     { required: true, message: t('请输入接口名称'), trigger: 'change' }
@@ -218,12 +243,67 @@ const mergeAiDataToHttpNode = (node: HttpNode, aiData: any) => {
   }
   if (aiData.requestBodyMode) {
     node.item.requestBody.mode = aiData.requestBodyMode
-  }
-  if (aiData.contentType) {
+    switch (aiData.requestBodyMode) {
+      case 'json':
+        if (aiData.requestBodyJson) {
+          node.item.requestBody.rawJson = aiData.requestBodyJson
+        }
+        node.item.contentType = 'application/json'
+        break
+      case 'formdata':
+        if (aiData.requestBodyFormdata && Array.isArray(aiData.requestBodyFormdata)) {
+          node.item.requestBody.formdata = aiData.requestBodyFormdata.map((param: any) => ({
+            _id: nanoid(),
+            key: param.key || '',
+            value: param.value || '',
+            type: param.type || 'string',
+            description: param.description || '',
+            required: param.required ?? true,
+            select: param.select ?? true
+          }))
+          node.item.requestBody.formdata.push(generateEmptyProperty())
+        }
+        node.item.contentType = 'multipart/form-data'
+        break
+      case 'urlencoded':
+        if (aiData.requestBodyUrlencoded && Array.isArray(aiData.requestBodyUrlencoded)) {
+          node.item.requestBody.urlencoded = aiData.requestBodyUrlencoded.map((param: any) => ({
+            _id: nanoid(),
+            key: param.key || '',
+            value: param.value || '',
+            type: 'string',
+            description: param.description || '',
+            required: param.required ?? true,
+            select: param.select ?? true
+          }))
+          node.item.requestBody.urlencoded.push(generateEmptyProperty())
+        }
+        node.item.contentType = 'application/x-www-form-urlencoded'
+        break
+      case 'raw':
+        if (aiData.requestBodyRaw) {
+          node.item.requestBody.raw.data = aiData.requestBodyRaw.data || ''
+          node.item.requestBody.raw.dataType = aiData.requestBodyRaw.dataType || 'text/plain'
+        }
+        node.item.contentType = aiData.contentType || 'text/plain'
+        break
+      case 'binary':
+        if (aiData.requestBodyBinary) {
+          node.item.requestBody.binary.mode = aiData.requestBodyBinary.mode || 'file'
+          node.item.requestBody.binary.varValue = aiData.requestBodyBinary.varValue || ''
+        }
+        node.item.contentType = 'application/octet-stream'
+        break
+      case 'none':
+        node.item.contentType = ''
+        break
+      default:
+        if (aiData.contentType) {
+          node.item.contentType = aiData.contentType
+        }
+    }
+  } else if (aiData.contentType) {
     node.item.contentType = aiData.contentType
-  }
-  if (aiData.requestBodyJson && aiData.requestBodyMode === 'json') {
-    node.item.requestBody.rawJson = aiData.requestBodyJson
   }
   if (aiData.responseParams && Array.isArray(aiData.responseParams)) {
     node.item.responseParams = [{
@@ -451,6 +531,11 @@ const handleAddFile = () => {
     }
   });
 }
+const handleOpenAiSettings = () => {
+  userState.setActiveLocalDataMenu('ai-settings')
+  window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.contentToTopBar.openSettingsTab)
+  router.push('/settings')
+}
 const handleClose = () => {
   formData.value.type = 'http';
   formData.value.name = '';
@@ -472,5 +557,28 @@ const handleClose = () => {
 }
 .el-dialog__body.add-file-dialog__body {
   padding-bottom: 0;
+}
+.ai-prompt-label {
+  display: flex;
+  align-items: center;
+}
+.ai-config-btn-inline {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: 8px;
+  padding: 2px 8px;
+  background: #ffffff;
+  border: 1px solid #d4d4d4;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 12px;
+  color: var(--gray-700);
+  white-space: nowrap;
+}
+.ai-config-btn-inline:hover {
+  background: #f8f8f8;
+  border-color: var(--theme-color);
 }
 </style>

@@ -682,6 +682,7 @@ const handleStreamData = (requestId: string, chunk: string) => {
           const message = agentStore.getMessageById(streamingMessageId.value)
           if (message && message.type === 'textResponse') {
             message.content += content
+            agentStore.updateAgentMessage(message)
           }
         }
       }

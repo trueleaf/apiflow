@@ -13,10 +13,23 @@ export const useAgentStore = defineStore('agent', () => {
   const addAgentMessage = async (message: AgentMessage): Promise<boolean> => {
     try {
       agentMessageList.value.push(message);
-      await agentCache.addMessage(message);
+      if (message.type !== 'loading') {
+        await agentCache.addMessage(message);
+      }
       return true;
     } catch (error) {
       logger.error('添加Agent消息失败', { error });
+      return false;
+    }
+  };
+  const updateAgentMessage = async (message: AgentMessage): Promise<boolean> => {
+    try {
+      if (message.type !== 'loading') {
+        await agentCache.updateMessage(message);
+      }
+      return true;
+    } catch (error) {
+      logger.error('更新Agent消息失败', { error });
       return false;
     }
   };
@@ -70,7 +83,8 @@ export const useAgentStore = defineStore('agent', () => {
     return agentMessageList.value.find(msg => msg.id === messageId) || null;
   };
   const getLatestMessages = (count: number): AgentMessage[] => {
-    return agentMessageList.value.slice(-count);
+    const filteredMessages = agentMessageList.value.filter(msg => msg.type !== 'loading');
+    return filteredMessages.slice(-count);
   };
   const initStore = async (): Promise<void> => {
     const lastSessionId = agentCache.getLastSessionId();
@@ -92,6 +106,7 @@ export const useAgentStore = defineStore('agent', () => {
     loading,
     workingStatus,
     addAgentMessage,
+    updateAgentMessage,
     setAgentMessageList,
     clearAgentMessageList,
     deleteAgentMessageById,

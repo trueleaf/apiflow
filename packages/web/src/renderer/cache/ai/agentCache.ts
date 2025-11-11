@@ -59,6 +59,19 @@ class AgentCache {
       return false;
     }
   }
+  async updateMessage(message: AgentMessage): Promise<boolean> {
+    try {
+      const db = await this.ensureDB();
+      const messageCopy = JSON.parse(JSON.stringify(message));
+      const tx = db.transaction(this.storeName, 'readwrite');
+      await tx.store.put(messageCopy);
+      await tx.done;
+      return true;
+    } catch (error) {
+      logger.error('更新Agent消息失败', { error });
+      return false;
+    }
+  }
 
   async getMessagesBySessionId(sessionId: string): Promise<AgentMessage[]> {
     try {

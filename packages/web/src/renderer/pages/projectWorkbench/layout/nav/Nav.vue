@@ -48,11 +48,11 @@
                 </el-icon>
                 <!-- 导出文档 -->
                 <el-icon v-if="element.tabType === 'exportDoc'" class="green mr-2" :size="16">
-                  <IconShare />
+                  <ArrowUpToLine :size="16" />
                 </el-icon>
                 <!-- 导入文档 -->
                 <el-icon v-if="element.tabType === 'importDoc'" class="red mr-2" :size="16">
-                  <IconDownload />
+                  <ArrowDownToLine :size="16" />
                 </el-icon>
                 <!-- 操作审计 -->
                 <el-icon v-if="element.tabType === 'history'" class="blue mr-2" :size="16">
@@ -65,7 +65,9 @@
                 <!-- 同步功能 -->
                 <span v-if="element.tabType === 'sync'" class="iconfont icontongbu f-base mr-2"></span>
                 <!-- 公共请求头 -->
-                <span v-if="element.tabType === 'commonHeader'" class="iconfont icondaimakuai f-base mr-2"></span>
+                <el-icon v-if="element.tabType === 'commonHeader'" class="purple mr-2" :size="16">
+                  <ListTree :size="16" />
+                </el-icon>
                 <!-- 回收站管理 -->
                 <el-icon v-if="element.tabType === 'recycler'" class="red mr-2" :size="16">
                   <IconDeleteFilled />
@@ -121,15 +123,13 @@ import { useI18n } from 'vue-i18n'
 import {
   Plus as IconPlus,
   Link as IconLink,
-  Share as IconShare,
-  Download as IconDownload,
   Timer as IconTimer,
   DeleteFilled as IconDeleteFilled,
   Close as IconClose,
   ArrowRight as IconArrowRight,
   ArrowLeft as IconArrowLeft
 } from '@element-plus/icons-vue';
-import { Variable } from 'lucide-vue-next'
+import { Variable, ListTree, ArrowDownToLine, ArrowUpToLine } from 'lucide-vue-next'
 import { ComponentPublicInstance, computed, onMounted, onUnmounted, ref } from 'vue';
 import { ApidocTab } from '@src/types/share/tabs';
 import { router } from '@/router';

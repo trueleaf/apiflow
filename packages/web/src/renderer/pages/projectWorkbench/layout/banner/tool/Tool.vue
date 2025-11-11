@@ -97,6 +97,12 @@
             <template v-if="element.icon === 'variable'">
               <Variable :size="20" :stroke-width="1.5" class="lucide-icon" @click="handleEmit(element.op)" />
             </template>
+            <template v-else-if="element.icon === 'arrowDownToLine'">
+              <ArrowDownToLine :size="20" :stroke-width="1.5" class="lucide-icon" @click="handleEmit(element.op)" />
+            </template>
+            <template v-else-if="element.icon === 'arrowUpToLine'">
+              <ArrowUpToLine :size="20" :stroke-width="1.5" class="lucide-icon" @click="handleEmit(element.op)" />
+            </template>
             <svg v-else class="svg-icon" aria-hidden="true" @click="handleEmit(element.op)">
               <use :xlink:href="element.icon"></use>
             </svg>
@@ -124,6 +130,12 @@
               @click="handleEmit(element.op)">
               <template v-if="element.icon === 'variable'">
                 <Variable :size="20" :stroke-width="1.5" class="lucide-icon mr-2" />
+              </template>
+              <template v-else-if="element.icon === 'arrowDownToLine'">
+                <ArrowDownToLine :size="20" :stroke-width="1.5" class="lucide-icon mr-2" />
+              </template>
+              <template v-else-if="element.icon === 'arrowUpToLine'">
+                <ArrowUpToLine :size="20" :stroke-width="1.5" class="lucide-icon mr-2" />
               </template>
               <svg v-else class="svg-icon mr-2" aria-hidden="true">
                 <use :xlink:href="element.icon"></use>
@@ -153,7 +165,7 @@ import { ref, Ref, computed, watch, onMounted, onUnmounted } from 'vue'
 import { storeToRefs } from 'pinia'
 import SDraggable from 'vuedraggable'
 import { MoreFilled, Close, Switch } from '@element-plus/icons-vue'
-import { Variable } from 'lucide-vue-next'
+import { Variable, ArrowDownToLine, ArrowUpToLine } from 'lucide-vue-next'
 import type { ApidocBanner, ApidocOperations, ApidocProjectInfo } from '@src/types'
 import { forEachForest } from '@/helper'
 import { router } from '@/router/index'
