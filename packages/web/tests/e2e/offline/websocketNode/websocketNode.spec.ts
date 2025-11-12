@@ -2,9 +2,6 @@ import { expect, type Page } from '@playwright/test';
 import { test, initOfflineWorkbench, createProject, createSingleNode } from '../../../fixtures/fixtures';
 import {
   waitForWebSocketNodeReady,
-  getProtocolSelector,
-  getUrlInput,
-  getConnectButton,
   getSaveButton,
   switchToTab,
   verifyConnectionStatus,
@@ -22,6 +19,20 @@ test.describe('1. WebSocket节点 - 基础功能测试', () => {
   });
 
   test.describe('1.1 创建测试', () => {
+    /**
+     * 测试目的：验证WebSocket节点的创建功能
+     * 前置条件：应用已启动，工作区已初始化
+     * 操作步骤：
+     *   1. 创建测试项目
+     *   2. 创建WebSocket类型的节点
+     *   3. 等待节点界面加载
+     *   4. 验证节点显示在树形导航中
+     * 预期结果：
+     *   - 节点创建成功
+     *   - 左侧树形导航显示WebSocket节点
+     *   - WebSocket操作区域可见
+     * 验证点：WebSocket节点创建和UI显示
+     */
     test('应能创建WebSocket节点', async () => {
       await createProject(contentPage, '测试项目');
       const result = await createSingleNode(contentPage, {
@@ -38,6 +49,20 @@ test.describe('1. WebSocket节点 - 基础功能测试', () => {
       await expect(wsOperation).toBeVisible();
     });
 
+    /**
+     * 测试目的：验证连接UI组件的显示
+     * 前置条件：已创建WebSocket节点
+     * 操作步骤：
+     *   1. 等待WebSocket节点就绪
+     *   2. 检查协议选择器是否显示
+     *   3. 检查URL输入框是否显示
+     *   4. 检查连接按钮是否显示
+     *   5. 检查保存按钮是否显示
+     * 预期结果：
+     *   - 所有必需的UI组件都可见
+     *   - 组件布局正确
+     * 验证点：连接相关UI组件的完整性
+     */
     test('应能显示连接UI组件', async () => {
       await createProject(contentPage, '测试项目');
       await createSingleNode(contentPage, {
@@ -45,16 +70,29 @@ test.describe('1. WebSocket节点 - 基础功能测试', () => {
         type: 'websocket'
       });
       await waitForWebSocketNodeReady(contentPage);
-      const protocolSelector = getProtocolSelector(contentPage);
+      const protocolSelector = contentPage.locator('.protocol-select .el-select');
       await expect(protocolSelector).toBeVisible();
-      const urlInput = getUrlInput(contentPage);
+      const urlInput = contentPage.locator('.connection-input input.el-input__inner');
       await expect(urlInput).toBeVisible();
-      const connectBtn = getConnectButton(contentPage);
+      const connectBtn = contentPage.locator('button:has-text("发起连接"), button:has-text("重新连接")');
       await expect(connectBtn).toBeVisible();
       const saveBtn = getSaveButton(contentPage);
       await expect(saveBtn).toBeVisible();
     });
 
+    /**
+     * 测试目的：验证默认协议设置为WS
+     * 前置条件：已创建WebSocket节点
+     * 操作步骤：
+     *   1. 等待WebSocket节点就绪
+     *   2. 获取协议选择器的值
+     *   3. 验证默认值为ws
+     * 预期结果：
+     *   - 默认协议为WS（非加密）
+     *   - 协议选择器正确显示
+     * 验证点：默认协议配置
+     * 说明：WS是非加密协议，WSS是加密协议
+     */
     test('默认协议应该是WS', async () => {
       await createProject(contentPage, '测试项目');
       await createSingleNode(contentPage, {
@@ -62,13 +100,27 @@ test.describe('1. WebSocket节点 - 基础功能测试', () => {
         type: 'websocket'
       });
       await waitForWebSocketNodeReady(contentPage);
-      const protocolSelector = getProtocolSelector(contentPage);
+      const protocolSelector = contentPage.locator('.protocol-select .el-select');
       const selectedText = await protocolSelector.locator('.el-select__selected-item, input').first().inputValue();
       expect(selectedText.toLowerCase()).toBe('ws');
     });
   });
 
   test.describe('1.2 UI组件显示测试', () => {
+    /**
+     * 测试目的：验证所有必需UI组件的显示
+     * 前置条件：已创建WebSocket节点
+     * 操作步骤：
+     *   1. 等待节点就绪
+     *   2. 逐一检查各个UI组件的可见性
+     * 预期结果：
+     *   - 协议选择器可见
+     *   - URL输入框可见
+     *   - 连接按钮可见
+     *   - 保存和刷新按钮可见
+     *   - 状态显示区域可见
+     * 验证点：UI组件完整性
+     */
     test('应显示所有必需的UI组件', async () => {
       await createProject(contentPage, '测试项目');
       await createSingleNode(contentPage, {
@@ -76,11 +128,11 @@ test.describe('1. WebSocket节点 - 基础功能测试', () => {
         type: 'websocket'
       });
       await waitForWebSocketNodeReady(contentPage);
-      const protocolSelector = getProtocolSelector(contentPage);
+      const protocolSelector = contentPage.locator('.protocol-select .el-select');
       await expect(protocolSelector).toBeVisible();
-      const urlInput = getUrlInput(contentPage);
+      const urlInput = contentPage.locator('.connection-input input.el-input__inner');
       await expect(urlInput).toBeVisible();
-      const connectBtn = getConnectButton(contentPage);
+      const connectBtn = contentPage.locator('button:has-text("发起连接"), button:has-text("重新连接")');
       await expect(connectBtn).toBeVisible();
       const saveBtn = contentPage.locator('button:has-text(\"保存\")');
       await expect(saveBtn).toBeVisible();
@@ -90,6 +142,15 @@ test.describe('1. WebSocket节点 - 基础功能测试', () => {
       await expect(statusWrap).toBeVisible();
     });
 
+    /**
+     * 测试目的：验证连接状态标签的显示
+     * 前置条件：已创建WebSocket节点
+     * 操作步骤：
+     *   1. 等待节点就绪
+     *   2. 查找"连接状态"标签
+     * 预期结果：连接状态标签可见
+     * 验证点：状态显示标签
+     */
     test('应显示连接状态标签', async () => {
       await createProject(contentPage, '测试项目');
       await createSingleNode(contentPage, {
@@ -101,6 +162,17 @@ test.describe('1. WebSocket节点 - 基础功能测试', () => {
       await expect(label).toBeVisible();
     });
 
+    /**
+     * 测试目的：验证连接操作区域的显示
+     * 前置条件：已创建WebSocket节点
+     * 操作步骤：
+     *   1. 等待节点就绪
+     *   2. 检查连接包装器和布局容器
+     * 预期结果：
+     *   - 连接包装器可见
+     *   - 连接布局容器可见
+     * 验证点：连接操作区域的结构
+     */
     test('应显示连接操作区域', async () => {
       await createProject(contentPage, '测试项目');
       await createSingleNode(contentPage, {
@@ -116,6 +188,20 @@ test.describe('1. WebSocket节点 - 基础功能测试', () => {
   });
 
   test.describe('1.3 标签测试', () => {
+    /**
+     * 测试目的：验证所有标签页的显示
+     * 前置条件：已创建WebSocket节点
+     * 操作步骤：
+     *   1. 等待节点就绪
+     *   2. 检查各个标签页是否显示
+     * 预期结果：
+     *   - 消息标签页可见
+     *   - Params标签页可见
+     *   - 请求头标签页可见
+     *   - 前置脚本标签页可见
+     *   - 后置脚本标签页可见
+     * 验证点：标签页完整性
+     */
     test('应显示所有标签', async () => {
       await createProject(contentPage, '测试项目');
       await createSingleNode(contentPage, {
@@ -135,6 +221,15 @@ test.describe('1. WebSocket节点 - 基础功能测试', () => {
       await expect(afterScriptTab).toBeVisible();
     });
 
+    /**
+     * 测试目的：验证切换到消息标签页
+     * 前置条件：已创建WebSocket节点
+     * 操作步骤：
+     *   1. 切换到消息标签
+     *   2. 验证标签激活状态
+     * 预期结果：消息标签页显示激活状态
+     * 验证点：标签页切换功能
+     */
     test('应能切换到消息标签', async () => {
       await createProject(contentPage, '测试项目');
       await createSingleNode(contentPage, {
@@ -147,6 +242,15 @@ test.describe('1. WebSocket节点 - 基础功能测试', () => {
       await expect(messageActiveTab).toBeVisible();
     });
 
+    /**
+     * 测试目的：验证切换到Params标签页
+     * 前置条件：已创建WebSocket节点
+     * 操作步骤：
+     *   1. 切换到Params标签
+     *   2. 验证标签激活状态
+     * 预期结果：Params标签页显示激活状态
+     * 验证点：Params标签页切换
+     */
     test('应能切换到Params标签', async () => {
       await createProject(contentPage, '测试项目');
       await createSingleNode(contentPage, {
@@ -159,6 +263,15 @@ test.describe('1. WebSocket节点 - 基础功能测试', () => {
       await expect(paramsActiveTab).toBeVisible();
     });
 
+    /**
+     * 测试目的：验证切换到Headers标签页
+     * 前置条件：已创建WebSocket节点
+     * 操作步骤：
+     *   1. 切换到Headers标签
+     *   2. 验证标签激活状态
+     * 预期结果：Headers标签页显示激活状态
+     * 验证点：Headers标签页切换
+     */
     test('应能切换到Headers标签', async () => {
       await createProject(contentPage, '测试项目');
       await createSingleNode(contentPage, {
@@ -171,6 +284,15 @@ test.describe('1. WebSocket节点 - 基础功能测试', () => {
       await expect(headersActiveTab).toBeVisible();
     });
 
+    /**
+     * 测试目的：验证切换到前置脚本标签页
+     * 前置条件：已创建WebSocket节点
+     * 操作步骤：
+     *   1. 切换到前置脚本标签
+     *   2. 验证标签激活状态
+     * 预期结果：前置脚本标签页显示激活状态
+     * 验证点：前置脚本标签页切换
+     */
     test('应能切换到前置脚本标签', async () => {
       await createProject(contentPage, '测试项目');
       await createSingleNode(contentPage, {
@@ -183,6 +305,15 @@ test.describe('1. WebSocket节点 - 基础功能测试', () => {
       await expect(preScriptActiveTab).toBeVisible();
     });
 
+    /**
+     * 测试目的：验证切换到后置脚本标签页
+     * 前置条件：已创建WebSocket节点
+     * 操作步骤：
+     *   1. 切换到后置脚本标签
+     *   2. 验证标签激活状态
+     * 预期结果：后置脚本标签页显示激活状态
+     * 验证点：后置脚本标签页切换
+     */
     test('应能切换到后置脚本标签', async () => {
       await createProject(contentPage, '测试项目');
       await createSingleNode(contentPage, {
@@ -214,7 +345,7 @@ test.describe('1. WebSocket节点 - 基础功能测试', () => {
         type: 'websocket'
       });
       await waitForWebSocketNodeReady(contentPage);
-      const urlInput = getUrlInput(contentPage);
+      const urlInput = contentPage.locator('.connection-input input.el-input__inner');
       const value = await urlInput.inputValue();
       expect(value).toBe('');
     });

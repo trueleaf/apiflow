@@ -39,18 +39,47 @@ test.describe('3. WebSocket节点 - 消息收发测试', () => {
   });
 
   test.describe('3.1 消息编辑器测试', () => {
+    /**
+     * 测试目的：验证消息编辑器的显示
+     * 前置条件：已创建WebSocket节点
+     * 操作步骤：
+     *   1. 切换到消息标签页
+     *   2. 查找消息编辑器
+     * 预期结果：消息编辑器可见
+     * 验证点：消息编辑器UI组件
+     */
     test('应显示消息编辑器', async () => {
       await switchToTab(contentPage, 'Message');
       const editor = contentPage.locator('.message-editor, .monaco-editor').first();
       await expect(editor).toBeVisible();
     });
 
+    /**
+     * 测试目的：验证能够在消息编辑器中输入内容
+     * 前置条件：已创建WebSocket节点
+     * 操作步骤：
+     *   1. 在消息编辑器输入文本
+     *   2. 获取编辑器内容
+     *   3. 验证内容正确
+     * 预期结果：消息成功输入
+     * 验证点：消息输入功能
+     */
     test('应能在消息编辑器中输入内容', async () => {
       await fillMessage(contentPage, 'Hello WebSocket');
       const content = await getMessageContent(contentPage);
       expect(content).toContain('Hello');
     });
 
+    /**
+     * 测试目的：验证能够输入JSON格式消息
+     * 前置条件：已创建WebSocket节点
+     * 操作步骤：
+     *   1. 输入JSON格式的消息
+     *   2. 验证JSON内容保存
+     * 预期结果：JSON消息正确保存
+     * 验证点：JSON消息支持
+     * 说明：WebSocket常用JSON格式传输结构化数据
+     */
     test('应能输入JSON格式消息', async () => {
       const jsonMessage = '{"type": "message", "content": "Hello"}';
       await fillMessage(contentPage, jsonMessage);
@@ -59,6 +88,15 @@ test.describe('3. WebSocket节点 - 消息收发测试', () => {
       expect(content).toContain('message');
     });
 
+    /**
+     * 测试目的：验证能够输入多行文本消息
+     * 前置条件：已创建WebSocket节点
+     * 操作步骤：
+     *   1. 输入包含换行的多行文本
+     *   2. 验证所有行都保存
+     * 预期结果：多行文本正确保存
+     * 验证点：多行文本支持
+     */
     test('应能输入多行文本消息', async () => {
       const multilineMessage = 'Line 1\nLine 2\nLine 3';
       await fillMessage(contentPage, multilineMessage);
@@ -68,6 +106,16 @@ test.describe('3. WebSocket节点 - 消息收发测试', () => {
       expect(content).toContain('Line 3');
     });
 
+    /**
+     * 测试目的：验证能够清空消息内容
+     * 前置条件：已创建WebSocket节点并输入了消息
+     * 操作步骤：
+     *   1. 输入消息
+     *   2. 清空消息
+     *   3. 验证内容为空
+     * 预期结果：消息被清空
+     * 验证点：消息清空功能
+     */
     test('应能清空消息内容', async () => {
       await fillMessage(contentPage, 'Test message');
       await clearMessage(contentPage);
@@ -75,6 +123,16 @@ test.describe('3. WebSocket节点 - 消息收发测试', () => {
       expect(content.trim()).toBe('');
     });
 
+    /**
+     * 测试目的：验证能够编辑已输入的消息
+     * 前置条件：已创建WebSocket节点并输入了消息
+     * 操作步骤：
+     *   1. 输入原始消息
+     *   2. 修改消息内容
+     *   3. 验证更新后的内容
+     * 预期结果：消息内容成功更新
+     * 验证点：消息编辑功能
+     */
     test('应能编辑已输入的消息', async () => {
       await fillMessage(contentPage, 'Original message');
       await fillMessage(contentPage, 'Updated message');

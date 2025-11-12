@@ -30,6 +30,13 @@ test.describe('10. WebSocket节点 - 保存功能测试', () => {
   });
 
   test.describe('10.1 保存按钮测试', () => {
+    /**
+     * 测试目的：验证保存按钮初始状态
+     * 前置条件：已创建WebSocket节点
+     * 操作步骤：检查保存按钮状态
+     * 预期结果：保存按钮处于启用状态
+     * 验证点：保存按钮初始状态
+     */
     test('保存按钮应初始为启用状态', async () => {
       await verifySaveButtonEnabled(contentPage);
     });

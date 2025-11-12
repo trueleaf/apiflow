@@ -34,6 +34,13 @@ test.describe('12. WebSocket节点 - 撤销重做测试', () => {
   });
 
   test.describe('12.1 撤销按钮测试', () => {
+    /**
+     * 测试目的：验证初始状态撤销按钮禁用
+     * 前置条件：已创建WebSocket节点
+     * 操作步骤：检查撤销按钮状态
+     * 预期结果：撤销按钮处于禁用状态
+     * 验证点：撤销按钮初始状态
+     */
     test('初始状态撤销按钮应禁用', async () => {
       const undoBtn = contentPage.locator('[title*="撤销"], .undo-btn').first();
       if (await undoBtn.count() > 0) {

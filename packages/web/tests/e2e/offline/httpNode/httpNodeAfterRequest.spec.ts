@@ -1,13 +1,11 @@
 import { expect, type Page } from '@playwright/test';
 import { test, initOfflineWorkbench, createProject, createSingleNode } from '../../../fixtures/fixtures';
 import {
-  waitForHttpNodeReady,
   switchToAfterRequestTab,
   fillAfterRequestScript,
   getScriptContent,
   verifyScriptEditorVisible,
-  fillUrl,
-  clickSendRequest
+  fillUrl
 } from './helpers/httpNodeHelpers';
 
 test.describe('9. HTTP节点 - 后置脚本测试', () => {
@@ -40,7 +38,6 @@ test.describe('9. HTTP节点 - 后置脚本测试', () => {
      * 说明：后置脚本同样使用Monaco编辑器
      */
     test('应显示代码编辑器', async () => {
-      await waitForHttpNodeReady(contentPage);
       await switchToAfterRequestTab(contentPage);
       await verifyScriptEditorVisible(contentPage);
     });
@@ -59,7 +56,6 @@ test.describe('9. HTTP节点 - 后置脚本测试', () => {
      * 说明：后置脚本可以访问response对象
      */
     test('应能输入JavaScript代码', async () => {
-      await waitForHttpNodeReady(contentPage);
       const script = 'console.log(response.status);';
       await fillAfterRequestScript(contentPage, script);
       await contentPage.waitForTimeout(300);
@@ -80,7 +76,6 @@ test.describe('9. HTTP节点 - 后置脚本测试', () => {
      * 说明：语法高亮提高代码可读性
      */
     test('应支持语法高亮', async () => {
-      await waitForHttpNodeReady(contentPage);
       await fillAfterRequestScript(contentPage, 'const status = response.status;');
       await contentPage.waitForTimeout(300);
       const editor = contentPage.locator('.monaco-editor').first();
@@ -106,7 +101,6 @@ test.describe('9. HTTP节点 - 后置脚本测试', () => {
      * 说明：response对象是后置脚本的核心
      */
     test('应能访问response对象', async () => {
-      await waitForHttpNodeReady(contentPage);
       const script = 'console.log(response);';
       await fillAfterRequestScript(contentPage, script);
       await contentPage.waitForTimeout(300);
@@ -125,7 +119,6 @@ test.describe('9. HTTP节点 - 后置脚本测试', () => {
      * 说明：状态码用于判断请求是否成功
      */
     test('应能访问response.status获取状态码', async () => {
-      await waitForHttpNodeReady(contentPage);
       const script = 'const statusCode = response.status;';
       await fillAfterRequestScript(contentPage, script);
       await contentPage.waitForTimeout(300);
@@ -146,7 +139,6 @@ test.describe('9. HTTP节点 - 后置脚本测试', () => {
      * 说明：响应体包含服务器返回的数据
      */
     test('应能访问response.data获取响应体', async () => {
-      await waitForHttpNodeReady(contentPage);
       const script = 'const body = response.data;';
       await fillAfterRequestScript(contentPage, script);
       await contentPage.waitForTimeout(300);
@@ -167,7 +159,6 @@ test.describe('9. HTTP节点 - 后置脚本测试', () => {
      * 说明：响应头包含Content-Type、Set-Cookie等信息
      */
     test('应能访问response.headers获取响应头', async () => {
-      await waitForHttpNodeReady(contentPage);
       const script = 'const headers = response.headers;';
       await fillAfterRequestScript(contentPage, script);
       await contentPage.waitForTimeout(300);
@@ -188,7 +179,6 @@ test.describe('9. HTTP节点 - 后置脚本测试', () => {
      * 说明：pm.test用于编写测试用例
      */
     test('应能执行断言测试', async () => {
-      await waitForHttpNodeReady(contentPage);
       const script = 'pm.test("Status is 200", () => { pm.expect(response.status).to.equal(200); });';
       await fillAfterRequestScript(contentPage, script);
       await contentPage.waitForTimeout(300);
@@ -209,7 +199,6 @@ test.describe('9. HTTP节点 - 后置脚本测试', () => {
      * 说明：常用于提取token等认证信息
      */
     test('应能设置变量', async () => {
-      await waitForHttpNodeReady(contentPage);
       const script = 'pm.variables.set("responseToken", response.data.token);';
       await fillAfterRequestScript(contentPage, script);
       await contentPage.waitForTimeout(300);
@@ -230,7 +219,6 @@ test.describe('9. HTTP节点 - 后置脚本测试', () => {
      * 说明：后置脚本在收到响应后执行
      */
     test('脚本执行应在请求完成后', async () => {
-      await waitForHttpNodeReady(contentPage);
       const script = 'console.log("After request executed");';
       await fillAfterRequestScript(contentPage, script);
       await contentPage.waitForTimeout(300);
@@ -251,7 +239,6 @@ test.describe('9. HTTP节点 - 后置脚本测试', () => {
      * 说明：语法检查帮助发现代码错误
      */
     test('语法错误应显示提示', async () => {
-      await waitForHttpNodeReady(contentPage);
       const invalidScript = 'const a = ;';
       await fillAfterRequestScript(contentPage, invalidScript);
       await contentPage.waitForTimeout(500);
@@ -274,7 +261,6 @@ test.describe('9. HTTP节点 - 后置脚本测试', () => {
      * 说明：运行时错误在脚本执行时发生
      */
     test('运行时错误应显示错误信息', async () => {
-      await waitForHttpNodeReady(contentPage);
       const errorScript = 'throw new Error("After request error");';
       await fillAfterRequestScript(contentPage, errorScript);
       await contentPage.waitForTimeout(300);
@@ -293,7 +279,6 @@ test.describe('9. HTTP节点 - 后置脚本测试', () => {
      * 说明：断言失败不会阻止脚本继续执行
      */
     test('断言失败应显示失败信息', async () => {
-      await waitForHttpNodeReady(contentPage);
       const failScript = 'pm.test("Will fail", () => { pm.expect(1).to.equal(2); });';
       await fillAfterRequestScript(contentPage, failScript);
       await contentPage.waitForTimeout(300);
@@ -314,7 +299,6 @@ test.describe('9. HTTP节点 - 后置脚本测试', () => {
      * 说明：pm.test用于组织断言测试
      */
     test('应支持pm.test()编写测试', async () => {
-      await waitForHttpNodeReady(contentPage);
       const script = 'pm.test("Test name", function() { pm.expect(true).to.be.true; });';
       await fillAfterRequestScript(contentPage, script);
       await contentPage.waitForTimeout(300);
@@ -335,7 +319,6 @@ test.describe('9. HTTP节点 - 后置脚本测试', () => {
      * 说明：pm.expect基于Chai断言库
      */
     test('应支持pm.expect()断言', async () => {
-      await waitForHttpNodeReady(contentPage);
       const script = 'pm.expect(response.status).to.equal(200);';
       await fillAfterRequestScript(contentPage, script);
       await contentPage.waitForTimeout(300);
@@ -356,7 +339,6 @@ test.describe('9. HTTP节点 - 后置脚本测试', () => {
      * 说明：测试统计帮助了解测试覆盖度
      */
     test('应显示测试通过数量', async () => {
-      await waitForHttpNodeReady(contentPage);
       const script = `pm.test("Test 1", () => { pm.expect(1).to.equal(1); });
 pm.test("Test 2", () => { pm.expect(2).to.equal(2); });`;
       await fillAfterRequestScript(contentPage, script);
@@ -376,7 +358,6 @@ pm.test("Test 2", () => { pm.expect(2).to.equal(2); });`;
      * 说明：快速定位失败的测试用例
      */
     test('应显示测试失败数量', async () => {
-      await waitForHttpNodeReady(contentPage);
       const script = 'pm.test("Fail test", () => { pm.expect(1).to.equal(2); });';
       await fillAfterRequestScript(contentPage, script);
       await contentPage.waitForTimeout(300);

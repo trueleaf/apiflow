@@ -1,10 +1,7 @@
 import { expect, type Page } from '@playwright/test';
 import { test, initOfflineWorkbench, createProject, createSingleNode, clearAllAppData } from '../../../fixtures/fixtures';
 import {
-  waitForHttpNodeReady,
-  getMethodSelector,
   verifyHttpMethod,
-  getUrlInput,
   switchToTab,
   addQueryParam,
   verifyQueryParamExists,
@@ -44,7 +41,6 @@ test.describe('1. HTTP节点 - 基础功能测试', () => {
         type: 'http'
       });
       expect(result.success).toBe(true);
-      await waitForHttpNodeReady(contentPage);
       const treeNode = contentPage
         .locator('.tree-node:has-text("Test API"), .el-tree-node__content:has-text("Test API"), .el-tree-node__label:has-text("Test API")')
         .first();
@@ -73,10 +69,9 @@ test.describe('1. HTTP节点 - 基础功能测试', () => {
         name: 'Test API',
         type: 'http'
       });
-      await waitForHttpNodeReady(contentPage);
-      const methodSelector = getMethodSelector(contentPage);
+      const methodSelector = contentPage.locator('[data-testid="method-select"]');
       await expect(methodSelector).toBeVisible();
-      const urlInput = getUrlInput(contentPage);
+      const urlInput = contentPage.locator('[data-testid="url-input"]');
       await expect(urlInput).toBeVisible();
       const paramsTab = contentPage.locator('.el-tabs__item:has-text("Params")').first();
       await expect(paramsTab).toBeVisible();
@@ -102,7 +97,6 @@ test.describe('1. HTTP节点 - 基础功能测试', () => {
         name: 'Test API',
         type: 'http'
       });
-      await waitForHttpNodeReady(contentPage);
       const paramsTab = contentPage.locator('.el-tabs__item:has-text("Params")').first();
       await expect(paramsTab).toBeVisible();
       const bodyTab = contentPage.locator('.el-tabs__item:has-text("Body")').first();
@@ -131,7 +125,6 @@ test.describe('1. HTTP节点 - 基础功能测试', () => {
         name: 'Test API',
         type: 'http'
       });
-      await waitForHttpNodeReady(contentPage);
       await switchToTab(contentPage, 'Params');
       const paramsActiveTab = contentPage.locator('.el-tabs__item.is-active:has-text("Params")');
       await expect(paramsActiveTab).toBeVisible();
@@ -160,7 +153,6 @@ test.describe('1. HTTP节点 - 基础功能测试', () => {
         name: 'Test API',
         type: 'http'
       });
-      await waitForHttpNodeReady(contentPage);
       await addQueryParam(contentPage, 'testKey', 'testValue');
       await switchToTab(contentPage, 'Headers');
       await switchToTab(contentPage, 'Params');
@@ -187,7 +179,6 @@ test.describe('1. HTTP节点 - 基础功能测试', () => {
         name: 'Test API',
         type: 'http'
       });
-      await waitForHttpNodeReady(contentPage);
       await switchToTab(contentPage, 'Params');
       await expect(contentPage.locator('text=Query 参数')).toBeVisible();
       const paramInput = contentPage.locator('input[placeholder="输入参数名称自动换行"], input[placeholder*="参数名称"]').first();
@@ -213,7 +204,6 @@ test.describe('1. HTTP节点 - 基础功能测试', () => {
         name: 'Test API',
         type: 'http'
       });
-      await waitForHttpNodeReady(contentPage);
       await addQueryParam(contentPage, 'testKey', 'testValue');
       await verifyQueryParamExists(contentPage, 'testKey');
       await addQueryParam(contentPage, 'key2', 'value2', { description: '测试描述' });
@@ -238,7 +228,6 @@ test.describe('1. HTTP节点 - 基础功能测试', () => {
         name: 'Test API',
         type: 'http'
       });
-      await waitForHttpNodeReady(contentPage);
       await addQueryParam(contentPage, 'enabledParam', 'value1', { enabled: true });
       await addQueryParam(contentPage, 'disabledParam', 'value2', { enabled: false });
       await verifyQueryParamExists(contentPage, 'enabledParam');
@@ -263,7 +252,6 @@ test.describe('1. HTTP节点 - 基础功能测试', () => {
         name: 'Test API',
         type: 'http'
       });
-      await waitForHttpNodeReady(contentPage);
       await fillUrl(contentPage, '/api/:id/:userId');
       await contentPage.waitForTimeout(500);
       await switchToTab(contentPage, 'Params');
@@ -293,7 +281,6 @@ test.describe('1. HTTP节点 - 基础功能测试', () => {
         name: 'Test API',
         type: 'http'
       });
-      await waitForHttpNodeReady(contentPage);
       await addQueryParam(contentPage, 'persistKey', 'persistValue');
       await fillUrl(contentPage, '/api/:pathParam');
       await contentPage.waitForTimeout(500);
@@ -320,7 +307,6 @@ test.describe('1. HTTP节点 - 基础功能测试', () => {
         name: 'Test API',
         type: 'http'
       });
-      await waitForHttpNodeReady(contentPage);
       await addQueryParam(contentPage, 'testParam', 'testValue');
       await contentPage.waitForTimeout(300);
       await verifyQueryParamExists(contentPage, 'testParam');
@@ -343,7 +329,6 @@ test.describe('1. HTTP节点 - 基础功能测试', () => {
         name: 'Test API',
         type: 'http'
       });
-      await waitForHttpNodeReady(contentPage);
       await addQueryParam(contentPage, 'persistData', 'value');
       await switchToTab(contentPage, 'Body');
       await switchToTab(contentPage, 'Params');
@@ -367,7 +352,6 @@ test.describe('1. HTTP节点 - 基础功能测试', () => {
         name: 'Test API',
         type: 'http'
       });
-      await waitForHttpNodeReady(contentPage);
       const sendBtn = contentPage.locator('button:has-text("发送请求")').first();
       await expect(sendBtn).toBeVisible();
       await expect(sendBtn).toBeEnabled();
@@ -386,7 +370,6 @@ test.describe('1. HTTP节点 - 基础功能测试', () => {
         name: 'Test API',
         type: 'http'
       });
-      await waitForHttpNodeReady(contentPage);
       const saveBtn = contentPage.locator('button:has-text("保存接口")').first();
       await expect(saveBtn).toBeVisible();
     });
@@ -404,7 +387,6 @@ test.describe('1. HTTP节点 - 基础功能测试', () => {
         name: 'Test API',
         type: 'http'
       });
-      await waitForHttpNodeReady(contentPage);
       const refreshBtn = contentPage.locator('[title*="刷新"], .refresh-btn').first();
       await expect(refreshBtn).toBeVisible();
     });
@@ -424,7 +406,6 @@ test.describe('1. HTTP节点 - 基础功能测试', () => {
         name: 'Test API',
         type: 'http'
       });
-      await waitForHttpNodeReady(contentPage);
       await expect(contentPage.locator('text=撤销')).toBeVisible();
       await expect(contentPage.locator('text=重做')).toBeVisible();
     });
@@ -444,7 +425,6 @@ test.describe('1. HTTP节点 - 基础功能测试', () => {
         name: 'Test API',
         type: 'http'
       });
-      await waitForHttpNodeReady(contentPage);
       await verifyHttpMethod(contentPage, 'GET');
     });
 
@@ -466,8 +446,7 @@ test.describe('1. HTTP节点 - 基础功能测试', () => {
         name: 'Test API',
         type: 'http'
       });
-      await waitForHttpNodeReady(contentPage);
-      const urlInput = getUrlInput(contentPage);
+      const urlInput = contentPage.locator('[data-testid="url-input"]');
       const value = await urlInput.inputValue();
       expect(value).toBe('');
       const placeholder = await urlInput.getAttribute('placeholder');
@@ -489,7 +468,6 @@ test.describe('1. HTTP节点 - 基础功能测试', () => {
         name: 'Test API',
         type: 'http'
       });
-      await waitForHttpNodeReady(contentPage);
       await switchToTab(contentPage, 'Params');
       const paramInput = contentPage.locator('input[placeholder="输入参数名称自动换行"], input[placeholder*="参数名称"]').first();
       await expect(paramInput).toBeVisible();
@@ -508,7 +486,6 @@ test.describe('1. HTTP节点 - 基础功能测试', () => {
         name: 'Test API',
         type: 'http'
       });
-      await waitForHttpNodeReady(contentPage);
       const tabs = contentPage.locator('.el-tabs__item');
       const count = await tabs.count();
       expect(count).toBeGreaterThan(0);
@@ -534,7 +511,6 @@ test.describe('1. HTTP节点 - 基础功能测试', () => {
         name: 'Test API',
         type: 'http'
       });
-      await waitForHttpNodeReady(contentPage);
       await contentPage.setViewportSize({ width: 1200, height: 800 });
       await contentPage.waitForTimeout(300);
       const apiOperation = contentPage.locator('.api-operation').first();
@@ -560,7 +536,6 @@ test.describe('1. HTTP节点 - 基础功能测试', () => {
         name: 'Test API',
         type: 'http'
       });
-      await waitForHttpNodeReady(contentPage);
       await contentPage.setViewportSize({ width: 1000, height: 800 });
       await contentPage.waitForTimeout(300);
       const hasScroll = await contentPage.evaluate(() => {

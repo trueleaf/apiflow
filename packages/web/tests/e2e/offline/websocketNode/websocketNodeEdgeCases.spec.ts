@@ -28,6 +28,17 @@ test.describe('13. WebSocket节点 - 边界情况测试', () => {
   });
 
   test.describe('13.1 大消息测试', () => {
+    /**
+     * 测试目的：验证能够发送大消息(5KB)
+     * 前置条件：已建立WebSocket连接
+     * 操作步骤：
+     *   1. 建立连接
+     *   2. 填写5KB大小的消息
+     *   3. 发送消息
+     * 预期结果：大消息成功发送
+     * 验证点：大消息发送功能
+     * 说明：测试系统对大数据包的支持
+     */
     test('应能发送大消息(5KB)', async () => {
       await fillUrl(contentPage, 'echo.websocket.org');
       await clickConnect(contentPage);

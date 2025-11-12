@@ -7,7 +7,6 @@ import {
   addEnvironmentVariable,
   addGlobalVariable,
   verifyUrlContainsVariable,
-  getUrlInput,
   openVariablePanel
 } from './helpers/websocketNodeHelpers';
 
@@ -28,6 +27,16 @@ test.describe('7. WebSocket节点 - 变量系统测试', () => {
   });
 
   test.describe('7.1 局部变量测试', () => {
+    /**
+     * 测试目的：验证能够添加局部变量
+     * 前置条件：已创建WebSocket节点
+     * 操作步骤：
+     *   1. 打开变量面板
+     *   2. 添加局部变量
+     * 预期结果：局部变量成功添加
+     * 验证点：局部变量添加功能
+     * 说明：局部变量仅在当前节点有效
+     */
     test('应能添加局部变量', async () => {
       await addLocalVariable(contentPage, 'localVar', 'localValue');
       await contentPage.waitForTimeout(300);
@@ -82,7 +91,7 @@ test.describe('7. WebSocket节点 - 变量系统测试', () => {
   test.describe('7.5 变量语法测试', () => {
     test('应支持双大括号语法', async () => {
       await fillUrl(contentPage, '{{variableName}}');
-      const urlInput = getUrlInput(contentPage);
+      const urlInput = contentPage.locator('.connection-input input.el-input__inner');
       const value = await urlInput.inputValue();
       expect(value).toContain('{{');
       expect(value).toContain('}}');

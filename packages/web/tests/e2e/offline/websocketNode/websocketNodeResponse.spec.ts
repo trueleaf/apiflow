@@ -40,6 +40,13 @@ test.describe('4. WebSocket节点 - 响应查看测试', () => {
   });
 
   test.describe('4.1 响应区域显示测试', () => {
+    /**
+     * 测试目的：验证响应信息区域的显示
+     * 前置条件：已创建WebSocket节点
+     * 操作步骤：查找响应信息布局
+     * 预期结果：响应信息区域可见
+     * 验证点：响应区域UI
+     */
     test('应显示响应信息区域', async () => {
       const infoLayout = contentPage.locator('.info-layout').first();
       await expect(infoLayout).toBeVisible();

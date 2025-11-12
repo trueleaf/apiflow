@@ -9,6 +9,16 @@ test.describe('离线模式项目增删改查测试', () => {
     contentPage = result.contentPage;
   });
   test.describe('项目列表展示测试', () => {
+    /**
+     * 测试目的：验证项目列表容器的正确显示
+     * 前置条件：应用已启动
+     * 操作步骤：
+     *   1. 检查"全部项目"标题
+     *   2. 检查搜索区域
+     *   3. 检查项目列表容器
+     * 预期结果：所有项目列表UI元素正确显示
+     * 验证点：项目列表页面UI完整性
+     */
     test('页面加载后应正确显示项目列表容器', async () => {
       // 1. 验证主容器存在（定位"全部项目"区域的容器）
       const allProjectsTitle = contentPage.locator('h2 span:has-text("全部项目")').first();
@@ -30,6 +40,19 @@ test.describe('离线模式项目增删改查测试', () => {
       await expect(projectListContainer).toBeDefined();
     });
 
+    /**
+     * 测试目的：验证空项目列表的UI状态
+     * 前置条件：应用已启动，无任何项目
+     * 操作步骤：
+     *   1. 清空所有应用数据
+     *   2. 重新加载页面
+     *   3. 检查空状态显示
+     * 预期结果：
+     *   - 显示"全部项目(0)"
+     *   - 显示空状态容器
+     *   - 显示"暂无项目"提示
+     * 验证点：空状态UI展示
+     */
     test('空项目列表应显示正确的UI状态', async () => {
       // 0. 清空所有应用数据，确保测试从空状态开始
       await clearAllAppData(contentPage);

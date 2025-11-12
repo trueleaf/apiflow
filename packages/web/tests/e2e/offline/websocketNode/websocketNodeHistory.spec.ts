@@ -30,6 +30,15 @@ test.describe('11. WebSocket节点 - 历史记录测试', () => {
   });
 
   test.describe('11.1 打开历史记录面板测试', () => {
+    /**
+     * 测试目的：验证能够打开历史记录面板
+     * 前置条件：已创建WebSocket节点
+     * 操作步骤：
+     *   1. 点击历史记录按钮
+     *   2. 验证面板显示
+     * 预期结果：历史记录面板成功打开
+     * 验证点：历史记录面板显示
+     */
     test('应能打开历史记录面板', async () => {
       const historyBtn = contentPage.locator('[title*="历史"], .history-btn, button:has-text("历史")').first();
       if (await historyBtn.count() > 0) {

@@ -6,49 +6,29 @@ export const waitForWebSocketNodeReady = async (page: Page, timeout = 10000): Pr
   await page.waitForLoadState('domcontentloaded');
 };
 
-//获取协议选择器
-export const getProtocolSelector = (page: Page) => {
-  return page.locator('.protocol-select .el-select');
-};
-
 //选择WebSocket协议
 export const selectProtocol = async (
   page: Page,
   protocol: 'ws' | 'wss'
 ): Promise<void> => {
-  const protocolSelect = getProtocolSelector(page);
+  const protocolSelect = page.locator('.protocol-select .el-select');
   await protocolSelect.click();
   await page.locator(`.el-select-dropdown__item:has-text("${protocol.toUpperCase()}")`).click();
   await page.waitForTimeout(200);
 };
 
-//获取URL输入框
-export const getUrlInput = (page: Page) => {
-  return page.locator('.connection-input input.el-input__inner');
-};
-
 //输入WebSocket连接URL
 export const fillUrl = async (page: Page, url: string): Promise<void> => {
-  const urlInput = getUrlInput(page);
+  const urlInput = page.locator('.connection-input input.el-input__inner');
   await urlInput.clear();
   await urlInput.fill(url);
   await urlInput.blur();
   await page.waitForTimeout(200);
 };
 
-//获取连接按钮
-export const getConnectButton = (page: Page) => {
-  return page.locator('button:has-text("发起连接"), button:has-text("重新连接")');
-};
-
-//获取断开连接按钮
-export const getDisconnectButton = (page: Page) => {
-  return page.locator('button:has-text("断开连接")');
-};
-
 //点击连接按钮
 export const clickConnect = async (page: Page): Promise<void> => {
-  const connectBtn = getConnectButton(page);
+  const connectBtn = page.locator('button:has-text("发起连接"), button:has-text("重新连接")');
   await connectBtn.waitFor({ state: 'visible', timeout: 5000 });
   await connectBtn.click();
   await page.waitForTimeout(500);
@@ -56,7 +36,7 @@ export const clickConnect = async (page: Page): Promise<void> => {
 
 //点击断开连接按钮
 export const clickDisconnect = async (page: Page): Promise<void> => {
-  const disconnectBtn = getDisconnectButton(page);
+  const disconnectBtn = page.locator('button:has-text("断开连接")');
   await disconnectBtn.waitFor({ state: 'visible', timeout: 5000 });
   await disconnectBtn.click();
   await page.waitForTimeout(500);
@@ -101,25 +81,25 @@ export const verifyConnectionStatus = async (
 
 //验证连接按钮禁用
 export const verifyConnectButtonDisabled = async (page: Page): Promise<void> => {
-  const connectBtn = getConnectButton(page);
+  const connectBtn = page.locator('button:has-text("发起连接"), button:has-text("重新连接")');
   await expect(connectBtn).toBeDisabled();
 };
 
 //验证连接按钮启用
 export const verifyConnectButtonEnabled = async (page: Page): Promise<void> => {
-  const connectBtn = getConnectButton(page);
+  const connectBtn = page.locator('button:has-text("发起连接"), button:has-text("重新连接")');
   await expect(connectBtn).toBeEnabled();
 };
 
 //验证断开连接按钮可见
 export const verifyDisconnectButtonVisible = async (page: Page): Promise<void> => {
-  const disconnectBtn = getDisconnectButton(page);
+  const disconnectBtn = page.locator('button:has-text("断开连接")');
   await expect(disconnectBtn).toBeVisible();
 };
 
 //验证断开连接按钮隐藏
 export const verifyDisconnectButtonHidden = async (page: Page): Promise<void> => {
-  const disconnectBtn = getDisconnectButton(page);
+  const disconnectBtn = page.locator('button:has-text("断开连接")');
   await expect(disconnectBtn).not.toBeVisible();
 };
 
@@ -152,15 +132,10 @@ export const switchToTab = async (
   await page.waitForTimeout(300);
 };
 
-//获取消息编辑器
-export const getMessageEditor = (page: Page) => {
-  return page.locator('.message-editor, .monaco-editor').first();
-};
-
-//填充消息内容
+//获取消息内容
 export const fillMessage = async (page: Page, content: string): Promise<void> => {
   await switchToTab(page, 'Message');
-  const editor = getMessageEditor(page);
+  const editor = page.locator('.message-editor, .monaco-editor').first();
   await editor.waitFor({ state: 'visible', timeout: 5000 });
   await editor.click();
   await page.keyboard.press('Control+A');
@@ -168,14 +143,9 @@ export const fillMessage = async (page: Page, content: string): Promise<void> =>
   await page.waitForTimeout(300);
 };
 
-//获取发送消息按钮
-export const getSendMessageButton = (page: Page) => {
-  return page.locator('button:has-text("发送消息")');
-};
-
 //点击发送消息
 export const clickSendMessage = async (page: Page): Promise<void> => {
-  const sendBtn = getSendMessageButton(page);
+  const sendBtn = page.locator('button:has-text("发送消息")');
   await sendBtn.waitFor({ state: 'visible', timeout: 5000 });
   await sendBtn.click();
   await page.waitForTimeout(300);
@@ -183,19 +153,19 @@ export const clickSendMessage = async (page: Page): Promise<void> => {
 
 //验证发送消息按钮禁用
 export const verifySendMessageButtonDisabled = async (page: Page): Promise<void> => {
-  const sendBtn = getSendMessageButton(page);
+  const sendBtn = page.locator('button:has-text("发送消息")');
   await expect(sendBtn).toBeDisabled();
 };
 
 //验证发送消息按钮启用
 export const verifySendMessageButtonEnabled = async (page: Page): Promise<void> => {
-  const sendBtn = getSendMessageButton(page);
+  const sendBtn = page.locator('button:has-text("发送消息")');
   await expect(sendBtn).toBeEnabled();
 };
 
 //获取消息内容
 export const getMessageContent = async (page: Page): Promise<string> => {
-  const editor = getMessageEditor(page);
+  const editor = page.locator('.message-editor, .monaco-editor').first();
   const content = await editor.evaluate((el) => {
     const monaco = (window as unknown as { monaco?: { editor: { getModels: () => { getValue: () => string }[] } } }).monaco;
     if (monaco) {
@@ -216,7 +186,7 @@ export const getMessageContent = async (page: Page): Promise<string> => {
 //清空消息
 export const clearMessage = async (page: Page): Promise<void> => {
   await switchToTab(page, 'Message');
-  const editor = getMessageEditor(page);
+  const editor = page.locator('.message-editor, .monaco-editor').first();
   await editor.click();
   await page.keyboard.press('Control+A');
   await page.keyboard.press('Delete');
@@ -848,7 +818,7 @@ export const verifyUrlContainsVariable = async (
   page: Page,
   variableName: string
 ): Promise<void> => {
-  const urlInput = getUrlInput(page);
+  const urlInput = page.locator('.connection-input input.el-input__inner');
   const value = await urlInput.inputValue();
   expect(value).toContain(`{{${variableName}}}`);
 };
@@ -1029,7 +999,7 @@ export const redoByShortcut = async (page: Page): Promise<void> => {
 
 //验证URL输入框的值
 export const verifyUrlValue = async (page: Page, expectedUrl: string): Promise<void> => {
-  const urlInput = getUrlInput(page);
+  const urlInput = page.locator('.connection-input input.el-input__inner');
   await expect(urlInput).toHaveValue(expectedUrl);
 };
 

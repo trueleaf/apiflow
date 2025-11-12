@@ -33,17 +33,47 @@ test.describe('5. WebSocket节点 - Query参数测试', () => {
   });
 
   test.describe('5.1 添加Query参数测试', () => {
+    /**
+     * 测试目的：验证能够添加Query参数
+     * 前置条件：已创建WebSocket节点
+     * 操作步骤：
+     *   1. 切换到Params标签页
+     *   2. 添加Query参数token=123456
+     *   3. 验证参数存在
+     * 预期结果：Query参数成功添加
+     * 验证点：Query参数添加功能
+     * 说明：Query参数会附加到WebSocket连接URL后面
+     */
     test('应能添加Query参数', async () => {
       await addQueryParam(contentPage, 'token', '123456');
       await verifyQueryParamExists(contentPage, 'token');
     });
 
+    /**
+     * 测试目的：验证添加参数后URL自动更新
+     * 前置条件：已创建WebSocket节点并输入URL
+     * 操作步骤：
+     *   1. 输入基础URL
+     *   2. 添加Query参数
+     *   3. 验证参数出现在完整URL中
+     * 预期结果：参数自动附加到URL后面
+     * 验证点：参数与URL的联动
+     */
     test('添加参数后应在URL中显示', async () => {
       await fillUrl(contentPage, 'echo.websocket.org');
       await addQueryParam(contentPage, 'token', 'abc123');
       await verifyQueryParamInUrl(contentPage, 'token', 'abc123');
     });
 
+    /**
+     * 测试目的：验证能够添加多个Query参数
+     * 前置条件：已创建WebSocket节点
+     * 操作步骤：
+     *   1. 连续添加3个不同的参数
+     *   2. 验证所有参数都存在
+     * 预期结果：所有参数都成功添加
+     * 验证点：多参数支持
+     */
     test('应能添加多个Query参数', async () => {
       await addQueryParam(contentPage, 'token', '123');
       await addQueryParam(contentPage, 'user', 'test');
@@ -75,12 +105,32 @@ test.describe('5. WebSocket节点 - Query参数测试', () => {
   });
 
   test.describe('5.2 编辑Query参数测试', () => {
+    /**
+     * 测试目的：验证能够编辑参数key
+     * 前置条件：已添加Query参数
+     * 操作步骤：
+     *   1. 添加参数
+     *   2. 修改参数key
+     *   3. 验证新key存在
+     * 预期结果：参数key成功修改
+     * 验证点：参数key编辑功能
+     */
     test('应能编辑参数key', async () => {
       await addQueryParam(contentPage, 'oldKey', 'value');
       await editQueryParamKey(contentPage, 'oldKey', 'newKey');
       await verifyQueryParamExists(contentPage, 'newKey');
     });
 
+    /**
+     * 测试目的：验证能够编辑参数value
+     * 前置条件：已添加Query参数
+     * 操作步骤：
+     *   1. 添加参数
+     *   2. 修改参数value
+     *   3. 验证新value在URL中
+     * 预期结果：参数value成功修改
+     * 验证点：参数value编辑功能
+     */
     test('应能编辑参数value', async () => {
       await addQueryParam(contentPage, 'token', 'oldValue');
       await editQueryParamValue(contentPage, 'token', 'newValue');

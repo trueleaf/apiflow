@@ -1,78 +1,33 @@
 import { Page, expect } from '@playwright/test';
 
-//等待页面加载完成
-export const waitForHttpNodeReady = async (page: Page, timeout = 10000): Promise<void> => {
-  await page.waitForSelector('.api-operation', { state: 'visible', timeout });
-  await page.waitForLoadState('domcontentloaded');
-};
-
-//获取HTTP方法选择器
-export const getMethodSelector = (page: Page) => {
-  return page.locator('[data-testid="method-select"]');
-};
-
 //选择HTTP请求方法
 export const selectHttpMethod = async (
   page: Page,
   method: 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH' | 'HEAD' | 'OPTIONS'
 ): Promise<void> => {
-  const methodSelect = getMethodSelector(page);
+  const methodSelect = page.locator('[data-testid="method-select"]');
   await methodSelect.click();
   await page.locator(`.el-select-dropdown__item:has-text("${method}")`).click();
   await page.waitForTimeout(200);
 };
-
-//获取URL输入框
-export const getUrlInput = (page: Page) => {
-  return page.locator('[data-testid="url-input"]');
-};
-
 //输入请求URL
 export const fillUrl = async (page: Page, url: string): Promise<void> => {
-  const urlInput = getUrlInput(page);
+  const urlInput = page.locator('[data-testid="url-input"]');
   await urlInput.clear();
   await urlInput.fill(url);
   await urlInput.blur();
   await page.waitForTimeout(200);
 };
-
-//点击发送请求按钮
-export const clickSendRequest = async (page: Page): Promise<void> => {
+//发送请求并等待响应
+export const sendRequestAndWait = async (page: Page, timeout = 30000): Promise<void> => {
   const sendBtn = page.locator('button:has-text("发送请求")');
   await sendBtn.waitFor({ state: 'visible', timeout: 5000 });
   await sendBtn.click();
-};
-
-//发送请求并等待响应
-export const sendRequestAndWait = async (page: Page, timeout = 30000): Promise<void> => {
-  await clickSendRequest(page);
   await page.waitForSelector('button:has-text("发送请求")', {
     state: 'visible',
     timeout
   });
 };
-
-//点击取消请求按钮
-export const clickCancelRequest = async (page: Page): Promise<void> => {
-  const cancelBtn = page.locator('button:has-text("取消请求")');
-  await cancelBtn.waitFor({ state: 'visible', timeout: 5000 });
-  await cancelBtn.click();
-};
-
-//点击保存接口按钮
-export const clickSaveApi = async (page: Page): Promise<void> => {
-  const saveBtn = page.locator('button:has-text("保存接口")');
-  await saveBtn.click();
-  await page.waitForTimeout(200);
-};
-
-//点击刷新按钮
-export const clickRefresh = async (page: Page): Promise<void> => {
-  const refreshBtn = page.locator('button:has-text("刷新")');
-  await refreshBtn.click();
-  await page.waitForTimeout(500);
-};
-
 //切换到指定标签
 export const switchToTab = async (
   page: Page,
@@ -468,7 +423,7 @@ export const fillRemarks = async (page: Page, remarks: string): Promise<void> =>
 
 //验证URL输入框的值
 export const verifyUrlValue = async (page: Page, expectedUrl: string): Promise<void> => {
-  const urlInput = getUrlInput(page);
+  const urlInput = page.locator('[data-testid="url-input"]');
   await expect(urlInput).toHaveValue(expectedUrl);
 };
 
@@ -477,7 +432,7 @@ export const verifyHttpMethod = async (
   page: Page,
   expectedMethod: string
 ): Promise<void> => {
-  const methodSelect = getMethodSelector(page);
+  const methodSelect = page.locator('[data-testid="method-select"]');
   const selectedItem = methodSelect.locator('.el-select__selected-item');
   let selectedText = '';
   if (await selectedItem.count()) {
@@ -646,58 +601,49 @@ export const verifyFullRequestUrl = async (
   page: Page,
   expectedUrl: string
 ): Promise<void> => {
-  const actualUrl = await getFullRequestUrl(page);
+  const urlElement = page.locator('.pre-url-wrap .url, .full-url').first();
+  const url = await urlElement.textContent();
+  const actualUrl = url?.trim() || '';
   expect(actualUrl).toBe(expectedUrl);
 };
-
-//获取撤销按钮
-export const getUndoButton = (page: Page) => {
-  return page.locator('[title*="撤销"], .undo-btn, button:has-text("撤销")').first();
-};
-
-//获取重做按钮
-export const getRedoButton = (page: Page) => {
-  return page.locator('[title*="重做"], .redo-btn, button:has-text("重做")').first();
-};
-
 //点击撤销按钮
 export const clickUndo = async (page: Page): Promise<void> => {
-  const undoBtn = getUndoButton(page);
+  const undoBtn = page.locator('[title*="撤销"], .undo-btn, button:has-text("撤销")').first();
   await undoBtn.click();
   await page.waitForTimeout(200);
 };
 
 //点击重做按钮
 export const clickRedo = async (page: Page): Promise<void> => {
-  const redoBtn = getRedoButton(page);
+  const redoBtn = page.locator('[title*="重做"], .redo-btn, button:has-text("重做")').first();
   await redoBtn.click();
   await page.waitForTimeout(200);
 };
 
 //验证撤销按钮是否禁用
 export const verifyUndoDisabled = async (page: Page): Promise<void> => {
-  const undoBtn = getUndoButton(page);
+  const undoBtn = page.locator('[title*="撤销"], .undo-btn, button:has-text("撤销")').first();
   const isDisabled = await undoBtn.isDisabled();
   expect(isDisabled).toBe(true);
 };
 
 //验证撤销按钮是否启用
 export const verifyUndoEnabled = async (page: Page): Promise<void> => {
-  const undoBtn = getUndoButton(page);
+  const undoBtn = page.locator('[title*="撤销"], .undo-btn, button:has-text("撤销")').first();
   const isDisabled = await undoBtn.isDisabled();
   expect(isDisabled).toBe(false);
 };
 
 //验证重做按钮是否禁用
 export const verifyRedoDisabled = async (page: Page): Promise<void> => {
-  const redoBtn = getRedoButton(page);
+  const redoBtn = page.locator('[title*="重做"], .redo-btn, button:has-text("重做")').first();
   const isDisabled = await redoBtn.isDisabled();
   expect(isDisabled).toBe(true);
 };
 
 //验证重做按钮是否启用
 export const verifyRedoEnabled = async (page: Page): Promise<void> => {
-  const redoBtn = getRedoButton(page);
+  const redoBtn = page.locator('[title*="重做"], .redo-btn, button:has-text("重做")').first();
   const isDisabled = await redoBtn.isDisabled();
   expect(isDisabled).toBe(false);
 };
@@ -707,19 +653,16 @@ export const undoByShortcut = async (page: Page): Promise<void> => {
   await page.keyboard.press('Control+Z');
   await page.waitForTimeout(200);
 };
-
 //使用快捷键重做 (Ctrl+Y)
 export const redoByShortcut = async (page: Page): Promise<void> => {
   await page.keyboard.press('Control+Y');
   await page.waitForTimeout(200);
 };
-
 //使用Mac快捷键重做 (Cmd+Shift+Z)
 export const redoByMacShortcut = async (page: Page): Promise<void> => {
   await page.keyboard.press('Meta+Shift+Z');
   await page.waitForTimeout(200);
 };
-
 //打开变量管理面板
 export const openVariablePanel = async (page: Page): Promise<void> => {
   const variableBtn = page.locator('[title*="变量"], .variable-btn, button:has-text("变量")').first();
@@ -761,7 +704,9 @@ export const addEnvironmentVariable = async (
   key: string,
   value: string
 ): Promise<void> => {
-  await openVariablePanel(page);
+  const variableBtn = page.locator('[title*="变量"], .variable-btn, button:has-text("变量")').first();
+  await variableBtn.click();
+  await page.waitForTimeout(300);
   const envTab = page.locator('.el-tabs__item:has-text("环境"), .env-tab').first();
   if (await envTab.isVisible()) {
     await envTab.click();
@@ -789,7 +734,9 @@ export const addGlobalVariable = async (
   key: string,
   value: string
 ): Promise<void> => {
-  await openVariablePanel(page);
+  const variableBtn = page.locator('[title*="变量"], .variable-btn, button:has-text("变量")').first();
+  await variableBtn.click();
+  await page.waitForTimeout(300);
   const globalTab = page.locator('.el-tabs__item:has-text("全局"), .global-tab').first();
   if (await globalTab.isVisible()) {
     await globalTab.click();
@@ -816,7 +763,7 @@ export const verifyUrlContainsVariable = async (
   page: Page,
   variableName: string
 ): Promise<void> => {
-  const urlInput = getUrlInput(page);
+  const urlInput = page.locator('[data-testid="url-input"]');
   const value = await urlInput.inputValue();
   expect(value).toContain(`{{${variableName}}}`);
 };
@@ -922,7 +869,7 @@ export const getHistoryList = (page: Page) => {
 
 //点击历史记录项
 export const clickHistoryItem = async (page: Page, index: number): Promise<void> => {
-  const historyItems = getHistoryList(page);
+  const historyItems = page.locator('.history-list .history-item, .history-record');
   const item = historyItems.nth(index);
   await item.click();
   await page.waitForTimeout(300);
@@ -930,7 +877,7 @@ export const clickHistoryItem = async (page: Page, index: number): Promise<void>
 
 //删除历史记录项
 export const deleteHistoryItem = async (page: Page, index: number): Promise<void> => {
-  const historyItems = getHistoryList(page);
+  const historyItems = page.locator('.history-list .history-item, .history-record');
   const item = historyItems.nth(index);
   const deleteBtn = item.locator('[title*="删除"], .delete-btn').first();
   await deleteBtn.click();
@@ -957,40 +904,31 @@ export const clearAllHistory = async (page: Page): Promise<void> => {
 //验证历史记录数量
 export const verifyHistoryCount = async (page: Page, expectedCount: number): Promise<void> => {
   await openHistoryPanel(page);
-  const historyItems = getHistoryList(page);
+  const historyItems = page.locator('.history-list .history-item, .history-record');
   const count = await historyItems.count();
   expect(count).toBe(expectedCount);
 };
-
-//获取保存按钮
-export const getSaveButton = (page: Page) => {
-  return page.locator('button:has-text("保存接口"), .save-api-btn, [title*="保存"]').first();
-};
-
 //验证保存按钮启用状态
 export const verifySaveButtonEnabled = async (page: Page): Promise<void> => {
-  const saveBtn = getSaveButton(page);
+  const saveBtn = page.locator('button:has-text("保存接口"), .save-api-btn, [title*="保存"]').first();
   await expect(saveBtn).toBeEnabled();
 };
 
 //验证保存按钮禁用状态
 export const verifySaveButtonDisabled = async (page: Page): Promise<void> => {
-  const saveBtn = getSaveButton(page);
+  const saveBtn = page.locator('button:has-text("保存接口"), .save-api-btn, [title*="保存"]').first();
   await expect(saveBtn).toBeDisabled();
 };
-
 //通过快捷键保存
 export const saveByShortcut = async (page: Page): Promise<void> => {
   await page.keyboard.press('Control+S');
   await page.waitForTimeout(300);
 };
-
 //通过Mac快捷键保存
 export const saveByMacShortcut = async (page: Page): Promise<void> => {
   await page.keyboard.press('Meta+S');
   await page.waitForTimeout(300);
 };
-
 //验证保存成功提示
 export const verifySaveSuccessMessage = async (page: Page): Promise<void> => {
   const successMessage = page.locator('.el-message--success, .success-message, [class*="message"]:has-text("保存成功")').first();
@@ -998,15 +936,9 @@ export const verifySaveSuccessMessage = async (page: Page): Promise<void> => {
     await expect(successMessage).toBeVisible();
   }
 };
-
-//获取未保存标识
-export const getUnsavedIndicator = (page: Page) => {
-  return page.locator('.unsaved-indicator, .modified-flag, [class*="unsaved"]').first();
-};
-
 //验证显示未保存标识
 export const verifyUnsavedIndicatorVisible = async (page: Page): Promise<void> => {
-  const indicator = getUnsavedIndicator(page);
+  const indicator = page.locator('.unsaved-indicator, .modified-flag, [class*="unsaved"]').first();
   if (await indicator.isVisible()) {
     await expect(indicator).toBeVisible();
   }
@@ -1014,20 +946,14 @@ export const verifyUnsavedIndicatorVisible = async (page: Page): Promise<void> =
 
 //验证未保存标识隐藏
 export const verifyUnsavedIndicatorHidden = async (page: Page): Promise<void> => {
-  const indicator = getUnsavedIndicator(page);
+  const indicator = page.locator('.unsaved-indicator, .modified-flag, [class*="unsaved"]').first();
   if (await indicator.isVisible()) {
     await expect(indicator).not.toBeVisible();
   }
 };
-
-//获取tab标题的未保存标识
-export const getTabUnsavedIndicator = (page: Page) => {
-  return page.locator('.tab-title:has-text("*"), .tab-pane[class*="modified"]').first();
-};
-
 //验证tab标题显示未保存标识
 export const verifyTabUnsavedIndicator = async (page: Page): Promise<void> => {
-  const tabIndicator = getTabUnsavedIndicator(page);
+  const tabIndicator = page.locator('.tab-title:has-text("*"), .tab-pane[class*="modified"]').first();
   if (await tabIndicator.isVisible()) {
     await expect(tabIndicator).toBeVisible();
   }
@@ -1144,7 +1070,6 @@ export const getResponseExampleContent = async (page: Page): Promise<string> => 
   });
   return content;
 };
-
 //格式化JSON响应示例
 export const formatResponseJson = async (page: Page): Promise<void> => {
   const formatBtn = page.locator('button:has-text("格式化"), .format-btn, [title*="格式化"]').first();
@@ -1161,12 +1086,10 @@ export const verifyJsonSyntaxError = async (page: Page): Promise<void> => {
     await expect(errorMarker).toBeVisible();
   }
 };
-
 //获取响应配置列表
 export const getResponseConfigList = (page: Page) => {
   return page.locator('.response-config-item, .response-item');
 };
-
 //折叠响应配置
 export const collapseResponseConfig = async (page: Page, index: number): Promise<void> => {
   const collapseBtn = page.locator('.response-config-item, .response-item').nth(index).locator('.collapse-btn, .el-collapse-item__header').first();
@@ -1198,12 +1121,6 @@ export const verifyResponseConfigExpanded = async (page: Page, index: number): P
   const detail = page.locator('.response-config-item, .response-item').nth(index).locator('.el-collapse-item__content, .response-detail').first();
   await expect(detail).toBeVisible();
 };
-
-//获取布局切换按钮
-export const getLayoutToggleButton = (page: Page) => {
-  return page.locator('.layout-toggle-btn, button[title*="布局"], [class*="layout-switch"]').first();
-};
-
 //切换到左右布局
 export const switchToHorizontalLayout = async (page: Page): Promise<void> => {
   const layoutBtn = page.locator('button:has-text("左右布局"), .horizontal-layout-btn, [title*="左右布局"]').first();
@@ -1239,15 +1156,9 @@ export const verifyVerticalLayout = async (page: Page): Promise<void> => {
     expect(className).toContain('vertical');
   }
 };
-
-//获取面板分隔线
-export const getPanelSplitter = (page: Page) => {
-  return page.locator('.splitter, .el-split-pane__trigger, .resize-handle').first();
-};
-
 //拖拽面板分隔线
 export const dragPanelSplitter = async (page: Page, offsetX: number, offsetY: number): Promise<void> => {
-  const splitter = getPanelSplitter(page);
+  const splitter = page.locator('.splitter, .el-split-pane__trigger, .resize-handle').first();
   if (await splitter.isVisible()) {
     const box = await splitter.boundingBox();
     if (box) {
@@ -1262,7 +1173,7 @@ export const dragPanelSplitter = async (page: Page, offsetX: number, offsetY: nu
 
 //双击面板分隔线
 export const doubleClickPanelSplitter = async (page: Page): Promise<void> => {
-  const splitter = getPanelSplitter(page);
+  const splitter = page.locator('.splitter, .el-split-pane__trigger, .resize-handle').first();
   if (await splitter.isVisible()) {
     await splitter.dblclick();
     await page.waitForTimeout(300);
@@ -1293,7 +1204,7 @@ export const verifyMinPanelWidth = async (page: Page, minWidth: number): Promise
 
 //验证拖拽光标样式
 export const verifyDragCursor = async (page: Page): Promise<void> => {
-  const splitter = getPanelSplitter(page);
+  const splitter = page.locator('.splitter, .el-split-pane__trigger, .resize-handle').first();
   if (await splitter.isVisible()) {
     const cursor = await splitter.evaluate((el) => {
       return window.getComputedStyle(el).cursor;

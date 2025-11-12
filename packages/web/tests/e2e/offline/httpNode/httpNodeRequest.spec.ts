@@ -1,17 +1,11 @@
 import { expect, type Page } from '@playwright/test';
 import { test, initOfflineWorkbench, createProject, createSingleNode } from '../../../fixtures/fixtures';
 import {
-  waitForHttpNodeReady,
   selectHttpMethod,
   verifyHttpMethod,
   fillUrl,
   verifyUrlValue,
-  getUrlInput,
-  clickSendRequest,
   sendRequestAndWait,
-  clickCancelRequest,
-  clickSaveApi,
-  clickRefresh,
   switchToTab,
   addQueryParam,
   verifyQueryParamExists,
@@ -50,10 +44,9 @@ test.describe('2. HTTP节点 - 请求操作模块测试', () => {
      * 验证点：GET方法选择功能和数据持久化
      */
     test('应支持GET方法选择', async () => {
-      await waitForHttpNodeReady(contentPage);
       await selectHttpMethod(contentPage, 'GET');
       await verifyHttpMethod(contentPage, 'GET');
-      await clickRefresh(contentPage);
+      const refreshBtn = contentPage.locator('button:has-text("刷新")').first(); await refreshBtn.click();
       await verifyHttpMethod(contentPage, 'GET');
     });
 
@@ -71,7 +64,6 @@ test.describe('2. HTTP节点 - 请求操作模块测试', () => {
      * 说明：POST方法需要Body配置，系统应自动显示相关选项
      */
     test('应支持POST方法选择', async () => {
-      await waitForHttpNodeReady(contentPage);
       await selectHttpMethod(contentPage, 'POST');
       await verifyHttpMethod(contentPage, 'POST');
       const bodyTab = contentPage.locator('.el-tabs__item:has-text("Body")');
@@ -86,7 +78,6 @@ test.describe('2. HTTP节点 - 请求操作模块测试', () => {
      * 验证点：PUT方法(用于更新资源)的支持
      */
     test('应支持PUT方法选择', async () => {
-      await waitForHttpNodeReady(contentPage);
       await selectHttpMethod(contentPage, 'PUT');
       await verifyHttpMethod(contentPage, 'PUT');
     });
@@ -99,7 +90,6 @@ test.describe('2. HTTP节点 - 请求操作模块测试', () => {
      * 验证点：DELETE方法(用于删除资源)的支持
      */
     test('应支持DELETE方法选择', async () => {
-      await waitForHttpNodeReady(contentPage);
       await selectHttpMethod(contentPage, 'DELETE');
       await verifyHttpMethod(contentPage, 'DELETE');
     });
@@ -112,7 +102,6 @@ test.describe('2. HTTP节点 - 请求操作模块测试', () => {
      * 验证点：PATCH方法(用于部分更新资源)的支持
      */
     test('应支持PATCH方法选择', async () => {
-      await waitForHttpNodeReady(contentPage);
       await selectHttpMethod(contentPage, 'PATCH');
       await verifyHttpMethod(contentPage, 'PATCH');
     });
@@ -125,7 +114,6 @@ test.describe('2. HTTP节点 - 请求操作模块测试', () => {
      * 验证点：HEAD方法(只获取响应头)的支持
      */
     test('应支持HEAD方法选择', async () => {
-      await waitForHttpNodeReady(contentPage);
       await selectHttpMethod(contentPage, 'HEAD');
       await verifyHttpMethod(contentPage, 'HEAD');
     });
@@ -138,7 +126,6 @@ test.describe('2. HTTP节点 - 请求操作模块测试', () => {
      * 验证点：OPTIONS方法(用于CORS预检等)的支持
      */
     test('应支持OPTIONS方法选择', async () => {
-      await waitForHttpNodeReady(contentPage);
       await selectHttpMethod(contentPage, 'OPTIONS');
       await verifyHttpMethod(contentPage, 'OPTIONS');
     });
@@ -157,7 +144,6 @@ test.describe('2. HTTP节点 - 请求操作模块测试', () => {
      * 验证点：方法切换的数据隔离性，确保只改变方法不影响其他配置
      */
     test('方法切换时应保持其他配置不变', async () => {
-      await waitForHttpNodeReady(contentPage);
       await fillUrl(contentPage, 'http://example.com/api');
       await addQueryParam(contentPage, 'userId', '123');
       await selectHttpMethod(contentPage, 'POST');
@@ -181,10 +167,9 @@ test.describe('2. HTTP节点 - 请求操作模块测试', () => {
      * 验证点：基本URL输入和持久化功能
      */
     test('应能输入普通URL', async () => {
-      await waitForHttpNodeReady(contentPage);
       await fillUrl(contentPage, 'http://example.com/api');
       await verifyUrlValue(contentPage, 'http://example.com/api');
-      await clickRefresh(contentPage);
+      const refreshBtn = contentPage.locator('button:has-text("刷新")').first(); await refreshBtn.click();
       await verifyUrlValue(contentPage, 'http://example.com/api');
     });
 
@@ -197,7 +182,6 @@ test.describe('2. HTTP节点 - 请求操作模块测试', () => {
      * 说明：本地开发环境常用端口号(如3000、8080等)应正常支持
      */
     test('应能输入带端口的URL', async () => {
-      await waitForHttpNodeReady(contentPage);
       await fillUrl(contentPage, 'http://localhost:3000/api');
       await verifyUrlValue(contentPage, 'http://localhost:3000/api');
     });
@@ -217,7 +201,6 @@ test.describe('2. HTTP节点 - 请求操作模块测试', () => {
      * 验证点：URL查询参数的自动解析和分离显示功能
      */
     test('应能输入带查询参数的URL', async () => {
-      await waitForHttpNodeReady(contentPage);
       await fillUrl(contentPage, 'http://example.com/api?key=value&name=test');
       await verifyUrlValue(contentPage, 'http://example.com/api?key=value&name=test');
       await switchToTab(contentPage, 'Params');
@@ -242,7 +225,6 @@ test.describe('2. HTTP节点 - 请求操作模块测试', () => {
      * 验证点：RESTful风格路径参数的自动识别功能
      */
     test('应能输入带Path参数的URL', async () => {
-      await waitForHttpNodeReady(contentPage);
       await fillUrl(contentPage, 'http://example.com/users/{id}/posts/{postId}');
       await verifyUrlValue(contentPage, 'http://example.com/users/{id}/posts/{postId}');
       await switchToTab(contentPage, 'Params');
@@ -271,9 +253,8 @@ test.describe('2. HTTP节点 - 请求操作模块测试', () => {
      * 验证点：剪贴板操作和长URL处理能力
      */
     test('应支持URL粘贴', async () => {
-      await waitForHttpNodeReady(contentPage);
       const longUrl = 'http://example.com/api/v1/users/search?query=test&limit=100&offset=0&sort=created_at&order=desc';
-      const urlInput = getUrlInput(contentPage);
+      const urlInput = contentPage.locator('input[placeholder*="请输入URL"]').first();
       await urlInput.clear();
       await contentPage.evaluate((url) => {
         navigator.clipboard.writeText(url);
@@ -298,8 +279,7 @@ test.describe('2. HTTP节点 - 请求操作模块测试', () => {
      * 验证点：URL格式化和特殊字符处理
      */
     test('应支持URL自动格式化', async () => {
-      await waitForHttpNodeReady(contentPage);
-      const urlInput = getUrlInput(contentPage);
+      const urlInput = contentPage.locator('input[placeholder*="请输入URL"]').first();
       await urlInput.fill('http://example.com/api test');
       await urlInput.blur();
       await contentPage.waitForTimeout(300);
@@ -322,10 +302,9 @@ test.describe('2. HTTP节点 - 请求操作模块测试', () => {
      * 说明：变量实际替换在发送请求时进行
      */
     test('应支持URL中的变量替换', async () => {
-      await waitForHttpNodeReady(contentPage);
       await fillUrl(contentPage, 'http://{{host}}/api/{{version}}');
       await verifyUrlValue(contentPage, 'http://{{host}}/api/{{version}}');
-      const urlInput = getUrlInput(contentPage);
+      const urlInput = contentPage.locator('input[placeholder*="请输入URL"]').first();
       const className = await urlInput.getAttribute('class');
       expect(className).toBeTruthy();
     });
@@ -345,12 +324,11 @@ test.describe('2. HTTP节点 - 请求操作模块测试', () => {
      * 验证点：长URL的存储和显示能力、输入框滚动功能
      */
     test('应处理超长URL', async () => {
-      await waitForHttpNodeReady(contentPage);
       const longPath = 'a'.repeat(2000);
       const longUrl = `http://example.com/${longPath}`;
       await fillUrl(contentPage, longUrl);
       await verifyUrlValue(contentPage, longUrl);
-      const urlInput = getUrlInput(contentPage);
+      const urlInput = contentPage.locator('input[placeholder*="请输入URL"]').first();
       const scrollWidth = await urlInput.evaluate((el: HTMLInputElement) => el.scrollWidth);
       const clientWidth = await urlInput.evaluate((el: HTMLInputElement) => el.clientWidth);
       expect(scrollWidth).toBeGreaterThan(clientWidth);
@@ -369,9 +347,8 @@ test.describe('2. HTTP节点 - 请求操作模块测试', () => {
      * 说明：允许输入不合法URL是为了支持相对路径、变量等特殊场景
      */
     test('应验证URL格式', async () => {
-      await waitForHttpNodeReady(contentPage);
       await fillUrl(contentPage, 'invalid-url');
-      const urlInput = getUrlInput(contentPage);
+      const urlInput = contentPage.locator('input[placeholder*="请输入URL"]').first();
       const value = await urlInput.inputValue();
       expect(value).toBe('invalid-url');
     });
@@ -387,8 +364,7 @@ test.describe('2. HTTP节点 - 请求操作模块测试', () => {
      * 说明：良好的placeholder可以指导用户正确输入URL格式
      */
     test('URL输入框应有placeholder提示', async () => {
-      await waitForHttpNodeReady(contentPage);
-      const urlInput = getUrlInput(contentPage);
+      const urlInput = contentPage.locator('input[placeholder*="请输入URL"]').first();
       const placeholder = await urlInput.getAttribute('placeholder');
       expect(placeholder).toBeTruthy();
       expect(placeholder).toContain('http');
@@ -405,7 +381,6 @@ test.describe('2. HTTP节点 - 请求操作模块测试', () => {
      * 说明：环境选择用于管理不同部署环境的配置(开发、测试、生产等)
      */
     test('应显示环境选择下拉框', async () => {
-      await waitForHttpNodeReady(contentPage);
       const envSelector = contentPage.locator('.el-select, .el-checkbox').first();
       await expect(envSelector).toBeVisible();
     });
@@ -421,7 +396,6 @@ test.describe('2. HTTP节点 - 请求操作模块测试', () => {
      * 说明：不同环境可能有不同的接口前缀(如dev.api.com、prod.api.com)
      */
     test('应能切换不同环境', async () => {
-      await waitForHttpNodeReady(contentPage);
       const prefixBtn = contentPage.locator('button:has-text("接口前缀")');
       if (await prefixBtn.isVisible()) {
         await prefixBtn.click();
@@ -442,7 +416,6 @@ test.describe('2. HTTP节点 - 请求操作模块测试', () => {
      * 说明：相对路径会自动拼接环境前缀，方便批量管理API地址
      */
     test('应能配置接口前缀', async () => {
-      await waitForHttpNodeReady(contentPage);
       await fillUrl(contentPage, '/users');
       const fullUrl = await getFullRequestUrl(contentPage);
       expect(fullUrl.length).toBeGreaterThan(0);
@@ -457,7 +430,6 @@ test.describe('2. HTTP节点 - 请求操作模块测试', () => {
      * 说明：测试用例需要补充具体操作步骤
      */
     test('前缀应自动拼接到URL', async () => {
-      await waitForHttpNodeReady(contentPage);
       await fillUrl(contentPage, '/api/test');
       await contentPage.waitForTimeout(300);
       const fullUrl = await getFullRequestUrl(contentPage);
@@ -477,7 +449,6 @@ test.describe('2. HTTP节点 - 请求操作模块测试', () => {
      * 说明：绝对URL具有更高优先级,不会被前缀覆盖
      */
     test('绝对URL应忽略前缀', async () => {
-      await waitForHttpNodeReady(contentPage);
       await fillUrl(contentPage, 'http://example.com/api');
       const fullUrl = await getFullRequestUrl(contentPage);
       expect(fullUrl).toContain('example.com');
@@ -497,7 +468,6 @@ test.describe('2. HTTP节点 - 请求操作模块测试', () => {
      * 验证点：发送请求按钮的状态管理
      */
     test('点击发送按钮应发起请求', async () => {
-      await waitForHttpNodeReady(contentPage);
       await fillUrl(contentPage, 'https://httpbin.org/get');
       const sendBtn = contentPage.locator('button:has-text("发送请求")');
       await expect(sendBtn).toBeVisible();
@@ -518,9 +488,8 @@ test.describe('2. HTTP节点 - 请求操作模块测试', () => {
      * 说明：使用httpbin的delay端点模拟慢请求
      */
     test('请求发送中应显示加载状态', async () => {
-      await waitForHttpNodeReady(contentPage);
       await fillUrl(contentPage, 'https://httpbin.org/delay/2');
-      await clickSendRequest(contentPage);
+      const sendBtn = contentPage.locator('button:has-text("发送请求")'); await sendBtn.click();
       const cancelBtn = contentPage.locator('button:has-text("取消请求")');
       await expect(cancelBtn).toBeVisible({ timeout: 2000 });
     });
@@ -541,13 +510,12 @@ test.describe('2. HTTP节点 - 请求操作模块测试', () => {
      * 验证点：请求取消功能和状态恢复
      */
     test('应能取消正在发送的请求', async () => {
-      await waitForHttpNodeReady(contentPage);
       await fillUrl(contentPage, 'https://httpbin.org/delay/5');
-      await clickSendRequest(contentPage);
+      const sendBtn = contentPage.locator('button:has-text("发送请求")'); await sendBtn.click();
       await contentPage.waitForTimeout(500);
       const cancelBtn = contentPage.locator('button:has-text("取消请求")');
       if (await cancelBtn.isVisible()) {
-        await clickCancelRequest(contentPage);
+        const cancelBtn = contentPage.locator('button:has-text("取消")').first(); await cancelBtn.click();
         await contentPage.waitForTimeout(500);
         const sendBtn = contentPage.locator('button:has-text("发送请求")');
         await expect(sendBtn).toBeVisible();
@@ -568,12 +536,11 @@ test.describe('2. HTTP节点 - 请求操作模块测试', () => {
      * 验证点：请求生命周期的状态管理
      */
     test('请求完成后应恢复发送按钮', async () => {
-      await waitForHttpNodeReady(contentPage);
       await fillUrl(contentPage, 'https://httpbin.org/get');
-      await clickSendRequest(contentPage);
+      const sendBtn1 = contentPage.locator('button:has-text("发送请求")'); await sendBtn1.click();
       await contentPage.waitForTimeout(3000);
-      const sendBtn = contentPage.locator('button:has-text("发送请求")');
-      await expect(sendBtn).toBeVisible({ timeout: 30000 });
+      const sendBtn2 = contentPage.locator('button:has-text("发送请求")');
+      await expect(sendBtn2).toBeVisible({ timeout: 30000 });
     });
 
     /**
@@ -589,8 +556,7 @@ test.describe('2. HTTP节点 - 请求操作模块测试', () => {
      * 说明：具体的禁用逻辑可能在点击时触发,而非UI层直接禁用按钮
      */
     test('发送请求前应验证URL必填', async () => {
-      await waitForHttpNodeReady(contentPage);
-      const urlInput = getUrlInput(contentPage);
+      const urlInput = contentPage.locator('input[placeholder*="请输入URL"]').first();
       await urlInput.clear();
       const sendBtn = contentPage.locator('button:has-text("发送请求")');
       await expect(sendBtn).toBeVisible();
@@ -608,9 +574,8 @@ test.describe('2. HTTP节点 - 请求操作模块测试', () => {
      * 说明：Ctrl+Enter是常见的提交快捷键,提升操作效率
      */
     test('应支持快捷键发送请求', async () => {
-      await waitForHttpNodeReady(contentPage);
       await fillUrl(contentPage, 'https://httpbin.org/get');
-      const urlInput = getUrlInput(contentPage);
+      const urlInput = contentPage.locator('input[placeholder*="请输入URL"]').first();
       await urlInput.focus();
       await contentPage.keyboard.press('Control+Enter');
       await contentPage.waitForTimeout(500);
@@ -628,9 +593,8 @@ test.describe('2. HTTP节点 - 请求操作模块测试', () => {
      * 说明：测试DNS解析失败、网络不可达等场景
      */
     test('发送失败应显示错误提示', async () => {
-      await waitForHttpNodeReady(contentPage);
       await fillUrl(contentPage, 'http://invalid-domain-that-does-not-exist-12345.com');
-      await clickSendRequest(contentPage);
+      const sendBtn = contentPage.locator('button:has-text("发送请求")'); await sendBtn.click();
       await contentPage.waitForTimeout(3000);
     });
 
@@ -647,9 +611,8 @@ test.describe('2. HTTP节点 - 请求操作模块测试', () => {
      * 验证点：刷新功能的数据持久化
      */
     test('应支持刷新操作', async () => {
-      await waitForHttpNodeReady(contentPage);
       await fillUrl(contentPage, 'http://example.com/api');
-      await clickRefresh(contentPage);
+      const refreshBtn = contentPage.locator('button:has-text("刷新")').first(); await refreshBtn.click();
       await verifyUrlValue(contentPage, 'http://example.com/api');
     });
   });
@@ -669,7 +632,6 @@ test.describe('2. HTTP节点 - 请求操作模块测试', () => {
      * 说明：未保存标识帮助用户了解当前编辑状态
      */
     test('未保存状态应有提示标识', async () => {
-      await waitForHttpNodeReady(contentPage);
       await fillUrl(contentPage, 'http://example.com/api');
       await contentPage.waitForTimeout(500);
       const unsavedIndicator = contentPage.locator('.unsaved-indicator, .dirty-flag, [title*="未保存"]');
@@ -690,9 +652,8 @@ test.describe('2. HTTP节点 - 请求操作模块测试', () => {
      * 验证点：保存操作对状态标识的影响
      */
     test('保存后应清除未保存标识', async () => {
-      await waitForHttpNodeReady(contentPage);
       await fillUrl(contentPage, 'http://example.com/api');
-      await clickSaveApi(contentPage);
+      const saveBtn = contentPage.locator('button:has-text("保存")').first(); await saveBtn.click();
       await contentPage.waitForTimeout(500);
     });
 
@@ -710,11 +671,12 @@ test.describe('2. HTTP节点 - 请求操作模块测试', () => {
      * 说明：自动保存避免用户忘记保存导致的数据丢失
      */
     test('发送请求前应自动保存', async () => {
-      await waitForHttpNodeReady(contentPage);
       await fillUrl(contentPage, 'https://httpbin.org/get');
       await contentPage.waitForTimeout(300);
-      await clickSendRequest(contentPage);
+      const sendBtn = contentPage.locator('button:has-text("发送请求")'); await sendBtn.click();
       await contentPage.waitForTimeout(1000);
     });
   });
 });
+
+

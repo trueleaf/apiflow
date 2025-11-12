@@ -1,7 +1,6 @@
 import { expect, type Page } from '@playwright/test';
 import { test, initOfflineWorkbench, createProject, createSingleNode } from '../../../fixtures/fixtures';
 import {
-  waitForHttpNodeReady,
   selectHttpMethod,
   switchToTab,
   switchBodyMode,
@@ -26,7 +25,6 @@ test.describe('4. HTTP节点 - Body模块测试', () => {
       name: 'Test API',
       type: 'http'
     });
-    await waitForHttpNodeReady(contentPage);
     await selectHttpMethod(contentPage, 'POST');
   });
 

@@ -25,6 +25,16 @@ test.describe('8. WebSocket节点 - 前置脚本测试', () => {
   });
 
   test.describe('8.1 脚本编辑器测试', () => {
+    /**
+     * 测试目的：验证前置脚本编辑器的显示
+     * 前置条件：已创建WebSocket节点
+     * 操作步骤：
+     *   1. 切换到前置脚本标签页
+     *   2. 验证编辑器可见
+     * 预期结果：前置脚本编辑器显示
+     * 验证点：脚本编辑器UI
+     * 说明：前置脚本在连接建立前执行
+     */
     test('应显示前置脚本编辑器', async () => {
       await switchToPreScriptTab(contentPage);
       await verifyScriptEditorVisible(contentPage);

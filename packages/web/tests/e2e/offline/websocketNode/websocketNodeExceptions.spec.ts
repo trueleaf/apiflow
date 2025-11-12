@@ -27,6 +27,18 @@ test.describe('14. WebSocket节点 - 异常处理测试', () => {
   });
 
   test.describe('14.1 无效URL测试', () => {
+    /**
+     * 测试目的：验证连接无效URL时的错误处理
+     * 前置条件：已创建WebSocket节点
+     * 操作步骤：
+     *   1. 输入无效格式的URL
+     *   2. 尝试建立连接
+     *   3. 等待连接失败
+     * 预期结果：
+     *   - 连接失败
+     *   - 显示重新连接或发起连接按钮
+     * 验证点：无效URL的错误处理
+     */
     test('连接无效URL应显示错误', async () => {
       await fillUrl(contentPage, 'invalid-url-format');
       await clickConnect(contentPage);

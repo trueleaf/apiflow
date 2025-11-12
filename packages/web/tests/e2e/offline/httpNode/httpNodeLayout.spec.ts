@@ -1,23 +1,19 @@
 import { expect, type Page } from '@playwright/test';
 import { test, initOfflineWorkbench, createProject, createSingleNode } from '../../../fixtures/fixtures';
 import {
-  waitForHttpNodeReady,
-  getLayoutToggleButton,
   switchToHorizontalLayout,
   switchToVerticalLayout,
   verifyHorizontalLayout,
   verifyVerticalLayout,
   fillUrl,
   verifyUrlValue,
-  getPanelSplitter,
   dragPanelSplitter,
   doubleClickPanelSplitter,
   getRequestPanelWidth,
   getResponsePanelWidth,
   verifyMinPanelWidth,
   verifyDragCursor,
-  resizeWindow,
-  clickRefresh
+  resizeWindow
 } from './helpers/httpNodeHelpers';
 
 test.describe('13. HTTP节点 - 布局管理测试', () => {
@@ -47,8 +43,7 @@ test.describe('13. HTTP节点 - 布局管理测试', () => {
      * 验证点：布局切换按钮的显示
      */
     test('应显示布局切换按钮', async () => {
-      await waitForHttpNodeReady(contentPage);
-      const layoutBtn = getLayoutToggleButton(contentPage);
+      const layoutBtn = contentPage.locator('.layout-toggle-btn, button[class*="layout"]').first();
       if (await layoutBtn.isVisible()) {
         await expect(layoutBtn).toBeVisible();
       }
@@ -65,7 +60,6 @@ test.describe('13. HTTP节点 - 布局管理测试', () => {
      * 验证点：左右布局模式
      */
     test('应能切换到左右布局', async () => {
-      await waitForHttpNodeReady(contentPage);
       await switchToHorizontalLayout(contentPage);
       await verifyHorizontalLayout(contentPage);
       const leftPanel = contentPage.locator('.request-panel, .left-panel').first();
@@ -87,7 +81,6 @@ test.describe('13. HTTP节点 - 布局管理测试', () => {
      * 验证点：上下布局模式
      */
     test('应能切换到上下布局', async () => {
-      await waitForHttpNodeReady(contentPage);
       await switchToVerticalLayout(contentPage);
       await verifyVerticalLayout(contentPage);
       const topPanel = contentPage.locator('.request-panel, .top-panel').first();
@@ -110,7 +103,6 @@ test.describe('13. HTTP节点 - 布局管理测试', () => {
      * 验证点：切换动画效果
      */
     test('布局切换应有过渡动画', async () => {
-      await waitForHttpNodeReady(contentPage);
       await switchToHorizontalLayout(contentPage);
       await contentPage.waitForTimeout(300);
       await switchToVerticalLayout(contentPage);
@@ -130,7 +122,6 @@ test.describe('13. HTTP节点 - 布局管理测试', () => {
      * 验证点：数据持久性
      */
     test('切换布局不应丢失数据', async () => {
-      await waitForHttpNodeReady(contentPage);
       const testUrl = 'https://httpbin.org/get?layout=test';
       await fillUrl(contentPage, testUrl);
       await contentPage.waitForTimeout(500);
@@ -162,7 +153,6 @@ test.describe('13. HTTP节点 - 布局管理测试', () => {
      * 验证点：拖拽调整宽度功能
      */
     test('左右布局应能拖拽调整宽度', async () => {
-      await waitForHttpNodeReady(contentPage);
       await switchToHorizontalLayout(contentPage);
       const widthBefore = await getRequestPanelWidth(contentPage);
       await dragPanelSplitter(contentPage, 100, 0);
@@ -183,7 +173,6 @@ test.describe('13. HTTP节点 - 布局管理测试', () => {
      * 验证点：拖拽调整高度功能
      */
     test('上下布局应能拖拽调整高度', async () => {
-      await waitForHttpNodeReady(contentPage);
       await switchToVerticalLayout(contentPage);
       await dragPanelSplitter(contentPage, 0, 50);
       await contentPage.waitForTimeout(300);
@@ -200,7 +189,6 @@ test.describe('13. HTTP节点 - 布局管理测试', () => {
      * 验证点：最小宽度限制
      */
     test('应有最小宽度限制', async () => {
-      await waitForHttpNodeReady(contentPage);
       await switchToHorizontalLayout(contentPage);
       await dragPanelSplitter(contentPage, -1000, 0);
       await verifyMinPanelWidth(contentPage, 200);
@@ -217,7 +205,6 @@ test.describe('13. HTTP节点 - 布局管理测试', () => {
      * 验证点：最小高度限制
      */
     test('应有最小高度限制', async () => {
-      await waitForHttpNodeReady(contentPage);
       await switchToVerticalLayout(contentPage);
       await dragPanelSplitter(contentPage, 0, -1000);
       await contentPage.waitForTimeout(300);
@@ -233,9 +220,8 @@ test.describe('13. HTTP节点 - 布局管理测试', () => {
      * 验证点：拖拽视觉反馈
      */
     test('拖拽时应显示视觉反馈', async () => {
-      await waitForHttpNodeReady(contentPage);
       await switchToHorizontalLayout(contentPage);
-      const splitter = getPanelSplitter(contentPage);
+      const splitter = contentPage.locator('.panel-splitter, .splitter').first();
       if (await splitter.isVisible()) {
         await splitter.hover();
         await contentPage.waitForTimeout(300);
@@ -254,7 +240,6 @@ test.describe('13. HTTP节点 - 布局管理测试', () => {
      * 验证点：双击重置功能
      */
     test('双击分隔线应重置为默认大小', async () => {
-      await waitForHttpNodeReady(contentPage);
       await switchToHorizontalLayout(contentPage);
       await dragPanelSplitter(contentPage, 200, 0);
       await contentPage.waitForTimeout(300);
@@ -275,11 +260,10 @@ test.describe('13. HTTP节点 - 布局管理测试', () => {
      * 验证点：布局选择持久化
      */
     test('布局选择应持久化保存', async () => {
-      await waitForHttpNodeReady(contentPage);
       await switchToVerticalLayout(contentPage);
       await contentPage.waitForTimeout(300);
-      await clickRefresh(contentPage);
-      await waitForHttpNodeReady(contentPage);
+      const refreshBtn = contentPage.locator('button:has-text("刷新"), .refresh-btn').first();
+      await refreshBtn.click();
       await verifyVerticalLayout(contentPage);
     });
 
@@ -294,13 +278,12 @@ test.describe('13. HTTP节点 - 布局管理测试', () => {
      * 验证点：面板大小持久化
      */
     test('面板大小应持久化保存', async () => {
-      await waitForHttpNodeReady(contentPage);
       await switchToHorizontalLayout(contentPage);
       const widthBefore = await getRequestPanelWidth(contentPage);
       await dragPanelSplitter(contentPage, 150, 0);
       await contentPage.waitForTimeout(300);
-      await clickRefresh(contentPage);
-      await waitForHttpNodeReady(contentPage);
+      const refreshBtn = contentPage.locator('button:has-text("刷新"), .refresh-btn').first();
+      await refreshBtn.click();
       const widthAfter = await getRequestPanelWidth(contentPage);
       if (widthBefore > 0 && widthAfter > 0) {
         expect(widthAfter).toBeDefined();
@@ -318,7 +301,6 @@ test.describe('13. HTTP节点 - 布局管理测试', () => {
      * 验证点：全局布局设置
      */
     test('切换节点应使用全局布局设置', async () => {
-      await waitForHttpNodeReady(contentPage);
       await switchToVerticalLayout(contentPage);
       await contentPage.waitForTimeout(300);
       const treeNode = contentPage.locator('.tree-node, .el-tree-node').nth(1).first();
@@ -341,7 +323,6 @@ test.describe('13. HTTP节点 - 布局管理测试', () => {
      * 验证点：响应式布局
      */
     test('窗口缩小时应自动调整布局', async () => {
-      await waitForHttpNodeReady(contentPage);
       await resizeWindow(contentPage, 1400, 900);
       await contentPage.waitForTimeout(300);
       await resizeWindow(contentPage, 1200, 800);
@@ -358,7 +339,6 @@ test.describe('13. HTTP节点 - 布局管理测试', () => {
      * 验证点：最小宽度要求
      */
     test('窗口过小时应提示最小宽度要求', async () => {
-      await waitForHttpNodeReady(contentPage);
       await resizeWindow(contentPage, 1100, 700);
       await contentPage.waitForTimeout(300);
       const scrollbar = contentPage.locator('.scrollbar').first();

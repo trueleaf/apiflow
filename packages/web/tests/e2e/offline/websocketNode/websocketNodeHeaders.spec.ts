@@ -30,6 +30,16 @@ test.describe('6. WebSocket节点 - Headers测试', () => {
   });
 
   test.describe('6.1 默认请求头测试', () => {
+    /**
+     * 测试目的：验证显示默认WebSocket请求头
+     * 前置条件：已创建WebSocket节点
+     * 操作步骤：
+     *   1. 切换到Headers标签页
+     *   2. 检查默认请求头区域
+     * 预期结果：默认请求头区域可见
+     * 验证点：默认请求头显示
+     * 说明：WebSocket协议需要特定的请求头进行握手
+     */
     test('应显示默认WebSocket请求头', async () => {
       await switchToTab(contentPage, 'Headers');
       const defaultHeaders = contentPage.locator('.default-headers, .ws-headers').first();
@@ -48,6 +58,16 @@ test.describe('6. WebSocket节点 - Headers测试', () => {
   });
 
   test.describe('6.2 添加自定义请求头测试', () => {
+    /**
+     * 测试目的：验证能够添加自定义请求头
+     * 前置条件：已创建WebSocket节点
+     * 操作步骤：
+     *   1. 添加Authorization请求头
+     *   2. 验证请求头存在
+     * 预期结果：自定义请求头成功添加
+     * 验证点：自定义请求头添加功能
+     * 说明：常用于添加认证信息
+     */
     test('应能添加自定义请求头', async () => {
       await addHeader(contentPage, 'Authorization', 'Bearer token123');
       await verifyHeaderExists(contentPage, 'Authorization');
@@ -74,6 +94,16 @@ test.describe('6. WebSocket节点 - Headers测试', () => {
   });
 
   test.describe('6.3 编辑请求头测试', () => {
+    /**
+     * 测试目的：验证能够编辑请求头key
+     * 前置条件：已添加请求头
+     * 操作步骤：
+     *   1. 添加请求头
+     *   2. 修改key
+     *   3. 验证新key存在
+     * 预期结果：请求头key成功修改
+     * 验证点：请求头key编辑功能
+     */
     test('应能编辑请求头key', async () => {
       await addHeader(contentPage, 'OldKey', 'value');
       await editHeaderKey(contentPage, 'OldKey', 'NewKey');

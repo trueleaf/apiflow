@@ -1,14 +1,12 @@
 import { expect, type Page } from '@playwright/test';
 import { test, initOfflineWorkbench, createProject, createSingleNode } from '../../../fixtures/fixtures';
 import {
-  waitForHttpNodeReady,
   switchToTab,
   addHeader,
   deleteHeader,
   verifyHeaderExists,
   clearAllHeaders,
-  switchBodyMode,
-  clickSendRequest
+  switchBodyMode
 } from './helpers/httpNodeHelpers';
 
 test.describe('5. HTTP节点 - Headers模块测试', () => {
@@ -41,7 +39,6 @@ test.describe('5. HTTP节点 - Headers模块测试', () => {
      * 验证点：自定义请求头添加功能
      */
     test('应能添加自定义请求头', async () => {
-      await waitForHttpNodeReady(contentPage);
       await addHeader(contentPage, 'X-Custom-Header', 'CustomValue');
       await verifyHeaderExists(contentPage, 'X-Custom-Header');
     });
@@ -62,7 +59,6 @@ test.describe('5. HTTP节点 - Headers模块测试', () => {
      * 说明：测试标记为skip,可能存在已知问题
      */
     test.skip('应能编辑请求头的key', async () => {
-      await waitForHttpNodeReady(contentPage);
       await addHeader(contentPage, 'Old-Header', 'value');
       await switchToTab(contentPage, 'Headers');
       const row = contentPage.locator('tr:has(input[value="Old-Header"])');
@@ -88,7 +84,6 @@ test.describe('5. HTTP节点 - Headers模块测试', () => {
      * 说明：测试标记为skip,可能存在已知问题
      */
     test.skip('应能编辑请求头的value', async () => {
-      await waitForHttpNodeReady(contentPage);
       await addHeader(contentPage, 'Test-Header', 'oldValue');
       await switchToTab(contentPage, 'Headers');
       const row = contentPage.locator('tr:has(input[value="Test-Header"])');
@@ -110,7 +105,6 @@ test.describe('5. HTTP节点 - Headers模块测试', () => {
      * 验证点：请求头删除功能
      */
     test('应能删除请求头', async () => {
-      await waitForHttpNodeReady(contentPage);
       await addHeader(contentPage, 'Delete-Me', 'value');
       await deleteHeader(contentPage, 'Delete-Me');
       await contentPage.waitForTimeout(300);
@@ -128,7 +122,6 @@ test.describe('5. HTTP节点 - Headers模块测试', () => {
      * 验证点：批量删除功能
      */
     test('应能批量删除请求头', async () => {
-      await waitForHttpNodeReady(contentPage);
       await addHeader(contentPage, 'Header1', 'value1');
       await addHeader(contentPage, 'Header2', 'value2');
       await addHeader(contentPage, 'Header3', 'value3');
@@ -146,7 +139,6 @@ test.describe('5. HTTP节点 - Headers模块测试', () => {
      * 说明：描述有助于API文档生成和团队协作
      */
     test('应能添加请求头描述', async () => {
-      await waitForHttpNodeReady(contentPage);
       await addHeader(contentPage, 'Described-Header', 'value', { description: '这是请求头描述' });
       await verifyHeaderExists(contentPage, 'Described-Header');
     });
@@ -164,7 +156,6 @@ test.describe('5. HTTP节点 - Headers模块测试', () => {
      * 说明：常用于动态设置Authorization等认证头
      */
     test('请求头value应支持变量替换', async () => {
-      await waitForHttpNodeReady(contentPage);
       await addHeader(contentPage, 'Authorization', 'Bearer {{token}}');
       await verifyHeaderExists(contentPage, 'Authorization');
     });
@@ -183,7 +174,6 @@ test.describe('5. HTTP节点 - Headers模块测试', () => {
      * 说明：禁用功能便于临时排除某些请求头
      */
     test('请求头应支持启用/禁用', async () => {
-      await waitForHttpNodeReady(contentPage);
       await addHeader(contentPage, 'Disabled-Header', 'value', { enabled: false });
       await switchToTab(contentPage, 'Headers');
       const enabledState = await contentPage.evaluate(() => {
@@ -225,7 +215,6 @@ test.describe('5. HTTP节点 - Headers模块测试', () => {
      * 说明：项目级公共头对当前项目的所有接口生效
      */
     test('应显示项目级公共请求头', async () => {
-      await waitForHttpNodeReady(contentPage);
       await switchToTab(contentPage, 'Headers');
       const publicHeadersBtn = contentPage.locator('[title*="公共"], .public-headers-btn').first();
       if (await publicHeadersBtn.isVisible()) {
@@ -245,7 +234,6 @@ test.describe('5. HTTP节点 - Headers模块测试', () => {
      * 说明：全局级公共头对所有项目的所有接口生效
      */
     test('应显示全局级公共请求头', async () => {
-      await waitForHttpNodeReady(contentPage);
       await switchToTab(contentPage, 'Headers');
       const publicHeadersBtn = contentPage.locator('[title*="公共"], .public-headers-btn').first();
       if (await publicHeadersBtn.isVisible()) {
@@ -268,7 +256,6 @@ test.describe('5. HTTP节点 - Headers模块测试', () => {
      * 验证点：公共请求头区域的显示/隐藏控制
      */
     test('应能显示/隐藏公共请求头区域', async () => {
-      await waitForHttpNodeReady(contentPage);
       await switchToTab(contentPage, 'Headers');
       const toggleBtn = contentPage.locator('.toggle-public-headers, .show-public').first();
       if (await toggleBtn.isVisible()) {
@@ -293,7 +280,6 @@ test.describe('5. HTTP节点 - Headers模块测试', () => {
      * 说明：允许单个接口排除公共请求头
      */
     test('应能在节点级禁用公共请求头', async () => {
-      await waitForHttpNodeReady(contentPage);
       await switchToTab(contentPage, 'Headers');
       const publicHeadersArea = contentPage.locator('.public-headers, .common-headers').first();
       if (await publicHeadersArea.isVisible()) {
@@ -317,7 +303,6 @@ test.describe('5. HTTP节点 - Headers模块测试', () => {
      * 验证点：公共请求头的启用/禁用切换
      */
     test('应能重新启用公共请求头', async () => {
-      await waitForHttpNodeReady(contentPage);
       await switchToTab(contentPage, 'Headers');
       const publicHeadersArea = contentPage.locator('.public-headers, .common-headers').first();
       if (await publicHeadersArea.isVisible()) {
@@ -343,7 +328,6 @@ test.describe('5. HTTP节点 - Headers模块测试', () => {
      * 说明：来源标识帮助用户了解请求头的配置位置
      */
     test('公共头应标识其来源（项目级/全局级）', async () => {
-      await waitForHttpNodeReady(contentPage);
       await switchToTab(contentPage, 'Headers');
       const publicHeadersArea = contentPage.locator('.public-headers, .common-headers').first();
       if (await publicHeadersArea.isVisible()) {
@@ -368,7 +352,6 @@ test.describe('5. HTTP节点 - Headers模块测试', () => {
      * 说明：公共头只能在配置面板中修改
      */
     test('公共头的key应只读', async () => {
-      await waitForHttpNodeReady(contentPage);
       await switchToTab(contentPage, 'Headers');
       const publicHeadersArea = contentPage.locator('.public-headers, .common-headers').first();
       if (await publicHeadersArea.isVisible()) {
@@ -394,7 +377,6 @@ test.describe('5. HTTP节点 - Headers模块测试', () => {
      * 说明：公共头只能在配置面板中修改
      */
     test('公共头的value应只读', async () => {
-      await waitForHttpNodeReady(contentPage);
       await switchToTab(contentPage, 'Headers');
       const publicHeadersArea = contentPage.locator('.public-headers, .common-headers').first();
       if (await publicHeadersArea.isVisible()) {
@@ -418,7 +400,6 @@ test.describe('5. HTTP节点 - Headers模块测试', () => {
      * 验证点：默认请求头的显示
      */
     test('应显示Content-Type默认请求头', async () => {
-      await waitForHttpNodeReady(contentPage);
       await switchToTab(contentPage, 'Headers');
       await contentPage.waitForTimeout(300);
     });
@@ -437,7 +418,6 @@ test.describe('5. HTTP节点 - Headers模块测试', () => {
      * 说明：减少手动配置错误,提高开发效率
      */
     test('Content-Type应根据Body模式自动设置', async () => {
-      await waitForHttpNodeReady(contentPage);
       await switchBodyMode(contentPage, 'JSON');
       await switchToTab(contentPage, 'Headers');
       await contentPage.waitForTimeout(300);
@@ -457,7 +437,6 @@ test.describe('5. HTTP节点 - Headers模块测试', () => {
      * 说明：某些API需要特定的Content-Type
      */
     test('应能手动修改Content-Type', async () => {
-      await waitForHttpNodeReady(contentPage);
       await switchToTab(contentPage, 'Headers');
       const contentTypeRow = contentPage.locator('tr:has(input[value="Content-Type"])');
       if (await contentTypeRow.isVisible()) {
@@ -481,7 +460,6 @@ test.describe('5. HTTP节点 - Headers模块测试', () => {
      * 说明：防止Body内容与Content-Type不匹配
      */
     test('手动修改Content-Type后切换Body模式应提示', async () => {
-      await waitForHttpNodeReady(contentPage);
       await switchBodyMode(contentPage, 'JSON');
       await switchBodyMode(contentPage, 'form-data');
       await contentPage.waitForTimeout(300);
@@ -500,7 +478,6 @@ test.describe('5. HTTP节点 - Headers模块测试', () => {
      * 说明：User-Agent等默认头帮助服务器识别客户端
      */
     test('应显示User-Agent等常见默认头', async () => {
-      await waitForHttpNodeReady(contentPage);
       await switchToTab(contentPage, 'Headers');
       await contentPage.waitForTimeout(300);
     });
@@ -520,7 +497,6 @@ test.describe('5. HTTP节点 - Headers模块测试', () => {
      * 说明：允许单个接口覆盖公共配置
      */
     test('自定义头应优先于公共头', async () => {
-      await waitForHttpNodeReady(contentPage);
       await addHeader(contentPage, 'Authorization', 'Bearer custom-token');
       await contentPage.waitForTimeout(300);
     });
@@ -538,7 +514,6 @@ test.describe('5. HTTP节点 - Headers模块测试', () => {
      * 说明：禁用的自定义头不参与优先级比较
      */
     test('禁用的自定义头不应覆盖公共头', async () => {
-      await waitForHttpNodeReady(contentPage);
       await addHeader(contentPage, 'Authorization', 'Bearer custom-token', { enabled: false });
       await contentPage.waitForTimeout(300);
     });
@@ -558,7 +533,6 @@ test.describe('5. HTTP节点 - Headers模块测试', () => {
      * 说明：Authorization是最常用的API认证方式
      */
     test('应支持设置Authorization头', async () => {
-      await waitForHttpNodeReady(contentPage);
       await addHeader(contentPage, 'Authorization', 'Bearer my-secret-token');
       await verifyHeaderExists(contentPage, 'Authorization');
     });
@@ -576,7 +550,6 @@ test.describe('5. HTTP节点 - Headers模块测试', () => {
      * 说明：Cookie格式为name1=value1; name2=value2
      */
     test('应支持设置Cookie头', async () => {
-      await waitForHttpNodeReady(contentPage);
       await addHeader(contentPage, 'Cookie', 'sessionId=abc123; userId=456');
       await verifyHeaderExists(contentPage, 'Cookie');
     });
@@ -594,7 +567,6 @@ test.describe('5. HTTP节点 - Headers模块测试', () => {
      * 说明：Accept用于指定客户端接受的响应类型
      */
     test('应支持设置Accept头', async () => {
-      await waitForHttpNodeReady(contentPage);
       await addHeader(contentPage, 'Accept', 'application/json');
       await verifyHeaderExists(contentPage, 'Accept');
     });
@@ -612,7 +584,6 @@ test.describe('5. HTTP节点 - Headers模块测试', () => {
      * 说明：X-前缀是自定义请求头的约定命名方式
      */
     test('应支持自定义header(X-Custom-Header)', async () => {
-      await waitForHttpNodeReady(contentPage);
       await addHeader(contentPage, 'X-Request-ID', 'req-12345');
       await verifyHeaderExists(contentPage, 'X-Request-ID');
     });
@@ -634,7 +605,6 @@ test.describe('5. HTTP节点 - Headers模块测试', () => {
      * 说明：Tab键导航是常用的表格快速录入方式
      */
     test('应支持快速填写（Tab键切换）', async () => {
-      await waitForHttpNodeReady(contentPage);
       await switchToTab(contentPage, 'Headers');
       const table = contentPage.locator('.header-info, .headers-table, .s-params').first();
       await table.waitFor({ state: 'visible', timeout: 5000 });
@@ -666,7 +636,6 @@ test.describe('5. HTTP节点 - Headers模块测试', () => {
      * 说明：请求头顺序在某些场景下有意义
      */
     test('应支持拖拽排序', async () => {
-      await waitForHttpNodeReady(contentPage);
       await addHeader(contentPage, 'Header1', 'value1');
       await addHeader(contentPage, 'Header2', 'value2');
       await addHeader(contentPage, 'Header3', 'value3');
@@ -686,7 +655,6 @@ test.describe('5. HTTP节点 - Headers模块测试', () => {
      * 说明：复制功能便于创建相似请求头
      */
     test('应支持复制请求头', async () => {
-      await waitForHttpNodeReady(contentPage);
       await addHeader(contentPage, 'Copy-Header', 'copy-value');
       await switchToTab(contentPage, 'Headers');
       const row = contentPage.locator('tr:has(input[value="Copy-Header"])');
@@ -711,7 +679,6 @@ test.describe('5. HTTP节点 - Headers模块测试', () => {
      * 说明：自动清理避免表格中出现无效空行
      */
     test('空行应自动清除', async () => {
-      await waitForHttpNodeReady(contentPage);
       await switchToTab(contentPage, 'Headers');
       const table = contentPage.locator('.header-info, .headers-table, .s-params').first();
       await table.waitFor({ state: 'visible', timeout: 5000 });

@@ -1,12 +1,10 @@
 import { expect, type Page } from '@playwright/test';
 import { test, initOfflineWorkbench, createProject, createSingleNode } from '../../../fixtures/fixtures';
 import {
-  waitForHttpNodeReady,
   switchToPreRequestTab,
   fillPreRequestScript,
   getScriptContent,
   verifyScriptEditorVisible,
-  clickSendRequest,
   switchToTab,
   addLocalVariable
 } from './helpers/httpNodeHelpers';
@@ -41,7 +39,6 @@ test.describe('8. HTTP节点 - 前置脚本测试', () => {
      * 说明：使用Monaco编辑器提供专业的代码编辑体验
      */
     test('应显示代码编辑器', async () => {
-      await waitForHttpNodeReady(contentPage);
       await switchToPreRequestTab(contentPage);
       await verifyScriptEditorVisible(contentPage);
     });
@@ -60,7 +57,6 @@ test.describe('8. HTTP节点 - 前置脚本测试', () => {
      * 说明：前置脚本使用JavaScript语言
      */
     test('应能输入JavaScript代码', async () => {
-      await waitForHttpNodeReady(contentPage);
       const script = 'console.log("test");';
       await fillPreRequestScript(contentPage, script);
       await contentPage.waitForTimeout(300);
@@ -81,7 +77,6 @@ test.describe('8. HTTP节点 - 前置脚本测试', () => {
      * 说明：语法高亮提高代码可读性
      */
     test('应支持语法高亮', async () => {
-      await waitForHttpNodeReady(contentPage);
       await fillPreRequestScript(contentPage, 'const test = "value";');
       await contentPage.waitForTimeout(300);
       const editor = contentPage.locator('.monaco-editor').first();
@@ -106,7 +101,6 @@ test.describe('8. HTTP节点 - 前置脚本测试', () => {
      * 说明：代码提示提高编写效率和准确性
      */
     test('应支持代码提示', async () => {
-      await waitForHttpNodeReady(contentPage);
       await switchToPreRequestTab(contentPage);
       const editor = contentPage.locator('.monaco-editor').first();
       await editor.click();
@@ -132,7 +126,6 @@ test.describe('8. HTTP节点 - 前置脚本测试', () => {
      * 说明：前置脚本可以编写复杂逻辑
      */
     test('应支持多行代码', async () => {
-      await waitForHttpNodeReady(contentPage);
       const multilineScript = `const a = 1;
 const b = 2;
 console.log(a + b);`;
@@ -158,7 +151,6 @@ console.log(a + b);`;
      * 说明：request对象包含请求的所有信息
      */
     test('应能访问request对象', async () => {
-      await waitForHttpNodeReady(contentPage);
       const script = 'console.log(request.url);';
       await fillPreRequestScript(contentPage, script);
       await contentPage.waitForTimeout(300);
@@ -177,7 +169,6 @@ console.log(a + b);`;
      * 说明：变量对象用于读取和设置变量
      */
     test('应能访问variables对象', async () => {
-      await waitForHttpNodeReady(contentPage);
       await addLocalVariable(contentPage, 'testVar', 'testValue');
       const script = 'console.log(pm.variables.get("testVar"));';
       await fillPreRequestScript(contentPage, script);
@@ -197,7 +188,6 @@ console.log(a + b);`;
      * 说明：前置脚本可以动态修改请求内容
      */
     test('应能修改请求参数', async () => {
-      await waitForHttpNodeReady(contentPage);
       const script = 'request.url = "http://example.com/modified";';
       await fillPreRequestScript(contentPage, script);
       await contentPage.waitForTimeout(300);
@@ -216,7 +206,6 @@ console.log(a + b);`;
      * 说明：前置脚本常用于动态生成变量值
      */
     test('应能设置变量', async () => {
-      await waitForHttpNodeReady(contentPage);
       const script = 'pm.variables.set("dynamicVar", "dynamicValue");';
       await fillPreRequestScript(contentPage, script);
       await contentPage.waitForTimeout(300);
@@ -235,7 +224,6 @@ console.log(a + b);`;
      * 说明：环境变量用于不同环境的配置
      */
     test('应能访问环境变量', async () => {
-      await waitForHttpNodeReady(contentPage);
       const script = 'const env = pm.environment.get("envVar");';
       await fillPreRequestScript(contentPage, script);
       await contentPage.waitForTimeout(300);
@@ -254,7 +242,6 @@ console.log(a + b);`;
      * 说明：前置脚本在请求发送前执行
      */
     test('脚本执行应在请求发送前', async () => {
-      await waitForHttpNodeReady(contentPage);
       const script = 'request.headers["X-Pre-Request"] = "PreValue";';
       await fillPreRequestScript(contentPage, script);
       await contentPage.waitForTimeout(300);
@@ -275,7 +262,6 @@ console.log(a + b);`;
      * 说明：语法检查帮助发现代码错误
      */
     test('语法错误应显示提示', async () => {
-      await waitForHttpNodeReady(contentPage);
       const invalidScript = 'const a = ;';
       await fillPreRequestScript(contentPage, invalidScript);
       await contentPage.waitForTimeout(500);
@@ -298,7 +284,6 @@ console.log(a + b);`;
      * 说明：运行时错误在脚本执行时发生
      */
     test('运行时错误应显示错误信息', async () => {
-      await waitForHttpNodeReady(contentPage);
       const runtimeErrorScript = 'throw new Error("Test error");';
       await fillPreRequestScript(contentPage, runtimeErrorScript);
       await contentPage.waitForTimeout(300);
@@ -317,7 +302,6 @@ console.log(a + b);`;
      * 说明：脚本错误不应阻断正常使用
      */
     test('脚本错误不应阻止请求发送', async () => {
-      await waitForHttpNodeReady(contentPage);
       const errorScript = 'undefinedFunction();';
       await fillPreRequestScript(contentPage, errorScript);
       await contentPage.waitForTimeout(300);
@@ -338,7 +322,6 @@ console.log(a + b);`;
      * 说明：日志帮助调试脚本执行过程
      */
     test('应显示脚本执行日志', async () => {
-      await waitForHttpNodeReady(contentPage);
       const logScript = 'console.log("Pre-request log message");';
       await fillPreRequestScript(contentPage, logScript);
       await contentPage.waitForTimeout(300);
@@ -361,7 +344,6 @@ console.log(a + b);`;
      * 说明：自动保存防止脚本丢失
      */
     test('脚本应自动保存', async () => {
-      await waitForHttpNodeReady(contentPage);
       const testScript = 'const savedScript = true;';
       await fillPreRequestScript(contentPage, testScript);
       await switchToTab(contentPage, 'Params');
@@ -386,7 +368,6 @@ console.log(a + b);`;
      * 说明：pm.variables.set是最常用的API
      */
     test('应支持pm.variables.set()设置变量', async () => {
-      await waitForHttpNodeReady(contentPage);
       const script = 'pm.variables.set("apiKey", "12345");';
       await fillPreRequestScript(contentPage, script);
       await contentPage.waitForTimeout(300);
@@ -408,7 +389,6 @@ console.log(a + b);`;
      * 说明：pm.variables.get用于读取变量值
      */
     test('应支持pm.variables.get()获取变量', async () => {
-      await waitForHttpNodeReady(contentPage);
       await addLocalVariable(contentPage, 'userId', '999');
       const script = 'const id = pm.variables.get("userId");';
       await fillPreRequestScript(contentPage, script);
@@ -430,7 +410,6 @@ console.log(a + b);`;
      * 说明：pm.request用于动态修改请求
      */
     test('应支持pm.request设置请求', async () => {
-      await waitForHttpNodeReady(contentPage);
       const script = 'pm.request.headers.add({key: "X-API-Key", value: "test"});';
       await fillPreRequestScript(contentPage, script);
       await contentPage.waitForTimeout(300);
@@ -439,3 +418,4 @@ console.log(a + b);`;
     });
   });
 });
+
