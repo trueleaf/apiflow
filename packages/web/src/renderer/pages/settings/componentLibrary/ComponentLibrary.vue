@@ -44,6 +44,7 @@ const CardComponent = defineAsyncComponent(() => import('@/components/ui/cleanDe
 const TabsComponent = defineAsyncComponent(() => import('@/components/ui/cleanDesign/tabs/demo/Tabs.vue'))
 const DraggableDialogComponent = defineAsyncComponent(() => import('@/components/ui/cleanDesign/draggableDialog/demo/DraggableDialog.vue'))
 const ClDialogComponent = defineAsyncComponent(() => import('@/components/ui/cleanDesign/clDialog/demo/ClDialog.vue'))
+const RichInputComponent = defineAsyncComponent(() => import('@/components/ui/cleanDesign/richInput/demo/RichInput.vue'))
 
 // 搜索词
 const searchTerm = ref('')
@@ -108,6 +109,12 @@ const components = ref([
     icon: 'iconfont iconanniu',
     description: '基于 Element Plus 封装的对话框组件，支持亮色/暗色主题切换',
     category: '反馈组件'
+  },
+  {
+    name: 'RichInput',
+    icon: 'iconfont iconbiaoge',
+    description: '富文本变量输入组件，支持 {{variable}} 语法，可自定义变量样式和 Popover 交互',
+    category: '表单组件'
   }
 ])
 
@@ -134,6 +141,8 @@ const getComponentByName = (name: string) => {
       return DraggableDialogComponent
     case 'cldialog':
       return ClDialogComponent
+    case 'richinput':
+      return RichInputComponent
     default:
       return null
   }
