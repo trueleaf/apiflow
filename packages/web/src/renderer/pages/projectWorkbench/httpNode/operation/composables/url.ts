@@ -83,28 +83,31 @@ export const handleFormatUrl = ():void => {
     //  * 用例：demo.google.com
     //  * 用例：demo.google.com/ 保留末尾/
     //  * 用例：{{ testUrl }}/api/test
+    //  * 用例：ipv6地址 http://[2001:db8::1]:8080/api
     //  */
   convertQueryToParams(requestPath.value);
-  const ipReg = /^https?:\/\/((\d|[1-9]\d|1\d{2}|2[0-5]{2})\.){3}(2[0-5]{2}|1\d{2}|[1-9]\d|\d)/;
-  const ipWithPortReg = /^https?:\/\/((\d|[1-9]\d|1\d{2}|2[0-5]{2})\.){3}(2[0-5]{2}|1\d{2}|[1-9]\d|\d)(:\d{2,5})/;
-  const dominReg = /^(https?:\/\/)?([^./]{1,62}\.){1,}[^./]{1,62}/;
-  const localhostReg = /^(https?:\/\/)?(localhost)/;
-  const startsWithVarReg = /^\{\{(.*)\}\}/;
-  const matchedIp = requestPath.value.match(ipReg);
-  const matchedIpWithPort = requestPath.value.match(ipWithPortReg);
-  const matchedDomin = requestPath.value.match(dominReg);
-  const matchedLocalhost = requestPath.value.match(localhostReg);
-  const isStartsWithVar = requestPath.value.match(startsWithVarReg);
+  // const ipReg = /^https?:\/\/((\d|[1-9]\d|1\d{2}|2[0-5]{2})\.){3}(2[0-5]{2}|1\d{2}|[1-9]\d|\d)/;
+  // const ipWithPortReg = /^https?:\/\/((\d|[1-9]\d|1\d{2}|2[0-5]{2})\.){3}(2[0-5]{2}|1\d{2}|[1-9]\d|\d)(:\d{2,5})/;
+  // const ipv6Reg = /^https?:\/\/\[[0-9a-fA-F:]+\]/;
+  // const dominReg = /^(https?:\/\/)?([^./]{1,62}\.){1,}[^./]{1,62}/;
+  // const localhostReg = /^(https?:\/\/)?(localhost)/;
+  // const hasVarReg = /\{\{.*?\}\}/;
+  // const matchedIp = requestPath.value.match(ipReg);
+  // const matchedIpWithPort = requestPath.value.match(ipWithPortReg);
+  // const matchedIpv6 = requestPath.value.match(ipv6Reg);
+  // const matchedDomin = requestPath.value.match(dominReg);
+  // const matchedLocalhost = requestPath.value.match(localhostReg);
+  // const hasVar = requestPath.value.match(hasVarReg);
   let formatPath = requestPath.value;
-  if (!matchedIp && !matchedDomin && !matchedIpWithPort && !matchedLocalhost && !isStartsWithVar) {
-    // const pathReg = /\/(?!\/)[^#\\?:]+/; //查询路径正则
-    //路径处理
-    if (formatPath.trim() === '') {
-      formatPath = '';
-    } else if (!formatPath.startsWith('/')) {
-      formatPath = `/${formatPath}`;
-    }
-  }
+  // if (!matchedIp && !matchedDomin && !matchedIpWithPort && !matchedIpv6 && !matchedLocalhost && !hasVar) {
+  //   // const pathReg = /\/(?!\/)[^#\\?:]+/; //查询路径正则
+  //   //路径处理
+  //   if (formatPath.trim() === '') {
+  //     formatPath = '';
+  //   } else if (!formatPath.startsWith('/')) {
+  //     formatPath = `/${formatPath}`;
+  //   }
+  // }
   // console.log(2, formatPath)
   const queryReg = /(\?.*$)/;
   formatPath = formatPath.replace(queryReg, '');

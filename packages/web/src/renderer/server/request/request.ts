@@ -75,6 +75,9 @@ const getMethod = (apidoc: HttpNode) => {
   return apidoc.item.method;
 }
 export const getUrl = async (httpNode: HttpNode) => {
+  if (!httpNode.item.url.path || httpNode.item.url.path.trim() === '') {
+    return '';
+  }
   const { objectVariable } = useVariable();
   const { url, queryParams, paths, } = httpNode.item;
   const queryString = await getStringFromParams(queryParams, objectVariable, { checkSelect: true, addQuestionMark: true });
