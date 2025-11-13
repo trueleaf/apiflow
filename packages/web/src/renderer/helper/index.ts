@@ -2896,3 +2896,77 @@ export const getResponseParamsByHttpNode = (apidoc: HttpNode): HttpNodeResponseD
   })
   return result;
 }
+/*
+|--------------------------------------------------------------------------
+| URL校验工具 (urlValidation.ts)
+|--------------------------------------------------------------------------
+*/
+
+export interface UrlValidationResult {
+  isValid: boolean;
+  errorMessage: string;
+}
+
+export const validateUrl = (url: string): UrlValidationResult => {
+  if (!url || url.trim() === '') {
+    return {
+      isValid: true,
+      errorMessage: '',
+    };
+  }
+  const trimmedUrl = url.trim();
+  if (!trimmedUrl.startsWith('http://') && !trimmedUrl.startsWith('https://')) {
+    return {
+      isValid: false,
+      errorMessage: 'URL必须以http://或https://开头',
+    };
+  }
+  const unresolvedVarRegex = /\{\{([^}]+)\}\}/g;
+  const matches = trimmedUrl.match(unresolvedVarRegex);
+  if (matches && matches.length > 0) {
+    const variables = matches.map((m) => m).join(', ');
+    return {
+      isValid: false,
+      errorMessage: `URL中包含未解析的变量：${variables}`,
+    };
+  }
+  if (trimmedUrl.includes(' ')) {
+    return {
+      isValid: false,
+      errorMessage: 'URL中包含非法字符（空格），请使用%20代替空格',
+    };
+  }
+  try {
+    const urlObj = new URL(trimmedUrl);
+    if (!urlObj.hostname || urlObj.hostname.trim() === '') {
+      return {
+        isValid: false,
+        errorMessage: '主机名不能为空',
+      };
+    }
+    if (urlObj.port) {
+      const port = parseInt(urlObj.port, 10);
+      if (isNaN(port) || port < 1 || port > 65535) {
+        return {
+          isValid: false,
+          errorMessage: '端口号必须在1-65535之间',
+        };
+      }
+    }
+    if (urlObj.protocol !== 'http:' && urlObj.protocol !== 'https:') {
+      return {
+        isValid: false,
+        errorMessage: '仅支持http和https协议',
+      };
+    }
+    return {
+      isValid: true,
+      errorMessage: '',
+    };
+  } catch (error) {
+    return {
+      isValid: false,
+      errorMessage: 'URL格式不正确',
+    };
+  }
+}

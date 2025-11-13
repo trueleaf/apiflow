@@ -59,22 +59,26 @@
       <el-button :loading="loading2" type="primary" @click="handleSaveApidoc">{{ t("保存接口") }}</el-button>
       <el-button :loading="loading3" type="primary" :icon="Refresh" @click="handleFreshApidoc">{{ t("刷新") }}</el-button>
     </div>
-    <pre class="pre-url-wrap">
+    <div class="pre-url-wrap">
       <span class="label">{{ t("请求地址") }}：</span>
       <span class="url">{{ apidocRequestStore.fullUrl }}</span>
-      <el-icon v-if='apidocRequestStore.fullUrl' size="14" color="#f60" class="tip">
-        <Warning />
-      </el-icon>
-    </pre>
+      <el-tooltip :content="urlValidation.errorMessage" :show-after="500" :effect="Effect.LIGHT" placement="top">
+        <el-icon v-show="!urlValidation.isValid && apidocRequestStore.fullUrl" size="14" color="#f60" class="tip">
+          <Warning />
+        </el-icon>
+      </el-tooltip>
+    </div>
   </div>
   <SSaveDocDialog v-if="saveDocDialogVisible" v-model="saveDocDialogVisible"></SSaveDocDialog>
 </template>
 
 <script lang="ts" setup>
-import { computed, ref } from 'vue'
+import { computed, ref, watch, reactive } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { Refresh } from '@element-plus/icons-vue'
+import { Refresh, Warning } from '@element-plus/icons-vue'
+import { Effect } from 'element-plus'
 import { config } from '@src/config/config'
+import { validateUrl, type UrlValidationResult } from '@/helper'
 import { router } from '@/router/index'
 import SSaveDocDialog from '@/pages/projectWorkbench/dialog/saveDoc/SaveDoc.vue'
 import getHostPart from './composables/host'
@@ -85,7 +89,6 @@ import { useApidocTas } from '@/store/share/tabsStore'
 import { useApidoc } from '@/store/share/apidocStore'
 import { useApidocResponse } from '@/store/share/responseStore'
 import { isElectron } from '@/helper'
-import { Warning } from '@element-plus/icons-vue'
 import { useApidocRequest } from '@/store/share/requestStore'
 import { useHttpRedoUndo } from '@/store/redoUndo/httpRedoUndoStore'
 
@@ -102,6 +105,15 @@ const currentSelectTab = computed(() => {
 })
 
 const showPrefixHelper = ref(false)
+/*
+|--------------------------------------------------------------------------
+| URL校验
+|--------------------------------------------------------------------------
+*/
+const urlValidation = reactive<UrlValidationResult>({
+  isValid: true,
+  errorMessage: '',
+})
 /*
 |--------------------------------------------------------------------------
 | host相关
@@ -171,6 +183,22 @@ const requestPath = computed<string>({
     apidocStore.changeApidocUrl(path);
   },
 });
+/*
+|--------------------------------------------------------------------------
+| 监听fullUrl变化并校验
+|--------------------------------------------------------------------------
+*/
+watch(
+  () => apidocRequestStore.fullUrl,
+  (newUrl) => {
+    const result = validateUrl(newUrl);
+    urlValidation.isValid = result.isValid;
+    urlValidation.errorMessage = result.errorMessage;
+  },
+  {
+    immediate: true,
+  }
+);
 // const fullUrl = ref('');
 // const getFullUrl = debounce(async () => {
 //   fullUrl.value = await getUrl(toRaw(apidocStore.$state.apidoc));
