@@ -41,11 +41,14 @@ test.describe('16. HTTP节点 - 边界场景测试', () => {
      * 验证点：超长URL处理能力
      */
     test('应支持2000字符的URL', async () => {
+      // 输入2000字符的URL
       const longUrl = 'https://httpbin.org/get?param=' + 'a'.repeat(1950);
       await fillUrl(contentPage, longUrl);
       await contentPage.waitForTimeout(300);
+      // 验证完整URL显示
       const fullUrl = await contentPage.locator('.pre-url-wrap .url').textContent();
       expect((fullUrl || '').length).toBeGreaterThan(1900);
+      // 验证参数正确解析
       await verifyQueryParamExists(contentPage, 'param');
       await verifyQueryParamValue(contentPage, 'param', 'a'.repeat(1950));
     });
@@ -62,11 +65,14 @@ test.describe('16. HTTP节点 - 边界场景测试', () => {
      * 验证点：极限长度URL处理
      */
     test('应支持5000字符的URL', async () => {
+      // 输入5000字符的URL
       const veryLongUrl = 'https://httpbin.org/get?data=' + 'x'.repeat(4950);
       await fillUrl(contentPage, veryLongUrl);
       await contentPage.waitForTimeout(300);
+      // 验证完整URL显示
       const fullUrl = await contentPage.locator('.pre-url-wrap .url').textContent();
       expect((fullUrl || '').length).toBeGreaterThan(4900);
+      // 验证参数正确解析
       await verifyQueryParamExists(contentPage, 'data');
       await verifyQueryParamValue(contentPage, 'data', 'x'.repeat(4950));
     });
@@ -83,12 +89,15 @@ test.describe('16. HTTP节点 - 边界场景测试', () => {
      * 验证点：超长内容滚动功能
      */
     test('超长URL应可滚动查看', async () => {
+      // 输入超长URL
       const longUrl = 'https://httpbin.org/get?scroll=' + 'b'.repeat(2000);
       await fillUrl(contentPage, longUrl);
       await contentPage.waitForTimeout(300);
+      // 获取元素滚动宽度和可见宽度
       const fullUrlElement = contentPage.locator('.pre-url-wrap .url');
       const scrollWidth = await fullUrlElement.evaluate((el) => el.scrollWidth);
       const clientWidth = await fullUrlElement.evaluate((el) => el.clientWidth);
+      // 比较两个宽度
       expect(scrollWidth).toBeGreaterThan(clientWidth);
     });
   });
@@ -108,11 +117,14 @@ test.describe('16. HTTP节点 - 边界场景测试', () => {
      */
     test('应支持100个Query参数', async () => {
       test.slow();
+      // 切换到Params标签页
       await switchToTab(contentPage, 'Params');
+      // 循环添加100个参数
       for (let i = 0; i < 100; i++) {
         await addQueryParam(contentPage, `key${i}`, `value${i}`);
       }
       await contentPage.waitForTimeout(500);
+      // 保存API
       const saveBtn = contentPage.locator('button:has-text("保存")').first();
       await saveBtn.click();
       await contentPage.waitForTimeout(300);
@@ -130,7 +142,9 @@ test.describe('16. HTTP节点 - 边界场景测试', () => {
      */
     test('应支持200个Query参数', async () => {
       test.slow();
+      // 切换到Params标签页
       await switchToTab(contentPage, 'Params');
+      // 循环添加200个参数
       for (let i = 0; i < 200; i++) {
         await addQueryParam(contentPage, `param${i}`, `val${i}`);
       }
@@ -150,11 +164,14 @@ test.describe('16. HTTP节点 - 边界场景测试', () => {
      */
     test('应支持50个请求头', async () => {
       test.slow();
+      // 切换到Headers标签页
       await switchToTab(contentPage, 'Headers');
+      // 循环添加50个请求头
       for (let i = 0; i < 50; i++) {
         await addHeader(contentPage, `X-Header-${i}`, `value${i}`);
       }
       await contentPage.waitForTimeout(500);
+      // 保存API
       const saveBtn = contentPage.locator('button:has-text("保存")').first();
       await saveBtn.click();
       await contentPage.waitForTimeout(300);
@@ -172,11 +189,14 @@ test.describe('16. HTTP节点 - 边界场景测试', () => {
      * 验证点：虚拟滚动性能优化
      */
     test('参数表格应支持虚拟滚动', async () => {
+      // 切换到Params标签页
       await switchToTab(contentPage, 'Params');
+      // 添加150个参数
       for (let i = 0; i < 150; i++) {
         await addQueryParam(contentPage, `test${i}`, `data${i}`);
       }
       await contentPage.waitForTimeout(500);
+      // 验证树形控件可见
       const tree = contentPage.locator('.query-path-params .el-tree').first();
       await expect(tree).toBeVisible();
     });
@@ -195,11 +215,14 @@ test.describe('16. HTTP节点 - 边界场景测试', () => {
      * 验证点：中文字符支持
      */
     test('URL应支持中文字符', async () => {
+      // 输入包含中文的URL
       const chineseUrl = 'https://httpbin.org/get?name=测试中文';
       await fillUrl(contentPage, chineseUrl);
       await contentPage.waitForTimeout(300);
+      // 验证完整URL包含中文
       const fullUrl = await contentPage.locator('.pre-url-wrap .url').textContent();
       expect(fullUrl).toContain('测试中文');
+      // 验证参数值正确
       await verifyQueryParamValue(contentPage, 'name', '测试中文');
     });
 
@@ -215,11 +238,14 @@ test.describe('16. HTTP节点 - 边界场景测试', () => {
      * 验证点：emoji字符支持
      */
     test('URL应支持emoji表情', async () => {
+      // 输入包含emoji的URL
       const emojiUrl = 'https://httpbin.org/get?emoji=😀🎉';
       await fillUrl(contentPage, emojiUrl);
       await contentPage.waitForTimeout(300);
+      // 验证完整URL包含emoji
       const fullUrl = await contentPage.locator('.pre-url-wrap .url').textContent();
       expect(fullUrl).toContain('😀🎉');
+      // 验证参数值正确
       await verifyQueryParamValue(contentPage, 'emoji', '😀🎉');
     });
 
@@ -235,9 +261,12 @@ test.describe('16. HTTP节点 - 边界场景测试', () => {
      * 验证点：URL特殊字符处理
      */
     test('参数值应支持特殊字符&=?', async () => {
+      // 切换到Params标签页
       await switchToTab(contentPage, 'Params');
+      // 添加包含&=?特殊字符的参数值
       await addQueryParam(contentPage, 'special', 'value&with=special?chars');
       await contentPage.waitForTimeout(300);
+      // 验证参数值正确
       await verifyQueryParamValue(contentPage, 'special', 'value&with=special?chars');
     });
 
@@ -253,9 +282,12 @@ test.describe('16. HTTP节点 - 边界场景测试', () => {
      * 验证点：多行文本支持
      */
     test('参数值应支持换行符', async () => {
+      // 切换到Params标签页
       await switchToTab(contentPage, 'Params');
+      // 添加包含换行符的参数值
       await addQueryParam(contentPage, 'multiline', 'line1\nline2\nline3');
       await contentPage.waitForTimeout(300);
+      // 验证参数值正确
       await verifyQueryParamValue(contentPage, 'multiline', 'line1\nline2\nline3');
     });
 
@@ -270,7 +302,9 @@ test.describe('16. HTTP节点 - 边界场景测试', () => {
      * 验证点：JSON Unicode支持
      */
     test('JSON应支持Unicode字符', async () => {
+      // 切换到Body标签页
       await switchToTab(contentPage, 'Body');
+      // 输入包含Unicode转义的JSON
       const unicodeJson = '{"unicode": "\\u4e2d\\u6587"}';
       await fillJsonBody(contentPage, unicodeJson);
       await contentPage.waitForTimeout(300);
@@ -288,9 +322,12 @@ test.describe('16. HTTP节点 - 边界场景测试', () => {
      * 验证点：Header特殊字符支持
      */
     test('Header value应支持特殊字符', async () => {
+      // 切换到Headers标签页
       await switchToTab(contentPage, 'Headers');
+      // 添加包含特殊字符的Header值
       await addHeader(contentPage, 'X-Special-Header', 'value-with-special@#$');
       await contentPage.waitForTimeout(300);
+      // 验证Header存在
       await verifyHeaderExists(contentPage, 'X-Special-Header');
     });
   });
@@ -308,11 +345,14 @@ test.describe('16. HTTP节点 - 边界场景测试', () => {
      * 验证点：空URL验证
      */
     test('空URL应提示错误', async () => {
+      // 清空URL输入框
       await fillUrl(contentPage, '');
       await contentPage.waitForTimeout(300);
+      // 点击发送请求按钮
       const sendBtn = contentPage.locator('button:has-text("发送请求")');
       await sendBtn.click();
       await contentPage.waitForTimeout(300);
+      // 验证错误提示显示
       const errorMsg = contentPage.locator('.el-message--error, .error-message').first();
       if (await errorMsg.isVisible()) {
         await expect(errorMsg).toBeVisible();
@@ -330,7 +370,9 @@ test.describe('16. HTTP节点 - 边界场景测试', () => {
      * 验证点：空参数清理逻辑
      */
     test('空Query参数key应自动清除', async () => {
+      // 切换到Params标签页
       await switchToTab(contentPage, 'Params');
+      // 添加空key的参数
       await addQueryParam(contentPage, '', 'emptyKeyValue');
       await contentPage.waitForTimeout(300);
     });
@@ -346,7 +388,9 @@ test.describe('16. HTTP节点 - 边界场景测试', () => {
      * 验证点：空Header清理逻辑
      */
     test('空Header key应自动清除', async () => {
+      // 切换到Headers标签页
       await switchToTab(contentPage, 'Headers');
+      // 添加空key的Header
       await addHeader(contentPage, '', 'emptyHeaderValue');
       await contentPage.waitForTimeout(300);
     });
@@ -363,9 +407,12 @@ test.describe('16. HTTP节点 - 边界场景测试', () => {
      * 验证点：空JSON处理
      */
     test('空JSON应保存为空对象或空字符串', async () => {
+      // 切换到Body标签页
       await switchToTab(contentPage, 'Body');
+      // 清空JSON内容
       await fillJsonBody(contentPage, '');
       await contentPage.waitForTimeout(300);
+      // 保存API
       const saveBtn = contentPage.locator('button:has-text("保存")').first();
       await saveBtn.click();
       await contentPage.waitForTimeout(300);
@@ -382,7 +429,9 @@ test.describe('16. HTTP节点 - 边界场景测试', () => {
      * 验证点：空Body Content-Length处理
      */
     test('空Body应设置Content-Length为0', async () => {
+      // 切换到Body标签页
       await switchToTab(contentPage, 'Body');
+      // 清空Body内容
       await fillJsonBody(contentPage, '');
       await contentPage.waitForTimeout(300);
     });
@@ -400,12 +449,15 @@ test.describe('16. HTTP节点 - 边界场景测试', () => {
      * 验证点：URL空格处理
      */
     test('URL前后空格应自动trim', async () => {
+      // 输入前后带空格的URL
       const urlWithSpaces = '  https://httpbin.org/get  ';
       await fillUrl(contentPage, urlWithSpaces);
       await contentPage.waitForTimeout(300);
+      // 验证输入框URL
       const urlInput = contentPage.locator('input[placeholder*="请输入URL"]').first();
       const value = await urlInput.inputValue();
       expect(value.replace(/\s+/g, '')).toContain('https://httpbin.org/get');
+      // 验证显示区域的URL
       const fullUrl = (await contentPage.locator('.pre-url-wrap .url').textContent()) || '';
       expect(fullUrl.replace(/\s+/g, '')).toContain('https://httpbin.org/get');
     });
@@ -421,7 +473,9 @@ test.describe('16. HTTP节点 - 边界场景测试', () => {
      * 验证点：参数key空格处理
      */
     test('参数key前后空格应trim', async () => {
+      // 切换到Params标签页
       await switchToTab(contentPage, 'Params');
+      // 添加前后带空格的参数key
       await addQueryParam(contentPage, '  trimKey  ', 'value');
       await contentPage.waitForTimeout(300);
     });
@@ -438,9 +492,12 @@ test.describe('16. HTTP节点 - 边界场景测试', () => {
      * 验证点：参数value空格保留
      */
     test('参数value内部空格应保留', async () => {
+      // 切换到Params标签页
       await switchToTab(contentPage, 'Params');
+      // 添加包含空格的参数value
       await addQueryParam(contentPage, 'message', 'hello world test');
       await contentPage.waitForTimeout(300);
+      // 验证参数存在
       await verifyQueryParamExists(contentPage, 'message');
     });
 
@@ -455,7 +512,9 @@ test.describe('16. HTTP节点 - 边界场景测试', () => {
      * 验证点：JSON格式保留
      */
     test('JSON中的空格应保留格式', async () => {
+      // 切换到Body标签页
       await switchToTab(contentPage, 'Body');
+      // 输入格式化的JSON
       const formattedJson = '{\n  "name": "test",\n  "value": 123\n}';
       await fillJsonBody(contentPage, formattedJson);
       await contentPage.waitForTimeout(300);
@@ -475,10 +534,13 @@ test.describe('16. HTTP节点 - 边界场景测试', () => {
      * 验证点：UTF-8编码支持
      */
     test('应支持UTF-8编码', async () => {
+      // 输入包含中文的URL
       await fillUrl(contentPage, 'https://httpbin.org/get?utf8=测试');
       await contentPage.waitForTimeout(300);
+      // 验证完整URL包含中文
       const fullUrl = await contentPage.locator('.pre-url-wrap .url').textContent();
       expect(fullUrl).toContain('测试');
+      // 验证参数值正确
       await verifyQueryParamValue(contentPage, 'utf8', '测试');
     });
 
@@ -494,9 +556,12 @@ test.describe('16. HTTP节点 - 边界场景测试', () => {
      * 验证点：emoji字符支持
      */
     test('应支持emoji字符', async () => {
+      // 切换到Params标签页
       await switchToTab(contentPage, 'Params');
+      // 添加包含emoji的参数值
       await addQueryParam(contentPage, 'emoji', '🚀🎉👍');
       await contentPage.waitForTimeout(300);
+      // 验证参数存在
       await verifyQueryParamExists(contentPage, 'emoji');
     });
 
@@ -511,7 +576,9 @@ test.describe('16. HTTP节点 - 边界场景测试', () => {
      * 验证点：多语言支持
      */
     test('应支持各种语言文字', async () => {
+      // 切换到Body标签页
       await switchToTab(contentPage, 'Body');
+      // 输入包含多种语言的JSON
       const multiLangJson = '{"chinese":"中文","japanese":"日本語","korean":"한국어","arabic":"العربية"}';
       await fillJsonBody(contentPage, multiLangJson);
       await contentPage.waitForTimeout(300);
@@ -530,8 +597,10 @@ test.describe('16. HTTP节点 - 边界场景测试', () => {
      * 验证点：最小宽度显示
      */
     test('窗口宽度1200px应正常显示', async () => {
+      // 调整窗口到1200x800
       await resizeWindow(contentPage, 1200, 800);
       await contentPage.waitForTimeout(300);
+      // 验证容器可见
       const container = contentPage.locator('.http-node-container, .main-container').first();
       if (await container.isVisible()) {
         await expect(container).toBeVisible();
@@ -548,6 +617,7 @@ test.describe('16. HTTP节点 - 边界场景测试', () => {
      * 验证点：小窗口滚动条显示
      */
     test('窗口宽度小于1200px应显示滚动条', async () => {
+      // 调整窗口到1000x800
       await resizeWindow(contentPage, 1000, 800);
       await contentPage.waitForTimeout(300);
     });
@@ -564,10 +634,13 @@ test.describe('16. HTTP节点 - 边界场景测试', () => {
      * 验证点：响应式布局
      */
     test('窗口缩放应保持布局', async () => {
+      // 调整窗口到1600x900
       await resizeWindow(contentPage, 1600, 900);
       await contentPage.waitForTimeout(300);
+      // 调整窗口到1200x800
       await resizeWindow(contentPage, 1200, 800);
       await contentPage.waitForTimeout(300);
+      // 验证容器可见
       const container = contentPage.locator('.http-node-container, .main-container').first();
       if (await container.isVisible()) {
         await expect(container).toBeVisible();

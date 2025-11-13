@@ -64,6 +64,7 @@ test.describe('12. HTTP节点 - 历史记录功能测试', () => {
      * 说明：历史记录按钮是查看历史的入口
      */
     test('应显示历史记录按钮', async () => {
+      // 检查历史记录按钮是否显示
       const historyBtn = contentPage.locator('[title*="历史"], .history-btn').first();
       await expect(historyBtn).toBeVisible();
     });
@@ -81,7 +82,9 @@ test.describe('12. HTTP节点 - 历史记录功能测试', () => {
      * 说明：点击按钮后显示历史记录列表
      */
     test('点击按钮应打开历史记录面板', async () => {
+      // 点击历史记录按钮
       await openHistoryPanel(contentPage);
+      // 检查面板是否显示
       const historyPanel = contentPage.locator('.history-dropdown, .history-detail-panel').first();
       await expect(historyPanel).toBeVisible();
     });
@@ -100,9 +103,12 @@ test.describe('12. HTTP节点 - 历史记录功能测试', () => {
      * 说明：发送请求后自动记录到历史
      */
     test('应显示历史记录列表', async () => {
+      // 发送请求并保存
       await sendRequestAndSave('https://httpbin.org/get');
+      // 打开历史记录面板
       await openHistoryPanel(contentPage);
       await contentPage.waitForSelector('.history-list .history-item, .history-record', { state: 'attached', timeout: 5000 });
+      // 检查历史记录列表
       const historyList = getHistoryList(contentPage);
       const count = await historyList.count();
       expect(count).toBeGreaterThan(0);
@@ -122,14 +128,17 @@ test.describe('12. HTTP节点 - 历史记录功能测试', () => {
      * 说明：最新的历史记录在列表顶部
      */
     test('历史记录应按时间倒序排列', async () => {
+      // 发送两个不同的请求
       await sendRequestAndSave('https://httpbin.org/get?test=1');
       await sendRequestAndSave('https://httpbin.org/get?test=2');
+      // 打开历史记录
       await openHistoryPanel(contentPage);
       const historyList = getHistoryList(contentPage);
       const firstItem = historyList.first();
       await firstItem.hover();
       await contentPage.waitForTimeout(1200);
       await contentPage.waitForSelector('.history-detail-panel .url-text', { state: 'visible', timeout: 5000 });
+      // 检查第一条记录是否为最新请求
       const urlText = await contentPage.locator('.history-detail-panel .url-text').first().textContent();
       expect(urlText).toContain('https://httpbin.org/get');
       const queryText = await contentPage
@@ -155,10 +164,13 @@ test.describe('12. HTTP节点 - 历史记录功能测试', () => {
      * 说明：显示每条历史记录的发送时间
      */
     test('历史记录应显示请求时间', async () => {
-  await sendRequestAndSave('https://httpbin.org/get');
+      // 发送请求并保存
+      await sendRequestAndSave('https://httpbin.org/get');
+      // 打开历史记录
       await openHistoryPanel(contentPage);
       const historyList = getHistoryList(contentPage);
       const firstItem = historyList.first();
+      // 检查时间元素
       const timeElement = firstItem.locator('.history-time, .time, .timestamp').first();
       await expect(timeElement).toBeVisible();
     });
@@ -178,13 +190,17 @@ test.describe('12. HTTP节点 - 历史记录功能测试', () => {
      * 说明：历史记录显示HTTP方法
      */
     test('历史记录应显示请求方法', async () => {
+      // 发送GET请求
       await sendRequestAndSave('https://httpbin.org/get');
+      // 打开历史记录
       await openHistoryPanel(contentPage);
       const historyList = getHistoryList(contentPage);
       const firstItem = historyList.first();
+      // 悬停查看详情
       await firstItem.hover();
       await contentPage.waitForTimeout(1200);
       await contentPage.waitForSelector('.history-detail-panel .method-tag', { state: 'visible', timeout: 5000 });
+      // 检查请求方法
       const methodText = await contentPage.locator('.history-detail-panel .method-tag').first().textContent();
       expect(methodText).toContain('GET');
       await closeHistoryPanel(contentPage);
@@ -205,13 +221,17 @@ test.describe('12. HTTP节点 - 历史记录功能测试', () => {
      * 说明：显示历史请求的完整URL
      */
     test('历史记录应显示请求URL', async () => {
+      // 发送请求
       await sendRequestAndSave('https://httpbin.org/get');
+      // 打开历史记录
       await openHistoryPanel(contentPage);
       const historyList = getHistoryList(contentPage);
       const firstItem = historyList.first();
+      // 悬停查看详情
       await firstItem.hover();
       await contentPage.waitForTimeout(1200);
       await contentPage.waitForSelector('.history-detail-panel .url-text', { state: 'visible', timeout: 5000 });
+      // 检查URL显示
       const urlText = await contentPage.locator('.history-detail-panel .url-text').first().textContent();
       expect(urlText).toContain('httpbin.org');
       await closeHistoryPanel(contentPage);
@@ -231,10 +251,13 @@ test.describe('12. HTTP节点 - 历史记录功能测试', () => {
      * 说明：显示响应的HTTP状态码
      */
     test('历史记录应显示状态码', async () => {
+      // 发送请求
       await sendRequestAndSave('https://httpbin.org/get');
+      // 打开历史记录
       await openHistoryPanel(contentPage);
       const historyList = getHistoryList(contentPage);
       const firstItem = historyList.first();
+      // 检查状态码元素
       const statusElement = firstItem.locator('.status, .status-code').first();
       if (await statusElement.isVisible()) {
         await expect(statusElement).toBeVisible();
@@ -255,10 +278,13 @@ test.describe('12. HTTP节点 - 历史记录功能测试', () => {
      * 说明：显示请求从发送到响应的耗时
      */
     test('历史记录应显示响应时间', async () => {
+      // 发送请求
       await sendRequestAndSave('https://httpbin.org/get');
+      // 打开历史记录
       await openHistoryPanel(contentPage);
       const historyList = getHistoryList(contentPage);
       const firstItem = historyList.first();
+      // 检查响应时间元素
       const durationElement = firstItem.locator('.duration, .response-time').first();
       if (await durationElement.isVisible()) {
         await expect(durationElement).toBeVisible();
@@ -279,10 +305,13 @@ test.describe('12. HTTP节点 - 历史记录功能测试', () => {
      * 说明：成功(2xx)和失败(4xx/5xx)有不同的视觉标识
      */
     test('成功和失败的请求应有不同的样式标识', async () => {
+      // 发送成功的请求
       await sendRequestAndSave('https://httpbin.org/status/200');
+      // 打开历史记录
       await openHistoryPanel(contentPage);
       const historyList = getHistoryList(contentPage);
       const firstItem = historyList.first();
+      // 检查样式类名
       const className = await firstItem.getAttribute('class');
       expect(className).toBeTruthy();
     });
@@ -304,10 +333,14 @@ test.describe('12. HTTP节点 - 历史记录功能测试', () => {
      * 说明：点击历史记录可查看完整详情
      */
     test('应能点击历史记录查看详情', async () => {
+      // 发送请求
       await sendRequestAndSave('https://httpbin.org/get');
+      // 打开历史记录
       await openHistoryPanel(contentPage);
+      // 点击某条历史记录
       await clickHistoryItem(contentPage, 0);
       await contentPage.waitForTimeout(300);
+      // 检查详情面板
       const detailPanel = contentPage.locator('.history-detail, .detail-panel').first();
       if (await detailPanel.isVisible()) {
         await expect(detailPanel).toBeVisible();
@@ -331,12 +364,17 @@ test.describe('12. HTTP节点 - 历史记录功能测试', () => {
      * 说明：恢复功能可以快速还原之前的请求配置
      */
     test('应能恢复历史记录', async () => {
+      // 发送请求并保存
       await sendRequestAndSave('https://httpbin.org/get?restore=test');
+      // 修改URL为其他值
       await fillUrl(contentPage, 'https://httpbin.org/get?new=url');
       await contentPage.waitForTimeout(300);
+      // 打开历史记录
       await openHistoryPanel(contentPage);
+      // 点击历史记录项
       await clickHistoryItem(contentPage, 0);
       await contentPage.waitForTimeout(300);
+      // 点击恢复按钮
       const restoreBtn = contentPage.locator('button:has-text("恢复"), .restore-btn').first();
       if (await restoreBtn.isVisible()) {
         await restoreBtn.click();
@@ -360,10 +398,15 @@ test.describe('12. HTTP节点 - 历史记录功能测试', () => {
      * 说明：可以删除不需要的历史记录
      */
     test('应能删除单条历史记录', async () => {
+      // 发送请求
       await sendRequestAndSave('https://httpbin.org/get');
+      // 打开历史记录
       await openHistoryPanel(contentPage);
+      // 记录数量
       const countBefore = await getHistoryList(contentPage).count();
+      // 删除一条记录
       await deleteHistoryItem(contentPage, 0);
+      // 检查数量变化
       const countAfter = await getHistoryList(contentPage).count();
       expect(countAfter).toBeLessThan(countBefore);
     });
@@ -383,9 +426,13 @@ test.describe('12. HTTP节点 - 历史记录功能测试', () => {
      * 说明：清空操作会删除当前节点的所有历史
      */
     test('应能清空所有历史记录', async () => {
+      // 发送请求
       await sendRequestAndSave('https://httpbin.org/get');
+      // 打开历史记录
       await openHistoryPanel(contentPage);
+      // 点击清空按钮并确认
       await clearAllHistory(contentPage);
+      // 检查历史记录数量
       const count = await getHistoryList(contentPage).count();
       expect(count).toBe(0);
     });
@@ -405,11 +452,15 @@ test.describe('12. HTTP节点 - 历史记录功能测试', () => {
      * 说明：清空前需要用户确认防止误操作
      */
     test('清空历史应有确认提示', async () => {
+      // 发送请求
       await sendRequestAndSave('https://httpbin.org/get');
+      // 打开历史记录
       await openHistoryPanel(contentPage);
+      // 点击清空按钮
       const clearBtn = contentPage.locator('[title*="清空"], .clear-all-btn').first();
       await clearBtn.click();
       await contentPage.waitForTimeout(300);
+      // 检查确认对话框
       const confirmDialog = contentPage.locator('.el-message-box').first();
       await expect(confirmDialog).toBeVisible();
     });
@@ -430,17 +481,22 @@ test.describe('12. HTTP节点 - 历史记录功能测试', () => {
      * 说明：取消操作不会删除历史记录
      */
     test('取消清空应保留历史记录', async () => {
+      // 发送请求
       await sendRequestAndSave('https://httpbin.org/get');
+      // 打开历史记录
       await openHistoryPanel(contentPage);
       const countBefore = await getHistoryList(contentPage).count();
+      // 点击清空按钮
       const clearBtn = contentPage.locator('[title*="清空"], .clear-all-btn').first();
       await clearBtn.click();
       await contentPage.waitForTimeout(300);
+      // 在确认对话框中点击取消
       const cancelBtn = contentPage.locator('.el-message-box__btns .el-button--default').first();
       if (await cancelBtn.isVisible()) {
         await cancelBtn.click();
         await contentPage.waitForTimeout(300);
       }
+      // 检查历史记录数量
       const countAfter = await getHistoryList(contentPage).count();
       expect(countAfter).toBe(countBefore);
     });
@@ -462,10 +518,14 @@ test.describe('12. HTTP节点 - 历史记录功能测试', () => {
      * 说明：详情面板展示完整的请求配置
      */
     test('详情应显示完整的请求信息', async () => {
+      // 发送请求
       await sendRequestAndSave('https://httpbin.org/get?detail=test');
+      // 打开历史记录
       await openHistoryPanel(contentPage);
+      // 点击历史记录项
       await clickHistoryItem(contentPage, 0);
       await contentPage.waitForTimeout(300);
+      // 检查请求信息区域
       const requestInfo = contentPage.locator('.request-info, .request-detail').first();
       if (await requestInfo.isVisible()) {
         await expect(requestInfo).toBeVisible();
@@ -487,10 +547,14 @@ test.describe('12. HTTP节点 - 历史记录功能测试', () => {
      * 说明：详情面板展示完整的响应数据
      */
     test('详情应显示完整的响应信息', async () => {
+      // 发送请求
       await sendRequestAndSave('https://httpbin.org/get');
+      // 打开历史记录
       await openHistoryPanel(contentPage);
+      // 点击历史记录项
       await clickHistoryItem(contentPage, 0);
       await contentPage.waitForTimeout(300);
+      // 检查响应信息区域
       const responseInfo = contentPage.locator('.response-info, .response-detail').first();
       if (await responseInfo.isVisible()) {
         await expect(responseInfo).toBeVisible();
@@ -512,10 +576,14 @@ test.describe('12. HTTP节点 - 历史记录功能测试', () => {
      * 说明：耗时信息帮助分析接口性能
      */
     test('详情应显示请求耗时', async () => {
+      // 发送请求
       await sendRequestAndSave('https://httpbin.org/get');
+      // 打开历史记录
       await openHistoryPanel(contentPage);
+      // 点击历史记录项
       await clickHistoryItem(contentPage, 0);
       await contentPage.waitForTimeout(300);
+      // 检查耗时信息
       const durationInfo = contentPage.locator('.duration, .response-time').first();
       if (await durationInfo.isVisible()) {
         await expect(durationInfo).toBeVisible();
@@ -537,10 +605,14 @@ test.describe('12. HTTP节点 - 历史记录功能测试', () => {
      * 说明：复制功能方便分享或存档数据
      */
     test('详情应支持复制请求/响应内容', async () => {
+      // 发送请求
       await sendRequestAndSave('https://httpbin.org/get');
+      // 打开历史记录
       await openHistoryPanel(contentPage);
+      // 点击历史记录项
       await clickHistoryItem(contentPage, 0);
       await contentPage.waitForTimeout(300);
+      // 检查复制按钮
       const copyBtn = contentPage.locator('[title*="复制"], .copy-btn').first();
       if (await copyBtn.isVisible()) {
         await expect(copyBtn).toBeVisible();
@@ -562,13 +634,17 @@ test.describe('12. HTTP节点 - 历史记录功能测试', () => {
      * 说明：可以关闭历史记录面板
      */
     test('应能关闭详情面板', async () => {
+      // 发送请求
       await sendRequestAndSave('https://httpbin.org/get');
+      // 打开历史记录并悬停
       await openHistoryPanel(contentPage);
       const historyItems = getHistoryList(contentPage);
       const firstItem = historyItems.first();
       await firstItem.hover();
       await contentPage.waitForTimeout(1200);
+      // 关闭历史面板
       await closeHistoryPanel(contentPage);
+      // 检查面板是否关闭
       const detailPanel = contentPage.locator('.history-detail-panel').first();
       if (await detailPanel.isVisible()) {
         await expect(detailPanel).not.toBeVisible();
@@ -596,9 +672,13 @@ test.describe('12. HTTP节点 - 历史记录功能测试', () => {
      * 说明：历史记录存储在IndexedDB中
      */
     test('历史记录应持久化存储', async () => {
+      // 发送请求并保存
       await sendRequestAndSave('https://httpbin.org/get?persist=test');
+      // 刷新页面
       const refreshBtn = contentPage.locator('button:has-text("刷新")').first(); await refreshBtn.click();
+      // 打开历史记录
       await openHistoryPanel(contentPage);
+      // 检查历史是否存在
       const historyList = getHistoryList(contentPage);
       const count = await historyList.count();
       expect(count).toBeGreaterThan(0);
@@ -618,6 +698,7 @@ test.describe('12. HTTP节点 - 历史记录功能测试', () => {
      * 说明：限制历史数量避免占用过多存储空间
      */
     test('应限制历史记录最大数量', async () => {
+      // 发送超过50个请求
       const urlInput = contentPage.locator('[data-testid="url-input"]');
       for (let i = 0; i < 55; i++) {
         await urlInput.fill(`https://httpbin.org/get?test=${i}`);
@@ -625,7 +706,9 @@ test.describe('12. HTTP节点 - 历史记录功能测试', () => {
         const saveBtn = contentPage.locator('button:has-text("保存")').first(); await saveBtn.click();
       }
       await contentPage.waitForTimeout(200);
+      // 打开历史记录
       await openHistoryPanel(contentPage);
+      // 检查历史数量
       const historyList = getHistoryList(contentPage);
       const count = await historyList.count();
       expect(count).toBeLessThanOrEqual(50);
@@ -646,13 +729,17 @@ test.describe('12. HTTP节点 - 历史记录功能测试', () => {
      * 说明：每个节点有独立的历史记录
      */
     test('切换节点应加载对应节点的历史', async () => {
+      // 在节点A发送请求
       await sendRequestAndSave('https://httpbin.org/get?node=A');
+      // 打开历史记录
       await openHistoryPanel(contentPage);
       const historyList = getHistoryList(contentPage);
       const firstItem = historyList.first();
+      // 悬停查看详情
       await firstItem.hover();
       await contentPage.waitForTimeout(1200);
       await contentPage.waitForSelector('.history-detail-panel .url-text', { state: 'visible', timeout: 5000 });
+      // 验证URL参数
       const urlText = await contentPage.locator('.history-detail-panel .url-text').first().textContent();
       expect(urlText).toContain('https://httpbin.org/get');
       const nodeParam = await contentPage
@@ -681,8 +768,11 @@ test.describe('12. HTTP节点 - 历史记录功能测试', () => {
      * 说明：搜索功能帮助快速定位历史记录
      */
     test('应支持按URL搜索历史', async () => {
+      // 发送包含关键词的请求
       await sendRequestAndSave('https://httpbin.org/get?search=keyword');
+      // 打开历史记录
       await openHistoryPanel(contentPage);
+      // 在搜索框输入关键词
       const searchInput = contentPage.locator('.search-input, input[placeholder*="搜索"]').first();
       if (await searchInput.isVisible()) {
         await searchInput.fill('keyword');
@@ -704,8 +794,11 @@ test.describe('12. HTTP节点 - 历史记录功能测试', () => {
      * 说明：方法过滤帮助筛选特定类型的请求
      */
     test('应支持按方法过滤历史', async () => {
+      // 发送GET请求
       await sendRequestAndSave('https://httpbin.org/get');
+      // 打开历史记录
       await openHistoryPanel(contentPage);
+      // 点击方法过滤器
       const methodFilter = contentPage.locator('.method-filter, .el-select').first();
       if (await methodFilter.isVisible()) {
         await methodFilter.click();
@@ -727,8 +820,11 @@ test.describe('12. HTTP节点 - 历史记录功能测试', () => {
      * 说明：状态码过滤帮助筛选成功或失败的请求
      */
     test('应支持按状态码过滤历史', async () => {
+      // 发送成功的请求
       await sendRequestAndSave('https://httpbin.org/status/200');
+      // 打开历史记录
       await openHistoryPanel(contentPage);
+      // 点击状态码过滤器
       const statusFilter = contentPage.locator('.status-filter, .el-select').first();
       if (await statusFilter.isVisible()) {
         await statusFilter.click();

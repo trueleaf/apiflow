@@ -43,9 +43,12 @@ test.describe('17. HTTP节点 - 异常场景测试', () => {
      * 说明：模拟服务器未启动或端口未开放的情况
      */
     test('网络不可用应显示错误提示', async () => {
+      // 输入一个本地不存在的服务地址
       await fillUrl(contentPage, 'http://localhost:9999/unavailable');
+      // 点击发送请求
       const sendBtn = contentPage.locator('button:has-text("发送请求")'); await sendBtn.click();
       await contentPage.waitForTimeout(3000);
+      // 检查错误提示信息
       const errorMsg = contentPage.locator('.el-message--error, .error-message, .response-error').first();
       if (await errorMsg.isVisible()) {
         await expect(errorMsg).toBeVisible();
@@ -67,9 +70,12 @@ test.describe('17. HTTP节点 - 异常场景测试', () => {
      * 说明：测试输入无效域名时的错误捕获机制
      */
     test('DNS解析失败应显示错误', async () => {
+      // 输入一个不存在的域名地址
       await fillUrl(contentPage, 'http://this-domain-does-not-exist-12345.com/api');
+      // 点击发送请求
       const sendBtn = contentPage.locator('button:has-text("发送请求")'); await sendBtn.click();
       await contentPage.waitForTimeout(3000);
+      // 检查错误提示信息
       const errorMsg = contentPage.locator('.el-message--error, .error-message, .response-error').first();
       if (await errorMsg.isVisible()) {
         await expect(errorMsg).toBeVisible();
@@ -92,9 +98,12 @@ test.describe('17. HTTP节点 - 异常场景测试', () => {
      * 说明：使用不可路由的IP地址模拟超时场景
      */
     test('连接超时应显示超时错误', async () => {
+      // 输入一个会导致连接超时的地址
       await fillUrl(contentPage, 'http://10.255.255.1/timeout');
+      // 点击发送请求
       const sendBtn = contentPage.locator('button:has-text("发送请求")'); await sendBtn.click();
       await contentPage.waitForTimeout(5000);
+      // 检查超时错误提示
       const errorMsg = contentPage.locator('.el-message--error, .error-message, .timeout-error').first();
       if (await errorMsg.isVisible()) {
         await expect(errorMsg).toBeVisible();
@@ -116,9 +125,12 @@ test.describe('17. HTTP节点 - 异常场景测试', () => {
      * 说明：与"网络不可用"测试类似，但更具体地验证连接拒绝场景
      */
     test('连接被拒绝应显示错误', async () => {
+      // 输入一个端口未监听的本地地址
       await fillUrl(contentPage, 'http://localhost:54321/refused');
+      // 点击发送请求
       const sendBtn = contentPage.locator('button:has-text("发送请求")'); await sendBtn.click();
       await contentPage.waitForTimeout(3000);
+      // 检查错误提示信息
       const errorMsg = contentPage.locator('.el-message--error, .error-message, .connection-error').first();
       if (await errorMsg.isVisible()) {
         await expect(errorMsg).toBeVisible();
@@ -141,9 +153,12 @@ test.describe('17. HTTP节点 - 异常场景测试', () => {
      * 说明：400表示Bad Request，客户端请求参数错误
      */
     test('400错误应正确显示', async () => {
+      // 请求返回400状态码的测试接口
       await fillUrl(contentPage, 'https://httpbin.org/status/400');
+      // 点击发送请求
       const sendBtn = contentPage.locator('button:has-text("发送请求")'); await sendBtn.click();
       await contentPage.waitForTimeout(3000);
+      // 检查状态码显示
       const statusCode = contentPage.locator('.status-code, .response-status').first();
       if (await statusCode.isVisible()) {
         const text = await statusCode.textContent();
@@ -165,9 +180,12 @@ test.describe('17. HTTP节点 - 异常场景测试', () => {
      * 说明：401表示Unauthorized，需要身份认证
      */
     test('401未授权应显示错误', async () => {
+      // 请求返回401状态码的测试接口
       await fillUrl(contentPage, 'https://httpbin.org/status/401');
+      // 点击发送请求
       const sendBtn = contentPage.locator('button:has-text("发送请求")'); await sendBtn.click();
       await contentPage.waitForTimeout(3000);
+      // 检查状态码显示
       const statusCode = contentPage.locator('.status-code, .response-status').first();
       if (await statusCode.isVisible()) {
         const text = await statusCode.textContent();
@@ -189,9 +207,12 @@ test.describe('17. HTTP节点 - 异常场景测试', () => {
      * 说明：403表示Forbidden，服务器拒绝访问
      */
     test('403禁止访问应显示错误', async () => {
+      // 请求返回403状态码的测试接口
       await fillUrl(contentPage, 'https://httpbin.org/status/403');
+      // 点击发送请求
       const sendBtn = contentPage.locator('button:has-text("发送请求")'); await sendBtn.click();
       await contentPage.waitForTimeout(3000);
+      // 检查状态码显示
       const statusCode = contentPage.locator('.status-code, .response-status').first();
       if (await statusCode.isVisible()) {
         const text = await statusCode.textContent();
@@ -213,9 +234,12 @@ test.describe('17. HTTP节点 - 异常场景测试', () => {
      * 说明：404表示Not Found，请求的资源不存在
      */
     test('404未找到应显示错误', async () => {
+      // 请求返回404状态码的测试接口
       await fillUrl(contentPage, 'https://httpbin.org/status/404');
+      // 点击发送请求
       const sendBtn = contentPage.locator('button:has-text("发送请求")'); await sendBtn.click();
       await contentPage.waitForTimeout(3000);
+      // 检查状态码显示
       const statusCode = contentPage.locator('.status-code, .response-status').first();
       if (await statusCode.isVisible()) {
         const text = await statusCode.textContent();
@@ -237,9 +261,12 @@ test.describe('17. HTTP节点 - 异常场景测试', () => {
      * 说明：500表示Internal Server Error，服务器发生内部错误
      */
     test('500服务器错误应显示错误', async () => {
+      // 请求返回500状态码的测试接口
       await fillUrl(contentPage, 'https://httpbin.org/status/500');
+      // 点击发送请求
       const sendBtn = contentPage.locator('button:has-text("发送请求")'); await sendBtn.click();
       await contentPage.waitForTimeout(3000);
+      // 检查状态码显示
       const statusCode = contentPage.locator('.status-code, .response-status').first();
       if (await statusCode.isVisible()) {
         const text = await statusCode.textContent();
@@ -261,9 +288,12 @@ test.describe('17. HTTP节点 - 异常场景测试', () => {
      * 说明：502 Bad Gateway, 503 Service Unavailable, 504 Gateway Timeout
      */
     test('502/503/504网关错误应显示', async () => {
+      // 请求返回502状态码的测试接口
       await fillUrl(contentPage, 'https://httpbin.org/status/502');
+      // 点击发送请求
       const sendBtn = contentPage.locator('button:has-text("发送请求")'); await sendBtn.click();
       await contentPage.waitForTimeout(3000);
+      // 检查状态码显示是否正常
       const statusCode = contentPage.locator('.status-code, .response-status').first();
       if (await statusCode.isVisible()) {
         const text = await statusCode.textContent();
@@ -288,9 +318,12 @@ test.describe('17. HTTP节点 - 异常场景测试', () => {
      * 说明：测试当Content-Type为JSON但实际内容不是JSON的场景
      */
     test('非法JSON响应应显示错误', async () => {
+      // 请求返回HTML内容的接口
       await fillUrl(contentPage, 'https://httpbin.org/html');
+      // 点击发送请求
       const sendBtn = contentPage.locator('button:has-text("发送请求")'); await sendBtn.click();
       await contentPage.waitForTimeout(3000);
+      // 检查响应体显示
       const responseBody = contentPage.locator('.response-body, .response-content').first();
       if (await responseBody.isVisible()) {
         await expect(responseBody).toBeVisible();
@@ -312,7 +345,9 @@ test.describe('17. HTTP节点 - 异常场景测试', () => {
      * 说明：某些API可能错误地设置Content-Type头
      */
     test('Content-Type与实际内容不符应提示', async () => {
+      // 请求一个Content-Type声明与实际内容不符的接口
       await fillUrl(contentPage, 'https://httpbin.org/html');
+      // 点击发送请求
       const sendBtn = contentPage.locator('button:has-text("发送请求")'); await sendBtn.click();
       await contentPage.waitForTimeout(3000);
     });
@@ -332,7 +367,9 @@ test.describe('17. HTTP节点 - 异常场景测试', () => {
      * 说明：测试系统对不同字符编码的支持能力
      */
     test('乱码响应应正确处理', async () => {
+      // 请求返回UTF-8编码内容的接口
       await fillUrl(contentPage, 'https://httpbin.org/encoding/utf8');
+      // 点击发送请求
       const sendBtn = contentPage.locator('button:has-text("发送请求")'); await sendBtn.click();
       await contentPage.waitForTimeout(3000);
     });
@@ -353,9 +390,12 @@ test.describe('17. HTTP节点 - 异常场景测试', () => {
      * 说明：1MB响应测试系统对大文件的处理能力
      */
     test('超大响应应能正常处理', async () => {
+      // 请求返回1MB数据的接口
       await fillUrl(contentPage, 'https://httpbin.org/bytes/1048576');
+      // 点击发送请求
       const sendBtn = contentPage.locator('button:has-text("发送请求")'); await sendBtn.click();
       await contentPage.waitForTimeout(5000);
+      // 检查响应视图是否正常显示
       const responseView = contentPage.locator('.response-view, .response-panel').first();
       if (await responseView.isVisible()) {
         await expect(responseView).toBeVisible();
@@ -379,9 +419,11 @@ test.describe('17. HTTP节点 - 异常场景测试', () => {
      * 说明：Monaco编辑器提供实时语法检查
      */
     test('前置脚本语法错误应捕获', async () => {
+      // 在前置脚本编辑器中输入语法错误的代码
       const invalidScript = 'const a = ;';
       await fillPreRequestScript(contentPage, invalidScript);
       await contentPage.waitForTimeout(300);
+      // 检查是否显示语法错误标记
       const errorMarker = contentPage.locator('.squiggly-error, .error-marker').first();
       if (await errorMarker.isVisible()) {
         await expect(errorMarker).toBeVisible();
@@ -404,6 +446,7 @@ test.describe('17. HTTP节点 - 异常场景测试', () => {
      * 说明：测试throw new Error等运行时异常场景
      */
     test('前置脚本运行时错误应捕获', async () => {
+      // 在前置脚本中输入会抛出运行时错误的代码
       const errorScript = 'throw new Error("Runtime error in pre-request script");';
       await fillPreRequestScript(contentPage, errorScript);
       await contentPage.waitForTimeout(300);
@@ -424,6 +467,7 @@ test.describe('17. HTTP节点 - 异常场景测试', () => {
      * 说明：后置脚本错误不应影响响应查看
      */
     test('后置脚本错误应捕获', async () => {
+      // 在后置脚本中输入调用未定义函数的代码
       const errorScript = 'undefinedFunction();';
       await fillAfterRequestScript(contentPage, errorScript);
       await contentPage.waitForTimeout(300);
@@ -444,6 +488,7 @@ test.describe('17. HTTP节点 - 异常场景测试', () => {
      * 说明：测试pm.test和pm.expect等断言API
      */
     test('断言失败应正确标识', async () => {
+      // 在后置脚本中编写会失败的测试断言
       const failScript = 'pm.test("Should fail", () => { pm.expect(1).to.equal(2); });';
       await fillAfterRequestScript(contentPage, failScript);
       await contentPage.waitForTimeout(300);
@@ -465,6 +510,7 @@ test.describe('17. HTTP节点 - 异常场景测试', () => {
      * 说明：防止恶意或错误脚本导致应用无响应
      */
     test('脚本超时应中止执行', async () => {
+      // 在前置脚本中输入无限循环代码
       const infiniteScript = 'while(true) { }';
       await fillPreRequestScript(contentPage, infiniteScript);
       await contentPage.waitForTimeout(300);
@@ -486,6 +532,7 @@ test.describe('17. HTTP节点 - 异常场景测试', () => {
      * 说明：待补充具体文件上传操作步骤
      */
     test('文件不存在应显示错误', async () => {
+      // 切换到Body标签页
       await switchToTab(contentPage, 'Body');
       await contentPage.waitForTimeout(300);
     });
@@ -505,6 +552,7 @@ test.describe('17. HTTP节点 - 异常场景测试', () => {
      * 说明：待补充具体的文件大小限制值和测试步骤
      */
     test('文件过大应提示', async () => {
+      // 切换到Body标签页
       await switchToTab(contentPage, 'Body');
       await contentPage.waitForTimeout(300);
     });
@@ -524,6 +572,7 @@ test.describe('17. HTTP节点 - 异常场景测试', () => {
      * 说明：在Electron环境中测试文件系统权限
      */
     test('文件权限不足应显示错误', async () => {
+      // 切换到Body标签页
       await switchToTab(contentPage, 'Body');
       await contentPage.waitForTimeout(300);
     });
@@ -543,6 +592,7 @@ test.describe('17. HTTP节点 - 异常场景测试', () => {
      * 说明：某些文件类型可能出于安全考虑被限制
      */
     test('文件类型不支持应提示', async () => {
+      // 切换到Body标签页
       await switchToTab(contentPage, 'Body');
       await contentPage.waitForTimeout(300);
     });
@@ -564,8 +614,10 @@ test.describe('17. HTTP节点 - 异常场景测试', () => {
      * 说明：未定义变量保持原样便于调试和识别问题
      */
     test('未定义的变量应保持原样或提示', async () => {
+      // 在URL中使用未定义的变量
       await fillUrl(contentPage, 'https://httpbin.org/get?param={{undefinedVar}}');
       await contentPage.waitForTimeout(300);
+      // 检查变量占位符的显示
       const urlInput = contentPage.locator('.url-input, input[placeholder*="URL"]').first();
       const value = await urlInput.inputValue();
       expect(value).toContain('{{undefinedVar}}');
@@ -586,7 +638,9 @@ test.describe('17. HTTP节点 - 异常场景测试', () => {
      * 说明：循环引用会导致无限递归，必须检测和阻止
      */
     test('循环引用的变量应检测', async () => {
+      // 定义变量varA的值为{{varB}}
       await addLocalVariable(contentPage, 'varA', '{{varB}}');
+      // 定义变量varB的值为{{varA}}
       await addLocalVariable(contentPage, 'varB', '{{varA}}');
       await contentPage.waitForTimeout(300);
     });
@@ -606,6 +660,7 @@ test.describe('17. HTTP节点 - 异常场景测试', () => {
      * 说明：变量值可以是任意字符串，不一定是合法JSON
      */
     test('变量值格式错误应处理', async () => {
+      // 定义一个变量，值为不合法的JSON格式
       await addLocalVariable(contentPage, 'invalidJson', '{invalid: json}');
       await contentPage.waitForTimeout(300);
     });
@@ -628,12 +683,15 @@ test.describe('17. HTTP节点 - 异常场景测试', () => {
      * 说明：测试用户快速点击或脚本自动化场景
      */
     test('快速连续发送请求应正确处理', async () => {
+      // 设置请求URL
       await fillUrl(contentPage, 'https://httpbin.org/get?concurrent=test');
+      // 快速连续点击发送按钮3次
       const sendBtn1 = contentPage.locator('button:has-text("发送请求")'); await sendBtn1.click();
       await contentPage.waitForTimeout(100);
       const sendBtn2 = contentPage.locator('button:has-text("发送请求")'); await sendBtn2.click();
       await contentPage.waitForTimeout(100);
       const sendBtn3 = contentPage.locator('button:has-text("发送请求")'); await sendBtn3.click();
+      // 等待所有请求完成
       await contentPage.waitForTimeout(3000);
     });
 
@@ -653,9 +711,11 @@ test.describe('17. HTTP节点 - 异常场景测试', () => {
      * 说明：测试竞态条件下的数据隔离
      */
     test('请求发送中切换节点应处理正确', async () => {
+      // 发送一个延迟5秒的请求
       await fillUrl(contentPage, 'https://httpbin.org/delay/5');
       const sendBtn = contentPage.locator('button:has-text("发送请求")'); await sendBtn.click();
       await contentPage.waitForTimeout(500);
+      // 在请求进行中切换到另一个节点
       const treeNode = contentPage.locator('.tree-node, .el-tree-node').nth(1).first();
       if (await treeNode.isVisible()) {
         await treeNode.click();
@@ -679,9 +739,11 @@ test.describe('17. HTTP节点 - 异常场景测试', () => {
      * 说明：防止用户在请求进行时误操作
      */
     test('请求发送中修改配置应提示', async () => {
+      // 发送一个延迟3秒的请求
       await fillUrl(contentPage, 'https://httpbin.org/delay/3');
       const sendBtn = contentPage.locator('button:has-text("发送请求")'); await sendBtn.click();
       await contentPage.waitForTimeout(500);
+      // 在请求进行中修改URL
       await fillUrl(contentPage, 'https://httpbin.org/get?modified=true');
       await contentPage.waitForTimeout(300);
     });
@@ -703,6 +765,7 @@ test.describe('17. HTTP节点 - 异常场景测试', () => {
      * 说明：待补充具体的缓存数据损坏模拟步骤
      */
     test('损坏的缓存数据应能恢复', async () => {
+      // 等待节点加载
       await contentPage.waitForTimeout(300);
     });
 
@@ -722,6 +785,7 @@ test.describe('17. HTTP节点 - 异常场景测试', () => {
      * 说明：历史记录存储在IndexedDB中，待补充损坏模拟步骤
      */
     test('历史记录损坏应能处理', async () => {
+      // 打开历史记录面板
       await openHistoryPanel(contentPage);
       await contentPage.waitForTimeout(300);
     });

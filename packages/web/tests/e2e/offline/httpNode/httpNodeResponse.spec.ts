@@ -39,10 +39,14 @@ test.describe('10. HTTP节点 - 响应展示模块测试', () => {
      * 说明：状态码是判断请求成功与否的关键指标
      */
     test('应显示响应状态码', async () => {
+      // 填写返回200状态码的URL
       await fillUrl(contentPage, 'https://httpbin.org/status/200');
+      // 发送请求
       const sendBtn = contentPage.locator('button:has-text("发送请求")'); await sendBtn.click();
       await contentPage.waitForTimeout(3000);
+      // 切换到基本信息标签页
       await switchToResponseTab(contentPage, '基本信息');
+      // 验证状态码显示
       const statusCode = contentPage.locator('.status-code, .response-status').first();
       await expect(statusCode).toBeVisible({ timeout: 5000 });
     });
@@ -61,9 +65,12 @@ test.describe('10. HTTP节点 - 响应展示模块测试', () => {
      * 说明：响应时间帮助开发者评估API性能
      */
     test('应显示响应时间', async () => {
+      // 填写URL
       await fillUrl(contentPage, 'https://httpbin.org/get');
+      // 发送请求
       const sendBtn = contentPage.locator('button:has-text("发送请求")'); await sendBtn.click();
       await contentPage.waitForTimeout(3000);
+      // 获取响应时间
       const responseTime = await getResponseTime(contentPage);
       expect(responseTime).toBeTruthy();
     });
@@ -82,10 +89,13 @@ test.describe('10. HTTP节点 - 响应展示模块测试', () => {
      * 说明：响应大小帮助评估网络传输效率
      */
     test('应显示响应大小', async () => {
+      // 发送请求
       await fillUrl(contentPage, 'https://httpbin.org/get');
       const sendBtn = contentPage.locator('button:has-text("发送请求")'); await sendBtn.click();
       await contentPage.waitForTimeout(3000);
+      // 切换到基本信息标签页
       await switchToResponseTab(contentPage, '基本信息');
+      // 查看响应大小
       const sizeElement = contentPage.locator('.response-size, .size').first();
       const sizeText = await sizeElement.textContent();
       expect(sizeText || '').toBeTruthy();
@@ -105,10 +115,13 @@ test.describe('10. HTTP节点 - 响应展示模块测试', () => {
      * 说明：响应格式决定如何渲染响应内容
      */
     test('应显示响应格式', async () => {
+      // 发送返回JSON的请求
       await fillUrl(contentPage, 'https://httpbin.org/json');
       const sendBtn = contentPage.locator('button:has-text("发送请求")'); await sendBtn.click();
       await contentPage.waitForTimeout(3000);
+      // 切换到基本信息标签页
       await switchToResponseTab(contentPage, '基本信息');
+      // 查看响应格式
       const formatElement = contentPage.locator('.response-format, .content-type').first();
       const format = await formatElement.textContent();
       expect(format || '').toBeTruthy();
@@ -127,6 +140,7 @@ test.describe('10. HTTP节点 - 响应展示模块测试', () => {
      * 说明：进度显示提升大文件下载的用户体验
      */
     test('应显示下载进度（如果是大文件）', async () => {
+      // 请求较大数据
       await fillUrl(contentPage, 'https://httpbin.org/bytes/1024');
       const sendBtn = contentPage.locator('button:has-text("发送请求")'); await sendBtn.click();
       await contentPage.waitForTimeout(2000);
@@ -145,10 +159,13 @@ test.describe('10. HTTP节点 - 响应展示模块测试', () => {
      * 说明：颜色区分帮助快速识别请求结果
      */
     test('成功请求应显示成功状态样式', async () => {
+      // 发送返回200的请求
       await fillUrl(contentPage, 'https://httpbin.org/status/200');
       const sendBtn = contentPage.locator('button:has-text("发送请求")'); await sendBtn.click();
       await contentPage.waitForTimeout(3000);
+      // 切换到基本信息标签页
       await switchToResponseTab(contentPage, '基本信息');
+      // 检查状态码样式类
       const statusCode = contentPage.locator('.status-code, .response-status').first();
       const className = await statusCode.getAttribute('class');
       expect(className).toBeTruthy();
@@ -167,10 +184,13 @@ test.describe('10. HTTP节点 - 响应展示模块测试', () => {
      * 说明：颜色区分帮助快速识别请求错误
      */
     test('失败请求应显示失败状态样式', async () => {
+      // 发送返回404的请求
       await fillUrl(contentPage, 'https://httpbin.org/status/404');
       const sendBtn = contentPage.locator('button:has-text("发送请求")'); await sendBtn.click();
       await contentPage.waitForTimeout(3000);
+      // 切换到基本信息标签页
       await switchToResponseTab(contentPage, '基本信息');
+      // 检查状态码样式类
       const statusCode = contentPage.locator('.status-code, .response-status').first();
       const className = await statusCode.getAttribute('class');
       expect(className).toBeTruthy();
@@ -193,10 +213,13 @@ test.describe('10. HTTP节点 - 响应展示模块测试', () => {
      * 说明：格式化显示提高JSON的可读性
      */
     test('JSON响应应格式化显示', async () => {
+      // 请求返回JSON
       await fillUrl(contentPage, 'https://httpbin.org/json');
       const sendBtn = contentPage.locator('button:has-text("发送请求")'); await sendBtn.click();
       await contentPage.waitForTimeout(3000);
+      // 切换到响应体标签页
       await switchToResponseTab(contentPage, '响应体');
+      // 检查Monaco编辑器显示
       const responseBody = contentPage.locator('.response-body, .monaco-editor').first();
       await expect(responseBody).toBeVisible({ timeout: 5000 });
     });
@@ -216,10 +239,13 @@ test.describe('10. HTTP节点 - 响应展示模块测试', () => {
      * 说明：纯文本不需要特殊渲染处理
      */
     test('Text响应应原样显示', async () => {
+      // 请求返回纯文本
       await fillUrl(contentPage, 'https://httpbin.org/robots.txt');
       const sendBtn = contentPage.locator('button:has-text("发送请求")'); await sendBtn.click();
       await contentPage.waitForTimeout(3000);
+      // 切换到响应体标签页
       await switchToResponseTab(contentPage, '响应体');
+      // 获取响应体内容
       const responseBody = await getResponseBody(contentPage);
       expect(responseBody).toBeTruthy();
     });
@@ -239,10 +265,13 @@ test.describe('10. HTTP节点 - 响应展示模块测试', () => {
      * 说明：HTML预览便于查看页面效果
      */
     test('HTML响应应支持渲染预览', async () => {
+      // 请求返回HTML
       await fillUrl(contentPage, 'https://httpbin.org/html');
       const sendBtn = contentPage.locator('button:has-text("发送请求")'); await sendBtn.click();
       await contentPage.waitForTimeout(3000);
+      // 切换到响应体标签页
       await switchToResponseTab(contentPage, '响应体');
+      // 点击预览按钮
       const previewBtn = contentPage.locator('[title*="预览"], .preview-btn').first();
       if (await previewBtn.isVisible()) {
         await previewBtn.click();
@@ -265,10 +294,13 @@ test.describe('10. HTTP节点 - 响应展示模块测试', () => {
      * 说明：XML格式化提高可读性
      */
     test('XML响应应格式化显示', async () => {
+      // 请求返回XML
       await fillUrl(contentPage, 'https://httpbin.org/xml');
       const sendBtn = contentPage.locator('button:has-text("发送请求")'); await sendBtn.click();
       await contentPage.waitForTimeout(3000);
+      // 切换到响应体标签页
       await switchToResponseTab(contentPage, '响应体');
+      // 获取响应体内容
       const responseBody = await getResponseBody(contentPage);
       expect(responseBody).toBeTruthy();
     });
@@ -288,10 +320,13 @@ test.describe('10. HTTP节点 - 响应展示模块测试', () => {
      * 说明：二进制数据需要提供下载功能
      */
     test('Binary响应应显示下载选项', async () => {
+      // 请求返回图片
       await fillUrl(contentPage, 'https://httpbin.org/image/png');
       const sendBtn = contentPage.locator('button:has-text("发送请求")'); await sendBtn.click();
       await contentPage.waitForTimeout(3000);
+      // 切换到响应体标签页
       await switchToResponseTab(contentPage, '响应体');
+      // 检查下载按钮
       const downloadBtn = contentPage.locator('[title*="下载"], .download-btn').first();
       if (await downloadBtn.isVisible()) {
         await expect(downloadBtn).toBeVisible();
@@ -312,10 +347,13 @@ test.describe('10. HTTP节点 - 响应展示模块测试', () => {
      * 说明：204等状态码不包含响应体
      */
     test('空响应应显示提示', async () => {
+      // 请求返回204无内容
       await fillUrl(contentPage, 'https://httpbin.org/status/204');
       const sendBtn = contentPage.locator('button:has-text("发送请求")'); await sendBtn.click();
       await contentPage.waitForTimeout(3000);
+      // 切换到响应体标签页
       await switchToResponseTab(contentPage, '响应体');
+      // 检查空状态提示
       const emptyState = contentPage.locator('.empty-response, .no-content').first();
       if (await emptyState.isVisible()) {
         await expect(emptyState).toBeVisible();
@@ -337,10 +375,13 @@ test.describe('10. HTTP节点 - 响应展示模块测试', () => {
      * 说明：大响应需要滚动查看完整内容
      */
     test('超大响应应支持滚动查看', async () => {
+      // 请求返回大量数据
       await fillUrl(contentPage, 'https://httpbin.org/bytes/10000');
       const sendBtn = contentPage.locator('button:has-text("发送请求")'); await sendBtn.click();
       await contentPage.waitForTimeout(3000);
+      // 切换到响应体标签页
       await switchToResponseTab(contentPage, '响应体');
+      // 检查滚动条
       const responseContainer = contentPage.locator('.response-body, .monaco-editor').first();
       const hasScroll = await responseContainer.evaluate((el) => {
         return el.scrollHeight > el.clientHeight;
@@ -362,10 +403,13 @@ test.describe('10. HTTP节点 - 响应展示模块测试', () => {
      * 说明：复制功能便于在其他工具中使用响应数据
      */
     test('应支持复制响应内容', async () => {
+      // 发送请求
       await fillUrl(contentPage, 'https://httpbin.org/get');
       const sendBtn = contentPage.locator('button:has-text("发送请求")'); await sendBtn.click();
       await contentPage.waitForTimeout(3000);
+      // 切换到响应体标签页
       await switchToResponseTab(contentPage, '响应体');
+      // 点击复制按钮
       const copyBtn = contentPage.locator('[title*="复制"], .copy-btn').first();
       if (await copyBtn.isVisible()) {
         await copyBtn.click();
@@ -388,10 +432,13 @@ test.describe('10. HTTP节点 - 响应展示模块测试', () => {
      * 说明：原始模式便于查看实际传输内容
      */
     test('应支持切换响应体展示模式（格式化/原始）', async () => {
+      // 发送JSON请求
       await fillUrl(contentPage, 'https://httpbin.org/json');
       const sendBtn = contentPage.locator('button:has-text("发送请求")'); await sendBtn.click();
       await contentPage.waitForTimeout(3000);
+      // 切换到响应体标签页
       await switchToResponseTab(contentPage, '响应体');
+      // 点击格式化/原始切换按钮
       const modeSwitch = contentPage.locator('.mode-switch, .format-toggle').first();
       if (await modeSwitch.isVisible()) {
         await modeSwitch.click();
@@ -415,10 +462,13 @@ test.describe('10. HTTP节点 - 响应展示模块测试', () => {
      * 说明：响应头包含重要的元数据信息
      */
     test('应显示所有响应头', async () => {
+      // 发送请求
       await fillUrl(contentPage, 'https://httpbin.org/get');
       const sendBtn = contentPage.locator('button:has-text("发送请求")'); await sendBtn.click();
       await contentPage.waitForTimeout(3000);
+      // 切换到响应头标签页
       await switchToResponseTab(contentPage, '响应头');
+      // 检查响应头列表显示
       const headersList = contentPage.locator('.response-headers, .headers-list').first();
       await expect(headersList).toBeVisible({ timeout: 5000 });
     });
@@ -438,10 +488,13 @@ test.describe('10. HTTP节点 - 响应展示模块测试', () => {
      * 说明：key-value格式是HTTP头的标准表示
      */
     test('响应头应显示key和value', async () => {
+      // 发送请求
       await fillUrl(contentPage, 'https://httpbin.org/get');
       const sendBtn = contentPage.locator('button:has-text("发送请求")'); await sendBtn.click();
       await contentPage.waitForTimeout(3000);
+      // 切换到响应头标签页
       await switchToResponseTab(contentPage, '响应头');
+      // 检查响应头行
       const headerRow = contentPage.locator('.header-row, tr').first();
       await expect(headerRow).toBeVisible({ timeout: 5000 });
     });
@@ -461,10 +514,13 @@ test.describe('10. HTTP节点 - 响应展示模块测试', () => {
      * 说明：搜索功能便于在大量响应头中快速定位
      */
     test('应支持搜索响应头', async () => {
+      // 发送请求
       await fillUrl(contentPage, 'https://httpbin.org/get');
       const sendBtn = contentPage.locator('button:has-text("发送请求")'); await sendBtn.click();
       await contentPage.waitForTimeout(3000);
+      // 切换到响应头标签页
       await switchToResponseTab(contentPage, '响应头');
+      // 在搜索框输入关键词
       const searchInput = contentPage.locator('.search-input, input[placeholder*="搜索"]').first();
       if (await searchInput.isVisible()) {
         await searchInput.fill('content');
@@ -486,10 +542,13 @@ test.describe('10. HTTP节点 - 响应展示模块测试', () => {
      * 说明：数量统计帮助了解响应头的完整性
      */
     test('应显示响应头数量', async () => {
+      // 发送请求
       await fillUrl(contentPage, 'https://httpbin.org/get');
       const sendBtn = contentPage.locator('button:has-text("发送请求")'); await sendBtn.click();
       await contentPage.waitForTimeout(3000);
+      // 切换到响应头标签页
       await switchToResponseTab(contentPage, '响应头');
+      // 检查响应头数量
       const countElement = contentPage.locator('.header-count, .count').first();
       if (await countElement.isVisible()) {
         const count = await countElement.textContent();
@@ -512,10 +571,13 @@ test.describe('10. HTTP节点 - 响应展示模块测试', () => {
      * 说明：复制功能便于在其他工具中使用响应头
      */
     test('应支持复制响应头', async () => {
+      // 发送请求
       await fillUrl(contentPage, 'https://httpbin.org/get');
       const sendBtn = contentPage.locator('button:has-text("发送请求")'); await sendBtn.click();
       await contentPage.waitForTimeout(3000);
+      // 切换到响应头标签页
       await switchToResponseTab(contentPage, '响应头');
+      // 点击复制按钮
       const copyBtn = contentPage.locator('[title*="复制"], .copy-btn').first();
       if (await copyBtn.isVisible()) {
         await copyBtn.click();
@@ -539,10 +601,13 @@ test.describe('10. HTTP节点 - 响应展示模块测试', () => {
      * 说明：Set-Cookie是服务器设置Cookie的标准方式
      */
     test('应提取Set-Cookie头中的Cookie', async () => {
+      // 请求设置Cookie的接口
       await fillUrl(contentPage, 'https://httpbin.org/cookies/set?name=value');
       const sendBtn = contentPage.locator('button:has-text("发送请求")'); await sendBtn.click();
       await contentPage.waitForTimeout(3000);
+      // 切换到Cookie标签页
       await switchToResponseTab(contentPage, 'Cookie');
+      // 检查Cookie列表
       const cookiesList = contentPage.locator('.cookies-list, .cookie-table').first();
       if (await cookiesList.isVisible()) {
         await expect(cookiesList).toBeVisible();
@@ -563,9 +628,11 @@ test.describe('10. HTTP节点 - 响应展示模块测试', () => {
      * 说明：name和value是Cookie的核心属性
      */
     test('应显示Cookie的name和value', async () => {
+      // 请求设置Cookie的接口
       await fillUrl(contentPage, 'https://httpbin.org/cookies/set?testcookie=testvalue');
       const sendBtn = contentPage.locator('button:has-text("发送请求")'); await sendBtn.click();
       await contentPage.waitForTimeout(3000);
+      // 切换到Cookie标签页
       await switchToResponseTab(contentPage, 'Cookie');
       await contentPage.waitForTimeout(500);
     });
@@ -584,9 +651,11 @@ test.describe('10. HTTP节点 - 响应展示模块测试', () => {
      * 说明：domain决定Cookie的作用范围
      */
     test('应显示Cookie的domain', async () => {
+      // 请求设置Cookie
       await fillUrl(contentPage, 'https://httpbin.org/cookies/set?cookie1=value1');
       const sendBtn = contentPage.locator('button:has-text("发送请求")'); await sendBtn.click();
       await contentPage.waitForTimeout(3000);
+      // 切换到Cookie标签页
       await switchToResponseTab(contentPage, 'Cookie');
       await contentPage.waitForTimeout(500);
     });
@@ -605,9 +674,11 @@ test.describe('10. HTTP节点 - 响应展示模块测试', () => {
      * 说明：path限制Cookie的生效路径
      */
     test('应显示Cookie的path', async () => {
+      // 请求设置Cookie
       await fillUrl(contentPage, 'https://httpbin.org/cookies/set?cookie2=value2');
       const sendBtn = contentPage.locator('button:has-text("发送请求")'); await sendBtn.click();
       await contentPage.waitForTimeout(3000);
+      // 切换到Cookie标签页
       await switchToResponseTab(contentPage, 'Cookie');
       await contentPage.waitForTimeout(500);
     });
@@ -626,9 +697,11 @@ test.describe('10. HTTP节点 - 响应展示模块测试', () => {
      * 说明：过期时间决定Cookie的生命周期
      */
     test('应显示Cookie的过期时间', async () => {
+      // 请求设置Cookie
       await fillUrl(contentPage, 'https://httpbin.org/cookies/set?cookie3=value3');
       const sendBtn = contentPage.locator('button:has-text("发送请求")'); await sendBtn.click();
       await contentPage.waitForTimeout(3000);
+      // 切换到Cookie标签页
       await switchToResponseTab(contentPage, 'Cookie');
       await contentPage.waitForTimeout(500);
     });
@@ -647,9 +720,11 @@ test.describe('10. HTTP节点 - 响应展示模块测试', () => {
      * 说明：HttpOnly防止JavaScript访问Cookie
      */
     test('应显示Cookie的HttpOnly属性', async () => {
+      // 请求设置Cookie
       await fillUrl(contentPage, 'https://httpbin.org/cookies/set?cookie4=value4');
       const sendBtn = contentPage.locator('button:has-text("发送请求")'); await sendBtn.click();
       await contentPage.waitForTimeout(3000);
+      // 切换到Cookie标签页
       await switchToResponseTab(contentPage, 'Cookie');
       await contentPage.waitForTimeout(500);
     });
@@ -668,9 +743,11 @@ test.describe('10. HTTP节点 - 响应展示模块测试', () => {
      * 说明：Secure限制Cookie仅在HTTPS下传输
      */
     test('应显示Cookie的Secure属性', async () => {
+      // 请求设置Cookie
       await fillUrl(contentPage, 'https://httpbin.org/cookies/set?cookie5=value5');
       const sendBtn = contentPage.locator('button:has-text("发送请求")'); await sendBtn.click();
       await contentPage.waitForTimeout(3000);
+      // 切换到Cookie标签页
       await switchToResponseTab(contentPage, 'Cookie');
       await contentPage.waitForTimeout(500);
     });
@@ -689,10 +766,13 @@ test.describe('10. HTTP节点 - 响应展示模块测试', () => {
      * 说明：空状态提示避免用户困惑
      */
     test('无Cookie响应应显示空状态', async () => {
+      // 请求不返回Cookie的接口
       await fillUrl(contentPage, 'https://httpbin.org/get');
       const sendBtn = contentPage.locator('button:has-text("发送请求")'); await sendBtn.click();
       await contentPage.waitForTimeout(3000);
+      // 切换到Cookie标签页
       await switchToResponseTab(contentPage, 'Cookie');
+      // 检查空状态提示
       const emptyState = contentPage.locator('.empty-cookies, .no-cookies').first();
       if (await emptyState.isVisible()) {
         await expect(emptyState).toBeVisible();
@@ -715,9 +795,11 @@ test.describe('10. HTTP节点 - 响应展示模块测试', () => {
      * 说明：原始响应用于调试和查看实际传输内容
      */
     test('应显示原始响应体', async () => {
+      // 发送请求
       await fillUrl(contentPage, 'https://httpbin.org/get');
       const sendBtn = contentPage.locator('button:has-text("发送请求")'); await sendBtn.click();
       await contentPage.waitForTimeout(3000);
+      // 切换到原始标签页
       const rawTab = contentPage.locator('.el-tabs__item:has-text("原始"), .raw-tab').first();
       if (await rawTab.isVisible()) {
         await rawTab.click();
@@ -740,12 +822,15 @@ test.describe('10. HTTP节点 - 响应展示模块测试', () => {
      * 说明：原始响应必须与实际接收的数据完全一致
      */
     test('原始响应应包含所有字符', async () => {
+      // 发送请求
       await fillUrl(contentPage, 'https://httpbin.org/get');
       const sendBtn = contentPage.locator('button:has-text("发送请求")'); await sendBtn.click();
       await contentPage.waitForTimeout(3000);
+      // 切换到原始标签页
       const rawTab = contentPage.locator('.el-tabs__item:has-text("原始"), .raw-tab').first();
       if (await rawTab.isVisible()) {
         await rawTab.click();
+        // 获取原始内容
         const rawContent = await contentPage.locator('.raw-content, .response-raw').first().textContent();
         expect(rawContent).toBeTruthy();
       }
@@ -765,9 +850,11 @@ test.describe('10. HTTP节点 - 响应展示模块测试', () => {
      * 说明：复制原始响应便于在其他工具中分析
      */
     test('应支持复制原始响应', async () => {
+      // 发送请求
       await fillUrl(contentPage, 'https://httpbin.org/get');
       const sendBtn = contentPage.locator('button:has-text("发送请求")'); await sendBtn.click();
       await contentPage.waitForTimeout(3000);
+      // 点击复制按钮
       const copyBtn = contentPage.locator('[title*="复制"], .copy-btn').first();
       if (await copyBtn.isVisible()) {
         await copyBtn.click();
@@ -792,10 +879,13 @@ test.describe('10. HTTP节点 - 响应展示模块测试', () => {
      * 说明：回显帮助确认实际发送的请求内容
      */
     test('应显示实际发送的URL', async () => {
+      // 发送带查询参数的请求
       await fillUrl(contentPage, 'https://httpbin.org/get?param1=value1');
       const sendBtn = contentPage.locator('button:has-text("发送请求")'); await sendBtn.click();
       await contentPage.waitForTimeout(3000);
+      // 切换到请求信息标签页
       await switchToResponseTab(contentPage, '请求信息');
+      // 检查URL显示
       const requestUrl = contentPage.locator('.request-url, .url').first();
       if (await requestUrl.isVisible()) {
         const url = await requestUrl.textContent();
@@ -818,10 +908,13 @@ test.describe('10. HTTP节点 - 响应展示模块测试', () => {
      * 说明：回显帮助确认请求头配置是否正确
      */
     test('应显示实际发送的请求头', async () => {
+      // 发送请求
       await fillUrl(contentPage, 'https://httpbin.org/get');
       const sendBtn = contentPage.locator('button:has-text("发送请求")'); await sendBtn.click();
       await contentPage.waitForTimeout(3000);
+      // 切换到请求信息标签页
       await switchToResponseTab(contentPage, '请求信息');
+      // 检查请求头显示
       const requestHeaders = contentPage.locator('.request-headers, .headers').first();
       if (await requestHeaders.isVisible()) {
         await expect(requestHeaders).toBeVisible();
@@ -843,9 +936,11 @@ test.describe('10. HTTP节点 - 响应展示模块测试', () => {
      * 说明：回显帮助确认请求体内容和编码
      */
     test('应显示实际发送的请求体', async () => {
+      // 发送POST请求
       await fillUrl(contentPage, 'https://httpbin.org/post');
       const sendBtn = contentPage.locator('button:has-text("发送请求")'); await sendBtn.click();
       await contentPage.waitForTimeout(3000);
+      // 切换到请求信息标签页
       await switchToResponseTab(contentPage, '请求信息');
       await contentPage.waitForTimeout(500);
     });
@@ -864,10 +959,13 @@ test.describe('10. HTTP节点 - 响应展示模块测试', () => {
      * 说明：方法是HTTP请求的基本信息
      */
     test('应显示请求方法', async () => {
+      // 发送请求
       await fillUrl(contentPage, 'https://httpbin.org/get');
       const sendBtn = contentPage.locator('button:has-text("发送请求")'); await sendBtn.click();
       await contentPage.waitForTimeout(3000);
+      // 切换到请求信息标签页
       await switchToResponseTab(contentPage, '请求信息');
+      // 检查请求方法显示
       const requestMethod = contentPage.locator('.request-method, .method').first();
       if (await requestMethod.isVisible()) {
         const method = await requestMethod.textContent();
@@ -889,9 +987,11 @@ test.describe('10. HTTP节点 - 响应展示模块测试', () => {
      * 说明：回显帮助确认变量替换是否正确
      */
     test('变量替换后的值应在请求信息中显示', async () => {
+      // 使用变量发送请求
       await fillUrl(contentPage, 'https://httpbin.org/get');
       const sendBtn = contentPage.locator('button:has-text("发送请求")'); await sendBtn.click();
       await contentPage.waitForTimeout(3000);
+      // 切换到请求信息标签页
       await switchToResponseTab(contentPage, '请求信息');
       await contentPage.waitForTimeout(500);
     });
@@ -912,9 +1012,11 @@ test.describe('10. HTTP节点 - 响应展示模块测试', () => {
      * 说明：标签页切换是查看响应详情的基本操作
      */
     test('应支持在不同响应标签间切换', async () => {
+      // 发送请求
       await fillUrl(contentPage, 'https://httpbin.org/get');
       const sendBtn = contentPage.locator('button:has-text("发送请求")'); await sendBtn.click();
       await contentPage.waitForTimeout(3000);
+      // 依次切换所有响应标签页
       await switchToResponseTab(contentPage, '基本信息');
       await switchToResponseTab(contentPage, '响应体');
       await switchToResponseTab(contentPage, '响应头');
@@ -939,13 +1041,18 @@ test.describe('10. HTTP节点 - 响应展示模块测试', () => {
      * 说明：标签切换不应影响已接收的响应数据
      */
     test('切换标签应保持响应数据', async () => {
+      // 发送请求
       await fillUrl(contentPage, 'https://httpbin.org/get');
       const sendBtn = contentPage.locator('button:has-text("发送请求")'); await sendBtn.click();
       await contentPage.waitForTimeout(3000);
+      // 切换到响应体标签页获取内容
       await switchToResponseTab(contentPage, '响应体');
       const body1 = await getResponseBody(contentPage);
+      // 切换到其他标签页
       await switchToResponseTab(contentPage, '响应头');
+      // 再次切换回响应体标签页
       await switchToResponseTab(contentPage, '响应体');
+      // 对比前后内容
       const body2 = await getResponseBody(contentPage);
       expect(body1).toBe(body2);
     });

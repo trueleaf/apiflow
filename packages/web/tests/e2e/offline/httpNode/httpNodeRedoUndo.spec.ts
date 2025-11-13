@@ -48,6 +48,7 @@ test.describe('11. HTTP节点 - 撤销/重做功能测试', () => {
      * 说明：撤销按钮是操作历史管理的入口
      */
     test('应显示撤销按钮', async () => {
+      // 检查撤销按钮是否显示
       const undoBtn = contentPage.locator('[title*="撤销"], .undo-btn, button:has-text("撤销")').first();
       await expect(undoBtn).toBeVisible();
     });
@@ -65,6 +66,7 @@ test.describe('11. HTTP节点 - 撤销/重做功能测试', () => {
      * 说明：未执行操作前不能撤销
      */
     test('初始状态撤销按钮应禁用', async () => {
+      // 检查撤销按钮状态
       await verifyUndoDisabled(contentPage);
     });
 
@@ -81,8 +83,10 @@ test.describe('11. HTTP节点 - 撤销/重做功能测试', () => {
      * 说明：执行任何编辑操作后撤销按钮启用
      */
     test('执行操作后撤销按钮应启用', async () => {
+      // 添加Query参数
       await addQueryParam(contentPage, 'testKey', 'testValue');
       await contentPage.waitForTimeout(300);
+      // 检查撤销按钮状态
       await verifyUndoEnabled(contentPage);
     });
 
@@ -101,12 +105,15 @@ test.describe('11. HTTP节点 - 撤销/重做功能测试', () => {
      * 说明：撤销可以移除新添加的参数
      */
     test('应能撤销添加Query参数', async () => {
+      // 添加Query参数
       await addQueryParam(contentPage, 'testParam', 'testValue');
       await verifyQueryParamExists(contentPage, 'testParam');
+      // 点击撤销
       const undoButton = contentPage.locator('[title*="撤销"], .undo-btn, button:has-text("撤销")').first();
       await undoButton.click();
       await contentPage.waitForTimeout(200);
       await contentPage.waitForTimeout(300);
+      // 验证参数已删除
       const row = contentPage.locator('tr:has(input[value="testParam"])');
       await expect(row).not.toBeVisible();
     });
@@ -126,14 +133,18 @@ test.describe('11. HTTP节点 - 撤销/重做功能测试', () => {
      * 说明：撤销URL修改操作
      */
     test('应能撤销编辑URL', async () => {
+      // 填写初始URL
       const originalUrl = 'http://example.com/api';
       await fillUrl(contentPage, originalUrl);
       await contentPage.waitForTimeout(300);
+      // 修改为新URL
       await fillUrl(contentPage, 'http://example.com/new-api');
       await contentPage.waitForTimeout(300);
+      // 点击撤销
       const undoButton = contentPage.locator('[title*="撤销"], .undo-btn, button:has-text("撤销")').first();
       await undoButton.click();
       await contentPage.waitForTimeout(200);
+      // 验证URL恢复为初始值
       await verifyUrlValue(contentPage, originalUrl);
     });
 
@@ -152,12 +163,15 @@ test.describe('11. HTTP节点 - 撤销/重做功能测试', () => {
      * 说明：撤销可以移除新添加的Header
      */
     test('应能撤销添加Headers', async () => {
+      // 添加Header
       await addHeader(contentPage, 'X-Test-Header', 'TestValue');
       await verifyHeaderExists(contentPage, 'X-Test-Header');
+      // 点击撤销
       const undoButton = contentPage.locator('[title*="撤销"], .undo-btn, button:has-text("撤销")').first();
       await undoButton.click();
       await contentPage.waitForTimeout(200);
       await contentPage.waitForTimeout(300);
+      // 验证Header已删除
       const row = contentPage.locator('tr:has(input[value="X-Test-Header"])');
       await expect(row).not.toBeVisible();
     });
@@ -177,11 +191,15 @@ test.describe('11. HTTP节点 - 撤销/重做功能测试', () => {
      * 说明：撤销Body修改操作
      */
     test('应能撤销Body编辑', async () => {
+      // 选择POST方法
       await selectHttpMethod(contentPage, 'POST');
+      // 填写初始Body
       await fillJsonBody(contentPage, { key: 'value1' });
       await contentPage.waitForTimeout(300);
+      // 修改Body内容
       await fillJsonBody(contentPage, { key: 'value2' });
       await contentPage.waitForTimeout(300);
+      // 点击撤销
       const undoButton = contentPage.locator('[title*="撤销"], .undo-btn, button:has-text("撤销")').first();
       await undoButton.click();
       await contentPage.waitForTimeout(200);
@@ -202,12 +220,14 @@ test.describe('11. HTTP节点 - 撤销/重做功能测试', () => {
      * 说明：可以连续撤销多个操作
      */
     test('应能连续撤销多次操作', async () => {
+      // 添加3个Query参数
       await addQueryParam(contentPage, 'param1', 'value1');
       await contentPage.waitForTimeout(300);
       await addQueryParam(contentPage, 'param2', 'value2');
       await contentPage.waitForTimeout(300);
       await addQueryParam(contentPage, 'param3', 'value3');
       await contentPage.waitForTimeout(300);
+      // 连续点击撤销3次
       const undoButton1 = contentPage.locator('[title*="撤销"], .undo-btn, button:has-text("撤销")').first();
       await undoButton1.click();
       await contentPage.waitForTimeout(200);
@@ -218,6 +238,7 @@ test.describe('11. HTTP节点 - 撤销/重做功能测试', () => {
       await undoButton3.click();
       await contentPage.waitForTimeout(200);
       await contentPage.waitForTimeout(300);
+      // 验证所有参数都被删除
       const row1 = contentPage.locator('tr:has(input[value="param1"])');
       const row2 = contentPage.locator('tr:has(input[value="param2"])');
       const row3 = contentPage.locator('tr:has(input[value="param3"])');
@@ -240,11 +261,14 @@ test.describe('11. HTTP节点 - 撤销/重做功能测试', () => {
      * 说明：撤销到初始状态后不能再撤销
      */
     test('撤销到初始状态后按钮应禁用', async () => {
+      // 添加参数
       await addQueryParam(contentPage, 'testParam', 'testValue');
       await contentPage.waitForTimeout(300);
+      // 撤销操作
       const undoButton = contentPage.locator('[title*="撤销"], .undo-btn, button:has-text("撤销")').first();
       await undoButton.click();
       await contentPage.waitForTimeout(200);
+      // 检查撤销按钮状态
       await verifyUndoDisabled(contentPage);
     });
 
@@ -262,10 +286,13 @@ test.describe('11. HTTP节点 - 撤销/重做功能测试', () => {
      * 说明：Ctrl+Z是常用的撤销快捷键
      */
     test('应支持Ctrl+Z快捷键撤销', async () => {
+      // 添加Query参数
       await addQueryParam(contentPage, 'shortcutTest', 'value');
       await verifyQueryParamExists(contentPage, 'shortcutTest');
+      // 按Ctrl+Z
       await undoByShortcut(contentPage);
       await contentPage.waitForTimeout(300);
+      // 验证参数被撤销
       const row = contentPage.locator('tr:has(input[value="shortcutTest"])');
       await expect(row).not.toBeVisible();
     });
@@ -285,6 +312,7 @@ test.describe('11. HTTP节点 - 撤销/重做功能测试', () => {
      * 说明：重做按钮用于恢复被撤销的操作
      */
     test('应显示重做按钮', async () => {
+      // 检查重做按钮是否显示
       const redoBtn = contentPage.locator('[title*="重做"], .redo-btn, button:has-text("重做")').first();
       await expect(redoBtn).toBeVisible();
     });
@@ -302,6 +330,7 @@ test.describe('11. HTTP节点 - 撤销/重做功能测试', () => {
      * 说明：未执行撤销前不能重做
      */
     test('初始状态重做按钮应禁用', async () => {
+      // 检查重做按钮状态
       await verifyRedoDisabled(contentPage);
     });
 
@@ -319,11 +348,14 @@ test.describe('11. HTTP节点 - 撤销/重做功能测试', () => {
      * 说明：撤销操作后重做按钮启用
      */
     test('撤销后重做按钮应启用', async () => {
+      // 添加Query参数
       await addQueryParam(contentPage, 'testKey', 'testValue');
       await contentPage.waitForTimeout(300);
+      // 点击撤销
       const undoButton = contentPage.locator('[title*="撤销"], .undo-btn, button:has-text("撤销")').first();
       await undoButton.click();
       await contentPage.waitForTimeout(200);
+      // 检查重做按钮状态
       await verifyRedoEnabled(contentPage);
     });
 
@@ -344,17 +376,22 @@ test.describe('11. HTTP节点 - 撤销/重做功能测试', () => {
      * 说明：重做可以恢复被撤销的操作
      */
     test('应能重做被撤销的操作', async () => {
+      // 添加Query参数
       await addQueryParam(contentPage, 'redoTest', 'value');
       await verifyQueryParamExists(contentPage, 'redoTest');
+      // 撤销操作
       const undoButton = contentPage.locator('[title*="撤销"], .undo-btn, button:has-text("撤销")').first();
       await undoButton.click();
       await contentPage.waitForTimeout(200);
       await contentPage.waitForTimeout(300);
+      // 验证参数被删除
       const rowAfterUndo = contentPage.locator('tr:has(input[value="redoTest"])');
       await expect(rowAfterUndo).not.toBeVisible();
+      // 重做操作
       const redoButton = contentPage.locator('[title*="重做"], .redo-btn, button:has-text("重做")').first();
       await redoButton.click();
       await contentPage.waitForTimeout(200);
+      // 验证参数恢复
       await verifyQueryParamExists(contentPage, 'redoTest');
     });
 
@@ -373,12 +410,14 @@ test.describe('11. HTTP节点 - 撤销/重做功能测试', () => {
      * 说明：可以连续重做多个被撤销的操作
      */
     test('应能连续重做多次操作', async () => {
+      // 添加3个Query参数
       await addQueryParam(contentPage, 'param1', 'value1');
       await contentPage.waitForTimeout(300);
       await addQueryParam(contentPage, 'param2', 'value2');
       await contentPage.waitForTimeout(300);
       await addQueryParam(contentPage, 'param3', 'value3');
       await contentPage.waitForTimeout(300);
+      // 连续撤销3次
       const undoButton1 = contentPage.locator('[title*="撤销"], .undo-btn, button:has-text("撤销")').first();
       await undoButton1.click();
       await contentPage.waitForTimeout(200);
@@ -389,6 +428,7 @@ test.describe('11. HTTP节点 - 撤销/重做功能测试', () => {
       await undoButton3.click();
       await contentPage.waitForTimeout(200);
       await contentPage.waitForTimeout(300);
+      // 连续重做3次
       const redoButton1 = contentPage.locator('[title*="重做"], .redo-btn, button:has-text("重做")').first();
       await redoButton1.click();
       await contentPage.waitForTimeout(200);
@@ -399,6 +439,7 @@ test.describe('11. HTTP节点 - 撤销/重做功能测试', () => {
       await redoButton3.click();
       await contentPage.waitForTimeout(200);
       await contentPage.waitForTimeout(300);
+      // 验证所有参数都恢复
       await verifyQueryParamExists(contentPage, 'param1');
       await verifyQueryParamExists(contentPage, 'param2');
       await verifyQueryParamExists(contentPage, 'param3');
@@ -419,14 +460,18 @@ test.describe('11. HTTP节点 - 撤销/重做功能测试', () => {
      * 说明：重做到最新状态后不能再重做
      */
     test('重做到最新状态后按钮应禁用', async () => {
+      // 添加参数
       await addQueryParam(contentPage, 'testParam', 'testValue');
       await contentPage.waitForTimeout(300);
+      // 撤销操作
       const undoButton = contentPage.locator('[title*="撤销"], .undo-btn, button:has-text("撤销")').first();
       await undoButton.click();
       await contentPage.waitForTimeout(200);
+      // 重做操作
       const redoButton = contentPage.locator('[title*="重做"], .redo-btn, button:has-text("重做")').first();
       await redoButton.click();
       await contentPage.waitForTimeout(200);
+      // 检查重做按钮状态
       await verifyRedoDisabled(contentPage);
     });
 
@@ -445,11 +490,15 @@ test.describe('11. HTTP节点 - 撤销/重做功能测试', () => {
      * 说明：Ctrl+Y是常用的重做快捷键
      */
     test('应支持Ctrl+Y快捷键重做', async () => {
+      // 添加Query参数
       await addQueryParam(contentPage, 'shortcutRedo', 'value');
       await verifyQueryParamExists(contentPage, 'shortcutRedo');
+      // 按Ctrl+Z撤销
       await undoByShortcut(contentPage);
       await contentPage.waitForTimeout(300);
+      // 按Ctrl+Y重做
       await redoByShortcut(contentPage);
+      // 验证参数恢复
       await verifyQueryParamExists(contentPage, 'shortcutRedo');
     });
 
@@ -467,10 +516,13 @@ test.describe('11. HTTP节点 - 撤销/重做功能测试', () => {
      * 说明：Mac系统使用Cmd+Shift+Z重做
      */
     test('应支持Cmd+Shift+Z快捷键重做(Mac)', async () => {
+      // 添加Query参数
       await addQueryParam(contentPage, 'macRedo', 'value');
       await verifyQueryParamExists(contentPage, 'macRedo');
+      // 撤销操作
       await undoByShortcut(contentPage);
       await contentPage.waitForTimeout(300);
+      // 按Cmd+Shift+Z重做
       await redoByMacShortcut(contentPage);
       await contentPage.waitForTimeout(300);
     });
@@ -493,14 +545,19 @@ test.describe('11. HTTP节点 - 撤销/重做功能测试', () => {
      * 说明：执行新操作会清空所有重做历史
      */
     test('新操作应清空重做栈', async () => {
+      // 添加参数A
       await addQueryParam(contentPage, 'paramA', 'valueA');
       await contentPage.waitForTimeout(300);
+      // 撤销
       const undoButton = contentPage.locator('[title*="撤销"], .undo-btn, button:has-text("撤销")').first();
       await undoButton.click();
       await contentPage.waitForTimeout(200);
+      // 验证可以重做
       await verifyRedoEnabled(contentPage);
+      // 添加参数B
       await addQueryParam(contentPage, 'paramB', 'valueB');
       await contentPage.waitForTimeout(300);
+      // 验证不能重做
       await verifyRedoDisabled(contentPage);
     });
 
@@ -518,11 +575,13 @@ test.describe('11. HTTP节点 - 撤销/重做功能测试', () => {
      * 说明：限制历史数量避免占用过多内存
      */
     test('应限制历史记录最大数量', async () => {
+      // 添加25个Query参数
       for (let i = 0; i < 25; i++) {
         await addQueryParam(contentPage, `param${i}`, `value${i}`);
         await contentPage.waitForTimeout(100);
       }
       await contentPage.waitForTimeout(300);
+      // 连续撤销直到按钮禁用
       let undoCount = 0;
       const maxUndoCount = 20;
       while (undoCount < maxUndoCount) {
@@ -534,6 +593,7 @@ test.describe('11. HTTP节点 - 撤销/重做功能测试', () => {
         await contentPage.waitForTimeout(200);
         undoCount++;
       }
+      // 验证撤销次数不超过20次
       expect(undoCount).toBeLessThanOrEqual(maxUndoCount);
     });
 
@@ -552,9 +612,12 @@ test.describe('11. HTTP节点 - 撤销/重做功能测试', () => {
      * 说明：每个节点有独立的操作历史
      */
     test('切换节点应清空历史', async () => {
+      // 添加参数
       await addQueryParam(contentPage, 'testParam', 'testValue');
       await contentPage.waitForTimeout(300);
+      // 验证可以撤销
       await verifyUndoEnabled(contentPage);
+      // 创建新节点
       const createNodeBtn = contentPage.locator('[title*="创建"], .create-node-btn').first();
       if (await createNodeBtn.isVisible()) {
         await createNodeBtn.click();
@@ -585,19 +648,24 @@ test.describe('11. HTTP节点 - 撤销/重做功能测试', () => {
      * 说明：撤销重做不会造成数据错误
      */
     test('撤销重做后数据应与原始状态一致', async () => {
+      // 设置初始URL
       const initialUrl = 'http://example.com/initial';
       await fillUrl(contentPage, initialUrl);
       await contentPage.waitForTimeout(300);
+      // 修改URL
       await fillUrl(contentPage, 'http://example.com/modified');
       await contentPage.waitForTimeout(300);
+      // 撤销验证恢复到初始URL
       const undoButton1 = contentPage.locator('[title*="撤销"], .undo-btn, button:has-text("撤销")').first();
       await undoButton1.click();
       await contentPage.waitForTimeout(200);
       await verifyUrlValue(contentPage, initialUrl);
+      // 重做验证恢复到修改后URL
       const redoButton = contentPage.locator('[title*="重做"], .redo-btn, button:has-text("重做")').first();
       await redoButton.click();
       await contentPage.waitForTimeout(200);
       await verifyUrlValue(contentPage, 'http://example.com/modified');
+      // 再次撤销验证恢复到初始URL
       const undoButton2 = contentPage.locator('[title*="撤销"], .undo-btn, button:has-text("撤销")').first();
       await undoButton2.click();
       await contentPage.waitForTimeout(200);
@@ -621,6 +689,7 @@ test.describe('11. HTTP节点 - 撤销/重做功能测试', () => {
      * 说明：多次撤销重做保持数据完整性
      */
     test('多次撤销重做应保持数据正确性', async () => {
+      // 执行4个不同类型的操作
       await addQueryParam(contentPage, 'step1', 'value1');
       await contentPage.waitForTimeout(200);
       await addQueryParam(contentPage, 'step2', 'value2');
@@ -629,6 +698,7 @@ test.describe('11. HTTP节点 - 撤销/重做功能测试', () => {
       await contentPage.waitForTimeout(200);
       await addHeader(contentPage, 'X-Test', 'HeaderValue');
       await contentPage.waitForTimeout(300);
+      // 撤销2个操作
       const undoButton1 = contentPage.locator('[title*="撤销"], .undo-btn, button:has-text("撤销")').first();
       await undoButton1.click();
       await contentPage.waitForTimeout(200);
@@ -636,6 +706,7 @@ test.describe('11. HTTP节点 - 撤销/重做功能测试', () => {
       await undoButton2.click();
       await contentPage.waitForTimeout(200);
       await contentPage.waitForTimeout(300);
+      // 重做2个操作
       const redoButton1 = contentPage.locator('[title*="重做"], .redo-btn, button:has-text("重做")').first();
       await redoButton1.click();
       await contentPage.waitForTimeout(200);
@@ -643,8 +714,10 @@ test.describe('11. HTTP节点 - 撤销/重做功能测试', () => {
       await redoButton2.click();
       await contentPage.waitForTimeout(200);
       await contentPage.waitForTimeout(300);
+      // 验证数据正确
       await verifyUrlValue(contentPage, 'http://example.com/api');
       await verifyHeaderExists(contentPage, 'X-Test');
+      // 撤销3个操作
       const undoButton3 = contentPage.locator('[title*="撤销"], .undo-btn, button:has-text("撤销")').first();
       await undoButton3.click();
       await contentPage.waitForTimeout(200);

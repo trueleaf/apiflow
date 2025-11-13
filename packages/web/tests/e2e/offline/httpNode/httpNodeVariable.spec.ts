@@ -48,8 +48,11 @@ test.describe('15. HTTP节点 - 变量替换功能测试', () => {
      * 说明：{{variableName}}是变量占位符的标准语法
      */
     test('应识别{{variableName}}语法', async () => {
+      // 输入包含变量的URL
       await fillUrl(contentPage, 'http://{{host}}/api');
+      // 验证变量被识别
       await verifyUrlContainsVariable(contentPage, 'host');
+      // 检查URL输入框样式
       const urlInput = contentPage.locator('input[placeholder*="URL"], .url-input').first();
       const className = await urlInput.getAttribute('class');
       expect(className).toBeTruthy();
@@ -69,9 +72,12 @@ test.describe('15. HTTP节点 - 变量替换功能测试', () => {
      * 说明：变量替换在发送请求时执行
      */
     test('应替换单个变量', async () => {
+      // 添加局部变量
       await addLocalVariable(contentPage, 'host', 'example.com');
+      // 在URL中使用变量
       await fillUrl(contentPage, 'http://{{host}}/api');
       await contentPage.waitForTimeout(300);
+      // 验证变量被识别
       await verifyUrlContainsVariable(contentPage, 'host');
     });
 
@@ -89,10 +95,13 @@ test.describe('15. HTTP节点 - 变量替换功能测试', () => {
      * 说明：URL可以包含任意数量的变量
      */
     test('应替换多个变量', async () => {
+      // 添加多个局部变量
       await addLocalVariable(contentPage, 'host', 'example.com');
       await addLocalVariable(contentPage, 'version', 'v1');
+      // 在URL中使用多个变量
       await fillUrl(contentPage, 'http://{{host}}/{{version}}/api');
       await contentPage.waitForTimeout(300);
+      // 验证所有变量被识别
       await verifyUrlContainsVariable(contentPage, 'host');
       await verifyUrlContainsVariable(contentPage, 'version');
     });
@@ -110,8 +119,10 @@ test.describe('15. HTTP节点 - 变量替换功能测试', () => {
      * 说明：未定义变量保持原样便于调试
      */
     test('未定义的变量应保持原样', async () => {
+      // 使用未定义的变量
       await fillUrl(contentPage, 'http://example.com/{{undefined}}/api');
       await contentPage.waitForTimeout(300);
+      // 验证变量占位符保持原样
       await verifyUrlContainsVariable(contentPage, 'undefined');
     });
 
@@ -129,9 +140,12 @@ test.describe('15. HTTP节点 - 变量替换功能测试', () => {
      * 说明：变量名区分大小写是编程的常规约定
      */
     test('变量名应区分大小写', async () => {
+      // 定义大写Host变量
       await addLocalVariable(contentPage, 'Host', 'example.com');
+      // 使用小写host变量
       await fillUrl(contentPage, 'http://{{host}}/api');
       await contentPage.waitForTimeout(300);
+      // 验证未匹配到Host变量
       await verifyUrlContainsVariable(contentPage, 'host');
     });
   });
@@ -151,9 +165,12 @@ test.describe('15. HTTP节点 - 变量替换功能测试', () => {
      * 说明：参数值使用变量是常见需求
      */
     test('Query参数value应支持变量', async () => {
+      // 添加局部变量
       await addLocalVariable(contentPage, 'userId', '123');
+      // 在Query参数中使用变量
       await addQueryParam(contentPage, 'id', '{{userId}}');
       await contentPage.waitForTimeout(300);
+      // 验证参数存在
       await verifyQueryParamExists(contentPage, 'id');
     });
 
@@ -170,7 +187,9 @@ test.describe('15. HTTP节点 - 变量替换功能测试', () => {
      * 说明：参数名使用变量适用于动态API
      */
     test('Query参数key应支持变量', async () => {
+      // 添加局部变量
       await addLocalVariable(contentPage, 'paramKey', 'id');
+      // 参数key使用变量
       await addQueryParam(contentPage, '{{paramKey}}', 'value');
       await contentPage.waitForTimeout(300);
     });
@@ -188,7 +207,9 @@ test.describe('15. HTTP节点 - 变量替换功能测试', () => {
      * 说明：Path参数常用于RESTful API
      */
     test('Path参数应支持变量', async () => {
+      // 添加局部变量
       await addLocalVariable(contentPage, 'userId', '456');
+      // 在URL中使用Path参数
       await fillUrl(contentPage, 'http://example.com/users/{id}');
       await contentPage.waitForTimeout(300);
     });
@@ -206,9 +227,12 @@ test.describe('15. HTTP节点 - 变量替换功能测试', () => {
      * 说明：支持变量与固定文本混合使用
      */
     test('参数value可包含部分变量', async () => {
+      // 添加局部变量
       await addLocalVariable(contentPage, 'id', '123');
+      // 添加包含变量的参数
       await addQueryParam(contentPage, 'fullId', 'prefix_{{id}}_suffix');
       await contentPage.waitForTimeout(300);
+      // 验证参数存在
       await verifyQueryParamExists(contentPage, 'fullId');
     });
   });
@@ -228,9 +252,12 @@ test.describe('15. HTTP节点 - 变量替换功能测试', () => {
      * 说明：请求头使用变量便于统一管理认证信息
      */
     test('Header value应支持变量', async () => {
+      // 添加局部变量
       await addLocalVariable(contentPage, 'token', 'abc123');
+      // 添加包含变量的请求头
       await addHeader(contentPage, 'X-Token', '{{token}}');
       await contentPage.waitForTimeout(300);
+      // 验证请求头存在
       await verifyHeaderExists(contentPage, 'X-Token');
     });
 
@@ -248,9 +275,12 @@ test.describe('15. HTTP节点 - 变量替换功能测试', () => {
      * 说明：Authorization是最常用变量的请求头
      */
     test('Authorization头应支持变量', async () => {
+      // 添加局部变量
       await addLocalVariable(contentPage, 'token', 'secret-token-123');
+      // 添加Authorization头
       await addHeader(contentPage, 'Authorization', 'Bearer {{token}}');
       await contentPage.waitForTimeout(300);
+      // 验证请求头存在
       await verifyHeaderExists(contentPage, 'Authorization');
     });
 
@@ -268,9 +298,12 @@ test.describe('15. HTTP节点 - 变量替换功能测试', () => {
      * 说明：所有类型的请求头都支持变量
      */
     test('自定义头应支持变量', async () => {
+      // 添加局部变量
       await addLocalVariable(contentPage, 'customValue', 'custom123');
+      // 添加自定义请求头
       await addHeader(contentPage, 'X-Custom-Header', '{{customValue}}');
       await contentPage.waitForTimeout(300);
+      // 验证请求头存在
       await verifyHeaderExists(contentPage, 'X-Custom-Header');
     });
   });
@@ -290,8 +323,11 @@ test.describe('15. HTTP节点 - 变量替换功能测试', () => {
      * 说明：JSON是最常用的请求体格式
      */
     test('JSON Body应支持变量替换', async () => {
+      // 选择POST方法
       await selectHttpMethod(contentPage, 'POST');
+      // 添加局部变量
       await addLocalVariable(contentPage, 'userId', '789');
+      // 填写包含变量的JSON Body
       await fillJsonBody(contentPage, { userId: '{{userId}}', name: 'test' });
       await contentPage.waitForTimeout(300);
     });
@@ -310,9 +346,12 @@ test.describe('15. HTTP节点 - 变量替换功能测试', () => {
      * 说明：复杂JSON结构也支持变量
      */
     test('JSON多层嵌套应支持变量', async () => {
+      // 选择POST方法
       await selectHttpMethod(contentPage, 'POST');
+      // 添加多个局部变量
       await addLocalVariable(contentPage, 'userId', '123');
       await addLocalVariable(contentPage, 'userName', 'testUser');
+      // 填写嵌套JSON
       await fillJsonBody(contentPage, {
         user: {
           id: '{{userId}}',
@@ -337,9 +376,13 @@ test.describe('15. HTTP节点 - 变量替换功能测试', () => {
      * 说明：FormData常用于文件上传
      */
     test('FormData value应支持变量', async () => {
+      // 选择POST方法
       await selectHttpMethod(contentPage, 'POST');
+      // 添加局部变量
       await addLocalVariable(contentPage, 'fieldValue', 'formValue123');
+      // 切换到form-data模式
       await switchBodyMode(contentPage, 'form-data');
+      // 添加包含变量的字段
       await addFormDataField(contentPage, 'field1', '{{fieldValue}}');
       await contentPage.waitForTimeout(300);
     });
@@ -359,9 +402,13 @@ test.describe('15. HTTP节点 - 变量替换功能测试', () => {
      * 说明：Raw模式适用于自定义格式的请求体
      */
     test('Raw模式应支持变量', async () => {
+      // 选择POST方法
       await selectHttpMethod(contentPage, 'POST');
+      // 添加局部变量
       await addLocalVariable(contentPage, 'var', 'rawValue');
+      // 切换到raw模式
       await switchBodyMode(contentPage, 'raw');
+      // 填写包含变量的文本
       await fillRawBody(contentPage, 'Text with {{var}} replacement');
       await contentPage.waitForTimeout(300);
     });
@@ -380,8 +427,11 @@ test.describe('15. HTTP节点 - 变量替换功能测试', () => {
      * 说明：Binary模式可以通过变量动态指定文件
      */
     test('Binary变量模式应读取变量值', async () => {
+      // 选择POST方法
       await selectHttpMethod(contentPage, 'POST');
+      // 切换到binary模式
       await switchBodyMode(contentPage, 'binary');
+      // 选择变量模式
       const varMode = contentPage.locator('input[type="radio"][value="variable"], .mode-variable').first();
       if (await varMode.isVisible()) {
         await varMode.check({ force: true });
@@ -405,10 +455,14 @@ test.describe('15. HTTP节点 - 变量替换功能测试', () => {
      * 说明：优先级：局部 > 环境 > 全局
      */
     test('应优先使用局部变量', async () => {
+      // 添加全局变量
       await addGlobalVariable(contentPage, 'scopeTest', 'globalValue');
+      // 添加局部变量
       await addLocalVariable(contentPage, 'scopeTest', 'localValue');
+      // 使用变量
       await fillUrl(contentPage, 'http://{{scopeTest}}/api');
       await contentPage.waitForTimeout(300);
+      // 验证变量被识别
       await verifyUrlContainsVariable(contentPage, 'scopeTest');
     });
 
@@ -425,9 +479,12 @@ test.describe('15. HTTP节点 - 变量替换功能测试', () => {
      * 说明：环境变量用于不同环境配置
      */
     test('局部变量不存在时应使用环境变量', async () => {
+      // 添加环境变量
       await addEnvironmentVariable(contentPage, 'envVar', 'envValue');
+      // 使用变量
       await fillUrl(contentPage, 'http://{{envVar}}/api');
       await contentPage.waitForTimeout(300);
+      // 验证变量被识别
       await verifyUrlContainsVariable(contentPage, 'envVar');
     });
 
@@ -444,9 +501,12 @@ test.describe('15. HTTP节点 - 变量替换功能测试', () => {
      * 说明：全局变量适用于所有项目
      */
     test('环境变量不存在时应使用全局变量', async () => {
+      // 添加全局变量
       await addGlobalVariable(contentPage, 'globalVar', 'globalValue');
+      // 使用变量
       await fillUrl(contentPage, 'http://{{globalVar}}/api');
       await contentPage.waitForTimeout(300);
+      // 验证变量被识别
       await verifyUrlContainsVariable(contentPage, 'globalVar');
     });
   });
@@ -466,9 +526,12 @@ test.describe('15. HTTP节点 - 变量替换功能测试', () => {
      * 说明：预览帮助确认变量值是否正确
      */
     test('应显示变量替换后的实际值预览', async () => {
+      // 添加局部变量
       await addLocalVariable(contentPage, 'previewVar', 'previewValue');
+      // 在URL中使用变量
       await fillUrl(contentPage, 'http://{{previewVar}}/api');
       await contentPage.waitForTimeout(300);
+      // 检查预览元素
       const previewElement = contentPage.locator('.variable-preview, .var-tip').first();
       if (await previewElement.isVisible()) {
         await expect(previewElement).toBeVisible();
@@ -490,12 +553,16 @@ test.describe('15. HTTP节点 - 变量替换功能测试', () => {
      * 说明：悬停提示提供快速查看变量值的方式
      */
     test('鼠标悬停变量应显示当前值', async () => {
+      // 添加局部变量
       await addLocalVariable(contentPage, 'hoverVar', 'hoverValue');
+      // 在URL中使用变量
       await fillUrl(contentPage, 'http://{{hoverVar}}/api');
       await contentPage.waitForTimeout(300);
+      // 鼠标悬停到URL输入框
       const urlInput = contentPage.locator('input[placeholder*="URL"], .url-input').first();
       await urlInput.hover();
       await contentPage.waitForTimeout(500);
+      // 检查tooltip显示
       const tooltip = contentPage.locator('.el-tooltip__popper, .tooltip').first();
       if (await tooltip.isVisible()) {
         await expect(tooltip).toBeVisible();

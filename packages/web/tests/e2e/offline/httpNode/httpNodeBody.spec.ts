@@ -42,8 +42,11 @@ test.describe('4. HTTP节点 - Body模块测试', () => {
      * 验证点：JSON模式切换和编辑器初始化
      */
     test('应能切换到JSON模式', async () => {
+      // 切换到Body标签页
       await switchToTab(contentPage, 'Body');
+      // 选择JSON模式
       await switchBodyMode(contentPage, 'JSON');
+      // 验证Monaco编辑器显示
       const editor = contentPage.locator('.monaco-editor').first();
       await expect(editor).toBeVisible();
     });
@@ -61,8 +64,10 @@ test.describe('4. HTTP节点 - Body模块测试', () => {
      * 验证点：JSON数据输入功能
      */
     test('应能输入JSON数据', async () => {
+      // 填入JSON数据
       await fillJsonBody(contentPage, { key: 'value', name: 'test' });
       await contentPage.waitForTimeout(500);
+      // 验证编辑器显示
       const editor = contentPage.locator('.monaco-editor').first();
       await expect(editor).toBeVisible();
     });
@@ -81,8 +86,10 @@ test.describe('4. HTTP节点 - Body模块测试', () => {
      * 说明：格式化后的JSON更易于阅读和编辑
      */
     test('应能格式化JSON', async () => {
+      // 输入压缩的JSON
       await fillJsonBody(contentPage, '{"key":"value","name":"test"}');
       await contentPage.waitForTimeout(300);
+      // 点击格式化按钮
       const formatBtn = contentPage.locator('[title*="格式化"], .format-btn').first();
       if (await formatBtn.isVisible()) {
         await formatBtn.click();
@@ -103,8 +110,10 @@ test.describe('4. HTTP节点 - Body模块测试', () => {
      * 说明：实时语法检查帮助开发者发现JSON错误
      */
     test('应验证JSON语法', async () => {
+      // 切换到JSON模式
       await switchToTab(contentPage, 'Body');
       await switchBodyMode(contentPage, 'JSON');
+      // 输入不合法的JSON
       await fillJsonBody(contentPage, '{"invalid json');
       await contentPage.waitForTimeout(500);
     });
@@ -122,8 +131,10 @@ test.describe('4. HTTP节点 - Body模块测试', () => {
      * 说明：变量使用{{variableName}}语法
      */
     test('JSON中应支持变量替换', async () => {
+      // 输入包含变量占位符的JSON
       await fillJsonBody(contentPage, { userId: '{{userId}}', token: '{{token}}' });
       await contentPage.waitForTimeout(300);
+      // 验证编辑器显示
       const editor = contentPage.locator('.monaco-editor').first();
       await expect(editor).toBeVisible();
     });
@@ -141,8 +152,10 @@ test.describe('4. HTTP节点 - Body模块测试', () => {
      * 说明：语法高亮提升代码可读性
      */
     test('应支持JSON语法高亮', async () => {
+      // 输入包含多种数据类型的JSON
       await fillJsonBody(contentPage, { key: 'value', number: 123, bool: true });
       await contentPage.waitForTimeout(300);
+      // 检查编辑器样式
       const editor = contentPage.locator('.monaco-editor').first();
       const hasHighlight = await editor.evaluate((el) => {
         const styles = window.getComputedStyle(el);
@@ -166,8 +179,11 @@ test.describe('4. HTTP节点 - Body模块测试', () => {
      * 说明：系统根据Body模式自动设置正确的Content-Type
      */
     test('应自动设置Content-Type为application/json', async () => {
+      // 填入JSON数据
       await fillJsonBody(contentPage, { key: 'value' });
+      // 切换到Headers标签页
       await switchToTab(contentPage, 'Headers');
+      // 显示隐藏的请求头
       const hiddenToggle = contentPage
         .locator('.header-info span')
         .filter({ hasText: /隐藏|hidden/i })
@@ -176,6 +192,7 @@ test.describe('4. HTTP节点 - Body模块测试', () => {
         await hiddenToggle.click();
         await contentPage.waitForTimeout(200);
       }
+      // 验证Content-Type存在
       await verifyHeaderExists(contentPage, 'Content-Type');
     });
   });
@@ -192,7 +209,9 @@ test.describe('4. HTTP节点 - Body模块测试', () => {
      * 说明：FormData用于文件上传和表单提交
      */
     test('应能切换到FormData模式', async () => {
+      // 切换到FormData模式
       await switchBodyMode(contentPage, 'form-data');
+      // 验证参数树形表格显示
       const tree = contentPage.locator('.body-params .el-tree').first();
       await expect(tree).toBeVisible();
     });
@@ -210,9 +229,12 @@ test.describe('4. HTTP节点 - Body模块测试', () => {
      * 验证点：文本字段添加功能
      */
     test('应能添加文本字段', async () => {
+      // 添加文本字段
       await addFormDataField(contentPage, 'username', 'testuser');
+      // 验证key输入框值
       const keyInput = contentPage.locator('.body-params .custom-params input[placeholder*="参数"]').first();
       await expect(keyInput).toHaveValue('username');
+      // 验证value输入框值
       const valueInput = contentPage.locator('.body-params .custom-params .value-text-input').first();
       await expect(valueInput).toHaveValue('testuser');
     });
@@ -231,12 +253,15 @@ test.describe('4. HTTP节点 - Body模块测试', () => {
      * 说明：文件字段用于上传文件到服务器
      */
     test('应能添加文件字段', async () => {
+      // 添加文件字段
       await addFormDataField(contentPage, 'avatar', '/path/to/file.jpg', { type: 'file' });
+      // 定位到avatar字段行
       const keyInputs = await contentPage
         .locator('.body-params .custom-params input[placeholder*="参数"]')
         .evaluateAll((elements) => elements.map((element) => (element as HTMLInputElement).value));
       const targetIndex = keyInputs.indexOf('avatar');
       expect(targetIndex).toBeGreaterThan(-1);
+      // 验证文件路径输入框值
       const row = contentPage.locator('.custom-params').nth(targetIndex);
       const valueInput = row.locator('input[placeholder*="变量模式"], input[placeholder*="variable"]').first();
       await expect(valueInput).toHaveValue('/path/to/file.jpg');
@@ -256,15 +281,19 @@ test.describe('4. HTTP节点 - Body模块测试', () => {
      * 验证点：字段删除功能
      */
     test('应能删除表单字段', async () => {
+      // 添加字段
       await addFormDataField(contentPage, 'testField', 'testValue');
+      // 定位到该字段行
       const keyLocator = contentPage.locator('.body-params .custom-params input[placeholder*="参数"]');
       const initialValues = await keyLocator.evaluateAll((elements) => elements.map((element) => (element as HTMLInputElement).value));
       const targetIndex = initialValues.indexOf('testField');
       expect(targetIndex).toBeGreaterThan(-1);
+      // 点击删除按钮
       const row = contentPage.locator('.custom-params').nth(targetIndex);
       const deleteBtn = row.locator('.delete-icon, .icon-shanchu, [title*="删除"]').first();
       await deleteBtn.click();
       await contentPage.waitForTimeout(300);
+      // 验证字段已移除
       const afterValues = await keyLocator.evaluateAll((elements) => elements.map((element) => (element as HTMLInputElement).value));
       expect(afterValues.includes('testField')).toBe(false);
     });
@@ -283,12 +312,15 @@ test.describe('4. HTTP节点 - Body模块测试', () => {
      * 说明：禁用字段用于临时排除某些参数
      */
     test('表单字段应支持启用/禁用', async () => {
+      // 添加禁用状态的字段
       await addFormDataField(contentPage, 'disabledField', 'value', { enabled: false });
+      // 定位到该字段行
       const keyValues = await contentPage
         .locator('.body-params .custom-params input[placeholder*="参数"]')
         .evaluateAll((elements) => elements.map((element) => (element as HTMLInputElement).value));
       const targetIndex = keyValues.indexOf('disabledField');
       expect(targetIndex).toBeGreaterThan(-1);
+      // 检查启用复选框状态
       const row = contentPage.locator('.custom-params').nth(targetIndex);
       const checkbox = row.locator('input[type="checkbox"]').first();
       const isChecked = await checkbox.isChecked();
@@ -308,12 +340,15 @@ test.describe('4. HTTP节点 - Body模块测试', () => {
      * 验证点：FormData中的变量支持
      */
     test('表单字段value应支持变量', async () => {
+      // 添加字段值为变量占位符
       await addFormDataField(contentPage, 'userId', '{{userId}}');
+      // 定位到该字段行
       const keyValues = await contentPage
         .locator('.body-params .custom-params input[placeholder*="参数"]')
         .evaluateAll((elements) => elements.map((element) => (element as HTMLInputElement).value));
       const targetIndex = keyValues.indexOf('userId');
       expect(targetIndex).toBeGreaterThan(-1);
+      // 验证value输入框包含变量占位符
       const row = contentPage.locator('.custom-params').nth(targetIndex);
       const valueInput = row.locator('.value-text-input, textarea').first();
       await expect(valueInput).toHaveValue('{{userId}}');
@@ -333,8 +368,11 @@ test.describe('4. HTTP节点 - Body模块测试', () => {
      * 验证点：FormData的Content-Type自动管理
      */
     test('应自动设置Content-Type为multipart/form-data', async () => {
+      // 添加表单字段
       await addFormDataField(contentPage, 'formKey', 'formValue');
+      // 切换到Headers标签页
       await switchToTab(contentPage, 'Headers');
+      // 显示隐藏的请求头
       const hiddenToggle = contentPage
         .locator('.header-info span')
         .filter({ hasText: /隐藏|hidden/i })
@@ -343,6 +381,7 @@ test.describe('4. HTTP节点 - Body模块测试', () => {
         await hiddenToggle.click();
         await contentPage.waitForTimeout(200);
       }
+      // 验证Content-Type存在
       await verifyHeaderExists(contentPage, 'Content-Type');
     });
   });
@@ -359,7 +398,9 @@ test.describe('4. HTTP节点 - Body模块测试', () => {
      * 说明：urlencoded用于传统表单提交
      */
     test('应能切换到urlencoded模式', async () => {
+      // 切换到urlencoded模式
       await switchBodyMode(contentPage, 'x-www-form-urlencoded');
+      // 验证参数树形表格显示
       const tree = contentPage.locator('.body-params .el-tree').first();
       await expect(tree).toBeVisible();
     });
@@ -376,7 +417,9 @@ test.describe('4. HTTP节点 - Body模块测试', () => {
      * 验证点：参数添加功能
      */
     test('应能添加参数对', async () => {
+      // 添加参数
       await addUrlEncodedField(contentPage, 'username', 'testuser');
+      // 验证key和value输入框
       const keyInput = contentPage.locator('.body-params .custom-params input[placeholder*="参数"]').first();
       await expect(keyInput).toHaveValue('username');
       const valueInput = contentPage.locator('.body-params .custom-params .value-text-input').first();
@@ -396,12 +439,15 @@ test.describe('4. HTTP节点 - Body模块测试', () => {
      * 验证点：参数编辑功能
      */
     test('应能编辑参数', async () => {
+      // 添加参数
       await addUrlEncodedField(contentPage, 'editKey', 'oldValue');
+      // 定位到该参数行
       const keyValues = await contentPage
         .locator('.body-params .custom-params input[placeholder*="参数"]')
         .evaluateAll((elements) => elements.map((element) => (element as HTMLInputElement).value));
       const targetIndex = keyValues.indexOf('editKey');
       expect(targetIndex).toBeGreaterThan(-1);
+      // 修改value
       const row = contentPage.locator('.custom-params').nth(targetIndex);
       const valueInput = row.locator('.value-text-input').first();
       await valueInput.evaluate((element, newValue) => {
@@ -428,15 +474,19 @@ test.describe('4. HTTP节点 - Body模块测试', () => {
      * 验证点：参数删除功能
      */
     test('应能删除参数', async () => {
+      // 添加参数
       await addUrlEncodedField(contentPage, 'deleteKey', 'value');
+      // 定位到该参数行
       const keyLocator = contentPage.locator('.body-params .custom-params input[placeholder*="参数"]');
       const initialValues = await keyLocator.evaluateAll((elements) => elements.map((element) => (element as HTMLInputElement).value));
       const targetIndex = initialValues.indexOf('deleteKey');
       expect(targetIndex).toBeGreaterThan(-1);
+      // 点击删除按钮
       const row = contentPage.locator('.custom-params').nth(targetIndex);
       const deleteBtn = row.locator('.delete-icon, .icon-shanchu, [title*="删除"]').first();
       await deleteBtn.click();
       await contentPage.waitForTimeout(300);
+      // 验证参数已移除
       const afterValues = await keyLocator.evaluateAll((elements) => elements.map((element) => (element as HTMLInputElement).value));
       expect(afterValues.includes('deleteKey')).toBe(false);
     });
@@ -454,12 +504,15 @@ test.describe('4. HTTP节点 - Body模块测试', () => {
      * 验证点：参数启用/禁用控制
      */
     test('参数应支持启用/禁用', async () => {
+      // 添加禁用状态的参数
       await addUrlEncodedField(contentPage, 'disabledKey', 'value', { enabled: false });
+      // 定位到该参数行
       const keyValues = await contentPage
         .locator('.body-params .custom-params input[placeholder*="参数"]')
         .evaluateAll((elements) => elements.map((element) => (element as HTMLInputElement).value));
       const targetIndex = keyValues.indexOf('disabledKey');
       expect(targetIndex).toBeGreaterThan(-1);
+      // 检查复选框状态
       const row = contentPage.locator('.custom-params').nth(targetIndex);
       const checkbox = row.locator('input[type="checkbox"]').first();
       const isChecked = await checkbox.isChecked();
@@ -479,8 +532,11 @@ test.describe('4. HTTP节点 - Body模块测试', () => {
      * 验证点：Content-Type自动管理
      */
     test('应自动设置Content-Type为application/x-www-form-urlencoded', async () => {
+      // 添加urlencoded参数
       await addUrlEncodedField(contentPage, 'formKey', 'formValue');
+      // 切换到Headers标签页
       await switchToTab(contentPage, 'Headers');
+      // 显示隐藏的请求头
       const hiddenToggle = contentPage
         .locator('.header-info span')
         .filter({ hasText: /隐藏|hidden/i })
@@ -489,6 +545,7 @@ test.describe('4. HTTP节点 - Body模块测试', () => {
         await hiddenToggle.click();
         await contentPage.waitForTimeout(200);
       }
+      // 验证Content-Type存在
       await verifyHeaderExists(contentPage, 'Content-Type');
     });
   });
@@ -505,7 +562,9 @@ test.describe('4. HTTP节点 - Body模块测试', () => {
      * 说明：Raw模式用于发送原始文本数据
      */
     test('应能切换到Raw模式', async () => {
+      // 切换到Raw模式
       await switchBodyMode(contentPage, 'raw');
+      // 验证编辑器显示
       const editor = contentPage.locator('.monaco-editor, textarea').first();
       await expect(editor).toBeVisible();
     });
@@ -522,8 +581,10 @@ test.describe('4. HTTP节点 - Body模块测试', () => {
      * 验证点：原始文本输入功能
      */
     test('应能输入原始文本', async () => {
+      // 填入原始文本内容
       await fillRawBody(contentPage, 'This is raw text content');
       await contentPage.waitForTimeout(300);
+      // 验证编辑器显示
       const editor = contentPage.locator('.monaco-editor, textarea').first();
       await expect(editor).toBeVisible();
     });
@@ -541,9 +602,12 @@ test.describe('4. HTTP节点 - Body模块测试', () => {
      * 说明：不同类型影响Content-Type和语法高亮
      */
     test('应能选择数据类型', async () => {
+      // 切换到Raw模式
       await switchBodyMode(contentPage, 'raw');
+      // 查找数据类型选择器
       const typeSelector = contentPage.locator('.content-type-select, .el-select').first();
       if (await typeSelector.isVisible()) {
+        // 点击打开下拉列表
         await typeSelector.click();
         await contentPage.waitForTimeout(200);
       }
@@ -559,11 +623,14 @@ test.describe('4. HTTP节点 - Body模块测试', () => {
      * 验证点：text/plain类型支持
      */
     test('支持的数据类型应包括text/plain', async () => {
+      // 切换到Raw模式
       await switchBodyMode(contentPage, 'raw');
+      // 打开类型选择器
       const typeSelector = contentPage.locator('.content-type-select, .el-select').first();
       if (await typeSelector.isVisible()) {
         await typeSelector.click();
         await contentPage.waitForTimeout(200);
+        // 检查选项列表是否包含text
         const optionTexts = await contentPage
           .locator('.el-select-dropdown__item')
           .evaluateAll((elements) => elements.map((element) => (element.textContent || '').trim().toLowerCase()));
@@ -582,12 +649,15 @@ test.describe('4. HTTP节点 - Body模块测试', () => {
      * 说明：html类型用于发送HTML文档
      */
     test('支持的数据类型应包括text/html', async () => {
+      // 切换到Raw模式
       await switchBodyMode(contentPage, 'raw');
       await contentPage.waitForTimeout(300);
+      // 打开类型选择器
       const typeSelector = contentPage.locator('.content-type-select, .el-select').first();
       if (await typeSelector.isVisible()) {
         await typeSelector.click();
         await contentPage.waitForTimeout(200);
+        // 检查选项列表是否包含html
         const optionTexts = await contentPage
           .locator('.el-select-dropdown__item')
           .evaluateAll((elements) => elements.map((element) => (element.textContent || '').trim().toLowerCase()));
@@ -606,11 +676,14 @@ test.describe('4. HTTP节点 - Body模块测试', () => {
      * 说明：xml类型用于发送XML文档
      */
     test('支持的数据类型应包括application/xml', async () => {
+      // 切换到Raw模式
       await switchBodyMode(contentPage, 'raw');
+      // 打开类型选择器
       const typeSelector = contentPage.locator('.content-type-select, .el-select').first();
       if (await typeSelector.isVisible()) {
         await typeSelector.click();
         await contentPage.waitForTimeout(200);
+        // 检查选项列表是否包含xml
         const optionTexts = await contentPage
           .locator('.el-select-dropdown__item')
           .evaluateAll((elements) => elements.map((element) => (element.textContent || '').trim().toLowerCase()));
@@ -628,11 +701,14 @@ test.describe('4. HTTP节点 - Body模块测试', () => {
      * 验证点：text/javascript类型支持
      */
     test('支持的数据类型应包括text/javascript', async () => {
+      // 切换到Raw模式
       await switchBodyMode(contentPage, 'raw');
+      // 打开类型选择器
       const typeSelector = contentPage.locator('.content-type-select, .el-select').first();
       if (await typeSelector.isVisible()) {
         await typeSelector.click();
         await contentPage.waitForTimeout(200);
+        // 检查选项列表是否包含javascript
         const optionTexts = await contentPage
           .locator('.el-select-dropdown__item')
           .evaluateAll((elements) => elements.map((element) => (element.textContent || '').trim().toLowerCase()));
@@ -650,6 +726,7 @@ test.describe('4. HTTP节点 - Body模块测试', () => {
      * 验证点：Raw模式中的变量支持
      */
     test('Raw模式应支持变量替换', async () => {
+      // 填入包含变量占位符的文本
       await fillRawBody(contentPage, 'User ID: {{userId}}, Token: {{token}}');
       await contentPage.waitForTimeout(300);
     });
@@ -668,7 +745,9 @@ test.describe('4. HTTP节点 - Body模块测试', () => {
      * 验证点：Content-Type根据Raw类型自动设置
      */
     test('应根据选择的类型设置Content-Type', async () => {
+      // 填入原始内容
       await fillRawBody(contentPage, 'Raw body sample');
+      // 选择html类型
       const typeSelector = contentPage.locator('.content-type-select, .el-select').first();
       if (await typeSelector.isVisible()) {
         await typeSelector.click();
@@ -677,7 +756,9 @@ test.describe('4. HTTP节点 - Body模块测试', () => {
           await htmlOption.click();
         }
       }
+      // 切换到Headers标签页
       await switchToTab(contentPage, 'Headers');
+      // 显示隐藏的请求头
       const hiddenToggle = contentPage
         .locator('.header-info span')
         .filter({ hasText: /隐藏|hidden/i })
@@ -686,6 +767,7 @@ test.describe('4. HTTP节点 - Body模块测试', () => {
         await hiddenToggle.click();
         await contentPage.waitForTimeout(200);
       }
+      // 验证Content-Type设置
       await verifyHeaderExists(contentPage, 'Content-Type');
     });
   });
@@ -702,7 +784,9 @@ test.describe('4. HTTP节点 - Body模块测试', () => {
      * 说明：Binary模式用于发送二进制文件数据
      */
     test('应能切换到Binary模式', async () => {
+      // 切换到Binary模式
       await switchBodyMode(contentPage, 'binary');
+      // 验证Binary包装容器显示
       const binaryWrap = contentPage.locator('.binary-wrap').first();
       await expect(binaryWrap).toBeVisible({ timeout: 2000 });
     });
@@ -720,9 +804,12 @@ test.describe('4. HTTP节点 - Body模块测试', () => {
      * 说明：文件模式从本地选择文件发送
      */
     test('应支持文件模式', async () => {
+      // 切换到Binary模式
       await switchBodyMode(contentPage, 'binary');
+      // 查找文件模式单选按钮
       const fileRadio = contentPage.locator('.binary-wrap .el-radio').filter({ hasText: '文件模式' }).first();
       if (await fileRadio.isVisible()) {
+        // 点击选择文件模式
         await fileRadio.click();
         await contentPage.waitForTimeout(300);
       }
@@ -741,9 +828,12 @@ test.describe('4. HTTP节点 - Body模块测试', () => {
      * 说明：变量模式使用变量值作为文件路径
      */
     test('应支持变量模式', async () => {
+      // 切换到Binary模式
       await switchBodyMode(contentPage, 'binary');
+      // 查找变量模式单选按钮
       const varRadio = contentPage.locator('.binary-wrap .el-radio').filter({ hasText: '变量模式' }).first();
       if (await varRadio.isVisible()) {
+        // 点击选择变量模式
         await varRadio.click();
         await contentPage.waitForTimeout(300);
       }
@@ -758,6 +848,7 @@ test.describe('4. HTTP节点 - Body模块测试', () => {
      * 说明：文件大小帮助用户了解上传的文件情况
      */
     test('文件模式应显示文件大小', async () => {
+      // 切换到Binary模式
       await switchBodyMode(contentPage, 'binary');
       await contentPage.waitForTimeout(300);
     });
@@ -775,9 +866,12 @@ test.describe('4. HTTP节点 - Body模块测试', () => {
      * 验证点：文件清除功能
      */
     test('应能清除选择的文件', async () => {
+      // 切换到Binary模式
       await switchBodyMode(contentPage, 'binary');
+      // 查找清除按钮
       const clearBtn = contentPage.locator('[title*="清除"], .clear-btn, .binary-wrap .close').first();
       if (await clearBtn.isVisible()) {
+        // 点击清除按钮
         await clearBtn.click();
         await contentPage.waitForTimeout(300);
       }
@@ -796,7 +890,9 @@ test.describe('4. HTTP节点 - Body模块测试', () => {
      * 说明：None模式表示不发送请求体
      */
     test('应能切换到None模式', async () => {
+      // 切换到None模式
       await switchBodyMode(contentPage, 'none');
+      // 验证None模式单选按钮被选中
       const noneInput = contentPage.locator('.body-params input[value="none"]').first();
       await expect(noneInput).toBeChecked();
     });
@@ -814,9 +910,12 @@ test.describe('4. HTTP节点 - Body模块测试', () => {
      * 验证点：None模式清空功能
      */
     test('None模式应清空Body内容', async () => {
+      // 先输入JSON数据
       await fillJsonBody(contentPage, { key: 'value' });
+      // 切换到None模式
       await switchBodyMode(contentPage, 'none');
       await contentPage.waitForTimeout(300);
+      // 检查Monaco编辑器数量
       const editors = await contentPage.locator('.body-params .monaco-editor').count();
       expect(editors).toBe(0);
     });
@@ -836,9 +935,12 @@ test.describe('4. HTTP节点 - Body模块测试', () => {
      * 说明：None模式下请求体为空,不需要Content-Type
      */
     test('None模式不应设置Content-Type', async () => {
+      // 切换到None模式
       await switchBodyMode(contentPage, 'none');
       await contentPage.waitForTimeout(300);
+      // 切换到Headers标签页
       await switchToTab(contentPage, 'Headers');
+      // 显示隐藏的请求头
       const hiddenToggle = contentPage
         .locator('.header-info span')
         .filter({ hasText: /隐藏|hidden/i })
@@ -847,6 +949,7 @@ test.describe('4. HTTP节点 - Body模块测试', () => {
         await hiddenToggle.click();
         await contentPage.waitForTimeout(200);
       }
+      // 检查Content-Type是否存在
       const headerKeys = await contentPage
         .locator('.header-info input[placeholder*="请求头"], .header-info input[placeholder*="参数"], .header-info input[placeholder*="key"]')
         .evaluateAll((elements) => elements.map((element) => (element as HTMLInputElement).value));
@@ -869,8 +972,11 @@ test.describe('4. HTTP节点 - Body模块测试', () => {
      * 说明：不同模式数据格式不兼容,切换需提示
      */
     test('从JSON切换到FormData应提示数据丢失', async () => {
+      // 输入JSON数据
       await fillJsonBody(contentPage, { key: 'value' });
+      // 切换到FormData模式
       await switchBodyMode(contentPage, 'form-data');
+      // 等待提示弹窗
       await contentPage.waitForTimeout(500);
     });
 
@@ -886,6 +992,7 @@ test.describe('4. HTTP节点 - Body模块测试', () => {
      * 验证点：取消切换的数据保护
      */
     test('取消模式切换应保持原数据', async () => {
+      // 输入JSON数据
       await fillJsonBody(contentPage, { key: 'value' });
       await contentPage.waitForTimeout(300);
     });
@@ -903,8 +1010,11 @@ test.describe('4. HTTP节点 - Body模块测试', () => {
      * 验证点：模式切换的数据清理
      */
     test('确认切换应清空前一模式数据', async () => {
+      // 输入JSON数据
       await fillJsonBody(contentPage, { key: 'value' });
+      // 切换到FormData
       await switchBodyMode(contentPage, 'form-data');
+      // 再切换回JSON
       await switchBodyMode(contentPage, 'JSON');
       await contentPage.waitForTimeout(300);
     });
@@ -922,8 +1032,10 @@ test.describe('4. HTTP节点 - Body模块测试', () => {
      * 验证点：模式切换时Content-Type同步更新
      */
     test('模式切换应更新Content-Type', async () => {
+      // 切换到JSON模式
       await switchBodyMode(contentPage, 'JSON');
       await contentPage.waitForTimeout(200);
+      // 切换到FormData模式
       await switchBodyMode(contentPage, 'form-data');
       await contentPage.waitForTimeout(300);
     });
@@ -941,8 +1053,11 @@ test.describe('4. HTTP节点 - Body模块测试', () => {
      * 验证点：标签页切换不影响Body数据
      */
     test('相同模式切换应保持数据', async () => {
+      // 输入JSON数据
       await fillJsonBody(contentPage, { key: 'value' });
+      // 切换到其他标签页
       await switchToTab(contentPage, 'Params');
+      // 切换回Body标签页
       await switchToTab(contentPage, 'Body');
       await contentPage.waitForTimeout(300);
     });

@@ -36,20 +36,29 @@ test.describe('8. WebSocket节点 - 前置脚本测试', () => {
      * 说明：前置脚本在连接建立前执行
      */
     test('应显示前置脚本编辑器', async () => {
+      // 切换到前置脚本标签
       await switchToPreScriptTab(contentPage);
+      // 验证编辑器可见
       await verifyScriptEditorVisible(contentPage);
     });
 
     test('应能编辑前置脚本', async () => {
+      // 填充前置脚本
       await fillPreRequestScript(contentPage, '// Pre-request script\nconsole.log("Before connection");');
+      // 获取脚本内容
       const content = await getScriptContent(contentPage);
+      // 验证脚本内容
       expect(content).toContain('Pre-request');
     });
 
     test('应能输入多行脚本', async () => {
+      // 准备多行脚本
       const script = `// Set variables\nconst token = "abc123";\nconst user = "test";`;
+      // 填充脚本
       await fillPreRequestScript(contentPage, script);
+      // 获取脚本内容
       const content = await getScriptContent(contentPage);
+      // 验证脚本内容包含变量
       expect(content).toContain('token');
       expect(content).toContain('user');
     });
@@ -57,15 +66,21 @@ test.describe('8. WebSocket节点 - 前置脚本测试', () => {
 
   test.describe('8.2 脚本功能测试', () => {
     test('应能在脚本中设置变量', async () => {
+      // 准备设置变量的脚本
       const script = 'ap.variables.set("testVar", "testValue");';
+      // 填充脚本
       await fillPreRequestScript(contentPage, script);
       await contentPage.waitForTimeout(300);
     });
 
     test('应能访问全局对象', async () => {
+      // 准备访问全局对象的脚本
       const script = '// Access global objects\nconst vars = ap.variables;\nconst cookies = ap.cookies;';
+      // 填充脚本
       await fillPreRequestScript(contentPage, script);
+      // 获取脚本内容
       const content = await getScriptContent(contentPage);
+      // 验证全局对象访问
       expect(content).toContain('ap.variables');
       expect(content).toContain('ap.cookies');
     });
@@ -73,8 +88,11 @@ test.describe('8. WebSocket节点 - 前置脚本测试', () => {
 
   test.describe('8.3 前置脚本标签页测试', () => {
     test('应能切换到前置脚本标签', async () => {
+      // 切换到前置脚本标签
       await switchToPreScriptTab(contentPage);
+      // 获取激活的标签
       const tab = contentPage.locator('.el-tabs__item.is-active:has-text("前置脚本")');
+      // 验证标签激活
       await expect(tab).toBeVisible();
     });
   });

@@ -39,7 +39,9 @@ test.describe('8. HTTP节点 - 前置脚本测试', () => {
      * 说明：使用Monaco编辑器提供专业的代码编辑体验
      */
     test('应显示代码编辑器', async () => {
+      // 切换到前置脚本标签页
       await switchToPreRequestTab(contentPage);
+      // 验证脚本编辑器可见
       await verifyScriptEditorVisible(contentPage);
     });
 
@@ -57,9 +59,11 @@ test.describe('8. HTTP节点 - 前置脚本测试', () => {
      * 说明：前置脚本使用JavaScript语言
      */
     test('应能输入JavaScript代码', async () => {
+      // 在脚本编辑器中输入代码
       const script = 'console.log("test");';
       await fillPreRequestScript(contentPage, script);
       await contentPage.waitForTimeout(300);
+      // 验证代码已输入
       const content = await getScriptContent(contentPage);
       expect(content).toContain('console.log');
     });
@@ -77,8 +81,10 @@ test.describe('8. HTTP节点 - 前置脚本测试', () => {
      * 说明：语法高亮提高代码可读性
      */
     test('应支持语法高亮', async () => {
+      // 输入包含关键字的代码
       await fillPreRequestScript(contentPage, 'const test = "value";');
       await contentPage.waitForTimeout(300);
+      // 检查是否有语法高亮token元素
       const editor = contentPage.locator('.monaco-editor').first();
       const hasHighlight = await editor.evaluate((el) => {
         const tokens = el.querySelectorAll('.mtk1, .mtk6, .mtk22');
@@ -101,11 +107,14 @@ test.describe('8. HTTP节点 - 前置脚本测试', () => {
      * 说明：代码提示提高编写效率和准确性
      */
     test('应支持代码提示', async () => {
+      // 切换到前置脚本标签页
       await switchToPreRequestTab(contentPage);
+      // 在编辑器中输入pm.触发代码提示
       const editor = contentPage.locator('.monaco-editor').first();
       await editor.click();
       await contentPage.keyboard.type('pm.');
       await contentPage.waitForTimeout(500);
+      // 检查是否显示代码提示
       const suggestions = contentPage.locator('.suggest-widget').first();
       if (await suggestions.isVisible()) {
         await expect(suggestions).toBeVisible();
@@ -126,11 +135,13 @@ test.describe('8. HTTP节点 - 前置脚本测试', () => {
      * 说明：前置脚本可以编写复杂逻辑
      */
     test('应支持多行代码', async () => {
+      // 输入多行JavaScript代码
       const multilineScript = `const a = 1;
 const b = 2;
 console.log(a + b);`;
       await fillPreRequestScript(contentPage, multilineScript);
       await contentPage.waitForTimeout(300);
+      // 验证所有行都已保存
       const content = await getScriptContent(contentPage);
       expect(content).toContain('const a');
       expect(content).toContain('const b');
@@ -151,6 +162,7 @@ console.log(a + b);`;
      * 说明：request对象包含请求的所有信息
      */
     test('应能访问request对象', async () => {
+      // 编写访问request.url的脚本
       const script = 'console.log(request.url);';
       await fillPreRequestScript(contentPage, script);
       await contentPage.waitForTimeout(300);
@@ -169,7 +181,9 @@ console.log(a + b);`;
      * 说明：变量对象用于读取和设置变量
      */
     test('应能访问variables对象', async () => {
+      // 添加局部变量testVar
       await addLocalVariable(contentPage, 'testVar', 'testValue');
+      // 编写获取变量的脚本
       const script = 'console.log(pm.variables.get("testVar"));';
       await fillPreRequestScript(contentPage, script);
       await contentPage.waitForTimeout(300);
@@ -188,6 +202,7 @@ console.log(a + b);`;
      * 说明：前置脚本可以动态修改请求内容
      */
     test('应能修改请求参数', async () => {
+      // 编写修改request.url的脚本
       const script = 'request.url = "http://example.com/modified";';
       await fillPreRequestScript(contentPage, script);
       await contentPage.waitForTimeout(300);
@@ -206,6 +221,7 @@ console.log(a + b);`;
      * 说明：前置脚本常用于动态生成变量值
      */
     test('应能设置变量', async () => {
+      // 编写pm.variables.set设置变量的脚本
       const script = 'pm.variables.set("dynamicVar", "dynamicValue");';
       await fillPreRequestScript(contentPage, script);
       await contentPage.waitForTimeout(300);
@@ -224,6 +240,7 @@ console.log(a + b);`;
      * 说明：环境变量用于不同环境的配置
      */
     test('应能访问环境变量', async () => {
+      // 编写访问环境变量的脚本
       const script = 'const env = pm.environment.get("envVar");';
       await fillPreRequestScript(contentPage, script);
       await contentPage.waitForTimeout(300);
@@ -242,6 +259,7 @@ console.log(a + b);`;
      * 说明：前置脚本在请求发送前执行
      */
     test('脚本执行应在请求发送前', async () => {
+      // 编写添加请求头的脚本
       const script = 'request.headers["X-Pre-Request"] = "PreValue";';
       await fillPreRequestScript(contentPage, script);
       await contentPage.waitForTimeout(300);
@@ -262,9 +280,11 @@ console.log(a + b);`;
      * 说明：语法检查帮助发现代码错误
      */
     test('语法错误应显示提示', async () => {
+      // 输入语法错误的代码
       const invalidScript = 'const a = ;';
       await fillPreRequestScript(contentPage, invalidScript);
       await contentPage.waitForTimeout(500);
+      // 检查错误标记
       const errorMarker = contentPage.locator('.squiggly-error, .error-marker').first();
       if (await errorMarker.isVisible()) {
         await expect(errorMarker).toBeVisible();
@@ -284,6 +304,7 @@ console.log(a + b);`;
      * 说明：运行时错误在脚本执行时发生
      */
     test('运行时错误应显示错误信息', async () => {
+      // 编写会抛出错误的脚本
       const runtimeErrorScript = 'throw new Error("Test error");';
       await fillPreRequestScript(contentPage, runtimeErrorScript);
       await contentPage.waitForTimeout(300);
@@ -302,9 +323,11 @@ console.log(a + b);`;
      * 说明：脚本错误不应阻断正常使用
      */
     test('脚本错误不应阻止请求发送', async () => {
+      // 编写有错误的脚本
       const errorScript = 'undefinedFunction();';
       await fillPreRequestScript(contentPage, errorScript);
       await contentPage.waitForTimeout(300);
+      // 检查发送按钮状态
       const sendBtn = contentPage.locator('button:has-text("发送请求")').first();
       await expect(sendBtn).toBeEnabled();
     });
@@ -322,6 +345,7 @@ console.log(a + b);`;
      * 说明：日志帮助调试脚本执行过程
      */
     test('应显示脚本执行日志', async () => {
+      // 编写包含console.log的脚本
       const logScript = 'console.log("Pre-request log message");';
       await fillPreRequestScript(contentPage, logScript);
       await contentPage.waitForTimeout(300);
@@ -344,11 +368,15 @@ console.log(a + b);`;
      * 说明：自动保存防止脚本丢失
      */
     test('脚本应自动保存', async () => {
+      // 编写脚本
       const testScript = 'const savedScript = true;';
       await fillPreRequestScript(contentPage, testScript);
+      // 切换到其他标签页
       await switchToTab(contentPage, 'Params');
+      // 切换回前置脚本标签页
       await switchToPreRequestTab(contentPage);
       await contentPage.waitForTimeout(300);
+      // 验证脚本内容保持
       const content = await getScriptContent(contentPage);
       expect(content).toContain('savedScript');
     });
@@ -368,9 +396,11 @@ console.log(a + b);`;
      * 说明：pm.variables.set是最常用的API
      */
     test('应支持pm.variables.set()设置变量', async () => {
+      // 编写使用pm.variables.set的脚本
       const script = 'pm.variables.set("apiKey", "12345");';
       await fillPreRequestScript(contentPage, script);
       await contentPage.waitForTimeout(300);
+      // 验证代码内容
       const content = await getScriptContent(contentPage);
       expect(content).toContain('pm.variables.set');
     });
@@ -389,10 +419,13 @@ console.log(a + b);`;
      * 说明：pm.variables.get用于读取变量值
      */
     test('应支持pm.variables.get()获取变量', async () => {
+      // 添加局部变量
       await addLocalVariable(contentPage, 'userId', '999');
+      // 编写使用pm.variables.get的脚本
       const script = 'const id = pm.variables.get("userId");';
       await fillPreRequestScript(contentPage, script);
       await contentPage.waitForTimeout(300);
+      // 验证代码内容
       const content = await getScriptContent(contentPage);
       expect(content).toContain('pm.variables.get');
     });
@@ -410,9 +443,11 @@ console.log(a + b);`;
      * 说明：pm.request用于动态修改请求
      */
     test('应支持pm.request设置请求', async () => {
+      // 编写使用pm.request修改请求的脚本
       const script = 'pm.request.headers.add({key: "X-API-Key", value: "test"});';
       await fillPreRequestScript(contentPage, script);
       await contentPage.waitForTimeout(300);
+      // 验证代码内容
       const content = await getScriptContent(contentPage);
       expect(content).toContain('pm.request');
     });

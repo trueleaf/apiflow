@@ -34,17 +34,22 @@ test.describe('3. HTTP节点 - Params模块测试', () => {
      * 验证点：Query参数添加功能和默认选中状态
      */
     test('应能添加Query参数', async () => {
+      // 切换到Params标签页
       const paramsTab = contentPage.locator('.el-tabs__item:has-text("Params")').first();
       await paramsTab.click();
       await contentPage.waitForTimeout(300);
 
+      // 在参数名称输入框输入key
       const paramKeyInput = contentPage.locator('input[placeholder*="参数名称"]').first();
       await paramKeyInput.fill('testKey');
+      // 按Tab键切换到value输入框
       await paramKeyInput.press('Tab');
       await contentPage.waitForTimeout(200);
 
+      // 输入value值
       const paramValueInput = contentPage.locator('input[placeholder*="参数值"]').first();
       await paramValueInput.fill('testValue');
+      // 按Enter键确认
       await paramValueInput.press('Enter');
       await contentPage.waitForTimeout(300);
 
@@ -63,10 +68,12 @@ test.describe('3. HTTP节点 - Params模块测试', () => {
      * 验证点：Query参数删除功能
      */
     test('应能删除Query参数', async () => {
+      // 切换到Params标签页
       const paramsTab = contentPage.locator('.el-tabs__item:has-text("Params")').first();
       await paramsTab.click();
       await contentPage.waitForTimeout(300);
 
+      // 添加一个参数
       const paramKeyInput = contentPage.locator('input[placeholder*="参数名称"]').first();
       await paramKeyInput.fill('deleteMe');
       await paramKeyInput.press('Tab');
@@ -77,10 +84,12 @@ test.describe('3. HTTP节点 - Params模块测试', () => {
       await paramValueInput.press('Enter');
       await contentPage.waitForTimeout(300);
 
+      // 悬停到参数行
       const paramRow = contentPage.locator('tr:has(input[value="deleteMe"])').first();
       await paramRow.hover();
       await contentPage.waitForTimeout(200);
 
+      // 点击删除按钮
       const deleteBtn = paramRow.locator('button, .delete-icon, [title*="删除"]').first();
       if (await deleteBtn.isVisible()) {
         await deleteBtn.click();
@@ -100,10 +109,12 @@ test.describe('3. HTTP节点 - Params模块测试', () => {
      * 验证点：Query参数编辑功能
      */
     test('应能修改Query参数值', async () => {
+      // 切换到Params标签页
       const paramsTab = contentPage.locator('.el-tabs__item:has-text("Params")').first();
       await paramsTab.click();
       await contentPage.waitForTimeout(300);
 
+      // 添加一个参数
       const paramKeyInput = contentPage.locator('input[placeholder*="参数名称"]').first();
       await paramKeyInput.fill('editKey');
       await paramKeyInput.press('Tab');
@@ -114,6 +125,7 @@ test.describe('3. HTTP节点 - Params模块测试', () => {
       await paramValueInput.press('Enter');
       await contentPage.waitForTimeout(300);
 
+      // 修改参数的value值
       const editValueInput = contentPage.locator('tr:has(input[value="editKey"]) input[placeholder*="参数值"]').first();
       await editValueInput.clear();
       await editValueInput.fill('newValue');
@@ -137,10 +149,12 @@ test.describe('3. HTTP节点 - Params模块测试', () => {
      * 验证点：参数启用/禁用状态切换
      */
     test('应能启用/禁用Query参数', async () => {
+      // 切换到Params标签页
       const paramsTab = contentPage.locator('.el-tabs__item:has-text("Params")').first();
       await paramsTab.click();
       await contentPage.waitForTimeout(300);
 
+      // 添加一个参数(默认选中)
       const paramKeyInput = contentPage.locator('input[placeholder*="参数名称"]').first();
       await paramKeyInput.fill('toggleKey');
       await paramKeyInput.press('Tab');
@@ -159,9 +173,11 @@ test.describe('3. HTTP节点 - Params模块测试', () => {
         return input ? input.checked : el.classList.contains('is-checked');
       });
 
+      // 取消勾选checkbox
       await checkbox.click();
       await contentPage.waitForTimeout(300);
 
+      // 再次勾选checkbox
       const isCheckedAfterClick = await checkbox.evaluate((el: HTMLElement) => {
         const input = el.querySelector('input[type="checkbox"]') as HTMLInputElement;
         return input ? input.checked : el.classList.contains('is-checked');
@@ -181,15 +197,18 @@ test.describe('3. HTTP节点 - Params模块测试', () => {
      * 验证点：参数select状态对URL的影响
      */
     test('未选中的参数不应出现在URL中', async () => {
+      // 填写URL基础地址
       const urlInput = contentPage.locator('input[placeholder*="请求地址"]').first();
       await urlInput.fill('http://example.com/api');
       await urlInput.blur();
       await contentPage.waitForTimeout(300);
 
+      // 切换到Params标签页
       const paramsTab = contentPage.locator('.el-tabs__item:has-text("Params")').first();
       await paramsTab.click();
       await contentPage.waitForTimeout(300);
 
+      // 添加两个参数
       const paramKeyInput1 = contentPage.locator('input[placeholder*="参数名称"]').first();
       await paramKeyInput1.fill('param1');
       await paramKeyInput1.press('Tab');
@@ -214,15 +233,18 @@ test.describe('3. HTTP节点 - Params模块测试', () => {
      * 验证点：多参数拼接格式
      */
     test('多个Query参数应用&连接', async () => {
+      // 填写URL基础地址
       const urlInput = contentPage.locator('input[placeholder*="请求地址"]').first();
       await urlInput.fill('http://example.com/api');
       await urlInput.blur();
       await contentPage.waitForTimeout(300);
 
+      // 切换到Params标签页
       const paramsTab = contentPage.locator('.el-tabs__item:has-text("Params")').first();
       await paramsTab.click();
       await contentPage.waitForTimeout(300);
 
+      // 添加第一个参数
       const paramKeyInput1 = contentPage.locator('input[placeholder*="参数名称"]').first();
       await paramKeyInput1.fill('key1');
       await paramKeyInput1.press('Tab');
@@ -233,6 +255,7 @@ test.describe('3. HTTP节点 - Params模块测试', () => {
       await paramValueInput.press('Enter');
       await contentPage.waitForTimeout(300);
 
+      // 添加第二个参数
       const paramKeyInput2 = contentPage.locator('input[placeholder*="参数名称"]').last();
       await paramKeyInput2.fill('key2');
       await paramKeyInput2.press('Tab');
@@ -243,6 +266,7 @@ test.describe('3. HTTP节点 - Params模块测试', () => {
       await paramValueInput.press('Enter');
       await contentPage.waitForTimeout(300);
 
+      // 验证URL中包含?和&符号
       const urlValue = await urlInput.inputValue();
       expect(urlValue).toContain('?');
       expect(urlValue).toContain('&');
@@ -263,18 +287,22 @@ test.describe('3. HTTP节点 - Params模块测试', () => {
      * 验证点：单个Path参数提取
      */
     test('应自动提取URL中的Path参数{id}', async () => {
+      // 输入包含Path参数的URL
       const urlInput = contentPage.locator('input[placeholder*="请求地址"]').first();
       await urlInput.fill('http://example.com/user/{id}');
       await urlInput.blur();
       await contentPage.waitForTimeout(500);
 
+      // 切换到Params标签页
       const paramsTab = contentPage.locator('.el-tabs__item:has-text("Params")').first();
       await paramsTab.click();
       await contentPage.waitForTimeout(300);
 
+      // 验证Path参数区域显示
       const pathParamLabel = contentPage.locator('text=Path 参数');
       await expect(pathParamLabel).toBeVisible();
 
+      // 验证id参数自动提取显示
       const idParam = contentPage.locator('input[value="id"]').first();
       await expect(idParam).toBeVisible();
     });
@@ -289,15 +317,18 @@ test.describe('3. HTTP节点 - Params模块测试', () => {
      * 验证点：多个Path参数提取
      */
     test('应提取多个Path参数{userId}/{postId}', async () => {
+      // 输入包含多个Path参数的URL
       const urlInput = contentPage.locator('input[placeholder*="请求地址"]').first();
       await urlInput.fill('http://example.com/user/{userId}/post/{postId}');
       await urlInput.blur();
       await contentPage.waitForTimeout(500);
 
+      // 切换到Params标签页
       const paramsTab = contentPage.locator('.el-tabs__item:has-text("Params")').first();
       await paramsTab.click();
       await contentPage.waitForTimeout(300);
 
+      // 验证所有Path参数都被提取
       const userIdParam = contentPage.locator('input[value="userId"]').first();
       const postIdParam = contentPage.locator('input[value="postId"]').first();
 
@@ -315,19 +346,23 @@ test.describe('3. HTTP节点 - Params模块测试', () => {
      * 验证点：排除变量占位符
      */
     test('不应提取双花括号变量{{variable}}', async () => {
+      // 输入包含变量占位符和Path参数的URL
       const urlInput = contentPage.locator('input[placeholder*="请求地址"]').first();
       await urlInput.fill('http://{{host}}/api/{id}');
       await urlInput.blur();
       await contentPage.waitForTimeout(500);
 
+      // 切换到Params标签页
       const paramsTab = contentPage.locator('.el-tabs__item:has-text("Params")').first();
       await paramsTab.click();
       await contentPage.waitForTimeout(300);
 
+      // 验证变量占位符未被识别为Path参数
       const hostParam = contentPage.locator('input[value="host"]');
       const hostCount = await hostParam.count();
       expect(hostCount).toBe(0);
 
+      // 验证单花括号Path参数正常提取
       const idParam = contentPage.locator('input[value="id"]').first();
       await expect(idParam).toBeVisible();
     });
@@ -343,22 +378,27 @@ test.describe('3. HTTP节点 - Params模块测试', () => {
      * 验证点：Path参数动态同步
      */
     test('URL修改后Path参数应同步更新', async () => {
+      // 输入包含{id}的URL
       const urlInput = contentPage.locator('input[placeholder*="请求地址"]').first();
       await urlInput.fill('http://example.com/user/{id}');
       await urlInput.blur();
       await contentPage.waitForTimeout(500);
 
+      // 切换到Params标签页
       const paramsTab = contentPage.locator('.el-tabs__item:has-text("Params")').first();
       await paramsTab.click();
       await contentPage.waitForTimeout(300);
 
+      // 验证id参数显示
       let idParam = contentPage.locator('input[value="id"]').first();
       await expect(idParam).toBeVisible();
 
+      // 修改URL为包含{userId}
       await urlInput.fill('http://example.com/user/{userId}');
       await urlInput.blur();
       await contentPage.waitForTimeout(500);
 
+      // 验证参数列表同步更新
       const userIdParam = contentPage.locator('input[value="userId"]').first();
       await expect(userIdParam).toBeVisible();
     });
@@ -375,21 +415,25 @@ test.describe('3. HTTP节点 - Params模块测试', () => {
      * 验证点：Path参数值替换
      */
     test('Path参数填值应替换URL中的占位符', async () => {
+      // 输入包含{id}的URL
       const urlInput = contentPage.locator('input[placeholder*="请求地址"]').first();
       await urlInput.fill('http://example.com/user/{id}');
       await urlInput.blur();
       await contentPage.waitForTimeout(500);
 
+      // 切换到Params标签页
       const paramsTab = contentPage.locator('.el-tabs__item:has-text("Params")').first();
       await paramsTab.click();
       await contentPage.waitForTimeout(300);
 
+      // 为id参数填写值
       const idParamRow = contentPage.locator('tr:has(input[value="id"])').first();
       const idValueInput = idParamRow.locator('input[placeholder*="参数值"]').first();
       await idValueInput.fill('123');
       await idValueInput.blur();
       await contentPage.waitForTimeout(300);
 
+      // 验证URL中的占位符被替换
       const urlPreview = await urlInput.inputValue();
       expect(urlPreview).toContain('/user/123');
     });
@@ -407,15 +451,18 @@ test.describe('3. HTTP节点 - Params模块测试', () => {
      * 验证点：Query参数URL拼接
      */
     test('选中的参数应拼接到URL', async () => {
+      // 输入基础URL
       const urlInput = contentPage.locator('input[placeholder*="请求地址"]').first();
       await urlInput.fill('http://example.com/api');
       await urlInput.blur();
       await contentPage.waitForTimeout(300);
 
+      // 切换到Params标签页
       const paramsTab = contentPage.locator('.el-tabs__item:has-text("Params")').first();
       await paramsTab.click();
       await contentPage.waitForTimeout(300);
 
+      // 添加Query参数
       const paramKeyInput = contentPage.locator('input[placeholder*="参数名称"]').first();
       await paramKeyInput.fill('page');
       await paramKeyInput.press('Tab');
@@ -426,6 +473,7 @@ test.describe('3. HTTP节点 - Params模块测试', () => {
       await paramValueInput.press('Enter');
       await contentPage.waitForTimeout(300);
 
+      // 验证参数拼接到URL
       const urlValue = await urlInput.inputValue();
       expect(urlValue).toContain('?page=1');
     });
@@ -440,15 +488,18 @@ test.describe('3. HTTP节点 - Params模块测试', () => {
      * 验证点：URL参数自动解析
      */
     test('粘贴完整URL应自动提取Query参数', async () => {
+      // 粘贴包含查询参数的完整URL
       const urlInput = contentPage.locator('input[placeholder*="请求地址"]').first();
       await urlInput.fill('http://example.com/api?page=1&size=10&sort=name');
       await urlInput.blur();
       await contentPage.waitForTimeout(500);
 
+      // 切换到Params标签页
       const paramsTab = contentPage.locator('.el-tabs__item:has-text("Params")').first();
       await paramsTab.click();
       await contentPage.waitForTimeout(300);
 
+      // 验证查询参数自动提取到列表
       const pageParam = contentPage.locator('input[value="page"]');
       const sizeParam = contentPage.locator('input[value="size"]');
       const sortParam = contentPage.locator('input[value="sort"]');
@@ -469,15 +520,18 @@ test.describe('3. HTTP节点 - Params模块测试', () => {
      * 验证点：自动提取参数的默认状态
      */
     test('提取的参数应为选中状态', async () => {
+      // 粘贴包含查询参数的URL
       const urlInput = contentPage.locator('input[placeholder*="请求地址"]').first();
       await urlInput.fill('http://example.com/api?key=value');
       await urlInput.blur();
       await contentPage.waitForTimeout(500);
 
+      // 切换到Params标签页
       const paramsTab = contentPage.locator('.el-tabs__item:has-text("Params")').first();
       await paramsTab.click();
       await contentPage.waitForTimeout(300);
 
+      // 检查参数checkbox状态
       const paramRow = contentPage.locator('tr:has(input[value="key"])').first();
       const checkbox = paramRow.locator('.el-checkbox__input, input[type="checkbox"]').first();
 
@@ -486,6 +540,7 @@ test.describe('3. HTTP节点 - Params模块测试', () => {
         return input ? input.checked : el.classList.contains('is-checked');
       });
 
+      // 验证提取的参数默认选中
       expect(isChecked).toBe(true);
     });
 
@@ -500,20 +555,24 @@ test.describe('3. HTTP节点 - Params模块测试', () => {
      * 验证点：参数有效性验证
      */
     test('空key的参数不应出现在URL', async () => {
+      // 输入基础URL
       const urlInput = contentPage.locator('input[placeholder*="请求地址"]').first();
       await urlInput.fill('http://example.com/api');
       await urlInput.blur();
       await contentPage.waitForTimeout(300);
 
+      // 切换到Params标签页
       const paramsTab = contentPage.locator('.el-tabs__item:has-text("Params")').first();
       await paramsTab.click();
       await contentPage.waitForTimeout(300);
 
+      // 只填写value不填写key
       const paramValueInput = contentPage.locator('input[placeholder*="参数值"]').first();
       await paramValueInput.fill('valueOnly');
       await paramValueInput.blur();
       await contentPage.waitForTimeout(300);
 
+      // 验证空key参数不出现在URL中
       const urlValue = await urlInput.inputValue();
       expect(urlValue).toBe('http://example.com/api');
     });
@@ -530,10 +589,12 @@ test.describe('3. HTTP节点 - Params模块测试', () => {
      * 验证点：变量占位符语法支持
      */
     test('Query参数值支持{{variable}}变量', async () => {
+      // 切换到Params标签页
       const paramsTab = contentPage.locator('.el-tabs__item:has-text("Params")').first();
       await paramsTab.click();
       await contentPage.waitForTimeout(300);
 
+      // 添加参数并使用变量占位符
       const paramKeyInput = contentPage.locator('input[placeholder*="参数名称"]').first();
       await paramKeyInput.fill('token');
       await paramKeyInput.press('Tab');
@@ -544,6 +605,7 @@ test.describe('3. HTTP节点 - Params模块测试', () => {
       await paramValueInput.blur();
       await contentPage.waitForTimeout(300);
 
+      // 验证变量格式保存
       const savedValue = await paramValueInput.inputValue();
       expect(savedValue).toBe('{{authToken}}');
     });
@@ -558,21 +620,25 @@ test.describe('3. HTTP节点 - Params模块测试', () => {
      * 验证点：Path参数变量支持
      */
     test('Path参数值支持{{variable}}变量', async () => {
+      // 输入包含Path参数的URL
       const urlInput = contentPage.locator('input[placeholder*="请求地址"]').first();
       await urlInput.fill('http://example.com/user/{id}');
       await urlInput.blur();
       await contentPage.waitForTimeout(500);
 
+      // 切换到Params标签页
       const paramsTab = contentPage.locator('.el-tabs__item:has-text("Params")').first();
       await paramsTab.click();
       await contentPage.waitForTimeout(300);
 
+      // 为Path参数填写变量占位符
       const idParamRow = contentPage.locator('tr:has(input[value="id"])').first();
       const idValueInput = idParamRow.locator('input[placeholder*="参数值"]').first();
       await idValueInput.fill('{{userId}}');
       await idValueInput.blur();
       await contentPage.waitForTimeout(300);
 
+      // 验证变量格式保存成功
       const savedValue = await idValueInput.inputValue();
       expect(savedValue).toBe('{{userId}}');
     });
@@ -587,10 +653,12 @@ test.describe('3. HTTP节点 - Params模块测试', () => {
      * 验证点：复杂变量场景
      */
     test('参数值支持多个变量{{var1}}{{var2}}', async () => {
+      // 切换到Params标签页
       const paramsTab = contentPage.locator('.el-tabs__item:has-text("Params")').first();
       await paramsTab.click();
       await contentPage.waitForTimeout(300);
 
+      // 添加参数并使用多个变量
       const paramKeyInput = contentPage.locator('input[placeholder*="参数名称"]').first();
       await paramKeyInput.fill('fullPath');
       await paramKeyInput.press('Tab');
@@ -601,6 +669,7 @@ test.describe('3. HTTP节点 - Params模块测试', () => {
       await paramValueInput.blur();
       await contentPage.waitForTimeout(300);
 
+      // 验证多变量格式保存成功
       const savedValue = await paramValueInput.inputValue();
       expect(savedValue).toBe('{{prefix}}{{path}}');
     });
@@ -615,10 +684,12 @@ test.describe('3. HTTP节点 - Params模块测试', () => {
      * 验证点：Mock数据语法支持
      */
     test('参数值@mockValue应保持原样', async () => {
+      // 切换到Params标签页
       const paramsTab = contentPage.locator('.el-tabs__item:has-text("Params")').first();
       await paramsTab.click();
       await contentPage.waitForTimeout(300);
 
+      // 添加参数并使用@符号
       const paramKeyInput = contentPage.locator('input[placeholder*="参数名称"]').first();
       await paramKeyInput.fill('mockData');
       await paramKeyInput.press('Tab');
@@ -629,6 +700,7 @@ test.describe('3. HTTP节点 - Params模块测试', () => {
       await paramValueInput.blur();
       await contentPage.waitForTimeout(300);
 
+      // 验证@标记保持原样
       const savedValue = await paramValueInput.inputValue();
       expect(savedValue).toBe('@email');
     });
@@ -645,10 +717,12 @@ test.describe('3. HTTP节点 - Params模块测试', () => {
      * 验证点：特殊字符处理
      */
     test('参数值包含特殊字符&=?应正确处理', async () => {
+      // 切换到Params标签页
       const paramsTab = contentPage.locator('.el-tabs__item:has-text("Params")').first();
       await paramsTab.click();
       await contentPage.waitForTimeout(300);
 
+      // 添加参数并输入包含特殊字符的值
       const paramKeyInput = contentPage.locator('input[placeholder*="参数名称"]').first();
       await paramKeyInput.fill('special');
       await paramKeyInput.press('Tab');
@@ -659,6 +733,7 @@ test.describe('3. HTTP节点 - Params模块测试', () => {
       await paramValueInput.blur();
       await contentPage.waitForTimeout(300);
 
+      // 验证特殊字符正确保存
       const savedValue = await paramValueInput.inputValue();
       expect(savedValue).toBe('a&b=c?d');
     });
@@ -673,10 +748,12 @@ test.describe('3. HTTP节点 - Params模块测试', () => {
      * 验证点：空值处理
      */
     test('参数value为空应允许保存', async () => {
+      // 切换到Params标签页
       const paramsTab = contentPage.locator('.el-tabs__item:has-text("Params")').first();
       await paramsTab.click();
       await contentPage.waitForTimeout(300);
 
+      // 添加参数key但value留空
       const paramKeyInput = contentPage.locator('input[placeholder*="参数名称"]').first();
       await paramKeyInput.fill('emptyValue');
       await paramKeyInput.press('Tab');
@@ -687,6 +764,7 @@ test.describe('3. HTTP节点 - Params模块测试', () => {
       await paramValueInput.blur();
       await contentPage.waitForTimeout(300);
 
+      // 验证空值参数可以保存
       const paramRow = contentPage.locator('tr:has(input[value="emptyValue"])');
       await expect(paramRow).toBeVisible();
     });
@@ -701,10 +779,12 @@ test.describe('3. HTTP节点 - Params模块测试', () => {
      * 验证点：参数顺序管理
      */
     test('参数顺序应与添加顺序一致', async () => {
+      // 切换到Params标签页
       const paramsTab = contentPage.locator('.el-tabs__item:has-text("Params")').first();
       await paramsTab.click();
       await contentPage.waitForTimeout(300);
 
+      // 依次添加多个参数
       const params = ['first', 'second', 'third'];
       for (const param of params) {
         const paramKeyInput = contentPage.locator('input[placeholder*="参数名称"]').last();
@@ -718,6 +798,7 @@ test.describe('3. HTTP节点 - Params模块测试', () => {
         await contentPage.waitForTimeout(300);
       }
 
+      // 验证参数按添加顺序显示
       const allParams = contentPage.locator('tr:has(input[value])');
       const count = await allParams.count();
       expect(count).toBeGreaterThanOrEqual(3);

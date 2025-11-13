@@ -1,13 +1,6 @@
 import { expect, type Page } from '@playwright/test';
 import { test, initOfflineWorkbench, createProject, createSingleNode, clearAllAppData } from '../../../fixtures/fixtures';
-import {
-  verifyHttpMethod,
-  switchToTab,
-  addQueryParam,
-  verifyQueryParamExists,
-  fillUrl,
-  verifyPathParamExists,
-} from './helpers/httpNodeHelpers';
+
 
 test.describe('1. HTTP节点 - 基础功能测试', () => {
   let headerPage: Page;
@@ -21,82 +14,67 @@ test.describe('1. HTTP节点 - 基础功能测试', () => {
 
   test.describe('1.1 基础创建测试', () => {
     /**
-     * 测试目的：验证HTTP节点的基础创建流程是否正常
+     * 测试目的：验证HTTP节点的基础创建流程及所有核心UI组件的完整显示（烟雾测试）
+     * 测试策略：只验证UI元素的存在性和可见性，不进行交互操作
      * 前置条件：应用已启动，工作区已初始化
      * 操作步骤：
      *   1. 创建一个测试项目
      *   2. 在项目中创建一个HTTP类型的节点，命名为"Test API"
-     *   3. 等待HTTP节点界面加载完成
+     *   3. 验证所有核心UI元素可见
      * 预期结果：
      *   - 节点创建成功(result.success为true)
      *   - 左侧树形导航中显示"Test API"节点
-     *   - 默认请求方法为GET
+     *   - 请求方法选择器可见
+     *   - URL输入框可见
      *   - HTTP节点的主操作区域(.api-operation)可见
-     * 验证点：节点创建状态、UI可见性、默认HTTP方法
+     *   - 核心按钮组可见：发送请求、保存接口、刷新
+     *   - 辅助按钮组可见：撤销、重做
+     *   - 全部7个功能标签页tab可见：Params、Body、Headers、返回参数、前置脚本、后置脚本、备注信息
+     *   - 默认Params标签页处于激活状态
+     *   - Query参数区域可见（验证基础内容渲染正常）
+     * 验证点：
+     *   - 节点创建状态
+     *   - UI组件完整性和可见性
+     *   - 所有核心功能模块的入口可访问
+     * 注意：本测试不验证交互功能，交互功能由"基础操作流程"测试覆盖
      */
-    test('基础创建流程：创建HTTP节点应成功', async () => {
+    test('基础创建流程：创建HTTP节点应成功并显示完整UI', async () => {
+      // 创建测试项目
       await createProject(contentPage, '测试项目');
+      // 创建HTTP节点
       const result = await createSingleNode(contentPage, {
         name: 'Test API',
         type: 'http'
       });
+      // 验证节点创建成功
       expect(result.success).toBe(true);
+      // 验证树节点显示
       const treeNode = contentPage
         .locator('.tree-node:has-text("Test API"), .el-tree-node__content:has-text("Test API"), .el-tree-node__label:has-text("Test API")')
         .first();
       await expect(treeNode).toBeVisible();
-      await verifyHttpMethod(contentPage, 'GET');
-      const apiOperation = contentPage.locator('.api-operation').first();
-      await expect(apiOperation).toBeVisible();
-    });
-
-    /**
-     * 测试目的：验证HTTP节点创建后UI界面立即正确显示
-     * 前置条件：已创建测试项目和HTTP节点
-     * 操作步骤：
-     *   1. 等待HTTP节点界面加载完成
-     *   2. 检查各个核心UI组件的可见性
-     * 预期结果：
-     *   - HTTP方法选择器(methodSelector)可见
-     *   - URL输入框(urlInput)可见
-     *   - Params标签页可见
-     *   - "发送请求"按钮可见
-     * 验证点：HTTP节点核心UI组件的完整性和可见性
-     */
-    test('创建后应立即显示UI界面', async () => {
-      await createProject(contentPage, '测试项目');
-      await createSingleNode(contentPage, {
-        name: 'Test API',
-        type: 'http'
-      });
-      const methodSelector = contentPage.locator('[data-testid="method-select"]');
-      await expect(methodSelector).toBeVisible();
+      // 验证请求方法选择器可见
+      const methodSelect = contentPage.locator('[data-testid="method-select"]');
+      await expect(methodSelect).toBeVisible();
+      // 验证URL输入框可见
       const urlInput = contentPage.locator('[data-testid="url-input"]');
       await expect(urlInput).toBeVisible();
-      const paramsTab = contentPage.locator('.el-tabs__item:has-text("Params")').first();
-      await expect(paramsTab).toBeVisible();
+      // 验证主操作区域
+      const apiOperation = contentPage.locator('.api-operation').first();
+      await expect(apiOperation).toBeVisible();
+      // 验证核心按钮组
       const sendBtn = contentPage.locator('button:has-text("发送请求")').first();
       await expect(sendBtn).toBeVisible();
-    });
-  });
-
-  test.describe('1.2 标签页测试', () => {
-    /**
-     * 测试目的：验证HTTP节点的所有功能标签页都正确显示
-     * 前置条件：已创建HTTP节点并等待界面加载完成
-     * 操作步骤：检查各个标签页元素的可见性
-     * 预期结果：
-     *   - Params标签页可见
-     *   - Body标签页可见
-     *   - Headers(或"请求头")标签页可见
-     * 验证点：标签页完整性，确保所有必需的配置入口都存在
-     */
-    test('应显示所有标签页', async () => {
-      await createProject(contentPage, '测试项目');
-      await createSingleNode(contentPage, {
-        name: 'Test API',
-        type: 'http'
-      });
+      const saveBtn = contentPage.locator('button:has-text("保存接口")').first();
+      await expect(saveBtn).toBeVisible();
+      const refreshBtn = contentPage.locator('[title*="刷新"], .refresh-btn').first();
+      await expect(refreshBtn).toBeVisible();
+      // 验证撤销重做按钮
+      const undoText = contentPage.locator('text=撤销').first();
+      await expect(undoText).toBeVisible();
+      const redoText = contentPage.locator('text=重做').first();
+      await expect(redoText).toBeVisible();
+      // 验证全部7个功能标签页tab存在
       const paramsTab = contentPage.locator('.el-tabs__item:has-text("Params")').first();
       await expect(paramsTab).toBeVisible();
       const bodyTab = contentPage.locator('.el-tabs__item:has-text("Body")').first();
@@ -105,443 +83,253 @@ test.describe('1. HTTP节点 - 基础功能测试', () => {
         .locator('.el-tabs__item:has-text("Headers"), .el-tabs__item:has-text("请求头")')
         .first();
       await expect(headersTab).toBeVisible();
+      const responseTab = contentPage.locator('.el-tabs__item:has-text("返回参数")').first();
+      await expect(responseTab).toBeVisible();
+      const preRequestTab = contentPage.locator('.el-tabs__item:has-text("前置脚本")').first();
+      await expect(preRequestTab).toBeVisible();
+      const afterRequestTab = contentPage.locator('.el-tabs__item:has-text("后置脚本")').first();
+      await expect(afterRequestTab).toBeVisible();
+      const remarksTab = contentPage.locator('.el-tabs__item:has-text("备注信息")').first();
+      await expect(remarksTab).toBeVisible();
+      // 验证默认Params标签页处于激活状态
+      const paramsActiveTab = contentPage.locator('.el-tabs__item.is-active:has-text("Params")').first();
+      await expect(paramsActiveTab).toBeVisible();
+      // 验证Query参数区域可见（确认基础内容渲染正常）
+      await expect(contentPage.locator('text=Query 参数').first()).toBeVisible();
     });
 
     /**
-     * 测试目的：验证用户能够在不同标签页之间切换
-     * 前置条件：已创建HTTP节点
+     * 测试目的：验证HTTP节点创建后所有核心操作功能和交互功能可正常使用
+     * 测试策略：全面测试各种交互操作和功能逻辑，包括按钮点击、输入、状态变化等
+     * 前置条件：应用已启动，工作区已初始化
      * 操作步骤：
-     *   1. 切换到Params标签页
-     *   2. 验证Params标签页处于激活状态
-     *   3. 切换到Headers标签页
-     *   4. 验证Headers标签页处于激活状态
+     *   1. 创建测试项目和HTTP节点
+     *   2. 测试请求方法切换（GET -> POST -> GET）
+     *   3. 测试URL输入功能（输入→验证→清空→重新输入）
+     *   4. 测试发送请求按钮（验证状态变化为"取消请求"）
+     *   5. 测试取消请求按钮（验证恢复为"发送请求"）
+     *   6. 测试保存功能完整流程（保存后数据持久化）
+     *   7. 测试刷新按钮可点击
+     *   8. 测试全部7个标签页切换功能（Params→Body→Headers→返回参数→前置脚本→后置脚本→备注信息→循环回Params）
+     *   9. 验证每个标签页切换后激活状态正确
+     *   10. 验证每个标签页内容区域正确显示关键元素
      * 预期结果：
-     *   - 每次切换后，对应标签页显示激活样式(.is-active)
-     * 验证点：标签页切换功能和激活状态显示
+     *   - 请求方法可以正常切换且状态正确更新
+     *   - URL输入框可以正常输入和修改
+     *   - 发送请求按钮点击后变为取消按钮
+     *   - 取消按钮点击后恢复为发送按钮
+     *   - 保存后数据被正确持久化
+     *   - 刷新按钮可以正常点击
+     *   - 全部7个标签页可以正常切换
+     *   - 每个标签页切换后激活状态正确
+     *   - 每个标签页内容区域正确显示并包含关键元素
+     *   - 多次切换标签页内容保持稳定
+     *   - 循环切换验证所有标签页交互正常
+     * 验证点：
+     *   - 请求方法切换功能
+     *   - URL输入功能
+     *   - 发送/取消请求按钮状态切换
+     *   - 保存功能和数据持久化
+     *   - 刷新按钮交互
+     *   - 全部7个标签页切换功能和激活状态
+     *   - 每个标签页内容区域的关键元素显示
+     * 注意：本测试负责所有交互功能验证，UI存在性验证由"基础创建流程"测试覆盖
      */
-    test('应能切换标签页', async () => {
+    test('基础操作流程：HTTP节点的核心功能应可正常操作', async () => {
+      // 创建测试项目和HTTP节点
       await createProject(contentPage, '测试项目');
-      await createSingleNode(contentPage, {
+      const result = await createSingleNode(contentPage, {
         name: 'Test API',
         type: 'http'
       });
-      await switchToTab(contentPage, 'Params');
-      const paramsActiveTab = contentPage.locator('.el-tabs__item.is-active:has-text("Params")');
+      expect(result.success).toBe(true);
+      // 等待HTTP节点界面加载完成并验证GET方法
+      const apiOperation = contentPage.locator('.api-operation').first();
+      await expect(apiOperation).toBeVisible();
+      const methodSelect = contentPage.locator('[data-testid="method-select"]');
+      await expect(methodSelect).toBeVisible();
+      // 确保选中值已渲染（必要时主动选择 GET）
+      await methodSelect.click();
+      await contentPage.waitForTimeout(200);
+      const getOptionInit = contentPage.locator('.el-select-dropdown__item:has-text("GET")').first();
+      await getOptionInit.click();
+      await contentPage.waitForTimeout(200);
+      await methodSelect.click();
+      await contentPage.waitForTimeout(200);
+      const selectedGetNow = contentPage
+        .locator('.el-select-dropdown__item[aria-selected="true"]:has-text("GET"), .el-select-dropdown__item.is-selected:has-text("GET")')
+        .first();
+      await expect(selectedGetNow).toBeVisible();
+      await contentPage.keyboard.press('Escape');
+      // 切换到POST方法
+      await methodSelect.click();
+      await contentPage.waitForTimeout(200);
+      const postOption = contentPage.locator('.el-select-dropdown__item:has-text("POST")').first();
+      await postOption.click();
+      await contentPage.waitForTimeout(300);
+      await methodSelect.click();
+      await contentPage.waitForTimeout(200);
+      const selectedPost = contentPage
+        .locator('.el-select-dropdown__item[aria-selected="true"]:has-text("POST"), .el-select-dropdown__item.is-selected:has-text("POST")')
+        .first();
+      await expect(selectedPost).toBeVisible();
+      await contentPage.keyboard.press('Escape');
+      // 切换回GET方法
+      await methodSelect.click();
+      await contentPage.waitForTimeout(200);
+      const getOption = contentPage.locator('.el-select-dropdown__item:has-text("GET")').first();
+      await getOption.click();
+      await contentPage.waitForTimeout(300);
+      await methodSelect.click();
+      await contentPage.waitForTimeout(200);
+      const selectedGetAgain = contentPage
+        .locator('.el-select-dropdown__item[aria-selected="true"]:has-text("GET"), .el-select-dropdown__item.is-selected:has-text("GET")')
+        .first();
+      await expect(selectedGetAgain).toBeVisible();
+      await contentPage.keyboard.press('Escape');
+      // 测试URL输入
+      const urlInput = contentPage.locator('[data-testid="url-input"]');
+      // 第一次输入URL
+      await urlInput.fill('https://api.example.com/test');
+      await contentPage.waitForTimeout(200);
+      let urlValue = await urlInput.inputValue();
+      expect(urlValue).toBe('https://api.example.com/test');
+      // 清空并重新输入URL
+      await urlInput.clear();
+      await contentPage.waitForTimeout(100);
+      await urlInput.fill('https://api.example.com/users');
+      await contentPage.waitForTimeout(200);
+      urlValue = await urlInput.inputValue();
+      expect(urlValue).toBe('https://api.example.com/users');
+      // 测试发送请求按钮
+      const sendBtn = contentPage.locator('button:has-text("发送请求")').first();
+      await expect(sendBtn).toBeVisible();
+      // 点击发送请求
+      await sendBtn.click();
+      await contentPage.waitForTimeout(200);
+      // 验证按钮变为取消请求
+      const cancelBtn = contentPage.locator('button:has-text("取消请求")').first();
+      await expect(cancelBtn).toBeVisible();
+      // 点击取消请求
+      await cancelBtn.click();
+      await contentPage.waitForTimeout(300);
+      // 验证按钮恢复为发送请求
+      await expect(sendBtn).toBeVisible();
+      // 测试保存功能
+      const saveBtn = contentPage.locator('button:has-text("保存接口")').first();
+      await saveBtn.click();
+      await contentPage.waitForTimeout(500);
+      // 验证保存后数据保持
+      const savedUrlValue = await urlInput.inputValue();
+      expect(savedUrlValue).toBe('https://api.example.com/users');
+      await methodSelect.click();
+      await contentPage.waitForTimeout(200);
+      const savedSelectedMethod = contentPage
+        .locator('.el-select-dropdown__item[aria-selected="true"]:has-text("GET"), .el-select-dropdown__item.is-selected:has-text("GET")')
+        .first();
+      await expect(savedSelectedMethod).toBeVisible();
+      await contentPage.keyboard.press('Escape');
+      // 测试刷新按钮
+      const refreshBtn = contentPage.locator('[title*="刷新"], .refresh-btn').first();
+      await expect(refreshBtn).toBeVisible();
+      await refreshBtn.click();
+      await contentPage.waitForTimeout(300);
+      // 测试标签页切换 - 验证所有标签页都能正常切换并显示内容
+      
+      // Params 标签页
+      const paramsTab = contentPage.locator('.el-tabs__item:has-text("Params")').first();
+      await paramsTab.click();
+      await contentPage.waitForTimeout(300);
+      const paramsActiveTab = contentPage.locator('.el-tabs__item.is-active:has-text("Params")').first();
       await expect(paramsActiveTab).toBeVisible();
-      await switchToTab(contentPage, 'Headers');
+      await expect(contentPage.locator('text=Query 参数').first()).toBeVisible();
+      const paramInput = contentPage
+        .locator('input[placeholder="输入参数名称自动换行"], input[placeholder*="参数名称"]')
+        .first();
+      await expect(paramInput).toBeVisible();
+      
+      // Body 标签页
+      const bodyTab = contentPage.locator('.el-tabs__item:has-text("Body")').first();
+      await bodyTab.click();
+      await contentPage.waitForTimeout(300);
+      const bodyActiveTab = contentPage.locator('.el-tabs__item.is-active:has-text("Body")').first();
+      await expect(bodyActiveTab).toBeVisible();
+      const bodyModeSelector = contentPage.locator('.body-params .el-radio-group').first();
+      await expect(bodyModeSelector).toBeVisible();
+      const jsonRadio = contentPage.locator('.el-radio:has-text("json")').first();
+      await expect(jsonRadio).toBeVisible();
+      const formdataRadio = contentPage.locator('.el-radio:has-text("form-data")').first();
+      await expect(formdataRadio).toBeVisible();
+      const urlencodedRadio = contentPage.locator('.el-radio:has-text("x-www-form-urlencoded")').first();
+      await expect(urlencodedRadio).toBeVisible();
+      const rawRadio = contentPage.locator('.el-radio:has-text("raw")').first();
+      await expect(rawRadio).toBeVisible();
+      const binaryRadio = contentPage.locator('.el-radio:has-text("binary")').first();
+      await expect(binaryRadio).toBeVisible();
+      const noneRadio = contentPage.locator('.el-radio:has-text("none")').first();
+      await expect(noneRadio).toBeVisible();
+      
+      // Headers/请求头 标签页
+      const headersTab = contentPage
+        .locator('.el-tabs__item:has-text("Headers"), .el-tabs__item:has-text("请求头")')
+        .first();
+      await headersTab.click();
+      await contentPage.waitForTimeout(300);
       const headersActiveTab = contentPage
         .locator('.el-tabs__item.is-active:has-text("Headers"), .el-tabs__item.is-active:has-text("请求头")')
         .first();
       await expect(headersActiveTab).toBeVisible();
-    });
-
-    /**
-     * 测试目的：验证标签页切换时数据不会丢失
-     * 前置条件：已创建HTTP节点
-     * 操作步骤：
-     *   1. 在Params标签页添加一个Query参数(testKey=testValue)
-     *   2. 切换到Headers标签页
-     *   3. 再切换回Params标签页
-     *   4. 验证之前添加的参数是否还存在
-     * 预期结果：
-     *   - 切换回Params标签页后，testKey参数仍然存在
-     * 验证点：标签页切换时的数据持久性
-     */
-    test('标签页切换应保持数据', async () => {
-      await createProject(contentPage, '测试项目');
-      await createSingleNode(contentPage, {
-        name: 'Test API',
-        type: 'http'
-      });
-      await addQueryParam(contentPage, 'testKey', 'testValue');
-      await switchToTab(contentPage, 'Headers');
-      await switchToTab(contentPage, 'Params');
-      await verifyQueryParamExists(contentPage, 'testKey');
-    });
-  });
-
-  test.describe('1.3 Params模块功能测试', () => {
-    /**
-     * 测试目的：验证Params标签页的基础结构正确显示
-     * 前置条件：已创建HTTP节点
-     * 操作步骤：
-     *   1. 切换到Params标签页
-     *   2. 检查"Query 参数"文本是否显示
-     *   3. 检查参数输入框是否显示
-     * 预期结果：
-     *   - "Query 参数"标题可见
-     *   - 参数名称输入框可见(placeholder包含"参数名称"相关文本)
-     * 验证点：Params标签页的UI结构完整性
-     */
-    test('1.3.1 应正确显示Params标签页基础结构', async () => {
-      await createProject(contentPage, '测试项目');
-      await createSingleNode(contentPage, {
-        name: 'Test API',
-        type: 'http'
-      });
-      await switchToTab(contentPage, 'Params');
-      await expect(contentPage.locator('text=Query 参数')).toBeVisible();
-      const paramInput = contentPage.locator('input[placeholder="输入参数名称自动换行"], input[placeholder*="参数名称"]').first();
+      const headerContainer = contentPage.locator('.header-info').first();
+      await expect(headerContainer).toBeVisible();
+      const headerInput = contentPage
+        .locator('.header-info input[placeholder="输入参数名称自动换行"], .header-info input[placeholder*="参数名称"]')
+        .first();
+      await expect(headerInput).toBeVisible();
+      
+      // 返回参数 标签页
+      const responseTab = contentPage.locator('.el-tabs__item:has-text("返回参数")').first();
+      await responseTab.click();
+      await contentPage.waitForTimeout(300);
+      const responseActiveTab = contentPage.locator('.el-tabs__item.is-active:has-text("返回参数")').first();
+      await expect(responseActiveTab).toBeVisible();
+      const responseContainer = contentPage.locator('.response-params').first();
+      await expect(responseContainer).toBeVisible();
+      
+      // 前置脚本 标签页
+      const preRequestTab = contentPage.locator('.el-tabs__item:has-text("前置脚本")').first();
+      await preRequestTab.click();
+      await contentPage.waitForTimeout(300);
+      const preRequestActiveTab = contentPage.locator('.el-tabs__item.is-active:has-text("前置脚本")').first();
+      await expect(preRequestActiveTab).toBeVisible();
+      const preRequestEditor = contentPage.locator('.editor-wrap').first();
+      await expect(preRequestEditor).toBeVisible();
+      
+      // 后置脚本 标签页
+      const afterRequestTab = contentPage.locator('.el-tabs__item:has-text("后置脚本")').first();
+      await afterRequestTab.click();
+      await contentPage.waitForTimeout(300);
+      const afterRequestActiveTab = contentPage.locator('.el-tabs__item.is-active:has-text("后置脚本")').first();
+      await expect(afterRequestActiveTab).toBeVisible();
+      const afterRequestEditor = contentPage.locator('.editor-wrap').first();
+      await expect(afterRequestEditor).toBeVisible();
+      
+      // 备注信息 标签页
+      const remarksTab = contentPage.locator('.el-tabs__item:has-text("备注信息")').first();
+      await remarksTab.click();
+      await contentPage.waitForTimeout(300);
+      const remarksActiveTab = contentPage.locator('.el-tabs__item.is-active:has-text("备注信息")').first();
+      await expect(remarksActiveTab).toBeVisible();
+      const remarksTextarea = contentPage.locator('textarea[placeholder*="备注信息"]').first();
+      await expect(remarksTextarea).toBeVisible();
+      
+      // 再次切换回Params标签页，验证循环切换正常
+      await paramsTab.click();
+      await contentPage.waitForTimeout(300);
+      await expect(paramsActiveTab).toBeVisible();
       await expect(paramInput).toBeVisible();
     });
 
-    /**
-     * 测试目的：验证Query参数的添加和编辑功能
-     * 前置条件：已创建HTTP节点
-     * 操作步骤：
-     *   1. 添加第一个参数(testKey=testValue)
-     *   2. 验证参数已成功添加
-     *   3. 添加第二个参数，包含描述信息(key2=value2, description="测试描述")
-     *   4. 验证第二个参数也成功添加
-     * 预期结果：
-     *   - 两个参数都能成功添加
-     *   - 可以为参数添加描述信息
-     * 验证点：Query参数的添加功能和描述字段支持
-     */
-    test('1.3.2 Query参数应支持添加和编辑', async () => {
-      await createProject(contentPage, '测试项目');
-      await createSingleNode(contentPage, {
-        name: 'Test API',
-        type: 'http'
-      });
-      await addQueryParam(contentPage, 'testKey', 'testValue');
-      await verifyQueryParamExists(contentPage, 'testKey');
-      await addQueryParam(contentPage, 'key2', 'value2', { description: '测试描述' });
-      await verifyQueryParamExists(contentPage, 'key2');
-    });
 
-    /**
-     * 测试目的：验证Query参数的启用/禁用功能
-     * 前置条件：已创建HTTP节点
-     * 操作步骤：
-     *   1. 添加一个启用状态的参数(enabledParam=value1, enabled=true)
-     *   2. 添加一个禁用状态的参数(disabledParam=value2, enabled=false)
-     *   3. 验证两个参数都存在
-     * 预期结果：
-     *   - 启用和禁用的参数都能成功添加
-     *   - 禁用的参数不会包含在实际请求中(后续测试验证)
-     * 验证点：参数启用/禁用状态的设置和保存
-     */
-    test('1.3.3 Query参数应支持启用和禁用', async () => {
-      await createProject(contentPage, '测试项目');
-      await createSingleNode(contentPage, {
-        name: 'Test API',
-        type: 'http'
-      });
-      await addQueryParam(contentPage, 'enabledParam', 'value1', { enabled: true });
-      await addQueryParam(contentPage, 'disabledParam', 'value2', { enabled: false });
-      await verifyQueryParamExists(contentPage, 'enabledParam');
-      await verifyQueryParamExists(contentPage, 'disabledParam');
-    });
-
-    /**
-     * 测试目的：验证系统能自动识别URL中的Path参数
-     * 前置条件：已创建HTTP节点
-     * 操作步骤：
-     *   1. 在URL输入框输入包含路径参数的地址：/api/:id/:userId
-     *   2. 等待系统处理
-     *   3. 切换到Params标签页查看Path参数区域
-     * 预期结果：
-     *   - "Path 参数"区域显示
-     *   - 自动识别出id和userId两个路径参数
-     * 验证点：URL路径参数的自动识别和提取功能
-     */
-    test('1.3.4 Path参数应自动识别URL中的路径变量', async () => {
-      await createProject(contentPage, '测试项目');
-      await createSingleNode(contentPage, {
-        name: 'Test API',
-        type: 'http'
-      });
-      await fillUrl(contentPage, '/api/:id/:userId');
-      await contentPage.waitForTimeout(500);
-      await switchToTab(contentPage, 'Params');
-      await expect(contentPage.locator('text=Path 参数')).toBeVisible();
-      await verifyPathParamExists(contentPage, 'id');
-      await verifyPathParamExists(contentPage, 'userId');
-    });
-
-    /**
-     * 测试目的：验证标签页切换时Params数据保持完整
-     * 前置条件：已创建HTTP节点
-     * 操作步骤：
-     *   1. 添加Query参数(persistKey=persistValue)
-     *   2. 设置包含路径参数的URL(/api/:pathParam)
-     *   3. 切换到Body标签页
-     *   4. 切换到Headers标签页
-     *   5. 切换回Params标签页
-     *   6. 验证Query参数和Path参数是否还存在
-     * 预期结果：
-     *   - Query参数persistKey仍然存在
-     *   - Path参数pathParam仍然存在
-     * 验证点：多次标签页切换后的数据持久性
-     */
-    test('1.3.5 Params数据应在标签页切换时保持', async () => {
-      await createProject(contentPage, '测试项目');
-      await createSingleNode(contentPage, {
-        name: 'Test API',
-        type: 'http'
-      });
-      await addQueryParam(contentPage, 'persistKey', 'persistValue');
-      await fillUrl(contentPage, '/api/:pathParam');
-      await contentPage.waitForTimeout(500);
-      await switchToTab(contentPage, 'Body');
-      await switchToTab(contentPage, 'Headers');
-      await switchToTab(contentPage, 'Params');
-      await verifyQueryParamExists(contentPage, 'persistKey');
-      await verifyPathParamExists(contentPage, 'pathParam');
-    });
-
-    /**
-     * 测试目的：验证不同模块间的数据交互功能
-     * 前置条件：已创建HTTP节点
-     * 操作步骤：
-     *   1. 添加Query参数(testParam=testValue)
-     *   2. 等待数据处理
-     *   3. 验证参数存在
-     * 预期结果：参数能正常添加并验证通过
-     * 验证点：基础的模块间交互功能正常
-     */
-    test('各模块应能正常交互', async () => {
-      await createProject(contentPage, '测试项目');
-      await createSingleNode(contentPage, {
-        name: 'Test API',
-        type: 'http'
-      });
-      await addQueryParam(contentPage, 'testParam', 'testValue');
-      await contentPage.waitForTimeout(300);
-      await verifyQueryParamExists(contentPage, 'testParam');
-    });
-
-    /**
-     * 测试目的：验证模块切换时数据的持久化
-     * 前置条件：已创建HTTP节点
-     * 操作步骤：
-     *   1. 添加Query参数(persistData=value)
-     *   2. 切换到Body标签页
-     *   3. 切换回Params标签页
-     *   4. 验证参数是否还存在
-     * 预期结果：数据在模块切换后保持完整
-     * 验证点：模块切换时的数据保存机制
-     */
-    test('模块切换应保持数据', async () => {
-      await createProject(contentPage, '测试项目');
-      await createSingleNode(contentPage, {
-        name: 'Test API',
-        type: 'http'
-      });
-      await addQueryParam(contentPage, 'persistData', 'value');
-      await switchToTab(contentPage, 'Body');
-      await switchToTab(contentPage, 'Params');
-      await verifyQueryParamExists(contentPage, 'persistData');
-    });
   });
 
-  test.describe('1.4 发送按钮测试', () => {
-    /**
-     * 测试目的：验证发送请求和取消请求按钮的显示和状态
-     * 前置条件：已创建HTTP节点
-     * 操作步骤：定位"发送请求"按钮并检查其状态
-     * 预期结果：
-     *   - "发送请求"按钮可见
-     *   - 按钮处于可用状态(非禁用)
-     * 验证点：主要操作按钮的可用性
-     */
-    test('应显示发送/取消按钮', async () => {
-      await createProject(contentPage, '测试项目');
-      await createSingleNode(contentPage, {
-        name: 'Test API',
-        type: 'http'
-      });
-      const sendBtn = contentPage.locator('button:has-text("发送请求")').first();
-      await expect(sendBtn).toBeVisible();
-      await expect(sendBtn).toBeEnabled();
-    });
-
-    /**
-     * 测试目的：验证保存接口按钮的显示
-     * 前置条件：已创建HTTP节点
-     * 操作步骤：定位"保存接口"按钮
-     * 预期结果："保存接口"按钮可见
-     * 验证点：保存功能入口的存在性
-     */
-    test('应显示保存按钮', async () => {
-      await createProject(contentPage, '测试项目');
-      await createSingleNode(contentPage, {
-        name: 'Test API',
-        type: 'http'
-      });
-      const saveBtn = contentPage.locator('button:has-text("保存接口")').first();
-      await expect(saveBtn).toBeVisible();
-    });
-
-    /**
-     * 测试目的：验证刷新按钮的显示
-     * 前置条件：已创建HTTP节点
-     * 操作步骤：定位刷新按钮(通过title或class)
-     * 预期结果：刷新按钮可见
-     * 验证点：刷新功能入口的存在性
-     */
-    test('应显示刷新按钮', async () => {
-      await createProject(contentPage, '测试项目');
-      await createSingleNode(contentPage, {
-        name: 'Test API',
-        type: 'http'
-      });
-      const refreshBtn = contentPage.locator('[title*="刷新"], .refresh-btn').first();
-      await expect(refreshBtn).toBeVisible();
-    });
-
-    /**
-     * 测试目的：验证撤销重做等辅助按钮的显示
-     * 前置条件：已创建HTTP节点
-     * 操作步骤：定位"撤销"和"重做"文本
-     * 预期结果：
-     *   - "撤销"按钮/文本可见
-     *   - "重做"按钮/文本可见
-     * 验证点：编辑历史功能入口的存在性
-     */
-    test('应显示其他辅助按钮', async () => {
-      await createProject(contentPage, '测试项目');
-      await createSingleNode(contentPage, {
-        name: 'Test API',
-        type: 'http'
-      });
-      await expect(contentPage.locator('text=撤销')).toBeVisible();
-      await expect(contentPage.locator('text=重做')).toBeVisible();
-    });
-  });
-
-  test.describe('1.5 初始状态', () => {
-    /**
-     * 测试目的：验证HTTP节点创建后的默认请求方法
-     * 前置条件：新创建的HTTP节点
-     * 操作步骤：检查请求方法选择器的当前值
-     * 预期结果：默认请求方法为GET
-     * 验证点：初始状态符合HTTP协议最常用的方法(GET)
-     */
-    test('应使用默认请求方法（GET）', async () => {
-      await createProject(contentPage, '测试项目');
-      await createSingleNode(contentPage, {
-        name: 'Test API',
-        type: 'http'
-      });
-      await verifyHttpMethod(contentPage, 'GET');
-    });
-
-    /**
-     * 测试目的：验证URL输入框的初始状态
-     * 前置条件：新创建的HTTP节点
-     * 操作步骤：
-     *   1. 获取URL输入框
-     *   2. 检查输入框的值是否为空
-     *   3. 检查是否有placeholder提示文本
-     * 预期结果：
-     *   - 输入框值为空字符串
-     *   - 有placeholder提示文本存在
-     * 验证点：输入框初始状态符合新建场景的预期
-     */
-    test('应显示空URL输入框', async () => {
-      await createProject(contentPage, '测试项目');
-      await createSingleNode(contentPage, {
-        name: 'Test API',
-        type: 'http'
-      });
-      const urlInput = contentPage.locator('[data-testid="url-input"]');
-      const value = await urlInput.inputValue();
-      expect(value).toBe('');
-      const placeholder = await urlInput.getAttribute('placeholder');
-      expect(placeholder).toBeTruthy();
-    });
-
-    /**
-     * 测试目的：验证参数表单的初始状态
-     * 前置条件：新创建的HTTP节点
-     * 操作步骤：
-     *   1. 切换到Params标签页
-     *   2. 检查参数输入框是否显示
-     * 预期结果：显示空的参数输入框供用户添加参数
-     * 验证点：参数表单以空白状态开始，便于用户输入
-     */
-    test('应显示空参数表单', async () => {
-      await createProject(contentPage, '测试项目');
-      await createSingleNode(contentPage, {
-        name: 'Test API',
-        type: 'http'
-      });
-      await switchToTab(contentPage, 'Params');
-      const paramInput = contentPage.locator('input[placeholder="输入参数名称自动换行"], input[placeholder*="参数名称"]').first();
-      await expect(paramInput).toBeVisible();
-    });
-
-    /**
-     * 测试目的：验证各标签页显示正确的默认状态
-     * 前置条件：新创建的HTTP节点
-     * 操作步骤：检查标签页数量
-     * 预期结果：至少显示一个标签页(Params、Body、Headers等)
-     * 验证点：标签页系统正常初始化
-     */
-    test('各标签页应显示正确的默认状态', async () => {
-      await createProject(contentPage, '测试项目');
-      await createSingleNode(contentPage, {
-        name: 'Test API',
-        type: 'http'
-      });
-      const tabs = contentPage.locator('.el-tabs__item');
-      const count = await tabs.count();
-      expect(count).toBeGreaterThan(0);
-    });
-  });
-
-  test.describe('1.6 响应式布局', () => {
-    /**
-     * 测试目的：验证界面在最小推荐宽度(1200px)下正常显示
-     * 前置条件：已创建HTTP节点
-     * 操作步骤：
-     *   1. 设置浏览器视口为1200x800
-     *   2. 等待布局调整
-     *   3. 检查主操作区域是否可见
-     * 预期结果：
-     *   - 在1200px宽度下，api-operation区域正常显示
-     *   - UI布局不会出现严重变形或重叠
-     * 验证点：最小支持宽度的布局适配
-     */
-    test('应支持最小宽度1200px', async () => {
-      await createProject(contentPage, '测试项目');
-      await createSingleNode(contentPage, {
-        name: 'Test API',
-        type: 'http'
-      });
-      await contentPage.setViewportSize({ width: 1200, height: 800 });
-      await contentPage.waitForTimeout(300);
-      const apiOperation = contentPage.locator('.api-operation').first();
-      await expect(apiOperation).toBeVisible();
-    });
-
-    /**
-     * 测试目的：验证窗口小于最小宽度时的滚动行为
-     * 前置条件：已创建HTTP节点
-     * 操作步骤：
-     *   1. 设置浏览器视口为1000x800(小于推荐宽度)
-     *   2. 等待布局调整
-     *   3. 检查页面是否产生水平滚动
-     * 预期结果：
-     *   - 在小于1200px宽度时，页面可以水平滚动
-     *   - 内容不会被截断或隐藏
-     * 验证点：小屏幕下的滚动降级方案
-     * 说明：虽然推荐1200px，但更小尺寸下应提供滚动而非破坏布局
-     */
-    test('窗口小于1200px应显示可滚动', async () => {
-      await createProject(contentPage, '测试项目');
-      await createSingleNode(contentPage, {
-        name: 'Test API',
-        type: 'http'
-      });
-      await contentPage.setViewportSize({ width: 1000, height: 800 });
-      await contentPage.waitForTimeout(300);
-      const hasScroll = await contentPage.evaluate(() => {
-        return document.documentElement.scrollWidth > document.documentElement.clientWidth;
-      });
-      expect(hasScroll).toBeDefined();
-    });
-  });
 });

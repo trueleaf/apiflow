@@ -427,34 +427,6 @@ export const verifyUrlValue = async (page: Page, expectedUrl: string): Promise<v
   await expect(urlInput).toHaveValue(expectedUrl);
 };
 
-//验证当前HTTP方法
-export const verifyHttpMethod = async (
-  page: Page,
-  expectedMethod: string
-): Promise<void> => {
-  const methodSelect = page.locator('[data-testid="method-select"]');
-  const selectedItem = methodSelect.locator('.el-select__selected-item');
-  let selectedText = '';
-  if (await selectedItem.count()) {
-    selectedText = (await selectedItem.first().textContent())?.trim() || '';
-  } else {
-    const inputElement = methodSelect.locator('input');
-    if (await inputElement.count()) {
-      selectedText = await inputElement.first().inputValue();
-    } else {
-      const comboBox = methodSelect.locator('[role="combobox"]');
-      if (await comboBox.count()) {
-        selectedText = (await comboBox.first().textContent())?.trim() || '';
-      }
-    }
-  }
-  if (!selectedText) {
-    const containerText = (await methodSelect.textContent())?.trim() || '';
-    selectedText = containerText.split(/\s+/).shift() || '';
-  }
-  expect(selectedText).toBe(expectedMethod);
-};
-
 //等待请求完成
 export const waitForRequestComplete = async (page: Page, timeout = 30000): Promise<void> => {
   await page.waitForSelector('button:has-text("取消请求")', {

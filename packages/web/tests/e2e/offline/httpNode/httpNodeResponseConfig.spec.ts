@@ -56,9 +56,13 @@ test.describe.skip('6. HTTP节点 - 返回参数配置测试', () => {
      * 说明：该功能当前被跳过，标签页可能已不存在
      */
     test('应能添加响应配置', async () => {
+      // 切换到返回参数配置标签页
       await switchToResponseConfigTab(contentPage);
+      // 点击添加响应配置按钮
       await addResponseConfig(contentPage);
+      // 获取响应配置列表
       const configList = getResponseConfigList(contentPage);
+      // 验证配置数量增加
       const count = await configList.count();
       expect(count).toBeGreaterThan(0);
     });
