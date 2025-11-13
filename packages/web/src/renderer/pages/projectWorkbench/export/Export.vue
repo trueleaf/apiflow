@@ -18,6 +18,10 @@
           <img src="@/assets/imgs/logo.png" alt="moyu" class="img">
           <div class="mt-1">{{ t('JSON文档') }}</div>
         </div>
+        <div class="item" :class="{active: selectedType === 'openapi'}" @click="selectedType = 'openapi'">
+          <FileJson :size="70" :stroke-width="1.5" class="lucide-icon" />
+          <div class="mt-1">OpenAPI</div>
+        </div>
         <!-- <div class="item" :class="{active: selectedType === 'otherProject'}" @click="selectedType = 'otherProject'">
           <svg class="svg-icon" aria-hidden="true">
             <use xlink:href="#icondaochu1"></use>
@@ -105,6 +109,8 @@ import type { StandaloneExportHtmlParams } from '@src/types/standalone.ts';
 import { apiNodesCache } from '@/cache/index';
 import { downloadStringAsText } from '@/helper';
 import { useRuntime } from '@/store/runtime/runtimeStore';
+import { OpenAPIConverter } from './openapi-converter';
+import { FileJson } from 'lucide-vue-next';
 
 const apidocBaseInfoStore = useApidocBaseInfo();
 const apidocBannerStore = useApidocBanner();
@@ -112,9 +118,7 @@ const variableStore = useVariable();
 const route = useRoute()
 const runtimeStore = useRuntime();
 const isStandalone = computed(() => runtimeStore.networkMode === 'offline');
-//可导出数据类型
-const selectedType: Ref<'html' | 'pdf' | 'word' | 'moyu' | 'otherProject'> = ref('html')
-//项目基本信息
+const selectedType: Ref<'html' | 'pdf' | 'word' | 'moyu' | 'openapi' | 'otherProject'> = ref('html')
 const projectInfo = computed(() => {
   return {
     _id: apidocBaseInfoStore._id,
@@ -330,6 +334,31 @@ const handleExportAsWord = async () => {
     loading.value = false;
   });
 }
+const handleExportAsOpenAPI = async () => {
+  if (!isStandalone.value) {
+    message.warning(t('OpenAPI导出仅支持离线模式'));
+    return;
+  }
+  const selectedIds = allCheckedNodes.value.map((val) => val._id);
+  const allDocs = await apiNodesCache.getNodesByProjectId(apidocBaseInfoStore._id);
+  const selectedDocs = allDocs.filter((doc) => {
+    if (selectedIds.length === 0) {
+      return true;
+    }
+    return selectedIds.includes(doc._id);
+  }) as HttpNode[];
+  const converter = new OpenAPIConverter();
+  const openApiSpec = converter.convertToOpenAPI(
+    apidocBaseInfoStore.projectName,
+    selectedDocs,
+    apidocBaseInfoStore.hosts
+  );
+  downloadStringAsText(
+    JSON.stringify(openApiSpec, null, 2),
+    `${apidocBaseInfoStore.projectName}.openapi.json`,
+    'application/json'
+  );
+}
 const handleExport = () => {
   const enableCustomExport = config.value?.isEnabled;
   const customExportIsEmpty = allCheckedNodes.value.length === 0;
@@ -345,7 +374,9 @@ const handleExport = () => {
     handleExportAsPdf();
   } else if (selectedType.value === 'word') {
     handleExportAsWord();
-  } else { //默认兜底导出html
+  } else if (selectedType.value === 'openapi') {
+    handleExportAsOpenAPI();
+  } else {
     handleExportAsHTML();
   }
 }
@@ -386,6 +417,9 @@ const handleConfigChange = (isEnabled: boolean) => {
             .svg-icon {
                 width: 70px;
                 height: 70px;
+            }
+            .lucide-icon {
+                color: var(--gray-700);
             }
             .img {
                 width: 60px;

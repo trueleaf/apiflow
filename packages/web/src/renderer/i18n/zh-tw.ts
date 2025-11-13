@@ -273,6 +273,7 @@ export default {
   下载Electron: '下載Electron',
   导出类型: '導出類型',
   JSON文档: 'JSON文檔',
+  'OpenAPI导出仅支持离线模式': 'OpenAPI導出僅支持離線模式',
   导出到其他项目: '導出到其他項目',
   额外配置: '額外配置',
   选择导出: '選擇導出',

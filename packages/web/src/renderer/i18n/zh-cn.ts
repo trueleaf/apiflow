@@ -330,6 +330,7 @@ export default {
   下载Electron: '下载Electron',
   导出类型: '导出类型',
   JSON文档: 'JSON文档',
+  'OpenAPI导出仅支持离线模式': 'OpenAPI导出仅支持离线模式',
   导出到其他项目: '导出到其他项目',
   额外配置: '额外配置',
   选择导出: '选择导出',
