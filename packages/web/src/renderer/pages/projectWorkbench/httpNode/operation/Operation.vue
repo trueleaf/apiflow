@@ -31,6 +31,7 @@
         autocomplete="off"
         autocorrect="off"
         spellcheck="false"
+        @keydown="handleKeyDown"
         @input="handleChangeUrl"
         @blur="handleFormatUrl"
         @keyup.enter.stop="handleFormatUrl"
@@ -61,7 +62,7 @@
     </div>
     <div class="pre-url-wrap">
       <span class="label">{{ t("请求地址") }}：</span>
-      <span class="url">{{ apidocRequestStore.fullUrl }}</span>
+      <span class="url">{{ encodedFullUrl }}</span>
       <el-tooltip :content="urlValidation.errorMessage" :show-after="500" :effect="Effect.LIGHT" placement="top">
         <el-icon v-show="!urlValidation.isValid && apidocRequestStore.fullUrl" size="14" color="#f60" class="tip">
           <Warning />
@@ -145,6 +146,7 @@ const saveDocDialogVisible = computed({
   }
 });
 const operationPart = getOperationPart();
+const encodedFullUrl = computed(() => encodeURI(apidocRequestStore.fullUrl || ''));
 
 const handleSaveApidoc = () => {
   if (currentSelectTab.value?._id.includes('local_')) {
@@ -158,6 +160,11 @@ const handlePaste = (event: ClipboardEvent) => {
   const pastedText = event.clipboardData?.getData('text') || '';
   const trimmedText = pastedText.trim();
   requestPath.value = trimmedText;
+};
+const handleKeyDown = (event: Event) => {
+  if (event instanceof KeyboardEvent && (event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'z') {
+    event.preventDefault()
+  }
 };
 const { loading3, handleSendRequest, handleStopRequest, handleFreshApidoc } = operationPart;
 //请求url、完整url

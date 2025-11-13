@@ -1,6 +1,6 @@
 import { request } from '@/api/api';
 import { apiNodesCache } from '@/cache/index';
-import { findNodeById, forEachForest } from '@/helper';
+import { findNodeById, forEachForest, getAllAncestorIds } from '@/helper';
 import { ApidocBanner, ApidocBannerOfWebsocketNode, ApidocBannerOfHttpNode, ApidocBannerOfHttpMockNode, CommonResponse, MockStatusChangedPayload } from '@src/types';
 import { defineStore } from "pinia";
 import { ref } from "vue";
@@ -32,6 +32,7 @@ export const useApidocBanner = defineStore('apidocBanner', () => {
   const loading = ref(false);
   const banner = ref<ApidocBanner[]>([]);
   const defaultExpandedKeys = ref<string[]>([]);
+  const foldersWithRunningMock = ref<Set<string>>(new Set());
   
   //根据id改变节点属性 - 使用类型断言但更安全
   const changeBannerInfoById = <T extends ApidocBanner, K extends keyof T>(payload: EditBannerPayload<T, K>): void => {
@@ -99,6 +100,7 @@ export const useApidocBanner = defineStore('apidocBanner', () => {
     if (node && node.type === 'httpMock') {
       node.state = payload.state;
     }
+    calculateFoldersWithRunningMock();
   }
   //初始化所有Mock节点状态为stopped
   const initializeMockNodeStates = (): void => {
@@ -107,6 +109,7 @@ export const useApidocBanner = defineStore('apidocBanner', () => {
         (node as ApidocBannerOfHttpMockNode).state = 'stopped';
       }
     });
+    calculateFoldersWithRunningMock();
   }
   //批量查询并更新Mock节点状态
   const refreshMockNodeStates = async (projectId: string): Promise<void> => {
@@ -117,12 +120,36 @@ export const useApidocBanner = defineStore('apidocBanner', () => {
       const states = await window.electronAPI.mock.getAllStates(projectId);
       if (states && states.length > 0) {
         states.forEach((statePayload: MockStatusChangedPayload) => {
-          updateMockNodeState(statePayload);
+          const node = findNodeById(banner.value, statePayload.nodeId, { idKey: '_id' }) as ApidocBannerOfHttpMockNode | null;
+          if (node && node.type === 'httpMock') {
+            node.state = statePayload.state;
+          }
         });
       }
     } catch (error) {
       logger.error('刷新Mock状态失败', { error });
     }
+    calculateFoldersWithRunningMock();
+  }
+  //计算包含running mock的所有文件夹ID
+  const calculateFoldersWithRunningMock = (): void => {
+    const result = new Set<string>();
+    const runningMocks: string[] = [];
+    forEachForest(banner.value, (node) => {
+      if (node.type === 'httpMock' && node.state === 'running') {
+        runningMocks.push(node._id);
+      }
+    });
+    runningMocks.forEach(mockId => {
+      const ancestors = getAllAncestorIds(banner.value, mockId, { idKey: '_id' });
+      ancestors.forEach(ancestorId => {
+        const ancestor = findNodeById(banner.value, ancestorId, { idKey: '_id' });
+        if (ancestor && ancestor.type === 'folder') {
+          result.add(ancestorId);
+        }
+      });
+    });
+    foldersWithRunningMock.value = result;
   }
   /*
   |--------------------------------------------------------------------------
@@ -190,6 +217,7 @@ export const useApidocBanner = defineStore('apidocBanner', () => {
     loading,
     banner,
     defaultExpandedKeys,
+    foldersWithRunningMock,
     changeBannerInfoById,
     changeWebsocketBannerInfoById,
     changeHttpBannerInfoById,
@@ -202,6 +230,7 @@ export const useApidocBanner = defineStore('apidocBanner', () => {
     updateMockNodeState,
     initializeMockNodeStates,
     refreshMockNodeStates,
+    calculateFoldersWithRunningMock,
     getDocBanner,
     getSharedDocBanner,
   }

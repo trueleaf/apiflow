@@ -117,6 +117,11 @@
               <input v-else :value="scope.data.name" :placeholder="t('不能为空')" type="text" class="rename-ipt"
                 :class="{ error: scope.data.name.trim() === '' }" @blur="handleChangeNodeName($event, scope.data)"
                 @input="handleWatchNodeInput($event)" @keydown.stop.enter="handleChangeNodeName($event, scope.data)">
+              <span 
+                v-if="foldersWithRunningMock.has(scope.data._id)" 
+                class="folder-mock-indicator"
+                :title="t('此目录包含正在运行的Mock接口')"
+              ></span>
               <div v-if="!isView" class="more" @click.stop="handleShowContextmenu($event, scope.data)">
                 <el-icon class="more-op" :title="t('更多操作')" :size="16">
                   <more-filled />
@@ -254,6 +259,7 @@ const loading = computed(() => apidocBannerStore.loading)
 const { getBannerData } = useBannerData();
 //默认展开节点
 const defaultExpandedKeys = computed(() => apidocBannerStore.defaultExpandedKeys);
+const foldersWithRunningMock = computed(() => apidocBannerStore.foldersWithRunningMock);
 
 const projectInfo = computed(() => {
   return {
@@ -758,6 +764,16 @@ onUnmounted(() => {
       width: 16px;
       height: 16px;
       margin-right: 5px;
+    }
+
+    .folder-mock-indicator {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background-color: #67c23a;
+      margin-left: 6px;
+      margin-right: 4px;
+      flex-shrink: 0;
     }
 
     .node-label-wrap {

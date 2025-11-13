@@ -595,6 +595,34 @@ export const arrayToTree = <T extends { _id: string; pid: string }>(list: T[]): 
   });
   return roots;
 }
+//获取某个节点的所有祖先节点ID
+export const getAllAncestorIds = <T extends Record<string, any>>(forest: T[], nodeId: string | number, options?: { childrenKey?: string, idKey?: string }): string[] => {
+  if (!Array.isArray(forest)) {
+    console.error('第一个参数必须为数组类型');
+    return [];
+  }
+  const childrenKey = options?.childrenKey || 'children';
+  const idKey = options?.idKey || 'id';
+  const ancestors: string[] = [];
+  const findAncestors = (nodes: T[], targetId: string | number, path: string[]): boolean => {
+    for (let i = 0; i < nodes.length; i += 1) {
+      const currentNode = nodes[i];
+      const currentPath = [...path, currentNode[idKey]];
+      if (currentNode[idKey] === targetId) {
+        ancestors.push(...path);
+        return true;
+      }
+      if (currentNode[childrenKey] && Array.isArray(currentNode[childrenKey]) && currentNode[childrenKey].length > 0) {
+        if (findAncestors(currentNode[childrenKey], targetId, currentPath)) {
+          return true;
+        }
+      }
+    }
+    return false;
+  };
+  findAncestors(forest, nodeId, []);
+  return ancestors;
+}
 
 /*
 |--------------------------------------------------------------------------

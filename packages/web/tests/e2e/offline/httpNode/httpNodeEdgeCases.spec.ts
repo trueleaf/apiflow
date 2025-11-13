@@ -221,7 +221,7 @@ test.describe('16. HTTP节点 - 边界场景测试', () => {
       await contentPage.waitForTimeout(300);
       // 验证完整URL包含中文
       const fullUrl = await contentPage.locator('.pre-url-wrap .url').textContent();
-      expect(fullUrl).toContain('测试中文');
+      expect(fullUrl).toContain(encodeURIComponent('测试中文'));
       // 验证参数值正确
       await verifyQueryParamValue(contentPage, 'name', '测试中文');
     });
@@ -539,7 +539,7 @@ test.describe('16. HTTP节点 - 边界场景测试', () => {
       await contentPage.waitForTimeout(300);
       // 验证完整URL包含中文
       const fullUrl = await contentPage.locator('.pre-url-wrap .url').textContent();
-      expect(fullUrl).toContain('测试');
+      expect(fullUrl).toContain(encodeURIComponent('测试'));
       // 验证参数值正确
       await verifyQueryParamValue(contentPage, 'utf8', '测试');
     });
