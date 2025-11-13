@@ -1,31 +1,65 @@
 <template>
   <div class="doc-import">
-    <!-- 文件选择 -->
-    <!-- <SFieldset title="支持：Yapi、Postman、摸鱼文档、Swagger/OpenApi 3.0"> -->
-    <SFieldset :title="$t('支持：摸鱼文档、Swagger/OpenApi 3.0/Postman2.1')">
-      <el-upload
-        class="w-100"
-        drag
-        action=""
-        :show-file-list="false"
-        :before-upload="handleBeforeUpload"
-        :http-request="requestHook"
-      >
-        <el-icon :size="20">
-          <Upload />
-        </el-icon>
-        <div class="el-upload__text">{{ $t("将文件拖到此处，或") }}<em>{{ $t("点击上传") }}</em></div>
-        <template #tip>
-          <div class="mt-2">
-            <div v-if="importTypeInfo.name" class="orange">
-              <span>{{ $t("文档类型") }}：</span>
-              <span>{{ importTypeInfo.name }}</span>
-              <span v-if="importTypeInfo.version">({{ importTypeInfo.version }})</span>
-            </div>
-          </div>
-        </template>
-      </el-upload>
+    <!-- 导入方式选择 -->
+    <SFieldset :title="$t('导入方式')">
+      <div class="download-wrap">
+        <div
+          v-for="item in importTypes"
+          :key="item.value"
+          :class="['item', { active: currentImportType === item.value }]"
+          @click="handleSelectImportType(item.value)"
+        >
+          <component :is="item.icon" :size="70" :stroke-width="1.5" class="lucide-icon" />
+          <div class="mt-1">{{ $t(item.label) }}</div>
+        </div>
+      </div>
     </SFieldset>
+
+    <!-- 本地文件上传区域 -->
+    <div v-show="currentImportType === 'file'">
+      <SFieldset :title="$t('上传文件')">
+        <el-upload
+          class="w-100"
+          drag
+          action=""
+          :show-file-list="false"
+          :before-upload="handleBeforeUpload"
+          :http-request="requestHook"
+        >
+          <el-icon :size="20">
+            <Upload />
+          </el-icon>
+          <div class="el-upload__text">{{ $t("将文件拖到此处，或") }}<em>{{ $t("点击上传") }}</em></div>
+          <template #tip>
+            <div class="mt-2">
+              <div v-if="importTypeInfo.name" class="orange">
+                <span>{{ $t("文档类型") }}：</span>
+                <span>{{ importTypeInfo.name }}</span>
+                <span v-if="importTypeInfo.version">({{ importTypeInfo.version }})</span>
+              </div>
+            </div>
+          </template>
+        </el-upload>
+      </SFieldset>
+    </div>
+
+    <!-- URL导入区域(暂未实现) -->
+    <div v-show="currentImportType === 'url'">
+      <SFieldset :title="$t('从URL导入')">
+        <div class="url-import-placeholder">
+          {{ $t('URL导入功能开发中，敬请期待') }}
+        </div>
+      </SFieldset>
+    </div>
+
+    <!-- 粘贴导入区域(暂未实现) -->
+    <div v-show="currentImportType === 'paste'">
+      <SFieldset :title="$t('粘贴内容')">
+        <div class="paste-import-placeholder">
+          {{ $t('粘贴导入功能开发中，敬请期待') }}
+        </div>
+      </SFieldset>
+    </div>
     <!-- 导入数据预览 -->
     <SFieldset :title="$t('导入数据预览')">
       <div>
@@ -122,7 +156,7 @@ import { ref, Ref, computed } from 'vue'
 import jsyaml from 'js-yaml'
 import type { OpenAPIV3 } from 'openapi-types';
 import { ElMessageBox } from 'element-plus';
-import { Upload } from '@element-plus/icons-vue'
+import { Upload, FileUp, Link, ClipboardCopy } from 'lucide-vue-next'
 import type { ApidocBanner, HttpNode } from '@src/types'
 import { config } from '@src/config/config'
 import { router } from '@/router/index'
@@ -130,8 +164,8 @@ import { request } from '@/api/api'
 import { useI18n } from 'vue-i18n'
 import { message } from '@/helper'
 import type { TreeNodeOptions } from 'element-plus/lib/components/tree/src/tree.type'
-import OpenApiTranslator from './openapi';
-import PostmanTranslator from './postman';
+// import OpenApiTranslator from './openapi';
+// import PostmanTranslator from './postman';
 import { ApidocProjectRules } from '@src/types'
 import { useApidocBaseInfo } from '@/store/share/baseInfoStore'
 import { useApidocBanner } from '@/store/share/bannerStore'
@@ -185,6 +219,25 @@ const apidocBaseInfoStore = useApidocBaseInfo();
 const apidocBannerStore = useApidocBanner()
 const projectId = router.currentRoute.value.query.id as string;
 const folderIcon = new URL('@/assets/imgs/apidoc/folder.png', import.meta.url).href
+//导入方式类型
+const currentImportType = ref('file');
+const importTypes = [
+  {
+    label: '本地文件',
+    value: 'file',
+    icon: FileUp,
+  },
+  {
+    label: 'URL导入',
+    value: 'url',
+    icon: Link,
+  },
+  {
+    label: '粘贴内容',
+    value: 'paste',
+    icon: ClipboardCopy,
+  },
+]
 //目标树
 const docTree2: Ref<TreeNodeOptions['store'] | null> = ref(null);
 //按钮加载效果
@@ -220,6 +273,16 @@ const jsonText: Ref<OpenAPIV3.Document | string | { type: string }> = ref('');
 const fileType = ref('');
 const navTreeData = ref<ApidocBanner[]>([]);
 const currentMountedNode: Ref<HttpNode | null> = ref(null);
+/*
+|--------------------------------------------------------------------------
+| 导入方式选择
+|--------------------------------------------------------------------------
+|
+*/
+//选择导入方式
+const handleSelectImportType = (type: string) => {
+  currentImportType.value = type;
+}
 /*
 |--------------------------------------------------------------------------
 | 文件选择
@@ -260,7 +323,8 @@ const handleBeforeUpload = (file: File) => {
 }
 //获取导入文件信息
 const getImportFileInfo = () => {
-  const openApiTranslatorInstance = new OpenApiTranslator(projectId, jsonText.value as OpenAPIV3.Document);
+  // TODO: 转换器功能需要实现
+  // const openApiTranslatorInstance = new OpenApiTranslator(projectId, jsonText.value as OpenAPIV3.Document);
   if ((jsonText.value as ApiflowInfo).type === 'apiflow') {
     importTypeInfo.value.name = 'apiflow';
     formInfo.value.type = 'apiflow';
@@ -270,22 +334,21 @@ const getImportFileInfo = () => {
     importTypeInfo.value.name = 'openapi';
     importTypeInfo.value.version = (jsonText.value as OpenAPIV3.Document).openapi;
     formInfo.value.type = 'openapi';
-    formInfo.value.moyuData.docs = openApiTranslatorInstance.getDocsInfo(openapiFolderNamedType.value);
+    // formInfo.value.moyuData.docs = openApiTranslatorInstance.getDocsInfo(openapiFolderNamedType.value);
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } else if ((jsonText.value as any).swagger) {
     importTypeInfo.value.name = 'swagger';
     importTypeInfo.value.version = (jsonText.value as OpenAPIV3.Document).openapi;
     formInfo.value.type = 'swagger';
-    formInfo.value.moyuData.docs = openApiTranslatorInstance.getDocsInfo(openapiFolderNamedType.value);
+    // formInfo.value.moyuData.docs = openApiTranslatorInstance.getDocsInfo(openapiFolderNamedType.value);
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } else if ((jsonText.value as any)?.info?._postman_id) {
-    const postmanTranslatorInstance = new PostmanTranslator(projectId, jsonText.value);
-    const docsInfo = postmanTranslatorInstance.getDocsInfo();
+    // const postmanTranslatorInstance = new PostmanTranslator(projectId, jsonText.value);
+    // const docsInfo = postmanTranslatorInstance.getDocsInfo();
     importTypeInfo.value.name = 'postman';
     formInfo.value.type = 'postman';
-    formInfo.value.moyuData.docs = (docsInfo as any).docs;
-    formInfo.value.moyuData.hosts = (docsInfo as any).hosts;
-    // console.log("docs", docs)
+    // formInfo.value.moyuData.docs = (docsInfo as any).docs;
+    // formInfo.value.moyuData.hosts = (docsInfo as any).hosts;
   }
   // postmanTranslatorInstance = new PostmanTranslator($route.query.id);
   // yapiTranslatorInstance = new YAPITranslator($route.query.id);
@@ -420,8 +483,9 @@ const handleCheckChange = (data: HttpNode, { checkedKeys }: { checkedKeys: HttpN
 }
 //改变命名方式
 const handleChangeNamedType = () => {
-  const openApiTranslatorInstance = new OpenApiTranslator(projectId, jsonText.value as OpenAPIV3.Document);
-  formInfo.value.moyuData.docs = openApiTranslatorInstance.getDocsInfo(openapiFolderNamedType.value);
+  // TODO: 转换器功能需要实现
+  // const openApiTranslatorInstance = new OpenApiTranslator(projectId, jsonText.value as OpenAPIV3.Document);
+  // formInfo.value.moyuData.docs = openApiTranslatorInstance.getDocsInfo(openapiFolderNamedType.value);
 }
 //是否导入到特定文件夹
 const handleToggleTargetFolder = async (val: boolean) => {
@@ -514,6 +578,46 @@ const handleSubmit = async () => {
   width: 70%;
   min-width: 768px;
   margin: 0 auto;
+
+  .download-wrap {
+    display: flex;
+    
+    .item {
+      width: 130px;
+      height: 100px;
+      padding: 10px;
+      margin-right: 20px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      border: 1px solid transparent;
+      
+      &.active {
+        border: 1px solid var(--gray-400);
+        box-shadow: var(--box-shadow-sm);
+      }
+      
+      &:hover {
+        border: 1px solid var(--gray-400);
+      }
+      
+      .lucide-icon {
+        color: var(--gray-700);
+      }
+    }
+  }
+
+  .url-import-placeholder,
+  .paste-import-placeholder {
+    padding: 60px 20px;
+    text-align: center;
+    color: var(--gray-500);
+    font-size: 14px;
+    background: var(--gray-50);
+    border-radius: var(--border-radius);
+  }
 
   .el-upload {
     width: 100%;
