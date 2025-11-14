@@ -90,7 +90,31 @@
                 @focus="handleFocusValue(data)"
                 @blur="handleBlurValueAndEnableDrag()"
                 @multiline-change="(isMultiline: boolean) => handleMultilineChange(data._id, isMultiline)"
-              />
+              >
+                <template #variable="{ label }">
+                  <template v-for="variableDisplay in [getVariableDisplay(label)]" :key="`variable-${label}`">
+                    <template v-for="actualDisplay in [getActualValueDisplay(data)]" :key="`actual-${data._id}`">
+                      <div class="params-variable-popover">
+                        <div class="params-variable-popover__token">{{ label }}</div>
+                        <div class="params-variable-popover__section">
+                          <div class="params-variable-popover__label">{{ t('变量值') }}</div>
+                          <div class="params-variable-popover__content">
+                            <pre v-if="variableDisplay.multiline" class="params-variable-popover__pre">{{ variableDisplay.text }}</pre>
+                            <span v-else class="params-variable-popover__text">{{ variableDisplay.text }}</span>
+                          </div>
+                        </div>
+                        <div class="params-variable-popover__section">
+                          <div class="params-variable-popover__label">{{ t('实际值') }}</div>
+                          <div class="params-variable-popover__content">
+                            <pre v-if="actualDisplay.multiline" class="params-variable-popover__pre">{{ actualDisplay.text }}</pre>
+                            <span v-else class="params-variable-popover__text">{{ actualDisplay.text }}</span>
+                          </div>
+                        </div>
+                      </div>
+                    </template>
+                  </template>
+                </template>
+              </ClRichInput>
             </div>
           </template>
         </el-popover>
@@ -168,15 +192,18 @@
   </el-tree>
 </template>
 <script lang="ts" setup>
-import { ref, Ref, watch, nextTick } from 'vue';
+import { ref, Ref, watch, nextTick, onMounted } from 'vue';
 import { Close, Switch } from '@element-plus/icons-vue';
 import type Node from 'element-plus/es/components/tree/src/model/node';
 import type { ApidocProperty } from '@src/types';
-import { generateEmptyProperty } from '@/helper';
+import { generateEmptyProperty, getObjectVariable, convertTemplateValueToRealValue } from '@/helper';
 import { useI18n } from 'vue-i18n';
 import SMock from '@/components/apidoc/mock/ClMock.vue';
 import { config } from '@src/config/config';
 import ClRichInput from '@/components/ui/cleanDesign/richInput/ClRichInput.vue';
+import { nodeVariableCache } from '@/cache';
+import { useVariable } from '@/store/share/variablesStore';
+import { router } from '@/router';
 
 const props = withDefaults(defineProps<{
   data: ApidocProperty<'string' | 'file'>[];
@@ -201,6 +228,12 @@ const hasUserInput = ref(false);
 const defaultCheckedKeys = ref<string[]>([]);
 const multilineInputs = ref<Record<string, boolean>>({});
 const focusedInputId = ref<string | null>(null);
+const variableValues = ref<Record<string, unknown>>({});
+const variableStore = useVariable();
+let variableRequestToken = 0;
+type DisplayInfo = { text: string; multiline: boolean };
+const actualValueResults = ref<Record<string, unknown>>({});
+const actualValueTokens = ref<Record<string, number>>({});
 const emitChange = () => {
   emits('change', localData.value);
 };
@@ -227,8 +260,24 @@ watch(
     }
     // 更新默认选中keys
     defaultCheckedKeys.value = localData.value.filter(item => item.select).map(item => item._id);
+    refreshAllActualValues();
   },
   { deep: true, immediate: true },
+);
+
+watch(
+  () => router.currentRoute.value.query.id,
+  () => {
+    void handleRefreshVariables();
+  },
+);
+
+watch(
+  () => variableStore.variables,
+  () => {
+    void handleRefreshVariables();
+  },
+  { deep: true },
 );
 
 const handleDisableDrag = () => {
@@ -318,13 +367,16 @@ const handleDeleteRow = (data: ApidocProperty<'string' | 'file'>) => {
     localData.value.push(generateEmptyProperty<'string'>());
   }
   emitChange();
+  removeActualValueEntry(data._id);
 };
 
 const autoAppendIfNeeded = (data: ApidocProperty<'string' | 'file'>) => {
   const isLast = localData.value[localData.value.length - 1]?._id === data._id;
   const hasKey = (data.key ?? '').trim() !== '';
   if (isLast && hasKey) {
-    localData.value.push(generateEmptyProperty<'string'>());
+    const nextProperty = generateEmptyProperty<'string'>();
+    localData.value.push(nextProperty);
+    void updateActualValue(nextProperty);
   }
 };
 
@@ -344,6 +396,7 @@ const handleChangeValue = (v: string, data: ApidocProperty<'string' | 'file'>) =
     currentOpData.value = null;
   }
   emitChange();
+  void updateActualValue(data);
 };
 
 const handleChangeType = (v: 'string' | 'file', data: ApidocProperty<'string' | 'file'>) => {
@@ -352,11 +405,13 @@ const handleChangeType = (v: 'string' | 'file', data: ApidocProperty<'string' | 
     data.fileValueType = data.fileValueType ?? 'var';
     data.value = '';
     data._error = '';
+    removeActualValueEntry(data._id);
   } else {
     data.value = '';
     // 清除文件相关属性
     delete data.fileValueType;
     delete data._error;
+    void updateActualValue(data);
   }
   emitChange();
 };
@@ -378,6 +433,7 @@ const handleCloseMock = () => {
 const handleFocusValue = (data: ApidocProperty<'string' | 'file'>) => {
   focusedInputId.value = data._id;
   handleDisableDrag();
+  void handleRefreshVariables();
 };
 // 处理多行状态变化
 const handleMultilineChange = (id: string, isMultiline: boolean) => {
@@ -398,6 +454,7 @@ const handleSelectMockValue = (item: any, data: ApidocProperty<'string' | 'file'
   // 选中mock数据后自动关闭弹窗
   currentOpData.value = null;
   emitChange();
+  void updateActualValue(data);
 };
 
 const handleToggleFileValueType = (data: ApidocProperty<'string' | 'file'>) => {
@@ -408,6 +465,7 @@ const handleToggleFileValueType = (data: ApidocProperty<'string' | 'file'>) => {
 const handleClearFileValue = (data: ApidocProperty<'string' | 'file'>) => {
   data.value = '';
   emitChange();
+  removeActualValueEntry(data._id);
 };
 
 const handleSelectFile = (e: Event, data: ApidocProperty<'string' | 'file'>) => {
@@ -427,6 +485,7 @@ const handleSelectFile = (e: Event, data: ApidocProperty<'string' | 'file'>) => 
   data._error = '';
   data.value = path;
   emitChange();
+  removeActualValueEntry(data._id);
 };
 
 const handleChangeRequired = (v: boolean, data: ApidocProperty<'string' | 'file'>) => {
@@ -522,6 +581,152 @@ const handleKeyDown = (e: KeyboardEvent, data: ApidocProperty<'string' | 'file'>
     highlightedIndex.value = -1;
   }
 };
+
+async function handleRefreshVariables(): Promise<void> {
+  const projectId = router.currentRoute.value.query.id as string | undefined;
+  if (!projectId) {
+    variableValues.value = {};
+    refreshAllActualValues();
+    return;
+  }
+  variableRequestToken += 1;
+  const currentToken = variableRequestToken;
+  try {
+    const response = await nodeVariableCache.getVariableByProjectId(projectId);
+    if (currentToken !== variableRequestToken) {
+      return;
+    }
+    if (response.code === 0) {
+      const mapped = await getObjectVariable(response.data || []);
+      if (currentToken !== variableRequestToken) {
+        return;
+      }
+      variableValues.value = mapped;
+    } else {
+      variableValues.value = {};
+    }
+  } catch {
+    if (currentToken !== variableRequestToken) {
+      return;
+    }
+    variableValues.value = {};
+  }
+  if (currentToken === variableRequestToken) {
+    refreshAllActualValues();
+  }
+}
+
+function formatDisplayInfo(value: unknown, fallbackText: string): DisplayInfo {
+  if (value === undefined) {
+    return { text: fallbackText, multiline: false };
+  }
+  if (value === null) {
+    return { text: 'null', multiline: false };
+  }
+  if (typeof value === 'string') {
+    return { text: value, multiline: value.includes('\n') };
+  }
+  if (typeof value === 'number' || typeof value === 'boolean' || typeof value === 'bigint') {
+    return { text: String(value), multiline: false };
+  }
+  if (typeof value === 'object') {
+    try {
+      return { text: JSON.stringify(value, null, 2), multiline: true };
+    } catch {
+      return { text: fallbackText, multiline: false };
+    }
+  }
+  return { text: String(value), multiline: false };
+}
+
+function removeActualValueEntry(id: string): void {
+  delete actualValueResults.value[id];
+  delete actualValueTokens.value[id];
+}
+
+async function updateActualValue(item: ApidocProperty<'string' | 'file'>): Promise<void> {
+  if (item.type !== 'string') {
+    removeActualValueEntry(item._id);
+    return;
+  }
+  actualValueTokens.value[item._id] = (actualValueTokens.value[item._id] ?? 0) + 1;
+  const currentToken = actualValueTokens.value[item._id];
+  try {
+    const result = await convertTemplateValueToRealValue(item.value || '', variableValues.value);
+    if (actualValueTokens.value[item._id] !== currentToken) {
+      return;
+    }
+    actualValueResults.value[item._id] = result;
+  } catch {
+    if (actualValueTokens.value[item._id] === currentToken) {
+      removeActualValueEntry(item._id);
+    }
+  }
+}
+
+function refreshAllActualValues(): void {
+  const validIds = new Set<string>();
+  localData.value.forEach(item => {
+    validIds.add(item._id);
+    if (item.type === 'string') {
+      void updateActualValue(item);
+    } else {
+      removeActualValueEntry(item._id);
+    }
+  });
+  Object.keys(actualValueResults.value).forEach(id => {
+    if (!validIds.has(id)) {
+      removeActualValueEntry(id);
+    }
+  });
+}
+
+function resolveVariableValue(label: string): unknown {
+  const trimmed = label.trim();
+  if (!trimmed) {
+    return undefined;
+  }
+  if (trimmed.startsWith('@')) {
+    return trimmed;
+  }
+  const segments = trimmed.split('.');
+  const rootKey = segments.shift();
+  if (!rootKey) {
+    return undefined;
+  }
+  let current: unknown = variableValues.value[rootKey];
+  if (segments.length === 0) {
+    return current;
+  }
+  for (const segment of segments) {
+    if (current === null || current === undefined) {
+      return undefined;
+    }
+    if (typeof current !== 'object') {
+      return undefined;
+    }
+    const nextValue = (current as Record<string, unknown>)[segment];
+    if (nextValue === undefined) {
+      return undefined;
+    }
+    current = nextValue;
+  }
+  return current;
+}
+
+function getVariableDisplay(label: string): DisplayInfo {
+  const value = resolveVariableValue(label);
+  return formatDisplayInfo(value, t('无当前变量'));
+}
+
+function getActualValueDisplay(item: ApidocProperty<'string' | 'file'>): DisplayInfo {
+  const value = actualValueResults.value[item._id];
+  return formatDisplayInfo(value, t('暂无数据'));
+}
+
+onMounted(() => {
+  void handleRefreshVariables();
+});
 </script>
 <style lang='scss' scoped>
 .custom-params {
@@ -680,6 +885,50 @@ const handleKeyDown = (e: KeyboardEvent, data: ApidocProperty<'string' | 'file'>
         color: var(--theme-color);
       }
     }
+  }
+  .params-variable-popover {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    min-width: 260px;
+  }
+  .params-variable-popover__token {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--el-text-color-primary, #303133);
+    word-break: break-all;
+  }
+  .params-variable-popover__section {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .params-variable-popover__label {
+    font-size: 12px;
+    color: var(--el-text-color-secondary, #909399);
+  }
+  .params-variable-popover__content {
+    max-height: 180px;
+    overflow: auto;
+    padding: 8px;
+    border-radius: 4px;
+    border: 1px solid var(--el-border-color-light, #dcdfe6);
+    background-color: var(--el-fill-color-light, #f5f7fa);
+  }
+  .params-variable-popover__text {
+    font-size: 12px;
+    color: var(--el-text-color-regular, #606266);
+    word-break: break-word;
+    line-height: 18px;
+  }
+  .params-variable-popover__pre {
+    margin: 0;
+    font-size: 12px;
+    line-height: 18px;
+    font-family: 'JetBrains Mono', 'Fira Code', monospace;
+    color: var(--el-text-color-regular, #606266);
+    white-space: pre-wrap;
+    word-break: break-word;
   }
 }
 
