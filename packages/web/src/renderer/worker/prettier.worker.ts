@@ -4,7 +4,7 @@ import babelPlugin from 'prettier/plugins/babel';
 import estreePlugin from 'prettier/plugins/estree';
 import htmlPlugin from 'prettier/plugins/html';
 self.onmessage = async (event) => {
-  const { type, code } = event.data;
+  const { type, code, taskId } = event.data;
   try {
     let formatted = code;
     if (type === 'format-css') {
@@ -30,8 +30,8 @@ self.onmessage = async (event) => {
         tabWidth: 4
       });
     }
-    self.postMessage({ type: `${type}-result`, formatted });
+    self.postMessage({ type: `${type}-result`, formatted, taskId });
   } catch (err) {
-    self.postMessage({ type: `${type}-result`, formatted: code });
+    self.postMessage({ type: `${type}-result`, formatted: code, taskId });
   }
 };

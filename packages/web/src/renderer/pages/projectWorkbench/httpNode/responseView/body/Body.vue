@@ -301,13 +301,25 @@ import { config } from '@src/config/config'
 import SJsonEditor from '@/components/common/jsonEditor/ClJsonEditor.vue'
 import SSseView from '@/components/common/sseView/ClSseView.vue'
 import { useApidocTas } from '@/store/share/tabsStore';
+import { useApidoc } from '@/store/share/apidocStore';
 import { ElDialog } from 'element-plus';
+import beautify, { html as htmlBeautify, css as cssBeautify } from 'js-beautify';
 import worker from '@/worker/prettier.worker.ts?worker&inline';
 import { Download, Loading } from '@element-plus/icons-vue';
 
 const prettierWorker = new worker();
+type WorkerFormatType = 'format-json' | 'format-html' | 'format-css' | 'format-js' | 'format-xml' | 'format-csv';
+type FormatPayload = { type: WorkerFormatType, code: string };
+type WorkerResultMessage = { type: `${WorkerFormatType}-result`, formatted: string, taskId?: number };
+let workerTaskIdSeed = 0;
+let activeWorkerTaskId: number | null = null;
+let pendingWorkerSource: string | null = null;
+let pendingWorkerType: WorkerFormatType | null = null;
+let lastFormattedSource: string | null = null;
+let lastFormattedType: WorkerFormatType | null = null;
 const apidocResponseStore = useApidocResponse();
 const apidocBaseInfoStore = useApidocBaseInfo();
+const apidocStore = useApidoc();
 const loadingProcess = computed(() => apidocResponseStore.loadingProcess);
 const requestState = computed(() => apidocResponseStore.requestState);
 const redirectList = computed(() => apidocResponseStore.responseInfo.redirectList);
@@ -343,53 +355,137 @@ const showProcess = computed(() => {
 })
 //布局
 const layout = computed(() => apidocBaseInfoStore.layout);
-//返回参数格式化
-watch(() => [apidocResponseStore.responseInfo.bodyByteLength, apidocResponseStore.responseInfo.responseData.textData], () => {
-  const { jsonData, textData } = apidocResponseStore.responseInfo.responseData;
-  // json 格式化
-  if (apidocResponseStore.responseInfo.contentType.includes('application/json')) {
-    prettierWorker?.postMessage({
-      type: 'format-json',
-      code: jsonData
-    });
+const resolveFormatPayload = (): FormatPayload | null => {
+  const { responseData, contentType } = apidocResponseStore.responseInfo;
+  const safeContentType = contentType || '';
+  const textData = responseData.textData || '';
+  const targetType = responseData.canApiflowParseType;
+  if (!textData) {
+    return null;
   }
-  // html 格式化
-  if (apidocResponseStore.responseInfo.contentType.includes('text/html')) {
-    prettierWorker?.postMessage({
-      type: 'format-html',
-      code: textData
-    });
+  if (targetType === 'json' || safeContentType.includes('application/json')) {
+    const jsonSource = typeof responseData.jsonData === 'string' ? responseData.jsonData : textData;
+    return { type: 'format-json', code: jsonSource };
   }
-  // css 格式化
-  if (apidocResponseStore.responseInfo.contentType.includes('text/css')) {
-    prettierWorker?.postMessage({
-      type: 'format-css',
-      code: textData
-    });
+  if (targetType === 'html' || safeContentType.includes('text/html')) {
+    return { type: 'format-html', code: textData };
   }
-  // js 格式化
-  if (apidocResponseStore.responseInfo.contentType.includes('application/javascript') || apidocResponseStore.responseInfo.contentType.includes('text/javascript')) {
-    prettierWorker?.postMessage({
-      type: 'format-js',
-      code: textData
-    });
+  if (targetType === 'css' || safeContentType.includes('text/css')) {
+    return { type: 'format-css', code: textData };
   }
-  // xml 格式化
-  if (apidocResponseStore.responseInfo.contentType.includes('application/xml') || apidocResponseStore.responseInfo.contentType.includes('text/xml')) {
-    prettierWorker?.postMessage({
-      type: 'format-xml',
-      code: textData
-    });
+  if (targetType === 'js' || safeContentType.includes('application/javascript') || safeContentType.includes('text/javascript')) {
+    return { type: 'format-js', code: textData };
   }
-  // csv 格式化
-  if (apidocResponseStore.responseInfo.contentType.includes('text/csv')) {
-    prettierWorker?.postMessage({
-      type: 'format-csv',
-      code: textData
-    });
+  if (targetType === 'xml' || safeContentType.includes('application/xml') || safeContentType.includes('text/xml')) {
+    return { type: 'format-xml', code: textData };
   }
-  // 兜底
-  formatedText.value = textData;
+  if (targetType === 'csv' || safeContentType.includes('text/csv')) {
+    return { type: 'format-csv', code: textData };
+  }
+  return null;
+};
+
+const formatInline = (payload: FormatPayload): string => {
+  const { type, code } = payload;
+  if (!code) {
+    return '';
+  }
+  try {
+    if (type === 'format-json') {
+      return beautify(code, { indent_size: 2 });
+    }
+    if (type === 'format-js') {
+      return beautify(code, { indent_size: 2 });
+    }
+    if (type === 'format-css') {
+      return cssBeautify(code, { indent_size: 2 });
+    }
+    if (type === 'format-html' || type === 'format-xml') {
+      return htmlBeautify(code, { indent_size: 2 });
+    }
+  } catch (error) {
+    return code;
+  }
+  return code;
+};
+
+const scheduleWorkerFormat = (payload: FormatPayload): void => {
+  const source = payload.code;
+  if (pendingWorkerSource === source && pendingWorkerType === payload.type && activeWorkerTaskId !== null) {
+    return;
+  }
+  workerTaskIdSeed += 1;
+  const taskId = workerTaskIdSeed;
+  activeWorkerTaskId = taskId;
+  pendingWorkerSource = source;
+  pendingWorkerType = payload.type;
+  apidocStore.changeResponseBodyLoading(true);
+  prettierWorker?.postMessage({
+    type: payload.type,
+    code: source,
+    taskId,
+  });
+};
+
+const resetWorkerState = () => {
+  activeWorkerTaskId = null;
+  pendingWorkerSource = null;
+  pendingWorkerType = null;
+};
+
+watch(() => [
+  apidocResponseStore.responseInfo.bodyByteLength,
+  apidocResponseStore.responseInfo.responseData.textData,
+  apidocResponseStore.requestState,
+], () => {
+  const payload = resolveFormatPayload();
+  const textData = apidocResponseStore.responseInfo.responseData.textData || '';
+  const requestStatus = apidocResponseStore.requestState;
+  if (!payload) {
+    formatedText.value = textData;
+    lastFormattedSource = textData;
+    lastFormattedType = null;
+    resetWorkerState();
+    apidocStore.changeResponseBodyLoading(false);
+    return;
+  }
+  if (!payload.code) {
+    formatedText.value = '';
+    lastFormattedSource = '';
+    lastFormattedType = payload.type;
+    resetWorkerState();
+    apidocStore.changeResponseBodyLoading(false);
+    return;
+  }
+  if (requestStatus === 'waiting' || requestStatus === 'sending') {
+    formatedText.value = textData;
+    lastFormattedSource = null;
+    lastFormattedType = null;
+    resetWorkerState();
+    apidocStore.changeResponseBodyLoading(false);
+    return;
+  }
+  if (lastFormattedSource === payload.code && lastFormattedType === payload.type && requestStatus === 'finish') {
+    apidocStore.changeResponseBodyLoading(false);
+    return;
+  }
+  if (payload.code.length <= 1024 * 10) {
+    formatedText.value = formatInline(payload);
+    lastFormattedSource = payload.code;
+    lastFormattedType = payload.type;
+    resetWorkerState();
+    apidocStore.changeResponseBodyLoading(false);
+    return;
+  }
+  if (requestStatus !== 'finish') {
+    formatedText.value = textData;
+    apidocStore.changeResponseBodyLoading(false);
+    lastFormattedSource = null;
+    lastFormattedType = null;
+    resetWorkerState();
+    return;
+  }
+  scheduleWorkerFormat(payload);
 });
 //下载文件
 const handleDownload = () => {
@@ -407,21 +503,29 @@ const canPlayVideo = computed(() => {
   return canPlayType === 'maybe' || canPlayType === 'probably'
 })
 onMounted(() => {
-  prettierWorker.onmessage = (event) => {
-    if (event.data.type === 'format-css-result') {
-      formatedText.value = event.data.formatted;
-    } else if (event.data.type === 'format-html-result') {
-      formatedText.value = event.data.formatted;
-    } else if (event.data.type === 'format-js-result') {
-      formatedText.value = event.data.formatted;
-    } else if (event.data.type === 'format-xml-result') {
-      formatedText.value = event.data.formatted;
-    } else if (event.data.type === 'format-json-result') {
-      formatedText.value = event.data.formatted;
+  prettierWorker.onmessage = (event: MessageEvent<WorkerResultMessage>) => {
+    const message = event.data;
+    if (!message || typeof message.formatted !== 'string') {
+      return;
     }
+    if (pendingWorkerSource === null && pendingWorkerType === null && activeWorkerTaskId === null) {
+      return;
+    }
+    if (typeof message.taskId === 'number' && activeWorkerTaskId !== null && message.taskId !== activeWorkerTaskId) {
+      return;
+    }
+    const sourceCache = pendingWorkerSource ?? message.formatted;
+    const typeCache = pendingWorkerType;
+    formatedText.value = message.formatted;
+    lastFormattedSource = sourceCache;
+    lastFormattedType = typeCache ?? null;
+    resetWorkerState();
+    apidocStore.changeResponseBodyLoading(false);
   };
 });
 onUnmounted(() => {
+  resetWorkerState();
+  apidocStore.changeResponseBodyLoading(false);
   if (prettierWorker) {
     prettierWorker.terminate();
     prettierWorker != null;
