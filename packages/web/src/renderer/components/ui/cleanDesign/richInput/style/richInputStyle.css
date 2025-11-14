@@ -64,6 +64,15 @@
   margin-top: 0;
 }
 
+.cl-rich-input__editor .cl-rich-input__variable {
+  color: var(--orange);
+  transition: text-decoration 0.2s ease;
+}
+
+.cl-rich-input__editor .cl-rich-input__variable:hover {
+  text-decoration: underline;
+}
+
 /* 占位符样式 */
 .cl-rich-input__editor .ProseMirror p.is-editor-empty:first-child::before {
   content: attr(data-placeholder);

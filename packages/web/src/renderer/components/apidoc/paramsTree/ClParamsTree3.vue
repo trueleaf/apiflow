@@ -515,7 +515,7 @@ const handleKeyDown = (e: KeyboardEvent, data: ApidocProperty<'string' | 'file'>
   }
   .value-input-wrap {
     position: relative;
-    height: 29px;
+    height: 28px;
     
     &.is-multiline {
       .value-rich-input :deep(.cl-rich-input__editor) {
@@ -537,7 +537,7 @@ const handleKeyDown = (e: KeyboardEvent, data: ApidocProperty<'string' | 'file'>
       :deep(.cl-rich-input__editor) {
         padding: 0px 10px;
         border-bottom: 1px solid var(--gray-400);
-        min-height: 29px;
+        min-height: 28px;
         line-height: 18px;
         
         .ProseMirror {
