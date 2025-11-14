@@ -12,6 +12,13 @@
   --cl-rich-input-font-size: 14px;
   --cl-rich-input-line-height: 1.5;
   --cl-rich-input-pinned-z-index: 1000;
+  --cl-rich-input-popover-bg: var(--el-color-white);
+  --cl-rich-input-popover-border: var(--el-border-color-light);
+  --cl-rich-input-popover-shadow: 0 8px 24px rgba(15, 23, 42, 0.1);
+  --cl-rich-input-popover-radius: 8px;
+  --cl-rich-input-popover-z-index: 2200;
+  --cl-rich-input-popover-top: 0px;
+  --cl-rich-input-popover-left: 0px;
 }
 
 /* 暗色主题变量 */
@@ -21,6 +28,9 @@
   --cl-rich-input-placeholder: #666;
   --cl-rich-input-disabled-text: #555;
   --cl-rich-input-disabled-bg: #2a2a2a;
+  --cl-rich-input-popover-bg: #1f1f1f;
+  --cl-rich-input-popover-border: rgba(255, 255, 255, 0.08);
+  --cl-rich-input-popover-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
 }
 
 /* 主容器 */
@@ -67,10 +77,132 @@
 .cl-rich-input__editor .cl-rich-input__variable {
   color: var(--orange);
   transition: text-decoration 0.2s ease;
+  cursor: pointer;
 }
 
 .cl-rich-input__editor .cl-rich-input__variable:hover {
   text-decoration: underline;
+}
+
+.cl-rich-input__variable-popover {
+  position: fixed;
+  z-index: var(--cl-rich-input-popover-z-index);
+  background: var(--cl-rich-input-popover-bg);
+  border: 1px solid var(--cl-rich-input-popover-border);
+  border-radius: var(--cl-rich-input-popover-radius);
+  box-shadow: var(--cl-rich-input-popover-shadow);
+  padding: 12px;
+  min-width: 220px;
+  max-width: 320px;
+  color: var(--cl-rich-input-text);
+  outline: none;
+  transform: translate3d(-50%, 0, 0);
+  top: var(--cl-rich-input-popover-top);
+  left: var(--cl-rich-input-popover-left);
+}
+
+.cl-rich-input__variable-popover::before,
+.cl-rich-input__variable-popover::after {
+  content: '';
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  transform: rotate(45deg);
+  left: 50%;
+  margin-left: -5px;
+  transition: background 0.2s ease;
+}
+
+.cl-rich-input__variable-popover::before {
+  background: var(--cl-rich-input-popover-border);
+  z-index: -2;
+}
+
+.cl-rich-input__variable-popover::after {
+  background: var(--cl-rich-input-popover-bg);
+  z-index: -1;
+}
+
+.cl-rich-input__variable-popover.is-bottom::before,
+.cl-rich-input__variable-popover.is-bottom::after {
+  top: -5px;
+  bottom: auto;
+}
+
+.cl-rich-input__variable-popover.is-top::before,
+.cl-rich-input__variable-popover.is-top::after {
+  bottom: -5px;
+  top: auto;
+}
+
+.cl-rich-input__variable-popover__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.cl-rich-input__variable-popover__title {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 500;
+  font-size: 14px;
+  color: inherit;
+}
+
+.cl-rich-input__variable-popover__title-icon {
+  width: 16px;
+  height: 16px;
+}
+
+.cl-rich-input__variable-popover__close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border: none;
+  background: transparent;
+  border-radius: 6px;
+  color: inherit;
+  cursor: pointer;
+}
+
+.cl-rich-input__variable-popover__close:hover {
+  background: rgba(15, 23, 42, 0.04);
+}
+
+[data-theme="dark"] .cl-rich-input__variable-popover__close:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.cl-rich-input__variable-popover__close-icon {
+  width: 16px;
+  height: 16px;
+}
+
+.cl-rich-input__variable-popover__content {
+  font-size: 13px;
+  line-height: 1.6;
+  color: inherit;
+}
+
+.cl-rich-input-variable-popover-enter-active,
+.cl-rich-input-variable-popover-leave-active {
+  transition: opacity 0.12s ease, transform 0.12s ease;
+}
+
+.cl-rich-input-variable-popover-enter-from,
+.cl-rich-input-variable-popover-leave-to {
+  opacity: 0;
+  transform: translate3d(-50%, -4px, 0);
+}
+
+.cl-rich-input-variable-popover-enter-from.is-top,
+.cl-rich-input-variable-popover-leave-to.is-top {
+  transform: translate3d(-50%, 4px, 0);
 }
 
 /* 占位符样式 */

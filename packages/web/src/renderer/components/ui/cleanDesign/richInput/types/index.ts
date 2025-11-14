@@ -7,6 +7,7 @@ export type ClRichInputProps = {
   maxHeight?: string
   class?: string
   expandOnFocus?: boolean
+  trimOnPaste?: boolean
 }
 
 export type ClRichInputEmits = {

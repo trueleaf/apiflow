@@ -12,6 +12,7 @@
     ]"
   >
     <EditorContent
+      ref="editorContentRef"
       :editor="editor"
       class="cl-rich-input__editor"
       :style="{
@@ -20,6 +21,36 @@
         maxHeight: maxHeight
       }"
     />
+    <Teleport to="body" v-if="variablePopover.visible && hasVariableSlot">
+      <transition name="cl-rich-input-variable-popover">
+        <div
+          v-show="variablePopover.visible"
+          ref="variablePopoverRef"
+          :class="[
+            'cl-rich-input__variable-popover',
+            {
+              'is-top': variablePopover.placement === 'top',
+              'is-bottom': variablePopover.placement === 'bottom'
+            }
+          ]"
+          :data-placement="variablePopover.placement"
+          tabindex="-1"
+        >
+          <div class="cl-rich-input__variable-popover__header">
+            <div class="cl-rich-input__variable-popover__title">
+              <InfoIcon class="cl-rich-input__variable-popover__title-icon" />
+              <span>{{ variablePopover.label || variablePopover.token }}</span>
+            </div>
+            <button class="cl-rich-input__variable-popover__close" type="button" @click="handleVariablePopoverClose">
+              <XIcon class="cl-rich-input__variable-popover__close-icon" />
+            </button>
+          </div>
+          <div class="cl-rich-input__variable-popover__content">
+            <slot name="variable" :token="variablePopover.token" :label="variablePopover.label" :close="handleVariablePopoverClose" />
+          </div>
+        </div>
+      </transition>
+    </Teleport>
   </div>
 </template>
 
@@ -31,6 +62,8 @@ import { Extension } from '@tiptap/core'
 import { Plugin, PluginKey } from 'prosemirror-state'
 import { Decoration, DecorationSet } from 'prosemirror-view'
 import type { Node as ProseMirrorNode } from 'prosemirror-model'
+import { useSlots, onMounted, onBeforeUnmount, reactive, ref, computed, watch, nextTick } from 'vue'
+import { InfoIcon, XIcon } from 'lucide-vue-next'
 import type { ClRichInputProps, ClRichInputEmits } from './types'
 import './style/richInputStyle.css'
 
@@ -42,13 +75,37 @@ const props = withDefaults(defineProps<ClRichInputProps>(), {
   minHeight: '32px',
   maxHeight: '300px',
   class: '',
-  expandOnFocus: false
+  expandOnFocus: false,
+  trimOnPaste: false
 })
 
 const emits = defineEmits<ClRichInputEmits>()
+const slots = useSlots()
 
 const customClass = computed(() => props.class)
 const isFocused = ref(false)
+const editorContentRef = ref<InstanceType<typeof EditorContent> | null>(null)
+const variablePopoverRef = ref<HTMLDivElement | null>(null)
+
+type VariablePopoverPlacement = 'bottom' | 'top'
+
+type VariablePopoverState = {
+  visible: boolean
+  token: string
+  label: string
+  placement: VariablePopoverPlacement
+  anchorElement: HTMLElement | null
+}
+
+const variablePopover = reactive<VariablePopoverState>({
+  visible: false,
+  token: '',
+  label: '',
+  placement: 'bottom',
+  anchorElement: null
+})
+
+const hasVariableSlot = computed(() => Boolean(slots.variable))
 
 const variableDecorationPluginKey = new PluginKey('clRichInputVariableDecoration')
 
@@ -98,12 +155,23 @@ const checkMultiline = () => {
     emits('multiline-change', false)
     return
   }
-  const editorElement = editor.value.view.dom
+  const editorElement = getEditorDom()
+  if (!editorElement) {
+    return
+  }
   const paragraphs = editorElement.querySelectorAll('p')
   const hasMultipleParagraphs = paragraphs.length > 1
   const hasLineWrap = editorElement.scrollHeight > parseInt(props.minHeight)
   const isMultiline = hasMultipleParagraphs || hasLineWrap
   emits('multiline-change', isMultiline)
+}
+
+const getEditorDom = (): HTMLElement | null => {
+  try {
+    return editor.value?.view.dom ?? null
+  } catch (error) {
+    return null
+  }
 }
 
 const editor = useEditor({
@@ -131,6 +199,31 @@ const editor = useEditor({
   editorProps: {
     attributes: {
       spellcheck: 'false'
+    },
+    handlePaste(view, event) {
+      if (!props.trimOnPaste) {
+        return false
+      }
+      const clipboardData = event.clipboardData
+      if (!clipboardData) {
+        return false
+      }
+      const originalText = clipboardData.getData('text')
+      const trimmedText = originalText.trim()
+      if (originalText === trimmedText) {
+        return false
+      }
+      event.preventDefault()
+      const { state } = view
+      const { from, to } = state.selection
+      if (trimmedText === '') {
+        const transaction = state.tr.deleteRange(from, to)
+        view.dispatch(transaction)
+        return true
+      }
+      const transaction = state.tr.insertText(trimmedText, from, to)
+      view.dispatch(transaction)
+      return true
     }
   },
   onUpdate: ({ editor }) => {
@@ -138,6 +231,7 @@ const editor = useEditor({
     emits('update:modelValue', text)
     nextTick(() => {
       checkMultiline()
+      updateVariablePopoverPosition()
     })
   },
   onFocus: () => {
@@ -145,6 +239,7 @@ const editor = useEditor({
     emits('focus')
     nextTick(() => {
       checkMultiline()
+      updateVariablePopoverPosition()
     })
   },
   onBlur: () => {
@@ -152,8 +247,161 @@ const editor = useEditor({
     emits('blur')
     nextTick(() => {
       checkMultiline()
+      updateVariablePopoverPosition()
     })
   }
+})
+
+const normalizeVariableLabel = (token: string) => {
+  if (!token) {
+    return ''
+  }
+  const trimmed = token.trim()
+  if (trimmed.startsWith('{{') && trimmed.endsWith('}}')) {
+    return trimmed.slice(2, trimmed.length - 2).trim()
+  }
+  return trimmed
+}
+
+const updateVariablePopoverPosition = () => {
+  if (!variablePopover.visible || !variablePopover.anchorElement || !variablePopoverRef.value) {
+    return
+  }
+  const popover = variablePopoverRef.value
+  const anchor = variablePopover.anchorElement.getBoundingClientRect()
+  const viewportHeight = window.innerHeight
+  const desiredTop = anchor.bottom + 6
+  const popoverHeight = popover.offsetHeight
+  const popoverWidth = popover.offsetWidth
+  const shouldFlip = desiredTop + popoverHeight > viewportHeight
+  let topPosition = desiredTop
+  let placement: VariablePopoverPlacement = 'bottom'
+  if (shouldFlip) {
+    topPosition = anchor.top - popoverHeight - 6
+    placement = 'top'
+  }
+  const anchorCenterX = anchor.left + anchor.width / 2
+  const minX = popoverWidth / 2 + 8
+  const maxX = window.innerWidth - popoverWidth / 2 - 8
+  const clampedCenterX = Math.min(Math.max(anchorCenterX, minX), Math.max(minX, maxX))
+  const leftPosition = clampedCenterX
+  popover.style.setProperty('--cl-rich-input-popover-left', `${leftPosition}px`)
+  popover.style.setProperty('--cl-rich-input-popover-top', `${topPosition}px`)
+  variablePopover.placement = placement
+}
+
+const closeVariablePopover = () => {
+  variablePopover.visible = false
+  variablePopover.token = ''
+  variablePopover.label = ''
+  variablePopover.anchorElement = null
+}
+
+watch(hasVariableSlot, (available) => {
+  if (!available && variablePopover.visible) {
+    closeVariablePopover()
+  }
+})
+
+const openVariablePopover = (token: string, target: HTMLElement) => {
+  if (!hasVariableSlot.value) {
+    return
+  }
+  variablePopover.token = token
+  variablePopover.label = normalizeVariableLabel(token)
+  variablePopover.anchorElement = target
+  variablePopover.visible = true
+  nextTick(() => {
+    updateVariablePopoverPosition()
+    if (variablePopoverRef.value) {
+      variablePopoverRef.value.focus()
+    }
+  })
+}
+
+const handleVariablePopoverClose = () => {
+  closeVariablePopover()
+}
+
+const handleEditorClick = (event: MouseEvent) => {
+  if (props.disabled || props.readonly) {
+    return
+  }
+  const target = event.target
+  if (!(target instanceof HTMLElement)) {
+    closeVariablePopover()
+    return
+  }
+  if (target.dataset.variableToken === 'true') {
+    openVariablePopover(target.textContent ?? '', target)
+    return
+  }
+  const anchor = target.closest('[data-variable-token="true"]') as HTMLElement | null
+  if (anchor) {
+    openVariablePopover(anchor.textContent ?? '', anchor)
+    return
+  }
+  closeVariablePopover()
+}
+
+const handleOutsideClick = (event: MouseEvent) => {
+  if (!variablePopover.visible) {
+    return
+  }
+  const target = event.target
+  if (!(target instanceof HTMLElement)) {
+    closeVariablePopover()
+    return
+  }
+  if (variablePopoverRef.value && variablePopoverRef.value.contains(target)) {
+    return
+  }
+  if (target.dataset.variableToken === 'true' || target.closest('[data-variable-token="true"]')) {
+    return
+  }
+  closeVariablePopover()
+}
+
+const handleEscapeKey = (event: KeyboardEvent) => {
+  if (!variablePopover.visible) {
+    return
+  }
+  if (event.key === 'Escape') {
+    event.preventDefault()
+    closeVariablePopover()
+  }
+}
+
+const handleScrollOrResize = () => {
+  if (!variablePopover.visible) {
+    return
+  }
+  if (!variablePopover.anchorElement) {
+    closeVariablePopover()
+    return
+  }
+  if (variablePopover.anchorElement.dataset.variableToken !== 'true') {
+    closeVariablePopover()
+    return
+  }
+  if (!document.body.contains(variablePopover.anchorElement)) {
+    closeVariablePopover()
+    return
+  }
+  updateVariablePopoverPosition()
+}
+
+onMounted(() => {
+  nextTick(() => {
+    const editorElement = getEditorDom()
+    if (editorElement) {
+      editorElement.addEventListener('click', handleEditorClick)
+    }
+  })
+  window.addEventListener('click', handleOutsideClick, true)
+  window.addEventListener('resize', handleScrollOrResize)
+  document.addEventListener('scroll', handleScrollOrResize, true)
+  window.addEventListener('keydown', handleEscapeKey)
 })
 
 watch(() => props.modelValue, (newValue) => {
@@ -166,11 +414,17 @@ watch(() => props.disabled, (newValue) => {
   if (editor.value) {
     editor.value.setEditable(!newValue && !props.readonly)
   }
+  if (newValue) {
+    closeVariablePopover()
+  }
 })
 
 watch(() => props.readonly, (newValue) => {
   if (editor.value) {
     editor.value.setEditable(!props.disabled && !newValue)
+  }
+  if (newValue) {
+    closeVariablePopover()
   }
 })
 
@@ -184,9 +438,26 @@ watch(() => props.placeholder, (newValue) => {
   }
 })
 
+watch(() => variablePopover.visible, (visible) => {
+  if (!visible) {
+    return
+  }
+  nextTick(() => {
+    updateVariablePopoverPosition()
+  })
+})
+
 onBeforeUnmount(() => {
+  const editorElement = getEditorDom()
+  if (editorElement) {
+    editorElement.removeEventListener('click', handleEditorClick)
+  }
   if (editor.value) {
     editor.value.destroy()
   }
+  window.removeEventListener('click', handleOutsideClick, true)
+  window.removeEventListener('resize', handleScrollOrResize)
+  document.removeEventListener('scroll', handleScrollOrResize, true)
+  window.removeEventListener('keydown', handleEscapeKey)
 })
 </script>

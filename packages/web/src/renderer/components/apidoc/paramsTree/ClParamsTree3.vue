@@ -37,6 +37,7 @@
             @focus="handleFocusKey()"
             @blur="handleEnableDrag()"
             @keydown="(e: any) => handleKeyDown(e, data)"
+                      @paste="(event: ClipboardEvent) => handlePasteKey(event, data)"
           >
             <template #default="{ item }">
               <div class="autocomplete-item">
@@ -52,6 +53,7 @@
             @update:modelValue="v => handleChangeKey(v, data)"
             @focus="handleDisableDrag()"
             @blur="handleEnableDrag()"
+            @paste="(event: ClipboardEvent) => handlePasteKey(event, data)"
           >
           </el-input>
         </div>
@@ -82,6 +84,7 @@
                 :placeholder="t('参数值、@代表mock数据、{{ 变量 }}')"
                 min-height="28px"
                 max-height="280px"
+                :trim-on-paste="true"
                 :expand-on-focus="true"
                 @update:modelValue="v => handleChangeValue(v, data)"
                 @focus="handleFocusValue(data)"
@@ -112,6 +115,7 @@
               :placeholder="t('变量模式') + ' eg: ' + t('{0} fileValue {1}', ['{{', '}}'])"
               @update:modelValue="v => handleChangeValue(v, data)"
               @blur="handleBlurValue()"
+              @paste="(event: ClipboardEvent) => handlePasteValueInput(event, data)"
             >
             </el-input>
             <div v-if="data.fileValueType === 'file'" class="file-mode-wrap">
@@ -156,6 +160,7 @@
           @focus="handleFocusDescription(data)"
           @blur="handleEnableDrag()"
           @update:modelValue="v => handleChangeDescription(v, data)"
+          @paste="(event: ClipboardEvent) => handlePasteDescription(event, data)"
         >
         </el-input>
       </div>
@@ -163,7 +168,7 @@
   </el-tree>
 </template>
 <script lang="ts" setup>
-import { ref, Ref, watch } from 'vue';
+import { ref, Ref, watch, nextTick } from 'vue';
 import { Close, Switch } from '@element-plus/icons-vue';
 import type Node from 'element-plus/es/components/tree/src/model/node';
 import type { ApidocProperty } from '@src/types';
@@ -231,6 +236,47 @@ const handleDisableDrag = () => {
 };
 const handleEnableDrag = () => {
   enableDrag.value = true;
+};
+const handleTrimmedInputPaste = (event: ClipboardEvent, apply: (value: string) => void, currentValue: string) => {
+  const clipboardData = event.clipboardData;
+  if (!clipboardData) {
+    return;
+  }
+  const originalText = clipboardData.getData('text');
+  const trimmedText = originalText.trim();
+  if (originalText === trimmedText) {
+    return;
+  }
+  const target = event.target as HTMLInputElement | HTMLTextAreaElement;
+  const baseValue = typeof target.value === 'string' ? target.value : currentValue;
+  const hasSelectionSupport = typeof target.selectionStart === 'number' && typeof target.selectionEnd === 'number';
+  if (!hasSelectionSupport) {
+    event.preventDefault();
+    const nextValue = baseValue + trimmedText;
+    target.value = nextValue;
+    apply(nextValue);
+    return;
+  }
+  const selectionStart = target.selectionStart ?? baseValue.length;
+  const selectionEnd = target.selectionEnd ?? baseValue.length;
+  event.preventDefault();
+  const prefix = baseValue.slice(0, selectionStart);
+  const suffix = baseValue.slice(selectionEnd);
+  const nextValue = prefix + trimmedText + suffix;
+  target.value = nextValue;
+  apply(nextValue);
+  nextTick(() => {
+    target.setSelectionRange(selectionStart + trimmedText.length, selectionStart + trimmedText.length);
+  });
+};
+const handlePasteKey = (event: ClipboardEvent, data: ApidocProperty<'string' | 'file'>) => {
+  handleTrimmedInputPaste(event, value => handleChangeKey(value, data), data.key || '');
+};
+const handlePasteValueInput = (event: ClipboardEvent, data: ApidocProperty<'string' | 'file'>) => {
+  handleTrimmedInputPaste(event, value => handleChangeValue(value, data), data.value || '');
+};
+const handlePasteDescription = (event: ClipboardEvent, data: ApidocProperty<'string' | 'file'>) => {
+  handleTrimmedInputPaste(event, value => handleChangeDescription(value, data), data.description || '');
 };
 // 处理参数名称输入框聚焦
 const handleFocusKey = () => {
