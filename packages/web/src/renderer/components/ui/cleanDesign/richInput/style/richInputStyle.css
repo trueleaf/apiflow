@@ -1,0 +1,135 @@
+/* ClRichInput 组件样式 - 极简无边框设计 */
+
+/* CSS 变量定义 */
+:root {
+  --cl-rich-input-bg: var(--el-fill-color-blank);
+  --cl-rich-input-text: #333;
+  --cl-rich-input-placeholder: #999;
+  --cl-rich-input-disabled-text: #ccc;
+  --cl-rich-input-disabled-bg: #f5f5f5;
+  --cl-rich-input-min-height: 32px;
+  --cl-rich-input-padding: 6px 0;
+  --cl-rich-input-font-size: 14px;
+  --cl-rich-input-line-height: 1.5;
+  --cl-rich-input-pinned-z-index: 1000;
+}
+
+/* 暗色主题变量 */
+[data-theme="dark"] {
+  --cl-rich-input-bg: var(--el-fill-color-blank);
+  --cl-rich-input-text: #e5e5e5;
+  --cl-rich-input-placeholder: #666;
+  --cl-rich-input-disabled-text: #555;
+  --cl-rich-input-disabled-bg: #2a2a2a;
+}
+
+/* 主容器 */
+.cl-rich-input {
+  position: relative;
+  width: 100%;
+  background: var(--cl-rich-input-bg);
+  font-size: var(--cl-rich-input-font-size);
+  line-height: var(--cl-rich-input-line-height);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+}
+
+/* 编辑器容器 */
+.cl-rich-input__editor {
+  min-height: var(--cl-rich-input-min-height);
+  padding: var(--cl-rich-input-padding);
+  color: var(--cl-rich-input-text);
+  background: var(--cl-rich-input-bg);
+  overflow-y: auto;
+  word-wrap: break-word;
+  word-break: break-word;
+  cursor: text;
+}
+
+/* Tiptap 编辑器内容 */
+.cl-rich-input__editor .ProseMirror {
+  outline: none;
+  min-height: inherit;
+  color: inherit;
+  cursor: text;
+}
+
+/* 段落样式 */
+.cl-rich-input__editor .ProseMirror p {
+  margin: 0;
+  padding: 0;
+  color: inherit;
+}
+
+.cl-rich-input__editor .ProseMirror p + p {
+  margin-top: 0;
+}
+
+/* 占位符样式 */
+.cl-rich-input__editor .ProseMirror p.is-editor-empty:first-child::before {
+  content: attr(data-placeholder);
+  color: var(--cl-rich-input-placeholder);
+  pointer-events: none;
+  float: left;
+  height: 0;
+}
+
+/* 禁用状态 */
+.cl-rich-input.is-disabled {
+  cursor: not-allowed;
+  background: var(--cl-rich-input-disabled-bg);
+}
+
+.cl-rich-input.is-disabled .cl-rich-input__editor {
+  color: var(--cl-rich-input-disabled-text);
+  pointer-events: none;
+}
+
+/* 只读状态 */
+.cl-rich-input.is-readonly {
+  cursor: default;
+}
+
+.cl-rich-input.is-readonly .cl-rich-input__editor {
+  cursor: default;
+}
+
+.cl-rich-input.is-readonly .ProseMirror {
+  cursor: default;
+}
+
+/* 滚动条样式 */
+.cl-rich-input__editor::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+.cl-rich-input__editor::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 3px;
+}
+
+.cl-rich-input__editor::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.3);
+}
+
+[data-theme="dark"] .cl-rich-input__editor::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+[data-theme="dark"] .cl-rich-input__editor::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+/* expandOnFocus 功能：未聚焦时单行显示 */
+.cl-rich-input.expand-on-focus:not(.is-focused) .cl-rich-input__editor {
+  max-height: var(--cl-rich-input-min-height);
+  overflow: hidden;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  :root {
+    --cl-rich-input-font-size: 14px;
+    --cl-rich-input-padding: 6px 0;
+  }
+}

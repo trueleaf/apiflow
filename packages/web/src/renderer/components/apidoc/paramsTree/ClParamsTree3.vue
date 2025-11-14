@@ -75,27 +75,18 @@
         >
           <SMock :search-value="data.value.split('@').pop() || ''" @close="handleCloseMock()" @select="v => handleSelectMockValue(v, data)"></SMock>
           <template #reference>
-            <div class="value-input-wrap w-25 mr-2">
-              <input
-                v-show="focusedValueId !== data._id"
-                :value="data.value"
-                type="text"
-                class="value-text-input"
-                :placeholder="t('参数值、@代表mock数据、{{ 变量 }}')"
-                @input="e => handleChangeValue((e.target as HTMLInputElement).value, data)"
-                @focus="handleFocusValue(data)"
-              />
-              <el-input
-                v-if="focusedValueId === data._id"
-                ref="valueTextarea"
+            <div class="value-input-wrap w-25 mr-2" :class="{ 'is-multiline': multilineInputs[data._id], 'is-pinned': focusedInputId === data._id && multilineInputs[data._id] }">
+              <ClRichInput
                 :model-value="data.value"
-                class="value-textarea"
-                type="textarea"
-                :autosize="{ minRows: 1, maxRows: 10 }"
-                resize="none"
+                class="value-rich-input"
                 :placeholder="t('参数值、@代表mock数据、{{ 变量 }}')"
+                min-height="28px"
+                max-height="280px"
+                :expand-on-focus="true"
                 @update:modelValue="v => handleChangeValue(v, data)"
+                @focus="handleFocusValue(data)"
                 @blur="handleBlurValueAndEnableDrag()"
+                @multiline-change="(isMultiline: boolean) => handleMultilineChange(data._id, isMultiline)"
               />
             </div>
           </template>
@@ -180,6 +171,7 @@ import { generateEmptyProperty } from '@/helper';
 import { useI18n } from 'vue-i18n';
 import SMock from '@/components/apidoc/mock/ClMock.vue';
 import { config } from '@src/config/config';
+import ClRichInput from '@/components/ui/cleanDesign/richInput/ClRichInput.vue';
 
 const props = withDefaults(defineProps<{
   data: ApidocProperty<'string' | 'file'>[];
@@ -198,12 +190,12 @@ const enableDrag = ref(true);
 const currentOpData: Ref<ApidocProperty<'string' | 'file'> | null> = ref(null);
 const expandedInputs = ref<Record<string, { value: boolean, description: boolean }>>({});
 const currentKeyQuery = ref('');
-const focusedValueId = ref<string>('');
-const valueTextarea = ref();
 const currentSuggestions = ref<ApidocProperty[]>([]);
 const highlightedIndex = ref(-1);
 const hasUserInput = ref(false);
 const defaultCheckedKeys = ref<string[]>([]);
+const multilineInputs = ref<Record<string, boolean>>({});
+const focusedInputId = ref<string | null>(null);
 const emitChange = () => {
   emits('change', localData.value);
 };
@@ -326,23 +318,24 @@ const handleChangeType = (v: 'string' | 'file', data: ApidocProperty<'string' | 
 const handleBlurValue = () => {
   setTimeout(() => (currentOpData.value = null), 150);
 };
-// 组合函数：同时处理 Mock 弹窗关闭、恢复拖拽和重置为 text 类型
+// 组合函数：同时处理 Mock 弹窗关闭、恢复拖拽
 const handleBlurValueAndEnableDrag = () => {
+  focusedInputId.value = null;
   handleBlurValue();
   handleEnableDrag();
-  focusedValueId.value = '';
 };
 
 const handleCloseMock = () => {
   currentOpData.value = null;
 };
-// 处理参数值聚焦时的展开逻辑
+// 处理参数值聚焦时禁用拖拽
 const handleFocusValue = (data: ApidocProperty<'string' | 'file'>) => {
+  focusedInputId.value = data._id;
   handleDisableDrag();
-  focusedValueId.value = data._id;
-  setTimeout(() => {
-    valueTextarea.value?.focus();
-  });
+};
+// 处理多行状态变化
+const handleMultilineChange = (id: string, isMultiline: boolean) => {
+  multilineInputs.value[id] = isMultiline;
 };
 // 处理描述聚焦时的展开逻辑
 const handleFocusDescription = (data: ApidocProperty<'string' | 'file'>) => {
@@ -523,39 +516,52 @@ const handleKeyDown = (e: KeyboardEvent, data: ApidocProperty<'string' | 'file'>
   .value-input-wrap {
     position: relative;
     height: 29px;
-    .value-text-input {
-      width: 100%;
-      height: 100%;
-      display: flex;
-      align-items: center;
-      border: none;
-      border-bottom: 1px solid var(--gray-400);
-      padding: 0 10px;
-      font-size: 12px;
-      color: var(--el-input-text-color, var(--el-text-color-regular));
-      &::placeholder {
-        color: var(--gray-400);
+    
+    &.is-multiline {
+      .value-rich-input :deep(.cl-rich-input__editor) {
+        border: 1px solid var(--gray-400);
+        margin-left: -1px;
+        margin-top: -1px;
+        border-radius: 4px;
       }
     }
-    .value-textarea {
-      position: absolute;
-      z-index: 1;
-      top: 0;
-      left: 0;
+    
+    &.is-pinned {
+      z-index: var(--cl-rich-input-pinned-z-index);
+    }
+    
+    .value-rich-input {
       width: 100%;
-      :deep(.el-textarea__inner) {
-        font-size: 12px;
-        color: var(--el-input-text-color, var(--el-text-color-regular));
-        &::-webkit-scrollbar {
-          width: 3px;
-          height: 3px;
+      height: 100%;
+      
+      :deep(.cl-rich-input__editor) {
+        padding: 0px 10px;
+        border-bottom: 1px solid var(--gray-400);
+        min-height: 29px;
+        line-height: 18px;
+        
+        .ProseMirror {
+          font-size: 12px;
+          line-height: 18px;
+          color: var(--el-input-text-color, var(--el-text-color-regular));
+          
+          p {
+            line-height: 28px;
+          }
+         
+          p.is-editor-empty:first-child::before {
+            color: var(--gray-400);
+          }
         }
-        &::-webkit-scrollbar-thumb {
-          background: var(--gray-500);
-        }
-        &::placeholder {
-          color: var(--gray-400);
-        }
+      }
+      
+      :deep(.cl-rich-input__editor::-webkit-scrollbar) {
+        width: 3px;
+        height: 3px;
+      }
+      
+      :deep(.cl-rich-input__editor::-webkit-scrollbar-thumb) {
+        background: var(--gray-500);
       }
     }
   }

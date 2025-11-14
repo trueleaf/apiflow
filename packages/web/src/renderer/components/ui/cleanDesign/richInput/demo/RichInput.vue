@@ -1,154 +1,131 @@
 <template>
-  <div class="clean-rich-input-demo" :data-theme="currentTheme">
+  <div class="cl-rich-input-demo" :data-theme="currentTheme">
     <div class="demo-header">
-      <h3>CleanRichInput 组件演示</h3>
+      <h3>ClRichInput 组件演示</h3>
       <button
         class="theme-toggle"
-        @click="handleToggleTheme"
+        @click="toggleTheme"
         :title="currentTheme === 'dark' ? '切换到浅色模式' : '切换到深色模式'"
       >
         <span class="theme-icon">{{ currentTheme === 'dark' ? '☀️' : '🌙' }}</span>
       </button>
     </div>
 
+    <div class="demo-description">
+      <p>基于 Tiptap 的极简纯文本输入框，无边框、支持换行和撤销功能</p>
+    </div>
+
     <div class="demo-section">
       <div class="section-header">
         <div>
           <h4>基础用法</h4>
-          <p>输入 { 自动补全为 {}，再次输入 { 补全为 &#123;&#123; &#125;&#125;。匹配到 &#123;&#123;xxx&#125;&#125; 格式时自动高亮显示</p>
-        </div>
-        <button
-          class="code-toggle-btn"
-          @click="showCode1 = !showCode1"
-          :class="{ active: showCode1 }"
-          title="查看源码"
-        >
-          <span class="code-icon">{{ showCode1 ? '📖' : '💻' }}</span>
-          <span class="code-text">{{ showCode1 ? '隐藏代码' : '查看代码' }}</span>
-        </button>
-      </div>
-      <div class="demo-content">
-        <CleanRichInput
-          v-model:value="basicValue"
-          :width="400"
-          :height="80"
-          placeholder="输入 { 试试自动补全"
-          @updateValue="handleBasicUpdate"
-        />
-        <div v-if="basicOutput" class="output-display">
-          <h5>输出内容：</h5>
-          <pre>{{ basicOutput }}</pre>
+          <p>默认的纯文本输入框</p>
         </div>
       </div>
-      <div v-if="showCode1" class="code-preview">
-        <div class="code-header">
-          <span class="code-title">基础用法源码</span>
-          <button @click="handleCopyCode(basicUsageCode)" class="copy-btn" title="复制代码">
-            📋
-          </button>
+      <div class="demo-container">
+        <div class="input-wrapper">
+          <ClRichInput
+            v-model="text1"
+            placeholder="请输入内容..."
+          />
         </div>
-        <pre class="code-block"><code>{{ basicUsageCode }}</code></pre>
+        <div class="output">
+          <strong>输出内容：</strong>
+          <pre>{{ text1 }}</pre>
+        </div>
       </div>
     </div>
 
     <div class="demo-section">
       <div class="section-header">
         <div>
-          <h4>不同尺寸</h4>
-          <p>通过 width 和 height 属性控制组件尺寸</p>
-        </div>
-        <button
-          class="code-toggle-btn"
-          @click="showCode4 = !showCode4"
-          :class="{ active: showCode4 }"
-          title="查看源码"
-        >
-          <span class="code-icon">{{ showCode4 ? '📖' : '💻' }}</span>
-          <span class="code-text">{{ showCode4 ? '隐藏代码' : '查看代码' }}</span>
-        </button>
-      </div>
-      <div class="demo-content size-demos">
-        <div class="size-item">
-          <label>小尺寸 (300x60)</label>
-          <CleanRichInput
-            v-model:value="smallValue"
-            :width="300"
-            :height="60"
-          />
-        </div>
-        <div class="size-item">
-          <label>中尺寸 (400x80)</label>
-          <CleanRichInput
-            v-model:value="mediumValue"
-            :width="400"
-            :height="80"
-          />
-        </div>
-        <div class="size-item">
-          <label>大尺寸 (600x120)</label>
-          <CleanRichInput
-            v-model:value="largeValue"
-            :width="600"
-            :height="120"
-          />
+          <h4>自定义高度</h4>
+          <p>设置最小高度和最大高度，内容超出时显示滚动条</p>
         </div>
       </div>
-      <div v-if="showCode4" class="code-preview">
-        <div class="code-header">
-          <span class="code-title">不同尺寸源码</span>
-          <button @click="handleCopyCode(sizeUsageCode)" class="copy-btn" title="复制代码">
-            📋
-          </button>
+      <div class="demo-container">
+        <div class="input-wrapper">
+          <ClRichInput
+            v-model="text2"
+            placeholder="最小高度60px，最大高度150px"
+            min-height="60px"
+            max-height="150px"
+          />
         </div>
-        <pre class="code-block"><code>{{ sizeUsageCode }}</code></pre>
+        <div class="output">
+          <strong>输出内容：</strong>
+          <pre>{{ text2 }}</pre>
+        </div>
       </div>
     </div>
 
     <div class="demo-section">
       <div class="section-header">
         <div>
-          <h4>撤销/重做</h4>
-          <p>支持历史记录的撤销和重做操作</p>
+          <h4>禁用状态</h4>
+          <p>禁用输入框，不可编辑</p>
         </div>
-        <button
-          class="code-toggle-btn"
-          @click="showCode5 = !showCode5"
-          :class="{ active: showCode5 }"
-          title="查看源码"
-        >
-          <span class="code-icon">{{ showCode5 ? '📖' : '💻' }}</span>
-          <span class="code-text">{{ showCode5 ? '隐藏代码' : '查看代码' }}</span>
-        </button>
       </div>
-      <div class="demo-content">
-        <div class="undo-redo-controls">
-          <button @click="handleUndo" class="control-btn">↶ 撤销</button>
-          <button @click="handleRedo" class="control-btn">↷ 重做</button>
+      <div class="demo-container">
+        <div class="input-wrapper">
+          <ClRichInput
+            v-model="text3"
+            placeholder="禁用状态"
+            disabled
+          />
         </div>
-        <CleanRichInput
-          ref="undoRedoInput"
-          v-model:value="undoRedoValue"
-          :width="500"
-          :height="100"
-        />
-      </div>
-      <div v-if="showCode5" class="code-preview">
-        <div class="code-header">
-          <span class="code-title">撤销/重做源码</span>
-          <button @click="handleCopyCode(undoRedoCode)" class="copy-btn" title="复制代码">
-            📋
-          </button>
-        </div>
-        <pre class="code-block"><code>{{ undoRedoCode }}</code></pre>
       </div>
     </div>
 
     <div class="demo-section">
-      <h4>API 文档</h4>
+      <div class="section-header">
+        <div>
+          <h4>只读状态</h4>
+          <p>只读模式，可选择但不可编辑</p>
+        </div>
+      </div>
+      <div class="demo-container">
+        <div class="input-wrapper">
+          <ClRichInput
+            v-model="text4"
+            placeholder="只读状态"
+            readonly
+          />
+        </div>
+      </div>
+    </div>
+
+    <div class="demo-section">
+      <div class="section-header">
+        <div>
+          <h4>事件监听</h4>
+          <p>监听 focus 和 blur 事件</p>
+        </div>
+      </div>
+      <div class="demo-container">
+        <div class="input-wrapper">
+          <ClRichInput
+            v-model="text5"
+            placeholder="点击输入框查看事件触发..."
+            @focus="handleFocus"
+            @blur="handleBlur"
+          />
+        </div>
+        <div class="event-log">
+          <strong>事件日志：</strong>
+          <div v-for="(log, index) in eventLogs" :key="index" class="log-item">
+            {{ log }}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="demo-section">
+      <h4>Props 参数</h4>
       <table class="props-table">
         <thead>
           <tr>
-            <th>属性</th>
+            <th>参数</th>
             <th>说明</th>
             <th>类型</th>
             <th>默认值</th>
@@ -156,225 +133,155 @@
         </thead>
         <tbody>
           <tr>
-            <td><code>value</code></td>
-            <td>输入框的值（支持 v-model）</td>
-            <td>String</td>
+            <td><code>modelValue</code></td>
+            <td>绑定值</td>
+            <td>string</td>
             <td>''</td>
           </tr>
           <tr>
             <td><code>placeholder</code></td>
             <td>占位符文本</td>
-            <td>String</td>
+            <td>string</td>
             <td>''</td>
           </tr>
           <tr>
-            <td><code>width</code></td>
-            <td>组件宽度</td>
-            <td>String | Number</td>
-            <td>'100%'</td>
+            <td><code>disabled</code></td>
+            <td>是否禁用</td>
+            <td>boolean</td>
+            <td>false</td>
           </tr>
           <tr>
-            <td><code>height</code></td>
-            <td>组件高度</td>
-            <td>String | Number</td>
-            <td>'100%'</td>
+            <td><code>readonly</code></td>
+            <td>是否只读</td>
+            <td>boolean</td>
+            <td>false</td>
+          </tr>
+          <tr>
+            <td><code>minHeight</code></td>
+            <td>最小高度</td>
+            <td>string</td>
+            <td>'32px'</td>
+          </tr>
+          <tr>
+            <td><code>maxHeight</code></td>
+            <td>最大高度</td>
+            <td>string</td>
+            <td>'300px'</td>
+          </tr>
+          <tr>
+            <td><code>class</code></td>
+            <td>自定义类名</td>
+            <td>string</td>
+            <td>''</td>
           </tr>
         </tbody>
       </table>
+    </div>
 
-      <h4 style="margin-top: 24px;">事件</h4>
+    <div class="demo-section">
+      <h4>Events 事件</h4>
       <table class="props-table">
         <thead>
           <tr>
             <th>事件名</th>
             <th>说明</th>
-            <th>参数</th>
+            <th>回调参数</th>
           </tr>
         </thead>
         <tbody>
           <tr>
-            <td><code>update:value</code></td>
-            <td>值更新时触发（v-model）</td>
+            <td><code>update:modelValue</code></td>
+            <td>内容变化时触发</td>
             <td>(value: string)</td>
           </tr>
           <tr>
-            <td><code>updateValue</code></td>
-            <td>值更新时触发，返回模板字符串</td>
-            <td>(value: string)</td>
-          </tr>
-          <tr>
-            <td><code>undo</code></td>
-            <td>撤销操作时触发</td>
+            <td><code>focus</code></td>
+            <td>获得焦点时触发</td>
             <td>-</td>
           </tr>
           <tr>
-            <td><code>redo</code></td>
-            <td>重做操作时触发</td>
+            <td><code>blur</code></td>
+            <td>失去焦点时触发</td>
             <td>-</td>
           </tr>
         </tbody>
       </table>
+    </div>
 
-      <h4 style="margin-top: 24px;">方法</h4>
-      <table class="props-table">
-        <thead>
-          <tr>
-            <th>方法名</th>
-            <th>说明</th>
-            <th>参数</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td><code>undo()</code></td>
-            <td>撤销上一步操作</td>
-            <td>-</td>
-          </tr>
-          <tr>
-            <td><code>redo()</code></td>
-            <td>重做下一步操作</td>
-            <td>-</td>
-          </tr>
-        </tbody>
-      </table>
+    <div class="demo-section">
+      <h4>特性说明</h4>
+      <ul class="feature-list">
+        <li>✓ 基于 Tiptap 3.3.0 富文本编辑器</li>
+        <li>✓ 极简无边框设计</li>
+        <li>✓ 支持 Enter 键换行</li>
+        <li>✓ 支持 Ctrl+Z / Cmd+Z 撤销和 Ctrl+Shift+Z / Cmd+Shift+Z 重做</li>
+        <li>✓ 自动适配亮色/暗色主题</li>
+        <li>✓ 默认高度 32px，内容超出自动撑开</li>
+        <li>✓ 支持最大高度限制和滚动条</li>
+        <li>✓ 完整的 TypeScript 类型定义</li>
+        <li>✓ 支持禁用和只读状态</li>
+      </ul>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import CleanRichInput from '../ClRichInput.vue'
+import ClRichInput from '../ClRichInput.vue'
 
 const currentTheme = ref<'light' | 'dark'>('light')
 
-const showCode1 = ref(false)
-const showCode4 = ref(false)
-const showCode5 = ref(false)
+const text1 = ref('')
+const text2 = ref('这是一段示例文本。\n可以尝试输入更多内容来测试自动撑开和滚动条效果。\n继续输入更多内容...')
+const text3 = ref('这是禁用状态的文本')
+const text4 = ref('这是只读状态的文本，可以选择但不能编辑')
+const text5 = ref('')
 
-const basicValue = ref('API URL: {{baseUrl}}/users/{{userId}}')
-const basicOutput = ref('')
+const eventLogs = ref<string[]>([])
 
-const smallValue = ref('')
-const mediumValue = ref('')
-const largeValue = ref('')
-
-const undoRedoValue = ref('尝试编辑此文本并使用撤销/重做')
-const undoRedoInput = ref<{ undo: () => void; redo: () => void } | null>(null)
-
-const handleToggleTheme = () => {
+const toggleTheme = () => {
   currentTheme.value = currentTheme.value === 'light' ? 'dark' : 'light'
   document.documentElement.setAttribute('data-theme', currentTheme.value)
-  localStorage.setItem('clean-rich-input-theme', currentTheme.value)
+  localStorage.setItem('cl-rich-input-theme', currentTheme.value)
 }
 
-const handleBasicUpdate = (value: string) => {
-  basicOutput.value = value
-}
-
-const handleCopyCode = async (code: string) => {
-  try {
-    await navigator.clipboard.writeText(code)
-  } catch {
-    // 复制失败
+const handleFocus = () => {
+  const timestamp = new Date().toLocaleTimeString()
+  eventLogs.value.unshift(`[${timestamp}] 获得焦点`)
+  if (eventLogs.value.length > 5) {
+    eventLogs.value.pop()
   }
 }
 
-const handleUndo = () => {
-  undoRedoInput.value?.undo()
-}
-
-const handleRedo = () => {
-  undoRedoInput.value?.redo()
+const handleBlur = () => {
+  const timestamp = new Date().toLocaleTimeString()
+  eventLogs.value.unshift(`[${timestamp}] 失去焦点`)
+  if (eventLogs.value.length > 5) {
+    eventLogs.value.pop()
+  }
 }
 
 onMounted(() => {
-  const savedTheme = localStorage.getItem('clean-rich-input-theme') as 'light' | 'dark' || 'light'
+  const savedTheme = localStorage.getItem('cl-rich-input-theme') as 'light' | 'dark' || 'light'
   currentTheme.value = savedTheme
   document.documentElement.setAttribute('data-theme', savedTheme)
 })
-
-const basicUsageCode = `<template>
-  <CleanRichInput
-    v-model:value="value"
-    :width="400"
-    :height="80"
-    placeholder="输入 { 试试自动补全"
-    @updateValue="handleUpdate"
-  />
-</template>
-
-<script setup>
-import { ref } from 'vue'
-import CleanRichInput from '@/components/ui/cleanDesign/richInput/ClRichInput.vue'
-
-const value = ref('')
-
-const handleUpdate = (templateValue) => {
-  console.log('Template:', templateValue)
-}
-<\/script>`
-
-const sizeUsageCode = `<template>
-  <!-- 小尺寸 -->
-  <CleanRichInput
-    v-model:value="smallValue"
-    :width="300"
-    :height="60"
-  />
-  
-  <!-- 中尺寸 -->
-  <CleanRichInput
-    v-model:value="mediumValue"
-    :width="400"
-    :height="80"
-  />
-  
-  <!-- 大尺寸 -->
-  <CleanRichInput
-    v-model:value="largeValue"
-    :width="600"
-    :height="120"
-  />
-</template>`
-
-const undoRedoCode = `<template>
-  <button @click="handleUndo">撤销</button>
-  <button @click="handleRedo">重做</button>
-  <CleanRichInput
-    ref="inputRef"
-    v-model:value="value"
-  />
-</template>
-
-<script setup>
-import { ref } from 'vue'
-import CleanRichInput from '@/components/ui/cleanDesign/richInput/ClRichInput.vue'
-
-const value = ref('')
-const inputRef = ref(null)
-
-const handleUndo = () => {
-  inputRef.value?.undo()
-}
-
-const handleRedo = () => {
-  inputRef.value?.redo()
-}
-<\/script>`
 </script>
 
-<style lang="scss" scoped>
-.clean-rich-input-demo {
-  padding: 24px;
+<style scoped lang="scss">
+.cl-rich-input-demo {
   max-width: 1200px;
   margin: 0 auto;
+  padding: 24px;
+  background: var(--white);
+  min-height: 100vh;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 
   .demo-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 32px;
+    margin-bottom: 16px;
     padding-bottom: 16px;
     border-bottom: 1px solid var(--gray-200);
 
@@ -410,8 +317,23 @@ const handleRedo = () => {
     }
   }
 
+  .demo-description {
+    margin-bottom: 32px;
+
+    p {
+      margin: 0;
+      font-size: 14px;
+      color: var(--gray-600);
+      line-height: 1.6;
+    }
+  }
+
   .demo-section {
     margin-bottom: 48px;
+    padding: 24px;
+    background: var(--white);
+    border: 1px solid var(--gray-200);
+    border-radius: 8px;
 
     .section-header {
       display: flex;
@@ -420,181 +342,70 @@ const handleRedo = () => {
       margin-bottom: 20px;
 
       h4 {
-        color: var(--gray-800);
         margin: 0 0 8px 0;
         font-size: 18px;
         font-weight: 600;
-        letter-spacing: -0.01em;
+        color: var(--gray-900);
       }
 
       p {
         margin: 0;
-        color: var(--gray-600);
         font-size: 14px;
-        line-height: 1.5;
-      }
-
-      .code-toggle-btn {
-        display: flex;
-        align-items: center;
-        gap: 6px;
-        padding: 6px 12px;
-        background: var(--gray-100);
-        border: 1px solid var(--gray-200);
-        border-radius: 6px;
-        cursor: pointer;
-        transition: all 0.15s ease;
-        font-size: 13px;
         color: var(--gray-600);
-        white-space: nowrap;
-
-        &:hover {
-          background: var(--gray-100);
-          border-color: var(--gray-300);
-        }
-
-        &.active {
-          background: var(--theme-color);
-          border-color: var(--theme-color);
-          color: white;
-        }
-
-        .code-icon {
-          font-size: 14px;
-        }
-
-        .code-text {
-          font-weight: 500;
-        }
       }
     }
 
-    .demo-content {
-      padding: 20px;
-      background: var(--gray-50);
-      border-radius: 8px;
-      border: 1px solid var(--gray-200);
+    .demo-container {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
 
-      .output-display {
-        margin-top: 16px;
+      .input-wrapper {
         padding: 12px;
-        background: var(--white);
-        border-radius: 6px;
+        background: var(--gray-50);
         border: 1px solid var(--gray-200);
+        border-radius: 6px;
+      }
 
-        h5 {
-          margin: 0 0 8px 0;
-          font-size: 14px;
-          font-weight: 600;
-          color: var(--gray-700);
+      .output {
+        padding: 12px;
+        background: var(--gray-900);
+        border-radius: 6px;
+        color: var(--gray-100);
+        font-family: 'SF Mono', Monaco, 'Cascadia Code', monospace;
+        font-size: 13px;
+
+        strong {
+          display: block;
+          margin-bottom: 8px;
+          color: var(--gray-300);
         }
 
         pre {
           margin: 0;
-          font-family: 'SF Mono', Monaco, monospace;
-          font-size: 12px;
-          color: var(--gray-900);
           white-space: pre-wrap;
-          word-break: break-all;
+          word-break: break-word;
         }
       }
 
-      &.size-demos {
-        display: flex;
-        flex-direction: column;
-        gap: 20px;
-
-        .size-item {
-          label {
-            display: block;
-            margin-bottom: 8px;
-            font-size: 14px;
-            font-weight: 500;
-            color: var(--gray-700);
-          }
-        }
-      }
-
-      .undo-redo-controls {
-        display: flex;
-        gap: 12px;
-        margin-bottom: 16px;
-
-        .control-btn {
-          padding: 8px 16px;
-          background: var(--white);
-          border: 1px solid var(--gray-300);
-          border-radius: 6px;
-          cursor: pointer;
-          font-size: 14px;
-          color: var(--gray-700);
-          transition: all 0.2s ease;
-
-          &:hover {
-            background: var(--gray-100);
-            border-color: var(--theme-color);
-            color: var(--theme-color);
-          }
-        }
-      }
-    }
-  }
-
-  .code-preview {
-    margin-top: 16px;
-    border: 1px solid var(--gray-200);
-    border-radius: 8px;
-    overflow: hidden;
-    background: var(--white);
-
-    .code-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 12px 16px;
-      background: var(--gray-100);
-      border-bottom: 1px solid var(--gray-200);
-
-      .code-title {
-        font-size: 13px;
-        font-weight: 500;
-        color: var(--gray-700);
-      }
-
-      .copy-btn {
-        display: flex;
-        align-items: center;
-        padding: 4px 8px;
-        background: transparent;
+      .event-log {
+        padding: 12px;
+        background: var(--gray-50);
         border: 1px solid var(--gray-200);
-        border-radius: 4px;
-        cursor: pointer;
-        transition: all 0.15s ease;
-        font-size: 12px;
+        border-radius: 6px;
 
-        &:hover {
-          background: var(--gray-100);
-          border-color: var(--gray-300);
+        strong {
+          display: block;
+          margin-bottom: 8px;
+          color: var(--gray-700);
         }
-      }
-    }
 
-    .code-block {
-      margin: 0;
-      padding: 16px;
-      background: var(--gray-900);
-      color: var(--gray-100);
-      font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
-      font-size: 13px;
-      line-height: 1.5;
-      overflow-x: auto;
-
-      code {
-        color: inherit;
-        background: transparent;
-        padding: 0;
-        border-radius: 0;
-        font-size: inherit;
+        .log-item {
+          padding: 4px 0;
+          font-size: 13px;
+          color: var(--gray-600);
+          font-family: 'SF Mono', Monaco, monospace;
+        }
       }
     }
   }
@@ -602,7 +413,6 @@ const handleRedo = () => {
   .props-table {
     width: 100%;
     border-collapse: collapse;
-    margin-top: 16px;
     background: var(--white);
     border: 1px solid var(--gray-200);
     border-radius: 8px;
@@ -611,15 +421,13 @@ const handleRedo = () => {
     thead {
       background: var(--gray-100);
 
-      tr {
-        th {
-          padding: 12px 16px;
-          text-align: left;
-          font-size: 14px;
-          font-weight: 600;
-          color: var(--gray-800);
-          border-bottom: 1px solid var(--gray-200);
-        }
+      tr th {
+        padding: 12px 16px;
+        text-align: left;
+        font-size: 14px;
+        font-weight: 600;
+        color: var(--gray-800);
+        border-bottom: 1px solid var(--gray-200);
       }
     }
 
@@ -653,6 +461,18 @@ const handleRedo = () => {
     }
   }
 
+  .feature-list {
+    margin: 0;
+    padding-left: 20px;
+
+    li {
+      margin-bottom: 8px;
+      font-size: 14px;
+      color: var(--gray-700);
+      line-height: 1.6;
+    }
+  }
+
   &[data-theme="dark"] {
     background: var(--gray-900);
 
@@ -675,7 +495,14 @@ const handleRedo = () => {
       }
     }
 
+    .demo-description p {
+      color: var(--gray-400);
+    }
+
     .demo-section {
+      background: var(--gray-800);
+      border-color: var(--gray-700);
+
       .section-header {
         h4 {
           color: var(--gray-200);
@@ -684,77 +511,33 @@ const handleRedo = () => {
         p {
           color: var(--gray-400);
         }
-
-        .code-toggle-btn {
-          background: var(--gray-800);
-          border-color: var(--gray-600);
-          color: var(--gray-300);
-
-          &:hover {
-            background: var(--gray-700);
-            border-color: var(--gray-500);
-          }
-
-          &.active {
-            background: var(--theme-color);
-            border-color: var(--theme-color);
-            color: white;
-          }
-        }
       }
 
-      .demo-content {
-        background: var(--gray-800);
-        border-color: var(--gray-700);
-
-        .output-display {
+      .demo-container {
+        .input-wrapper {
           background: var(--gray-750);
+          border-color: var(--gray-600);
+        }
+
+        .output {
+          background: var(--black);
           border-color: var(--gray-700);
 
-          h5 {
-            color: var(--gray-300);
-          }
-
-          pre {
-            color: var(--gray-100);
+          strong {
+            color: var(--gray-400);
           }
         }
 
-        .undo-redo-controls {
-          .control-btn {
-            background: var(--gray-750);
-            border-color: var(--gray-600);
-            color: var(--gray-300);
-
-            &:hover {
-              background: var(--gray-700);
-              border-color: var(--theme-color);
-              color: var(--theme-color);
-            }
-          }
-        }
-      }
-    }
-
-    .code-preview {
-      background: var(--gray-800);
-      border-color: var(--gray-700);
-
-      .code-header {
-        background: var(--gray-700);
-        border-color: var(--gray-600);
-
-        .code-title {
-          color: var(--gray-300);
-        }
-
-        .copy-btn {
+        .event-log {
+          background: var(--gray-750);
           border-color: var(--gray-600);
-          color: var(--gray-300);
 
-          &:hover {
-            background: var(--gray-700);
-            border-color: var(--gray-500);
+          strong {
+            color: var(--gray-300);
+          }
+
+          .log-item {
+            color: var(--gray-400);
           }
         }
       }
@@ -792,11 +575,15 @@ const handleRedo = () => {
         }
       }
     }
+
+    .feature-list li {
+      color: var(--gray-300);
+    }
   }
 }
 
 @media (max-width: 768px) {
-  .clean-rich-input-demo {
+  .cl-rich-input-demo {
     padding: 16px;
 
     .demo-header {
@@ -810,16 +597,16 @@ const handleRedo = () => {
     }
 
     .demo-section {
+      padding: 16px;
       margin-bottom: 32px;
+    }
 
-      .section-header {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 12px;
+    .props-table {
+      font-size: 12px;
 
-        .code-toggle-btn {
-          align-self: flex-end;
-        }
+      thead tr th,
+      tbody tr td {
+        padding: 8px 12px;
       }
     }
   }
