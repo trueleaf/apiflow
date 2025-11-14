@@ -1,12 +1,29 @@
 import { expect, type Page } from '@playwright/test';
 import { test, initOfflineWorkbench, createProject, createSingleNode } from '../../../fixtures/fixtures';
-import {
-  switchToAfterRequestTab,
-  fillAfterRequestScript,
-  getScriptContent,
-  verifyScriptEditorVisible,
-  fillUrl
-} from './helpers/httpNodeHelpers';
+//获取脚本编辑器内容
+const getScriptContent = async (page: Page): Promise<string> => {
+  const editor = page.locator('.workbench .monaco-editor').first();
+  const content = await editor.evaluate((el) => {
+    const monaco = (window as any).monaco;
+    if (monaco) {
+      const models = monaco.editor.getModels();
+      if (models && models.length > 0) {
+        return models[0].getValue();
+      }
+    }
+    return '';
+  });
+  if (content) {
+    return content;
+  }
+  const fallback = await editor.locator('.view-lines').innerText();
+  return fallback;
+};
+//验证脚本编辑器显示
+const verifyScriptEditorVisible = async (page: Page): Promise<void> => {
+  const editor = page.locator('.workbench .monaco-editor').first();
+  await expect(editor).toBeVisible();
+};
 
 test.describe('9. HTTP节点 - 后置脚本测试', () => {
   let headerPage: Page;
@@ -39,7 +56,12 @@ test.describe('9. HTTP节点 - 后置脚本测试', () => {
      */
     test('应显示代码编辑器', async () => {
       // 切换到后置脚本标签页
-      await switchToAfterRequestTab(contentPage);
+      const afterRequestTab = contentPage.locator('.el-tabs__item:has-text("后置"), .after-request-tab').first();
+      await afterRequestTab.click();
+      await contentPage.waitForTimeout(300);
+      await contentPage.waitForSelector('.workbench .s-monaco-editor', {
+        timeout: 15000
+      });
       // 验证脚本编辑器可见
       await verifyScriptEditorVisible(contentPage);
     });
@@ -60,7 +82,18 @@ test.describe('9. HTTP节点 - 后置脚本测试', () => {
     test('应能输入JavaScript代码', async () => {
       // 输入测试脚本
       const script = 'console.log(response.status);';
-      await fillAfterRequestScript(contentPage, script);
+      const afterRequestTab = contentPage.locator('.el-tabs__item:has-text("后置"), .after-request-tab').first();
+      await afterRequestTab.click();
+      await contentPage.waitForTimeout(300);
+      await contentPage.waitForSelector('.workbench .s-monaco-editor', {
+        timeout: 15000
+      });
+      const editor = contentPage.locator('.workbench .monaco-editor').first();
+      await editor.waitFor({ state: 'visible', timeout: 15000 });
+      await editor.click();
+      await contentPage.keyboard.press('Control+A');
+      await contentPage.keyboard.type(script);
+      await contentPage.waitForTimeout(300);
       await contentPage.waitForTimeout(300);
       // 验证脚本内容
       const content = await getScriptContent(contentPage);
@@ -81,10 +114,20 @@ test.describe('9. HTTP节点 - 后置脚本测试', () => {
      */
     test('应支持语法高亮', async () => {
       // 输入包含关键字的代码
-      await fillAfterRequestScript(contentPage, 'const status = response.status;');
+      const afterRequestTab = contentPage.locator('.el-tabs__item:has-text("后置"), .after-request-tab').first();
+      await afterRequestTab.click();
       await contentPage.waitForTimeout(300);
-      // 检查语法高亮token
-      const editor = contentPage.locator('.monaco-editor').first();
+      await contentPage.waitForSelector('.workbench .s-monaco-editor', {
+        timeout: 15000
+      });
+      const editor = contentPage.locator('.workbench .monaco-editor').first();
+      await editor.waitFor({ state: 'visible', timeout: 15000 });
+      await editor.click();
+      await contentPage.keyboard.press('Control+A');
+      await contentPage.keyboard.type('const status = response.status;');
+      await contentPage.waitForTimeout(300);
+      await contentPage.waitForTimeout(300);
+      // 检查语法高亮 token
       const hasHighlight = await editor.evaluate((el) => {
         const tokens = el.querySelectorAll('.mtk1, .mtk6, .mtk22');
         return tokens.length > 0;
@@ -109,7 +152,18 @@ test.describe('9. HTTP节点 - 后置脚本测试', () => {
     test('应能访问response对象', async () => {
       // 编写访问response对象的脚本
       const script = 'console.log(response);';
-      await fillAfterRequestScript(contentPage, script);
+      const afterRequestTab = contentPage.locator('.el-tabs__item:has-text("后置"), .after-request-tab').first();
+      await afterRequestTab.click();
+      await contentPage.waitForTimeout(300);
+      await contentPage.waitForSelector('.workbench .s-monaco-editor', {
+        timeout: 15000
+      });
+      const editor = contentPage.locator('.workbench .monaco-editor').first();
+      await editor.waitFor({ state: 'visible', timeout: 15000 });
+      await editor.click();
+      await contentPage.keyboard.press('Control+A');
+      await contentPage.keyboard.type(script);
+      await contentPage.waitForTimeout(300);
       await contentPage.waitForTimeout(300);
     });
 
@@ -128,7 +182,18 @@ test.describe('9. HTTP节点 - 后置脚本测试', () => {
     test('应能访问response.status获取状态码', async () => {
       // 编写获取状态码的脚本
       const script = 'const statusCode = response.status;';
-      await fillAfterRequestScript(contentPage, script);
+      const afterRequestTab = contentPage.locator('.el-tabs__item:has-text("后置"), .after-request-tab').first();
+      await afterRequestTab.click();
+      await contentPage.waitForTimeout(300);
+      await contentPage.waitForSelector('.workbench .s-monaco-editor', {
+        timeout: 15000
+      });
+      const editor = contentPage.locator('.workbench .monaco-editor').first();
+      await editor.waitFor({ state: 'visible', timeout: 15000 });
+      await editor.click();
+      await contentPage.keyboard.press('Control+A');
+      await contentPage.keyboard.type(script);
+      await contentPage.waitForTimeout(300);
       await contentPage.waitForTimeout(300);
       // 验证脚本内容
       const content = await getScriptContent(contentPage);
@@ -150,7 +215,18 @@ test.describe('9. HTTP节点 - 后置脚本测试', () => {
     test('应能访问response.data获取响应体', async () => {
       // 编写获取响应体的脚本
       const script = 'const body = response.data;';
-      await fillAfterRequestScript(contentPage, script);
+      const afterRequestTab = contentPage.locator('.el-tabs__item:has-text("后置"), .after-request-tab').first();
+      await afterRequestTab.click();
+      await contentPage.waitForTimeout(300);
+      await contentPage.waitForSelector('.workbench .s-monaco-editor', {
+        timeout: 15000
+      });
+      const editor = contentPage.locator('.workbench .monaco-editor').first();
+      await editor.waitFor({ state: 'visible', timeout: 15000 });
+      await editor.click();
+      await contentPage.keyboard.press('Control+A');
+      await contentPage.keyboard.type(script);
+      await contentPage.waitForTimeout(300);
       await contentPage.waitForTimeout(300);
       // 验证脚本内容
       const content = await getScriptContent(contentPage);
@@ -172,7 +248,18 @@ test.describe('9. HTTP节点 - 后置脚本测试', () => {
     test('应能访问response.headers获取响应头', async () => {
       // 编写获取响应头的脚本
       const script = 'const headers = response.headers;';
-      await fillAfterRequestScript(contentPage, script);
+      const afterRequestTab = contentPage.locator('.el-tabs__item:has-text("后置"), .after-request-tab').first();
+      await afterRequestTab.click();
+      await contentPage.waitForTimeout(300);
+      await contentPage.waitForSelector('.workbench .s-monaco-editor', {
+        timeout: 15000
+      });
+      const editor = contentPage.locator('.workbench .monaco-editor').first();
+      await editor.waitFor({ state: 'visible', timeout: 15000 });
+      await editor.click();
+      await contentPage.keyboard.press('Control+A');
+      await contentPage.keyboard.type(script);
+      await contentPage.waitForTimeout(300);
       await contentPage.waitForTimeout(300);
       // 验证脚本内容
       const content = await getScriptContent(contentPage);
@@ -194,7 +281,18 @@ test.describe('9. HTTP节点 - 后置脚本测试', () => {
     test('应能执行断言测试', async () => {
       // 编写使用pm.test的断言脚本
       const script = 'pm.test("Status is 200", () => { pm.expect(response.status).to.equal(200); });';
-      await fillAfterRequestScript(contentPage, script);
+      const afterRequestTab = contentPage.locator('.el-tabs__item:has-text("后置"), .after-request-tab').first();
+      await afterRequestTab.click();
+      await contentPage.waitForTimeout(300);
+      await contentPage.waitForSelector('.workbench .s-monaco-editor', {
+        timeout: 15000
+      });
+      const editor = contentPage.locator('.workbench .monaco-editor').first();
+      await editor.waitFor({ state: 'visible', timeout: 15000 });
+      await editor.click();
+      await contentPage.keyboard.press('Control+A');
+      await contentPage.keyboard.type(script);
+      await contentPage.waitForTimeout(300);
       await contentPage.waitForTimeout(300);
       // 验证脚本内容
       const content = await getScriptContent(contentPage);
@@ -216,7 +314,18 @@ test.describe('9. HTTP节点 - 后置脚本测试', () => {
     test('应能设置变量', async () => {
       // 编写从响应提取数据设置变量的脚本
       const script = 'pm.variables.set("responseToken", response.data.token);';
-      await fillAfterRequestScript(contentPage, script);
+      const afterRequestTab = contentPage.locator('.el-tabs__item:has-text("后置"), .after-request-tab').first();
+      await afterRequestTab.click();
+      await contentPage.waitForTimeout(300);
+      await contentPage.waitForSelector('.workbench .s-monaco-editor', {
+        timeout: 15000
+      });
+      const editor = contentPage.locator('.workbench .monaco-editor').first();
+      await editor.waitFor({ state: 'visible', timeout: 15000 });
+      await editor.click();
+      await contentPage.keyboard.press('Control+A');
+      await contentPage.keyboard.type(script);
+      await contentPage.waitForTimeout(300);
       await contentPage.waitForTimeout(300);
       // 验证脚本内容
       const content = await getScriptContent(contentPage);
@@ -238,7 +347,18 @@ test.describe('9. HTTP节点 - 后置脚本测试', () => {
     test('脚本执行应在请求完成后', async () => {
       // 编写日志输出脚本
       const script = 'console.log("After request executed");';
-      await fillAfterRequestScript(contentPage, script);
+      const afterRequestTab = contentPage.locator('.el-tabs__item:has-text("后置"), .after-request-tab').first();
+      await afterRequestTab.click();
+      await contentPage.waitForTimeout(300);
+      await contentPage.waitForSelector('.workbench .s-monaco-editor', {
+        timeout: 15000
+      });
+      const editor = contentPage.locator('.workbench .monaco-editor').first();
+      await editor.waitFor({ state: 'visible', timeout: 15000 });
+      await editor.click();
+      await contentPage.keyboard.press('Control+A');
+      await contentPage.keyboard.type(script);
+      await contentPage.waitForTimeout(300);
       await contentPage.waitForTimeout(300);
     });
   });
@@ -259,7 +379,18 @@ test.describe('9. HTTP节点 - 后置脚本测试', () => {
     test('语法错误应显示提示', async () => {
       // 输入语法错误的代码
       const invalidScript = 'const a = ;';
-      await fillAfterRequestScript(contentPage, invalidScript);
+      const afterRequestTab = contentPage.locator('.el-tabs__item:has-text("后置"), .after-request-tab').first();
+      await afterRequestTab.click();
+      await contentPage.waitForTimeout(300);
+      await contentPage.waitForSelector('.workbench .s-monaco-editor', {
+        timeout: 15000
+      });
+      const editor = contentPage.locator('.workbench .monaco-editor').first();
+      await editor.waitFor({ state: 'visible', timeout: 15000 });
+      await editor.click();
+      await contentPage.keyboard.press('Control+A');
+      await contentPage.keyboard.type(invalidScript);
+      await contentPage.waitForTimeout(300);
       await contentPage.waitForTimeout(500);
       // 检查错误标记
       const errorMarker = contentPage.locator('.squiggly-error, .error-marker').first();
@@ -283,7 +414,18 @@ test.describe('9. HTTP节点 - 后置脚本测试', () => {
     test('运行时错误应显示错误信息', async () => {
       // 编写会抛出错误的脚本
       const errorScript = 'throw new Error("After request error");';
-      await fillAfterRequestScript(contentPage, errorScript);
+      const afterRequestTab = contentPage.locator('.el-tabs__item:has-text("后置"), .after-request-tab').first();
+      await afterRequestTab.click();
+      await contentPage.waitForTimeout(300);
+      await contentPage.waitForSelector('.workbench .s-monaco-editor', {
+        timeout: 15000
+      });
+      const editor = contentPage.locator('.workbench .monaco-editor').first();
+      await editor.waitFor({ state: 'visible', timeout: 15000 });
+      await editor.click();
+      await contentPage.keyboard.press('Control+A');
+      await contentPage.keyboard.type(errorScript);
+      await contentPage.waitForTimeout(300);
       await contentPage.waitForTimeout(300);
     });
 
@@ -302,7 +444,18 @@ test.describe('9. HTTP节点 - 后置脚本测试', () => {
     test('断言失败应显示失败信息', async () => {
       // 编写必然失败的断言
       const failScript = 'pm.test("Will fail", () => { pm.expect(1).to.equal(2); });';
-      await fillAfterRequestScript(contentPage, failScript);
+      const afterRequestTab = contentPage.locator('.el-tabs__item:has-text("后置"), .after-request-tab').first();
+      await afterRequestTab.click();
+      await contentPage.waitForTimeout(300);
+      await contentPage.waitForSelector('.workbench .s-monaco-editor', {
+        timeout: 15000
+      });
+      const editor = contentPage.locator('.workbench .monaco-editor').first();
+      await editor.waitFor({ state: 'visible', timeout: 15000 });
+      await editor.click();
+      await contentPage.keyboard.press('Control+A');
+      await contentPage.keyboard.type(failScript);
+      await contentPage.waitForTimeout(300);
       await contentPage.waitForTimeout(300);
     });
   });
@@ -323,7 +476,18 @@ test.describe('9. HTTP节点 - 后置脚本测试', () => {
     test('应支持pm.test()编写测试', async () => {
       // 编写使用pm.test的脚本
       const script = 'pm.test("Test name", function() { pm.expect(true).to.be.true; });';
-      await fillAfterRequestScript(contentPage, script);
+      const afterRequestTab = contentPage.locator('.el-tabs__item:has-text("后置"), .after-request-tab').first();
+      await afterRequestTab.click();
+      await contentPage.waitForTimeout(300);
+      await contentPage.waitForSelector('.workbench .s-monaco-editor', {
+        timeout: 15000
+      });
+      const editor = contentPage.locator('.workbench .monaco-editor').first();
+      await editor.waitFor({ state: 'visible', timeout: 15000 });
+      await editor.click();
+      await contentPage.keyboard.press('Control+A');
+      await contentPage.keyboard.type(script);
+      await contentPage.waitForTimeout(300);
       await contentPage.waitForTimeout(300);
       // 验证脚本内容
       const content = await getScriptContent(contentPage);
@@ -345,7 +509,18 @@ test.describe('9. HTTP节点 - 后置脚本测试', () => {
     test('应支持pm.expect()断言', async () => {
       // 编写使用pm.expect的脚本
       const script = 'pm.expect(response.status).to.equal(200);';
-      await fillAfterRequestScript(contentPage, script);
+      const afterRequestTab = contentPage.locator('.el-tabs__item:has-text("后置"), .after-request-tab').first();
+      await afterRequestTab.click();
+      await contentPage.waitForTimeout(300);
+      await contentPage.waitForSelector('.workbench .s-monaco-editor', {
+        timeout: 15000
+      });
+      const editor = contentPage.locator('.workbench .monaco-editor').first();
+      await editor.waitFor({ state: 'visible', timeout: 15000 });
+      await editor.click();
+      await contentPage.keyboard.press('Control+A');
+      await contentPage.keyboard.type(script);
+      await contentPage.waitForTimeout(300);
       await contentPage.waitForTimeout(300);
       // 验证脚本内容
       const content = await getScriptContent(contentPage);
@@ -368,7 +543,18 @@ test.describe('9. HTTP节点 - 后置脚本测试', () => {
       // 编写多个通过的测试
       const script = `pm.test("Test 1", () => { pm.expect(1).to.equal(1); });
 pm.test("Test 2", () => { pm.expect(2).to.equal(2); });`;
-      await fillAfterRequestScript(contentPage, script);
+      const afterRequestTab = contentPage.locator('.el-tabs__item:has-text("后置"), .after-request-tab').first();
+      await afterRequestTab.click();
+      await contentPage.waitForTimeout(300);
+      await contentPage.waitForSelector('.workbench .s-monaco-editor', {
+        timeout: 15000
+      });
+      const editor = contentPage.locator('.workbench .monaco-editor').first();
+      await editor.waitFor({ state: 'visible', timeout: 15000 });
+      await editor.click();
+      await contentPage.keyboard.press('Control+A');
+      await contentPage.keyboard.type(script);
+      await contentPage.waitForTimeout(300);
       await contentPage.waitForTimeout(300);
     });
 
@@ -387,7 +573,18 @@ pm.test("Test 2", () => { pm.expect(2).to.equal(2); });`;
     test('应显示测试失败数量', async () => {
       // 编写失败的测试
       const script = 'pm.test("Fail test", () => { pm.expect(1).to.equal(2); });';
-      await fillAfterRequestScript(contentPage, script);
+      const afterRequestTab = contentPage.locator('.el-tabs__item:has-text("后置"), .after-request-tab').first();
+      await afterRequestTab.click();
+      await contentPage.waitForTimeout(300);
+      await contentPage.waitForSelector('.workbench .s-monaco-editor', {
+        timeout: 15000
+      });
+      const editor = contentPage.locator('.workbench .monaco-editor').first();
+      await editor.waitFor({ state: 'visible', timeout: 15000 });
+      await editor.click();
+      await contentPage.keyboard.press('Control+A');
+      await contentPage.keyboard.type(script);
+      await contentPage.waitForTimeout(300);
       await contentPage.waitForTimeout(300);
     });
   });

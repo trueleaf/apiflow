@@ -1,23 +1,97 @@
 import { expect, type Page } from '@playwright/test';
 import { test, initOfflineWorkbench, createProject, createSingleNode } from '../../../fixtures/fixtures';
-import {
-  switchToResponseConfigTab,
-  addResponseConfig,
-  deleteResponseConfig,
-  setResponseStatusCode,
-  setResponseTitle,
-  selectResponseDataType,
-  editResponseExample,
-  getResponseExampleContent,
-  formatResponseJson,
-  verifyJsonSyntaxError,
-  getResponseConfigList,
-  collapseResponseConfig,
-  expandResponseConfig,
-  verifyResponseConfigCollapsed,
-  verifyResponseConfigExpanded,
-  switchToTab
-} from './helpers/httpNodeHelpers';
+
+//设置响应状态码
+const setResponseStatusCode = async (page: Page, statusCode: string): Promise<void> => {
+  const statusInput = page.locator('input[placeholder*="状态码"], .status-code-input').first();
+  await statusInput.fill(statusCode);
+  await page.waitForTimeout(200);
+};
+//设置响应标题
+const setResponseTitle = async (page: Page, title: string): Promise<void> => {
+  const titleInput = page.locator('input[placeholder*="标题"], .response-title-input').first();
+  await titleInput.fill(title);
+  await page.waitForTimeout(200);
+};
+//选择响应数据类型
+const selectResponseDataType = async (page: Page, dataType: string): Promise<void> => {
+  const typeSelect = page.locator('.data-type-select, .el-select').first();
+  await typeSelect.click();
+  await page.waitForTimeout(200);
+  const option = page.locator(`.el-select-dropdown__item:has-text("${dataType}")`).first();
+  await option.click();
+  await page.waitForTimeout(200);
+};
+//编辑响应示例
+const editResponseExample = async (page: Page, content: string): Promise<void> => {
+  const editor = page.locator('.response-example-editor, .monaco-editor').first();
+  await editor.click();
+  await page.keyboard.press('Control+A');
+  await page.keyboard.type(content);
+  await page.waitForTimeout(300);
+};
+//获取响应示例内容
+const getResponseExampleContent = async (page: Page): Promise<string> => {
+  const editor = page.locator('.response-example-editor, .monaco-editor').first();
+  const content = await editor.evaluate((el) => {
+    const monaco = (window as any).monaco;
+    if (monaco) {
+      const models = monaco.editor.getModels();
+      if (models && models.length > 0) {
+        return models[0].getValue();
+      }
+    }
+    return '';
+  });
+  return content;
+};
+//格式化JSON响应示例
+const formatResponseJson = async (page: Page): Promise<void> => {
+  const formatBtn = page.locator('button:has-text("格式化"), .format-btn, [title*="格式化"]').first();
+  if (await formatBtn.isVisible()) {
+    await formatBtn.click();
+    await page.waitForTimeout(300);
+  }
+};
+//验证JSON语法错误
+const verifyJsonSyntaxError = async (page: Page): Promise<void> => {
+  const errorMarker = page.locator('.squiggly-error, .error-marker, .monaco-error').first();
+  if (await errorMarker.isVisible()) {
+    await expect(errorMarker).toBeVisible();
+  }
+};
+//获取响应配置列表
+const getResponseConfigList = (page: Page) => {
+  return page.locator('.response-config-item, .response-item');
+};
+//折叠响应配置
+const collapseResponseConfig = async (page: Page, index: number): Promise<void> => {
+  const collapseBtn = page.locator('.response-config-item, .response-item').nth(index).locator('.collapse-btn, .el-collapse-item__header').first();
+  if (await collapseBtn.isVisible()) {
+    await collapseBtn.click();
+    await page.waitForTimeout(300);
+  }
+};
+//展开响应配置
+const expandResponseConfig = async (page: Page, index: number): Promise<void> => {
+  const expandBtn = page.locator('.response-config-item, .response-item').nth(index).locator('.expand-btn, .el-collapse-item__header').first();
+  if (await expandBtn.isVisible()) {
+    await expandBtn.click();
+    await page.waitForTimeout(300);
+  }
+};
+//验证响应配置折叠状态
+const verifyResponseConfigCollapsed = async (page: Page, index: number): Promise<void> => {
+  const detail = page.locator('.response-config-item, .response-item').nth(index).locator('.el-collapse-item__content, .response-detail').first();
+  if (await detail.isVisible()) {
+    await expect(detail).not.toBeVisible();
+  }
+};
+//验证响应配置展开状态
+const verifyResponseConfigExpanded = async (page: Page, index: number): Promise<void> => {
+  const detail = page.locator('.response-config-item, .response-item').nth(index).locator('.el-collapse-item__content, .response-detail').first();
+  await expect(detail).toBeVisible();
+};
 
 // 跳过原因: "返回参数"标签页在当前应用版本中不存在，导致所有测试超时失败
 // 所有36个测试都在switchToResponseConfigTab函数处超时（30秒）
@@ -57,9 +131,13 @@ test.describe.skip('6. HTTP节点 - 返回参数配置测试', () => {
      */
     test('应能添加响应配置', async () => {
       // 切换到返回参数配置标签页
-      await switchToResponseConfigTab(contentPage);
+      const tab = contentPage.locator('.el-tabs__item:has-text("返回参数"), .response-config-tab').first();
+      await tab.click();
+      await contentPage.waitForTimeout(300);
       // 点击添加响应配置按钮
-      await addResponseConfig(contentPage);
+      const addBtn = contentPage.locator('button:has-text("添加响应"), .add-response-btn, [title*="添加响应"]').first();
+      await addBtn.click();
+      await contentPage.waitForTimeout(300);
       // 获取响应配置列表
       const configList = getResponseConfigList(contentPage);
       // 验证配置数量增加
@@ -82,11 +160,24 @@ test.describe.skip('6. HTTP节点 - 返回参数配置测试', () => {
      * 说明：该功能当前被跳过，标签页可能已不存在
      */
     test('应能删除响应配置', async () => {
-      await switchToResponseConfigTab(contentPage);
-      await addResponseConfig(contentPage);
+      const tab = contentPage.locator('.el-tabs__item:has-text("返回参数"), .response-config-tab').first();
+      await tab.click();
+      await contentPage.waitForTimeout(300);
+      const addBtn = contentPage.locator('button:has-text("添加响应"), .add-response-btn, [title*="添加响应"]').first();
+      await addBtn.click();
+      await contentPage.waitForTimeout(300);
       await contentPage.waitForTimeout(300);
       const countBefore = await getResponseConfigList(contentPage).count();
-      await deleteResponseConfig(contentPage, 0);
+      const deleteBtn = contentPage.locator('.response-config-item, .response-item').nth(0).locator('.delete-btn, button:has-text("删除"), [title*="删除"]').first();
+      if (await deleteBtn.isVisible()) {
+        await deleteBtn.click();
+        await contentPage.waitForTimeout(300);
+        const confirmBtn = contentPage.locator('.el-message-box .el-button--primary').first();
+        if (await confirmBtn.isVisible()) {
+          await confirmBtn.click();
+          await contentPage.waitForTimeout(300);
+        }
+      }
       const countAfter = await getResponseConfigList(contentPage).count();
       expect(countAfter).toBeLessThan(countBefore);
     });
@@ -106,8 +197,12 @@ test.describe.skip('6. HTTP节点 - 返回参数配置测试', () => {
      * 说明：该功能当前被跳过，标签页可能已不存在
      */
     test('应能设置响应状态码', async () => {
-      await switchToResponseConfigTab(contentPage);
-      await addResponseConfig(contentPage);
+      const tab = contentPage.locator('.el-tabs__item:has-text("返回参数"), .response-config-tab').first();
+      await tab.click();
+      await contentPage.waitForTimeout(300);
+      const addBtn = contentPage.locator('button:has-text("添加响应"), .add-response-btn, [title*="添加响应"]').first();
+      await addBtn.click();
+      await contentPage.waitForTimeout(300);
       await setResponseStatusCode(contentPage, '200');
       await contentPage.waitForTimeout(300);
       const statusInput = contentPage.locator('input[placeholder*="状态码"], .status-code-input').first();
@@ -130,8 +225,12 @@ test.describe.skip('6. HTTP节点 - 返回参数配置测试', () => {
      * 说明：该功能当前被跳过，标签页可能已不存在；标题用于标识不同响应示例
      */
     test('应能设置响应标题', async () => {
-      await switchToResponseConfigTab(contentPage);
-      await addResponseConfig(contentPage);
+      const tab = contentPage.locator('.el-tabs__item:has-text("返回参数"), .response-config-tab').first();
+      await tab.click();
+      await contentPage.waitForTimeout(300);
+      const addBtn = contentPage.locator('button:has-text("添加响应"), .add-response-btn, [title*="添加响应"]').first();
+      await addBtn.click();
+      await contentPage.waitForTimeout(300);
       await setResponseTitle(contentPage, '成功响应');
       await contentPage.waitForTimeout(300);
       const titleInput = contentPage.locator('input[placeholder*="标题"], .response-title-input').first();
@@ -155,8 +254,12 @@ test.describe.skip('6. HTTP节点 - 返回参数配置测试', () => {
      * 说明：该功能当前被跳过，标签页可能已不存在
      */
     test('应支持JSON数据类型', async () => {
-      await switchToResponseConfigTab(contentPage);
-      await addResponseConfig(contentPage);
+      const tab = contentPage.locator('.el-tabs__item:has-text("返回参数"), .response-config-tab').first();
+      await tab.click();
+      await contentPage.waitForTimeout(300);
+      const addBtn = contentPage.locator('button:has-text("添加响应"), .add-response-btn, [title*="添加响应"]').first();
+      await addBtn.click();
+      await contentPage.waitForTimeout(300);
       await selectResponseDataType(contentPage, 'JSON');
       await contentPage.waitForTimeout(300);
     });
@@ -170,8 +273,12 @@ test.describe.skip('6. HTTP节点 - 返回参数配置测试', () => {
      * 说明：该功能当前被跳过
      */
     test('应支持Text数据类型', async () => {
-      await switchToResponseConfigTab(contentPage);
-      await addResponseConfig(contentPage);
+      const tab = contentPage.locator('.el-tabs__item:has-text("返回参数"), .response-config-tab').first();
+      await tab.click();
+      await contentPage.waitForTimeout(300);
+      const addBtn = contentPage.locator('button:has-text("添加响应"), .add-response-btn, [title*="添加响应"]').first();
+      await addBtn.click();
+      await contentPage.waitForTimeout(300);
       await selectResponseDataType(contentPage, 'Text');
       await contentPage.waitForTimeout(300);
     });
@@ -185,8 +292,12 @@ test.describe.skip('6. HTTP节点 - 返回参数配置测试', () => {
      * 说明：该功能当前被跳过
      */
     test('应支持HTML数据类型', async () => {
-      await switchToResponseConfigTab(contentPage);
-      await addResponseConfig(contentPage);
+      const tab = contentPage.locator('.el-tabs__item:has-text("返回参数"), .response-config-tab').first();
+      await tab.click();
+      await contentPage.waitForTimeout(300);
+      const addBtn = contentPage.locator('button:has-text("添加响应"), .add-response-btn, [title*="添加响应"]').first();
+      await addBtn.click();
+      await contentPage.waitForTimeout(300);
       await selectResponseDataType(contentPage, 'HTML');
       await contentPage.waitForTimeout(300);
     });
@@ -200,8 +311,12 @@ test.describe.skip('6. HTTP节点 - 返回参数配置测试', () => {
      * 说明：该功能当前被跳过
      */
     test('应支持XML数据类型', async () => {
-      await switchToResponseConfigTab(contentPage);
-      await addResponseConfig(contentPage);
+      const tab = contentPage.locator('.el-tabs__item:has-text("返回参数"), .response-config-tab').first();
+      await tab.click();
+      await contentPage.waitForTimeout(300);
+      const addBtn = contentPage.locator('button:has-text("添加响应"), .add-response-btn, [title*="添加响应"]').first();
+      await addBtn.click();
+      await contentPage.waitForTimeout(300);
       await selectResponseDataType(contentPage, 'XML');
       await contentPage.waitForTimeout(300);
     });
@@ -223,8 +338,12 @@ test.describe.skip('6. HTTP节点 - 返回参数配置测试', () => {
      * 说明：该功能当前被跳过；响应示例用于API文档和Mock数据
      */
     test('应能编辑JSON响应示例', async () => {
-      await switchToResponseConfigTab(contentPage);
-      await addResponseConfig(contentPage);
+      const tab = contentPage.locator('.el-tabs__item:has-text("返回参数"), .response-config-tab').first();
+      await tab.click();
+      await contentPage.waitForTimeout(300);
+      const addBtn = contentPage.locator('button:has-text("添加响应"), .add-response-btn, [title*="添加响应"]').first();
+      await addBtn.click();
+      await contentPage.waitForTimeout(300);
       await selectResponseDataType(contentPage, 'JSON');
       const jsonContent = '{"status": "success", "data": {"id": 1}}';
       await editResponseExample(contentPage, jsonContent);
@@ -246,8 +365,12 @@ test.describe.skip('6. HTTP节点 - 返回参数配置测试', () => {
      * 说明：该功能当前被跳过
      */
     test('JSON示例应支持格式化', async () => {
-      await switchToResponseConfigTab(contentPage);
-      await addResponseConfig(contentPage);
+      const tab = contentPage.locator('.el-tabs__item:has-text("返回参数"), .response-config-tab').first();
+      await tab.click();
+      await contentPage.waitForTimeout(300);
+      const addBtn = contentPage.locator('button:has-text("添加响应"), .add-response-btn, [title*="添加响应"]').first();
+      await addBtn.click();
+      await contentPage.waitForTimeout(300);
       await selectResponseDataType(contentPage, 'JSON');
       const compressedJson = '{"a":1,"b":2}';
       await editResponseExample(contentPage, compressedJson);
@@ -270,8 +393,12 @@ test.describe.skip('6. HTTP节点 - 返回参数配置测试', () => {
      * 说明：该功能当前被跳过
      */
     test('应验证JSON示例语法', async () => {
-      await switchToResponseConfigTab(contentPage);
-      await addResponseConfig(contentPage);
+      const tab = contentPage.locator('.el-tabs__item:has-text("返回参数"), .response-config-tab').first();
+      await tab.click();
+      await contentPage.waitForTimeout(300);
+      const addBtn = contentPage.locator('button:has-text("添加响应"), .add-response-btn, [title*="添加响应"]').first();
+      await addBtn.click();
+      await contentPage.waitForTimeout(300);
       await selectResponseDataType(contentPage, 'JSON');
       const invalidJson = '{invalid: json}';
       await editResponseExample(contentPage, invalidJson);
@@ -293,8 +420,12 @@ test.describe.skip('6. HTTP节点 - 返回参数配置测试', () => {
      * 说明：该功能当前被跳过
      */
     test('应能编辑Text响应示例', async () => {
-      await switchToResponseConfigTab(contentPage);
-      await addResponseConfig(contentPage);
+      const tab = contentPage.locator('.el-tabs__item:has-text("返回参数"), .response-config-tab').first();
+      await tab.click();
+      await contentPage.waitForTimeout(300);
+      const addBtn = contentPage.locator('button:has-text("添加响应"), .add-response-btn, [title*="添加响应"]').first();
+      await addBtn.click();
+      await contentPage.waitForTimeout(300);
       await selectResponseDataType(contentPage, 'Text');
       const textContent = 'This is a text response example';
       await editResponseExample(contentPage, textContent);
@@ -320,14 +451,22 @@ test.describe.skip('6. HTTP节点 - 返回参数配置测试', () => {
      * 说明：该功能当前被跳过；多状态码配置用于文档化不同的API响应场景
      */
     test('应能配置多个状态码', async () => {
-      await switchToResponseConfigTab(contentPage);
-      await addResponseConfig(contentPage);
+      const tab = contentPage.locator('.el-tabs__item:has-text("返回参数"), .response-config-tab').first();
+      await tab.click();
+      await contentPage.waitForTimeout(300);
+      const addBtn = contentPage.locator('button:has-text("添加响应"), .add-response-btn, [title*="添加响应"]').first();
+      await addBtn.click();
+      await contentPage.waitForTimeout(300);
       await setResponseStatusCode(contentPage, '200');
       await contentPage.waitForTimeout(300);
-      await addResponseConfig(contentPage);
+      const addBtn2 = contentPage.locator('button:has-text("添加响应"), .add-response-btn, [title*="添加响应"]').first();
+      await addBtn2.click();
+      await contentPage.waitForTimeout(300);
       await setResponseStatusCode(contentPage, '404');
       await contentPage.waitForTimeout(300);
-      await addResponseConfig(contentPage);
+      const addBtn3 = contentPage.locator('button:has-text("添加响应"), .add-response-btn, [title*="添加响应"]').first();
+      await addBtn3.click();
+      await contentPage.waitForTimeout(300);
       await setResponseStatusCode(contentPage, '500');
       await contentPage.waitForTimeout(300);
       const configList = getResponseConfigList(contentPage);
@@ -350,13 +489,19 @@ test.describe.skip('6. HTTP节点 - 返回参数配置测试', () => {
      * 说明：该功能当前被跳过
      */
     test('不同状态码应有独立的响应示例', async () => {
-      await switchToResponseConfigTab(contentPage);
-      await addResponseConfig(contentPage);
+      const tab = contentPage.locator('.el-tabs__item:has-text("返回参数"), .response-config-tab').first();
+      await tab.click();
+      await contentPage.waitForTimeout(300);
+      const addBtn = contentPage.locator('button:has-text("添加响应"), .add-response-btn, [title*="添加响应"]').first();
+      await addBtn.click();
+      await contentPage.waitForTimeout(300);
       await setResponseStatusCode(contentPage, '200');
       await selectResponseDataType(contentPage, 'JSON');
       await editResponseExample(contentPage, '{"status": "ok"}');
       await contentPage.waitForTimeout(300);
-      await addResponseConfig(contentPage);
+      const addBtn2 = contentPage.locator('button:has-text("添加响应"), .add-response-btn, [title*="添加响应"]').first();
+      await addBtn2.click();
+      await contentPage.waitForTimeout(300);
       await setResponseStatusCode(contentPage, '404');
       await selectResponseDataType(contentPage, 'JSON');
       await editResponseExample(contentPage, '{"status": "not found"}');
@@ -378,11 +523,17 @@ test.describe.skip('6. HTTP节点 - 返回参数配置测试', () => {
      * 说明：该功能当前被跳过；相同状态码可能导致配置混淆
      */
     test('状态码不应重复', async () => {
-      await switchToResponseConfigTab(contentPage);
-      await addResponseConfig(contentPage);
+      const tab = contentPage.locator('.el-tabs__item:has-text("返回参数"), .response-config-tab').first();
+      await tab.click();
+      await contentPage.waitForTimeout(300);
+      const addBtn = contentPage.locator('button:has-text("添加响应"), .add-response-btn, [title*="添加响应"]').first();
+      await addBtn.click();
+      await contentPage.waitForTimeout(300);
       await setResponseStatusCode(contentPage, '200');
       await contentPage.waitForTimeout(300);
-      await addResponseConfig(contentPage);
+      const addBtn2 = contentPage.locator('button:has-text("添加响应"), .add-response-btn, [title*="添加响应"]').first();
+      await addBtn2.click();
+      await contentPage.waitForTimeout(300);
       await setResponseStatusCode(contentPage, '200');
       await contentPage.waitForTimeout(300);
       const errorMsg = contentPage.locator('.el-message--error, .error-message, .el-message--warning').first();
@@ -408,8 +559,12 @@ test.describe.skip('6. HTTP节点 - 返回参数配置测试', () => {
      * 说明：该功能当前被跳过；折叠功能便于管理多个响应配置
      */
     test('应能折叠响应配置', async () => {
-      await switchToResponseConfigTab(contentPage);
-      await addResponseConfig(contentPage);
+      const tab = contentPage.locator('.el-tabs__item:has-text("返回参数"), .response-config-tab').first();
+      await tab.click();
+      await contentPage.waitForTimeout(300);
+      const addBtn = contentPage.locator('button:has-text("添加响应"), .add-response-btn, [title*="添加响应"]').first();
+      await addBtn.click();
+      await contentPage.waitForTimeout(300);
       await contentPage.waitForTimeout(300);
       await collapseResponseConfig(contentPage, 0);
       await verifyResponseConfigCollapsed(contentPage, 0);
@@ -430,8 +585,12 @@ test.describe.skip('6. HTTP节点 - 返回参数配置测试', () => {
      * 说明：该功能当前被跳过
      */
     test('应能展开响应配置', async () => {
-      await switchToResponseConfigTab(contentPage);
-      await addResponseConfig(contentPage);
+      const tab = contentPage.locator('.el-tabs__item:has-text("返回参数"), .response-config-tab').first();
+      await tab.click();
+      await contentPage.waitForTimeout(300);
+      const addBtn = contentPage.locator('button:has-text("添加响应"), .add-response-btn, [title*="添加响应"]').first();
+      await addBtn.click();
+      await contentPage.waitForTimeout(300);
       await contentPage.waitForTimeout(300);
       await collapseResponseConfig(contentPage, 0);
       await contentPage.waitForTimeout(300);
@@ -455,14 +614,23 @@ test.describe.skip('6. HTTP节点 - 返回参数配置测试', () => {
      * 说明：该功能当前被跳过
      */
     test('折叠状态应保持', async () => {
-      await switchToResponseConfigTab(contentPage);
-      await addResponseConfig(contentPage);
+      const tab = contentPage.locator('.el-tabs__item:has-text("返回参数"), .response-config-tab').first();
+      await tab.click();
+      await contentPage.waitForTimeout(300);
+      const addBtn = contentPage.locator('button:has-text("添加响应"), .add-response-btn, [title*="添加响应"]').first();
+      await addBtn.click();
+      await contentPage.waitForTimeout(300);
       await contentPage.waitForTimeout(300);
       await collapseResponseConfig(contentPage, 0);
       await contentPage.waitForTimeout(300);
-      await switchToTab(contentPage, 'Params');
+      const targetName = 'Params';
+      const tab2 = contentPage.locator(`.el-tabs__item:has-text("${targetName}")`);
+      await tab2.click();
       await contentPage.waitForTimeout(300);
-      await switchToResponseConfigTab(contentPage);
+      await contentPage.waitForTimeout(300);
+      const tab3 = contentPage.locator('.el-tabs__item:has-text("返回参数"), .response-config-tab').first();
+      await tab3.click();
+      await contentPage.waitForTimeout(300);
       await contentPage.waitForTimeout(300);
       await verifyResponseConfigCollapsed(contentPage, 0);
     });

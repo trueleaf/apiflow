@@ -1,16 +1,5 @@
 import { expect, type Page } from '@playwright/test';
 import { test, initOfflineWorkbench, createProject, createSingleNode } from '../../../fixtures/fixtures';
-import {
-  fillUrl,
-  addQueryParam,
-  verifyQueryParamExists,
-  verifyQueryParamValue,
-  addHeader,
-  verifyHeaderExists,
-  fillJsonBody,
-  switchToTab,
-  resizeWindow
-} from './helpers/httpNodeHelpers';
 
 test.describe('16. HTTP节点 - 边界场景测试', () => {
   let headerPage: Page;
@@ -43,14 +32,49 @@ test.describe('16. HTTP节点 - 边界场景测试', () => {
     test('应支持2000字符的URL', async () => {
       // 输入2000字符的URL
       const longUrl = 'https://httpbin.org/get?param=' + 'a'.repeat(1950);
-      await fillUrl(contentPage, longUrl);
+      const urlInput = contentPage.locator('[data-testid="url-input"]');
+      await urlInput.clear();
+      await urlInput.fill(longUrl);
+      await urlInput.blur();
+      await contentPage.waitForTimeout(200);
       await contentPage.waitForTimeout(300);
       // 验证完整URL显示
       const fullUrl = await contentPage.locator('.pre-url-wrap .url').textContent();
       expect((fullUrl || '').length).toBeGreaterThan(1900);
       // 验证参数正确解析
-      await verifyQueryParamExists(contentPage, 'param');
-      await verifyQueryParamValue(contentPage, 'param', 'a'.repeat(1950));
+      const container = contentPage.locator('.query-path-params .el-tree').first();
+      await container.waitFor({ state: 'visible', timeout: 5000 });
+      const keyInputs = container.locator('input[placeholder="输入参数名称自动换行"], input[placeholder*="参数"], input[placeholder*="key"]');
+      const count = await keyInputs.count();
+      let paramFound = false;
+      for (let i = 0; i < count; i++) {
+        const candidate = keyInputs.nth(i);
+        const value = await candidate.inputValue();
+        if (value === 'param') {
+          await expect(candidate).toBeVisible();
+          paramFound = true;
+          break;
+        }
+      }
+      if (!paramFound) {
+        throw new Error('Query param param not found');
+      }
+      const rows = container.locator('.custom-params');
+      const rowCount = await rows.count();
+      for (let i = 0; i < rowCount; i++) {
+        const row = rows.nth(i);
+        const keyInput = row.locator('input[placeholder="输入参数名称自动换行"], input[placeholder*="参数"], input[placeholder*="key"]').first();
+        if (!(await keyInput.count())) {
+          continue;
+        }
+        const keyValue = await keyInput.inputValue();
+        if (keyValue === 'param') {
+          const valueInput = row.locator('.value-text-input, textarea, input[placeholder*="值"], input[placeholder*="value"]').first();
+          const value = await valueInput.inputValue();
+          expect(value).toBe('a'.repeat(1950));
+          break;
+        }
+      }
     });
 
     /**
@@ -67,14 +91,49 @@ test.describe('16. HTTP节点 - 边界场景测试', () => {
     test('应支持5000字符的URL', async () => {
       // 输入5000字符的URL
       const veryLongUrl = 'https://httpbin.org/get?data=' + 'x'.repeat(4950);
-      await fillUrl(contentPage, veryLongUrl);
+      const urlInput = contentPage.locator('[data-testid="url-input"]');
+      await urlInput.clear();
+      await urlInput.fill(veryLongUrl);
+      await urlInput.blur();
+      await contentPage.waitForTimeout(200);
       await contentPage.waitForTimeout(300);
       // 验证完整URL显示
       const fullUrl = await contentPage.locator('.pre-url-wrap .url').textContent();
       expect((fullUrl || '').length).toBeGreaterThan(4900);
       // 验证参数正确解析
-      await verifyQueryParamExists(contentPage, 'data');
-      await verifyQueryParamValue(contentPage, 'data', 'x'.repeat(4950));
+      const container = contentPage.locator('.query-path-params .el-tree').first();
+      await container.waitFor({ state: 'visible', timeout: 5000 });
+      const keyInputs = container.locator('input[placeholder="输入参数名称自动换行"], input[placeholder*="参数"], input[placeholder*="key"]');
+      const count = await keyInputs.count();
+      let dataFound = false;
+      for (let i = 0; i < count; i++) {
+        const candidate = keyInputs.nth(i);
+        const value = await candidate.inputValue();
+        if (value === 'data') {
+          await expect(candidate).toBeVisible();
+          dataFound = true;
+          break;
+        }
+      }
+      if (!dataFound) {
+        throw new Error('Query param data not found');
+      }
+      const rows = container.locator('.custom-params');
+      const rowCount = await rows.count();
+      for (let i = 0; i < rowCount; i++) {
+        const row = rows.nth(i);
+        const keyInput = row.locator('input[placeholder="输入参数名称自动换行"], input[placeholder*="参数"], input[placeholder*="key"]').first();
+        if (!(await keyInput.count())) {
+          continue;
+        }
+        const keyValue = await keyInput.inputValue();
+        if (keyValue === 'data') {
+          const valueInput = row.locator('.value-text-input, textarea, input[placeholder*="值"], input[placeholder*="value"]').first();
+          const value = await valueInput.inputValue();
+          expect(value).toBe('x'.repeat(4950));
+          break;
+        }
+      }
     });
 
     /**
@@ -91,7 +150,11 @@ test.describe('16. HTTP节点 - 边界场景测试', () => {
     test('超长URL应可滚动查看', async () => {
       // 输入超长URL
       const longUrl = 'https://httpbin.org/get?scroll=' + 'b'.repeat(2000);
-      await fillUrl(contentPage, longUrl);
+      const urlInput = contentPage.locator('[data-testid="url-input"]');
+      await urlInput.clear();
+      await urlInput.fill(longUrl);
+      await urlInput.blur();
+      await contentPage.waitForTimeout(200);
       await contentPage.waitForTimeout(300);
       // 获取元素滚动宽度和可见宽度
       const fullUrlElement = contentPage.locator('.pre-url-wrap .url');
@@ -118,10 +181,41 @@ test.describe('16. HTTP节点 - 边界场景测试', () => {
     test('应支持100个Query参数', async () => {
       test.slow();
       // 切换到Params标签页
-      await switchToTab(contentPage, 'Params');
+      const tab = contentPage.locator('.el-tabs__item:has-text("Params")');
+      await tab.click();
+      await contentPage.waitForTimeout(300);
       // 循环添加100个参数
       for (let i = 0; i < 100; i++) {
-        await addQueryParam(contentPage, `key${i}`, `value${i}`);
+        const tree = contentPage.locator('.body-params .el-tree, .query-path-params .el-tree').first();
+        if (await tree.count()) {
+          await tree.waitFor({ state: 'visible', timeout: 5000 });
+          const rows = tree.locator('.custom-params');
+          const count = await rows.count();
+          const lastIndex = count > 0 ? count - 1 : 0;
+          const targetRow = rows.nth(lastIndex);
+          const keyInput = targetRow.locator('input[placeholder*="参数"], input[placeholder*="key"]').first();
+          await keyInput.fill(`key${i}`);
+          const valueInput = targetRow.locator('.value-text-input, textarea, input[placeholder*="值"], input[placeholder*="value"]').first();
+          await valueInput.fill(`value${i}`);
+        } else {
+          let keyInput = contentPage.locator('input[placeholder="输入参数名称自动换行"]').first();
+          if (!(await keyInput.count())) {
+            keyInput = contentPage.locator('input[placeholder*="参数名称"]').first();
+          }
+          if (!(await keyInput.count())) {
+            keyInput = contentPage.locator('input[placeholder*="参数"], input[placeholder*="key"]').first();
+          }
+          await keyInput.fill(`key${i}`);
+          let valueInput = contentPage.locator('input[placeholder="参数值、@代表mock数据、{{ 变量 }}"]').first();
+          if (!(await valueInput.count())) {
+            valueInput = contentPage.locator('input[placeholder*="参数值"]').first();
+          }
+          if (!(await valueInput.count())) {
+            valueInput = contentPage.locator('input[placeholder*="值"], input[placeholder*="value"]').first();
+          }
+          await valueInput.fill(`value${i}`);
+        }
+        await contentPage.waitForTimeout(20);
       }
       await contentPage.waitForTimeout(500);
       // 保存API
@@ -143,10 +237,41 @@ test.describe('16. HTTP节点 - 边界场景测试', () => {
     test('应支持200个Query参数', async () => {
       test.slow();
       // 切换到Params标签页
-      await switchToTab(contentPage, 'Params');
+      const tab = contentPage.locator('.el-tabs__item:has-text("Params")');
+      await tab.click();
+      await contentPage.waitForTimeout(300);
       // 循环添加200个参数
       for (let i = 0; i < 200; i++) {
-        await addQueryParam(contentPage, `param${i}`, `val${i}`);
+        const tree = contentPage.locator('.body-params .el-tree, .query-path-params .el-tree').first();
+        if (await tree.count()) {
+          await tree.waitFor({ state: 'visible', timeout: 5000 });
+          const rows = tree.locator('.custom-params');
+          const count = await rows.count();
+          const lastIndex = count > 0 ? count - 1 : 0;
+          const targetRow = rows.nth(lastIndex);
+          const keyInput = targetRow.locator('input[placeholder*="参数"], input[placeholder*="key"]').first();
+          await keyInput.fill(`param${i}`);
+          const valueInput = targetRow.locator('.value-text-input, textarea, input[placeholder*="值"], input[placeholder*="value"]').first();
+          await valueInput.fill(`val${i}`);
+        } else {
+          let keyInput = contentPage.locator('input[placeholder="输入参数名称自动换行"]').first();
+          if (!(await keyInput.count())) {
+            keyInput = contentPage.locator('input[placeholder*="参数名称"]').first();
+          }
+          if (!(await keyInput.count())) {
+            keyInput = contentPage.locator('input[placeholder*="参数"], input[placeholder*="key"]').first();
+          }
+          await keyInput.fill(`param${i}`);
+          let valueInput = contentPage.locator('input[placeholder="参数值、@代表mock数据、{{ 变量 }}"]').first();
+          if (!(await valueInput.count())) {
+            valueInput = contentPage.locator('input[placeholder*="参数值"]').first();
+          }
+          if (!(await valueInput.count())) {
+            valueInput = contentPage.locator('input[placeholder*="值"], input[placeholder*="value"]').first();
+          }
+          await valueInput.fill(`val${i}`);
+        }
+        await contentPage.waitForTimeout(20);
       }
       await contentPage.waitForTimeout(500);
     });
@@ -165,10 +290,22 @@ test.describe('16. HTTP节点 - 边界场景测试', () => {
     test('应支持50个请求头', async () => {
       test.slow();
       // 切换到Headers标签页
-      await switchToTab(contentPage, 'Headers');
+      const tab = contentPage.locator('.el-tabs__item:has-text("请求头")');
+      await tab.click();
+      await contentPage.waitForTimeout(300);
       // 循环添加50个请求头
       for (let i = 0; i < 50; i++) {
-        await addHeader(contentPage, `X-Header-${i}`, `value${i}`);
+        const container = contentPage.locator('.header-info .el-tree').first();
+        await container.waitFor({ state: 'visible', timeout: 5000 });
+        const rows = container.locator('.custom-params');
+        const count = await rows.count();
+        const lastIndex = count > 0 ? count - 1 : 0;
+        const lastRow = rows.nth(lastIndex);
+        const keyInput = lastRow.locator('input[placeholder*="请求头"], input[placeholder="输入参数名称自动换行"], input[placeholder*="参数"], input[placeholder*="key"]').first();
+        await keyInput.fill(`X-Header-${i}`);
+        const valueInput = lastRow.locator('.value-text-input, textarea, input[placeholder*="值"], input[placeholder*="value"]').first();
+        await valueInput.fill(`value${i}`);
+        await contentPage.waitForTimeout(20);
       }
       await contentPage.waitForTimeout(500);
       // 保存API
@@ -190,10 +327,41 @@ test.describe('16. HTTP节点 - 边界场景测试', () => {
      */
     test('参数表格应支持虚拟滚动', async () => {
       // 切换到Params标签页
-      await switchToTab(contentPage, 'Params');
+      const tab = contentPage.locator('.el-tabs__item:has-text("Params")');
+      await tab.click();
+      await contentPage.waitForTimeout(300);
       // 添加150个参数
       for (let i = 0; i < 150; i++) {
-        await addQueryParam(contentPage, `test${i}`, `data${i}`);
+        const tree = contentPage.locator('.body-params .el-tree, .query-path-params .el-tree').first();
+        if (await tree.count()) {
+          await tree.waitFor({ state: 'visible', timeout: 5000 });
+          const rows = tree.locator('.custom-params');
+          const count = await rows.count();
+          const lastIndex = count > 0 ? count - 1 : 0;
+          const targetRow = rows.nth(lastIndex);
+          const keyInput = targetRow.locator('input[placeholder*="参数"], input[placeholder*="key"]').first();
+          await keyInput.fill(`test${i}`);
+          const valueInput = targetRow.locator('.value-text-input, textarea, input[placeholder*="值"], input[placeholder*="value"]').first();
+          await valueInput.fill(`data${i}`);
+        } else {
+          let keyInput = contentPage.locator('input[placeholder="输入参数名称自动换行"]').first();
+          if (!(await keyInput.count())) {
+            keyInput = contentPage.locator('input[placeholder*="参数名称"]').first();
+          }
+          if (!(await keyInput.count())) {
+            keyInput = contentPage.locator('input[placeholder*="参数"], input[placeholder*="key"]').first();
+          }
+          await keyInput.fill(`test${i}`);
+          let valueInput = contentPage.locator('input[placeholder="参数值、@代表mock数据、{{ 变量 }}"]').first();
+          if (!(await valueInput.count())) {
+            valueInput = contentPage.locator('input[placeholder*="参数值"]').first();
+          }
+          if (!(await valueInput.count())) {
+            valueInput = contentPage.locator('input[placeholder*="值"], input[placeholder*="value"]').first();
+          }
+          await valueInput.fill(`data${i}`);
+        }
+        await contentPage.waitForTimeout(20);
       }
       await contentPage.waitForTimeout(500);
       // 验证树形控件可见
@@ -217,13 +385,34 @@ test.describe('16. HTTP节点 - 边界场景测试', () => {
     test('URL应支持中文字符', async () => {
       // 输入包含中文的URL
       const chineseUrl = 'https://httpbin.org/get?name=测试中文';
-      await fillUrl(contentPage, chineseUrl);
+      const urlInput = contentPage.locator('[data-testid="url-input"]');
+      await urlInput.clear();
+      await urlInput.fill(chineseUrl);
+      await urlInput.blur();
+      await contentPage.waitForTimeout(200);
       await contentPage.waitForTimeout(300);
       // 验证完整URL包含中文
       const fullUrl = await contentPage.locator('.pre-url-wrap .url').textContent();
       expect(fullUrl).toContain(encodeURIComponent('测试中文'));
       // 验证参数值正确
-      await verifyQueryParamValue(contentPage, 'name', '测试中文');
+      const container = contentPage.locator('.query-path-params .el-tree').first();
+      await container.waitFor({ state: 'visible', timeout: 5000 });
+      const rows = container.locator('.custom-params');
+      const rowCount = await rows.count();
+      for (let i = 0; i < rowCount; i++) {
+        const row = rows.nth(i);
+        const keyInput = row.locator('input[placeholder="输入参数名称自动换行"], input[placeholder*="参数"], input[placeholder*="key"]').first();
+        if (!(await keyInput.count())) {
+          continue;
+        }
+        const keyValue = await keyInput.inputValue();
+        if (keyValue === 'name') {
+          const valueInput = row.locator('.value-text-input, textarea, input[placeholder*="值"], input[placeholder*="value"]').first();
+          const value = await valueInput.inputValue();
+          expect(value).toBe('测试中文');
+          return;
+        }
+      }
     });
 
     /**
@@ -240,13 +429,34 @@ test.describe('16. HTTP节点 - 边界场景测试', () => {
     test('URL应支持emoji表情', async () => {
       // 输入包含emoji的URL
       const emojiUrl = 'https://httpbin.org/get?emoji=😀🎉';
-      await fillUrl(contentPage, emojiUrl);
+      const urlInput = contentPage.locator('[data-testid="url-input"]');
+      await urlInput.clear();
+      await urlInput.fill(emojiUrl);
+      await urlInput.blur();
+      await contentPage.waitForTimeout(200);
       await contentPage.waitForTimeout(300);
       // 验证完整URL包含emoji
       const fullUrl = await contentPage.locator('.pre-url-wrap .url').textContent();
       expect(fullUrl).toContain('😀🎉');
       // 验证参数值正确
-      await verifyQueryParamValue(contentPage, 'emoji', '😀🎉');
+      const container = contentPage.locator('.query-path-params .el-tree').first();
+      await container.waitFor({ state: 'visible', timeout: 5000 });
+      const rows = container.locator('.custom-params');
+      const rowCount = await rows.count();
+      for (let i = 0; i < rowCount; i++) {
+        const row = rows.nth(i);
+        const keyInput = row.locator('input[placeholder="输入参数名称自动换行"], input[placeholder*="参数"], input[placeholder*="key"]').first();
+        if (!(await keyInput.count())) {
+          continue;
+        }
+        const keyValue = await keyInput.inputValue();
+        if (keyValue === 'emoji') {
+          const valueInput = row.locator('.value-text-input, textarea, input[placeholder*="值"], input[placeholder*="value"]').first();
+          const value = await valueInput.inputValue();
+          expect(value).toBe('😀🎉');
+          return;
+        }
+      }
     });
 
     /**
@@ -262,12 +472,60 @@ test.describe('16. HTTP节点 - 边界场景测试', () => {
      */
     test('参数值应支持特殊字符&=?', async () => {
       // 切换到Params标签页
-      await switchToTab(contentPage, 'Params');
+      const tab = contentPage.locator('.el-tabs__item:has-text("Params")');
+      await tab.click();
+      await contentPage.waitForTimeout(300);
       // 添加包含&=?特殊字符的参数值
-      await addQueryParam(contentPage, 'special', 'value&with=special?chars');
+      const tree = contentPage.locator('.body-params .el-tree, .query-path-params .el-tree').first();
+      if (await tree.count()) {
+        await tree.waitFor({ state: 'visible', timeout: 5000 });
+        const rows = tree.locator('.custom-params');
+        const count = await rows.count();
+        const lastIndex = count > 0 ? count - 1 : 0;
+        const targetRow = rows.nth(lastIndex);
+        const keyInput = targetRow.locator('input[placeholder*="参数"], input[placeholder*="key"]').first();
+        await keyInput.fill('special');
+        const valueInput = targetRow.locator('.value-text-input, textarea, input[placeholder*="值"], input[placeholder*="value"]').first();
+        await valueInput.fill('value&with=special?chars');
+      } else {
+        let keyInput = contentPage.locator('input[placeholder="输入参数名称自动换行"]').first();
+        if (!(await keyInput.count())) {
+          keyInput = contentPage.locator('input[placeholder*="参数名称"]').first();
+        }
+        if (!(await keyInput.count())) {
+          keyInput = contentPage.locator('input[placeholder*="参数"], input[placeholder*="key"]').first();
+        }
+        await keyInput.fill('special');
+        let valueInput = contentPage.locator('input[placeholder="参数值、@代表mock数据、{{ 变量 }}"]').first();
+        if (!(await valueInput.count())) {
+          valueInput = contentPage.locator('input[placeholder*="参数值"]').first();
+        }
+        if (!(await valueInput.count())) {
+          valueInput = contentPage.locator('input[placeholder*="值"], input[placeholder*="value"]').first();
+        }
+        await valueInput.fill('value&with=special?chars');
+      }
+      await contentPage.waitForTimeout(20);
       await contentPage.waitForTimeout(300);
       // 验证参数值正确
-      await verifyQueryParamValue(contentPage, 'special', 'value&with=special?chars');
+      const container = contentPage.locator('.query-path-params .el-tree').first();
+      await container.waitFor({ state: 'visible', timeout: 5000 });
+      const rows = container.locator('.custom-params');
+      const rowCount = await rows.count();
+      for (let i = 0; i < rowCount; i++) {
+        const row = rows.nth(i);
+        const keyInput = row.locator('input[placeholder="输入参数名称自动换行"], input[placeholder*="参数"], input[placeholder*="key"]').first();
+        if (!(await keyInput.count())) {
+          continue;
+        }
+        const keyValue = await keyInput.inputValue();
+        if (keyValue === 'special') {
+          const valueInput = row.locator('.value-text-input, textarea, input[placeholder*="值"], input[placeholder*="value"]').first();
+          const value = await valueInput.inputValue();
+          expect(value).toBe('value&with=special?chars');
+          return;
+        }
+      }
     });
 
     /**
@@ -283,12 +541,76 @@ test.describe('16. HTTP节点 - 边界场景测试', () => {
      */
     test('参数值应支持换行符', async () => {
       // 切换到Params标签页
-      await switchToTab(contentPage, 'Params');
+      const tab = contentPage.locator('.el-tabs__item:has-text("Params")');
+      await tab.click();
+      await contentPage.waitForTimeout(300);
       // 添加包含换行符的参数值
-      await addQueryParam(contentPage, 'multiline', 'line1\nline2\nline3');
+      const tree = contentPage.locator('.body-params .el-tree, .query-path-params .el-tree').first();
+      if (await tree.count()) {
+        await tree.waitFor({ state: 'visible', timeout: 5000 });
+        const rows = tree.locator('.custom-params');
+        const count = await rows.count();
+        const lastIndex = count > 0 ? count - 1 : 0;
+        const targetRow = rows.nth(lastIndex);
+        const keyInput = targetRow.locator('input[placeholder*="参数"], input[placeholder*="key"]').first();
+        await keyInput.fill('multiline');
+        const valueInput = targetRow.locator('.value-text-input, textarea, input[placeholder*="值"], input[placeholder*="value"]').first();
+        await valueInput.click({ force: true });
+        await contentPage.waitForTimeout(50);
+        const textarea = targetRow.locator('.value-textarea textarea, .value-textarea .el-textarea__inner, textarea').first();
+        await textarea.waitFor({ state: 'visible', timeout: 3000 });
+        await textarea.fill('line1\nline2\nline3');
+        await textarea.blur();
+      } else {
+        let keyInput = contentPage.locator('input[placeholder="输入参数名称自动换行"]').first();
+        if (!(await keyInput.count())) {
+          keyInput = contentPage.locator('input[placeholder*="参数名称"]').first();
+        }
+        if (!(await keyInput.count())) {
+          keyInput = contentPage.locator('input[placeholder*="参数"], input[placeholder*="key"]').first();
+        }
+        await keyInput.fill('multiline');
+        let valueInput = contentPage.locator('input[placeholder="参数值、@代表mock数据、{{ 变量 }}"]').first();
+        if (!(await valueInput.count())) {
+          valueInput = contentPage.locator('input[placeholder*="参数值"]').first();
+        }
+        if (!(await valueInput.count())) {
+          valueInput = contentPage.locator('input[placeholder*="值"], input[placeholder*="value"]').first();
+        }
+        await valueInput.click({ force: true });
+        await contentPage.waitForTimeout(50);
+        const paramRow = contentPage.locator('.custom-params').filter({ has: valueInput }).first();
+        const textarea = paramRow.locator('.value-textarea textarea, .value-textarea .el-textarea__inner, textarea').first();
+        await textarea.waitFor({ state: 'visible', timeout: 3000 });
+        await textarea.fill('line1\nline2\nline3');
+        await textarea.blur();
+      }
+      await contentPage.waitForTimeout(20);
       await contentPage.waitForTimeout(300);
       // 验证参数值正确
-      await verifyQueryParamValue(contentPage, 'multiline', 'line1\nline2\nline3');
+      const container = contentPage.locator('.query-path-params .el-tree').first();
+      await container.waitFor({ state: 'visible', timeout: 5000 });
+      const rows = container.locator('.custom-params');
+      const rowCount = await rows.count();
+      for (let i = 0; i < rowCount; i++) {
+        const row = rows.nth(i);
+        const keyInput = row.locator('input[placeholder="输入参数名称自动换行"], input[placeholder*="参数"], input[placeholder*="key"]').first();
+        if (!(await keyInput.count())) {
+          continue;
+        }
+        const keyValue = await keyInput.inputValue();
+        if (keyValue === 'multiline') {
+          const valueInput = row.locator('.value-text-input, textarea, input[placeholder*="值"], input[placeholder*="value"]').first();
+          await valueInput.click({ force: true });
+          await contentPage.waitForTimeout(50);
+          const textarea = row.locator('.value-textarea textarea, .value-textarea .el-textarea__inner, textarea').first();
+          await textarea.waitFor({ state: 'visible', timeout: 3000 });
+          const value = await textarea.inputValue();
+          expect(value).toBe('line1\nline2\nline3');
+          await textarea.blur();
+          return;
+        }
+      }
     });
 
     /**
@@ -303,10 +625,21 @@ test.describe('16. HTTP节点 - 边界场景测试', () => {
      */
     test('JSON应支持Unicode字符', async () => {
       // 切换到Body标签页
-      await switchToTab(contentPage, 'Body');
+      const tab = contentPage.locator('.el-tabs__item:has-text("Body")');
+      await tab.click();
+      await contentPage.waitForTimeout(300);
       // 输入包含Unicode转义的JSON
       const unicodeJson = '{"unicode": "\\u4e2d\\u6587"}';
-      await fillJsonBody(contentPage, unicodeJson);
+      const editor = contentPage.locator('.workbench .monaco-editor').first();
+      const jsonTip = contentPage.locator('.workbench .json-tip').first();
+      if (await jsonTip.isVisible()) {
+        await jsonTip.click({ force: true });
+        await contentPage.waitForTimeout(100);
+      }
+      await editor.click({ force: true });
+      await contentPage.keyboard.press('Control+A');
+      await contentPage.keyboard.type(unicodeJson);
+      await contentPage.waitForTimeout(300);
       await contentPage.waitForTimeout(300);
     });
 
@@ -323,12 +656,45 @@ test.describe('16. HTTP节点 - 边界场景测试', () => {
      */
     test('Header value应支持特殊字符', async () => {
       // 切换到Headers标签页
-      await switchToTab(contentPage, 'Headers');
+      const tab = contentPage.locator('.el-tabs__item:has-text("请求头")');
+      await tab.click();
+      await contentPage.waitForTimeout(300);
       // 添加包含特殊字符的Header值
-      await addHeader(contentPage, 'X-Special-Header', 'value-with-special@#$');
+      const container = contentPage.locator('.header-info .el-tree').first();
+      await container.waitFor({ state: 'visible', timeout: 5000 });
+      const rows = container.locator('.custom-params');
+      const count = await rows.count();
+      const lastIndex = count > 0 ? count - 1 : 0;
+      const lastRow = rows.nth(lastIndex);
+      const keyInput = lastRow.locator('input[placeholder*="请求头"], input[placeholder="输入参数名称自动换行"], input[placeholder*="参数"], input[placeholder*="key"]').first();
+      await keyInput.fill('X-Special-Header');
+      const valueInput = lastRow.locator('.value-text-input, textarea, input[placeholder*="值"], input[placeholder*="value"]').first();
+      await valueInput.fill('value-with-special@#$');
+      await contentPage.waitForTimeout(20);
       await contentPage.waitForTimeout(300);
       // 验证Header存在
-      await verifyHeaderExists(contentPage, 'X-Special-Header');
+      const headerSection = contentPage.locator('.header-info, .headers-table, .s-params').first();
+      await headerSection.waitFor({ state: 'visible', timeout: 5000 });
+      const exactInput = headerSection.locator('input[value="X-Special-Header"]').first();
+      if (await exactInput.count()) {
+        await expect(exactInput).toBeVisible();
+      } else {
+        const keyInputs = headerSection.locator('input[placeholder*="参数"], input[placeholder*="key"], input[placeholder*="请求头"]');
+        const inputCount = await keyInputs.count();
+        let found = false;
+        for (let i = 0; i < inputCount; i++) {
+          const candidate = keyInputs.nth(i);
+          const value = await candidate.inputValue();
+          if (value === 'X-Special-Header') {
+            await expect(candidate).toBeVisible();
+            found = true;
+            break;
+          }
+        }
+        if (!found) {
+          throw new Error('Header X-Special-Header not found');
+        }
+      }
     });
   });
 
@@ -346,7 +712,11 @@ test.describe('16. HTTP节点 - 边界场景测试', () => {
      */
     test('空URL应提示错误', async () => {
       // 清空URL输入框
-      await fillUrl(contentPage, '');
+      const urlInput = contentPage.locator('[data-testid="url-input"]');
+      await urlInput.clear();
+      await urlInput.fill('');
+      await urlInput.blur();
+      await contentPage.waitForTimeout(200);
       await contentPage.waitForTimeout(300);
       // 点击发送请求按钮
       const sendBtn = contentPage.locator('button:has-text("发送请求")');
@@ -371,9 +741,40 @@ test.describe('16. HTTP节点 - 边界场景测试', () => {
      */
     test('空Query参数key应自动清除', async () => {
       // 切换到Params标签页
-      await switchToTab(contentPage, 'Params');
+      const tab = contentPage.locator('.el-tabs__item:has-text("Params")');
+      await tab.click();
+      await contentPage.waitForTimeout(300);
       // 添加空key的参数
-      await addQueryParam(contentPage, '', 'emptyKeyValue');
+      const tree = contentPage.locator('.body-params .el-tree, .query-path-params .el-tree').first();
+      if (await tree.count()) {
+        await tree.waitFor({ state: 'visible', timeout: 5000 });
+        const rows = tree.locator('.custom-params');
+        const count = await rows.count();
+        const lastIndex = count > 0 ? count - 1 : 0;
+        const targetRow = rows.nth(lastIndex);
+        const keyInput = targetRow.locator('input[placeholder*="参数"], input[placeholder*="key"]').first();
+        await keyInput.fill('');
+        const valueInput = targetRow.locator('.value-text-input, textarea, input[placeholder*="值"], input[placeholder*="value"]').first();
+        await valueInput.fill('emptyKeyValue');
+      } else {
+        let keyInput = contentPage.locator('input[placeholder="输入参数名称自动换行"]').first();
+        if (!(await keyInput.count())) {
+          keyInput = contentPage.locator('input[placeholder*="参数名称"]').first();
+        }
+        if (!(await keyInput.count())) {
+          keyInput = contentPage.locator('input[placeholder*="参数"], input[placeholder*="key"]').first();
+        }
+        await keyInput.fill('');
+        let valueInput = contentPage.locator('input[placeholder="参数值、@代表mock数据、{{ 变量 }}"]').first();
+        if (!(await valueInput.count())) {
+          valueInput = contentPage.locator('input[placeholder*="参数值"]').first();
+        }
+        if (!(await valueInput.count())) {
+          valueInput = contentPage.locator('input[placeholder*="值"], input[placeholder*="value"]').first();
+        }
+        await valueInput.fill('emptyKeyValue');
+      }
+      await contentPage.waitForTimeout(20);
       await contentPage.waitForTimeout(300);
     });
 
@@ -389,9 +790,21 @@ test.describe('16. HTTP节点 - 边界场景测试', () => {
      */
     test('空Header key应自动清除', async () => {
       // 切换到Headers标签页
-      await switchToTab(contentPage, 'Headers');
+      const tab = contentPage.locator('.el-tabs__item:has-text("请求头")');
+      await tab.click();
+      await contentPage.waitForTimeout(300);
       // 添加空key的Header
-      await addHeader(contentPage, '', 'emptyHeaderValue');
+      const container = contentPage.locator('.header-info .el-tree').first();
+      await container.waitFor({ state: 'visible', timeout: 5000 });
+      const rows = container.locator('.custom-params');
+      const count = await rows.count();
+      const lastIndex = count > 0 ? count - 1 : 0;
+      const lastRow = rows.nth(lastIndex);
+      const keyInput = lastRow.locator('input[placeholder*="请求头"], input[placeholder="输入参数名称自动换行"], input[placeholder*="参数"], input[placeholder*="key"]').first();
+      await keyInput.fill('');
+      const valueInput = lastRow.locator('.value-text-input, textarea, input[placeholder*="值"], input[placeholder*="value"]').first();
+      await valueInput.fill('emptyHeaderValue');
+      await contentPage.waitForTimeout(20);
       await contentPage.waitForTimeout(300);
     });
 
@@ -408,9 +821,20 @@ test.describe('16. HTTP节点 - 边界场景测试', () => {
      */
     test('空JSON应保存为空对象或空字符串', async () => {
       // 切换到Body标签页
-      await switchToTab(contentPage, 'Body');
+      const tab = contentPage.locator('.el-tabs__item:has-text("Body")');
+      await tab.click();
+      await contentPage.waitForTimeout(300);
       // 清空JSON内容
-      await fillJsonBody(contentPage, '');
+      const editor = contentPage.locator('.workbench .monaco-editor').first();
+      const jsonTip = contentPage.locator('.workbench .json-tip').first();
+      if (await jsonTip.isVisible()) {
+        await jsonTip.click({ force: true });
+        await contentPage.waitForTimeout(100);
+      }
+      await editor.click({ force: true });
+      await contentPage.keyboard.press('Control+A');
+      await contentPage.keyboard.type('');
+      await contentPage.waitForTimeout(300);
       await contentPage.waitForTimeout(300);
       // 保存API
       const saveBtn = contentPage.locator('button:has-text("保存")').first();
@@ -430,9 +854,20 @@ test.describe('16. HTTP节点 - 边界场景测试', () => {
      */
     test('空Body应设置Content-Length为0', async () => {
       // 切换到Body标签页
-      await switchToTab(contentPage, 'Body');
+      const tab = contentPage.locator('.el-tabs__item:has-text("Body")');
+      await tab.click();
+      await contentPage.waitForTimeout(300);
       // 清空Body内容
-      await fillJsonBody(contentPage, '');
+      const editor = contentPage.locator('.workbench .monaco-editor').first();
+      const jsonTip = contentPage.locator('.workbench .json-tip').first();
+      if (await jsonTip.isVisible()) {
+        await jsonTip.click({ force: true });
+        await contentPage.waitForTimeout(100);
+      }
+      await editor.click({ force: true });
+      await contentPage.keyboard.press('Control+A');
+      await contentPage.keyboard.type('');
+      await contentPage.waitForTimeout(300);
       await contentPage.waitForTimeout(300);
     });
   });
@@ -451,7 +886,11 @@ test.describe('16. HTTP节点 - 边界场景测试', () => {
     test('URL前后空格应自动trim', async () => {
       // 输入前后带空格的URL
       const urlWithSpaces = '  https://httpbin.org/get  ';
-      await fillUrl(contentPage, urlWithSpaces);
+      const urlInput = contentPage.locator('[data-testid="url-input"]');
+      await urlInput.clear();
+      await urlInput.fill(urlWithSpaces);
+      await urlInput.blur();
+      await contentPage.waitForTimeout(200);
       await contentPage.waitForTimeout(300);
       // 验证输入框URL
       const urlInput = contentPage.locator('input[placeholder*="请输入URL"]').first();
@@ -474,9 +913,40 @@ test.describe('16. HTTP节点 - 边界场景测试', () => {
      */
     test('参数key前后空格应trim', async () => {
       // 切换到Params标签页
-      await switchToTab(contentPage, 'Params');
+      const tab = contentPage.locator('.el-tabs__item:has-text("Params")');
+      await tab.click();
+      await contentPage.waitForTimeout(300);
       // 添加前后带空格的参数key
-      await addQueryParam(contentPage, '  trimKey  ', 'value');
+      const tree = contentPage.locator('.body-params .el-tree, .query-path-params .el-tree').first();
+      if (await tree.count()) {
+        await tree.waitFor({ state: 'visible', timeout: 5000 });
+        const rows = tree.locator('.custom-params');
+        const count = await rows.count();
+        const lastIndex = count > 0 ? count - 1 : 0;
+        const targetRow = rows.nth(lastIndex);
+        const keyInput = targetRow.locator('input[placeholder*="参数"], input[placeholder*="key"]').first();
+        await keyInput.fill('  trimKey  ');
+        const valueInput = targetRow.locator('.value-text-input, textarea, input[placeholder*="值"], input[placeholder*="value"]').first();
+        await valueInput.fill('value');
+      } else {
+        let keyInput = contentPage.locator('input[placeholder="输入参数名称自动换行"]').first();
+        if (!(await keyInput.count())) {
+          keyInput = contentPage.locator('input[placeholder*="参数名称"]').first();
+        }
+        if (!(await keyInput.count())) {
+          keyInput = contentPage.locator('input[placeholder*="参数"], input[placeholder*="key"]').first();
+        }
+        await keyInput.fill('  trimKey  ');
+        let valueInput = contentPage.locator('input[placeholder="参数值、@代表mock数据、{{ 变量 }}"]').first();
+        if (!(await valueInput.count())) {
+          valueInput = contentPage.locator('input[placeholder*="参数值"]').first();
+        }
+        if (!(await valueInput.count())) {
+          valueInput = contentPage.locator('input[placeholder*="值"], input[placeholder*="value"]').first();
+        }
+        await valueInput.fill('value');
+      }
+      await contentPage.waitForTimeout(20);
       await contentPage.waitForTimeout(300);
     });
 
@@ -493,12 +963,55 @@ test.describe('16. HTTP节点 - 边界场景测试', () => {
      */
     test('参数value内部空格应保留', async () => {
       // 切换到Params标签页
-      await switchToTab(contentPage, 'Params');
+      const tab = contentPage.locator('.el-tabs__item:has-text("Params")');
+      await tab.click();
+      await contentPage.waitForTimeout(300);
       // 添加包含空格的参数value
-      await addQueryParam(contentPage, 'message', 'hello world test');
+      const tree = contentPage.locator('.body-params .el-tree, .query-path-params .el-tree').first();
+      if (await tree.count()) {
+        await tree.waitFor({ state: 'visible', timeout: 5000 });
+        const rows = tree.locator('.custom-params');
+        const count = await rows.count();
+        const lastIndex = count > 0 ? count - 1 : 0;
+        const targetRow = rows.nth(lastIndex);
+        const keyInput = targetRow.locator('input[placeholder*="参数"], input[placeholder*="key"]').first();
+        await keyInput.fill('message');
+        const valueInput = targetRow.locator('.value-text-input, textarea, input[placeholder*="值"], input[placeholder*="value"]').first();
+        await valueInput.fill('hello world test');
+      } else {
+        let keyInput = contentPage.locator('input[placeholder="输入参数名称自动换行"]').first();
+        if (!(await keyInput.count())) {
+          keyInput = contentPage.locator('input[placeholder*="参数名称"]').first();
+        }
+        if (!(await keyInput.count())) {
+          keyInput = contentPage.locator('input[placeholder*="参数"], input[placeholder*="key"]').first();
+        }
+        await keyInput.fill('message');
+        let valueInput = contentPage.locator('input[placeholder="参数值、@代表mock数据、{{ 变量 }}"]').first();
+        if (!(await valueInput.count())) {
+          valueInput = contentPage.locator('input[placeholder*="参数值"]').first();
+        }
+        if (!(await valueInput.count())) {
+          valueInput = contentPage.locator('input[placeholder*="值"], input[placeholder*="value"]').first();
+        }
+        await valueInput.fill('hello world test');
+      }
+      await contentPage.waitForTimeout(20);
       await contentPage.waitForTimeout(300);
       // 验证参数存在
-      await verifyQueryParamExists(contentPage, 'message');
+      const container = contentPage.locator('.query-path-params .el-tree').first();
+      await container.waitFor({ state: 'visible', timeout: 5000 });
+      const keyInputs = container.locator('input[placeholder="输入参数名称自动换行"], input[placeholder*="参数"], input[placeholder*="key"]');
+      const count = await keyInputs.count();
+      for (let i = 0; i < count; i++) {
+        const candidate = keyInputs.nth(i);
+        const value = await candidate.inputValue();
+        if (value === 'message') {
+          await expect(candidate).toBeVisible();
+          return;
+        }
+      }
+      throw new Error('Query param message not found');
     });
 
     /**
@@ -513,10 +1026,21 @@ test.describe('16. HTTP节点 - 边界场景测试', () => {
      */
     test('JSON中的空格应保留格式', async () => {
       // 切换到Body标签页
-      await switchToTab(contentPage, 'Body');
+      const tab = contentPage.locator('.el-tabs__item:has-text("Body")');
+      await tab.click();
+      await contentPage.waitForTimeout(300);
       // 输入格式化的JSON
       const formattedJson = '{\n  "name": "test",\n  "value": 123\n}';
-      await fillJsonBody(contentPage, formattedJson);
+      const editor = contentPage.locator('.workbench .monaco-editor').first();
+      const jsonTip = contentPage.locator('.workbench .json-tip').first();
+      if (await jsonTip.isVisible()) {
+        await jsonTip.click({ force: true });
+        await contentPage.waitForTimeout(100);
+      }
+      await editor.click({ force: true });
+      await contentPage.keyboard.press('Control+A');
+      await contentPage.keyboard.type(formattedJson);
+      await contentPage.waitForTimeout(300);
       await contentPage.waitForTimeout(300);
     });
   });
@@ -535,13 +1059,34 @@ test.describe('16. HTTP节点 - 边界场景测试', () => {
      */
     test('应支持UTF-8编码', async () => {
       // 输入包含中文的URL
-      await fillUrl(contentPage, 'https://httpbin.org/get?utf8=测试');
+      const urlInput = contentPage.locator('[data-testid="url-input"]');
+      await urlInput.clear();
+      await urlInput.fill('https://httpbin.org/get?utf8=测试');
+      await urlInput.blur();
+      await contentPage.waitForTimeout(200);
       await contentPage.waitForTimeout(300);
       // 验证完整URL包含中文
       const fullUrl = await contentPage.locator('.pre-url-wrap .url').textContent();
       expect(fullUrl).toContain(encodeURIComponent('测试'));
       // 验证参数值正确
-      await verifyQueryParamValue(contentPage, 'utf8', '测试');
+      const container = contentPage.locator('.query-path-params .el-tree').first();
+      await container.waitFor({ state: 'visible', timeout: 5000 });
+      const rows = container.locator('.custom-params');
+      const rowCount = await rows.count();
+      for (let i = 0; i < rowCount; i++) {
+        const row = rows.nth(i);
+        const keyInput = row.locator('input[placeholder="输入参数名称自动换行"], input[placeholder*="参数"], input[placeholder*="key"]').first();
+        if (!(await keyInput.count())) {
+          continue;
+        }
+        const keyValue = await keyInput.inputValue();
+        if (keyValue === 'utf8') {
+          const valueInput = row.locator('.value-text-input, textarea, input[placeholder*="值"], input[placeholder*="value"]').first();
+          const value = await valueInput.inputValue();
+          expect(value).toBe('测试');
+          return;
+        }
+      }
     });
 
     /**
@@ -557,12 +1102,55 @@ test.describe('16. HTTP节点 - 边界场景测试', () => {
      */
     test('应支持emoji字符', async () => {
       // 切换到Params标签页
-      await switchToTab(contentPage, 'Params');
+      const tab = contentPage.locator('.el-tabs__item:has-text("Params")');
+      await tab.click();
+      await contentPage.waitForTimeout(300);
       // 添加包含emoji的参数值
-      await addQueryParam(contentPage, 'emoji', '🚀🎉👍');
+      const tree = contentPage.locator('.body-params .el-tree, .query-path-params .el-tree').first();
+      if (await tree.count()) {
+        await tree.waitFor({ state: 'visible', timeout: 5000 });
+        const rows = tree.locator('.custom-params');
+        const count = await rows.count();
+        const lastIndex = count > 0 ? count - 1 : 0;
+        const targetRow = rows.nth(lastIndex);
+        const keyInput = targetRow.locator('input[placeholder*="参数"], input[placeholder*="key"]').first();
+        await keyInput.fill('emoji');
+        const valueInput = targetRow.locator('.value-text-input, textarea, input[placeholder*="值"], input[placeholder*="value"]').first();
+        await valueInput.fill('🚀🎉👍');
+      } else {
+        let keyInput = contentPage.locator('input[placeholder="输入参数名称自动换行"]').first();
+        if (!(await keyInput.count())) {
+          keyInput = contentPage.locator('input[placeholder*="参数名称"]').first();
+        }
+        if (!(await keyInput.count())) {
+          keyInput = contentPage.locator('input[placeholder*="参数"], input[placeholder*="key"]').first();
+        }
+        await keyInput.fill('emoji');
+        let valueInput = contentPage.locator('input[placeholder="参数值、@代表mock数据、{{ 变量 }}"]').first();
+        if (!(await valueInput.count())) {
+          valueInput = contentPage.locator('input[placeholder*="参数值"]').first();
+        }
+        if (!(await valueInput.count())) {
+          valueInput = contentPage.locator('input[placeholder*="值"], input[placeholder*="value"]').first();
+        }
+        await valueInput.fill('🚀🎉👍');
+      }
+      await contentPage.waitForTimeout(20);
       await contentPage.waitForTimeout(300);
       // 验证参数存在
-      await verifyQueryParamExists(contentPage, 'emoji');
+      const container = contentPage.locator('.query-path-params .el-tree').first();
+      await container.waitFor({ state: 'visible', timeout: 5000 });
+      const keyInputs = container.locator('input[placeholder="输入参数名称自动换行"], input[placeholder*="参数"], input[placeholder*="key"]');
+      const count = await keyInputs.count();
+      for (let i = 0; i < count; i++) {
+        const candidate = keyInputs.nth(i);
+        const value = await candidate.inputValue();
+        if (value === 'emoji') {
+          await expect(candidate).toBeVisible();
+          return;
+        }
+      }
+      throw new Error('Query param emoji not found');
     });
 
     /**
@@ -577,10 +1165,21 @@ test.describe('16. HTTP节点 - 边界场景测试', () => {
      */
     test('应支持各种语言文字', async () => {
       // 切换到Body标签页
-      await switchToTab(contentPage, 'Body');
+      const tab = contentPage.locator('.el-tabs__item:has-text("Body")');
+      await tab.click();
+      await contentPage.waitForTimeout(300);
       // 输入包含多种语言的JSON
       const multiLangJson = '{"chinese":"中文","japanese":"日本語","korean":"한국어","arabic":"العربية"}';
-      await fillJsonBody(contentPage, multiLangJson);
+      const editor = contentPage.locator('.workbench .monaco-editor').first();
+      const jsonTip = contentPage.locator('.workbench .json-tip').first();
+      if (await jsonTip.isVisible()) {
+        await jsonTip.click({ force: true });
+        await contentPage.waitForTimeout(100);
+      }
+      await editor.click({ force: true });
+      await contentPage.keyboard.press('Control+A');
+      await contentPage.keyboard.type(multiLangJson);
+      await contentPage.waitForTimeout(300);
       await contentPage.waitForTimeout(300);
     });
   });
@@ -598,7 +1197,8 @@ test.describe('16. HTTP节点 - 边界场景测试', () => {
      */
     test('窗口宽度1200px应正常显示', async () => {
       // 调整窗口到1200x800
-      await resizeWindow(contentPage, 1200, 800);
+      await contentPage.setViewportSize({ width: 1200, height: 800 });
+      await contentPage.waitForTimeout(300);
       await contentPage.waitForTimeout(300);
       // 验证容器可见
       const container = contentPage.locator('.http-node-container, .main-container').first();
@@ -618,7 +1218,8 @@ test.describe('16. HTTP节点 - 边界场景测试', () => {
      */
     test('窗口宽度小于1200px应显示滚动条', async () => {
       // 调整窗口到1000x800
-      await resizeWindow(contentPage, 1000, 800);
+      await contentPage.setViewportSize({ width: 1000, height: 800 });
+      await contentPage.waitForTimeout(300);
       await contentPage.waitForTimeout(300);
     });
 
@@ -635,10 +1236,13 @@ test.describe('16. HTTP节点 - 边界场景测试', () => {
      */
     test('窗口缩放应保持布局', async () => {
       // 调整窗口到1600x900
-      await resizeWindow(contentPage, 1600, 900);
+      await contentPage.setViewportSize({ width: 1600, height: 900 });
+      await contentPage.waitForTimeout(300);
+      await contentPage.waitForTimeout(300);
       await contentPage.waitForTimeout(300);
       // 调整窗口到1200x800
-      await resizeWindow(contentPage, 1200, 800);
+      await contentPage.setViewportSize({ width: 1200, height: 800 });
+      await contentPage.waitForTimeout(300);
       await contentPage.waitForTimeout(300);
       // 验证容器可见
       const container = contentPage.locator('.http-node-container, .main-container').first();

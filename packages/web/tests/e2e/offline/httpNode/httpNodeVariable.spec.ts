@@ -1,22 +1,5 @@
 import { expect, type Page } from '@playwright/test';
 import { test, initOfflineWorkbench, createProject, createSingleNode } from '../../../fixtures/fixtures';
-import {
-  fillUrl,
-  verifyUrlValue,
-  addQueryParam,
-  verifyQueryParamExists,
-  addHeader,
-  verifyHeaderExists,
-  fillJsonBody,
-  selectHttpMethod,
-  switchBodyMode,
-  addFormDataField,
-  fillRawBody,
-  addLocalVariable,
-  addEnvironmentVariable,
-  addGlobalVariable,
-  verifyUrlContainsVariable
-} from './helpers/httpNodeHelpers';
 
 test.describe('15. HTTP节点 - 变量替换功能测试', () => {
   let headerPage: Page;
@@ -49,9 +32,15 @@ test.describe('15. HTTP节点 - 变量替换功能测试', () => {
      */
     test('应识别{{variableName}}语法', async () => {
       // 输入包含变量的URL
-      await fillUrl(contentPage, 'http://{{host}}/api');
+      const urlInput = contentPage.locator('[data-testid="url-input"]');
+      await urlInput.clear();
+      await urlInput.fill('http://{{host}}/api');
+      await urlInput.blur();
+      await contentPage.waitForTimeout(200);
       // 验证变量被识别
-      await verifyUrlContainsVariable(contentPage, 'host');
+      const urlInputValue = contentPage.locator('[data-testid="url-input"]');
+      const value = await urlInputValue.inputValue();
+      expect(value).toContain('{{host}}');
       // 检查URL输入框样式
       const urlInput = contentPage.locator('input[placeholder*="URL"], .url-input').first();
       const className = await urlInput.getAttribute('class');
@@ -73,12 +62,39 @@ test.describe('15. HTTP节点 - 变量替换功能测试', () => {
      */
     test('应替换单个变量', async () => {
       // 添加局部变量
-      await addLocalVariable(contentPage, 'host', 'example.com');
+      const variableBtn = contentPage.locator('[title*="变量"], .variable-btn, button:has-text("变量")').first();
+      await variableBtn.click();
+      await contentPage.waitForTimeout(300);
+      const localTab = contentPage.locator('.el-tabs__item:has-text("局部"), .local-tab').first();
+      if (await localTab.isVisible()) {
+        await localTab.click();
+        await contentPage.waitForTimeout(200);
+      }
+      const table = contentPage.locator('.variable-table, .s-params').first();
+      const lastRow = table.locator('tbody tr').last();
+      const keyInput = lastRow.locator('input[placeholder*="变量"], input[placeholder*="key"]').first();
+      await keyInput.fill('host');
+      await contentPage.keyboard.press('Tab');
+      const valueInput = lastRow.locator('input[placeholder*="值"], input[placeholder*="value"]').first();
+      await valueInput.fill('example.com');
+      await valueInput.blur();
+      await contentPage.waitForTimeout(200);
+      const closeBtn = contentPage.locator('.el-dialog__close, .close-btn').first();
+      if (await closeBtn.isVisible()) {
+        await closeBtn.click();
+      }
+      await contentPage.waitForTimeout(200);
       // 在URL中使用变量
-      await fillUrl(contentPage, 'http://{{host}}/api');
+      const urlInput = contentPage.locator('[data-testid="url-input"]');
+      await urlInput.clear();
+      await urlInput.fill('http://{{host}}/api');
+      await urlInput.blur();
+      await contentPage.waitForTimeout(200);
       await contentPage.waitForTimeout(300);
       // 验证变量被识别
-      await verifyUrlContainsVariable(contentPage, 'host');
+      const urlInput2 = contentPage.locator('[data-testid="url-input"]');
+      const value2 = await urlInput2.inputValue();
+      expect(value2).toContain('{{host}}');
     });
 
     /**
@@ -96,14 +112,64 @@ test.describe('15. HTTP节点 - 变量替换功能测试', () => {
      */
     test('应替换多个变量', async () => {
       // 添加多个局部变量
-      await addLocalVariable(contentPage, 'host', 'example.com');
-      await addLocalVariable(contentPage, 'version', 'v1');
+      const variableBtn = contentPage.locator('[title*="变量"], .variable-btn, button:has-text("变量")').first();
+      await variableBtn.click();
+      await contentPage.waitForTimeout(300);
+      const localTab = contentPage.locator('.el-tabs__item:has-text("局部"), .local-tab').first();
+      if (await localTab.isVisible()) {
+        await localTab.click();
+        await contentPage.waitForTimeout(200);
+      }
+      const table = contentPage.locator('.variable-table, .s-params').first();
+      const lastRow = table.locator('tbody tr').last();
+      const keyInput = lastRow.locator('input[placeholder*="变量"], input[placeholder*="key"]').first();
+      await keyInput.fill('host');
+      await contentPage.keyboard.press('Tab');
+      const valueInput = lastRow.locator('input[placeholder*="值"], input[placeholder*="value"]').first();
+      await valueInput.fill('example.com');
+      await valueInput.blur();
+      await contentPage.waitForTimeout(200);
+      const closeBtn = contentPage.locator('.el-dialog__close, .close-btn').first();
+      if (await closeBtn.isVisible()) {
+        await closeBtn.click();
+      }
+      await contentPage.waitForTimeout(200);
+      const variableBtn2 = contentPage.locator('[title*="变量"], .variable-btn, button:has-text("变量")').first();
+      await variableBtn2.click();
+      await contentPage.waitForTimeout(300);
+      const localTab2 = contentPage.locator('.el-tabs__item:has-text("局部"), .local-tab').first();
+      if (await localTab2.isVisible()) {
+        await localTab2.click();
+        await contentPage.waitForTimeout(200);
+      }
+      const table2 = contentPage.locator('.variable-table, .s-params').first();
+      const lastRow2 = table2.locator('tbody tr').last();
+      const keyInput2 = lastRow2.locator('input[placeholder*="变量"], input[placeholder*="key"]').first();
+      await keyInput2.fill('version');
+      await contentPage.keyboard.press('Tab');
+      const valueInput2 = lastRow2.locator('input[placeholder*="值"], input[placeholder*="value"]').first();
+      await valueInput2.fill('v1');
+      await valueInput2.blur();
+      await contentPage.waitForTimeout(200);
+      const closeBtn2 = contentPage.locator('.el-dialog__close, .close-btn').first();
+      if (await closeBtn2.isVisible()) {
+        await closeBtn2.click();
+      }
+      await contentPage.waitForTimeout(200);
       // 在URL中使用多个变量
-      await fillUrl(contentPage, 'http://{{host}}/{{version}}/api');
+      const urlInput = contentPage.locator('[data-testid="url-input"]');
+      await urlInput.clear();
+      await urlInput.fill('http://{{host}}/{{version}}/api');
+      await urlInput.blur();
+      await contentPage.waitForTimeout(200);
       await contentPage.waitForTimeout(300);
       // 验证所有变量被识别
-      await verifyUrlContainsVariable(contentPage, 'host');
-      await verifyUrlContainsVariable(contentPage, 'version');
+      const urlInput3 = contentPage.locator('[data-testid="url-input"]');
+      const value3 = await urlInput3.inputValue();
+      expect(value3).toContain('{{host}}');
+      const urlInput4 = contentPage.locator('[data-testid="url-input"]');
+      const value4 = await urlInput4.inputValue();
+      expect(value4).toContain('{{version}}');
     });
 
     /**
@@ -120,10 +186,16 @@ test.describe('15. HTTP节点 - 变量替换功能测试', () => {
      */
     test('未定义的变量应保持原样', async () => {
       // 使用未定义的变量
-      await fillUrl(contentPage, 'http://example.com/{{undefined}}/api');
+      const urlInput = contentPage.locator('[data-testid="url-input"]');
+      await urlInput.clear();
+      await urlInput.fill('http://example.com/{{undefined}}/api');
+      await urlInput.blur();
+      await contentPage.waitForTimeout(200);
       await contentPage.waitForTimeout(300);
       // 验证变量占位符保持原样
-      await verifyUrlContainsVariable(contentPage, 'undefined');
+      const urlInput2 = contentPage.locator('[data-testid="url-input"]');
+      const value = await urlInput2.inputValue();
+      expect(value).toContain('{{undefined}}');
     });
 
     /**
@@ -141,12 +213,39 @@ test.describe('15. HTTP节点 - 变量替换功能测试', () => {
      */
     test('变量名应区分大小写', async () => {
       // 定义大写Host变量
-      await addLocalVariable(contentPage, 'Host', 'example.com');
+      const variableBtn = contentPage.locator('[title*="变量"], .variable-btn, button:has-text("变量")').first();
+      await variableBtn.click();
+      await contentPage.waitForTimeout(300);
+      const localTab = contentPage.locator('.el-tabs__item:has-text("局部"), .local-tab').first();
+      if (await localTab.isVisible()) {
+        await localTab.click();
+        await contentPage.waitForTimeout(200);
+      }
+      const table = contentPage.locator('.variable-table, .s-params').first();
+      const lastRow = table.locator('tbody tr').last();
+      const keyInput = lastRow.locator('input[placeholder*="变量"], input[placeholder*="key"]').first();
+      await keyInput.fill('Host');
+      await contentPage.keyboard.press('Tab');
+      const valueInput = lastRow.locator('input[placeholder*="值"], input[placeholder*="value"]').first();
+      await valueInput.fill('example.com');
+      await valueInput.blur();
+      await contentPage.waitForTimeout(200);
+      const closeBtn = contentPage.locator('.el-dialog__close, .close-btn').first();
+      if (await closeBtn.isVisible()) {
+        await closeBtn.click();
+      }
+      await contentPage.waitForTimeout(200);
       // 使用小写host变量
-      await fillUrl(contentPage, 'http://{{host}}/api');
+      const urlInput = contentPage.locator('[data-testid="url-input"]');
+      await urlInput.clear();
+      await urlInput.fill('http://{{host}}/api');
+      await urlInput.blur();
+      await contentPage.waitForTimeout(200);
       await contentPage.waitForTimeout(300);
       // 验证未匹配到Host变量
-      await verifyUrlContainsVariable(contentPage, 'host');
+      const urlInput2 = contentPage.locator('[data-testid="url-input"]');
+      const value = await urlInput2.inputValue();
+      expect(value).toContain('{{host}}');
     });
   });
 
@@ -166,12 +265,95 @@ test.describe('15. HTTP节点 - 变量替换功能测试', () => {
      */
     test('Query参数value应支持变量', async () => {
       // 添加局部变量
-      await addLocalVariable(contentPage, 'userId', '123');
+      const variableBtn = contentPage.locator('[title*="变量"], .variable-btn, button:has-text("变量")').first();
+      await variableBtn.click();
+      await contentPage.waitForTimeout(300);
+      const localTab = contentPage.locator('.el-tabs__item:has-text("局部"), .local-tab').first();
+      if (await localTab.isVisible()) {
+        await localTab.click();
+        await contentPage.waitForTimeout(200);
+      }
+      const table = contentPage.locator('.variable-table, .s-params').first();
+      const lastRow = table.locator('tbody tr').last();
+      const keyInput = lastRow.locator('input[placeholder*="变量"], input[placeholder*="key"]').first();
+      await keyInput.fill('userId');
+      await contentPage.keyboard.press('Tab');
+      const valueInput = lastRow.locator('input[placeholder*="值"], input[placeholder*="value"]').first();
+      await valueInput.fill('123');
+      await valueInput.blur();
+      await contentPage.waitForTimeout(200);
+      const closeBtn = contentPage.locator('.el-dialog__close, .close-btn').first();
+      if (await closeBtn.isVisible()) {
+        await closeBtn.click();
+      }
+      await contentPage.waitForTimeout(200);
       // 在Query参数中使用变量
-      await addQueryParam(contentPage, 'id', '{{userId}}');
+      const paramsActive = await contentPage
+        .locator('.el-tabs__item.is-active:has-text("Params"), .el-tabs__item.is-active:has-text("参数")')
+        .first()
+        .isVisible()
+        .catch(() => false);
+      if (!paramsActive) {
+        const targetName = 'Params';
+        const tab = contentPage.locator(`.el-tabs__item:has-text("${targetName}")`);
+        await tab.click();
+        await contentPage.waitForTimeout(300);
+      }
+      const tree = contentPage.locator('.body-params .el-tree, .query-path-params .el-tree').first();
+      if (await tree.count()) {
+        await tree.waitFor({ state: 'visible', timeout: 5000 });
+        const rows = tree.locator('.custom-params');
+        const count = await rows.count();
+        const lastIndex = count > 0 ? count - 1 : 0;
+        const targetRow = rows.nth(lastIndex);
+        const keyInput2 = targetRow.locator('input[placeholder*="参数"], input[placeholder*="key"]').first();
+        await keyInput2.fill('id');
+        const valueInput2 = targetRow.locator(
+          '.value-text-input, textarea, input[placeholder*="值"], input[placeholder*="value"]'
+        ).first();
+        await valueInput2.fill('{{userId}}');
+      } else {
+        let keyInput2 = contentPage.locator('input[placeholder="输入参数名称自动换行"]').first();
+        if (!(await keyInput2.count())) {
+          keyInput2 = contentPage.locator('input[placeholder*="参数名称"]').first();
+        }
+        if (!(await keyInput2.count())) {
+          keyInput2 = contentPage.locator('input[placeholder*="参数"], input[placeholder*="key"]').first();
+        }
+        await keyInput2.fill('id');
+        let valueInput2 = contentPage.locator('input[placeholder="参数值、@代表mock数据、{{ 变量 }}"]').first();
+        if (!(await valueInput2.count())) {
+          valueInput2 = contentPage.locator('input[placeholder*="参数值"]').first();
+        }
+        if (!(await valueInput2.count())) {
+          valueInput2 = contentPage.locator('input[placeholder*="值"], input[placeholder*="value"]').first();
+        }
+        await valueInput2.fill('{{userId}}');
+      }
+      await contentPage.waitForTimeout(20);
       await contentPage.waitForTimeout(300);
       // 验证参数存在
-      await verifyQueryParamExists(contentPage, 'id');
+      const targetName2 = 'Params';
+      const tab2 = contentPage.locator(`.el-tabs__item:has-text("${targetName2}")`);
+      await tab2.click();
+      await contentPage.waitForTimeout(300);
+      const container = contentPage.locator('.query-path-params .el-tree').first();
+      await container.waitFor({ state: 'visible', timeout: 5000 });
+      const keyInputs = container.locator('input[placeholder="输入参数名称自动换行"], input[placeholder*="参数"], input[placeholder*="key"]');
+      const count2 = await keyInputs.count();
+      let found = false;
+      for (let i = 0; i < count2; i++) {
+        const candidate = keyInputs.nth(i);
+        const value2 = await candidate.inputValue();
+        if (value2 === 'id') {
+          await expect(candidate).toBeVisible();
+          found = true;
+          break;
+        }
+      }
+      if (!found) {
+        throw new Error('Query param id not found');
+      }
     });
 
     /**
@@ -188,9 +370,72 @@ test.describe('15. HTTP节点 - 变量替换功能测试', () => {
      */
     test('Query参数key应支持变量', async () => {
       // 添加局部变量
-      await addLocalVariable(contentPage, 'paramKey', 'id');
+      const variableBtn = contentPage.locator('[title*="变量"], .variable-btn, button:has-text("变量")').first();
+      await variableBtn.click();
+      await contentPage.waitForTimeout(300);
+      const localTab = contentPage.locator('.el-tabs__item:has-text("局部"), .local-tab').first();
+      if (await localTab.isVisible()) {
+        await localTab.click();
+        await contentPage.waitForTimeout(200);
+      }
+      const table = contentPage.locator('.variable-table, .s-params').first();
+      const lastRow = table.locator('tbody tr').last();
+      const keyInput = lastRow.locator('input[placeholder*="变量"], input[placeholder*="key"]').first();
+      await keyInput.fill('paramKey');
+      await contentPage.keyboard.press('Tab');
+      const valueInput = lastRow.locator('input[placeholder*="值"], input[placeholder*="value"]').first();
+      await valueInput.fill('id');
+      await valueInput.blur();
+      await contentPage.waitForTimeout(200);
+      const closeBtn = contentPage.locator('.el-dialog__close, .close-btn').first();
+      if (await closeBtn.isVisible()) {
+        await closeBtn.click();
+      }
+      await contentPage.waitForTimeout(200);
       // 参数key使用变量
-      await addQueryParam(contentPage, '{{paramKey}}', 'value');
+      const paramsActive = await contentPage
+        .locator('.el-tabs__item.is-active:has-text("Params"), .el-tabs__item.is-active:has-text("参数")')
+        .first()
+        .isVisible()
+        .catch(() => false);
+      if (!paramsActive) {
+        const targetName = 'Params';
+        const tab = contentPage.locator(`.el-tabs__item:has-text("${targetName}")`);
+        await tab.click();
+        await contentPage.waitForTimeout(300);
+      }
+      const tree = contentPage.locator('.body-params .el-tree, .query-path-params .el-tree').first();
+      if (await tree.count()) {
+        await tree.waitFor({ state: 'visible', timeout: 5000 });
+        const rows = tree.locator('.custom-params');
+        const count = await rows.count();
+        const lastIndex = count > 0 ? count - 1 : 0;
+        const targetRow = rows.nth(lastIndex);
+        const keyInput2 = targetRow.locator('input[placeholder*="参数"], input[placeholder*="key"]').first();
+        await keyInput2.fill('{{paramKey}}');
+        const valueInput2 = targetRow.locator(
+          '.value-text-input, textarea, input[placeholder*="值"], input[placeholder*="value"]'
+        ).first();
+        await valueInput2.fill('value');
+      } else {
+        let keyInput2 = contentPage.locator('input[placeholder="输入参数名称自动换行"]').first();
+        if (!(await keyInput2.count())) {
+          keyInput2 = contentPage.locator('input[placeholder*="参数名称"]').first();
+        }
+        if (!(await keyInput2.count())) {
+          keyInput2 = contentPage.locator('input[placeholder*="参数"], input[placeholder*="key"]').first();
+        }
+        await keyInput2.fill('{{paramKey}}');
+        let valueInput2 = contentPage.locator('input[placeholder="参数值、@代表mock数据、{{ 变量 }}"]').first();
+        if (!(await valueInput2.count())) {
+          valueInput2 = contentPage.locator('input[placeholder*="参数值"]').first();
+        }
+        if (!(await valueInput2.count())) {
+          valueInput2 = contentPage.locator('input[placeholder*="值"], input[placeholder*="value"]').first();
+        }
+        await valueInput2.fill('value');
+      }
+      await contentPage.waitForTimeout(20);
       await contentPage.waitForTimeout(300);
     });
 
@@ -208,9 +453,34 @@ test.describe('15. HTTP节点 - 变量替换功能测试', () => {
      */
     test('Path参数应支持变量', async () => {
       // 添加局部变量
-      await addLocalVariable(contentPage, 'userId', '456');
+      const variableBtn = contentPage.locator('[title*="变量"], .variable-btn, button:has-text("变量")').first();
+      await variableBtn.click();
+      await contentPage.waitForTimeout(300);
+      const localTab = contentPage.locator('.el-tabs__item:has-text("局部"), .local-tab').first();
+      if (await localTab.isVisible()) {
+        await localTab.click();
+        await contentPage.waitForTimeout(200);
+      }
+      const table = contentPage.locator('.variable-table, .s-params').first();
+      const lastRow = table.locator('tbody tr').last();
+      const keyInput = lastRow.locator('input[placeholder*="变量"], input[placeholder*="key"]').first();
+      await keyInput.fill('userId');
+      await contentPage.keyboard.press('Tab');
+      const valueInput = lastRow.locator('input[placeholder*="值"], input[placeholder*="value"]').first();
+      await valueInput.fill('456');
+      await valueInput.blur();
+      await contentPage.waitForTimeout(200);
+      const closeBtn = contentPage.locator('.el-dialog__close, .close-btn').first();
+      if (await closeBtn.isVisible()) {
+        await closeBtn.click();
+      }
+      await contentPage.waitForTimeout(200);
       // 在URL中使用Path参数
-      await fillUrl(contentPage, 'http://example.com/users/{id}');
+      const urlInput = contentPage.locator('[data-testid="url-input"]');
+      await urlInput.clear();
+      await urlInput.fill('http://example.com/users/{id}');
+      await urlInput.blur();
+      await contentPage.waitForTimeout(200);
       await contentPage.waitForTimeout(300);
     });
 
@@ -228,12 +498,95 @@ test.describe('15. HTTP节点 - 变量替换功能测试', () => {
      */
     test('参数value可包含部分变量', async () => {
       // 添加局部变量
-      await addLocalVariable(contentPage, 'id', '123');
+      const variableBtn = contentPage.locator('[title*="变量"], .variable-btn, button:has-text("变量")').first();
+      await variableBtn.click();
+      await contentPage.waitForTimeout(300);
+      const localTab = contentPage.locator('.el-tabs__item:has-text("局部"), .local-tab').first();
+      if (await localTab.isVisible()) {
+        await localTab.click();
+        await contentPage.waitForTimeout(200);
+      }
+      const table = contentPage.locator('.variable-table, .s-params').first();
+      const lastRow = table.locator('tbody tr').last();
+      const keyInput = lastRow.locator('input[placeholder*="变量"], input[placeholder*="key"]').first();
+      await keyInput.fill('id');
+      await contentPage.keyboard.press('Tab');
+      const valueInput = lastRow.locator('input[placeholder*="值"], input[placeholder*="value"]').first();
+      await valueInput.fill('123');
+      await valueInput.blur();
+      await contentPage.waitForTimeout(200);
+      const closeBtn = contentPage.locator('.el-dialog__close, .close-btn').first();
+      if (await closeBtn.isVisible()) {
+        await closeBtn.click();
+      }
+      await contentPage.waitForTimeout(200);
       // 添加包含变量的参数
-      await addQueryParam(contentPage, 'fullId', 'prefix_{{id}}_suffix');
+      const paramsActive = await contentPage
+        .locator('.el-tabs__item.is-active:has-text("Params"), .el-tabs__item.is-active:has-text("参数")')
+        .first()
+        .isVisible()
+        .catch(() => false);
+      if (!paramsActive) {
+        const targetName = 'Params';
+        const tab = contentPage.locator(`.el-tabs__item:has-text("${targetName}")`);
+        await tab.click();
+        await contentPage.waitForTimeout(300);
+      }
+      const tree = contentPage.locator('.body-params .el-tree, .query-path-params .el-tree').first();
+      if (await tree.count()) {
+        await tree.waitFor({ state: 'visible', timeout: 5000 });
+        const rows = tree.locator('.custom-params');
+        const count = await rows.count();
+        const lastIndex = count > 0 ? count - 1 : 0;
+        const targetRow = rows.nth(lastIndex);
+        const keyInput2 = targetRow.locator('input[placeholder*="参数"], input[placeholder*="key"]').first();
+        await keyInput2.fill('fullId');
+        const valueInput2 = targetRow.locator(
+          '.value-text-input, textarea, input[placeholder*="值"], input[placeholder*="value"]'
+        ).first();
+        await valueInput2.fill('prefix_{{id}}_suffix');
+      } else {
+        let keyInput2 = contentPage.locator('input[placeholder="输入参数名称自动换行"]').first();
+        if (!(await keyInput2.count())) {
+          keyInput2 = contentPage.locator('input[placeholder*="参数名称"]').first();
+        }
+        if (!(await keyInput2.count())) {
+          keyInput2 = contentPage.locator('input[placeholder*="参数"], input[placeholder*="key"]').first();
+        }
+        await keyInput2.fill('fullId');
+        let valueInput2 = contentPage.locator('input[placeholder="参数值、@代表mock数据、{{ 变量 }}"]').first();
+        if (!(await valueInput2.count())) {
+          valueInput2 = contentPage.locator('input[placeholder*="参数值"]').first();
+        }
+        if (!(await valueInput2.count())) {
+          valueInput2 = contentPage.locator('input[placeholder*="值"], input[placeholder*="value"]').first();
+        }
+        await valueInput2.fill('prefix_{{id}}_suffix');
+      }
+      await contentPage.waitForTimeout(20);
       await contentPage.waitForTimeout(300);
       // 验证参数存在
-      await verifyQueryParamExists(contentPage, 'fullId');
+      const targetName2 = 'Params';
+      const tab2 = contentPage.locator(`.el-tabs__item:has-text("${targetName2}")`);
+      await tab2.click();
+      await contentPage.waitForTimeout(300);
+      const container = contentPage.locator('.query-path-params .el-tree').first();
+      await container.waitFor({ state: 'visible', timeout: 5000 });
+      const keyInputs = container.locator('input[placeholder="输入参数名称自动换行"], input[placeholder*="参数"], input[placeholder*="key"]');
+      const count2 = await keyInputs.count();
+      let found = false;
+      for (let i = 0; i < count2; i++) {
+        const candidate = keyInputs.nth(i);
+        const value2 = await candidate.inputValue();
+        if (value2 === 'fullId') {
+          await expect(candidate).toBeVisible();
+          found = true;
+          break;
+        }
+      }
+      if (!found) {
+        throw new Error('Query param fullId not found');
+      }
     });
   });
 
@@ -253,12 +606,79 @@ test.describe('15. HTTP节点 - 变量替换功能测试', () => {
      */
     test('Header value应支持变量', async () => {
       // 添加局部变量
-      await addLocalVariable(contentPage, 'token', 'abc123');
+      const variableBtn = contentPage.locator('[title*="变量"], .variable-btn, button:has-text("变量")').first();
+      await variableBtn.click();
+      await contentPage.waitForTimeout(300);
+      const localTab = contentPage.locator('.el-tabs__item:has-text("局部"), .local-tab').first();
+      if (await localTab.isVisible()) {
+        await localTab.click();
+        await contentPage.waitForTimeout(200);
+      }
+      const table = contentPage.locator('.variable-table, .s-params').first();
+      const lastRow = table.locator('tbody tr').last();
+      const keyInput = lastRow.locator('input[placeholder*="变量"], input[placeholder*="key"]').first();
+      await keyInput.fill('token');
+      await contentPage.keyboard.press('Tab');
+      const valueInput = lastRow.locator('input[placeholder*="值"], input[placeholder*="value"]').first();
+      await valueInput.fill('abc123');
+      await valueInput.blur();
+      await contentPage.waitForTimeout(200);
+      const closeBtn = contentPage.locator('.el-dialog__close, .close-btn').first();
+      if (await closeBtn.isVisible()) {
+        await closeBtn.click();
+      }
+      await contentPage.waitForTimeout(200);
       // 添加包含变量的请求头
-      await addHeader(contentPage, 'X-Token', '{{token}}');
+      const headersActive = await contentPage
+        .locator('.el-tabs__item.is-active:has-text("Headers"), .el-tabs__item.is-active:has-text("请求头")')
+        .first()
+        .isVisible()
+        .catch(() => false);
+      if (!headersActive) {
+        const targetName = '请求头';
+        const tab = contentPage.locator(`.el-tabs__item:has-text("${targetName}")`);
+        await tab.click();
+        await contentPage.waitForTimeout(300);
+      }
+      const container = contentPage.locator('.header-info .el-tree').first();
+      await container.waitFor({ state: 'visible', timeout: 5000 });
+      const rows = container.locator('.custom-params');
+      const count = await rows.count();
+      const lastIndex = count > 0 ? count - 1 : 0;
+      const lastRow2 = rows.nth(lastIndex);
+      const keyInput2 = lastRow2.locator('input[placeholder*="请求头"], input[placeholder="输入参数名称自动换行"], input[placeholder*="参数"], input[placeholder*="key"]').first();
+      await keyInput2.fill('X-Token');
+      const valueInput2 = lastRow2.locator('.value-text-input, textarea, input[placeholder*="值"], input[placeholder*="value"]').first();
+      await valueInput2.fill('{{token}}');
+      await contentPage.waitForTimeout(20);
       await contentPage.waitForTimeout(300);
       // 验证请求头存在
-      await verifyHeaderExists(contentPage, 'X-Token');
+      const targetName2 = '请求头';
+      const tab2 = contentPage.locator(`.el-tabs__item:has-text("${targetName2}")`);
+      await tab2.click();
+      await contentPage.waitForTimeout(300);
+      const headerSection = contentPage.locator('.header-info, .headers-table, .s-params').first();
+      await headerSection.waitFor({ state: 'visible', timeout: 5000 });
+      const exactInput = headerSection.locator('input[value="X-Token"]').first();
+      if (await exactInput.count()) {
+        await expect(exactInput).toBeVisible();
+      } else {
+        const keyInputs = headerSection.locator('input[placeholder*="参数"], input[placeholder*="key"], input[placeholder*="请求头"]');
+        const inputCount = await keyInputs.count();
+        let found = false;
+        for (let i = 0; i < inputCount; i++) {
+          const candidate = keyInputs.nth(i);
+          const value = await candidate.inputValue();
+          if (value === 'X-Token') {
+            await expect(candidate).toBeVisible();
+            found = true;
+            break;
+          }
+        }
+        if (!found) {
+          throw new Error('Header X-Token not found');
+        }
+      }
     });
 
     /**
@@ -274,14 +694,81 @@ test.describe('15. HTTP节点 - 变量替换功能测试', () => {
      * 验证点：Authorization头的变量替换
      * 说明：Authorization是最常用变量的请求头
      */
-    test('Authorization头应支持变量', async () => {
+    test('Authorization header应支持Bearer token变量', async () => {
       // 添加局部变量
-      await addLocalVariable(contentPage, 'token', 'secret-token-123');
+      const variableBtn = contentPage.locator('[title*="变量"], .variable-btn, button:has-text("变量")').first();
+      await variableBtn.click();
+      await contentPage.waitForTimeout(300);
+      const localTab = contentPage.locator('.el-tabs__item:has-text("局部"), .local-tab').first();
+      if (await localTab.isVisible()) {
+        await localTab.click();
+        await contentPage.waitForTimeout(200);
+      }
+      const table = contentPage.locator('.variable-table, .s-params').first();
+      const lastRow = table.locator('tbody tr').last();
+      const keyInput = lastRow.locator('input[placeholder*="变量"], input[placeholder*="key"]').first();
+      await keyInput.fill('token');
+      await contentPage.keyboard.press('Tab');
+      const valueInput = lastRow.locator('input[placeholder*="值"], input[placeholder*="value"]').first();
+      await valueInput.fill('secret-token-123');
+      await valueInput.blur();
+      await contentPage.waitForTimeout(200);
+      const closeBtn = contentPage.locator('.el-dialog__close, .close-btn').first();
+      if (await closeBtn.isVisible()) {
+        await closeBtn.click();
+      }
+      await contentPage.waitForTimeout(200);
       // 添加Authorization头
-      await addHeader(contentPage, 'Authorization', 'Bearer {{token}}');
+      const headersActive = await contentPage
+        .locator('.el-tabs__item.is-active:has-text("Headers"), .el-tabs__item.is-active:has-text("请求头")')
+        .first()
+        .isVisible()
+        .catch(() => false);
+      if (!headersActive) {
+        const targetName = '请求头';
+        const tab = contentPage.locator(`.el-tabs__item:has-text("${targetName}")`);
+        await tab.click();
+        await contentPage.waitForTimeout(300);
+      }
+      const container = contentPage.locator('.header-info .el-tree').first();
+      await container.waitFor({ state: 'visible', timeout: 5000 });
+      const rows = container.locator('.custom-params');
+      const count = await rows.count();
+      const lastIndex = count > 0 ? count - 1 : 0;
+      const lastRow2 = rows.nth(lastIndex);
+      const keyInput2 = lastRow2.locator('input[placeholder*="请求头"], input[placeholder="输入参数名称自动换行"], input[placeholder*="参数"], input[placeholder*="key"]').first();
+      await keyInput2.fill('Authorization');
+      const valueInput2 = lastRow2.locator('.value-text-input, textarea, input[placeholder*="值"], input[placeholder*="value"]').first();
+      await valueInput2.fill('Bearer {{token}}');
+      await contentPage.waitForTimeout(20);
       await contentPage.waitForTimeout(300);
       // 验证请求头存在
-      await verifyHeaderExists(contentPage, 'Authorization');
+      const targetName2 = '请求头';
+      const tab2 = contentPage.locator(`.el-tabs__item:has-text("${targetName2}")`);
+      await tab2.click();
+      await contentPage.waitForTimeout(300);
+      const headerSection = contentPage.locator('.header-info, .headers-table, .s-params').first();
+      await headerSection.waitFor({ state: 'visible', timeout: 5000 });
+      const exactInput = headerSection.locator('input[value="Authorization"]').first();
+      if (await exactInput.count()) {
+        await expect(exactInput).toBeVisible();
+      } else {
+        const keyInputs = headerSection.locator('input[placeholder*="参数"], input[placeholder*="key"], input[placeholder*="请求头"]');
+        const inputCount = await keyInputs.count();
+        let found = false;
+        for (let i = 0; i < inputCount; i++) {
+          const candidate = keyInputs.nth(i);
+          const value = await candidate.inputValue();
+          if (value === 'Authorization') {
+            await expect(candidate).toBeVisible();
+            found = true;
+            break;
+          }
+        }
+        if (!found) {
+          throw new Error('Header Authorization not found');
+        }
+      }
     });
 
     /**
@@ -299,12 +786,79 @@ test.describe('15. HTTP节点 - 变量替换功能测试', () => {
      */
     test('自定义头应支持变量', async () => {
       // 添加局部变量
-      await addLocalVariable(contentPage, 'customValue', 'custom123');
+      const variableBtn = contentPage.locator('[title*="变量"], .variable-btn, button:has-text("变量")').first();
+      await variableBtn.click();
+      await contentPage.waitForTimeout(300);
+      const localTab = contentPage.locator('.el-tabs__item:has-text("局部"), .local-tab').first();
+      if (await localTab.isVisible()) {
+        await localTab.click();
+        await contentPage.waitForTimeout(200);
+      }
+      const table = contentPage.locator('.variable-table, .s-params').first();
+      const lastRow = table.locator('tbody tr').last();
+      const keyInput = lastRow.locator('input[placeholder*="变量"], input[placeholder*="key"]').first();
+      await keyInput.fill('customValue');
+      await contentPage.keyboard.press('Tab');
+      const valueInput = lastRow.locator('input[placeholder*="值"], input[placeholder*="value"]').first();
+      await valueInput.fill('custom123');
+      await valueInput.blur();
+      await contentPage.waitForTimeout(200);
+      const closeBtn = contentPage.locator('.el-dialog__close, .close-btn').first();
+      if (await closeBtn.isVisible()) {
+        await closeBtn.click();
+      }
+      await contentPage.waitForTimeout(200);
       // 添加自定义请求头
-      await addHeader(contentPage, 'X-Custom-Header', '{{customValue}}');
+      const headersActive = await contentPage
+        .locator('.el-tabs__item.is-active:has-text("Headers"), .el-tabs__item.is-active:has-text("请求头")')
+        .first()
+        .isVisible()
+        .catch(() => false);
+      if (!headersActive) {
+        const targetName = '请求头';
+        const tab = contentPage.locator(`.el-tabs__item:has-text("${targetName}")`);
+        await tab.click();
+        await contentPage.waitForTimeout(300);
+      }
+      const container = contentPage.locator('.header-info .el-tree').first();
+      await container.waitFor({ state: 'visible', timeout: 5000 });
+      const rows = container.locator('.custom-params');
+      const count = await rows.count();
+      const lastIndex = count > 0 ? count - 1 : 0;
+      const lastRow2 = rows.nth(lastIndex);
+      const keyInput2 = lastRow2.locator('input[placeholder*="请求头"], input[placeholder="输入参数名称自动换行"], input[placeholder*="参数"], input[placeholder*="key"]').first();
+      await keyInput2.fill('X-Custom-Header');
+      const valueInput2 = lastRow2.locator('.value-text-input, textarea, input[placeholder*="值"], input[placeholder*="value"]').first();
+      await valueInput2.fill('{{customValue}}');
+      await contentPage.waitForTimeout(20);
       await contentPage.waitForTimeout(300);
       // 验证请求头存在
-      await verifyHeaderExists(contentPage, 'X-Custom-Header');
+      const targetName2 = '请求头';
+      const tab2 = contentPage.locator(`.el-tabs__item:has-text("${targetName2}")`);
+      await tab2.click();
+      await contentPage.waitForTimeout(300);
+      const headerSection = contentPage.locator('.header-info, .headers-table, .s-params').first();
+      await headerSection.waitFor({ state: 'visible', timeout: 5000 });
+      const exactInput = headerSection.locator('input[value="X-Custom-Header"]').first();
+      if (await exactInput.count()) {
+        await expect(exactInput).toBeVisible();
+      } else {
+        const keyInputs = headerSection.locator('input[placeholder*="参数"], input[placeholder*="key"], input[placeholder*="请求头"]');
+        const inputCount = await keyInputs.count();
+        let found = false;
+        for (let i = 0; i < inputCount; i++) {
+          const candidate = keyInputs.nth(i);
+          const value = await candidate.inputValue();
+          if (value === 'X-Custom-Header') {
+            await expect(candidate).toBeVisible();
+            found = true;
+            break;
+          }
+        }
+        if (!found) {
+          throw new Error('Header X-Custom-Header not found');
+        }
+      }
     });
   });
 
@@ -324,11 +878,68 @@ test.describe('15. HTTP节点 - 变量替换功能测试', () => {
      */
     test('JSON Body应支持变量替换', async () => {
       // 选择POST方法
-      await selectHttpMethod(contentPage, 'POST');
+      const methodSelect = contentPage.locator('[data-testid="method-select"]');
+      await methodSelect.click();
+      await contentPage.locator('.el-select-dropdown__item:has-text("POST")').click();
+      await contentPage.waitForTimeout(200);
       // 添加局部变量
-      await addLocalVariable(contentPage, 'userId', '789');
+      const variableBtn = contentPage.locator('[title*="变量"], .variable-btn, button:has-text("变量")').first();
+      await variableBtn.click();
+      await contentPage.waitForTimeout(300);
+      const localTab = contentPage.locator('.el-tabs__item:has-text("局部"), .local-tab').first();
+      if (await localTab.isVisible()) {
+        await localTab.click();
+        await contentPage.waitForTimeout(200);
+      }
+      const table = contentPage.locator('.variable-table, .s-params').first();
+      const lastRow = table.locator('tbody tr').last();
+      const keyInput = lastRow.locator('input[placeholder*="变量"], input[placeholder*="key"]').first();
+      await keyInput.fill('userId');
+      await contentPage.keyboard.press('Tab');
+      const valueInput = lastRow.locator('input[placeholder*="值"], input[placeholder*="value"]').first();
+      await valueInput.fill('789');
+      await valueInput.blur();
+      await contentPage.waitForTimeout(200);
+      const closeBtn = contentPage.locator('.el-dialog__close, .close-btn').first();
+      if (await closeBtn.isVisible()) {
+        await closeBtn.click();
+      }
+      await contentPage.waitForTimeout(200);
       // 填写包含变量的JSON Body
-      await fillJsonBody(contentPage, { userId: '{{userId}}', name: 'test' });
+      const targetName = 'Body';
+      const tab = contentPage.locator(`.el-tabs__item:has-text("${targetName}")`);
+      await tab.click();
+      await contentPage.waitForTimeout(300);
+      const modeMap = {
+        none: 'none',
+        JSON: 'json',
+        'form-data': 'formdata',
+        'x-www-form-urlencoded': 'urlencoded',
+        raw: 'raw',
+        binary: 'binary'
+      };
+      const targetValue = modeMap['JSON'];
+      const radioOption = contentPage
+        .locator('.body-params .el-radio-group .el-radio')
+        .filter({ hasText: targetValue });
+      if (await radioOption.count()) {
+        await radioOption.first().click();
+      } else {
+        const radioInput = contentPage.locator(`.body-params input[value="${targetValue}"]`).first();
+        await radioInput.check({ force: true });
+      }
+      await contentPage.waitForTimeout(300);
+      const jsonString = JSON.stringify({ userId: '{{userId}}', name: 'test' }, null, 2);
+      const editor = contentPage.locator('.workbench .monaco-editor').first();
+      const jsonTip = contentPage.locator('.workbench .json-tip').first();
+      if (await jsonTip.isVisible()) {
+        await jsonTip.click({ force: true });
+        await contentPage.waitForTimeout(100);
+      }
+      await editor.click({ force: true });
+      await contentPage.keyboard.press('Control+A');
+      await contentPage.keyboard.type(jsonString);
+      await contentPage.waitForTimeout(300);
       await contentPage.waitForTimeout(300);
     });
 
@@ -347,17 +958,95 @@ test.describe('15. HTTP节点 - 变量替换功能测试', () => {
      */
     test('JSON多层嵌套应支持变量', async () => {
       // 选择POST方法
-      await selectHttpMethod(contentPage, 'POST');
+      const methodSelect = contentPage.locator('[data-testid="method-select"]');
+      await methodSelect.click();
+      await contentPage.locator('.el-select-dropdown__item:has-text("POST")').click();
+      await contentPage.waitForTimeout(200);
       // 添加多个局部变量
-      await addLocalVariable(contentPage, 'userId', '123');
-      await addLocalVariable(contentPage, 'userName', 'testUser');
+      const variableBtn = contentPage.locator('[title*="变量"], .variable-btn, button:has-text("变量")').first();
+      await variableBtn.click();
+      await contentPage.waitForTimeout(300);
+      const localTab = contentPage.locator('.el-tabs__item:has-text("局部"), .local-tab').first();
+      if (await localTab.isVisible()) {
+        await localTab.click();
+        await contentPage.waitForTimeout(200);
+      }
+      const table = contentPage.locator('.variable-table, .s-params').first();
+      const lastRow = table.locator('tbody tr').last();
+      const keyInput = lastRow.locator('input[placeholder*="变量"], input[placeholder*="key"]').first();
+      await keyInput.fill('userId');
+      await contentPage.keyboard.press('Tab');
+      const valueInput = lastRow.locator('input[placeholder*="值"], input[placeholder*="value"]').first();
+      await valueInput.fill('123');
+      await valueInput.blur();
+      await contentPage.waitForTimeout(200);
+      const closeBtn = contentPage.locator('.el-dialog__close, .close-btn').first();
+      if (await closeBtn.isVisible()) {
+        await closeBtn.click();
+      }
+      await contentPage.waitForTimeout(200);
+      const variableBtn2 = contentPage.locator('[title*="变量"], .variable-btn, button:has-text("变量")').first();
+      await variableBtn2.click();
+      await contentPage.waitForTimeout(300);
+      const localTab2 = contentPage.locator('.el-tabs__item:has-text("局部"), .local-tab').first();
+      if (await localTab2.isVisible()) {
+        await localTab2.click();
+        await contentPage.waitForTimeout(200);
+      }
+      const table2 = contentPage.locator('.variable-table, .s-params').first();
+      const lastRow2 = table2.locator('tbody tr').last();
+      const keyInput2 = lastRow2.locator('input[placeholder*="变量"], input[placeholder*="key"]').first();
+      await keyInput2.fill('userName');
+      await contentPage.keyboard.press('Tab');
+      const valueInput2 = lastRow2.locator('input[placeholder*="值"], input[placeholder*="value"]').first();
+      await valueInput2.fill('testUser');
+      await valueInput2.blur();
+      await contentPage.waitForTimeout(200);
+      const closeBtn2 = contentPage.locator('.el-dialog__close, .close-btn').first();
+      if (await closeBtn2.isVisible()) {
+        await closeBtn2.click();
+      }
+      await contentPage.waitForTimeout(200);
       // 填写嵌套JSON
-      await fillJsonBody(contentPage, {
+      const targetName = 'Body';
+      const tab = contentPage.locator(`.el-tabs__item:has-text("${targetName}")`);
+      await tab.click();
+      await contentPage.waitForTimeout(300);
+      const modeMap = {
+        none: 'none',
+        JSON: 'json',
+        'form-data': 'formdata',
+        'x-www-form-urlencoded': 'urlencoded',
+        raw: 'raw',
+        binary: 'binary'
+      };
+      const targetValue = modeMap['JSON'];
+      const radioOption = contentPage
+        .locator('.body-params .el-radio-group .el-radio')
+        .filter({ hasText: targetValue });
+      if (await radioOption.count()) {
+        await radioOption.first().click();
+      } else {
+        const radioInput = contentPage.locator(`.body-params input[value="${targetValue}"]`).first();
+        await radioInput.check({ force: true });
+      }
+      await contentPage.waitForTimeout(300);
+      const jsonString = JSON.stringify({
         user: {
           id: '{{userId}}',
           name: '{{userName}}'
         }
-      });
+      }, null, 2);
+      const editor = contentPage.locator('.workbench .monaco-editor').first();
+      const jsonTip = contentPage.locator('.workbench .json-tip').first();
+      if (await jsonTip.isVisible()) {
+        await jsonTip.click({ force: true });
+        await contentPage.waitForTimeout(100);
+      }
+      await editor.click({ force: true });
+      await contentPage.keyboard.press('Control+A');
+      await contentPage.keyboard.type(jsonString);
+      await contentPage.waitForTimeout(300);
       await contentPage.waitForTimeout(300);
     });
 
@@ -377,13 +1066,69 @@ test.describe('15. HTTP节点 - 变量替换功能测试', () => {
      */
     test('FormData value应支持变量', async () => {
       // 选择POST方法
-      await selectHttpMethod(contentPage, 'POST');
+      const methodSelect = contentPage.locator('[data-testid="method-select"]');
+      await methodSelect.click();
+      await contentPage.locator('.el-select-dropdown__item:has-text("POST")').click();
+      await contentPage.waitForTimeout(200);
       // 添加局部变量
-      await addLocalVariable(contentPage, 'fieldValue', 'formValue123');
+      const variableBtn = contentPage.locator('[title*="变量"], .variable-btn, button:has-text("变量")').first();
+      await variableBtn.click();
+      await contentPage.waitForTimeout(300);
+      const localTab = contentPage.locator('.el-tabs__item:has-text("局部"), .local-tab').first();
+      if (await localTab.isVisible()) {
+        await localTab.click();
+        await contentPage.waitForTimeout(200);
+      }
+      const table = contentPage.locator('.variable-table, .s-params').first();
+      const lastRow = table.locator('tbody tr').last();
+      const keyInput = lastRow.locator('input[placeholder*="变量"], input[placeholder*="key"]').first();
+      await keyInput.fill('fieldValue');
+      await contentPage.keyboard.press('Tab');
+      const valueInput = lastRow.locator('input[placeholder*="值"], input[placeholder*="value"]').first();
+      await valueInput.fill('formValue123');
+      await valueInput.blur();
+      await contentPage.waitForTimeout(200);
+      const closeBtn = contentPage.locator('.el-dialog__close, .close-btn').first();
+      if (await closeBtn.isVisible()) {
+        await closeBtn.click();
+      }
+      await contentPage.waitForTimeout(200);
       // 切换到form-data模式
-      await switchBodyMode(contentPage, 'form-data');
+      const targetName = 'Body';
+      const tab = contentPage.locator(`.el-tabs__item:has-text("${targetName}")`);
+      await tab.click();
+      await contentPage.waitForTimeout(300);
+      const modeMap = {
+        none: 'none',
+        JSON: 'json',
+        'form-data': 'formdata',
+        'x-www-form-urlencoded': 'urlencoded',
+        raw: 'raw',
+        binary: 'binary'
+      };
+      const targetValue = modeMap['form-data'];
+      const radioOption = contentPage
+        .locator('.body-params .el-radio-group .el-radio')
+        .filter({ hasText: targetValue });
+      if (await radioOption.count()) {
+        await radioOption.first().click();
+      } else {
+        const radioInput = contentPage.locator(`.body-params input[value="${targetValue}"]`).first();
+        await radioInput.check({ force: true });
+      }
+      await contentPage.waitForTimeout(300);
       // 添加包含变量的字段
-      await addFormDataField(contentPage, 'field1', '{{fieldValue}}');
+      const container = contentPage.locator('.body-params .el-tree').first();
+      await container.waitFor({ state: 'visible', timeout: 5000 });
+      const rows = container.locator('.custom-params');
+      const count = await rows.count();
+      const targetIndex = count > 0 ? count - 1 : 0;
+      const lastRow2 = rows.nth(targetIndex);
+      const keyInput2 = lastRow2.locator('input[placeholder*="参数"], input[placeholder*="key"]').first();
+      await keyInput2.fill('field1');
+      const valueInput2 = lastRow2.locator('.value-text-input, textarea, input[placeholder*="值"], input[placeholder*="value"]').first();
+      await valueInput2.fill('{{fieldValue}}');
+      await contentPage.waitForTimeout(200);
       await contentPage.waitForTimeout(300);
     });
 
@@ -403,13 +1148,63 @@ test.describe('15. HTTP节点 - 变量替换功能测试', () => {
      */
     test('Raw模式应支持变量', async () => {
       // 选择POST方法
-      await selectHttpMethod(contentPage, 'POST');
+      const methodSelect = contentPage.locator('[data-testid="method-select"]');
+      await methodSelect.click();
+      await contentPage.locator('.el-select-dropdown__item:has-text("POST")').click();
+      await contentPage.waitForTimeout(200);
       // 添加局部变量
-      await addLocalVariable(contentPage, 'var', 'rawValue');
+      const variableBtn = contentPage.locator('[title*="变量"], .variable-btn, button:has-text("变量")').first();
+      await variableBtn.click();
+      await contentPage.waitForTimeout(300);
+      const localTab = contentPage.locator('.el-tabs__item:has-text("局部"), .local-tab').first();
+      if (await localTab.isVisible()) {
+        await localTab.click();
+        await contentPage.waitForTimeout(200);
+      }
+      const table = contentPage.locator('.variable-table, .s-params').first();
+      const lastRow = table.locator('tbody tr').last();
+      const keyInput = lastRow.locator('input[placeholder*="变量"], input[placeholder*="key"]').first();
+      await keyInput.fill('var');
+      await contentPage.keyboard.press('Tab');
+      const valueInput = lastRow.locator('input[placeholder*="值"], input[placeholder*="value"]').first();
+      await valueInput.fill('rawValue');
+      await valueInput.blur();
+      await contentPage.waitForTimeout(200);
+      const closeBtn = contentPage.locator('.el-dialog__close, .close-btn').first();
+      if (await closeBtn.isVisible()) {
+        await closeBtn.click();
+      }
+      await contentPage.waitForTimeout(200);
       // 切换到raw模式
-      await switchBodyMode(contentPage, 'raw');
+      const targetName = 'Body';
+      const tab = contentPage.locator(`.el-tabs__item:has-text("${targetName}")`);
+      await tab.click();
+      await contentPage.waitForTimeout(300);
+      const modeMap = {
+        none: 'none',
+        JSON: 'json',
+        'form-data': 'formdata',
+        'x-www-form-urlencoded': 'urlencoded',
+        raw: 'raw',
+        binary: 'binary'
+      };
+      const targetValue = modeMap['raw'];
+      const radioOption = contentPage
+        .locator('.body-params .el-radio-group .el-radio')
+        .filter({ hasText: targetValue });
+      if (await radioOption.count()) {
+        await radioOption.first().click();
+      } else {
+        const radioInput = contentPage.locator(`.body-params input[value="${targetValue}"]`).first();
+        await radioInput.check({ force: true });
+      }
+      await contentPage.waitForTimeout(300);
       // 填写包含变量的文本
-      await fillRawBody(contentPage, 'Text with {{var}} replacement');
+      const editor = contentPage.locator('.workbench .monaco-editor, .workbench textarea').first();
+      await editor.click();
+      await contentPage.keyboard.press('Control+A');
+      await contentPage.keyboard.type('Text with {{var}} replacement');
+      await contentPage.waitForTimeout(300);
       await contentPage.waitForTimeout(300);
     });
 
@@ -428,9 +1223,34 @@ test.describe('15. HTTP节点 - 变量替换功能测试', () => {
      */
     test('Binary变量模式应读取变量值', async () => {
       // 选择POST方法
-      await selectHttpMethod(contentPage, 'POST');
+      const methodSelect = contentPage.locator('[data-testid="method-select"]');
+      await methodSelect.click();
+      await contentPage.locator('.el-select-dropdown__item:has-text("POST")').click();
+      await contentPage.waitForTimeout(200);
       // 切换到binary模式
-      await switchBodyMode(contentPage, 'binary');
+      const targetName = 'Body';
+      const tab = contentPage.locator(`.el-tabs__item:has-text("${targetName}")`);
+      await tab.click();
+      await contentPage.waitForTimeout(300);
+      const modeMap = {
+        none: 'none',
+        JSON: 'json',
+        'form-data': 'formdata',
+        'x-www-form-urlencoded': 'urlencoded',
+        raw: 'raw',
+        binary: 'binary'
+      };
+      const targetValue = modeMap['binary'];
+      const radioOption = contentPage
+        .locator('.body-params .el-radio-group .el-radio')
+        .filter({ hasText: targetValue });
+      if (await radioOption.count()) {
+        await radioOption.first().click();
+      } else {
+        const radioInput = contentPage.locator(`.body-params input[value="${targetValue}"]`).first();
+        await radioInput.check({ force: true });
+      }
+      await contentPage.waitForTimeout(300);
       // 选择变量模式
       const varMode = contentPage.locator('input[type="radio"][value="variable"], .mode-variable').first();
       if (await varMode.isVisible()) {
@@ -456,14 +1276,62 @@ test.describe('15. HTTP节点 - 变量替换功能测试', () => {
      */
     test('应优先使用局部变量', async () => {
       // 添加全局变量
-      await addGlobalVariable(contentPage, 'scopeTest', 'globalValue');
+      const variableBtn = contentPage.locator('[title*="变量"], .variable-btn, button:has-text("变量")').first();
+      await variableBtn.click();
+      await contentPage.waitForTimeout(300);
+      const globalTab = contentPage.locator('.el-tabs__item:has-text("全局"), .global-tab').first();
+      if (await globalTab.isVisible()) {
+        await globalTab.click();
+        await contentPage.waitForTimeout(200);
+      }
+      const table = contentPage.locator('.variable-table, .s-params').first();
+      const lastRow = table.locator('tbody tr').last();
+      const keyInput = lastRow.locator('input[placeholder*="变量"], input[placeholder*="key"]').first();
+      await keyInput.fill('scopeTest');
+      await contentPage.keyboard.press('Tab');
+      const valueInput = lastRow.locator('input[placeholder*="值"], input[placeholder*="value"]').first();
+      await valueInput.fill('globalValue');
+      await valueInput.blur();
+      await contentPage.waitForTimeout(200);
+      const closeBtn = contentPage.locator('.el-dialog__close, .close-btn').first();
+      if (await closeBtn.isVisible()) {
+        await closeBtn.click();
+      }
+      await contentPage.waitForTimeout(200);
       // 添加局部变量
-      await addLocalVariable(contentPage, 'scopeTest', 'localValue');
+      const variableBtn2 = contentPage.locator('[title*="变量"], .variable-btn, button:has-text("变量")').first();
+      await variableBtn2.click();
+      await contentPage.waitForTimeout(300);
+      const localTab = contentPage.locator('.el-tabs__item:has-text("局部"), .local-tab').first();
+      if (await localTab.isVisible()) {
+        await localTab.click();
+        await contentPage.waitForTimeout(200);
+      }
+      const table2 = contentPage.locator('.variable-table, .s-params').first();
+      const lastRow2 = table2.locator('tbody tr').last();
+      const keyInput2 = lastRow2.locator('input[placeholder*="变量"], input[placeholder*="key"]').first();
+      await keyInput2.fill('scopeTest');
+      await contentPage.keyboard.press('Tab');
+      const valueInput2 = lastRow2.locator('input[placeholder*="值"], input[placeholder*="value"]').first();
+      await valueInput2.fill('localValue');
+      await valueInput2.blur();
+      await contentPage.waitForTimeout(200);
+      const closeBtn2 = contentPage.locator('.el-dialog__close, .close-btn').first();
+      if (await closeBtn2.isVisible()) {
+        await closeBtn2.click();
+      }
+      await contentPage.waitForTimeout(200);
       // 使用变量
-      await fillUrl(contentPage, 'http://{{scopeTest}}/api');
+      const urlInput = contentPage.locator('[data-testid="url-input"]');
+      await urlInput.clear();
+      await urlInput.fill('http://{{scopeTest}}/api');
+      await urlInput.blur();
+      await contentPage.waitForTimeout(200);
       await contentPage.waitForTimeout(300);
       // 验证变量被识别
-      await verifyUrlContainsVariable(contentPage, 'scopeTest');
+      const urlInput2 = contentPage.locator('[data-testid="url-input"]');
+      const value = await urlInput2.inputValue();
+      expect(value).toContain('{{scopeTest}}');
     });
 
     /**
@@ -480,12 +1348,39 @@ test.describe('15. HTTP节点 - 变量替换功能测试', () => {
      */
     test('局部变量不存在时应使用环境变量', async () => {
       // 添加环境变量
-      await addEnvironmentVariable(contentPage, 'envVar', 'envValue');
+      const variableBtn = contentPage.locator('[title*="变量"], .variable-btn, button:has-text("变量")').first();
+      await variableBtn.click();
+      await contentPage.waitForTimeout(300);
+      const envTab = contentPage.locator('.el-tabs__item:has-text("环境"), .env-tab').first();
+      if (await envTab.isVisible()) {
+        await envTab.click();
+        await contentPage.waitForTimeout(200);
+      }
+      const table = contentPage.locator('.variable-table, .s-params').first();
+      const lastRow = table.locator('tbody tr').last();
+      const keyInput = lastRow.locator('input[placeholder*="变量"], input[placeholder*="key"]').first();
+      await keyInput.fill('envVar');
+      await contentPage.keyboard.press('Tab');
+      const valueInput = lastRow.locator('input[placeholder*="值"], input[placeholder*="value"]').first();
+      await valueInput.fill('envValue');
+      await valueInput.blur();
+      await contentPage.waitForTimeout(200);
+      const closeBtn = contentPage.locator('.el-dialog__close, .close-btn').first();
+      if (await closeBtn.isVisible()) {
+        await closeBtn.click();
+      }
+      await contentPage.waitForTimeout(200);
       // 使用变量
-      await fillUrl(contentPage, 'http://{{envVar}}/api');
+      const urlInput = contentPage.locator('[data-testid="url-input"]');
+      await urlInput.clear();
+      await urlInput.fill('http://{{envVar}}/api');
+      await urlInput.blur();
+      await contentPage.waitForTimeout(200);
       await contentPage.waitForTimeout(300);
       // 验证变量被识别
-      await verifyUrlContainsVariable(contentPage, 'envVar');
+      const urlInput2 = contentPage.locator('[data-testid="url-input"]');
+      const value = await urlInput2.inputValue();
+      expect(value).toContain('{{envVar}}');
     });
 
     /**
@@ -502,12 +1397,39 @@ test.describe('15. HTTP节点 - 变量替换功能测试', () => {
      */
     test('环境变量不存在时应使用全局变量', async () => {
       // 添加全局变量
-      await addGlobalVariable(contentPage, 'globalVar', 'globalValue');
+      const variableBtn = contentPage.locator('[title*="变量"], .variable-btn, button:has-text("变量")').first();
+      await variableBtn.click();
+      await contentPage.waitForTimeout(300);
+      const globalTab = contentPage.locator('.el-tabs__item:has-text("全局"), .global-tab').first();
+      if (await globalTab.isVisible()) {
+        await globalTab.click();
+        await contentPage.waitForTimeout(200);
+      }
+      const table = contentPage.locator('.variable-table, .s-params').first();
+      const lastRow = table.locator('tbody tr').last();
+      const keyInput = lastRow.locator('input[placeholder*="变量"], input[placeholder*="key"]').first();
+      await keyInput.fill('globalVar');
+      await contentPage.keyboard.press('Tab');
+      const valueInput = lastRow.locator('input[placeholder*="值"], input[placeholder*="value"]').first();
+      await valueInput.fill('globalValue');
+      await valueInput.blur();
+      await contentPage.waitForTimeout(200);
+      const closeBtn = contentPage.locator('.el-dialog__close, .close-btn').first();
+      if (await closeBtn.isVisible()) {
+        await closeBtn.click();
+      }
+      await contentPage.waitForTimeout(200);
       // 使用变量
-      await fillUrl(contentPage, 'http://{{globalVar}}/api');
+      const urlInput = contentPage.locator('[data-testid="url-input"]');
+      await urlInput.clear();
+      await urlInput.fill('http://{{globalVar}}/api');
+      await urlInput.blur();
+      await contentPage.waitForTimeout(200);
       await contentPage.waitForTimeout(300);
       // 验证变量被识别
-      await verifyUrlContainsVariable(contentPage, 'globalVar');
+      const urlInput2 = contentPage.locator('[data-testid="url-input"]');
+      const value = await urlInput2.inputValue();
+      expect(value).toContain('{{globalVar}}');
     });
   });
 
@@ -527,9 +1449,34 @@ test.describe('15. HTTP节点 - 变量替换功能测试', () => {
      */
     test('应显示变量替换后的实际值预览', async () => {
       // 添加局部变量
-      await addLocalVariable(contentPage, 'previewVar', 'previewValue');
+      const variableBtn = contentPage.locator('[title*="变量"], .variable-btn, button:has-text("变量")').first();
+      await variableBtn.click();
+      await contentPage.waitForTimeout(300);
+      const localTab = contentPage.locator('.el-tabs__item:has-text("局部"), .local-tab').first();
+      if (await localTab.isVisible()) {
+        await localTab.click();
+        await contentPage.waitForTimeout(200);
+      }
+      const table = contentPage.locator('.variable-table, .s-params').first();
+      const lastRow = table.locator('tbody tr').last();
+      const keyInput = lastRow.locator('input[placeholder*="变量"], input[placeholder*="key"]').first();
+      await keyInput.fill('previewVar');
+      await contentPage.keyboard.press('Tab');
+      const valueInput = lastRow.locator('input[placeholder*="值"], input[placeholder*="value"]').first();
+      await valueInput.fill('previewValue');
+      await valueInput.blur();
+      await contentPage.waitForTimeout(200);
+      const closeBtn = contentPage.locator('.el-dialog__close, .close-btn').first();
+      if (await closeBtn.isVisible()) {
+        await closeBtn.click();
+      }
+      await contentPage.waitForTimeout(200);
       // 在URL中使用变量
-      await fillUrl(contentPage, 'http://{{previewVar}}/api');
+      const urlInput = contentPage.locator('[data-testid="url-input"]');
+      await urlInput.clear();
+      await urlInput.fill('http://{{previewVar}}/api');
+      await urlInput.blur();
+      await contentPage.waitForTimeout(200);
       await contentPage.waitForTimeout(300);
       // 检查预览元素
       const previewElement = contentPage.locator('.variable-preview, .var-tip').first();
@@ -554,13 +1501,38 @@ test.describe('15. HTTP节点 - 变量替换功能测试', () => {
      */
     test('鼠标悬停变量应显示当前值', async () => {
       // 添加局部变量
-      await addLocalVariable(contentPage, 'hoverVar', 'hoverValue');
+      const variableBtn = contentPage.locator('[title*="变量"], .variable-btn, button:has-text("变量")').first();
+      await variableBtn.click();
+      await contentPage.waitForTimeout(300);
+      const localTab = contentPage.locator('.el-tabs__item:has-text("局部"), .local-tab').first();
+      if (await localTab.isVisible()) {
+        await localTab.click();
+        await contentPage.waitForTimeout(200);
+      }
+      const table = contentPage.locator('.variable-table, .s-params').first();
+      const lastRow = table.locator('tbody tr').last();
+      const keyInput = lastRow.locator('input[placeholder*="变量"], input[placeholder*="key"]').first();
+      await keyInput.fill('hoverVar');
+      await contentPage.keyboard.press('Tab');
+      const valueInput = lastRow.locator('input[placeholder*="值"], input[placeholder*="value"]').first();
+      await valueInput.fill('hoverValue');
+      await valueInput.blur();
+      await contentPage.waitForTimeout(200);
+      const closeBtn = contentPage.locator('.el-dialog__close, .close-btn').first();
+      if (await closeBtn.isVisible()) {
+        await closeBtn.click();
+      }
+      await contentPage.waitForTimeout(200);
       // 在URL中使用变量
-      await fillUrl(contentPage, 'http://{{hoverVar}}/api');
+      const urlInput = contentPage.locator('[data-testid="url-input"]');
+      await urlInput.clear();
+      await urlInput.fill('http://{{hoverVar}}/api');
+      await urlInput.blur();
+      await contentPage.waitForTimeout(200);
       await contentPage.waitForTimeout(300);
       // 鼠标悬停到URL输入框
-      const urlInput = contentPage.locator('input[placeholder*="URL"], .url-input').first();
-      await urlInput.hover();
+      const urlInput2 = contentPage.locator('input[placeholder*="URL"], .url-input').first();
+      await urlInput2.hover();
       await contentPage.waitForTimeout(500);
       // 检查tooltip显示
       const tooltip = contentPage.locator('.el-tooltip__popper, .tooltip').first();

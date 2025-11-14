@@ -1,14 +1,5 @@
 import { expect, type Page } from '@playwright/test';
 import { test, initOfflineWorkbench, createProject, createSingleNode } from '../../../fixtures/fixtures';
-import {
-  fillUrl,
-  openHistoryPanel,
-  closeHistoryPanel,
-  getHistoryList,
-  clickHistoryItem,
-  deleteHistoryItem,
-  clearAllHistory
-} from './helpers/httpNodeHelpers';
 
 // 跳过原因: beforeEach钩子在createProject步骤超时失败
 // 40个测试失败都在等待"新增项目"对话框关闭时超时（30秒）
@@ -22,7 +13,11 @@ test.describe('12. HTTP节点 - 历史记录功能测试', () => {
   let contentPage: Page;
 
   const sendRequestAndSave = async (url: string, waitDuration = 0): Promise<void> => {
-    await fillUrl(contentPage, url);
+    const urlInput = contentPage.locator('[data-testid="url-input"]');
+    await urlInput.clear();
+    await urlInput.fill(url);
+    await urlInput.blur();
+    await contentPage.waitForTimeout(200);
     const sendBtn = contentPage.locator('button:has-text("发送请求")'); await sendBtn.click();
     const cancelBtn = contentPage.locator('button:has-text("取消请求")');
     const isCancelVisible = await cancelBtn.isVisible().catch(() => false);
@@ -83,7 +78,10 @@ test.describe('12. HTTP节点 - 历史记录功能测试', () => {
      */
     test('点击按钮应打开历史记录面板', async () => {
       // 点击历史记录按钮
-      await openHistoryPanel(contentPage);
+      const historyBtn = contentPage.locator('[title*="历史"], .history-btn, button:has-text("历史")').first();
+      await historyBtn.click();
+      await contentPage.waitForSelector('.history-dropdown, .history-detail-panel', { state: 'visible', timeout: 5000 });
+      await contentPage.waitForTimeout(100);
       // 检查面板是否显示
       const historyPanel = contentPage.locator('.history-dropdown, .history-detail-panel').first();
       await expect(historyPanel).toBeVisible();
@@ -106,10 +104,13 @@ test.describe('12. HTTP节点 - 历史记录功能测试', () => {
       // 发送请求并保存
       await sendRequestAndSave('https://httpbin.org/get');
       // 打开历史记录面板
-      await openHistoryPanel(contentPage);
+      const historyBtn = contentPage.locator('[title*="历史"], .history-btn, button:has-text("历史")').first();
+      await historyBtn.click();
+      await contentPage.waitForSelector('.history-dropdown, .history-detail-panel', { state: 'visible', timeout: 5000 });
+      await contentPage.waitForTimeout(100);
       await contentPage.waitForSelector('.history-list .history-item, .history-record', { state: 'attached', timeout: 5000 });
       // 检查历史记录列表
-      const historyList = getHistoryList(contentPage);
+      const historyList = contentPage.locator('.history-list .history-item, .history-record');
       const count = await historyList.count();
       expect(count).toBeGreaterThan(0);
     });
@@ -132,8 +133,11 @@ test.describe('12. HTTP节点 - 历史记录功能测试', () => {
       await sendRequestAndSave('https://httpbin.org/get?test=1');
       await sendRequestAndSave('https://httpbin.org/get?test=2');
       // 打开历史记录
-      await openHistoryPanel(contentPage);
-      const historyList = getHistoryList(contentPage);
+      const historyBtn = contentPage.locator('[title*="历史"], .history-btn, button:has-text("历史")').first();
+      await historyBtn.click();
+      await contentPage.waitForSelector('.history-dropdown, .history-detail-panel', { state: 'visible', timeout: 5000 });
+      await contentPage.waitForTimeout(100);
+      const historyList = contentPage.locator('.history-list .history-item, .history-record');y-list .history-item, .history-record');y-list .history-item, .history-record');
       const firstItem = historyList.first();
       await firstItem.hover();
       await contentPage.waitForTimeout(1200);
@@ -147,7 +151,20 @@ test.describe('12. HTTP节点 - 历史记录功能测试', () => {
         .first()
         .textContent();
       expect(queryText).toContain('2');
-      await closeHistoryPanel(contentPage);
+      const detailPanel = contentPage.locator('.history-detail-panel').first();
+      if (await detailPanel.isVisible()) {
+        const closeIcon = detailPanel.locator('.close-icon').first();
+        if (await closeIcon.isVisible()) {
+          await closeIcon.click();
+          await contentPage.waitForTimeout(300);
+        }
+      }
+      const dropdown = contentPage.locator('.history-dropdown').first();
+      if (await dropdown.isVisible()) {
+        const historyBtn = contentPage.locator('[title*="历史"], .history-btn, button:has-text("历史")').first();
+        await historyBtn.click();
+        await contentPage.waitForTimeout(200);
+      }
     });
 
     /**
@@ -203,7 +220,20 @@ test.describe('12. HTTP节点 - 历史记录功能测试', () => {
       // 检查请求方法
       const methodText = await contentPage.locator('.history-detail-panel .method-tag').first().textContent();
       expect(methodText).toContain('GET');
-      await closeHistoryPanel(contentPage);
+      const detailPanel = contentPage.locator('.history-detail-panel').first();
+      if (await detailPanel.isVisible()) {
+        const closeIcon = detailPanel.locator('.close-icon').first();
+        if (await closeIcon.isVisible()) {
+          await closeIcon.click();
+          await contentPage.waitForTimeout(300);
+        }
+      }
+      const dropdown = contentPage.locator('.history-dropdown').first();
+      if (await dropdown.isVisible()) {
+        const historyBtn = contentPage.locator('[title*="历史"], .history-btn, button:has-text("历史")').first();
+        await historyBtn.click();
+        await contentPage.waitForTimeout(200);
+      }
     });
 
     /**
@@ -234,7 +264,20 @@ test.describe('12. HTTP节点 - 历史记录功能测试', () => {
       // 检查URL显示
       const urlText = await contentPage.locator('.history-detail-panel .url-text').first().textContent();
       expect(urlText).toContain('httpbin.org');
-      await closeHistoryPanel(contentPage);
+      const detailPanel = contentPage.locator('.history-detail-panel').first();
+      if (await detailPanel.isVisible()) {
+        const closeIcon = detailPanel.locator('.close-icon').first();
+        if (await closeIcon.isVisible()) {
+          await closeIcon.click();
+          await contentPage.waitForTimeout(300);
+        }
+      }
+      const dropdown = contentPage.locator('.history-dropdown').first();
+      if (await dropdown.isVisible()) {
+        const historyBtn = contentPage.locator('[title*="历史"], .history-btn, button:has-text("历史")').first();
+        await historyBtn.click();
+        await contentPage.waitForTimeout(200);
+      }
     });
 
     /**
@@ -432,8 +475,8 @@ test.describe('12. HTTP节点 - 历史记录功能测试', () => {
       await openHistoryPanel(contentPage);
       // 点击清空按钮并确认
       await clearAllHistory(contentPage);
-      // 检查历史记录数量
-      const count = await getHistoryList(contentPage).count();
+      // 检查历史记录清空
+      const count = await contentPage.locator('.history-list .history-item, .history-record').count();
       expect(count).toBe(0);
     });
 

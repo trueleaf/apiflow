@@ -1,6 +1,7 @@
 import { test as base, _electron as electron, ElectronApplication, Page, expect } from '@playwright/test';
 import path from 'path';
 import type { HeaderAndContentPages, CreateProjectOptions, CreateNodeOptions, CreateNodeResult, NodeType } from '../types/test.type';
+import { startTestServer, stopTestServer } from './testServer';
 
 const HEADER_URL_HINTS = ['header.html', '/header'];
 const isHeaderUrl = (url: string): boolean => {
@@ -459,14 +460,16 @@ export const test = base.extend<{
   electronApp: ElectronApplication;
 }>({
   electronApp: async ({}, use) => {
+    await startTestServer(3100);
+
     const mainPath = path.join(process.cwd(), 'dist', 'main', 'main.mjs');
-    
+
     const launchArgs = [mainPath];
-    
+
     if (process.env.CI) {
       launchArgs.push('--no-sandbox', '--disable-setuid-sandbox');
     }
-    
+
     const electronApp = await electron.launch({
       args: launchArgs,
       env: {
@@ -483,6 +486,8 @@ export const test = base.extend<{
     await use(electronApp);
 
     await electronApp.close();
+
+    await stopTestServer();
   },
 });
 

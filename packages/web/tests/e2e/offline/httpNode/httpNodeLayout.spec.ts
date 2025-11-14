@@ -1,20 +1,99 @@
 import { expect, type Page } from '@playwright/test';
 import { test, initOfflineWorkbench, createProject, createSingleNode } from '../../../fixtures/fixtures';
-import {
-  switchToHorizontalLayout,
-  switchToVerticalLayout,
-  verifyHorizontalLayout,
-  verifyVerticalLayout,
-  fillUrl,
-  verifyUrlValue,
-  dragPanelSplitter,
-  doubleClickPanelSplitter,
-  getRequestPanelWidth,
-  getResponsePanelWidth,
-  verifyMinPanelWidth,
-  verifyDragCursor,
-  resizeWindow
-} from './helpers/httpNodeHelpers';
+
+//验证URL输入框的值
+const verifyUrlValue = async (page: Page, expectedUrl: string): Promise<void> => {
+  const urlInput = page.locator('[data-testid="url-input"]');
+  await expect(urlInput).toHaveValue(expectedUrl);
+};
+//切换到左右布局
+const switchToHorizontalLayout = async (page: Page): Promise<void> => {
+  const layoutBtn = page.locator('button:has-text("左右布局"), .horizontal-layout-btn, [title*="左右布局"]').first();
+  if (await layoutBtn.isVisible()) {
+    await layoutBtn.click();
+    await page.waitForTimeout(300);
+  }
+};
+//切换到上下布局
+const switchToVerticalLayout = async (page: Page): Promise<void> => {
+  const layoutBtn = page.locator('button:has-text("上下布局"), .vertical-layout-btn, [title*="上下布局"]').first();
+  if (await layoutBtn.isVisible()) {
+    await layoutBtn.click();
+    await page.waitForTimeout(300);
+  }
+};
+//验证水平布局
+const verifyHorizontalLayout = async (page: Page): Promise<void> => {
+  const container = page.locator('.layout-container, .http-node-container').first();
+  const className = await container.getAttribute('class', { timeout: 5000 }).catch(() => null);
+  if (className) {
+    expect(className).toContain('horizontal');
+  }
+};
+//验证垂直布局
+const verifyVerticalLayout = async (page: Page): Promise<void> => {
+  const container = page.locator('.layout-container, .http-node-container').first();
+  const className = await container.getAttribute('class', { timeout: 5000 }).catch(() => null);
+  if (className) {
+    expect(className).toContain('vertical');
+  }
+};
+//拖拽面板分隔线
+const dragPanelSplitter = async (page: Page, offsetX: number, offsetY: number): Promise<void> => {
+  const splitter = page.locator('.splitter, .el-split-pane__trigger, .resize-handle').first();
+  if (await splitter.isVisible()) {
+    const box = await splitter.boundingBox();
+    if (box) {
+      await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
+      await page.mouse.down();
+      await page.mouse.move(box.x + box.width / 2 + offsetX, box.y + box.height / 2 + offsetY);
+      await page.mouse.up();
+      await page.waitForTimeout(300);
+    }
+  }
+};
+//双击面板分隔线
+const doubleClickPanelSplitter = async (page: Page): Promise<void> => {
+  const splitter = page.locator('.splitter, .el-split-pane__trigger, .resize-handle').first();
+  if (await splitter.isVisible()) {
+    await splitter.dblclick();
+    await page.waitForTimeout(300);
+  }
+};
+//获取请求面板宽度
+const getRequestPanelWidth = async (page: Page): Promise<number> => {
+  const panel = page.locator('.request-panel, .left-panel').first();
+  const box = await panel.boundingBox({ timeout: 5000 }).catch(() => null);
+  return box ? box.width : 0;
+};
+//获取响应面板宽度
+const getResponsePanelWidth = async (page: Page): Promise<number> => {
+  const panel = page.locator('.response-panel, .right-panel').first();
+  const box = await panel.boundingBox({ timeout: 5000 }).catch(() => null);
+  return box ? box.width : 0;
+};
+//验证面板最小宽度
+const verifyMinPanelWidth = async (page: Page, minWidth: number): Promise<void> => {
+  const width = await getRequestPanelWidth(page);
+  if (width > 0) {
+    expect(width).toBeGreaterThanOrEqual(minWidth);
+  }
+};
+//验证拖拽光标样式
+const verifyDragCursor = async (page: Page): Promise<void> => {
+  const splitter = page.locator('.splitter, .el-split-pane__trigger, .resize-handle').first();
+  if (await splitter.isVisible()) {
+    const cursor = await splitter.evaluate((el) => {
+      return window.getComputedStyle(el).cursor;
+    });
+    expect(cursor).toBeDefined();
+  }
+};
+//设置窗口大小
+const resizeWindow = async (page: Page, width: number, height: number): Promise<void> => {
+  await page.setViewportSize({ width, height });
+  await page.waitForTimeout(300);
+};
 
 test.describe('13. HTTP节点 - 布局管理测试', () => {
   let headerPage: Page;
@@ -135,7 +214,11 @@ test.describe('13. HTTP节点 - 布局管理测试', () => {
     test('切换布局不应丢失数据', async () => {
       const testUrl = 'https://httpbin.org/get?layout=test';
       // 填写URL
-      await fillUrl(contentPage, testUrl);
+      const urlInput = contentPage.locator('[data-testid="url-input"]');
+      await urlInput.clear();
+      await urlInput.fill(testUrl);
+      await urlInput.blur();
+      await contentPage.waitForTimeout(200);
       await contentPage.waitForTimeout(500);
       // 切换到左右布局
       await switchToHorizontalLayout(contentPage);

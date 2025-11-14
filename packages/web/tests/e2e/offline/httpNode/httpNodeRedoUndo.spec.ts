@@ -1,22 +1,309 @@
 import { expect, type Page } from '@playwright/test';
 import { test, initOfflineWorkbench, createProject, createSingleNode } from '../../../fixtures/fixtures';
-import {
-  fillUrl,
-  verifyUrlValue,
-  addQueryParam,
-  verifyQueryParamExists,
-  addHeader,
-  verifyHeaderExists,
-  fillJsonBody,
-  selectHttpMethod,
-  verifyUndoDisabled,
-  verifyUndoEnabled,
-  verifyRedoDisabled,
-  verifyRedoEnabled,
-  undoByShortcut,
-  redoByShortcut,
-  redoByMacShortcut
-} from './helpers/httpNodeHelpers';
+
+//选择HTTP请求方法
+const selectHttpMethod = async (
+  page: Page,
+  method: 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH' | 'HEAD' | 'OPTIONS'
+): Promise<void> => {
+  const methodSelect = page.locator('[data-testid="method-select"]');
+  await methodSelect.click();
+  await page.locator(`.el-select-dropdown__item:has-text("${method}")`).click();
+  await page.waitForTimeout(200);
+};
+//输入请求URL
+const fillUrl = async (page: Page, url: string): Promise<void> => {
+  const urlInput = page.locator('[data-testid="url-input"]');
+  await urlInput.clear();
+  await urlInput.fill(url);
+  await urlInput.blur();
+  await page.waitForTimeout(200);
+};
+//验证URL输入框的值
+const verifyUrlValue = async (page: Page, expectedUrl: string): Promise<void> => {
+  const urlInput = page.locator('[data-testid="url-input"]');
+  await expect(urlInput).toHaveValue(expectedUrl);
+};
+//切换到指定标签
+const switchToTab = async (
+  page: Page,
+  tabName: 'Params' | 'Body' | 'Headers' | '返回参数' | '前置脚本' | '后置脚本' | '备注信息'
+): Promise<void> => {
+  const targetName = tabName === 'Headers' ? '请求头' : tabName;
+  const tab = page.locator(`.el-tabs__item:has-text("${targetName}")`);
+  await tab.click();
+  await page.waitForTimeout(300);
+};
+//添加Query参数
+const addQueryParam = async (
+  page: Page,
+  key: string,
+  value: string,
+  options: { enabled?: boolean; description?: string } = {}
+): Promise<void> => {
+  const { enabled = true, description = '' } = options;
+  const paramsActive = await page
+    .locator('.el-tabs__item.is-active:has-text("Params"), .el-tabs__item.is-active:has-text("参数")')
+    .first()
+    .isVisible()
+    .catch(() => false);
+  if (!paramsActive) {
+    await switchToTab(page, 'Params');
+  }
+  const tree = page.locator('.body-params .el-tree, .query-path-params .el-tree').first();
+  if (await tree.count()) {
+    await tree.waitFor({ state: 'visible', timeout: 5000 });
+    const rows = tree.locator('.custom-params');
+    const count = await rows.count();
+    const lastIndex = count > 0 ? count - 1 : 0;
+    const targetRow = rows.nth(lastIndex);
+    const keyInput = targetRow.locator('input[placeholder*="参数"], input[placeholder*="key"]').first();
+    await keyInput.fill(key);
+    const valueInput = targetRow.locator(
+      '.value-text-input, textarea, input[placeholder*="值"], input[placeholder*="value"]'
+    ).first();
+    if (value.includes('\n')) {
+      await valueInput.click({ force: true });
+      await page.waitForTimeout(50);
+      const textarea = targetRow
+        .locator('.value-textarea textarea, .value-textarea .el-textarea__inner, textarea')
+        .first();
+      await textarea.waitFor({ state: 'visible', timeout: 3000 });
+      await textarea.fill(value);
+      await textarea.blur();
+    } else {
+      await valueInput.fill(value);
+    }
+    if (description) {
+      const descInput = targetRow.locator('input[placeholder*="描述"], input[placeholder*="说明"]').first();
+      if (await descInput.count()) {
+        await descInput.fill(description);
+      }
+    }
+    if (!enabled) {
+      const checkbox = targetRow.locator('input[type="checkbox"]').first();
+      if (await checkbox.isChecked()) {
+        const checkboxWrapper = targetRow.locator('.el-checkbox').first();
+        await checkboxWrapper.click();
+      }
+    }
+  } else {
+    let keyInput = page.locator('input[placeholder="输入参数名称自动换行"]').first();
+    if (!(await keyInput.count())) {
+      keyInput = page.locator('input[placeholder*="参数名称"]').first();
+    }
+    if (!(await keyInput.count())) {
+      keyInput = page.locator('input[placeholder*="参数"], input[placeholder*="key"]').first();
+    }
+    await keyInput.fill(key);
+    let valueInput = page.locator('input[placeholder="参数值、@代表mock数据、{{ 变量 }}"]').first();
+    if (!(await valueInput.count())) {
+      valueInput = page.locator('input[placeholder*="参数值"]').first();
+    }
+    if (!(await valueInput.count())) {
+      valueInput = page.locator('input[placeholder*="值"], input[placeholder*="value"]').first();
+    }
+    if (value.includes('\n')) {
+      await valueInput.click({ force: true });
+      await page.waitForTimeout(50);
+      const paramRow = page.locator('.custom-params').filter({ has: valueInput }).first();
+      const textarea = paramRow
+        .locator('.value-textarea textarea, .value-textarea .el-textarea__inner, textarea')
+        .first();
+      await textarea.waitFor({ state: 'visible', timeout: 3000 });
+      await textarea.fill(value);
+      await textarea.blur();
+    } else {
+      await valueInput.fill(value);
+    }
+    if (description) {
+      let descInput = page.locator('input[placeholder="参数描述与备注"]').first();
+      if (!(await descInput.count())) {
+        descInput = page.locator('input[placeholder*="描述"], input[placeholder*="说明"]').first();
+      }
+      if (await descInput.count()) {
+        await descInput.fill(description);
+      }
+    }
+    if (!enabled) {
+      let checkbox = page.locator('label:has-text("必有") input[type="checkbox"]').first();
+      if (!(await checkbox.count())) {
+        checkbox = page.locator('.params-table input[type="checkbox"], .s-params input[type="checkbox"]').first();
+      }
+      if (!(await checkbox.count())) {
+        checkbox = page.locator('input[type="checkbox"]').first();
+      }
+      if (await checkbox.count()) {
+        await checkbox.uncheck();
+      }
+    }
+  }
+  await page.waitForTimeout(20);
+};
+//验证参数存在
+const verifyQueryParamExists = async (
+  page: Page,
+  key: string
+): Promise<void> => {
+  await switchToTab(page, 'Params');
+  const container = page.locator('.query-path-params .el-tree').first();
+  await container.waitFor({ state: 'visible', timeout: 5000 });
+  const keyInputs = container.locator('input[placeholder="输入参数名称自动换行"], input[placeholder*="参数"], input[placeholder*="key"]');
+  const count = await keyInputs.count();
+  for (let i = 0; i < count; i++) {
+    const candidate = keyInputs.nth(i);
+    const value = await candidate.inputValue();
+    if (value === key) {
+      await expect(candidate).toBeVisible();
+      return;
+    }
+  }
+  throw new Error(`Query param ${key} not found`);
+};
+const addHeader = async (
+  page: Page,
+  key: string,
+  value: string,
+  options: { enabled?: boolean; description?: string } = {}
+): Promise<void> => {
+  const { enabled = true, description = '' } = options;
+  const headersActive = await page
+    .locator('.el-tabs__item.is-active:has-text("Headers"), .el-tabs__item.is-active:has-text("请求头")')
+    .first()
+    .isVisible()
+    .catch(() => false);
+  if (!headersActive) {
+    await switchToTab(page, 'Headers');
+  }
+  const container = page.locator('.header-info .el-tree').first();
+  await container.waitFor({ state: 'visible', timeout: 5000 });
+  const rows = container.locator('.custom-params');
+  const count = await rows.count();
+  const lastIndex = count > 0 ? count - 1 : 0;
+  const lastRow = rows.nth(lastIndex);
+  const keyInput = lastRow.locator('input[placeholder*="请求头"], input[placeholder="输入参数名称自动换行"], input[placeholder*="参数"], input[placeholder*="key"]').first();
+  await keyInput.fill(key);
+  const valueInput = lastRow.locator('.value-text-input, textarea, input[placeholder*="值"], input[placeholder*="value"]').first();
+  await valueInput.fill(value);
+  if (description) {
+    const descInput = lastRow.locator('input[placeholder="参数描述与备注"], input[placeholder*="描述"], input[placeholder*="说明"]').first();
+    if (await descInput.count()) {
+      await descInput.fill(description);
+    }
+  }
+  if (!enabled) {
+    const checkboxWrapper = lastRow.locator('.el-checkbox').first();
+    if (await checkboxWrapper.count()) {
+      await checkboxWrapper.click();
+    }
+  }
+  await page.waitForTimeout(20);
+};
+//验证请求头存在
+const verifyHeaderExists = async (page: Page, key: string): Promise<void> => {
+  await switchToTab(page, 'Headers');
+  const headerSection = page.locator('.header-info, .headers-table, .s-params').first();
+  await headerSection.waitFor({ state: 'visible', timeout: 5000 });
+  const exactInput = headerSection.locator(`input[value="${key}"]`).first();
+  if (await exactInput.count()) {
+    await expect(exactInput).toBeVisible();
+    return;
+  }
+  const keyInputs = headerSection.locator('input[placeholder*="参数"], input[placeholder*="key"], input[placeholder*="请求头"]');
+  const inputCount = await keyInputs.count();
+  for (let i = 0; i < inputCount; i++) {
+    const candidate = keyInputs.nth(i);
+    const value = await candidate.inputValue();
+    if (value === key) {
+      await expect(candidate).toBeVisible();
+      return;
+    }
+  }
+  throw new Error(`Header ${key} not found`);
+};
+//切换Body模式
+const switchBodyMode = async (
+  page: Page,
+  mode: 'none' | 'JSON' | 'form-data' | 'x-www-form-urlencoded' | 'raw' | 'binary'
+): Promise<void> => {
+  await switchToTab(page, 'Body');
+  const modeMap: Record<typeof mode, string> = {
+    none: 'none',
+    JSON: 'json',
+    'form-data': 'formdata',
+    'x-www-form-urlencoded': 'urlencoded',
+    raw: 'raw',
+    binary: 'binary'
+  };
+  const targetValue = modeMap[mode];
+  const radioOption = page
+    .locator('.body-params .el-radio-group .el-radio')
+    .filter({ hasText: targetValue });
+  if (await radioOption.count()) {
+    await radioOption.first().click();
+  } else {
+    const radioInput = page.locator(`.body-params input[value="${targetValue}"]`).first();
+    await radioInput.check({ force: true });
+  }
+  await page.waitForTimeout(300);
+};
+//填充JSON Body
+const fillJsonBody = async (
+  page: Page,
+  json: Record<string, unknown> | string
+): Promise<void> => {
+  await switchBodyMode(page, 'JSON');
+  const jsonString = typeof json === 'string' ? json : JSON.stringify(json, null, 2);
+  const editor = page.locator('.workbench .monaco-editor').first();
+  const jsonTip = page.locator('.workbench .json-tip').first();
+  if (await jsonTip.isVisible()) {
+    await jsonTip.click({ force: true });
+    await page.waitForTimeout(100);
+  }
+  await editor.click({ force: true });
+  await page.keyboard.press('Control+A');
+  await page.keyboard.type(jsonString);
+  await page.waitForTimeout(300);
+};
+//验证撤销按钮是否禁用
+const verifyUndoDisabled = async (page: Page): Promise<void> => {
+  const undoBtn = page.locator('[title*="撤销"], .undo-btn, button:has-text("撤销")').first();
+  const isDisabled = await undoBtn.isDisabled();
+  expect(isDisabled).toBe(true);
+};
+//验证撤销按钮是否启用
+const verifyUndoEnabled = async (page: Page): Promise<void> => {
+  const undoBtn = page.locator('[title*="撤销"], .undo-btn, button:has-text("撤销")').first();
+  const isDisabled = await undoBtn.isDisabled();
+  expect(isDisabled).toBe(false);
+};
+//验证重做按钮是否禁用
+const verifyRedoDisabled = async (page: Page): Promise<void> => {
+  const redoBtn = page.locator('[title*="重做"], .redo-btn, button:has-text("重做")').first();
+  const isDisabled = await redoBtn.isDisabled();
+  expect(isDisabled).toBe(true);
+};
+//验证重做按钮是否启用
+const verifyRedoEnabled = async (page: Page): Promise<void> => {
+  const redoBtn = page.locator('[title*="重做"], .redo-btn, button:has-text("重做")').first();
+  const isDisabled = await redoBtn.isDisabled();
+  expect(isDisabled).toBe(false);
+};
+//使用快捷键撤销 (Ctrl+Z)
+const undoByShortcut = async (page: Page): Promise<void> => {
+  await page.keyboard.press('Control+Z');
+  await page.waitForTimeout(200);
+};
+//使用快捷键重做 (Ctrl+Y)
+const redoByShortcut = async (page: Page): Promise<void> => {
+  await page.keyboard.press('Control+Y');
+  await page.waitForTimeout(200);
+};
+//使用Mac快捷键重做 (Cmd+Shift+Z)
+const redoByMacShortcut = async (page: Page): Promise<void> => {
+  await page.keyboard.press('Meta+Shift+Z');
+  await page.waitForTimeout(200);
+};
 
 test.describe('11. HTTP节点 - 撤销/重做功能测试', () => {
   let headerPage: Page;

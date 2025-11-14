@@ -1,15 +1,5 @@
 import { expect, type Page } from '@playwright/test';
 import { test, initOfflineWorkbench, createProject, createSingleNode } from '../../../fixtures/fixtures';
-import {
-  fillUrl,
-  switchToPreRequestTab,
-  fillPreRequestScript,
-  switchToAfterRequestTab,
-  fillAfterRequestScript,
-  openHistoryPanel,
-  addLocalVariable,
-  switchToTab
-} from './helpers/httpNodeHelpers';
 
 test.describe('17. HTTP节点 - 异常场景测试', () => {
   let headerPage: Page;
@@ -44,7 +34,11 @@ test.describe('17. HTTP节点 - 异常场景测试', () => {
      */
     test('网络不可用应显示错误提示', async () => {
       // 输入一个本地不存在的服务地址
-      await fillUrl(contentPage, 'http://localhost:9999/unavailable');
+      const urlInput = contentPage.locator('[data-testid="url-input"]');
+      await urlInput.clear();
+      await urlInput.fill('http://localhost:9999/unavailable');
+      await urlInput.blur();
+      await contentPage.waitForTimeout(200);
       // 点击发送请求
       const sendBtn = contentPage.locator('button:has-text("发送请求")'); await sendBtn.click();
       await contentPage.waitForTimeout(3000);
@@ -71,7 +65,11 @@ test.describe('17. HTTP节点 - 异常场景测试', () => {
      */
     test('DNS解析失败应显示错误', async () => {
       // 输入一个不存在的域名地址
-      await fillUrl(contentPage, 'http://this-domain-does-not-exist-12345.com/api');
+      const urlInput = contentPage.locator('[data-testid="url-input"]');
+      await urlInput.clear();
+      await urlInput.fill('http://this-domain-does-not-exist-12345.com/api');
+      await urlInput.blur();
+      await contentPage.waitForTimeout(200);
       // 点击发送请求
       const sendBtn = contentPage.locator('button:has-text("发送请求")'); await sendBtn.click();
       await contentPage.waitForTimeout(3000);
@@ -99,7 +97,11 @@ test.describe('17. HTTP节点 - 异常场景测试', () => {
      */
     test('连接超时应显示超时错误', async () => {
       // 输入一个会导致连接超时的地址
-      await fillUrl(contentPage, 'http://10.255.255.1/timeout');
+      const urlInput = contentPage.locator('[data-testid="url-input"]');
+      await urlInput.clear();
+      await urlInput.fill('http://10.255.255.1/timeout');
+      await urlInput.blur();
+      await contentPage.waitForTimeout(200);
       // 点击发送请求
       const sendBtn = contentPage.locator('button:has-text("发送请求")'); await sendBtn.click();
       await contentPage.waitForTimeout(5000);
@@ -126,7 +128,11 @@ test.describe('17. HTTP节点 - 异常场景测试', () => {
      */
     test('连接被拒绝应显示错误', async () => {
       // 输入一个端口未监听的本地地址
-      await fillUrl(contentPage, 'http://localhost:54321/refused');
+      const urlInput = contentPage.locator('[data-testid="url-input"]');
+      await urlInput.clear();
+      await urlInput.fill('http://localhost:54321/refused');
+      await urlInput.blur();
+      await contentPage.waitForTimeout(200);
       // 点击发送请求
       const sendBtn = contentPage.locator('button:has-text("发送请求")'); await sendBtn.click();
       await contentPage.waitForTimeout(3000);
@@ -154,7 +160,11 @@ test.describe('17. HTTP节点 - 异常场景测试', () => {
      */
     test('400错误应正确显示', async () => {
       // 请求返回400状态码的测试接口
-      await fillUrl(contentPage, 'https://httpbin.org/status/400');
+      const urlInput = contentPage.locator('[data-testid="url-input"]');
+      await urlInput.clear();
+      await urlInput.fill('https://httpbin.org/status/400');
+      await urlInput.blur();
+      await contentPage.waitForTimeout(200);
       // 点击发送请求
       const sendBtn = contentPage.locator('button:has-text("发送请求")'); await sendBtn.click();
       await contentPage.waitForTimeout(3000);
@@ -181,7 +191,11 @@ test.describe('17. HTTP节点 - 异常场景测试', () => {
      */
     test('401未授权应显示错误', async () => {
       // 请求返回401状态码的测试接口
-      await fillUrl(contentPage, 'https://httpbin.org/status/401');
+      const urlInput = contentPage.locator('[data-testid="url-input"]');
+      await urlInput.clear();
+      await urlInput.fill('https://httpbin.org/status/401');
+      await urlInput.blur();
+      await contentPage.waitForTimeout(200);
       // 点击发送请求
       const sendBtn = contentPage.locator('button:has-text("发送请求")'); await sendBtn.click();
       await contentPage.waitForTimeout(3000);
