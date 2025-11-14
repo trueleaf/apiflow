@@ -135,54 +135,6 @@
   top: auto;
 }
 
-.cl-rich-input__variable-popover__header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
-  margin-bottom: 8px;
-}
-
-.cl-rich-input__variable-popover__title {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-weight: 500;
-  font-size: 14px;
-  color: inherit;
-}
-
-.cl-rich-input__variable-popover__title-icon {
-  width: 16px;
-  height: 16px;
-}
-
-.cl-rich-input__variable-popover__close {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 26px;
-  height: 26px;
-  border: none;
-  background: transparent;
-  border-radius: 6px;
-  color: inherit;
-  cursor: pointer;
-}
-
-.cl-rich-input__variable-popover__close:hover {
-  background: rgba(15, 23, 42, 0.04);
-}
-
-[data-theme="dark"] .cl-rich-input__variable-popover__close:hover {
-  background: rgba(255, 255, 255, 0.08);
-}
-
-.cl-rich-input__variable-popover__close-icon {
-  width: 16px;
-  height: 16px;
-}
-
 .cl-rich-input__variable-popover__content {
   font-size: 13px;
   line-height: 1.6;

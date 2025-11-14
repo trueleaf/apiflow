@@ -36,17 +36,8 @@
           :data-placement="variablePopover.placement"
           tabindex="-1"
         >
-          <div class="cl-rich-input__variable-popover__header">
-            <div class="cl-rich-input__variable-popover__title">
-              <InfoIcon class="cl-rich-input__variable-popover__title-icon" />
-              <span>{{ variablePopover.label || variablePopover.token }}</span>
-            </div>
-            <button class="cl-rich-input__variable-popover__close" type="button" @click="handleVariablePopoverClose">
-              <XIcon class="cl-rich-input__variable-popover__close-icon" />
-            </button>
-          </div>
           <div class="cl-rich-input__variable-popover__content">
-            <slot name="variable" :token="variablePopover.token" :label="variablePopover.label" :close="handleVariablePopoverClose" />
+            <slot name="variable" :token="variablePopover.token" :label="variablePopover.label" />
           </div>
         </div>
       </transition>
@@ -63,7 +54,6 @@ import { Plugin, PluginKey } from 'prosemirror-state'
 import { Decoration, DecorationSet } from 'prosemirror-view'
 import type { Node as ProseMirrorNode } from 'prosemirror-model'
 import { useSlots, onMounted, onBeforeUnmount, reactive, ref, computed, watch, nextTick } from 'vue'
-import { InfoIcon, XIcon } from 'lucide-vue-next'
 import type { ClRichInputProps, ClRichInputEmits } from './types'
 import './style/richInputStyle.css'
 
@@ -317,10 +307,6 @@ const openVariablePopover = (token: string, target: HTMLElement) => {
       variablePopoverRef.value.focus()
     }
   })
-}
-
-const handleVariablePopoverClose = () => {
-  closeVariablePopover()
 }
 
 const handleEditorClick = (event: MouseEvent) => {

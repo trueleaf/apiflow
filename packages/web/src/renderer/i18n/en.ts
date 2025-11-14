@@ -381,8 +381,6 @@ export default {
   变量名称: 'Variable Name',
   请输入变量名称: 'Please enter variable name',
   变量值: 'Variable Value',
-  实际值: 'Actual Value',
-  无当前变量: 'Variable Not Found',
   请输入变量值: 'Please enter variable value',
   值类型: 'Value Type',
   变量列表: 'Variable List',
