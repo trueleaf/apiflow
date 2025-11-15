@@ -12,6 +12,7 @@ class AppSettingsCache {
       const title = localStorage.getItem(cacheKey.settings.app.title);
       return title || config.appConfig.appTitle;
     } catch (error) {
+      logger.error('获取应用标题失败', { error });
       return config.appConfig.appTitle;
     }
   }
@@ -37,6 +38,7 @@ class AppSettingsCache {
       const logo = localStorage.getItem(cacheKey.settings.app.logo);
       return logo || config.appConfig.appLogo;
     } catch (error) {
+      logger.error('获取应用Logo失败', { error });
       return config.appConfig.appLogo;
     }
   }
@@ -65,6 +67,7 @@ class AppSettingsCache {
       }
       return config.appConfig.appTheme;
     } catch (error) {
+      logger.error('获取应用主题失败', { error });
       return config.appConfig.appTheme;
     }
   }

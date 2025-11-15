@@ -41,8 +41,8 @@ class WebsocketResponseCache {
         }
       });
     } catch (error) {
+      logger.error('初始化WebSocket响应缓存数据库失败', { error });
       this.db = null;
-      throw error;
     }
   }
 

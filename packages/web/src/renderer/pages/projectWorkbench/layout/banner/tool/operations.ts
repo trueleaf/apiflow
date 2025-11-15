@@ -1,22 +1,20 @@
-import { i18n } from '@/i18n';
-
 export const originOperaions = [
   {
-    name: i18n.global.t('新增文件夹'),
+    name: '新增文件夹',
     icon: "#iconxinzengwenjian",
     op: "addRootFolder",
     shortcut: [],
     pin: true,
   },
   {
-    name: i18n.global.t('新增文件'),
+    name: '新增文件',
     icon: "#iconwenjian",
     op: "addRootFile",
     shortcut: [],
     pin: true,
   },
   {
-    name: i18n.global.t('刷新banner'),
+    name: '刷新banner',
     icon: "#iconshuaxin",
     op: "freshBanner",
     shortcut: [],
@@ -24,35 +22,35 @@ export const originOperaions = [
     viewOnly: true,
   },
   {
-    name: i18n.global.t('Cookie管理'),
+    name: 'Cookie管理',
     icon: "#iconCookies",
     op: "cookies",
     shortcut: ["Ctrl", "Alt", "C"],
     pin: true,
   },
   {
-    name: i18n.global.t('回收站'),
+    name: '回收站',
     icon: "#iconhuishouzhan",
     op: "recycler",
     shortcut: ["Ctrl", "Alt", "R"],
     pin: true,
   },
   {
-    name: i18n.global.t('项目分享'),
+    name: '项目分享',
     icon: "#iconlink",
     op: "generateLink",
     shortcut: ["Ctrl", "L"],
     pin: false,
   },
   {
-    name: i18n.global.t('导出文档'),
+    name: '导出文档',
     icon: "arrowUpToLine",
     op: "exportDoc",
     shortcut: ["Ctrl", "E"],
     pin: false,
   },
   {
-    name: i18n.global.t('导入文档'),
+    name: '导入文档',
     icon: "arrowDownToLine",
     op: "importDoc",
     shortcut: ["Ctrl", "I"],
@@ -67,7 +65,7 @@ export const originOperaions = [
   //   viewOnly: true,
   // },
   {
-    name: i18n.global.t('全局变量'),
+    name: '全局变量',
     icon: "variable",
     op: "variable",
     shortcut: [],

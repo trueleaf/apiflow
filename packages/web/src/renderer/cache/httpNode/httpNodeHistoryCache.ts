@@ -45,8 +45,8 @@ class HttpNodeHistoryCache {
         }
       });
     } catch (error) {
+      logger.error('初始化HTTP历史记录数据库失败', { error });
       this.db = null;
-      throw error;
     }
   }
 

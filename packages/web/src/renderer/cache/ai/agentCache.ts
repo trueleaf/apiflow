@@ -39,7 +39,6 @@ class AgentCache {
     } catch (error) {
       logger.error('初始化Agent对话数据库失败', { error });
       this.db = null;
-      throw error;
     }
   }
 

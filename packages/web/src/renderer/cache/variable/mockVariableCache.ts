@@ -1,6 +1,7 @@
 import { openDB, IDBPDatabase } from 'idb';
 import type { ApidocVariable } from '@src/types';
 import { config } from '@src/config/config';
+import { logger } from '@/helper';
 
 type MockVariableCacheDBSchema = {
   mockVariables: {
@@ -19,7 +20,7 @@ export class MockVariableCache {
 
   constructor() {
     this.initDB().catch((error) => {
-      console.error('Failed to init MockVariableCache database:', error);
+      logger.error('初始化Mock变量数据库失败', { error });
     });
   }
 
@@ -39,8 +40,8 @@ export class MockVariableCache {
         },
       });
     } catch (error) {
+      logger.error('初始化Mock变量数据库失败', { error });
       this.db = null;
-      throw error;
     }
   }
 
@@ -66,8 +67,8 @@ export class MockVariableCache {
       await store.transaction.done;
       return variable;
     } catch (error) {
-      console.error('Failed to persist variable:', error);
-      throw error;
+      logger.error('写入Mock变量失败', { error });
+      return variable;
     }
   }
 
@@ -83,8 +84,8 @@ export class MockVariableCache {
       await store.transaction.done;
       return updated;
     } catch (error) {
-      console.error('Failed to update variable:', error);
-      throw error;
+      logger.error('更新Mock变量失败', { error });
+      return null;
     }
   }
 
@@ -97,8 +98,7 @@ export class MockVariableCache {
       await Promise.all(ids.map((variableId) => store.delete?.(variableId)));
       await store.transaction.done;
     } catch (error) {
-      console.error('Failed to delete variables:', error);
-      throw error;
+      logger.error('删除Mock变量失败', { error });
     }
   }
 
@@ -110,7 +110,7 @@ export class MockVariableCache {
       await store.transaction.done;
       return variables;
     } catch (error) {
-      console.error('Failed to query variables by project:', error);
+      logger.error('获取Mock变量列表失败', { error });
       return [];
     }
   }
@@ -122,7 +122,7 @@ export class MockVariableCache {
       await store.transaction.done;
       return variable ?? null;
     } catch (error) {
-      console.error('Failed to query variable by id:', error);
+      logger.error('根据ID获取Mock变量失败', { error });
       return null;
     }
   }

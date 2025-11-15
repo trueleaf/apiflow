@@ -45,8 +45,8 @@ class WebSocketHistoryCache {
         }
       });
     } catch (error) {
+      logger.error('初始化WebSocket历史记录数据库失败', { error });
       this.db = null;
-      throw error;
     }
   }
 

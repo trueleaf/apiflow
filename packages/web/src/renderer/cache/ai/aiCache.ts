@@ -36,7 +36,6 @@ class AiCache {
       localStorage.setItem(cacheKey.ai.config, JSON.stringify(newConfig));
     } catch (error) {
       logger.error('设置AI配置失败', { error });
-      throw error;
     }
   }
   // 重置AI配置为默认值
@@ -45,7 +44,6 @@ class AiCache {
       localStorage.setItem(cacheKey.ai.config, JSON.stringify(mainConfig.aiConfig));
     } catch (error) {
       logger.error('重置AI配置失败', { error });
-      throw error;
     }
   }
   // 清除AI配置

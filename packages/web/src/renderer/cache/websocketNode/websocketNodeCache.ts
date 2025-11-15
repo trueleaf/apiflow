@@ -1,4 +1,5 @@
 import { WebSocketNode, WebsocketConfig } from '@src/types/websocketNode';
+import { logger } from '@/helper';
 import { cacheKey } from '../cacheKey';
 
 class WebSocketNodeCache {
@@ -17,7 +18,7 @@ class WebSocketNodeCache {
       localWebSocket[val._id] = val;
       localStorage.setItem(cacheKey.websocketNode.websocket, JSON.stringify(localWebSocket));
     } catch (error) {
-      console.error(error);
+      logger.error('缓存WebSocket节点失败', { error });
       const data: Record<string, WebSocketNode> = {};
       data[val._id] = val;
       localStorage.setItem(cacheKey.websocketNode.websocket, JSON.stringify(data));
@@ -35,7 +36,7 @@ class WebSocketNodeCache {
       }
       return localWebSocket[id];
     } catch (error) {
-      console.error(error);
+      logger.error('获取WebSocket节点失败', { error });
       localStorage.setItem(cacheKey.websocketNode.websocket, '{}')
       return null;
     }
@@ -55,7 +56,7 @@ class WebSocketNodeCache {
       }
       return localData[projectId][tabId];
     } catch (error) {
-      console.error(error);
+      logger.error('获取忽略公共请求头配置失败', { error });
       return []
     }
   }
@@ -77,7 +78,7 @@ class WebSocketNodeCache {
       matchedTab.push(ignoreHeaderId);
       localStorage.setItem(cacheKey.websocketNode.commonHeaders.ignore, JSON.stringify(localData));
     } catch (error) {
-      console.error(error);
+      logger.error('设置忽略公共请求头失败', { error });
       localStorage.setItem(cacheKey.websocketNode.commonHeaders.ignore, '{}');
     }
   }
@@ -102,7 +103,7 @@ class WebSocketNodeCache {
         localStorage.setItem(cacheKey.websocketNode.commonHeaders.ignore, JSON.stringify(localData));
       }
     } catch (error) {
-      console.error(error);
+      logger.error('删除忽略公共请求头失败', { error });
       localStorage.setItem(cacheKey.websocketNode.commonHeaders.ignore, '{}');
     }
   }
@@ -118,7 +119,7 @@ class WebSocketNodeCache {
       }
       return localData[projectId];
     } catch (error) {
-      console.error(error);
+      logger.error('获取WebSocket配置失败', { error });
       localStorage.setItem(cacheKey.websocketNode.config, '{}');
       return null;
     }
@@ -133,8 +134,8 @@ class WebSocketNodeCache {
       localData[projectId] = { ...(localData[projectId] || {}), ...config };
       localStorage.setItem(cacheKey.websocketNode.config, JSON.stringify(localData));
     } catch (error) {
-      console.error(error);
-      const data: Record<string, any> = {};
+      logger.error('设置WebSocket配置失败', { error });
+      const data: Record<string, Partial<WebsocketConfig>> = {};
       data[projectId] = config;
       localStorage.setItem(cacheKey.websocketNode.config, JSON.stringify(data));
     }

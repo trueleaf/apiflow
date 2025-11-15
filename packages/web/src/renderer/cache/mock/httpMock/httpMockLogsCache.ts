@@ -1,13 +1,14 @@
 import { IDBPDatabase, openDB } from 'idb';
 import { MockLog } from '@src/types/mockNode';
 import { config } from '@src/config/config';
+import { logger } from '@/helper';
 class HttpMockLogsCache {
   private storeName = config.cacheConfig.mockNodeLogsCache.storeName;
   private maxLogsPerNode = config.cacheConfig.mockNodeLogsCache.maxLogsPerNode;
   private db: IDBPDatabase | null = null;
   constructor() {
     this.initDB().catch(error => {
-      console.error('初始化Mock日志数据库失败', error);
+      logger.error('初始化Mock日志数据库失败', { error });
     });
   }
   // 初始化数据库
@@ -34,9 +35,8 @@ class HttpMockLogsCache {
         }
       );
     } catch (error) {
-      // 初始化数据库失败
+      logger.error('初始化Mock日志数据库失败', { error });
       this.db = null;
-      throw error;
     }
   }
   // 确保数据库已初始化
@@ -59,6 +59,7 @@ class HttpMockLogsCache {
       await this.trimLogs(log.nodeId);
       return true;
     } catch (error) {
+      logger.error('写入Mock日志失败', { error });
       return false;
     }
   }
@@ -72,6 +73,7 @@ class HttpMockLogsCache {
       const sortedLogs = logs.sort((a, b) => b.timestamp - a.timestamp);
       return sortedLogs;
     } catch (error) {
+      logger.error('获取Mock日志列表失败', { error });
       return [];
     }
   }
@@ -92,6 +94,7 @@ class HttpMockLogsCache {
       await tx.done;
       return true;
     } catch (error) {
+      logger.error('清空节点Mock日志失败', { error });
       return false;
     }
   }
@@ -112,6 +115,7 @@ class HttpMockLogsCache {
       await tx.done;
       return true;
     } catch (error) {
+      logger.error('按项目清空Mock日志失败', { error });
       return false;
     }
   }
@@ -133,7 +137,7 @@ class HttpMockLogsCache {
       }
       await tx.done;
     } catch (error) {
-      // 清理日志失败
+      logger.error('清理Mock日志失败', { error });
     }
   }
 }

@@ -20,8 +20,8 @@ export class NodeVariableCache {
     try {
       this.db = await this.openDB();
     } catch (error) {
+      logger.error('初始化变量缓存数据库失败', { error });
       this.db = null;
-      throw error;
     }
   }
   private async getDB() {
@@ -69,6 +69,7 @@ export class NodeVariableCache {
           const index = checkStore.index(this.projectIdIndex);
           projectVariables = await index.getAll(variable.projectId);
         } catch (indexError) {
+          logger.error('按索引获取变量列表失败', { error: indexError });
           const allVariables = await checkStore.getAll();
           projectVariables = allVariables.filter(v => v.projectId === variable.projectId);
         }
@@ -80,6 +81,7 @@ export class NodeVariableCache {
           return { code: 1, msg: "变量名称已存在", data: null as any };
         }
       } catch (checkError) {
+        logger.error('变量重复校验失败', { error: checkError });
       }
 
       const id = nanoid()
@@ -94,6 +96,7 @@ export class NodeVariableCache {
       await addTx.done;
       return { code: 0, msg: "success", data: variableWithId };
     } catch (error) {
+      logger.error('添加变量失败', { error });
       return {
         code: 1,
         msg: error instanceof Error ? error.message : "添加变量失败",
@@ -129,6 +132,7 @@ export class NodeVariableCache {
             const index = checkStore.index(this.projectIdIndex);
             projectVariables = await index.getAll(existingVariable.projectId);
           } catch (indexError) {
+            logger.error('按索引校验变量名称失败', { error: indexError });
             const allVariables = await checkStore.getAll();
             projectVariables = allVariables.filter(v => v.projectId === existingVariable.projectId);
           }
@@ -140,6 +144,7 @@ export class NodeVariableCache {
             return { code: 1, msg: "变量名称已存在", data: null as any };
           }
         } catch (checkError) {
+          logger.error('变量名称重复校验失败', { error: checkError });
         }
       }
 
@@ -156,6 +161,7 @@ export class NodeVariableCache {
       await updateTx.done;
       return { code: 0, msg: "success", data: updatedVariable };
     } catch (error) {
+      logger.error('更新变量失败', { error });
       return {
         code: 1,
         msg: error instanceof Error ? error.message : "更新变量失败",
@@ -183,6 +189,7 @@ export class NodeVariableCache {
 
       return { code: 0, msg: "success", data: null as any };
     } catch (error) {
+      logger.error('删除变量失败', { error });
       return {
         code: 1,
         msg: error instanceof Error ? error.message : "删除变量失败",
@@ -202,11 +209,13 @@ export class NodeVariableCache {
         const variables: ApidocVariable[] = await index.getAll(projectId);
         return { code: 0, msg: "success", data: variables };
       } catch (error) {
+        logger.error('按索引获取变量列表失败，使用全量结果', { error });
         const allVariables: ApidocVariable[] = await store.getAll();
         const projectVariables = allVariables.filter(v => v.projectId === projectId);
         return { code: 0, msg: "success", data: projectVariables };
       }
     } catch (error) {
+      logger.error('获取变量列表失败', { error });
       return {
         code: 1,
         msg: error instanceof Error ? error.message : "获取变量列表失败",
@@ -228,6 +237,7 @@ export class NodeVariableCache {
 
       return { code: 0, msg: "success", data: variable || null };
     } catch (error) {
+      logger.error('根据ID获取变量失败', { error });
       return {
         code: 1,
         msg: error instanceof Error ? error.message : "获取变量失败",

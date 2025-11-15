@@ -1,5 +1,6 @@
 import { HttpNode } from '@src/types';
 import type { ApidocCookie } from '@src/renderer/store/share/cookiesStore';
+import { logger } from '@/helper';
 import { cacheKey } from '../cacheKey';
 
 class HttpNodeCache {
@@ -12,7 +13,7 @@ class HttpNodeCache {
       localHttpNode[val._id] = val;
       localStorage.setItem(cacheKey.httpNodeCache.httpNode, JSON.stringify(localHttpNode));
     } catch (error) {
-      console.error(error);
+      logger.error('缓存HTTP节点失败', { error });
       const data: Record<string, HttpNode> = {};
       data[val._id] = val;
       localStorage.setItem(cacheKey.httpNodeCache.httpNode, JSON.stringify(data));
@@ -30,7 +31,7 @@ class HttpNodeCache {
       }
       return localHttpNode[id];
     } catch (error) {
-      console.error(error);
+      logger.error('获取HTTP节点失败', { error });
       localStorage.setItem(cacheKey.httpNodeCache.httpNode, '{}')
       return null;
     }
@@ -44,7 +45,7 @@ class HttpNodeCache {
       localData[projectId] = cookies;
       localStorage.setItem(cacheKey.httpNodeCache.cookies, JSON.stringify(localData));
     } catch (error) {
-      console.error(error);
+      logger.error('缓存HTTP节点Cookie失败', { error });
       const data: Record<string, ApidocCookie[]> = {};
       data[projectId] = [];
       localStorage.setItem(cacheKey.httpNodeCache.cookies, JSON.stringify(data));
@@ -62,7 +63,7 @@ class HttpNodeCache {
       }
       return localData[projectId];
     } catch (error) {
-      console.error(error);
+      logger.error('获取HTTP节点Cookie失败', { error });
       localStorage.setItem(cacheKey.httpNodeCache.cookies, '{}');
       return [];
     }
@@ -79,7 +80,7 @@ class HttpNodeCache {
       }
       return localData[projectId];
     } catch (error) {
-      console.error(error);
+      logger.error('获取preRequest sessionStorage失败', { error });
       sessionStorage.setItem('httpNodeCache/preRequest/sessionStorage', '{}');
       return {};
     }
@@ -93,7 +94,7 @@ class HttpNodeCache {
       localData[projectId] = data;
       sessionStorage.setItem('httpNodeCache/preRequest/sessionStorage', JSON.stringify(localData));
     } catch (error) {
-      console.error(error);
+      logger.error('设置preRequest sessionStorage失败', { error });
       const newData: Record<string, Record<string, unknown>> = {};
       newData[projectId] = data;
       sessionStorage.setItem('httpNodeCache/preRequest/sessionStorage', JSON.stringify(newData));
@@ -111,7 +112,7 @@ class HttpNodeCache {
       }
       return localData[projectId];
     } catch (error) {
-      console.error(error);
+      logger.error('获取preRequest localStorage失败', { error });
       localStorage.setItem(cacheKey.httpNodeCache.preRequest.localStorage, '{}');
       return {};
     }
@@ -126,7 +127,7 @@ class HttpNodeCache {
       localData[projectId] = data;
       localStorage.setItem(cacheKey.httpNodeCache.preRequest.localStorage, JSON.stringify(localData));
     } catch (error) {
-      console.error(error);
+      logger.error('设置preRequest localStorage失败', { error });
       const newData: Record<string, Record<string, unknown>> = {};
       newData[projectId] = data;
       localStorage.setItem(cacheKey.httpNodeCache.preRequest.localStorage, JSON.stringify(newData));

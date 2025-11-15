@@ -1,6 +1,7 @@
 import type { RuntimeNetworkMode } from '@src/types/runtime'
 import type { PermissionUserInfo } from '@src/types/project'
 import type { Language } from '@src/types/common'
+import { logger } from '@/helper'
 import { cacheKey } from '../cacheKey'
 
 class RuntimeCache {
@@ -10,7 +11,8 @@ class RuntimeCache {
       if (!v) return 'offline'
       if (v === 'online' || v === 'offline') return v
       return 'offline'
-    } catch {
+    } catch (error) {
+      logger.error('获取网络模式失败', { error })
       return 'offline'
     }
   }
@@ -19,7 +21,8 @@ class RuntimeCache {
     try {
       localStorage.setItem(cacheKey.runtime.networkMode, mode)
       return true
-    } catch (e) {
+    } catch (error) {
+      logger.error('设置网络模式失败', { error })
       return false
     }
   }
@@ -39,6 +42,7 @@ class RuntimeCache {
       
       return parsedInfo
     } catch (error) {
+      logger.error('获取用户信息失败', { error })
       localStorage.removeItem(cacheKey.runtime.userInfo)
       return null
     }
@@ -54,6 +58,7 @@ class RuntimeCache {
       localStorage.setItem(cacheKey.runtime.userInfo, JSON.stringify(userInfo))
       return true
     } catch (error) {
+      logger.error('设置用户信息失败', { error })
       localStorage.removeItem(cacheKey.runtime.userInfo)
       return false
     }
@@ -64,6 +69,7 @@ class RuntimeCache {
       localStorage.removeItem(cacheKey.runtime.userInfo)
       return true
     } catch (error) {
+      logger.error('清除用户信息失败', { error })
       localStorage.removeItem(cacheKey.runtime.userInfo)
       return false
     }
@@ -76,6 +82,7 @@ class RuntimeCache {
       userInfo.avatar = avatar
       return this.setUserInfo(userInfo)
     } catch (error) {
+      logger.error('更新用户头像失败', { error })
       return false
     }
   }
@@ -87,6 +94,7 @@ class RuntimeCache {
       userInfo.email = email
       return this.setUserInfo(userInfo)
     } catch (error) {
+      logger.error('更新用户邮箱失败', { error })
       return false
     }
   }
@@ -98,6 +106,7 @@ class RuntimeCache {
       userInfo.realName = realName
       return this.setUserInfo(userInfo)
     } catch (error) {
+      logger.error('更新用户昵称失败', { error })
       return false
     }
   }
@@ -109,7 +118,8 @@ class RuntimeCache {
         return language
       }
       return 'zh-cn'
-    } catch {
+    } catch (error) {
+      logger.error('获取语言配置失败', { error })
       return 'zh-cn'
     }
   }
@@ -119,6 +129,7 @@ class RuntimeCache {
       localStorage.setItem(cacheKey.runtime.language, language)
       return true
     } catch (error) {
+      logger.error('设置语言配置失败', { error })
       return false
     }
   }

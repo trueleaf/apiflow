@@ -1,4 +1,5 @@
 import { HttpMockNode } from '@src/types/mockNode';
+import { logger } from '@/helper';
 import { cacheKey } from '../../cacheKey';
 
 class HttpMockNodeCache {
@@ -11,7 +12,7 @@ class HttpMockNodeCache {
       localHttpMock[val._id] = val;
       localStorage.setItem(cacheKey.httpMockNode.mock, JSON.stringify(localHttpMock));
     } catch (error) {
-      console.error(error);
+      logger.error('缓存HTTP Mock节点失败', { error });
       localStorage.setItem(cacheKey.httpMockNode.mock, '{}');
     }
   }
@@ -27,7 +28,7 @@ class HttpMockNodeCache {
       }
       return localHttpMock[id];
     } catch (error) {
-      console.error(error);
+      logger.error('获取HTTP Mock节点失败', { error });
       localStorage.setItem(cacheKey.httpMockNode.mock, '{}')
       return null;
     }

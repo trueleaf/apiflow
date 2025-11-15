@@ -30,8 +30,8 @@ export class HttpResponseCache {
         }
       );
     } catch (error) {
+      logger.error('初始化HTTP响应缓存数据库失败', { error });
       this.httpResponseCacheDb = null;
-      throw error;
     }
   }
 

@@ -1,13 +1,14 @@
 import type { ApidocProjectRules } from "@src/types";
 import { openDB, type IDBPDatabase } from 'idb';
 import { config } from '@src/config/config';
+import { logger } from '@/helper';
 
 export class StandaloneRuleCache {
   private db: IDBPDatabase | null = null;
   private storeName = config.cacheConfig.rulesCache.storeName;
   constructor() {
     this.initDB().catch(error => {
-      console.error('初始化规则缓存数据库失败:', error);
+      logger.error('初始化规则缓存数据库失败', { error });
     });
   }
   private async initDB() {
@@ -17,8 +18,8 @@ export class StandaloneRuleCache {
     try {
       this.db = await this.openDB();
     } catch (error) {
+      logger.error('初始化规则缓存数据库失败', { error });
       this.db = null;
-      throw error;
     }
   }
   private async getDB() {

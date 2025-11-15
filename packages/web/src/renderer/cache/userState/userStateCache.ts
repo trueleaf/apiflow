@@ -10,7 +10,7 @@ class UserState {
       const localData = localStorage.getItem(cacheKey.userState.home.activeTab) || 'projectList';
       return localData;
     } catch (error) {
-      console.error(error);
+      logger.error('获取首页激活Tab失败', { error });
       return 'projectList';
     }
   }
@@ -19,7 +19,7 @@ class UserState {
     try {
       localStorage.setItem(cacheKey.userState.home.activeTab, activeTab);
     } catch (error) {
-      console.error(error);
+      logger.error('设置首页激活Tab失败', { error });
       localStorage.setItem(cacheKey.userState.home.activeTab, 'projectList');
     }
   }
@@ -32,7 +32,7 @@ class UserState {
       }
       return localActiveTab[id];
     } catch (error) {
-      console.error(error);
+      logger.error('获取WebSocket节点参数Tab失败', { error });
       localStorage.setItem(cacheKey.userState.websocketNode.activeParamsTab, '{}');
       return null;
     }
@@ -44,7 +44,7 @@ class UserState {
       localActiveTab[id] = val;
       localStorage.setItem(cacheKey.userState.websocketNode.activeParamsTab, JSON.stringify(localActiveTab));
     } catch (error) {
-      console.error(error);
+      logger.error('设置WebSocket节点参数Tab失败', { error });
       const data: Record<string, WebsocketActiveTabType> = {};
       data[id] = val;
       localStorage.setItem(cacheKey.userState.websocketNode.activeParamsTab, JSON.stringify(data));
@@ -59,7 +59,7 @@ class UserState {
       }
       return localActiveTab[id];
     } catch (error) {
-      console.error(error);
+      logger.error('获取HTTP节点参数Tab失败', { error });
       localStorage.setItem(cacheKey.userState.httpNode.activeParamsTab, '{}');
       return null;
     }
@@ -71,7 +71,7 @@ class UserState {
       localActiveTab[id] = val;
       localStorage.setItem(cacheKey.userState.httpNode.activeParamsTab, JSON.stringify(localActiveTab));
     } catch (error) {
-      console.error(error);
+      logger.error('设置HTTP节点参数Tab失败', { error });
       const data: Record<string, string> = {};
       data[id] = val;
       localStorage.setItem(cacheKey.userState.httpNode.activeParamsTab, JSON.stringify(data));
@@ -86,7 +86,7 @@ class UserState {
       }
       return localActiveTab[id];
     } catch (error) {
-      console.error(error);
+      logger.error('获取Mock节点Tab失败', { error });
       localStorage.setItem(cacheKey.userState.mockNode.activeTab, '{}');
       return 'config';
     }
@@ -98,7 +98,7 @@ class UserState {
       localActiveTab[id] = val;
       localStorage.setItem(cacheKey.userState.mockNode.activeTab, JSON.stringify(localActiveTab));
     } catch (error) {
-      console.error(error);
+      logger.error('设置Mock节点Tab失败', { error });
       const data: Record<string, MockNodeActiveTabType> = {};
       data[id] = val;
       localStorage.setItem(cacheKey.userState.mockNode.activeTab, JSON.stringify(data));
@@ -111,7 +111,7 @@ class UserState {
       localData[tabId] = blockStates;
       localStorage.setItem(cacheKey.userState.share.collapse, JSON.stringify(localData));
     } catch (error) {
-      console.error(error);
+      logger.error('设置分享文档折叠状态失败', { error });
       const data: Record<string, Record<string, boolean>> = {};
       data[tabId] = blockStates;
       localStorage.setItem(cacheKey.userState.share.collapse, JSON.stringify(data));
@@ -126,7 +126,7 @@ class UserState {
       }
       return localData[tabId];
     } catch (error) {
-      console.error(error);
+      logger.error('获取分享文档折叠状态失败', { error });
       localStorage.setItem(cacheKey.userState.share.collapse, '{}');
       return null;
     }
@@ -141,7 +141,7 @@ class UserState {
       localData[tabId][blockName] = isExpanded;
       localStorage.setItem(cacheKey.userState.share.collapse, JSON.stringify(localData));
     } catch (error) {
-      console.error(error);
+      logger.error('更新分享文档折叠状态失败', { error });
       const data: Record<string, Record<string, boolean>> = {};
       data[tabId] = { [blockName]: isExpanded };
       localStorage.setItem(cacheKey.userState.share.collapse, JSON.stringify(data));
@@ -153,7 +153,7 @@ class UserState {
       const activeMenu = localStorage.getItem(cacheKey.userState.localData.activeMenu) || 'common-settings';
       return activeMenu;
     } catch (error) {
-      console.error(error);
+      logger.error('获取本地数据菜单失败', { error });
       return 'localStorage';
     }
   }
@@ -162,7 +162,7 @@ class UserState {
     try {
       localStorage.setItem(cacheKey.userState.localData.activeMenu, activeMenu);
     } catch (error) {
-      console.error(error);
+      logger.error('设置本地数据菜单失败', { error });
       localStorage.setItem(cacheKey.userState.localData.activeMenu, 'localStorage');
     }
   }
@@ -194,7 +194,7 @@ class UserState {
       }
       return localData[mockNodeId][responseIndex];
     } catch (error) {
-      console.error(error);
+      logger.error('获取Mock响应条件折叠状态失败', { error });
       localStorage.setItem(cacheKey.userState.mockNode.conditionCollapse, '{}');
       return false;
     }
@@ -209,7 +209,7 @@ class UserState {
       localData[mockNodeId][responseIndex] = isCollapsed;
       localStorage.setItem(cacheKey.userState.mockNode.conditionCollapse, JSON.stringify(localData));
     } catch (error) {
-      console.error(error);
+      logger.error('设置Mock响应条件折叠状态失败', { error });
       const data: Record<string, Record<number, boolean>> = {};
       data[mockNodeId] = { [responseIndex]: isCollapsed };
       localStorage.setItem(cacheKey.userState.mockNode.conditionCollapse, JSON.stringify(data));
@@ -224,7 +224,7 @@ class UserState {
       }
       return localData[mockNodeId][responseIndex];
     } catch (error) {
-      console.error(error);
+      logger.error('获取Mock响应头折叠状态失败', { error });
       localStorage.setItem(cacheKey.userState.mockNode.headersCollapse, '{}');
       return false;
     }
@@ -239,7 +239,7 @@ class UserState {
       localData[mockNodeId][responseIndex] = isCollapsed;
       localStorage.setItem(cacheKey.userState.mockNode.headersCollapse, JSON.stringify(localData));
     } catch (error) {
-      console.error(error);
+      logger.error('设置Mock响应头折叠状态失败', { error });
       const data: Record<string, Record<number, boolean>> = {};
       data[mockNodeId] = { [responseIndex]: isCollapsed };
       localStorage.setItem(cacheKey.userState.mockNode.headersCollapse, JSON.stringify(data));
@@ -254,6 +254,7 @@ class UserState {
       }
       return value !== 'false'
     } catch (error) {
+      logger.error('获取Mock JSON提示状态失败', { error });
       return true
     }
   }
@@ -262,7 +263,7 @@ class UserState {
     try {
       localStorage.setItem(cacheKey.userState.hint.mockJsonRandomSizeHint, visible ? 'true' : 'false')
     } catch (error) {
-      // 忽略错误
+      logger.error('设置Mock JSON提示状态失败', { error });
     }
   }
   // 获取 Mock Text 随机大小提示是否可见
@@ -274,6 +275,7 @@ class UserState {
       }
       return value !== 'false'
     } catch (error) {
+      logger.error('获取Mock Text提示状态失败', { error });
       return true
     }
   }
@@ -282,7 +284,7 @@ class UserState {
     try {
       localStorage.setItem(cacheKey.userState.hint.mockTextRandomSizeHint, visible ? 'true' : 'false')
     } catch (error) {
-      // 忽略错误
+      logger.error('设置Mock Text提示状态失败', { error });
     }
   }
   // 获取 JSON Body 提示是否可见
@@ -294,6 +296,7 @@ class UserState {
       }
       return value !== 'false'
     } catch (error) {
+      logger.error('获取JSON Body提示状态失败', { error });
       return true
     }
   }
@@ -302,7 +305,7 @@ class UserState {
     try {
       localStorage.setItem(cacheKey.userState.hint.hideJsonBodyTip, visible ? 'true' : 'false')
     } catch (error) {
-      // 忽略错误
+      logger.error('设置JSON Body提示状态失败', { error });
     }
   }
   // 获取HTTP节点返回参数折叠状态
@@ -311,7 +314,7 @@ class UserState {
       const localData: Record<string, boolean> = JSON.parse(localStorage.getItem(cacheKey.userState.httpNode.responseCollapse) || '{}');
       return localData;
     } catch (error) {
-      console.error(error);
+      logger.error('获取HTTP节点响应折叠状态失败', { error });
       return {};
     }
   }
@@ -322,7 +325,7 @@ class UserState {
       localData[id] = isShow;
       localStorage.setItem(cacheKey.userState.httpNode.responseCollapse, JSON.stringify(localData));
     } catch (error) {
-      console.error(error);
+      logger.error('设置HTTP节点响应折叠状态失败', { error });
       localStorage.setItem(cacheKey.userState.httpNode.responseCollapse, '{}');
     }
   }
@@ -332,7 +335,7 @@ class UserState {
       const width = localStorage.getItem(cacheKey.userState.aiDialog.width);
       return width ? parseInt(width, 10) : null;
     } catch (error) {
-      console.error(error);
+      logger.error('获取AI对话框宽度失败', { error });
       return null;
     }
   }
@@ -341,7 +344,7 @@ class UserState {
     try {
       localStorage.setItem(cacheKey.userState.aiDialog.width, width.toString());
     } catch (error) {
-      console.error(error);
+      logger.error('设置AI对话框宽度失败', { error });
     }
   }
   // 获取AI对话框高度
@@ -350,7 +353,7 @@ class UserState {
       const height = localStorage.getItem(cacheKey.userState.aiDialog.height);
       return height ? parseInt(height, 10) : null;
     } catch (error) {
-      console.error(error);
+      logger.error('获取AI对话框高度失败', { error });
       return null;
     }
   }
@@ -359,7 +362,7 @@ class UserState {
     try {
       localStorage.setItem(cacheKey.userState.aiDialog.height, height.toString());
     } catch (error) {
-      console.error(error);
+      logger.error('设置AI对话框高度失败', { error });
     }
   }
   // 获取AI对话框模式
@@ -371,7 +374,7 @@ class UserState {
       }
       return null;
     } catch (error) {
-      console.error(error);
+      logger.error('获取AI对话框模式失败', { error });
       return null;
     }
   }
@@ -380,7 +383,7 @@ class UserState {
     try {
       localStorage.setItem(cacheKey.userState.aiDialog.mode, mode);
     } catch (error) {
-      console.error(error);
+      logger.error('设置AI对话框模式失败', { error });
     }
   }
   // 获取AI对话框模型
@@ -392,7 +395,7 @@ class UserState {
       }
       return null;
     } catch (error) {
-      console.error(error);
+      logger.error('获取AI对话框模型失败', { error });
       return null;
     }
   }
@@ -401,7 +404,7 @@ class UserState {
     try {
       localStorage.setItem(cacheKey.userState.aiDialog.model, model);
     } catch (error) {
-      console.error(error);
+      logger.error('设置AI对话框模型失败', { error });
     }
   }
   // 获取AI对话框位置
@@ -410,7 +413,7 @@ class UserState {
       const position = localStorage.getItem(cacheKey.userState.aiDialog.position);
       return position ? JSON.parse(position) : null;
     } catch (error) {
-      console.error(error);
+      logger.error('获取AI对话框位置失败', { error });
       return null;
     }
   }
@@ -419,7 +422,7 @@ class UserState {
     try {
       localStorage.setItem(cacheKey.userState.aiDialog.position, JSON.stringify(position));
     } catch (error) {
-      console.error(error);
+      logger.error('设置AI对话框位置失败', { error });
     }
   }
 }

@@ -32,7 +32,6 @@ class WebSocketTemplateCache {
       localStorage.setItem(this.STORAGE_KEY, JSON.stringify(templates));
     } catch (error) {
       logger.error('保存消息模板失败', { error });
-      throw new Error('保存模板失败');
     }
   }
 

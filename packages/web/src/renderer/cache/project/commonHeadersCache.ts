@@ -1,13 +1,14 @@
 import type { ApidocProperty } from '@src/types';
 import { openDB, type IDBPDatabase } from 'idb';
 import { config } from '@src/config/config';
+import { logger } from '@/helper';
 
 export class CommonHeaderCache {
   private db: IDBPDatabase | null = null;
   private storeName = config.cacheConfig.commonHeadersCache.storeName;
   constructor() {
     this.initDB().catch(error => {
-      console.error('初始化公共请求头缓存数据库失败:', error);
+      logger.error('初始化公共请求头缓存数据库失败', { error });
     });
   }
   private async initDB() {
@@ -17,8 +18,8 @@ export class CommonHeaderCache {
     try {
       this.db = await this.openDB();
     } catch (error) {
+      logger.error('初始化公共请求头缓存数据库失败', { error });
       this.db = null;
-      throw error;
     }
   }
   private async getDB() {
@@ -63,14 +64,14 @@ export class CommonHeaderCache {
 
     return headers;
   }
-  async getHeaderById(headerId: string): Promise<ApidocProperty<'string'> | null> {
+  async getCommonHeaderById(headerId: string): Promise<ApidocProperty<'string'> | null> {
     const db = await this.getDB();
     const tx = db.transaction(this.storeName, "readonly");
     const store = tx.objectStore(this.storeName);
     const header = await store.get(headerId);
     return header && !header.isDeleted ? header : null;
   }
-  async addHeader(header: ApidocProperty<'string'>): Promise<boolean> {
+  async addCommonHeader(header: ApidocProperty<'string'>): Promise<boolean> {
     const db = await this.getDB();
     const tx = db.transaction(this.storeName, "readwrite");
     const store = tx.objectStore(this.storeName);
@@ -78,7 +79,7 @@ export class CommonHeaderCache {
     await tx.done;
     return true;
   }
-  async updateHeader(headerId: string, header: Partial<ApidocProperty<'string'>>): Promise<boolean> {
+  async updateCommonHeader(headerId: string, header: Partial<ApidocProperty<'string'>>): Promise<boolean> {
     const db = await this.getDB();
     const tx = db.transaction(this.storeName, "readwrite");
     const store = tx.objectStore(this.storeName);
@@ -95,7 +96,7 @@ export class CommonHeaderCache {
     await tx.done;
     return true;
   }
-  async deleteHeader(headerId: string): Promise<boolean> {
+  async deleteCommonHeader(headerId: string): Promise<boolean> {
     const db = await this.getDB();
     const tx = db.transaction(this.storeName, "readwrite");
     const store = tx.objectStore(this.storeName);
@@ -112,7 +113,7 @@ export class CommonHeaderCache {
     await tx.done;
     return true;
   }
-  async deleteHeaders(headerIds: string[]): Promise<boolean> {
+  async deleteCommonHeaders(headerIds: string[]): Promise<boolean> {
     const db = await this.getDB();
     const tx = db.transaction(this.storeName, "readwrite");
     const store = tx.objectStore(this.storeName);

@@ -232,24 +232,30 @@ const projectName = computed(() => apidocBaseInfoStore.projectName)
 //初始化缓存数据
 const initCacheOperation = () => {
   const localPinToolbarOperations = workbenchCache.getPinToolbarOperations();
-  operations.value = originOperaions.filter((v) => {
+  const availableOperations = originOperaions.filter((v) => {
     if (isStandalone.value && v.op === 'generateLink') {
       return false;
     }
     return true;
   });
+  operations.value = availableOperations;
   if (localPinToolbarOperations.length > 0) {
-    const localData: Operation[] = localPinToolbarOperations;
-    originOperaions.forEach((data) => {
-      const matchedData = localData.find((v: Operation) => v.name === data.name);
-      if (matchedData?.icon) {
+    const localData: Operation[] = localPinToolbarOperations
+      .map((item) => ({ ...item }))
+      .filter((item) => availableOperations.some((operation) => operation.op === item.op));
+    availableOperations.forEach((data) => {
+      const matchedData = localData.find((v: Operation) => v.op === data.op);
+      if (matchedData) {
         matchedData.icon = data.icon;
+        matchedData.name = data.name;
       }
-    })
-    pinOperations.value = localData;
-  } else {
-    pinOperations.value = operations.value.filter((v) => v.pin);
+    });
+    if (localData.length > 0) {
+      pinOperations.value = localData;
+      return;
+    }
   }
+  pinOperations.value = availableOperations.filter((v) => v.pin);
 }
 //缓存工具栏操作
 watch(pinOperations, (v) => {

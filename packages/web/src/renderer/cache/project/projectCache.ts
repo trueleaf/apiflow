@@ -2,13 +2,14 @@ import type { ApidocProjectInfo } from '@src/types';
 import { cacheKey } from '../cacheKey';
 import { openDB, type IDBPDatabase } from 'idb';
 import { config } from '@src/config/config';
+import { logger } from '@/helper';
 
 export class ProjectCache {
   private db: IDBPDatabase | null = null;
   private storeName = config.cacheConfig.projectCache.storeName;
   constructor() {
     this.initDB().catch(error => {
-      console.error('初始化项目缓存数据库失败:', error);
+      logger.error('初始化项目缓存数据库失败', { error });
     });
   }
   private async initDB() {
@@ -18,8 +19,8 @@ export class ProjectCache {
     try {
       this.db = await this.openDB();
     } catch (error) {
+      logger.error('初始化项目缓存数据库失败', { error });
       this.db = null;
-      throw error;
     }
   }
   private async getDB() {
@@ -199,7 +200,7 @@ export class ProjectCache {
       await tx.done;
       return true;
     } catch (error) {
-      console.error('清空已删除项目失败:', error);
+      logger.error('清空已删除项目失败', { error });
       return false;
     }
   }
@@ -210,7 +211,7 @@ export class ProjectCache {
       localData[shareId] = password;
       localStorage.setItem(cacheKey.projectCache.share.password, JSON.stringify(localData));
     } catch (error) {
-      console.error(error);
+      logger.error('缓存项目分享密码失败', { error });
       const data: Record<string, string> = {};
       data[shareId] = password;
       localStorage.setItem(cacheKey.projectCache.share.password, JSON.stringify(data));
@@ -225,7 +226,7 @@ export class ProjectCache {
       }
       return localData[shareId];
     } catch (error) {
-      console.error(error);
+      logger.error('获取项目分享密码失败', { error });
       localStorage.setItem(cacheKey.projectCache.share.password, '{}');
       return null;
     }
@@ -237,7 +238,7 @@ export class ProjectCache {
       delete localData[shareId];
       localStorage.setItem(cacheKey.projectCache.share.password, JSON.stringify(localData));
     } catch (error) {
-      console.error(error);
+      logger.error('清除项目分享密码缓存失败', { error });
       localStorage.setItem(cacheKey.projectCache.share.password, '{}');
     }
   }

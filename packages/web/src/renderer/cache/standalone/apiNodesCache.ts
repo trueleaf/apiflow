@@ -2,6 +2,7 @@ import type { ApidocType, ApiNode } from "@src/types";
 import { nanoid } from "nanoid";
 import { openDB, type IDBPDatabase } from 'idb';
 import { config } from '@src/config/config';
+import { logger } from '@/helper';
 
 export class ApiNodesCache {
   private bannerCache = new Map<
@@ -15,7 +16,7 @@ export class ApiNodesCache {
   private projectStoreName = config.cacheConfig.projectCache.storeName;
   constructor() {
     this.initDB().catch(error => {
-      console.error('初始化节点缓存数据库失败:', error);
+      logger.error('初始化节点缓存数据库失败', { error });
     });
   }
   private async initDB() {
@@ -26,9 +27,9 @@ export class ApiNodesCache {
       this.apiNodesDB = await this.openApiNodesDB();
       this.projectDB = await this.openProjectDB();
     } catch (error) {
+      logger.error('初始化节点缓存数据库失败', { error });
       this.apiNodesDB = null;
       this.projectDB = null;
-      throw error;
     }
   }
   private async getDB() {
@@ -100,7 +101,7 @@ export class ApiNodesCache {
       const allDocs = await db.getAll(this.storeName);
       return allDocs.filter((doc) => doc && !doc.isDeleted);
     } catch (error) {
-      console.error("Failed to get docs list:", error);
+      logger.error('获取节点列表失败', { error });
       return [];
     }
   }
@@ -121,7 +122,7 @@ export class ApiNodesCache {
       });
       return filteredDocs;
     } catch (error) {
-      console.warn("Index query failed, falling back to full query:", error);
+      logger.error('按索引获取节点列表失败，使用全量查询', { error });
       try {
         const db = await this.getDB();
         const allDocs = await db.getAll(this.storeName);
@@ -132,7 +133,7 @@ export class ApiNodesCache {
         });
         return projectDocs;
       } catch (fallbackError) {
-        console.error("Fallback query also failed:", fallbackError);
+        logger.error('节点列表全量查询失败', { error: fallbackError });
         return [];
       }
     }
@@ -144,7 +145,7 @@ export class ApiNodesCache {
       const doc = await db.get(this.storeName, nodeId);
       return doc && !doc.isDeleted ? doc : null;
     } catch (error) {
-      console.error("Failed to get doc by id:", error);
+      logger.error('根据ID获取节点失败', { error });
       return null;
     }
   }
@@ -157,7 +158,7 @@ export class ApiNodesCache {
       this.clearBannerCache(node.projectId);
       return true;
     } catch (error) {
-      console.error("Failed to add doc:", error);
+      logger.error('新增节点失败', { error });
       return false;
     }
   }
@@ -171,7 +172,7 @@ export class ApiNodesCache {
       this.clearBannerCache(node.projectId);
       return true;
     } catch (error) {
-      console.error("Failed to update doc:", error);
+      logger.error('更新节点失败', { error });
       return false;
     }
   }
@@ -186,7 +187,7 @@ export class ApiNodesCache {
       this.clearBannerCache(existingDoc.projectId);
       return true;
     } catch (error) {
-      console.error("Failed to update doc name:", error);
+      logger.error('更新节点名称失败', { error });
       return false;
     }
   }
@@ -206,7 +207,7 @@ export class ApiNodesCache {
       this.clearBannerCache(existingDoc.projectId);
       return true;
     } catch (error) {
-      console.error("Failed to update node by id:", error);
+      logger.error('按ID更新节点失败', { error });
       return false;
     }
   }
@@ -226,7 +227,7 @@ export class ApiNodesCache {
       this.clearBannerCache(existingDoc.projectId);
       return true;
     } catch (error) {
-      console.error("Failed to delete doc:", error);
+      logger.error('删除节点失败', { error });
       return false;
     }
   }
@@ -263,7 +264,7 @@ export class ApiNodesCache {
 
       return true;
     } catch (error) {
-      console.error("Failed to delete docs:", error);
+      logger.error('批量删除节点失败', { error });
       return false;
     }
   }
@@ -283,7 +284,7 @@ export class ApiNodesCache {
           new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
         );
     } catch (error) {
-      console.error("Failed to get deleted docs list:", error);
+      logger.error('获取已删除节点列表失败', { error });
       return [];
     }
   }
@@ -311,7 +312,7 @@ export class ApiNodesCache {
       this.clearBannerCache(existingDoc.projectId);
       return result;
     } catch (error) {
-      console.error("Failed to restore doc:", error);
+      logger.error('恢复节点失败', { error });
       return [];
     }
   }
@@ -333,6 +334,7 @@ export class ApiNodesCache {
         const index = store.index(config.cacheConfig.apiNodesCache.projectIdIndex);
         existingDocs = await index.getAll(projectId);
       } catch (error) {
+        logger.error('按索引读取节点失败，使用全量数据', { error });
         const allDocs = await store.getAll();
         existingDocs = allDocs.filter((doc) => doc.projectId === projectId);
       }
@@ -353,7 +355,7 @@ export class ApiNodesCache {
       this.clearBannerCache(projectId);
       return true;
     } catch (error) {
-      console.error("Failed to replace docs:", error);
+      logger.error('覆盖导入节点失败', { error });
       return false;
     }
   }
@@ -374,7 +376,7 @@ export class ApiNodesCache {
       this.clearBannerCache(projectId);
       return successIds;
     } catch (error) {
-      console.error("Failed to append docs:", error);
+      logger.error('追加节点失败', { error });
       return successIds;
     }
   }
@@ -399,7 +401,7 @@ export class ApiNodesCache {
         await projectDB.put(this.projectStoreName, { ...project, docNum }, projectId);
       }
     } catch (error) {
-      console.error("Failed to update project doc number:", error);
+      logger.error('更新项目文档数量失败', { error });
     }
   }
   /*
