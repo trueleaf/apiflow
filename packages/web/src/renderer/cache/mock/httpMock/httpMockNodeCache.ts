@@ -2,12 +2,6 @@ import { HttpMockNode } from '@src/types/mockNode';
 import { cacheKey } from '../../cacheKey';
 
 class HttpMockNodeCache {
-  constructor() {
-    if (!localStorage.getItem(cacheKey.httpMockNode.mock)) {
-      localStorage.setItem(cacheKey.httpMockNode.mock, '{}');
-    }
-  }
-
   /*
    * 缓存httpMock节点信息
    */
@@ -18,9 +12,7 @@ class HttpMockNodeCache {
       localStorage.setItem(cacheKey.httpMockNode.mock, JSON.stringify(localHttpMock));
     } catch (error) {
       console.error(error);
-      const data: Record<string, HttpMockNode> = {};
-      data[val._id] = val;
-      localStorage.setItem(cacheKey.httpMockNode.mock, JSON.stringify(data));
+      localStorage.setItem(cacheKey.httpMockNode.mock, '{}');
     }
   }
 
