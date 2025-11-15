@@ -14,21 +14,38 @@ export class ApiNodesCache {
   private storeName = config.cacheConfig.apiNodesCache.storeName;
   private projectStoreName = config.cacheConfig.projectCache.storeName;
   constructor() {
-    this.initDB();
+    this.initDB().catch(error => {
+      console.error('初始化节点缓存数据库失败:', error);
+    });
   }
   private async initDB() {
-    this.apiNodesDB = await this.openApiNodesDB();
-    this.projectDB = await this.openProjectDB();
+    if (this.apiNodesDB && this.projectDB) {
+      return;
+    }
+    try {
+      this.apiNodesDB = await this.openApiNodesDB();
+      this.projectDB = await this.openProjectDB();
+    } catch (error) {
+      this.apiNodesDB = null;
+      this.projectDB = null;
+      throw error;
+    }
   }
   private async getDB() {
     if (!this.apiNodesDB) {
-      this.apiNodesDB = await this.openApiNodesDB();
+      await this.initDB();
+    }
+    if (!this.apiNodesDB) {
+      throw new Error('接口文档数据库初始化失败');
     }
     return this.apiNodesDB;
   }
   private async getProjectDB() {
     if (!this.projectDB) {
-      this.projectDB = await this.openProjectDB();
+      await this.initDB();
+    }
+    if (!this.projectDB) {
+      throw new Error('项目数据库初始化失败');
     }
     return this.projectDB;
   }

@@ -1,36 +1,6 @@
 import { IDBPDatabase, openDB } from 'idb';
 import { MockLog } from '@src/types/mockNode';
 import { config } from '@src/config/config';
-let mockLogsDB: IDBPDatabase | null = null;
-// 初始化 Mock Logs DB
-async function initMockLogsDB(): Promise<IDBPDatabase> {
-  if (mockLogsDB) return mockLogsDB;
-  mockLogsDB = await openDB(
-    config.cacheConfig.mockNodeLogsCache.dbName,
-    config.cacheConfig.mockNodeLogsCache.version,
-    {
-      upgrade(db) {
-        if (!db.objectStoreNames.contains(config.cacheConfig.mockNodeLogsCache.storeName)) {
-          const store = db.createObjectStore(config.cacheConfig.mockNodeLogsCache.storeName, {
-            keyPath: 'id',
-          });
-          store.createIndex('nodeId', 'nodeId', { unique: false });
-          store.createIndex('projectId', 'projectId', { unique: false });
-          store.createIndex('timestamp', 'timestamp', { unique: false });
-          store.createIndex('type', 'type', { unique: false });
-        }
-      },
-    }
-  );
-  return mockLogsDB;
-}
-// 获取 Mock Logs DB（自动初始化）
-async function getMockLogsDB(): Promise<IDBPDatabase> {
-  if (!mockLogsDB) {
-    await initMockLogsDB();
-  }
-  return mockLogsDB!;
-}
 class HttpMockLogsCache {
   private storeName = config.cacheConfig.mockNodeLogsCache.storeName;
   private maxLogsPerNode = config.cacheConfig.mockNodeLogsCache.maxLogsPerNode;
@@ -41,21 +11,44 @@ class HttpMockLogsCache {
   private readonly BATCH_INTERVAL = 100;
   private readonly TRIM_THRESHOLD = 50;
   constructor() {
-    this.initDB();
+    this.initDB().catch(error => {
+      console.error('初始化Mock日志数据库失败', error);
+    });
     this.loadLogCounts();
   }
   // 初始化数据库
   private async initDB(): Promise<void> {
     try {
-      this.db = await getMockLogsDB();
+      if (this.db) {
+        return;
+      }
+      this.db = await openDB(
+        config.cacheConfig.mockNodeLogsCache.dbName,
+        config.cacheConfig.mockNodeLogsCache.version,
+        {
+          upgrade(db) {
+            if (!db.objectStoreNames.contains(config.cacheConfig.mockNodeLogsCache.storeName)) {
+              const store = db.createObjectStore(config.cacheConfig.mockNodeLogsCache.storeName, {
+                keyPath: 'id',
+              });
+              store.createIndex('nodeId', 'nodeId', { unique: false });
+              store.createIndex('projectId', 'projectId', { unique: false });
+              store.createIndex('timestamp', 'timestamp', { unique: false });
+              store.createIndex('type', 'type', { unique: false });
+            }
+          },
+        }
+      );
     } catch (error) {
       // 初始化数据库失败
+      this.db = null;
+      throw error;
     }
   }
   // 加载各节点的日志数量到内存
   private async loadLogCounts(): Promise<void> {
     try {
-      const db = await this.ensureDB();
+      const db = await this.getDB();
       const tx = db.transaction(this.storeName, 'readonly');
       const index = tx.store.index('nodeId');
       const allKeys = await index.getAllKeys();
@@ -70,7 +63,7 @@ class HttpMockLogsCache {
     }
   }
   // 确保数据库已初始化
-  private async ensureDB(): Promise<IDBPDatabase> {
+  private async getDB(): Promise<IDBPDatabase> {
     if (!this.db) {
       await this.initDB();
     }
@@ -101,7 +94,7 @@ class HttpMockLogsCache {
     this.logQueue = [];
     this.flushTimer = null;
     try {
-      const db = await this.ensureDB();
+      const db = await this.getDB();
       const tx = db.transaction(this.storeName, 'readwrite');
       for (const log of logsToFlush) {
         await tx.store.add(log);
@@ -134,7 +127,7 @@ class HttpMockLogsCache {
   // 根据 nodeId 获取日志列表
   async getLogsByNodeId(nodeId: string): Promise<MockLog[]> {
     try {
-      const db = await this.ensureDB();
+      const db = await this.getDB();
       const tx = db.transaction(this.storeName, 'readonly');
       const index = tx.store.index('nodeId');
       const logs = await index.getAll(nodeId);
@@ -148,7 +141,7 @@ class HttpMockLogsCache {
   async clearLogsByNodeId(nodeId: string): Promise<boolean> {
     try {
       await this.forceFlush();
-      const db = await this.ensureDB();
+      const db = await this.getDB();
       const tx1 = db.transaction(this.storeName, 'readonly');
       const index = tx1.store.index('nodeId');
       const logs = await index.getAll(nodeId);
@@ -171,7 +164,7 @@ class HttpMockLogsCache {
   async clearLogsByProjectId(projectId: string): Promise<boolean> {
     try {
       await this.forceFlush();
-      const db = await this.ensureDB();
+      const db = await this.getDB();
       const tx1 = db.transaction(this.storeName, 'readonly');
       const index = tx1.store.index('projectId');
       const logs = await index.getAll(projectId);
@@ -195,7 +188,7 @@ class HttpMockLogsCache {
   // 限制指定 nodeId 的日志数量
   private async trimLogsForNode(nodeId: string): Promise<void> {
     try {
-      const db = await this.ensureDB();
+      const db = await this.getDB();
       const tx1 = db.transaction(this.storeName, 'readonly');
       const index = tx1.store.index('nodeId');
       const logs = await index.getAll(nodeId);

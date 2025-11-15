@@ -6,14 +6,27 @@ export class StandaloneRuleCache {
   private db: IDBPDatabase | null = null;
   private storeName = config.cacheConfig.rulesCache.storeName;
   constructor() {
-    this.initDB();
+    this.initDB().catch(error => {
+      console.error('初始化规则缓存数据库失败:', error);
+    });
   }
   private async initDB() {
-    this.db = await this.openDB();
+    if (this.db) {
+      return;
+    }
+    try {
+      this.db = await this.openDB();
+    } catch (error) {
+      this.db = null;
+      throw error;
+    }
   }
   private async getDB() {
     if (!this.db) {
-      this.db = await this.openDB();
+      await this.initDB();
+    }
+    if (!this.db) {
+      throw new Error('规则缓存数据库初始化失败');
     }
     return this.db;
   }

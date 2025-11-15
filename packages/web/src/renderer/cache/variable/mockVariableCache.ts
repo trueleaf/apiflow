@@ -15,8 +15,7 @@ type MockVariableCacheDBSchema = {
 export class MockVariableCache {
   private readonly dbName = config.cacheConfig.mockNodeVariableCache.dbName;
   private readonly version = config.cacheConfig.mockNodeVariableCache.version;
-
-  private dbPromise: Promise<IDBPDatabase<MockVariableCacheDBSchema>> | null = null;
+  private db: IDBPDatabase<MockVariableCacheDBSchema> | null = null;
 
   constructor() {
     this.initDB().catch((error) => {
@@ -24,9 +23,12 @@ export class MockVariableCache {
     });
   }
 
-  private initDB(): Promise<IDBPDatabase<MockVariableCacheDBSchema>> {
-    if (!this.dbPromise) {
-      this.dbPromise = openDB<MockVariableCacheDBSchema>(this.dbName, this.version, {
+  private async initDB(): Promise<void> {
+    if (this.db) {
+      return;
+    }
+    try {
+      this.db = await openDB<MockVariableCacheDBSchema>(this.dbName, this.version, {
         upgrade(database, _oldVersion, _newVersion, transaction) {
           const store = database.objectStoreNames.contains('mockVariables')
             ? transaction.objectStore('mockVariables')
@@ -36,12 +38,24 @@ export class MockVariableCache {
           }
         },
       });
+    } catch (error) {
+      this.db = null;
+      throw error;
     }
-    return this.dbPromise;
+  }
+
+  private async getDB(): Promise<IDBPDatabase<MockVariableCacheDBSchema>> {
+    if (!this.db) {
+      await this.initDB();
+    }
+    if (!this.db) {
+      throw new Error('Mock变量数据库初始化失败');
+    }
+    return this.db;
   }
 
   private async getStore(mode: IDBTransactionMode) {
-    const db = await this.initDB();
+    const db = await this.getDB();
     return db.transaction('mockVariables', mode).store;
   }
 

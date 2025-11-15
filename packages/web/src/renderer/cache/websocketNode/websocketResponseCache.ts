@@ -19,13 +19,18 @@ class WebsocketResponseCache {
   private db: IDBPDatabase | null = null;
 
   constructor() {
-    this.initDB();
+    this.initDB().catch(error => {
+      logger.error('初始化WebSocket响应缓存数据库失败', { error });
+    });
   }
 
   /**
    * 初始化数据库
    */
   private async initDB(): Promise<void> {
+    if (this.db) {
+      return;
+    }
     try {
       this.db = await openDB(this.dbName, this.version, {
         upgrade(db) {
@@ -36,14 +41,15 @@ class WebsocketResponseCache {
         }
       });
     } catch (error) {
-      logger.error('初始化WebSocket响应缓存数据库失败', { error });
+      this.db = null;
+      throw error;
     }
   }
 
   /**
    * 确保数据库已初始化
    */
-  private async ensureDB(): Promise<IDBPDatabase> {
+  private async getDB(): Promise<IDBPDatabase> {
     if (!this.db) {
       await this.initDB();
     }
@@ -55,7 +61,7 @@ class WebsocketResponseCache {
     // 存储数据
   async setData(nodeId: string, responses: WebsocketResponse[]): Promise<void> {
     try {
-      const db = await this.ensureDB();
+      const db = await this.getDB();
       const tx = db.transaction(this.storeName, 'readwrite');
       
       for (const response of responses) {
@@ -92,7 +98,7 @@ class WebsocketResponseCache {
         return;
       }
 
-      const db = await this.ensureDB();
+      const db = await this.getDB();
       // 为响应创建唯一ID
       const dataId = nanoid();
       
@@ -114,7 +120,7 @@ class WebsocketResponseCache {
     // 获取数据
   async getData(nodeId: string): Promise<WebsocketResponse[]> {
     try {
-      const db = await this.ensureDB();
+      const db = await this.getDB();
       const tx = db.transaction(this.storeName, 'readonly');
       const index = tx.store.index('nodeId');
       const dataList = await index.getAll(nodeId);
@@ -132,7 +138,7 @@ class WebsocketResponseCache {
     // 清空数据
   async clearData(nodeId?: string): Promise<void> {
     try {
-      const db = await this.ensureDB();
+      const db = await this.getDB();
       const tx = db.transaction(this.storeName, 'readwrite');
       
       if (nodeId) {

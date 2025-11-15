@@ -22,13 +22,18 @@ class WebSocketHistoryCache {
   private db: IDBPDatabase | null = null;
 
   constructor() {
-    this.initDB();
+    this.initDB().catch(error => {
+      logger.error('初始化WebSocket历史记录数据库失败', { error });
+    });
   }
 
   /**
    * 初始化数据库
    */
   private async initDB(): Promise<void> {
+    if (this.db) {
+      return;
+    }
     try {
       this.db = await openDB(this.dbName, this.version, {
         upgrade(db) {
@@ -40,14 +45,15 @@ class WebSocketHistoryCache {
         }
       });
     } catch (error) {
-      logger.error('初始化WebSocket历史记录数据库失败', { error });
+      this.db = null;
+      throw error;
     }
   }
 
   /**
    * 确保数据库已初始化
    */
-  private async ensureDB(): Promise<IDBPDatabase> {
+  private async getDB(): Promise<IDBPDatabase> {
     if (!this.db) {
       await this.initDB();
     }
@@ -60,7 +66,7 @@ class WebSocketHistoryCache {
     // 根据节点ID获取该节点的所有历史记录
   async getWsHistoryListByNodeId(nodeId: string): Promise<WebSocketHistory[]> {
     try {
-      const db = await this.ensureDB();
+      const db = await this.getDB();
       const tx = db.transaction(this.storeName, 'readonly');
       const index = tx.store.index('nodeId');
       const records = await index.getAll(nodeId);
@@ -84,7 +90,7 @@ class WebSocketHistoryCache {
     // 根据历史记录ID获取单条历史记录的详细信息
   async getWsHistoryById(historyId: string): Promise<WebSocketHistory | null> {
     try {
-      const db = await this.ensureDB();
+      const db = await this.getDB();
       const record = await db.get(this.storeName, historyId);
       
       if (!record) {
@@ -107,7 +113,7 @@ class WebSocketHistoryCache {
     // 为指定节点添加新的历史记录
   async addWsHistoryByNodeId(nodeId: string, node: WebSocketNode, operatorId?: string, operatorName?: string): Promise<boolean> {
     try {
-      const db = await this.ensureDB();
+      const db = await this.getDB();
       
       
       // 获取当前节点的历史记录数量
@@ -151,7 +157,7 @@ class WebSocketHistoryCache {
     // 删除指定节点的历史记录
   async deleteWsHistoryByNode(nodeId: string, historyIds?: string[]): Promise<boolean> {
     try {
-      const db = await this.ensureDB();
+      const db = await this.getDB();
       
       if (historyIds && historyIds.length > 0) {
         // 删除指定的历史记录
@@ -183,7 +189,7 @@ class WebSocketHistoryCache {
     // 清空所有历史记录数据
   async clearWsHistory(): Promise<boolean> {
     try {
-      const db = await this.ensureDB();
+      const db = await this.getDB();
       const tx = db.transaction(this.storeName, 'readwrite');
       await tx.store.clear();
       await tx.done;

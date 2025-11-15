@@ -2,20 +2,34 @@ import type { ApidocVariable, CommonResponse } from '@src/types';
 import { nanoid } from "nanoid";
 import { openDB, type IDBPDatabase } from 'idb';
 import { config } from '@src/config/config';
+import { logger } from '@/helper';
 
 export class NodeVariableCache {
   private db: IDBPDatabase | null = null;
   private storeName = config.cacheConfig.variablesCache.storeName;
   private projectIdIndex = config.cacheConfig.variablesCache.projectIdIndex;
   constructor() {
-    this.initDB();
+    this.initDB().catch(error => {
+      logger.error('初始化变量缓存数据库失败', { error });
+    });
   }
   private async initDB() {
-    this.db = await this.openDB();
+    if (this.db) {
+      return;
+    }
+    try {
+      this.db = await this.openDB();
+    } catch (error) {
+      this.db = null;
+      throw error;
+    }
   }
   private async getDB() {
     if (!this.db) {
-      this.db = await this.openDB();
+      await this.initDB();
+    }
+    if (!this.db) {
+      throw new Error('变量缓存数据库初始化失败');
     }
     return this.db;
   }

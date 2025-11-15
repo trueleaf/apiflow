@@ -17,10 +17,15 @@ class AgentCache {
   private db: IDBPDatabase | null = null;
 
   constructor() {
-    this.initDB();
+    this.initDB().catch(error => {
+      logger.error('初始化Agent对话数据库失败', { error });
+    });
   }
 
   private async initDB(): Promise<void> {
+    if (this.db) {
+      return;
+    }
     try {
       this.db = await openDB(this.dbName, this.version, {
         upgrade(db) {
@@ -33,10 +38,12 @@ class AgentCache {
       });
     } catch (error) {
       logger.error('初始化Agent对话数据库失败', { error });
+      this.db = null;
+      throw error;
     }
   }
 
-  private async ensureDB(): Promise<IDBPDatabase> {
+  private async getDB(): Promise<IDBPDatabase> {
     if (!this.db) {
       await this.initDB();
     }
@@ -48,7 +55,7 @@ class AgentCache {
 
   async addMessage(message: AgentMessage): Promise<boolean> {
     try {
-      const db = await this.ensureDB();
+      const db = await this.getDB();
       const messageCopy = JSON.parse(JSON.stringify(message));
       const tx = db.transaction(this.storeName, 'readwrite');
       await tx.store.add(messageCopy);
@@ -61,7 +68,7 @@ class AgentCache {
   }
   async updateMessage(message: AgentMessage): Promise<boolean> {
     try {
-      const db = await this.ensureDB();
+      const db = await this.getDB();
       const messageCopy = JSON.parse(JSON.stringify(message));
       const tx = db.transaction(this.storeName, 'readwrite');
       await tx.store.put(messageCopy);
@@ -75,7 +82,7 @@ class AgentCache {
 
   async getMessagesBySessionId(sessionId: string): Promise<AgentMessage[]> {
     try {
-      const db = await this.ensureDB();
+      const db = await this.getDB();
       const tx = db.transaction(this.storeName, 'readonly');
       const index = tx.store.index('sessionId');
       const records = await index.getAll(sessionId);
@@ -91,7 +98,7 @@ class AgentCache {
 
   async deleteMessagesBySessionId(sessionId: string): Promise<boolean> {
     try {
-      const db = await this.ensureDB();
+      const db = await this.getDB();
       const tx1 = db.transaction(this.storeName, 'readonly');
       const index = tx1.store.index('sessionId');
       const records = await index.getAll(sessionId);
@@ -109,7 +116,7 @@ class AgentCache {
 
   async clearAllMessages(): Promise<boolean> {
     try {
-      const db = await this.ensureDB();
+      const db = await this.getDB();
       const tx = db.transaction(this.storeName, 'readwrite');
       await tx.store.clear();
       await tx.done;
@@ -122,7 +129,7 @@ class AgentCache {
 
   async getSessionList(): Promise<SessionInfo[]> {
     try {
-      const db = await this.ensureDB();
+      const db = await this.getDB();
       const tx = db.transaction(this.storeName, 'readonly');
       const allMessages = await tx.store.getAll();
       const sessionMap = new Map<string, SessionInfo>();
