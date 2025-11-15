@@ -1,141 +1,173 @@
 import type { ApidocProjectInfo } from '@src/types';
-import { getStandaloneDB } from "../db";
 import { cacheKey } from '../cacheKey';
+import { openDB, type IDBPDatabase } from 'idb';
+import { config } from '@src/config/config';
 
 export class ProjectCache {
-  private get db() {
-    return getStandaloneDB();
+  private db: IDBPDatabase | null = null;
+  private storeName = config.cacheConfig.projectCache.storeName;
+  constructor() {
+    this.initDB();
+  }
+  private async initDB() {
+    this.db = await this.openDB();
+  }
+  private async getDB() {
+    if (!this.db) {
+      this.db = await this.openDB();
+    }
+    return this.db;
+  }
+  private async openDB(): Promise<IDBPDatabase> {
+    if (this.db) {
+      return this.db;
+    }
+    this.db = await openDB(
+      config.cacheConfig.projectCache.dbName,
+      config.cacheConfig.projectCache.version,
+      {
+        upgrade(db) {
+          if (!db.objectStoreNames.contains(config.cacheConfig.projectCache.storeName)) {
+            db.createObjectStore(config.cacheConfig.projectCache.storeName);
+          }
+        },
+      }
+    );
+    return this.db;
   }
 
   async getProjectList(): Promise<ApidocProjectInfo[]> {
-    const tx = this.db.transaction("projects", "readonly");
-    const store = tx.objectStore("projects");
+    const db = await this.getDB();
+    const tx = db.transaction(this.storeName, "readonly");
+    const store = tx.objectStore(this.storeName);
     const keys = await store.getAllKeys();
     const projects: ApidocProjectInfo[] = [];
-    
+
     for (const key of keys) {
       const project = await store.get(key);
       if (project && !project.isDeleted) {
         projects.push(project);
       }
     }
-    
+
     return projects;
   }
 
   async setProjectList(projectList: ApidocProjectInfo[]): Promise<boolean> {
-    const tx = this.db.transaction("projects", "readwrite");
-    const store = tx.objectStore("projects");
-    
-    // 清空现有数据
+    const db = await this.getDB();
+    const tx = db.transaction(this.storeName, "readwrite");
+    const store = tx.objectStore(this.storeName);
+
     const keys = await store.getAllKeys();
     for (const key of keys) {
       await store.delete(key);
     }
-    
-    // 存储新的项目列表
+
     for (const project of projectList) {
       await store.put(project, project._id);
     }
-    
+
     await tx.done;
     return true;
   }
-
   async getProjectInfo(projectId: string): Promise<ApidocProjectInfo | null> {
-    const tx = this.db.transaction("projects", "readonly");
-    const store = tx.objectStore("projects");
+    const db = await this.getDB();
+    const tx = db.transaction(this.storeName, "readonly");
+    const store = tx.objectStore(this.storeName);
     const project = await store.get(projectId);
     return project && !project.isDeleted ? project : null;
   }
-
   async addProject(project: ApidocProjectInfo): Promise<boolean> {
-    const tx = this.db.transaction("projects", "readwrite");
-    const store = tx.objectStore("projects");
+    const db = await this.getDB();
+    const tx = db.transaction(this.storeName, "readwrite");
+    const store = tx.objectStore(this.storeName);
     await store.put(project, project._id);
     await tx.done;
     return true;
   }
-
   async updateProject(projectId: string, project: Partial<ApidocProjectInfo>): Promise<boolean> {
-    const tx = this.db.transaction("projects", "readwrite");
-    const store = tx.objectStore("projects");
+    const db = await this.getDB();
+    const tx = db.transaction(this.storeName, "readwrite");
+    const store = tx.objectStore(this.storeName);
     const existingProject = await store.get(projectId);
-    
+
     if (!existingProject) return false;
-    
+
     const updatedProject = {
       ...existingProject,
       ...project
     };
-    
+
     await store.put(updatedProject, projectId);
     await tx.done;
     return true;
   }
-
   async deleteProject(projectId: string): Promise<boolean> {
-    const tx = this.db.transaction("projects", "readwrite");
-    const store = tx.objectStore("projects");
+    const db = await this.getDB();
+    const tx = db.transaction(this.storeName, "readwrite");
+    const store = tx.objectStore(this.storeName);
     const existingProject = await store.get(projectId);
-    
+
     if (!existingProject) return false;
-    
+
     const updatedProject = {
       ...existingProject,
       isDeleted: true,
       deletedAt: Date.now()
     };
-    
+
     await store.put(updatedProject, projectId);
     await tx.done;
     return true;
   }
   async getDeletedProjectList(): Promise<ApidocProjectInfo[]> {
-    const tx = this.db.transaction("projects", "readonly");
-    const store = tx.objectStore("projects");
+    const db = await this.getDB();
+    const tx = db.transaction(this.storeName, "readonly");
+    const store = tx.objectStore(this.storeName);
     const keys = await store.getAllKeys();
     const projects: ApidocProjectInfo[] = [];
-    
+
     for (const key of keys) {
       const project = await store.get(key);
       if (project && project.isDeleted) {
         projects.push(project);
       }
     }
-    
+
     projects.sort((a, b) => {
       const aTime = a.deletedAt || 0;
       const bTime = b.deletedAt || 0;
       return bTime - aTime;
     });
-    
+
     return projects;
   }
   async recoverProject(projectId: string): Promise<boolean> {
-    const tx = this.db.transaction("projects", "readwrite");
-    const store = tx.objectStore("projects");
+    const db = await this.getDB();
+    const tx = db.transaction(this.storeName, "readwrite");
+    const store = tx.objectStore(this.storeName);
     const existingProject = await store.get(projectId);
-    
+
     if (!existingProject || !existingProject.isDeleted) return false;
-    
+
     const updatedProject = {
       ...existingProject,
       isDeleted: false,
       deletedAt: undefined
     };
-    
+
     await store.put(updatedProject, projectId);
     await tx.done;
     return true;
   }
   async permanentlyDeleteProject(projectId: string): Promise<boolean> {
-    const tx = this.db.transaction("projects", "readwrite");
-    const store = tx.objectStore("projects");
+    const db = await this.getDB();
+    const tx = db.transaction(this.storeName, "readwrite");
+    const store = tx.objectStore(this.storeName);
     const existingProject = await store.get(projectId);
-    
+
     if (!existingProject) return false;
-    
+
     await store.delete(projectId);
     await tx.done;
     return true;
@@ -143,13 +175,14 @@ export class ProjectCache {
   async clearDeletedProjects(): Promise<boolean> {
     try {
       const deletedProjects = await this.getDeletedProjectList();
-      const tx = this.db.transaction("projects", "readwrite");
-      const store = tx.objectStore("projects");
-      
+      const db = await this.getDB();
+      const tx = db.transaction(this.storeName, "readwrite");
+      const store = tx.objectStore(this.storeName);
+
       for (const project of deletedProjects) {
         await store.delete(project._id);
       }
-      
+
       await tx.done;
       return true;
     } catch (error) {

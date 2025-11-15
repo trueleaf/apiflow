@@ -1,90 +1,117 @@
 import type { ApidocProjectRules } from "@src/types";
-import { getStandaloneDB } from "../db";
+import { openDB, type IDBPDatabase } from 'idb';
+import { config } from '@src/config/config';
 
 export class StandaloneRuleCache {
-  private get db() {
-    return getStandaloneDB();
+  private db: IDBPDatabase | null = null;
+  private storeName = config.cacheConfig.rulesCache.storeName;
+  constructor() {
+    this.initDB();
   }
-
+  private async initDB() {
+    this.db = await this.openDB();
+  }
+  private async getDB() {
+    if (!this.db) {
+      this.db = await this.openDB();
+    }
+    return this.db;
+  }
+  private async openDB(): Promise<IDBPDatabase> {
+    if (this.db) {
+      return this.db;
+    }
+    this.db = await openDB(
+      config.cacheConfig.rulesCache.dbName,
+      config.cacheConfig.rulesCache.version,
+      {
+        upgrade(db) {
+          if (!db.objectStoreNames.contains(config.cacheConfig.rulesCache.storeName)) {
+            db.createObjectStore(config.cacheConfig.rulesCache.storeName);
+          }
+        },
+      }
+    );
+    return this.db;
+  }
   async getAllProjectRules(): Promise<Record<string, ApidocProjectRules>> {
-    const tx = this.db.transaction("rules", "readonly");
-    const store = tx.objectStore("rules");
+    const db = await this.getDB();
+    const tx = db.transaction(this.storeName, "readonly");
+    const store = tx.objectStore(this.storeName);
     const keys = await store.getAllKeys();
     const rules: Record<string, ApidocProjectRules> = {};
-    
+
     for (const key of keys) {
       const rule = await store.get(key);
       if (rule && !rule.isDeleted) {
         rules[key as string] = rule;
       }
     }
-    
+
     return rules;
   }
-
   async setAllProjectRules(rules: Record<string, ApidocProjectRules>): Promise<boolean> {
-    const tx = this.db.transaction("rules", "readwrite");
-    const store = tx.objectStore("rules");
-    
-    // 清空现有数据
+    const db = await this.getDB();
+    const tx = db.transaction(this.storeName, "readwrite");
+    const store = tx.objectStore(this.storeName);
+
     const keys = await store.getAllKeys();
     for (const key of keys) {
       await store.delete(key);
     }
-    
-    // 存储新的规则
+
     for (const [projectId, rule] of Object.entries(rules)) {
       await store.put(rule, projectId);
     }
-    
+
     await tx.done;
     return true;
   }
-
   async getProjectRules(projectId: string): Promise<ApidocProjectRules | null> {
-    const tx = this.db.transaction("rules", "readonly");
-    const store = tx.objectStore("rules");
+    const db = await this.getDB();
+    const tx = db.transaction(this.storeName, "readonly");
+    const store = tx.objectStore(this.storeName);
     const rule = await store.get(projectId);
     return rule && !rule.isDeleted ? rule : null;
   }
-
   async setProjectRules(projectId: string, rules: ApidocProjectRules): Promise<boolean> {
-    const tx = this.db.transaction("rules", "readwrite");
-    const store = tx.objectStore("rules");
+    const db = await this.getDB();
+    const tx = db.transaction(this.storeName, "readwrite");
+    const store = tx.objectStore(this.storeName);
     await store.put({ ...rules, isDeleted: false }, projectId);
     await tx.done;
     return true;
   }
-
   async updateProjectRules(projectId: string, rules: Partial<ApidocProjectRules>): Promise<boolean> {
-    const tx = this.db.transaction("rules", "readwrite");
-    const store = tx.objectStore("rules");
+    const db = await this.getDB();
+    const tx = db.transaction(this.storeName, "readwrite");
+    const store = tx.objectStore(this.storeName);
     const existingRules = await store.get(projectId);
-    
+
     if (!existingRules) return false;
-    
+
     const updatedRules = {
       ...existingRules,
       ...rules
     };
-    
+
     await store.put(updatedRules, projectId);
     await tx.done;
     return true;
   }
-
   async deleteProjectRules(projectId: string): Promise<boolean> {
-    const tx = this.db.transaction("rules", "readwrite");
-    const store = tx.objectStore("rules");
+    const db = await this.getDB();
+    const tx = db.transaction(this.storeName, "readwrite");
+    const store = tx.objectStore(this.storeName);
     const existingRules = await store.get(projectId);
-    
+
     if (!existingRules) return false;
-    
+
     const updatedRules = {
       ...existingRules,
       isDeleted: true
     };
-    
+
     await store.put(updatedRules, projectId);
     await tx.done;
     return true;

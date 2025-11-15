@@ -159,11 +159,34 @@ export type Config = {
       dbName: string,
       version: number,
       storeName: string,
+    },
+    projectCache: {
+      dbName: string,
+      version: number,
+      storeName: string
+    },
+    apiNodesCache: {
+      dbName: string,
+      version: number,
+      storeName: string,
+      projectIdIndex: string
+    },
+    commonHeadersCache: {
+      dbName: string,
+      version: number,
+      storeName: string
+    },
+    rulesCache: {
+      dbName: string,
+      version: number,
+      storeName: string
+    },
+    variablesCache: {
+      dbName: string,
+      version: number,
+      storeName: string,
+      projectIdIndex: string
     }
-  },
-  standaloneCache: {
-    dbName: string,
-    version: number,
   }
 }
 

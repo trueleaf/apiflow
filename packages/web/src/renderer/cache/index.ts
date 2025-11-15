@@ -8,4 +8,3 @@ export { mockVariableCache } from './variable/mockVariableCache';
 export { appWorkbenchCache } from './appWorkbench/appWorkbenchCache';
 export { httpResponseCache } from './httpNode/httpResponseCache';
 export { httpRedoUndoCache } from './redoUndo/httpRedoUndoCache';
-export { initStandaloneDB, getStandaloneDB } from './db';

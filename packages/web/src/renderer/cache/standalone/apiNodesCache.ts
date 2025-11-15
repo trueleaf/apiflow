@@ -1,16 +1,75 @@
 import type { ApidocType, ApiNode } from "@src/types";
 import { nanoid } from "nanoid";
-import { getStandaloneDB } from "../db";
+import { openDB, type IDBPDatabase } from 'idb';
+import { config } from '@src/config/config';
 
 export class ApiNodesCache {
   private bannerCache = new Map<
     string,
     { data: ApiNode[]; timestamp: number }
   >();
-  private readonly CACHE_TTL = 5 * 60 * 1000; // 5分钟缓存过期时间
-  
-  private get db() {
-    return getStandaloneDB();
+  private readonly CACHE_TTL = 5 * 60 * 1000;
+  private apiNodesDB: IDBPDatabase | null = null;
+  private projectDB: IDBPDatabase | null = null;
+  private storeName = config.cacheConfig.apiNodesCache.storeName;
+  private projectStoreName = config.cacheConfig.projectCache.storeName;
+  constructor() {
+    this.initDB();
+  }
+  private async initDB() {
+    this.apiNodesDB = await this.openApiNodesDB();
+    this.projectDB = await this.openProjectDB();
+  }
+  private async getDB() {
+    if (!this.apiNodesDB) {
+      this.apiNodesDB = await this.openApiNodesDB();
+    }
+    return this.apiNodesDB;
+  }
+  private async getProjectDB() {
+    if (!this.projectDB) {
+      this.projectDB = await this.openProjectDB();
+    }
+    return this.projectDB;
+  }
+  private async openApiNodesDB(): Promise<IDBPDatabase> {
+    if (this.apiNodesDB) {
+      return this.apiNodesDB;
+    }
+    this.apiNodesDB = await openDB(
+      config.cacheConfig.apiNodesCache.dbName,
+      config.cacheConfig.apiNodesCache.version,
+      {
+        upgrade(db) {
+          if (!db.objectStoreNames.contains(config.cacheConfig.apiNodesCache.storeName)) {
+            const httpNodeListStore = db.createObjectStore(config.cacheConfig.apiNodesCache.storeName);
+            httpNodeListStore.createIndex(
+              config.cacheConfig.apiNodesCache.projectIdIndex,
+              config.cacheConfig.apiNodesCache.projectIdIndex,
+              { unique: false }
+            );
+          }
+        },
+      }
+    );
+    return this.apiNodesDB;
+  }
+  private async openProjectDB(): Promise<IDBPDatabase> {
+    if (this.projectDB) {
+      return this.projectDB;
+    }
+    this.projectDB = await openDB(
+      config.cacheConfig.projectCache.dbName,
+      config.cacheConfig.projectCache.version,
+      {
+        upgrade(db) {
+          if (!db.objectStoreNames.contains(config.cacheConfig.projectCache.storeName)) {
+            db.createObjectStore(config.cacheConfig.projectCache.storeName);
+          }
+        },
+      }
+    );
+    return this.projectDB;
   }
   /*
   |--------------------------------------------------------------------------
@@ -20,7 +79,8 @@ export class ApiNodesCache {
   // 获取所有节点
   async getNodeList(): Promise<ApiNode[]> {
     try {
-      const allDocs = await this.db.getAll("httpNodeList");
+      const db = await this.getDB();
+      const allDocs = await db.getAll(this.storeName);
       return allDocs.filter((doc) => doc && !doc.isDeleted);
     } catch (error) {
       console.error("Failed to get docs list:", error);
@@ -33,10 +93,10 @@ export class ApiNodesCache {
     if (cached && Date.now() - cached.timestamp < this.CACHE_TTL) {
       return cached.data;
     }
-    
+
     try {
-      // 尝试使用索引查询
-      const docs: ApiNode[] = await this.db.getAllFromIndex("httpNodeList", "projectId", projectId);
+      const db = await this.getDB();
+      const docs: ApiNode[] = await db.getAllFromIndex(this.storeName, config.cacheConfig.apiNodesCache.projectIdIndex, projectId);
       const filteredDocs = docs.filter((doc) => !doc.isDeleted);
       this.bannerCache.set(projectId, {
         data: filteredDocs,
@@ -45,9 +105,9 @@ export class ApiNodesCache {
       return filteredDocs;
     } catch (error) {
       console.warn("Index query failed, falling back to full query:", error);
-      // 修复：使用手动过滤而不是递归调用
       try {
-        const allDocs = await this.db.getAll("httpNodeList");
+        const db = await this.getDB();
+        const allDocs = await db.getAll(this.storeName);
         const projectDocs = allDocs.filter((doc) => doc.projectId === projectId && !doc.isDeleted);
         this.bannerCache.set(projectId, {
           data: projectDocs,
@@ -63,7 +123,8 @@ export class ApiNodesCache {
   // 根据节点id获取节点信息
   async getNodeById(nodeId: string): Promise<ApiNode | null> {
     try {
-      const doc = await this.db.get("httpNodeList", nodeId);
+      const db = await this.getDB();
+      const doc = await db.get(this.storeName, nodeId);
       return doc && !doc.isDeleted ? doc : null;
     } catch (error) {
       console.error("Failed to get doc by id:", error);
@@ -73,7 +134,8 @@ export class ApiNodesCache {
   // 添加一个节点
   async addNode(node: ApiNode): Promise<boolean> {
     try {
-      await this.db.put("httpNodeList", node, node._id);
+      const db = await this.getDB();
+      await db.put(this.storeName, node, node._id);
       await this.updateProjectNodeNum(node.projectId);
       this.clearBannerCache(node.projectId);
       return true;
@@ -85,10 +147,10 @@ export class ApiNodesCache {
   // 新增或修改一个节点
   async updateNode(node: ApiNode): Promise<boolean> {
     try {
-      // 先检查文档是否存在
-      const existingDoc = await this.db.get("httpNodeList", node._id);
+      const db = await this.getDB();
+      const existingDoc = await db.get(this.storeName, node._id);
       if (!existingDoc) return false;
-      await this.db.put("httpNodeList", node, node._id);
+      await db.put(this.storeName, node, node._id);
       this.clearBannerCache(node.projectId);
       return true;
     } catch (error) {
@@ -99,10 +161,11 @@ export class ApiNodesCache {
   // 更新节点名称
   async updateNodeName(nodeId: string, name: string): Promise<boolean> {
     try {
-      const existingDoc = await this.db.get("httpNodeList", nodeId);
+      const db = await this.getDB();
+      const existingDoc = await db.get(this.storeName, nodeId);
       if (!existingDoc) return false;
       existingDoc.info.name = name;
-      await this.db.put("httpNodeList", existingDoc, nodeId);
+      await db.put(this.storeName, existingDoc, nodeId);
       this.clearBannerCache(existingDoc.projectId);
       return true;
     } catch (error) {
@@ -113,7 +176,8 @@ export class ApiNodesCache {
   // 根据节点ID更新节点的部分字段
   async updateNodeById(nodeId: string, updates: Partial<ApiNode>): Promise<boolean> {
     try {
-      const existingDoc = await this.db.get("httpNodeList", nodeId);
+      const db = await this.getDB();
+      const existingDoc = await db.get(this.storeName, nodeId);
       if (!existingDoc) return false;
       const updatedDoc = {
         ...existingDoc,
@@ -121,7 +185,7 @@ export class ApiNodesCache {
         _id: nodeId,
         updatedAt: new Date().toISOString(),
       };
-      await this.db.put("httpNodeList", updatedDoc, nodeId);
+      await db.put(this.storeName, updatedDoc, nodeId);
       this.clearBannerCache(existingDoc.projectId);
       return true;
     } catch (error) {
@@ -132,14 +196,15 @@ export class ApiNodesCache {
   // 删除一个节点
   async deleteNode(nodeId: string): Promise<boolean> {
     try {
-      const existingDoc = await this.db.get("httpNodeList", nodeId);
+      const db = await this.getDB();
+      const existingDoc = await db.get(this.storeName, nodeId);
       if (!existingDoc) return false;
       const updatedDoc = {
         ...existingDoc,
         isDeleted: true,
         updatedAt: new Date().toISOString(),
       };
-      await this.db.put("httpNodeList", updatedDoc, nodeId);
+      await db.put(this.storeName, updatedDoc, nodeId);
       await this.updateProjectNodeNum(existingDoc.projectId);
       this.clearBannerCache(existingDoc.projectId);
       return true;
@@ -152,15 +217,14 @@ export class ApiNodesCache {
   async deleteNodes(nodeIds: string[]): Promise<boolean> {
     if (nodeIds.length === 0) return true;
 
-    // 使用事务确保批量操作的原子性
-    const tx = this.db.transaction("httpNodeList", "readwrite");
-    const store = tx.objectStore("httpNodeList");
-    
+    const db = await this.getDB();
+    const tx = db.transaction(this.storeName, "readwrite");
+    const store = tx.objectStore(this.storeName);
+
     try {
       let projectId: string | null = null;
       const updatedTimestamp = new Date().toISOString();
 
-      // 在事务中批量处理所有删除操作
       for (const nodeId of nodeIds) {
         const existingDoc = await store.get(nodeId);
         if (existingDoc) {
@@ -173,19 +237,16 @@ export class ApiNodesCache {
         }
       }
 
-      // 等待事务完成
       await tx.done;
 
-      // 更新项目文档数量和清除缓存
       if (projectId) {
         await this.updateProjectNodeNum(projectId);
         this.clearBannerCache(projectId);
       }
-      
+
       return true;
     } catch (error) {
       console.error("Failed to delete docs:", error);
-      // 事务会自动回滚，无需手动处理
       return false;
     }
   }
@@ -198,7 +259,8 @@ export class ApiNodesCache {
   // 获取已删除节点列表
   async getDeletedNodesList(projectId: string) {
     try {
-      const allDocs = await this.db.getAllFromIndex("httpNodeList", "projectId", projectId);
+      const db = await this.getDB();
+      const allDocs = await db.getAllFromIndex(this.storeName, config.cacheConfig.apiNodesCache.projectIdIndex, projectId);
       return allDocs
         .filter((doc) => doc.isDeleted).sort((a, b) =>
           new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
@@ -211,24 +273,24 @@ export class ApiNodesCache {
   // 恢复已删除的文档
   async restoreNode(nodeId: string): Promise<string[]> {
     try {
-      const existingDoc = await this.db.get("httpNodeList", nodeId);
+      const db = await this.getDB();
+      const existingDoc = await db.get(this.storeName, nodeId);
       const result: string[] = [nodeId];
       if (!existingDoc) return [];
       existingDoc.isDeleted = false;
-      await this.db.put("httpNodeList", existingDoc, nodeId);
-      // 递归恢复父级文档
+      await db.put(this.storeName, existingDoc, nodeId);
       let currentPid = existingDoc.pid;
       while (currentPid) {
-        const parentDoc = await this.db.get("httpNodeList", currentPid);
+        const parentDoc = await db.get(this.storeName, currentPid);
         if (!parentDoc) break;
         if (parentDoc.isDeleted) {
           parentDoc.isDeleted = false;
-          await this.db.put("httpNodeList", parentDoc, currentPid);
+          await db.put(this.storeName, parentDoc, currentPid);
           result.push(currentPid);
         }
         currentPid = parentDoc.pid;
       }
-      
+
       this.clearBannerCache(existingDoc.projectId);
       return result;
     } catch (error) {
@@ -245,20 +307,19 @@ export class ApiNodesCache {
   */
   // 覆盖替换所有接口文档
   async replaceAllNodes(nodes: ApiNode[], projectId: string): Promise<boolean> {
-    // 使用事务确保替换操作的原子性
-    const tx = this.db.transaction("httpNodeList", "readwrite");
-    const store = tx.objectStore("httpNodeList");
+    const db = await this.getDB();
+    const tx = db.transaction(this.storeName, "readwrite");
+    const store = tx.objectStore(this.storeName);
     try {
       let existingDocs: ApiNode[];
       try {
-        const index = store.index("projectId");
+        const index = store.index(config.cacheConfig.apiNodesCache.projectIdIndex);
         existingDocs = await index.getAll(projectId);
       } catch (error) {
         const allDocs = await store.getAll();
         existingDocs = allDocs.filter((doc) => doc.projectId === projectId);
       }
       const updatedTimestamp = new Date().toISOString();
-      // 2. 在事务中批量软删除现有文档
       for (const doc of existingDocs) {
         await store.put({
           ...doc,
@@ -266,21 +327,16 @@ export class ApiNodesCache {
           updatedAt: updatedTimestamp,
         }, doc._id);
       }
-      // 3. 处理文档ID和关系映射
       const { processedDocs } = this.prepareDocsWithNewIds(nodes, projectId);
-      // 4. 在事务中批量保存处理后的文档
       for (const doc of processedDocs) {
         await store.put(doc, doc._id);
       }
-      // 等待事务完成
       await tx.done;
-      // 更新项目文档数量和清除缓存
       await this.updateProjectNodeNum(projectId);
       this.clearBannerCache(projectId);
       return true;
     } catch (error) {
       console.error("Failed to replace docs:", error);
-      // 事务会自动回滚，无需手动处理
       return false;
     }
   }
@@ -289,9 +345,10 @@ export class ApiNodesCache {
     const successIds: string[] = [];
 
     try {
+      const db = await this.getDB();
       const { processedDocs } = this.prepareDocsWithNewIds(nodes, projectId);
       const savePromises = processedDocs.map(async (doc) => {
-        await this.db!.put("httpNodeList", doc, doc._id);
+        await db.put(this.storeName, doc, doc._id);
         return doc._id;
       });
       const savedIds = await Promise.all(savePromises);
@@ -312,16 +369,17 @@ export class ApiNodesCache {
   // 更新项目内节点数量(不包含文件夹)
   private async updateProjectNodeNum(projectId: string): Promise<void> {
     try {
-      // 使用索引查询优化性能，只获取当前项目的文档
-      const projectDocs = await this.db.getAllFromIndex("httpNodeList", "projectId", projectId);
+      const db = await this.getDB();
+      const projectDB = await this.getProjectDB();
+      const projectDocs = await db.getAllFromIndex(this.storeName, config.cacheConfig.apiNodesCache.projectIdIndex, projectId);
       const docNum = projectDocs.filter(
         (doc) =>
           !doc.isDeleted &&
           doc.info.type !== "folder"
       ).length;
-      const project = await this.db.get("projects", projectId);
+      const project = await projectDB.get(this.projectStoreName, projectId);
       if (project) {
-        await this.db.put("projects", { ...project, docNum }, projectId);
+        await projectDB.put(this.projectStoreName, { ...project, docNum }, projectId);
       }
     } catch (error) {
       console.error("Failed to update project doc number:", error);

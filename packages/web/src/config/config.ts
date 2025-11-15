@@ -90,10 +90,33 @@ export const config: Config = {
       dbName: 'agentMessageCache',
       version: 1,
       storeName: 'messages'
+    },
+    projectCache: {
+      dbName: 'projectCache',
+      version: 1,
+      storeName: 'projects'
+    },
+    apiNodesCache: {
+      dbName: 'apiNodesCache',
+      version: 1,
+      storeName: 'httpNodeList',
+      projectIdIndex: 'projectId'
+    },
+    commonHeadersCache: {
+      dbName: 'commonHeadersCache',
+      version: 1,
+      storeName: 'commonHeaders'
+    },
+    rulesCache: {
+      dbName: 'rulesCache',
+      version: 1,
+      storeName: 'rules'
+    },
+    variablesCache: {
+      dbName: 'variablesCache',
+      version: 1,
+      storeName: 'variables',
+      projectIdIndex: 'projectId'
     }
-  },
-  standaloneCache: {
-    dbName: 'standaloneCache',
-    version: 2
   }
 }
