@@ -1321,8 +1321,8 @@ export default {
     'header参数在给【{key}】字段赋值时出错，header参数值类型只能为字符串': 'header参数在给【{key}】字段赋值时出错，header参数值类型只能为字符串',
     'cookie参数在给【{key}】字段赋值时出错，cookie参数值类型只能为字符串': 'cookie参数在给【{key}】字段赋值时出错，cookie参数值类型只能为字符串',
 
-    // AI助手相关
-    'AI助手': 'AI助手',
+    // AI助手 Ctrl+L相关
+    'AI助手 Ctrl+L': 'AI助手 Ctrl+L',
     '问我任何问题': '问我任何问题',
     '输入消息...': '输入消息...',
     '发送': '发送',

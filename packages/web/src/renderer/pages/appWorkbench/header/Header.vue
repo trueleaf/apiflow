@@ -24,9 +24,12 @@
       </draggable>
     </div>
     <button class="add-tab-btn" :title="t('新建项目')" @click="handleAddProject">+</button>
-    <button class="ai-trigger-btn" :title="t('AI助手')" @click="handleShowAiDialog" ref="aiButtonRef">
-      <Bot :size="14" />
-      <span>{{ t('AI助手') }}</span>
+    <div v-if="filteredTabs.length > 0" class="divider">
+      <span class="divider-content"></span>
+    </div>
+    <button class="ai-trigger-btn" :title="t('AI助手 Ctrl+L')" @click="handleShowAiDialog" ref="aiButtonRef">
+      <Bot :size="16" />
+      <!-- <span>{{ t('AI助手') }}</span> -->
     </button>
     <div class="right">
       <div class="navigation-control">
@@ -581,7 +584,7 @@ body {
 
 .ai-trigger-btn {
   padding: 0 12px;
-  height: 28px;
+  height: 24px;
   border: none;
   background: transparent;
   color: var(--white);

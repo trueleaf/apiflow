@@ -34,6 +34,7 @@ import { httpMockLogsCache } from '@/cache/mock/httpMock/httpMockLogsCache';
 import type { MockLog } from '@src/types/mockNode';
 import { IPC_EVENTS } from '@src/types/ipc';
 import type { AnchorRect } from '@src/types/common';
+import { useShortcut } from '@/hooks/useShortcut';
 
 
 const router = useRouter();
@@ -104,6 +105,21 @@ const handleLanguageSelect = (language: Language) => {
   hideLanguageMenu()
   // 发送语言切换事件到主进程
   window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.contentToTopBar.languageChanged, language)
+}
+
+const focusAiInput = () => {
+  const inputNode = document.querySelector<HTMLTextAreaElement>('.ai-input')
+  inputNode?.focus()
+}
+
+const handleAiShortcut = (event: KeyboardEvent) => {
+  event.preventDefault()
+  if (!aiDialogVisible.value) {
+    aiAnchorRect.value = null
+    aiDialogVisible.value = true
+    return
+  }
+  focusAiInput()
 }
 
 
@@ -309,6 +325,8 @@ const initAppHeader = () => {
     });
   });
 }
+
+useShortcut('ctrl+l', handleAiShortcut)
 
 watch(aiDialogVisible, value => {
   if (!value) {
