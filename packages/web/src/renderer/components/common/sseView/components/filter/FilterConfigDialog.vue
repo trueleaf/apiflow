@@ -44,17 +44,37 @@ import CodeEditor from '@/components/common/codeEditor/CodeEditor.vue';
 import { Filter } from 'lucide-vue-next';
 import { useI18n } from 'vue-i18n';
 
-const DEFAULT_FILTER_CODE = `function filter(chunk) {
+const DEFAULT_FILTER_CODE = `const buffer = [];
+function filter(chunk) {
   // chunk代表当前行的原始数据，例如：{ event: string, data: string, timestamp: number }
-  // 如果返回null(falsly)则代表什么都不处理
-  // 返回什么代表最后显示什么
+  // 如果返回null(falsy)则代表什么都不处理
+  // 返回内容会覆盖最终展示，例如返回“测试数据”则界面展示“测试数据”
   try {
     const json = JSON.parse(chunk.data);
-    return json.choices[0]?.delta?.content;
+    const text = json.choices?.[0]?.delta?.content;
+    if (text) {
+      buffer.push(text);
+      return buffer.join('');
+    }
+    return null;
   } catch {
     return null;
   }
 }`;
+
+type FilterConfigState = {
+  enabled: boolean;
+  code: string;
+};
+
+type FilteredDataPayload = {
+  list: unknown[];
+  finalValue: unknown | null;
+};
+
+type FilterExecutor = (chunk: unknown) => unknown;
+
+const FILTER_STORAGE_KEY = 'sseFilterConfig';
 
 const props = withDefaults(defineProps<{
   modelValue: boolean;
@@ -66,12 +86,12 @@ const props = withDefaults(defineProps<{
 
 const emit = defineEmits<{
   (e: 'update:modelValue', value: boolean): void;
-  (e: 'filteredDataChange', data: unknown[]): void;
+  (e: 'filteredDataChange', data: FilteredDataPayload): void;
 }>();
 
 const { t } = useI18n();
 const isDialogVisible = ref(false);
-const localFilterConfig = ref({
+const localFilterConfig = ref<FilterConfigState>({
   enabled: false,
   code: DEFAULT_FILTER_CODE,
 });
@@ -82,42 +102,49 @@ const toggleDialog = () => {
 const handleResetFilterCode = () => {
   localFilterConfig.value.code = DEFAULT_FILTER_CODE;
 };
-const executeFilterCode = (code: string, chunk: unknown): unknown => {
+const createFilterExecutor = (code: string): FilterExecutor => {
   try {
-    const func = new Function('chunk', `
+    const executor = new Function(`
       ${code}
-      return filter(chunk);
-    `);
-    return func(chunk);
+      if (typeof filter !== 'function') {
+        throw new Error('filter函数未定义');
+      }
+      return filter;
+    `) as () => FilterExecutor;
+    return executor();
   } catch (error) {
     throw error;
   }
 };
-const customFilteredData = computed(() => {
+const customFilteredData = computed<FilteredDataPayload>(() => {
   if (!localFilterConfig.value.enabled) {
     localFilterConfigError.value = '';
-    return [];
+    return { list: [], finalValue: null };
   }
   if (!localFilterConfig.value.code.trim()) {
     localFilterConfigError.value = '';
-    return [];
+    return { list: [], finalValue: null };
   }
   try {
-    const filtered = props.sourceData
-      .map(item => {
-        try {
-          const result = executeFilterCode(localFilterConfig.value.code, item);
-          return result;
-        } catch (error) {
-          return item;
+    const filterExecutor = createFilterExecutor(localFilterConfig.value.code);
+    const filteredList: unknown[] = [];
+    let latestValue: unknown | null = null;
+    props.sourceData.forEach(item => {
+      try {
+        const result = filterExecutor(item);
+        if (result !== null && result !== undefined) {
+          filteredList.push(result);
+          latestValue = result;
         }
-      })
-      .filter(item => item !== null && item !== undefined);
+      } catch (error) {
+        filteredList.push(item);
+      }
+    });
     localFilterConfigError.value = '';
-    return filtered;
+    return { list: filteredList, finalValue: latestValue };
   } catch (error) {
     localFilterConfigError.value = error instanceof Error ? error.message : '过滤函数执行错误';
-    return [];
+    return { list: [], finalValue: null };
   }
 });
 watch(isDialogVisible, (newVal) => {
@@ -127,13 +154,13 @@ watch(() => props.modelValue, (newVal) => {
   isDialogVisible.value = newVal;
 });
 watch(localFilterConfig, (newVal) => {
-  localStorage.setItem('sseFilterConfig', JSON.stringify(newVal));
+  localStorage.setItem(FILTER_STORAGE_KEY, JSON.stringify(newVal));
 }, { deep: true });
 watch(customFilteredData, (newVal) => {
   emit('filteredDataChange', newVal);
 });
 onMounted(() => {
-  const savedConfig = localStorage.getItem('sseFilterConfig');
+  const savedConfig = localStorage.getItem(FILTER_STORAGE_KEY);
   if (savedConfig) {
     try {
       const parsed = JSON.parse(savedConfig);

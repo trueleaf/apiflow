@@ -58,6 +58,9 @@
     <div v-else-if="isRawView" class="raw-content">
       <pre class="raw-data" v-html="rawDataContent"></pre>
     </div>
+    <div v-else-if="overrideDisplayText" class="filtered-result-block">
+      <pre class="filtered-result-text" v-html="highlightText(overrideDisplayText)"></pre>
+    </div>
     <!-- 虚拟滚动视图 -->
     <GVirtualScroll v-else class="sse-content" :items="displayData" :auto-scroll="true" :virtual="isVirtualEnabled"
       :item-height="25">
@@ -128,8 +131,13 @@ const popoverVirtualRef = ref<HTMLElement | null>(null);
 const activePopoverIndex = ref<number>(-1);
 const messageRefs = ref<Record<number, HTMLElement>>({});
 
+type FilteredDataPayload = {
+  list: unknown[];
+  finalValue: unknown | null;
+};
+
 const isFilterDialogVisible = ref(false);
-const customFilteredDataFromChild = ref<unknown[]>([]);
+const customFilteredDataFromChild = ref<FilteredDataPayload>({ list: [], finalValue: null });
 
 type SseDisplayItem = ParsedSSeData & { originalIndex: number };
 
@@ -182,10 +190,27 @@ const formattedData = computed<ParsedSSeData[]>(() => {
   return incrementalData.value;
 });
 const customFilteredData = computed<ParsedSSeData[]>(() => {
-  if (customFilteredDataFromChild.value.length === 0) {
+  if (customFilteredDataFromChild.value.list.length === 0) {
     return formattedData.value;
   }
-  return processFilteredData(customFilteredDataFromChild.value);
+  return processFilteredData(customFilteredDataFromChild.value.list);
+});
+const overrideDisplayText = computed<string | null>(() => {
+  const value = customFilteredDataFromChild.value.finalValue;
+  if (value === null || value === undefined) {
+    return null;
+  }
+  if (typeof value === 'string') {
+    return value;
+  }
+  if (typeof value === 'number' || typeof value === 'boolean') {
+    return String(value);
+  }
+  try {
+    return JSON.stringify(value);
+  } catch {
+    return String(value);
+  }
 });
 const filteredData = computed<SseDisplayItem[]>(() => {
   const baseData = customFilteredData.value;
@@ -366,7 +391,7 @@ const generateRawContent = (): string => {
   return lines.join('');
 };
 
-const handleFilteredDataChange = (data: unknown[]) => {
+const handleFilteredDataChange = (data: FilteredDataPayload) => {
   customFilteredDataFromChild.value = data;
 };
 
@@ -835,6 +860,27 @@ onBeforeUnmount(() => {
       line-height: 1.4;
       background: none;
       border: none;
+    }
+  }
+
+  .filtered-result-block {
+    flex: 1;
+    display: flex;
+    padding: 12px;
+    margin: 0 12px 12px 12px;
+    border: 1px solid var(--gray-200, #ebeef5);
+    border-radius: 4px;
+    background-color: var(--white, #ffffff);
+    overflow: auto;
+
+    .filtered-result-text {
+      margin: 0;
+      width: 100%;
+      font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+      font-size: 14px;
+      color: var(--gray-800, #303133);
+      white-space: pre-wrap;
+      word-break: break-word;
     }
   }
 
