@@ -344,6 +344,10 @@ const bindEvent = () => {
   window.electronAPI?.ipcManager.onMain(IPC_EVENTS.apiflow.topBarToContent.networkModeChanged, (mode: RuntimeNetworkMode) => {
     networkMode.value = mode;
   });
+
+  window.electronAPI?.ipcManager.onMain(IPC_EVENTS.apiflow.topBarToContent.appSettingsChanged, () => {
+    appSettingsStore.refreshSettings()
+  });
 }
 
 // 处理document点击事件以关闭语言菜单

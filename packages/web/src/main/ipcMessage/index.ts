@@ -259,6 +259,10 @@ export const useIpcEvent = (mainWindow: BrowserWindow, topBarView: WebContentsVi
     topBarView.webContents.send(IPC_EVENTS.apiflow.topBarToContent.projectRenamed, payload)
   })
 
+  ipcMain.on(IPC_EVENTS.apiflow.contentToTopBar.appSettingsChanged, () => {
+    topBarView.webContents.send(IPC_EVENTS.apiflow.topBarToContent.appSettingsChanged)
+  })
+
   // Header Tabs 更新通知 - 转发给 contentView 进行缓存
   ipcMain.on(IPC_EVENTS.apiflow.topBarToContent.tabsUpdated, (_, tabs: any[]) => {
     contentView.webContents.send(IPC_EVENTS.apiflow.topBarToContent.tabsUpdated, tabs)

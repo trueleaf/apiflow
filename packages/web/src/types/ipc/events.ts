@@ -45,6 +45,8 @@ export const IPC_EVENTS = {
       activeTabUpdated: 'apiflow:topbar:to:content:active-tab-updated',
       /** 打开设置标签 */
       openSettingsTab: 'apiflow:topbar:to:content:open-settings-tab',
+      /** 应用设置已变更 */
+      appSettingsChanged: 'apiflow:topbar:to:content:app-settings-changed',
     },
 
     /** 内容窗口 -> 顶栏 */
@@ -77,6 +79,8 @@ export const IPC_EVENTS = {
       navigateToHome: 'apiflow:content:to:topbar:navigate-to-home',
       /** 打开设置标签 */
       openSettingsTab: 'apiflow:content:to:topbar:open-settings-tab',
+      /** 应用设置已变更 */
+      appSettingsChanged: 'apiflow:content:to:topbar:app-settings-changed',
     },
 
     /** 渲染进程 -> 主进程 (请求-响应) */

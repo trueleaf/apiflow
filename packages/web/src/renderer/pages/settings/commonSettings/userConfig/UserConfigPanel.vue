@@ -283,24 +283,25 @@ const handleConfirm = () => {
 }
 
 const handleReset = async () => {
-  if (hasChanges.value) {
-    try {
-      await ElMessageBox.confirm(
-        t('确认放弃所有未保存的修改吗？'),
-        {
-          type: 'warning',
-          confirmButtonText: t('确定'),
-          cancelButtonText: t('取消'),
-        }
-      )
-    } catch {
-      return
-    }
+  try {
+    await ElMessageBox.confirm(
+      t('确认将所有配置恢复为默认值吗？'),
+      {
+        type: 'warning',
+        confirmButtonText: t('确定'),
+        cancelButtonText: t('取消'),
+      }
+    )
+  } catch {
+    return
   }
+  runtimeCache.clearUserInfo()
+  runtimeStore.clearUserInfo()
   refreshUserInfoFromCache()
   syncLocalForm()
   emailError.value = ''
   emailSuccess.value = false
+  message.success(t('已恢复默认配置'))
 }
 
 onMounted(() => {
