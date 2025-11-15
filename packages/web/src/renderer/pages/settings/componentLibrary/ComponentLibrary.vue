@@ -1,12 +1,12 @@
 <template>
   <div class="component-library">
     <div class="page-title">
-      <h2>组件库</h2>
+      <h2>{{ $t('组件库') }}</h2>
     </div>
 
     <div class="library-container">
       <div class="search-bar">
-        <input type="text" v-model="searchTerm" placeholder="搜索组件..." />
+        <input type="text" v-model="searchTerm" :placeholder="$t('搜索组件...')" />
       </div>
       
       <div class="components-grid">
@@ -19,13 +19,13 @@
             <p>{{ component.description }}</p>
           </div>
           <div class="component-actions">
-            <button @click="viewComponentDetails(component)">查看详情</button>
+            <button @click="viewComponentDetails(component)">{{ $t('查看详情') }}</button>
           </div>
         </div>
       </div>
       
       <div v-if="filteredComponents.length === 0" class="no-results">
-        未找到匹配的组件
+        {{ $t('未找到匹配的组件') }}
       </div>
       
       <!-- 组件详情区域 -->
@@ -38,6 +38,9 @@
 
 <script setup lang="ts">
 import { ref, computed, defineAsyncComponent, onMounted } from 'vue'
+import { useI18n } from 'vue-i18n'
+
+const { t } = useI18n()
 
 // 导入组件
 const CardComponent = defineAsyncComponent(() => import('@/components/ui/cleanDesign/card/demo/Card.vue'))
@@ -89,32 +92,32 @@ const components = ref([
   {
     name: 'Card',
     icon: 'iconfont iconanniu',
-    description: '卡片组件，用于展示相关信息的容器，具有清晰的边界和层次结构',
-    category: '基础组件'
+    description: t('卡片组件，用于展示相关信息的容器，具有清晰的边界和层次结构'),
+    category: t('基础组件')
   },
   {
     name: 'Tabs',
     icon: 'iconfont iconbiaoge',
-    description: '标签页组件，允许用户在不同的内容视图之间切换',
-    category: '导航组件'
+    description: t('标签页组件，允许用户在不同的内容视图之间切换'),
+    category: t('导航组件')
   },
   {
     name: 'DraggableDialog',
     icon: 'iconfont iconanniu',
-    description: '可拖拽弹窗组件，支持通过标题栏拖拽移动位置，Tailwind 极简风格',
-    category: '反馈组件'
+    description: t('可拖拽弹窗组件，支持通过标题栏拖拽移动位置，Tailwind 极简风格'),
+    category: t('反馈组件')
   },
   {
     name: 'ClDialog',
     icon: 'iconfont iconanniu',
-    description: '基于 Element Plus 封装的对话框组件，支持亮色/暗色主题切换',
-    category: '反馈组件'
+    description: t('基于 Element Plus 封装的对话框组件，支持亮色/暗色主题切换'),
+    category: t('反馈组件')
   },
   {
     name: 'RichInput',
     icon: 'iconfont iconbiaoge',
-    description: '富文本变量输入组件，支持 {{variable}} 语法，可自定义变量样式和 Popover 交互',
-    category: '表单组件'
+    description: t('富文本变量输入组件，支持 {{variable}} 语法，可自定义变量样式和 Popover 交互'),
+    category: t('表单组件')
   }
 ])
 

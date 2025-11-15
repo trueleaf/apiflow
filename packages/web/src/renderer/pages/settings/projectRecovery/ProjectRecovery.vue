@@ -85,12 +85,14 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { Search, Trash2, RotateCcw, Loader2 } from 'lucide-vue-next'
 import { projectCache } from '@/cache/project/projectCache'
 import { apiNodesCache } from '@/cache/standalone/apiNodesCache'
 import type { ApidocProjectInfo } from '@src/types'
 import { message } from '@/helper'
 
+const { t } = useI18n()
 const loading = ref(false)
 const searchKeyword = ref('')
 const selectedProjects = ref<string[]>([])
@@ -120,7 +122,7 @@ const loadDeletedProjects = async (): Promise<void> => {
     const projects = await projectCache.getDeletedProjectList()
     deletedProjects.value = projects
   } catch (error) {
-    message.error('加载已删除项目失败')
+    message.error(t('加载已删除项目失败'))
   } finally {
     loading.value = false
   }
@@ -136,7 +138,7 @@ const handleToggleSelect = (projectId: string): void => {
 const handleRecover = async (projectId: string): Promise<void> => {
   const deletedProject = deletedProjects.value.find(p => p._id === projectId)
   if (!deletedProject) {
-    message.error('项目不存在')
+    message.error(t('项目不存在'))
     return
   }
   try {
@@ -150,14 +152,14 @@ const handleRecover = async (projectId: string): Promise<void> => {
           await apiNodesCache.updateNode(updatedNode)
         }
       }
-      message.success('项目恢复成功')
+      message.success(t('项目恢复成功'))
       await loadDeletedProjects()
       selectedProjects.value = selectedProjects.value.filter(id => id !== projectId)
     } else {
-      message.error('项目恢复失败')
+      message.error(t('项目恢复失败'))
     }
   } catch (error) {
-    message.error('项目恢复失败')
+    message.error(t('项目恢复失败'))
   }
 }
 const handleBatchRecover = async (): Promise<void> => {
@@ -189,14 +191,17 @@ const handleBatchRecover = async (): Promise<void> => {
       }
     }
     if (successCount > 0) {
-      message.success(`成功恢复 ${successCount} 个项目${failCount > 0 ? `，${failCount} 个失败` : ''}`)
+      const msg = failCount > 0 
+        ? `${t('项目恢复成功')} ${successCount} ${t('个')}，${failCount} ${t('个')}${t('项目恢复失败')}`
+        : `${t('项目恢复成功')} ${successCount} ${t('个')}`
+      message.success(msg)
       await loadDeletedProjects()
       selectedProjects.value = []
     } else {
-      message.error('批量恢复失败')
+      message.error(t('项目恢复失败'))
     }
   } catch (error) {
-    message.error('批量恢复失败')
+    message.error(t('项目恢复失败'))
   } finally {
     loading.value = false
   }

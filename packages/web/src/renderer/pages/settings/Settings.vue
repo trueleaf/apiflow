@@ -3,7 +3,7 @@
     <div class="tab-container">
       <div class="vertical-tabs">
         <div class="sidebar-title">
-          <span>基本设置</span>
+          <span>{{ $t('基本设置') }}</span>
         </div>
 
         <div class="menu-group">
@@ -15,7 +15,7 @@
         </div>
 
         <div class="sidebar-title sidebar-settings-title">
-          <span>其他设置</span>
+          <span>{{ $t('其他设置') }}</span>
         </div>
 
         <div class="menu-group">
@@ -45,6 +45,7 @@
 
 <script setup lang="ts">
 import { ref, watch, type Component } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { userState } from '@/cache/userState/userStateCache.ts'
 import CacheManagement from './cacheManager/CacheManagement.vue'
 import CommonSettings from './commonSettings/CommonSettings.vue'
@@ -52,6 +53,8 @@ import ComponentLibrary from './componentLibrary/ComponentLibrary.vue'
 import AiSettings from './aiSettings/AiSettings.vue'
 import ProjectRecovery from './projectRecovery/ProjectRecovery.vue'
 import { UserCircle, HardDrive, Command, Box, BrainCircuit, Trash2 } from 'lucide-vue-next'
+
+const { t } = useI18n()
 
 type TabItem = {
   name: string
@@ -61,14 +64,14 @@ type TabItem = {
 
 const activeTab = ref(userState.getActiveLocalDataMenu() || 'common-settings')
 const tabs: TabItem[] = [
-  { name: '通用配置', icon: UserCircle, action: 'common-settings' },
-  { name: '本地数据', icon: HardDrive, action: 'local-data' },
-  { name: '项目回收站', icon: Trash2, action: 'project-recovery' }
+  { name: t('通用配置'), icon: UserCircle, action: 'common-settings' },
+  { name: t('本地数据'), icon: HardDrive, action: 'local-data' },
+  { name: t('项目回收站'), icon: Trash2, action: 'project-recovery' }
 ]
 const settingTabs: TabItem[] = [
-  { name: '快捷键', icon: Command, action: 'shortcuts' },
-  { name: '组件库', icon: Box, action: 'components' },
-  { name: 'AI 设置', icon: BrainCircuit, action: 'ai-settings' }
+  { name: t('快捷键'), icon: Command, action: 'shortcuts' },
+  { name: t('组件库'), icon: Box, action: 'components' },
+  { name: t('AI 设置'), icon: BrainCircuit, action: 'ai-settings' }
 ]
 const handleSettingClick = (setting: TabItem) => {
   activeTab.value = setting.action

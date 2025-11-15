@@ -147,7 +147,7 @@ const handleChangePassword = () => {
       loading2.value = true;
       request.put('/api/security/user_password', formInfo).then(() => {
         dialogVisible.value = false;
-        message.success('修改成功');
+        message.success(t('修改成功'));
       }).catch((err) => {
         console.error(err)
       }).finally(() => {
@@ -165,7 +165,7 @@ const handleChangePassword = () => {
           input.focus();
         }
       });
-      message.warning('请完善必填信息');
+      message.warning(t('请完善必填信息'));
       loading.value = false;
     }
   });
@@ -176,13 +176,13 @@ const handleBack = () => {
   router.go(-1);
 }
 const rules = ref({
-  oldPassword: [{ required: true, message: '请输入原始密码', trigger: 'blur' }],
+  oldPassword: [{ required: true, message: t('请输入原密码'), trigger: 'blur' }],
   newPassword: [
-    { required: true, message: '请输入密码', trigger: 'blur' },
+    { required: true, message: t('请输入密码'), trigger: 'blur' },
     { validator: validatePassword, trigger: 'blur' },
   ],
   newPassword2: [
-    { required: true, message: '请再次输入密码', trigger: 'blur' },
+    { required: true, message: t('请再次输入密码'), trigger: 'blur' },
     { validator: validatePassword2, trigger: 'blur' }
   ]
 })

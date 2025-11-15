@@ -1,7 +1,7 @@
 <template>
   <div class="cache-management">
     <div class="page-title">
-      <h2>本地数据管理</h2>
+      <h2>{{ $t('本地数据管理') }}</h2>
     </div>
     <div class="statistics">
       <!-- localStorage 本地数据卡片 -->
@@ -14,7 +14,7 @@
           <div class="card-icon">
             <i class="iconfont iconcipan"></i>
           </div>
-          <div class="card-title">localStorage 数据</div>
+          <div class="card-title">{{ $t('localStorage 数据') }}</div>
           <div class="card-refresh">
             <div
               class="refresh-btn"
@@ -41,7 +41,7 @@
           <div class="card-icon">
             <i class="iconfont iconodbc"></i>
           </div>
-          <div class="card-title">IndexedDB 本地数据</div>
+          <div class="card-title">{{ $t('IndexedDB 本地数据') }}</div>
           <div class="card-refresh">
             <div
               class="refresh-btn"
@@ -58,8 +58,8 @@
         <div class="card-body">
           <div class="cache-size">{{ formatUnit(cacheInfo.indexedDBSize === -1 ? 0 : cacheInfo.indexedDBSize, 'bytes') }}</div>
         </div>
-        <div v-if="!indexedDBLoading && cacheInfo.indexedDBSize === -1" class="gray-500" @click.stop="getIndexedDB">点击计算本地数据大小</div>
-        <div v-if="indexedDBLoading" class="gray-500">计算中...</div>
+        <div v-if="!indexedDBLoading && cacheInfo.indexedDBSize === -1" class="gray-500" @click.stop="getIndexedDB">{{ $t('点击计算本地数据大小') }}</div>
+        <div v-if="indexedDBLoading" class="gray-500">{{ $t('计算中...') }}</div>
       </div>
       <!-- 数据备份卡片 -->
       <div 
@@ -71,11 +71,11 @@
           <div class="card-icon">
             <i class="iconfont iconexport"></i>
           </div>
-          <div class="card-title">数据备份/导出</div>
+          <div class="card-title">{{ $t('数据备份/导出') }}</div>
         </div>
         <div class="card-body">
           <div class="card-description">
-            <div>备份所有本地数据 | 导出本地数据</div>
+            <div>{{ $t('备份所有本地数据 | 导出本地数据') }}</div>
           </div>
         </div>
       </div>
@@ -89,10 +89,10 @@
           <div class="card-icon">
             <i class="iconfont iconimport"></i>
           </div>
-          <div class="card-title">数据恢复/导入</div>
+          <div class="card-title">{{ $t('数据恢复/导入') }}</div>
         </div>
         <div class="card-body">
-          <div class="card-description">从备份中恢复数据</div>
+          <div class="card-description">{{ $t('从备份中恢复数据') }}</div>
         </div>
       </div>
     </div>
@@ -117,6 +117,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { CacheInfo, LocalStorageItem, IndexedDBItem } from '@src/types/share/cache'
 import { formatUnit } from '@/helper'
 import { RefreshRight } from '@element-plus/icons-vue'
@@ -127,6 +128,8 @@ import IndexedDBDetail from './components/IndexedDBDetail.vue'
 import DataBackup from './components/DataBackup.vue'
 import DataRestore from './components/DataRestore.vue'
 import { message } from '@/helper'
+
+const { t } = useI18n()
 
 /*
 |--------------------------------------------------------------------------
@@ -180,7 +183,7 @@ const handleMessage = (event: MessageEvent) => {
     saveCacheData() // 保存本地数据
   } else if (data.type === 'deleteStoreResult') {
     if (data.data.success) {
-      message.success('删除成功')
+      message.success(t('删除成功'))
       // 更新总本地数据大小
       if (data.data.size) {
         cacheInfo.value.indexedDBSize -= data.data.size;
@@ -211,18 +214,18 @@ const handleMessage = (event: MessageEvent) => {
     }
   } else if (data.type === 'clearAllResult') {
     if (data.data.success) {
-      message.success('已清空所有IndexedDB中的数据')
+      message.success(t('已清空所有IndexedDB中的数据'))
       // 重置IndexedDB相关数据
       cacheInfo.value.indexedDBSize = 0;
       cacheInfo.value.indexedDBDetails = [];
       saveCacheData(); // 保存更新后的本地数据
       getIndexedDB();
     } else {
-      message.error('清空IndexedDB数据失败')
+      message.error(t('清空IndexedDB数据失败'))
     }
   } else if (data.type === 'error') {
     console.error('操作失败:', data.error)
-    message.error('操作失败: ' + (data.error?.message || '未知错误'))
+    message.error(t('操作失败') + ': ' + (data.error?.message || t('未知错误')))
   }
 };
 const getLocalStorage = () => {
@@ -238,31 +241,31 @@ const getLocalStorage = () => {
         totalSize += byteSize
 
         // 生成中文描述信息
-        let description = '未知本地数据'
+        let description = t('未知本地数据')
         if (key === 'apidoc/apidoc') {
-          description = '未保存的API文档本地数据'
+          description = t('未保存的API文档本地数据')
         } else if (key === 'apidoc/cookies') {
-          description = 'API请求Cookie本地数据'
+          description = t('API请求Cookie本地数据')
         } else if (key === 'apidoc/header/activeTab') {
-          description = '顶部导航当前活跃标签页本地数据'
+          description = t('顶部导航当前活跃标签页本地数据')
         } else if (key === 'apidoc/header/tabs') {
-          description = '顶部导航所有打开标签页本地数据'
+          description = t('顶部导航所有打开标签页本地数据')
         } else if (key === 'apidoc/pinToolbarOperations') {
-          description = '固定工具栏操作本地数据'
+          description = t('固定工具栏操作本地数据')
         } else if (key === 'apidoc/tabs') {
-          description = '接口管理标签页本地数据'
+          description = t('接口管理标签页本地数据')
         } else if (key === 'history/lastVisitePage') {
-          description = '最近一次访问的页面'
+          description = t('最近一次访问的页面')
         } else if (key === 'language') {
-          description = '语言设置'
+          description = t('语言设置')
         } else if (key === 'userState/localData/activeMenu') {
-          description = '个人中心被选中菜单'
+          description = t('个人中心被选中菜单')
         } else if (key === 'apidoc/cache/info') {
-          description = '缓存已计算的本地数据'
+          description = t('缓存已计算的本地数据')
         } else if (key === 'userState/cacheManager/cacheType') {
-          description = '选中的缓存卡片类型'
+          description = t('选中的缓存卡片类型')
         } else {
-          description = '其他本地数据'
+          description = t('其他本地数据')
         }
         details.push({
           key,
