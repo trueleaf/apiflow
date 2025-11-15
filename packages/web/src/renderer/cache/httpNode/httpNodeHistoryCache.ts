@@ -105,7 +105,7 @@ class HttpNodeHistoryCache {
   }
 
     // 为指定节点添加新的历史记录
-  async addHttpHistoryByNodeId(nodeId: string, node: HttpNode, operatorId?: string, operatorName?: string): Promise<boolean> {
+  async addHttpHistoryByNodeId(nodeId: string, node: HttpNode, operatorId: string, operatorName: string): Promise<boolean> {
     try {
       const db = await this.ensureDB();
 
@@ -132,8 +132,8 @@ class HttpNodeHistoryCache {
         _id: nanoid(),
         nodeId,
         node: JSON.parse(JSON.stringify(node)), // 深拷贝节点数据
-        operatorId: operatorId || 'me',
-        operatorName: operatorName || 'me',
+        operatorId,
+        operatorName,
         timestamp: Date.now()
       };
 
@@ -150,30 +150,20 @@ class HttpNodeHistoryCache {
   }
 
     // 删除指定节点的历史记录
-  async deleteHttpHistoryByNode(nodeId: string, historyIds?: string[]): Promise<boolean> {
+  async deleteHttpHistoryByNode(nodeId: string, historyIds: string[]): Promise<boolean> {
     try {
       const db = await this.ensureDB();
-
-      if (historyIds && historyIds.length > 0) {
-        // 删除指定的历史记录
-        const tx = db.transaction(this.storeName, 'readwrite');
-        for (const historyId of historyIds) {
+      if (historyIds.length === 0) {
+        return true;
+      }
+      const tx = db.transaction(this.storeName, 'readwrite');
+      for (const historyId of historyIds) {
+        const record = await tx.store.get(historyId) as HttpHistoryCacheData | undefined;
+        if (record?.nodeId === nodeId) {
           await tx.store.delete(historyId);
         }
-        await tx.done;
-      } else {
-        // 删除该节点的所有历史记录
-        const tx1 = db.transaction(this.storeName, 'readonly');
-        const index = tx1.store.index('nodeId');
-        const records = await index.getAll(nodeId);
-
-        const tx2 = db.transaction(this.storeName, 'readwrite');
-        for (const record of records) {
-          await tx2.store.delete(record._id);
-        }
-        await tx2.done;
       }
-
+      await tx.done;
       return true;
     } catch (error) {
       logger.error('删除历史记录失败', { error });

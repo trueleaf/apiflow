@@ -129,7 +129,7 @@ export const HTTP_REQUEST_TOOLS: HttpRequestTools = {
           description: '操作者名称'
         }
       },
-      required: ['nodeId', 'node']
+      required: ['nodeId', 'node', 'operatorId', 'operatorName']
     }
   },
   deleteHttpHistory: {

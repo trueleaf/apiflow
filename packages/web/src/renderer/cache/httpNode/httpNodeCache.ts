@@ -46,7 +46,7 @@ class HttpNodeCache {
     } catch (error) {
       console.error(error);
       const data: Record<string, ApidocCookie[]> = {};
-      data[projectId] = cookies;
+      data[projectId] = [];
       localStorage.setItem(cacheKey.httpNodeCache.cookies, JSON.stringify(data));
     }
   }

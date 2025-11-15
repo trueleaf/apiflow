@@ -584,7 +584,9 @@ export const useApidoc = defineStore('apidoc', () => {
         // 添加历史记录
         httpNodeHistoryCache.addHttpHistoryByNodeId(
           currentSelectTab._id,
-          apidoc.value
+          apidoc.value,
+          runtimeStore.userInfo.id,
+          runtimeStore.userInfo.realName
         ).catch(error => {
           logger.error('添加历史记录失败', { error });
         });
@@ -623,7 +625,9 @@ export const useApidoc = defineStore('apidoc', () => {
         // 添加历史记录
         httpNodeHistoryCache.addHttpHistoryByNodeId(
           currentSelectTab._id,
-          apidoc.value
+          apidoc.value,
+          runtimeStore.userInfo.id,
+          runtimeStore.userInfo.realName
         ).catch(error => {
           logger.error('添加历史记录失败', { error });
         });
