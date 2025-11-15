@@ -59,7 +59,7 @@ const getCommonHeaderInfo = async () => {
   try {
     if (currentSelectTab.value?._id === projectId) {
       if (isOffline) {
-        const { commonHeaderCache } = await import('@/cache/index');
+        const { commonHeaderCache } = await import('@/cache/project/commonHeadersCache');
         const commonHeaders = await commonHeaderCache.getCommonHeaders();
         headerData.value = commonHeaders || [];
         if (!headerData.value.length) {
@@ -122,7 +122,7 @@ const handleEditCommonHeader = async () => {
       }));
 
       if (isOffline) {
-        const { commonHeaderCache } = await import('@/cache/index');
+        const { commonHeaderCache } = await import('@/cache/project/commonHeadersCache');
         await commonHeaderCache.setCommonHeaders(commonHeadersData.map(v => ({
           ...v,
           type: 'string' as const,

@@ -22,7 +22,7 @@ import { message } from '@/helper'
 import { useRoute } from 'vue-router';
 import { generateEmptyHttpNode } from '@/helper';
 import { nanoid } from 'nanoid';
-import { apiNodesCache } from '@/cache/index';
+import { apiNodesCache } from '@/cache/standalone/apiNodesCache';
 import { useRuntime } from '@/store/runtime/runtimeStore';
 
 const props = defineProps({

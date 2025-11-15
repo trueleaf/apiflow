@@ -4,7 +4,7 @@ import { ref } from "vue";
 import { generateEmptyHttpMockNode } from '@/helper';
 import { nanoid } from 'nanoid/non-secure';
 import { cloneDeep } from "lodash-es";
-import { apiNodesCache } from "@/cache/index";
+import { apiNodesCache } from "@/cache/standalone/apiNodesCache";
 import { httpMockNodeCache } from "@/cache/mock/httpMock/httpMockNodeCache.ts";
 import { ElMessageBox } from 'element-plus';
 import { useApidocTas } from "../share/tabsStore.ts";

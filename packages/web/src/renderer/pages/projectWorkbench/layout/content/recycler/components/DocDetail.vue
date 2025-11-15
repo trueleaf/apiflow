@@ -112,7 +112,7 @@ import SJsonEditor from '@/components/common/jsonEditor/ClJsonEditor.vue'
 import { formatDate } from '@/helper'
 import { useApidocBaseInfo } from '@/store/share/baseInfoStore';
 import { useApidocRequest } from '@/store/share/requestStore';
-import { apiNodesCache } from '@/cache/index';
+import { apiNodesCache } from '@/cache/standalone/apiNodesCache';
 import { useRuntime } from '@/store/runtime/runtimeStore';
 
 const emits = defineEmits(['close'])

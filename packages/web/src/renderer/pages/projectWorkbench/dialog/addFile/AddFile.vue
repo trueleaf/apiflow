@@ -65,7 +65,7 @@ import { request } from '@/api/api';
 import { message } from '@/helper'
 import { useRoute, useRouter } from 'vue-router';
 import { generateEmptyHttpMockNode, generateEmptyHttpNode, generateEmptyWebsocketNode, buildAiSystemPromptForNode, generateEmptyProperty, extractPathParams } from '@/helper';
-import { apiNodesCache } from '@/cache/index';
+import { apiNodesCache } from '@/cache/standalone/apiNodesCache';
 import { nanoid } from 'nanoid';
 import { useRuntime } from '@/store/runtime/runtimeStore';
 import CodeEditor from '@/components/common/codeEditor/CodeEditor.vue';

@@ -18,7 +18,7 @@ class AiCache {
       return {
         ...mainConfig.aiConfig,
         ...config,
-        apiUrl: config.apiUrl || mainConfig.aiConfig.apiUrl,
+        apiUrl: config.apiUrl,
       };
     } catch (error) {
       logger.error('获取AI配置失败', { error });

@@ -169,7 +169,7 @@ import type { TreeNodeOptions } from 'element-plus/lib/components/tree/src/tree.
 import { ApidocProjectRules } from '@src/types'
 import { useApidocBaseInfo } from '@/store/share/baseInfoStore'
 import { useApidocBanner } from '@/store/share/bannerStore'
-import { apiNodesCache } from '@/cache/index'
+import { apiNodesCache } from '@/cache/standalone/apiNodesCache'
 import { useRuntime } from '@/store/runtime/runtimeStore'
 
 type FormInfo = {

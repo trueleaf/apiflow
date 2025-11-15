@@ -86,7 +86,8 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { Search, Trash2, RotateCcw, Loader2 } from 'lucide-vue-next'
-import { projectCache, apiNodesCache } from '@/cache/index'
+import { projectCache } from '@/cache/project/projectCache'
+import { apiNodesCache } from '@/cache/standalone/apiNodesCache'
 import type { ApidocProjectInfo } from '@src/types'
 import { message } from '@/helper'
 

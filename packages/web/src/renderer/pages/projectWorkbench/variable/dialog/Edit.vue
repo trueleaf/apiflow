@@ -91,7 +91,7 @@ import { computed, nextTick, PropType, ref, watch } from 'vue';
 import { AddProjectVariableFormInfo, AddProjectVariableParams } from '../Variable.vue';
 import SJsonEditor from '@/components/common/jsonEditor/ClJsonEditor.vue'
 import { useRoute } from 'vue-router';
-import { nodeVariableCache } from '@/cache/index';
+import { nodeVariableCache } from '@/cache/variable/nodeVariableCache';
 import { useRuntime } from '@/store/runtime/runtimeStore';
 // import { useVariable } from '@/store/share/variablesStore';
 

@@ -1,5 +1,5 @@
 import { request } from '@/api/api';
-import { apiNodesCache } from '@/cache/index';
+import { apiNodesCache } from '@/cache/standalone/apiNodesCache';
 import { findNodeById, forEachForest, getAllAncestorIds } from '@/helper';
 import { ApidocBanner, ApidocBannerOfWebsocketNode, ApidocBannerOfHttpNode, ApidocBannerOfHttpMockNode, CommonResponse, MockStatusChangedPayload } from '@src/types';
 import { defineStore } from "pinia";

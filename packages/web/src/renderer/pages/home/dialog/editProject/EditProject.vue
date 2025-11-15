@@ -19,7 +19,7 @@ import { config } from '@src/config/config';
 import { FormInstance } from 'element-plus';
 import { useI18n } from 'vue-i18n'
 import { computed, nextTick, ref, watch } from 'vue';
-import { projectCache } from '@/cache/index';
+import { projectCache } from '@/cache/project/projectCache';
 import { useRuntime } from '@/store/runtime/runtimeStore';
 
 

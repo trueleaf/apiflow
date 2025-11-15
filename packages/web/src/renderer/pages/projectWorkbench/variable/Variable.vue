@@ -219,7 +219,7 @@ import EditDialog from './dialog/Edit.vue'
 import { useVariable } from '@/store/share/variablesStore';
 import { CommonResponse, ApidocVariable } from '@src/types';
 import { request as axiosInstance } from '@/api/api'
-import { nodeVariableCache } from '@/cache/index';
+import { nodeVariableCache } from '@/cache/variable/nodeVariableCache';
 import { useRuntime } from '@/store/runtime/runtimeStore';
 import { useShortcut } from '@/hooks/useShortcut';
 import { useApidocTas } from '@/store/share/tabsStore';
@@ -294,8 +294,7 @@ const standaloneVariables = ref<ApidocVariable[]>([])
 const standaloneLoading = ref(false)
 
 // 注册 Ctrl+S 快捷键保存变量
-useShortcut('ctrl+s', (event: KeyboardEvent) => {
-  // event.preventDefault();
+useShortcut('ctrl+s', () => {
   if (currentSelectTab.value?.tabType === 'variable') {
     handleAddVariable();
   }

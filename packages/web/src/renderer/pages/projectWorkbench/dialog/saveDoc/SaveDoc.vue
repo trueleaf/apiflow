@@ -45,7 +45,7 @@ import SFieldset from '@/components/common/fieldset/ClFieldset.vue'
 import { useApidoc } from '@/store/share/apidocStore';
 import { useApidocBanner } from '@/store/share/bannerStore';
 import { useApidocTas } from '@/store/share/tabsStore';
-import { apiNodesCache } from '@/cache/index';
+import { apiNodesCache } from '@/cache/standalone/apiNodesCache';
 import { nanoid } from 'nanoid';
 import { useRuntime } from '@/store/runtime/runtimeStore';
 

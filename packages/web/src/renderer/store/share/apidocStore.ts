@@ -27,7 +27,7 @@ import { i18n } from "@/i18n"
 import { getUrl } from "@/server/request/request.ts"
 import { useVariable } from "./variablesStore.ts"
 import { config } from "@src/config/config.ts"
-import { apiNodesCache } from "@/cache/index";
+import { apiNodesCache } from "@/cache/standalone/apiNodesCache";
 import { useRuntime } from '../runtime/runtimeStore';
 import { httpNodeHistoryCache } from "@/cache/httpNode/httpNodeHistoryCache";
 import { logger } from '@/helper';

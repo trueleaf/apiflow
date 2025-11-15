@@ -12,7 +12,9 @@ import { defineStore } from "pinia"
 import { ref } from "vue";
 import { router } from "@/router";
 import { useVariable } from './variablesStore';
-import { projectCache, nodeVariableCache, commonHeaderCache } from '@/cache/index';
+import { projectCache } from '@/cache/project/projectCache';
+import { nodeVariableCache } from '@/cache/variable/nodeVariableCache';
+import { commonHeaderCache } from '@/cache/project/commonHeadersCache';
 import { apiNodesCache } from '@/cache/standalone/apiNodesCache';
 import { requestMethods } from '@/data/data.ts';
 import { workbenchCache } from '@/cache/workbench/workbenchCache.ts';

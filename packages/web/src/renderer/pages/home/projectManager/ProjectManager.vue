@@ -328,7 +328,8 @@ import { router } from '@/router';
 import { formatDate } from '@/helper';
 import { debounce } from "lodash-es";
 import { useApidocBaseInfo } from '@/store/share/baseInfoStore'
-import { projectCache, apiNodesCache } from '@/cache/index'
+import { projectCache } from '@/cache/project/projectCache'
+import { apiNodesCache } from '@/cache/standalone/apiNodesCache'
 import { useProjectStore } from '@/store/project/projectStore'
 import { useRuntime } from '@/store/runtime/runtimeStore'
 import { httpMockLogsCache } from '@/cache/mock/httpMock/httpMockLogsCache';
