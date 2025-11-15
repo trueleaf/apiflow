@@ -156,7 +156,7 @@ const handleWorkerMessage = (event: MessageEvent) => {
   const { type, data } = event.data;
   if (type === 'clearAllResult') {
     if (data.code === 0) {
-      statusMessage.value = '数据清空完成，正在开始导入...';
+      statusMessage.value = t('数据清空完成，正在开始导入...');
       window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.import.rendererNotifyMain.start, {
         filePath: importStatus.filePath,
         itemNum: importStatus.itemNum,
@@ -164,12 +164,12 @@ const handleWorkerMessage = (event: MessageEvent) => {
           importMode: importConfig.importMode
         }
       });
-      statusMessage.value = '正在准备导入数据...';
+      statusMessage.value = t('正在准备导入数据...');
     } else {
-      console.error('清空数据失败:', data.msg);
+      console.error(t('log.清空数据失败'), data.msg);
       importStatus.status = 'error';
-      statusMessage.value = '清空数据失败';
-      message.error('清空数据失败');
+      statusMessage.value = t('log.清空数据失败');
+      message.error(t('log.清空数据失败'));
     }
   }
 };
@@ -184,7 +184,7 @@ const initIpcListeners = () => {
       importStatus.itemNum = result.data.itemCount;
       statusMessage.value = '';
     } else {
-      fileErrorMessage.value = result.msg || '文件分析失败';
+      fileErrorMessage.value = result.msg || t('文件分析失败');
       estimatedDataCount.value = 0;
     }
   };
@@ -203,7 +203,7 @@ const initIpcListeners = () => {
   // 监听ZIP文件读取完成事件
   listenerRefs.value.importZipReadComplete = (result: { code: number, data?: { totalItems: number }, msg?: string }) => {
     if (result.code === 0 && result.data) {
-      statusMessage.value = result.msg || 'ZIP文件读取完成，正在导入到数据库...';
+      statusMessage.value = result.msg || t('ZIP文件读取完成，正在导入到数据库...');
       // 设置预期的总数据项数量，但不立即完成导入状态
       importStatus.itemNum = result.data.totalItems;
       zipReadComplete.value = true;
@@ -212,7 +212,7 @@ const initIpcListeners = () => {
       if (result.data.totalItems === 0) {
         importStatus.status = 'completed';
         importStatus.progress = 100;
-        statusMessage.value = '导入完成！没有数据需要导入';
+        statusMessage.value = t('导入完成！没有数据需要导入');
         emit('refreshCache');
       } else {
         // 检查是否所有数据都已导入完成
@@ -220,8 +220,8 @@ const initIpcListeners = () => {
       }
     } else {
       importStatus.status = 'error';
-      statusMessage.value = result.msg || 'ZIP文件读取失败';
-      message.error(result.msg || 'ZIP文件读取失败');
+      statusMessage.value = result.msg || t('ZIP文件读取失败');
+      message.error(result.msg || t('ZIP文件读取失败'));
     }
   };
   window.electronAPI?.ipcManager.onMain(IPC_EVENTS.import.mainToRenderer.zipReadComplete, listenerRefs.value.importZipReadComplete);
@@ -229,11 +229,11 @@ const initIpcListeners = () => {
   // 监听主进程错误事件
   listenerRefs.value.importMainError = (errorMessage: string) => {
     importStatus.status = 'error';
-    statusMessage.value = `导入失败: ${errorMessage}`;
-    message.error(`导入失败: ${errorMessage}`);
+    statusMessage.value = t('导入失败: {message}', { message: errorMessage });
+    message.error(t('导入失败: {message}', { message: errorMessage }));
   };
   window.electronAPI?.ipcManager.onMain(IPC_EVENTS.import.mainToRenderer.error, listenerRefs.value.importMainError);
-  
+
   // 监听导入数据项事件
   listenerRefs.value.importDataItem = async (item: any) => {
     pendingImports.value++;
@@ -243,7 +243,7 @@ const initIpcListeners = () => {
       // 检查是否所有数据都已导入完成
       checkImportComplete();
     } catch (error) {
-      console.error('导入数据项失败:', error);
+      console.error(t('log.导入数据项失败'), error);
       completedImports.value++;
       checkImportComplete();
     }
@@ -266,16 +266,16 @@ const handleSelectFile = async () => {
       analyzeImportFile();
     } else {
       importStatus.status = 'notStarted';
-      statusMessage.value = result?.msg || '用户取消选择';
+      statusMessage.value = result?.msg || t('用户取消选择');
     }
   } catch (error) {
-    console.error('选择文件失败:', error);
-    statusMessage.value = '选择文件失败';
+    console.error(t('log.选择文件失败'), error);
+    statusMessage.value = t('log.选择文件失败');
   }
 };
 // 分析导入文件
 const analyzeImportFile = async () => {
-  statusMessage.value = '正在分析文件...';
+  statusMessage.value = t('正在分析文件...');
   window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.import.rendererNotifyMain.analyzeFile, {
     filePath: importStatus.filePath
   });
@@ -320,15 +320,15 @@ const handleStartImport = async () => {
     
     // 如果是覆盖模式，先在渲染进程中清空数据（非阻塞方式）
     if (importConfig.importMode === 'override') {
-      statusMessage.value = '正在清空现有数据...';
+      statusMessage.value = t('正在清空现有数据...');
       workerRef.value?.postMessage({
         type: 'clearAllIndexedDB'
       });
       return;
     }
-    
+
     // 发送导入请求到主进程（仅在非覆盖模式下执行）
-    statusMessage.value = '正在启动导入...';
+    statusMessage.value = t('正在启动导入...');
     window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.import.rendererNotifyMain.start, {
       filePath: importStatus.filePath,
       itemNum: importStatus.itemNum,
@@ -336,12 +336,12 @@ const handleStartImport = async () => {
         importMode: importConfig.importMode
       }
     });
-    statusMessage.value = '正在准备导入数据...';
+    statusMessage.value = t('正在准备导入数据...');
   } catch (error) {
-    console.error('开始导入失败:', error);
+    console.error(t('log.开始导入失败'), error);
     importStatus.status = 'error';
-    statusMessage.value = '导入启动失败';
-    message.error('导入启动失败');
+    statusMessage.value = t('log.开始导入失败');
+    message.error(t('log.开始导入失败'));
   } finally {
     isStartingImport.value = false;
   }
@@ -378,14 +378,14 @@ const checkImportComplete = () => {
     importStatus.status = 'completed';
     importStatus.progress = 100;
     importStatus.processedNum = completedImports.value;
-    statusMessage.value = `导入完成！共导入 ${completedImports.value} 项数据`;
+    statusMessage.value = t('导入完成！共导入 {count} 项数据', { count: completedImports.value });
     emit('refreshCache');
   }
 };
 // 将数据项导入到 IndexedDB
 const importDataToIndexedDB = async (item: any) => {
   if (!item || !item.dbName || !item.storeName || item.key === undefined) {
-    console.warn('无效的数据项:', item);
+    console.warn(t('log.无效的数据项'), item);
     return;
   }
   

@@ -10,7 +10,6 @@ class ShortcutManager {
   private isMac: boolean;
 
   constructor() {
-    // 检测是否为 Mac 操作系统
     this.isMac = navigator.platform.toUpperCase().indexOf('MAC') >= 0;
   }
 
@@ -25,8 +24,6 @@ class ShortcutManager {
   }
 
   handleKeydown = (event: KeyboardEvent) => {
-    // 支持跨平台快捷键
-    // Windows/Linux: Ctrl, Mac: Cmd (Meta)
     const modifierKey = this.isMac && event.metaKey ? "cmd" : event.ctrlKey ? "ctrl" : "";
 
     const combo = [

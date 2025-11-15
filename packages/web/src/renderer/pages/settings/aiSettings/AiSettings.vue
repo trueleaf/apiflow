@@ -1,44 +1,44 @@
 <template>
   <div class="ai-settings">
     <div class="page-title">
-      <h2>AI 设置</h2>
-      <p class="subtitle">自定义模型配置</p>
+      <h2>{{ $t('AI 设置') }}</h2>
+      <p class="subtitle">{{ $t('自定义模型配置') }}</p>
     </div>
 
     <div class="content-wrapper">
       <!-- 左侧配置区域 -->
       <div class="settings-form">
         <el-form :model="formData" label-width="100px" label-position="left">
-          <el-form-item label="模型">
+          <el-form-item :label="$t('模型')">
             <el-input v-model="formData.model" disabled placeholder="DeepSeek" />
           </el-form-item>
 
           <el-form-item label="API Key">
-            <el-input 
-              v-model="formData.apiKey" 
+            <el-input
+              v-model="formData.apiKey"
               type="password"
               show-password
-              placeholder="请输入 DeepSeek API Key"
+              :placeholder="$t('请输入 DeepSeek API Key')"
               clearable
             />
           </el-form-item>
 
-          <el-form-item label="API 地址">
+          <el-form-item :label="$t('API 地址')">
             <el-input
               v-model="formData.apiUrl"
-              placeholder="请输入 API 地址"
+              :placeholder="$t('请输入 API 地址')"
               clearable
             />
           </el-form-item>
 
-          <el-form-item label="超时时间(ms)">
+          <el-form-item :label="$t('超时时间(ms)')">
             <el-input-number
               v-model="formData.timeout"
               :min="1000"
               :max="300000"
               :step="1000"
               :controls="false"
-              placeholder="请输入超时时间"
+              :placeholder="$t('请输入超时时间')"
               style="width: 100%"
             />
           </el-form-item>
@@ -46,19 +46,19 @@
           <el-form-item>
             <div class="button-group">
               <el-button type="primary" @click="handleSave" :loading="saving">
-                保存配置
+                {{ $t('保存配置') }}
               </el-button>
               <el-button @click="handleReset">
-                重置
+                {{ $t('重置') }}
               </el-button>
               <el-button @click="handleTest" :loading="testing" :disabled="!canTest">
-                文本测试
+                {{ $t('文本测试') }}
               </el-button>
               <el-button @click="handleJsonTest" :loading="jsonTesting" :disabled="!canTest">
-                JSON测试
+                {{ $t('JSON测试') }}
               </el-button>
               <el-button @click="handleStreamTest" :loading="streamTesting" :disabled="!canTest">
-                流式测试
+                {{ $t('流式测试') }}
               </el-button>
             </div>
           </el-form-item>
@@ -68,35 +68,35 @@
       <!-- 右侧测试结果区域 -->
       <div class="test-result">
         <div class="result-header">
-          <h3>测试结果</h3>
-          <el-button 
-            v-if="streamTesting" 
-            type="danger" 
-            size="small" 
+          <h3>{{ $t('测试结果') }}</h3>
+          <el-button
+            v-if="streamTesting"
+            type="danger"
+            size="small"
             @click="handleCancelStream"
           >
-            取消请求
+            {{ $t('取消请求') }}
           </el-button>
         </div>
         <div class="result-content" v-if="testResult || jsonTestData">
-          <SJsonEditor 
+          <SJsonEditor
             v-if="currentTestType === 'json' && jsonTestData"
             v-model="jsonTestData"
             :read-only="true"
             :auto-height="true"
             :max-height="600"
           />
-          <VueMarkdownRender 
+          <VueMarkdownRender
             v-else-if="testResult"
-            :source="testResult" 
+            :source="testResult"
           />
         </div>
         <div class="result-empty" v-else-if="!testing && !jsonTesting && !streamTesting">
-          <p>点击"文本测试"、"JSON测试"或"流式测试"按钮查看大模型响应</p>
+          <p>{{ $t('点击"文本测试"、"JSON测试"或"流式测试"按钮查看大模型响应') }}</p>
         </div>
         <div class="result-loading" v-else>
           <el-icon class="is-loading"><Loading /></el-icon>
-          <p>正在请求中...</p>
+          <p>{{ $t('正在请求中...') }}</p>
         </div>
         <div class="result-error" v-if="testError">
           <el-alert type="error" :title="testError" :closable="false" />
@@ -108,6 +108,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { Loading } from '@element-plus/icons-vue'
 import { aiCache } from '@/cache/ai/aiCache'
 import type { Config } from '@src/types/config'
@@ -116,6 +117,8 @@ import type { DeepSeekRequestBody, DeepSeekResponse } from '@src/types/ai'
 import VueMarkdownRender from 'vue-markdown-render'
 import SJsonEditor from '@/components/common/jsonEditor/ClJsonEditor.vue'
 import { message, parseAiStream } from '@/helper'
+
+const { t } = useI18n()
 
 type AiConfig = Config['mainConfig']['aiConfig']
 
@@ -176,11 +179,11 @@ const loadConfig = () => {
 // 保存配置
 const handleSave = async () => {
   if (!formData.value.apiKey.trim()) {
-    message.warning('请输入 API Key')
+    message.warning(t('请输入 API Key'))
     return
   }
   if (!formData.value.apiUrl.trim()) {
-    message.warning('请输入 API 地址')
+    message.warning(t('请输入 API 地址'))
     return
   }
 
@@ -193,9 +196,9 @@ const handleSave = async () => {
       apiUrl: formData.value.apiUrl,
       timeout: formData.value.timeout
     })
-    message.success('配置保存成功')
+    message.success(t('配置保存成功'))
   } catch (error) {
-    message.error('配置保存失败')
+    message.error(t('配置保存失败'))
   } finally {
     saving.value = false
   }
@@ -220,15 +223,15 @@ const handleReset = async () => {
       timeout: formData.value.timeout
     })
   } catch (error) {
-    console.error('重置配置失败:', error)
-    message.error('重置配置失败')
+    console.error(t('log.重置配置失败'), error)
+    message.error(t('log.重置配置失败'))
   }
 }
 
 // 测试请求
 const handleTest = async () => {
   if (!canTest.value) {
-    message.warning('请先配置 API Key 和 API 地址')
+    message.warning(t('请先配置 API Key 和 API 地址'))
     return
   }
 
@@ -270,16 +273,16 @@ const handleTest = async () => {
       if (content) {
         testResult.value = content
       } else {
-        testError.value = 'AI 返回内容为空'
+        testError.value = t('AI 返回内容为空')
         message.error(testError.value)
       }
     } else {
-      testError.value = result?.msg || '测试请求失败'
+      testError.value = result?.msg || t('测试请求失败')
       message.error(testError.value)
     }
   } catch (error) {
     testError.value = (error as Error).message
-    message.error('测试请求失败')
+    message.error(t('测试请求失败'))
   } finally {
     testing.value = false
   }
@@ -288,7 +291,7 @@ const handleTest = async () => {
 // JSON测试请求
 const handleJsonTest = async () => {
   if (!canTest.value) {
-    message.warning('请先配置 API Key 和 API 地址')
+    message.warning(t('请先配置 API Key 和 API 地址'))
     return
   }
 
@@ -336,16 +339,16 @@ const handleJsonTest = async () => {
           jsonTestData.value = content
         }
       } else {
-        testError.value = 'AI 返回内容为空'
+        testError.value = t('AI 返回内容为空')
         message.error(testError.value)
       }
     } else {
-      testError.value = result?.msg || 'JSON测试失败'
+      testError.value = result?.msg || t('JSON测试失败')
       message.error(testError.value)
     }
   } catch (error) {
     testError.value = (error as Error).message
-    message.error('JSON测试失败')
+    message.error(t('JSON测试失败'))
   } finally {
     jsonTesting.value = false
   }
@@ -354,7 +357,7 @@ const handleJsonTest = async () => {
 // 流式测试请求
 const handleStreamTest = async () => {
   if (!canTest.value) {
-    message.warning('请先配置 API Key 和 API 地址')
+    message.warning(t('请先配置 API Key 和 API 地址'))
     return
   }
 
@@ -442,8 +445,8 @@ const handleCancelStream = async () => {
       streamTesting.value = false
       streamController = null
     } catch (error) {
-      console.error('取消请求失败:', error)
-      message.error('取消请求失败')
+      console.error(t('log.取消请求失败'), error)
+      message.error(t('log.取消请求失败'))
     }
   }
 }

@@ -42,8 +42,8 @@ test.describe('15. HTTP节点 - 变量替换功能测试', () => {
       const value = await urlInputValue.inputValue();
       expect(value).toContain('{{host}}');
       // 检查URL输入框样式
-      const urlInput = contentPage.locator('input[placeholder*="URL"], .url-input').first();
-      const className = await urlInput.getAttribute('class');
+      const urlInputElement = contentPage.locator('input[placeholder*="URL"], .url-input').first();
+      const className = await urlInputElement.getAttribute('class');
       expect(className).toBeTruthy();
     });
 

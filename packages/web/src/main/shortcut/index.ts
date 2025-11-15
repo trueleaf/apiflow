@@ -258,7 +258,3 @@ export const bindMainProcessGlobalShortCut = (
   return shortcutManager;
 };
 
-/**
- * 获取快捷键管理器实例（用于调试和手动操作）
- */
-export const getShortcutManager = () => shortcutManager;
