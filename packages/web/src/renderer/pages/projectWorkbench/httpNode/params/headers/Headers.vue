@@ -75,7 +75,7 @@ import { storeToRefs } from 'pinia';
 import { CheckboxValueType } from 'element-plus';
 import { useHttpRedoUndo } from '@/store/redoUndo/httpRedoUndoStore';
 import { debounce, cloneDeep } from 'lodash-es';
-import mindHeaders from './mind-headers'
+import { mindHeaderMetas } from './mind-headers'
 
 const emits = defineEmits(['changeCommonHeaderSendStatus'])
 const apidocTabsStore = useApidocTas()
@@ -89,6 +89,14 @@ const currentSelectTab = computed(() => { //当前选中的doc
   return tabs?.find((tab) => tab.selected) || null;
 })
 const { t } = useI18n()
+const mindHeaders = mindHeaderMetas.map((meta) => {
+  const property = generateEmptyProperty('string');
+  property.key = meta.name;
+  property.description = meta.description;
+  property.required = meta.required ?? property.required;
+  property.select = meta.select ?? property.select;
+  return property;
+})
 
 const hideDefaultHeader = ref(true);
 const headerData = computed(() => apidocStore.apidoc.item.headers)
