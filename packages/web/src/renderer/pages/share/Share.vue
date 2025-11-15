@@ -27,7 +27,7 @@
   <div v-else class="no-permission">
     <div class="error-content">
       <div class="error-content-inner">
-        <img src="@/assets/imgs/logo.png" alt="logo" class="error-logo" />
+        <img :src="appSettingsStore.appLogo" :alt="appSettingsStore.appTitle" class="error-logo" />
         <h2 class="mt-0">{{ shareProjectInfo.shareName || t('文档分享') }}</h2>
         <el-form ref="passwordFormRef" :model="passwordFormData" :rules="passwordRules" class="d-flex j-center" @submit.prevent="handlePasswordSubmit">
           <el-form-item prop="password" class="password-form-item">
@@ -67,12 +67,14 @@ import { useShareStore } from './store'
 // @ts-ignore
 import localShareDataTest from './testData'
 import { useI18n } from 'vue-i18n'
+import { useAppSettings } from '@/store/appSettings/appSettingsStore'
 /*
 |--------------------------------------------------------------------------
 | 变量定义
 |--------------------------------------------------------------------------
 */
 const { t } = useI18n()
+const appSettingsStore = useAppSettings()
 
 const isForHtml = ref(import.meta.env.VITE_USE_FOR_HTML === 'true');
 const shareId = router.currentRoute.value.query?.share_id as string || 'local_share';

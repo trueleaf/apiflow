@@ -33,13 +33,6 @@ class RuntimeCache {
       if (!userInfo) return null
       
       const parsedInfo = JSON.parse(userInfo) as PermissionUserInfo
-      
-      // 数据有效性验证
-      if (!parsedInfo.id || !parsedInfo.loginName) {
-        localStorage.removeItem(cacheKey.runtime.userInfo)
-        return null
-      }
-      
       return parsedInfo
     } catch (error) {
       logger.error('获取用户信息失败', { error })
@@ -50,11 +43,6 @@ class RuntimeCache {
   // 设置用户信息
   setUserInfo(userInfo: PermissionUserInfo): boolean {
     try {
-      // 数据有效性验证
-      if (!userInfo.id || !userInfo.loginName) {
-        return false
-      }
-      
       localStorage.setItem(cacheKey.runtime.userInfo, JSON.stringify(userInfo))
       return true
     } catch (error) {

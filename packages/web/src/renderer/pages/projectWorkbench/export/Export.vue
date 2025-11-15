@@ -15,7 +15,7 @@
           <div class="mt-1">WORD</div>
         </div>
         <div class="item" :class="{active: selectedType === 'moyu'}" @click="selectedType = 'moyu'">
-          <img src="@/assets/imgs/logo.png" alt="moyu" class="img">
+          <img :src="appSettingsStore.appLogo" :alt="appSettingsStore.appTitle" class="img">
           <div class="mt-1">{{ t('JSON文档') }}</div>
         </div>
         <div class="item" :class="{active: selectedType === 'openapi'}" @click="selectedType = 'openapi'">
@@ -111,7 +111,9 @@ import { downloadStringAsText } from '@/helper';
 import { useRuntime } from '@/store/runtime/runtimeStore';
 import { OpenAPIConverter } from './openapi-converter';
 import { FileJson } from 'lucide-vue-next';
+import { useAppSettings } from '@/store/appSettings/appSettingsStore'
 
+const appSettingsStore = useAppSettings()
 const apidocBaseInfoStore = useApidocBaseInfo();
 const apidocBannerStore = useApidocBanner();
 const variableStore = useVariable();

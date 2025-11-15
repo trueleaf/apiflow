@@ -1,12 +1,15 @@
 import { defineStore } from 'pinia'
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import { appSettingsCache } from '@/cache/settings/appSettingsCache'
 import type { AppTheme } from '@src/types'
+import defaultLogoImg from '@/assets/imgs/logo.png'
 
 export const useAppSettings = defineStore('appSettings', () => {
   const appTitle = ref<string>(appSettingsCache.getAppTitle())
-  const appLogo = ref<string>(appSettingsCache.getAppLogo())
+  const _appLogo = ref<string>(appSettingsCache.getAppLogo())
   const appTheme = ref<AppTheme>(appSettingsCache.getAppTheme())
+  
+  const appLogo = computed(() => _appLogo.value || defaultLogoImg)
 
   // 设置应用标题
   const setAppTitle = (title: string): void => {
@@ -16,7 +19,7 @@ export const useAppSettings = defineStore('appSettings', () => {
 
   // 设置应用Logo
   const setAppLogo = (logo: string): void => {
-    appLogo.value = logo
+    _appLogo.value = logo
     appSettingsCache.setAppLogo(logo)
   }
 
@@ -35,7 +38,7 @@ export const useAppSettings = defineStore('appSettings', () => {
   // 重置应用Logo
   const resetAppLogo = (): void => {
     appSettingsCache.resetAppLogo()
-    appLogo.value = appSettingsCache.getAppLogo()
+    _appLogo.value = appSettingsCache.getAppLogo()
   }
 
   // 重置应用主题

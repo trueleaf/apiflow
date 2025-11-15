@@ -874,6 +874,7 @@ export default {
   '离线模式不可用': 'Unavailable in offline mode',
   '图片上传成功': 'Image uploaded successfully',
   '图片上传失败': 'Image upload failed',
+  'Logo已更新': 'Logo updated successfully',
   '请选择图片文件': 'Please select an image file',
   '不支持的文件格式。支持的格式: JPG, PNG, GIF': 'Unsupported file format. Supported formats: JPG, PNG, GIF',
   '文件大小超过限制': 'File size exceeds limit',

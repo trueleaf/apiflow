@@ -8,59 +8,53 @@
 
 <script lang="ts" setup>
 import { onMounted, ref, watch } from 'vue'
-import { Effect } from 'element-plus';
+import { Effect } from 'element-plus'
 
-const props = defineProps({
-  value: {
-    type: [String, Number, Boolean],
-    default: '',
-  },
-  maxWidth: {
-    type: [String, Number],
-    default: 100,
-  },
-  copy: {
-    type: [Boolean],
-    default: false,
-  },
+type EllipsisValue = string | number | boolean
+type EllipsisProps = {
+  value?: EllipsisValue
+  maxWidth?: string | number
+  copy?: boolean
+}
+
+const props = withDefaults(defineProps<EllipsisProps>(), {
+  value: '',
+  maxWidth: 100,
+  copy: false
 })
-const isOverflow = ref(false);
-const textDom = ref<HTMLElement | null>(null);
-/*
-|--------------------------------------------------------------------------
-| 函数定义
-|--------------------------------------------------------------------------
-*/
+const isOverflow = ref(false)
+const textDom = ref<HTMLElement | null>(null)
+
 const changeValueWidth = () => {
   if (!textDom.value) {
-    return;
+    return
   }
   if (typeof props.maxWidth === 'number') {
-    textDom.value.style.maxWidth = `${props.maxWidth}px`;
+    textDom.value.style.maxWidth = `${props.maxWidth}px`
   } else if (typeof props.maxWidth === 'string') {
-    textDom.value.style.maxWidth = props.maxWidth;
+    textDom.value.style.maxWidth = props.maxWidth
   }
 }
-const handleSelect = (e: Event) => {
-  const selection = window.getSelection();
-  selection?.removeAllRanges();
-  const range = document.createRange();
-  range.selectNodeContents(e.target as HTMLElement);
-  selection?.addRange(range);
+const handleSelect = (event: Event) => {
+  const selection = window.getSelection()
+  selection?.removeAllRanges()
+  const range = document.createRange()
+  range.selectNodeContents(event.target as HTMLElement)
+  selection?.addRange(range)
 }
 
 watch(() => props.value, () => {
-  changeValueWidth();
+  changeValueWidth()
   setTimeout(() => {
     if (textDom.value) {
-      isOverflow.value = textDom.value.clientWidth < textDom.value.scrollWidth;
+      isOverflow.value = textDom.value.clientWidth < textDom.value.scrollWidth
     }
-  });
+  })
 }, {
   immediate: true
 })
 onMounted(() => {
-  changeValueWidth();
+  changeValueWidth()
 })
 
 </script>

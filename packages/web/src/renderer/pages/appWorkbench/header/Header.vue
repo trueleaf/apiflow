@@ -1,7 +1,7 @@
 <template>
   <div class="s-header" @click="handleDocumentClick">
     <div class="logo">
-      <img src="@/assets/imgs/logo.png" alt="Apiflow Logo" class="logo-img" width="24" height="24" draggable="false" @click="jumpToHome"/>
+      <img :src="appSettingsStore.appLogo" :alt="appSettingsStore.appTitle" class="logo-img" width="24" height="24" draggable="false" @click="jumpToHome"/>
     </div>
     <div class="home" :class="{ active: activeTabId === ''}" @click="jumpToHome">
       <i class="iconfont iconhome"></i>
@@ -75,7 +75,9 @@ import { Folder, Settings, Bot } from 'lucide-vue-next'
 import type { AnchorRect } from '@src/types/common'
 import { IPC_EVENTS } from '@src/types/ipc'
 import { changeLanguage } from '@/i18n'
+import { useAppSettings } from '@/store/appSettings/appSettingsStore'
 
+const appSettingsStore = useAppSettings()
 const tabs = ref<HeaderTab[]>([])
 const activeTabId = ref('')
 const isMaximized = ref(false)

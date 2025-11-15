@@ -35,6 +35,7 @@ import type { MockLog } from '@src/types/mockNode';
 import { IPC_EVENTS } from '@src/types/ipc';
 import type { AnchorRect } from '@src/types/common';
 import { useShortcut } from '@/hooks/useShortcut';
+import { useAppSettings } from '@/store/appSettings/appSettingsStore';
 
 
 const router = useRouter();
@@ -43,6 +44,7 @@ const aiDialogVisible = ref(false);
 const aiAnchorRect = ref<AnchorRect | null>(null);
 const apidocBaseInfoStore = useApidocBaseInfo()
 const runtimeStore = useRuntime();
+const appSettingsStore = useAppSettings();
 const { t } = useI18n()
 // 语言菜单相关状态
 const languageMenuVisible = ref(false)
@@ -333,6 +335,14 @@ watch(aiDialogVisible, value => {
     aiAnchorRect.value = null;
   }
 })
+
+watch(
+  () => appSettingsStore.appTitle,
+  (newTitle) => {
+    document.title = newTitle
+  },
+  { immediate: true }
+)
 
 onMounted(() => {
   initWelcom();

@@ -6,15 +6,16 @@
 </template>
 
 <script lang="ts" setup>
-import { ref } from 'vue';
+import { ref } from 'vue'
 
-defineProps({
-  loading: {
-    type: Boolean,
-    default: false,
-  }
+type LoadingProps = {
+  loading?: boolean
+}
+
+withDefaults(defineProps<LoadingProps>(), {
+  loading: false
 })
-const loadingText = ref('');
+const loadingText = ref('')
 </script>
 
 <style lang='scss' scoped>

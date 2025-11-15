@@ -1,7 +1,7 @@
 <template>
   <div class="guide">
     <div class="wrap">
-      <img :src="logoUrl" width="150" height="150" alt="logo" class="logo">
+      <img :src="appSettingsStore.appLogo" width="150" height="150" :alt="appSettingsStore.appTitle" class="logo">
       <h2>{{ t("当前版本") }}{{ config.appConfig.version }}</h2>
       <div class="d-flex a-center f-base j-center">
         <div class="d-flex a-center mr-5">
@@ -24,10 +24,10 @@ import { ApidocBanner } from '@src/types'
 import { forEachForest } from '@/helper'
 import { config } from '@src/config/config'
 import { useApidocBanner } from '@/store/share/bannerStore'
+import { useAppSettings } from '@/store/appSettings/appSettingsStore'
 
 const apidocBannerStore = useApidocBanner()
-const logoUrl = new URL('@/assets/imgs/logo.png', import.meta.url).href
-//所有节点
+const appSettingsStore = useAppSettings()
 const { t } = useI18n()
 
 const allNodes = computed(() => {
