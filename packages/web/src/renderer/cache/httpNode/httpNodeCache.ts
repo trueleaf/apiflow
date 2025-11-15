@@ -71,17 +71,17 @@ class HttpNodeCache {
   /*
    * 获取pre-request的sessionStorage
    */
-  getPreRequestSessionStorage(projectId: string): Record<string, unknown> | null {
+  getPreRequestSessionStorage(projectId: string): Record<string, unknown> {
     try {
       const localData: Record<string, Record<string, unknown>> = JSON.parse(sessionStorage.getItem('httpNodeCache/preRequest/sessionStorage') || '{}');
       if (!localData[projectId]) {
-        return null;
+        return {};
       }
       return localData[projectId];
     } catch (error) {
       console.error(error);
       sessionStorage.setItem('httpNodeCache/preRequest/sessionStorage', '{}');
-      return null;
+      return {};
     }
   }
   /*
@@ -103,31 +103,31 @@ class HttpNodeCache {
   /*
    * 获取pre-request的localStorage
    */
-  getPreRequestLocalStorage(projectId: string): Record<string, any> | null {
+  getPreRequestLocalStorage(projectId: string): Record<string, unknown> {
     try {
-      const localData: Record<string, Record<string, any>> = JSON.parse(localStorage.getItem(cacheKey.httpNodeCache.preRequest.localStorage) || '{}');
+      const localData: Record<string, Record<string, unknown>> = JSON.parse(localStorage.getItem(cacheKey.httpNodeCache.preRequest.localStorage) || '{}');
       if (!localData[projectId]) {
-        return null;
+        return {};
       }
       return localData[projectId];
     } catch (error) {
       console.error(error);
       localStorage.setItem(cacheKey.httpNodeCache.preRequest.localStorage, '{}');
-      return null;
+      return {};
     }
   }
 
   /*
    * 设置pre-request的localStorage
    */
-  setPreRequestLocalStorage(projectId: string, data: Record<string, any>) {
+  setPreRequestLocalStorage(projectId: string, data: Record<string, unknown>) {
     try {
       const localData = JSON.parse(localStorage.getItem(cacheKey.httpNodeCache.preRequest.localStorage) || '{}');
       localData[projectId] = data;
       localStorage.setItem(cacheKey.httpNodeCache.preRequest.localStorage, JSON.stringify(localData));
     } catch (error) {
       console.error(error);
-      const newData: Record<string, Record<string, any>> = {};
+      const newData: Record<string, Record<string, unknown>> = {};
       newData[projectId] = data;
       localStorage.setItem(cacheKey.httpNodeCache.preRequest.localStorage, JSON.stringify(newData));
     }

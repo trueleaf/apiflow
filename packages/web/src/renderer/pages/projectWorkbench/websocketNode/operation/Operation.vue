@@ -186,8 +186,8 @@ const handleConnect = async () => {
       }, {} as Record<string, string>);
 
       // 获取实际的 localStorage 和 sessionStorage
-      const preRequestLocalStorage = httpNodeCache.getPreRequestLocalStorage(projectId) || {};
-      const preRequestSessionStorage = httpNodeCache.getPreRequestSessionStorage(projectId) || {};
+      const preRequestLocalStorage = httpNodeCache.getPreRequestLocalStorage(projectId);
+      const preRequestSessionStorage = httpNodeCache.getPreRequestSessionStorage(projectId);
 
       const preScriptResult = await executeWebSocketPreScript(
         websocketStore.websocket,

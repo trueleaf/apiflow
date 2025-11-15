@@ -335,8 +335,8 @@ const initWebSocketEventListeners = () => {
 
         // 获取 projectId 和实际的 localStorage 和 sessionStorage
         const projectId = router.currentRoute.value.query.id as string;
-        const afterRequestLocalStorage = httpNodeCache.getPreRequestLocalStorage(projectId) || {};
-        const afterRequestSessionStorage = httpNodeCache.getPreRequestSessionStorage(projectId) || {};
+        const afterRequestLocalStorage = httpNodeCache.getPreRequestLocalStorage(projectId);
+        const afterRequestSessionStorage = httpNodeCache.getPreRequestSessionStorage(projectId);
 
         // 准备响应数据（转换为可序列化的格式）
         let responseData: string | ArrayBuffer = arrayBuffer;

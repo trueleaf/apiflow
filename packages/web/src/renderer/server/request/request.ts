@@ -468,8 +468,8 @@ export const sendRequest = async () => {
   changeRequestState('sending');
   const matchedCookies = getMachtedCookies(preSendUrl);
   const objCookies = await convertPropertyToObject(matchedCookies.map(cookie => ({ key: cookie.name, value: cookie.value, select: true })) as ApidocProperty<"string">[])
-  const preRequestSessionStorage = httpNodeCache.getPreRequestSessionStorage(projectId) || {};
-  const preRequestLocalStorage = httpNodeCache.getPreRequestLocalStorage(projectId) || {};
+  const preRequestSessionStorage = httpNodeCache.getPreRequestSessionStorage(projectId);
+  const preRequestLocalStorage = httpNodeCache.getPreRequestLocalStorage(projectId);
   let finalSendHeaders = preSendHeaders;
 
   let finalCookies = objCookies;
