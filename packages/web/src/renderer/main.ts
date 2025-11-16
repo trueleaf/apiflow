@@ -7,6 +7,7 @@ import { router } from "./router";
 import "@/assets/css/reset.css";
 import "@/assets/css/global.css";
 import "@/assets/css/theme/default.css";
+import "@/assets/css/theme/dark.css";
 import "@/assets/css/utilities.css";
 import { customDirective } from "./directive/directive";
 import "@/assets/font/iconfont.css";

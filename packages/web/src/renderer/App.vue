@@ -38,6 +38,7 @@ import { useAppSettings } from '@/store/appSettings/appSettingsStore';
 import { shortcutManager } from '@/shortcut/index.ts';
 import { useAgentStore } from '@/store/agent/agentStore';
 import { storeToRefs } from 'pinia';
+import { useTheme } from '@/hooks/useTheme';
 
 const router = useRouter();
 const dialogVisible = ref(false);
@@ -237,6 +238,10 @@ const initWelcom = () => {
 const initLanguage = () => {
   changeLanguage(runtimeStore.language);
 }
+const initTheme = () => {
+  const { initTheme: initThemeFunc } = useTheme();
+  initThemeFunc();
+}
 
 const initAppTitle = () => {
   document.title = `${config.isDev ? `${config.appConfig.appTitle}(${t('本地')})` : config.appConfig.appTitle}`;
@@ -323,6 +328,7 @@ watch(
 onMounted(() => {
   initWelcom();
   initLanguage();
+  initTheme();
   initAppTitle();
   initAiConfig();
   initMockLogsListener();

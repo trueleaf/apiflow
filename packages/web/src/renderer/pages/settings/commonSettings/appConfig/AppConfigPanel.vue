@@ -168,10 +168,10 @@ const handleReset = async () => {
 
 <style lang="scss" scoped>
 .panel {
-  background: #fff;
-  border: 1px solid #e5e7eb;
+  background: var(--bg-primary);
+  border: 1px solid var(--border-light);
   border-radius: 16px;
-  box-shadow: 0 10px 30px rgba(17, 24, 39, 0.06);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.06);
   padding: 32px;
   margin-bottom: 32px;
 }
@@ -182,12 +182,12 @@ const handleReset = async () => {
   h3 {
     margin: 0 0 6px;
     font-size: 20px;
-    color: #111827;
+    color: var(--text-primary);
   }
 
   p {
     margin: 0;
-    color: #6b7280;
+    color: var(--text-secondary);
     font-size: 14px;
   }
 }
@@ -222,7 +222,7 @@ const handleReset = async () => {
 }
 
 .form-label {
-  color: #6b7280;
+  color: var(--text-secondary);
   font-weight: 500;
   font-size: 14px;
   display: flex;
@@ -230,7 +230,7 @@ const handleReset = async () => {
   gap: 8px;
 
   .label-icon {
-    color: #111827;
+    color: var(--text-primary);
     flex-shrink: 0;
   }
 }
@@ -249,13 +249,13 @@ const handleReset = async () => {
   height: 150px;
   border-radius: 16px;
   overflow: hidden;
-  border: 1px solid #e5e7eb;
+  border: 1px solid var(--border-light);
   position: relative;
   cursor: pointer;
   transition: border-color 0.3s ease;
 
   &:hover {
-    border-color: #111827;
+    border-color: var(--border-dark);
   }
 
   .image-preview {
@@ -267,13 +267,13 @@ const handleReset = async () => {
   .image-overlay {
     position: absolute;
     inset: 0;
-    background: rgba(0, 0, 0, 0.45);
+    background: var(--bg-overlay);
     display: flex;
     align-items: center;
     justify-content: center;
 
     .overlay-text {
-      color: #ffffff;
+      color: var(--text-inverse);
       font-size: 14px;
       font-weight: 500;
     }
@@ -283,8 +283,8 @@ const handleReset = async () => {
         display: inline-block;
         width: 24px;
         height: 24px;
-        border: 3px solid rgba(255, 255, 255, 0.3);
-        border-top-color: #ffffff;
+        border: 3px solid var(--el-overlay-color-lighter);
+        border-top-color: var(--text-inverse);
         border-radius: 50%;
         animation: spin 0.8s linear infinite;
       }
