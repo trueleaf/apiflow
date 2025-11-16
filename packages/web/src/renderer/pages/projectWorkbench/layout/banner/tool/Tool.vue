@@ -118,7 +118,7 @@
             </el-icon>
           </div>
         </template>
-        <div class="border-bottom-gray-300 py-2 px-2">{{ t("快捷操作") }}</div>
+        <div class="toolbar-header py-2 px-2">{{ t("快捷操作") }}</div>
         <div class="toolbar-close" @click="visible = false">
           <el-icon :size="18" class="more-op">
             <Close />
@@ -915,6 +915,9 @@ const handleToggleProjectModel = () => {
         color: var(--white);
       }
     }
+  }
+  .toolbar-header {
+    border-bottom: 1px solid var(--gray-300);
   }
 }
 </style>

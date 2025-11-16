@@ -122,7 +122,7 @@
             </div>
             <div class="api-doc-block-content" v-show="expandedBlocks.body">
               <template v-if="bodyType === 'json'">
-                <div class="border-gray-300">
+                <div class="editor-border">
                   <SJsonEditor :modelValue="apidocInfo.item.requestBody.rawJson" auto-height min-height="30px" read-only />
                 </div>
               </template>
@@ -140,7 +140,7 @@
                 <pre class="pre api-doc-raw-body">{{ apidocInfo.item.requestBody.raw.data }}</pre>
               </template>
               <template v-else-if="bodyType === 'text'">
-                <div class="border-gray-300">
+                <div class="editor-border">
                   <SJsonEditor :modelValue="apidocInfo.item.requestBody.raw?.data" read-only auto-height min-height="30px" :config="{ language: 'plaintext' }" />
                 </div>
               </template>
@@ -164,22 +164,22 @@
                     :label="`${item.title} (${item.statusCode}) ${simplifyDataType(item.value.dataType)}`"
                     :name="String(index)">
                     <template v-if="getResponseLanguage(item.value.dataType) === 'json'">
-                      <div class="border-gray-300">
+                      <div class="editor-border">
                         <SJsonEditor :modelValue="item.value.strJson" read-only auto-height min-height="30px" :config="{ language: 'json' }" />
                       </div>
                     </template>
                     <template v-else-if="getResponseLanguage(item.value.dataType) === 'xml'">
-                      <div class="border-gray-300">
+                      <div class="editor-border">
                         <SJsonEditor :modelValue="item.value.text" read-only auto-height min-height="30px" :config="{ language: 'xml' }" />
                       </div>
                     </template>
                     <template v-else-if="getResponseLanguage(item.value.dataType) === 'html'">
-                      <div class="border-gray-300">
+                      <div class="editor-border">
                         <SJsonEditor :modelValue="item.value.text" read-only auto-height min-height="30px" :config="{ language: 'html' }" />
                       </div>
                     </template>
                     <template v-else-if="getResponseLanguage(item.value.dataType) === 'plaintext'">
-                      <div class="border-gray-300">
+                      <div class="editor-border">
                         <SJsonEditor :modelValue="item.value.text" read-only auto-height min-height="30px" :config="{ language: 'plaintext' }" />
                       </div>
                     </template>
@@ -597,6 +597,9 @@ const getMethodColor = (method: string) => {
   
   .api-doc-response-meta {
     margin-bottom: 12px;
+  }
+  .editor-border {
+    border: 1px solid var(--gray-300);
   }
 }
 </style> 

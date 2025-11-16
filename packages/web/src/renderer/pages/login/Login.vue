@@ -12,19 +12,19 @@
         <div class="w-100 d-flex j-center">
           <div class="download-wrap">
             <a href="https://gitee.com/shuzhikai/moyu/releases" target="__blank"
-              class="d-flex flex-column j-center a-center cursor-pointer hover-theme-color">
+              class="d-flex flex-column j-center a-center cursor-pointer download-link">
               <i class="iconfont iconwindows theme-color"></i>
               <div class="mt-1">Windows{{ t('下载') }}</div>
             </a>
             <a href="https://gitee.com/shuzhikai/moyu/releases" target="__blank"
-              class="d-flex flex-column j-center a-center cursor-pointer hover-theme-color">
+              class="d-flex flex-column j-center a-center cursor-pointer download-link">
               <svg class="svg-icon" aria-hidden="true">
                 <use xlink:href="#iconlinux1"></use>
               </svg>
               <div class="mt-1">Linux{{ t('下载') }}</div>
             </a>
             <a href="https://gitee.com/shuzhikai/moyu/releases" target="__blank"
-              class="d-flex flex-column j-center a-center cursor-pointer hover-theme-color">
+              class="d-flex flex-column j-center a-center cursor-pointer download-link">
               <i class="iconfont iconmac gray-600"></i>
               <div class="mt-1">Mac{{ t('下载') }}</div>
             </a>
@@ -175,6 +175,11 @@ const eventListeners = computed(() => {
           height: 40px;
         }
       }
+    }
+  }
+  .download-link {
+    &:hover {
+      color: var(--theme-color);
     }
   }
 }

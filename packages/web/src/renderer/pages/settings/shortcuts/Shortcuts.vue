@@ -478,7 +478,6 @@ onMounted(() => {
 
     .shortcut-keys-cell {
       flex: 0 0 auto;
-      min-width: 200px;
       padding-right: 16px;
 
       &.editing {

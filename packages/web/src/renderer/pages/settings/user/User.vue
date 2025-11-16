@@ -4,7 +4,7 @@
 */
 <template>
   <div class="user-setting">
-    <div class="d-flex a-centetr back f-base my-5 hover-theme-color cursor-pointer" @click="handleBack">
+    <div class="d-flex a-centetr back f-base my-5 back-link cursor-pointer" @click="handleBack">
       <el-icon :size="18">
         <Back />
       </el-icon>
@@ -199,6 +199,11 @@ onMounted(() => {
 
   .base-info {
     display: flex;
+  }
+  .back-link {
+    &:hover {
+      color: var(--theme-color);
+    }
   }
 }
 </style>

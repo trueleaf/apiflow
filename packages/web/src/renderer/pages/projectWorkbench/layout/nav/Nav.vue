@@ -99,7 +99,7 @@
         </el-icon>
       </div>
     </div>
-    <div class="d-flex a-center pl-1 border-left-gray-400">{{ ipAddress }}</div>
+    <div class="d-flex a-center pl-1 ip-address">{{ ipAddress }}</div>
   </div>
   <teleport to="body">
     <!-- 单个节点操作 -->
@@ -613,6 +613,9 @@ onUnmounted(() => {
   //滚动条样式
   .el-scrollbar__bar {
     bottom: 0;
+  }
+  .ip-address {
+    border-left: 1px solid var(--gray-400);
   }
 }
 </style>

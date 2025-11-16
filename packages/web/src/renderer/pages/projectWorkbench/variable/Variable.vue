@@ -73,7 +73,7 @@
         </el-form-item>
         <!-- 任意类型 -->
         <el-form-item v-if="formInfo.type === 'any'" :label="`${t('变量值')}：`" prop="value">
-          <div class="h-300px w-100 border-gray-400">
+          <div class="h-300px w-100 editor-border">
             <SJsonEditor 
               v-model="formInfo.anyValue"
               ref="jsonComponent" 
@@ -497,6 +497,9 @@ onUnmounted(() => {
 
   .right {
     flex: 1;
+  }
+  .editor-border {
+    border: 1px solid var(--gray-400);
   }
 }
 </style>

@@ -1,0 +1,24 @@
+:root {
+  /* zIndex */
+  --zIndex-share-header: 1994;
+  --zIndex-header: 1995;
+  --zIndex-tabs: 1995;
+  --zIndex-panel: 1996;
+  --zIndex-editor: 1994;
+  --zIndex-dropdown: 1900;
+  --zIndex-request-info-wrap: 1995;
+  --zIndex-history-dropdown: 1901;
+  --zIndex-drag-bar: 2700;
+  --zIndex-contextmenu: 1996;
+  --zIndex-dialog: 2000;
+  --zIndex-ai-dialog: 2100;
+  --zIndex-loading-text: 2222;
+  --zIndex-copy: 2599;
+  --zIndex-language: 2600;
+  /* 业务变量 */
+  --apiflow-header-height: 35px;
+  --apiflow-doc-nav-height: 40px;
+  --apiflow-banner-tool-height: 150px;
+  --apiflow-apidoc-operation-height: 100px;
+  --apiflow-apidoc-request-view-height: 170px;
+}

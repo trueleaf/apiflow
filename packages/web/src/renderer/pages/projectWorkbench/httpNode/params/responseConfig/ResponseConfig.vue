@@ -80,7 +80,7 @@
         </div>
       </template>
       <!-- 内容展示 -->
-      <div v-if="checkDisplayType(item.value.dataType) === 'json'" class="editor-wrap border-gray-400"
+      <div v-if="checkDisplayType(item.value.dataType) === 'json'" class="editor-wrap editor-border"
         :class="{ vertical: layout === 'vertical' }">
         <SJsonEditor ref="jsonComponents" :model-value="item.value.strJson"
           @update:modelValue="handleChangeResponseJson($event, index)"></SJsonEditor>
@@ -483,6 +483,9 @@ watch(() => responseData.value, (newVal, oldVal) => {
         // color: var(--gray-500);
       }
     }
+  }
+  .editor-border {
+    border: 1px solid var(--gray-400);
   }
 }
 </style>
