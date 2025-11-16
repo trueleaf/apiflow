@@ -46,7 +46,6 @@ import { useApidoc } from '@/store/share/apidocStore'
 import { generateHttpNode } from '@/helper'
 import { useApidocResponse } from '@/store/share/responseStore'
 import { useHttpRedoUndo } from '@/store/redoUndo/httpRedoUndoStore'
-import { useShortcut } from '@/hooks/useShortcut'
 
 const apidocBaseInfoStore = useApidocBaseInfo();
 const apidocTabsStore = useApidocTas();
@@ -136,34 +135,6 @@ watch(currentSelectTab, (val, oldVal) => {
   deep: true,
   immediate: true,
 })
-
-// 注册快捷键 - 撤销（Ctrl+Z / Cmd+Z）
-useShortcut('ctrl+z', (event: KeyboardEvent) => {
-  // event.preventDefault();
-  if (currentSelectTab.value?.tabType === 'http') {
-    const nodeId = apidocStore.apidoc._id;
-    httpRedoUndoStore.httpUndo(nodeId);
-  }
-})
-
-// 注册快捷键 - 重做（Ctrl+Y / Cmd+Shift+Z）
-useShortcut('ctrl+y', (event: KeyboardEvent) => {
-  // event.preventDefault();
-  if (currentSelectTab.value?.tabType === 'http') {
-    const nodeId = apidocStore.apidoc._id;
-    httpRedoUndoStore.httpRedo(nodeId);
-  }
-})
-
-// Mac 上的 Cmd+Shift+Z 也触发重做
-useShortcut('cmd+shift+z', (event: KeyboardEvent) => {
-  // event.preventDefault();
-  if (currentSelectTab.value?.tabType === 'http') {
-    const nodeId = apidocStore.apidoc._id;
-    httpRedoUndoStore.httpRedo(nodeId);
-  }
-})
-
 </script>
 
 <style lang='scss' scoped>

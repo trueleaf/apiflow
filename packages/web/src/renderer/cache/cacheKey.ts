@@ -84,6 +84,7 @@ export const cacheKey = {
       logo: 'settings/app/logo',
       theme: 'settings/app/theme',
     },
+    shortcuts: 'settings/shortcuts',
   },
   appWorkbench: {
     header: {

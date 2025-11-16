@@ -221,9 +221,7 @@ import { CommonResponse, ApidocVariable } from '@src/types';
 import { request as axiosInstance } from '@/api/api'
 import { nodeVariableCache } from '@/cache/variable/nodeVariableCache';
 import { useRuntime } from '@/store/runtime/runtimeStore';
-import { useShortcut } from '@/hooks/useShortcut';
-import { useApidocTas } from '@/store/share/tabsStore';
-
+import { onUnmounted } from 'vue';
 
 export type AddProjectVariableParams = {
   _id?: string;
@@ -286,19 +284,11 @@ const table = ref<{
 const form = ref<FormInstance>();
 const variableStore = useVariable()
 const upload = ref<UploadInstance>()
-const apidocTabsStore = useApidocTas()
-const currentSelectTab = computed(() => apidocTabsStore.currentSelectTab)
 
 // 独立模式的数据状态
 const standaloneVariables = ref<ApidocVariable[]>([])
 const standaloneLoading = ref(false)
 
-// 注册 Ctrl+S 快捷键保存变量
-useShortcut('ctrl+s', () => {
-  if (currentSelectTab.value?.tabType === 'variable') {
-    handleAddVariable();
-  }
-})
 /*
 |--------------------------------------------------------------------------
 | 方法定义
@@ -468,7 +458,10 @@ const handleStandaloneDelete = (_id: string) => {
   });
 }
 
-// 组件挂载时初始化
+const handleSaveEvent = () => {
+  handleAddVariable();
+};
+
 onMounted(() => {
   try {
     getData();
@@ -476,7 +469,12 @@ onMounted(() => {
     console.error(t('初始化独立缓存失败'), error);
     message.error(t('初始化失败'));
   }
-});
+  window.addEventListener('variable:save', handleSaveEvent);
+})
+
+onUnmounted(() => {
+  window.removeEventListener('variable:save', handleSaveEvent);
+})
 </script>
 
 <style lang='scss' scoped>

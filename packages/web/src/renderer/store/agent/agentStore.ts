@@ -4,12 +4,15 @@ import { AgentMessage } from '@src/types/ai';
 import { agentCache } from '@/cache/ai/agentCache';
 import { nanoid } from 'nanoid/non-secure';
 import { logger } from '@/helper';
+import type { AnchorRect } from '@src/types/common';
 
 export const useAgentStore = defineStore('agent', () => {
   const agentMessageList = ref<AgentMessage[]>([]);
   const currentSessionId = ref<string>('test-session');
   const loading = ref<boolean>(false);
   const workingStatus = ref<'working' | 'finish'>('finish');
+  const aiDialogVisible = ref(false);
+  const aiAgentRect = ref<AnchorRect | null>(null);
   const addAgentMessage = async (message: AgentMessage): Promise<boolean> => {
     try {
       agentMessageList.value.push(message);
@@ -100,11 +103,34 @@ export const useAgentStore = defineStore('agent', () => {
   const setWorkingStatus = (status: 'working' | 'finish'): void => {
     workingStatus.value = status;
   };
+  const showAiDialog = (anchorRect?: AnchorRect): void => {
+    aiAgentRect.value = anchorRect ?? null;
+    aiDialogVisible.value = true;
+  };
+  const hideAiDialog = (): void => {
+    aiDialogVisible.value = false;
+    aiAgentRect.value = null;
+  };
+  const toggleAiDialog = (anchorRect?: AnchorRect): void => {
+    if (aiDialogVisible.value) {
+      hideAiDialog();
+    } else {
+      showAiDialog(anchorRect);
+    }
+  };
+  const handleAiShortcut = (event: KeyboardEvent): void => {
+    event.preventDefault();
+    if (!aiDialogVisible.value) {
+      showAiDialog();
+    }
+  };
   return {
     agentMessageList,
     currentSessionId,
     loading,
     workingStatus,
+    aiDialogVisible,
+    aiAgentRect,
     addAgentMessage,
     updateAgentMessage,
     setAgentMessageList,
@@ -118,5 +144,9 @@ export const useAgentStore = defineStore('agent', () => {
     getLatestMessages,
     initStore,
     setWorkingStatus,
+    showAiDialog,
+    hideAiDialog,
+    toggleAiDialog,
+    handleAiShortcut,
   };
 });

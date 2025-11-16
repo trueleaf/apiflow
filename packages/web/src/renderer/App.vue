@@ -1,7 +1,7 @@
 <template>
   <router-view></router-view>
   <AddProjectDialog v-if="dialogVisible" v-model="dialogVisible" @success="handleAddSuccess"></AddProjectDialog>
-  <Ai v-if="aiDialogVisible" v-model:visible="aiDialogVisible" :anchor-rect="aiAnchorRect" />
+  <Ai v-if="aiDialogVisible" v-model:visible="aiDialogVisible" />
   <LanguageMenu
     :visible="languageMenuVisible"
     :position="languageMenuPosition"
@@ -34,17 +34,18 @@ import { httpMockLogsCache } from '@/cache/mock/httpMock/httpMockLogsCache';
 import type { MockLog } from '@src/types/mockNode';
 import { IPC_EVENTS } from '@src/types/ipc';
 import type { AnchorRect } from '@src/types/common';
-import { useShortcut } from '@/hooks/useShortcut';
 import { useAppSettings } from '@/store/appSettings/appSettingsStore';
-
+import { shortcutManager } from '@/shortcut/index.ts';
+import { useAgentStore } from '@/store/agent/agentStore';
+import { storeToRefs } from 'pinia';
 
 const router = useRouter();
 const dialogVisible = ref(false);
-const aiDialogVisible = ref(false);
-const aiAnchorRect = ref<AnchorRect | null>(null);
 const apidocBaseInfoStore = useApidocBaseInfo()
 const runtimeStore = useRuntime();
 const appSettingsStore = useAppSettings();
+const agentStore = useAgentStore();
+const { aiDialogVisible } = storeToRefs(agentStore);
 const { t } = useI18n()
 // 语言菜单相关状态
 const languageMenuVisible = ref(false)
@@ -109,29 +110,12 @@ const handleLanguageSelect = (language: Language) => {
   window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.contentToTopBar.languageChanged, language)
 }
 
-const focusAiInput = () => {
-  const inputNode = document.querySelector<HTMLTextAreaElement>('.ai-input')
-  inputNode?.focus()
-}
-
-const handleAiShortcut = (event: KeyboardEvent) => {
-  event.preventDefault()
-  if (!aiDialogVisible.value) {
-    aiAnchorRect.value = null
-    aiDialogVisible.value = true
-    return
-  }
-  focusAiInput()
-}
-
-
 const initAppHeaderEvent = () => {
   window.electronAPI?.ipcManager.onMain(IPC_EVENTS.apiflow.rendererToMain.createProject, () => {
     dialogVisible.value = true;
   });
   window.electronAPI?.ipcManager.onMain(IPC_EVENTS.apiflow.rendererToMain.showAiDialog, (payload?: { position?: AnchorRect }) => {
-    aiAnchorRect.value = payload?.position ?? null;
-    aiDialogVisible.value = true;
+    agentStore.showAiDialog(payload?.position);
   });
   window.electronAPI?.ipcManager.onMain(IPC_EVENTS.apiflow.rendererToMain.changeRoute, (path: string) => {
     router.push(path)
@@ -328,14 +312,6 @@ const initAppHeader = () => {
   });
 }
 
-useShortcut('ctrl+l', handleAiShortcut)
-
-watch(aiDialogVisible, value => {
-  if (!value) {
-    aiAnchorRect.value = null;
-  }
-})
-
 watch(
   () => appSettingsStore.appTitle,
   (newTitle) => {
@@ -352,6 +328,8 @@ onMounted(() => {
   initMockLogsListener();
   sendContentReadySignal();
   initAppHeader();
+
+  shortcutManager.initAppShortcuts();
 })
 </script>
 

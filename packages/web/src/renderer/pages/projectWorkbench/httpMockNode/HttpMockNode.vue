@@ -24,7 +24,6 @@ import { debounce } from "lodash-es"
 import type { HttpMockNode, MockNodeActiveTabType } from '@src/types/mockNode'
 import type { DebouncedFunc } from 'lodash-es'
 import { router } from '@/router'
-import { useShortcut } from '@/hooks/useShortcut'
 import { userState } from '@/cache/userState/userStateCache'
 
 const { t } = useI18n()
@@ -127,14 +126,6 @@ watch(() => httpMock.value, (mock: HttpMockNode) => {
 
 onMounted(() => {
   initDebouncDataChange()
-})
-
-// 快捷键保存
-useShortcut('ctrl+s', (event: KeyboardEvent) => {
-  // event.preventDefault();
-  if (currentSelectTab.value?.tabType === 'httpMock') {
-    httpMockStore.saveHttpMockNode();
-  }
 })
 </script>
 

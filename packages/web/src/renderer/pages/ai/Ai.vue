@@ -181,9 +181,8 @@
 import { ref, computed, onUnmounted, onMounted, watch, nextTick } from 'vue'
 import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
-import { X, Bot, Send, ChevronDown, Check, AlertTriangle, ArrowRight, Plus, History, Settings, CircleDot, Loader, LoaderCircle, Disc } from 'lucide-vue-next'
+import { X, Bot, Send, ChevronDown, Check, AlertTriangle, ArrowRight, Plus, History, Settings, LoaderCircle } from 'lucide-vue-next'
 import { nanoid } from 'nanoid/non-secure'
-import type { AnchorRect } from '@src/types/common'
 import type { DeepSeekRequestBody, DeepSeekMessage, AskMessage, TextResponseMessage, LoadingMessage } from '@src/types/ai'
 import { IPC_EVENTS } from '@src/types/ipc'
 import { config } from '@src/config/config'
@@ -198,7 +197,6 @@ import ConversationHistory from './components/ConversationHistory.vue'
 import './ai.css'
 
 const { t } = useI18n()
-const props = defineProps<{ anchorRect: AnchorRect | null }>()
 const visible = defineModel<boolean>('visible', { default: false })
 const agentStore = useAgentStore()
 const messagesRef = ref<HTMLElement | null>(null)
@@ -255,6 +253,14 @@ watch(visible, value => {
     currentView.value = 'chat'
   }
 })
+watch(() => agentStore.aiDialogVisible, (newValue) => {
+  if (newValue) {
+    nextTick(() => {
+      const inputNode = document.querySelector<HTMLTextAreaElement>('.ai-input');
+      inputNode?.focus();
+    });
+  }
+});
 watch(() => agentStore.agentMessageList.length, () => {
   scrollToBottom()
 })
@@ -790,9 +796,9 @@ const initDialogState = () => {
     return
   }
 
-  if (props.anchorRect) {
-    const anchorCenterX = props.anchorRect.x + props.anchorRect.width / 2 - dialogWidth.value / 2
-    const anchorTop = config.mainConfig.topbarViewHeight + props.anchorRect.y + props.anchorRect.height + 12
+  if (agentStore.aiAgentRect) {
+    const anchorCenterX = agentStore.aiAgentRect.x + agentStore.aiAgentRect.width / 2 - dialogWidth.value / 2
+    const anchorTop = config.mainConfig.topbarViewHeight + agentStore.aiAgentRect.y + agentStore.aiAgentRect.height + 12
     const anchoredPosition = clampPositionToBounds({ x: anchorCenterX, y: anchorTop }, dialogWidth.value, dialogHeight.value)
     position.value = anchoredPosition
     userState.setAiDialogPosition(anchoredPosition)

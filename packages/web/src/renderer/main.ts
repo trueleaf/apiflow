@@ -4,15 +4,14 @@ import { createPinia } from "pinia";
 import elZhCn from "element-plus/es/locale/lang/zh-cn";
 import ElementPlus from "element-plus";
 import { router } from "./router";
-import "@/assets/css/index.css";
+import "@/assets/css/reset.css";
+import "@/assets/css/theme/default.css";
 import { customDirective } from "./directive/directive";
 import "@/assets/font/iconfont.css";
 import "@/assets/font/iconfont.js";
 import { i18n } from "./i18n";
-import { shortcutManager } from "./shortcut/index.ts";
 import { useRuntime } from "./store/runtime/runtimeStore.ts";
 
-shortcutManager.init();
 const pinia = createPinia();
 const app = createApp(App);
 

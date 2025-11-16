@@ -36,6 +36,7 @@
         <CommonSettings v-if="activeTab === 'common-settings'" />
         <CacheManagement v-if="activeTab === 'local-data'" />
         <ProjectRecovery v-if="activeTab === 'project-recovery'" />
+        <Shortcuts v-if="activeTab === 'shortcuts'" />
         <ComponentLibrary v-if="activeTab === 'components'" />
         <AiSettings v-if="activeTab === 'ai-settings'" />
       </div>
@@ -52,6 +53,7 @@ import CommonSettings from './commonSettings/CommonSettings.vue'
 import ComponentLibrary from './componentLibrary/ComponentLibrary.vue'
 import AiSettings from './aiSettings/AiSettings.vue'
 import ProjectRecovery from './projectRecovery/ProjectRecovery.vue'
+import Shortcuts from './shortcuts/Shortcuts.vue'
 import { UserCircle, HardDrive, Command, Box, BrainCircuit, Trash2 } from 'lucide-vue-next'
 
 const { t } = useI18n()

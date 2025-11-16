@@ -37,7 +37,6 @@ import { websocketResponseCache } from '@/cache/websocketNode/websocketResponseC
 import { websocketTemplateCache } from '@/cache/websocketNode/websocketTemplateCache'
 import { router } from '@/router'
 import { useWsRedoUndo } from '@/store/redoUndo/wsRedoUndoStore'
-import { useShortcut } from '@/hooks/useShortcut'
 import { executeWebSocketAfterScript } from '@/server/websocket/executeAfterScript'
 import { useVariable } from '@/store/share/variablesStore'
 import { useCookies } from '@/store/share/cookiesStore'
@@ -444,23 +443,8 @@ onMounted(() => {
   initDebouncDataChange()
   initWebSocketEventListeners();
 })
-// 组件卸载时清理事件监听器
 onUnmounted(() => {
   cleanupWebSocketEventListeners()
-})
-useShortcut('ctrl+z', (event: KeyboardEvent) => {
-  // event.preventDefault();
-  if (currentSelectTab.value?.tabType === 'websocket') {
-    const nodeId = websocketStore.websocket._id;
-    redoUndoStore.wsUndo(nodeId);
-  }
-})
-useShortcut('ctrl+y', (event: KeyboardEvent) => {
-  // event.preventDefault();
-  if (currentSelectTab.value?.tabType === 'websocket') {
-    const nodeId = websocketStore.websocket._id;
-    redoUndoStore.wsRedo(nodeId);
-  }
 })
 </script>
 

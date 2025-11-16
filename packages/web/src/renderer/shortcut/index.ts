@@ -1,69 +1,237 @@
-type ShortcutHandler = (event: KeyboardEvent) => void;
-
-type Shortcut = {
-  keys: string; // 例如 "ctrl+s", "cmd+z" (Mac)
-  handler: ShortcutHandler;
-};
-
+import hotkeys from "hotkeys-js";
+import { useRouter } from "vue-router";
+import { useAgentStore } from "@/store/agent/agentStore";
+import { useApidocTas } from "@/store/share/tabsStore";
+import { useHttpRedoUndo } from "@/store/redoUndo/httpRedoUndoStore";
+import { useWsRedoUndo } from "@/store/redoUndo/wsRedoUndoStore";
+import { useHttpMock } from "@/store/httpMock/httpMockStore";
+import type { ShortcutConfig, ShortcutConflict } from "@src/types/shortcut";
+import { shortcutCache } from "@/cache/settings/shortcutCache";
 class ShortcutManager {
-  private shortcuts: Shortcut[] = [];
-  private isMac: boolean;
+  private hasRegisteredDefaultShortcuts = false;
+  private shortcutConfigs: ShortcutConfig[] = [];
 
   constructor() {
-    this.isMac = navigator.platform.toUpperCase().indexOf('MAC') >= 0;
+    hotkeys.filter = () => true;
   }
-
-  register(keys: string, handler: ShortcutHandler) {
-    this.shortcuts.push({ keys, handler });
+  private initShortcutConfigs() {
+    const router = useRouter();
+    const apidocTabsStore = useApidocTas();
+    const userSettings = shortcutCache.getUserSettings();
+    this.shortcutConfigs = [
+      {
+        id: "ai-assistant",
+        name: "AI助手",
+        defaultKeys: "ctrl+l,command+l",
+        userSetKeys: userSettings["ai-assistant"] || "",
+        context: {
+          route: "",
+          tabType: "",
+        },
+        handler: (event: KeyboardEvent) => {
+          const agentStore = useAgentStore();
+          agentStore.handleAiShortcut(event);
+        },
+      },
+      {
+        id: "http-undo",
+        name: "撤销HTTP请求修改",
+        defaultKeys: "ctrl+z,command+z",
+        userSetKeys: userSettings["http-undo"] || "",
+        context: {
+          route: "/v1/apidoc/doc-edit",
+          tabType: "http",
+        },
+        handler: () => {
+          const currentRoute = router.currentRoute.value?.path || "";
+          const currentTabType = apidocTabsStore.currentSelectTab?.tabType;
+          if (currentRoute !== "/v1/apidoc/doc-edit" || currentTabType !== "http") {
+            return;
+          }
+          const httpRedoUndoStore = useHttpRedoUndo();
+          const nodeId = apidocTabsStore.currentSelectTab?._id || "";
+          httpRedoUndoStore.httpUndo(nodeId);
+        },
+      },
+      {
+        id: "http-redo",
+        name: "重做HTTP请求修改",
+        defaultKeys: "ctrl+y,command+y",
+        userSetKeys: userSettings["http-redo"] || "",
+        context: {
+          route: "/v1/apidoc/doc-edit",
+          tabType: "http",
+        },
+        handler: () => {
+          const currentRoute = router.currentRoute.value?.path || "";
+          const currentTabType = apidocTabsStore.currentSelectTab?.tabType;
+          if (currentRoute !== "/v1/apidoc/doc-edit" || currentTabType !== "http") {
+            return;
+          }
+          const httpRedoUndoStore = useHttpRedoUndo();
+          const nodeId = apidocTabsStore.currentSelectTab?._id || "";
+          httpRedoUndoStore.httpRedo(nodeId);
+        },
+      },
+      {
+        id: "websocket-undo",
+        name: "撤销WebSocket修改",
+        defaultKeys: "ctrl+z,command+z",
+        userSetKeys: userSettings["websocket-undo"] || "",
+        context: {
+          route: "/v1/apidoc/doc-edit",
+          tabType: "websocket",
+        },
+        handler: () => {
+          const currentRoute = router.currentRoute.value?.path || "";
+          const currentTabType = apidocTabsStore.currentSelectTab?.tabType;
+          if (currentRoute !== "/v1/apidoc/doc-edit" || currentTabType !== "websocket") {
+            return;
+          }
+          const wsRedoUndoStore = useWsRedoUndo();
+          const nodeId = apidocTabsStore.currentSelectTab?._id || "";
+          wsRedoUndoStore.wsUndo(nodeId);
+        },
+      },
+      {
+        id: "websocket-redo",
+        name: "重做WebSocket修改",
+        defaultKeys: "ctrl+y,command+y",
+        userSetKeys: userSettings["websocket-redo"] || "",
+        context: {
+          route: "/v1/apidoc/doc-edit",
+          tabType: "websocket",
+        },
+        handler: () => {
+          const currentRoute = router.currentRoute.value?.path || "";
+          const currentTabType = apidocTabsStore.currentSelectTab?.tabType;
+          if (currentRoute !== "/v1/apidoc/doc-edit" || currentTabType !== "websocket") {
+            return;
+          }
+          const wsRedoUndoStore = useWsRedoUndo();
+          const nodeId = apidocTabsStore.currentSelectTab?._id || "";
+          wsRedoUndoStore.wsRedo(nodeId);
+        },
+      },
+      {
+        id: "variable-save",
+        name: "保存变量(仅在保存变量页面生效)",
+        defaultKeys: "ctrl+s,command+s",
+        userSetKeys: userSettings["variable-save"] || "",
+        context: {
+          route: "/v1/apidoc/doc-edit",
+          tabType: "variable",
+        },
+        handler: () => {
+          const currentRoute = router.currentRoute.value?.path || "";
+          const currentTabType = apidocTabsStore.currentSelectTab?.tabType;
+          if (currentRoute !== "/v1/apidoc/doc-edit" || currentTabType !== "variable") {
+            return;
+          }
+          window.dispatchEvent(new CustomEvent("variable:save"));
+        },
+      },
+      {
+        id: "http-mock-save",
+        name: "保存Mock配置(仅在HTTP Mock页面生效)",
+        defaultKeys: "ctrl+s,command+s",
+        userSetKeys: userSettings["http-mock-save"] || "",
+        context: {
+          route: "/v1/apidoc/doc-edit",
+          tabType: "httpMock",
+        },
+        handler: () => {
+          const currentRoute = router.currentRoute.value?.path || "";
+          const currentTabType = apidocTabsStore.currentSelectTab?.tabType;
+          if (currentRoute !== "/v1/apidoc/doc-edit" || currentTabType !== "httpMock") {
+            return;
+          }
+          const httpMockStore = useHttpMock();
+          httpMockStore.saveHttpMockNode();
+        },
+      },
+    ];
   }
-
-  unregister(keys: string, handler: ShortcutHandler) {
-    this.shortcuts = this.shortcuts.filter(
-      (s) => !(s.keys === keys && s.handler === handler)
-    );
-  }
-
-  handleKeydown = (event: KeyboardEvent) => {
-    const modifierKey = this.isMac && event.metaKey ? "cmd" : event.ctrlKey ? "ctrl" : "";
-
-    const combo = [
-      modifierKey,
-      event.shiftKey ? "shift" : "",
-      event.altKey ? "alt" : "",
-      event.key.toLowerCase(),
-    ]
-      .filter(Boolean)
-      .join("+");
-
-    this.shortcuts.forEach((s) => {
-      // 支持 ctrl 和 cmd 的兼容性
-      // 例如注册 "ctrl+z" 时，在 Mac 上也会匹配 "cmd+z"
-      let matched = s.keys === combo;
-
-      // 如果是 Mac 系统，ctrl+key 的注册也应该响应 cmd+key
-      if (!matched && this.isMac && s.keys.startsWith('ctrl+')) {
-        const cmdVersion = s.keys.replace('ctrl+', 'cmd+');
-        matched = cmdVersion === combo;
-      }
-
-      // 如果不是 Mac 系统，cmd+key 的注册也应该响应 ctrl+key
-      if (!matched && !this.isMac && s.keys.startsWith('cmd+')) {
-        const ctrlVersion = s.keys.replace('cmd+', 'ctrl+');
-        matched = ctrlVersion === combo;
-      }
-
-      if (matched) {
-        s.handler(event);
-      }
+  initAppShortcuts() {
+    if (this.hasRegisteredDefaultShortcuts) {
+      return;
+    }
+    if (this.shortcutConfigs.length === 0) {
+      this.initShortcutConfigs();
+    }
+    this.shortcutConfigs.forEach((config) => {
+      const keys = config.userSetKeys || config.defaultKeys;
+      hotkeys(keys, (event) => {
+        config.handler(event);
+      });
     });
-  };
-
-  init() {
-    window.addEventListener("keydown", this.handleKeydown);
+    this.hasRegisteredDefaultShortcuts = true;
   }
-
   destroy() {
-    window.removeEventListener("keydown", this.handleKeydown);
+    this.shortcutConfigs.forEach((config) => {
+      const keys = config.userSetKeys || config.defaultKeys;
+      hotkeys.unbind(keys);
+    });
+    this.hasRegisteredDefaultShortcuts = false;
+  }
+  getAllShortcuts(): ShortcutConfig[] {
+    if (this.shortcutConfigs.length === 0) {
+      this.initShortcutConfigs();
+    }
+    return this.shortcutConfigs;
+  }
+  updateShortcutKeys(shortcutId: string, newKeys: string) {
+    const config = this.shortcutConfigs.find((c) => c.id === shortcutId);
+    if (!config) {
+      return;
+    }
+    const oldKeys = config.userSetKeys || config.defaultKeys;
+    hotkeys.unbind(oldKeys);
+    config.userSetKeys = newKeys;
+    shortcutCache.setShortcutKeys(shortcutId, newKeys);
+    hotkeys(newKeys, (event) => {
+      config.handler(event);
+    });
+  }
+  resetShortcut(shortcutId: string) {
+    const config = this.shortcutConfigs.find((c) => c.id === shortcutId);
+    if (!config) {
+      return;
+    }
+    const oldKeys = config.userSetKeys || config.defaultKeys;
+    hotkeys.unbind(oldKeys);
+    config.userSetKeys = "";
+    shortcutCache.removeShortcutKeys(shortcutId);
+    hotkeys(config.defaultKeys, (event) => {
+      config.handler(event);
+    });
+  }
+  resetAllShortcuts() {
+    this.shortcutConfigs.forEach((config) => {
+      const oldKeys = config.userSetKeys || config.defaultKeys;
+      hotkeys.unbind(oldKeys);
+      config.userSetKeys = "";
+      hotkeys(config.defaultKeys, (event) => {
+        config.handler(event);
+      });
+    });
+    shortcutCache.clearAllSettings();
+  }
+  checkConflict(shortcutId: string, keys: string): ShortcutConflict | null {
+    const existingShortcut = this.shortcutConfigs.find((config) => {
+      if (config.id === shortcutId) {
+        return false;
+      }
+      const configKeys = config.userSetKeys || config.defaultKeys;
+      return configKeys === keys;
+    });
+    if (existingShortcut) {
+      return {
+        existingShortcut,
+        keys,
+      };
+    }
+    return null;
   }
 }
 
