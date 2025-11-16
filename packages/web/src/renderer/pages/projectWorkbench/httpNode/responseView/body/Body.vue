@@ -542,8 +542,8 @@ onUnmounted(() => {
   .response-tip {
     width: 100%;
     padding: 5px 10px;
-    background-color: #f19d1f;
-    color: var(--white);
+    background-color: var(--warning-color);
+    color: var(--bg-primary);
   }
   .json-wrap {
     height: calc(100vh - 400px);
@@ -551,11 +551,11 @@ onUnmounted(() => {
     .tip {
       width: 100%;
       padding: 5px 10px;
-      background-color: var(--orange);
+      background-color: var(--warning-color);
       position: absolute;
       bottom: -30px;
       z-index: var(--zIndex-contextmenu);
-      color: var(--white);
+      color: var(--bg-primary);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -574,7 +574,7 @@ onUnmounted(() => {
       display: flex;
       align-items: center;
       height: 20px;
-      border-bottom: 1px solid var(--gray-200);
+      border-bottom: 1px solid var(--border-light);
     }
     @keyframes spin {
       0% {
@@ -590,7 +590,7 @@ onUnmounted(() => {
       display: flex;
       align-items: center;
       justify-content: center;
-      color: var(--gray-500);
+      color: var(--text-secondary);
       .el-icon {
         animation: spin 1s infinite linear;
       }
@@ -603,7 +603,7 @@ onUnmounted(() => {
     display: flex;
     align-items: center;
     justify-content: flex-end;
-    color: var(--gray-300);
+    color: var(--text-tertiary);
   }
   .img-view-wrap {
     width: 100%;
@@ -612,7 +612,7 @@ onUnmounted(() => {
     justify-content: center;
     flex-direction: column;
     .img-view {
-      border: 1px solid var(--gray-400);
+      border: 1px solid var(--border-base);
       width: 80%;
       height: 250px;
       padding: 0 5px;
@@ -624,7 +624,7 @@ onUnmounted(() => {
       display: flex;
       align-items: center;
       justify-content: center;
-      color: var(--gray-500);
+      color: var(--text-secondary);
     }
   }
   .sse-view-wrap {
@@ -636,7 +636,7 @@ onUnmounted(() => {
     display: flex;
     align-items: center;
     justify-content: center;
-    color: var(--gray-600);
+    color: var(--text-primary);
   }
 }
 :deep(.redirect-dialog) {
@@ -654,8 +654,8 @@ onUnmounted(() => {
   padding-top: 5px;
   padding-bottom: 5px;
   font-size: 13px;
-  color: #666;
-  background: #f8f8f8;
+  color: var(--text-secondary);
+  background: var(--bg-secondary);
   border-radius: 4px;
   margin-bottom: 4px;
   word-break: break-all;
@@ -669,7 +669,7 @@ onUnmounted(() => {
 .redirect-item {
   margin-bottom: 18px;
   padding-bottom: 10px;
-  border-bottom: 1px solid #eee;
+  border-bottom: 1px solid var(--border-light);
 }
 .redirect-item:last-child {
   border-bottom: none;

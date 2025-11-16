@@ -325,12 +325,12 @@ watch(
       padding: 6px 12px 6px 0;
       height: 100%;
       border-radius: 4px;
-      background-color: var(--bg-color, #ffffff);
+      background-color: var(--bg-primary);
       cursor: pointer;
 
       .message-index {
         font-size: 12px;
-        color: var(--gray-600);
+        color: var(--text-tertiary);
         min-width: 30px;
         text-align: right;
         margin-right: 10px;
@@ -348,11 +348,11 @@ watch(
 
         &.type-send,
         &.type-autoSend {
-          color: var(--success, #67c23a);
+          color: var(--success-color);
         }
 
         &.type-receive {
-          color: var(--danger, #f56c6c);
+          color: var(--danger-color);
         }
       }
 
@@ -361,7 +361,7 @@ watch(
         min-width: 0;
         font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
         font-size: 12px;
-        color: var(--gray-800, #303133);
+        color: var(--text-primary);
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
@@ -382,22 +382,22 @@ watch(
           flex-shrink: 0;
           min-width: 20px;
           &.success {
-            color: var(--success, #67c23a);
+            color: var(--success-color);
           }
 
           &.warning {
-            color: var(--warning, #e6a23c);
+            color: var(--warning-color);
           }
 
           &.danger {
-            color: var(--danger, #f56c6c);
+            color: var(--danger-color);
           }
         }
 
         .status-type {
           font-size: 13px;
           font-weight: 500;
-          color: var(--gray-800, #303133);
+          color: var(--text-primary);
           margin-right: 4px;
           white-space: nowrap;
         }
@@ -406,7 +406,7 @@ watch(
           flex: 1;
           min-width: 0;
           font-size: 13px;
-          color: var(--gray-700, #606266);
+          color: var(--text-secondary);
           white-space: nowrap;
           overflow: hidden;
           text-overflow: ellipsis;
@@ -415,7 +415,7 @@ watch(
 
       .message-timestamp {
         font-size: 12px;
-        color: var(--gray-600, #909399);
+        color: var(--text-tertiary);
         font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
         min-width: 60px;
         text-align: right;
@@ -423,33 +423,33 @@ watch(
       }
 
       &:hover {
-        background-color: var(--gray-100, #f2f6fc);
+        background-color: var(--bg-hover);
       }
 
       &.message-error {
-        border-left: 3px solid var(--danger, #f56c6c);
-        background-color: var(--light, #fef0f0);
+        border-left: 3px solid var(--danger-color);
+        background-color: var(--bg-secondary);
 
         &:hover {
-          background-color: var(--gray-100, #fde2e2);
+          background-color: var(--bg-hover);
         }
       }
 
       &.message-success {
-        border-left: 3px solid var(--success, #67c23a);
-        background-color: var(--light, #f0f9ff);
+        border-left: 3px solid var(--success-color);
+        background-color: var(--bg-secondary);
 
         &:hover {
-          background-color: var(--gray-100, #e1f3d8);
+          background-color: var(--bg-hover);
         }
       }
 
       &.message-warning {
-        border-left: 3px solid var(--warning, #e6a23c);
-        background-color: var(--light, #fdf6ec);
+        border-left: 3px solid var(--warning-color);
+        background-color: var(--bg-secondary);
 
         &:hover {
-          background-color: var(--gray-100, #faecd8);
+          background-color: var(--bg-hover);
         }
       }
     }

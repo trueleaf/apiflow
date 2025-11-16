@@ -146,7 +146,7 @@ function getCollapsedValue(val: string) {
   transition: max-height 0.2s;
 }
 .expand-tip {
-  color: #409eff;
+  color: var(--primary-color);
   font-size: 12px;
   margin-left: 8px;
 }

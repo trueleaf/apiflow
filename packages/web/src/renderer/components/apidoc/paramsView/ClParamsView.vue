@@ -132,16 +132,15 @@ const handleCheckBraceMatch = (item: ApidocASTInfo) => {
 <style lang='scss' scoped>
 .s-array-view {
   min-width: 100%;
-  background: var(--gray-200);
+  background: var(--bg-code);
   position: relative;
   font-size: 14px;
-  background: #282c34;
   font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen, Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif;
 
   .header {
     padding: 0 20px;
     height: 30px;
-    color: var(--gray-300);
+    color: var(--text-code-secondary);
     display: flex;
     align-items: center;
     position: relative;
@@ -152,13 +151,13 @@ const handleCheckBraceMatch = (item: ApidocASTInfo) => {
         height: 20px;
         line-height: 20px;
         margin-right: 20px;
-        border: #434857;
-        background: #5e637a;
-        color: var(--gray-300);
+        border: var(--border-code);
+        background: var(--bg-code-input);
+        color: var(--text-code-secondary);
         text-indent: 5px;
 
         &::placeholder {
-          color: var(--gray-300);
+          color: var(--text-code-secondary);
           font-size: 12px;
         }
       }
@@ -173,21 +172,21 @@ const handleCheckBraceMatch = (item: ApidocASTInfo) => {
     padding-bottom: 15px;
 
     &::-webkit-scrollbar {
-      background: #797e9d;
+      background: var(--bg-scrollbar);
     }
 
     &::-webkit-scrollbar-thumb {
-      background: var(--gray-600);
+      background: var(--bg-scrollbar-thumb);
     }
 
     &::-webkit-scrollbar-track {
-      background: #282c34;
+      background: var(--bg-code);
     }
 
     .code-banner {
       flex: 0 0 auto;
       width: 50px;
-      border-right: 1px solid var(--gray-600);
+      border-right: 1px solid var(--border-code);
       height: 100%;
 
       &:hover {
@@ -205,7 +204,7 @@ const handleCheckBraceMatch = (item: ApidocASTInfo) => {
           flex: 0 0 auto;
           width: 30px;
           height: 20px;
-          color: var(--gray-500);
+          color: var(--text-code-line-number);
           display: inline-flex;
           align-items: center;
           justify-content: center;
@@ -215,7 +214,7 @@ const handleCheckBraceMatch = (item: ApidocASTInfo) => {
         .collapse {
           width: 20px;
           height: 20px;
-          color: var(--gray-300);
+          color: var(--text-code-secondary);
           cursor: pointer;
           display: none;
           align-items: center;
@@ -229,7 +228,7 @@ const handleCheckBraceMatch = (item: ApidocASTInfo) => {
           }
 
           &:hover {
-            color: var(--gray-100);
+            color: var(--text-code-primary);
           }
         }
       }
@@ -249,11 +248,11 @@ const handleCheckBraceMatch = (item: ApidocASTInfo) => {
         white-space: nowrap;
 
         &:hover {
-          background: #434857;
+          background: var(--bg-code-hover);
         }
 
         &.active {
-          background: var(--gray-700);
+          background: var(--bg-code-active);
         }
 
         &.error {
@@ -263,7 +262,7 @@ const handleCheckBraceMatch = (item: ApidocASTInfo) => {
         @keyframes blink {
           0% {
             opacity: 1;
-            background: rgb(116, 116, 67);
+            background: var(--bg-code-error);
           }
 
           100% {
@@ -277,12 +276,12 @@ const handleCheckBraceMatch = (item: ApidocASTInfo) => {
         width: 12px;
         height: 12px;
         margin-right: 5px;
-        background: var(--gray-800);
-        border: 1px solid var(--gray-500);
+        background: var(--bg-code-checkbox);
+        border: 1px solid var(--border-code);
         cursor: pointer;
 
         &:hover {
-          border: 1px solid var(--gray-300);
+          border: 1px solid var(--border-code-hover);
         }
 
         input[type=checkbox] {
@@ -291,7 +290,7 @@ const handleCheckBraceMatch = (item: ApidocASTInfo) => {
 
         .icon {
           font-size: 10px;
-          color: var(--white);
+          color: var(--text-white);
         }
       }
 
@@ -305,14 +304,14 @@ const handleCheckBraceMatch = (item: ApidocASTInfo) => {
       }
 
       .path {
-        color: #f8c555,
+        color: var(--text-code-path);
       }
 
       .description {
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
-        color: #6A9955;
+        color: var(--text-code-comment);
         cursor: text;
       }
 
@@ -324,7 +323,7 @@ const handleCheckBraceMatch = (item: ApidocASTInfo) => {
       .bracket,
       .comma,
       .curly-brace {
-        color: #ccc;
+        color: var(--text-code-punctuation);
         font-family: source-code-pro, Menlo, Monaco, Consolas, Courier New, monospace;
       }
 
@@ -332,8 +331,8 @@ const handleCheckBraceMatch = (item: ApidocASTInfo) => {
         border: 1px solid transparent;
 
         &.active {
-          color: var(--red);
-          border: 1px solid var(--gray-400);
+          color: var(--text-code-brace-active);
+          border: 1px solid var(--border-code-active);
         }
       }
 
@@ -341,13 +340,13 @@ const handleCheckBraceMatch = (item: ApidocASTInfo) => {
         border: 1px solid transparent;
 
         &.active {
-          color: var(--orange);
-          border: 1px solid var(--gray-400);
+          color: var(--text-code-bracket-active);
+          border: 1px solid var(--border-code-active);
         }
       }
 
       .string-value {
-        color: #7ec699;
+        color: var(--text-code-string);
         font-size: .9em;
         overflow: hidden;
         text-overflow: ellipsis;
@@ -357,22 +356,22 @@ const handleCheckBraceMatch = (item: ApidocASTInfo) => {
       }
 
       .boolean-value {
-        color: #cc99cd;
+        color: var(--text-code-boolean);
         font-size: .9em;
       }
 
       .number-value {
-        color: #ccc;
+        color: var(--text-code-number);
         font-size: .9em;
       }
 
       .null-value {
-        color: #f60;
+        color: var(--text-code-null);
         font-size: .9em;
       }
 
       .file-value {
-        color: #7ec699;
+        color: var(--text-code-string);
         font-size: .9em;
       }
     }

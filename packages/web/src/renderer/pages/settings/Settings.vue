@@ -100,19 +100,19 @@ watch(activeTab, (newValue) => {
     .vertical-tabs {
       width: 240px;
       height: 100%;
-      border-right: 1px solid #eee;
-      background-color: #ffffff;
+      border-right: 1px solid var(--border-sidebar);
+      background-color: var(--bg-sidebar);
       overflow-y: auto;
 
       .sidebar-title {
         padding: 15px 24px 5px;
-        color: #909399;
+        color: var(--text-secondary);
         font-size: 13px;
 
         &.sidebar-settings-title {
           margin-top: 20px;
           padding-top: 15px;
-          border-top: 1px solid #eee;
+          border-top: 1px solid var(--border-sidebar);
         }
       }
 
@@ -127,15 +127,16 @@ watch(activeTab, (newValue) => {
         align-items: center;
         transition: background-color 0.3s ease;
         position: relative;
+        color: var(--text-primary);
 
         &:hover {
-          background-color: #f5f5f5;
+          background-color: var(--bg-sidebar-item-hover);
         }
 
         &.active {
-          background-color: rgba(0, 122, 255, 0.1);
-          color: #007aff;
-          border-right: 3px solid #007aff;
+          background-color: var(--bg-sidebar-item-active);
+          color: var(--el-color-primary);
+          border-right: 3px solid var(--el-color-primary);
         }
 
         .tab-icon {

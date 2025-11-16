@@ -561,7 +561,7 @@ onBeforeUnmount(() => {
     display: flex;
     align-items: flex-start;
     padding: 0 12px 0;
-    border-bottom: 1px solid #ebeef5;
+    border-bottom: 1px solid var(--border-light);
 
     .filter-collapsed {
       position: relative;
@@ -595,7 +595,7 @@ onBeforeUnmount(() => {
             font-weight: bold;
             font-size: 10px;
             border-radius: 3px;
-            color: var(--gray-700, #606266);
+            color: var(--text-secondary);
             cursor: pointer;
             display: flex;
             align-items: center;
@@ -606,14 +606,14 @@ onBeforeUnmount(() => {
             margin-left: 4px;
 
             &:hover {
-              background-color: var(--white, #f0f2f5);
-              border-color: var(--gray-300, #dcdfe6);
+              background-color: var(--bg-secondary);
+              border-color: var(--border-base);
             }
 
             &.active {
               background-color: var(--primary, #409eff);
               border-color: var(--primary, #409eff);
-              color: #ffffff;
+              color: var(--text-white);
 
               &:hover {
                 background-color: color-mix(in srgb, var(--primary) 70%, white);
@@ -639,49 +639,49 @@ onBeforeUnmount(() => {
       .search-icon {
         width: 28px;
         height: 28px;
-        color: var(--gray-700, #606266);
+        color: var(--text-secondary);
         cursor: pointer;
         transition: all 0.2s;
 
         &:hover {
           color: var(--primary, #409eff);
-          background-color: #efefef;
+          background-color: var(--bg-hover);
         }
 
         &.active {
           color: var(--primary, #409eff);
-          background-color: var(--light, #ecf5ff);
+          background-color: var(--bg-active);
         }
       }
 
       .download-icon {
         width: 28px;
         height: 28px;
-        color: var(--gray-700, #606266);
+        color: var(--text-secondary);
         cursor: pointer;
         transition: color 0.2s;
 
         &:hover {
           color: var(--success, #67c23a);
-          background-color: #efefef;
+          background-color: var(--bg-hover);
         }
       }
 
       .raw-view-icon {
         width: 28px;
         height: 28px;
-        color: var(--gray-700, #606266);
+        color: var(--text-secondary);
         cursor: pointer;
         transition: all 0.2s;
 
         &:hover {
           color: var(--primary, #409eff);
-          background-color: #efefef;
+          background-color: var(--bg-hover);
         }
 
         &.active {
           color: var(--primary, #409eff);
-          background-color: var(--light, #ecf5ff);
+          background-color: var(--bg-active);
         }
       }
 
@@ -691,11 +691,11 @@ onBeforeUnmount(() => {
         left: 0;
         right: 0;
         z-index: 10;
-        background-color: var(--white, #ffffff);
-        border: 1px solid var(--gray-200, #ebeef5);
+        background-color: var(--bg-primary);
+        border: 1px solid var(--border-light);
         border-top: none;
         border-radius: 0 0 4px 4px;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        box-shadow: 0 2px 8px var(--shadow-color);
 
         .filter-stats {
           font-size: 12px;
@@ -816,7 +816,7 @@ onBeforeUnmount(() => {
     justify-content: center;
     flex-direction: column;
     height: 200px;
-    color: var(--gray-600, #909399);
+    color: var(--text-tertiary);
     font-size: 14px;
     gap: 12px;
 
@@ -844,8 +844,8 @@ onBeforeUnmount(() => {
     flex: 1;
     overflow: auto;
     padding: 12px;
-    background-color: var(--gray-100, #fafcff);
-    border: 1px solid var(--gray-200, #ebeef5);
+    background-color: var(--bg-secondary);
+    border: 1px solid var(--border-light);
     border-radius: 4px;
     margin: 0 12px 12px 12px;
 
@@ -854,7 +854,7 @@ onBeforeUnmount(() => {
       padding: 0;
       font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
       font-size: 13px;
-      color: var(--gray-800, #303133);
+      color: var(--text-primary);
       white-space: pre-wrap;
       word-break: break-all;
       line-height: 1.4;
@@ -868,9 +868,9 @@ onBeforeUnmount(() => {
     display: flex;
     padding: 12px;
     margin: 0 12px 12px 12px;
-    border: 1px solid var(--gray-200, #ebeef5);
+    border: 1px solid var(--border-light);
     border-radius: 4px;
-    background-color: var(--white, #ffffff);
+    background-color: var(--bg-primary);
     overflow: auto;
 
     .filtered-result-text {
@@ -878,7 +878,7 @@ onBeforeUnmount(() => {
       width: 100%;
       font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
       font-size: 14px;
-      color: var(--gray-800, #303133);
+      color: var(--text-primary);
       white-space: pre-wrap;
       word-break: break-word;
     }
@@ -891,11 +891,11 @@ onBeforeUnmount(() => {
       padding: 4px 12px 4px 0;
       height: 100%;
       border-radius: 4px;
-      background-color: var(--white, #ffffff);
+      background-color: var(--bg-primary);
 
       &.sse-message-hex {
         border-left: 3px solid var(--warning, #e6a23c);
-        background-color: var(--light, #fdf6ec);
+        background-color: var(--bg-warning-light);
       }
 
       .message-index {
@@ -913,7 +913,7 @@ onBeforeUnmount(() => {
         min-width: 0;
         font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
         font-size: 13px;
-        color: var(--gray-800, #303133);
+        color: var(--text-primary);
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
@@ -922,7 +922,7 @@ onBeforeUnmount(() => {
 
       .message-timestamp {
         font-size: 11px;
-        color: var(--gray-600, #909399);
+        color: var(--text-tertiary);
         font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
         min-width: 80px;
         text-align: right;
@@ -930,11 +930,11 @@ onBeforeUnmount(() => {
       }
 
       &:hover {
-        background-color: var(--gray-100, #f2f6fc);
+        background-color: var(--bg-hover);
         cursor: pointer;
 
         &.sse-message-hex {
-          background-color: var(--gray-100, #faecd8);
+          background-color: var(--bg-warning-hover);
         }
       }
     }
@@ -942,8 +942,8 @@ onBeforeUnmount(() => {
 }
 
 :deep(.highlight) {
-  background-color: var(--gray-100, #fdf2d5);
-  color: var(--orange, #b17a1a);
+  background-color: var(--bg-highlight);
+  color: var(--text-highlight);
   font-weight: 600;
   padding: 1px 2px;
   border-radius: 2px;

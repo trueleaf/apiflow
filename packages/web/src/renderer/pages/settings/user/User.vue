@@ -10,7 +10,7 @@
       </el-icon>
       <span>{{ $t('返回上级') }}</span>
     </div>
-    <SCard v-loading="loading" element-loading-background="rgba(255, 255, 255, 0.9)" shadow>
+    <SCard v-loading="loading" element-loading-background="var(--el-mask-color)" shadow>
       <div class="base-info px-3">
         <div class="w-50 flex0">
           <div class="d-flex a-center">

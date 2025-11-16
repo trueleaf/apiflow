@@ -267,7 +267,7 @@ onMounted(() => {
 
 .form-label {
   font-size: var(--font-size-sm);
-  color: var(--gray-700);
+  color: var(--text-secondary);
   font-weight: 500;
 }
 
@@ -286,17 +286,17 @@ onMounted(() => {
 }
 
 .hint-message {
-  color: var(--gray-500);
+  color: var(--text-tertiary);
   flex: 1;
 }
 
 .hint-dismiss {
-  color: var(--primary);
+  color: var(--primary-color);
   cursor: pointer;
   margin-left: 12px;
   white-space: nowrap;
   transition: all 0.2s;
-  
+
   &:hover {
     text-decoration: underline;
     opacity: 0.8;
@@ -330,10 +330,10 @@ onMounted(() => {
   flex: 1;
   display: flex;
   flex-direction: column;
-  border: 1px solid var(--gray-300);
+  border: 1px solid var(--border-base);
   border-radius: var(--border-radius-sm);
   overflow: hidden;
-  background: white;
+  background: var(--bg-primary);
   min-height: 0;
 }
 
@@ -353,16 +353,16 @@ onMounted(() => {
   border: none;
   font-size: 14px;
   line-height: 1.5;
-  color: var(--gray-800);
+  color: var(--text-primary);
   background: transparent;
   outline: none;
   resize: none;
   font-family: inherit;
-  
+
   &::placeholder {
-    color: var(--gray-400);
+    color: var(--text-tertiary);
   }
-  
+
   &:focus {
     outline: none;
   }
@@ -378,26 +378,26 @@ onMounted(() => {
   align-items: center;
   justify-content: center;
   border-radius: 50%;
-  background: var(--primary);
-  color: white;
+  background: var(--primary-color);
+  color: var(--text-white);
   cursor: pointer;
   transition: all 0.3s;
   z-index: 1;
-  
+
   &:hover:not(.is-loading):not(.is-disabled) {
-    background: var(--el-color-primary-light-3);
+    background: color-mix(in srgb, var(--primary-color) 85%, white);
   }
-  
+
   &.is-loading {
     cursor: not-allowed;
     opacity: 0.6;
   }
-  
+
   &.is-disabled {
-    background: var(--el-color-primary-light-5);
+    background: color-mix(in srgb, var(--primary-color) 60%, white);
     cursor: not-allowed;
   }
-  
+
   .el-icon {
     font-size: 16px;
   }
@@ -422,10 +422,10 @@ onMounted(() => {
   flex: 1;
   display: flex;
   flex-direction: column;
-  border: 1px solid var(--gray-300);
+  border: 1px solid var(--border-base);
   border-radius: var(--border-radius-sm);
   overflow: hidden;
-  background: white;
+  background: var(--bg-primary);
   min-height: 0;
 }
 
@@ -442,7 +442,7 @@ onMounted(() => {
   align-items: center;
   justify-content: center;
   gap: 12px;
-  color: var(--primary);
+  color: var(--primary-color);
 
   .el-icon {
     font-size: 32px;
@@ -450,7 +450,7 @@ onMounted(() => {
 
   .loading-text {
     font-size: 14px;
-    color: var(--gray-600);
+    color: var(--text-secondary);
   }
 }
 
@@ -459,10 +459,10 @@ onMounted(() => {
   display: flex;
   align-items: center;
   justify-content: center;
-  
+
   .empty-text {
     font-size: 14px;
-    color: var(--gray-400);
+    color: var(--text-tertiary);
   }
 }
 
@@ -472,7 +472,7 @@ onMounted(() => {
   display: flex;
   flex-direction: column;
   min-height: 0;
-  border: 1px solid var(--gray-300);
+  border: 1px solid var(--border-base);
   border-radius: var(--border-radius-sm);
   overflow: hidden;
 }

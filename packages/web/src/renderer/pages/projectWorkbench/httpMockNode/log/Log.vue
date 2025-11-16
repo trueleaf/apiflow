@@ -485,7 +485,7 @@ onUnmounted(() => {
   gap: 12px;
   height: calc(100vh - var(--apiflow-header-height) - var(--apiflow-doc-nav-height) - 50px);
   padding: 0 20px 20px 20px;
-  background: var(--white);
+  background: var(--bg-primary);
   overflow: hidden;
 }
 /* 筛选器 */
@@ -512,7 +512,7 @@ onUnmounted(() => {
 .filter-label {
   font-size: var(--font-size-sm);
   font-weight: 500;
-  color: var(--gray-700);
+  color: var(--text-secondary);
 }
 .filter-actions {
   display: flex;
@@ -521,13 +521,13 @@ onUnmounted(() => {
 }
 /* 日志容器 */
 .log-container {
-  background: var(--white);
+  background: var(--bg-primary);
   border-radius: var(--border-radius-base);
   padding: 0 16px 16px 16px;
   flex: 1;
   min-height: 0;
   overflow-y: auto;
-  border: 1px solid var(--gray-300);
+  border: 1px solid var(--border-base);
 }
 
 /* 自定义滚动条样式 */
@@ -536,33 +536,33 @@ onUnmounted(() => {
 }
 
 .log-container::-webkit-scrollbar-track {
-  background: var(--gray-100);
+  background: var(--bg-secondary);
   border-radius: var(--border-radius-sm);
 }
 
 .log-container::-webkit-scrollbar-thumb {
-  background: var(--gray-400);
+  background: var(--border-base);
   border-radius: var(--border-radius-sm);
 }
 
 .log-container::-webkit-scrollbar-thumb:hover {
-  background: var(--gray-500);
+  background: var(--border-light);
 }
 
 .log-loading,
 .log-error {
   text-align: center;
   font-size: var(--font-size-base);
-  color: var(--gray-600);
+  color: var(--text-tertiary);
   padding: 48px 0;
 }
 
 .log-error {
-  color: var(--danger);
+  color: var(--danger-color);
 }
 
 .log-empty :deep(.el-empty__description) {
-  color: var(--gray-500);
+  color: var(--text-tertiary);
 }
 .status-success {
   background: var(--el-color-success-light-9);
@@ -587,14 +587,14 @@ onUnmounted(() => {
   gap: 4px;
   font-family: 'Consolas', 'Monaco', monospace;
   font-size: var(--font-size-xs);
-  color: var(--gray-800);
+  color: var(--text-primary);
 }
 
 .plain-log-line {
   padding: 8px 12px;
   border-radius: var(--border-radius-base);
-  background: var(--gray-100);
-  border: 1px solid var(--gray-300);
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-base);
   white-space: pre-wrap;
   word-break: break-all;
   transition: background 0.2s ease;
@@ -604,7 +604,7 @@ onUnmounted(() => {
 }
 
 .plain-log-line:hover {
-  background: var(--gray-200);
+  background: var(--bg-hover);
 }
 
 .log-content {
@@ -612,8 +612,8 @@ onUnmounted(() => {
   min-width: 0;
 }
 .highlight-keyword {
-  background: var(--el-color-warning-light-9);
-  color: var(--orange);
+  background: var(--bg-secondary);
+  color: var(--warning-color);
   font-weight: bold;
   border-radius: var(--border-radius-xs);
   padding: 0 2px;
@@ -660,21 +660,21 @@ onUnmounted(() => {
   gap: 8px;
   /* margin-bottom: 12px;
   padding-bottom: 8px;
-  border-bottom: 1px solid var(--gray-200); */
+  border-bottom: 1px solid var(--border-light); */
 }
 .operation-btn {
   display: flex;
   align-items: center;
   gap: 6px;
   padding: 4px 8px;
-  color: var(--gray-700);
+  color: var(--text-secondary);
   font-size: 12px;
   cursor: pointer;
   transition: color 0.2s ease;
   user-select: none;
 }
 .operation-btn:hover {
-  color: var(--primary);
+  color: var(--primary-color);
 }
 /* 格式模板弹窗内容 */
 .format-dialog-content {
@@ -684,7 +684,7 @@ onUnmounted(() => {
 }
 .format-hint {
   font-size: var(--font-size-xs);
-  color: var(--danger);
+  color: var(--danger-color);
   display: flex;
   align-items: center;
   gap: 8px;
@@ -692,7 +692,7 @@ onUnmounted(() => {
 }
 .format-hint-token {
   padding: 2px 6px;
-  background: var(--el-color-danger-light-9);
+  background: var(--bg-secondary);
   border-radius: var(--border-radius-sm);
   font-weight: 500;
 }
@@ -700,19 +700,19 @@ onUnmounted(() => {
   width: 100%;
   min-height: 120px;
   border-radius: var(--border-radius-base);
-  border: 1px solid var(--gray-300);
+  border: 1px solid var(--border-base);
   padding: 12px;
   font-size: var(--font-size-sm);
   font-family: 'Consolas', 'Monaco', monospace;
-  background: var(--white);
-  color: var(--gray-800);
+  background: var(--bg-primary);
+  color: var(--text-primary);
   transition: border 0.2s ease, box-shadow 0.2s ease;
   resize: vertical;
 }
 .format-textarea:focus {
   outline: none;
-  border-color: var(--primary);
-  box-shadow: 0 0 0 2px var(--el-color-primary-light-9);
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 2px var(--bg-secondary);
 }
 .format-actions {
   display: flex;
@@ -727,7 +727,7 @@ onUnmounted(() => {
 .format-variables-title {
   font-size: var(--font-size-sm);
   font-weight: 600;
-  color: var(--gray-700);
+  color: var(--text-secondary);
 }
 .format-variables-grid {
   display: grid;
@@ -737,9 +737,9 @@ onUnmounted(() => {
   overflow-y: auto;
 }
 .format-variable-item {
-  border: 1px solid var(--gray-300);
+  border: 1px solid var(--border-base);
   border-radius: var(--border-radius-base);
-  background: var(--white);
+  background: var(--bg-primary);
   padding: 10px;
   display: flex;
   flex-direction: column;
@@ -748,15 +748,15 @@ onUnmounted(() => {
 .variable-key {
   font-weight: 600;
   font-size: var(--font-size-xs);
-  color: var(--gray-800);
+  color: var(--text-primary);
 }
 .variable-desc {
   font-size: var(--font-size-xs);
-  color: var(--gray-600);
+  color: var(--text-secondary);
 }
 .variable-example {
   font-size: var(--font-size-xs);
-  color: var(--gray-500);
+  color: var(--text-tertiary);
 }
 /* Console日志弹框 */
 .console-dialog-content {
@@ -775,25 +775,25 @@ onUnmounted(() => {
   width: 6px;
 }
 .console-logs-list::-webkit-scrollbar-track {
-  background: var(--gray-100);
+  background: var(--bg-secondary);
   border-radius: var(--border-radius-sm);
 }
 .console-logs-list::-webkit-scrollbar-thumb {
-  background: var(--gray-400);
+  background: var(--border-base);
   border-radius: var(--border-radius-sm);
 }
 .console-logs-list::-webkit-scrollbar-thumb:hover {
-  background: var(--gray-500);
+  background: var(--border-light);
 }
 .console-log-item {
   border-radius: var(--border-radius-base);
   padding: 12px;
-  background: var(--gray-50);
-  border-left: 3px solid var(--gray-400);
+  background: var(--bg-secondary);
+  border-left: 3px solid var(--border-base);
   transition: all 0.2s ease;
 }
 .console-log-item:hover {
-  background: var(--gray-100);
+  background: var(--bg-hover);
 }
 .console-log-item.level-error {
   border-left-color: var(--el-color-danger);
@@ -839,7 +839,7 @@ onUnmounted(() => {
   font-weight: 600;
   padding: 2px 6px;
   border-radius: var(--border-radius-sm);
-  background: var(--white);
+  background: var(--bg-primary);
 }
 .console-log-item.level-error .console-log-level {
   color: var(--el-color-danger);
@@ -852,18 +852,18 @@ onUnmounted(() => {
 }
 .console-log-time {
   font-size: var(--font-size-xs);
-  color: var(--gray-600);
+  color: var(--text-tertiary);
   margin-left: auto;
 }
 .console-log-content {
   font-size: var(--font-size-sm);
-  color: var(--gray-800);
+  color: var(--text-primary);
   word-break: break-word;
 }
 .console-log-content pre {
   margin: 0;
   padding: 8px;
-  background: var(--white);
+  background: var(--bg-primary);
   border-radius: var(--border-radius-sm);
   font-family: 'Consolas', 'Monaco', monospace;
   font-size: var(--font-size-xs);

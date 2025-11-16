@@ -405,15 +405,15 @@ onUnmounted(() => {
     .cache-card {
       width: 250px;
       height: 110px;
-      background: #fff;
+      background: var(--bg-primary);
       border-radius: 8px;
-      border: 1px solid #eaeaea;
+      border: 1px solid var(--border-light);
       padding: 16px;
       cursor: pointer;
       transition: all 0.3s ease;
-      
+
       &:hover {
-        border-color: #c6e2ff;
+        border-color: var(--el-color-primary-light-7);
         box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
       }
       
@@ -460,7 +460,7 @@ onUnmounted(() => {
               justify-content: center;
               padding: 3px;
               &:hover {
-                background-color: #eee;
+                background-color: var(--bg-hover);
               }
               &.loading:hover {
                 background-color: inherit;

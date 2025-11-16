@@ -204,7 +204,7 @@ const handleJumpToCommonHeaderConfigPage = ({ nodeId, name }: { nodeId?: string,
     overflow-y: auto;
   }
   .folder-icon {
-    color: #ffc107;
+    color: var(--warning-color);
   }
 }
 </style>

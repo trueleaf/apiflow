@@ -62,13 +62,26 @@
   --bg-active: #e9ecef;
   --bg-input: #ffffff;
   --bg-overlay: rgba(0, 0, 0, 0.5);
-  --bg-code: #f6f8fa;
+  --bg-code: #282c34;
   --bg-table-header: #f5f7fa;
   --bg-table-row-hover: #f5f7fa;
   --bg-sidebar: #ffffff;
   --bg-sidebar-item-hover: #f5f7fa;
   --bg-sidebar-item-active: #ecf5ff;
   --bg-header: #ffffff;
+  --bg-hover-light: rgba(255, 255, 255, 0.1);
+  --bg-warning-light: #fdf6ec;
+  --bg-warning-hover: #faecd8;
+  --bg-highlight: #fdf2d5;
+  --bg-gradient-start: #2c3e50;
+  --bg-gradient-end: #3a4a5f;
+  --bg-code-hover: #434857;
+  --bg-code-active: #3a3f4b;
+  --bg-code-input: #5e637a;
+  --bg-code-error: rgb(116, 116, 67);
+  --bg-code-checkbox: #343a40;
+  --bg-scrollbar: #797e9d;
+  --bg-scrollbar-thumb: #6c757d;
 
   /* 语义化文字色系统 */
   --text-primary: #212529;
@@ -79,6 +92,20 @@
   --text-link: #409eff;
   --text-code: #24292e;
   --text-header: #303133;
+  --text-white: #ffffff;
+  --text-highlight: #b17a1a;
+  --text-code-primary: #ccc;
+  --text-code-secondary: #909399;
+  --text-code-line-number: #adb5bd;
+  --text-code-path: #f8c555;
+  --text-code-comment: #6A9955;
+  --text-code-punctuation: #ccc;
+  --text-code-brace-active: #f56c6c;
+  --text-code-bracket-active: #fd7e14;
+  --text-code-string: #7ec699;
+  --text-code-boolean: #cc99cd;
+  --text-code-number: #ccc;
+  --text-code-null: #f60;
 
   /* 语义化边框色系统 */
   --border-base: #dee2e6;
@@ -86,10 +113,15 @@
   --border-dark: #adb5bd;
   --border-input: #ced4da;
   --border-focus: #409eff;
-  --border-code: #e1e4e8;
+  --border-code: #6c757d;
   --border-table: #ebeef5;
   --border-sidebar: #e4e7ed;
   --border-header: #e4e7ed;
+  --border-code-hover: #909399;
+  --border-code-active: #ced4da;
+
+  /* 阴影色系统 */
+  --shadow-color: rgba(0, 0, 0, 0.1);
 
   /* Element Plus 完整主题变量 */
   --el-bg-color: #ffffff;

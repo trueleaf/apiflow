@@ -672,7 +672,7 @@ onUnmounted(() => {
 .banner {
   flex: 0 0 auto;
   height: 100%;
-  border-right: 1px solid var(--gray-400);
+  border-right: 1px solid var(--border-base);
   display: flex;
   flex-direction: column;
   position: relative;
@@ -686,11 +686,11 @@ onUnmounted(() => {
   //拖拽指示器样式
   .el-tree-node.is-drop-inner {
     >.el-tree-node__content {
-      background: #b3d6fd;
+      background: var(--bg-active);
     }
 
     .custom-tree-node.select-node {
-      background-color: #d6e7fc;
+      background-color: var(--bg-active);
     }
   }
 
@@ -790,7 +790,7 @@ onUnmounted(() => {
       }
 
       .node-bottom {
-        color: var(--gray-500);
+        color: var(--text-tertiary);
         width: 100%;
         overflow: hidden;
         text-overflow: ellipsis;
@@ -820,34 +820,34 @@ onUnmounted(() => {
     }
 
     &.active-node {
-      background-color: #daeaff;
+      background-color: var(--bg-hover);
     }
 
     &.select-node {
-      background-color: #a6d2ff;
+      background-color: var(--bg-active);
     }
 
     &.cut-node {
-      color: var(--gray-500);
+      color: var(--text-tertiary);
 
       .file-icon {
-        color: var(--gray-500) !important;
+        color: var(--text-tertiary) !important;
       }
 
       .folder-icon {
-        color: var(--gray-300) !important;
+        color: var(--text-disabled) !important;
       }
     }
 
     &.readonly {
-      color: var(--gray-600);
+      color: var(--text-secondary);
 
       .file-icon {
-        color: var(--gray-600) !important;
+        color: var(--text-secondary) !important;
       }
 
       .folder-icon {
-        color: var(--gray-500) !important;
+        color: var(--text-tertiary) !important;
       }
     }
   }
@@ -909,20 +909,20 @@ onUnmounted(() => {
     cursor: pointer;
     display: flex;
     &.disabled {
-      color: #adb5bd;
+      color: var(--text-disabled);
       cursor: default;
       &:hover {
         background: inherit;
-        color: #adb5bd;
+        color: var(--text-disabled);
       }
     }
     .hot-key {
       margin-left: auto;
-      color: #adb5bd;
+      color: var(--text-tertiary);
     }
     &:hover {
-      background: rgb(244, 244, 244);
-      color: #409EFF;
+      background: var(--bg-hover);
+      color: var(--theme-color);
     }
   }
 }

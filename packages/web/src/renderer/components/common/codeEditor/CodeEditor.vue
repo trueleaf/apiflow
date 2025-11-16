@@ -23,6 +23,7 @@ import EditorWorker from 'monaco-editor/esm/vs/editor/editor.worker?worker&inlin
 import { useCompletionProvider } from './useCompletionProvider'
 import { useHoverProvider } from './useHoverProvider'
 import type { EditorConfig, CursorPosition } from './types'
+import { useAppSettings } from '@/store/appSettings/appSettingsStore'
 
 const props = defineProps({
   modelValue: {
@@ -73,6 +74,7 @@ const props = defineProps({
   }
 });
 const emits = defineEmits(['update:modelValue', 'change', 'ready', 'undo', 'redo'])
+const appSettingsStore = useAppSettings()
 const editorDom: Ref<HTMLElement | null> = ref(null);
 let monacoInstance: monaco.editor.IStandaloneCodeEditor | null = null;
 let completionProvider: monaco.IDisposable | null = null;
@@ -80,6 +82,10 @@ let hoverProvider: monaco.IDisposable | null = null;
 let resizeObserver: ResizeObserver | null = null;
 let isComposing = false;
 let isDisposed = false;
+const getMonacoTheme = () => {
+  const htmlTheme = document.documentElement.getAttribute('data-theme');
+  return htmlTheme === 'dark' ? 'vs-dark' : 'vs';
+};
 const editorStyle = computed(() => {
   if (!props.autoHeight) {
     return { width: '100%', height: '100%', maxWidth: '100%' };
@@ -123,6 +129,12 @@ watch(() => props.config, (newConfig) => {
     registerProviders();
   }
 }, { deep: true });
+watch(() => appSettingsStore.appTheme, () => {
+  if (monacoInstance) {
+    const newTheme = getMonacoTheme();
+    monaco.editor.setTheme(newTheme);
+  }
+});
 const updateEditorHeight = () => {
   if (!props.autoHeight || !monacoInstance || !editorDom.value) return;
   const contentHeight = monacoInstance.getContentHeight();
@@ -267,6 +279,7 @@ onMounted(() => {
   const defaultOptions: monaco.editor.IStandaloneEditorConstructionOptions = {
     value: props.modelValue,
     language: props.language,
+    theme: getMonacoTheme(),
     automaticLayout: false,
     parameterHints: {
       enabled: true

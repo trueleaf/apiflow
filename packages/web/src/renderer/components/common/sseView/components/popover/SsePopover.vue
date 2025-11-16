@@ -204,16 +204,16 @@ watch(() => props.message, (newMessage) => {
     align-items: center;
     justify-content: space-between;
     padding: 5px 16px;
-    border-bottom: 1px solid var(--gray-200, #ebeef5);
-    background: linear-gradient(to right, #2c3e50, #3a4a5f);
-    color: var(--white, #ffffff);
+    border-bottom: 1px solid var(--border-light);
+    background: linear-gradient(to right, var(--bg-gradient-start), var(--bg-gradient-end));
+    color: var(--text-white);
     border-top-left-radius: 5px;
     border-top-right-radius: 5px;
 
     .header {
       margin: 0;
       font-size: 16px;
-      color: var(--white, #ffffff);
+      color: var(--text-white);
     }
 
     .close-btn {
@@ -224,7 +224,7 @@ watch(() => props.message, (newMessage) => {
       justify-content: center;
       padding: 5px;
       cursor: pointer;
-      color: var(--white, #ffffff);
+      color: var(--text-white);
       transition: background-color 0.2s;
 
       .iconfont {
@@ -232,7 +232,7 @@ watch(() => props.message, (newMessage) => {
       }
 
       &:hover {
-        background-color: rgba(255, 255, 255, 0.1);
+        background-color: var(--bg-hover-light);
       }
     }
   }
@@ -265,13 +265,13 @@ watch(() => props.message, (newMessage) => {
       label {
         min-width: 80px;
         font-weight: 600;
-        color: var(--gray-700, #606266);
+        color: var(--text-secondary);
         margin-right: 12px;
         flex-shrink: 0;
       }
 
       span {
-        color: var(--gray-800, #303133);
+        color: var(--text-primary);
         word-break: break-all;
       }
 
@@ -281,14 +281,14 @@ watch(() => props.message, (newMessage) => {
 
         .tab-header {
           display: flex;
-          border-bottom: 1px solid var(--gray-200, #ebeef5);
+          border-bottom: 1px solid var(--border-light);
           margin-bottom: 12px;
 
           .tab-item {
             padding: 8px 16px;
             cursor: pointer;
             font-size: 14px;
-            color: var(--gray-700, #606266);
+            color: var(--text-secondary);
             border-bottom: 2px solid transparent;
             transition: all 0.2s;
 
@@ -311,14 +311,14 @@ watch(() => props.message, (newMessage) => {
 
           .full-content,
           .raw-block {
-            background-color: var(--gray-100, #fafcff);
-            border: 1px solid var(--gray-200, #ebeef5);
+            background-color: var(--bg-secondary);
+            border: 1px solid var(--border-light);
             border-radius: 4px;
             padding: 12px;
             margin: 0;
             font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
             font-size: 13px;
-            color: var(--gray-800, #303133);
+            color: var(--text-primary);
             white-space: pre-wrap;
             word-break: break-all;
             max-height: 350px;
@@ -327,8 +327,8 @@ watch(() => props.message, (newMessage) => {
           }
 
           .raw-block {
-            background-color: var(--light, #f4f4f5);
-            color: var(--gray-600, #909399);
+            background-color: var(--bg-tertiary);
+            color: var(--text-tertiary);
           }
         }
       }

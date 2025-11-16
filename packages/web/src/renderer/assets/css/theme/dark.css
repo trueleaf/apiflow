@@ -51,6 +51,19 @@
   --bg-sidebar-item-hover: #2a2d2e;
   --bg-sidebar-item-active: #37373d;
   --bg-header: #252526;
+  --bg-hover-light: rgba(255, 255, 255, 0.05);
+  --bg-warning-light: #3d3020;
+  --bg-warning-hover: #4a3a2a;
+  --bg-highlight: #4a4020;
+  --bg-gradient-start: #1e1e1e;
+  --bg-gradient-end: #2d2d2d;
+  --bg-code-hover: #2a2d2e;
+  --bg-code-active: #37373d;
+  --bg-code-input: #3c3c3c;
+  --bg-code-error: #4a4020;
+  --bg-code-checkbox: #2d2d2d;
+  --bg-scrollbar: #3e3e3e;
+  --bg-scrollbar-thumb: #6e6e6e;
 
   /* 语义化文字色系统 - 深色主题 */
   --text-primary: #cccccc;
@@ -61,6 +74,20 @@
   --text-link: #4a9eff;
   --text-code: #d4d4d4;
   --text-header: #cccccc;
+  --text-white: #ffffff;
+  --text-highlight: #e6a23c;
+  --text-code-primary: #d4d4d4;
+  --text-code-secondary: #9d9d9d;
+  --text-code-line-number: #858585;
+  --text-code-path: #dcdcaa;
+  --text-code-comment: #6a9955;
+  --text-code-punctuation: #d4d4d4;
+  --text-code-brace-active: #f56c6c;
+  --text-code-bracket-active: #fd7e14;
+  --text-code-string: #ce9178;
+  --text-code-boolean: #c586c0;
+  --text-code-number: #b5cea8;
+  --text-code-null: #ff6600;
 
   /* 语义化边框色系统 - 深色主题 */
   --border-base: #3e3e3e;
@@ -72,6 +99,11 @@
   --border-table: #3e3e3e;
   --border-sidebar: #3e3e3e;
   --border-header: #3e3e3e;
+  --border-code-hover: #6e6e6e;
+  --border-code-active: #8e8e8e;
+
+  /* 阴影色系统 - 深色主题 */
+  --shadow-color: rgba(0, 0, 0, 0.3);
 
   /* Element Plus 完整主题变量 - 深色主题 */
   --el-bg-color: #1e1e1e;

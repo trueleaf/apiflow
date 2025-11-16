@@ -89,7 +89,7 @@
         </SDraggable>
       </div>
       <div class="add-tab">
-        <el-icon :size="16" title="新增一个空白接口" color="#333" @click="handleAddNewTab">
+        <el-icon :size="16" title="新增一个空白接口" @click="handleAddNewTab">
           <IconPlus />
         </el-icon>
       </div>
@@ -422,7 +422,7 @@ onUnmounted(() => {
 .nav {
   width: 100%;
   height: 40px;
-  background: #eee;
+  background: var(--bg-secondary);
   display: flex;
 
   // tab包裹框
@@ -458,7 +458,7 @@ onUnmounted(() => {
     line-height: 40px;
     display: flex;
     height: 40px;
-    color: #5f6368;
+    color: var(--text-secondary);
     white-space: nowrap;
     transition: left .1s;
     overflow-x: auto;
@@ -489,8 +489,8 @@ onUnmounted(() => {
       width: 200px;
       cursor: default;
       padding: 0 10px;
-      border-right: 1px solid var(--gray-400);
-      background: rgb(222, 225, 230);
+      border-right: 1px solid var(--border-base);
+      background: var(--bg-hover);
 
       .item-text {
         display: inline-block;
@@ -508,7 +508,7 @@ onUnmounted(() => {
       }
 
       &:hover {
-        background: #e2e2e2;
+        background: var(--bg-active);
       }
 
       .iconfont {
@@ -528,7 +528,7 @@ onUnmounted(() => {
 
 
       &.active {
-        background: #f0f3fa;
+        background: var(--bg-primary);
       }
     }
 
@@ -564,7 +564,7 @@ onUnmounted(() => {
         font-size: 16px;
 
         &:hover {
-          background: #ccc;
+          background: var(--bg-hover);
         }
       }
 
@@ -585,7 +585,7 @@ onUnmounted(() => {
           width: 10px;
           height: 10px;
           border-radius: 50%;
-          background: #36cea1;
+          background: var(--success-color);
         }
       }
     }
@@ -603,9 +603,10 @@ onUnmounted(() => {
       height: 30px;
       transition: background .3s;
       border-radius: 50%;
+      color: var(--text-primary);
 
       &:hover {
-        background-color: var(--gray-400);
+        background-color: var(--bg-hover);
       }
     }
   }
@@ -615,7 +616,7 @@ onUnmounted(() => {
     bottom: 0;
   }
   .ip-address {
-    border-left: 1px solid var(--gray-400);
+    border-left: 1px solid var(--border-base);
   }
 }
 </style>

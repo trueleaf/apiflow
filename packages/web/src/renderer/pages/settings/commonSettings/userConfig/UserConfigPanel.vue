@@ -313,10 +313,10 @@ onMounted(() => {
 
 <style lang="scss" scoped>
 .panel {
-  background: #fff;
-  border: 1px solid #e5e7eb;
+  background: var(--bg-primary);
+  border: 1px solid var(--border-light);
   border-radius: 16px;
-  box-shadow: 0 10px 30px rgba(17, 24, 39, 0.06);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.06);
   padding: 32px;
   margin-bottom: 32px;
 }
@@ -327,12 +327,12 @@ onMounted(() => {
   h3 {
     margin: 0 0 6px;
     font-size: 20px;
-    color: #111827;
+    color: var(--text-primary);
   }
 
   p {
     margin: 0;
-    color: #6b7280;
+    color: var(--text-secondary);
     font-size: 14px;
   }
 }
@@ -371,7 +371,7 @@ onMounted(() => {
 }
 
 .form-label {
-  color: #6b7280;
+  color: var(--text-secondary);
   font-weight: 500;
   font-size: 14px;
   display: flex;
@@ -379,7 +379,7 @@ onMounted(() => {
   gap: 8px;
 
   .label-icon {
-    color: #111827;
+    color: var(--text-primary);
     flex-shrink: 0;
   }
 }
@@ -408,17 +408,17 @@ onMounted(() => {
 
 .readonly-field {
   padding: 10px 12px;
-  background: #f9fafb;
-  border: 1px solid #e5e7eb;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-light);
   border-radius: 8px;
   font-size: 14px;
 
   .field-value {
-    color: #111827;
+    color: var(--text-primary);
   }
 
   .field-disabled {
-    color: #9ca3af;
+    color: var(--text-tertiary);
     font-style: italic;
   }
 }
@@ -428,7 +428,7 @@ onMounted(() => {
   height: 150px;
   border-radius: 16px;
   overflow: hidden;
-  border: 1px solid #e5e7eb;
+  border: 1px solid var(--border-light);
   position: relative;
   cursor: pointer;
   transition: border-color 0.3s ease;
@@ -438,7 +438,7 @@ onMounted(() => {
   }
 
   &:hover {
-    border-color: #111827;
+    border-color: var(--text-primary);
   }
 
   .image-preview {
@@ -450,13 +450,13 @@ onMounted(() => {
   .image-overlay {
     position: absolute;
     inset: 0;
-    background: rgba(0, 0, 0, 0.45);
+    background: var(--bg-overlay);
     display: flex;
     align-items: center;
     justify-content: center;
 
     .overlay-text {
-      color: #ffffff;
+      color: var(--text-inverse);
       font-size: 14px;
       font-weight: 500;
     }
@@ -467,7 +467,7 @@ onMounted(() => {
         width: 24px;
         height: 24px;
         border: 3px solid rgba(255, 255, 255, 0.3);
-        border-top-color: #ffffff;
+        border-top-color: var(--text-inverse);
         border-radius: 50%;
         animation: spin 0.8s linear infinite;
       }

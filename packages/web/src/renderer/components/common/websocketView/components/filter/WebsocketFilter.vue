@@ -182,7 +182,7 @@ defineExpose({
   display: flex;
   align-items: flex-start;
   padding: 0 12px 0;
-  border-bottom: 1px solid #ebeef5;
+  border-bottom: 1px solid var(--border-light);
 
   .filter-collapsed {
     position: relative;
@@ -210,7 +210,7 @@ defineExpose({
           font-weight: bold;
           font-size: 10px;
           border-radius: 3px;
-          color: var(--gray-700, #606266);
+          color: var(--text-secondary);
           cursor: pointer;
           display: flex;
           align-items: center;
@@ -221,18 +221,18 @@ defineExpose({
           margin-left: 4px;
 
           &:hover {
-            background-color: var(--white, #f0f2f5);
-            border-color: var(--gray-300, #dcdfe6);
+            background-color: var(--bg-hover);
+            border-color: var(--border-base);
           }
 
           &.active {
-            background-color: var(--primary, #409eff);
-            border-color: var(--primary, #409eff);
-            color: #ffffff;
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+            color: var(--text-white);
 
             &:hover {
-              background-color: color-mix(in srgb, var(--primary) 70%, white);
-              border-color: color-mix(in srgb, var(--primary) 70%, white);
+              background-color: color-mix(in srgb, var(--primary-color) 70%, white);
+              border-color: color-mix(in srgb, var(--primary-color) 70%, white);
             }
           }
         }
@@ -257,26 +257,26 @@ defineExpose({
       margin: 0 1px;
       width: 28px;
       height: 28px;
-      color: var(--gray-700, #606266);
+      color: var(--text-secondary);
       cursor: pointer;
       transition: all 0.2s;
 
       &:hover {
-        color: var(--primary, #409eff);
-        background-color: #efefef;
+        color: var(--primary-color);
+        background-color: var(--bg-hover);
       }
 
       &.active {
-        color: var(--primary, #409eff);
-        background-color: var(--light, #ecf5ff);
+        color: var(--primary-color);
+        background-color: var(--bg-secondary);
       }
     }
 
     .download-icon:hover {
-      color: var(--success, #67c23a);
+      color: var(--success-color);
     }
     .clear-icon:hover {
-      color: var(--danger, #f56c6c);
+      color: var(--danger-color);
     }
 
     .compact-filter-stats {
@@ -285,8 +285,8 @@ defineExpose({
       left: 0;
       right: 0;
       z-index: 10;
-      background-color: var(--white, #ffffff);
-      border: 1px solid var(--gray-200, #ebeef5);
+      background-color: var(--bg-primary);
+      border: 1px solid var(--border-light);
       border-top: none;
       border-radius: 0 0 4px 4px;
       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
@@ -297,15 +297,15 @@ defineExpose({
         margin: 0;
 
         &:not(.error):not(.no-result) {
-          color: var(--success, #67c23a);
+          color: var(--success-color);
         }
 
         &.no-result {
-          color: var(--warning, #e6a23c);
+          color: var(--warning-color);
         }
 
         &.error {
-          color: var(--danger, #f56c6c);
+          color: var(--danger-color);
         }
       }
     }

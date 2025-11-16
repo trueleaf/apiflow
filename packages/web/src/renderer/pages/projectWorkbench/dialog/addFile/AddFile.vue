@@ -568,17 +568,17 @@ const handleClose = () => {
   gap: 4px;
   margin-left: 8px;
   padding: 2px 8px;
-  background: #ffffff;
-  border: 1px solid #d4d4d4;
+  background: var(--bg-primary);
+  border: 1px solid var(--border-base);
   border-radius: 4px;
   cursor: pointer;
   transition: all 0.2s ease;
   font-size: 12px;
-  color: var(--gray-700);
+  color: var(--text-secondary);
   white-space: nowrap;
 }
 .ai-config-btn-inline:hover {
-  background: #f8f8f8;
+  background: var(--bg-hover);
   border-color: var(--theme-color);
 }
 </style>

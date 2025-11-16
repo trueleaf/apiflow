@@ -620,7 +620,7 @@ const handleKeyDown = (e: KeyboardEvent, data: ApidocProperty<'string' | 'file'>
   .file-input-wrap {
     box-sizing: content-box;
     cursor: default;
-    border: 1px dashed var(--gray-400);
+    border: 1px dashed var(--border-base);
     display: flex;
     align-items: center;
     height: 28px;
@@ -633,7 +633,7 @@ const handleKeyDown = (e: KeyboardEvent, data: ApidocProperty<'string' | 'file'>
     }
     &.active {
       background: none;
-      border: 1px solid var(--gray-300);
+      border: 1px solid var(--border-base);
       cursor: auto;
     }
     &.no-border {
@@ -660,7 +660,7 @@ const handleKeyDown = (e: KeyboardEvent, data: ApidocProperty<'string' | 'file'>
         display: flex;
         align-items: center;
         justify-content: center;
-        background-color: var(--gray-300);
+        background-color: var(--bg-secondary);
         cursor: pointer;
       }
       .close {

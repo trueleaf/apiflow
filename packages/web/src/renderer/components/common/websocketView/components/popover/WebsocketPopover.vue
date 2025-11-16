@@ -294,16 +294,16 @@ watch(() => props.message, (newMessage) => {
     align-items: center;
     justify-content: space-between;
     padding: 5px 16px;
-    border-bottom: 1px solid var(--gray-200, #ebeef5);
+    border-bottom: 1px solid var(--border-light);
     background: linear-gradient(to right, #2c3e50, #3a4a5f);
-    color: var(--white, #ffffff);
+    color: var(--text-white);
     border-top-left-radius: 5px;
     border-top-right-radius: 5px;
 
     .header {
       margin: 0;
       font-size: 16px;
-      color: var(--white, #ffffff);
+      color: var(--text-white);
     }
 
     .close-btn {
@@ -314,7 +314,7 @@ watch(() => props.message, (newMessage) => {
       justify-content: center;
       padding: 5px;
       cursor: pointer;
-      color: var(--white, #ffffff);
+      color: var(--text-white);
       transition: background-color 0.2s;
 
       .iconfont {
@@ -347,43 +347,43 @@ watch(() => props.message, (newMessage) => {
           font-weight: 500;
 
           &.type-send {
-            background-color: var(--light, #ecf5ff);
-            color: var(--primary, #409eff);
+            background-color: var(--bg-secondary);
+            color: var(--primary-color);
           }
 
           &.type-receive {
-            background-color: var(--light, #f0f9ff);
-            color: var(--success, #67c23a);
+            background-color: var(--bg-secondary);
+            color: var(--success-color);
           }
 
           &.type-connected {
-            background-color: var(--light, #f0f9ff);
-            color: var(--success, #67c23a);
+            background-color: var(--bg-secondary);
+            color: var(--success-color);
           }
 
           &.type-disconnected {
-            background-color: var(--light, #fdf6ec);
-            color: var(--warning, #e6a23c);
+            background-color: var(--bg-secondary);
+            color: var(--warning-color);
           }
 
           &.type-error {
-            background-color: var(--light, #fef0f0);
-            color: var(--danger, #f56c6c);
+            background-color: var(--bg-secondary);
+            color: var(--danger-color);
           }
 
           &.type-autoSend {
-            background-color: var(--light, #f4f4f5);
-            color: var(--info, #909399);
+            background-color: var(--bg-secondary);
+            color: var(--text-secondary);
           }
 
           &.type-startConnect {
-            background-color: var(--light, #ecf5ff);
-            color: var(--primary, #409eff);
+            background-color: var(--bg-secondary);
+            color: var(--primary-color);
           }
 
           &.type-reconnecting {
-            background-color: var(--light, #fdf6ec);
-            color: var(--warning, #e6a23c);
+            background-color: var(--bg-secondary);
+            color: var(--warning-color);
           }
         }
       }
@@ -404,24 +404,24 @@ watch(() => props.message, (newMessage) => {
 
         .tab-header {
           display: flex;
-          border-bottom: 1px solid var(--gray-200, #ebeef5);
+          border-bottom: 1px solid var(--border-light);
           margin-bottom: 12px;
 
           .tab-item {
             padding: 8px 16px;
             cursor: pointer;
             font-size: 14px;
-            color: var(--gray-700, #606266);
+            color: var(--text-secondary);
             border-bottom: 2px solid transparent;
             transition: all 0.2s;
 
             &:hover {
-              color: var(--primary, #409eff);
+              color: var(--primary-color);
             }
 
             &.active {
-              color: var(--primary, #409eff);
-              border-bottom-color: var(--primary, #409eff);
+              color: var(--primary-color);
+              border-bottom-color: var(--primary-color);
             }
           }
         }
@@ -433,14 +433,14 @@ watch(() => props.message, (newMessage) => {
           }
 
           .full-content {
-            background-color: var(--gray-100, #fafcff);
-            border: 1px solid var(--gray-200, #ebeef5);
+            background-color: var(--bg-secondary);
+            border: 1px solid var(--border-light);
             border-radius: 4px;
             padding: 12px;
             margin: 0;
             font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
             font-size: 13px;
-            color: var(--gray-800, #303133);
+            color: var(--text-primary);
             white-space: pre-wrap;
             word-break: break-all;
             max-height: 350px;

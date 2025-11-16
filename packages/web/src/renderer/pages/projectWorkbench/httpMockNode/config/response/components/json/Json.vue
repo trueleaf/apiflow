@@ -229,7 +229,7 @@ onMounted(() => {
 
 .form-label {
   font-size: var(--font-size-sm);
-  color: var(--gray-700);
+  color: var(--text-secondary);
   font-weight: 500;
 }
 
@@ -247,12 +247,12 @@ onMounted(() => {
 }
 
 .hint-message {
-  color: var(--gray-500);
+  color: var(--text-tertiary);
   flex: 1;
 }
 
 .hint-dismiss {
-  color: var(--primary);
+  color: var(--primary-color);
   cursor: pointer;
   margin-left: 12px;
   white-space: nowrap;
@@ -289,10 +289,10 @@ onMounted(() => {
   flex: 1;
   display: flex;
   flex-direction: column;
-  border: 1px solid var(--gray-300);
+  border: 1px solid var(--border-base);
   border-radius: var(--border-radius-sm);
   overflow: hidden;
-  background: #fff;
+  background: var(--bg-primary);
   min-height: 0;
 }
 
@@ -312,7 +312,7 @@ onMounted(() => {
   border: none;
   font-size: 14px;
   line-height: 1.5;
-  color: var(--gray-800);
+  color: var(--text-primary);
   background: transparent;
   outline: none;
   resize: none;
@@ -320,7 +320,7 @@ onMounted(() => {
 }
 
 .prompt-textarea::placeholder {
-  color: var(--gray-400);
+  color: var(--text-tertiary);
 }
 
 .send-btn {
@@ -333,15 +333,15 @@ onMounted(() => {
   align-items: center;
   justify-content: center;
   border-radius: 50%;
-  background: var(--primary);
-  color: #fff;
+  background: var(--primary-color);
+  color: var(--text-white);
   cursor: pointer;
   transition: all 0.3s ease;
   border: none;
 }
 
 .send-btn:hover:not(.is-loading):not(.is-disabled) {
-  background: var(--el-color-primary-light-3);
+  background: color-mix(in srgb, var(--primary-color) 85%, white);
 }
 
 .send-btn.is-loading,
@@ -350,7 +350,7 @@ onMounted(() => {
 }
 
 .send-btn.is-disabled {
-  background: var(--el-color-primary-light-5);
+  background: color-mix(in srgb, var(--primary-color) 60%, white);
 }
 
 .icon-loading {
@@ -382,10 +382,10 @@ onMounted(() => {
   flex: 1;
   display: flex;
   flex-direction: column;
-  border: 1px solid var(--gray-300);
+  border: 1px solid var(--border-base);
   border-radius: var(--border-radius-sm);
   overflow: hidden;
-  background: #fff;
+  background: var(--bg-primary);
   min-height: 0;
 }
 
@@ -402,7 +402,7 @@ onMounted(() => {
   align-items: center;
   justify-content: center;
   gap: 12px;
-  color: var(--primary);
+  color: var(--primary-color);
 }
 
 .loading-spinner {
@@ -413,7 +413,7 @@ onMounted(() => {
 
 .loading-text {
   font-size: 14px;
-  color: var(--gray-600);
+  color: var(--text-secondary);
 }
 
 .empty-preview {
@@ -425,7 +425,7 @@ onMounted(() => {
 
 .empty-text {
   font-size: 14px;
-  color: var(--gray-400);
+  color: var(--text-tertiary);
 }
 
 .json-editor-wrapper {
@@ -433,7 +433,7 @@ onMounted(() => {
   display: flex;
   flex-direction: column;
   min-height: 200px;
-  border: 1px solid var(--gray-300);
+  border: 1px solid var(--border-base);
   border-radius: var(--border-radius-sm);
   overflow: hidden;
 }

@@ -4,6 +4,20 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/icon.ico" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script>
+      (function() {
+        try {
+          const theme = localStorage.getItem('settings/app/theme') || 'light';
+          if (theme === 'dark') {
+            document.documentElement.setAttribute('data-theme', 'dark');
+          } else if (theme === 'auto') {
+            if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+              document.documentElement.setAttribute('data-theme', 'dark');
+            }
+          }
+        } catch (e) {}
+      })();
+    </script>
     <script src="/js/beauty.min.js" type="module"></script>
     <title>apiflow</title>
   </head>

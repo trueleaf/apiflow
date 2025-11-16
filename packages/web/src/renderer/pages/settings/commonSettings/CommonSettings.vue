@@ -58,7 +58,7 @@ const activeTab = ref<'user' | 'app'>('user')
       margin: 0;
       font-size: 28px;
       font-weight: 600;
-      color: #111827;
+      color: var(--text-primary);
     }
   }
 }
