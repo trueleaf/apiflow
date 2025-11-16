@@ -50,10 +50,11 @@
               {{ $t('应用名称') }}
             </div>
             <el-input
-              v-model="appSettingsForm.title"
+              v-model="appTitle"
               :placeholder="$t('请输入应用名称')"
               clearable
               class="form-input"
+              @blur="handleTitleBlur"
             />
           </div>
 
@@ -62,7 +63,7 @@
               <Palette :size="18" class="label-icon" />
               {{ $t('应用主题') }}
             </div>
-            <el-radio-group v-model="appSettingsForm.theme" class="theme-radio-group">
+            <el-radio-group v-model="appTheme" class="theme-radio-group">
               <el-radio value="light" class="theme-radio">{{ $t('浅色') }}</el-radio>
               <el-radio value="dark" class="theme-radio">{{ $t('深色') }}</el-radio>
               <el-radio value="auto" class="theme-radio">{{ $t('跟随系统') }}</el-radio>
@@ -75,15 +76,12 @@
       <el-button @click="handleReset">
         {{ $t('重置') }}
       </el-button>
-      <el-button type="primary" @click="handleConfirm" :disabled="!hasChanges">
-        {{ $t('确认修改') }}
-      </el-button>
     </div>
   </section>
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, computed } from 'vue'
+import { ref, computed } from 'vue'
 import { useAppSettings } from '@/store/appSettings/appSettingsStore'
 import { processImageUpload } from '@/utils/imageHelper'
 import { ElMessageBox } from 'element-plus'
@@ -95,20 +93,31 @@ import { message } from '@/helper'
 
 const { t } = useI18n()
 const appSettingsStore = useAppSettings()
-
-const appSettingsForm = reactive({
-  title: appSettingsStore.appTitle,
-  theme: appSettingsStore.appTheme,
-})
-
 const isLogoHover = ref(false)
 const isLogoUploading = ref(false)
 const logoTrigger = ref()
-
+const appTitle = computed({
+  get: () => appSettingsStore.appTitle,
+  set: (value: string) => {
+    const trimmed = value.trim()
+    if (trimmed && trimmed !== appSettingsStore.appTitle) {
+      appSettingsStore.setAppTitle(trimmed)
+      message.success(t('应用名称已更新'))
+    }
+  }
+})
+const appTheme = computed({
+  get: () => appSettingsStore.appTheme,
+  set: (value: AppTheme) => {
+    if (value !== appSettingsStore.appTheme) {
+      appSettingsStore.setAppTheme(value)
+      message.success(t('应用主题已更新'))
+    }
+  }
+})
 const triggerLogoUpload = () => {
   logoTrigger.value?.click()
 }
-
 const handleLogoChange = async (uploadFile: UploadFile) => {
   if (!uploadFile.raw) {
     message.warning(t('请选择图片文件'))
@@ -124,28 +133,11 @@ const handleLogoChange = async (uploadFile: UploadFile) => {
     message.error(result.message || t('图片上传失败'))
   }
 }
-
-const hasChanges = computed(() => {
-  const titleChanged = appSettingsForm.title.trim() !== appSettingsStore.appTitle
-  const themeChanged = appSettingsForm.theme !== appSettingsStore.appTheme
-  return titleChanged || themeChanged
-})
-
-const handleConfirm = () => {
-  const trimmedTitle = appSettingsForm.title.trim()
-  if (!trimmedTitle) {
+const handleTitleBlur = () => {
+  if (!appTitle.value.trim()) {
     message.warning(t('应用名称不能为空'))
-    return
   }
-  if (trimmedTitle !== appSettingsStore.appTitle) {
-    appSettingsStore.setAppTitle(trimmedTitle)
-  }
-  if (appSettingsForm.theme !== appSettingsStore.appTheme) {
-    appSettingsStore.setAppTheme(appSettingsForm.theme as AppTheme)
-  }
-  message.success(t('保存成功'))
 }
-
 const handleReset = async () => {
   try {
     await ElMessageBox.confirm(
@@ -160,8 +152,6 @@ const handleReset = async () => {
     return
   }
   appSettingsStore.resetAllSettings()
-  appSettingsForm.title = appSettingsStore.appTitle
-  appSettingsForm.theme = appSettingsStore.appTheme
   message.success(t('已恢复默认配置'))
 }
 </script>
