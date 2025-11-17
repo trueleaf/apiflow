@@ -202,7 +202,7 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, ref, Ref, onMounted, onUnmounted, watch } from 'vue'
+import { computed, ref, Ref, onMounted, onUnmounted, watch, nextTick } from 'vue'
 import { MoreFilled } from '@element-plus/icons-vue'
 import type { ApidocBanner } from '@src/types'
 import { router } from '@/router/index'
@@ -224,6 +224,7 @@ import { useApidocBaseInfo } from '@/store/share/baseInfoStore'
 import { useApidocBanner } from '@/store/share/bannerStore'
 import { useApidocTas } from '@/store/share/tabsStore'
 import { IPC_EVENTS } from '@src/types/ipc'
+import { getAllAncestorIds, findNodeById } from '@/helper'
 
 
 //搜索数据
@@ -599,6 +600,41 @@ const filterNode = (filterInfo: SearchData, data: Record<string, unknown>): bool
   showMoreNodeInfo.value = true;
   return (!!matchedUrl || !!matchedDocName) || !!matchedOthers;
 }
+/*
+|--------------------------------------------------------------------------
+| 文档定位功能
+|--------------------------------------------------------------------------
+*/
+//定位并高亮指定文档
+const locateAndHighlightDoc = async (docId: string) => {
+  if (!docTree.value) {
+    return;
+  }
+  const allAncestorIds = getAllAncestorIds(bannerData.value, docId, {
+    childrenKey: 'children',
+    idKey: '_id'
+  });
+  if (allAncestorIds.length === 0 && !findNodeById(bannerData.value, docId, { idKey: '_id' })) {
+    return;
+  }
+  apidocBannerStore.changeExpandItems(allAncestorIds);
+  await nextTick();
+  await nextTick();
+  const treeEl = (docTree.value as any)?.$el as HTMLElement;
+  if (treeEl) {
+    const targetEl = treeEl.querySelector(`[data-key="${docId}"]`) as HTMLElement;
+    if (targetEl) {
+      targetEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      const contentEl = targetEl.querySelector('.custom-tree-node');
+      if (contentEl) {
+        contentEl.classList.add('highlight-flash');
+        setTimeout(() => {
+          contentEl.classList.remove('highlight-flash');
+        }, 2000);
+      }
+    }
+  }
+}
 
 /*
 |--------------------------------------------------------------------------
@@ -646,13 +682,29 @@ watch(() => router.currentRoute.value.query.id, (newProjectId) => {
     getBannerData();
   }
 }, { immediate: false });
+//监听路由 docId 参数，定位文档
+watch(() => router.currentRoute.value.query.docId, async (newDocId) => {
+  if (newDocId && typeof newDocId === 'string') {
+    await nextTick();
+    setTimeout(() => {
+      locateAndHighlightDoc(newDocId);
+    }, 300);
+  }
+}, { immediate: false });
 //监听Mock状态变更
 const handleMockStatusChanged = (payload: any) => {
   apidocBannerStore.updateMockNodeState(payload);
 }
 
-onMounted(() => {
-  getBannerData();
+onMounted(async () => {
+  await getBannerData();
+  const docId = router.currentRoute.value.query.docId as string;
+  if (docId) {
+    await nextTick();
+    setTimeout(() => {
+      locateAndHighlightDoc(docId);
+    }, 500);
+  }
   document.documentElement.addEventListener('click', handleGlobalClick);
   document.addEventListener('keyup', handleNodeKeyUp);
   if (window.electronAPI?.ipcManager?.onMain) {
@@ -900,6 +952,18 @@ onUnmounted(() => {
     opacity: 0.6;
     transform: scale(1.1);
   }
+}
+//文档定位闪烁动画
+@keyframes highlight-flash {
+  0%, 100% {
+    background-color: transparent;
+  }
+  50% {
+    background-color: var(--theme-color-light, rgba(64, 158, 255, 0.15));
+  }
+}
+.highlight-flash {
+  animation: highlight-flash 0.6s ease-in-out 3;
 }
 
 .banner-popover {
