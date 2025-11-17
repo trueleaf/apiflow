@@ -265,7 +265,7 @@ export default {
   上下布局: 'Top-Bottom Layout',
   变量: 'Variables',
   联想值: 'Associated Values',
-  备注信息: 'Remark Information',
+  备注: 'Remark Information',
   未实现的返回类型: 'Unimplemented Return Type',
   变量维护: 'Variable Maintenance',
   联想参数: 'Associated Parameters',

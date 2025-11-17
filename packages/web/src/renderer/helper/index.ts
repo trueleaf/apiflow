@@ -2012,7 +2012,7 @@ requestBodyMode 和 contentType 必须配套设置,严格遵循以下映射规�
 示例:
 - 登录: "{\\"username\\": \\"admin\\", \\"password\\": \\"123456\\"}"
 - 创建用户: "{\\"name\\": \\"张三\\", \\"email\\": \\"zhangsan@example.com\\", \\"age\\": 25}"
-- 更新信息: "{\\"id\\": 1, \\"status\\": \\"active\\", \\"remark\\": \\"备注信息\\"}"
+- 更新信息: "{\\"id\\": 1, \\"status\\": \\"active\\", \\"remark\\": \\"备注\\"}"
 
 ### 6. requestBodyFormdata 格式
 仅当 requestBodyMode 为 "formdata" 时需要提供,用于表单数据和文件上传。

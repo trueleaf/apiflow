@@ -93,7 +93,7 @@ export type ApidocProperty<T extends HttpNodePropertyType = HttpNodePropertyType
    */
   required: boolean;
   /**
-   * 备注信息
+   * 备注
    */
   description: string;
   /**
@@ -369,7 +369,7 @@ export type ApidocASTInfo = {
    */
   comma: string;
   /**
-   * 备注信息
+   * 备注
    */
   description: string;
   /**

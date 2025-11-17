@@ -27,7 +27,7 @@ const verifyUrlValue = async (page: Page, expectedUrl: string): Promise<void> =>
 //切换到指定标签
 const switchToTab = async (
   page: Page,
-  tabName: 'Params' | 'Body' | 'Headers' | '返回参数' | '前置脚本' | '后置脚本' | '备注信息'
+  tabName: 'Params' | 'Body' | 'Headers' | '返回参数' | '前置脚本' | '后置脚本' | '备注'
 ): Promise<void> => {
   const targetName = tabName === 'Headers' ? '请求头' : tabName;
   const tab = page.locator(`.el-tabs__item:has-text("${targetName}")`);

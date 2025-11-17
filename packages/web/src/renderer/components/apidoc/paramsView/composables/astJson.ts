@@ -14,7 +14,7 @@ function generateAstInfo(): ApidocASTInfo {
     valueType: '', //值类型
     colon: '', //冒号
     comma: '', //逗号
-    description: '', //备注信息
+    description: '', //备注
     required: true, //是否必填
     leftCurlBrace: { //左花括号
       pairId: '', //与之相匹配的另一个括号id

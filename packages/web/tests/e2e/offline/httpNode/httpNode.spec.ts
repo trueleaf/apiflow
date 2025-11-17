@@ -29,7 +29,7 @@ test.describe('1. HTTP节点 - 基础功能测试', () => {
      *   - HTTP节点的主操作区域(.api-operation)可见
      *   - 核心按钮组可见：发送请求、保存接口、刷新
      *   - 辅助按钮组可见：撤销、重做
-     *   - 全部7个功能标签页tab可见：Params、Body、Headers、返回参数、前置脚本、后置脚本、备注信息
+     *   - 全部7个功能标签页tab可见：Params、Body、Headers、返回参数、前置脚本、后置脚本、备注
      *   - 默认Params标签页处于激活状态
      *   - Query参数区域可见（验证基础内容渲染正常）
      * 验证点：
@@ -89,7 +89,7 @@ test.describe('1. HTTP节点 - 基础功能测试', () => {
       await expect(preRequestTab).toBeVisible();
       const afterRequestTab = contentPage.locator('.el-tabs__item:has-text("后置脚本")').first();
       await expect(afterRequestTab).toBeVisible();
-      const remarksTab = contentPage.locator('.el-tabs__item:has-text("备注信息")').first();
+      const remarksTab = contentPage.locator('.el-tabs__item:has-text("备注")').first();
       await expect(remarksTab).toBeVisible();
       // 验证默认Params标签页处于激活状态
       const paramsActiveTab = contentPage.locator('.el-tabs__item.is-active:has-text("Params")').first();
@@ -110,7 +110,7 @@ test.describe('1. HTTP节点 - 基础功能测试', () => {
      *   5. 测试取消请求按钮（验证恢复为"发送请求"）
      *   6. 测试保存功能完整流程（保存后数据持久化）
      *   7. 测试刷新按钮可点击
-     *   8. 测试全部7个标签页切换功能（Params→Body→Headers→返回参数→前置脚本→后置脚本→备注信息→循环回Params）
+     *   8. 测试全部7个标签页切换功能（Params→Body→Headers→返回参数→前置脚本→后置脚本→备注→循环回Params）
      *   9. 验证每个标签页切换后激活状态正确
      *   10. 验证每个标签页内容区域正确显示关键元素
      * 预期结果：
@@ -313,13 +313,13 @@ test.describe('1. HTTP节点 - 基础功能测试', () => {
       const afterRequestEditor = contentPage.locator('.editor-wrap').first();
       await expect(afterRequestEditor).toBeVisible();
       
-      // 备注信息 标签页
-      const remarksTab = contentPage.locator('.el-tabs__item:has-text("备注信息")').first();
+      // 备注 标签页
+      const remarksTab = contentPage.locator('.el-tabs__item:has-text("备注")').first();
       await remarksTab.click();
       await contentPage.waitForTimeout(300);
-      const remarksActiveTab = contentPage.locator('.el-tabs__item.is-active:has-text("备注信息")').first();
+      const remarksActiveTab = contentPage.locator('.el-tabs__item.is-active:has-text("备注")').first();
       await expect(remarksActiveTab).toBeVisible();
-      const remarksTextarea = contentPage.locator('textarea[placeholder*="备注信息"]').first();
+      const remarksTextarea = contentPage.locator('textarea[placeholder*="备注"]').first();
       await expect(remarksTextarea).toBeVisible();
       
       // 再次切换回Params标签页，验证循环切换正常

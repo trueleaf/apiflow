@@ -1,7 +1,7 @@
 import { type Page } from '@playwright/test';
 import { test, initOfflineWorkbench, createProject, createSingleNode } from '../../../fixtures/fixtures';
 
-test.describe('7. HTTP节点 - 备注信息测试', () => {
+test.describe('7. HTTP节点 - 备注测试', () => {
   let headerPage: Page;
   let contentPage: Page;
 
@@ -22,7 +22,7 @@ test.describe('7. HTTP节点 - 备注信息测试', () => {
      * 测试目的：验证能够输入备注文本
      * 前置条件：已创建HTTP节点
      * 操作步骤：
-     *   1. 切换到备注信息标签页
+     *   1. 切换到备注标签页
      *   2. 在备注输入框中输入文本内容
      *   3. 失焦或等待自动保存
      *   4. 验证文本已保存
@@ -34,7 +34,7 @@ test.describe('7. HTTP节点 - 备注信息测试', () => {
      * 说明：TODO - 待实现具体测试代码
      */
     test('应能输入备注文本', async () => {
-      //TODO: 切换到备注信息标签
+      //TODO: 切换到备注标签
       //TODO: 输入备注文本
       //TODO: 验证文本保存
     });

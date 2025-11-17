@@ -69,7 +69,7 @@ const { t } = useI18n()
 
 const formInfo = ref({
   roleName: '', //-------------------角色名称
-  remark: '', //---------------------备注信息
+  remark: '', //---------------------备注
   clientBanner: [] as string[], //---菜单ids
   clientRoutes: [] as string[], //---已选前端路由
   serverRoutes: [] as string[], //---已选后端路由

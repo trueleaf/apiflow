@@ -217,6 +217,58 @@
   --shadow-card: 0 2px 12px 0 rgba(0, 0, 0, 0.3);
   --shadow-focus: 0 0 0 2px rgba(74, 158, 255, 0.15);
 
+  /* AI对话页面专用颜色 - 深色主题 */
+  --ai-dialog-bg: #1e1e1e;
+  --ai-dialog-border: #2d2d2d;
+  --ai-dialog-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  --ai-header-bg: #1e1e1e;
+  --ai-header-border: #2d2d2d;
+  --ai-separator-color: #2d2d2d;
+  --ai-text-primary: #9e9e9e;
+  --ai-text-secondary: #757575;
+  --ai-scrollbar-thumb: #3d3d3d;
+  --ai-scrollbar-hover: #4d4d4d;
+  --ai-avatar-bg: #3d3d3d;
+  --ai-bubble-user-bg: var(--theme-color);
+  --ai-bubble-user-text: #ffffff;
+  --ai-bubble-ai-bg: #2d2d2d;
+  --ai-bubble-ai-text: #e0e0e0;
+  --ai-loading-dot: #757575;
+  --ai-tool-border: #3d3d3d;
+  --ai-code-bg: rgba(255, 255, 255, 0.1);
+  --ai-code-block-bg: #1a1a1a;
+  --ai-code-block-text: #abb2bf;
+  --ai-blockquote-border: #3d3d3d;
+  --ai-blockquote-text: #9e9e9e;
+  --ai-table-border: #3d3d3d;
+  --ai-table-header-bg: #2d2d2d;
+  --ai-hr-border: #3d3d3d;
+  --ai-input-bg: #2d2d2d;
+  --ai-input-border: #3d3d3d;
+  --ai-input-hover-bg: rgba(255, 255, 255, 0.1);
+  --ai-button-bg: #2d2d2d;
+  --ai-button-border: #3d3d3d;
+  --ai-button-hover-bg: rgba(255, 255, 255, 0.1);
+  --ai-dropdown-bg: #2d2d2d;
+  --ai-dropdown-border: #3d3d3d;
+  --ai-dropdown-shadow: 0 12px 24px rgba(0, 0, 0, 0.45);
+  --ai-dropdown-item-hover: rgba(255, 255, 255, 0.08);
+  --ai-send-disabled-bg: #3d3d3d;
+  --ai-send-disabled-text: #757575;
+  --ai-resize-indicator-bg: rgba(74, 158, 255, 0.9);
+  --ai-resize-indicator-text: #ffffff;
+  --ai-action-hover-bg: #2d2d2d;
+  --ai-history-border: #3d3d3d;
+  --ai-history-item-bg: #1e1e1e;
+  --ai-history-item-hover-bg: #2d2d2d;
+  --ai-history-item-hover-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  --ai-history-item-current-bg: rgba(74, 158, 255, 0.1);
+  --ai-history-item-current-hover: rgba(74, 158, 255, 0.15);
+  --ai-history-badge-bg: var(--theme-color);
+  --ai-history-badge-text: #ffffff;
+  --ai-history-delete-hover-bg: rgba(220, 38, 38, 0.2);
+  --ai-history-delete-hover-text: #ef4444;
+
   /* Element Plus 完整主题变量 - 深色主题 */
   --el-bg-color: #1e1e1e;
   --el-bg-color-page: #141414;

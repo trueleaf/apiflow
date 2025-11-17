@@ -138,7 +138,7 @@
           <el-badge :is-dot="hasAfterRequest">{{ t("后置脚本") }}</el-badge>
         </template>
       </el-tab-pane>
-      <el-tab-pane :label="t('备注信息')" name="SRemarks"></el-tab-pane>
+      <el-tab-pane :label="t('备注')" name="SRemarks"></el-tab-pane>
     </el-tabs>
     <keep-alive>
       <component :is="getComponent()" class="workbench" @changeCommonHeaderSendStatus="freshHasHeaders"></component>

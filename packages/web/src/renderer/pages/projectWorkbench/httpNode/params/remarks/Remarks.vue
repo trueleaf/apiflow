@@ -8,7 +8,7 @@
       type="textarea"
       show-word-limit
       name="name"
-      :placeholder="t('在此处输入备注信息')"
+      :placeholder="t('在此处输入备注')"
       class="w-100"
       maxlength="1024"
       clearable
