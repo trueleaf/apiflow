@@ -2,6 +2,7 @@ import type { ApidocProperty } from '@src/types';
 import { openDB, type IDBPDatabase } from 'idb';
 import { config } from '@src/config/config';
 import { logger } from '@/helper';
+import { cacheKey } from '../cacheKey';
 
 export class CommonHeaderCache {
   private db: IDBPDatabase | null = null;
@@ -147,6 +148,62 @@ export class CommonHeaderCache {
 
     await tx.done;
     return true;
+  }
+  getIgnoredCommonHeaderByTabId(projectId: string, tabId: string): string[] {
+    try {
+      const localData = JSON.parse(localStorage.getItem(cacheKey.commonHeaders.ignore) || '{}') as Record<string, Record<string, string[]>>;
+      if (localData[projectId] == null) {
+        return [];
+      }
+      if (localData[projectId][tabId] == null) {
+        return [];
+      }
+      return localData[projectId][tabId];
+    } catch (error) {
+      logger.error('获取忽略公共请求头配置失败', { error });
+      return [];
+    }
+  }
+  setIgnoredCommonHeader(options: { projectId: string; tabId: string; ignoreHeaderId: string }) {
+    try {
+      const { projectId, tabId, ignoreHeaderId } = options;
+      const localData = JSON.parse(localStorage.getItem(cacheKey.commonHeaders.ignore) || '{}') as Record<string, Record<string, string[]>>;
+      if (localData[projectId] == null) {
+        localData[projectId] = {}
+      }
+      if (localData[projectId][tabId] == null) {
+        localData[projectId][tabId] = []
+      }
+      const matchedTab = localData[projectId][tabId];
+      matchedTab.push(ignoreHeaderId);
+      localStorage.setItem(cacheKey.commonHeaders.ignore, JSON.stringify(localData));
+    } catch (error) {
+      logger.error('设置忽略公共请求头失败', { error });
+      localStorage.setItem(cacheKey.commonHeaders.ignore, '{}');
+    }
+  }
+  deleteIgnoredCommonHeader(options: { projectId: string; tabId: string; ignoreHeaderId: string }): boolean {
+    try {
+      const { projectId, tabId, ignoreHeaderId } = options;
+      const localData = JSON.parse(localStorage.getItem(cacheKey.commonHeaders.ignore) || '{}') as Record<string, Record<string, string[]>>;
+      if (localData[projectId] == null) {
+        return false;
+      }
+      if (localData[projectId][tabId] == null) {
+        return false;
+      }
+      const matchedTab = localData[projectId][tabId];
+      const deleteIndex = matchedTab.findIndex(id => ignoreHeaderId === id);
+      if (deleteIndex !== -1) {
+        matchedTab.splice(deleteIndex, 1);
+        localStorage.setItem(cacheKey.commonHeaders.ignore, JSON.stringify(localData));
+      }
+      return true;
+    } catch (error) {
+      logger.error('删除忽略公共请求头失败', { error });
+      localStorage.setItem(cacheKey.commonHeaders.ignore, '{}');
+      return false;
+    }
   }
 }
 

@@ -55,10 +55,10 @@ export const cacheKey = {
   },
   websocketNode: {
     websocket: 'websocketNode/websocket',
-    commonHeaders: {
-      ignore: 'websocketNode/commonHeaders/ignore',
-    },
     config: 'websocketNode/config',
+  },
+  commonHeaders: {
+    ignore: 'commonHeaders/ignore',
   },
   httpNodeCache: {
     httpNode: 'httpNodeCache/httpNode',

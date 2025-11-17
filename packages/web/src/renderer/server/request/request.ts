@@ -12,7 +12,7 @@ import { useApidocResponse } from '@/store/apidoc/responseStore';
 import { useHttpNodeConfig } from '@/store/apidoc/httpNodeConfigStore';
 import { httpNodeCache } from '@/cache/httpNode/httpNodeCache';
 import { httpResponseCache } from '@/cache/httpNode/httpResponseCache';
-import { webSocketNodeCache } from '@/cache/websocketNode/websocketNodeCache';
+import { commonHeaderCache } from '@/cache/project/commonHeadersCache';
 import { config } from '@src/config/config';
 import { nanoid } from 'nanoid/non-secure';
 import { cloneDeep } from "lodash-es";
@@ -134,7 +134,7 @@ export const getWebSocketHeaders = async (websocketNode: WebSocketNode, defaultH
   }
 
   const defaultCommonHeaders = apidocBaseInfoStore.getCommonHeadersById(currentSelectTab?._id || "");
-  const ignoreHeaderIds = webSocketNodeCache.getWsIgnoredCommonHeaderByTabId?.(projectId, currentSelectTab?._id ?? "") || [];
+  const ignoreHeaderIds = commonHeaderCache.getIgnoredCommonHeaderByTabId(projectId, currentSelectTab?._id ?? "") || [];
   const commonHeaders = defaultCommonHeaders.filter(header => !ignoreHeaderIds.includes(header._id));
   const headers = websocketNode.item.headers;
   const headersObject: Record<string, string> = {};
@@ -355,7 +355,7 @@ const getHeaders = async (apidoc: HttpNode) => {
     return {}
   }
   const defaultCommonHeaders = apidocBaseInfoStore.getCommonHeadersById(currentSelectTab?._id || "");
-  const ignoreHeaderIds = webSocketNodeCache.getWsIgnoredCommonHeaderByTabId(projectId, currentSelectTab?._id ?? "") || [];
+  const ignoreHeaderIds = commonHeaderCache.getIgnoredCommonHeaderByTabId(projectId, currentSelectTab?._id ?? "") || [];
   const commonHeaders = defaultCommonHeaders.filter(header => !ignoreHeaderIds.includes(header._id));
   const headers = apidoc.item.headers;
   const headersObject: Record<string, string | null> = {};
@@ -491,7 +491,6 @@ export const sendRequest = async () => {
         delete finalSendHeaders.cookie;
       }
     }
-    console.log('finalSendHeaders', httpNodeConfigData.followRedirect);
     window.electronAPI?.sendRequest({
       url,
       method,
