@@ -1,6 +1,6 @@
 import { openDB, IDBPDatabase } from 'idb';
 import { HttpHistory } from '@src/types/history/httpHistory';
-import { HttpNode } from '@src/types/httpNode';
+import { HttpNode } from '@src/types/httpNode/httpNode';
 import { config } from '@src/config/config';
 import { nanoid } from 'nanoid/non-secure';
 import { logger } from '@/helper';

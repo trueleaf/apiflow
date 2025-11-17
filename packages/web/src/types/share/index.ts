@@ -2,7 +2,8 @@
 export * from './cache';
 export * from './request';
 export * from './tabs';
-import type { HttpNode, ApidocVariable } from '../httpNode';
+import type { HttpNode } from '../httpNode/httpNode';
+import type { ApidocVariable } from '../httpNode/types';
 // 本地分享数据类型
 export type LocalShareData = {
   projectInfo: {

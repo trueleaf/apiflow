@@ -477,7 +477,7 @@ export type ApidocOperationRecord = {
     /**
      * 节点快照
      */
-    nodeSnapshot?: import('./node').HttpNode['item'];
+    nodeSnapshot?: import('./httpNode').HttpNode['item'];
     /**
      * 拖拽到的节点id
      */

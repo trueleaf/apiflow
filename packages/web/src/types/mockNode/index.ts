@@ -6,7 +6,7 @@
 import { Method } from "got";
 import type http from 'http';
 import type Koa from 'koa';
-import { ApidocBaseInfo, ApidocProperty } from "../httpNode";
+import { ApidocBaseInfo, ApidocProperty } from "../httpNode/types";
 
 // Mock节点激活选项卡类型
 export type MockNodeActiveTabType = 'config' | 'logs';

@@ -4,7 +4,7 @@ import type {
   HttpRedoUnDoOperation
 } from "@src/types/redoUndo/httpRedoUndo";
 import type { ApidocProperty, HttpNodeRequestMethod } from "@src/types";
-import type { HttpNode } from "@src/types/httpNode";
+import type { HttpNode } from "@src/types/httpNode/httpNode";
 import { useApidoc } from "@/store/share/apidocStore";
 import { cloneDeep } from "lodash-es";
 import { httpRedoUndoCache } from "@/cache/redoUndo/httpRedoUndoCache";

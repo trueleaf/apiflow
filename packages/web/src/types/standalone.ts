@@ -1,5 +1,6 @@
 import type { ApidocProjectRules, ApidocProjectInfo } from "./project";
-import type { HttpNode, ApidocProperty } from "./httpNode";
+import type { HttpNode } from "./httpNode/httpNode";
+import type { ApidocProperty } from "./httpNode/types";
 
 export type Standalone = {
   /**

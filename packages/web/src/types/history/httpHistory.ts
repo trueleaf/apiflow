@@ -1,4 +1,4 @@
-import type { HttpNode } from '../httpNode';
+import type { HttpNode } from '../httpNode/httpNode';
 
 /**
  * HTTP历史记录数据类型
