@@ -48,8 +48,8 @@
           <ClRichInput
             v-model="text2"
             placeholder="最小高度60px，最大高度150px"
-            min-height="60px"
-            max-height="150px"
+            :min-height="60"
+            :max-height="150"
           />
         </div>
         <div class="output">
@@ -159,14 +159,14 @@
           <tr>
             <td><code>minHeight</code></td>
             <td>最小高度</td>
-            <td>string</td>
-            <td>'32px'</td>
+            <td>number</td>
+            <td>32</td>
           </tr>
           <tr>
             <td><code>maxHeight</code></td>
             <td>最大高度</td>
-            <td>string</td>
-            <td>'300px'</td>
+            <td>number</td>
+            <td>300</td>
           </tr>
           <tr>
             <td><code>class</code></td>

@@ -3,8 +3,8 @@ export type ClRichInputProps = {
   placeholder?: string
   disabled?: boolean
   readonly?: boolean
-  minHeight?: string
-  maxHeight?: string
+  minHeight?: number
+  maxHeight?: number
   class?: string
   expandOnFocus?: boolean
   trimOnPaste?: boolean

@@ -16,9 +16,9 @@
       :editor="editor"
       class="cl-rich-input__editor"
       :style="{
-        height: expandOnFocus && !isFocused ? minHeight + 1 : undefined,
-        minHeight: minHeight,
-        maxHeight: maxHeight
+        height: expandOnFocus && !isFocused ? `${minHeight + 1}px` : undefined,
+        minHeight: `${minHeight}px`,
+        maxHeight: `${maxHeight}px`
       }"
     />
     <Teleport to="body" v-if="variablePopover.visible && hasVariableSlot">
@@ -62,8 +62,8 @@ const props = withDefaults(defineProps<ClRichInputProps>(), {
   placeholder: '',
   disabled: false,
   readonly: false,
-  minHeight: '32px',
-  maxHeight: '300px',
+  minHeight: 32,
+  maxHeight: 300,
   class: '',
   expandOnFocus: false,
   trimOnPaste: false
@@ -151,7 +151,7 @@ const checkMultiline = () => {
   }
   const paragraphs = editorElement.querySelectorAll('p')
   const hasMultipleParagraphs = paragraphs.length > 1
-  const hasLineWrap = editorElement.scrollHeight > parseInt(props.minHeight)
+  const hasLineWrap = editorElement.scrollHeight > props.minHeight
   const isMultiline = hasMultipleParagraphs || hasLineWrap
   emits('multiline-change', isMultiline)
 }

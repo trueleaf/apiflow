@@ -1,44 +1,20 @@
 <template>
-  <el-tree
-    ref="treeRef"
-    :data="localData"
-    :indent="50"
-    node-key="_id"
-    :expand-on-click-node="false"
-    :draggable="enableDrag"
-    :allow-drop="handleAllowDrop"
-    :show-checkbox="showCheckbox"
-    :check-on-click-leaf="false"
-    :default-checked-keys="defaultCheckedKeys"
-    @node-drop="handleNodeDrop"
-    @check-change="handleCheckChange"
-  >
+  <el-tree ref="treeRef" :data="localData" :indent="50" node-key="_id" :expand-on-click-node="false"
+    :draggable="enableDrag" :allow-drop="handleAllowDrop" :show-checkbox="showCheckbox" :check-on-click-leaf="false"
+    :default-checked-keys="defaultCheckedKeys" @node-drop="handleNodeDrop" @check-change="handleCheckChange">
     <template #default="{ data }">
       <div class="custom-params">
-        <el-icon
-          class="delete-icon"
-          :class="{ disabled: localData.length <= 1 }"
-          :size="14"
-          :title="localData.length <= 1 ? t('至少保留一条数据') : t('删除')"
-          @click="() => handleDeleteRow(data)"
-        >
+        <el-icon class="delete-icon" :class="{ disabled: localData.length <= 1 }" :size="14"
+          :title="localData.length <= 1 ? t('至少保留一条数据') : t('删除')" @click="() => handleDeleteRow(data)">
           <Close />
         </el-icon>
         <div class="w-15 flex0 mr-2 d-flex a-center">
-          <el-autocomplete
-            v-if="props.mindKeyParams && props.mindKeyParams.length > 0"
-            :model-value="data.key"
-            :debounce="0"
-            :placeholder="t('输入参数名称自动换行')"
-            :fetch-suggestions="querySearchKey"
-            popper-class="params-tree-autocomplete"
-            @select="(item: any) => handleSelectKey(item, data)"
-            @update:modelValue="(v: string | number) => handleChangeKey(String(v), data)"
-            @focus="handleFocusKey()"
-            @blur="handleEnableDrag()"
-            @keydown="(e: any) => handleKeyDown(e, data)"
-                      @paste="(event: ClipboardEvent) => handlePasteKey(event, data)"
-          >
+          <el-autocomplete v-if="props.mindKeyParams && props.mindKeyParams.length > 0" :model-value="data.key"
+            :debounce="0" :placeholder="t('输入参数名称自动换行')" :fetch-suggestions="querySearchKey"
+            popper-class="params-tree-autocomplete" @select="(item: any) => handleSelectKey(item, data)"
+            @update:modelValue="(v: string | number) => handleChangeKey(String(v), data)" @focus="handleFocusKey()"
+            @blur="handleEnableDrag()" @keydown="(e: any) => handleKeyDown(e, data)"
+            @paste="(event: ClipboardEvent) => handlePasteKey(event, data)">
             <template #default="{ item }">
               <div class="autocomplete-item">
                 <div class="value" v-html="highlightText(item.key, currentKeyQuery)"></div>
@@ -46,52 +22,38 @@
               </div>
             </template>
           </el-autocomplete>
-          <el-input
-            v-else
-            :model-value="data.key"
-            :placeholder="t('输入参数名称自动换行')"
-            @update:modelValue="v => handleChangeKey(v, data)"
-            @focus="handleDisableDrag()"
-            @blur="handleEnableDrag()"
-            @paste="(event: ClipboardEvent) => handlePasteKey(event, data)"
-          >
+          <el-input v-else :model-value="data.key" :placeholder="t('输入参数名称自动换行')"
+            @update:modelValue="v => handleChangeKey(v, data)" @focus="handleDisableDrag()" @blur="handleEnableDrag()"
+            @paste="(event: ClipboardEvent) => handlePasteKey(event, data)">
           </el-input>
         </div>
-        <el-select
-          :model-value="data.type"
-          :placeholder="t('类型')"
-          class="w-15 flex0 mr-2"
-          :size="config.renderConfig.layout.size"
-          :disabled="!props.enableFile"
-          @update:modelValue="v => handleChangeType(v as 'string' | 'file', data)"
-        >
+        <el-select :model-value="data.type" :placeholder="t('类型')" class="w-15 flex0 mr-2"
+          :size="config.renderConfig.layout.size" :disabled="!props.enableFile"
+          @update:modelValue="v => handleChangeType(v as 'string' | 'file', data)">
           <el-option label="String" value="string"></el-option>
           <el-option v-if="props.enableFile" label="File" value="file"></el-option>
         </el-select>
         <!-- 参数值 string -->
-        <el-popover
-          v-if="data.type === 'string'"
-          :visible="data._id === currentOpData?._id && (data.value || '').includes('@')"
-          placement="top-start"
-          width="auto"
-        >
-          <SMock :search-value="data.value.split('@').pop() || ''" @close="handleCloseMock()" @select="v => handleSelectMockValue(v, data)"></SMock>
+        <el-popover v-if="data.type === 'string'"
+          :visible="data._id === currentOpData?._id && (data.value || '').includes('@')" placement="top-start"
+          width="auto">
+          <SMock :search-value="data.value.split('@').pop() || ''" @close="handleCloseMock()"
+            @select="v => handleSelectMockValue(v, data)"></SMock>
           <template #reference>
-            <div class="value-input-wrap w-25 mr-2" :class="{ 'is-multiline': multilineInputs[data._id], 'is-pinned': focusedInputId === data._id && multilineInputs[data._id] }">
-              <ClRichInput
+            <div class="value-input-wrap w-25 mr-2"
+              :class="{ 'is-multiline': multilineInputs[data._id], 'is-pinned': focusedInputId === data._id && multilineInputs[data._id] }">
+              <ClRichInput 
                 :model-value="data.value"
-                class="value-rich-input"
+                class="value-rich-input" 
                 :placeholder="t('参数值、@代表mock数据、{{ 变量 }}')"
-                min-height="28px"
-                max-height="280px"
-                :trim-on-paste="true"
+                :min-height="28" 
+                :max-height="280" 
+                :trim-on-paste="true" 
                 :expand-on-focus="true"
-                @update:modelValue="v => handleChangeValue(v, data)"
-                @focus="handleFocusValue(data)"
+                @update:modelValue="v => handleChangeValue(v, data)" @focus="handleFocusValue(data)"
                 @blur="handleBlurValueAndEnableDrag()"
                 @multiline-change="(isMultiline: boolean) => handleMultilineChange(data._id, isMultiline)"
-                @paste="handleRichInputPaste()"
-              >
+                @paste="handleRichInputPaste()">
                 <template #variable="{ label }">
                   <div class="params-variable-token">{{ label }}</div>
                 </template>
@@ -100,28 +62,19 @@
           </template>
         </el-popover>
         <!-- 参数值 File -->
-        <div
-          v-if="data.type === 'file'"
-          class="w-25 mr-2"
+        <div v-if="data.type === 'file'" class="w-25 mr-2"
           :class="{ active: data.value, 'no-border': (data.fileValueType === 'var' || data.fileValueType === 'file') }"
-          @mouseenter="handleDisableDrag()"
-          @mouseleave="handleEnableDrag()"
-        >
+          @mouseenter="handleDisableDrag()" @mouseleave="handleEnableDrag()">
           <div class="file-input-wrap">
             <div v-if="data.fileValueType !== 'file' && data.fileValueType !== 'var'" class="mode-list">
               <span class="var-mode" @click="() => data.fileValueType = 'var'">{{ t('变量模式') }}</span>
               <span class="px-3"></span>
               <span class="file-mode" @click="() => data.fileValueType = 'file'">{{ t('文件模式') }}</span>
             </div>
-            <el-input
-              v-if="data.fileValueType === 'var'"
-              :model-value="data.value"
-              class="w-100"
+            <el-input v-if="data.fileValueType === 'var'" :model-value="data.value" class="w-100"
               :placeholder="t('变量模式') + ' eg: ' + t('{0} fileValue {1}', ['{{', '}}'])"
-              @update:modelValue="v => handleChangeValue(v, data)"
-              @blur="handleBlurValue()"
-              @paste="(event: ClipboardEvent) => handlePasteValueInput(event, data)"
-            >
+              @update:modelValue="v => handleChangeValue(v, data)" @blur="handleBlurValue()"
+              @paste="(event: ClipboardEvent) => handlePasteValueInput(event, data)">
             </el-input>
             <div v-if="data.fileValueType === 'file'" class="file-mode-wrap">
               <label v-show="!data.value" :for="data._id" class="label">{{ t('选择文件') }}</label>
@@ -130,43 +83,26 @@
                 <close />
               </el-icon>
             </div>
-            <div
-              v-if="data.fileValueType === 'file' || data.fileValueType === 'var'"
-              :title="t('切换变量选择模式，支持变量或者直接选择文件')"
-              class="toggle-mode"
-              @click="handleToggleFileValueType(data)"
-            >
-              <el-icon><Switch /></el-icon>
+            <div v-if="data.fileValueType === 'file' || data.fileValueType === 'var'"
+              :title="t('切换变量选择模式，支持变量或者直接选择文件')" class="toggle-mode" @click="handleToggleFileValueType(data)">
+              <el-icon>
+                <Switch />
+              </el-icon>
             </div>
-            <input
-              :id="data._id"
-              ref="fileInput"
-              class="d-none"
-              type="file"
-              @change="e => handleSelectFile(e, data)"
-            >
+            <input :id="data._id" ref="fileInput" class="d-none" type="file" @change="e => handleSelectFile(e, data)">
             </input>
           </div>
           <div v-if="data._error" class="file-error">{{ data._error }}</div>
         </div>
-        <el-checkbox
-          :model-value="data.required"
-          :label="t('必有')"
-          class="pr-2"
-          @update:modelValue="v => handleChangeRequired(v as unknown as boolean, data)"
-        >
+        <el-checkbox :model-value="data.required" :label="t('必有')" class="pr-2"
+          @update:modelValue="v => handleChangeRequired(v as unknown as boolean, data)">
         </el-checkbox>
-        <el-input
-          :model-value="data.description"
-          class="w-40"
+        <el-input :model-value="data.description" class="w-40"
           :type="expandedInputs[data._id]?.description ? 'textarea' : 'text'"
           :autosize="expandedInputs[data._id]?.description ? { minRows: 2, maxRows: 6 } : undefined"
-          :placeholder="t('参数描述与备注')"
-          @focus="handleFocusDescription(data)"
-          @blur="handleEnableDrag()"
+          :placeholder="t('参数描述与备注')" @focus="handleFocusDescription(data)" @blur="handleEnableDrag()"
           @update:modelValue="v => handleChangeDescription(v, data)"
-          @paste="(event: ClipboardEvent) => handlePasteDescription(event, data)"
-        >
+          @paste="(event: ClipboardEvent) => handlePasteDescription(event, data)">
         </el-input>
       </div>
     </template>
@@ -503,8 +439,8 @@ const handleTabComplete = (data: ApidocProperty<'string' | 'file'>) => {
   if (currentSuggestions.value.length === 0) {
     return;
   }
-  const targetIndex = highlightedIndex.value >= 0 && highlightedIndex.value < currentSuggestions.value.length 
-    ? highlightedIndex.value 
+  const targetIndex = highlightedIndex.value >= 0 && highlightedIndex.value < currentSuggestions.value.length
+    ? highlightedIndex.value
     : 0;
   const selectedItem = currentSuggestions.value[targetIndex];
   if (selectedItem) {
@@ -525,14 +461,14 @@ const handleKeyDown = (e: KeyboardEvent, data: ApidocProperty<'string' | 'file'>
     }
   } else if (e.key === 'ArrowUp') {
     if (currentSuggestions.value.length > 0) {
-      highlightedIndex.value = highlightedIndex.value <= 0 
-        ? currentSuggestions.value.length - 1 
+      highlightedIndex.value = highlightedIndex.value <= 0
+        ? currentSuggestions.value.length - 1
         : highlightedIndex.value - 1;
     }
   } else if (e.key === 'ArrowDown') {
     if (currentSuggestions.value.length > 0) {
-      highlightedIndex.value = highlightedIndex.value >= currentSuggestions.value.length - 1 
-        ? 0 
+      highlightedIndex.value = highlightedIndex.value >= currentSuggestions.value.length - 1
+        ? 0
         : highlightedIndex.value + 1;
     }
   } else if (e.key !== 'Enter') {
@@ -546,22 +482,25 @@ const handleKeyDown = (e: KeyboardEvent, data: ApidocProperty<'string' | 'file'>
   width: 100%;
   display: flex;
   align-items: center;
-  
+
   :deep(.el-input__wrapper) {
     box-shadow: none;
     font-size: 12px;
     border-bottom: 1px solid var(--gray-400);
     border-radius: 0;
+
     .el-input__inner {
       height: 28px;
       line-height: 28px;
     }
   }
+
   :deep(.el-select__wrapper) {
     height: 28px;
     min-height: 28px;
     line-height: 28px;
   }
+
   :deep(.el-autocomplete) {
     width: 100%;
   }
@@ -572,15 +511,17 @@ const handleKeyDown = (e: KeyboardEvent, data: ApidocProperty<'string' | 'file'>
     align-items: center;
     margin-right: 10px;
     cursor: pointer;
+
     &.disabled {
       opacity: 0.4;
       cursor: not-allowed;
     }
   }
+
   .value-input-wrap {
     position: relative;
     height: 28px;
-    
+
     &.is-multiline {
       .value-rich-input :deep(.cl-rich-input__editor) {
         border: 1px solid var(--gray-400);
@@ -589,46 +530,47 @@ const handleKeyDown = (e: KeyboardEvent, data: ApidocProperty<'string' | 'file'>
         border-radius: 4px;
       }
     }
-    
+
     &.is-pinned {
       z-index: var(--cl-rich-input-pinned-z-index);
     }
-    
+
     .value-rich-input {
       width: 100%;
       height: 100%;
-      
+
       :deep(.cl-rich-input__editor) {
         padding: 0px 10px;
         border-bottom: 1px solid var(--gray-400);
         min-height: 28px;
         line-height: 18px;
-        
+
         .ProseMirror {
           font-size: 12px;
           line-height: 18px;
           color: var(--el-input-text-color, var(--el-text-color-regular));
-          
+
           p {
             line-height: 28px;
           }
-         
+
           p.is-editor-empty:first-child::before {
             color: var(--gray-400);
           }
         }
       }
-      
+
       :deep(.cl-rich-input__editor::-webkit-scrollbar) {
         width: 3px;
         height: 3px;
       }
-      
+
       :deep(.cl-rich-input__editor::-webkit-scrollbar-thumb) {
         background: var(--gray-500);
       }
     }
   }
+
   .file-input-wrap {
     box-sizing: content-box;
     cursor: default;
@@ -638,19 +580,23 @@ const handleKeyDown = (e: KeyboardEvent, data: ApidocProperty<'string' | 'file'>
     height: 28px;
     position: relative;
     font-size: 13px;
+
     :deep(.el-input__wrapper) {
       box-shadow: none;
       border-bottom: none;
       height: 28px;
     }
+
     &.active {
       background: none;
       border: 1px solid var(--border-base);
       cursor: auto;
     }
+
     &.no-border {
       border: none;
     }
+
     .mode-list {
       width: 100%;
       height: 100%;
@@ -659,12 +605,16 @@ const handleKeyDown = (e: KeyboardEvent, data: ApidocProperty<'string' | 'file'>
       justify-content: center;
 
     }
-    .var-mode,.file-mode {
+
+    .var-mode,
+    .file-mode {
       cursor: pointer;
+
       &:hover {
         color: var(--theme-color);
       }
     }
+
     .file-mode-wrap {
       .label {
         width: 100%;
@@ -675,6 +625,7 @@ const handleKeyDown = (e: KeyboardEvent, data: ApidocProperty<'string' | 'file'>
         background-color: var(--bg-secondary);
         cursor: pointer;
       }
+
       .close {
         position: absolute;
         right: 3px;
@@ -682,23 +633,27 @@ const handleKeyDown = (e: KeyboardEvent, data: ApidocProperty<'string' | 'file'>
         transform: translateY(-50%);
         font-size: 16px;
         cursor: pointer;
+
         &:hover {
           color: var(--red);
         }
       }
     }
+
     .toggle-mode {
       flex: 0 0 20px;
       height: 100%;
       display: flex;
       align-items: center;
       justify-content: center;
+
       &:hover {
         cursor: pointer;
         color: var(--theme-color);
       }
     }
   }
+
   .params-variable-token {
     font-size: 13px;
     font-weight: 600;
@@ -706,21 +661,45 @@ const handleKeyDown = (e: KeyboardEvent, data: ApidocProperty<'string' | 'file'>
     word-break: break-all;
   }
 }
-
 </style>
 <style lang='scss'>
+.el-tree-node:focus>.el-tree-node__content {
+  background: none;
+}
+
+.el-tree-node__content {
+  height: 50px;
+
+  &:hover {
+    background: var(--gray-200);
+  }
+}
+
+.el-tree__drop-indicator {
+  height: 3px;
+}
+
+// 禁用动画提高性能
+.el-collapse-transition-enter-active,
+.el-collapse-transition-leave-active {
+  transition: none !important;
+}
+
 .params-tree-autocomplete {
   width: 500px;
+
   .autocomplete-item {
     display: flex;
     align-items: center;
     justify-content: space-between;
+
     .value {
       flex: 0 0 150px;
       font-size: 13px;
       color: var(--color-text-1);
       font-weight: 500;
     }
+
     .description {
       // flex: 1;
       font-size: 12px;
@@ -730,6 +709,7 @@ const handleKeyDown = (e: KeyboardEvent, data: ApidocProperty<'string' | 'file'>
       white-space: nowrap;
     }
   }
+
   .highlight {
     color: var(--theme-color);
     font-weight: 600;
