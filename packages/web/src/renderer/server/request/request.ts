@@ -9,6 +9,7 @@ import { GotRequestOptions, JsonData, RedirectOptions, ResponseInfo } from '@src
 import { useApidocBaseInfo } from '@/store/apidoc/baseInfoStore';
 import { useApidocTas } from '@/store/apidoc/tabsStore';
 import { useApidocResponse } from '@/store/apidoc/responseStore';
+import { useHttpNodeConfig } from '@/store/apidoc/httpNodeConfigStore';
 import { httpNodeCache } from '@/cache/httpNode/httpNodeCache';
 import { httpResponseCache } from '@/cache/httpNode/httpResponseCache';
 import { webSocketNodeCache } from '@/cache/websocketNode/websocketNodeCache';
@@ -473,7 +474,8 @@ export const sendRequest = async () => {
   let finalSendHeaders = preSendHeaders;
 
   let finalCookies = objCookies;
-  const httpNodeConfigData = httpNodeStore.httpNodeConfig;
+  const httpNodeConfigStore = useHttpNodeConfig();
+  const httpNodeConfigData = httpNodeConfigStore.currentConfig;
   //实际发送请求
   const invokeRequest = async () => {
     const method = getMethod(copiedApidoc);
@@ -489,6 +491,7 @@ export const sendRequest = async () => {
         delete finalSendHeaders.cookie;
       }
     }
+    console.log('finalSendHeaders', httpNodeConfigData.followRedirect);
     window.electronAPI?.sendRequest({
       url,
       method,

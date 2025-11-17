@@ -65,6 +65,18 @@
   --bg-scrollbar: #3e3e3e;
   --bg-scrollbar-thumb: #6e6e6e;
 
+  /* Project Nav 组件专属变量 - 深色主题 (参考VSCode) */
+  --project-nav-bg: #252526;
+  --project-nav-text: #969696;
+  --project-nav-item-bg: #2d2d2d;
+  --project-nav-item-hover-bg: #2a2d2e;
+  --project-nav-item-active-bg: #1e1e1e;
+  --project-nav-icon-color: #cccccc;
+  --project-nav-close-hover-bg: #3e3e3e;
+  --project-nav-dot-bg: #4ec9b0;
+  --project-nav-add-hover-bg: #3e3e3e;
+  --project-nav-border: #3e3e3e;
+
   /* 语义化文字色系统 - 深色主题 */
   --text-primary: #cccccc;
   --text-secondary: #9d9d9d;

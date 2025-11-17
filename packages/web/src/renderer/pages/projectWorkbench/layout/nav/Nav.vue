@@ -422,7 +422,7 @@ onUnmounted(() => {
 .nav {
   width: 100%;
   height: 40px;
-  background: var(--bg-secondary);
+  background: var(--project-nav-bg);
   display: flex;
 
   // tab包裹框
@@ -458,7 +458,7 @@ onUnmounted(() => {
     line-height: 40px;
     display: flex;
     height: 40px;
-    color: var(--text-secondary);
+    color: var(--project-nav-text);
     white-space: nowrap;
     transition: left .1s;
     overflow-x: auto;
@@ -489,8 +489,8 @@ onUnmounted(() => {
       width: 200px;
       cursor: default;
       padding: 0 10px;
-      border-right: 1px solid var(--border-base);
-      background: var(--bg-hover);
+      border-right: 1px solid var(--project-nav-border);
+      background: var(--project-nav-item-bg);
 
       .item-text {
         display: inline-block;
@@ -508,7 +508,7 @@ onUnmounted(() => {
       }
 
       &:hover {
-        background: var(--bg-active);
+        background: var(--project-nav-item-hover-bg);
       }
 
       .iconfont {
@@ -528,7 +528,7 @@ onUnmounted(() => {
 
 
       &.active {
-        background: var(--bg-primary);
+        background: var(--project-nav-item-active-bg);
       }
     }
 
@@ -564,7 +564,7 @@ onUnmounted(() => {
         font-size: 16px;
 
         &:hover {
-          background: var(--bg-hover);
+          background: var(--project-nav-close-hover-bg);
         }
       }
 
@@ -585,7 +585,7 @@ onUnmounted(() => {
           width: 10px;
           height: 10px;
           border-radius: 50%;
-          background: var(--success-color);
+          background: var(--project-nav-dot-bg);
         }
       }
     }
@@ -603,10 +603,10 @@ onUnmounted(() => {
       height: 30px;
       transition: background .3s;
       border-radius: 50%;
-      color: var(--text-primary);
+      color: var(--project-nav-icon-color);
 
       &:hover {
-        background-color: var(--bg-hover);
+        background-color: var(--project-nav-add-hover-bg);
       }
     }
   }
@@ -616,7 +616,7 @@ onUnmounted(() => {
     bottom: 0;
   }
   .ip-address {
-    border-left: 1px solid var(--border-base);
+    border-left: 1px solid var(--project-nav-border);
   }
 }
 </style>

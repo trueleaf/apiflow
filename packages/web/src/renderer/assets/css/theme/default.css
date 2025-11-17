@@ -83,6 +83,18 @@
   --bg-scrollbar: #797e9d;
   --bg-scrollbar-thumb: #6c757d;
 
+  /* Project Nav 组件专属变量 */
+  --project-nav-bg: #eee;
+  --project-nav-text: #5f6368;
+  --project-nav-item-bg: rgb(222, 225, 230);
+  --project-nav-item-hover-bg: #e2e2e2;
+  --project-nav-item-active-bg: #f0f3fa;
+  --project-nav-icon-color: #333;
+  --project-nav-close-hover-bg: #ccc;
+  --project-nav-dot-bg: #36cea1;
+  --project-nav-add-hover-bg: var(--gray-400);
+  --project-nav-border: #d0d0d0;
+
   /* 语义化文字色系统 */
   --text-primary: #212529;
   --text-secondary: #6c757d;

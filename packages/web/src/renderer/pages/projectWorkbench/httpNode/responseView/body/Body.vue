@@ -10,10 +10,22 @@
       </div>
       <span class="">数据无法被缓存，切换tab或者刷新页面缓存值将会清空</span>
     </div>
-    <div v-if="redirectList.length > 0" class="mb-1 ml-5">
-      <span>{{ t('重定向') }}</span>
-      <span class="orange px-1 text-underline cursor-pointer" @click="showRedirectDialog = true">{{ redirectList.length }}</span>
-      <span>{{ t('次') }}</span>
+    <div v-if="redirectList.length > 0" class="mb-1 ml-5 redirect-control">
+      <div class="redirect-info">
+        <span>{{ t('重定向') }}</span>
+        <span class="orange px-1 text-underline cursor-pointer" @click="showRedirectDialog = true">{{ redirectList.length }}</span>
+        <span>{{ t('次') }}</span>
+      </div>
+      <div class="redirect-toggle">
+        <el-switch
+          :model-value="httpNodeConfigStore.currentConfig.followRedirect"
+          size="small"
+          @change="handleToggleRedirect"
+        />
+        <span class="toggle-label" :class="{ warning: !httpNodeConfigStore.currentConfig.followRedirect }">
+          {{ httpNodeConfigStore.currentConfig.followRedirect ? t('自动重定向已启用') : t('自动重定向已禁用') }}
+        </span>
+      </div>
     </div>
     <el-dialog
       v-model="showRedirectDialog"
@@ -297,6 +309,7 @@ import { computed, onMounted, onUnmounted, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n'
 import { downloadStringAsText } from '@/helper'
 import { formatHeader, formatUnit } from '@/helper'
+import { config } from '@src/config/config'
 import SJsonEditor from '@/components/common/jsonEditor/ClJsonEditor.vue'
 import SSseView from '@/components/common/sseView/ClSseView.vue'
 import { useApidocTas } from '@/store/apidoc/tabsStore';
@@ -488,6 +501,11 @@ watch(() => [
   }
   scheduleWorkerFormat(payload);
 });
+//切换重定向开关
+const handleToggleRedirect = (value: string | number | boolean) => {
+  const projectId = apidocBaseInfoStore.projectId;
+  httpNodeConfigStore.setHttpNodeConfig(projectId, { followRedirect: Boolean(value) });
+}
 //下载文件
 const handleDownload = () => {
   const { fileData } = apidocResponseStore.responseInfo.responseData;
@@ -676,6 +694,32 @@ onUnmounted(() => {
   border-bottom: none;
   margin-bottom: 0;
   padding-bottom: 0;
+}
+.redirect-control {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+  .redirect-info {
+    display: flex;
+    align-items: center;
+  }
+  .redirect-toggle {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    .toggle-label {
+      font-size: 13px;
+      color: var(--text-primary);
+      &.warning {
+        color: var(--color-warning);
+      }
+    }
+    .toggle-tip {
+      font-size: 12px;
+      color: var(--text-secondary);
+    }
+  }
 }
 
 .download-icon {
