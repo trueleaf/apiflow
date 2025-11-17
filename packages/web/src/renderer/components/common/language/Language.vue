@@ -93,12 +93,12 @@ const handleClose = () => {
 
 <style scoped>
 .language-dropdown-menu {
-  background: var(--white);
-  border: 1px solid #e1e4e8;
+  background: var(--bg-primary);
+  border: 1px solid var(--border-gray-400);
   border-radius: 8px;
-  box-shadow: 
-    0 8px 24px rgba(140, 149, 159, 0.2),
-    0 0 1px rgba(140, 149, 159, 0.05);
+  box-shadow:
+    0 8px 24px var(--shadow-xl),
+    0 0 1px var(--shadow-sm);
   min-width: 160px;
   padding: 6px 0;
   font-size: 13px;
@@ -112,19 +112,19 @@ const handleClose = () => {
   align-items: center;
   padding: 10px 16px;
   cursor: pointer;
-  color: #24292f;
+  color: var(--text-primary);
   position: relative;
   margin: 0 4px;
   border-radius: 4px;
 }
 
 .language-menu-item:hover {
-  background-color: #f6f8fa;
+  background-color: var(--bg-gray-100);
 }
 
 .language-menu-item.active {
-  background-color: #dbeafe;
-  color: #1e40af;
+  background-color: var(--blue-200);
+  color: var(--blue-600);
   font-weight: 500;
 }
 
@@ -136,12 +136,12 @@ const handleClose = () => {
   transform: translateY(-50%);
   width: 3px;
   height: 16px;
-  background-color: #3b82f6;
+  background-color: var(--blue-400);
   border-radius: 2px;
 }
 
 .language-menu-item.active:hover {
-  background-color: #bfdbfe;
+  background-color: var(--blue-300);
 }
 
 .language-flag {
@@ -160,7 +160,7 @@ const handleClose = () => {
 
 .language-check {
   font-size: 12px;
-  color: #3b82f6;
+  color: var(--blue-400);
   font-weight: 600;
   margin-left: 8px;
 }

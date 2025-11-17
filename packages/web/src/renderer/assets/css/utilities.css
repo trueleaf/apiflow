@@ -42,7 +42,7 @@
 
 /* 阴影工具类 */
 .box-shadow {
-  box-shadow: rgba(0, 0, 0, 0.1) 0px 0px 8px 0px;
+  box-shadow: var(--shadow-md) 0px 0px 8px 0px;
 }
 
 /* 间距工具类 */

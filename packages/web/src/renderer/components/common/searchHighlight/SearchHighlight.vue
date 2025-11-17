@@ -38,7 +38,7 @@ const highlightedParts = computed(() => {
 <style lang='scss' scoped>
 .search-highlight {
   .highlight-text {
-    background-color: #fff3cd;
+    background-color: var(--color-highlight-yellow);
     padding: 2px 4px;
     border-radius: 2px;
     font-weight: 500;

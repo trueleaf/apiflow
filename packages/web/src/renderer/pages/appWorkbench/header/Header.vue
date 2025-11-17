@@ -76,6 +76,7 @@ import type { AnchorRect } from '@src/types/common'
 import { IPC_EVENTS } from '@src/types/ipc'
 import { changeLanguage } from '@/i18n'
 import { useAppSettings } from '@/store/appSettings/appSettingsStore'
+import { useTheme } from '@/hooks/useTheme'
 
 const appSettingsStore = useAppSettings()
 const tabs = ref<HeaderTab[]>([])
@@ -347,6 +348,8 @@ const bindEvent = () => {
 
   window.electronAPI?.ipcManager.onMain(IPC_EVENTS.apiflow.topBarToContent.appSettingsChanged, () => {
     appSettingsStore.refreshSettings()
+    const { applyTheme } = useTheme()
+    applyTheme(appSettingsStore.appTheme)
   });
 }
 
@@ -380,11 +383,6 @@ watch(() => networkMode.value, (mode, prevMode) => {
 <style lang="scss">
 :root {
   --apiflow-header-height: 35px;
-  --white: #fff;
-  --tab-bg: rgba(255, 255, 255, 0.08);
-  --tab-active-bg: rgba(255, 255, 255, 0.40);
-  --tab-hover-bg: rgba(255, 255, 255, 0.15);
-  --tab-border: rgba(255, 255, 255, 0.1);
 }
 
 * {
@@ -404,10 +402,10 @@ body {
   height: var(--apiflow-header-height);
   display: flex;
   align-items: center;
-  background: linear-gradient(to right, #2c3e50, #3a4a5f);
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  background: linear-gradient(to right, var(--color-header-bg-start), var(--color-header-bg-end));
+  box-shadow: 0 1px 3px var(--shadow-md);
   -webkit-app-region: drag;
-  color: var(--white);
+  color: var(--text-white);
   padding: 0 0 0 20px;
   // justify-content: space-between;
 }
@@ -442,12 +440,12 @@ body {
     margin-right: 3px;
   }
   &.active {
-    color: #fff;
-    background-color: rgba(255, 255, 255, 0.35);
+    color: var(--text-white);
+    background-color: var(--bg-white-40);
   }
   &:hover:not(.active) {
-    color: #fff;
-    background-color: rgba(255, 255, 255, 0.1);
+    color: var(--text-white);
+    background-color: var(--bg-white-10);
   }
 }
 .divider {
@@ -459,7 +457,7 @@ body {
   .divider-content {
     width: 1px;
     height: 70%;
-    background-color: rgba(255, 255, 255, 0.15);
+    background-color: var(--bg-white-15);
   }
 }
 .tabs {
@@ -547,16 +545,16 @@ body {
 }
 
 .tab-item:hover:not(.active) {
-  background: var(--tab-hover-bg);
+  background: var(--bg-white-15);
 }
 
 .tab-item.active {
-  color: #fff;
-  background-color: rgba(255, 255, 255, 0.35);
+  color: var(--text-white);
+  background-color: var(--bg-white-40);
 }
 
 .tab-item .close-btn:hover {
-  background: rgba(255, 255, 255, 0.1);
+  background: var(--bg-white-10);
   opacity: 1;
 }
 
@@ -566,7 +564,7 @@ body {
   height: 24px;
   border: none;
   background: transparent;
-  color: var(--white);
+  color: var(--text-white);
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -584,7 +582,7 @@ body {
 }
 
 .add-tab-btn:hover {
-  background: var(--tab-hover-bg);
+  background: var(--bg-white-15);
   border-radius: 3px;
 }
 
@@ -593,7 +591,7 @@ body {
   height: 24px;
   border: none;
   background: transparent;
-  color: var(--white);
+  color: var(--text-white);
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -612,7 +610,7 @@ body {
 }
 
 .ai-trigger-btn:hover {
-  background: var(--tab-hover-bg);
+  background: var(--bg-white-15);
 }
 
 .right {
@@ -627,7 +625,7 @@ body {
   display: flex;
   align-items: center;
   margin-right: 8px;
-  border-right: 1px solid rgba(255, 255, 255, 0.15);
+  border-right: 1px solid var(--bg-white-15);
   padding-right: 8px;
   -webkit-app-region: no-drag;
 
@@ -645,7 +643,7 @@ body {
     margin: 0 1px;
     font-style: normal;
     &:hover {
-      background-color: rgba(255, 255, 255, 0.1);
+      background-color: var(--bg-white-10);
     }
   }
   .network-btn {
@@ -678,13 +676,13 @@ body {
   border-radius: 3px;
   margin: 0 1px;
   font-size: 11px;
-  color: var(--white);
+  color: var(--text-white);
 }
 
 
 
 .language-btn:hover {
-  background-color: rgba(255, 255, 255, 0.1);
+  background-color: var(--bg-white-10);
 }
 
 .language-btn .iconfont {
@@ -717,7 +715,7 @@ body {
 }
 
 .window-control i:hover {
-  background-color: rgba(255, 255, 255, 0.1);
+  background-color: var(--bg-white-10);
 }
 
 .window-control .close:hover {

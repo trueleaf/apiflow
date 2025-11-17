@@ -12,14 +12,14 @@
   
   /* 卡片模式 - 参考图片风格 */
   --clean-tabs-card-bg: oklch(0.97 0 0);
-  --clean-tabs-card-active-bg: #ffffff;
+  --clean-tabs-card-active-bg: var(--bg-primary);
   --clean-tabs-card-border: transparent;
-  --clean-tabs-card-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
-  --clean-tabs-card-hover-shadow: 0 2px 8px 0 rgba(0, 0, 0, 0.12);
-  
+  --clean-tabs-card-shadow: 0 1px 3px 0 var(--color-tabs-shadow);
+  --clean-tabs-card-hover-shadow: 0 2px 8px 0 var(--color-tabs-shadow);
+
   /* 焦点状态 - 无障碍优化 */
-  --clean-tabs-focus-ring: 0 0 0 2px rgba(0, 0, 0, 0.1);
-  --clean-tabs-focus-border: #333;
+  --clean-tabs-focus-ring: 0 0 0 2px var(--color-focus-ring);
+  --clean-tabs-focus-border: var(--text-gray-900);
   
   /* 动画 - 参考图片流畅过渡 */
   --clean-tabs-transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
@@ -42,14 +42,14 @@
   --clean-tabs-text-active: #ffffff;
   --clean-tabs-text-hover: #f5f5f5;
   
-  --clean-tabs-card-bg: #1e293b;
-  --clean-tabs-card-active-bg: #0f172a;
+  --clean-tabs-card-bg: var(--bg-secondary);
+  --clean-tabs-card-active-bg: var(--bg-tertiary);
   --clean-tabs-card-border: transparent;
-  --clean-tabs-card-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.3), 0 1px 3px 0 rgba(0, 0, 0, 0.4);
-  --clean-tabs-card-hover-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.4), 0 2px 4px -1px rgba(0, 0, 0, 0.3);
-  
-  --clean-tabs-focus-ring: 0 0 0 2px rgba(96, 165, 250, 0.3);
-  --clean-tabs-focus-border: #60a5fa;
+  --clean-tabs-card-shadow: 0 1px 2px 0 var(--shadow-xl), 0 1px 3px 0 var(--shadow-2xl);
+  --clean-tabs-card-hover-shadow: 0 4px 6px -1px var(--shadow-2xl), 0 2px 4px -1px var(--shadow-xl);
+
+  --clean-tabs-focus-ring: 0 0 0 2px var(--color-focus-ring);
+  --clean-tabs-focus-border: var(--blue-600);
 }
 
 /* 主容器 */
@@ -103,7 +103,7 @@
 
 .clean-tabs__item:hover {
   color: var(--clean-tabs-text-hover);
-  background: rgba(0, 0, 0, 0.03);
+  background: var(--shadow-xs);
 }
 
 .clean-tabs__item.is-active {
@@ -113,7 +113,7 @@
 }
 
 [data-theme="dark"] .clean-tabs__item:hover {
-  background: rgba(255, 255, 255, 0.05);
+  background: var(--bg-white-5);
 }
 
 [data-theme="dark"] .clean-tabs__item.is-active {
@@ -159,7 +159,7 @@
 }
 
 [data-theme="dark"] .clean-tabs--card .clean-tabs__item.is-active {
-  border-color: rgba(96, 165, 250, 0.3);
+  border-color: var(--color-focus-ring);
 }
 
 /* 响应式设计 - 参考图片移动端优化 */

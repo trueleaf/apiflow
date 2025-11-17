@@ -279,7 +279,7 @@ onUnmounted(() => {
       cursor: default;
       padding: 0 10px;
       border-right: 1px solid var(--gray-400);
-      background: rgb(222, 225, 230);
+      background: var(--bg-gray-150);
 
       .item-text {
         display: inline-block;

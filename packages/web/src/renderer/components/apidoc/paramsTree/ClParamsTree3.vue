@@ -90,6 +90,7 @@
                 @focus="handleFocusValue(data)"
                 @blur="handleBlurValueAndEnableDrag()"
                 @multiline-change="(isMultiline: boolean) => handleMultilineChange(data._id, isMultiline)"
+                @paste="handleRichInputPaste()"
               >
                 <template #variable="{ label }">
                   <div class="params-variable-token">{{ label }}</div>
@@ -205,6 +206,7 @@ const hasUserInput = ref(false);
 const defaultCheckedKeys = ref<string[]>([]);
 const multilineInputs = ref<Record<string, boolean>>({});
 const focusedInputId = ref<string | null>(null);
+const isPasting = ref(false);
 const emitChange = () => {
   emits('change', localData.value);
 };
@@ -277,7 +279,17 @@ const handlePasteKey = (event: ClipboardEvent, data: ApidocProperty<'string' | '
   handleTrimmedInputPaste(event, value => handleChangeKey(value, data), data.key || '');
 };
 const handlePasteValueInput = (event: ClipboardEvent, data: ApidocProperty<'string' | 'file'>) => {
+  isPasting.value = true;
   handleTrimmedInputPaste(event, value => handleChangeValue(value, data), data.value || '');
+  nextTick(() => {
+    isPasting.value = false;
+  });
+};
+const handleRichInputPaste = () => {
+  isPasting.value = true;
+  nextTick(() => {
+    isPasting.value = false;
+  });
 };
 const handlePasteDescription = (event: ClipboardEvent, data: ApidocProperty<'string' | 'file'>) => {
   handleTrimmedInputPaste(event, value => handleChangeDescription(value, data), data.description || '');
@@ -342,10 +354,10 @@ const handleChangeKey = (v: string, data: ApidocProperty<'string' | 'file'>) => 
 
 const handleChangeValue = (v: string, data: ApidocProperty<'string' | 'file'>) => {
   data.value = v;
-  // 检测是否包含@符号，如果包含则显示mock弹窗
-  if (v.includes('@')) {
+  // 检测是否包含@符号，如果包含且非粘贴操作则显示mock弹窗
+  if (v.includes('@') && !isPasting.value) {
     currentOpData.value = data;
-  } else {
+  } else if (!v.includes('@')) {
     currentOpData.value = null;
   }
   emitChange();

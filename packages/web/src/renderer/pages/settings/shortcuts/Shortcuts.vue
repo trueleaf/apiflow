@@ -297,15 +297,15 @@ onMounted(() => {
         margin: 0;
         font-size: 20px;
         font-weight: 600;
-        color: #303133;
+        color: var(--text-gray-900);
       }
 
       .shortcuts-count {
         font-size: 13px;
-        color: #909399;
+        color: var(--text-gray-400);
 
         .customized-badge {
-          color: #409eff;
+          color: var(--blue-500);
           font-weight: 500;
         }
       }
@@ -333,28 +333,28 @@ onMounted(() => {
       transform: translateY(-50%);
       width: 16px;
       height: 16px;
-      color: #909399;
+      color: var(--text-gray-400);
       pointer-events: none;
     }
 
     .search-input {
       width: 100%;
       padding: 10px 36px 10px 40px;
-      border: 1px solid #dcdfe6;
+      border: 1px solid var(--el-border-color);
       border-radius: 6px;
       outline: none;
       font-size: 14px;
-      color: #303133;
-      background: #ffffff;
+      color: var(--text-gray-900);
+      background: var(--bg-primary);
       transition: border-color 0.2s, box-shadow 0.2s;
 
       &::placeholder {
-        color: #c0c4cc;
+        color: var(--text-gray-300);
       }
 
       &:focus {
-        border-color: #409eff;
-        box-shadow: 0 0 0 3px rgba(64, 158, 255, 0.15);
+        border-color: var(--blue-500);
+        box-shadow: 0 0 0 3px var(--color-focus-ring);
       }
     }
 
@@ -370,7 +370,7 @@ onMounted(() => {
       display: flex;
       align-items: center;
       justify-content: center;
-      color: #909399;
+      color: var(--text-gray-400);
       transition: color 0.2s;
 
       .clear-icon {
@@ -379,7 +379,7 @@ onMounted(() => {
       }
 
       &:hover {
-        color: #606266;
+        color: var(--text-gray-700);
       }
     }
 
@@ -388,10 +388,10 @@ onMounted(() => {
       align-items: center;
       gap: 6px;
       padding: 8px 16px;
-      border: 1px solid #dcdfe6;
+      border: 1px solid var(--el-border-color);
       border-radius: 4px;
-      background: #ffffff;
-      color: #606266;
+      background: var(--bg-primary);
+      color: var(--text-gray-700);
       font-size: 13px;
       cursor: pointer;
       transition: all 0.2s;
@@ -402,16 +402,16 @@ onMounted(() => {
       }
 
       &:hover:not(:disabled) {
-        color: #409eff;
-        border-color: #409eff;
-        background: #ecf5ff;
+        color: var(--blue-500);
+        border-color: var(--blue-500);
+        background: var(--blue-100);
       }
 
       &:disabled {
-        color: #c0c4cc;
-        border-color: #ebeef5;
+        color: var(--text-gray-300);
+        border-color: var(--bg-gray-400);
         cursor: not-allowed;
-        background: #f5f7fa;
+        background: var(--bg-gray-150);
       }
     }
   }
@@ -424,15 +424,15 @@ onMounted(() => {
 
   .shortcuts-container {
     padding: 20px;
-    background: #ffffff;
-    border: 1px solid #ebeef5;
+    background: var(--bg-primary);
+    border: 1px solid var(--bg-gray-400);
     border-radius: 8px;
 
     .shortcuts-table {
       display: flex;
       flex-direction: column;
       gap: 1px;
-      background: #f5f7fa;
+      background: var(--bg-gray-150);
       border-radius: 4px;
       overflow: hidden;
     }
@@ -442,16 +442,16 @@ onMounted(() => {
     display: flex;
     align-items: center;
     padding: 12px 16px;
-    background: #ffffff;
+    background: var(--bg-primary);
     transition: background-color 0.2s;
 
     &:hover:not(.is-editing) {
-      background: #fafafa;
+      background: var(--bg-gray-50);
     }
 
     &.is-editing {
-      background: #f5f9ff;
-      border-left: 3px solid #409eff;
+      background: var(--blue-50);
+      border-left: 3px solid var(--blue-500);
       padding-left: 13px;
     }
 
@@ -463,7 +463,7 @@ onMounted(() => {
       .shortcut-name {
         font-size: 14px;
         font-weight: 500;
-        color: #303133;
+        color: var(--text-gray-900);
         display: flex;
         align-items: center;
         gap: 8px;
@@ -471,7 +471,7 @@ onMounted(() => {
         .shortcut-context {
           font-size: 12px;
           font-weight: 400;
-          color: #909399;
+          color: var(--text-gray-400);
         }
       }
     }
@@ -498,7 +498,7 @@ onMounted(() => {
 
         &.default-keys {
           .keys-label {
-            color: #909399;
+            color: var(--text-gray-400);
           }
 
           .keys-display {
@@ -508,7 +508,7 @@ onMounted(() => {
 
         .keys-label {
           font-size: 11px;
-          color: #606266;
+          color: var(--text-gray-700);
           font-weight: 500;
           min-width: 40px;
         }
@@ -520,9 +520,9 @@ onMounted(() => {
 
           &.custom {
             padding: 6px 10px;
-            border: 1px solid #d0e4ff;
+            border: 1px solid var(--blue-300);
             border-radius: 8px;
-            background: #f5f9ff;
+            background: var(--blue-50);
 
             .custom-icon {
               display: flex;
@@ -531,14 +531,14 @@ onMounted(() => {
               width: 28px;
               height: 28px;
               border-radius: 6px;
-              background: #ffffff;
-              border: 1px solid #e0e6f1;
-              box-shadow: 0 2px 6px rgba(64, 158, 255, 0.12);
+              background: var(--bg-primary);
+              border: 1px solid var(--border-gray-400);
+              box-shadow: 0 2px 6px var(--shadow-md);
 
               .icon {
                 width: 14px;
                 height: 14px;
-                color: #409eff;
+                color: var(--blue-500);
               }
             }
           }
@@ -551,7 +551,7 @@ onMounted(() => {
           }
 
           .key-separator {
-            color: #909399;
+            color: var(--text-gray-400);
             font-size: 12px;
             font-weight: 400;
             user-select: none;
@@ -566,18 +566,18 @@ onMounted(() => {
             padding: 0 8px;
             font-size: 12px;
             font-weight: 500;
-            color: #606266;
-            background: linear-gradient(180deg, #ffffff 0%, #f5f7fa 100%);
-            border: 1px solid #dcdfe6;
+            color: var(--text-gray-700);
+            background: linear-gradient(180deg, var(--bg-primary) 0%, var(--bg-gray-150) 100%);
+            border: 1px solid var(--el-border-color);
             border-radius: 4px;
-            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+            box-shadow: 0 1px 2px var(--shadow-sm);
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
 
             .keys-display.custom & {
-              background: #ffffff;
-              border-color: #becff2;
-              color: #303133;
-              box-shadow: 0 2px 4px rgba(64, 158, 255, 0.08);
+              background: var(--bg-primary);
+              border-color: var(--blue-300);
+              color: var(--text-gray-900);
+              box-shadow: 0 2px 4px var(--shadow-md);
             }
           }
         }
@@ -611,48 +611,48 @@ onMounted(() => {
         }
 
         &.edit-btn {
-          color: #606266;
+          color: var(--text-gray-700);
 
           &:hover {
-            color: #409eff;
-            background: #ecf5ff;
+            color: var(--blue-500);
+            background: var(--blue-100);
           }
         }
 
         &.reset-btn {
-          color: #909399;
+          color: var(--text-gray-400);
 
           &:hover {
-            color: #e6a23c;
-            background: #fdf6ec;
+            color: var(--el-color-warning);
+            background: var(--bg-warning-light);
           }
         }
 
         &.save-btn {
-          color: #67c23a;
-          border-color: #67c23a;
+          color: var(--el-color-success);
+          border-color: var(--el-color-success);
 
           &:hover:not(:disabled) {
-            background: #f0f9ff;
-            border-color: #409eff;
-            color: #409eff;
+            background: var(--blue-50);
+            border-color: var(--blue-500);
+            color: var(--blue-500);
           }
 
           &:disabled {
-            color: #c0c4cc;
-            border-color: #ebeef5;
+            color: var(--text-gray-300);
+            border-color: var(--bg-gray-400);
             cursor: not-allowed;
           }
         }
 
         &.cancel-btn {
-          color: #909399;
-          border-color: #dcdfe6;
+          color: var(--text-gray-400);
+          border-color: var(--el-border-color);
 
           &:hover {
-            background: #f5f7fa;
-            color: #606266;
-            border-color: #c0c4cc;
+            background: var(--bg-gray-150);
+            color: var(--text-gray-700);
+            border-color: var(--text-gray-300);
           }
         }
       }
@@ -665,13 +665,13 @@ onMounted(() => {
     align-items: center;
     justify-content: center;
     padding: 80px 20px;
-    color: #909399;
+    color: var(--text-gray-400);
 
     .empty-icon {
       width: 48px;
       height: 48px;
       margin-bottom: 16px;
-      color: #dcdfe6;
+      color: var(--el-border-color);
     }
 
     .empty-text {

@@ -241,11 +241,11 @@ watch(searchValue, (newValue) => {
     }
 
     &.active-node {
-      background-color: #a6d2ff;
+      background-color: var(--color-info-light);
     }
 
     &.select-node {
-      background-color: #a6d2ff;
+      background-color: var(--color-info-light);
     }
 
     &.readonly {

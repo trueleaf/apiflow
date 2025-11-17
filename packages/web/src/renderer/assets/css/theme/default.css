@@ -122,6 +122,63 @@
 
   /* 阴影色系统 */
   --shadow-color: rgba(0, 0, 0, 0.1);
+  --shadow-xs: rgba(0, 0, 0, 0.03);
+  --shadow-sm: rgba(0, 0, 0, 0.05);
+  --shadow-md: rgba(0, 0, 0, 0.1);
+  --shadow-lg: rgba(0, 0, 0, 0.15);
+  --shadow-xl: rgba(0, 0, 0, 0.3);
+  --shadow-2xl: rgba(0, 0, 0, 0.5);
+
+  /* 半透明白色系列 */
+  --bg-white-5: rgba(255, 255, 255, 0.05);
+  --bg-white-8: rgba(255, 255, 255, 0.08);
+  --bg-white-10: rgba(255, 255, 255, 0.1);
+  --bg-white-15: rgba(255, 255, 255, 0.15);
+  --bg-white-35: rgba(255, 255, 255, 0.35);
+  --bg-white-40: rgba(255, 255, 255, 0.40);
+  --bg-white-70: rgba(255, 255, 255, 0.7);
+
+  /* 灰色文字系列 */
+  --text-gray-300: #c0c4cc;
+  --text-gray-400: #909399;
+  --text-gray-600: #666;
+  --text-gray-700: #606266;
+  --text-gray-900: #303133;
+
+  /* 蓝色系列 */
+  --blue-50: #f5f9ff;
+  --blue-100: #ecf5ff;
+  --blue-200: #dbeafe;
+  --blue-300: #bfdbfe;
+  --blue-400: #3b82f6;
+  --blue-500: #409eff;
+  --blue-600: #1e40af;
+  --blue-700: #0056cc;
+  --blue-900: rgba(74, 158, 255, 0.9);
+
+  /* 灰色背景系列 */
+  --bg-gray-50: #fafafa;
+  --bg-gray-100: #f6f8fa;
+  --bg-gray-150: #f5f7fa;
+  --bg-gray-200: #f5f5f5;
+  --bg-gray-300: #f0f0f0;
+  --bg-gray-400: #ebeef5;
+  --bg-blue-50: #eaf3fe;
+
+  /* 边框颜色系列 */
+  --border-gray-200: #f0f0f0;
+  --border-gray-300: #e1e5e9;
+  --border-gray-400: #e1e4e8;
+  --border-gray-500: #ddd;
+
+  /* 特殊颜色 */
+  --color-highlight-yellow: #fff3cd;
+  --color-info-light: #a6d2ff;
+  --color-header-bg-start: #2c3e50;
+  --color-header-bg-end: #3a4a5f;
+  --color-focus-ring: rgba(64, 158, 255, 0.15);
+  --color-card-shadow: rgba(0, 0, 0, 0.1);
+  --color-tabs-shadow: rgba(0, 0, 0, 0.12);
 
   /* Element Plus 完整主题变量 */
   --el-bg-color: #ffffff;

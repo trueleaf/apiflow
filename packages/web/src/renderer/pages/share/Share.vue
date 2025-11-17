@@ -292,7 +292,7 @@ onUnmounted(() => {
   display: flex;
   flex-direction: column;
   align-items: center;
-  background: rgba(var(--white), 0.7);
+  background: var(--bg-white-70);
   border-radius: var(--border-radius-lg);
   box-shadow: var(--box-shadow-bg);
   padding: 48px 56px 40px 56px;

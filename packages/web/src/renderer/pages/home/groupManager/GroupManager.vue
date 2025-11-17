@@ -447,14 +447,14 @@ onMounted(() => {
   }
 
   .prompt-title {
-    color: #2c3e50;
+    color: var(--color-header-bg-start);
     font-size: 1.5rem;
     font-weight: 600;
     margin-bottom: 0.75rem;
   }
 
   .prompt-subtitle {
-    color: #7f8c8d;
+    color: var(--text-secondary);
     font-size: 1rem;
     margin-bottom: 2rem;
     line-height: 1.5;

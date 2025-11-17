@@ -22,45 +22,45 @@
 
 <style lang="scss" scoped>
 .clean-card {
-  background: #fff;
-  border: 1px solid #e1e5e9;
+  background: var(--bg-primary);
+  border: 1px solid var(--border-gray-300);
   border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 4px var(--color-card-shadow);
   overflow: hidden;
   transition: all 0.3s ease;
-  
+
   &:hover {
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 4px 12px var(--shadow-lg);
     transform: translateY(-2px);
   }
-  
+
   .card-header {
     padding: 16px 20px;
-    border-bottom: 1px solid #f0f0f0;
-    background: #fafafa;
-    
+    border-bottom: 1px solid var(--border-gray-200);
+    background: var(--bg-gray-50);
+
     .card-title {
       margin: 0;
       font-size: 16px;
       font-weight: 600;
-      color: #333;
+      color: var(--text-gray-900);
     }
   }
-  
+
   .card-body {
     padding: 20px;
-    
+
     .card-content {
       margin: 0 0 16px 0;
       line-height: 1.6;
-      color: #666;
+      color: var(--text-gray-600);
       font-size: 14px;
     }
-    
+
     .card-actions {
       display: flex;
       gap: 8px;
-      
+
       .card-btn {
         padding: 8px 16px;
         border: none;
@@ -68,24 +68,24 @@
         font-size: 14px;
         cursor: pointer;
         transition: all 0.2s ease;
-        
+
         &.primary {
-          background: #007aff;
-          color: white;
-          
+          background: var(--blue-400);
+          color: var(--text-white);
+
           &:hover {
-            background: #0056cc;
+            background: var(--blue-700);
           }
         }
-        
+
         &.secondary {
-          background: #f5f5f5;
-          color: #666;
-          border: 1px solid #ddd;
-          
+          background: var(--bg-gray-200);
+          color: var(--text-gray-600);
+          border: 1px solid var(--border-gray-500);
+
           &:hover {
-            background: #e8e8e8;
-            color: #333;
+            background: var(--bg-gray-300);
+            color: var(--text-gray-900);
           }
         }
       }
