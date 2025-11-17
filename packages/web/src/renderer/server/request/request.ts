@@ -473,6 +473,7 @@ export const sendRequest = async () => {
   let finalSendHeaders = preSendHeaders;
 
   let finalCookies = objCookies;
+  const httpNodeConfigData = httpNodeStore.httpNodeConfig;
   //实际发送请求
   const invokeRequest = async () => {
     const method = getMethod(copiedApidoc);
@@ -494,6 +495,8 @@ export const sendRequest = async () => {
       timeout: 60000,
       body,
       headers: finalSendHeaders,
+      followRedirect: httpNodeConfigData.followRedirect,
+      maxRedirects: httpNodeConfigData.maxRedirects,
       signal(cancelRequest) {
         changeCancelRequestRef(cancelRequest);
       },

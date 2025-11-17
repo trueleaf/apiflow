@@ -4,7 +4,7 @@
       <span>{{ t('数据大小为') }}</span>
       <span class="orange mr-3 ml-1">{{ formatUnit(textResponse.length, 'bytes') }}</span>
       <span>{{ t('超过最大预览限制') }}</span>
-      <span class="ml-1 mr-3">{{ formatUnit(config.httpNodeRequestConfig.maxRawBodySize, 'bytes') }}</span>
+      <span class="ml-1 mr-3">{{ formatUnit(config.httpNodeConfig.maxRawBodySize, 'bytes') }}</span>
       <el-button link type="primary" text @click="() => downloadStringAsText(textResponse, 'raw.txt')">{{ t("下载到本地预览") }}</el-button>
     </div>
     <SJsonEditor 
@@ -55,7 +55,7 @@ const handleCheckRawSize = () => {
   if (apidocResponseStore.rawResponseBody) {
     const text = decoder.decode(apidocResponseStore.rawResponseBody as Uint8Array);
     textResponse.value = text;
-    if (text.length > config.httpNodeRequestConfig.maxRawBodySize) {
+    if (text.length > config.httpNodeConfig.maxRawBodySize) {
       rawResponseIsOverflow.value = true;
     } else {
       rawResponseIsOverflow.value = false;

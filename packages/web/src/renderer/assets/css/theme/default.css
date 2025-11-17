@@ -287,6 +287,47 @@
   --ai-history-delete-hover-bg: #fee2e2;
   --ai-history-delete-hover-text: #dc2626;
 
+  /* ========== ProjectWorkbench 专用颜色 ========== */
+  /* HTTP方法标签 - 语义化颜色 */
+  --method-get-bg: #e1f5fe;
+  --method-get-text: #0277bd;
+  --method-post-bg: #e8f5e9;
+  --method-post-text: #2e7d32;
+  --method-put-bg: #fff3e0;
+  --method-put-text: #ef6c00;
+  --method-delete-bg: #ffebee;
+  --method-delete-text: #c62828;
+  --method-patch-bg: #f3e5f5;
+  --method-patch-text: #6a1b9a;
+  --method-options-bg: #fce4ec;
+  --method-options-text: #c2185b;
+  --method-head-bg: #e0f2f1;
+  --method-head-text: #00695c;
+
+  /* 代码预览框 */
+  --code-preview-bg: #f8f9fa;
+  --code-preview-border: #dee2e6;
+  --code-preview-text: #495057;
+
+  /* WebSocket连接状态 */
+  --ws-connected-bg: #e8f5e9;
+  --ws-connected-text: #2e7d32;
+  --ws-disconnected-bg: #ffebee;
+  --ws-disconnected-text: #c62828;
+  --ws-connecting-bg: #fff3e0;
+  --ws-connecting-text: #ef6c00;
+
+  /* Mock服务状态 */
+  --mock-running-bg: #e8f5e9;
+  --mock-running-text: #2e7d32;
+  --mock-stopped-bg: #e0e0e0;
+  --mock-stopped-text: #616161;
+
+  /* 请求响应面板 */
+  --response-success-bg: #e8f5e9;
+  --response-error-bg: #ffebee;
+  --response-info-bg: #e3f2fd;
+
   /* Element Plus 完整主题变量 */
   --el-bg-color: #ffffff;
   --el-bg-color-page: #f5f5f5;
@@ -360,6 +401,12 @@
 
   --el-mask-color: rgba(255, 255, 255, 0.9);
   --el-mask-color-extra-light: rgba(255, 255, 255, 0.3);
+
+  /* Monaco编辑器主题变量 */
+  --vscode-editor-background: #ffffff;
+  --vscode-editor-foreground: #333333;
+  --vscode-editorLineNumber-foreground: #237893;
+  --vscode-editorLineNumber-activeForeground: #0b216f;
 
 }
 

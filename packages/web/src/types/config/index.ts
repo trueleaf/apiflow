@@ -106,7 +106,7 @@ export type Config = {
      */
     appTheme: AppTheme,
   },
-  httpNodeRequestConfig: {
+  httpNodeConfig: {
     maxTextBodySize: number;
     maxRawBodySize: number
     userAgent: string;

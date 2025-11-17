@@ -157,6 +157,10 @@ export type FolderNode = {
 };
 
 export type HttpNodeConfig = {
-  followRedirects: boolean;
+  maxTextBodySize: number;
+  maxRawBodySize: number;
+  userAgent: string;
+  followRedirect: boolean;
   maxRedirects: number;
+  maxHeaderValueDisplayLength: number;
 }

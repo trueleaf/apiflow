@@ -40,7 +40,7 @@ export const config: Config = {
     appLogo: '', //应用Logo
     appTheme: 'light', //应用主题
   },
-  httpNodeRequestConfig: {
+  httpNodeConfig: {
     maxTextBodySize: 1024 * 1024 * 50, //最大可展示文本格式数大小
     maxRawBodySize: 1024 * 1024 * 50, //最大可以显示原始值类型
     userAgent: "https://github.com/trueleaf/apiflow",

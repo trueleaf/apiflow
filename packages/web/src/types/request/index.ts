@@ -151,6 +151,8 @@ export type GotRequestOptions = {
   timeout: number;
   body: GotRequestJsonBody | GotRequestFormdataBody | GotRequestBinaryBody | GotRequestUrlencodedBody | GotRequestRawBody | undefined;
   headers: Record<string, string | null>;
+  followRedirect?: boolean;
+  maxRedirects?: number;
   signal: (cancelRequest: () => void) => void;
   onResponse?: (responseInfo: ResponseInfo) => void;
   onResponseEnd?: (responseInfo: ResponseInfo) => void;

@@ -90,13 +90,13 @@ const handleDocClick = (doc: MatchedDocument) => {
   .doc-item {
     padding: 8px;
     cursor: pointer;
-    transition: background-color 0.2s;
+    border-radius: 4px;
+    transition: background-color 0.2s, border-color 0.2s;
     &.has-border {
-      border-top: 1px solid var(--gray-100);
+      border-top: 1px solid var(--border-light);
     }
     &:hover {
-      background-color: var(--gray-50);
-      border-radius: 4px;
+      background-color: var(--bg-hover);
     }
     .method-tag {
       font-weight: 600;
@@ -104,7 +104,7 @@ const handleDocClick = (doc: MatchedDocument) => {
       text-align: center;
     }
     .doc-url {
-      color: var(--primary-color);
+      color: var(--primary);
       font-family: monospace;
     }
     .doc-info {
