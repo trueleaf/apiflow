@@ -66,7 +66,7 @@ import { View } from '@element-plus/icons-vue'
 import { ApidocProperty } from '@src/types';
 import { generateEmptyProperty } from '@/helper';
 import { useI18n } from 'vue-i18n'
-import SParamsTree from '@/components/apidoc/paramsTree/ClParamsTree3.vue'
+import SParamsTree from '@/components/apidoc/paramsTree/ClParamsTree.vue'
 import { useApidoc } from '@/store/share/apidocStore';
 import { useApidocTas } from '@/store/share/tabsStore';
 import { useApidocBaseInfo } from '@/store/share/baseInfoStore';

@@ -91,7 +91,7 @@ import { useVariable } from '@/store/share/variablesStore';
 import { useApidoc } from '@/store/share/apidocStore';
 import { config } from '@src/config/config';
 import SJsonEditor from '@/components/common/jsonEditor/ClJsonEditor.vue'
-import SParamsTree from '@/components/apidoc/paramsTree/ClParamsTree3.vue'
+import SParamsTree from '@/components/apidoc/paramsTree/ClParamsTree.vue'
 import { Close } from '@element-plus/icons-vue'
 import { convertTemplateValueToRealValue } from '@/helper';
 import mime from 'mime';

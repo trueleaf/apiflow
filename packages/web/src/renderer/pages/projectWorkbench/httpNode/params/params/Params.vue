@@ -10,7 +10,7 @@
 <script lang="ts" setup>
 import { useApidoc } from '@/store/share/apidocStore';
 import { computed } from 'vue'
-import SParamsTree from '@/components/apidoc/paramsTree/ClParamsTree3.vue'
+import SParamsTree from '@/components/apidoc/paramsTree/ClParamsTree.vue'
 import { useI18n } from 'vue-i18n'
 import { useHttpRedoUndo } from '@/store/redoUndo/httpRedoUndoStore'
 import { useApidocTas } from '@/store/share/tabsStore'

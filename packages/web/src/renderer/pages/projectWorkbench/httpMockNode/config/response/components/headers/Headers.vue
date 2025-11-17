@@ -49,7 +49,7 @@ import { ref, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { ElMessageBox } from 'element-plus'
 import { Close, ArrowRight, ArrowDown, View } from '@element-plus/icons-vue'
-import SParamsTree from '@/components/apidoc/paramsTree/ClParamsTree3.vue'
+import SParamsTree from '@/components/apidoc/paramsTree/ClParamsTree.vue'
 import { userState } from '@/cache/userState/userStateCache'
 import type { HttpMockNode } from '@src/types/mockNode'
 

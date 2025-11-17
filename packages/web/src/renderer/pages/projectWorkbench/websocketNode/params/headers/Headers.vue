@@ -65,7 +65,7 @@ import { ApidocProperty } from '@src/types';
 import { generateEmptyProperty } from '@/helper';
 import { debounce, cloneDeep } from "lodash-es";
 import { useI18n } from 'vue-i18n'
-import SParamsTree from '@/components/apidoc/paramsTree/ClParamsTree3.vue'
+import SParamsTree from '@/components/apidoc/paramsTree/ClParamsTree.vue'
 import { useWebSocket } from '@/store/websocket/websocketStore';
 import { useWsRedoUndo } from '@/store/redoUndo/wsRedoUndoStore';
 import { useApidocTas } from '@/store/share/tabsStore';
