@@ -10,8 +10,7 @@ import {
   HttpNode,
   HttpNodeRequestMethod,
   ApidocProperty,
-  HttpNodeBodyParams,
-  HttpNodeConfig
+  HttpNodeBodyParams
 } from '@src/types'
 import { defineStore, storeToRefs } from "pinia"
 import axios, { Canceler } from 'axios'
@@ -27,12 +26,11 @@ import { useCookies } from "./cookiesStore.ts"
 import { i18n } from "@/i18n"
 import { getUrl } from "@/server/request/request.ts"
 import { useVariable } from "./variablesStore.ts"
-import { config } from "@src/config/config.ts"
 import { apiNodesCache } from "@/cache/standalone/apiNodesCache";
 import { useRuntime } from '../runtime/runtimeStore';
-import { httpNodeHistoryCache } from "@/cache/httpNode/httpNodeHistoryCache";
+import { httpNodeHistoryCache } from '@/cache/httpNode/httpNodeHistoryCache';
 import { logger } from '@/helper';
-import { httpNodeConfigCache } from '@/cache/httpNode/httpNodeConfig';
+import { useHttpNodeConfig } from './httpNodeConfigStore';
 
 
 type EditApidocPropertyPayload<K extends keyof ApidocProperty> = {
@@ -55,14 +53,7 @@ export const useHttpNode = defineStore('httpNode', () => {
   const responseBodyLoading = ref(false)
   const saveDocDialogVisible = ref(false);
   const savedDocId = ref('');
-  const httpNodeConfig = ref<HttpNodeConfig>({
-    maxTextBodySize: 1024 * 1024 * 50,
-    maxRawBodySize: 1024 * 1024 * 50,
-    userAgent: 'https://github.com/trueleaf/apiflow',
-    followRedirect: true,
-    maxRedirects: 10,
-    maxHeaderValueDisplayLength: 1024
-  });
+  const httpNodeConfigStore = useHttpNodeConfig();
   /*
   |--------------------------------------------------------------------------
   | 通用方法
@@ -324,7 +315,7 @@ export const useHttpNode = defineStore('httpNode', () => {
     //=========================================================================//
     const params2 = generateEmptyProperty();
     params2.key = 'User-Agent';
-    params2._valuePlaceholder = config.httpNodeConfig.userAgent;
+    params2._valuePlaceholder = httpNodeConfigStore.currentConfig.userAgent;
     params2.description = '<用户代理软件信息>';
     params2._disableKey = true;
     params2._disableKeyTip = ''
@@ -460,7 +451,7 @@ export const useHttpNode = defineStore('httpNode', () => {
   //获取项目基本信息
   const getApidocDetail = async (payload: { id: string, projectId: string }): Promise<void> => {
     const { deleteTabByIds } = useApidocTas();
-    initHttpNodeConfig(payload.projectId)
+    httpNodeConfigStore.initHttpNodeConfig(payload.projectId)
 
     if (isOffline()) {
       const doc = await apiNodesCache.getNodeById(payload.id) as HttpNode;
@@ -681,32 +672,6 @@ export const useHttpNode = defineStore('httpNode', () => {
       }
     })
   }
-  //获取HTTP节点配置
-  const getHttpNodeConfig = (projectId: string): HttpNodeConfig => {
-    const cachedConfig = httpNodeConfigCache.getHttpNodeConfig(projectId)
-    if (cachedConfig) {
-      return cachedConfig
-    }
-    return {
-      maxTextBodySize: config.httpNodeConfig.maxTextBodySize,
-      maxRawBodySize: config.httpNodeConfig.maxRawBodySize,
-      userAgent: config.httpNodeConfig.userAgent,
-      followRedirect: config.httpNodeConfig.followRedirect,
-      maxRedirects: config.httpNodeConfig.maxRedirects,
-      maxHeaderValueDisplayLength: config.httpNodeConfig.maxHeaderValueDisplayLength
-    }
-  }
-  //设置HTTP节点配置
-  const setHttpNodeConfig = (projectId: string, configPartial: Partial<HttpNodeConfig>): void => {
-    httpNodeConfigCache.setHttpNodeConfig(projectId, configPartial)
-    Object.assign(httpNodeConfig.value, configPartial)
-  }
-  //初始化HTTP节点配置
-  const initHttpNodeConfig = (projectId: string): void => {
-    const configData = getHttpNodeConfig(projectId)
-    httpNodeConfig.value = configData
-  }
-  
   return {
     apidoc,
     originApidoc,
@@ -716,7 +681,6 @@ export const useHttpNode = defineStore('httpNode', () => {
     responseBodyLoading,
     saveDocDialogVisible,
     savedDocId,
-    httpNodeConfig,
     changeResponseBodyLoading,
     getApidocDetail,
     changeApidocSaveLoading,
@@ -754,10 +718,7 @@ export const useHttpNode = defineStore('httpNode', () => {
     changePreRequest,
     changeAfterRequest,
     changeFormDataErrorInfoById,
-    handleChangeBinaryInfo,
-    getHttpNodeConfig,
-    setHttpNodeConfig,
-    initHttpNodeConfig
+    handleChangeBinaryInfo
   }
 })
 

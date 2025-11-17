@@ -69,10 +69,11 @@ import { useApidocResponse } from '@/store/apidoc/responseStore';
 import { computed, ref } from 'vue';
 import { useI18n } from 'vue-i18n'
 import { FullScreen } from '@element-plus/icons-vue';
-import { config } from '@src/config/config';
+import { useHttpNodeConfig } from '@/store/apidoc/httpNodeConfigStore';
 
 const apidocResponseStore = useApidocResponse();
 const apidocBaseInfoStore = useApidocBaseInfo();
+const httpNodeConfigStore = useHttpNodeConfig();
 const headers = computed(() => {
   const result: { key: string, value: string }[] = [];
   Object.keys(apidocResponseStore.responseInfo.headers).forEach(key => {
@@ -99,7 +100,7 @@ const dialogVisible = ref(false);
 const expandedRows = ref<Record<string, boolean>>({});
 
 function isExpandable(row: { key: string, value: string }) {
-  return row.value.length > config.httpNodeConfig.maxHeaderValueDisplayLength;
+  return row.value.length > httpNodeConfigStore.currentConfig.maxHeaderValueDisplayLength;
 }
 function isCollapsed(row: { key: string, value: string }) {
   return isExpandable(row) && !expandedRows.value[row.key];

@@ -95,77 +95,77 @@
       </div>
       <!-- xml -->
       <div v-else-if="apidocResponseStore.responseInfo.responseData.canApiflowParseType === 'xml'" class="text-wrap">
-        <div v-if="formatedText.length > config.httpNodeConfig.maxTextBodySize">
+        <div v-if="formatedText.length > httpNodeConfigStore.currentConfig.maxTextBodySize">
           <span>{{ t('数据大小为') }}</span>
           <span class="orange mr-3 ml-1">{{ formatUnit(formatedText.length, 'bytes') }}</span>
           <span>{{ t('超过最大预览限制') }}</span>
-          <span class="ml-1 mr-3">{{ formatUnit(config.httpNodeConfig.maxTextBodySize, 'bytes') }}</span>
+          <span class="ml-1 mr-3">{{ formatUnit(httpNodeConfigStore.currentConfig.maxTextBodySize, 'bytes') }}</span>
           <el-button link type="primary" text @click="() => downloadStringAsText(formatedText, 'response.xml')">{{ t("下载到本地预览") }}</el-button>
         </div>
         <SJsonEditor v-else :modelValue="formatedText" read-only :config="{ fontSize: 13, language: 'xml' }"></SJsonEditor>
       </div>
       <!-- javascript -->
       <div v-else-if="apidocResponseStore.responseInfo.responseData.canApiflowParseType === 'js'" class="text-wrap">
-        <div v-if="formatedText.length > config.httpNodeConfig.maxTextBodySize">
+        <div v-if="formatedText.length > httpNodeConfigStore.currentConfig.maxTextBodySize">
           <span>{{ t('数据大小为') }}</span>
           <span class="orange mr-3 ml-1">{{ formatUnit(formatedText.length, 'bytes') }}</span>
           <span>{{ t('超过最大预览限制') }}</span>
-          <span class="ml-1 mr-3">{{ formatUnit(config.httpNodeConfig.maxTextBodySize, 'bytes') }}</span>
+          <span class="ml-1 mr-3">{{ formatUnit(httpNodeConfigStore.currentConfig.maxTextBodySize, 'bytes') }}</span>
           <el-button link type="primary" text @click="() => downloadStringAsText(formatedText, 'response.js')">{{ t("下载到本地预览") }}</el-button>
         </div>
         <SJsonEditor v-else :modelValue="formatedText || formatedText" read-only :config="{ fontSize: 13, language: 'javascript' }"></SJsonEditor>
       </div>
       <!-- html -->
       <div v-else-if="apidocResponseStore.responseInfo.responseData.canApiflowParseType === 'html'" class="text-wrap">
-        <div v-if="formatedText.length > config.httpNodeConfig.maxTextBodySize">
+        <div v-if="formatedText.length > httpNodeConfigStore.currentConfig.maxTextBodySize">
           <span>{{ t('数据大小为') }}</span>
           <span class="orange mr-3 ml-1">{{ formatUnit(formatedText.length, 'bytes') }}</span>
           <span>{{ t('超过最大预览限制') }}</span>
-          <span class="ml-1 mr-3">{{ formatUnit(config.httpNodeConfig.maxTextBodySize, 'bytes') }}</span>
+          <span class="ml-1 mr-3">{{ formatUnit(httpNodeConfigStore.currentConfig.maxTextBodySize, 'bytes') }}</span>
           <el-button link type="primary" text @click="() => downloadStringAsText(formatedText, 'response.html')">{{ t("下载到本地预览") }}</el-button>
         </div>
         <SJsonEditor v-else :modelValue="formatedText" read-only :config="{ fontSize: 13, language: 'html' }"></SJsonEditor>
       </div>
       <!-- css -->
       <div v-else-if="apidocResponseStore.responseInfo.responseData.canApiflowParseType === 'css'" class="text-wrap">
-        <div v-if="formatedText.length > config.httpNodeConfig.maxTextBodySize">
+        <div v-if="formatedText.length > httpNodeConfigStore.currentConfig.maxTextBodySize">
           <span>{{ t('数据大小为') }}</span>
           <span class="orange mr-3 ml-1">{{ formatUnit(formatedText.length, 'bytes') }}</span>
           <span>{{ t('超过最大预览限制') }}</span>
-          <span class="ml-1 mr-3">{{ formatUnit(config.httpNodeConfig.maxTextBodySize, 'bytes') }}</span>
+          <span class="ml-1 mr-3">{{ formatUnit(httpNodeConfigStore.currentConfig.maxTextBodySize, 'bytes') }}</span>
           <el-button link type="primary" text @click="() => downloadStringAsText(formatedText, 'response.css')">{{ t("下载到本地预览") }}</el-button>
         </div>
         <SJsonEditor v-else :modelValue="formatedText || formatedText" read-only :config="{ fontSize: 13, language: 'css' }"></SJsonEditor>
       </div>
       <!-- csv -->
       <div v-else-if="apidocResponseStore.responseInfo.responseData.canApiflowParseType === 'csv'" class="text-wrap">
-        <div v-if="formatedText.length > config.httpNodeConfig.maxTextBodySize">
+        <div v-if="formatedText.length > httpNodeConfigStore.currentConfig.maxTextBodySize">
           <span>{{ t('数据大小为') }}</span>
           <span class="orange mr-3 ml-1">{{ formatUnit(formatedText.length, 'bytes') }}</span>
           <span>{{ t('超过最大预览限制') }}</span>
-          <span class="ml-1 mr-3">{{ formatUnit(config.httpNodeConfig.maxTextBodySize, 'bytes') }}</span>
+          <span class="ml-1 mr-3">{{ formatUnit(httpNodeConfigStore.currentConfig.maxTextBodySize, 'bytes') }}</span>
           <el-button link type="primary" text @click="() => downloadStringAsText(formatedText, 'response.csv')">{{ t("下载到本地预览") }}</el-button>
         </div>
         <SJsonEditor v-else :modelValue="formatedText || formatedText" read-only :config="{ fontSize: 13, language: 'csv' }"></SJsonEditor>
       </div>
       <!-- text/plain -->
       <div v-else-if="apidocResponseStore.responseInfo.responseData.canApiflowParseType === 'text'" class="text-wrap">
-        <div v-if="formatedText.length > config.httpNodeConfig.maxTextBodySize">
+        <div v-if="formatedText.length > httpNodeConfigStore.currentConfig.maxTextBodySize">
           <span>{{ t('数据大小为') }}</span>
           <span class="orange mr-3 ml-1">{{ formatUnit(formatedText.length, 'bytes') }}</span>
           <span>{{ t('超过最大预览限制') }}</span>
-          <span class="ml-1 mr-3">{{ formatUnit(config.httpNodeConfig.maxTextBodySize, 'bytes') }}</span>
+          <span class="ml-1 mr-3">{{ formatUnit(httpNodeConfigStore.currentConfig.maxTextBodySize, 'bytes') }}</span>
           <el-button link type="primary" text @click="() => downloadStringAsText(formatedText, 'response.txt')">{{ t("下载到本地预览") }}</el-button>
         </div>
         <SJsonEditor v-else :model-value="formatedText" read-only :config="{ fontSize: 13, language: 'text' }"></SJsonEditor>
       </div>
       <!-- application/json -->
       <div v-else-if="apidocResponseStore.responseInfo.responseData.canApiflowParseType === 'json'" class="text-wrap">
-        <div v-if="formatedText.length > config.httpNodeConfig.maxTextBodySize">
+        <div v-if="formatedText.length > httpNodeConfigStore.currentConfig.maxTextBodySize">
           <span>{{ t('数据大小为') }}</span>
           <span class="orange mr-3 ml-1">{{ formatUnit(formatedText.length, 'bytes') }}</span>
           <span>{{ t('超过最大预览限制') }}</span>
-          <span class="ml-1 mr-3">{{ formatUnit(config.httpNodeConfig.maxTextBodySize, 'bytes') }}</span>
+          <span class="ml-1 mr-3">{{ formatUnit(httpNodeConfigStore.currentConfig.maxTextBodySize, 'bytes') }}</span>
           <el-button link type="primary" text @click="() => downloadStringAsText(formatedText, 'response.json')">{{ t("下载到本地预览") }}</el-button>
         </div>
         <SJsonEditor v-else-if="apidocResponseStore.requestState === 'finish'" :model-value="formatedText || apidocResponseStore.responseInfo.responseData.jsonData" read-only :config="{ fontSize: 13, language: 'json' }"></SJsonEditor>
@@ -297,11 +297,11 @@ import { computed, onMounted, onUnmounted, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n'
 import { downloadStringAsText } from '@/helper'
 import { formatHeader, formatUnit } from '@/helper'
-import { config } from '@src/config/config'
 import SJsonEditor from '@/components/common/jsonEditor/ClJsonEditor.vue'
 import SSseView from '@/components/common/sseView/ClSseView.vue'
 import { useApidocTas } from '@/store/apidoc/tabsStore';
 import { useHttpNode } from '@/store/apidoc/httpNodeStore';
+import { useHttpNodeConfig } from '@/store/apidoc/httpNodeConfigStore';
 import { ElDialog } from 'element-plus';
 import beautify, { html as htmlBeautify, css as cssBeautify } from 'js-beautify';
 import worker from '@/worker/prettier.worker.ts?worker&inline';
@@ -320,6 +320,7 @@ let lastFormattedType: WorkerFormatType | null = null;
 const apidocResponseStore = useApidocResponse();
 const apidocBaseInfoStore = useApidocBaseInfo();
 const httpNodeStore = useHttpNode();
+const httpNodeConfigStore = useHttpNodeConfig();
 const loadingProcess = computed(() => apidocResponseStore.loadingProcess);
 const requestState = computed(() => apidocResponseStore.requestState);
 const redirectList = computed(() => apidocResponseStore.responseInfo.redirectList);

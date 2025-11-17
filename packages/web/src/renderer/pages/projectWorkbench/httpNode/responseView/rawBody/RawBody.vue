@@ -4,7 +4,7 @@
       <span>{{ t('数据大小为') }}</span>
       <span class="orange mr-3 ml-1">{{ formatUnit(textResponse.length, 'bytes') }}</span>
       <span>{{ t('超过最大预览限制') }}</span>
-      <span class="ml-1 mr-3">{{ formatUnit(config.httpNodeConfig.maxRawBodySize, 'bytes') }}</span>
+      <span class="ml-1 mr-3">{{ formatUnit(httpNodeConfigStore.currentConfig.maxRawBodySize, 'bytes') }}</span>
       <el-button link type="primary" text @click="() => downloadStringAsText(textResponse, 'raw.txt')">{{ t("下载到本地预览") }}</el-button>
     </div>
     <SJsonEditor 
@@ -27,14 +27,15 @@
 import { useApidocBaseInfo } from '@/store/apidoc/baseInfoStore';
 import { useApidocResponse } from '@/store/apidoc/responseStore';
 import { computed, ref, watch, onMounted } from 'vue';
-import { config } from '@src/config/config'
 import { downloadStringAsText } from '@/helper'
 import { formatUnit } from '@/helper'
 import { useI18n } from 'vue-i18n'
 import SJsonEditor from '@/components/common/jsonEditor/ClJsonEditor.vue'
+import { useHttpNodeConfig } from '@/store/apidoc/httpNodeConfigStore';
 
 const apidocBaseInfoStore = useApidocBaseInfo();
 const apidocResponseStore = useApidocResponse();
+const httpNodeConfigStore = useHttpNodeConfig();
 const { t } = useI18n()
 
 const textResponse = ref('');
@@ -55,7 +56,7 @@ const handleCheckRawSize = () => {
   if (apidocResponseStore.rawResponseBody) {
     const text = decoder.decode(apidocResponseStore.rawResponseBody as Uint8Array);
     textResponse.value = text;
-    if (text.length > config.httpNodeConfig.maxRawBodySize) {
+    if (text.length > httpNodeConfigStore.currentConfig.maxRawBodySize) {
       rawResponseIsOverflow.value = true;
     } else {
       rawResponseIsOverflow.value = false;
