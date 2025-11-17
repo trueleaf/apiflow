@@ -29,8 +29,8 @@
   --cl-rich-input-disabled-text: #555;
   --cl-rich-input-disabled-bg: #2a2a2a;
   --cl-rich-input-popover-bg: #1f1f1f;
-  --cl-rich-input-popover-border: rgba(255, 255, 255, 0.08);
-  --cl-rich-input-popover-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+  --cl-rich-input-popover-border: var(--bg-white-08);
+  --cl-rich-input-popover-shadow: 0 8px 24px var(--bg-black-40);
 }
 
 /* 主容器 */
@@ -197,20 +197,20 @@
 }
 
 .cl-rich-input__editor::-webkit-scrollbar-thumb {
-  background: rgba(0, 0, 0, 0.2);
+  background: var(--bg-black-20);
   border-radius: 3px;
 }
 
 .cl-rich-input__editor::-webkit-scrollbar-thumb:hover {
-  background: rgba(0, 0, 0, 0.3);
+  background: var(--bg-black-30);
 }
 
 [data-theme="dark"] .cl-rich-input__editor::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.2);
+  background: var(--bg-white-20);
 }
 
 [data-theme="dark"] .cl-rich-input__editor::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.3);
+  background: var(--bg-white-30);
 }
 
 /* expandOnFocus 功能：未聚焦时单行显示 */

@@ -316,7 +316,7 @@ onMounted(() => {
   background: var(--bg-primary);
   border: 1px solid var(--border-light);
   border-radius: 16px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.06);
+  box-shadow: 0 10px 30px var(--shadow-light);
   padding: 32px;
   margin-bottom: 32px;
 }
@@ -389,19 +389,19 @@ onMounted(() => {
 
   &.is-error {
     :deep(.el-input__wrapper) {
-      box-shadow: 0 0 0 1px #ef4444 inset;
+      box-shadow: 0 0 0 1px var(--el-color-danger) inset;
     }
   }
 
   &.is-success {
     :deep(.el-input__wrapper) {
-      box-shadow: 0 0 0 1px #10b981 inset;
+      box-shadow: 0 0 0 1px var(--el-color-success) inset;
     }
   }
 }
 
 .form-error {
-  color: #ef4444;
+  color: var(--el-color-danger);
   font-size: 12px;
   margin-top: -4px;
 }
@@ -466,7 +466,7 @@ onMounted(() => {
         display: inline-block;
         width: 24px;
         height: 24px;
-        border: 3px solid rgba(255, 255, 255, 0.3);
+        border: 3px solid var(--bg-white-30);
         border-top-color: var(--text-inverse);
         border-radius: 50%;
         animation: spin 0.8s linear infinite;

@@ -48,7 +48,7 @@ watch(() => props.top, (topVal) => {
 .s-contextmenu {
   position: fixed;
   background: var(--white);
-  box-shadow: rgb(0 0 0 / 10%) 0px 2px 8px 0px;
+  box-shadow: var(--box-shadow-sm);
   z-index: var(--zIndex-contextmenu);
   animation: ctx-fade .2s;
 

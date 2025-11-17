@@ -942,7 +942,7 @@ const slotsCode = `<template>
       color: var(--gray-700);
       &:hover {
         border-color: var(--gray-300);
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+        box-shadow: 0 1px 3px var(--bg-black-08);
       }
       .theme-icon {
         font-size: 16px;
@@ -1287,7 +1287,7 @@ const slotsCode = `<template>
         color: var(--gray-300);
         &:hover {
           border-color: var(--gray-500);
-          box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+          box-shadow: 0 1px 3px var(--bg-black-3);
         }
       }
     }
@@ -1328,7 +1328,7 @@ const slotsCode = `<template>
         color: var(--gray-400);
       }
       .tip {
-        background: rgba(59, 130, 246, 0.1);
+        background: var(--bg-primary-10);
         color: var(--gray-400);
       }
       .event-desc li {

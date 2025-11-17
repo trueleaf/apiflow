@@ -118,10 +118,10 @@ defineExpose({
     padding: 5px 10px;
   }
   .custom-tree-node.active-node {
-    background-color: #a6d2ff;
+    background-color: var(--el-color-primary-light-7);
   }
   .custom-tree-node.select-node {
-    background-color: #a6d2ff;
+    background-color: var(--el-color-primary-light-7);
   }
   .custom-tree-node.cut-node {
     color: var(--gray-500);

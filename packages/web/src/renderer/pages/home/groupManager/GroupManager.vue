@@ -27,7 +27,7 @@
         <!-- empty -->
         <div v-if="groupList.length === 0 && !loading" class="empty-state-card">
           <div class="illustration-wrapper">
-            <el-icon :size="80" color="#409EFF">
+            <el-icon :size="80" color="var(--el-color-primary)">
               <User />
             </el-icon>
           </div>
@@ -167,8 +167,8 @@
               :width="300"
             >
               <template #reference>
-                <div class="add-item" :title="t('添加新用户')" @click.stop="popoverVisible = true, popoverVisibleId = ''"> 
-                  <el-icon color="#888">
+                <div class="add-item" :title="t('添加新用户')" @click.stop="popoverVisible = true, popoverVisibleId = ''">
+                  <el-icon color="var(--text-gray-500)">
                     <Plus />
                   </el-icon>
                 </div>
@@ -510,7 +510,7 @@ onMounted(() => {
       background-color: var(--gray-200);
     }
     &.is-active {
-      background-color: #a6d2ff;
+      background-color: var(--color-active-highlight);
       color: var(--gray-800);
     }
   }

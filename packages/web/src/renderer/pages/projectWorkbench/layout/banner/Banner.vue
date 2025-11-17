@@ -733,18 +733,18 @@ onUnmounted(() => {
         flex-shrink: 0;
         
         &.running {
-          background-color: #67c23a;
+          background-color: var(--el-color-success);
           animation: pulse 2s infinite;
         }
         
         &.starting,
         &.stopping {
-          background-color: #e6a23c;
+          background-color: var(--el-color-warning);
           animation: pulse 2s infinite;
         }
         
         &.error {
-          background-color: #f56c6c;
+          background-color: var(--el-color-danger);
         }
       }
     }
@@ -770,7 +770,7 @@ onUnmounted(() => {
       width: 8px;
       height: 8px;
       border-radius: 50%;
-      background-color: #67c23a;
+      background-color: var(--el-color-success);
       margin-left: 6px;
       margin-right: 4px;
       flex-shrink: 0;

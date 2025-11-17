@@ -719,7 +719,7 @@ body {
 }
 
 .window-control .close:hover {
-  background-color: #e81123;
+  background-color: var(--color-window-close);
 }
 
 .sortable-ghost {

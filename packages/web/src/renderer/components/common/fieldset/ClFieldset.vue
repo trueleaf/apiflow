@@ -154,7 +154,7 @@ watch(() => props.maxHeight, () => {
     left: 20px;
     top: -10px;
     color: var(--gray-700);
-    background: #fff;
+    background: var(--bg-primary);
     padding: 0 20px;
     font-size: 18px;
     font-weight: bolder;

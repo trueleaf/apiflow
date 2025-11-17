@@ -603,6 +603,7 @@ export type MatchedFieldType = typeof MatchedFieldType[keyof typeof MatchedField
 export type MatchedDocument = {
   _id: string;
   name: string;
+  type: 'http' | 'httpMock' | 'websocket';
   method: string;
   url: string;
   creator: string;

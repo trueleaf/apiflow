@@ -295,7 +295,7 @@ watch(() => props.message, (newMessage) => {
     justify-content: space-between;
     padding: 5px 16px;
     border-bottom: 1px solid var(--border-light);
-    background: linear-gradient(to right, #2c3e50, #3a4a5f);
+    background: var(--gradient-header);
     color: var(--text-white);
     border-top-left-radius: 5px;
     border-top-right-radius: 5px;
@@ -322,7 +322,7 @@ watch(() => props.message, (newMessage) => {
       }
 
       &:hover {
-        background-color: rgba(255, 255, 255, 0.1);
+        background-color: var(--bg-white-10);
       }
     }
   }

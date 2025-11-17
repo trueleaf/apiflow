@@ -1,5 +1,5 @@
 <template>
-  <div v-loading="loading" element-loading-background="rgba(255, 255, 255, 0.9)" class="s-loading">
+  <div v-loading="loading" element-loading-background="var(--bg-white-9)" class="s-loading">
     <slot />
     <div v-show="loading" class="loading-text">{{ loadingText }}</div>
   </div>

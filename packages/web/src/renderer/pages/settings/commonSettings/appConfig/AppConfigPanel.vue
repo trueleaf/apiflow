@@ -161,7 +161,7 @@ const handleReset = async () => {
   background: var(--bg-primary);
   border: 1px solid var(--border-light);
   border-radius: 16px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.06);
+  box-shadow: 0 10px 30px var(--shadow-light);
   padding: 32px;
   margin-bottom: 32px;
 }

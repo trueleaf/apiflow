@@ -491,7 +491,7 @@ const customContentCode = `<template>
 
       &:hover {
         border-color: var(--gray-300);
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+        box-shadow: 0 1px 3px var(--bg-black-08);
       }
 
       .theme-icon {
@@ -692,11 +692,11 @@ const customContentCode = `<template>
     }
 
     .positive {
-      color: #52c41a;
+      color: var(--el-color-success);
     }
 
     .negative {
-      color: #ff4d4f;
+      color: var(--el-color-danger);
     }
   }
 
@@ -842,7 +842,7 @@ const customContentCode = `<template>
 
         &:hover {
           border-color: var(--gray-500);
-          box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+          box-shadow: 0 1px 3px var(--bg-black-3);
         }
       }
     }

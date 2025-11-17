@@ -52,9 +52,9 @@
                 :hide-after="0"
               >
                 <template #reference>
-                  <span style="cursor: pointer; border-bottom: 1px dashed #aaa;">{{ scope.row.expires }}</span>
+                  <span style="cursor: pointer; border-bottom: 1px dashed var(--text-gray-500);">{{ scope.row.expires }}</span>
                 </template>
-                <div style="font-size: 13px; color: #666;">{{ getExpiresCountdown(scope.row.expires) }}</div>
+                <div style="font-size: 13px; color: var(--text-gray-600);">{{ getExpiresCountdown(scope.row.expires) }}</div>
               </el-popover>
             </div>
             <div v-else>Session</div>

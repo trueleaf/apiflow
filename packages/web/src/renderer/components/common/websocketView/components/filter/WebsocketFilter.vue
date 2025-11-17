@@ -289,7 +289,7 @@ defineExpose({
       border: 1px solid var(--border-light);
       border-top: none;
       border-radius: 0 0 4px 4px;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      box-shadow: 0 2px 8px var(--bg-black-1);
 
       .filter-stats {
         font-size: 12px;

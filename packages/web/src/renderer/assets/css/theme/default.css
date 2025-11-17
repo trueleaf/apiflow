@@ -180,6 +180,113 @@
   --color-card-shadow: rgba(0, 0, 0, 0.1);
   --color-tabs-shadow: rgba(0, 0, 0, 0.12);
 
+  /* 组件状态颜色系统 */
+  --bg-success-light: #f0f9eb;
+  --bg-success-lighter: #e1f3d8;
+  --border-success: #67c23a;
+  --text-success-dark: #85ce61;
+  --bg-warning-lighter: #faecd8;
+  --border-warning: #e6a23c;
+  --text-warning-dark: #ebb563;
+  --bg-danger-light: #fef0f0;
+  --bg-danger-lighter: #fde2e2;
+  --border-danger: #f56c6c;
+  --text-danger-dark: #f78989;
+  --bg-info-light: #f4f4f5;
+  --bg-info-lighter: #e9e9eb;
+  --border-info: #909399;
+  --text-info-dark: #a6a9ad;
+
+  /* 半透明颜色系统 */
+  --bg-primary-08: rgba(64, 158, 255, 0.08);
+  --bg-primary-10: rgba(64, 158, 255, 0.10);
+  --bg-primary-15: rgba(64, 158, 255, 0.15);
+  --bg-danger-10: rgba(245, 108, 108, 0.1);
+  --bg-danger-15: rgba(245, 108, 108, 0.15);
+  --bg-success-10: rgba(103, 194, 58, 0.1);
+  --bg-warning-10: rgba(230, 162, 60, 0.1);
+  --bg-info-10: rgba(144, 147, 153, 0.1);
+  --bg-black-10: rgba(0, 0, 0, 0.1);
+  --bg-black-15: rgba(0, 0, 0, 0.15);
+
+  /* 导航和特殊功能颜色 */
+  --nav-bg: #eee;
+  --nav-text: #5f6368;
+  --nav-hover: #e2e2e2;
+  --nav-active: #f0f3fa;
+  --color-window-close: #e81123;
+  --color-share-bg: #e0e7ff;
+  --color-share-purple: #e5d6f6;
+  --color-active-highlight: #a6d2ff;
+
+  /* 渐变色系统 */
+  --gradient-share-primary: linear-gradient(135deg, #e0e7ff 0%, #f3f8ff 100%);
+  --gradient-share-secondary: linear-gradient(to bottom, #ffffff, #f8f9fa);
+  --gradient-header: linear-gradient(to right, #2c3e50, #3a4a5f);
+  --gradient-button: linear-gradient(180deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.1));
+
+  /* 灰色文字补充 */
+  --text-gray-500: #888;
+  --text-gray-550: #777;
+  --text-nav: #5f6368;
+  --text-muted: #999;
+
+  /* 阴影补充 */
+  --shadow-card: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+  --shadow-focus: 0 0 0 2px rgba(64, 158, 255, 0.08);
+
+  /* AI对话页面专用颜色 */
+  --ai-dialog-bg: #ffffff;
+  --ai-dialog-border: #d1d5db;
+  --ai-dialog-shadow: 0 16px 40px rgba(15, 23, 42, 0.23);
+  --ai-header-bg: #f3f3f3;
+  --ai-header-border: #d1d5db;
+  --ai-separator-color: #d1d5db;
+  --ai-text-primary: #6b7280;
+  --ai-text-secondary: #9ca3af;
+  --ai-scrollbar-thumb: #d1d5db;
+  --ai-scrollbar-hover: #9ca3af;
+  --ai-avatar-bg: #f3f4f6;
+  --ai-bubble-user-bg: var(--theme-color);
+  --ai-bubble-user-text: #ffffff;
+  --ai-bubble-ai-bg: #f3f4f6;
+  --ai-bubble-ai-text: var(--gray-700);
+  --ai-loading-dot: #9ca3af;
+  --ai-tool-border: #e5e7eb;
+  --ai-code-bg: rgba(175, 184, 193, 0.2);
+  --ai-code-block-bg: #282c34;
+  --ai-code-block-text: #abb2bf;
+  --ai-blockquote-border: #d1d5db;
+  --ai-blockquote-text: #6b7280;
+  --ai-table-border: #d1d5db;
+  --ai-table-header-bg: #f3f4f6;
+  --ai-hr-border: #e5e7eb;
+  --ai-input-bg: #ffffff;
+  --ai-input-border: #d4d4d4;
+  --ai-input-hover-bg: #f8f8f8;
+  --ai-button-bg: #ffffff;
+  --ai-button-border: #fff;
+  --ai-button-hover-bg: #f8f8f8;
+  --ai-dropdown-bg: #ffffff;
+  --ai-dropdown-border: #f2f2f2;
+  --ai-dropdown-shadow: 0 12px 24px rgba(15, 23, 42, 0.16);
+  --ai-dropdown-item-hover: #f3f3f3;
+  --ai-send-disabled-bg: #d0d7df;
+  --ai-send-disabled-text: #ffffff;
+  --ai-resize-indicator-bg: rgba(74, 158, 255, 0.9);
+  --ai-resize-indicator-text: #ffffff;
+  --ai-action-hover-bg: rgba(15, 23, 42, 0.08);
+  --ai-history-border: #e5e7eb;
+  --ai-history-item-bg: #ffffff;
+  --ai-history-item-hover-bg: #f9fafb;
+  --ai-history-item-hover-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  --ai-history-item-current-bg: rgba(74, 158, 255, 0.05);
+  --ai-history-item-current-hover: rgba(74, 158, 255, 0.08);
+  --ai-history-badge-bg: var(--theme-color);
+  --ai-history-badge-text: #ffffff;
+  --ai-history-delete-hover-bg: #fee2e2;
+  --ai-history-delete-hover-text: #dc2626;
+
   /* Element Plus 完整主题变量 */
   --el-bg-color: #ffffff;
   --el-bg-color-page: #f5f5f5;

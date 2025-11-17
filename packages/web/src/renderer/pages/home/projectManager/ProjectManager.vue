@@ -2,17 +2,25 @@
   <div class="project-manager">
     <!-- 搜索条件 -->
     <div class="search-item d-flex a-center mb-3">
-      <el-input v-model="projectName" :placeholder="$t('搜索项目、文档、URL、创建者等')" :prefix-icon="SearchIcon" class="w-200px mr-3" clearable
-        @input="debounceSearch" @change="debounceSearch" @keyup.enter="debounceSearch">
+      <el-input v-model="projectName" :placeholder="$t('搜索项目、文档、URL、创建者等')" :prefix-icon="SearchIcon"
+        class="w-200px mr-3" @input="debounceSearch" @change="debounceSearch" @keyup.enter="debounceSearch">
         <template #suffix>
-          <el-icon :title="$t('高级搜索')" class="cursor-pointer" :color="isShowAdvanceSearch ? '#409EFF' : '#aaa'"
-            @click.stop.prevent="() => isShowAdvanceSearch = !isShowAdvanceSearch">
-            <Tools />
-          </el-icon>
+          <div class="d-flex a-center" style="gap: 8px;">
+            <el-icon v-show="projectName.trim().length > 0" :title="$t('清空')" class="cursor-pointer"
+              @click.stop="handleClearSearch">
+              <CircleCloseIcon />
+            </el-icon>
+            <el-icon :title="$t('高级搜索')" class="cursor-pointer"
+              :color="isShowAdvanceSearch ? 'var(--theme-color)' : 'var(--gray-400)'"
+              @click.stop.prevent="() => isShowAdvanceSearch = !isShowAdvanceSearch">
+              <Tools />
+            </el-icon>
+          </div>
         </template>
       </el-input>
       <el-button :icon="PlusIcon" @click="dialogVisible = true">{{ $t("新建项目") }}</el-button>
-      <el-button v-if="0" type="success" :icon="DownloadIcon" @click="dialogVisible3 = true">{{ $t("导入项目") }}</el-button>
+      <el-button v-if="0" type="success" :icon="DownloadIcon" @click="dialogVisible3 = true">{{ $t("导入项目")
+        }}</el-button>
     </div>
     <!-- 高级搜索 -->
     <div v-if="isShowAdvanceSearch" class="advanced-search-panel mb-3">
@@ -70,7 +78,8 @@
               <el-checkbox :value="MatchedFieldTypeEnum.Header" :label="MatchedFieldTypeEnum.Header">
                 {{ $t("请求头") }}
               </el-checkbox>
-              <el-checkbox :value="MatchedFieldTypeEnum.RequestBodyParam" :label="MatchedFieldTypeEnum.RequestBodyParam">
+              <el-checkbox :value="MatchedFieldTypeEnum.RequestBodyParam"
+                :label="MatchedFieldTypeEnum.RequestBodyParam">
                 {{ $t("请求参数") }}
               </el-checkbox>
               <el-checkbox :value="MatchedFieldTypeEnum.ResponseParam" :label="MatchedFieldTypeEnum.ResponseParam">
@@ -88,7 +97,8 @@
         <span class="cursor-pointer">{{ t("收藏的项目") }}</span>
       </h2>
       <div v-show="starProjects.length > 0" class="project-wrap">
-        <div v-for="(item, index) in starProjects" :key="index" class="project-list">
+        <div v-for="(item, index) in starProjects" :key="index" class="project-list"
+          :class="{ 'is-searching': projectName.trim().length > 0 }">
           <div class="project-header">
             <div :title="item.projectName" class="title project-name theme-color text-ellipsis">
               <Emphasize :value="item.projectName" :keyword="projectName"></Emphasize>
@@ -136,7 +146,8 @@
             <span class="project-creator">{{ item.owner.name }}</span>&nbsp;&nbsp;
           </div>
           <!-- 高级搜索匹配详情 -->
-          <div v-if="projectName.trim().length > 0 && isProjectWithMatchDetails(item)" class="match-details-section mt-3">
+          <div v-if="projectName.trim().length > 0 && isProjectWithMatchDetails(item)"
+            class="match-details-section mt-3">
             <div class="match-header cursor-pointer d-flex a-center" @click="toggleMatchDetails(item._id)">
               <el-icon :size="14" class="mr-1">
                 <CaretBottomIcon v-if="isMatchDetailsExpanded(item._id)" />
@@ -152,13 +163,10 @@
               </div>
               <!-- 匹配的文档列表 -->
               <div v-if="item.matchedDocuments.length > 0" class="matched-docs">
-                <div class="gray-600 f-sm mb-2">{{ $t("匹配的文档") }} ({{ item.matchedDocuments.length }}{{ $t("个") }}):</div>
-                <MatchedDocumentList 
-                  :documents="item.matchedDocuments" 
-                  :keyword="projectName"
-                  :project-id="item._id"
-                  @doc-click="handleDocumentClick"
-                />
+                <div class="gray-600 f-sm mb-2">{{ $t("匹配的文档") }} ({{ item.matchedDocuments.length }}{{ $t("个") }}):
+                </div>
+                <MatchedDocumentList :documents="item.matchedDocuments" :keyword="projectName" :project-id="item._id"
+                  @doc-click="handleDocumentClick" />
               </div>
             </div>
           </div>
@@ -169,7 +177,7 @@
             </div>
             <div class="ml-auto">
               <el-button type="default" @click="handleJumpToProject(item)">{{ $t("编辑") }}</el-button>
-              <el-button v-if="!isStandalone"  @click="handleJumpToView(item)">{{ $t("预览") }}</el-button>
+              <el-button v-if="!isStandalone" @click="handleJumpToView(item)">{{ $t("预览") }}</el-button>
             </div>
           </div>
         </div>
@@ -191,7 +199,8 @@
       </div>
       <!-- 项目列表 -->
       <div v-show="!isFold && !isEmptyState" class="project-wrap">
-        <div v-for="(item, index) in projectList" :key="index" class="project-list">
+        <div v-for="(item, index) in projectList" :key="index" class="project-list"
+          :class="{ 'is-searching': projectName.trim().length > 0 }">
           <div class="project-header">
             <div :title="item.projectName" class="title project-name theme-color text-ellipsis">
               <Emphasize :value="item.projectName" :keyword="projectName"></Emphasize>
@@ -239,7 +248,8 @@
             <span class="project-update-time">{{ formatDate(item.updatedAt) }}</span>&nbsp;&nbsp;
           </div>
           <!-- 高级搜索匹配详情 -->
-          <div v-if="projectName.trim().length > 0 && isProjectWithMatchDetails(item)" class="match-details-section mt-3">
+          <div v-if="projectName.trim().length > 0 && isProjectWithMatchDetails(item)"
+            class="match-details-section mt-3">
             <div class="match-header cursor-pointer d-flex a-center" @click="toggleMatchDetails(item._id)">
               <el-icon :size="14" class="mr-1">
                 <CaretBottomIcon v-if="isMatchDetailsExpanded(item._id)" />
@@ -255,13 +265,10 @@
               </div>
               <!-- 匹配的文档列表 -->
               <div v-if="item.matchedDocuments.length > 0" class="matched-docs">
-                <div class="gray-600 f-sm mb-2">{{ $t("匹配的文档") }} ({{ item.matchedDocuments.length }}{{ $t("个") }}):</div>
-                <MatchedDocumentList 
-                  :documents="item.matchedDocuments" 
-                  :keyword="projectName"
-                  :project-id="item._id"
-                  @doc-click="handleDocumentClick"
-                />
+                <div class="gray-600 f-sm mb-2">{{ $t("匹配的文档") }} ({{ item.matchedDocuments.length }}{{ $t("个") }}):
+                </div>
+                <MatchedDocumentList :documents="item.matchedDocuments" :keyword="projectName" :project-id="item._id"
+                  @doc-click="handleDocumentClick" />
               </div>
             </div>
           </div>
@@ -272,7 +279,7 @@
             </div>
             <div class="ml-auto">
               <el-button type="default" @click="handleJumpToProject(item)">{{ $t("编辑") }}</el-button>
-              <el-button v-if="!isStandalone"  @click="handleJumpToView(item)">{{ $t("预览") }}</el-button>
+              <el-button v-if="!isStandalone" @click="handleJumpToView(item)">{{ $t("预览") }}</el-button>
             </div>
           </div>
         </div>
@@ -284,14 +291,8 @@
     :project-name="currentEditProjectName" @success="handleEditSuccess"></EditProjectDialog>
   <EditPermissionDialog v-if="dialogVisible4" v-model="dialogVisible4" :project-id="currentEditProjectId"
     @leave="getProjectList"></EditPermissionDialog>
-  <UndoNotification
-    v-if="showUndoNotification"
-    :message="undoMessage"
-    :duration="60000"
-    :show-progress="true"
-    @undo="handleUndoDelete"
-    @close="handleCloseUndo"
-  />
+  <UndoNotification v-if="showUndoNotification" :message="undoMessage" :duration="60000" :show-progress="true"
+    @undo="handleUndoDelete" @close="handleCloseUndo" />
 </template>
 
 <script lang="ts" setup>
@@ -308,6 +309,7 @@ import {
   CaretBottom as CaretBottomIcon,
   CaretRight as CaretRightIcon,
   Tools,
+  CircleClose as CircleCloseIcon,
 } from '@element-plus/icons-vue'
 import Loading from '@/components/common/loading/ClLoading.vue'
 import Emphasize from '@/components/common/emphasize/ClEmphasize.vue'
@@ -440,8 +442,8 @@ const dialogVisible4 = ref(false);
 const projectList = computed<(ApidocProjectInfo | ProjectWithMatchDetails)[]>(() => {
   const hasKeyword = projectName.value.trim().length > 0;
   const list = hasKeyword ? projectListCopy2.value : projectListCopy.value;
-  const filteredProjectList = hasKeyword 
-    ? list 
+  const filteredProjectList = hasKeyword
+    ? list
     : list.filter((val) => val.projectName.match(new RegExp(projectName.value, 'gi')));
   return filteredProjectList.map((val) => {
     const isStared = starProjectIds.value.find((id: string) => id === val._id);
@@ -454,8 +456,8 @@ const projectList = computed<(ApidocProjectInfo | ProjectWithMatchDetails)[]>(()
 const starProjects = computed<(ApidocProjectInfo | ProjectWithMatchDetails)[]>(() => {
   const hasKeyword = projectName.value.trim().length > 0;
   const list = hasKeyword ? projectListCopy2.value : projectListCopy.value;
-  const filteredProjectList = hasKeyword 
-    ? list 
+  const filteredProjectList = hasKeyword
+    ? list
     : list.filter((val) => val.projectName.match(new RegExp(projectName.value, 'gi')));
   return filteredProjectList.filter((projectInfo) => starProjectIds.value.find((id: string) => id === projectInfo._id)).map((val) => {
     const isStared = starProjectIds.value.find((id: string) => id === val._id);
@@ -683,7 +685,7 @@ const initCahce = () => {
 }
 //跳转到编辑
 const handleJumpToProject = (item: ApidocProjectInfo) => {
-  if(!isStandalone.value){
+  if (!isStandalone.value) {
     request.put('/api/project/visited', { projectId: item._id }).catch((err) => {
       console.error(err);
     });
@@ -774,6 +776,11 @@ const handleDocumentClick = (docId: string, projectId: string) => {
   });
   apidocBaseInfo.changeProjectId(projectId);
 }
+//清空搜索
+const handleClearSearch = () => {
+  projectName.value = '';
+  debounceSearch();
+}
 //防抖搜索
 const debounceSearch = debounce(async () => {
   searchLoading.value = true;
@@ -810,6 +817,18 @@ const debounceSearch = debounce(async () => {
       const matchedFields: MatchedFieldType[] = [];
       let urlPath = '';
       let method = '';
+      let nodeType: 'http' | 'httpMock' | 'websocket' | 'folder' = 'folder';
+      if (hasItem) {
+        if ('port' in doc.item && 'method' in doc.item) {
+          nodeType = 'httpMock';
+        } else if ('method' in doc.item) {
+          nodeType = 'http';
+        } else if ('protocol' in doc.item) {
+          nodeType = 'websocket';
+        }
+      } else {
+        nodeType = 'folder';
+      }
       if (scopes.includes(MatchedFieldTypeEnum.URL) && hasItem && 'url' in doc.item && doc.item.url && 'path' in doc.item.url) {
         urlPath = doc.item.url.path;
         if (urlPath.toLowerCase().includes(keyword)) {
@@ -821,6 +840,8 @@ const debounceSearch = debounce(async () => {
         if (scopes.includes(MatchedFieldTypeEnum.HttpMethod) && method.toLowerCase().includes(keyword)) {
           matchedFields.push(MatchedFieldTypeEnum.HttpMethod);
         }
+      } else if (hasItem && 'protocol' in doc.item) {
+        method = doc.item.protocol as string;
       }
       const docName = doc.info.name;
       if (scopes.includes(MatchedFieldTypeEnum.DocumentName) && docName.toLowerCase().includes(keyword)) {
@@ -878,7 +899,7 @@ const debounceSearch = debounce(async () => {
           matchedFields.push(MatchedFieldTypeEnum.ResponseParam);
         }
       }
-      if (matchedFields.length > 0) {
+      if (matchedFields.length > 0 && nodeType !== 'folder') {
         const projectId = doc.projectId;
         if (!projectMatchMap.has(projectId)) {
           const project = projectList.find((p) => p._id === projectId);
@@ -896,6 +917,7 @@ const debounceSearch = debounce(async () => {
           projectMatch.matchedDocuments.push({
             _id: doc._id,
             name: docName,
+            type: nodeType,
             method: method,
             url: urlPath,
             creator: creator,
@@ -966,25 +988,29 @@ onMounted(() => {
     .search-hint {
       line-height: 1.5;
     }
+
     .search-scope-selector {
       .search-scope-checkboxes {
         display: flex;
         flex-direction: column;
         gap: 12px;
+
         .search-scope-group {
           display: flex;
           align-items: flex-start;
           margin-bottom: 0;
+
           .search-scope-group-label {
             width: 80px;
             flex-shrink: 0;
             text-align: right;
             font-size: 13px;
-            color: #666;
+            color: var(--gray-600);
             font-weight: 500;
             padding-right: 12px;
             line-height: 32px;
           }
+
           .search-scope-group-items {
             flex: 1;
             display: flex;
@@ -992,8 +1018,10 @@ onMounted(() => {
             gap: 8px;
           }
         }
+
         :deep(.el-checkbox) {
           margin-right: 0;
+
           .el-checkbox__label {
             padding-left: 4px;
           }
@@ -1001,12 +1029,14 @@ onMounted(() => {
       }
     }
   }
+
   .empty-container {
     min-height: 500px;
     display: flex;
     align-items: center;
     justify-content: center;
   }
+
   .project-wrap {
     display: flex;
     flex-wrap: wrap;
@@ -1030,6 +1060,10 @@ onMounted(() => {
     margin-bottom: 20px;
     padding: 10px;
     position: relative;
+
+    &.is-searching {
+      width: 600px;
+    }
 
     @media only screen and (max-width: 720px) {
       margin-right: 0;
@@ -1071,17 +1105,22 @@ onMounted(() => {
       background-color: var(--gray-50);
       border: 1px solid var(--gray-200);
       border-radius: 4px;
+
       .match-header {
         color: var(--primary-color);
+
         &:hover {
           opacity: 0.8;
         }
       }
+
       .match-content {
         padding-left: 20px;
+
         .match-item {
           line-height: 1.8;
         }
+
         .matched-docs {
           margin-top: 8px;
         }

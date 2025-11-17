@@ -95,7 +95,7 @@ const handleClearData = async () => {
     box-shadow: 0 3px 2px var(--gray-400);
     .text-bold {
       font-weight: 600;
-      color: #303133;
+      color: var(--el-text-color-primary);
     }
 
     .base-info {

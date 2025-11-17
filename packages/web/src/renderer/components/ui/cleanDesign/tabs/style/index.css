@@ -232,11 +232,11 @@
   box-shadow: var(--clean-tabs-focus-ring);
   border-radius: var(--clean-tabs-radius-sm);
   z-index: 1;
-  background: rgba(0, 0, 0, 0.05);
+  background: var(--bg-black-05);
 }
 
 [data-theme="dark"] .clean-tabs__item:focus-visible {
-  background: rgba(255, 255, 255, 0.08);
+  background: var(--bg-white-08);
 }
 
 .clean-tabs--card .clean-tabs__item:focus-visible {

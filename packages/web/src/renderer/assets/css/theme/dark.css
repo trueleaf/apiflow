@@ -162,6 +162,61 @@
   --color-card-shadow: rgba(0, 0, 0, 0.4);
   --color-tabs-shadow: rgba(0, 0, 0, 0.5);
 
+  /* 组件状态颜色系统 - 深色主题 */
+  --bg-success-light: #1f2e1f;
+  --bg-success-lighter: #2a3f2a;
+  --border-success: #5daf34;
+  --text-success-dark: #6bb955;
+  --bg-warning-lighter: #3d2f20;
+  --border-warning: #d89b38;
+  --text-warning-dark: #d4a257;
+  --bg-danger-light: #3d2020;
+  --bg-danger-lighter: #4d2a2a;
+  --border-danger: #e85858;
+  --text-danger-dark: #e57575;
+  --bg-info-light: #2a2a2b;
+  --bg-info-lighter: #35353b;
+  --border-info: #7d8085;
+  --text-info-dark: #8e9197;
+
+  /* 半透明颜色系统 - 深色主题 */
+  --bg-primary-08: rgba(74, 158, 255, 0.08);
+  --bg-primary-10: rgba(74, 158, 255, 0.10);
+  --bg-primary-15: rgba(74, 158, 255, 0.15);
+  --bg-danger-10: rgba(232, 88, 88, 0.1);
+  --bg-danger-15: rgba(232, 88, 88, 0.15);
+  --bg-success-10: rgba(93, 175, 52, 0.1);
+  --bg-warning-10: rgba(216, 155, 56, 0.1);
+  --bg-info-10: rgba(125, 128, 133, 0.1);
+  --bg-black-10: rgba(0, 0, 0, 0.2);
+  --bg-black-15: rgba(0, 0, 0, 0.3);
+
+  /* 导航和特殊功能颜色 - 深色主题 */
+  --nav-bg: #2d2d2d;
+  --nav-text: #9d9d9d;
+  --nav-hover: #3a3a3a;
+  --nav-active: #404040;
+  --color-window-close: #e81123;
+  --color-share-bg: #1e2d3d;
+  --color-share-purple: #3d2f4d;
+  --color-active-highlight: #5a8ec7;
+
+  /* 渐变色系统 - 深色主题 */
+  --gradient-share-primary: linear-gradient(135deg, #1e2d3d 0%, #2a3a4d 100%);
+  --gradient-share-secondary: linear-gradient(to bottom, #1e1e1e, #252526);
+  --gradient-header: linear-gradient(to right, #1a1a1a, #252525);
+  --gradient-button: linear-gradient(180deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.1));
+
+  /* 灰色文字补充 - 深色主题 */
+  --text-gray-500: #9d9d9d;
+  --text-gray-550: #a8a8a8;
+  --text-nav: #9d9d9d;
+  --text-muted: #8e8e8e;
+
+  /* 阴影补充 - 深色主题 */
+  --shadow-card: 0 2px 12px 0 rgba(0, 0, 0, 0.3);
+  --shadow-focus: 0 0 0 2px rgba(74, 158, 255, 0.15);
+
   /* Element Plus 完整主题变量 - 深色主题 */
   --el-bg-color: #1e1e1e;
   --el-bg-color-page: #141414;

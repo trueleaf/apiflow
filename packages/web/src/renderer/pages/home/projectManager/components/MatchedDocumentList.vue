@@ -8,8 +8,16 @@
       @click="handleDocClick(doc)"
     >
       <div class="doc-header d-flex a-center">
-        <el-tag :type="getMethodTagType(doc.method)" size="small" class="method-tag">
-          {{ doc.method }}
+        <el-tag :type="getMethodTagType(doc)" size="small" class="method-tag">
+          <template v-if="doc.type === 'websocket'">
+            {{ doc.method.toUpperCase() }}
+          </template>
+          <template v-else-if="doc.type === 'httpMock'">
+            MOCK
+          </template>
+          <template v-else>
+            {{ doc.method }}
+          </template>
         </el-tag>
         <div class="doc-url ml-2 flex-1 text-ellipsis">
           <SearchHighlight :text="doc.url" :keyword="keyword" />
@@ -46,8 +54,14 @@ const emit = defineEmits<{
   docClick: [docId: string, projectId: string]
 }>();
 //获取请求方法标签类型
-const getMethodTagType = (method: string): 'success' | 'info' | 'warning' | 'danger' | 'primary' => {
-  const methodUpper = method.toUpperCase();
+const getMethodTagType = (doc: MatchedDocument): 'success' | 'info' | 'warning' | 'danger' | 'primary' => {
+  if (doc.type === 'websocket') {
+    return 'info';
+  }
+  if (doc.type === 'httpMock') {
+    return 'warning';
+  }
+  const methodUpper = doc.method.toUpperCase();
   switch (methodUpper) {
     case 'GET':
       return 'success';
@@ -74,7 +88,7 @@ const handleDocClick = (doc: MatchedDocument) => {
 <style lang='scss' scoped>
 .matched-document-list {
   .doc-item {
-    padding: 8px 0;
+    padding: 8px;
     cursor: pointer;
     transition: background-color 0.2s;
     &.has-border {
@@ -83,8 +97,6 @@ const handleDocClick = (doc: MatchedDocument) => {
     &:hover {
       background-color: var(--gray-50);
       border-radius: 4px;
-      padding-left: 8px;
-      padding-right: 8px;
     }
     .method-tag {
       font-weight: 600;

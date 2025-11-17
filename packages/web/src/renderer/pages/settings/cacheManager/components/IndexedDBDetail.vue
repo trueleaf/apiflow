@@ -171,21 +171,21 @@ const handleCloseIndexedDbDialog = (): void => {
       margin: 0;
       font-size: 18px;
       font-weight: 600;
-      color: #333;
+      color: var(--el-text-color-primary);
     }
   }
 
   .empty-data {
     margin-top: 24px;
-    background: #fff;
+    background: var(--el-bg-color);
     border-radius: 8px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 2px 5px var(--shadow-light);
     padding: 40px 20px;
     text-align: center;
 
     .empty-text {
       font-size: 16px;
-      color: #999;
+      color: var(--el-text-color-disabled);
     }
   }
 }

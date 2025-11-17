@@ -540,7 +540,7 @@ const handleFormatUrl = () => {
       user-select: none;
       flex: 0 0 auto;
       font-weight: 500;
-      color: #303133;
+      color: var(--el-text-color-primary);
     }
     
     .url {
@@ -552,7 +552,7 @@ const handleFormatUrl = () => {
       text-overflow: ellipsis;
       white-space: nowrap;
       overflow-x: auto;
-      color: #606266;
+      color: var(--el-text-color-regular);
       margin: 0 8px;
       min-width: 0; /* 允许flex item收缩到内容宽度以下 */
       

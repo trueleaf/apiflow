@@ -302,7 +302,7 @@ onUnmounted(() => {
   width: 72px;
   height: 72px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #e0e7ff 0%, #f3f8ff 100%);
+  background: var(--gradient-share-primary);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -348,7 +348,7 @@ onUnmounted(() => {
 .loading-progress {
   width: 120px;
   height: 4px;
-  background: #e0e7ff;
+  background: var(--color-share-bg);
   border-radius: var(--border-radius-xs);
   overflow: hidden;
   margin-top: 8px;

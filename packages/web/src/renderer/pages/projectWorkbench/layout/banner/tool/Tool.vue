@@ -831,7 +831,7 @@ const handleToggleProjectModel = () => {
   font-size: 18px;
   width: 22px;
   height: 22px;
-  color: #f56c6c;
+  color: var(--el-color-danger);
   cursor: pointer;
   border-radius: 50%;
   &:hover {

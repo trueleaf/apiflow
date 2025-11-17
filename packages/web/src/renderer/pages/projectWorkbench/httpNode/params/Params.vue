@@ -1097,16 +1097,16 @@ onUnmounted(() => {
           gap: 6px;
           padding: 8px 16px;
           font-size: 13px;
-          color: #f56c6c;
+          color: var(--border-danger);
           background: transparent;
-          border: 1px solid #f56c6c;
+          border: 1px solid var(--border-danger);
           border-radius: 4px;
           cursor: pointer;
           transition: all 0.2s;
 
           &:hover {
-            background: rgba(245, 108, 108, 0.1);
-            border-color: #f56c6c;
+            background: var(--bg-danger-10);
+            border-color: var(--border-danger);
           }
 
           &:active {

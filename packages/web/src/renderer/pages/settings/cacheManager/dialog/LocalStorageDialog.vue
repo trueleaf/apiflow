@@ -97,8 +97,8 @@ const handleClose = () => {
 
 /* 项目信息区域 */
 .item-info {
-  background: #f8f9fa;
-  border: 1px solid #e9ecef;
+  background: var(--bg-gray-100);
+  border: 1px solid var(--border-lighter);
   border-radius: 6px;
   padding: 16px;
   margin-bottom: 20px;
@@ -115,20 +115,20 @@ const handleClose = () => {
 
 .info-item .label {
   font-weight: 500;
-  color: #495057;
+  color: var(--text-gray-700);
   margin-right: 8px;
   white-space: nowrap;
 }
 
 .info-item .value {
-  color: #212529;
+  color: var(--el-text-color-primary);
   font-size: 13px;
   word-break: break-all;
 }
 
 /* JSON编辑器容器 */
 .json-editor-container {
-  border: 1px solid #e9ecef;
+  border: 1px solid var(--border-lighter);
   border-radius: 6px;
   overflow: hidden;
   margin-top: 16px;

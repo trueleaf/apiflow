@@ -189,7 +189,7 @@ onMounted(() => {
       input {
         width: 100%;
         padding: 10px 15px;
-        border: 1px solid #dcdfe6;
+        border: 1px solid var(--el-border-color);
         border-radius: 4px;
         font-size: 14px;
         outline: none;
@@ -239,7 +239,7 @@ onMounted(() => {
           p {
             margin: 0;
             font-size: 14px;
-            color: #606266;
+            color: var(--el-text-color-regular);
             line-height: 1.5;
           }
         }
@@ -251,9 +251,9 @@ onMounted(() => {
             width: 100%;
             padding: 8px 0;
             background-color: #f5f7fa;
-            border: 1px solid #dcdfe6;
+            border: 1px solid var(--el-border-color);
             border-radius: 4px;
-            color: #606266;
+            color: var(--el-text-color-regular);
             cursor: pointer;
             transition: all 0.3s;
             
@@ -270,7 +270,7 @@ onMounted(() => {
     .no-results {
       text-align: center;
       padding: 40px 0;
-      color: #909399;
+      color: var(--el-text-color-secondary);
       font-size: 14px;
     }
     

@@ -461,7 +461,7 @@ const multiTabCode = `<CleanTabs v-model="activeTab4" type="card">
       
       &:hover {
         border-color: var(--gray-300);
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+        box-shadow: 0 1px 3px var(--bg-black-08);
       }
       
       .theme-icon {
@@ -656,7 +656,7 @@ const multiTabCode = `<CleanTabs v-model="activeTab4" type="card">
         
         &:hover {
           border-color: var(--gray-500);
-          box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+          box-shadow: 0 1px 3px var(--bg-black-3);
         }
       }
     }

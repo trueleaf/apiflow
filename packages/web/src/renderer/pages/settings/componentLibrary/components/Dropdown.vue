@@ -25,77 +25,77 @@
 <style lang="scss" scoped>
 .component-demo {
   padding: 20px;
-  border: 1px solid #ebeef5;
+  border: 1px solid var(--el-border-color-lighter);
   border-radius: 6px;
-  background-color: #fff;
-  
+  background-color: var(--el-bg-color);
+
   .component-title {
     margin-top: 0;
     margin-bottom: 16px;
     font-size: 18px;
     font-weight: 500;
-    color: #333;
+    color: var(--el-text-color-primary);
   }
-  
+
   .component-description {
     margin-bottom: 20px;
-    
+
     p {
       margin: 0;
       font-size: 14px;
-      color: #606266;
+      color: var(--el-text-color-regular);
       line-height: 1.5;
     }
   }
-  
+
   .component-showcase {
     position: relative;
-    
+
     .dropdown {
       position: relative;
       display: inline-block;
-      
+
       .dropdown-toggle {
         padding: 8px 16px;
-        border: 1px solid #dcdfe6;
+        border: 1px solid var(--el-border-color);
         border-radius: 4px;
-        background-color: #fff;
+        background-color: var(--el-bg-color);
         cursor: pointer;
         display: flex;
         align-items: center;
         gap: 8px;
         font-size: 14px;
-        
+
         .caret {
           font-size: 12px;
         }
-        
+
         &:hover {
-          border-color: #c0c4cc;
+          border-color: var(--el-border-color-hover);
         }
       }
-      
+
       .dropdown-menu {
         position: absolute;
         top: 100%;
         left: 0;
         margin-top: 5px;
         min-width: 120px;
-        background-color: #fff;
-        border: 1px solid #ebeef5;
+        background-color: var(--el-bg-color);
+        border: 1px solid var(--el-border-color-lighter);
         border-radius: 4px;
-        box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+        box-shadow: var(--shadow-md);
         z-index: 10;
-        
+
         .dropdown-item {
           padding: 8px 16px;
           font-size: 14px;
-          color: #606266;
+          color: var(--el-text-color-regular);
           cursor: pointer;
-          
+
           &:hover {
-            background-color: #f5f7fa;
-            color: #007aff;
+            background-color: var(--el-fill-color-light);
+            color: var(--el-color-primary);
           }
         }
       }

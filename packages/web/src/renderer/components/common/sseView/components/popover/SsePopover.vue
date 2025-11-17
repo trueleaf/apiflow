@@ -293,12 +293,12 @@ watch(() => props.message, (newMessage) => {
             transition: all 0.2s;
 
             &:hover {
-              color: var(--primary, #409eff);
+              color: var(--primary, var(--el-color-primary));
             }
 
             &.active {
-              color: var(--primary, #409eff);
-              border-bottom-color: var(--primary, #409eff);
+              color: var(--primary, var(--el-color-primary));
+              border-bottom-color: var(--primary, var(--el-color-primary));
             }
           }
         }

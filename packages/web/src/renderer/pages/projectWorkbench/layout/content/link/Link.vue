@@ -244,7 +244,7 @@ onUnmounted(() => {
         }
 
         .desc {
-          color: #888;
+          color: var(--gray-500);
           font-size: 14px;
         }
       }
@@ -268,7 +268,7 @@ onUnmounted(() => {
     align-items: center;
     
     .action-btn {
-      color: #409eff;
+      color: var(--el-color-primary);
       cursor: pointer;
       margin-right: 8px;
       &:last-child {

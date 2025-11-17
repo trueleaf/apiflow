@@ -226,13 +226,13 @@ onMounted(() => {
       margin: 0 0 8px 0;
       font-size: 24px;
       font-weight: 600;
-      color: #333;
+      color: var(--el-text-color-primary);
     }
 
     .subtitle {
       margin: 0;
       font-size: 14px;
-      color: #909399;
+      color: var(--el-text-color-secondary);
     }
   }
 
@@ -253,7 +253,7 @@ onMounted(() => {
     align-items: center;
     justify-content: center;
     height: 400px;
-    color: #909399;
+    color: var(--el-text-color-secondary);
 
     .loading-icon {
       animation: spin 1s linear infinite;
@@ -271,13 +271,13 @@ onMounted(() => {
     align-items: center;
     justify-content: center;
     height: 400px;
-    color: #909399;
+    color: var(--el-text-color-secondary);
 
     .empty-text {
       margin-top: 20px;
       font-size: 18px;
       font-weight: 500;
-      color: #606266;
+      color: var(--el-text-color-regular);
     }
 
     .empty-description {
@@ -309,13 +309,13 @@ onMounted(() => {
     }
 
     &:hover {
-      border-color: #c6e2ff;
-      box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+      border-color: var(--el-color-primary-light-8);
+      box-shadow: 0 2px 12px 0 var(--shadow-light);
     }
 
     &.selected {
-      border-color: #409eff;
-      background-color: #ecf5ff;
+      border-color: var(--el-color-primary);
+      background-color: var(--el-color-primary-light-9);
     }
 
     .project-header {

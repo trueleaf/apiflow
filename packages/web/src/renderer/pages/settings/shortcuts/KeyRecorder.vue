@@ -133,30 +133,30 @@ const handleKeyDown = (event: KeyboardEvent) => {
   outline: none;
 
   &.is-focused {
-    border-bottom-color: #409eff;
+    border-bottom-color: var(--border-focus);
   }
 
   &.has-error {
-    border-bottom-color: #f56c6c;
+    border-bottom-color: var(--border-danger);
   }
 
   .key-text {
     font-size: 13px;
-    color: #303133;
+    color: var(--text-gray-900);
     font-weight: 500;
     letter-spacing: 0.5px;
   }
 
   .key-placeholder {
     font-size: 13px;
-    color: #c0c4cc;
+    color: var(--text-gray-400);
   }
 }
 
 .error-message {
   margin-top: 4px;
   font-size: 12px;
-  color: #f56c6c;
+  color: var(--border-danger);
   line-height: 1.4;
 }
 </style>

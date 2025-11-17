@@ -297,7 +297,7 @@ const handleCustomDateChange = (value: string) => {
       font-size: 1em;
       margin-left: -1px;
       &.error {
-        border: 2px solid #f56c6c;
+        border: 2px solid var(--el-color-danger);
       }
     }
     .more {

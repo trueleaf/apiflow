@@ -381,7 +381,7 @@ const handleDeleteResponseHeaders = (index: number) => {
 .add-btn:hover {
   color: var(--primary-color);
   background: var(--bg-secondary);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 8px var(--bg-black-1);
 }
 .tab-content-area {
   flex: 1;

@@ -434,7 +434,7 @@ const handleShowDetail = (docInfo: DeleteInfo) => {
     }
 
     .desc {
-      color: #888;
+      color: var(--text-gray-500);
       font-size: 14px;
       margin-left: 12px;
     }

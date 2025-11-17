@@ -199,7 +199,7 @@ onUnmounted(() => {
     cursor: ew-resize;
   }
   .bar.active {
-    background: #409EFF;
+    background: var(--el-color-primary);
   }
 }
 </style>

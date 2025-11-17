@@ -702,7 +702,7 @@ const handleKeyDown = (e: KeyboardEvent, data: ApidocProperty<'string' | 'file'>
   .params-variable-token {
     font-size: 13px;
     font-weight: 600;
-    color: var(--el-text-color-primary, #303133);
+    color: var(--text-primary);
     word-break: break-all;
   }
 }

@@ -390,7 +390,7 @@ onUnmounted(() => {
       background: var(--white);
       border: 1px solid var(--gray-300);
       border-radius: 6px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      box-shadow: 0 4px 12px var(--bg-black-15);
       z-index: var(--zIndex-history-dropdown);
       min-width: 280px;
       max-height: 350px;

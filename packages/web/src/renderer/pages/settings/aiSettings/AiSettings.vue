@@ -476,13 +476,13 @@ onMounted(() => {
       margin: 0 0 8px 0;
       font-size: 24px;
       font-weight: 600;
-      color: #333;
+      color: var(--el-text-color-primary);
     }
 
     .subtitle {
       margin: 0;
       font-size: 14px;
-      color: #909399;
+      color: var(--el-text-color-secondary);
     }
   }
 
@@ -495,9 +495,9 @@ onMounted(() => {
 
   .settings-form {
     flex: 0 0 700px;
-    background: #fff;
+    background: var(--el-bg-color);
     border-radius: 8px;
-    border: 1px solid #eaeaea;
+    border: 1px solid var(--border-lighter);
     padding: 24px;
     overflow-y: auto;
 
@@ -513,9 +513,9 @@ onMounted(() => {
 
   .test-result {
     flex: 1;
-    background: #fff;
+    background: var(--el-bg-color);
     border-radius: 8px;
-    border: 1px solid #eaeaea;
+    border: 1px solid var(--border-lighter);
     padding: 24px;
     display: flex;
     flex-direction: column;
@@ -527,13 +527,13 @@ onMounted(() => {
       align-items: center;
       margin-bottom: 16px;
       padding-bottom: 12px;
-      border-bottom: 1px solid #eaeaea;
+      border-bottom: 1px solid var(--border-lighter);
 
       h3 {
         margin: 0;
         font-size: 18px;
         font-weight: 600;
-        color: #333;
+        color: var(--el-text-color-primary);
       }
     }
 
@@ -541,22 +541,22 @@ onMounted(() => {
       flex: 1;
       overflow-y: auto;
       padding: 16px;
-      background: #f9fafb;
+      background: var(--bg-gray-50);
       border-radius: 4px;
       font-size: 14px;
       line-height: 1.8;
-      color: #333;
+      color: var(--el-text-color-primary);
 
       :deep(pre) {
-        background: #282c34;
-        color: #abb2bf;
+        background: var(--code-bg-dark);
+        color: var(--code-text-dark);
         padding: 12px;
         border-radius: 4px;
         overflow-x: auto;
       }
 
       :deep(code) {
-        background: #f0f0f0;
+        background: var(--bg-gray-200);
         padding: 2px 6px;
         border-radius: 3px;
         font-family: 'Courier New', monospace;
@@ -574,9 +574,9 @@ onMounted(() => {
       :deep(blockquote) {
         margin: 8px 0;
         padding: 8px 16px;
-        border-left: 4px solid #409eff;
-        background: #f0f7ff;
-        color: #666;
+        border-left: 4px solid var(--el-color-primary);
+        background: var(--el-color-primary-light-9);
+        color: var(--text-gray-600);
       }
     }
 
@@ -585,7 +585,7 @@ onMounted(() => {
       display: flex;
       align-items: center;
       justify-content: center;
-      color: #909399;
+      color: var(--el-text-color-secondary);
       font-size: 14px;
     }
 
@@ -596,7 +596,7 @@ onMounted(() => {
       align-items: center;
       justify-content: center;
       gap: 12px;
-      color: #409eff;
+      color: var(--el-color-primary);
       font-size: 14px;
 
       .el-icon {

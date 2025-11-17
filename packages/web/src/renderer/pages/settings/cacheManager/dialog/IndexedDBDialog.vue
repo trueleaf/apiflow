@@ -312,8 +312,8 @@ onUnmounted(() => {
 
 /* 存储信息区域 */
 .store-info {
-  background: #f8f9fa;
-  border: 1px solid #e9ecef;
+  background: var(--bg-gray-100);
+  border: 1px solid var(--border-lighter);
   border-radius: 6px;
   padding: 16px;
   margin-bottom: 20px;
@@ -330,13 +330,13 @@ onUnmounted(() => {
 
 .info-item .label {
   font-weight: 500;
-  color: #495057;
+  color: var(--text-gray-700);
   margin-right: 8px;
   white-space: nowrap;
 }
 
 .info-item .value {
-  color: #212529;
+  color: var(--el-text-color-primary);
   font-size: 13px;
 }
 
@@ -348,12 +348,12 @@ onUnmounted(() => {
 }
 
 .table-header {
-  background: #f8f9fa;
-  border: 1px solid #dee2e6;
+  background: var(--bg-gray-100);
+  border: 1px solid var(--el-border-color-light);
   border-bottom: none;
   padding: 12px 16px;
   font-weight: 500;
-  color: #495057;
+  color: var(--text-gray-700);
 }
 
 
@@ -366,14 +366,14 @@ onUnmounted(() => {
 .value-preview {
   font-size: 12px;
   line-height: 1.4;
-  color: #495057;
+  color: var(--text-gray-700);
   word-break: break-all;
   white-space: pre-wrap;
   max-height: 60px;
   overflow: hidden;
   padding: 4px 8px;
-  background: #f8f9fa;
-  border: 1px solid #e9ecef;
+  background: var(--bg-gray-100);
+  border: 1px solid var(--border-lighter);
   border-radius: 4px;
   transition: all 0.2s ease;
 }
@@ -384,9 +384,9 @@ onUnmounted(() => {
 }
 
 .value-preview.clickable:hover {
-  background: #e9ecef;
-  border-color: #007bff;
-  box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.1);
+  background: var(--border-lighter);
+  border-color: var(--el-color-primary);
+  box-shadow: 0 0 0 2px var(--bg-primary-light);
 }
 
 .json-popover-content {
@@ -402,14 +402,14 @@ onUnmounted(() => {
   justify-content: space-between;
   align-items: center;
   padding: 12px 16px;
-  border-bottom: 1px solid #e9ecef;
-  background: #f8f9fa;
+  border-bottom: 1px solid var(--border-lighter);
+  background: var(--bg-gray-100);
   border-radius: 8px 8px 0 0;
 }
 
 .popover-title {
   font-weight: 500;
-  color: #495057;
+  color: var(--text-gray-700);
   font-size: 14px;
 }
 
@@ -435,11 +435,11 @@ onUnmounted(() => {
   justify-content: center;
   align-items: center;
   min-height: 200px;
-  color: #6c757d;
+  color: var(--text-gray-600);
 }
 
 .empty-text {
   font-size: 14px;
-  color: #adb5bd;
+  color: var(--text-gray-400);
 }
 </style>

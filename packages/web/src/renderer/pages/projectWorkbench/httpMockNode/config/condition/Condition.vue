@@ -341,11 +341,11 @@ onMounted(() => {
 
 .mock-error {
   font-size: var(--font-size-xs);
-  color: #f56c6c;
+  color: var(--el-color-danger);
   line-height: 1.4;
   background: #fef0f0;
   padding: 6px 8px;
   border-radius: var(--border-radius-sm);
-  border-left: 3px solid #f56c6c;
+  border-left: 3px solid var(--el-color-danger);
 }
 </style>

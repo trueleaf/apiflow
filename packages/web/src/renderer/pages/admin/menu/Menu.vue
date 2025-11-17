@@ -248,9 +248,9 @@ onUnmounted(() => {
 .contextmenu {
   min-width: 240px;
   position: fixed;
-  background: #fff;
+  background: var(--bg-primary);
   border-radius: 4px;
-  box-shadow: 0px 2px 8px 0px rgba(0,0,0,0.1);
+  box-shadow: 0px 2px 8px 0px var(--bg-black-10);
   z-index: 1996;
   animation: ctx-fade .2s;
 }

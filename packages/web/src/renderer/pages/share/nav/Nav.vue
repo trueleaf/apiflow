@@ -228,7 +228,7 @@ onUnmounted(() => {
 .nav {
   width: 100%;
   height: 40px;
-  background: #eee;
+  background: var(--nav-bg);
   display: flex;
 
   // tab包裹框
@@ -247,7 +247,7 @@ onUnmounted(() => {
     line-height: 40px;
     display: flex;
     height: 40px;
-    color: #5f6368;
+    color: var(--nav-text);
     white-space: nowrap;
     transition: left .1s;
     overflow-x: auto;
@@ -294,11 +294,11 @@ onUnmounted(() => {
       }
 
       &:hover {
-        background: #e2e2e2;
+        background: var(--nav-hover);
       }
 
       &.active {
-        background: #f0f3fa;
+        background: var(--nav-active);
       }
     }
 
@@ -326,7 +326,7 @@ onUnmounted(() => {
         font-size: 16px;
 
         &:hover {
-          background: #ccc;
+          background: var(--bg-gray-300);
         }
       }
     }

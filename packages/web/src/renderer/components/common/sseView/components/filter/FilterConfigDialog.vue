@@ -195,11 +195,11 @@ onMounted(() => {
     align-items: center;
     justify-content: center;
     &:hover {
-      color: var(--primary, #409eff);
+      color: var(--primary, var(--el-color-primary));
       background-color: #efefef;
     }
     &.active {
-      color: var(--primary, #409eff);
+      color: var(--primary, var(--el-color-primary));
       background-color: var(--light, #ecf5ff);
     }
   }

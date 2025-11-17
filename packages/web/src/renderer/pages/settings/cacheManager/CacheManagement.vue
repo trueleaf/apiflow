@@ -394,7 +394,7 @@ onUnmounted(() => {
       margin: 0;
       font-size: 24px;
       font-weight: 600;
-      color: #333;
+      color: var(--el-text-color-primary);
     }
   }
 
@@ -414,12 +414,12 @@ onUnmounted(() => {
 
       &:hover {
         border-color: var(--el-color-primary-light-7);
-        box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+        box-shadow: 0 2px 12px 0 var(--shadow-light);
       }
       
       &.selected {
-        border-color: #409eff;
-        background-color: #ecf5ff;
+        border-color: var(--el-color-primary);
+        background-color: var(--el-color-primary-light-9);
       }
 
       .card-header {
@@ -432,7 +432,7 @@ onUnmounted(() => {
 
           .iconfont {
             font-size: 18px;
-            color: #409eff;
+            color: var(--el-color-primary);
           }
         }
 
@@ -440,7 +440,7 @@ onUnmounted(() => {
           flex: 1;
           font-size: 17px;
           font-weight: bolder;
-          color: #333;
+          color: var(--el-text-color-primary);
         }
 
         .card-refresh {
@@ -481,12 +481,12 @@ onUnmounted(() => {
         .cache-size {
           font-size: 28px;
           font-weight: 600;
-          color: #409eff;
+          color: var(--el-color-primary);
           line-height: 1;
         }
         .card-description {
           font-size: 14px;
-          color: #606266;
+          color: var(--el-text-color-regular);
           line-height: 1.4;
         }
       }
@@ -495,7 +495,7 @@ onUnmounted(() => {
 
   // 添加灰色文本样式
   .gray-500 {
-    color: #909399;
+    color: var(--el-text-color-secondary);
     font-size: 14px;
     cursor: pointer;
   }

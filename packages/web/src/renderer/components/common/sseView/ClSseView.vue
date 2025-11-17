@@ -611,8 +611,8 @@ onBeforeUnmount(() => {
             }
 
             &.active {
-              background-color: var(--primary, #409eff);
-              border-color: var(--primary, #409eff);
+              background-color: var(--primary, var(--el-color-primary));
+              border-color: var(--primary, var(--el-color-primary));
               color: var(--text-white);
 
               &:hover {
@@ -644,12 +644,12 @@ onBeforeUnmount(() => {
         transition: all 0.2s;
 
         &:hover {
-          color: var(--primary, #409eff);
+          color: var(--primary, var(--el-color-primary));
           background-color: var(--bg-hover);
         }
 
         &.active {
-          color: var(--primary, #409eff);
+          color: var(--primary, var(--el-color-primary));
           background-color: var(--bg-active);
         }
       }
@@ -662,7 +662,7 @@ onBeforeUnmount(() => {
         transition: color 0.2s;
 
         &:hover {
-          color: var(--success, #67c23a);
+          color: var(--success, var(--el-color-success));
           background-color: var(--bg-hover);
         }
       }
@@ -675,12 +675,12 @@ onBeforeUnmount(() => {
         transition: all 0.2s;
 
         &:hover {
-          color: var(--primary, #409eff);
+          color: var(--primary, var(--el-color-primary));
           background-color: var(--bg-hover);
         }
 
         &.active {
-          color: var(--primary, #409eff);
+          color: var(--primary, var(--el-color-primary));
           background-color: var(--bg-active);
         }
       }
@@ -703,15 +703,15 @@ onBeforeUnmount(() => {
           margin: 0;
 
           &:not(.error):not(.no-result) {
-            color: var(--success, #67c23a);
+            color: var(--success, var(--el-color-success));
           }
 
           &.no-result {
-            color: var(--warning, #e6a23c);
+            color: var(--warning, var(--el-color-warning));
           }
 
           &.error {
-            color: var(--danger, #f56c6c);
+            color: var(--danger, var(--el-color-danger));
           }
         }
       }
@@ -743,7 +743,7 @@ onBeforeUnmount(() => {
             font-weight: bold;
             font-size: 10px;
             background-color: var(--gray-100, #f5f7fa);
-            border: 1px solid var(--gray-200, #e4e7ed);
+            border: 1px solid var(--gray-200, var(--el-border-color-light));
             border-radius: 3px;
             color: var(--gray-700, #606266);
             cursor: pointer;
@@ -757,13 +757,13 @@ onBeforeUnmount(() => {
 
             &:hover {
               background-color: var(--white, #f0f2f5);
-              border-color: var(--gray-300, #dcdfe6);
+              border-color: var(--gray-300, var(--el-border-color));
             }
 
             &.active {
-              background-color: var(--primary, #409eff);
-              border-color: var(--primary, #409eff);
-              color: #ffffff;
+              background-color: var(--primary, var(--el-color-primary));
+              border-color: var(--primary, var(--el-color-primary));
+              color: var(--text-white);
 
               &:hover {
                 background-color: color-mix(in srgb, var(--primary) 70%, white);
@@ -782,7 +782,7 @@ onBeforeUnmount(() => {
           flex-shrink: 0;
 
           &:hover {
-            color: var(--danger, #f56c6c);
+            color: var(--danger, var(--el-color-danger));
           }
         }
       }
@@ -795,15 +795,15 @@ onBeforeUnmount(() => {
           font-size: 12px;
 
           &:not(.error):not(.no-result) {
-            color: var(--success, #67c23a);
+            color: var(--success, var(--el-color-success));
           }
 
           &.no-result {
-            color: var(--warning, #e6a23c);
+            color: var(--warning, var(--el-color-warning));
           }
 
           &.error {
-            color: var(--danger, #f56c6c);
+            color: var(--danger, var(--el-color-danger));
           }
         }
       }
@@ -894,13 +894,13 @@ onBeforeUnmount(() => {
       background-color: var(--bg-primary);
 
       &.sse-message-hex {
-        border-left: 3px solid var(--warning, #e6a23c);
+        border-left: 3px solid var(--warning, var(--el-color-warning));
         background-color: var(--bg-warning-light);
       }
 
       .message-index {
         font-size: 12px;
-        color: var(--primary, #409eff);
+        color: var(--primary, var(--el-color-primary));
         font-weight: bold;
         min-width: 30px;
         text-align: right;

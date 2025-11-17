@@ -409,7 +409,7 @@ const getMethodColor = (method: string) => {
     
     .content-format-label {
       font-size: 13px;
-      background: #e5d6f6;
+      background: var(--color-share-purple);
       color: var(--theme-color);
       border-radius: var(--border-radius-sm);
       padding: 2px 8px;

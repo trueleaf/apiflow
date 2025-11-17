@@ -535,7 +535,7 @@ const interactiveCode = `<!-- 可悬停卡片 -->
 
       &:hover {
         border-color: var(--gray-300);
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+        box-shadow: 0 1px 3px var(--bg-black-08);
       }
 
       .theme-icon {
@@ -617,7 +617,7 @@ const interactiveCode = `<!-- 可悬停卡片 -->
     background: var(--white);
     border: 1px solid var(--gray-200);
     border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 2px 4px var(--bg-black-1);
     overflow: hidden;
     transition: all 0.3s ease;
 
@@ -708,18 +708,18 @@ const interactiveCode = `<!-- 可悬停卡片 -->
   }
 
   .shadow-light {
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+    box-shadow: 0 1px 2px var(--bg-black-05);
   }
 
   .shadow-deep {
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 4px 8px var(--bg-black-15);
   }
 
   // 交互状态
   .card-hoverable {
     &:hover {
       transform: translateY(-4px);
-      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+      box-shadow: 0 8px 16px var(--bg-black-15);
     }
   }
 
@@ -734,7 +734,7 @@ const interactiveCode = `<!-- 可悬停卡片 -->
     cursor: pointer;
     &:hover {
       transform: translateY(-2px);
-      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.12);
+      box-shadow: 0 6px 12px var(--bg-black-12);
     }
     &:active {
       transform: translateY(0);
@@ -893,7 +893,7 @@ const interactiveCode = `<!-- 可悬停卡片 -->
 
         &:hover {
           border-color: var(--gray-500);
-          box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+          box-shadow: 0 1px 3px var(--bg-black-3);
         }
       }
     }
