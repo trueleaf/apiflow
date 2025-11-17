@@ -139,6 +139,7 @@
         </template>
       </el-tab-pane>
       <el-tab-pane :label="t('备注')" name="SRemarks"></el-tab-pane>
+      <el-tab-pane :label="t('设置')" name="SSettings"></el-tab-pane>
     </el-tabs>
     <keep-alive>
       <component :is="getComponent()" class="workbench" @changeCommonHeaderSendStatus="freshHasHeaders"></component>
@@ -295,6 +296,7 @@ import SResponseParams from './responseConfig/ResponseConfig.vue';
 import SPreRequestParams from './preRequest/PreRequest.vue';
 import SAfterRequestParams from './afterRequest/AfterRequest.vue';
 import SRemark from './remarks/Remarks.vue';
+import SSettings from './settings/Settings.vue';
 import { computed, onMounted, onUnmounted, ref, watch, watchEffect } from 'vue'
 import { useApidocBaseInfo } from '@/store/share/baseInfoStore'
 import { useApidoc } from '@/store/share/apidocStore'
@@ -305,7 +307,7 @@ import { ElMessageBox } from 'element-plus'
 import { httpNodeHistoryCache } from '@/cache/httpNode/httpNodeHistoryCache'
 import { message } from '@/helper'
 import type { HttpHistory } from '@src/types/history/httpHistory'
-type ActiceName = 'SParams' | 'SRequestBody' | 'SResponseParams' | 'SRequestHeaders' | 'SRemarks' | 'SPreRequest' | 'SAfterRequest'
+type ActiceName = 'SParams' | 'SRequestBody' | 'SResponseParams' | 'SRequestHeaders' | 'SRemarks' | 'SPreRequest' | 'SAfterRequest' | 'SSettings'
 const apidocBaseInfoStore = useApidocBaseInfo()
 const apidocStore = useApidoc()
 const apidocTabsStore = useApidocTas()
@@ -421,6 +423,8 @@ const getComponent = () => {
     return SPreRequestParams
   } else if (activeName.value === 'SRemarks') {
     return SRemark
+  } else if (activeName.value === 'SSettings') {
+    return SSettings
   } else if (activeName.value === 'SRequestBody') {
     return SRequestBody
   } else if (activeName.value === 'SRequestHeaders') {
@@ -440,7 +444,8 @@ const initTabCache = () => {
       'SRequestHeaders',
       'SRemarks',
       'SPreRequest',
-      'SAfterRequest'
+      'SAfterRequest',
+      'SSettings'
     ];
     if (cachedTab && allowedTabs.includes(cachedTab as ActiceName)) {
       activeName.value = cachedTab as ActiceName;

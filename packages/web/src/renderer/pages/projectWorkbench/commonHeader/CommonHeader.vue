@@ -38,7 +38,7 @@ type CommonHeaderResponse = {
   commonHeaders: ApidocProperty[]
 }
 
-const headerData = ref<ApidocProperty[]>([]);
+const headerData = ref<ApidocProperty<'string' | 'file'>[]>([]);
 const projectId = router.currentRoute.value.query.id as string;
 const apidocTabsStore = useApidocTas();
 const apidocBaseInfoStore = useApidocBaseInfo();
@@ -61,18 +61,18 @@ const getCommonHeaderInfo = async () => {
       if (isOffline) {
         const { commonHeaderCache } = await import('@/cache/project/commonHeadersCache');
         const commonHeaders = await commonHeaderCache.getCommonHeaders();
-        headerData.value = commonHeaders || [];
+        headerData.value = (commonHeaders || []) as ApidocProperty<'string' | 'file'>[];
         if (!headerData.value.length) {
-          headerData.value.push(generateEmptyProperty())
+          headerData.value.push(generateEmptyProperty() as ApidocProperty<'string' | 'file'>)
         }
       } else {
         const params = {
           projectId,
         }
         const res = await request.get<CommonResponse<ApidocProperty[]>, CommonResponse<ApidocProperty[]>>('/api/project/global_common_headers', { params });
-        headerData.value = res.data || [];
+        headerData.value = (res.data || []) as ApidocProperty<'string' | 'file'>[];
         if (!headerData.value.length) {
-          headerData.value.push(generateEmptyProperty())
+          headerData.value.push(generateEmptyProperty() as ApidocProperty<'string' | 'file'>)
         }
       }
     } else {
@@ -81,9 +81,9 @@ const getCommonHeaderInfo = async () => {
         const node = await apiNodesCache.getNodeById(currentSelectTab.value?._id || '');
         if (node && node.info.type === 'folder') {
           const folderNode = node as import('@src/types').FolderNode;
-          headerData.value = folderNode.commonHeaders || [];
+          headerData.value = (folderNode.commonHeaders || []) as ApidocProperty<'string' | 'file'>[];
           if (!headerData.value.length) {
-            headerData.value.push(generateEmptyProperty())
+            headerData.value.push(generateEmptyProperty() as ApidocProperty<'string' | 'file'>)
           }
         }
       } else {
@@ -92,9 +92,9 @@ const getCommonHeaderInfo = async () => {
           id: currentSelectTab.value?._id
         }
         const res = await request.get<CommonResponse<CommonHeaderResponse>, CommonResponse<CommonHeaderResponse>>('/api/project/common_header_by_id', { params });
-        headerData.value = res.data.commonHeaders || [];
+        headerData.value = (res.data.commonHeaders || []) as ApidocProperty<'string' | 'file'>[];
         if (!headerData.value.length) {
-          headerData.value.push(generateEmptyProperty())
+          headerData.value.push(generateEmptyProperty() as ApidocProperty<'string' | 'file'>)
         }
       }
     }

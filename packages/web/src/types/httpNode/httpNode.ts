@@ -155,3 +155,8 @@ export type FolderNode = {
    */
   isDeleted: boolean;
 };
+
+export type HttpNodeConfig = {
+  followRedirects: boolean;
+  maxRedirects: number;
+}

@@ -360,7 +360,6 @@ export default {
   Body参数个数: 'Body Parameter Count',
   Response参数个数: 'Response Parameter Count',
   参数名称: 'Parameter Name',
-  备注: 'Remark',
   参数值: 'Parameter Value',
   参数类型: 'Parameter Type',
   是否删除当前参数: 'Delete current parameter?',
@@ -1290,5 +1289,17 @@ export default {
     '尚未配置完整的AI接入信息': 'AI access is not fully configured',
     '请先前往AI设置配置apiKey与apiUrl': 'Please open AI Settings to configure apiKey and apiUrl',
     '配置APIKey': 'Configure API Key',
+    // Settings related
+    '设置': 'Settings',
+    '请求设置说明': 'Request Settings Description',
+    '此页面展示当前请求的相关设置信息。具体配置项可在全局设置中进行修改。': 'This page displays settings information related to the current request. Specific configuration items can be modified in global settings.',
+    '超时设置': 'Timeout Settings',
+    '请求超时时间：30秒（可在全局设置中修改）': 'Request timeout: 30 seconds (can be modified in global settings)',
+    '重定向策略': 'Redirect Policy',
+    '自动跟随重定向：已启用（可在全局设置中修改）': 'Auto follow redirects: Enabled (can be modified in global settings)',
+    'SSL证书验证': 'SSL Certificate Verification',
+    'SSL证书验证：已启用（可在全局设置中修改）': 'SSL certificate verification: Enabled (can be modified in global settings)',
+    '代理设置': 'Proxy Settings',
+    'HTTP代理：未配置（可在全局设置中配置）': 'HTTP Proxy: Not configured (can be configured in global settings)',
 }
 }
