@@ -39,17 +39,17 @@ import SParams from './params/Params.vue'
 import SResponse from './responseView/ResponseView.vue'
 import SView from './view/View.vue'
 import { computed, ref, watch } from 'vue'
-import { useApidocBaseInfo } from '@/store/share/baseInfoStore'
-import { useApidocTas } from '@/store/share/tabsStore'
+import { useApidocBaseInfo } from '@/store/apidoc/baseInfoStore'
+import { useApidocTas } from '@/store/apidoc/tabsStore'
 import { useRoute } from 'vue-router'
-import { useApidoc } from '@/store/share/apidocStore'
+import { useHttpNode } from '@/store/apidoc/httpNodeStore'
 import { generateHttpNode } from '@/helper'
-import { useApidocResponse } from '@/store/share/responseStore'
+import { useApidocResponse } from '@/store/apidoc/responseStore'
 import { useHttpRedoUndo } from '@/store/redoUndo/httpRedoUndoStore'
 
 const apidocBaseInfoStore = useApidocBaseInfo();
 const apidocTabsStore = useApidocTas();
-const apidocStore = useApidoc();
+const httpNodeStore = useHttpNode();
 const apidocResponseStore = useApidocResponse();
 const httpRedoUndoStore = useHttpRedoUndo();
 const isVerticalDrag = ref(false);
@@ -62,7 +62,7 @@ const currentSelectTab = computed(() => {
   const currentSelectTab = tabs?.find((tab) => tab.selected) || null;
   return currentSelectTab;
 });
-const loading = computed(() => apidocStore.loading);
+const loading = computed(() => httpNodeStore.loading);
 const layout = computed(() => apidocBaseInfoStore.layout);
 
 /*
@@ -77,30 +77,30 @@ const getApidocInfo = async () => {
   }
   if (currentSelectTab.value.saved) { //取最新值
     if (currentSelectTab.value._id?.startsWith('local_')) {
-      apidocStore.changeApidoc(generateHttpNode(currentSelectTab.value._id));
-      apidocStore.changeOriginApidoc();
+      httpNodeStore.changeApidoc(generateHttpNode(currentSelectTab.value._id));
+      httpNodeStore.changeOriginApidoc();
       apidocResponseStore.clearResponse();
       apidocResponseStore.changeRequestState('waiting');
       return
     }
-    apidocStore.getApidocDetail({
+    httpNodeStore.getApidocDetail({
       id: currentSelectTab.value._id,
       projectId: route.query.id as string,
     })
   } else { //取缓存值
     const catchedApidoc = httpNodeCache.getHttpNode(currentSelectTab.value._id);
     if (!catchedApidoc) {
-      apidocStore.getApidocDetail({
+      httpNodeStore.getApidocDetail({
         id: currentSelectTab.value._id,
         projectId: route.query.id as string,
       })
     } else {
-      apidocStore.changeApidoc(catchedApidoc);
+      httpNodeStore.changeApidoc(catchedApidoc);
     }
   }
   //=====================================获取缓存的返回参数====================================//
   // const localResponse = await httpResponseCache.getResponse(currentSelectTab.value._id);
-  apidocStore.changeResponseBodyLoading(true);
+  httpNodeStore.changeResponseBodyLoading(true);
   httpResponseCache.getResponse(currentSelectTab.value._id).then((localResponse) => {
     apidocResponseStore.clearResponse();
     if (localResponse) {
@@ -121,7 +121,7 @@ const getApidocInfo = async () => {
       apidocResponseStore.changeRequestState('waiting');
     }
   }).finally(() => {
-    apidocStore.changeResponseBodyLoading(false);
+    httpNodeStore.changeResponseBodyLoading(false);
   })
 }
 

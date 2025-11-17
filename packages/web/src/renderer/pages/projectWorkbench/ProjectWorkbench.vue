@@ -16,17 +16,17 @@ import SaveDocDialog from './dialog/saveDoc/SaveDoc.vue'
 import Banner from './layout/banner/Banner.vue';
 import Nav from './layout/nav/Nav.vue';
 import Content from './layout/content/Content.vue';
-import { useApidocTas } from '@/store/share/tabsStore'
-import { useApidoc } from '@/store/share/apidocStore'
-import { useApidocBaseInfo } from '@/store/share/baseInfoStore'
+import { useApidocTas } from '@/store/apidoc/tabsStore'
+import { useHttpNode } from '@/store/apidoc/httpNodeStore'
+import { useApidocBaseInfo } from '@/store/apidoc/baseInfoStore'
 import { useRoute } from 'vue-router';
-import { useCookies } from '@/store/share/cookiesStore';
+import { useCookies } from '@/store/apidoc/cookiesStore';
 import { useWebSocket } from '@/store/websocket/websocketStore';
 import { useWindowEvent } from '@/hooks/useWindowEvent';
 
 const route = useRoute();
 const apidocTabsStore = useApidocTas();
-const apidocStore = useApidoc()
+const httpNodeStore = useHttpNode()
 const websocketStore = useWebSocket()
 const apidocBaseInfoStroe = useApidocBaseInfo();
 const { initCookies } = useCookies();
@@ -41,11 +41,11 @@ const currentSelectTab = computed(() => {
 const isView = computed(() => apidocBaseInfoStroe.mode === 'view')
 const saveDocDialogVisible = computed({
   get() {
-    return apidocStore.saveDocDialogVisible;
+    return httpNodeStore.saveDocDialogVisible;
   },
   set(val) {
-    apidocStore.changeSaveDocDialogVisible(val);
-    apidocStore.changeSavedDocId(currentSelectTab.value?._id || '');
+    httpNodeStore.changeSaveDocDialogVisible(val);
+    httpNodeStore.changeSavedDocId(currentSelectTab.value?._id || '');
   }
 });
 //=====================================绑定快捷键====================================//
@@ -61,8 +61,8 @@ const bindShortcut = (e: KeyboardEvent) => {
     e.stopPropagation();
     if (currentSelectTab.value._id.includes('local_')) {
       saveDocDialogVisible.value = true
-    } else if (currentSelectTab.value.tabType === 'http' && !apidocStore.saveLoading && !apidocStore.loading) {
-      apidocStore.saveApidoc();
+    } else if (currentSelectTab.value.tabType === 'http' && !httpNodeStore.saveLoading && !httpNodeStore.loading) {
+      httpNodeStore.saveApidoc();
     } else if (currentSelectTab.value.tabType === 'websocket' && !websocketStore.saveLoading && !websocketStore.loading) {
       websocketStore.saveWebsocket();
     }

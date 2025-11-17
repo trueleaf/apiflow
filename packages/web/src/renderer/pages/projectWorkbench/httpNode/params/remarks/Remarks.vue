@@ -21,13 +21,13 @@
 import { useI18n } from 'vue-i18n'
 import { config } from '@src/config/config';
 import { computed, watch } from 'vue'
-import { useApidoc } from '@/store/share/apidocStore';
+import { useHttpNode } from '@/store/apidoc/httpNodeStore';
 import { useHttpRedoUndo } from '@/store/redoUndo/httpRedoUndoStore'
-import { useApidocTas } from '@/store/share/tabsStore'
+import { useApidocTas } from '@/store/apidoc/tabsStore'
 import { router } from '@/router'
 import { debounce, cloneDeep } from 'lodash-es'
 
-const apidocStore = useApidoc()
+const httpNodeStore = useHttpNode()
 const httpRedoUndoStore = useHttpRedoUndo()
 const apidocTabsStore = useApidocTas()
 const projectId = router.currentRoute.value.query.id as string;
@@ -39,10 +39,10 @@ const { t } = useI18n()
 
 const description = computed({
   get() {
-    return apidocStore.apidoc.info.description
+    return httpNodeStore.apidoc.info.description
   },
   set(val: string) {
-    apidocStore.changeDescription(val)
+    httpNodeStore.changeDescription(val)
   }
 })
 
@@ -63,8 +63,8 @@ const debouncedRecordBasicInfoOperation = debounce((oldValue: { name: string, de
 
 // watch 监听 basicInfo 变化（包含 name 和 description）
 watch(() => ({
-  name: apidocStore.apidoc.info.name,
-  description: apidocStore.apidoc.info.description
+  name: httpNodeStore.apidoc.info.name,
+  description: httpNodeStore.apidoc.info.description
 }), (newVal, oldVal) => {
   if (oldVal && newVal) {
     debouncedRecordBasicInfoOperation(oldVal, newVal);

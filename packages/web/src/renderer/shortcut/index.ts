@@ -1,7 +1,7 @@
 import hotkeys from "hotkeys-js";
 import { useRouter } from "vue-router";
 import { useAgentStore } from "@/store/agent/agentStore";
-import { useApidocTas } from "@/store/share/tabsStore";
+import { useApidocTas } from "@/store/apidoc/tabsStore";
 import { useHttpRedoUndo } from "@/store/redoUndo/httpRedoUndoStore";
 import { useWsRedoUndo } from "@/store/redoUndo/wsRedoUndoStore";
 import { useHttpMock } from "@/store/httpMock/httpMockStore";

@@ -34,7 +34,7 @@
 import { computed } from 'vue'
 import { formatUnit } from '@/helper'
 import SJsonEditor from '@/components/common/jsonEditor/ClJsonEditor.vue'
-import { LocalStorageItem } from '@src/types/share/cache'
+import { LocalStorageItem } from '@src/types/apidoc/cache'
 import { useI18n } from 'vue-i18n'
 
 // 获取翻译函数

@@ -10,10 +10,10 @@ import { findNodeById, findParentById, findSiblingById, flatTree, forEachForest 
 import { router } from '@/router/index'
 import { request } from '@/api/api'
 import { i18n } from '@/i18n'
-import { useApidocBanner } from '@/store/share/bannerStore';
-import { useApidocTas } from '@/store/share/tabsStore';
-import { useApidoc } from '@/store/share/apidocStore';
-import { useApidocBaseInfo } from '@/store/share/baseInfoStore.ts';
+import { useApidocBanner } from '@/store/apidoc/bannerStore';
+import { useApidocTas } from '@/store/apidoc/tabsStore';
+import { useHttpNode } from '@/store/apidoc/httpNodeStore';
+import { useApidocBaseInfo } from '@/store/apidoc/baseInfoStore.ts';
 import { apiNodesCache } from '@/cache/standalone/apiNodesCache';
 import { nanoid } from 'nanoid';
 import { useRuntime } from '@/store/runtime/runtimeStore';
@@ -641,7 +641,7 @@ let isRename = false;
 export const renameNode = async (e: FocusEvent | KeyboardEvent, data: ApidocBanner): Promise<void> => {
   const apidocBannerStore = useApidocBanner();
   const apidocTabsStore = useApidocTas()
-  const apidocStore = useApidoc()
+  const httpNodeStore = useHttpNode()
   const { getCommonHeaders } = useApidocBaseInfo()
   if (isRename) {
     return;
@@ -667,7 +667,7 @@ export const renameNode = async (e: FocusEvent | KeyboardEvent, data: ApidocBann
     value: iptValue,
   })
   //改变apidoc名称
-  apidocStore.changeApidocName(iptValue);
+  httpNodeStore.changeApidocName(iptValue);
   //=========================================================================//
   if (isOffline()) {
     try {
@@ -693,7 +693,7 @@ export const renameNode = async (e: FocusEvent | KeyboardEvent, data: ApidocBann
         field: 'label',
         value: originValue,
       });
-      apidocStore.changeApidocName(originValue);
+      httpNodeStore.changeApidocName(originValue);
     } finally {
       isRename = false;
     }
@@ -715,7 +715,7 @@ export const renameNode = async (e: FocusEvent | KeyboardEvent, data: ApidocBann
       field: 'name',
       value: originValue,
     });
-    apidocStore.changeApidocName(originValue);
+    httpNodeStore.changeApidocName(originValue);
   }).finally(() => {
     isRename = false;
   });

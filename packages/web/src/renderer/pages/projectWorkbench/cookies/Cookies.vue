@@ -150,9 +150,9 @@
 
 <script setup lang="ts">
 import { ref, computed, nextTick, onMounted, onUnmounted } from 'vue';
-import { useCookies } from '@/store/share/cookiesStore';
+import { useCookies } from '@/store/apidoc/cookiesStore';
 import { ElMessageBox } from 'element-plus';
-import type { ApidocCookie } from '@/store/share/cookiesStore';
+import type { ApidocCookie } from '@/store/apidoc/cookiesStore';
 import { useI18n } from 'vue-i18n';
 import { message } from '@/helper';
 import { nanoid } from 'nanoid/non-secure';

@@ -39,7 +39,7 @@ type EditApidocPropertyPayload<K extends keyof ApidocProperty> = {
   value: ApidocProperty[K]
 }
 
-export const useApidoc = defineStore('apidoc', () => {
+export const useHttpNode = defineStore('httpNode', () => {
   const runtimeStore = useRuntime();
   const isOffline = () => runtimeStore.networkMode === 'offline';
   const cancel: Canceler[] = [] //请求列表  

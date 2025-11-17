@@ -80,19 +80,19 @@
 <script lang="ts" setup>
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { useApidocBaseInfo } from '@/store/share/baseInfoStore';
-import { useApidoc } from '@/store/share/apidocStore';
+import { useApidocBaseInfo } from '@/store/apidoc/baseInfoStore';
+import { useHttpNode } from '@/store/apidoc/httpNodeStore';
 
 const apidocBaseInfoStore = useApidocBaseInfo()
-const apidocStore = useApidoc()
+const httpNodeStore = useHttpNode()
 const { t } = useI18n()
 
 const requestMethods = computed(() => apidocBaseInfoStore.rules.requestMethods)
-const apidoc = computed(() => apidocStore.apidoc)
+const apidoc = computed(() => httpNodeStore.apidoc)
 const fullUrl = computed(() => {
-  const { paths } = apidocStore.apidoc.item
-  const { prefix, path: requestPath } = apidocStore.apidoc.item.url;
-  const { queryParams } = apidocStore.apidoc.item;
+  const { paths } = httpNodeStore.apidoc.item
+  const { prefix, path: requestPath } = httpNodeStore.apidoc.item.url;
+  const { queryParams } = httpNodeStore.apidoc.item;
   let queryString = '';
   queryParams.forEach((v) => {
     if (v.key && v.select) {
@@ -113,32 +113,32 @@ const fullUrl = computed(() => {
   return prefix + validPath + queryString
 })
 const hasQueryParams = computed(() => {
-  const { queryParams } = apidocStore.apidoc.item;
+  const { queryParams } = httpNodeStore.apidoc.item;
   return queryParams.filter(p => p.select).some((data) => data.key);
 })
 const hasPathsParams = computed(() => {
-  const { paths } = apidocStore.apidoc.item;
+  const { paths } = httpNodeStore.apidoc.item;
   return paths.some((data) => data.key);
 })
 const hasJsonBodyParams = computed(() => {
-  const { contentType } = apidocStore.apidoc.item;
-  const { mode } = apidocStore.apidoc.item.requestBody;
+  const { contentType } = httpNodeStore.apidoc.item;
+  const { mode } = httpNodeStore.apidoc.item.requestBody;
   return contentType === 'application/json' && mode === 'json';
 })
 const hasFormDataParams = computed(() => {
-  const { contentType } = apidocStore.apidoc.item;
+  const { contentType } = httpNodeStore.apidoc.item;
   return contentType === 'multipart/form-data';
 })
 const hasUrlEncodedParams = computed(() => {
-  const { contentType } = apidocStore.apidoc.item;
+  const { contentType } = httpNodeStore.apidoc.item;
   return contentType === 'application/x-www-form-urlencoded';
 })
 const hasRawParams = computed(() => {
-  const { mode, raw } = apidocStore.apidoc.item.requestBody;
+  const { mode, raw } = httpNodeStore.apidoc.item.requestBody;
   return mode === 'raw' && raw.data;
 })
 const hasHeaders = computed(() => {
-  const { headers } = apidocStore.apidoc.item;
+  const { headers } = httpNodeStore.apidoc.item;
   return headers.filter(p => p.select).some((data) => data.key);
 })
 

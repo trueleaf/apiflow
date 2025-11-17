@@ -2,7 +2,7 @@ export * from './common';
 export * from './config';
 export * from './importExport';
 export * from './main';
-export * from './share';
+export * from './apidoc';
 export * from './request';
 export * from './httpNode/httpNode';
 export * from './httpNode/types';

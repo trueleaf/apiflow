@@ -1,23 +1,23 @@
-import { useApidoc } from '@/store/share/apidocStore';
+import { useHttpNode } from '@/store/apidoc/httpNodeStore';
 import { ref, toRaw } from 'vue';
 import json5 from 'json5'
 import { HttpNode, ApidocProperty } from '@src/types';
 import { getFormDataFromFormDataParams, getObjectPathParams, getStringFromParams } from '@/helper'
 import { convertTemplateValueToRealValue } from '@/helper';
-import { useVariable } from '@/store/share/variablesStore';
+import { useVariable } from '@/store/apidoc/variablesStore';
 import { GotRequestOptions, JsonData, RedirectOptions, ResponseInfo } from '@src/types/index.ts';
-import { useApidocBaseInfo } from '@/store/share/baseInfoStore';
-import { useApidocTas } from '@/store/share/tabsStore';
-import { useApidocResponse } from '@/store/share/responseStore';
+import { useApidocBaseInfo } from '@/store/apidoc/baseInfoStore';
+import { useApidocTas } from '@/store/apidoc/tabsStore';
+import { useApidocResponse } from '@/store/apidoc/responseStore';
 import { httpNodeCache } from '@/cache/httpNode/httpNodeCache';
 import { httpResponseCache } from '@/cache/httpNode/httpResponseCache';
 import { webSocketNodeCache } from '@/cache/websocketNode/websocketNodeCache';
 import { config } from '@src/config/config';
 import { nanoid } from 'nanoid/non-secure';
 import { cloneDeep } from "lodash-es";
-import { useApidocRequest } from '@/store/share/requestStore';
+import { useApidocRequest } from '@/store/apidoc/requestStore';
 import { i18n } from '@/i18n';
-import { useCookies } from '@/store/share/cookiesStore';
+import { useCookies } from '@/store/apidoc/cookiesStore';
 import { InitDataMessage, OnEvalSuccess, ReceivedEvent } from '@/worker/preRequest/types/types.ts';
 import { Method } from 'got';
 import preRequestWorker from '@/worker/preRequest/preRequest.ts?worker&inline';
@@ -238,7 +238,7 @@ export const getWebSocketHeaders = async (websocketNode: WebSocketNode, defaultH
 const getBody = async (apidoc: HttpNode): Promise<GotRequestOptions['body']> => {
   const { changeResponseInfo, changeRequestState } = useApidocResponse()
   const { objectVariable } = useVariable()
-  const { changeFormDataErrorInfoById } = useApidoc()
+  const { changeFormDataErrorInfoById } = useHttpNode()
   const { mode, urlencoded } = apidoc.item.requestBody;
   if (mode === 'json' && apidoc.item.requestBody.rawJson.trim()) {
     /*
@@ -344,7 +344,7 @@ const getBody = async (apidoc: HttpNode): Promise<GotRequestOptions['body']> => 
 const getHeaders = async (apidoc: HttpNode) => {
   const { objectVariable } = useVariable();
   const apidocBaseInfoStore = useApidocBaseInfo();
-  const { defaultHeaders } = useApidoc();
+  const { defaultHeaders } = useHttpNode();
   const apidocTabsStore = useApidocTas();
   const projectId = apidoc.projectId;
   const tabs = apidocTabsStore.tabs[projectId];
@@ -436,7 +436,7 @@ export const sendRequest = async () => {
   const projectId = apidocBaseInfoStore.projectId;
   const apidocTabsStore = useApidocTas();
   const selectedTab = apidocTabsStore.getSelectedTab(apidocBaseInfoStore.projectId);
-  const apidocStore = useApidoc();
+  const httpNodeStore = useHttpNode();
   const { updateCookiesBySetCookieHeader, getMachtedCookies } = useCookies();
   const { changeCancelRequestRef } = useApidocRequest()
 
@@ -457,7 +457,7 @@ export const sendRequest = async () => {
     addStreamData,
     changeFileBlobUrl
   } = useApidocResponse()
-  const copiedApidoc = cloneDeep(toRaw(apidocStore.$state.apidoc));
+  const copiedApidoc = cloneDeep(toRaw(httpNodeStore.$state.apidoc));
   const preSendMethod = getMethod(copiedApidoc);
   const preSendUrl = await getUrl(copiedApidoc);
   const preSendBody = await getBody(copiedApidoc);
@@ -541,7 +541,7 @@ export const sendRequest = async () => {
       },
       onReadFileFormDataError(options: { id: string, msg: string, fullMsg: string }) {
         cleanup(); // 清理 worker
-        apidocStore.changeFormDataErrorInfoById(options.id, options.msg);
+        httpNodeStore.changeFormDataErrorInfoById(options.id, options.msg);
         changeResponseInfo({
           responseData: {
             canApiflowParseType: 'error',

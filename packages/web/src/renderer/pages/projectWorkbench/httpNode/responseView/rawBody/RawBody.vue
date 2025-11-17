@@ -24,8 +24,8 @@
 </template>
 
 <script lang="ts" setup>
-import { useApidocBaseInfo } from '@/store/share/baseInfoStore';
-import { useApidocResponse } from '@/store/share/responseStore';
+import { useApidocBaseInfo } from '@/store/apidoc/baseInfoStore';
+import { useApidocResponse } from '@/store/apidoc/responseStore';
 import { computed, ref, watch, onMounted } from 'vue';
 import { config } from '@src/config/config'
 import { downloadStringAsText } from '@/helper'

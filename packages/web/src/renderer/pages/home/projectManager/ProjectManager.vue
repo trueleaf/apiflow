@@ -329,7 +329,7 @@ import { ElMessageBox } from 'element-plus';
 import { router } from '@/router';
 import { formatDate } from '@/helper';
 import { debounce } from "lodash-es";
-import { useApidocBaseInfo } from '@/store/share/baseInfoStore'
+import { useApidocBaseInfo } from '@/store/apidoc/baseInfoStore'
 import { projectCache } from '@/cache/project/projectCache'
 import { apiNodesCache } from '@/cache/standalone/apiNodesCache'
 import { useProjectStore } from '@/store/project/projectStore'

@@ -2,9 +2,9 @@ import { ref, Ref, computed } from 'vue'
 import { router } from '@/router/index'
 import { sendRequest, stopRequest } from '@/server/request/request'
 import { httpResponseCache } from '@/cache/httpNode/httpResponseCache'
-import { useApidocTas } from '@/store/share/tabsStore'
-import { useApidocResponse } from '@/store/share/responseStore'
-import { useApidoc } from '@/store/share/apidocStore'
+import { useApidocTas } from '@/store/apidoc/tabsStore'
+import { useApidocResponse } from '@/store/apidoc/responseStore'
+import { useHttpNode } from '@/store/apidoc/httpNodeStore'
 import { useRuntime } from '@/store/runtime/runtimeStore'
 import { useHttpRedoUndo } from '@/store/redoUndo/httpRedoUndoStore'
 
@@ -33,7 +33,7 @@ type OperationReturn = {
 
 export default (): OperationReturn => {
   const apidocTabsStore = useApidocTas();
-  const apidocStore = useApidoc()
+  const httpNodeStore = useHttpNode()
   const apidocResponseStroe = useApidocResponse()
   const runtimeStore = useRuntime()
   const httpRedoUndoStore = useHttpRedoUndo()
@@ -66,14 +66,14 @@ export default (): OperationReturn => {
       httpRedoUndoStore.clearRedoUndoListByNodeId(nodeId);
     }
     if (currentSelectTab.value?._id.startsWith('local_')) { //通过+按钮新增的空白文档
-      const cpOriginApidoc = apidocStore.originApidoc;
-      apidocStore.changeApidoc(JSON.parse(JSON.stringify(cpOriginApidoc)))
+      const cpOriginApidoc = httpNodeStore.originApidoc;
+      httpNodeStore.changeApidoc(JSON.parse(JSON.stringify(cpOriginApidoc)))
       loading3.value = false;
       return;
     }
     
     const executeRefresh = () => {
-      apidocStore.getApidocDetail({
+      httpNodeStore.getApidocDetail({
         id: currentSelectTab.value?._id || "",
         projectId,
       }).finally(() => {

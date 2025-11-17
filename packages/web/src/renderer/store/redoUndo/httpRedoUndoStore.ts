@@ -5,7 +5,7 @@ import type {
 } from "@src/types/redoUndo/httpRedoUndo";
 import type { ApidocProperty, HttpNodeRequestMethod } from "@src/types";
 import type { HttpNode } from "@src/types/httpNode/httpNode";
-import { useApidoc } from "@/store/share/apidocStore";
+import { useHttpNode } from "@/store/apidoc/httpNodeStore";
 import { cloneDeep } from "lodash-es";
 import { httpRedoUndoCache } from "@/cache/redoUndo/httpRedoUndoCache";
 import { logger } from '@/helper';
@@ -20,7 +20,7 @@ type RedoUndoResponse = {
 export const useHttpRedoUndo = defineStore('httpRedoUndo', () => {
   const httpRedoList = ref<Record<string, HttpRedoUnDoOperation[]>>({});
   const httpUndoList = ref<Record<string, HttpRedoUnDoOperation[]>>({});
-  const apidocStore = useApidoc();
+  const httpNodeStore = useHttpNode();
   /**
    * 记录操作
    */
@@ -100,27 +100,27 @@ export const useHttpRedoUndo = defineStore('httpRedoUndo', () => {
 
     switch (operation.type) {
       case 'methodOperation':
-        apidocStore.changeApidocMethod(targetValue as HttpNodeRequestMethod);
+        httpNodeStore.changeApidocMethod(targetValue as HttpNodeRequestMethod);
         break;
 
       case 'prefixOperation':
-        apidocStore.changeApidocPrefix(targetValue as string);
+        httpNodeStore.changeApidocPrefix(targetValue as string);
         break;
 
       case 'pathOperation':
-        apidocStore.changeApidocUrl(targetValue as string);
+        httpNodeStore.changeApidocUrl(targetValue as string);
         break;
 
       case 'headersOperation':
-        apidocStore.apidoc.item.headers = cloneDeep(targetValue as ApidocProperty<'string'>[]);
+        httpNodeStore.apidoc.item.headers = cloneDeep(targetValue as ApidocProperty<'string'>[]);
         break;
 
       case 'queryParamsOperation':
-        apidocStore.apidoc.item.queryParams = cloneDeep(targetValue as ApidocProperty<'string'>[]);
+        httpNodeStore.apidoc.item.queryParams = cloneDeep(targetValue as ApidocProperty<'string'>[]);
         break;
 
       case 'pathsOperation':
-        apidocStore.changePathParams(cloneDeep(targetValue as ApidocProperty<'string'>[]));
+        httpNodeStore.changePathParams(cloneDeep(targetValue as ApidocProperty<'string'>[]));
         break;
 
       case 'bodyOperation':
@@ -129,37 +129,37 @@ export const useHttpRedoUndo = defineStore('httpRedoUndo', () => {
             requestBody: HttpNode['item']['requestBody'];
             contentType: HttpNode['item']['contentType'];
           };
-          apidocStore.apidoc.item.requestBody = cloneDeep(bodyValue.requestBody);
-          apidocStore.changeContentType(bodyValue.contentType);
+          httpNodeStore.apidoc.item.requestBody = cloneDeep(bodyValue.requestBody);
+          httpNodeStore.changeContentType(bodyValue.contentType);
         }
         break;
 
       case 'rawJsonOperation':
-        apidocStore.changeRawJson(targetValue as string);
+        httpNodeStore.changeRawJson(targetValue as string);
         break;
 
       case 'preRequestOperation':
-        apidocStore.apidoc.preRequest = cloneDeep(targetValue as HttpNode['preRequest']);
+        httpNodeStore.apidoc.preRequest = cloneDeep(targetValue as HttpNode['preRequest']);
         break;
 
       case 'afterRequestOperation':
-        apidocStore.apidoc.afterRequest = cloneDeep(targetValue as HttpNode['afterRequest']);
+        httpNodeStore.apidoc.afterRequest = cloneDeep(targetValue as HttpNode['afterRequest']);
         break;
 
       case 'basicInfoOperation':
         {
           const info = targetValue as { name: string; description: string };
           if (info.name !== undefined) {
-            apidocStore.changeApidocName(info.name);
+            httpNodeStore.changeApidocName(info.name);
           }
           if (info.description !== undefined) {
-            apidocStore.changeDescription(info.description);
+            httpNodeStore.changeDescription(info.description);
           }
         }
         break;
 
       case 'responseParamsOperation':
-        apidocStore.apidoc.item.responseParams = cloneDeep(targetValue as HttpNode['item']['responseParams']);
+        httpNodeStore.apidoc.item.responseParams = cloneDeep(targetValue as HttpNode['item']['responseParams']);
         break;
 
       default:

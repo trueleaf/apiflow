@@ -30,7 +30,7 @@ import Response from './response/Response.vue'
 import { useI18n } from 'vue-i18n'
 import { storeToRefs } from 'pinia'
 import { useHttpMock } from '@/store/httpMock/httpMockStore'
-import { useApidocTas } from '@/store/share/tabsStore'
+import { useApidocTas } from '@/store/apidoc/tabsStore'
 import { useRuntime } from '@/store/runtime/runtimeStore'
 
 const { t } = useI18n()

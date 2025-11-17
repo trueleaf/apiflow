@@ -118,7 +118,7 @@
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { CacheInfo, LocalStorageItem, IndexedDBItem } from '@src/types/share/cache'
+import { CacheInfo, LocalStorageItem, IndexedDBItem } from '@src/types/apidoc/cache'
 import { formatUnit } from '@/helper'
 import { RefreshRight } from '@element-plus/icons-vue'
 import { userState } from '@/cache/userState/userStateCache.ts'

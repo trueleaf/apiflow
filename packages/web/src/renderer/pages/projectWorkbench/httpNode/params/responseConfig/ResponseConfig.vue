@@ -109,14 +109,14 @@ import SStatus from './children/Status.vue'
 import SMime from './children/Mime.vue'
 import SRawEditor from '@/components/apidoc/rawEditor/ClRawEditor.vue'
 import SJsonEditor from '@/components/common/jsonEditor/ClJsonEditor.vue'
-import { useApidoc } from '@/store/share/apidocStore';
-import { useApidocBaseInfo } from '@/store/share/baseInfoStore';
+import { useApidocBaseInfo } from '@/store/apidoc/baseInfoStore';
 import { useHttpRedoUndo } from '@/store/redoUndo/httpRedoUndoStore'
-import { useApidocTas } from '@/store/share/tabsStore'
+import { useApidocTas } from '@/store/apidoc/tabsStore'
 import { router } from '@/router'
 import { debounce, cloneDeep } from 'lodash-es'
+import { useHttpNode } from '@/store/apidoc/httpNodeStore';
 
-const apidocStroe = useApidoc();
+const httpNodeStore = useHttpNode();
 const apidocBaseInfoStore = useApidocBaseInfo()
 const httpRedoUndoStore = useHttpRedoUndo()
 const apidocTabsStore = useApidocTas()
@@ -144,7 +144,7 @@ const bindRef = (el: unknown) => {
 //确定修改title
 const handleConfirmTitle = (_: HttpNodeResponseParams, index: number) => {
   if (currentEditNode.value && currentEditNode.value._title) {
-    apidocStroe.changeResponseParamsTitleByIndex({
+    httpNodeStore.changeResponseParamsTitleByIndex({
       index,
       title: currentEditNode.value._title,
     })
@@ -171,7 +171,7 @@ const handleChangeEditNode = (item: HttpNodeResponseParams, index: number) => {
 }
 //改变正在编辑的文本值
 const handleChangeTextValeu = (value: string, index: number) => {
-  apidocStroe.changeResponseParamsTextValueByIndex({
+  httpNodeStore.changeResponseParamsTextValueByIndex({
     index,
     value,
   })
@@ -184,16 +184,16 @@ const handleChangeTextValeu = (value: string, index: number) => {
 */
 // //新增一个response
 // const handleAddResponse = () => {
-//   apidocStroe.addResponseParam();
+//   httpNodeStore.addResponseParam();
 // }
 // //删除一个response
 // const handleDeleteResponse = (index: number) => {
-//   apidocStroe.deleteResponseByIndex(index);
+//   httpNodeStore.deleteResponseByIndex(index);
 // }
 //response参数值
 const { t } = useI18n()
 
-const responseData = computed(() => apidocStroe.apidoc.item.responseParams);
+const responseData = computed(() => httpNodeStore.apidoc.item.responseParams);
 //布局
 const layout = computed(() => apidocBaseInfoStore.layout);
 
@@ -225,7 +225,7 @@ const handleCloseStatusModel = (item: HttpNodeResponseParams) => {
 }
 //选择一个statusCode
 const handleSelectStatusCode = (code: number, index: number) => {
-  apidocStroe.changeResponseParamsCodeByIndex({
+  httpNodeStore.changeResponseParamsCodeByIndex({
     index,
     code,
   })
@@ -240,14 +240,14 @@ const handleCloseMimeModel = (item: HttpNodeResponseParams) => {
 }
 //选择一个contentType
 const handleSelectContentType = (type: HttpNodeContentType, index: number) => {
-  apidocStroe.changeResponseParamsDataTypeByIndex({
+  httpNodeStore.changeResponseParamsDataTypeByIndex({
     index,
     type,
   })
 }
 //更改返回json数据
 const handleChangeResponseJson = (value: string, index: number) => {
-  apidocStroe.changeResponseStrJsonByIndex({
+  httpNodeStore.changeResponseStrJsonByIndex({
     index,
     value,
   })
@@ -429,7 +429,7 @@ watch(() => responseData.value, (newVal, oldVal) => {
     position: absolute;
     min-width: 250px;
     border: 1px solid var(--gray-200);
-    box-shadow: rgb(0 0 0 / 10%) 0px 2px 8px 0px; //墨刀弹窗样式
+    box-shadow: var(--box-shadow-sm);
     max-height: 220px;
     overflow-y: auto;
 

@@ -1,9 +1,9 @@
 import { ref, Ref, computed, WritableComputedRef, ComputedRef } from 'vue'
 import { ApidocProjectHost } from '@src/types'
-import { useApidoc } from '@/store/share/apidocStore'
-import { useApidocBaseInfo } from '@/store/share/baseInfoStore'
+import { useHttpNode } from '@/store/apidoc/httpNodeStore'
+import { useApidocBaseInfo } from '@/store/apidoc/baseInfoStore'
 import { useHttpRedoUndo } from '@/store/redoUndo/httpRedoUndoStore'
-import { useApidocTas } from '@/store/share/tabsStore'
+import { useApidocTas } from '@/store/apidoc/tabsStore'
 import { router } from '@/router'
 
 type HostReturn = {
@@ -26,7 +26,7 @@ type HostReturn = {
 }
 
 export default (): HostReturn => {
-  const apidocStore = useApidoc()
+  const httpNodeStore = useHttpNode()
   const apidocBaseInfoStore = useApidocBaseInfo()
   const httpRedoUndoStore = useHttpRedoUndo()
   const apidocTabsStore = useApidocTas()
@@ -40,11 +40,11 @@ export default (): HostReturn => {
   //prefix值
   const host = computed<string>({
     get() {
-      return apidocStore.apidoc.item.url.prefix
+      return httpNodeStore.apidoc.item.url.prefix
     },
     set(val) {
       if (!currentSelectTab.value) return;
-      const oldValue = apidocStore.apidoc.item.url.prefix;
+      const oldValue = httpNodeStore.apidoc.item.url.prefix;
       if (oldValue !== val) {
         // 记录URL前缀变化操作
         httpRedoUndoStore.recordOperation({
@@ -57,13 +57,13 @@ export default (): HostReturn => {
           timestamp: Date.now()
         });
       }
-      apidocStore.changeApidocPrefix(val);
+      httpNodeStore.changeApidocPrefix(val);
     },
   });
     //改变host的值
   const handleChangeHost = (server: string | number | boolean) => {
     if (!currentSelectTab.value) return;
-    const oldValue = apidocStore.apidoc.item.url.prefix;
+    const oldValue = httpNodeStore.apidoc.item.url.prefix;
     const newValue = server as string;
     if (oldValue !== newValue) {
       // 记录URL前缀变化操作
@@ -77,7 +77,7 @@ export default (): HostReturn => {
         timestamp: Date.now()
       });
     }
-    apidocStore.changeApidocPrefix(newValue);
+    httpNodeStore.changeApidocPrefix(newValue);
   }
   //host枚举值
   const hostEnum = computed<ApidocProjectHost[]>(() => {

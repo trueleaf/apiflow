@@ -49,7 +49,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { LocalStorageItem } from '@src/types/share/cache'
+import { LocalStorageItem } from '@src/types/apidoc/cache'
 import { formatUnit } from '@/helper'
 import { ElMessageBox } from 'element-plus'
 import LocalStorageDialog from '../dialog/LocalStorageDialog.vue'

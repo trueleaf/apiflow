@@ -89,10 +89,10 @@ const handleClearData = async () => {
 
   .websocket-base-info {
     padding: 16px;
-    border-bottom: 1px solid #e4e7ed;
-    background-color: #fff;
+    border-bottom: 1px solid var(--border-base);
+    background-color: var(--white);
     flex-shrink: 0;
-    box-shadow: 0 3px 2px var(--gray-400);
+    box-shadow: var(--box-shadow-sm);
     .text-bold {
       font-weight: 600;
       color: var(--el-text-color-primary);

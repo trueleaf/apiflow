@@ -63,6 +63,7 @@ export const cacheKey = {
   httpNodeCache: {
     httpNode: 'httpNodeCache/httpNode',
     cookies: 'httpNodeCache/cookies',
+    config: 'httpNodeCache/config',
     preRequest: {
       localStorage: 'httpNodeCache/preRequest/localStorage',
     },

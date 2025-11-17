@@ -1,10 +1,10 @@
 import { ComputedRef, computed, WritableComputedRef } from 'vue'
 import { i18n } from '@/i18n'
 import { ApidocRequestMethodRule, HttpNodeRequestMethod } from '@src/types';
-import { useApidoc } from '@/store/share/apidocStore';
-import { useApidocBaseInfo } from '@/store/share/baseInfoStore';
+import { useHttpNode } from '@/store/apidoc/httpNodeStore';
+import { useApidocBaseInfo } from '@/store/apidoc/baseInfoStore';
 import { useHttpRedoUndo } from '@/store/redoUndo/httpRedoUndoStore';
-import { useApidocTas } from '@/store/share/tabsStore';
+import { useApidocTas } from '@/store/apidoc/tabsStore';
 import { router } from '@/router';
 
 type MethodReturn = {
@@ -23,7 +23,7 @@ type MethodReturn = {
 }
 
 export default (): MethodReturn => {
-  const apidocStore = useApidoc()
+  const httpNodeStore = useHttpNode()
   const apidocBaseInfo = useApidocBaseInfo()
   const httpRedoUndoStore = useHttpRedoUndo()
   const apidocTabsStore = useApidocTas()
@@ -35,11 +35,11 @@ export default (): MethodReturn => {
   //请求方法
   const requestMethod = computed({
     get() {
-      return apidocStore.apidoc.item.method;
+      return httpNodeStore.apidoc.item.method;
     },
     set(method: HttpNodeRequestMethod) {
       if (!currentSelectTab.value) return;
-      const oldValue = apidocStore.apidoc.item.method;
+      const oldValue = httpNodeStore.apidoc.item.method;
       if (oldValue !== method) {
         // 记录请求方法变化操作
         httpRedoUndoStore.recordOperation({
@@ -52,7 +52,7 @@ export default (): MethodReturn => {
           timestamp: Date.now()
         });
       }
-      apidocStore.changeApidocMethod(method)
+      httpNodeStore.changeApidocMethod(method)
     },
   });
     //禁用请求方法后提示信息

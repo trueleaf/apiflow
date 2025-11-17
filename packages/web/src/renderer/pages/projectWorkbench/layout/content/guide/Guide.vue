@@ -23,7 +23,7 @@ import { useI18n } from 'vue-i18n'
 import { ApidocBanner } from '@src/types'
 import { forEachForest } from '@/helper'
 import { config } from '@src/config/config'
-import { useApidocBanner } from '@/store/share/bannerStore'
+import { useApidocBanner } from '@/store/apidoc/bannerStore'
 import { useAppSettings } from '@/store/appSettings/appSettingsStore'
 
 const apidocBannerStore = useApidocBanner()

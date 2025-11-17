@@ -42,9 +42,9 @@ import { request } from '@/api/api'
 import { eventEmitter } from '@/helper';
 import SLoading from '@/components/common/loading/ClLoading.vue'
 import SFieldset from '@/components/common/fieldset/ClFieldset.vue'
-import { useApidoc } from '@/store/share/apidocStore';
-import { useApidocBanner } from '@/store/share/bannerStore';
-import { useApidocTas } from '@/store/share/tabsStore';
+import { useHttpNode } from '@/store/apidoc/httpNodeStore';
+import { useApidocBanner } from '@/store/apidoc/bannerStore';
+import { useApidocTas } from '@/store/apidoc/tabsStore';
 import { apiNodesCache } from '@/cache/standalone/apiNodesCache';
 import { nanoid } from 'nanoid';
 import { useRuntime } from '@/store/runtime/runtimeStore';
@@ -70,7 +70,7 @@ const formInfo: Ref<FormInfo> = ref({
 const rules = ref({
   name: [{ required: true, message: '接口名称必填', trigger: 'blur' }],
 });
-const apidocStore = useApidoc();
+const httpNodeStore = useHttpNode();
 const apidocTabsStore = useApidocTas()
 const apidocBannerStore = useApidocBanner();
 const runtimeStore = useRuntime();
@@ -117,7 +117,7 @@ const handleClose = () => {
   eventEmitter.emit('tabs/cancelSaveTab')
 }
 const handleSaveDoc = async () => {
-  const docInfo = JSON.parse(JSON.stringify(apidocStore.apidoc))
+  const docInfo = JSON.parse(JSON.stringify(httpNodeStore.apidoc))
   docInfo.info.name = formInfo.value.name;
   docInfo.info.creator = runtimeStore.userInfo.realName
   docInfo.pid = currentMountedNode.value?._id;
@@ -126,15 +126,15 @@ const handleSaveDoc = async () => {
 
   const saveDocCb = (docId: string) => {
     apidocBannerStore.getDocBanner({ projectId });
-    apidocStore.changeApidocId(docId);
-    apidocStore.changeApidocName(formInfo.value.name);
+    httpNodeStore.changeApidocId(docId);
+    httpNodeStore.changeApidocName(formInfo.value.name);
     apidocTabsStore.changeTabInfoById({
-      id: apidocStore.savedDocId,
+      id: httpNodeStore.savedDocId,
       field: 'label',
       value: formInfo.value.name,
     })
     apidocTabsStore.changeTabInfoById({
-      id: apidocStore.savedDocId,
+      id: httpNodeStore.savedDocId,
       field: '_id',
       value: docId,
     })

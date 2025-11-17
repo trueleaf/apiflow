@@ -176,9 +176,9 @@ import SAddFileDialog from '../../../dialog/addFile/AddFile.vue'
 import SAddFolderDialog from '../../../dialog/addFolder/AddFolder.vue'
 import { originOperaions } from './operations'
 import { addFileAndFolderCb } from '../composables/curd-node'
-import { useApidocBaseInfo } from '@/store/share/baseInfoStore'
-import { useApidocBanner } from '@/store/share/bannerStore'
-import { useApidocTas } from '@/store/share/tabsStore'
+import { useApidocBaseInfo } from '@/store/apidoc/baseInfoStore'
+import { useApidocBanner } from '@/store/apidoc/bannerStore'
+import { useApidocTas } from '@/store/apidoc/tabsStore'
 import SLoading from '@/components/common/loading/ClLoading.vue'
 import SFieldset from '@/components/common/fieldset/ClFieldset.vue'
 import { useProjectStore } from '@/store/project/projectStore'
@@ -835,7 +835,7 @@ const handleToggleProjectModel = () => {
   cursor: pointer;
   border-radius: 50%;
   &:hover {
-    background: #dee2e6;
+    background: var(--bg-hover);
   }
 }
 

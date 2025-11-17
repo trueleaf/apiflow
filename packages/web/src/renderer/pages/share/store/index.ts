@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
 import { HttpNode, ApidocVariable, ApidocBanner } from '@src/types';
-import { ApidocTab } from '@src/types/share/tabs';
+import { ApidocTab } from '@src/types/apidoc/tabs';
 import { SharedProjectInfo } from '@src/types/index.ts';
 import { getObjectVariable } from '@/helper';
 import { workbenchCache } from '@/cache/workbench/workbenchCache.ts';

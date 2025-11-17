@@ -62,7 +62,7 @@ import { useI18n } from 'vue-i18n';
 import { storeToRefs } from 'pinia';
 import { Refresh } from '@element-plus/icons-vue';
 import { useWebSocket } from '@/store/websocket/websocketStore';
-import { useApidocTas } from '@/store/share/tabsStore';
+import { useApidocTas } from '@/store/apidoc/tabsStore';
 import { router } from '@/router';
 import { ApidocProperty } from '@src/types';
 import { WebsocketConnectParams } from '@src/types/websocketNode';
@@ -72,8 +72,8 @@ import { getWebSocketHeaders } from '@/server/request/request';
 import { useWsRedoUndo } from '@/store/redoUndo/wsRedoUndoStore';
 import { useRuntime } from '@/store/runtime/runtimeStore';
 import { executeWebSocketPreScript } from '@/server/websocket/executePreScript';
-import { useVariable } from '@/store/share/variablesStore';
-import { useCookies } from '@/store/share/cookiesStore';
+import { useVariable } from '@/store/apidoc/variablesStore';
+import { useCookies } from '@/store/apidoc/cookiesStore';
 import { httpNodeCache } from '@/cache/httpNode/httpNodeCache';
 
 
@@ -524,10 +524,10 @@ const handleFormatUrl = () => {
     align-items: center;
     overflow: hidden;
     padding: 0 10px;
-    border: 1px solid #d1d5da;
+    border: 1px solid var(--border-base);
     border-radius: 4px;
-    background-color: #f0f0f0;
-    color: #212529;
+    background-color: var(--bg-secondary);
+    color: var(--text-primary);
     font-size: 12px;
     font-family: SFMono-Regular, Menlo, Monaco, Consolas, Liberation Mono, Courier New, monospace;
     

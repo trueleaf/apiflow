@@ -8,17 +8,17 @@
 </template>
 
 <script lang="ts" setup>
-import { useApidoc } from '@/store/share/apidocStore';
+import { useHttpNode } from '@/store/apidoc/httpNodeStore';
 import { computed } from 'vue'
 import SParamsTree from '@/components/apidoc/paramsTree/ClParamsTree.vue'
 import { useI18n } from 'vue-i18n'
 import { useHttpRedoUndo } from '@/store/redoUndo/httpRedoUndoStore'
-import { useApidocTas } from '@/store/share/tabsStore'
+import { useApidocTas } from '@/store/apidoc/tabsStore'
 import { router } from '@/router'
 import { debounce, cloneDeep } from 'lodash-es'
 import type { ApidocProperty } from '@src/types'
 
-const apidocStore = useApidoc()
+const httpNodeStore = useHttpNode()
 const httpRedoUndoStore = useHttpRedoUndo()
 const apidocTabsStore = useApidocTas()
 const projectId = router.currentRoute.value.query.id as string;
@@ -29,29 +29,29 @@ const currentSelectTab = computed(() => {
 //path参数
 const { t } = useI18n()
 
-const pathTreeData = computed(() => apidocStore.apidoc.item.paths);
+const pathTreeData = computed(() => httpNodeStore.apidoc.item.paths);
 
 //query参数
-const queryTreeData = computed(() => apidocStore.apidoc.item.queryParams)
+const queryTreeData = computed(() => httpNodeStore.apidoc.item.queryParams)
 //是否存在path参数
 const hasPathParams = computed(() => {
-  const { paths } = apidocStore.apidoc.item;
+  const { paths } = httpNodeStore.apidoc.item;
   const hasPathsParams = paths.some((data) => data.key);
   return hasPathsParams;
 })
 
 // 处理 Query 参数变化
 const handleQueryParamsChange = (newData: ApidocProperty<'string' | 'file'>[]) => {
-  const oldValue = cloneDeep(apidocStore.apidoc.item.queryParams);
-  apidocStore.apidoc.item.queryParams = newData as ApidocProperty<'string'>[];
+  const oldValue = cloneDeep(httpNodeStore.apidoc.item.queryParams);
+  httpNodeStore.apidoc.item.queryParams = newData as ApidocProperty<'string'>[];
   
   debouncedRecordQueryParamsOperation(oldValue, newData as ApidocProperty<'string'>[]);
 };
 
 // 处理 Path 参数变化
 const handlePathParamsChange = (newData: ApidocProperty<'string' | 'file'>[]) => {
-  const oldValue = cloneDeep(apidocStore.apidoc.item.paths);
-  apidocStore.apidoc.item.paths = newData as ApidocProperty<'string'>[];
+  const oldValue = cloneDeep(httpNodeStore.apidoc.item.paths);
+  httpNodeStore.apidoc.item.paths = newData as ApidocProperty<'string'>[];
   
   debouncedRecordPathsOperation(oldValue, newData as ApidocProperty<'string'>[]);
 };

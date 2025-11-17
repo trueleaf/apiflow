@@ -67,9 +67,9 @@ import { ApidocProperty } from '@src/types';
 import { generateEmptyProperty } from '@/helper';
 import { useI18n } from 'vue-i18n'
 import SParamsTree from '@/components/apidoc/paramsTree/ClParamsTree.vue'
-import { useApidoc } from '@/store/share/apidocStore';
-import { useApidocTas } from '@/store/share/tabsStore';
-import { useApidocBaseInfo } from '@/store/share/baseInfoStore';
+import { useHttpNode } from '@/store/apidoc/httpNodeStore';
+import { useApidocTas } from '@/store/apidoc/tabsStore';
+import { useApidocBaseInfo } from '@/store/apidoc/baseInfoStore';
 import { webSocketNodeCache } from '@/cache/websocketNode/websocketNodeCache.ts';
 import { storeToRefs } from 'pinia';
 import { CheckboxValueType } from 'element-plus';
@@ -79,7 +79,7 @@ import { mindHeaderMetas } from './mind-headers'
 
 const emits = defineEmits(['changeCommonHeaderSendStatus'])
 const apidocTabsStore = useApidocTas()
-const apidocStore = useApidoc()
+const httpNodeStore = useHttpNode()
 const apidocBaseInfoStore = useApidocBaseInfo()
 const httpRedoUndoStore = useHttpRedoUndo()
 const { commonHeaders: cHeaders, globalCommonHeaders } = storeToRefs(apidocBaseInfoStore)
@@ -99,14 +99,14 @@ const mindHeaders = mindHeaderMetas.map((meta) => {
 })
 
 const hideDefaultHeader = ref(true);
-const headerData = computed(() => apidocStore.apidoc.item.headers)
-const defaultHeaders = computed(() => apidocStore.defaultHeaders);
+const headerData = computed(() => httpNodeStore.apidoc.item.headers)
+const defaultHeaders = computed(() => httpNodeStore.defaultHeaders);
 const commonHeaders = ref<(Pick<ApidocProperty, "_id" | 'key' | 'value' | 'description' | 'select' & { path?: string[] }>)[]>([]);
 
 // 处理 Headers 变化
 const handleHeadersChange = (newData: ApidocProperty<'string' | 'file'>[]) => {
-  const oldValue = cloneDeep(apidocStore.apidoc.item.headers);
-  apidocStore.apidoc.item.headers = newData as ApidocProperty<'string'>[];
+  const oldValue = cloneDeep(httpNodeStore.apidoc.item.headers);
+  httpNodeStore.apidoc.item.headers = newData as ApidocProperty<'string'>[];
   
   debouncedRecordHeadersOperation(oldValue, newData as ApidocProperty<'string'>[]);
 };

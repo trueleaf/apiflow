@@ -60,16 +60,16 @@
 import { useI18n } from 'vue-i18n'
 import { computed } from 'vue'
 import beautify from 'js-beautify'
-import { useApidoc } from '@/store/share/apidocStore';
+import { useHttpNode } from '@/store/apidoc/httpNodeStore';
 import SCollapse from '@/components/common/collapse/ClCollapse.vue'
-import { useApidocBaseInfo } from '@/store/share/baseInfoStore';
-import { useApidocResponse } from '@/store/share/responseStore';
+import { useApidocBaseInfo } from '@/store/apidoc/baseInfoStore';
+import { useApidocResponse } from '@/store/apidoc/responseStore';
 import { downloadStringAsText } from '@/helper'
 import { formatUnit } from '@/helper'
 import { storeToRefs } from 'pinia';
 import SJsonEditor from '@/components/common/jsonEditor/ClJsonEditor.vue'
 
-const apidocStore = useApidoc();
+const httpNodeStore = useHttpNode();
 const apidocBaseInfoStore = useApidocBaseInfo();
 const apidocResponseStore = useApidocResponse();
 const { responseInfo } = storeToRefs(apidocResponseStore);
@@ -88,7 +88,7 @@ const headers = computed(() => {
   return kvHeaders;
 });
 
-const contentType = computed(() => apidocStore.apidoc.item.contentType); //contentType
+const contentType = computed(() => httpNodeStore.apidoc.item.contentType); //contentType
 const formatJsonStr = (code: string) => beautify(code, { indent_size: 4 });
 const upperHeaderKey = (key: string) => key.replace(/(^\w)|(-\w)/g, ($1) => $1.toUpperCase());
 const safedMultipart = (strBody: string) => {

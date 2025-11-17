@@ -143,7 +143,7 @@ function handleTabChange(type: string) {
   display: flex;
   align-items: flex-start;
   background: var(--white);
-  border: 2px solid var(--gray-200);
+  border: 2px solid var(--border-light);
   border-radius: var(--border-radius);
   box-shadow: var(--box-shadow-sm);
   padding: 20px 28px 20px 20px;
@@ -180,14 +180,14 @@ function handleTabChange(type: string) {
 }
 .import-type-card.active {
   border: 2px solid var(--blue);
-  box-shadow: 0 0 0 2px rgba(64,158,255,0.08);
+  box-shadow: var(--box-shadow-focus);
   background: var(--white);
 }
 .import-type-card.active .card-title {
   color: var(--blue);
 }
 .import-type-card.active .icon-wrap {
-  box-shadow: 0 0 0 4px rgba(64,158,255,0.10);
+  box-shadow: var(--box-shadow-focus);
 }
 .import-type-content {
   margin-top: 16px;

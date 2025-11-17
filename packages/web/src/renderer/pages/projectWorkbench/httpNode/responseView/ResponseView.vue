@@ -53,9 +53,9 @@ import SBody from './body/Body.vue'
 import SRawBody from './rawBody/RawBody.vue'
 import SRequest from './request/Request.vue'
 import { useI18n } from 'vue-i18n'
-import { useApidocResponse } from '@/store/share/responseStore'
-import { useApidocBaseInfo } from '@/store/share/baseInfoStore'
-import { useApidoc } from '@/store/share/apidocStore'
+import { useApidocResponse } from '@/store/apidoc/responseStore'
+import { useApidocBaseInfo } from '@/store/apidoc/baseInfoStore'
+import { useHttpNode } from '@/store/apidoc/httpNodeStore'
 import SLoading from '@/components/common/loading/ClLoading.vue'
 
 
@@ -64,7 +64,7 @@ const { t } = useI18n()
 const activeName = ref('SBody');
 const apidocResponseStore = useApidocResponse();
 const apidocBaseInfoStore = useApidocBaseInfo();
-const apidocStore = useApidoc();
+const httpNodeStore = useHttpNode();
 const cookies = computed(() => apidocResponseStore.responseInfo.headers['set-cookie']);
 const responseInfo = computed(() => apidocResponseStore.responseInfo);
 
@@ -81,7 +81,7 @@ const headers = computed(() => {
 
 const layout = computed(() => apidocBaseInfoStore.layout);
 const requestState = computed(() => apidocResponseStore.requestState); //请求状态
-const responseBodyLoading = computed(() => apidocStore.responseBodyLoading); //返回体加载状态
+const responseBodyLoading = computed(() => httpNodeStore.responseBodyLoading); //返回体加载状态
 
 </script>
 

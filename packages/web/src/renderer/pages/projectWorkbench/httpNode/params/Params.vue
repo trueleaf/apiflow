@@ -298,10 +298,10 @@ import SAfterRequestParams from './afterRequest/AfterRequest.vue';
 import SRemark from './remarks/Remarks.vue';
 import SSettings from './settings/Settings.vue';
 import { computed, onMounted, onUnmounted, ref, watch, watchEffect } from 'vue'
-import { useApidocBaseInfo } from '@/store/share/baseInfoStore'
-import { useApidoc } from '@/store/share/apidocStore'
+import { useApidocBaseInfo } from '@/store/apidoc/baseInfoStore'
+import { useHttpNode } from '@/store/apidoc/httpNodeStore'
 import { useRoute } from 'vue-router'
-import { useApidocTas } from '@/store/share/tabsStore'
+import { useApidocTas } from '@/store/apidoc/tabsStore'
 import { useHttpRedoUndo } from '@/store/redoUndo/httpRedoUndoStore'
 import { ElMessageBox } from 'element-plus'
 import { httpNodeHistoryCache } from '@/cache/httpNode/httpNodeHistoryCache'
@@ -309,7 +309,7 @@ import { message } from '@/helper'
 import type { HttpHistory } from '@src/types/history/httpHistory'
 type ActiceName = 'SParams' | 'SRequestBody' | 'SResponseParams' | 'SRequestHeaders' | 'SRemarks' | 'SPreRequest' | 'SAfterRequest' | 'SSettings'
 const apidocBaseInfoStore = useApidocBaseInfo()
-const apidocStore = useApidoc()
+const httpNodeStore = useHttpNode()
 const apidocTabsStore = useApidocTas()
 const httpRedoUndoStore = useHttpRedoUndo()
 const activeName = ref<ActiceName>('SParams');
@@ -332,29 +332,29 @@ const hideTimer = ref<number | null>(null)
 const historyDetailRef = ref<HTMLElement>()
 // const mode = computed(() => apidocBaseInfoStore.mode)
 const hasQueryOrPathsParams = computed(() => {
-  const { queryParams, paths } = apidocStore.apidoc.item;
+  const { queryParams, paths } = httpNodeStore.apidoc.item;
   const hasQueryParams = queryParams.filter(p => p.select).some((data) => data.key);
   const hasPathsParams = paths.some((data) => data.key);
   return hasQueryParams || hasPathsParams;
 })
 const hasBodyParams = computed(() => {
-  const { contentType } = apidocStore.apidoc.item;
-  const isBinary = apidocStore.apidoc.item.requestBody.mode === 'binary';
+  const { contentType } = httpNodeStore.apidoc.item;
+  const isBinary = httpNodeStore.apidoc.item.requestBody.mode === 'binary';
   if (isBinary) {
     return true
   }
   return !!contentType;
 })
 const hasPreRequest = computed(() => {
-  const preRequest = apidocStore.apidoc.preRequest?.raw;
+  const preRequest = httpNodeStore.apidoc.preRequest?.raw;
   return !!preRequest;
 })
 const hasAfterRequest = computed(() => {
-  const afterRequest = apidocStore.apidoc.afterRequest?.raw;
+  const afterRequest = httpNodeStore.apidoc.afterRequest?.raw;
   return !!afterRequest;
 })
 const responseNum = computed(() => {
-  const resParams = apidocStore.apidoc.item.responseParams;
+  const resParams = httpNodeStore.apidoc.item.responseParams;
   let resNum = 0;
   resParams.forEach(response => {
     const resValue = response.value;
@@ -381,7 +381,7 @@ const currentSelectTab = computed(() => {
 })
 const hasHeaders = ref(false);
 const freshHasHeaders = () => {
-  const { headers } = apidocStore.apidoc.item;
+  const { headers } = httpNodeStore.apidoc.item;
   const commonHeaders = apidocBaseInfoStore.getCommonHeadersById(currentSelectTab.value?._id || "");
   const cpCommonHeaders = JSON.parse(JSON.stringify(commonHeaders)) as (typeof commonHeaders);
   cpCommonHeaders.forEach(header => {
@@ -397,7 +397,7 @@ const freshHasHeaders = () => {
 watchEffect(freshHasHeaders, {
 });
 const layout = computed(() => apidocBaseInfoStore.layout)
-const apidoc = computed(() => apidocStore.apidoc)
+const apidoc = computed(() => httpNodeStore.apidoc)
 // 撤销/重做相关计算属性
 const canUndo = computed(() => {
   if (!currentSelectTab.value) return false;
@@ -526,7 +526,7 @@ const handleSelectHistory = (history: HttpHistory): void => {
     }
   ).then(() => {
     // 调用changeApidoc重新赋值
-    apidocStore.changeApidoc(history.node);
+    httpNodeStore.changeApidoc(history.node);
     showHistoryDropdown.value = false;
   }).catch((error) => {
     // 用户取消操作
@@ -882,7 +882,7 @@ watch(() => apidoc.value, (apidoc: HttpNode) => {
 */
 onMounted(() => {
   debounceFn.value = debounce((apidoc: HttpNode) => {
-    const isEqual = checkApidocIsEqual(apidoc, apidocStore.originApidoc);
+    const isEqual = checkApidocIsEqual(apidoc, httpNodeStore.originApidoc);
     if (!isEqual) {
       apidocTabsStore.changeTabInfoById({
         id: currentSelectTab.value?._id || "",
@@ -996,7 +996,7 @@ onUnmounted(() => {
       background: var(--white);
       border: 1px solid var(--gray-300);
       border-radius: 6px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      box-shadow: var(--box-shadow-lg);
       z-index: var(--zIndex-history-dropdown);
       min-width: 280px;
       max-height: 350px;
@@ -1115,7 +1115,7 @@ onUnmounted(() => {
           }
 
           &:active {
-            background: rgba(245, 108, 108, 0.15);
+            background: var(--bg-danger-10);
           }
         }
       }
@@ -1165,7 +1165,7 @@ onUnmounted(() => {
   background: var(--white);
   border: 1px solid var(--gray-300);
   border-radius: 8px;
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+  box-shadow: var(--box-shadow-lg);
   z-index: calc(var(--zIndex-history-dropdown) + 1);
   display: flex;
   flex-direction: column;
@@ -1245,28 +1245,28 @@ onUnmounted(() => {
               font-size: 12px;
 
               &.get {
-                background: #e1f5fe;
-                color: #0277bd;
+                background: var(--method-get-bg);
+                color: var(--method-get-text);
               }
 
               &.post {
-                background: #e8f5e9;
-                color: #2e7d32;
+                background: var(--method-post-bg);
+                color: var(--method-post-text);
               }
 
               &.put {
-                background: #fff3e0;
-                color: #ef6c00;
+                background: var(--method-put-bg);
+                color: var(--method-put-text);
               }
 
               &.delete {
-                background: #ffebee;
-                color: #c62828;
+                background: var(--method-delete-bg);
+                color: var(--method-delete-text);
               }
 
               &.patch {
-                background: #f3e5f5;
-                color: #6a1b9a;
+                background: var(--method-patch-bg);
+                color: var(--method-patch-text);
               }
             }
 

@@ -1,14 +1,14 @@
 import { getUrl } from "@/server/request/request.ts";
-import { ApidocRequest } from "@src/types/share/request";
+import { ApidocRequest } from "@src/types/apidoc/request";
 import { debounce } from "lodash-es";
 import { defineStore } from "pinia";
 import { ref, toRaw, watch } from "vue";
-import { useApidoc } from "./apidocStore.ts";
+import { useHttpNode } from "./httpNodeStore.ts";
 import { useVariable } from "./variablesStore.ts";
 
 export const useApidocRequest = defineStore('apidocRequest', () => {
   const url = ref('');
-  const apidocStore = useApidoc();
+  const httpNodeStore = useHttpNode();
   const apidocVaribleStore = useVariable();
   const encodedUrl = ref('');
   const fullUrl = ref('');
@@ -43,12 +43,12 @@ export const useApidocRequest = defineStore('apidocRequest', () => {
     cancelRequestRef.value = cancelRequest;
   }
   const getFullUrl = debounce(async () => {
-    fullUrl.value = await getUrl(toRaw(apidocStore.$state.apidoc));
+    fullUrl.value = await getUrl(toRaw(httpNodeStore.$state.apidoc));
   }, 500, {
     leading: true,
   });
   watch([() => {
-    return apidocStore.apidoc.item;
+    return httpNodeStore.apidoc.item;
   }, () => {
     return apidocVaribleStore.objectVariable;
   }], () => {

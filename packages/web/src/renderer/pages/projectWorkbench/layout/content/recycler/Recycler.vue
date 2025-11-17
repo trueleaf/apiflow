@@ -114,8 +114,8 @@ import { eventEmitter } from '@/helper'
 import { forEachForest } from '@/helper'
 import { debounce } from "lodash-es"
 import docDetail from './components/DocDetail.vue'
-import { useApidocBanner } from '@/store/share/bannerStore'
-import { useApidocBaseInfo } from '@/store/share/baseInfoStore'
+import { useApidocBanner } from '@/store/apidoc/bannerStore'
+import { useApidocBaseInfo } from '@/store/apidoc/baseInfoStore'
 import { config } from '@src/config/config'
 // import { Delete } from '@element-plus/icons-vue'
 import { apiNodesCache } from '@/cache/standalone/apiNodesCache'
@@ -443,8 +443,8 @@ const handleShowDetail = (docInfo: DeleteInfo) => {
   // 搜索
   .search {
     flex: 0 0 auto;
-    box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
-    border: 1px solid var(--gray-300);
+    box-shadow: var(--box-shadow-sm);
+    border: 1px solid var(--border-base);
     border-radius: 4px;
     padding: 5px 20px;
 
@@ -480,7 +480,7 @@ const handleShowDetail = (docInfo: DeleteInfo) => {
           align-items: center;
           height: 30px;
           &:hover {
-            background: var(--gray-200);
+            background: var(--bg-hover);
           }
         }
       }

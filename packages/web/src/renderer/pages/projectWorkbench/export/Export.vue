@@ -97,9 +97,9 @@ import type { TreeNodeOptions } from 'element-plus/lib/components/tree/src/tree.
 import { ApidocBanner, HttpNode, WebSocketNode } from '@src/types';
 import { request } from '@/api/api'
 import { useI18n } from 'vue-i18n'
-import { useApidocBaseInfo } from '@/store/share/baseInfoStore';
-import { useApidocBanner } from '@/store/share/bannerStore';
-import { useVariable } from '@/store/share/variablesStore';
+import { useApidocBaseInfo } from '@/store/apidoc/baseInfoStore';
+import { useApidocBanner } from '@/store/apidoc/bannerStore';
+import { useVariable } from '@/store/apidoc/variablesStore';
 import SFieldset from '@/components/common/fieldset/ClFieldset.vue'
 import SConfig from '@/components/common/config/ClConfig.vue'
 import SEmphasize from '@/components/common/emphasize/ClEmphasize.vue'
@@ -410,11 +410,11 @@ const handleConfigChange = (isEnabled: boolean) => {
             flex-direction: column;
             border: 1px solid transparent;
             &.active {
-                border: 1px solid var(--gray-400);
+                border: 1px solid var(--border-base);
                 box-shadow: var(--box-shadow-sm);
             }
             &:hover {
-                border: 1px solid var(--gray-400);
+                border: 1px solid var(--border-base);
             }
             .svg-icon {
                 width: 70px;

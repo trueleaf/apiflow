@@ -34,21 +34,21 @@
 </template>
 
 <script lang="ts" setup>
-import { useApidoc } from '@/store/share/apidocStore';
-import { useApidocBaseInfo } from '@/store/share/baseInfoStore';
+import { useHttpNode } from '@/store/apidoc/httpNodeStore';
+import { useApidocBaseInfo } from '@/store/apidoc/baseInfoStore';
 import { useI18n } from 'vue-i18n'
 import { computed } from 'vue';
 import { formatDate } from '@/helper'
 import SLabelValue from '@/components/common/labelValue/ClLabelValue.vue'
-import { useApidocRequest } from '@/store/share/requestStore';
+import { useApidocRequest } from '@/store/apidoc/requestStore';
 
 
 
-const apidocStore = useApidoc();
+const httpNodeStore = useHttpNode();
 const apidocBaseInfoStore = useApidocBaseInfo();
 const { t } = useI18n()
 
-const apidocInfo = computed(() => apidocStore.apidoc);
+const apidocInfo = computed(() => httpNodeStore.apidoc);
 const apidocRequestStore = useApidocRequest();
 const validRequestMethods = computed(() => apidocBaseInfoStore.rules.requestMethods?.filter((val) => val.isEnabled));
 </script>

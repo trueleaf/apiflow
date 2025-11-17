@@ -291,8 +291,8 @@
 </template>
 
 <script lang="ts" setup>
-import { useApidocBaseInfo } from '@/store/share/baseInfoStore';
-import { useApidocResponse } from '@/store/share/responseStore';
+import { useApidocBaseInfo } from '@/store/apidoc/baseInfoStore';
+import { useApidocResponse } from '@/store/apidoc/responseStore';
 import { computed, onMounted, onUnmounted, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n'
 import { downloadStringAsText } from '@/helper'
@@ -300,8 +300,8 @@ import { formatHeader, formatUnit } from '@/helper'
 import { config } from '@src/config/config'
 import SJsonEditor from '@/components/common/jsonEditor/ClJsonEditor.vue'
 import SSseView from '@/components/common/sseView/ClSseView.vue'
-import { useApidocTas } from '@/store/share/tabsStore';
-import { useApidoc } from '@/store/share/apidocStore';
+import { useApidocTas } from '@/store/apidoc/tabsStore';
+import { useHttpNode } from '@/store/apidoc/httpNodeStore';
 import { ElDialog } from 'element-plus';
 import beautify, { html as htmlBeautify, css as cssBeautify } from 'js-beautify';
 import worker from '@/worker/prettier.worker.ts?worker&inline';
@@ -319,7 +319,7 @@ let lastFormattedSource: string | null = null;
 let lastFormattedType: WorkerFormatType | null = null;
 const apidocResponseStore = useApidocResponse();
 const apidocBaseInfoStore = useApidocBaseInfo();
-const apidocStore = useApidoc();
+const httpNodeStore = useHttpNode();
 const loadingProcess = computed(() => apidocResponseStore.loadingProcess);
 const requestState = computed(() => apidocResponseStore.requestState);
 const redirectList = computed(() => apidocResponseStore.responseInfo.redirectList);
@@ -419,7 +419,7 @@ const scheduleWorkerFormat = (payload: FormatPayload): void => {
   activeWorkerTaskId = taskId;
   pendingWorkerSource = source;
   pendingWorkerType = payload.type;
-  apidocStore.changeResponseBodyLoading(true);
+  httpNodeStore.changeResponseBodyLoading(true);
   prettierWorker?.postMessage({
     type: payload.type,
     code: source,
@@ -446,7 +446,7 @@ watch(() => [
     lastFormattedSource = textData;
     lastFormattedType = null;
     resetWorkerState();
-    apidocStore.changeResponseBodyLoading(false);
+    httpNodeStore.changeResponseBodyLoading(false);
     return;
   }
   if (!payload.code) {
@@ -454,7 +454,7 @@ watch(() => [
     lastFormattedSource = '';
     lastFormattedType = payload.type;
     resetWorkerState();
-    apidocStore.changeResponseBodyLoading(false);
+    httpNodeStore.changeResponseBodyLoading(false);
     return;
   }
   if (requestStatus === 'waiting' || requestStatus === 'sending') {
@@ -462,11 +462,11 @@ watch(() => [
     lastFormattedSource = null;
     lastFormattedType = null;
     resetWorkerState();
-    apidocStore.changeResponseBodyLoading(false);
+    httpNodeStore.changeResponseBodyLoading(false);
     return;
   }
   if (lastFormattedSource === payload.code && lastFormattedType === payload.type && requestStatus === 'finish') {
-    apidocStore.changeResponseBodyLoading(false);
+    httpNodeStore.changeResponseBodyLoading(false);
     return;
   }
   if (payload.code.length <= 1024 * 10) {
@@ -474,12 +474,12 @@ watch(() => [
     lastFormattedSource = payload.code;
     lastFormattedType = payload.type;
     resetWorkerState();
-    apidocStore.changeResponseBodyLoading(false);
+    httpNodeStore.changeResponseBodyLoading(false);
     return;
   }
   if (requestStatus !== 'finish') {
     formatedText.value = textData;
-    apidocStore.changeResponseBodyLoading(false);
+    httpNodeStore.changeResponseBodyLoading(false);
     lastFormattedSource = null;
     lastFormattedType = null;
     resetWorkerState();
@@ -520,12 +520,12 @@ onMounted(() => {
     lastFormattedSource = sourceCache;
     lastFormattedType = typeCache ?? null;
     resetWorkerState();
-    apidocStore.changeResponseBodyLoading(false);
+    httpNodeStore.changeResponseBodyLoading(false);
   };
 });
 onUnmounted(() => {
   resetWorkerState();
-  apidocStore.changeResponseBodyLoading(false);
+  httpNodeStore.changeResponseBodyLoading(false);
   if (prettierWorker) {
     prettierWorker.terminate();
     prettierWorker != null;

@@ -82,7 +82,7 @@ import { CopyDocument } from '@element-plus/icons-vue'
 import { useI18n } from 'vue-i18n'
 import { storeToRefs } from 'pinia'
 import { useHttpMock } from '@/store/httpMock/httpMockStore'
-import { useApidocTas } from '@/store/share/tabsStore.ts'
+import { useApidocTas } from '@/store/apidoc/tabsStore.ts'
 import { router } from '@/router/index.ts'
 
 const { t } = useI18n()
@@ -343,7 +343,7 @@ onMounted(() => {
   font-size: var(--font-size-xs);
   color: var(--el-color-danger);
   line-height: 1.4;
-  background: #fef0f0;
+  background: var(--bg-danger-10);
   padding: 6px 8px;
   border-radius: var(--border-radius-sm);
   border-left: 3px solid var(--el-color-danger);

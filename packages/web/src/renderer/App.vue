@@ -23,7 +23,7 @@ import AddProjectDialog from '@/pages/home/dialog/addProject/AddProject.vue';
 import Ai from '@/pages/ai/Ai.vue';
 import { projectCache } from '@/cache/project/projectCache';
 import { ElMessageBox } from 'element-plus';
-import { useApidocBaseInfo } from './store/share/baseInfoStore';
+import { useApidocBaseInfo } from './store/apidoc/baseInfoStore';
 import { Language } from '@src/types';
 import LanguageMenu from '@/components/common/language/Language.vue';
 import type { RuntimeNetworkMode } from '@src/types/runtime';

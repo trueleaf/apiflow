@@ -107,8 +107,8 @@ import { request } from '@/api/api'
 import { findParentById, findSiblingById, forEachForest } from '@/helper'
 import { nanoid } from 'nanoid/non-secure'
 import { useI18n } from 'vue-i18n'
-import { useApidocBaseInfo } from '@/store/share/baseInfoStore';
-import { useApidocBanner } from '@/store/share/bannerStore';
+import { useApidocBaseInfo } from '@/store/apidoc/baseInfoStore';
+import { useApidocBanner } from '@/store/apidoc/bannerStore';
 import SFieldset from '@/components/common/fieldset/ClFieldset.vue'
 import SLoading from '@/components/common/loading/ClLoading.vue'
 import SEmphasize from '@/components/common/emphasize/ClEmphasize.vue'
@@ -381,7 +381,7 @@ const clearContextmenu = () => {
 
     .left {
       flex: 0 0 50%;
-      border-right: 1px solid var(--gray-300);
+      border-right: 1px solid var(--border-base);
       height: calc(100vh - var(--height, 0px) - 30px);
       overflow-y: auto;
     }
@@ -389,7 +389,7 @@ const clearContextmenu = () => {
     .right {
       flex: 1;
       padding: 0 15px;
-      border-bottom: 1px solid var(--gray-200);
+      border-bottom: 1px solid var(--border-light);
       height: calc(100vh - var(--height, 0px) - 30px);
       overflow-y: auto;
     }
@@ -452,10 +452,10 @@ const clearContextmenu = () => {
 
   //拖拽指示器样式
   .el-tree-node.is-drop-inner {
-    background: #d6e7fc;
+    background: var(--bg-active);
 
     .custom-tree-node.select-node {
-      background-color: #a6d2ff;
+      background-color: var(--bg-active);
     }
   }
 

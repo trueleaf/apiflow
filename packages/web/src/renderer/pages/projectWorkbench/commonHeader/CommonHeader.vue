@@ -27,8 +27,8 @@ import { generateEmptyProperty } from '@/helper';
 import SFieldset from '@/components/common/fieldset/ClFieldset.vue'
 import SLoading from '@/components/common/loading/ClLoading.vue'
 import SParamsTree from '@/components/apidoc/paramsTree/ClParamsTree.vue'
-import { useApidocTas } from '@/store/share/tabsStore';
-import { useApidocBaseInfo } from '@/store/share/baseInfoStore';
+import { useApidocTas } from '@/store/apidoc/tabsStore';
+import { useApidocBaseInfo } from '@/store/apidoc/baseInfoStore';
 import { useRuntime } from '@/store/runtime/runtimeStore';
 
 

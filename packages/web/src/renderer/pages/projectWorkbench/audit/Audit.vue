@@ -197,7 +197,7 @@ import { request } from '@/api/api';
 import { router } from '@/router';
 import SFieldset from '@/components/common/fieldset/ClFieldset.vue'
 import SLoading from '@/components/common/loading/ClLoading.vue'
-import { useApidocBaseInfo } from '@/store/share/baseInfoStore'
+import { useApidocBaseInfo } from '@/store/apidoc/baseInfoStore'
 const folderUrl = new URL('@/assets/imgs/apidoc/folder.png', import.meta.url).href;
 
 

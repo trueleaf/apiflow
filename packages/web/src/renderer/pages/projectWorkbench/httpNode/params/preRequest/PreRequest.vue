@@ -7,13 +7,13 @@
 <script lang="ts" setup>
 import { computed, watch } from 'vue'
 import PreEditor from './editor/PreEditor.vue'
-import { useApidoc } from '@/store/share/apidocStore';
+import { useHttpNode } from '@/store/apidoc/httpNodeStore';
 import { useHttpRedoUndo } from '@/store/redoUndo/httpRedoUndoStore'
-import { useApidocTas } from '@/store/share/tabsStore'
+import { useApidocTas } from '@/store/apidoc/tabsStore'
 import { router } from '@/router'
 import { debounce, cloneDeep } from 'lodash-es'
 
-const apidocStore = useApidoc()
+const httpNodeStore = useHttpNode()
 const httpRedoUndoStore = useHttpRedoUndo()
 const apidocTabsStore = useApidocTas()
 const projectId = router.currentRoute.value.query.id as string;
@@ -24,10 +24,10 @@ const currentSelectTab = computed(() => {
 
 const preRequest = computed<string>({
   get() {
-    return apidocStore.apidoc?.preRequest.raw;
+    return httpNodeStore.apidoc?.preRequest.raw;
   },
   set(val) {
-    apidocStore.changePreRequest(val);
+    httpNodeStore.changePreRequest(val);
   },
 })
 
@@ -47,7 +47,7 @@ const debouncedRecordPreRequestOperation = debounce((oldValue: { raw: string }, 
 }, 300);
 
 // watch 监听 preRequest 变化
-watch(() => apidocStore.apidoc?.preRequest, (newVal, oldVal) => {
+watch(() => httpNodeStore.apidoc?.preRequest, (newVal, oldVal) => {
   if (oldVal && newVal) {
     debouncedRecordPreRequestOperation(oldVal, newVal);
   }

@@ -66,7 +66,7 @@ const handleSelect = (mimeType: string) => {
     cursor: pointer;
     border-radius: 50%;
     &:hover {
-      background: #dee2e6;
+      background: var(--bg-hover);
     }
   }
 }

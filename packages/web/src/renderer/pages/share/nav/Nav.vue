@@ -47,7 +47,7 @@ import {
   Close as IconClose,
 } from '@element-plus/icons-vue';
 import { ComponentPublicInstance, computed, onMounted, onUnmounted, ref } from 'vue';
-import { ApidocTab } from '@src/types/share/tabs';
+import { ApidocTab } from '@src/types/apidoc/tabs';
 import { useShareStore } from '../store';
 import { eventEmitter } from '@/helper';
 import SContextmenu from '@/components/common/contextmenu/ClContextmenu.vue'

@@ -87,8 +87,8 @@ import { computed, ref, onMounted, Ref } from 'vue'
 import type { HttpNodeBodyMode, HttpNodeBodyParams, HttpNodeBodyRawType, HttpNodeContentType, ApidocProperty } from '@src/types'
 import { useI18n } from 'vue-i18n'
 import { userState } from '@/cache/userState/userStateCache'
-import { useVariable } from '@/store/share/variablesStore';
-import { useApidoc } from '@/store/share/apidocStore';
+import { useVariable } from '@/store/apidoc/variablesStore';
+import { useHttpNode } from '@/store/apidoc/httpNodeStore';
 import { config } from '@src/config/config';
 import SJsonEditor from '@/components/common/jsonEditor/ClJsonEditor.vue'
 import SParamsTree from '@/components/apidoc/paramsTree/ClParamsTree.vue'
@@ -96,14 +96,14 @@ import { Close } from '@element-plus/icons-vue'
 import { convertTemplateValueToRealValue } from '@/helper';
 import mime from 'mime';
 import { useHttpRedoUndo } from '@/store/redoUndo/httpRedoUndoStore'
-import { useApidocTas } from '@/store/share/tabsStore'
+import { useApidocTas } from '@/store/apidoc/tabsStore'
 import { router } from '@/router'
 import { debounce, cloneDeep } from 'lodash-es'
 import type * as Monaco from 'monaco-editor/esm/vs/editor/editor.api'
 
 const bodyTipUrl = new URL('@/assets/imgs/apidoc/body-tip.png', import.meta.url).href
 const rawEditor = ref<InstanceType<typeof SJsonEditor> | null>(null)
-const apidocStore = useApidoc()
+const httpNodeStore = useHttpNode()
 const httpRedoUndoStore = useHttpRedoUndo()
 const apidocTabsStore = useApidocTas()
 const projectId = router.currentRoute.value.query.id as string;
@@ -119,8 +119,8 @@ const jsonComponent: Ref<null | {
 }> = ref(null)
 //根据参数内容校验对应的contentType值
 const checkContentType = () => {
-  const type = apidocStore.apidoc.item.requestBody.mode
-  const { formdata, urlencoded, raw, rawJson, binary } = apidocStore.apidoc.item.requestBody;
+  const type = httpNodeStore.apidoc.item.requestBody.mode
+  const { formdata, urlencoded, raw, rawJson, binary } = httpNodeStore.apidoc.item.requestBody;
   // const converJsonData = apidocConvertParamsToJsonData(json, true);
   const hasJsonData = rawJson?.length > 0;
   const hasFormData = formdata.filter(p => p.select).some((data) => data.key);
@@ -130,25 +130,25 @@ const checkContentType = () => {
   const hasBinaryData = hasBinaryVarValue || hasBinaryFileValue;
   const hasRawData = raw.data;
   if (type === 'raw' && hasRawData) {
-    apidocStore.changeContentType(raw.dataType || 'text/plain');
+    httpNodeStore.changeContentType(raw.dataType || 'text/plain');
   } else if (type === 'raw' && !hasRawData) {
-    apidocStore.changeContentType('');
+    httpNodeStore.changeContentType('');
   } else if (type === 'none') {
-    apidocStore.changeContentType('');
+    httpNodeStore.changeContentType('');
   } else if (type === 'urlencoded' && hasUrlencodedData) {
-    apidocStore.changeContentType('application/x-www-form-urlencoded');
+    httpNodeStore.changeContentType('application/x-www-form-urlencoded');
   } else if (type === 'urlencoded' && !hasUrlencodedData) {
-    apidocStore.changeContentType('');
+    httpNodeStore.changeContentType('');
   } else if (type === 'json' && hasJsonData) {
-    apidocStore.changeContentType('application/json');;
+    httpNodeStore.changeContentType('application/json');;
   } else if (type === 'json' && !hasJsonData) {
-    apidocStore.changeContentType('');
+    httpNodeStore.changeContentType('');
   } else if (type === 'formdata' && hasFormData) {
-    apidocStore.changeContentType('multipart/form-data');
+    httpNodeStore.changeContentType('multipart/form-data');
   } else if (type === 'formdata' && !hasFormData) {
-    apidocStore.changeContentType('');
+    httpNodeStore.changeContentType('');
   } else if (type === 'binary' && hasBinaryData) {
-    apidocStore.changeContentType('application/octet-stream')
+    httpNodeStore.changeContentType('application/octet-stream')
   }
 }
 //改变bodytype类型
@@ -167,14 +167,14 @@ const handleHideTip = () => {
 //body类型
 const bodyType = computed<HttpNodeBodyMode>({
   get() {
-    return apidocStore.apidoc.item.requestBody.mode;
+    return httpNodeStore.apidoc.item.requestBody.mode;
   },
   set(val) {
-    apidocStore.changeBodyMode(val);
+    httpNodeStore.changeBodyMode(val);
   },
 });
 const requestBody = computed<HttpNodeBodyParams>(() => {
-  return apidocStore.apidoc.item.requestBody
+  return httpNodeStore.apidoc.item.requestBody
 })
 /*
 |--------------------------------------------------------------------------
@@ -189,17 +189,17 @@ const requestBody = computed<HttpNodeBodyParams>(() => {
 //json格式body参数
 const rawJsonData = computed<string>({
   get() {
-    const { rawJson } = apidocStore.apidoc.item.requestBody;
+    const { rawJson } = httpNodeStore.apidoc.item.requestBody;
     return rawJson;
   },
   set(val) {
-    apidocStore.changeRawJson(val);
+    httpNodeStore.changeRawJson(val);
   }
 })
 //处理JSON内容变化
 const handleJsonChange = (newValue: string) => {
-  const oldValue = apidocStore.apidoc.item.requestBody.rawJson;
-  apidocStore.changeRawJson(newValue);
+  const oldValue = httpNodeStore.apidoc.item.requestBody.rawJson;
+  httpNodeStore.changeRawJson(newValue);
   debouncedRecordJsonOperation(oldValue, newValue);
   checkContentType();
 }
@@ -244,7 +244,7 @@ const handleJsonEditorReady = () => {
 | x-www-form-urlencoded类型操作
 |--------------------------------------------------------------------------
 */
-const urlencodedData = computed(() => apidocStore.apidoc.item.requestBody.urlencoded)
+const urlencodedData = computed(() => httpNodeStore.apidoc.item.requestBody.urlencoded)
 /*
 |--------------------------------------------------------------------------
 | raw类型数据处理
@@ -253,19 +253,19 @@ const urlencodedData = computed(() => apidocStore.apidoc.item.requestBody.urlenc
 //raw类型
 const rawType = computed<HttpNodeBodyRawType>({
   get() {
-    return apidocStore.apidoc.item.requestBody.raw.dataType;
+    return httpNodeStore.apidoc.item.requestBody.raw.dataType;
   },
   set(val) {
-    apidocStore.changeBodyRawType(val)
+    httpNodeStore.changeBodyRawType(val)
   },
 })
 //raw类型数据值
 const rawValue = computed({
   get() {
-    return apidocStore.apidoc.item.requestBody.raw.data;
+    return httpNodeStore.apidoc.item.requestBody.raw.data;
   },
   set(value: string) {
-    apidocStore.changeBodyRawValue(value);
+    httpNodeStore.changeBodyRawValue(value);
   },
 })
 //改变raw数据值
@@ -274,20 +274,20 @@ const handleChangeRawData = () => {
 }
 //切换raw参数类型
 const handleChangeRawType = () => {
-  const { raw } = apidocStore.apidoc.item.requestBody;
+  const { raw } = httpNodeStore.apidoc.item.requestBody;
   if (!raw.data) {
-    apidocStore.changeContentType('');
+    httpNodeStore.changeContentType('');
     return
   }
   rawEditor.value?.changeLanguage(raw.dataType);
   if (rawType.value === 'text/plain') {
-    apidocStore.changeContentType('text/plain');
+    httpNodeStore.changeContentType('text/plain');
   } else if (rawType.value === 'text/html') {
-    apidocStore.changeContentType('text/html');
+    httpNodeStore.changeContentType('text/html');
   } else if (rawType.value === 'application/xml') {
-    apidocStore.changeContentType('application/xml');
+    httpNodeStore.changeContentType('application/xml');
   } else if (rawType.value === 'text/javascript') {
-    apidocStore.changeContentType('text/javascript');
+    httpNodeStore.changeContentType('text/javascript');
   } else {
     console.warn(t('未知请求类型'));
   }
@@ -299,19 +299,19 @@ const handleChangeRawType = () => {
 |--------------------------------------------------------------------------
 */
 //formData格式body参数
-const formData = computed(() => apidocStore.apidoc.item.requestBody.formdata)
+const formData = computed(() => httpNodeStore.apidoc.item.requestBody.formdata)
 
 // 处理 formdata 变化
 const handleFormdataChange = (newData: ApidocProperty<'string' | 'file'>[]) => {
   const oldValue = {
-    requestBody: cloneDeep(apidocStore.apidoc.item.requestBody),
-    contentType: apidocStore.apidoc.item.contentType
+    requestBody: cloneDeep(httpNodeStore.apidoc.item.requestBody),
+    contentType: httpNodeStore.apidoc.item.contentType
   };
-  apidocStore.apidoc.item.requestBody.formdata = newData as ApidocProperty<'string'>[];
+  httpNodeStore.apidoc.item.requestBody.formdata = newData as ApidocProperty<'string'>[];
   
   const newValue = {
-    requestBody: cloneDeep(apidocStore.apidoc.item.requestBody),
-    contentType: apidocStore.apidoc.item.contentType
+    requestBody: cloneDeep(httpNodeStore.apidoc.item.requestBody),
+    contentType: httpNodeStore.apidoc.item.contentType
   };
   debouncedRecordBodyOperation(oldValue, newValue);
   checkContentType();
@@ -320,14 +320,14 @@ const handleFormdataChange = (newData: ApidocProperty<'string' | 'file'>[]) => {
 // 处理 urlencoded 变化
 const handleUrlencodedChange = (newData: ApidocProperty<'string' | 'file'>[]) => {
   const oldValue = {
-    requestBody: cloneDeep(apidocStore.apidoc.item.requestBody),
-    contentType: apidocStore.apidoc.item.contentType
+    requestBody: cloneDeep(httpNodeStore.apidoc.item.requestBody),
+    contentType: httpNodeStore.apidoc.item.contentType
   };
-  apidocStore.apidoc.item.requestBody.urlencoded = newData as ApidocProperty<'string'>[];
+  httpNodeStore.apidoc.item.requestBody.urlencoded = newData as ApidocProperty<'string'>[];
   
   const newValue = {
-    requestBody: cloneDeep(apidocStore.apidoc.item.requestBody),
-    contentType: apidocStore.apidoc.item.contentType
+    requestBody: cloneDeep(httpNodeStore.apidoc.item.requestBody),
+    contentType: httpNodeStore.apidoc.item.contentType
   };
   debouncedRecordBodyOperation(oldValue, newValue);
   checkContentType();
@@ -339,43 +339,43 @@ const handleUrlencodedChange = (newData: ApidocProperty<'string' | 'file'>[]) =>
 |--------------------------------------------------------------------------
 */
 const handleChangeBinaryMode = (binaryMode: string | number | boolean | undefined) => {
-  apidocStore.handleChangeBinaryInfo({ mode: binaryMode as HttpNodeBodyParams['binary']['mode'] })
+  httpNodeStore.handleChangeBinaryInfo({ mode: binaryMode as HttpNodeBodyParams['binary']['mode'] })
 }
 const handleChangeBinaryVarValue = (value: string) => {
   const { objectVariable } = useVariable()
   convertTemplateValueToRealValue(value, objectVariable).then(result => {
     const mimeType = mime.getType(result.split('\\').pop()) as HttpNodeContentType;
-    apidocStore.changeContentType(mimeType || 'application/octet-stream')
+    httpNodeStore.changeContentType(mimeType || 'application/octet-stream')
   }).catch(error => {
     console.log(error)
   })
-  apidocStore.handleChangeBinaryInfo({ varValue: value })
+  httpNodeStore.handleChangeBinaryInfo({ varValue: value })
 }
 const handleSelectFile = (e: Event) => {
   const { files } = (e.target as HTMLInputElement);
   if (files?.length) {
     const file = files[0];
     const path = window.electronAPI?.fileManager.getFilePath(file) || "";
-    apidocStore.handleChangeBinaryInfo({ 
+    httpNodeStore.handleChangeBinaryInfo({ 
       binaryValue: {
         path,
     }})
     const { objectVariable } = useVariable()
     convertTemplateValueToRealValue(path, objectVariable).then(result => {
     const mimeType = mime.getType(result.split('\\').pop()) as HttpNodeContentType;
-    apidocStore.changeContentType(mimeType || 'application/octet-stream')
+    httpNodeStore.changeContentType(mimeType || 'application/octet-stream')
     }).catch(error => {
       console.log(error)
     })
   }
 }
 const handleClearSelectFile = () => {
-  apidocStore.handleChangeBinaryInfo({ 
+  httpNodeStore.handleChangeBinaryInfo({ 
     binaryValue: {
       path: '',
     }
   })
-  apidocStore.changeContentType('application/octet-stream');
+  httpNodeStore.changeContentType('application/octet-stream');
 }
 /*
 |--------------------------------------------------------------------------
@@ -455,7 +455,7 @@ const debouncedRecordBodyOperation = debounce((oldValue: { requestBody: HttpNode
       position: absolute;
       bottom: 20px;
       left: 40px;
-      background: #ff9347;
+      background: var(--orange);
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
@@ -553,7 +553,7 @@ const debouncedRecordBodyOperation = debounce((oldValue: { requestBody: HttpNode
     position: absolute;
     min-width: 250px;
     border: 1px solid var(--gray-200);
-    box-shadow: rgb(0 0 0 / 10%) 0px 2px 8px 0px; //墨刀弹窗样式
+    box-shadow: var(--box-shadow-sm);
     max-height: 220px;
     overflow-y: auto;
 

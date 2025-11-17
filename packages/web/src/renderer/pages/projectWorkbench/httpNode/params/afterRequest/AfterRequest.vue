@@ -7,13 +7,13 @@
 <script lang="ts" setup>
 import { computed, watch } from 'vue'
 import AfterEditor from './editor/AfterEditor.vue'
-import { useApidoc } from '@/store/share/apidocStore';
+import { useHttpNode } from '@/store/apidoc/httpNodeStore';
 import { useHttpRedoUndo } from '@/store/redoUndo/httpRedoUndoStore'
-import { useApidocTas } from '@/store/share/tabsStore'
+import { useApidocTas } from '@/store/apidoc/tabsStore'
 import { router } from '@/router'
 import { debounce, cloneDeep } from 'lodash-es'
 
-const apidocStore = useApidoc();
+const httpNodeStore = useHttpNode();
 const httpRedoUndoStore = useHttpRedoUndo()
 const apidocTabsStore = useApidocTas()
 const projectId = router.currentRoute.value.query.id as string;
@@ -24,10 +24,10 @@ const currentSelectTab = computed(() => {
 
 const afterRequest = computed<string>({
   get() {
-    return apidocStore.apidoc?.afterRequest.raw;
+    return httpNodeStore.apidoc?.afterRequest.raw;
   },
   set(val) {
-    apidocStore.changeAfterRequest(val);
+    httpNodeStore.changeAfterRequest(val);
   },
 })
 
@@ -47,7 +47,7 @@ const debouncedRecordAfterRequestOperation = debounce((oldValue: { raw: string }
 }, 300);
 
 // watch 监听 afterRequest 变化
-watch(() => apidocStore.apidoc?.afterRequest, (newVal, oldVal) => {
+watch(() => httpNodeStore.apidoc?.afterRequest, (newVal, oldVal) => {
   if (oldVal && newVal) {
     debouncedRecordAfterRequestOperation(oldVal, newVal);
   }

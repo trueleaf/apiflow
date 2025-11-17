@@ -131,17 +131,17 @@ import {
 } from '@element-plus/icons-vue';
 import { Variable, ListTree, ArrowDownToLine, ArrowUpToLine } from 'lucide-vue-next'
 import { ComponentPublicInstance, computed, onMounted, onUnmounted, ref } from 'vue';
-import { ApidocTab } from '@src/types/share/tabs';
+import { ApidocTab } from '@src/types/apidoc/tabs';
 import { router } from '@/router';
-import { useApidocTas } from '@/store/share/tabsStore';
+import { useApidocTas } from '@/store/apidoc/tabsStore';
 import { eventEmitter } from '@/helper';
 import { nanoid } from 'nanoid/non-secure'
-import { useApidocBaseInfo } from '@/store/share/baseInfoStore';
+import { useApidocBaseInfo } from '@/store/apidoc/baseInfoStore';
 import SContextmenu from '@/components/common/contextmenu/ClContextmenu.vue'
 import SContextmenuItem from '@/components/common/contextmenu/ClContextmenuItem.vue'
-import { useApidocBanner } from '@/store/share/bannerStore';
-import { useApidocRequest } from '@/store/share/requestStore';
-import { useApidocResponse } from '@/store/share/responseStore';
+import { useApidocBanner } from '@/store/apidoc/bannerStore';
+import { useApidocRequest } from '@/store/apidoc/requestStore';
+import { useApidocResponse } from '@/store/apidoc/responseStore';
 
 
 /*

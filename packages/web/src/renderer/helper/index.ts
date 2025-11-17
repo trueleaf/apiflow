@@ -29,7 +29,7 @@ import type {
   FolderNode,
 } from '@src/types'
 import type { HttpNodeResponseData, UrlInfo } from '@src/types/helper'
-import { useVariable } from '@/store/share/variablesStore'
+import { useVariable } from '@/store/apidoc/variablesStore'
 
 /*
 |--------------------------------------------------------------------------

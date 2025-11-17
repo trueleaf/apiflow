@@ -67,7 +67,7 @@
 <script lang="ts" setup>
 import { computed, ref, Ref, watch } from 'vue'
 import type { ApidocBanner } from '@src/types'
-import type { ApidocTab } from '@src/types/share/tabs'
+import type { ApidocTab } from '@src/types/apidoc/tabs'
 import SResizeX from '@/components/common/resize/ClResizeX.vue'
 import SEmphasize from '@/components/common/emphasize/ClEmphasize.vue'
 import { TreeNodeOptions } from 'element-plus/es/components/tree/src/tree.type.mjs'

@@ -100,8 +100,8 @@ import type { TreeNodeOptions } from 'element-plus/lib/components/tree/src/tree.
 import { request } from '@/api/api'
 import { config } from '@src/config/config'
 import { router } from '@/router'
-import { useApidocBanner } from '@/store/share/bannerStore'
-import { useApidocBaseInfo } from '@/store/share/baseInfoStore'
+import { useApidocBanner } from '@/store/apidoc/bannerStore'
+import { useApidocBaseInfo } from '@/store/apidoc/baseInfoStore'
 import dayjs from 'dayjs'
 import { message } from '@/helper'
 
@@ -309,7 +309,7 @@ const handleCustomDateChange = (value: string) => {
       margin-right: 5px;
     }
     .folder-icon {
-      color: #ffc107;
+      color: var(--yellow);
       flex: 0 0 auto;
       width: 16px;
       height: 16px;
@@ -327,7 +327,7 @@ const handleCustomDateChange = (value: string) => {
         white-space: nowrap;
       }
       .node-bottom {
-        color: #adb5bd;
+        color: var(--text-tertiary);
         width: 100%;
         overflow: hidden;
         text-overflow: ellipsis;
@@ -337,7 +337,7 @@ const handleCustomDateChange = (value: string) => {
     .rename-ipt {
       flex: 0 0 75%;
       height: 22px;
-      border: 1px solid #409EFF;
+      border: 1px solid var(--theme-color);
       font-size: 1em;
       margin-left: -1px;
       &.error {
@@ -351,18 +351,18 @@ const handleCustomDateChange = (value: string) => {
       padding: 5px 10px;
     }
     &.active-node {
-      background-color: #a6d2ff;
+      background-color: var(--bg-active);
     }
     &.select-node {
-      background-color: #a6d2ff;
+      background-color: var(--bg-active);
     }
     &.cut-node {
-      color: #adb5bd;
+      color: var(--text-tertiary);
       .file-icon {
-        color: #adb5bd !important;
+        color: var(--text-tertiary) !important;
       }
       .folder-icon {
-        color: #dee2e6 !important;
+        color: var(--text-disabled) !important;
       }
     }
   }

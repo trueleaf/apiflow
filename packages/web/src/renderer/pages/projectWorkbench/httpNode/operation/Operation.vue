@@ -64,7 +64,7 @@
       <span class="label">{{ t("请求地址") }}：</span>
       <span class="url">{{ encodedFullUrl }}</span>
       <el-tooltip :content="urlValidation.errorMessage" :show-after="500" :effect="Effect.LIGHT" placement="top">
-        <el-icon v-show="!urlValidation.isValid && apidocRequestStore.fullUrl" size="14" color="#f60" class="tip">
+        <el-icon v-show="!urlValidation.isValid && apidocRequestStore.fullUrl" size="14" color="var(--orange)" class="tip">
           <Warning />
         </el-icon>
       </el-tooltip>
@@ -86,15 +86,15 @@ import getHostPart from './composables/host'
 import { handleFormatUrl, handleChangeUrl } from './composables/url'
 import getMethodPart from './composables/method'
 import getOperationPart from './composables/operation'
-import { useApidocTas } from '@/store/share/tabsStore'
-import { useApidoc } from '@/store/share/apidocStore'
-import { useApidocResponse } from '@/store/share/responseStore'
+import { useApidocTas } from '@/store/apidoc/tabsStore'
+import { useHttpNode } from '@/store/apidoc/httpNodeStore'
+import { useApidocResponse } from '@/store/apidoc/responseStore'
 import { isElectron } from '@/helper'
-import { useApidocRequest } from '@/store/share/requestStore'
+import { useApidocRequest } from '@/store/apidoc/requestStore'
 import { useHttpRedoUndo } from '@/store/redoUndo/httpRedoUndoStore'
 
 const apidocTabsStore = useApidocTas()
-const apidocStore = useApidoc()
+const httpNodeStore = useHttpNode()
 const apidocResponseStore = useApidocResponse()
 const apidocRequestStore = useApidocRequest()
 const httpRedoUndoStore = useHttpRedoUndo()
@@ -135,14 +135,14 @@ const { requestMethod, disabledTip, requestMethodEnum } = methodPart;
 |--------------------------------------------------------------------------
 */
 const requestState = computed(() => apidocResponseStore.requestState)
-const loading2 = computed(() => apidocStore.saveLoading)
+const loading2 = computed(() => httpNodeStore.saveLoading)
 const saveDocDialogVisible = computed({
   get() {
-    return apidocStore.saveDocDialogVisible;
+    return httpNodeStore.saveDocDialogVisible;
   },
   set(val) {
-    apidocStore.changeSaveDocDialogVisible(val)
-    apidocStore.changeSavedDocId(currentSelectTab.value?._id || '');
+    httpNodeStore.changeSaveDocDialogVisible(val)
+    httpNodeStore.changeSavedDocId(currentSelectTab.value?._id || '');
   }
 });
 const operationPart = getOperationPart();
@@ -152,7 +152,7 @@ const handleSaveApidoc = () => {
   if (currentSelectTab.value?._id.includes('local_')) {
     saveDocDialogVisible.value = true;
   } else {
-    apidocStore.saveApidoc();
+    httpNodeStore.saveApidoc();
   }
 }
 const handlePaste = (event: ClipboardEvent) => {
@@ -170,11 +170,11 @@ const { loading3, handleSendRequest, handleStopRequest, handleFreshApidoc } = op
 //请求url、完整url
 const requestPath = computed<string>({
   get() {
-    return apidocStore.apidoc.item.url.path;
+    return httpNodeStore.apidoc.item.url.path;
   },
   set(path) {
     if (!currentSelectTab.value) return;
-    const oldValue = apidocStore.apidoc.item.url.path;
+    const oldValue = httpNodeStore.apidoc.item.url.path;
     if (oldValue !== path) {
       // 记录URL路径变化操作
       httpRedoUndoStore.recordOperation({
@@ -187,7 +187,7 @@ const requestPath = computed<string>({
         timestamp: Date.now()
       });
     }
-    apidocStore.changeApidocUrl(path);
+    httpNodeStore.changeApidocUrl(path);
   },
 });
 /*
@@ -213,7 +213,7 @@ watch(
 //   leading: true,
 // });
 // watch([() => {
-//   return apidocStore.apidoc.item;
+//   return httpNodeStore.apidoc.item;
 // }, () => {
 //   return apidocVaribleStore.objectVariable;
 // }], () => {
@@ -279,11 +279,11 @@ watch(
     align-items: center;
     overflow: hidden;
     padding: 0 10px;
-    border: 1px solid #d1d5da;
+    border: 1px solid var(--code-preview-border);
     border-radius: 4px;
-    background-color: #f0f0f0;
+    background-color: var(--code-preview-bg);
     white-space: pre-wrap;
-    color: #212529;
+    color: var(--code-preview-text);
     font-size: 12px;
     font-family: SFMono-Regular, Menlo, Monaco, Consolas, Liberation Mono,Courier New, monospace;
     &::-webkit-scrollbar {
