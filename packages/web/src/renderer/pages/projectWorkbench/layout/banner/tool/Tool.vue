@@ -171,7 +171,7 @@ import { forEachForest } from '@/helper'
 import { router } from '@/router/index'
 import { useI18n } from 'vue-i18n'
 import { request } from '@/api/api'
-import { workbenchCache } from '@/cache/workbench/workbenchCache.ts'
+import { projectWorkbenchCache } from '@/cache/projectWorkbench/projectWorkbenchCache.ts'
 import SAddFileDialog from '../../../dialog/addFile/AddFile.vue'
 import SAddFolderDialog from '../../../dialog/addFolder/AddFolder.vue'
 import { originOperaions } from './operations'
@@ -231,7 +231,7 @@ const { projectName } = storeToRefs(apidocBaseInfoStore)
 //=====================================操作相关数据====================================//
 //初始化缓存数据
 const initCacheOperation = () => {
-  const localPinToolbarOperations = workbenchCache.getPinToolbarOperations();
+  const localPinToolbarOperations = projectWorkbenchCache.getProjectWorkbenchPinToolbarOperations();
   const availableOperations = originOperaions.filter((v) => {
     if (isStandalone.value && v.op === 'generateLink') {
       return false;
@@ -259,7 +259,7 @@ const initCacheOperation = () => {
 }
 //缓存工具栏操作
 watch(pinOperations, (v) => {
-  workbenchCache.setPinToolbarOperations(v)
+  projectWorkbenchCache.setProjectWorkbenchPinToolbarOperations(v)
 }, {
   deep: true
 })

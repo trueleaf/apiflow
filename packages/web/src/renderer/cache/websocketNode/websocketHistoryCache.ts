@@ -1,17 +1,9 @@
 import { openDB, IDBPDatabase } from 'idb';
-import { WebSocketHistory } from '@src/types/history/wsHistory';
+import { WebSocketHistory, WebSocketHistoryCacheData } from '@src/types/history/wsHistory';
 import { WebSocketNode } from '@src/types/websocketNode';
 import { config } from '@src/config/config';
 import { nanoid } from 'nanoid/non-secure';
 import { logger } from '@/helper';
-type WebSocketHistoryCacheData = {
-  _id: string; // 历史记录唯一ID作为主键
-  nodeId: string; // 节点ID，用于索引
-  node: WebSocketNode; // 完整的WebSocket节点信息
-  operatorId: string; // 操作者ID
-  operatorName: string; // 操作者名称
-  timestamp: number; // 创建时间戳
-};
 class WebSocketHistoryCache {
   private dbName = config.cacheConfig.websocketHistoryCache.dbName;
   private storeName = config.cacheConfig.websocketHistoryCache.storeName;

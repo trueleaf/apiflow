@@ -46,12 +46,12 @@ export const cacheKey = {
       hideJsonBodyTip: 'appState/hint/hideJsonBodyTip',
     },
   },
-  workbench: {
+  projectWorkbench: {
     node: {
-      tabs: 'workbench/node/tabs',
+      tabs: 'projectWorkbench/node/tabs',
     },
-    pinToolbarOperations: 'workbench/pinToolbarOperations',
-    layout: 'workbench/layout',
+    pinToolbarOperations: 'projectWorkbench/pinToolbarOperations',
+    layout: 'projectWorkbench/layout',
   },
   websocketNode: {
     websocket: 'websocketNode/websocket',
