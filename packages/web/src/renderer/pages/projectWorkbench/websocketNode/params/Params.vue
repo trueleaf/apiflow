@@ -119,7 +119,7 @@ import SMessageContent from './message/Message.vue'
 import SAfterScript from './afterScript/AfterScript.vue'
 import { useWebSocket } from '@/store/websocket/websocketStore'
 import { useApidocTas } from '@/store/apidoc/tabsStore'
-import { userState } from '@/cache/userState/userStateCache.ts'
+import { appState } from '@/cache/appState/appStateCache.ts'
 import { useWsRedoUndo } from '@/store/redoUndo/wsRedoUndoStore'
 import { webSocketHistoryCache } from '@/cache/websocketNode/websocketHistoryCache'
 import type { WebSocketHistory } from '@src/types/history/wsHistory'
@@ -139,7 +139,7 @@ const currentActiveTab = computed({
   set: (val: WebsocketActiveTabType) => {
     websocketStore.setActiveTab(val)
     if (currentSelectTab.value) {
-      userState.setWsNodeActiveParamsTab(currentSelectTab.value._id, val)
+      appState.setWsNodeActiveParamsTab(currentSelectTab.value._id, val)
     }
   }
 })
@@ -319,7 +319,7 @@ const handleClickOutside = (event: MouseEvent): void => {
 };
 
 const initActiveTab = (): void => {
-  const cachedTab = userState.getWsNodeActiveParamsTab(currentSelectTab.value!._id) || 'messageContent';
+  const cachedTab = appState.getWsNodeActiveParamsTab(currentSelectTab.value!._id) || 'messageContent';
   websocketStore.setActiveTab(cachedTab)
 }
   

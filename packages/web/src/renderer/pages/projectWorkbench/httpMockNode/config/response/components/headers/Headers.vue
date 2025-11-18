@@ -50,7 +50,7 @@ import { useI18n } from 'vue-i18n'
 import { ElMessageBox } from 'element-plus'
 import { Close, ArrowRight, ArrowDown, View } from '@element-plus/icons-vue'
 import SParamsTree from '@/components/apidoc/paramsTree/ClParamsTree.vue'
-import { userState } from '@/cache/userState/userStateCache'
+import { appState } from '@/cache/appState/appStateCache'
 import type { HttpMockNode } from '@src/types/mockNode'
 
 
@@ -73,13 +73,13 @@ const hideDefaultHeaders = ref(true)
 
 // 初始化折叠状态
 onMounted(() => {
-  isCollapsed.value = userState.getHttpMockResponseHeadersCollapseState(props.mockNodeId, props.responseIndex)
+  isCollapsed.value = appState.getHttpMockResponseHeadersCollapseState(props.mockNodeId, props.responseIndex)
 })
 
 // 切换折叠状态
 const handleToggleCollapse = () => {
   isCollapsed.value = !isCollapsed.value
-  userState.setHttpMockResponseHeadersCollapseState(props.mockNodeId, props.responseIndex, isCollapsed.value)
+  appState.setHttpMockResponseHeadersCollapseState(props.mockNodeId, props.responseIndex, isCollapsed.value)
 }
 
 // 删除返回头配置

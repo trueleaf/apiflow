@@ -73,7 +73,7 @@ import type { DeepSeekRequestBody } from '@src/types/ai';
 import type { HttpNode, WebSocketNode, HttpMockNode } from '@src/types';
 import { ArrowRight } from 'lucide-vue-next';
 import { aiCache } from '@/cache/ai/aiCache';
-import { userState } from '@/cache/userState/userStateCache';
+import { appState } from '@/cache/appState/appStateCache';
 import { IPC_EVENTS } from '@src/types/ipc';
 
 const props = defineProps({
@@ -532,7 +532,7 @@ const handleAddFile = () => {
   });
 }
 const handleOpenAiSettings = () => {
-  userState.setActiveLocalDataMenu('ai-settings')
+  appState.setActiveLocalDataMenu('ai-settings')
   window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.contentToTopBar.openSettingsTab)
   router.push('/settings')
 }

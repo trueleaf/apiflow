@@ -186,7 +186,7 @@ import { nanoid } from 'nanoid/non-secure'
 import type { DeepSeekRequestBody, DeepSeekMessage, AskMessage, TextResponseMessage, LoadingMessage } from '@src/types/ai'
 import { IPC_EVENTS } from '@src/types/ipc'
 import { config } from '@src/config/config'
-import { userState } from '@/cache/userState/userStateCache'
+import { appState } from '@/cache/appState/appStateCache'
 import { aiCache } from '@/cache/ai/aiCache'
 import { useAgentStore } from '@/store/agent/agentStore'
 import AskMessageItem from './components/AskMessageItem.vue'
@@ -358,7 +358,7 @@ const handleDragMove = (event: MouseEvent) => {
 const handleDragEnd = () => {
   isDragging.value = false
   if (position.value.x !== null || position.value.y !== null) {
-    userState.setAiDialogPosition({
+    appState.setAiDialogPosition({
       x: position.value.x ?? 0,
       y: position.value.y ?? 0
     })
@@ -382,12 +382,12 @@ const handleToggleModelMenu = (event: MouseEvent) => {
 }
 const handleSelectMode = (value: AiMode) => {
   mode.value = value
-  userState.setAiDialogMode(value)
+  appState.setAiDialogMode(value)
   isModeMenuVisible.value = false
 }
 const handleSelectModel = (value: AiModel) => {
   model.value = value
-  userState.setAiDialogModel(value)
+  appState.setAiDialogModel(value)
   isModelMenuVisible.value = false
 }
 const handleResizeWidthStart = (event: MouseEvent) => {
@@ -414,7 +414,7 @@ const handleResizeWidthMove = (event: MouseEvent) => {
 }
 const handleResizeWidthEnd = () => {
   isResizingWidth.value = false
-  userState.setAiDialogWidth(dialogWidth.value)
+  appState.setAiDialogWidth(dialogWidth.value)
   
   if (position.value.x !== null) {
     const maxX = window.innerWidth - dialogWidth.value
@@ -431,7 +431,7 @@ const handleResizeWidthEnd = () => {
 }
 const handleResetWidth = () => {
   dialogWidth.value = config.renderConfig.aiDialog.defaultWidth
-  userState.setAiDialogWidth(dialogWidth.value)
+  appState.setAiDialogWidth(dialogWidth.value)
 }
 const handleResizeHeightStart = (event: MouseEvent) => {
   event.stopPropagation()
@@ -457,7 +457,7 @@ const handleResizeHeightMove = (event: MouseEvent) => {
 }
 const handleResizeHeightEnd = () => {
   isResizingHeight.value = false
-  userState.setAiDialogHeight(dialogHeight.value)
+  appState.setAiDialogHeight(dialogHeight.value)
   
   if (position.value.y !== null) {
     const maxY = window.innerHeight - dialogHeight.value
@@ -474,7 +474,7 @@ const handleResizeHeightEnd = () => {
 }
 const handleResetHeight = () => {
   dialogHeight.value = config.renderConfig.aiDialog.defaultHeight
-  userState.setAiDialogHeight(dialogHeight.value)
+  appState.setAiDialogHeight(dialogHeight.value)
 }
 const handleResizeCornerStart = (event: MouseEvent) => {
   event.stopPropagation()
@@ -511,8 +511,8 @@ const handleResizeCornerMove = (event: MouseEvent) => {
 }
 const handleResizeCornerEnd = () => {
   isResizingCorner.value = false
-  userState.setAiDialogWidth(dialogWidth.value)
-  userState.setAiDialogHeight(dialogHeight.value)
+  appState.setAiDialogWidth(dialogWidth.value)
+  appState.setAiDialogHeight(dialogHeight.value)
   
   if (position.value.x !== null) {
     const maxX = window.innerWidth - dialogWidth.value
@@ -540,8 +540,8 @@ const handleResizeCornerEnd = () => {
 const handleResetCorner = () => {
   dialogWidth.value = config.renderConfig.aiDialog.defaultWidth
   dialogHeight.value = config.renderConfig.aiDialog.defaultHeight
-  userState.setAiDialogWidth(dialogWidth.value)
-  userState.setAiDialogHeight(dialogHeight.value)
+  appState.setAiDialogWidth(dialogWidth.value)
+  appState.setAiDialogHeight(dialogHeight.value)
 }
 const handleKeydown = (event: KeyboardEvent) => {
   if (event.key === 'Enter' && !event.shiftKey) {
@@ -751,7 +751,7 @@ const handleClickOutside = (event: MouseEvent) => {
   isModelMenuVisible.value = false
 }
 const handleOpenAiSettings = () => {
-  userState.setActiveLocalDataMenu('ai-settings')
+  appState.setActiveLocalDataMenu('ai-settings')
   window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.contentToTopBar.openSettingsTab)
   // visible.value = false
   router.push('/settings')
@@ -766,11 +766,11 @@ const clampPositionToBounds = (pos: { x: number, y: number }, width: number, hei
   }
 }
 const initDialogState = () => {
-  const cachedWidth = userState.getAiDialogWidth()
-  const cachedHeight = userState.getAiDialogHeight()
-  const cachedPosition = userState.getAiDialogPosition()
-  const cachedMode = userState.getAiDialogMode()
-  const cachedModel = userState.getAiDialogModel()
+  const cachedWidth = appState.getAiDialogWidth()
+  const cachedHeight = appState.getAiDialogHeight()
+  const cachedPosition = appState.getAiDialogPosition()
+  const cachedMode = appState.getAiDialogMode()
+  const cachedModel = appState.getAiDialogModel()
   
   if (cachedWidth !== null) {
     dialogWidth.value = cachedWidth
@@ -791,7 +791,7 @@ const initDialogState = () => {
     const clampedPosition = clampPositionToBounds(cachedPosition, dialogWidth.value, dialogHeight.value)
     position.value = clampedPosition
     if (clampedPosition.x !== cachedPosition.x || clampedPosition.y !== cachedPosition.y) {
-      userState.setAiDialogPosition(clampedPosition)
+      appState.setAiDialogPosition(clampedPosition)
     }
     return
   }
@@ -801,7 +801,7 @@ const initDialogState = () => {
     const anchorTop = config.mainConfig.topbarViewHeight + agentStore.aiAgentRect.y + agentStore.aiAgentRect.height + 12
     const anchoredPosition = clampPositionToBounds({ x: anchorCenterX, y: anchorTop }, dialogWidth.value, dialogHeight.value)
     position.value = anchoredPosition
-    userState.setAiDialogPosition(anchoredPosition)
+    appState.setAiDialogPosition(anchoredPosition)
   }
 }
 

@@ -102,7 +102,7 @@ import { computed, onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { Loader2, Send } from 'lucide-vue-next'
 import SJsonEditor from '@/components/common/jsonEditor/ClJsonEditor.vue'
-import { userState } from '@/cache/userState/userStateCache'
+import { appState } from '@/cache/appState/appStateCache'
 import type { HttpMockNode } from '@src/types'
 import { mainConfig } from '@src/config/mainConfig'
 import type { DeepSeekRequestBody, DeepSeekResponse } from '@src/types/ai'
@@ -136,7 +136,7 @@ const isSendDisabled = computed(() => {
 
 const handleDismissHint = () => {
   showRandomSizeHint.value = false
-  userState.setMockJsonRandomSizeHintVisible(false)
+  appState.setMockJsonRandomSizeHintVisible(false)
 }
 
 const handleGeneratePreview = async () => {
@@ -197,7 +197,7 @@ const handleGeneratePreview = async () => {
 }
 
 onMounted(() => {
-  showRandomSizeHint.value = userState.getMockJsonRandomSizeHintVisible()
+  showRandomSizeHint.value = appState.getMockJsonRandomSizeHintVisible()
 })
 </script>
 

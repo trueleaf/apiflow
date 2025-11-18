@@ -121,7 +121,7 @@ import { useI18n } from 'vue-i18n'
 import { CacheInfo, LocalStorageItem, IndexedDBItem } from '@src/types/apidoc/cache'
 import { formatUnit } from '@/helper'
 import { RefreshRight } from '@element-plus/icons-vue'
-import { userState } from '@/cache/userState/userStateCache.ts'
+import { appState } from '@/cache/appState/appStateCache.ts'
 import { appSettingsCache } from '@/cache/settings/appSettingsCache'
 import LocalStorageDetail from './components/LocalStorageDetail.vue'
 import IndexedDBDetail from './components/IndexedDBDetail.vue'
@@ -139,7 +139,7 @@ const { t } = useI18n()
 const indexedDBLoading = ref(false)
 const localStorageLoading = ref(false)
 const indexedDBWorkerRef = ref<Worker | null>(null)
-const selectedCacheType = ref<'localStorage' | 'indexedDB' | 'backup' | 'restore'>(userState.getSelectedCacheType())
+const selectedCacheType = ref<'localStorage' | 'indexedDB' | 'backup' | 'restore'>(appState.getSelectedCacheType())
 const cacheInfo = ref<CacheInfo>({
   localStroageSize: 0,
   indexedDBSize: -1,
@@ -258,11 +258,11 @@ const getLocalStorage = () => {
           description = t('最近一次访问的页面')
         } else if (key === 'language') {
           description = t('语言设置')
-        } else if (key === 'userState/localData/activeMenu') {
+        } else if (key === 'appState/localData/activeMenu') {
           description = t('个人中心被选中菜单')
         } else if (key === 'apidoc/cache/info') {
           description = t('缓存已计算的本地数据')
-        } else if (key === 'userState/cacheManager/cacheType') {
+        } else if (key === 'appState/cacheManager/cacheType') {
           description = t('选中的缓存卡片类型')
         } else {
           description = t('其他本地数据')
@@ -300,7 +300,7 @@ const getIndexedDB = async () => {
 const handleSelectCacheType = (type: 'localStorage' | 'indexedDB' | 'backup' | 'restore'): void => {
   selectedCacheType.value = type
   // 缓存用户选择的卡片类型
-  userState.setSelectedCacheType(type)
+  appState.setSelectedCacheType(type)
   if (type === 'localStorage' && cacheInfo.value.localStorageDetails.length === 0) {
     scheduleDeferredTask(() => {
       getLocalStorage()

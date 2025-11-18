@@ -209,7 +209,7 @@ import { defaultRequestMethods } from '../common';
 import SParamsView from '@/components/apidoc/paramsView/ClParamsView.vue';
 import { useShareStore } from '../store';
 import { useRoute } from 'vue-router';
-import { userState } from '@/cache/userState/userStateCache.ts';
+import { appState } from '@/cache/appState/appStateCache.ts';
 import type { ApidocProperty } from '@src/types';
 ;
 
@@ -234,7 +234,8 @@ const expandedBlocks = ref({
 
 watchEffect(() => {
   if (apidocInfo.value?._id) {
-    const cache = userState.getShareCollapseState(apidocInfo.value._id);
+      onMounted(() => {
+    const cache = appState.getShareCollapseState(apidocInfo.value._id);
     if (cache) {
       expandedBlocks.value = { ...expandedBlocks.value, ...cache };
     }
@@ -281,7 +282,7 @@ const bodyType = computed(() => {
 const toggleBlock = (block: 'query' | 'headers' | 'body' | 'response') => {
   expandedBlocks.value[block] = !expandedBlocks.value[block];
   if (apidocInfo.value?._id) {
-    userState.updateShareBlockCollapseState(apidocInfo.value._id, block, expandedBlocks.value[block]);
+    appState.updateShareBlockCollapseState(apidocInfo.value._id, block, expandedBlocks.value[block]);
   }
 }
 

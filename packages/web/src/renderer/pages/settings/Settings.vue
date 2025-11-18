@@ -47,7 +47,7 @@
 <script setup lang="ts">
 import { ref, watch, type Component } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { userState } from '@/cache/userState/userStateCache.ts'
+import { appState } from '@/cache/appState/appStateCache.ts'
 import CacheManagement from './cacheManager/CacheManagement.vue'
 import CommonSettings from './commonSettings/CommonSettings.vue'
 import ComponentLibrary from './componentLibrary/ComponentLibrary.vue'
@@ -64,7 +64,7 @@ type TabItem = {
   action: string
 };
 
-const activeTab = ref(userState.getActiveLocalDataMenu() || 'common-settings')
+const activeTab = ref(appState.getActiveLocalDataMenu() || 'common-settings')
 const tabs: TabItem[] = [
   { name: t('通用配置'), icon: UserCircle, action: 'common-settings' },
   { name: t('本地数据'), icon: HardDrive, action: 'local-data' },
@@ -82,7 +82,7 @@ const handleTabClick = (tab: TabItem) => {
   activeTab.value = tab.action
 }
 watch(activeTab, (newValue) => {
-  userState.setActiveLocalDataMenu(newValue)
+  appState.setActiveLocalDataMenu(newValue)
 }, { immediate: false })
 </script>
 

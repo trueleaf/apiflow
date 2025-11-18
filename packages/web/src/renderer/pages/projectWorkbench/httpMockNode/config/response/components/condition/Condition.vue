@@ -40,7 +40,7 @@ import { ElMessageBox } from 'element-plus'
 import { Close, ArrowRight, ArrowDown } from '@element-plus/icons-vue'
 import CodeEditor from '@/components/common/codeEditor/CodeEditor.vue'
 import { reqCompletionSuggestions } from './completionSuggestions'
-import { userState } from '@/cache/userState/userStateCache'
+import { appState } from '@/cache/appState/appStateCache'
 import type { HttpMockNode } from '@src/types/mockNode'
 import type { EditorConfig } from '@/components/common/codeEditor/types'
 
@@ -73,12 +73,12 @@ const editorConfig = computed<EditorConfig>(() => ({
 }))
 // 初始化折叠状态
 onMounted(() => {
-  isCollapsed.value = userState.getHttpMockResponseCondtionCollapseState(props.mockNodeId, props.responseIndex)
+  isCollapsed.value = appState.getHttpMockResponseCondtionCollapseState(props.mockNodeId, props.responseIndex)
 })
 // 切换折叠状态
 const handleToggleCollapse = () => {
   isCollapsed.value = !isCollapsed.value
-  userState.setHttpMockResponseCondtionCollapseState(props.mockNodeId, props.responseIndex, isCollapsed.value)
+  appState.setHttpMockResponseCondtionCollapseState(props.mockNodeId, props.responseIndex, isCollapsed.value)
 }
 // 删除触发条件配置
 const handleDelete = () => {

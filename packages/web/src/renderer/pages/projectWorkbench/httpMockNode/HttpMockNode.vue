@@ -24,7 +24,7 @@ import { debounce } from "lodash-es"
 import type { HttpMockNode, MockNodeActiveTabType } from '@src/types/mockNode'
 import type { DebouncedFunc } from 'lodash-es'
 import { router } from '@/router'
-import { userState } from '@/cache/userState/userStateCache'
+import { appState } from '@/cache/appState/appStateCache'
 
 const { t } = useI18n()
 const activeTab = ref<MockNodeActiveTabType>('config')
@@ -94,7 +94,7 @@ const initDebouncDataChange = () => {
 };
 // 初始化激活的tab
 const initActiveTab = (): void => {
-  const cachedTab = userState.getMockNodeActiveTab(currentSelectTab.value?._id || '')
+  const cachedTab = appState.getMockNodeActiveTab(currentSelectTab.value?._id || '')
   activeTab.value = cachedTab
 }
 // 监听tab变化
@@ -111,7 +111,7 @@ watch(currentSelectTab, (val, oldVal) => {
 // 监听activeTab变化，保存到缓存
 watch(activeTab, (val) => {
   if (currentSelectTab.value?._id) {
-    userState.setMockNodeActiveTab(currentSelectTab.value._id, val)
+    appState.setMockNodeActiveTab(currentSelectTab.value._id, val)
   }
 })
 

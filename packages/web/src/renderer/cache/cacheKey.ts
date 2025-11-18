@@ -8,42 +8,42 @@ export const cacheKey = {
     userInfo: 'runtime/userInfo',
     language: 'runtime/language',
   },
-  userState: {
+  appState: {
     aiDialog: {
-      width: 'userState/aiDialog/width',
-      height: 'userState/aiDialog/height',
-      position: 'userState/aiDialog/position',
-      mode: 'userState/aiDialog/mode',
-      model: 'userState/aiDialog/model',
+      width: 'appState/aiDialog/width',
+      height: 'appState/aiDialog/height',
+      position: 'appState/aiDialog/position',
+      mode: 'appState/aiDialog/mode',
+      model: 'appState/aiDialog/model',
     },
     home: {
-      activeTab: 'userState/home/activeTab',
+      activeTab: 'appState/home/activeTab',
     },
     websocketNode: {
-      activeParamsTab: 'userState/websocketNode/activeParamsTab',
+      activeParamsTab: 'appState/websocketNode/activeParamsTab',
     },
     httpNode: {
-      activeParamsTab: 'userState/httpNode/activeParamsTab',
-      responseCollapse: 'userState/httpNode/responseCollapse',
+      activeParamsTab: 'appState/httpNode/activeParamsTab',
+      responseCollapse: 'appState/httpNode/responseCollapse',
     },
     mockNode: {
-      activeTab: 'userState/mockNode/activeTab',
-      conditionCollapse: 'userState/mockNode/conditionCollapse',
-      headersCollapse: 'userState/mockNode/headersCollapse',
+      activeTab: 'appState/mockNode/activeTab',
+      conditionCollapse: 'appState/mockNode/conditionCollapse',
+      headersCollapse: 'appState/mockNode/headersCollapse',
     },
     share: {
-      collapse: 'userState/share/collapse',
+      collapse: 'appState/share/collapse',
     },
     localData: {
-      activeMenu: 'userState/localData/activeMenu',
+      activeMenu: 'appState/localData/activeMenu',
     },
     cacheManager: {
-      cacheType: 'userState/cacheManager/cacheType',
+      cacheType: 'appState/cacheManager/cacheType',
     },
     hint: {
-      mockJsonRandomSizeHint: 'userState/hint/mockJsonRandomSizeHint',
-      mockTextRandomSizeHint: 'userState/hint/mockTextRandomSizeHint',
-      hideJsonBodyTip: 'userState/hint/hideJsonBodyTip',
+      mockJsonRandomSizeHint: 'appState/hint/mockJsonRandomSizeHint',
+      mockTextRandomSizeHint: 'appState/hint/mockTextRandomSizeHint',
+      hideJsonBodyTip: 'appState/hint/hideJsonBodyTip',
     },
   },
   workbench: {
