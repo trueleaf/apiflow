@@ -167,11 +167,7 @@ export type Config = {
       version: number,
       storeName: string
     },
-    rulesCache: {
-      dbName: string,
-      version: number,
-      storeName: string
-    },
+
     variablesCache: {
       dbName: string,
       version: number,

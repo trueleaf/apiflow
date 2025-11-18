@@ -107,11 +107,7 @@ export const config: Config = {
       version: 1,
       storeName: 'commonHeaders'
     },
-    rulesCache: {
-      dbName: 'rulesCache',
-      version: 1,
-      storeName: 'rules'
-    },
+
     variablesCache: {
       dbName: 'variablesCache',
       version: 1,
