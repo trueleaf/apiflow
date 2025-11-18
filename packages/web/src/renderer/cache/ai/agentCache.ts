@@ -3,25 +3,21 @@ import { AgentMessage } from '@src/types/ai';
 import { config } from '@src/config/config';
 import { logger } from '@/helper';
 import { cacheKey } from '../cacheKey';
-
 type SessionInfo = {
   sessionId: string;
   lastMessageTime: string;
   messageCount: number;
 };
-
 class AgentCache {
   private dbName = config.cacheConfig.agentMessageCache.dbName;
   private storeName = config.cacheConfig.agentMessageCache.storeName;
   private version = config.cacheConfig.agentMessageCache.version;
   private db: IDBPDatabase | null = null;
-
   constructor() {
     this.initDB().catch(error => {
       logger.error('初始化Agent对话数据库失败', { error });
     });
   }
-
   private async initDB(): Promise<void> {
     if (this.db) {
       return;
@@ -41,7 +37,6 @@ class AgentCache {
       this.db = null;
     }
   }
-
   private async getDB(): Promise<IDBPDatabase> {
     if (!this.db) {
       await this.initDB();
@@ -51,7 +46,6 @@ class AgentCache {
     }
     return this.db;
   }
-
   async addMessage(message: AgentMessage): Promise<boolean> {
     try {
       const db = await this.getDB();
@@ -78,7 +72,6 @@ class AgentCache {
       return false;
     }
   }
-
   async getMessagesBySessionId(sessionId: string): Promise<AgentMessage[]> {
     try {
       const db = await this.getDB();
@@ -94,7 +87,6 @@ class AgentCache {
       return [];
     }
   }
-
   async deleteMessagesBySessionId(sessionId: string): Promise<boolean> {
     try {
       const db = await this.getDB();
@@ -112,7 +104,6 @@ class AgentCache {
       return false;
     }
   }
-
   async clearAllMessages(): Promise<boolean> {
     try {
       const db = await this.getDB();
@@ -125,7 +116,6 @@ class AgentCache {
       return false;
     }
   }
-
   async getSessionList(): Promise<SessionInfo[]> {
     try {
       const db = await this.getDB();
@@ -157,7 +147,6 @@ class AgentCache {
       return [];
     }
   }
-
   getLastSessionId(): string | null {
     try {
       return localStorage.getItem(cacheKey.ai.lastSessionId);
@@ -166,7 +155,6 @@ class AgentCache {
       return null;
     }
   }
-
   setLastSessionId(sessionId: string): boolean {
     try {
       localStorage.setItem(cacheKey.ai.lastSessionId, sessionId);
@@ -177,5 +165,4 @@ class AgentCache {
     }
   }
 }
-
 export const agentCache = new AgentCache();

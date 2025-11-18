@@ -2,9 +2,7 @@ import type { Config } from '@src/types/config';
 import { mainConfig } from '@src/config/mainConfig';
 import { logger } from '@/helper';
 import { cacheKey } from '../cacheKey';
-
 type AiConfig = Config['mainConfig']['aiConfig'];
-
 class AiCache {
   // 获取AI配置
   getAiConfig(): AiConfig {
@@ -55,5 +53,4 @@ class AiCache {
     }
   }
 }
-
 export const aiCache = new AiCache();

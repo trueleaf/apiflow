@@ -1,7 +1,6 @@
 import type { ApidocTab } from '@src/types';
 import { logger } from '@/helper';
 import { cacheKey } from '../cacheKey';
-
 type WorkbenchPinOperation = {
   name: string;
   icon: string;
@@ -10,11 +9,9 @@ type WorkbenchPinOperation = {
   pin: boolean;
   viewOnly?: boolean;
 };
-
 class WorkbenchCache {
   constructor() {
   }
-
   // 获取工作区tabs
   getWorkbenchTabs(): Record<string, ApidocTab[]> {
     try {
@@ -26,7 +23,6 @@ class WorkbenchCache {
       return {};
     }
   }
-
   // 设置工作区tabs
   setWorkbenchTabs(tabs: Record<string, ApidocTab[]>) {
     try {
@@ -36,7 +32,6 @@ class WorkbenchCache {
       localStorage.setItem(cacheKey.workbench.node.tabs, '{}');
     }
   }
-
   // 获取固定的工具栏操作
   getPinToolbarOperations(): WorkbenchPinOperation[] {
     try {
@@ -51,7 +46,6 @@ class WorkbenchCache {
       return [];
     }
   }
-
   // 设置固定的工具栏操作
   setPinToolbarOperations(operations: WorkbenchPinOperation[]) {
     try {
@@ -60,7 +54,6 @@ class WorkbenchCache {
       logger.error('设置固定工具栏操作失败', { error });
     }
   }
-
   // 获取布局方式
   getLayout(): 'horizontal' | 'vertical' {
     try {
@@ -74,7 +67,6 @@ class WorkbenchCache {
       return 'horizontal';
     }
   }
-
   // 设置布局方式
   setLayout(layout: 'horizontal' | 'vertical') {
     try {
@@ -84,5 +76,4 @@ class WorkbenchCache {
     }
   }
 }
-
 export const workbenchCache = new WorkbenchCache();

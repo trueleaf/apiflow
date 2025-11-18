@@ -67,7 +67,7 @@
 import { ref, onMounted, onUnmounted, watch, computed, ComponentPublicInstance } from 'vue'
 import draggable from 'vuedraggable'
 import { Language, WindowState } from '@src/types'
-import type { HeaderTab } from '@src/types/header'
+import type { AppWorkbenchHeaderTab } from '@src/types/appWorkbench/appWorkbenchType'
 import type { RuntimeNetworkMode } from '@src/types/runtime'
 import { RefreshRight, Back, Right } from '@element-plus/icons-vue'
 import { useI18n } from 'vue-i18n'
@@ -79,7 +79,7 @@ import { useAppSettings } from '@/store/appSettings/appSettingsStore'
 import { useTheme } from '@/hooks/useTheme'
 
 const appSettingsStore = useAppSettings()
-const tabs = ref<HeaderTab[]>([])
+const tabs = ref<AppWorkbenchHeaderTab[]>([])
 const activeTabId = ref('')
 const isMaximized = ref(false)
 const tabListRef = ref<ComponentPublicInstance | null>(null)
@@ -92,7 +92,7 @@ const filteredTabs = computed(() => {
 })
 const draggableTabs = computed({
   get: () => tabs.value.filter(tab => tab.network === networkMode.value),
-  set: (newTabs: HeaderTab[]) => {
+  set: (newTabs: AppWorkbenchHeaderTab[]) => {
     const otherNetworkTabs = tabs.value.filter(tab => tab.network !== networkMode.value)
     tabs.value = [...otherNetworkTabs, ...newTabs]
     syncTabsToContentView()
@@ -330,7 +330,7 @@ const bindEvent = () => {
   })
 
   // 监听来自 App.vue 的初始化数据
-  window.electronAPI?.ipcManager.onMain(IPC_EVENTS.apiflow.topBarToContent.initTabsData, (data: { tabs: HeaderTab[], activeTabId: string, language: Language, networkMode: RuntimeNetworkMode }) => {
+  window.electronAPI?.ipcManager.onMain(IPC_EVENTS.apiflow.topBarToContent.initTabsData, (data: { tabs: AppWorkbenchHeaderTab[], activeTabId: string, language: Language, networkMode: RuntimeNetworkMode }) => {
     tabs.value = data.tabs || [];
     activeTabId.value = data.activeTabId || '';
     language.value = data.language || 'zh-cn';

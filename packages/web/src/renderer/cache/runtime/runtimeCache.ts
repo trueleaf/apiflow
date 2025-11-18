@@ -3,7 +3,6 @@ import type { PermissionUserInfo } from '@src/types/project'
 import type { Language } from '@src/types/common'
 import { logger } from '@/helper'
 import { cacheKey } from '../cacheKey'
-
 class RuntimeCache {
   getNetworkMode(): RuntimeNetworkMode {
     try {
@@ -16,7 +15,6 @@ class RuntimeCache {
       return 'offline'
     }
   }
-
   setNetworkMode(mode: RuntimeNetworkMode): boolean {
     try {
       localStorage.setItem(cacheKey.runtime.networkMode, mode)
@@ -31,7 +29,6 @@ class RuntimeCache {
     try {
       const userInfo = localStorage.getItem(cacheKey.runtime.userInfo)
       if (!userInfo) return null
-      
       const parsedInfo = JSON.parse(userInfo) as PermissionUserInfo
       return parsedInfo
     } catch (error) {
@@ -91,6 +88,4 @@ class RuntimeCache {
     }
   }
 }
-
 export const runtimeCache = new RuntimeCache()
-

@@ -1,11 +1,8 @@
 import { HttpMockNode } from '@src/types/mockNode';
 import { logger } from '@/helper';
 import { cacheKey } from '../../cacheKey';
-
 class HttpMockNodeCache {
-  /*
-   * 缓存httpMock节点信息
-   */
+  // 缓存httpMock节点信息
   setHttpMockNode(val: HttpMockNode) {
     try {
       const localHttpMock = JSON.parse(localStorage.getItem(cacheKey.httpMockNode.mock) || '{}');
@@ -16,10 +13,7 @@ class HttpMockNodeCache {
       localStorage.setItem(cacheKey.httpMockNode.mock, '{}');
     }
   }
-
-  /*
-   * 获取缓存httpMock节点信息
-   */
+  // 获取缓存httpMock节点信息
   getHttpMockNode(id: string): HttpMockNode | null {
     try {
       const localHttpMock: Record<string, HttpMockNode> = JSON.parse(localStorage.getItem(cacheKey.httpMockNode.mock) || '{}');
@@ -34,5 +28,4 @@ class HttpMockNodeCache {
     }
   }
 }
-
 export const httpMockNodeCache = new HttpMockNodeCache();

@@ -2,11 +2,8 @@ import { HttpNode } from '@src/types';
 import type { ApidocCookie } from '@src/renderer/store/apidoc/cookiesStore';
 import { logger } from '@/helper';
 import { cacheKey } from '../cacheKey';
-
 class HttpNodeCache {
-  /*
-   * 缓存HTTP节点信息
-   */
+  // 缓存HTTP节点信息
   setHttpNode(val: HttpNode) {
     try {
       const localHttpNode = JSON.parse(localStorage.getItem(cacheKey.httpNodeCache.httpNode) || '{}');
@@ -19,10 +16,7 @@ class HttpNodeCache {
       localStorage.setItem(cacheKey.httpNodeCache.httpNode, JSON.stringify(data));
     }
   }
-
-  /*
-   * 获取缓存HTTP节点信息
-   */
+  // 获取缓存HTTP节点信息
   getHttpNode(id: string): HttpNode | null {
     try {
       const localHttpNode: Record<string, HttpNode> = JSON.parse(localStorage.getItem(cacheKey.httpNodeCache.httpNode) || '{}');
@@ -36,9 +30,7 @@ class HttpNodeCache {
       return null;
     }
   }
-  /*
-   * 缓存cookie（ApidocCookie[]）
-   */
+  // 缓存cookie（ApidocCookie[]）
   setHttpNodeCookies(projectId: string, cookies: ApidocCookie[]) {
     try {
       const localData = JSON.parse(localStorage.getItem(cacheKey.httpNodeCache.cookies) || '{}');
@@ -51,10 +43,7 @@ class HttpNodeCache {
       localStorage.setItem(cacheKey.httpNodeCache.cookies, JSON.stringify(data));
     }
   }
-
-  /*
-   * 获取缓存cookie（ApidocCookie[]）
-   */
+  // 获取缓存cookie（ApidocCookie[]）
   getHttpNodeCookies(projectId: string): ApidocCookie[] {
     try {
       const localData: Record<string, ApidocCookie[]> = JSON.parse(localStorage.getItem(cacheKey.httpNodeCache.cookies) || '{}');
@@ -68,10 +57,7 @@ class HttpNodeCache {
       return [];
     }
   }
-
-  /*
-   * 获取pre-request的sessionStorage
-   */
+  // 获取pre-request的sessionStorage
   getPreRequestSessionStorage(projectId: string): Record<string, unknown> {
     try {
       const localData: Record<string, Record<string, unknown>> = JSON.parse(sessionStorage.getItem('httpNodeCache/preRequest/sessionStorage') || '{}');
@@ -85,9 +71,7 @@ class HttpNodeCache {
       return {};
     }
   }
-  /*
-   * 设置pre-request的sessionStorage
-   */
+  // 设置pre-request的sessionStorage
   setPreRequestSessionStorage(projectId: string, data: Record<string, unknown>) {
     try {
       const localData = JSON.parse(sessionStorage.getItem('httpNodeCache/preRequest/sessionStorage') || '{}');
@@ -100,10 +84,7 @@ class HttpNodeCache {
       sessionStorage.setItem('httpNodeCache/preRequest/sessionStorage', JSON.stringify(newData));
     }
   }
-
-  /*
-   * 获取pre-request的localStorage
-   */
+  // 获取pre-request的localStorage
   getPreRequestLocalStorage(projectId: string): Record<string, unknown> {
     try {
       const localData: Record<string, Record<string, unknown>> = JSON.parse(localStorage.getItem(cacheKey.httpNodeCache.preRequest.localStorage) || '{}');
@@ -117,10 +98,7 @@ class HttpNodeCache {
       return {};
     }
   }
-
-  /*
-   * 设置pre-request的localStorage
-   */
+  // 设置pre-request的localStorage
   setPreRequestLocalStorage(projectId: string, data: Record<string, unknown>) {
     try {
       const localData = JSON.parse(localStorage.getItem(cacheKey.httpNodeCache.preRequest.localStorage) || '{}');
@@ -133,8 +111,5 @@ class HttpNodeCache {
       localStorage.setItem(cacheKey.httpNodeCache.preRequest.localStorage, JSON.stringify(newData));
     }
   }
-
 }
-
 export const httpNodeCache = new HttpNodeCache();
-

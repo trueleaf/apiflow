@@ -1,16 +1,13 @@
 import type { HttpNodeConfig } from '@src/types/httpNode/httpNode';
 import { logger, generateDefaultHttpNodeConfig } from '@/helper';
 import { cacheKey } from '../cacheKey';
-
 class HttpNodeConfigCache {
   constructor() {
     if (!localStorage.getItem(cacheKey.httpNodeCache.config)) {
       localStorage.setItem(cacheKey.httpNodeCache.config, '{}');
     }
   }
-  /*
-   * 获取HTTP节点配置
-   */
+  // 获取HTTP节点配置
   getHttpNodeConfig(projectId: string): HttpNodeConfig | null {
     try {
       const localData: Record<string, HttpNodeConfig> = JSON.parse(localStorage.getItem(cacheKey.httpNodeCache.config) || '{}');
@@ -24,9 +21,7 @@ class HttpNodeConfigCache {
       return null;
     }
   }
-  /*
-   * 设置HTTP节点配置(覆盖/合并)
-   */
+  // 设置HTTP节点配置(覆盖/合并)
   setHttpNodeConfig(projectId: string, config: Partial<HttpNodeConfig>) {
     try {
       const localData = JSON.parse(localStorage.getItem(cacheKey.httpNodeCache.config) || '{}');
@@ -41,5 +36,4 @@ class HttpNodeConfigCache {
     }
   }
 }
-
 export const httpNodeConfigCache = new HttpNodeConfigCache();

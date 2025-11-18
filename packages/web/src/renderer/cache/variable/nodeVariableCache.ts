@@ -3,7 +3,6 @@ import { nanoid } from "nanoid";
 import { openDB, type IDBPDatabase } from 'idb';
 import { config } from '@src/config/config';
 import { logger } from '@/helper';
-
 export class NodeVariableCache {
   private db: IDBPDatabase | null = null;
   private storeName = config.cacheConfig.variablesCache.storeName;
@@ -55,8 +54,7 @@ export class NodeVariableCache {
     );
     return this.db;
   }
-
-    // 新增变量
+  // 新增变量
   async addVariable(variable: Omit<ApidocVariable, '_id'> & { _id?: string }): Promise<CommonResponse<ApidocVariable>> {
     try {
       const db = await this.getDB();
@@ -64,7 +62,6 @@ export class NodeVariableCache {
         const checkTx = db.transaction(this.storeName, "readonly");
         const checkStore = checkTx.objectStore(this.storeName);
         let projectVariables: ApidocVariable[] = [];
-
         try {
           const index = checkStore.index(this.projectIdIndex);
           projectVariables = await index.getAll(variable.projectId);
@@ -73,9 +70,7 @@ export class NodeVariableCache {
           const allVariables = await checkStore.getAll();
           projectVariables = allVariables.filter(v => v.projectId === variable.projectId);
         }
-
         await checkTx.done;
-
         const nameExists = projectVariables.some(v => v.name === variable.name);
         if (nameExists) {
           return { code: 1, msg: "变量名称已存在", data: null as any };
@@ -83,13 +78,11 @@ export class NodeVariableCache {
       } catch (checkError) {
         logger.error('变量重复校验失败', { error: checkError });
       }
-
       const id = nanoid()
       const variableWithId: ApidocVariable = {
         ...variable,
         _id: id
       };
-
       const addTx = db.transaction(this.storeName, "readwrite");
       const addStore = addTx.objectStore(this.storeName);
       await addStore.put(variableWithId, id);
@@ -104,30 +97,25 @@ export class NodeVariableCache {
       };
     }
   }
-
-    // 修改变量
+  // 修改变量
   async updateVariableById(id: string, updates: Partial<ApidocVariable>): Promise<CommonResponse<ApidocVariable>> {
     try {
       if (!id) {
         return { code: 1, msg: "变量ID不能为空", data: null as any };
       }
-
       const db = await this.getDB();
       const readTx = db.transaction(this.storeName, "readonly");
       const readStore = readTx.objectStore(this.storeName);
       const existingVariable = await readStore.get(id);
       await readTx.done;
-
       if (!existingVariable) {
         return { code: 1, msg: "变量不存在", data: null as any };
       }
-
       if (updates.name && updates.name !== existingVariable.name) {
         try {
           const checkTx = db.transaction(this.storeName, "readonly");
           const checkStore = checkTx.objectStore(this.storeName);
           let projectVariables: ApidocVariable[] = [];
-
           try {
             const index = checkStore.index(this.projectIdIndex);
             projectVariables = await index.getAll(existingVariable.projectId);
@@ -136,9 +124,7 @@ export class NodeVariableCache {
             const allVariables = await checkStore.getAll();
             projectVariables = allVariables.filter(v => v.projectId === existingVariable.projectId);
           }
-
           await checkTx.done;
-
           const nameExists = projectVariables.some(v => v.name === updates.name && v._id !== id);
           if (nameExists) {
             return { code: 1, msg: "变量名称已存在", data: null as any };
@@ -147,16 +133,13 @@ export class NodeVariableCache {
           logger.error('变量名称重复校验失败', { error: checkError });
         }
       }
-
       const updateTx = db.transaction(this.storeName, "readwrite");
       const updateStore = updateTx.objectStore(this.storeName);
-
       const updatedVariable: ApidocVariable = {
         ...existingVariable,
         ...updates,
         _id: id
       };
-
       await updateStore.put(updatedVariable, id);
       await updateTx.done;
       return { code: 0, msg: "success", data: updatedVariable };
@@ -169,13 +152,12 @@ export class NodeVariableCache {
       };
     }
   }
-    // 批量删除变量
+  // 批量删除变量
   async deleteVariableByIds(ids: string[]): Promise<CommonResponse<void>> {
     try {
       const db = await this.getDB();
       const tx = db.transaction(this.storeName, "readwrite");
       const store = tx.objectStore(this.storeName);
-
       for (const id of ids) {
         if (id) {
           const variable = await store.get(id);
@@ -184,9 +166,7 @@ export class NodeVariableCache {
           }
         }
       }
-
       await tx.done;
-
       return { code: 0, msg: "success", data: null as any };
     } catch (error) {
       logger.error('删除变量失败', { error });
@@ -197,13 +177,12 @@ export class NodeVariableCache {
       };
     }
   }
-    // 查询所有变量
+  // 查询所有变量
   async getVariableByProjectId(projectId: string): Promise<CommonResponse<ApidocVariable[]>> {
     try {
       const db = await this.getDB();
       const tx = db.transaction(this.storeName, "readonly");
       const store = tx.objectStore(this.storeName);
-
       try {
         const index = store.index(this.projectIdIndex);
         const variables: ApidocVariable[] = await index.getAll(projectId);
@@ -223,18 +202,16 @@ export class NodeVariableCache {
       };
     }
   }
-    // 根据变量ID获取单个变量
+  // 根据变量ID获取单个变量
   async getVariableById(variableId: string): Promise<CommonResponse<ApidocVariable | null>> {
     try {
       if (!variableId) {
         return { code: 1, msg: "变量ID不能为空", data: null };
       }
-
       const db = await this.getDB();
       const tx = db.transaction(this.storeName, "readonly");
       const store = tx.objectStore(this.storeName);
       const variable = await store.get(variableId);
-
       return { code: 0, msg: "success", data: variable || null };
     } catch (error) {
       logger.error('根据ID获取变量失败', { error });
@@ -246,6 +223,5 @@ export class NodeVariableCache {
     }
   }
 }
-
 // 导出单例
 export const nodeVariableCache = new NodeVariableCache();

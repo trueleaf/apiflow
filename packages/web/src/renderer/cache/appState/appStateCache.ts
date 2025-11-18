@@ -2,7 +2,6 @@ import type { WebsocketActiveTabType } from '@src/types/websocketNode';
 import type { MockNodeActiveTabType } from '@src/types/mockNode';
 import { logger } from '@/helper';
 import { cacheKey } from '../cacheKey';
-
 class AppState {
   // 获取首页激活的tab（项目列表/团队管理）
   getActiveHomeTab(): string {
@@ -426,5 +425,4 @@ class AppState {
     }
   }
 }
-
 export const appState = new AppState();

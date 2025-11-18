@@ -3,7 +3,6 @@ import { nanoid } from "nanoid";
 import { openDB, type IDBPDatabase } from 'idb';
 import { config } from '@src/config/config';
 import { logger, convertNodesToBannerNodes } from '@/helper';
-
 export class ApiNodesCache {
   private bannerCache = new Map<
     string,
@@ -89,11 +88,6 @@ export class ApiNodesCache {
     );
     return this.projectDB;
   }
-  /*
-  |--------------------------------------------------------------------------
-  | 节点操作相关逻辑
-  |--------------------------------------------------------------------------
-  */
   // 获取所有节点
   async getAllNodes(): Promise<ApiNode[]> {
     try {
@@ -111,7 +105,6 @@ export class ApiNodesCache {
     if (cached && Date.now() - cached.timestamp < this.CACHE_TTL) {
       return cached.data;
     }
-
     try {
       const db = await this.getDB();
       const docs: ApiNode[] = await db.getAllFromIndex(this.storeName, config.cacheConfig.apiNodesCache.projectIdIndex, projectId);
@@ -225,15 +218,12 @@ export class ApiNodesCache {
   // 批量删除节点
   async deleteNodes(nodeIds: string[]): Promise<boolean> {
     if (nodeIds.length === 0) return true;
-
     const db = await this.getDB();
     const tx = db.transaction(this.storeName, "readwrite");
     const store = tx.objectStore(this.storeName);
-
     try {
       let projectId: string | null = null;
       const updatedTimestamp = new Date().toISOString();
-
       for (const nodeId of nodeIds) {
         const existingDoc = await store.get(nodeId);
         if (existingDoc) {
@@ -245,14 +235,11 @@ export class ApiNodesCache {
           }, nodeId);
         }
       }
-
       await tx.done;
-
       if (projectId) {
         await this.updateProjectNodeNum(projectId);
         this.bannerCache.delete(projectId);
       }
-
       return true;
     } catch (error) {
       logger.error('批量删除节点失败', { error });
@@ -299,7 +286,6 @@ export class ApiNodesCache {
         }
         currentPid = parentDoc.pid;
       }
-
       this.bannerCache.delete(existingDoc.projectId);
       return result;
     } catch (error) {
@@ -307,13 +293,6 @@ export class ApiNodesCache {
       return [];
     }
   }
-  /*
-  |--------------------------------------------------------------------------
-  | 项目导入
-  |    replaceAllNodes代表覆盖导入
-  |    appendNodes代表追加导入
-  |--------------------------------------------------------------------------
-  */
   // 覆盖替换所有接口文档
   async replaceAllNodes(nodes: ApiNode[], projectId: string): Promise<boolean> {
     const db = await this.getDB();
@@ -353,7 +332,6 @@ export class ApiNodesCache {
   // 批量追加接口文档
   async appendNodes(nodes: ApiNode[], projectId: string): Promise<string[]> {
     const successIds: string[] = [];
-
     try {
       const db = await this.getDB();
       const { processedDocs } = this.prepareDocsWithNewIds(nodes, projectId);
@@ -371,11 +349,6 @@ export class ApiNodesCache {
       return successIds;
     }
   }
-  /*
-  |--------------------------------------------------------------------------
-  | 项目相关
-  |--------------------------------------------------------------------------
-  */
   // 更新项目内节点数量(不包含文件夹)
   private async updateProjectNodeNum(projectId: string): Promise<void> {
     try {
@@ -395,11 +368,6 @@ export class ApiNodesCache {
       logger.error('更新项目文档数量失败', { error });
     }
   }
-  /*
-  |--------------------------------------------------------------------------
-  | 节点树形菜单区域
-  |--------------------------------------------------------------------------
-  */
   // 以树形方式获取文件夹
   async getApiNodesAsTree(projectId: string, filterType?: ApidocType) {
     const projectNodes = await this.getNodesByProjectId(projectId);
@@ -411,16 +379,10 @@ export class ApiNodesCache {
     });
     return convertNodesToBannerNodes(folderNodes);
   }
-
   // getDocTree是getApiNodesAsTree的别名，用于兼容性
   async getDocTree(projectId: string) {
     return this.getApiNodesAsTree(projectId, 'folder');
   }
-  /*
-  |--------------------------------------------------------------------------
-  | 工具方法
-  |--------------------------------------------------------------------------
-  */
   // 创建ID映射并更新文档关系
   private prepareDocsWithNewIds(
     docs: ApiNode[],
@@ -431,13 +393,11 @@ export class ApiNodesCache {
   } {
     const idMapping = new Map<string, string>();
     const processedDocs: ApiNode[] = [];
-
     // 第一步：为所有文档生成新的ID并创建映射
     for (const doc of docs) {
       const oldId = doc._id;
       const newId = nanoid();
       idMapping.set(oldId, newId);
-
       // 创建文档副本并更新基本信息
       const processedDoc = {
         ...doc,
@@ -445,10 +405,8 @@ export class ApiNodesCache {
         projectId,
         // 暂时保留原始pid，稍后会更新
       };
-
       processedDocs.push(processedDoc);
     }
-
     // 第二步：更新所有父子关系
     for (const doc of processedDocs) {
       if (doc.pid) {
@@ -460,10 +418,8 @@ export class ApiNodesCache {
         // 如果父ID不在导入的文档中，保留原始pid（可能是挂载到现有节点）
       }
     }
-
     return { processedDocs, idMapping };
   }
 }
-
 // 导出单例
 export const apiNodesCache = new ApiNodesCache();

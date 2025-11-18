@@ -2,7 +2,6 @@ import type { AppTheme } from '@src/types';
 import { config } from '@src/config/config';
 import { logger } from '@/helper';
 import { cacheKey } from '../cacheKey';
-
 class AppSettingsCache {
   constructor() {
   }
@@ -126,5 +125,4 @@ class AppSettingsCache {
     }
   }
 }
-
 export const appSettingsCache = new AppSettingsCache();

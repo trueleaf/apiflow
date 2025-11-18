@@ -4,7 +4,6 @@ import { WebSocketNode } from '@src/types/websocketNode';
 import { config } from '@src/config/config';
 import { nanoid } from 'nanoid/non-secure';
 import { logger } from '@/helper';
-
 type WebSocketHistoryCacheData = {
   _id: string; // 历史记录唯一ID作为主键
   nodeId: string; // 节点ID，用于索引
@@ -13,23 +12,18 @@ type WebSocketHistoryCacheData = {
   operatorName: string; // 操作者名称
   timestamp: number; // 创建时间戳
 };
-
 class WebSocketHistoryCache {
   private dbName = config.cacheConfig.websocketHistoryCache.dbName;
   private storeName = config.cacheConfig.websocketHistoryCache.storeName;
   private version = config.cacheConfig.websocketHistoryCache.version;
   private maxHistoryPerNode = config.cacheConfig.websocketHistoryCache.maxHistoryPerNode;
   private db: IDBPDatabase | null = null;
-
   constructor() {
     this.initDB().catch(error => {
       logger.error('初始化WebSocket历史记录数据库失败', { error });
     });
   }
-
-  /**
-   * 初始化数据库
-   */
+  // 初始化数据库
   private async initDB(): Promise<void> {
     if (this.db) {
       return;
@@ -49,10 +43,7 @@ class WebSocketHistoryCache {
       this.db = null;
     }
   }
-
-  /**
-   * 确保数据库已初始化
-   */
+  // 确保数据库已初始化
   private async getDB(): Promise<IDBPDatabase> {
     if (!this.db) {
       await this.initDB();
@@ -62,18 +53,15 @@ class WebSocketHistoryCache {
     }
     return this.db;
   }
-
-    // 根据节点ID获取该节点的所有历史记录
+  // 根据WebSocket节点ID获取历史记录
   async getWsHistoryListByNodeId(nodeId: string): Promise<WebSocketHistory[]> {
     try {
       const db = await this.getDB();
       const tx = db.transaction(this.storeName, 'readonly');
       const index = tx.store.index('nodeId');
       const records = await index.getAll(nodeId);
-      
       // 按时间戳倒序排序（最新的在前）
       const sortedRecords = records.sort((a, b) => b.timestamp - a.timestamp);
-      
       return sortedRecords.map(record => ({
         _id: record._id,
         node: record.node,
@@ -86,17 +74,14 @@ class WebSocketHistoryCache {
       return [];
     }
   }
-
-    // 根据历史记录ID获取单条历史记录的详细信息
+  // 根据历史记录ID获取单条历史记录
   async getWsHistoryById(historyId: string): Promise<WebSocketHistory | null> {
     try {
       const db = await this.getDB();
       const record = await db.get(this.storeName, historyId);
-      
       if (!record) {
         return null;
       }
-      
       return {
         _id: record._id,
         node: record.node,
@@ -109,30 +94,24 @@ class WebSocketHistoryCache {
       return null;
     }
   }
-
-    // 为指定节点添加新的历史记录
+  // 为指定节点添加新的历史记录
   async addWsHistoryByNodeId(nodeId: string, node: WebSocketNode, operatorId?: string, operatorName?: string): Promise<boolean> {
     try {
       const db = await this.getDB();
-      
-      
       // 获取当前节点的历史记录数量
       const tx1 = db.transaction(this.storeName, 'readonly');
       const index = tx1.store.index('nodeId');
       const existingRecords = await index.getAll(nodeId);
-      
       // 如果超过限制，删除最旧的记录
       if (existingRecords.length >= this.maxHistoryPerNode) {
         const sortedRecords = existingRecords.sort((a, b) => a.timestamp - b.timestamp);
         const recordsToDelete = sortedRecords.slice(0, existingRecords.length - this.maxHistoryPerNode + 1);
-        
         const tx2 = db.transaction(this.storeName, 'readwrite');
         for (const record of recordsToDelete) {
           await tx2.store.delete(record._id);
         }
         await tx2.done;
       }
-      
       // 添加新的历史记录
       const newRecord: WebSocketHistoryCacheData = {
         _id: nanoid(),
@@ -142,23 +121,19 @@ class WebSocketHistoryCache {
         operatorName: operatorName || 'me',
         timestamp: Date.now()
       };
-      
       const tx3 = db.transaction(this.storeName, 'readwrite');
       await tx3.store.add(newRecord);
       await tx3.done;
-
       return true;
     } catch (error) {
       logger.error('添加历史记录失败', { error });
       return false;
     }
   }
-
-    // 删除指定节点的历史记录
+  // 删除指定节点的历史记录
   async deleteWsHistoryByNode(nodeId: string, historyIds?: string[]): Promise<boolean> {
     try {
       const db = await this.getDB();
-      
       if (historyIds && historyIds.length > 0) {
         // 删除指定的历史记录
         const tx = db.transaction(this.storeName, 'readwrite');
@@ -171,22 +146,19 @@ class WebSocketHistoryCache {
         const tx1 = db.transaction(this.storeName, 'readonly');
         const index = tx1.store.index('nodeId');
         const records = await index.getAll(nodeId);
-        
         const tx2 = db.transaction(this.storeName, 'readwrite');
         for (const record of records) {
           await tx2.store.delete(record._id);
         }
         await tx2.done;
       }
-
       return true;
     } catch (error) {
       logger.error('删除历史记录失败', { error });
       return false;
     }
   }
-
-    // 清空所有历史记录数据
+  // 清空所有历史记录数据
   async clearWsHistory(): Promise<boolean> {
     try {
       const db = await this.getDB();
@@ -200,5 +172,4 @@ class WebSocketHistoryCache {
     }
   }
 }
-
 export const webSocketHistoryCache = new WebSocketHistoryCache();

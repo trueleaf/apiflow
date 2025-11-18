@@ -3,30 +3,24 @@ import { WebsocketResponse } from '@src/types/websocketNode';
 import { config } from '@src/config/config';
 import { nanoid } from 'nanoid/non-secure';
 import { logger } from '@/helper';
-
 type WebsocketResponseCacheData = {
   id: string; // 数据唯一ID作为主键
   nodeId: string; // 节点ID
   response: WebsocketResponse; // 单个响应数据
   updatedAt: number; // 最后更新时间
 };
-
 class WebsocketResponseCache {
   private dbName = config.cacheConfig.websocketNodeResponseCache.dbName;
   private storeName = 'responses';
   private version = config.cacheConfig.websocketNodeResponseCache.version;
   private singleResponseSize = config.cacheConfig.websocketNodeResponseCache.singleResponseSize;
   private db: IDBPDatabase | null = null;
-
   constructor() {
     this.initDB().catch(error => {
       logger.error('初始化WebSocket响应缓存数据库失败', { error });
     });
   }
-
-  /**
-   * 初始化数据库
-   */
+  // 初始化数据库
   private async initDB(): Promise<void> {
     if (this.db) {
       return;
@@ -45,10 +39,7 @@ class WebsocketResponseCache {
       this.db = null;
     }
   }
-
-  /**
-   * 确保数据库已初始化
-   */
+  // 确保数据库已初始化
   private async getDB(): Promise<IDBPDatabase> {
     if (!this.db) {
       await this.initDB();
@@ -67,18 +58,15 @@ class WebsocketResponseCache {
         logger.warn(`单个WebSocket响应过大 (${responseSize} bytes)，超过限制 (${this.singleResponseSize} bytes)`);
         return;
       }
-
       const db = await this.getDB();
       // 为响应创建唯一ID
       const dataId = nanoid();
-      
       const data: WebsocketResponseCacheData = {
         id: dataId,
         nodeId,
         response,
         updatedAt: Date.now()
       };
-
       const tx = db.transaction(this.storeName, 'readwrite');
       await tx.store.put(data);
       await tx.done;
@@ -131,6 +119,4 @@ class WebsocketResponseCache {
     }
   }
 }
-
 export const websocketResponseCache = new WebsocketResponseCache();
-

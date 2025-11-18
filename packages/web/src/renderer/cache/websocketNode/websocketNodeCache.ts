@@ -1,17 +1,13 @@
 import { WebSocketNode, WebsocketConfig } from '@src/types/websocketNode';
 import { logger } from '@/helper';
 import { cacheKey } from '../cacheKey';
-
 class WebSocketNodeCache {
   constructor() {
     if (!localStorage.getItem(cacheKey.websocketNode.websocket)) {
       localStorage.setItem(cacheKey.websocketNode.websocket, '{}');
     }
   }
-
-  /*
-   * 缓存websocket接口信息
-   */
+  // 缓存websocket接口信息
   setWebSocketNode(val: WebSocketNode) {
     try {
       const localWebSocket = JSON.parse(localStorage.getItem(cacheKey.websocketNode.websocket) || '{}');
@@ -24,10 +20,7 @@ class WebSocketNodeCache {
       localStorage.setItem(cacheKey.websocketNode.websocket, JSON.stringify(data));
     }
   }
-
-  /*
-   * 获取缓存websocket接口信息
-   */
+  // 获取缓存websocket接口信息
   getWebSocketNode(id: string): WebSocketNode | null {
     try {
       const localWebSocket: Record<string, WebSocketNode> = JSON.parse(localStorage.getItem(cacheKey.websocketNode.websocket) || '{}');
@@ -41,10 +34,7 @@ class WebSocketNodeCache {
       return null;
     }
   }
-
-  /*
-   * 获取websocket配置
-   */
+  // 获取websocket配置
   getWebsocketConfig(projectId: string): WebsocketConfig | null {
     try {
       const localData: Record<string, WebsocketConfig> = JSON.parse(localStorage.getItem(cacheKey.websocketNode.config) || '{}');
@@ -58,10 +48,7 @@ class WebSocketNodeCache {
       return null;
     }
   }
-
-  /*
-   * 设置websocket配置(覆盖/合并)
-   */
+  // 设置websocket配置(覆盖/合并)
   setWebsocketConfig(projectId: string, config: Partial<WebsocketConfig>) {
     try {
       const localData = JSON.parse(localStorage.getItem(cacheKey.websocketNode.config) || '{}');
@@ -75,5 +62,4 @@ class WebSocketNodeCache {
     }
   }
 }
-
 export const webSocketNodeCache = new WebSocketNodeCache();

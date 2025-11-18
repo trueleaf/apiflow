@@ -1,7 +1,6 @@
 import { reactive } from 'vue'
 import type { UserShortcutSettings } from '@src/types/shortcut'
 import { cacheKey } from '@/cache/cacheKey.ts'
-
 class ShortcutCache {
   private userSettings: UserShortcutSettings = reactive({})
   getUserSettings(): UserShortcutSettings {
@@ -37,5 +36,4 @@ class ShortcutCache {
     localStorage.removeItem(cacheKey.settings.shortcuts)
   }
 }
-
 export const shortcutCache = new ShortcutCache()

@@ -3,7 +3,6 @@ import type {
 } from "@src/types/redoUndo/httpRedoUndo";
 import { logger } from '@/helper';
 import { cacheKey } from '../cacheKey';
-
 /**
  * HTTP RedoUndo缓存管理类
  * 负责sessionStorage存储HTTP redo/undo数据
@@ -23,7 +22,6 @@ export class HttpRedoUndoCache {
           undoList: []
         };
       }
-
       const parsed = JSON.parse(data);
       return {
         redoList: parsed.redoList || [],
@@ -45,7 +43,6 @@ export class HttpRedoUndoCache {
         undoList,
         lastUpdated: Date.now()
       };
-
       const key = this.getStorageKey(nodeId);
       sessionStorage.setItem(key, JSON.stringify(data));
       return true;
@@ -58,8 +55,6 @@ export class HttpRedoUndoCache {
   private getStorageKey(nodeId: string): string {
     return `${cacheKey.redoUndo.http}${nodeId}`;
   }
-
 }
-
 // 导出单例实例
 export const httpRedoUndoCache = new HttpRedoUndoCache();

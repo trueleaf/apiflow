@@ -3,7 +3,6 @@ import { cacheKey } from '../cacheKey';
 import { openDB, type IDBPDatabase } from 'idb';
 import { config } from '@src/config/config';
 import { logger } from '@/helper';
-
 export class ProjectCache {
   private db: IDBPDatabase | null = null;
   private storeName = config.cacheConfig.projectCache.storeName;
@@ -49,38 +48,31 @@ export class ProjectCache {
     );
     return this.db;
   }
-
   async getProjectList(): Promise<ApidocProjectInfo[]> {
     const db = await this.getDB();
     const tx = db.transaction(this.storeName, "readonly");
     const store = tx.objectStore(this.storeName);
     const keys = await store.getAllKeys();
     const projects: ApidocProjectInfo[] = [];
-
     for (const key of keys) {
       const project = await store.get(key);
       if (project && !project.isDeleted) {
         projects.push(project);
       }
     }
-
     return projects;
   }
-
   async setProjectList(projectList: ApidocProjectInfo[]): Promise<boolean> {
     const db = await this.getDB();
     const tx = db.transaction(this.storeName, "readwrite");
     const store = tx.objectStore(this.storeName);
-
     const keys = await store.getAllKeys();
     for (const key of keys) {
       await store.delete(key);
     }
-
     for (const project of projectList) {
       await store.put(project, project._id);
     }
-
     await tx.done;
     return true;
   }
@@ -104,14 +96,11 @@ export class ProjectCache {
     const tx = db.transaction(this.storeName, "readwrite");
     const store = tx.objectStore(this.storeName);
     const existingProject = await store.get(projectId);
-
     if (!existingProject) return false;
-
     const updatedProject = {
       ...existingProject,
       ...project
     };
-
     await store.put(updatedProject, projectId);
     await tx.done;
     return true;
@@ -121,15 +110,12 @@ export class ProjectCache {
     const tx = db.transaction(this.storeName, "readwrite");
     const store = tx.objectStore(this.storeName);
     const existingProject = await store.get(projectId);
-
     if (!existingProject) return false;
-
     const updatedProject = {
       ...existingProject,
       isDeleted: true,
       deletedAt: Date.now()
     };
-
     await store.put(updatedProject, projectId);
     await tx.done;
     return true;
@@ -140,20 +126,17 @@ export class ProjectCache {
     const store = tx.objectStore(this.storeName);
     const keys = await store.getAllKeys();
     const projects: ApidocProjectInfo[] = [];
-
     for (const key of keys) {
       const project = await store.get(key);
       if (project && project.isDeleted) {
         projects.push(project);
       }
     }
-
     projects.sort((a, b) => {
       const aTime = a.deletedAt || 0;
       const bTime = b.deletedAt || 0;
       return bTime - aTime;
     });
-
     return projects;
   }
   async recoverProject(projectId: string): Promise<boolean> {
@@ -161,15 +144,12 @@ export class ProjectCache {
     const tx = db.transaction(this.storeName, "readwrite");
     const store = tx.objectStore(this.storeName);
     const existingProject = await store.get(projectId);
-
     if (!existingProject || !existingProject.isDeleted) return false;
-
     const updatedProject = {
       ...existingProject,
       isDeleted: false,
       deletedAt: undefined
     };
-
     await store.put(updatedProject, projectId);
     await tx.done;
     return true;
@@ -179,9 +159,7 @@ export class ProjectCache {
     const tx = db.transaction(this.storeName, "readwrite");
     const store = tx.objectStore(this.storeName);
     const existingProject = await store.get(projectId);
-
     if (!existingProject) return false;
-
     await store.delete(projectId);
     await tx.done;
     return true;
@@ -192,11 +170,9 @@ export class ProjectCache {
       const db = await this.getDB();
       const tx = db.transaction(this.storeName, "readwrite");
       const store = tx.objectStore(this.storeName);
-
       for (const project of deletedProjects) {
         await store.delete(project._id);
       }
-
       await tx.done;
       return true;
     } catch (error) {
@@ -243,6 +219,5 @@ export class ProjectCache {
     }
   }
 }
-
 // 导出单例
 export const projectCache = new ProjectCache();

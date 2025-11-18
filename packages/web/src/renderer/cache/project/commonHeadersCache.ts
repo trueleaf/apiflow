@@ -3,7 +3,6 @@ import { openDB, type IDBPDatabase } from 'idb';
 import { config } from '@src/config/config';
 import { logger } from '@/helper';
 import { cacheKey } from '../cacheKey';
-
 export class CommonHeaderCache {
   private db: IDBPDatabase | null = null;
   private storeName = config.cacheConfig.commonHeadersCache.storeName;
@@ -55,14 +54,12 @@ export class CommonHeaderCache {
     const store = tx.objectStore(this.storeName);
     const keys = await store.getAllKeys();
     const headers: ApidocProperty<'string'>[] = [];
-
     for (const key of keys) {
       const header = await store.get(key);
       if (header && !header.isDeleted) {
         headers.push(header);
       }
     }
-
     return headers;
   }
   async getCommonHeaderById(headerId: string): Promise<ApidocProperty<'string'> | null> {
@@ -85,14 +82,11 @@ export class CommonHeaderCache {
     const tx = db.transaction(this.storeName, "readwrite");
     const store = tx.objectStore(this.storeName);
     const existingHeader = await store.get(headerId);
-
     if (!existingHeader) return false;
-
     const updatedHeader = {
       ...existingHeader,
       ...header
     };
-
     await store.put(updatedHeader, headerId);
     await tx.done;
     return true;
@@ -102,14 +96,11 @@ export class CommonHeaderCache {
     const tx = db.transaction(this.storeName, "readwrite");
     const store = tx.objectStore(this.storeName);
     const existingHeader = await store.get(headerId);
-
     if (!existingHeader) return false;
-
     const updatedHeader = {
       ...existingHeader,
       isDeleted: true
     };
-
     await store.put(updatedHeader, headerId);
     await tx.done;
     return true;
@@ -118,7 +109,6 @@ export class CommonHeaderCache {
     const db = await this.getDB();
     const tx = db.transaction(this.storeName, "readwrite");
     const store = tx.objectStore(this.storeName);
-
     for (const headerId of headerIds) {
       const existingHeader = await store.get(headerId);
       if (existingHeader) {
@@ -128,7 +118,6 @@ export class CommonHeaderCache {
         }, headerId);
       }
     }
-
     await tx.done;
     return true;
   }
@@ -136,16 +125,13 @@ export class CommonHeaderCache {
     const db = await this.getDB();
     const tx = db.transaction(this.storeName, "readwrite");
     const store = tx.objectStore(this.storeName);
-
     const keys = await store.getAllKeys();
     for (const key of keys) {
       await store.delete(key);
     }
-
     for (const header of headers) {
       await store.put(header, header._id);
     }
-
     await tx.done;
     return true;
   }
@@ -206,6 +192,5 @@ export class CommonHeaderCache {
     }
   }
 }
-
 // 导出单例
 export const commonHeaderCache = new CommonHeaderCache();

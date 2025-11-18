@@ -2,7 +2,6 @@ import { openDB, IDBPDatabase } from 'idb';
 import type { ApidocVariable } from '@src/types';
 import { config } from '@src/config/config';
 import { logger } from '@/helper';
-
 type MockVariableCacheDBSchema = {
   mockVariables: {
     key: string;
@@ -12,18 +11,15 @@ type MockVariableCacheDBSchema = {
     };
   };
 };
-
 export class MockVariableCache {
   private readonly dbName = config.cacheConfig.mockNodeVariableCache.dbName;
   private readonly version = config.cacheConfig.mockNodeVariableCache.version;
   private db: IDBPDatabase<MockVariableCacheDBSchema> | null = null;
-
   constructor() {
     this.initDB().catch((error) => {
       logger.error('初始化Mock变量数据库失败', { error });
     });
   }
-
   private async initDB(): Promise<void> {
     if (this.db) {
       return;
@@ -44,7 +40,6 @@ export class MockVariableCache {
       this.db = null;
     }
   }
-
   private async getDB(): Promise<IDBPDatabase<MockVariableCacheDBSchema>> {
     if (!this.db) {
       await this.initDB();
@@ -54,12 +49,10 @@ export class MockVariableCache {
     }
     return this.db;
   }
-
   private async getStore(mode: IDBTransactionMode) {
     const db = await this.getDB();
     return db.transaction('mockVariables', mode).store;
   }
-
   async addVariable(variable: ApidocVariable): Promise<ApidocVariable> {
     try {
       const store = await this.getStore('readwrite');
@@ -71,7 +64,6 @@ export class MockVariableCache {
       return variable;
     }
   }
-
   async updateVariableById(id: string, updates: Partial<ApidocVariable>): Promise<ApidocVariable | null> {
     try {
       const store = await this.getStore('readwrite');
@@ -88,7 +80,6 @@ export class MockVariableCache {
       return null;
     }
   }
-
   async deleteVariables(ids: string[]): Promise<void> {
     if (!ids.length) {
       return;
@@ -101,7 +92,6 @@ export class MockVariableCache {
       logger.error('删除Mock变量失败', { error });
     }
   }
-
   async getVariablesByProjectId(projectId: string): Promise<ApidocVariable[]> {
     try {
       const store = await this.getStore('readonly');
@@ -115,5 +105,4 @@ export class MockVariableCache {
     }
   }
 }
-
 export const mockVariableCache = new MockVariableCache();
