@@ -122,7 +122,7 @@ import { CacheInfo, LocalStorageItem, IndexedDBItem } from '@src/types/apidoc/ca
 import { formatUnit } from '@/helper'
 import { RefreshRight } from '@element-plus/icons-vue'
 import { userState } from '@/cache/userState/userStateCache.ts'
-import { settingsCache } from '@/cache/settings/settingsCache.ts'
+import { appSettingsCache } from '@/cache/settings/appSettingsCache'
 import LocalStorageDetail from './components/LocalStorageDetail.vue'
 import IndexedDBDetail from './components/IndexedDBDetail.vue'
 import DataBackup from './components/DataBackup.vue'
@@ -324,7 +324,7 @@ const handleSelectCacheType = (type: 'localStorage' | 'indexedDB' | 'backup' | '
 */
 // 加载本地数据
 const getIndexedDBCacheData = (): void => {
-  const cachedInfo = settingsCache.getCacheManagerInfo()
+  const cachedInfo = appSettingsCache.getCacheManagerInfo()
   if (cachedInfo) {
     cacheInfo.value.indexedDBSize = cachedInfo.indexedDBSize
     cacheInfo.value.indexedDBDetails = cachedInfo.indexedDBDetails as IndexedDBItem[]
@@ -332,7 +332,7 @@ const getIndexedDBCacheData = (): void => {
 }
 // 保存本地数据
 const saveCacheData = (): void => {
-  settingsCache.setCacheManagerInfo({
+  appSettingsCache.setCacheManagerInfo({
     indexedDBSize: cacheInfo.value.indexedDBSize,
     indexedDBDetails: cacheInfo.value.indexedDBDetails
   })
