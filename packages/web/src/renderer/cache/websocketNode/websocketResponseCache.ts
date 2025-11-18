@@ -58,38 +58,8 @@ class WebsocketResponseCache {
     }
     return this.db;
   }
-    // 存储数据
-  async setData(nodeId: string, responses: WebsocketResponse[]): Promise<void> {
-    try {
-      const db = await this.getDB();
-      const tx = db.transaction(this.storeName, 'readwrite');
-      
-      for (const response of responses) {
-        // 检查单个响应大小限制
-        const responseSize = new Blob([JSON.stringify(response)]).size;
-        if (responseSize > this.singleResponseSize) {
-          logger.warn(`单个WebSocket响应过大 (${responseSize} bytes)，超过限制 (${this.singleResponseSize} bytes)`);
-          continue;
-        }
-
-        const dataId = nanoid();
-        const data: WebsocketResponseCacheData = {
-          id: dataId,
-          nodeId,
-          response,
-          updatedAt: Date.now()
-        };
-
-        await tx.store.put(data);
-      }
-
-      await tx.done;
-    } catch (error) {
-      logger.error('存储WebSocket响应数据失败', { error });
-    }
-  }
-    // 存储单个响应数据
-  async setSingleData(nodeId: string, response: WebsocketResponse): Promise<void> {
+  // 存储单个响应数据
+  async setResponseByNodeId(nodeId: string, response: WebsocketResponse): Promise<void> {
     try {
       // 检查单个响应大小限制
       const responseSize = new Blob([JSON.stringify(response)]).size;
@@ -116,9 +86,8 @@ class WebsocketResponseCache {
       logger.error('存储单个WebSocket响应数据失败', { error });
     }
   }
-
-    // 获取数据
-  async getData(nodeId: string): Promise<WebsocketResponse[]> {
+  // 获取数据
+  async getResponseByNodeId(nodeId: string): Promise<WebsocketResponse[]> {
     try {
       const db = await this.getDB();
       const tx = db.transaction(this.storeName, 'readonly');
@@ -134,29 +103,31 @@ class WebsocketResponseCache {
       return [];
     }
   }
-
-    // 清空数据
-  async clearData(nodeId?: string): Promise<void> {
+  // 清空指定节点的响应数据
+  async clearResponseByNodeId(nodeId: string): Promise<void> {
     try {
       const db = await this.getDB();
       const tx = db.transaction(this.storeName, 'readwrite');
-      
-      if (nodeId) {
-        // 清空指定节点的数据
-        const index = tx.store.index('nodeId');
-        let cursor = await index.openCursor(nodeId);
-        while (cursor) {
-          await cursor.delete();
-          cursor = await cursor.continue();
-        }
-      } else {
-        // 清空所有数据
-        await tx.store.clear();
+      const index = tx.store.index('nodeId');
+      let cursor = await index.openCursor(nodeId);
+      while (cursor) {
+        await cursor.delete();
+        cursor = await cursor.continue();
       }
-
       await tx.done;
     } catch (error) {
-      logger.error('清空WebSocket响应数据失败', { error });
+      logger.error('清空指定节点WebSocket响应数据失败', { error });
+    }
+  }
+  // 清空所有响应数据
+  async clearAllResponse(): Promise<void> {
+    try {
+      const db = await this.getDB();
+      const tx = db.transaction(this.storeName, 'readwrite');
+      await tx.store.clear();
+      await tx.done;
+    } catch (error) {
+      logger.error('清空所有WebSocket响应数据失败', { error });
     }
   }
 }

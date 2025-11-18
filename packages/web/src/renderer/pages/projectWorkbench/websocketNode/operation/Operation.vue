@@ -167,7 +167,7 @@ const handleConnect = async () => {
   websocketStore.addMessage(startConnectMessage);
 
   // 缓存发起连接消息到IndexedDB
-  websocketResponseCache.setSingleData(currentTab._id, startConnectMessage);
+  websocketResponseCache.setResponseByNodeId(currentTab._id, startConnectMessage);
 
   try {
     // 执行前置脚本
@@ -218,7 +218,7 @@ const handleConnect = async () => {
           }
         };
         websocketStore.addMessage(scriptErrorMessage);
-        websocketResponseCache.setSingleData(currentTab._id, scriptErrorMessage);
+        websocketResponseCache.setResponseByNodeId(currentTab._id, scriptErrorMessage);
 
         return;
       }
@@ -263,7 +263,7 @@ const handleConnect = async () => {
       websocketStore.addMessage(connectErrorMessage);
 
       // 缓存连接错误消息到IndexedDB
-      websocketResponseCache.setSingleData(currentTab._id, connectErrorMessage);
+      websocketResponseCache.setResponseByNodeId(currentTab._id, connectErrorMessage);
 
     }
   }).catch((error) => {
@@ -283,7 +283,7 @@ const handleConnect = async () => {
     websocketStore.addMessage(connectExceptionMessage);
 
     // 缓存连接异常消息到IndexedDB
-    websocketResponseCache.setSingleData(currentTab._id, connectExceptionMessage);
+    websocketResponseCache.setResponseByNodeId(currentTab._id, connectExceptionMessage);
 
   });
   } catch (error) {
@@ -303,7 +303,7 @@ const handleConnect = async () => {
     websocketStore.addMessage(paramErrorMessage);
     
     // 缓存连接参数处理异常消息到IndexedDB
-    websocketResponseCache.setSingleData(currentTab._id, paramErrorMessage);
+    websocketResponseCache.setResponseByNodeId(currentTab._id, paramErrorMessage);
   }
 };
 
@@ -330,7 +330,7 @@ const handleDisconnect = async () => {
       websocketStore.addMessage(disconnectErrorMessage);
 
       // 缓存断开连接错误消息到IndexedDB
-      websocketResponseCache.setSingleData(currentTab._id, disconnectErrorMessage);
+      websocketResponseCache.setResponseByNodeId(currentTab._id, disconnectErrorMessage);
     }
   }).catch((error) => {
     websocketStore.changeConnectionState('error');
@@ -349,7 +349,7 @@ const handleDisconnect = async () => {
     websocketStore.addMessage(disconnectExceptionMessage);
 
     // 缓存断开连接异常消息到IndexedDB
-    websocketResponseCache.setSingleData(currentTab._id, disconnectExceptionMessage);
+    websocketResponseCache.setResponseByNodeId(currentTab._id, disconnectExceptionMessage);
   });
 };
 
@@ -372,7 +372,7 @@ const handleRefresh = async () => {
     const nodeId = currentSelectTab.value._id;
     if (nodeId) {
       redoUndoStore.clearRedoUndoListByNodeId(nodeId);
-      await websocketResponseCache.clearData(nodeId);
+      await websocketResponseCache.clearResponseByNodeId(nodeId);
     }
     
     if (isStandalone.value) {

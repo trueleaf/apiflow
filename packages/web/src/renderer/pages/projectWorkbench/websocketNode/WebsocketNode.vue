@@ -166,7 +166,7 @@ const initResponseFromCache = () => {
   try {
     const nodeId = currentSelectTab.value._id;
     if (nodeId) {
-      websocketResponseCache.getData(nodeId).then(cachedMessages => {
+      websocketResponseCache.getResponseByNodeId(nodeId).then(cachedMessages => {
         websocketStore.replaceMessages(cachedMessages);
       }).finally(() => {
         websocketStore.setResponseCacheLoading(false)
@@ -229,7 +229,7 @@ const initWebSocketEventListeners = () => {
 
       // 缓存连接成功消息到IndexedDB
       if (currentSelectTab.value._id) {
-        websocketResponseCache.setSingleData(currentSelectTab.value._id, connectedMessage);
+        websocketResponseCache.setResponseByNodeId(currentSelectTab.value._id, connectedMessage);
       }
     }
   });
@@ -257,7 +257,7 @@ const initWebSocketEventListeners = () => {
 
       // 缓存断开连接消息到IndexedDB
       if (currentSelectTab.value._id) {
-        websocketResponseCache.setSingleData(currentSelectTab.value._id, disconnectedMessage);
+        websocketResponseCache.setResponseByNodeId(currentSelectTab.value._id, disconnectedMessage);
       }
     }
   });
@@ -281,7 +281,7 @@ const initWebSocketEventListeners = () => {
 
       // 缓存错误消息到IndexedDB
       if (currentSelectTab.value._id) {
-        websocketResponseCache.setSingleData(currentSelectTab.value._id, wsErrorMessage);
+        websocketResponseCache.setResponseByNodeId(currentSelectTab.value._id, wsErrorMessage);
       }
     }
   });
@@ -319,7 +319,7 @@ const initWebSocketEventListeners = () => {
 
       // 缓存接收消息到IndexedDB
       if (currentSelectTab.value._id) {
-        websocketResponseCache.setSingleData(currentSelectTab.value._id, receiveMessage);
+        websocketResponseCache.setResponseByNodeId(currentSelectTab.value._id, receiveMessage);
       }
 
       // 执行后置脚本
@@ -377,7 +377,7 @@ const initWebSocketEventListeners = () => {
             }
           };
           websocketStore.addMessage(scriptErrorMessage);
-          websocketResponseCache.setSingleData(currentSelectTab.value._id, scriptErrorMessage);
+          websocketResponseCache.setResponseByNodeId(currentSelectTab.value._id, scriptErrorMessage);
         } else {
           console.log('WebSocket后置脚本执行成功');
 

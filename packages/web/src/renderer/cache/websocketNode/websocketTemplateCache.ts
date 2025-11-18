@@ -36,7 +36,7 @@ class WebSocketTemplateCache {
   }
 
     // 根据ID删除消息模板
-  deleteTemplate(id: string): boolean {
+  deleteTemplateById(id: string): boolean {
     try {
       const templates = this.getAllTemplates();
       const index = templates.findIndex(template => template.id === id);
@@ -64,7 +64,7 @@ class WebSocketTemplateCache {
   }
 
     // 更新消息模板
-  updateTemplate(id: string, updates: Partial<WebsocketSendMessageTemplate>): boolean {
+  updateTemplateById(id: string, updates: Partial<WebsocketSendMessageTemplate>): boolean {
     try {
       const templates = this.getAllTemplates();
       const index = templates.findIndex(template => template.id === id);

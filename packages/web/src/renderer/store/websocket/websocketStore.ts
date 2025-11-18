@@ -416,7 +416,7 @@ const updateWebSocketHeaderById = (id: string, header: Partial<ApidocProperty<'s
   // 更新消息模板
   const updateMessageTemplate = (id: string, updates: Partial<WebsocketSendMessageTemplate>): WebsocketSendMessageTemplate | null => {
     try {
-      const success = websocketTemplateCache.updateTemplate(id, updates);
+      const success = websocketTemplateCache.updateTemplateById(id, updates);
       if (!success) {
         logger.warn(`消息模板 ID ${id} 不存在`);
         return null;
@@ -441,7 +441,7 @@ const updateWebSocketHeaderById = (id: string, header: Partial<ApidocProperty<'s
   // 删除消息模板
   const deleteMessageTemplate = (id: string): boolean => {
     try {
-      const success = websocketTemplateCache.deleteTemplate(id);
+      const success = websocketTemplateCache.deleteTemplateById(id);
       if (success) {
         const index = sendMessageTemplateList.value.findIndex(template => template.id === id);
         if (index !== -1) {

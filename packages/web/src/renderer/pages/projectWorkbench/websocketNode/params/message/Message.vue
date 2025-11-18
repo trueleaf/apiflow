@@ -371,7 +371,7 @@ const handleSendMessage = async () => {
       };
       websocketStore.addMessage(sendMessage);
       const nodeId = currentSelectTab.value!._id;
-      await websocketResponseCache.setSingleData(nodeId, sendMessage);
+      await websocketResponseCache.setResponseByNodeId(nodeId, sendMessage);
 
       // 发送成功不再清空输入框
     } else {
@@ -394,7 +394,7 @@ const handleSendMessage = async () => {
 
       // 缓存错误消息到IndexedDB
       const nodeId = currentSelectTab.value!._id;
-      await websocketResponseCache.setSingleData(nodeId, errorMessage);
+      await websocketResponseCache.setResponseByNodeId(nodeId, errorMessage);
     }
   } catch (error) {
     message.error(t('消息发送异常'))
@@ -416,7 +416,7 @@ const handleSendMessage = async () => {
 
     // 缓存异常消息到IndexedDB
     const nodeId = currentSelectTab.value!._id;
-    await websocketResponseCache.setSingleData(nodeId, exceptionMessage);
+    await websocketResponseCache.setResponseByNodeId(nodeId, exceptionMessage);
   }
 }
 const handleMessageTypeChange = (value: WebsocketMessageType) => {
@@ -472,7 +472,7 @@ const startAutoSend = () => {
 
           // 缓存自动发送消息到IndexedDB
           const nodeId = currentSelectTab.value!._id;
-          await websocketResponseCache.setSingleData(nodeId, autoSendMessage);
+          await websocketResponseCache.setResponseByNodeId(nodeId, autoSendMessage);
         } else {
           console.error(t('自动发送失败'), result?.msg)
 
@@ -492,7 +492,7 @@ const startAutoSend = () => {
 
           // 缓存错误消息到IndexedDB
           const nodeId = currentSelectTab.value!._id;
-          await websocketResponseCache.setSingleData(nodeId, errorMessage);
+          await websocketResponseCache.setResponseByNodeId(nodeId, errorMessage);
         }
       } catch (error) {
         console.error(t('自动发送异常'), error)
@@ -513,7 +513,7 @@ const startAutoSend = () => {
 
         // 缓存异常消息到IndexedDB
         const nodeId = currentSelectTab.value!._id;
-        await websocketResponseCache.setSingleData(nodeId, exceptionMessage);
+        await websocketResponseCache.setResponseByNodeId(nodeId, exceptionMessage);
       }
     }
   }, websocketStore.websocket.config.autoSendInterval)

@@ -70,7 +70,7 @@ const handleClearData = async () => {
     // 清空IndexedDB中的缓存
     const nodeId = websocketStore.websocket._id;
     if (nodeId) {
-      await websocketResponseCache.clearData(nodeId);
+      await websocketResponseCache.clearResponseByNodeId(nodeId);
     }
     
   } catch (error) {
