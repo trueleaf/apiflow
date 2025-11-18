@@ -1,5 +1,5 @@
-import { HttpNodeConfig } from '@src/types/httpNode/httpNode';
-import { logger } from '@/helper';
+import type { HttpNodeConfig } from '@src/types/httpNode/httpNode';
+import { logger, generateDefaultHttpNodeConfig } from '@/helper';
 import { cacheKey } from '../cacheKey';
 
 class HttpNodeConfigCache {
@@ -17,7 +17,7 @@ class HttpNodeConfigCache {
       if (!localData[projectId]) {
         return null;
       }
-      return localData[projectId];
+      return { ...generateDefaultHttpNodeConfig(), ...localData[projectId] };
     } catch (error) {
       logger.error('获取HTTP节点配置失败', { error });
       localStorage.setItem(cacheKey.httpNodeCache.config, '{}');
@@ -30,12 +30,13 @@ class HttpNodeConfigCache {
   setHttpNodeConfig(projectId: string, config: Partial<HttpNodeConfig>) {
     try {
       const localData = JSON.parse(localStorage.getItem(cacheKey.httpNodeCache.config) || '{}');
-      localData[projectId] = { ...(localData[projectId] || {}), ...config };
+      const merged = { ...generateDefaultHttpNodeConfig(), ...(localData[projectId] || {}), ...config };
+      localData[projectId] = merged;
       localStorage.setItem(cacheKey.httpNodeCache.config, JSON.stringify(localData));
     } catch (error) {
       logger.error('设置HTTP节点配置失败', { error });
-      const data: Record<string, Partial<HttpNodeConfig>> = {};
-      data[projectId] = config;
+      const data: Record<string, HttpNodeConfig> = {};
+      data[projectId] = { ...generateDefaultHttpNodeConfig(), ...config } as HttpNodeConfig;
       localStorage.setItem(cacheKey.httpNodeCache.config, JSON.stringify(data));
     }
   }

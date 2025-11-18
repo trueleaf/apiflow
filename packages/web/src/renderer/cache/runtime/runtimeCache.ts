@@ -40,13 +40,18 @@ class RuntimeCache {
       return null
     }
   }
-  // 设置用户信息
-  setUserInfo(userInfo: PermissionUserInfo): boolean {
+  // 更新用户信息
+  updateUserInfo(userInfo: Partial<PermissionUserInfo>): boolean {
     try {
-      localStorage.setItem(cacheKey.runtime.userInfo, JSON.stringify(userInfo))
+      const existingUserInfo = this.getUserInfo()
+      const updatedUserInfo = {
+        ...(existingUserInfo || {}),
+        ...userInfo
+      } as PermissionUserInfo
+      localStorage.setItem(cacheKey.runtime.userInfo, JSON.stringify(updatedUserInfo))
       return true
     } catch (error) {
-      logger.error('设置用户信息失败', { error })
+      logger.error('更新用户信息失败', { error })
       localStorage.removeItem(cacheKey.runtime.userInfo)
       return false
     }
@@ -59,42 +64,6 @@ class RuntimeCache {
     } catch (error) {
       logger.error('清除用户信息失败', { error })
       localStorage.removeItem(cacheKey.runtime.userInfo)
-      return false
-    }
-  }
-  // 更新用户头像
-  updateUserAvatar(avatar: string): boolean {
-    try {
-      const userInfo = this.getUserInfo()
-      if (!userInfo) return false
-      userInfo.avatar = avatar
-      return this.setUserInfo(userInfo)
-    } catch (error) {
-      logger.error('更新用户头像失败', { error })
-      return false
-    }
-  }
-  // 更新用户邮箱
-  updateUserEmail(email: string): boolean {
-    try {
-      const userInfo = this.getUserInfo()
-      if (!userInfo) return false
-      userInfo.email = email
-      return this.setUserInfo(userInfo)
-    } catch (error) {
-      logger.error('更新用户邮箱失败', { error })
-      return false
-    }
-  }
-  // 更新用户昵称
-  updateUserRealName(realName: string): boolean {
-    try {
-      const userInfo = this.getUserInfo()
-      if (!userInfo) return false
-      userInfo.realName = realName
-      return this.setUserInfo(userInfo)
-    } catch (error) {
-      logger.error('更新用户昵称失败', { error })
       return false
     }
   }

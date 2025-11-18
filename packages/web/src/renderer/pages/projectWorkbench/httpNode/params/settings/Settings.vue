@@ -177,8 +177,9 @@
   </div>
 </template>
 <script lang="ts" setup>
-import { computed, watch, onMounted } from 'vue'
+import { computed, watch, onMounted, toRaw } from 'vue'
 import { debounce } from 'lodash-es'
+import { storeToRefs } from 'pinia'
 import { useI18n } from 'vue-i18n'
 import { AlignLeft, Layers, RefreshCw, Repeat, RotateCcw, User } from 'lucide-vue-next'
 import { router } from '@/router'
@@ -186,8 +187,8 @@ import { useHttpNodeConfig } from '@/store/apidoc/httpNodeConfigStore'
 import { generateDefaultHttpNodeConfig } from '@/helper'
 const { t } = useI18n()
 const httpNodeConfigStore = useHttpNodeConfig()
+const { currentConfig: formData } = storeToRefs(httpNodeConfigStore)
 const projectId = computed(() => router.currentRoute.value.query.id as string)
-const formData = httpNodeConfigStore.currentConfig
 const defaultConfig = generateDefaultHttpNodeConfig()
 const BYTES_IN_MEGABYTE = 1024 * 1024
 const MIN_BODY_BYTES = 1024
@@ -209,48 +210,48 @@ const updateBodySize = (key: BodySizeKey, value: number) => {
   httpNodeConfigStore.updateCurrentConfig(key, Math.round(clamped * BYTES_IN_MEGABYTE))
 }
 const maxTextBodySizeMB = computed({
-  get: () => formatBytesToMB(formData.maxTextBodySize),
+  get: () => formatBytesToMB(formData.value.maxTextBodySize),
   set: (value: number) => {
     updateBodySize('maxTextBodySize', value)
   }
 })
 const maxRawBodySizeMB = computed({
-  get: () => formatBytesToMB(formData.maxRawBodySize),
+  get: () => formatBytesToMB(formData.value.maxRawBodySize),
   set: (value: number) => {
     updateBodySize('maxRawBodySize', value)
   }
 })
 const isTextBodySizeDefault = computed(() => {
-  return formData.maxTextBodySize === defaultConfig.maxTextBodySize
+  return formData.value.maxTextBodySize === defaultConfig.maxTextBodySize
 })
 const isRawBodySizeDefault = computed(() => {
-  return formData.maxRawBodySize === defaultConfig.maxRawBodySize
+  return formData.value.maxRawBodySize === defaultConfig.maxRawBodySize
 })
 const isUserAgentDefault = computed(() => {
-  return formData.userAgent === defaultConfig.userAgent
+  return formData.value.userAgent === defaultConfig.userAgent
 })
 const isMaxHeaderValueDisplayLengthDefault = computed(() => {
-  return formData.maxHeaderValueDisplayLength === defaultConfig.maxHeaderValueDisplayLength
+  return formData.value.maxHeaderValueDisplayLength === defaultConfig.maxHeaderValueDisplayLength
 })
 const isFollowRedirectDefault = computed(() => {
-  return formData.followRedirect === defaultConfig.followRedirect
+  return formData.value.followRedirect === defaultConfig.followRedirect
 })
 const isMaxRedirectsDefault = computed(() => {
-  return formData.maxRedirects === defaultConfig.maxRedirects
+  return formData.value.maxRedirects === defaultConfig.maxRedirects
 })
 const handleReset = (key: keyof typeof defaultConfig) => {
   const defaultValue = defaultConfig[key]
-  if (formData[key] === defaultValue) {
+  if (formData.value[key] === defaultValue) {
     return
   }
   httpNodeConfigStore.updateCurrentConfig(key, defaultValue)
 }
 const saveConfig = debounce(() => {
   if (projectId.value) {
-    httpNodeConfigStore.setHttpNodeConfig(projectId.value, formData)
+    httpNodeConfigStore.setHttpNodeConfig(projectId.value, toRaw(formData.value))
   }
 }, 500)
-watch(() => ({ ...formData }), () => {
+watch(formData, () => {
   saveConfig()
 }, { deep: true })
 onMounted(() => {

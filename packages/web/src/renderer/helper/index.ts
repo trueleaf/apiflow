@@ -13,7 +13,7 @@ import Mock from 'mockjs'
 import { faker } from '@faker-js/faker'
 import SandboxWorker from '@/worker/sandbox.ts?worker&inline'
 import type { SandboxPostMessage } from '@src/types'
-import type { Property, ApidocProperty, RendererFormDataBody } from '@src/types'
+import type { Property, ApidocProperty, RendererFormDataBody, HttpNodeConfig } from '@src/types'
 import { nanoid } from 'nanoid/non-secure'
 import type {
   HttpNodeRequestMethod,
@@ -30,6 +30,7 @@ import type {
 } from '@src/types'
 import type { HttpNodeResponseData, UrlInfo } from '@src/types/helper'
 import { useVariable } from '@/store/apidoc/variablesStore'
+import { config } from '@src/config/config'
 
 /*
 |--------------------------------------------------------------------------
@@ -111,6 +112,15 @@ class Message {
 }
 
 export const message = new Message()
+
+export const generateDefaultHttpNodeConfig = (): HttpNodeConfig => ({
+  maxTextBodySize: config.httpNodeConfig.maxTextBodySize,
+  maxRawBodySize: config.httpNodeConfig.maxRawBodySize,
+  userAgent: config.httpNodeConfig.userAgent,
+  followRedirect: config.httpNodeConfig.followRedirect,
+  maxRedirects: config.httpNodeConfig.maxRedirects,
+  maxHeaderValueDisplayLength: config.httpNodeConfig.maxHeaderValueDisplayLength
+})
 
 /*
 |--------------------------------------------------------------------------
