@@ -181,6 +181,7 @@
           <span class="ml-1 mr-3">{{ formatUnit(httpNodeConfigStore.currentConfig.maxTextBodySize, 'bytes') }}</span>
           <el-button link type="primary" text @click="() => downloadStringAsText(formatedText, 'response.json')">{{ t("下载到本地预览") }}</el-button>
         </div>
+        <el-empty v-else-if="isJsonDataEmpty" :description="t('数据为空')"></el-empty>
         <SJsonEditor v-else-if="apidocResponseStore.requestState === 'finish'" :model-value="formatedText || apidocResponseStore.responseInfo.responseData.jsonData" read-only :config="{ fontSize: 13, language: 'json' }"></SJsonEditor>
         <div v-else-if="formatedText.length === 0 && apidocResponseStore.requestState === 'response'" class="json-loading">
           <el-icon size="16"><Loading /></el-icon>
@@ -521,6 +522,13 @@ const handleDownload = () => {
 const canPlayVideo = computed(() => {
   const canPlayType = videoRef.value?.canPlayType(apidocResponseStore.responseInfo.contentType);
   return canPlayType === 'maybe' || canPlayType === 'probably'
+})
+const isJsonDataEmpty = computed(() => {
+  const { canApiflowParseType, textData, jsonData } = apidocResponseStore.responseInfo.responseData;
+  const isFinished = apidocResponseStore.requestState === 'finish';
+  const isJsonType = canApiflowParseType === 'json';
+  const dataIsEmpty = (!textData || textData.trim() === '') && (!jsonData || jsonData === '');
+  return isFinished && isJsonType && dataIsEmpty;
 })
 onMounted(() => {
   prettierWorker.onmessage = (event: MessageEvent<WorkerResultMessage>) => {

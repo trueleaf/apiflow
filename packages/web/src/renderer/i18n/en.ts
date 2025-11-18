@@ -1215,6 +1215,7 @@ export default {
     '大小': 'Size',
     '操作': 'Actions',
     '暂无数据': 'No data',
+    '数据为空': 'Response data is empty',
     '点击计算': 'Click to calculate',
     '暂无数据，': 'No data, ',
     '点击刷新': 'Click to refresh',
