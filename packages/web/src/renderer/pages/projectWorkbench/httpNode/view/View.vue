@@ -79,6 +79,7 @@
 
 <script lang="ts" setup>
 import { computed } from 'vue'
+import { storeToRefs } from 'pinia'
 import { useI18n } from 'vue-i18n'
 import { useApidocBaseInfo } from '@/store/apidoc/baseInfoStore';
 import { useHttpNode } from '@/store/apidoc/httpNodeStore';
@@ -86,9 +87,9 @@ import { useHttpNode } from '@/store/apidoc/httpNodeStore';
 const apidocBaseInfoStore = useApidocBaseInfo()
 const httpNodeStore = useHttpNode()
 const { t } = useI18n()
-
-const requestMethods = computed(() => apidocBaseInfoStore.rules.requestMethods)
-const apidoc = computed(() => httpNodeStore.apidoc)
+const { rules } = storeToRefs(apidocBaseInfoStore)
+const { apidoc } = storeToRefs(httpNodeStore)
+const requestMethods = computed(() => rules.value.requestMethods)
 const fullUrl = computed(() => {
   const { paths } = httpNodeStore.apidoc.item
   const { prefix, path: requestPath } = httpNodeStore.apidoc.item.url;

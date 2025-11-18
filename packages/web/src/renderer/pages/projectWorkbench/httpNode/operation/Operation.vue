@@ -74,7 +74,8 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, ref, watch, reactive } from 'vue'
+import { computed, ref, watch } from 'vue'
+import { storeToRefs } from 'pinia'
 import { useI18n } from 'vue-i18n'
 import { Refresh, Warning } from '@element-plus/icons-vue'
 import { Effect } from 'element-plus'
@@ -134,8 +135,8 @@ const { requestMethod, disabledTip, requestMethodEnum } = methodPart;
 | 发送请求、保存接口、刷新接口
 |--------------------------------------------------------------------------
 */
-const requestState = computed(() => apidocResponseStore.requestState)
-const loading2 = computed(() => httpNodeStore.saveLoading)
+const { requestState } = storeToRefs(apidocResponseStore)
+const { saveLoading: loading2 } = storeToRefs(httpNodeStore)
 const saveDocDialogVisible = computed({
   get() {
     return httpNodeStore.saveDocDialogVisible;

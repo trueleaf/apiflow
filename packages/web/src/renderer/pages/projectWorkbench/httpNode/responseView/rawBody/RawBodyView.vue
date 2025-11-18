@@ -17,7 +17,7 @@
 
     <!-- <pre v-else-if="apidocResponseStore.responseInfo.responseData.canApiflowParseType !== 'cachedBodyIsTooLarge'" class="str-wrap pre">{{ textResponse }}</pre> -->
     <div v-else class="d-flex a-center j-center red">
-      返回值大于{{ formatUnit(config.cacheConfig.httpNodeResponseCache.singleResponseBodySize, 'bytes') }}，返回body值缓存失效。
+      返回值大于{{ formatUnit(httpNodeConfigStore.currentConfig.maxRawBodySize, 'bytes') }}，返回body值缓存失效。
       需重新请求最新数据
     </div>
   </div>

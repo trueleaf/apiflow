@@ -227,7 +227,7 @@ const pinOperations: Ref<Operation[]> = ref([]);
 const visible = ref(false);
 const addFileDialogVisible = ref(false);
 const addFolderDialogVisible = ref(false);
-const projectName = computed(() => apidocBaseInfoStore.projectName)
+const { projectName } = storeToRefs(apidocBaseInfoStore)
 //=====================================操作相关数据====================================//
 //初始化缓存数据
 const initCacheOperation = () => {

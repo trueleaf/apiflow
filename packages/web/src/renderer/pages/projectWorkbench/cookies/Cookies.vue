@@ -150,6 +150,7 @@
 
 <script setup lang="ts">
 import { ref, computed, nextTick, onMounted, onUnmounted } from 'vue';
+import { storeToRefs } from 'pinia';
 import { useCookies } from '@/store/apidoc/cookiesStore';
 import { ElMessageBox } from 'element-plus';
 import type { ApidocCookie } from '@/store/apidoc/cookiesStore';
@@ -163,7 +164,7 @@ import dayjs from 'dayjs';
 const route = useRoute()
 const { t } = useI18n()
 const cookiesStore = useCookies();
-const cookies = computed(() => cookiesStore.cookies);
+const { cookies } = storeToRefs(cookiesStore);
 const expiresShortcuts = [
   {
     text: t('12小时后'),

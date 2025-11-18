@@ -48,7 +48,8 @@
   </div>
 </template>
 <script lang="ts" setup>
-import { ref, onMounted, onUnmounted, computed, watch } from 'vue'
+import { ref, onMounted, onUnmounted, watch } from 'vue'
+import { storeToRefs } from 'pinia'
 import { request } from '@/api/api'
 import { FormInstance } from 'element-plus'
 import { Loading, } from '@element-plus/icons-vue'
@@ -93,9 +94,7 @@ const passwordRules = ref({
   ]
 })
 const shareStore = useShareStore();
-const shareProjectInfo = computed(() => shareStore.project);
-const docs = computed(() => shareStore.docs);
-const tabs = computed(() => shareStore.tabs);
+const { project: shareProjectInfo, docs, tabs } = storeToRefs(shareStore);
 /*
 |--------------------------------------------------------------------------
 | 初始化数据获取逻辑

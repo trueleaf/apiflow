@@ -256,11 +256,8 @@ const apidocBannerStore = useApidocBanner();
 const apidocTabsStore = useApidocTas();
 //当前工作区状态
 const isView = computed(() => apidocBaseInfoStore.mode === 'view')
-const loading = computed(() => apidocBannerStore.loading)
+const { loading, defaultExpandedKeys, foldersWithRunningMock } = storeToRefs(apidocBannerStore)
 const { getBannerData } = useBannerData();
-//默认展开节点
-const defaultExpandedKeys = computed(() => apidocBannerStore.defaultExpandedKeys);
-const foldersWithRunningMock = computed(() => apidocBannerStore.foldersWithRunningMock);
 
 const projectInfo = computed(() => {
   return {

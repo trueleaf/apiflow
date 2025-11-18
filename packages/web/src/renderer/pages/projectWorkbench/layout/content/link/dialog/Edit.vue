@@ -91,6 +91,7 @@
 
 <script lang="ts" setup>
 import { ref, computed, Ref, PropType, onMounted, nextTick } from 'vue'
+import { storeToRefs } from 'pinia'
 import 'element-plus/es/components/message/style/css'
 import { useI18n } from 'vue-i18n'
 import SEmphasize from '@/components/common/emphasize/ClEmphasize.vue'
@@ -151,9 +152,8 @@ const customMaxAge = ref(false);
 const customExpireDate = ref('');
 //当前选中需要分享的节点信息
 const allCheckedNodes: Ref<ApidocBanner[]> = ref([]);
-//树形数据
 const docTree: Ref<TreeNodeOptions['store'] | null> = ref(null);
-const navTreeData = computed(() => apidocBannerStore.banner)
+const { banner: navTreeData } = storeToRefs(apidocBannerStore)
 const configShare: Ref<{ isEnabled: boolean } | null> = ref(null); //配置组件实例
 onMounted(() => {
   formInfo.value.shareName = props.data.shareName;

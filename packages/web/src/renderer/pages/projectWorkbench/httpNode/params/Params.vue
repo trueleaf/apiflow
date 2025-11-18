@@ -286,6 +286,8 @@ import { userState } from '@/cache/userState/userStateCache.ts'
 import { commonHeaderCache } from '@/cache/project/commonHeadersCache'
 import { checkPropertyIsEqual } from '@/helper'
 import { debounce } from "lodash-es"
+import { ref, computed, watch, onMounted, onUnmounted, watchEffect } from 'vue'
+import { storeToRefs } from 'pinia'
 import { useI18n } from 'vue-i18n'
 import { RefreshLeft, RefreshRight, Clock, Delete, Loading, Close } from '@element-plus/icons-vue'
 import { LayoutGrid, Variable } from 'lucide-vue-next'
@@ -297,7 +299,6 @@ import SPreRequestParams from './preRequest/PreRequest.vue';
 import SAfterRequestParams from './afterRequest/AfterRequest.vue';
 import SRemark from './remarks/Remarks.vue';
 import SSettings from './settings/Settings.vue';
-import { computed, onMounted, onUnmounted, ref, watch, watchEffect } from 'vue'
 import { useApidocBaseInfo } from '@/store/apidoc/baseInfoStore'
 import { useHttpNode } from '@/store/apidoc/httpNodeStore'
 import { useRoute } from 'vue-router'
@@ -306,6 +307,7 @@ import { useHttpRedoUndo } from '@/store/redoUndo/httpRedoUndoStore'
 import { ElMessageBox } from 'element-plus'
 import { httpNodeHistoryCache } from '@/cache/httpNode/httpNodeHistoryCache'
 import { message } from '@/helper'
+import { router } from '@/router'
 import type { HttpHistory } from '@src/types/history/httpHistory'
 type ActiceName = 'SParams' | 'SRequestBody' | 'SResponseParams' | 'SRequestHeaders' | 'SRemarks' | 'SPreRequest' | 'SAfterRequest' | 'SSettings'
 const apidocBaseInfoStore = useApidocBaseInfo()
@@ -314,7 +316,6 @@ const apidocTabsStore = useApidocTas()
 const httpRedoUndoStore = useHttpRedoUndo()
 const activeName = ref<ActiceName>('SParams');
 const { t } = useI18n()
-import { router } from '@/router'
 const debounceFn = ref(null as (null | DebouncedFunc<(apidoc: HttpNode) => void>))
 const route = useRoute()
 const projectId = router.currentRoute.value.query.id as string;
@@ -396,8 +397,8 @@ const freshHasHeaders = () => {
 }
 watchEffect(freshHasHeaders, {
 });
-const layout = computed(() => apidocBaseInfoStore.layout)
-const apidoc = computed(() => httpNodeStore.apidoc)
+const { layout } = storeToRefs(apidocBaseInfoStore)
+const { apidoc } = storeToRefs(httpNodeStore)
 // 撤销/重做相关计算属性
 const canUndo = computed(() => {
   if (!currentSelectTab.value) return false;

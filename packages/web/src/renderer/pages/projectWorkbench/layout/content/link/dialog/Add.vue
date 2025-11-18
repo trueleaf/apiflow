@@ -91,6 +91,7 @@
 
 <script lang="ts" setup>
 import { ref, computed, Ref } from 'vue'
+import { storeToRefs } from 'pinia'
 import 'element-plus/es/components/message/style/css'
 import { ApidocBanner } from '@src/types';
 import SEmphasize from '@/components/common/emphasize/ClEmphasize.vue'
@@ -130,8 +131,7 @@ const isCustomDate = ref(false);
 const customExpireDate = ref('');
 //当前选中需要分享的节点信息
 const allCheckedNodes: Ref<ApidocBanner[]> = ref([]);
-//树形数据
-const navTreeData = computed(() => apidocBannerStore.banner)
+const { banner: navTreeData } = storeToRefs(apidocBannerStore)
 
 //=====================================生成链接====================================//
 const projectInfo = computed(() => {

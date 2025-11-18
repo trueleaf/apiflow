@@ -200,6 +200,7 @@
 
 <script lang="ts" setup>
 import { ref, computed, watchEffect } from 'vue';
+import { storeToRefs } from 'pinia'
 import { ArrowDown } from '@element-plus/icons-vue';
 import SJsonEditor from '@/components/common/jsonEditor/ClJsonEditor.vue';
 import { formatDate } from '@/helper'
@@ -215,7 +216,7 @@ import type { ApidocProperty } from '@src/types';
 const route = useRoute();
 const shareId = route.query?.share_id as string || 'local_share';
 const shareStore = useShareStore();
-const apidocInfo = computed(() => shareStore.activeDocInfo);
+const { activeDocInfo: apidocInfo } = storeToRefs(shareStore);
 const tabs = computed(() => shareStore.tabs[shareId]);
 const activeResponseTab = ref('0');
 const fullUrl = ref('');

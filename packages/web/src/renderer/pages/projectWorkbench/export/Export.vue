@@ -134,8 +134,7 @@ const projectInfo = computed(() => {
     globalCookies: apidocBaseInfoStore.globalCookies,
   }
 });
-//菜单数据
-const bannerData = computed(() => apidocBannerStore.banner)
+const { banner: bannerData } = storeToRefs(apidocBannerStore)
 //当前选中节点
 const allCheckedNodes: Ref<ApidocBanner[]> = ref([]);
 //节点选中

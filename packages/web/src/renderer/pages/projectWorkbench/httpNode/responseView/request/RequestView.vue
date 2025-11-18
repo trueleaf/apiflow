@@ -103,8 +103,7 @@ const safedMultipart = (strBody: string) => {
   })
   return result;
 };
-//布局
-const layout = computed(() => apidocBaseInfoStore.layout)
+const { layout } = storeToRefs(apidocBaseInfoStore)
 
 </script>
 

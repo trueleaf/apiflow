@@ -66,6 +66,7 @@
 
 <script lang="ts" setup>
 import { computed, ref, Ref, watch } from 'vue'
+import { storeToRefs } from 'pinia'
 import type { ApidocBanner } from '@src/types'
 import type { ApidocTab } from '@src/types/apidoc/tabs'
 import SResizeX from '@/components/common/resize/ClResizeX.vue'
@@ -90,7 +91,7 @@ const showMoreNodeInfo = ref(false); //banner是否显示更多内容
 // 添加项目名称和搜索相关变量
 const searchValue = ref('');
 const requestMethods = ref(defaultRequestMethods);
-const bannerData = computed(() => shareStore.banner);
+const { banner: bannerData } = storeToRefs(shareStore);
 const activeNode = computed(() => shareStore.tabs[shareId]?.find((v: ApidocTab) => v.selected));
 const projectName = computed(() => shareStore.project.projectName);
 const defaultExpandedKeys = computed(() => activeNode.value ? [activeNode.value._id] : []);
