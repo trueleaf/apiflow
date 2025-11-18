@@ -5,7 +5,7 @@ import { ApidocProperty } from "@src/types";
 import { generateEmptyProperty, generateEmptyWebsocketNode } from '@/helper';
 import { nanoid } from 'nanoid/non-secure';
 import { cloneDeep, debounce } from "lodash-es";
-import { apiNodesCache } from "@/cache/standalone/apiNodesCache";
+import { apiNodesCache } from "@/cache/nodes/nodesCache";
 import { webSocketNodeCache } from "@/cache/websocketNode/websocketNodeCache.ts";
 import { websocketTemplateCache } from "@/cache/websocketNode/websocketTemplateCache.ts";
 import { ElMessageBox } from 'element-plus';

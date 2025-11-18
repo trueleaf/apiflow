@@ -15,7 +15,7 @@ import { useVariable } from './variablesStore';
 import { projectCache } from '@/cache/project/projectCache';
 import { nodeVariableCache } from '@/cache/variable/nodeVariableCache';
 import { commonHeaderCache } from '@/cache/project/commonHeadersCache';
-import { apiNodesCache } from '@/cache/standalone/apiNodesCache';
+import { apiNodesCache } from '@/cache/nodes/nodesCache';
 import { requestMethods } from '@/data/data.ts';
 import { workbenchCache } from '@/cache/workbench/workbenchCache.ts';
 import { useRuntime } from '../runtime/runtimeStore';

@@ -118,7 +118,7 @@ import { useApidocBanner } from '@/store/apidoc/bannerStore'
 import { useApidocBaseInfo } from '@/store/apidoc/baseInfoStore'
 import { config } from '@src/config/config'
 // import { Delete } from '@element-plus/icons-vue'
-import { apiNodesCache } from '@/cache/standalone/apiNodesCache'
+import { apiNodesCache } from '@/cache/nodes/nodesCache'
 import { useRuntime } from '@/store/runtime/runtimeStore'
 
 

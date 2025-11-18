@@ -331,7 +331,7 @@ import { formatDate } from '@/helper';
 import { debounce } from "lodash-es";
 import { useApidocBaseInfo } from '@/store/apidoc/baseInfoStore'
 import { projectCache } from '@/cache/project/projectCache'
-import { apiNodesCache } from '@/cache/standalone/apiNodesCache'
+import { apiNodesCache } from '@/cache/nodes/nodesCache'
 import { useProjectStore } from '@/store/project/projectStore'
 import { useRuntime } from '@/store/runtime/runtimeStore'
 import { httpMockLogsCache } from '@/cache/mock/httpMock/httpMockLogsCache';

@@ -26,7 +26,7 @@ import { useCookies } from "./cookiesStore.ts"
 import { i18n } from "@/i18n"
 import { getUrl } from "@/server/request/request.ts"
 import { useVariable } from "./variablesStore.ts"
-import { apiNodesCache } from "@/cache/standalone/apiNodesCache";
+import { apiNodesCache } from "@/cache/nodes/nodesCache";
 import { useRuntime } from '../runtime/runtimeStore';
 import { httpNodeHistoryCache } from '@/cache/httpNode/httpNodeHistoryCache';
 import { logger } from '@/helper';

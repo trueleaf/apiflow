@@ -88,7 +88,7 @@ import { ref, computed, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { Search, Trash2, RotateCcw, Loader2 } from 'lucide-vue-next'
 import { projectCache } from '@/cache/project/projectCache'
-import { apiNodesCache } from '@/cache/standalone/apiNodesCache'
+import { apiNodesCache } from '@/cache/nodes/nodesCache'
 import type { ApidocProjectInfo } from '@src/types'
 import { message } from '@/helper'
 

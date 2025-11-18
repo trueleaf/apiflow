@@ -106,7 +106,7 @@ import SEmphasize from '@/components/common/emphasize/ClEmphasize.vue'
 import { useRoute } from 'vue-router';
 import SFork from './fork/Fork.vue'
 import type { StandaloneExportHtmlParams } from '@src/types/standalone.ts';
-import { apiNodesCache } from '@/cache/standalone/apiNodesCache';
+import { apiNodesCache } from '@/cache/nodes/nodesCache';
 import { downloadStringAsText } from '@/helper';
 import { useRuntime } from '@/store/runtime/runtimeStore';
 import { OpenAPIConverter } from './openapi-converter';

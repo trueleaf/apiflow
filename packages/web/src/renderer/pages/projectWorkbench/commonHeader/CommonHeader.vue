@@ -77,7 +77,7 @@ const getCommonHeaderInfo = async () => {
       }
     } else {
       if (isOffline) {
-        const { apiNodesCache } = await import('@/cache/standalone/apiNodesCache');
+        const { apiNodesCache } = await import('@/cache/nodes/nodesCache');
         const node = await apiNodesCache.getNodeById(currentSelectTab.value?._id || '');
         if (node && node.info.type === 'folder') {
           const folderNode = node as import('@src/types').FolderNode;
@@ -149,7 +149,7 @@ const handleEditCommonHeader = async () => {
       }));
 
       if (isOffline) {
-        const { apiNodesCache } = await import('@/cache/standalone/apiNodesCache');
+        const { apiNodesCache } = await import('@/cache/nodes/nodesCache');
         await apiNodesCache.updateNodeById(currentSelectTab.value?._id || '', {
           commonHeaders: commonHeadersData.map(v => ({
             ...v,

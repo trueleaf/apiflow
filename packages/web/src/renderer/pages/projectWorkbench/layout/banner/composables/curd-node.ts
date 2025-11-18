@@ -14,7 +14,7 @@ import { useApidocBanner } from '@/store/apidoc/bannerStore';
 import { useApidocTas } from '@/store/apidoc/tabsStore';
 import { useHttpNode } from '@/store/apidoc/httpNodeStore';
 import { useApidocBaseInfo } from '@/store/apidoc/baseInfoStore.ts';
-import { apiNodesCache } from '@/cache/standalone/apiNodesCache';
+import { apiNodesCache } from '@/cache/nodes/nodesCache';
 import { nanoid } from 'nanoid';
 import { useRuntime } from '@/store/runtime/runtimeStore';
 
