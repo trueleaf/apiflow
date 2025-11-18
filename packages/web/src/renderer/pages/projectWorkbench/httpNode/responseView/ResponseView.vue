@@ -1,35 +1,35 @@
 <template>
-  <SBaseInfo v-show="layout === 'horizontal'"></SBaseInfo>
-  <SResponseSummary v-show="layout === 'horizontal'"></SResponseSummary>
+  <SBaseInfoView v-show="layout === 'horizontal'"></SBaseInfoView>
+  <SResponseSummaryView v-show="layout === 'horizontal'"></SResponseSummaryView>
   <SLoading :loading="requestState === 'sending' || responseBodyLoading" :class="{ 'h-100': layout === 'vertical' }" class="loading-wrap w-100">
     <div 
       v-show="responseInfo.bodyByteLength || requestState !== 'waiting'" 
       class="remote-response-wrap pl-3 w-100"
       :class="{ vertical: layout === 'vertical' }">
       <el-tabs v-model="activeName" class="h-100 w-100">
-        <el-tab-pane :label="t('返回值')" name="SBody" class="w-100">
-          <SBody class="h-100"></SBody>
+        <el-tab-pane :label="t('返回值')" name="SBodyView" class="w-100">
+          <SBodyView class="h-100"></SBodyView>
         </el-tab-pane>
-        <el-tab-pane :label="t('请求信息')" name="SRequest">
-          <SRequest class="h-100 mt-2"></SRequest>
+        <el-tab-pane :label="t('请求信息')" name="SRequestView">
+          <SRequestView class="h-100 mt-2"></SRequestView>
         </el-tab-pane>
-        <el-tab-pane name="Sheaders">
+        <el-tab-pane name="SHeadersView">
           <template #label>
             <span>{{ t("返回头") }}&nbsp;</span>
             <span v-if="headers.length > 0" class="orange">({{ headers.length }})</span>
           </template>
-          <SHeaders v-if="activeName === 'Sheaders'" class="mt-2"></SHeaders>
+          <SHeadersView v-if="activeName === 'SHeadersView'" class="mt-2"></SHeadersView>
         </el-tab-pane>
-        <el-tab-pane name="SCookie">
+        <el-tab-pane name="SCookieView">
           <template #label>
             <span>Cookie&nbsp;</span>
             <span v-if="cookies?.length" class="orange">({{ cookies?.length }})</span>
           </template>
           <!-- fix: 文字隐藏组件获取dom宽度失败 -->
-          <SCookie v-if="activeName === 'SCookie'" class="mt-2"></SCookie>
+          <SCookieView v-if="activeName === 'SCookieView'" class="mt-2"></SCookieView>
         </el-tab-pane>
-        <el-tab-pane :label="t('原始值')" name="SRawBody" class="w-100">
-          <SRawBody v-if="activeName === 'SRawBody'" class="h-100 mt-2"></SRawBody>
+        <el-tab-pane :label="t('原始值')" name="SRawBodyView" class="w-100">
+          <SRawBodyView v-if="activeName === 'SRawBodyView'" class="h-100 mt-2"></SRawBodyView>
         </el-tab-pane>
       </el-tabs>
     </div>
@@ -45,13 +45,13 @@
 
 <script lang="ts" setup>
 import { computed, ref } from 'vue'
-import SBaseInfo from './baseInfo/BaseInfo.vue'
-import SResponseSummary from './responseSummary/ResponseSummary.vue'
-import SCookie from './cookie/Cookie.vue'
-import SHeaders from './headers/Headers.vue'
-import SBody from './body/Body.vue'
-import SRawBody from './rawBody/RawBody.vue'
-import SRequest from './request/Request.vue'
+import SBaseInfoView from './baseInfo/BaseInfoView.vue'
+import SResponseSummaryView from './responseSummary/ResponseSummaryView.vue'
+import SCookieView from './cookie/CookieView.vue'
+import SHeadersView from './headers/HeadersView.vue'
+import SBodyView from './body/BodyView.vue'
+import SRawBodyView from './rawBody/RawBodyView.vue'
+import SRequestView from './request/RequestView.vue'
 import { useI18n } from 'vue-i18n'
 import { useApidocResponse } from '@/store/apidoc/responseStore'
 import { useApidocBaseInfo } from '@/store/apidoc/baseInfoStore'
@@ -61,7 +61,7 @@ import SLoading from '@/components/common/loading/ClLoading.vue'
 
 const { t } = useI18n()
 
-const activeName = ref('SBody');
+const activeName = ref('SBodyView');
 const apidocResponseStore = useApidocResponse();
 const apidocBaseInfoStore = useApidocBaseInfo();
 const httpNodeStore = useHttpNode();
