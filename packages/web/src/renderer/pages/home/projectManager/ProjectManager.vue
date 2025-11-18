@@ -523,7 +523,7 @@ const deleteProject = (_id: string) => {
           console.error('项目不存在');
           return;
         }
-        const apiNodes = await apiNodesCache.getNodeList();
+        const apiNodes = await apiNodesCache.getAllNodes();
         const projectApiNodes = apiNodes.filter((node) => node.projectId === _id);
         const clonedProject = JSON.parse(JSON.stringify(project)) as ApidocProjectInfo;
         const clonedNodes: ApiNode[] = projectApiNodes.length > 0
@@ -794,7 +794,7 @@ const debounceSearch = debounce(async () => {
   }
   if (isStandalone.value) {
     const keyword = projectName.value.toLowerCase().trim();
-    const docs = await apiNodesCache.getNodeList();
+    const docs = await apiNodesCache.getAllNodes();
     const projectList = await projectCache.getProjectList();
     const projectMatchMap = new Map<string, ProjectWithMatchDetails>();
     const scopes = isShowAdvanceSearch.value ? selectedSearchScopes.value : [

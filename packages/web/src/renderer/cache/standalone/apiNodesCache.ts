@@ -95,7 +95,7 @@ export class ApiNodesCache {
   |--------------------------------------------------------------------------
   */
   // 获取所有节点
-  async getNodeList(): Promise<ApiNode[]> {
+  async getAllNodes(): Promise<ApiNode[]> {
     try {
       const db = await this.getDB();
       const allDocs = await db.getAll(this.storeName);
@@ -122,20 +122,8 @@ export class ApiNodesCache {
       });
       return filteredDocs;
     } catch (error) {
-      logger.error('按索引获取节点列表失败，使用全量查询', { error });
-      try {
-        const db = await this.getDB();
-        const allDocs = await db.getAll(this.storeName);
-        const projectDocs = allDocs.filter((doc) => doc.projectId === projectId && !doc.isDeleted);
-        this.bannerCache.set(projectId, {
-          data: projectDocs,
-          timestamp: Date.now(),
-        });
-        return projectDocs;
-      } catch (fallbackError) {
-        logger.error('节点列表全量查询失败', { error: fallbackError });
-        return [];
-      }
+      logger.error('按索引获取节点列表失败', { error });
+      return [];
     }
   }
   // 根据节点id获取节点信息
@@ -143,7 +131,10 @@ export class ApiNodesCache {
     try {
       const db = await this.getDB();
       const doc = await db.get(this.storeName, nodeId);
-      return doc && !doc.isDeleted ? doc : null;
+      if (doc && !doc.isDeleted) {
+        return doc;
+      }
+      return null;
     } catch (error) {
       logger.error('根据ID获取节点失败', { error });
       return null;
@@ -155,7 +146,7 @@ export class ApiNodesCache {
       const db = await this.getDB();
       await db.put(this.storeName, node, node._id);
       await this.updateProjectNodeNum(node.projectId);
-      this.clearBannerCache(node.projectId);
+      this.bannerCache.delete(node.projectId);
       return true;
     } catch (error) {
       logger.error('新增节点失败', { error });
@@ -169,7 +160,7 @@ export class ApiNodesCache {
       const existingDoc = await db.get(this.storeName, node._id);
       if (!existingDoc) return false;
       await db.put(this.storeName, node, node._id);
-      this.clearBannerCache(node.projectId);
+      this.bannerCache.delete(node.projectId);
       return true;
     } catch (error) {
       logger.error('更新节点失败', { error });
@@ -184,7 +175,7 @@ export class ApiNodesCache {
       if (!existingDoc) return false;
       existingDoc.info.name = name;
       await db.put(this.storeName, existingDoc, nodeId);
-      this.clearBannerCache(existingDoc.projectId);
+      this.bannerCache.delete(existingDoc.projectId);
       return true;
     } catch (error) {
       logger.error('更新节点名称失败', { error });
@@ -204,7 +195,7 @@ export class ApiNodesCache {
         updatedAt: new Date().toISOString(),
       };
       await db.put(this.storeName, updatedDoc, nodeId);
-      this.clearBannerCache(existingDoc.projectId);
+      this.bannerCache.delete(existingDoc.projectId);
       return true;
     } catch (error) {
       logger.error('按ID更新节点失败', { error });
@@ -224,7 +215,7 @@ export class ApiNodesCache {
       };
       await db.put(this.storeName, updatedDoc, nodeId);
       await this.updateProjectNodeNum(existingDoc.projectId);
-      this.clearBannerCache(existingDoc.projectId);
+      this.bannerCache.delete(existingDoc.projectId);
       return true;
     } catch (error) {
       logger.error('删除节点失败', { error });
@@ -259,7 +250,7 @@ export class ApiNodesCache {
 
       if (projectId) {
         await this.updateProjectNodeNum(projectId);
-        this.clearBannerCache(projectId);
+        this.bannerCache.delete(projectId);
       }
 
       return true;
@@ -309,7 +300,7 @@ export class ApiNodesCache {
         currentPid = parentDoc.pid;
       }
 
-      this.clearBannerCache(existingDoc.projectId);
+      this.bannerCache.delete(existingDoc.projectId);
       return result;
     } catch (error) {
       logger.error('恢复节点失败', { error });
@@ -352,7 +343,7 @@ export class ApiNodesCache {
       }
       await tx.done;
       await this.updateProjectNodeNum(projectId);
-      this.clearBannerCache(projectId);
+      this.bannerCache.delete(projectId);
       return true;
     } catch (error) {
       logger.error('覆盖导入节点失败', { error });
@@ -373,7 +364,7 @@ export class ApiNodesCache {
       const savedIds = await Promise.all(savePromises);
       successIds.push(...savedIds);
       await this.updateProjectNodeNum(projectId);
-      this.clearBannerCache(projectId);
+      this.bannerCache.delete(projectId);
       return successIds;
     } catch (error) {
       logger.error('追加节点失败', { error });
@@ -472,10 +463,6 @@ export class ApiNodesCache {
     }
 
     return { processedDocs, idMapping };
-  }
-  // 清除banner缓存
-  private clearBannerCache(projectId: string): void {
-    this.bannerCache.delete(projectId);
   }
 }
 

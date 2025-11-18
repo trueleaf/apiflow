@@ -234,7 +234,7 @@ export type ProjectManagementTools = {
   recoverProject: AITool;
   permanentlyDeleteProject: AITool;
   clearDeletedProjects: AITool;
-  getNodeList: AITool;
+  getAllNodes: AITool;
   getNodesByProjectId: AITool;
   getNodeById: AITool;
   addNode: AITool;

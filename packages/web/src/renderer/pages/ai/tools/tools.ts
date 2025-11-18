@@ -1217,8 +1217,8 @@ export const PROJECT_MANAGEMENT_TOOLS: ProjectManagementTools = {
       required: []
     }
   },
-  getNodeList: {
-    name: 'getNodeList',
+  getAllNodes: {
+    name: 'getAllNodes',
     description: '获取所有节点列表',
     category: 'project_management',
     parameters: {

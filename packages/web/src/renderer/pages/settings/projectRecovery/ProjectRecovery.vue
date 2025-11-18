@@ -144,7 +144,7 @@ const handleRecover = async (projectId: string): Promise<void> => {
   try {
     const success = await projectCache.recoverProject(projectId)
     if (success) {
-      const apiNodes = await apiNodesCache.getNodeList()
+      const apiNodes = await apiNodesCache.getAllNodes()
       const projectApiNodes = apiNodes.filter(node => node.projectId === projectId && node.isDeleted)
       if (projectApiNodes.length > 0) {
         for (const node of projectApiNodes) {
@@ -174,7 +174,7 @@ const handleBatchRecover = async (): Promise<void> => {
       try {
         const success = await projectCache.recoverProject(projectId)
         if (success) {
-          const apiNodes = await apiNodesCache.getNodeList()
+          const apiNodes = await apiNodesCache.getAllNodes()
           const projectApiNodes = apiNodes.filter(node => node.projectId === projectId && node.isDeleted)
           if (projectApiNodes.length > 0) {
             for (const node of projectApiNodes) {
