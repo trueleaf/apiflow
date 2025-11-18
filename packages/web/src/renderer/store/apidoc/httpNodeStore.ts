@@ -559,7 +559,7 @@ export const useHttpNode = defineStore('httpNode', () => {
       };
       if (isOffline()) {
         apidocDetail.updatedAt = new Date().toISOString();
-        await apiNodesCache.updateNode(apidocDetail);
+        await apiNodesCache.replaceNode(apidocDetail);
         //改变tab请求方法
         changeTabInfoById({
           id: currentSelectTab._id,

@@ -231,17 +231,14 @@ const expandedBlocks = ref({
   body: true,
   response: true,
 });
-
-watchEffect(() => {
+onMounted(() => {
   if (apidocInfo.value?._id) {
-      onMounted(() => {
     const cache = appState.getShareCollapseState(apidocInfo.value._id);
     if (cache) {
       expandedBlocks.value = { ...expandedBlocks.value, ...cache };
     }
   }
 });
-
 /*
 |--------------------------------------------------------------------------
 | 初始化数据获取逻辑

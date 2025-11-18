@@ -114,18 +114,6 @@ export class MockVariableCache {
       return [];
     }
   }
-
-  async getVariablesById(variableId: string): Promise<ApidocVariable | null> {
-    try {
-      const store = await this.getStore('readonly');
-      const variable = await store.get(variableId);
-      await store.transaction.done;
-      return variable ?? null;
-    } catch (error) {
-      logger.error('根据ID获取Mock变量失败', { error });
-      return null;
-    }
-  }
 }
 
 export const mockVariableCache = new MockVariableCache();

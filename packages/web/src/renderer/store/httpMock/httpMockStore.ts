@@ -195,7 +195,7 @@ export const useHttpMock = defineStore('httpMock', () => {
     if (isOffline()) {
       const httpMockDetail = cloneDeep(httpMock.value);
       httpMockDetail.updatedAt = new Date().toISOString();
-      await apiNodesCache.updateNode(httpMockDetail);
+      await apiNodesCache.replaceNode(httpMockDetail);
       //改变tab请求方法
       changeTabInfoById({
         id: currentSelectTab._id,

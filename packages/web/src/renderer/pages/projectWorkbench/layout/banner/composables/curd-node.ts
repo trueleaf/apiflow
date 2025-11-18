@@ -600,7 +600,7 @@ export const dragNode = async (dragData: ApidocBanner, dropData: ApidocBanner, t
         updatedAt: new Date().toISOString(),
       };
       // 4. 保存到数据库
-      await apiNodesCache.updateNode(updatedDoc);
+      await apiNodesCache.replaceNode(updatedDoc);
       return;
     } catch (error) {
       console.error('拖拽节点失败:', error);

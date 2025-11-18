@@ -2,7 +2,7 @@ import type { ApidocType, ApiNode } from "@src/types";
 import { nanoid } from "nanoid";
 import { openDB, type IDBPDatabase } from 'idb';
 import { config } from '@src/config/config';
-import { logger } from '@/helper';
+import { logger, convertNodesToBannerNodes } from '@/helper';
 
 export class ApiNodesCache {
   private bannerCache = new Map<
@@ -154,7 +154,7 @@ export class ApiNodesCache {
     }
   }
   // 新增或修改一个节点
-  async updateNode(node: ApiNode): Promise<boolean> {
+  async replaceNode(node: ApiNode): Promise<boolean> {
     try {
       const db = await this.getDB();
       const existingDoc = await db.get(this.storeName, node._id);
@@ -403,7 +403,6 @@ export class ApiNodesCache {
   // 以树形方式获取文件夹
   async getApiNodesAsTree(projectId: string, filterType?: ApidocType) {
     const projectNodes = await this.getNodesByProjectId(projectId);
-    const { convertNodesToBannerNodes } = await import("@/helper");
     const folderNodes = projectNodes.filter(node => {
       if (!filterType) {
         return true;

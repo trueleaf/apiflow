@@ -149,7 +149,7 @@ const handleRecover = async (projectId: string): Promise<void> => {
       if (projectApiNodes.length > 0) {
         for (const node of projectApiNodes) {
           const updatedNode = { ...node, isDeleted: false }
-          await apiNodesCache.updateNode(updatedNode)
+          await apiNodesCache.replaceNode(updatedNode)
         }
       }
       message.success(t('项目恢复成功'))
@@ -179,7 +179,7 @@ const handleBatchRecover = async (): Promise<void> => {
           if (projectApiNodes.length > 0) {
             for (const node of projectApiNodes) {
               const updatedNode = { ...node, isDeleted: false }
-              await apiNodesCache.updateNode(updatedNode)
+              await apiNodesCache.replaceNode(updatedNode)
             }
           }
           successCount++

@@ -97,7 +97,7 @@ const handleCheckChange = (data: HttpNode, { checkedKeys }: { checkedKeys: HttpN
 }
 onMounted(async () => {
   if (isStandalone.value) {
-    navTreeData.value = await apiNodesCache.getDocTree(projectId);
+    navTreeData.value = await apiNodesCache.getApiNodesAsTree(projectId, 'folder');
     return
   }
   loading2.value = true;

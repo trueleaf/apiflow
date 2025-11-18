@@ -630,7 +630,7 @@ const updateWebSocketHeaderById = (id: string, header: Partial<ApidocProperty<'s
     if (isOffline()) {
       const websocketDetail = cloneDeep(websocket.value);
       websocketDetail.updatedAt = new Date().toISOString();
-      await apiNodesCache.updateNode(websocketDetail);
+      await apiNodesCache.replaceNode(websocketDetail);
       //改变tab请求方法
       changeTabInfoById({
         id: currentSelectTab._id,

@@ -1273,8 +1273,8 @@ export const PROJECT_MANAGEMENT_TOOLS: ProjectManagementTools = {
       required: ['node']
     }
   },
-  updateNode: {
-    name: 'updateNode',
+  replaceNode: {
+    name: 'replaceNode',
     description: '更新节点信息',
     category: 'project_management',
     parameters: {

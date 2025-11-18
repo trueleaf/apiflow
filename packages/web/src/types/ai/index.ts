@@ -238,7 +238,7 @@ export type ProjectManagementTools = {
   getNodesByProjectId: AITool;
   getNodeById: AITool;
   addNode: AITool;
-  updateNode: AITool;
+  replaceNode: AITool;
   updateNodeName: AITool;
   deleteNode: AITool;
   deleteNodes: AITool;
