@@ -30,40 +30,41 @@
     <el-dialog
       v-model="showRedirectDialog"
       width="60vw"
-      height="80vh"
       :title="t('重定向信息')"
       class="redirect-dialog"
       :close-on-click-modal="true"
     >
       <div v-for="(item, idx) in (redirectList)" :key="idx" class="mb-2 redirect-item">
         <div class="mb-1">
-          <h3>第{{ idx + 1 }}次重定向</h3>
+          <h3 class="mt-0">第{{ idx + 1 }}次重定向</h3>
         </div>
-        <div class="mb-1">
-          <span class="text-bold">{{ t('请求方法') }}:</span>
-          <span class="ml-2 green">{{ item.method }}</span>
-        </div>
-        <div class="mb-1">
-          <span class="text-bold">{{ t('状态码') }}:</span>
-          <span class="ml-2 orange">{{ item.statusCode }}</span>
-        </div>
-        <div class="mb-1">
-          <span class="text-bold">{{ t('请求URL') }}:</span>
-          <span class="ml-2">{{ item.url }}</span>
-        </div>
-        <div class="mb-1">
-          <div class="text-bold mb-2">{{ t('请求头') }}:</div>
-          <div class="redirect-headers">
-            <div v-for="(v, k) in item.requestHeaders" :key="k" class="header-row">
-              <span class="header-key">{{ formatHeader(k as string) }}:</span> <span class="header-value">{{ v }}</span>
+        <div class="redirect-content">
+          <div class="mb-1">
+            <span class="text-bold">{{ t('请求方法') }}:</span>
+            <span class="ml-2 green">{{ item.method }}</span>
+          </div>
+          <div class="mb-1">
+            <span class="text-bold">{{ t('状态码') }}:</span>
+            <span class="ml-2 orange">{{ item.statusCode }}</span>
+          </div>
+          <div class="mb-1">
+            <span class="text-bold">{{ t('请求URL') }}:</span>
+            <span class="ml-2">{{ item.url }}</span>
+          </div>
+          <div class="mb-1">
+            <div class="text-bold mb-2">{{ t('请求头') }}:</div>
+            <div class="redirect-headers">
+              <div v-for="(v, k) in item.requestHeaders" :key="k" class="header-row">
+                <span class="header-key">{{ formatHeader(k as string) }}:</span> <span class="header-value">{{ v }}</span>
+              </div>
             </div>
           </div>
-        </div>
-        <div class="mb-1">
-          <div class="text-bold mb-2">{{ t('返回头') }}:</div>
-          <div class="redirect-headers">
-            <div v-for="(v, k) in item.responseHeaders" :key="k" class="header-row">
-              <span class="header-key">{{ formatHeader(k as string) }}:</span> <span class="header-value">{{ v }}</span>
+          <div class="mb-1">
+            <div class="text-bold mb-2">{{ t('返回头') }}:</div>
+            <div class="redirect-headers">
+              <div v-for="(v, k) in item.responseHeaders" :key="k" class="header-row">
+                <span class="header-key">{{ formatHeader(k as string) }}:</span> <span class="header-value">{{ v }}</span>
+              </div>
             </div>
           </div>
         </div>
@@ -658,14 +659,10 @@ onUnmounted(() => {
     color: var(--text-primary);
   }
 }
-:deep(.redirect-dialog) {
-  max-height: 70vh;
-  overflow-y: auto;
-}
 :deep(.redirect-dialog .el-dialog__body) {
   padding: 0 20px 16px 20px;
   box-sizing: border-box;
-  max-height: 60vh;
+  max-height: 65vh;
   overflow-y: auto;
 }
 .redirect-headers {
@@ -689,6 +686,9 @@ onUnmounted(() => {
   margin-bottom: 18px;
   padding-bottom: 10px;
   border-bottom: 1px solid var(--border-light);
+  .redirect-content {
+    padding-left: 25px;
+  }
 }
 .redirect-item:last-child {
   border-bottom: none;

@@ -200,6 +200,16 @@ export class HttpMockManager {
         }
       });
 
+      // 对于redirect类型，进行重定向处理
+      if (responseConfig.dataType === 'redirect') {
+        ctx.status = responseConfig.redirectConfig.statusCode;
+        const projectVariables = MockUtils.getProjectVariables(matchedMock.projectId);
+        const location = this.mockUtils.replaceVariables(responseConfig.redirectConfig.location, projectVariables);
+        ctx.set('Location', location);
+        ctx.body = '';
+        return;
+      }
+
       // 对于SSE类型，进行特殊处理
       if (responseConfig.dataType === 'sse') {
         const hasContentType = allHeaders.some(header =>

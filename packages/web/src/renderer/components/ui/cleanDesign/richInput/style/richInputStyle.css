@@ -61,6 +61,7 @@
   min-height: inherit;
   color: inherit;
   cursor: text;
+  font-size: 12px;
 }
 
 /* 段落样式 */

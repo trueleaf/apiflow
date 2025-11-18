@@ -33,13 +33,14 @@ export type HttpMockNode = {
       scriptCode: string;
       enabled: boolean;
     };
+   
     statusCode: number;
     headers: {
       enabled: boolean;
       defaultHeaders: ApidocProperty<'string'>[];
       customHeaders: ApidocProperty<'string'>[];
     };
-    dataType: "sse" | "json" | "text" | "image" | "file" | "binary";
+    dataType: "sse" | "json" | "text" | "image" | "file" | "binary" | "redirect";
     sseConfig: {
       event: {
         id: {
@@ -88,6 +89,10 @@ export type HttpMockNode = {
     };
     binaryConfig: {
       filePath: string;
+    };
+    redirectConfig: {
+      statusCode: 301 | 302 | 303 | 307 | 308;
+      location: string;
     };
   }[];
   createdAt: string;

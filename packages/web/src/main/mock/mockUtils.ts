@@ -119,6 +119,21 @@ export class MockUtils {
   public static clearProjectVariables(projectId: string): void {
     MockUtils.projectVariablesMap.delete(projectId);
   }
+  // 替换字符串中的变量
+  public replaceVariables(text: string, variables: ApidocVariable[]): string {
+    if (!text) return text;
+    const objectVariable = this.getObjectVariable(variables);
+    let result = text;
+    const regex = /\{\{\s*([^}]+?)\s*\}\}/g;
+    result = result.replace(regex, (match, varName) => {
+      const trimmedVarName = varName.trim();
+      if (objectVariable[trimmedVarName] !== undefined) {
+        return String(objectVariable[trimmedVarName]);
+      }
+      return match;
+    });
+    return result;
+  }
 
   /*
   |--------------------------------------------------------------------------

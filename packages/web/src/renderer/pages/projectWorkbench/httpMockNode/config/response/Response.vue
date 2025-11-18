@@ -109,6 +109,7 @@
               <el-radio-button label="file">File</el-radio-button>
               <el-radio-button label="binary">Binary</el-radio-button>
               <el-radio-button label="sse">SSE</el-radio-button>
+              <el-radio-button label="redirect">{{ t('重定向') }}</el-radio-button>
             </el-radio-group>
           </div>
         </div>
@@ -119,6 +120,7 @@
         <FileConfig v-if="currentResponse.dataType === 'file'" :response="currentResponse" />
         <BinaryConfig v-if="currentResponse.dataType === 'binary'" :response="currentResponse" />
         <SseConfig v-if="currentResponse.dataType === 'sse'" :response="currentResponse" />
+        <RedirectConfig v-if="currentResponse.dataType === 'redirect'" :response="currentResponse" />
       </div>
     </div>
   </div>
@@ -139,6 +141,7 @@ import ImageConfig from './components/image/Image.vue'
 import FileConfig from './components/file/File.vue'
 import BinaryConfig from './components/binary/Binary.vue'
 import SseConfig from './components/sse/Sse.vue'
+import RedirectConfig from './components/redirect/Redirect.vue'
 import ConditionConfig from './components/condition/Condition.vue'
 import ResponseHeaders from './components/headers/Headers.vue'
 

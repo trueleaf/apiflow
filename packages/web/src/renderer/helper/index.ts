@@ -1760,6 +1760,10 @@ export const generateEmptyHttpMockNode = (_id: string): HttpMockNode => {
         binaryConfig: {
           filePath: '',
         },
+        redirectConfig: {
+          statusCode: 302,
+          location: '',
+        },
       },
     ],
     createdAt: '',
