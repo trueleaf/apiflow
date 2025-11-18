@@ -75,7 +75,7 @@ export const usePermissionStore = defineStore('permission', () => {
     const runtimeStore = useRuntime();
     return new Promise((resolve, reject) => {
       request.get<CommonResponse<ResUserInfo>, CommonResponse<ResUserInfo>>('/api/security/user_base_info').then((res) => {
-        runtimeStore.setUserInfo(res.data);
+        runtimeStore.updateUserInfo(res.data);
         changeMenus();
         changeRoutes(res.data.clientRoutes);
         changeGlobalConfig(res.data.globalConfig);

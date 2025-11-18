@@ -89,7 +89,7 @@ const handleLogin = async () => {
           isShowCapture.value = true;
         } else {
           // 登录成功，更新用户信息到store
-          runtimeStore.setUserInfo(res.data);
+          runtimeStore.updateUserInfo(res.data);
           router.push('/home');
           // $store.dispatch('permission/getPermission')
         }
@@ -125,7 +125,7 @@ const freshCapchaUrl = () => {
 //   loading.value = true;
 //   request.post('/api/security/login_guest', userInfo).then((res) => {
 //     // 体验账号登录成功，更新用户信息到store
-//     runtimeStore.setUserInfo(res.data);
+//     runtimeStore.updateUserInfo(res.data);
 //     router.push('/home');
 //   }).catch((err) => {
 //     console.error(err);

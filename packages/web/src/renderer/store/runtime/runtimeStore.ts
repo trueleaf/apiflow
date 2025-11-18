@@ -21,18 +21,13 @@ export const useRuntime = defineStore('runtime', () => {
     networkMode.value = mode;
     runtimeCache.setNetworkMode(mode);
   }
-  // 设置用户信息
-  const setUserInfo = (payload: PermissionUserInfo): void => {
+  // 更新用户信息
+  const updateUserInfo = (payload: Partial<PermissionUserInfo>): void => {
     userInfo.value = {
-      id: payload.id,
-      loginName: payload.loginName,
-      phone: payload.phone,
-      realName: payload.realName,
-      roleIds: payload.roleIds,
-      token: payload.token,
-      avatar: payload.avatar,
+      ...userInfo.value,
+      ...payload,
     };
-    runtimeCache.setUserInfo(payload);
+    runtimeCache.updateUserInfo(payload);
   }
   // 初始化用户信息（从缓存中恢复）
   const initUserInfo = (): void => {
@@ -59,36 +54,15 @@ export const useRuntime = defineStore('runtime', () => {
     language.value = lang;
     runtimeCache.setLanguage(lang);
   };
-  // 更新用户头像
-  const updateUserAvatar = (avatar: string): void => {
-    if (runtimeCache.updateUserAvatar(avatar)) {
-      userInfo.value.avatar = avatar;
-    }
-  };
-  // 更新用户邮箱
-  const updateUserEmail = (email: string): void => {
-    if (runtimeCache.updateUserEmail(email)) {
-      userInfo.value.email = email;
-    }
-  };
-  // 更新用户昵称
-  const updateUserRealName = (realName: string): void => {
-    if (runtimeCache.updateUserRealName(realName)) {
-      userInfo.value.realName = realName;
-    }
-  };
   return {
     networkMode,
     userInfo,
     language,
     setNetworkMode,
-    setUserInfo,
+    updateUserInfo,
     initUserInfo,
     clearUserInfo,
     setLanguage,
-    updateUserAvatar,
-    updateUserEmail,
-    updateUserRealName,
   }
 })
 

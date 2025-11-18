@@ -247,7 +247,7 @@ const handleAvatarChange = async (uploadFile: UploadFile) => {
   const result = await processImageUpload(uploadFile.raw, 'avatar')
   isAvatarUploading.value = false
   if (result.success && result.data) {
-    runtimeStore.updateUserAvatar(result.data)
+    runtimeStore.updateUserInfo({ avatar: result.data })
     refreshUserInfoFromCache()
   } else {
     message.error(result.message || t('图片上传失败'))
@@ -271,13 +271,14 @@ const handleConfirm = () => {
     message.warning(t('邮箱格式不正确'))
     return
   }
-  const updatedUserInfo = normalizeUserInfo({
-    ...userInfo.value,
+  runtimeCache.updateUserInfo({
     realName: trimmedUserName,
     email: trimmedEmail
   })
-  runtimeCache.setUserInfo(updatedUserInfo)
-  runtimeStore.setUserInfo(updatedUserInfo)
+  runtimeStore.updateUserInfo({
+    realName: trimmedUserName,
+    email: trimmedEmail
+  })
   refreshUserInfoFromCache()
   message.success(t('保存成功'))
 }
