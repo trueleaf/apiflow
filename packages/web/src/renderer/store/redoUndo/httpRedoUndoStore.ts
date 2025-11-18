@@ -172,13 +172,8 @@ export const useHttpRedoUndo = defineStore('httpRedoUndo', () => {
    */
   const initFromCache = (nodeId: string): void => {
     const cacheData = httpRedoUndoCache.getRedoUndoListByNodeId(nodeId);
-    if (cacheData) {
-      httpUndoList.value[nodeId] = cacheData.undoList;
-      httpRedoList.value[nodeId] = cacheData.redoList;
-    } else {
-      httpUndoList.value[nodeId] = [];
-      httpRedoList.value[nodeId] = [];
-    }
+    httpUndoList.value[nodeId] = cacheData.undoList;
+    httpRedoList.value[nodeId] = cacheData.redoList;
   };
 
   /**

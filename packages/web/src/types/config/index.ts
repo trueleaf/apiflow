@@ -4,6 +4,7 @@
 // ============================================================================
 
 import type { ComponentSize } from "element-plus";
+import { HttpNodeConfig } from "../index.ts";
 
 export type AppTheme = 'light' | 'dark' | 'auto';
 
@@ -106,17 +107,7 @@ export type Config = {
      */
     appTheme: AppTheme,
   },
-  httpNodeConfig: {
-    maxTextBodySize: number;
-    maxRawBodySize: number
-    userAgent: string;
-    followRedirect: boolean;
-    maxRedirects: number;
-    /**
-     * 最大请求头值展示长度,超过后点击展示完整数据
-     */
-    maxHeaderValueDisplayLength: number;
-  },
+  httpNodeConfig: HttpNodeConfig,
   cacheConfig: {
     httpNodeResponseCache: {
       singleResponseBodySize: number;

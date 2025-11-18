@@ -167,13 +167,8 @@ export const useWsRedoUndo = defineStore('wsRedoUndo', () => {
    */
   const initFromCache = (nodeId: string): void => {
     const cacheData = wsRedoUndoCache.getRedoUndoListByNodeId(nodeId);
-    if (cacheData) {
-      wsUndoList.value[nodeId] = cacheData.undoList;
-      wsRedoList.value[nodeId] = cacheData.redoList;
-    } else {
-      wsUndoList.value[nodeId] = [];
-      wsRedoList.value[nodeId] = [];
-    }
+    wsUndoList.value[nodeId] = cacheData.undoList;
+    wsRedoList.value[nodeId] = cacheData.redoList;
   };
 
   /**

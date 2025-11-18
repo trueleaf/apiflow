@@ -13,11 +13,16 @@ export class HttpRedoUndoCache {
   getRedoUndoListByNodeId(nodeId: string): {
     redoList: HttpRedoUnDoOperation[];
     undoList: HttpRedoUnDoOperation[];
-  } | null {
+  } {
     try {
       const key = this.getStorageKey(nodeId);
       const data = sessionStorage.getItem(key);
-      if (!data) return null;
+      if (!data) {
+        return {
+          redoList: [],
+          undoList: []
+        };
+      }
 
       const parsed = JSON.parse(data);
       return {
@@ -26,7 +31,10 @@ export class HttpRedoUndoCache {
       };
     } catch (error) {
       logger.error('获取RedoUndo缓存数据失败', { error });
-      return null;
+      return {
+        redoList: [],
+        undoList: []
+      };
     }
   }
   // 设置指定节点的redo/undo数据
