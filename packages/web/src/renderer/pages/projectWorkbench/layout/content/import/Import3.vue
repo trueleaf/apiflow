@@ -29,13 +29,13 @@
     </div>
     <div class="import-type-content">
       <div v-if="importType === 'file'">
-        <GCard>{{ t('上传本地文件') }}</GCard>
+        <Card>{{ t('上传本地文件') }}</Card>
       </div>
       <div v-else-if="importType === 'url'">
-        <GCard>{{ t('从URL中导入') }}</GCard>
+        <Card>{{ t('从URL中导入') }}</Card>
       </div>
       <div v-else-if="importType === 'paste'">
-        <GCard>{{ t('从粘贴内容中导入') }}</GCard>
+        <Card>{{ t('从粘贴内容中导入') }}</Card>
       </div>
     </div>
   </div>
@@ -43,7 +43,7 @@
 
 <script lang="ts" setup>
 import { ref } from 'vue'
-// import gCard from '@/components/common/card/ClCard.vue'
+import Card from '@/components/common/card/ClCard.vue'
 import { useI18n } from 'vue-i18n'
 
 /*

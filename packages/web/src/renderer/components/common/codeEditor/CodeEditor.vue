@@ -10,7 +10,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, Ref, onMounted, onBeforeUnmount, onActivated, watch, computed } from 'vue'
+import { ref, Ref, onMounted, onUnmounted, onActivated, watch, computed } from 'vue'
 import beautify from 'js-beautify'
 import * as monaco from 'monaco-editor'
 import 'monaco-editor/esm/vs/basic-languages/javascript/javascript.contribution'
@@ -22,7 +22,7 @@ import tsWorker from 'monaco-editor/esm/vs/language/typescript/ts.worker?worker&
 import EditorWorker from 'monaco-editor/esm/vs/editor/editor.worker?worker&inline'
 import { useCompletionProvider } from './useCompletionProvider'
 import { useHoverProvider } from './useHoverProvider'
-import type { EditorConfig, CursorPosition } from './types'
+import type { EditorConfig } from './types'
 import { useAppSettings } from '@/store/appSettings/appSettingsStore'
 
 const props = defineProps({
@@ -195,15 +195,15 @@ const initResizeLister = () => {
 const initManualUndoRedo = () => {
   if (!props.manualUndoRedo) return;
   monacoInstance?.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyZ, () => {
-    const cursorPosition = getCursorPosition();
+    const cursorPosition = monacoInstance?.getPosition();
     emits('undo', { cursorPosition });
   });
   monacoInstance?.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyMod.Shift | monaco.KeyCode.KeyZ, () => {
-    const cursorPosition = getCursorPosition();
+    const cursorPosition = monacoInstance?.getPosition();
     emits('redo', { cursorPosition });
   });
   monacoInstance?.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyY, () => {
-    const cursorPosition = getCursorPosition();
+    const cursorPosition = monacoInstance?.getPosition();
     emits('redo', { cursorPosition });
   });
 }
@@ -236,8 +236,8 @@ const disposeProviders = () => {
   } catch (error) {
     // 忽略dispose异常
   }
-};
-onMounted(() => {
+}
+const initEnvironment = () => {
   self.MonacoEnvironment = {
     getWorker(_: string, label: string) {
       if (label === 'json') {
@@ -255,6 +255,24 @@ onMounted(() => {
       return new EditorWorker()
     },
   }
+}
+const handleFormat = () => {
+  const formatStr = beautify(props.modelValue, { indent_size: 4 });
+  monacoInstance?.setValue(formatStr)
+}
+const changeLanguage = (lang: string) => {
+  const model = monacoInstance?.getModel();
+  if (model) {
+    monaco.editor.setModelLanguage(model, lang);
+  }
+}
+const setCursorPosition = (position: monaco.Position) => {
+  if (!monacoInstance) return;
+  monacoInstance.setPosition(position);
+  monacoInstance.focus();
+}
+onMounted(() => {
+  initEnvironment()
   monaco.languages.typescript.javascriptDefaults.setCompilerOptions({ 
     noLib: true, 
     allowNonTsExtensions: true 
@@ -362,7 +380,7 @@ onActivated(() => {
     updateEditorHeight();
   }
 })
-onBeforeUnmount(() => {
+onUnmounted(() => {
   if (isDisposed) {
     return;
   }
@@ -385,46 +403,9 @@ onBeforeUnmount(() => {
   }
   isDisposed = true;
 })
-const handleFormat = () => {
-  const formatStr = beautify(props.modelValue, { indent_size: 4 });
-  monacoInstance?.setValue(formatStr)
-}
-const format = () => {
-  handleFormat();
-}
-const focus = () => {
-  monacoInstance?.focus()
-}
-const changeLanguage = (lang: string) => {
-  const model = monacoInstance?.getModel();
-  if (model) {
-    monaco.editor.setModelLanguage(model, lang);
-  }
-}
-const getCursorPosition = (): CursorPosition => {
-  if (!monacoInstance) return null;
-  return monacoInstance.getPosition();
-}
-const setCursorPosition = (position: monaco.Position) => {
-  if (!monacoInstance) return;
-  monacoInstance.setPosition(position);
-  monacoInstance.focus();
-}
-const getValue = (): string | undefined => {
-  return monacoInstance?.getValue();
-}
-const setValue = (value: string) => {
-  monacoInstance?.setValue(value);
-}
 defineExpose({
-  format,
-  focus,
-  changeLanguage,
-  updateEditorHeight,
-  getCursorPosition,
-  setCursorPosition,
-  getValue,
-  setValue
+  getCursorPosition: () => monacoInstance?.getPosition(),
+  setCursorPosition
 });
 </script>
 

@@ -10,7 +10,7 @@
       </el-icon>
       <span>{{ $t('返回上级') }}</span>
     </div>
-    <SCard v-loading="loading" element-loading-background="var(--el-mask-color)" shadow>
+    <Card v-loading="loading" element-loading-background="var(--el-mask-color)">
       <div class="base-info px-3">
         <div class="w-50 flex0">
           <div class="d-flex a-center">
@@ -26,7 +26,7 @@
           </div>
         </div>
       </div>
-    </SCard>
+    </Card>
     <el-dialog v-model="dialogVisible" :title="$t('修改密码')">
       <el-form v-if="dialogVisible" ref="form" :model="formInfo" :rules="rules" label-width="150px">
         <el-form-item :label="$t('原密码')" prop="oldPassword">
@@ -55,7 +55,7 @@
 <script lang="ts" setup>
 import { Back } from '@element-plus/icons-vue'
 import type { CommonResponse } from '@src/types'
-import SCard from '@/components/common/card/ClCard.vue'
+import Card from '@/components/common/card/ClCard.vue'
 import { useI18n } from 'vue-i18n'
 import { nextTick, onMounted, ref } from 'vue';
 import type { FormInstance } from 'element-plus';

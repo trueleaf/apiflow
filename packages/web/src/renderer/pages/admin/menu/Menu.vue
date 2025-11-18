@@ -2,7 +2,7 @@
   <SLeftRight :left-width="500">
     <template #left>
       <SLoading :loading="loading">
-        <SCard :title="t('菜单列表')" class="menu-tree">
+        <Card :title="t('菜单列表')" class="menu-tree">
           <template #operation>
             <el-button link type="primary" text @click="handleOpenAddDialog()">{{ t("新增") }}</el-button>
             <el-button link type="primary" text @click="getData">{{ t("刷新") }}</el-button>
@@ -29,7 +29,7 @@
               </div>
             </template>
           </el-tree>
-        </SCard>
+        </Card>
       </SLoading>
     </template>
     <template #right>
@@ -62,7 +62,7 @@ import SAddMenuDialog from './add/Add.vue'
 import SEditMenuDialog from './edit/Edit.vue'
 import SLeftRight from '@/components/common/leftRight/ClLeftRight.vue'
 import SLoading from '@/components/common/loading/ClLoading.vue'
-import SCard from '@/components/common/card/ClCard.vue'
+import Card from '@/components/common/card/ClCard.vue'
 import { onMounted, onUnmounted, ref } from 'vue'
 import { request } from '@/api/api'
 import { findParentById, forEachForest } from '@/helper'

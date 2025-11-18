@@ -1,5 +1,5 @@
 <template>
-  <SCard class="s-search">
+  <Card class="s-search">
     <div v-if="config.isDev && showTip">
       {{ formInfo }}
     </div>
@@ -23,7 +23,7 @@
         <slot name="operation" />
       </div>
     </template>
-  </SCard>
+  </Card>
 </template>
 
 <script lang="ts" setup>
@@ -32,7 +32,7 @@ import { config } from '@src/config/config'
 import { FormInstance } from 'element-plus';
 import { getTextWidth } from '@/helper'
 import { forEachForest } from '@/helper';
-import SCard from '@/components/common/card/ClCard.vue'
+import Card from '@/components/common/card/ClCard.vue'
 
 const props = defineProps({
   editData: {

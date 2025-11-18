@@ -1,13 +1,12 @@
 <template>
-  <div class="s-card" :class="{ shadow: shadow }" :style="{ width: width }">
+  <div class="s-card">
     <header v-if="slots.operation || title">
       <div class="title">{{ title }}</div>
       <div>
         <slot name="operation"></slot>
       </div>
     </header>
-    <!-- 搜索 -->
-    <section ref="content" class="content" :style="{ padding: padding }">
+    <section ref="content" class="content">
       <slot></slot>
     </section>
   </div>
@@ -18,24 +17,11 @@ import { useSlots } from 'vue';
 
 const slots = useSlots()
 defineProps({
-  title: { // card头部标题
+  title: {
     type: String,
     default: '',
   },
-  width: { //宽度
-    type: String,
-    default: '100%',
-  },
-  shadow: { //是否显示阴影
-    type: Boolean,
-    default: false,
-  },
-  padding: { //内容区域内边距
-    type: String,
-    default: '5px 10px',
-  },
 })
-
 </script>
 
 <style lang='scss' scoped>
@@ -46,7 +32,6 @@ defineProps({
   border-radius: var(--border-radius-base);
   display: flex;
   flex-direction: column;
-
   &>header {
     font-size: 16px;
     height: 35px;
@@ -56,26 +41,11 @@ defineProps({
     border-bottom: 1px solid var(--gray-300);
     color: var(--theme-color);
     padding: 0 1em;
-
-    &.active {
-      cursor: pointer;
-      transition: background-color 0.3s;
-
-      &:hover {
-        background: var(--gray-100);
-      }
-    }
   }
-
-  // 内容区域
   .content {
     position: relative;
     overflow-y: auto;
-
-    &.active {
-      padding: 0rem !important;
-      height: 0px !important;
-    }
+    padding: 5px 10px;
   }
 }
 </style>
