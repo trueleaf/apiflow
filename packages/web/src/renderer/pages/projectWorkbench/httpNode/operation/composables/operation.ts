@@ -56,39 +56,44 @@ export default (): OperationReturn => {
   };
     //刷新文档
   const handleFreshApidoc = () => {
-    loading3.value = true;
-    // todo
-    apidocResponseStroe.changeRequestState('waiting');
-    apidocResponseStroe.clearResponse()
-    if (currentSelectTab.value) {
-      const nodeId = currentSelectTab.value._id;
-      httpResponseCache.deleteResponse(nodeId);
-      httpRedoUndoStore.clearRedoUndoListByNodeId(nodeId);
+    if (apidocResponseStroe.requestState === 'sending' || apidocResponseStroe.requestState === 'response') {
+      stopRequest();
     }
-    if (currentSelectTab.value?._id.startsWith('local_')) { //通过+按钮新增的空白文档
-      const cpOriginApidoc = httpNodeStore.originApidoc;
-      httpNodeStore.changeApidoc(JSON.parse(JSON.stringify(cpOriginApidoc)))
-      loading3.value = false;
-      return;
-    }
-    
-    const executeRefresh = () => {
-      httpNodeStore.getApidocDetail({
-        id: currentSelectTab.value?._id || "",
-        projectId,
-      }).finally(() => {
+    setTimeout(() => {
+      loading3.value = true;
+      // todo
+      apidocResponseStroe.changeRequestState('waiting');
+      apidocResponseStroe.clearResponse()
+      if (currentSelectTab.value) {
+        const nodeId = currentSelectTab.value._id;
+        httpResponseCache.deleteResponse(nodeId);
+        httpRedoUndoStore.clearRedoUndoListByNodeId(nodeId);
+      }
+      if (currentSelectTab.value?._id.startsWith('local_')) { //通过+按钮新增的空白文档
+        const cpOriginApidoc = httpNodeStore.originApidoc;
+        httpNodeStore.changeApidoc(JSON.parse(JSON.stringify(cpOriginApidoc)))
         loading3.value = false;
-      })
-    };
-    
-    // 在standalone模式下添加100毫秒延迟，提供加载效果
-    if (isOffline()) {
-      setTimeout(() => {
+        return;
+      }
+
+      const executeRefresh = () => {
+        httpNodeStore.getApidocDetail({
+          id: currentSelectTab.value?._id || "",
+          projectId,
+        }).finally(() => {
+          loading3.value = false;
+        })
+      };
+
+      // 在standalone模式下添加100毫秒延迟，提供加载效果
+      if (isOffline()) {
+        setTimeout(() => {
+          executeRefresh();
+        }, 100);
+      } else {
         executeRefresh();
-      }, 100);
-    } else {
-      executeRefresh();
-    }
+      }
+    }, 0);
   };
   return {
     loading2,

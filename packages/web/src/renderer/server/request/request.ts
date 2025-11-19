@@ -458,6 +458,11 @@ export const sendRequest = async () => {
     addStreamData,
     changeFileBlobUrl
   } = useApidocResponse()
+  changeLoadingProcess({
+    total: 0,
+    transferred: 0,
+    percent: 0,
+  })
   const copiedApidoc = cloneDeep(toRaw(httpNodeStore.$state.apidoc));
   const preSendMethod = getMethod(copiedApidoc);
   const preSendUrl = await getUrl(copiedApidoc);

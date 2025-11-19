@@ -1192,6 +1192,7 @@ export default {
     '富文本变量输入组件，支持 {{variable}} 语法，可自定义变量样式和 Popover 交互': 'Rich text variable input component with {{variable}} syntax support',
     '表单组件': 'Form Components',
     'VSCode 风格消息提示组件，支持命令式调用、Promise 异步确认、复选框和多实例显示': 'VSCode-style message component with imperative call, Promise async confirmation, checkbox and multi-instance support',
+    'VSCode 风格确认对话框，支持命令式调用、Promise 异步确认、多种类型图标和可选复选框': 'VSCode-style confirm dialog with imperative call, Promise async confirmation, multiple type icons and optional checkbox',
 
     // Local Data Management
     '本地数据管理': 'Local Data Management',
@@ -1339,6 +1340,12 @@ export default {
     'HTTP代理：未配置（可在全局设置中配置）': 'HTTP Proxy: Not configured (can be configured in global settings)',
     // Message component related
     message: {
+      confirm: 'Confirm',
+      cancel: 'Cancel',
+      dontShowAgain: 'Don\'t show again',
+    },
+    // Confirm component related
+    confirm: {
       confirm: 'Confirm',
       cancel: 'Cancel',
       dontShowAgain: 'Don\'t show again',

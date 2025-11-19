@@ -65,7 +65,6 @@
           <template v-for="message in agentStore.agentMessageList" :key="message.id">
             <AskMessageItem v-if="message.type === 'ask'" :message="message" />
             <LoadingMessageItem v-else-if="message.type === 'loading'" :message="message" />
-            <ToolMessageItem v-else-if="message.type === 'tool'" :message="message" />
             <TextResponseMessageItem v-else-if="message.type === 'textResponse'" :message="message" />
           </template>
         </template>
@@ -191,7 +190,6 @@ import { aiCache } from '@/cache/ai/aiCache'
 import { useAgentStore } from '@/store/agent/agentStore'
 import AskMessageItem from './components/AskMessageItem.vue'
 import LoadingMessageItem from './components/LoadingMessageItem.vue'
-import ToolMessageItem from './components/ToolMessageItem.vue'
 import TextResponseMessageItem from './components/TextResponseMessageItem.vue'
 import ConversationHistory from './components/ConversationHistory.vue'
 import './ai.css'

@@ -40,6 +40,7 @@
           <DraggableDialogComponent v-if="selectedComponent.name === 'DraggableDialog'" />
           <ClDialogComponent v-if="selectedComponent.name === 'ClDialog'" />
           <RichInputComponent v-if="selectedComponent.name === 'RichInput'" />
+          <ConfirmComponent v-if="selectedComponent.name === 'Confirm'" />
         </div>
       </div>
     </div>
@@ -55,6 +56,7 @@ const TabsComponent = defineAsyncComponent(() => import('@/components/ui/cleanDe
 const DraggableDialogComponent = defineAsyncComponent(() => import('@/components/ui/cleanDesign/draggableDialog/demo/DraggableDialog.vue'))
 const ClDialogComponent = defineAsyncComponent(() => import('@/components/ui/cleanDesign/clDialog/demo/ClDialog.vue'))
 const RichInputComponent = defineAsyncComponent(() => import('@/components/ui/cleanDesign/richInput/demo/RichInput.vue'))
+const ConfirmComponent = defineAsyncComponent(() => import('@/components/ui/cleanDesign/confirm/demo/Confirm.vue'))
 const searchTerm = ref('')
 const selectedComponent = ref<any>(null)
 
@@ -89,6 +91,12 @@ const components = ref([
     icon: 'iconfont iconbiaoge',
     description: t('富文本变量输入组件，支持 {{variable}} 语法，可自定义变量样式和 Popover 交互'),
     category: t('表单组件')
+  },
+  {
+    name: 'Confirm',
+    icon: 'iconfont iconanniu',
+    description: t('VSCode 风格确认对话框，支持命令式调用、Promise 异步确认、多种类型图标和可选复选框'),
+    category: t('反馈组件')
   }
 ])
 

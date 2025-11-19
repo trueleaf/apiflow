@@ -1,6 +1,6 @@
 import got from 'got';
 import { mainConfig } from '@src/config/mainConfig';
-import type { OpenAIRequestBody, OpenAIResponse, SendRequestParams, SendStreamRequestParams } from '@src/types/ai';
+import type { OpenAIRequestBody, OpenAIResponse, SendStreamRequestParams } from '@src/types/ai';
 import type { CommonResponse } from '@src/types/project';
 
 export class AiManager {
@@ -43,7 +43,7 @@ export class AiManager {
     }
   }
 
-  async sendRequest(body: SendRequestParams): Promise<CommonResponse<OpenAIResponse | null>> {
+  async sendRequest(body: OpenAIRequestBody): Promise<CommonResponse<OpenAIResponse | null>> {
     const configCheck = this.validateConfig();
     if (configCheck.code !== 0) {
       return { code: configCheck.code, msg: configCheck.msg, data: null };

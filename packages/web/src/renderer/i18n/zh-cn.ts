@@ -1482,6 +1482,7 @@ export default {
     '富文本变量输入组件，支持 {{variable}} 语法，可自定义变量样式和 Popover 交互': '富文本变量输入组件，支持 {{variable}} 语法，可自定义变量样式和 Popover 交互',
     '表单组件': '表单组件',
     'VSCode 风格消息提示组件，支持命令式调用、Promise 异步确认、复选框和多实例显示': 'VSCode 风格消息提示组件，支持命令式调用、Promise 异步确认、复选框和多实例显示',
+    'VSCode 风格确认对话框，支持命令式调用、Promise 异步确认、多种类型图标和可选复选框': 'VSCode 风格确认对话框，支持命令式调用、Promise 异步确认、多种类型图标和可选复选框',
 
     // 本地数据管理相关
     '本地数据管理': '本地数据管理',
@@ -1620,6 +1621,12 @@ export default {
     'HTTP代理：未配置（可在全局设置中配置）': 'HTTP代理：未配置（可在全局设置中配置）',
     // Message 组件相关
     message: {
+      confirm: '确定',
+      cancel: '取消',
+      dontShowAgain: '不再提示',
+    },
+    // Confirm 组件相关
+    confirm: {
       confirm: '确定',
       cancel: '取消',
       dontShowAgain: '不再提示',

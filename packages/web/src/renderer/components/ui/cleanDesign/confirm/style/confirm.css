@@ -1,0 +1,145 @@
+.cl-confirm-wrapper {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.cl-confirm-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: var(--bg-overlay);
+  pointer-events: auto;
+}
+
+.cl-confirm-container {
+  position: relative;
+  width: 420px;
+  max-width: 90%;
+  background: var(--bg-primary);
+  border: 1px solid var(--border-base);
+  border-radius: 8px;
+  box-shadow: 0 4px 12px var(--shadow-color);
+  pointer-events: auto;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.cl-confirm-header {
+  display: flex;
+  align-items: center;
+  padding: 16px 16px 12px 16px;
+  border-bottom: 1px solid var(--border-base);
+  gap: 8px;
+}
+
+.cl-confirm-icon {
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.cl-confirm-icon.info {
+  color: var(--el-color-info);
+}
+
+.cl-confirm-icon.warning {
+  color: var(--el-color-warning);
+}
+
+.cl-confirm-icon.error {
+  color: var(--el-color-danger);
+}
+
+.cl-confirm-icon.success {
+  color: var(--el-color-success);
+}
+
+.cl-confirm-title {
+  flex: 1;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-primary);
+  line-height: 20px;
+}
+
+.cl-confirm-close {
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: var(--text-secondary);
+  transition: color 0.2s ease;
+  border: none;
+  background: transparent;
+  padding: 0;
+}
+
+.cl-confirm-close:hover {
+  color: var(--text-primary);
+}
+
+.cl-confirm-body {
+  padding: 20px;
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--text-primary);
+  word-wrap: break-word;
+  word-break: break-word;
+}
+
+.cl-confirm-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px 16px 16px;
+  border-top: 1px solid var(--border-base);
+}
+
+.cl-confirm-footer-left {
+  flex: 1;
+  display: flex;
+  align-items: center;
+}
+
+.cl-confirm-footer-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.confirm-fade-enter-active,
+.confirm-fade-leave-active {
+  transition: opacity 0.2s ease;
+}
+
+.confirm-fade-enter-from,
+.confirm-fade-leave-to {
+  opacity: 0;
+}
+
+.confirm-scale-enter-active,
+.confirm-scale-leave-active {
+  transition: all 0.2s ease;
+}
+
+.confirm-scale-enter-from,
+.confirm-scale-leave-to {
+  opacity: 0;
+  transform: scale(0.95);
+}
