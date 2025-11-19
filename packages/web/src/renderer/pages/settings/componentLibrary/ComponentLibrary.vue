@@ -35,12 +35,12 @@
           <button class="close-btn" @click="closeDetail">{{ $t('关闭') }}</button>
         </div>
         <div class="detail-content">
-          <CardComponent v-show="selectedComponent.name === 'Card'" />
-          <TabsComponent v-show="selectedComponent.name === 'Tabs'" />
-          <DraggableDialogComponent v-show="selectedComponent.name === 'DraggableDialog'" />
-          <ClDialogComponent v-show="selectedComponent.name === 'ClDialog'" />
-          <RichInputComponent v-show="selectedComponent.name === 'RichInput'" />
-          <CodeEditorComponent v-show="selectedComponent.name === 'CodeEditor'" />
+          <CardComponent v-if="selectedComponent.name === 'Card'" />
+          <TabsComponent v-if="selectedComponent.name === 'Tabs'" />
+          <DraggableDialogComponent v-if="selectedComponent.name === 'DraggableDialog'" />
+          <ClDialogComponent v-if="selectedComponent.name === 'ClDialog'" />
+          <RichInputComponent v-if="selectedComponent.name === 'RichInput'" />
+          <MessageComponent v-if="selectedComponent.name === 'Message'" />
         </div>
       </div>
     </div>
@@ -56,7 +56,7 @@ const TabsComponent = defineAsyncComponent(() => import('@/components/ui/cleanDe
 const DraggableDialogComponent = defineAsyncComponent(() => import('@/components/ui/cleanDesign/draggableDialog/demo/DraggableDialog.vue'))
 const ClDialogComponent = defineAsyncComponent(() => import('@/components/ui/cleanDesign/clDialog/demo/ClDialog.vue'))
 const RichInputComponent = defineAsyncComponent(() => import('@/components/ui/cleanDesign/richInput/demo/RichInput.vue'))
-const CodeEditorComponent = defineAsyncComponent(() => import('@/components/ui/cleanDesign/codeEditor/demo/CodeEditor.vue'))
+const MessageComponent = defineAsyncComponent(() => import('@/components/ui/cleanDesign/message/demo/Message.vue'))
 const searchTerm = ref('')
 const selectedComponent = ref<any>(null)
 
@@ -93,10 +93,10 @@ const components = ref([
     category: t('表单组件')
   },
   {
-    name: 'CodeEditor',
-    icon: 'iconfont iconbiaoge',
-    description: t('基于 Monaco Editor 的代码编辑器，支持 JavaScript/TypeScript，自动补全、语法高亮、主题切换'),
-    category: t('表单组件')
+    name: 'Message',
+    icon: 'iconfont iconanniu',
+    description: t('VSCode 风格消息提示组件，支持命令式调用、Promise 异步确认、复选框和多实例显示'),
+    category: t('反馈组件')
   }
 ])
 
