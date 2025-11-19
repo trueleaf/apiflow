@@ -35,21 +35,14 @@
 <script lang="ts" setup>
 import { ref, computed, watch, onMounted, onBeforeUnmount } from 'vue'
 import { X } from 'lucide-vue-next'
+import type { DraggableDialogProps, DraggableDialogEmits } from '@src/types/components/components';
 
-interface DraggableDialogProps {
-  modelValue: boolean
-  title?: string
-  width?: string | number
-  overlay?: boolean
-}
 const props = withDefaults(defineProps<DraggableDialogProps>(), {
   title: '弹窗',
   width: '500px',
   overlay: false,
 })
-const emit = defineEmits<{
-  'update:modelValue': [value: boolean]
-}>()
+const emit = defineEmits<DraggableDialogEmits>()
 const dialogRef = ref<HTMLElement | null>(null)
 const headerRef = ref<HTMLElement | null>(null)
 const position = ref({ x: 0, y: 0 })

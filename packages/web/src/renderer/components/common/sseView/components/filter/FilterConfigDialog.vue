@@ -43,6 +43,7 @@ import DraggableDialog from '@/components/ui/cleanDesign/draggableDialog/Draggab
 import CodeEditor from '@/components/ui/cleanDesign/codeEditor/CodeEditor.vue';
 import { Filter } from 'lucide-vue-next';
 import { useI18n } from 'vue-i18n';
+import type { FilterConfigDialogProps, FilterConfigDialogEmits, FilteredDataPayload } from '@src/types/components/components';
 
 const DEFAULT_FILTER_CODE = `const buffer = [];
 function filter(chunk) {
@@ -67,27 +68,16 @@ type FilterConfigState = {
   code: string;
 };
 
-type FilteredDataPayload = {
-  list: unknown[];
-  finalValue: unknown | null;
-};
-
 type FilterExecutor = (chunk: unknown) => unknown;
 
 const FILTER_STORAGE_KEY = 'sseFilterConfig';
 
-const props = withDefaults(defineProps<{
-  modelValue: boolean;
-  sourceData: unknown[];
-}>(), {
+const props = withDefaults(defineProps<FilterConfigDialogProps>(), {
   modelValue: false,
   sourceData: () => [],
 });
 
-const emit = defineEmits<{
-  (e: 'update:modelValue', value: boolean): void;
-  (e: 'filteredDataChange', data: FilteredDataPayload): void;
-}>();
+const emit = defineEmits<FilterConfigDialogEmits>();
 
 const { t } = useI18n();
 const isDialogVisible = ref(false);

@@ -16,17 +16,11 @@
 <script lang="ts" setup>
 import { Close as CloseIcon } from '@element-plus/icons-vue'
 import { ref, watch, onUnmounted } from 'vue'
+import type { UndoNotificationProps, UndoNotificationEmits } from '@src/types/components/components';
 
-const props = defineProps<{
-  message: string
-  duration?: number
-  showProgress?: boolean
-}>()
+const props = defineProps<UndoNotificationProps>()
 
-const emit = defineEmits<{
-  undo: []
-  close: []
-}>()
+const emit = defineEmits<UndoNotificationEmits>()
 
 const visible = ref(true)
 const progressWidth = ref(100)

@@ -207,7 +207,7 @@ const handleSave = async () => {
 // 重置配置
 const handleReset = async () => {
   formData.value = {
-    model: 'DeepSeek',
+    model: '',
     apiKey: '',
     apiUrl: '',
     timeout: 60000,

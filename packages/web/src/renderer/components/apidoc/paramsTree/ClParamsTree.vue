@@ -118,16 +118,12 @@ import { useI18n } from 'vue-i18n';
 import SMock from '@/components/apidoc/mock/ClMock.vue';
 import { config } from '@src/config/config';
 import ClRichInput from '@/components/ui/cleanDesign/richInput/ClRichInput.vue';
+import type { ClParamsTreeProps, ClParamsTreeEmits } from '@src/types/components/components';
 
-const props = withDefaults(defineProps<{
-  data: ApidocProperty<'string' | 'file'>[];
-  enableFile?: boolean;
-  mindKeyParams?: ApidocProperty[];
-  showCheckbox?: boolean;
-}>(), {
+const props = withDefaults(defineProps<ClParamsTreeProps>(), {
   showCheckbox: true,
 });
-const emits = defineEmits<{ (e: 'change', value: ApidocProperty<'string' | 'file'>[]): void }>();
+const emits = defineEmits<ClParamsTreeEmits>();
 const { t } = useI18n();
 
 const treeRef = ref();

@@ -7,12 +7,9 @@
 
 <script lang="ts" setup>
 import { ref } from 'vue'
+import type { ClLoadingProps } from '@src/types/components/components';
 
-type LoadingProps = {
-  loading?: boolean
-}
-
-withDefaults(defineProps<LoadingProps>(), {
+withDefaults(defineProps<ClLoadingProps>(), {
   loading: false
 })
 const loadingText = ref('')

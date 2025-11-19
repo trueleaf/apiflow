@@ -78,18 +78,14 @@ import WebsocketPopover from './components/popover/WebsocketPopover.vue';
 import WebsocketFilter from './components/filter/WebsocketFilter.vue';
 import { Top, Bottom, SuccessFilled, WarnTriangleFilled, CircleCloseFilled } from '@element-plus/icons-vue';
 import { useI18n } from 'vue-i18n';
+import type { ClWebsocketViewProps, ClWebsocketViewEmits } from '@src/types/components/components';
 
 const { t } = useI18n();
 
-const props = withDefaults(defineProps<{ 
-  dataList: WebsocketResponse[]; 
-  virtual?: boolean; 
-}>(), {
+const props = withDefaults(defineProps<ClWebsocketViewProps>(), {
   dataList: () => [],
 });
-const emit = defineEmits<{
-  clearData: [];
-}>();
+const emit = defineEmits<ClWebsocketViewEmits>();
 
 const filterText = ref('');
 const isRegexMode = ref(false);

@@ -9,10 +9,9 @@
 
 <script lang="ts" setup>
 import { computed } from 'vue';
-const props = defineProps<{
-  text: string;
-  keyword: string;
-}>();
+import type { SearchHighlightProps } from '@src/types/components/components';
+
+const props = defineProps<SearchHighlightProps>();
 //生成高亮文本片段
 const highlightedParts = computed(() => {
   if (!props.keyword || !props.text) {

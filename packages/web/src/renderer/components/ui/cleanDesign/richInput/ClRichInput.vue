@@ -54,7 +54,7 @@ import { Plugin, PluginKey } from 'prosemirror-state'
 import { Decoration, DecorationSet } from 'prosemirror-view'
 import type { Node as ProseMirrorNode } from 'prosemirror-model'
 import { useSlots, onMounted, onBeforeUnmount, reactive, ref, computed, watch, nextTick } from 'vue'
-import type { ClRichInputProps, ClRichInputEmits } from './types'
+import type { ClRichInputProps, ClRichInputEmits } from '@src/types/components/components';
 import './style/richInputStyle.css'
 
 const props = withDefaults(defineProps<ClRichInputProps>(), {

@@ -24,15 +24,8 @@
 </template>
 
 <script lang="ts" setup>
-interface ClDialogProps {
-  modelValue: boolean
-  title?: string
-  width?: string | number
-  top?: string
-  closeOnClickModal?: boolean
-  destroyOnClose?: boolean
-  beforeClose?: (done: () => void) => void
-}
+import type { ClDialogProps, ClDialogEmits } from '@src/types/components/components';
+
 const props = withDefaults(defineProps<ClDialogProps>(), {
   title: '',
   width: '50%',
@@ -40,12 +33,7 @@ const props = withDefaults(defineProps<ClDialogProps>(), {
   closeOnClickModal: true,
   destroyOnClose: false,
 })
-const emit = defineEmits<{
-  'update:modelValue': [value: boolean]
-  opened: []
-  closed: []
-  close: []
-}>()
+const emit = defineEmits<ClDialogEmits>()
 const handleUpdateModelValue = (value: boolean) => {
   emit('update:modelValue', value)
 }

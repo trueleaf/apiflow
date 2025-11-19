@@ -78,6 +78,7 @@ import dayjs from 'dayjs';
 import SJsonEditor from '@/components/common/jsonEditor/ClJsonEditor.vue';
 import type { WebsocketResponse } from '@src/types/websocketNode';
 import { useI18n } from 'vue-i18n';
+import type { WebsocketPopoverProps, WebsocketPopoverEmits } from '@src/types/components/components';
 
 const { t } = useI18n();
 
@@ -86,24 +87,14 @@ const { t } = useI18n();
 | Props & Emits
 |--------------------------------------------------------------------------
 */
-type Props = {
-  visible: boolean;
-  message: WebsocketResponse | null;
-  messageIndex: number;
-  virtualRef: HTMLElement | null;
-};
-
-const props = withDefaults(defineProps<Props>(), {
+const props = withDefaults(defineProps<WebsocketPopoverProps>(), {
   visible: false,
   message: null,
   messageIndex: -1,
   virtualRef: null,
 });
 
-const emit = defineEmits<{
-  hide: [];
-  close: [];
-}>();
+const emit = defineEmits<WebsocketPopoverEmits>();
 
 /*
 |--------------------------------------------------------------------------

@@ -37,31 +37,14 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { Language } from '@src/types'
+import type { LanguageProps, LanguageEmits } from '@src/types/components/components';
 
-// Props 定义
-type Props = {
-  visible: boolean
-  position: {
-    x: number
-    y: number
-    width: number
-    height: number
-};
-  currentLanguage: Language
-}
-
-const props = withDefaults(defineProps<Props>(), {
+const props = withDefaults(defineProps<LanguageProps>(), {
   visible: false,
   currentLanguage: 'zh-cn'
 })
 
-// Events 定义
-type Emits = {
-  languageSelect: [language: Language]
-  close: []
-};
-
-const emit = defineEmits<Emits>()
+const emit = defineEmits<LanguageEmits>()
 
 // 支持的语言列表
 const languages = [

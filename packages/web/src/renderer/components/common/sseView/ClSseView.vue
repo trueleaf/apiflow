@@ -99,13 +99,14 @@ import { Loading, Search, Download, Document } from '@element-plus/icons-vue';
 import { useI18n } from 'vue-i18n';
 import { useApidocTas } from '@/store/apidoc/tabsStore';
 import { router } from '@/router';
+import type { ClSseViewProps } from '@src/types/components/components';
 
 /*
 |--------------------------------------------------------------------------
 | Props / Emits
 |--------------------------------------------------------------------------
 */
-const props = withDefaults(defineProps<{ dataList: ChunkWithTimestampe[]; virtual?: boolean; isDataComplete?: boolean }>(), {
+const props = withDefaults(defineProps<ClSseViewProps>(), {
   dataList: () => [],
   isDataComplete: false,
 });

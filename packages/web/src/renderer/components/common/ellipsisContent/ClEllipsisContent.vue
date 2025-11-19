@@ -9,15 +9,9 @@
 <script lang="ts" setup>
 import { onMounted, ref, watch } from 'vue'
 import { Effect } from 'element-plus'
+import type { ClEllipsisContentProps, EllipsisValue } from '@src/types/components/components';
 
-type EllipsisValue = string | number | boolean
-type EllipsisProps = {
-  value?: EllipsisValue
-  maxWidth?: string | number
-  copy?: boolean
-}
-
-const props = withDefaults(defineProps<EllipsisProps>(), {
+const props = withDefaults(defineProps<ClEllipsisContentProps>(), {
   value: '',
   maxWidth: 100,
   copy: false

@@ -93,30 +93,21 @@ import { ref, watch } from 'vue';
 import { isJsonString } from '@/helper';
 import dayjs from 'dayjs';
 import SJsonEditor from '@/components/common/jsonEditor/ClJsonEditor.vue';
+import type { SsePopoverProps, SsePopoverEmits } from '@src/types/components/components';
 
 /*
 |--------------------------------------------------------------------------
 | Props & Emits
 |--------------------------------------------------------------------------
 */
-type Props = {
-  visible: boolean;
-  message: any;
-  messageIndex: number;
-  virtualRef: HTMLElement | null;
-};
-
-const props = withDefaults(defineProps<Props>(), {
+const props = withDefaults(defineProps<SsePopoverProps>(), {
   visible: false,
   message: null,
   messageIndex: -1,
   virtualRef: null,
 });
 
-const emit = defineEmits<{
-  hide: [];
-  close: [];
-}>();
+const emit = defineEmits<SsePopoverEmits>();
 
 /*
 |--------------------------------------------------------------------------

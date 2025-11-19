@@ -75,32 +75,16 @@ import { ref, nextTick, computed } from 'vue';
 import { Search, Download, Delete } from '@element-plus/icons-vue';
 import { debounce } from "lodash-es";
 import { useI18n } from 'vue-i18n';
+import type { WebsocketFilterProps, WebsocketFilterEmits } from '@src/types/components/components';
 const { t } = useI18n();
 
-type Props = {
-  hasData: boolean;
-  isRawView: boolean;
-  filteredCount: number;
-};
-
-type Emits = {
-  (e: 'update:filterText', value: string): void;
-  (e: 'update:isRegexMode', value: boolean): void;
-  (e: 'update:filterError', value: string): void;
-  (e: 'update:isRawView', value: boolean): void;
-  (e: 'update:selectedMessageTypes', value: string[]): void;
-  (e: 'update:isSearchInputVisible', value: boolean): void;
-  (e: 'download'): void;
-  (e: 'clearData'): void;
-};
-
-withDefaults(defineProps<Props>(), {
+withDefaults(defineProps<WebsocketFilterProps>(), {
   hasData: false,
   isRawView: false,
   filteredCount: 0,
 });
 
-const emit = defineEmits<Emits>();
+const emit = defineEmits<WebsocketFilterEmits>();
 
 const filterText = ref('');
 const isRegexMode = ref(false);

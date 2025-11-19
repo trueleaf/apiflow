@@ -46,6 +46,7 @@
 <script lang="ts" setup>
 import { ref, computed, onMounted, onBeforeUnmount, watchEffect, nextTick } from 'vue';
 import { useWindowEvent } from '@/hooks/useWindowEvent';
+import type { ClVirtualScrollProps } from '@src/types/components/components';
 
 // 禁用自动属性继承，手动处理 class 等属性
 defineOptions({
@@ -57,12 +58,7 @@ type VirtualScrollItem = {
   data: any;
   top: number;
 };
-const props = withDefaults(defineProps<{
-  items: any[];
-  itemHeight: number;
-  bufferSize?: number; //可见区域上下额外渲染多少个条目
-  virtual?: boolean; // 是否开启虚拟滚动
-}>(), {
+const props = withDefaults(defineProps<ClVirtualScrollProps>(), {
   items: () => [],
   itemHeight: 40,
   bufferSize: 0,

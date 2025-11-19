@@ -8,191 +8,60 @@
     </div>
     <div class="demo-tabs">
       <button
-        v-for="tab in tabs"
+        v-for="tab in tabList"
         :key="tab.id"
         :class="['tab-button', { active: activeTab === tab.id }]"
-        @click="activeTab = tab.id"
+        @click="handleTabChange(tab.id)"
       >
         {{ tab.label }}
       </button>
     </div>
     <div class="demo-content">
-      <div v-show="activeTab === 'basic'" class="demo-section">
+      <section
+        v-for="tab in tabList"
+        :key="`section-${tab.id}`"
+        class="demo-section"
+        v-show="activeTab === tab.id"
+      >
         <div class="section-header">
           <div>
-            <h4>{{ $t('基础用法') }}</h4>
-            <p>{{ $t('支持 JavaScript 和 TypeScript 语言') }}</p>
+            <h4>{{ tab.title }}</h4>
+            <p>{{ tab.description }}</p>
           </div>
           <button
             class="code-toggle-btn"
-            @click="showCode1 = !showCode1"
-            :class="{ active: showCode1 }"
+            @click="toggleCode(tab.id)"
+            :class="{ active: showCodeMap[tab.id] }"
             :title="$t('查看源码')"
           >
-            <span class="code-icon">{{ showCode1 ? '📖' : '💻' }}</span>
-            <span class="code-text">{{ showCode1 ? $t('隐藏代码') : $t('查看代码') }}</span>
+            <component
+              :is="showCodeMap[tab.id] ? BookOpenCheck : Code2"
+              class="code-toggle-icon"
+            />
+            <span class="code-text">{{ showCodeMap[tab.id] ? $t('隐藏代码') : $t('查看代码') }}</span>
           </button>
         </div>
-        <div v-if="isEditorReady" class="editor-wrapper">
+        <div
+          v-if="activeTab === tab.id && isEditorReady"
+          class="editor-wrapper"
+          :class="{ 'fixed-height-wrapper': tab.fixedHeight }"
+        >
           <CodeEditor
-            v-model="code1"
-            language="javascript"
-            :auto-height="true"
-            :min-height="150"
-            :max-height="300"
+            v-model="editorValues[tab.id]"
+            :language="tab.language"
+            :read-only="tab.readOnly === true"
+            :auto-height="tab.autoHeight"
+            :min-height="tab.minHeight ?? 150"
+            :max-height="tab.maxHeight ?? 300"
+            :show-format-button="tab.showFormatButton === true"
+            :placeholder="tab.placeholder || ''"
           />
         </div>
         <div v-else class="loading-placeholder">{{ $t('编辑器加载中...') }}</div>
-        <div v-if="showCode1" class="code-preview">
-          <pre class="code-block">{{ basicUsageCode }}</pre>
+        <div v-if="showCodeMap[tab.id]" class="code-preview">
+          <pre class="code-block">{{ tab.snippet }}</pre>
         </div>
-      </div>
-      <div v-show="activeTab === 'typescript'" class="demo-section">
-        <div class="section-header">
-          <div>
-            <h4>{{ $t('TypeScript 支持') }}</h4>
-            <p>{{ $t('切换到 TypeScript 语言模式') }}</p>
-          </div>
-          <button
-            class="code-toggle-btn"
-            @click="showCode2 = !showCode2"
-            :class="{ active: showCode2 }"
-            :title="$t('查看源码')"
-          >
-            <span class="code-icon">{{ showCode2 ? '📖' : '💻' }}</span>
-            <span class="code-text">{{ showCode2 ? $t('隐藏代码') : $t('查看代码') }}</span>
-          </button>
-        </div>
-        <div v-if="activeTab === 'typescript' && isEditorReady" class="editor-wrapper">
-          <CodeEditor
-            v-model="code2"
-            language="typescript"
-            :auto-height="true"
-            :min-height="150"
-            :max-height="300"
-          />
-        </div>
-        <div v-if="showCode2" class="code-preview">
-          <pre class="code-block">{{ typescriptCode }}</pre>
-        </div>
-      </div>
-      <div v-show="activeTab === 'readonly'" class="demo-section">
-        <div class="section-header">
-          <div>
-            <h4>{{ $t('只读模式') }}</h4>
-            <p>{{ $t('禁止编辑，仅用于展示代码') }}</p>
-          </div>
-          <button
-            class="code-toggle-btn"
-            @click="showCode3 = !showCode3"
-            :class="{ active: showCode3 }"
-            :title="$t('查看源码')"
-          >
-            <span class="code-icon">{{ showCode3 ? '📖' : '💻' }}</span>
-            <span class="code-text">{{ showCode3 ? $t('隐藏代码') : $t('查看代码') }}</span>
-          </button>
-        </div>
-        <div v-if="activeTab === 'readonly' && isEditorReady" class="editor-wrapper">
-          <CodeEditor
-            v-model="code3"
-            language="javascript"
-            :read-only="true"
-            :auto-height="true"
-            :min-height="120"
-            :max-height="250"
-          />
-        </div>
-        <div v-if="showCode3" class="code-preview">
-          <pre class="code-block">{{ readOnlyCode }}</pre>
-        </div>
-      </div>
-      <div v-show="activeTab === 'format'" class="demo-section">
-        <div class="section-header">
-          <div>
-            <h4>{{ $t('带格式化按钮') }}</h4>
-            <p>{{ $t('显示格式化按钮，一键格式化代码') }}</p>
-          </div>
-          <button
-            class="code-toggle-btn"
-            @click="showCode4 = !showCode4"
-            :class="{ active: showCode4 }"
-            :title="$t('查看源码')"
-          >
-            <span class="code-icon">{{ showCode4 ? '📖' : '💻' }}</span>
-            <span class="code-text">{{ showCode4 ? $t('隐藏代码') : $t('查看代码') }}</span>
-          </button>
-        </div>
-        <div v-if="activeTab === 'format' && isEditorReady" class="editor-wrapper">
-          <CodeEditor
-            v-model="code4"
-            language="javascript"
-            :show-format-button="true"
-            :auto-height="true"
-            :min-height="150"
-            :max-height="300"
-          />
-        </div>
-        <div v-if="showCode4" class="code-preview">
-          <pre class="code-block">{{ formatButtonCode }}</pre>
-        </div>
-      </div>
-      <div v-show="activeTab === 'fixed'" class="demo-section">
-        <div class="section-header">
-          <div>
-            <h4>{{ $t('固定高度') }}</h4>
-            <p>{{ $t('不使用自动高度，设置固定容器高度') }}</p>
-          </div>
-          <button
-            class="code-toggle-btn"
-            @click="showCode5 = !showCode5"
-            :class="{ active: showCode5 }"
-            :title="$t('查看源码')"
-          >
-            <span class="code-icon">{{ showCode5 ? '📖' : '💻' }}</span>
-            <span class="code-text">{{ showCode5 ? $t('隐藏代码') : $t('查看代码') }}</span>
-          </button>
-        </div>
-        <div v-if="activeTab === 'fixed' && isEditorReady" class="editor-wrapper" style="height: 200px;">
-          <CodeEditor
-            v-model="code5"
-            language="javascript"
-            :auto-height="false"
-          />
-        </div>
-        <div v-if="showCode5" class="code-preview">
-          <pre class="code-block">{{ fixedHeightCode }}</pre>
-        </div>
-      </div>
-      <div v-show="activeTab === 'placeholder'" class="demo-section">
-        <div class="section-header">
-          <div>
-            <h4>{{ $t('带占位符') }}</h4>
-            <p>{{ $t('编辑器为空时显示占位符文本') }}</p>
-          </div>
-          <button
-            class="code-toggle-btn"
-            @click="showCode6 = !showCode6"
-            :class="{ active: showCode6 }"
-            :title="$t('查看源码')"
-          >
-            <span class="code-icon">{{ showCode6 ? '📖' : '💻' }}</span>
-            <span class="code-text">{{ showCode6 ? $t('隐藏代码') : $t('查看代码') }}</span>
-          </button>
-        </div>
-        <div v-if="activeTab === 'placeholder' && isEditorReady" class="editor-wrapper">
-          <CodeEditor
-            v-model="code6"
-            language="javascript"
-            :placeholder="$t('请输入 JavaScript 代码...')"
-            :auto-height="true"
-            :min-height="120"
-            :max-height="250"
-          />
-        </div>
-        <div v-if="showCode6" class="code-preview">
-          <pre class="code-block">{{ placeholderCode }}</pre>
-        </div>
-      </div>
+      </section>
     </div>
     <div class="api-section">
       <h4>{{ $t('Props 属性') }}</h4>
@@ -316,71 +185,89 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
-import CodeEditor from '../CodeEditor.vue'
+// Vue 核心 API
+import { computed, onMounted, reactive, ref } from 'vue'
+
+// 第三方库
 import { useI18n } from 'vue-i18n'
+
+// 图标库
+import { BookOpenCheck, Code2 } from 'lucide-vue-next'
+
+// 本地组件
+import CodeEditor from '../CodeEditor.vue'
+
+// 类型定义
+type TabId = 'basic' | 'typescript' | 'readonly' | 'format' | 'fixed' | 'placeholder'
+type TabMeta = {
+  id: TabId
+  label: string
+  title: string
+  description: string
+  language: 'javascript' | 'typescript'
+  autoHeight: boolean
+  minHeight?: number
+  maxHeight?: number
+  readOnly?: boolean
+  showFormatButton?: boolean
+  placeholder?: string
+  fixedHeight?: boolean
+  snippet: string
+}
 const { t } = useI18n()
-const activeTab = ref('basic')
+// 响应式变量
+const activeTab = ref<TabId>('basic')
 const isEditorReady = ref(false)
-const showCode1 = ref(false)
-const showCode2 = ref(false)
-const showCode3 = ref(false)
-const showCode4 = ref(false)
-const showCode5 = ref(false)
-const showCode6 = ref(false)
-const tabs = [
-  { id: 'basic', label: t('基础用法') },
-  { id: 'typescript', label: t('TypeScript') },
-  { id: 'readonly', label: t('只读模式') },
-  { id: 'format', label: t('格式化') },
-  { id: 'fixed', label: t('固定高度') },
-  { id: 'placeholder', label: t('占位符') }
-]
-const code1 = ref(`// JavaScript 示例
+const showCodeMap = reactive<Record<TabId, boolean>>({
+  basic: false,
+  typescript: false,
+  readonly: false,
+  format: false,
+  fixed: false,
+  placeholder: false
+})
+const editorValues = reactive<Record<TabId, string>>({
+  basic: `// JavaScript 示例
 const greeting = 'Hello, World!';
-function sayHello(name) {
+const sayHello = (name) => {
   return \`Hello, \${name}!\`;
-}
-const result = sayHello('Monaco Editor');
-console.log(result);`)
-const code2 = ref(`// TypeScript 示例
-interface User {
-  id: number;
-  name: string;
-  email: string;
-}
-const createUser = (data: Partial<User>): User => {
-  return {
-    id: Date.now(),
-    name: data.name || 'Anonymous',
-    email: data.email || 'user@example.com'
-  };
 };
-const user = createUser({ name: 'Alice' });
-console.log(user);`)
-const code3 = ref(`// 只读模式示例
+const result = sayHello('Monaco Editor');
+console.log(result);`,
+  typescript: `// TypeScript 示例
+type User = {
+  id: number
+  name: string
+  email: string
+}
+const createUser = (data: Partial<User>): User => ({
+  id: Date.now(),
+  name: data.name || 'Anonymous',
+  email: data.email || 'user@example.com'
+})
+const user = createUser({ name: 'Alice' })
+console.log(user)`,
+  readonly: `// 只读模式示例
 // 这段代码不能被编辑
 const readOnlyExample = {
   message: '这是只读模式',
   canEdit: false
-};`)
-const code4 = ref(`const unformattedCode={name:"test",value:123,nested:{data:[1,2,3]}};function process(input){return input.map(x=>x*2);}`)
-const code5 = ref(`// 固定高度编辑器
+}`,
+  format: 'const unformattedCode={name:"test",value:123,nested:{data:[1,2,3]}};function process(input){return input.map((value)=>value*2);}',
+  fixed: `// 固定高度编辑器
 // 高度由外层容器控制
-const data = [1, 2, 3, 4, 5];
-const doubled = data.map(x => x * 2);
-console.log(doubled);
+const data = [1, 2, 3, 4, 5]
+const doubled = data.map((value) => value * 2)
+console.log(doubled)
 
 // 添加更多内容会出现滚动条
-const tripled = data.map(x => x * 3);
-console.log(tripled);`)
-const code6 = ref('')
-onMounted(() => {
-  setTimeout(() => {
-    isEditorReady.value = true
-  }, 100)
+const tripled = data.map((value) => value * 3)
+console.log(tripled)`,
+  placeholder: ''
 })
-const basicUsageCode = `<template>
+// 常量
+const snippetMap: Record<TabId, string> = {
+  basic: `<template>
   <CodeEditor
     v-model="code"
     language="javascript"
@@ -395,8 +282,8 @@ import { ref } from 'vue'
 import CodeEditor from '@/components/ui/cleanDesign/codeEditor/CodeEditor.vue'
 
 const code = ref(\`const greeting = 'Hello, World!';\`)
-<\/script>`
-const typescriptCode = `<template>
+<\/script>`,
+  typescript: `<template>
   <CodeEditor
     v-model="code"
     language="typescript"
@@ -410,17 +297,19 @@ const typescriptCode = `<template>
 import { ref } from 'vue'
 import CodeEditor from '@/components/ui/cleanDesign/codeEditor/CodeEditor.vue'
 
-const code = ref(\`interface User {
-  id: number;
-  name: string;
+const code = ref(\`type User = {
+  id: number
+  name: string
 }\`)
-<\/script>`
-const readOnlyCode = `<template>
+<\/script>`,
+  readonly: `<template>
   <CodeEditor
     v-model="code"
     language="javascript"
     :read-only="true"
     :auto-height="true"
+    :min-height="120"
+    :max-height="250"
   />
 </template>
 
@@ -429,8 +318,8 @@ import { ref } from 'vue'
 import CodeEditor from '@/components/ui/cleanDesign/codeEditor/CodeEditor.vue'
 
 const code = ref(\`const example = 'read-only';\`)
-<\/script>`
-const formatButtonCode = `<template>
+<\/script>`,
+  format: `<template>
   <CodeEditor
     v-model="code"
     language="javascript"
@@ -444,9 +333,9 @@ import { ref } from 'vue'
 import CodeEditor from '@/components/ui/cleanDesign/codeEditor/CodeEditor.vue'
 
 const code = ref(\`const data={name:"test"};\`)
-<\/script>`
-const fixedHeightCode = `<template>
-  <div style="height: 200px;">
+<\/script>`,
+  fixed: `<template>
+  <div class="fixed-editor-container">
     <CodeEditor
       v-model="code"
       language="javascript"
@@ -460,13 +349,21 @@ import { ref } from 'vue'
 import CodeEditor from '@/components/ui/cleanDesign/codeEditor/CodeEditor.vue'
 
 const code = ref(\`const data = [1, 2, 3];\`)
-<\/script>`
-const placeholderCode = `<template>
+<\/script>
+
+<style scoped>
+.fixed-editor-container {
+  height: 200px;
+}
+</style>`,
+  placeholder: `<template>
   <CodeEditor
     v-model="code"
     language="javascript"
     placeholder="请输入 JavaScript 代码..."
     :auto-height="true"
+    :min-height="120"
+    :max-height="250"
   />
 </template>
 
@@ -476,11 +373,98 @@ import CodeEditor from '@/components/ui/cleanDesign/codeEditor/CodeEditor.vue'
 
 const code = ref('')
 <\/script>`
+}
+// Computed
+const tabList = computed<TabMeta[]>(() => [
+  {
+    id: 'basic',
+    label: t('基础用法'),
+    title: t('基础用法'),
+    description: t('支持 JavaScript 和 TypeScript 语言'),
+    language: 'javascript',
+    autoHeight: true,
+    minHeight: 150,
+    maxHeight: 300,
+    snippet: snippetMap.basic
+  },
+  {
+    id: 'typescript',
+    label: t('TypeScript'),
+    title: t('TypeScript 支持'),
+    description: t('切换到 TypeScript 语言模式'),
+    language: 'typescript',
+    autoHeight: true,
+    minHeight: 150,
+    maxHeight: 300,
+    snippet: snippetMap.typescript
+  },
+  {
+    id: 'readonly',
+    label: t('只读模式'),
+    title: t('只读模式'),
+    description: t('禁止编辑，仅用于展示代码'),
+    language: 'javascript',
+    autoHeight: true,
+    minHeight: 120,
+    maxHeight: 250,
+    readOnly: true,
+    snippet: snippetMap.readonly
+  },
+  {
+    id: 'format',
+    label: t('格式化'),
+    title: t('带格式化按钮'),
+    description: t('显示格式化按钮，一键格式化代码'),
+    language: 'javascript',
+    autoHeight: true,
+    minHeight: 150,
+    maxHeight: 300,
+    showFormatButton: true,
+    snippet: snippetMap.format
+  },
+  {
+    id: 'fixed',
+    label: t('固定高度'),
+    title: t('固定高度'),
+    description: t('不使用自动高度，设置固定容器高度'),
+    language: 'javascript',
+    autoHeight: false,
+    fixedHeight: true,
+    snippet: snippetMap.fixed
+  },
+  {
+    id: 'placeholder',
+    label: t('占位符'),
+    title: t('带占位符'),
+    description: t('编辑器为空时显示占位符文本'),
+    language: 'javascript',
+    autoHeight: true,
+    minHeight: 120,
+    maxHeight: 250,
+    placeholder: t('请输入 JavaScript 代码...'),
+    snippet: snippetMap.placeholder
+  }
+])
+// 方法定义
+// 事件处理
+const handleTabChange = (id: TabId) => {
+  activeTab.value = id
+}
+const toggleCode = (id: TabId) => {
+  showCodeMap[id] = !showCodeMap[id]
+}
+// 生命周期
+onMounted(() => {
+  setTimeout(() => {
+    isEditorReady.value = true
+  }, 100)
+})
 </script>
 
 <style scoped lang="scss">
 .code-editor-demo {
-  max-width: 1200px;
+  width: 100%;
+  min-width: 1200px;
   margin: 0 auto;
   padding: 24px;
   background: var(--white);
@@ -581,10 +565,11 @@ const code = ref('')
         &.active {
           background: var(--theme-color);
           border-color: var(--theme-color);
-          color: white;
+          color: var(--white);
         }
-        .code-icon {
-          font-size: 14px;
+        .code-toggle-icon {
+          width: 16px;
+          height: 16px;
         }
         .code-text {
           font-size: 13px;
@@ -693,5 +678,11 @@ const code = ref('')
       }
     }
   }
+}
+.fixed-height-wrapper {
+  height: 200px;
+}
+.fixed-editor-container {
+  height: 200px;
 }
 </style>
