@@ -40,7 +40,7 @@
           <SMock :search-value="data.value.split('@').pop() || ''" @close="handleCloseMock()"
             @select="v => handleSelectMockValue(v, data)"></SMock>
           <template #reference>
-            <div class="value-input-wrap w-25 mr-2"
+            <div class="value-input-wrap w-35 mr-2"
               :class="{ 'is-multiline': multilineInputs[data._id], 'is-pinned': focusedInputId === data._id && multilineInputs[data._id] }">
               <ClRichInput 
                 :model-value="data.value"
@@ -62,7 +62,7 @@
           </template>
         </el-popover>
         <!-- 参数值 File -->
-        <div v-if="data.type === 'file'" class="w-25 mr-2"
+        <div v-if="data.type === 'file'" class="w-35 mr-2"
           :class="{ active: data.value, 'no-border': (data.fileValueType === 'var' || data.fileValueType === 'file') }"
           @mouseenter="handleDisableDrag()" @mouseleave="handleEnableDrag()">
           <div class="file-input-wrap">
@@ -97,7 +97,7 @@
         <el-checkbox :model-value="data.required" :label="t('必有')" class="pr-2"
           @update:modelValue="v => handleChangeRequired(v as unknown as boolean, data)">
         </el-checkbox>
-        <el-input :model-value="data.description" class="w-40"
+        <el-input :model-value="data.description" class="w-30"
           :type="expandedInputs[data._id]?.description ? 'textarea' : 'text'"
           :autosize="expandedInputs[data._id]?.description ? { minRows: 2, maxRows: 6 } : undefined"
           :placeholder="t('参数描述与备注')" @focus="handleFocusDescription(data)" @blur="handleEnableDrag()"
@@ -515,10 +515,7 @@ const handleKeyDown = (e: KeyboardEvent, data: ApidocProperty<'string' | 'file'>
 
     &.is-multiline {
       .value-rich-input :deep(.cl-rich-input__editor) {
-        border: 1px solid var(--gray-400);
-        margin-left: -1px;
-        margin-top: -1px;
-        border-radius: 4px;
+        border-color: var(--gray-400);
       }
     }
 
@@ -532,7 +529,11 @@ const handleKeyDown = (e: KeyboardEvent, data: ApidocProperty<'string' | 'file'>
 
       :deep(.cl-rich-input__editor) {
         padding: 0px 10px;
-        border-bottom: 1px solid var(--gray-400);
+        border: 1px solid transparent;
+        border-bottom-color: var(--gray-400);
+        margin-left: -1px;
+        margin-top: -1px;
+        border-radius: 4px;
         min-height: 28px;
         line-height: 18px;
 

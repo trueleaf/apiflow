@@ -16,7 +16,7 @@
       :editor="editor"
       class="cl-rich-input__editor"
       :style="{
-        height: expandOnFocus && !isFocused ? `${minHeight + 1}px` : undefined,
+        height: expandOnFocus && !isFocused ? `${minHeight + 2}px` : undefined,
         minHeight: `${minHeight}px`,
         maxHeight: `${maxHeight}px`
       }"
