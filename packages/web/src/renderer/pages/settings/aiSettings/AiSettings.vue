@@ -9,8 +9,8 @@
       <!-- 左侧配置区域 -->
       <div class="settings-form">
         <el-form :model="formData" label-width="100px" label-position="left">
-          <el-form-item :label="$t('模型')">
-            <el-input v-model="formData.model" disabled placeholder="DeepSeek" />
+          <el-form-item :label="$t('模型名称')">
+            <el-input v-model="formData.model" placeholder="eg: deepseek" />
           </el-form-item>
 
           <el-form-item label="API Key">

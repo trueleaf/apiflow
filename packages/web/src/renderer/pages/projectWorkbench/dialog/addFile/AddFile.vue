@@ -68,7 +68,7 @@ import { generateEmptyHttpMockNode, generateEmptyHttpNode, generateEmptyWebsocke
 import { apiNodesCache } from '@/cache/nodes/nodesCache';
 import { nanoid } from 'nanoid';
 import { useRuntime } from '@/store/runtime/runtimeStore';
-import CodeEditor from '@/components/common/codeEditor/CodeEditor.vue';
+import CodeEditor from '@/components/ui/cleanDesign/codeEditor/CodeEditor.vue';
 import type { DeepSeekRequestBody } from '@src/types/ai';
 import type { HttpNode, WebSocketNode, HttpMockNode } from '@src/types';
 import { ArrowRight } from 'lucide-vue-next';

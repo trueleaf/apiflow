@@ -30,62 +30,35 @@
       
       <!-- 组件详情区域 -->
       <div v-if="selectedComponent" class="component-detail-container">
-        <component :is="getComponentByName(selectedComponent.name)"></component>
+        <div class="detail-header">
+          <h3 class="detail-title">{{ selectedComponent.name }} {{ $t('组件演示') }}</h3>
+          <button class="close-btn" @click="closeDetail">{{ $t('关闭') }}</button>
+        </div>
+        <div class="detail-content">
+          <CardComponent v-show="selectedComponent.name === 'Card'" />
+          <TabsComponent v-show="selectedComponent.name === 'Tabs'" />
+          <DraggableDialogComponent v-show="selectedComponent.name === 'DraggableDialog'" />
+          <ClDialogComponent v-show="selectedComponent.name === 'ClDialog'" />
+          <RichInputComponent v-show="selectedComponent.name === 'RichInput'" />
+          <CodeEditorComponent v-show="selectedComponent.name === 'CodeEditor'" />
+        </div>
       </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, defineAsyncComponent, onMounted } from 'vue'
+import { ref, computed, defineAsyncComponent } from 'vue'
 import { useI18n } from 'vue-i18n'
-
 const { t } = useI18n()
-
-// 导入组件
 const CardComponent = defineAsyncComponent(() => import('@/components/ui/cleanDesign/card/demo/Card.vue'))
 const TabsComponent = defineAsyncComponent(() => import('@/components/ui/cleanDesign/tabs/demo/Tabs.vue'))
 const DraggableDialogComponent = defineAsyncComponent(() => import('@/components/ui/cleanDesign/draggableDialog/demo/DraggableDialog.vue'))
 const ClDialogComponent = defineAsyncComponent(() => import('@/components/ui/cleanDesign/clDialog/demo/ClDialog.vue'))
 const RichInputComponent = defineAsyncComponent(() => import('@/components/ui/cleanDesign/richInput/demo/RichInput.vue'))
-
-// 搜索词
+const CodeEditorComponent = defineAsyncComponent(() => import('@/components/ui/cleanDesign/codeEditor/demo/CodeEditor.vue'))
 const searchTerm = ref('')
-
-// 选中的组件
 const selectedComponent = ref<any>(null)
-
-// 缓存键名
-const CACHE_KEY = 'componentLibrary_selectedComponent'
-
-// 从 localStorage 恢复选中的组件
-const restoreSelectedComponent = () => {
-  try {
-    const cached = localStorage.getItem(CACHE_KEY)
-    if (cached) {
-      const cachedComponent = JSON.parse(cached)
-      const foundComponent = components.value.find(comp => comp.name === cachedComponent.name)
-      if (foundComponent) {
-        selectedComponent.value = foundComponent
-      }
-    }
-  } catch {
-    // 恢复缓存失败，忽略错误
-  }
-}
-
-// 保存选中的组件到 localStorage
-const saveSelectedComponent = (component: any) => {
-  try {
-    if (component) {
-      localStorage.setItem(CACHE_KEY, JSON.stringify(component))
-    } else {
-      localStorage.removeItem(CACHE_KEY)
-    }
-  } catch {
-    // 保存缓存失败，忽略错误
-  }
-}
 
 // 组件库数据
 const components = ref([
@@ -118,6 +91,12 @@ const components = ref([
     icon: 'iconfont iconbiaoge',
     description: t('富文本变量输入组件，支持 {{variable}} 语法，可自定义变量样式和 Popover 交互'),
     category: t('表单组件')
+  },
+  {
+    name: 'CodeEditor',
+    icon: 'iconfont iconbiaoge',
+    description: t('基于 Monaco Editor 的代码编辑器，支持 JavaScript/TypeScript，自动补全、语法高亮、主题切换'),
+    category: t('表单组件')
   }
 ])
 
@@ -133,34 +112,12 @@ const filteredComponents = computed(() => {
   )
 })
 
-// 根据组件名称获取对应的组件
-const getComponentByName = (name: string) => {
-  switch (name.toLowerCase()) {
-    case 'card':
-      return CardComponent
-    case 'tabs':
-      return TabsComponent
-    case 'draggabledialog':
-      return DraggableDialogComponent
-    case 'cldialog':
-      return ClDialogComponent
-    case 'richinput':
-      return RichInputComponent
-    default:
-      return null
-  }
-}
-
-// 查看组件详情
 const viewComponentDetails = (component: any) => {
   selectedComponent.value = component
-  saveSelectedComponent(component)
 }
-
-// 页面加载时恢复缓存的组件
-onMounted(() => {
-  restoreSelectedComponent()
-})
+const closeDetail = () => {
+  selectedComponent.value = null
+}
 </script>
 
 <style lang="scss" scoped>
@@ -274,22 +231,40 @@ onMounted(() => {
       font-size: 14px;
     }
     
-    // 组件详情区域样式
     .component-detail-container {
       margin-top: 40px;
-      padding: 20px;
       border: 1px solid #ebeef5;
       border-radius: 6px;
       background-color: #fff;
-      
-      .detail-title {
-        margin-top: 0;
-        margin-bottom: 20px;
-        font-size: 18px;
-        font-weight: 500;
-        color: #333;
-        padding-bottom: 10px;
+      .detail-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 16px 20px;
         border-bottom: 1px solid #ebeef5;
+        .detail-title {
+          margin: 0;
+          font-size: 18px;
+          font-weight: 500;
+          color: #333;
+        }
+        .close-btn {
+          padding: 6px 16px;
+          background: #f5f7fa;
+          border: 1px solid var(--el-border-color);
+          border-radius: 4px;
+          color: var(--el-text-color-regular);
+          cursor: pointer;
+          transition: all 0.3s;
+          &:hover {
+            background: #ecf5ff;
+            color: #007aff;
+            border-color: #c6e2ff;
+          }
+        }
+      }
+      .detail-content {
+        padding: 20px;
       }
     }
   }

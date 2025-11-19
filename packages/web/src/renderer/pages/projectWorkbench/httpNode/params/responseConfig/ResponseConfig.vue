@@ -1,108 +1,117 @@
 <template>
   <div class="response-params">
-    <SCollapseCard v-for="(item, index) in responseData" :key="index" :fold="collapseState[item._id || ''] === false"
-      @change="handleChangeCollapseState($event, item)">
-      <!-- 操作区域 -->
-      <template #head>
-        <div class="info-wrap">
-          <div class="label">
-            <div class="d-flex a-center">
-              <span class="flex0">{{ t("名称") }}：</span>
-              <span 
-                v-if="(!currentEditNode || currentEditNode.index !== index)" 
-                class="edit-title text-ellipsis"
-                :title="item.title"
-              >
-                {{ item.title }}
-              </span>
-              <input v-if="currentEditNode && currentEditNode.index === index" :ref="bindRef"
-                v-model="currentEditNode._title" class="edit-input"
-                :class="{ error: currentEditNode._title.length === 0 }" type="text" :placeholder="t('不能为空')"
-                @click.stop="() => { }" @keydown.enter="handleConfirmTitle(item, index)">
-              <span v-if="currentEditNode && currentEditNode.title === item.title"
-                class="ml-1 cursor-pointer theme-color" @click.stop="handleConfirmTitle(item, index)">{{ t("确定")
-                }}</span>
-              <span v-if="currentEditNode && currentEditNode.title === item.title"
-                class="ml-1 cursor-pointer theme-color" @click.stop="handleCancelEdit">{{ t("取消") }}</span>
-              <el-icon v-if="!currentEditNode" :title="t('修改名称')" class="edit-icon" :size="16"
-                @click.stop="handleChangeEditNode(item, index)">
-                <Edit />
-              </el-icon>
-            </div>
+    <div v-for="(item, index) in responseData" :key="index" class="response-collapse-card">
+      <div class="card-header">
+        <div class="head-section">
+          <div class="collapse-control" @click="toggleCollapseCard(item._id || '')">
+            <el-icon v-if="collapseState[item._id || ''] !== false">
+              <CaretBottom />
+            </el-icon>
+            <el-icon v-else>
+              <CaretRight />
+            </el-icon>
           </div>
-          <!-- 状态码 -->
-          <el-divider direction="vertical"></el-divider>
-          <div class="status-code">
-            <div class="d-flex a-center j-center">
-              <span class="flex0">{{ t("状态码") }}：</span>
-              <el-popover :visible="statusVisibleMap[item._id || '']" width="500px" placement="bottom">
-                <template #reference>
-                  <span class="d-flex a-center cursor-pointer" @click.stop="toggleStatusModel(item)">
-                    <span v-if="item.statusCode >= 100 && item.statusCode < 200" class="green">{{ item.statusCode
-                      }}</span>
-                    <span v-else-if="item.statusCode >= 200 && item.statusCode < 300" class="green">{{ item.statusCode
-                      }}</span>
-                    <span v-else-if="item.statusCode >= 300 && item.statusCode < 400" class="orange">{{ item.statusCode
-                      }}</span>
-                    <span v-else-if="item.statusCode >= 400 && item.statusCode < 500" class="red">{{ item.statusCode
-                      }}</span>
-                    <span v-else class="red">{{ item.statusCode }}</span>
-                    <el-icon :size="16" class="ml-1">
-                      <arrow-down />
-                    </el-icon>
-                  </span>
-                </template>
-                <SStatus @close="handleCloseStatusModel(item)" @select="handleSelectStatusCode($event, index)">
-                </SStatus>
-              </el-popover>
+          <div class="info-wrap">
+            <div class="label">
+              <div class="d-flex a-center">
+                <span class="flex0">{{ t("名称") }}：</span>
+                <span
+                  v-if="(!currentEditNode || currentEditNode.index !== index)"
+                  class="edit-title text-ellipsis"
+                  :title="item.title"
+                >
+                  {{ item.title }}
+                </span>
+                <input v-if="currentEditNode && currentEditNode.index === index" :ref="bindRef"
+                  v-model="currentEditNode._title" class="edit-input"
+                  :class="{ error: currentEditNode._title.length === 0 }" type="text" :placeholder="t('不能为空')"
+                  @click.stop="() => { }" @keydown.enter="handleConfirmTitle(item, index)">
+                <span v-if="currentEditNode && currentEditNode.title === item.title"
+                  class="ml-1 cursor-pointer theme-color" @click.stop="handleConfirmTitle(item, index)">{{ t("确定")
+                  }}</span>
+                <span v-if="currentEditNode && currentEditNode.title === item.title"
+                  class="ml-1 cursor-pointer theme-color" @click.stop="handleCancelEdit">{{ t("取消") }}</span>
+                <el-icon v-if="!currentEditNode" :title="t('修改名称')" class="edit-icon" :size="16"
+                  @click.stop="handleChangeEditNode(item, index)">
+                  <Edit />
+                </el-icon>
+              </div>
             </div>
-          </div>
-          <!-- content-type -->
-          <el-divider direction="vertical"></el-divider>
-          <div class="content-type">
-            <div class="d-flex a-center j-center">
-              <!-- <span class="flex0">{{ t("返回格式") }}：</span> -->
-              <el-popover :visible="mimeVisibleMap[item._id || '']" trigger="click" width="500px" placement="bottom">
-                <template #reference>
-                  <span class="d-flex a-center cursor-pointer" @click.stop="toggleMimeModel(item)">
-                    <el-tooltip :show-after="500" :content="item.value.dataType" placement="top" :effect="Effect.LIGHT">
-                      <span class="type-text text-ellipsis">{{ item.value.dataType }}</span>
-                    </el-tooltip>
-                    <el-icon :size="16" class="ml-1">
-                      <arrow-down />
-                    </el-icon>
-                  </span>
-                </template>
-                <SMime @close="handleCloseMimeModel(item)" @select="handleSelectContentType($event, index)"></SMime>
-              </el-popover>
+            <!-- 状态码 -->
+            <el-divider direction="vertical"></el-divider>
+            <div class="status-code">
+              <div class="d-flex a-center j-center">
+                <span class="flex0">{{ t("状态码") }}：</span>
+                <el-popover :visible="statusVisibleMap[item._id || '']" width="500px" placement="bottom">
+                  <template #reference>
+                    <span class="d-flex a-center cursor-pointer" @click.stop="toggleStatusModel(item)">
+                      <span v-if="item.statusCode >= 100 && item.statusCode < 200" class="green">{{ item.statusCode
+                        }}</span>
+                      <span v-else-if="item.statusCode >= 200 && item.statusCode < 300" class="green">{{ item.statusCode
+                        }}</span>
+                      <span v-else-if="item.statusCode >= 300 && item.statusCode < 400" class="orange">{{ item.statusCode
+                        }}</span>
+                      <span v-else-if="item.statusCode >= 400 && item.statusCode < 500" class="red">{{ item.statusCode
+                        }}</span>
+                      <span v-else class="red">{{ item.statusCode }}</span>
+                      <el-icon :size="16" class="ml-1">
+                        <arrow-down />
+                      </el-icon>
+                    </span>
+                  </template>
+                  <SStatus @close="handleCloseStatusModel(item)" @select="handleSelectStatusCode($event, index)">
+                  </SStatus>
+                </el-popover>
+              </div>
+            </div>
+            <!-- content-type -->
+            <el-divider direction="vertical"></el-divider>
+            <div class="content-type">
+              <div class="d-flex a-center j-center">
+                <!-- <span class="flex0">{{ t("返回格式") }}：</span> -->
+                <el-popover :visible="mimeVisibleMap[item._id || '']" trigger="click" width="500px" placement="bottom">
+                  <template #reference>
+                    <span class="d-flex a-center cursor-pointer" @click.stop="toggleMimeModel(item)">
+                      <el-tooltip :show-after="500" :content="item.value.dataType" placement="top" :effect="Effect.LIGHT">
+                        <span class="type-text text-ellipsis">{{ item.value.dataType }}</span>
+                      </el-tooltip>
+                      <el-icon :size="16" class="ml-1">
+                        <arrow-down />
+                      </el-icon>
+                    </span>
+                  </template>
+                  <SMime @close="handleCloseMimeModel(item)" @select="handleSelectContentType($event, index)"></SMime>
+                </el-popover>
+              </div>
             </div>
           </div>
         </div>
-      </template>
-      <!-- 内容展示 -->
-      <div v-if="checkDisplayType(item.value.dataType) === 'json'" class="editor-wrap editor-border"
-        :class="{ vertical: layout === 'vertical' }">
-        <SJsonEditor ref="jsonComponents" :model-value="item.value.strJson"
-          @update:modelValue="handleChangeResponseJson($event, index)"></SJsonEditor>
-        <el-button type="primary" text class="format-btn" @click="handleFormat(index)">{{ t('格式化') }}</el-button>
       </div>
-      <!-- 文本类型 -->
-      <div v-else-if="checkDisplayType(item.value.dataType) === 'text'" class="editor-wrap"
-        :class="{ vertical: layout === 'vertical' }">
-        <SRawEditor :model-value="item.value.text" :type="item.value.dataType" class="editor"
-          @update:modelValue="handleChangeTextValeu($event, index)">
-        </SRawEditor>
+      <div v-show="collapseState[item._id || ''] !== false" class="card-content">
+        <!-- 内容展示 -->
+        <div v-if="checkDisplayType(item.value.dataType) === 'json'" class="editor-wrap editor-border"
+          :class="{ vertical: layout === 'vertical' }">
+          <SJsonEditor ref="jsonComponents" :model-value="item.value.strJson"
+            @update:modelValue="handleChangeResponseJson($event, index)"></SJsonEditor>
+          <el-button type="primary" text class="format-btn" @click="handleFormat(index)">{{ t('格式化') }}</el-button>
+        </div>
+        <!-- 文本类型 -->
+        <div v-else-if="checkDisplayType(item.value.dataType) === 'text'" class="editor-wrap"
+          :class="{ vertical: layout === 'vertical' }">
+          <SRawEditor :model-value="item.value.text" :type="item.value.dataType" class="editor"
+            @update:modelValue="handleChangeTextValeu($event, index)">
+          </SRawEditor>
+        </div>
       </div>
-    </SCollapseCard>
+    </div>
   </div>
 </template>
 
 <script lang="ts" setup>
 import { useI18n } from 'vue-i18n'
-import SCollapseCard from '@/components/common/collapseCard/ClCollapseCard.vue'
 import { computed, ref, Ref, onMounted, onUnmounted, watch } from 'vue'
 import { Effect } from 'element-plus';
-import { ArrowDown, Edit } from '@element-plus/icons-vue'
+import { ArrowDown, Edit, CaretRight, CaretBottom } from '@element-plus/icons-vue'
 import type { HttpNodeResponseParams, HttpNodeResponseContentType, HttpNodeContentType } from '@src/types'
 import { appState } from '@/cache/appState/appStateCache.ts'
 import SStatus from './children/Status.vue'
@@ -312,8 +321,10 @@ const handleFormat = (index: number) => {
   }
 }
 const collapseState: Ref<Record<string, boolean>> = ref({});
-const handleChangeCollapseState = (isShow: boolean, item: HttpNodeResponseParams) => {
-  appState.setHttpNodeResponseCollapseState(item._id || "", isShow);
+const toggleCollapseCard = (itemId: string) => {
+  const currentState = collapseState.value[itemId] !== false;
+  collapseState.value[itemId] = !currentState;
+  appState.setHttpNodeResponseCollapseState(itemId, !currentState);
 }
 onMounted(() => {
   collapseState.value = appState.getHttpNodeResponseCollapseState();
@@ -346,6 +357,47 @@ watch(() => responseData.value, (newVal, oldVal) => {
 
 <style lang='scss' scoped>
 .response-params {
+  .response-collapse-card {
+    width: 100%;
+    background: var(--white);
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 10px;
+
+    .card-header {
+      background: var(--gray-200);
+      display: flex;
+      align-items: center;
+      height: 40px;
+
+      .head-section {
+        padding-right: 20px;
+        display: flex;
+        align-items: center;
+        height: 100%;
+        min-width: 150px;
+        border-right: 1px solid var(--gray-300);
+
+        .collapse-control {
+          width: 40px;
+          height: 100%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          cursor: pointer;
+
+          &:hover {
+            background: var(--gray-300);
+          }
+        }
+      }
+    }
+
+    .card-content {
+      flex: 1;
+      overflow: hidden;
+    }
+  }
   .info-wrap {
     display: flex;
     height: 100%;

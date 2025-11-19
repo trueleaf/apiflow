@@ -1,5 +1,5 @@
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
-import type { CompletionSuggestion } from '@/components/common/codeEditor/types';
+import type { CompletionSuggestion } from '@/components/ui/cleanDesign/codeEditor/types';
 
 // req 对象的代码提示配置
 export const reqCompletionSuggestions: CompletionSuggestion[] = [

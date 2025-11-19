@@ -40,7 +40,7 @@
 <script lang="ts" setup>
 import { ref, watch, onMounted, computed } from 'vue';
 import DraggableDialog from '@/components/ui/cleanDesign/draggableDialog/DraggableDialog.vue';
-import CodeEditor from '@/components/common/codeEditor/CodeEditor.vue';
+import CodeEditor from '@/components/ui/cleanDesign/codeEditor/CodeEditor.vue';
 import { Filter } from 'lucide-vue-next';
 import { useI18n } from 'vue-i18n';
 

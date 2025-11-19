@@ -1,67 +1,92 @@
 <template>
   <div v-if="responseInfo.requestData.url" class="request-info" :class="{ vertical: layout === 'vertical' }">
-    <SCollapse :title="t('基本信息')" bold>
-      <div class="pl-1 d-flex a-top">
-        <span class="flex0 text-bold mr-1">URL:</span>
-        <span class="f-sm">{{ responseInfo.requestData.url }}</span>
+    <div class="collapse-section">
+      <div class="collapse-header" @click="collapseStates.basicInfo = !collapseStates.basicInfo">
+        <span class="gray-700 icon-wrapper">
+          <ChevronDown v-if="collapseStates.basicInfo" :size="16" />
+          <ChevronRight v-else :size="16" />
+        </span>
+        <span class="ml-1">{{ t('基本信息') }}</span>
       </div>
-      <div class="mt-1 pl-1 d-flex a-top">
-        <span class="flex0 text-bold mr-1">Method:</span>
-        <span class="f-sm">{{ responseInfo.requestData.method }}</span>
+      <div v-show="collapseStates.basicInfo" class="collapse-content">
+        <div class="pl-1 d-flex a-top">
+          <span class="flex0 text-bold mr-1">URL:</span>
+          <span class="f-sm">{{ responseInfo.requestData.url }}</span>
+        </div>
+        <div class="mt-1 pl-1 d-flex a-top">
+          <span class="flex0 text-bold mr-1">Method:</span>
+          <span class="f-sm">{{ responseInfo.requestData.method }}</span>
+        </div>
       </div>
-    </SCollapse>
-    <SCollapse :title="t('请求头')" bold>
-      <div v-for="(value, key) in headers" :key="key" class="pl-1 mt-1 d-flex a-top">
-        <div class="flex0 mr-1 text-bold">{{ upperHeaderKey(key) }}:</div>
-        <div>{{ value }}</div>
+    </div>
+    <div class="collapse-section">
+      <div class="collapse-header" @click="collapseStates.headers = !collapseStates.headers">
+        <span class="gray-700 icon-wrapper">
+          <ChevronDown v-if="collapseStates.headers" :size="16" />
+          <ChevronRight v-else :size="16" />
+        </span>
+        <span class="ml-1">{{ t('请求头') }}</span>
       </div>
-    </SCollapse>
-    <SCollapse bold no-padding-x>
-      <template #title>
-        <span>{{ t('请求body') }}</span>
-        <span v-if="contentType">({{ contentType }})</span>
-      </template>
-  
-      <div v-if="contentType === 'application/json'" class="body-wrap">
-        <SJsonEditor 
-          :modelValue="formatJsonStr(responseInfo.requestData.body as string)" 
-          read-only 
-          :config="{ fontSize: 13, language: 'json', lineNumbers: 'off' }"
-        >
-        </SJsonEditor>
+      <div v-show="collapseStates.headers" class="collapse-content">
+        <div v-for="(value, key) in headers" :key="key" class="pl-1 mt-1 d-flex a-top">
+          <div class="flex0 mr-1 text-bold">{{ upperHeaderKey(key) }}:</div>
+          <div>{{ value }}</div>
+        </div>
       </div>
-      <div v-if="contentType === 'application/x-www-form-urlencoded'" class="body-wrap">
-        <SJsonEditor 
-          :modelValue="formatJsonStr(responseInfo.requestData.body as string)" 
-          read-only 
-          :config="{ fontSize: 13, language: 'text/plain', lineNumbers: 'off', wordWrap: 'on' }"
-        >
-        </SJsonEditor>
+    </div>
+    <div class="collapse-section">
+      <div class="collapse-header" @click="collapseStates.body = !collapseStates.body">
+        <span class="gray-700 icon-wrapper">
+          <ChevronDown v-if="collapseStates.body" :size="16" />
+          <ChevronRight v-else :size="16" />
+        </span>
+        <span class="ml-1">
+          <span>{{ t('请求body') }}</span>
+          <span v-if="contentType">({{ contentType }})</span>
+        </span>
       </div>
-      <pre v-else-if="contentType?.includes('multipart/')" class="pl-1 pre pre-body">
-        <div 
-          class="theme-color cursor-pointer d-flex j-end mb-2 download" 
-          @click="() => downloadStringAsText(responseInfo.requestData.body as string, 'multiPartBody.txt')"
-        >
-          <span>{{t('下载完整数据')}}</span>
-          <span>({{ formatUnit((responseInfo.requestData.body as string).length, 'bytes') }})</span>
-        </div>{{ safedMultipart((responseInfo.requestData.body as string)) }}
-      </pre>
-      <pre v-else-if="contentType === 'text/html'" class="pre pre-body">{{ responseInfo.requestData.body }}</pre>
-      <pre v-else-if="contentType === 'text/javascript'" class="pre pre-body">{{ responseInfo.requestData.body }}</pre>
-      <pre v-else-if="contentType === 'text/plain'" class="pre pre-body">{{ responseInfo.requestData.body }}</pre>
-      <pre v-else-if="contentType === 'application/xml'" class="pre pre-body">{{ responseInfo.requestData.body }}</pre>
-    </SCollapse>
+      <div v-show="collapseStates.body" class="collapse-content no-padding-x">
+        <div v-if="contentType === 'application/json'" class="body-wrap">
+          <SJsonEditor
+            :modelValue="formatJsonStr(responseInfo.requestData.body as string)"
+            read-only
+            :config="{ fontSize: 13, language: 'json', lineNumbers: 'off' }"
+          >
+          </SJsonEditor>
+        </div>
+        <div v-if="contentType === 'application/x-www-form-urlencoded'" class="body-wrap">
+          <SJsonEditor
+            :modelValue="formatJsonStr(responseInfo.requestData.body as string)"
+            read-only
+            :config="{ fontSize: 13, language: 'text/plain', lineNumbers: 'off', wordWrap: 'on' }"
+          >
+          </SJsonEditor>
+        </div>
+        <pre v-else-if="contentType?.includes('multipart/')" class="pl-1 pre pre-body">
+          <div
+            class="theme-color cursor-pointer d-flex j-end mb-2 download"
+            @click="() => downloadStringAsText(responseInfo.requestData.body as string, 'multiPartBody.txt')"
+          >
+            <span>{{t('下载完整数据')}}</span>
+            <span>({{ formatUnit((responseInfo.requestData.body as string).length, 'bytes') }})</span>
+          </div>{{ safedMultipart((responseInfo.requestData.body as string)) }}
+        </pre>
+        <pre v-else-if="contentType === 'text/html'" class="pre pre-body">{{ responseInfo.requestData.body }}</pre>
+        <pre v-else-if="contentType === 'text/javascript'" class="pre pre-body">{{ responseInfo.requestData.body }}</pre>
+        <pre v-else-if="contentType === 'text/plain'" class="pre pre-body">{{ responseInfo.requestData.body }}</pre>
+        <pre v-else-if="contentType === 'application/xml'" class="pre pre-body">{{ responseInfo.requestData.body }}</pre>
+      </div>
+    </div>
   </div>
   <div v-else class="d-flex a-center j-center">{{ t('等待发送请求') }}</div>
 </template>
 
 <script lang="ts" setup>
 import { useI18n } from 'vue-i18n'
-import { computed } from 'vue'
+import { computed, reactive } from 'vue'
 import beautify from 'js-beautify'
 import { useHttpNode } from '@/store/apidoc/httpNodeStore';
-import SCollapse from '@/components/common/collapse/ClCollapse.vue'
+import { ChevronDown, ChevronRight } from 'lucide-vue-next'
 import { useApidocBaseInfo } from '@/store/apidoc/baseInfoStore';
 import { useApidocResponse } from '@/store/apidoc/responseStore';
 import { downloadStringAsText } from '@/helper'
@@ -74,6 +99,11 @@ const apidocBaseInfoStore = useApidocBaseInfo();
 const apidocResponseStore = useApidocResponse();
 const { responseInfo } = storeToRefs(apidocResponseStore);
 const { t } = useI18n()
+const collapseStates = reactive({
+  basicInfo: true,
+  headers: true,
+  body: true,
+})
 
 const headers = computed(() => {
   const requestHeaders = responseInfo.value.requestData.headers;
@@ -116,6 +146,38 @@ const { layout } = storeToRefs(apidocBaseInfoStore)
 
   &.vertical {
     height: 100%;
+  }
+  .collapse-section {
+    margin-bottom: 4px;
+
+    .collapse-header {
+      cursor: pointer;
+      height: 25px;
+      display: flex;
+      align-items: center;
+      user-select: none;
+      color: var(--gray-800);
+      font-size: 14px;
+      font-weight: bold;
+
+      &:hover {
+        background: var(--gray-200);
+      }
+
+      .icon-wrapper {
+        margin-top: 3px;
+      }
+    }
+
+    .collapse-content {
+      padding-right: 8px;
+      padding-left: 20px;
+      color: var(--gray-700);
+
+      &.no-padding-x {
+        padding-left: 0;
+      }
+    }
   }
   .body-wrap {
     height: 200px;
