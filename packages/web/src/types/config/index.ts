@@ -213,7 +213,7 @@ export type MainConfig = {
     /**
      * 模型名称
      */
-    model: string,
+    modelName: string,
     /**
      * 接口密钥
      */

@@ -11,7 +11,7 @@ export const mainConfig: MainConfig = {
   topbarViewHeight: 35,
   // AI配置
   aiConfig: {
-    model: 'DeepSeek',
+    modelName: 'DeepSeek',
     apiKey: '',
     apiUrl: 'https://api.deepseek.com/chat/completions',
     maxTokens: 2000,

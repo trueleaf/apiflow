@@ -10,7 +10,7 @@
       <div class="settings-form">
         <el-form :model="formData" label-width="100px" label-position="left">
           <el-form-item :label="$t('模型名称')">
-            <el-input v-model="formData.model" placeholder="eg: deepseek" />
+            <el-input v-model="formData.modelName" placeholder="eg: deepseek" />
           </el-form-item>
 
           <el-form-item label="API Key">
@@ -128,7 +128,7 @@ type AiConfig = Config['mainConfig']['aiConfig']
 |--------------------------------------------------------------------------
 */
 const formData = ref<AiConfig>({
-  model: '',
+  modelName: '',
   apiKey: '',
   apiUrl: '',
   timeout: 60000,
@@ -207,7 +207,7 @@ const handleSave = async () => {
 // 重置配置
 const handleReset = async () => {
   formData.value = {
-    model: '',
+    modelName: '',
     apiKey: '',
     apiUrl: '',
     timeout: 60000,
