@@ -142,5 +142,4 @@ export class AiManager {
     return { code: 0, msg: '流式请求已启动', data: { requestId: params.requestId } };
   }
 }
-const globalAiManager = new AiManager();
-export { globalAiManager };
+export const globalAiManager = new AiManager();

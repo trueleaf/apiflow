@@ -314,3 +314,54 @@ export interface MessageInstance {
   close: () => void
 }
 
+/*
+|--------------------------------------------------------------------------
+| Confirm组件
+|--------------------------------------------------------------------------
+*/
+export type ConfirmType = 'info' | 'warning' | 'error' | 'success'
+
+export interface ConfirmOptions {
+  title?: string
+  content: string
+  type?: ConfirmType
+  showCheckbox?: boolean
+  checkboxText?: string
+  confirmButtonText?: string
+  cancelButtonText?: string
+  onConfirm?: (checked: boolean) => void
+  onCancel?: () => void
+  onClose?: () => void
+}
+
+export interface ConfirmProps {
+  visible: boolean
+  title?: string
+  content: string
+  type?: ConfirmType
+  showCheckbox?: boolean
+  checkboxText?: string
+  confirmButtonText?: string
+  cancelButtonText?: string
+  zIndex?: number
+  onConfirm?: (checked: boolean) => void
+  onCancel?: () => void
+  onClose?: () => void
+}
+
+export interface ConfirmEmits {
+  (e: 'update:visible', value: boolean): void
+  (e: 'confirm', checked: boolean): void
+  (e: 'cancel'): void
+  (e: 'close'): void
+}
+
+export interface ConfirmResult {
+  confirmed: boolean
+  checked: boolean
+}
+
+export interface ConfirmInstance {
+  close: () => void
+}
+

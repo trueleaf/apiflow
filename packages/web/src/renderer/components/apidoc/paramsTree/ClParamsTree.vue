@@ -236,20 +236,11 @@ const handleAllowDrop = (_: Node, __drop: Node, type: 'inner' | 'prev' | 'next')
   return type !== 'inner';
 };
 
-const handleNodeDrop = (dragNode: Node, dropNode: Node, type: 'inner' | 'prev' | 'next') => {
+const handleNodeDrop = (_dragNode: Node, _dropNode: Node, type: 'inner' | 'prev' | 'next') => {
   if (type === 'inner') {
     return;
   }
-  const fromId = dragNode.data._id as string;
-  const toId = dropNode.data._id as string;
-  const fromIndex = localData.value.findIndex(i => i._id === fromId);
-  const toIndex = localData.value.findIndex(i => i._id === toId);
-  if (fromIndex < 0 || toIndex < 0) {
-    return;
-  }
-  const item = localData.value.splice(fromIndex, 1)[0];
-  const insertIndex = type === 'prev' ? toIndex : toIndex + 1;
-  localData.value.splice(insertIndex, 0, item);
+  // el-tree 会自动更新 localData，不需要手动 splice，否则会导致顺序错误
   emitChange();
 };
 
@@ -274,6 +265,10 @@ const autoAppendIfNeeded = (data: ApidocProperty<'string' | 'file'>) => {
   if (isLast && hasKey) {
     const nextProperty = generateEmptyProperty<'string'>();
     localData.value.push(nextProperty);
+    defaultCheckedKeys.value.push(nextProperty._id);
+    nextTick(() => {
+      treeRef.value?.setChecked(nextProperty._id, true, false);
+    });
   }
 };
 
