@@ -496,6 +496,10 @@ export const sendRequest = async () => {
         delete finalSendHeaders.cookie;
       }
     }
+    // 注入 User-Agent 配置
+    if (!finalSendHeaders['user-agent'] && httpNodeConfigData.userAgent) {
+      finalSendHeaders['user-agent'] = httpNodeConfigData.userAgent;
+    }
     window.electronAPI?.sendRequest({
       url,
       method,

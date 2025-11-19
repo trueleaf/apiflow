@@ -35,7 +35,7 @@
 
 <script setup lang="ts">
 import type { ConfirmProps, ConfirmEmits } from '@src/types/components/components'
-import { useI18n } from 'vue-i18n'
+import { i18n } from '@/i18n'
 import { Info, AlertTriangle, XCircle, CheckCircle, X } from 'lucide-vue-next'
 import './style/confirm.css'
 
@@ -45,7 +45,7 @@ const props = withDefaults(defineProps<ConfirmProps>(), {
   zIndex: 2000,
 })
 const emit = defineEmits<ConfirmEmits>()
-const { t } = useI18n()
+const t = i18n.global.t
 const checked = ref(false)
 const typeIcon = computed(() => {
   const icons = {

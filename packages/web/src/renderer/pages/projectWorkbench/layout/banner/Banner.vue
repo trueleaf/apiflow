@@ -2,6 +2,7 @@
   <SResizeX :min="280" :max="450" :width="300" name="banner" class="banner" tabindex="1">
     <STool @fresh="getBannerData" @filter="handleFilterNode" @changeProject="handleChangeProject"></STool>
     <SLoading :loading="loading" class="tree-wrap" @contextmenu.prevent="handleWrapContextmenu">
+      
       <el-tree 
         ref="docTree" 
         :class="{ 'show-more': showMoreNodeInfo }" 
