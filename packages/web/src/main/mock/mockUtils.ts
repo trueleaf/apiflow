@@ -825,7 +825,7 @@ export class MockUtils {
           }
 
           try {
-            const aiResult = await globalAiManager.sendRequestByDeepSeek({
+            const aiResult = await globalAiManager.sendRequest({
               model: 'deepseek-chat',
               messages: [
                 {
@@ -929,7 +929,7 @@ export class MockUtils {
               }
             }
             
-            const aiResult = await globalAiManager.sendRequestByDeepSeek({
+            const aiResult = await globalAiManager.sendRequest({
               model: 'deepseek-chat',
               messages: [
                 {

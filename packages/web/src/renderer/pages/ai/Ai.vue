@@ -183,7 +183,7 @@ import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { X, Bot, Send, ChevronDown, Check, AlertTriangle, ArrowRight, Plus, History, Settings, LoaderCircle } from 'lucide-vue-next'
 import { nanoid } from 'nanoid/non-secure'
-import type { DeepSeekRequestBody, DeepSeekMessage, AskMessage, TextResponseMessage, LoadingMessage } from '@src/types/ai'
+import type { OpenAIRequestBody, OpenAIMessage, AskMessage, TextResponseMessage, LoadingMessage } from '@src/types/ai'
 import { IPC_EVENTS } from '@src/types/ipc'
 import { config } from '@src/config/config'
 import { appState } from '@/cache/appState/appStateCache'
@@ -265,8 +265,8 @@ watch(() => agentStore.agentMessageList.length, () => {
   scrollToBottom()
 })
 
-const buildDeepSeekRequestBody = (userMessage: string): DeepSeekRequestBody & { stream: true } => {
-  const messages: DeepSeekMessage[] = []
+const buildOpenAIRequestBody = (userMessage: string): OpenAIRequestBody & { stream: true } => {
+  const messages: OpenAIMessage[] = []
   const recentMessages = agentStore.getLatestMessages(10)
   
   for (const msg of recentMessages) {
@@ -588,7 +588,7 @@ const handleSend = async () => {
   streamingMessageId.value = null
   agentStore.setWorkingStatus('working')
   
-  const requestBody = buildDeepSeekRequestBody(message)
+  const requestBody = buildOpenAIRequestBody(message)
   
   if (!window.electronAPI?.aiManager?.textChatWithStream) {
     if (loadingMessageId.value) {

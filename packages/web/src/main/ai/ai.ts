@@ -1,6 +1,6 @@
 import got from 'got';
 import { mainConfig } from '@src/config/mainConfig';
-import type { DeepSeekRequestBody, DeepSeekResponse, SendRequestByDeepSeekParams, SendStreamRequestByDeepSeekParams } from '@src/types/ai';
+import type { OpenAIRequestBody, OpenAIResponse, SendRequestParams, SendStreamRequestParams } from '@src/types/ai';
 import type { CommonResponse } from '@src/types/project';
 
 export class AiManager {
@@ -24,7 +24,7 @@ export class AiManager {
     }
     return { code: 0, msg: '', data: null };
   }
-  private async sendDeepSeekRequest(body: DeepSeekRequestBody): Promise<CommonResponse<DeepSeekResponse | null>> {
+  private async sendOpenAIRequest(body: OpenAIRequestBody): Promise<CommonResponse<OpenAIResponse | null>> {
     try {
       const response = await got.post(this.apiUrl, {
         json: body,
@@ -35,7 +35,7 @@ export class AiManager {
         timeout: {
           request: this.timeout,
         },
-      }).json<DeepSeekResponse>();
+      }).json<OpenAIResponse>();
       return { code: 0, msg: '', data: response };
     } catch (error) {
       const msg = error instanceof Error ? error.message : 'AI API 请求失败';
@@ -43,15 +43,15 @@ export class AiManager {
     }
   }
 
-  async sendRequestByDeepSeek(body: SendRequestByDeepSeekParams): Promise<CommonResponse<DeepSeekResponse | null>> {
+  async sendRequest(body: SendRequestParams): Promise<CommonResponse<OpenAIResponse | null>> {
     const configCheck = this.validateConfig();
     if (configCheck.code !== 0) {
       return { code: configCheck.code, msg: configCheck.msg, data: null };
     }
-    return await this.sendDeepSeekRequest(body);
+    return await this.sendOpenAIRequest(body);
   }
 
-  async sendStreamRequestByDeepSeek(params: SendStreamRequestByDeepSeekParams): Promise<CommonResponse<{ requestId: string } | null>> {
+  async sendStreamRequest(params: SendStreamRequestParams): Promise<CommonResponse<{ requestId: string } | null>> {
     if (params.action === 'cancel') {
       const abortController = this.abortControllers.get(params.requestId);
       if (abortController) {

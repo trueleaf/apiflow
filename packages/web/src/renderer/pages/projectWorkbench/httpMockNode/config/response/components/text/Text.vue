@@ -123,7 +123,7 @@ import { Loading, Top } from '@element-plus/icons-vue'
 import SJsonEditor from '@/components/common/jsonEditor/ClJsonEditor.vue'
 import { appState } from '@/cache/appState/appStateCache'
 import type { HttpMockNode } from '@src/types'
-import type { DeepSeekRequestBody, DeepSeekResponse } from '@src/types/ai'
+import type { OpenAIRequestBody, OpenAIResponse } from '@src/types/ai'
 import { message } from '@/helper'
 type ResponseItem = HttpMockNode['response'][0]
 
@@ -139,7 +139,7 @@ const showRandomTextSizeHint = ref(true)
 const aiGeneratingText = ref(false)
 const aiPreviewText = ref('')
 
-const getMessageContent = (response: DeepSeekResponse | null): string => {
+const getMessageContent = (response: OpenAIResponse | null): string => {
   if (!response) {
     return ''
   }
@@ -183,7 +183,7 @@ const handleGenerateTextPreview = async () => {
   aiGeneratingText.value = true
   aiPreviewText.value = ''
   try {
-    const requestBody: DeepSeekRequestBody = {
+    const requestBody: OpenAIRequestBody = {
       model: 'deepseek-chat',
       messages: [
         {

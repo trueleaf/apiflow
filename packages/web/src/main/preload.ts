@@ -5,7 +5,7 @@ import { gotRequest } from './sendRequest'
 import { StandaloneExportHtmlParams } from '@src/types/standalone.ts'
 import { WindowState } from '@src/types/index.ts'
 import type { CommonResponse } from '@src/types/project'
-import type { DeepSeekRequestBody } from '@src/types/ai'
+import type { OpenAIRequestBody } from '@src/types/ai'
 import { IPC_EVENTS } from '@src/types/ipc'
 
 const openDevTools = () => {
@@ -145,16 +145,16 @@ const updateAiConfig = (params: { apiKey: string; apiUrl: string; timeout: numbe
   return ipcRenderer.invoke(IPC_EVENTS.ai.rendererToMain.updateConfig, params)
 }
 
-const textChat = (request: DeepSeekRequestBody) => {
+const textChat = (request: OpenAIRequestBody) => {
   return ipcRenderer.invoke(IPC_EVENTS.ai.rendererToMain.textChat, request)
 }
 
-const jsonChat = (request: DeepSeekRequestBody) => {
+const jsonChat = (request: OpenAIRequestBody) => {
   return ipcRenderer.invoke(IPC_EVENTS.ai.rendererToMain.jsonChat, request)
 }
 
 const textChatWithStream = (
-  params: { requestId: string; requestBody: DeepSeekRequestBody & { stream: true } },
+  params: { requestId: string; requestBody: OpenAIRequestBody & { stream: true } },
   onData: (chunk: string) => void,
   onEnd: () => void,
   onError: (response: CommonResponse<string>) => void

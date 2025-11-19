@@ -8,7 +8,7 @@
 
 import type { AnchorRect } from '@src/types/common';
 import type { CommonResponse } from '@src/types/project';
-import type { DeepSeekRequestBody, DeepSeekResponse } from '../ai';
+import type { OpenAIRequestBody, OpenAIResponse } from '../ai';
 import type { IPC_EVENTS } from './events';
 
 /**
@@ -516,19 +516,19 @@ export interface IPCEventMap {
   };
 
   [IPC_EVENTS.ai.rendererToMain.textChat]: {
-    request: DeepSeekRequestBody;
-    response: CommonResponse<DeepSeekResponse | null>;
+    request: OpenAIRequestBody;
+    response: CommonResponse<OpenAIResponse | null>;
   };
 
   [IPC_EVENTS.ai.rendererToMain.jsonChat]: {
-    request: DeepSeekRequestBody;
-    response: CommonResponse<DeepSeekResponse | null>;
+    request: OpenAIRequestBody;
+    response: CommonResponse<OpenAIResponse | null>;
   };
 
   [IPC_EVENTS.ai.rendererToMain.textChatStream]: {
     request: {
       requestId: string;
-      requestBody: DeepSeekRequestBody & { stream: true };
+      requestBody: OpenAIRequestBody & { stream: true };
     };
     response: CommonResponse<{ requestId: string } | null>;
   };

@@ -14,7 +14,7 @@ import { MockUtils } from '../mock/mockUtils.ts';
 import { HttpMockNode } from '@src/types/mockNode';
 import { mainRuntime } from '../runtime/mainRuntime.ts';
 import { globalAiManager } from '../ai/ai.ts';
-import type { DeepSeekRequestBody } from '@src/types/ai';
+import type { OpenAIRequestBody } from '@src/types/ai';
 import { IPCProjectData, WindowState } from '@src/types/index.ts';
 import type { CommonResponse } from '@src/types/project';
 import vm from 'vm';
@@ -448,18 +448,18 @@ export const useIpcEvent = (mainWindow: BrowserWindow, topBarView: WebContentsVi
   });
 
   // AI 文本聊天
-  ipcMain.handle(IPC_EVENTS.ai.rendererToMain.textChat, async (_: IpcMainInvokeEvent, params: DeepSeekRequestBody) => {
-    return await globalAiManager.sendRequestByDeepSeek(params);
+  ipcMain.handle(IPC_EVENTS.ai.rendererToMain.textChat, async (_: IpcMainInvokeEvent, params: OpenAIRequestBody) => {
+    return await globalAiManager.sendRequest(params);
   });
 
   // AI JSON聊天
-  ipcMain.handle(IPC_EVENTS.ai.rendererToMain.jsonChat, async (_: IpcMainInvokeEvent, params: DeepSeekRequestBody) => {
-    return await globalAiManager.sendRequestByDeepSeek(params);
+  ipcMain.handle(IPC_EVENTS.ai.rendererToMain.jsonChat, async (_: IpcMainInvokeEvent, params: OpenAIRequestBody) => {
+    return await globalAiManager.sendRequest(params);
   });
 
   // AI 流式聊天
-  ipcMain.handle(IPC_EVENTS.ai.rendererToMain.textChatStream, async (_: IpcMainInvokeEvent, params: { requestId: string; requestBody: DeepSeekRequestBody & { stream: true } }) => {
-    return await globalAiManager.sendStreamRequestByDeepSeek({
+  ipcMain.handle(IPC_EVENTS.ai.rendererToMain.textChatStream, async (_: IpcMainInvokeEvent, params: { requestId: string; requestBody: OpenAIRequestBody & { stream: true } }) => {
+    return await globalAiManager.sendStreamRequest({
       action: 'start',
       requestId: params.requestId,
       requestBody: params.requestBody,
@@ -485,7 +485,7 @@ export const useIpcEvent = (mainWindow: BrowserWindow, topBarView: WebContentsVi
 
   // 取消 AI 流式请求
   ipcMain.handle(IPC_EVENTS.ai.rendererToMain.cancelStream, async (_: IpcMainInvokeEvent, requestId: string) => {
-    return await globalAiManager.sendStreamRequestByDeepSeek({ action: 'cancel', requestId });
+    return await globalAiManager.sendStreamRequest({ action: 'cancel', requestId });
   });
 
   /*

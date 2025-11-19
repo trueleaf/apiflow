@@ -113,7 +113,7 @@ import { Loading } from '@element-plus/icons-vue'
 import { aiCache } from '@/cache/ai/aiCache'
 import type { Config } from '@src/types/config'
 import { mainConfig } from '@src/config/mainConfig'
-import type { DeepSeekRequestBody, DeepSeekResponse } from '@src/types/ai'
+import type { OpenAIRequestBody, OpenAIResponse } from '@src/types/ai'
 import VueMarkdownRender from 'vue-markdown-render'
 import SJsonEditor from '@/components/common/jsonEditor/ClJsonEditor.vue'
 import { message, parseAiStream } from '@/helper'
@@ -128,7 +128,7 @@ type AiConfig = Config['mainConfig']['aiConfig']
 |--------------------------------------------------------------------------
 */
 const formData = ref<AiConfig>({
-  model: 'DeepSeek',
+  model: '',
   apiKey: '',
   apiUrl: '',
   timeout: 60000,
@@ -147,7 +147,7 @@ let streamController: { cancel: () => Promise<void> } | null = null
 let currentRequestId = ''
 let streamBuffer = ''
 
-const getMessageContent = (response: DeepSeekResponse | null): string => {
+const getMessageContent = (response: OpenAIResponse | null): string => {
   if (!response) {
     return ''
   }
@@ -251,7 +251,7 @@ const handleTest = async () => {
     })
 
     const maxTokens = mainConfig.aiConfig.maxTokens ?? 2000
-    const requestBody: DeepSeekRequestBody = {
+    const requestBody: OpenAIRequestBody = {
       model: 'deepseek-chat',
       messages: [
         {
@@ -311,7 +311,7 @@ const handleJsonTest = async () => {
     })
 
     const maxTokens = mainConfig.aiConfig.maxTokens ?? 2000
-    const requestBody: DeepSeekRequestBody = {
+    const requestBody: OpenAIRequestBody = {
       model: 'deepseek-chat',
       messages: [
         {
@@ -379,7 +379,7 @@ const handleStreamTest = async () => {
     })
 
     const maxTokens = mainConfig.aiConfig.maxTokens ?? 2000
-    const requestBody: DeepSeekRequestBody & { stream: true } = {
+    const requestBody: OpenAIRequestBody & { stream: true } = {
       model: 'deepseek-chat',
       messages: [
         {

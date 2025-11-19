@@ -6,7 +6,7 @@
 import type {GotRequestOptions } from '../request';
 import type { CommonResponse } from '../project';
 import type { StandaloneExportHtmlParams } from '../standalone';
-import type { DeepSeekRequestBody, DeepSeekResponse } from '../ai';
+import type { OpenAIRequestBody, OpenAIResponse } from '../ai';
 import { WebsocketConnectParams } from '../websocketNode';
 import { HttpMockNode, MockLog, MockStatusChangedPayload } from '../mockNode';
 
@@ -83,10 +83,10 @@ export type ElectronAPI = {
   };
   aiManager: {
     updateConfig: (params: { apiKey: string; apiUrl: string; timeout: number }) => Promise<CommonResponse<null>>;
-    textChat: (request: DeepSeekRequestBody) => Promise<CommonResponse<DeepSeekResponse | null>>;
-    jsonChat: (request: DeepSeekRequestBody) => Promise<CommonResponse<DeepSeekResponse | null>>;
+    textChat: (request: OpenAIRequestBody) => Promise<CommonResponse<OpenAIResponse | null>>;
+    jsonChat: (request: OpenAIRequestBody) => Promise<CommonResponse<OpenAIResponse | null>>;
     textChatWithStream: (
-      params: { requestId: string; requestBody: DeepSeekRequestBody & { stream: true } },
+      params: { requestId: string; requestBody: OpenAIRequestBody & { stream: true } },
       onData: (chunk: string) => void,
       onEnd: () => void,
       onError: (response: CommonResponse<string>) => void

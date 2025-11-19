@@ -1,15 +1,15 @@
 import type { CommonResponse } from '@src/types/project';
 
-// DeepSeek API 消息类型
-export type DeepSeekMessage = {
+// OpenAI API 消息类型
+export type OpenAIMessage = {
   role: 'system' | 'user' | 'assistant';
   content: string;
 };
 
-// DeepSeek API 请求体类型
-export type DeepSeekRequestBody = {
+// OpenAI API 请求体类型
+export type OpenAIRequestBody = {
   model: string;
-  messages: DeepSeekMessage[];
+  messages: OpenAIMessage[];
   max_tokens?: number;
   temperature?: number;
   response_format?: {
@@ -17,8 +17,8 @@ export type DeepSeekRequestBody = {
   };
 };
 
-// DeepSeek API 响应类型
-export type DeepSeekResponse = {
+// OpenAI API 响应类型
+export type OpenAIResponse = {
   id: string;
   object: string;
   created: number;
@@ -39,14 +39,14 @@ export type DeepSeekResponse = {
 };
 
 // AI 聊天选项类型
-export type DeepSeekRequestMode = 'text' | 'json';
+export type OpenAIRequestMode = 'text' | 'json';
 
 // 流式回调函数类型
 export type StreamCallback = (chunk: string) => void;
 export type StreamEndCallback = () => void;
 export type StreamErrorCallback = (response: CommonResponse<string>) => void;
 
-export type SendRequestByDeepSeekParams = DeepSeekRequestBody;
+export type SendRequestParams = OpenAIRequestBody;
 
 type StreamRequestCallbacks = {
   onData?: StreamCallback;
@@ -57,7 +57,7 @@ type StreamRequestCallbacks = {
 export type SendStreamRequestStartParams = {
   action: 'start';
   requestId: string;
-  requestBody: DeepSeekRequestBody & { stream: true };
+  requestBody: OpenAIRequestBody & { stream: true };
 } & StreamRequestCallbacks;
 
 export type SendStreamRequestCancelParams = {
@@ -65,7 +65,7 @@ export type SendStreamRequestCancelParams = {
   requestId: string;
 };
 
-export type SendStreamRequestByDeepSeekParams = SendStreamRequestStartParams | SendStreamRequestCancelParams;
+export type SendStreamRequestParams = SendStreamRequestStartParams | SendStreamRequestCancelParams;
 
 
 export type AskMessage = {

@@ -211,9 +211,9 @@ export type MainConfig = {
    */
   aiConfig: {
     /**
-     * 默认模型
+     * 模型名称
      */
-    model: "DeepSeek",
+    model: string,
     /**
      * 接口密钥
      */
