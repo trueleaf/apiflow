@@ -408,4 +408,43 @@
   --vscode-editor-foreground: #d4d4d4;
   --vscode-editorLineNumber-foreground: #858585;
   --vscode-editorLineNumber-activeForeground: #c6c6c6;
+
+  /* 补充缺失变量 - 深色主题 */
+  --black: #000;
+  --bg-black-05: rgba(0, 0, 0, 0.05);
+  --bg-black-08: rgba(0, 0, 0, 0.08);
+  --bg-black-1: rgba(0, 0, 0, 0.01);
+  --bg-black-3: rgba(0, 0, 0, 0.03);
+  --bg-black-5: rgba(0, 0, 0, 0.05);
+  --bg-black-12: rgba(0, 0, 0, 0.12);
+  --bg-black-50: rgba(0, 0, 0, 0.5);
+  --bg-white-9: rgba(255, 255, 255, 0.09);
+  --bg-white-30: rgba(255, 255, 255, 0.30);
+  --bg-primary-light: var(--el-color-primary-light-9);
+
+  --border-hover: var(--gray-500);
+  --border-lighter: var(--gray-300);
+  --box-shadow-focus: 0 0 0 2px var(--color-focus-ring);
+
+  --cl-rich-input-pinned-z-index: 10;
+  --zIndex-fieldset: 10;
+
+  --code-bg-dark: #1e1e1e;
+  --code-text-dark: #d4d4d4;
+
+  --color-primary: var(--primary);
+  --color-primary-alpha-10: rgba(74, 158, 255, 0.1);
+  --color-text-1: var(--text-primary);
+  --color-text-3: var(--text-tertiary);
+  --color-warning: var(--warning);
+  --danger-color: var(--danger);
+  --primary-color: var(--primary);
+  --success-color: var(--success);
+  --warning-color: var(--warning);
+
+  --el-border-color-hover: var(--gray-500);
+  --el-color-white: var(--white);
+
+  --gray-750: #d6d6d6;
+  --shadow-light: var(--shadow-sm);
 }
