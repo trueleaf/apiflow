@@ -44,7 +44,7 @@
 /* 编辑器容器 */
 .cl-rich-input__editor {
   min-height: var(--cl-rich-input-min-height);
-  padding: var(--cl-rich-input-padding);
+  padding: 0 var(--cl-rich-input-padding);
   color: var(--cl-rich-input-text);
   background: var(--cl-rich-input-bg);
   overflow-y: auto;

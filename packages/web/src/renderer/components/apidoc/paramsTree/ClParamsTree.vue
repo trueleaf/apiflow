@@ -56,6 +56,7 @@
                 :trim-on-paste="true"
                 :expand-on-focus="true"
                 :disabled="data._disableValue"
+                disable-history
                 @update:modelValue="v => handleChangeValue(v, data)" @focus="handleFocusValue(data)"
                 @blur="handleBlurValueAndEnableDrag()"
                 @multiline-change="(isMultiline: boolean) => handleMultilineChange(data._id, isMultiline)"

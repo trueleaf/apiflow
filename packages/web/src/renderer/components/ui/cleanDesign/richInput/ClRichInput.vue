@@ -66,7 +66,8 @@ const props = withDefaults(defineProps<ClRichInputProps>(), {
   maxHeight: 300,
   class: '',
   expandOnFocus: false,
-  trimOnPaste: false
+  trimOnPaste: false,
+  disableHistory: false
 })
 
 const emits = defineEmits<ClRichInputEmits>()
@@ -163,32 +164,45 @@ const getEditorDom = (): HTMLElement | null => {
     return null
   }
 }
-
-const editor = useEditor({
-  extensions: [
-    StarterKit.configure({
-      heading: false,
-      codeBlock: false,
-      blockquote: false,
-      horizontalRule: false,
-      bold: false,
-      italic: false,
-      strike: false,
-      code: false,
-      bulletList: false,
-      orderedList: false,
-      listItem: false
-    }),
+//创建编辑器扩展列表
+const createEditorExtensions = () => {
+  const starterKitConfig: Record<string, boolean | undefined> = {
+    heading: false,
+    codeBlock: false,
+    blockquote: false,
+    horizontalRule: false,
+    bold: false,
+    italic: false,
+    strike: false,
+    code: false,
+    bulletList: false,
+    orderedList: false,
+    listItem: false,
+    dropcursor: false,
+    gapcursor: false,
+    link: false
+  }
+  if (props.disableHistory) {
+    starterKitConfig.history = false
+  }
+  const extensions = [
+    StarterKit.configure(starterKitConfig as Parameters<typeof StarterKit.configure>[0]),
     Placeholder.configure({
       placeholder: props.placeholder
     }),
     VariableDecorationExtension
-  ],
+  ]
+  return extensions
+}
+const editor = useEditor({
+  extensions: createEditorExtensions(),
   content: props.modelValue,
   editable: !props.disabled || !props.readonly,
   editorProps: {
     attributes: {
-      spellcheck: 'false'
+      spellcheck: 'false',
+      autocorrect: 'off',
+      autocapitalize: 'off'
     },
     handlePaste(view, event) {
       if (!props.trimOnPaste) {
@@ -214,6 +228,27 @@ const editor = useEditor({
       const transaction = state.tr.insertText(trimmedText, from, to)
       view.dispatch(transaction)
       return true
+    },
+    handleKeyDown(_view, event) {
+      if (!props.disableHistory) {
+        return false
+      }
+      const isMod = event.ctrlKey || event.metaKey
+      const isShift = event.shiftKey
+      
+      // Undo: Ctrl+Z / Cmd+Z
+      if (isMod && !isShift && event.key.toLowerCase() === 'z') {
+        event.preventDefault()
+        return true
+      }
+      
+      // Redo: Ctrl+Y / Cmd+Y / Ctrl+Shift+Z / Cmd+Shift+Z
+      if (isMod && (event.key.toLowerCase() === 'y' || (isShift && event.key.toLowerCase() === 'z'))) {
+        event.preventDefault()
+        return true
+      }
+      
+      return false
     }
   },
   onUpdate: ({ editor }) => {

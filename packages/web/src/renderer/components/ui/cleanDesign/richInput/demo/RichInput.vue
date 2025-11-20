@@ -98,6 +98,28 @@
     <div class="demo-section">
       <div class="section-header">
         <div>
+          <h4>禁用历史记录</h4>
+          <p>禁用撤销/重做功能，Ctrl+Z 和 Ctrl+Y 将不可用</p>
+        </div>
+      </div>
+      <div class="demo-container">
+        <div class="input-wrapper">
+          <ClRichInput
+            v-model="text6"
+            placeholder="此输入框禁用了历史记录功能，无法使用 Ctrl+Z 撤销"
+            :disable-history="true"
+          />
+        </div>
+        <div class="output">
+          <strong>输出内容：</strong>
+          <pre>{{ text6 }}</pre>
+        </div>
+      </div>
+    </div>
+
+    <div class="demo-section">
+      <div class="section-header">
+        <div>
           <h4>事件监听</h4>
           <p>监听 focus 和 blur 事件</p>
         </div>
@@ -174,6 +196,12 @@
             <td>string</td>
             <td>''</td>
           </tr>
+          <tr>
+            <td><code>disableHistory</code></td>
+            <td>是否禁用历史记录（撤销/重做功能）</td>
+            <td>boolean</td>
+            <td>false</td>
+          </tr>
         </tbody>
       </table>
     </div>
@@ -215,6 +243,7 @@
         <li>✓ 极简无边框设计</li>
         <li>✓ 支持 Enter 键换行</li>
         <li>✓ 支持 Ctrl+Z / Cmd+Z 撤销和 Ctrl+Shift+Z / Cmd+Shift+Z 重做</li>
+        <li>✓ 支持禁用历史记录功能（disableHistory）</li>
         <li>✓ 自动适配亮色/暗色主题</li>
         <li>✓ 默认高度 32px，内容超出自动撑开</li>
         <li>✓ 支持最大高度限制和滚动条</li>
@@ -236,6 +265,7 @@ const text2 = ref('这是一段示例文本。\n可以尝试输入更多内容�
 const text3 = ref('这是禁用状态的文本')
 const text4 = ref('这是只读状态的文本，可以选择但不能编辑')
 const text5 = ref('')
+const text6 = ref('')
 
 const eventLogs = ref<string[]>([])
 
