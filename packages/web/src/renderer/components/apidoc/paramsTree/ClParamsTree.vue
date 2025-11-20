@@ -4,13 +4,14 @@
     :default-checked-keys="defaultCheckedKeys" @node-drop="handleNodeDrop" @check-change="handleCheckChange">
     <template #default="{ data }">
       <div class="custom-params">
-        <el-icon class="delete-icon" :class="{ disabled: localData.length <= 1 }" :size="14"
-          :title="localData.length <= 1 ? t('至少保留一条数据') : t('删除')" @click="() => handleDeleteRow(data)">
+        <el-icon class="delete-icon" :class="{ disabled: localData.length <= 1 || data._disableDelete }" :size="14"
+          :title="data._disableDelete ? (data._disableDeleteTip || t('无法删除')) : (localData.length <= 1 ? t('至少保留一条数据') : t('删除'))" @click="() => handleDeleteRow(data)">
           <Close />
         </el-icon>
         <div class="w-15 flex0 mr-2 d-flex a-center">
           <el-autocomplete v-if="props.mindKeyParams && props.mindKeyParams.length > 0" :model-value="data.key"
             :debounce="0" :placeholder="t('输入参数名称自动换行')" :fetch-suggestions="querySearchKey"
+            :disabled="data._disableKey" :title="data._disableKeyTip || ''"
             popper-class="params-tree-autocomplete" @select="(item: any) => handleSelectKey(item, data)"
             @update:modelValue="(v: string | number) => handleChangeKey(String(v), data)" @focus="handleFocusKey()"
             @blur="handleEnableDrag()" @keydown="(e: any) => handleKeyDown(e, data)"
@@ -23,6 +24,7 @@
             </template>
           </el-autocomplete>
           <el-input v-else :model-value="data.key" :placeholder="t('输入参数名称自动换行')"
+            :disabled="data._disableKey" :title="data._disableKeyTip || ''"
             @update:modelValue="v => handleChangeKey(v, data)" @focus="handleDisableDrag()" @blur="handleEnableDrag()"
             @paste="(event: ClipboardEvent) => handlePasteKey(event, data)">
           </el-input>
@@ -42,14 +44,15 @@
           <template #reference>
             <div class="value-input-wrap w-35 mr-2"
               :class="{ 'is-multiline': multilineInputs[data._id], 'is-pinned': focusedInputId === data._id && multilineInputs[data._id] }">
-              <ClRichInput 
+              <ClRichInput
                 :model-value="data.value"
-                class="value-rich-input" 
-                :placeholder="t('参数值、@代表mock数据、{{ 变量 }}')"
-                :min-height="28" 
-                :max-height="280" 
-                :trim-on-paste="true" 
+                class="value-rich-input"
+                :placeholder="data._valuePlaceholder || t('参数值、@代表mock数据、{{ 变量 }}')"
+                :min-height="28"
+                :max-height="280"
+                :trim-on-paste="true"
                 :expand-on-focus="true"
+                :disabled="data._disableValue"
                 @update:modelValue="v => handleChangeValue(v, data)" @focus="handleFocusValue(data)"
                 @blur="handleBlurValueAndEnableDrag()"
                 @multiline-change="(isMultiline: boolean) => handleMultilineChange(data._id, isMultiline)"
@@ -72,7 +75,8 @@
               <span class="file-mode" @click="() => data.fileValueType = 'file'">{{ t('文件模式') }}</span>
             </div>
             <el-input v-if="data.fileValueType === 'var'" :model-value="data.value" class="w-100"
-              :placeholder="t('变量模式') + ' eg: ' + t('{0} fileValue {1}', ['{{', '}}'])"
+              :placeholder="data._valuePlaceholder || (t('变量模式') + ' eg: ' + t('{0} fileValue {1}', ['{{', '}}']))"
+              :disabled="data._disableValue"
               @update:modelValue="v => handleChangeValue(v, data)" @blur="handleBlurValue()"
               @paste="(event: ClipboardEvent) => handlePasteValueInput(event, data)">
             </el-input>
@@ -95,12 +99,14 @@
           <div v-if="data._error" class="file-error">{{ data._error }}</div>
         </div>
         <el-checkbox :model-value="data.required" :label="t('必有')" class="pr-2"
+          :disabled="data.disabled"
           @update:modelValue="v => handleChangeRequired(v as unknown as boolean, data)">
         </el-checkbox>
         <el-input :model-value="data.description" class="w-30"
           :type="expandedInputs[data._id]?.description ? 'textarea' : 'text'"
           :autosize="expandedInputs[data._id]?.description ? { minRows: 2, maxRows: 6 } : undefined"
-          :placeholder="t('参数描述与备注')" @focus="handleFocusDescription(data)" @blur="handleEnableDrag()"
+          :placeholder="t('参数描述与备注')" :disabled="data._disableDescription"
+          @focus="handleFocusDescription(data)" @blur="handleEnableDrag()"
           @update:modelValue="v => handleChangeDescription(v, data)"
           @paste="(event: ClipboardEvent) => handlePasteDescription(event, data)">
         </el-input>
@@ -245,8 +251,8 @@ const handleNodeDrop = (_dragNode: Node, _dropNode: Node, type: 'inner' | 'prev'
 };
 
 const handleDeleteRow = (data: ApidocProperty<'string' | 'file'>) => {
-  // 如果只有一条数据，禁止删除
-  if (localData.value.length <= 1) {
+  // 如果只有一条数据或禁止删除，则不执行
+  if (localData.value.length <= 1 || data._disableDelete) {
     return;
   }
   const idx = localData.value.findIndex(i => i._id === data._id);
@@ -260,6 +266,10 @@ const handleDeleteRow = (data: ApidocProperty<'string' | 'file'>) => {
 };
 
 const autoAppendIfNeeded = (data: ApidocProperty<'string' | 'file'>) => {
+  // 如果该行禁止自动追加，则跳过
+  if (data._disableAdd) {
+    return;
+  }
   const isLast = localData.value[localData.value.length - 1]?._id === data._id;
   const hasKey = (data.key ?? '').trim() !== '';
   if (isLast && hasKey) {
@@ -661,6 +671,7 @@ const handleKeyDown = (e: KeyboardEvent, data: ApidocProperty<'string' | 'file'>
 
 .el-tree-node__content {
   height: 50px;
+  padding-right: 10px;
 
   &:hover {
     background: var(--gray-200);

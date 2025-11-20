@@ -5,8 +5,8 @@
   --cl-rich-input-bg: var(--el-fill-color-blank);
   --cl-rich-input-text: #333;
   --cl-rich-input-placeholder: #999;
-  --cl-rich-input-disabled-text: #ccc;
-  --cl-rich-input-disabled-bg: #f5f5f5;
+  --cl-rich-input-disabled-text: var(--el-disabled-text-color);
+  --cl-rich-input-disabled-bg: var(--el-disabled-bg-color);
   --cl-rich-input-min-height: 32px;
   --cl-rich-input-padding: 6px 0;
   --cl-rich-input-font-size: 14px;
@@ -26,8 +26,6 @@
   --cl-rich-input-bg: var(--el-fill-color-blank);
   --cl-rich-input-text: #e5e5e5;
   --cl-rich-input-placeholder: #666;
-  --cl-rich-input-disabled-text: #555;
-  --cl-rich-input-disabled-bg: #2a2a2a;
   --cl-rich-input-popover-bg: #1f1f1f;
   --cl-rich-input-popover-border: var(--bg-white-08);
   --cl-rich-input-popover-shadow: 0 8px 24px var(--bg-black-40);
@@ -163,8 +161,16 @@
   content: attr(data-placeholder);
   color: var(--cl-rich-input-placeholder);
   pointer-events: none;
-  float: left;
-  height: 0;
+  position: absolute;
+  left: 0;
+  right: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.cl-rich-input__editor .ProseMirror p.is-editor-empty:first-child {
+  position: relative;
 }
 
 /* 禁用状态 */
@@ -175,6 +181,7 @@
 
 .cl-rich-input.is-disabled .cl-rich-input__editor {
   color: var(--cl-rich-input-disabled-text);
+  background: var(--cl-rich-input-disabled-bg);
   pointer-events: none;
 }
 

@@ -185,7 +185,7 @@ const editor = useEditor({
     VariableDecorationExtension
   ],
   content: props.modelValue,
-  editable: !props.disabled && !props.readonly,
+  editable: !props.disabled || !props.readonly,
   editorProps: {
     attributes: {
       spellcheck: 'false'
