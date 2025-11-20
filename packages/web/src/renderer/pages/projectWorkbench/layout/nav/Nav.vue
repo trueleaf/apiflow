@@ -110,6 +110,11 @@
       <SContextmenuItem :label="t('关闭其他')" @click="handleCloseOtherTab"></SContextmenuItem>
       <SContextmenuItem :label="t('全部关闭')" @click="handleCloseAllTab"></SContextmenuItem>
       <SContextmenuItem v-if="!isView" :label="t('强制全部关闭')" @click="handleForceCloseAllTab"></SContextmenuItem>
+      <template v-if="currentOperationNode && currentOperationNode.tabType === 'httpMock'">
+        <SContextmenuItem type="divider"></SContextmenuItem>
+        <SContextmenuItem v-if="!isMockServerRunning" :label="t('启动Mock服务器')" @click="handleStartMockServer"></SContextmenuItem>
+        <SContextmenuItem v-else :label="t('停止Mock服务器')" @click="handleStopMockServer"></SContextmenuItem>
+      </template>
       <!-- <SContextmenuItem v-if="currentOperationNode && currentOperationNode.tabType === 'http'" type="divider"></SContextmenuItem> -->
       <!-- <SContextmenuItem v-if="currentOperationNode && currentOperationNode.tabType === 'http'" :label="t('复制url')"></SContextmenuItem>
             <SContextmenuItem v-if="currentOperationNode && currentOperationNode.tabType === 'http'" :label="t('刷新')"></SContextmenuItem> -->
@@ -142,6 +147,8 @@ import SContextmenuItem from '@/components/common/contextmenu/ClContextmenuItem.
 import { useApidocBanner } from '@/store/apidoc/bannerStore';
 import { useApidocRequest } from '@/store/apidoc/requestStore';
 import { useApidocResponse } from '@/store/apidoc/responseStore';
+import { useHttpMock } from '@/store/httpMock/httpMockStore';
+import { ElMessage } from 'element-plus';
 
 
 /*
@@ -175,6 +182,8 @@ const ipAddress = computed(() => window.electronAPI?.ip)
 const requestMethods = computed(() => apidocBaseInfoStore.rules.requestMethods)
 const isView = computed(() => apidocBaseInfoStore.mode === 'view')
 const currentSelectedTab = computed(() => tabs.value?.find(tab => tab.selected))
+const httpMockStore = useHttpMock()
+const isMockServerRunning = ref(false)
 /*
 |--------------------------------------------------------------------------
 | 事件绑定
@@ -204,11 +213,47 @@ const handleMoveRight = () => {
   console.log('right')
 }
 //=====================================contextmenu====================================//
-const handleContextmenu = (e: MouseEvent, item: ApidocTab) => {
+const handleContextmenu = async (e: MouseEvent, item: ApidocTab) => {
   currentOperationNode.value = item;
   contextmenuLeft.value = e.clientX;
   contextmenuTop.value = e.clientY;
   showContextmenu.value = true;
+  if (item.tabType === 'httpMock') {
+    isMockServerRunning.value = await httpMockStore.checkMockNodeEnabledStatus(item._id);
+  }
+}
+// 启动Mock服务器
+const handleStartMockServer = async () => {
+  if (!currentOperationNode.value) return;
+  try {
+    const mockData = await window.electronAPI?.mock?.getMockByNodeId(currentOperationNode.value._id);
+    if (!mockData) {
+      ElMessage.error(t('获取Mock配置失败'));
+      return;
+    }
+    const result = await window.electronAPI?.mock?.startServer(mockData);
+    if (result?.code === 0) {
+      isMockServerRunning.value = true;
+    } else {
+      ElMessage.error(result?.msg || t('启动Mock服务器失败'));
+    }
+  } catch (error) {
+    ElMessage.error(t('启动Mock服务器失败'));
+  }
+}
+// 停止Mock服务器
+const handleStopMockServer = async () => {
+  if (!currentOperationNode.value) return;
+  try {
+    const result = await window.electronAPI?.mock?.stopServer(currentOperationNode.value._id);
+    if (result?.code === 0) {
+      isMockServerRunning.value = false;
+    } else {
+      ElMessage.error(result?.msg || t('停止Mock服务器失败'));
+    }
+  } catch (error) {
+    ElMessage.error(t('停止Mock服务器失败'));
+  }
 }
 // 中键点击关闭Tab
 const handleMiddleClick = (e: MouseEvent, tab: ApidocTab) => {
