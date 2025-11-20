@@ -4,7 +4,7 @@
       <span class="cursor-pointer no-select" @click="hideDefaultHeader = true">
         <span>{{ t("点击隐藏") }}</span>
       </span>
-      <SParamsTree :drag="false" show-checkbox :data="defaultHeaders" no-add></SParamsTree>
+      <SParamsTree :drag="false" show-checkbox :data="defaultHeaders" no-add @change="handleDefaultHeadersChange"></SParamsTree>
       <el-divider border-style="dashed" class="header-divider" />
     </div>
     <div v-else class="cursor-pointer no-select d-flex a-center" @click="hideDefaultHeader = false">
@@ -102,6 +102,11 @@ const hideDefaultHeader = ref(true);
 const headerData = computed(() => httpNodeStore.apidoc.item.headers)
 const defaultHeaders = computed(() => httpNodeStore.defaultHeaders);
 const commonHeaders = ref<(Pick<ApidocProperty, "_id" | 'key' | 'value' | 'description' | 'select' & { path?: string[] }>)[]>([]);
+
+// 处理默认请求头变化
+const handleDefaultHeadersChange = (newData: ApidocProperty<'string' | 'file'>[]) => {
+  httpNodeStore.defaultHeaders = newData as ApidocProperty<'string'>[];
+};
 
 // 处理 Headers 变化
 const handleHeadersChange = (newData: ApidocProperty<'string' | 'file'>[]) => {
