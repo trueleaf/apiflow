@@ -359,6 +359,7 @@ const getHeaders = async (apidoc: HttpNode) => {
   const commonHeaders = defaultCommonHeaders.filter(header => !ignoreHeaderIds.includes(header._id));
   const headers = apidoc.item.headers;
   const headersObject: Record<string, string | null> = {};
+  console.log(123, defaultHeaders)
   for (let i = 0; i < defaultHeaders.length; i++) {
     const header = defaultHeaders[i];
     if (!header.disabled && !header.select) { //当前请求头可以被取消
@@ -497,6 +498,7 @@ export const sendRequest = async () => {
       }
     }
     // 注入 User-Agent 配置
+    // console.log(finalSendHeaders)
     if (!finalSendHeaders['user-agent'] && httpNodeConfigData.userAgent) {
       finalSendHeaders['user-agent'] = httpNodeConfigData.userAgent;
     }

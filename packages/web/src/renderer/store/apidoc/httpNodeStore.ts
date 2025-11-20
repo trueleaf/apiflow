@@ -291,7 +291,7 @@ export const useHttpNode = defineStore('httpNode', () => {
     params5._valuePlaceholder = '<默认为：keep-alive>';
     params5.description = '<当前的事务完成后，是否会关闭网络连接>';
     params5._disableKey = true;
-    params3._disableValue = true;
+    params5._disableValue = true;
     params5._disableDescription = true;
     params5._disableDescription = true;
     params5._disableKeyTip = ''
@@ -302,7 +302,8 @@ export const useHttpNode = defineStore('httpNode', () => {
     //=========================================================================//
     const params = generateEmptyProperty();
     params.key = 'Content-Length';
-    params._valuePlaceholder = '<发送请求时候自动计算,尽量不要手动填写>';
+    params._valuePlaceholder = '<发送请求时候自动计算>';
+    params._disableValue = true;
     params.description = '<消息的长度>';
     params._disableDeleteTip = 'Content-Length请求头无法删除';
     params._disableKey = true;
@@ -322,6 +323,7 @@ export const useHttpNode = defineStore('httpNode', () => {
     params2._disableDescription = true;
     params2._disableAdd = true;
     params2._disableDelete = true;
+    // params2._disableValue = true;
     defaultHeaders.value.push(params2);
     //=========================================================================//
     const params7 = generateEmptyProperty();
@@ -333,6 +335,7 @@ export const useHttpNode = defineStore('httpNode', () => {
     params7._disableKeyTip = ''
     params7._disableAdd = true;
     params7._disableDelete = true;
+    // params7._disableValue = true;
     defaultHeaders.value.push(params7);
     //=========================================================================//
     if (contentType) {

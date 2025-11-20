@@ -8,7 +8,7 @@
           :title="data._disableDelete ? (data._disableDeleteTip || t('无法删除')) : (localData.length <= 1 ? t('至少保留一条数据') : t('删除'))" @click="() => handleDeleteRow(data)">
           <Close />
         </el-icon>
-        <div class="w-15 flex0 mr-2 d-flex a-center">
+        <div class="w-15 flex0 mr-2 d-flex a-center" @mouseenter="handleDisableDrag()" @mouseleave="handleEnableDrag()">
           <el-autocomplete v-if="props.mindKeyParams && props.mindKeyParams.length > 0" :model-value="data.key"
             :debounce="0" :placeholder="t('输入参数名称自动换行')" :fetch-suggestions="querySearchKey"
             :disabled="data._disableKey" :title="data._disableKeyTip || ''"
@@ -29,12 +29,14 @@
             @paste="(event: ClipboardEvent) => handlePasteKey(event, data)">
           </el-input>
         </div>
-        <el-select :model-value="data.type" :placeholder="t('类型')" class="w-15 flex0 mr-2"
-          :size="config.renderConfig.layout.size" :disabled="!props.enableFile"
-          @update:modelValue="v => handleChangeType(v as 'string' | 'file', data)">
-          <el-option label="String" value="string"></el-option>
-          <el-option v-if="props.enableFile" label="File" value="file"></el-option>
-        </el-select>
+        <div class="w-15 flex0 mr-2" @mouseenter="handleDisableDrag()" @mouseleave="handleEnableDrag()">
+          <el-select :model-value="data.type" :placeholder="t('类型')" class="w-100"
+            :size="config.renderConfig.layout.size" :disabled="!props.enableFile"
+            @update:modelValue="v => handleChangeType(v as 'string' | 'file', data)">
+            <el-option label="String" value="string"></el-option>
+            <el-option v-if="props.enableFile" label="File" value="file"></el-option>
+          </el-select>
+        </div>
         <!-- 参数值 string -->
         <el-popover v-if="data.type === 'string'"
           :visible="data._id === currentOpData?._id && (data.value || '').includes('@')" placement="top-start"
@@ -43,7 +45,8 @@
             @select="v => handleSelectMockValue(v, data)"></SMock>
           <template #reference>
             <div class="value-input-wrap w-35 mr-2"
-              :class="{ 'is-multiline': multilineInputs[data._id], 'is-pinned': focusedInputId === data._id && multilineInputs[data._id] }">
+              :class="{ 'is-multiline': multilineInputs[data._id], 'is-pinned': focusedInputId === data._id && multilineInputs[data._id] }"
+              @mouseenter="handleDisableDrag()" @mouseleave="handleEnableDrag()">
               <ClRichInput
                 :model-value="data.value"
                 class="value-rich-input"
@@ -102,14 +105,16 @@
           :disabled="data.disabled"
           @update:modelValue="v => handleChangeRequired(v as unknown as boolean, data)">
         </el-checkbox>
-        <el-input :model-value="data.description" class="w-30"
-          :type="expandedInputs[data._id]?.description ? 'textarea' : 'text'"
-          :autosize="expandedInputs[data._id]?.description ? { minRows: 2, maxRows: 6 } : undefined"
-          :placeholder="t('参数描述与备注')" :disabled="data._disableDescription"
-          @focus="handleFocusDescription(data)" @blur="handleEnableDrag()"
-          @update:modelValue="v => handleChangeDescription(v, data)"
-          @paste="(event: ClipboardEvent) => handlePasteDescription(event, data)">
-        </el-input>
+        <div class="w-30" @mouseenter="handleDisableDrag()" @mouseleave="handleEnableDrag()">
+          <el-input :model-value="data.description" class="w-100"
+            :type="expandedInputs[data._id]?.description ? 'textarea' : 'text'"
+            :autosize="expandedInputs[data._id]?.description ? { minRows: 2, maxRows: 6 } : undefined"
+            :placeholder="t('参数描述与备注')" :disabled="data._disableDescription"
+            @focus="handleFocusDescription(data)" @blur="handleEnableDrag()"
+            @update:modelValue="v => handleChangeDescription(v, data)"
+            @paste="(event: ClipboardEvent) => handlePasteDescription(event, data)">
+          </el-input>
+        </div>
       </div>
     </template>
   </el-tree>
