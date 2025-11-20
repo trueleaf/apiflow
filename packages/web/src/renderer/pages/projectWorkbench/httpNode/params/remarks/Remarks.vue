@@ -1,31 +1,25 @@
 
 <template>
   <div>
-    <el-input
+    <MarkdownEditor
       v-model="description"
-      :size="config.renderConfig.layout.size"
-      :rows="15"
-      type="textarea"
-      show-word-limit
-      name="name"
       :placeholder="t('在此处输入备注')"
+      :disable-history="true"
+      :min-height="360"
       class="w-100"
-      maxlength="1024"
-      clearable
-    >
-    </el-input>
+    />
   </div>
 </template>
 
 <script lang="ts" setup>
 import { useI18n } from 'vue-i18n'
-import { config } from '@src/config/config';
 import { computed, watch } from 'vue'
 import { useHttpNode } from '@/store/apidoc/httpNodeStore';
 import { useHttpRedoUndo } from '@/store/redoUndo/httpRedoUndoStore'
 import { useApidocTas } from '@/store/apidoc/tabsStore'
 import { router } from '@/router'
 import { debounce, cloneDeep } from 'lodash-es'
+import MarkdownEditor from '@/components/ui/cleanDesign/markdownEditor/MarkdownEditor.vue'
 
 const httpNodeStore = useHttpNode()
 const httpRedoUndoStore = useHttpRedoUndo()
@@ -73,3 +67,9 @@ watch(() => ({
   deep: true
 });
 </script>
+
+<style lang="scss" scoped>
+.w-100 {
+  width: 100%;
+}
+</style>

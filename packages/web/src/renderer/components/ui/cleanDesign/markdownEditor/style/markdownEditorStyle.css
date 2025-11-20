@@ -1,0 +1,239 @@
+/* Markdown编辑器样式 */
+
+.markdown-editor {
+  position: relative;
+  border: 1px solid var(--el-border-color);
+  border-radius: 4px;
+  background: var(--el-fill-color-blank);
+  transition: border-color 0.2s;
+}
+
+.markdown-editor.is-focused {
+  border-color: var(--el-color-primary);
+}
+
+.markdown-editor.is-disabled {
+  background: var(--el-disabled-bg-color);
+  cursor: not-allowed;
+}
+
+.markdown-editor__content {
+  overflow-y: auto;
+  padding: 12px;
+}
+
+/* Tiptap编辑器基础样式 */
+.markdown-editor :deep(.ProseMirror) {
+  outline: none;
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--el-text-color-primary);
+}
+
+.markdown-editor :deep(.ProseMirror p.is-editor-empty:first-child::before) {
+  content: attr(data-placeholder);
+  float: left;
+  color: var(--el-text-color-placeholder);
+  pointer-events: none;
+  height: 0;
+}
+
+/* 标题样式 */
+.markdown-editor :deep(.ProseMirror h1) {
+  font-size: 1.8em;
+  font-weight: 600;
+  margin: 16px 0 12px 0;
+  line-height: 1.3;
+  border-bottom: 2px solid var(--el-border-color-light);
+  padding-bottom: 8px;
+}
+
+.markdown-editor :deep(.ProseMirror h2) {
+  font-size: 1.5em;
+  font-weight: 600;
+  margin: 14px 0 10px 0;
+  line-height: 1.3;
+  border-bottom: 1px solid var(--el-border-color-lighter);
+  padding-bottom: 6px;
+}
+
+.markdown-editor :deep(.ProseMirror h3) {
+  font-size: 1.25em;
+  font-weight: 600;
+  margin: 12px 0 8px 0;
+  line-height: 1.3;
+}
+
+/* 段落样式 */
+.markdown-editor :deep(.ProseMirror p) {
+  margin: 8px 0;
+}
+
+.markdown-editor :deep(.ProseMirror p:first-child) {
+  margin-top: 0;
+}
+
+.markdown-editor :deep(.ProseMirror p:last-child) {
+  margin-bottom: 0;
+}
+
+/* 文本格式 */
+.markdown-editor :deep(.ProseMirror strong) {
+  font-weight: 600;
+  color: var(--el-text-color-primary);
+}
+
+.markdown-editor :deep(.ProseMirror em) {
+  font-style: italic;
+}
+
+.markdown-editor :deep(.ProseMirror s) {
+  text-decoration: line-through;
+}
+
+/* 行内代码 */
+.markdown-editor :deep(.ProseMirror code) {
+  background: var(--el-fill-color-light);
+  color: var(--el-color-danger);
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-size: 0.9em;
+  font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+}
+
+/* 代码块 */
+.markdown-editor :deep(.ProseMirror pre) {
+  background: var(--el-fill-color-dark);
+  color: var(--el-text-color-primary);
+  padding: 12px;
+  border-radius: 6px;
+  margin: 12px 0;
+  overflow-x: auto;
+  font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+  font-size: 0.9em;
+  line-height: 1.5;
+}
+
+.markdown-editor :deep(.ProseMirror pre code) {
+  background: transparent;
+  color: inherit;
+  padding: 0;
+  font-size: inherit;
+}
+
+/* 引用块 */
+.markdown-editor :deep(.ProseMirror blockquote) {
+  border-left: 4px solid var(--el-color-primary);
+  padding-left: 16px;
+  margin: 12px 0;
+  color: var(--el-text-color-secondary);
+  font-style: italic;
+}
+
+/* 水平分割线 */
+.markdown-editor :deep(.ProseMirror hr) {
+  border: none;
+  border-top: 2px solid var(--el-border-color-light);
+  margin: 16px 0;
+}
+
+/* 列表样式 */
+.markdown-editor :deep(.ProseMirror ul),
+.markdown-editor :deep(.ProseMirror ol) {
+  padding-left: 24px;
+  margin: 8px 0;
+}
+
+.markdown-editor :deep(.ProseMirror ul) {
+  list-style-type: disc;
+}
+
+.markdown-editor :deep(.ProseMirror ol) {
+  list-style-type: decimal;
+}
+
+.markdown-editor :deep(.ProseMirror li) {
+  margin: 4px 0;
+}
+
+.markdown-editor :deep(.ProseMirror li p) {
+  margin: 0;
+}
+
+/* 任务列表样式 */
+.markdown-editor :deep(.ProseMirror ul[data-type="taskList"]) {
+  list-style: none;
+  padding-left: 0;
+}
+
+.markdown-editor :deep(.ProseMirror ul[data-type="taskList"] li) {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.markdown-editor :deep(.ProseMirror ul[data-type="taskList"] li > label) {
+  flex: 0 0 auto;
+  margin-top: 2px;
+}
+
+.markdown-editor :deep(.ProseMirror ul[data-type="taskList"] li > div) {
+  flex: 1;
+}
+
+.markdown-editor :deep(.ProseMirror ul[data-type="taskList"] input[type="checkbox"]) {
+  cursor: pointer;
+  width: 16px;
+  height: 16px;
+  accent-color: var(--el-color-primary);
+}
+
+/* 链接样式 */
+.markdown-editor :deep(.ProseMirror a.markdown-link) {
+  color: var(--el-color-primary);
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.markdown-editor :deep(.ProseMirror a.markdown-link:hover) {
+  text-decoration: none;
+}
+
+/* 禁用状态 */
+.markdown-editor.is-disabled :deep(.ProseMirror) {
+  cursor: not-allowed;
+  color: var(--el-disabled-text-color);
+}
+
+/* 滚动条样式 */
+.markdown-editor__content::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+.markdown-editor__content::-webkit-scrollbar-thumb {
+  background: var(--el-border-color);
+  border-radius: 3px;
+}
+
+.markdown-editor__content::-webkit-scrollbar-thumb:hover {
+  background: var(--el-border-color-dark);
+}
+
+.markdown-editor__content::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* 暗色主题适配 */
+[data-theme="dark"] .markdown-editor :deep(.ProseMirror code) {
+  background: var(--el-fill-color);
+  color: #ff6b6b;
+}
+
+[data-theme="dark"] .markdown-editor :deep(.ProseMirror pre) {
+  background: var(--el-fill-color);
+}
+
+[data-theme="dark"] .markdown-editor :deep(.ProseMirror blockquote) {
+  color: var(--el-text-color-regular);
+}
