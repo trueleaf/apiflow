@@ -30,6 +30,7 @@ export const cacheKey = {
       activeTab: 'appState/mockNode/activeTab',
       conditionCollapse: 'appState/mockNode/conditionCollapse',
       headersCollapse: 'appState/mockNode/headersCollapse',
+      logViewMode: 'appState/mockNode/logViewMode',
     },
     share: {
       collapse: 'appState/share/collapse',

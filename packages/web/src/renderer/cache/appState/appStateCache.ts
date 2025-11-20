@@ -424,5 +424,28 @@ class AppState {
       logger.error('设置AI对话框位置失败', { error });
     }
   }
+  // 获取HTTP Mock日志视图模式
+  getHttpMockLogViewMode(nodeId: string): 'compact' | 'detailed' {
+    try {
+      const localData: Record<string, 'compact' | 'detailed'> = JSON.parse(localStorage.getItem(cacheKey.appState.mockNode.logViewMode) || '{}');
+      return localData[nodeId] || 'compact';
+    } catch (error) {
+      logger.error('获取Mock日志视图模式失败', { error });
+      return 'compact';
+    }
+  }
+  // 设置HTTP Mock日志视图模式
+  setHttpMockLogViewMode(nodeId: string, mode: 'compact' | 'detailed') {
+    try {
+      const localData = JSON.parse(localStorage.getItem(cacheKey.appState.mockNode.logViewMode) || '{}');
+      localData[nodeId] = mode;
+      localStorage.setItem(cacheKey.appState.mockNode.logViewMode, JSON.stringify(localData));
+    } catch (error) {
+      logger.error('设置Mock日志视图模式失败', { error });
+      const data: Record<string, 'compact' | 'detailed'> = {};
+      data[nodeId] = mode;
+      localStorage.setItem(cacheKey.appState.mockNode.logViewMode, JSON.stringify(data));
+    }
+  }
 }
 export const appState = new AppState();
