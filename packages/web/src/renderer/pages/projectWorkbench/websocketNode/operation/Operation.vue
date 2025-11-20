@@ -1,26 +1,26 @@
-
- <template>
+<template>
   <div class="ws-operation">
-    <div class="connection-wrap">
-      <el-input 
-        v-model="connectionUrl" 
-        :placeholder="$t('请输入WebSocket连接地址')" 
-        autocomplete="off" 
-        autocorrect="off" 
-        spellcheck="false"
+    <div class="op-wrap">
+      <div class="protocol-select">
+        <el-select v-model="protocol" size="default">
+          <el-option value="ws" label="WS"></el-option>
+          <el-option value="wss" label="WSS"></el-option>
+        </el-select>
+      </div>
+      <ClRichInput
+        v-model="connectionUrl"
+        class="url-rich-input"
+        :placeholder="$t('请输入WebSocket连接地址')"
+        :trim-on-paste="true"
+        :min-height="30"
+        disable-history
         @blur="handleFormatUrl"
         @keyup.enter.stop="handleFormatUrl"
-        class="connection-input"
       >
-        <template #prepend>
-          <div class="protocol-select">
-            <el-select v-model="protocol" size="default">
-              <el-option value="ws" label="WS"></el-option>
-              <el-option value="wss" label="WSS"></el-option>
-            </el-select>
-          </div>
+        <template #variable="{ label }">
+          <div class="variable-token">{{ label }}</div>
         </template>
-      </el-input>
+      </ClRichInput>
       
       <div class="action-buttons">
         <el-button 
@@ -61,6 +61,7 @@ import { computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { storeToRefs } from 'pinia';
 import { Refresh } from '@element-plus/icons-vue';
+import ClRichInput from '@/components/ui/cleanDesign/richInput/ClRichInput.vue';
 import { useWebSocket } from '@/store/websocket/websocketStore';
 import { useApidocTas } from '@/store/apidoc/tabsStore';
 import { router } from '@/router';
@@ -488,31 +489,53 @@ const handleFormatUrl = () => {
   z-index: var(--zIndex-request-info-wrap);
   height: var(--apiflow-apidoc-operation-height);
 
-  .connection-wrap {
+  .op-wrap {
     display: flex;
-    align-items: flex-start;
     margin-top: 10px;
 
-    .connection-input {
+    .protocol-select {
+      display: flex;
+      align-items: center;
+      flex-shrink: 0;
+      margin-right: -1px;
+
+      :deep(.el-select) {
+        width: 80px;
+      }
+
+      :deep(.el-input__wrapper) {
+        border-radius: 4px 0 0 4px;
+      }
+    }
+
+    .url-rich-input {
       flex: 1;
-
-      :deep(.el-input__inner) {
+      border: 1px solid var(--el-border-color);
+      margin-right: 10px;
+      
+      :deep(.cl-rich-input__editor .ProseMirror p) {
         font-size: 13px;
+        height: 28px;
+        line-height: 28px;
       }
-
-      .protocol-select {
-        display: flex;
-        align-items: center;
-
-        :deep(.el-select) {
-          width: 80px;
-        }
+      &:focus-within {
+        border-color: var(--el-color-primary);
       }
+    }
+
+    .variable-token {
+      color: var(--el-color-warning);
+      cursor: pointer;
     }
 
     .action-buttons {
       display: flex;
       flex-wrap: wrap;
+      gap: 10px;
+      
+      .el-button {
+        margin-left: 0;
+      }
     }
   }
 
