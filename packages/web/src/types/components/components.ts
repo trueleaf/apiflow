@@ -60,6 +60,7 @@ export interface ClRichInputProps {
   class?: string
   expandOnFocus?: boolean
   trimOnPaste?: boolean
+  disableHistory?: boolean
 }
 
 export interface ClRichInputEmits {

@@ -24,29 +24,28 @@
     </div>
     <!-- 请求地址，发送请求 -->
     <div class="op-wrap">
-      <el-input
+      <div class="request-method">
+        <el-select v-model="requestMethod" :size="config.renderConfig.layout.size" value-key="name" data-testid="method-select">
+          <el-option v-for="(item, index) in requestMethodEnum" :key="index" :value="item.value" :label="item.name"
+            :title="disabledTip(item)" :disabled="!item.isEnabled">
+          </el-option>
+        </el-select>
+      </div>
+      <ClRichInput
         v-model="requestPath"
+        class="url-rich-input"
         data-testid="url-input"
         :placeholder="t('path参数') + ' eg: http://test.com/{id}'"
-        autocomplete="off"
-        autocorrect="off"
-        spellcheck="false"
-        @keydown="handleKeyDown"
-        @input="handleChangeUrl"
+        :trim-on-paste="true"
+        :min-height="30"
+        disable-history
+        @update:modelValue="handleChangeUrl"
         @blur="handleFormatUrl"
-        @keyup.enter.stop="handleFormatUrl"
-        @paste="handlePaste"
       >
-        <template #prepend>
-          <div class="request-method">
-            <el-select v-model="requestMethod" :size="config.renderConfig.layout.size" value-key="name" data-testid="method-select">
-              <el-option v-for="(item, index) in requestMethodEnum" :key="index" :value="item.value" :label="item.name"
-                :title="disabledTip(item)" :disabled="!item.isEnabled">
-              </el-option>
-            </el-select>
-          </div>
+        <template #variable="{ label }">
+          <div class="variable-token">{{ label }}</div>
         </template>
-      </el-input>
+      </ClRichInput>
       <el-button 
         v-if="requestState === 'waiting' || requestState === 'finish'" 
         :disabled="!isElectron()"
@@ -83,6 +82,7 @@ import { config } from '@src/config/config'
 import { validateUrl, type UrlValidationResult } from '@/helper'
 import { router } from '@/router/index'
 import SSaveDocDialog from '@/pages/projectWorkbench/dialog/saveDoc/SaveDoc.vue'
+import ClRichInput from '@/components/ui/cleanDesign/richInput/ClRichInput.vue'
 import getHostPart from './composables/host'
 import { handleFormatUrl, handleChangeUrl } from './composables/url'
 import getMethodPart from './composables/method'
@@ -156,17 +156,6 @@ const handleSaveApidoc = () => {
     httpNodeStore.saveApidoc();
   }
 }
-const handlePaste = (event: ClipboardEvent) => {
-  event.preventDefault();
-  const pastedText = event.clipboardData?.getData('text') || '';
-  const trimmedText = pastedText.trim();
-  requestPath.value = trimmedText;
-};
-const handleKeyDown = (event: Event) => {
-  if (event instanceof KeyboardEvent && (event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'z') {
-    event.preventDefault()
-  }
-};
 const { loading3, handleSendRequest, handleStopRequest, handleFreshApidoc } = operationPart;
 //请求url、完整url
 const requestPath = computed<string>({
@@ -252,22 +241,40 @@ watch(
     display: flex;
     margin-top: 10px;
 
-    :deep(.el-input__inner) {
-      font-size: 13px;
-    }
-
     .request-method {
       display: flex;
       align-items: center;
+      flex-shrink: 0;
+      margin-right: -1px;
 
       :deep(.el-select) {
         width: 100px;
       }
+
+      :deep(.el-input__wrapper) {
+        border-radius: 4px 0 0 4px;
+      }
     }
 
-    .el-input__suffix {
-      display: flex;
-      align-items: center;
+    .url-rich-input {
+      flex: 1;
+      border: 1px solid var(--el-border-color);
+      :deep(.cl-rich-input__editor) {
+        // padding: 5px 0;
+      }
+      :deep(.cl-rich-input__editor .ProseMirror p) {
+        font-size: 13px;
+        height: 28px;
+        line-height: 28px;
+      }
+      &:focus-within {
+        border-color: var(--el-color-primary);
+      }
+    }
+
+    .variable-token {
+      color: var(--el-color-warning);
+      cursor: pointer;
     }
   }
 
