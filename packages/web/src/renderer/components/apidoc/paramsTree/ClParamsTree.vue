@@ -1,124 +1,206 @@
 <template>
-  <el-tree ref="treeRef" :data="localData" :indent="50" node-key="_id" :expand-on-click-node="false"
-    :draggable="enableDrag" :allow-drop="handleAllowDrop" :show-checkbox="showCheckbox" :check-on-click-leaf="false"
-    :default-checked-keys="defaultCheckedKeys" @node-drop="handleNodeDrop" @check-change="handleCheckChange">
-    <template #default="{ data }">
-      <div class="custom-params">
-        <el-icon class="delete-icon" :class="{ disabled: localData.length <= 1 || data._disableDelete }" :size="14"
-          :title="data._disableDelete ? (data._disableDeleteTip || t('无法删除')) : (localData.length <= 1 ? t('至少保留一条数据') : t('删除'))" @click="() => handleDeleteRow(data)">
-          <Close />
-        </el-icon>
-        <div class="w-15 flex0 mr-2 d-flex a-center" @mouseenter="handleDisableDrag()" @mouseleave="handleEnableDrag()">
-          <el-autocomplete v-if="props.mindKeyParams && props.mindKeyParams.length > 0" :model-value="data.key"
-            :debounce="0" :placeholder="t('输入参数名称自动换行')" :fetch-suggestions="querySearchKey"
-            :disabled="data._disableKey" :title="data._disableKeyTip || ''"
-            popper-class="params-tree-autocomplete" @select="(item: any) => handleSelectKey(item, data)"
-            @update:modelValue="(v: string | number) => handleChangeKey(String(v), data)" @focus="handleFocusKey()"
-            @blur="handleEnableDrag()" @keydown="(e: any) => handleKeyDown(e, data)"
-            @paste="(event: ClipboardEvent) => handlePasteKey(event, data)">
-            <template #default="{ item }">
-              <div class="autocomplete-item">
-                <div class="value" v-html="highlightText(item.key, currentKeyQuery)"></div>
-                <div class="description" v-html="highlightText(item.description || '', currentKeyQuery)"></div>
-              </div>
-            </template>
-          </el-autocomplete>
-          <el-input v-else :model-value="data.key" :placeholder="t('输入参数名称自动换行')"
-            :disabled="data._disableKey" :title="data._disableKeyTip || ''"
-            @update:modelValue="v => handleChangeKey(v, data)" @focus="handleDisableDrag()" @blur="handleEnableDrag()"
-            @paste="(event: ClipboardEvent) => handlePasteKey(event, data)">
-          </el-input>
-        </div>
-        <div class="w-15 flex0 mr-2" @mouseenter="handleDisableDrag()" @mouseleave="handleEnableDrag()">
-          <el-select :model-value="data.type" :placeholder="t('类型')" class="w-100"
-            :size="config.renderConfig.layout.size" :disabled="!props.enableFile"
-            @update:modelValue="v => handleChangeType(v as 'string' | 'file', data)">
-            <el-option label="String" value="string"></el-option>
-            <el-option v-if="props.enableFile" label="File" value="file"></el-option>
-          </el-select>
-        </div>
-        <!-- 参数值 string -->
-        <el-popover v-if="data.type === 'string'"
-          :visible="data._id === currentOpData?._id && (data.value || '').includes('@')" placement="top-start"
-          width="auto">
-          <SMock :search-value="data.value.split('@').pop() || ''" @close="handleCloseMock()"
-            @select="v => handleSelectMockValue(v, data)"></SMock>
-          <template #reference>
-            <div class="value-input-wrap w-35 mr-2"
-              :class="{ 'is-multiline': multilineInputs[data._id], 'is-pinned': focusedInputId === data._id && multilineInputs[data._id] }"
-              @mouseenter="handleDisableDrag()" @mouseleave="handleEnableDrag()">
-              <ClRichInput
-                :model-value="data.value"
-                class="value-rich-input"
-                :placeholder="data._valuePlaceholder || t('参数值、@代表mock数据、{{ 变量 }}')"
-                :min-height="28"
-                :max-height="280"
-                :trim-on-paste="true"
-                :expand-on-focus="true"
-                :disabled="data._disableValue"
-                disable-history
-                @update:modelValue="v => handleChangeValue(v, data)" @focus="handleFocusValue(data)"
-                @blur="handleBlurValueAndEnableDrag()"
-                @multiline-change="(isMultiline: boolean) => handleMultilineChange(data._id, isMultiline)"
-                @paste="handleRichInputPaste()">
-                <template #variable="{ label }">
-                  <div class="params-variable-token">{{ label }}</div>
-                </template>
-              </ClRichInput>
-            </div>
-          </template>
-        </el-popover>
-        <!-- 参数值 File -->
-        <div v-if="data.type === 'file'" class="w-35 mr-2"
-          :class="{ active: data.value, 'no-border': (data.fileValueType === 'var' || data.fileValueType === 'file') }"
-          @mouseenter="handleDisableDrag()" @mouseleave="handleEnableDrag()">
-          <div class="file-input-wrap">
-            <div v-if="data.fileValueType !== 'file' && data.fileValueType !== 'var'" class="mode-list">
-              <span class="var-mode" @click="() => data.fileValueType = 'var'">{{ t('变量模式') }}</span>
-              <span class="px-3"></span>
-              <span class="file-mode" @click="() => data.fileValueType = 'file'">{{ t('文件模式') }}</span>
-            </div>
-            <el-input v-if="data.fileValueType === 'var'" :model-value="data.value" class="w-100"
-              :placeholder="data._valuePlaceholder || (t('变量模式') + ' eg: ' + t('{0} fileValue {1}', ['{{', '}}']))"
-              :disabled="data._disableValue"
-              @update:modelValue="v => handleChangeValue(v, data)" @blur="handleBlurValue()"
-              @paste="(event: ClipboardEvent) => handlePasteValueInput(event, data)">
-            </el-input>
-            <div v-if="data.fileValueType === 'file'" class="file-mode-wrap">
-              <label v-show="!data.value" :for="data._id" class="label">{{ t('选择文件') }}</label>
-              <span class="text-wrap" :title="data.value">{{ data.value }}</span>
-              <el-icon v-if="data.value" class="close" :size="16" @click="handleClearFileValue(data)">
-                <close />
-              </el-icon>
-            </div>
-            <div v-if="data.fileValueType === 'file' || data.fileValueType === 'var'"
-              :title="t('切换变量选择模式，支持变量或者直接选择文件')" class="toggle-mode" @click="handleToggleFileValueType(data)">
-              <el-icon>
-                <Switch />
-              </el-icon>
-            </div>
-            <input :id="data._id" ref="fileInput" class="d-none" type="file" @change="e => handleSelectFile(e, data)">
-            </input>
-          </div>
-          <div v-if="data._error" class="file-error">{{ data._error }}</div>
-        </div>
-        <el-checkbox :model-value="data.required" :label="t('必有')" class="pr-2"
-          :disabled="data.disabled"
-          @update:modelValue="v => handleChangeRequired(v as unknown as boolean, data)">
-        </el-checkbox>
-        <div class="w-30" @mouseenter="handleDisableDrag()" @mouseleave="handleEnableDrag()">
-          <el-input :model-value="data.description" class="w-100"
-            :type="expandedInputs[data._id]?.description ? 'textarea' : 'text'"
-            :autosize="expandedInputs[data._id]?.description ? { minRows: 2, maxRows: 6 } : undefined"
-            :placeholder="t('参数描述与备注')" :disabled="data._disableDescription"
-            @focus="handleFocusDescription(data)" @blur="handleEnableDrag()"
-            @update:modelValue="v => handleChangeDescription(v, data)"
-            @paste="(event: ClipboardEvent) => handlePasteDescription(event, data)">
-          </el-input>
-        </div>
-      </div>
-    </template>
-  </el-tree>
+  <div>
+     <el-tree 
+       ref="treeRef" 
+       node-key="_id" 
+       :data="localData" 
+       :indent="50" 
+       :expand-on-click-node="false" 
+       :draggable="enableDrag" 
+       :allow-drop="handleAllowDrop" 
+       :show-checkbox="showCheckbox" 
+       :check-on-click-leaf="false" 
+       :default-checked-keys="defaultCheckedKeys" 
+       @node-drop="handleNodeDrop" 
+       @check-change="handleCheckChange"
+     >
+       <template #default="{ data }">
+         <div class="custom-params">
+           <el-icon 
+             class="delete-icon" 
+             :class="{ disabled: localData.length <= 1 || data._disableDelete }" 
+             :size="14" 
+             :title="data._disableDelete ? (data._disableDeleteTip || t('无法删除')) : (localData.length <= 1 ? t('至少保留一条数据') : t('删除'))" 
+             @click="() => handleDeleteRow(data)"
+           >
+             <Close />
+           </el-icon>
+           <!-- 参数key -->
+           <div class="w-15 flex0 mr-2 d-flex a-center" @mouseenter="handleDisableDrag()" @mouseleave="handleEnableDrag()">
+             <el-autocomplete 
+               v-if="props.mindKeyParams && props.mindKeyParams.length > 0" 
+               popper-class="params-tree-autocomplete" 
+               :model-value="data.key" 
+               :debounce="0" 
+               :placeholder="t('输入参数名称自动换行')" 
+               :fetch-suggestions="querySearchKey" 
+               :disabled="data._disableKey" 
+               :title="data._disableKeyTip || ''" 
+               @select="(item: any) => handleSelectKey(item, data)" 
+               @update:modelValue="(v: string | number) => handleChangeKey(String(v), data)" 
+               @focus="handleFocusKey()" 
+               @blur="handleEnableDrag()" 
+               @keydown="(e: any) => handleKeyDown(e, data)" 
+               @paste="(event: ClipboardEvent) => handlePasteKey(event, data)"
+             >
+               <template #default="{ item }">
+                 <div class="autocomplete-item">
+                   <div class="value" v-html="highlightText(item.key, currentKeyQuery)"></div>
+                   <div class="description" v-html="highlightText(item.description || '', currentKeyQuery)"></div>
+                 </div>
+               </template>
+             </el-autocomplete>
+             <el-input 
+               v-else 
+               :model-value="data.key" 
+               :placeholder="t('输入参数名称自动换行')" 
+               :disabled="data._disableKey" 
+               :title="data._disableKeyTip || ''" 
+               @update:modelValue="v => handleChangeKey(v, data)" 
+               @focus="handleDisableDrag()" 
+               @blur="handleEnableDrag()" 
+               @paste="(event: ClipboardEvent) => handlePasteKey(event, data)"
+             >
+             </el-input>
+           </div>
+           <!-- 参数类型 -->
+           <div class="w-15 flex0 mr-2" @mouseenter="handleDisableDrag()" @mouseleave="handleEnableDrag()">
+             <el-select 
+               class="w-100" 
+               :model-value="data.type" 
+               :placeholder="t('类型')" 
+               :size="config.renderConfig.layout.size" 
+               :disabled="!props.enableFile" 
+               @update:modelValue="v => handleChangeType(v as 'string' | 'file', data)"
+             >
+               <el-option label="String" value="string"></el-option>
+               <el-option v-if="props.enableFile" label="File" value="file"></el-option>
+             </el-select>
+           </div>
+           <!-- 参数值 string -->
+           <el-popover 
+             v-if="data.type === 'string'" 
+             placement="top-start" 
+             width="auto" 
+             :visible="data._id === currentOpData?._id && (data.value || '').includes('@')"
+           >
+             <SMock 
+               :search-value="data.value.split('@').pop() || ''" 
+               @close="handleCloseMock()" 
+               @select="v => handleSelectMockValue(v, data)"
+             ></SMock>
+             <template #reference>
+               <div 
+                 class="value-input-wrap w-35 mr-2" 
+                 :class="{ 'is-multiline': multilineInputs[data._id], 'is-pinned': focusedInputId === data._id && multilineInputs[data._id] }" 
+                 @mouseenter="handleDisableDrag()" 
+                 @mouseleave="handleEnableDrag()"
+               >
+                 <ClRichInput 
+                   class="value-rich-input" 
+                   :model-value="data.value" 
+                   :placeholder="data._valuePlaceholder || t('参数值、@代表mock数据、{{ 变量 }}')" 
+                   :min-height="28" 
+                   :max-height="280" 
+                   :trim-on-paste="true" 
+                   :expand-on-focus="true" 
+                   :disabled="data._disableValue" 
+                   disable-history 
+                   @update:modelValue="v => handleChangeValue(v, data)" 
+                   @focus="handleFocusValue(data)" 
+                   @blur="handleBlurValueAndEnableDrag()" 
+                   @multiline-change="(isMultiline: boolean) => handleMultilineChange(data._id, isMultiline)" 
+                   @paste="handleRichInputPaste()"
+                 >
+                   <template #variable="{ label }">
+                     <div class="params-variable-token">{{ label }}</div>
+                   </template>
+                 </ClRichInput>
+               </div>
+             </template>
+           </el-popover>
+           <!-- 参数值 File -->
+           <div 
+             v-if="data.type === 'file'" 
+             class="w-35 mr-2" 
+             :class="{ active: data.value, 'no-border': (data.fileValueType === 'var' || data.fileValueType === 'file') }" 
+             @mouseenter="handleDisableDrag()" 
+             @mouseleave="handleEnableDrag()"
+           >
+             <div class="file-input-wrap">
+               <div v-if="data.fileValueType !== 'file' && data.fileValueType !== 'var'" class="mode-list">
+                 <span class="var-mode" @click="() => data.fileValueType = 'var'">{{ t('变量模式') }}</span>
+                 <span class="px-3"></span>
+                 <span class="file-mode" @click="() => data.fileValueType = 'file'">{{ t('文件模式') }}</span>
+               </div>
+               <el-input 
+                 v-if="data.fileValueType === 'var'" 
+                 class="w-100" 
+                 :model-value="data.value" 
+                 :placeholder="data._valuePlaceholder || (t('变量模式') + ' eg: ' + t('{0} fileValue {1}', ['{{', '}}']))" 
+                 :disabled="data._disableValue" 
+                 @update:modelValue="v => handleChangeValue(v, data)" 
+                 @blur="handleBlurValue()" 
+                 @paste="(event: ClipboardEvent) => handlePasteValueInput(event, data)"
+               >
+               </el-input>
+               <div v-if="data.fileValueType === 'file'" class="file-mode-wrap">
+                 <label v-show="!data.value" class="label" :for="data._id">{{ t('选择文件') }}</label>
+                 <span class="text-wrap" :title="data.value">{{ data.value }}</span>
+                 <el-icon v-if="data.value" class="close" :size="16" @click="handleClearFileValue(data)">
+                   <close />
+                 </el-icon>
+               </div>
+               <div 
+                 v-if="data.fileValueType === 'file' || data.fileValueType === 'var'" 
+                 class="toggle-mode" 
+                 :title="t('切换变量选择模式，支持变量或者直接选择文件')" 
+                 @click="handleToggleFileValueType(data)"
+               >
+                 <el-icon>
+                   <Switch />
+                 </el-icon>
+               </div>
+               <input 
+                 :id="data._id" 
+                 ref="fileInput" 
+                 class="d-none" 
+                 type="file" 
+                 @change="e => handleSelectFile(e, data)"
+               >
+               </input>
+             </div>
+             <div v-if="data._error" class="file-error">{{ data._error }}</div>
+           </div>
+           <!-- 参数是否必有 -->
+           <el-checkbox 
+             class="pr-2" 
+             :model-value="data.required" 
+             :label="t('必有')" 
+             :disabled="data.disabled" 
+             @update:modelValue="v => handleChangeRequired(v as unknown as boolean, data)"
+           >
+           </el-checkbox>
+           <!-- 参数备注 -->
+           <div class="w-30" @mouseenter="handleDisableDrag()" @mouseleave="handleEnableDrag()">
+             <el-input 
+               class="w-100" 
+               :model-value="data.description" 
+               :type="expandedInputs[data._id]?.description ? 'textarea' : 'text'" 
+               :autosize="expandedInputs[data._id]?.description ? { minRows: 2, maxRows: 6 } : undefined" 
+               :placeholder="t('参数描述与备注')" 
+               :disabled="data._disableDescription" 
+               @focus="handleFocusDescription(data)" 
+               @blur="handleEnableDrag()" 
+               @update:modelValue="v => handleChangeDescription(v, data)" 
+               @paste="(event: ClipboardEvent) => handlePasteDescription(event, data)"
+             >
+             </el-input>
+           </div>
+         </div>
+       </template>
+     </el-tree>
+   </div>
 </template>
 <script lang="ts" setup>
 import { ref, Ref, watch, nextTick } from 'vue';
@@ -131,13 +213,21 @@ import SMock from '@/components/apidoc/mock/ClMock.vue';
 import { config } from '@src/config/config';
 import ClRichInput from '@/components/ui/cleanDesign/richInput/ClRichInput.vue';
 import type { ClParamsTreeProps, ClParamsTreeEmits } from '@src/types/components/components';
-
+/*
+|--------------------------------------------------------------------------
+| Props 和 Emits 定义
+|--------------------------------------------------------------------------
+*/
 const props = withDefaults(defineProps<ClParamsTreeProps>(), {
   showCheckbox: true,
 });
 const emits = defineEmits<ClParamsTreeEmits>();
 const { t } = useI18n();
-
+/*
+|--------------------------------------------------------------------------
+| 响应式数据
+|--------------------------------------------------------------------------
+*/
 const treeRef = ref();
 const localData: Ref<ApidocProperty<'string' | 'file'>[]> = ref([]);
 const enableDrag = ref(true);
@@ -151,42 +241,38 @@ const defaultCheckedKeys = ref<string[]>([]);
 const multilineInputs = ref<Record<string, boolean>>({});
 const focusedInputId = ref<string | null>(null);
 const isPasting = ref(false);
+/*
+|--------------------------------------------------------------------------
+| 数据变更通知
+|--------------------------------------------------------------------------
+*/
 const emitChange = () => {
   emits('change', localData.value);
 };
-// 高亮文本工具函数
+/*
+|--------------------------------------------------------------------------
+| 工具函数
+|--------------------------------------------------------------------------
+*/
+// 高亮文本
 const highlightText = (text: string, query: string): string => {
   if (!query || !text) return text;
   const regex = new RegExp(`(${query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
   return text.replace(regex, '<span class="highlight">$1</span>');
 };
-
-watch(
-  () => props.data,
-  (newVal) => {
-    if (!newVal) {
-      return;
-    }
-    // 如果props.data就是localData.value（引用相同），说明是通过emit回传的，跳过更新
-    if (newVal === localData.value) {
-      return;
-    }
-    localData.value = newVal.map(i => ({ ...i }));
-    if (localData.value.length === 0) {
-      localData.value.push(generateEmptyProperty<'string'>());
-    }
-    // 更新默认选中keys
-    defaultCheckedKeys.value = localData.value.filter(item => item.select).map(item => item._id);
-  },
-  { deep: true, immediate: true },
-);
-
+// 拖拽控制
 const handleDisableDrag = () => {
   enableDrag.value = false;
 };
 const handleEnableDrag = () => {
   enableDrag.value = true;
 };
+/*
+|--------------------------------------------------------------------------
+| 粘贴处理
+|--------------------------------------------------------------------------
+*/
+// 通用粘贴处理函数
 const handleTrimmedInputPaste = (event: ClipboardEvent, apply: (value: string) => void, currentValue: string) => {
   const clipboardData = event.clipboardData;
   if (!clipboardData) {
@@ -219,9 +305,11 @@ const handleTrimmedInputPaste = (event: ClipboardEvent, apply: (value: string) =
     target.setSelectionRange(selectionStart + trimmedText.length, selectionStart + trimmedText.length);
   });
 };
+// 参数名称粘贴
 const handlePasteKey = (event: ClipboardEvent, data: ApidocProperty<'string' | 'file'>) => {
   handleTrimmedInputPaste(event, value => handleChangeKey(value, data), data.key || '');
 };
+// 参数值粘贴（变量模式）
 const handlePasteValueInput = (event: ClipboardEvent, data: ApidocProperty<'string' | 'file'>) => {
   isPasting.value = true;
   handleTrimmedInputPaste(event, value => handleChangeValue(value, data), data.value || '');
@@ -229,181 +317,28 @@ const handlePasteValueInput = (event: ClipboardEvent, data: ApidocProperty<'stri
     isPasting.value = false;
   });
 };
+// 富文本输入粘贴
 const handleRichInputPaste = () => {
   isPasting.value = true;
   nextTick(() => {
     isPasting.value = false;
   });
 };
+// 参数描述粘贴
 const handlePasteDescription = (event: ClipboardEvent, data: ApidocProperty<'string' | 'file'>) => {
   handleTrimmedInputPaste(event, value => handleChangeDescription(value, data), data.description || '');
 };
-// 处理参数名称输入框聚焦
+/*
+|--------------------------------------------------------------------------
+| 参数名称相关
+|--------------------------------------------------------------------------
+*/
+// 参数名称输入框聚焦
 const handleFocusKey = () => {
   hasUserInput.value = false;
   handleDisableDrag();
 };
-
-const handleAllowDrop = (_: Node, __drop: Node, type: 'inner' | 'prev' | 'next') => {
-  return type !== 'inner';
-};
-
-const handleNodeDrop = (_dragNode: Node, _dropNode: Node, type: 'inner' | 'prev' | 'next') => {
-  if (type === 'inner') {
-    return;
-  }
-  // el-tree 会自动更新 localData，不需要手动 splice，否则会导致顺序错误
-  emitChange();
-};
-
-const handleDeleteRow = (data: ApidocProperty<'string' | 'file'>) => {
-  // 如果只有一条数据或禁止删除，则不执行
-  if (localData.value.length <= 1 || data._disableDelete) {
-    return;
-  }
-  const idx = localData.value.findIndex(i => i._id === data._id);
-  if (idx > -1) {
-    localData.value.splice(idx, 1);
-  }
-  if (localData.value.length === 0) {
-    localData.value.push(generateEmptyProperty<'string'>());
-  }
-  emitChange();
-};
-
-const autoAppendIfNeeded = (data: ApidocProperty<'string' | 'file'>) => {
-  // 如果该行禁止自动追加，则跳过
-  if (data._disableAdd) {
-    return;
-  }
-  const isLast = localData.value[localData.value.length - 1]?._id === data._id;
-  const hasKey = (data.key ?? '').trim() !== '';
-  if (isLast && hasKey) {
-    const nextProperty = generateEmptyProperty<'string'>();
-    localData.value.push(nextProperty);
-    defaultCheckedKeys.value.push(nextProperty._id);
-    nextTick(() => {
-      treeRef.value?.setChecked(nextProperty._id, true, false);
-    });
-  }
-};
-
-const handleChangeKey = (v: string, data: ApidocProperty<'string' | 'file'>) => {
-  hasUserInput.value = true;
-  data.key = v;
-  autoAppendIfNeeded(data);
-  emitChange();
-};
-
-const handleChangeValue = (v: string, data: ApidocProperty<'string' | 'file'>) => {
-  data.value = v;
-  // 检测是否包含@符号，如果包含且非粘贴操作则显示mock弹窗
-  if (v.includes('@') && !isPasting.value) {
-    currentOpData.value = data;
-  } else if (!v.includes('@')) {
-    currentOpData.value = null;
-  }
-  emitChange();
-};
-
-const handleChangeType = (v: 'string' | 'file', data: ApidocProperty<'string' | 'file'>) => {
-  data.type = v;
-  if (v === 'file') {
-    data.fileValueType = data.fileValueType ?? 'var';
-    data.value = '';
-    data._error = '';
-  } else {
-    data.value = '';
-    // 清除文件相关属性
-    delete data.fileValueType;
-    delete data._error;
-  }
-  emitChange();
-};
-
-const handleBlurValue = () => {
-  setTimeout(() => (currentOpData.value = null), 150);
-};
-// 组合函数：同时处理 Mock 弹窗关闭、恢复拖拽
-const handleBlurValueAndEnableDrag = () => {
-  focusedInputId.value = null;
-  handleBlurValue();
-  handleEnableDrag();
-};
-
-const handleCloseMock = () => {
-  currentOpData.value = null;
-};
-// 处理参数值聚焦时禁用拖拽
-const handleFocusValue = (data: ApidocProperty<'string' | 'file'>) => {
-  focusedInputId.value = data._id;
-  handleDisableDrag();
-};
-// 处理多行状态变化
-const handleMultilineChange = (id: string, isMultiline: boolean) => {
-  multilineInputs.value[id] = isMultiline;
-};
-// 处理描述聚焦时的展开逻辑
-const handleFocusDescription = (data: ApidocProperty<'string' | 'file'>) => {
-  handleDisableDrag();
-  if (!expandedInputs.value[data._id]) {
-    expandedInputs.value[data._id] = { value: false, description: false };
-  }
-  const shouldExpand = (data.description?.length || 0) > 50 || (data.description?.includes('\n') || false);
-  expandedInputs.value[data._id].description = shouldExpand;
-};
-
-const handleSelectMockValue = (item: any, data: ApidocProperty<'string' | 'file'>) => {
-  data.value = item.value;
-  // 选中mock数据后自动关闭弹窗
-  currentOpData.value = null;
-  emitChange();
-};
-
-const handleToggleFileValueType = (data: ApidocProperty<'string' | 'file'>) => {
-  data.fileValueType = data.fileValueType === 'var' ? 'file' : 'var';
-  emitChange();
-};
-
-const handleClearFileValue = (data: ApidocProperty<'string' | 'file'>) => {
-  data.value = '';
-  emitChange();
-};
-
-const handleSelectFile = (e: Event, data: ApidocProperty<'string' | 'file'>) => {
-  const files = (e.target as HTMLInputElement).files;
-  if (!files || files.length === 0) {
-    data.value = '';
-    emitChange();
-    return;
-  }
-  const f = files[0];
-  const path = (f as any).path || f.name;
-  if (!path) {
-    data._error = t('未能读取文件');
-    emitChange();
-    return;
-  }
-  data._error = '';
-  data.value = path;
-  emitChange();
-};
-
-const handleChangeRequired = (v: boolean, data: ApidocProperty<'string' | 'file'>) => {
-  data.required = !!v;
-  emitChange();
-};
-
-const handleChangeDescription = (v: string, data: ApidocProperty<'string' | 'file'>) => {
-  data.description = v;
-  emitChange();
-};
-
-const handleCheckChange = (data: ApidocProperty<'string' | 'file'>, select: boolean) => {
-  data.select = select;
-  emitChange();
-};
-// 参数名称联想查询函数
+// 参数名称联想查询
 const querySearchKey = (queryString: string, cb: (results: ApidocProperty[]) => void) => {
   if (!props.mindKeyParams || props.mindKeyParams.length === 0) {
     cb([]);
@@ -432,7 +367,7 @@ const querySearchKey = (queryString: string, cb: (results: ApidocProperty[]) => 
   highlightedIndex.value = -1;
   cb(currentSuggestions.value);
 };
-// 处理参数名称选中事件
+// 参数名称选中事件
 const handleSelectKey = (item: ApidocProperty, data: ApidocProperty<'string' | 'file'>) => {
   data.key = item.key;
   if (!(data.description || '').trim()) {
@@ -441,7 +376,7 @@ const handleSelectKey = (item: ApidocProperty, data: ApidocProperty<'string' | '
   autoAppendIfNeeded(data);
   emitChange();
 };
-// Tab键自动填充函数
+// Tab键自动填充
 const handleTabComplete = (data: ApidocProperty<'string' | 'file'>) => {
   if (currentSuggestions.value.length === 0) {
     return;
@@ -459,7 +394,7 @@ const handleTabComplete = (data: ApidocProperty<'string' | 'file'>) => {
     emitChange();
   }
 };
-// 键盘事件处理函数
+// 键盘事件处理
 const handleKeyDown = (e: KeyboardEvent, data: ApidocProperty<'string' | 'file'>) => {
   if (e.key === 'Tab') {
     if (currentSuggestions.value.length > 0) {
@@ -482,7 +417,214 @@ const handleKeyDown = (e: KeyboardEvent, data: ApidocProperty<'string' | 'file'>
     highlightedIndex.value = -1;
   }
 };
-
+// 参数名称修改
+const handleChangeKey = (v: string, data: ApidocProperty<'string' | 'file'>) => {
+  hasUserInput.value = true;
+  data.key = v;
+  autoAppendIfNeeded(data);
+  emitChange();
+};
+/*
+|--------------------------------------------------------------------------
+| 参数值相关
+|--------------------------------------------------------------------------
+*/
+// 参数值修改
+const handleChangeValue = (v: string, data: ApidocProperty<'string' | 'file'>) => {
+  data.value = v;
+  console.log('changeValue');
+  if (v.includes('@') && !isPasting.value) {
+    currentOpData.value = data;
+  } else if (!v.includes('@')) {
+    currentOpData.value = null;
+  }
+  emitChange();
+};
+// 参数值聚焦
+const handleFocusValue = (data: ApidocProperty<'string' | 'file'>) => {
+  focusedInputId.value = data._id;
+  handleDisableDrag();
+};
+// 参数值失焦
+const handleBlurValue = () => {
+  currentOpData.value = null
+  // setTimeout(() => (), 150);
+};
+// 参数值失焦并恢复拖拽
+const handleBlurValueAndEnableDrag = () => {
+  focusedInputId.value = null;
+  handleBlurValue();
+  handleEnableDrag();
+};
+// 多行状态变化
+const handleMultilineChange = (id: string, isMultiline: boolean) => {
+  multilineInputs.value[id] = isMultiline;
+};
+/*
+|--------------------------------------------------------------------------
+| 参数类型相关
+|--------------------------------------------------------------------------
+*/
+// 参数类型修改
+const handleChangeType = (v: 'string' | 'file', data: ApidocProperty<'string' | 'file'>) => {
+  data.type = v;
+  if (v === 'file') {
+    data.fileValueType = data.fileValueType ?? 'var';
+    data.value = '';
+    data._error = '';
+  } else {
+    data.value = '';
+    delete data.fileValueType;
+    delete data._error;
+  }
+  emitChange();
+};
+/*
+|--------------------------------------------------------------------------
+| Mock 相关
+|--------------------------------------------------------------------------
+*/
+// 关闭 Mock 弹窗
+const handleCloseMock = () => {
+  currentOpData.value = null;
+};
+// 选中 Mock 值
+const handleSelectMockValue = (item: any, data: ApidocProperty<'string' | 'file'>) => {
+  data.value = item.value;
+  currentOpData.value = null;
+  emitChange();
+};
+/*
+|--------------------------------------------------------------------------
+| 文件相关
+|--------------------------------------------------------------------------
+*/
+// 切换文件值类型
+const handleToggleFileValueType = (data: ApidocProperty<'string' | 'file'>) => {
+  data.fileValueType = data.fileValueType === 'var' ? 'file' : 'var';
+  emitChange();
+};
+// 清除文件值
+const handleClearFileValue = (data: ApidocProperty<'string' | 'file'>) => {
+  data.value = '';
+  emitChange();
+};
+// 选择文件
+const handleSelectFile = (e: Event, data: ApidocProperty<'string' | 'file'>) => {
+  const files = (e.target as HTMLInputElement).files;
+  if (!files || files.length === 0) {
+    data.value = '';
+    emitChange();
+    return;
+  }
+  const f = files[0];
+  const path = (f as any).path || f.name;
+  if (!path) {
+    data._error = t('未能读取文件');
+    emitChange();
+    return;
+  }
+  data._error = '';
+  data.value = path;
+  emitChange();
+};
+/*
+|--------------------------------------------------------------------------
+| 其他字段修改
+|--------------------------------------------------------------------------
+*/
+// 必填修改
+const handleChangeRequired = (v: boolean, data: ApidocProperty<'string' | 'file'>) => {
+  data.required = !!v;
+  emitChange();
+};
+// 参数描述修改
+const handleChangeDescription = (v: string, data: ApidocProperty<'string' | 'file'>) => {
+  data.description = v;
+  emitChange();
+};
+// 参数描述聚焦
+const handleFocusDescription = (data: ApidocProperty<'string' | 'file'>) => {
+  handleDisableDrag();
+  if (!expandedInputs.value[data._id]) {
+    expandedInputs.value[data._id] = { value: false, description: false };
+  }
+  const shouldExpand = (data.description?.length || 0) > 50 || (data.description?.includes('\n') || false);
+  expandedInputs.value[data._id].description = shouldExpand;
+};
+/*
+|--------------------------------------------------------------------------
+| 树节点操作
+|--------------------------------------------------------------------------
+*/
+// 判断是否允许放置
+const handleAllowDrop = (_: Node, __drop: Node, type: 'inner' | 'prev' | 'next') => {
+  return type !== 'inner';
+};
+// 节点拖拽完成
+const handleNodeDrop = (_dragNode: Node, _dropNode: Node, type: 'inner' | 'prev' | 'next') => {
+  if (type === 'inner') {
+    return;
+  }
+  emitChange();
+};
+// 删除行
+const handleDeleteRow = (data: ApidocProperty<'string' | 'file'>) => {
+  if (localData.value.length <= 1 || data._disableDelete) {
+    return;
+  }
+  const idx = localData.value.findIndex(i => i._id === data._id);
+  if (idx > -1) {
+    localData.value.splice(idx, 1);
+  }
+  if (localData.value.length === 0) {
+    localData.value.push(generateEmptyProperty<'string'>());
+  }
+  emitChange();
+};
+// 自动追加新行
+const autoAppendIfNeeded = (data: ApidocProperty<'string' | 'file'>) => {
+  if (data._disableAdd) {
+    return;
+  }
+  const isLast = localData.value[localData.value.length - 1]?._id === data._id;
+  const hasKey = (data.key ?? '').trim() !== '';
+  if (isLast && hasKey) {
+    const nextProperty = generateEmptyProperty<'string'>();
+    localData.value.push(nextProperty);
+    defaultCheckedKeys.value.push(nextProperty._id);
+    nextTick(() => {
+      treeRef.value?.setChecked(nextProperty._id, true, false);
+    });
+  }
+};
+// 复选框状态变化
+const handleCheckChange = (data: ApidocProperty<'string' | 'file'>, select: boolean) => {
+  data.select = select;
+  emitChange();
+};
+/*
+|--------------------------------------------------------------------------
+| 数据监听
+|--------------------------------------------------------------------------
+*/
+watch(
+  () => props.data,
+  (newVal) => {
+    if (!newVal) {
+      return;
+    }
+    if (newVal === localData.value) {
+      return;
+    }
+    localData.value = newVal.map(i => ({ ...i }));
+    if (localData.value.length === 0) {
+      localData.value.push(generateEmptyProperty<'string'>());
+    }
+    defaultCheckedKeys.value = localData.value.filter(item => item.select).map(item => item._id);
+  },
+  { deep: true, immediate: true },
+);
 </script>
 <style lang='scss' scoped>
 .custom-params {

@@ -75,6 +75,7 @@ const slots = useSlots()
 
 const customClass = computed(() => props.class)
 const isFocused = ref(false)
+const lastEmittedValue = ref(props.modelValue)
 const editorContentRef = ref<InstanceType<typeof EditorContent> | null>(null)
 const variablePopoverRef = ref<HTMLDivElement | null>(null)
 
@@ -253,6 +254,10 @@ const editor = useEditor({
   },
   onUpdate: ({ editor }) => {
     const text = editor.getText()
+    if (props.disableHistory && text === lastEmittedValue.value) {
+      return
+    }
+    lastEmittedValue.value = text
     emits('update:modelValue', text)
     nextTick(() => {
       checkMultiline()
@@ -427,6 +432,7 @@ onMounted(() => {
 
 watch(() => props.modelValue, (newValue) => {
   if (editor.value && editor.value.getText() !== newValue) {
+    lastEmittedValue.value = newValue
     editor.value.commands.setContent(newValue)
   }
 })

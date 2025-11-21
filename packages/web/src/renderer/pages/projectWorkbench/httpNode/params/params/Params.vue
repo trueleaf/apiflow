@@ -15,7 +15,7 @@ import { useI18n } from 'vue-i18n'
 import { useHttpRedoUndo } from '@/store/redoUndo/httpRedoUndoStore'
 import { useApidocTas } from '@/store/apidoc/tabsStore'
 import { router } from '@/router'
-import { debounce, cloneDeep } from 'lodash-es'
+import { cloneDeep } from 'lodash-es'
 import type { ApidocProperty } from '@src/types'
 
 const httpNodeStore = useHttpNode()
@@ -26,13 +26,9 @@ const currentSelectTab = computed(() => {
   const tabs = apidocTabsStore.tabs[projectId];
   return tabs?.find((tab) => tab.selected) || null;
 });
-//path参数
 const { t } = useI18n()
-
-const pathTreeData = computed(() => httpNodeStore.apidoc.item.paths);
-
-//query参数
-const queryTreeData = computed(() => httpNodeStore.apidoc.item.queryParams)
+const pathTreeData = computed(() => JSON.parse(JSON.stringify(httpNodeStore.apidoc.item.paths)));
+const queryTreeData = computed(() => JSON.parse(JSON.stringify(httpNodeStore.apidoc.item.queryParams)));
 //是否存在path参数
 const hasPathParams = computed(() => {
   const { paths } = httpNodeStore.apidoc.item;
@@ -44,47 +40,35 @@ const hasPathParams = computed(() => {
 const handleQueryParamsChange = (newData: ApidocProperty<'string' | 'file'>[]) => {
   const oldValue = cloneDeep(httpNodeStore.apidoc.item.queryParams);
   httpNodeStore.apidoc.item.queryParams = newData as ApidocProperty<'string'>[];
-  
-  debouncedRecordQueryParamsOperation(oldValue, newData as ApidocProperty<'string'>[]);
-};
-
-// 处理 Path 参数变化
-const handlePathParamsChange = (newData: ApidocProperty<'string' | 'file'>[]) => {
-  const oldValue = cloneDeep(httpNodeStore.apidoc.item.paths);
-  httpNodeStore.apidoc.item.paths = newData as ApidocProperty<'string'>[];
-  
-  debouncedRecordPathsOperation(oldValue, newData as ApidocProperty<'string'>[]);
-};
-
-// 防抖的查询参数记录函数
-const debouncedRecordQueryParamsOperation = debounce((oldValue: ApidocProperty<'string'>[], newValue: ApidocProperty<'string'>[]) => {
+  console.log(JSON.parse(JSON.stringify(newData))?.[0]);
+  console.log(JSON.parse(JSON.stringify(oldValue))?.[0])
   if (!currentSelectTab.value) return;
-
   httpRedoUndoStore.recordOperation({
     nodeId: currentSelectTab.value._id,
     type: "queryParamsOperation",
     operationName: "修改查询参数",
     affectedModuleName: "queryParams",
     oldValue: cloneDeep(oldValue),
-    newValue: cloneDeep(newValue),
+    newValue: cloneDeep(newData as ApidocProperty<'string'>[]),
     timestamp: Date.now()
   });
-}, 300);
+};
 
-// 防抖的路径参数记录函数
-const debouncedRecordPathsOperation = debounce((oldValue: ApidocProperty<'string'>[], newValue: ApidocProperty<'string'>[]) => {
+// 处理 Path 参数变化
+const handlePathParamsChange = (newData: ApidocProperty<'string' | 'file'>[]) => {
+  const oldValue = cloneDeep(httpNodeStore.apidoc.item.paths);
+  httpNodeStore.apidoc.item.paths = newData as ApidocProperty<'string'>[];
   if (!currentSelectTab.value) return;
-
   httpRedoUndoStore.recordOperation({
     nodeId: currentSelectTab.value._id,
     type: "pathsOperation",
     operationName: "修改路径参数",
     affectedModuleName: "paths",
     oldValue: cloneDeep(oldValue),
-    newValue: cloneDeep(newValue),
+    newValue: cloneDeep(newData as ApidocProperty<'string'>[]),
     timestamp: Date.now()
   });
-}, 300);
+};
 
 </script>
 <style lang='scss' scoped>
