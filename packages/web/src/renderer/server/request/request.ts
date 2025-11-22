@@ -3,7 +3,7 @@ import { ref, toRaw } from 'vue';
 import json5 from 'json5'
 import { HttpNode, ApidocProperty } from '@src/types';
 import { getFormDataFromFormDataParams, getObjectPathParams, getStringFromParams } from '@/helper'
-import { convertTemplateValueToRealValue } from '@/helper';
+import { getCompiledTemplate } from '@/helper';
 import { useVariable } from '@/store/apidoc/variablesStore';
 import { GotRequestOptions, JsonData, RedirectOptions, ResponseInfo } from '@src/types/index.ts';
 import { useApidocBaseInfo } from '@/store/apidoc/baseInfoStore';
@@ -30,7 +30,7 @@ import { WebSocketNode } from '@src/types/websocketNode';
 */
 const convertStringValueAsync = (data: JsonData) => {
   const needConvertList: Promise<void>[] = [];
-  const { objectVariable } = useVariable()
+  const { variables } = useVariable()
   const loop = (jsonData: JsonData) => {
     const isSimpleValue = (typeof jsonData === 'string' || typeof jsonData === 'number' || typeof jsonData === 'boolean' || jsonData === null);
     const isArray = Array.isArray(jsonData);
@@ -44,7 +44,7 @@ const convertStringValueAsync = (data: JsonData) => {
           loop(item);
         } else if (typeof item === 'string') {
           needConvertList.push(new Promise(resolve => {
-            convertTemplateValueToRealValue(item, objectVariable).then((replacedValue) => {
+            getCompiledTemplate(item, variables).then((replacedValue) => {
               jsonData[i] = replacedValue;
               resolve()
             });
@@ -60,7 +60,7 @@ const convertStringValueAsync = (data: JsonData) => {
           loop(value);
         } else if (typeof value === 'string') {
           needConvertList.push(new Promise(resolve => {
-            convertTemplateValueToRealValue(value, objectVariable).then((replacedValue) => {
+            getCompiledTemplate(value, variables).then((replacedValue) => {
               jsonData[key] = replacedValue;
               resolve()
             });
@@ -79,14 +79,14 @@ export const getUrl = async (httpNode: HttpNode) => {
   if (!httpNode.item.url.path || httpNode.item.url.path.trim() === '') {
     return '';
   }
-  const { objectVariable } = useVariable();
+  const { objectVariable, variables } = useVariable();
   const { url, queryParams, paths, } = httpNode.item;
   const queryString = await getStringFromParams(queryParams, objectVariable, { checkSelect: true, addQuestionMark: true });
   const objectPathParams = await getObjectPathParams(paths, objectVariable);
   const replacedPathParamsString = url.path.replace(/(?<!\{)\{([^{}]+)\}(?!\})/g, (_, variableName) => {
     return objectPathParams[variableName] || ''
   }); // 替换路径参数
-  const pathString = await convertTemplateValueToRealValue(replacedPathParamsString, objectVariable);
+  const pathString = await getCompiledTemplate(replacedPathParamsString, variables);
   let fullUrl = pathString + queryString;
   if (!fullUrl.startsWith('http') && !fullUrl.startsWith('https')) {
     fullUrl = `http://${fullUrl}`
@@ -94,11 +94,11 @@ export const getUrl = async (httpNode: HttpNode) => {
   if (fullUrl.includes('localhost')) {
     fullUrl = fullUrl.replace('localhost', '127.0.0.1')
   }
-  fullUrl = await convertTemplateValueToRealValue(fullUrl, objectVariable);
+  fullUrl = await getCompiledTemplate(fullUrl, variables);
   return fullUrl;
 }
 export const getWebSocketUrl = async (websocketNode: WebSocketNode) => {
-  const { objectVariable } = useVariable();
+  const { objectVariable, variables } = useVariable();
   const { url, queryParams } = websocketNode.item;
   const queryString = await getStringFromParams(queryParams, objectVariable, { checkSelect: true, addQuestionMark: true });
   let fullUrl = url.path + queryString;
@@ -108,7 +108,7 @@ export const getWebSocketUrl = async (websocketNode: WebSocketNode) => {
   if (fullUrl.includes('localhost')) {
     fullUrl = fullUrl.replace('localhost', '127.0.0.1')
   }
-  fullUrl = await convertTemplateValueToRealValue(fullUrl, objectVariable);
+  fullUrl = await getCompiledTemplate(fullUrl, variables);
   return fullUrl;
 }
 
@@ -120,7 +120,7 @@ export const getWebSocketUrl = async (websocketNode: WebSocketNode) => {
  * 4.从cookie中读取请求头
  */
 export const getWebSocketHeaders = async (websocketNode: WebSocketNode, defaultHeaders: ApidocProperty<'string'>[], fullUrl: string) => {
-  const { objectVariable } = useVariable();
+  const { variables } = useVariable();
   const apidocBaseInfoStore = useApidocBaseInfo();
   const apidocTabsStore = useApidocTas();
   const { getMachtedCookies } = useCookies();
@@ -183,7 +183,7 @@ export const getWebSocketHeaders = async (websocketNode: WebSocketNode, defaultH
       headersObject[headerKey] = '13';
     } else if (header.value) {
       // 处理其他默认请求头
-      const realValue = await convertTemplateValueToRealValue(header.value, objectVariable);
+      const realValue = await getCompiledTemplate(header.value, variables);
       headersObject[headerKey] = realValue;
     }
   }
@@ -191,7 +191,7 @@ export const getWebSocketHeaders = async (websocketNode: WebSocketNode, defaultH
   // 处理公共请求头
   for (let i = 0; i < commonHeaders.length; i++) {
     const header = commonHeaders[i];
-    const realKey = await convertTemplateValueToRealValue(header.key, objectVariable);
+    const realKey = await getCompiledTemplate(header.key, variables);
     if (realKey.trim() === '') {
       continue;
     }
@@ -202,7 +202,7 @@ export const getWebSocketHeaders = async (websocketNode: WebSocketNode, defaultH
       continue;
     }
 
-    const realValue = await convertTemplateValueToRealValue(header.value, objectVariable);
+    const realValue = await getCompiledTemplate(header.value, variables);
     headersObject[headerKeyLower] = realValue;
   }
 
@@ -212,7 +212,7 @@ export const getWebSocketHeaders = async (websocketNode: WebSocketNode, defaultH
     if (!header.select) {
       continue;
     }
-    const realKey = await convertTemplateValueToRealValue(header.key, objectVariable);
+    const realKey = await getCompiledTemplate(header.key, variables);
     if (realKey.trim() === '') {
       continue;
     }
@@ -223,7 +223,7 @@ export const getWebSocketHeaders = async (websocketNode: WebSocketNode, defaultH
       continue;
     }
 
-    const realValue = await convertTemplateValueToRealValue(header.value, objectVariable);
+    const realValue = await getCompiledTemplate(header.value, variables);
     headersObject[headerKeyLower] = realValue;
   }
 
@@ -238,7 +238,7 @@ export const getWebSocketHeaders = async (websocketNode: WebSocketNode, defaultH
 };
 const getBody = async (apidoc: HttpNode): Promise<GotRequestOptions['body']> => {
   const { changeResponseInfo, changeRequestState } = useApidocResponse()
-  const { objectVariable } = useVariable()
+  const { objectVariable, variables } = useVariable()
   const { changeFormDataErrorInfoById } = useHttpNode()
   const { mode, urlencoded } = apidoc.item.requestBody;
   if (mode === 'json' && apidoc.item.requestBody.rawJson.trim()) {
@@ -303,7 +303,7 @@ const getBody = async (apidoc: HttpNode): Promise<GotRequestOptions['body']> => 
   }
   if (mode === 'raw') {
     const { data } = apidoc.item.requestBody.raw;
-    const realData = await convertTemplateValueToRealValue(data, objectVariable);
+    const realData = await getCompiledTemplate(data, variables);
     return {
       type: 'raw',
       value: realData
@@ -312,7 +312,7 @@ const getBody = async (apidoc: HttpNode): Promise<GotRequestOptions['body']> => 
   if (mode === 'binary') {
     const { mode, varValue, binaryValue } = apidoc.item.requestBody.binary;
     if (mode === 'var') {
-      const filePath = await convertTemplateValueToRealValue(varValue, objectVariable);
+      const filePath = await getCompiledTemplate(varValue, variables);
       return {
         type: 'binary',
         value: {
@@ -343,7 +343,7 @@ const getBody = async (apidoc: HttpNode): Promise<GotRequestOptions['body']> => 
   * 3.从cookie中读取请求头
  */
 const getHeaders = async (apidoc: HttpNode) => {
-  const { objectVariable } = useVariable();
+  const { variables } = useVariable();
   const apidocBaseInfoStore = useApidocBaseInfo();
   const { defaultHeaders } = useHttpNode();
   const apidocTabsStore = useApidocTas();
@@ -364,17 +364,17 @@ const getHeaders = async (apidoc: HttpNode) => {
     if (!header.disabled && !header.select) { //当前请求头可以被取消
       headersObject[header.key.toLowerCase()] = null;
     } else if (!header._disableValue && header.value) {
-      const realValue = await convertTemplateValueToRealValue(header.value, objectVariable);
+      const realValue = await getCompiledTemplate(header.value, variables);
       headersObject[header.key.toLowerCase()] = realValue;
     }
   }
   for (let i = 0; i < commonHeaders.length; i++) {
     const header = commonHeaders[i];
-    const realKey = await convertTemplateValueToRealValue(header.key, objectVariable);
+    const realKey = await getCompiledTemplate(header.key, variables);
     if (realKey.trim() === '') {
       continue;
     }
-    const realValue = await convertTemplateValueToRealValue(header.value, objectVariable);
+    const realValue = await getCompiledTemplate(header.value, variables);
     headersObject[realKey.toLowerCase()] = realValue
   }
   // const matchedCookies = getMachtedCookies(url);
@@ -388,11 +388,11 @@ const getHeaders = async (apidoc: HttpNode) => {
     if (!header.disabled && !header.select) {
       continue
     }
-    const realKey = await convertTemplateValueToRealValue(header.key, objectVariable);
+    const realKey = await getCompiledTemplate(header.key, variables);
     if (realKey.trim() === '') {
       continue;
     }
-    const realValue = await convertTemplateValueToRealValue(header.value, objectVariable);
+    const realValue = await getCompiledTemplate(header.value, variables);
     headersObject[realKey.toLowerCase()] = realValue
   }
   return headersObject;
@@ -401,11 +401,11 @@ const getHeaders = async (apidoc: HttpNode) => {
 
 const convertPropertyToObject = async (properties: ApidocProperty<'string' | 'file'>[]): Promise<Record<string, string>> => {
   const result: Record<string, string> = {};
-  const { objectVariable } = useVariable();
+  const { variables } = useVariable();
   for (const prop of properties) {
     if (prop.select && prop.key.trim() !== '') {
-      const realKey = await convertTemplateValueToRealValue(prop.key, objectVariable);
-      const realValue = await convertTemplateValueToRealValue(prop.value, objectVariable);
+      const realKey = await getCompiledTemplate(prop.key, variables);
+      const realValue = await getCompiledTemplate(prop.value, variables);
       result[realKey] = realValue;
     }
   }

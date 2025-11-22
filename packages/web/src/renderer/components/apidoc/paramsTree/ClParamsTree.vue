@@ -1,6 +1,51 @@
 <template>
-  <div>
-     <el-tree 
+  <div class="cl-params-tree">
+    <!-- 多行编辑模式 -->
+    <div v-if="props.editMode === 'multiline'" class="multiline-editor">
+      <div class="textarea-wrapper">
+        <el-input
+          v-model="multilineText"
+          type="textarea"
+          :rows="15"
+          :placeholder="t('多行编辑模式提示')"
+          class="multiline-textarea"
+          @input="handleMultilineTextChange"
+        />
+        <div class="textarea-actions">
+          <el-icon
+            class="ai-parse-btn"
+            :class="{ disabled: !isAiConfigValid || !multilineText.trim() || aiParsing }"
+            :title="isAiConfigValid ? t('AI智能解析') : t('请先配置AI')"
+            @click="!isAiConfigValid || !multilineText.trim() || aiParsing ? null : handleAiParse()"
+          >
+            <MagicStick v-if="!aiParsing" />
+            <el-icon v-else class="is-loading">
+              <Loading />
+            </el-icon>
+          </el-icon>
+          <el-button 
+            type="primary" 
+            size="small"
+            :disabled="!multilineText.trim()"
+            @click="handleApplyMultiline"
+          >
+            {{ t('应用') }} ({{ parsedCount }}{{ t('条') }})
+          </el-button>
+        </div>
+      </div>
+      <div class="multiline-footer">
+        <div class="format-tip">
+          {{ t('格式说明') }}: *key=value //{{ t('描述') }}  (*{{ t('表示必填') }}，//{{ t('后为描述') }})
+        </div>
+        <div v-if="parseError" class="parse-error">
+          {{ parseError }}
+        </div>
+      </div>
+    </div>
+    
+    <!-- 表格模式 -->
+    <el-tree
+      v-if="props.editMode !== 'multiline'" 
        ref="treeRef" 
        node-key="_id" 
        :data="localData" 
@@ -205,16 +250,18 @@
    </div>
 </template>
 <script lang="ts" setup>
-import { ref, Ref, watch, nextTick } from 'vue';
-import { Close, Switch } from '@element-plus/icons-vue';
+import { ref, Ref, watch, nextTick, computed } from 'vue';
+import { Close, Switch, MagicStick, Loading } from '@element-plus/icons-vue';
 import type Node from 'element-plus/es/components/tree/src/model/node';
 import type { ApidocProperty } from '@src/types';
-import { generateEmptyProperty } from '@/helper';
+import { generateEmptyProperty, message } from '@/helper';
 import { useI18n } from 'vue-i18n';
 import SMock from '@/components/apidoc/mock/ClMock.vue';
 import { config } from '@src/config/config';
 import ClRichInput from '@/components/ui/cleanDesign/richInput/ClRichInput.vue';
 import type { ClParamsTreeProps, ClParamsTreeEmits } from '@src/types/components/components';
+import { aiCache } from '@/cache/ai/aiCache';
+import type { OpenAIRequestBody } from '@src/types/ai';
 /*
 |--------------------------------------------------------------------------
 | Props 和 Emits 定义
@@ -222,6 +269,7 @@ import type { ClParamsTreeProps, ClParamsTreeEmits } from '@src/types/components
 */
 const props = withDefaults(defineProps<ClParamsTreeProps>(), {
   showCheckbox: true,
+  editMode: 'table',
 });
 const emits = defineEmits<ClParamsTreeEmits>();
 const { t } = useI18n();
@@ -243,6 +291,14 @@ const defaultCheckedKeys = ref<string[]>([]);
 const multilineInputs = ref<Record<string, boolean>>({});
 const focusedInputId = ref<string | null>(null);
 const isPasting = ref(false);
+const multilineText = ref('');
+const parseError = ref('');
+const parsedCount = ref(0);
+const aiParsing = ref(false);
+const isAiConfigValid = computed(() => {
+  const config = aiCache.getAiConfig();
+  return !!(config.apiKey?.trim() && config.apiUrl?.trim());
+});
 /*
 |--------------------------------------------------------------------------
 | 数据变更通知
@@ -618,6 +674,162 @@ const handleCheckChange = (data: ApidocProperty<'string' | 'file'>, select: bool
 };
 /*
 |--------------------------------------------------------------------------
+| 多行编辑模式
+|--------------------------------------------------------------------------
+*/
+type ParseResult = {
+  success: boolean;
+  data: ApidocProperty<'string'>[];
+  errors: string[];
+  count: number;
+};
+// 解析多行文本
+const parseMultilineText = (text: string): ParseResult => {
+  const lines = text.split('\n').filter(line => line.trim());
+  const result: ParseResult = {
+    success: true,
+    data: [],
+    errors: [],
+    count: 0,
+  };
+  const keySet = new Set<string>();
+  lines.forEach((line, index) => {
+    const lineNum = index + 1;
+    const trimmedLine = line.trim();
+    if (!trimmedLine) return;
+    if (!trimmedLine.includes('=')) {
+      result.errors.push(t('第{0}行: 缺少 = 符号', [lineNum]));
+      result.success = false;
+      return;
+    }
+    let required = false;
+    let workLine = trimmedLine;
+    if (workLine.startsWith('*')) {
+      required = true;
+      workLine = workLine.slice(1);
+    }
+    let description = '';
+    const commentIndex = workLine.indexOf('//');
+    if (commentIndex > -1) {
+      description = workLine.slice(commentIndex + 2).trim();
+      workLine = workLine.slice(0, commentIndex).trim();
+    }
+    const equalIndex = workLine.indexOf('=');
+    const key = workLine.slice(0, equalIndex).trim();
+    const value = workLine.slice(equalIndex + 1).trim();
+    if (!key) {
+      result.errors.push(t('第{0}行: 参数名不能为空', [lineNum]));
+      result.success = false;
+      return;
+    }
+    if (keySet.has(key)) {
+      result.errors.push(t('第{0}行: 参数名"{1}"重复', [lineNum, key]));
+    }
+    keySet.add(key);
+    result.data.push({
+      _id: generateEmptyProperty<'string'>()._id,
+      key,
+      value,
+      type: 'string',
+      required,
+      description,
+      select: true,
+    });
+    result.count++;
+  });
+  return result;
+};
+// 将数据转换为多行文本
+const convertDataToMultilineText = (data: ApidocProperty<'string' | 'file'>[]): string => {
+  return data
+    .filter(item => item.key?.trim())
+    .map(item => {
+      const prefix = item.required ? '*' : '';
+      const key = item.key || '';
+      const value = item.value || '';
+      const desc = item.description ? ` //${item.description}` : '';
+      return `${prefix}${key}=${value}${desc}`;
+    })
+    .join('\n');
+};
+// 多行文本变化
+const handleMultilineTextChange = () => {
+  if (!multilineText.value.trim()) {
+    parseError.value = '';
+    parsedCount.value = 0;
+    return;
+  }
+  const result = parseMultilineText(multilineText.value);
+  if (result.errors.length > 0) {
+    parseError.value = result.errors[0];
+  } else {
+    parseError.value = '';
+  }
+  parsedCount.value = result.count;
+};
+// AI解析多行文本
+const handleAiParse = async () => {
+  if (!multilineText.value.trim()) {
+    return;
+  }
+  aiParsing.value = true;
+  parseError.value = '';
+  try {
+    const requestBody: OpenAIRequestBody = {
+      model: 'deepseek-chat',
+      messages: [
+        {
+          role: 'system',
+          content: '你是一个专业的API参数解析助手。请将用户提供的任意格式文本解析为标准的参数格式。输出格式必须严格遵循：每行一个参数，格式为 *key=value //description 或 key=value //description，其中 * 表示必填参数，// 后面是参数描述。只输出解析结果，不要有任何额外说明。'
+        },
+        {
+          role: 'user',
+          content: multilineText.value
+        }
+      ],
+      max_tokens: 2000
+    };
+    const result = await window.electronAPI?.aiManager.textChat(requestBody);
+    if (result?.code === 0 && result.data) {
+      const content = result.data.choices?.[0]?.message?.content || '';
+      if (content) {
+        multilineText.value = content.trim();
+        handleMultilineTextChange();
+        message.success(t('AI解析成功'));
+      } else {
+        message.error(t('AI返回内容为空'));
+      }
+    } else {
+      message.error(result?.msg || t('AI解析失败'));
+    }
+  } catch (error) {
+    message.error(t('AI解析失败'));
+  } finally {
+    aiParsing.value = false;
+  }
+};
+// 应用多行文本
+const handleApplyMultiline = () => {
+  const result = parseMultilineText(multilineText.value);
+  if (!result.success) {
+    return;
+  }
+  localData.value = result.data;
+  if (localData.value.length === 0) {
+    localData.value.push(generateEmptyProperty<'string'>());
+  }
+  defaultCheckedKeys.value = localData.value.filter(item => item.select).map(item => item._id);
+  nextTick(() => {
+    localData.value.forEach(item => {
+      if (item.select) {
+        treeRef.value?.setChecked(item._id, true, false);
+      }
+    });
+  });
+  emitChange();
+};
+/*
+|--------------------------------------------------------------------------
 | 数据监听
 |--------------------------------------------------------------------------
 */
@@ -635,8 +847,21 @@ watch(
       localData.value.push(generateEmptyProperty<'string'>());
     }
     defaultCheckedKeys.value = localData.value.filter(item => item.select).map(item => item._id);
+    if (props.editMode === 'multiline') {
+      multilineText.value = convertDataToMultilineText(localData.value);
+      handleMultilineTextChange();
+    }
   },
   { deep: true, immediate: true },
+);
+watch(
+  () => props.editMode,
+  (newMode) => {
+    if (newMode === 'multiline') {
+      multilineText.value = convertDataToMultilineText(localData.value);
+      handleMultilineTextChange();
+    }
+  },
 );
 </script>
 <style lang='scss' scoped>
@@ -822,6 +1047,73 @@ watch(
     font-weight: 600;
     color: var(--text-primary);
     word-break: break-all;
+  }
+}
+
+.multiline-editor {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+
+  .textarea-wrapper {
+    position: relative;
+
+    .multiline-textarea {
+      :deep(.el-textarea__inner) {
+        font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+        font-size: 13px;
+        line-height: 1.6;
+        resize: vertical;
+        min-height: 400px;
+        padding-bottom: 50px;
+      }
+    }
+
+    .textarea-actions {
+      position: absolute;
+      right: 12px;
+      bottom: 12px;
+      display: flex;
+      gap: 8px;
+      z-index: 1;
+
+      .ai-parse-btn {
+        font-size: 20px;
+        cursor: pointer;
+        color: var(--color-text-2);
+        transition: color 0.2s;
+
+        &:hover:not(.disabled) {
+          color: var(--el-color-primary);
+        }
+
+        &.disabled {
+          cursor: not-allowed;
+          opacity: 0.4;
+        }
+      }
+    }
+  }
+
+  .multiline-footer {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+
+    .format-tip {
+      font-size: 12px;
+      color: var(--color-text-3);
+      line-height: 1.5;
+    }
+
+    .parse-error {
+      font-size: 12px;
+      color: var(--red);
+      padding: 8px 12px;
+      background-color: var(--red-1);
+      border-radius: 4px;
+      border-left: 3px solid var(--red);
+    }
   }
 }
 </style>

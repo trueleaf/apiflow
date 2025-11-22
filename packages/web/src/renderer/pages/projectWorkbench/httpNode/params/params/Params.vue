@@ -1,7 +1,7 @@
 <template>
   <div class="query-path-params">
     <div class="title">Query&nbsp;{{ t("参数") }}</div>
-    <SParamsTree show-checkbox :data="queryTreeData" @change="handleQueryParamsChange"></SParamsTree>
+    <SParamsTree show-checkbox :data="queryTreeData" edit-mode="multiline" @change="handleQueryParamsChange"></SParamsTree>
     <div v-show="hasPathParams" class="title">Path&nbsp;{{ t("参数") }}</div>
     <SParamsTree v-show="hasPathParams" :data="pathTreeData" @change="handlePathParamsChange"></SParamsTree>
   </div>

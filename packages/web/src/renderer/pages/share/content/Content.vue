@@ -204,7 +204,7 @@ import { storeToRefs } from 'pinia'
 import { ArrowDown } from '@element-plus/icons-vue';
 import SJsonEditor from '@/components/common/jsonEditor/ClJsonEditor.vue';
 import { formatDate } from '@/helper'
-import { convertTemplateValueToRealValue } from '@/helper';
+import { getCompiledTemplate } from '@/helper';
 import { defaultRequestMethods } from '../common';
 import SParamsView from '@/components/apidoc/paramsView/ClParamsView.vue';
 import { useShareStore } from '../store';
@@ -248,7 +248,7 @@ watchEffect(async () => {
   if (!apidocInfo.value) return '';
   const { prefix, path } = apidocInfo.value.item.url || { prefix: '', path: '' };
   const rawUrl = `${prefix}${path}`;
-  fullUrl.value = await convertTemplateValueToRealValue(rawUrl, shareStore.objectVariable);
+  fullUrl.value = await getCompiledTemplate(rawUrl, shareStore.varibles);
 });
 
 const hasQueryParams = computed(() => apidocInfo.value?.item?.queryParams?.filter((p: ApidocProperty) => p.select).some((data: ApidocProperty) => data.key));

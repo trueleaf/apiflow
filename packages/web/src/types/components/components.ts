@@ -11,6 +11,7 @@ export interface ClParamsTreeProps {
   enableFile?: boolean;
   mindKeyParams?: ApidocProperty[];
   showCheckbox?: boolean;
+  editMode?: 'table' | 'multiline';
 }
 
 export interface ClParamsTreeEmits {

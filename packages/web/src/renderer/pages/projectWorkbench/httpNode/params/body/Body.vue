@@ -96,7 +96,7 @@ import { config } from '@src/config/config';
 import SJsonEditor from '@/components/common/jsonEditor/ClJsonEditor.vue'
 import SParamsTree from '@/components/apidoc/paramsTree/ClParamsTree.vue'
 import { Close } from '@element-plus/icons-vue'
-import { convertTemplateValueToRealValue } from '@/helper';
+import { getCompiledTemplate } from '@/helper';
 import mime from 'mime';
 import { useHttpRedoUndo } from '@/store/redoUndo/httpRedoUndoStore'
 import { useApidocTas } from '@/store/apidoc/tabsStore'
@@ -392,8 +392,8 @@ const handleChangeBinaryVarValue = (value: string) => {
     requestBody: cloneDeep(httpNodeStore.apidoc.item.requestBody),
     contentType: httpNodeStore.apidoc.item.contentType
   };
-  const { objectVariable } = useVariable()
-  convertTemplateValueToRealValue(value, objectVariable).then(result => {
+  const { variables } = useVariable()
+  getCompiledTemplate(value, variables).then(result => {
     const mimeType = mime.getType(result.split('\\').pop()) as HttpNodeContentType;
     httpNodeStore.changeContentType(mimeType || 'application/octet-stream')
   }).catch(error => {
@@ -419,8 +419,8 @@ const handleSelectFile = (e: Event) => {
       binaryValue: {
         path,
     }})
-    const { objectVariable } = useVariable()
-    convertTemplateValueToRealValue(path, objectVariable).then(result => {
+    const { variables } = useVariable()
+    getCompiledTemplate(path, variables).then(result => {
     const mimeType = mime.getType(result.split('\\').pop()) as HttpNodeContentType;
     httpNodeStore.changeContentType(mimeType || 'application/octet-stream')
     }).catch(error => {

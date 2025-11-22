@@ -169,7 +169,8 @@ import type * as Monaco from 'monaco-editor/esm/vs/editor/editor.api'
 
 
 
-import { message } from '@/helper'
+import { message, getCompiledTemplate } from '@/helper'
+import { useVariable } from '@/store/apidoc/variablesStore'
 const { t } = useI18n()
 const apidocTabsStore = useApidocTas()
 const websocketStore = useWebSocket()
@@ -355,7 +356,14 @@ const handleOpenCreateTemplateDialog = () => {
 
 const handleSendMessage = async () => {
   try {
-    const messageContent = websocketStore.websocket.item.sendMessage;
+    let messageContent = websocketStore.websocket.item.sendMessage;
+    // 变量替换
+    try {
+      const { variables } = useVariable();
+      messageContent = await getCompiledTemplate(messageContent, variables);
+    } catch (error) {
+      console.warn('变量替换失败，使用原始内容', error);
+    }
     const result = await window.electronAPI?.websocket.send(connectionId.value, messageContent)
     if (result?.code === 0) {
       const sendMessage = {
@@ -453,7 +461,14 @@ const startAutoSend = () => {
   configTimer = setInterval(async () => {
     if (connectionState.value === 'connected' && connectionId.value) {
       try {
-        const autoSendContent = websocketStore.websocket.config.defaultAutoSendContent || 'ping'
+        let autoSendContent = websocketStore.websocket.config.defaultAutoSendContent || 'ping'
+        // 变量替换
+        try {
+          const { variables } = useVariable();
+          autoSendContent = await getCompiledTemplate(autoSendContent, variables);
+        } catch (error) {
+          console.warn('自动发送变量替换失败，使用原始内容', error);
+        }
         const result = await window.electronAPI?.websocket.send(connectionId.value, autoSendContent)
         if (result?.code === 0) {
           // 创建自动发送记录
