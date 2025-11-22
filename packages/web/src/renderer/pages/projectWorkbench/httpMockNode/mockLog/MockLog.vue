@@ -36,6 +36,14 @@
 
     <div class="log-container">
       <div class="operation">
+        <div class="operation-btn" @click="handleClearLogs">
+          <Trash2 :size="16" />
+          <span>清除</span>
+        </div>
+        <div class="operation-btn" @click="openFormatDialog">
+          <FileText :size="16" />
+          <span>模板</span>
+        </div>
         <div class="view-toggle-group">
           <div 
             class="view-toggle-btn" 
@@ -53,14 +61,6 @@
           >
             <LayoutList :size="16" />
           </div>
-        </div>
-        <div class="operation-btn" @click="handleClearLogs">
-          <Trash2 :size="16" />
-          <span>清除</span>
-        </div>
-        <div class="operation-btn" @click="openFormatDialog">
-          <FileText :size="16" />
-          <span>模板</span>
         </div>
       </div>
       <div v-if="loading" class="log-loading">正在加载日志...</div>
@@ -122,8 +122,6 @@
                 <span class="log-status" :class="statusClass(log.data.statusCode)">
                   {{ log.data.statusCode }}
                 </span>
-              </div>
-              <div class="header-meta">
                 <span class="meta-item">IP: {{ log.data.ip }}</span>
                 <span class="meta-item">响应时间: {{ log.data.responseTime ?? 0 }}ms</span>
                 <template v-if="getConsoleLogStats(log).total > 0">
@@ -138,7 +136,6 @@
                     Console: {{ getConsoleLogStats(log).total }}
                   </span>
                 </template>
-                <el-button size="small" @click="showLogDetail(log)">完整数据</el-button>
               </div>
             </div>
             
@@ -882,7 +879,6 @@ onUnmounted(() => {
   border-radius: var(--border-radius-sm);
   padding: 2px;
   background: var(--bg-secondary);
-  margin-right: auto;
 }
 .view-toggle-btn {
   display: flex;
@@ -1185,12 +1181,6 @@ onUnmounted(() => {
   font-weight: 600;
   padding: 2px 8px;
   border-radius: var(--border-radius-sm);
-}
-.header-meta {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  flex-wrap: wrap;
 }
 .meta-item {
   font-size: var(--font-size-xs);

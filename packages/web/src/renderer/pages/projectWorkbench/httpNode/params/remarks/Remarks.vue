@@ -2,18 +2,22 @@
 <template>
   <div>
     <MarkdownEditor
-      v-model="description"
+      ref="editorRef"
+      :model-value="description"
       :placeholder="t('在此处输入备注')"
-      :disable-history="true"
+      :manual-undo-redo="true"
       :min-height="360"
       class="w-100"
+      @update:model-value="handleDescriptionChange"
+      @undo="handleEditorUndo"
+      @redo="handleEditorRedo"
     />
   </div>
 </template>
 
 <script lang="ts" setup>
 import { useI18n } from 'vue-i18n'
-import { computed, watch } from 'vue'
+import { computed, ref } from 'vue'
 import { useHttpNode } from '@/store/apidoc/httpNodeStore';
 import { useHttpRedoUndo } from '@/store/redoUndo/httpRedoUndoStore'
 import { useApidocTas } from '@/store/apidoc/tabsStore'
@@ -31,40 +35,60 @@ const currentSelectTab = computed(() => {
 });
 const { t } = useI18n()
 
-const description = computed({
-  get() {
-    return httpNodeStore.apidoc.info.description
-  },
-  set(val: string) {
-    httpNodeStore.changeDescription(val)
-  }
-})
+const editorRef = ref<{
+  getCursorPosition?: () => { anchor: number, head: number } | null,
+  setCursorPosition?: (position: { anchor: number, head: number }) => void,
+} | null>(null)
 
-//基本信息记录函数
-const recordBasicInfoOperation = (oldValue: { name: string, description: string }, newValue: { name: string, description: string }) => {
-  if (!currentSelectTab.value) return;
+const description = computed<string>(() => httpNodeStore.apidoc.info.description)
+//处理备注变化
+const handleDescriptionChange = (newValue: string) => {
+  const oldValue = { description: httpNodeStore.apidoc.info.description };
+  httpNodeStore.changeDescription(newValue);
+  const newVal = { description: newValue };
+  recordRemarksOperation(oldValue, newVal);
+}
+//处理编辑器undo
+const handleEditorUndo = () => {
+  const nodeId = currentSelectTab.value?._id;
+  if (nodeId) {
+    const result = httpRedoUndoStore.httpUndo(nodeId);
+    if (result.code === 0 && result.operation?.type === 'remarksOperation') {
+      if (result.operation.cursorPosition) {
+        editorRef.value?.setCursorPosition?.(result.operation.cursorPosition);
+      }
+    }
+  }
+}
+//处理编辑器redo
+const handleEditorRedo = () => {
+  const nodeId = currentSelectTab.value?._id;
+  if (nodeId) {
+    const result = httpRedoUndoStore.httpRedo(nodeId);
+    if (result.code === 0 && result.operation?.type === 'remarksOperation') {
+      if (result.operation.cursorPosition) {
+        editorRef.value?.setCursorPosition?.(result.operation.cursorPosition);
+      }
+    }
+  }
+}
+//备注记录函数
+const recordRemarksOperation = (oldValue: { description: string }, newValue: { description: string }) => {
+  if (!currentSelectTab.value || oldValue.description === newValue.description) return;
+
+  const cursorPosition = editorRef.value?.getCursorPosition?.() || undefined;
 
   httpRedoUndoStore.recordOperation({
     nodeId: currentSelectTab.value._id,
-    type: "basicInfoOperation",
-    operationName: "修改基本信息",
-    affectedModuleName: "basicInfo",
+    type: "remarksOperation",
+    operationName: "修改备注",
+    affectedModuleName: "remarks",
     oldValue: cloneDeep(oldValue),
     newValue: cloneDeep(newValue),
+    cursorPosition,
     timestamp: Date.now()
   });
 };
-// watch 监听 basicInfo 变化（包含 name 和 description）
-watch(() => ({
-  name: httpNodeStore.apidoc.info.name,
-  description: httpNodeStore.apidoc.info.description
-}), (newVal, oldVal) => {
-  if (oldVal && newVal) {
-    recordBasicInfoOperation(oldVal, newVal);
-  }
-}, {
-  deep: true
-});
 </script>
 
 <style lang="scss" scoped>

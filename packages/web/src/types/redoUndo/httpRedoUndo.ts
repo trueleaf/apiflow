@@ -16,7 +16,8 @@ export type HttpModuleName =
   | 'preRequest'
   | 'afterRequest'
   | 'basicInfo'
-  | 'responseParams';
+  | 'responseParams'
+  | 'remarks';
 
 // HTTP请求方法操作
 export type HttpMethodOperation = {
@@ -177,6 +178,18 @@ export type HttpRawDataOperation = {
   timestamp: number;
 };
 
+// HTTP备注操作
+export type HttpRemarksOperation = {
+  nodeId: string;
+  type: "remarksOperation";
+  operationName: string;
+  affectedModuleName: HttpModuleName;
+  oldValue: { description: string };
+  newValue: { description: string };
+  cursorPosition?: { anchor: number; head: number };
+  timestamp: number;
+};
+
 // 所有HTTP操作
 export type HttpRedoUnDoOperation =
   | HttpMethodOperation
@@ -191,4 +204,5 @@ export type HttpRedoUnDoOperation =
   | HttpPreRequestOperation
   | HttpAfterRequestOperation
   | HttpBasicInfoOperation
-  | HttpResponseParamsOperation;
+  | HttpResponseParamsOperation
+  | HttpRemarksOperation;

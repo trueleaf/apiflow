@@ -170,6 +170,13 @@ export const useHttpRedoUndo = defineStore('httpRedoUndo', () => {
         httpNodeStore.apidoc.item.responseParams = cloneDeep(targetValue as HttpNode['item']['responseParams']);
         break;
 
+      case 'remarksOperation':
+        {
+          const remarksValue = targetValue as { description: string };
+          httpNodeStore.changeDescription(remarksValue.description);
+        }
+        break;
+
       default:
         logger.warn('未知的操作类型', { type: (operation as any).type });
     }

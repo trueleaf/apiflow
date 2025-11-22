@@ -24,6 +24,7 @@ import Placeholder from '@tiptap/extension-placeholder'
 import TaskList from '@tiptap/extension-task-list'
 import TaskItem from '@tiptap/extension-task-item'
 import Link from '@tiptap/extension-link'
+import { TextSelection } from '@tiptap/pm/state'
 import MarkdownToolbar from './MarkdownToolbar.vue'
 
 const props = defineProps({
@@ -43,6 +44,10 @@ const props = defineProps({
     type: Boolean,
     default: true
   },
+  manualUndoRedo: {
+    type: Boolean,
+    default: false
+  },
   showToolbar: {
     type: Boolean,
     default: true
@@ -61,6 +66,8 @@ const emits = defineEmits<{
   'update:modelValue': [value: string]
   'focus': []
   'blur': []
+  'undo': []
+  'redo': []
 }>()
 
 const editorContainer = ref<HTMLElement | null>(null)
@@ -109,22 +116,28 @@ const editor = useEditor({
   editable: !props.disabled,
   editorProps: {
     handleKeyDown: (_view, event) => {
-      if (!props.disableHistory) {
+      if (!props.disableHistory && !props.manualUndoRedo) {
         return false
       }
       const isMod = event.ctrlKey || event.metaKey
       const isShift = event.shiftKey
-      
+
       if (isMod && !isShift && event.key.toLowerCase() === 'z') {
         event.preventDefault()
+        if (props.manualUndoRedo) {
+          emits('undo')
+        }
         return true
       }
-      
+
       if (isMod && (event.key.toLowerCase() === 'y' || (isShift && event.key.toLowerCase() === 'z'))) {
         event.preventDefault()
+        if (props.manualUndoRedo) {
+          emits('redo')
+        }
         return true
       }
-      
+
       return false
     }
   },
@@ -161,6 +174,32 @@ onBeforeUnmount(() => {
   if (editor.value) {
     editor.value.destroy()
   }
+})
+//获取光标位置
+const getCursorPosition = () => {
+  if (!editor.value) return null
+  const selection = editor.value.state.selection
+  return {
+    anchor: selection.anchor,
+    head: selection.head
+  }
+}
+//设置光标位置
+const setCursorPosition = (position: { anchor: number, head: number }) => {
+  if (!editor.value || !position) return
+  const docSize = editor.value.state.doc.content.size
+  const anchor = Math.min(position.anchor, docSize)
+  const head = Math.min(position.head, docSize)
+  const selection = TextSelection.create(editor.value.state.doc, anchor, head)
+  editor.value.view.dispatch(
+    editor.value.state.tr.setSelection(selection)
+  )
+  editor.value.commands.focus()
+}
+
+defineExpose({
+  getCursorPosition,
+  setCursorPosition
 })
 </script>
 
