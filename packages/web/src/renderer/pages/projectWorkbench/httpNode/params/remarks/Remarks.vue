@@ -18,7 +18,7 @@ import { useHttpNode } from '@/store/apidoc/httpNodeStore';
 import { useHttpRedoUndo } from '@/store/redoUndo/httpRedoUndoStore'
 import { useApidocTas } from '@/store/apidoc/tabsStore'
 import { router } from '@/router'
-import { debounce, cloneDeep } from 'lodash-es'
+import { cloneDeep } from 'lodash-es'
 import MarkdownEditor from '@/components/ui/cleanDesign/markdownEditor/MarkdownEditor.vue'
 
 const httpNodeStore = useHttpNode()
@@ -40,8 +40,8 @@ const description = computed({
   }
 })
 
-// 防抖的基本信息记录函数
-const debouncedRecordBasicInfoOperation = debounce((oldValue: { name: string, description: string }, newValue: { name: string, description: string }) => {
+//基本信息记录函数
+const recordBasicInfoOperation = (oldValue: { name: string, description: string }, newValue: { name: string, description: string }) => {
   if (!currentSelectTab.value) return;
 
   httpRedoUndoStore.recordOperation({
@@ -53,15 +53,14 @@ const debouncedRecordBasicInfoOperation = debounce((oldValue: { name: string, de
     newValue: cloneDeep(newValue),
     timestamp: Date.now()
   });
-}, 300);
-
+};
 // watch 监听 basicInfo 变化（包含 name 和 description）
 watch(() => ({
   name: httpNodeStore.apidoc.info.name,
   description: httpNodeStore.apidoc.info.description
 }), (newVal, oldVal) => {
   if (oldVal && newVal) {
-    debouncedRecordBasicInfoOperation(oldVal, newVal);
+    recordBasicInfoOperation(oldVal, newVal);
   }
 }, {
   deep: true

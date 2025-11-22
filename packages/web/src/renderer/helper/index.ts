@@ -657,7 +657,11 @@ export const getTextWidth = (text: string, font: string): number => {
  */
 export const formatDate = (date: string | number | Date | dayjs.Dayjs | undefined, rule?: string): string => {
   const realRule = rule || 'YYYY-MM-DD HH:mm'
-  const result = dayjs(date).format(realRule);
+  const dayjsObj = dayjs(date);
+  if (!dayjsObj.isValid()) {
+    return '/';
+  }
+  const result = dayjsObj.format(realRule);
   return result;
 }
 
@@ -2999,6 +3003,12 @@ export const validateUrl = (url: string): UrlValidationResult => {
       return {
         isValid: false,
         errorMessage: '仅支持http和https协议',
+      };
+    }
+    if (urlObj.pathname.includes('//')) {
+      return {
+        isValid: false,
+        errorMessage: 'URL路径中包含连续的斜杠(//)，请检查路径格式',
       };
     }
     return {

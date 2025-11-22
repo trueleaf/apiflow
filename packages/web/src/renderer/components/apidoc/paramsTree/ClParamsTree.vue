@@ -40,7 +40,7 @@
                @update:modelValue="(v: string | number) => handleChangeKey(String(v), data)" 
                @focus="handleFocusKey()" 
                @blur="handleEnableDrag()" 
-               @keydown="(e: any) => handleKeyDown(e, data)" 
+               @keydown="(e: KeyboardEvent) => { handlePreventDefaultKeys(e); handleKeyDown(e, data); }" 
                @paste="(event: ClipboardEvent) => handlePasteKey(event, data)"
              >
                <template #default="{ item }">
@@ -59,6 +59,7 @@
                @update:modelValue="v => handleChangeKey(v, data)" 
                @focus="handleDisableDrag()" 
                @blur="handleEnableDrag()" 
+               @keydown="handlePreventDefaultKeys" 
                @paste="(event: ClipboardEvent) => handlePasteKey(event, data)"
              >
              </el-input>
@@ -193,6 +194,7 @@
                @focus="handleFocusDescription(data)" 
                @blur="handleEnableDrag()" 
                @update:modelValue="v => handleChangeDescription(v, data)" 
+               @keydown="handlePreventDefaultKeys" 
                @paste="(event: ClipboardEvent) => handlePasteDescription(event, data)"
              >
              </el-input>
@@ -266,6 +268,18 @@ const handleDisableDrag = () => {
 };
 const handleEnableDrag = () => {
   enableDrag.value = true;
+};
+// 阻止默认键盘事件（Ctrl+Z, Ctrl+Y）
+const handlePreventDefaultKeys = (event: KeyboardEvent | Event) => {
+  if (!(event instanceof KeyboardEvent)) {
+    return;
+  }
+  const isCtrlOrCmd = event.ctrlKey || event.metaKey;
+  const isUndo = event.key.toLowerCase() === 'z';
+  const isRedo = event.key.toLowerCase() === 'y';
+  if (isCtrlOrCmd && (isUndo || isRedo)) {
+    event.preventDefault();
+  }
 };
 /*
 |--------------------------------------------------------------------------
@@ -432,7 +446,6 @@ const handleChangeKey = (v: string, data: ApidocProperty<'string' | 'file'>) => 
 // 参数值修改
 const handleChangeValue = (v: string, data: ApidocProperty<'string' | 'file'>) => {
   data.value = v;
-  console.log('changeValue');
   if (v.includes('@') && !isPasting.value) {
     currentOpData.value = data;
   } else if (!v.includes('@')) {

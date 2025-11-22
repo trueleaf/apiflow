@@ -138,6 +138,14 @@ export const useHttpRedoUndo = defineStore('httpRedoUndo', () => {
         httpNodeStore.changeRawJson(targetValue as string);
         break;
 
+      case 'rawDataOperation':
+        {
+          const rawDataValue = targetValue as { data: string; dataType: string };
+          httpNodeStore.changeBodyRawValue(rawDataValue.data);
+          httpNodeStore.changeBodyRawType(rawDataValue.dataType);
+        }
+        break;
+
       case 'preRequestOperation':
         httpNodeStore.apidoc.preRequest = cloneDeep(targetValue as HttpNode['preRequest']);
         break;

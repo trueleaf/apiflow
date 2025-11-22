@@ -122,7 +122,7 @@ import { useApidocBaseInfo } from '@/store/apidoc/baseInfoStore';
 import { useHttpRedoUndo } from '@/store/redoUndo/httpRedoUndoStore'
 import { useApidocTas } from '@/store/apidoc/tabsStore'
 import { router } from '@/router'
-import { debounce, cloneDeep } from 'lodash-es'
+import { cloneDeep } from 'lodash-es'
 import { useHttpNode } from '@/store/apidoc/httpNodeStore';
 
 const httpNodeStore = useHttpNode();
@@ -330,8 +330,8 @@ onMounted(() => {
   collapseState.value = appState.getHttpNodeResponseCollapseState();
 })
 
-// 防抖的响应参数记录函数
-const debouncedRecordResponseParamsOperation = debounce((oldValue: HttpNodeResponseParams[], newValue: HttpNodeResponseParams[]) => {
+//响应参数记录函数
+const recordResponseParamsOperation = (oldValue: HttpNodeResponseParams[], newValue: HttpNodeResponseParams[]) => {
   if (!currentSelectTab.value) return;
 
   httpRedoUndoStore.recordOperation({
@@ -343,12 +343,11 @@ const debouncedRecordResponseParamsOperation = debounce((oldValue: HttpNodeRespo
     newValue: cloneDeep(newValue),
     timestamp: Date.now()
   });
-}, 300);
-
+};
 // watch 监听 responseParams 变化
 watch(() => responseData.value, (newVal, oldVal) => {
   if (oldVal && newVal) {
-    debouncedRecordResponseParamsOperation(oldVal, newVal);
+    recordResponseParamsOperation(oldVal, newVal);
   }
 }, {
   deep: true

@@ -74,7 +74,7 @@ import { commonHeaderCache } from '@/cache/project/commonHeadersCache';
 import { storeToRefs } from 'pinia';
 import { CheckboxValueType } from 'element-plus';
 import { useHttpRedoUndo } from '@/store/redoUndo/httpRedoUndoStore';
-import { debounce, cloneDeep } from 'lodash-es';
+import { cloneDeep } from 'lodash-es';
 import { mindHeaderMetas } from './mind-headers'
 
 const emits = defineEmits(['changeCommonHeaderSendStatus'])
@@ -112,12 +112,11 @@ const handleDefaultHeadersChange = (newData: ApidocProperty<'string' | 'file'>[]
 const handleHeadersChange = (newData: ApidocProperty<'string' | 'file'>[]) => {
   const oldValue = cloneDeep(httpNodeStore.apidoc.item.headers);
   httpNodeStore.apidoc.item.headers = newData as ApidocProperty<'string'>[];
-  
-  debouncedRecordHeadersOperation(oldValue, newData as ApidocProperty<'string'>[]);
-};
 
-// 防抖的请求头记录函数
-const debouncedRecordHeadersOperation = debounce((oldValue: ApidocProperty<'string'>[], newValue: ApidocProperty<'string'>[]) => {
+  recordHeadersOperation(oldValue, newData as ApidocProperty<'string'>[]);
+};
+//请求头记录函数
+const recordHeadersOperation = (oldValue: ApidocProperty<'string'>[], newValue: ApidocProperty<'string'>[]) => {
   if (!currentSelectTab.value) return;
 
   httpRedoUndoStore.recordOperation({
@@ -129,7 +128,7 @@ const debouncedRecordHeadersOperation = debounce((oldValue: ApidocProperty<'stri
     newValue: cloneDeep(newValue),
     timestamp: Date.now()
   });
-}, 300);
+};
 const handleChangeCommonHeaderIsSend = (isSend: CheckboxValueType, header: Pick<ApidocProperty, "_id" | 'key' | 'value' | 'description' | 'select'>) => {
   if (isSend) {
     commonHeaderCache.deleteIgnoredCommonHeader({

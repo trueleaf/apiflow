@@ -40,8 +40,6 @@ const hasPathParams = computed(() => {
 const handleQueryParamsChange = (newData: ApidocProperty<'string' | 'file'>[]) => {
   const oldValue = cloneDeep(httpNodeStore.apidoc.item.queryParams);
   httpNodeStore.apidoc.item.queryParams = newData as ApidocProperty<'string'>[];
-  console.log(JSON.parse(JSON.stringify(newData))?.[0]);
-  console.log(JSON.parse(JSON.stringify(oldValue))?.[0])
   if (!currentSelectTab.value) return;
   httpRedoUndoStore.recordOperation({
     nodeId: currentSelectTab.value._id,

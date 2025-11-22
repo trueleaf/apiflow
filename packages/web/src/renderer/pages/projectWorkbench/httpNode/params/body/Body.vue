@@ -32,16 +32,19 @@
     <div v-else-if="bodyType === 'raw'" class="raw-wrap">
       <SJsonEditor
         ref="rawEditor"
-        v-model="rawValue" 
-        @change="handleChangeRawData"
-        :config="{ fontSize: 13, language: rawType }">
+        manual-undo-redo
+        :model-value="rawValue"
+        :config="{ fontSize: 13, language: rawType }"
+        @update:model-value="handleChangeRawData"
+        @undo="handleRawEditorUndo"
+        @redo="handleRawEditorRedo">
       </SJsonEditor>
       <div class="raw-type">
-        <el-select 
-          v-model="rawType" 
-          :size="config.renderConfig.layout.size" 
+        <el-select
+          :model-value="rawType"
+          :size="config.renderConfig.layout.size"
           class="w-100"
-          @change="handleChangeRawType">
+          @update:model-value="handleChangeRawType">
           <el-option label="text" value="text/plain"></el-option>
           <el-option label="html" value="text/html"></el-option>
           <el-option label="xml" value="application/xml"></el-option>
@@ -98,11 +101,15 @@ import mime from 'mime';
 import { useHttpRedoUndo } from '@/store/redoUndo/httpRedoUndoStore'
 import { useApidocTas } from '@/store/apidoc/tabsStore'
 import { router } from '@/router'
-import { debounce, cloneDeep } from 'lodash-es'
+import { cloneDeep } from 'lodash-es'
 import type * as Monaco from 'monaco-editor/esm/vs/editor/editor.api'
 
 const bodyTipUrl = new URL('@/assets/imgs/apidoc/body-tip.png', import.meta.url).href
-const rawEditor = ref<InstanceType<typeof SJsonEditor> | null>(null)
+const rawEditor = ref<{
+  changeLanguage: (lang: string) => void,
+  getCursorPosition?: () => Monaco.Position | null,
+  setCursorPosition?: (position: Monaco.Position) => void,
+} | null>(null)
 const httpNodeStore = useHttpNode()
 const httpRedoUndoStore = useHttpRedoUndo()
 const apidocTabsStore = useApidocTas()
@@ -200,7 +207,7 @@ const rawJsonData = computed<string>({
 const handleJsonChange = (newValue: string) => {
   const oldValue = httpNodeStore.apidoc.item.requestBody.rawJson;
   httpNodeStore.changeRawJson(newValue);
-  debouncedRecordJsonOperation(oldValue, newValue);
+  recordJsonOperation(oldValue, newValue);
   checkContentType();
 }
 //处理编辑器undo
@@ -251,42 +258,72 @@ const urlencodedData = computed(() => httpNodeStore.apidoc.item.requestBody.urle
 |--------------------------------------------------------------------------
 */
 //raw类型
-const rawType = computed<HttpNodeBodyRawType>({
-  get() {
-    return httpNodeStore.apidoc.item.requestBody.raw.dataType;
-  },
-  set(val) {
-    httpNodeStore.changeBodyRawType(val)
-  },
-})
+const rawType = computed<HttpNodeBodyRawType>(() => httpNodeStore.apidoc.item.requestBody.raw.dataType)
 //raw类型数据值
-const rawValue = computed({
-  get() {
-    return httpNodeStore.apidoc.item.requestBody.raw.data;
-  },
-  set(value: string) {
-    httpNodeStore.changeBodyRawValue(value);
-  },
-})
+const rawValue = computed(() => httpNodeStore.apidoc.item.requestBody.raw.data)
 //改变raw数据值
-const handleChangeRawData = () => {
+const handleChangeRawData = (newData: string) => {
+  const oldValue = {
+    data: httpNodeStore.apidoc.item.requestBody.raw.data,
+    dataType: httpNodeStore.apidoc.item.requestBody.raw.dataType
+  };
+  httpNodeStore.changeBodyRawValue(newData);
+  const newValue = {
+    data: newData,
+    dataType: httpNodeStore.apidoc.item.requestBody.raw.dataType
+  };
+  recordRawDataOperation(oldValue, newValue);
   checkContentType();
 }
+//处理raw编辑器undo
+const handleRawEditorUndo = () => {
+  const nodeId = currentSelectTab.value?._id;
+  if (nodeId) {
+    const result = httpRedoUndoStore.httpUndo(nodeId);
+    if (result.code === 0 && result.operation?.type === 'rawDataOperation') {
+      if (result.operation.cursorPosition) {
+        rawEditor.value?.setCursorPosition?.(result.operation.cursorPosition);
+      }
+    }
+  }
+}
+//处理raw编辑器redo
+const handleRawEditorRedo = () => {
+  const nodeId = currentSelectTab.value?._id;
+  if (nodeId) {
+    const result = httpRedoUndoStore.httpRedo(nodeId);
+    if (result.code === 0 && result.operation?.type === 'rawDataOperation') {
+      if (result.operation.cursorPosition) {
+        rawEditor.value?.setCursorPosition?.(result.operation.cursorPosition);
+      }
+    }
+  }
+}
 //切换raw参数类型
-const handleChangeRawType = () => {
+const handleChangeRawType = (newType: string) => {
   const { raw } = httpNodeStore.apidoc.item.requestBody;
+  const oldValue = {
+    data: raw.data,
+    dataType: raw.dataType
+  };
+  httpNodeStore.changeBodyRawType(newType);
+  const newValue = {
+    data: raw.data,
+    dataType: newType
+  };
+  recordRawDataOperation(oldValue, newValue);
   if (!raw.data) {
     httpNodeStore.changeContentType('');
     return
   }
-  rawEditor.value?.changeLanguage(raw.dataType);
-  if (rawType.value === 'text/plain') {
+  rawEditor.value?.changeLanguage(newType);
+  if (newType === 'text/plain') {
     httpNodeStore.changeContentType('text/plain');
-  } else if (rawType.value === 'text/html') {
+  } else if (newType === 'text/html') {
     httpNodeStore.changeContentType('text/html');
-  } else if (rawType.value === 'application/xml') {
+  } else if (newType === 'application/xml') {
     httpNodeStore.changeContentType('application/xml');
-  } else if (rawType.value === 'text/javascript') {
+  } else if (newType === 'text/javascript') {
     httpNodeStore.changeContentType('text/javascript');
   } else {
     console.warn(t('未知请求类型'));
@@ -307,13 +344,13 @@ const handleFormdataChange = (newData: ApidocProperty<'string' | 'file'>[]) => {
     requestBody: cloneDeep(httpNodeStore.apidoc.item.requestBody),
     contentType: httpNodeStore.apidoc.item.contentType
   };
-  httpNodeStore.apidoc.item.requestBody.formdata = newData as ApidocProperty<'string'>[];
+  httpNodeStore.apidoc.item.requestBody.formdata = JSON.parse(JSON.stringify(newData)) as ApidocProperty<'string'>[];
   
   const newValue = {
     requestBody: cloneDeep(httpNodeStore.apidoc.item.requestBody),
     contentType: httpNodeStore.apidoc.item.contentType
   };
-  debouncedRecordBodyOperation(oldValue, newValue);
+  recordBodyOperation(oldValue, newValue);
   checkContentType();
 };
 
@@ -323,13 +360,13 @@ const handleUrlencodedChange = (newData: ApidocProperty<'string' | 'file'>[]) =>
     requestBody: cloneDeep(httpNodeStore.apidoc.item.requestBody),
     contentType: httpNodeStore.apidoc.item.contentType
   };
-  httpNodeStore.apidoc.item.requestBody.urlencoded = newData as ApidocProperty<'string'>[];
-  
+  httpNodeStore.apidoc.item.requestBody.urlencoded = cloneDeep(newData) as ApidocProperty<'string'>[];
+
   const newValue = {
     requestBody: cloneDeep(httpNodeStore.apidoc.item.requestBody),
     contentType: httpNodeStore.apidoc.item.contentType
   };
-  debouncedRecordBodyOperation(oldValue, newValue);
+  recordBodyOperation(oldValue, newValue);
   checkContentType();
 };
 
@@ -386,12 +423,12 @@ onMounted(async () => {
   jsonBodyVisible.value = appState.getJsonBodyHintVisible();
 });
 
-// 防抖的JSON记录函数
-const debouncedRecordJsonOperation = debounce((oldValue: string, newValue: string) => {
+//JSON记录函数
+const recordJsonOperation = (oldValue: string, newValue: string) => {
   if (!currentSelectTab.value || oldValue === newValue) return;
-  
+
   const cursorPosition = jsonComponent.value?.getCursorPosition?.() || undefined;
-  
+
   httpRedoUndoStore.recordOperation({
     nodeId: currentSelectTab.value._id,
     type: "rawJsonOperation",
@@ -402,10 +439,9 @@ const debouncedRecordJsonOperation = debounce((oldValue: string, newValue: strin
     cursorPosition,
     timestamp: Date.now()
   });
-}, 300, { leading: true, trailing: true });
-
-// 防抖的请求体记录函数
-const debouncedRecordBodyOperation = debounce((oldValue: { requestBody: HttpNodeBodyParams, contentType: HttpNodeContentType }, newValue: { requestBody: HttpNodeBodyParams, contentType: HttpNodeContentType }) => {
+};
+//请求体记录函数
+const recordBodyOperation = (oldValue: { requestBody: HttpNodeBodyParams, contentType: HttpNodeContentType }, newValue: { requestBody: HttpNodeBodyParams, contentType: HttpNodeContentType }) => {
   if (!currentSelectTab.value) return;
 
   httpRedoUndoStore.recordOperation({
@@ -417,7 +453,24 @@ const debouncedRecordBodyOperation = debounce((oldValue: { requestBody: HttpNode
     newValue: cloneDeep(newValue),
     timestamp: Date.now()
   });
-}, 300);
+};
+//Raw数据记录函数
+const recordRawDataOperation = (oldValue: { data: string; dataType: string }, newValue: { data: string; dataType: string }) => {
+  if (!currentSelectTab.value || (oldValue.data === newValue.data && oldValue.dataType === newValue.dataType)) return;
+
+  const cursorPosition = rawEditor.value?.getCursorPosition?.() || undefined;
+
+  httpRedoUndoStore.recordOperation({
+    nodeId: currentSelectTab.value._id,
+    type: "rawDataOperation",
+    operationName: "修改Raw Body",
+    affectedModuleName: "rawData",
+    oldValue,
+    newValue,
+    cursorPosition,
+    timestamp: Date.now()
+  });
+};
 
 </script>
 

@@ -11,7 +11,7 @@ import { useHttpNode } from '@/store/apidoc/httpNodeStore';
 import { useHttpRedoUndo } from '@/store/redoUndo/httpRedoUndoStore'
 import { useApidocTas } from '@/store/apidoc/tabsStore'
 import { router } from '@/router'
-import { debounce, cloneDeep } from 'lodash-es'
+import { cloneDeep } from 'lodash-es'
 
 const httpNodeStore = useHttpNode();
 const httpRedoUndoStore = useHttpRedoUndo()
@@ -31,8 +31,8 @@ const afterRequest = computed<string>({
   },
 })
 
-// 防抖的后置脚本记录函数
-const debouncedRecordAfterRequestOperation = debounce((oldValue: { raw: string }, newValue: { raw: string }) => {
+//后置脚本记录函数
+const recordAfterRequestOperation = (oldValue: { raw: string }, newValue: { raw: string }) => {
   if (!currentSelectTab.value) return;
 
   httpRedoUndoStore.recordOperation({
@@ -44,12 +44,11 @@ const debouncedRecordAfterRequestOperation = debounce((oldValue: { raw: string }
     newValue: cloneDeep(newValue),
     timestamp: Date.now()
   });
-}, 300);
-
+};
 // watch 监听 afterRequest 变化
 watch(() => httpNodeStore.apidoc?.afterRequest, (newVal, oldVal) => {
   if (oldVal && newVal) {
-    debouncedRecordAfterRequestOperation(oldVal, newVal);
+    recordAfterRequestOperation(oldVal, newVal);
   }
 }, {
   deep: true
