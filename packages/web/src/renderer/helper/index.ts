@@ -1272,7 +1272,7 @@ const evaluateExpression = async (expr: string, scope: Record<string, any>): Pro
 }
 
 /**
- * 将字符串模板转换为编译后的值（用于 helper 内部使用）
+ * 将字符串模板转换为编译后的值
  */
 export const getCompiledTemplate = async (
   template: string,
@@ -1280,13 +1280,15 @@ export const getCompiledTemplate = async (
   Context?: Record<string, any>
 ): Promise<any> => {
   try {
-    // 使用本地的 getObjectVariable 而不是动态导入
     const objectVariable = await getObjectVariable(variables);
     const context = Context || {};
     const scope = { ...objectVariable, _: context };
     const pureMatch = template.match(/^\s*\{\{\s*(.+?)\s*\}\}\s*$/);
     if (pureMatch) {
       const result = await evaluateExpression(pureMatch[1], scope);
+      if (result === undefined) {
+        return template;
+      }
       return result;
     }
     const matches = template.matchAll(/\{\{\s*(.+?)\s*\}\}/g);
@@ -1312,7 +1314,7 @@ export const getCompiledTemplate = async (
     }
     let result = template;
     for (const { match, value } of replacements) {
-      result = result.replace(match, value);
+      result = result.replaceAll(match, value);
     }
     return result;
   } catch (error) {

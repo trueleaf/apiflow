@@ -74,6 +74,45 @@ export class HttpMockManager {
       });
     });
   }
+  // 获取请求体字符串
+  private getRequestBody(ctx: Koa.Context): string {
+    const body = (ctx.request as any).body;
+    if (!body) return '';
+
+    const contentType = ctx.get('content-type') || '';
+
+    if (typeof body === 'string') {
+      return body;
+    }
+
+    if (contentType.includes('application/json')) {
+      return JSON.stringify(body);
+    }
+
+    if (contentType.includes('application/x-www-form-urlencoded')) {
+      try {
+        const params = new URLSearchParams();
+        // koa-bodyparser 解析的 body 是对象，值可能是字符串或数组
+        for (const [key, value] of Object.entries(body)) {
+          if (Array.isArray(value)) {
+            value.forEach(v => params.append(key, String(v)));
+          } else {
+            params.append(key, String(value));
+          }
+        }
+        return params.toString();
+      } catch (e) {
+        return JSON.stringify(body);
+      }
+    }
+
+    try {
+      return JSON.stringify(body);
+    } catch {
+      return String(body);
+    }
+  }
+
   // 处理 HTTP 请求
   private async handleHttpRequest(ctx: Koa.Context, port: number): Promise<void> {
     const startTime = Date.now();
@@ -370,7 +409,7 @@ export class HttpMockManager {
 
             // 保留原有但不显示在标准日志中的字段
             headers: ctx.headers as Record<string, string>,
-            body: '', // 不解析body，保持为空
+            body: this.getRequestBody(ctx), // 获取请求体
 
             // Console日志收集
             consoleLogs: consoleCollector.getLogs(),
@@ -417,7 +456,7 @@ export class HttpMockManager {
     try {
       const app = new Koa();
       app.use(bodyParser({
-        enableTypes: ['json', 'form'],
+        enableTypes: ['json', 'form', 'text'],
         jsonLimit: '10mb',
         formLimit: '10mb',
         textLimit: '10mb',
