@@ -300,7 +300,7 @@ const handleRawEditorRedo = () => {
   }
 }
 //切换raw参数类型
-const handleChangeRawType = (newType: string) => {
+const handleChangeRawType = (newType: HttpNodeBodyRawType) => {
   const { raw } = httpNodeStore.apidoc.item.requestBody;
   const oldValue = {
     data: raw.data,
@@ -376,9 +376,22 @@ const handleUrlencodedChange = (newData: ApidocProperty<'string' | 'file'>[]) =>
 |--------------------------------------------------------------------------
 */
 const handleChangeBinaryMode = (binaryMode: string | number | boolean | undefined) => {
-  httpNodeStore.handleChangeBinaryInfo({ mode: binaryMode as HttpNodeBodyParams['binary']['mode'] })
+  const oldValue = {
+    requestBody: cloneDeep(httpNodeStore.apidoc.item.requestBody),
+    contentType: httpNodeStore.apidoc.item.contentType
+  };
+  httpNodeStore.handleChangeBinaryInfo({ mode: binaryMode as HttpNodeBodyParams['binary']['mode'] });
+  const newValue = {
+    requestBody: cloneDeep(httpNodeStore.apidoc.item.requestBody),
+    contentType: httpNodeStore.apidoc.item.contentType
+  };
+  recordBodyOperation(oldValue, newValue);
 }
 const handleChangeBinaryVarValue = (value: string) => {
+  const oldValue = {
+    requestBody: cloneDeep(httpNodeStore.apidoc.item.requestBody),
+    contentType: httpNodeStore.apidoc.item.contentType
+  };
   const { objectVariable } = useVariable()
   convertTemplateValueToRealValue(value, objectVariable).then(result => {
     const mimeType = mime.getType(result.split('\\').pop()) as HttpNodeContentType;
@@ -386,14 +399,23 @@ const handleChangeBinaryVarValue = (value: string) => {
   }).catch(error => {
     console.log(error)
   })
-  httpNodeStore.handleChangeBinaryInfo({ varValue: value })
+  httpNodeStore.handleChangeBinaryInfo({ varValue: value });
+  const newValue = {
+    requestBody: cloneDeep(httpNodeStore.apidoc.item.requestBody),
+    contentType: httpNodeStore.apidoc.item.contentType
+  };
+  recordBodyOperation(oldValue, newValue);
 }
 const handleSelectFile = (e: Event) => {
   const { files } = (e.target as HTMLInputElement);
   if (files?.length) {
+    const oldValue = {
+      requestBody: cloneDeep(httpNodeStore.apidoc.item.requestBody),
+      contentType: httpNodeStore.apidoc.item.contentType
+    };
     const file = files[0];
     const path = window.electronAPI?.fileManager.getFilePath(file) || "";
-    httpNodeStore.handleChangeBinaryInfo({ 
+    httpNodeStore.handleChangeBinaryInfo({
       binaryValue: {
         path,
     }})
@@ -404,15 +426,29 @@ const handleSelectFile = (e: Event) => {
     }).catch(error => {
       console.log(error)
     })
+    const newValue = {
+      requestBody: cloneDeep(httpNodeStore.apidoc.item.requestBody),
+      contentType: httpNodeStore.apidoc.item.contentType
+    };
+    recordBodyOperation(oldValue, newValue);
   }
 }
 const handleClearSelectFile = () => {
-  httpNodeStore.handleChangeBinaryInfo({ 
+  const oldValue = {
+    requestBody: cloneDeep(httpNodeStore.apidoc.item.requestBody),
+    contentType: httpNodeStore.apidoc.item.contentType
+  };
+  httpNodeStore.handleChangeBinaryInfo({
     binaryValue: {
       path: '',
     }
   })
   httpNodeStore.changeContentType('application/octet-stream');
+  const newValue = {
+    requestBody: cloneDeep(httpNodeStore.apidoc.item.requestBody),
+    contentType: httpNodeStore.apidoc.item.contentType
+  };
+  recordBodyOperation(oldValue, newValue);
 }
 /*
 |--------------------------------------------------------------------------
