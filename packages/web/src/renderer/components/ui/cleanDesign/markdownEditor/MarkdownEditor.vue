@@ -9,6 +9,7 @@
       ref="editorContainer"
       class="markdown-editor__content"
       :style="{ minHeight: minHeight + 'px', maxHeight: maxHeight ? maxHeight + 'px' : 'none' }"
+      @click="handleContainerClick"
     >
       <EditorContent :editor="editor" />
     </div>
@@ -64,6 +65,15 @@ const emits = defineEmits<{
 
 const editorContainer = ref<HTMLElement | null>(null)
 const isFocused = ref(false)
+
+//点击容器区域聚焦编辑器
+const handleContainerClick = (event: MouseEvent) => {
+  if (props.disabled || !editor.value) return
+  const target = event.target as HTMLElement
+  if (target === editorContainer.value || target.classList.contains('markdown-editor__content')) {
+    editor.value.commands.focus('end')
+  }
+}
 
 const createEditorExtensions = () => {
   const starterKitConfig = {

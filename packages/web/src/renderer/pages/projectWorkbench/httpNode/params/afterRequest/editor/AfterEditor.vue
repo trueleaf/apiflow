@@ -21,8 +21,12 @@ const props = defineProps({
     type: String,
     default: ''
   },
+  manualUndoRedo: {
+    type: Boolean,
+    default: false
+  }
 });
-const emits = defineEmits(['update:modelValue'])
+const emits = defineEmits(['update:modelValue', 'undo', 'redo'])
 
 const afterEditor: Ref<HTMLElement | null> = ref(null);
 let monacoInstance: monaco.editor.IStandaloneCodeEditor | null = null;
@@ -33,7 +37,11 @@ let isDisposed = false; // 标记编辑器是否已被销毁
 watch(() => props.modelValue, (newValue) => {
   const value = monacoInstance?.getValue();
   if (newValue !== value) {
+    const cursorPosition = monacoInstance?.getPosition();
     monacoInstance?.setValue(props.modelValue)
+    if (cursorPosition) {
+      monacoInstance?.setPosition(cursorPosition);
+    }
   }
 })
 onMounted(() => {
@@ -79,6 +87,20 @@ onMounted(() => {
   monacoInstance.onDidChangeModelContent(() => {
     emits('update:modelValue', monacoInstance?.getValue())
   })
+  if (props.manualUndoRedo) {
+    monacoInstance.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyZ, () => {
+      const cursorPosition = getCursorPosition();
+      emits('undo', { cursorPosition });
+    });
+    monacoInstance.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyMod.Shift | monaco.KeyCode.KeyZ, () => {
+      const cursorPosition = getCursorPosition();
+      emits('redo', { cursorPosition });
+    });
+    monacoInstance.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyY, () => {
+      const cursorPosition = getCursorPosition();
+      emits('redo', { cursorPosition });
+    });
+  }
 })
 
 onBeforeUnmount(() => {
@@ -116,6 +138,20 @@ const handleFormat = () => {
   const formatStr = beautify(props.modelValue, { indent_size: 4 });
   monacoInstance?.setValue(formatStr)
 }
+//获取光标位置
+const getCursorPosition = () => {
+  return monacoInstance?.getPosition() || null;
+}
+//设置光标位置
+const setCursorPosition = (position: monaco.Position) => {
+  if (!position) return;
+  monacoInstance?.setPosition(position);
+  monacoInstance?.focus();
+}
+defineExpose({
+  getCursorPosition,
+  setCursorPosition
+})
 </script>
 
 <style lang='scss' scoped>
