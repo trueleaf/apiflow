@@ -14,9 +14,9 @@
         <div class="textarea-actions">
           <el-icon
             class="ai-parse-btn"
-            :class="{ disabled: !isAiConfigValid || !multilineText.trim() || aiParsing }"
-            :title="isAiConfigValid ? t('AI智能解析') : t('请先配置AI')"
-            @click="!isAiConfigValid || !multilineText.trim() || aiParsing ? null : handleAiParse()"
+            :class="{ disabled: (isAiConfigValid && !multilineText.trim()) || aiParsing }"
+            :title="isAiConfigValid ? t('AI智能解析') : t('点击配置AI')"
+            @click="handleAiClick"
           >
             <MagicStick v-if="!aiParsing" />
             <el-icon v-else class="is-loading">
@@ -262,6 +262,8 @@ import ClRichInput from '@/components/ui/cleanDesign/richInput/ClRichInput.vue';
 import type { ClParamsTreeProps, ClParamsTreeEmits } from '@src/types/components/components';
 import { aiCache } from '@/cache/ai/aiCache';
 import type { OpenAIRequestBody } from '@src/types/ai';
+import { useRouter } from 'vue-router';
+import { appState } from '@/cache/appState/appStateCache';
 /*
 |--------------------------------------------------------------------------
 | Props 和 Emits 定义
@@ -273,6 +275,7 @@ const props = withDefaults(defineProps<ClParamsTreeProps>(), {
 });
 const emits = defineEmits<ClParamsTreeEmits>();
 const { t } = useI18n();
+const router = useRouter();
 
 const tipPlaceholder = `username=admin //Username
 *password=123456 //Password
@@ -773,6 +776,18 @@ const handleMultilineTextChange = () => {
   }
   parsedCount.value = result.count;
 };
+// AI点击处理
+const handleAiClick = () => {
+  if (!isAiConfigValid.value) {
+    appState.setActiveLocalDataMenu('ai-settings');
+    router.push('/settings');
+    return;
+  }
+  if (!multilineText.value.trim() || aiParsing.value) {
+    return;
+  }
+  handleAiParse();
+};
 // AI解析多行文本
 const handleAiParse = async () => {
   if (!multilineText.value.trim()) {
@@ -801,7 +816,6 @@ const handleAiParse = async () => {
       if (content) {
         multilineText.value = content.trim();
         handleMultilineTextChange();
-        message.success(t('AI解析成功'));
       } else {
         message.error(t('AI返回内容为空'));
       }

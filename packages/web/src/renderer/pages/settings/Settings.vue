@@ -39,6 +39,7 @@
         <Shortcuts v-if="activeTab === 'shortcuts'" />
         <ComponentLibrary v-if="activeTab === 'components'" />
         <AiSettings v-if="activeTab === 'ai-settings'" />
+        <TestCase v-if="activeTab === 'test-case'" />
       </div>
     </div>
   </div>
@@ -54,7 +55,8 @@ import ComponentLibrary from './componentLibrary/ComponentLibrary.vue'
 import AiSettings from './aiSettings/AiSettings.vue'
 import ProjectRecovery from './projectRecovery/ProjectRecovery.vue'
 import Shortcuts from './shortcuts/Shortcuts.vue'
-import { UserCircle, HardDrive, Command, Box, BrainCircuit, Trash2 } from 'lucide-vue-next'
+import TestCase from './testCase/TestCase.vue'
+import { UserCircle, HardDrive, Command, Box, BrainCircuit, Trash2, FlaskConical } from 'lucide-vue-next'
 
 const { t } = useI18n()
 
@@ -73,7 +75,8 @@ const tabs: TabItem[] = [
 const settingTabs: TabItem[] = [
   { name: t('快捷键'), icon: Command, action: 'shortcuts' },
   { name: t('组件库'), icon: Box, action: 'components' },
-  { name: t('AI 设置'), icon: BrainCircuit, action: 'ai-settings' }
+  { name: t('AI 设置'), icon: BrainCircuit, action: 'ai-settings' },
+  { name: t('测试案例'), icon: FlaskConical, action: 'test-case' }
 ]
 const handleSettingClick = (setting: TabItem) => {
   activeTab.value = setting.action

@@ -243,7 +243,7 @@ export class HttpMockManager {
       if (responseConfig.dataType === 'redirect') {
         ctx.status = responseConfig.redirectConfig.statusCode;
         const projectVariables = MockUtils.getProjectVariables(matchedMock.projectId);
-        const location = this.mockUtils.replaceVariables(responseConfig.redirectConfig.location, projectVariables);
+        const location = await this.mockUtils.replaceVariables(responseConfig.redirectConfig.location, projectVariables);
         ctx.set('Location', location);
         ctx.body = '';
         return;
