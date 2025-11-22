@@ -222,6 +222,8 @@ export default {
   新增: '追加',
   请求参数: 'リクエストパラメータ',
   Query参数: 'Queryパラメータ',
+  多行编辑: '複数行編集',
+  返回表格: '表形式に戻る',
   Path参数: 'Pathパラメータ',
   'Body参数(application/json)': 'Bodyパラメータ(application/json)',
   'Body参数(multipart/formdata)': 'Bodyパラメータ(multipart/formdata)',

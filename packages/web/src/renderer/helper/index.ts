@@ -11,8 +11,6 @@ import type { ParsedSSeData, ChunkWithTimestampe } from '@src/types'
 import type { ApidocVariable } from '@src/types'
 import Mock from 'mockjs'
 import { faker } from '@faker-js/faker'
-import SandboxWorker from '@/worker/sandbox.ts?worker&inline'
-import type { SandboxPostMessage } from '@src/types'
 import type { Property, ApidocProperty, RendererFormDataBody, HttpNodeConfig } from '@src/types'
 import { nanoid } from 'nanoid/non-secure'
 import type {
@@ -1016,29 +1014,6 @@ export function parseAiStream(
 */
 
 /**
- * 在沙箱环境中执行代码
- */
-export const evalCode = (code: string) => {
-  return new Promise((resolve, reject) => {
-    const worker = new SandboxWorker();
-    worker.onmessage = (event: MessageEvent<SandboxPostMessage>) => {
-      if (event.data.type === "error") {
-        reject(event.data.msg);
-      } else if (event.data.type === "evalSuccess") {
-        resolve(event.data.data);
-      }
-    };
-    worker.onerror = (error) => {
-      reject(error.message);
-    };
-    worker.postMessage({
-      type: "eval",
-      code,
-    });
-  });
-};
-
-/**
  * 将 ApidocVariable[] 转换为 Record<string, any>
  */
 export const getObjectVariable = async (variables: ApidocVariable[]) => {
@@ -1055,7 +1030,12 @@ export const getObjectVariable = async (variables: ApidocVariable[]) => {
     } else if (varInfo.type === "null") {
       objectVariable[name] = null;
     } else if (varInfo.type === "any") {
-      objectVariable[name] = await evalCode(value);
+      const result = await (window as any).electronAPI.execCode(value, {});
+      if (result.code === 0) {
+        objectVariable[name] = result.data;
+      } else {
+        objectVariable[name] = value;
+      }
     } else if (varInfo.type === "file") {
       objectVariable[name] = fileValue.path;
     }

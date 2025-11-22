@@ -7,7 +7,7 @@
           v-model="multilineText"
           type="textarea"
           :rows="15"
-          :placeholder="t('多行编辑模式提示')"
+          :placeholder="tipPlaceholder"
           class="multiline-textarea"
           @input="handleMultilineTextChange"
         />
@@ -273,6 +273,11 @@ const props = withDefaults(defineProps<ClParamsTreeProps>(), {
 });
 const emits = defineEmits<ClParamsTreeEmits>();
 const { t } = useI18n();
+
+const tipPlaceholder = `username=admin //Username
+*password=123456 //Password
+age=18 //Age`;
+
 /*
 |--------------------------------------------------------------------------
 | 响应式数据
@@ -295,6 +300,7 @@ const multilineText = ref('');
 const parseError = ref('');
 const parsedCount = ref(0);
 const aiParsing = ref(false);
+const multilineAppliedHandler = ref<(() => void) | null>(null);
 const isAiConfigValid = computed(() => {
   const config = aiCache.getAiConfig();
   return !!(config.apiKey?.trim() && config.apiUrl?.trim());
@@ -827,7 +833,15 @@ const handleApplyMultiline = () => {
     });
   });
   emitChange();
+  multilineAppliedHandler.value?.();
+  emits('multiline-applied');
 };
+const registerMultilineAppliedHandler = (handler: () => void) => {
+  multilineAppliedHandler.value = handler;
+};
+defineExpose({
+  onMultilineApplied: registerMultilineAppliedHandler,
+});
 /*
 |--------------------------------------------------------------------------
 | 数据监听
@@ -1053,6 +1067,7 @@ watch(
 .multiline-editor {
   display: flex;
   flex-direction: column;
+  margin-top: 10px;
   gap: 12px;
 
   .textarea-wrapper {

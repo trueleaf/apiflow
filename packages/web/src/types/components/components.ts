@@ -6,7 +6,7 @@ import type { WebsocketResponse } from '@src/types/websocketNode';
 | ClParamsTree组件
 |--------------------------------------------------------------------------
 */
-export interface ClParamsTreeProps {
+export type ClParamsTreeProps = {
   data: ApidocProperty<'string' | 'file'>[];
   enableFile?: boolean;
   mindKeyParams?: ApidocProperty[];
@@ -14,8 +14,9 @@ export interface ClParamsTreeProps {
   editMode?: 'table' | 'multiline';
 }
 
-export interface ClParamsTreeEmits {
+export type ClParamsTreeEmits = {
   (e: 'change', value: ApidocProperty<'string' | 'file'>[]): void;
+  (e: 'multiline-applied'): void;
 }
 
 /*

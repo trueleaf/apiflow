@@ -228,6 +228,8 @@ export default {
   新增: '新增',
   请求参数: '請求參數',
   Query参数: 'Query參數',
+      多行编辑: '多行編輯',
+      返回表格: '返回表格',
   Path参数: 'Path參數',
   'Body参数(application/json)': 'Body參數(application/json)',
   'Body参数(multipart/formdata)': 'Body參數(multipart/formdata)',
