@@ -25,8 +25,8 @@
 <script lang="ts" setup>
 import { ElButton } from 'element-plus'
 import { Refresh } from '@element-plus/icons-vue'
-import Condition from './condition/Condition.vue'
-import Response from './response/Response.vue'
+import Condition from './mockCondition/MockCondition.vue'
+import Response from './mockResponse/MockResponse.vue'
 import { useI18n } from 'vue-i18n'
 import { storeToRefs } from 'pinia'
 import { useHttpMock } from '@/store/httpMock/httpMockStore'
