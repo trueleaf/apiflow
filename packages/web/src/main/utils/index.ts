@@ -1,5 +1,28 @@
 import type { ResponseInfo, WindowState } from "@src/types/index.ts"
 import { BrowserWindow } from "electron";
+import vm from 'vm';
+
+export const execCodeInContext = (code: string, variables: Record<string, any>): { code: number; data: any; msg: string } => {
+  try {
+    const sandbox = {
+      ...variables,
+      Math: Math,
+      Date: Date,
+      JSON: JSON,
+      String: String,
+      Number: Number,
+      Boolean: Boolean,
+      Array: Array,
+      Object: Object,
+    };
+    const context = vm.createContext(sandbox);
+    const script = new vm.Script(code);
+    const result = script.runInContext(context, { timeout: 1000 });
+    return { code: 0, data: result, msg: 'success' };
+  } catch (error) {
+    return { code: 1, data: null, msg: `代码执行错误: ${(error as Error).message}` };
+  }
+}
 
 export const generateEmptyResponse = (): ResponseInfo => {
   return {

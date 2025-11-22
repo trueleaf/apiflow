@@ -4,7 +4,7 @@ import { StandaloneExportHtmlParams } from '@src/types/standalone.ts';
 import fs from 'fs/promises';
 import { exportHtml, exportWord, setMainWindow, setContentView, startExport, receiveRendererData, finishRendererData, getExportStatus, resetExport, selectExportPath } from './export/export.ts';
 import { selectImportFile, analyzeImportFile, startImport, resetImport, setMainWindow as setImportMainWindow, setContentView as setImportContentView } from './import/import.ts';
-import { getWindowState } from '../utils/index.ts';
+import { getWindowState, execCodeInContext } from '../utils/index.ts';
 // import { IPCProjectData, WindowState } from '@src/types/index.ts';
 import type { RuntimeNetworkMode } from '@src/types/runtime';
 import type { AnchorRect } from '@src/types/common';
@@ -17,7 +17,6 @@ import { globalAiManager } from '../ai/ai.ts';
 import type { OpenAIRequestBody } from '@src/types/ai';
 import { IPCProjectData, WindowState } from '@src/types/index.ts';
 import type { CommonResponse } from '@src/types/project';
-import vm from 'vm';
 
 // 导入 IPC 事件常量
 import { IPC_EVENTS } from '@src/types/ipc';
@@ -495,26 +494,7 @@ export const useIpcEvent = (mainWindow: BrowserWindow, topBarView: WebContentsVi
   */
   // 使用 Node.js vm 模块安全执行代码
   ipcMain.handle(IPC_EVENTS.util.rendererToMain.execCode, async (_: IpcMainInvokeEvent, params: { code: string; variables: Record<string, any> }) => {
-    try {
-      const { code, variables } = params;
-      const sandbox = {
-        ...variables,
-        Math: Math,
-        Date: Date,
-        JSON: JSON,
-        String: String,
-        Number: Number,
-        Boolean: Boolean,
-        Array: Array,
-        Object: Object,
-      };
-      const context = vm.createContext(sandbox);
-      const script = new vm.Script(code);
-      const result = script.runInContext(context, { timeout: 1000 });
-      return { code: 0, data: result, msg: 'success' };
-    } catch (error) {
-      return { code: 1, data: null, msg: `代码执行错误: ${(error as Error).message}` };
-    }
+    return execCodeInContext(params.code, params.variables);
   });
 
   /*

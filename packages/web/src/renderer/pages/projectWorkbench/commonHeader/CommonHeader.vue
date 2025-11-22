@@ -6,7 +6,30 @@
       <p>{{ t('3. 接口本身请求头优先级高于公共请求头') }}</p>
     </SFieldset>
     <SFieldset title="公共请求头">
-      <SParamsTree :drag="false" show-checkbox :data="headerData"></SParamsTree>
+      <template #title>
+        <div class="d-flex a-center">
+          <span>公共请求头</span>
+          <span
+            class="mode-toggle-icon ml-2"
+            role="button"
+            tabindex="0"
+            :title="isMultiline ? t('返回表格') : t('多行编辑')"
+            :class="{ active: isMultiline }"
+            @click="toggleMode"
+          >
+            <el-icon class="toggle-icon">
+              <Switch />
+            </el-icon>
+          </span>
+        </div>
+      </template>
+      <SParamsTree
+        ref="paramsTreeRef"
+        :drag="false"
+        show-checkbox
+        :data="headerData"
+        :edit-mode="isMultiline ? 'multiline' : 'table'"
+      ></SParamsTree>
       <div class="d-flex a-center j-center mt-5">
         <el-button type="success" :loading="loading2" @click="handleEditCommonHeader">确认修改</el-button>
         <el-button type="primary" :loading="loading" @click="getCommonHeaderInfo">刷新</el-button>
@@ -30,7 +53,7 @@ import SParamsTree from '@/components/apidoc/paramsTree/ClParamsTree.vue'
 import { useApidocTas } from '@/store/apidoc/tabsStore';
 import { useApidocBaseInfo } from '@/store/apidoc/baseInfoStore';
 import { useRuntime } from '@/store/runtime/runtimeStore';
-
+import { Switch } from '@element-plus/icons-vue'
 
 
 type CommonHeaderResponse = {
@@ -49,6 +72,23 @@ const currentSelectTab = computed(() => { //当前选中的doc
 
 //获取公共请求头信息
 const { t } = useI18n()
+
+type ParamsTreeInstance = InstanceType<typeof SParamsTree> & {
+  onMultilineApplied?: (handler: () => void) => void
+}
+const paramsTreeRef = ref<ParamsTreeInstance | null>(null)
+const isMultiline = ref(false)
+
+const toggleMode = () => {
+  isMultiline.value = !isMultiline.value
+}
+const handleMultilineApplied = () => {
+  isMultiline.value = false
+}
+watch(paramsTreeRef, (instance) => {
+  if (!instance?.onMultilineApplied) return
+  instance.onMultilineApplied(handleMultilineApplied)
+})
 
 const loading = ref(false);
 const getCommonHeaderInfo = async () => {
@@ -193,5 +233,28 @@ onMounted(() => {
 <style lang='scss' scoped>
 .common-header {
   padding: 20px;
+}
+.mode-toggle-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: var(--color-text-1);
+  transition: border-color 0.2s, color 0.2s;
+
+  &.active {
+    border-color: var(--theme-color);
+    color: var(--theme-color);
+  }
+
+  &:hover {
+    border-color: var(--theme-color);
+    color: var(--theme-color);
+  }
+
+  .toggle-icon {
+    width: 16px;
+    height: 16px;
+  }
 }
 </style>

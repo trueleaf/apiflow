@@ -13,7 +13,31 @@
         <View />
       </el-icon>
     </div>
-    <SParamsTree :drag="false" show-checkbox :data="headerData" :mind-key-params="mindHeaders" no-add @change="handleHeadersChange"></SParamsTree>
+    <div class="title d-flex a-center mb-2 mt-2">
+      <span>{{ t("请求头") }}</span>
+      <span
+        class="mode-toggle-icon ml-2"
+        role="button"
+        tabindex="0"
+        :title="isMultiline ? t('返回表格') : t('多行编辑')"
+        :class="{ active: isMultiline }"
+        @click="toggleMode"
+      >
+        <el-icon class="toggle-icon">
+          <Switch />
+        </el-icon>
+      </span>
+    </div>
+    <SParamsTree
+      ref="paramsTreeRef"
+      :drag="false"
+      show-checkbox
+      :data="headerData"
+      :mind-key-params="mindHeaders"
+      no-add
+      :edit-mode="isMultiline ? 'multiline' : 'table'"
+      @change="handleHeadersChange"
+    ></SParamsTree>
     <template v-if="commonHeaders.length > 0">
       <el-divider content-position="left">{{ t('公共请求头') }}</el-divider>
       <el-table :data="commonHeaders"  border size="small">
@@ -62,7 +86,7 @@
 <script lang="ts" setup>
 import { ref, computed, watch } from 'vue'
 import { router } from '@/router'
-import { View } from '@element-plus/icons-vue'
+import { View, Switch } from '@element-plus/icons-vue'
 import { ApidocProperty } from '@src/types';
 import { generateEmptyProperty } from '@/helper';
 import { useI18n } from 'vue-i18n'
@@ -96,6 +120,23 @@ const mindHeaders = mindHeaderMetas.map((meta) => {
   property.required = meta.required ?? property.required;
   property.select = meta.select ?? property.select;
   return property;
+})
+
+type ParamsTreeInstance = InstanceType<typeof SParamsTree> & {
+  onMultilineApplied?: (handler: () => void) => void
+}
+const paramsTreeRef = ref<ParamsTreeInstance | null>(null)
+const isMultiline = ref(false)
+
+const toggleMode = () => {
+  isMultiline.value = !isMultiline.value
+}
+const handleMultilineApplied = () => {
+  isMultiline.value = false
+}
+watch(paramsTreeRef, (instance) => {
+  if (!instance?.onMultilineApplied) return
+  instance.onMultilineApplied(handleMultilineApplied)
 })
 
 const hideDefaultHeader = ref(true);
@@ -209,6 +250,29 @@ const handleJumpToCommonHeaderConfigPage = ({ nodeId, name }: { nodeId?: string,
   }
   .folder-icon {
     color: var(--warning-color);
+  }
+}
+.mode-toggle-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: var(--color-text-1);
+  transition: border-color 0.2s, color 0.2s;
+
+  &.active {
+    border-color: var(--theme-color);
+    color: var(--theme-color);
+  }
+
+  &:hover {
+    border-color: var(--theme-color);
+    color: var(--theme-color);
+  }
+
+  .toggle-icon {
+    width: 16px;
+    height: 16px;
   }
 }
 </style>

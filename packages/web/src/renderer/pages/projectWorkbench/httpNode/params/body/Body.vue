@@ -124,6 +124,7 @@ const jsonComponent: Ref<null | {
   getCursorPosition?: () => Monaco.Position | null,
   setCursorPosition?: (position: Monaco.Position) => void,
 }> = ref(null)
+
 //根据参数内容校验对应的contentType值
 const checkContentType = () => {
   const type = httpNodeStore.apidoc.item.requestBody.mode

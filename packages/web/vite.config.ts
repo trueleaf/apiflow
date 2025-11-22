@@ -40,6 +40,7 @@ export default defineConfig(({ mode, command }) => {
       alias: {
         "@": path.resolve(__dirname, './src/renderer'),
         "@src": path.resolve(__dirname, "./src"),
+        "@shared": path.resolve(__dirname, "./src/shared"),
       },
       extensions: ['.mjs', '.js', '.ts', '.jsx', '.tsx', '.json', '.vue']
     },
