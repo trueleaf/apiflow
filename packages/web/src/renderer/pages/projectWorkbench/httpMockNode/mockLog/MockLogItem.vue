@@ -12,6 +12,9 @@
         </span>
         <span class="meta-item">IP: {{ log.data.ip }}</span>
         <span class="meta-item">响应时间: {{ log.data.responseTime ?? 0 }}ms</span>
+        <ElButton size="small" @click="$emit('showFullData', log)" class="full-data-btn">
+          完整数据
+        </ElButton>
         <template v-if="getConsoleLogStats(log).total > 0">
           <span 
             class="console-badge-inline" 
@@ -106,13 +109,15 @@
 import { ref } from 'vue'
 import type { MockLog } from '@src/types/mockNode'
 import { ChevronRight } from 'lucide-vue-next'
+import { ElButton } from 'element-plus'
 
-const props = defineProps<{
+defineProps<{
   log: Extract<MockLog, { type: 'request' }>
 }>()
 
 defineEmits<{
   (e: 'showConsoleLogs', log: Extract<MockLog, { type: 'request' }>): void
+  (e: 'showFullData', log: Extract<MockLog, { type: 'request' }>): void
 }>()
 
 const isHeadersExpanded = ref(true)
@@ -161,30 +166,58 @@ const parseMultipartFormData = (body: string, contentType: string): Array<{ name
       return []
     }
     const boundary = boundaryMatch[1].trim()
-    const parts = body.split(`--${boundary}`)
+    // 移除可能的引号
+    const cleanBoundary = boundary.replace(/^["']|["']$/g, '')
+    const parts = body.split(`--${cleanBoundary}`)
     const fields: Array<{ name: string; value: string; filename?: string }> = []
+    
     for (const part of parts) {
-      if (!part.trim() || part.trim() === '--') {
+      const trimmedPart = part.trim()
+      if (!trimmedPart || trimmedPart === '--') {
         continue
       }
-      const headerEndIndex = part.indexOf('\r\n\r\n')
+      
+      // 查找头部结束位置（双换行）
+      const headerEndIndex = part.search(/\r?\n\r?\n/)
       if (headerEndIndex === -1) {
         continue
       }
+      
       const headers = part.substring(0, headerEndIndex)
-      const content = part.substring(headerEndIndex + 4).trim()
-      const dispositionMatch = headers.match(/Content-Disposition:\s*form-data;\s*name="([^"]+)"(?:;\s*filename="([^"]+)")?/i)
+      const content = part.substring(headerEndIndex).replace(/^\r?\n\r?\n/, '').trim()
+      
+      // 匹配 Content-Disposition，更宽松的正则
+      const dispositionMatch = headers.match(/Content-Disposition:\s*form-data;\s*name="?([^";\r\n]+)"?(?:;\s*filename="?([^";\r\n]+)"?)?/i)
+      
       if (dispositionMatch) {
-        const name = dispositionMatch[1]
-        const filename = dispositionMatch[2]
-        const displayValue = content.length > 100 ? `${content.substring(0, 100)}...` : content
-        fields.push({
-          name,
-          value: filename ? `[文件: ${filename}]` : displayValue,
-          filename
-        })
+        const name = dispositionMatch[1].trim()
+        const filename = dispositionMatch[2]?.trim()
+        
+        // 处理二进制文件标识
+        if (content.startsWith('[Binary File:')) {
+          fields.push({
+            name,
+            value: content,
+            filename
+          })
+        } else if (filename) {
+          // 有文件名的字段
+          fields.push({
+            name,
+            value: `[文件: ${filename}]`,
+            filename
+          })
+        } else {
+          // 普通文本字段
+          const displayValue = content.length > 200 ? `${content.substring(0, 200)}...` : content
+          fields.push({
+            name,
+            value: displayValue
+          })
+        }
       }
     }
+    
     return fields
   } catch (error) {
     return []
@@ -307,6 +340,9 @@ const formatRequestBody = (log: Extract<MockLog, { type: 'request' }>) => {
 .meta-item {
   font-size: var(--font-size-xs);
   color: var(--text-secondary);
+}
+.full-data-btn {
+  margin-left: auto;
 }
 .console-badge-inline {
   display: inline-flex;

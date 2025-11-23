@@ -173,11 +173,11 @@
              </template>
            </el-popover>
            <!-- 参数值 File -->
-           <div 
-             v-if="data.type === 'file'" 
-             class="w-35 mr-2" 
-             :class="{ active: data.value, 'no-border': (data.fileValueType === 'var' || data.fileValueType === 'file') }" 
-             @mouseenter="handleDisableDrag()" 
+           <div
+             v-if="data.type === 'file'"
+             class="w-35 mr-2 file-value-wrapper"
+             :class="{ active: data.value, 'no-border': (data.fileValueType === 'var' || data.fileValueType === 'file') }"
+             @mouseenter="handleDisableDrag()"
              @mouseleave="handleEnableDrag()"
            >
              <div class="file-input-wrap">
@@ -607,6 +607,7 @@ const handleSelectMockValue = (item: any, data: ApidocProperty<'string' | 'file'
 // 切换文件值类型
 const handleToggleFileValueType = (data: ApidocProperty<'string' | 'file'>) => {
   data.fileValueType = data.fileValueType === 'var' ? 'file' : 'var';
+  data.value = '';
   emitChange();
 };
 // 清除文件值
@@ -623,9 +624,9 @@ const handleSelectFile = (e: Event, data: ApidocProperty<'string' | 'file'>) => 
     return;
   }
   const f = files[0];
-  const path = (f as any).path || f.name;
+  const path = window.electronAPI?.fileManager.getFilePath(f);
   if (!path) {
-    data._error = t('未能读取文件');
+    data._error = t('未能读取文件路径');
     emitChange();
     return;
   }
@@ -1077,6 +1078,11 @@ watch(
     .file-mode-wrap {
       width: 100%;
       height: 28px;
+      display: flex;
+      align-items: center;
+      padding-left: 10px;
+      padding-right: 24px;
+
       .label {
         width: 100%;
         height: 100%;
@@ -1085,11 +1091,21 @@ watch(
         justify-content: center;
         background-color: var(--bg-secondary);
         cursor: pointer;
+        padding-left: 0;
+        margin-left: -10px;
+        padding-right: 24px;
+      }
+
+      .text-wrap {
+        flex: 1;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
       }
 
       .close {
         position: absolute;
-        right: 3px;
+        right: 24px;
         top: 50%;
         transform: translateY(-50%);
         font-size: 16px;
@@ -1113,6 +1129,20 @@ watch(
         color: var(--theme-color);
       }
     }
+  }
+
+  .file-value-wrapper {
+    position: relative;
+  }
+
+  .file-error {
+    position: absolute;
+    left: 0;
+    top: 100%;
+    font-size: 11px;
+    color: var(--el-color-danger);
+    line-height: 1.2;
+    margin-top: 2px;
   }
 
   .params-variable-token {

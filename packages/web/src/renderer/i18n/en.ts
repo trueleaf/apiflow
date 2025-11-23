@@ -302,6 +302,8 @@ export default {
   备注: 'Remark Information',
   未实现的返回类型: 'Unimplemented Return Type',
   变量维护: 'Variable Maintenance',
+  变量未定义: 'Variable {name} is undefined',
+  前往变量管理: 'Go to Variable Management',
   联想参数: 'Associated Parameters',
   基本信息: 'Basic Information',
   请求地址: 'Request URL',

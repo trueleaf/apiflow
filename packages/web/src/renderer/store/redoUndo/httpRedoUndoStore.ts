@@ -5,6 +5,7 @@ import type {
 } from "@src/types/redoUndo/httpRedoUndo";
 import type { ApidocProperty, HttpNodeRequestMethod } from "@src/types";
 import type { HttpNode } from "@src/types/httpNode/httpNode";
+import type { HttpNodeBodyRawType } from "@src/types/httpNode/types";
 import { useHttpNode } from "@/store/apidoc/httpNodeStore";
 import { cloneDeep } from "lodash-es";
 import { httpRedoUndoCache } from "@/cache/redoUndo/httpRedoUndoCache";
@@ -140,7 +141,7 @@ export const useHttpRedoUndo = defineStore('httpRedoUndo', () => {
 
       case 'rawDataOperation':
         {
-          const rawDataValue = targetValue as { data: string; dataType: string };
+          const rawDataValue = targetValue as { data: string; dataType: HttpNodeBodyRawType };
           httpNodeStore.changeBodyRawValue(rawDataValue.data);
           httpNodeStore.changeBodyRawType(rawDataValue.dataType);
         }

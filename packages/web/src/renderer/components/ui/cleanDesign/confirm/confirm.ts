@@ -1,5 +1,5 @@
 import { createVNode, render } from 'vue'
-import type { ConfirmOptions, ConfirmResult, ConfirmInstance } from '@src/types/components/components'
+import type { ConfirmOptions, ConfirmResult } from '@src/types/components/components'
 import ConfirmComponent from './Confirm.vue'
 
 interface ConfirmInstanceInternal {

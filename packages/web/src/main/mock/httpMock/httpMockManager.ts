@@ -6,7 +6,7 @@ import { contentViewInstance } from '../../main';
 import detect from 'detect-port';
 import http from 'http';
 import Koa from 'koa';
-import bodyParser from '@koa/bodyparser';
+import { koaBody } from 'koa-body';
 import { nanoid } from 'nanoid/non-secure';
 import { IPC_EVENTS } from '@src/types/ipc';
 
@@ -77,9 +77,54 @@ export class HttpMockManager {
   // 获取请求体字符串
   private getRequestBody(ctx: Koa.Context): string {
     const body = (ctx.request as any).body;
-    if (!body) return '';
+    const files = (ctx.request as any).files;
+    if (!body && !files) return '';
 
     const contentType = ctx.get('content-type') || '';
+
+    // 处理 multipart/form-data（koa-body 解析后的数据）
+    if (contentType.includes('multipart/form-data')) {
+      const parts: string[] = [];
+      
+      // 添加表单字段
+      if (body && typeof body === 'object') {
+        for (const [key, value] of Object.entries(body)) {
+          if (Array.isArray(value)) {
+            value.forEach(v => {
+              parts.push(`Content-Disposition: form-data; name="${key}"\r\n\r\n${String(v)}`);
+            });
+          } else {
+            parts.push(`Content-Disposition: form-data; name="${key}"\r\n\r\n${String(value)}`);
+          }
+        }
+      }
+      
+      // 添加文件字段（koa-body 将文件存储在 ctx.request.files 中）
+      if (files) {
+        // files 可能是对象或数组
+        const fileArray = Array.isArray(files) ? files : Object.values(files).flat();
+        for (const file of fileArray) {
+          const fileInfo = file as any;
+          const filename = fileInfo.originalFilename || fileInfo.newFilename || 'unknown';
+          const fieldname = fileInfo.fieldName || fileInfo.name || 'file';
+          const size = fileInfo.size || 0;
+          const mimetype = fileInfo.mimetype || fileInfo.type || 'application/octet-stream';
+          parts.push(
+            `Content-Disposition: form-data; name="${fieldname}"; filename="${filename}"\r\n` +
+            `Content-Type: ${mimetype}\r\n\r\n` +
+            `[Binary File: ${filename}, Size: ${size} bytes]`
+          );
+        }
+      }
+      
+      if (parts.length > 0) {
+        const boundary = contentType.match(/boundary=([^;]+)/)?.[1] || 'boundary';
+        return parts.map(part => `--${boundary}\r\n${part}\r\n`).join('') + `--${boundary}--`;
+      }
+      return '';
+    }
+
+    if (!body) return '';
 
     if (typeof body === 'string') {
       return body;
@@ -455,12 +500,22 @@ export class HttpMockManager {
 
     try {
       const app = new Koa();
-      app.use(bodyParser({
-        enableTypes: ['json', 'form', 'text'],
+      
+      // 使用 koa-body 统一处理所有请求体类型（包括 multipart/form-data）
+      app.use(koaBody({
+        multipart: true, // 启用 multipart/form-data 解析
+        urlencoded: true,
+        json: true,
+        text: true,
+        formidable: {
+          maxFileSize: 100 * 1024 * 1024, // 100MB
+          keepExtensions: true,
+        },
         jsonLimit: '10mb',
         formLimit: '10mb',
         textLimit: '10mb',
       }));
+      
       app.use(async (ctx) => {
         await this.handleHttpRequest(ctx, httpMock.requestCondition.port);
       });

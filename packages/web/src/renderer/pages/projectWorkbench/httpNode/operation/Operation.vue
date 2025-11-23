@@ -43,7 +43,22 @@
         @blur="handleFormatUrl"
       >
         <template #variable="{ label }">
-          <div class="variable-token">{{ label }}</div>
+          <el-popover trigger="hover" :show-after="300" width="auto" placement="top">
+            <template #reference>
+              <div class="variable-token" :class="{ 'undefined': !getVariableValue(label) }">
+                {{ label }}
+              </div>
+            </template>
+            <div v-if="getVariableValue(label)" class="variable-popover">
+              <div class="variable-value">{{ label }}: {{ getVariableValue(label) }}</div>
+            </div>
+            <div v-else class="variable-popover">
+              <div class="variable-warning">{{ t('变量未定义', { name: label }) }}</div>
+              <el-button size="small" type="primary" link @click="handleGoToVariableManage">
+                {{ t('前往变量管理') }}
+              </el-button>
+            </div>
+          </el-popover>
         </template>
       </ClRichInput>
       <el-button 
@@ -93,8 +108,10 @@ import { useApidocResponse } from '@/store/apidoc/responseStore'
 import { isElectron } from '@/helper'
 import { useApidocRequest } from '@/store/apidoc/requestStore'
 import { useHttpRedoUndo } from '@/store/redoUndo/httpRedoUndoStore'
+import { useVariable } from '@/store/apidoc/variablesStore'
 
 const apidocTabsStore = useApidocTas()
+const variableStore = useVariable()
 const httpNodeStore = useHttpNode()
 const apidocResponseStore = useApidocResponse()
 const apidocRequestStore = useApidocRequest()
@@ -107,6 +124,29 @@ const currentSelectTab = computed(() => {
 })
 
 const showPrefixHelper = ref(false)
+/*
+|--------------------------------------------------------------------------
+| 变量相关
+|--------------------------------------------------------------------------
+*/
+const getVariableValue = (label: string) => {
+  return variableStore.objectVariable[label]
+}
+const handleGoToVariableManage = () => {
+  apidocTabsStore.addTab({
+    _id: 'variable',
+    projectId,
+    tabType: 'variable',
+    label: t('变量'),
+    head: {
+      icon: '',
+      color: ''
+    },
+    saved: true,
+    fixed: true,
+    selected: true,
+  })
+}
 /*
 |--------------------------------------------------------------------------
 | URL校验
@@ -196,23 +236,6 @@ watch(
     immediate: true,
   }
 );
-// const fullUrl = ref('');
-// const getFullUrl = debounce(async () => {
-//   fullUrl.value = await getUrl(toRaw(apidocStore.$state.apidoc));
-// }, 500, {
-//   leading: true,
-// });
-// watch([() => {
-//   return httpNodeStore.apidoc.item;
-// }, () => {
-//   return apidocVaribleStore.objectVariable;
-// }], () => {
-//   getFullUrl()
-// }, {
-//   deep: true,
-//   immediate: true
-// })
-
 </script>
 
 <style lang='scss' scoped>
@@ -275,6 +298,20 @@ watch(
     .variable-token {
       color: var(--el-color-warning);
       cursor: pointer;
+      &.undefined {
+        color: var(--el-color-danger);
+        text-decoration: underline dashed;
+      }
+    }
+    .variable-popover {
+      .variable-value {
+        font-family: monospace;
+        word-break: break-all;
+      }
+      .variable-warning {
+        color: var(--el-color-danger);
+        margin-bottom: 8px;
+      }
     }
   }
 

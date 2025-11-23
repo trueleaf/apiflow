@@ -226,14 +226,41 @@ const handleContextmenu = async (e: MouseEvent, item: ApidocTab) => {
 const handleStartMockServer = async () => {
   if (!currentOperationNode.value) return;
   try {
-    const mockData = await window.electronAPI?.mock?.getMockByNodeId(currentOperationNode.value._id);
+    // 优先从store获取当前数据，其次从缓存获取
+    let mockData = null;
+    
+    if (currentOperationNode.value._id === httpMockStore.httpMock._id) {
+      // 如果是当前打开的Mock节点，直接使用store中的数据
+      mockData = httpMockStore.httpMock;
+    } else {
+      // 否则从缓存中获取
+      mockData = httpMockStore.getCachedHttpMockNodeById(currentOperationNode.value._id);
+    }
+    
+    // 如果缓存中也没有，尝试获取最新数据
+    if (!mockData) {
+      await httpMockStore.getHttpMockNodeDetail({
+        id: currentOperationNode.value._id,
+        projectId: router.currentRoute.value.query.id as string,
+      });
+      mockData = httpMockStore.httpMock;
+    }
+    
     if (!mockData) {
       ElMessage.error(t('获取Mock配置失败'));
       return;
     }
-    const result = await window.electronAPI?.mock?.startServer(mockData);
+    
+    // 确保包含projectId
+    const mockDataWithProject = {
+      ...mockData,
+      projectId: router.currentRoute.value.query.id as string,
+    };
+    
+    const result = await window.electronAPI?.mock?.startServer(mockDataWithProject);
     if (result?.code === 0) {
       isMockServerRunning.value = true;
+      ElMessage.success(t('启动Mock服务器成功'));
     } else {
       ElMessage.error(result?.msg || t('启动Mock服务器失败'));
     }

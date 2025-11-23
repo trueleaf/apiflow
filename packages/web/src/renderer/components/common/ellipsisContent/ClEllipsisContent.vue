@@ -9,7 +9,7 @@
 <script lang="ts" setup>
 import { onMounted, ref, watch } from 'vue'
 import { Effect } from 'element-plus'
-import type { ClEllipsisContentProps, EllipsisValue } from '@src/types/components/components';
+import type { ClEllipsisContentProps } from '@src/types/components/components';
 
 const props = withDefaults(defineProps<ClEllipsisContentProps>(), {
   value: '',

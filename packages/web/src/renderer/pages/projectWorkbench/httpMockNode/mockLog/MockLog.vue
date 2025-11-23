@@ -112,6 +112,7 @@
             :key="createLogKey(log, index)"
             :log="log"
             @show-console-logs="showConsoleLogs"
+            @show-full-data="showLogDetail"
           />
         </div>
       </template>
