@@ -135,6 +135,11 @@ if (!gotTheLock) {
       if (queryIndex !== -1) {
         url = url.slice(0, queryIndex);
       }
+      // 移除 URL 哈希
+      const hashIndex = url.indexOf('#');
+      if (hashIndex !== -1) {
+        url = url.slice(0, hashIndex);
+      }
       // 移除尾部斜杠
       if (url.endsWith('/')) {
         url = url.slice(0, -1);

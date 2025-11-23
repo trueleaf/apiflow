@@ -6,7 +6,7 @@
         <span class="log-method" :class="`method-${log.data.method.toLowerCase()}`">
           {{ log.data.method }}
         </span>
-        <span class="log-url">{{ log.data.url }}</span>
+        <span class="log-url">{{ `${log.data.protocol}://${log.data.hostname}${log.data.url}` }}</span>
         <span class="log-status" :class="statusClass(log.data.statusCode)">
           {{ log.data.statusCode }}
         </span>

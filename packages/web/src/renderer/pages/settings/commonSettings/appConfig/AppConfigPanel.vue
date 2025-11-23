@@ -111,7 +111,6 @@ const appTheme = computed({
   set: (value: AppTheme) => {
     if (value !== appSettingsStore.appTheme) {
       appSettingsStore.setAppTheme(value)
-      message.success(t('应用主题已更新'))
     }
   }
 })

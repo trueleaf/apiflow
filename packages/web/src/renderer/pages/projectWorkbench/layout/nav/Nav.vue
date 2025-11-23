@@ -262,9 +262,11 @@ const handleStartMockServer = async () => {
       isMockServerRunning.value = true;
       ElMessage.success(t('启动Mock服务器成功'));
     } else {
+      console.error('启动Mock服务器失败:', result);
       ElMessage.error(result?.msg || t('启动Mock服务器失败'));
     }
   } catch (error) {
+    console.error('启动Mock服务器异常:', error);
     ElMessage.error(t('启动Mock服务器失败'));
   }
 }

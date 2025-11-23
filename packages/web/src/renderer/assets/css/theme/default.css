@@ -42,8 +42,8 @@
   --border-radius-round: 50%;
   /* 阴影 */
   --box-shadow-sm: 0 0 4px rgba(0, 0, 0, 0.1);
-  --box-shadow-base: 0 0 8px rgba(0, 0, 0, 0.1);
-  --box-shadow: 0 0 12px rgba(0, 0, 0, 0.1);
+  --box-shadow-base: 0 0 8px rgba(0, 0, 0, 0.2);
+  --box-shadow: 0 0 12px rgba(0, 0, 0, 0.3);
   --box-shadow-bg: 0 0 16px rgba(0, 0, 0, 0.1);
   --el-transition-duration: 0;
   /* element-plus样式替换 */

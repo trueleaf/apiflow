@@ -116,9 +116,8 @@ export class HttpMockManager {
           );
         }
       }
-      
       if (parts.length > 0) {
-        const boundary = contentType.match(/boundary=([^;]+)/)?.[1] || 'boundary';
+        const boundary = (contentType.match(/boundary=([^;]+)/)?.[1] || 'boundary').trim().replace(/^["']|["']$/g, '');
         return parts.map(part => `--${boundary}\r\n${part}\r\n`).join('') + `--${boundary}--`;
       }
       return '';
