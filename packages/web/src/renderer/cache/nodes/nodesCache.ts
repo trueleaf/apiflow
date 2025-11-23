@@ -3,6 +3,7 @@ import { nanoid } from "nanoid";
 import { openDB, type IDBPDatabase } from 'idb';
 import { config } from '@src/config/config';
 import { logger, convertNodesToBannerNodes } from '@/helper';
+import { projectCache } from '@/cache/project/projectCache';
 export class ApiNodesCache {
   private bannerCache = new Map<
     string,
@@ -10,49 +11,44 @@ export class ApiNodesCache {
   >();
   private readonly CACHE_TTL = 5 * 60 * 1000;
   private apiNodesDB: IDBPDatabase | null = null;
-  private projectDB: IDBPDatabase | null = null;
+  private initPromise: Promise<void> | null = null;
   private storeName = config.cacheConfig.apiNodesCache.storeName;
-  private projectStoreName = config.cacheConfig.projectCache.storeName;
   constructor() {
-    this.initDB().catch(error => {
-      logger.error('初始化节点缓存数据库失败', { error });
-    });
   }
   private async initDB() {
-    if (this.apiNodesDB && this.projectDB) {
+    if (this.apiNodesDB) {
       return;
     }
-    try {
-      this.apiNodesDB = await this.openApiNodesDB();
-      this.projectDB = await this.openProjectDB();
-    } catch (error) {
-      logger.error('初始化节点缓存数据库失败', { error });
-      this.apiNodesDB = null;
-      this.projectDB = null;
+    if (this.initPromise) {
+      return this.initPromise;
     }
+    this.initPromise = (async () => {
+      try {
+        this.apiNodesDB = await this.openApiNodesDB();
+      } catch (error) {
+        logger.error('初始化节点缓存数据库失败', { error });
+        this.apiNodesDB = null;
+      } finally {
+        this.initPromise = null;
+      }
+    })();
+    return this.initPromise;
   }
-  private async getDB() {
+  async getDB() {
     if (!this.apiNodesDB) {
       await this.initDB();
+
     }
     if (!this.apiNodesDB) {
       throw new Error('接口文档数据库初始化失败');
     }
     return this.apiNodesDB;
   }
-  private async getProjectDB() {
-    if (!this.projectDB) {
-      await this.initDB();
-    }
-    if (!this.projectDB) {
-      throw new Error('项目数据库初始化失败');
-    }
-    return this.projectDB;
-  }
   private async openApiNodesDB(): Promise<IDBPDatabase> {
     if (this.apiNodesDB) {
       return this.apiNodesDB;
     }
+    console.time('Init ApiNodesCache DB');
     this.apiNodesDB = await openDB(
       config.cacheConfig.apiNodesCache.dbName,
       config.cacheConfig.apiNodesCache.version,
@@ -69,24 +65,8 @@ export class ApiNodesCache {
         },
       }
     );
+    console.timeEnd('Init ApiNodesCache DB');
     return this.apiNodesDB;
-  }
-  private async openProjectDB(): Promise<IDBPDatabase> {
-    if (this.projectDB) {
-      return this.projectDB;
-    }
-    this.projectDB = await openDB(
-      config.cacheConfig.projectCache.dbName,
-      config.cacheConfig.projectCache.version,
-      {
-        upgrade(db) {
-          if (!db.objectStoreNames.contains(config.cacheConfig.projectCache.storeName)) {
-            db.createObjectStore(config.cacheConfig.projectCache.storeName);
-          }
-        },
-      }
-    );
-    return this.projectDB;
   }
   // 获取所有节点
   async getAllNodes(): Promise<ApiNode[]> {
@@ -353,17 +333,13 @@ export class ApiNodesCache {
   private async updateProjectNodeNum(projectId: string): Promise<void> {
     try {
       const db = await this.getDB();
-      const projectDB = await this.getProjectDB();
       const projectDocs = await db.getAllFromIndex(this.storeName, config.cacheConfig.apiNodesCache.projectIdIndex, projectId);
       const docNum = projectDocs.filter(
         (doc) =>
           !doc.isDeleted &&
           doc.info.type !== "folder"
       ).length;
-      const project = await projectDB.get(this.projectStoreName, projectId);
-      if (project) {
-        await projectDB.put(this.projectStoreName, { ...project, docNum }, projectId);
-      }
+      await projectCache.updateProjectNodeNum(projectId, docNum);
     } catch (error) {
       logger.error('更新项目文档数量失败', { error });
     }

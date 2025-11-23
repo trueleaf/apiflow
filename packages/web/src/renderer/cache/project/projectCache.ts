@@ -22,7 +22,7 @@ export class ProjectCache {
       this.db = null;
     }
   }
-  private async getDB() {
+  async getDB() {
     if (!this.db) {
       await this.initDB();
     }
@@ -177,6 +177,21 @@ export class ProjectCache {
       return true;
     } catch (error) {
       logger.error('清空已删除项目失败', { error });
+      return false;
+    }
+  }
+  // 更新项目文档数量
+  async updateProjectNodeNum(projectId: string, docNum: number): Promise<boolean> {
+    try {
+      const db = await this.getDB();
+      const project = await db.get(this.storeName, projectId);
+      if (project) {
+        await db.put(this.storeName, { ...project, docNum }, projectId);
+        return true;
+      }
+      return false;
+    } catch (error) {
+      logger.error('更新项目文档数量失败', { error });
       return false;
     }
   }

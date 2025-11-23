@@ -3,6 +3,46 @@ import NProgress from "nprogress";
 import "nprogress/nprogress.css";
 import docEdit from "@/pages/projectWorkbench/ProjectWorkbench.vue";
 import { useRuntime } from "@/store/runtime/runtimeStore.ts";
+import { projectCache } from '@/cache/project/projectCache';
+import { apiNodesCache } from '@/cache/nodes/nodesCache';
+import { commonHeaderCache } from '@/cache/project/commonHeadersCache';
+import { nodeVariableCache } from '@/cache/variable/nodeVariableCache';
+import { httpResponseCache } from '@/cache/httpNode/httpResponseCache';
+import { httpNodeHistoryCache } from '@/cache/httpNode/httpNodeHistoryCache';
+import { websocketResponseCache } from '@/cache/websocketNode/websocketResponseCache';
+import { webSocketHistoryCache } from '@/cache/websocketNode/websocketHistoryCache';
+
+let dbInitialized = false;
+let dbInitPromise: Promise<void> | null = null;
+
+const initDatabases = async () => {
+  if (dbInitialized) return;
+  if (dbInitPromise) return dbInitPromise;
+
+  dbInitPromise = (async () => {
+    try {
+      await Promise.all([
+        projectCache.getDB(),
+        apiNodesCache.getDB(),
+      ]);
+      await Promise.all([
+        commonHeaderCache.getDB(),
+        nodeVariableCache.getDB(),
+      ]);
+      await Promise.all([
+        httpResponseCache.getDB(),
+        httpNodeHistoryCache.getDB(),
+        websocketResponseCache.getDB(),
+        webSocketHistoryCache.getDB(),
+      ]);
+      dbInitialized = true;
+    } catch (error) {
+      console.error('数据库预初始化失败:', error);
+    }
+  })();
+
+  return dbInitPromise;
+};
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -101,14 +141,18 @@ const router = createRouter(routerConfig);
 
 // 注意：不要在模块顶层直接 useRuntime()，需等 Pinia 激活后在守卫内访问
 //===================================== 路由守卫 ====================================//
-router.beforeEach((to, _, next) => {
+router.beforeEach(async (to, _, next) => {
   const runtimeStore = useRuntime();
+  // 需要数据库的页面路径
+  const dbRequiredPaths = ['/v1/apidoc/doc-edit', '/home', '/settings'];
+  if (dbRequiredPaths.some(path => to.path.startsWith(path))) {
+    await initDatabases();
+  }
   if (runtimeStore.networkMode === 'offline') {
     next();
     return;
   }
   if (!runtimeStore.userInfo.id) {
-    // 如果用户未登录且不是访问登录页面，则跳转到登录页面
     if (to.path !== '/login') {
       next('/login');
       return;

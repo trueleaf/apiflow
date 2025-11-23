@@ -31,7 +31,7 @@ export class HttpResponseCache {
       this.httpResponseCacheDb = null;
     }
   }
-  private async getDB(): Promise<IDBPDatabase> {
+  async getDB(): Promise<IDBPDatabase> {
     if (!this.httpResponseCacheDb) {
       await this.initDB();
     }

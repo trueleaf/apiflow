@@ -36,7 +36,7 @@ class WebSocketHistoryCache {
     }
   }
   // 确保数据库已初始化
-  private async getDB(): Promise<IDBPDatabase> {
+  async getDB(): Promise<IDBPDatabase> {
     if (!this.db) {
       await this.initDB();
     }

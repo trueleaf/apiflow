@@ -23,7 +23,7 @@ export class NodeVariableCache {
       this.db = null;
     }
   }
-  private async getDB() {
+  async getDB() {
     if (!this.db) {
       await this.initDB();
     }
