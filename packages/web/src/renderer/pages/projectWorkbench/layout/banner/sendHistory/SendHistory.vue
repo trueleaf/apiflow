@@ -66,7 +66,6 @@ import { Search, Loading, Delete } from '@element-plus/icons-vue'
 import { ElMessageBox } from 'element-plus'
 import { useSendHistory } from '@/store/apidoc/sendHistoryStore'
 import { useApidocTas } from '@/store/apidoc/tabsStore'
-import { useApidocBaseInfo } from '@/store/apidoc/baseInfoStore'
 import { router } from '@/router/index'
 import { storeToRefs } from 'pinia'
 import { sendHistoryCache } from '@/cache/sendHistory/sendHistoryCache'
@@ -75,7 +74,6 @@ import type { SendHistoryItem } from '@src/types/history/sendHistory'
 const { t } = useI18n()
 const sendHistoryStore = useSendHistory()
 const apidocTabsStore = useApidocTas()
-const apidocBaseInfoStore = useApidocBaseInfo()
 
 const { sendHistoryList, loading, hasMore, hasLoadedMore } = storeToRefs(sendHistoryStore)
 

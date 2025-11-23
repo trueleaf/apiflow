@@ -69,7 +69,7 @@
 import { ref, onMounted, onUnmounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { ArrowLeft, MessageSquare, Trash2, Loader2 } from 'lucide-vue-next'
-import { ElMessage, ElMessageBox } from 'element-plus'
+import { ElMessageBox } from 'element-plus'
 import { agentCache } from '@/cache/ai/agentCache'
 import { useAgentStore } from '@/store/agent/agentStore'
 import type { AgentMessage } from '@src/types/ai'

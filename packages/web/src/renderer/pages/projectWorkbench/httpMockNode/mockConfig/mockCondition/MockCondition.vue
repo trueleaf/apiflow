@@ -30,7 +30,20 @@
       </div>
       <div class="form-row">
         <div class="form-item flex-item">
-          <label class="form-label">{{ t('请求URL') }}</label>
+          <label class="form-label">
+            {{ t('请求URL') }}
+            <el-tooltip placement="top">
+              <template #content>
+                <div class="url-tooltip-content">
+                  <div>{{ t('支持通配符URL') }}:</div>
+                  <div class="url-example">:param - {{ t('路径参数') }} ({{ t('如') }} /api/users/:id)</div>
+                  <div class="url-example">* - {{ t('单一通配符') }} ({{ t('如') }} /api/*/list)</div>
+                  <div class="url-example">** - {{ t('多级通配符') }} ({{ t('如') }} /api/**)</div>
+                </div>
+              </template>
+              <CircleHelp class="help-icon" :size="14" />
+            </el-tooltip>
+          </label>
           <el-input
             v-model="httpMock.requestCondition.url"
             :placeholder="t('请求URL')"
@@ -77,8 +90,9 @@
 
 <script lang="ts" setup>
 import { watch, ref, onMounted, computed } from 'vue'
-import { ElSwitch, ElInputNumber, ElCheckboxGroup, ElCheckbox, ElIcon } from 'element-plus'
+import { ElSwitch, ElInputNumber, ElCheckboxGroup, ElCheckbox, ElIcon, ElTooltip } from 'element-plus'
 import { CopyDocument } from '@element-plus/icons-vue'
+import { CircleHelp } from 'lucide-vue-next'
 import { useI18n } from 'vue-i18n'
 import { storeToRefs } from 'pinia'
 import { useHttpMock } from '@/store/httpMock/httpMockStore'
@@ -283,6 +297,8 @@ onMounted(() => {
 }
 
 .form-label {
+  display: flex;
+  align-items: center;
   font-size: var(--font-size-sm);
   color: var(--gray-700);
   font-weight: 500;
@@ -347,5 +363,21 @@ onMounted(() => {
   padding: 6px 8px;
   border-radius: var(--border-radius-sm);
   border-left: 3px solid var(--el-color-danger);
+}
+
+.help-icon {
+  margin-left: 4px;
+  color: var(--gray-500);
+  vertical-align: middle;
+}
+</style>
+
+<style>
+.url-tooltip-content {
+  font-size: 12px;
+  line-height: 1.6;
+}
+.url-tooltip-content .url-example {
+  margin-left: 8px;
 }
 </style>
