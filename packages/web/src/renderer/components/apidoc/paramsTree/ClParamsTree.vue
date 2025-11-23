@@ -150,6 +150,7 @@
                  @mouseleave="handleEnableDrag()"
                >
                  <ClRichInput 
+                   :ref="(el) => setValueRichInputRef(el as InstanceType<typeof ClRichInput> | null, data._id)"
                    class="value-rich-input" 
                    :model-value="data.value" 
                    :placeholder="data._valuePlaceholder || t('参数值、@代表mock数据、{{ 变量 }}')" 
@@ -166,7 +167,16 @@
                    @paste="handleRichInputPaste()"
                  >
                    <template #variable="{ label }">
-                     <div class="params-variable-token">{{ label }}</div>
+                     <div v-if="getVariableValue(label)" class="variable-popover">
+                       <div class="variable-name">变量名称：{{ label }}</div>
+                       <div class="variable-value">变量值：{{ getVariableValue(label) }}</div>
+                     </div>
+                     <div v-else class="variable-popover">
+                       <div class="variable-warning">{{ t('变量未定义', { name: label }) }}</div>
+                       <el-button size="small" type="primary" link @click="handleGoToVariableManage">
+                         {{ t('前往变量管理') }}
+                       </el-button>
+                     </div>
                    </template>
                  </ClRichInput>
                </div>
@@ -271,6 +281,8 @@ import { aiCache } from '@/cache/ai/aiCache';
 import type { OpenAIRequestBody } from '@src/types/ai';
 import { useRouter } from 'vue-router';
 import { appState } from '@/cache/appState/appStateCache';
+import { useVariable } from '@/store/apidoc/variablesStore';
+import { useApidocTas } from '@/store/apidoc/tabsStore';
 /*
 |--------------------------------------------------------------------------
 | Props 和 Emits 定义
@@ -283,6 +295,9 @@ const props = withDefaults(defineProps<ClParamsTreeProps>(), {
 const emits = defineEmits<ClParamsTreeEmits>();
 const { t } = useI18n();
 const router = useRouter();
+const variableStore = useVariable();
+const apidocTabsStore = useApidocTas();
+const projectId = router.currentRoute.value.query.id as string;
 
 const tipPlaceholder = `username=admin //Username
 *password=123456 //Password
@@ -294,6 +309,7 @@ age=18 //Age`;
 |--------------------------------------------------------------------------
 */
 const treeRef = ref();
+const valueRichInputRefs = ref<Map<string, InstanceType<typeof ClRichInput>>>(new Map());
 const localData: Ref<ApidocProperty<'string' | 'file'>[]> = ref([]);
 const enableDrag = ref(true);
 const currentOpData: Ref<ApidocProperty<'string' | 'file'> | null> = ref(null);
@@ -315,6 +331,37 @@ const isAiConfigValid = computed(() => {
   const config = aiCache.getAiConfig();
   return !!(config.apiKey?.trim() && config.apiUrl?.trim());
 });
+/*
+|--------------------------------------------------------------------------
+| 变量相关
+|--------------------------------------------------------------------------
+*/
+const getVariableValue = (label: string) => {
+  return variableStore.objectVariable[label];
+};
+const handleGoToVariableManage = () => {
+  valueRichInputRefs.value.forEach(ref => ref?.hideVariablePopover());
+  apidocTabsStore.addTab({
+    _id: 'variable',
+    projectId,
+    tabType: 'variable',
+    label: t('变量'),
+    head: {
+      icon: '',
+      color: ''
+    },
+    saved: true,
+    fixed: true,
+    selected: true,
+  });
+};
+const setValueRichInputRef = (el: InstanceType<typeof ClRichInput> | null, id: string) => {
+  if (el) {
+    valueRichInputRefs.value.set(id, el);
+  } else {
+    valueRichInputRefs.value.delete(id);
+  }
+};
 /*
 |--------------------------------------------------------------------------
 | 数据变更通知
@@ -1150,6 +1197,33 @@ watch(
     font-weight: 600;
     color: var(--text-primary);
     word-break: break-all;
+  }
+
+  .variable-popover {
+    max-width: 400px;
+
+    .variable-name {
+      font-weight: 500;
+      color: var(--gray-800);
+      margin-bottom: 6px;
+      word-break: break-all;
+    }
+
+    .variable-value {
+      font-family: monospace;
+      word-break: break-all;
+      max-height: 200px;
+      overflow-y: auto;
+      padding: 4px 8px;
+      background: var(--gray-200);
+      border-radius: 4px;
+      color: var(--gray-800);
+    }
+
+    .variable-warning {
+      color: var(--el-color-danger);
+      margin-bottom: 8px;
+    }
   }
 }
 
