@@ -63,9 +63,9 @@
          <div class="custom-params">
            <el-icon 
              class="delete-icon" 
-             :class="{ disabled: localData.length <= 1 || data._disableDelete }" 
+             :class="{ disabled: localData.length <= 1 || data._disableDelete || isLastEmptyItem(data) }" 
              :size="14" 
-             :title="data._disableDelete ? (data._disableDeleteTip || t('无法删除')) : (localData.length <= 1 ? t('至少保留一条数据') : t('删除'))" 
+             :title="getDeleteTooltip(data)" 
              @click="() => handleDeleteRow(data)"
            >
              <Close />
@@ -321,6 +321,26 @@ const emitChange = () => {
 | 工具函数
 |--------------------------------------------------------------------------
 */
+// 判断是否是最后一个空元素
+const isLastEmptyItem = (data: ApidocProperty<'string' | 'file'>): boolean => {
+  const isLast = localData.value[localData.value.length - 1]?._id === data._id;
+  const keyEmpty = !data.key || data.key.trim() === '';
+  const valueEmpty = !data.value || data.value.trim() === '';
+  return isLast && keyEmpty && valueEmpty;
+};
+// 获取删除按钮提示文本
+const getDeleteTooltip = (data: ApidocProperty<'string' | 'file'>): string => {
+  if (data._disableDelete) {
+    return data._disableDeleteTip || t('无法删除');
+  }
+  if (localData.value.length <= 1) {
+    return t('至少保留一条数据');
+  }
+  if (isLastEmptyItem(data)) {
+    return t('最后一条空数据不可删除');
+  }
+  return t('删除');
+};
 // 高亮文本
 const highlightText = (text: string, query: string): string => {
   if (!query || !text) return text;
@@ -648,7 +668,7 @@ const handleNodeDrop = (_dragNode: Node, _dropNode: Node, type: 'inner' | 'prev'
 };
 // 删除行
 const handleDeleteRow = (data: ApidocProperty<'string' | 'file'>) => {
-  if (localData.value.length <= 1 || data._disableDelete) {
+  if (localData.value.length <= 1 || data._disableDelete || isLastEmptyItem(data)) {
     return;
   }
   const idx = localData.value.findIndex(i => i._id === data._id);
@@ -673,12 +693,16 @@ const autoAppendIfNeeded = (data: ApidocProperty<'string' | 'file'>) => {
     defaultCheckedKeys.value.push(nextProperty._id);
     nextTick(() => {
       treeRef.value?.setChecked(nextProperty._id, true, false);
+      setTimeout(() => {
+        treeRef.value?.setChecked(nextProperty._id, true, false);
+      }, 0);
     });
   }
 };
 // 复选框状态变化
 const handleCheckChange = (data: ApidocProperty<'string' | 'file'>, select: boolean) => {
   data.select = select;
+  console.log('check change', data, select);
   emitChange();
 };
 /*
@@ -911,6 +935,7 @@ watch(
   }
 
   :deep(.el-select__wrapper) {
+    font-size: 13px;
     height: 28px;
     min-height: 28px;
     line-height: 28px;
@@ -988,6 +1013,7 @@ watch(
   }
 
   .file-input-wrap {
+    width: 100%;
     box-sizing: content-box;
     cursor: default;
     border: 1px dashed var(--border-base);
@@ -1032,6 +1058,8 @@ watch(
     }
 
     .file-mode-wrap {
+      width: 100%;
+      height: 28px;
       .label {
         width: 100%;
         height: 100%;

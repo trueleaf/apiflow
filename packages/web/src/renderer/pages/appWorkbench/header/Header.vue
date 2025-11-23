@@ -7,8 +7,8 @@
       <i class="iconfont iconhome"></i>
       <span>{{ t('主页面') }}</span>
     </div>
-    <div v-if="filteredTabs.length > 0" class="divider">
-      <span class="divider-content"></span>
+    <div v-if="filteredTabs.length > 0" class="short-divider">
+      <span class="short-divider-content"></span>
     </div>
     <div class="tabs">
       <draggable ref="tabListRef" v-model="draggableTabs" class="tab-list" :animation="150" ghost-class="sortable-ghost"
@@ -24,8 +24,8 @@
       </draggable>
     </div>
     <button class="add-tab-btn" :title="t('新建项目')" @click="handleAddProject">+</button>
-    <div v-if="filteredTabs.length > 0" class="divider">
-      <span class="divider-content"></span>
+    <div v-if="filteredTabs.length > 0" class="short-divider">
+      <span class="short-divider-content"></span>
     </div>
     <button class="ai-trigger-btn" :title="t('AI助手 Ctrl+L')" @click="handleShowAiDialog" ref="aiButtonRef">
       <Bot :size="16" />
@@ -98,6 +98,19 @@ const draggableTabs = computed({
     syncTabsToContentView()
   }
 })
+// 获取项目类型 tab 应该插入的位置索引
+const getProjectTabInsertIndex = () => {
+  const currentNetworkTabs = tabs.value.filter(tab => tab.network === networkMode.value)
+  const lastProjectIndex = currentNetworkTabs.reduce((lastIdx, tab, idx) => {
+    return tab.type === 'project' ? idx : lastIdx
+  }, -1)
+  if (lastProjectIndex === -1) {
+    const firstNetworkTabIndex = tabs.value.findIndex(tab => tab.network === networkMode.value)
+    return firstNetworkTabIndex === -1 ? tabs.value.length : firstNetworkTabIndex
+  }
+  const lastProjectTab = currentNetworkTabs[lastProjectIndex]
+  return tabs.value.indexOf(lastProjectTab) + 1
+}
 
 
 /*
@@ -286,7 +299,8 @@ const bindEvent = () => {
   })
 
   window.electronAPI?.ipcManager.onMain(IPC_EVENTS.apiflow.topBarToContent.projectCreated, (data: { projectId: string, projectName: string }) => {
-    tabs.value.push({ id: data.projectId, title: data.projectName, type: 'project', network: networkMode.value })
+    const insertIndex = getProjectTabInsertIndex()
+    tabs.value.splice(insertIndex, 0, { id: data.projectId, title: data.projectName, type: 'project', network: networkMode.value })
     activeTabId.value = data.projectId
     syncTabsToContentView()
     syncActiveTabToContentView()
@@ -297,7 +311,8 @@ const bindEvent = () => {
     activeTabId.value = data.projectId;
     const matchedProject = tabs.value.find(t => t.id === data.projectId)
     if (!matchedProject) {
-      tabs.value.push({ id: data.projectId, title: data.projectName, type: 'project', network: networkMode.value })
+      const insertIndex = getProjectTabInsertIndex()
+      tabs.value.splice(insertIndex, 0, { id: data.projectId, title: data.projectName, type: 'project', network: networkMode.value })
       syncTabsToContentView()
     } else if (matchedProject.title !== data.projectName) {
       matchedProject.title = data.projectName
@@ -448,15 +463,15 @@ body {
     background-color: var(--bg-white-10);
   }
 }
-.divider {
-  width: 20px;
+.short-divider {
+  width: 1px;
   height: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
-  .divider-content {
+  .short-divider-content {
     width: 1px;
-    height: 70%;
+    height: 50%;
     background-color: var(--bg-white-15);
   }
 }
@@ -551,6 +566,21 @@ body {
 .tab-item.active {
   color: var(--text-white);
   background-color: var(--bg-white-40);
+}
+
+.tab-item:not(.active)::after {
+  content: '';
+  position: absolute;
+  right: 1px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 1px;
+  height: 50%;
+  background-color: var(--bg-white-15);
+}
+
+.tab-item:not(.active):has(+ .tab-item.active)::after {
+  display: none;
 }
 
 .tab-item .close-btn:hover {

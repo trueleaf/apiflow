@@ -271,6 +271,7 @@ export default {
   'raw模块中json数据可用于快速调试，参数无法添加备注，如果需要添加备注可以选择在json模块中录入参数': 'JSON data in raw module can be used for quick debugging, parameters cannot add remarks, if you need to add remarks you can choose to enter parameters in the json module',
   点击隐藏: 'Click to Hide',
   至少保留一条数据: 'Keep at least one entry',
+  最后一条空数据不可删除: 'Cannot delete the last empty entry',
   个隐藏: 'hidden',
   原始值: 'Original Value',
   参数: 'Parameter',

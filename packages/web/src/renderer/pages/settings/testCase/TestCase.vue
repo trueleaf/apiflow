@@ -15,28 +15,35 @@
     </div>
 
     <div class="test-case-content">
-      <div class="tree-panel">
-        <el-tree
-          ref="treeRef"
-          :data="treeData"
-          :props="treeProps"
-          :filter-node-method="filterNode"
-          node-key="id"
-          highlight-current
-          default-expand-all
-          @node-click="handleNodeClick"
-        >
-          <template #default="{ data }">
-            <div class="tree-node">
-              <component :is="getNodeIcon(data)" :size="14" class="node-icon" />
-              <span class="node-label">{{ data.description || data.modelName }}</span>
-              <span v-if="data.atomicFunc?.length" class="case-count">
-                {{ data.atomicFunc.length }}
-              </span>
-            </div>
-          </template>
-        </el-tree>
-      </div>
+      <SResizeX
+        :min="280"
+        :max="500"
+        :width="350"
+        name="testCaseTree"
+        class="tree-resize-container"
+      >
+        <div class="tree-panel">
+          <el-tree
+            ref="treeRef"
+            :data="treeData"
+            :props="treeProps"
+            :filter-node-method="filterNode"
+            node-key="id"
+            highlight-current
+            @node-click="handleNodeClick"
+          >
+            <template #default="{ data }">
+              <div class="tree-node">
+                <component :is="getNodeIcon(data)" :size="14" class="node-icon" />
+                <span class="node-label">{{ data.description || data.modelName }}</span>
+                <span v-if="data.atomicFunc?.length" class="case-count">
+                  {{ data.atomicFunc.length }}
+                </span>
+              </div>
+            </template>
+          </el-tree>
+        </div>
+      </SResizeX>
 
       <div class="detail-panel">
         <template v-if="selectedNode">
@@ -111,6 +118,7 @@
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
 import { Search, Folder, FileCode, Globe, Plug, Server } from 'lucide-vue-next'
+import SResizeX from '@/components/common/resize/ClResizeX.vue'
 import { testCase, type ModelNode } from './testCaseData'
 
 interface TreeNode extends ModelNode {
@@ -211,13 +219,18 @@ const handleNodeClick = (data: TreeNode) => {
     gap: 16px;
     overflow: hidden;
 
-    .tree-panel {
-      width: 350px;
+    .tree-resize-container {
       border: 1px solid var(--border-color);
       border-radius: 4px;
+      background-color: var(--bg-color);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .tree-panel {
       padding: 12px;
       overflow-y: auto;
-      background-color: var(--bg-color);
+      height: 100%;
 
       .tree-node {
         display: flex;
@@ -263,15 +276,14 @@ const handleNodeClick = (data: TreeNode) => {
 
         h3 {
           margin: 0 0 4px 0;
-          font-size: 16px;
+          font-size: 18px;
           font-weight: 600;
           color: var(--text-primary);
         }
 
         .model-name {
-          font-size: 12px;
+          font-size: 14px;
           color: var(--text-secondary);
-          font-family: monospace;
         }
       }
 
@@ -301,7 +313,7 @@ const handleNodeClick = (data: TreeNode) => {
               display: flex;
               align-items: center;
               justify-content: center;
-              font-size: 12px;
+              font-size: 14px;
               flex-shrink: 0;
             }
 
@@ -310,6 +322,7 @@ const handleNodeClick = (data: TreeNode) => {
               font-weight: 500;
               line-height: 1.4;
               color: var(--text-primary);
+              font-size: 16px;
             }
           }
 
@@ -318,7 +331,7 @@ const handleNodeClick = (data: TreeNode) => {
             padding-left: 28px;
 
             .section-label {
-              font-size: 12px;
+              font-size: 14px;
               color: var(--text-secondary);
               font-weight: 500;
             }
@@ -328,7 +341,7 @@ const handleNodeClick = (data: TreeNode) => {
               padding-left: 16px;
 
               li {
-                font-size: 13px;
+                font-size: 15px;
                 color: var(--text-primary);
                 line-height: 1.5;
               }

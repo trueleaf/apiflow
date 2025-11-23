@@ -12,7 +12,7 @@
         @keydown.enter.prevent="toggleQueryParamsMode"
         @keydown.space.prevent="toggleQueryParamsMode"
       >
-        <el-icon class="toggle-icon">
+        <el-icon size="13" class="toggle-icon">
           <Switch />
         </el-icon>
       </span>
@@ -136,8 +136,10 @@ const handlePathParamsChange = (newData: ApidocProperty<'string' | 'file'>[]) =>
   }
 
   .toggle-icon {
-    width: 16px;
-    height: 16px;
+    margin-top: 1px;
+    color: var(--color-text-2);
+    width: 14px;
+    height: 14px;
   }
 }
 </style>
