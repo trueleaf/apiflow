@@ -22,7 +22,7 @@ const buildElectron = (mode: string, command: 'build' | 'serve') => {
     outExtension: {
       '.js': '.mjs',
     },
-    external: ['electron', 'ws', 'koa', '@koa/bodyparser', 'sharp', 'mime-types', 'got'],
+    external: ['electron', 'ws', 'koa', '@koa/bodyparser', 'co-body', 'mime-types', 'sharp', 'got', '@paralleldrive/cuid2'],
     define: {
       __MODE__: JSON.stringify(mode),
       __COMMAND__: JSON.stringify(command),
