@@ -52,6 +52,7 @@ const currentSelectTab = computed(() => {
 const { t } = useI18n()
 type ParamsTreeInstance = InstanceType<typeof SParamsTree> & {
   onMultilineApplied?: (handler: () => void) => void
+  onMultilineCancelled?: (handler: () => void) => void
 }
 const queryParamsTreeRef = ref<ParamsTreeInstance | null>(null)
 const pathTreeData = computed(() => JSON.parse(JSON.stringify(httpNodeStore.apidoc.item.paths)));
@@ -69,9 +70,14 @@ const toggleQueryParamsMode = () => {
 const handleQueryMultilineApplied = () => {
   isQueryMultiline.value = false
 }
+const handleQueryMultilineCancelled = () => {
+  isQueryMultiline.value = false
+}
 watch(queryParamsTreeRef, (instance) => {
   if (!instance?.onMultilineApplied) return
   instance.onMultilineApplied(handleQueryMultilineApplied)
+  if (!instance?.onMultilineCancelled) return
+  instance.onMultilineCancelled(handleQueryMultilineCancelled)
 })
 
 // 处理 Query 参数变化

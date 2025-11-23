@@ -75,6 +75,7 @@ const { t } = useI18n()
 
 type ParamsTreeInstance = InstanceType<typeof SParamsTree> & {
   onMultilineApplied?: (handler: () => void) => void
+  onMultilineCancelled?: (handler: () => void) => void
 }
 const paramsTreeRef = ref<ParamsTreeInstance | null>(null)
 const isMultiline = ref(false)
@@ -85,9 +86,14 @@ const toggleMode = () => {
 const handleMultilineApplied = () => {
   isMultiline.value = false
 }
+const handleMultilineCancelled = () => {
+  isMultiline.value = false
+}
 watch(paramsTreeRef, (instance) => {
   if (!instance?.onMultilineApplied) return
   instance.onMultilineApplied(handleMultilineApplied)
+  if (!instance?.onMultilineCancelled) return
+  instance.onMultilineCancelled(handleMultilineCancelled)
 })
 
 const loading = ref(false);

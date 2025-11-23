@@ -17,6 +17,7 @@ export type ClParamsTreeProps = {
 export type ClParamsTreeEmits = {
   (e: 'change', value: ApidocProperty<'string' | 'file'>[]): void;
   (e: 'multiline-applied'): void;
+  (e: 'multiline-cancelled'): void;
 }
 
 /*

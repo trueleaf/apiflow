@@ -4,8 +4,18 @@
       <!-- body类型选择 -->
       <el-radio-group v-model="bodyType" @change="changeBodyType">
         <el-radio value="json">json</el-radio>
-        <el-radio value="formdata">form-data</el-radio>
-        <el-radio value="urlencoded">x-www-form-urlencoded</el-radio>
+        <el-radio 
+          value="formdata"
+          @contextmenu.stop.prevent="(e: MouseEvent) => handleContextmenu(e, 'formdata')"
+        >
+          form-data
+        </el-radio>
+        <el-radio 
+          value="urlencoded"
+          @contextmenu.stop.prevent="(e: MouseEvent) => handleContextmenu(e, 'urlencoded')"
+        >
+          x-www-form-urlencoded
+        </el-radio>
         <el-radio value="raw">raw</el-radio>
         <el-radio value="binary">binary</el-radio>
         <el-radio value="none">none</el-radio>
@@ -14,10 +24,23 @@
     <div v-if="bodyType === 'json' || bodyType === 'formdata' || bodyType === 'urlencoded'" class="params-wrap" @click="handleFocus">
       <SJsonEditor v-show="bodyType === 'json'" ref="jsonComponent" manual-undo-redo :model-value="rawJsonData" :config="jsonEditorConfig"
         class="json-wrap" @ready="handleJsonEditorReady" @update:model-value="handleJsonChange" @undo="handleEditorUndo" @redo="handleEditorRedo"></SJsonEditor>
-      <SParamsTree v-if="bodyType === 'formdata'" enable-file show-checkbox :data="formData"
-        @change="handleFormdataChange"></SParamsTree>
-      <SParamsTree v-if="bodyType === 'urlencoded'" show-checkbox :data="urlencodedData"
-        @change="handleUrlencodedChange"></SParamsTree>
+      <SParamsTree 
+        v-if="bodyType === 'formdata'" 
+        ref="formdataParamsTreeRef"
+        enable-file 
+        show-checkbox 
+        :data="formData"
+        :edit-mode="isFormdataMultiline ? 'multiline' : 'table'"
+        @change="handleFormdataChange"
+      ></SParamsTree>
+      <SParamsTree 
+        v-if="bodyType === 'urlencoded'" 
+        ref="urlencodedParamsTreeRef"
+        show-checkbox 
+        :data="urlencodedData"
+        :edit-mode="isUrlencodedMultiline ? 'multiline' : 'table'"
+        @change="handleUrlencodedChange"
+      ></SParamsTree>
       <div v-show="bodyType === 'json'" class="body-op">
         <span class="btn" @click="handleFormat">格式化</span>
         <!-- <span class="btn" @click="handleOpenSaveDialog">保存用例</span>
@@ -82,11 +105,24 @@
         </div>
       </div>
     </div>
+    <!-- 右键菜单 -->
+    <teleport to="body">
+      <SContextmenu 
+        v-if="showContextmenu" 
+        :left="contextmenuLeft" 
+        :top="contextmenuTop"
+      >
+        <SContextmenuItem 
+          :label="t('切换多行编辑模式')" 
+          @click="handleToggleMultilineMode"
+        ></SContextmenuItem>
+      </SContextmenu>
+    </teleport>
   </div>
 </template>
 
 <script lang="ts" setup>
-import { computed, ref, onMounted, Ref } from 'vue'
+import { computed, ref, onMounted, onUnmounted, Ref, watch } from 'vue'
 import type { HttpNodeBodyMode, HttpNodeBodyParams, HttpNodeBodyRawType, HttpNodeContentType, ApidocProperty } from '@src/types'
 import { useI18n } from 'vue-i18n'
 import { appState } from '@/cache/appState/appStateCache'
@@ -95,6 +131,8 @@ import { useHttpNode } from '@/store/apidoc/httpNodeStore';
 import { config } from '@src/config/config';
 import SJsonEditor from '@/components/common/jsonEditor/ClJsonEditor.vue'
 import SParamsTree from '@/components/apidoc/paramsTree/ClParamsTree.vue'
+import SContextmenu from '@/components/common/contextmenu/ClContextmenu.vue'
+import SContextmenuItem from '@/components/common/contextmenu/ClContextmenuItem.vue'
 import { Close } from '@element-plus/icons-vue'
 import { getCompiledTemplate } from '@/helper';
 import mime from 'mime';
@@ -453,11 +491,79 @@ const handleClearSelectFile = () => {
 }
 /*
 |--------------------------------------------------------------------------
+| 右键菜单和多行编辑模式
+|--------------------------------------------------------------------------
+*/
+type ParamsTreeInstance = InstanceType<typeof SParamsTree> & {
+  onMultilineApplied?: (handler: () => void) => void
+  onMultilineCancelled?: (handler: () => void) => void
+}
+const formdataParamsTreeRef = ref<ParamsTreeInstance | null>(null)
+const urlencodedParamsTreeRef = ref<ParamsTreeInstance | null>(null)
+const showContextmenu = ref(false)
+const contextmenuLeft = ref(0)
+const contextmenuTop = ref(0)
+const contextmenuBodyType = ref<'formdata' | 'urlencoded' | null>(null)
+const isFormdataMultiline = ref(false)
+const isUrlencodedMultiline = ref(false)
+//处理右键菜单
+const handleContextmenu = (e: MouseEvent, type: 'formdata' | 'urlencoded') => {
+  contextmenuBodyType.value = type
+  contextmenuLeft.value = e.clientX
+  contextmenuTop.value = e.clientY
+  showContextmenu.value = true
+}
+//切换多行编辑模式
+const handleToggleMultilineMode = () => {
+  if (contextmenuBodyType.value === 'formdata') {
+    isFormdataMultiline.value = !isFormdataMultiline.value
+  } else if (contextmenuBodyType.value === 'urlencoded') {
+    isUrlencodedMultiline.value = !isUrlencodedMultiline.value
+  }
+  showContextmenu.value = false
+}
+//多行应用完成后返回表格模式
+const handleFormdataMultilineApplied = () => {
+  isFormdataMultiline.value = false
+}
+const handleUrlencodedMultilineApplied = () => {
+  isUrlencodedMultiline.value = false
+}
+//多行取消后返回表格模式
+const handleFormdataMultilineCancelled = () => {
+  isFormdataMultiline.value = false
+}
+const handleUrlencodedMultilineCancelled = () => {
+  isUrlencodedMultiline.value = false
+}
+//全局点击隐藏菜单
+const bindGlobalClick = () => {
+  showContextmenu.value = false
+}
+//注册多行应用完成回调
+watch(formdataParamsTreeRef, (instance) => {
+  if (!instance?.onMultilineApplied) return
+  instance.onMultilineApplied(handleFormdataMultilineApplied)
+  if (!instance?.onMultilineCancelled) return
+  instance.onMultilineCancelled(handleFormdataMultilineCancelled)
+})
+watch(urlencodedParamsTreeRef, (instance) => {
+  if (!instance?.onMultilineApplied) return
+  instance.onMultilineApplied(handleUrlencodedMultilineApplied)
+  if (!instance?.onMultilineCancelled) return
+  instance.onMultilineCancelled(handleUrlencodedMultilineCancelled)
+})
+/*
+|--------------------------------------------------------------------------
 | 生命周期相关
 |--------------------------------------------------------------------------
 */
 onMounted(async () => {
   jsonBodyVisible.value = appState.getJsonBodyHintVisible();
+  document.body.addEventListener('click', bindGlobalClick);
+});
+onUnmounted(() => {
+  document.body.removeEventListener('click', bindGlobalClick);
 });
 
 //JSON记录函数

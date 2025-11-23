@@ -24,6 +24,12 @@
             </el-icon>
           </el-icon>
           <el-button 
+            size="small"
+            @click="handleCancelMultiline"
+          >
+            {{ t('返回') }}
+          </el-button>
+          <el-button 
             type="primary" 
             size="small"
             :disabled="!multilineText.trim()"
@@ -116,8 +122,9 @@
                :model-value="data.type" 
                :placeholder="t('类型')" 
                :size="config.renderConfig.layout.size" 
-               :disabled="!props.enableFile" 
+               :disabled="!props.enableFile"
                @update:modelValue="v => handleChangeType(v as 'string' | 'file', data)"
+               @keydown="handlePreventDefaultKeys"
              >
                <el-option label="String" value="string"></el-option>
                <el-option v-if="props.enableFile" label="File" value="file"></el-option>
@@ -874,11 +881,21 @@ const handleApplyMultiline = () => {
   multilineAppliedHandler.value?.();
   emits('multiline-applied');
 };
+//取消多行编辑，返回表格模式
+const multilineCancelledHandler = ref<(() => void) | null>(null);
+const handleCancelMultiline = () => {
+  multilineCancelledHandler.value?.();
+  emits('multiline-cancelled');
+};
 const registerMultilineAppliedHandler = (handler: () => void) => {
   multilineAppliedHandler.value = handler;
 };
+const registerMultilineCancelledHandler = (handler: () => void) => {
+  multilineCancelledHandler.value = handler;
+};
 defineExpose({
   onMultilineApplied: registerMultilineAppliedHandler,
+  onMultilineCancelled: registerMultilineCancelledHandler,
 });
 /*
 |--------------------------------------------------------------------------
