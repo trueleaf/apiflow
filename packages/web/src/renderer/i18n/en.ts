@@ -1393,4 +1393,6 @@ export default {
   '请先配置AI': 'Please configure AI first',
   'AI解析成功': 'AI parsing successful',
   'AI解析失败': 'AI parsing failed',
+  '接口列表': 'API List',
+  '调用历史': 'Call History',
 }

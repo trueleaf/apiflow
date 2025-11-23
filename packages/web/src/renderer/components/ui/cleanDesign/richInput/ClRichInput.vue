@@ -487,4 +487,8 @@ onBeforeUnmount(() => {
   document.removeEventListener('scroll', handleScrollOrResize, true)
   window.removeEventListener('keydown', handleEscapeKey)
 })
+
+defineExpose({
+  hideVariablePopover: closeVariablePopover
+})
 </script>

@@ -257,7 +257,7 @@ const handleStartMockServer = async () => {
       projectId: router.currentRoute.value.query.id as string,
     };
     
-    const result = await window.electronAPI?.mock?.startServer(mockDataWithProject);
+    const result = await window.electronAPI?.mock?.startServer(JSON.parse(JSON.stringify(mockDataWithProject)));
     if (result?.code === 0) {
       isMockServerRunning.value = true;
       ElMessage.success(t('启动Mock服务器成功'));

@@ -17,6 +17,10 @@ export default defineComponent({
     type: {
       type: String as () => 'card' | '',
       default: ''
+    },
+    size: {
+      type: String as () => 'normal' | 'small',
+      default: 'normal'
     }
   },
   emits: {
@@ -28,6 +32,8 @@ export default defineComponent({
     const customClass = computed(() => props.class)
     const tabPanes = ref<TabPane[]>([])
     const activeTabName = ref(props.modelValue || '')
+    const hasContent = ref(false)
+    
     const registerPane = (pane: TabPane) => {
       tabPanes.value.push(pane)
       // 如果当前没有激活的tab，且这是第一个tab，则激活它
@@ -35,6 +41,10 @@ export default defineComponent({
         activeTabName.value = pane.name
         emit('update:modelValue', pane.name)
       }
+    }
+    
+    const updateHasContent = (hasSlotContent: boolean) => {
+      hasContent.value = hasSlotContent
     }
 
     // 注销TabPane
@@ -68,7 +78,8 @@ export default defineComponent({
     const tabsContext: TabsContext = {
       registerPane,
       unregisterPane,
-      activeTabName: computed(() => activeTabName.value)
+      activeTabName: computed(() => activeTabName.value),
+      updateHasContent
     }
 
     provide('cleanTabsContext', tabsContext)
@@ -78,7 +89,10 @@ export default defineComponent({
         class={[
           'clean-tabs',
           customClass.value,
-          { 'clean-tabs--card': props.type === 'card' }
+          {
+            'clean-tabs--card': props.type === 'card',
+            'clean-tabs--small': props.size === 'small'
+          }
         ]}
       >
         <div class="clean-tabs__header">
@@ -101,7 +115,10 @@ export default defineComponent({
             </div>
           ))}
         </div>
-        <div class="clean-tabs__content">
+        <div class={[
+          'clean-tabs__content',
+          { 'has-content': hasContent.value }
+        ]}>
           {slots.default?.()}
         </div>
       </div>

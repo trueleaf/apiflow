@@ -1,10 +1,13 @@
 <template>
   <SResizeX :min="280" :max="450" :width="300" name="banner" class="banner" tabindex="1">
     <STool @fresh="getBannerData" @filter="handleFilterNode" @changeProject="handleChangeProject"></STool>
+    <div class="banner-view-switcher">
+      <CleanTabs v-model="bannerViewMode" size="small" type="card">
+        <CleanTabPane :label="t('接口列表')" name="list" />
+        <CleanTabPane :label="t('调用历史')" name="history" />
+      </CleanTabs>
+    </div>
     <SLoading :loading="loading" class="tree-wrap" @contextmenu.prevent="handleWrapContextmenu">
-      <div>
-        <!-- todo -->
-      </div>
       <el-tree 
         ref="docTree" 
         :class="{ 'show-more': showMoreNodeInfo }" 
@@ -220,6 +223,7 @@ import SAddFolderDialog from "../../dialog/addFolder/AddFolder.vue";
 import 'element-plus/es/components/message/style/css'
 import { message } from '@/helper'
 import STool from './tool/Tool.vue'
+import { CleanTabs, CleanTabPane } from '@/components/ui/cleanDesign/tabs'
 import { useBannerData } from './composables/banner-data'
 import { deleteNode, addFileAndFolderCb, pasteNodes, forkNode, dragNode, renameNode } from './composables/curd-node'
 import type { TreeNodeOptions } from 'element-plus/es/components/tree/src/tree.type.mjs'
@@ -249,6 +253,7 @@ type ApidocBannerWithProjectId = ApidocBanner & { projectId: string }
 const { t } = useI18n()
 const projectId = ref(router.currentRoute.value.query.id as string);
 const docTree: Ref<TreeNodeOptions['store'] | null | TreeNodeOptions> = ref(null);
+const bannerViewMode = ref<'list' | 'history'>('list');
 const pasteValue: Ref<ApidocBanner[] | null> = ref(null); //需要粘贴的数据
 const selectNodes: Ref<ApidocBannerWithProjectId[]> = ref([]); //当前选中节点
 const editNode: Ref<ApidocBanner | null> = ref(null); //正在编辑的节点
@@ -729,9 +734,14 @@ onUnmounted(() => {
   flex-direction: column;
   position: relative;
 
+  .banner-view-switcher {
+    padding: 3px 5px;
+    flex-shrink: 0;
+  }
+
   //树形组件包裹框
   .tree-wrap {
-    height: calc(100vh - var(--apiflow-banner-tool-height) - 15px);
+    height: calc(100vh - var(--apiflow-banner-tool-height) - 63px);
     overflow-y: auto;
   }
 

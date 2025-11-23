@@ -32,6 +32,7 @@
         </el-select>
       </div>
       <ClRichInput
+        ref="urlRichInputRef"
         v-model="requestPath"
         class="url-rich-input"
         data-testid="url-input"
@@ -43,22 +44,16 @@
         @blur="handleFormatUrl"
       >
         <template #variable="{ label }">
-          <el-popover trigger="hover" :show-after="300" width="auto" placement="top">
-            <template #reference>
-              <div class="variable-token" :class="{ 'undefined': !getVariableValue(label) }">
-                {{ label }}
-              </div>
-            </template>
-            <div v-if="getVariableValue(label)" class="variable-popover">
-              <div class="variable-value">{{ label }}: {{ getVariableValue(label) }}</div>
-            </div>
-            <div v-else class="variable-popover">
-              <div class="variable-warning">{{ t('变量未定义', { name: label }) }}</div>
-              <el-button size="small" type="primary" link @click="handleGoToVariableManage">
-                {{ t('前往变量管理') }}
-              </el-button>
-            </div>
-          </el-popover>
+          <div v-if="getVariableValue(label)" class="variable-popover">
+            <div class="variable-name">变量名称：{{ label }}</div>
+            <div class="variable-value">变量值：{{ getVariableValue(label) }}</div>
+          </div>
+          <div v-else class="variable-popover">
+            <div class="variable-warning">{{ t('变量未定义', { name: label }) }}</div>
+            <el-button size="small" type="primary" link @click="handleGoToVariableManage">
+              {{ t('前往变量管理') }}
+            </el-button>
+          </div>
         </template>
       </ClRichInput>
       <el-button 
@@ -115,6 +110,7 @@ const apidocRequestStore = useApidocRequest()
 const httpRedoUndoStore = useHttpRedoUndo()
 const projectId = router.currentRoute.value.query.id as string;
 const { t } = useI18n()
+const urlRichInputRef = ref<InstanceType<typeof ClRichInput> | null>(null)
 const currentSelectTab = computed(() => {
   const tabs = apidocTabsStore.tabs[projectId];
   return tabs?.find((tab) => tab.selected) || null;
@@ -130,6 +126,7 @@ const getVariableValue = (label: string) => {
   return variableStore.objectVariable[label]
 }
 const handleGoToVariableManage = () => {
+  urlRichInputRef.value?.hideVariablePopover()
   apidocTabsStore.addTab({
     _id: 'variable',
     projectId,
@@ -301,9 +298,22 @@ watch(
       }
     }
     .variable-popover {
+      max-width: 400px;
+      .variable-name {
+        font-weight: 500;
+        color: var(--gray-800);
+        margin-bottom: 6px;
+        word-break: break-all;
+      }
       .variable-value {
         font-family: monospace;
         word-break: break-all;
+        max-height: 200px;
+        overflow-y: auto;
+        padding: 4px 8px;
+        background: var(--gray-200);
+        border-radius: 4px;
+        color: var(--gray-800);
       }
       .variable-warning {
         color: var(--el-color-danger);

@@ -122,6 +122,10 @@
 
 /* 标签内容区域 */
 .clean-tabs__content {
+  padding: 0;
+}
+
+.clean-tabs__content.has-content {
   padding: 16px 0;
 }
 
@@ -176,7 +180,7 @@
     min-height: 36px;
   }
   
-  .clean-tabs__content {
+  .clean-tabs__content.has-content {
     padding: 16px 0;
   }
   
@@ -208,6 +212,21 @@
 /* 移除下划线效果 - 采用纯色彩对比设计 */
 .clean-tabs__item::after {
   display: none;
+}
+
+/* Small 尺寸样式 */
+.clean-tabs--small .clean-tabs__item {
+  padding: 3px 8px;
+  font-size: 13px;
+}
+
+.clean-tabs--small .clean-tabs__content.has-content {
+  padding: 12px 0;
+}
+
+.clean-tabs--small.clean-tabs--card .clean-tabs__item {
+  padding: 3px 8px;
+  font-size: 12px;
 }
 
 /* 禁用状态 */

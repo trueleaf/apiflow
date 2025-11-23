@@ -11,12 +11,14 @@ export interface TabsContext {
   registerPane: (pane: TabPane) => void
   unregisterPane: (uid: number) => void
   activeTabName: ComputedRef<string>
+  updateHasContent: (hasContent: boolean) => void
 }
 
 export interface CleanTabsProps {
   modelValue?: string
   class?: string
   type?: 'card' | ''
+  size?: 'normal' | 'small'
 }
 
 export interface CleanTabsEmits {

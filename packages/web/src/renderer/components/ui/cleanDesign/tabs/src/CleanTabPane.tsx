@@ -39,6 +39,9 @@ export default defineComponent({
           label: props.label || props.name,
           disabled: props.disabled
         })
+        // 检查是否有内容
+        const hasSlotContent = !!slots.default
+        tabsContext.updateHasContent(hasSlotContent)
       }
     })
 
@@ -46,6 +49,7 @@ export default defineComponent({
     onBeforeUnmount(() => {
       if (tabsContext) {
         tabsContext.unregisterPane(uid)
+        tabsContext.updateHasContent(false)
       }
     })
 
