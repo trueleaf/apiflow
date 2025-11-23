@@ -63,8 +63,6 @@
       </ClRichInput>
       <el-button 
         v-if="requestState === 'waiting' || requestState === 'finish'" 
-        :disabled="!isElectron()"
-        :title="isElectron() ? '' : `${t('由于浏览器限制，非electron环境无法模拟发送请求')}`" 
         type="success" 
         @click="handleSendRequest"
       >
@@ -105,7 +103,6 @@ import getOperationPart from './composables/operation'
 import { useApidocTas } from '@/store/apidoc/tabsStore'
 import { useHttpNode } from '@/store/apidoc/httpNodeStore'
 import { useApidocResponse } from '@/store/apidoc/responseStore'
-import { isElectron } from '@/helper'
 import { useApidocRequest } from '@/store/apidoc/requestStore'
 import { useHttpRedoUndo } from '@/store/redoUndo/httpRedoUndoStore'
 import { useVariable } from '@/store/apidoc/variablesStore'
