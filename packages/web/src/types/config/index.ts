@@ -108,6 +108,15 @@ export type Config = {
     appTheme: AppTheme,
   },
   httpNodeConfig: HttpNodeConfig,
+  /**
+   * 变量相关配置
+   */
+  variableConfig: {
+    /**
+     * string类型变量最大字符数限制
+     */
+    maxStringSize: number,
+  },
   cacheConfig: {
     httpNodeResponseCache: {
       singleResponseBodySize: number;
@@ -133,6 +142,12 @@ export type Config = {
       version: number,
       storeName: string,
       maxHistoryPerNode: number, //每个节点最大历史记录数
+    },
+    sendHistoryCache: {
+      dbName: string,
+      version: number,
+      storeName: string,
+      maxHistory: number, //全局最大历史记录数
     },
     mockNodeVariableCache: {
       dbName: string,

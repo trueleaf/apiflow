@@ -12,6 +12,7 @@ export type ClParamsTreeProps = {
   mindKeyParams?: ApidocProperty[];
   showCheckbox?: boolean;
   editMode?: 'table' | 'multiline';
+  disableKeyEdit?: boolean;
 }
 
 export type ClParamsTreeEmits = {

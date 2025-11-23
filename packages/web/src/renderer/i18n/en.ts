@@ -593,6 +593,7 @@ export default {
   根元素: 'Root Element',
   父元素为数组不必填写参数名称: 'Parent element is array, parameter name not required',
   输入参数名称自动换行: 'Auto-wrap when entering parameter name',
+  'Path参数名由URL自动解析，不可修改': 'Path parameter name is auto-parsed from URL and cannot be modified',
   校验: 'Validation',
   '参数类型不允许改变，eg：当请求方式为get时，请求参数类型只能为string': 'Parameter type cannot be changed, e.g., when request method is GET, request parameter type can only be string',
   对象类型不必填写: 'Object type not required to fill',
@@ -1091,6 +1092,7 @@ export default {
 
     // Worker Script API Warnings (with parameters)
     'localStorage 值最大为100kb，当前值为{size}kb': 'localStorage value exceeds 100kb limit, current: {size}kb',
+    '变量值最大为100kb，当前值为{size}kb': 'Variable value exceeds 100kb limit, current: {size}kb',
     'header参数在给【{key}】字段赋值时，值不为string类型，将通过toString进行转换': 'Header parameter value for [{key}] is not a string, converting using toString',
     'header参数在给【{key}】字段赋值时出错，header参数值类型只能为字符串': 'Error setting header parameter [{key}], value must be a string',
     'cookie参数在给【{key}】字段赋值时出错，cookie参数值类型只能为字符串': 'Error setting cookie parameter [{key}], value must be a string',
@@ -1400,4 +1402,6 @@ export default {
   '没有更多了': 'No more',
   '暂无历史记录': 'No history',
   '确定要清空所有历史记录吗？': 'Are you sure you want to clear all history?',
+  搜索: 'Search',
+  无匹配数据: 'No matching data',
 }

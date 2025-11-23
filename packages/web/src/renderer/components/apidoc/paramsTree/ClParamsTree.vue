@@ -85,8 +85,8 @@
                :debounce="0" 
                :placeholder="t('输入参数名称自动换行')" 
                :fetch-suggestions="querySearchKey" 
-               :disabled="data._disableKey" 
-               :title="data._disableKeyTip || ''" 
+               :disabled="data._disableKey || props.disableKeyEdit" 
+               :title="data._disableKeyTip || (props.disableKeyEdit ? t('Path参数名由URL自动解析，不可修改') : '')" 
                @select="(item: any) => handleSelectKey(item, data)" 
                @update:modelValue="(v: string | number) => handleChangeKey(String(v), data)" 
                @focus="handleFocusKey()" 
@@ -105,8 +105,8 @@
                v-else 
                :model-value="data.key" 
                :placeholder="t('输入参数名称自动换行')" 
-               :disabled="data._disableKey" 
-               :title="data._disableKeyTip || ''" 
+               :disabled="data._disableKey || props.disableKeyEdit" 
+               :title="data._disableKeyTip || (props.disableKeyEdit ? t('Path参数名由URL自动解析，不可修改') : '')" 
                @update:modelValue="v => handleChangeKey(v, data)" 
                @focus="handleDisableDrag()" 
                @blur="handleEnableDrag()" 
@@ -283,6 +283,7 @@ import { useRouter } from 'vue-router';
 import { appState } from '@/cache/appState/appStateCache';
 import { useVariable } from '@/store/apidoc/variablesStore';
 import { useApidocTas } from '@/store/apidoc/tabsStore';
+import { isEqual } from 'lodash-es';
 /*
 |--------------------------------------------------------------------------
 | Props 和 Emits 定义
@@ -291,6 +292,7 @@ import { useApidocTas } from '@/store/apidoc/tabsStore';
 const props = withDefaults(defineProps<ClParamsTreeProps>(), {
   showCheckbox: true,
   editMode: 'table',
+  disableKeyEdit: false,
 });
 const emits = defineEmits<ClParamsTreeEmits>();
 const { t } = useI18n();
@@ -599,8 +601,9 @@ const handleFocusValue = (data: ApidocProperty<'string' | 'file'>) => {
 };
 // 参数值失焦
 const handleBlurValue = () => {
-  currentOpData.value = null
-  // setTimeout(() => (), 150);
+  setTimeout(() => {
+    currentOpData.value = null;
+  }, 200);
 };
 // 参数值失焦并恢复拖拽
 const handleBlurValueAndEnableDrag = () => {
@@ -644,13 +647,15 @@ const handleCloseMock = () => {
 const handleSelectMockValue = (item: any, data: ApidocProperty<'string' | 'file'>) => {
   const currentValue = data.value || '';
   const lastAtIndex = currentValue.lastIndexOf('@');
+  // 根据 source 确定前缀符号
+  const symbol = item.source === 'faker' ? '#' : '@';
 
   if (lastAtIndex !== -1) {
-    // 替换 @ 及后面的搜索词为 {{ @选中值 }}
+    // 替换 @ 及后面的搜索词为 {{ 符号+选中值 }}
     const prefix = currentValue.slice(0, lastAtIndex);
-    data.value = `${prefix}{{ @${item.value} }}`;
+    data.value = `${prefix}{{ ${symbol}${item.value} }}`;
   } else {
-    data.value = `{{ @${item.value} }}`;
+    data.value = `{{ ${symbol}${item.value} }}`;
   }
 
   currentOpData.value = null;
@@ -767,7 +772,6 @@ const autoAppendIfNeeded = (data: ApidocProperty<'string' | 'file'>) => {
 // 复选框状态变化
 const handleCheckChange = (data: ApidocProperty<'string' | 'file'>, select: boolean) => {
   data.select = select;
-  console.log('check change', data, select);
   emitChange();
 };
 /*
@@ -966,7 +970,7 @@ watch(
     if (!newVal) {
       return;
     }
-    if (newVal === localData.value) {
+    if (isEqual(newVal, localData.value)) {
       return;
     }
     localData.value = newVal.map(i => ({ ...i }));

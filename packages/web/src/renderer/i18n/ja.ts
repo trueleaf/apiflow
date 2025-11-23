@@ -762,6 +762,7 @@ export default {
 
     // Workerスクリプト API警告（パラメータ付き）
     'localStorage 值最大为100kb，当前值为{size}kb': 'localStorageの値は最大100kbです、現在の値は{size}kbです',
+    '变量值最大为100kb，当前值为{size}kb': '変数値は最大100kbです、現在の値は{size}kbです',
     'header参数在给【{key}】字段赋值时，值不为string类型，将通过toString进行转换': 'header パラメータの【{key}】フィールドへの値の設定時、値がstring型ではないため、toStringで変換されます',
     'header参数在给【{key}】字段赋值时出错，header参数值类型只能为字符串': 'header パラメータの【{key}】フィールドへの値の設定時にエラーが発生しました、headerパラメータの値は文字列型のみ可能です',
     'cookie参数在给【{key}】字段赋值时出错，cookie参数值类型只能为字符串': 'cookie パラメータの【{key}】フィールドへの値の設定時にエラーが発生しました、cookieパラメータの値は文字列型のみ可能です',

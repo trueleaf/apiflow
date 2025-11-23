@@ -20,7 +20,7 @@
       <el-form-item v-if="formInfo.type === 'string'" :label="`${t('变量值')}：`" prop="value">
         <el-input v-model="formInfo.stringValue" type="textarea" :autosize="{ minRows: 10, maxRows: 10 }"
           :size="config.renderConfig.layout.size" show-word-limit :placeholder="t('请输入任意字符')" class="w-100"
-          @keydown.enter="handleEditVariable" maxlength="9999" clearable>
+          @keydown.enter="handleEditVariable" :maxlength="config.variableConfig.maxStringSize" clearable>
         </el-input>
       </el-form-item>
       <!-- 数字 -->

@@ -28,7 +28,7 @@
         <el-form-item v-if="formInfo.type === 'string'" :label="`${t('变量值')}：`" prop="stringValue">
           <el-input v-model="formInfo.stringValue" type="textarea" :autosize="{ minRows: 10, maxRows: 10 }"
             :size="config.renderConfig.layout.size" show-word-limit :placeholder="t('请输入任意字符')" class="w-100"
-            maxlength="9999" clearable>
+            :maxlength="config.variableConfig.maxStringSize" clearable>
           </el-input>
         </el-form-item>
         <!-- 数字 -->
@@ -371,6 +371,13 @@ const handleAddVariable = () => {
       };
       if (formInfo.value.type === 'string') {
         params.value = formInfo.value.stringValue.trim();
+        // 验证字符串长度
+        if (params.value.length > config.variableConfig.maxStringSize) {
+          loading.value = false;
+          const sizeInKb = (params.value.length / 1024).toFixed(2);
+          message.warning(t('变量值最大为100kb，当前值为{size}kb', { size: sizeInKb }));
+          return;
+        }
       } else if (formInfo.value.type === 'number') {
         params.value = formInfo.value.numberValue.toString();
       } else if (formInfo.value.type === 'boolean') {

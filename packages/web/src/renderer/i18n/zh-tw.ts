@@ -901,6 +901,7 @@ export default {
 
     // Worker腳本API警告 (帶參數)
     'localStorage 值最大为100kb，当前值为{size}kb': 'localStorage 值最大為100kb，當前值為{size}kb',
+    '变量值最大为100kb，当前值为{size}kb': '變量值最大為100kb，當前值為{size}kb',
     'header参数在给【{key}】字段赋值时，值不为string类型，将通过toString进行转换': 'header參數在給【{key}】字段賦值時，值不為string類型，將通過toString進行轉換',
     'header参数在给【{key}】字段赋值时出错，header参数值类型只能为字符串': 'header參數在給【{key}】字段賦值時出錯，header參數值類型只能為字符串',
     'cookie参数在给【{key}】字段赋值时出错，cookie参数值类型只能为字符串': 'cookie參數在給【{key}】字段賦值時出錯，cookie參數值類型只能為字符串',

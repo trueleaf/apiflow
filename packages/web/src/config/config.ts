@@ -48,6 +48,9 @@ export const config: Config = {
     maxRedirects: 10, //最大重定向次数
     maxHeaderValueDisplayLength: 1024,
   },
+  variableConfig: {
+    maxStringSize: 1024 * 100, //string类型变量最大大小（字符数）
+  },
   cacheConfig: {
     httpNodeResponseCache: {
       singleResponseBodySize: 1024 * 1024 * 200, //单个返回值大小

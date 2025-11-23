@@ -12,6 +12,8 @@ import { getObjectVariable, getCompiledTemplate } from '@src/shared/template'
 export { getObjectVariable, getCompiledTemplate }
 import type { Property, ApidocProperty, RendererFormDataBody, HttpNodeConfig } from '@src/types'
 import { nanoid } from 'nanoid/non-secure'
+import Mock from '@/server/mock/mock'
+import { faker } from '@faker-js/faker/locale/zh_CN'
 import type {
   HttpNodeRequestMethod,
   HttpNodePropertyType,
@@ -1075,11 +1077,41 @@ const evaluateExpressionSync = (expression: string, variables: Record<string, an
   }
 };
 
+// 生成 mock 数据
+const generateMockValue = (mockExpression: string): string => {
+  try {
+    if (mockExpression.startsWith('@')) {
+      // Mock.js 格式
+      return Mock.mock(mockExpression);
+    } else if (mockExpression.startsWith('#')) {
+      // Faker.js 格式
+      const fakerPath = mockExpression.slice(1);
+      const parts = fakerPath.split('.');
+      if (parts.length === 2) {
+        const [module, method] = parts;
+        const fakerModule = (faker as unknown as Record<string, Record<string, () => unknown>>)[module];
+        if (fakerModule && typeof fakerModule[method] === 'function') {
+          const result = fakerModule[method]();
+          if (result instanceof Date) {
+            return result.toISOString();
+          }
+          return String(result);
+        }
+      }
+      return mockExpression;
+    }
+    return mockExpression;
+  } catch {
+    return mockExpression;
+  }
+};
+
 /**
  * 将模板转换为字符串
  * 变量类型一：{{ variable }}
- * 变量类型二：{{ @variable }}
- * 变量类型三：@xxx
+ * 变量类型二：{{ @variable }} (Mock.js)
+ * 变量类型三：{{ #variable }} (Faker.js)
+ * 变量类型四：@xxx
  */
 export const convertTemplateValueToRealValue = async (
   stringValue: string,
@@ -1091,8 +1123,8 @@ export const convertTemplateValueToRealValue = async (
   ); // 这种属于单模板，返回实际值，可能是数字、对象等"{{ variable }}"或"{{ expression }}"
   if (isSingleMustachTemplate) {
     const variableName = isSingleMustachTemplate[1];
-    if (variableName.startsWith("@")) {
-      return variableName;
+    if (variableName.startsWith("@") || variableName.startsWith("#")) {
+      return generateMockValue(variableName);
     }
     if (objectVariable[variableName] !== undefined) {
       return objectVariable[variableName];
@@ -1115,8 +1147,8 @@ export const convertTemplateValueToRealValue = async (
     /(?<!\\)\{\{\s*(.*?)\s*\}\}/g,
     ($1, variableName: string) => {
       const isVariableExist = variableName in objectVariable;
-      if (variableName.startsWith("@")) {
-        return variableName;
+      if (variableName.startsWith("@") || variableName.startsWith("#")) {
+        return generateMockValue(variableName);
       }
       if (!isVariableExist) {
         // 检查是否为表达式

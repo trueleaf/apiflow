@@ -1,107 +1,79 @@
 <template>
-  <div class="s-mock-select" @click.stop="() => { }">
-    <el-tabs v-model="activeName">
-      <el-tab-pane name="常用">
-        <template #label>
-          <span>{{ t("常用") }}</span>
-          <span>
-            <span>(</span>
-            <span>{{ getMatchedMockDataLength(cpMockEnum.filter(v => v.tags.find((tag) => tag === '常用'))) }}</span>
-            <span>/{{ cpMockEnum.filter(v => v.tags.find((tag) => tag === '常用')).length }}</span>
-            <span>)</span>
-          </span>
-        </template>
-      </el-tab-pane>
-      <el-tab-pane name="全部">
-        <template #label>
-          <span>{{ t("全部") }}</span>
-          <span>
-            <span>(</span>
-            <span>{{ getMatchedMockDataLength(cpMockEnum) }}</span>
-            <span>/{{ cpMockEnum.length }}</span>
-            <span>)</span>
-          </span>
-        </template>
-      </el-tab-pane>
-      <el-tab-pane name="日期/时间">
-        <template #label>
-          <span>{{ t("日期/时间") }}</span>
-          <span>
-            <span>(</span>
-            <span>{{ getMatchedMockDataLength(cpMockEnum.filter(v => v.tags.find((tag) => tag === '日期/时间'))) }}</span>
-            <span>/{{ cpMockEnum.filter(v => v.tags.find((tag) => tag === '日期/时间')).length }}</span>
-            <span>)</span>
-          </span>
-        </template>
-      </el-tab-pane>
-      <el-tab-pane name="图片">
-        <template #label>
-          <span>{{ t("图片") }}</span>
-          <span>
-            <span>(</span>
-            <span>{{ getMatchedMockDataLength(cpMockEnum.filter(v => v.tags.find((tag) => tag === '图片'))) }}</span>
-            <span>/{{ cpMockEnum.filter(v => v.tags.find((tag) => tag === '图片')).length }}</span>
-            <span>)</span>
-          </span>
-        </template>
-      </el-tab-pane>
-      <el-tab-pane name="中文文本">
-        <template #label>
-          <span>{{ t("中文文本") }}</span>
-          <span>
-            <span>(</span>
-            <span>{{ getMatchedMockDataLength(cpMockEnum.filter(v => v.tags.find((tag) => tag === '中文文本'))) }}</span>
-            <span>/{{ cpMockEnum.filter(v => v.tags.find((tag) => tag === '中文文本')).length }}</span>
-            <span>)</span>
-          </span>
-        </template>
-      </el-tab-pane>
-      <el-tab-pane name="英文文本">
-        <template #label>
-          <span>{{ t("英文文本") }}</span>
-          <span>
-            <span>(</span>
-            <span>{{ getMatchedMockDataLength(cpMockEnum.filter(v => v.tags.find((tag) => tag === '英文文本'))) }}</span>
-            <span>/{{ cpMockEnum.filter(v => v.tags.find((tag) => tag === '英文文本')).length }}</span>
-            <span>)</span>
-          </span>
-        </template>
-      </el-tab-pane>
-      <el-tab-pane name="地区相关">
-        <template #label>
-          <span>{{ t("地区相关") }}</span>
-          <span>
-            <span>(</span>
-            <span>{{ getMatchedMockDataLength(cpMockEnum.filter(v => v.tags.find((tag) => tag === '地区相关'))) }}</span>
-            <span>/{{ cpMockEnum.filter(v => v.tags.find((tag) => tag === '地区相关')).length }}</span>
-            <span>)</span>
-          </span>
-        </template>
-      </el-tab-pane>
-      <el-tab-pane name="颜色">
-        <template #label>
-          <span>{{ t("颜色") }}</span>
-          <span>
-            <span>(</span>
-            <span>{{ getMatchedMockDataLength(cpMockEnum.filter(v => v.tags.find((tag) => tag === '颜色'))) }}</span>
-            <span>/{{ cpMockEnum.filter(v => v.tags.find((tag) => tag === '颜色')).length }}</span>
-            <span>)</span>
-          </span>
-        </template>
-      </el-tab-pane>
-    </el-tabs>
-    <div class="wrap">
-      <div class="list" tabindex="-1">
-        <div v-for="(item, index) in mockEnum" :key="index" v-copy="`@${item.value}`" class="list-item"
-          @mouseenter="handleMockView(item)" @click="handleSelectMockData(item, $event)">
-          <span class="flex0 mr-5">{{ item.value }}</span>
-          <span>{{ item.name }}</span>
+  <div class="cl-mock-select" @click.stop @mousedown.prevent>
+    <!-- 顶部 Tab 切换数据源 -->
+    <div class="source-tabs">
+      <div
+        class="source-tab"
+        :class="{ active: activeSource === 'mockjs' }"
+        @click="activeSource = 'mockjs'"
+      >
+        Mock.js
+      </div>
+      <div
+        class="source-tab"
+        :class="{ active: activeSource === 'faker' }"
+        @click="activeSource = 'faker'"
+      >
+        Faker.js
+      </div>
+      <div class="search-box">
+        <el-input
+          v-model="searchText"
+          :placeholder="t('搜索')"
+          size="small"
+          clearable
+          :prefix-icon="Search"
+        />
+      </div>
+    </div>
+
+    <div class="content-wrap">
+      <!-- 左侧分类列表 -->
+      <div class="category-list">
+        <div
+          v-for="category in mockCategories"
+          :key="category.key"
+          class="category-item"
+          :class="{ active: activeCategory === category.key }"
+          @click="activeCategory = category.key"
+        >
+          <span class="label">{{ category.label }}</span>
+          <span class="count">{{ getCategoryCount(category.key) }}</span>
         </div>
       </div>
-      <div class="bar"></div>
-      <div class="preview">
-        <span v-if="mockTags.indexOf(t('图片')) === -1">{{ mockValue }}</span>
-        <el-image v-else :src="mockValue" fit="contain"></el-image>
+
+      <!-- 右侧内容区域 -->
+      <div class="main-content">
+        <!-- 数据列表 -->
+        <div class="data-list">
+          <div
+            v-for="(item, index) in filteredMockList"
+            :key="index"
+            class="data-item"
+            :class="{ active: currentItem?._id === item._id }"
+            @mouseenter="handlePreview(item)"
+            @click="handleSelect(item)"
+          >
+            <span class="value">{{ getDisplayValue(item) }}</span>
+            <span class="name">{{ item.name }}</span>
+          </div>
+          <div v-if="filteredMockList.length === 0" class="empty-tip">
+            {{ t('无匹配数据') }}
+          </div>
+        </div>
+
+        <!-- 预览区域 -->
+        <div class="preview-area">
+          <div class="preview-label">{{ t('预览') }}</div>
+          <div class="preview-content">
+            <el-image
+              v-if="isImagePreview"
+              :src="previewValue"
+              fit="contain"
+            />
+            <span v-else>{{ previewValue }}</span>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -111,144 +83,299 @@
 import { useI18n } from 'vue-i18n'
 import type { MockItem } from '@src/types'
 import Mock from '@/server/mock/mock'
-import localMockEnum from './mock-enum';
-import { computed, onMounted, onUnmounted, ref, watch } from 'vue';
-
-// const cpMockEnum: MockItem[] = JSON.parse(JSON.stringify(mockEnum));
+import { faker } from '@faker-js/faker/locale/zh_CN'
+import { mockCategories, mockjsList, fakerList } from './mock-enum';
+import { computed, onMounted, ref, watch } from 'vue';
+import { Search } from '@element-plus/icons-vue';
 
 const props = defineProps({
-  /**
-   * 过滤值
-   */
   searchValue: {
     type: String,
     default: '',
   },
-  /**
-   * 点击非内容区域是否关闭
-   */
   closeOnClickModal: {
     type: Boolean,
     default: true
   },
-  /**
-   * 自动拷贝选中数据
-   */
   autoCopy: {
     type: Boolean,
     default: false
   }
 })
+
 const emits = defineEmits(['select', 'close']);
 const { t } = useI18n();
-const cpMockEnum = ref<MockItem[]>(JSON.parse(JSON.stringify(localMockEnum)));
-const activeName = ref('常用');
-const mockValue = ref('');
-const mockTags = ref<string[]>([]);
-const currentSelectMockData = ref<MockItem | null>(null);
-const getMatchedMockDataLength = (currentList: MockItem[]) => {
-  return currentList.filter((mock) => {
-    const mockValue = mock.value;
-    const searchValue = props.searchValue.toString().replace('@', '')
-    return mockValue.includes(searchValue)
-  }).length;
-}
-const mockEnum = computed(() => {
-  const matchedMockData = localMockEnum.filter((mock) => {
-    const mockValue = mock.value;
-    const searchValue = props.searchValue.toString().replace('@', '')
-    return mockValue.includes(searchValue)
-  });
-  if (activeName.value === '全部') {
-    return matchedMockData;
-  }
-  return matchedMockData.filter((val) => val.tags.find((tag) => tag === activeName.value))
-})
-watch(() => props.searchValue, () => {
-  currentSelectMockData.value = localMockEnum[0];
-})
 
-/*
-|--------------------------------------------------------------------------
-| 函数定义
-|--------------------------------------------------------------------------
-*/
-const handleMockView = (item: MockItem) => {
-  mockValue.value = Mock.mock(`@${item.value}`)
-  mockTags.value = item.tags;
-}
-const handleSelectMockData = (item: MockItem, e: MouseEvent) => {
-  if (!props.autoCopy) {
-    e.stopImmediatePropagation();
+// 响应式状态
+const activeSource = ref<'mockjs' | 'faker'>('mockjs');
+const activeCategory = ref('common');
+const searchText = ref('');
+const previewValue = ref<string>('');
+const isImagePreview = ref(false);
+const currentItem = ref<(MockItem & { _id?: string }) | null>(null);
+
+// 根据数据源获取对应列表
+const currentList = computed(() => {
+  return activeSource.value === 'mockjs' ? mockjsList : fakerList;
+});
+
+// 过滤后的 mock 列表
+const filteredMockList = computed(() => {
+  let list = currentList.value.filter(item => item.category === activeCategory.value);
+
+  const search = (searchText.value || props.searchValue || '').trim().toLowerCase().replace('@', '').replace('#', '');
+  if (search) {
+    list = list.filter(item =>
+      item.value.toLowerCase().includes(search) ||
+      item.name.toLowerCase().includes(search)
+    );
   }
+
+  return list.map((item, index) => ({ ...item, _id: `${item.source}-${item.value}-${index}` }));
+});
+
+// 获取分类下的数量
+const getCategoryCount = (categoryKey: string) => {
+  const search = (searchText.value || props.searchValue || '').trim().toLowerCase().replace('@', '').replace('#', '');
+  let list = currentList.value.filter(item => item.category === categoryKey);
+
+  if (search) {
+    list = list.filter(item =>
+      item.value.toLowerCase().includes(search) ||
+      item.name.toLowerCase().includes(search)
+    );
+  }
+
+  return list.length;
+};
+
+// 获取显示的值
+const getDisplayValue = (item: MockItem) => {
+  return item.source === 'mockjs' ? `@${item.value}` : `#${item.value}`;
+};
+
+// 生成预览数据
+const generatePreview = (item: MockItem): string => {
+  try {
+    if (item.source === 'mockjs') {
+      return Mock.mock(`@${item.value}`);
+    } else {
+      // Faker.js 预览
+      const parts = item.value.split('.');
+      if (parts.length === 2) {
+        const [module, method] = parts;
+        const fakerModule = (faker as unknown as Record<string, Record<string, () => unknown>>)[module];
+        if (fakerModule && typeof fakerModule[method] === 'function') {
+          const result = fakerModule[method]();
+          if (result instanceof Date) {
+            return result.toISOString();
+          }
+          return String(result);
+        }
+      }
+      return '';
+    }
+  } catch {
+    return '';
+  }
+};
+
+// 预览处理
+const handlePreview = (item: MockItem & { _id?: string }) => {
+  currentItem.value = item;
+  previewValue.value = generatePreview(item);
+  isImagePreview.value = item.tags.includes('图片');
+};
+
+// 选择处理
+const handleSelect = (item: MockItem) => {
   emits('select', item);
-}
-const handleCloseModel = () => {
   emits('close');
-}
-onMounted(() => {
-  document.documentElement.addEventListener('click', handleCloseModel)
-})
-onUnmounted(() => {
-  document.documentElement.removeEventListener('click', handleCloseModel)
-})
+};
 
+// 监听搜索值变化
+watch([() => props.searchValue, searchText], () => {
+  if (filteredMockList.value.length > 0) {
+    handlePreview(filteredMockList.value[0]);
+  }
+});
+
+// 切换数据源或分类时重置预览
+watch([activeSource, activeCategory], () => {
+  if (filteredMockList.value.length > 0) {
+    handlePreview(filteredMockList.value[0]);
+  } else {
+    currentItem.value = null;
+    previewValue.value = '';
+  }
+});
+
+onMounted(() => {
+  // 初始化预览
+  if (filteredMockList.value.length > 0) {
+    handlePreview(filteredMockList.value[0]);
+  }
+});
 </script>
 
 <style lang='scss' scoped>
-.s-mock-select {
-  width: 800px;
-  height: 260px;
+.cl-mock-select {
+  width: 480px;
+  height: 380px;
   background: var(--white);
+  border-radius: 6px;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 
-  .wrap {
-    height: 220px;
+  .source-tabs {
     display: flex;
+    align-items: center;
+    padding: 8px 12px;
+    border-bottom: 1px solid var(--gray-300);
+    gap: 8px;
 
-    .list {
-      padding: 10px 0;
-      flex: 0 0 75%;
-      height: 100%;
+    .source-tab {
+      padding: 4px 12px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 13px;
+      color: var(--gray-600);
+      transition: all 0.2s;
+
+      &:hover {
+        background: var(--gray-100);
+      }
+
+      &.active {
+        background: var(--theme-color);
+        color: var(--white);
+      }
+    }
+
+    .search-box {
+      flex: 1;
+      margin-left: auto;
+
+      :deep(.el-input) {
+        width: 140px;
+      }
+    }
+  }
+
+  .content-wrap {
+    flex: 1;
+    display: flex;
+    overflow: hidden;
+
+    .category-list {
+      width: 100px;
+      border-right: 1px solid var(--gray-300);
       overflow-y: auto;
+      padding: 8px 0;
 
-      .list-item {
-        height: 30px;
+      .category-item {
         display: flex;
         align-items: center;
         justify-content: space-between;
-        padding: 0 10px;
+        padding: 8px 12px;
+        cursor: pointer;
+        font-size: 12px;
+        transition: background 0.2s;
+
+        &:hover {
+          background: var(--gray-100);
+        }
 
         &.active {
           background: var(--gray-200);
+          color: var(--theme-color);
+          font-weight: 500;
         }
 
-        &:hover {
-          background: var(--gray-200);
-          cursor: pointer;
+        .label {
+          flex: 1;
+        }
+
+        .count {
+          color: var(--gray-500);
+          font-size: 11px;
         }
       }
     }
 
-    .bar {
-      height: 100%;
-      width: 1px;
-      background: var(--gray-400);
-    }
-
-    .preview {
-      padding: 10px;
-      height: 100%;
+    .main-content {
       flex: 1;
       display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 16px;
+      flex-direction: column;
       overflow: hidden;
-    }
-  }
 
-  .el-tabs__header {
-    margin-bottom: 0;
+      .data-list {
+        flex: 1;
+        overflow-y: auto;
+        padding: 8px 0;
+
+        .data-item {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          padding: 6px 12px;
+          cursor: pointer;
+          font-size: 12px;
+          transition: background 0.2s;
+
+          &:hover,
+          &.active {
+            background: var(--gray-100);
+          }
+
+          .value {
+            color: var(--theme-color);
+            font-family: monospace;
+            flex-shrink: 0;
+            margin-right: 8px;
+          }
+
+          .name {
+            color: var(--gray-600);
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+          }
+        }
+
+        .empty-tip {
+          text-align: center;
+          color: var(--gray-500);
+          padding: 20px;
+          font-size: 12px;
+        }
+      }
+
+      .preview-area {
+        border-top: 1px solid var(--gray-300);
+        padding: 8px 12px;
+        min-height: 60px;
+
+        .preview-label {
+          font-size: 11px;
+          color: var(--gray-500);
+          margin-bottom: 4px;
+        }
+
+        .preview-content {
+          font-size: 13px;
+          word-break: break-all;
+          max-height: 40px;
+          overflow-y: auto;
+
+          :deep(.el-image) {
+            max-height: 36px;
+            max-width: 100%;
+          }
+        }
+      }
+    }
   }
 }
 </style>

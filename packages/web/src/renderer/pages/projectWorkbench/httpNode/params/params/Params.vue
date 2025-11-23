@@ -25,7 +25,7 @@
       @change="handleQueryParamsChange"
     ></SParamsTree>
     <div v-show="hasPathParams" class="title">Path&nbsp;{{ t("参数") }}</div>
-    <SParamsTree v-show="hasPathParams" :data="pathTreeData" @change="handlePathParamsChange"></SParamsTree>
+    <SParamsTree v-show="hasPathParams" :data="pathTreeData" disable-key-edit @change="handlePathParamsChange"></SParamsTree>
   </div>
 </template>
 

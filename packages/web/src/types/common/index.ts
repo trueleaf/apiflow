@@ -65,4 +65,11 @@ export type MockItem = {
   name: string;
   value: string;
   tags: string[];
+  source: 'mockjs' | 'faker';
+  category: string;
+}
+
+export type MockCategory = {
+  key: string;
+  label: string;
 }
