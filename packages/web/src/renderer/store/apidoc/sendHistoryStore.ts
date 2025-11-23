@@ -8,9 +8,15 @@ export const useSendHistory = defineStore('sendHistory', () => {
   const sendHistoryList = ref<SendHistoryItem[]>([]);
   const loading = ref(false);
   const hasMore = ref(true);
+  const hasLoadedMore = ref(false);
   const pageSize = 30;
   const currentOffset = ref(0);
   const searchKeyword = ref('');
+
+  // 注册回调，当添加新记录时刷新列表
+  sendHistoryCache.setOnAddCallback(() => {
+    refresh();
+  });
 
   // 加载发送历史列表
   const loadSendHistory = async (): Promise<void> => {
@@ -18,6 +24,7 @@ export const useSendHistory = defineStore('sendHistory', () => {
       loading.value = true;
       currentOffset.value = 0;
       searchKeyword.value = '';
+      hasLoadedMore.value = false;
       const list = await sendHistoryCache.getMergedSendHistoryList(pageSize, 0);
       sendHistoryList.value = list;
       hasMore.value = list.length >= pageSize;
@@ -48,6 +55,7 @@ export const useSendHistory = defineStore('sendHistory', () => {
       if (list.length > 0) {
         sendHistoryList.value.push(...list);
         currentOffset.value = newOffset;
+        hasLoadedMore.value = true;
       }
       hasMore.value = list.length >= pageSize;
     } catch (error) {
@@ -92,6 +100,7 @@ export const useSendHistory = defineStore('sendHistory', () => {
     sendHistoryList.value = [];
     currentOffset.value = 0;
     hasMore.value = true;
+    hasLoadedMore.value = false;
     searchKeyword.value = '';
   };
 
@@ -99,6 +108,7 @@ export const useSendHistory = defineStore('sendHistory', () => {
     sendHistoryList,
     loading,
     hasMore,
+    hasLoadedMore,
     searchKeyword,
     loadSendHistory,
     loadMore,

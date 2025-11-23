@@ -858,6 +858,7 @@ export default {
   重做失败: 'Redo failed',
   历史记录: 'History',
   清空历史记录: 'Clear history',
+  '确定清空所有历史会话吗？此操作不可恢复': 'Are you sure to clear all conversation history? This action cannot be undone',
   配置更新: 'Configuration update',
   请求头更新: 'Headers update',
   查询参数更新: 'Query parameters update', 
@@ -1398,4 +1399,5 @@ export default {
   '搜索历史记录': 'Search history',
   '没有更多了': 'No more',
   '暂无历史记录': 'No history',
+  '确定要清空所有历史记录吗？': 'Are you sure you want to clear all history?',
 }

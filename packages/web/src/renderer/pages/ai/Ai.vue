@@ -233,6 +233,7 @@ const currentStreamRequestId = ref<string | null>(null)
 const streamingMessageId = ref<string | null>(null)
 const loadingMessageId = ref<string | null>(null)
 const isFirstChunk = ref(false)
+const cancelCurrentStream = ref<(() => Promise<void>) | null>(null)
 const router = useRouter()
 
 const dialogStyle = computed(() => ({
@@ -301,11 +302,28 @@ const scrollToBottom = () => {
     }
   })
 }
+const stopCurrentConversation = async () => {
+  if (!isStreaming.value) return
+  if (cancelCurrentStream.value) {
+    await cancelCurrentStream.value()
+    cancelCurrentStream.value = null
+  }
+  if (loadingMessageId.value) {
+    agentStore.deleteAgentMessageById(loadingMessageId.value)
+    loadingMessageId.value = null
+  }
+  isStreaming.value = false
+  currentStreamRequestId.value = null
+  streamingMessageId.value = null
+  isFirstChunk.value = false
+  agentStore.setWorkingStatus('finish')
+}
 
 const handleClose = () => {
   visible.value = false
 }
-const handleCreateConversation = () => {
+const handleCreateConversation = async () => {
+  await stopCurrentConversation()
   if (agentStore.agentMessageList.length > 0) {
     agentStore.createNewSession()
   }
@@ -614,7 +632,7 @@ const handleSend = async () => {
   }
   
   try {
-    window.electronAPI.aiManager.textChatWithStream(
+    const streamController = window.electronAPI.aiManager.textChatWithStream(
       { requestId, requestBody },
       (chunk: string) => {
         handleStreamData(requestId, chunk)
@@ -626,6 +644,7 @@ const handleSend = async () => {
         handleStreamError(requestId, response)
       }
     )
+    cancelCurrentStream.value = streamController.cancel
   } catch (error) {
     if (loadingMessageId.value) {
       agentStore.deleteAgentMessageById(loadingMessageId.value)
@@ -707,6 +726,7 @@ const handleStreamEnd = (requestId: string) => {
   currentStreamRequestId.value = null
   streamingMessageId.value = null
   isFirstChunk.value = false
+  cancelCurrentStream.value = null
   agentStore.setWorkingStatus('finish')
 }
 const handleStreamError = (requestId: string, response: { code: number; msg: string; data: string }) => {
@@ -733,6 +753,7 @@ const handleStreamError = (requestId: string, response: { code: number; msg: str
   currentStreamRequestId.value = null
   streamingMessageId.value = null
   isFirstChunk.value = false
+  cancelCurrentStream.value = null
   agentStore.setWorkingStatus('finish')
 }
 const handleInputFocus = () => {

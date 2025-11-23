@@ -10,6 +10,15 @@
         <ArrowLeft :size="18" />
       </button>
       <span class="conversation-history-title">{{ t('历史会话') }}</span>
+      <button
+        class="conversation-history-clear"
+        type="button"
+        @click="handleClearAll"
+        :title="t('清空历史记录')"
+        :disabled="sessionList.length === 0"
+      >
+        <Trash2 :size="16" />
+      </button>
     </div>
     <div class="conversation-history-body">
       <div v-if="loading" class="conversation-history-loading">
@@ -60,7 +69,7 @@
 import { ref, onMounted, onUnmounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { ArrowLeft, MessageSquare, Trash2, Loader2 } from 'lucide-vue-next'
-import { ElMessage } from 'element-plus'
+import { ElMessage, ElMessageBox } from 'element-plus'
 import { agentCache } from '@/cache/ai/agentCache'
 import { useAgentStore } from '@/store/agent/agentStore'
 import type { AgentMessage } from '@src/types/ai'
@@ -140,7 +149,25 @@ const handleSelectSession = (sessionId: string) => {
 const handleDeleteSession = async (sessionId: string) => {
   await agentCache.deleteMessagesBySessionId(sessionId)
   await loadSessionList()
-  ElMessage.success(t('删除成功'))
+}
+const handleClearAll = async () => {
+  if (sessionList.value.length === 0) return
+  try {
+    await ElMessageBox.confirm(
+      t('确定清空所有历史会话吗？此操作不可恢复'),
+      t('确定清空'),
+      {
+        confirmButtonText: t('确定'),
+        cancelButtonText: t('取消'),
+        type: 'warning'
+      }
+    )
+    await agentStore.clearAllSessions()
+    sessionList.value = []
+    sessionTitles.value.clear()
+  } catch {
+    // 用户取消
+  }
 }
 const handleKeydown = (event: KeyboardEvent) => {
   if (event.key === 'Escape') {

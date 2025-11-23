@@ -10,6 +10,12 @@ class SendHistoryCache {
   private storeName = config.cacheConfig.sendHistoryCache.storeName;
   private version = config.cacheConfig.sendHistoryCache.version;
   private maxHistory = config.cacheConfig.sendHistoryCache.maxHistory;
+  private onAddCallback: (() => void) | null = null;
+
+  // 设置添加记录后的回调
+  setOnAddCallback(callback: () => void): void {
+    this.onAddCallback = callback;
+  }
 
   constructor() {
     this.initDB().catch(error => {
@@ -89,6 +95,10 @@ class SendHistoryCache {
       const tx4 = db.transaction(this.storeName, 'readwrite');
       await tx4.store.add(newRecord);
       await tx4.done;
+      // 调用回调通知更新
+      if (this.onAddCallback) {
+        this.onAddCallback();
+      }
       return true;
     } catch (error) {
       logger.error('添加发送历史记录失败', { error });

@@ -642,7 +642,17 @@ const handleCloseMock = () => {
 };
 // 选中 Mock 值
 const handleSelectMockValue = (item: any, data: ApidocProperty<'string' | 'file'>) => {
-  data.value = item.value;
+  const currentValue = data.value || '';
+  const lastAtIndex = currentValue.lastIndexOf('@');
+
+  if (lastAtIndex !== -1) {
+    // 替换 @ 及后面的搜索词为 {{ @选中值 }}
+    const prefix = currentValue.slice(0, lastAtIndex);
+    data.value = `${prefix}{{ @${item.value} }}`;
+  } else {
+    data.value = `{{ @${item.value} }}`;
+  }
+
   currentOpData.value = null;
   emitChange();
 };

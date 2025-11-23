@@ -82,6 +82,17 @@ export const useAgentStore = defineStore('agent', () => {
       return false;
     }
   };
+  const clearAllSessions = async (): Promise<boolean> => {
+    try {
+      await agentCache.clearAllMessages();
+      clearAgentMessageList();
+      createNewSession();
+      return true;
+    } catch (error) {
+      logger.error('清空所有会话失败', { error });
+      return false;
+    }
+  };
   const getMessageById = (messageId: string): AgentMessage | null => {
     return agentMessageList.value.find(msg => msg.id === messageId) || null;
   };
@@ -140,6 +151,7 @@ export const useAgentStore = defineStore('agent', () => {
     setCurrentSessionId,
     createNewSession,
     clearCurrentSession,
+    clearAllSessions,
     getMessageById,
     getLatestMessages,
     initStore,

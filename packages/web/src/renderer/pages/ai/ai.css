@@ -727,6 +727,29 @@
   border-bottom: 1px solid var(--ai-history-border);
   flex-shrink: 0;
 }
+.conversation-history-clear {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: none;
+  background: transparent;
+  border-radius: 4px;
+  cursor: pointer;
+  color: var(--ai-text-secondary);
+  transition: all 0.2s;
+  flex-shrink: 0;
+  margin-left: auto;
+}
+.conversation-history-clear:hover:not(:disabled) {
+  background: var(--ai-history-delete-hover-bg);
+  color: var(--ai-history-delete-hover-text);
+}
+.conversation-history-clear:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
 
 .conversation-history-back {
   display: flex;

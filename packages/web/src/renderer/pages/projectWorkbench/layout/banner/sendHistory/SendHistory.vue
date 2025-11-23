@@ -12,6 +12,11 @@
         <template #prefix>
           <el-icon><Search /></el-icon>
         </template>
+        <template #suffix>
+          <el-icon class="clear-history-icon" :title="t('清空历史记录')" @click="handleClearHistory">
+            <Delete />
+          </el-icon>
+        </template>
       </el-input>
     </div>
 
@@ -44,7 +49,7 @@
         <el-icon class="is-loading"><Loading /></el-icon>
         {{ t('加载中') }}...
       </div>
-      <div v-if="!hasMore && sendHistoryList.length > 0" class="no-more">
+      <div v-if="!hasMore && hasLoadedMore && sendHistoryList.length > 0" class="no-more">
         {{ t('没有更多了') }}
       </div>
       <div v-if="!loading && sendHistoryList.length === 0" class="empty">
@@ -57,12 +62,14 @@
 <script lang="ts" setup>
 import { ref, onMounted, onUnmounted } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { Search, Loading } from '@element-plus/icons-vue'
+import { Search, Loading, Delete } from '@element-plus/icons-vue'
+import { ElMessageBox } from 'element-plus'
 import { useSendHistory } from '@/store/apidoc/sendHistoryStore'
 import { useApidocTas } from '@/store/apidoc/tabsStore'
 import { useApidocBaseInfo } from '@/store/apidoc/baseInfoStore'
 import { router } from '@/router/index'
 import { storeToRefs } from 'pinia'
+import { sendHistoryCache } from '@/cache/sendHistory/sendHistoryCache'
 import type { SendHistoryItem } from '@src/types/history/sendHistory'
 
 const { t } = useI18n()
@@ -70,7 +77,7 @@ const sendHistoryStore = useSendHistory()
 const apidocTabsStore = useApidocTas()
 const apidocBaseInfoStore = useApidocBaseInfo()
 
-const { sendHistoryList, loading, hasMore } = storeToRefs(sendHistoryStore)
+const { sendHistoryList, loading, hasMore, hasLoadedMore } = storeToRefs(sendHistoryStore)
 
 const searchValue = ref('')
 const listRef = ref<HTMLElement | null>(null)
@@ -128,6 +135,25 @@ const handleSearchInput = () => {
   searchTimer.value = window.setTimeout(() => {
     sendHistoryStore.search(searchValue.value)
   }, 300)
+}
+
+// 清空历史记录
+const handleClearHistory = async () => {
+  try {
+    await ElMessageBox.confirm(
+      t('确定要清空所有历史记录吗？'),
+      t('提示'),
+      {
+        confirmButtonText: t('确定'),
+        cancelButtonText: t('取消'),
+        type: 'warning'
+      }
+    )
+    await sendHistoryCache.clearSendHistory()
+    sendHistoryStore.clearSendHistoryList()
+  } catch {
+    // 用户取消
+  }
 }
 
 // 滚动加载更多
@@ -196,6 +222,16 @@ onUnmounted(() => {
   .send-history-search {
     padding: 8px;
     flex-shrink: 0;
+
+    .clear-history-icon {
+      cursor: pointer;
+      color: var(--text-tertiary);
+      transition: color 0.2s;
+
+      &:hover {
+        color: var(--el-color-danger);
+      }
+    }
   }
 
   .send-history-list {
