@@ -76,7 +76,7 @@ import { executeWebSocketPreScript } from '@/server/websocket/executePreScript';
 import { useVariable } from '@/store/apidoc/variablesStore';
 import { useCookies } from '@/store/apidoc/cookiesStore';
 import { httpNodeCache } from '@/cache/httpNode/httpNodeCache';
-
+import { sendHistoryCache } from '@/cache/sendHistory/sendHistoryCache';
 
 import { message } from '@/helper'
 const { t } = useI18n();
@@ -169,6 +169,16 @@ const handleConnect = async () => {
 
   // 缓存发起连接消息到IndexedDB
   websocketResponseCache.setResponseByNodeId(currentTab._id, startConnectMessage);
+
+  // 添加发送历史记录
+  sendHistoryCache.addSendHistory({
+    nodeId: currentTab._id,
+    nodeName: websocketStore.websocket.info.name,
+    nodeType: 'websocket',
+    protocol: websocketStore.websocket.item.protocol,
+    url: websocketStore.websocket.item.url.path,
+    operatorName: 'me'
+  });
 
   try {
     // 执行前置脚本

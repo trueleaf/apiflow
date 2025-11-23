@@ -1395,4 +1395,7 @@ export default {
   'AI解析失败': 'AI parsing failed',
   '接口列表': 'API List',
   '调用历史': 'Call History',
+  '搜索历史记录': 'Search history',
+  '没有更多了': 'No more',
+  '暂无历史记录': 'No history',
 }

@@ -74,6 +74,12 @@ export const config: Config = {
       storeName: 'histories',
       maxHistoryPerNode: 50, //每个节点最大历史记录数
     },
+    sendHistoryCache: {
+      dbName: 'sendHistoryCache',
+      version: 1,
+      storeName: 'histories',
+      maxHistory: 10000, //全局最大历史记录数
+    },
     mockNodeVariableCache: {
       dbName: 'mockNodeVariableCache',
       version: 1,

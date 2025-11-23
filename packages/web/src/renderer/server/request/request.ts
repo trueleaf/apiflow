@@ -13,6 +13,7 @@ import { useHttpNodeConfig } from '@/store/apidoc/httpNodeConfigStore';
 import { httpNodeCache } from '@/cache/httpNode/httpNodeCache';
 import { httpResponseCache } from '@/cache/httpNode/httpResponseCache';
 import { commonHeaderCache } from '@/cache/project/commonHeadersCache';
+import { sendHistoryCache } from '@/cache/sendHistory/sendHistoryCache';
 import { config } from '@src/config/config';
 import { nanoid } from 'nanoid/non-secure';
 import { cloneDeep } from "lodash-es";
@@ -603,6 +604,15 @@ export const sendRequest = async () => {
         const rawBody = responseInfo.body;
         const setCookieStrList = responseInfo.headers['set-cookie'] || [];
         changeRequestState('finish');
+        // 添加发送历史记录
+        sendHistoryCache.addSendHistory({
+          nodeId: copiedApidoc._id,
+          nodeName: copiedApidoc.info.name,
+          nodeType: 'http',
+          method: copiedApidoc.item.method,
+          url: copiedApidoc.item.url.path,
+          operatorName: 'me'
+        });
         changeResponseBody(responseInfo.body)
         responseInfo.body = null; // 不存储body防止数据量过大
         responseInfo.redirectList = cloneDeep(redirectList.value); // 记录重定向列表

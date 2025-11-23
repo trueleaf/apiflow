@@ -1340,18 +1340,17 @@ export const checkIsSameProperty = (p: ApidocProperty, p2: ApidocProperty): bool
 }
 
 /**
- * 检查ApidocProperty[]类型数据是否相同
+ * 检查ApidocProperty[]类型数据是否相同（包括顺序）
  */
 export const checkPropertyIsEqual = (value: ApidocProperty[], originValue: ApidocProperty[]): boolean => {
   if (value.length !== originValue.length) return false;
   for (let i = 0; i < value.length; i += 1) {
     const item = value[i];
-    const { _id } = item;
-    const matchedOriginItem = originValue.find(v => v._id === _id);
-    if (!matchedOriginItem) {
+    const originItem = originValue[i];
+    if (item._id !== originItem._id) {
       return false;
     }
-    if (!checkIsSameProperty(item, matchedOriginItem)) {
+    if (!checkIsSameProperty(item, originItem)) {
       return false;
     }
   }

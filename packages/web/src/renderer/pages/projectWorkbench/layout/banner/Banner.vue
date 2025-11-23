@@ -7,7 +7,7 @@
         <CleanTabPane :label="t('调用历史')" name="history" />
       </CleanTabs>
     </div>
-    <SLoading :loading="loading" class="tree-wrap" @contextmenu.prevent="handleWrapContextmenu">
+    <SLoading v-if="bannerViewMode === 'list'" :loading="loading" class="tree-wrap" @contextmenu.prevent="handleWrapContextmenu">
       <el-tree 
         ref="docTree" 
         :class="{ 'show-more': showMoreNodeInfo }" 
@@ -164,6 +164,7 @@
         </template>
       </el-tree>
     </SLoading>
+    <SendHistory v-else-if="bannerViewMode === 'history'" />
     <!-- 鼠标右键 -->
     <teleport to="body">
       <!-- 单个节点操作 -->
@@ -224,6 +225,7 @@ import 'element-plus/es/components/message/style/css'
 import { message } from '@/helper'
 import STool from './tool/Tool.vue'
 import { CleanTabs, CleanTabPane } from '@/components/ui/cleanDesign/tabs'
+import SendHistory from './sendHistory/SendHistory.vue'
 import { useBannerData } from './composables/banner-data'
 import { deleteNode, addFileAndFolderCb, pasteNodes, forkNode, dragNode, renameNode } from './composables/curd-node'
 import type { TreeNodeOptions } from 'element-plus/es/components/tree/src/tree.type.mjs'
