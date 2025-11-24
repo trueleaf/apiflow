@@ -32,7 +32,7 @@
         <div class="form-item flex-item">
           <label class="form-label">
             {{ t('请求URL') }}
-            <el-tooltip placement="top">
+            <el-tooltip placement="top" :open-delay="500">
               <template #content>
                 <div class="url-tooltip-content">
                   <div>{{ t('支持通配符URL') }}:</div>

@@ -38,8 +38,6 @@ export type OpenAIResponse = {
   };
 };
 
-// AI 聊天选项类型
-export type OpenAIRequestMode = 'text' | 'json';
 
 // 流式回调函数类型
 export type StreamCallback = (chunk: string) => void;

@@ -188,6 +188,7 @@ const initResizeLister = () => {
   }
 };
 const initManualUndoRedo = () => {
+  if (!props.manualUndoRedo) return;  // 添加这一行
   monacoInstance?.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyZ, () => {
     const cursorPosition = getCursorPosition();
     emits('undo', { cursorPosition });
@@ -207,6 +208,7 @@ const initManualUndoRedo = () => {
 |--------------------------------------------------------------------------
 */
 onMounted(() => {
+  console.log('ClJsonEditor onMounted');
   self.MonacoEnvironment = {
     getWorker(_: string, label: string) {
       if (label === 'json') {
