@@ -19,6 +19,7 @@
 
 .markdown-editor__content {
   overflow-y: auto;
+  height: calc(100% - 50px);
   padding: 12px;
   cursor: text;
 }

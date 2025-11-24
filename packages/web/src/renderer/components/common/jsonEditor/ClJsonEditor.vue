@@ -208,7 +208,6 @@ const initManualUndoRedo = () => {
 |--------------------------------------------------------------------------
 */
 onMounted(() => {
-  console.log('ClJsonEditor onMounted');
   self.MonacoEnvironment = {
     getWorker(_: string, label: string) {
       if (label === 'json') {

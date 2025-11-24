@@ -447,5 +447,35 @@ class AppState {
       localStorage.setItem(cacheKey.appState.mockNode.logViewMode, JSON.stringify(data));
     }
   }
+  // 获取WebSocket消息块折叠状态
+  getWsMessageBlockCollapseState(nodeId: string, blockId: string): boolean {
+    try {
+      const localData: Record<string, Record<string, boolean>> = JSON.parse(localStorage.getItem(cacheKey.appState.websocketNode.messageBlockCollapse) || '{}');
+      if (!localData[nodeId] || localData[nodeId][blockId] === undefined) {
+        return false;
+      }
+      return localData[nodeId][blockId];
+    } catch (error) {
+      logger.error('获取WebSocket消息块折叠状态失败', { error });
+      localStorage.setItem(cacheKey.appState.websocketNode.messageBlockCollapse, '{}');
+      return false;
+    }
+  }
+  // 设置WebSocket消息块折叠状态
+  setWsMessageBlockCollapseState(nodeId: string, blockId: string, isCollapsed: boolean) {
+    try {
+      const localData = JSON.parse(localStorage.getItem(cacheKey.appState.websocketNode.messageBlockCollapse) || '{}');
+      if (!localData[nodeId]) {
+        localData[nodeId] = {};
+      }
+      localData[nodeId][blockId] = isCollapsed;
+      localStorage.setItem(cacheKey.appState.websocketNode.messageBlockCollapse, JSON.stringify(localData));
+    } catch (error) {
+      logger.error('设置WebSocket消息块折叠状态失败', { error });
+      const data: Record<string, Record<string, boolean>> = {};
+      data[nodeId] = { [blockId]: isCollapsed };
+      localStorage.setItem(cacheKey.appState.websocketNode.messageBlockCollapse, JSON.stringify(data));
+    }
+  }
 }
 export const appState = new AppState();

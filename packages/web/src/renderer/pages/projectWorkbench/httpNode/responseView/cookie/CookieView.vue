@@ -1,7 +1,7 @@
 <template>
   <div class="cookie-view" :class="{ vertical: layout === 'vertical' }">
     <div class="cookie-actions mb-2">
-      <div v-if="cookies.length > 0" class="action-btn" @click="dialogVisible = true" :title="t('查看本次接口返回的Cookie详情')">
+      <div v-if="cookies.length > 0 && layout === 'horizontal'" class="action-btn" @click="dialogVisible = true" :title="t('查看本次接口返回的Cookie详情')">
         <Cookie :size="16" />
         <span>{{ t('响应Cookie') }}</span>
       </div>
@@ -10,13 +10,69 @@
         <span>{{ t('Cookie管理') }}</span>
       </div>
     </div>
-    <el-table :data="cookies" border size="small">
-      <el-table-column align="center" prop="name" label="Name"></el-table-column>
-      <el-table-column align="center" prop="value" label="Value">
-        <template #default="scope">
-          <div class="value-wrap">{{ scope.row.value }}</div>
-        </template>
-      </el-table-column>
+    <el-table 
+      :data="cookies" 
+      border 
+      size="small"
+      :height="layout === 'vertical' ? '65vh' : undefined"
+    >
+      <template v-if="layout === 'vertical'">
+        <el-table-column align="center" prop="name" label="Name"></el-table-column>
+        <el-table-column align="center" prop="value" width="500" label="Value">
+          <template #default="scope">
+            <div class="value-wrap">{{ scope.row.value }}</div>
+          </template>
+        </el-table-column>
+        <el-table-column align="center" prop="domain" label="Domain">
+          <template #default="scope">
+            <span v-if="!scope.row.domain || scope.row.domain === responseInfo.requestData.host">
+              {{ !scope.row.domain ? responseInfo.requestData.host : '' }}
+            </span>
+            <div v-else class="orange">
+              <div>{{ scope.row.domain }}</div>
+              <div>{{ t('已忽略，非本域名') }}</div>
+            </div>
+          </template>
+        </el-table-column>
+        <el-table-column align="center" prop="path" label="Path">
+          <template #default="scope">
+            <span v-if="scope.row.path">{{ scope.row.path }}</span>
+            <span v-else>/</span>
+          </template>
+        </el-table-column>
+        <el-table-column align="center" prop="expires" label="Expires">
+          <template #default="scope">
+            <span v-if="scope.row.expires">{{ scope.row.expires }}</span>
+            <span v-else>Session</span>
+          </template>
+        </el-table-column>
+        <el-table-column align="center" prop="httpOnly" label="HttpOnly">
+          <template #default="scope">
+            <span v-if="scope.row.httpOnly === true">✔</span>
+            <span v-else></span>
+          </template>
+        </el-table-column>
+        <el-table-column align="center" prop="secure" label="Secure">
+          <template #default="scope">
+            <span v-if="scope.row.secure === true">✔</span>
+            <span v-else></span>
+          </template>
+        </el-table-column>
+        <el-table-column align="center" prop="sameSite" label="SameSite">
+          <template #default="scope">
+            <span v-if="scope.row.sameSite">{{ scope.row.sameSite }}</span>
+            <span v-else>Lax</span>
+          </template>
+        </el-table-column>
+      </template>
+      <template v-else>
+        <el-table-column align="center" prop="name" label="Name"></el-table-column>
+        <el-table-column align="center" prop="value" label="Value">
+          <template #default="scope">
+            <div class="value-wrap">{{ scope.row.value }}</div>
+          </template>
+        </el-table-column>
+      </template>
     </el-table>
     <el-dialog v-model="dialogVisible" :title="`【${currentSelectTab?.label}】节点的 ${$t('cookie值')}`" width="80%"
       :close-on-click-modal="false">

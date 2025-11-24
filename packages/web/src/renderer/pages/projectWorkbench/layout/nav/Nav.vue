@@ -495,7 +495,7 @@ onUnmounted(() => {
 <style lang='scss' scoped>
 .nav {
   width: 100%;
-  height: 40px;
+  height: var(--apiflow-doc-nav-height);
   background: var(--project-nav-bg);
   display: flex;
 
@@ -510,7 +510,7 @@ onUnmounted(() => {
 
     .btn {
       flex: 0 0 auto;
-      height: 40px;
+      height: var(--apiflow-doc-nav-height);
       width: 25px;
       z-index: var(--zIndex-tabs);
       background: var(--gray-200);
@@ -528,10 +528,10 @@ onUnmounted(() => {
 
   .tab-list {
     width: auto;
-    max-width: calc(100% - 40px);
-    line-height: 40px;
+    max-width: calc(100% - var(--apiflow-doc-nav-height));
+    line-height: var(--apiflow-doc-nav-height);
     display: flex;
-    height: 40px;
+    height: var(--apiflow-doc-nav-height);
     color: var(--project-nav-text);
     white-space: nowrap;
     transition: left .1s;
@@ -669,8 +669,8 @@ onUnmounted(() => {
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 40px;
-    height: 40px;
+    width: var(--apiflow-doc-nav-height);
+    height: var(--apiflow-doc-nav-height);
 
     .el-icon {
       width: 30px;

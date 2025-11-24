@@ -454,6 +454,7 @@ onUnmounted(() => {
     border-right: 1px solid var(--gray-400);
     display: flex;
     flex-direction: column;
+    // height: calc(100vh - var(--apiflow-doc-nav-height) );
   }
 
   // WebSocket信息区域

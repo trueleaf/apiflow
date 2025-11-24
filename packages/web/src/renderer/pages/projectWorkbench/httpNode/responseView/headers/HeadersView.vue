@@ -1,13 +1,23 @@
 <template>
   <div class="header-view" :class="{ vertical: layout === 'vertical' }">
-    <div class="header-actions mb-2">
+    <div v-if="layout === 'horizontal'" class="header-actions mb-2">
       <div class="action-btn" @click="dialogVisible = true" :title="t('全屏展示返回头详情')">
         <Maximize2 :size="16" />
         <span>{{ t('返回头详情') }}</span>
       </div>
     </div>
-    <el-table :data="headers"  border>
-      <el-table-column align="center" prop="key" :label="t('名称')"></el-table-column>
+    <el-table 
+      :data="headers" 
+      border 
+      :height="layout === 'vertical' ? '65vh' : undefined"
+      :size="layout === 'vertical' ? 'small' : 'default'"
+    >
+      <el-table-column 
+        align="center" 
+        prop="key" 
+        :label="t('名称')"
+        :width="layout === 'vertical' ? '150px' : undefined"
+      ></el-table-column>
       <el-table-column align="center" prop="value" :label="t('值')">
         <template #default="scope">
           <div v-if="scope.row.key === 'set-cookie'">
@@ -100,6 +110,9 @@ const dialogVisible = ref(false);
 const expandedRows = ref<Record<string, boolean>>({});
 
 function isExpandable(row: { key: string, value: string }) {
+  if (layout.value === 'vertical') {
+    return false;
+  }
   return row.value.length > httpNodeConfigStore.currentConfig.maxHeaderValueDisplayLength;
 }
 function isCollapsed(row: { key: string, value: string }) {

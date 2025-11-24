@@ -87,6 +87,10 @@
             <!-- 消息块头部 -->
             <div class="block-header">
               <div class="left-controls">
+                <span class="collapse-icon" @click="handleToggleCollapse(element.id)">
+                  <ChevronRight v-if="collapsedBlocks[element.id]" :size="16" />
+                  <ChevronDown v-else :size="16" />
+                </span>
                 <el-icon class="drag-handle">
                   <Rank />
                 </el-icon>
@@ -130,7 +134,7 @@
               </div>
             </div>
             <!-- 消息块编辑器 -->
-            <div class="block-editor">
+            <div v-show="!collapsedBlocks[element.id]" class="block-editor">
               <SJsonEditor
                 :model-value="element.content"
                 :config="{ language: getLanguageByType(element.messageType) }"
@@ -171,6 +175,7 @@ import {
   Delete,
   Rank,
 } from '@element-plus/icons-vue'
+import { ChevronDown, ChevronRight } from 'lucide-vue-next'
 import SJsonEditor from '@/components/common/jsonEditor/ClJsonEditor.vue'
 import draggable from 'vuedraggable'
 import type { WebsocketMessageType, WebsocketMessageBlock } from '@src/types/websocketNode'
@@ -179,6 +184,7 @@ import { websocketResponseCache } from '@/cache/websocketNode/websocketResponseC
 import { webSocketNodeCache } from '@/cache/websocketNode/websocketNodeCache'
 import { message, getCompiledTemplate } from '@/helper'
 import { useVariable } from '@/store/apidoc/variablesStore'
+import { appState } from '@/cache/appState/appStateCache'
 
 const { t } = useI18n()
 const apidocTabsStore = useApidocTas()
@@ -199,6 +205,9 @@ const messageBlocks = computed({
 
 // 快捷操作配置
 const quickOperations = ref<'autoSend'[]>([])
+
+// 消息块折叠状态
+const collapsedBlocks = ref<Record<string, boolean>>({})
 
 // 弹窗临时配置状态
 const tempAutoSendInterval = ref(1000)
@@ -228,6 +237,26 @@ const initQuickOperations = () => {
     const config = webSocketNodeCache.getWebsocketConfig(tab.projectId)
     quickOperations.value = (config?.quickOperations || []) as 'autoSend'[]
   }
+}
+
+// 初始化折叠状态
+const initCollapseState = () => {
+  const nodeId = currentSelectTab.value?._id
+  if (!nodeId) return
+  const states: Record<string, boolean> = {}
+  messageBlocks.value.forEach(block => {
+    states[block.id] = appState.getWsMessageBlockCollapseState(nodeId, block.id)
+  })
+  collapsedBlocks.value = states
+}
+
+// 切换折叠状态
+const handleToggleCollapse = (blockId: string) => {
+  const nodeId = currentSelectTab.value?._id
+  if (!nodeId) return
+  const newState = !collapsedBlocks.value[blockId]
+  collapsedBlocks.value[blockId] = newState
+  appState.setWsMessageBlockCollapseState(nodeId, blockId, newState)
 }
 
 // 弹窗打开时初始化临时变量
@@ -486,10 +515,11 @@ watch(currentSelectTab, (newTab) => {
   }
 })
 
-// 初始化快捷操作配置
+// 初始化快捷操作配置和折叠状态
 watch(currentSelectTab, (tab) => {
   if (tab) {
     initQuickOperations()
+    initCollapseState()
   }
 }, { immediate: true })
 
@@ -505,9 +535,13 @@ onUnmounted(() => {
   flex-direction: column;
 
   .top-actions {
+    height: 32px;
     display: flex;
     justify-content: space-between;
     align-items: center;
+    box-shadow: var(--box-shadow-sm);
+    position: relative;
+    z-index: 1;
     .right-actions {
       display: flex;
       align-items: center;
@@ -541,9 +575,9 @@ onUnmounted(() => {
   }
 
   .message-blocks-container {
-    flex: 1;
+    height: calc(100vh - 280px);
     overflow-y: auto;
-    padding: 12px;
+    padding: 12px 0;
 
     .message-blocks-list {
       display: flex;
@@ -562,12 +596,23 @@ onUnmounted(() => {
         align-items: center;
         padding: 8px 12px;
         background: var(--el-fill-color-light);
-        border-bottom: 1px solid var(--gray-400);
-
         .left-controls {
           display: flex;
           align-items: center;
           gap: 8px;
+
+          .collapse-icon {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: var(--el-text-color-secondary);
+            transition: color 0.2s;
+
+            &:hover {
+              color: var(--el-text-color-primary);
+            }
+          }
 
           .drag-handle {
             cursor: grab;

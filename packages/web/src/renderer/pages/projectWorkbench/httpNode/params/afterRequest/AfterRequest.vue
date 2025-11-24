@@ -92,7 +92,5 @@ const recordAfterRequestOperation = (oldValue: { raw: string }, newValue: { raw:
   position: relative;
   width: 100%;
   height: calc(100vh - 320px);
-  border-bottom: 1px solid var(--gray-400);
-  padding: 0;
 }
 </style>

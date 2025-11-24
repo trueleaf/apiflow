@@ -7,7 +7,7 @@
       <SParamsTree :drag="false" show-checkbox :data="defaultHeaders" no-add @change="handleDefaultHeadersChange"></SParamsTree>
       <el-divider border-style="dashed" class="header-divider" />
     </div>
-    <div v-else class="d-flex a-center mb-2 mt-2">
+    <div v-else class="d-flex a-center mb-2">
       <span class="cursor-pointer no-select" @click="hideDefaultHeader = false">
         <span>{{ defaultHeaders.length }}{{ t("个隐藏") }}</span>
       </span>

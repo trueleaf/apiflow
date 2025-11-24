@@ -207,6 +207,7 @@ const handleLink = () => {
   display: flex;
   align-items: center;
   gap: 4px;
+  height: 50px;
   padding: 8px;
   background: var(--el-fill-color-blank);
   border-bottom: 1px solid var(--el-border-color);

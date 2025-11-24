@@ -21,6 +21,7 @@ export const cacheKey = {
     },
     websocketNode: {
       activeParamsTab: 'appState/websocketNode/activeParamsTab',
+      messageBlockCollapse: 'appState/websocketNode/messageBlockCollapse',
     },
     httpNode: {
       activeParamsTab: 'appState/httpNode/activeParamsTab',

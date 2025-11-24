@@ -107,7 +107,7 @@
         </template>
       </div>
     </div>
-    <el-tabs v-model="activeName">
+    <el-tabs v-model="activeName" class="params-tabs">
       <el-tab-pane name="SParams">
         <template #label>
           <el-badge :is-dot="hasQueryOrPathsParams">Params</el-badge>
@@ -925,15 +925,13 @@ onUnmounted(() => {
 </script>
 <style lang='scss' scoped>
 .api-params {
-  padding: 0 0 10px;
   height: calc(100vh - var(--apiflow-apidoc-operation-height) - var(--apiflow-doc-nav-height));
-  overflow-y: auto;
   position: relative;
   &.vertical {
     height: auto;
   }
   .quick-actions {
-    height: 35px;
+    height: var(--apiflow-quick-actions-height);
     display: flex;
     align-items: flex-end;
     padding: 0 20px;
@@ -1122,10 +1120,18 @@ onUnmounted(() => {
       }
     }
   }
-  .el-tabs,
+  .el-tabs {
+    padding-right: 20px;
+    padding-left: 20px;
+  }
   .workbench {
     padding-right: 20px;
     padding-left: 20px;
+    overflow-y: auto;
+    height: calc(100vh -  var(--apiflow-apidoc-operation-height) - var(--apiflow-doc-nav-height) - var(--apiflow-quick-actions-height) - var(--apiflow-params-tabs-height) - 10px);
+  }
+  .params-tabs {
+    height: var(--apiflow-params-tabs-height);
   }
   .el-tabs__item {
     user-select: none;

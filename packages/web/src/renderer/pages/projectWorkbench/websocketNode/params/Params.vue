@@ -346,7 +346,7 @@ onUnmounted(() => {
   position: relative;
 
   .quick-actions {
-    height: 35px;
+  height: var(--apiflow-quick-actions-height);
     display: flex;
     align-items: flex-end;
     padding: 0 20px;
@@ -487,10 +487,13 @@ onUnmounted(() => {
 
   .params-tabs,
   .workbench {
-    height: calc(100vh - var(--apiflow-apidoc-operation-height) - var(--apiflow-doc-nav-height) - 45px);
+    height: calc(100vh - var(--apiflow-apidoc-operation-height) - var(--apiflow-doc-nav-height) - var(--apiflow-params-tabs-height));
     overflow-y: auto;
     padding-right: 20px;
     padding-left: 20px;
+  }
+  .params-tabs {
+    height: var(--apiflow-params-tabs-height);
   }
 }
 
