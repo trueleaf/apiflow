@@ -7,14 +7,13 @@
       <SParamsTree :drag="false" show-checkbox :data="defaultHeaders" no-add @change="handleDefaultHeadersChange"></SParamsTree>
       <el-divider border-style="dashed" class="header-divider" />
     </div>
-    <div v-else class="cursor-pointer no-select d-flex a-center" @click="hideDefaultHeader = false">
-      <span>{{ defaultHeaders.length }}{{ t("个隐藏") }}</span>
+    <div v-else class="d-flex a-center mb-2 mt-2">
+      <span class="cursor-pointer no-select" @click="hideDefaultHeader = false">
+        <span>{{ defaultHeaders.length }}{{ t("个隐藏") }}</span>
+      </span>
       <el-icon :size="16" class="ml-1">
         <View />
       </el-icon>
-    </div>
-    <div class="title d-flex a-center mb-2 mt-2">
-      <span>{{ t("请求头") }}</span>
       <span
         class="mode-toggle-icon ml-2"
         role="button"

@@ -2,7 +2,7 @@
   <div class="ai-settings">
     <div class="page-title">
       <h2>{{ $t('AI 设置') }}</h2>
-      <p class="subtitle">{{ $t('自定义模型配置') }}</p>
+      <p class="subtitle">{{ $t('自定义模型配置(目前仅支持: openai格式请求)') }}</p>
     </div>
 
     <div class="content-wrapper">

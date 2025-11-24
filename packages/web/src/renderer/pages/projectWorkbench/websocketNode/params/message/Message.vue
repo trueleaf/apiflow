@@ -52,7 +52,7 @@
             </el-checkbox>
           </div>
         </div>
-        <el-popover v-model:visible="configPopoverVisible" placement="bottom" :width="320" trigger="click" transition="none">
+        <el-popover v-model:visible="configPopoverVisible" placement="bottom" :width="400" trigger="click" transition="none" @show="handleConfigPopoverShow">
           <template #reference>
             <div class="config-button">
               <el-icon>
@@ -65,33 +65,42 @@
             <div class="config-item">
               <label class="config-label">{{ t("发送间隔") }}:</label>
               <div class="config-input">
-                <el-input-number v-model="websocketStore.websocket.config.autoSendInterval" :min="100" :max="300000"
-                  :step="1000" size="small" @change="handleConfigIntervalChange" style="width: 120px;" />
+                <el-input-number v-model="tempAutoSendInterval" :min="100" :max="300000"
+                  :step="1000" size="small" style="width: 120px;" />
                 <span class="interval-unit">{{ t("毫秒") }}</span>
               </div>
             </div>
 
             <div class="config-item">
               <label class="config-label">{{ t("消息内容") }}:</label>
-              <el-input v-model="websocketStore.websocket.config.defaultAutoSendContent" type="textarea" :rows="3"
-                :placeholder="t('请输入消息内容')" @input="handleDefaultConfigContentChange" class="config-content-input" />
+              <div class="config-content-editor">
+                <SJsonEditor
+                  v-model="tempDefaultAutoSendContent"
+                  :config="{ language: 'plaintext' }"
+                  :auto-height="false"
+                  style="height: 100px;"
+                />
+              </div>
             </div>
 
             <div class="config-item">
               <label class="config-label">{{ t("快捷操作") }}:</label>
               <div class="quick-operations">
-                <el-checkbox :model-value="quickOperations.includes('autoSend')"
-                  @change="handleQuickOperationChange('autoSend', $event)">
+                <el-checkbox :model-value="tempQuickOperations.includes('autoSend')"
+                  @change="handleTempQuickOperationChange('autoSend', $event)">
                   {{ t("自动发送") }}
                 </el-checkbox>
-                <el-checkbox :model-value="quickOperations.includes('template')"
-                  @change="handleQuickOperationChange('template', $event)">
+                <el-checkbox :model-value="tempQuickOperations.includes('template')"
+                  @change="handleTempQuickOperationChange('template', $event)">
                   {{ t("模板选择") }}
                 </el-checkbox>
               </div>
             </div>
 
             <div class="config-actions">
+              <el-button size="small" type="primary" @click="handleSaveConfig">
+                {{ t("保存") }}
+              </el-button>
               <el-button size="small" @click="configPopoverVisible = false">
                 {{ t("关闭") }}
               </el-button>
@@ -272,12 +281,17 @@ const createTemplateDialogVisible = ref(false)
 // 快捷操作配置
 const quickOperations = ref<('autoSend' | 'template')[]>([])
 
+// 弹窗临时配置状态
+const tempAutoSendInterval = ref(1000)
+const tempDefaultAutoSendContent = ref('')
+const tempQuickOperations = ref<('autoSend' | 'template')[]>([])
+
 // 初始化快捷操作配置
 const initQuickOperations = () => {
   const tab = currentSelectTab.value
   if (tab) {
     const config = webSocketNodeCache.getWebsocketConfig(tab.projectId)
-    quickOperations.value = config?.quickOperations || ['autoSend', 'template']
+    quickOperations.value = config?.quickOperations || []
   }
 }
 
@@ -302,6 +316,62 @@ const handleQuickOperationChange = (operation: 'autoSend' | 'template', enabled:
   webSocketNodeCache.setWebsocketConfig(tab.projectId, {
     quickOperations: quickOperations.value
   })
+}
+
+// 弹窗打开时初始化临时变量
+const handleConfigPopoverShow = () => {
+  tempAutoSendInterval.value = websocketStore.websocket.config.autoSendInterval
+  tempDefaultAutoSendContent.value = websocketStore.websocket.config.defaultAutoSendContent
+  tempQuickOperations.value = [...quickOperations.value]
+}
+
+// 处理临时快捷操作变化
+const handleTempQuickOperationChange = (operation: 'autoSend' | 'template', enabled: boolean | string | number) => {
+  const boolEnabled = Boolean(enabled)
+  if (boolEnabled) {
+    if (!tempQuickOperations.value.includes(operation)) {
+      tempQuickOperations.value.push(operation)
+    }
+  } else {
+    const index = tempQuickOperations.value.indexOf(operation)
+    if (index > -1) {
+      tempQuickOperations.value.splice(index, 1)
+    }
+  }
+}
+
+// 保存配置
+const handleSaveConfig = async () => {
+  const tab = currentSelectTab.value
+  if (!tab) return
+
+  // 更新发送间隔
+  websocketStore.changeWebSocketAutoSendInterval(tempAutoSendInterval.value)
+
+  // 更新消息内容（进行变量解析）
+  let compiledContent = tempDefaultAutoSendContent.value
+  try {
+    const { variables } = useVariable()
+    compiledContent = await getCompiledTemplate(tempDefaultAutoSendContent.value, variables)
+  } catch (error) {
+    console.warn('配置内容变量替换失败', error)
+  }
+  websocketStore.changeWebSocketDefaultAutoSendContent(compiledContent)
+
+  // 更新快捷操作
+  quickOperations.value = [...tempQuickOperations.value]
+  webSocketNodeCache.setWebsocketConfig(tab.projectId, {
+    quickOperations: quickOperations.value
+  })
+
+  // 如果自动发送正在运行，重新启动以应用新的间隔
+  if (websocketStore.websocket.config.autoSend && connectionState.value === 'connected') {
+    stopAutoSend()
+    startAutoSend()
+  }
+
+  configPopoverVisible.value = false
+  message.success(t('配置保存成功'))
 }
 
 // 模板选择处理
@@ -439,19 +509,6 @@ const handleAutoConfigChange = (enabled: boolean | string | number) => {
   } else {
     stopAutoSend()
   }
-}
-const handleConfigIntervalChange = (interval: number | undefined) => {
-  if (interval !== undefined) {
-    websocketStore.changeWebSocketAutoSendInterval(interval)
-    // 如果自动发送正在运行，重新启动以应用新的间隔
-    if (websocketStore.websocket.config.autoSend && connectionState.value === 'connected') {
-      stopAutoSend()
-      startAutoSend()
-    }
-  }
-}
-const handleDefaultConfigContentChange = (content: string) => {
-  websocketStore.changeWebSocketDefaultAutoSendContent(content)
 }
 const startAutoSend = () => {
   if (configTimer) {
@@ -714,6 +771,12 @@ onUnmounted(() => {
 
     .config-content-input {
       width: 100%;
+    }
+
+    .config-content-editor {
+      border: 1px solid var(--el-border-color);
+      border-radius: 4px;
+      overflow: hidden;
     }
 
     .quick-operations {

@@ -1,5 +1,6 @@
 import type { CommonResponse } from '@src/types/project';
 
+
 // OpenAI API 消息类型
 export type OpenAIMessage = {
   role: 'system' | 'user' | 'assistant';
