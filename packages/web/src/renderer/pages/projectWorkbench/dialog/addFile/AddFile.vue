@@ -45,7 +45,7 @@
           :max-height="300"
           :config="editorConfig"
           :disable-validation="true"
-          placeholder="可自动识别自然语言描述、cURL请求、任意类型接口结构数据"
+          :placeholder="t('可自动识别自然语言描述、cURL请求、任意类型接口结构数据')"
         />
       </el-form-item>
     </el-form>

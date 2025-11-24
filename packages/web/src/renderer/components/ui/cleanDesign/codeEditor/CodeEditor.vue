@@ -76,7 +76,7 @@ const props = defineProps({
 const emits = defineEmits(['update:modelValue', 'change', 'ready', 'undo', 'redo'])
 const appSettingsStore = useAppSettings()
 const editorDom: Ref<HTMLElement | null> = ref(null);
-const monacoInstance = ref<monaco.editor.IStandaloneCodeEditor | null>(null);
+let monacoInstance: monaco.editor.IStandaloneCodeEditor | null = null;
 let completionProvider: monaco.IDisposable | null = null;
 let hoverProvider: monaco.IDisposable | null = null;
 let resizeObserver: ResizeObserver | null = null;
@@ -99,27 +99,27 @@ const editorStyle = computed(() => {
   };
 });
 watch(() => props.modelValue, (newValue) => {
-  const value = monacoInstance.value?.getValue();
+  const value = monacoInstance?.getValue();
   if (newValue !== value) {
-    const position = monacoInstance.value?.getPosition();
-    monacoInstance.value?.setValue(props.modelValue)
+    const position = monacoInstance?.getPosition();
+    monacoInstance?.setValue(props.modelValue)
     if (position) {
-      monacoInstance.value?.setPosition(position);
+      monacoInstance?.setPosition(position);
     }
   }
 })
 watch(() => props.readOnly, (readOnly) => {
-  monacoInstance.value?.updateOptions({
+  monacoInstance?.updateOptions({
     readOnly,
   });
 })
 watch(() => props.autoHeight, (autoHeight) => {
-  if (autoHeight && monacoInstance.value) {
+  if (autoHeight && monacoInstance) {
     updateEditorHeight();
   }
 });
 watch(() => props.language, (newLang) => {
-  if (newLang && monacoInstance.value) {
+  if (newLang && monacoInstance) {
     changeLanguage(newLang);
   }
 });
@@ -130,20 +130,20 @@ watch(() => props.config, (newConfig) => {
   }
 }, { deep: true });
 watch(() => appSettingsStore.appTheme, () => {
-  if (monacoInstance.value) {
+  if (monacoInstance) {
     const newTheme = getMonacoTheme();
     monaco.editor.setTheme(newTheme);
   }
 });
 const updateEditorHeight = () => {
-  if (!props.autoHeight || !monacoInstance.value || !editorDom.value) return;
-  const contentHeight = monacoInstance.value.getContentHeight();
+  if (!props.autoHeight || !monacoInstance || !editorDom.value) return;
+  const contentHeight = monacoInstance.getContentHeight();
   const parentElement = editorDom.value.parentElement;
   const containerWidth = parentElement ? parentElement.offsetWidth : editorDom.value.offsetWidth;
   let actualHeight = Math.max(contentHeight, getPixelValue(props.minHeight));
   actualHeight = Math.min(actualHeight, getPixelValue(props.maxHeight));
   editorDom.value.style.height = `${actualHeight}px`;
-  monacoInstance.value.layout({ width: Math.max(containerWidth - 2, 100), height: actualHeight });
+  monacoInstance.layout({ width: Math.max(containerWidth - 2, 100), height: actualHeight });
 };
 const getPixelValue = (value: string | number): number => {
   if (typeof value === 'number') {
@@ -177,13 +177,13 @@ const initResizeLister = () => {
   }
   resizeObserver = new ResizeObserver((entries) => {
     for (const entry of entries) {
-      if (!monacoInstance.value || !editorDom.value) return;
+      if (!monacoInstance || !editorDom.value) return;
       const { width, height } = entry.contentRect;
       if (width > 0 && height > 0) {
         if (props.autoHeight) {
           updateEditorHeight();
         } else {
-          monacoInstance.value.layout({ width, height });
+          monacoInstance.layout({ width, height });
         }
       }
     }
@@ -194,21 +194,21 @@ const initResizeLister = () => {
 };
 const initManualUndoRedo = () => {
   if (!props.manualUndoRedo) return;
-  monacoInstance.value?.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyZ, () => {
-    const cursorPosition = monacoInstance.value?.getPosition();
+  monacoInstance?.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyZ, () => {
+    const cursorPosition = monacoInstance?.getPosition();
     emits('undo', { cursorPosition });
   });
-  monacoInstance.value?.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyMod.Shift | monaco.KeyCode.KeyZ, () => {
-    const cursorPosition = monacoInstance.value?.getPosition();
+  monacoInstance?.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyMod.Shift | monaco.KeyCode.KeyZ, () => {
+    const cursorPosition = monacoInstance?.getPosition();
     emits('redo', { cursorPosition });
   });
-  monacoInstance.value?.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyY, () => {
-    const cursorPosition = monacoInstance.value?.getPosition();
+  monacoInstance?.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyY, () => {
+    const cursorPosition = monacoInstance?.getPosition();
     emits('redo', { cursorPosition });
   });
 }
 const registerProviders = () => {
-  if (!monacoInstance.value) return;
+  if (!monacoInstance) return;
   const enableCompletion = props.config?.enableCompletion !== false;
   const enableHover = props.config?.enableHover === true;
   if (enableCompletion && props.config?.completionSuggestions && props.config.completionSuggestions.length > 0) {
@@ -258,25 +258,25 @@ const initEnvironment = () => {
 }
 const handleFormat = () => {
   const formatStr = beautify(props.modelValue, { indent_size: 4 });
-  monacoInstance.value?.setValue(formatStr)
+  monacoInstance?.setValue(formatStr)
 }
 const changeLanguage = (lang: string) => {
-  const model = monacoInstance.value?.getModel();
+  const model = monacoInstance?.getModel();
   if (model) {
     monaco.editor.setModelLanguage(model, lang);
   }
 }
 const setCursorPosition = (position: monaco.Position) => {
-  if (!monacoInstance.value) return;
-  monacoInstance.value.setPosition(position);
-  monacoInstance.value.focus();
+  if (!monacoInstance) return;
+  monacoInstance.setPosition(position);
+  monacoInstance.focus();
 }
 const initEvent = () => {
-  if (!monacoInstance.value) return;
-  monacoInstance.value.onDidChangeModelContent(() => {
+  if (!monacoInstance) return;
+  monacoInstance.onDidChangeModelContent(() => {
     if (!isComposing) {
-      emits('update:modelValue', monacoInstance.value?.getValue())
-      emits('change', monacoInstance.value?.getValue())
+      emits('update:modelValue', monacoInstance?.getValue())
+      emits('change', monacoInstance?.getValue())
     }
     if (props.autoHeight) {
       setTimeout(() => {
@@ -284,7 +284,7 @@ const initEvent = () => {
       }, 0);
     }
   })
-  monacoInstance.value.onDidContentSizeChange(() => {
+  monacoInstance.onDidContentSizeChange(() => {
     if (props.autoHeight) {
       updateEditorHeight();
     }
@@ -330,22 +330,22 @@ const initEditor = () => {
   if (props.placeholder) {
     mergedOptions.placeholder = props.placeholder;
   }
-  monacoInstance.value = monaco.editor.create(editorDom.value as HTMLElement, mergedOptions)
+  monacoInstance = monaco.editor.create(editorDom.value as HTMLElement, mergedOptions)
   registerProviders();
   if (mergedOptions.find?.autoFindInSelection === 'never') {
-    monacoInstance.value.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyF, () => {});
-    monacoInstance.value.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyH, () => {});
+    monacoInstance.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyF, () => {});
+    monacoInstance.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyH, () => {});
   }
   initEvent();
-  const editorDomElement = monacoInstance.value.getDomNode();
+  const editorDomElement = monacoInstance.getDomNode();
   if (editorDomElement) {
     editorDomElement.addEventListener('compositionstart', () => {
       isComposing = true;
     });
     editorDomElement.addEventListener('compositionend', () => {
       isComposing = false;
-      emits('update:modelValue', monacoInstance.value?.getValue())
-      emits('change', monacoInstance.value?.getValue())
+      emits('update:modelValue', monacoInstance?.getValue())
+      emits('change', monacoInstance?.getValue())
     });
   }
   initResizeLister();
@@ -383,7 +383,7 @@ onMounted(() => {
   emits('ready')
 })
 onActivated(() => {
-  monacoInstance.value?.focus()
+  monacoInstance?.focus()
   if (props.autoHeight) {
     updateEditorHeight();
   }
@@ -399,20 +399,20 @@ onUnmounted(() => {
       resizeObserver = null;
     }
     disposeProviders();
-    if (monacoInstance.value) {
-      const model = monacoInstance.value.getModel();
+    if (monacoInstance) {
+      const model = monacoInstance.getModel();
       if (model) {
         model.dispose();
       }
-      monacoInstance.value.dispose();
-      monacoInstance.value = null;
+      monacoInstance.dispose();
+      monacoInstance = null;
     }
   } catch (error) {
     // 忽略dispose异常
   }
 })
 defineExpose({
-  getCursorPosition: () => monacoInstance.value?.getPosition(),
+  getCursorPosition: () => monacoInstance?.getPosition(),
   setCursorPosition
 });
 </script>
