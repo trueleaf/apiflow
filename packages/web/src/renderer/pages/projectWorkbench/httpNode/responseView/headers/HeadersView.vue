@@ -1,10 +1,10 @@
 <template>
   <div class="header-view" :class="{ vertical: layout === 'vertical' }">
-    <div class='mb-2 d-flex a-center theme-color cursor-pointer' @click="dialogVisible = true">
-      <el-icon>
-        <FullScreen />
-      </el-icon>
-      <span class="ml-1">{{ t('展开显示返回头') }}</span>
+    <div class="header-actions mb-2">
+      <div class="action-btn" @click="dialogVisible = true" :title="t('全屏展示返回头详情')">
+        <Maximize2 :size="16" />
+        <span>{{ t('返回头详情') }}</span>
+      </div>
     </div>
     <el-table :data="headers"  border>
       <el-table-column align="center" prop="key" :label="t('名称')"></el-table-column>
@@ -68,7 +68,7 @@ import { useApidocBaseInfo } from '@/store/apidoc/baseInfoStore';
 import { useApidocResponse } from '@/store/apidoc/responseStore';
 import { computed, ref } from 'vue';
 import { useI18n } from 'vue-i18n'
-import { FullScreen } from '@element-plus/icons-vue';
+import { Maximize2 } from 'lucide-vue-next';
 import { useHttpNodeConfig } from '@/store/apidoc/httpNodeConfigStore';
 
 const apidocResponseStore = useApidocResponse();
@@ -136,6 +136,21 @@ function getCollapsedValue(val: string) {
   &.vertical {
     height: 100%;
   }
+}
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.action-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  color: var(--el-color-primary);
+  font-size: 14px;
+  user-select: none;
 }
 .token-value.collapsed {
   max-height: 7em;

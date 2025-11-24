@@ -167,6 +167,8 @@ export default {
   本次接口返回的cookie值: 'Cookie values returned by this request',
   查看本次接口返回的Cookie详情: 'View Cookie details from this response',
   打开全局Cookie管理页面: 'Open global Cookie management',
+  返回头详情: 'Headers Details',
+  全屏展示返回头详情: 'View full response headers',
   '文档名称、文档url': 'Document Name, Document URL',
   高级筛选: 'Advanced Filter',
   高级搜索: 'Advanced Search',
