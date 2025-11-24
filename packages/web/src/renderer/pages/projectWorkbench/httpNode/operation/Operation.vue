@@ -236,12 +236,14 @@ watch(
 .api-operation {
   position: sticky;
   top: 0;
-  padding: 10px 20px;
+  padding: 0 20px;
   box-shadow: 0 3px 2px var(--gray-400);
   background: var(--white);
   z-index: var(--zIndex-request-info-wrap);
   height: var(--apiflow-apidoc-operation-height);
-
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
   &.prefix {
     height: 130px;
   }
@@ -257,7 +259,7 @@ watch(
   .op-wrap {
     display: flex;
     margin-top: 10px;
-
+    width: 100%;
     .request-method {
       display: flex;
       align-items: center;
