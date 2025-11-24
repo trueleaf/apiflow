@@ -367,7 +367,13 @@ const mergeAiDataToWebSocketNode = (node: WebSocketNode, aiData: any) => {
     node.item.headers.push(generateEmptyProperty())
   }
   if (aiData.sendMessage) {
-    node.item.sendMessage = aiData.sendMessage
+    node.item.messageBlocks = [{
+      id: nanoid(),
+      name: '',
+      content: aiData.sendMessage,
+      messageType: 'json',
+      order: 0
+    }]
   }
 }
 const mergeAiDataToHttpMockNode = (node: HttpMockNode, aiData: any) => {

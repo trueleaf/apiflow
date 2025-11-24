@@ -130,7 +130,7 @@ export const useWsRedoUndo = defineStore('wsRedoUndo', () => {
         break;
         
       case 'sendMessageOperation':
-        websocketStore.changeWebSocketMessage(targetValue as string);
+        // 消息块的 undo/redo 暂不支持，跳过
         break;
         
       case 'configOperation':

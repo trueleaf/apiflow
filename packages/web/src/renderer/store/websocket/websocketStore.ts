@@ -1,4 +1,4 @@
-import { WebSocketNode, WebsocketMessageType, WebsocketResponse, WebsocketSendMessageTemplate, WebsocketActiveTabType } from "@src/types/websocketNode";
+import { WebSocketNode, WebsocketMessageType, WebsocketResponse, WebsocketActiveTabType, WebsocketMessageBlock } from "@src/types/websocketNode";
 import { defineStore, storeToRefs } from "pinia";
 import { ref, watch } from "vue";
 import { ApidocProperty } from "@src/types";
@@ -7,7 +7,6 @@ import { nanoid } from 'nanoid/non-secure';
 import { cloneDeep, debounce } from "lodash-es";
 import { apiNodesCache } from "@/cache/nodes/nodesCache";
 import { webSocketNodeCache } from "@/cache/websocketNode/websocketNodeCache.ts";
-import { websocketTemplateCache } from "@/cache/websocketNode/websocketTemplateCache.ts";
 import { ElMessageBox } from 'element-plus';
 import { useApidocTas } from "../apidoc/tabsStore.ts";
 import { router } from "@/router/index.ts";
@@ -37,7 +36,6 @@ export const useWebSocket = defineStore('websocket', () => {
   const connectionState = ref<'disconnected' | 'connecting' | 'connected' | 'error'>('disconnected');
   const connectionId = ref('');
   const responseMessage = ref<WebsocketResponse[]>([]);
-  const sendMessageTemplateList = ref<WebsocketSendMessageTemplate[]>([]);
   const currentActiveTab = ref<WebsocketActiveTabType>('messageContent'); // 当前激活的模块
   const messageEditorRef = ref<{changeSilent: (value: boolean) => void} | null>(null); // 消息编辑器引用
   
@@ -289,22 +287,64 @@ const updateWebSocketHeaderById = (id: string, header: Partial<ApidocProperty<'s
 
   /*
   |--------------------------------------------------------------------------
-  | 消息和自动发送操作方法
+  | 消息块操作方法
   |--------------------------------------------------------------------------
   */
-  // 改变发送消息内容
-  const changeWebSocketMessage = (message: string): void => {
-    if (!websocket.value) return;
-    websocket.value.item.sendMessage = message;
+  // 添加消息块
+  const addMessageBlock = (block?: Partial<WebsocketMessageBlock>): string => {
+    if (!websocket.value) return '';
+    const newBlock: WebsocketMessageBlock = {
+      id: nanoid(),
+      name: block?.name || '',
+      content: block?.content || '',
+      messageType: block?.messageType || 'json',
+      order: block?.order ?? websocket.value.item.messageBlocks.length,
+    };
+    websocket.value.item.messageBlocks.push(newBlock);
+    return newBlock.id;
   };
 
-  // 改变消息类型
-  const changeWebSocketMessageType = (messageType: WebsocketMessageType): void => {
-    if (websocket.value) {
-      websocket.value.config.messageType = messageType;
+  // 删除消息块
+  const deleteMessageBlockById = (id: string): void => {
+    if (!websocket.value) return;
+    const index = websocket.value.item.messageBlocks.findIndex(block => block.id === id);
+    if (index !== -1) {
+      websocket.value.item.messageBlocks.splice(index, 1);
+      // 重新排序
+      websocket.value.item.messageBlocks.forEach((block, i) => {
+        block.order = i;
+      });
     }
   };
 
+  // 更新消息块
+  const updateMessageBlockById = (id: string, updates: Partial<WebsocketMessageBlock>): void => {
+    if (!websocket.value) return;
+    const block = websocket.value.item.messageBlocks.find(b => b.id === id);
+    if (block) {
+      Object.assign(block, updates);
+    }
+  };
+
+  // 获取消息块
+  const getMessageBlockById = (id: string): WebsocketMessageBlock | undefined => {
+    return websocket.value?.item.messageBlocks.find(block => block.id === id);
+  };
+
+  // 更新消息块排序
+  const updateMessageBlocksOrder = (blocks: WebsocketMessageBlock[]): void => {
+    if (!websocket.value) return;
+    websocket.value.item.messageBlocks = blocks.map((block, index) => ({
+      ...block,
+      order: index,
+    }));
+  };
+
+  /*
+  |--------------------------------------------------------------------------
+  | 自动发送操作方法
+  |--------------------------------------------------------------------------
+  */
   // 改变自动发送设置
   const changeWebSocketAutoSend = (enabled: boolean): void => {
     if (websocket.value) {
@@ -319,13 +359,19 @@ const updateWebSocketHeaderById = (id: string, header: Partial<ApidocProperty<'s
     }
   };
 
-  // 改变默认自动发送内容
-  const changeWebSocketDefaultAutoSendContent = (content: string): void => {
+  // 改变自动发送内容
+  const changeWebSocketAutoSendContent = (content: string): void => {
     if (websocket.value) {
-      websocket.value.config.defaultAutoSendContent = content;
+      websocket.value.config.autoSendContent = content;
     }
   };
 
+  // 改变自动发送消息类型
+  const changeWebSocketAutoSendMessageType = (messageType: WebsocketMessageType): void => {
+    if (websocket.value) {
+      websocket.value.config.autoSendMessageType = messageType;
+    }
+  };
 
   // 改变自动重连设置
   const changeWebSocketAutoReconnect = (enabled: boolean): void => {
@@ -395,92 +441,6 @@ const updateWebSocketHeaderById = (id: string, header: Partial<ApidocProperty<'s
       return timestamp >= startTime && timestamp <= endTime;
     });
   };
-
-  /*
-  |--------------------------------------------------------------------------
-  | 消息模板
-  |--------------------------------------------------------------------------
-  */
-
-  // 新增消息模板
-  const addMessageTemplate = (template: WebsocketSendMessageTemplate): void => {
-    try {
-      websocketTemplateCache.addTemplate(template);
-      sendMessageTemplateList.value.push(template);
-    } catch (error) {
-      logger.error('添加消息模板失败', { error });
-      throw error;
-    }
-  };
-
-  // 更新消息模板
-  const updateMessageTemplate = (id: string, updates: Partial<WebsocketSendMessageTemplate>): WebsocketSendMessageTemplate | null => {
-    try {
-      const success = websocketTemplateCache.updateTemplateById(id, updates);
-      if (!success) {
-        logger.warn(`消息模板 ID ${id} 不存在`);
-        return null;
-      }
-      const index = sendMessageTemplateList.value.findIndex(template => template.id === id);
-      if (index !== -1) {
-        const updatedTemplate = {
-          ...sendMessageTemplateList.value[index],
-          ...updates,
-          updatedAt: Date.now(),
-        };
-        sendMessageTemplateList.value[index] = updatedTemplate;
-        return updatedTemplate;
-      }
-      return null;
-    } catch (error) {
-      logger.error('更新消息模板失败', { error });
-      return null;
-    }
-  };
-
-  // 删除消息模板
-  const deleteMessageTemplate = (id: string): boolean => {
-    try {
-      const success = websocketTemplateCache.deleteTemplateById(id);
-      if (success) {
-        const index = sendMessageTemplateList.value.findIndex(template => template.id === id);
-        if (index !== -1) {
-          sendMessageTemplateList.value.splice(index, 1);
-        }
-      }
-      return success;
-    } catch (error) {
-      logger.error('删除消息模板失败', { error });
-      return false;
-    }
-  };
-
-  // 根据 ID 获取消息模板
-  const getMessageTemplateById = (id: string): WebsocketSendMessageTemplate | null => {
-    return sendMessageTemplateList.value.find(template => template.id === id) || null;
-  };
-
-  // 获取所有消息模板
-  const getAllMessageTemplates = (): WebsocketSendMessageTemplate[] => {
-    return sendMessageTemplateList.value;
-  };
-
-  // 清空所有消息模板
-  const clearAllMessageTemplates = (): void => {
-    try {
-      websocketTemplateCache.clearAllTemplates();
-      sendMessageTemplateList.value = [];
-    } catch (error) {
-      logger.error('清空消息模板失败', { error });
-    }
-  };
-
-  // 设置消息模板列表
-  const setSendMessageTemplateList = (templates: WebsocketSendMessageTemplate[]): void => {
-    sendMessageTemplateList.value = templates;
-  };
-
-
 
   /*
   |--------------------------------------------------------------------------
@@ -703,7 +663,6 @@ const updateWebSocketHeaderById = (id: string, header: Partial<ApidocProperty<'s
     connectionState,
     connectionId,
     responseMessage,
-    sendMessageTemplateList,
     changeWebSocketName,
     changeWebSocketDescription,
     changeWebSocketProtocol,
@@ -720,11 +679,17 @@ const updateWebSocketHeaderById = (id: string, header: Partial<ApidocProperty<'s
     changeQueryParams,
     changeWebSocketPreRequest,
     changeWebSocketAfterRequest,
-    changeWebSocketMessage,
-    changeWebSocketMessageType,
+    // 消息块操作方法
+    addMessageBlock,
+    deleteMessageBlockById,
+    updateMessageBlockById,
+    getMessageBlockById,
+    updateMessageBlocksOrder,
+    // 自动发送方法
     changeWebSocketAutoSend,
     changeWebSocketAutoSendInterval,
-    changeWebSocketDefaultAutoSendContent,
+    changeWebSocketAutoSendContent,
+    changeWebSocketAutoSendMessageType,
     changeWebSocketAutoReconnect,
     changeConnectionState,
     changeConnectionId,
@@ -734,7 +699,7 @@ const updateWebSocketHeaderById = (id: string, header: Partial<ApidocProperty<'s
     changeWebsocketLoading,
     getWebsocketDetail,
     saveWebsocket,
-    // 消息相关方法
+    // 响应消息相关方法
     addMessage,
     replaceMessages,
     clearMessages,
@@ -742,14 +707,6 @@ const updateWebSocketHeaderById = (id: string, header: Partial<ApidocProperty<'s
     getMessagesByType,
     getLatestMessages,
     getMessagesByTimeRange,
-    // 消息模板 CRUD 操作方法
-    addMessageTemplate,
-    updateMessageTemplate,
-    deleteMessageTemplate,
-    getMessageTemplateById,
-    getAllMessageTemplates,
-    clearAllMessageTemplates,
-    setSendMessageTemplateList,
     // 缓存相关方法
     cacheWebSocket,
     getCachedWebSocket,

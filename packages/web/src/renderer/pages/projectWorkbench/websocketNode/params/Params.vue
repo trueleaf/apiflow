@@ -159,7 +159,7 @@ const hasPreScript = computed(() => websocket.value.preRequest.raw.trim() !== ''
 
 const hasAfterScript = computed(() => websocket.value.afterRequest.raw.trim() !== '')
 
-const hasSendMessage = computed(() => websocket.value.item.sendMessage.trim() !== '')
+const hasSendMessage = computed(() => websocket.value.item.messageBlocks.length > 0 && websocket.value.item.messageBlocks.some(block => block.content.trim() !== ''))
 
 // 撤销/重做相关计算属性
 const canUndo = computed(() => {

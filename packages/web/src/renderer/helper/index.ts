@@ -1516,13 +1516,19 @@ export const generateEmptyWebsocketNode = (_id: string): WebSocketNode => {
       },
       queryParams: [],
       headers: [],
-      sendMessage: '',
+      messageBlocks: [{
+        id: nanoid(),
+        name: '',
+        content: '',
+        messageType: 'json',
+        order: 0
+      }],
     },
     config: {
-      messageType: 'json',
       autoSend: false,
       autoSendInterval: 30000,
-      defaultAutoSendContent: 'ping',
+      autoSendContent: 'ping',
+      autoSendMessageType: 'json',
       autoReconnect: false,
     },
     preRequest: {

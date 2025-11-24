@@ -34,7 +34,6 @@ import { debounce } from "lodash-es"
 import type { WebSocketNode } from '@src/types/websocketNode'
 import { DebouncedFunc } from 'lodash-es'
 import { websocketResponseCache } from '@/cache/websocketNode/websocketResponseCache'
-import { websocketTemplateCache } from '@/cache/websocketNode/websocketTemplateCache'
 import { router } from '@/router'
 import { useWsRedoUndo } from '@/store/redoUndo/wsRedoUndoStore'
 import { executeWebSocketAfterScript } from '@/server/websocket/executeAfterScript'
@@ -58,14 +57,14 @@ const redoUndoStore = useWsRedoUndo()
 */
 //检查config配置是否相等
 const checkConfigIsEqual = (config: WebSocketNode['config'], originConfig: WebSocketNode['config']) => {
-  const messageTypeIsEqual = config.messageType === originConfig.messageType;
   const autoSendIsEqual = config.autoSend === originConfig.autoSend;
   const autoSendIntervalIsEqual = config.autoSendInterval === originConfig.autoSendInterval;
-  const defaultAutoSendContentIsEqual = config.defaultAutoSendContent === originConfig.defaultAutoSendContent;
+  const autoSendContentIsEqual = config.autoSendContent === originConfig.autoSendContent;
+  const autoSendMessageTypeIsEqual = config.autoSendMessageType === originConfig.autoSendMessageType;
   const autoReconnectIsEqual = config.autoReconnect === originConfig.autoReconnect;
-  
-  return messageTypeIsEqual && autoSendIsEqual && autoSendIntervalIsEqual && 
-         defaultAutoSendContentIsEqual && autoReconnectIsEqual;
+
+  return autoSendIsEqual && autoSendIntervalIsEqual &&
+         autoSendContentIsEqual && autoSendMessageTypeIsEqual && autoReconnectIsEqual;
 }
 
 //判断websocket是否发生改变
@@ -89,8 +88,8 @@ const checkWebsocketIsEqual = (websocket: WebSocketNode, originWebsocket: WebSoc
   // 检查查询参数
   const queryParamsIsEqual = checkPropertyIsEqual(cpWebsocket.item.queryParams, cpOriginWebsocket.item.queryParams)
   
-  // 检查消息内容
-  const messageIsEqual = cpWebsocket.item.sendMessage === cpOriginWebsocket.item.sendMessage;
+  // 检查消息块
+  const messageBlocksIsEqual = JSON.stringify(cpWebsocket.item.messageBlocks) === JSON.stringify(cpOriginWebsocket.item.messageBlocks);
   
   // 检查config配置
   const configIsEqual = checkConfigIsEqual(cpWebsocket.config, cpOriginWebsocket.config)
@@ -99,8 +98,8 @@ const checkWebsocketIsEqual = (websocket: WebSocketNode, originWebsocket: WebSoc
   const preRequestIsEqual = cpWebsocket.preRequest.raw === cpOriginWebsocket.preRequest.raw
   const afterRequestIsEqual = cpWebsocket.afterRequest.raw === cpOriginWebsocket.afterRequest.raw
 
-  if (!nameIsEqual || !descriptionIsEqual || !protocolIsEqual || !pathIsEqual || 
-      !headerIsEqual || !queryParamsIsEqual || !messageIsEqual || 
+  if (!nameIsEqual || !descriptionIsEqual || !protocolIsEqual || !pathIsEqual ||
+      !headerIsEqual || !queryParamsIsEqual || !messageBlocksIsEqual ||
       !configIsEqual || !preRequestIsEqual || !afterRequestIsEqual) {
     return false
   }
@@ -178,11 +177,6 @@ const initResponseFromCache = () => {
   }
 }
 
-// 初始化模板数据
-const initTemplate = () => {
-  const templates = websocketTemplateCache.getAllTemplates();
-  websocketStore.setSendMessageTemplateList(templates);
-};
 // 初始化防抖数据变化处理
 const initDebouncDataChange = () => {
   debounceWebsocketDataChange.value = debounce(handleWebsocketDataChange, 200, {
@@ -439,7 +433,6 @@ watch(() => websocketStore.websocket, (websocket: WebSocketNode) => {
 
 
 onMounted(() => {
-  initTemplate()
   initDebouncDataChange()
   initWebSocketEventListeners();
 })

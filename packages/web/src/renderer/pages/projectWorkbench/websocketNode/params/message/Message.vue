@@ -1,60 +1,18 @@
 <template>
   <div class="message-content">
-    <!-- 内容编辑器 -->
-    <div class="content-wrapper">
-      <!-- 编辑器 -->
-      <div class="editor-wrap">
-        <SJsonEditor
-          ref="jsonEditorRef"
-          manual-undo-redo
-          :model-value="websocketStore.websocket.item.sendMessage"
-          :config="editorConfig"
-          :auto-height="false"
-          @update:model-value="handleMessageChange"
-          @undo="handleEditorUndo"
-          @redo="handleEditorRedo"
-        />
-      </div>
-      <!-- 格式化按钮 -->
-      <div v-if="websocketStore.websocket.config.messageType === 'json'" class="format-op">
-        <span class="btn" @click="handleFormatContent">{{ t("格式化") }}</span>
-      </div>
-      <!-- 操作按钮区域 -->
-      <div class="content-actions">
-        <el-button type="primary" size="small"
-          @click="handleSendMessage" :icon="Position">
-          {{ t("发送消息") }}
-        </el-button>
-        <!-- 模板选择器 -->
-        <div v-if="quickOperations.includes('template')" class="template-selector">
-          <el-select v-model="selectedTemplateId" :placeholder="t('选择模板')" size="small" clearable
-            @change="handleSelectTemplate" class="template-select">
-            <template #empty>
-              <div class="empty-template">
-                <div class="empty-text">{{ t('暂无模板数据') }}</div>
-                <el-button link type="primary" size="small" @click="handleOpenCreateTemplateDialog">
-                  {{ t('创建模板') }}
-                </el-button>
-              </div>
-            </template>
-            <el-option v-for="template in websocketStore.sendMessageTemplateList" :key="template.id"
-              :label="template.name" :value="template.id">
-              <div class="template-option">
-                <span class="template-name">{{ template.name }}</span>
-                <el-icon class="delete-icon" @click.stop="handleDeleteTemplate(template.id)" :title="t('删除')">
-                  <Delete />
-                </el-icon>
-              </div>
-            </el-option>
-          </el-select>
-        </div>
-        <!-- 自动配置功能 -->
+    <!-- 顶部操作栏 -->
+    <div class="top-actions">
+      <div class="left-actions"></div>
+      <div class="right-actions">
+        <!-- 自动发送配置 -->
         <div v-if="quickOperations.includes('autoSend')" class="config-controls">
-          <div class="config-checkbox">
-            <el-checkbox v-model="websocketStore.websocket.config.autoSend" @change="handleAutoConfigChange">
-              {{ t("自动发送") }}
-            </el-checkbox>
-          </div>
+          <el-checkbox v-model="websocketStore.websocket.config.autoSend" @change="handleAutoConfigChange">
+            {{ t("自动发送") }}
+          </el-checkbox>
+        </div>
+        <!-- 添加消息块按钮 -->
+        <div class="add-block-button" :title="t('添加消息块')" @click="handleAddMessageBlock">
+          <el-icon><Plus /></el-icon>
         </div>
         <el-popover v-model:visible="configPopoverVisible" placement="bottom" :width="400" trigger="click" transition="none" @show="handleConfigPopoverShow">
           <template #reference>
@@ -64,7 +22,6 @@
               </el-icon>
             </div>
           </template>
-
           <div class="config-popover">
             <div class="config-item">
               <label class="config-label">{{ t("发送间隔") }}:</label>
@@ -74,19 +31,26 @@
                 <span class="interval-unit">{{ t("毫秒") }}</span>
               </div>
             </div>
-
+            <div class="config-item">
+              <label class="config-label">{{ t("消息类型") }}:</label>
+              <el-select v-model="tempAutoSendMessageType" size="small" style="width: 100%;">
+                <el-option value="text" :label="t('文本')" />
+                <el-option value="json" label="JSON" />
+                <el-option value="xml" label="XML" />
+                <el-option value="html" label="HTML" />
+              </el-select>
+            </div>
             <div class="config-item">
               <label class="config-label">{{ t("消息内容") }}:</label>
               <div class="config-content-editor">
                 <SJsonEditor
-                  v-model="tempDefaultAutoSendContent"
-                  :config="{ language: 'plaintext' }"
+                  v-model="tempAutoSendContent"
+                  :config="{ language: getLanguageByType(tempAutoSendMessageType) }"
                   :auto-height="false"
                   style="height: 100px;"
                 />
               </div>
             </div>
-
             <div class="config-item">
               <label class="config-label">{{ t("快捷操作") }}:</label>
               <div class="quick-operations">
@@ -94,13 +58,8 @@
                   @change="handleTempQuickOperationChange('autoSend', $event)">
                   {{ t("自动发送") }}
                 </el-checkbox>
-                <el-checkbox :model-value="tempQuickOperations.includes('template')"
-                  @change="handleTempQuickOperationChange('template', $event)">
-                  {{ t("模板选择") }}
-                </el-checkbox>
               </div>
             </div>
-
             <div class="config-actions">
               <el-button size="small" type="primary" @click="handleSaveConfig">
                 {{ t("保存") }}
@@ -111,50 +70,91 @@
             </div>
           </div>
         </el-popover>
-
-        <!-- 数据类型选择器 -->
-        <div class="message-type-selector">
-          <el-select v-model="websocketStore.websocket.config.messageType" size="small"
-            @change="handleMessageTypeChange" class="type-selector">
-            <el-option value="text" :label="t('文本')">
-              <span class="option-content">
-                <span>{{ t("文本") }}</span>
-              </span>
-
-            </el-option>
-            <el-option value="json" :label="t('JSON')">
-              <span class="option-content">
-                <span>JSON</span>
-              </span>
-            </el-option>
-            <el-option value="xml" :label="t('XML')">
-              <span class="option-content">
-                <span>XML</span>
-              </span>
-            </el-option>
-            <el-option value="html" :label="t('HTML')">
-              <span class="option-content">
-                <span>HTML</span>
-              </span>
-            </el-option>
-            <el-option value="binary-base64" :label="t('二进制(Base64)')">
-              <span class="option-content">
-                <span>{{ t("二进制(Base64)") }}</span>
-              </span>
-            </el-option>
-            <el-option value="binary-hex" :label="t('二进制(Hex)')">
-              <span class="option-content">
-                <span>{{ t("二进制(Hex)") }}</span>
-              </span>
-            </el-option>
-          </el-select>
-        </div>
-
       </div>
     </div>
 
-    <!-- 创建模板弹窗 -->
-    <AddTemplateDialog v-model="createTemplateDialogVisible" />
+    <!-- 消息块列表 -->
+    <div class="message-blocks-container">
+      <draggable
+        v-model="messageBlocks"
+        item-key="id"
+        handle=".drag-handle"
+        @end="handleDragEnd"
+        class="message-blocks-list"
+      >
+        <template #item="{ element, index }">
+          <div class="message-block">
+            <!-- 消息块头部 -->
+            <div class="block-header">
+              <div class="left-controls">
+                <el-icon class="drag-handle">
+                  <Rank />
+                </el-icon>
+                <el-input
+                  v-model="element.name"
+                  :placeholder="t('消息块') + ' ' + (index + 1)"
+                  size="small"
+                  class="block-name-input"
+                  @change="handleBlockNameChange(element.id, element.name)"
+                />
+              </div>
+              <div class="right-controls">
+                <el-select
+                  v-model="element.messageType"
+                  size="small"
+                  class="type-selector"
+                  @change="handleBlockTypeChange(element.id, element.messageType)"
+                >
+                  <el-option value="text" :label="t('文本')" />
+                  <el-option value="json" label="JSON" />
+                  <el-option value="xml" label="XML" />
+                  <el-option value="html" label="HTML" />
+                  <el-option value="binary-base64" :label="t('二进制(Base64)')" />
+                  <el-option value="binary-hex" :label="t('二进制(Hex)')" />
+                </el-select>
+                <el-button
+                  type="primary"
+                  size="small"
+                  :icon="Position"
+                  @click="handleSendBlock(element)"
+                >
+                  {{ t("发送") }}
+                </el-button>
+                <el-button
+                  v-if="messageBlocks.length > 1"
+                  type="danger"
+                  size="small"
+                  :icon="Delete"
+                  @click="handleDeleteBlock(element.id)"
+                />
+              </div>
+            </div>
+            <!-- 消息块编辑器 -->
+            <div class="block-editor">
+              <SJsonEditor
+                :model-value="element.content"
+                :config="{ language: getLanguageByType(element.messageType) }"
+                :auto-height="false"
+                @update:model-value="handleBlockContentChange(element.id, $event)"
+              />
+              <!-- 格式化按钮 -->
+              <div v-if="element.messageType === 'json'" class="format-op">
+                <span class="btn" @click="handleFormatBlock(index)">{{ t("格式化") }}</span>
+              </div>
+            </div>
+          </div>
+        </template>
+      </draggable>
+
+      <!-- 空状态 -->
+      <div v-if="messageBlocks.length === 0" class="empty-state">
+        <el-empty :description="t('暂无消息块')">
+          <el-button type="primary" size="small" @click="handleAddMessageBlock">
+            {{ t("添加消息块") }}
+          </el-button>
+        </el-empty>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -164,147 +164,82 @@ import { storeToRefs } from 'pinia'
 import { useI18n } from 'vue-i18n'
 import { useApidocTas } from '@/store/apidoc/tabsStore'
 import { useWebSocket } from '@/store/websocket/websocketStore'
-import { useWsRedoUndo } from '@/store/redoUndo/wsRedoUndoStore'
 import {
+  Plus,
   Position,
   Setting,
   Delete,
+  Rank,
 } from '@element-plus/icons-vue'
 import SJsonEditor from '@/components/common/jsonEditor/ClJsonEditor.vue'
-import AddTemplateDialog from './dialog/add/Add.vue'
-import type { WebsocketMessageType } from '@src/types/websocketNode'
+import draggable from 'vuedraggable'
+import type { WebsocketMessageType, WebsocketMessageBlock } from '@src/types/websocketNode'
 import { nanoid } from 'nanoid/non-secure'
 import { websocketResponseCache } from '@/cache/websocketNode/websocketResponseCache'
 import { webSocketNodeCache } from '@/cache/websocketNode/websocketNodeCache'
-import { ElMessageBox } from 'element-plus'
-import type * as Monaco from 'monaco-editor/esm/vs/editor/editor.api'
-
-
-
 import { message, getCompiledTemplate } from '@/helper'
 import { useVariable } from '@/store/apidoc/variablesStore'
+
 const { t } = useI18n()
 const apidocTabsStore = useApidocTas()
 const websocketStore = useWebSocket()
-const redoUndoStore = useWsRedoUndo()
 const { connectionState, connectionId } = storeToRefs(websocketStore)
-// const { changeMessageEditorRef } = websocketStore
-// 获取当前选中的tab
 const { currentSelectTab } = storeToRefs(apidocTabsStore)
 
 const configPopoverVisible = ref(false)
 let configTimer: NodeJS.Timeout | null = null
 
-// 编辑器引用
-type JsonEditorRef = {
-  format: () => void;
-  focus: () => void;
-  changeLanguage: (language: string) => void;
-  updateEditorHeight: () => void;
-  getCursorPosition: () => Monaco.Position | null;
-  setCursorPosition: (position: Monaco.Position) => void;
-};
-
-const jsonEditorRef = ref<JsonEditorRef | null>(null)
-// 消息内容记录函数
-const recordMessageOperation = (oldValue: string, newValue: string) => {
-  if (!currentSelectTab.value || oldValue === newValue) return;
-  const cursorPosition = jsonEditorRef.value?.getCursorPosition() || undefined;
-  redoUndoStore.recordOperation({
-    nodeId: currentSelectTab.value._id,
-    type: "sendMessageOperation",
-    operationName: t("修改消息内容"),
-    affectedModuleName: "messageContent",
-    oldValue,
-    newValue,
-    cursorPosition,
-    timestamp: Date.now()
-  });
-};
-// 处理消息内容变化
-const handleMessageChange = (newValue: string) => {
-  const oldValue = websocketStore.websocket.item.sendMessage;
-  websocketStore.changeWebSocketMessage(newValue);
-  recordMessageOperation(oldValue, newValue);
-};
-
-
-// 处理编辑器undo事件
-const handleEditorUndo = () => {
-  const nodeId = currentSelectTab.value?._id;
-  if (nodeId) {
-    const result = redoUndoStore.wsUndo(nodeId);
-    if (result.code === 0 && result.operation?.type === 'sendMessageOperation') {
-      const operation = result.operation;
-      if (operation.cursorPosition) {
-        const editor = jsonEditorRef.value;
-        editor?.setCursorPosition(operation.cursorPosition);
-      }
-    }
-  }
-};
-
-// 处理编辑器redo事件
-const handleEditorRedo = () => {
-  const nodeId = currentSelectTab.value?._id;
-  if (nodeId) {
-    const result = redoUndoStore.wsRedo(nodeId);
-    if (result.code === 0 && result.operation?.type === 'sendMessageOperation') {
-      const operation = result.operation;
-      if (operation.cursorPosition) {
-        const editor = jsonEditorRef.value;
-        editor?.setCursorPosition(operation.cursorPosition);
-      }
-    }
-  }
-};
-const editorConfig = computed(() => {
-  switch (websocketStore.websocket.config.messageType) {
-    case 'json':
-      return { language: 'json' }
-    case 'xml':
-      return { language: 'xml' }
-    case 'html':
-      return { language: 'html' }
-    case 'text':
-    default:
-      return { language: 'plaintext' }
+// 消息块列表
+const messageBlocks = computed({
+  get: () => websocketStore.websocket.item.messageBlocks,
+  set: (value) => {
+    websocketStore.updateMessageBlocksOrder(value)
   }
 })
 
-// 模板相关变量
-const selectedTemplateId = ref<string>('')
-const createTemplateDialogVisible = ref(false)
-
 // 快捷操作配置
-const quickOperations = ref<('autoSend' | 'template')[]>([])
+const quickOperations = ref<'autoSend'[]>([])
 
 // 弹窗临时配置状态
 const tempAutoSendInterval = ref(1000)
-const tempDefaultAutoSendContent = ref('')
-const tempQuickOperations = ref<('autoSend' | 'template')[]>([])
+const tempAutoSendContent = ref('')
+const tempAutoSendMessageType = ref<WebsocketMessageType>('json')
+const tempQuickOperations = ref<'autoSend'[]>([])
+
+// 获取语言类型
+const getLanguageByType = (type: WebsocketMessageType): string => {
+  switch (type) {
+    case 'json':
+      return 'json'
+    case 'xml':
+      return 'xml'
+    case 'html':
+      return 'html'
+    case 'text':
+    default:
+      return 'plaintext'
+  }
+}
 
 // 初始化快捷操作配置
 const initQuickOperations = () => {
   const tab = currentSelectTab.value
   if (tab) {
     const config = webSocketNodeCache.getWebsocketConfig(tab.projectId)
-    quickOperations.value = config?.quickOperations || []
+    quickOperations.value = (config?.quickOperations || []) as 'autoSend'[]
   }
 }
+
 // 弹窗打开时初始化临时变量
 const handleConfigPopoverShow = () => {
   tempAutoSendInterval.value = websocketStore.websocket.config.autoSendInterval
-  tempDefaultAutoSendContent.value = websocketStore.websocket.config.defaultAutoSendContent
+  tempAutoSendContent.value = websocketStore.websocket.config.autoSendContent
+  tempAutoSendMessageType.value = websocketStore.websocket.config.autoSendMessageType
   tempQuickOperations.value = [...quickOperations.value]
-}
-// 格式化消息内容
-const handleFormatContent = () => {
-  jsonEditorRef.value?.format()
 }
 
 // 处理临时快捷操作变化
-const handleTempQuickOperationChange = (operation: 'autoSend' | 'template', enabled: boolean | string | number) => {
+const handleTempQuickOperationChange = (operation: 'autoSend', enabled: boolean | string | number) => {
   const boolEnabled = Boolean(enabled)
   if (boolEnabled) {
     if (!tempQuickOperations.value.includes(operation)) {
@@ -323,20 +258,15 @@ const handleSaveConfig = async () => {
   const tab = currentSelectTab.value
   if (!tab) return
 
-  // 更新发送间隔
   websocketStore.changeWebSocketAutoSendInterval(tempAutoSendInterval.value)
+  websocketStore.changeWebSocketAutoSendContent(tempAutoSendContent.value)
+  websocketStore.changeWebSocketAutoSendMessageType(tempAutoSendMessageType.value)
 
-  // 更新消息内容（不进行变量解析）
-  const rawContent = tempDefaultAutoSendContent.value
-  websocketStore.changeWebSocketDefaultAutoSendContent(rawContent)
-
-  // 更新快捷操作
   quickOperations.value = [...tempQuickOperations.value]
   webSocketNodeCache.setWebsocketConfig(tab.projectId, {
     quickOperations: quickOperations.value
   })
 
-  // 如果自动发送正在运行，重新启动以应用新的间隔
   if (websocketStore.websocket.config.autoSend && connectionState.value === 'connected') {
     stopAutoSend()
     startAutoSend()
@@ -346,66 +276,65 @@ const handleSaveConfig = async () => {
   message.success(t('配置保存成功'))
 }
 
-// 模板选择处理
-const handleSelectTemplate = (templateId: string) => {
-  if (!templateId) {
-    selectedTemplateId.value = ''
-    return
-  }
-
-  const template = websocketStore.getMessageTemplateById(templateId)
-  if (template) {
-    // 填充消息内容和类型
-    websocketStore.changeWebSocketMessage(template.sendMessage)
-    websocketStore.changeWebSocketMessageType(template.messageType)
-    selectedTemplateId.value = templateId
-  }
+// 添加消息块
+const handleAddMessageBlock = () => {
+  websocketStore.addMessageBlock({
+    name: '',
+    content: '',
+    messageType: 'json',
+  })
 }
 
-// 删除模板处理
-const handleDeleteTemplate = async (templateId: string) => {
-  try {
-    await ElMessageBox.confirm(
-      t('确定要删除此消息模板吗'),
-      t('提示'),
-      {
-        confirmButtonText: t('确定'),
-        cancelButtonText: t('取消'),
-        type: 'warning'
-      }
-    )
+// 删除消息块
+const handleDeleteBlock = (id: string) => {
+  websocketStore.deleteMessageBlockById(id)
+}
 
-    const success = websocketStore.deleteMessageTemplate(templateId)
-    if (success) {
-      message.success(t('消息模板删除成功'))
-      // 如果删除的是当前选中的模板，清空选择
-      if (selectedTemplateId.value === templateId) {
-        selectedTemplateId.value = ''
-      }
-    } else {
-      message.error(t('模板删除失败'))
+// 处理消息块名称变化
+const handleBlockNameChange = (id: string, name: string) => {
+  websocketStore.updateMessageBlockById(id, { name })
+}
+
+// 处理消息块类型变化
+const handleBlockTypeChange = (id: string, messageType: WebsocketMessageType) => {
+  websocketStore.updateMessageBlockById(id, { messageType })
+}
+
+// 处理消息块内容变化
+const handleBlockContentChange = (id: string, content: string) => {
+  websocketStore.updateMessageBlockById(id, { content })
+}
+
+// 处理拖拽结束
+const handleDragEnd = () => {
+  // 拖拽结束后，消息块顺序已通过 computed setter 更新
+}
+
+// 格式化消息块
+const handleFormatBlock = (index: number) => {
+  const block = messageBlocks.value[index]
+  if (block && block.messageType === 'json') {
+    try {
+      const formatted = JSON.stringify(JSON.parse(block.content), null, 2)
+      websocketStore.updateMessageBlockById(block.id, { content: formatted })
+    } catch {
+      message.error(t('JSON格式错误'))
     }
-  } catch (error) {
-    // 用户取消删除
-    console.log(t('用户取消删除模板'))
   }
 }
 
-// 打开创建模板弹窗
-const handleOpenCreateTemplateDialog = () => {
-  createTemplateDialogVisible.value = true
-}
-
-const handleSendMessage = async () => {
+// 发送单个消息块
+const handleSendBlock = async (block: WebsocketMessageBlock) => {
   try {
-    let messageContent = websocketStore.websocket.item.sendMessage;
+    let messageContent = block.content
     // 变量替换
     try {
-      const { variables } = useVariable();
-      messageContent = await getCompiledTemplate(messageContent, variables);
+      const { variables } = useVariable()
+      messageContent = await getCompiledTemplate(messageContent, variables)
     } catch (error) {
-      console.warn('变量替换失败，使用原始内容', error);
+      console.warn('变量替换失败，使用原始内容', error)
     }
+
     const result = await window.electronAPI?.websocket.send(connectionId.value, messageContent)
     if (result?.code === 0) {
       const sendMessage = {
@@ -414,20 +343,16 @@ const handleSendMessage = async () => {
           id: nanoid(),
           content: messageContent,
           timestamp: Date.now(),
-          contentType: websocketStore.websocket.config.messageType,
+          contentType: block.messageType,
           size: new Blob([messageContent]).size,
           nodeId: currentSelectTab.value?._id || ''
         }
-      };
-      websocketStore.addMessage(sendMessage);
-      const nodeId = currentSelectTab.value!._id;
-      await websocketResponseCache.setResponseByNodeId(nodeId, sendMessage);
-
-      // 发送成功不再清空输入框
+      }
+      websocketStore.addMessage(sendMessage)
+      const nodeId = currentSelectTab.value!._id
+      await websocketResponseCache.setResponseByNodeId(nodeId, sendMessage)
     } else {
       console.error('WebSocket消息发送失败:', result?.msg)
-
-      // 创建错误消息记录
       const errorMessage = {
         type: 'error' as const,
         data: {
@@ -436,20 +361,14 @@ const handleSendMessage = async () => {
           timestamp: Date.now(),
           nodeId: currentSelectTab.value?._id || ''
         }
-      };
-
-      // 添加发送失败错误消息
-      websocketStore.addMessage(errorMessage);
-
-      // 缓存错误消息到IndexedDB
-      const nodeId = currentSelectTab.value!._id;
-      await websocketResponseCache.setResponseByNodeId(nodeId, errorMessage);
+      }
+      websocketStore.addMessage(errorMessage)
+      const nodeId = currentSelectTab.value!._id
+      await websocketResponseCache.setResponseByNodeId(nodeId, errorMessage)
     }
   } catch (error) {
     message.error(t('消息发送异常'))
     console.error('WebSocket消息发送异常:', error)
-
-    // 创建异常消息记录
     const exceptionMessage = {
       type: 'error' as const,
       data: {
@@ -458,19 +377,14 @@ const handleSendMessage = async () => {
         timestamp: Date.now(),
         nodeId: currentSelectTab.value?._id || ''
       }
-    };
-
-    // 添加发送异常错误消息
-    websocketStore.addMessage(exceptionMessage);
-
-    // 缓存异常消息到IndexedDB
-    const nodeId = currentSelectTab.value!._id;
-    await websocketResponseCache.setResponseByNodeId(nodeId, exceptionMessage);
+    }
+    websocketStore.addMessage(exceptionMessage)
+    const nodeId = currentSelectTab.value!._id
+    await websocketResponseCache.setResponseByNodeId(nodeId, exceptionMessage)
   }
 }
-const handleMessageTypeChange = (value: WebsocketMessageType) => {
-  websocketStore.changeWebSocketMessageType(value)
-}
+
+// 自动发送相关
 const handleAutoConfigChange = (enabled: boolean | string | number) => {
   const boolEnabled = Boolean(enabled)
   websocketStore.changeWebSocketAutoSend(boolEnabled)
@@ -481,6 +395,7 @@ const handleAutoConfigChange = (enabled: boolean | string | number) => {
     stopAutoSend()
   }
 }
+
 const startAutoSend = () => {
   if (configTimer) {
     clearInterval(configTimer)
@@ -489,17 +404,16 @@ const startAutoSend = () => {
   configTimer = setInterval(async () => {
     if (connectionState.value === 'connected' && connectionId.value) {
       try {
-        let autoSendContent = websocketStore.websocket.config.defaultAutoSendContent || 'ping'
-        // 变量替换
+        let autoSendContent = websocketStore.websocket.config.autoSendContent || 'ping'
         try {
-          const { variables } = useVariable();
-          autoSendContent = await getCompiledTemplate(autoSendContent, variables);
+          const { variables } = useVariable()
+          autoSendContent = await getCompiledTemplate(autoSendContent, variables)
         } catch (error) {
-          console.warn('自动发送变量替换失败，使用原始内容', error);
+          console.warn('自动发送变量替换失败，使用原始内容', error)
         }
+
         const result = await window.electronAPI?.websocket.send(connectionId.value, autoSendContent)
         if (result?.code === 0) {
-          // 创建自动发送记录
           const autoSendMessage = {
             type: 'autoSend' as const,
             data: {
@@ -508,18 +422,12 @@ const startAutoSend = () => {
               timestamp: Date.now(),
               nodeId: currentSelectTab.value?._id || ''
             }
-          };
-
-          // 添加自动发送记录
-          websocketStore.addMessage(autoSendMessage);
-
-          // 缓存自动发送消息到IndexedDB
-          const nodeId = currentSelectTab.value!._id;
-          await websocketResponseCache.setResponseByNodeId(nodeId, autoSendMessage);
+          }
+          websocketStore.addMessage(autoSendMessage)
+          const nodeId = currentSelectTab.value!._id
+          await websocketResponseCache.setResponseByNodeId(nodeId, autoSendMessage)
         } else {
           console.error(t('自动发送失败'), result?.msg)
-
-          // 创建自动发送失败错误消息
           const errorMessage = {
             type: 'error' as const,
             data: {
@@ -528,19 +436,13 @@ const startAutoSend = () => {
               timestamp: Date.now(),
               nodeId: currentSelectTab.value?._id || ''
             }
-          };
-
-          // 添加自动发送失败错误消息
-          websocketStore.addMessage(errorMessage);
-
-          // 缓存错误消息到IndexedDB
-          const nodeId = currentSelectTab.value!._id;
-          await websocketResponseCache.setResponseByNodeId(nodeId, errorMessage);
+          }
+          websocketStore.addMessage(errorMessage)
+          const nodeId = currentSelectTab.value!._id
+          await websocketResponseCache.setResponseByNodeId(nodeId, errorMessage)
         }
       } catch (error) {
         console.error(t('自动发送异常'), error)
-
-        // 创建自动发送异常错误消息
         const exceptionMessage = {
           type: 'error' as const,
           data: {
@@ -549,25 +451,23 @@ const startAutoSend = () => {
             timestamp: Date.now(),
             nodeId: currentSelectTab.value?._id || ''
           }
-        };
-
-        // 添加自动发送异常错误消息
-        websocketStore.addMessage(exceptionMessage);
-
-        // 缓存异常消息到IndexedDB
-        const nodeId = currentSelectTab.value!._id;
-        await websocketResponseCache.setResponseByNodeId(nodeId, exceptionMessage);
+        }
+        websocketStore.addMessage(exceptionMessage)
+        const nodeId = currentSelectTab.value!._id
+        await websocketResponseCache.setResponseByNodeId(nodeId, exceptionMessage)
       }
     }
   }, websocketStore.websocket.config.autoSendInterval)
 }
+
 const stopAutoSend = () => {
   if (configTimer) {
     clearInterval(configTimer)
     configTimer = null
   }
 }
-// 监听连接状态变化，管理配置
+
+// 监听连接状态变化
 watch(() => connectionState.value, (newState) => {
   if (newState === 'connected' && websocketStore.websocket.config.autoSend) {
     startAutoSend()
@@ -576,7 +476,7 @@ watch(() => connectionState.value, (newState) => {
   }
 })
 
-// 监听当前选中tab变化，重新加载状态
+// 监听当前选中tab变化
 watch(currentSelectTab, (newTab) => {
   if (newTab) {
     stopAutoSend()
@@ -589,7 +489,6 @@ watch(currentSelectTab, (newTab) => {
 // 初始化快捷操作配置
 watch(currentSelectTab, (tab) => {
   if (tab) {
-    // 初始化快捷操作配置
     initQuickOperations()
   }
 }, { immediate: true })
@@ -597,121 +496,35 @@ watch(currentSelectTab, (tab) => {
 onUnmounted(() => {
   stopAutoSend()
 })
-
 </script>
 
 <style lang="scss" scoped>
 .message-content {
   height: 100%;
+  display: flex;
+  flex-direction: column;
 
-  .content-wrapper {
-    position: relative;
-    height: calc(100vh - 245px);
-    border: 1px solid var(--gray-400);
-
-    .message-type-selector {
-      position: absolute;
-      top: 8px;
-      right: 8px;
-      z-index: var(--zIndex-dropdown);
-
-      .type-selector {
-        width: 120px;
-      }
-    }
-
-    .editor-wrap {
-      height: calc(100% - 40px);
-    }
-
-    .format-op {
-      position: absolute;
-      right: 140px;
-      top: 8px;
-
-      .btn {
-        color: var(--theme-color);
-        cursor: pointer;
-      }
-    }
-
-    .content-actions {
-      width: 100%;
-      height: 40px;
+  .top-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    .right-actions {
       display: flex;
       align-items: center;
-      justify-content: flex-end;
-      z-index: var(--zIndex-dropdown);
-      background: var(--el-bg-color);
       gap: 8px;
-      flex-wrap: wrap;
 
-      .action-options {
+      .config-controls {
         display: flex;
         align-items: center;
       }
 
-      .template-selector {
+      .add-block-button {
+        padding: 5px;
+        cursor: pointer;
+        transition: background-color 0.2s;
 
-        .template-select {
-          width: 140px;
-        }
-
-        .empty-template {
-          padding: 12px;
-          text-align: center;
-
-          .empty-text {
-            color: var(--el-text-color-regular);
-            margin-bottom: 8px;
-            font-size: 12px;
-          }
-        }
-
-        .template-option {
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          width: 100%;
-
-          .template-name {
-            flex: 1;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-          }
-
-          .delete-icon {
-            margin-left: 8px;
-            color: var(--el-text-color-regular);
-            cursor: pointer;
-            transition: color 0.2s;
-
-            &:hover {
-              color: var(--el-color-danger);
-            }
-          }
-        }
-      }
-
-      .config-controls {
-        display: flex;
-        flex-direction: column;
-
-        .config-checkbox {
-          display: flex;
-          align-items: center;
-        }
-
-        .config-settings {
-          display: flex;
-          align-items: center;
-          margin-left: 24px;
-
-          .interval-unit {
-            font-size: 12px;
-            color: var(--el-text-color-regular);
-          }
+        &:hover {
+          background-color: var(--el-fill-color-light);
         }
       }
 
@@ -724,6 +537,87 @@ onUnmounted(() => {
           background-color: var(--el-fill-color-light);
         }
       }
+    }
+  }
+
+  .message-blocks-container {
+    flex: 1;
+    overflow-y: auto;
+    padding: 12px;
+
+    .message-blocks-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .message-block {
+      border: 1px solid var(--gray-400);
+      border-radius: 4px;
+      overflow: hidden;
+
+      .block-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 8px 12px;
+        background: var(--el-fill-color-light);
+        border-bottom: 1px solid var(--gray-400);
+
+        .left-controls {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+
+          .drag-handle {
+            cursor: grab;
+            color: var(--el-text-color-secondary);
+
+            &:active {
+              cursor: grabbing;
+            }
+          }
+
+          .block-name-input {
+            width: 150px;
+          }
+        }
+
+        .right-controls {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+
+          .type-selector {
+            width: 120px;
+          }
+        }
+      }
+
+      .block-editor {
+        position: relative;
+        height: 150px;
+
+        .format-op {
+          position: absolute;
+          right: 8px;
+          top: 8px;
+          z-index: var(--zIndex-dropdown);
+
+          .btn {
+            color: var(--theme-color);
+            cursor: pointer;
+            font-size: 12px;
+          }
+        }
+      }
+    }
+
+    .empty-state {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 200px;
     }
   }
 }
@@ -751,10 +645,6 @@ onUnmounted(() => {
       }
     }
 
-    .config-content-input {
-      width: 100%;
-    }
-
     .config-content-editor {
       border: 1px solid var(--el-border-color);
       border-radius: 4px;
@@ -780,22 +670,4 @@ onUnmounted(() => {
     border-top: 1px solid var(--el-border-color-lighter);
   }
 }
-
-.ws-waiting-tip {
-  display: flex;
-  align-items: center;
-
-  .no-more-tip-btn {
-    color: var(--gray-400);
-    font-size: 12px;
-    cursor: pointer;
-    margin-left: 10px;
-    margin-top: 5px;
-
-    &:hover {
-      color: var(--gray-200)
-    }
-  }
-}
 </style>
-

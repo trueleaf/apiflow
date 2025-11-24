@@ -12,6 +12,17 @@ import { ApidocBaseInfo, ApidocProperty } from "../httpNode/types";
 export type WebsocketMessageType = 'text' | 'json' | 'xml' | 'html' | 'binary-base64' | 'binary-hex';
 
 /**
+ * WebSocket消息块
+ */
+export type WebsocketMessageBlock = {
+  id: string;
+  name: string;
+  content: string;
+  messageType: WebsocketMessageType;
+  order: number;
+};
+
+/**
  * WebSocket激活选项卡类型
  */
 export type WebsocketActiveTabType = 'messageContent' | 'params' | 'headers' | 'preScript' | 'afterScript';
@@ -79,18 +90,14 @@ export type WebSocketNode = {
      */
     headers: ApidocProperty<'string'>[];
     /**
-     * 发送的数据
+     * 消息块列表
      */
-    sendMessage: string;
+    messageBlocks: WebsocketMessageBlock[];
   };
   /**
    * 连接配置
    */
   config: {
-    /**
-     * 消息类型
-     */
-    messageType: WebsocketMessageType;
     /**
      * 是否自动发送
      */
@@ -100,9 +107,13 @@ export type WebSocketNode = {
      */
     autoSendInterval: number;
     /**
-     * 默认自动发送内容
+     * 自动发送内容
      */
-    defaultAutoSendContent: string;
+    autoSendContent: string;
+    /**
+     * 自动发送消息类型
+     */
+    autoSendMessageType: WebsocketMessageType;
     /**
      * 是否自动重连
      */
@@ -241,20 +252,11 @@ export type WebsocketResponse =
   | WebsocketStartConnectResponse
   | WebsocketReconnectingResponse;
 
-export type WebsocketSendMessageTemplate = {
-  id: string;
-  name: string;
-  sendMessage: string;
-  messageType: WebsocketMessageType;
-  createdAt: number;
-  updatedAt: number;
-};
-
 // WebSocket其他配置
 export type WebsocketConfig = {
   connectionWaitingTip: boolean;
   /**
    * 需要展示的快捷操作列表
    */
-  quickOperations: ('autoSend' | 'template')[];
+  quickOperations: 'autoSend'[];
 };
