@@ -1061,6 +1061,8 @@ export default {
     '表达式计算失败': 'Expression calculation failed',
     '未匹配到当前选中tab': 'No matched current tab',
     '复制失败': 'Copy failed',
+    '复制成功': 'Copy successful',
+    '复制内容': 'Copy Content',
     '代码已复制到剪贴板': 'Code copied to clipboard',
     '接收到的日志数据格式错误': 'Received log data format error',
     '第一个参数必须为数组类型': 'First parameter must be an array',

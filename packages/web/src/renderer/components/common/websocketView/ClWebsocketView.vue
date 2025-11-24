@@ -22,7 +22,11 @@
       :virtual="false"
       :item-height="28">
       <template #default="{ item }">
-        <div class="websocket-message" @click="handleMessageClick(item.originalIndex, $event)">
+        <div 
+          class="websocket-message" 
+          @click="handleMessageClick(item.originalIndex, $event)"
+          @contextmenu.stop.prevent="handleContextmenu($event, item.originalIndex)"
+        >
           <div class="message-index">{{ item.originalIndex }}</div>
           <div v-if="item.type === 'send' || item.type === 'receive' || item.type === 'autoSend'" class="message-type" :class="`type-${item.type}`">
             <el-icon v-if="item.type === 'send' || item.type === 'autoSend'">
@@ -65,6 +69,20 @@
       @hide="handleClosePopover"
       @close="handleClosePopover"
     />
+    <!-- 右键菜单 -->
+    <teleport to="body">
+      <SContextmenu 
+        v-if="showContextmenu" 
+        :left="contextmenuLeft" 
+        :top="contextmenuTop"
+      >
+        <SContextmenuItem 
+          v-if="canCopyMessage"
+          :label="t('复制内容')" 
+          @click="handleCopyMessage"
+        ></SContextmenuItem>
+      </SContextmenu>
+    </teleport>
   </div>
 </template>
 
@@ -76,8 +94,11 @@ import type { WebsocketResponse } from '@src/types/websocketNode';
 import GVirtualScroll from '@/components/apidoc/virtualScroll/ClVirtualScroll.vue';
 import WebsocketPopover from './components/popover/WebsocketPopover.vue';
 import WebsocketFilter from './components/filter/WebsocketFilter.vue';
+import SContextmenu from '@/components/common/contextmenu/ClContextmenu.vue';
+import SContextmenuItem from '@/components/common/contextmenu/ClContextmenuItem.vue';
 import { Top, Bottom, SuccessFilled, WarnTriangleFilled, CircleCloseFilled } from '@element-plus/icons-vue';
 import { useI18n } from 'vue-i18n';
+import { message } from '@/helper';
 import type { ClWebsocketViewProps, ClWebsocketViewEmits } from '@src/types/components/components';
 
 const { t } = useI18n();
@@ -92,6 +113,12 @@ const isRegexMode = ref(false);
 const filterError = ref('');
 const selectedMessageTypes = ref<string[]>([]);
 const isSearchInputVisible = ref(false);
+
+// 右键菜单相关状态
+const showContextmenu = ref(false);
+const contextmenuLeft = ref(0);
+const contextmenuTop = ref(0);
+const currentRightClickIndex = ref(-1);
 
 // 计算是否显示统计信息并需要添加margin-top
 const shouldAddMarginTop = computed(() => filterText.value && isSearchInputVisible.value);
@@ -131,6 +158,21 @@ const currentMessage = computed(() => {
   const idx = activePopoverIndex.value;
   return idx !== -1 && idx >= 0 && idx < props.dataList.length ? props.dataList[idx] : null;
 });
+
+// 当前右键菜单对应的消息
+const currentRightClickMessage = computed(() => {
+  const idx = currentRightClickIndex.value;
+  return idx !== -1 && idx >= 0 && idx < props.dataList.length ? props.dataList[idx] : null;
+});
+
+// 判断当前右键的消息是否可以复制
+const canCopyMessage = computed(() => {
+  const msg = currentRightClickMessage.value;
+  if (!msg) return false;
+  // 只有 send、receive、autoSend 类型的消息才可以复制
+  return msg.type === 'send' || msg.type === 'receive' || msg.type === 'autoSend';
+});
+
 /*
 |--------------------------------------------------------------------------
 | 搜索、下载相关逻辑
@@ -195,6 +237,70 @@ const handleGlobalKeydown = (event: KeyboardEvent) => {
     handleClosePopover();
   }
 };
+
+/*
+|--------------------------------------------------------------------------
+| 右键菜单相关
+|--------------------------------------------------------------------------
+*/
+// 处理右键菜单
+const handleContextmenu = (e: MouseEvent, index: number) => {
+  e.stopPropagation();
+  currentRightClickIndex.value = index;
+  contextmenuLeft.value = e.clientX;
+  contextmenuTop.value = e.clientY;
+  showContextmenu.value = true;
+  // 关闭详情弹窗
+  if (activePopoverIndex.value !== -1) {
+    handleClosePopover();
+  }
+};
+
+// 复制消息内容
+const handleCopyMessage = async () => {
+  const msg = currentRightClickMessage.value;
+  if (!msg) return;
+  
+  try {
+    let contentToCopy = '';
+    
+    // 根据消息类型提取内容
+    switch (msg.type) {
+      case 'send':
+        contentToCopy = (msg.data as { content: string }).content || '';
+        break;
+      case 'receive': {
+        const receiveData = msg.data as { content: ArrayBuffer | string; mimeType?: string };
+        if (receiveData.content instanceof ArrayBuffer) {
+          contentToCopy = parseArrayBuffer(receiveData.content, receiveData.mimeType);
+        } else {
+          contentToCopy = receiveData.content || '';
+        }
+        break;
+      }
+      case 'autoSend':
+        contentToCopy = (msg.data as { message: string }).message || '';
+        break;
+      default:
+        return;
+    }
+    
+    // 复制到剪贴板
+    await navigator.clipboard.writeText(contentToCopy);
+    message.success(t('复制成功'));
+  } catch (error) {
+    console.error('复制失败:', error);
+    message.error(t('复制失败'));
+  } finally {
+    showContextmenu.value = false;
+  }
+};
+
+// 全局点击关闭右键菜单
+const handleGlobalClickForContextmenu = () => {
+  showContextmenu.value = false;
+};
+
 /*
 |--------------------------------------------------------------------------
 | WebSocket数据处理
@@ -282,11 +388,13 @@ const getStatusDataText = (message: WebsocketResponse): string => {
 onMounted(() => {
   document.addEventListener('click', handleClosePopover);
   document.addEventListener('keydown', handleGlobalKeydown);
+  document.body.addEventListener('click', handleGlobalClickForContextmenu);
 });
 
 onBeforeUnmount(() => {
   document.removeEventListener('click', handleClosePopover);
   document.removeEventListener('keydown', handleGlobalKeydown);
+  document.body.removeEventListener('click', handleGlobalClickForContextmenu);
 });
 
 // 当数据源变化导致索引失效时，关闭弹窗

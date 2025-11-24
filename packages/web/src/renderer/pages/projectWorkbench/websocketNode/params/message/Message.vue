@@ -4,16 +4,20 @@
     <div class="content-wrapper">
       <!-- 编辑器 -->
       <div class="editor-wrap">
-        <SJsonEditor 
-          ref="jsonEditorRef" 
-          manual-undo-redo 
-          :model-value="websocketStore.websocket.item.sendMessage" 
-          :config="editorConfig" 
-          :auto-height="false" 
-          @update:model-value="handleMessageChange" 
-          @undo="handleEditorUndo" 
-          @redo="handleEditorRedo" 
+        <SJsonEditor
+          ref="jsonEditorRef"
+          manual-undo-redo
+          :model-value="websocketStore.websocket.item.sendMessage"
+          :config="editorConfig"
+          :auto-height="false"
+          @update:model-value="handleMessageChange"
+          @undo="handleEditorUndo"
+          @redo="handleEditorRedo"
         />
+      </div>
+      <!-- 格式化按钮 -->
+      <div v-if="websocketStore.websocket.config.messageType === 'json'" class="format-op">
+        <span class="btn" @click="handleFormatContent">{{ t("格式化") }}</span>
       </div>
       <!-- 操作按钮区域 -->
       <div class="content-actions">
@@ -294,35 +298,15 @@ const initQuickOperations = () => {
     quickOperations.value = config?.quickOperations || []
   }
 }
-
-// 处理快捷操作变化
-const handleQuickOperationChange = (operation: 'autoSend' | 'template', enabled: boolean | string | number) => {
-  const boolEnabled = Boolean(enabled)
-  const tab = currentSelectTab.value
-  if (!tab) return
-
-  if (boolEnabled) {
-    if (!quickOperations.value.includes(operation)) {
-      quickOperations.value.push(operation)
-    }
-  } else {
-    const index = quickOperations.value.indexOf(operation)
-    if (index > -1) {
-      quickOperations.value.splice(index, 1)
-    }
-  }
-
-  // 保存到缓存
-  webSocketNodeCache.setWebsocketConfig(tab.projectId, {
-    quickOperations: quickOperations.value
-  })
-}
-
 // 弹窗打开时初始化临时变量
 const handleConfigPopoverShow = () => {
   tempAutoSendInterval.value = websocketStore.websocket.config.autoSendInterval
   tempDefaultAutoSendContent.value = websocketStore.websocket.config.defaultAutoSendContent
   tempQuickOperations.value = [...quickOperations.value]
+}
+// 格式化消息内容
+const handleFormatContent = () => {
+  jsonEditorRef.value?.format()
 }
 
 // 处理临时快捷操作变化
@@ -348,15 +332,9 @@ const handleSaveConfig = async () => {
   // 更新发送间隔
   websocketStore.changeWebSocketAutoSendInterval(tempAutoSendInterval.value)
 
-  // 更新消息内容（进行变量解析）
-  let compiledContent = tempDefaultAutoSendContent.value
-  try {
-    const { variables } = useVariable()
-    compiledContent = await getCompiledTemplate(tempDefaultAutoSendContent.value, variables)
-  } catch (error) {
-    console.warn('配置内容变量替换失败', error)
-  }
-  websocketStore.changeWebSocketDefaultAutoSendContent(compiledContent)
+  // 更新消息内容（不进行变量解析）
+  const rawContent = tempDefaultAutoSendContent.value
+  websocketStore.changeWebSocketDefaultAutoSendContent(rawContent)
 
   // 更新快捷操作
   quickOperations.value = [...tempQuickOperations.value]
@@ -651,6 +629,17 @@ onUnmounted(() => {
 
     .editor-wrap {
       height: calc(100% - 40px);
+    }
+
+    .format-op {
+      position: absolute;
+      right: 140px;
+      top: 8px;
+
+      .btn {
+        color: var(--theme-color);
+        cursor: pointer;
+      }
     }
 
     .content-actions {
