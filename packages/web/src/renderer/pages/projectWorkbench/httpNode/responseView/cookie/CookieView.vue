@@ -1,14 +1,15 @@
 <template>
   <div class="cookie-view" :class="{ vertical: layout === 'vertical' }">
-    <div v-if="cookies.length > 0" class='mb-2 d-flex a-center theme-color cursor-pointer' @click="dialogVisible = true">
-      <el-icon>
-        <FullScreen />
-      </el-icon>
-      <span class="ml-1">{{ $t('本次接口返回的cookie值') }}</span>
+    <div class="cookie-actions mb-2">
+      <div v-if="cookies.length > 0" class="action-btn" @click="dialogVisible = true" :title="t('查看本次接口返回的Cookie详情')">
+        <Cookie :size="16" />
+        <span>{{ t('响应Cookie') }}</span>
+      </div>
+      <div class="action-btn" @click="handleJumpToCookies" :title="t('打开全局Cookie管理页面')">
+        <Settings :size="16" />
+        <span>{{ t('Cookie管理') }}</span>
+      </div>
     </div>
-    <div class='mb-2 d-flex a-center theme-color cursor-pointer' @click="handleJumpToCookies">
-      <span class="ml-1">{{ $t('Cookie管理') }}</span>
-    </div>  
     <el-table :data="cookies" border size="small">
       <el-table-column align="center" prop="name" label="Name"></el-table-column>
       <el-table-column align="center" prop="value" label="Value">
@@ -77,7 +78,7 @@
 import { useApidocBaseInfo } from '@/store/apidoc/baseInfoStore';
 import { useApidocResponse } from '@/store/apidoc/responseStore';
 import { computed, ref, } from 'vue';
-import { FullScreen } from '@element-plus/icons-vue';
+import { Cookie, Settings } from 'lucide-vue-next';
 import { parse } from 'set-cookie-parser';
 import { useApidocTas } from '@/store/apidoc/tabsStore'
 import { useI18n } from 'vue-i18n';
@@ -129,5 +130,20 @@ const handleJumpToCookies = () => {
   &.vertical {
     height: 100%;
   }
+}
+.cookie-actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.action-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  color: var(--el-color-primary);
+  font-size: 14px;
+  user-select: none;
 }
 </style>
