@@ -12,7 +12,7 @@ import { useApidocTas } from '@/store/apidoc/tabsStore'
 import { storeToRefs } from 'pinia'
 import SParamsTree from '@/components/apidoc/paramsTree/ClParamsTree.vue'
 import { useI18n } from 'vue-i18n'
-import { debounce, cloneDeep } from "lodash-es"
+import { cloneDeep } from "lodash-es"
 import type { ApidocProperty } from '@src/types'
 
 const websocketStore = useWebSocket()
@@ -21,27 +21,23 @@ const apidocTabsStore = useApidocTas()
 const { websocket } = storeToRefs(websocketStore)
 const { currentSelectTab } = storeToRefs(apidocTabsStore)
 const { t } = useI18n()
-
-// 直接使用 websocket.item.queryParams，不需要 computed 包装
-// 防抖的查询参数记录函数
-const debouncedRecordQueryParamsOperation = debounce((oldValue: ApidocProperty<'string'>[], newValue: ApidocProperty<'string'>[]) => {
+// 查询参数记录函数
+const recordQueryParamsOperation = (oldValue: ApidocProperty<'string'>[], newValue: ApidocProperty<'string'>[]) => {
   if (!currentSelectTab.value) return;
-  
   redoUndoStore.recordOperation({
     nodeId: currentSelectTab.value._id,
     type: "queryParamsOperation",
     operationName: "修改查询参数",
     affectedModuleName: "params",
-    oldValue,
-    newValue,
+    oldValue: cloneDeep(oldValue),
+    newValue: cloneDeep(newValue),
     timestamp: Date.now()
   });
-}, 500, { leading: true, trailing: true });
-
+};
 const handleChange = (newData: ApidocProperty<'string' | 'file'>[]) => {
-  const previousQueryParams = cloneDeep(websocket.value.item.queryParams);
+  const oldValue = cloneDeep(websocket.value.item.queryParams);
   websocketStore.changeQueryParams(newData as ApidocProperty<'string'>[]);
-  debouncedRecordQueryParamsOperation(previousQueryParams, cloneDeep(newData) as ApidocProperty<'string'>[]);
+  recordQueryParamsOperation(oldValue, newData as ApidocProperty<'string'>[]);
 };
 </script>
 

@@ -9,15 +9,12 @@ import { computed } from 'vue'
 import AfterEditor from './editor/AfterEditor.vue'
 import { useWebSocket } from '@/store/websocket/websocketStore';
 import { useWsRedoUndo } from '@/store/redoUndo/wsRedoUndoStore'
-import { debounce } from "lodash-es"
 
 const websocketStore = useWebSocket()
 const redoUndoStore = useWsRedoUndo()
-
-// 防抖记录后置脚本操作
-const debouncedRecordAfterRequestOperation = debounce((oldValue: string, newValue: string) => {
+// 后置脚本记录函数
+const recordAfterRequestOperation = (oldValue: string, newValue: string) => {
   if (oldValue === newValue) return;
-
   redoUndoStore.recordOperation({
     nodeId: websocketStore.websocket._id,
     type: "afterRequestOperation",
@@ -27,11 +24,9 @@ const debouncedRecordAfterRequestOperation = debounce((oldValue: string, newValu
     newValue: { raw: newValue },
     timestamp: Date.now()
   })
-}, 500)
-
+};
 // 后置脚本内容的前值
 let previousAfterScriptContent = websocketStore.websocket.afterRequest.raw
-
 const afterRequest = computed<string>({
   get() {
     return websocketStore.websocket.afterRequest.raw;
@@ -39,7 +34,7 @@ const afterRequest = computed<string>({
   set(val) {
     const oldValue = previousAfterScriptContent
     websocketStore.changeWebSocketAfterRequest(val);
-    debouncedRecordAfterRequestOperation(oldValue, val)
+    recordAfterRequestOperation(oldValue, val)
     previousAfterScriptContent = val
   },
 })

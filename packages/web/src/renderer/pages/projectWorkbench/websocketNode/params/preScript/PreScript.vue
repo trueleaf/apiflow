@@ -9,15 +9,12 @@ import { computed } from 'vue'
 import PreEditor from './editor/PreEditor.vue'
 import { useWebSocket } from '@/store/websocket/websocketStore';
 import { useWsRedoUndo } from '@/store/redoUndo/wsRedoUndoStore'
-import { debounce } from "lodash-es"
 
 const websocketStore = useWebSocket()
 const redoUndoStore = useWsRedoUndo()
-
-// 防抖记录前置脚本操作
-const debouncedRecordPreRequestOperation = debounce((oldValue: string, newValue: string) => {
+// 前置脚本记录函数
+const recordPreRequestOperation = (oldValue: string, newValue: string) => {
   if (oldValue === newValue) return;
-
   redoUndoStore.recordOperation({
     nodeId: websocketStore.websocket._id,
     type: "preRequestOperation",
@@ -27,11 +24,9 @@ const debouncedRecordPreRequestOperation = debounce((oldValue: string, newValue:
     newValue: { raw: newValue },
     timestamp: Date.now()
   })
-}, 500)
-
+};
 // 前置脚本内容的前值
 let previousScriptContent = websocketStore.websocket.preRequest.raw
-
 const preRequest = computed<string>({
   get() {
     return websocketStore.websocket.preRequest.raw;
@@ -39,7 +34,7 @@ const preRequest = computed<string>({
   set(val) {
     const oldValue = previousScriptContent
     websocketStore.changeWebSocketPreRequest(val);
-    debouncedRecordPreRequestOperation(oldValue, val)
+    recordPreRequestOperation(oldValue, val)
     previousScriptContent = val
   },
 })

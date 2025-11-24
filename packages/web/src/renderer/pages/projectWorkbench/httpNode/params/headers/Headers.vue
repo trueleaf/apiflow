@@ -11,7 +11,7 @@
       <span class="cursor-pointer no-select" @click="hideDefaultHeader = false">
         <span>{{ defaultHeaders.length }}{{ t("个隐藏") }}</span>
       </span>
-      <el-icon :size="16" class="ml-1">
+      <el-icon :size="16" class="view-icon ml-1" @click="hideDefaultHeader = false">
         <View />
       </el-icon>
       <span
@@ -255,6 +255,13 @@ const handleJumpToCommonHeaderConfigPage = ({ nodeId, name }: { nodeId?: string,
   }
   .folder-icon {
     color: var(--warning-color);
+  }
+}
+.view-icon {
+  cursor: pointer;
+  transition: color 0.2s;
+  &:hover {
+    color: var(--theme-color);
   }
 }
 .mode-toggle-icon {

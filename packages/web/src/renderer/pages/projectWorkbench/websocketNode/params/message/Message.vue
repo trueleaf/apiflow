@@ -174,7 +174,6 @@ import SJsonEditor from '@/components/common/jsonEditor/ClJsonEditor.vue'
 import AddTemplateDialog from './dialog/add/Add.vue'
 import type { WebsocketMessageType } from '@src/types/websocketNode'
 import { nanoid } from 'nanoid/non-secure'
-import { debounce } from "lodash-es"
 import { websocketResponseCache } from '@/cache/websocketNode/websocketResponseCache'
 import { webSocketNodeCache } from '@/cache/websocketNode/websocketNodeCache'
 import { ElMessageBox } from 'element-plus'
@@ -207,14 +206,10 @@ type JsonEditorRef = {
 };
 
 const jsonEditorRef = ref<JsonEditorRef | null>(null)
-
-// 防抖的消息内容记录函数
-const debouncedRecordMessageOperation = debounce((oldValue: string, newValue: string) => {
+// 消息内容记录函数
+const recordMessageOperation = (oldValue: string, newValue: string) => {
   if (!currentSelectTab.value || oldValue === newValue) return;
-  
-  // 获取当前光标位置
   const cursorPosition = jsonEditorRef.value?.getCursorPosition() || undefined;
-  
   redoUndoStore.recordOperation({
     nodeId: currentSelectTab.value._id,
     type: "sendMessageOperation",
@@ -225,13 +220,12 @@ const debouncedRecordMessageOperation = debounce((oldValue: string, newValue: st
     cursorPosition,
     timestamp: Date.now()
   });
-}, 300, { leading: true, trailing: true });
-
+};
 // 处理消息内容变化
 const handleMessageChange = (newValue: string) => {
   const oldValue = websocketStore.websocket.item.sendMessage;
   websocketStore.changeWebSocketMessage(newValue);
-  debouncedRecordMessageOperation(oldValue, newValue);
+  recordMessageOperation(oldValue, newValue);
 };
 
 
@@ -431,7 +425,6 @@ const handleSendMessage = async () => {
 
       // 发送成功不再清空输入框
     } else {
-      message.error(t('消息发送失败') + ': ' + (result?.msg || t('未知错误')))
       console.error('WebSocket消息发送失败:', result?.msg)
 
       // 创建错误消息记录

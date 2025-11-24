@@ -10,7 +10,7 @@
       <span class="cursor-pointer no-select" @click="hideDefaultHeader = false">
         <span>{{ defaultHeaders.length }}{{ t("个隐藏") }}</span>
       </span>
-      <el-icon :size="16" class="ml-1">
+      <el-icon :size="16" class="view-icon ml-1" @click="hideDefaultHeader = false">
         <View />
       </el-icon>
       <span
@@ -85,7 +85,7 @@ import { router } from '@/router'
 import { View, Switch } from '@element-plus/icons-vue'
 import { ApidocProperty } from '@src/types';
 import { generateEmptyProperty } from '@/helper';
-import { debounce, cloneDeep } from "lodash-es";
+import { cloneDeep } from "lodash-es";
 import { useI18n } from 'vue-i18n'
 import SParamsTree from '@/components/apidoc/paramsTree/ClParamsTree.vue'
 import { useWebSocket } from '@/store/websocket/websocketStore';
@@ -134,31 +134,27 @@ watch(paramsTreeRef, (instance) => {
 })
 
 const hideDefaultHeader = ref(true);
-// 直接使用 websocket.item.headers，不需要 computed 包装
 const commonHeaders = ref<(Pick<ApidocProperty, "_id" | 'key' | 'value' | 'description' | 'select' & { path?: string[] }>)[]>([]);
-// 防抖的请求头记录函数
-const debouncedRecordHeadersOperation = debounce((oldValue: ApidocProperty<'string'>[], newValue: ApidocProperty<'string'>[]) => {
+// 请求头记录函数
+const recordHeadersOperation = (oldValue: ApidocProperty<'string'>[], newValue: ApidocProperty<'string'>[]) => {
   if (!currentSelectTab.value) return;
-  
   redoUndoStore.recordOperation({
     nodeId: currentSelectTab.value._id,
     type: "headersOperation",
     operationName: "修改请求头",
     affectedModuleName: "headers",
-    oldValue,
-    newValue,
+    oldValue: cloneDeep(oldValue),
+    newValue: cloneDeep(newValue),
     timestamp: Date.now()
   });
-}, 500, { leading: true, trailing: true });
-
+};
 const handleChange = (newData: ApidocProperty<'string' | 'file'>[]) => {
-  const previousHeaders = cloneDeep(websocket.value.item.headers);
+  const oldValue = cloneDeep(websocket.value.item.headers);
   websocket.value.item.headers = newData as ApidocProperty<'string'>[];
-  // 如果没有数据则默认添加一条空数据
   if (websocket.value.item.headers.length === 0) {
     websocket.value.item.headers.push(generateEmptyProperty());
   }
-  debouncedRecordHeadersOperation(previousHeaders, cloneDeep(newData) as ApidocProperty<'string'>[]);
+  recordHeadersOperation(oldValue, newData as ApidocProperty<'string'>[]);
 };
 
 const handleChangeCommonHeaderIsSend = (isSend: CheckboxValueType, header: Pick<ApidocProperty, "_id" | 'key' | 'value' | 'description' | 'select'>) => {
@@ -228,6 +224,13 @@ const handleJumpToCommonHeaderConfigPage = ({ nodeId, name }: { nodeId?: string,
   }
   .folder-icon {
     color: var(--yellow);
+  }
+}
+.view-icon {
+  cursor: pointer;
+  transition: color 0.2s;
+  &:hover {
+    color: var(--theme-color);
   }
 }
 .mode-toggle-icon {
