@@ -31,17 +31,13 @@ const props = defineProps({
     type: Number,
     default: 400,
   },
-  remember: {
-    type: Boolean,
-    default: true,
-  },
   name: {
     type: String,
     required: true,
   },
 })
 
-const emits = defineEmits(['dragStart', 'dragEnd'])
+const emits = defineEmits(['dragStart', 'dragEnd', 'heightChange'])
 const { t } = useI18n()
 const realTimeHeight = ref(0); //---------------实时高度
 const mousedownTop = ref(0); //---------------鼠标点击距离
@@ -64,15 +60,13 @@ const handleResizeMousemove = (e: MouseEvent) => {
   }
   bar.value!.style.top = '-3px';
   wrapper.value!.style.height = `${moveTop + wrapperHeight.value}px`;
-  if (props.remember) {
-    localStorage.setItem(`dragBar/${name}`, `${moveTop + wrapperHeight.value}px`);
-  }
   realTimeHeight.value = moveTop + wrapperHeight.value;
 }
 //处理鼠标弹起事件
 const handleResizeMouseup = () => {
   isDragging.value = false;
   document.documentElement.removeEventListener('mousemove', handleResizeMousemove);
+  emits('heightChange', realTimeHeight.value);
   emits('dragEnd');
 }
 //处理鼠标按下事件
@@ -90,24 +84,15 @@ const handleReset = () => {
   bar.value!.style.height = '-3px';
   wrapper.value!.style.height = height;
   realTimeHeight.value = parseFloat(height);
-  if (props.remember) {
-    localStorage.setItem(`dragBar/${props.name}`, height);
-  }
+  emits('heightChange', realTimeHeight.value);
 }
 //初始化拖拽相关事件
 const initDrag = () => {
   document.documentElement.addEventListener('mouseup', handleResizeMouseup);
   const height = props.height ? `${props.height}px` : `${wrapper.value?.getBoundingClientRect().height}px`;
-  if (props.remember) {
-    const wrapperHeight = localStorage.getItem(`dragBar/${props.name}`) || height;
-    bar.value!.style.top = '-3px';
-    wrapper.value!.style.height = `${wrapperHeight}`;
-    realTimeHeight.value = parseFloat(wrapperHeight);
-  } else {
-    bar.value!.style.top = '-3px';
-    wrapper.value!.style.height = height;
-    realTimeHeight.value = parseFloat(height);
-  }
+  bar.value!.style.top = '-3px';
+  wrapper.value!.style.height = height;
+  realTimeHeight.value = parseFloat(height);
 }
 onMounted(() => {
   initDrag();

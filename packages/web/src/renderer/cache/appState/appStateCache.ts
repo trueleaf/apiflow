@@ -477,5 +477,26 @@ class AppState {
       localStorage.setItem(cacheKey.appState.websocketNode.messageBlockCollapse, JSON.stringify(data));
     }
   }
+  // 获取垂直布局下响应区域高度
+  getResponseHeight(): number {
+    try {
+      const height = localStorage.getItem(cacheKey.projectWorkbench.responseHeight);
+      const parsedHeight = height ? parseInt(height, 10) : 350;
+      if (parsedHeight < 300) return 300;
+      if (parsedHeight > 750) return 750;
+      return parsedHeight;
+    } catch (error) {
+      logger.error('获取响应区域高度失败', { error });
+      return 350;
+    }
+  }
+  // 设置垂直布局下响应区域高度
+  setResponseHeight(height: number) {
+    try {
+      localStorage.setItem(cacheKey.projectWorkbench.responseHeight, height.toString());
+    } catch (error) {
+      logger.error('设置响应区域高度失败', { error });
+    }
+  }
 }
 export const appState = new AppState();

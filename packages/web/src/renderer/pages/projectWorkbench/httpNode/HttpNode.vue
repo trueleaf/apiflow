@@ -6,8 +6,8 @@
         <SParams></SParams>
       </div>
       <!-- <el-divider v-show="layout === 'vertical' && !isVerticalDrag" content-position="left">Response</el-divider> -->
-      <SResizeY v-if="layout === 'vertical'" class="y-bar" :min="150" :max="550" :height="350" name="response-y" tabindex="1"
-        @dragStart="isVerticalDrag = true" @dragEnd="isVerticalDrag = false">
+      <SResizeY v-if="layout === 'vertical'" class="y-bar" :min="300" :max="750" :height="responseHeight" name="response-y" tabindex="1"
+        @dragStart="isVerticalDrag = true" @dragEnd="isVerticalDrag = false" @heightChange="handleResponseHeightChange">
         <SResponse></SResponse>
       </SResizeY>
       <SResizeX 
@@ -38,7 +38,7 @@ import SOperation from './operation/Operation.vue'
 import SParams from './params/Params.vue'
 import SResponse from './responseView/ResponseView.vue'
 import SView from './view/View.vue'
-import { computed, ref, watch } from 'vue'
+import { computed, ref, watch, onMounted } from 'vue'
 import { useApidocBaseInfo } from '@/store/apidoc/baseInfoStore'
 import { useApidocTas } from '@/store/apidoc/tabsStore'
 import { useRoute } from 'vue-router'
@@ -64,6 +64,7 @@ const currentSelectTab = computed(() => {
 });
 const loading = computed(() => httpNodeStore.loading);
 const layout = computed(() => apidocBaseInfoStore.layout);
+const responseHeight = computed(() => apidocBaseInfoStore.responseHeight);
 
 /*
 |--------------------------------------------------------------------------
@@ -124,6 +125,10 @@ const getApidocInfo = async () => {
     httpNodeStore.changeResponseBodyLoading(false);
   })
 }
+// 处理响应区域高度变化
+const handleResponseHeightChange = (height: number) => {
+  apidocBaseInfoStore.changeResponseHeight(height);
+}
 
 watch(currentSelectTab, (val, oldVal) => {
   const isApidoc = val?.tabType === 'http';
@@ -134,6 +139,10 @@ watch(currentSelectTab, (val, oldVal) => {
 }, {
   deep: true,
   immediate: true,
+})
+
+onMounted(() => {
+  apidocBaseInfoStore.initResponseHeight();
 })
 </script>
 

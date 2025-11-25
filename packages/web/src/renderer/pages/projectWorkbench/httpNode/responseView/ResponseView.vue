@@ -109,8 +109,6 @@ const responseBodyLoading = computed(() => httpNodeStore.responseBodyLoading); /
 
   &.vertical {
     height: 100%;
-    margin-top: 15px;
-
     .el-tabs__content {
       height: calc(100% - 55px);
       overflow-y: auto;
@@ -118,6 +116,11 @@ const responseBodyLoading = computed(() => httpNodeStore.responseBodyLoading); /
       .el-tab-pane {
         height: 100%;
       }
+    }
+    // 移除竖向模式下 el-tabs 导航 wrap 的伪元素高度，避免遮挡或影响布局
+    :deep(.el-tabs__nav-wrap)::after {
+      height: 0 !important;
+      display: none !important;
     }
   }
 }

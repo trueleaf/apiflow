@@ -54,6 +54,7 @@ export const cacheKey = {
     },
     pinToolbarOperations: 'projectWorkbench/pinToolbarOperations',
     layout: 'projectWorkbench/layout',
+    responseHeight: 'projectWorkbench/responseHeight',
   },
   websocketNode: {
     websocket: 'websocketNode/websocket',

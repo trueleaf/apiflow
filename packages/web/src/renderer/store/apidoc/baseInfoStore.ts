@@ -19,6 +19,7 @@ import { apiNodesCache } from '@/cache/nodes/nodesCache';
 import { requestMethods } from '@/data/data.ts';
 import { projectWorkbenchCache } from '@/cache/projectWorkbench/projectWorkbenchCache.ts';
 import { useRuntime } from '../runtime/runtimeStore';
+import { appState } from '@/cache/appState/appStateCache';
 
 type ChangeProjectBaseInfo = {
   _id: string;
@@ -80,6 +81,7 @@ export const useApidocBaseInfo = defineStore('apidocBaseInfo', () => {
   const hosts = ref<ApidocProjectHost[]>([]);
   const globalCookies = ref<Record<string, ApidocCookieInfo[]>>({});
   const layout = ref<'vertical' | 'horizontal'>('horizontal');
+  const responseHeight = ref<number>(350);
   const mode = ref<'view' | 'edit'>('view');
   const commonHeaders = ref<ApidocProjectCommonHeader[]>([]);
   const globalCommonHeaders = ref<GlobalCommonHeader[]>([]);
@@ -126,6 +128,15 @@ export const useApidocBaseInfo = defineStore('apidocBaseInfo', () => {
   //初始化布局
   const initLayout = (): void => {
     layout.value = projectWorkbenchCache.getProjectWorkbenchLayout();
+  }
+  //改变响应区域高度
+  const changeResponseHeight = (height: number): void => {
+    responseHeight.value = height;
+    appState.setResponseHeight(height);
+  }
+  //初始化响应区域高度
+  const initResponseHeight = (): void => {
+    responseHeight.value = appState.getResponseHeight();
   }
   //改变操作模式
   const changeMode = (modeOption: 'edit' | 'view'): void => {
@@ -333,6 +344,7 @@ export const useApidocBaseInfo = defineStore('apidocBaseInfo', () => {
   return {
     _id,
     layout,
+    responseHeight,
     projectName,
     mode,
     commonHeaders,
@@ -347,6 +359,8 @@ export const useApidocBaseInfo = defineStore('apidocBaseInfo', () => {
     updateHostById,
     changeLayout,
     initLayout,
+    changeResponseHeight,
+    initResponseHeight,
     changeMode,
     changeCommonHeaders,
     changeProjectRules,
