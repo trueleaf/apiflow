@@ -938,9 +938,8 @@ onUnmounted(() => {
     justify-content: flex-end;
     position: relative;
     background: var(--white);
-    position: sticky;
-    top: 3px;
-    z-index: var(--zIndex-request-info-wrap);
+    // position: sticky;
+    // z-index: var(--zIndex-request-info-wrap);
     &.vertical {
       z-index: 1;
     }

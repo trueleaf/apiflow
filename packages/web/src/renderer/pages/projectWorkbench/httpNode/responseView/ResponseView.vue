@@ -2,6 +2,7 @@
   <SBaseInfoView v-show="layout === 'horizontal'"></SBaseInfoView>
   <SResponseSummaryView v-show="layout === 'horizontal'"></SResponseSummaryView>
   <SLoading :loading="requestState === 'sending' || responseBodyLoading" :class="{ 'h-100': layout === 'vertical' }" class="loading-wrap w-100">
+    <div v-if="layout === 'vertical' && requestState === 'waiting' && !responseInfo.contentType" class="vertical-empty-title">Response</div>
     <div 
       v-show="responseInfo.bodyByteLength || requestState !== 'waiting'" 
       class="remote-response-wrap pl-3 w-100"
@@ -88,6 +89,7 @@ const responseBodyLoading = computed(() => httpNodeStore.responseBodyLoading); /
 <style lang='scss' scoped>
 .loading-wrap {
   height: calc(100vh - var(--apiflow-apidoc-request-view-height) - var(--apiflow-doc-nav-height) - 30px);
+  position: relative;
 }
 .remote-response-wrap {
   height: calc(100vh - var(--apiflow-apidoc-request-view-height) - var(--apiflow-doc-nav-height) - 30px);
@@ -118,5 +120,13 @@ const responseBodyLoading = computed(() => httpNodeStore.responseBodyLoading); /
       }
     }
   }
+}
+.vertical-empty-title {
+  position: absolute;
+  top: 8px;
+  left: 12px;
+  font-size: 15px;
+  color: var(--gray-600);
+  z-index: 11;
 }
 </style>

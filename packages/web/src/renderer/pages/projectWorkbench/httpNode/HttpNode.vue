@@ -5,8 +5,8 @@
         <SOperation></SOperation>
         <SParams></SParams>
       </div>
-      <el-divider v-show="layout === 'vertical' && !isVerticalDrag" content-position="left">Response</el-divider>
-      <SResizeY v-if="layout === 'vertical'" :min="150" :max="550" :height="350" name="response-y" tabindex="1"
+      <!-- <el-divider v-show="layout === 'vertical' && !isVerticalDrag" content-position="left">Response</el-divider> -->
+      <SResizeY v-if="layout === 'vertical'" class="y-bar" :min="150" :max="550" :height="350" name="response-y" tabindex="1"
         @dragStart="isVerticalDrag = true" @dragEnd="isVerticalDrag = false">
         <SResponse></SResponse>
       </SResizeY>
@@ -146,7 +146,9 @@ watch(currentSelectTab, (val, oldVal) => {
   &.vertical {
     flex-direction: column;
     overflow: hidden;
-
+    .y-bar {
+      border-top: 1px solid var(--gray-400);
+    }
     .el-divider--horizontal {
       border-top: 1px dashed var(--gray-500);
     }

@@ -235,6 +235,11 @@ test.describe('Banner 组件 - 离线工作台', () => {
 
   // ==================== 测试组4: 搜索与筛选 ====================
   test.describe('搜索与筛选', () => {
+    test('离线模式下不展示高级筛选图标', async ({ }) => {
+      const advance = contentPage.locator('.banner .advance, .icongaojishaixuan');
+      const count = await advance.count();
+      expect(count).toBe(0);
+    });
     test('搜索应按名称筛选节点', async ({ }) => {
       await createNodes(contentPage, [
         { name: '搜索目标节点', type: 'http' },
