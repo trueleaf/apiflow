@@ -584,6 +584,10 @@ onUnmounted(() => {
   margin-top: 2px;
   height: calc(100vh - var(--apiflow-apidoc-request-view-height) - var(--apiflow-response-tabs-header-height) - var(--apiflow-response-summary-height) - var(--apiflow-doc-nav-height) - 10px);
   position: relative;
+
+  &.vertical {
+    height: calc(var(--apiflow-response-height) - var(--apiflow-response-tabs-header-height) - 10px);
+  }
   .response-tip {
     width: 100%;
     padding: 5px 10px;
@@ -647,6 +651,7 @@ onUnmounted(() => {
         position: absolute;
         right: 20px;
         top: 5px;
+        z-index: var(--zIndex-contextmenu);
         .op-btn {
           color: var(--theme-color);
           cursor: pointer;

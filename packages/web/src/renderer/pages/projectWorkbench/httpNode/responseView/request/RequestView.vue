@@ -145,7 +145,7 @@ const { layout } = storeToRefs(apidocBaseInfoStore)
   overflow-y: auto;
 
   &.vertical {
-    height: 100%;
+    height: calc(var(--apiflow-response-height) - var(--apiflow-response-tabs-header-height) - 10px);
   }
   .collapse-section {
     margin-bottom: 4px;

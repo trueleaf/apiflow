@@ -9,7 +9,6 @@
     <el-table 
       :data="headers" 
       border 
-      :height="layout === 'vertical' ? '65vh' : undefined"
       :size="layout === 'vertical' ? 'small' : 'default'"
     >
       <el-table-column 
@@ -147,7 +146,7 @@ function getCollapsedValue(val: string) {
   }
 
   &.vertical {
-    height: 100%;
+    height: calc(var(--apiflow-response-height) - var(--apiflow-response-tabs-header-height) - 10px);
   }
 }
 .header-actions {

@@ -14,7 +14,6 @@
       :data="cookies" 
       border 
       size="small"
-      :height="layout === 'vertical' ? '65vh' : undefined"
     >
       <template v-if="layout === 'vertical'">
         <el-table-column align="center" prop="name" label="Name"></el-table-column>
@@ -184,7 +183,7 @@ const handleJumpToCookies = () => {
   }
 
   &.vertical {
-    height: 100%;
+    height: calc(var(--apiflow-response-height) - var(--apiflow-response-tabs-header-height) - 10px);
   }
 }
 .cookie-actions {
