@@ -929,6 +929,9 @@ onUnmounted(() => {
   position: relative;
   &.vertical {
     height: auto;
+    .workbench {
+      height: calc(100vh - var(--apiflow-response-height) - var(--apiflow-apidoc-operation-height) - var(--apiflow-doc-nav-height) - var(--apiflow-quick-actions-height) - var(--apiflow-params-tabs-height) - 10px);
+    }
   }
   .quick-actions {
     height: var(--apiflow-quick-actions-height);

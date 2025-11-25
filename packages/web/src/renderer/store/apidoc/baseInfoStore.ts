@@ -129,14 +129,20 @@ export const useApidocBaseInfo = defineStore('apidocBaseInfo', () => {
   const initLayout = (): void => {
     layout.value = projectWorkbenchCache.getProjectWorkbenchLayout();
   }
+  //更新响应区域高度 CSS 变量
+  const updateResponseHeightCssVar = (height: number): void => {
+    document.documentElement.style.setProperty('--apiflow-response-height', `${height}px`);
+  }
   //改变响应区域高度
   const changeResponseHeight = (height: number): void => {
     responseHeight.value = height;
     appState.setResponseHeight(height);
+    updateResponseHeightCssVar(height);
   }
   //初始化响应区域高度
   const initResponseHeight = (): void => {
     responseHeight.value = appState.getResponseHeight();
+    updateResponseHeightCssVar(responseHeight.value);
   }
   //改变操作模式
   const changeMode = (modeOption: 'edit' | 'view'): void => {
