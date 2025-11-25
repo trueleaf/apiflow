@@ -141,7 +141,7 @@ const { layout } = storeToRefs(apidocBaseInfoStore)
 .request-info {
   width: 100%;
   word-break: break-all;
-  height: calc(100vh - 370px);
+  height: calc(100vh - var(--apiflow-apidoc-request-view-height) - var(--apiflow-response-tabs-header-height) - var(--apiflow-response-summary-height) - var(--apiflow-doc-nav-height) - 10px);
   overflow-y: auto;
 
   &.vertical {

@@ -176,7 +176,7 @@ const handleJumpToCookies = () => {
 <style lang='scss' scoped>
 .cookie-view {
   width: 100%;
-  height: calc(100vh - var(--apiflow-apidoc-request-view-height) - var(--apiflow-doc-nav-height) - 95px);
+  height: calc(100vh - var(--apiflow-apidoc-request-view-height) - var(--apiflow-response-tabs-header-height) - var(--apiflow-response-summary-height) - var(--apiflow-doc-nav-height) - 10px);
   overflow-y: auto;
   .value-wrap {
     max-height: 140px;

@@ -182,7 +182,12 @@
           <el-button link type="primary" text @click="() => downloadStringAsText(formatedText, 'response.json')">{{ t("下载到本地预览") }}</el-button>
         </div>
         <el-empty v-else-if="isJsonDataEmpty" :description="t('数据为空')"></el-empty>
-        <SJsonEditor v-else-if="apidocResponseStore.requestState === 'finish'" :model-value="formatedText || apidocResponseStore.responseInfo.responseData.jsonData" read-only :config="{ fontSize: 13, language: 'json' }"></SJsonEditor>
+        <div v-else-if="apidocResponseStore.requestState === 'finish'" class="json-editor-wrap">
+          <SJsonEditor :model-value="formatedText || apidocResponseStore.responseInfo.responseData.jsonData" read-only :config="{ fontSize: 13, language: 'json' }"></SJsonEditor>
+          <div class="response-body-op">
+            <span class="op-btn" @click="handleFormatResponse">{{ t('格式化') }}</span>
+          </div>
+        </div>
         <div v-else-if="formatedText.length === 0 && apidocResponseStore.requestState === 'response'" class="json-loading">
           <el-icon size="16"><Loading /></el-icon>
           <span>{{ $t('等待数据返回') }}</span>
@@ -376,12 +381,13 @@ const resolveFormatPayload = (): FormatPayload | null => {
   const safeContentType = contentType || '';
   const textData = responseData.textData || '';
   const targetType = responseData.canApiflowParseType;
+  if (targetType === 'json' || safeContentType.includes('application/json')) {
+    const jsonSource = responseData.jsonData || textData;
+    if (!jsonSource) return null;
+    return { type: 'format-json', code: jsonSource };
+  }
   if (!textData) {
     return null;
-  }
-  if (targetType === 'json' || safeContentType.includes('application/json')) {
-    const jsonSource = typeof responseData.jsonData === 'string' ? responseData.jsonData : textData;
-    return { type: 'format-json', code: jsonSource };
   }
   if (targetType === 'html' || safeContentType.includes('text/html')) {
     return { type: 'format-html', code: textData };
@@ -530,6 +536,17 @@ const isJsonDataEmpty = computed(() => {
   const dataIsEmpty = (!textData || textData.trim() === '') && (!jsonData || jsonData === '');
   return isFinished && isJsonType && dataIsEmpty;
 })
+//格式化响应JSON
+const handleFormatResponse = () => {
+  const source = formatedText.value || apidocResponseStore.responseInfo.responseData.jsonData || '';
+  if (!source) return;
+  try {
+    const formatted = beautify(source, { indent_size: 2 });
+    formatedText.value = formatted;
+  } catch {
+    // 格式化失败时保持原样
+  }
+}
 onMounted(() => {
   prettierWorker.onmessage = (event: MessageEvent<WorkerResultMessage>) => {
     const message = event.data;
@@ -565,7 +582,7 @@ onUnmounted(() => {
 .body-view {
   width: 100%;
   margin-top: 2px;
-  height: calc(100vh - var(--apiflow-apidoc-request-view-height) - var(--apiflow-doc-nav-height) - 80px);
+  height: calc(100vh - var(--apiflow-apidoc-request-view-height) - var(--apiflow-response-tabs-header-height) - var(--apiflow-response-summary-height) - var(--apiflow-doc-nav-height) - 10px);
   position: relative;
   .response-tip {
     width: 100%;
@@ -621,6 +638,19 @@ onUnmounted(() => {
       color: var(--text-secondary);
       .el-icon {
         animation: spin 1s infinite linear;
+      }
+    }
+    .json-editor-wrap {
+      position: relative;
+      height: 100%;
+      .response-body-op {
+        position: absolute;
+        right: 20px;
+        top: 5px;
+        .op-btn {
+          color: var(--theme-color);
+          cursor: pointer;
+        }
       }
     }
   }

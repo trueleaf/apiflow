@@ -71,7 +71,7 @@ onMounted(() => {
 <style lang='scss' scoped>
 .raw-body {
   width: 100%;
-  height: calc(100% - 20px);
+  height: calc(100vh - var(--apiflow-apidoc-request-view-height) - var(--apiflow-response-tabs-header-height) - var(--apiflow-response-summary-height) - var(--apiflow-doc-nav-height) - 10px);
   overflow: hidden;
   &.vertical {
     height: 100%;

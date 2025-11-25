@@ -9,10 +9,10 @@
       :class="{ vertical: layout === 'vertical' }">
       <el-tabs v-model="activeName" class="h-100 w-100">
         <el-tab-pane :label="t('返回值')" name="SBodyView">
-          <SBodyView class="h-100"></SBodyView>
+          <SBodyView></SBodyView>
         </el-tab-pane>
         <el-tab-pane :label="t('请求信息')" name="SRequestView">
-          <SRequestView class="h-100 mt-2"></SRequestView>
+          <SRequestView></SRequestView>
         </el-tab-pane>
         <el-tab-pane name="SHeadersView">
           <template #label>
