@@ -84,6 +84,7 @@ const handleReset = () => {
   bar.value!.style.height = '-3px';
   wrapper.value!.style.height = height;
   realTimeHeight.value = parseFloat(height);
+  console.log(realTimeHeight.value)
   emits('heightChange', realTimeHeight.value);
 }
 //初始化拖拽相关事件

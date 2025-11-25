@@ -2,7 +2,7 @@
   <div class="doc-view">
     <Banner></Banner>
     <div class="doc-wrap">
-      <Nav></Nav>
+      <ProjectNav></ProjectNav>
       <Content></Content>
     </div>
     <SaveDocDialog v-if="saveDocDialogVisible" v-model="saveDocDialogVisible"></SaveDocDialog>
@@ -14,7 +14,7 @@ import { computed, onMounted } from 'vue'
 // import { ref } from 'vue'
 import SaveDocDialog from './dialog/saveDoc/SaveDoc.vue'
 import Banner from './layout/banner/Banner.vue';
-import Nav from './layout/nav/Nav.vue';
+import ProjectNav from './layout/projectNav/ProjectNav.vue';
 import Content from './layout/content/Content.vue';
 import { useApidocTas } from '@/store/apidoc/tabsStore'
 import { useHttpNode } from '@/store/apidoc/httpNodeStore'
