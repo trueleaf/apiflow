@@ -8,7 +8,7 @@
       class="remote-response-wrap pl-3 w-100"
       :class="{ vertical: layout === 'vertical' }">
       <el-tabs v-model="activeName" class="h-100 w-100">
-        <el-tab-pane :label="t('返回值')" name="SBodyView" class="w-100">
+        <el-tab-pane :label="t('返回值')" name="SBodyView">
           <SBodyView class="h-100"></SBodyView>
         </el-tab-pane>
         <el-tab-pane :label="t('请求信息')" name="SRequestView">
@@ -29,7 +29,7 @@
           <!-- fix: 文字隐藏组件获取dom宽度失败 -->
           <SCookieView v-if="activeName === 'SCookieView'" class="mt-2"></SCookieView>
         </el-tab-pane>
-        <el-tab-pane :label="t('原始值')" name="SRawBodyView" class="w-100">
+        <el-tab-pane :label="t('原始值')" name="SRawBodyView">
           <SRawBodyView v-if="activeName === 'SRawBodyView'" class="h-100 mt-2"></SRawBodyView>
         </el-tab-pane>
       </el-tabs>
@@ -88,15 +88,16 @@ const responseBodyLoading = computed(() => httpNodeStore.responseBodyLoading); /
 
 <style lang='scss' scoped>
 .loading-wrap {
-  height: calc(100vh - var(--apiflow-apidoc-request-view-height) - var(--apiflow-doc-nav-height) - 30px);
+  height: calc(100vh - var(--apiflow-apidoc-request-view-height) - var(--apiflow-doc-nav-height) - var(--apiflow-response-summary-height));
   position: relative;
 }
 .remote-response-wrap {
-  height: calc(100vh - var(--apiflow-apidoc-request-view-height) - var(--apiflow-doc-nav-height) - 30px);
+  height: calc(100vh - var(--apiflow-apidoc-request-view-height) - var(--apiflow-doc-nav-height) - var(--apiflow-response-summary-height));
   overflow-y: auto;
   
   :deep(.el-tabs__header) {
     margin-bottom: 0px;
+    height: var(--apiflow-response-tabs-header-height);
   }
   
   .el-tabs__content {

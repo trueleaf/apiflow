@@ -58,7 +58,6 @@ const validRequestMethods = computed(() => apidocBaseInfoStore.rules.requestMeth
   flex-grow: 0;
   flex-shrink: 0;
   box-shadow: 0 3px 2px var(--gray-400);
-  margin-bottom: 10px;
   padding: 10px;
   height: var(--apiflow-apidoc-request-view-height);
   overflow: hidden;

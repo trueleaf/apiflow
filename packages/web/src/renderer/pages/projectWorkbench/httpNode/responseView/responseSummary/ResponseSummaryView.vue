@@ -1,5 +1,5 @@
 <template>
-  <div class="d-flex a-center px-3 w-100 overflow-hidden">
+  <div class="response-summary-view">
     <div class="flex0 d-flex a-center">
       <span>{{ t("状态码") }}：</span>
       <template v-if="responseInfo.statusCode">
@@ -71,6 +71,15 @@ const formatedMs = computed(() => formatUnit(responseInfo.value.rt, 'time'))
 </script>
 
 <style lang="scss" scoped>
+.response-summary-view {
+  display: flex;
+  align-items: flex-end;
+  padding-left: 15px;
+  padding-right: 15px;
+  width: 100%;
+  overflow: hidden;
+  height: var(--apiflow-response-summary-height);
+}
 .content-type-wrap {
   overflow: hidden;
   text-overflow: ellipsis;

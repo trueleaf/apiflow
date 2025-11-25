@@ -24,6 +24,8 @@
   --apiflow-apidoc-request-view-height: 170px;
   --apiflow-params-tabs-height: 55px;
   --apiflow-response-height: 350px;
+  --apiflow-response-summary-height: 30px;
+  --apiflow-response-tabs-header-height: 40px;
 }
 
 /* 主题切换平滑过渡 */
