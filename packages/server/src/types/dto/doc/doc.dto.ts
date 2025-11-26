@@ -1,5 +1,7 @@
 import { Rule, RuleType, getSchema } from '@midwayjs/validate';
 import { RequestMethod } from '../../types.js';
+import { WebsocketItem } from './websocket.dto.js';
+import { HttpMockItem } from './httpMock.dto.js';
 
 /*
 |--------------------------------------------------------------------------
@@ -683,25 +685,35 @@ export class UpdateDoc {
   @Rule(getSchema(DocBaseInfo).required())
   info: DocBaseInfo;
   /**
-   * 接口信息
+   * 接口信息（HTTP节点使用）
    */
-  @Rule(getSchema(ItemInfo).required())
+  @Rule(getSchema(ItemInfo))
   item: ItemInfo;
   /**
-   * 前置脚本信息
+   * 前置脚本信息（HTTP节点使用）
    */
-  @Rule(getSchema(RequestScript).required())
+  @Rule(getSchema(RequestScript))
   preRequest: RequestScript;
   /**
-   * 后置脚本信息
+   * 后置脚本信息（HTTP节点使用）
    */
-  @Rule(getSchema(RequestScript).required())
+  @Rule(getSchema(RequestScript))
   afterRequest: RequestScript;
   /**
-   * mock信息
+   * mock信息（HTTP节点使用）
    */
   @Rule(getSchema(MockInfo))
   mockInfo: MockInfo;
+  /**
+   * WebSocket节点数据
+   */
+  @Rule(getSchema(WebsocketItem))
+  websocketItem: WebsocketItem;
+  /**
+   * HttpMock节点数据
+   */
+  @Rule(getSchema(HttpMockItem))
+  httpMockItem: HttpMockItem;
 }
 
 /**

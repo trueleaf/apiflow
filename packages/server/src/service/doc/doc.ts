@@ -50,7 +50,9 @@ export class DocService {
         throwError(4001, '操作不被允许，文件下面不允许嵌套文件夹')
       }
     }
-    const doc = {
+    
+    // 基础文档信息
+    const baseDoc = {
       pid,
       projectId,
       isFolder: type === 'folder',
@@ -61,10 +63,181 @@ export class DocService {
         version: '1.0',
         creator: userInfo.realName || userInfo.loginName,
       },
-      item: {
-        method: 'GET'
-      }
+    };
+    
+    // 根据类型初始化不同的数据结构
+    let doc: Record<string, any> = { ...baseDoc };
+    
+    switch (type) {
+      case 'folder':
+        // 文件夹不需要额外的请求数据
+        break;
+        
+      case 'http':
+        // HTTP节点初始化
+        doc.item = {
+          method: 'GET',
+          url: {
+            host: '',
+            path: ''
+          },
+          paths: [],
+          queryParams: [],
+          requestBody: {
+            mode: 'json',
+            rawJson: '',
+            formdata: [],
+            urlencoded: [],
+            raw: {
+              data: '',
+              dataType: 'text/plain'
+            },
+            binary: {
+              mode: 'file',
+              varValue: '',
+              binaryValue: {
+                path: '',
+                id: '',
+                raw: ''
+              }
+            }
+          },
+          headers: [],
+          contentType: '',
+          responseParams: [
+            {
+              _id: new Types.ObjectId().toString(),
+              title: '成功返回',
+              statusCode: 200,
+              value: {
+                dataType: 'application/json',
+                strJson: '',
+                file: {
+                  url: '',
+                  raw: ''
+                },
+                text: ''
+              }
+            }
+          ]
+        };
+        doc.preRequest = { raw: '' };
+        doc.afterRequest = { raw: '' };
+        break;
+        
+      case 'websocket':
+        // WebSocket节点初始化
+        doc.websocketItem = {
+          item: {
+            protocol: 'ws',
+            url: {
+              path: '',
+              prefix: ''
+            },
+            queryParams: [],
+            headers: [],
+            messageBlocks: [
+              {
+                id: new Types.ObjectId().toString(),
+                name: '',
+                content: '',
+                messageType: 'json',
+                order: 0
+              }
+            ]
+          },
+          config: {
+            autoSend: false,
+            autoSendInterval: 30000,
+            autoSendContent: 'ping',
+            autoSendMessageType: 'json',
+            autoReconnect: false
+          },
+          preRequest: { raw: '' },
+          afterRequest: { raw: '' }
+        };
+        break;
+        
+      case 'httpMock':
+        // HttpMock节点初始化
+        doc.httpMockItem = {
+          requestCondition: {
+            method: ['ALL'],
+            url: '/mock/v1',
+            port: 4000
+          },
+          config: {
+            delay: 0
+          },
+          response: [
+            {
+              name: '默认返回',
+              isDefault: true,
+              conditions: {
+                name: '',
+                scriptCode: '',
+                enabled: false
+              },
+              statusCode: 200,
+              headers: {
+                enabled: false,
+                defaultHeaders: [
+                  { _id: new Types.ObjectId().toString(), key: 'Content-Type', value: 'application/json; charset=utf-8', type: 'string', description: '响应内容类型', required: true, select: true }
+                ],
+                customHeaders: []
+              },
+              dataType: 'json',
+              sseConfig: {
+                event: {
+                  id: { enable: false, valueMode: 'increment' },
+                  event: { enable: true, value: 'message' },
+                  data: { mode: 'json', value: '' },
+                  retry: { enable: false, value: 3000 }
+                },
+                interval: 100,
+                maxNum: 10
+              },
+              jsonConfig: {
+                mode: 'fixed',
+                fixedData: '',
+                randomSize: 0,
+                prompt: ''
+              },
+              textConfig: {
+                mode: 'fixed',
+                textType: 'text/plain',
+                fixedData: '',
+                randomSize: 0,
+                prompt: ''
+              },
+              imageConfig: {
+                mode: 'fixed',
+                imageConfig: 'png',
+                randomSize: 10,
+                randomWidth: 100,
+                randomHeight: 100,
+                fixedFilePath: ''
+              },
+              fileConfig: {
+                fileType: 'doc'
+              },
+              binaryConfig: {
+                filePath: ''
+              },
+              redirectConfig: {
+                statusCode: 302,
+                location: ''
+              }
+            }
+          ]
+        };
+        break;
+        
+      default:
+        // 默认情况（包括 markdown 等其他类型），只保留基础信息
+        break;
     }
+    
     const result = await this.docModel.create(doc);
     const docLen = await this.docModel.find({ projectId, isFolder: false, isEnabled: true }).countDocuments();
     //=====================================添加历史记录====================================//
@@ -72,19 +245,54 @@ export class DocService {
       await this.projectModel.findByIdAndUpdate({ _id: projectId }, { $set: { docNum: docLen }});
     }
     //=========================================================================//
-    return {
+    
+    // 根据类型返回不同的数据结构
+    const baseReturn = {
       _id: result._id,
       pid: result.pid,
       sort: result.sort,
       name: result.info.name,
       type: result.info.type,
-      method: result.item.method,
-      url: result.item.url ? result.item.url.path : '',
       maintainer: result.info.maintainer,
       updatedAt: result.updatedAt,
       isFolder: result.isFolder,
       children: [],
     };
+    
+    switch (type) {
+      case 'folder':
+        return baseReturn;
+        
+      case 'http':
+        return {
+          ...baseReturn,
+          method: result.item?.method || 'GET',
+          url: result.item?.url?.path || '',
+          customMockUrl: result.mockInfo?.path || '',
+        };
+        
+      case 'websocket':
+        return {
+          ...baseReturn,
+          protocol: result.websocketItem?.item?.protocol || 'ws',
+          url: {
+            path: result.websocketItem?.item?.url?.path || '',
+            prefix: result.websocketItem?.item?.url?.prefix || '',
+          },
+        };
+        
+      case 'httpMock':
+        return {
+          ...baseReturn,
+          method: result.httpMockItem?.requestCondition?.method?.[0] || 'ALL',
+          url: result.httpMockItem?.requestCondition?.url || '',
+          port: result.httpMockItem?.requestCondition?.port || 4000,
+          state: 'stopped',
+        };
+        
+      default:
+        return baseReturn;
+    }
   }
   /**
    * 生成文档副本
@@ -197,19 +405,44 @@ export class DocService {
    * 改变文档请求相关数据
    */
   async updateDoc(params: UpdateDoc) {
-    const { _id, info, item, preRequest, afterRequest, projectId, mockInfo} = params;
+    const { _id, info, item, preRequest, afterRequest, projectId, mockInfo, websocketItem, httpMockItem} = params;
     await this.commonControl.checkDocOperationPermissions(projectId);
     const { tokenInfo } = this.ctx;
-    const updateInfo = {
+    
+    // 先获取文档类型
+    const doc = await this.docModel.findById({ _id }).lean();
+    if (!doc) {
+      throwError(4001, '文档不存在');
+    }
+    
+    const docType = info?.type || doc.info?.type;
+    
+    // 根据文档类型构建更新数据
+    const updateInfo: Record<string, any> = {
       $set: {
-        preRequest,
-        afterRequest,
-        item,
-        mockInfo,
         'info.description': info.description,
         'info.maintainer': tokenInfo.realName || tokenInfo.loginName,
       },
+    };
+    
+    // HTTP节点更新
+    if (docType === 'http') {
+      if (item) updateInfo.$set.item = item;
+      if (preRequest) updateInfo.$set.preRequest = preRequest;
+      if (afterRequest) updateInfo.$set.afterRequest = afterRequest;
+      if (mockInfo) updateInfo.$set.mockInfo = mockInfo;
     }
+    
+    // WebSocket节点更新
+    if (docType === 'websocket' && websocketItem) {
+      updateInfo.$set.websocketItem = websocketItem;
+    }
+    
+    // HttpMock节点更新
+    if (docType === 'httpMock' && httpMockItem) {
+      updateInfo.$set.httpMockItem = httpMockItem;
+    }
+    
     await this.docModel.findByIdAndUpdate({ _id }, updateInfo);
     return;
   }
@@ -240,6 +473,64 @@ export class DocService {
     result.afterRequest = result.afterRequest ? result.afterRequest : {
       raw: ''
     }
+    
+    // 根据节点类型处理返回数据
+    const nodeType = result.info?.type;
+    if (nodeType === 'websocket' && result.websocketItem) {
+      // WebSocket节点：将websocketItem的内容提取到根级别
+      const wsItem = result.websocketItem.item || {};
+      const websocketData = {
+        _id: result._id,
+        pid: result.pid || '',
+        projectId: result.projectId,
+        sort: result.sort || 0,
+        isFolder: result.isFolder,
+        info: result.info,
+        item: {
+          protocol: wsItem.protocol || 'ws',
+          url: wsItem.url || { path: '', prefix: '' },
+          queryParams: wsItem.queryParams || [],
+          headers: wsItem.headers || [],
+          messageBlocks: wsItem.messageBlocks || [],
+        },
+        config: result.websocketItem.config || {
+          autoSend: false,
+          autoSendInterval: 30000,
+          autoSendContent: 'ping',
+          autoSendMessageType: 'json',
+          autoReconnect: false,
+        },
+        preRequest: result.websocketItem.preRequest || result.preRequest,
+        afterRequest: result.websocketItem.afterRequest || result.afterRequest,
+        createdAt: result.createdAt,
+        updatedAt: result.updatedAt,
+        isDeleted: !result.isEnabled,
+      };
+      return websocketData;
+    } else if (nodeType === 'httpMock' && result.httpMockItem) {
+      // HttpMock节点：将httpMockItem的内容提取到根级别
+      const httpMockData = {
+        _id: result._id,
+        projectId: result.projectId,
+        isFolder: result.isFolder,
+        info: result.info,
+        requestCondition: result.httpMockItem.requestCondition || {
+          method: ['ALL'],
+          url: '',
+          port: 3000,
+        },
+        config: result.httpMockItem.config || {
+          delay: 0,
+        },
+        response: result.httpMockItem.response || [],
+        preRequest: result.preRequest,
+        afterRequest: result.afterRequest,
+        createdAt: result.createdAt,
+        updatedAt: result.updatedAt,
+      };
+      return httpMockData;
+    }
+    
     return result;
   }
   /**
@@ -289,6 +580,9 @@ export class DocService {
       'item.method': 1,
       'item.url': 1,
       'mockInfo.path': 1,
+      'websocketItem.item.protocol': 1,
+      'websocketItem.item.url': 1,
+      'httpMockItem.requestCondition': 1,
       isFolder: 1,
       sort: 1,
       updatedAt: 1,
@@ -297,34 +591,49 @@ export class DocService {
       sort: 1
     }).lean();
     const pickedData =  docsInfo.map(val => {
+      const baseData = {
+        _id: val._id,
+        pid: val.pid,
+        sort: val.sort,
+        name: val.info.name,
+        type: val.info.type,
+        maintainer: val.info.maintainer,
+        updatedAt: val.updatedAt,
+        isFolder: val.isFolder,
+        children: [],
+      };
+      // 文件夹
       if (val.isFolder) {
+        return baseData;
+      }
+      // WebSocket 节点
+      if (val.info.type === 'websocket') {
         return {
-          _id: val._id,
-          pid: val.pid,
-          sort: val.sort,
-          name: val.info.name,
-          type: val.info.type,
-          maintainer: val.info.maintainer,
-          updatedAt: val.updatedAt,
-          isFolder: val.isFolder,
-          children: [],
-        };
-      } else {
-        return {
-          _id: val._id,
-          pid: val.pid,
-          sort: val.sort,
-          name: val.info.name,
-          type: val.info.type,
-          method: val.item.method,
-          url: val.item.url ? val.item.url.path : '',
-          customMockUrl: val.mockInfo?.path || '',
-          maintainer: val.info.maintainer,
-          updatedAt: val.updatedAt,
-          isFolder: val.isFolder,
-          children: [],
+          ...baseData,
+          protocol: val.websocketItem?.item?.protocol || 'ws',
+          url: {
+            path: val.websocketItem?.item?.url?.path || '',
+            prefix: val.websocketItem?.item?.url?.prefix || '',
+          },
         };
       }
+      // HttpMock 节点
+      if (val.info.type === 'httpMock') {
+        return {
+          ...baseData,
+          method: val.httpMockItem?.requestCondition?.method?.[0] || 'ALL',
+          url: val.httpMockItem?.requestCondition?.url || '',
+          port: val.httpMockItem?.requestCondition?.port || 3000,
+          state: 'stopped',
+        };
+      }
+      // HTTP 节点（默认）
+      return {
+        ...baseData,
+        method: val.item.method,
+        url: val.item.url ? val.item.url.path : '',
+        customMockUrl: val.mockInfo?.path || '',
+      };
     })
     for (let i = 0; i < pickedData.length; i++) {
       const docInfo = pickedData[i];

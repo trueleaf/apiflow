@@ -18,6 +18,9 @@ import { i18n } from "@/i18n";
 import { webSocketHistoryCache } from "@/cache/websocketNode/websocketHistoryCache";
 import { useRuntime } from '@/store/runtime/runtimeStore';
 import { logger } from '@/helper';
+import axios, { Canceler } from 'axios';
+import { request as axiosInstance } from '@/api/api';
+import { CommonResponse } from '@src/types';
 
 
 export const useWebSocket = defineStore('websocket', () => {
@@ -38,6 +41,7 @@ export const useWebSocket = defineStore('websocket', () => {
   const responseMessage = ref<WebsocketResponse[]>([]);
   const currentActiveTab = ref<WebsocketActiveTabType>('messageContent'); // 当前激活的模块
   const messageEditorRef = ref<{changeSilent: (value: boolean) => void} | null>(null); // 消息编辑器引用
+  const cancel: Canceler[] = []; // 请求取消函数数组
   
   /*
   |--------------------------------------------------------------------------
@@ -525,6 +529,8 @@ const updateWebSocketHeaderById = (id: string, header: Partial<ApidocProperty<'s
   */
   // 获取WebSocket详情
   const getWebsocketDetail = async (payload: { id: string, projectId: string }): Promise<void> => {
+    const { deleteTabByIds } = useApidocTas();
+    
     if (isOffline()) {
       const doc = await apiNodesCache.getNodeById(payload.id) as WebSocketNode;
       if (!doc) {
@@ -541,8 +547,10 @@ const updateWebSocketHeaderById = (id: string, header: Partial<ApidocProperty<'s
           cancelButtonText: '取消',
           type: 'warning',
         }).then(() => {
-          // TODO: 删除tab的逻辑需要根据实际情况实现
-          logger.log('删除WebSocket tab');
+          deleteTabByIds({
+            projectId: payload.projectId,
+            ids: [payload.id]
+          });
         }).catch((err) => {
           if (err === 'cancel' || err === 'close') {
             return;
@@ -556,16 +564,55 @@ const updateWebSocketHeaderById = (id: string, header: Partial<ApidocProperty<'s
       // 缓存到本地存储
       cacheWebSocket();
       return;
-    } else {
-      // 非standalone模式下尝试从缓存中获取
-      const cachedWebSocket = getCachedWebSocket(payload.id);
-      if (cachedWebSocket) {
-        changeWebsocket(cachedWebSocket);
-        changeOriginWebsocket();
-        return;
-      }
-      console.log('getWebsocketDetail called but not in standalone mode and no cache found');
     }
+
+    // 在线模式：从服务器获取数据
+    if (cancel.length > 0) {
+      cancel.forEach((c) => {
+        c('取消请求');
+      });
+    }
+    return new Promise((resolve, reject) => {
+      loading.value = true;
+      const params = {
+        projectId: payload.projectId,
+        _id: payload.id,
+      };
+      axiosInstance.get<CommonResponse<WebSocketNode>, CommonResponse<WebSocketNode>>('/api/project/doc_detail', {
+        params,
+        cancelToken: new axios.CancelToken((c) => {
+          cancel.push(c);
+        }),
+      }).then((res) => {
+        if (res.data === null) {
+          ElMessageBox.confirm('当前WebSocket不存在，可能已经被删除!', '提示', {
+            confirmButtonText: '关闭接口',
+            cancelButtonText: '取消',
+            type: 'warning',
+          }).then(() => {
+            deleteTabByIds({
+              projectId: payload.projectId,
+              ids: [payload.id]
+            });
+          }).catch((err) => {
+            if (err === 'cancel' || err === 'close') {
+              return;
+            }
+            console.error(err);
+          });
+          return;
+        }
+        changeWebsocket(res.data);
+        changeOriginWebsocket();
+        cacheWebSocket();
+        resolve();
+      }).catch((err) => {
+        console.error(err);
+        reject(err);
+      }).finally(() => {
+        loading.value = false;
+      });
+    });
   };
 
   /*
@@ -626,16 +673,67 @@ const updateWebSocketHeaderById = (id: string, header: Partial<ApidocProperty<'s
         saveLoading.value = false;
       }, 100);
     } else {
-      console.log('todo');
-      cacheWebSocket();
-      // 只有当数据发生改变时才添加WebSocket历史记录
-      if (!isSaved) {
-        webSocketHistoryCache.addWsHistoryByNodeId(
-          currentSelectTab._id,
-          websocket.value
-        );
-      }
-      saveLoading.value = false;
+      // 在线模式保存
+      const websocketDetail = cloneDeep(websocket.value);
+      const params = {
+        _id: currentSelectTab._id,
+        projectId,
+        info: {
+          type: 'websocket' as const,
+          name: websocketDetail.info.name,
+          description: websocketDetail.info.description,
+        },
+        websocketItem: {
+          item: websocketDetail.item,
+          config: websocketDetail.config,
+          preRequest: websocketDetail.preRequest,
+          afterRequest: websocketDetail.afterRequest,
+        },
+      };
+
+      axiosInstance.post('/api/project/fill_doc', params).then(() => {
+        // 改变tab请求方法
+        changeTabInfoById({
+          id: currentSelectTab._id,
+          field: 'head',
+          value: {
+            icon: websocketDetail.item.protocol,
+            color: '',
+          },
+        });
+        // 改变banner请求方法
+        changeWebsocketBannerInfoById({
+          id: currentSelectTab._id,
+          field: 'protocol',
+          value: websocketDetail.item.protocol,
+        });
+        // 改变origindoc的值
+        changeOriginWebsocket();
+        // 改变tab未保存小圆点
+        changeTabInfoById({
+          id: currentSelectTab._id,
+          field: 'saved',
+          value: true,
+        });
+        cacheWebSocket();
+        // 只有当数据发生改变时才添加WebSocket历史记录
+        if (!isSaved) {
+          webSocketHistoryCache.addWsHistoryByNodeId(
+            currentSelectTab._id,
+            websocket.value
+          );
+        }
+      }).catch((err) => {
+        // 改变tab未保存小圆点
+        changeTabInfoById({
+          id: currentSelectTab._id,
+          field: 'saved',
+          value: false,
+        });
+        console.error(err);
+      }).finally(() => {
+        saveLoading.value = false;
+      });
     }
   };
   const getWebsocketFullUrl = debounce(async () => {

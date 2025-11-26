@@ -409,6 +409,287 @@ class ResponseParams {
   public value: ResonseValue;
 }
 
+/*
+|--------------------------------------------------------------------------
+| WebSocket消息块
+|--------------------------------------------------------------------------
+*/
+class WebsocketMessageBlock {
+  @prop()
+  public id: string;
+  @prop()
+  public name: string;
+  @prop()
+  public content: string;
+  @prop({ default: 'json' })
+  public messageType: 'text' | 'json' | 'xml' | 'html' | 'binary-base64' | 'binary-hex';
+  @prop({ default: 0 })
+  public order: number;
+}
+
+/*
+|--------------------------------------------------------------------------
+| WebSocket URL信息
+|--------------------------------------------------------------------------
+*/
+class WebsocketUrl {
+  @prop({ default: '' })
+  public path: string;
+  @prop({ default: '' })
+  public prefix: string;
+}
+
+/*
+|--------------------------------------------------------------------------
+| WebSocket配置
+|--------------------------------------------------------------------------
+*/
+class WebsocketConfig {
+  @prop({ default: false })
+  public autoSend: boolean;
+  @prop({ default: 1000 })
+  public autoSendInterval: number;
+  @prop({ default: '' })
+  public autoSendContent: string;
+  @prop({ default: 'json' })
+  public autoSendMessageType: 'text' | 'json' | 'xml' | 'html' | 'binary-base64' | 'binary-hex';
+  @prop({ default: false })
+  public autoReconnect: boolean;
+}
+
+/*
+|--------------------------------------------------------------------------
+| WebSocket Item信息
+|--------------------------------------------------------------------------
+*/
+class WebsocketItemInfo {
+  @prop({ default: 'ws' })
+  public protocol: 'ws' | 'wss';
+  @prop({ _id: false, default: { path: '', prefix: '' } })
+  public url: WebsocketUrl;
+  @prop({ type: () => [BaseProperty] })
+  public queryParams: BaseProperty[];
+  @prop({ type: () => [BaseProperty] })
+  public headers: BaseProperty[];
+  @prop({ type: () => [WebsocketMessageBlock], _id: false })
+  public messageBlocks: WebsocketMessageBlock[];
+}
+
+/*
+|--------------------------------------------------------------------------
+| WebSocket节点数据
+|--------------------------------------------------------------------------
+*/
+class WebsocketItem {
+  @prop({ _id: false })
+  public item: WebsocketItemInfo;
+  @prop({ _id: false })
+  public config: WebsocketConfig;
+  @prop({ _id: false })
+  public preRequest: RequestScript;
+  @prop({ _id: false })
+  public afterRequest: RequestScript;
+}
+
+/*
+|--------------------------------------------------------------------------
+| HttpMock请求条件
+|--------------------------------------------------------------------------
+*/
+class HttpMockRequestCondition {
+  @prop({ type: () => [String], default: ['ALL'] })
+  public method: string[];
+  @prop({ default: '' })
+  public url: string;
+  @prop({ default: 3000 })
+  public port: number;
+}
+
+/*
+|--------------------------------------------------------------------------
+| HttpMock配置
+|--------------------------------------------------------------------------
+*/
+class HttpMockConfig {
+  @prop({ default: 0 })
+  public delay: number;
+}
+
+/*
+|--------------------------------------------------------------------------
+| HttpMock SSE配置
+|--------------------------------------------------------------------------
+*/
+class SseEventId {
+  @prop({ default: false })
+  public enable: boolean;
+  @prop({ default: 'increment' })
+  public valueMode: 'increment' | 'random' | 'timestamp';
+}
+
+class SseEventName {
+  @prop({ default: false })
+  public enable: boolean;
+  @prop({ default: '' })
+  public value: string;
+}
+
+class SseEventData {
+  @prop({ default: 'json' })
+  public mode: 'json' | 'string';
+  @prop({ default: '' })
+  public value: string;
+}
+
+class SseRetry {
+  @prop({ default: false })
+  public enable: boolean;
+  @prop({ default: 0 })
+  public value: number;
+}
+
+class SseEvent {
+  @prop({ _id: false })
+  public id: SseEventId;
+  @prop({ _id: false })
+  public event: SseEventName;
+  @prop({ _id: false })
+  public data: SseEventData;
+  @prop({ _id: false })
+  public retry: SseRetry;
+}
+
+class SseConfig {
+  @prop({ _id: false })
+  public event: SseEvent;
+  @prop({ default: 1000 })
+  public interval: number;
+  @prop({ default: 10 })
+  public maxNum: number;
+}
+
+/*
+|--------------------------------------------------------------------------
+| HttpMock响应配置
+|--------------------------------------------------------------------------
+*/
+class JsonConfig {
+  @prop({ default: 'fixed' })
+  public mode: 'random' | 'fixed' | 'randomAi';
+  @prop({ default: '' })
+  public fixedData: string;
+  @prop({ default: 10 })
+  public randomSize: number;
+  @prop({ default: '' })
+  public prompt: string;
+}
+
+class TextConfig {
+  @prop({ default: 'fixed' })
+  public mode: 'random' | 'fixed' | 'randomAi';
+  @prop({ default: 'text/plain' })
+  public textType: 'text/plain' | 'html' | 'xml' | 'yaml' | 'csv' | 'any';
+  @prop({ default: '' })
+  public fixedData: string;
+  @prop({ default: 100 })
+  public randomSize: number;
+  @prop({ default: '' })
+  public prompt: string;
+}
+
+class ImageConfigData {
+  @prop({ default: 'random' })
+  public mode: 'random' | 'fixed';
+  @prop({ default: 'png' })
+  public imageConfig: 'png' | 'jpg' | 'webp' | 'svg';
+  @prop({ default: 1024 })
+  public randomSize: number;
+  @prop({ default: 200 })
+  public randomWidth: number;
+  @prop({ default: 200 })
+  public randomHeight: number;
+  @prop({ default: '' })
+  public fixedFilePath: string;
+}
+
+class FileConfigData {
+  @prop({ default: 'pdf' })
+  public fileType: 'doc' | 'docx' | 'xls' | 'xlsx' | 'pdf' | 'ppt' | 'pptx' | 'zip' | '7z';
+}
+
+class BinaryConfigData {
+  @prop({ default: '' })
+  public filePath: string;
+}
+
+class RedirectConfig {
+  @prop({ default: 302 })
+  public statusCode: 301 | 302 | 303 | 307 | 308;
+  @prop({ default: '' })
+  public location: string;
+}
+
+class HttpMockResponseHeaders {
+  @prop({ default: true })
+  public enabled: boolean;
+  @prop({ type: () => [BaseProperty] })
+  public defaultHeaders: BaseProperty[];
+  @prop({ type: () => [BaseProperty] })
+  public customHeaders: BaseProperty[];
+}
+
+class HttpMockConditions {
+  @prop({ default: '' })
+  public name: string;
+  @prop({ default: '' })
+  public scriptCode: string;
+  @prop({ default: false })
+  public enabled: boolean;
+}
+
+class HttpMockResponseItem {
+  @prop({ default: '' })
+  public name: string;
+  @prop({ default: true })
+  public isDefault: boolean;
+  @prop({ _id: false })
+  public conditions: HttpMockConditions;
+  @prop({ default: 200 })
+  public statusCode: number;
+  @prop({ _id: false })
+  public headers: HttpMockResponseHeaders;
+  @prop({ default: 'json' })
+  public dataType: 'sse' | 'json' | 'text' | 'image' | 'file' | 'binary' | 'redirect';
+  @prop({ _id: false })
+  public sseConfig: SseConfig;
+  @prop({ _id: false })
+  public jsonConfig: JsonConfig;
+  @prop({ _id: false })
+  public textConfig: TextConfig;
+  @prop({ _id: false })
+  public imageConfig: ImageConfigData;
+  @prop({ _id: false })
+  public fileConfig: FileConfigData;
+  @prop({ _id: false })
+  public binaryConfig: BinaryConfigData;
+  @prop({ _id: false })
+  public redirectConfig: RedirectConfig;
+}
+
+/*
+|--------------------------------------------------------------------------
+| HttpMock节点数据
+|--------------------------------------------------------------------------
+*/
+class HttpMockItem {
+  @prop({ _id: false })
+  public requestCondition: HttpMockRequestCondition;
+  @prop({ _id: false })
+  public config: HttpMockConfig;
+  @prop({ type: () => [HttpMockResponseItem], _id: false })
+  public response: HttpMockResponseItem[];
+}
+
 @modelOptions({
   schemaOptions: { timestamps: true, collection: 'doc' },
 })
@@ -463,6 +744,16 @@ export class Doc extends Timestamps {
    */
   @prop({ type: () => MockInfo, _id: false })
   public mockInfo: MockInfo
+  /**
+   * WebSocket节点数据
+   */
+  @prop({ type: () => WebsocketItem, _id: false })
+  public websocketItem: WebsocketItem;
+  /**
+   * HttpMock节点数据
+   */
+  @prop({ type: () => HttpMockItem, _id: false })
+  public httpMockItem: HttpMockItem;
   /**
    * 是否启用
    */

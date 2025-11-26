@@ -12,6 +12,9 @@ import { router } from "@/router/index.ts";
 import { useApidocBanner } from "../apidoc/bannerStore.ts";
 import { useRuntime } from '@/store/runtime/runtimeStore';
 import { logger } from '@/helper';
+import axios, { Canceler } from 'axios';
+import { request as axiosInstance } from '@/api/api';
+import { CommonResponse } from '@src/types';
 
 
 export const useHttpMock = defineStore('httpMock', () => {
@@ -21,6 +24,7 @@ export const useHttpMock = defineStore('httpMock', () => {
   const originHttpMock = ref<HttpMockNode>(generateEmptyHttpMockNode(nanoid()));
   const saveLoading = ref(false);
   const refreshLoading = ref(false);
+  const cancel: Canceler[] = []; // 请求取消函数数组
 
   const apidocTabsStore = useApidocTas();
   const apidocBannerStore = useApidocBanner();
@@ -165,16 +169,56 @@ export const useHttpMock = defineStore('httpMock', () => {
       // 缓存到本地存储
       cacheHttpMockNode();
       return;
-    } else {
-      // 非standalone模式下尝试从缓存中获取
-      const cachedHttpMock = getCachedHttpMockNodeById(payload.id);
-      if (cachedHttpMock) {
-        replaceHttpMockNode(cachedHttpMock);
-        replaceOriginHttpMockNode();
-        return;
-      }
-      console.log('getHttpMockNodeDetail called but not in standalone mode and no cache found');
     }
+
+    // 在线模式：从服务器获取数据
+    if (cancel.length > 0) {
+      cancel.forEach((c) => {
+        c('取消请求');
+      });
+    }
+    return new Promise((resolve, reject) => {
+      refreshLoading.value = true;
+      const params = {
+        projectId: payload.projectId,
+        _id: payload.id,
+      };
+      axiosInstance.get<CommonResponse<HttpMockNode>, CommonResponse<HttpMockNode>>('/api/project/doc_detail', {
+        params,
+        cancelToken: new axios.CancelToken((c) => {
+          cancel.push(c);
+        }),
+      }).then((res) => {
+        if (res.data === null) {
+          ElMessageBox.confirm('当前HttpMock不存在，可能已经被删除!', '提示', {
+            confirmButtonText: '关闭接口',
+            cancelButtonText: '取消',
+            type: 'warning',
+          }).then(() => {
+            deleteTabByIds({
+              projectId: payload.projectId,
+              ids: [payload.id],
+              force: true,
+            });
+          }).catch((err) => {
+            if (err === 'cancel' || err === 'close') {
+              return;
+            }
+            console.error(err);
+          });
+          return;
+        }
+        replaceHttpMockNode(res.data);
+        replaceOriginHttpMockNode();
+        cacheHttpMockNode();
+        resolve();
+      }).catch((err) => {
+        console.error(err);
+        reject(err);
+      }).finally(() => {
+        refreshLoading.value = false;
+      });
+    });
   };
 
   /*
@@ -238,9 +282,59 @@ export const useHttpMock = defineStore('httpMock', () => {
         saveLoading.value = false;
       }, 100);
     } else {
-      console.log('todo');
-      cacheHttpMockNode();
-      saveLoading.value = false;
+      // 在线模式保存
+      const httpMockDetail = cloneDeep(httpMock.value);
+      const params = {
+        _id: currentSelectTab._id,
+        projectId,
+        info: {
+          type: 'httpMock' as const,
+          name: httpMockDetail.info.name,
+          description: httpMockDetail.info.description,
+        },
+        httpMockItem: {
+          requestCondition: httpMockDetail.requestCondition,
+          config: httpMockDetail.config,
+          response: httpMockDetail.response,
+        },
+      };
+
+      axiosInstance.post('/api/project/fill_doc', params).then(() => {
+        // 改变tab请求方法
+        changeTabInfoById({
+          id: currentSelectTab._id,
+          field: 'head',
+          value: {
+            icon: 'httpMock',
+            color: '',
+          },
+        });
+        // 改变banner请求方法
+        changeBannerInfoById({
+          id: currentSelectTab._id,
+          field: 'method' as any,
+          value: httpMockDetail.requestCondition.method,
+        });
+        // 改变origindoc的值
+        replaceOriginHttpMockNode();
+        // 改变tab未保存小圆点
+        changeTabInfoById({
+          id: currentSelectTab._id,
+          field: 'saved',
+          value: true,
+        });
+        cacheHttpMockNode();
+      }).catch((err) => {
+        // 改变tab未保存小圆点
+        changeTabInfoById({
+          id: currentSelectTab._id,
+          field: 'saved',
+          value: false,
+        });
+        console.error(err);
+      }).finally(() => {
+        saveLoading.value = false;
+      });
     }
   };
 

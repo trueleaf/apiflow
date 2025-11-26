@@ -72,13 +72,14 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, onMounted, onUnmounted, computed } from 'vue'
+import { ref, onMounted, onUnmounted, computed, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { Search, Loading, Delete } from '@element-plus/icons-vue'
 import { ElMessageBox, ElMessage } from 'element-plus'
 import { useSendHistory } from '@/store/apidoc/sendHistoryStore'
 import { useApidocTas } from '@/store/apidoc/tabsStore'
 import { useApidocBanner } from '@/store/apidoc/bannerStore'
+import { useRuntime } from '@/store/runtime/runtimeStore'
 import { router } from '@/router/index'
 import { storeToRefs } from 'pinia'
 import { sendHistoryCache } from '@/cache/sendHistory/sendHistoryCache'
@@ -89,6 +90,7 @@ const { t } = useI18n()
 const sendHistoryStore = useSendHistory()
 const apidocTabsStore = useApidocTas()
 const apidocBannerStore = useApidocBanner()
+const runtimeStore = useRuntime()
 
 const { sendHistoryList, loading, hasMore, hasLoadedMore } = storeToRefs(sendHistoryStore)
 
