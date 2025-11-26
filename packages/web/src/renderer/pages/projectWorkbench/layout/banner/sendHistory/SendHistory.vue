@@ -266,6 +266,13 @@ const handleClickItem = (item: SendHistoryItemWithStatus) => {
   }
 }
 
+// 监听 networkMode 变化，自动刷新历史列表
+watch(() => runtimeStore.networkMode, () => {
+  if (sendHistoryStore.sendHistoryList.length > 0 || !loading.value) {
+    sendHistoryStore.loadSendHistory()
+  }
+})
+
 onMounted(() => {
   sendHistoryStore.loadSendHistory()
 })

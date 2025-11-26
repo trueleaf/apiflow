@@ -177,7 +177,8 @@ const handleConnect = async () => {
     nodeType: 'websocket',
     protocol: websocketStore.websocket.item.protocol,
     url: websocketStore.websocket.item.url.path,
-    operatorName: 'me'
+    operatorName: 'me',
+    networkType: runtimeStore.networkMode
   });
 
   try {

@@ -12,3 +12,5 @@ run/
 .tsbuildinfo.*
 .augment/
 release/
+CLAUDE.md
+.claude

@@ -38,6 +38,10 @@ export type SendHistoryItem = {
    * 操作者名称
    */
   operatorName: string;
+  /**
+   * 网络模式
+   */
+  networkType: 'online' | 'offline';
 };
 
 /**

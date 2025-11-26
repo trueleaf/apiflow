@@ -8,7 +8,7 @@ class SendHistoryCache {
   private db: IDBPDatabase | null = null;
   private dbName = config.cacheConfig.sendHistoryCache.dbName;
   private storeName = config.cacheConfig.sendHistoryCache.storeName;
-  private version = config.cacheConfig.sendHistoryCache.version;
+  private version = 2;
   private maxHistory = config.cacheConfig.sendHistoryCache.maxHistory;
   private onAddCallback: (() => void) | null = null;
 
@@ -34,6 +34,7 @@ class SendHistoryCache {
             const store = db.createObjectStore('histories', { keyPath: '_id' });
             store.createIndex('nodeId', 'nodeId', { unique: false });
             store.createIndex('timestamp', 'timestamp', { unique: false });
+            store.createIndex('networkType', 'networkType', { unique: false });
           }
         }
       });
@@ -90,7 +91,8 @@ class SendHistoryCache {
         protocol: params.protocol,
         url: params.url,
         timestamp: Date.now(),
-        operatorName: params.operatorName
+        operatorName: params.operatorName,
+        networkType: params.networkType
       };
       const tx4 = db.transaction(this.storeName, 'readwrite');
       await tx4.store.add(newRecord);
@@ -106,7 +108,7 @@ class SendHistoryCache {
     }
   }
   // 获取发送历史列表（分页）
-  async getMergedSendHistoryList(limit: number = 50, offset: number = 0): Promise<SendHistoryItem[]> {
+  async getMergedSendHistoryList(limit: number = 50, offset: number = 0, networkType?: 'online' | 'offline'): Promise<SendHistoryItem[]> {
     try {
       const db = await this.getDB();
       const tx = db.transaction(this.storeName, 'readonly');
@@ -116,11 +118,14 @@ class SendHistoryCache {
       let skipped = 0;
       let collected = 0;
       while (cursor && collected < limit) {
-        if (skipped < offset) {
-          skipped++;
-        } else {
-          records.push(cursor.value);
-          collected++;
+        const shouldInclude = !networkType || cursor.value.networkType === networkType;
+        if (shouldInclude) {
+          if (skipped < offset) {
+            skipped++;
+          } else {
+            records.push(cursor.value);
+            collected++;
+          }
         }
         cursor = await cursor.continue();
       }
@@ -131,7 +136,7 @@ class SendHistoryCache {
     }
   }
   // 搜索发送历史
-  async searchSendHistory(keyword: string, limit: number = 50): Promise<SendHistoryItem[]> {
+  async searchSendHistory(keyword: string, limit: number = 50, networkType?: 'online' | 'offline'): Promise<SendHistoryItem[]> {
     try {
       const db = await this.getDB();
       const tx = db.transaction(this.storeName, 'readonly');
@@ -140,7 +145,9 @@ class SendHistoryCache {
       const filteredRecords = allRecords.filter(record => {
         const name = record.nodeName?.toLowerCase() || '';
         const url = record.url?.toLowerCase() || '';
-        return name.includes(lowerKeyword) || url.includes(lowerKeyword);
+        const matchKeyword = name.includes(lowerKeyword) || url.includes(lowerKeyword);
+        const matchNetworkType = !networkType || record.networkType === networkType;
+        return matchKeyword && matchNetworkType;
       });
       const sortedRecords = filteredRecords.sort((a, b) => b.timestamp - a.timestamp);
       return sortedRecords.slice(0, limit);
@@ -150,11 +157,15 @@ class SendHistoryCache {
     }
   }
   // 获取发送历史总数
-  async getMergedSendHistoryCount(): Promise<number> {
+  async getMergedSendHistoryCount(networkType?: 'online' | 'offline'): Promise<number> {
     try {
       const db = await this.getDB();
       const tx = db.transaction(this.storeName, 'readonly');
-      return await tx.store.count();
+      if (!networkType) {
+        return await tx.store.count();
+      }
+      const index = tx.store.index('networkType');
+      return await index.count(networkType);
     } catch (error) {
       logger.error('获取发送历史总数失败', { error });
       return 0;

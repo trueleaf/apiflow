@@ -3,8 +3,10 @@ import { ref } from 'vue';
 import { sendHistoryCache } from '@/cache/sendHistory/sendHistoryCache';
 import type { SendHistoryItem } from '@src/types/history/sendHistory';
 import { logger } from '@/helper';
+import { useRuntime } from '@/store/runtime/runtimeStore';
 
 export const useSendHistory = defineStore('sendHistory', () => {
+  const runtimeStore = useRuntime();
   const sendHistoryList = ref<SendHistoryItem[]>([]);
   const loading = ref(false);
   const hasMore = ref(true);
@@ -25,7 +27,7 @@ export const useSendHistory = defineStore('sendHistory', () => {
       currentOffset.value = 0;
       searchKeyword.value = '';
       hasLoadedMore.value = false;
-      const list = await sendHistoryCache.getMergedSendHistoryList(pageSize, 0);
+      const list = await sendHistoryCache.getMergedSendHistoryList(pageSize, 0, runtimeStore.networkMode);
       sendHistoryList.value = list;
       hasMore.value = list.length >= pageSize;
     } catch (error) {
@@ -50,7 +52,7 @@ export const useSendHistory = defineStore('sendHistory', () => {
         // 搜索模式下不支持分页加载更多
         return;
       } else {
-        list = await sendHistoryCache.getMergedSendHistoryList(pageSize, newOffset);
+        list = await sendHistoryCache.getMergedSendHistoryList(pageSize, newOffset, runtimeStore.networkMode);
       }
       if (list.length > 0) {
         sendHistoryList.value.push(...list);
@@ -84,7 +86,7 @@ export const useSendHistory = defineStore('sendHistory', () => {
         await loadSendHistory();
         return;
       }
-      const list = await sendHistoryCache.searchSendHistory(keyword, pageSize * 3);
+      const list = await sendHistoryCache.searchSendHistory(keyword, pageSize * 3, runtimeStore.networkMode);
       sendHistoryList.value = list;
       hasMore.value = false; // 搜索结果不支持分页
     } catch (error) {

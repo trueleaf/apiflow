@@ -63,11 +63,14 @@
               <Palette :size="18" class="label-icon" />
               {{ $t('应用主题') }}
             </div>
-            <el-radio-group v-model="appTheme" class="theme-radio-group">
-              <el-radio value="light" class="theme-radio">{{ $t('浅色') }}</el-radio>
-              <el-radio value="dark" class="theme-radio">{{ $t('深色') }}</el-radio>
-              <el-radio value="auto" class="theme-radio">{{ $t('跟随系统') }}</el-radio>
-            </el-radio-group>
+            <div class="theme-placeholder" aria-disabled="true">
+              <el-radio-group v-model="appTheme" class="theme-radio-group" :disabled="true">
+                <el-radio value="light" class="theme-radio" :disabled="true">{{ $t('浅色') }}</el-radio>
+                <el-radio value="dark" class="theme-radio" :disabled="true">{{ $t('深色') }}</el-radio>
+                <el-radio value="auto" class="theme-radio" :disabled="true">{{ $t('跟随系统') }}</el-radio>
+              </el-radio-group>
+              <div class="coming-soon">{{ $t('敬请期待') }}</div>
+            </div>
           </div>
         </div>
       </div>
@@ -231,6 +234,16 @@ const handleReset = async () => {
 .theme-radio-group {
   display: flex;
   gap: 16px;
+}
+.theme-placeholder {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.coming-soon {
+  color: var(--text-secondary);
+  font-size: 12px;
+  margin-left: 4px;
 }
 
 .image-container {

@@ -24,6 +24,7 @@ import { InitDataMessage, OnEvalSuccess, ReceivedEvent } from '@/worker/preReque
 import { Method } from 'got';
 import preRequestWorker from '@/worker/preRequest/preRequest.ts?worker&inline';
 import { WebSocketNode } from '@src/types/websocketNode';
+import { useRuntime } from '@/store/runtime/runtimeStore';
 /*
 |--------------------------------------------------------------------------
 | 发送请求
@@ -436,6 +437,7 @@ export const sendRequest = async () => {
   const { objectVariable } = useVariable();
   const apidocResponseStore = useApidocResponse();
   const projectId = apidocBaseInfoStore.projectId;
+  const runtimeStore = useRuntime();
   const apidocTabsStore = useApidocTas();
   const selectedTab = apidocTabsStore.getSelectedTab(apidocBaseInfoStore.projectId);
   const httpNodeStore = useHttpNode();
@@ -611,7 +613,8 @@ export const sendRequest = async () => {
           nodeType: 'http',
           method: copiedApidoc.item.method,
           url: copiedApidoc.item.url.path,
-          operatorName: 'me'
+          operatorName: 'me',
+          networkType: runtimeStore.networkMode
         });
         changeResponseBody(responseInfo.body)
         responseInfo.body = null; // 不存储body防止数据量过大
