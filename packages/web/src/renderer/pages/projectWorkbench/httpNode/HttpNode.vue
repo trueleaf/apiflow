@@ -5,8 +5,7 @@
         <SOperation></SOperation>
         <SParams></SParams>
       </div>
-      <!-- <el-divider v-show="layout === 'vertical' && !isVerticalDrag" content-position="left">Response</el-divider> -->
-      <SResizeY v-if="layout === 'vertical'" class="y-bar" :min="300" :max="750" :height="responseHeight" name="response-y" tabindex="1"
+      <SResizeY v-if="layout === 'vertical'" class="y-bar" :min="100" :max="750" :height="responseHeight" :default-height="350" name="response-y" tabindex="1"
         @dragStart="isVerticalDrag = true" @dragEnd="isVerticalDrag = false" @heightChange="handleResponseHeightChange">
         <SResponse></SResponse>
       </SResizeY>

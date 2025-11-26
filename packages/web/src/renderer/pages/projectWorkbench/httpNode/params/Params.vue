@@ -1,7 +1,7 @@
 <template>
   <div class="api-params" :class="{ vertical: layout === 'vertical' }">
     <!-- 快捷操作区域 -->
-    <div class="quick-actions" :class="{ vertical: layout === 'vertical' }">
+    <div class="quick-actions" :class="{ vertical: layout === 'vertical' }" ref="quickActionsRef">
       <!-- 左侧操作组 -->
       <div class="action-group action-group-left">
         <div
@@ -56,11 +56,14 @@
           <span>{{ t("变量") }}</span>
         </div>
       </div>
-      <!-- 历史记录下拉列表 -->
+    </div>
+    <!-- 历史记录下拉列表 -->
+    <Teleport to="body">
       <div
         v-if="showHistoryDropdown"
         class="history-dropdown"
         ref="historyDropdownRef"
+        :style="historyDropdownPosition"
       >
         <div v-if="historyLoading" class="history-loading">
           <el-icon class="loading-icon"><Loading /></el-icon>
@@ -106,7 +109,7 @@
           </div>
         </template>
       </div>
-    </div>
+    </Teleport>
     <el-tabs v-model="activeName" class="params-tabs">
       <el-tab-pane name="SParams">
         <template #label>
@@ -151,6 +154,7 @@
         v-if="showHistoryDetail && detailHistory"
         class="history-detail-panel"
         ref="historyDetailRef"
+        :style="detailPanelPosition"
         @mouseenter="handleDetailMouseEnter"
         @mouseleave="handleDetailMouseLeave"
       >
@@ -325,12 +329,15 @@ const historyLoading = ref(false)
 const historyList = ref<HttpHistory[]>([])
 const historyButtonRef = ref<HTMLElement>()
 const historyDropdownRef = ref<HTMLElement>()
+const quickActionsRef = ref<HTMLElement>()
+const historyDropdownPosition = ref<{ top: string; right: string }>({ top: '0px', right: '0px' })
 // 历史记录详情相关
 const showHistoryDetail = ref(false)
 const detailHistory = ref<HttpHistory | null>(null)
 const hoverTimer = ref<number | null>(null)
 const hideTimer = ref<number | null>(null)
 const historyDetailRef = ref<HTMLElement>()
+const detailPanelPosition = ref<{ left: string; top: string }>({ left: '0px', top: '0px' })
 // const mode = computed(() => apidocBaseInfoStore.mode)
 const hasQueryOrPathsParams = computed(() => {
   const { queryParams, paths } = httpNodeStore.apidoc.item;
@@ -487,12 +494,57 @@ const handleRedo = (): void => {
 | 历史记录相关方法
 |--------------------------------------------------------------------------
 */
+const updateHistoryDropdownPosition = (): void => {
+  if (!historyButtonRef.value) return;
+  const buttonRect = historyButtonRef.value.getBoundingClientRect();
+  const viewportWidth = window.innerWidth;
+  const dropdownWidth = 280;
+  historyDropdownPosition.value = {
+    top: `${buttonRect.bottom + 8}px`,
+    right: `${viewportWidth - buttonRect.right}px`
+  };
+};
+const updateDetailPanelPosition = (): void => {
+  if (!historyDropdownRef.value) return;
+
+  const dropdownRect = historyDropdownRef.value.getBoundingClientRect();
+  const detailWidth = 400;
+  const gap = 15;
+  const padding = 10;
+
+  let left = dropdownRect.left - detailWidth - gap;
+
+  if (left < padding) {
+    left = dropdownRect.right + gap;
+  }
+
+  if (left + detailWidth > window.innerWidth - padding) {
+    left = window.innerWidth - detailWidth - padding;
+  }
+
+  const maxDetailHeight = window.innerHeight * 0.8;
+  let top = dropdownRect.top + (dropdownRect.height - maxDetailHeight) / 2;
+
+  if (top < padding) {
+    top = padding;
+  }
+
+  if (top + maxDetailHeight > window.innerHeight - padding) {
+    top = window.innerHeight - maxDetailHeight - padding;
+  }
+
+  detailPanelPosition.value = {
+    left: `${left}px`,
+    top: `${top}px`
+  };
+};
 const handleToggleHistory = (): void => {
   if (showHistoryDropdown.value) {
     showHistoryDropdown.value = false;
     return;
   }
   showHistoryDropdown.value = true;
+  updateHistoryDropdownPosition();
   // 非阻塞方式加载历史记录
   getHistoryList().catch(error => {
     console.error('加载历史记录失败:', error);
@@ -629,7 +681,8 @@ const handleHistoryItemMouseEnter = (history: HttpHistory): void => {
     detailHistory.value = history;
     showHistoryDetail.value = true;
     hoverTimer.value = null;
-  }, 1000); // 1秒后显示
+    updateDetailPanelPosition();
+  }, 1000);
 };
 
 // 历史记录项鼠标离开
@@ -990,137 +1043,6 @@ onUnmounted(() => {
       margin: 0 10px;
     }
     
-    .history-dropdown {
-      position: absolute;
-      top: 100%;
-      right: 20px;
-      background: var(--white);
-      border: 1px solid var(--gray-300);
-      border-radius: 6px;
-      box-shadow: var(--box-shadow-lg);
-      z-index: var(--zIndex-history-dropdown);
-      min-width: 280px;
-      max-height: 350px;
-      overflow-y: auto;
-      margin-top: 5px;
-      
-      .history-loading,
-      .history-empty {
-        padding: 16px;
-        text-align: center;
-        color: var(--gray-500);
-        font-size: 14px;
-        
-        .loading-icon {
-          margin-right: 8px;
-          animation: rotate 1s linear infinite;
-        }
-      }
-      
-      .history-list {
-        padding: 8px 0;
-      }
-      
-      .history-item {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        padding: 10px 16px;
-        cursor: pointer;
-        border-bottom: 1px solid var(--gray-100);
-        
-        &:last-child {
-          border-bottom: none;
-        }
-        
-        &:hover {
-          background-color: var(--gray-200);
-          
-          .history-actions {
-            opacity: 1;
-          }
-        }
-        
-        .history-main {
-          flex: 1;
-          min-width: 0;
-          
-          .history-info {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            margin-bottom: 4px;
-            
-            .history-name {
-              font-weight: 500;
-              color: var(--gray-800);
-              font-size: 14px;
-              white-space: nowrap;
-              overflow: hidden;
-              text-overflow: ellipsis;
-              max-width: 140px;
-            }
-            
-            .history-operator {
-              font-size: 12px;
-              color: var(--gray-500);
-              background: var(--gray-100);
-              padding: 2px 6px;
-              border-radius: 4px;
-              white-space: nowrap;
-            }
-          }
-          
-          .history-time {
-            font-size: 12px;
-            color: var(--gray-500);
-          }
-        }
-        
-        .history-actions {
-          opacity: 0;
-
-          .delete-icon {
-            cursor: pointer;
-            border-radius: 4px;
-            &:hover {
-              color: var(--red);
-            }
-          }
-        }
-      }
-
-      .history-footer {
-        border-top: 1px solid var(--gray-200);
-        padding: 12px 16px;
-        background: var(--white);
-
-        .clear-all-btn {
-          width: 100%;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          gap: 6px;
-          padding: 8px 16px;
-          font-size: 13px;
-          color: var(--border-danger);
-          background: transparent;
-          border: 1px solid var(--border-danger);
-          border-radius: 4px;
-          cursor: pointer;
-          transition: all 0.2s;
-
-          &:hover {
-            background: var(--bg-danger-10);
-            border-color: var(--border-danger);
-          }
-
-          &:active {
-            background: var(--bg-danger-10);
-          }
-        }
-      }
-    }
   }
   .el-tabs {
     padding-right: 20px;
@@ -1166,19 +1088,16 @@ onUnmounted(() => {
 // 历史记录详情框样式
 .history-detail-panel {
   position: fixed;
-  right: 20px;
-  top: 50%;
-  transform: translateY(-50%);
   width: 400px;
   max-height: 80vh;
   background: var(--white);
   border: 1px solid var(--gray-300);
   border-radius: 8px;
   box-shadow: var(--box-shadow-lg);
-  z-index: calc(var(--zIndex-history-dropdown) + 1);
+  z-index: 2001;
   display: flex;
   flex-direction: column;
-  animation: detailFadeIn 150ms ease-out;
+  animation: detailFadeIn 200ms ease-out;
 
   .detail-header {
     display: flex;
@@ -1367,15 +1286,142 @@ onUnmounted(() => {
 @keyframes detailFadeIn {
   from {
     opacity: 0;
-    transform: translateY(-45%);
+    transform: scale(0.95);
   }
   to {
     opacity: 1;
-    transform: translateY(-50%);
+    transform: scale(1);
   }
 }
 </style>
 
+<style lang="scss">
+.history-dropdown {
+  position: fixed;
+  background: var(--white);
+  border: 1px solid var(--gray-300);
+  border-radius: 6px;
+  box-shadow: var(--box-shadow-lg);
+  z-index: var(--zIndex-history-dropdown);
+  min-width: 280px;
+  max-height: 350px;
+  overflow-y: auto;
 
+  .history-loading,
+  .history-empty {
+    padding: 16px;
+    text-align: center;
+    color: var(--gray-500);
+    font-size: 14px;
 
+    .loading-icon {
+      margin-right: 8px;
+      animation: rotate 1s linear infinite;
+    }
+  }
 
+  .history-list {
+    padding: 8px 0;
+  }
+
+  .history-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 16px;
+    cursor: pointer;
+    border-bottom: 1px solid var(--gray-100);
+
+    &:last-child {
+      border-bottom: none;
+    }
+
+    &:hover {
+      background-color: var(--gray-200);
+
+      .history-actions {
+        opacity: 1;
+      }
+    }
+
+    .history-main {
+      flex: 1;
+      min-width: 0;
+
+      .history-info {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 4px;
+
+        .history-name {
+          font-weight: 500;
+          color: var(--gray-800);
+          font-size: 14px;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          max-width: 140px;
+        }
+
+        .history-operator {
+          font-size: 12px;
+          color: var(--gray-500);
+          background: var(--gray-100);
+          padding: 2px 6px;
+          border-radius: 4px;
+          white-space: nowrap;
+        }
+      }
+
+      .history-time {
+        font-size: 12px;
+        color: var(--gray-500);
+      }
+    }
+
+    .history-actions {
+      opacity: 0;
+
+      .delete-icon {
+        cursor: pointer;
+        border-radius: 4px;
+        &:hover {
+          color: var(--red);
+        }
+      }
+    }
+  }
+
+  .history-footer {
+    border-top: 1px solid var(--gray-200);
+    padding: 12px 16px;
+    background: var(--white);
+
+    .clear-all-btn {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding: 8px 16px;
+      font-size: 13px;
+      color: var(--border-danger);
+      background: transparent;
+      border: 1px solid var(--border-danger);
+      border-radius: 4px;
+      cursor: pointer;
+      transition: all 0.2s;
+
+      &:hover {
+        background: var(--bg-danger-10);
+        border-color: var(--border-danger);
+      }
+
+      &:active {
+        background: var(--bg-danger-10);
+      }
+    }
+  }
+}
+</style>

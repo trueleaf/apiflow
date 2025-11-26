@@ -23,6 +23,10 @@ const props = defineProps({
     type: Number,
     default: null,
   },
+  defaultHeight: {
+    type: Number,
+    default: null,
+  },
   min: {
     type: Number,
     default: 100,
@@ -80,11 +84,11 @@ const handleResizeMousedown = (e: MouseEvent) => {
 
 //还原高度
 const handleReset = () => {
-  const height = props.height ? `${props.height}px` : `${wrapper.value?.getBoundingClientRect().height}px`;
-  bar.value!.style.height = '-3px';
+  const resetHeight = props.defaultHeight || props.height || wrapper.value?.getBoundingClientRect().height;
+  const height = `${resetHeight}px`;
+  bar.value!.style.top = '-3px';
   wrapper.value!.style.height = height;
   realTimeHeight.value = parseFloat(height);
-  console.log(realTimeHeight.value)
   emits('heightChange', realTimeHeight.value);
 }
 //初始化拖拽相关事件
