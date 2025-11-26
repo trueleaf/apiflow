@@ -485,15 +485,11 @@ onUnmounted(() => {
     }
   }
 
-  .params-tabs,
-  .workbench {
-    height: calc(100vh - var(--apiflow-apidoc-operation-height) - var(--apiflow-doc-nav-height) - var(--apiflow-params-tabs-height));
+  .params-tabs {
+    height: calc(100vh - var(--apiflow-apidoc-operation-height) - var(--apiflow-doc-nav-height) - var(--apiflow-quick-actions-height));
     overflow-y: auto;
     padding-right: 20px;
     padding-left: 20px;
-  }
-  .params-tabs {
-    height: var(--apiflow-params-tabs-height);
   }
 }
 

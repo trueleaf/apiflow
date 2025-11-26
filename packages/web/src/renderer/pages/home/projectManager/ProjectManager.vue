@@ -177,7 +177,7 @@
             </div>
             <div class="ml-auto">
               <el-button type="default" @click="handleJumpToProject(item)">{{ $t("编辑") }}</el-button>
-              <el-button v-if="!isStandalone" @click="handleJumpToView(item)">{{ $t("预览") }}</el-button>
+              <!-- 预览按钮已移除 -->
             </div>
           </div>
         </div>
@@ -279,7 +279,7 @@
             </div>
             <div class="ml-auto">
               <el-button type="default" @click="handleJumpToProject(item)">{{ $t("编辑") }}</el-button>
-              <el-button v-if="!isStandalone" @click="handleJumpToView(item)">{{ $t("预览") }}</el-button>
+              <!-- 预览按钮已移除 -->
             </div>
           </div>
         </div>
@@ -700,21 +700,7 @@ const handleJumpToProject = (item: ApidocProjectInfo) => {
   });
   apidocBaseInfo.changeProjectId(item._id);
 }
-//跳转到预览
-const handleJumpToView = (item: ApidocProjectInfo) => {
-  request.put('/api/project/visited', { projectId: item._id }).catch((err) => {
-    console.error(err);
-  });
-  router.push({
-    path: '/v1/apidoc/doc-edit',
-    query: {
-      id: item._id,
-      name: item.projectName,
-      mode: 'view',
-    },
-  });
-  apidocBaseInfo.changeProjectId(item._id);
-}
+// (已删除) 跳转到预览逻辑已移除
 //新增项目成功
 const handleAddSuccess = async (data: { projectId: string, projectName: string }) => {
   if (isStandalone.value) {
