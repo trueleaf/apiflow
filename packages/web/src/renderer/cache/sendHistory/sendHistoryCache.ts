@@ -205,6 +205,21 @@ class SendHistoryCache {
       return false;
     }
   }
+  // 批量删除指定ID的发送历史
+  async deleteHistoriesByIds(ids: string[]): Promise<boolean> {
+    try {
+      const db = await this.getDB();
+      const tx = db.transaction(this.storeName, 'readwrite');
+      for (const id of ids) {
+        await tx.store.delete(id);
+      }
+      await tx.done;
+      return true;
+    } catch (error) {
+      logger.error('批量删除发送历史失败', { error });
+      return false;
+    }
+  }
 }
 
 export const sendHistoryCache = new SendHistoryCache();

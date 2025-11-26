@@ -498,7 +498,6 @@ const updateHistoryDropdownPosition = (): void => {
   if (!historyButtonRef.value) return;
   const buttonRect = historyButtonRef.value.getBoundingClientRect();
   const viewportWidth = window.innerWidth;
-  const dropdownWidth = 280;
   historyDropdownPosition.value = {
     top: `${buttonRect.bottom + 8}px`,
     right: `${viewportWidth - buttonRect.right}px`

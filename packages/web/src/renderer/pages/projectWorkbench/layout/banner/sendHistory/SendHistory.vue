@@ -18,14 +18,24 @@
           </el-icon>
         </template>
       </el-input>
+      <el-button
+        v-if="deletedHistoryCount > 0"
+        size="small"
+        type="default"
+        class="clean-deleted-btn"
+        @click="handleCleanDeletedHistory"
+      >
+        {{ t('清理已删除接口历史') }} ({{ deletedHistoryCount }})
+      </el-button>
     </div>
 
     <!-- 历史列表 -->
     <div class="send-history-list" ref="listRef" @scroll="handleScroll">
       <div
-        v-for="item in sendHistoryList"
+        v-for="item in sendHistoryListWithStatus"
         :key="item._id"
         class="history-item"
+        :class="{ 'deleted-item': item.isDeleted }"
         @click="handleClickItem(item)"
       >
         <!-- 方法/协议标签 -->
@@ -40,6 +50,8 @@
           <div class="item-name" :title="item.nodeName">{{ item.nodeName }}</div>
           <div class="item-url" :title="item.url">{{ item.url }}</div>
         </div>
+        <!-- 已删除标签 -->
+        <span v-if="item.isDeleted" class="deleted-tag">{{ t('已删除') }}</span>
         <!-- 时间 -->
         <div class="item-time">{{ formatTime(item.timestamp) }}</div>
       </div>
@@ -49,10 +61,10 @@
         <el-icon class="is-loading"><Loading /></el-icon>
         {{ t('加载中') }}...
       </div>
-      <div v-if="!hasMore && hasLoadedMore && sendHistoryList.length > 0" class="no-more">
+      <div v-if="!hasMore && hasLoadedMore && sendHistoryListWithStatus.length > 0" class="no-more">
         {{ t('没有更多了') }}
       </div>
-      <div v-if="!loading && sendHistoryList.length === 0" class="empty">
+      <div v-if="!loading && sendHistoryListWithStatus.length === 0" class="empty">
         {{ t('暂无历史记录') }}
       </div>
     </div>
@@ -60,20 +72,23 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, onMounted, onUnmounted } from 'vue'
+import { ref, onMounted, onUnmounted, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { Search, Loading, Delete } from '@element-plus/icons-vue'
-import { ElMessageBox } from 'element-plus'
+import { ElMessageBox, ElMessage } from 'element-plus'
 import { useSendHistory } from '@/store/apidoc/sendHistoryStore'
 import { useApidocTas } from '@/store/apidoc/tabsStore'
+import { useApidocBanner } from '@/store/apidoc/bannerStore'
 import { router } from '@/router/index'
 import { storeToRefs } from 'pinia'
 import { sendHistoryCache } from '@/cache/sendHistory/sendHistoryCache'
-import type { SendHistoryItem } from '@src/types/history/sendHistory'
+import type { SendHistoryItem, SendHistoryItemWithStatus } from '@src/types/history/sendHistory'
+import type { ApidocBanner } from '@src/types'
 
 const { t } = useI18n()
 const sendHistoryStore = useSendHistory()
 const apidocTabsStore = useApidocTas()
+const apidocBannerStore = useApidocBanner()
 
 const { sendHistoryList, loading, hasMore, hasLoadedMore } = storeToRefs(sendHistoryStore)
 
@@ -85,6 +100,31 @@ const searchTimer = ref<number | null>(null)
 const getProjectId = () => {
   return router.currentRoute.value.query.id as string
 }
+// 将banner树扁平化为nodeId Set，提高查询性能
+const existingNodeIds = computed(() => {
+  const nodeIds = new Set<string>()
+  const traverse = (nodes: ApidocBanner[]) => {
+    nodes.forEach(node => {
+      nodeIds.add(node._id)
+      if (node.children?.length) {
+        traverse(node.children)
+      }
+    })
+  }
+  traverse(apidocBannerStore.banner)
+  return nodeIds
+})
+// 带删除状态的历史列表
+const sendHistoryListWithStatus = computed<SendHistoryItemWithStatus[]>(() => {
+  return sendHistoryList.value.map(item => ({
+    ...item,
+    isDeleted: !existingNodeIds.value.has(item.nodeId)
+  }))
+})
+// 已删除的历史记录数量
+const deletedHistoryCount = computed(() => {
+  return sendHistoryListWithStatus.value.filter(item => item.isDeleted).length
+})
 
 // 获取方法标签显示
 const getMethodLabel = (item: SendHistoryItem): string => {
@@ -153,6 +193,29 @@ const handleClearHistory = async () => {
     // 用户取消
   }
 }
+// 清理已删除接口的历史记录
+const handleCleanDeletedHistory = async () => {
+  try {
+    await ElMessageBox.confirm(
+      t('确定要清理所有已删除接口的历史记录吗？'),
+      t('提示'),
+      {
+        confirmButtonText: t('确定'),
+        cancelButtonText: t('取消'),
+        type: 'warning'
+      }
+    )
+    const deletedIds = sendHistoryListWithStatus.value
+      .filter(item => item.isDeleted)
+      .map(item => item._id)
+    const success = await sendHistoryStore.cleanDeletedHistory(deletedIds)
+    if (success) {
+      ElMessage.success(t('清理成功'))
+    }
+  } catch {
+    // 用户取消
+  }
+}
 
 // 滚动加载更多
 const handleScroll = () => {
@@ -166,7 +229,10 @@ const handleScroll = () => {
 }
 
 // 点击历史项
-const handleClickItem = (item: SendHistoryItem) => {
+const handleClickItem = (item: SendHistoryItemWithStatus) => {
+  if (item.isDeleted) {
+    return
+  }
   const projectId = getProjectId()
 
   if (item.nodeType === 'http') {
@@ -220,6 +286,9 @@ onUnmounted(() => {
   .send-history-search {
     padding: 8px;
     flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
 
     .clear-history-icon {
       cursor: pointer;
@@ -229,6 +298,10 @@ onUnmounted(() => {
       &:hover {
         color: var(--el-color-danger);
       }
+    }
+
+    .clean-deleted-btn {
+      width: 100%;
     }
   }
 
@@ -249,6 +322,15 @@ onUnmounted(() => {
         background-color: var(--bg-hover);
       }
 
+      &.deleted-item {
+        opacity: 0.5;
+        cursor: not-allowed;
+
+        &:hover {
+          background-color: transparent;
+        }
+      }
+
       .method-tag {
         flex-shrink: 0;
         font-size: 12px;
@@ -263,6 +345,17 @@ onUnmounted(() => {
         &.method-delete { color: var(--red); }
         &.method-patch { color: var(--purple); }
         &.method-ws { color: var(--red); }
+      }
+
+      .deleted-tag {
+        flex-shrink: 0;
+        font-size: 11px;
+        color: var(--el-color-danger);
+        background-color: var(--el-color-danger-light-9);
+        padding: 2px 6px;
+        border-radius: 3px;
+        margin-left: 8px;
+        margin-right: 4px;
       }
 
       .item-content {

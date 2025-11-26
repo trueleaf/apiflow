@@ -237,6 +237,23 @@ test.describe('AI 功能测试', () => {
     });
   });
 
+  test('Agent 模式应为禁用并显示敬请期待提示', async () => {
+    // 打开 AI 弹窗
+    await headerPage.locator('.ai-trigger-btn').click();
+    const aiDialog = contentPage.locator('.ai-dialog');
+    await expect(aiDialog).toBeVisible();
+
+    // 打开模式菜单并验证第一个选项（Agent）为禁用并带有提示
+    const modeTrigger = contentPage.locator('.ai-input-trigger').first();
+    await modeTrigger.click();
+    const firstItem = contentPage.locator('.ai-dropdown .ai-dropdown-item').nth(0);
+    await expect(firstItem).toBeDisabled();
+    await expect(firstItem).toHaveAttribute('title', '敬请期待');
+
+    // 关闭 AI 弹窗
+    await contentPage.locator('.ai-dialog-close').click();
+  });
+
   /*
   |--------------------------------------------------------------------------
   | 第二部分：ai.ts 核心方法测试

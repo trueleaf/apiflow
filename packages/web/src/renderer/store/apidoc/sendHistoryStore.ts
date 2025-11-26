@@ -103,6 +103,19 @@ export const useSendHistory = defineStore('sendHistory', () => {
     hasLoadedMore.value = false;
     searchKeyword.value = '';
   };
+  // 清理已删除接口的历史记录
+  const cleanDeletedHistory = async (deletedIds: string[]): Promise<boolean> => {
+    try {
+      const success = await sendHistoryCache.deleteHistoriesByIds(deletedIds);
+      if (success) {
+        await refresh();
+      }
+      return success;
+    } catch (error) {
+      logger.error('清理已删除接口历史失败', { error });
+      return false;
+    }
+  };
 
   return {
     sendHistoryList,
@@ -114,6 +127,7 @@ export const useSendHistory = defineStore('sendHistory', () => {
     loadMore,
     refresh,
     search,
-    clearSendHistoryList
+    clearSendHistoryList,
+    cleanDeletedHistory
   };
 });

@@ -96,6 +96,8 @@
                   type="button"
                   class="ai-dropdown-item"
                   @click="handleSelectMode(item)"
+                  :disabled="item === 'agent'"
+                  :title="item === 'agent' ? t('敬请期待') : ''"
                 >
                   <span class="ai-dropdown-icon">
                     <Check v-if="mode === item" :size="14" />

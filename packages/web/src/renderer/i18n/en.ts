@@ -1119,6 +1119,7 @@ export default {
     'AI助手 Ctrl+L': 'Copilot Ctrl+L',
     '问我任何问题': 'Ask me anything',
     '输入消息...': 'Type a message...',
+    '敬请期待': 'Coming soon',
     '发送': 'Send',
     '模式': 'Mode',
     '模型': 'Model',
@@ -1420,6 +1421,10 @@ export default {
   '没有更多了': 'No more',
   '暂无历史记录': 'No history',
   '确定要清空所有历史记录吗？': 'Are you sure you want to clear all history?',
+  '已删除': 'Deleted',
+  '清理已删除接口历史': 'Clean Deleted API History',
+  '确定要清理所有已删除接口的历史记录吗？': 'Are you sure you want to clean all deleted API history?',
+  '清理成功': 'Cleaned successfully',
   搜索: 'Search',
   无匹配数据: 'No matching data',
 }

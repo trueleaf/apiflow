@@ -75,3 +75,13 @@ export type SendHistoryState = {
    */
   currentOffset: number;
 };
+
+/**
+ * 发送历史项（带删除状态，用于视图展示）
+ */
+export type SendHistoryItemWithStatus = SendHistoryItem & {
+  /**
+   * 接口是否已被删除
+   */
+  isDeleted: boolean;
+};
