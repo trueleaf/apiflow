@@ -1,7 +1,7 @@
 <template>
   <div class="websocket-response">
-    <!-- 基本信息部分 -->
-    <div class="websocket-base-info">
+    <!-- 基本信息部分（垂直布局时隐藏） -->
+    <div v-if="layout === 'horizontal'" class="websocket-base-info">
       <div class="text-bold">{{ t("基本信息") }}</div>
       <div class="px-4">
         <div class="base-info">
@@ -30,6 +30,7 @@
     
     <!-- WebSocket消息内容部分 -->
     <div class="websocket-content">
+      <div v-if="layout === 'vertical' && messages.length === 0" class="vertical-empty-title">Response</div>
       <SLoading :loading="responseCacheLoading" class="h-100">
         <GWebsocketView :dataList="messages" @clear-data="handleClearData" />
       </SLoading>
@@ -42,6 +43,7 @@ import { computed } from 'vue';
 import { storeToRefs } from 'pinia';
 import { useI18n } from 'vue-i18n';
 import { useWebSocket } from '@/store/websocket/websocketStore';
+import { useApidocBaseInfo } from '@/store/apidoc/baseInfoStore';
 import { formatDate } from '@/helper';
 import SLabelValue from '@/components/common/labelValue/ClLabelValue.vue';
 import GWebsocketView from '@/components/common/websocketView/ClWebsocketView.vue';
@@ -50,7 +52,9 @@ import { websocketResponseCache } from '@/cache/websocketNode/websocketResponseC
 
 const { t } = useI18n();
 const websocketStore = useWebSocket();
+const apidocBaseInfoStore = useApidocBaseInfo();
 const { websocketFullUrl, websocket, responseMessage: messages, responseCacheLoading } = storeToRefs(websocketStore);
+const layout = computed(() => apidocBaseInfoStore.layout);
 
 // 基本信息计算属性
 const websocketBaseInfo = computed(() => ({
@@ -115,6 +119,16 @@ const handleClearData = async () => {
     display: flex;
     flex-direction: column;
     overflow: hidden;
+    position: relative;
+  }
+
+  .vertical-empty-title {
+    position: absolute;
+    top: 8px;
+    left: 12px;
+    font-size: 15px;
+    color: var(--gray-600);
+    z-index: 11;
   }
 }
 </style>

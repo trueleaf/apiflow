@@ -1,10 +1,26 @@
 <template>
-  <div v-loading="loading" class="websocket">
-    <div class="connection-layout">
+  <div v-loading="loading" class="websocket" :class="{ vertical: layout === 'vertical' }">
+    <div class="connection-layout" :class="{ vertical: layout === 'vertical' }">
       <SOperation></SOperation>
       <SParams></SParams>
     </div>
+    <SResizeY 
+      v-if="layout === 'vertical'" 
+      class="y-bar" 
+      :min="100" 
+      :max="750" 
+      :height="responseHeight" 
+      :default-height="350" 
+      name="ws-response-y" 
+      tabindex="1"
+      @dragStart="isVerticalDrag = true" 
+      @dragEnd="isVerticalDrag = false" 
+      @heightChange="handleResponseHeightChange"
+    >
+      <SResponse ref="responseRef"></SResponse>
+    </SResizeY>
     <SResizeX 
+      v-if="layout === 'horizontal'"
       :min="500" 
       :max="750"
       :width="500" 
@@ -13,20 +29,21 @@
       class="info-layout" 
       tabindex="1"
     >
-      <!-- WebSocket 响应信息区域 -->
       <SResponse ref="responseRef"></SResponse>
     </SResizeX>
   </div>
 </template>
 
 <script lang="ts" setup>
-import { onMounted, onUnmounted, ref, watch } from 'vue'
+import { onMounted, onUnmounted, ref, watch, computed } from 'vue'
 import { storeToRefs } from 'pinia'
 import SResizeX from '@/components/common/resize/ClResizeX.vue'
+import SResizeY from '@/components/common/resize/ClResizeY.vue'
 import SOperation from './operation/Operation.vue'
 import SParams from './params/Params.vue'
 import SResponse from './response/Response.vue'
 import { useApidocTas } from '@/store/apidoc/tabsStore'
+import { useApidocBaseInfo } from '@/store/apidoc/baseInfoStore'
 import { useWebSocket } from '@/store/websocket/websocketStore'
 import { checkPropertyIsEqual } from '@/helper'
 import { nanoid } from 'nanoid/non-secure'
@@ -46,8 +63,12 @@ const apidocTabsStore = useApidocTas()
 const websocketStore = useWebSocket()
 const variableStore = useVariable()
 const cookiesStore = useCookies()
+const apidocBaseInfoStore = useApidocBaseInfo()
 const { currentSelectTab } = storeToRefs(apidocTabsStore)
 const { loading, } = storeToRefs(websocketStore)
+const isVerticalDrag = ref(false)
+const layout = computed(() => apidocBaseInfoStore.layout)
+const responseHeight = computed(() => apidocBaseInfoStore.responseHeight)
 const debounceWebsocketDataChange = ref(null as (null | DebouncedFunc<(websocket: WebSocketNode) => void>))
 const redoUndoStore = useWsRedoUndo()
 /*
@@ -183,7 +204,11 @@ const initDebouncDataChange = () => {
     leading: true
   });
 };
-// 检查WebSocket连接状态
+//处理响应区域高度变化
+const handleResponseHeightChange = (height: number) => {
+  apidocBaseInfoStore.changeResponseHeight(height)
+}
+//检查WebSocket连接状态
 const checkIsConnection = () => {
   if (!currentSelectTab.value) {
     return;
@@ -434,7 +459,8 @@ watch(() => websocketStore.websocket, (websocket: WebSocketNode) => {
 
 onMounted(() => {
   initDebouncDataChange()
-  initWebSocketEventListeners();
+  initWebSocketEventListeners()
+  apidocBaseInfoStore.initResponseHeight()
 })
 onUnmounted(() => {
   cleanupWebSocketEventListeners()
@@ -447,6 +473,14 @@ onUnmounted(() => {
   height: calc(100vh - var(--apiflow-doc-nav-height));
   display: flex;
 
+  &.vertical {
+    flex-direction: column;
+    overflow: hidden;
+    .y-bar {
+      border-top: 1px solid var(--gray-400);
+    }
+  }
+
   // 连接编辑区域
   .connection-layout {
     flex: 1;
@@ -454,7 +488,12 @@ onUnmounted(() => {
     border-right: 1px solid var(--gray-400);
     display: flex;
     flex-direction: column;
-    // height: calc(100vh - var(--apiflow-doc-nav-height) );
+
+    &.vertical {
+      flex: 1;
+      overflow-y: auto;
+      border-right: none;
+    }
   }
 
   // WebSocket信息区域

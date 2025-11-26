@@ -1,8 +1,9 @@
 <template>
   <div class="ws-params">
     <!-- 快捷操作区域 -->
-    <div class="quick-actions">
-      <div class="action-group">
+    <div class="quick-actions" :class="{ vertical: layout === 'vertical' }">
+      <!-- 左侧操作组 -->
+      <div class="action-group action-group-left">
         <div
           class="action-item"
           :class="{ disabled: !canUndo }"
@@ -29,7 +30,31 @@
         >
           <el-icon size="16"><Clock /></el-icon>
         </div>
-        
+      </div>
+      <!-- 分隔符 -->
+      <div class="action-divider"></div>
+      <!-- 右侧操作组 -->
+      <div class="action-group action-group-right">
+        <el-dropdown trigger="click">
+          <div class="action-item">
+            <LayoutGrid :size="16" />
+            <span>{{ t("布局") }}</span>
+          </div>
+          <template #dropdown>
+            <el-dropdown-menu>
+              <el-dropdown-item @click="handleChangeLayout('horizontal')">
+                <span :class="{ 'theme-color': layout === 'horizontal' }">{{ t("左右布局") }}</span>
+              </el-dropdown-item>
+              <el-dropdown-item @click="handleChangeLayout('vertical')">
+                <span :class="{ 'theme-color': layout === 'vertical' }">{{ t("上下布局") }}</span>
+              </el-dropdown-item>
+            </el-dropdown-menu>
+          </template>
+        </el-dropdown>
+        <div class="action-item" @click="handleOpenVariable">
+          <Variable :size="16" />
+          <span>{{ t("变量") }}</span>
+        </div>
       </div>
       <!-- 历史记录下拉列表 -->
       <div
@@ -112,6 +137,7 @@ import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { storeToRefs } from 'pinia'
 import { RefreshLeft, RefreshRight, Clock, Delete, Loading } from '@element-plus/icons-vue'
+import { LayoutGrid, Variable } from 'lucide-vue-next'
 import SHeaders from './headers/Headers.vue'
 import SQueryParams from './queryParams/QueryParams.vue'
 import SPreScript from './preScript/PreScript.vue'
@@ -119,21 +145,26 @@ import SMessageContent from './message/Message.vue'
 import SAfterScript from './afterScript/AfterScript.vue'
 import { useWebSocket } from '@/store/websocket/websocketStore'
 import { useApidocTas } from '@/store/apidoc/tabsStore'
+import { useApidocBaseInfo } from '@/store/apidoc/baseInfoStore'
 import { appState } from '@/cache/appState/appStateCache.ts'
 import { useWsRedoUndo } from '@/store/redoUndo/wsRedoUndoStore'
 import { webSocketHistoryCache } from '@/cache/websocketNode/websocketHistoryCache'
 import type { WebSocketHistory } from '@src/types/history/wsHistory'
 import { ElMessageBox } from 'element-plus'
 import { WebsocketActiveTabType } from '@src/types/websocketNode'
+import { useRoute } from 'vue-router'
 
 
 import { message } from '@/helper'
 const { t } = useI18n()
 const websocketStore = useWebSocket()
 const apidocTabsStore = useApidocTas()
+const apidocBaseInfoStore = useApidocBaseInfo()
 const redoUndoStore = useWsRedoUndo()
+const route = useRoute()
 const { currentSelectTab } = storeToRefs(apidocTabsStore)
 const { websocket } = storeToRefs(websocketStore)
+const { layout } = storeToRefs(apidocBaseInfoStore)
 const currentActiveTab = computed({
   get: () => websocketStore.currentActiveTab,
   set: (val: WebsocketActiveTabType) => {
@@ -174,16 +205,35 @@ const canRedo = computed(() => {
   return redoList && redoList.length > 0;
 });
 
-// 撤销/重做事件处理
+//撤销/重做事件处理
 const handleUndo = (): void => {
   const nodeId = websocket.value._id;
   redoUndoStore.wsUndo(nodeId);
 };
-
 const handleRedo = (): void => {
   const nodeId = websocket.value._id;
   redoUndoStore.wsRedo(nodeId);
 };
+//切换布局
+const handleChangeLayout = (layoutOption: 'vertical' | 'horizontal') => {
+  apidocBaseInfoStore.changeLayout(layoutOption)
+}
+//打开变量维护页面
+const handleOpenVariable = () => {
+  apidocTabsStore.addTab({
+    _id: 'variable',
+    projectId: route.query.id as string,
+    tabType: 'variable',
+    label: t('变量维护'),
+    head: {
+      icon: '',
+      color: ''
+    },
+    saved: true,
+    fixed: true,
+    selected: true,
+  })
+}
 
 /*
 |--------------------------------------------------------------------------
@@ -346,15 +396,22 @@ onUnmounted(() => {
   position: relative;
 
   .quick-actions {
-  height: var(--apiflow-quick-actions-height);
+    height: var(--apiflow-quick-actions-height);
     display: flex;
     align-items: flex-end;
     padding: 0 20px;
     justify-content: flex-end;
     position: relative;
+    background: var(--white);
+
+    &.vertical {
+      z-index: 1;
+    }
     
     .action-group {
       display: flex;
+      align-items: center;
+      
       .action-item {
         display: flex;
         align-items: center;
@@ -362,7 +419,7 @@ onUnmounted(() => {
         font-size: 13px;
         cursor: pointer;
         border-radius: 4px;
-        // transition: background-color 0.2s;
+        gap: 4px;
         
         &:hover:not(.disabled) {
           background-color: var(--gray-200);
@@ -381,6 +438,13 @@ onUnmounted(() => {
           user-select: none;
         }
       }
+    }
+
+    .action-divider {
+      width: 1px;
+      height: 20px;
+      background-color: var(--gray-300);
+      margin: 0 10px;
     }
     
     .history-dropdown {
@@ -483,6 +547,10 @@ onUnmounted(() => {
         }
       }
     }
+  }
+
+  .el-dropdown {
+    line-height: initial;
   }
 
   .params-tabs {
