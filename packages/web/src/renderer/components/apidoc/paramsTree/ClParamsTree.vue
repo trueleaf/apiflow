@@ -278,7 +278,7 @@ import { config } from '@src/config/config';
 import ClRichInput from '@/components/ui/cleanDesign/richInput/ClRichInput.vue';
 import type { ClParamsTreeProps, ClParamsTreeEmits } from '@src/types/components/components';
 import { aiCache } from '@/cache/ai/aiCache';
-import type { OpenAIRequestBody } from '@src/types/ai';
+import type { LLRequestBody } from '@src/types/ai/agent.type';
 import { useRouter } from 'vue-router';
 import { appState } from '@/cache/appState/appStateCache';
 import { useVariable } from '@/store/apidoc/variablesStore';
@@ -889,7 +889,7 @@ const handleAiParse = async () => {
   aiParsing.value = true;
   parseError.value = '';
   try {
-    const requestBody: OpenAIRequestBody = {
+    const requestBody: LLRequestBody = {
       model: 'deepseek-chat',
       messages: [
         {
@@ -904,19 +904,16 @@ const handleAiParse = async () => {
       max_tokens: 2000
     };
     const result = await window.electronAPI?.aiManager.textChat(requestBody);
-    if (result?.code === 0 && result.data) {
-      const content = result.data.choices?.[0]?.message?.content || '';
-      if (content) {
-        multilineText.value = content.trim();
-        handleMultilineTextChange();
-      } else {
-        message.error(t('AI返回内容为空'));
-      }
+    const content = result?.choices?.[0]?.message?.content || '';
+    if (content) {
+      multilineText.value = content.trim();
+      handleMultilineTextChange();
     } else {
-      message.error(result?.msg || t('AI解析失败'));
+      message.error(t('AI返回内容为空'));
     }
   } catch (error) {
-    message.error(t('AI解析失败'));
+    const errorMsg = error instanceof Error ? error.message : String(error);
+    message.error(errorMsg);
   } finally {
     aiParsing.value = false;
   }

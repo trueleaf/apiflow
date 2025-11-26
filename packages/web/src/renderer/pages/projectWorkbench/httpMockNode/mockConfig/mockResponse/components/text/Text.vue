@@ -123,7 +123,7 @@ import { Loading, Top } from '@element-plus/icons-vue'
 import SJsonEditor from '@/components/common/jsonEditor/ClJsonEditor.vue'
 import { appState } from '@/cache/appState/appStateCache'
 import type { HttpMockNode } from '@src/types'
-import type { OpenAIRequestBody, OpenAIResponse } from '@src/types/ai'
+import type { LLRequestBody, LLResponseBody } from '@src/types/ai/agent.type'
 import { message } from '@/helper'
 type ResponseItem = HttpMockNode['response'][0]
 
@@ -139,7 +139,7 @@ const showRandomTextSizeHint = ref(true)
 const aiGeneratingText = ref(false)
 const aiPreviewText = ref('')
 
-const getMessageContent = (response: OpenAIResponse | null): string => {
+const getMessageContent = (response: LLResponseBody | null): string => {
   if (!response) {
     return ''
   }
@@ -183,7 +183,7 @@ const handleGenerateTextPreview = async () => {
   aiGeneratingText.value = true
   aiPreviewText.value = ''
   try {
-    const requestBody: OpenAIRequestBody = {
+    const requestBody: LLRequestBody = {
       model: 'deepseek-chat',
       messages: [
         {
@@ -199,24 +199,16 @@ const handleGenerateTextPreview = async () => {
     }
 
     const result = await window.electronAPI?.aiManager.textChat(requestBody)
-
-    if (result?.code === 0 && result.data) {
-      const content = getMessageContent(result.data)
-      if (content) {
-        aiPreviewText.value = content
-      } else {
-        const errorMsg = t('AI生成失败，请稍后重试')
-        message.error(errorMsg)
-        aiPreviewText.value = `[${t('生成失败')}] ${errorMsg}`
-      }
+    const content = getMessageContent(result || null)
+    if (content) {
+      aiPreviewText.value = content
     } else {
-      // 生成失败，在预览区显示错误信息
-      const errorMsg = result?.msg || t('AI生成失败，请稍后重试')
+      const errorMsg = t('AI生成失败，请稍后重试')
       message.error(errorMsg)
       aiPreviewText.value = `[${t('生成失败')}] ${errorMsg}`
     }
   } catch (error) {
-    const errorMsg = (error as Error).message || t('AI生成失败，请稍后重试')
+    const errorMsg = error instanceof Error ? error.message : String(error)
     message.error(errorMsg)
     aiPreviewText.value = `[${t('生成失败')}] ${errorMsg}`
   } finally {

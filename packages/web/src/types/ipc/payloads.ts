@@ -7,8 +7,7 @@
  */
 
 import type { AnchorRect } from '@src/types/common';
-import type { CommonResponse } from '@src/types/project';
-import type { OpenAIRequestBody, OpenAIResponse } from '../ai';
+import type { LLRequestBody, LLResponseBody, LLMProviderSettings } from '../ai/agent.type';
 import type { IPC_EVENTS } from './events';
 
 /**
@@ -503,39 +502,31 @@ export interface IPCEventMap {
   // ==================== AI ====================
 
   [IPC_EVENTS.ai.rendererToMain.updateConfig]: {
-    request: {
-      apiKey: string;
-      apiUrl: string;
-      timeout: number;
-    };
-    response: {
-      code: number;
-      msg: string;
-      data: null;
-    };
+    request: LLMProviderSettings;
+    response: void;
   };
 
   [IPC_EVENTS.ai.rendererToMain.textChat]: {
-    request: OpenAIRequestBody;
-    response: CommonResponse<OpenAIResponse | null>;
+    request: LLRequestBody;
+    response: LLResponseBody;
   };
 
   [IPC_EVENTS.ai.rendererToMain.jsonChat]: {
-    request: OpenAIRequestBody;
-    response: CommonResponse<OpenAIResponse | null>;
+    request: LLRequestBody;
+    response: LLResponseBody;
   };
 
   [IPC_EVENTS.ai.rendererToMain.textChatStream]: {
     request: {
       requestId: string;
-      requestBody: OpenAIRequestBody & { stream: true };
+      requestBody: LLRequestBody;
     };
-    response: CommonResponse<{ requestId: string } | null>;
+    response: { requestId: string };
   };
 
   [IPC_EVENTS.ai.rendererToMain.cancelStream]: {
     request: string;
-    response: CommonResponse<null>;
+    response: void;
   };
 
   [IPC_EVENTS.ai.mainToRenderer.streamData]: {
@@ -549,7 +540,7 @@ export interface IPCEventMap {
   };
 
   [IPC_EVENTS.ai.mainToRenderer.streamError]: {
-    request: { requestId: string; code: number; msg: string; data: string };
+    request: { requestId: string; error: string };
     response: void;
   };
 

@@ -184,7 +184,8 @@ import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { X, Bot, Send, ChevronDown, Check, AlertTriangle, ArrowRight, Plus, History, Settings, LoaderCircle } from 'lucide-vue-next'
 import { nanoid } from 'nanoid/non-secure'
-import type { OpenAIRequestBody, OpenAIMessage, AskMessage, TextResponseMessage, LoadingMessage } from '@src/types/ai'
+import type { LLRequestBody, LLMessage } from '@src/types/ai/agent.type'
+import type { AskMessage, TextResponseMessage, LoadingMessage } from '@src/types/ai'
 import { IPC_EVENTS } from '@src/types/ipc'
 import { config } from '@src/config/config'
 import { appState } from '@/cache/appState/appStateCache'
@@ -266,10 +267,10 @@ watch(() => agentStore.agentMessageList.length, () => {
   scrollToBottom()
 })
 
-const buildOpenAIRequestBody = (userMessage: string): OpenAIRequestBody & { stream: true } => {
-  const messages: OpenAIMessage[] = []
+const buildOpenAIRequestBody = (userMessage: string): LLRequestBody & { stream: true } => {
+  const messages: LLMessage[] = []
   const recentMessages = agentStore.getLatestMessages(10)
-  
+
   for (const msg of recentMessages) {
     if (msg.type === 'ask') {
       messages.push({
@@ -283,12 +284,12 @@ const buildOpenAIRequestBody = (userMessage: string): OpenAIRequestBody & { stre
       })
     }
   }
-  
+
   messages.push({
     role: 'user',
     content: userMessage
   })
-  
+
   return {
     model: 'deepseek-chat',
     messages,
@@ -731,26 +732,26 @@ const handleStreamEnd = (requestId: string) => {
   cancelCurrentStream.value = null
   agentStore.setWorkingStatus('finish')
 }
-const handleStreamError = (requestId: string, response: { code: number; msg: string; data: string }) => {
+const handleStreamError = (requestId: string, error: string) => {
   if (currentStreamRequestId.value !== requestId) return
-  
+
   if (loadingMessageId.value) {
     agentStore.deleteAgentMessageById(loadingMessageId.value)
     loadingMessageId.value = null
   }
-  
+
   const timestamp = new Date().toISOString()
   const errorMessageId = nanoid()
   const errorMessage: TextResponseMessage = {
     id: errorMessageId,
     type: 'textResponse',
-    content: `错误: ${response.msg}`,
+    content: `错误: ${error}`,
     timestamp,
     sessionId: agentStore.currentSessionId
   }
-  
+
   agentStore.addAgentMessage(errorMessage)
-  
+
   isStreaming.value = false
   currentStreamRequestId.value = null
   streamingMessageId.value = null
@@ -830,14 +831,26 @@ onMounted(() => {
   initDialogState()
   agentStore.initStore()
   document.addEventListener('click', handleClickOutside)
-  
+
   const aiConfig = aiCache.getAiConfig()
   if (window.electronAPI?.aiManager?.updateConfig) {
-    window.electronAPI.aiManager.updateConfig({
-      apiKey: aiConfig.apiKey,
-      apiUrl: aiConfig.apiUrl,
-      timeout: aiConfig.timeout
-    })
+    const llmConfig = aiConfig.apiUrl === 'https://api.deepseek.com/chat/completions' ||
+      aiConfig.apiUrl === 'https://api.deepseek.com'
+      ? {
+          type: 'builtin' as const,
+          provider: 'deepseek' as const,
+          apiKey: aiConfig.apiKey,
+          baseURL: 'https://api.deepseek.com',
+          model: 'deepseek-chat'
+        }
+      : {
+          type: 'custom' as const,
+          name: aiConfig.modelName || 'Custom',
+          apiKey: aiConfig.apiKey,
+          baseURL: aiConfig.apiUrl.replace('/chat/completions', ''),
+          model: 'deepseek-chat'
+        }
+    window.electronAPI.aiManager.updateConfig(llmConfig)
   }
 })
 

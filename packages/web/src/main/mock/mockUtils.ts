@@ -1,6 +1,6 @@
 import { HttpMockNode, MockSSEEventData } from '@src/types/mockNode';
 import { mainConfig } from '@src/config/mainConfig';
-import { globalAiManager } from '../ai/ai';
+import { globalLLMClient } from '../ai/agent';
 import { fakerZH_CN, fakerEN, fakerJA } from '@faker-js/faker';
 import sharp from 'sharp';
 import mime from 'mime-types';
@@ -818,7 +818,7 @@ export class MockUtils {
           }
 
           try {
-            const aiResult = await globalAiManager.sendRequest({
+            const aiResult = await globalLLMClient.chat({
               model: 'deepseek-chat',
               messages: [
                 {
@@ -833,10 +833,7 @@ export class MockUtils {
               max_tokens: mainConfig.aiConfig.maxTokens,
               response_format: { type: 'json_object' }
             });
-            if (aiResult.code !== 0 || !aiResult.data) {
-              return { error: `AI生成失败：${aiResult.msg || '返回内容为空'}` };
-            }
-            const aiJsonText = aiResult.data.choices?.[0]?.message?.content || '';
+            const aiJsonText = aiResult.choices?.[0]?.message?.content || '';
             if (!aiJsonText) {
               return { error: 'AI生成失败：返回内容为空' };
             }
@@ -922,7 +919,7 @@ export class MockUtils {
               }
             }
             
-            const aiResult = await globalAiManager.sendRequest({
+            const aiResult = await globalLLMClient.chat({
               model: 'deepseek-chat',
               messages: [
                 {
@@ -936,10 +933,7 @@ export class MockUtils {
               ],
               max_tokens: 300
             });
-            if (aiResult.code !== 0 || !aiResult.data) {
-              throw new Error(aiResult.msg);
-            }
-            const aiText = aiResult.data.choices?.[0]?.message?.content || '';
+            const aiText = aiResult.choices?.[0]?.message?.content || '';
             if (!aiText) {
               throw new Error('AI生成失败：返回内容为空');
             }

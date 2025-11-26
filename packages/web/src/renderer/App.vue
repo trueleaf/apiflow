@@ -251,11 +251,23 @@ const initAppTitle = () => {
 const initAiConfig = async () => {
   try {
     const config = aiCache.getAiConfig();
-    await window.electronAPI?.aiManager.updateConfig({
-      apiKey: config.apiKey,
-      apiUrl: config.apiUrl,
-      timeout: config.timeout
-    });
+    const llmConfig = config.apiUrl === 'https://api.deepseek.com/chat/completions' ||
+      config.apiUrl === 'https://api.deepseek.com'
+      ? {
+          type: 'builtin' as const,
+          provider: 'deepseek' as const,
+          apiKey: config.apiKey,
+          baseURL: 'https://api.deepseek.com',
+          model: 'deepseek-chat'
+        }
+      : {
+          type: 'custom' as const,
+          name: config.modelName || 'Custom',
+          apiKey: config.apiKey,
+          baseURL: config.apiUrl.replace('/chat/completions', ''),
+          model: 'deepseek-chat'
+        };
+    await window.electronAPI?.aiManager.updateConfig(llmConfig);
   } catch (error) {
     console.error('同步AI配置失败:', error);
   }

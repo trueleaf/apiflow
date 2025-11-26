@@ -113,7 +113,7 @@ import { Loading } from '@element-plus/icons-vue'
 import { aiCache } from '@/cache/ai/aiCache'
 import type { Config } from '@src/types/config'
 import { mainConfig } from '@src/config/mainConfig'
-import type { OpenAIRequestBody, OpenAIResponse } from '@src/types/ai'
+import type { LLRequestBody, LLResponseBody } from '@src/types/ai/agent.type'
 import VueMarkdownRender from 'vue-markdown-render'
 import SJsonEditor from '@/components/common/jsonEditor/ClJsonEditor.vue'
 import { message, parseAiStream } from '@/helper'
@@ -147,7 +147,27 @@ let streamController: { cancel: () => Promise<void> } | null = null
 let currentRequestId = ''
 let streamBuffer = ''
 
-const getMessageContent = (response: OpenAIResponse | null): string => {
+// 从 AiConfig 转换为 LLMProviderSettings
+const convertToLLMConfig = (config: AiConfig) => {
+  return config.apiUrl === 'https://api.deepseek.com/chat/completions' ||
+    config.apiUrl === 'https://api.deepseek.com'
+    ? {
+        type: 'builtin' as const,
+        provider: 'deepseek' as const,
+        apiKey: config.apiKey,
+        baseURL: 'https://api.deepseek.com',
+        model: 'deepseek-chat'
+      }
+    : {
+        type: 'custom' as const,
+        name: config.modelName || 'Custom',
+        apiKey: config.apiKey,
+        baseURL: config.apiUrl.replace('/chat/completions', ''),
+        model: 'deepseek-chat'
+      }
+}
+
+const getMessageContent = (response: LLResponseBody | null): string => {
   if (!response) {
     return ''
   }
@@ -191,11 +211,7 @@ const handleSave = async () => {
   try {
     aiCache.setAiConfig(formData.value)
     // 同步配置到主进程
-    await window.electronAPI?.aiManager.updateConfig({
-      apiKey: formData.value.apiKey,
-      apiUrl: formData.value.apiUrl,
-      timeout: formData.value.timeout
-    })
+    await window.electronAPI?.aiManager.updateConfig(convertToLLMConfig(formData.value))
     message.success(t('配置保存成功'))
   } catch (error) {
     message.error(t('配置保存失败'))
@@ -217,11 +233,7 @@ const handleReset = async () => {
   try {
     aiCache.setAiConfig(formData.value)
     // 同步配置到主进程
-    await window.electronAPI?.aiManager.updateConfig({
-      apiKey: formData.value.apiKey,
-      apiUrl: formData.value.apiUrl,
-      timeout: formData.value.timeout
-    })
+    await window.electronAPI?.aiManager.updateConfig(convertToLLMConfig(formData.value))
   } catch (error) {
     console.error(t('log.重置配置失败'), error)
     message.error(t('log.重置配置失败'))
@@ -244,14 +256,10 @@ const handleTest = async () => {
   try {
     // 先保存配置，再测试
     aiCache.setAiConfig(formData.value)
-    await window.electronAPI?.aiManager.updateConfig({
-      apiKey: formData.value.apiKey,
-      apiUrl: formData.value.apiUrl,
-      timeout: formData.value.timeout
-    })
+    await window.electronAPI?.aiManager.updateConfig(convertToLLMConfig(formData.value))
 
     const maxTokens = mainConfig.aiConfig.maxTokens ?? 2000
-    const requestBody: OpenAIRequestBody = {
+    const requestBody: LLRequestBody = {
       model: 'deepseek-chat',
       messages: [
         {
@@ -267,21 +275,15 @@ const handleTest = async () => {
     }
 
     const result = await window.electronAPI?.aiManager.textChat(requestBody)
-
-    if (result?.code === 0 && result.data) {
-      const content = getMessageContent(result.data)
-      if (content) {
-        testResult.value = content
-      } else {
-        testError.value = t('AI 返回内容为空')
-        message.error(testError.value)
-      }
+    const content = getMessageContent(result || null)
+    if (content) {
+      testResult.value = content
     } else {
-      testError.value = result?.msg || t('测试请求失败')
+      testError.value = t('AI 返回内容为空')
       message.error(testError.value)
     }
   } catch (error) {
-    testError.value = (error as Error).message
+    testError.value = error instanceof Error ? error.message : String(error)
     message.error(t('测试请求失败'))
   } finally {
     testing.value = false
@@ -304,14 +306,10 @@ const handleJsonTest = async () => {
   try {
     // 先保存配置，再测试
     aiCache.setAiConfig(formData.value)
-    await window.electronAPI?.aiManager.updateConfig({
-      apiKey: formData.value.apiKey,
-      apiUrl: formData.value.apiUrl,
-      timeout: formData.value.timeout
-    })
+    await window.electronAPI?.aiManager.updateConfig(convertToLLMConfig(formData.value))
 
     const maxTokens = mainConfig.aiConfig.maxTokens ?? 2000
-    const requestBody: OpenAIRequestBody = {
+    const requestBody: LLRequestBody = {
       model: 'deepseek-chat',
       messages: [
         {
@@ -328,26 +326,20 @@ const handleJsonTest = async () => {
     }
 
     const result = await window.electronAPI?.aiManager.jsonChat(requestBody)
-
-    if (result?.code === 0 && result.data) {
-      const content = getMessageContent(result.data)
-      if (content) {
-        try {
-          const jsonData = JSON.parse(content)
-          jsonTestData.value = JSON.stringify(jsonData, null, 2)
-        } catch {
-          jsonTestData.value = content
-        }
-      } else {
-        testError.value = t('AI 返回内容为空')
-        message.error(testError.value)
+    const content = getMessageContent(result || null)
+    if (content) {
+      try {
+        const jsonData = JSON.parse(content)
+        jsonTestData.value = JSON.stringify(jsonData, null, 2)
+      } catch {
+        jsonTestData.value = content
       }
     } else {
-      testError.value = result?.msg || t('JSON测试失败')
+      testError.value = t('AI 返回内容为空')
       message.error(testError.value)
     }
   } catch (error) {
-    testError.value = (error as Error).message
+    testError.value = error instanceof Error ? error.message : String(error)
     message.error(t('JSON测试失败'))
   } finally {
     jsonTesting.value = false
@@ -372,14 +364,10 @@ const handleStreamTest = async () => {
   try {
     // 先保存配置，再测试
     aiCache.setAiConfig(formData.value)
-    await window.electronAPI?.aiManager.updateConfig({
-      apiKey: formData.value.apiKey,
-      apiUrl: formData.value.apiUrl,
-      timeout: formData.value.timeout
-    })
+    await window.electronAPI?.aiManager.updateConfig(convertToLLMConfig(formData.value))
 
     const maxTokens = mainConfig.aiConfig.maxTokens ?? 2000
-    const requestBody: OpenAIRequestBody & { stream: true } = {
+    const requestBody: LLRequestBody & { stream: true } = {
       model: 'deepseek-chat',
       messages: [
         {
@@ -413,13 +401,13 @@ const handleStreamTest = async () => {
         streamTesting.value = false
         streamController = null
       },
-      (response) => {
+      (error: string) => {
         // 流式请求错误
         streamBuffer = ''
         streamTesting.value = false
         streamController = null
-        testError.value = response.msg
-        message.error(response.msg)
+        testError.value = error
+        message.error(error)
       }
     )
 
@@ -432,7 +420,7 @@ const handleStreamTest = async () => {
     streamBuffer = ''
     streamTesting.value = false
     streamController = null
-    testError.value = (error as Error).message
+    testError.value = error instanceof Error ? error.message : String(error)
     message.error('流式测试请求失败')
   }
 }

@@ -105,7 +105,7 @@ import SJsonEditor from '@/components/common/jsonEditor/ClJsonEditor.vue'
 import { appState } from '@/cache/appState/appStateCache'
 import type { HttpMockNode } from '@src/types'
 import { mainConfig } from '@src/config/mainConfig'
-import type { OpenAIRequestBody, OpenAIResponse } from '@src/types/ai'
+import type { LLRequestBody, LLResponseBody } from '@src/types/ai/agent.type'
 import { message } from '@/helper'
 
 type ResponseItem = HttpMockNode['response'][0]
@@ -121,7 +121,7 @@ const showRandomSizeHint = ref(true)
 const aiGenerating = ref(false)
 const aiPreviewJson = ref('')
 
-const getMessageContent = (response: OpenAIResponse | null): string => {
+const getMessageContent = (response: LLResponseBody | null): string => {
   if (!response) {
     return ''
   }
@@ -150,7 +150,7 @@ const handleGeneratePreview = async () => {
   aiPreviewJson.value = ''
   try {
     const maxTokens = mainConfig.aiConfig.maxTokens ?? 2000
-    const requestBody: OpenAIRequestBody = {
+    const requestBody: LLRequestBody = {
       model: 'deepseek-chat',
       messages: [
         {
@@ -167,28 +167,21 @@ const handleGeneratePreview = async () => {
     }
 
     const result = await window.electronAPI?.aiManager.jsonChat(requestBody)
-
-    if (result?.code === 0 && result.data) {
-      const content = getMessageContent(result.data)
-      if (content) {
-        try {
-          const parsed = JSON.parse(content)
-          aiPreviewJson.value = JSON.stringify(parsed, null, 2)
-        } catch {
-          aiPreviewJson.value = content
-        }
-      } else {
-        const errorMsg = t('AI生成失败，请稍后重试')
-        message.error(errorMsg)
-        aiPreviewJson.value = `// ${t('生成失败')}` + '\n' + `// ${errorMsg}`
+    const content = getMessageContent(result || null)
+    if (content) {
+      try {
+        const parsed = JSON.parse(content)
+        aiPreviewJson.value = JSON.stringify(parsed, null, 2)
+      } catch {
+        aiPreviewJson.value = content
       }
     } else {
-      const errorMsg = result?.msg || t('AI生成失败，请稍后重试')
+      const errorMsg = t('AI生成失败，请稍后重试')
       message.error(errorMsg)
       aiPreviewJson.value = `// ${t('生成失败')}` + '\n' + `// ${errorMsg}`
     }
   } catch (error) {
-    const errorMsg = (error as Error).message || t('AI生成失败，请稍后重试')
+    const errorMsg = error instanceof Error ? error.message : String(error)
     message.error(errorMsg)
     aiPreviewJson.value = `// ${t('生成失败')}` + '\n' + `// ${errorMsg}`
   } finally {

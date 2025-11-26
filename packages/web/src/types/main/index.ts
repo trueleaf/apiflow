@@ -6,7 +6,7 @@
 import type {GotRequestOptions } from '../request';
 import type { CommonResponse } from '../project';
 import type { StandaloneExportHtmlParams } from '../standalone';
-import type { OpenAIRequestBody, OpenAIResponse } from '../ai';
+import type { LLRequestBody, LLResponseBody, LLMProviderSettings } from '../ai/agent.type';
 import { WebsocketConnectParams } from '../websocketNode';
 import { HttpMockNode, MockLog, MockStatusChangedPayload } from '../mockNode';
 
@@ -82,15 +82,15 @@ export type ElectronAPI = {
     selectFile: () => Promise<CommonResponse<{ filePath?: string }>>;
   };
   aiManager: {
-    updateConfig: (params: { apiKey: string; apiUrl: string; timeout: number }) => Promise<CommonResponse<null>>;
-    textChat: (request: OpenAIRequestBody) => Promise<CommonResponse<OpenAIResponse | null>>;
-    jsonChat: (request: OpenAIRequestBody) => Promise<CommonResponse<OpenAIResponse | null>>;
+    updateConfig: (params: LLMProviderSettings) => Promise<void>;
+    textChat: (request: LLRequestBody) => Promise<LLResponseBody>;
+    jsonChat: (request: LLRequestBody) => Promise<LLResponseBody>;
     textChatWithStream: (
-      params: { requestId: string; requestBody: OpenAIRequestBody & { stream: true } },
+      params: { requestId: string; requestBody: LLRequestBody & { stream: true } },
       onData: (chunk: string) => void,
       onEnd: () => void,
-      onError: (response: CommonResponse<string>) => void
-    ) => { cancel: () => Promise<void>; startPromise: Promise<CommonResponse<{ requestId: string } | null>> };
+      onError: (error: string) => void
+    ) => { cancel: () => Promise<void>; startPromise: Promise<void> };
   };
 }
 

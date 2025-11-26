@@ -4,8 +4,7 @@ import ip from 'ip'
 import { gotRequest } from './sendRequest'
 import { StandaloneExportHtmlParams } from '@src/types/standalone.ts'
 import { WindowState } from '@src/types/index.ts'
-import type { CommonResponse } from '@src/types/project'
-import type { OpenAIRequestBody } from '@src/types/ai'
+import type { LLRequestBody, LLMProviderSettings } from '@src/types/ai/agent.type'
 import { IPC_EVENTS } from '@src/types/ipc'
 
 const openDevTools = () => {
@@ -141,23 +140,23 @@ const importSelectFile = () => {
 }
 
 // AI 相关方法
-const updateAiConfig = (params: { apiKey: string; apiUrl: string; timeout: number }) => {
+const updateAiConfig = (params: LLMProviderSettings) => {
   return ipcRenderer.invoke(IPC_EVENTS.ai.rendererToMain.updateConfig, params)
 }
 
-const textChat = (request: OpenAIRequestBody) => {
+const textChat = (request: LLRequestBody) => {
   return ipcRenderer.invoke(IPC_EVENTS.ai.rendererToMain.textChat, request)
 }
 
-const jsonChat = (request: OpenAIRequestBody) => {
+const jsonChat = (request: LLRequestBody) => {
   return ipcRenderer.invoke(IPC_EVENTS.ai.rendererToMain.jsonChat, request)
 }
 
 const textChatWithStream = (
-  params: { requestId: string; requestBody: OpenAIRequestBody & { stream: true } },
+  params: { requestId: string; requestBody: LLRequestBody },
   onData: (chunk: string) => void,
   onEnd: () => void,
-  onError: (response: CommonResponse<string>) => void
+  onError: (error: string) => void
 ) => {
   // 设置事件监听器 - 直接转发原始数据块
   const dataHandler = (_event: any, data: { requestId: string; chunk: string }) => {
@@ -176,12 +175,12 @@ const textChatWithStream = (
     }
   }
 
-  const errorHandler = (_event: any, data: { requestId: string; code: number; msg: string; data: string }) => {
+  const errorHandler = (_event: any, data: { requestId: string; error: string }) => {
     if (data.requestId === params.requestId) {
       ipcRenderer.removeListener(IPC_EVENTS.ai.mainToRenderer.streamData, dataHandler)
       ipcRenderer.removeListener(IPC_EVENTS.ai.mainToRenderer.streamEnd, endHandler)
       ipcRenderer.removeListener(IPC_EVENTS.ai.mainToRenderer.streamError, errorHandler)
-      onError({ code: data.code, msg: data.msg, data: data.data })
+      onError(data.error)
     }
   }
 
