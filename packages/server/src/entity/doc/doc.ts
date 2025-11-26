@@ -188,10 +188,10 @@ class Info {
   @prop()
   public version: string;
   /**
-   * 文档类型,   1.文件夹 2.普通文档 3.markdown文档
+   * 文档类型,   1.文件夹 2.HTTP接口 3.HTTP Mock 4.WebSocket 5.Markdown文档
    */
   @prop()
-  public type: 'folder' | 'api' | 'markdown';
+  public type: 'folder' | 'http' | 'httpMock' | 'websocket' | 'markdown';
   /**
    * 创建者
    */

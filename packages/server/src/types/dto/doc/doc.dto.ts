@@ -176,10 +176,10 @@ class DocBaseInfo {
   @Rule(RuleType.string().empty('').default('1.0'))
   version: string;
   /**
-   * 文档类型,   1.文件夹 2.普通文档 3.markdown文档
+   * 文档类型,   1.文件夹 2.HTTP接口 3.HTTP Mock 4.WebSocket 5.Markdown文档
    */
-  @Rule(RuleType.string().valid('folder', 'api', 'markdown').required())
-  type: 'folder' | 'api' | 'markdown';
+  @Rule(RuleType.string().valid('folder', 'http', 'httpMock', 'websocket', 'markdown').required())
+  type: 'folder' | 'http' | 'httpMock' | 'websocket' | 'markdown';
   /**
    * 创建者
    */
@@ -533,8 +533,8 @@ export class AddEmptyDocDto {
   /**
    * 文档类型
    */
-  @Rule(RuleType.string().valid('folder', 'api', 'markdown').required())
-  type: 'folder' | 'api' | 'markdown';
+  @Rule(RuleType.string().valid('folder', 'http', 'httpMock', 'websocket', 'markdown').required())
+  type: 'folder' | 'http' | 'httpMock' | 'websocket' | 'markdown';
   /**
    * 父元素id
    */

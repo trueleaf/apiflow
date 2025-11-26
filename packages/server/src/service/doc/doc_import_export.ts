@@ -634,8 +634,8 @@ export class DocImportAndExportService {
       }).lean();
     }
 
-    // 过滤出非文件夹的API文档
-    const apiDocs = docs.filter(doc => !doc.isFolder);
+    // 过滤出HTTP类型的API文档（不包括httpMock、websocket、markdown）
+    const apiDocs = docs.filter(doc => !doc.isFolder && doc.info.type === 'http');
 
     // 构建OpenAPI 3.0规范
     const openApiSpec = {

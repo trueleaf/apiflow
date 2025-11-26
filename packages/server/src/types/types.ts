@@ -112,6 +112,21 @@ export type RequestMethod =
   | 'CONNECTION'
   | 'TRACE';
 
+/**
+ * 文档类型枚举
+ */
+export enum DocType {
+  FOLDER = 'folder',
+  HTTP = 'http',
+  HTTP_MOCK = 'httpMock',
+  WEBSOCKET = 'websocket',
+  MARKDOWN = 'markdown'
+}
+
+/**
+ * 文档类型字面量类型
+ */
+export type DocTypeString = 'folder' | 'http' | 'httpMock' | 'websocket' | 'markdown';
 
 export enum StorageService {
   LOCAL = 'local',
