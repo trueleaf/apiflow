@@ -1,6 +1,6 @@
 import hotkeys from "hotkeys-js";
 import { useRouter } from "vue-router";
-import { useAgentStore } from "@/store/agent/agentStore";
+import { useCopilotStore } from "@/store/ai/copilotStore";
 import { useApidocTas } from "@/store/apidoc/tabsStore";
 import { useHttpRedoUndo } from "@/store/redoUndo/httpRedoUndoStore";
 import { useWsRedoUndo } from "@/store/redoUndo/wsRedoUndoStore";
@@ -29,8 +29,8 @@ class ShortcutManager {
           tabType: "",
         },
         handler: (event: KeyboardEvent) => {
-          const agentStore = useAgentStore();
-          agentStore.handleAiShortcut(event);
+          const copilotStore = useCopilotStore();
+          copilotStore.handleCopilotShortcut(event);
         },
       },
       {

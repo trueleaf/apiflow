@@ -59,52 +59,21 @@ export interface LLStreamChunk {
 | 大模型统一配置类型
 |--------------------------------------------------------------------------
 */
-export type LLMProviderSettings =
-  | BuiltInProviderSettings
-  | CustomProviderSettings;
-
-//内置模型
-export type BuiltInProvider =
-  | 'deepseek'
-
-export interface BuiltInProviderSettings {
-  type: 'builtin';
-  provider: BuiltInProvider;
-  apiKey: string;
-  baseURL?: string;  // 允许用户覆盖默认值
-  model?: string; 
-}
-export interface CustomProviderSettings {
-  type: 'custom';
+export type LLMProviderSettings = {
+  id: string;
   name: string;
+  provider: 'deepseek' | 'openai';
   apiKey: string;
   baseURL: string;
   model: string;
-  extraHeaders?: Record<string, string>;
 }
-/*
-|--------------------------------------------------------------------------
-| 内置大模型
-|--------------------------------------------------------------------------
-*/
-export interface BuiltInProviderSettings {
-  type: 'builtin';
-  provider: BuiltInProvider;
-  apiKey: string;
-  baseURL?: string;  
-  model?: string; 
-}
-export interface BuiltInProviderConfig {
-  baseURL: string;
-  models: string[];
-}
-/*
-|--------------------------------------------------------------------------
-| Token统计
-|--------------------------------------------------------------------------
-*/
-export interface LLUsage {
-  promptTokens: number;
-  completionTokens: number;
-  totalTokens: number;
+
+
+export type PromptItem = {
+  /**
+   * 提示词应用场景描述
+   */
+  description: string;
+  role: 'system' | 'user' | 'assistant';
+  content: string;
 }

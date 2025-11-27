@@ -1,6 +1,6 @@
 /*
 |--------------------------------------------------------------------------
-| Agent 消息类型（用于 UI）
+| Copilot 消息类型（用于 UI）
 |--------------------------------------------------------------------------
 */
 export type AskMessage = {
@@ -24,5 +24,5 @@ export type LoadingMessage = {
   timestamp: string;
   sessionId: string;
 }
-export type AgentMessage = AskMessage | LoadingMessage | TextResponseMessage;
+export type CopilotMessage = AskMessage | LoadingMessage | TextResponseMessage;
 

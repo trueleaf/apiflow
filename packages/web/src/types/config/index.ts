@@ -5,6 +5,7 @@
 
 import type { ComponentSize } from "element-plus";
 import { HttpNodeConfig } from "../index.ts";
+import { AIAgent, BuiltInProvider, BuiltInProviderConfig } from "../ai/agent.type.ts";
 
 export type AppTheme = 'light' | 'dark' | 'auto';
 
@@ -161,7 +162,7 @@ export type Config = {
       storeName: string,
       maxLogsPerNode: number,
     },
-    agentMessageCache: {
+    copilotMessageCache: {
       dbName: string,
       version: number,
       storeName: string,
@@ -221,29 +222,4 @@ export type MainConfig = {
    * 顶部栏视图高度
    */
   topbarViewHeight: number,
-  /**
-   * AI配置
-   */
-  aiConfig: {
-    /**
-     * 模型名称
-     */
-    modelName: string,
-    /**
-     * 接口密钥
-     */
-    apiKey: string,
-    /**
-     * 接口地址
-     */
-    apiUrl: string,
-    /**
-     * 最大令牌数限制
-     */
-    maxTokens?: number,
-    /**
-     * 请求超时时间（毫秒）
-     */
-    timeout: number,
-  },
 }

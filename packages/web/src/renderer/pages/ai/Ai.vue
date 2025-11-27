@@ -57,12 +57,12 @@
             <ArrowRight :size="14" class="config-icon"/>
           </button>
         </div>
-        <div v-else-if="agentStore.agentMessageList.length === 0" class="ai-empty-state">
+        <div v-else-if="copilotStore.copilotMessageList.length === 0" class="ai-empty-state">
           <Bot class="ai-empty-icon" :size="48" />
           <p class="ai-empty-text">{{ t('问我任何问题') }}</p>
         </div>
         <template v-else>
-          <template v-for="message in agentStore.agentMessageList" :key="message.id">
+          <template v-for="message in copilotStore.copilotMessageList" :key="message.id">
             <AskMessageItem v-if="message.type === 'ask'" :message="message" />
             <LoadingMessageItem v-else-if="message.type === 'loading'" :message="message" />
             <TextResponseMessageItem v-else-if="message.type === 'textResponse'" :message="message" />
@@ -138,7 +138,7 @@
               @click="handleSend"
               :title="t('发送')"
             >
-              <Send v-if="agentStore.workingStatus === 'finish'" :size="16" />
+              <Send v-if="copilotStore.workingStatus === 'finish'" :size="16" />
               <LoaderCircle v-else :size="16" class="ai-send-btn-loading" />
             </button>
           </div>
@@ -190,7 +190,7 @@ import { IPC_EVENTS } from '@src/types/ipc'
 import { config } from '@src/config/config'
 import { appState } from '@/cache/appState/appStateCache'
 import { aiCache } from '@/cache/ai/aiCache'
-import { useAgentStore } from '@/store/agent/agentStore'
+import { useCopilotStore } from '@/store/ai/copilotStore'
 import AskMessageItem from './components/AskMessageItem.vue'
 import LoadingMessageItem from './components/LoadingMessageItem.vue'
 import TextResponseMessageItem from './components/TextResponseMessageItem.vue'
@@ -199,7 +199,7 @@ import './ai.css'
 
 const { t } = useI18n()
 const visible = defineModel<boolean>('visible', { default: false })
-const agentStore = useAgentStore()
+const copilotStore = useCopilotStore()
 const messagesRef = ref<HTMLElement | null>(null)
 const inputMessage = ref('')
 const currentView = ref<'chat' | 'history'>('chat')
@@ -255,7 +255,7 @@ watch(visible, value => {
     currentView.value = 'chat'
   }
 })
-watch(() => agentStore.aiDialogVisible, (newValue) => {
+watch(() => copilotStore.copilotDialogVisible, (newValue) => {
   if (newValue) {
     nextTick(() => {
       const inputNode = document.querySelector<HTMLTextAreaElement>('.ai-input');
@@ -263,13 +263,13 @@ watch(() => agentStore.aiDialogVisible, (newValue) => {
     });
   }
 });
-watch(() => agentStore.agentMessageList.length, () => {
+watch(() => copilotStore.copilotMessageList.length, () => {
   scrollToBottom()
 })
 
 const buildOpenAIRequestBody = (userMessage: string): LLRequestBody & { stream: true } => {
   const messages: LLMessage[] = []
-  const recentMessages = agentStore.getLatestMessages(10)
+  const recentMessages = copilotStore.getLatestMessages(10)
 
   for (const msg of recentMessages) {
     if (msg.type === 'ask') {
@@ -312,14 +312,14 @@ const stopCurrentConversation = async () => {
     cancelCurrentStream.value = null
   }
   if (loadingMessageId.value) {
-    agentStore.deleteAgentMessageById(loadingMessageId.value)
+    copilotStore.deleteCopilotMessageById(loadingMessageId.value)
     loadingMessageId.value = null
   }
   isStreaming.value = false
   currentStreamRequestId.value = null
   streamingMessageId.value = null
   isFirstChunk.value = false
-  agentStore.setWorkingStatus('finish')
+  copilotStore.setWorkingStatus('finish')
 }
 
 const handleClose = () => {
@@ -327,8 +327,8 @@ const handleClose = () => {
 }
 const handleCreateConversation = async () => {
   await stopCurrentConversation()
-  if (agentStore.agentMessageList.length > 0) {
-    agentStore.createNewSession()
+  if (copilotStore.copilotMessageList.length > 0) {
+    copilotStore.createNewSession()
   }
   currentView.value = 'chat'
 }
@@ -339,7 +339,7 @@ const handleBackToChat = () => {
   currentView.value = 'chat'
 }
 const handleSelectSession = async (sessionId: string) => {
-  await agentStore.loadMessagesForSession(sessionId)
+  await copilotStore.loadMessagesForSession(sessionId)
   currentView.value = 'chat'
 }
 const isAiConfigValid = () => {
@@ -586,7 +586,7 @@ const handleSend = async () => {
     type: 'ask',
     content: message,
     timestamp,
-    sessionId: agentStore.currentSessionId
+    sessionId: copilotStore.currentSessionId
   }
   
   const loadingMessage: LoadingMessage = {
@@ -594,24 +594,24 @@ const handleSend = async () => {
     type: 'loading',
     content: '',
     timestamp,
-    sessionId: agentStore.currentSessionId
+    sessionId: copilotStore.currentSessionId
   }
   
-  await agentStore.addAgentMessage(askMessage)
-  await agentStore.addAgentMessage(loadingMessage)
+  await copilotStore.addCopilotMessage(askMessage)
+  await copilotStore.addCopilotMessage(loadingMessage)
   
   isStreaming.value = true
   currentStreamRequestId.value = requestId
   loadingMessageId.value = loadingMsgId
   isFirstChunk.value = true
   streamingMessageId.value = null
-  agentStore.setWorkingStatus('working')
+  copilotStore.setWorkingStatus('working')
   
   const requestBody = buildOpenAIRequestBody(message)
   
   if (!window.electronAPI?.aiManager?.textChatWithStream) {
     if (loadingMessageId.value) {
-      agentStore.deleteAgentMessageById(loadingMessageId.value)
+      copilotStore.deleteCopilotMessageById(loadingMessageId.value)
       loadingMessageId.value = null
     }
     
@@ -622,15 +622,15 @@ const handleSend = async () => {
       type: 'textResponse',
       content: '错误: AI功能不可用',
       timestamp,
-      sessionId: agentStore.currentSessionId
+      sessionId: copilotStore.currentSessionId
     }
     
-    agentStore.addAgentMessage(errorMessage)
+    copilotStore.addCopilotMessage(errorMessage)
     isStreaming.value = false
     currentStreamRequestId.value = null
     streamingMessageId.value = null
     isFirstChunk.value = false
-    agentStore.setWorkingStatus('finish')
+    copilotStore.setWorkingStatus('finish')
     return
   }
   
@@ -650,7 +650,7 @@ const handleSend = async () => {
     cancelCurrentStream.value = streamController.cancel
   } catch (error) {
     if (loadingMessageId.value) {
-      agentStore.deleteAgentMessageById(loadingMessageId.value)
+      copilotStore.deleteCopilotMessageById(loadingMessageId.value)
       loadingMessageId.value = null
     }
     
@@ -661,15 +661,15 @@ const handleSend = async () => {
       type: 'textResponse',
       content: `错误: ${error instanceof Error ? error.message : '未知错误'}`,
       timestamp,
-      sessionId: agentStore.currentSessionId
+      sessionId: copilotStore.currentSessionId
     }
     
-    agentStore.addAgentMessage(errorMessage)
+    copilotStore.addCopilotMessage(errorMessage)
     isStreaming.value = false
     currentStreamRequestId.value = null
     streamingMessageId.value = null
     isFirstChunk.value = false
-    agentStore.setWorkingStatus('finish')
+    copilotStore.setWorkingStatus('finish')
   }
 }
 const handleStreamData = (requestId: string, chunk: string) => {
@@ -688,7 +688,7 @@ const handleStreamData = (requestId: string, chunk: string) => {
       
       if (content) {
         if (isFirstChunk.value && loadingMessageId.value) {
-          agentStore.deleteAgentMessageById(loadingMessageId.value)
+          copilotStore.deleteCopilotMessageById(loadingMessageId.value)
           
           const timestamp = new Date().toISOString()
           const responseMessageId = nanoid()
@@ -697,18 +697,18 @@ const handleStreamData = (requestId: string, chunk: string) => {
             type: 'textResponse',
             content,
             timestamp,
-            sessionId: agentStore.currentSessionId
+            sessionId: copilotStore.currentSessionId
           }
           
-          agentStore.addAgentMessage(responseMessage)
+          copilotStore.addCopilotMessage(responseMessage)
           streamingMessageId.value = responseMessageId
           loadingMessageId.value = null
           isFirstChunk.value = false
         } else if (streamingMessageId.value) {
-          const message = agentStore.getMessageById(streamingMessageId.value)
+          const message = copilotStore.getMessageById(streamingMessageId.value)
           if (message && message.type === 'textResponse') {
             message.content += content
-            agentStore.updateAgentMessage(message)
+            copilotStore.updateCopilotMessage(message)
           }
         }
       }
@@ -721,7 +721,7 @@ const handleStreamEnd = (requestId: string) => {
   if (currentStreamRequestId.value !== requestId) return
   
   if (loadingMessageId.value) {
-    agentStore.deleteAgentMessageById(loadingMessageId.value)
+    copilotStore.deleteCopilotMessageById(loadingMessageId.value)
     loadingMessageId.value = null
   }
   
@@ -730,13 +730,13 @@ const handleStreamEnd = (requestId: string) => {
   streamingMessageId.value = null
   isFirstChunk.value = false
   cancelCurrentStream.value = null
-  agentStore.setWorkingStatus('finish')
+  copilotStore.setWorkingStatus('finish')
 }
 const handleStreamError = (requestId: string, error: string) => {
   if (currentStreamRequestId.value !== requestId) return
 
   if (loadingMessageId.value) {
-    agentStore.deleteAgentMessageById(loadingMessageId.value)
+    copilotStore.deleteCopilotMessageById(loadingMessageId.value)
     loadingMessageId.value = null
   }
 
@@ -747,17 +747,17 @@ const handleStreamError = (requestId: string, error: string) => {
     type: 'textResponse',
     content: `错误: ${error}`,
     timestamp,
-    sessionId: agentStore.currentSessionId
+    sessionId: copilotStore.currentSessionId
   }
 
-  agentStore.addAgentMessage(errorMessage)
+  copilotStore.addCopilotMessage(errorMessage)
 
   isStreaming.value = false
   currentStreamRequestId.value = null
   streamingMessageId.value = null
   isFirstChunk.value = false
   cancelCurrentStream.value = null
-  agentStore.setWorkingStatus('finish')
+  copilotStore.setWorkingStatus('finish')
 }
 const handleInputFocus = () => {
   isModeMenuVisible.value = false
@@ -818,9 +818,9 @@ const initDialogState = () => {
     return
   }
 
-  if (agentStore.aiAgentRect) {
-    const anchorCenterX = agentStore.aiAgentRect.x + agentStore.aiAgentRect.width / 2 - dialogWidth.value / 2
-    const anchorTop = config.mainConfig.topbarViewHeight + agentStore.aiAgentRect.y + agentStore.aiAgentRect.height + 12
+  if (copilotStore.copilotAnchorRect) {
+    const anchorCenterX = copilotStore.copilotAnchorRect.x + copilotStore.copilotAnchorRect.width / 2 - dialogWidth.value / 2
+    const anchorTop = config.mainConfig.topbarViewHeight + copilotStore.copilotAnchorRect.y + copilotStore.copilotAnchorRect.height + 12
     const anchoredPosition = clampPositionToBounds({ x: anchorCenterX, y: anchorTop }, dialogWidth.value, dialogHeight.value)
     position.value = anchoredPosition
     appState.setAiDialogPosition(anchoredPosition)
@@ -829,7 +829,7 @@ const initDialogState = () => {
 
 onMounted(() => {
   initDialogState()
-  agentStore.initStore()
+  copilotStore.initStore()
   document.addEventListener('click', handleClickOutside)
 
   const aiConfig = aiCache.getAiConfig()

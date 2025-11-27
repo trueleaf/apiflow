@@ -35,14 +35,14 @@
           v-for="session in sessionList"
           :key="session.sessionId"
           class="conversation-history-item"
-          :class="{ 'is-current': session.sessionId === agentStore.currentSessionId }"
+          :class="{ 'is-current': session.sessionId === copilotStore.currentSessionId }"
           @click="handleSelectSession(session.sessionId)"
         >
           <div class="conversation-history-item-content">
             <div class="conversation-history-item-title">
               <MessageSquare :size="16" class="conversation-history-item-icon" />
               <span>{{ getSessionTitle(session.sessionId) }}</span>
-              <span v-if="session.sessionId === agentStore.currentSessionId" class="conversation-history-item-badge">{{ t('当前') }}</span>
+              <span v-if="session.sessionId === copilotStore.currentSessionId" class="conversation-history-item-badge">{{ t('当前') }}</span>
             </div>
             <div class="conversation-history-item-meta">
               <span class="conversation-history-item-count">{{ session.messageCount }} {{ t('条消息') }}</span>
@@ -51,7 +51,7 @@
             </div>
           </div>
           <button
-            v-if="session.sessionId !== agentStore.currentSessionId"
+            v-if="session.sessionId !== copilotStore.currentSessionId"
             class="conversation-history-item-delete"
             type="button"
             @click.stop="handleDeleteSession(session.sessionId)"
@@ -70,9 +70,9 @@ import { ref, onMounted, onUnmounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { ArrowLeft, MessageSquare, Trash2, Loader2 } from 'lucide-vue-next'
 import { ElMessageBox } from 'element-plus'
-import { agentCache } from '@/cache/ai/agentCache'
-import { useAgentStore } from '@/store/agent/agentStore'
-import type { AgentMessage } from '@src/types/ai'
+import { copilotCache } from '@/cache/ai/copilotCache'
+import { useCopilotStore } from '@/store/ai/copilotStore'
+import type { CopilotMessage } from '@src/types/ai'
 
 type SessionInfo = {
   sessionId: string
@@ -81,7 +81,7 @@ type SessionInfo = {
 }
 
 const { t } = useI18n()
-const agentStore = useAgentStore()
+const copilotStore = useCopilotStore()
 const emit = defineEmits<{
   (event: 'back'): void
   (event: 'select', sessionId: string): void
@@ -94,7 +94,7 @@ const sessionTitles = ref<Map<string, string>>(new Map())
 const loadSessionList = async () => {
   loading.value = true
   try {
-    const list = await agentCache.getSessionList()
+    const list = await copilotCache.getSessionList()
     sessionList.value = list
     for (const session of list) {
       await loadSessionTitle(session.sessionId)
@@ -104,8 +104,8 @@ const loadSessionList = async () => {
   }
 }
 const loadSessionTitle = async (sessionId: string) => {
-  const messages = await agentCache.getMessagesBySessionId(sessionId)
-  const firstAskMessage = messages.find((msg: AgentMessage) => msg.type === 'ask')
+  const messages = await copilotCache.getMessagesBySessionId(sessionId)
+  const firstAskMessage = messages.find((msg: CopilotMessage) => msg.type === 'ask')
   if (firstAskMessage && firstAskMessage.type === 'ask') {
     const title = firstAskMessage.content.length > 30
       ? firstAskMessage.content.substring(0, 30) + '...'
@@ -140,14 +140,14 @@ const handleBack = () => {
   emit('back')
 }
 const handleSelectSession = (sessionId: string) => {
-  if (sessionId === agentStore.currentSessionId) {
+  if (sessionId === copilotStore.currentSessionId) {
     emit('back')
   } else {
     emit('select', sessionId)
   }
 }
 const handleDeleteSession = async (sessionId: string) => {
-  await agentCache.deleteMessagesBySessionId(sessionId)
+  await copilotCache.deleteMessagesBySessionId(sessionId)
   await loadSessionList()
 }
 const handleClearAll = async () => {
@@ -162,7 +162,7 @@ const handleClearAll = async () => {
         type: 'warning'
       }
     )
-    await agentStore.clearAllSessions()
+    await copilotStore.clearAllSessions()
     sessionList.value = []
     sessionTitles.value.clear()
   } catch {

@@ -30,6 +30,7 @@ import type {
 import type { HttpNodeResponseData, UrlInfo } from '@src/types/helper'
 import { useVariable } from '@/store/apidoc/variablesStore'
 import { config } from '@src/config/config'
+import { LLMProvider } from '@src/types/ai/agent.type.ts'
 
 /*
 |--------------------------------------------------------------------------
@@ -810,7 +811,7 @@ const parseSseBlock = (block: string, timestamp?: number) => {
   for (let line of lines) {
     // 空行或注释行忽略
     if (line === '' || line.startsWith(':')) continue;
-    
+
     // SSE规范：冒号前的是字段名，冒号后的是值
     const colonIndex = line.indexOf(':');
     if (colonIndex === -1) {
@@ -901,7 +902,7 @@ export const parseChunkList = (chunkList: ChunkWithTimestampe[]): ParsedSSeData[
   // 正常的文本解码模式
   let buffer = '';
   let lastTimestamp = Date.now();
-  
+
   for (let streamChunk of chunkList) {
     lastTimestamp = streamChunk.timestamp;
     buffer += decoder!.decode(streamChunk.chunk, { stream: true });
@@ -913,7 +914,7 @@ export const parseChunkList = (chunkList: ChunkWithTimestampe[]): ParsedSSeData[
       parsedData.push(msg);
     }
   }
-  
+
   // 刷新解码器，获取可能残留的数据
   buffer += decoder!.decode();
 
@@ -921,7 +922,7 @@ export const parseChunkList = (chunkList: ChunkWithTimestampe[]): ParsedSSeData[
   if (buffer.trim()) {
     // 检查是否有完整的消息（以\n\n分隔）
     const blocks = buffer.split(/\r?\n\r?\n/);
-    
+
     blocks.forEach((block) => {
       const trimmedBlock = block.trim();
       if (trimmedBlock) {
@@ -1396,7 +1397,7 @@ export const extractPathParams = (urlPath: string): ApidocProperty<'string'>[] =
   const pathParams: ApidocProperty<'string'>[] = [];
   const regex = /\{([^}]+)\}/g;
   let match;
-  
+
   while ((match = regex.exec(urlPath)) !== null) {
     const paramName = match[1];
     pathParams.push({
@@ -1405,7 +1406,7 @@ export const extractPathParams = (urlPath: string): ApidocProperty<'string'>[] =
       description: `路径参数: ${paramName}`
     });
   }
-  
+
   return pathParams;
 }
 
@@ -2723,14 +2724,14 @@ export const generateEmptyResponse = (): ResponseInfo => {
       error: 0,
       abort: 0,
       phases: {
-          wait: 0,
-          dns: 0,
-          tcp: 0,
-          tls: 0,
-          request: 0,
-          firstByte: 0,
-          download: 0,
-          total: 0,
+        wait: 0,
+        dns: 0,
+        tcp: 0,
+        tls: 0,
+        request: 0,
+        firstByte: 0,
+        download: 0,
+        total: 0,
       }
     },
     contentType: '',
@@ -2800,11 +2801,11 @@ export const getResponseParamsByHttpNode = (apidoc: HttpNode): HttpNodeResponseD
       dataType: res.value.dataType,
     };
     switch (res.value.dataType) {
-    case 'application/json':
-      data.json = res.value.strJson
-      break;
-    default:
-      break;
+      case 'application/json':
+        data.json = res.value.strJson
+        break;
+      default:
+        break;
     }
     result.push(data)
   })
@@ -2889,4 +2890,18 @@ export const validateUrl = (url: string): UrlValidationResult => {
       errorMessage: 'URL格式不正确',
     };
   }
+}
+
+export const generateDefaultLLMProviders = (): LLMProvider[] => {
+  return [{
+    id: 'deepseek-v3.2-exp',
+    name: 'deepseek-v3.2-exp',
+    type: "builtin",
+    settings: {
+      provider: 'deepseek',
+      apiKey: '',
+      baseURL: 'https://api.deepseek.com',
+      model: 'deepseek-chat'
+    }
+  }]
 }

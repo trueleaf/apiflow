@@ -1,5 +1,5 @@
 import { openDB, IDBPDatabase } from 'idb';
-import { AgentMessage } from '@src/types/ai';
+import { CopilotMessage } from '@src/types/ai';
 import { config } from '@src/config/config';
 import { logger } from '@/helper';
 import { cacheKey } from '../cacheKey';
@@ -8,14 +8,14 @@ type SessionInfo = {
   lastMessageTime: string;
   messageCount: number;
 };
-class AgentCache {
-  private dbName = config.cacheConfig.agentMessageCache.dbName;
-  private storeName = config.cacheConfig.agentMessageCache.storeName;
-  private version = config.cacheConfig.agentMessageCache.version;
+class CopilotCache {
+  private dbName = config.cacheConfig.copilotMessageCache.dbName;
+  private storeName = config.cacheConfig.copilotMessageCache.storeName;
+  private version = config.cacheConfig.copilotMessageCache.version;
   private db: IDBPDatabase | null = null;
   constructor() {
     this.initDB().catch(error => {
-      logger.error('初始化Agent对话数据库失败', { error });
+      logger.error('初始化Copilot对话数据库失败', { error });
     });
   }
   private async initDB(): Promise<void> {
@@ -33,7 +33,7 @@ class AgentCache {
         }
       });
     } catch (error) {
-      logger.error('初始化Agent对话数据库失败', { error });
+      logger.error('初始化Copilot对话数据库失败', { error });
       this.db = null;
     }
   }
@@ -42,11 +42,11 @@ class AgentCache {
       await this.initDB();
     }
     if (!this.db) {
-      throw new Error('无法初始化Agent对话数据库');
+      throw new Error('无法初始化Copilot对话数据库');
     }
     return this.db;
   }
-  async addMessage(message: AgentMessage): Promise<boolean> {
+  async addMessage(message: CopilotMessage): Promise<boolean> {
     try {
       const db = await this.getDB();
       const messageCopy = JSON.parse(JSON.stringify(message));
@@ -55,11 +55,11 @@ class AgentCache {
       await tx.done;
       return true;
     } catch (error) {
-      logger.error('添加Agent消息失败', { error });
+      logger.error('添加Copilot消息失败', { error });
       return false;
     }
   }
-  async updateMessage(message: AgentMessage): Promise<boolean> {
+  async updateMessage(message: CopilotMessage): Promise<boolean> {
     try {
       const db = await this.getDB();
       const messageCopy = JSON.parse(JSON.stringify(message));
@@ -68,11 +68,11 @@ class AgentCache {
       await tx.done;
       return true;
     } catch (error) {
-      logger.error('更新Agent消息失败', { error });
+      logger.error('更新Copilot消息失败', { error });
       return false;
     }
   }
-  async getMessagesBySessionId(sessionId: string): Promise<AgentMessage[]> {
+  async getMessagesBySessionId(sessionId: string): Promise<CopilotMessage[]> {
     try {
       const db = await this.getDB();
       const tx = db.transaction(this.storeName, 'readonly');
@@ -165,4 +165,4 @@ class AgentCache {
     }
   }
 }
-export const agentCache = new AgentCache();
+export const copilotCache = new CopilotCache();

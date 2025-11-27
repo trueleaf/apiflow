@@ -4,8 +4,8 @@ import ip from 'ip'
 import { gotRequest } from './sendRequest'
 import { StandaloneExportHtmlParams } from '@src/types/standalone.ts'
 import { WindowState } from '@src/types/index.ts'
-import type { LLRequestBody, LLMProviderSettings } from '@src/types/ai/agent.type'
 import { IPC_EVENTS } from '@src/types/ipc'
+import { createLLMClient } from './ai/agent'
 
 const openDevTools = () => {
   ipcRenderer.send(IPC_EVENTS.window.rendererToMain.openDevTools)
@@ -139,69 +139,6 @@ const importSelectFile = () => {
   return ipcRenderer.invoke(IPC_EVENTS.import.rendererToMain.selectFile)
 }
 
-// AI 相关方法
-const updateAiConfig = (params: LLMProviderSettings) => {
-  return ipcRenderer.invoke(IPC_EVENTS.ai.rendererToMain.updateConfig, params)
-}
-
-const textChat = (request: LLRequestBody) => {
-  return ipcRenderer.invoke(IPC_EVENTS.ai.rendererToMain.textChat, request)
-}
-
-const jsonChat = (request: LLRequestBody) => {
-  return ipcRenderer.invoke(IPC_EVENTS.ai.rendererToMain.jsonChat, request)
-}
-
-const textChatWithStream = (
-  params: { requestId: string; requestBody: LLRequestBody },
-  onData: (chunk: string) => void,
-  onEnd: () => void,
-  onError: (error: string) => void
-) => {
-  // 设置事件监听器 - 直接转发原始数据块
-  const dataHandler = (_event: any, data: { requestId: string; chunk: string }) => {
-    if (data.requestId === params.requestId) {
-      // 直接传递原始数据块给回调，由渲染进程自行处理
-      onData(data.chunk)
-    }
-  }
-
-  const endHandler = (_event: any, data: { requestId: string }) => {
-    if (data.requestId === params.requestId) {
-      ipcRenderer.removeListener(IPC_EVENTS.ai.mainToRenderer.streamData, dataHandler)
-      ipcRenderer.removeListener(IPC_EVENTS.ai.mainToRenderer.streamEnd, endHandler)
-      ipcRenderer.removeListener(IPC_EVENTS.ai.mainToRenderer.streamError, errorHandler)
-      onEnd()
-    }
-  }
-
-  const errorHandler = (_event: any, data: { requestId: string; error: string }) => {
-    if (data.requestId === params.requestId) {
-      ipcRenderer.removeListener(IPC_EVENTS.ai.mainToRenderer.streamData, dataHandler)
-      ipcRenderer.removeListener(IPC_EVENTS.ai.mainToRenderer.streamEnd, endHandler)
-      ipcRenderer.removeListener(IPC_EVENTS.ai.mainToRenderer.streamError, errorHandler)
-      onError(data.error)
-    }
-  }
-
-  ipcRenderer.on(IPC_EVENTS.ai.mainToRenderer.streamData, dataHandler)
-  ipcRenderer.on(IPC_EVENTS.ai.mainToRenderer.streamEnd, endHandler)
-  ipcRenderer.on(IPC_EVENTS.ai.mainToRenderer.streamError, errorHandler)
-
-  // 启动流式请求
-  const startPromise = ipcRenderer.invoke(IPC_EVENTS.ai.rendererToMain.textChatStream, params)
-
-  // 返回取消函数
-  return {
-    cancel: async () => {
-      ipcRenderer.removeListener(IPC_EVENTS.ai.mainToRenderer.streamData, dataHandler)
-      ipcRenderer.removeListener(IPC_EVENTS.ai.mainToRenderer.streamEnd, endHandler)
-      ipcRenderer.removeListener(IPC_EVENTS.ai.mainToRenderer.streamError, errorHandler)
-  await ipcRenderer.invoke(IPC_EVENTS.ai.rendererToMain.cancelStream, params.requestId)
-    },
-    startPromise
-  }
-}
 
 contextBridge.exposeInMainWorld('electronAPI', {
   ip: ip.address(),
@@ -258,9 +195,6 @@ contextBridge.exposeInMainWorld('electronAPI', {
     selectFile: importSelectFile,
   },
   aiManager: {
-    updateConfig: updateAiConfig,
-    textChat: textChat,
-    jsonChat: jsonChat,
-    textChatWithStream: textChatWithStream,
+    createLLMClient: createLLMClient,
   }
 })
