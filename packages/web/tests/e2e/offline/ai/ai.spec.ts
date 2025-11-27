@@ -1,5 +1,5 @@
 import { expect, type Page } from '@playwright/test';
-import { test, initOfflineWorkbench, navigateToAiSettings, saveAiConfig, configureAiWithEnv } from '../../../fixtures/fixtures';
+import { test, initOfflineWorkbench, navigateToAiSettings, configureAiWithEnv } from '../../../fixtures/fixtures';
 // AI 功能测试
 test.describe('AI 功能测试', () => {
   let headerPage: Page;
@@ -19,238 +19,124 @@ test.describe('AI 功能测试', () => {
   test.describe('AiSettings 页面 UI 交互测试', () => {
 
     test.beforeEach(async () => {
-
       await navigateToAiSettings(headerPage, contentPage);
     });
 
     test('1. 应正确加载和显示 AI 配置表单', async () => {
-      // 验证页面标题
       const pageTitle = await contentPage.locator('h2').textContent();
       expect(pageTitle).toContain('AI 设置');
-
-      // 验证表单元素存在
-      const modelInput = contentPage.locator('input[placeholder="DeepSeek"]');
+      const providerSelect = contentPage.locator('.config-section .el-select').first();
       const apiKeyInput = contentPage.locator('input[placeholder="请输入 DeepSeek API Key"]');
-      const apiUrlInput = contentPage.locator('input[placeholder="请输入 API 地址"]');
-
-      await expect(modelInput).toBeVisible();
+      const modelSelect = contentPage.locator('.config-section .el-select').nth(1);
+      await expect(providerSelect).toBeVisible();
       await expect(apiKeyInput).toBeVisible();
-      await expect(apiUrlInput).toBeVisible();
-
-      // 验证模型字段为禁用状态
-      await expect(modelInput).toBeDisabled();
+      await expect(modelSelect).toBeVisible();
     });
 
     test('2. 应从 localStorage 正确加载已保存的配置', async () => {
       const testConfig = {
-        model: 'DeepSeek',
+        id: 'test-id',
+        name: 'Default Provider',
+        provider: 'DeepSeek',
         apiKey: 'test-api-key-123',
-        apiUrl: 'https://api.test.com',
-        timeout: 30000
+        baseURL: 'https://api.deepseek.com',
+        model: 'deepseek-chat',
+        customHeaders: []
       };
-
-      // 设置配置到 localStorage
       await contentPage.evaluate((config) => {
-        localStorage.setItem('apiflow/ai/config', JSON.stringify(config));
+        localStorage.setItem('apiflow/ai/llmProvider', JSON.stringify(config));
       }, testConfig);
-
-      // 重新加载页面
       await contentPage.reload();
-
-      // 重新导航到 AI 设置页面
       await navigateToAiSettings(headerPage, contentPage);
-
-      // 验证表单值
       const apiKeyValue = await contentPage.locator('input[placeholder="请输入 DeepSeek API Key"]').inputValue();
-      const apiUrlValue = await contentPage.locator('input[placeholder="请输入 API 地址"]').inputValue();
-
       expect(apiKeyValue).toBe(testConfig.apiKey);
-      expect(apiUrlValue).toBe(testConfig.apiUrl);
     });
 
     test('3. 应正确保存配置', async () => {
       const testApiKey = 'sk-test-key-456';
-      const testApiUrl = 'https://api.deepseek.com/v1/chat/completions';
-
-      // 填写配置
       await contentPage.locator('input[placeholder="请输入 DeepSeek API Key"]').fill(testApiKey);
-      await contentPage.locator('input[placeholder="请输入 API 地址"]').fill(testApiUrl);
-
-      // 点击保存按钮
       await contentPage.locator('button:has-text("保存配置")').click();
       await contentPage.waitForTimeout(500);
-
-      // 验证配置已保存到 localStorage
       const savedConfig = await contentPage.evaluate(() => {
-        const configStr = localStorage.getItem('apiflow/ai/config');
+        const configStr = localStorage.getItem('apiflow/ai/llmProvider');
         return configStr ? JSON.parse(configStr) : null;
       });
-
       expect(savedConfig).toBeTruthy();
       expect(savedConfig.apiKey).toBe(testApiKey);
-      expect(savedConfig.apiUrl).toBe(testApiUrl);
+      expect(savedConfig.baseURL).toBe('https://api.deepseek.com');
     });
 
     test('4. 应在未填写必填项时显示警告', async () => {
-      // 清空配置
-      await contentPage.locator('input[placeholder="请输入 DeepSeek API Key"]').clear();
-      await contentPage.locator('input[placeholder="请输入 API 地址"]').clear();
-
-      // 尝试保存 - 未填写 API Key
-      await contentPage.locator('input[placeholder="请输入 API 地址"]').fill('https://api.test.com');
+      await contentPage.locator('button:has-text("重置")').click();
+      await contentPage.waitForTimeout(500);
       await contentPage.locator('button:has-text("保存配置")').click();
-
-      // 验证显示警告消息（通过 ElMessage）- 使用 first() 避免 strict mode 错误
       const warningMessage = contentPage.locator('.el-message--warning').first();
       await expect(warningMessage).toBeVisible({ timeout: 2000 });
-
-      // 等待警告消失
-      await contentPage.waitForTimeout(3000);
-
-      // 清空 URL，填写 API Key
-      await contentPage.locator('input[placeholder="请输入 API 地址"]').clear();
-      await contentPage.locator('input[placeholder="请输入 DeepSeek API Key"]').fill('test-key');
-      await contentPage.locator('button:has-text("保存配置")').click();
-
-      // 再次验证显示警告
-      await expect(contentPage.locator('.el-message--warning').first()).toBeVisible({ timeout: 2000 });
     });
 
     test('5. 应正确重置配置', async () => {
-      // 先设置一些配置
       await contentPage.locator('input[placeholder="请输入 DeepSeek API Key"]').fill('test-key');
-      await contentPage.locator('input[placeholder="请输入 API 地址"]').fill('https://api.test.com');
-
-      // 点击重置按钮
       await contentPage.locator('button:has-text("重置")').click();
       await contentPage.waitForTimeout(500);
-
-      // 验证表单已清空
       const apiKeyValue = await contentPage.locator('input[placeholder="请输入 DeepSeek API Key"]').inputValue();
-      const apiUrlValue = await contentPage.locator('input[placeholder="请输入 API 地址"]').inputValue();
-
       expect(apiKeyValue).toBe('');
-      expect(apiUrlValue).toBe('');
-
-      // 验证 localStorage 已清空
       const savedConfig = await contentPage.evaluate(() => {
-        const configStr = localStorage.getItem('apiflow/ai/config');
+        const configStr = localStorage.getItem('apiflow/ai/llmProvider');
         return configStr ? JSON.parse(configStr) : null;
       });
-
       expect(savedConfig.apiKey).toBe('');
-      expect(savedConfig.apiUrl).toBe('');
     });
 
-    test('6. 应正确控制测试按钮的禁用状态', async () => {
-      // 清空配置
+    test('6. 应正确控制调试面板发送按钮的禁用状态', async () => {
       await contentPage.locator('button:has-text("重置")').click();
       await contentPage.waitForTimeout(500);
-
-      // 验证测试按钮为禁用状态
-      const textTestBtn = contentPage.locator('button:has-text("文本测试")');
-      const jsonTestBtn = contentPage.locator('button:has-text("JSON测试")');
-      const streamTestBtn = contentPage.locator('button:has-text("流式测试")');
-
-      await expect(textTestBtn).toBeDisabled();
-      await expect(jsonTestBtn).toBeDisabled();
-      await expect(streamTestBtn).toBeDisabled();
-
-      // 填写配置
+      const sendBtn = contentPage.locator('.debug-section button:has-text("发送")');
+      await expect(sendBtn).toBeDisabled();
       await contentPage.locator('input[placeholder="请输入 DeepSeek API Key"]').fill('test-key');
-      await contentPage.locator('input[placeholder="请输入 API 地址"]').fill('https://api.test.com');
-
-      // 验证测试按钮变为可用
-      await expect(textTestBtn).toBeEnabled();
-      await expect(jsonTestBtn).toBeEnabled();
-      await expect(streamTestBtn).toBeEnabled();
+      await contentPage.locator('button:has-text("保存配置")').click();
+      await contentPage.waitForTimeout(500);
+      await contentPage.locator('textarea[placeholder="输入测试消息..."]').fill('测试消息');
+      await expect(sendBtn).toBeEnabled();
     });
 
-    test('7. 应正确执行文本测试', async () => {
-      const testApiKey = process.env.TEST_AI_API_KEY;
-      const testApiUrl = process.env.TEST_AI_API_URL;
-
-      if (!testApiKey || !testApiUrl) {
-        throw new Error('测试需要配置 TEST_AI_API_KEY 和 TEST_AI_API_URL 环境变量');
-      }
-
-      await saveAiConfig(contentPage, testApiKey, testApiUrl);
-
-      await contentPage.locator('button:has-text("文本测试")').click();
-
-      const loadingIcon = contentPage.locator('.result-loading');
-      await expect(loadingIcon).toBeVisible({ timeout: 2000 });
-
-      await expect(loadingIcon).not.toBeVisible({ timeout: 60000 });
-
-      const hasResult = await contentPage.locator('.result-content').isVisible();
-      const hasError = await contentPage.locator('.result-error').isVisible();
-
-      expect(hasResult || hasError).toBeTruthy();
+    test('7. 应支持切换 Provider 类型', async () => {
+      const providerSelect = contentPage.locator('.config-section .el-select').first();
+      await providerSelect.click();
+      await contentPage.locator('.el-select-dropdown__item:has-text("OpenAI Compatible")').click();
+      await contentPage.waitForTimeout(300);
+      const baseUrlInput = contentPage.locator('input[placeholder="请输入 API Base URL"]');
+      const modelIdInput = contentPage.locator('input[placeholder="请输入模型 ID"]');
+      await expect(baseUrlInput).toBeVisible();
+      await expect(modelIdInput).toBeVisible();
     });
 
-    test('8. 应正确执行 JSON 测试', async () => {
-      const testApiKey = process.env.TEST_AI_API_KEY;
-      const testApiUrl = process.env.TEST_AI_API_URL;
-
-      if (!testApiKey || !testApiUrl) {
-        throw new Error('测试需要配置 TEST_AI_API_KEY 和 TEST_AI_API_URL 环境变量');
-      }
-
-      await saveAiConfig(contentPage, testApiKey, testApiUrl);
-
-      await contentPage.locator('button:has-text("JSON测试")').click();
-
-      const loadingIcon = contentPage.locator('.result-loading');
-      await expect(loadingIcon).toBeVisible({ timeout: 2000 });
-
-      await expect(loadingIcon).not.toBeVisible({ timeout: 60000 });
-
-      const hasResult = await contentPage.locator('.result-content').isVisible();
-      const hasError = await contentPage.locator('.result-error').isVisible();
-
-      expect(hasResult || hasError).toBeTruthy();
-    });
-
-    test('9. 应正确执行流式测试并支持取消', async () => {
-      const testApiKey = process.env.TEST_AI_API_KEY;
-      const testApiUrl = process.env.TEST_AI_API_URL;
-
-      if (!testApiKey || !testApiUrl) {
-        throw new Error('测试需要配置 TEST_AI_API_KEY 和 TEST_AI_API_URL 环境变量');
-      }
-
-      await saveAiConfig(contentPage, testApiKey, testApiUrl);
-
-      await contentPage.locator('button:has-text("流式测试")').click();
-
-      const cancelBtn = contentPage.locator('button:has-text("取消请求")');
-      await expect(cancelBtn).toBeVisible({ timeout: 2000 });
-
-      const loadingIcon = contentPage.locator('.result-loading');
-      await expect(loadingIcon).toBeVisible({ timeout: 2000 });
-
-      await contentPage.waitForTimeout(2000);
-      await cancelBtn.click();
-
-      await expect(cancelBtn).not.toBeVisible({ timeout: 2000 });
+    test('8. OpenAI Compatible 模式应支持自定义请求头', async () => {
+      const providerSelect = contentPage.locator('.config-section .el-select').first();
+      await providerSelect.click();
+      await contentPage.locator('.el-select-dropdown__item:has-text("OpenAI Compatible")').click();
+      await contentPage.waitForTimeout(300);
+      await contentPage.locator('button:has-text("添加请求头")').click();
+      const headerKeyInput = contentPage.locator('input[placeholder="Header Key"]');
+      const headerValueInput = contentPage.locator('input[placeholder="Header Value"]');
+      await expect(headerKeyInput).toBeVisible();
+      await expect(headerValueInput).toBeVisible();
+      await headerKeyInput.fill('X-Custom-Header');
+      await headerValueInput.fill('custom-value');
+      const deleteBtn = contentPage.locator('.header-remove');
+      await deleteBtn.click();
+      await expect(headerKeyInput).not.toBeVisible();
     });
   });
 
   test('Agent 模式应为禁用并显示敬请期待提示', async () => {
-    // 打开 AI 弹窗
     await headerPage.locator('.ai-trigger-btn').click();
     const aiDialog = contentPage.locator('.ai-dialog');
     await expect(aiDialog).toBeVisible();
-
-    // 打开模式菜单并验证第一个选项（Agent）为禁用并带有提示
     const modeTrigger = contentPage.locator('.ai-input-trigger').first();
     await modeTrigger.click();
     const firstItem = contentPage.locator('.ai-dropdown .ai-dropdown-item').nth(0);
     await expect(firstItem).toBeDisabled();
     await expect(firstItem).toHaveAttribute('title', '敬请期待');
-
-    // 关闭 AI 弹窗
     await contentPage.locator('.ai-dialog-close').click();
   });
 
@@ -264,7 +150,6 @@ test.describe('AI 功能测试', () => {
     test.describe('chatWithText 方法测试', () => {
 
       test('1. 未配置时应返回错误', async () => {
-        // 清除配置
         await contentPage.evaluate(async () => {
           await window.electronAPI?.aiManager?.updateConfig({
             apiKey: '',
@@ -373,13 +258,13 @@ test.describe('AI 功能测试', () => {
               { requestId: `test-${Date.now()}` },
               (chunk: string) => { },
               () => resolve({ success: true }),
-              (error: any) => resolve({ success: false, error })
+              (error: unknown) => resolve({ success: false, error })
             );
           });
         });
 
         expect(result).toBeTruthy();
-        expect((result as any).success).toBe(false);
+        expect((result as { success: boolean }).success).toBe(false);
       });
 
       test('2. 正确配置时应逐步返回数据', async () => {
@@ -398,12 +283,11 @@ test.describe('AI 功能测试', () => {
               () => {
                 resolve({ success: true, hasData: receivedData.length > 0 });
               },
-              (error: any) => {
+              (error: unknown) => {
                 resolve({ success: false, error });
               }
             );
 
-            // 设置超时
             setTimeout(() => {
               controller?.cancel();
               resolve({ success: false, timeout: true });
@@ -459,7 +343,7 @@ test.describe('AI 功能测试', () => {
               () => {
                 resolve({ cancelled: false, completed: true });
               },
-              (error: any) => {
+              (error: { msg?: string }) => {
                 if (error.msg?.includes('取消')) {
                   cancelled = true;
                 }
@@ -467,11 +351,9 @@ test.describe('AI 功能测试', () => {
               }
             );
 
-            // 等待一段时间后取消
             setTimeout(async () => {
               await controller?.cancel();
 
-              // 给一点时间让取消生效
               setTimeout(() => {
                 resolve({ cancelled: true, manualCancel: true });
               }, 500);
@@ -480,13 +362,13 @@ test.describe('AI 功能测试', () => {
         });
 
         expect(result).toBeTruthy();
-        expect((result as any).cancelled || (result as any).manualCancel).toBeTruthy();
+        expect((result as { cancelled?: boolean; manualCancel?: boolean }).cancelled || (result as { cancelled?: boolean; manualCancel?: boolean }).manualCancel).toBeTruthy();
       });
 
       test('2. 取消不存在的请求应不报错', async () => {
         const result = await contentPage.evaluate(async () => {
           try {
-            const aiManager = window.electronAPI?.aiManager as any;
+            const aiManager = window.electronAPI?.aiManager as { cancelStream?: (id: string) => Promise<void> };
             if (aiManager?.cancelStream) {
               await aiManager.cancelStream('non-existent-request-id');
             }
@@ -505,12 +387,10 @@ test.describe('AI 功能测试', () => {
       test('1. updateConfig 应正确更新配置', async () => {
         await configureAiWithEnv(contentPage);
 
-        // 尝试调用方法验证配置已更新
         const result = await contentPage.evaluate(async () => {
           return await window.electronAPI?.aiManager?.textChat({ prompt: '测试' });
         });
 
-        // 配置应该已经生效
         expect(result).toBeTruthy();
         expect(result).toHaveProperty('code');
       });
@@ -529,7 +409,6 @@ test.describe('AI 功能测试', () => {
       });
 
       test('3. validateConfig 应正确校验配置', async () => {
-        // 测试缺少 apiKey
         await contentPage.evaluate(async () => {
           await window.electronAPI?.aiManager?.updateConfig({
             apiKey: '',

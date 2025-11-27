@@ -6,7 +6,6 @@
 import type {GotRequestOptions } from '../request';
 import type { CommonResponse } from '../project';
 import type { StandaloneExportHtmlParams } from '../standalone';
-import type { LLRequestBody, LLResponseBody, LLMProviderSettings } from '../ai/agent.type';
 import { WebsocketConnectParams } from '../websocketNode';
 import { HttpMockNode, MockLog, MockStatusChangedPayload } from '../mockNode';
 
@@ -80,17 +79,6 @@ export type ElectronAPI = {
   };
   importManager: {
     selectFile: () => Promise<CommonResponse<{ filePath?: string }>>;
-  };
-  aiManager: {
-    updateConfig: (params: LLMProviderSettings) => Promise<void>;
-    textChat: (request: LLRequestBody) => Promise<LLResponseBody>;
-    jsonChat: (request: LLRequestBody) => Promise<LLResponseBody>;
-    textChatWithStream: (
-      params: { requestId: string; requestBody: LLRequestBody & { stream: true } },
-      onData: (chunk: string) => void,
-      onEnd: () => void,
-      onError: (error: string) => void
-    ) => { cancel: () => Promise<void>; startPromise: Promise<void> };
   };
 }
 

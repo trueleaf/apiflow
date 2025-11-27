@@ -7,7 +7,6 @@
  */
 
 import type { AnchorRect } from '@src/types/common';
-import type { LLRequestBody, LLResponseBody, LLMProviderSettings } from '../ai/agent.type';
 import type { IPC_EVENTS } from './events';
 
 /**
@@ -496,51 +495,6 @@ export interface IPCEventMap {
 
   [IPC_EVENTS.import.rendererNotifyMain.reset]: {
     request: void;
-    response: void;
-  };
-
-  // ==================== AI ====================
-
-  [IPC_EVENTS.ai.rendererToMain.updateConfig]: {
-    request: LLMProviderSettings;
-    response: void;
-  };
-
-  [IPC_EVENTS.ai.rendererToMain.textChat]: {
-    request: LLRequestBody;
-    response: LLResponseBody;
-  };
-
-  [IPC_EVENTS.ai.rendererToMain.jsonChat]: {
-    request: LLRequestBody;
-    response: LLResponseBody;
-  };
-
-  [IPC_EVENTS.ai.rendererToMain.textChatStream]: {
-    request: {
-      requestId: string;
-      requestBody: LLRequestBody;
-    };
-    response: { requestId: string };
-  };
-
-  [IPC_EVENTS.ai.rendererToMain.cancelStream]: {
-    request: string;
-    response: void;
-  };
-
-  [IPC_EVENTS.ai.mainToRenderer.streamData]: {
-    request: { requestId: string; chunk: string };
-    response: void;
-  };
-
-  [IPC_EVENTS.ai.mainToRenderer.streamEnd]: {
-    request: { requestId: string };
-    response: void;
-  };
-
-  [IPC_EVENTS.ai.mainToRenderer.streamError]: {
-    request: { requestId: string; error: string };
     response: void;
   };
 

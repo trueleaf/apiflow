@@ -13,8 +13,6 @@ import { mockManager } from '../main.ts';
 import { MockUtils } from '../mock/mockUtils.ts';
 import { HttpMockNode } from '@src/types/mockNode';
 import { mainRuntime } from '../runtime/mainRuntime.ts';
-import { globalLLMClient } from '../ai/agent.ts';
-import type { LLRequestBody, LLMProviderSettings } from '@src/types/ai/agent.type';
 import { IPCProjectData, WindowState } from '@src/types/index.ts';
 
 // 导入 IPC 事件常量
@@ -427,65 +425,6 @@ export const useIpcEvent = (mainWindow: BrowserWindow, topBarView: WebContentsVi
       console.error('重置导入状态失败:', error);
       contentView.webContents.send(IPC_EVENTS.import.mainToRenderer.error, (error as Error).message);
     }
-  });
-
-  /*
-  |---------------------------------------------------------------------------
-  | AI 配置同步
-  |---------------------------------------------------------------------------
-  */
-  /*
-  |---------------------------------------------------------------------------
-  | AI 测试请求
-  |---------------------------------------------------------------------------
-  */
-  // 更新AI配置
-  ipcMain.handle(IPC_EVENTS.ai.rendererToMain.updateConfig, async (_: IpcMainInvokeEvent, params: LLMProviderSettings) => {
-    globalLLMClient.updateConfig(params);
-  });
-
-  // AI 文本聊天
-  ipcMain.handle(IPC_EVENTS.ai.rendererToMain.textChat, async (_: IpcMainInvokeEvent, params: LLRequestBody) => {
-    return await globalLLMClient.chat(params);
-  });
-
-  // AI JSON聊天
-  ipcMain.handle(IPC_EVENTS.ai.rendererToMain.jsonChat, async (_: IpcMainInvokeEvent, params: LLRequestBody) => {
-    return await globalLLMClient.chat(params);
-  });
-
-  // AI 流式聊天
-  ipcMain.handle(IPC_EVENTS.ai.rendererToMain.textChatStream, async (_: IpcMainInvokeEvent, params: { requestId: string; requestBody: LLRequestBody }) => {
-    await globalLLMClient.chatStream(
-      params.requestId,
-      params.requestBody,
-      {
-        onData: (chunk: string) => {
-          contentView.webContents.send(IPC_EVENTS.ai.mainToRenderer.streamData, {
-            requestId: params.requestId,
-            chunk,
-          });
-        },
-        onEnd: () => {
-          contentView.webContents.send(IPC_EVENTS.ai.mainToRenderer.streamEnd, {
-            requestId: params.requestId,
-          });
-        },
-        onError: (err: Error | string) => {
-          const errorMsg = err instanceof Error ? err.message : err;
-          contentView.webContents.send(IPC_EVENTS.ai.mainToRenderer.streamError, {
-            requestId: params.requestId,
-            error: errorMsg,
-          });
-        },
-      }
-    );
-    return { requestId: params.requestId };
-  });
-
-  // 取消 AI 流式请求
-  ipcMain.handle(IPC_EVENTS.ai.rendererToMain.cancelStream, async (_: IpcMainInvokeEvent, requestId: string) => {
-    globalLLMClient.cancelStream(requestId);
   });
 
   /*

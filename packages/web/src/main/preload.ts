@@ -5,7 +5,6 @@ import { gotRequest } from './sendRequest'
 import { StandaloneExportHtmlParams } from '@src/types/standalone.ts'
 import { WindowState } from '@src/types/index.ts'
 import { IPC_EVENTS } from '@src/types/ipc'
-import { createLLMClient } from './ai/agent'
 
 const openDevTools = () => {
   ipcRenderer.send(IPC_EVENTS.window.rendererToMain.openDevTools)
@@ -193,8 +192,5 @@ contextBridge.exposeInMainWorld('electronAPI', {
   },
   importManager: {
     selectFile: importSelectFile,
-  },
-  aiManager: {
-    createLLMClient: createLLMClient,
   }
 })

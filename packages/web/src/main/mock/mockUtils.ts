@@ -1,5 +1,4 @@
 import { HttpMockNode, MockSSEEventData } from '@src/types/mockNode';
-import { mainConfig } from '@src/config/mainConfig';
 import { globalLLMClient } from '../ai/agent';
 import { fakerZH_CN, fakerEN, fakerJA } from '@faker-js/faker';
 import sharp from 'sharp';
@@ -830,7 +829,7 @@ export class MockUtils {
                   content: prompt
                 }
               ],
-              max_tokens: mainConfig.aiConfig.maxTokens,
+              max_tokens: 2000,
               response_format: { type: 'json_object' }
             });
             const aiJsonText = aiResult.choices?.[0]?.message?.content || '';

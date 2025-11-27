@@ -105,7 +105,7 @@ import SJsonEditor from '@/components/common/jsonEditor/ClJsonEditor.vue'
 import { appState } from '@/cache/appState/appStateCache'
 import type { HttpMockNode } from '@src/types'
 import { mainConfig } from '@src/config/mainConfig'
-import type { LLRequestBody, LLResponseBody } from '@src/types/ai/agent.type'
+import type { OpenAiRequestBody, OpenAiResponseBody } from '@src/types/ai/agent.type'
 import { message } from '@/helper'
 
 type ResponseItem = HttpMockNode['response'][0]
@@ -121,7 +121,7 @@ const showRandomSizeHint = ref(true)
 const aiGenerating = ref(false)
 const aiPreviewJson = ref('')
 
-const getMessageContent = (response: LLResponseBody | null): string => {
+const getMessageContent = (response: OpenAiResponseBody | null): string => {
   if (!response) {
     return ''
   }
@@ -150,7 +150,7 @@ const handleGeneratePreview = async () => {
   aiPreviewJson.value = ''
   try {
     const maxTokens = mainConfig.aiConfig.maxTokens ?? 2000
-    const requestBody: LLRequestBody = {
+    const requestBody: OpenAiRequestBody = {
       model: 'deepseek-chat',
       messages: [
         {

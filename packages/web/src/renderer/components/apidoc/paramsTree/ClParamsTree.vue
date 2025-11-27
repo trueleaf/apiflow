@@ -278,7 +278,7 @@ import { config } from '@src/config/config';
 import ClRichInput from '@/components/ui/cleanDesign/richInput/ClRichInput.vue';
 import type { ClParamsTreeProps, ClParamsTreeEmits } from '@src/types/components/components';
 import { aiCache } from '@/cache/ai/aiCache';
-import type { LLRequestBody } from '@src/types/ai/agent.type';
+import type { OpenAiRequestBody } from '@src/types/ai/agent.type';
 import { useRouter } from 'vue-router';
 import { appState } from '@/cache/appState/appStateCache';
 import { useVariable } from '@/store/apidoc/variablesStore';
@@ -889,7 +889,7 @@ const handleAiParse = async () => {
   aiParsing.value = true;
   parseError.value = '';
   try {
-    const requestBody: LLRequestBody = {
+    const requestBody: OpenAiRequestBody = {
       model: 'deepseek-chat',
       messages: [
         {

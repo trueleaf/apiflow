@@ -5,7 +5,6 @@
 
 import type { ComponentSize } from "element-plus";
 import { HttpNodeConfig } from "../index.ts";
-import { AIAgent, BuiltInProvider, BuiltInProviderConfig } from "../ai/agent.type.ts";
 
 export type AppTheme = 'light' | 'dark' | 'auto';
 

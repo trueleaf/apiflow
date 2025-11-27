@@ -280,35 +280,6 @@ export const IPC_EVENTS = {
   },
 
   /**
-   * AI 功能事件
-   */
-  ai: {
-    /** 渲染进程 -> 主进程 */
-    rendererToMain: {
-      /** 更新AI配置 */
-      updateConfig: 'ai:renderer:to:main:update-config',
-      /** 文本聊天 */
-      textChat: 'ai:renderer:to:main:text-chat',
-      /** JSON聊天 */
-      jsonChat: 'ai:renderer:to:main:json-chat',
-      /** 流式文本聊天 */
-      textChatStream: 'ai:renderer:to:main:text-chat-stream',
-      /** 取消流式输出 */
-      cancelStream: 'ai:renderer:to:main:cancel-stream',
-    },
-
-    /** 主进程 -> 渲染进程 (流式响应) */
-    mainToRenderer: {
-      /** 流式数据 */
-      streamData: 'ai:main:to:renderer:stream-data',
-      /** 流式结束 */
-      streamEnd: 'ai:main:to:renderer:stream-end',
-      /** 流式错误 */
-      streamError: 'ai:main:to:renderer:stream-error',
-    },
-  },
-
-  /**
    * 工具类事件
    */
   util: {

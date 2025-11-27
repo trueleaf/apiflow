@@ -69,7 +69,7 @@ import { apiNodesCache } from '@/cache/nodes/nodesCache';
 import { nanoid } from 'nanoid';
 import { useRuntime } from '@/store/runtime/runtimeStore';
 import CodeEditor from '@/components/ui/cleanDesign/codeEditor/CodeEditor.vue';
-import type { LLRequestBody } from '@src/types/ai/agent.type';
+import type { OpenAiRequestBody } from '@src/types/ai/agent.type';
 import type { HttpNode, WebSocketNode, HttpMockNode } from '@src/types';
 import { ArrowRight } from 'lucide-vue-next';
 import { aiCache } from '@/cache/ai/aiCache';
@@ -161,7 +161,7 @@ watch(() => props.modelValue, (newVal) => {
 */
 const callAiToGenerateNodeData = async (nodeType: 'http' | 'websocket' | 'httpMock', userPrompt: string) => {
   const systemPrompt = buildAiSystemPromptForNode(nodeType)
-  const requestBody: LLRequestBody = {
+  const requestBody: OpenAiRequestBody = {
     model: 'deepseek-chat',
     messages: [
       {

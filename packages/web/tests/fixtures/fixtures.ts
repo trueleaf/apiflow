@@ -323,14 +323,12 @@ export const navigateToAiSettings = async (
   await contentPage.locator('.tab-item:has-text("AI 设置")').click();
   await contentPage.waitForTimeout(1000);
 };
-// 保存AI配置（通过UI操作）
+// 保存AI配置（通过UI操作，仅适用于 DeepSeek 模式）
 export const saveAiConfig = async (
   contentPage: Page,
-  apiKey: string,
-  apiUrl: string
+  apiKey: string
 ): Promise<void> => {
   await contentPage.locator('input[placeholder="请输入 DeepSeek API Key"]').fill(apiKey);
-  await contentPage.locator('input[placeholder="请输入 API 地址"]').fill(apiUrl);
   await contentPage.locator('button:has-text("保存配置")').click();
   await contentPage.waitForTimeout(500);
 };

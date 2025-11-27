@@ -4,11 +4,27 @@
 | openai格式消息、请求参数、消息体
 |--------------------------------------------------------------------------
 */
+export type CustomHeader = {
+  key: string;
+  value: string;
+}
+export type LLMProviderType = 'DeepSeek' | 'OpenAICompatible';
+export type DeepSeekModel = 'deepseek-chat' | 'deepseek-reasoner';
+export type LLMProviderSettings = {
+  id: string;
+  name: string;
+  provider: LLMProviderType;
+  apiKey: string;
+  baseURL: string;
+  model: string;
+  customHeaders: CustomHeader[];
+}
+
 export interface LLMessage {
   role: 'system' | 'user' | 'assistant' | 'tool';
   content: string;
 }
-export interface LLRequestBody {
+export interface OpenAiRequestBody {
   model: string;
   messages: LLMessage[];
   max_tokens?: number;
@@ -30,7 +46,7 @@ export interface LLRequestBody {
     type: 'json_object' | 'text';
   };
 }
-export interface LLResponseBody {
+export interface OpenAiResponseBody {
   id: string;
   object: string;
   created: number;
@@ -42,7 +58,7 @@ export interface LLResponseBody {
     finish_reason: string | null;
   }>;
 }
-export interface LLStreamChunk {
+export interface OpenAiStreamChunk {
   id?: string;
   model?: string;
   choices: Array<{
@@ -59,16 +75,6 @@ export interface LLStreamChunk {
 | 大模型统一配置类型
 |--------------------------------------------------------------------------
 */
-export type LLMProviderSettings = {
-  id: string;
-  name: string;
-  provider: 'deepseek' | 'openai';
-  apiKey: string;
-  baseURL: string;
-  model: string;
-}
-
-
 export type PromptItem = {
   /**
    * 提示词应用场景描述

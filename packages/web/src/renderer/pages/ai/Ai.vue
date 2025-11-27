@@ -184,7 +184,7 @@ import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { X, Bot, Send, ChevronDown, Check, AlertTriangle, ArrowRight, Plus, History, Settings, LoaderCircle } from 'lucide-vue-next'
 import { nanoid } from 'nanoid/non-secure'
-import type { LLRequestBody, LLMessage } from '@src/types/ai/agent.type'
+import type { OpenAiRequestBody, LLMessage } from '@src/types/ai/agent.type'
 import type { AskMessage, TextResponseMessage, LoadingMessage } from '@src/types/ai'
 import { IPC_EVENTS } from '@src/types/ipc'
 import { config } from '@src/config/config'
@@ -267,7 +267,7 @@ watch(() => copilotStore.copilotMessageList.length, () => {
   scrollToBottom()
 })
 
-const buildOpenAIRequestBody = (userMessage: string): LLRequestBody & { stream: true } => {
+const buildOpenAIRequestBody = (userMessage: string): OpenAiRequestBody & { stream: true } => {
   const messages: LLMessage[] = []
   const recentMessages = copilotStore.getLatestMessages(10)
 
