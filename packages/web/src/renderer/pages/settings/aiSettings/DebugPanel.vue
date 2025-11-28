@@ -7,10 +7,29 @@
       </div>
     </div>
     <div class="panel-body">
+      <div v-if="requestBody" class="request-area">
+        <div class="request-header">
+          <span class="request-title">
+            {{ $t('发送配置') }}
+          </span>
+        </div>
+        <div class="request-content">
+          <pre class="request-json">{{ formattedRequestBody }}</pre>
+        </div>
+      </div>
+      <div v-if="reasoningContent" class="reasoning-area">
+        <div class="reasoning-header">
+          <span class="reasoning-title">
+            {{ $t('思考过程') }}
+          </span>
+        </div>
+        <div class="reasoning-content">
+          <VueMarkdownRender :source="reasoningContent" :options="markdownOptions" />
+        </div>
+      </div>
       <div class="response-area">
         <div class="response-header">
           <span class="response-title">
-            <MessageSquare :size="16" />
             {{ $t('响应结果') }}
           </span>
           <span v-if="responseTime" class="response-time">
@@ -19,7 +38,6 @@
         </div>
         <div class="response-content" :class="{ 'has-error': hasError }">
           <div v-if="isLoading && !isStreaming" class="response-loading">
-            <Loader2 :size="24" class="loading-icon" />
             <span>{{ $t('正在请求...') }}</span>
           </div>
           <div v-else-if="responseContent && useMarkdown" class="response-markdown">
@@ -38,17 +56,24 @@
 </template>
 
 <script setup lang="ts">
-import { MessageSquare, Loader2 } from 'lucide-vue-next'
+import { computed } from 'vue'
 import VueMarkdownRender from 'vue-markdown-render'
+import type { OpenAiRequestBody } from '@src/types/ai/agent.type'
 
-defineProps<{
+const props = defineProps<{
   responseContent: string
+  reasoningContent: string
   isLoading: boolean
   isStreaming: boolean
   hasError: boolean
   responseTime: number | null
   useMarkdown: boolean
+  requestBody: OpenAiRequestBody | null
 }>()
+const formattedRequestBody = computed(() => {
+  if (!props.requestBody) return ''
+  return JSON.stringify(props.requestBody, null, 2)
+})
 
 const markdownOptions = {
   html: false,
@@ -91,6 +116,87 @@ const markdownOptions = {
   overflow: hidden;
   display: flex;
   flex-direction: column;
+  gap: 16px;
+}
+
+.request-area {
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  max-height: 200px;
+}
+
+.request-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.request-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.request-content {
+  flex: 1;
+  padding: 12px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-light);
+  border-radius: 8px;
+  overflow: auto;
+}
+
+.request-json {
+  margin: 0;
+  font-size: 12px;
+  font-family: 'Consolas', 'Monaco', monospace;
+  color: var(--text-primary);
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.reasoning-area {
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  max-height: 200px;
+}
+
+.reasoning-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.reasoning-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.reasoning-content {
+  flex: 1;
+  padding: 12px;
+  background: var(--el-color-warning-light-9);
+  border: 1px solid var(--el-color-warning-light-5);
+  border-radius: 8px;
+  overflow: auto;
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--text-primary);
+
+  :deep(p) {
+    margin: 0 0 8px;
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
 }
 
 .response-area {
@@ -148,10 +254,6 @@ const markdownOptions = {
   color: var(--text-tertiary);
 }
 
-.loading-icon {
-  animation: spin 1s linear infinite;
-}
-
 .response-text {
   white-space: pre-wrap;
   word-break: break-word;
@@ -202,14 +304,5 @@ const markdownOptions = {
   justify-content: center;
   height: 100%;
   color: var(--text-tertiary);
-}
-
-@keyframes spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
 }
 </style>

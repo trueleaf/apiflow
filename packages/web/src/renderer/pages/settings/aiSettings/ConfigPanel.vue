@@ -11,7 +11,6 @@
         <div class="form-grid">
           <div class="form-item full-row">
             <div class="form-label">
-              <Cloud :size="18" class="label-icon" />
               {{ $t('API Provider') }}
             </div>
             <el-select v-model="providerType" class="form-input" @change="handleProviderChange">
@@ -23,20 +22,19 @@
           <template v-if="providerType === 'DeepSeek'">
             <div class="form-item">
               <div class="form-label">
-                <Key :size="18" class="label-icon" />
                 {{ $t('API Key') }}
               </div>
               <el-input v-model="localApiKey" :type="showApiKey ? 'text' : 'password'"
                 :placeholder="$t('请输入 DeepSeek API Key')" clearable class="form-input">
                 <template #suffix>
-                  <component :is="showApiKey ? EyeOff : Eye" :size="16" class="password-toggle"
-                    @click="showApiKey = !showApiKey" />
+                  <span class="password-toggle" @click="showApiKey = !showApiKey">
+                    {{ showApiKey ? $t('隐藏') : $t('显示') }}
+                  </span>
                 </template>
               </el-input>
             </div>
             <div class="form-item">
               <div class="form-label">
-                <Bot :size="18" class="label-icon" />
                 {{ $t('Model') }}
               </div>
               <el-select v-model="localModel" class="form-input">
@@ -49,27 +47,25 @@
           <template v-else>
             <div class="form-item full-row">
               <div class="form-label">
-                <Link :size="18" class="label-icon" />
                 {{ $t('Base URL') }}
               </div>
               <el-input v-model="localBaseURL" :placeholder="$t('请输入 API Base URL')" clearable class="form-input" />
             </div>
             <div class="form-item">
               <div class="form-label">
-                <Key :size="18" class="label-icon" />
                 {{ $t('API Key') }}
               </div>
               <el-input v-model="localApiKey" :type="showApiKey ? 'text' : 'password'" :placeholder="$t('请输入 API Key')"
                 clearable class="form-input">
                 <template #suffix>
-                  <component :is="showApiKey ? EyeOff : Eye" :size="16" class="password-toggle"
-                    @click="showApiKey = !showApiKey" />
+                  <span class="password-toggle" @click="showApiKey = !showApiKey">
+                    {{ showApiKey ? $t('隐藏') : $t('显示') }}
+                  </span>
                 </template>
               </el-input>
             </div>
             <div class="form-item">
               <div class="form-label">
-                <Bot :size="18" class="label-icon" />
                 {{ $t('Model ID') }}
               </div>
               <el-input v-model="localModel" :placeholder="$t('请输入模型 ID')" clearable class="form-input" />
@@ -77,7 +73,6 @@
 
             <div class="form-item full-row">
               <div class="form-label">
-                <FileCode :size="18" class="label-icon" />
                 {{ $t('Custom Headers') }}
                 <span class="label-hint">{{ $t('(可选)') }}</span>
               </div>
@@ -86,11 +81,10 @@
                   <el-input v-model="header.key" :placeholder="$t('Header Key')" class="header-key" />
                   <el-input v-model="header.value" :placeholder="$t('Header Value')" class="header-value" />
                   <el-button type="danger" text class="header-remove" @click="removeHeader(index)">
-                    <Trash2 :size="16" />
+                    {{ $t('删除') }}
                   </el-button>
                 </div>
                 <el-button type="primary" text class="add-header-btn" @click="addHeader">
-                  <Plus :size="16" />
                   {{ $t('添加请求头') }}
                 </el-button>
               </div>
@@ -118,7 +112,6 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted, watch } from 'vue'
-import { Cloud, Key, Bot, Link, FileCode, Eye, EyeOff, Trash2, Plus } from 'lucide-vue-next'
 import { useI18n } from 'vue-i18n'
 import { useDebounceFn } from '@vueuse/core'
 import { useLLMProvider } from '@/store/ai/llmProviderStore'
@@ -269,11 +262,6 @@ onMounted(() => {
   display: flex;
   align-items: center;
   gap: 8px;
-
-  .label-icon {
-    color: var(--text-primary);
-    flex-shrink: 0;
-  }
 
   .label-hint {
     color: var(--text-tertiary);

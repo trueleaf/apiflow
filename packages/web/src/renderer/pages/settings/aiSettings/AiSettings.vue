@@ -16,11 +16,13 @@
       <div class="debug-section">
         <DebugPanel
           :response-content="responseContent"
+          :reasoning-content="reasoningContent"
           :is-loading="isLoading"
           :is-streaming="isStreaming"
           :has-error="hasError"
           :response-time="responseTime"
           :use-markdown="useMarkdown"
+          :request-body="requestBody"
         />
       </div>
     </div>
@@ -35,17 +37,20 @@ import DebugPanel from './DebugPanel.vue'
 import { useLLMProvider } from '@/store/ai/llmProviderStore'
 import { useAiChatStore } from '@/store/ai/aiChatStore'
 import { message } from '@/helper'
+import type { OpenAiRequestBody } from '@src/types/ai/agent.type'
 
 const { t } = useI18n()
 const llmProviderStore = useLLMProvider()
 const aiChatStore = useAiChatStore()
 
 const responseContent = ref('')
+const reasoningContent = ref('')
 const isLoading = ref(false)
 const isStreaming = ref(false)
 const hasError = ref(false)
 const responseTime = ref<number | null>(null)
 const useMarkdown = ref(false)
+const requestBody = ref<OpenAiRequestBody | null>(null)
 let cancelStreamFn: { abort: () => void } | null = null
 // 判断配置是否有效
 const isConfigValid = computed(() => {
@@ -62,14 +67,17 @@ const handleSend = async () => {
   hasError.value = false
   useMarkdown.value = false
   responseContent.value = ''
+  reasoningContent.value = ''
   responseTime.value = null
+  const body: OpenAiRequestBody = {
+    model: llmProviderStore.activeProvider.model,
+    messages: [{ role: 'user', content: t('你的模型') }],
+    max_tokens: 1000,
+  }
+  requestBody.value = body
   const startTime = Date.now()
   try {
-    const response = await aiChatStore.chat({
-      model: llmProviderStore.activeProvider.model,
-      messages: [{ role: 'user', content: t('你的模型') }],
-      max_tokens: 1000,
-    })
+    const response = await aiChatStore.chat(body)
     responseTime.value = Date.now() - startTime
     responseContent.value = response.choices?.[0]?.message?.content || t('无响应内容')
   } catch (error) {
@@ -91,15 +99,18 @@ const handleStreamSend = () => {
   hasError.value = false
   useMarkdown.value = true
   responseContent.value = ''
+  reasoningContent.value = ''
   responseTime.value = null
+  const body: OpenAiRequestBody = {
+    model: llmProviderStore.activeProvider.model,
+    messages: [{ role: 'user', content: t('你的模型') }],
+    max_tokens: 1000,
+  }
+  requestBody.value = body
   const startTime = Date.now()
   const decoder = new TextDecoder()
   cancelStreamFn = aiChatStore.chatStream(
-    {
-      model: llmProviderStore.activeProvider.model,
-      messages: [{ role: 'user', content: t('你的模型') }],
-      max_tokens: 1000,
-    },
+    body,
     {
       onData: (chunk: Uint8Array) => {
         const text = decoder.decode(chunk, { stream: true })
@@ -111,6 +122,10 @@ const handleStreamSend = () => {
             try {
               const parsed = JSON.parse(data)
               const content = parsed.choices?.[0]?.delta?.content
+              const reasoning = parsed.choices?.[0]?.delta?.reasoning_content
+              if (reasoning) {
+                reasoningContent.value += reasoning
+              }
               if (content) {
                 responseContent.value += content
               }
