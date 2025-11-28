@@ -619,7 +619,7 @@ body {
 }
 
 .ai-trigger-btn {
-  padding: 0 12px;
+  padding: 0 8px;
   height: 24px;
   border: none;
   background: transparent;
@@ -627,7 +627,7 @@ body {
   cursor: pointer;
   display: flex;
   align-items: center;
-  gap: 6px;
+  // gap: 6px;
   font-size: 12px;
   transition: all 0.2s;
   -webkit-app-region: no-drag;
@@ -649,7 +649,7 @@ body {
   height: 100%;
   display: flex;
   align-items: center;
-  width: 435px;
+  width: 415px;
   margin-left: auto;
 }
 

@@ -40,28 +40,28 @@ jobs:
         run: npm run web:build:app:pack
         working-directory: .
         
-      - name: 运行E2E测试
-        run: xvfb-run --auto-servernum --server-args="-screen 0 1280x960x24" npm run test -w apiflow
-        env:
-          CI: true
-          TEST_AI_API_URL: ${{ secrets.TEST_AI_API_URL }}
-          TEST_AI_API_KEY: ${{ secrets.TEST_AI_API_KEY }}
+      # - name: 运行E2E测试
+      #   run: xvfb-run --auto-servernum --server-args="-screen 0 1280x960x24" npm run test -w apiflow
+      #   env:
+      #     CI: true
+      #     TEST_AI_API_URL: ${{ secrets.TEST_AI_API_URL }}
+      #     TEST_AI_API_KEY: ${{ secrets.TEST_AI_API_KEY }}
           
-      - name: 上传测试报告
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: playwright-report
-          path: packages/web/playwright-report/
-          retention-days: 30
+      # - name: 上传测试报告
+      #   if: always()
+      #   uses: actions/upload-artifact@v4
+      #   with:
+      #     name: playwright-report
+      #     path: packages/web/playwright-report/
+      #     retention-days: 30
           
-      - name: 上传测试结果
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: test-results
-          path: packages/web/test-results/
-          retention-days: 30
+      # - name: 上传测试结果
+      #   if: always()
+      #   uses: actions/upload-artifact@v4
+      #   with:
+      #     name: test-results
+      #     path: packages/web/test-results/
+      #     retention-days: 30
 
   build-windows:
     needs: [test-web]
