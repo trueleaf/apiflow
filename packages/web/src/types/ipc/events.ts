@@ -290,6 +290,43 @@ export const IPC_EVENTS = {
     },
   },
 
+  /**
+   * 应用更新事件
+   */
+  updater: {
+    /** 渲染进程 -> 主进程 */
+    rendererToMain: {
+      /** 检查更新 */
+      checkUpdate: 'updater:renderer:to:main:check-update',
+      /** 下载更新 */
+      downloadUpdate: 'updater:renderer:to:main:download-update',
+      /** 取消下载 */
+      cancelDownload: 'updater:renderer:to:main:cancel-download',
+      /** 安装更新并重启 */
+      quitAndInstall: 'updater:renderer:to:main:quit-and-install',
+      /** 获取更新状态 */
+      getUpdateStatus: 'updater:renderer:to:main:get-update-status',
+      /** 启用/禁用自动检查 */
+      toggleAutoCheck: 'updater:renderer:to:main:toggle-auto-check',
+    },
+
+    /** 主进程 -> 渲染进程 (事件通知) */
+    mainToRenderer: {
+      /** 检查更新中 */
+      checking: 'updater:main:to:renderer:checking',
+      /** 发现新版本 */
+      updateAvailable: 'updater:main:to:renderer:update-available',
+      /** 当前已是最新版本 */
+      updateNotAvailable: 'updater:main:to:renderer:update-not-available',
+      /** 下载进度 */
+      downloadProgress: 'updater:main:to:renderer:download-progress',
+      /** 下载完成 */
+      downloadCompleted: 'updater:main:to:renderer:download-completed',
+      /** 发生错误 */
+      error: 'updater:main:to:renderer:error',
+    },
+  },
+
 } as const;
 
 /**

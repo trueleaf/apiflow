@@ -9,7 +9,7 @@ import { getWindowState, execCodeInContext } from '../utils/index.ts';
 import type { RuntimeNetworkMode } from '@src/types/runtime';
 import type { AnchorRect } from '@src/types/common';
 
-import { mockManager } from '../main.ts';
+import { mockManager, updateManager } from '../main.ts';
 import { MockUtils } from '../mock/mockUtils.ts';
 import { HttpMockNode } from '@src/types/mockNode';
 import { mainRuntime } from '../runtime/mainRuntime.ts';
@@ -436,6 +436,43 @@ export const useIpcEvent = (mainWindow: BrowserWindow, topBarView: WebContentsVi
   ipcMain.handle(IPC_EVENTS.util.rendererToMain.execCode, async (_: IpcMainInvokeEvent, params: { code: string; variables: Record<string, any> }) => {
     return execCodeInContext(params.code, params.variables);
   });
+
+  /*
+  |---------------------------------------------------------------------------
+  | 更新管理相关
+  |---------------------------------------------------------------------------
+  */
+  if (updateManager) {
+    // 检查更新
+    ipcMain.handle(IPC_EVENTS.updater.rendererToMain.checkUpdate, async () => {
+      return await updateManager!.checkForUpdates();
+    });
+    // 下载更新
+    ipcMain.handle(IPC_EVENTS.updater.rendererToMain.downloadUpdate, async () => {
+      return await updateManager!.downloadUpdate();
+    });
+    // 取消下载
+    ipcMain.handle(IPC_EVENTS.updater.rendererToMain.cancelDownload, async () => {
+      return updateManager!.cancelDownload();
+    });
+    // 安装更新并重启
+    ipcMain.on(IPC_EVENTS.updater.rendererToMain.quitAndInstall, () => {
+      updateManager!.quitAndInstall();
+    });
+    // 获取更新状态
+    ipcMain.handle(IPC_EVENTS.updater.rendererToMain.getUpdateStatus, async () => {
+      return updateManager!.getUpdateStatus();
+    });
+    // 切换自动检查
+    ipcMain.handle(IPC_EVENTS.updater.rendererToMain.toggleAutoCheck, async (_: IpcMainInvokeEvent, params: { enabled: boolean }) => {
+      if (params.enabled) {
+        updateManager!.startAutoCheck();
+      } else {
+        updateManager!.stopAutoCheck();
+      }
+      return { success: true };
+    });
+  }
 
   /*
   |---------------------------------------------------------------------------

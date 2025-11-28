@@ -8,6 +8,7 @@ import { bindMainProcessGlobalShortCut } from './shortcut/index.ts';
 import { overrideBrowserWindow } from './override/index.ts';
 import { WebSocketManager } from './websocket/websocket.ts';
 import { HttpMockManager } from './mock/httpMock/httpMockManager.ts';
+import { UpdateManager } from './updater/index.ts';
 import { mainConfig } from '@src/config/mainConfig';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -26,8 +27,9 @@ protocol.registerSchemesAsPrivileged([
 ]);
 
 // 创建全局实例
-export const mockManager = new HttpMockManager();
-export const webSocketManager = new WebSocketManager();
+export let mockManager = new HttpMockManager();
+export let webSocketManager = new WebSocketManager();
+export let updateManager: UpdateManager | null = null;
 
 // 导出 contentView 供其他模块使用
 export let contentViewInstance: WebContentsView | null = null;
@@ -179,7 +181,13 @@ if (!gotTheLock) {
     mainWindowInstance = mainWindow;
     // 保存 contentView 引用供其他模块使用
     contentViewInstance = contentView;
-    
+
+    // 初始化更新管理器（仅在生产环境且启用自动更新时）
+    if (app.isPackaged && mainConfig.updateConfig.autoUpdate) {
+      updateManager = new UpdateManager();
+      updateManager.init(contentView);
+    }
+
     const { broadcastWindowState } = useIpcEvent(mainWindow, topBarView, contentView);
     bindMainProcessGlobalShortCut(mainWindow, topBarView, contentView);
     // 窗口状态变化时的视图布局调整
@@ -207,6 +215,13 @@ if (!gotTheLock) {
     console.error('Error during app initialization:', error);
   });
 }
+
+// 应用退出前安装更新
+app.on('before-quit', () => {
+  if (updateManager?.hasDownloadedUpdate()) {
+    updateManager.quitAndInstall();
+  }
+});
 
 app.on('window-all-closed', () => {
   // 清理WebSocket连接

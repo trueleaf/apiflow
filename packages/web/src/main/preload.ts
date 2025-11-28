@@ -155,6 +155,44 @@ const importSelectFile = () => {
   return ipcRenderer.invoke(IPC_EVENTS.import.rendererToMain.selectFile)
 }
 
+// 更新管理相关方法
+const checkForUpdates = async () => {
+  return ipcRenderer.invoke(IPC_EVENTS.updater.rendererToMain.checkUpdate);
+}
+const downloadUpdate = async () => {
+  return ipcRenderer.invoke(IPC_EVENTS.updater.rendererToMain.downloadUpdate);
+}
+const cancelDownload = async () => {
+  return ipcRenderer.invoke(IPC_EVENTS.updater.rendererToMain.cancelDownload);
+}
+const quitAndInstall = () => {
+  ipcRenderer.send(IPC_EVENTS.updater.rendererToMain.quitAndInstall);
+}
+const getUpdateStatus = async () => {
+  return ipcRenderer.invoke(IPC_EVENTS.updater.rendererToMain.getUpdateStatus);
+}
+const toggleAutoCheck = async (enabled: boolean) => {
+  return ipcRenderer.invoke(IPC_EVENTS.updater.rendererToMain.toggleAutoCheck, { enabled });
+}
+const onUpdateChecking = (callback: () => void) => {
+  ipcRenderer.on(IPC_EVENTS.updater.mainToRenderer.checking, () => callback());
+}
+const onUpdateAvailable = (callback: (info: unknown) => void) => {
+  ipcRenderer.on(IPC_EVENTS.updater.mainToRenderer.updateAvailable, (_event, info) => callback(info));
+}
+const onUpdateNotAvailable = (callback: () => void) => {
+  ipcRenderer.on(IPC_EVENTS.updater.mainToRenderer.updateNotAvailable, () => callback());
+}
+const onDownloadProgress = (callback: (progress: unknown) => void) => {
+  ipcRenderer.on(IPC_EVENTS.updater.mainToRenderer.downloadProgress, (_event, progress) => callback(progress));
+}
+const onDownloadCompleted = (callback: (info: unknown) => void) => {
+  ipcRenderer.on(IPC_EVENTS.updater.mainToRenderer.downloadCompleted, (_event, info) => callback(info));
+}
+const onUpdateError = (callback: (error: unknown) => void) => {
+  ipcRenderer.on(IPC_EVENTS.updater.mainToRenderer.error, (_event, error) => callback(error));
+}
+
 contextBridge.exposeInMainWorld('electronAPI', {
   ip: ip.address(),
   sendRequest: gotRequest,
@@ -213,5 +251,19 @@ contextBridge.exposeInMainWorld('electronAPI', {
     updateConfig: aiUpdateConfig,
     chat: aiChat,
     chatStream: aiChatStream,
+  },
+  updater: {
+    checkForUpdates,
+    downloadUpdate,
+    cancelDownload,
+    quitAndInstall,
+    getUpdateStatus,
+    toggleAutoCheck,
+    onUpdateChecking,
+    onUpdateAvailable,
+    onUpdateNotAvailable,
+    onDownloadProgress,
+    onDownloadCompleted,
+    onUpdateError,
   }
 })

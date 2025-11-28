@@ -504,6 +504,102 @@ export interface IPCEventMap {
     request: { code: string; context?: Record<string, any> };
     response: { result: any; error?: string };
   };
+
+  // ==================== UPDATER ====================
+
+  [IPC_EVENTS.updater.rendererToMain.checkUpdate]: {
+    request: void;
+    response: {
+      success: boolean;
+      hasUpdate: boolean;
+      currentVersion: string;
+      newVersion?: string;
+      releaseNotes?: string;
+      releaseDate?: string;
+      error?: string;
+    };
+  };
+
+  [IPC_EVENTS.updater.rendererToMain.downloadUpdate]: {
+    request: void;
+    response: {
+      success: boolean;
+      message?: string;
+      error?: string;
+    };
+  };
+
+  [IPC_EVENTS.updater.rendererToMain.cancelDownload]: {
+    request: void;
+    response: { success: boolean };
+  };
+
+  [IPC_EVENTS.updater.rendererToMain.quitAndInstall]: {
+    request: void;
+    response: void;
+  };
+
+  [IPC_EVENTS.updater.rendererToMain.getUpdateStatus]: {
+    request: void;
+    response: {
+      checking: boolean;
+      downloading: boolean;
+      downloaded: boolean;
+      currentVersion: string;
+      newVersion: string | null;
+      downloadProgress: number;
+    };
+  };
+
+  [IPC_EVENTS.updater.rendererToMain.toggleAutoCheck]: {
+    request: { enabled: boolean };
+    response: { success: boolean };
+  };
+
+  [IPC_EVENTS.updater.mainToRenderer.checking]: {
+    request: void;
+    response: void;
+  };
+
+  [IPC_EVENTS.updater.mainToRenderer.updateAvailable]: {
+    request: {
+      version: string;
+      releaseDate: string;
+      releaseNotes: string;
+    };
+    response: void;
+  };
+
+  [IPC_EVENTS.updater.mainToRenderer.updateNotAvailable]: {
+    request: void;
+    response: void;
+  };
+
+  [IPC_EVENTS.updater.mainToRenderer.downloadProgress]: {
+    request: {
+      percent: number;
+      bytesPerSecond: number;
+      transferred: number;
+      total: number;
+    };
+    response: void;
+  };
+
+  [IPC_EVENTS.updater.mainToRenderer.downloadCompleted]: {
+    request: {
+      version: string;
+      downloadedAt: number;
+    };
+    response: void;
+  };
+
+  [IPC_EVENTS.updater.mainToRenderer.error]: {
+    request: {
+      message: string;
+      code?: string;
+    };
+    response: void;
+  };
 }
 
 /**
