@@ -22,8 +22,11 @@
           <span class="reasoning-title">
             {{ $t('思考过程') }}
           </span>
+          <button class="reasoning-toggle" @click="toggleReasoning" :aria-expanded="!isReasoningCollapsed">
+            {{ isReasoningCollapsed ? $t('显示') : $t('隐藏') }}
+          </button>
         </div>
-        <div class="reasoning-content">
+        <div class="reasoning-content" :class="{ collapsed: isReasoningCollapsed }" v-show="!isReasoningCollapsed">
           <VueMarkdownRender :source="reasoningContent" :options="markdownOptions" />
         </div>
       </div>
@@ -56,7 +59,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref, watch } from 'vue'
 import VueMarkdownRender from 'vue-markdown-render'
 import type { OpenAiRequestBody } from '@src/types/ai/agent.type'
 
@@ -79,6 +82,27 @@ const markdownOptions = {
   html: false,
   breaks: true,
   linkify: true
+}
+const isReasoningCollapsed = ref(true)
+watch(() => props.isStreaming, (val) => {
+  // 当流式开始，且已有思考内容时自动展开
+  if (val && props.reasoningContent) {
+    isReasoningCollapsed.value = false
+    return
+  }
+  // 当流式结束，折叠思考过程
+  if (!val && props.reasoningContent) {
+    isReasoningCollapsed.value = true
+  }
+})
+watch(() => props.reasoningContent, (val) => {
+  // 当在流式过程中收到思考内容时自动展开
+  if (props.isStreaming && val) {
+    isReasoningCollapsed.value = false
+  }
+})
+const toggleReasoning = () => {
+  isReasoningCollapsed.value = !isReasoningCollapsed.value
 }
 </script>
 
@@ -197,6 +221,21 @@ const markdownOptions = {
       margin-bottom: 0;
     }
   }
+}
+.reasoning-content.collapsed {
+  max-height: 0;
+  padding: 0;
+  overflow: hidden;
+}
+
+.reasoning-toggle {
+  margin-left: auto;
+  background: transparent;
+  border: none;
+  color: var(--text-primary);
+  cursor: pointer;
+  font-size: 13px;
+  padding: 2px 8px;
 }
 
 .response-area {
