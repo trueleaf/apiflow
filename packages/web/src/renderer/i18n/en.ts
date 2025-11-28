@@ -947,6 +947,7 @@ export default {
   '更换Logo': 'Change Logo',
   '重置为默认': 'Reset to Default',
   '离线模式不可用': 'Unavailable in offline mode',
+  '互联网模式提示': 'You are currently in Internet mode; some features may be unstable and internet-mode data cannot be synchronized with offline mode for now. Stay tuned!',
   '图片上传成功': 'Image uploaded successfully',
   '图片上传失败': 'Image upload failed',
   'Logo已更新': 'Logo updated successfully',

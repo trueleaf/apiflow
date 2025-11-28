@@ -1,4 +1,5 @@
 <template>
+  <NetworkModeBanner />
   <router-view></router-view>
   <AddProjectDialog v-if="dialogVisible" v-model="dialogVisible" @success="handleAddSuccess"></AddProjectDialog>
   <Ai v-if="copilotDialogVisible" v-model:visible="copilotDialogVisible" />
@@ -26,6 +27,7 @@ import { ElMessageBox } from 'element-plus';
 import { useApidocBaseInfo } from './store/apidoc/baseInfoStore';
 import { Language } from '@src/types';
 import LanguageMenu from '@/components/common/language/Language.vue';
+import NetworkModeBanner from '@/components/common/networkMode/NetworkModeBanner.vue';
 import type { RuntimeNetworkMode } from '@src/types/runtime';
 import { useRuntime } from './store/runtime/runtimeStore.ts';
 import { appWorkbenchCache } from '@/cache/appWorkbench/appWorkbenchCache';

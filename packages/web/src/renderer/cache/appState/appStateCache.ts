@@ -286,6 +286,27 @@ class AppState {
       logger.error('设置Mock Text提示状态失败', { error });
     }
   }
+  // 获取网络模式横幅是否被关闭
+  getNetworkModeBannerDismissed(): boolean {
+    try {
+      const value = localStorage.getItem(cacheKey.appState.hint.networkModeBannerHidden);
+      if (value === null) {
+        return false;
+      }
+      return value === 'true';
+    } catch (error) {
+      logger.error('获取网络模式横幅隐藏状态失败', { error });
+      return false;
+    }
+  }
+  // 设置网络模式横幅关闭状态
+  setNetworkModeBannerDismissed(dismissed: boolean): void {
+    try {
+      localStorage.setItem(cacheKey.appState.hint.networkModeBannerHidden, dismissed ? 'true' : 'false');
+    } catch (error) {
+      logger.error('设置网络模式横幅隐藏状态失败', { error });
+    }
+  }
   // 获取 JSON Body 提示是否可见
   getJsonBodyHintVisible(): boolean {
     try {
