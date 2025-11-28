@@ -446,6 +446,7 @@ body {
   align-items: center;
   justify-content: center;
   font-size: 12px;
+  margin-right: 10px;
   height: 35px;
   cursor: pointer;
   -webkit-app-region: no-drag;
