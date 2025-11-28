@@ -1465,4 +1465,5 @@ export default {
   '清理成功': 'Cleaned successfully',
   搜索: 'Search',
   无匹配数据: 'No matching data',
+  你的模型: 'Your model',
 }

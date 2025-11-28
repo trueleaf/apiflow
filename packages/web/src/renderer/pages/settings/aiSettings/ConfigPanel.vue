@@ -14,11 +14,7 @@
               <Cloud :size="18" class="label-icon" />
               {{ $t('API Provider') }}
             </div>
-            <el-select
-              v-model="providerType"
-              class="form-input"
-              @change="handleProviderChange"
-            >
+            <el-select v-model="providerType" class="form-input" @change="handleProviderChange">
               <el-option label="DeepSeek" value="DeepSeek" />
               <el-option label="OpenAI Compatible" value="OpenAICompatible" />
             </el-select>
@@ -30,20 +26,11 @@
                 <Key :size="18" class="label-icon" />
                 {{ $t('API Key') }}
               </div>
-              <el-input
-                v-model="localApiKey"
-                :type="showApiKey ? 'text' : 'password'"
-                :placeholder="$t('请输入 DeepSeek API Key')"
-                clearable
-                class="form-input"
-              >
+              <el-input v-model="localApiKey" :type="showApiKey ? 'text' : 'password'"
+                :placeholder="$t('请输入 DeepSeek API Key')" clearable class="form-input">
                 <template #suffix>
-                  <component
-                    :is="showApiKey ? EyeOff : Eye"
-                    :size="16"
-                    class="password-toggle"
-                    @click="showApiKey = !showApiKey"
-                  />
+                  <component :is="showApiKey ? EyeOff : Eye" :size="16" class="password-toggle"
+                    @click="showApiKey = !showApiKey" />
                 </template>
               </el-input>
             </div>
@@ -65,32 +52,18 @@
                 <Link :size="18" class="label-icon" />
                 {{ $t('Base URL') }}
               </div>
-              <el-input
-                v-model="localBaseURL"
-                :placeholder="$t('请输入 API Base URL')"
-                clearable
-                class="form-input"
-              />
+              <el-input v-model="localBaseURL" :placeholder="$t('请输入 API Base URL')" clearable class="form-input" />
             </div>
             <div class="form-item">
               <div class="form-label">
                 <Key :size="18" class="label-icon" />
                 {{ $t('API Key') }}
               </div>
-              <el-input
-                v-model="localApiKey"
-                :type="showApiKey ? 'text' : 'password'"
-                :placeholder="$t('请输入 API Key')"
-                clearable
-                class="form-input"
-              >
+              <el-input v-model="localApiKey" :type="showApiKey ? 'text' : 'password'" :placeholder="$t('请输入 API Key')"
+                clearable class="form-input">
                 <template #suffix>
-                  <component
-                    :is="showApiKey ? EyeOff : Eye"
-                    :size="16"
-                    class="password-toggle"
-                    @click="showApiKey = !showApiKey"
-                  />
+                  <component :is="showApiKey ? EyeOff : Eye" :size="16" class="password-toggle"
+                    @click="showApiKey = !showApiKey" />
                 </template>
               </el-input>
             </div>
@@ -99,12 +72,7 @@
                 <Bot :size="18" class="label-icon" />
                 {{ $t('Model ID') }}
               </div>
-              <el-input
-                v-model="localModel"
-                :placeholder="$t('请输入模型 ID')"
-                clearable
-                class="form-input"
-              />
+              <el-input v-model="localModel" :placeholder="$t('请输入模型 ID')" clearable class="form-input" />
             </div>
 
             <div class="form-item full-row">
@@ -114,27 +82,10 @@
                 <span class="label-hint">{{ $t('(可选)') }}</span>
               </div>
               <div class="custom-headers">
-                <div
-                  v-for="(header, index) in localCustomHeaders"
-                  :key="index"
-                  class="header-row"
-                >
-                  <el-input
-                    v-model="header.key"
-                    :placeholder="$t('Header Key')"
-                    class="header-key"
-                  />
-                  <el-input
-                    v-model="header.value"
-                    :placeholder="$t('Header Value')"
-                    class="header-value"
-                  />
-                  <el-button
-                    type="danger"
-                    text
-                    class="header-remove"
-                    @click="removeHeader(index)"
-                  >
+                <div v-for="(header, index) in localCustomHeaders" :key="index" class="header-row">
+                  <el-input v-model="header.key" :placeholder="$t('Header Key')" class="header-key" />
+                  <el-input v-model="header.value" :placeholder="$t('Header Value')" class="header-value" />
+                  <el-button type="danger" text class="header-remove" @click="removeHeader(index)">
                     <Trash2 :size="16" />
                   </el-button>
                 </div>
@@ -149,23 +100,41 @@
       </div>
     </div>
     <div class="panel-actions">
+      <el-button type="primary" :loading="isLoading && !isStreaming" :disabled="!isConfigValid" @click="$emit('send')">
+        {{ isLoading && !isStreaming ? $t('发送中...') : $t('发送') }}
+      </el-button>
+      <el-button type="primary" :loading="isStreaming" :disabled="!isConfigValid" @click="$emit('streamSend')">
+        {{ isStreaming ? $t('接收中...') : $t('流式发送') }}
+      </el-button>
+      <el-button v-if="isLoading" type="danger" @click="$emit('cancel')">
+            {{ $t('取消') }}
+          </el-button>
       <el-button @click="handleReset">
         {{ $t('重置') }}
-      </el-button>
-      <el-button type="primary" @click="handleSave">
-        {{ $t('保存配置') }}
       </el-button>
     </div>
   </section>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, watch } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 import { Cloud, Key, Bot, Link, FileCode, Eye, EyeOff, Trash2, Plus } from 'lucide-vue-next'
 import { useI18n } from 'vue-i18n'
+import { useDebounceFn } from '@vueuse/core'
 import { useLLMProvider } from '@/store/ai/llmProviderStore'
 import type { LLMProviderType, CustomHeader } from '@src/types/ai/agent.type'
 import { message } from '@/helper'
+
+defineProps<{
+  isLoading: boolean
+  isStreaming: boolean
+}>()
+
+defineEmits<{
+  send: []
+  streamSend: []
+  cancel: []
+}>()
 
 const { t } = useI18n()
 const llmProviderStore = useLLMProvider()
@@ -176,6 +145,26 @@ const localBaseURL = ref('')
 const localModel = ref('')
 const localCustomHeaders = ref<CustomHeader[]>([])
 const showApiKey = ref(false)
+// 判断配置是否有效
+const isConfigValid = computed(() => {
+  const hasApiKey = localApiKey.value.trim() !== ''
+  if (providerType.value === 'OpenAICompatible') {
+    return hasApiKey && localBaseURL.value.trim() !== '' && localModel.value.trim() !== ''
+  }
+  return hasApiKey && localModel.value.trim() !== ''
+})
+// 自动保存函数（防抖 300ms）
+const autoSave = useDebounceFn(() => {
+  if (!isConfigValid.value) return
+  const validHeaders = localCustomHeaders.value.filter(h => h.key.trim() !== '')
+  llmProviderStore.updateConfig({
+    provider: providerType.value,
+    apiKey: localApiKey.value,
+    baseURL: providerType.value === 'DeepSeek' ? 'https://api.deepseek.com' : localBaseURL.value,
+    model: localModel.value,
+    customHeaders: validHeaders,
+  })
+}, 300)
 // 从 store 同步数据到本地状态
 const syncFromStore = () => {
   const provider = llmProviderStore.activeProvider
@@ -198,38 +187,16 @@ const addHeader = () => {
 const removeHeader = (index: number) => {
   localCustomHeaders.value.splice(index, 1)
 }
-// 保存配置
-const handleSave = () => {
-  if (!localApiKey.value.trim()) {
-    message.warning(t('请输入 API Key'))
-    return
-  }
-  if (providerType.value === 'OpenAICompatible') {
-    if (!localBaseURL.value.trim()) {
-      message.warning(t('请输入 Base URL'))
-      return
-    }
-    if (!localModel.value.trim()) {
-      message.warning(t('请输入 Model ID'))
-      return
-    }
-  }
-  const validHeaders = localCustomHeaders.value.filter(h => h.key.trim() !== '')
-  llmProviderStore.updateConfig({
-    provider: providerType.value,
-    apiKey: localApiKey.value,
-    baseURL: providerType.value === 'DeepSeek' ? 'https://api.deepseek.com' : localBaseURL.value,
-    model: localModel.value,
-    customHeaders: validHeaders,
-  })
-  message.success(t('配置保存成功'))
-}
 // 重置配置
 const handleReset = () => {
   llmProviderStore.resetConfig()
   syncFromStore()
   message.success(t('配置已重置'))
 }
+// 监听配置变化，自动保存
+watch([providerType, localApiKey, localBaseURL, localModel, localCustomHeaders], () => {
+  autoSave()
+}, { deep: true })
 // 监听 store 变化
 watch(() => llmProviderStore.activeProvider, () => {
   syncFromStore()
@@ -363,8 +330,7 @@ onMounted(() => {
 
 .panel-actions {
   display: flex;
-  justify-content: flex-end;
-  gap: 12px;
+  gap: 8px;
   margin-top: 24px;
   padding-top: 24px;
   border-top: 1px solid var(--border-light);
