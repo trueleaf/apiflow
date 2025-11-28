@@ -11,6 +11,7 @@ export const useLLMProvider = defineStore('llmProvider', () => {
   watch(() => activeProvider.value,
     (newVal) => {
       window.electronAPI!.aiManager.updateConfig(JSON.parse(JSON.stringify(newVal)));
+      llmProviderCache.setLLMProvider(newVal);
     },
     { deep: true }
   );

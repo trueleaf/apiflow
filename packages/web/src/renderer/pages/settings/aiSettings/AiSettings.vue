@@ -15,7 +15,7 @@
 </template>
 
 <script setup lang="ts">
-import ProviderConfigPanel from './ProviderConfigPanel.vue'
+import ProviderConfigPanel from './ConfigPanel.vue'
 import DebugPanel from './DebugPanel.vue'
 </script>
 

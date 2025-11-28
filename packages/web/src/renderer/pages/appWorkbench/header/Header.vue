@@ -24,14 +24,15 @@
       </draggable>
     </div>
     <button class="add-tab-btn" :title="t('新建项目')" @click="handleAddProject">+</button>
-    <div v-if="filteredTabs.length > 0" class="short-divider">
+    <!-- <div v-if="filteredTabs.length > 0" class="short-divider">
       <span class="short-divider-content"></span>
-    </div>
-    <button class="ai-trigger-btn" :title="t('AI助手 Ctrl+L')" @click="handleShowAiDialog" ref="aiButtonRef">
-      <Bot :size="16" />
-      <!-- <span>{{ t('AI助手') }}</span> -->
-    </button>
+    </div> -->
+    
     <div class="right">
+      <button class="ai-trigger-btn" :title="t('AI助手 Ctrl+L')" @click="handleShowAiDialog" ref="aiButtonRef">
+        <Bot :size="16" />
+        <!-- <span>{{ t('AI助手') }}</span> -->
+      </button>
       <div class="navigation-control">
         <el-icon class="icon" size="16" :title="t('刷新主应用')" @click="refreshApp"><RefreshRight /></el-icon>
         <el-icon class="icon" size="16" :title="t('后退')" @click="goBack"><Back /></el-icon>
@@ -647,7 +648,7 @@ body {
   height: 100%;
   display: flex;
   align-items: center;
-  width: 375px;
+  width: 435px;
   margin-left: auto;
 }
 
