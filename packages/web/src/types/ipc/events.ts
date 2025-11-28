@@ -289,6 +289,7 @@ export const IPC_EVENTS = {
       execCode: 'util:renderer:to:main:exec-code',
     },
   },
+
 } as const;
 
 /**

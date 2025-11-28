@@ -277,7 +277,8 @@ import SMock from '@/components/apidoc/mock/ClMock.vue';
 import { config } from '@src/config/config';
 import ClRichInput from '@/components/ui/cleanDesign/richInput/ClRichInput.vue';
 import type { ClParamsTreeProps, ClParamsTreeEmits } from '@src/types/components/components';
-import { aiCache } from '@/cache/ai/aiCache';
+import { llmProviderCache } from '@/cache/ai/llmProviderCache';
+import { useAiChatStore } from '@/store/ai/aiChatStore';
 import type { OpenAiRequestBody } from '@src/types/ai/agent.type';
 import { useRouter } from 'vue-router';
 import { appState } from '@/cache/appState/appStateCache';
@@ -297,6 +298,7 @@ const props = withDefaults(defineProps<ClParamsTreeProps>(), {
 const emits = defineEmits<ClParamsTreeEmits>();
 const { t } = useI18n();
 const router = useRouter();
+const aiChatStore = useAiChatStore();
 const variableStore = useVariable();
 const apidocTabsStore = useApidocTas();
 const projectId = router.currentRoute.value.query.id as string;
@@ -330,8 +332,8 @@ const parsedCount = ref(0);
 const aiParsing = ref(false);
 const multilineAppliedHandler = ref<(() => void) | null>(null);
 const isAiConfigValid = computed(() => {
-  const config = aiCache.getAiConfig();
-  return !!(config.apiKey?.trim() && config.apiUrl?.trim());
+  const provider = llmProviderCache.getLLMProvider();
+  return !!(provider?.apiKey?.trim() && provider?.baseURL?.trim());
 });
 /*
 |--------------------------------------------------------------------------
@@ -903,7 +905,7 @@ const handleAiParse = async () => {
       ],
       max_tokens: 2000
     };
-    const result = await window.electronAPI?.aiManager.textChat(requestBody);
+    const result = await aiChatStore.chat(requestBody);
     const content = result?.choices?.[0]?.message?.content || '';
     if (content) {
       multilineText.value = content.trim();

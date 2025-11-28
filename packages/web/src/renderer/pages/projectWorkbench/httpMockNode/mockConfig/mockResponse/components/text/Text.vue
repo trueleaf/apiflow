@@ -122,6 +122,7 @@ import { useI18n } from 'vue-i18n'
 import { Loading, Top } from '@element-plus/icons-vue'
 import SJsonEditor from '@/components/common/jsonEditor/ClJsonEditor.vue'
 import { appState } from '@/cache/appState/appStateCache'
+import { useAiChatStore } from '@/store/ai/aiChatStore'
 import type { HttpMockNode } from '@src/types'
 import type { OpenAiRequestBody, OpenAiResponseBody } from '@src/types/ai/agent.type'
 import { message } from '@/helper'
@@ -133,6 +134,7 @@ type Props = {
 
 const props = defineProps<Props>()
 const { t } = useI18n()
+const aiChatStore = useAiChatStore()
 
 // Text 相关状态
 const showRandomTextSizeHint = ref(true)
@@ -198,7 +200,7 @@ const handleGenerateTextPreview = async () => {
       max_tokens: 300
     }
 
-    const result = await window.electronAPI?.aiManager.textChat(requestBody)
+    const result = await aiChatStore.chat(requestBody)
     const content = getMessageContent(result || null)
     if (content) {
       aiPreviewText.value = content

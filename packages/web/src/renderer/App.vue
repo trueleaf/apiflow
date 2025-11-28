@@ -29,7 +29,6 @@ import LanguageMenu from '@/components/common/language/Language.vue';
 import type { RuntimeNetworkMode } from '@src/types/runtime';
 import { useRuntime } from './store/runtime/runtimeStore.ts';
 import { appWorkbenchCache } from '@/cache/appWorkbench/appWorkbenchCache';
-import { aiCache } from '@/cache/ai/aiCache';
 import { httpMockLogsCache } from '@/cache/mock/httpMock/httpMockLogsCache';
 import type { MockLog } from '@src/types/mockNode';
 import { IPC_EVENTS } from '@src/types/ipc';
@@ -246,32 +245,6 @@ const initTheme = () => {
 const initAppTitle = () => {
   document.title = `${config.isDev ? `${config.appConfig.appTitle}(${t('本地')})` : config.appConfig.appTitle}`;
 }
-
-// 同步AI配置到主进程
-const initAiConfig = async () => {
-  try {
-    const config = aiCache.getAiConfig();
-    const llmConfig = config.apiUrl === 'https://api.deepseek.com/chat/completions' ||
-      config.apiUrl === 'https://api.deepseek.com'
-      ? {
-          type: 'builtin' as const,
-          provider: 'deepseek' as const,
-          apiKey: config.apiKey,
-          baseURL: 'https://api.deepseek.com',
-          model: 'deepseek-chat'
-        }
-      : {
-          type: 'custom' as const,
-          name: config.modelName || 'Custom',
-          apiKey: config.apiKey,
-          baseURL: config.apiUrl.replace('/chat/completions', ''),
-          model: 'deepseek-chat'
-        };
-    await window.electronAPI?.aiManager.updateConfig(llmConfig);
-  } catch (error) {
-    console.error('同步AI配置失败:', error);
-  }
-}
 // 监听主进程推送的批量 Mock 日志
 const initMockLogsListener = () => {
   window.electronAPI?.ipcManager.onMain(IPC_EVENTS.mock.mainToRenderer.logsBatch, async (logs: MockLog[]) => {
@@ -342,7 +315,6 @@ onMounted(() => {
   initLanguage();
   initTheme();
   initAppTitle();
-  initAiConfig();
   initMockLogsListener();
   sendContentReadySignal();
   initAppHeader();

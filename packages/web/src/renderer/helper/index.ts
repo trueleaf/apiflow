@@ -27,10 +27,10 @@ import type {
   WebSocketNode,
   FolderNode,
 } from '@src/types'
+import type { LLMProviderSettings } from '@src/types/ai/agent.type'
 import type { HttpNodeResponseData, UrlInfo } from '@src/types/helper'
 import { useVariable } from '@/store/apidoc/variablesStore'
 import { config } from '@src/config/config'
-import { LLMProvider } from '@src/types/ai/agent.type.ts'
 
 /*
 |--------------------------------------------------------------------------
@@ -121,7 +121,16 @@ export const generateDefaultHttpNodeConfig = (): HttpNodeConfig => ({
   maxRedirects: config.httpNodeConfig.maxRedirects,
   maxHeaderValueDisplayLength: config.httpNodeConfig.maxHeaderValueDisplayLength
 })
-
+// 生成 DeepSeek Provider 默认配置
+export const generateDeepSeekProvider = (): LLMProviderSettings => ({
+  id: nanoid(),
+  name: 'Default Provider',
+  provider: 'DeepSeek',
+  apiKey: '',
+  baseURL: 'https://api.deepseek.com',
+  model: 'deepseek-chat',
+  customHeaders: [],
+})
 /*
 |--------------------------------------------------------------------------
 | 日志工具 (logger.ts)
@@ -2892,16 +2901,3 @@ export const validateUrl = (url: string): UrlValidationResult => {
   }
 }
 
-export const generateDefaultLLMProviders = (): LLMProvider[] => {
-  return [{
-    id: 'deepseek-v3.2-exp',
-    name: 'deepseek-v3.2-exp',
-    type: "builtin",
-    settings: {
-      provider: 'deepseek',
-      apiKey: '',
-      baseURL: 'https://api.deepseek.com',
-      model: 'deepseek-chat'
-    }
-  }]
-}

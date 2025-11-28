@@ -103,8 +103,8 @@ import { useI18n } from 'vue-i18n'
 import { Loader2, Send } from 'lucide-vue-next'
 import SJsonEditor from '@/components/common/jsonEditor/ClJsonEditor.vue'
 import { appState } from '@/cache/appState/appStateCache'
+import { useAiChatStore } from '@/store/ai/aiChatStore'
 import type { HttpMockNode } from '@src/types'
-import { mainConfig } from '@src/config/mainConfig'
 import type { OpenAiRequestBody, OpenAiResponseBody } from '@src/types/ai/agent.type'
 import { message } from '@/helper'
 
@@ -116,6 +116,7 @@ type Props = {
 
 const props = defineProps<Props>()
 const { t } = useI18n()
+const aiChatStore = useAiChatStore()
 
 const showRandomSizeHint = ref(true)
 const aiGenerating = ref(false)
@@ -149,7 +150,7 @@ const handleGeneratePreview = async () => {
   aiGenerating.value = true
   aiPreviewJson.value = ''
   try {
-    const maxTokens = mainConfig.aiConfig.maxTokens ?? 2000
+    const maxTokens = 2000
     const requestBody: OpenAiRequestBody = {
       model: 'deepseek-chat',
       messages: [
@@ -166,7 +167,7 @@ const handleGeneratePreview = async () => {
       response_format: { type: 'json_object' }
     }
 
-    const result = await window.electronAPI?.aiManager.jsonChat(requestBody)
+    const result = await aiChatStore.chat(requestBody)
     const content = getMessageContent(result || null)
     if (content) {
       try {

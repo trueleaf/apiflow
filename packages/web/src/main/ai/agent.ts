@@ -1,15 +1,15 @@
 import { got } from 'got';
 import type { OpenAiRequestBody, OpenAiResponseBody, LLMProviderSettings } from '@src/types/ai/agent.type';
 
-type ChatStreamCallbacks = {
+export type ChatStreamCallbacks = {
   onData: (chunk: Uint8Array) => void;
   onEnd: () => void;
   onError: (err: Error | string) => void;
 };
+
 // LLM 客户端类
 export class LLMClient {
   private config: LLMProviderSettings = null!;
- 
   // 更新配置
   updateConfig(newConfig: LLMProviderSettings): void {
     this.config = newConfig;
@@ -31,7 +31,7 @@ export class LLMClient {
     );
     return response.body;
   }
-  // 流式聊天
+  // 流式聊天(原始方法)
   chatStream(body: OpenAiRequestBody, callbacks: ChatStreamCallbacks) {
     const { apiKey, baseURL } = this.config;
     const requestBody = { ...body, stream: true };
@@ -64,5 +64,5 @@ export class LLMClient {
     };
   }
 }
-// 导出全局单例（初始配置为空）
+// 导出全局单例
 export const globalLLMClient = new LLMClient();

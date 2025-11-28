@@ -1194,6 +1194,8 @@ export default {
     '输入测试消息...': 'Enter test message...',
     '发送中...': 'Sending...',
     '发送': 'Send',
+    '流式发送': 'Stream Send',
+    '接收中...': 'Receiving...',
     '取消': 'Cancel',
     '清空': 'Clear',
     '响应结果': 'Response',

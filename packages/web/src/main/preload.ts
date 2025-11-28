@@ -5,7 +5,14 @@ import { gotRequest } from './sendRequest'
 import { StandaloneExportHtmlParams } from '@src/types/standalone.ts'
 import { WindowState } from '@src/types/index.ts'
 import { IPC_EVENTS } from '@src/types/ipc'
+import type { OpenAiRequestBody, LLMProviderSettings, OpenAiResponseBody } from '@src/types/ai/agent.type'
+import { globalLLMClient } from './ai/agent.ts'
 
+type ChatStreamCallbacks = {
+  onData: (chunk: Uint8Array) => void;
+  onEnd: () => void;
+  onError: (err: Error | string) => void;
+}
 const openDevTools = () => {
   ipcRenderer.send(IPC_EVENTS.window.rendererToMain.openDevTools)
 }
@@ -123,6 +130,16 @@ const mockSyncProjectVariables = (projectId: string, variables: any[]) => {
 const mockGetAllStates = (projectId: string) => {
   return ipcRenderer.invoke(IPC_EVENTS.mock.rendererToMain.getAllStates, projectId)
 }
+// AI 相关方法
+const aiUpdateConfig = (config: LLMProviderSettings): void => {
+  globalLLMClient.updateConfig(config);
+}
+const aiChat = async (body: OpenAiRequestBody): Promise<OpenAiResponseBody> => {
+ return globalLLMClient.chat(body);
+}
+const aiChatStream = (body: OpenAiRequestBody, callbacks: ChatStreamCallbacks) => {
+  return globalLLMClient.chatStream(body, callbacks);
+}
 
 // 导出相关方法
 const exportSelectPath = () => {
@@ -137,7 +154,6 @@ const exportGetStatus = () => {
 const importSelectFile = () => {
   return ipcRenderer.invoke(IPC_EVENTS.import.rendererToMain.selectFile)
 }
-
 
 contextBridge.exposeInMainWorld('electronAPI', {
   ip: ip.address(),
@@ -192,5 +208,10 @@ contextBridge.exposeInMainWorld('electronAPI', {
   },
   importManager: {
     selectFile: importSelectFile,
+  },
+  aiManager: {
+    updateConfig: aiUpdateConfig,
+    chat: aiChat,
+    chatStream: aiChatStream,
   }
 })

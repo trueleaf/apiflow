@@ -3,11 +3,13 @@
 // 包含主进程API和窗口状态类型
 // ============================================================================
 
-import type {GotRequestOptions } from '../request';
+import type { GotRequestOptions } from '../request';
 import type { CommonResponse } from '../project';
 import type { StandaloneExportHtmlParams } from '../standalone';
 import { WebsocketConnectParams } from '../websocketNode';
 import { HttpMockNode, MockLog, MockStatusChangedPayload } from '../mockNode';
+import { ChatStreamCallbacks } from '@src/main/ai/agent.ts';
+import { LLMProviderSettings, OpenAiRequestBody, OpenAiResponseBody } from '../ai/agent.type.ts';
 
 // ============================================================================
 // 窗口状态类型
@@ -79,6 +81,13 @@ export type ElectronAPI = {
   };
   importManager: {
     selectFile: () => Promise<CommonResponse<{ filePath?: string }>>;
+  };
+  aiManager: {
+    updateConfig: (config: LLMProviderSettings) => void;
+    chat: (body: OpenAiRequestBody) => Promise<OpenAiResponseBody>;
+    chatStream: (body: OpenAiRequestBody, callbacks: ChatStreamCallbacks) => {
+      abort: () => void;
+    };
   };
 }
 

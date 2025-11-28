@@ -189,8 +189,10 @@ import type { AskMessage, TextResponseMessage, LoadingMessage } from '@src/types
 import { IPC_EVENTS } from '@src/types/ipc'
 import { config } from '@src/config/config'
 import { appState } from '@/cache/appState/appStateCache'
-import { aiCache } from '@/cache/ai/aiCache'
+import { llmProviderCache } from '@/cache/ai/llmProviderCache'
 import { useCopilotStore } from '@/store/ai/copilotStore'
+import { useLLMProvider } from '@/store/ai/llmProviderStore'
+import { useAiChatStore } from '@/store/ai/aiChatStore'
 import AskMessageItem from './components/AskMessageItem.vue'
 import LoadingMessageItem from './components/LoadingMessageItem.vue'
 import TextResponseMessageItem from './components/TextResponseMessageItem.vue'
@@ -200,6 +202,8 @@ import './ai.css'
 const { t } = useI18n()
 const visible = defineModel<boolean>('visible', { default: false })
 const copilotStore = useCopilotStore()
+const llmProviderStore = useLLMProvider()
+const aiChatStore = useAiChatStore()
 const messagesRef = ref<HTMLElement | null>(null)
 const inputMessage = ref('')
 const currentView = ref<'chat' | 'history'>('chat')
@@ -343,8 +347,8 @@ const handleSelectSession = async (sessionId: string) => {
   currentView.value = 'chat'
 }
 const isAiConfigValid = () => {
-  const configState = aiCache.getAiConfig()
-  return configState.apiKey.trim() !== '' && configState.apiUrl.trim() !== ''
+  const provider = llmProviderCache.getLLMProvider()
+  return !!(provider?.apiKey?.trim() && provider?.baseURL?.trim())
 }
 const handleDragStart = (event: MouseEvent) => {
   isDragging.value = true
@@ -609,7 +613,7 @@ const handleSend = async () => {
   
   const requestBody = buildOpenAIRequestBody(message)
   
-  if (!window.electronAPI?.aiManager?.textChatWithStream) {
+  if (!aiChatStore.isAvailable()) {
     if (loadingMessageId.value) {
       copilotStore.deleteCopilotMessageById(loadingMessageId.value)
       loadingMessageId.value = null
@@ -635,19 +639,26 @@ const handleSend = async () => {
   }
   
   try {
-    const streamController = window.electronAPI.aiManager.textChatWithStream(
-      { requestId, requestBody },
-      (chunk: string) => {
-        handleStreamData(requestId, chunk)
-      },
-      () => {
-        handleStreamEnd(requestId)
-      },
-      (response) => {
-        handleStreamError(requestId, response)
+    const textDecoder = new TextDecoder('utf-8')
+    const streamController = aiChatStore.chatStream(
+      requestBody,
+      {
+        onData: (chunk: Uint8Array) => {
+          const chunkStr = textDecoder.decode(chunk, { stream: true })
+          handleStreamData(requestId, chunkStr)
+        },
+        onEnd: () => {
+          handleStreamEnd(requestId)
+        },
+        onError: (err: Error | string) => {
+          const errorMsg = err instanceof Error ? err.message : String(err)
+          handleStreamError(requestId, errorMsg)
+        }
       }
     )
-    cancelCurrentStream.value = streamController.cancel
+    cancelCurrentStream.value = async () => {
+      streamController.abort()
+    }
   } catch (error) {
     if (loadingMessageId.value) {
       copilotStore.deleteCopilotMessageById(loadingMessageId.value)
@@ -831,27 +842,7 @@ onMounted(() => {
   initDialogState()
   copilotStore.initStore()
   document.addEventListener('click', handleClickOutside)
-
-  const aiConfig = aiCache.getAiConfig()
-  if (window.electronAPI?.aiManager?.updateConfig) {
-    const llmConfig = aiConfig.apiUrl === 'https://api.deepseek.com/chat/completions' ||
-      aiConfig.apiUrl === 'https://api.deepseek.com'
-      ? {
-          type: 'builtin' as const,
-          provider: 'deepseek' as const,
-          apiKey: aiConfig.apiKey,
-          baseURL: 'https://api.deepseek.com',
-          model: 'deepseek-chat'
-        }
-      : {
-          type: 'custom' as const,
-          name: aiConfig.modelName || 'Custom',
-          apiKey: aiConfig.apiKey,
-          baseURL: aiConfig.apiUrl.replace('/chat/completions', ''),
-          model: 'deepseek-chat'
-        }
-    window.electronAPI.aiManager.updateConfig(llmConfig)
-  }
+  llmProviderStore.initFromCache()
 })
 
 onUnmounted(() => {
