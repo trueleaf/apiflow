@@ -1,3 +1,4 @@
+import dotenv from 'dotenv';
 import { app, BrowserWindow, WebContentsView, protocol, net } from 'electron'
 import path from 'path'
 import { fileURLToPath } from 'url';
@@ -12,6 +13,9 @@ import { UpdateManager } from './updater/index.ts';
 import { mainConfig } from '@src/config/mainConfig';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+
+dotenv.config({ path: path.join(__dirname, '../../.env') });
+dotenv.config({ path: path.join(__dirname, '../../.env.local') });
 
 // 注册自定义协议的 scheme privileges（必须在 app.ready 之前）
 protocol.registerSchemesAsPrivileged([

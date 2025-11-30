@@ -51,6 +51,7 @@
     "detect-port": "^2.1.0",
     "dexie": "^4.0.8",
     "docx": "^9.5.1",
+    "dotenv": "^17.2.3",
     "electron-updater": "^6.6.2",
     "element-plus": "^2.11.1",
     "file-type": "^19.6.0",

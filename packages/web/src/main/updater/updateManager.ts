@@ -34,6 +34,7 @@ export class UpdateManager {
       url: getUpdateUrl(),
       channel: 'latest'
     });
+    console.log(123, getUpdateUrl())
     if (process.platform === 'darwin' || process.platform === 'linux') {
       this.autoUpdater.autoDownload = false;
     } else if (process.platform === 'win32') {

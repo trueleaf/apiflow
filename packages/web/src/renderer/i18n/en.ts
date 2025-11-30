@@ -1461,4 +1461,12 @@ export default {
   '安装更新失败': 'Failed to install update',
   '更新过程中发生错误': 'Error occurred during update',
   '是否立即下载更新': 'Would you like to download the update now',
+  软件更新: 'Software Update',
+  检查是否有可用的更新版本: 'Check for available updates',
+  下载更新: 'Download Update',
+  取消下载: 'Cancel Download',
+  安装更新: 'Install Update',
+  已是最新版本: 'Already up to date',
+  下载完成可以安装更新: 'Download completed, ready to install',
+  更新失败: 'Update failed',
 }

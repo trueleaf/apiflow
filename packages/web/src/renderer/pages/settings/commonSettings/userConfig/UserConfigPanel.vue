@@ -105,6 +105,41 @@
         </div>
       </div>
     </div>
+    <div class="update-section">
+      <div class="update-info">
+        <RefreshCw :size="18" class="update-icon" />
+        <div class="update-text">
+          <div class="update-title">{{ $t('软件更新') }}</div>
+          <div class="update-description">{{ $t('检查是否有可用的更新版本') }}</div>
+        </div>
+      </div>
+      <div class="update-actions">
+        <el-button v-if="updateState === 'idle'" @click="handleCheckUpdate">
+          <template #icon><RefreshCw :size="14" /></template>
+          {{ $t('检查更新') }}
+        </el-button>
+        <el-button v-else-if="updateState === 'checking'" loading>
+          {{ $t('检查更新中') }}
+        </el-button>
+        <el-badge v-else-if="updateState === 'available'" :is-dot="hasUpdate" type="danger">
+          <el-button type="primary" @click="handleDownloadUpdate">
+            <template #icon><Download :size="14" /></template>
+            {{ $t('下载更新') }}
+          </el-button>
+        </el-badge>
+        <div v-else-if="updateState === 'downloading'" class="progress-container">
+          <el-progress :percentage="downloadProgress" :stroke-width="8" style="width: 200px" />
+          <span class="progress-text">{{ downloadProgress }}%</span>
+          <el-button size="small" @click="handleCancelDownload">
+            {{ $t('取消下载') }}
+          </el-button>
+        </div>
+        <el-button v-else-if="updateState === 'downloaded'" type="primary" @click="handleInstallUpdate">
+          <template #icon><PackageCheck :size="14" /></template>
+          {{ $t('安装更新') }}
+        </el-button>
+      </div>
+    </div>
     <div class="panel-actions">
       <el-button @click="handleReset">
         {{ $t('重置') }}
@@ -122,7 +157,7 @@ import { useRuntime } from '@/store/runtime/runtimeStore'
 import { processImageUpload } from '@/utils/imageHelper'
 import { ElMessageBox } from 'element-plus'
 import { useI18n } from 'vue-i18n'
-import { User, Mail, Users, Calendar, Clock } from 'lucide-vue-next'
+import { User, Mail, Users, Calendar, Clock, RefreshCw, Download, PackageCheck } from 'lucide-vue-next'
 import defaultAvatarImg from '@/assets/imgs/logo.png'
 import type { UploadFile } from 'element-plus'
 import type { PermissionUserInfo } from '@src/types/project'
@@ -163,6 +198,10 @@ const avatarTrigger = ref()
 
 const emailError = ref('')
 const emailSuccess = ref(false)
+type UpdateButtonState = 'idle' | 'checking' | 'available' | 'downloading' | 'downloaded' | 'error'
+const updateState = ref<UpdateButtonState>('idle')
+const downloadProgress = ref(0)
+const hasUpdate = ref(false)
 
 const displayAvatar = computed(() => {
   return userInfo.value.avatar || defaultAvatarImg
@@ -305,10 +344,106 @@ const handleReset = async () => {
   message.success(t('已恢复默认配置'))
 }
 
+const initUpdateState = async () => {
+  try {
+    const status = await window.electronAPI?.updater.getUpdateStatus()
+    if (!status) return
+    if (status.downloaded) {
+      updateState.value = 'downloaded'
+      hasUpdate.value = true
+    } else if (status.downloading) {
+      updateState.value = 'downloading'
+      downloadProgress.value = status.downloadProgress
+      hasUpdate.value = true
+    }
+  } catch (error) {
+    // 静默失败
+  }
+}
+const bindUpdateEvents = () => {
+  window.electronAPI?.updater.onUpdateChecking(() => {
+    updateState.value = 'checking'
+  })
+  window.electronAPI?.updater.onUpdateAvailable(() => {
+    updateState.value = 'available'
+    hasUpdate.value = true
+  })
+  window.electronAPI?.updater.onUpdateNotAvailable(() => {
+    updateState.value = 'idle'
+    hasUpdate.value = false
+    message.success(t('已是最新版本'))
+  })
+  window.electronAPI?.updater.onDownloadProgress((progress: { percent: number }) => {
+    updateState.value = 'downloading'
+    downloadProgress.value = Math.floor(progress.percent)
+  })
+  window.electronAPI?.updater.onDownloadCompleted(() => {
+    updateState.value = 'downloaded'
+    downloadProgress.value = 100
+    message.success(t('下载完成可以安装更新'))
+  })
+  window.electronAPI?.updater.onUpdateError((error: { message: string }) => {
+    updateState.value = 'error'
+    message.error(error.message || t('更新失败'))
+    setTimeout(() => {
+      updateState.value = 'idle'
+      hasUpdate.value = false
+    }, 3000)
+  })
+}
+const handleCheckUpdate = async () => {
+  if (updateState.value === 'available') {
+    handleDownloadUpdate()
+    return
+  }
+  updateState.value = 'checking'
+  try {
+    const result = await window.electronAPI?.updater.checkForUpdates()
+    if (!result?.success && result?.error) {
+      message.error(result.error)
+      updateState.value = 'idle'
+    }
+  } catch (error) {
+    message.error(t('检查更新失败'))
+    updateState.value = 'idle'
+  }
+}
+const handleDownloadUpdate = async () => {
+  updateState.value = 'downloading'
+  downloadProgress.value = 0
+  try {
+    const result = await window.electronAPI?.updater.downloadUpdate()
+    if (!result?.success && result?.error) {
+      message.error(result.error)
+      updateState.value = 'available'
+    }
+  } catch (error) {
+    message.error(t('更新失败'))
+    updateState.value = 'available'
+  }
+}
+const handleCancelDownload = async () => {
+  try {
+    await window.electronAPI?.updater.cancelDownload()
+    updateState.value = 'available'
+    downloadProgress.value = 0
+  } catch (error) {
+    // 静默失败
+  }
+}
+const handleInstallUpdate = () => {
+  try {
+    window.electronAPI?.updater.quitAndInstall()
+  } catch (error) {
+    message.error(t('安装更新失败'))
+  }
+}
 onMounted(() => {
   runtimeStore.initUserInfo()
   refreshUserInfoFromCache()
   syncLocalForm()
+  initUpdateState()
+  bindUpdateEvents()
 })
 </script>
 
@@ -476,6 +611,50 @@ onMounted(() => {
   }
 }
 
+.update-section {
+  margin-top: 24px;
+  padding-top: 24px;
+  border-top: 1px solid var(--border-light);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.update-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  .update-icon {
+    color: var(--text-primary);
+  }
+  .update-text {
+    .update-title {
+      font-size: 14px;
+      color: var(--text-primary);
+      font-weight: 500;
+    }
+    .update-description {
+      font-size: 12px;
+      color: var(--text-secondary);
+      margin-top: 4px;
+    }
+  }
+}
+.update-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.progress-container {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 320px;
+  .progress-text {
+    font-size: 14px;
+    color: var(--text-primary);
+    min-width: 40px;
+  }
+}
 .panel-actions {
   display: flex;
   justify-content: flex-end;

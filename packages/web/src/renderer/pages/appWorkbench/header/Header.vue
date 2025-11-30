@@ -285,7 +285,7 @@ const jumpToHome = () => {
 }
 // 跳转到设置
 const jumpToSettings = () => {
-  const settingsTabId = 'settings';
+  const settingsTabId = `settings-${networkMode.value}`;
   const existingTab = tabs.value.find(t => t.id === settingsTabId);
   if (!existingTab) {
     tabs.value.push({
@@ -809,7 +809,7 @@ body {
   height: 100%;
   display: flex;
   align-items: center;
-  width: 415px;
+  width: 400px;
   margin-left: auto;
 }
 
@@ -839,7 +839,7 @@ body {
     }
   }
   .network-btn {
-    width: auto;
+    flex: 0 0 60px;
     display: flex;
     align-items: center;
     justify-content: center;

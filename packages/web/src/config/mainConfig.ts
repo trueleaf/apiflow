@@ -2,7 +2,7 @@ import type { MainConfig } from '@src/types/config';
 
 // 获取更新服务器地址
 export const getUpdateUrl = (): string => {
-  return process.env.VITE_UPDATE_URL || 'http://127.0.0.1/release';
+  return process.env.UPDATE_URL || 'http://127.0.0.1/release';
 };
 // 主进程配置
 export let mainConfig: MainConfig = {
