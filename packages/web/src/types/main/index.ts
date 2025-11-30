@@ -10,6 +10,7 @@ import { WebsocketConnectParams } from '../websocketNode';
 import { HttpMockNode, MockLog, MockStatusChangedPayload } from '../mockNode';
 import { ChatStreamCallbacks } from '@src/main/ai/agent.ts';
 import { LLMProviderSettings, OpenAiRequestBody, OpenAiResponseBody } from '../ai/agent.type.ts';
+import type { CheckUpdateResult, DownloadResult, UpdateStatus, UpdateProgress, VersionInfo } from '@src/types/updater';
 
 // ============================================================================
 // 窗口状态类型
@@ -88,6 +89,20 @@ export type ElectronAPI = {
     chatStream: (body: OpenAiRequestBody, callbacks: ChatStreamCallbacks) => {
       abort: () => void;
     };
+  };
+  updater: {
+    checkForUpdates: () => Promise<CheckUpdateResult>;
+    downloadUpdate: () => Promise<DownloadResult>;
+    cancelDownload: () => Promise<DownloadResult>;
+    quitAndInstall: () => void;
+    getUpdateStatus: () => Promise<UpdateStatus>;
+    toggleAutoCheck: (enabled: boolean) => Promise<{ success: boolean }>;
+    onUpdateChecking: (callback: () => void) => void;
+    onUpdateAvailable: (callback: (info: VersionInfo) => void) => void;
+    onUpdateNotAvailable: (callback: () => void) => void;
+    onDownloadProgress: (callback: (progress: UpdateProgress) => void) => void;
+    onDownloadCompleted: (callback: (info: { version: string; downloadedAt: number }) => void) => void;
+    onUpdateError: (callback: (error: { message: string; code?: string }) => void) => void;
   };
 }
 

@@ -29,6 +29,19 @@
     </div> -->
     
     <div class="right">
+      <button
+        v-if="showUpdateButton"
+        class="update-trigger-btn"
+        :title="updateButtonTitle"
+        :disabled="updateState === 'checking'"
+        @click="handleUpdateClick"
+      >
+        <Download v-if="updateState === 'available' || updateState === 'checking'" :size="16" />
+        <DownloadCloud v-if="updateState === 'downloading'" :size="16" />
+        <PackageCheck v-if="updateState === 'downloaded'" :size="16" />
+        <span v-if="updateState === 'downloading'" class="progress-text">{{ downloadProgress }}%</span>
+        <span v-if="updateState === 'downloaded'" class="install-text">{{ t('安装') }}</span>
+      </button>
       <button class="ai-trigger-btn" :title="t('AI助手 Ctrl+L')" @click="handleShowAiDialog" ref="aiButtonRef">
         <Bot :size="16" />
         <!-- <span>{{ t('AI助手') }}</span> -->
@@ -72,7 +85,7 @@ import type { AppWorkbenchHeaderTab } from '@src/types/appWorkbench/appWorkbench
 import type { RuntimeNetworkMode } from '@src/types/runtime'
 import { RefreshRight, Back, Right } from '@element-plus/icons-vue'
 import { useI18n } from 'vue-i18n'
-import { Folder, Settings, Bot } from 'lucide-vue-next'
+import { Folder, Settings, Bot, Download, DownloadCloud, PackageCheck } from 'lucide-vue-next'
 import type { AnchorRect } from '@src/types/common'
 import { IPC_EVENTS } from '@src/types/ipc'
 import { changeLanguage } from '@/i18n'
@@ -88,6 +101,11 @@ const aiButtonRef = ref<HTMLElement>()
 const { t } = useI18n()
 const language = ref<Language>('zh-cn')
 const networkMode = ref<RuntimeNetworkMode>('offline')
+type UpdateButtonState = 'idle' | 'checking' | 'available' | 'downloading' | 'downloaded' | 'error'
+const updateState = ref<UpdateButtonState>('idle')
+const downloadProgress = ref(0)
+const updateInfo = ref<{ version: string; releaseNotes: string } | null>(null)
+const updateError = ref<string>('')
 const filteredTabs = computed(() => {
   return tabs.value.filter(tab => tab.network === networkMode.value)
 })
@@ -98,6 +116,18 @@ const draggableTabs = computed({
     tabs.value = [...otherNetworkTabs, ...newTabs]
     syncTabsToContentView()
   }
+})
+const showUpdateButton = computed(() => updateState.value !== 'idle')
+const updateButtonTitle = computed(() => {
+  const titleMap = {
+    'idle': '',
+    'checking': t('检查更新中...'),
+    'available': t('发现新版本,点击下载'),
+    'downloading': `${t('下载中...')} ${downloadProgress.value}%`,
+    'downloaded': t('点击安装更新'),
+    'error': updateError.value
+  }
+  return titleMap[updateState.value]
 })
 // 获取项目类型 tab 应该插入的位置索引
 const getProjectTabInsertIndex = () => {
@@ -286,6 +316,134 @@ const handleShowAiDialog = () => {
   }
   window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.contentToTopBar.showAiDialog, { position })
 }
+// 初始化更新状态
+const initUpdateState = async () => {
+  try {
+    const status = await window.electronAPI?.updater.getUpdateStatus()
+    if (!status) return
+    if (status.downloaded) {
+      updateState.value = 'downloaded'
+      updateInfo.value = { version: status.newVersion || '', releaseNotes: '' }
+      setTimeout(() => {
+        if (updateState.value === 'downloaded') {
+          handleInstallUpdate()
+        }
+      }, 5000)
+    } else if (status.downloading) {
+      updateState.value = 'downloading'
+      downloadProgress.value = status.downloadProgress
+    }
+  } catch (error) {
+    // 静默失败
+  }
+}
+// 绑定更新事件监听
+const bindUpdateEvents = () => {
+  window.electronAPI?.updater.onUpdateChecking(() => {
+    updateState.value = 'checking'
+  })
+  window.electronAPI?.updater.onUpdateAvailable((info: { version: string; releaseDate: string; releaseNotes: string }) => {
+    updateState.value = 'available'
+    updateInfo.value = { version: info.version, releaseNotes: info.releaseNotes }
+  })
+  window.electronAPI?.updater.onUpdateNotAvailable(() => {
+    updateState.value = 'idle'
+  })
+  window.electronAPI?.updater.onDownloadProgress((progress: { percent: number }) => {
+    updateState.value = 'downloading'
+    downloadProgress.value = Math.floor(progress.percent)
+  })
+  window.electronAPI?.updater.onDownloadCompleted(() => {
+    updateState.value = 'downloaded'
+    downloadProgress.value = 100
+  })
+  window.electronAPI?.updater.onUpdateError((error: { message: string }) => {
+    showError(error.message || '更新过程中发生错误')
+  })
+  window.electronAPI?.ipcManager.onMain(IPC_EVENTS.apiflow.contentToTopBar.confirmDownloadUpdate, () => {
+    handleStartDownload()
+  })
+  window.electronAPI?.ipcManager.onMain(IPC_EVENTS.apiflow.contentToTopBar.cancelDownloadUpdate, () => {
+    updateState.value = 'available'
+  })
+}
+// 按钮点击处理
+const handleUpdateClick = async () => {
+  if (updateState.value === 'checking') return
+  if (updateState.value === 'available') {
+    window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.topBarToContent.showUpdateConfirm, {
+      version: updateInfo.value?.version,
+      releaseNotes: updateInfo.value?.releaseNotes
+    })
+    return
+  }
+  if (updateState.value === 'downloading') {
+    await handleCancelDownload()
+    return
+  }
+  if (updateState.value === 'downloaded') {
+    await handleInstallUpdate()
+    return
+  }
+  await handleCheckUpdate()
+}
+// 检查更新
+const handleCheckUpdate = async () => {
+  updateState.value = 'checking'
+  try {
+    const result = await window.electronAPI?.updater.checkForUpdates()
+    if (!result?.success) {
+      showError(result?.error || '检查更新失败')
+      return
+    }
+    if (!result.hasUpdate) {
+      window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.topBarToContent.showNoUpdateMessage)
+      updateState.value = 'idle'
+    }
+  } catch (error) {
+    showError('检查更新时发生错误')
+  }
+}
+// 开始下载
+const handleStartDownload = async () => {
+  updateState.value = 'downloading'
+  downloadProgress.value = 0
+  try {
+    const result = await window.electronAPI?.updater.downloadUpdate()
+    if (!result?.success) {
+      showError(result?.error || '下载失败')
+    }
+  } catch (error) {
+    showError('下载更新时发生错误')
+  }
+}
+// 取消下载
+const handleCancelDownload = async () => {
+  try {
+    await window.electronAPI?.updater.cancelDownload()
+    updateState.value = 'available'
+    downloadProgress.value = 0
+  } catch (error) {
+    // 静默失败
+  }
+}
+// 安装更新
+const handleInstallUpdate = () => {
+  try {
+    window.electronAPI?.updater.quitAndInstall()
+  } catch (error) {
+    showError('安装更新失败')
+  }
+}
+// 显示错误
+const showError = (message: string) => {
+  updateError.value = message
+  updateState.value = 'error'
+  setTimeout(() => {
+    updateState.value = 'idle'
+    updateError.value = ''
+  }, 3000)
+}
 // 绑定事件
 const bindEvent = () => {
   window.electronAPI?.windowManager.onWindowResize(handleWindowResize)
@@ -376,9 +534,11 @@ const handleDocumentClick = (event: MouseEvent) => {
   }
 }
 
-onMounted(() => {
+onMounted(async () => {
   bindEvent()
   scrollToActiveTab()
+  await initUpdateState()
+  bindUpdateEvents()
   window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.topBarToContent.topBarReady);
   window.addEventListener('click', handleDocumentClick)
 })
@@ -756,6 +916,43 @@ body {
 
 .sortable-ghost {
   opacity: 0.6;
+}
+.update-trigger-btn {
+  padding: 0 8px;
+  height: 24px;
+  border: none;
+  background: transparent;
+  color: var(--text-white);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  transition: all 0.2s;
+  -webkit-app-region: no-drag;
+  flex-shrink: 0;
+  border-radius: 3px;
+  margin-right: 8px;
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
+  }
+  &:focus {
+    outline: none;
+    box-shadow: none;
+  }
+  &:hover:not(:disabled) {
+    background: var(--bg-white-15);
+  }
+  .progress-text {
+    font-size: 10px;
+    font-weight: 500;
+    min-width: 30px;
+    text-align: center;
+  }
+  .install-text {
+    font-size: 12px;
+  }
 }
 </style>
 

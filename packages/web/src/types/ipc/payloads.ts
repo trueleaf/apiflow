@@ -87,6 +87,16 @@ export interface IPCEventMap {
     response: void;
   };
 
+  [IPC_EVENTS.apiflow.topBarToContent.showUpdateConfirm]: {
+    request: { version: string; releaseNotes: string };
+    response: void;
+  };
+
+  [IPC_EVENTS.apiflow.topBarToContent.showNoUpdateMessage]: {
+    request: void;
+    response: void;
+  };
+
   // 内容窗口 -> 顶栏
   [IPC_EVENTS.apiflow.contentToTopBar.contentReady]: {
     request: void;
@@ -154,6 +164,16 @@ export interface IPCEventMap {
   };
 
   [IPC_EVENTS.apiflow.contentToTopBar.openSettingsTab]: {
+    request: void;
+    response: void;
+  };
+
+  [IPC_EVENTS.apiflow.contentToTopBar.confirmDownloadUpdate]: {
+    request: void;
+    response: void;
+  };
+
+  [IPC_EVENTS.apiflow.contentToTopBar.cancelDownloadUpdate]: {
     request: void;
     response: void;
   };

@@ -229,6 +229,12 @@ export const useIpcEvent = (mainWindow: BrowserWindow, topBarView: WebContentsVi
     contentView.webContents.send(IPC_EVENTS.apiflow.topBarToContent.networkModeChanged, mode)
     topBarView.webContents.send(IPC_EVENTS.apiflow.topBarToContent.networkModeChanged, mode)
   })
+  ipcMain.on(IPC_EVENTS.apiflow.topBarToContent.showUpdateConfirm, (_, data: { version: string; releaseNotes: string }) => {
+    contentView.webContents.send(IPC_EVENTS.apiflow.topBarToContent.showUpdateConfirm, data)
+  })
+  ipcMain.on(IPC_EVENTS.apiflow.topBarToContent.showNoUpdateMessage, () => {
+    contentView.webContents.send(IPC_EVENTS.apiflow.topBarToContent.showNoUpdateMessage)
+  })
 
   /*
   |---------------------------------------------------------------------------
@@ -257,6 +263,12 @@ export const useIpcEvent = (mainWindow: BrowserWindow, topBarView: WebContentsVi
 
   ipcMain.on(IPC_EVENTS.apiflow.contentToTopBar.appSettingsChanged, () => {
     topBarView.webContents.send(IPC_EVENTS.apiflow.topBarToContent.appSettingsChanged)
+  })
+  ipcMain.on(IPC_EVENTS.apiflow.contentToTopBar.confirmDownloadUpdate, () => {
+    topBarView.webContents.send(IPC_EVENTS.apiflow.contentToTopBar.confirmDownloadUpdate)
+  })
+  ipcMain.on(IPC_EVENTS.apiflow.contentToTopBar.cancelDownloadUpdate, () => {
+    topBarView.webContents.send(IPC_EVENTS.apiflow.contentToTopBar.cancelDownloadUpdate)
   })
 
   // Header Tabs 更新通知 - 转发给 contentView 进行缓存

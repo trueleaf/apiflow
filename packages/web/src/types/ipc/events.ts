@@ -47,6 +47,10 @@ export const IPC_EVENTS = {
       openSettingsTab: 'apiflow:topbar:to:content:open-settings-tab',
       /** 应用设置已变更 */
       appSettingsChanged: 'apiflow:topbar:to:content:app-settings-changed',
+      /** 显示更新确认对话框 */
+      showUpdateConfirm: 'apiflow:topbar:to:content:show-update-confirm',
+      /** 显示无更新提示 */
+      showNoUpdateMessage: 'apiflow:topbar:to:content:show-no-update-message',
     },
 
     /** 内容窗口 -> 顶栏 */
@@ -81,6 +85,10 @@ export const IPC_EVENTS = {
       openSettingsTab: 'apiflow:content:to:topbar:open-settings-tab',
       /** 应用设置已变更 */
       appSettingsChanged: 'apiflow:content:to:topbar:app-settings-changed',
+      /** 确认下载更新 */
+      confirmDownloadUpdate: 'apiflow:content:to:topbar:confirm-download-update',
+      /** 取消下载更新 */
+      cancelDownloadUpdate: 'apiflow:content:to:topbar:cancel-download-update',
     },
 
     /** 渲染进程 -> 主进程 (请求-响应) */
