@@ -3,7 +3,7 @@ import type { AppUpdater, UpdateInfo, ProgressInfo } from 'electron-updater';
 import { app } from 'electron';
 import type { WebContentsView } from 'electron';
 const { autoUpdater } = electronUpdater;
-import { mainConfig } from '@src/config/mainConfig';
+import { mainConfig, getUpdateUrl } from '@src/config/mainConfig';
 import { IPC_EVENTS } from '@src/types/ipc';
 import type { CheckUpdateResult, DownloadResult, UpdateStatus } from '@src/types/updater';
 
@@ -31,17 +31,15 @@ export class UpdateManager {
   private configureAutoUpdater(): void {
     this.autoUpdater.setFeedURL({
       provider: 'generic',
-      url: mainConfig.updateConfig.url,
+      url: getUpdateUrl(),
       channel: 'latest'
     });
-    if (process.platform === 'darwin') {
+    if (process.platform === 'darwin' || process.platform === 'linux') {
       this.autoUpdater.autoDownload = false;
     } else if (process.platform === 'win32') {
+      this.autoUpdater.autoDownload = mainConfig.updateConfig.autoDownload;
       this.autoUpdater.autoInstallOnAppQuit = true;
-    } else if (process.platform === 'linux') {
-      this.autoUpdater.autoDownload = false;
     }
-    this.autoUpdater.autoDownload = mainConfig.updateConfig.autoDownload;
     this.autoUpdater.allowPrerelease = mainConfig.updateConfig.allowPrerelease;
     this.autoUpdater.allowDowngrade = mainConfig.updateConfig.allowDowngrade;
     if (!app.isPackaged) {
@@ -211,8 +209,11 @@ export class UpdateManager {
   // 发送状态到渲染进程
   private sendToRenderer(eventType: string, data?: unknown): void {
     if (!this.contentView) return;
-    let eventName = `updater:main:to:renderer:${eventType}` as keyof typeof IPC_EVENTS.updater.mainToRenderer;
-    let fullEventName = IPC_EVENTS.updater.mainToRenderer[eventName as keyof typeof IPC_EVENTS.updater.mainToRenderer];
+    let fullEventName = IPC_EVENTS.updater.mainToRenderer[eventType as keyof typeof IPC_EVENTS.updater.mainToRenderer];
+    if (!fullEventName) {
+      console.error(`Unknown updater event type: ${eventType}`);
+      return;
+    }
     this.contentView.webContents.send(fullEventName, data);
   }
   // 错误处理

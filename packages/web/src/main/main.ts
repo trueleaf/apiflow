@@ -30,13 +30,8 @@ protocol.registerSchemesAsPrivileged([
 export let mockManager = new HttpMockManager();
 export let webSocketManager = new WebSocketManager();
 export let updateManager: UpdateManager | null = null;
-
-// 导出 contentView 供其他模块使用
 export let contentViewInstance: WebContentsView | null = null;
-
-// 单实例锁变量，用于存储主窗口引用
 let mainWindowInstance: BrowserWindow | null = null;
-
 /*
 |--------------------------------------------------------------------------
 | 创建窗口
@@ -181,9 +176,7 @@ if (!gotTheLock) {
     mainWindowInstance = mainWindow;
     // 保存 contentView 引用供其他模块使用
     contentViewInstance = contentView;
-
-    // 初始化更新管理器（仅在生产环境且启用自动更新时）
-    if (app.isPackaged && mainConfig.updateConfig.autoUpdate) {
+    if (mainConfig.updateConfig.autoUpdate) {
       updateManager = new UpdateManager();
       updateManager.init(contentView);
     }

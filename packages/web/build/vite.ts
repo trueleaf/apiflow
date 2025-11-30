@@ -27,6 +27,7 @@ const buildElectron = (mode: string, command: 'build' | 'serve') => {
     define: {
       __MODE__: JSON.stringify(mode),
       __COMMAND__: JSON.stringify(command),
+      'process.env.VITE_UPDATE_URL': JSON.stringify(process.env.VITE_UPDATE_URL || ''),
     },
     alias: {
       '@src': path.resolve(process.cwd(), './src'),
