@@ -11,6 +11,7 @@ export class UpdateManager {
   private autoUpdater: AppUpdater = autoUpdater;
   private checkTimer: NodeJS.Timeout | null = null;
   private contentView: WebContentsView | null = null;
+  private topBarView: WebContentsView | null = null;
   private isDownloading = false;
   private isChecking = false;
   private downloadedVersion: string | null = null;
@@ -21,8 +22,9 @@ export class UpdateManager {
     this.registerAutoUpdaterEvents();
   }
   // 初始化
-  init(contentView: WebContentsView): void {
+  init(contentView: WebContentsView, topBarView: WebContentsView): void {
     this.contentView = contentView;
+    this.topBarView = topBarView;
     if (mainConfig.updateConfig.autoUpdate) {
       this.startAutoCheck();
     }
@@ -209,13 +211,12 @@ export class UpdateManager {
   }
   // 发送状态到渲染进程
   private sendToRenderer(eventType: string, data?: unknown): void {
-    if (!this.contentView) return;
     let fullEventName = IPC_EVENTS.updater.mainToRenderer[eventType as keyof typeof IPC_EVENTS.updater.mainToRenderer];
     if (!fullEventName) {
-      console.error(`Unknown updater event type: ${eventType}`);
       return;
     }
-    this.contentView.webContents.send(fullEventName, data);
+    this.contentView?.webContents.send(fullEventName, data);
+    this.topBarView?.webContents.send(fullEventName, data);
   }
   // 错误处理
   private handleUpdateError(error: Error): void {

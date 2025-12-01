@@ -33,25 +33,24 @@ export const useIpcEvent = (mainWindow: BrowserWindow, topBarView: WebContentsVi
   */
   let topBarReady = false;
   let contentViewReady = false;
-
+  let handshakeCompleted = false;
+  // 尝试完成握手
+  const tryCompleteHandshake = () => {
+    if (topBarReady && contentViewReady && !handshakeCompleted) {
+      handshakeCompleted = true;
+      contentView.webContents.send(IPC_EVENTS.apiflow.rendererToMain.topBarIsReady);
+      topBarView.webContents.send(IPC_EVENTS.apiflow.rendererToMain.contentIsReady);
+    }
+  };
   // topBarView 就绪通知
   ipcMain.on(IPC_EVENTS.apiflow.topBarToContent.topBarReady, () => {
     topBarReady = true;
-    // 如果 contentView 也准备好了，通知双方可以通信
-    if (contentViewReady) {
-      contentView.webContents.send(IPC_EVENTS.apiflow.rendererToMain.topBarIsReady);
-      topBarView.webContents.send(IPC_EVENTS.apiflow.rendererToMain.contentIsReady);
-    }
+    tryCompleteHandshake();
   });
-
   // contentView 就绪通知
   ipcMain.on(IPC_EVENTS.apiflow.contentToTopBar.contentReady, () => {
     contentViewReady = true;
-    // 如果 topBar 也准备好了，通知双方可以通信
-    if (topBarReady) {
-      contentView.webContents.send(IPC_EVENTS.apiflow.rendererToMain.topBarIsReady);
-      topBarView.webContents.send(IPC_EVENTS.apiflow.rendererToMain.contentIsReady);
-    }
+    tryCompleteHandshake();
   });
 
   /*

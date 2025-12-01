@@ -1,45 +1,37 @@
 <template>
-  <button
-    v-if="showUpdateButton"
-    class="update-trigger-btn"
-    :title="updateButtonTitle"
-    :disabled="updateState === 'checking'"
-    @click="handleUpdateClick"
-  >
+  <div v-if="updateState === 'available'" class="update-trigger-btn" :title="t('发现新版本,点击下载')" @click="handleAvailableClick">
     <span class="update-icon-wrapper">
-      <Download v-if="updateState === 'available' || updateState === 'checking'" :size="16" />
-      <DownloadCloud v-if="updateState === 'downloading'" :size="16" />
-      <PackageCheck v-if="updateState === 'downloaded'" :size="16" />
-      <span v-if="updateState === 'available' || updateState === 'downloaded'" class="update-badge"></span>
+      <Download :size="16" />
+      <span class="update-badge"></span>
     </span>
-    <span v-if="updateState === 'downloading'" class="progress-text">{{ downloadProgress }}%</span>
-    <span v-if="updateState === 'downloaded'" class="install-text">{{ t('安装') }}</span>
-  </button>
+  </div>
+  <div v-if="updateState === 'downloading'" class="update-trigger-btn" :title="`${t('下载中...')} ${downloadProgress}%`" @click="handleCancelDownload">
+    <DownloadCloud :size="16" />
+    <span class="progress-text">{{ downloadProgress }}%</span>
+  </div>
+  <div v-if="updateState === 'downloaded'" class="update-trigger-btn" :title="t('点击安装更新')" @click="handleInstallUpdate">
+    <span class="update-icon-wrapper">
+      <PackageCheck :size="16" />
+      <span class="update-badge"></span>
+    </span>
+    <span class="install-text">{{ t('安装') }}</span>
+  </div>
+  <div v-if="updateState === 'error'" class="update-trigger-btn update-error" :title="updateError">
+    <AlertCircle :size="16" />
+  </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { Download, DownloadCloud, PackageCheck } from 'lucide-vue-next'
+import { Download, DownloadCloud, PackageCheck, AlertCircle } from 'lucide-vue-next'
 import { IPC_EVENTS } from '@src/types/ipc'
 
 const { t } = useI18n()
-const updateState = ref<'idle' | 'checking' | 'available' | 'downloading' | 'downloaded' | 'error'>('idle')
+const updateState = ref<'idle' | 'available' | 'downloading' | 'downloaded' | 'error'>('idle')
 const downloadProgress = ref(0)
 const updateInfo = ref<{ version: string; releaseNotes: string } | null>(null)
 const updateError = ref('')
-const showUpdateButton = computed(() => updateState.value !== 'idle')
-const updateButtonTitle = computed(() => {
-  const titleMap = {
-    'idle': '',
-    'checking': t('检查更新中...'),
-    'available': t('发现新版本,点击下载'),
-    'downloading': `${t('下载中...')} ${downloadProgress.value}%`,
-    'downloaded': t('点击安装更新'),
-    'error': updateError.value
-  }
-  return titleMap[updateState.value]
-})
 // 初始化更新状态
 const initUpdateState = async () => {
   try {
@@ -48,11 +40,11 @@ const initUpdateState = async () => {
     if (status.downloaded) {
       updateState.value = 'downloaded'
       updateInfo.value = { version: status.newVersion || '', releaseNotes: '' }
-      setTimeout(() => {
-        if (updateState.value === 'downloaded') {
-          handleInstallUpdate()
-        }
-      }, 5000)
+      // setTimeout(() => {
+      //   if (updateState.value === 'downloaded') {
+      //     handleInstallUpdate()
+      //   }
+      // }, 5000)
     } else if (status.downloading) {
       updateState.value = 'downloading'
       downloadProgress.value = status.downloadProgress
@@ -60,15 +52,12 @@ const initUpdateState = async () => {
       updateState.value = 'available'
       updateInfo.value = { version: status.newVersion, releaseNotes: '' }
     }
-  } catch {
-    // 静默失败
+  } catch (err) {
+    console.error(err)
   }
 }
 // 绑定更新事件监听
 const bindUpdateEvents = () => {
-  window.electronAPI?.updater.onUpdateChecking(() => {
-    updateState.value = 'checking'
-  })
   window.electronAPI?.updater.onUpdateAvailable((info: { version: string; releaseDate: string; releaseNotes: string }) => {
     updateState.value = 'available'
     updateInfo.value = { version: info.version, releaseNotes: info.releaseNotes }
@@ -77,10 +66,12 @@ const bindUpdateEvents = () => {
     updateState.value = 'idle'
   })
   window.electronAPI?.updater.onDownloadProgress((progress: { percent: number }) => {
+    console.log('Download progress:', progress.percent)
     updateState.value = 'downloading'
     downloadProgress.value = Math.floor(progress.percent)
   })
   window.electronAPI?.updater.onDownloadCompleted(() => {
+    console.log('Download completed')
     updateState.value = 'downloaded'
     downloadProgress.value = 100
   })
@@ -94,42 +85,12 @@ const bindUpdateEvents = () => {
     updateState.value = 'available'
   })
 }
-// 按钮点击处理
-const handleUpdateClick = async () => {
-  if (updateState.value === 'checking') return
-  if (updateState.value === 'available') {
-    window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.topBarToContent.showUpdateConfirm, {
-      version: updateInfo.value?.version,
-      releaseNotes: updateInfo.value?.releaseNotes
-    })
-    return
-  }
-  if (updateState.value === 'downloading') {
-    await handleCancelDownload()
-    return
-  }
-  if (updateState.value === 'downloaded') {
-    await handleInstallUpdate()
-    return
-  }
-  await handleCheckUpdate()
-}
-// 检查更新
-const handleCheckUpdate = async () => {
-  updateState.value = 'checking'
-  try {
-    const result = await window.electronAPI?.updater.checkForUpdates()
-    if (!result?.success) {
-      showError(result?.error || '检查更新失败')
-      return
-    }
-    if (!result.hasUpdate) {
-      window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.topBarToContent.showNoUpdateMessage)
-      updateState.value = 'idle'
-    }
-  } catch {
-    showError('检查更新时发生错误')
-  }
+// available 状态点击处理
+const handleAvailableClick = () => {
+  window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.topBarToContent.showUpdateConfirm, {
+    version: updateInfo.value?.version,
+    releaseNotes: updateInfo.value?.releaseNotes
+  })
 }
 // 开始下载
 const handleStartDownload = async () => {
@@ -196,18 +157,13 @@ onMounted(async () => {
   border-radius: 3px;
   margin-right: 8px;
 
-  &:disabled {
-    cursor: not-allowed;
-    opacity: 0.6;
-  }
-
-  &:focus {
-    outline: none;
-    box-shadow: none;
-  }
-
-  &:hover:not(:disabled) {
+  &:hover {
     background: var(--bg-white-15);
+  }
+
+  &.update-error {
+    color: var(--el-color-danger);
+    cursor: default;
   }
 
   .update-icon-wrapper {

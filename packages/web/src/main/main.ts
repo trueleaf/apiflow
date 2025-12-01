@@ -181,7 +181,7 @@ if (!gotTheLock) {
     contentViewInstance = contentView;
     if (mainConfig.updateConfig.autoUpdate) {
       updateManager = new UpdateManager();
-      updateManager.init(contentView);
+      updateManager.init(contentView, topBarView);
     }
 
     const { broadcastWindowState } = useIpcEvent(mainWindow, topBarView, contentView);
