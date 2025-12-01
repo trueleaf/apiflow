@@ -129,6 +129,9 @@ const initUpdateState = async () => {
       updateState.value = 'downloading'
       downloadProgress.value = status.downloadProgress
       hasUpdate.value = true
+    } else if (status.newVersion && status.newVersion !== status.currentVersion) {
+      updateState.value = 'available'
+      hasUpdate.value = true
     }
     notifyBadgeChange()
   } catch (error) {
