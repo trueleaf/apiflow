@@ -24,9 +24,6 @@
       </draggable>
     </div>
     <button class="add-tab-btn" :title="t('新建项目')" @click="handleAddProject">+</button>
-    <!-- <div v-if="filteredTabs.length > 0" class="short-divider">
-      <span class="short-divider-content"></span>
-    </div> -->
     
     <div class="right">
       <button
@@ -319,7 +316,7 @@ const handleShowAiDialog = () => {
 // 初始化更新状态
 const initUpdateState = async () => {
   try {
-    const status = await window.electronAPI?.updater.getUpdateStatus()
+    const status = await window.electronAPI?.updater.getUpdateStatus();
     if (!status) return
     if (status.downloaded) {
       updateState.value = 'downloaded'
@@ -793,7 +790,7 @@ body {
   -webkit-app-region: no-drag;
   flex-shrink: 0;
   border-radius: 3px;
-  margin-right: 8px;
+  // margin-right: 8px;
 }
 
 .ai-trigger-btn:focus {
@@ -809,7 +806,7 @@ body {
   height: 100%;
   display: flex;
   align-items: center;
-  width: 400px;
+  // width: 400px;
   margin-left: auto;
 }
 
