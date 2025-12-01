@@ -10,7 +10,7 @@
               @click.stop="handleClearSearch">
               <CircleCloseIcon />
             </el-icon>
-            <el-icon :title="$t('高级搜索')" class="cursor-pointer" color="var(--gray-400)">
+            <el-icon :title="$t('高级搜索')" class="cursor-pointer" color="var(--gray-400)" @click.stop="toggleAdvancedSearch">
               <Tools />
             </el-icon>
           </div>
@@ -20,7 +20,23 @@
       <el-button v-if="0" type="success" :icon="DownloadIcon" @click="dialogVisible3 = true">{{ $t("导入项目")
         }}</el-button>
     </div>
+    <!-- 高级搜索面板 -->
+    <AdvancedSearchPanel
+      v-model="searchConditions"
+      :is-standalone="isStandalone"
+      :is-visible="showAdvancedSearch"
+      @reset="handleResetSearch"
+    />
+    <!-- 搜索结果 -->
+    <SearchResults
+      v-if="searchMode === 'advanced'"
+      :results="searchResults"
+      :loading="isSearching"
+      @jump-to-node="handleJumpToNode"
+      @load-more="handleLoadMore"
+    />
     <!-- 项目列表 -->
+    <div v-if="searchMode === 'simple'">
     <Loading :loading="!isStandalone && projectLoading">
       <!-- 收藏的项目 -->
       <h2 v-show="starProjects.length > 0">
@@ -161,6 +177,7 @@
         </div>
       </div>
     </Loading>
+    </div>
   </div>
   <AddProjectDialog v-if="dialogVisible" v-model="dialogVisible" @success="handleAddSuccess"></AddProjectDialog>
   <EditProjectDialog v-if="dialogVisible2" v-model="dialogVisible2" :project-id="currentEditProjectId"
@@ -193,8 +210,12 @@ import AddProjectDialog from '../dialog/addProject/AddProject.vue'
 import EditProjectDialog from '../dialog/editProject/EditProject.vue'
 import EditPermissionDialog from '../dialog/editPermission/EditPermission.vue'
 import UndoNotification from '@/components/common/undoNotification/UndoNotification.vue'
+import AdvancedSearchPanel from './advancedSearch/AdvancedSearchPanel.vue'
+import SearchResults from './advancedSearch/SearchResults.vue'
 import { useI18n } from 'vue-i18n'
 import type { ApidocProjectInfo, ApiNode } from '@src/types';
+import type { AdvancedSearchConditions, GroupedSearchResults, SearchResultItem } from '@src/types/advancedSearch';
+import { performAdvancedSearch } from '@/composables/useAdvancedSearch';
 import { computed, onMounted, ref, watch } from 'vue';
 import { request } from '@/api/api';
 import 'element-plus/es/components/message-box/style/css';
@@ -261,6 +282,42 @@ const dialogVisible = ref(false);
 const dialogVisible2 = ref(false);
 const dialogVisible3 = ref(false);
 const dialogVisible4 = ref(false);
+const showAdvancedSearch = ref(false);
+const searchMode = ref<'simple' | 'advanced'>('simple');
+const searchConditions = ref<AdvancedSearchConditions>({
+  basicInfo: {
+    projectName: '',
+    docName: '',
+    url: '',
+    creator: '',
+    maintainer: '',
+    method: '',
+    remark: ''
+  },
+  nodeTypes: {
+    folder: false,
+    http: false,
+    websocket: false,
+    httpMock: false
+  },
+  requestParams: {
+    query: '',
+    path: '',
+    headers: '',
+    body: '',
+    response: '',
+    preScript: '',
+    afterScript: '',
+    wsMessage: ''
+  },
+  dateRange: {
+    type: 'all'
+  }
+});
+const searchResults = ref<GroupedSearchResults[]>([]);
+const isSearching = ref(false);
+const expandedProjects = ref<Set<string>>(new Set());
+const allSearchResults = ref<Map<string, SearchResultItem[]>>(new Map());
 const projectList = computed<ApidocProjectInfo[]>(() => {
   const filteredProjectList = projectListCopy.value.filter((val) => 
     val.projectName.match(new RegExp(projectName.value, 'gi'))
@@ -557,6 +614,125 @@ const handleClearSearch = () => {
 const debounceSearch = debounce(() => {
   // 项目名称搜索通过计算属性实现，此处无需额外操作
 }, 300)
+// 检查是否有任何搜索条件
+const hasAnyCondition = (conditions: AdvancedSearchConditions): boolean => {
+  const hasBasicInfo = Object.values(conditions.basicInfo).some(v => v.trim().length > 0);
+  const hasNodeTypes = Object.values(conditions.nodeTypes).some(v => v === true);
+  const hasRequestParams = Object.values(conditions.requestParams).some(v => v.trim().length > 0);
+  const hasDateRange = conditions.dateRange.type !== 'all';
+  return hasBasicInfo || hasNodeTypes || hasRequestParams || hasDateRange;
+};
+// 执行高级搜索
+const debouncedAdvancedSearch = debounce(async () => {
+  if (!hasAnyCondition(searchConditions.value)) {
+    searchResults.value = [];
+    searchMode.value = 'simple';
+    return;
+  }
+  isSearching.value = true;
+  try {
+    const results = await performAdvancedSearch(searchConditions.value, isStandalone.value);
+    searchResults.value = results;
+    allSearchResults.value.clear();
+    for (const group of results) {
+      const projectId = group.projectId;
+      const nodes = await apiNodesCache.getNodesByProjectId(projectId);
+      const project = projectListCopy.value.find(p => p._id === projectId);
+      if (project) {
+        const matchedNodes: SearchResultItem[] = [];
+        for (const node of nodes.filter(n => !n.isDeleted)) {
+          const match = await matchNode(node, searchConditions.value, project);
+          if (match) matchedNodes.push(match);
+        }
+        allSearchResults.value.set(projectId, matchedNodes);
+      }
+    }
+    searchMode.value = 'advanced';
+  } finally {
+    isSearching.value = false;
+  }
+}, 300);
+async function matchNode(node: ApiNode, conditions: AdvancedSearchConditions, project: ApidocProjectInfo): Promise<SearchResultItem | null> {
+  const { performAdvancedSearch } = await import('@/composables/useAdvancedSearch');
+  const tempResults = await performAdvancedSearch(conditions, isStandalone.value);
+  for (const group of tempResults) {
+    if (group.projectId === project._id) {
+      const matchedNode = group.nodes.find(n => n.nodeId === node._id);
+      if (matchedNode) return matchedNode;
+    }
+  }
+  return null;
+}
+// 切换高级搜索面板
+const toggleAdvancedSearch = () => {
+  showAdvancedSearch.value = !showAdvancedSearch.value;
+};
+// 重置搜索
+const handleResetSearch = () => {
+  searchConditions.value = {
+    basicInfo: {
+      projectName: '',
+      docName: '',
+      url: '',
+      creator: '',
+      maintainer: '',
+      method: '',
+      remark: ''
+    },
+    nodeTypes: {
+      folder: false,
+      http: false,
+      websocket: false,
+      httpMock: false
+    },
+    requestParams: {
+      query: '',
+      path: '',
+      headers: '',
+      body: '',
+      response: '',
+      preScript: '',
+      afterScript: '',
+      wsMessage: ''
+    },
+    dateRange: {
+      type: 'all'
+    }
+  };
+  searchResults.value = [];
+  searchMode.value = 'simple';
+  expandedProjects.value.clear();
+  allSearchResults.value.clear();
+};
+// 跳转到节点
+const handleJumpToNode = (item: SearchResultItem) => {
+  router.push({
+    path: '/v1/apidoc/doc-edit',
+    query: {
+      id: item.projectId,
+      name: item.projectName,
+      mode: 'edit',
+      nodeId: item.nodeId
+    }
+  });
+};
+// 加载更多
+const handleLoadMore = async (projectId: string) => {
+  expandedProjects.value.add(projectId);
+  const allNodes = allSearchResults.value.get(projectId);
+  if (allNodes) {
+    const group = searchResults.value.find(g => g.projectId === projectId);
+    if (group) {
+      group.nodes = allNodes;
+      group.displayCount = allNodes.length;
+      group.hasMore = false;
+    }
+  }
+};
+// 监听搜索条件变化
+watch(searchConditions, () => {
+  debouncedAdvancedSearch();
+}, { deep: true });
 onMounted(() => {
   getProjectList();
   initCahce();

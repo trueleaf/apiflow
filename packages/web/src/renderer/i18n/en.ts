@@ -1475,4 +1475,16 @@ export default {
   开源协议: 'License',
   官方网站: 'Official Website',
   版权信息: 'Copyright',
+  // Advanced Search (new)
+  HTTP节点: 'HTTP Node',
+  WebSocket节点: 'WebSocket Node',
+  'HTTP Mock节点': 'HTTP Mock Node',
+  WebSocket消息: 'WebSocket Message',
+  '最近3天': 'Last 3 Days',
+  '最近1周': 'Last Week',
+  '最近1月': 'Last Month',
+  '最近3月': 'Last 3 Months',
+  查看更多: 'View More',
+  '共{count}个': 'Total {count}',
+  请输入搜索条件: 'Please enter search criteria',
 }
