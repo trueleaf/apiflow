@@ -56,19 +56,20 @@ export class UpdateManager {
     this.autoUpdater.on('update-available', (info: UpdateInfo) => {
       this.isChecking = false;
       this.updateInfo = info;
-      this.sendToRenderer('update-available', {
+      this.sendToRenderer('updateAvailable', {
         version: info.version,
         releaseDate: info.releaseDate,
         releaseNotes: info.releaseNotes || ''
       });
     });
     this.autoUpdater.on('update-not-available', () => {
+      console.log('No update available');
       this.isChecking = false;
-      this.sendToRenderer('update-not-available');
+      this.sendToRenderer('updateNotAvailable');
     });
     this.autoUpdater.on('download-progress', (progress: ProgressInfo) => {
       this.currentDownloadProgress = progress.percent;
-      this.sendToRenderer('download-progress', {
+      this.sendToRenderer('downloadProgress', {
         percent: progress.percent,
         bytesPerSecond: progress.bytesPerSecond,
         transferred: progress.transferred,
@@ -79,7 +80,7 @@ export class UpdateManager {
       this.isDownloading = false;
       this.downloadedVersion = info.version;
       this.currentDownloadProgress = 100;
-      this.sendToRenderer('download-completed', {
+      this.sendToRenderer('downloadCompleted', {
         version: info.version,
         downloadedAt: Date.now()
       });
