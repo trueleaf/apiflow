@@ -34,7 +34,6 @@ export class UpdateManager {
       url: getUpdateUrl(),
       channel: 'latest'
     });
-    console.log(123, getUpdateUrl())
     if (process.platform === 'darwin' || process.platform === 'linux') {
       this.autoUpdater.autoDownload = false;
     } else if (process.platform === 'win32') {
@@ -132,13 +131,13 @@ export class UpdateManager {
   }
   // 启动定时检查
   startAutoCheck(): void {
-    let checkInterval = mainConfig.updateConfig.checkInterval || 4 * 60 * 60 * 1000;
+    let checkInterval = mainConfig.updateConfig.checkInterval;
     this.checkForUpdates().catch(() => {
-      // 静默失败
+      console.error('Initial update check failed');
     });
     this.checkTimer = setInterval(() => {
       this.checkForUpdates().catch(() => {
-        // 定时检查失败时静默处理
+        console.error('Scheduled update check failed');
       });
     }, checkInterval);
   }

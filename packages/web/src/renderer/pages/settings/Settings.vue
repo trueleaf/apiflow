@@ -19,15 +19,16 @@
         </div>
 
         <div class="menu-group">
-          <div 
-            v-for="(setting, index) in settingTabs" 
-            :key="index" 
+          <div
+            v-for="(setting, index) in settingTabs"
+            :key="index"
             class="tab-item"
             :class="{ active: activeTab === setting.action }"
             @click="handleSettingClick(setting)"
           >
             <component :is="setting.icon" class="tab-icon" />
             <span>{{ setting.name }}</span>
+            <span v-if="setting.action === 'about' && showUpdateBadge" class="update-badge"></span>
           </div>
         </div>
       </div>
@@ -40,6 +41,7 @@
         <ComponentLibrary v-if="activeTab === 'components'" />
         <AiSettings v-if="activeTab === 'ai-settings'" />
         <TestCase v-if="activeTab === 'test-case'" />
+        <About v-if="activeTab === 'about'" @update-badge="handleUpdateBadge" />
       </div>
     </div>
   </div>
@@ -56,7 +58,8 @@ import AiSettings from './aiSettings/AiSettings.vue'
 import ProjectRecovery from './projectRecovery/ProjectRecovery.vue'
 import Shortcuts from './shortcuts/Shortcuts.vue'
 import TestCase from './testCase/TestCase.vue'
-import { UserCircle, HardDrive, Command, Box, BrainCircuit, Trash2, FlaskConical } from 'lucide-vue-next'
+import About from './about/About.vue'
+import { UserCircle, HardDrive, Command, Box, BrainCircuit, Trash2, FlaskConical, Info } from 'lucide-vue-next'
 
 const { t } = useI18n()
 
@@ -67,6 +70,7 @@ type TabItem = {
 };
 
 const activeTab = ref(appState.getActiveLocalDataMenu() || 'common-settings')
+const showUpdateBadge = ref(false)
 const tabs: TabItem[] = [
   { name: t('通用配置'), icon: UserCircle, action: 'common-settings' },
   { name: t('本地数据'), icon: HardDrive, action: 'local-data' },
@@ -76,13 +80,17 @@ const settingTabs: TabItem[] = [
   { name: t('快捷键'), icon: Command, action: 'shortcuts' },
   { name: t('组件库'), icon: Box, action: 'components' },
   { name: t('AI 设置'), icon: BrainCircuit, action: 'ai-settings' },
-  { name: t('测试案例'), icon: FlaskConical, action: 'test-case' }
+  { name: t('测试案例'), icon: FlaskConical, action: 'test-case' },
+  { name: t('关于'), icon: Info, action: 'about' }
 ]
 const handleSettingClick = (setting: TabItem) => {
   activeTab.value = setting.action
 }
 const handleTabClick = (tab: TabItem) => {
   activeTab.value = tab.action
+}
+const handleUpdateBadge = (show: boolean) => {
+  showUpdateBadge.value = show
 }
 watch(activeTab, (newValue) => {
   appState.setActiveLocalDataMenu(newValue)
@@ -146,6 +154,17 @@ watch(activeTab, (newValue) => {
           margin-right: 10px;
           width: 18px;
           height: 18px;
+        }
+
+        .update-badge {
+          position: absolute;
+          top: 8px;
+          right: 8px;
+          width: 8px;
+          height: 8px;
+          border-radius: 50%;
+          background-color: var(--el-color-danger);
+          box-shadow: 0 0 0 2px var(--bg-sidebar);
         }
       }
     }

@@ -95,7 +95,6 @@ const createWindow = () => {
     })
     contentView.webContents.openDevTools({ mode: 'bottom' })
   }
-
   return {
     mainWindow,
     topBarView,

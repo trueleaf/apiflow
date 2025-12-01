@@ -1469,4 +1469,10 @@ export default {
   已是最新版本: 'Already up to date',
   下载完成可以安装更新: 'Download completed, ready to install',
   更新失败: 'Update failed',
+  关于: 'About',
+  构建时间: 'Build Time',
+  相关链接: 'Related Links',
+  开源协议: 'License',
+  官方网站: 'Official Website',
+  版权信息: 'Copyright',
 }
