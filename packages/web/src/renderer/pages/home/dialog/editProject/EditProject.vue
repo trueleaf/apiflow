@@ -14,16 +14,13 @@
 </template>
 
 <script lang="ts" setup>
-import { request } from '@/api/api';
 import { config } from '@src/config/config';
 import { FormInstance } from 'element-plus';
 import { useI18n } from 'vue-i18n'
-import { computed, nextTick, ref, watch } from 'vue';
-import { projectCache } from '@/cache/project/projectCache';
-import { useRuntime } from '@/store/runtime/runtimeStore';
-
-
+import { nextTick, ref, watch } from 'vue';
+import { useProjectStore } from '@/store/project/projectStore';
 import { message } from '@/helper'
+
 const props = defineProps({
   modelValue: {
     type: Boolean,
@@ -45,8 +42,7 @@ const props = defineProps({
 const emits = defineEmits(['update:modelValue', 'success'])
 const { t } = useI18n()
 
-const runtimeStore = useRuntime();
-const isStandalone = computed(() => runtimeStore.networkMode === 'offline')
+const projectStore = useProjectStore();
 const projectNameInput = ref()
 const formInfo = ref({
   projectName: '',
@@ -91,35 +87,22 @@ const handleClose = () => {
 //修改项目
 const handleEditProject = () => {
   form.value?.validate(async (valid) => {
-    if(isStandalone.value && valid){
-      await projectCache.updateProject(props.projectId, {
-        projectName: formInfo.value.projectName,
-      });
-      handleClose();
-      // 在standalone模式下也传递编辑后的数据
-      emits('success', {
-        id: props.projectId,
-        name: formInfo.value.projectName,
-      });
-      return;
-    }
     if (valid) {
       loading.value = true;
-      const params = {
-        projectName: formInfo.value.projectName,
-        _id: props.projectId,
-      };
-      request.put('/api/project/edit_project', params).then((res) => {
-        handleClose();
-        emits('success', {
-          id: res.data,
-          name: formInfo.value.projectName,
-        });
-      }).catch((err) => {
+      try {
+        const success = await projectStore.updateProject(props.projectId, formInfo.value.projectName);
+        if (success) {
+          handleClose();
+          emits('success', {
+            id: props.projectId,
+            name: formInfo.value.projectName,
+          });
+        }
+      } catch (err) {
         console.error(err);
-      }).finally(() => {
+      } finally {
         loading.value = false;
-      });
+      }
     } else {
       nextTick(() => {
         const input: HTMLInputElement = document.querySelector('.el-form-item.is-error input') as HTMLInputElement;

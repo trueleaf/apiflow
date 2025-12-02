@@ -170,7 +170,6 @@ import type { ApidocBanner, ApidocOperations, ApidocProjectInfo } from '@src/typ
 import { forEachForest } from '@/helper'
 import { router } from '@/router/index'
 import { useI18n } from 'vue-i18n'
-import { request } from '@/api/api'
 import { projectWorkbenchCache } from '@/cache/projectWorkbench/projectWorkbenchCache.ts'
 import SAddFileDialog from '../../../dialog/addFile/AddFile.vue'
 import SAddFolderDialog from '../../../dialog/addFolder/AddFolder.vue'
@@ -623,11 +622,7 @@ const handleChangeProject = (item: ApidocProjectInfo) => {
   if (item._id === router.currentRoute.value.query.id) {
     return;
   }
-  if (!isStandalone.value) {
-    request.put('/api/project/visited', { projectId: item._id }).catch((err) => {
-      console.error(err);
-    });
-  }
+  projectStore.recordVisited(item._id);
 
   // 同步更新header tabs - 发送事件通知header添加或激活对应的项目tab
   window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.contentToTopBar.switchProject, {

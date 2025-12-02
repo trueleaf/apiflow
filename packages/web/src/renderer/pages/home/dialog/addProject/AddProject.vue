@@ -67,16 +67,10 @@ import { useI18n } from 'vue-i18n'
 import { computed, nextTick, ref } from 'vue';
 import RemoteSelector from '@/components/common/remoteSelect/ClRemoteSelect.vue';
 import RemoteSelectorItem from '@/components/common/remoteSelect/ClRemoteSelectItem.vue';
-import { projectCache } from '@/cache/project/projectCache';
-import { generateEmptyProject } from '@/helper';
-import { nanoid } from 'nanoid';
+import { useProjectStore } from '@/store/project/projectStore';
 import { useRuntime } from '@/store/runtime/runtimeStore';
-
-
-
-
-
 import { message } from '@/helper'
+
 const props = defineProps({
   modelValue: {
     type: Boolean,
@@ -93,6 +87,7 @@ const emits = defineEmits(['update:modelValue', 'success'])
 const { t } = useI18n()
 
 const runtimeStore = useRuntime();
+const projectStore = useProjectStore();
 
 const formInfo = ref({
   projectName: '', //-------------------------项目名称
@@ -130,11 +125,6 @@ const selectMemberData = ref<ApidocProjectMemberInfo[]>([]) //-----已选中的�
 const remoteQueryName = ref('') //-------------------------用户名称
 const loading = ref(false) //------------------------------成员数据加载状态
 const loading2 = ref(false) //-----------------------------新增项目
-/*
-|--------------------------------------------------------------------------
-| 
-|--------------------------------------------------------------------------
-*/
 //根据名称查询用户列表
 const getRemoteUserOrGroupByName = (query: string) => {
   if (!query.trim()) return;
@@ -152,43 +142,29 @@ const getRemoteUserOrGroupByName = (query: string) => {
 }
 const handleAddProject = () => {
   form.value?.validate(async (valid) => {
-    if(isStandalone.value && valid){
-      const projectId = nanoid();
-      const project = generateEmptyProject(projectId);
-      project.projectName = formInfo.value.projectName;
-      await projectCache.addProject(project);
-      emits('success', {
-        projectId,
-        projectName: project.projectName,
-      });
-      return;
-    }
     if (valid) {
       loading2.value = true;
-      const params = {
-        ...formInfo.value,
-        users: selectMemberData.value.filter(v => v.type === 'user').map((val) => ({
-          userId: val.id,
-          userName: val.name,
-          permission: val.permission,
-        })),
-        groups: selectMemberData.value.filter(v => v.type === 'group').map(
-          (val) => ({
+      try {
+        const members = isStandalone.value ? undefined : {
+          users: selectMemberData.value.filter(v => v.type === 'user').map((val) => ({
+            userId: val.id,
+            userName: val.name,
+            permission: val.permission || 'readAndWrite',
+          })),
+          groups: selectMemberData.value.filter(v => v.type === 'group').map((val) => ({
             groupId: val.id,
             groupName: val.name,
-          })
-        ),
-      };
-      request.post('/api/project/add_project', params).then((res) => {
-        emits('success', {
-          projectId: res.data,
-          projectName: formInfo.value.projectName,
-        });
-      }).catch((err) => {
+          })),
+        };
+        const result = await projectStore.addProject(formInfo.value.projectName, members);
+        if (result) {
+          emits('success', result);
+        }
+      } catch (err) {
         console.error(err);
-      }).finally(() => {
+      } finally {
         loading2.value = false;
-      });
+      }
     } else {
       nextTick(() => {
         const input: HTMLInputElement = document.querySelector('.el-form-item.is-error input') as HTMLInputElement;

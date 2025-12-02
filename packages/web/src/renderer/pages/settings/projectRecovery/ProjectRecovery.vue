@@ -84,24 +84,22 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { Search, Trash2, RotateCcw, Loader2 } from 'lucide-vue-next'
-import { projectCache } from '@/cache/project/projectCache'
-import { apiNodesCache } from '@/cache/nodes/nodesCache'
-import type { ApidocProjectInfo } from '@src/types'
+import { useProjectStore } from '@/store/project/projectStore'
 import { message } from '@/helper'
 
 const { t } = useI18n()
+const projectStore = useProjectStore()
 const loading = ref(false)
 const searchKeyword = ref('')
 const selectedProjects = ref<string[]>([])
-const deletedProjects = ref<ApidocProjectInfo[]>([])
 const filteredProjects = computed(() => {
   if (!searchKeyword.value) {
-    return deletedProjects.value
+    return projectStore.deletedProjects
   }
-  return deletedProjects.value.filter(project =>
+  return projectStore.deletedProjects.filter(project =>
     project.projectName.toLowerCase().includes(searchKeyword.value.toLowerCase())
   )
 })
@@ -119,9 +117,8 @@ const formatDeleteTime = (timestamp?: number): string => {
 const loadDeletedProjects = async (): Promise<void> => {
   loading.value = true
   try {
-    const projects = await projectCache.getDeletedProjectList()
-    deletedProjects.value = projects
-  } catch (error) {
+    await projectStore.getDeletedProjects()
+  } catch {
     message.error(t('加载已删除项目失败'))
   } finally {
     loading.value = false
@@ -136,29 +133,20 @@ const handleToggleSelect = (projectId: string): void => {
   }
 }
 const handleRecover = async (projectId: string): Promise<void> => {
-  const deletedProject = deletedProjects.value.find(p => p._id === projectId)
+  const deletedProject = projectStore.deletedProjects.find(p => p._id === projectId)
   if (!deletedProject) {
     message.error(t('项目不存在'))
     return
   }
   try {
-    const success = await projectCache.recoverProject(projectId)
+    const success = await projectStore.recoverProject(projectId)
     if (success) {
-      const apiNodes = await apiNodesCache.getAllNodes()
-      const projectApiNodes = apiNodes.filter(node => node.projectId === projectId && node.isDeleted)
-      if (projectApiNodes.length > 0) {
-        for (const node of projectApiNodes) {
-          const updatedNode = { ...node, isDeleted: false }
-          await apiNodesCache.replaceNode(updatedNode)
-        }
-      }
       message.success(t('项目恢复成功'))
-      await loadDeletedProjects()
       selectedProjects.value = selectedProjects.value.filter(id => id !== projectId)
     } else {
       message.error(t('项目恢复失败'))
     }
-  } catch (error) {
+  } catch {
     message.error(t('项目恢复失败'))
   }
 }
@@ -168,44 +156,27 @@ const handleBatchRecover = async (): Promise<void> => {
   }
   loading.value = true
   try {
-    let successCount = 0
-    let failCount = 0
-    for (const projectId of selectedProjects.value) {
-      try {
-        const success = await projectCache.recoverProject(projectId)
-        if (success) {
-          const apiNodes = await apiNodesCache.getAllNodes()
-          const projectApiNodes = apiNodes.filter(node => node.projectId === projectId && node.isDeleted)
-          if (projectApiNodes.length > 0) {
-            for (const node of projectApiNodes) {
-              const updatedNode = { ...node, isDeleted: false }
-              await apiNodesCache.replaceNode(updatedNode)
-            }
-          }
-          successCount++
-        } else {
-          failCount++
-        }
-      } catch (error) {
-        failCount++
-      }
-    }
+    const { successCount, failCount } = await projectStore.batchRecoverProjects(selectedProjects.value)
     if (successCount > 0) {
       const msg = failCount > 0 
         ? `${t('项目恢复成功')} ${successCount} ${t('个')}，${failCount} ${t('个')}${t('项目恢复失败')}`
         : `${t('项目恢复成功')} ${successCount} ${t('个')}`
       message.success(msg)
-      await loadDeletedProjects()
       selectedProjects.value = []
     } else {
       message.error(t('项目恢复失败'))
     }
-  } catch (error) {
+  } catch {
     message.error(t('项目恢复失败'))
   } finally {
     loading.value = false
   }
 }
+watch(() => projectStore.deletedProjects, () => {
+  selectedProjects.value = selectedProjects.value.filter(id => 
+    projectStore.deletedProjects.some(p => p._id === id)
+  )
+})
 onMounted(() => {
   loadDeletedProjects()
 })

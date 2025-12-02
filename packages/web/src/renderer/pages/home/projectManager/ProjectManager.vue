@@ -17,8 +17,6 @@
         </template>
       </el-input>
       <el-button :icon="PlusIcon" data-testid="home-add-project-btn" @click="dialogVisible = true">{{ $t("新建项目") }}</el-button>
-      <el-button v-if="0" type="success" :icon="DownloadIcon" @click="dialogVisible3 = true">{{ $t("导入项目")
-        }}</el-button>
     </div>
     <!-- 高级搜索面板 -->
     <AdvancedSearchPanel
@@ -197,7 +195,6 @@ import {
   StarFilled as StarFilledIcon,
   Delete as DeleteIcon,
   Plus as PlusIcon,
-  Download as DownloadIcon,
   Search as SearchIcon,
   CaretBottom as CaretBottomIcon,
   CaretRight as CaretRightIcon,
@@ -217,14 +214,12 @@ import type { ApidocProjectInfo, ApiNode } from '@src/types';
 import type { AdvancedSearchConditions, GroupedSearchResults, SearchResultItem } from '@src/types/advancedSearch';
 import { performAdvancedSearch } from '@/composables/useAdvancedSearch';
 import { computed, onMounted, ref, watch } from 'vue';
-import { request } from '@/api/api';
 import 'element-plus/es/components/message-box/style/css';
 import { ElMessageBox } from 'element-plus';
 import { router } from '@/router';
 import { formatDate } from '@/helper';
 import { debounce } from "lodash-es";
 import { useApidocBaseInfo } from '@/store/apidoc/baseInfoStore'
-import { projectCache } from '@/cache/project/projectCache'
 import { apiNodesCache } from '@/cache/nodes/nodesCache'
 import { useProjectStore } from '@/store/project/projectStore'
 import { useRuntime } from '@/store/runtime/runtimeStore'
@@ -244,27 +239,6 @@ watch(() => projectStore.projectList, (list) => {
   projectListCopy.value = list.slice();
   starProjectIds.value = list.filter((item) => item.isStared).map((item) => item._id);
 }, { deep: true, immediate: true });
-//同步离线项目列表
-const syncOfflineProjectList = (list: ApidocProjectInfo[]): void => {
-  projectStore.projectList = list;
-  starProjectIds.value = list.filter((item) => item.isStared).map((item) => item._id);
-};
-//确保项目收藏状态
-const ensureProjectStarState = (projectId: string, isStared: boolean): void => {
-  const projects = projectStore.projectList;
-  const target = projects.find((project: ApidocProjectInfo) => project._id === projectId);
-  if (target) {
-    target.isStared = isStared;
-  }
-  const starIds = starProjectIds.value;
-  const existIndex = starIds.findIndex((id: string) => id === projectId);
-  if (isStared && existIndex === -1) {
-    starIds.push(projectId);
-  }
-  if (!isStared && existIndex !== -1) {
-    starIds.splice(existIndex, 1);
-  }
-};
 const currentEditProjectId = ref('');
 const currentEditProjectName = ref('');
 const isFold = ref(false);
@@ -272,15 +246,10 @@ const starLoading = ref(false);
 const unStarLoading = ref(false);
 const showUndoNotification = ref(false);
 const undoMessage = ref('');
-interface DeletedProjectData {
-  project: ApidocProjectInfo
-  apiNodes: ApiNode[]
-}
-const deletedProjectData = ref<DeletedProjectData | null>(null);
+const deletedProjectData = ref<{ project: ApidocProjectInfo; apiNodes: ApiNode[] } | null>(null);
 let deleteTimer: NodeJS.Timeout | null = null;
 const dialogVisible = ref(false);
 const dialogVisible2 = ref(false);
-const dialogVisible3 = ref(false);
 const dialogVisible4 = ref(false);
 const showAdvancedSearch = ref(false);
 const searchMode = ref<'simple' | 'advanced'>('simple');
@@ -389,26 +358,18 @@ const deleteProject = (_id: string) => {
     };
     if (isStandalone.value) {
       try {
-        const projectList = await projectCache.getProjectList();
-        const project = projectList.find((p) => p._id === _id);
+        const project = projectStore.projectList.find((p) => p._id === _id);
         if (!project) {
           console.error('项目不存在');
           return;
         }
-        const apiNodes = await apiNodesCache.getAllNodes();
-        const projectApiNodes = apiNodes.filter((node) => node.projectId === _id);
-        const clonedProject = JSON.parse(JSON.stringify(project)) as ApidocProjectInfo;
-        const clonedNodes: ApiNode[] = projectApiNodes.length > 0
-          ? (JSON.parse(JSON.stringify(projectApiNodes)) as ApiNode[])
-          : [];
-        deletedProjectData.value = {
-          project: clonedProject,
-          apiNodes: clonedNodes
-        };
-        await projectCache.deleteProject(_id);
-        await getProjectList();
+        const projectName = project.projectName;
+        const backupData = await projectStore.deleteProject(_id);
+        if (backupData) {
+          deletedProjectData.value = backupData;
+        }
         notifyProjectDeleted();
-        undoMessage.value = t('已删除项目 "{name}"', { name: project.projectName });
+        undoMessage.value = t('已删除项目 "{name}"', { name: projectName });
         showUndoNotification.value = true;
         if (deleteTimer) {
           clearTimeout(deleteTimer);
@@ -423,13 +384,9 @@ const deleteProject = (_id: string) => {
       }
       return;
     }
-    request.delete('/api/project/delete_project', { data: { ids: [_id] } }).then(async () => {
-      await cleanupMockLogs();
-      getProjectList();
-      notifyProjectDeleted();
-    }).catch((err) => {
-      console.error(err);
-    });
+    await projectStore.deleteProject(_id);
+    await cleanupMockLogs();
+    notifyProjectDeleted();
   }).catch((err: Error | string) => {
     if (err === 'cancel' || err === 'close') {
       return;
@@ -448,24 +405,8 @@ const handleUndoDelete = async () => {
   }
   showUndoNotification.value = false;
   try {
-    const projectId = deletedProjectData.value.project._id;
-    const restoredProject = JSON.parse(JSON.stringify(deletedProjectData.value.project)) as ApidocProjectInfo;
-    restoredProject.isDeleted = false;
-    const updateResult = await projectCache.updateProject(projectId, restoredProject);
-    if (!updateResult) {
-      await projectCache.addProject(restoredProject);
-    }
-    const savedNodes = deletedProjectData.value.apiNodes;
-    if (savedNodes && savedNodes.length > 0) {
-      const restorePromises = savedNodes.map((node) => {
-        const clonedNode = JSON.parse(JSON.stringify(node)) as ApiNode;
-        clonedNode.isDeleted = false;
-        return apiNodesCache.addNode(clonedNode);
-      });
-      await Promise.all(restorePromises);
-    }
+    await projectStore.restoreProjectFromBackup(deletedProjectData.value);
     deletedProjectData.value = null;
-    await getProjectList();
   } catch (err) {
     console.error('撤回删除失败:', err);
   }
@@ -494,28 +435,10 @@ const handleStar = async (item: ApidocProjectInfo) => {
   }
   starLoading.value = true;
   try {
-    if (isStandalone.value) {
-      const projectList = await projectCache.getProjectList();
-      const project = projectList.find((projectInfo) => projectInfo._id === item._id);
-      if (project) {
-        project.isStared = true;
-        await projectCache.setProjectList(projectList);
-        syncOfflineProjectList(projectList);
-        item.isStared = true;
-      }
-      starLoading.value = false;
-      return;
-    }
-    request.put('/api/project/star', { projectId: item._id }).then(() => {
-      item.isStared = true;
-      ensureProjectStarState(item._id, true);
-    }).catch((err) => {
-      console.error(err);
-    }).finally(() => {
-      starLoading.value = false;
-    });
+    await projectStore.starProject(item._id);
   } catch (err) {
     console.error(err);
+  } finally {
     starLoading.value = false;
   }
 }
@@ -526,28 +449,10 @@ const handleUnStar = async (item: ApidocProjectInfo) => {
   }
   unStarLoading.value = true;
   try {
-    if (isStandalone.value) {
-      const projectList = await projectCache.getProjectList();
-      const project = projectList.find((projectInfo) => projectInfo._id === item._id);
-      if (project) {
-        project.isStared = false;
-        await projectCache.setProjectList(projectList);
-        syncOfflineProjectList(projectList);
-        item.isStared = false;
-      }
-      unStarLoading.value = false;
-      return;
-    }
-    request.put('/api/project/unstar', { projectId: item._id }).then(() => {
-      item.isStared = false;
-      ensureProjectStarState(item._id, false);
-    }).catch((err) => {
-      console.error(err);
-    }).finally(() => {
-      unStarLoading.value = false;
-    });
+    await projectStore.unstarProject(item._id);
   } catch (err) {
     console.error(err);
+  } finally {
     unStarLoading.value = false;
   }
 }
@@ -557,11 +462,7 @@ const initCahce = () => {
 }
 //跳转到编辑
 const handleJumpToProject = (item: ApidocProjectInfo) => {
-  if (!isStandalone.value) {
-    request.put('/api/project/visited', { projectId: item._id }).catch((err) => {
-      console.error(err);
-    });
-  }
+  projectStore.recordVisited(item._id);
   router.push({
     path: '/v1/apidoc/doc-edit',
     query: {

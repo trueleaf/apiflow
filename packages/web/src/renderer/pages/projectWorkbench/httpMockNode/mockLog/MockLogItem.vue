@@ -80,16 +80,31 @@
           <template v-else-if="formatRequestBody(log).type === 'formdata'">
             <div class="formdata-table">
               <div class="table-header">
-                <div class="table-cell">字段名</div>
-                <div class="table-cell">值</div>
+                <div class="table-cell">{{ t('字段名') }}</div>
+                <div class="table-cell">{{ t('值') }}</div>
               </div>
               <div 
-                v-for="(field, idx) in (formatRequestBody(log).fields as Array<{ name: string; value: string; filename?: string }>)" 
+                v-for="(field, idx) in (formatRequestBody(log).fields as FormDataField[])" 
                 :key="idx"
                 class="table-row"
               >
                 <div class="table-cell">{{ field.name }}</div>
-                <div class="table-cell">{{ field.value }}</div>
+                <div class="table-cell formdata-value-cell">
+                  <template v-if="field.isTruncated">
+                    <div class="formdata-value-content">
+                      <span class="formdata-value-text">{{ isFieldExpanded(idx) ? field.originalValue : field.value }}</span>
+                    </div>
+                    <div class="formdata-value-actions">
+                      <span class="formdata-size">{{ formatUnit(field.originalSize || 0, 'bytes') }}</span>
+                      <span class="formdata-toggle" @click="toggleFieldExpand(idx)">
+                        {{ isFieldExpanded(idx) ? t('收起') : t('显示全部') }}
+                      </span>
+                    </div>
+                  </template>
+                  <template v-else>
+                    {{ field.value }}
+                  </template>
+                </div>
               </div>
             </div>
           </template>
@@ -110,6 +125,10 @@ import { ref } from 'vue'
 import type { MockLog } from '@src/types/mockNode'
 import { ChevronRight } from 'lucide-vue-next'
 import { ElButton } from 'element-plus'
+import { formatUnit } from '@/helper'
+import { useI18n } from 'vue-i18n'
+
+const { t } = useI18n()
 
 defineProps<{
   log: Extract<MockLog, { type: 'request' }>
@@ -122,6 +141,15 @@ defineEmits<{
 
 const isHeadersExpanded = ref(true)
 const isBodyExpanded = ref(true)
+const expandedFields = ref<Set<number>>(new Set())
+const toggleFieldExpand = (idx: number) => {
+  if (expandedFields.value.has(idx)) {
+    expandedFields.value.delete(idx)
+  } else {
+    expandedFields.value.add(idx)
+  }
+}
+const isFieldExpanded = (idx: number) => expandedFields.value.has(idx)
 
 const formatTimestamp = (value: number | null) => {
   if (!value) {
@@ -159,7 +187,16 @@ const getConsoleLogStats = (log: Extract<MockLog, { type: 'request' }>) => {
   }
 }
 
-const parseMultipartFormData = (body: string, contentType: string): Array<{ name: string; value: string; filename?: string }> => {
+type FormDataField = {
+  name: string
+  value: string
+  filename?: string
+  originalValue?: string
+  originalSize?: number
+  isTruncated?: boolean
+}
+const FORMDATA_TRUNCATE_THRESHOLD = 200
+const parseMultipartFormData = (body: string, contentType: string): FormDataField[] => {
   try {
     const boundaryMatch = contentType.match(/boundary=([^;]+)/)
     if (!boundaryMatch) {
@@ -169,7 +206,7 @@ const parseMultipartFormData = (body: string, contentType: string): Array<{ name
     // 移除可能的引号
     const cleanBoundary = boundary.replace(/^["']|["']$/g, '')
     const parts = body.split(`--${cleanBoundary}`)
-    const fields: Array<{ name: string; value: string; filename?: string }> = []
+    const fields: FormDataField[] = []
     
     for (const part of parts) {
       const trimmedPart = part.trim()
@@ -209,10 +246,14 @@ const parseMultipartFormData = (body: string, contentType: string): Array<{ name
           })
         } else {
           // 普通文本字段
-          const displayValue = content.length > 200 ? `${content.substring(0, 200)}...` : content
+          const isTruncated = content.length > FORMDATA_TRUNCATE_THRESHOLD
+          const displayValue = isTruncated ? `${content.substring(0, FORMDATA_TRUNCATE_THRESHOLD)}...` : content
           fields.push({
             name,
-            value: displayValue
+            value: displayValue,
+            originalValue: isTruncated ? content : undefined,
+            originalSize: isTruncated ? content.length : undefined,
+            isTruncated
           })
         }
       }
@@ -534,5 +575,42 @@ const formatRequestBody = (log: Extract<MockLog, { type: 'request' }>) => {
 .table-row .table-cell:first-child {
   background: var(--bg-secondary);
   font-weight: 500;
+}
+.formdata-value-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.formdata-value-content {
+  flex: 1;
+  max-height: 300px;
+  overflow-y: auto;
+}
+.formdata-value-text {
+  white-space: pre-wrap;
+  word-break: break-all;
+  font-family: 'Consolas', 'Monaco', monospace;
+}
+.formdata-value-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
+}
+.formdata-size {
+  font-size: var(--font-size-xs);
+  color: var(--text-tertiary);
+  background: var(--bg-secondary);
+  padding: 2px 6px;
+  border-radius: var(--border-radius-sm);
+}
+.formdata-toggle {
+  font-size: var(--font-size-xs);
+  color: var(--el-color-primary);
+  cursor: pointer;
+  user-select: none;
+}
+.formdata-toggle:hover {
+  text-decoration: underline;
 }
 </style>
