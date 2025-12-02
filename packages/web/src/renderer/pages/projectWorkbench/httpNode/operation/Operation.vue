@@ -12,7 +12,7 @@
       <el-button type="primary" text @click="hostDialogVisible = true;">{{ t("接口前缀") }}</el-button>
     </div>
     <div v-else-if="showPrefixHelper" class="d-flex a-center">
-      <el-select v-model="host" placeholder="环境切换" clearable filterable @change="handleChangeHost">
+      <el-select v-model="host" placeholder="环境切换" clearable filterable data-testid="operation-env-select" @change="handleChangeHost">
         <el-option v-for="(item, index) in hostEnum" :key="index" :value="item.url" :label="item.name">
           <div class="env-item">
             <div class="w-200">{{ item.name }}</div>
@@ -20,7 +20,7 @@
           </div>
         </el-option>
       </el-select>
-      <el-button type="primary" text @click="hostDialogVisible = true;">{{ t("接口前缀") }}</el-button>
+      <el-button type="primary" text data-testid="operation-prefix-btn" @click="hostDialogVisible = true;">{{ t("接口前缀") }}</el-button>
     </div>
     <!-- 请求地址，发送请求 -->
     <div class="op-wrap">
@@ -59,13 +59,14 @@
       <el-button 
         v-if="requestState === 'waiting' || requestState === 'finish'" 
         type="success" 
+        data-testid="operation-send-btn"
         @click="handleSendRequest"
       >
         {{ t("发送请求") }}
       </el-button>
-      <el-button v-if="requestState === 'sending' || requestState === 'response'" type="danger" @click="handleStopRequest">{{ t("取消请求") }}</el-button>
-      <el-button :loading="loading2" type="primary" @click="handleSaveApidoc">{{ t("保存接口") }}</el-button>
-      <el-button :loading="loading3" type="primary" :icon="Refresh" @click="handleFreshApidoc">{{ t("刷新") }}</el-button>
+      <el-button v-if="requestState === 'sending' || requestState === 'response'" type="danger" data-testid="operation-cancel-btn" @click="handleStopRequest">{{ t("取消请求") }}</el-button>
+      <el-button :loading="loading2" type="primary" data-testid="operation-save-btn" @click="handleSaveApidoc">{{ t("保存接口") }}</el-button>
+      <el-button :loading="loading3" type="primary" :icon="Refresh" data-testid="operation-refresh-btn" @click="handleFreshApidoc">{{ t("刷新") }}</el-button>
     </div>
     <div class="pre-url-wrap">
       <span class="label">{{ t("请求地址") }}：</span>

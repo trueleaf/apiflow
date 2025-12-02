@@ -3,20 +3,20 @@
     <!-- 搜索条件 -->
     <div class="search-item d-flex a-center mb-3">
       <el-input v-model="projectName" :placeholder="$t('搜索项目名称')" :prefix-icon="SearchIcon"
-        class="w-200px mr-3" @input="debounceSearch" @change="debounceSearch" @keyup.enter="debounceSearch">
+        class="w-200px mr-3" data-testid="home-project-search-input" @input="debounceSearch" @change="debounceSearch" @keyup.enter="debounceSearch">
         <template #suffix>
           <div class="d-flex a-center" style="gap: 8px;">
             <el-icon v-show="projectName.trim().length > 0" :title="$t('清空')" class="cursor-pointer"
-              @click.stop="handleClearSearch">
+              data-testid="home-search-clear-btn" @click.stop="handleClearSearch">
               <CircleCloseIcon />
             </el-icon>
-            <el-icon :title="$t('高级搜索')" class="cursor-pointer" color="var(--gray-400)" @click.stop="toggleAdvancedSearch">
+            <el-icon :title="$t('高级搜索')" class="cursor-pointer" color="var(--gray-400)" data-testid="home-advanced-search-btn" @click.stop="toggleAdvancedSearch">
               <Tools />
             </el-icon>
           </div>
         </template>
       </el-input>
-      <el-button :icon="PlusIcon" @click="dialogVisible = true">{{ $t("新建项目") }}</el-button>
+      <el-button :icon="PlusIcon" data-testid="home-add-project-btn" @click="dialogVisible = true">{{ $t("新建项目") }}</el-button>
       <el-button v-if="0" type="success" :icon="DownloadIcon" @click="dialogVisible3 = true">{{ $t("导入项目")
         }}</el-button>
     </div>
@@ -42,8 +42,8 @@
       <h2 v-show="starProjects.length > 0">
         <span class="cursor-pointer">{{ t("收藏的项目") }}</span>
       </h2>
-      <div v-show="starProjects.length > 0" class="project-wrap">
-        <div v-for="(item, index) in starProjects" :key="index" class="project-list">
+      <div v-show="starProjects.length > 0" class="project-wrap" data-testid="home-star-projects-wrap">
+        <div v-for="(item, index) in starProjects" :key="index" class="project-list" :data-testid="`home-star-project-card-${index}`">
           <div class="project-header">
             <div :title="item.projectName" class="title project-name theme-color text-ellipsis">
               <Emphasize :value="item.projectName" :keyword="projectName"></Emphasize>
@@ -59,7 +59,7 @@
                   <UserIcon></UserIcon>
                 </el-icon>
               </div>
-              <div v-if="!item.isStared" :title="$t('收藏')" @click="handleStar(item)">
+              <div v-if="!item.isStared" :title="$t('收藏')" data-testid="home-star-project-star-btn" @click="handleStar(item)">
                 <el-icon v-if="!starLoading" :size="16">
                   <star-icon></star-icon>
                 </el-icon>
@@ -67,7 +67,7 @@
                   <LoadingIcon></LoadingIcon>
                 </el-icon>
               </div>
-              <div v-if="item.isStared" :title="$t('取消收藏')" @click="handleUnStar(item)">
+              <div v-if="item.isStared" :title="$t('取消收藏')" data-testid="home-star-project-unstar-btn" @click="handleUnStar(item)">
                 <el-icon v-if="!unStarLoading" :size="19" class="yellow">
                   <StarFilledIcon></StarFilledIcon>
                 </el-icon>
@@ -75,7 +75,7 @@
                   <LoadingIcon></LoadingIcon>
                 </el-icon>
               </div>
-              <div :title="$t('删除')" @click="deleteProject(item._id)">
+              <div :title="$t('删除')" data-testid="home-star-project-delete-btn" @click="deleteProject(item._id)">
                 <el-icon :size="16">
                   <DeleteIcon></DeleteIcon>
                 </el-icon>
@@ -96,7 +96,7 @@
               <span class="teal">{{ item.docNum || 0 }}</span>
             </div>
             <div class="ml-auto">
-              <el-button type="default" @click="handleJumpToProject(item)">{{ $t("编辑") }}</el-button>
+              <el-button type="default" data-testid="home-star-project-enter-btn" @click="handleJumpToProject(item)">{{ $t("编辑") }}</el-button>
             </div>
           </div>
         </div>
@@ -117,8 +117,8 @@
         <el-empty :description="$t('暂无项目，点击上方按钮创建第一个项目')"></el-empty>
       </div>
       <!-- 项目列表 -->
-      <div v-show="!isFold && !isEmptyState" class="project-wrap">
-        <div v-for="(item, index) in projectList" :key="index" class="project-list">
+      <div v-show="!isFold && !isEmptyState" class="project-wrap" data-testid="home-projects-wrap">
+        <div v-for="(item, index) in projectList" :key="index" class="project-list" :data-testid="`home-project-card-${index}`">
           <div class="project-header">
             <div :title="item.projectName" class="title project-name theme-color text-ellipsis">
               <Emphasize :value="item.projectName" :keyword="projectName"></Emphasize>
@@ -142,7 +142,7 @@
                   <LoadingIcon></LoadingIcon>
                 </el-icon>
               </div>
-              <div v-if="item.isStared" :title="$t('取消收藏')" @click="handleUnStar(item)">
+              <div v-if="item.isStared" :title="$t('取消收藏')" data-testid="home-project-unstar-btn" @click="handleUnStar(item)">
                 <el-icon v-if="!unStarLoading" :size="19" class="yellow">
                   <StarFilledIcon></StarFilledIcon>
                 </el-icon>
@@ -150,7 +150,7 @@
                   <LoadingIcon></LoadingIcon>
                 </el-icon>
               </div>
-              <div :title="$t('删除')" @click="deleteProject(item._id)">
+              <div :title="$t('删除')" data-testid="home-project-delete-btn" @click="deleteProject(item._id)">
                 <el-icon :size="16">
                   <DeleteIcon></DeleteIcon>
                 </el-icon>
@@ -171,7 +171,7 @@
               <span class="teal">{{ item.docNum || 0 }}</span>
             </div>
             <div class="ml-auto">
-              <el-button type="default" @click="handleJumpToProject(item)">{{ $t("编辑") }}</el-button>
+              <el-button type="default" data-testid="home-project-enter-btn" @click="handleJumpToProject(item)">{{ $t("编辑") }}</el-button>
             </div>
           </div>
         </div>

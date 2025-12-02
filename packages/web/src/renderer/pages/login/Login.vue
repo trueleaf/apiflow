@@ -36,9 +36,9 @@
           <span>{{ config.appConfig.appTitle }}</span>
           <span v-if="config.appConfig.version">({{ config.appConfig.version }})</span>
         </h2>
-        <el-tabs v-model="activeName" class="w-100">
+        <el-tabs v-model="activeName" class="w-100" data-testid="login-tabs">
           <!-- 账号登录 -->
-          <el-tab-pane :label="$t('账号登录')" name="loginAccount">
+          <el-tab-pane :label="$t('账号登录')" name="loginAccount" data-testid="login-tab-account">
           </el-tab-pane>
           <!-- 手机号登录 -->
           <!-- <el-tab-pane :label="$t('手机登录')" name="loginPhone">

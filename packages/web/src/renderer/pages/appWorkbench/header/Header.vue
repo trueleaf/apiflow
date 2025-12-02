@@ -3,7 +3,7 @@
     <div class="logo">
       <img :src="appSettingsStore.appLogo" :alt="appSettingsStore.appTitle" class="logo-img" width="24" height="24" draggable="false" @click="jumpToHome"/>
     </div>
-    <div class="home" :class="{ active: activeTabId === ''}" @click="jumpToHome">
+    <div class="home" :class="{ active: activeTabId === ''}" data-testid="header-home-btn" @click="jumpToHome">
       <i class="iconfont iconhome"></i>
       <span>{{ t('主页面') }}</span>
     </div>
@@ -23,28 +23,29 @@
         </template>
       </draggable>
     </div>
-    <button class="add-tab-btn" :title="t('新建项目')" @click="handleAddProject">+</button>
+    <button class="add-tab-btn" :title="t('新建项目')" data-testid="header-add-project-btn" @click="handleAddProject">+</button>
     
     <div class="right">
       <Update />
-      <button class="ai-trigger-btn" :title="t('AI助手 Ctrl+L')" @click="handleShowAiDialog" ref="aiButtonRef">
+      <button class="ai-trigger-btn" :title="t('AI助手 Ctrl+L')" data-testid="header-ai-btn" @click="handleShowAiDialog" ref="aiButtonRef">
         <Bot :size="16" />
         <!-- <span>{{ t('AI助手') }}</span> -->
       </button>
       <div class="navigation-control">
-        <el-icon class="icon" size="16" :title="t('刷新主应用')" @click="refreshApp"><RefreshRight /></el-icon>
-        <el-icon class="icon" size="16" :title="t('后退')" @click="goBack"><Back /></el-icon>
-        <el-icon class="icon" size="16" :title="t('前进')" @click="goForward"><Right /></el-icon>
-        <el-icon class="icon" size="16" :title="t('设置')" @click="jumpToSettings">
+        <el-icon class="icon" size="16" :title="t('刷新主应用')" data-testid="header-refresh-btn" @click="refreshApp"><RefreshRight /></el-icon>
+        <el-icon class="icon" size="16" :title="t('后退')" data-testid="header-back-btn" @click="goBack"><Back /></el-icon>
+        <el-icon class="icon" size="16" :title="t('前进')" data-testid="header-forward-btn" @click="goForward"><Right /></el-icon>
+        <el-icon class="icon" size="16" :title="t('设置')" data-testid="header-settings-btn" @click="jumpToSettings">
           <Settings :size="16" />
         </el-icon>
-        <div class="icon" size="16" :title="t('切换语言')" @click="handleChangeLanguage" ref="languageButtonRef">
+        <div class="icon" size="16" :title="t('切换语言')" data-testid="header-language-btn" @click="handleChangeLanguage" ref="languageButtonRef">
           <i class="iconfont iconyuyan custom-icon"></i>
           <span class="language-text">{{ currentLanguageDisplay }}</span>
         </div>
         <el-icon 
           size="16" 
           :title="networkMode === 'online' ? t('联网模式') : t('离线模式')" 
+          data-testid="header-network-toggle"
           @click="toggleNetworkMode" 
           class="network-btn icon"
         >
@@ -53,10 +54,10 @@
         </el-icon>
       </div>
       <div class="window-control">
-        <i class="iconfont iconjianhao" id="minimize" :title="t('最小化')" @click="minimize"></i>
-        <i v-if="!isMaximized" class="iconfont iconmaxScreen" id="maximize" :title="t('最大化')" @click="maximize"></i>
-        <i v-if="isMaximized" class="iconfont iconminiScreen" id="unmaximize" :title="t('取消最大化')" @click="unmaximize"></i>
-        <i class="iconfont iconguanbi close" id="close" :title="t('关闭')" @click="close"></i>
+        <i class="iconfont iconjianhao" id="minimize" :title="t('最小化')" data-testid="header-minimize-btn" @click="minimize"></i>
+        <i v-if="!isMaximized" class="iconfont iconmaxScreen" id="maximize" :title="t('最大化')" data-testid="header-maximize-btn" @click="maximize"></i>
+        <i v-if="isMaximized" class="iconfont iconminiScreen" id="unmaximize" :title="t('取消最大化')" data-testid="header-unmaximize-btn" @click="unmaximize"></i>
+        <i class="iconfont iconguanbi close" id="close" :title="t('关闭')" data-testid="header-close-btn" @click="close"></i>
       </div>
     </div>
   </div>

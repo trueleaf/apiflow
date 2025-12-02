@@ -2,8 +2,8 @@
   <div class="home">
     <div class="home__header">
       <div class="home__tabs">
-        <el-tabs :model-value="activeName" @update:model-value="handleChangeActiveTab">
-          <el-tab-pane name="projectList">
+        <el-tabs :model-value="activeName" data-testid="home-tabs" @update:model-value="handleChangeActiveTab">
+          <el-tab-pane name="projectList" data-testid="home-tab-projects">
             <template #label>
               <span class="d-flex a-center">
                 <el-icon :size="16" class="mr-1">
@@ -13,7 +13,7 @@
               </span>
             </template>
           </el-tab-pane>
-          <el-tab-pane v-if="!isStandalone" name="groupList">
+          <el-tab-pane v-if="!isStandalone" name="groupList" data-testid="home-tab-groups">
             <template #label>
               <span class="d-flex a-center">
                 <el-icon :size="16" class="mr-1">

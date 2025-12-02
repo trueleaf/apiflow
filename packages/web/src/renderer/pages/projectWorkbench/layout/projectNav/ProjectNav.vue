@@ -12,6 +12,7 @@
           class="d-flex drag-wrap">
           <template #item="{ element }">
             <div :title="element.label" class="item" :class="{ active: element.selected }"
+              :data-testid="`project-nav-tab-${element._id}`"
               @click="selectCurrentTab(element)" @dblclick="fixCurrentTab(element)"
               @mousedown="handleMiddleClick($event, element)"
               @contextmenu.stop.prevent="handleContextmenu($event, element)">
@@ -77,10 +78,10 @@
               </template>
               <span class="item-text" :class="{ unfixed: !element.fixed }">{{ element.label }}</span>
               <span class="operation">
-                <span v-show="!element.saved" class="has-change">
+                <span v-show="!element.saved" class="has-change" data-testid="project-nav-tab-unsaved">
                   <span class="dot"></span>
                 </span>
-                <el-icon v-show="element.saved" class="close" :size="15" @click.stop="handleCloseCurrentTab(element)">
+                <el-icon v-show="element.saved" class="close" :size="15" data-testid="project-nav-tab-close-btn" @click.stop="handleCloseCurrentTab(element)">
                   <IconClose />
                 </el-icon>
               </span>
@@ -89,7 +90,7 @@
         </SDraggable>
       </div>
       <div class="add-tab">
-        <el-icon :size="16" title="新增一个空白接口" @click="handleAddNewTab">
+        <el-icon :size="16" title="新增一个空白接口" data-testid="project-nav-add-tab-btn" @click="handleAddNewTab">
           <IconPlus />
         </el-icon>
       </div>

@@ -6,7 +6,7 @@
       <el-popover :visible="toggleProjectVisible" transition="none" placement="right"
         width="500px">
         <template #reference>
-          <div class="toggle-btn" title="切换项目" @click.stop="handleToggleProjectModel">
+          <div class="toggle-btn" title="切换项目" data-testid="banner-toggle-project-btn" @click.stop="handleToggleProjectModel">
             <el-icon>
               <Switch></Switch>
             </el-icon>
@@ -32,11 +32,11 @@
     </div>
     <div class="p-relative">
       <el-input v-model="formInfo.iptValue" size="large" class="doc-search" :placeholder="t('文档名称、文档url')" clearable
-        @change="handleFilterBanner"></el-input>
+        data-testid="banner-search-input" @change="handleFilterBanner"></el-input>
         <el-badge v-if="!isStandalone" :is-dot="hasFilterCondition" class="badge">
         <el-popover placement="right-end" :hide-after="0" transition="none" width="50vw" trigger="click">
           <template #reference>
-            <div class="advance" :title="t('高级筛选')">
+            <div class="advance" :title="t('高级筛选')" data-testid="banner-filter-btn">
               <i class="iconfont icongaojishaixuan"></i>
             </div>
           </template>
@@ -112,7 +112,7 @@
       <!-- 全部工具栏操作 -->
       <el-popover :visible="visible" popper-class="tool-panel" transition="none" placement="right" :width="320">
         <template #reference>
-          <div class="more" @click.stop="visible = !visible">
+          <div class="more" data-testid="banner-tool-more-btn" @click.stop="visible = !visible">
             <el-icon :size="16" :title="t('更多操作')" class="more-op">
               <MoreFilled />
             </el-icon>

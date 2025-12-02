@@ -8,6 +8,7 @@
           class="action-item"
           :class="{ disabled: !canUndo }"
           :title="t('撤销') + ' (Ctrl+Z)'"
+          data-testid="http-params-undo-btn"
           @click="handleUndo"
         >
           <el-icon size="16"><RefreshLeft /></el-icon>
@@ -17,6 +18,7 @@
           class="action-item"
           :class="{ disabled: !canRedo }"
           :title="t('重做') + ' (Ctrl+Y)'"
+          data-testid="http-params-redo-btn"
           @click="handleRedo"
         >
           <el-icon size="16"><RefreshRight /></el-icon>
@@ -25,6 +27,7 @@
         <div
           class="action-item history-action"
           :title="t('历史记录')"
+          data-testid="http-params-history-btn"
           @click="handleToggleHistory"
           ref="historyButtonRef"
         >
@@ -36,7 +39,7 @@
       <!-- 右侧操作组 -->
       <div class="action-group action-group-right">
         <el-dropdown trigger="click">
-          <div class="action-item">
+          <div class="action-item" data-testid="http-params-layout-dropdown">
             <LayoutGrid :size="16" />
             <span>{{ t("布局") }}</span>
           </div>
@@ -51,7 +54,7 @@
             </el-dropdown-menu>
           </template>
         </el-dropdown>
-        <div class="action-item" @click="handleOpenVariable">
+        <div class="action-item" data-testid="http-params-variable-btn" @click="handleOpenVariable">
           <Variable :size="16" />
           <span>{{ t("变量") }}</span>
         </div>
@@ -110,39 +113,39 @@
         </template>
       </div>
     </Teleport>
-    <el-tabs v-model="activeName" class="params-tabs">
-      <el-tab-pane name="SParams">
+    <el-tabs v-model="activeName" class="params-tabs" data-testid="http-params-tabs">
+      <el-tab-pane name="SParams" data-testid="http-params-tab-params">
         <template #label>
           <el-badge :is-dot="hasQueryOrPathsParams">Params</el-badge>
         </template>
       </el-tab-pane>
-      <el-tab-pane name="SRequestBody">
+      <el-tab-pane name="SRequestBody" data-testid="http-params-tab-body">
         <template #label>
           <el-badge :is-dot="hasBodyParams">Body</el-badge>
         </template>
       </el-tab-pane>
-      <el-tab-pane name="SRequestHeaders">
+      <el-tab-pane name="SRequestHeaders" data-testid="http-params-tab-headers">
         <template #label>
           <el-badge :is-dot="hasHeaders">{{ t("请求头") }}</el-badge>
         </template>
       </el-tab-pane>
-      <el-tab-pane name="SResponseParams">
+      <el-tab-pane name="SResponseParams" data-testid="http-params-tab-response">
         <template #label>
           <el-badge :is-dot="!!responseNum">{{ t("返回参数") }}</el-badge>
         </template>
       </el-tab-pane>
-      <el-tab-pane name="SPreRequest">
+      <el-tab-pane name="SPreRequest" data-testid="http-params-tab-prescript">
         <template #label>
           <el-badge :is-dot="hasPreRequest">{{ t("前置脚本") }}</el-badge>
         </template>
       </el-tab-pane>
-      <el-tab-pane name="SAfterRequest">
+      <el-tab-pane name="SAfterRequest" data-testid="http-params-tab-afterscript">
         <template #label>
           <el-badge :is-dot="hasAfterRequest">{{ t("后置脚本") }}</el-badge>
         </template>
       </el-tab-pane>
-      <el-tab-pane :label="t('备注')" name="SRemarks"></el-tab-pane>
-      <el-tab-pane :label="t('设置')" name="SSettings"></el-tab-pane>
+      <el-tab-pane :label="t('备注')" name="SRemarks" data-testid="http-params-tab-remarks"></el-tab-pane>
+      <el-tab-pane :label="t('设置')" name="SSettings" data-testid="http-params-tab-settings"></el-tab-pane>
     </el-tabs>
     <keep-alive>
       <component :is="getComponent()" class="workbench" @changeCommonHeaderSendStatus="freshHasHeaders"></component>

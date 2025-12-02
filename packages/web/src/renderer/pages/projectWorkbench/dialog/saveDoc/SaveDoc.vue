@@ -1,17 +1,17 @@
 <template>
-  <el-dialog :model-value="modelValue" top="10vh" :title="t('保存接口')" width="40%" :before-close="handleClose">
+  <el-dialog :model-value="modelValue" top="10vh" :title="t('保存接口')" width="40%" :before-close="handleClose" data-testid="save-doc-dialog">
     <el-form ref="form" :model="formInfo" :rules="rules" label-width="100px" class="save-doc"
-      @submit.prevent="handleSaveDoc">
+      data-testid="save-doc-form" @submit.prevent="handleSaveDoc">
       <el-form-item :label="t('接口名称')" prop="name">
         <el-input v-model="formInfo.name" name="name" :placeholder="t('请输入接口名称')" class="w-100" maxlength="100"
-          show-word-limit clearable></el-input>
+          show-word-limit clearable data-testid="save-doc-name-input"></el-input>
       </el-form-item>
       <div class="pt-1"></div>
       <SFieldset :title="t('选择需要挂载的节点')">
         <div class="gray-500 f-sm mb-1">{{ t('若不选择，则会挂载在根节点') }}</div>
         <SLoading :loading="loading2">
           <el-tree ref="docTree" :data="navTreeData" node-key="_id" show-checkbox :expand-on-click-node="true"
-            :check-strictly="true" @check="handleCheckChange">
+            :check-strictly="true" data-testid="save-doc-folder-tree" @check="handleCheckChange">
             <template #default="scope">
               <div class="custom-tree-node" tabindex="0">
                 <!-- 文件夹渲染 -->
@@ -24,9 +24,9 @@
       </SFieldset>
     </el-form>
     <template #footer>
-      <el-button @click="handleClose">{{ t('取消') }}</el-button>
+      <el-button data-testid="save-doc-cancel-btn" @click="handleClose">{{ t('取消') }}</el-button>
       <el-button :loading="loading" :title="!formInfo.name ? t('请输入接口名称') : ''" :disabled="!formInfo.name" type="primary"
-        @click="handleSaveDoc">{{ t('保存') }}</el-button>
+        data-testid="save-doc-confirm-btn" @click="handleSaveDoc">{{ t('保存') }}</el-button>
     </template>
   </el-dialog>
 </template>

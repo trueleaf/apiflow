@@ -1,5 +1,5 @@
 <template>
-  <div ref="contextmenu" class="s-contextmenu" :style="{ width: width, left: left + 'px', top: realTop + 'px' }">
+  <div ref="contextmenu" class="s-contextmenu" :style="{ width: width, left: left + 'px', top: realTop + 'px' }" data-testid="contextmenu">
     <slot></slot>
   </div>
   <!-- <div class="contextmenu-shadow"></div> -->

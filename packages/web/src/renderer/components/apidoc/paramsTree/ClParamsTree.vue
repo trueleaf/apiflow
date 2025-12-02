@@ -146,7 +146,6 @@
              :visible="data._id === currentOpData?._id && (data.value || '').includes('@')"
            >
              <SMock 
-               :search-value="data.value.split('@').pop() || ''" 
                @close="handleCloseMock()" 
                @select="v => handleSelectMockValue(v, data)"
              ></SMock>
@@ -161,7 +160,7 @@
                    :ref="(el) => setValueRichInputRef(el as InstanceType<typeof ClRichInput> | null, data._id)"
                    class="value-rich-input" 
                    :model-value="data.value" 
-                   :placeholder="data._valuePlaceholder || t('参数值、@代表mock数据、{{ 变量 }}')" 
+                   :placeholder="data._valuePlaceholder || t('输入@唤起变量弹窗')" 
                    :min-height="28" 
                    :max-height="280" 
                    :trim-on-paste="true" 
@@ -659,21 +658,23 @@ const handleChangeType = (v: 'string' | 'file', data: ApidocProperty<'string' | 
 const handleCloseMock = () => {
   currentOpData.value = null;
 };
-// 选中 Mock 值
-const handleSelectMockValue = (item: any, data: ApidocProperty<'string' | 'file'>) => {
+// 选中 Mock 或变量值
+const handleSelectMockValue = (item: { source: 'variable' | 'mockjs' | 'faker', value: string }, data: ApidocProperty<'string' | 'file'>) => {
   const currentValue = data.value || '';
   const lastAtIndex = currentValue.lastIndexOf('@');
-  // 根据 source 确定前缀符号
-  const symbol = item.source === 'faker' ? '#' : '@';
-
-  if (lastAtIndex !== -1) {
-    // 替换 @ 及后面的搜索词为 {{ 符号+选中值 }}
-    const prefix = currentValue.slice(0, lastAtIndex);
-    data.value = `${prefix}{{ ${symbol}${item.value} }}`;
+  let insertValue: string;
+  if (item.source === 'variable') {
+    insertValue = `{{ ${item.value} }}`;
   } else {
-    data.value = `{{ ${symbol}${item.value} }}`;
+    const symbol = item.source === 'faker' ? '#' : '@';
+    insertValue = `{{ ${symbol}${item.value} }}`;
   }
-
+  if (lastAtIndex !== -1) {
+    const prefix = currentValue.slice(0, lastAtIndex);
+    data.value = `${prefix}${insertValue}`;
+  } else {
+    data.value = insertValue;
+  }
   currentOpData.value = null;
   emitChange();
 };

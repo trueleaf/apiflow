@@ -1,11 +1,11 @@
 <template>
-  <el-dialog :model-value="modelValue" top="10vh" width="500px" :title="t('新增文件夹')" :before-close="handleClose">
-    <SForm ref="form" @submit.prevent="handleAddFolder">
-      <SFormItem :label="t('文件夹名称')" prop="name" focus one-line></SFormItem>
+  <el-dialog :model-value="modelValue" top="10vh" width="500px" :title="t('新增文件夹')" :before-close="handleClose" data-testid="add-folder-dialog">
+    <SForm ref="form" data-testid="add-folder-form" @submit.prevent="handleAddFolder">
+      <SFormItem :label="t('文件夹名称')" prop="name" focus one-line data-testid="add-folder-name-input"></SFormItem>
     </SForm>
     <template #footer>
-      <el-button @click="handleClose">{{ t("取消") }}</el-button>
-      <el-button :loading="loading" type="primary" @click="handleAddFolder">{{ t("确定") }}</el-button>
+      <el-button data-testid="add-folder-cancel-btn" @click="handleClose">{{ t("取消") }}</el-button>
+      <el-button :loading="loading" type="primary" data-testid="add-folder-confirm-btn" @click="handleAddFolder">{{ t("确定") }}</el-button>
     </template>
   </el-dialog>
 </template>

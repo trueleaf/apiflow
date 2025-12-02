@@ -1,23 +1,23 @@
 <template>
-  <el-form ref="form" class="login-account" :model="userInfo" :rules="rules" @submit.stop.prevent="handleLogin">
+  <el-form ref="form" class="login-account" :model="userInfo" :rules="rules" data-testid="login-form" @submit.stop.prevent="handleLogin">
     <el-form-item prop="loginName">
       <el-input v-model="userInfo.loginName" :prefix-icon="User" name="loginName" type="text"
-        :placeholder="`${$t('请输入用户名')}...`"></el-input>
+        :placeholder="`${$t('请输入用户名')}...`" data-testid="login-username-input"></el-input>
     </el-form-item>
     <el-form-item prop="password">
       <el-input v-model="userInfo.password" :prefix-icon="Lock" name="password" type="password"
-        :placeholder="`${$t('请输入密码')}...`" show-password></el-input>
+        :placeholder="`${$t('请输入密码')}...`" show-password data-testid="login-password-input"></el-input>
     </el-form-item>
     <el-form-item v-if="isShowCapture" prop="captcha">
       <div class="captcha">
         <el-input v-model="userInfo.captcha" :size="config.renderConfig.layout.size" name="captcha" type="text"
-          :placeholder="$t('验证码')"></el-input>
-        <img :src="captchaUrl" @click="freshCapchaUrl" />
+          :placeholder="$t('验证码')" data-testid="login-captcha-input"></el-input>
+        <img :src="captchaUrl" data-testid="login-captcha-img" @click="freshCapchaUrl" />
       </div>
     </el-form-item>
     <el-form-item class="mb-1">
       <el-button :loading="loading" type="primary" native-type="submit"
-        class="w-100">{{ $t("登录") }}</el-button>
+        class="w-100" data-testid="login-submit-btn">{{ $t("登录") }}</el-button>
     </el-form-item>
     <div class="mt-2 d-flex j-around">
       <a href="https://github.com/trueleaf/apiflow" target="_blank" class="d-flex flex-column j-center a-center">

@@ -1,6 +1,6 @@
 <template>
   <div v-if="type === 'divider'" class="s-contextmenu-divider"></div>
-  <div v-else class="s-contextmenu-item" :class="{ disabled: disabled }" @click="handleClickItem">
+  <div v-else class="s-contextmenu-item" :class="{ disabled: disabled }" :data-testid="`contextmenu-item-${label}`" @click="handleClickItem">
     <span>{{ label }}</span>
     <span class="hot-key">{{ hotKey }}</span>
   </div>

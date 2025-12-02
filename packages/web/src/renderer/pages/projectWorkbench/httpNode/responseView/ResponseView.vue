@@ -7,21 +7,21 @@
       v-show="responseInfo.bodyByteLength || requestState !== 'waiting'" 
       class="remote-response-wrap pl-3 w-100"
       :class="{ vertical: layout === 'vertical' }">
-      <el-tabs v-model="activeName" class="h-100 w-100">
-        <el-tab-pane :label="t('返回值')" name="SBodyView">
+      <el-tabs v-model="activeName" class="h-100 w-100" data-testid="response-tabs">
+        <el-tab-pane :label="t('返回值')" name="SBodyView" data-testid="response-tab-body">
           <SBodyView></SBodyView>
         </el-tab-pane>
-        <el-tab-pane :label="t('请求信息')" name="SRequestView">
+        <el-tab-pane :label="t('请求信息')" name="SRequestView" data-testid="response-tab-request">
           <SRequestView></SRequestView>
         </el-tab-pane>
-        <el-tab-pane name="SHeadersView">
+        <el-tab-pane name="SHeadersView" data-testid="response-tab-headers">
           <template #label>
             <span>{{ t("返回头") }}&nbsp;</span>
             <span v-if="headers.length > 0" class="orange">({{ headers.length }})</span>
           </template>
           <SHeadersView v-if="activeName === 'SHeadersView'" class="mt-2"></SHeadersView>
         </el-tab-pane>
-        <el-tab-pane name="SCookieView">
+        <el-tab-pane name="SCookieView" data-testid="response-tab-cookie">
           <template #label>
             <span>Cookie&nbsp;</span>
             <span v-if="cookies?.length" class="orange">({{ cookies?.length }})</span>
@@ -29,7 +29,7 @@
           <!-- fix: 文字隐藏组件获取dom宽度失败 -->
           <SCookieView v-if="activeName === 'SCookieView'" class="mt-2"></SCookieView>
         </el-tab-pane>
-        <el-tab-pane :label="t('原始值')" name="SRawBodyView">
+        <el-tab-pane :label="t('原始值')" name="SRawBodyView" data-testid="response-tab-raw">
           <SRawBodyView v-if="activeName === 'SRawBodyView'" class="h-100 mt-2"></SRawBodyView>
         </el-tab-pane>
       </el-tabs>

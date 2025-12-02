@@ -4,6 +4,13 @@
     <div class="source-tabs">
       <div
         class="source-tab"
+        :class="{ active: activeSource === 'variable' }"
+        @click="activeSource = 'variable'"
+      >
+        {{ t('变量') }}
+      </div>
+      <div
+        class="source-tab"
         :class="{ active: activeSource === 'mockjs' }"
         @click="activeSource = 'mockjs'"
       >
@@ -28,8 +35,8 @@
     </div>
 
     <div class="content-wrap">
-      <!-- 左侧分类列表 -->
-      <div class="category-list">
+      <!-- 左侧分类列表（变量模式下隐藏） -->
+      <div v-if="activeSource !== 'variable'" class="category-list">
         <div
           v-for="category in mockCategories"
           :key="category.key"
@@ -44,8 +51,25 @@
 
       <!-- 右侧内容区域 -->
       <div class="main-content">
-        <!-- 数据列表 -->
-        <div class="data-list">
+        <!-- 变量列表 -->
+        <div v-if="activeSource === 'variable'" class="data-list">
+          <div
+            v-for="item in filteredVariableList"
+            :key="item._id"
+            class="data-item"
+            :class="{ active: currentVariableId === item._id }"
+            @mouseenter="handleVariablePreview(item)"
+            @click="handleSelectVariable(item)"
+          >
+            <span class="value">{{ item.name }}</span>
+            <span class="name">{{ item.value }}</span>
+          </div>
+          <div v-if="filteredVariableList.length === 0" class="empty-tip">
+            {{ t('无匹配数据') }}
+          </div>
+        </div>
+        <!-- Mock 数据列表 -->
+        <div v-else class="data-list">
           <div
             v-for="(item, index) in filteredMockList"
             :key="index"
@@ -81,12 +105,13 @@
 
 <script lang="ts" setup>
 import { useI18n } from 'vue-i18n'
-import type { MockItem } from '@src/types'
+import type { MockItem, ApidocVariable } from '@src/types'
 import Mock from '@/server/mock/mock'
 import { faker } from '@faker-js/faker/locale/zh_CN'
 import { mockCategories, mockjsList, fakerList } from './mock-enum';
 import { computed, onMounted, ref, watch } from 'vue';
 import { Search } from '@element-plus/icons-vue';
+import { useVariable } from '@/store/apidoc/variablesStore';
 
 const props = defineProps({
   searchValue: {
@@ -105,15 +130,29 @@ const props = defineProps({
 
 const emits = defineEmits(['select', 'close']);
 const { t } = useI18n();
+const variableStore = useVariable();
 
 // 响应式状态
-const activeSource = ref<'mockjs' | 'faker'>('mockjs');
+const activeSource = ref<'variable' | 'mockjs' | 'faker'>('variable');
+const currentVariableId = ref<string | null>(null);
 const activeCategory = ref('common');
 const searchText = ref('');
 const previewValue = ref<string>('');
 const isImagePreview = ref(false);
 const currentItem = ref<(MockItem & { _id?: string }) | null>(null);
 
+// 过滤后的变量列表
+const filteredVariableList = computed(() => {
+  const search = searchText.value.trim().toLowerCase();
+  let list = variableStore.variables;
+  if (search) {
+    list = list.filter(item =>
+      item.name.toLowerCase().includes(search) ||
+      item.value.toLowerCase().includes(search)
+    );
+  }
+  return list;
+});
 // 根据数据源获取对应列表
 const currentList = computed(() => {
   return activeSource.value === 'mockjs' ? mockjsList : fakerList;
@@ -192,6 +231,17 @@ const handleSelect = (item: MockItem) => {
   emits('select', item);
   emits('close');
 };
+// 变量预览
+const handleVariablePreview = (item: ApidocVariable) => {
+  currentVariableId.value = item._id;
+  previewValue.value = item.value;
+  isImagePreview.value = false;
+};
+// 选择变量
+const handleSelectVariable = (item: ApidocVariable) => {
+  emits('select', { source: 'variable', value: item.name, name: item.value });
+  emits('close');
+};
 
 // 监听搜索值变化
 watch([() => props.searchValue, searchText], () => {
@@ -202,7 +252,14 @@ watch([() => props.searchValue, searchText], () => {
 
 // 切换数据源或分类时重置预览
 watch([activeSource, activeCategory], () => {
-  if (filteredMockList.value.length > 0) {
+  if (activeSource.value === 'variable') {
+    if (filteredVariableList.value.length > 0) {
+      handleVariablePreview(filteredVariableList.value[0]);
+    } else {
+      currentVariableId.value = null;
+      previewValue.value = '';
+    }
+  } else if (filteredMockList.value.length > 0) {
     handlePreview(filteredMockList.value[0]);
   } else {
     currentItem.value = null;
@@ -212,7 +269,11 @@ watch([activeSource, activeCategory], () => {
 
 onMounted(() => {
   // 初始化预览
-  if (filteredMockList.value.length > 0) {
+  if (activeSource.value === 'variable') {
+    if (filteredVariableList.value.length > 0) {
+      handleVariablePreview(filteredVariableList.value[0]);
+    }
+  } else if (filteredMockList.value.length > 0) {
     handlePreview(filteredMockList.value[0]);
   }
 });
@@ -226,7 +287,6 @@ onMounted(() => {
   border-radius: 6px;
   display: flex;
   flex-direction: column;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 
   .source-tabs {
     display: flex;

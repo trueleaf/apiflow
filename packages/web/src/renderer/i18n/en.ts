@@ -308,6 +308,7 @@ export default {
   左右布局: 'Left-Right Layout',
   上下布局: 'Top-Bottom Layout',
   变量: 'Variables',
+  '输入@唤起变量弹窗': 'Type @ to open variable popup',
   联想值: 'Associated Values',
   备注: 'Remark Information',
   未实现的返回类型: 'Unimplemented Return Type',

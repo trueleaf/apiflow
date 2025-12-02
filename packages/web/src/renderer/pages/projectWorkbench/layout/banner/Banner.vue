@@ -2,9 +2,9 @@
   <SResizeX :min="280" :max="450" :width="300" name="banner" class="banner" tabindex="1">
     <STool @fresh="getBannerData" @filter="handleFilterNode" @changeProject="handleChangeProject"></STool>
     <div class="banner-view-switcher">
-      <CleanTabs v-model="bannerViewMode" size="small" type="card">
-        <CleanTabPane :label="t('接口列表')" name="list" />
-        <CleanTabPane :label="t('调用历史')" name="history" />
+      <CleanTabs v-model="bannerViewMode" size="small" type="card" data-testid="banner-tabs">
+        <CleanTabPane :label="t('接口列表')" name="list" data-testid="banner-tab-list" />
+        <CleanTabPane :label="t('调用历史')" name="history" data-testid="banner-tab-history" />
       </CleanTabs>
     </div>
     <SLoading v-if="bannerViewMode === 'list'" :loading="loading" class="tree-wrap" @contextmenu.prevent="handleWrapContextmenu">
@@ -18,6 +18,7 @@
         :draggable="enableDrag" 
         :allow-drop="handleCheckNodeCouldDrop" 
         :filter-node-method="filterNode"
+        data-testid="banner-doc-tree"
         @node-drop="handleNodeDropSuccess" 
         @node-contextmenu="handleShowContextmenu">
         <template #default="scope">
@@ -54,7 +55,7 @@
                 @input="handleWatchNodeInput($event)" 
                 @keydown.stop.enter="handleChangeNodeName($event, scope.data)"
               >
-              <div class="more" @click.stop="handleShowContextmenu($event, scope.data)">
+              <div class="more" data-testid="banner-node-more-btn" @click.stop="handleShowContextmenu($event, scope.data)">
                 <el-icon class="more-op" :title="t('更多操作')" :size="16">
                   <more-filled />
                 </el-icon>

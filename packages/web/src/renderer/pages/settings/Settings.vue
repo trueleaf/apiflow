@@ -8,7 +8,7 @@
 
         <div class="menu-group">
           <div v-for="(tab, index) in tabs" :key="index" class="tab-item" :class="{ active: activeTab === tab.action }"
-            @click="handleTabClick(tab)">
+            :data-testid="`settings-menu-${tab.action}`" @click="handleTabClick(tab)">
             <component :is="tab.icon" class="tab-icon" />
             <span>{{ tab.name }}</span>
           </div>
@@ -24,6 +24,7 @@
             :key="index"
             class="tab-item"
             :class="{ active: activeTab === setting.action }"
+            :data-testid="`settings-menu-${setting.action}`"
             @click="handleSettingClick(setting)"
           >
             <component :is="setting.icon" class="tab-icon" />

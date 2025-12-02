@@ -1,11 +1,11 @@
 <template>
-  <el-dialog :model-value="modelValue" width="35vw" top="10vh" :title="t('新增项目')" :before-close="handleClose" @opened="handleDialogOpened">
-    <el-form ref="form" :model="formInfo" :rules="rules" label-width="150px" @submit.prevent="() => {}">
+  <el-dialog :model-value="modelValue" width="35vw" top="10vh" :title="t('新增项目')" :before-close="handleClose" data-testid="add-project-dialog" @opened="handleDialogOpened">
+    <el-form ref="form" :model="formInfo" :rules="rules" label-width="150px" data-testid="add-project-form" @submit.prevent="() => {}">
       <el-form-item :label="`${t('项目名称')}：`" prop="projectName">
-        <el-input ref="projectNameInput" v-model="formInfo.projectName" :size="config.renderConfig.layout.size" :placeholder="t('请输入项目名称')" @keydown.enter="handleAddProject"></el-input>
+        <el-input ref="projectNameInput" v-model="formInfo.projectName" :size="config.renderConfig.layout.size" :placeholder="t('请输入项目名称')" data-testid="add-project-name-input" @keydown.enter="handleAddProject"></el-input>
       </el-form-item>
       <el-form-item v-if="!isStandalone" :label="`${t('选择成员或组')}：`">
-        <RemoteSelector v-model="remoteQueryName" :remote-methods="getRemoteUserOrGroupByName" :loading="loading" :placeholder="t('输入【用户名】| 【完整手机号】 | 【组名称】')">
+        <RemoteSelector v-model="remoteQueryName" :remote-methods="getRemoteUserOrGroupByName" :loading="loading" :placeholder="t('输入【用户名】| 【完整手机号】 | 【组名称】')" data-testid="add-project-member-select">
           <RemoteSelectorItem v-for="(item, index) in remoteUserOrGroupList" :key="index">
             <div class="d-flex a-center j-between w-100 h-100" @click="handleSelectUser(item)">
               <span>{{ item.name }}</span>
@@ -52,8 +52,8 @@
       </el-table-column>
     </el-table>
     <template #footer>
-      <el-button @click="handleClose">{{ t("取消") }}</el-button>
-      <el-button :loading="loading2" type="primary" @click="handleAddProject">{{ t("确定") }}</el-button>
+      <el-button data-testid="add-project-cancel-btn" @click="handleClose">{{ t("取消") }}</el-button>
+      <el-button :loading="loading2" type="primary" data-testid="add-project-confirm-btn" @click="handleAddProject">{{ t("确定") }}</el-button>
     </template>
   </el-dialog>
 </template>
