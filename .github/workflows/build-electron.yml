@@ -14,269 +14,115 @@ on:
 jobs:
   test-web:
     runs-on: ubuntu-latest
-    
     steps:
       - name: 检出代码
         uses: actions/checkout@v4
-        
+
       - name: 设置Node.js环境
         uses: actions/setup-node@v4
         with:
           node-version: '20'
           cache: 'npm'
-          
+
       - name: 安装依赖
         run: npm ci --include=optional
         env:
           npm_config_ignore_optional: true
-          npm_config_ignore_scripts: false
-      
-      - name: 安装 Linux 依赖
+
+      - name: 安装Linux依赖
         run: |
           sudo apt-get update
           sudo apt-get install -y xvfb libgtk-3-0 libgbm1 libnss3 libxss1 libxtst6 libnotify4 libatspi2.0-0 libdrm2 libxcb-dri3-0 libx11-xcb1
-        
-      - name: 构建 Electron 应用（包含主进程和渲染进程）
+
+      - name: 构建Electron应用（主 + 渲染）
         run: npm run web:build:app:pack
-        working-directory: .
-        
-      # - name: 运行E2E测试
-      #   run: xvfb-run --auto-servernum --server-args="-screen 0 1280x960x24" npm run test -w apiflow
-      #   env:
-      #     CI: true
-      #     TEST_AI_API_URL: ${{ secrets.TEST_AI_API_URL }}
-      #     TEST_AI_API_KEY: ${{ secrets.TEST_AI_API_KEY }}
-          
-      # - name: 上传测试报告
-      #   if: always()
-      #   uses: actions/upload-artifact@v4
-      #   with:
-      #     name: playwright-report
-      #     path: packages/web/playwright-report/
-      #     retention-days: 30
-          
-      # - name: 上传测试结果
-      #   if: always()
-      #   uses: actions/upload-artifact@v4
-      #   with:
-      #     name: test-results
-      #     path: packages/web/test-results/
-      #     retention-days: 30
+
 
   build-windows:
     needs: [test-web]
     runs-on: windows-latest
-    
     steps:
-      - name: 检出代码
-        uses: actions/checkout@v4
-        
-      - name: 设置Node.js环境
-        uses: actions/setup-node@v4
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
         with:
           node-version: '20'
           cache: 'npm'
-          
+
       - name: 安装依赖
         run: npm ci --include=optional
-        env:
-          npm_config_ignore_optional: true
-          npm_config_ignore_scripts: false
-        
-      - name: 打包Windows应用
+
+      - name: 打包 Windows 应用（自动上传 Release）
         run: npm run web:build:app:win
         env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
           CSC_IDENTITY_AUTO_DISCOVERY: false
           npm_config_target_platform: win32
-          
-      - name: 上传构建产物
-        uses: actions/upload-artifact@v4
-        with:
-          name: apiflow-windows
-          path: |
-            packages/web/release/*.exe
-            packages/web/release/*.zip
-            packages/web/release/win-unpacked/
-            packages/web/release/Apiflow-*-x64
-            packages/web/release/Apiflow-*-arm64
-          retention-days: 30
-          
+
+
   build-linux:
     needs: [test-web]
     runs-on: ubuntu-latest
-    
     steps:
-      - name: 检出代码
-        uses: actions/checkout@v4
-        
-      - name: 设置Node.js环境
-        uses: actions/setup-node@v4
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
         with:
           node-version: '20'
           cache: 'npm'
-          
+
       - name: 安装依赖
         run: npm ci --include=optional
-        env:
-          npm_config_ignore_optional: true
-          npm_config_ignore_scripts: false
-        
-      - name: 打包Linux应用
+
+      - name: 打包 Linux 应用（自动上传 Release）
         run: npm run web:build:app:linux
         env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
           CSC_IDENTITY_AUTO_DISCOVERY: false
           npm_config_target_arch: x64
           npm_config_target_platform: linux
-          
-      - name: 上传构建产物
-        uses: actions/upload-artifact@v4
-        with:
-          name: apiflow-linux
-          path: |
-            packages/web/release/*.AppImage
-            packages/web/release/*.deb
-          retention-days: 30
-          
+
+
   build-macos:
     needs: [test-web]
     runs-on: macos-latest
-    
     steps:
-      - name: 检出代码
-        uses: actions/checkout@v4
-        
-      - name: 设置Node.js环境
-        uses: actions/setup-node@v4
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
         with:
           node-version: '20'
           cache: 'npm'
-          
+
       - name: 安装依赖
         run: npm ci --include=optional
-        env:
-          npm_config_ignore_optional: true
-          npm_config_ignore_scripts: false
-        
-      - name: 打包macOS应用
+
+      - name: 打包 macOS 应用（自动上传 Release）
         run: npm run web:build:app:mac
         env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
           CSC_IDENTITY_AUTO_DISCOVERY: false
           npm_config_target_platform: darwin
-          
-      - name: 上传构建产物
-        uses: actions/upload-artifact@v4
-        with:
-          name: apiflow-macos
-          path: |
-            packages/web/release/*.dmg
-            packages/web/release/*.zip
-            packages/web/release/*.app
-            packages/web/release/mac/
-          retention-days: 30
-          
-  create-release:
-    if: github.event_name == 'workflow_dispatch' || startsWith(github.ref, 'refs/tags/')
+
+
+  finalize-release:
     needs: [build-windows, build-linux, build-macos]
     runs-on: ubuntu-latest
-    
     steps:
-      - name: 下载所有构建产物
-        uses: actions/download-artifact@v4
-        
-      - name: 创建Release
+      - name: 修改 Draft Release 内容（不新建 Release）
         uses: softprops/action-gh-release@v1
         with:
-          files: |
-            apiflow-windows/*
-            apiflow-linux/*
-            apiflow-macos/*
-          tag_name: ${{ github.ref_name }}
-          name: Apiflow ${{ github.ref_name }}
+          draft: true
+          update_release: true
           body: |
-           ## 📦 Downloads
-            
-            ### Windows
-            
-            #### Installer
-            - **Windows x64**: `Apiflow-*-x64.exe`
-            - **Windows ARM64**: `Apiflow-*-arm64.exe`
-            
-            #### Portable
-            - **Windows x64**: `Apiflow-*-x64.zip`
-            - **Windows ARM64**: `Apiflow-*-arm64.zip`
+            ## 📦 下载包已经全部构建完成
+            Release 内容已经由 electron-builder 自动上传。
 
-            #### Generic (no-extension executable)
-            - **Windows x64**: `Apiflow-*-x64`
-            - **Windows ARM64**: `Apiflow-*-arm64`
+            ✔ Windows  
+            ✔ macOS  
+            ✔ Linux  
 
-            #### Unpacked (win-unpacked)
-            - **Windows**: `win-unpacked/` (Raw application files for advanced users)
+            请检查文件后再点击 **Publish release** 发布版本。
 
-            ### Linux
-            
-            #### AppImage (Recommended)
-            - **Linux x64**: `Apiflow-*-x64.AppImage`
-            - **Linux ARM64**: `Apiflow-*-arm64.AppImage`
-            
-            #### Debian Package
-            - **Linux x64**: `Apiflow-*-x64.deb`
-            - **Linux ARM64**: `Apiflow-*-arm64.deb`
-            
-            ### macOS
-            
-            #### DMG Installer (Recommended)
-            - **macOS Intel**: `Apiflow-*-x64.dmg`
-            - **macOS Apple Silicon**: `Apiflow-*-arm64.dmg`
-            
-            #### ZIP Archive
-            - **macOS Intel**: `Apiflow-*-x64-mac.zip`
-            - **macOS Apple Silicon**: `Apiflow-*-arm64-mac.zip`
-            
-            ## 📦 下载地址
-            
-            ### Windows版本
-            
-            #### 安装版
-            - **Windows x64**: `Apiflow-*-x64.exe`
-            - **Windows ARM64**: `Apiflow-*-arm64.exe`
-            
-            #### 便携版
-            - **Windows x64**: `Apiflow-*-x64.zip`
-            - **Windows ARM64**: `Apiflow-*-arm64.zip`
-
-            #### 通用（无扩展名）
-            - **Windows x64**: `Apiflow-*-x64`
-            - **Windows ARM64**: `Apiflow-*-arm64`
-
-            #### 解压版 (win-unpacked)
-            - **Windows**: `win-unpacked/` (原始应用程序文件，适合高级用户)
-
-            ### Linux版本
-            
-            #### AppImage (推荐)
-            - **Linux x64**: `Apiflow-*-x64.AppImage`
-            - **Linux ARM64**: `Apiflow-*-arm64.AppImage`
-            
-            #### Debian包
-            - **Linux x64**: `Apiflow-*-x64.deb`
-            - **Linux ARM64**: `Apiflow-*-arm64.deb`
-            
-            ### macOS版本
-            
-            #### DMG安装包 (推荐)
-            - **macOS Intel**: `Apiflow-*-x64.dmg`
-            - **macOS Apple Silicon**: `Apiflow-*-arm64.dmg`
-            
-            #### ZIP压缩包
-            - **macOS Intel**: `Apiflow-*-x64-mac.zip`
-            - **macOS Apple Silicon**: `Apiflow-*-arm64-mac.zip`
-            
-            ## 🚀 What's New
-            
-            Please check the commit history for detailed changes.
-            
-            ## 🚀 更新内容
-            
-            请查看提交记录了解详细更改。
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
