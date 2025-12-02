@@ -1,5 +1,11 @@
 <template>
-  <div class="cl-mock-select" @click.stop @mousedown.prevent>
+  <div
+    class="cl-mock-select"
+    tabindex="-1"
+    @click.stop
+    @focusin="handlePanelFocusIn"
+    @focusout="handlePanelFocusOut"
+  >
     <!-- 顶部 Tab 切换数据源 -->
     <div class="source-tabs">
       <div
@@ -23,7 +29,7 @@
       >
         Faker.js
       </div>
-      <div class="search-box">
+      <div class="search-box" @mousedown.stop>
         <el-input
           v-model="searchText"
           :placeholder="t('搜索')"
@@ -128,7 +134,7 @@ const props = defineProps({
   }
 })
 
-const emits = defineEmits(['select', 'close']);
+const emits = defineEmits(['select', 'close', 'interaction']);
 const { t } = useI18n();
 const variableStore = useVariable();
 
@@ -140,6 +146,16 @@ const searchText = ref('');
 const previewValue = ref<string>('');
 const isImagePreview = ref(false);
 const currentItem = ref<(MockItem & { _id?: string }) | null>(null);
+const handlePanelFocusIn = () => {
+  emits('interaction', true);
+};
+const handlePanelFocusOut = (event: FocusEvent) => {
+  const target = event.currentTarget as HTMLElement | null;
+  if (target && event.relatedTarget instanceof Node && target.contains(event.relatedTarget)) {
+    return;
+  }
+  emits('interaction', false);
+};
 
 // 过滤后的变量列表
 const filteredVariableList = computed(() => {

@@ -148,6 +148,7 @@
              <SMock 
                @close="handleCloseMock()" 
                @select="v => handleSelectMockValue(v, data)"
+               @interaction="handleMockInteraction"
              ></SMock>
              <template #reference>
                <div 
@@ -338,6 +339,7 @@ const hasUserInput = ref(false);
 const defaultCheckedKeys = ref<string[]>([]);
 const multilineInputs = ref<Record<string, boolean>>({});
 const focusedInputId = ref<string | null>(null);
+const isMockPanelFocused = ref(false);
 const isPasting = ref(false);
 const multilineText = ref('');
 const parseError = ref('');
@@ -617,7 +619,9 @@ const handleFocusValue = (data: ApidocProperty<'string' | 'file'>) => {
 // 参数值失焦
 const handleBlurValue = () => {
   setTimeout(() => {
-    currentOpData.value = null;
+    if (!isMockPanelFocused.value) {
+      currentOpData.value = null;
+    }
   }, 200);
 };
 // 参数值失焦并恢复拖拽
@@ -654,8 +658,15 @@ const handleChangeType = (v: 'string' | 'file', data: ApidocProperty<'string' | 
 | Mock 相关
 |--------------------------------------------------------------------------
 */
+const handleMockInteraction = (status: boolean) => {
+  isMockPanelFocused.value = status;
+  if (!status && !focusedInputId.value) {
+    currentOpData.value = null;
+  }
+};
 // 关闭 Mock 弹窗
 const handleCloseMock = () => {
+  isMockPanelFocused.value = false;
   currentOpData.value = null;
 };
 // 选中 Mock 或变量值

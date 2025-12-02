@@ -31,10 +31,8 @@
                   }}</span>
                 <span v-if="currentEditNode && currentEditNode.title === item.title"
                   class="ml-1 cursor-pointer theme-color" @click.stop="handleCancelEdit">{{ t("取消") }}</span>
-                <el-icon v-if="!currentEditNode" :title="t('修改名称')" class="edit-icon" :size="16"
-                  @click.stop="handleChangeEditNode(item, index)">
-                  <Edit />
-                </el-icon>
+                <Pencil v-if="!currentEditNode" :title="t('修改名称')" class="edit-icon" :size="14"
+                  @click.stop="handleChangeEditNode(item, index)" />
               </div>
             </div>
             <!-- 状态码 -->
@@ -111,7 +109,8 @@
 import { useI18n } from 'vue-i18n'
 import { computed, ref, Ref, onMounted, onUnmounted, watch } from 'vue'
 import { Effect } from 'element-plus';
-import { ArrowDown, Edit, CaretRight, CaretBottom } from '@element-plus/icons-vue'
+import { ArrowDown, CaretRight, CaretBottom } from '@element-plus/icons-vue'
+import { Pencil } from 'lucide-vue-next'
 import type { HttpNodeResponseParams, HttpNodeResponseContentType, HttpNodeContentType } from '@src/types'
 import { appState } from '@/cache/appState/appStateCache.ts'
 import SStatus from './children/Status.vue'
@@ -454,11 +453,9 @@ watch(() => responseData.value, (newVal, oldVal) => {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    height: 100%;
     cursor: pointer;
-    width: 40px;
-    margin-top: 2px;
-
+    margin-left: 4px;
+    margin-top: 3px;
     &:hover {
       color: var(--theme-color);
     }
