@@ -6,141 +6,54 @@
           <!-- 基础信息 -->
           <div class="search-section">
             <div class="section-header">
-              <span class="section-title">{{ $t('基础信息') }}</span>
+              <span class="section-title">{{ $t('基础信息') }}:</span>
             </div>
             <div class="section-content">
-              <el-input
-                v-model="localConditions.basicInfo.docName"
-                :placeholder="$t('文档名称')"
-                size="small"
-                clearable
-                class="search-input"
-              />
-              <el-input
-                v-model="localConditions.basicInfo.url"
-                :placeholder="$t('请求URL')"
-                size="small"
-                clearable
-                class="search-input"
-              />
-              <el-input
-                v-model="localConditions.basicInfo.method"
-                :placeholder="$t('请求方法')"
-                size="small"
-                clearable
-                class="search-input"
-              />
-              <el-input
-                v-if="!isStandalone"
-                v-model="localConditions.basicInfo.creator"
-                :placeholder="$t('创建者')"
-                size="small"
-                clearable
-                class="search-input"
-              />
-              <el-input
-                v-if="!isStandalone"
-                v-model="localConditions.basicInfo.maintainer"
-                :placeholder="$t('维护者')"
-                size="small"
-                clearable
-                class="search-input"
-              />
-              <el-input
-                v-model="localConditions.basicInfo.remark"
-                :placeholder="$t('备注')"
-                size="small"
-                clearable
-                class="search-input"
-              />
+              <el-checkbox v-model="localConditions.searchScope.projectName">{{ $t('项目名称') }}</el-checkbox>
+              <el-checkbox v-model="localConditions.searchScope.docName">{{ $t('文档名称') }}</el-checkbox>
+              <el-checkbox v-model="localConditions.searchScope.url">{{ $t('请求URL') }}</el-checkbox>
+              <el-checkbox v-if="!isStandalone" v-model="localConditions.searchScope.creator">{{ $t('创建者') }}</el-checkbox>
+              <el-checkbox v-if="!isStandalone" v-model="localConditions.searchScope.maintainer">{{ $t('维护者') }}</el-checkbox>
+              <el-checkbox v-model="localConditions.searchScope.method">{{ $t('请求方法') }}</el-checkbox>
+              <el-checkbox v-model="localConditions.searchScope.remark">{{ $t('备注') }}</el-checkbox>
             </div>
           </div>
           <!-- 节点类型 -->
           <div class="search-section">
             <div class="section-header">
-              <span class="section-title">{{ $t('节点类型') }}</span>
+              <span class="section-title">{{ $t('节点类型') }}:</span>
             </div>
             <div class="section-content">
-              <el-checkbox-group v-model="selectedNodeTypes" class="node-types-group">
-                <el-checkbox label="folder">{{ $t('目录') }}</el-checkbox>
-                <el-checkbox label="http">{{ $t('HTTP节点') }}</el-checkbox>
-                <el-checkbox label="websocket">{{ $t('WebSocket节点') }}</el-checkbox>
-                <el-checkbox label="httpMock">{{ $t('HTTP Mock节点') }}</el-checkbox>
-              </el-checkbox-group>
+              <el-checkbox v-model="localConditions.searchScope.folder">{{ $t('目录') }}</el-checkbox>
+              <el-checkbox v-model="localConditions.searchScope.http">{{ $t('HTTP节点') }}</el-checkbox>
+              <el-checkbox v-model="localConditions.searchScope.websocket">{{ $t('WebSocket节点') }}</el-checkbox>
+              <el-checkbox v-model="localConditions.searchScope.httpMock">{{ $t('HTTP Mock节点') }}</el-checkbox>
             </div>
           </div>
           <!-- 请求参数 -->
           <div class="search-section">
             <div class="section-header">
-              <span class="section-title">{{ $t('请求参数') }}</span>
+              <span class="section-title">{{ $t('请求参数') }}:</span>
             </div>
             <div class="section-content">
-              <el-input
-                v-model="localConditions.requestParams.query"
-                :placeholder="$t('Query参数')"
-                size="small"
-                clearable
-                class="search-input"
-              />
-              <el-input
-                v-model="localConditions.requestParams.path"
-                :placeholder="$t('Path参数')"
-                size="small"
-                clearable
-                class="search-input"
-              />
-              <el-input
-                v-model="localConditions.requestParams.headers"
-                :placeholder="$t('请求头参数')"
-                size="small"
-                clearable
-                class="search-input"
-              />
-              <el-input
-                v-model="localConditions.requestParams.body"
-                :placeholder="$t('Body参数')"
-                size="small"
-                clearable
-                class="search-input"
-              />
-              <el-input
-                v-model="localConditions.requestParams.response"
-                :placeholder="$t('返回参数')"
-                size="small"
-                clearable
-                class="search-input"
-              />
-              <el-input
-                v-model="localConditions.requestParams.preScript"
-                :placeholder="$t('前置脚本')"
-                size="small"
-                clearable
-                class="search-input"
-              />
-              <el-input
-                v-model="localConditions.requestParams.afterScript"
-                :placeholder="$t('后置脚本')"
-                size="small"
-                clearable
-                class="search-input"
-              />
-              <el-input
-                v-model="localConditions.requestParams.wsMessage"
-                :placeholder="$t('WebSocket消息')"
-                size="small"
-                clearable
-                class="search-input"
-              />
+              <el-checkbox v-model="localConditions.searchScope.query">{{ $t('Query参数') }}</el-checkbox>
+              <el-checkbox v-model="localConditions.searchScope.path">{{ $t('Path参数') }}</el-checkbox>
+              <el-checkbox v-model="localConditions.searchScope.headers">{{ $t('请求头参数') }}</el-checkbox>
+              <el-checkbox v-model="localConditions.searchScope.body">{{ $t('Body参数') }}</el-checkbox>
+              <el-checkbox v-model="localConditions.searchScope.response">{{ $t('返回参数') }}</el-checkbox>
+              <el-checkbox v-model="localConditions.searchScope.preScript">{{ $t('前置脚本') }}</el-checkbox>
+              <el-checkbox v-model="localConditions.searchScope.afterScript">{{ $t('后置脚本') }}</el-checkbox>
+              <el-checkbox v-model="localConditions.searchScope.wsMessage">{{ $t('WebSocket消息') }}</el-checkbox>
             </div>
           </div>
           <!-- 更新日期 -->
           <div class="search-section">
             <div class="section-header">
-              <span class="section-title">{{ $t('更新日期') }}</span>
+              <span class="section-title">{{ $t('更新日期') }}:</span>
             </div>
-            <div class="section-content">
+            <div class="section-content date-content">
               <el-radio-group v-model="localConditions.dateRange.type" class="date-radio-group">
-                <el-radio label="all">{{ $t('全部') }}</el-radio>
+                <el-radio label="unlimited">{{ $t('不限制') }}</el-radio>
                 <el-radio label="recent3days">{{ $t('最近3天') }}</el-radio>
                 <el-radio label="recent1week">{{ $t('最近1周') }}</el-radio>
                 <el-radio label="recent1month">{{ $t('最近1月') }}</el-radio>
@@ -179,25 +92,6 @@ const emit = defineEmits<{
   (e: 'reset'): void;
 }>();
 const localConditions = defineModel<AdvancedSearchConditions>({ required: true });
-const selectedNodeTypes = computed({
-  get: () => {
-    const types = localConditions.value.nodeTypes;
-    const selected: string[] = [];
-    if (types.folder) selected.push('folder');
-    if (types.http) selected.push('http');
-    if (types.websocket) selected.push('websocket');
-    if (types.httpMock) selected.push('httpMock');
-    return selected;
-  },
-  set: (value: string[]) => {
-    localConditions.value.nodeTypes = {
-      folder: value.includes('folder'),
-      http: value.includes('http'),
-      websocket: value.includes('websocket'),
-      httpMock: value.includes('httpMock'),
-    };
-  }
-});
 const customDateRange = ref<[Date, Date] | null>(null);
 watch(() => localConditions.value.dateRange.customStart, (start) => {
   if (start && localConditions.value.dateRange.customEnd) {
@@ -233,43 +127,52 @@ const handleReset = () => {
 .search-sections {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 12px;
 }
 .search-section {
+  display: flex;
+  align-items: center;
+  gap: 12px;
   .section-header {
-    margin-bottom: 12px;
+    flex-shrink: 0;
     .section-title {
-      font-weight: 600;
-      font-size: 14px;
-      color: var(--el-text-color-primary);
+      font-weight: 500;
+      font-size: 13px;
+      color: var(--el-text-color-regular);
     }
   }
   .section-content {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    flex: 1;
+    :deep(.el-checkbox) {
+      margin-right: 0;
+    }
+  }
+  .date-content {
+    display: flex;
+    flex-direction: column;
     gap: 12px;
   }
-}
-.node-types-group {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 16px;
 }
 .date-radio-group {
   display: flex;
   flex-wrap: wrap;
-  gap: 16px;
-  margin-bottom: 12px;
+  gap: 12px;
+  :deep(.el-radio) {
+    margin-right: 0;
+  }
 }
 .custom-date-picker {
   width: 100%;
-  max-width: 400px;
+  max-width: 300px;
 }
 .search-actions {
   display: flex;
   justify-content: flex-end;
-  margin-top: 16px;
-  padding-top: 16px;
+  margin-top: 12px;
+  padding-top: 12px;
   border-top: 1px solid var(--el-border-color-lighter);
 }
 </style>

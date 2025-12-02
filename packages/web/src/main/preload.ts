@@ -192,6 +192,12 @@ const onDownloadCompleted = (callback: (info: unknown) => void) => {
 const onUpdateError = (callback: (error: unknown) => void) => {
   ipcRenderer.on(IPC_EVENTS.updater.mainToRenderer.error, (_event, error) => callback(error));
 }
+const getUpdateSource = async () => {
+  return ipcRenderer.invoke(IPC_EVENTS.updater.rendererToMain.getUpdateSource);
+}
+const setUpdateSource = async (params: { sourceType: 'github' | 'custom'; customUrl?: string }) => {
+  return ipcRenderer.invoke(IPC_EVENTS.updater.rendererToMain.setUpdateSource, params);
+}
 
 contextBridge.exposeInMainWorld('electronAPI', {
   ip: ip.address(),
@@ -265,5 +271,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
     onDownloadProgress,
     onDownloadCompleted,
     onUpdateError,
+    getUpdateSource,
+    setUpdateSource,
   }
 })

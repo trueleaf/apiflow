@@ -2,33 +2,30 @@ import type { ApidocType } from "./httpNode/types";
 
 // 高级搜索条件类型
 export type AdvancedSearchConditions = {
-  basicInfo: {
-    projectName: string;
-    docName: string;
-    url: string;
-    creator: string;
-    maintainer: string;
-    method: string;
-    remark: string;
-  };
-  nodeTypes: {
+  keyword: string;
+  searchScope: {
+    projectName: boolean;
+    docName: boolean;
+    url: boolean;
+    creator: boolean;
+    maintainer: boolean;
+    method: boolean;
+    remark: boolean;
     folder: boolean;
     http: boolean;
     websocket: boolean;
     httpMock: boolean;
-  };
-  requestParams: {
-    query: string;
-    path: string;
-    headers: string;
-    body: string;
-    response: string;
-    preScript: string;
-    afterScript: string;
-    wsMessage: string;
+    query: boolean;
+    path: boolean;
+    headers: boolean;
+    body: boolean;
+    response: boolean;
+    preScript: boolean;
+    afterScript: boolean;
+    wsMessage: boolean;
   };
   dateRange: {
-    type: 'all' | 'recent3days' | 'recent1week' | 'recent1month' | 'recent3months' | 'custom';
+    type: 'unlimited' | 'recent3days' | 'recent1week' | 'recent1month' | 'recent3months' | 'custom';
     customStart?: string;
     customEnd?: string;
   };

@@ -251,9 +251,9 @@
     },
     "publish": [
       {
-        "provider": "generic",
-        "url": "http://xxx.xxx.cn/electron",
-        "channel": "latest"
+        "provider": "github",
+        "owner": "trueleaf",
+        "repo": "apiflow"
       }
     ]
   },

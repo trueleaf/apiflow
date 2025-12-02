@@ -10,20 +10,20 @@ import { apiNodesCache } from '@/cache/nodes/nodesCache';
 // 检查节点类型是否匹配
 function checkNodeType(
   nodeType: string,
-  nodeTypes: AdvancedSearchConditions['nodeTypes']
+  searchScope: AdvancedSearchConditions['searchScope']
 ): boolean {
-  if (!nodeTypes.folder && !nodeTypes.http && !nodeTypes.websocket && !nodeTypes.httpMock) {
+  if (!searchScope.folder && !searchScope.http && !searchScope.websocket && !searchScope.httpMock) {
     return true;
   }
   switch (nodeType) {
     case 'folder':
-      return nodeTypes.folder;
+      return searchScope.folder;
     case 'http':
-      return nodeTypes.http;
+      return searchScope.http;
     case 'websocket':
-      return nodeTypes.websocket;
+      return searchScope.websocket;
     case 'httpMock':
-      return nodeTypes.httpMock;
+      return searchScope.httpMock;
     default:
       return false;
   }
@@ -33,7 +33,7 @@ function checkDateRange(
   updatedAt: string,
   dateRange: AdvancedSearchConditions['dateRange']
 ): boolean {
-  if (dateRange.type === 'all') return true;
+  if (dateRange.type === 'unlimited') return true;
   const updateTime = new Date(updatedAt).getTime();
   const now = Date.now();
   const dayMs = 24 * 60 * 60 * 1000;
@@ -75,80 +75,82 @@ function getNodeUrl(node: ApiNode): string {
 // 匹配基础信息
 function matchBasicInfo(
   node: ApiNode,
-  basicInfo: AdvancedSearchConditions['basicInfo'],
+  keyword: string,
+  searchScope: AdvancedSearchConditions['searchScope'],
   project: ApidocProjectInfo,
   isOffline: boolean
 ): MatchInfo[] {
   const matches: MatchInfo[] = [];
-  if (matchString(project.projectName, basicInfo.projectName)) {
-    matches.push(createMatchInfo('projectName', '项目名称', project.projectName, basicInfo.projectName));
+  if (searchScope.projectName && matchString(project.projectName, keyword)) {
+    matches.push(createMatchInfo('projectName', '项目名称', project.projectName, keyword));
   }
-  if (matchString(node.info.name, basicInfo.docName)) {
-    matches.push(createMatchInfo('docName', '文档名称', node.info.name, basicInfo.docName));
+  if (searchScope.docName && matchString(node.info.name, keyword)) {
+    matches.push(createMatchInfo('docName', '文档名称', node.info.name, keyword));
   }
-  if (basicInfo.url && (node.info.type === 'http' || node.info.type === 'websocket')) {
+  if (searchScope.url && (node.info.type === 'http' || node.info.type === 'websocket')) {
     const httpOrWsNode = node as HttpNode | WebSocketNode;
     const url = `${httpOrWsNode.item.url.prefix}${httpOrWsNode.item.url.path}`;
-    if (matchString(url, basicInfo.url)) {
-      matches.push(createMatchInfo('url', '请求URL', url, basicInfo.url));
+    if (matchString(url, keyword)) {
+      matches.push(createMatchInfo('url', '请求URL', url, keyword));
     }
   }
-  if (!isOffline && matchString(node.info.creator, basicInfo.creator)) {
-    matches.push(createMatchInfo('creator', '创建者', node.info.creator || '', basicInfo.creator));
+  if (!isOffline && searchScope.creator && matchString(node.info.creator, keyword)) {
+    matches.push(createMatchInfo('creator', '创建者', node.info.creator || '', keyword));
   }
-  if (!isOffline && matchString(node.info.maintainer, basicInfo.maintainer)) {
-    matches.push(createMatchInfo('maintainer', '维护者', node.info.maintainer || '', basicInfo.maintainer));
+  if (!isOffline && searchScope.maintainer && matchString(node.info.maintainer, keyword)) {
+    matches.push(createMatchInfo('maintainer', '维护者', node.info.maintainer || '', keyword));
   }
-  if (basicInfo.method && node.info.type === 'http') {
+  if (searchScope.method && node.info.type === 'http') {
     const httpNode = node as HttpNode;
-    if (matchString(httpNode.item.method, basicInfo.method)) {
-      matches.push(createMatchInfo('method', '请求方法', httpNode.item.method, basicInfo.method));
+    if (matchString(httpNode.item.method, keyword)) {
+      matches.push(createMatchInfo('method', '请求方法', httpNode.item.method, keyword));
     }
   }
-  if (matchString(node.info.description, basicInfo.remark)) {
-    matches.push(createMatchInfo('remark', '备注', node.info.description || '', basicInfo.remark));
+  if (searchScope.remark && matchString(node.info.description, keyword)) {
+    matches.push(createMatchInfo('remark', '备注', node.info.description || '', keyword));
   }
   return matches;
 }
 // 匹配请求参数
 function matchRequestParams(
   node: ApiNode,
-  requestParams: AdvancedSearchConditions['requestParams']
+  keyword: string,
+  searchScope: AdvancedSearchConditions['searchScope']
 ): MatchInfo[] {
   const matches: MatchInfo[] = [];
   if (node.info.type === 'http') {
     const httpNode = node as HttpNode;
-    if (requestParams.query && httpNode.item.queryParams) {
+    if (searchScope.query && httpNode.item.queryParams) {
       for (const param of httpNode.item.queryParams) {
-        if (matchString(param.key, requestParams.query) ||
-            matchString(param.value as string, requestParams.query) ||
-            matchString(param.description, requestParams.query)) {
-          matches.push(createMatchInfo('query', 'Query参数', `${param.key}=${param.value}`, requestParams.query));
+        if (matchString(param.key, keyword) ||
+            matchString(param.value as string, keyword) ||
+            matchString(param.description, keyword)) {
+          matches.push(createMatchInfo('query', 'Query参数', `${param.key}=${param.value}`, keyword));
           break;
         }
       }
     }
-    if (requestParams.path && httpNode.item.paths) {
+    if (searchScope.path && httpNode.item.paths) {
       for (const param of httpNode.item.paths) {
-        if (matchString(param.key, requestParams.path) ||
-            matchString(param.value as string, requestParams.path) ||
-            matchString(param.description, requestParams.path)) {
-          matches.push(createMatchInfo('path', 'Path参数', `${param.key}=${param.value}`, requestParams.path));
+        if (matchString(param.key, keyword) ||
+            matchString(param.value as string, keyword) ||
+            matchString(param.description, keyword)) {
+          matches.push(createMatchInfo('path', 'Path参数', `${param.key}=${param.value}`, keyword));
           break;
         }
       }
     }
-    if (requestParams.headers && httpNode.item.headers) {
+    if (searchScope.headers && httpNode.item.headers) {
       for (const header of httpNode.item.headers) {
-        if (matchString(header.key, requestParams.headers) ||
-            matchString(header.value as string, requestParams.headers) ||
-            matchString(header.description, requestParams.headers)) {
-          matches.push(createMatchInfo('headers', '请求头参数', `${header.key}: ${header.value}`, requestParams.headers));
+        if (matchString(header.key, keyword) ||
+            matchString(header.value as string, keyword) ||
+            matchString(header.description, keyword)) {
+          matches.push(createMatchInfo('headers', '请求头参数', `${header.key}: ${header.value}`, keyword));
           break;
         }
       }
     }
-    if (requestParams.body && httpNode.item.requestBody) {
+    if (searchScope.body && httpNode.item.requestBody) {
       const body = httpNode.item.requestBody;
       let bodyStr = '';
       if (body.mode === 'json' && body.rawJson) {
@@ -160,74 +162,74 @@ function matchRequestParams(
       } else if (body.mode === 'raw' && body.raw?.data) {
         bodyStr = body.raw.data;
       }
-      if (matchString(bodyStr, requestParams.body)) {
-        matches.push(createMatchInfo('body', 'Body参数', bodyStr.substring(0, 100), requestParams.body));
+      if (matchString(bodyStr, keyword)) {
+        matches.push(createMatchInfo('body', 'Body参数', bodyStr.substring(0, 100), keyword));
       }
     }
-    if (requestParams.response && httpNode.item.responseParams) {
+    if (searchScope.response && httpNode.item.responseParams) {
       for (const resp of httpNode.item.responseParams) {
-        if (matchString(resp.title, requestParams.response) ||
-            matchString(resp.value?.strJson, requestParams.response) ||
-            matchString(resp.value?.text, requestParams.response)) {
-          matches.push(createMatchInfo('response', '返回参数', resp.title || resp.value?.strJson?.substring(0, 100) || '', requestParams.response));
+        if (matchString(resp.title, keyword) ||
+            matchString(resp.value?.strJson, keyword) ||
+            matchString(resp.value?.text, keyword)) {
+          matches.push(createMatchInfo('response', '返回参数', resp.title || resp.value?.strJson?.substring(0, 100) || '', keyword));
           break;
         }
       }
     }
-    if (requestParams.preScript && matchString(httpNode.preRequest?.raw, requestParams.preScript)) {
-      matches.push(createMatchInfo('preScript', '前置脚本', httpNode.preRequest.raw.substring(0, 100), requestParams.preScript));
+    if (searchScope.preScript && matchString(httpNode.preRequest?.raw, keyword)) {
+      matches.push(createMatchInfo('preScript', '前置脚本', httpNode.preRequest.raw.substring(0, 100), keyword));
     }
-    if (requestParams.afterScript && matchString(httpNode.afterRequest?.raw, requestParams.afterScript)) {
-      matches.push(createMatchInfo('afterScript', '后置脚本', httpNode.afterRequest.raw.substring(0, 100), requestParams.afterScript));
+    if (searchScope.afterScript && matchString(httpNode.afterRequest?.raw, keyword)) {
+      matches.push(createMatchInfo('afterScript', '后置脚本', httpNode.afterRequest.raw.substring(0, 100), keyword));
     }
   }
   if (node.info.type === 'websocket') {
     const wsNode = node as WebSocketNode;
-    if (requestParams.query && wsNode.item.queryParams) {
+    if (searchScope.query && wsNode.item.queryParams) {
       for (const param of wsNode.item.queryParams) {
-        if (matchString(param.key, requestParams.query) ||
-            matchString(param.value as string, requestParams.query) ||
-            matchString(param.description, requestParams.query)) {
-          matches.push(createMatchInfo('query', 'Query参数', `${param.key}=${param.value}`, requestParams.query));
+        if (matchString(param.key, keyword) ||
+            matchString(param.value as string, keyword) ||
+            matchString(param.description, keyword)) {
+          matches.push(createMatchInfo('query', 'Query参数', `${param.key}=${param.value}`, keyword));
           break;
         }
       }
     }
-    if (requestParams.headers && wsNode.item.headers) {
+    if (searchScope.headers && wsNode.item.headers) {
       for (const header of wsNode.item.headers) {
-        if (matchString(header.key, requestParams.headers) ||
-            matchString(header.value as string, requestParams.headers) ||
-            matchString(header.description, requestParams.headers)) {
-          matches.push(createMatchInfo('headers', '请求头参数', `${header.key}: ${header.value}`, requestParams.headers));
+        if (matchString(header.key, keyword) ||
+            matchString(header.value as string, keyword) ||
+            matchString(header.description, keyword)) {
+          matches.push(createMatchInfo('headers', '请求头参数', `${header.key}: ${header.value}`, keyword));
           break;
         }
       }
     }
-    if (requestParams.wsMessage && wsNode.item.messageBlocks) {
+    if (searchScope.wsMessage && wsNode.item.messageBlocks) {
       for (const msg of wsNode.item.messageBlocks) {
-        if (matchString(msg.name, requestParams.wsMessage) ||
-            matchString(msg.content, requestParams.wsMessage)) {
-          matches.push(createMatchInfo('wsMessage', 'WebSocket消息', msg.name || msg.content.substring(0, 100), requestParams.wsMessage));
+        if (matchString(msg.name, keyword) ||
+            matchString(msg.content, keyword)) {
+          matches.push(createMatchInfo('wsMessage', 'WebSocket消息', msg.name || msg.content.substring(0, 100), keyword));
           break;
         }
       }
     }
-    if (requestParams.preScript && matchString(wsNode.preRequest?.raw, requestParams.preScript)) {
-      matches.push(createMatchInfo('preScript', '前置脚本', wsNode.preRequest.raw.substring(0, 100), requestParams.preScript));
+    if (searchScope.preScript && matchString(wsNode.preRequest?.raw, keyword)) {
+      matches.push(createMatchInfo('preScript', '前置脚本', wsNode.preRequest.raw.substring(0, 100), keyword));
     }
-    if (requestParams.afterScript && matchString(wsNode.afterRequest?.raw, requestParams.afterScript)) {
-      matches.push(createMatchInfo('afterScript', '后置脚本', wsNode.afterRequest.raw.substring(0, 100), requestParams.afterScript));
+    if (searchScope.afterScript && matchString(wsNode.afterRequest?.raw, keyword)) {
+      matches.push(createMatchInfo('afterScript', '后置脚本', wsNode.afterRequest.raw.substring(0, 100), keyword));
     }
   }
   if (node.info.type === 'httpMock') {
     const mockNode = node as HttpMockNode;
-    if (requestParams.headers && mockNode.response) {
+    if (searchScope.headers && mockNode.response) {
       for (const resp of mockNode.response) {
         if (resp.headers?.defaultHeaders) {
           for (const header of resp.headers.defaultHeaders) {
-            if (matchString(header.key, requestParams.headers) ||
-                matchString(header.value as string, requestParams.headers)) {
-              matches.push(createMatchInfo('headers', '请求头参数', `${header.key}: ${header.value}`, requestParams.headers));
+            if (matchString(header.key, keyword) ||
+                matchString(header.value as string, keyword)) {
+              matches.push(createMatchInfo('headers', '请求头参数', `${header.key}: ${header.value}`, keyword));
               break;
             }
           }
@@ -244,15 +246,15 @@ function matchNode(
   project: ApidocProjectInfo,
   isOffline: boolean
 ): SearchResultItem | null {
-  if (!checkNodeType(node.info.type, conditions.nodeTypes)) {
+  if (!checkNodeType(node.info.type, conditions.searchScope)) {
     return null;
   }
   if (!checkDateRange(node.updatedAt, conditions.dateRange)) {
     return null;
   }
   const matches: MatchInfo[] = [];
-  matches.push(...matchBasicInfo(node, conditions.basicInfo, project, isOffline));
-  matches.push(...matchRequestParams(node, conditions.requestParams));
+  matches.push(...matchBasicInfo(node, conditions.keyword, conditions.searchScope, project, isOffline));
+  matches.push(...matchRequestParams(node, conditions.keyword, conditions.searchScope));
   if (matches.length === 0) {
     return null;
   }

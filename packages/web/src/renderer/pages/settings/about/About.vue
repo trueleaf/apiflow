@@ -4,79 +4,114 @@
       <h2>{{ $t('关于') }}</h2>
     </div>
 
-    <div class="about-content">
-      <div class="app-info-section panel">
-        <div class="app-logo">
-          <img :src="logoImg" alt="Apiflow Logo" class="logo-image" />
+    <div class="about-grid">
+      <!-- Left Column: App Identity -->
+      <div class="app-identity-card">
+        <div class="logo-wrapper">
+          <img :src="logoImg" alt="Apiflow" class="app-logo" />
         </div>
-        <div class="app-details">
+        <div class="app-info">
           <h1 class="app-name">Apiflow</h1>
-          <div class="info-item">
-            <span class="info-label">{{ $t('版本') }}:</span>
-            <span class="info-value">v{{ appVersion }}</span>
+          <div class="version-info">
+            <span class="version-tag">v{{ appVersion }}</span>
+            <span class="build-time" v-if="buildTime">{{ buildTime }}</span>
           </div>
-          <div class="info-item">
-            <span class="info-label">{{ $t('构建时间') }}:</span>
-            <span class="info-value">{{ buildTime }}</span>
+        </div>
+        
+        <div class="links-list">
+          <a href="https://github.com/trueleaf/apiflow" target="_blank" class="link-item">
+            <Github :size="16" />
+            <span>GitHub</span>
+            <span v-if="starCount" class="star-count">
+              <Star :size="12" />
+              {{ starCount }}
+            </span>
+          </a>
+          <div class="link-item">
+            <FileText :size="16" />
+            <span>MIT License</span>
+          </div>
+          <div class="copyright">
+            Copyright © 2025 TrueLeaf Team
           </div>
         </div>
       </div>
 
-      <div class="update-section panel">
-        <div class="section-header">
-          <RefreshCw :size="20" class="section-icon" />
-          <h3>{{ $t('软件更新') }}</h3>
-        </div>
-        <div class="section-content">
-          <p class="section-description">{{ $t('检查是否有可用的更新版本') }}</p>
-          <div class="update-actions">
-            <el-button v-if="updateState === 'idle'" @click="handleCheckUpdate">
-              <template #icon><RefreshCw :size="14" /></template>
-              {{ $t('检查更新') }}
-            </el-button>
-            <el-button v-else-if="updateState === 'checking'" loading>
-              {{ $t('检查更新中') }}
-            </el-button>
-            <el-badge v-else-if="updateState === 'available'" :is-dot="hasUpdate" type="danger">
-              <el-button type="primary" @click="handleDownloadUpdate">
-                <template #icon><Download :size="14" /></template>
-                {{ $t('下载更新') }}
-              </el-button>
-            </el-badge>
-            <div v-else-if="updateState === 'downloading'" class="progress-container">
-              <el-progress :percentage="downloadProgress" :stroke-width="8" style="width: 200px" />
-              <span class="progress-text">{{ downloadProgress }}%</span>
-              <el-button size="small" @click="handleCancelDownload">
-                {{ $t('取消下载') }}
-              </el-button>
+      <!-- Right Column: Settings & Updates -->
+      <div class="settings-column">
+        <!-- Update Card -->
+        <div class="setting-card">
+          <div class="card-header">
+            <div class="header-title">
+              <RefreshCw :size="18" class="header-icon" />
+              <h3>{{ $t('软件更新') }}</h3>
             </div>
-            <el-button v-else-if="updateState === 'downloaded'" type="primary" @click="handleInstallUpdate">
-              <template #icon><PackageCheck :size="14" /></template>
-              {{ $t('安装更新') }}
-            </el-button>
+            <el-tag v-if="hasUpdate" type="danger" size="small" effect="dark">New</el-tag>
           </div>
-        </div>
-      </div>
+          
+          <div class="card-content">
+            <div class="update-status-row">
+              <div class="status-text">
+                <p class="main-text">
+                  {{ updateState === 'idle' ? $t('当前已是最新版本') : 
+                     updateState === 'checking' ? $t('正在检查更新...') :
+                     updateState === 'available' ? $t('发现新版本') :
+                     updateState === 'downloading' ? $t('正在下载更新...') :
+                     updateState === 'downloaded' ? $t('更新已就绪') : '' }}
+                </p>
+                <p class="sub-text" v-if="updateState === 'idle'">{{ $t('检查是否有可用的更新版本') }}</p>
+              </div>
 
-      <div class="links-section panel">
-        <div class="section-header">
-          <ExternalLink :size="20" class="section-icon" />
-          <h3>{{ $t('相关链接') }}</h3>
-        </div>
-        <div class="section-content">
-          <div class="link-item">
-            <span class="link-label">{{ $t('开源协议') }}:</span>
-            <span class="link-value">MIT License</span>
-          </div>
-          <div class="link-item">
-            <span class="link-label">{{ $t('官方网站') }}:</span>
-            <a href="https://github.com/trueleaf/apiflow" target="_blank" class="link-value external">
-              https://github.com/trueleaf/apiflow
-            </a>
-          </div>
-          <div class="link-item">
-            <span class="link-label">{{ $t('版权信息') }}:</span>
-            <span class="link-value">Copyright © 2025 TrueLeaf Team</span>
+              <div class="action-area">
+                <el-button v-if="updateState === 'idle'" @click="handleCheckUpdate">
+                  {{ $t('检查更新') }}
+                </el-button>
+                
+                <el-button v-else-if="updateState === 'checking'" loading disabled>
+                  {{ $t('检查中') }}
+                </el-button>
+                
+                <el-button v-else-if="updateState === 'available'" type="primary" @click="handleDownloadUpdate">
+                  <template #icon><Download :size="14" /></template>
+                  {{ $t('下载更新') }}
+                </el-button>
+                
+                <div v-else-if="updateState === 'downloading'" class="download-progress">
+                  <el-progress :percentage="downloadProgress" :stroke-width="6" :width="120" />
+                  <el-button link type="info" size="small" @click="handleCancelDownload">
+                    {{ $t('取消') }}
+                  </el-button>
+                </div>
+                
+                <el-button v-else-if="updateState === 'downloaded'" type="success" @click="handleInstallUpdate">
+                  <template #icon><PackageCheck :size="14" /></template>
+                  {{ $t('立即重启') }}
+                </el-button>
+              </div>
+            </div>
+
+            <div class="divider"></div>
+
+            <div class="update-source-config">
+              <span class="config-label">{{ $t('更新源') }}</span>
+              <div class="config-control">
+                <el-radio-group v-model="updateSourceType" @change="handleUpdateSourceChange" size="small">
+                  <el-radio value="github" label="github">GitHub</el-radio>
+                  <el-radio value="custom" label="custom">{{ $t('自定义') }}</el-radio>
+                </el-radio-group>
+                
+                <div v-if="updateSourceType === 'custom'" class="custom-url-input">
+                  <el-input
+                    v-model="customUpdateUrl"
+                    :placeholder="$t('请输入自定义更新服务器地址')"
+                    size="small"
+                    @blur="handleSaveUpdateSource"
+                  >
+                    <template #prefix>https://</template>
+                  </el-input>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -86,16 +121,36 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
-import { RefreshCw, Download, PackageCheck, ExternalLink } from 'lucide-vue-next'
 import { useI18n } from 'vue-i18n'
+import { Github, FileText, RefreshCw, Download, PackageCheck, Star } from 'lucide-vue-next'
 import { message } from '@/helper'
 import logoImg from '@/assets/imgs/logo.png'
+import { appSettingsCache } from '@/cache/settings/appSettingsCache'
 
 const { t } = useI18n()
 
 const emit = defineEmits<{
   'update-badge': [show: boolean]
 }>()
+
+const starCount = ref('')
+
+const fetchStarCount = async () => {
+  try {
+    const response = await fetch('https://api.github.com/repos/trueleaf/apiflow')
+    if (response.ok) {
+      const data = await response.json()
+      const count = data.stargazers_count
+      if (count >= 1000) {
+        starCount.value = (count / 1000).toFixed(1) + 'k'
+      } else {
+        starCount.value = String(count)
+      }
+    }
+  } catch {
+    // 静默失败
+  }
+}
 
 type UpdateButtonState = 'idle' | 'checking' | 'available' | 'downloading' | 'downloaded' | 'error'
 const updateState = ref<UpdateButtonState>('idle')
@@ -107,17 +162,19 @@ const buildTime = computed(() => {
   try {
     if (typeof __APP_BUILD_TIME__ !== 'undefined' && __APP_BUILD_TIME__) {
       const date = new Date(__APP_BUILD_TIME__)
-      return date.toLocaleString()
+      return date.toLocaleDateString() + ' ' + date.toLocaleTimeString()
     }
   } catch {
     // ignore
   }
-  return '-'
+  return ''
 })
+
 const notifyBadgeChange = () => {
   const shouldShow = hasUpdate.value && (updateState.value === 'available' || updateState.value === 'downloaded')
   emit('update-badge', shouldShow)
 }
+
 const initUpdateState = async () => {
   try {
     const status = await window.electronAPI?.updater.getUpdateStatus()
@@ -138,6 +195,7 @@ const initUpdateState = async () => {
     // 静默失败
   }
 }
+
 const bindUpdateEvents = () => {
   window.electronAPI?.updater.onUpdateChecking(() => {
     updateState.value = 'checking'
@@ -176,6 +234,7 @@ const bindUpdateEvents = () => {
     }, 3000)
   })
 }
+
 const handleCheckUpdate = async () => {
   if (updateState.value === 'available') {
     handleDownloadUpdate()
@@ -196,6 +255,7 @@ const handleCheckUpdate = async () => {
     notifyBadgeChange()
   }
 }
+
 const handleDownloadUpdate = async () => {
   updateState.value = 'downloading'
   downloadProgress.value = 0
@@ -213,6 +273,7 @@ const handleDownloadUpdate = async () => {
     notifyBadgeChange()
   }
 }
+
 const handleCancelDownload = async () => {
   try {
     await window.electronAPI?.updater.cancelDownload()
@@ -223,6 +284,7 @@ const handleCancelDownload = async () => {
     // 静默失败
   }
 }
+
 const handleInstallUpdate = () => {
   try {
     window.electronAPI?.updater.quitAndInstall()
@@ -230,9 +292,59 @@ const handleInstallUpdate = () => {
     message.error(t('安装更新失败'))
   }
 }
+
+const updateSourceType = ref<'github' | 'custom'>('github')
+const customUpdateUrl = ref('')
+
+const initUpdateSource = async () => {
+  const cachedSource = appSettingsCache.getUpdateSource()
+  updateSourceType.value = cachedSource.sourceType
+  customUpdateUrl.value = cachedSource.customUrl
+  try {
+    const source = await window.electronAPI?.updater.getUpdateSource()
+    if (source) {
+      updateSourceType.value = source.sourceType
+      customUpdateUrl.value = source.customUrl
+    }
+  } catch {
+    // 静默失败
+  }
+}
+
+const handleUpdateSourceChange = () => {
+  if (updateSourceType.value === 'github') {
+    handleSaveUpdateSource()
+  }
+}
+
+const handleSaveUpdateSource = async () => {
+  if (updateSourceType.value === 'custom' && !customUpdateUrl.value.trim()) {
+    return
+  }
+  try {
+    const result = await window.electronAPI?.updater.setUpdateSource({
+      sourceType: updateSourceType.value,
+      customUrl: updateSourceType.value === 'custom' ? customUpdateUrl.value.trim() : undefined,
+    })
+    if (result?.success) {
+      appSettingsCache.setUpdateSource({
+        sourceType: updateSourceType.value,
+        customUrl: customUpdateUrl.value,
+      })
+      if (updateSourceType.value === 'custom') {
+        message.success(t('更新源配置已保存'))
+      }
+    }
+  } catch {
+    message.error(t('保存失败'))
+  }
+}
+
 onMounted(() => {
   initUpdateState()
   bindUpdateEvents()
+  initUpdateSource()
+  fetchStarCount()
 })
 </script>
 
@@ -247,156 +359,245 @@ onMounted(() => {
   overflow-y: auto;
 
   .page-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-end;
     margin-bottom: 24px;
-
     h2 {
       margin: 0;
-      font-size: 28px;
+      font-size: 24px;
       font-weight: 600;
       color: var(--text-primary);
     }
   }
 
-  .about-content {
-    display: flex;
-    flex-direction: column;
+  .about-grid {
+    display: grid;
+    grid-template-columns: 280px 1fr;
     gap: 24px;
+    align-items: start;
   }
 
-  .panel {
+  .app-identity-card {
     background: var(--bg-primary);
     border: 1px solid var(--border-light);
-    border-radius: 16px;
-    box-shadow: 0 10px 30px var(--shadow-light);
-    padding: 32px;
-  }
-
-  .app-info-section {
+    border-radius: 12px;
+    padding: 32px 24px;
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 24px;
-
-    .app-logo {
-      .logo-image {
-        width: 120px;
-        height: 120px;
-        border-radius: 24px;
-        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    
+    .logo-wrapper {
+      margin-bottom: 20px;
+      .app-logo {
+        width: 100px;
+        height: 100px;
+        border-radius: 20px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
       }
     }
 
-    .app-details {
-      text-align: center;
-
+    .app-info {
+      margin-bottom: 32px;
       .app-name {
-        font-size: 32px;
+        font-size: 24px;
         font-weight: 700;
         color: var(--text-primary);
-        margin: 0 0 16px 0;
+        margin: 0 0 8px 0;
       }
-
-      .info-item {
+      
+      .version-info {
         display: flex;
+        flex-direction: column;
+        gap: 4px;
+        
+        .version-tag {
+          font-size: 16px;
+          font-weight: 500;
+          color: var(--text-primary);
+        }
+        
+        .build-time {
+          font-size: 12px;
+          color: var(--text-secondary);
+        }
+      }
+    }
+
+    .links-list {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      border-top: 1px solid var(--border-light);
+      padding-top: 24px;
+
+      .link-item {
+        display: flex;
+        align-items: center;
         justify-content: center;
         gap: 8px;
-        margin-bottom: 8px;
+        color: var(--text-secondary);
+        text-decoration: none;
         font-size: 14px;
+        transition: color 0.2s;
+        cursor: pointer;
 
-        .info-label {
-          color: var(--text-secondary);
-          font-weight: 500;
+        &:hover {
+          color: var(--el-color-primary);
         }
 
-        .info-value {
+        .star-count {
+          display: inline-flex;
+          align-items: center;
+          gap: 2px;
+          font-size: 12px;
+          padding: 1px 6px;
+          background: var(--el-fill-color-light);
+          border-radius: 10px;
+        }
+      }
+
+      .copyright {
+        margin-top: 12px;
+        font-size: 12px;
+        color: var(--text-secondary);
+      }
+    }
+  }
+
+  .settings-column {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+  }
+
+  .setting-card {
+    background: var(--bg-primary);
+    border: 1px solid var(--border-light);
+    border-radius: 12px;
+    overflow: hidden;
+
+    .card-header {
+      padding: 16px 24px;
+      border-bottom: 1px solid var(--border-light);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: var(--bg-secondary);
+
+      .header-title {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        
+        .header-icon {
+          color: var(--text-secondary);
+        }
+
+        h3 {
+          margin: 0;
+          font-size: 16px;
+          font-weight: 600;
           color: var(--text-primary);
         }
       }
     }
+
+    .card-content {
+      padding: 24px;
+    }
   }
 
-  .update-section,
-  .links-section {
-    .section-header {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      margin-bottom: 20px;
+  .update-status-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
 
-      .section-icon {
-        color: var(--el-color-primary);
-      }
-
-      h3 {
-        margin: 0;
-        font-size: 18px;
-        font-weight: 600;
+    .status-text {
+      .main-text {
+        font-size: 16px;
+        font-weight: 500;
         color: var(--text-primary);
+        margin: 0 0 4px 0;
+      }
+      .sub-text {
+        font-size: 13px;
+        color: var(--text-secondary);
+        margin: 0;
       }
     }
 
-    .section-content {
-      .section-description {
-        color: var(--text-secondary);
-        margin: 0 0 16px 0;
-        font-size: 14px;
-      }
-
-      .update-actions {
+    .action-area {
+      .download-progress {
         display: flex;
         align-items: center;
         gap: 12px;
-
-        .progress-container {
-          display: flex;
-          align-items: center;
-          gap: 12px;
-
-          .progress-text {
-            font-size: 14px;
-            color: var(--text-primary);
-            min-width: 40px;
-            font-weight: 500;
-          }
-        }
       }
     }
   }
 
-  .links-section {
-    .section-content {
+  .divider {
+    height: 1px;
+    background: var(--border-light);
+    margin: 0 -24px 24px;
+  }
+
+  .update-source-config {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+
+    .config-label {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text-primary);
+      min-width: 60px;
+    }
+
+    .config-control {
+      flex: 1;
       display: flex;
       flex-direction: column;
       gap: 12px;
 
-      .link-item {
-        display: flex;
-        gap: 8px;
-        font-size: 14px;
+      .custom-url-input {
+        max-width: 360px;
+      }
+    }
+  }
+}
 
-        .link-label {
-          color: var(--text-secondary);
-          font-weight: 500;
-          min-width: 80px;
+@media (max-width: 900px) {
+  .about-container {
+    .about-grid {
+      grid-template-columns: 1fr;
+    }
+    
+    .app-identity-card {
+      flex-direction: row;
+      text-align: left;
+      padding: 24px;
+      
+      .logo-wrapper {
+        margin: 0 24px 0 0;
+        .app-logo {
+          width: 80px;
+          height: 80px;
         }
-
-        .link-value {
-          color: var(--text-primary);
-
-          &.external {
-            color: var(--el-color-primary);
-            text-decoration: none;
-            transition: opacity 0.2s;
-
-            &:hover {
-              opacity: 0.8;
-              text-decoration: underline;
-            }
-          }
-        }
+      }
+      
+      .app-info {
+        margin: 0;
+        flex: 1;
+      }
+      
+      .links-list {
+        width: auto;
+        border-top: none;
+        padding-top: 0;
+        border-left: 1px solid var(--border-light);
+        padding-left: 24px;
+        align-items: flex-start;
       }
     }
   }

@@ -3,7 +3,7 @@ import type { AppUpdater, UpdateInfo, ProgressInfo } from 'electron-updater';
 import { app } from 'electron';
 import type { WebContentsView } from 'electron';
 const { autoUpdater } = electronUpdater;
-import { mainConfig, getUpdateUrl } from '@src/config/mainConfig';
+import { mainConfig } from '@src/config/mainConfig';
 import { IPC_EVENTS } from '@src/types/ipc';
 import type { CheckUpdateResult, DownloadResult, UpdateStatus } from '@src/types/updater';
 
@@ -17,6 +17,8 @@ export class UpdateManager {
   private downloadedVersion: string | null = null;
   private updateInfo: UpdateInfo | null = null;
   private currentDownloadProgress = 0;
+  private currentSourceType: 'github' | 'custom' = 'github';
+  private currentCustomUrl = '';
   constructor() {
     this.configureAutoUpdater();
     this.registerAutoUpdaterEvents();
@@ -31,11 +33,8 @@ export class UpdateManager {
   }
   // 配置 autoUpdater
   private configureAutoUpdater(): void {
-    this.autoUpdater.setFeedURL({
-      provider: 'generic',
-      url: getUpdateUrl(),
-      channel: 'latest'
-    });
+    this.setFeedURLBySource(this.currentSourceType, this.currentCustomUrl);
+    this.autoUpdater.logger = null;
     if (process.platform === 'darwin' || process.platform === 'linux') {
       this.autoUpdater.autoDownload = false;
     } else if (process.platform === 'win32') {
@@ -47,6 +46,38 @@ export class UpdateManager {
     if (!app.isPackaged) {
       this.autoUpdater.forceDevUpdateConfig = true;
     }
+  }
+  // 根据源类型设置 feedURL
+  private setFeedURLBySource(sourceType: 'github' | 'custom', customUrl: string): void {
+    if (sourceType === 'github') {
+      this.autoUpdater.setFeedURL({
+        provider: 'github',
+        owner: 'trueleaf',
+        repo: 'apiflow',
+      });
+    } else {
+      this.autoUpdater.setFeedURL({
+        provider: 'generic',
+        url: customUrl || 'http://127.0.0.1/release',
+        channel: 'latest'
+      });
+    }
+  }
+  // 获取更新源配置
+  getUpdateSource(): { sourceType: 'github' | 'custom'; customUrl: string } {
+    return {
+      sourceType: this.currentSourceType,
+      customUrl: this.currentCustomUrl,
+    };
+  }
+  // 设置更新源配置
+  setUpdateSource(sourceType: 'github' | 'custom', customUrl?: string): { success: boolean } {
+    this.currentSourceType = sourceType;
+    if (customUrl !== undefined) {
+      this.currentCustomUrl = customUrl;
+    }
+    this.setFeedURLBySource(sourceType, this.currentCustomUrl);
+    return { success: true };
   }
   // 注册 autoUpdater 事件
   private registerAutoUpdaterEvents(): void {

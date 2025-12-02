@@ -20,11 +20,16 @@ const buildElectron = (mode: string, command: 'build' | 'serve') => {
     platform: 'node',
     outdir: 'dist/main',
     format: 'esm',
+    banner: {
+      js: [
+        'import { createRequire as __createRequire } from "module";',
+        'var require = __createRequire(import.meta.url);'
+      ].join('\n')
+    },
     outExtension: {
       '.js': '.mjs',
     },
-    packages: 'external',
-    external: ['electron'],
+    external: ['electron', 'ws', 'koa', '@koa/bodyparser', 'co-body', 'mime-types', 'sharp', 'got', '@paralleldrive/cuid2'],
     define: {
       __MODE__: JSON.stringify(mode),
       __COMMAND__: JSON.stringify(command),

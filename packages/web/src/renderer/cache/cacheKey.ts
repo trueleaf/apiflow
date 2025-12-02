@@ -91,6 +91,10 @@ export const cacheKey = {
       theme: 'settings/app/theme',
     },
     shortcuts: 'settings/shortcuts',
+    updater: {
+      sourceType: 'settings/updater/sourceType',
+      customUrl: 'settings/updater/customUrl',
+    },
   },
   appWorkbench: {
     header: {

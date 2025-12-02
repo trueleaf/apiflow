@@ -285,33 +285,30 @@ const dialogVisible4 = ref(false);
 const showAdvancedSearch = ref(false);
 const searchMode = ref<'simple' | 'advanced'>('simple');
 const searchConditions = ref<AdvancedSearchConditions>({
-  basicInfo: {
-    projectName: '',
-    docName: '',
-    url: '',
-    creator: '',
-    maintainer: '',
-    method: '',
-    remark: ''
-  },
-  nodeTypes: {
-    folder: false,
-    http: false,
-    websocket: false,
-    httpMock: false
-  },
-  requestParams: {
-    query: '',
-    path: '',
-    headers: '',
-    body: '',
-    response: '',
-    preScript: '',
-    afterScript: '',
-    wsMessage: ''
+  keyword: '',
+  searchScope: {
+    projectName: true,
+    docName: true,
+    url: true,
+    creator: true,
+    maintainer: true,
+    method: true,
+    remark: true,
+    folder: true,
+    http: true,
+    websocket: true,
+    httpMock: true,
+    query: true,
+    path: true,
+    headers: true,
+    body: true,
+    response: true,
+    preScript: true,
+    afterScript: true,
+    wsMessage: true
   },
   dateRange: {
-    type: 'all'
+    type: 'unlimited'
   }
 });
 const searchResults = ref<GroupedSearchResults[]>([]);
@@ -612,15 +609,17 @@ const handleClearSearch = () => {
 }
 //防抖搜索
 const debounceSearch = debounce(() => {
-  // 项目名称搜索通过计算属性实现，此处无需额外操作
+  if (showAdvancedSearch.value) {
+    searchConditions.value.keyword = projectName.value;
+    debouncedAdvancedSearch();
+  }
 }, 300)
 // 检查是否有任何搜索条件
 const hasAnyCondition = (conditions: AdvancedSearchConditions): boolean => {
-  const hasBasicInfo = Object.values(conditions.basicInfo).some(v => v.trim().length > 0);
-  const hasNodeTypes = Object.values(conditions.nodeTypes).some(v => v === true);
-  const hasRequestParams = Object.values(conditions.requestParams).some(v => v.trim().length > 0);
-  const hasDateRange = conditions.dateRange.type !== 'all';
-  return hasBasicInfo || hasNodeTypes || hasRequestParams || hasDateRange;
+  const hasKeyword = conditions.keyword.trim().length > 0;
+  const hasAnyScope = Object.values(conditions.searchScope).some(v => v === true);
+  const hasDateRange = conditions.dateRange.type !== 'unlimited';
+  return hasKeyword && hasAnyScope && (hasDateRange || true);
 };
 // 执行高级搜索
 const debouncedAdvancedSearch = debounce(async () => {
@@ -670,33 +669,30 @@ const toggleAdvancedSearch = () => {
 // 重置搜索
 const handleResetSearch = () => {
   searchConditions.value = {
-    basicInfo: {
-      projectName: '',
-      docName: '',
-      url: '',
-      creator: '',
-      maintainer: '',
-      method: '',
-      remark: ''
-    },
-    nodeTypes: {
-      folder: false,
-      http: false,
-      websocket: false,
-      httpMock: false
-    },
-    requestParams: {
-      query: '',
-      path: '',
-      headers: '',
-      body: '',
-      response: '',
-      preScript: '',
-      afterScript: '',
-      wsMessage: ''
+    keyword: '',
+    searchScope: {
+      projectName: true,
+      docName: true,
+      url: true,
+      creator: true,
+      maintainer: true,
+      method: true,
+      remark: true,
+      folder: true,
+      http: true,
+      websocket: true,
+      httpMock: true,
+      query: true,
+      path: true,
+      headers: true,
+      body: true,
+      response: true,
+      preScript: true,
+      afterScript: true,
+      wsMessage: true
     },
     dateRange: {
-      type: 'all'
+      type: 'unlimited'
     }
   };
   searchResults.value = [];

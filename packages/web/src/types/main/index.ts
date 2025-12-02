@@ -103,6 +103,8 @@ export type ElectronAPI = {
     onDownloadProgress: (callback: (progress: UpdateProgress) => void) => void;
     onDownloadCompleted: (callback: (info: { version: string; downloadedAt: number }) => void) => void;
     onUpdateError: (callback: (error: { message: string; code?: string }) => void) => void;
+    getUpdateSource: () => Promise<{ sourceType: 'github' | 'custom'; customUrl: string }>;
+    setUpdateSource: (params: { sourceType: 'github' | 'custom'; customUrl?: string }) => Promise<{ success: boolean }>;
   };
 }
 

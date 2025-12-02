@@ -576,6 +576,22 @@ export interface IPCEventMap {
     response: { success: boolean };
   };
 
+  [IPC_EVENTS.updater.rendererToMain.getUpdateSource]: {
+    request: void;
+    response: {
+      sourceType: 'github' | 'custom';
+      customUrl: string;
+    };
+  };
+
+  [IPC_EVENTS.updater.rendererToMain.setUpdateSource]: {
+    request: {
+      sourceType: 'github' | 'custom';
+      customUrl?: string;
+    };
+    response: { success: boolean };
+  };
+
   [IPC_EVENTS.updater.mainToRenderer.checking]: {
     request: void;
     response: void;

@@ -316,6 +316,10 @@ export const IPC_EVENTS = {
       getUpdateStatus: 'updater:renderer:to:main:get-update-status',
       /** 启用/禁用自动检查 */
       toggleAutoCheck: 'updater:renderer:to:main:toggle-auto-check',
+      /** 获取更新源配置 */
+      getUpdateSource: 'updater:renderer:to:main:get-update-source',
+      /** 设置更新源配置 */
+      setUpdateSource: 'updater:renderer:to:main:set-update-source',
     },
 
     /** 主进程 -> 渲染进程 (事件通知) */

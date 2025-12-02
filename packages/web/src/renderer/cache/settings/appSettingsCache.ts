@@ -124,5 +124,28 @@ class AppSettingsCache {
       logger.error('清除缓存信息失败', { error });
     }
   }
+  // 获取更新源配置
+  getUpdateSource(): { sourceType: 'github' | 'custom'; customUrl: string } {
+    try {
+      const sourceType = localStorage.getItem(cacheKey.settings.updater.sourceType) as 'github' | 'custom' | null;
+      const customUrl = localStorage.getItem(cacheKey.settings.updater.customUrl) || '';
+      return {
+        sourceType: sourceType === 'github' || sourceType === 'custom' ? sourceType : 'github',
+        customUrl
+      };
+    } catch (error) {
+      logger.error('获取更新源配置失败', { error });
+      return { sourceType: 'github', customUrl: '' };
+    }
+  }
+  // 设置更新源配置
+  setUpdateSource(config: { sourceType: 'github' | 'custom'; customUrl: string }) {
+    try {
+      localStorage.setItem(cacheKey.settings.updater.sourceType, config.sourceType);
+      localStorage.setItem(cacheKey.settings.updater.customUrl, config.customUrl);
+    } catch (error) {
+      logger.error('设置更新源配置失败', { error });
+    }
+  }
 }
 export const appSettingsCache = new AppSettingsCache();
