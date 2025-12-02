@@ -44,8 +44,21 @@ const getFormDataFromRendererFormData = async (rendererFormDataList: RendererFor
   const formData = new FormData();
   for (let i = 0; i < rendererFormDataList.length; i++) {
     const formDataParam = rendererFormDataList[i];
-    const { id, key, type, value } = formDataParam;
-    if (type === 'string') {
+    const { id, key, type, value, isTempFile } = formDataParam;
+    // 处理临时文件：读取文件内容作为字符串值
+    if (type === 'string' && isTempFile) {
+      try {
+        await fs.access(value, fs.constants.F_OK);
+        const content = await fs.readFile(value, 'utf-8');
+        formData.append(key, content);
+      } catch {
+        return Promise.resolve({
+          id,
+          msg: '临时文件不存在(发送被终止)',
+          fullMsg: `formData参数${key}对应的临时文件未找到，发送被终止`
+        });
+      }
+    } else if (type === 'string') {
       formData.append(key, value);
     } else if (type === 'file') {
       try {

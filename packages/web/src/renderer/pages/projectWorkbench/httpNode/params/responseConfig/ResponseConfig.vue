@@ -84,6 +84,10 @@
             </div>
           </div>
         </div>
+        <div class="card-actions">
+          <Plus :size="18" class="action-icon" :title="t('新增')" @click="handleAddResponse" />
+          <Trash2 v-if="responseData.length > 1" :size="16" class="action-icon delete" :title="t('删除')" @click="handleDeleteResponse(index)" />
+        </div>
       </div>
       <div v-show="collapseState[item._id || ''] !== false" class="card-content">
         <!-- 内容展示 -->
@@ -110,7 +114,7 @@ import { useI18n } from 'vue-i18n'
 import { computed, ref, Ref, onMounted, onUnmounted, watch } from 'vue'
 import { Effect } from 'element-plus';
 import { ArrowDown, CaretRight, CaretBottom } from '@element-plus/icons-vue'
-import { Pencil } from 'lucide-vue-next'
+import { Pencil, Plus, Trash2 } from 'lucide-vue-next'
 import type { HttpNodeResponseParams, HttpNodeResponseContentType, HttpNodeContentType } from '@src/types'
 import { appState } from '@/cache/appState/appStateCache.ts'
 import SStatus from './children/Status.vue'
@@ -201,14 +205,14 @@ const getLanguageFromMime = (mimeType: string): string => {
 |--------------------------------------------------------------------------
 |
 */
-// //新增一个response
-// const handleAddResponse = () => {
-//   httpNodeStore.addResponseParam();
-// }
-// //删除一个response
-// const handleDeleteResponse = (index: number) => {
-//   httpNodeStore.deleteResponseByIndex(index);
-// }
+//新增一个response
+const handleAddResponse = () => {
+  httpNodeStore.addResponseParam();
+}
+//删除一个response
+const handleDeleteResponse = (index: number) => {
+  httpNodeStore.deleteResponseByIndex(index);
+}
 //response参数值
 const { t } = useI18n()
 
@@ -397,6 +401,27 @@ watch(() => responseData.value, (newVal, oldVal) => {
 
           &:hover {
             background: var(--gray-300);
+          }
+        }
+      }
+
+      .card-actions {
+        margin-left: auto;
+        display: flex;
+        align-items: center;
+        padding-right: 10px;
+        gap: 8px;
+
+        .action-icon {
+          cursor: pointer;
+          color: var(--gray-600);
+
+          &:hover {
+            color: var(--theme-color);
+          }
+
+          &.delete:hover {
+            color: var(--el-color-danger);
           }
         }
       }

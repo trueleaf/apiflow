@@ -2,6 +2,8 @@ import { app, ipcMain, IpcMainInvokeEvent, WebContentsView } from 'electron';
 import { BrowserWindow } from 'electron';
 import { StandaloneExportHtmlParams } from '@src/types/standalone.ts';
 import fs from 'fs/promises';
+import path from 'path';
+import os from 'os';
 import { exportHtml, exportWord, setMainWindow, setContentView, startExport, receiveRendererData, finishRendererData, getExportStatus, resetExport, selectExportPath } from './export/export.ts';
 import { selectImportFile, analyzeImportFile, startImport, resetImport, setMainWindow as setImportMainWindow, setContentView as setImportContentView } from './import/import.ts';
 import { getWindowState, execCodeInContext } from '../utils/index.ts';
@@ -92,6 +94,58 @@ export const useIpcEvent = (mainWindow: BrowserWindow, topBarView: WebContentsVi
       return (error as Error).message
     }
   })
+
+  /*
+  |---------------------------------------------------------------------------
+  | 临时文件管理
+  |---------------------------------------------------------------------------
+  */
+  const TEMP_DIR = path.join(os.tmpdir(), 'apiflow-temp');
+  // 确保临时目录存在
+  const ensureTempDir = async () => {
+    try {
+      await fs.access(TEMP_DIR);
+    } catch {
+      await fs.mkdir(TEMP_DIR, { recursive: true });
+    }
+  };
+  // 创建临时文件
+  ipcMain.handle(IPC_EVENTS.tempFile.rendererToMain.create, async (_: IpcMainInvokeEvent, content: string) => {
+    try {
+      await ensureTempDir();
+      const fileName = `temp_${Date.now()}_${Math.random().toString(36).slice(2, 10)}.txt`;
+      const filePath = path.join(TEMP_DIR, fileName);
+      await fs.writeFile(filePath, content, 'utf-8');
+      const stats = await fs.stat(filePath);
+      return { success: true, path: filePath, size: stats.size };
+    } catch (error) {
+      return { success: false, error: (error as Error).message };
+    }
+  });
+  // 删除临时文件
+  ipcMain.handle(IPC_EVENTS.tempFile.rendererToMain.delete, async (_: IpcMainInvokeEvent, filePath: string) => {
+    try {
+      if (!filePath.startsWith(TEMP_DIR)) {
+        return { success: false, error: '只能删除临时目录下的文件' };
+      }
+      await fs.unlink(filePath);
+      return { success: true };
+    } catch (error) {
+      return { success: false, error: (error as Error).message };
+    }
+  });
+  // 读取临时文件内容
+  ipcMain.handle(IPC_EVENTS.tempFile.rendererToMain.read, async (_: IpcMainInvokeEvent, filePath: string) => {
+    try {
+      if (!filePath.startsWith(TEMP_DIR)) {
+        return { success: false, error: '只能读取临时目录下的文件' };
+      }
+      const content = await fs.readFile(filePath, 'utf-8');
+      return { success: true, content };
+    } catch (error) {
+      return { success: false, error: (error as Error).message };
+    }
+  });
   /*
   |---------------------------------------------------------------------------
   | 窗口操作

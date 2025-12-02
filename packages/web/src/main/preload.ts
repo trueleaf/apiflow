@@ -141,6 +141,17 @@ const aiChatStream = (body: OpenAiRequestBody, callbacks: ChatStreamCallbacks) =
   return globalLLMClient.chatStream(body, callbacks);
 }
 
+// 临时文件管理方法
+const tempFileCreate = async (content: string): Promise<{ success: true; path: string; size: number } | { success: false; error: string }> => {
+  return ipcRenderer.invoke(IPC_EVENTS.tempFile.rendererToMain.create, content);
+}
+const tempFileDelete = async (filePath: string): Promise<{ success: boolean; error?: string }> => {
+  return ipcRenderer.invoke(IPC_EVENTS.tempFile.rendererToMain.delete, filePath);
+}
+const tempFileRead = async (filePath: string): Promise<{ success: true; content: string } | { success: false; error: string }> => {
+  return ipcRenderer.invoke(IPC_EVENTS.tempFile.rendererToMain.read, filePath);
+}
+
 // 导出相关方法
 const exportSelectPath = () => {
   return ipcRenderer.invoke(IPC_EVENTS.export.rendererToMain.selectPath)
@@ -257,6 +268,11 @@ contextBridge.exposeInMainWorld('electronAPI', {
     updateConfig: aiUpdateConfig,
     chat: aiChat,
     chatStream: aiChatStream,
+  },
+  tempFileManager: {
+    create: tempFileCreate,
+    delete: tempFileDelete,
+    read: tempFileRead,
   },
   updater: {
     checkForUpdates,

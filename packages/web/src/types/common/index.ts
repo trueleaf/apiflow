@@ -14,6 +14,8 @@ export type Property = {
   type: "string" | "file";
   description: string;
   select: boolean;
+  _isTempFile?: boolean;
+  _originalSize?: number;
 };
 
 export type DeepPartial<T> = {

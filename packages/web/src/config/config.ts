@@ -47,6 +47,8 @@ export const config: Config = {
     followRedirect: true, //是否允许重定向
     maxRedirects: 10, //最大重定向次数
     maxHeaderValueDisplayLength: 1024,
+    bodyModeOrder: ['json', 'formdata', 'urlencoded', 'raw', 'binary', 'none'],
+    tempFileSizeThreshold: 1024 * 50, //粘贴大值自动转临时文件的阈值，默认50KB
   },
   variableConfig: {
     maxStringSize: 1024 * 100, //string类型变量最大大小（字符数）

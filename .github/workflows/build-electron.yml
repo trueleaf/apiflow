@@ -18,7 +18,7 @@ jobs:
       - name: 检出代码
         uses: actions/checkout@v4
 
-      - name: 设置Node.js环境
+      - name: 设置 Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '20'
@@ -29,14 +29,14 @@ jobs:
         env:
           npm_config_ignore_optional: true
 
-      - name: 安装Linux依赖
+      - name: 安装 Linux 构建依赖
         run: |
           sudo apt-get update
-          sudo apt-get install -y xvfb libgtk-3-0 libgbm1 libnss3 libxss1 libxtst6 libnotify4 libatspi2.0-0 libdrm2 libxcb-dri3-0 libx11-xcb1
+          sudo apt-get install -y xvfb libgtk-3-0 libgbm1 libnss3 libxss1 \
+          libxtst6 libnotify4 libatspi2.0-0 libdrm2 libxcb-dri3-0 libx11-xcb1
 
-      - name: 构建Electron应用（主 + 渲染）
+      - name: 构建 Electron 应用（主 + 渲染）
         run: npm run web:build:app:pack
-
 
   build-windows:
     needs: [test-web]
@@ -58,7 +58,6 @@ jobs:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
           CSC_IDENTITY_AUTO_DISCOVERY: false
           npm_config_target_platform: win32
-
 
   build-linux:
     needs: [test-web]
@@ -82,7 +81,6 @@ jobs:
           npm_config_target_arch: x64
           npm_config_target_platform: linux
 
-
   build-macos:
     needs: [test-web]
     runs-on: macos-latest
@@ -97,13 +95,14 @@ jobs:
       - name: 安装依赖
         run: npm ci --include=optional
 
-      - name: 打包 macOS 应用（自动上传 Release）
+      - name: 构建 macOS 应用（自动上传 Release）
         run: npm run web:build:app:mac
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
           CSC_IDENTITY_AUTO_DISCOVERY: false
           npm_config_target_platform: darwin
-
+          # 避免 electron-builder 对未解决依赖报错
+          ELECTRON_BUILDER_ALLOW_UNRESOLVED_DEPENDENCIES: true
 
   finalize-release:
     needs: [build-windows, build-linux, build-macos]
@@ -123,6 +122,5 @@ jobs:
             ✔ Linux  
 
             请检查文件后再点击 **Publish release** 发布版本。
-
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

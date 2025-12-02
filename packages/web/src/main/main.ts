@@ -1,8 +1,8 @@
-import dotenv from 'dotenv';
 import { app, BrowserWindow, WebContentsView, protocol, net } from 'electron'
 import path from 'path'
 import { fileURLToPath } from 'url';
 import fs from 'fs';
+import os from 'os';
 import { getWindowState } from './utils/index.ts';
 import { useIpcEvent } from './ipcMessage/index.ts';
 import { bindMainProcessGlobalShortCut } from './shortcut/index.ts';
@@ -14,8 +14,6 @@ import { mainConfig } from '@src/config/mainConfig';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-dotenv.config({ path: path.join(__dirname, '../../.env') });
-dotenv.config({ path: path.join(__dirname, '../../.env.local') });
 
 // 注册自定义协议的 scheme privileges（必须在 app.ready 之前）
 protocol.registerSchemesAsPrivileged([
@@ -216,6 +214,15 @@ if (!gotTheLock) {
 app.on('before-quit', () => {
   if (updateManager?.hasDownloadedUpdate()) {
     updateManager.quitAndInstall();
+  }
+  // 清理临时文件目录
+  const tempDir = path.join(os.tmpdir(), 'apiflow-temp');
+  try {
+    if (fs.existsSync(tempDir)) {
+      fs.rmSync(tempDir, { recursive: true, force: true });
+    }
+  } catch {
+    // 忽略清理错误
   }
 });
 

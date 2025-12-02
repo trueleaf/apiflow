@@ -164,4 +164,5 @@ export type HttpNodeConfig = {
   maxRedirects: number;
   maxHeaderValueDisplayLength: number;
   bodyModeOrder: HttpNodeBodyMode[];
+  tempFileSizeThreshold: number;
 }

@@ -138,9 +138,24 @@
                <el-option v-if="props.enableFile" label="File" value="file"></el-option>
              </el-select>
            </div>
-           <!-- 参数值 string -->
+           <!-- 参数值 string (临时文件模式) -->
+           <div 
+             v-if="data.type === 'string' && data._isTempFile" 
+             class="w-35 mr-2 temp-file-display"
+             @mouseenter="handleDisableDrag()"
+             @mouseleave="handleEnableDrag()"
+           >
+             <div class="temp-file-info">
+               <el-icon class="temp-file-icon"><FileIcon /></el-icon>
+               <span class="temp-file-size">{{ formatUnit(data._originalSize || 0, 'bytes') }}</span>
+               <el-icon class="temp-file-clear" :title="t('清除临时文件')" @click="handleClearTempFile(data)">
+                 <Close />
+               </el-icon>
+             </div>
+           </div>
+           <!-- 参数值 string (普通模式) -->
            <el-popover 
-             v-if="data.type === 'string'" 
+             v-if="data.type === 'string' && !data._isTempFile" 
              placement="top-start" 
              width="auto" 
              :visible="data._id === currentOpData?._id && (data.value || '').includes('@')"
@@ -283,9 +298,10 @@
 <script lang="ts" setup>
 import { ref, Ref, watch, nextTick, computed } from 'vue';
 import { Close, Switch, MagicStick, Loading } from '@element-plus/icons-vue';
+import { FileText as FileIcon } from 'lucide-vue-next';
 import type Node from 'element-plus/es/components/tree/src/model/node';
 import type { ApidocProperty } from '@src/types';
-import { generateEmptyProperty, message } from '@/helper';
+import { generateEmptyProperty, message, formatUnit } from '@/helper';
 import { useI18n } from 'vue-i18n';
 import SMock from '@/components/apidoc/mock/ClMock.vue';
 import { config } from '@src/config/config';
@@ -482,7 +498,27 @@ const handlePasteKey = (event: ClipboardEvent, data: ApidocProperty<'string' | '
   handleTrimmedInputPaste(event, value => handleChangeKey(value, data), data.key || '');
 };
 // 参数值粘贴（变量模式）
-const handlePasteValueInput = (event: ClipboardEvent, data: ApidocProperty<'string' | 'file'>) => {
+const handlePasteValueInput = async (event: ClipboardEvent, data: ApidocProperty<'string' | 'file'>) => {
+  const clipboardData = event.clipboardData;
+  if (!clipboardData) {
+    return;
+  }
+  const text = clipboardData.getData('text').trim();
+  // 检查是否超过阈值且是在 Electron 环境
+  if (text.length > config.httpNodeConfig.tempFileSizeThreshold && window.electronAPI?.tempFileManager) {
+    event.preventDefault();
+    const result = await window.electronAPI.tempFileManager.create(text);
+    if (result.success) {
+      data.value = result.path;
+      data._isTempFile = true;
+      data._originalSize = text.length;
+      message.success(t('大数据已自动存储为临时文件'));
+      emitChange();
+    } else {
+      message.error(result.error || t('创建临时文件失败'));
+    }
+    return;
+  }
   isPasting.value = true;
   handleTrimmedInputPaste(event, value => handleChangeValue(value, data), data.value || '');
   nextTick(() => {
@@ -691,6 +727,21 @@ const handleSelectMockValue = (item: { source: 'variable' | 'mockjs' | 'faker', 
 };
 /*
 |--------------------------------------------------------------------------
+| 临时文件相关
+|--------------------------------------------------------------------------
+*/
+// 清除临时文件
+const handleClearTempFile = (data: ApidocProperty<'string' | 'file'>) => {
+  if (data._isTempFile && data.value && window.electronAPI?.tempFileManager) {
+    window.electronAPI.tempFileManager.delete(data.value);
+  }
+  data.value = '';
+  data._isTempFile = undefined;
+  data._originalSize = undefined;
+  emitChange();
+};
+/*
+|--------------------------------------------------------------------------
 | 文件相关
 |--------------------------------------------------------------------------
 */
@@ -768,6 +819,10 @@ const handleNodeDrop = (_dragNode: Node, _dropNode: Node, type: 'inner' | 'prev'
 const handleDeleteRow = (data: ApidocProperty<'string' | 'file'>) => {
   if (localData.value.length <= 1 || data._disableDelete || isLastEmptyItem(data)) {
     return;
+  }
+  // 如果是临时文件，清理临时文件
+  if (data._isTempFile && data.value && window.electronAPI?.tempFileManager) {
+    window.electronAPI.tempFileManager.delete(data.value);
   }
   const idx = localData.value.findIndex(i => i._id === data._id);
   if (idx > -1) {
@@ -1112,6 +1167,48 @@ watch(
 
       :deep(.cl-rich-input__editor::-webkit-scrollbar-thumb) {
         background: var(--gray-500);
+      }
+    }
+  }
+
+  .temp-file-display {
+    display: flex;
+    align-items: center;
+    height: 28px;
+    border: 1px solid var(--el-color-success-light-5);
+    border-radius: 4px;
+    background-color: var(--el-color-success-light-9);
+    padding: 0 8px;
+
+    .temp-file-info {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      width: 100%;
+
+      .temp-file-icon {
+        color: var(--el-color-success);
+        flex-shrink: 0;
+      }
+
+      .temp-file-size {
+        font-size: 12px;
+        color: var(--el-color-success-dark-2);
+        flex: 1;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      .temp-file-clear {
+        flex-shrink: 0;
+        cursor: pointer;
+        color: var(--gray-500);
+        transition: color 0.2s;
+
+        &:hover {
+          color: var(--red);
+        }
       }
     }
   }

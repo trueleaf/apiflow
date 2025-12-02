@@ -90,6 +90,11 @@ export type ElectronAPI = {
       abort: () => void;
     };
   };
+  tempFileManager: {
+    create: (content: string) => Promise<{ success: true; path: string; size: number } | { success: false; error: string }>;
+    delete: (filePath: string) => Promise<{ success: boolean; error?: string }>;
+    read: (filePath: string) => Promise<{ success: true; content: string } | { success: false; error: string }>;
+  };
   updater: {
     checkForUpdates: () => Promise<CheckUpdateResult>;
     downloadUpdate: () => Promise<DownloadResult>;

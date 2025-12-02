@@ -104,6 +104,14 @@ export type ApidocProperty<T extends HttpNodePropertyType = HttpNodePropertyType
    * 文件变量类型，可以是变量也可以是直接选择文件
    */
   fileValueType?: 'var' | 'file';
+  /**
+   * 标记值是否存储为临时文件（大值粘贴时自动转换）
+   */
+  _isTempFile?: boolean;
+  /**
+   * 原始数据大小（字节）
+   */
+  _originalSize?: number;
   children?: ApidocProperty[];
   nodeId?: string; //公共请求头会用到
   _error?: string;

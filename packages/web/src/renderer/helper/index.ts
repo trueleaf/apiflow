@@ -1286,15 +1286,16 @@ export const getFormDataFromFormDataParams = async (
         formData.key,
         objectVariable
       );
-      const realValue = await convertTemplateValueToRealValue(
-        formData.value,
-        objectVariable
-      );
+      // 临时文件的值不需要模板编译，直接使用文件路径
+      const realValue = formData._isTempFile
+        ? formData.value
+        : await convertTemplateValueToRealValue(formData.value, objectVariable);
       renderedFormDataBody.push({
         id: formData._id,
         key: realKey,
         type: formData.type,
         value: realValue === null ? "null" : realValue?.toString(),
+        isTempFile: formData._isTempFile,
       });
     }
   }

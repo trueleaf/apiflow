@@ -299,6 +299,21 @@ export const IPC_EVENTS = {
   },
 
   /**
+   * 临时文件管理事件
+   */
+  tempFile: {
+    /** 渲染进程 -> 主进程 */
+    rendererToMain: {
+      /** 创建临时文件 */
+      create: 'temp-file:renderer:to:main:create',
+      /** 删除临时文件 */
+      delete: 'temp-file:renderer:to:main:delete',
+      /** 读取临时文件内容 */
+      read: 'temp-file:renderer:to:main:read',
+    },
+  },
+
+  /**
    * 应用更新事件
    */
   updater: {

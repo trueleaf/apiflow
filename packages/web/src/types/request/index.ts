@@ -122,6 +122,7 @@ export type RendererFormDataBody = {
   key: string;
   type: 'string' | 'file';
   value: string;
+  isTempFile?: boolean;
 }[];
 
 export type RedirectOptions = {
