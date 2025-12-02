@@ -14,6 +14,7 @@ import type { Property, ApidocProperty, RendererFormDataBody, HttpNodeConfig } f
 import { nanoid } from 'nanoid/non-secure'
 import Mock from '@/server/mock/mock'
 import { faker } from '@faker-js/faker/locale/zh_CN'
+import { bodyModeOrderCache } from '@/cache/httpNode/bodyModeOrderCache'
 import type {
   HttpNodeRequestMethod,
   HttpNodePropertyType,
@@ -119,7 +120,8 @@ export const generateDefaultHttpNodeConfig = (): HttpNodeConfig => ({
   userAgent: config.httpNodeConfig.userAgent,
   followRedirect: config.httpNodeConfig.followRedirect,
   maxRedirects: config.httpNodeConfig.maxRedirects,
-  maxHeaderValueDisplayLength: config.httpNodeConfig.maxHeaderValueDisplayLength
+  maxHeaderValueDisplayLength: config.httpNodeConfig.maxHeaderValueDisplayLength,
+  bodyModeOrder: bodyModeOrderCache.getBodyModeOrder()
 })
 // 生成 DeepSeek Provider 默认配置
 export const generateDeepSeekProvider = (): LLMProviderSettings => ({

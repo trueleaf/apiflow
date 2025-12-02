@@ -2,24 +2,26 @@
   <div class="body-params">
     <div class="body-type d-flex a-center mb-1">
       <!-- body类型选择 -->
-      <el-radio-group v-model="bodyType" @change="changeBodyType">
-        <el-radio value="json">json</el-radio>
-        <el-radio 
-          value="formdata"
-          @contextmenu.stop.prevent="(e: MouseEvent) => handleContextmenu(e, 'formdata')"
-        >
-          form-data
-        </el-radio>
-        <el-radio 
-          value="urlencoded"
-          @contextmenu.stop.prevent="(e: MouseEvent) => handleContextmenu(e, 'urlencoded')"
-        >
-          x-www-form-urlencoded
-        </el-radio>
-        <el-radio value="raw">raw</el-radio>
-        <el-radio value="binary">binary</el-radio>
-        <el-radio value="none">none</el-radio>
-      </el-radio-group>
+      <draggable
+        v-model="bodyModeOrder"
+        class="body-mode-list"
+        item-key="mode"
+        :animation="200"
+        ghost-class="ghost"
+        @end="handleDragEnd"
+      >
+        <template #item="{ element: mode }">
+          <div
+            :class="['body-mode-item', { active: bodyType === mode }]"
+            @contextmenu.stop.prevent="(e: MouseEvent) => mode === 'formdata' || mode === 'urlencoded' ? handleContextmenu(e, mode) : undefined"
+          >
+            <GripVertical :size="14" class="drag-handle" />
+            <el-radio :value="mode" v-model="bodyType" @change="changeBodyType">
+              {{ getModeLabel(mode) }}
+            </el-radio>
+          </div>
+        </template>
+      </draggable>
     </div>
     <div v-if="bodyType === 'json' || bodyType === 'formdata' || bodyType === 'urlencoded'" class="params-wrap" @click="handleFocus">
       <SJsonEditor v-show="bodyType === 'json'" ref="jsonComponent" manual-undo-redo :model-value="rawJsonData" :config="jsonEditorConfig"
@@ -134,13 +136,17 @@ import SParamsTree from '@/components/apidoc/paramsTree/ClParamsTree.vue'
 import SContextmenu from '@/components/common/contextmenu/ClContextmenu.vue'
 import SContextmenuItem from '@/components/common/contextmenu/ClContextmenuItem.vue'
 import { Close } from '@element-plus/icons-vue'
-import { getCompiledTemplate } from '@/helper';
+import { GripVertical } from 'lucide-vue-next'
+import { getCompiledTemplate, message } from '@/helper';
 import mime from 'mime';
 import { useHttpRedoUndo } from '@/store/redoUndo/httpRedoUndoStore'
 import { useApidocTas } from '@/store/apidoc/tabsStore'
 import { router } from '@/router'
 import { cloneDeep } from 'lodash-es'
 import type * as Monaco from 'monaco-editor/esm/vs/editor/editor.api'
+import { bodyModeOrderCache } from '@/cache/httpNode/bodyModeOrderCache'
+import { cacheKey } from '@/cache/cacheKey'
+import draggable from 'vuedraggable'
 
 const bodyTipUrl = new URL('@/assets/imgs/apidoc/body-tip.png', import.meta.url).href
 const rawEditor = ref<{
@@ -491,6 +497,34 @@ const handleClearSelectFile = () => {
 }
 /*
 |--------------------------------------------------------------------------
+| Body Mode 拖拽排序
+|--------------------------------------------------------------------------
+*/
+const bodyModeOrder = ref<HttpNodeBodyMode[]>(bodyModeOrderCache.getBodyModeOrder())
+// 获取 Mode 显示标签
+const getModeLabel = (mode: HttpNodeBodyMode): string => {
+  const labels: Record<HttpNodeBodyMode, string> = {
+    json: 'json',
+    formdata: 'form-data',
+    urlencoded: 'x-www-form-urlencoded',
+    raw: 'raw',
+    binary: 'binary',
+    none: 'none',
+  }
+  return labels[mode]
+}
+// 拖拽结束，保存新顺序
+const handleDragEnd = () => {
+  bodyModeOrderCache.setBodyModeOrder(bodyModeOrder.value)
+}
+// 监听全局配置变化
+const handleStorageChange = (e: StorageEvent) => {
+  if (e.key === cacheKey.settings.httpNode.bodyModeOrder) {
+    bodyModeOrder.value = bodyModeOrderCache.getBodyModeOrder()
+  }
+}
+/*
+|--------------------------------------------------------------------------
 | 右键菜单和多行编辑模式
 |--------------------------------------------------------------------------
 */
@@ -561,9 +595,11 @@ watch(urlencodedParamsTreeRef, (instance) => {
 onMounted(async () => {
   jsonBodyVisible.value = appState.getJsonBodyHintVisible();
   document.body.addEventListener('click', bindGlobalClick);
+  window.addEventListener('storage', handleStorageChange);
 });
 onUnmounted(() => {
   document.body.removeEventListener('click', bindGlobalClick);
+  window.removeEventListener('storage', handleStorageChange);
 });
 
 //JSON记录函数
@@ -621,6 +657,43 @@ const recordRawDataOperation = (oldValue: { data: string; dataType: string }, ne
 .body-params {
   .body-type {
     margin-top: -10px;
+  }
+  .body-mode-list {
+    height: 34px;
+    display: flex;
+    gap: 4px;
+    align-items: center;
+  }
+  .body-mode-item {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 8px;
+    border-radius: 4px;
+    cursor: move;
+    transition: all 0.2s;
+    user-select: none;
+    &:hover {
+      .drag-handle {
+        opacity: 1;
+      }
+    }
+    &.active {
+      background-color: var(--theme-color-light);
+    }
+    .drag-handle {
+      opacity: 0;
+      color: var(--gray-500);
+      cursor: grab;
+      transition: opacity 0.2s;
+      &:active {
+        cursor: grabbing;
+      }
+    }
+  }
+  .ghost {
+    opacity: 0.5;
+    background-color: var(--gray-200);
   }
 
   .operation {

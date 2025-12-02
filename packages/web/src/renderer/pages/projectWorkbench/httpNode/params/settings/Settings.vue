@@ -161,17 +161,57 @@
           </el-tooltip>
         </div>
       </div>
+      <div class="config-item">
+        <div class="config-meta">
+          <div class="meta-text">
+            <div class="meta-title">{{ t('Body参数显示顺序') }}</div>
+            <div class="meta-hint">{{ t('拖拽调整Body类型的显示顺序') }}</div>
+          </div>
+        </div>
+        <div class="config-control vertical">
+          <draggable
+            v-model="bodyModeOrder"
+            class="mode-order-list"
+            item-key="mode"
+            :animation="200"
+            ghost-class="ghost"
+            @end="handleDragEnd"
+          >
+            <template #item="{ element: mode, index }">
+              <div class="mode-order-item">
+                <GripVertical :size="16" class="drag-handle" />
+                <span class="mode-label">{{ getModeLabel(mode) }}</span>
+                <span class="mode-order">{{ index + 1 }}</span>
+              </div>
+            </template>
+          </draggable>
+          <el-tooltip :content="t('恢复默认')" placement="top">
+            <el-button
+              link
+              size="small"
+              class="reset-btn"
+              @click="handleResetBodyModeOrder"
+            >
+              {{ t('恢复') }}
+            </el-button>
+          </el-tooltip>
+        </div>
+      </div>
     </div>
   </div>
 </template>
 <script lang="ts" setup>
-import { computed, watch, onMounted, toRaw } from 'vue'
+import { computed, watch, onMounted, toRaw, ref } from 'vue'
 import { debounce } from 'lodash-es'
 import { storeToRefs } from 'pinia'
 import { useI18n } from 'vue-i18n'
 import { router } from '@/router'
 import { useHttpNodeConfig } from '@/store/apidoc/httpNodeConfigStore'
-import { generateDefaultHttpNodeConfig } from '@/helper'
+import { generateDefaultHttpNodeConfig, message } from '@/helper'
+import { GripVertical } from 'lucide-vue-next'
+import type { HttpNodeBodyMode } from '@src/types'
+import { bodyModeOrderCache } from '@/cache/httpNode/bodyModeOrderCache'
+import draggable from 'vuedraggable'
 const { t } = useI18n()
 const httpNodeConfigStore = useHttpNodeConfig()
 const { currentConfig: formData } = storeToRefs(httpNodeConfigStore)
@@ -228,6 +268,29 @@ onMounted(() => {
     httpNodeConfigStore.initHttpNodeConfig(projectId.value)
   }
 })
+// Body Mode 顺序配置
+const bodyModeOrder = ref<HttpNodeBodyMode[]>(bodyModeOrderCache.getBodyModeOrder())
+// 获取 Mode 显示标签
+const getModeLabel = (mode: HttpNodeBodyMode): string => {
+  const labels: Record<HttpNodeBodyMode, string> = {
+    json: 'JSON',
+    formdata: 'Form-Data',
+    urlencoded: 'URL-Encoded',
+    raw: 'Raw',
+    binary: 'Binary',
+    none: 'None',
+  }
+  return labels[mode]
+}
+// 拖拽结束，保存新顺序
+const handleDragEnd = () => {
+  bodyModeOrderCache.setBodyModeOrder(bodyModeOrder.value)
+}
+// 重置为默认顺序
+const handleResetBodyModeOrder = () => {
+  bodyModeOrderCache.resetBodyModeOrder()
+  bodyModeOrder.value = bodyModeOrderCache.getBodyModeOrder()
+}
 </script>
 <style lang="scss" scoped>
 .config-title {
@@ -275,6 +338,10 @@ onMounted(() => {
   display: flex;
   align-items: center;
   gap: 8px;
+  &.vertical {
+    flex-direction: column;
+    align-items: flex-start;
+  }
 }
 .control-number {
   width: 240px;
@@ -293,6 +360,65 @@ onMounted(() => {
 }
 .reset-btn:hover {
   color: var(--primary-color);
+}
+.mode-order-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 300px;
+  margin-bottom: 12px;
+}
+.mode-order-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 12px;
+  background-color: var(--gray-100);
+  border: 2px solid transparent;
+  border-radius: 6px;
+  cursor: move;
+  transition: all 0.2s;
+  user-select: none;
+  &:hover {
+    background-color: var(--gray-200);
+    .drag-handle {
+      opacity: 1;
+      color: var(--theme-color);
+    }
+  }
+  .drag-handle {
+    opacity: 0.3;
+    color: var(--gray-500);
+    cursor: grab;
+    transition: all 0.2s;
+    flex-shrink: 0;
+    &:active {
+      cursor: grabbing;
+    }
+  }
+  .mode-label {
+    flex: 1;
+    font-size: var(--font-size-sm);
+    color: var(--gray-800);
+    font-weight: 500;
+  }
+  .mode-order {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    background-color: var(--theme-color);
+    color: var(--white);
+    border-radius: 50%;
+    font-size: var(--font-size-xs);
+    font-weight: 600;
+  }
+}
+.ghost {
+  opacity: 0.5;
+  background-color: var(--theme-color-light);
+  border-color: var(--theme-color);
 }
 @media (max-width: 1360px) {
   .config-item {

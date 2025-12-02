@@ -1496,4 +1496,8 @@ export default {
   查看更多: 'View More',
   '共{count}个': 'Total {count}',
   请输入搜索条件: 'Please enter search criteria',
+  'Body参数显示顺序': 'Body Parameter Display Order',
+  '拖拽调整Body类型的显示顺序': 'Drag to adjust the display order of Body types',
+  'Body Mode 顺序已更新': 'Body Mode order updated',
+  已恢复默认顺序: 'Default order restored',
 }

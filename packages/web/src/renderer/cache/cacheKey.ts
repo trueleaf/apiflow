@@ -95,6 +95,9 @@ export const cacheKey = {
       sourceType: 'settings/updater/sourceType',
       customUrl: 'settings/updater/customUrl',
     },
+    httpNode: {
+      bodyModeOrder: 'settings/httpNode/bodyModeOrder',
+    },
   },
   appWorkbench: {
     header: {

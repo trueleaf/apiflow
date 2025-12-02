@@ -163,4 +163,5 @@ export type HttpNodeConfig = {
   followRedirect: boolean;
   maxRedirects: number;
   maxHeaderValueDisplayLength: number;
+  bodyModeOrder: HttpNodeBodyMode[];
 }
