@@ -346,6 +346,7 @@ const bindEvent = () => {
 
   // 监听来自 App.vue 的初始化数据
   window.electronAPI?.ipcManager.onMain(IPC_EVENTS.apiflow.topBarToContent.initTabsData, (data: { tabs: AppWorkbenchHeaderTab[], activeTabId: string, language: Language, networkMode: RuntimeNetworkMode }) => {
+    console.log('init tabs')
     tabs.value = data.tabs || [];
     activeTabId.value = data.activeTabId || '';
     language.value = data.language || 'zh-cn';
@@ -375,9 +376,11 @@ const handleDocumentClick = (event: MouseEvent) => {
   }
 }
 
-onMounted(() => {
+onMounted(async () => {
   bindEvent()
   scrollToActiveTab()
+  // 确保事件监听器已注册后再发送就绪信号
+  await nextTick()
   window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.topBarToContent.topBarReady)
   window.addEventListener('click', handleDocumentClick)
 })

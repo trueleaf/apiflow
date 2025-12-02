@@ -244,6 +244,7 @@ const handleCheckUpdate = async () => {
   notifyBadgeChange()
   try {
     const result = await window.electronAPI?.updater.checkForUpdates()
+    console.log(result)
     if (!result?.success && result?.error) {
       message.error(result.error)
       updateState.value = 'idle'

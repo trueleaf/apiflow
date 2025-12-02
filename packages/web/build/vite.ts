@@ -38,13 +38,6 @@ const buildElectron = (mode: string, command: 'build' | 'serve') => {
       '@src': path.resolve(process.cwd(), './src'),
     }
   });
-  const sourcePackage = path.resolve(process.cwd(), './package.json');
-  const targetPackage = path.resolve(process.cwd(), './dist/main/package.json');
-  const pkgContent = JSON.parse(fs.readFileSync(sourcePackage, 'utf-8'));
-  pkgContent.main = 'main.mjs';
-  fs.writeFileSync(targetPackage, JSON.stringify(pkgContent, null, 2));
-  const devUpdateYml = path.resolve(process.cwd(), './dist/main/dev-app-update.yml');
-  fs.writeFileSync(devUpdateYml, 'provider: generic\nurl: http://127.0.0.1/release');
 }
 const startElectronProcess = (server: ViteDevServer,) => {
   const addressInfo = server.httpServer?.address() as AddressInfo;
