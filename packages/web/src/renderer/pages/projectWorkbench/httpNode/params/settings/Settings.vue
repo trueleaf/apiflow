@@ -18,16 +18,14 @@
             size="small"
             class="control-number"
           />
-          <el-tooltip :content="t('恢复默认')" placement="top">
-            <el-button
-              link
-              size="small"
-              class="reset-btn"
-              @click="handleReset('maxTextBodySize')"
-            >
-              {{ t('恢复') }}
-            </el-button>
-          </el-tooltip>
+          <el-button
+            link
+            size="small"
+            class="reset-btn"
+            @click="handleReset('maxTextBodySize')"
+          >
+            {{ t('恢复') }}
+          </el-button>
         </div>
       </div>
       <div class="config-item">
@@ -47,16 +45,14 @@
             size="small"
             class="control-number"
           />
-          <el-tooltip :content="t('恢复默认')" placement="top">
-            <el-button
-              link
-              size="small"
-              class="reset-btn"
-              @click="handleReset('maxRawBodySize')"
-            >
-              {{ t('恢复') }}
-            </el-button>
-          </el-tooltip>
+          <el-button
+            link
+            size="small"
+            class="reset-btn"
+            @click="handleReset('maxRawBodySize')"
+          >
+            {{ t('恢复') }}
+          </el-button>
         </div>
       </div>
       <div class="config-item">
@@ -72,16 +68,14 @@
             size="small"
             class="control-text"
           />
-          <el-tooltip :content="t('恢复默认')" placement="top">
-            <el-button
-              link
-              size="small"
-              class="reset-btn"
-              @click="handleReset('userAgent')"
-            >
-              {{ t('恢复') }}
-            </el-button>
-          </el-tooltip>
+          <el-button
+            link
+            size="small"
+            class="reset-btn"
+            @click="handleReset('userAgent')"
+          >
+            {{ t('恢复') }}
+          </el-button>
         </div>
       </div>
       <div class="config-item">
@@ -100,16 +94,14 @@
             size="small"
             class="control-number"
           />
-          <el-tooltip :content="t('恢复默认')" placement="top">
-            <el-button
-              link
-              size="small"
-              class="reset-btn"
-              @click="handleReset('maxHeaderValueDisplayLength')"
-            >
-              {{ t('恢复') }}
-            </el-button>
-          </el-tooltip>
+          <el-button
+            link
+            size="small"
+            class="reset-btn"
+            @click="handleReset('maxHeaderValueDisplayLength')"
+          >
+            {{ t('恢复') }}
+          </el-button>
         </div>
       </div>
       <div class="config-item">
@@ -121,16 +113,14 @@
         </div>
         <div class="config-control">
           <el-switch v-model="formData.followRedirect" size="small" />
-          <el-tooltip :content="t('恢复默认')" placement="top">
-            <el-button
-              link
-              size="small"
-              class="reset-btn"
-              @click="handleReset('followRedirect')"
-            >
-              {{ t('恢复') }}
-            </el-button>
-          </el-tooltip>
+          <el-button
+            link
+            size="small"
+            class="reset-btn"
+            @click="handleReset('followRedirect')"
+          >
+            {{ t('恢复') }}
+          </el-button>
         </div>
       </div>
       <div class="config-item">
@@ -149,16 +139,14 @@
             size="small"
             class="control-number"
           />
-          <el-tooltip :content="t('恢复默认')" placement="top">
-            <el-button
-              link
-              size="small"
-              class="reset-btn"
-              @click="handleReset('maxRedirects')"
-            >
-              {{ t('恢复') }}
-            </el-button>
-          </el-tooltip>
+          <el-button
+            link
+            size="small"
+            class="reset-btn"
+            @click="handleReset('maxRedirects')"
+          >
+            {{ t('恢复') }}
+          </el-button>
         </div>
       </div>
       <div class="config-item">
@@ -168,7 +156,7 @@
             <div class="meta-hint">{{ t('拖拽调整Body类型的显示顺序') }}</div>
           </div>
         </div>
-        <div class="config-control vertical">
+        <div class="config-control">
           <draggable
             v-model="bodyModeOrder"
             class="mode-order-list"
@@ -179,22 +167,20 @@
           >
             <template #item="{ element: mode, index }">
               <div class="mode-order-item">
-                <GripVertical :size="16" class="drag-handle" />
+                <GripVertical :size="14" class="drag-handle" />
                 <span class="mode-label">{{ getModeLabel(mode) }}</span>
                 <span class="mode-order">{{ index + 1 }}</span>
               </div>
             </template>
           </draggable>
-          <el-tooltip :content="t('恢复默认')" placement="top">
-            <el-button
-              link
-              size="small"
-              class="reset-btn"
-              @click="handleResetBodyModeOrder"
-            >
-              {{ t('恢复') }}
-            </el-button>
-          </el-tooltip>
+          <el-button
+            link
+            size="small"
+            class="reset-btn"
+            @click="handleResetBodyModeOrder"
+          >
+            {{ t('恢复') }}
+          </el-button>
         </div>
       </div>
       <div class="config-item">
@@ -204,7 +190,7 @@
             <div class="meta-hint">{{ t('拖拽调整标签页的显示顺序') }}</div>
           </div>
         </div>
-        <div class="config-control vertical">
+        <div class="config-control">
           <draggable
             v-model="tabOrder"
             class="tab-order-list"
@@ -215,22 +201,20 @@
           >
             <template #item="{ element: tabName, index }">
               <div class="tab-order-item">
-                <GripVertical :size="16" class="drag-handle" />
+                <GripVertical :size="14" class="drag-handle" />
                 <span class="tab-label">{{ getTabLabel(tabName) }}</span>
                 <span class="tab-order">{{ index + 1 }}</span>
               </div>
             </template>
           </draggable>
-          <el-tooltip :content="t('恢复默认')" placement="top">
-            <el-button
-              link
-              size="small"
-              class="reset-btn"
-              @click="handleResetTabOrder"
-            >
-              {{ t('恢复') }}
-            </el-button>
-          </el-tooltip>
+          <el-button
+            link
+            size="small"
+            class="reset-btn"
+            @click="handleResetTabOrder"
+          >
+            {{ t('恢复') }}
+          </el-button>
         </div>
       </div>
     </div>
@@ -410,10 +394,6 @@ onUnmounted(() => {
   display: flex;
   align-items: center;
   gap: 8px;
-  &.vertical {
-    flex-direction: column;
-    align-items: flex-start;
-  }
 }
 .control-number {
   width: 240px;
@@ -436,18 +416,17 @@ onUnmounted(() => {
 .mode-order-list {
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  width: 300px;
-  margin-bottom: 12px;
+  gap: 6px;
+  width: 240px;
 }
 .mode-order-item {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 8px 12px;
+  gap: 8px;
+  padding: 6px 10px;
   background-color: var(--gray-100);
   border: 2px solid transparent;
-  border-radius: 6px;
+  border-radius: 4px;
   cursor: move;
   transition: all 0.2s;
   user-select: none;
@@ -478,8 +457,8 @@ onUnmounted(() => {
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 24px;
-    height: 24px;
+    width: 20px;
+    height: 20px;
     background-color: var(--theme-color);
     color: var(--white);
     border-radius: 50%;
@@ -495,18 +474,17 @@ onUnmounted(() => {
 .tab-order-list {
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  width: 300px;
-  margin-bottom: 12px;
+  gap: 6px;
+  width: 240px;
 }
 .tab-order-item {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 8px 12px;
+  gap: 8px;
+  padding: 6px 10px;
   background-color: var(--gray-100);
   border: 2px solid transparent;
-  border-radius: 6px;
+  border-radius: 4px;
   cursor: move;
   transition: all 0.2s;
   user-select: none;
@@ -537,8 +515,8 @@ onUnmounted(() => {
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 24px;
-    height: 24px;
+    width: 20px;
+    height: 20px;
     background-color: var(--theme-color);
     color: var(--white);
     border-radius: 50%;

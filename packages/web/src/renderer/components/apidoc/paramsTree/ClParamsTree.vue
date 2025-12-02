@@ -187,8 +187,9 @@
                    @update:modelValue="v => handleChangeValue(v, data)" 
                    @focus="handleFocusValue(data)" 
                    @blur="handleBlurValueAndEnableDrag()" 
-                   @multiline-change="(isMultiline: boolean) => handleMultilineChange(data._id, isMultiline)" 
+                   @multiline-change="(isMultiline) => handleMultilineChange(data._id, isMultiline)" 
                    @paste="handleRichInputPaste()"
+                   @before-paste="(text, shouldPrevent) => handleBeforePasteValue(text, shouldPrevent, data)"
                  >
                    <template #variable="{ label }">
                      <div v-if="getVariableValue(label)" class="variable-popover">
@@ -220,8 +221,19 @@
                  <span class="px-3"></span>
                  <span class="file-mode" data-testid="params-tree-file-mode-btn" @click="() => data.fileValueType = 'file'">{{ t('文件模式') }}</span>
                </div>
+               <!-- 变量模式临时文件显示 -->
+               <div v-if="data.fileValueType === 'var' && data._isTempFile" class="temp-file-display var-temp-file">
+                 <div class="temp-file-info">
+                   <el-icon class="temp-file-icon"><FileIcon /></el-icon>
+                   <span class="temp-file-size">{{ formatUnit(data._originalSize || 0, 'bytes') }}</span>
+                   <el-icon class="temp-file-clear" :title="t('清除临时文件')" @click="handleClearTempFile(data)">
+                     <Close />
+                   </el-icon>
+                 </div>
+               </div>
+               <!-- 变量模式输入框 -->
                <el-input 
-                 v-if="data.fileValueType === 'var'" 
+                 v-if="data.fileValueType === 'var' && !data._isTempFile" 
                  class="w-100" 
                  :model-value="data.value" 
                  :placeholder="data._valuePlaceholder || (t('变量模式') + ' eg: ' + t('{0} fileValue {1}', ['{{', '}}']))" 
@@ -505,7 +517,6 @@ const handlePasteValueInput = async (event: ClipboardEvent, data: ApidocProperty
   }
   const text = clipboardData.getData('text').trim();
   // 检查是否超过阈值且是在 Electron 环境
-  console.log(text.length, config.httpNodeConfig.tempFileSizeThreshold);
   if (text.length > config.httpNodeConfig.tempFileSizeThreshold && window.electronAPI?.tempFileManager) {
     event.preventDefault();
     const result = await window.electronAPI.tempFileManager.create(text);
@@ -532,6 +543,23 @@ const handleRichInputPaste = () => {
   nextTick(() => {
     isPasting.value = false;
   });
+};
+// 富文本输入粘贴前检查大数据
+const handleBeforePasteValue = async (text: string, shouldPrevent: { value: boolean }, data: ApidocProperty<'string' | 'file'>) => {
+  const trimmedText = text.trim();
+  if (trimmedText.length > config.httpNodeConfig.tempFileSizeThreshold && window.electronAPI?.tempFileManager) {
+    shouldPrevent.value = true;
+    const result = await window.electronAPI.tempFileManager.create(trimmedText);
+    if (result.success) {
+      data.value = result.path;
+      data._isTempFile = true;
+      data._originalSize = trimmedText.length;
+      message.success(t('大数据已自动存储为临时文件'));
+      emitChange();
+    } else {
+      message.error(result.error || t('创建临时文件失败'));
+    }
+  }
 };
 // 参数描述粘贴
 const handlePasteDescription = (event: ClipboardEvent, data: ApidocProperty<'string' | 'file'>) => {
@@ -750,8 +778,13 @@ const handleClearTempFile = (data: ApidocProperty<'string' | 'file'>) => {
 */
 // 切换文件值类型
 const handleToggleFileValueType = (data: ApidocProperty<'string' | 'file'>) => {
+  if (data._isTempFile && data.value && window.electronAPI?.tempFileManager) {
+    window.electronAPI.tempFileManager.delete(data.value);
+  }
   data.fileValueType = data.fileValueType === 'var' ? 'file' : 'var';
   data.value = '';
+  data._isTempFile = undefined;
+  data._originalSize = undefined;
   emitChange();
 };
 // 清除文件值
@@ -1182,6 +1215,10 @@ watch(
     border-radius: 4px;
     background-color: var(--el-color-success-light-9);
     padding: 0 8px;
+
+    &.var-temp-file {
+      flex: 1;
+    }
 
     .temp-file-info {
       display: flex;

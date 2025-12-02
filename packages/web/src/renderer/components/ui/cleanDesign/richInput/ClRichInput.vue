@@ -206,16 +206,24 @@ const editor = useEditor({
       autocapitalize: 'off'
     },
     handlePaste(view, event) {
-      if (!props.trimOnPaste) {
-        return false
-      }
       const clipboardData = event.clipboardData
       if (!clipboardData) {
         return false
       }
-      const originalText = clipboardData.getData('text')
-      const trimmedText = originalText.trim()
-      if (originalText === trimmedText) {
+      const text = clipboardData.getData('text')
+      // 发射 before-paste 事件，让父组件有机会拦截大数据粘贴
+      const shouldPrevent = { value: false }
+      emits('before-paste', text, shouldPrevent)
+      if (shouldPrevent.value) {
+        event.preventDefault()
+        return true
+      }
+      emits('paste')
+      if (!props.trimOnPaste) {
+        return false
+      }
+      const trimmedText = text.trim()
+      if (text === trimmedText) {
         return false
       }
       event.preventDefault()

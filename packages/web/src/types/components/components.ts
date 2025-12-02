@@ -72,6 +72,8 @@ export interface ClRichInputEmits {
   (e: 'blur'): void
   (e: 'focus'): void
   (e: 'multiline-change', isMultiline: boolean): void
+  (e: 'paste'): void
+  (e: 'before-paste', text: string, shouldPrevent: { value: boolean }): void
 }
 
 /*
