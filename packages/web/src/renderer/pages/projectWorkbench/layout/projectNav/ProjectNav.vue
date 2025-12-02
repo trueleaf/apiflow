@@ -7,7 +7,7 @@
         </el-icon>
       </div>
       <!-- https://github.com/element-plus/element-plus/issues/2293 -->
-      <div ref="tabList" class="tab-list">
+      <div ref="tabList" class="tab-list" @dblclick="handleTabListDblclick">
         <SDraggable ref="tabListWrap" v-model="tabs" animation="150" item-key="name" group="operation"
           class="d-flex drag-wrap">
           <template #item="{ element }">
@@ -120,6 +120,7 @@
             <SContextmenuItem v-if="currentOperationNode && currentOperationNode.tabType === 'http'" :label="t('刷新')"></SContextmenuItem> -->
     </SContextmenu>
   </teleport>
+  <SAddFileDialog v-if="addFileDialogVisible" v-model="addFileDialogVisible" @success="handleAddFileSuccess" />
 </template>
 
 <script lang="ts" setup>
@@ -149,6 +150,8 @@ import { useApidocRequest } from '@/store/apidoc/requestStore';
 import { useApidocResponse } from '@/store/apidoc/responseStore';
 import { useHttpMock } from '@/store/httpMock/httpMockStore';
 import { ElMessage } from 'element-plus';
+import SAddFileDialog from '../../dialog/addFile/AddFile.vue';
+import type { ApidocBanner } from '@src/types';
 
 
 /*
@@ -184,6 +187,8 @@ const isView = computed(() => apidocBaseInfoStore.mode === 'view')
 const currentSelectedTab = computed(() => tabs.value?.find(tab => tab.selected))
 const httpMockStore = useHttpMock()
 const isMockServerRunning = ref(false)
+const addFileDialogVisible = ref(false)
+const apidocBannerStore = useApidocBanner()
 /*
 |--------------------------------------------------------------------------
 | 事件绑定
@@ -471,6 +476,65 @@ const handleAddNewTab = () => {
   })
   tabIndex.value += 1;
 }
+//双击tab-list空白区域打开新增接口弹框
+const handleTabListDblclick = (e: MouseEvent) => {
+  const target = e.target as HTMLElement;
+  if (target.classList.contains('tab-list') || target.classList.contains('drag-wrap')) {
+    addFileDialogVisible.value = true;
+  }
+}
+//新增接口成功回调
+const handleAddFileSuccess = (data: ApidocBanner) => {
+  apidocBannerStore.addExpandItem(data._id);
+  apidocBannerStore.splice({
+    start: apidocBannerStore.banner.length,
+    deleteCount: 0,
+    item: data,
+  });
+  if (data.type === 'http') {
+    apidocTabsStore.addTab({
+      _id: data._id,
+      projectId: router.currentRoute.value.query.id as string,
+      tabType: 'http',
+      label: data.name,
+      saved: true,
+      fixed: true,
+      selected: true,
+      head: {
+        icon: data.method,
+        color: ''
+      },
+    });
+  } else if (data.type === 'websocket') {
+    apidocTabsStore.addTab({
+      _id: data._id,
+      projectId: router.currentRoute.value.query.id as string,
+      tabType: 'websocket',
+      label: data.name,
+      saved: true,
+      fixed: true,
+      selected: true,
+      head: {
+        icon: data.protocol,
+        color: ''
+      },
+    });
+  } else if (data.type === 'httpMock') {
+    apidocTabsStore.addTab({
+      _id: data._id,
+      projectId: router.currentRoute.value.query.id as string,
+      tabType: 'httpMock',
+      label: data.name,
+      saved: true,
+      fixed: true,
+      selected: true,
+      head: {
+        icon: 'MOCK',
+        color: ''
+      },
+    });
+  }
+}
 
 /*
 |--------------------------------------------------------------------------
@@ -527,7 +591,8 @@ onUnmounted(() => {
   }
 
   .tab-list {
-    width: auto;
+    flex: 1;
+    min-width: 0;
     max-width: calc(100% - var(--apiflow-doc-nav-height));
     line-height: var(--apiflow-doc-nav-height);
     display: flex;
@@ -537,6 +602,11 @@ onUnmounted(() => {
     transition: left .1s;
     overflow-x: auto;
     overflow-y: hidden;
+
+    .drag-wrap {
+      flex: 1;
+      min-width: 0;
+    }
 
     &:hover {
       &::-webkit-scrollbar {
