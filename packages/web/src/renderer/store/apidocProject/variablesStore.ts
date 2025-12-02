@@ -6,7 +6,7 @@ import { router } from '@/router';
 
 export const useVariable = defineStore('apidocVariable', () => {
   const variables = ref<ApidocVariable[]>([]);
-  const objectVariable = ref<Record<string, any>>({})
+  const objectVariable = ref<Record<string, unknown>>({})
   
   // 同步变量到主进程
   const syncVariablesToMainProcess = async () => {

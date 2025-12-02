@@ -140,15 +140,15 @@ import { Variable, ListTree, ArrowDownToLine, ArrowUpToLine } from 'lucide-vue-n
 import { ComponentPublicInstance, computed, onMounted, onUnmounted, ref } from 'vue';
 import { ApidocTab } from '@src/types/apidoc/tabs';
 import { router } from '@/router';
-import { useApidocTas } from '@/store/apidoc/tabsStore';
+import { useApidocTas } from '@/store/httpNode/httpTabsStore';
 import { eventEmitter } from '@/helper';
 import { nanoid } from 'nanoid/non-secure'
-import { useApidocBaseInfo } from '@/store/apidoc/baseInfoStore';
+import { useApidocBaseInfo } from '@/store/apidocProject/baseInfoStore';
 import SContextmenu from '@/components/common/contextmenu/ClContextmenu.vue'
 import SContextmenuItem from '@/components/common/contextmenu/ClContextmenuItem.vue'
-import { useApidocBanner } from '@/store/apidoc/bannerStore';
-import { useApidocRequest } from '@/store/apidoc/requestStore';
-import { useApidocResponse } from '@/store/apidoc/responseStore';
+import { useApidocBanner } from '@/store/httpNode/httpBannerStore';
+import { useApidocRequest } from '@/store/httpNode/requestStore';
+import { useApidocResponse } from '@/store/httpNode/responseStore';
 import { useHttpMock } from '@/store/httpMock/httpMockStore';
 import { ElMessage } from 'element-plus';
 import SAddFileDialog from '../../dialog/addFile/AddFile.vue';

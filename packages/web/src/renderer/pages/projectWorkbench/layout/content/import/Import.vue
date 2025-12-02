@@ -167,8 +167,8 @@ import type { TreeNodeOptions } from 'element-plus/lib/components/tree/src/tree.
 // import OpenApiTranslator from './openapi';
 // import PostmanTranslator from './postman';
 import { ApidocProjectRules } from '@src/types'
-import { useApidocBaseInfo } from '@/store/apidoc/baseInfoStore'
-import { useApidocBanner } from '@/store/apidoc/bannerStore'
+import { useApidocBaseInfo } from '@/store/apidocProject/baseInfoStore'
+import { useApidocBanner } from '@/store/httpNode/httpBannerStore'
 import { apiNodesCache } from '@/cache/nodes/nodesCache'
 import { useRuntime } from '@/store/runtime/runtimeStore'
 

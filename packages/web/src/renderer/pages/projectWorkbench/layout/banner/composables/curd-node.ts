@@ -10,10 +10,10 @@ import { findNodeById, findParentById, findSiblingById, flatTree, forEachForest 
 import { router } from '@/router/index'
 import { request } from '@/api/api'
 import { i18n } from '@/i18n'
-import { useApidocBanner } from '@/store/apidoc/bannerStore';
-import { useApidocTas } from '@/store/apidoc/tabsStore';
-import { useHttpNode } from '@/store/apidoc/httpNodeStore';
-import { useApidocBaseInfo } from '@/store/apidoc/baseInfoStore.ts';
+import { useApidocBanner } from '@/store/httpNode/httpBannerStore';
+import { useApidocTas } from '@/store/httpNode/httpTabsStore';
+import { useHttpNode } from '@/store/httpNode/httpNodeStore';
+import { useApidocBaseInfo } from '@/store/apidocProject/baseInfoStore.ts';
 import { apiNodesCache } from '@/cache/nodes/nodesCache';
 import { nanoid } from 'nanoid';
 import { useRuntime } from '@/store/runtime/runtimeStore';

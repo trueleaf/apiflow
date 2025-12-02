@@ -54,9 +54,9 @@ import SBodyView from './body/BodyView.vue'
 import SRawBodyView from './rawBody/RawBodyView.vue'
 import SRequestView from './request/RequestView.vue'
 import { useI18n } from 'vue-i18n'
-import { useApidocResponse } from '@/store/apidoc/responseStore'
-import { useApidocBaseInfo } from '@/store/apidoc/baseInfoStore'
-import { useHttpNode } from '@/store/apidoc/httpNodeStore'
+import { useApidocResponse } from '@/store/httpNode/responseStore'
+import { useApidocBaseInfo } from '@/store/apidocProject/baseInfoStore'
+import { useHttpNode } from '@/store/httpNode/httpNodeStore'
 import SLoading from '@/components/common/loading/ClLoading.vue'
 
 

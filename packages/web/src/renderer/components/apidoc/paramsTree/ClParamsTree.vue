@@ -324,8 +324,8 @@ import { useAiChatStore } from '@/store/ai/aiChatStore';
 import type { OpenAiRequestBody } from '@src/types/ai/agent.type';
 import { useRouter } from 'vue-router';
 import { appState } from '@/cache/appState/appStateCache';
-import { useVariable } from '@/store/apidoc/variablesStore';
-import { useApidocTas } from '@/store/apidoc/tabsStore';
+import { useVariable } from '@/store/apidocProject/variablesStore';
+import { useApidocTas } from '@/store/httpNode/httpTabsStore';
 import { isEqual } from 'lodash-es';
 /*
 |--------------------------------------------------------------------------

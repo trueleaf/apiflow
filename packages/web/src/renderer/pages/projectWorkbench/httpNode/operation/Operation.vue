@@ -96,12 +96,12 @@ import getHostPart from './composables/host'
 import { handleFormatUrl, handleChangeUrl } from './composables/url'
 import getMethodPart from './composables/method'
 import getOperationPart from './composables/operation'
-import { useApidocTas } from '@/store/apidoc/tabsStore'
-import { useHttpNode } from '@/store/apidoc/httpNodeStore'
-import { useApidocResponse } from '@/store/apidoc/responseStore'
-import { useApidocRequest } from '@/store/apidoc/requestStore'
+import { useApidocTas } from '@/store/httpNode/httpTabsStore'
+import { useHttpNode } from '@/store/httpNode/httpNodeStore'
+import { useApidocResponse } from '@/store/httpNode/responseStore'
+import { useApidocRequest } from '@/store/httpNode/requestStore'
 import { useHttpRedoUndo } from '@/store/redoUndo/httpRedoUndoStore'
-import { useVariable } from '@/store/apidoc/variablesStore'
+import { useVariable } from '@/store/apidocProject/variablesStore'
 
 const apidocTabsStore = useApidocTas()
 const variableStore = useVariable()

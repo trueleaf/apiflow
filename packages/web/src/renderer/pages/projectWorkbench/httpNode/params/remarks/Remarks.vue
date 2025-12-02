@@ -17,9 +17,9 @@
 <script lang="ts" setup>
 import { useI18n } from 'vue-i18n'
 import { computed, ref } from 'vue'
-import { useHttpNode } from '@/store/apidoc/httpNodeStore';
+import { useHttpNode } from '@/store/httpNode/httpNodeStore';
 import { useHttpRedoUndo } from '@/store/redoUndo/httpRedoUndoStore'
-import { useApidocTas } from '@/store/apidoc/tabsStore'
+import { useApidocTas } from '@/store/httpNode/httpTabsStore'
 import { router } from '@/router'
 import { cloneDeep } from 'lodash-es'
 import MarkdownEditor from '@/components/ui/cleanDesign/markdownEditor/MarkdownEditor.vue'

@@ -96,7 +96,7 @@ import { CircleHelp } from 'lucide-vue-next'
 import { useI18n } from 'vue-i18n'
 import { storeToRefs } from 'pinia'
 import { useHttpMock } from '@/store/httpMock/httpMockStore'
-import { useApidocTas } from '@/store/apidoc/tabsStore.ts'
+import { useApidocTas } from '@/store/httpNode/httpTabsStore.ts'
 import { router } from '@/router/index.ts'
 
 const { t } = useI18n()

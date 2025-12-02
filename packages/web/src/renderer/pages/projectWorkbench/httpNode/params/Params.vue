@@ -306,10 +306,10 @@ import SPreRequestParams from './preRequest/PreRequest.vue';
 import SAfterRequestParams from './afterRequest/AfterRequest.vue';
 import SRemark from './remarks/Remarks.vue';
 import SSettings from './settings/Settings.vue';
-import { useApidocBaseInfo } from '@/store/apidoc/baseInfoStore'
-import { useHttpNode } from '@/store/apidoc/httpNodeStore'
+import { useApidocBaseInfo } from '@/store/apidocProject/baseInfoStore'
+import { useHttpNode } from '@/store/httpNode/httpNodeStore'
 import { useRoute } from 'vue-router'
-import { useApidocTas } from '@/store/apidoc/tabsStore'
+import { useApidocTas } from '@/store/httpNode/httpTabsStore'
 import { useHttpRedoUndo } from '@/store/redoUndo/httpRedoUndoStore'
 import { ElMessageBox } from 'element-plus'
 import { httpNodeHistoryCache } from '@/cache/httpNode/httpNodeHistoryCache'

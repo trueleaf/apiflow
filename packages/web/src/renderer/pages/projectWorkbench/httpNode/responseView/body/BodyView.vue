@@ -310,8 +310,8 @@
 </template>
 
 <script lang="ts" setup>
-import { useApidocBaseInfo } from '@/store/apidoc/baseInfoStore';
-import { useApidocResponse } from '@/store/apidoc/responseStore';
+import { useApidocBaseInfo } from '@/store/apidocProject/baseInfoStore';
+import { useApidocResponse } from '@/store/httpNode/responseStore';
 import { computed, onMounted, onUnmounted, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n'
 import { downloadStringAsText } from '@/helper'
@@ -319,9 +319,9 @@ import { formatHeader, formatUnit } from '@/helper'
 import { config } from '@src/config/config'
 import SJsonEditor from '@/components/common/jsonEditor/ClJsonEditor.vue'
 import SSseView from '@/components/common/sseView/ClSseView.vue'
-import { useApidocTas } from '@/store/apidoc/tabsStore';
-import { useHttpNode } from '@/store/apidoc/httpNodeStore';
-import { useHttpNodeConfig } from '@/store/apidoc/httpNodeConfigStore';
+import { useApidocTas } from '@/store/httpNode/httpTabsStore';
+import { useHttpNode } from '@/store/httpNode/httpNodeStore';
+import { useHttpNodeConfig } from '@/store/httpNode/httpNodeConfigStore';
 import { ElDialog } from 'element-plus';
 import beautify, { html as htmlBeautify, css as cssBeautify } from 'js-beautify';
 import worker from '@/worker/prettier.worker.ts?worker&inline';

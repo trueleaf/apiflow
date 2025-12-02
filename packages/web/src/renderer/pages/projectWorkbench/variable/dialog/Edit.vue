@@ -93,7 +93,7 @@ import SJsonEditor from '@/components/common/jsonEditor/ClJsonEditor.vue'
 import { useRoute } from 'vue-router';
 import { nodeVariableCache } from '@/cache/variable/nodeVariableCache';
 import { useRuntime } from '@/store/runtime/runtimeStore';
-// import { useVariable } from '@/store/apidoc/variablesStore';
+// import { useVariable } from '@/store/apidocProject/variablesStore';
 
 
 

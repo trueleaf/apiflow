@@ -30,12 +30,12 @@
 </template>
 
 <script lang="ts" setup>
-import { useHttpNode } from '@/store/apidoc/httpNodeStore';
+import { useHttpNode } from '@/store/httpNode/httpNodeStore';
 import { computed, ref, watch } from 'vue'
 import SParamsTree from '@/components/apidoc/paramsTree/ClParamsTree.vue'
 import { useI18n } from 'vue-i18n'
 import { useHttpRedoUndo } from '@/store/redoUndo/httpRedoUndoStore'
-import { useApidocTas } from '@/store/apidoc/tabsStore'
+import { useApidocTas } from '@/store/httpNode/httpTabsStore'
 import { router } from '@/router'
 import { cloneDeep } from 'lodash-es'
 import type { ApidocProperty } from '@src/types'

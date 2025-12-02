@@ -24,14 +24,14 @@
 </template>
 
 <script lang="ts" setup>
-import { useApidocBaseInfo } from '@/store/apidoc/baseInfoStore';
-import { useApidocResponse } from '@/store/apidoc/responseStore';
+import { useApidocBaseInfo } from '@/store/apidocProject/baseInfoStore';
+import { useApidocResponse } from '@/store/httpNode/responseStore';
 import { computed, ref, watch, onMounted } from 'vue';
 import { downloadStringAsText } from '@/helper'
 import { formatUnit } from '@/helper'
 import { useI18n } from 'vue-i18n'
 import SJsonEditor from '@/components/common/jsonEditor/ClJsonEditor.vue'
-import { useHttpNodeConfig } from '@/store/apidoc/httpNodeConfigStore';
+import { useHttpNodeConfig } from '@/store/httpNode/httpNodeConfigStore';
 
 const apidocBaseInfoStore = useApidocBaseInfo();
 const apidocResponseStore = useApidocResponse();

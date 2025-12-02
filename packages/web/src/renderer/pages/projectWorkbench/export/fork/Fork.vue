@@ -107,8 +107,8 @@ import { request } from '@/api/api'
 import { findParentById, findSiblingById, forEachForest } from '@/helper'
 import { nanoid } from 'nanoid/non-secure'
 import { useI18n } from 'vue-i18n'
-import { useApidocBaseInfo } from '@/store/apidoc/baseInfoStore';
-import { useApidocBanner } from '@/store/apidoc/bannerStore';
+import { useApidocBaseInfo } from '@/store/apidocProject/baseInfoStore';
+import { useApidocBanner } from '@/store/httpNode/httpBannerStore';
 import SFieldset from '@/components/common/fieldset/ClFieldset.vue'
 import SLoading from '@/components/common/loading/ClLoading.vue'
 import SEmphasize from '@/components/common/emphasize/ClEmphasize.vue'

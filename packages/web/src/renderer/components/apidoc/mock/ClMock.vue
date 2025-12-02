@@ -117,7 +117,7 @@ import { faker } from '@faker-js/faker/locale/zh_CN'
 import { mockCategories, mockjsList, fakerList } from './mock-enum';
 import { computed, onMounted, ref, watch } from 'vue';
 import { Search } from '@element-plus/icons-vue';
-import { useVariable } from '@/store/apidoc/variablesStore';
+import { useVariable } from '@/store/apidocProject/variablesStore';
 
 const props = defineProps({
   searchValue: {

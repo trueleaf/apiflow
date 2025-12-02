@@ -4,7 +4,7 @@ import { debounce } from "lodash-es";
 import { defineStore } from "pinia";
 import { ref, toRaw, watch } from "vue";
 import { useHttpNode } from "./httpNodeStore.ts";
-import { useVariable } from "./variablesStore.ts";
+import { useVariable } from "../apidocProject/variablesStore.ts";
 
 export const useApidocRequest = defineStore('apidocRequest', () => {
   const url = ref('');

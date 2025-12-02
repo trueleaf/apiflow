@@ -85,10 +85,10 @@
 import { useI18n } from 'vue-i18n'
 import { computed, reactive } from 'vue'
 import beautify from 'js-beautify'
-import { useHttpNode } from '@/store/apidoc/httpNodeStore';
+import { useHttpNode } from '@/store/httpNode/httpNodeStore';
 import { ChevronDown, ChevronRight } from 'lucide-vue-next'
-import { useApidocBaseInfo } from '@/store/apidoc/baseInfoStore';
-import { useApidocResponse } from '@/store/apidoc/responseStore';
+import { useApidocBaseInfo } from '@/store/apidocProject/baseInfoStore';
+import { useApidocResponse } from '@/store/httpNode/responseStore';
 import { downloadStringAsText } from '@/helper'
 import { formatUnit } from '@/helper'
 import { storeToRefs } from 'pinia';

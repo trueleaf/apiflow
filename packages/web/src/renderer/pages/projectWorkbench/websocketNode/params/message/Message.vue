@@ -166,7 +166,7 @@
 import { ref, computed, watch, onUnmounted } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useI18n } from 'vue-i18n'
-import { useApidocTas } from '@/store/apidoc/tabsStore'
+import { useApidocTas } from '@/store/httpNode/httpTabsStore'
 import { useWebSocket } from '@/store/websocket/websocketStore'
 import {
   Plus,
@@ -183,7 +183,7 @@ import { nanoid } from 'nanoid/non-secure'
 import { websocketResponseCache } from '@/cache/websocketNode/websocketResponseCache'
 import { webSocketNodeCache } from '@/cache/websocketNode/websocketNodeCache'
 import { message, getCompiledTemplate } from '@/helper'
-import { useVariable } from '@/store/apidoc/variablesStore'
+import { useVariable } from '@/store/apidocProject/variablesStore'
 import { appState } from '@/cache/appState/appStateCache'
 
 const { t } = useI18n()

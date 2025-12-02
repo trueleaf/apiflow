@@ -50,8 +50,8 @@ import { generateEmptyProperty } from '@/helper';
 import SFieldset from '@/components/common/fieldset/ClFieldset.vue'
 import SLoading from '@/components/common/loading/ClLoading.vue'
 import SParamsTree from '@/components/apidoc/paramsTree/ClParamsTree.vue'
-import { useApidocTas } from '@/store/apidoc/tabsStore';
-import { useApidocBaseInfo } from '@/store/apidoc/baseInfoStore';
+import { useApidocTas } from '@/store/httpNode/httpTabsStore';
+import { useApidocBaseInfo } from '@/store/apidocProject/baseInfoStore';
 import { useRuntime } from '@/store/runtime/runtimeStore';
 import { Switch } from '@element-plus/icons-vue'
 

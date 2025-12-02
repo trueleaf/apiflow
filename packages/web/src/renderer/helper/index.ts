@@ -30,7 +30,7 @@ import type {
 } from '@src/types'
 import type { LLMProviderSettings } from '@src/types/ai/agent.type'
 import type { HttpNodeResponseData, UrlInfo } from '@src/types/helper'
-import { useVariable } from '@/store/apidoc/variablesStore'
+import { useVariable } from '@/store/apidocProject/variablesStore'
 import { config } from '@src/config/config'
 
 /*

@@ -26,7 +26,7 @@ type EditBannerPayload<T extends ApidocBanner, K extends keyof T> = {
   value: T[K],
 };
 
-export const useApidocBanner = defineStore('apidocBanner', () => {
+export const useApidocBanner = defineStore('httpBanner', () => {
   const runtimeStore = useRuntime();
   const isOffline = () => runtimeStore.networkMode === 'offline';
   const loading = ref(false);

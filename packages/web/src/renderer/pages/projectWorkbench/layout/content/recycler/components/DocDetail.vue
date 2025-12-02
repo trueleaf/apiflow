@@ -109,8 +109,8 @@ import SFieldset from '@/components/common/fieldset/ClFieldset.vue'
 import SParamsView from '@/components/apidoc/paramsView/ClParamsView.vue'
 import SJsonEditor from '@/components/common/jsonEditor/ClJsonEditor.vue'
 import { formatDate } from '@/helper'
-import { useApidocBaseInfo } from '@/store/apidoc/baseInfoStore';
-import { useApidocRequest } from '@/store/apidoc/requestStore';
+import { useApidocBaseInfo } from '@/store/apidocProject/baseInfoStore';
+import { useApidocRequest } from '@/store/httpNode/requestStore';
 import { apiNodesCache } from '@/cache/nodes/nodesCache';
 import { useRuntime } from '@/store/runtime/runtimeStore';
 

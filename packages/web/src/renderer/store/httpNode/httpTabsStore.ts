@@ -10,7 +10,7 @@ import { i18n } from '@/i18n';
 import { httpNodeCache } from "@/cache/httpNode/httpNodeCache.ts";
 import { projectWorkbenchCache } from "@/cache/projectWorkbench/projectWorkbenchCache.ts";
 import { request } from '@/api/api';
-import { useApidocBanner } from "./bannerStore";
+import { useApidocBanner } from "./httpBannerStore";
 import { logger } from '@/helper';
 
 
@@ -20,7 +20,7 @@ type EditTabPayload<K extends keyof ApidocTab> = {
   value: ApidocTab[K],
 };
 
-export const useApidocTas = defineStore('apidocTabs', () => {
+export const useApidocTas = defineStore('httpTabs', () => {
   const tabs = ref<Record<string, ApidocTab[]>>({});
   const { changeExpandItems } = useApidocBanner()
   

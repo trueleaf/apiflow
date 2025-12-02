@@ -1,5 +1,5 @@
 import { HttpNode } from '@src/types';
-import type { ApidocCookie } from '@src/renderer/store/apidoc/cookiesStore';
+import type { ApidocCookie } from '@src/renderer/store/httpNode/cookiesStore';
 import { logger } from '@/helper';
 import { cacheKey } from '../cacheKey';
 class HttpNodeCache {

@@ -73,12 +73,12 @@
 </template>
 
 <script lang="ts" setup>
-import { useApidocBaseInfo } from '@/store/apidoc/baseInfoStore';
-import { useApidocResponse } from '@/store/apidoc/responseStore';
+import { useApidocBaseInfo } from '@/store/apidocProject/baseInfoStore';
+import { useApidocResponse } from '@/store/httpNode/responseStore';
 import { computed, ref } from 'vue';
 import { useI18n } from 'vue-i18n'
 import { Maximize2 } from 'lucide-vue-next';
-import { useHttpNodeConfig } from '@/store/apidoc/httpNodeConfigStore';
+import { useHttpNodeConfig } from '@/store/httpNode/httpNodeConfigStore';
 
 const apidocResponseStore = useApidocResponse();
 const apidocBaseInfoStore = useApidocBaseInfo();

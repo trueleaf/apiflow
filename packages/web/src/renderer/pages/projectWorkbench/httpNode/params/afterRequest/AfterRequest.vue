@@ -14,9 +14,9 @@
 <script lang="ts" setup>
 import { computed, ref } from 'vue'
 import AfterEditor from './editor/AfterEditor.vue'
-import { useHttpNode } from '@/store/apidoc/httpNodeStore';
+import { useHttpNode } from '@/store/httpNode/httpNodeStore';
 import { useHttpRedoUndo } from '@/store/redoUndo/httpRedoUndoStore'
-import { useApidocTas } from '@/store/apidoc/tabsStore'
+import { useApidocTas } from '@/store/httpNode/httpTabsStore'
 import { router } from '@/router'
 import { cloneDeep } from 'lodash-es'
 import type * as Monaco from 'monaco-editor/esm/vs/editor/editor.api'

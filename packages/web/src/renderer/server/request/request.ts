@@ -1,15 +1,15 @@
-import { useHttpNode } from '@/store/apidoc/httpNodeStore';
+import { useHttpNode } from '@/store/httpNode/httpNodeStore';
 import { ref, toRaw } from 'vue';
 import json5 from 'json5'
 import { HttpNode, ApidocProperty } from '@src/types';
 import { getFormDataFromFormDataParams, getObjectPathParams, getStringFromParams } from '@/helper'
 import { getCompiledTemplate } from '@/helper';
-import { useVariable } from '@/store/apidoc/variablesStore';
+import { useVariable } from '@/store/apidocProject/variablesStore';
 import { GotRequestOptions, JsonData, RedirectOptions, ResponseInfo } from '@src/types/index.ts';
-import { useApidocBaseInfo } from '@/store/apidoc/baseInfoStore';
-import { useApidocTas } from '@/store/apidoc/tabsStore';
-import { useApidocResponse } from '@/store/apidoc/responseStore';
-import { useHttpNodeConfig } from '@/store/apidoc/httpNodeConfigStore';
+import { useApidocBaseInfo } from '@/store/apidocProject/baseInfoStore';
+import { useApidocTas } from '@/store/httpNode/httpTabsStore';
+import { useApidocResponse } from '@/store/httpNode/responseStore';
+import { useHttpNodeConfig } from '@/store/httpNode/httpNodeConfigStore';
 import { httpNodeCache } from '@/cache/httpNode/httpNodeCache';
 import { httpResponseCache } from '@/cache/httpNode/httpResponseCache';
 import { commonHeaderCache } from '@/cache/project/commonHeadersCache';
@@ -17,9 +17,9 @@ import { sendHistoryCache } from '@/cache/sendHistory/sendHistoryCache';
 import { config } from '@src/config/config';
 import { nanoid } from 'nanoid/non-secure';
 import { cloneDeep } from "lodash-es";
-import { useApidocRequest } from '@/store/apidoc/requestStore';
+import { useApidocRequest } from '@/store/httpNode/requestStore';
 import { i18n } from '@/i18n';
-import { useCookies } from '@/store/apidoc/cookiesStore';
+import { useCookies } from '@/store/httpNode/cookiesStore';
 import { InitDataMessage, OnEvalSuccess, ReceivedEvent } from '@/worker/preRequest/types/types.ts';
 import { Method } from 'got';
 import preRequestWorker from '@/worker/preRequest/preRequest.ts?worker&inline';

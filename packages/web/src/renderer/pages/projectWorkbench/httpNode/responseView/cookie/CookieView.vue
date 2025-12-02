@@ -130,12 +130,12 @@
 </template>
 
 <script lang="ts" setup>
-import { useApidocBaseInfo } from '@/store/apidoc/baseInfoStore';
-import { useApidocResponse } from '@/store/apidoc/responseStore';
+import { useApidocBaseInfo } from '@/store/apidocProject/baseInfoStore';
+import { useApidocResponse } from '@/store/httpNode/responseStore';
 import { computed, ref, } from 'vue';
 import { Cookie, Settings } from 'lucide-vue-next';
 import { parse } from 'set-cookie-parser';
-import { useApidocTas } from '@/store/apidoc/tabsStore'
+import { useApidocTas } from '@/store/httpNode/httpTabsStore'
 import { useI18n } from 'vue-i18n';
 import { useRoute } from 'vue-router'
 

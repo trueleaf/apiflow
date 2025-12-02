@@ -120,12 +120,12 @@ import { appState } from '@/cache/appState/appStateCache.ts'
 import SStatus from './children/Status.vue'
 import SMime from './children/Mime.vue'
 import SJsonEditor from '@/components/common/jsonEditor/ClJsonEditor.vue'
-import { useApidocBaseInfo } from '@/store/apidoc/baseInfoStore';
+import { useApidocBaseInfo } from '@/store/apidocProject/baseInfoStore';
 import { useHttpRedoUndo } from '@/store/redoUndo/httpRedoUndoStore'
-import { useApidocTas } from '@/store/apidoc/tabsStore'
+import { useApidocTas } from '@/store/httpNode/httpTabsStore'
 import { router } from '@/router'
 import { cloneDeep } from 'lodash-es'
-import { useHttpNode } from '@/store/apidoc/httpNodeStore';
+import { useHttpNode } from '@/store/httpNode/httpNodeStore';
 
 const httpNodeStore = useHttpNode();
 const apidocBaseInfoStore = useApidocBaseInfo()

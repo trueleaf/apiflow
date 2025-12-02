@@ -128,8 +128,8 @@ import { computed, ref, onMounted, onUnmounted, Ref, watch } from 'vue'
 import type { HttpNodeBodyMode, HttpNodeBodyParams, HttpNodeBodyRawType, HttpNodeContentType, ApidocProperty } from '@src/types'
 import { useI18n } from 'vue-i18n'
 import { appState } from '@/cache/appState/appStateCache'
-import { useVariable } from '@/store/apidoc/variablesStore';
-import { useHttpNode } from '@/store/apidoc/httpNodeStore';
+import { useVariable } from '@/store/apidocProject/variablesStore';
+import { useHttpNode } from '@/store/httpNode/httpNodeStore';
 import { config } from '@src/config/config';
 import SJsonEditor from '@/components/common/jsonEditor/ClJsonEditor.vue'
 import SParamsTree from '@/components/apidoc/paramsTree/ClParamsTree.vue'
@@ -140,7 +140,7 @@ import { GripVertical } from 'lucide-vue-next'
 import { getCompiledTemplate } from '@/helper';
 import mime from 'mime';
 import { useHttpRedoUndo } from '@/store/redoUndo/httpRedoUndoStore'
-import { useApidocTas } from '@/store/apidoc/tabsStore'
+import { useApidocTas } from '@/store/httpNode/httpTabsStore'
 import { router } from '@/router'
 import { cloneDeep } from 'lodash-es'
 import type * as Monaco from 'monaco-editor/esm/vs/editor/editor.api'

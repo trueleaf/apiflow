@@ -81,8 +81,8 @@
 import { computed } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useI18n } from 'vue-i18n'
-import { useApidocBaseInfo } from '@/store/apidoc/baseInfoStore';
-import { useHttpNode } from '@/store/apidoc/httpNodeStore';
+import { useApidocBaseInfo } from '@/store/apidocProject/baseInfoStore';
+import { useHttpNode } from '@/store/httpNode/httpNodeStore';
 
 const apidocBaseInfoStore = useApidocBaseInfo()
 const httpNodeStore = useHttpNode()

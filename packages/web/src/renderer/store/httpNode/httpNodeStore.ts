@@ -19,13 +19,13 @@ import { ref, watch } from "vue"
 import 'element-plus/es/components/message-box/style/css';
 import { ElMessageBox } from 'element-plus'
 import { router } from "@/router"
-import { useApidocTas } from "./tabsStore"
-import { useApidocBanner } from "./bannerStore"
+import { useApidocTas } from "./httpTabsStore"
+import { useApidocBanner } from "./httpBannerStore"
 import { DeepPartial } from "@src/types/index.ts"
 import { useCookies } from "./cookiesStore.ts"
 import { i18n } from "@/i18n"
 import { getUrl } from "@/server/request/request.ts"
-import { useVariable } from "./variablesStore.ts"
+import { useVariable } from "../apidocProject/variablesStore.ts"
 import { apiNodesCache } from "@/cache/nodes/nodesCache";
 import { useRuntime } from '../runtime/runtimeStore';
 import { httpNodeHistoryCache } from '@/cache/httpNode/httpNodeHistoryCache';
@@ -724,4 +724,3 @@ export const useHttpNode = defineStore('httpNode', () => {
     handleChangeBinaryInfo
   }
 })
-

@@ -34,13 +34,13 @@
 </template>
 
 <script lang="ts" setup>
-import { useHttpNode } from '@/store/apidoc/httpNodeStore';
-import { useApidocBaseInfo } from '@/store/apidoc/baseInfoStore';
+import { useHttpNode } from '@/store/httpNode/httpNodeStore';
+import { useApidocBaseInfo } from '@/store/apidocProject/baseInfoStore';
 import { useI18n } from 'vue-i18n'
 import { computed } from 'vue';
 import { formatDate } from '@/helper'
 import SLabelValue from '@/components/common/labelValue/ClLabelValue.vue'
-import { useApidocRequest } from '@/store/apidoc/requestStore';
+import { useApidocRequest } from '@/store/httpNode/requestStore';
 
 
 

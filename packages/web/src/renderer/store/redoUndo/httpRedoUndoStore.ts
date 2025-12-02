@@ -6,7 +6,7 @@ import type {
 import type { ApidocProperty, HttpNodeRequestMethod } from "@src/types";
 import type { HttpNode } from "@src/types/httpNode/httpNode";
 import type { HttpNodeBodyRawType } from "@src/types/httpNode/types";
-import { useHttpNode } from "@/store/apidoc/httpNodeStore";
+import { useHttpNode } from "@/store/httpNode/httpNodeStore";
 import { cloneDeep } from "lodash-es";
 import { httpRedoUndoCache } from "@/cache/redoUndo/httpRedoUndoCache";
 import { logger } from '@/helper';

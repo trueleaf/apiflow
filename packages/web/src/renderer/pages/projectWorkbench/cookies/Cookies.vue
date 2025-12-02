@@ -151,9 +151,9 @@
 <script setup lang="ts">
 import { ref, computed, nextTick, onMounted, onUnmounted } from 'vue';
 import { storeToRefs } from 'pinia';
-import { useCookies } from '@/store/apidoc/cookiesStore';
+import { useCookies } from '@/store/httpNode/cookiesStore';
 import { ElMessageBox } from 'element-plus';
-import type { ApidocCookie } from '@/store/apidoc/cookiesStore';
+import type { ApidocCookie } from '@/store/httpNode/cookiesStore';
 import { useI18n } from 'vue-i18n';
 import { message } from '@/helper';
 import { nanoid } from 'nanoid/non-secure';

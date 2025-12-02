@@ -18,7 +18,7 @@
 
 <script lang="ts" setup>
 import { computed, onMounted, ref } from 'vue';
-import { useApidocTas } from '@/store/apidoc/tabsStore';
+import { useApidocTas } from '@/store/httpNode/httpTabsStore';
 import { eventEmitter } from '@/helper';
 import { useRoute } from 'vue-router';
 import SApidoc from '../../httpNode/HttpNode.vue';

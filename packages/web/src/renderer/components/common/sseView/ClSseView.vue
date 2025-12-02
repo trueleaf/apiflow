@@ -97,7 +97,7 @@ import SsePopover from './components/popover/SsePopover.vue';
 import FilterConfigDialog from './components/filter/FilterConfigDialog.vue';
 import { Loading, Search, Download, Document } from '@element-plus/icons-vue';
 import { useI18n } from 'vue-i18n';
-import { useApidocTas } from '@/store/apidoc/tabsStore';
+import { useApidocTas } from '@/store/httpNode/httpTabsStore';
 import { router } from '@/router';
 import type { ClSseViewProps } from '@src/types/components/components';
 
