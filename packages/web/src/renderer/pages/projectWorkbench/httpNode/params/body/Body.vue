@@ -137,7 +137,7 @@ import SContextmenu from '@/components/common/contextmenu/ClContextmenu.vue'
 import SContextmenuItem from '@/components/common/contextmenu/ClContextmenuItem.vue'
 import { Close } from '@element-plus/icons-vue'
 import { GripVertical } from 'lucide-vue-next'
-import { getCompiledTemplate, message } from '@/helper';
+import { getCompiledTemplate } from '@/helper';
 import mime from 'mime';
 import { useHttpRedoUndo } from '@/store/redoUndo/httpRedoUndoStore'
 import { useApidocTas } from '@/store/apidoc/tabsStore'

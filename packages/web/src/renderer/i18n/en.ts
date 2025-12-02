@@ -1503,4 +1503,6 @@ export default {
   '拖拽调整Body类型的显示顺序': 'Drag to adjust the display order of Body types',
   'Body Mode 顺序已更新': 'Body Mode order updated',
   已恢复默认顺序: 'Default order restored',
+  标签页显示顺序: 'Tab Display Order',
+  拖拽调整标签页的显示顺序: 'Drag to adjust the display order of tabs',
 }

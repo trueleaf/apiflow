@@ -177,6 +177,16 @@ export type HttpNodeBodyMode =
   | 'binary'
   | 'none';
 
+export type HttpNodeTabName =
+  | 'SParams'
+  | 'SRequestBody'
+  | 'SRequestHeaders'
+  | 'SResponseParams'
+  | 'SPreRequest'
+  | 'SAfterRequest'
+  | 'SRemarks'
+  | 'SSettings';
+
 export type HttpNodeBodyRawType =
   | 'application/xml'
   | 'text/javascript'

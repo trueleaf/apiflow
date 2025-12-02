@@ -197,20 +197,57 @@
           </el-tooltip>
         </div>
       </div>
+      <div class="config-item">
+        <div class="config-meta">
+          <div class="meta-text">
+            <div class="meta-title">{{ t('标签页显示顺序') }}</div>
+            <div class="meta-hint">{{ t('拖拽调整标签页的显示顺序') }}</div>
+          </div>
+        </div>
+        <div class="config-control vertical">
+          <draggable
+            v-model="tabOrder"
+            class="tab-order-list"
+            item-key="tabName"
+            :animation="200"
+            ghost-class="ghost"
+            @end="handleTabOrderDragEnd"
+          >
+            <template #item="{ element: tabName, index }">
+              <div class="tab-order-item">
+                <GripVertical :size="16" class="drag-handle" />
+                <span class="tab-label">{{ getTabLabel(tabName) }}</span>
+                <span class="tab-order">{{ index + 1 }}</span>
+              </div>
+            </template>
+          </draggable>
+          <el-tooltip :content="t('恢复默认')" placement="top">
+            <el-button
+              link
+              size="small"
+              class="reset-btn"
+              @click="handleResetTabOrder"
+            >
+              {{ t('恢复') }}
+            </el-button>
+          </el-tooltip>
+        </div>
+      </div>
     </div>
   </div>
 </template>
 <script lang="ts" setup>
-import { computed, watch, onMounted, toRaw, ref } from 'vue'
+import { computed, watch, onMounted, onUnmounted, toRaw, ref } from 'vue'
 import { debounce } from 'lodash-es'
 import { storeToRefs } from 'pinia'
 import { useI18n } from 'vue-i18n'
 import { router } from '@/router'
 import { useHttpNodeConfig } from '@/store/apidoc/httpNodeConfigStore'
-import { generateDefaultHttpNodeConfig, message } from '@/helper'
+import { generateDefaultHttpNodeConfig } from '@/helper'
 import { GripVertical } from 'lucide-vue-next'
-import type { HttpNodeBodyMode } from '@src/types'
+import type { HttpNodeBodyMode, HttpNodeTabName } from '@src/types'
 import { bodyModeOrderCache } from '@/cache/httpNode/bodyModeOrderCache'
+import { tabOrderCache } from '@/cache/httpNode/tabOrderCache'
 import draggable from 'vuedraggable'
 const { t } = useI18n()
 const httpNodeConfigStore = useHttpNodeConfig()
@@ -267,6 +304,7 @@ onMounted(() => {
   if (projectId.value) {
     httpNodeConfigStore.initHttpNodeConfig(projectId.value)
   }
+  window.addEventListener('storage', handleStorageChange)
 })
 // Body Mode 顺序配置
 const bodyModeOrder = ref<HttpNodeBodyMode[]>(bodyModeOrderCache.getBodyModeOrder())
@@ -291,6 +329,40 @@ const handleResetBodyModeOrder = () => {
   bodyModeOrderCache.resetBodyModeOrder()
   bodyModeOrder.value = bodyModeOrderCache.getBodyModeOrder()
 }
+// Tab Order 标签页顺序配置
+const tabOrder = ref<HttpNodeTabName[]>(tabOrderCache.getTabOrder())
+// 获取标签页显示标签
+const getTabLabel = (tabName: HttpNodeTabName): string => {
+  const labels: Record<HttpNodeTabName, string> = {
+    SParams: 'Params',
+    SRequestBody: 'Body',
+    SRequestHeaders: t('请求头'),
+    SResponseParams: t('返回参数'),
+    SPreRequest: t('前置脚本'),
+    SAfterRequest: t('后置脚本'),
+    SRemarks: t('备注'),
+    SSettings: t('设置'),
+  }
+  return labels[tabName]
+}
+// 拖拽结束,保存新顺序
+const handleTabOrderDragEnd = () => {
+  tabOrderCache.setTabOrder(tabOrder.value)
+}
+// 重置为默认顺序
+const handleResetTabOrder = () => {
+  tabOrderCache.resetTabOrder()
+  tabOrder.value = tabOrderCache.getTabOrder()
+}
+// 监听storage变化,同步来自Params的顺序更改
+const handleStorageChange = (e: StorageEvent) => {
+  if (e.key === 'settings/httpNode/tabOrder') {
+    tabOrder.value = tabOrderCache.getTabOrder()
+  }
+}
+onUnmounted(() => {
+  window.removeEventListener('storage', handleStorageChange)
+})
 </script>
 <style lang="scss" scoped>
 .config-title {
@@ -419,6 +491,60 @@ const handleResetBodyModeOrder = () => {
   opacity: 0.5;
   background-color: var(--theme-color-light);
   border-color: var(--theme-color);
+}
+.tab-order-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 300px;
+  margin-bottom: 12px;
+}
+.tab-order-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 12px;
+  background-color: var(--gray-100);
+  border: 2px solid transparent;
+  border-radius: 6px;
+  cursor: move;
+  transition: all 0.2s;
+  user-select: none;
+  &:hover {
+    background-color: var(--gray-200);
+    .drag-handle {
+      opacity: 1;
+      color: var(--theme-color);
+    }
+  }
+  .drag-handle {
+    opacity: 0.3;
+    color: var(--gray-500);
+    cursor: grab;
+    transition: all 0.2s;
+    flex-shrink: 0;
+    &:active {
+      cursor: grabbing;
+    }
+  }
+  .tab-label {
+    flex: 1;
+    font-size: var(--font-size-sm);
+    color: var(--gray-800);
+    font-weight: 500;
+  }
+  .tab-order {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    background-color: var(--theme-color);
+    color: var(--white);
+    border-radius: 50%;
+    font-size: var(--font-size-xs);
+    font-weight: 600;
+  }
 }
 @media (max-width: 1360px) {
   .config-item {

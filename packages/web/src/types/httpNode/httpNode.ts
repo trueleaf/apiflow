@@ -7,13 +7,14 @@ import type { WebSocketNode } from "../websocketNode";
 import type { HttpMockNode } from "../mockNode";
 
 // 从其他 httpNode 子模块导入
-import type { 
+import type {
   ApidocBaseInfo,
   ApidocProperty,
   HttpNodeRequestMethod,
   HttpNodeBodyParams,
   HttpNodeResponseParams,
-  HttpNodeContentType
+  HttpNodeContentType,
+  HttpNodeBodyMode
 } from './types';
 
 /*

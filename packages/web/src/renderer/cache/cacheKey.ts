@@ -97,6 +97,7 @@ export const cacheKey = {
     },
     httpNode: {
       bodyModeOrder: 'settings/httpNode/bodyModeOrder',
+      tabOrder: 'settings/httpNode/tabOrder',
     },
   },
   appWorkbench: {

@@ -505,6 +505,7 @@ const handlePasteValueInput = async (event: ClipboardEvent, data: ApidocProperty
   }
   const text = clipboardData.getData('text').trim();
   // 检查是否超过阈值且是在 Electron 环境
+  console.log(text.length, config.httpNodeConfig.tempFileSizeThreshold);
   if (text.length > config.httpNodeConfig.tempFileSizeThreshold && window.electronAPI?.tempFileManager) {
     event.preventDefault();
     const result = await window.electronAPI.tempFileManager.create(text);
@@ -640,9 +641,11 @@ const handleChangeKey = (v: string, data: ApidocProperty<'string' | 'file'>) => 
 // 参数值修改
 const handleChangeValue = (v: string, data: ApidocProperty<'string' | 'file'>) => {
   data.value = v;
-  if (v.includes('@') && !isPasting.value) {
+  if (isPasting.value) {
+    currentOpData.value = null;
+  } else if (v.includes('@')) {
     currentOpData.value = data;
-  } else if (!v.includes('@')) {
+  } else {
     currentOpData.value = null;
   }
   emitChange();
