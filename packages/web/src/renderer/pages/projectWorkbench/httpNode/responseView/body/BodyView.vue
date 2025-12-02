@@ -10,8 +10,8 @@
       </div>
       <span class="">数据无法被缓存，切换tab或者刷新页面缓存值将会清空</span>
     </div>
-    <div v-if="redirectList.length > 0" class="mb-1 ml-5 redirect-control">
-      <div class="redirect-info">
+    <div v-if="redirectList.length > 0 || isRedirectStatusCode" class="mb-1 ml-5 redirect-control">
+      <div v-if="redirectList.length > 0" class="redirect-info">
         <span>{{ t('重定向') }}</span>
         <span class="orange px-1 text-underline cursor-pointer" @click="showRedirectDialog = true">{{ redirectList.length }}</span>
         <span>{{ t('次') }}</span>
@@ -344,6 +344,10 @@ const httpNodeConfigStore = useHttpNodeConfig();
 const loadingProcess = computed(() => apidocResponseStore.loadingProcess);
 const requestState = computed(() => apidocResponseStore.requestState);
 const redirectList = computed(() => apidocResponseStore.responseInfo.redirectList);
+const isRedirectStatusCode = computed(() => {
+  const statusCode = apidocResponseStore.responseInfo.statusCode;
+  return [301, 302, 303, 307, 308].includes(statusCode);
+});
 const videoRef = ref<HTMLVideoElement>();
 const { t } = useI18n()
 

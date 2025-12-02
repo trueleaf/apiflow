@@ -456,28 +456,10 @@ const handleFormatUrl = () => {
   const currentPath = connectionUrl.value;
   convertQueryToParams(currentPath);
   
-  // URL格式化处理
-  const ipReg = /^wss?:\/\/((\d|[1-9]\d|1\d{2}|2[0-5]{2})\.){3}(2[0-5]{2}|1\d{2}|[1-9]\d|\d)/;
-  const ipWithPortReg = /^wss?:\/\/((\d|[1-9]\d|1\d{2}|2[0-5]{2})\.){3}(2[0-5]{2}|1\d{2}|[1-9]\d|\d)(:\d{2,5})/;
-  const dominReg = /^(wss?:\/\/)?([^./]{1,62}\.){1,}[^./]{1,62}/;
-  const localhostReg = /^(wss?:\/\/)?(localhost)/;
-  const startsWithVarReg = /^\{\{(.*)\}\}/;
-  
-  const matchedIp = currentPath.match(ipReg);
-  const matchedIpWithPort = currentPath.match(ipWithPortReg);
-  const matchedDomin = currentPath.match(dominReg);
-  const matchedLocalhost = currentPath.match(localhostReg);
-  const isStartsWithVar = currentPath.match(startsWithVarReg);
-  
+  // 如果URL不为空且不以ws://或wss://开头，且不是以变量开头，则添加协议前缀
   let formatPath = currentPath;
-  if (!matchedIp && !matchedDomin && !matchedIpWithPort && !matchedLocalhost && !isStartsWithVar) {
-    // WebSocket路径处理
-    if (formatPath.trim() === '') {
-      formatPath = '';
-    } else if (!formatPath.startsWith('ws://') && !formatPath.startsWith('wss://')) {
-      // 如果没有协议前缀，添加当前选择的协议
-      formatPath = `${protocol.value}://${formatPath}`;
-    }
+  if (formatPath.trim() !== '' && !formatPath.startsWith('ws://') && !formatPath.startsWith('wss://') && !formatPath.startsWith('{{')) {
+    formatPath = `${protocol.value}://${formatPath}`;
   }
   
   // 移除查询参数部分（因为已经转换为params）

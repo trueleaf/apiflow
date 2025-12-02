@@ -9,6 +9,7 @@
           :rows="15"
           :placeholder="tipPlaceholder"
           class="multiline-textarea"
+          data-testid="params-tree-multiline-textarea"
           @input="handleMultilineTextChange"
         />
         <div class="textarea-actions">
@@ -16,6 +17,7 @@
             class="ai-parse-btn"
             :class="{ disabled: (isAiConfigValid && !multilineText.trim()) || aiParsing }"
             :title="isAiConfigValid ? t('AI智能解析') : t('点击配置AI')"
+            data-testid="params-tree-ai-parse-btn"
             @click="handleAiClick"
           >
             <MagicStick v-if="!aiParsing" />
@@ -25,6 +27,7 @@
           </el-icon>
           <el-button 
             size="small"
+            data-testid="params-tree-cancel-btn"
             @click="handleCancelMultiline"
           >
             {{ t('返回') }}
@@ -33,6 +36,7 @@
             type="primary" 
             size="small"
             :disabled="!multilineText.trim()"
+            data-testid="params-tree-apply-btn"
             @click="handleApplyMultiline"
           >
             {{ t('应用') }} ({{ parsedCount }}{{ t('条') }})
@@ -72,6 +76,7 @@
              :class="{ disabled: localData.length <= 1 || data._disableDelete || isLastEmptyItem(data) }" 
              :size="14" 
              :title="getDeleteTooltip(data)" 
+             data-testid="params-tree-delete-btn"
              @click="() => handleDeleteRow(data)"
            >
              <Close />
@@ -87,6 +92,7 @@
                :fetch-suggestions="querySearchKey" 
                :disabled="data._disableKey || props.disableKeyEdit" 
                :title="data._disableKeyTip || (props.disableKeyEdit ? t('Path参数名由URL自动解析，不可修改') : '')" 
+               data-testid="params-tree-key-autocomplete"
                @select="(item: any) => handleSelectKey(item, data)" 
                @update:modelValue="(v: string | number) => handleChangeKey(String(v), data)" 
                @focus="handleFocusKey()" 
@@ -107,6 +113,7 @@
                :placeholder="t('输入参数名称自动换行')" 
                :disabled="data._disableKey || props.disableKeyEdit" 
                :title="data._disableKeyTip || (props.disableKeyEdit ? t('Path参数名由URL自动解析，不可修改') : '')" 
+               data-testid="params-tree-key-input"
                @update:modelValue="v => handleChangeKey(v, data)" 
                @focus="handleDisableDrag()" 
                @blur="handleEnableDrag()" 
@@ -123,6 +130,7 @@
                :placeholder="t('类型')" 
                :size="config.renderConfig.layout.size" 
                :disabled="!props.enableFile"
+               data-testid="params-tree-type-select"
                @update:modelValue="v => handleChangeType(v as 'string' | 'file', data)"
                @keydown="handlePreventDefaultKeys"
              >
@@ -160,6 +168,7 @@
                    :expand-on-focus="true" 
                    :disabled="data._disableValue" 
                    disable-history 
+                   data-testid="params-tree-value-input"
                    @update:modelValue="v => handleChangeValue(v, data)" 
                    @focus="handleFocusValue(data)" 
                    @blur="handleBlurValueAndEnableDrag()" 
@@ -192,9 +201,9 @@
            >
              <div class="file-input-wrap">
                <div v-if="data.fileValueType !== 'file' && data.fileValueType !== 'var'" class="mode-list">
-                 <span class="var-mode" @click="() => data.fileValueType = 'var'">{{ t('变量模式') }}</span>
+                 <span class="var-mode" data-testid="params-tree-var-mode-btn" @click="() => data.fileValueType = 'var'">{{ t('变量模式') }}</span>
                  <span class="px-3"></span>
-                 <span class="file-mode" @click="() => data.fileValueType = 'file'">{{ t('文件模式') }}</span>
+                 <span class="file-mode" data-testid="params-tree-file-mode-btn" @click="() => data.fileValueType = 'file'">{{ t('文件模式') }}</span>
                </div>
                <el-input 
                  v-if="data.fileValueType === 'var'" 
@@ -202,15 +211,16 @@
                  :model-value="data.value" 
                  :placeholder="data._valuePlaceholder || (t('变量模式') + ' eg: ' + t('{0} fileValue {1}', ['{{', '}}']))" 
                  :disabled="data._disableValue" 
+                 data-testid="params-tree-file-var-input"
                  @update:modelValue="v => handleChangeValue(v, data)" 
                  @blur="handleBlurValue()" 
                  @paste="(event: ClipboardEvent) => handlePasteValueInput(event, data)"
                >
                </el-input>
                <div v-if="data.fileValueType === 'file'" class="file-mode-wrap">
-                 <label v-show="!data.value" class="label" :for="data._id">{{ t('选择文件') }}</label>
+                 <label v-show="!data.value" class="label" :for="data._id" data-testid="params-tree-file-select-label">{{ t('选择文件') }}</label>
                  <span class="text-wrap" :title="data.value">{{ data.value }}</span>
-                 <el-icon v-if="data.value" class="close" :size="16" @click="handleClearFileValue(data)">
+                 <el-icon v-if="data.value" class="close" :size="16" data-testid="params-tree-file-clear-btn" @click="handleClearFileValue(data)">
                    <close />
                  </el-icon>
                </div>
@@ -218,6 +228,7 @@
                  v-if="data.fileValueType === 'file' || data.fileValueType === 'var'" 
                  class="toggle-mode" 
                  :title="t('切换变量选择模式，支持变量或者直接选择文件')" 
+                 data-testid="params-tree-file-toggle-btn"
                  @click="handleToggleFileValueType(data)"
                >
                  <el-icon>
@@ -229,6 +240,7 @@
                  ref="fileInput" 
                  class="d-none" 
                  type="file" 
+                 data-testid="params-tree-file-input"
                  @change="e => handleSelectFile(e, data)"
                >
                </input>
@@ -241,6 +253,7 @@
              :model-value="data.required" 
              :label="t('必有')" 
              :disabled="data.disabled" 
+             data-testid="params-tree-required-checkbox"
              @update:modelValue="v => handleChangeRequired(v as unknown as boolean, data)"
            >
            </el-checkbox>
@@ -253,6 +266,7 @@
                :autosize="expandedInputs[data._id]?.description ? { minRows: 2, maxRows: 6 } : undefined" 
                :placeholder="t('参数描述与备注')" 
                :disabled="data._disableDescription" 
+               data-testid="params-tree-description-input"
                @focus="handleFocusDescription(data)" 
                @blur="handleEnableDrag()" 
                @update:modelValue="v => handleChangeDescription(v, data)" 

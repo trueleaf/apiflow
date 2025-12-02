@@ -99,16 +99,10 @@ export const handleFormatUrl = ():void => {
   // const matchedLocalhost = requestPath.value.match(localhostReg);
   // const hasVar = requestPath.value.match(hasVarReg);
   let formatPath = requestPath.value;
-  // if (!matchedIp && !matchedDomin && !matchedIpWithPort && !matchedIpv6 && !matchedLocalhost && !hasVar) {
-  //   // const pathReg = /\/(?!\/)[^#\\?:]+/; //查询路径正则
-  //   //路径处理
-  //   if (formatPath.trim() === '') {
-  //     formatPath = '';
-  //   } else if (!formatPath.startsWith('/')) {
-  //     formatPath = `/${formatPath}`;
-  //   }
-  // }
-  // console.log(2, formatPath)
+  // 如果URL不为空且不以http://或https://开头，且不是以变量开头，则添加http://前缀
+  if (formatPath.trim() !== '' && !formatPath.startsWith('http://') && !formatPath.startsWith('https://') && !formatPath.startsWith('{{')) {
+    formatPath = `http://${formatPath}`;
+  }
   const queryReg = /(\?.*$)/;
   formatPath = formatPath.replace(queryReg, '');
   requestPath.value = formatPath;
