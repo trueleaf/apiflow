@@ -84,9 +84,7 @@ const handleGoBack = () => {
     router.push('/')
   }
 }
-
 const handleGoForward = () => {
-  // 使用 Vue Router 的前进功能
   router.forward()
 }
 
@@ -354,8 +352,8 @@ onMounted(() => {
   initTheme();
   initAppTitle();
   initMockLogsListener();
-  sendContentReadySignal();
   initAppHeader();
+  sendContentReadySignal();
 
   shortcutManager.initAppShortcuts();
 })

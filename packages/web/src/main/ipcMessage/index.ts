@@ -33,11 +33,9 @@ export const useIpcEvent = (mainWindow: BrowserWindow, topBarView: WebContentsVi
   */
   let topBarReady = false;
   let contentViewReady = false;
-  let handshakeCompleted = false;
   // 尝试完成握手
   const tryCompleteHandshake = () => {
-    if (topBarReady && contentViewReady && !handshakeCompleted) {
-      handshakeCompleted = true;
+    if (topBarReady && contentViewReady) {
       contentView.webContents.send(IPC_EVENTS.apiflow.rendererToMain.topBarIsReady);
       topBarView.webContents.send(IPC_EVENTS.apiflow.rendererToMain.contentIsReady);
     }
