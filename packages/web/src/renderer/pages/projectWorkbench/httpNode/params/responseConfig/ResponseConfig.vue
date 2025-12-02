@@ -98,9 +98,9 @@
         <!-- 文本类型 -->
         <div v-else-if="checkDisplayType(item.value.dataType) === 'text'" class="editor-wrap"
           :class="{ vertical: layout === 'vertical' }">
-          <SRawEditor :model-value="item.value.text" :type="item.value.dataType" class="editor"
+          <SJsonEditor :model-value="item.value.text" :config="{ language: getLanguageFromMime(item.value.dataType) }" class="editor"
             @update:modelValue="handleChangeTextValeu($event, index)">
-          </SRawEditor>
+          </SJsonEditor>
         </div>
       </div>
     </div>
@@ -116,7 +116,6 @@ import type { HttpNodeResponseParams, HttpNodeResponseContentType, HttpNodeConte
 import { appState } from '@/cache/appState/appStateCache.ts'
 import SStatus from './children/Status.vue'
 import SMime from './children/Mime.vue'
-import SRawEditor from '@/components/apidoc/rawEditor/ClRawEditor.vue'
 import SJsonEditor from '@/components/common/jsonEditor/ClJsonEditor.vue'
 import { useApidocBaseInfo } from '@/store/apidoc/baseInfoStore';
 import { useHttpRedoUndo } from '@/store/redoUndo/httpRedoUndoStore'
@@ -184,6 +183,18 @@ const handleChangeTextValeu = (value: string, index: number) => {
     index,
     value,
   })
+}
+const getLanguageFromMime = (mimeType: string): string => {
+  const mimeToLanguage: Record<string, string> = {
+    'text/plain': 'plaintext',
+    'text/css': 'css',
+    'text/html': 'html',
+    'application/xml': 'xml',
+    'application/javascript': 'javascript',
+    'text/javascript': 'javascript',
+    'text/csv': 'plaintext',
+  };
+  return mimeToLanguage[mimeType] || 'plaintext';
 }
 /*
 |--------------------------------------------------------------------------

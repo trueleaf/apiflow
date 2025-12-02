@@ -252,8 +252,8 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import CleanTabs from '../src/CleanTabs'
-import CleanTabPane from '../src/CleanTabPane'
+import CleanTabs from '../src/CleanTabs.vue'
+import CleanTabPane from '../src/CleanTabPane.vue'
 
 // 响应式数据
 const activeTab1 = ref('first')

@@ -5,8 +5,8 @@ import path from 'path'
 import { viteElectronPlugin } from './build/vite';
 import dayjs from 'dayjs'
 import { resolve } from 'path';
-import AutoImport from 'unplugin-auto-import/vite'
-import Components from 'unplugin-vue-components/vite'
+import AutoImport from 'unplugin-auto-import/rolldown'
+import Components from 'unplugin-vue-components/rolldown'
 import { ElementPlusResolver } from 'unplugin-vue-components/resolvers'
 
 export default defineConfig(({ mode, command }) => {
@@ -54,10 +54,26 @@ export default defineConfig(({ mode, command }) => {
         `monaco-editor/esm/vs/language/css/css.worker`,
         `monaco-editor/esm/vs/language/html/html.worker`,
         `monaco-editor/esm/vs/language/typescript/ts.worker`,
-        `monaco-editor/esm/vs/editor/editor.worker`
+        `monaco-editor/esm/vs/editor/editor.worker`,
+        // 'element-plus',
+        // 'element-plus/es/locale/lang/zh-cn',
+        // 'lodash-es',
+        // 'axios',
+        // 'dayjs',
+        // 'nanoid/non-secure',
+        // 'vue-i18n',
+        // 'pinia',
+        // 'vue-router',
+        // 'mitt',
+        // 'idb',
+        // '@faker-js/faker/locale/zh_CN',
+        // 'mockjs',
+        // 'lucide-vue-next',
+        // '@element-plus/icons-vue',
       ],
     },
     build: {
+      minify: false,
       target: 'esnext',
       outDir: 'dist/renderer',
       emptyOutDir: true,

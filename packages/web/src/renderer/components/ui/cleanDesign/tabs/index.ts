@@ -1,5 +1,5 @@
-import CleanTabs from './src/CleanTabs'
-import CleanTabPane from './src/CleanTabPane'
+import CleanTabs from './src/CleanTabs.vue'
+import CleanTabPane from './src/CleanTabPane.vue'
 
 export { CleanTabs, CleanTabPane }
 export * from './types'

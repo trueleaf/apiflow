@@ -78,11 +78,11 @@
             <span>{{ t("返回格式") }}：</span>
             <span>{{ item.value.dataType }}</span>
           </div>
-          <SRawEditor v-if="item.value.dataType === 'application/json'" :data="item.value.strJson" readonly></SRawEditor>
+          <SJsonEditor v-if="item.value.dataType === 'application/json'" :model-value="item.value.strJson" read-only></SJsonEditor>
           <div
             v-if="item.value.dataType === 'application/xml' || item.value.dataType === 'text/plain' || item.value.dataType === 'text/html'"
             class="h-150px">
-            <SRawEditor :data="item.value.strJson" :type="item.value.dataType" readonly></SRawEditor>
+            <SJsonEditor :model-value="item.value.strJson" :config="{ language: getLanguageFromMime(item.value.dataType) }" read-only></SJsonEditor>
           </div>
         </div>
       </SFieldset>
@@ -107,7 +107,6 @@ import SLoading from '@/components/common/loading/ClLoading.vue'
 import SLableValue from '@/components/common/labelValue/ClLabelValue.vue'
 import SFieldset from '@/components/common/fieldset/ClFieldset.vue'
 import SParamsView from '@/components/apidoc/paramsView/ClParamsView.vue'
-import SRawEditor from '@/components/apidoc/rawEditor/ClRawEditor.vue'
 import SJsonEditor from '@/components/common/jsonEditor/ClJsonEditor.vue'
 import { formatDate } from '@/helper'
 import { useApidocBaseInfo } from '@/store/apidoc/baseInfoStore';
@@ -234,6 +233,17 @@ const validRequestMethods = computed(() => apidocBaseInfoStore.rules.requestMeth
 //关闭弹窗
 const handleClose = () => {
   emits('close');
+}
+const getLanguageFromMime = (mimeType: string): string => {
+  const mimeToLanguage: Record<string, string> = {
+    'text/plain': 'plaintext',
+    'text/css': 'css',
+    'text/html': 'html',
+    'application/xml': 'xml',
+    'application/javascript': 'javascript',
+    'text/javascript': 'javascript',
+  };
+  return mimeToLanguage[mimeType] || 'plaintext';
 }
 
 </script>

@@ -1,49 +1,60 @@
 import { ViteDevServer } from 'vite';
-import { spawn, ChildProcess, exec } from 'child_process';
-import esbuild from 'esbuild';
+import { spawn, ChildProcess } from 'child_process';
+import { rolldown } from 'rolldown';
+import { replacePlugin } from 'rolldown/plugins';
 import electron from 'electron';
 import path from 'path'
-import fs from 'fs'
 import chokidar from 'chokidar';
 import type { AddressInfo } from 'net';
 import { debounce } from 'lodash-es';
+import glob from 'fast-glob';
+import { builtinModules } from 'module';
 
 const processWithElectron: NodeJS.Process & {
   electronProcess?: ChildProcess
 } = process;
 
 let isKilling = false;
-const buildElectron = (mode: string, command: 'build' | 'serve') => {
-  esbuild.buildSync({
-    entryPoints: ['./src/main/**'],
-    bundle: true,
+const buildElectron = async (mode: string, command: 'build' | 'serve') => {
+  const entryPoints = await glob(['./src/main/**'], {
+    cwd: process.cwd(),
+    ignore: ['**/*.d.ts'],
+    absolute: true,
+    onlyFiles: true
+  });
+  const input = entryPoints.filter(f => /\.(ts|js|mjs|cjs)$/.test(f));
+  const bundle = await rolldown({
+    input,
     platform: 'node',
-    outdir: 'dist/main',
+    external: [
+      'electron',
+      ...builtinModules,
+      ...builtinModules.map(m => `node:${m}`)
+    ],
+    resolve: {
+      alias: {
+        '@src': path.resolve(process.cwd(), './src'),
+      }
+    },
+    plugins: [
+      replacePlugin({
+        __MODE__: JSON.stringify(mode),
+        __COMMAND__: JSON.stringify(command),
+      }),
+    ],
+  });
+
+  await bundle.write({
+    dir: 'dist/main',
     format: 'esm',
-    banner: {
-      js: [
-        'import { createRequire as __createRequire } from "module";',
-        'var require = __createRequire(import.meta.url);'
-      ].join('\n')
-    },
-    outExtension: {
-      '.js': '.mjs',
-    },
-    external: ['electron', 'ws', 'koa', '@koa/bodyparser', 'co-body', 'mime-types', 'sharp', 'got', '@paralleldrive/cuid2'],
-    define: {
-      __MODE__: JSON.stringify(mode),
-      __COMMAND__: JSON.stringify(command),
-    },
-    alias: {
-      '@src': path.resolve(process.cwd(), './src'),
-    }
+    entryFileNames: '[name].mjs',
   });
 }
 const startElectronProcess = (server: ViteDevServer,) => {
   const addressInfo = server.httpServer?.address() as AddressInfo;
   const httpAddress = `http://${addressInfo?.address}:${addressInfo?.port}`;
   processWithElectron.electronProcess?.removeAllListeners()
-  processWithElectron.electronProcess = spawn(electron.toString(), ['.', httpAddress], {
+  processWithElectron.electronProcess = spawn(electron.toString(), ['./main.mjs', httpAddress], {
     cwd: path.resolve(process.cwd(), './dist/main'),
     stdio: 'inherit',
   });
@@ -57,9 +68,9 @@ const startElectronProcess = (server: ViteDevServer,) => {
   isKilling = false;
 }
 export const viteElectronPlugin = (mode: string, command: 'build' | 'serve') => {
-  const debounceReloadMain = debounce((server: ViteDevServer) => {
+  const debounceReloadMain = debounce(async (server: ViteDevServer) => {
     if (processWithElectron.electronProcess?.pid && !isKilling) {
-      buildElectron(mode, command)
+      await buildElectron(mode, command)
       console.log('重启主进程中...')
       isKilling = true;
       process.kill(processWithElectron.electronProcess.pid);
@@ -74,8 +85,8 @@ export const viteElectronPlugin = (mode: string, command: 'build' | 'serve') => 
         processWithElectron.electronProcess.removeAllListeners()
         processWithElectron.electronProcess = undefined;
       }
-      server.httpServer?.once('listening', () => {
-        buildElectron(mode, command)
+      server.httpServer?.once('listening', async () => {
+        await buildElectron(mode, command)
         startElectronProcess(server);
         const watcher = chokidar.watch(
           path.resolve(process.cwd(), './src/main'),
@@ -87,9 +98,9 @@ export const viteElectronPlugin = (mode: string, command: 'build' | 'serve') => 
         watcher.on('change', debounceReloadMain)
       });
     },
-    closeBundle() {
+    async closeBundle() {
       if (command === 'build') {
-        buildElectron(mode, command);
+        await buildElectron(mode, command);
       }
     }
   };
