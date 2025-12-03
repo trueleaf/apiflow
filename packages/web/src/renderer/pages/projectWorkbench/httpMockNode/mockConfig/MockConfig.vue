@@ -12,10 +12,10 @@
     
     <!-- 操作按钮（固定在底部） -->
     <div class="action-buttons">
-      <el-button type="primary" :loading="httpMockNodeStore.saveLoading" @click="handleSave">
+      <el-button type="primary" :loading="httpMockNodeStore.httpMockNodeSaveLoading" @click="handleSave">
         {{ t('保存配置') }}
       </el-button>
-      <el-button type="default" :icon="Refresh" :loading="httpMockNodeStore.refreshLoading" @click="handleRefresh">
+      <el-button type="default" :icon="Refresh" :loading="httpMockNodeStore.httpMockNodeRefreshLoading" @click="handleRefresh">
         {{ t('刷新') }}
       </el-button>
     </div>
@@ -49,7 +49,7 @@ const handleRefresh = async () => {
   if (!currentSelectNav.value) {
     return
   }
-  httpMockNodeStore.changeRefreshLoading(true)
+  httpMockNodeStore.changeHttpMockNodeRefreshLoading(true)
   try {
     const isOffline = runtimeStore.networkMode === 'offline'
     if (isOffline) {
@@ -62,7 +62,7 @@ const handleRefresh = async () => {
     console.error('刷新HttpMock数据失败:', error)
   } finally {
     setTimeout(() => {
-      httpMockNodeStore.changeRefreshLoading(false)
+      httpMockNodeStore.changeHttpMockNodeRefreshLoading(false)
     }, 100)
   }
 }

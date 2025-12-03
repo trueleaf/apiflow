@@ -131,18 +131,41 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           CSC_IDENTITY_AUTO_DISCOVERY: false
 
-      - name: 重命名安装程序
+      - name: 查找并重命名安装程序
         run: |
-          $assetName = "${{ steps.setup.outputs.asset_name }}"
-          Get-ChildItem -Path "dist" -Filter "*.exe" | ForEach-Object {
-            Rename-Item $_.FullName -NewName $assetName
+          Write-Host "当前目录: $(Get-Location)"
+          Write-Host "目录结构:"
+          Get-ChildItem -Recurse -Depth 3 | Format-Table Name, FullName
+          
+          # 查找所有的.exe文件
+          $exeFiles = Get-ChildItem -Recurse -Filter "*.exe" | Where-Object { $_.FullName -notlike "*node_modules*" }
+          
+          if ($exeFiles.Count -eq 0) {
+            Write-Host "未找到.exe文件，搜索更深的目录..."
+            $exeFiles = Get-ChildItem -Recurse -Filter "*.exe" | Where-Object { $_.FullName -notlike "*node_modules*" }
+          }
+          
+          Write-Host "找到的.exe文件:"
+          $exeFiles | Format-Table Name, Directory
+          
+          if ($exeFiles.Count -gt 0) {
+            $firstExe = $exeFiles[0]
+            $newName = "${{ steps.setup.outputs.asset_name }}"
+            $newPath = Join-Path -Path $firstExe.DirectoryName -ChildPath $newName
+            Write-Host "重命名: $($firstExe.FullName) -> $newPath"
+            Rename-Item -Path $firstExe.FullName -NewName $newName
+          } else {
+            Write-Host "错误: 未找到任何.exe文件"
+            exit 1
           }
 
       - name: 上传 Windows 构建产物
         uses: actions/upload-artifact@v4
         with:
           name: ${{ steps.setup.outputs.artifact_name }}
-          path: dist/*.exe
+          path: |
+            **/*.exe
+            !node_modules/**/*
           retention-days: 7
 
   # Linux 构建
@@ -188,22 +211,48 @@ jobs:
           CSC_IDENTITY_AUTO_DISCOVERY: false
           npm_config_target_platform: linux
 
+      - name: 查找构建文件
+        run: |
+          echo "查找构建文件..."
+          find . -name "*.AppImage" -type f | head -20
+          echo "当前目录内容:"
+          ls -la
+          echo "dist目录内容:"
+          ls -la dist/ 2>/dev/null || echo "dist目录不存在"
+          echo "release目录内容:"
+          ls -la release/ 2>/dev/null || echo "release目录不存在"
+
       - name: 重命名 AppImage 文件
         run: |
-          cd dist
-          for file in *.AppImage; do
-            if [ -f "$file" ]; then
-              new_name="${{ steps.setup.outputs.asset_name }}"
-              mv "$file" "$new_name"
-              break
+          # 查找AppImage文件
+          APPIMAGE_FILE=$(find . -name "*.AppImage" -type f | grep -v node_modules | head -1)
+          
+          if [ -n "$APPIMAGE_FILE" ]; then
+            echo "找到AppImage文件: $APPIMAGE_FILE"
+            NEW_NAME="${{ steps.setup.outputs.asset_name }}"
+            echo "重命名为: $NEW_NAME"
+            mv "$APPIMAGE_FILE" "$NEW_NAME"
+            echo "重命名完成"
+          else
+            echo "错误: 未找到AppImage文件"
+            # 尝试在dist目录查找
+            if [ -d "dist" ]; then
+              echo "在dist目录中查找..."
+              find dist -name "*.AppImage" -type f
             fi
-          done
+            exit 1
+          fi
 
       - name: 上传 Linux 构建产物
         uses: actions/upload-artifact@v4
         with:
           name: ${{ steps.setup.outputs.artifact_name }}
-          path: dist/*.AppImage
+          path: |
+            *.AppImage
+            dist/*.AppImage
+            release/*.AppImage
+            **/*.AppImage
+            !node_modules/**/*
           retention-days: 7
 
   # macOS 构建
@@ -249,22 +298,48 @@ jobs:
           CSC_IDENTITY_AUTO_DISCOVERY: false
           npm_config_target_platform: darwin
 
+      - name: 查找构建文件
+        run: |
+          echo "查找构建文件..."
+          find . -name "*.dmg" -type f | head -20
+          echo "当前目录内容:"
+          ls -la
+          echo "dist目录内容:"
+          ls -la dist/ 2>/dev/null || echo "dist目录不存在"
+          echo "release目录内容:"
+          ls -la release/ 2>/dev/null || echo "release目录不存在"
+
       - name: 重命名 DMG 文件
         run: |
-          cd dist
-          for file in *.dmg; do
-            if [ -f "$file" ]; then
-              new_name="${{ steps.setup.outputs.asset_name }}"
-              mv "$file" "$new_name"
-              break
+          # 查找dmg文件
+          DMG_FILE=$(find . -name "*.dmg" -type f | grep -v node_modules | head -1)
+          
+          if [ -n "$DMG_FILE" ]; then
+            echo "找到DMG文件: $DMG_FILE"
+            NEW_NAME="${{ steps.setup.outputs.asset_name }}"
+            echo "重命名为: $NEW_NAME"
+            mv "$DMG_FILE" "$NEW_NAME"
+            echo "重命名完成"
+          else
+            echo "错误: 未找到DMG文件"
+            # 尝试在dist目录查找
+            if [ -d "dist" ]; then
+              echo "在dist目录中查找..."
+              find dist -name "*.dmg" -type f
             fi
-          done
+            exit 1
+          fi
 
       - name: 上传 macOS 构建产物
         uses: actions/upload-artifact@v4
         with:
           name: ${{ steps.setup.outputs.artifact_name }}
-          path: dist/*.dmg
+          path: |
+            *.dmg
+            dist/*.dmg
+            release/*.dmg
+            **/*.dmg
+            !node_modules/**/*
           retention-days: 7
 
   # 创建 GitHub Release
@@ -277,21 +352,50 @@ jobs:
       - name: 下载所有构建产物
         run: |
           mkdir -p release_assets
+          echo "准备下载构建产物..."
           
           # Windows
           if [ "${{ needs.build-windows.result }}" = "success" ]; then
             echo "下载 Windows 构建产物..."
+            artifact_name="${{ needs.build-windows.outputs.artifact_name }}"
+            echo "下载: $artifact_name"
+          else
+            echo "Windows 构建失败，跳过"
           fi
           
           # Linux
           if [ "${{ needs.build-linux.result }}" = "success" ]; then
             echo "下载 Linux 构建产物..."
+            artifact_name="${{ needs.build-linux.outputs.artifact_name }}"
+            echo "下载: $artifact_name"
+          else
+            echo "Linux 构建失败，跳过"
           fi
           
           # macOS
           if [ "${{ needs.build-macos.result }}" = "success" ]; then
             echo "下载 macOS 构建产物..."
+            artifact_name="${{ needs.build-macos.outputs.artifact_name }}"
+            echo "下载: $artifact_name"
+          else
+            echo "macOS 构建失败，跳过"
           fi
+          
+          echo "当前目录内容:"
+          ls -la
+          echo "release_assets目录内容:"
+          ls -la release_assets/
+
+      - name: 上传单个文件到Release（测试用）
+        if: needs.test-web.outputs.is_pre_release == 'true'
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./README.md  # 临时用README测试
+          asset_name: test-file.txt
+          asset_content_type: text/plain
 
       - name: 创建或更新 GitHub Release
         id: create_release
@@ -319,7 +423,12 @@ jobs:
             
           prerelease: ${{ needs.test-web.outputs.is_pre_release == 'true' }}
           draft: false
-          files: release_assets/*
+          files: |
+            *.exe
+            *.AppImage
+            *.dmg
+            release_assets/*
+          fail_on_unmatched_files: false
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 

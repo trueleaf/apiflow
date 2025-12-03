@@ -22,8 +22,8 @@ export const useHttpMockNode = defineStore('httpMockNode', () => {
   const isOffline = () => runtimeStore.networkMode === 'offline';
   const httpMock = ref<HttpMockNode>(generateEmptyHttpMockNode(nanoid()));
   const originHttpMock = ref<HttpMockNode>(generateEmptyHttpMockNode(nanoid()));
-  const saveLoading = ref(false);
-  const refreshLoading = ref(false);
+  const httpMockNodeSaveLoading = ref(false);
+  const httpMockNodeRefreshLoading = ref(false);
   const cancel: Canceler[] = []; // 请求取消函数数组
 
   const projectNavStore = useProjectNav();
@@ -63,8 +63,8 @@ export const useHttpMockNode = defineStore('httpMockNode', () => {
     originHttpMock.value = cloneDeep(httpMock.value);
   };
   // 改变httpMock刷新状态
-  const changeRefreshLoading = (state: boolean): void => {
-    refreshLoading.value = state;
+  const changeHttpMockNodeRefreshLoading = (state: boolean): void => {
+    httpMockNodeRefreshLoading.value = state;
   };
 
   /*
@@ -167,7 +167,7 @@ export const useHttpMockNode = defineStore('httpMockNode', () => {
       });
     }
     return new Promise((resolve, reject) => {
-      refreshLoading.value = true;
+      httpMockNodeRefreshLoading.value = true;
       const params = {
         projectId: payload.projectId,
         _id: payload.id,
@@ -205,7 +205,7 @@ export const useHttpMockNode = defineStore('httpMockNode', () => {
         console.error(err);
         reject(err);
       }).finally(() => {
-        refreshLoading.value = false;
+        httpMockNodeRefreshLoading.value = false;
       });
     });
   };
@@ -224,7 +224,7 @@ export const useHttpMockNode = defineStore('httpMockNode', () => {
       logger.warn('缺少nav信息');
       return;
     }
-    saveLoading.value = true;
+    httpMockNodeSaveLoading.value = true;
     if (isOffline()) {
       const httpMockDetail = cloneDeep(httpMock.value);
       httpMockDetail.updatedAt = new Date().toISOString();
@@ -266,9 +266,9 @@ export const useHttpMockNode = defineStore('httpMockNode', () => {
         logger.warn('更新主进程Mock配置时发生错误', { error });
       }
       
-      // 添加0.1秒的saveLoading效果
+      // 添加0.1秒的httpMockNodeSaveLoading效果
       setTimeout(() => {
-        saveLoading.value = false;
+        httpMockNodeSaveLoading.value = false;
       }, 100);
     } else {
       // 在线模式保存
@@ -322,7 +322,7 @@ export const useHttpMockNode = defineStore('httpMockNode', () => {
         });
         console.error(err);
       }).finally(() => {
-        saveLoading.value = false;
+        httpMockNodeSaveLoading.value = false;
       });
     }
   };
@@ -352,15 +352,15 @@ export const useHttpMockNode = defineStore('httpMockNode', () => {
     // 基础状态
     httpMock,
     originHttpMock,
-    saveLoading,
-    refreshLoading,
+    httpMockNodeSaveLoading,
+    httpMockNodeRefreshLoading,
     // 缓存操作方法
     cacheHttpMockNode,
     getCachedHttpMockNodeById,
     // 基础状态变更方法
     replaceHttpMockNode,
     replaceOriginHttpMockNode,
-    changeRefreshLoading,
+    changeHttpMockNodeRefreshLoading,
     // 基础信息操作方法
     changeHttpMockName,
     // 请求条件操作方法
