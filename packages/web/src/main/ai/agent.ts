@@ -19,7 +19,7 @@ export class LLMClient {
     const { apiKey, baseURL } = this.config;
     const requestBody = { ...body, stream: false };
     const response = await got.post<OpenAiResponseBody>(
-      `${baseURL}/chat/completions`,
+      baseURL,
       {
         headers: {
           'Authorization': `Bearer ${apiKey}`,
@@ -37,7 +37,7 @@ export class LLMClient {
     const requestBody = { ...body, stream: true };
     const abortController = new AbortController();
     try {
-      const stream = got.stream.post(`${baseURL}/chat/completions`, {
+      const stream = got.stream.post(baseURL, {
         headers: {
           'Authorization': `Bearer ${apiKey}`,
           'Content-Type': 'application/json'

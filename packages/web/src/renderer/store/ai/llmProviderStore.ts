@@ -19,7 +19,7 @@ export const useLLMProvider = defineStore('llmProvider', () => {
   const changeProviderType = (providerType: LLMProviderType) => {
     activeProvider.value.provider = providerType;
     if (providerType === 'DeepSeek') {
-      activeProvider.value.baseURL = 'https://api.deepseek.com';
+      activeProvider.value.baseURL = 'https://api.deepseek.com/chat/completions';
       activeProvider.value.model = 'deepseek-chat';
       activeProvider.value.customHeaders = [];
     } else {

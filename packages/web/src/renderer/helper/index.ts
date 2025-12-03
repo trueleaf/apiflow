@@ -131,7 +131,7 @@ export const generateDeepSeekProvider = (): LLMProviderSettings => ({
   name: 'Default Provider',
   provider: 'DeepSeek',
   apiKey: '',
-  baseURL: 'https://api.deepseek.com',
+  baseURL: 'https://api.deepseek.com/chat/completions',
   model: 'deepseek-chat',
   customHeaders: [],
 })

@@ -153,7 +153,7 @@ const autoSave = useDebounceFn(() => {
   llmProviderStore.updateConfig({
     provider: providerType.value,
     apiKey: localApiKey.value,
-    baseURL: providerType.value === 'DeepSeek' ? 'https://api.deepseek.com' : localBaseURL.value,
+    baseURL: providerType.value === 'DeepSeek' ? 'https://api.deepseek.com/chat/completions' : localBaseURL.value,
     model: localModel.value,
     customHeaders: validHeaders,
   })
