@@ -160,10 +160,10 @@ import { requestMethods } from '@/data/data';
 import SContextmenu from '@/components/common/contextmenu/ClContextmenu.vue'
 import SContextmenuItem from '@/components/common/contextmenu/ClContextmenuItem.vue'
 import { useBanner } from '@/store/projectWorkbench/bannerStore';
-import { useApidocRequest } from '@/store/httpNode/requestStore';
-import { useApidocResponse } from '@/store/httpNode/responseStore';
-import { useHttpMock } from '@/store/httpMock/httpMockStore';
-import { useWebSocketMock } from '@/store/websocketMock/websocketMockStore';
+import { useHttpNodeRequest } from '@/store/httpNode/httpNodeRequestStore';
+import { useHttpNodeResponse } from '@/store/httpNode/httpNodeResponseStore';
+import { useHttpMockNode } from '@/store/httpMockNode/httpMockNodeStore';
+import { useWebSocketMockNode } from '@/store/websocketMockNode/websocketMockNodeStore';
 import { ElMessage } from 'element-plus';
 import SAddFileDialog from '../../dialog/addFile/AddFile.vue';
 import type { ApidocBanner } from '@src/types';
@@ -197,8 +197,8 @@ const tabs = computed({
 })
 const ipAddress = computed(() => window.electronAPI?.ip)
 const currentSelectedTab = computed(() => tabs.value?.find(tab => tab.selected))
-const httpMockStore = useHttpMock()
-const websocketMockStore = useWebSocketMock()
+const httpMockNodeStore = useHttpMockNode()
+const websocketMockNodeStore = useWebSocketMockNode()
 const isMockServerRunning = ref(false)
 const isWsMockServerRunning = ref(false)
 const addFileDialogVisible = ref(false)
@@ -238,10 +238,10 @@ const handleContextmenu = async (e: MouseEvent, item: ApidocTab) => {
   contextmenuTop.value = e.clientY;
   showContextmenu.value = true;
   if (item.tabType === 'httpMock') {
-    isMockServerRunning.value = await httpMockStore.checkMockNodeEnabledStatus(item._id);
+    isMockServerRunning.value = await httpMockNodeStore.checkMockNodeEnabledStatus(item._id);
   }
   if (item.tabType === 'websocketMock') {
-    isWsMockServerRunning.value = await websocketMockStore.checkMockNodeEnabledStatus(item._id);
+    isWsMockServerRunning.value = await websocketMockNodeStore.checkMockNodeEnabledStatus(item._id);
   }
 }
 // 启动Mock服务器
@@ -251,21 +251,21 @@ const handleStartMockServer = async () => {
     // 优先从store获取当前数据，其次从缓存获取
     let mockData = null;
     
-    if (currentOperationNode.value._id === httpMockStore.httpMock._id) {
+    if (currentOperationNode.value._id === httpMockNodeStore.httpMock._id) {
       // 如果是当前打开的Mock节点，直接使用store中的数据
-      mockData = httpMockStore.httpMock;
+      mockData = httpMockNodeStore.httpMock;
     } else {
       // 否则从缓存中获取
-      mockData = httpMockStore.getCachedHttpMockNodeById(currentOperationNode.value._id);
+      mockData = httpMockNodeStore.getCachedHttpMockNodeById(currentOperationNode.value._id);
     }
     
     // 如果缓存中也没有，尝试获取最新数据
     if (!mockData) {
-      await httpMockStore.getHttpMockNodeDetail({
+      await httpMockNodeStore.getHttpMockNodeDetail({
         id: currentOperationNode.value._id,
         projectId: router.currentRoute.value.query.id as string,
       });
-      mockData = httpMockStore.httpMock;
+      mockData = httpMockNodeStore.httpMock;
     }
     
     if (!mockData) {
@@ -311,17 +311,17 @@ const handleStartWsMockServer = async () => {
   if (!currentOperationNode.value) return;
   try {
     let mockData = null;
-    if (currentOperationNode.value._id === websocketMockStore.websocketMock._id) {
-      mockData = websocketMockStore.websocketMock;
+    if (currentOperationNode.value._id === websocketMockNodeStore.websocketMock._id) {
+      mockData = websocketMockNodeStore.websocketMock;
     } else {
-      mockData = websocketMockStore.getCachedWebSocketMockNodeById(currentOperationNode.value._id);
+      mockData = websocketMockNodeStore.getCachedWebSocketMockNodeById(currentOperationNode.value._id);
     }
     if (!mockData) {
-      await websocketMockStore.getWebSocketMockNodeDetail({
+      await websocketMockNodeStore.getWebSocketMockNodeDetail({
         id: currentOperationNode.value._id,
         projectId: router.currentRoute.value.query.id as string,
       });
-      mockData = websocketMockStore.websocketMock;
+      mockData = websocketMockNodeStore.websocketMock;
     }
     if (!mockData) {
       ElMessage.error(t('获取Mock配置失败'));
@@ -370,8 +370,8 @@ const handleCloseCurrentTab = (tab?: ApidocTab) => {
   const tabId: string = tab ? tab._id : currentOperationNodeId;
   
   // 如果要关闭的是当前选中的tab，且有正在进行的请求，则取消请求
-  const { cancelRequest } = useApidocRequest();
-  const { changeRequestState, requestState } = useApidocResponse();
+  const { cancelRequest } = useHttpNodeRequest();
+  const { changeRequestState, requestState } = useHttpNodeResponse();
   const isClosingSelectedTab = tab ? tab.selected : currentSelectedTab.value?._id === tabId;
   
   if (isClosingSelectedTab && (requestState === 'sending' || requestState === 'response')) {
@@ -399,8 +399,8 @@ const handleCloseOtherTab = () => {
   })
   
   // 如果要关闭的标签中包含当前选中的标签，且有正在进行的请求，则取消请求
-  const { cancelRequest } = useApidocRequest();
-  const { changeRequestState, requestState } = useApidocResponse();
+  const { cancelRequest } = useHttpNodeRequest();
+  const { changeRequestState, requestState } = useHttpNodeResponse();
   const isClosingSelectedTab = delTabs.includes(currentSelectedTab.value?._id || '');
   
   if (isClosingSelectedTab && (requestState === 'sending' || requestState === 'response')) {
@@ -427,8 +427,8 @@ const handleCloseLeftTab = () => {
   }
   
   // 如果要关闭的标签中包含当前选中的标签，且有正在进行的请求，则取消请求
-  const { cancelRequest } = useApidocRequest();
-  const { changeRequestState, requestState } = useApidocResponse();
+  const { cancelRequest } = useHttpNodeRequest();
+  const { changeRequestState, requestState } = useHttpNodeResponse();
   const isClosingSelectedTab = delTabs.includes(currentSelectedTab.value?._id || '');
   
   if (isClosingSelectedTab && (requestState === 'sending' || requestState === 'response')) {
@@ -452,8 +452,8 @@ const handleCloseRightTab = () => {
   }
   
   // 如果要关闭的标签中包含当前选中的标签，且有正在进行的请求，则取消请求
-  const { cancelRequest } = useApidocRequest();
-  const { changeRequestState, requestState } = useApidocResponse();
+  const { cancelRequest } = useHttpNodeRequest();
+  const { changeRequestState, requestState } = useHttpNodeResponse();
   const isClosingSelectedTab = delTabs.includes(currentSelectedTab.value?._id || '');
   
   if (isClosingSelectedTab && (requestState === 'sending' || requestState === 'response')) {
@@ -469,8 +469,8 @@ const handleCloseRightTab = () => {
 //关闭全部
 const handleCloseAllTab = () => {
   // 关闭全部标签时，如果有正在进行的请求，则取消请求
-  const { cancelRequest } = useApidocRequest();
-  const { changeRequestState, requestState } = useApidocResponse();
+  const { cancelRequest } = useHttpNodeRequest();
+  const { changeRequestState, requestState } = useHttpNodeResponse();
   
   if (requestState === 'sending' || requestState === 'response') {
     cancelRequest();
@@ -486,8 +486,8 @@ const handleCloseAllTab = () => {
 //不保存关闭全部
 const handleForceCloseAllTab = () => {
   // 强制关闭全部标签时，如果有正在进行的请求，则取消请求
-  const { cancelRequest } = useApidocRequest();
-  const { changeRequestState, requestState } = useApidocResponse();
+  const { cancelRequest } = useHttpNodeRequest();
+  const { changeRequestState, requestState } = useHttpNodeResponse();
   
   if (requestState === 'sending' || requestState === 'response') {
     cancelRequest();
@@ -500,8 +500,8 @@ const handleForceCloseAllTab = () => {
 //选中当前tab
 const selectCurrentTab = (element: ApidocTab) => {
   // 切换tab时取消当前正在发送的请求
-  const { cancelRequest } = useApidocRequest();
-  const { changeRequestState, requestState } = useApidocResponse();
+  const { cancelRequest } = useHttpNodeRequest();
+  const { changeRequestState, requestState } = useHttpNodeResponse();
   
   // 如果有正在进行的请求，则取消它
   if (requestState === 'sending' || requestState === 'response') {

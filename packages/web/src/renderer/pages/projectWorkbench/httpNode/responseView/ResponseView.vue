@@ -54,7 +54,7 @@ import SBodyView from './body/BodyView.vue'
 import SRawBodyView from './rawBody/RawBodyView.vue'
 import SRequestView from './request/RequestView.vue'
 import { useI18n } from 'vue-i18n'
-import { useApidocResponse } from '@/store/httpNode/responseStore'
+import { useHttpNodeResponse } from '@/store/httpNode/httpNodeResponseStore'
 import { useProjectWorkbench } from '@/store/projectWorkbench/projectWorkbenchStore'
 import { useHttpNode } from '@/store/httpNode/httpNodeStore'
 import SLoading from '@/components/common/loading/ClLoading.vue'
@@ -63,25 +63,25 @@ import SLoading from '@/components/common/loading/ClLoading.vue'
 const { t } = useI18n()
 
 const activeName = ref('SBodyView');
-const apidocResponseStore = useApidocResponse();
+const httpNodeResponseStore = useHttpNodeResponse();
 const projectWorkbenchStore = useProjectWorkbench();
 const httpNodeStore = useHttpNode();
-const cookies = computed(() => apidocResponseStore.responseInfo.headers['set-cookie']);
-const responseInfo = computed(() => apidocResponseStore.responseInfo);
+const cookies = computed(() => httpNodeResponseStore.responseInfo.headers['set-cookie']);
+const responseInfo = computed(() => httpNodeResponseStore.responseInfo);
 
 const headers = computed(() => {
   const result: { key: string, value: string }[] = [];
-  Object.keys(apidocResponseStore.responseInfo.headers).forEach(key => {
+  Object.keys(httpNodeResponseStore.responseInfo.headers).forEach(key => {
     result.push({
       key,
-      value: apidocResponseStore.responseInfo.headers[key] as string,
+      value: httpNodeResponseStore.responseInfo.headers[key] as string,
     });
   })
   return result
 })
 
 const layout = computed(() => projectWorkbenchStore.layout);
-const requestState = computed(() => apidocResponseStore.requestState); //请求状态
+const requestState = computed(() => httpNodeResponseStore.requestState); //请求状态
 const responseBodyLoading = computed(() => httpNodeStore.responseBodyLoading); //返回体加载状态
 
 </script>

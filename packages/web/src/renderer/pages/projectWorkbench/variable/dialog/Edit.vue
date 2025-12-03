@@ -93,10 +93,6 @@ import SJsonEditor from '@/components/common/jsonEditor/ClJsonEditor.vue'
 import { useRoute } from 'vue-router';
 import { nodeVariableCache } from '@/cache/variable/nodeVariableCache';
 import { useRuntime } from '@/store/runtime/runtimeStore';
-// import { useVariable } from '@/store/appWorkbench/variablesStore';
-
-
-
 import { message } from '@/helper'
 const props = defineProps({
   modelValue: {

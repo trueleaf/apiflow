@@ -19,7 +19,6 @@ export const useSendHistory = defineStore('sendHistory', () => {
   sendHistoryCache.setOnAddCallback(() => {
     refresh();
   });
-
   // 加载发送历史列表
   const loadSendHistory = async (): Promise<void> => {
     try {
@@ -38,7 +37,6 @@ export const useSendHistory = defineStore('sendHistory', () => {
       loading.value = false;
     }
   };
-
   // 加载更多（滚动加载）
   const loadMore = async (): Promise<void> => {
     if (loading.value || !hasMore.value) {
@@ -66,7 +64,6 @@ export const useSendHistory = defineStore('sendHistory', () => {
       loading.value = false;
     }
   };
-
   // 刷新列表
   const refresh = async (): Promise<void> => {
     if (searchKeyword.value) {
@@ -75,7 +72,6 @@ export const useSendHistory = defineStore('sendHistory', () => {
       await loadSendHistory();
     }
   };
-
   // 搜索历史
   const search = async (keyword: string): Promise<void> => {
     try {
@@ -96,7 +92,6 @@ export const useSendHistory = defineStore('sendHistory', () => {
       loading.value = false;
     }
   };
-
   // 清空列表
   const clearSendHistoryList = (): void => {
     sendHistoryList.value = [];

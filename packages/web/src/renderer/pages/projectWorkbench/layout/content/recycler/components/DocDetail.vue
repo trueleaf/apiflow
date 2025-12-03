@@ -15,7 +15,7 @@
           <div>{{ apidocInfo?.info.name }}</div>
         </SLableValue>
         <SLableValue v-if="apidocInfo?.info?.type !== 'folder'" label="请求地址：" class="w-50 mt-2">
-          <span class="text-ellipsis">{{ apidocRequestStore.fullUrl }}</span>
+          <span class="text-ellipsis">{{ httpNodeRequestStore.fullUrl }}</span>
         </SLableValue>
         <SLableValue v-if="apidocInfo?.info?.type === 'folder'" label="目录名称：" class="w-50">
           <div>{{ apidocInfo?.info.name }}</div>
@@ -110,7 +110,7 @@ import SParamsView from '@/components/apidoc/paramsView/ClParamsView.vue'
 import SJsonEditor from '@/components/common/jsonEditor/ClJsonEditor.vue'
 import { formatDate } from '@/helper'
 import { requestMethods as validRequestMethods } from '@/data/data'
-import { useApidocRequest } from '@/store/httpNode/requestStore';
+import { useHttpNodeRequest } from '@/store/httpNode/httpNodeRequestStore';
 import { apiNodesCache } from '@/cache/nodes/nodesCache';
 import { useRuntime } from '@/store/runtime/runtimeStore';
 
@@ -122,7 +122,7 @@ const props = defineProps({
   },
 });
 
-const apidocRequestStore = useApidocRequest()
+const httpNodeRequestStore = useHttpNodeRequest()
 const runtimeStore = useRuntime()
 /*
 |--------------------------------------------------------------------------

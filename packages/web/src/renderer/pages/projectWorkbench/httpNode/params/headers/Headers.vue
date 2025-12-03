@@ -145,7 +145,7 @@ watch(paramsTreeRef, (instance) => {
 })
 
 const hideDefaultHeader = ref(true);
-const headerData = computed(() => httpNodeStore.apidoc.item.headers)
+const headerData = computed(() => httpNodeStore.httpNodeInfo.item.headers)
 const defaultHeaders = computed(() => httpNodeStore.defaultHeaders);
 const commonHeaders = ref<(Pick<ApidocProperty, "_id" | 'key' | 'value' | 'description' | 'select' & { path?: string[] }>)[]>([]);
 
@@ -156,8 +156,8 @@ const handleDefaultHeadersChange = (newData: ApidocProperty<'string' | 'file'>[]
 
 // 处理 Headers 变化
 const handleHeadersChange = (newData: ApidocProperty<'string' | 'file'>[]) => {
-  const oldValue = cloneDeep(httpNodeStore.apidoc.item.headers);
-  httpNodeStore.apidoc.item.headers = newData as ApidocProperty<'string'>[];
+  const oldValue = cloneDeep(httpNodeStore.httpNodeInfo.item.headers);
+  httpNodeStore.httpNodeInfo.item.headers = newData as ApidocProperty<'string'>[];
 
   recordHeadersOperation(oldValue, newData as ApidocProperty<'string'>[]);
 };
@@ -232,16 +232,6 @@ const handleJumpToCommonHeaderConfigPage = ({ nodeId, name }: { nodeId?: string,
 }
 
 // 公共请求头在单独接口里面可能会取消勾选，所以需要监听，最终发送请求时候以validCommonHeaders为准
-// watch(commonHeaders, () => {
-//   if (currentSelectNav.value?.tabType !== 'http') {
-//     return
-//   }
-//   const validCOmmonHeaders = commonHeaders.value.filter(header => header.select);
-//   apidocBaseInfoStore.changeValidCommonHeaders(validCOmmonHeaders)
-// }, {
-//   deep: true,
-//   immediate: true
-// })
 </script>
 
 <style lang='scss' scoped>

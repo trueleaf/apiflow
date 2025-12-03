@@ -89,7 +89,7 @@ import { generateEmptyProperty } from '@/helper';
 import { cloneDeep } from "lodash-es";
 import { useI18n } from 'vue-i18n'
 import SParamsTree from '@/components/apidoc/paramsTree/ClParamsTree.vue'
-import { useWebSocket } from '@/store/websocket/websocketStore';
+import { useWebSocket } from '@/store/websocketNode/websocketNodeStore';
 import { useWsRedoUndo } from '@/store/redoUndo/wsRedoUndoStore';
 import { useProjectNav } from '@/store/projectWorkbench/projectNavStore';
 import { useCommonHeader } from '@/store/projectWorkbench/commonHeaderStore';

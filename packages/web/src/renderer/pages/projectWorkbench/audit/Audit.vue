@@ -186,7 +186,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, Ref, computed, watch, onMounted } from 'vue'
+import { ref, Ref, watch, onMounted } from 'vue'
 import dayjs from 'dayjs'
 import isToday from 'dayjs/plugin/isToday'
 import isYesterday from 'dayjs/plugin/isYesterday'

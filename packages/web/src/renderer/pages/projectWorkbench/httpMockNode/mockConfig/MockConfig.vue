@@ -12,10 +12,10 @@
     
     <!-- 操作按钮（固定在底部） -->
     <div class="action-buttons">
-      <el-button type="primary" :loading="httpMockStore.saveLoading" @click="handleSave">
+      <el-button type="primary" :loading="httpMockNodeStore.saveLoading" @click="handleSave">
         {{ t('保存配置') }}
       </el-button>
-      <el-button type="default" :icon="Refresh" :loading="httpMockStore.refreshLoading" @click="handleRefresh">
+      <el-button type="default" :icon="Refresh" :loading="httpMockNodeStore.refreshLoading" @click="handleRefresh">
         {{ t('刷新') }}
       </el-button>
     </div>
@@ -29,19 +29,19 @@ import Condition from './mockCondition/MockCondition.vue'
 import Response from './mockResponse/MockResponse.vue'
 import { useI18n } from 'vue-i18n'
 import { storeToRefs } from 'pinia'
-import { useHttpMock } from '@/store/httpMock/httpMockStore'
+import { useHttpMockNode } from '@/store/httpMockNode/httpMockNodeStore'
 import { useProjectNav } from '@/store/projectWorkbench/projectNavStore'
 import { useRuntime } from '@/store/runtime/runtimeStore'
 
 const { t } = useI18n()
-const httpMockStore = useHttpMock()
+const httpMockNodeStore = useHttpMockNode()
 const projectNavStore = useProjectNav()
 const runtimeStore = useRuntime()
 const { currentSelectNav } = storeToRefs(projectNavStore)
 
 // 保存HttpMock
 const handleSave = () => {
-  httpMockStore.saveHttpMockNode()
+  httpMockNodeStore.saveHttpMockNode()
 }
 
 // 刷新HttpMock
@@ -49,12 +49,12 @@ const handleRefresh = async () => {
   if (!currentSelectNav.value) {
     return
   }
-  httpMockStore.changeRefreshLoading(true)
+  httpMockNodeStore.changeRefreshLoading(true)
   try {
     const isOffline = runtimeStore.networkMode === 'offline'
     if (isOffline) {
-      httpMockStore.replaceHttpMockNode(httpMockStore.originHttpMock)
-      httpMockStore.cacheHttpMockNode()
+      httpMockNodeStore.replaceHttpMockNode(httpMockNodeStore.originHttpMock)
+      httpMockNodeStore.cacheHttpMockNode()
     } else {
       // todo
     }
@@ -62,7 +62,7 @@ const handleRefresh = async () => {
     console.error('刷新HttpMock数据失败:', error)
   } finally {
     setTimeout(() => {
-      httpMockStore.changeRefreshLoading(false)
+      httpMockNodeStore.changeRefreshLoading(false)
     }, 100)
   }
 }

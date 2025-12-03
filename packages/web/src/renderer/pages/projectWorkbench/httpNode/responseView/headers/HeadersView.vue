@@ -74,20 +74,20 @@
 
 <script lang="ts" setup>
 import { useProjectWorkbench } from '@/store/projectWorkbench/projectWorkbenchStore';
-import { useApidocResponse } from '@/store/httpNode/responseStore';
+import { useHttpNodeResponse } from '@/store/httpNode/httpNodeResponseStore';
 import { computed, ref } from 'vue';
 import { useI18n } from 'vue-i18n'
 import { Maximize2 } from 'lucide-vue-next';
 import { useHttpNodeConfig } from '@/store/httpNode/httpNodeConfigStore';
 
-const apidocResponseStore = useApidocResponse();
+const httpNodeResponseStore = useHttpNodeResponse();
 const projectWorkbenchStore = useProjectWorkbench();
 const httpNodeConfigStore = useHttpNodeConfig();
 const headers = computed(() => {
   const result: { key: string, value: string }[] = [];
-  Object.keys(apidocResponseStore.responseInfo.headers).forEach(key => {
+  Object.keys(httpNodeResponseStore.responseInfo.headers).forEach(key => {
     if (key === 'set-cookie') {
-      apidocResponseStore.responseInfo.headers['set-cookie']?.forEach(item => {
+      httpNodeResponseStore.responseInfo.headers['set-cookie']?.forEach(item => {
         result.push({
           key,
           value: item,
@@ -96,7 +96,7 @@ const headers = computed(() => {
     } else {
       result.push({
         key,
-        value: apidocResponseStore.responseInfo.headers[key] as string,
+        value: httpNodeResponseStore.responseInfo.headers[key] as string,
       });
     }
   })
@@ -112,7 +112,7 @@ function isExpandable(row: { key: string, value: string }) {
   if (layout.value === 'vertical') {
     return false;
   }
-  return row.value.length > httpNodeConfigStore.currentConfig.maxHeaderValueDisplayLength;
+  return row.value.length > httpNodeConfigStore.currentHttpNodeConfig.maxHeaderValueDisplayLength;
 }
 function isCollapsed(row: { key: string, value: string }) {
   return isExpandable(row) && !expandedRows.value[row.key];

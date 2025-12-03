@@ -6,7 +6,7 @@
 </template>
 
 <script lang="ts" setup>
-import { useWebSocket } from '@/store/websocket/websocketStore'
+import { useWebSocket } from '@/store/websocketNode/websocketNodeStore'
 import { useWsRedoUndo } from '@/store/redoUndo/wsRedoUndoStore'
 import { useProjectNav } from '@/store/projectWorkbench/projectNavStore'
 import { storeToRefs } from 'pinia'

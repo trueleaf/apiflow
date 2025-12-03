@@ -18,7 +18,7 @@ import MockConfig from './mockConfig/MockConfig.vue'
 import MockLog from './mockLog/MockLog.vue'
 import { useI18n } from 'vue-i18n'
 import { storeToRefs } from 'pinia'
-import { useHttpMock } from '@/store/httpMock/httpMockStore'
+import { useHttpMockNode } from '@/store/httpMockNode/httpMockNodeStore'
 import { useProjectNav } from '@/store/projectWorkbench/projectNavStore'
 import { debounce } from "lodash-es"
 import type { HttpMockNode, MockNodeActiveTabType } from '@src/types/mockNode'
@@ -28,10 +28,10 @@ import { appState } from '@/cache/appState/appStateCache'
 
 const { t } = useI18n()
 const activeTab = ref<MockNodeActiveTabType>('config')
-const httpMockStore = useHttpMock()
+const httpMockNodeStore = useHttpMockNode()
 const projectNavStore = useProjectNav()
 const { currentSelectNav } = storeToRefs(projectNavStore)
-const { httpMock, originHttpMock } = storeToRefs(httpMockStore)
+const { httpMock, originHttpMock } = storeToRefs(httpMockNodeStore)
 const debounceHttpMockDataChange = ref<null | DebouncedFunc<(mock: HttpMockNode) => void>>(null)
 
 /*
@@ -45,17 +45,17 @@ const getHttpMockInfo = () => {
     return
   }
   if (currentSelectNav.value.saved) { // 取最新值
-    httpMockStore.getHttpMockNodeDetail({
+    httpMockNodeStore.getHttpMockNodeDetail({
       id: currentSelectNav.value._id,
       projectId: router.currentRoute.value.query.id as string,
     })
   } else { // 取缓存值
-    const cachedHttpMock = httpMockStore.getCachedHttpMockNodeById(currentSelectNav.value._id)
+    const cachedHttpMock = httpMockNodeStore.getCachedHttpMockNodeById(currentSelectNav.value._id)
     if (cachedHttpMock) {
-      httpMockStore.replaceHttpMockNode(cachedHttpMock)
+      httpMockNodeStore.replaceHttpMockNode(cachedHttpMock)
     } else {
       // 如果缓存中也没有，尝试获取最新数据
-      httpMockStore.getHttpMockNodeDetail({
+      httpMockNodeStore.getHttpMockNodeDetail({
         id: currentSelectNav.value._id,
         projectId: router.currentRoute.value.query.id as string,
       })
@@ -64,7 +64,7 @@ const getHttpMockInfo = () => {
 }
 // 处理HttpMock数据变化
 const handleHttpMockDataChange = (mock: HttpMockNode) => {
-  const isEqual = httpMockStore.checkHttpMockNodeIsEqual(mock, originHttpMock.value)
+  const isEqual = httpMockNodeStore.checkHttpMockNodeIsEqual(mock, originHttpMock.value)
   if (!isEqual) {
     projectNavStore.changeNavInfoById({
       id: currentSelectNav.value?._id || "",
@@ -84,7 +84,7 @@ const handleHttpMockDataChange = (mock: HttpMockNode) => {
     })
   }
   // 缓存HttpMock数据
-  httpMockStore.cacheHttpMockNode()
+  httpMockNodeStore.cacheHttpMockNode()
 }
 // 初始化防抖数据变化处理
 const initDebouncDataChange = () => {

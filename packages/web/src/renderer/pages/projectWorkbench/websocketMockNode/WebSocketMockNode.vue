@@ -18,7 +18,7 @@ import MockConfig from './mockConfig/MockConfig.vue'
 import MockLog from './mockLog/MockLog.vue'
 import { useI18n } from 'vue-i18n'
 import { storeToRefs } from 'pinia'
-import { useWebSocketMock } from '@/store/websocketMock/websocketMockStore'
+import { useWebSocketMockNode } from '@/store/websocketMockNode/websocketMockNodeStore'
 import { useProjectNav } from '@/store/projectWorkbench/projectNavStore'
 import { debounce } from "lodash-es"
 import type { WebSocketMockNode, MockNodeActiveTabType } from '@src/types/mockNode'
@@ -28,10 +28,10 @@ import { appState } from '@/cache/appState/appStateCache'
 
 const { t } = useI18n()
 const activeTab = ref<MockNodeActiveTabType>('config')
-const websocketMockStore = useWebSocketMock()
+const websocketMockNodeStore = useWebSocketMockNode()
 const projectNavStore = useProjectNav()
 const { currentSelectNav } = storeToRefs(projectNavStore)
-const { websocketMock, originWebSocketMock } = storeToRefs(websocketMockStore)
+const { websocketMock, originWebSocketMock } = storeToRefs(websocketMockNodeStore)
 const debounceWebSocketMockDataChange = ref<null | DebouncedFunc<(mock: WebSocketMockNode) => void>>(null)
 
 // 获取 WebSocketMock 数据
@@ -40,16 +40,16 @@ const getWebSocketMockInfo = () => {
     return
   }
   if (currentSelectNav.value.saved) {
-    websocketMockStore.getWebSocketMockNodeDetail({
+    websocketMockNodeStore.getWebSocketMockNodeDetail({
       id: currentSelectNav.value._id,
       projectId: router.currentRoute.value.query.id as string,
     })
   } else {
-    const cachedWebSocketMock = websocketMockStore.getCachedWebSocketMockNodeById(currentSelectNav.value._id)
+    const cachedWebSocketMock = websocketMockNodeStore.getCachedWebSocketMockNodeById(currentSelectNav.value._id)
     if (cachedWebSocketMock) {
-      websocketMockStore.replaceWebSocketMockNode(cachedWebSocketMock)
+      websocketMockNodeStore.replaceWebSocketMockNode(cachedWebSocketMock)
     } else {
-      websocketMockStore.getWebSocketMockNodeDetail({
+      websocketMockNodeStore.getWebSocketMockNodeDetail({
         id: currentSelectNav.value._id,
         projectId: router.currentRoute.value.query.id as string,
       })
@@ -58,7 +58,7 @@ const getWebSocketMockInfo = () => {
 }
 // 处理 WebSocketMock 数据变化
 const handleWebSocketMockDataChange = (mock: WebSocketMockNode) => {
-  const isEqual = websocketMockStore.checkWebSocketMockNodeIsEqual(mock, originWebSocketMock.value)
+  const isEqual = websocketMockNodeStore.checkWebSocketMockNodeIsEqual(mock, originWebSocketMock.value)
   if (!isEqual) {
     projectNavStore.changeNavInfoById({
       id: currentSelectNav.value?._id || "",
@@ -77,7 +77,7 @@ const handleWebSocketMockDataChange = (mock: WebSocketMockNode) => {
       value: true,
     })
   }
-  websocketMockStore.cacheWebSocketMockNode()
+  websocketMockNodeStore.cacheWebSocketMockNode()
 }
 // 初始化防抖数据变化处理
 const initDebouncDataChange = () => {

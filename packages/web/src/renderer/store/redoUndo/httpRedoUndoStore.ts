@@ -101,23 +101,23 @@ export const useHttpRedoUndo = defineStore('httpRedoUndo', () => {
 
     switch (operation.type) {
       case 'methodOperation':
-        httpNodeStore.changeApidocMethod(targetValue as HttpNodeRequestMethod);
+        httpNodeStore.changeHttpNodeMethod(targetValue as HttpNodeRequestMethod);
         break;
 
       case 'prefixOperation':
-        httpNodeStore.changeApidocPrefix(targetValue as string);
+        httpNodeStore.changeHttpNodePrefix(targetValue as string);
         break;
 
       case 'pathOperation':
-        httpNodeStore.changeApidocUrl(targetValue as string);
+        httpNodeStore.changeHttpNodeUrl(targetValue as string);
         break;
 
       case 'headersOperation':
-        httpNodeStore.apidoc.item.headers = cloneDeep(targetValue as ApidocProperty<'string'>[]);
+        httpNodeStore.httpNodeInfo.item.headers = cloneDeep(targetValue as ApidocProperty<'string'>[]);
         break;
 
       case 'queryParamsOperation':
-        httpNodeStore.apidoc.item.queryParams = cloneDeep(targetValue as ApidocProperty<'string'>[]);
+        httpNodeStore.httpNodeInfo.item.queryParams = cloneDeep(targetValue as ApidocProperty<'string'>[]);
         break;
 
       case 'pathsOperation':
@@ -130,7 +130,7 @@ export const useHttpRedoUndo = defineStore('httpRedoUndo', () => {
             requestBody: HttpNode['item']['requestBody'];
             contentType: HttpNode['item']['contentType'];
           };
-          httpNodeStore.apidoc.item.requestBody = cloneDeep(bodyValue.requestBody);
+          httpNodeStore.httpNodeInfo.item.requestBody = cloneDeep(bodyValue.requestBody);
           httpNodeStore.changeContentType(bodyValue.contentType);
         }
         break;
@@ -148,18 +148,18 @@ export const useHttpRedoUndo = defineStore('httpRedoUndo', () => {
         break;
 
       case 'preRequestOperation':
-        httpNodeStore.apidoc.preRequest = cloneDeep(targetValue as HttpNode['preRequest']);
+        httpNodeStore.httpNodeInfo.preRequest = cloneDeep(targetValue as HttpNode['preRequest']);
         break;
 
       case 'afterRequestOperation':
-        httpNodeStore.apidoc.afterRequest = cloneDeep(targetValue as HttpNode['afterRequest']);
+        httpNodeStore.httpNodeInfo.afterRequest = cloneDeep(targetValue as HttpNode['afterRequest']);
         break;
 
       case 'basicInfoOperation':
         {
           const info = targetValue as { name: string; description: string };
           if (info.name !== undefined) {
-            httpNodeStore.changeApidocName(info.name);
+            httpNodeStore.changeHttpNodeName(info.name);
           }
           if (info.description !== undefined) {
             httpNodeStore.changeDescription(info.description);
@@ -168,7 +168,7 @@ export const useHttpRedoUndo = defineStore('httpRedoUndo', () => {
         break;
 
       case 'responseParamsOperation':
-        httpNodeStore.apidoc.item.responseParams = cloneDeep(targetValue as HttpNode['item']['responseParams']);
+        httpNodeStore.httpNodeInfo.item.responseParams = cloneDeep(targetValue as HttpNode['item']['responseParams']);
         break;
 
       case 'remarksOperation':

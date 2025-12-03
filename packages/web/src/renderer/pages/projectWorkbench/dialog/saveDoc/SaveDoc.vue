@@ -117,7 +117,7 @@ const handleClose = () => {
   eventEmitter.emit('tabs/cancelSaveTab')
 }
 const handleSaveDoc = async () => {
-  const docInfo = JSON.parse(JSON.stringify(httpNodeStore.apidoc))
+  const docInfo = JSON.parse(JSON.stringify(httpNodeStore.httpNodeInfo))
   docInfo.info.name = formInfo.value.name;
   docInfo.info.creator = runtimeStore.userInfo.realName
   docInfo.pid = currentMountedNode.value?._id;
@@ -126,8 +126,8 @@ const handleSaveDoc = async () => {
 
   const saveDocCb = (docId: string) => {
     bannerStore.getDocBanner({ projectId });
-    httpNodeStore.changeApidocId(docId);
-    httpNodeStore.changeApidocName(formInfo.value.name);
+    httpNodeStore.changeHttpNodeId(docId);
+    httpNodeStore.changeHttpNodeName(formInfo.value.name);
     projectNavStore.changeNavInfoById({
       id: httpNodeStore.savedDocId,
       field: 'label',

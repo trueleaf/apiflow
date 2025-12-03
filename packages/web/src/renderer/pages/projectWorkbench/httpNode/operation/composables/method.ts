@@ -31,11 +31,11 @@ export default (): MethodReturn => {
   //请求方法
   const requestMethod = computed({
     get() {
-      return httpNodeStore.apidoc.item.method;
+      return httpNodeStore.httpNodeInfo.item.method;
     },
     set(method: HttpNodeRequestMethod) {
       if (!currentSelectNav.value) return;
-      const oldValue = httpNodeStore.apidoc.item.method;
+      const oldValue = httpNodeStore.httpNodeInfo.item.method;
       if (oldValue !== method) {
         // 记录请求方法变化操作
         httpRedoUndoStore.recordOperation({
@@ -48,7 +48,7 @@ export default (): MethodReturn => {
           timestamp: Date.now()
         });
       }
-      httpNodeStore.changeApidocMethod(method)
+      httpNodeStore.changeHttpNodeMethod(method)
     },
   });
   //请求方法枚举

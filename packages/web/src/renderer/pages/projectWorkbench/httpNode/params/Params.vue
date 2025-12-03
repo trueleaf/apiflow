@@ -344,29 +344,29 @@ const hideTimer = ref<number | null>(null)
 const historyDetailRef = ref<HTMLElement>()
 const detailPanelPosition = ref<{ left: string; top: string }>({ left: '0px', top: '0px' })
 const hasQueryOrPathsParams = computed(() => {
-  const { queryParams, paths } = httpNodeStore.apidoc.item;
+  const { queryParams, paths } = httpNodeStore.httpNodeInfo.item;
   const hasQueryParams = queryParams.filter(p => p.select).some((data) => data.key);
   const hasPathsParams = paths.some((data) => data.key);
   return hasQueryParams || hasPathsParams;
 })
 const hasBodyParams = computed(() => {
-  const { contentType } = httpNodeStore.apidoc.item;
-  const isBinary = httpNodeStore.apidoc.item.requestBody.mode === 'binary';
+  const { contentType } = httpNodeStore.httpNodeInfo.item;
+  const isBinary = httpNodeStore.httpNodeInfo.item.requestBody.mode === 'binary';
   if (isBinary) {
     return true
   }
   return !!contentType;
 })
 const hasPreRequest = computed(() => {
-  const preRequest = httpNodeStore.apidoc.preRequest?.raw;
+  const preRequest = httpNodeStore.httpNodeInfo.preRequest?.raw;
   return !!preRequest;
 })
 const hasAfterRequest = computed(() => {
-  const afterRequest = httpNodeStore.apidoc.afterRequest?.raw;
+  const afterRequest = httpNodeStore.httpNodeInfo.afterRequest?.raw;
   return !!afterRequest;
 })
 const responseNum = computed(() => {
-  const resParams = httpNodeStore.apidoc.item.responseParams;
+  const resParams = httpNodeStore.httpNodeInfo.item.responseParams;
   let resNum = 0;
   resParams.forEach(response => {
     const resValue = response.value;
@@ -393,7 +393,7 @@ const currentSelectNav = computed(() => {
 })
 const hasHeaders = ref(false);
 const freshHasHeaders = () => {
-  const { headers } = httpNodeStore.apidoc.item;
+  const { headers } = httpNodeStore.httpNodeInfo.item;
   const commonHeaders = commonHeaderStore.getCommonHeadersById(currentSelectNav.value?._id || "");
   const cpCommonHeaders = JSON.parse(JSON.stringify(commonHeaders)) as (typeof commonHeaders);
   cpCommonHeaders.forEach(header => {
@@ -409,7 +409,7 @@ const freshHasHeaders = () => {
 watchEffect(freshHasHeaders, {
 });
 const { layout } = storeToRefs(projectWorkbenchStore)
-const { apidoc } = storeToRefs(httpNodeStore)
+const { httpNodeInfo } = storeToRefs(httpNodeStore)
 // 撤销/重做相关计算属性
 const canUndo = computed(() => {
   if (!currentSelectNav.value) return false;
@@ -581,8 +581,8 @@ const handleSelectHistory = (history: HttpHistory): void => {
       type: 'warning'
     }
   ).then(() => {
-    // 调用changeApidoc重新赋值
-    httpNodeStore.changeApidoc(history.node);
+    // 调用changeHttpNodeInfo重新赋值
+    httpNodeStore.changeHttpNodeInfo(history.node);
     showHistoryDropdown.value = false;
   }).catch((error) => {
     // 用户取消操作
@@ -921,9 +921,9 @@ watch(() => activeName.value, (val: string) => {
 watch(() => currentSelectNav.value, () => {
   initTabCache();
 })
-watch(() => apidoc.value, (apidoc: HttpNode) => {
+watch(() => httpNodeInfo.value, (httpNodeInfoData: HttpNode) => {
   if (debounceFn) {
-    debounceFn.value?.(apidoc);
+    debounceFn.value?.(httpNodeInfoData);
   }
 }, {
   deep: true,
@@ -934,8 +934,8 @@ watch(() => apidoc.value, (apidoc: HttpNode) => {
 |--------------------------------------------------------------------------
 */
 onMounted(() => {
-  debounceFn.value = debounce((apidoc: HttpNode) => {
-    const isEqual = checkApidocIsEqual(apidoc, httpNodeStore.originApidoc);
+  debounceFn.value = debounce((httpNodeInfoData: HttpNode) => {
+    const isEqual = checkApidocIsEqual(httpNodeInfoData, httpNodeStore.originHttpNodeInfo);
     if (!isEqual) {
       projectNavStore.changeNavInfoById({
         id: currentSelectNav.value?._id || "",
@@ -955,7 +955,7 @@ onMounted(() => {
       })
     }
     //缓存接口信息
-    httpNodeCache.setHttpNode(apidoc);
+    httpNodeCache.setHttpNode(httpNodeInfoData);
   }, 200, {
     leading: true
   });

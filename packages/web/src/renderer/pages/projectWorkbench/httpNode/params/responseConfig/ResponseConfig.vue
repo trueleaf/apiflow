@@ -216,7 +216,7 @@ const handleDeleteResponse = (index: number) => {
 //response参数值
 const { t } = useI18n()
 
-const responseData = computed(() => httpNodeStore.apidoc.item.responseParams);
+const responseData = computed(() => httpNodeStore.httpNodeInfo.item.responseParams);
 //布局
 const layout = computed(() => projectWorkbenchStore.layout);
 

@@ -33,7 +33,7 @@ import { logger } from '@/helper';
 import { useHttpNodeConfig } from './httpNodeConfigStore';
 
 
-type EditApidocPropertyPayload<K extends keyof ApidocProperty> = {
+type EditHttpNodePropertyPayload<K extends keyof ApidocProperty> = {
   data: ApidocProperty,
   field: K,
   value: ApidocProperty[K]
@@ -43,13 +43,13 @@ export const useHttpNode = defineStore('httpNode', () => {
   const runtimeStore = useRuntime();
   const isOffline = () => runtimeStore.networkMode === 'offline';
   const cancel: Canceler[] = [] //请求列表  
-  const apidocCookies = useCookies()
-  const apidoc = ref<HttpNode>(generateHttpNode());
-  const apidocVaribleStore = useVariable()
-  const originApidoc = ref<HttpNode>(generateHttpNode());
+  const httpNodeCookies = useCookies()
+  const httpNodeInfo = ref<HttpNode>(generateHttpNode());
+  const httpNodeVariableStore = useVariable()
+  const originHttpNodeInfo = ref<HttpNode>(generateHttpNode());
   const defaultHeaders = ref<ApidocProperty<"string">[]>([]);
-  const loading = ref(false);
-  const saveLoading = ref(false);
+  const httpContentLoading = ref(false);
+  const saveHttpNodeLoading = ref(false);
   const responseBodyLoading = ref(false)
   const saveDocDialogVisible = ref(false);
   const savedDocId = ref('');
@@ -61,14 +61,14 @@ export const useHttpNode = defineStore('httpNode', () => {
   */
   //更新cookie头
   watch([() => {
-    return apidoc.value.item.url;
+    return httpNodeInfo.value.item.url;
   }, () => {
-    return apidocVaribleStore.objectVariable;
+    return httpNodeVariableStore.objectVariable;
   }, () => {
-    return apidocCookies.cookies;
+    return httpNodeCookies.cookies;
   }], async () => {
-    const fullUrl = await getUrl(apidoc.value);
-    const matchedCookies = apidocCookies.getMachtedCookies(fullUrl);
+    const fullUrl = await getUrl(httpNodeInfo.value);
+    const matchedCookies = httpNodeCookies.getMachtedCookies(fullUrl);
     const property: ApidocProperty<'string'> = generateEmptyProperty();
     property.key = "Cookie";
     let cookieValue = '';
@@ -97,28 +97,28 @@ export const useHttpNode = defineStore('httpNode', () => {
   |--------------------------------------------------------------------------
   */
   //改变prefix值
-  const changeApidocPrefix = (prefix: string): void => {
-    apidoc.value.item.url.prefix = prefix;
+  const changeHttpNodePrefix = (prefix: string): void => {
+    httpNodeInfo.value.item.url.prefix = prefix;
   }
   //改变url值
-  const changeApidocUrl = (path: string): void => {
-    apidoc.value.item.url.path = path;
+  const changeHttpNodeUrl = (path: string): void => {
+    httpNodeInfo.value.item.url.path = path;
   }
   //改变请求method
-  const changeApidocMethod = (method: HttpNodeRequestMethod): void => {
-    apidoc.value.item.method = method;
+  const changeHttpNodeMethod = (method: HttpNodeRequestMethod): void => {
+    httpNodeInfo.value.item.method = method;
   }
   //改变接口名称
-  const changeApidocName = (name: string): void => {
-    apidoc.value.info.name = name;
+  const changeHttpNodeName = (name: string): void => {
+    httpNodeInfo.value.info.name = name;
   }
   //改变api文档id值
-  const changeApidocId = (_id: string): void => {
-    apidoc.value._id = _id;
+  const changeHttpNodeId = (_id: string): void => {
+    httpNodeInfo.value._id = _id;
   }
   //改变接口描述
   const changeDescription = (description: string): void => {
-    apidoc.value.info.description = description;
+    httpNodeInfo.value.info.description = description;
   }
   /*
     |--------------------------------------------------------------------------
@@ -127,12 +127,12 @@ export const useHttpNode = defineStore('httpNode', () => {
   */
   //改变path参数
   const changePathParams = (paths: ApidocProperty<'string'>[]): void => {
-    apidoc.value.item.paths = paths
+    httpNodeInfo.value.item.paths = paths
   }
   //在头部插入查询参数
   const unshiftQueryParams = (queryParams: ApidocProperty<'string'>[]): void => {
     queryParams.forEach((params) => {
-      apidoc.value.item.queryParams.unshift(params);
+      httpNodeInfo.value.item.queryParams.unshift(params);
     })
   }
   /*
@@ -142,21 +142,21 @@ export const useHttpNode = defineStore('httpNode', () => {
     */
   //改变body参数mode类型
   const changeBodyMode = (mode: HttpNodeBodyMode): void => {
-    apidoc.value.item.requestBody.mode = mode;
+    httpNodeInfo.value.item.requestBody.mode = mode;
   }
   //改变body参数raw的mime类型
   const changeBodyRawType = (rawType: HttpNodeBodyRawType): void => {
-    apidoc.value.item.requestBody.raw.dataType = rawType;
+    httpNodeInfo.value.item.requestBody.raw.dataType = rawType;
   }
   //改变rawBody数据
   const changeRawJson = (rawJson: string): void => {
-    apidoc.value.item.requestBody.rawJson = rawJson;
+    httpNodeInfo.value.item.requestBody.rawJson = rawJson;
   }
   //改变body参数error信息
   const changeFormDataErrorInfoById = (id: string, errorMsg: string): void => {
-    const index = apidoc.value.item.requestBody.formdata.findIndex((v) => v._id === id);
+    const index = httpNodeInfo.value.item.requestBody.formdata.findIndex((v) => v._id === id);
     if (index !== -1) {
-      apidoc.value.item.requestBody.formdata[index]._error = errorMsg;
+      httpNodeInfo.value.item.requestBody.formdata[index]._error = errorMsg;
     }
   }
   /*
@@ -166,11 +166,11 @@ export const useHttpNode = defineStore('httpNode', () => {
   */
   //改变raw的参数值
   const changeBodyRawValue = (rawValue: string): void => {
-    apidoc.value.item.requestBody.raw.data = rawValue;
+    httpNodeInfo.value.item.requestBody.raw.data = rawValue;
   }
   //改变contentType值
   const changeContentType = (contentType: HttpNodeContentType): void => {
-    apidoc.value.item.contentType = contentType;
+    httpNodeInfo.value.item.contentType = contentType;
     const matchedValue = defaultHeaders.value.find((val) => val.key === 'Content-Type');
     const matchedIndex = defaultHeaders.value.findIndex((val) => val.key === 'Content-Type');
     if (contentType && matchedValue) { //存在contentType并且默认header值也有
@@ -191,7 +191,7 @@ export const useHttpNode = defineStore('httpNode', () => {
   |--------------------------------------------------------------------------
   */
   const handleChangeBinaryInfo = (payload: DeepPartial<HttpNodeBodyParams['binary']>) => {
-    assign(apidoc.value.item.requestBody.binary, payload)
+    assign(httpNodeInfo.value.item.requestBody.binary, payload)
   }
   /*
     |--------------------------------------------------------------------------
@@ -201,31 +201,31 @@ export const useHttpNode = defineStore('httpNode', () => {
   //改变某个response的title参数
   const changeResponseParamsTitleByIndex = (payload: { index: number, title: string }): void => {
     const { index, title } = payload
-    apidoc.value.item.responseParams[index].title = title;
+    httpNodeInfo.value.item.responseParams[index].title = title;
   }
   //改变某个response的statusCode值
   const changeResponseParamsCodeByIndex = (payload: { index: number, code: number }): void => {
     const { index, code } = payload
-    apidoc.value.item.responseParams[index].statusCode = code;
+    httpNodeInfo.value.item.responseParams[index].statusCode = code;
   }
   //改变某个response的dataType值
   const changeResponseParamsDataTypeByIndex = (payload: { index: number, type: HttpNodeContentType }): void => {
     const { index, type } = payload
-    apidoc.value.item.responseParams[index].value.dataType = type;
+    httpNodeInfo.value.item.responseParams[index].value.dataType = type;
   }
   //改变某个response文本value值
   const changeResponseParamsTextValueByIndex = (payload: { index: number, value: string }): void => {
     const { index, value } = payload
-    apidoc.value.item.responseParams[index].value.text = value;
+    httpNodeInfo.value.item.responseParams[index].value.text = value;
   }
   //根据index值改变response的json数据
   const changeResponseStrJsonByIndex = (payload: { index: number, value: string }): void => {
     const { index, value } = payload
-    apidoc.value.item.responseParams[index].value.strJson = value;
+    httpNodeInfo.value.item.responseParams[index].value.strJson = value;
   }
   //新增一个response
   const addResponseParam = (): void => {
-    apidoc.value.item.responseParams.push({
+    httpNodeInfo.value.item.responseParams.push({
       _id: nanoid(),
       title: '返回参数名称',
       statusCode: 200,
@@ -242,7 +242,7 @@ export const useHttpNode = defineStore('httpNode', () => {
   }
   //删除一个response
   const deleteResponseByIndex = (index: number): void => {
-    apidoc.value.item.responseParams.splice(index, 1);
+    httpNodeInfo.value.item.responseParams.splice(index, 1);
   }
   /*
     |--------------------------------------------------------------------------
@@ -311,7 +311,7 @@ export const useHttpNode = defineStore('httpNode', () => {
     //=========================================================================//
     const params2 = generateEmptyProperty();
     params2.key = 'User-Agent';
-    params2._valuePlaceholder = httpNodeConfigStore.currentConfig.userAgent;
+    params2._valuePlaceholder = httpNodeConfigStore.currentHttpNodeConfig.userAgent;
     params2.description = '<用户代理软件信息>';
     params2._disableKey = true;
     params2._disableKeyTip = ''
@@ -349,8 +349,8 @@ export const useHttpNode = defineStore('httpNode', () => {
     }
 
   }
-  //重新赋值apidoc数据
-  const changeApidoc = (payload: HttpNode): void => {
+  //重新赋值httpNodeInfo数据
+  const changeHttpNodeInfo = (payload: HttpNode): void => {
     // queryParams如果没有数据则默认添加一条空数据
     if (payload.item.queryParams.length === 0) {
       payload.item.queryParams.push(generateEmptyProperty());
@@ -390,19 +390,19 @@ export const useHttpNode = defineStore('httpNode', () => {
     }
     // if (!payload.item.url.prefix && !payload.item.url.path.startsWith("http")) {
     // }
-    apidoc.value = payload;
+    httpNodeInfo.value = payload;
   }
-  //改变apidoc原始缓存值
-  const changeOriginApidoc = (): void => {
-    originApidoc.value = cloneDeep(apidoc.value);
+  //改变originHttpNodeInfo原始缓存值
+  const changeOriginHttpNodeInfo = (): void => {
+    originHttpNodeInfo.value = cloneDeep(httpNodeInfo.value);
   }
-  //改变apidoc数据加载状态
-  const changeApidocLoading = (state: boolean): void => {
-    loading.value = state;
+  //改变httpNodeInfo数据加载状态
+  const changeHttpContentLoading = (state: boolean): void => {
+    httpContentLoading.value = state;
   }
-  //保存apidoc时候更新loading
-  const changeApidocSaveLoading = (loading: boolean): void => {
-    saveLoading.value = loading;
+  //保存httpNodeInfo时候更新loading
+  const changeSaveHttpNodeLoading = (isLoading: boolean): void => {
+    saveHttpNodeLoading.value = isLoading;
   }
   //响应体加载状态
   const changeResponseBodyLoading = (state: boolean): void => {
@@ -417,7 +417,7 @@ export const useHttpNode = defineStore('httpNode', () => {
     payload.data.splice(payload.index, 1);
   }
   //改变请求参数某个属性的值
-  const changePropertyValue = <K extends keyof ApidocProperty>(payload: EditApidocPropertyPayload<K>): void => {
+  const changePropertyValue = <K extends keyof ApidocProperty>(payload: EditHttpNodePropertyPayload<K>): void => {
     const { data, field, value } = payload;
     data[field] = value;
   }
@@ -436,10 +436,10 @@ export const useHttpNode = defineStore('httpNode', () => {
   |--------------------------------------------------------------------------
   */
   const changePreRequest = (preRequest: string): void => {
-    apidoc.value.preRequest.raw = preRequest;
+    httpNodeInfo.value.preRequest.raw = preRequest;
   }
   const changeAfterRequest = (afterRequest: string): void => {
-    apidoc.value.afterRequest.raw = afterRequest;
+    httpNodeInfo.value.afterRequest.raw = afterRequest;
   }
   /*
   |--------------------------------------------------------------------------
@@ -447,7 +447,7 @@ export const useHttpNode = defineStore('httpNode', () => {
   |--------------------------------------------------------------------------
   */
   //获取项目基本信息
-  const getApidocDetail = async (payload: { id: string, projectId: string }): Promise<void> => {
+  const getHttpNodeDetail = async (payload: { id: string, projectId: string }): Promise<void> => {
     const { deleteNavByIds } = useProjectNav();
     httpNodeConfigStore.initHttpNodeConfig(payload.projectId)
 
@@ -471,8 +471,8 @@ export const useHttpNode = defineStore('httpNode', () => {
         });
         return
       }
-      changeApidoc(doc);
-      changeOriginApidoc()
+      changeHttpNodeInfo(doc);
+      changeOriginHttpNodeInfo()
       return
     }
 
@@ -483,8 +483,8 @@ export const useHttpNode = defineStore('httpNode', () => {
       })
     }
     return new Promise((resolve, reject) => {
-      changeApidocLoading(true);
-      changeApidocLoading(true)
+      changeHttpContentLoading(true);
+      changeHttpContentLoading(true)
       const params = {
         projectId: payload.projectId,
         _id: payload.id,
@@ -513,19 +513,19 @@ export const useHttpNode = defineStore('httpNode', () => {
           });
           return;
         }
-        changeApidoc(res.data);
-        changeOriginApidoc()
+        changeHttpNodeInfo(res.data);
+        changeOriginHttpNodeInfo()
         resolve()
       }).catch((err) => {
         console.error(err);
         reject(err);
       }).finally(() => {
-        changeApidocLoading(false)
+        changeHttpContentLoading(false)
       })
     });
   }
   //保存接口
-  const saveApidoc = (): Promise<void> => {
+  const saveHttpNode = (): Promise<void> => {
     const { navs } = storeToRefs(useProjectNav());
     const { changeNavInfoById } = useProjectNav();
     const { changeHttpBannerInfoById } = useBanner()
@@ -539,25 +539,25 @@ export const useHttpNode = defineStore('httpNode', () => {
         logger.warn('缺少nav信息');
         return;
       }
-      changeApidocSaveLoading(true);
-      const apidocDetail = cloneDeep(apidoc.value);
+      changeSaveHttpNodeLoading(true);
+      const httpNodeDetail = cloneDeep(httpNodeInfo.value);
       //todo
       // context.dispatch('saveMindParams');
       //删除_error字段
-      apidocDetail.item.requestBody.formdata.forEach(v => {
+      httpNodeDetail.item.requestBody.formdata.forEach(v => {
         delete v._error;
       })
       const params = {
         _id: currentSelectNav._id,
         projectId,
-        info: apidocDetail.info,
-        item: apidocDetail.item,
-        preRequest: apidocDetail.preRequest,
-        afterRequest: apidocDetail.afterRequest,
+        info: httpNodeDetail.info,
+        item: httpNodeDetail.item,
+        preRequest: httpNodeDetail.preRequest,
+        afterRequest: httpNodeDetail.afterRequest,
       };
       if (isOffline()) {
-        apidocDetail.updatedAt = new Date().toISOString();
-        await apiNodesCache.replaceNode(apidocDetail);
+        httpNodeDetail.updatedAt = new Date().toISOString();
+        await apiNodesCache.replaceNode(httpNodeDetail);
         //改变nav请求方法
         changeNavInfoById({
           id: currentSelectNav._id,
@@ -574,7 +574,7 @@ export const useHttpNode = defineStore('httpNode', () => {
           value: params.item.method,
         })
         //改变origindoc的值
-        changeOriginApidoc();
+        changeOriginHttpNodeInfo();
         //改变nav未保存小圆点
         changeNavInfoById({
           id: currentSelectNav._id,
@@ -584,7 +584,7 @@ export const useHttpNode = defineStore('httpNode', () => {
         // 添加历史记录
         httpNodeHistoryCache.addHttpHistoryByNodeId(
           currentSelectNav._id,
-          apidoc.value,
+          httpNodeInfo.value,
           runtimeStore.userInfo.id,
           runtimeStore.userInfo.realName
         ).catch(error => {
@@ -592,7 +592,7 @@ export const useHttpNode = defineStore('httpNode', () => {
         });
         // 添加0.2秒的saveLoading效果
         setTimeout(() => {
-          changeApidocSaveLoading(false);
+          changeSaveHttpNodeLoading(false);
         }, 100);
         return
       }
@@ -615,7 +615,7 @@ export const useHttpNode = defineStore('httpNode', () => {
           value: params.item.method,
         })
         //改变origindoc的值
-        changeOriginApidoc();
+        changeOriginHttpNodeInfo();
         //改变nav未保存小圆点
         changeNavInfoById({
           id: currentSelectNav._id,
@@ -625,7 +625,7 @@ export const useHttpNode = defineStore('httpNode', () => {
         // 添加历史记录
         httpNodeHistoryCache.addHttpHistoryByNodeId(
           currentSelectNav._id,
-          apidoc.value,
+          httpNodeInfo.value,
           runtimeStore.userInfo.id,
           runtimeStore.userInfo.realName
         ).catch(error => {
@@ -647,7 +647,7 @@ export const useHttpNode = defineStore('httpNode', () => {
         console.error(err);
         reject(err);
       }).finally(() => {
-        changeApidocSaveLoading(false)
+        changeSaveHttpNodeLoading(false)
       });
     })
   }
@@ -671,22 +671,22 @@ export const useHttpNode = defineStore('httpNode', () => {
     })
   }
   return {
-    apidoc,
-    originApidoc,
-    loading,
+    httpNodeInfo,
+    originHttpNodeInfo,
+    httpContentLoading,
     defaultHeaders,
-    saveLoading,
+    saveHttpNodeLoading,
     responseBodyLoading,
     saveDocDialogVisible,
     savedDocId,
     changeResponseBodyLoading,
-    getApidocDetail,
-    changeApidocSaveLoading,
+    getHttpNodeDetail,
+    changeSaveHttpNodeLoading,
     addProperty,
     deleteProperty,
-    changeApidoc,
-    changeOriginApidoc,
-    changeApidocLoading,
+    changeHttpNodeInfo,
+    changeOriginHttpNodeInfo,
+    changeHttpContentLoading,
     changeSaveDocDialogVisible,
     changeSavedDocId,
     changePropertyValue,
@@ -694,13 +694,13 @@ export const useHttpNode = defineStore('httpNode', () => {
     unshiftQueryParams,
     changeBodyMode,
     changeBodyRawType,
-    changeApidocPrefix,
+    changeHttpNodePrefix,
     changeBodyRawValue,
     changeContentType,
-    changeApidocUrl,
-    changeApidocMethod,
-    changeApidocName,
-    changeApidocId,
+    changeHttpNodeUrl,
+    changeHttpNodeMethod,
+    changeHttpNodeName,
+    changeHttpNodeId,
     changeDescription,
     changeRawJson,
     changeResponseParamsTitleByIndex,
@@ -710,7 +710,7 @@ export const useHttpNode = defineStore('httpNode', () => {
     changeResponseStrJsonByIndex,
     addResponseParam,
     deleteResponseByIndex,
-    saveApidoc,
+    saveHttpNode,
     openSaveDocDialog,
     changePreRequest,
     changeAfterRequest,

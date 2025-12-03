@@ -1,11 +1,11 @@
 <template>
   <div class="params-view px-3">
-    <div class="api-name">{{ apidoc.info.name }}</div>
+    <div class="api-name">{{ httpNodeInfo.info.name }}</div>
     <div class="d-flex a-center mb-5 mt-4">
       <template v-for="(req) in requestMethods">
-        <span v-if="apidoc.item.method.toLowerCase() === req.value.toLowerCase()" :key="req.value" class="method mr-2"
+        <span v-if="httpNodeInfo.item.method.toLowerCase() === req.value.toLowerCase()" :key="req.value" class="method mr-2"
           :style="{ color: req.iconColor }">
-          {{ apidoc.item.method }}
+          {{ httpNodeInfo.item.method }}
         </span>
       </template>
       <div class="url">{{ fullUrl }}</div>
@@ -13,34 +13,34 @@
     <div class="view-block">{{ t('请求参数') }}</div>
     <template v-if="hasQueryParams">
       <div class="title">{{ t("Query参数") }}</div>
-      <SParamsView :data="apidoc.item.queryParams" plain class="mb-3" />
+      <SParamsView :data="httpNodeInfo.item.queryParams" plain class="mb-3" />
     </template>
     <template v-if="hasPathsParams">
       <div class="title">{{ t("Path参数") }}</div>
-      <SParamsView :data="apidoc.item.paths" plain class="mb-3" />
+      <SParamsView :data="httpNodeInfo.item.paths" plain class="mb-3" />
     </template>
     <template v-if="hasJsonBodyParams">
       <div class="title">{{ t("Body参数") }}(application/json)</div>
-      <pre v-if="apidoc.item.requestBody.rawJson">{{ apidoc.item.requestBody.rawJson }}</pre>
-      <SParamsView v-else :data="apidoc.item.requestBody.rawJson" />
+      <pre v-if="httpNodeInfo.item.requestBody.rawJson">{{ httpNodeInfo.item.requestBody.rawJson }}</pre>
+      <SParamsView v-else :data="httpNodeInfo.item.requestBody.rawJson" />
     </template>
     <template v-if="hasFormDataParams">
       <div class="title">{{ t("Body参数") }}(multipart/formdata)</div>
-      <SParamsView :data="apidoc.item.requestBody.formdata" plain />
+      <SParamsView :data="httpNodeInfo.item.requestBody.formdata" plain />
     </template>
     <template v-if="hasUrlEncodedParams">
       <div class="title">{{ t("Body参数") }}(x-www-form-urlencoded)</div>
-      <SParamsView :data="apidoc.item.requestBody.urlencoded" plain />
+      <SParamsView :data="httpNodeInfo.item.requestBody.urlencoded" plain />
     </template>
     <template v-if="hasRawParams">
-      <div class="title">{{ t("Body参数") }}({{ apidoc.item.requestBody.raw.dataType }})</div>
-      <pre>{{ apidoc.item.requestBody.raw.data }}</pre>
+      <div class="title">{{ t("Body参数") }}({{ httpNodeInfo.item.requestBody.raw.dataType }})</div>
+      <pre>{{ httpNodeInfo.item.requestBody.raw.data }}</pre>
     </template>
     <div
       v-if="!hasQueryParams && !hasPathsParams && !hasJsonBodyParams && !hasFormDataParams && !hasUrlEncodedParams && !hasRawParams"
       class="ml-2 gray-500">{{ t("暂无数据") }}</div>
     <div class="view-block mt-5">{{ t('返回参数') }}</div>
-    <div v-for="(item, index) in apidoc.item.responseParams" :key="index" class="title">
+    <div v-for="(item, index) in httpNodeInfo.item.responseParams" :key="index" class="title">
       <div class="mb-2">
         <span>{{ t("名称") }}：</span>
         <span>{{ item.title }}</span>
@@ -67,11 +67,11 @@
     </div>
     <div class="view-block mt-5">请求头</div>
     <template v-if="hasHeaders">
-      <SParamsView :data="apidoc.item.headers" plain class="mb-3" />
+      <SParamsView :data="httpNodeInfo.item.headers" plain class="mb-3" />
     </template>
     <div v-else class="ml-2 gray-500">{{ t("暂无数据") }}</div>
     <SFieldset :title="t('备注')">
-      <div v-if="apidoc.info.description" class="remark">{{ apidoc.info.description }}</div>
+      <div v-if="httpNodeInfo.info.description" class="remark">{{ httpNodeInfo.info.description }}</div>
       <div v-else class="ml-2 gray-500">{{ t("暂无数据") }}</div>
     </SFieldset>
   </div>
@@ -86,11 +86,11 @@ import { requestMethods } from '@/data/data';
 
 const httpNodeStore = useHttpNode()
 const { t } = useI18n()
-const { apidoc } = storeToRefs(httpNodeStore)
+const { httpNodeInfo } = storeToRefs(httpNodeStore)
 const fullUrl = computed(() => {
-  const { paths } = httpNodeStore.apidoc.item
-  const { prefix, path: requestPath } = httpNodeStore.apidoc.item.url;
-  const { queryParams } = httpNodeStore.apidoc.item;
+  const { paths } = httpNodeStore.httpNodeInfo.item
+  const { prefix, path: requestPath } = httpNodeStore.httpNodeInfo.item.url;
+  const { queryParams } = httpNodeStore.httpNodeInfo.item;
   let queryString = '';
   queryParams.forEach((v) => {
     if (v.key && v.select) {
@@ -111,32 +111,32 @@ const fullUrl = computed(() => {
   return prefix + validPath + queryString
 })
 const hasQueryParams = computed(() => {
-  const { queryParams } = httpNodeStore.apidoc.item;
+  const { queryParams } = httpNodeStore.httpNodeInfo.item;
   return queryParams.filter(p => p.select).some((data) => data.key);
 })
 const hasPathsParams = computed(() => {
-  const { paths } = httpNodeStore.apidoc.item;
+  const { paths } = httpNodeStore.httpNodeInfo.item;
   return paths.some((data) => data.key);
 })
 const hasJsonBodyParams = computed(() => {
-  const { contentType } = httpNodeStore.apidoc.item;
-  const { mode } = httpNodeStore.apidoc.item.requestBody;
+  const { contentType } = httpNodeStore.httpNodeInfo.item;
+  const { mode } = httpNodeStore.httpNodeInfo.item.requestBody;
   return contentType === 'application/json' && mode === 'json';
 })
 const hasFormDataParams = computed(() => {
-  const { contentType } = httpNodeStore.apidoc.item;
+  const { contentType } = httpNodeStore.httpNodeInfo.item;
   return contentType === 'multipart/form-data';
 })
 const hasUrlEncodedParams = computed(() => {
-  const { contentType } = httpNodeStore.apidoc.item;
+  const { contentType } = httpNodeStore.httpNodeInfo.item;
   return contentType === 'application/x-www-form-urlencoded';
 })
 const hasRawParams = computed(() => {
-  const { mode, raw } = httpNodeStore.apidoc.item.requestBody;
+  const { mode, raw } = httpNodeStore.httpNodeInfo.item.requestBody;
   return mode === 'raw' && raw.data;
 })
 const hasHeaders = computed(() => {
-  const { headers } = httpNodeStore.apidoc.item;
+  const { headers } = httpNodeStore.httpNodeInfo.item;
   return headers.filter(p => p.select).some((data) => data.key);
 })
 

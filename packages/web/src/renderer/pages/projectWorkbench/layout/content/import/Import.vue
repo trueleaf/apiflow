@@ -167,8 +167,6 @@ import type { TreeNodeOptions } from 'element-plus/lib/components/tree/src/tree.
 // import OpenApiTranslator from './openapi';
 // import PostmanTranslator from './postman';
 import { requestMethods } from '@/data/data'
-import { useCommonHeader } from '@/store/projectWorkbench/commonHeaderStore'
-import { useProjectWorkbench } from '@/store/projectWorkbench/projectWorkbenchStore'
 import { useBanner } from '@/store/projectWorkbench/bannerStore'
 import { apiNodesCache } from '@/cache/nodes/nodesCache'
 import { useRuntime } from '@/store/runtime/runtimeStore'
@@ -205,8 +203,6 @@ defineProps({
 const { t } = useI18n()
 const runtimeStore = useRuntime();
 const isStandalone = computed(() => runtimeStore.networkMode === 'offline');
-const commonHeaderStore = useCommonHeader();
-const projectWorkbenchStore = useProjectWorkbench();
 const bannerStore = useBanner()
 const projectId = router.currentRoute.value.query.id as string;
 const folderIcon = new URL('@/assets/imgs/apidoc/folder.png', import.meta.url).href
@@ -235,14 +231,6 @@ const docTree2: Ref<TreeNodeOptions['store'] | null> = ref(null);
 const loading = ref(false);
 //目标节点菜单
 const loading2 = ref(false);
-//项目基本信息
-const projectInfo = computed(() => {
-  return {
-    _id: projectWorkbenchStore.projectId,
-    layout: projectWorkbenchStore.layout,
-    commonHeaders: commonHeaderStore.commonHeaders,
-  }
-});
 //openapi文件夹格式
 const openapiFolderNamedType: Ref<'tag' | 'url' | 'none'> = ref('tag');
 const formInfo: Ref<FormInfo> = ref({

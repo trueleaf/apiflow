@@ -39,10 +39,10 @@ const editorRef = ref<{
   setCursorPosition?: (position: { anchor: number, head: number }) => void,
 } | null>(null)
 
-const description = computed<string>(() => httpNodeStore.apidoc.info.description)
+const description = computed<string>(() => httpNodeStore.httpNodeInfo.info.description)
 //处理备注变化
 const handleDescriptionChange = (newValue: string) => {
-  const oldValue = { description: httpNodeStore.apidoc.info.description };
+  const oldValue = { description: httpNodeStore.httpNodeInfo.info.description };
   httpNodeStore.changeDescription(newValue);
   const newVal = { description: newValue };
   recordRemarksOperation(oldValue, newVal);

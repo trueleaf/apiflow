@@ -3,7 +3,7 @@
 // 整合了 project.ts 和 apidoc/base-info.ts 的所有项目相关类型
 // ============================================================================
 
-import type { ApidocProperty, ApidocVariable, HttpNodePropertyType, HttpNodeRequestParamTypes } from '../httpNode/types';
+import type { ApidocProperty, ApidocVariable, HttpNodePropertyType } from '../httpNode/types';
 
 // ============================================================================
 // 基础响应类型

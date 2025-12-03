@@ -4,8 +4,8 @@ import { useCopilotStore } from "@/store/ai/copilotStore";
 import { useProjectNav } from "@/store/projectWorkbench/projectNavStore";
 import { useHttpRedoUndo } from "@/store/redoUndo/httpRedoUndoStore";
 import { useWsRedoUndo } from "@/store/redoUndo/wsRedoUndoStore";
-import { useHttpMock } from "@/store/httpMock/httpMockStore";
-import { useWebSocketMock } from "@/store/websocketMock/websocketMockStore";
+import { useHttpMockNode } from "@/store/httpMockNode/httpMockNodeStore";
+import { useWebSocketMockNode } from "@/store/websocketMockNode/websocketMockNodeStore";
 import type { ShortcutConfig, ShortcutConflict } from "@src/types/shortcut";
 import { shortcutCache } from "@/cache/settings/shortcutCache";
 class ShortcutManager {
@@ -147,8 +147,8 @@ class ShortcutManager {
           if (currentRoute !== "/v1/apidoc/doc-edit" || currentNavType !== "httpMock") {
             return;
           }
-          const httpMockStore = useHttpMock();
-          httpMockStore.saveHttpMockNode();
+          const httpMockNodeStore = useHttpMockNode();
+          httpMockNodeStore.saveHttpMockNode();
         },
       },
       {
@@ -166,8 +166,8 @@ class ShortcutManager {
           if (currentRoute !== "/v1/apidoc/doc-edit" || currentNavType !== "websocketMock") {
             return;
           }
-          const websocketMockStore = useWebSocketMock();
-          websocketMockStore.saveWebSocketMockNode();
+          const websocketMockNodeStore = useWebSocketMockNode();
+          websocketMockNodeStore.saveWebSocketMockNode();
         },
       },
     ];

@@ -44,7 +44,7 @@ import SParams from './params/Params.vue'
 import SResponse from './response/Response.vue'
 import { useProjectNav } from '@/store/projectWorkbench/projectNavStore'
 import { useProjectWorkbench } from '@/store/projectWorkbench/projectWorkbenchStore'
-import { useWebSocket } from '@/store/websocket/websocketStore'
+import { useWebSocket } from '@/store/websocketNode/websocketNodeStore'
 import { checkPropertyIsEqual } from '@/helper'
 import { nanoid } from 'nanoid/non-secure'
 import { debounce } from "lodash-es"

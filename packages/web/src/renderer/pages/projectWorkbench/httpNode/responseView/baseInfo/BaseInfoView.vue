@@ -3,7 +3,7 @@
     <div class="text-bold">{{ t("基本信息") }}</div>
     <div class="px-4">
       <SLabelValue :label="`${t('请求地址')}：`" class="mt-2" one-line>
-        <div class="text-ellipsis" :title="apidocRequestStore.fullUrl">{{ apidocRequestStore.fullUrl }}</div>
+        <div class="text-ellipsis" :title="httpNodeRequestStore.fullUrl">{{ httpNodeRequestStore.fullUrl }}</div>
       </SLabelValue>
       <SLabelValue :label="`${t('请求方式')}：`" one-line>
         <template v-for="(req) in validRequestMethods">
@@ -39,7 +39,7 @@ import { useI18n } from 'vue-i18n'
 import { computed } from 'vue';
 import { formatDate } from '@/helper'
 import SLabelValue from '@/components/common/labelValue/ClLabelValue.vue'
-import { useApidocRequest } from '@/store/httpNode/requestStore';
+import { useHttpNodeRequest } from '@/store/httpNode/httpNodeRequestStore';
 import { requestMethods as validRequestMethods } from '@/data/data';
 
 
@@ -47,8 +47,8 @@ import { requestMethods as validRequestMethods } from '@/data/data';
 const httpNodeStore = useHttpNode();
 const { t } = useI18n()
 
-const apidocInfo = computed(() => httpNodeStore.apidoc);
-const apidocRequestStore = useApidocRequest();
+const apidocInfo = computed(() => httpNodeStore.httpNodeInfo);
+const httpNodeRequestStore = useHttpNodeRequest();
 </script>
 
 <style lang='scss' scoped>

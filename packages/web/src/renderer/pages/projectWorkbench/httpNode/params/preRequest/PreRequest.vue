@@ -35,10 +35,10 @@ const editorRef = ref<{
   setCursorPosition?: (position: Monaco.Position) => void,
 } | null>(null)
 
-const preRequest = computed<string>(() => httpNodeStore.apidoc?.preRequest.raw)
+const preRequest = computed<string>(() => httpNodeStore.httpNodeInfo?.preRequest.raw)
 //处理前置脚本变化
 const handlePreRequestChange = (newValue: string) => {
-  const oldValue = { raw: httpNodeStore.apidoc.preRequest.raw };
+  const oldValue = { raw: httpNodeStore.httpNodeInfo.preRequest.raw };
   httpNodeStore.changePreRequest(newValue);
   const newVal = { raw: newValue };
   recordPreRequestOperation(oldValue, newVal);

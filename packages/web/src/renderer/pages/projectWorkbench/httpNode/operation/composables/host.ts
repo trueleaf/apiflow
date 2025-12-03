@@ -33,11 +33,11 @@ export default (): HostReturn => {
   //prefix值
   const host = computed<string>({
     get() {
-      return httpNodeStore.apidoc.item.url.prefix
+      return httpNodeStore.httpNodeInfo.item.url.prefix
     },
     set(val) {
       if (!currentSelectNav.value) return;
-      const oldValue = httpNodeStore.apidoc.item.url.prefix;
+      const oldValue = httpNodeStore.httpNodeInfo.item.url.prefix;
       if (oldValue !== val) {
         // 记录URL前缀变化操作
         httpRedoUndoStore.recordOperation({
@@ -50,13 +50,13 @@ export default (): HostReturn => {
           timestamp: Date.now()
         });
       }
-      httpNodeStore.changeApidocPrefix(val);
+      httpNodeStore.changeHttpNodePrefix(val);
     },
   });
     //改变host的值
   const handleChangeHost = (server: string | number | boolean) => {
     if (!currentSelectNav.value) return;
-    const oldValue = httpNodeStore.apidoc.item.url.prefix;
+    const oldValue = httpNodeStore.httpNodeInfo.item.url.prefix;
     const newValue = server as string;
     if (oldValue !== newValue) {
       // 记录URL前缀变化操作
@@ -70,7 +70,7 @@ export default (): HostReturn => {
         timestamp: Date.now()
       });
     }
-    httpNodeStore.changeApidocPrefix(newValue);
+    httpNodeStore.changeHttpNodePrefix(newValue);
   }
   return {
     hostDialogVisible,

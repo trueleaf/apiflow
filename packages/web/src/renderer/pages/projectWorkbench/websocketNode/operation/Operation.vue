@@ -62,7 +62,7 @@ import { useI18n } from 'vue-i18n';
 import { storeToRefs } from 'pinia';
 import { Refresh } from '@element-plus/icons-vue';
 import ClRichInput from '@/components/ui/cleanDesign/richInput/ClRichInput.vue';
-import { useWebSocket } from '@/store/websocket/websocketStore';
+import { useWebSocket } from '@/store/websocketNode/websocketNodeStore';
 import { useProjectNav } from '@/store/projectWorkbench/projectNavStore';
 import { router } from '@/router';
 import { ApidocProperty } from '@src/types';

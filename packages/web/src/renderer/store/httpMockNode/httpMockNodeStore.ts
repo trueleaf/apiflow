@@ -17,7 +17,7 @@ import { request as axiosInstance } from '@/api/api';
 import { CommonResponse } from '@src/types';
 
 
-export const useHttpMock = defineStore('httpMock', () => {
+export const useHttpMockNode = defineStore('httpMockNode', () => {
   const runtimeStore = useRuntime();
   const isOffline = () => runtimeStore.networkMode === 'offline';
   const httpMock = ref<HttpMockNode>(generateEmptyHttpMockNode(nanoid()));
@@ -43,7 +43,6 @@ export const useHttpMock = defineStore('httpMock', () => {
       httpMockNodeCache.setHttpMockNode(httpMock.value);
     }
   };
-
   // 从缓存获取httpMock配置
   const getCachedHttpMockNodeById = (id: string): HttpMockNode | null => {
     return httpMockNodeCache.getHttpMockNode(id);
@@ -59,12 +58,10 @@ export const useHttpMock = defineStore('httpMock', () => {
     httpMock.value = payload;
     cacheHttpMockNode();
   };
-
   // 改变httpMock原始缓存值
   const replaceOriginHttpMockNode = (): void => {
     originHttpMock.value = cloneDeep(httpMock.value);
   };
-
   // 改变httpMock刷新状态
   const changeRefreshLoading = (state: boolean): void => {
     refreshLoading.value = state;
@@ -79,17 +76,14 @@ export const useHttpMock = defineStore('httpMock', () => {
   const changeHttpMockName = (name: string): void => {
     httpMock.value.info.name = name;
   };
-
   // 改变HTTP方法
   const changeHttpMockNodeMethod = (method: HttpMockNode['requestCondition']['method']): void => {
     httpMock.value.requestCondition.method = method;
   };
-
   // 改变请求URL
   const changeHttpMockNodeRequestUrl = (url: string): void => {
     httpMock.value.requestCondition.url = url;
   };
-
   // 改变端口
   const changeHttpMockNodePort = (port: number): void => {
     httpMock.value.requestCondition.port = port;
@@ -352,8 +346,6 @@ export const useHttpMock = defineStore('httpMock', () => {
       return false;
     }
   };
-
-  // 已移除startMockServer和stopMockServer方法，直接使用window.electronAPI.mock.startServer和window.electronAPI.mock.stopServer
 
   
   return {

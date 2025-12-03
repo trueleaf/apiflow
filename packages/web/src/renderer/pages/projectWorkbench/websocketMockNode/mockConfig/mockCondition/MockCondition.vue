@@ -9,7 +9,7 @@
             v-model="websocketMock.info.name"
             :placeholder="t('请输入名称')"
             class="name-input"
-            @input="(val: string) => websocketMockStore.changeWebSocketMockName(val)"
+            @input="(val: string) => websocketMockNodeStore.changeWebSocketMockName(val)"
           />
         </div>
         <div class="form-item flex-item">
@@ -21,7 +21,7 @@
             :max="65535"
             :controls="false"
             class="port-input"
-            @change="(val) => websocketMockStore.changeWebSocketMockPort(val ?? 8080)"
+            @change="(val) => websocketMockNodeStore.changeWebSocketMockPort(val ?? 8080)"
           />
         </div>
       </div>
@@ -43,7 +43,7 @@
             v-model="websocketMock.requestCondition.path"
             :placeholder="t('例如: /ws')"
             class="path-input"
-            @input="(val: string) => websocketMockStore.changeWebSocketMockPath(val)"
+            @input="(val: string) => websocketMockNodeStore.changeWebSocketMockPath(val)"
           />
           <div class="mock-urls-wrapper">
             <div class="mock-url-item">
@@ -90,13 +90,13 @@ import { CopyDocument } from '@element-plus/icons-vue'
 import { CircleHelp } from 'lucide-vue-next'
 import { useI18n } from 'vue-i18n'
 import { storeToRefs } from 'pinia'
-import { useWebSocketMock } from '@/store/websocketMock/websocketMockStore'
+import { useWebSocketMockNode } from '@/store/websocketMockNode/websocketMockNodeStore'
 import { useProjectNav } from '@/store/projectWorkbench/projectNavStore'
 import { router } from '@/router/index'
 
 const { t } = useI18n()
-const websocketMockStore = useWebSocketMock()
-const { websocketMock } = storeToRefs(websocketMockStore)
+const websocketMockNodeStore = useWebSocketMockNode()
+const { websocketMock } = storeToRefs(websocketMockNodeStore)
 const projectNavStore = useProjectNav()
 const { currentSelectNav } = storeToRefs(projectNavStore)
 
@@ -168,7 +168,7 @@ const handleEnabledToggle = (val: string | number | boolean) => {
           .then(async (result) => {
             if (result.code === 0) {
               if (currentSelectNav.value?._id) {
-                const checkResult = await websocketMockStore.checkMockNodeEnabledStatus(currentSelectNav.value._id)
+                const checkResult = await websocketMockNodeStore.checkMockNodeEnabledStatus(currentSelectNav.value._id)
                 if (checkResult) {
                   enabled.value = true
                   mockError.value = '服务器关闭验证失败'
@@ -197,8 +197,8 @@ const handleEnabledToggle = (val: string | number | boolean) => {
 const checkEnabledStatus = () => {
   if (currentSelectNav.value?._id) {
     enabledStatusLoading.value = true
-    return websocketMockStore.checkMockNodeEnabledStatus(currentSelectNav.value._id)
-      .then((isEnabled) => {
+    return websocketMockNodeStore.checkMockNodeEnabledStatus(currentSelectNav.value._id)
+      .then((isEnabled: boolean) => {
         enabled.value = isEnabled
       })
       .catch(() => {

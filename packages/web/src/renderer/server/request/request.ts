@@ -9,7 +9,7 @@ import { GotRequestOptions, JsonData, RedirectOptions, ResponseInfo } from '@src
 import { useCommonHeader } from '@/store/projectWorkbench/commonHeaderStore';
 import { useProjectWorkbench } from '@/store/projectWorkbench/projectWorkbenchStore';
 import { useProjectNav } from '@/store/projectWorkbench/projectNavStore';
-import { useApidocResponse } from '@/store/httpNode/responseStore';
+import { useHttpNodeResponse } from '@/store/httpNode/httpNodeResponseStore';
 import { useHttpNodeConfig } from '@/store/httpNode/httpNodeConfigStore';
 import { httpNodeCache } from '@/cache/httpNode/httpNodeCache';
 import { httpResponseCache } from '@/cache/httpNode/httpResponseCache';
@@ -18,7 +18,7 @@ import { sendHistoryCache } from '@/cache/sendHistory/sendHistoryCache';
 import { config } from '@src/config/config';
 import { nanoid } from 'nanoid/non-secure';
 import { cloneDeep } from "lodash-es";
-import { useApidocRequest } from '@/store/httpNode/requestStore';
+import { useHttpNodeRequest } from '@/store/httpNode/httpNodeRequestStore';
 import { i18n } from '@/i18n';
 import { useCookies } from '@/store/projectWorkbench/cookiesStore';
 import { InitDataMessage, OnEvalSuccess, ReceivedEvent } from '@/worker/preRequest/types/types.ts';
@@ -240,7 +240,7 @@ export const getWebSocketHeaders = async (websocketNode: WebSocketNode, defaultH
   return headersObject;
 };
 const getBody = async (apidoc: HttpNode): Promise<GotRequestOptions['body']> => {
-  const { changeResponseInfo, changeRequestState } = useApidocResponse()
+  const { changeResponseInfo, changeRequestState } = useHttpNodeResponse()
   const { objectVariable, variables } = useVariable()
   const { changeFormDataErrorInfoById } = useHttpNode()
   const { mode, urlencoded } = apidoc.item.requestBody;
@@ -436,14 +436,14 @@ export const sendRequest = async () => {
   const redirectList = ref<ResponseInfo['redirectList']>([]);
   const projectWorkbenchStore = useProjectWorkbench();
   const { objectVariable } = useVariable();
-  const apidocResponseStore = useApidocResponse();
+  const httpNodeResponseStore = useHttpNodeResponse();
   const projectId = projectWorkbenchStore.projectId;
   const runtimeStore = useRuntime();
   const projectNavStore = useProjectNav();
   const selectedNav = projectNavStore.getSelectedNav(projectWorkbenchStore.projectId);
   const httpNodeStore = useHttpNode();
   const { updateCookiesBySetCookieHeader, getMachtedCookies } = useCookies();
-  const { changeCancelRequestRef } = useApidocRequest()
+  const { changeCancelRequestRef } = useHttpNodeRequest()
 
   // 缓存节流控制
   let lastCacheTime = 0;
@@ -461,13 +461,13 @@ export const sendRequest = async () => {
     changeLoadingProcess,
     addStreamData,
     changeFileBlobUrl
-  } = useApidocResponse()
+  } = useHttpNodeResponse()
   changeLoadingProcess({
     total: 0,
     transferred: 0,
     percent: 0,
   })
-  const copiedApidoc = cloneDeep(toRaw(httpNodeStore.$state.apidoc));
+  const copiedApidoc = cloneDeep(toRaw(httpNodeStore.$state.httpNodeInfo));
   const preSendMethod = getMethod(copiedApidoc);
   const preSendUrl = await getUrl(copiedApidoc);
   const preSendBody = await getBody(copiedApidoc);
@@ -484,7 +484,7 @@ export const sendRequest = async () => {
 
   let finalCookies = objCookies;
   const httpNodeConfigStore = useHttpNodeConfig();
-  const httpNodeConfigData = httpNodeConfigStore.currentConfig;
+  const httpNodeConfigData = httpNodeConfigStore.currentHttpNodeConfig;
   //实际发送请求
   const invokeRequest = async () => {
     const method = getMethod(copiedApidoc);
@@ -518,7 +518,7 @@ export const sendRequest = async () => {
       onAbort: () => {
         changeRequestState('finish');
         // 如果是流式返回的数据，则不显示请求已取消的消息
-        if (apidocResponseStore.responseInfo.headers['transfer-encoding'] === 'chunked') {
+        if (httpNodeResponseStore.responseInfo.headers['transfer-encoding'] === 'chunked') {
           return;
         }
         changeResponseInfo({
@@ -585,10 +585,10 @@ export const sendRequest = async () => {
       onResponseData(chunkWithTimestampe, loadedLength, totalLength) {
         addStreamData(chunkWithTimestampe)
         changeResponseInfo({
-          bodyByteLength: apidocResponseStore.responseInfo.bodyByteLength + chunkWithTimestampe.chunk.byteLength,
+          bodyByteLength: httpNodeResponseStore.responseInfo.bodyByteLength + chunkWithTimestampe.chunk.byteLength,
         })
         changeLoadingProcess({
-          total: totalLength || (apidocResponseStore.responseInfo.bodyByteLength + chunkWithTimestampe.chunk.byteLength),
+          total: totalLength || (httpNodeResponseStore.responseInfo.bodyByteLength + chunkWithTimestampe.chunk.byteLength),
           transferred: loadedLength,
           percent: loadedLength / totalLength
         })
@@ -598,8 +598,8 @@ export const sendRequest = async () => {
         if (now - lastCacheTime >= cacheThrottleDelay) {
           lastCacheTime = now;
           // 只有在数据大小合理的情况下才进行深拷贝和缓存
-          if (apidocResponseStore.responseInfo.bodyByteLength <= config.cacheConfig.httpNodeResponseCache.singleResponseBodySize) {
-            httpResponseCache.setResponse(selectedNav?._id ?? '', apidocResponseStore.responseInfo);
+          if (httpNodeResponseStore.responseInfo.bodyByteLength <= config.cacheConfig.httpNodeResponseCache.singleResponseBodySize) {
+            httpResponseCache.setResponse(selectedNav?._id ?? '', httpNodeResponseStore.responseInfo);
           }
         }
       },
@@ -807,9 +807,9 @@ export const sendRequest = async () => {
 }
 
 export const stopRequest = (): void => {
-  const apidocResponseStore = useApidocResponse()
-  const { changeRequestState } = apidocResponseStore
-  const { cancelRequest } = useApidocRequest()
+  const httpNodeResponseStore = useHttpNodeResponse()
+  const { changeRequestState } = httpNodeResponseStore
+  const { cancelRequest } = useHttpNodeRequest()
   changeRequestState('waiting');
   cancelRequest();
 }

@@ -3,7 +3,7 @@ import { router } from '@/router/index'
 import { sendRequest, stopRequest } from '@/server/request/request'
 import { httpResponseCache } from '@/cache/httpNode/httpResponseCache'
 import { useProjectNav } from '@/store/projectWorkbench/projectNavStore'
-import { useApidocResponse } from '@/store/httpNode/responseStore'
+import { useHttpNodeResponse } from '@/store/httpNode/httpNodeResponseStore'
 import { useHttpNode } from '@/store/httpNode/httpNodeStore'
 import { useRuntime } from '@/store/runtime/runtimeStore'
 import { useHttpRedoUndo } from '@/store/redoUndo/httpRedoUndoStore'
@@ -34,7 +34,7 @@ type OperationReturn = {
 export default (): OperationReturn => {
   const projectNavStore = useProjectNav();
   const httpNodeStore = useHttpNode()
-  const apidocResponseStroe = useApidocResponse()
+  const httpNodeResponseStore = useHttpNodeResponse()
   const runtimeStore = useRuntime()
   const httpRedoUndoStore = useHttpRedoUndo()
   const loading2 = ref(false); //保存接口
@@ -56,28 +56,28 @@ export default (): OperationReturn => {
   };
     //刷新文档
   const handleFreshApidoc = () => {
-    if (apidocResponseStroe.requestState === 'sending' || apidocResponseStroe.requestState === 'response') {
+    if (httpNodeResponseStore.requestState === 'sending' || httpNodeResponseStore.requestState === 'response') {
       stopRequest();
     }
     setTimeout(() => {
       loading3.value = true;
       // todo
-      apidocResponseStroe.changeRequestState('waiting');
-      apidocResponseStroe.clearResponse()
+      httpNodeResponseStore.changeRequestState('waiting');
+      httpNodeResponseStore.clearResponse()
       if (currentSelectNav.value) {
         const nodeId = currentSelectNav.value._id;
         httpResponseCache.deleteResponse(nodeId);
         httpRedoUndoStore.clearRedoUndoListByNodeId(nodeId);
       }
       if (currentSelectNav.value?._id.startsWith('local_')) { //通过+按钮新增的空白文档
-        const cpOriginApidoc = httpNodeStore.originApidoc;
-        httpNodeStore.changeApidoc(JSON.parse(JSON.stringify(cpOriginApidoc)))
+        const cpOriginApidoc = httpNodeStore.originHttpNodeInfo;
+        httpNodeStore.changeHttpNodeInfo(JSON.parse(JSON.stringify(cpOriginApidoc)))
         loading3.value = false;
         return;
       }
 
       const executeRefresh = () => {
-        httpNodeStore.getApidocDetail({
+        httpNodeStore.getHttpNodeDetail({
           id: currentSelectNav.value?._id || "",
           projectId,
         }).finally(() => {
@@ -100,7 +100,7 @@ export default (): OperationReturn => {
     loading3,
     handleSendRequest,
     handleStopRequest,
-    // handleSaveApidoc,
+    // handleSaveHttpNode,
     handleFreshApidoc,
   }
 }

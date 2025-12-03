@@ -55,12 +55,12 @@ type ParamsTreeInstance = InstanceType<typeof SParamsTree> & {
   onMultilineCancelled?: (handler: () => void) => void
 }
 const queryParamsTreeRef = ref<ParamsTreeInstance | null>(null)
-const pathTreeData = computed(() => JSON.parse(JSON.stringify(httpNodeStore.apidoc.item.paths)));
-const queryTreeData = computed(() => JSON.parse(JSON.stringify(httpNodeStore.apidoc.item.queryParams)));
+const pathTreeData = computed(() => JSON.parse(JSON.stringify(httpNodeStore.httpNodeInfo.item.paths)));
+const queryTreeData = computed(() => JSON.parse(JSON.stringify(httpNodeStore.httpNodeInfo.item.queryParams)));
 const isQueryMultiline = ref(false)
 //是否存在path参数
 const hasPathParams = computed(() => {
-  const { paths } = httpNodeStore.apidoc.item;
+  const { paths } = httpNodeStore.httpNodeInfo.item;
   const hasPathsParams = paths.some((data) => data.key);
   return hasPathsParams;
 })
@@ -82,8 +82,8 @@ watch(queryParamsTreeRef, (instance) => {
 
 // 处理 Query 参数变化
 const handleQueryParamsChange = (newData: ApidocProperty<'string' | 'file'>[]) => {
-  const oldValue = cloneDeep(httpNodeStore.apidoc.item.queryParams);
-  httpNodeStore.apidoc.item.queryParams = newData as ApidocProperty<'string'>[];
+  const oldValue = cloneDeep(httpNodeStore.httpNodeInfo.item.queryParams);
+  httpNodeStore.httpNodeInfo.item.queryParams = newData as ApidocProperty<'string'>[];
   if (!currentSelectNav.value) return;
   httpRedoUndoStore.recordOperation({
     nodeId: currentSelectNav.value._id,
@@ -98,8 +98,8 @@ const handleQueryParamsChange = (newData: ApidocProperty<'string' | 'file'>[]) =
 
 // 处理 Path 参数变化
 const handlePathParamsChange = (newData: ApidocProperty<'string' | 'file'>[]) => {
-  const oldValue = cloneDeep(httpNodeStore.apidoc.item.paths);
-  httpNodeStore.apidoc.item.paths = newData as ApidocProperty<'string'>[];
+  const oldValue = cloneDeep(httpNodeStore.httpNodeInfo.item.paths);
+  httpNodeStore.httpNodeInfo.item.paths = newData as ApidocProperty<'string'>[];
   if (!currentSelectNav.value) return;
   httpRedoUndoStore.recordOperation({
     nodeId: currentSelectNav.value._id,

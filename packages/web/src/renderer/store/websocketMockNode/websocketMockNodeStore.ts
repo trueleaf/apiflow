@@ -21,7 +21,7 @@ const getWebSocketMockNode = (id: string): WebSocketMockNode | null => {
   return cached ? cloneDeep(cached) : null;
 }
 
-export const useWebSocketMock = defineStore('websocketMock', () => {
+export const useWebSocketMockNode = defineStore('websocketMockNode', () => {
   const runtimeStore = useRuntime();
   const isOffline = () => runtimeStore.networkMode === 'offline';
   const websocketMock = ref<WebSocketMockNode>(generateEmptyWebSocketMockNode(nanoid()));

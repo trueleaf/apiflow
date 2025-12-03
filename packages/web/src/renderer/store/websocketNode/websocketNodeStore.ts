@@ -91,25 +91,21 @@ export const useWebSocket = defineStore('websocket', () => {
     if (!websocket.value) return;
     websocket.value.info.name = name;
   };
-
   // 改变websocket描述
   const changeWebSocketDescription = (description: string): void => {
     if (!websocket.value) return;
     websocket.value.info.description = description;
   };
-  
   // 改变协议类型
   const changeWebSocketProtocol = (protocol: 'ws' | 'wss'): void => {
     if (!websocket.value) return;
     websocket.value.item.protocol = protocol;
   };
-  
   // 改变请求路径
   const changeWebSocketPath = (path: string): void => {
     if (!websocket.value) return;
     websocket.value.item.url.path = path;
   };
-  
   // 改变请求前缀
   const changeWebSocketPrefix = (prefix: string): void => {
     if (!websocket.value) return;
@@ -192,15 +188,14 @@ export const useWebSocket = defineStore('websocket', () => {
    
   };
   
-
-// 添加请求头
-const addWebSocketHeader = (header?: Partial<ApidocProperty<'string'>>): void => {
-  if (!websocket.value) return;
-  
-  const newHeader = generateEmptyProperty();
-  Object.assign(newHeader, header);
-  websocket.value.item.headers.push(newHeader);
-};
+  // 添加请求头
+  const addWebSocketHeader = (header?: Partial<ApidocProperty<'string'>>): void => {
+    if (!websocket.value) return;
+    
+    const newHeader = generateEmptyProperty();
+    Object.assign(newHeader, header);
+    websocket.value.item.headers.push(newHeader);
+  };
   /*
   |--------------------------------------------------------------------------
   | 查询参数操作方法
@@ -232,7 +227,6 @@ const addWebSocketHeader = (header?: Partial<ApidocProperty<'string'>>): void =>
     if (!websocket.value) return;
     websocket.value.preRequest.raw = script;
   };
-  
   // 改变后置脚本
   const changeWebSocketAfterRequest = (script: string): void => {
     if (!websocket.value) return;
@@ -257,7 +251,6 @@ const addWebSocketHeader = (header?: Partial<ApidocProperty<'string'>>): void =>
     websocket.value.item.messageBlocks.push(newBlock);
     return newBlock.id;
   };
-
   // 删除消息块
   const deleteMessageBlockById = (id: string): void => {
     if (!websocket.value) return;
@@ -270,7 +263,6 @@ const addWebSocketHeader = (header?: Partial<ApidocProperty<'string'>>): void =>
       });
     }
   };
-
   // 更新消息块
   const updateMessageBlockById = (id: string, updates: Partial<WebsocketMessageBlock>): void => {
     if (!websocket.value) return;
@@ -279,12 +271,10 @@ const addWebSocketHeader = (header?: Partial<ApidocProperty<'string'>>): void =>
       Object.assign(block, updates);
     }
   };
-
   // 获取消息块
   const getMessageBlockById = (id: string): WebsocketMessageBlock | undefined => {
     return websocket.value?.item.messageBlocks.find(block => block.id === id);
   };
-
   // 更新消息块排序
   const updateMessageBlocksOrder = (blocks: WebsocketMessageBlock[]): void => {
     if (!websocket.value) return;
@@ -305,21 +295,18 @@ const addWebSocketHeader = (header?: Partial<ApidocProperty<'string'>>): void =>
       websocket.value.config.autoSend = enabled;
     }
   };
-
   // 改变自动发送间隔
   const changeWebSocketAutoSendInterval = (interval: number): void => {
     if (websocket.value) {
       websocket.value.config.autoSendInterval = interval;
     }
   };
-
   // 改变自动发送内容
   const changeWebSocketAutoSendContent = (content: string): void => {
     if (websocket.value) {
       websocket.value.config.autoSendContent = content;
     }
   };
-
   // 改变自动发送消息类型
   const changeWebSocketAutoSendMessageType = (messageType: WebsocketMessageType): void => {
     if (websocket.value) {
@@ -336,7 +323,6 @@ const addWebSocketHeader = (header?: Partial<ApidocProperty<'string'>>): void =>
   const changeConnectionState = (state: 'disconnected' | 'connecting' | 'connected' | 'error'): void => {
     connectionState.value = state;
   };
-
   // 改变连接ID
   const changeConnectionId = (id: string): void => {
     connectionId.value = id;
@@ -351,12 +337,10 @@ const addWebSocketHeader = (header?: Partial<ApidocProperty<'string'>>): void =>
   const addMessage = (message: WebsocketResponse): void => {
     responseMessage.value.push(message);
   };
-
   // 替换所有消息
   const replaceMessages = (messages: WebsocketResponse[]): void => {
     responseMessage.value = messages;
   };
-
   // 清空所有消息
   const clearMessages = (): void => {
     responseMessage.value = [];
@@ -379,26 +363,18 @@ const addWebSocketHeader = (header?: Partial<ApidocProperty<'string'>>): void =>
       webSocketNodeCache.setWebSocketNode(websocket.value);
     }
   };
-
   // 从缓存获取websocket配置
   const getCachedWebSocket = (id: string): WebSocketNode | null => {
     return webSocketNodeCache.getWebSocketNode(id);
   };
-
   const setResponseCacheLoading = (state: boolean) => {
     responseCacheLoading.value = state;
   };
-  
-  /**
-   * 设置当前激活的模块
-   */
+  // 设置当前激活的模块
   const setActiveTab = (moduleName: WebsocketActiveTabType): void => {
     currentActiveTab.value = moduleName;
   };
-
-  /**
-   * 改变消息编辑器引用
-   */
+  // 改变消息编辑器引用
   const changeMessageEditorRef = (ref: {changeSilent: (value: boolean) => void} | null): void => {
     messageEditorRef.value = ref;
   };

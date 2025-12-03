@@ -90,7 +90,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, computed, Ref, PropType, onMounted, nextTick } from 'vue'
+import { ref, Ref, PropType, onMounted, nextTick } from 'vue'
 import { storeToRefs } from 'pinia'
 import 'element-plus/es/components/message/style/css'
 import { useI18n } from 'vue-i18n'
@@ -103,8 +103,6 @@ import { config } from '@src/config/config'
 import { router } from '@/router'
 import { useBanner } from '@/store/projectWorkbench/bannerStore'
 import { requestMethods } from '@/data/data'
-import { useCommonHeader } from '@/store/projectWorkbench/commonHeaderStore'
-import { useProjectWorkbench } from '@/store/projectWorkbench/projectWorkbenchStore'
 import dayjs from 'dayjs'
 import { message } from '@/helper'
 
@@ -138,8 +136,6 @@ const props = defineProps({
 });
 const emits = defineEmits(['update:modelValue', 'success']);
 const bannerStore = useBanner()
-const commonHeaderStore = useCommonHeader()
-const projectWorkbenchStore = useProjectWorkbench()
 //=========================================================================//
 //生成链接额外配置信息
 const { t } = useI18n()
@@ -182,13 +178,6 @@ onMounted(() => {
   })
 })
 //=====================================生成链接====================================//
-const projectInfo = computed(() => {
-  return {
-    _id: projectWorkbenchStore.projectId,
-    layout: projectWorkbenchStore.layout,
-    commonHeaders: commonHeaderStore.commonHeaders,
-  }
-}); //项目基本信息
 const projectId = router.currentRoute.value.query.id as string; //项目id
 const loading = ref(false); //生成项目分享加载
 const shareLink = ref(''); //项目分享地址

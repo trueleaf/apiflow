@@ -281,8 +281,6 @@ import { useBannerData } from './composables/banner-data'
 import { deleteNode, addFileAndFolderCb, pasteNodes, forkNode, dragNode, renameNode } from './composables/curd-node'
 import type { TreeNodeOptions } from 'element-plus/es/components/tree/src/tree.type.mjs'
 import { requestMethods } from '@/data/data'
-import { useCommonHeader } from '@/store/projectWorkbench/commonHeaderStore'
-import { useProjectWorkbench } from '@/store/projectWorkbench/projectWorkbenchStore'
 import { useBanner } from '@/store/projectWorkbench/bannerStore'
 import { useProjectNav } from '@/store/projectWorkbench/projectNavStore'
 import { IPC_EVENTS } from '@src/types/ipc'
@@ -314,20 +312,11 @@ const selectNodes: Ref<ApidocBannerWithProjectId[]> = ref([]); //当前选中节
 const editNode: Ref<ApidocBanner | null> = ref(null); //正在编辑的节点
 const showMoreNodeInfo = ref(false); //banner是否显示更多内容
 const enableDrag = ref(true);//是否允许拖拽
-const commonHeaderStore = useCommonHeader();
-const projectWorkbenchStore = useProjectWorkbench();
 const bannerStore = useBanner();
 const projectNavStore = useProjectNav();
 const { bannerLoading: loading, defaultExpandedKeys, foldersWithRunningMock } = storeToRefs(bannerStore)
 const { getBannerData } = useBannerData();
 
-const projectInfo = computed(() => {
-  return {
-    _id: projectWorkbenchStore.projectId,
-    layout: projectWorkbenchStore.layout,
-    commonHeaders: commonHeaderStore.commonHeaders,
-  }
-});
 const activeNode = computed(() => projectNavStore.navs[projectId.value]?.find((v) => v.selected));
 const bannerData = computed(() => {
   const originBannerData = bannerStore.banner;

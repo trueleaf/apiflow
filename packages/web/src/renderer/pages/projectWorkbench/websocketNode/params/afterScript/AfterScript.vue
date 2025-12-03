@@ -7,7 +7,7 @@
 <script lang="ts" setup>
 import { computed } from 'vue'
 import AfterEditor from './editor/AfterEditor.vue'
-import { useWebSocket } from '@/store/websocket/websocketStore';
+import { useWebSocket } from '@/store/websocketNode/websocketNodeStore';
 import { useWsRedoUndo } from '@/store/redoUndo/wsRedoUndoStore'
 
 const websocketStore = useWebSocket()

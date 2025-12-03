@@ -167,7 +167,7 @@ import { ref, computed, watch, onUnmounted } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useI18n } from 'vue-i18n'
 import { useProjectNav } from '@/store/projectWorkbench/projectNavStore'
-import { useWebSocket } from '@/store/websocket/websocketStore'
+import { useWebSocket } from '@/store/websocketNode/websocketNodeStore'
 import {
   Plus,
   Position,

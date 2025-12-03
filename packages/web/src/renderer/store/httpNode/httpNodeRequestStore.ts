@@ -5,9 +5,9 @@ import { ref, toRaw, watch } from "vue";
 import { useHttpNode } from "./httpNodeStore.ts";
 import { useVariable } from "../projectWorkbench/variablesStore.ts";
 
-export const useApidocRequest = defineStore('apidocRequest', () => {
+export const useHttpNodeRequest = defineStore('httpNodeRequest', () => {
   const httpNodeStore = useHttpNode();
-  const apidocVaribleStore = useVariable();
+  const httpNodeVariableStore = useVariable();
   const fullUrl = ref('');
   const cancelRequestRef = ref<(() => void) | null>(null);
   const cancelRequest = () => {
@@ -20,14 +20,14 @@ export const useApidocRequest = defineStore('apidocRequest', () => {
     cancelRequestRef.value = cancelRequest;
   }
   const getFullUrl = debounce(async () => {
-    fullUrl.value = await getUrl(toRaw(httpNodeStore.$state.apidoc));
+    fullUrl.value = await getUrl(toRaw(httpNodeStore.$state.httpNodeInfo));
   }, 500, {
     leading: true,
   });
   watch([() => {
-    return httpNodeStore.apidoc.item;
+    return httpNodeStore.httpNodeInfo.item;
   }, () => {
-    return apidocVaribleStore.objectVariable;
+    return httpNodeVariableStore.objectVariable;
   }], () => {
     getFullUrl()
   }, {

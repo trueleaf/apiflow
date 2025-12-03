@@ -57,13 +57,13 @@ import { computed } from 'vue'
 import { QuestionFilled } from '@element-plus/icons-vue'
 import { formatUnit } from '@/helper'
 import { useI18n } from 'vue-i18n'
-import { useApidocResponse } from '@/store/httpNode/responseStore';
+import { useHttpNodeResponse } from '@/store/httpNode/httpNodeResponseStore';
 
 //远端返回值
-const apidocResponseStore = useApidocResponse();
+const httpNodeResponseStore = useHttpNodeResponse();
 const { t } = useI18n()
 
-const responseInfo = computed(() => apidocResponseStore.responseInfo);
+const responseInfo = computed(() => httpNodeResponseStore.responseInfo);
 //格式化返回值大小
 const formatedBytes = computed(() => formatUnit(responseInfo.value.bodyByteLength, 'bytes'))
 //格式化返回时间

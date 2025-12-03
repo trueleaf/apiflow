@@ -88,7 +88,7 @@ import beautify from 'js-beautify'
 import { useHttpNode } from '@/store/httpNode/httpNodeStore';
 import { ChevronDown, ChevronRight } from 'lucide-vue-next'
 import { useProjectWorkbench } from '@/store/projectWorkbench/projectWorkbenchStore';
-import { useApidocResponse } from '@/store/httpNode/responseStore';
+import { useHttpNodeResponse } from '@/store/httpNode/httpNodeResponseStore';
 import { downloadStringAsText } from '@/helper'
 import { formatUnit } from '@/helper'
 import { storeToRefs } from 'pinia';
@@ -96,8 +96,8 @@ import SJsonEditor from '@/components/common/jsonEditor/ClJsonEditor.vue'
 
 const httpNodeStore = useHttpNode();
 const projectWorkbenchStore = useProjectWorkbench();
-const apidocResponseStore = useApidocResponse();
-const { responseInfo } = storeToRefs(apidocResponseStore);
+const httpNodeResponseStore = useHttpNodeResponse();
+const { responseInfo } = storeToRefs(httpNodeResponseStore);
 const { t } = useI18n()
 const collapseStates = reactive({
   basicInfo: true,
@@ -118,7 +118,7 @@ const headers = computed(() => {
   return kvHeaders;
 });
 
-const contentType = computed(() => httpNodeStore.apidoc.item.contentType); //contentType
+const contentType = computed(() => httpNodeStore.httpNodeInfo.item.contentType); //contentType
 const formatJsonStr = (code: string) => beautify(code, { indent_size: 4 });
 const upperHeaderKey = (key: string) => key.replace(/(^\w)|(-\w)/g, ($1) => $1.toUpperCase());
 const safedMultipart = (strBody: string) => {

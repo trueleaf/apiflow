@@ -8,7 +8,7 @@ import { useHttpNode } from '@/store/httpNode/httpNodeStore';
  */
 export const handleChangeUrl = (): void => {
   const httpNodeStore = useHttpNode()
-  const requestPath = httpNodeStore.apidoc.item.url.path;
+  const requestPath = httpNodeStore.httpNodeInfo.item.url.path;
   const pathParamsReg = /(?<!\{)\{([^{}]+)\}(?!\})/g; //path参数匹配
   let matchedPathParams = requestPath.match(pathParamsReg);
   if (matchedPathParams) {
@@ -44,7 +44,7 @@ const convertQueryToParams = (requestPath: string): void => {
     newParams.push(property)
   })
   const uniqueData: ApidocProperty<'string'>[] = [];
-  const originParams = httpNodeStore.apidoc.item.queryParams;
+  const originParams = httpNodeStore.httpNodeInfo.item.queryParams;
   newParams.forEach(item => { //过滤重复的query值
     const matchedItem = originParams.find(v => v.key === item.key);
     if (originParams.every(v => v.key !== item.key)) {
@@ -65,10 +65,10 @@ export const handleFormatUrl = ():void => {
   // const projectId = router.currentRoute.value.query.id as string;
   const requestPath = computed<string>({
     get() {
-      return httpNodeStore.apidoc.item.url.path;
+      return httpNodeStore.httpNodeInfo.item.url.path;
     },
     set(path) {
-      httpNodeStore.changeApidocUrl(path)
+      httpNodeStore.changeHttpNodeUrl(path)
     },
   });
     // const currentPrefix = computed<string>(() => store.state["apidoc/apidoc"].apidoc.item.url.prefix);

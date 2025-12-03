@@ -5,7 +5,7 @@ import { generateEmptyResponse } from "@/helper"
 import { ChunkWithTimestampe, DeepPartial, ResponseInfo } from "@src/types"
 import { assign } from "lodash-es"
 
-export const useApidocResponse = defineStore('apidocResponse', () => {
+export const useHttpNodeResponse = defineStore('httpNodeResponse', () => {
   const responseInfo = ref<ResponseInfo>(generateEmptyResponse())
   const requestState = ref<'waiting' | 'sending' | 'response' | 'finish'>('waiting'); //请求状态
   const rawResponseBody = ref<Uint8Array | string>(''); //响应体

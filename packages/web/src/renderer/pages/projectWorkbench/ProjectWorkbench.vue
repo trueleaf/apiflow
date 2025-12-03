@@ -22,7 +22,7 @@ import { useCommonHeader } from '@/store/projectWorkbench/commonHeaderStore'
 import { useProjectWorkbench } from '@/store/projectWorkbench/projectWorkbenchStore'
 import { useRoute } from 'vue-router';
 import { useCookies } from '@/store/projectWorkbench/cookiesStore';
-import { useWebSocket } from '@/store/websocket/websocketStore';
+import { useWebSocket } from '@/store/websocketNode/websocketNodeStore';
 import { useWindowEvent } from '@/hooks/useWindowEvent';
 
 const route = useRoute();
@@ -58,8 +58,8 @@ const bindShortcut = (e: KeyboardEvent) => {
     e.stopPropagation();
     if (currentSelectNav.value._id.includes('local_')) {
       saveDocDialogVisible.value = true
-    } else if (currentSelectNav.value.tabType === 'http' && !httpNodeStore.saveLoading && !httpNodeStore.loading) {
-      httpNodeStore.saveApidoc();
+    } else if (currentSelectNav.value.tabType === 'http' && !httpNodeStore.saveHttpNodeLoading && !httpNodeStore.httpContentLoading) {
+      httpNodeStore.saveHttpNode();
     } else if (currentSelectNav.value.tabType === 'websocket' && !websocketStore.saveLoading && !websocketStore.loading) {
       websocketStore.saveWebsocket();
     }

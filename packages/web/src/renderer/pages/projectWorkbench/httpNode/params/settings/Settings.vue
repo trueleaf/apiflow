@@ -235,7 +235,7 @@ import { tabOrderCache } from '@/cache/httpNode/tabOrderCache'
 import draggable from 'vuedraggable'
 const { t } = useI18n()
 const httpNodeConfigStore = useHttpNodeConfig()
-const { currentConfig: formData } = storeToRefs(httpNodeConfigStore)
+const { currentHttpNodeConfig: formData } = storeToRefs(httpNodeConfigStore)
 const projectId = computed(() => router.currentRoute.value.query.id as string)
 const defaultConfig = generateDefaultHttpNodeConfig()
 const BYTES_IN_MEGABYTE = 1024 * 1024

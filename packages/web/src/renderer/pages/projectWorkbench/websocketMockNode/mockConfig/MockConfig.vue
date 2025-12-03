@@ -12,10 +12,10 @@
     
     <!-- 操作按钮（固定在底部） -->
     <div class="action-buttons">
-      <el-button type="primary" :loading="websocketMockStore.saveLoading" @click="handleSave">
+      <el-button type="primary" :loading="websocketMockNodeStore.saveLoading" @click="handleSave">
         {{ t('保存配置') }}
       </el-button>
-      <el-button type="default" :icon="Refresh" :loading="websocketMockStore.refreshLoading" @click="handleRefresh">
+      <el-button type="default" :icon="Refresh" :loading="websocketMockNodeStore.refreshLoading" @click="handleRefresh">
         {{ t('刷新') }}
       </el-button>
     </div>
@@ -28,35 +28,35 @@ import Condition from './mockCondition/MockCondition.vue'
 import Response from './mockResponse/MockResponse.vue'
 import { useI18n } from 'vue-i18n'
 import { storeToRefs } from 'pinia'
-import { useWebSocketMock } from '@/store/websocketMock/websocketMockStore'
+import { useWebSocketMockNode } from '@/store/websocketMockNode/websocketMockNodeStore'
 import { useProjectNav } from '@/store/projectWorkbench/projectNavStore'
 import { useRuntime } from '@/store/runtime/runtimeStore'
 
 const { t } = useI18n()
-const websocketMockStore = useWebSocketMock()
+const websocketMockNodeStore = useWebSocketMockNode()
 const projectNavStore = useProjectNav()
 const runtimeStore = useRuntime()
 const { currentSelectNav } = storeToRefs(projectNavStore)
 
 // 保存 WebSocketMock
 const handleSave = () => {
-  websocketMockStore.saveWebSocketMockNode()
+  websocketMockNodeStore.saveWebSocketMockNode()
 }
 // 刷新 WebSocketMock
 const handleRefresh = async () => {
   if (!currentSelectNav.value) {
     return
   }
-  websocketMockStore.refreshLoading = true
+  websocketMockNodeStore.refreshLoading = true
   try {
     const isOffline = runtimeStore.networkMode === 'offline'
     if (isOffline) {
-      websocketMockStore.replaceWebSocketMockNode(websocketMockStore.originWebSocketMock)
-      websocketMockStore.cacheWebSocketMockNode()
+      websocketMockNodeStore.replaceWebSocketMockNode(websocketMockNodeStore.originWebSocketMock)
+      websocketMockNodeStore.cacheWebSocketMockNode()
     }
   } finally {
     setTimeout(() => {
-      websocketMockStore.refreshLoading = false
+      websocketMockNodeStore.refreshLoading = false
     }, 100)
   }
 }

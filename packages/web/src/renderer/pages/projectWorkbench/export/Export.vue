@@ -98,7 +98,6 @@ import { ApidocBanner, HttpNode, WebSocketNode } from '@src/types';
 import { request } from '@/api/api'
 import { useI18n } from 'vue-i18n'
 import { requestMethods } from '@/data/data'
-import { useCommonHeader } from '@/store/projectWorkbench/commonHeaderStore';
 import { useProjectWorkbench } from '@/store/projectWorkbench/projectWorkbenchStore';
 import { useBanner } from '@/store/projectWorkbench/bannerStore';
 import { useVariable } from '@/store/projectWorkbench/variablesStore';
@@ -116,7 +115,6 @@ import { FileJson } from 'lucide-vue-next';
 import { useAppSettings } from '@/store/appSettings/appSettingsStore'
 
 const appSettingsStore = useAppSettings()
-const commonHeaderStore = useCommonHeader();
 const projectWorkbenchStore = useProjectWorkbench();
 const bannerStore = useBanner();
 const variableStore = useVariable();
@@ -124,15 +122,6 @@ const route = useRoute()
 const runtimeStore = useRuntime();
 const isStandalone = computed(() => runtimeStore.networkMode === 'offline');
 const selectedType: Ref<'html' | 'pdf' | 'word' | 'moyu' | 'openapi' | 'otherProject'> = ref('html')
-const projectInfo = computed(() => {
-  return {
-    _id: projectWorkbenchStore.projectId,
-    layout: projectWorkbenchStore.layout,
-    variables: variableStore.variables,
-    tempVariables: [], // tempVariables 在当前实现中为空数组
-    commonHeaders: commonHeaderStore.commonHeaders,
-  }
-});
 const { banner: bannerData } = storeToRefs(bannerStore)
 //当前选中节点
 const allCheckedNodes: Ref<ApidocBanner[]> = ref([]);

@@ -15,7 +15,7 @@
             :step="100"
             :controls="false"
             class="delay-input"
-            @change="(val) => websocketMockStore.changeWebSocketMockDelay(val ?? 0)"
+            @change="(val) => websocketMockNodeStore.changeWebSocketMockDelay(val ?? 0)"
           />
         </div>
       </div>
@@ -27,7 +27,7 @@
             <el-switch
               v-model="websocketMock.config.echoMode"
               size="small"
-              @change="(val) => websocketMockStore.changeWebSocketMockEchoMode(val as boolean)"
+              @change="(val) => websocketMockNodeStore.changeWebSocketMockEchoMode(val as boolean)"
             />
           </div>
           <div class="echo-tip">{{ t('开启后原样返回客户端发送的消息') }}</div>
@@ -55,7 +55,7 @@
               :max-height="300"
               :auto-height="true"
               :placeholder="t('收到客户端消息后返回的内容')"
-              @update:model-value="(val: string) => websocketMockStore.changeWebSocketMockResponseContent(val)"
+              @update:model-value="(val: string) => websocketMockNodeStore.changeWebSocketMockResponseContent(val)"
             />
           </div>
         </div>
@@ -67,12 +67,12 @@
 <script lang="ts" setup>
 import { useI18n } from 'vue-i18n'
 import { storeToRefs } from 'pinia'
-import { useWebSocketMock } from '@/store/websocketMock/websocketMockStore'
+import { useWebSocketMockNode } from '@/store/websocketMockNode/websocketMockNodeStore'
 import CodeEditor from '@/components/ui/cleanDesign/codeEditor/CodeEditor.vue'
 
 const { t } = useI18n()
-const websocketMockStore = useWebSocketMock()
-const { websocketMock } = storeToRefs(websocketMockStore)
+const websocketMockNodeStore = useWebSocketMockNode()
+const { websocketMock } = storeToRefs(websocketMockNodeStore)
 </script>
 
 <style scoped>

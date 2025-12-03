@@ -171,8 +171,8 @@ const jsonComponent: Ref<null | {
 
 //根据参数内容校验对应的contentType值
 const checkContentType = () => {
-  const type = httpNodeStore.apidoc.item.requestBody.mode
-  const { formdata, urlencoded, raw, rawJson, binary } = httpNodeStore.apidoc.item.requestBody;
+  const type = httpNodeStore.httpNodeInfo.item.requestBody.mode
+  const { formdata, urlencoded, raw, rawJson, binary } = httpNodeStore.httpNodeInfo.item.requestBody;
   // const converJsonData = apidocConvertParamsToJsonData(json, true);
   const hasJsonData = rawJson?.length > 0;
   const hasFormData = formdata.filter(p => p.select).some((data) => data.key);
@@ -219,14 +219,14 @@ const handleHideTip = () => {
 //body类型
 const bodyType = computed<HttpNodeBodyMode>({
   get() {
-    return httpNodeStore.apidoc.item.requestBody.mode;
+    return httpNodeStore.httpNodeInfo.item.requestBody.mode;
   },
   set(val) {
     httpNodeStore.changeBodyMode(val);
   },
 });
 const requestBody = computed<HttpNodeBodyParams>(() => {
-  return httpNodeStore.apidoc.item.requestBody
+  return httpNodeStore.httpNodeInfo.item.requestBody
 })
 /*
 |--------------------------------------------------------------------------
@@ -241,7 +241,7 @@ const requestBody = computed<HttpNodeBodyParams>(() => {
 //json格式body参数
 const rawJsonData = computed<string>({
   get() {
-    const { rawJson } = httpNodeStore.apidoc.item.requestBody;
+    const { rawJson } = httpNodeStore.httpNodeInfo.item.requestBody;
     return rawJson;
   },
   set(val) {
@@ -250,7 +250,7 @@ const rawJsonData = computed<string>({
 })
 //处理JSON内容变化
 const handleJsonChange = (newValue: string) => {
-  const oldValue = httpNodeStore.apidoc.item.requestBody.rawJson;
+  const oldValue = httpNodeStore.httpNodeInfo.item.requestBody.rawJson;
   httpNodeStore.changeRawJson(newValue);
   recordJsonOperation(oldValue, newValue);
   checkContentType();
@@ -296,26 +296,26 @@ const handleJsonEditorReady = () => {
 | x-www-form-urlencoded类型操作
 |--------------------------------------------------------------------------
 */
-const urlencodedData = computed(() => httpNodeStore.apidoc.item.requestBody.urlencoded)
+const urlencodedData = computed(() => httpNodeStore.httpNodeInfo.item.requestBody.urlencoded)
 /*
 |--------------------------------------------------------------------------
 | raw类型数据处理
 |--------------------------------------------------------------------------
 */
 //raw类型
-const rawType = computed<HttpNodeBodyRawType>(() => httpNodeStore.apidoc.item.requestBody.raw.dataType)
+const rawType = computed<HttpNodeBodyRawType>(() => httpNodeStore.httpNodeInfo.item.requestBody.raw.dataType)
 //raw类型数据值
-const rawValue = computed(() => httpNodeStore.apidoc.item.requestBody.raw.data)
+const rawValue = computed(() => httpNodeStore.httpNodeInfo.item.requestBody.raw.data)
 //改变raw数据值
 const handleChangeRawData = (newData: string) => {
   const oldValue = {
-    data: httpNodeStore.apidoc.item.requestBody.raw.data,
-    dataType: httpNodeStore.apidoc.item.requestBody.raw.dataType
+    data: httpNodeStore.httpNodeInfo.item.requestBody.raw.data,
+    dataType: httpNodeStore.httpNodeInfo.item.requestBody.raw.dataType
   };
   httpNodeStore.changeBodyRawValue(newData);
   const newValue = {
     data: newData,
-    dataType: httpNodeStore.apidoc.item.requestBody.raw.dataType
+    dataType: httpNodeStore.httpNodeInfo.item.requestBody.raw.dataType
   };
   recordRawDataOperation(oldValue, newValue);
   checkContentType();
@@ -346,7 +346,7 @@ const handleRawEditorRedo = () => {
 }
 //切换raw参数类型
 const handleChangeRawType = (newType: HttpNodeBodyRawType) => {
-  const { raw } = httpNodeStore.apidoc.item.requestBody;
+  const { raw } = httpNodeStore.httpNodeInfo.item.requestBody;
   const oldValue = {
     data: raw.data,
     dataType: raw.dataType
@@ -381,19 +381,19 @@ const handleChangeRawType = (newType: HttpNodeBodyRawType) => {
 |--------------------------------------------------------------------------
 */
 //formData格式body参数
-const formData = computed(() => httpNodeStore.apidoc.item.requestBody.formdata)
+const formData = computed(() => httpNodeStore.httpNodeInfo.item.requestBody.formdata)
 
 // 处理 formdata 变化
 const handleFormdataChange = (newData: ApidocProperty<'string' | 'file'>[]) => {
   const oldValue = {
-    requestBody: cloneDeep(httpNodeStore.apidoc.item.requestBody),
-    contentType: httpNodeStore.apidoc.item.contentType
+    requestBody: cloneDeep(httpNodeStore.httpNodeInfo.item.requestBody),
+    contentType: httpNodeStore.httpNodeInfo.item.contentType
   };
-  httpNodeStore.apidoc.item.requestBody.formdata = JSON.parse(JSON.stringify(newData)) as ApidocProperty<'string'>[];
+  httpNodeStore.httpNodeInfo.item.requestBody.formdata = JSON.parse(JSON.stringify(newData)) as ApidocProperty<'string'>[];
   
   const newValue = {
-    requestBody: cloneDeep(httpNodeStore.apidoc.item.requestBody),
-    contentType: httpNodeStore.apidoc.item.contentType
+    requestBody: cloneDeep(httpNodeStore.httpNodeInfo.item.requestBody),
+    contentType: httpNodeStore.httpNodeInfo.item.contentType
   };
   recordBodyOperation(oldValue, newValue);
   checkContentType();
@@ -402,14 +402,14 @@ const handleFormdataChange = (newData: ApidocProperty<'string' | 'file'>[]) => {
 // 处理 urlencoded 变化
 const handleUrlencodedChange = (newData: ApidocProperty<'string' | 'file'>[]) => {
   const oldValue = {
-    requestBody: cloneDeep(httpNodeStore.apidoc.item.requestBody),
-    contentType: httpNodeStore.apidoc.item.contentType
+    requestBody: cloneDeep(httpNodeStore.httpNodeInfo.item.requestBody),
+    contentType: httpNodeStore.httpNodeInfo.item.contentType
   };
-  httpNodeStore.apidoc.item.requestBody.urlencoded = cloneDeep(newData) as ApidocProperty<'string'>[];
+  httpNodeStore.httpNodeInfo.item.requestBody.urlencoded = cloneDeep(newData) as ApidocProperty<'string'>[];
 
   const newValue = {
-    requestBody: cloneDeep(httpNodeStore.apidoc.item.requestBody),
-    contentType: httpNodeStore.apidoc.item.contentType
+    requestBody: cloneDeep(httpNodeStore.httpNodeInfo.item.requestBody),
+    contentType: httpNodeStore.httpNodeInfo.item.contentType
   };
   recordBodyOperation(oldValue, newValue);
   checkContentType();
@@ -422,20 +422,20 @@ const handleUrlencodedChange = (newData: ApidocProperty<'string' | 'file'>[]) =>
 */
 const handleChangeBinaryMode = (binaryMode: string | number | boolean | undefined) => {
   const oldValue = {
-    requestBody: cloneDeep(httpNodeStore.apidoc.item.requestBody),
-    contentType: httpNodeStore.apidoc.item.contentType
+    requestBody: cloneDeep(httpNodeStore.httpNodeInfo.item.requestBody),
+    contentType: httpNodeStore.httpNodeInfo.item.contentType
   };
   httpNodeStore.handleChangeBinaryInfo({ mode: binaryMode as HttpNodeBodyParams['binary']['mode'] });
   const newValue = {
-    requestBody: cloneDeep(httpNodeStore.apidoc.item.requestBody),
-    contentType: httpNodeStore.apidoc.item.contentType
+    requestBody: cloneDeep(httpNodeStore.httpNodeInfo.item.requestBody),
+    contentType: httpNodeStore.httpNodeInfo.item.contentType
   };
   recordBodyOperation(oldValue, newValue);
 }
 const handleChangeBinaryVarValue = (value: string) => {
   const oldValue = {
-    requestBody: cloneDeep(httpNodeStore.apidoc.item.requestBody),
-    contentType: httpNodeStore.apidoc.item.contentType
+    requestBody: cloneDeep(httpNodeStore.httpNodeInfo.item.requestBody),
+    contentType: httpNodeStore.httpNodeInfo.item.contentType
   };
   const { variables } = useVariable()
   getCompiledTemplate(value, variables).then(result => {
@@ -446,8 +446,8 @@ const handleChangeBinaryVarValue = (value: string) => {
   })
   httpNodeStore.handleChangeBinaryInfo({ varValue: value });
   const newValue = {
-    requestBody: cloneDeep(httpNodeStore.apidoc.item.requestBody),
-    contentType: httpNodeStore.apidoc.item.contentType
+    requestBody: cloneDeep(httpNodeStore.httpNodeInfo.item.requestBody),
+    contentType: httpNodeStore.httpNodeInfo.item.contentType
   };
   recordBodyOperation(oldValue, newValue);
 }
@@ -455,8 +455,8 @@ const handleSelectFile = (e: Event) => {
   const { files } = (e.target as HTMLInputElement);
   if (files?.length) {
     const oldValue = {
-      requestBody: cloneDeep(httpNodeStore.apidoc.item.requestBody),
-      contentType: httpNodeStore.apidoc.item.contentType
+      requestBody: cloneDeep(httpNodeStore.httpNodeInfo.item.requestBody),
+      contentType: httpNodeStore.httpNodeInfo.item.contentType
     };
     const file = files[0];
     const path = window.electronAPI?.fileManager.getFilePath(file) || "";
@@ -472,16 +472,16 @@ const handleSelectFile = (e: Event) => {
       console.log(error)
     })
     const newValue = {
-      requestBody: cloneDeep(httpNodeStore.apidoc.item.requestBody),
-      contentType: httpNodeStore.apidoc.item.contentType
+      requestBody: cloneDeep(httpNodeStore.httpNodeInfo.item.requestBody),
+      contentType: httpNodeStore.httpNodeInfo.item.contentType
     };
     recordBodyOperation(oldValue, newValue);
   }
 }
 const handleClearSelectFile = () => {
   const oldValue = {
-    requestBody: cloneDeep(httpNodeStore.apidoc.item.requestBody),
-    contentType: httpNodeStore.apidoc.item.contentType
+    requestBody: cloneDeep(httpNodeStore.httpNodeInfo.item.requestBody),
+    contentType: httpNodeStore.httpNodeInfo.item.contentType
   };
   httpNodeStore.handleChangeBinaryInfo({
     binaryValue: {
@@ -490,8 +490,8 @@ const handleClearSelectFile = () => {
   })
   httpNodeStore.changeContentType('application/octet-stream');
   const newValue = {
-    requestBody: cloneDeep(httpNodeStore.apidoc.item.requestBody),
-    contentType: httpNodeStore.apidoc.item.contentType
+    requestBody: cloneDeep(httpNodeStore.httpNodeInfo.item.requestBody),
+    contentType: httpNodeStore.httpNodeInfo.item.contentType
   };
   recordBodyOperation(oldValue, newValue);
 }

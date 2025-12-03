@@ -42,7 +42,7 @@
 import { computed } from 'vue';
 import { storeToRefs } from 'pinia';
 import { useI18n } from 'vue-i18n';
-import { useWebSocket } from '@/store/websocket/websocketStore';
+import { useWebSocket } from '@/store/websocketNode/websocketNodeStore';
 import { useProjectWorkbench } from '@/store/projectWorkbench/projectWorkbenchStore';
 import { formatDate } from '@/helper';
 import SLabelValue from '@/components/common/labelValue/ClLabelValue.vue';

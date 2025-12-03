@@ -132,7 +132,7 @@ import { useI18n } from 'vue-i18n'
 import { ElMessageBox } from 'element-plus'
 import { Plus } from '@element-plus/icons-vue'
 import { storeToRefs } from 'pinia'
-import { useHttpMock } from '@/store/httpMock/httpMockStore'
+import { useHttpMockNode } from '@/store/httpMockNode/httpMockNodeStore'
 import { generateEmptyHttpMockNode } from '@/helper'
 import { nanoid } from 'nanoid/non-secure'
 import JsonConfig from './components/json/Json.vue'
@@ -148,8 +148,8 @@ import ResponseHeaders from './components/headers/Headers.vue'
 
 import { message } from '@/helper'
 const { t } = useI18n()
-const httpMockStore = useHttpMock()
-const { httpMock } = storeToRefs(httpMockStore)
+const httpMockNodeStore = useHttpMockNode()
+const { httpMock } = storeToRefs(httpMockNodeStore)
 const mockResponses = computed(() => httpMock.value.response)
 // 当前激活的Tag索引
 const activeTagIndex = ref(0)

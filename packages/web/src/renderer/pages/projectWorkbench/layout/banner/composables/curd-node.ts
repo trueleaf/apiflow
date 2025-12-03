@@ -681,8 +681,8 @@ export const renameNode = async (e: FocusEvent | KeyboardEvent, data: ApidocBann
     field: 'label',
     value: iptValue,
   })
-  //改变apidoc名称
-  httpNodeStore.changeApidocName(iptValue);
+  //改变httpNode名称
+  httpNodeStore.changeHttpNodeName(iptValue);
   //=========================================================================//
   if (isOffline()) {
     try {
@@ -708,7 +708,7 @@ export const renameNode = async (e: FocusEvent | KeyboardEvent, data: ApidocBann
         field: 'label',
         value: originValue,
       });
-      httpNodeStore.changeApidocName(originValue);
+      httpNodeStore.changeHttpNodeName(originValue);
     } finally {
       isRename = false;
     }
@@ -730,7 +730,7 @@ export const renameNode = async (e: FocusEvent | KeyboardEvent, data: ApidocBann
       field: 'name',
       value: originValue,
     });
-    httpNodeStore.changeApidocName(originValue);
+    httpNodeStore.changeHttpNodeName(originValue);
   }).finally(() => {
     isRename = false;
   });

@@ -90,7 +90,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, computed, Ref } from 'vue'
+import { ref, Ref } from 'vue'
 import { storeToRefs } from 'pinia'
 import 'element-plus/es/components/message/style/css'
 import { ApidocBanner } from '@src/types';
@@ -102,8 +102,6 @@ import { config } from '@src/config/config'
 import { router } from '@/router'
 import { useBanner } from '@/store/projectWorkbench/bannerStore';
 import { requestMethods } from '@/data/data'
-import { useCommonHeader } from '@/store/projectWorkbench/commonHeaderStore';
-import { useProjectWorkbench } from '@/store/projectWorkbench/projectWorkbenchStore';
 import { useI18n } from 'vue-i18n'
 import dayjs from 'dayjs'
 import { message } from '@/helper'
@@ -118,8 +116,6 @@ defineProps({
 const emits = defineEmits(['update:modelValue', 'success'])
 //=========================================================================//
 const bannerStore = useBanner()
-const commonHeaderStore = useCommonHeader()
-const projectWorkbenchStore = useProjectWorkbench()
 //生成链接额外配置信息
 const { t } = useI18n()
 
@@ -137,13 +133,6 @@ const allCheckedNodes: Ref<ApidocBanner[]> = ref([]);
 const { banner: navTreeData } = storeToRefs(bannerStore)
 
 //=====================================生成链接====================================//
-const projectInfo = computed(() => {
-  return {
-    _id: projectWorkbenchStore.projectId,
-    layout: projectWorkbenchStore.layout,
-    commonHeaders: commonHeaderStore.commonHeaders,
-  }
-}); //项目基本信息
 const configShare: Ref<{ isEnabled: boolean } | null> = ref(null); //配置组件实例
 const projectId = router.currentRoute.value.query.id as string; //项目id
 const loading = ref(false); //生成项目分享加载

@@ -131,7 +131,7 @@
 
 <script lang="ts" setup>
 import { useProjectWorkbench } from '@/store/projectWorkbench/projectWorkbenchStore';
-import { useApidocResponse } from '@/store/httpNode/responseStore';
+import { useHttpNodeResponse } from '@/store/httpNode/httpNodeResponseStore';
 import { computed, ref, } from 'vue';
 import { Cookie, Settings } from 'lucide-vue-next';
 import { parse } from 'set-cookie-parser';
@@ -140,10 +140,10 @@ import { useI18n } from 'vue-i18n';
 import { useRoute } from 'vue-router'
 
 const route = useRoute()
-const apidocResponseStore = useApidocResponse();
+const httpNodeResponseStore = useHttpNodeResponse();
 const projectWorkbenchStore = useProjectWorkbench();
-const { responseInfo } = useApidocResponse();
-const cookies = computed(() => parse(apidocResponseStore.responseInfo.headers['set-cookie'] || []));
+const { responseInfo } = useHttpNodeResponse();
+const cookies = computed(() => parse(httpNodeResponseStore.responseInfo.headers['set-cookie'] || []));
 const projectNavStore = useProjectNav();
 const currentSelectNav = computed(() => {
   const projectId = route.query.id as string;

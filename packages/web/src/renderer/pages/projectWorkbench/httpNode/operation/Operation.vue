@@ -46,14 +46,14 @@
         {{ t("发送请求") }}
       </el-button>
       <el-button v-if="requestState === 'sending' || requestState === 'response'" type="danger" data-testid="operation-cancel-btn" @click="handleStopRequest">{{ t("取消请求") }}</el-button>
-      <el-button :loading="loading2" type="primary" data-testid="operation-save-btn" @click="handleSaveApidoc">{{ t("保存接口") }}</el-button>
+      <el-button :loading="loading2" type="primary" data-testid="operation-save-btn" @click="handleSaveHttpNode">{{ t("保存接口") }}</el-button>
       <el-button :loading="loading3" type="primary" :icon="Refresh" data-testid="operation-refresh-btn" @click="handleFreshApidoc">{{ t("刷新") }}</el-button>
     </div>
     <div class="pre-url-wrap">
       <span class="label">{{ t("请求地址") }}：</span>
       <span class="url">{{ encodedFullUrl }}</span>
       <el-tooltip :content="urlValidation.errorMessage" :show-after="500" :effect="Effect.LIGHT" placement="top">
-        <el-icon v-show="!urlValidation.isValid && apidocRequestStore.fullUrl" size="14" color="var(--orange)" class="tip">
+        <el-icon v-show="!urlValidation.isValid && httpNodeRequestStore.fullUrl" size="14" color="var(--orange)" class="tip">>
           <Warning />
         </el-icon>
       </el-tooltip>
@@ -79,16 +79,16 @@ import getMethodPart from './composables/method'
 import getOperationPart from './composables/operation'
 import { useProjectNav } from '@/store/projectWorkbench/projectNavStore'
 import { useHttpNode } from '@/store/httpNode/httpNodeStore'
-import { useApidocResponse } from '@/store/httpNode/responseStore'
-import { useApidocRequest } from '@/store/httpNode/requestStore'
+import { useHttpNodeResponse } from '@/store/httpNode/httpNodeResponseStore'
+import { useHttpNodeRequest } from '@/store/httpNode/httpNodeRequestStore'
 import { useHttpRedoUndo } from '@/store/redoUndo/httpRedoUndoStore'
 import { useVariable } from '@/store/projectWorkbench/variablesStore'
 
 const projectNavStore = useProjectNav()
 const variableStore = useVariable()
 const httpNodeStore = useHttpNode()
-const apidocResponseStore = useApidocResponse()
-const apidocRequestStore = useApidocRequest()
+const httpNodeResponseStore = useHttpNodeResponse()
+const httpNodeRequestStore = useHttpNodeRequest()
 const httpRedoUndoStore = useHttpRedoUndo()
 const projectId = router.currentRoute.value.query.id as string;
 const { t } = useI18n()
@@ -97,8 +97,6 @@ const currentSelectNav = computed(() => {
   const navs = projectNavStore.navs[projectId];
   return navs?.find((nav) => nav.selected) || null;
 })
-
-const showPrefixHelper = ref(false)
 /*
 |--------------------------------------------------------------------------
 | 变量相关
@@ -151,8 +149,8 @@ const { requestMethod, requestMethodEnum } = methodPart;
 | 发送请求、保存接口、刷新接口
 |--------------------------------------------------------------------------
 */
-const { requestState } = storeToRefs(apidocResponseStore)
-const { saveLoading: loading2 } = storeToRefs(httpNodeStore)
+const { requestState } = storeToRefs(httpNodeResponseStore)
+const { saveHttpNodeLoading: loading2 } = storeToRefs(httpNodeStore)
 const saveDocDialogVisible = computed({
   get() {
     return httpNodeStore.saveDocDialogVisible;
@@ -163,24 +161,24 @@ const saveDocDialogVisible = computed({
   }
 });
 const operationPart = getOperationPart();
-const encodedFullUrl = computed(() => encodeURI(apidocRequestStore.fullUrl || ''));
+const encodedFullUrl = computed(() => encodeURI(httpNodeRequestStore.fullUrl || ''));
 
-const handleSaveApidoc = () => {
+const handleSaveHttpNode = () => {
   if (currentSelectNav.value?._id.includes('local_')) {
     saveDocDialogVisible.value = true;
   } else {
-    httpNodeStore.saveApidoc();
+    httpNodeStore.saveHttpNode();
   }
 }
 const { loading3, handleSendRequest, handleStopRequest, handleFreshApidoc } = operationPart;
 //请求url、完整url
 const requestPath = computed<string>({
   get() {
-    return httpNodeStore.apidoc.item.url.path;
+    return httpNodeStore.httpNodeInfo.item.url.path;
   },
   set(path) {
     if (!currentSelectNav.value) return;
-    const oldValue = httpNodeStore.apidoc.item.url.path;
+    const oldValue = httpNodeStore.httpNodeInfo.item.url.path;
     if (oldValue !== path) {
       // 记录URL路径变化操作
       httpRedoUndoStore.recordOperation({
@@ -193,7 +191,7 @@ const requestPath = computed<string>({
         timestamp: Date.now()
       });
     }
-    httpNodeStore.changeApidocUrl(path);
+    httpNodeStore.changeHttpNodeUrl(path);
   },
 });
 /*
@@ -202,7 +200,7 @@ const requestPath = computed<string>({
 |--------------------------------------------------------------------------
 */
 watch(
-  () => apidocRequestStore.fullUrl,
+  () => httpNodeRequestStore.fullUrl,
   (newUrl) => {
     const result = validateUrl(newUrl);
     urlValidation.isValid = result.isValid;

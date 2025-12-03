@@ -95,13 +95,13 @@ import { CopyDocument } from '@element-plus/icons-vue'
 import { CircleHelp } from 'lucide-vue-next'
 import { useI18n } from 'vue-i18n'
 import { storeToRefs } from 'pinia'
-import { useHttpMock } from '@/store/httpMock/httpMockStore'
+import { useHttpMockNode } from '@/store/httpMockNode/httpMockNodeStore'
 import { useProjectNav } from '@/store/projectWorkbench/projectNavStore'
 import { router } from '@/router/index.ts'
 
 const { t } = useI18n()
-const httpMockStore = useHttpMock()
-const { httpMock } = storeToRefs(httpMockStore)
+const httpMockNodeStore = useHttpMockNode()
+const { httpMock } = storeToRefs(httpMockNodeStore)
 const projectNavStore = useProjectNav()
 const { currentSelectNav } = storeToRefs(projectNavStore)
 
@@ -142,7 +142,7 @@ watch(
     }
 
     if (newMethods.length === 0) {
-      httpMockStore.changeHttpMockNodeMethod(['ALL'])
+      httpMockNodeStore.changeHttpMockNodeMethod(['ALL'])
       return
     }
 
@@ -150,10 +150,10 @@ watch(
     const hasNewOther = newMethods.some((method) => method !== 'ALL' && !oldMethods.includes(method))
 
     if (hasNewAll) {
-      httpMockStore.changeHttpMockNodeMethod(['ALL'])
+      httpMockNodeStore.changeHttpMockNodeMethod(['ALL'])
     } else if (hasNewOther && newMethods.includes('ALL')) {
       const methodsWithoutAll = newMethods.filter((method) => method !== 'ALL')
-      httpMockStore.changeHttpMockNodeMethod(methodsWithoutAll)
+      httpMockNodeStore.changeHttpMockNodeMethod(methodsWithoutAll)
     }
   }
 )
@@ -205,7 +205,7 @@ const handleEnabledToggle = (val: string | number | boolean) => {
             if (result.code === 0) {
               // 验证服务器确实已关闭
               if (currentSelectNav.value?._id) {
-                const checkResult = await httpMockStore.checkMockNodeEnabledStatus(currentSelectNav.value._id);
+                const checkResult = await httpMockNodeStore.checkMockNodeEnabledStatus(currentSelectNav.value._id);
                 if (checkResult) {
                   console.warn('服务器关闭验证失败，但主进程报告成功');
                   enabled.value = true
@@ -240,7 +240,7 @@ const handleEnabledToggle = (val: string | number | boolean) => {
 const checkEnabledStatus = () => {
   if (currentSelectNav.value?._id) {
     enabledStatusLoading.value = true
-    return httpMockStore.checkMockNodeEnabledStatus(currentSelectNav.value._id)
+    return httpMockNodeStore.checkMockNodeEnabledStatus(currentSelectNav.value._id)
       .then((isEnabled) => {
         enabled.value = isEnabled
       })

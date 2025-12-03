@@ -37,13 +37,13 @@ import { useProjectWorkbench } from '@/store/projectWorkbench/projectWorkbenchSt
 import { useRoute } from 'vue-router'
 import { useHttpNode } from '@/store/httpNode/httpNodeStore'
 import { generateHttpNode } from '@/helper'
-import { useApidocResponse } from '@/store/httpNode/responseStore'
+import { useHttpNodeResponse } from '@/store/httpNode/httpNodeResponseStore'
 import { useHttpRedoUndo } from '@/store/redoUndo/httpRedoUndoStore'
 
 const projectNavStore = useProjectNav();
 const projectWorkbenchStore = useProjectWorkbench();
 const httpNodeStore = useHttpNode();
-const apidocResponseStore = useApidocResponse();
+const httpNodeResponseStore = useHttpNodeResponse();
 const httpRedoUndoStore = useHttpRedoUndo();
 const isVerticalDrag = ref(false);
 const route = useRoute()
@@ -54,7 +54,7 @@ const currentSelectNav = computed(() => {
   const selectedNav = navs?.find((nav) => nav.selected) || null;
   return selectedNav;
 });
-const loading = computed(() => httpNodeStore.loading);
+const loading = computed(() => httpNodeStore.httpContentLoading);
 const layout = computed(() => projectWorkbenchStore.layout);
 const responseHeight = computed(() => projectWorkbenchStore.responseHeight);
 
@@ -70,48 +70,48 @@ const getApidocInfo = async () => {
   }
   if (currentSelectNav.value.saved) { //取最新值
     if (currentSelectNav.value._id?.startsWith('local_')) {
-      httpNodeStore.changeApidoc(generateHttpNode(currentSelectNav.value._id));
-      httpNodeStore.changeOriginApidoc();
-      apidocResponseStore.clearResponse();
-      apidocResponseStore.changeRequestState('waiting');
+      httpNodeStore.changeHttpNodeInfo(generateHttpNode(currentSelectNav.value._id));
+      httpNodeStore.changeOriginHttpNodeInfo();
+      httpNodeResponseStore.clearResponse();
+      httpNodeResponseStore.changeRequestState('waiting');
       return
     }
-    httpNodeStore.getApidocDetail({
+    httpNodeStore.getHttpNodeDetail({
       id: currentSelectNav.value._id,
       projectId: route.query.id as string,
     })
   } else { //取缓存值
     const catchedApidoc = httpNodeCache.getHttpNode(currentSelectNav.value._id);
     if (!catchedApidoc) {
-      httpNodeStore.getApidocDetail({
+      httpNodeStore.getHttpNodeDetail({
         id: currentSelectNav.value._id,
         projectId: route.query.id as string,
       })
     } else {
-      httpNodeStore.changeApidoc(catchedApidoc);
+      httpNodeStore.changeHttpNodeInfo(catchedApidoc);
     }
   }
   //=====================================获取缓存的返回参数====================================//
   // const localResponse = await httpResponseCache.getResponse(currentSelectNav.value._id);
   httpNodeStore.changeResponseBodyLoading(true);
   httpResponseCache.getResponse(currentSelectNav.value._id).then((localResponse) => {
-    apidocResponseStore.clearResponse();
+    httpNodeResponseStore.clearResponse();
     if (localResponse) {
       const rawBody = localResponse.body;
       localResponse.body = null;
-      apidocResponseStore.changeResponseInfo(localResponse)
-      apidocResponseStore.changeResponseBody(rawBody as Uint8Array);
-      apidocResponseStore.changeFileBlobUrl(rawBody as Uint8Array, localResponse.contentType)
-      apidocResponseStore.changeLoadingProcess({
+      httpNodeResponseStore.changeResponseInfo(localResponse)
+      httpNodeResponseStore.changeResponseBody(rawBody as Uint8Array);
+      httpNodeResponseStore.changeFileBlobUrl(rawBody as Uint8Array, localResponse.contentType)
+      httpNodeResponseStore.changeLoadingProcess({
         percent: 1,
         total: localResponse.bodyByteLength,
         transferred: localResponse.bodyByteLength,
       })
       // 如果有缓存的响应数据，说明之前的请求已经完成，设置状态为finish
-      apidocResponseStore.changeRequestState('finish');
+      httpNodeResponseStore.changeRequestState('finish');
     } else {
       // 只有在没有缓存数据时才设置为waiting
-      apidocResponseStore.changeRequestState('waiting');
+      httpNodeResponseStore.changeRequestState('waiting');
     }
   }).finally(() => {
     httpNodeStore.changeResponseBodyLoading(false);
