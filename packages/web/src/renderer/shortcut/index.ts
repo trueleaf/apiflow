@@ -5,6 +5,7 @@ import { useApidocTas } from "@/store/httpNode/httpTabsStore";
 import { useHttpRedoUndo } from "@/store/redoUndo/httpRedoUndoStore";
 import { useWsRedoUndo } from "@/store/redoUndo/wsRedoUndoStore";
 import { useHttpMock } from "@/store/httpMock/httpMockStore";
+import { useWebSocketMock } from "@/store/websocketMock/websocketMockStore";
 import type { ShortcutConfig, ShortcutConflict } from "@src/types/shortcut";
 import { shortcutCache } from "@/cache/settings/shortcutCache";
 class ShortcutManager {
@@ -148,6 +149,25 @@ class ShortcutManager {
           }
           const httpMockStore = useHttpMock();
           httpMockStore.saveHttpMockNode();
+        },
+      },
+      {
+        id: "websocket-mock-save",
+        name: "保存WebSocket Mock配置(仅在WebSocket Mock页面生效)",
+        defaultKeys: "ctrl+s,command+s",
+        userSetKeys: userSettings["websocket-mock-save"] || "",
+        context: {
+          route: "/v1/apidoc/doc-edit",
+          tabType: "websocketMock",
+        },
+        handler: () => {
+          const currentRoute = router.currentRoute.value?.path || "";
+          const currentTabType = apidocTabsStore.currentSelectTab?.tabType;
+          if (currentRoute !== "/v1/apidoc/doc-edit" || currentTabType !== "websocketMock") {
+            return;
+          }
+          const websocketMockStore = useWebSocketMock();
+          websocketMockStore.saveWebSocketMockNode();
         },
       },
     ];

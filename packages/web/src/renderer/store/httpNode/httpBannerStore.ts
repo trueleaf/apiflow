@@ -1,7 +1,7 @@
 import { request } from '@/api/api';
 import { apiNodesCache } from '@/cache/nodes/nodesCache';
 import { findNodeById, forEachForest, getAllAncestorIds } from '@/helper';
-import { ApidocBanner, ApidocBannerOfWebsocketNode, ApidocBannerOfHttpNode, ApidocBannerOfHttpMockNode, CommonResponse, MockStatusChangedPayload } from '@src/types';
+import { ApidocBanner, ApidocBannerOfWebsocketNode, ApidocBannerOfHttpNode, ApidocBannerOfHttpMockNode, ApidocBannerOfWebSocketMockNode, CommonResponse, MockStatusChangedPayload } from '@src/types';
 import { defineStore } from "pinia";
 import { ref } from "vue";
 import { useRuntime } from '../runtime/runtimeStore';
@@ -96,8 +96,8 @@ export const useApidocBanner = defineStore('httpBanner', () => {
   }
   //更新Mock节点状态
   const updateMockNodeState = (payload: MockStatusChangedPayload): void => {
-    const node = findNodeById(banner.value, payload.nodeId, { idKey: '_id' }) as ApidocBannerOfHttpMockNode | null;
-    if (node && node.type === 'httpMock') {
+    const node = findNodeById(banner.value, payload.nodeId, { idKey: '_id' }) as ApidocBannerOfHttpMockNode | ApidocBannerOfWebSocketMockNode | null;
+    if (node && (node.type === 'httpMock' || node.type === 'websocketMock')) {
       node.state = payload.state;
     }
     calculateFoldersWithRunningMock();
@@ -107,27 +107,45 @@ export const useApidocBanner = defineStore('httpBanner', () => {
     forEachForest(banner.value, (node) => {
       if (node.type === 'httpMock') {
         (node as ApidocBannerOfHttpMockNode).state = 'stopped';
+      } else if (node.type === 'websocketMock') {
+        (node as ApidocBannerOfWebSocketMockNode).state = 'stopped';
       }
     });
     calculateFoldersWithRunningMock();
   }
   //批量查询并更新Mock节点状态
   const refreshMockNodeStates = async (projectId: string): Promise<void> => {
-    if (!window.electronAPI?.mock?.getAllStates) {
-      return;
-    }
-    try {
-      const states = await window.electronAPI.mock.getAllStates(projectId);
-      if (states && states.length > 0) {
-        states.forEach((statePayload: MockStatusChangedPayload) => {
-          const node = findNodeById(banner.value, statePayload.nodeId, { idKey: '_id' }) as ApidocBannerOfHttpMockNode | null;
-          if (node && node.type === 'httpMock') {
-            node.state = statePayload.state;
-          }
-        });
+    // 刷新 HttpMock 状态
+    if (window.electronAPI?.mock?.getAllStates) {
+      try {
+        const states = await window.electronAPI.mock.getAllStates(projectId);
+        if (states && states.length > 0) {
+          states.forEach((statePayload: MockStatusChangedPayload) => {
+            const node = findNodeById(banner.value, statePayload.nodeId, { idKey: '_id' }) as ApidocBannerOfHttpMockNode | null;
+            if (node && node.type === 'httpMock') {
+              node.state = statePayload.state;
+            }
+          });
+        }
+      } catch (error) {
+        logger.error('刷新HttpMock状态失败', { error });
       }
-    } catch (error) {
-      logger.error('刷新Mock状态失败', { error });
+    }
+    // 刷新 WebSocketMock 状态
+    if (window.electronAPI?.websocketMock?.getAllStates) {
+      try {
+        const states = await window.electronAPI.websocketMock.getAllStates(projectId);
+        if (states && states.length > 0) {
+          states.forEach((statePayload: MockStatusChangedPayload) => {
+            const node = findNodeById(banner.value, statePayload.nodeId, { idKey: '_id' }) as ApidocBannerOfWebSocketMockNode | null;
+            if (node && node.type === 'websocketMock') {
+              node.state = statePayload.state;
+            }
+          });
+        }
+      } catch (error) {
+        logger.error('刷新WebSocketMock状态失败', { error });
+      }
     }
     calculateFoldersWithRunningMock();
   }
@@ -136,7 +154,7 @@ export const useApidocBanner = defineStore('httpBanner', () => {
     const result = new Set<string>();
     const runningMocks: string[] = [];
     forEachForest(banner.value, (node) => {
-      if (node.type === 'httpMock' && node.state === 'running') {
+      if ((node.type === 'httpMock' || node.type === 'websocketMock') && node.state === 'running') {
         runningMocks.push(node._id);
       }
     });

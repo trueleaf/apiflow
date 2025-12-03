@@ -35,7 +35,7 @@ const props = defineProps({
     default: false,
   },
   language: {
-    type: String as () => 'javascript' | 'typescript',
+    type: String as () => 'javascript' | 'typescript' | "json",
     default: 'javascript'
   },
   config: {

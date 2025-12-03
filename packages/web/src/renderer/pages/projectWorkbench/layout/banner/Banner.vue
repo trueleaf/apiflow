@@ -767,6 +767,10 @@ watch(() => router.currentRoute.value.query.docId, async (newDocId) => {
 const handleMockStatusChanged = (payload: any) => {
   apidocBannerStore.updateMockNodeState(payload);
 }
+//监听WebSocket Mock状态变更
+const handleWebSocketMockStatusChanged = (payload: any) => {
+  apidocBannerStore.updateMockNodeState(payload);
+}
 
 onMounted(async () => {
   await getBannerData();
@@ -781,6 +785,7 @@ onMounted(async () => {
   document.addEventListener('keyup', handleNodeKeyUp);
   if (window.electronAPI?.ipcManager?.onMain) {
     window.electronAPI.ipcManager.onMain(IPC_EVENTS.mock.mainToRenderer.statusChanged, handleMockStatusChanged);
+    window.electronAPI.ipcManager.onMain(IPC_EVENTS.websocketMock.mainToRenderer.statusChanged, handleWebSocketMockStatusChanged);
   }
 })
 onUnmounted(() => {
@@ -788,6 +793,7 @@ onUnmounted(() => {
   document.removeEventListener('keyup', handleNodeKeyUp);
   if (window.electronAPI?.ipcManager?.removeListener) {
     window.electronAPI.ipcManager.removeListener(IPC_EVENTS.mock.mainToRenderer.statusChanged, handleMockStatusChanged);
+    window.electronAPI.ipcManager.removeListener(IPC_EVENTS.websocketMock.mainToRenderer.statusChanged, handleWebSocketMockStatusChanged);
   }
 })
 </script>

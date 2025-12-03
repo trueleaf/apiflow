@@ -6,6 +6,8 @@ import { WebSocketServer, WebSocket } from 'ws';
 import http from 'http';
 import { nanoid } from 'nanoid/non-secure';
 import { IPC_EVENTS } from '@src/types/ipc';
+import { getCompiledTemplate } from '@src/shared/template';
+import { MockUtils } from '../mockUtils';
 
 type WebSocketMockInstance = {
   port: number;
@@ -22,6 +24,17 @@ export class WebSocketMockManager {
   private logBuffer: WebSocketMockLog[] = [];
   private sendTimer: ReturnType<typeof setTimeout> | null = null;
   private readonly BATCH_SEND_INTERVAL = 50;
+  // 处理变量替换和 Mock 值转换
+  private async processContent(content: string, projectId: string): Promise<string> {
+    if (!content) return content;
+    try {
+      const variables = MockUtils.getProjectVariables(projectId);
+      const result = await getCompiledTemplate(content, variables);
+      return String(result);
+    } catch {
+      return content;
+    }
+  }
   // 推送日志到渲染进程（批量）
   private pushLogToRenderer(log: Omit<WebSocketMockLog, 'id'>): void {
     const logWithId = { ...log, id: nanoid() } as WebSocketMockLog;
@@ -100,9 +113,9 @@ export class WebSocketMockManager {
     });
     // 发送欢迎消息
     if (mock.config.welcomeMessage.enabled && mock.config.welcomeMessage.content) {
-      const welcomeContent = mock.config.welcomeMessage.content;
-      setTimeout(() => {
+      setTimeout(async () => {
         if (ws.readyState === WebSocket.OPEN) {
+          const welcomeContent = await this.processContent(mock.config.welcomeMessage.content, mock.projectId);
           ws.send(welcomeContent);
           this.pushLogToRenderer({
             type: "send",
@@ -120,7 +133,7 @@ export class WebSocketMockManager {
       }, mock.config.delay);
     }
     // 处理收到的消息
-    ws.on('message', (data) => {
+    ws.on('message', async (data) => {
       const content = data.toString();
       // 记录收到的消息
       this.pushLogToRenderer({
@@ -136,9 +149,9 @@ export class WebSocketMockManager {
       });
       // 发送固定回复
       if (mock.response.content && ws.readyState === WebSocket.OPEN) {
-        const responseContent = mock.response.content;
-        setTimeout(() => {
+        setTimeout(async () => {
           if (ws.readyState === WebSocket.OPEN) {
+            const responseContent = await this.processContent(mock.response.content, mock.projectId);
             ws.send(responseContent);
             this.pushLogToRenderer({
               type: "send",
