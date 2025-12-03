@@ -32,6 +32,14 @@
                   MOCK
                 </span>
               </template>
+              <template v-else-if="element.tabType === 'websocketMock'">
+                <span
+                  class="ws-mock-tab-icon"
+                  :style="{ transform: `skewX(${element.fixed ? 0 : '-30deg'})` }"
+                >
+                  WS
+                </span>
+              </template>
               <!-- websocket节点 -->
               <template v-if="element.tabType === 'websocket'">
                 <span 
@@ -669,7 +677,13 @@ onUnmounted(() => {
         margin-right: 8px;
         color: var(--theme-color);
       }
-
+      .ws-mock-tab-icon {
+        font-size: 10px;
+        display: inline-flex;
+        align-items: center;
+        margin-right: 8px;
+        color: var(--el-color-warning);
+      }
 
 
       &.active {

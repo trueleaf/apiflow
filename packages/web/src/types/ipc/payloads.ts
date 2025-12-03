@@ -419,6 +419,52 @@ export interface IPCEventMap {
     response: void;
   };
 
+  // ==================== WEBSOCKET MOCK ====================
+
+  [IPC_EVENTS.websocketMock.rendererToMain.getByNodeId]: {
+    request: { nodeId: string };
+    response: any;
+  };
+
+  [IPC_EVENTS.websocketMock.rendererToMain.startServer]: {
+    request: {
+      nodeId: string;
+      port: number;
+      config: any;
+    };
+    response: { success: boolean; error?: string };
+  };
+
+  [IPC_EVENTS.websocketMock.rendererToMain.stopServer]: {
+    request: { nodeId: string };
+    response: { success: boolean };
+  };
+
+  [IPC_EVENTS.websocketMock.rendererToMain.replaceById]: {
+    request: { nodeId: string; config: any };
+    response: { success: boolean };
+  };
+
+  [IPC_EVENTS.websocketMock.rendererToMain.getAllStates]: {
+    request: void;
+    response: Record<string, any>;
+  };
+
+  [IPC_EVENTS.websocketMock.rendererToMain.getLogsByNodeId]: {
+    request: { nodeId: string };
+    response: any[];
+  };
+
+  [IPC_EVENTS.websocketMock.mainToRenderer.logsBatch]: {
+    request: any[];
+    response: void;
+  };
+
+  [IPC_EVENTS.websocketMock.mainToRenderer.statusChanged]: {
+    request: any;
+    response: void;
+  };
+
   // ==================== EXPORT ====================
 
   [IPC_EVENTS.export.rendererToMain.selectPath]: {

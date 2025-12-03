@@ -23,6 +23,7 @@ import type {
   HttpNodeRequestParamTypes,
   ApiNode,
   HttpMockNode,
+  WebSocketMockNode,
   ApidocProjectInfo,
   ResponseInfo,
   WebSocketNode,
@@ -1667,7 +1668,41 @@ export const generateEmptyHttpMockNode = (_id: string): HttpMockNode => {
     isDeleted: false,
   }
 }
-
+// 生成一份空的WebSocket mock节点
+export const generateEmptyWebSocketMockNode = (_id: string): WebSocketMockNode => {
+  return {
+    _id,
+    pid: '',
+    projectId: '',
+    sort: 0,
+    info: {
+      name: '',
+      description: '',
+      version: '1.0.0',
+      type: 'websocketMock',
+      creator: '',
+      maintainer: '',
+      deletePerson: '',
+    },
+    requestCondition: {
+      port: 4001,
+      path: '/ws',
+    },
+    config: {
+      delay: 0,
+      welcomeMessage: {
+        enabled: false,
+        content: '',
+      },
+    },
+    response: {
+      content: '',
+    },
+    createdAt: '',
+    updatedAt: '',
+    isDeleted: false,
+  }
+}
 /**
  * 生成一份apidoc默认值(保持向后兼容)
  */
@@ -2653,6 +2688,22 @@ export const convertNodesToBannerNodes = (docs: ApiNode[] = []): ApidocBanner[] 
           method: mockNode.requestCondition.method[0] || 'ALL',
           url: mockNode.requestCondition.url,
           port: mockNode.requestCondition.port,
+          state: 'stopped',
+          readonly: false,
+          children: [],
+        };
+      } else if (node.info.type === 'websocketMock') {
+        const wsMockNode = node as WebSocketMockNode;
+        bannerNode = {
+          _id: wsMockNode._id,
+          updatedAt: wsMockNode.updatedAt || '',
+          type: 'websocketMock',
+          sort: wsMockNode.sort,
+          pid: wsMockNode.pid,
+          name: wsMockNode.info.name,
+          maintainer: wsMockNode.info.maintainer,
+          path: wsMockNode.requestCondition.path,
+          port: wsMockNode.requestCondition.port,
           state: 'stopped',
           readonly: false,
           children: [],

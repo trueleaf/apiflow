@@ -161,6 +161,55 @@
                 </el-icon>
               </div>
             </template>
+            <!-- websocket mock -->
+            <template v-else-if="scope.data.type === 'websocketMock'">
+              <Radio class="ws-mock-icon" :size="14" />
+              <div v-if="editNode?._id !== scope.data._id" class="node-label-wrap">
+                <SEmphasize class="node-top" :title="scope.data.name" :value="scope.data.name" :keyword="filterString">
+                </SEmphasize>
+                <SEmphasize v-show="showMoreNodeInfo" class="node-bottom" :title="scope.data.path"
+                  :value="scope.data.path" :keyword="filterString"></SEmphasize>
+              </div>
+              <input 
+                v-else 
+                :value="scope.data.name" 
+                :placeholder="t('不能为空')" 
+                type="text" 
+                class="rename-ipt"
+                :class="{ error: scope.data.name.trim() === '' }" 
+                @blur="handleChangeNodeName($event, scope.data)"
+                @input="handleWatchNodeInput($event)" 
+                @keydown.stop.enter="handleChangeNodeName($event, scope.data)"
+              >
+              <!-- WebSocket Mock 状态指示器 -->
+              <div v-if="scope.data.state" class="mock-status">
+                <span 
+                  v-if="scope.data.state === 'running'" 
+                  class="status-dot running"
+                  :title="t('运行中') + (scope.data.port ? ` (${t('端口')}: ${scope.data.port})` : '')"
+                ></span>
+                <span 
+                  v-else-if="scope.data.state === 'starting'" 
+                  class="status-dot starting"
+                  :title="t('启动中...')"
+                ></span>
+                <span 
+                  v-else-if="scope.data.state === 'stopping'" 
+                  class="status-dot stopping"
+                  :title="t('停止中...')"
+                ></span>
+                <span 
+                  v-else-if="scope.data.state === 'error'" 
+                  class="status-dot error"
+                  :title="t('错误')"
+                ></span>
+              </div>
+              <div class="more" @click.stop="handleShowContextmenu($event, scope.data)">
+                <el-icon class="more-op" :title="t('更多操作')" :size="16">
+                  <more-filled />
+                </el-icon>
+              </div>
+            </template>
           </div>
         </template>
       </el-tree>
@@ -212,6 +261,7 @@
 <script lang="ts" setup>
 import { computed, ref, Ref, onMounted, onUnmounted, watch, nextTick } from 'vue'
 import { MoreFilled } from '@element-plus/icons-vue'
+import { Radio } from 'lucide-vue-next'
 import type { ApidocBanner } from '@src/types'
 import { router } from '@/router/index'
 import { useI18n } from 'vue-i18n'
@@ -412,6 +462,20 @@ const handleClickNode = (e: MouseEvent, data: ApidocBanner) => {
         head: {
           icon: data.protocol,
           color: ""
+        },
+      })
+    } else if (data.type === 'websocketMock') {
+      apidocTabsStore.addTab({
+        _id: data._id,
+        projectId: projectId.value,
+        tabType: 'websocketMock',
+        label: data.name,
+        saved: true,
+        fixed: false,
+        selected: true,
+        head: {
+          icon: 'websocketMock',
+          color: ''
         },
       })
     }
@@ -821,6 +885,11 @@ onUnmounted(() => {
       font-size: 14px;
       margin-right: 5px;
       color: var(--red);
+    }
+    .ws-mock-icon {
+      margin-right: 5px;
+      color: var(--purple);
+      flex-shrink: 0;
     }
 
     .folder-icon {

@@ -85,4 +85,19 @@ export type ApidocBannerOfFolderMarkdown = {
   children: ApidocBanner[];
 }
 
-export type ApidocBanner = ApidocBannerOfHttpNode | ApidocBannerOfHttpMockNode | ApidocBannerOfWebsocketNode | ApidocBannerOfFolderNode | ApidocBannerOfFolderMarkdown;
+export type ApidocBannerOfWebSocketMockNode = {
+  _id: string;
+  updatedAt: string;
+  type: 'websocketMock';
+  sort: number;
+  pid: string;
+  name: string;
+  maintainer: string;
+  path: string;
+  port: number;
+  readonly: boolean;
+  state: 'stopped' | 'starting' | 'running' | 'stopping' | 'error';
+  children: ApidocBanner[];
+}
+
+export type ApidocBanner = ApidocBannerOfHttpNode | ApidocBannerOfHttpMockNode | ApidocBannerOfWebsocketNode | ApidocBannerOfFolderNode | ApidocBannerOfFolderMarkdown | ApidocBannerOfWebSocketMockNode;

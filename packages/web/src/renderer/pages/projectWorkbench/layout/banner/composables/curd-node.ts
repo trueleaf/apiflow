@@ -255,7 +255,22 @@ export const addFileAndFolderCb = (currentOperationalNode: Ref<ApidocBanner | nu
         color: ''
       }
     })
-  } 
+  } else if (data.type === 'websocketMock') {
+    const projectId = router.currentRoute.value.query.id as string;
+    apidocTabsStore.addTab({
+      _id: data._id,
+      projectId,
+      tabType: 'websocketMock',
+      label: data.name,
+      saved: true,
+      fixed: true,
+      selected: true,
+      head: {
+        icon: 'websocketMock',
+        color: ''
+      }
+    })
+  }
   // const banner = await standaloneCache.getDocTree(currentOperationalNode.value);
   // apidocBannerStore.changeAllDocBanner(banner);
 }

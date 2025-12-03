@@ -18,6 +18,7 @@
           <el-radio value="http">HTTP</el-radio>
           <el-radio value="websocket">WebSocket</el-radio>
           <el-radio value="httpMock">HTTP Mock</el-radio>
+          <el-radio value="websocketMock">WebSocket Mock</el-radio>
         </el-radio-group>
       </el-form-item>
       <el-form-item v-if="isStandalone" prop="aiPrompt">
@@ -64,7 +65,7 @@ import { FormInstance, ElInput } from 'element-plus';
 import { request } from '@/api/api';
 import { message } from '@/helper'
 import { useRoute, useRouter } from 'vue-router';
-import { generateEmptyHttpMockNode, generateEmptyHttpNode, generateEmptyWebsocketNode, buildAiSystemPromptForNode, generateEmptyProperty, extractPathParams } from '@/helper';
+import { generateEmptyHttpMockNode, generateEmptyHttpNode, generateEmptyWebsocketNode, generateEmptyWebSocketMockNode, buildAiSystemPromptForNode, generateEmptyProperty, extractPathParams } from '@/helper';
 import { apiNodesCache } from '@/cache/nodes/nodesCache';
 import { nanoid } from 'nanoid';
 import { useRuntime } from '@/store/runtime/runtimeStore';
@@ -476,7 +477,30 @@ const handleAddFile = () => {
       handleClose();
       loading.value = false;
       return;
-    
+    } else if (isStandalone.value && formData.value.type === 'websocketMock') {
+      const wsMockNode = generateEmptyWebSocketMockNode(nanoid())
+      wsMockNode.info.name = formData.value.name
+      wsMockNode.projectId = route.query.id as string
+      wsMockNode.pid = props.pid
+      wsMockNode.sort = Date.now()
+      wsMockNode.isDeleted = false
+      wsMockNode.createdAt = new Date().toISOString()
+      wsMockNode.updatedAt = wsMockNode.createdAt
+      await apiNodesCache.addNode(wsMockNode)
+      emits('success', {
+        _id: wsMockNode._id,
+        pid: wsMockNode.pid,
+        sort: wsMockNode.sort,
+        name: wsMockNode.info.name,
+        type: formData.value.type,
+        port: wsMockNode.requestCondition.port,
+        path: wsMockNode.requestCondition.path,
+        maintainer: wsMockNode.info.maintainer,
+        updatedAt: wsMockNode.updatedAt,
+      })
+      handleClose()
+      loading.value = false
+      return
     } else if (isStandalone.value && formData.value.type === 'websocket') {
       const websocketNode = generateEmptyWebsocketNode(nanoid())
       websocketNode.info.name = formData.value.name

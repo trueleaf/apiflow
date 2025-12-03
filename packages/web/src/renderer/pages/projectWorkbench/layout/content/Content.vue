@@ -12,6 +12,7 @@
     <SCookies v-else-if="currentSelectTab.tabType === 'cookies'"></SCookies>
     <SHttpMock v-else-if="currentSelectTab.tabType === 'httpMock'"></SHttpMock>
     <SWebsocket v-else-if="currentSelectTab.tabType === 'websocket'"></SWebsocket>
+    <SWebSocketMock v-else-if="currentSelectTab.tabType === 'websocketMock'"></SWebSocketMock>
   </keep-alive>
 
 </template>
@@ -26,6 +27,7 @@ import SGuide from './guide/Guide.vue';
 import SVariable from '../../variable/Variable.vue';
 // import mindParams from './mind-params/mind-params.vue';
 import SHttpMock from '../../httpMockNode/HttpMockNode.vue';
+import SWebSocketMock from '../../websocketMockNode/WebSocketMockNode.vue';
 import SExportDoc from '../../export/Export.vue';
 import SImportDoc from './import/Import.vue'
 import SCookies from '../../cookies/Cookies.vue'

@@ -216,6 +216,35 @@ export const IPC_EVENTS = {
   },
 
   /**
+   * WebSocket Mock 服务器事件
+   */
+  websocketMock: {
+    /** 渲染进程 -> 主进程 */
+    rendererToMain: {
+      /** 根据节点ID获取WebSocket Mock配置 */
+      getByNodeId: 'websocket-mock:renderer:to:main:get-by-node-id',
+      /** 启动WebSocket Mock服务器 */
+      startServer: 'websocket-mock:renderer:to:main:start-server',
+      /** 停止WebSocket Mock服务器 */
+      stopServer: 'websocket-mock:renderer:to:main:stop-server',
+      /** 根据ID替换WebSocket Mock配置 */
+      replaceById: 'websocket-mock:renderer:to:main:replace-by-id',
+      /** 获取所有WebSocket Mock状态 */
+      getAllStates: 'websocket-mock:renderer:to:main:get-all-states',
+      /** 根据节点ID获取日志 */
+      getLogsByNodeId: 'websocket-mock:renderer:to:main:get-logs-by-node-id',
+    },
+
+    /** 主进程 -> 渲染进程 (事件通知) */
+    mainToRenderer: {
+      /** 批量推送WebSocket Mock日志 */
+      logsBatch: 'websocket-mock:main:to:renderer:logs-batch',
+      /** WebSocket Mock状态变更通知 */
+      statusChanged: 'websocket-mock:main:to:renderer:status-changed',
+    },
+  },
+
+  /**
    * 数据导出事件
    */
   export: {

@@ -14,7 +14,7 @@ import type { Method } from "got";
 /**
  * 接口基础类型
  */
-export type ApidocType = 'folder' | 'http' | 'httpMock' | 'markdown' | 'websocket';
+export type ApidocType = 'folder' | 'http' | 'httpMock' | 'markdown' | 'websocket' | 'websocketMock';
 
 /**
  * 接口基础信息

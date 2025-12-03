@@ -100,6 +100,32 @@ export type HttpMockNode = {
   isDeleted: boolean;
 };
 
+// WebSocket Mock 节点类型
+export type WebSocketMockNode = {
+  _id: string;
+  pid: string;
+  projectId: string;
+  sort: number;
+  info: ApidocBaseInfo;
+  requestCondition: {
+    path: string;
+    port: number;
+  };
+  config: {
+    delay: number;
+    welcomeMessage: {
+      enabled: boolean;
+      content: string;
+    };
+  };
+  response: {
+    content: string;
+  };
+  createdAt: string;
+  updatedAt: string;
+  isDeleted: boolean;
+};
+
 type MockStartLog = {
   id: string,
   type: "start",
@@ -190,6 +216,89 @@ type MockAlreadyStoppedLog = {
 
 export type MockLog = MockStartLog | MockStopLog | MockRequestLog | MockErrorLog | MockAlreadyStoppedLog;
 
+// WebSocket Mock 日志类型
+type WebSocketMockStartLog = {
+  id: string,
+  type: "start",
+  nodeId: string,
+  projectId: string,
+  data: {
+    port: number,
+    path: string,
+  },
+  timestamp: number
+}
+type WebSocketMockStopLog = {
+  id: string,
+  type: "stop",
+  nodeId: string,
+  projectId: string,
+  data: {
+    port: number,
+  },
+  timestamp: number
+}
+type WebSocketMockConnectLog = {
+  id: string,
+  type: "connect",
+  nodeId: string,
+  projectId: string,
+  data: {
+    clientId: string,
+    ip: string,
+  },
+  timestamp: number
+}
+type WebSocketMockDisconnectLog = {
+  id: string,
+  type: "disconnect",
+  nodeId: string,
+  projectId: string,
+  data: {
+    clientId: string,
+    code: number,
+    reason: string,
+  },
+  timestamp: number
+}
+type WebSocketMockReceiveLog = {
+  id: string,
+  type: "receive",
+  nodeId: string,
+  projectId: string,
+  data: {
+    clientId: string,
+    content: string,
+    size: number,
+  },
+  timestamp: number
+}
+type WebSocketMockSendLog = {
+  id: string,
+  type: "send",
+  nodeId: string,
+  projectId: string,
+  data: {
+    clientId: string,
+    content: string,
+    size: number,
+    messageType: 'welcome' | 'response',
+  },
+  timestamp: number
+}
+type WebSocketMockErrorLog = {
+  id: string,
+  type: "error",
+  nodeId: string,
+  projectId: string,
+  data: {
+    errorType: "portError" | "serverStartError" | "unknownError",
+    errorMsg: string,
+  },
+  timestamp: number,
+}
+export type WebSocketMockLog = WebSocketMockStartLog | WebSocketMockStopLog | WebSocketMockConnectLog | WebSocketMockDisconnectLog | WebSocketMockReceiveLog | WebSocketMockSendLog | WebSocketMockErrorLog;
+
 export type MockInstance = {
   port: number;
   app: Koa;
@@ -207,5 +316,14 @@ export type MockStatusChangedPayload = {
   projectId: string;
   state: 'stopped' | 'starting' | 'running' | 'stopping' | 'error';
   port?: number;
+  error?: string;
+}
+// WebSocket Mock状态变更推送数据
+export type WebSocketMockStatusChangedPayload = {
+  nodeId: string;
+  projectId: string;
+  state: 'stopped' | 'starting' | 'running' | 'stopping' | 'error';
+  port?: number;
+  path?: string;
   error?: string;
 }

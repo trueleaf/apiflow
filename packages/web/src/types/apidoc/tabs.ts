@@ -12,6 +12,7 @@ export type ApidocTabType =
   'cookies' |
   'websocket' |
   'httpMock' |
+  'websocketMock' |
   'prefix'
 export type ApidocTab = {
   /**

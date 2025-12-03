@@ -130,6 +130,24 @@ const mockSyncProjectVariables = (projectId: string, variables: any[]) => {
 const mockGetAllStates = (projectId: string) => {
   return ipcRenderer.invoke(IPC_EVENTS.mock.rendererToMain.getAllStates, projectId)
 }
+
+// WebSocket Mock 相关方法
+const websocketMockGetByNodeId = (nodeId: string) => {
+  return ipcRenderer.invoke(IPC_EVENTS.websocketMock.rendererToMain.getByNodeId, nodeId)
+}
+const websocketMockStartServer = (wsMock: any) => {
+  return ipcRenderer.invoke(IPC_EVENTS.websocketMock.rendererToMain.startServer, wsMock)
+}
+const websocketMockStopServer = (nodeId: string) => {
+  return ipcRenderer.invoke(IPC_EVENTS.websocketMock.rendererToMain.stopServer, nodeId)
+}
+const websocketMockReplaceById = (nodeId: string, wsMock: any) => {
+  return ipcRenderer.invoke(IPC_EVENTS.websocketMock.rendererToMain.replaceById, nodeId, wsMock)
+}
+const websocketMockGetAllStates = (projectId: string) => {
+  return ipcRenderer.invoke(IPC_EVENTS.websocketMock.rendererToMain.getAllStates, projectId)
+}
+
 // AI 相关方法
 const aiUpdateConfig = (config: LLMProviderSettings): void => {
   globalLLMClient.updateConfig(config);
@@ -256,6 +274,13 @@ contextBridge.exposeInMainWorld('electronAPI', {
     replaceById: mockReplaceById,
     syncProjectVariables: mockSyncProjectVariables,
     getAllStates: mockGetAllStates,
+  },
+  websocketMock: {
+    getMockByNodeId: websocketMockGetByNodeId,
+    startServer: websocketMockStartServer,
+    stopServer: websocketMockStopServer,
+    replaceById: websocketMockReplaceById,
+    getAllStates: websocketMockGetAllStates,
   },
   exportManager: {
     selectPath: exportSelectPath,

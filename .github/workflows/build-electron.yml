@@ -15,11 +15,9 @@ jobs:
   test-web:
     runs-on: ubuntu-latest
     steps:
-      - name: 检出代码
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: 设置 Node.js
-        uses: actions/setup-node@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: '20'
           cache: 'npm'
@@ -28,15 +26,17 @@ jobs:
         run: npm ci --include=optional
         env:
           npm_config_ignore_optional: true
+          npm_config_ignore_scripts: false
 
-      - name: 安装 Linux 构建依赖
+      - name: 安装 Linux 依赖
         run: |
           sudo apt-get update
-          sudo apt-get install -y xvfb libgtk-3-0 libgbm1 libnss3 libxss1 \
-          libxtst6 libnotify4 libatspi2.0-0 libdrm2 libxcb-dri3-0 libx11-xcb1
+          sudo apt-get install -y xvfb libgtk-3-0 libgbm1 libnss3 libxss1 libxtst6 libnotify4 libatspi2.0-0 libdrm2 libxcb-dri3-0 libx11-xcb1
 
-      - name: 构建 Electron 应用（主 + 渲染）
+      - name: 构建 Electron 应用（包含主进程和渲染进程）
         run: npm run web:build:app:pack
+
+  # ------------------ Windows ------------------------
 
   build-windows:
     needs: [test-web]
@@ -51,13 +51,25 @@ jobs:
 
       - name: 安装依赖
         run: npm ci --include=optional
+        env:
+          npm_config_ignore_optional: true
+          npm_config_ignore_scripts: false
 
-      - name: 打包 Windows 应用（自动上传 Release）
+      - name: 打包 Windows 应用
         run: npm run web:build:app:win
         env:
-          GH_TOKEN: ${{ secrets.GH_TOKEN }}
           CSC_IDENTITY_AUTO_DISCOVERY: false
-          npm_config_target_platform: win32
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: apiflow-windows
+          path: |
+            packages/web/release/*.exe
+            packages/web/release/*.zip
+            packages/web/release/win-unpacked/
+          retention-days: 30
+
+  # ------------------ Linux ------------------------
 
   build-linux:
     needs: [test-web]
@@ -72,18 +84,28 @@ jobs:
 
       - name: 安装依赖
         run: npm ci --include=optional
+        env:
+          npm_config_ignore_optional: true
+          npm_config_ignore_scripts: false
 
-      - name: 打包 Linux 应用（自动上传 Release）
+      - name: 打包 Linux 应用
         run: npm run web:build:app:linux
         env:
-          GH_TOKEN: ${{ secrets.GH_TOKEN }}
           CSC_IDENTITY_AUTO_DISCOVERY: false
-          npm_config_target_arch: x64
-          npm_config_target_platform: linux
 
-  build-macos:
+      - uses: actions/upload-artifact@v4
+        with:
+          name: apiflow-linux
+          path: |
+            packages/web/release/*.AppImage
+            packages/web/release/*.deb
+          retention-days: 30
+
+  # ------------------ macOS ARM64 (M1 / M2) ------------------------
+
+  build-macos-arm64:
     needs: [test-web]
-    runs-on: macos-latest
+    runs-on: macos-latest  # Apple Silicon
     steps:
       - uses: actions/checkout@v4
 
@@ -94,33 +116,81 @@ jobs:
 
       - name: 安装依赖
         run: npm ci --include=optional
+        env:
+          npm_config_ignore_optional: true
+          npm_config_ignore_scripts: false
 
-      - name: 构建 macOS 应用（自动上传 Release）
+      - name: 打包 macOS arm64
         run: npm run web:build:app:mac
         env:
-          GH_TOKEN: ${{ secrets.GH_TOKEN }}
           CSC_IDENTITY_AUTO_DISCOVERY: false
-          npm_config_target_platform: darwin
-          # 避免 electron-builder 对未解决依赖报错
-          ELECTRON_BUILDER_ALLOW_UNRESOLVED_DEPENDENCIES: true
+          ELECTRON_BUILD_PLATFORM: arm64
 
-  finalize-release:
-    needs: [build-windows, build-linux, build-macos]
-    runs-on: ubuntu-latest
+      - uses: actions/upload-artifact@v4
+        with:
+          name: apiflow-macos-arm64
+          path: |
+            packages/web/release/*-arm64.dmg
+            packages/web/release/*-arm64-mac.zip
+          retention-days: 30
+
+  # ------------------ macOS x64 (Intel) ------------------------
+
+  build-macos-x64:
+    needs: [test-web]
+    runs-on: macos-13    # GitHub Actions 上的 Intel Runner
     steps:
-      - name: 修改 Draft Release 内容（不新建 Release）
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: 安装依赖
+        run: npm ci --include=optional
+        env:
+          npm_config_ignore_optional: true
+          npm_config_ignore_scripts: false
+
+      - name: 打包 macOS x64
+        run: npm run web:build:app:mac
+        env:
+          CSC_IDENTITY_AUTO_DISCOVERY: false
+          ELECTRON_BUILD_PLATFORM: x64
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: apiflow-macos-x64
+          path: |
+            packages/web/release/*-x64.dmg
+            packages/web/release/*-x64-mac.zip
+          retention-days: 30
+
+  # ------------------ Release ------------------------
+
+  create-release:
+    if: github.event_name == 'workflow_dispatch' || startsWith(github.ref, 'refs/tags/')
+    needs: [
+      build-windows,
+      build-linux,
+      build-macos-arm64,
+      build-macos-x64
+    ]
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/download-artifact@v4
+
+      - name: 创建 Release
         uses: softprops/action-gh-release@v1
         with:
-          draft: true
-          update_release: true
-          body: |
-            ## 📦 下载包已经全部构建完成
-            Release 内容已经由 electron-builder 自动上传。
-
-            ✔ Windows  
-            ✔ macOS  
-            ✔ Linux  
-
-            请检查文件后再点击 **Publish release** 发布版本。
+          tag_name: ${{ github.ref_name }}
+          name: Apiflow ${{ github.ref_name }}
+          files: |
+            apiflow-windows/*
+            apiflow-linux/*
+            apiflow-macos-arm64/*
+            apiflow-macos-x64/*
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

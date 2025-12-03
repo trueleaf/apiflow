@@ -7,7 +7,7 @@ import type { GotRequestOptions } from '../request';
 import type { CommonResponse } from '../project';
 import type { StandaloneExportHtmlParams } from '../standalone';
 import { WebsocketConnectParams } from '../websocketNode';
-import { HttpMockNode, MockLog, MockStatusChangedPayload } from '../mockNode';
+import { HttpMockNode, MockLog, MockStatusChangedPayload, WebSocketMockNode, WebSocketMockStatusChangedPayload } from '../mockNode';
 import { ChatStreamCallbacks } from '@src/main/ai/agent.ts';
 import { LLMProviderSettings, OpenAiRequestBody, OpenAiResponseBody } from '../ai/agent.type.ts';
 import type { CheckUpdateResult, DownloadResult, UpdateStatus, UpdateProgress, VersionInfo } from '@src/types/updater';
@@ -75,6 +75,13 @@ export type ElectronAPI = {
     replaceById: (nodeId: string, httpMock: HttpMockNode) => Promise<CommonResponse<null>>;
     syncProjectVariables: (projectId: string, variables: any[]) => Promise<CommonResponse<null>>;
     getAllStates: (projectId: string) => Promise<MockStatusChangedPayload[]>;
+  };
+  websocketMock: {
+    getMockByNodeId: (nodeId: string) => Promise<WebSocketMockNode | null>;
+    startServer: (wsMock: WebSocketMockNode) => Promise<CommonResponse<null>>;
+    stopServer: (nodeId: string) => Promise<CommonResponse<null>>;
+    replaceById: (nodeId: string, wsMock: WebSocketMockNode) => Promise<CommonResponse<null>>;
+    getAllStates: (projectId: string) => Promise<WebSocketMockStatusChangedPayload[]>;
   };
   exportManager: {
     selectPath: () => Promise<CommonResponse<{ filePath?: string; tempPath?: string }>>;

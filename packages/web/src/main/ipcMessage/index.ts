@@ -11,9 +11,9 @@ import { getWindowState, execCodeInContext } from '../utils/index.ts';
 import type { RuntimeNetworkMode } from '@src/types/runtime';
 import type { AnchorRect } from '@src/types/common';
 
-import { mockManager, updateManager } from '../main.ts';
+import { mockManager, updateManager, websocketMockManager } from '../main.ts';
 import { MockUtils } from '../mock/mockUtils.ts';
-import { HttpMockNode } from '@src/types/mockNode';
+import { HttpMockNode, WebSocketMockNode } from '@src/types/mockNode';
 import { mainRuntime } from '../runtime/mainRuntime.ts';
 import { IPCProjectData, WindowState } from '@src/types/index.ts';
 
@@ -232,6 +232,41 @@ export const useIpcEvent = (mainWindow: BrowserWindow, topBarView: WebContentsVi
         data: null
       };
     }
+  });
+
+  /*
+  |---------------------------------------------------------------------------
+  | WebSocket Mock 服务相关
+  |---------------------------------------------------------------------------
+  */
+  // 检查 WebSocket Mock 是否已启用
+  ipcMain.handle(IPC_EVENTS.websocketMock.rendererToMain.getByNodeId, async (_: IpcMainInvokeEvent, nodeId: string) => {
+    return websocketMockManager.getWebSocketMockByNodeId(nodeId);
+  });
+  // 启动 WebSocket Mock 服务
+  ipcMain.handle(IPC_EVENTS.websocketMock.rendererToMain.startServer, async (_: IpcMainInvokeEvent, wsMock: WebSocketMockNode) => {
+    return await websocketMockManager.addAndStartServer(wsMock);
+  });
+  // 停止 WebSocket Mock 服务
+  ipcMain.handle(IPC_EVENTS.websocketMock.rendererToMain.stopServer, async (_: IpcMainInvokeEvent, nodeId: string) => {
+    return await websocketMockManager.removeWebSocketMockAndStopServer(nodeId);
+  });
+  // 替换指定 nodeId 的 WebSocket Mock 配置
+  ipcMain.handle(IPC_EVENTS.websocketMock.rendererToMain.replaceById, async (_: IpcMainInvokeEvent, nodeId: string, wsMock: WebSocketMockNode) => {
+    try {
+      websocketMockManager.replaceWebSocketMockById(nodeId, wsMock);
+      return { code: 0, msg: '替换成功', data: null };
+    } catch (error) {
+      return {
+        code: 1,
+        msg: error instanceof Error ? error.message : '未知错误',
+        data: null
+      };
+    }
+  });
+  // 获取项目所有 WebSocket Mock 状态
+  ipcMain.handle(IPC_EVENTS.websocketMock.rendererToMain.getAllStates, async (_: IpcMainInvokeEvent, projectId: string) => {
+    return websocketMockManager.getAllWebSocketMockStates(projectId);
   });
 
   /*

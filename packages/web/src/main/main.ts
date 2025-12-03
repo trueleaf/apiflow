@@ -9,6 +9,7 @@ import { bindMainProcessGlobalShortCut } from './shortcut/index.ts';
 import { overrideBrowserWindow } from './override/index.ts';
 import { WebSocketManager } from './websocket/websocket.ts';
 import { HttpMockManager } from './mock/httpMock/httpMockManager.ts';
+import { WebSocketMockManager } from './mock/websocketMock/websocketMockManager.ts';
 import { UpdateManager } from './updater/index.ts';
 import { mainConfig } from '@src/config/mainConfig';
 const __filename = fileURLToPath(import.meta.url);
@@ -30,6 +31,7 @@ protocol.registerSchemesAsPrivileged([
 
 // 创建全局实例
 export let mockManager = new HttpMockManager();
+export let websocketMockManager = new WebSocketMockManager();
 export let webSocketManager = new WebSocketManager();
 export let updateManager: UpdateManager | null = null;
 export let contentViewInstance: WebContentsView | null = null;
