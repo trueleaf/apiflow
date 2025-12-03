@@ -23,7 +23,6 @@ export const usePermissionStore = defineStore('permission', () => {
   })
   const routes = ref<PermissionClientRoute[]>([]);
   const menus = ref<{ path: string; name: string }[]>([]);
-  const loadingBanner = ref(false);
 
   //改变全局配置
   const changeGlobalConfig = (payload: GlobalConfig) => {
@@ -65,11 +64,6 @@ export const usePermissionStore = defineStore('permission', () => {
       }];
     }
   }
-  //清空全部权限
-  const clearAllPermission = () => {
-    routes.value = [];
-    menus.value = [];
-  };
   //获取权限
   const getPermission = async (): Promise<ResUserInfo> => {
     const runtimeStore = useRuntime();
@@ -91,13 +85,7 @@ export const usePermissionStore = defineStore('permission', () => {
   return {
     routes,
     menus,
-    loadingBanner,
     globalConfig,
-    changeGlobalConfig,
-    generateRoutes,
-    changeRoutes,
-    changeMenus,
-    clearAllPermission,
     getPermission,
   }
 })

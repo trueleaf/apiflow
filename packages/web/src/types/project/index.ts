@@ -450,10 +450,6 @@ export type ApidocProjectBaseInfoState = {
      */
   rules: ApidocProjectRules,
   /**
-     * 全局cookie信息
-     */
-  globalCookies: Record<string, ApidocCookieInfo[]>,
-  /**
      * 布局
      */
   layout: 'vertical' | 'horizontal',

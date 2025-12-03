@@ -70,13 +70,9 @@ export const useWebSocketMock = defineStore('websocketMock', () => {
   const changeWebSocketMockDelay = (delay: number): void => {
     websocketMock.value.config.delay = delay;
   };
-  // 改变欢迎消息启用状态
-  const changeWebSocketMockWelcomeEnabled = (enabled: boolean): void => {
-    websocketMock.value.config.welcomeMessage.enabled = enabled;
-  };
-  // 改变欢迎消息内容
-  const changeWebSocketMockWelcomeContent = (content: string): void => {
-    websocketMock.value.config.welcomeMessage.content = content;
+  // 改变 Echo 模式
+  const changeWebSocketMockEchoMode = (enabled: boolean): void => {
+    websocketMock.value.config.echoMode = enabled;
   };
   // 改变响应内容
   const changeWebSocketMockResponseContent = (content: string): void => {
@@ -203,8 +199,7 @@ export const useWebSocketMock = defineStore('websocketMock', () => {
     changeWebSocketMockPath,
     changeWebSocketMockPort,
     changeWebSocketMockDelay,
-    changeWebSocketMockWelcomeEnabled,
-    changeWebSocketMockWelcomeContent,
+    changeWebSocketMockEchoMode,
     changeWebSocketMockResponseContent,
     checkWebSocketMockNodeIsEqual,
     getWebSocketMockNodeDetail,

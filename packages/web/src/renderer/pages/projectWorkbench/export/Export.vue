@@ -131,7 +131,6 @@ const projectInfo = computed(() => {
     commonHeaders: apidocBaseInfoStore.commonHeaders,
     rules: apidocBaseInfoStore.rules,
     hosts: apidocBaseInfoStore.hosts,
-    globalCookies: apidocBaseInfoStore.globalCookies,
   }
 });
 const { banner: bannerData } = storeToRefs(apidocBannerStore)

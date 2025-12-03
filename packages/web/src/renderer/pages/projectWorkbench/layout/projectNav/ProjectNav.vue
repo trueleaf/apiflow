@@ -124,6 +124,11 @@
         <SContextmenuItem v-if="!isMockServerRunning" :label="t('启动Mock服务器')" @click="handleStartMockServer"></SContextmenuItem>
         <SContextmenuItem v-else :label="t('停止Mock服务器')" @click="handleStopMockServer"></SContextmenuItem>
       </template>
+      <template v-if="currentOperationNode && currentOperationNode.tabType === 'websocketMock'">
+        <SContextmenuItem type="divider"></SContextmenuItem>
+        <SContextmenuItem v-if="!isWsMockServerRunning" :label="t('启动Mock服务器')" @click="handleStartWsMockServer"></SContextmenuItem>
+        <SContextmenuItem v-else :label="t('停止Mock服务器')" @click="handleStopWsMockServer"></SContextmenuItem>
+      </template>
       <!-- <SContextmenuItem v-if="currentOperationNode && currentOperationNode.tabType === 'http'" type="divider"></SContextmenuItem> -->
       <!-- <SContextmenuItem v-if="currentOperationNode && currentOperationNode.tabType === 'http'" :label="t('复制url')"></SContextmenuItem>
             <SContextmenuItem v-if="currentOperationNode && currentOperationNode.tabType === 'http'" :label="t('刷新')"></SContextmenuItem> -->
@@ -158,6 +163,7 @@ import { useApidocBanner } from '@/store/httpNode/httpBannerStore';
 import { useApidocRequest } from '@/store/httpNode/requestStore';
 import { useApidocResponse } from '@/store/httpNode/responseStore';
 import { useHttpMock } from '@/store/httpMock/httpMockStore';
+import { useWebSocketMock } from '@/store/websocketMock/websocketMockStore';
 import { ElMessage } from 'element-plus';
 import SAddFileDialog from '../../dialog/addFile/AddFile.vue';
 import type { ApidocBanner } from '@src/types';
@@ -195,7 +201,9 @@ const requestMethods = computed(() => apidocBaseInfoStore.rules.requestMethods)
 const isView = computed(() => apidocBaseInfoStore.mode === 'view')
 const currentSelectedTab = computed(() => tabs.value?.find(tab => tab.selected))
 const httpMockStore = useHttpMock()
+const websocketMockStore = useWebSocketMock()
 const isMockServerRunning = ref(false)
+const isWsMockServerRunning = ref(false)
 const addFileDialogVisible = ref(false)
 const apidocBannerStore = useApidocBanner()
 /*
@@ -234,6 +242,9 @@ const handleContextmenu = async (e: MouseEvent, item: ApidocTab) => {
   showContextmenu.value = true;
   if (item.tabType === 'httpMock') {
     isMockServerRunning.value = await httpMockStore.checkMockNodeEnabledStatus(item._id);
+  }
+  if (item.tabType === 'websocketMock') {
+    isWsMockServerRunning.value = await websocketMockStore.checkMockNodeEnabledStatus(item._id);
   }
 }
 // 启动Mock服务器
@@ -291,6 +302,56 @@ const handleStopMockServer = async () => {
     const result = await window.electronAPI?.mock?.stopServer(currentOperationNode.value._id);
     if (result?.code === 0) {
       isMockServerRunning.value = false;
+    } else {
+      ElMessage.error(result?.msg || t('停止Mock服务器失败'));
+    }
+  } catch (error) {
+    ElMessage.error(t('停止Mock服务器失败'));
+  }
+}
+// 启动WebSocket Mock服务器
+const handleStartWsMockServer = async () => {
+  if (!currentOperationNode.value) return;
+  try {
+    let mockData = null;
+    if (currentOperationNode.value._id === websocketMockStore.websocketMock._id) {
+      mockData = websocketMockStore.websocketMock;
+    } else {
+      mockData = websocketMockStore.getCachedWebSocketMockNodeById(currentOperationNode.value._id);
+    }
+    if (!mockData) {
+      await websocketMockStore.getWebSocketMockNodeDetail({
+        id: currentOperationNode.value._id,
+        projectId: router.currentRoute.value.query.id as string,
+      });
+      mockData = websocketMockStore.websocketMock;
+    }
+    if (!mockData) {
+      ElMessage.error(t('获取Mock配置失败'));
+      return;
+    }
+    const mockDataWithProject = {
+      ...mockData,
+      projectId: router.currentRoute.value.query.id as string,
+    };
+    const result = await window.electronAPI?.websocketMock?.startServer(JSON.parse(JSON.stringify(mockDataWithProject)));
+    if (result?.code === 0) {
+      isWsMockServerRunning.value = true;
+      ElMessage.success(t('启动Mock服务器成功'));
+    } else {
+      ElMessage.error(result?.msg || t('启动Mock服务器失败'));
+    }
+  } catch (error) {
+    ElMessage.error(t('启动Mock服务器失败'));
+  }
+}
+// 停止WebSocket Mock服务器
+const handleStopWsMockServer = async () => {
+  if (!currentOperationNode.value) return;
+  try {
+    const result = await window.electronAPI?.websocketMock?.stopServer(currentOperationNode.value._id);
+    if (result?.code === 0) {
+      isWsMockServerRunning.value = false;
     } else {
       ElMessage.error(result?.msg || t('停止Mock服务器失败'));
     }

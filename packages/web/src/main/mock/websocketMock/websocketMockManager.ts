@@ -111,27 +111,6 @@ export class WebSocketMockManager {
       },
       timestamp: Date.now()
     });
-    // 发送欢迎消息
-    if (mock.config.welcomeMessage.enabled && mock.config.welcomeMessage.content) {
-      setTimeout(async () => {
-        if (ws.readyState === WebSocket.OPEN) {
-          const welcomeContent = await this.processContent(mock.config.welcomeMessage.content, mock.projectId);
-          ws.send(welcomeContent);
-          this.pushLogToRenderer({
-            type: "send",
-            nodeId: mock._id,
-            projectId: mock.projectId,
-            data: {
-              clientId,
-              content: welcomeContent,
-              size: Buffer.byteLength(welcomeContent, 'utf-8'),
-              messageType: 'welcome',
-            },
-            timestamp: Date.now()
-          });
-        }
-      }, mock.config.delay);
-    }
     // 处理收到的消息
     ws.on('message', async (data) => {
       const content = data.toString();
@@ -147,6 +126,27 @@ export class WebSocketMockManager {
         },
         timestamp: Date.now()
       });
+      // Echo 模式：原样返回客户端消息
+      if (mock.config.echoMode) {
+        setTimeout(() => {
+          if (ws.readyState === WebSocket.OPEN) {
+            ws.send(content);
+            this.pushLogToRenderer({
+              type: "send",
+              nodeId: mock._id,
+              projectId: mock.projectId,
+              data: {
+                clientId,
+                content,
+                size: Buffer.byteLength(content, 'utf-8'),
+                messageType: 'echo',
+              },
+              timestamp: Date.now()
+            });
+          }
+        }, mock.config.delay);
+        return;
+      }
       // 发送固定回复
       if (mock.response.content && ws.readyState === WebSocket.OPEN) {
         setTimeout(async () => {

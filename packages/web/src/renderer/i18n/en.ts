@@ -18,6 +18,8 @@ export default {
   '模拟网络延迟，修改后重启服务生效': 'Simulate network latency, restart service to apply changes',
   'HTTP方法': 'HTTP Method',
   '响应配置': 'Response Config',
+  'Echo 模式': 'Echo Mode',
+  '开启后原样返回客户端发送的消息': 'When enabled, returns the same message sent by the client',
   '数据模式': 'Data Mode',
   '固定json返回': 'Fixed JSON Response',
   '固定JSON返回': 'Fixed JSON Response',

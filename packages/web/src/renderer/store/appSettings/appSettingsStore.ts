@@ -79,9 +79,6 @@ export const useAppSettings = defineStore('appSettings', () => {
     setAppTitle,
     setAppLogo,
     setAppTheme,
-    resetAppTitle,
-    resetAppLogo,
-    resetAppTheme,
     resetAllSettings,
     refreshSettings,
   }

@@ -187,7 +187,6 @@ const projectInfo = computed(() => {
     commonHeaders: apidocBaseInfoStore.commonHeaders,
     rules: apidocBaseInfoStore.rules,
     hosts: apidocBaseInfoStore.hosts,
-    globalCookies: apidocBaseInfoStore.globalCookies,
   }
 }); //项目基本信息
 const projectId = router.currentRoute.value.query.id as string; //项目id

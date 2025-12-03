@@ -201,32 +201,6 @@ const addWebSocketHeader = (header?: Partial<ApidocProperty<'string'>>): void =>
   Object.assign(newHeader, header);
   websocket.value.item.headers.push(newHeader);
 };
-
-// 删除请求头
-const deleteWebSocketHeaderByIndex = (index: number): void => {
-  if (!websocket.value || !websocket.value.item.headers[index]) return;
-  websocket.value.item.headers.splice(index, 1);
-};
-
-// 根据ID删除请求头
-const deleteWebSocketHeaderById = (id: string): void => {
-  if (!websocket.value) return;
-  
-  const index = websocket.value.item.headers.findIndex(header => header._id === id);
-  if (index === -1) return;
-  
-  websocket.value.item.headers.splice(index, 1);
-};
-
-// 根据ID更新请求头
-const updateWebSocketHeaderById = (id: string, header: Partial<ApidocProperty<'string'>>): void => {
-  if (!websocket.value) return;
-  
-  const index = websocket.value.item.headers.findIndex(h => h._id === id);
-  if (index === -1) return;
-  
-  Object.assign(websocket.value.item.headers[index], header);
-};
   /*
   |--------------------------------------------------------------------------
   | 查询参数操作方法
@@ -237,30 +211,6 @@ const updateWebSocketHeaderById = (id: string, header: Partial<ApidocProperty<'s
     if (websocket.value) {
       const newQueryParam = generateEmptyProperty();
       websocket.value.item.queryParams.push(newQueryParam);
-    }
-  };
-  // 根据索引删除查询参数
-  const deleteWebSocketQueryParamByIndex = (index: number): void => {
-    if (websocket.value && websocket.value.item.queryParams[index]) {
-      websocket.value.item.queryParams.splice(index, 1);
-    }
-  };
-  // 根据ID删除查询参数
-  const deleteWebSocketQueryParamById = (id: string): void => {
-    if (websocket.value) {
-      const index = websocket.value.item.queryParams.findIndex(param => param._id === id);
-      if (index !== -1) {
-        websocket.value.item.queryParams.splice(index, 1);
-      }
-    }
-  };
-  // 根据ID更新查询参数
-  const updateWebSocketQueryParamById = (id: string, param: Partial<ApidocProperty<'string'>>): void => {
-    if (websocket.value) {
-      const index = websocket.value.item.queryParams.findIndex(p => p._id === id);
-      if (index !== -1) {
-        Object.assign(websocket.value.item.queryParams[index], param);
-      }
     }
   };
   // 批量更新查询参数
@@ -377,14 +327,6 @@ const updateWebSocketHeaderById = (id: string, header: Partial<ApidocProperty<'s
     }
   };
 
-  // 改变自动重连设置
-  const changeWebSocketAutoReconnect = (enabled: boolean): void => {
-    if (websocket.value) {
-      websocket.value.config.autoReconnect = enabled;
-    }
-  };
-
-
   /*
   |--------------------------------------------------------------------------
   | 连接状态操作方法
@@ -420,43 +362,11 @@ const updateWebSocketHeaderById = (id: string, header: Partial<ApidocProperty<'s
     responseMessage.value = [];
   };
 
-  // 根据ID删除消息
-  const deleteMessageById = (messageId: string): void => {
-    const index = responseMessage.value.findIndex(msg => msg.data.id === messageId);
-    if (index !== -1) {
-      responseMessage.value.splice(index, 1);
-    }
-  };
-
-  // 根据类型筛选消息
-  const getMessagesByType = (type: WebsocketResponse['type']): WebsocketResponse[] => {
-    return responseMessage.value.filter(msg => msg.type === type);
-  };
-
-  // 获取最新的N条消息
-  const getLatestMessages = (count: number): WebsocketResponse[] => {
-    return responseMessage.value.slice(-count);
-  };
-
-  // 根据时间范围获取消息
-  const getMessagesByTimeRange = (startTime: number, endTime: number): WebsocketResponse[] => {
-    return responseMessage.value.filter(msg => {
-      const timestamp = msg.data.timestamp;
-      return timestamp >= startTime && timestamp <= endTime;
-    });
-  };
-
   /*
   |--------------------------------------------------------------------------
   | 时间戳操作方法
   |--------------------------------------------------------------------------
   */
-  // 标记为已删除
-  const markWebSocketAsDeleted = (deleted: boolean = true): void => {
-    if (websocket.value) {
-      websocket.value.isDeleted = deleted;
-    }
-  };
 
   /*
   |--------------------------------------------------------------------------
@@ -767,13 +677,7 @@ const updateWebSocketHeaderById = (id: string, header: Partial<ApidocProperty<'s
     changeWebSocketPath,
     changeWebSocketPrefix,
     addWebSocketHeader,
-    deleteWebSocketHeaderByIndex,
-    deleteWebSocketHeaderById,
-    updateWebSocketHeaderById,
     addWebSocketQueryParam,
-    deleteWebSocketQueryParamByIndex,
-    deleteWebSocketQueryParamById,
-    updateWebSocketQueryParamById,
     changeQueryParams,
     changeWebSocketPreRequest,
     changeWebSocketAfterRequest,
@@ -788,10 +692,8 @@ const updateWebSocketHeaderById = (id: string, header: Partial<ApidocProperty<'s
     changeWebSocketAutoSendInterval,
     changeWebSocketAutoSendContent,
     changeWebSocketAutoSendMessageType,
-    changeWebSocketAutoReconnect,
     changeConnectionState,
     changeConnectionId,
-    markWebSocketAsDeleted,
     changeWebsocket,
     changeOriginWebsocket,
     changeWebsocketLoading,
@@ -801,10 +703,6 @@ const updateWebSocketHeaderById = (id: string, header: Partial<ApidocProperty<'s
     addMessage,
     replaceMessages,
     clearMessages,
-    deleteMessageById,
-    getMessagesByType,
-    getLatestMessages,
-    getMessagesByTimeRange,
     // 缓存相关方法
     cacheWebSocket,
     getCachedWebSocket,

@@ -328,7 +328,6 @@ const projectInfo = computed(() => {
     commonHeaders: apidocBaseInfoStore.commonHeaders,
     rules: apidocBaseInfoStore.rules,
     hosts: apidocBaseInfoStore.hosts,
-    globalCookies: apidocBaseInfoStore.globalCookies,
   }
 });
 const activeNode = computed(() => apidocTabsStore.tabs[projectId.value]?.find((v) => v.selected));

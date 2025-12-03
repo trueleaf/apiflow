@@ -1,6 +1,5 @@
 import { request } from '@/api/api';
 import {
-  ApidocCookieInfo,
   ApidocProjectBaseInfoState,
   ApidocProjectCommonHeader,
   ApidocProjectHost,
@@ -79,13 +78,11 @@ export const useApidocBaseInfo = defineStore('apidocBaseInfo', () => {
     requestMethods: requestMethods
   });
   const hosts = ref<ApidocProjectHost[]>([]);
-  const globalCookies = ref<Record<string, ApidocCookieInfo[]>>({});
   const layout = ref<'vertical' | 'horizontal'>('horizontal');
   const responseHeight = ref<number>(350);
   const mode = ref<'view' | 'edit'>('view');
   const commonHeaders = ref<ApidocProjectCommonHeader[]>([]);
   const globalCommonHeaders = ref<GlobalCommonHeader[]>([]);
-  // const validCommonHeaders = ref<Pick<ApidocProperty, 'key' | 'value' | 'description' | 'select'>[]>([]);
   const projectId = ref('');
   /*
   |--------------------------------------------------------------------------
@@ -102,23 +99,6 @@ export const useApidocBaseInfo = defineStore('apidocBaseInfo', () => {
     projectName.value = payload.projectName;
     rules.value = payload.rules;
     hosts.value = payload.hosts;
-  }
-  //改变rules
-  const changeProjectRules = (payload: ApidocProjectRules): void => {
-    rules.value = payload;
-  }
-
-  //改变hosts
-  const changeProjectHosts = (payload: ApidocProjectHost[]): void => {
-    hosts.value = payload;
-  }
-  //根据id改变host
-  const updateHostById = (payload: { _id: string, url: string, name: string }): void => {
-    const matchedHost = hosts.value.find(v => v._id === payload._id);
-    if (matchedHost) {
-      matchedHost.url = payload.url;
-      matchedHost.name = payload.name;
-    }
   }
   //改变布局方式
   const changeLayout = (layoutOption: 'horizontal' | 'vertical'): void => {
@@ -248,38 +228,7 @@ export const useApidocBaseInfo = defineStore('apidocBaseInfo', () => {
       })
     });
   }
-  /**
-   * 获取分享项目基本信息
-   */
-  const getSharedProjectBaseInfo = async (payload: { shareId: string, password: string }): Promise<void> => {
-    return new Promise((resolve, reject) => {
-      const params = {
-        shareId: payload.shareId,
-        password: payload.password,
-      };
-      request.get<CommonResponse<ApidocProjectBaseInfoState>, CommonResponse<ApidocProjectBaseInfoState>>('/api/project/export/share_project_info', { params }).then((res) => {
-        if (res.code === 101005) {
-          //todo
-          // shareRouter.replace({
-          //   path: '/check',
-          //   query: {
-          //     share_id: shareRouter.currentRoute.value.query.share_id,
-          //     id: shareRouter.currentRoute.value.query.id,
-          //   },
-          // });
-          return;
-        }
-        changeProjectBaseInfo(res.data)
-        resolve()
-      }).catch((err) => {
-        console.error(err);
-        reject(err);
-      })
-    });
-  }
-  /**
-   * 获取全部公共请求头信息
-   */
+  //获取全部公共请求头信息
   const getCommonHeaders = async (): Promise<void> => {
     if (isOffline()){
       const projectId = router.currentRoute.value.query.id as string;
@@ -356,26 +305,17 @@ export const useApidocBaseInfo = defineStore('apidocBaseInfo', () => {
     commonHeaders,
     rules,
     hosts,
-    globalCookies,
     projectId,
     globalCommonHeaders,
-    // validCommonHeaders,
     changeProjectId,
-    changeProjectBaseInfo,
-    updateHostById,
     changeLayout,
     initLayout,
     changeResponseHeight,
     initResponseHeight,
     changeMode,
-    changeCommonHeaders,
-    changeProjectRules,
-    changeProjectHosts,
     initProjectBaseInfo,
-    getSharedProjectBaseInfo,
     getCommonHeaders,
     getCommonHeadersById,
     getGlobalCommonHeaders,
-    // changeValidCommonHeaders
   }
 })

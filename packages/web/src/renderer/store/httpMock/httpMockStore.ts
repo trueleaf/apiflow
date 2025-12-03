@@ -65,11 +65,6 @@ export const useHttpMock = defineStore('httpMock', () => {
     originHttpMock.value = cloneDeep(httpMock.value);
   };
 
-  // 改变httpMock数据保存状态
-  const changeSaveLoading = (state: boolean): void => {
-    saveLoading.value = state;
-  };
-
   // 改变httpMock刷新状态
   const changeRefreshLoading = (state: boolean): void => {
     refreshLoading.value = state;
@@ -373,7 +368,6 @@ export const useHttpMock = defineStore('httpMock', () => {
     // 基础状态变更方法
     replaceHttpMockNode,
     replaceOriginHttpMockNode,
-    changeSaveLoading,
     changeRefreshLoading,
     // 基础信息操作方法
     changeHttpMockName,

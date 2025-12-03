@@ -218,11 +218,6 @@ export const useHttpNode = defineStore('httpNode', () => {
     const { index, value } = payload
     apidoc.value.item.responseParams[index].value.text = value;
   }
-  //根据index值改变response
-  const changeResponseByIndex = (payload: { index: number, value: string }): void => {
-    const { index, value } = payload
-    apidoc.value.item.responseParams[index].value.strJson = value;
-  }
   //根据index值改变response的json数据
   const changeResponseStrJsonByIndex = (payload: { index: number, value: string }): void => {
     const { index, value } = payload
@@ -712,7 +707,6 @@ export const useHttpNode = defineStore('httpNode', () => {
     changeResponseParamsCodeByIndex,
     changeResponseParamsDataTypeByIndex,
     changeResponseParamsTextValueByIndex,
-    changeResponseByIndex,
     changeResponseStrJsonByIndex,
     addResponseParam,
     deleteResponseByIndex,

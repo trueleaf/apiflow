@@ -1690,10 +1690,7 @@ export const generateEmptyWebSocketMockNode = (_id: string): WebSocketMockNode =
     },
     config: {
       delay: 0,
-      welcomeMessage: {
-        enabled: false,
-        content: '',
-      },
+      echoMode: false,
     },
     response: {
       content: '',

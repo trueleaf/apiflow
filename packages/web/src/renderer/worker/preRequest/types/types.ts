@@ -9,7 +9,7 @@ export type BasicJSON = JsonObject;
 
 export type InitDataMessage = {
   type: 'initData';
-  variables: { [key: string]: BasicJSON | JsonValue };
+  variables: Record<string, unknown>;
   sessionStorage: Record<string, unknown>;
   localStorage: Record<string, unknown>;
   cookies: Record<string, string>;

@@ -113,10 +113,7 @@ export type WebSocketMockNode = {
   };
   config: {
     delay: number;
-    welcomeMessage: {
-      enabled: boolean;
-      content: string;
-    };
+    echoMode: boolean;
   };
   response: {
     content: string;
@@ -282,7 +279,7 @@ type WebSocketMockSendLog = {
     clientId: string,
     content: string,
     size: number,
-    messageType: 'welcome' | 'response',
+    messageType: 'welcome' | 'response' | 'echo',
   },
   timestamp: number
 }

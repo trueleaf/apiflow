@@ -141,7 +141,6 @@ const projectInfo = computed(() => {
     commonHeaders: apidocBaseInfoStore.commonHeaders,
     rules: apidocBaseInfoStore.rules,
     hosts: apidocBaseInfoStore.hosts,
-    globalCookies: apidocBaseInfoStore.globalCookies,
   }
 }); //项目基本信息
 const configShare: Ref<{ isEnabled: boolean } | null> = ref(null); //配置组件实例

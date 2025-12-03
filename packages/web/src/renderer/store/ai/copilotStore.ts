@@ -70,18 +70,6 @@ export const useCopilotStore = defineStore('copilot', () => {
     clearCopilotMessageList();
     return newSessionId;
   };
-  const clearCurrentSession = async (): Promise<boolean> => {
-    try {
-      if (currentSessionId.value) {
-        await copilotCache.deleteMessagesBySessionId(currentSessionId.value);
-      }
-      clearCopilotMessageList();
-      return true;
-    } catch (error) {
-      logger.error('清空当前会话失败', { error });
-      return false;
-    }
-  };
   const clearAllSessions = async (): Promise<boolean> => {
     try {
       await copilotCache.clearAllMessages();
@@ -122,13 +110,6 @@ export const useCopilotStore = defineStore('copilot', () => {
     copilotDialogVisible.value = false;
     copilotAnchorRect.value = null;
   };
-  const toggleCopilotDialog = (anchorRect?: AnchorRect): void => {
-    if (copilotDialogVisible.value) {
-      hideCopilotDialog();
-    } else {
-      showCopilotDialog(anchorRect);
-    }
-  };
   const handleCopilotShortcut = (event: KeyboardEvent): void => {
     event.preventDefault();
     if (!copilotDialogVisible.value) {
@@ -150,7 +131,6 @@ export const useCopilotStore = defineStore('copilot', () => {
     loadMessagesForSession,
     setCurrentSessionId,
     createNewSession,
-    clearCurrentSession,
     clearAllSessions,
     getMessageById,
     getLatestMessages,
@@ -158,7 +138,6 @@ export const useCopilotStore = defineStore('copilot', () => {
     setWorkingStatus,
     showCopilotDialog,
     hideCopilotDialog,
-    toggleCopilotDialog,
     handleCopilotShortcut,
   };
 });

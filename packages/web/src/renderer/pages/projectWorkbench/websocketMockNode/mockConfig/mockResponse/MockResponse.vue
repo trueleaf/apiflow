@@ -19,38 +19,18 @@
           />
         </div>
       </div>
-      <!-- 欢迎消息配置 -->
+      <!-- Echo 模式配置 -->
       <div class="form-row">
-        <div class="form-item welcome-item">
-          <div class="welcome-header">
-            <label class="form-label">{{ t('欢迎消息') }}</label>
+        <div class="form-item echo-item">
+          <div class="echo-header">
+            <label class="form-label">{{ t('Echo 模式') }}</label>
             <el-switch
-              v-model="websocketMock.config.welcomeMessage.enabled"
+              v-model="websocketMock.config.echoMode"
               size="small"
-              @change="(val) => websocketMockStore.changeWebSocketMockWelcomeEnabled(val as boolean)"
+              @change="(val) => websocketMockStore.changeWebSocketMockEchoMode(val as boolean)"
             />
           </div>
-          <div class="welcome-tip">
-            {{ t('客户端连接成功后自动发送的消息') }}
-            <span class="variable-hint">
-              {{ t('支持') }}
-              <code>{{ '\{\{ variableName \}\}' }}</code>
-              {{ t('变量语法和') }}
-              <code>@name</code>、<code>@id</code>
-              {{ t('等 Mock 语法') }}
-            </span>
-          </div>
-          <div v-if="websocketMock.config.welcomeMessage.enabled" class="welcome-content">
-            <CodeEditor
-              v-model="websocketMock.config.welcomeMessage.content"
-              language="javascript"
-              :min-height="100"
-              :max-height="200"
-              :auto-height="true"
-              :placeholder="t('客户端连接成功后发送的消息')"
-              @update:model-value="(val: string) => websocketMockStore.changeWebSocketMockWelcomeContent(val)"
-            />
-          </div>
+          <div class="echo-tip">{{ t('开启后原样返回客户端发送的消息') }}</div>
         </div>
       </div>
       <!-- 响应内容配置 -->
@@ -67,7 +47,7 @@
               {{ t('等 Mock 语法') }}
             </span>
           </div>
-          <div class="response-editor">
+          <div :class="['response-editor', { 'response-editor-disabled': websocketMock.config.echoMode }]">
             <CodeEditor
               v-model="websocketMock.response.content"
               language="json"
@@ -142,24 +122,19 @@ const { websocketMock } = storeToRefs(websocketMockStore)
   max-width: 200px;
 }
 
-.welcome-item {
+.echo-item {
   width: 100%;
 }
 
-.welcome-header {
+.echo-header {
   display: flex;
   align-items: center;
   gap: 12px;
 }
 
-.welcome-tip {
+.echo-tip {
   font-size: var(--font-size-xs);
   color: var(--gray-500);
-}
-
-.welcome-content {
-  margin-top: 8px;
-  max-width: 800px;
 }
 
 .response-item {
@@ -188,5 +163,10 @@ const { websocketMock } = storeToRefs(websocketMockStore)
 .response-editor {
   margin-top: 8px;
   max-width: 800px;
+}
+
+.response-editor-disabled {
+  opacity: 0.5;
+  pointer-events: none;
 }
 </style>

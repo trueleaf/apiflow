@@ -13,12 +13,6 @@ type SplicePayload = {
   deleteCount?: number,
   item?: ApidocBanner,
 }
-type MapId = {
-  oldId: string, //历史id
-  newId: string, //新id
-  oldPid: string, //历史pid
-  newPid: string, //新pid
-};
 // 使用条件类型来确保类型安全
 type EditBannerPayload<T extends ApidocBanner, K extends keyof T> = {
   id: string,
@@ -61,16 +55,6 @@ export const useApidocBanner = defineStore('httpBanner', () => {
   //改变文档banner
   const changeAllDocBanner = (payload: ApidocBanner[]): void => {
     banner.value = payload;
-  }
-  //改变文档的id和pid，一般用在粘贴多个文档的时候
-  const changeBannerIdAndPid = (mapIds: MapId[]): void => {
-    forEachForest(banner.value, (node) => {
-      const matchedIdInfo = mapIds.find((v) => v.oldId === node._id)
-      if (matchedIdInfo) {
-        node._id = matchedIdInfo.newId;
-        node.pid = matchedIdInfo.newPid;
-      }
-    });
   }
   //改变文档数据
   const splice = (payload: SplicePayload): void => {
@@ -240,7 +224,6 @@ export const useApidocBanner = defineStore('httpBanner', () => {
     changeWebsocketBannerInfoById,
     changeHttpBannerInfoById,
     changeAllDocBanner,
-    changeBannerIdAndPid,
     splice,
     addExpandItem,
     changeExpandItems,

@@ -253,7 +253,6 @@ const projectInfo = computed(() => {
     commonHeaders: apidocBaseInfoStore.commonHeaders,
     rules: apidocBaseInfoStore.rules,
     hosts: apidocBaseInfoStore.hosts,
-    globalCookies: apidocBaseInfoStore.globalCookies,
   }
 });
 //openapi文件夹格式
