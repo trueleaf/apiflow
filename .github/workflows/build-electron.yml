@@ -7,22 +7,73 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: '版本号 (例如: v1.0.0)'
+        description: '版本号 (例如: v1.0.0-beta.1)'
         required: false
         default: 'manual-build'
+      pre_release:
+        description: '是否作为预发布版本'
+        required: false
+        default: true
+        type: boolean
 
+env:
+  NODE_VERSION: '20'
+  
 jobs:
+  # 第一阶段：Web应用测试和构建
   test-web:
     runs-on: ubuntu-latest
+    
+    outputs:
+      version: ${{ steps.get-version.outputs.version }}
+      is_pre_release: ${{ steps.get-version.outputs.is_pre_release }}
+      tag_name: ${{ steps.get-version.outputs.tag_name }}
     
     steps:
       - name: 检出代码
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: 获取版本信息
+        id: get-version
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            if [ "${{ github.event.inputs.pre_release }}" = "true" ]; then
+              IS_PRE_RELEASE="true"
+            else
+              IS_PRE_RELEASE="false"
+            fi
+            
+            if [ "${{ github.event.inputs.version }}" != "manual-build" ]; then
+              VERSION="${{ github.event.inputs.version }}"
+            else
+              # 生成带时间戳的预发布版本
+              TIMESTAMP=$(date +%Y%m%d%H%M%S)
+              VERSION="v0.0.0-pre.$TIMESTAMP"
+              IS_PRE_RELEASE="true"
+            fi
+            
+            TAG_NAME="$VERSION"
+          else
+            # 从tag获取版本
+            VERSION="${GITHUB_REF#refs/tags/}"
+            IS_PRE_RELEASE="false"
+            TAG_NAME="$VERSION"
+          fi
+          
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "is_pre_release=$IS_PRE_RELEASE" >> $GITHUB_OUTPUT
+          echo "tag_name=$TAG_NAME" >> $GITHUB_OUTPUT
+          
+          echo "版本: $VERSION"
+          echo "预发布: $IS_PRE_RELEASE"
+          echo "标签: $TAG_NAME"
 
       - name: 设置 Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
 
       - name: 安装依赖
@@ -35,20 +86,39 @@ jobs:
 
       - name: 构建 Web + Electron 资源
         run: npm run web:build:app:pack
+        env:
+          APP_VERSION: ${{ steps.get-version.outputs.version }}
 
-
+  # Windows 构建
   build-windows:
     needs: test-web
     runs-on: windows-latest
+    
+    outputs:
+      artifact_name: ${{ steps.setup.outputs.artifact_name }}
+      asset_name: ${{ steps.setup.outputs.asset_name }}
 
     steps:
+      - name: 设置变量
+        id: setup
+        run: |
+          $version = "${{ needs.test-web.outputs.version }}"
+          $artifactName = "electron-app-windows-$version"
+          $assetName = "app-windows-$version.exe"
+          
+          echo "artifact_name=$artifactName" >> $env:GITHUB_OUTPUT
+          echo "asset_name=$assetName" >> $env:GITHUB_OUTPUT
+          
+          Write-Host "Artifact: $artifactName"
+          Write-Host "Asset: $assetName"
+
       - name: 检出代码
         uses: actions/checkout@v4
 
       - name: 设置 Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
 
       - name: 安装依赖
@@ -57,22 +127,54 @@ jobs:
       - name: 打包 Windows
         run: npm run web:build:app:win
         env:
+          APP_VERSION: ${{ needs.test-web.outputs.version }}
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           CSC_IDENTITY_AUTO_DISCOVERY: false
 
+      - name: 重命名安装程序
+        run: |
+          $assetName = "${{ steps.setup.outputs.asset_name }}"
+          Get-ChildItem -Path "dist" -Filter "*.exe" | ForEach-Object {
+            Rename-Item $_.FullName -NewName $assetName
+          }
 
+      - name: 上传 Windows 构建产物
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ steps.setup.outputs.artifact_name }}
+          path: dist/*.exe
+          retention-days: 7
+
+  # Linux 构建
   build-linux:
     needs: test-web
     runs-on: ubuntu-latest
+    
+    outputs:
+      artifact_name: ${{ steps.setup.outputs.artifact_name }}
+      asset_name: ${{ steps.setup.outputs.asset_name }}
 
     steps:
+      - name: 设置变量
+        id: setup
+        run: |
+          version="${{ needs.test-web.outputs.version }}"
+          artifact_name="electron-app-linux-$version"
+          asset_name="app-linux-$version.AppImage"
+          
+          echo "artifact_name=$artifact_name" >> $GITHUB_OUTPUT
+          echo "asset_name=$asset_name" >> $GITHUB_OUTPUT
+          
+          echo "Artifact: $artifact_name"
+          echo "Asset: $asset_name"
+
       - name: 检出代码
         uses: actions/checkout@v4
 
       - name: 设置 Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
 
       - name: 安装依赖
@@ -81,23 +183,59 @@ jobs:
       - name: 打包 Linux
         run: npm run web:build:app:linux
         env:
+          APP_VERSION: ${{ needs.test-web.outputs.version }}
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           CSC_IDENTITY_AUTO_DISCOVERY: false
           npm_config_target_platform: linux
 
+      - name: 重命名 AppImage 文件
+        run: |
+          cd dist
+          for file in *.AppImage; do
+            if [ -f "$file" ]; then
+              new_name="${{ steps.setup.outputs.asset_name }}"
+              mv "$file" "$new_name"
+              break
+            fi
+          done
 
+      - name: 上传 Linux 构建产物
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ steps.setup.outputs.artifact_name }}
+          path: dist/*.AppImage
+          retention-days: 7
+
+  # macOS 构建
   build-macos:
     needs: test-web
     runs-on: macos-latest
+    
+    outputs:
+      artifact_name: ${{ steps.setup.outputs.artifact_name }}
+      asset_name: ${{ steps.setup.outputs.asset_name }}
 
     steps:
+      - name: 设置变量
+        id: setup
+        run: |
+          version="${{ needs.test-web.outputs.version }}"
+          artifact_name="electron-app-macos-$version"
+          asset_name="app-macos-$version.dmg"
+          
+          echo "artifact_name=$artifact_name" >> $GITHUB_OUTPUT
+          echo "asset_name=$asset_name" >> $GITHUB_OUTPUT
+          
+          echo "Artifact: $artifact_name"
+          echo "Asset: $asset_name"
+
       - name: 检出代码
         uses: actions/checkout@v4
 
       - name: 设置 Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
 
       - name: 安装依赖
@@ -106,6 +244,89 @@ jobs:
       - name: 打包 macOS
         run: npm run web:build:app:mac
         env:
+          APP_VERSION: ${{ needs.test-web.outputs.version }}
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           CSC_IDENTITY_AUTO_DISCOVERY: false
           npm_config_target_platform: darwin
+
+      - name: 重命名 DMG 文件
+        run: |
+          cd dist
+          for file in *.dmg; do
+            if [ -f "$file" ]; then
+              new_name="${{ steps.setup.outputs.asset_name }}"
+              mv "$file" "$new_name"
+              break
+            fi
+          done
+
+      - name: 上传 macOS 构建产物
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ steps.setup.outputs.artifact_name }}
+          path: dist/*.dmg
+          retention-days: 7
+
+  # 创建 GitHub Release
+  create-release:
+    needs: [build-windows, build-linux, build-macos]
+    runs-on: ubuntu-latest
+    if: always()
+    
+    steps:
+      - name: 下载所有构建产物
+        run: |
+          mkdir -p release_assets
+          
+          # Windows
+          if [ "${{ needs.build-windows.result }}" = "success" ]; then
+            echo "下载 Windows 构建产物..."
+          fi
+          
+          # Linux
+          if [ "${{ needs.build-linux.result }}" = "success" ]; then
+            echo "下载 Linux 构建产物..."
+          fi
+          
+          # macOS
+          if [ "${{ needs.build-macos.result }}" = "success" ]; then
+            echo "下载 macOS 构建产物..."
+          fi
+
+      - name: 创建或更新 GitHub Release
+        id: create_release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ needs.test-web.outputs.tag_name }}
+          name: Release ${{ needs.test-web.outputs.version }}
+          body: |
+            ### 版本 ${{ needs.test-web.outputs.version }}
+            
+            **构建信息:**
+            - 触发方式: ${{ github.event_name }}
+            - 提交: ${{ github.sha }}
+            - 构建时间: ${{ github.run_created_at }}
+            
+            **包含的构建:**
+            - Windows: ${{ needs.build-windows.result }}
+            - Linux: ${{ needs.build-linux.result }}
+            - macOS: ${{ needs.build-macos.result }}
+            
+            **使用说明:**
+            1. 下载对应平台的安装程序
+            2. 运行安装程序
+            3. 如有问题，请查看文档或提交 Issue
+            
+          prerelease: ${{ needs.test-web.outputs.is_pre_release == 'true' }}
+          draft: false
+          files: release_assets/*
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: 输出发布信息
+        if: steps.create_release.outputs.url
+        run: |
+          echo "Release created successfully!"
+          echo "URL: ${{ steps.create_release.outputs.url }}"
+          echo "Version: ${{ needs.test-web.outputs.version }}"
+          echo "Pre-release: ${{ needs.test-web.outputs.is_pre_release }}"
